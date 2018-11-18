@@ -52,6 +52,8 @@ enum
 #define LABEL_UNSIGNED 8
 #define LABEL_HASPARM2 16
 #define LABEL_ISSTRING 32
+#define LABEL_READFUNC 64
+#define LABEL_WRITEFUNC 128
 
 #define VM_INSTMASK 0xfff
 

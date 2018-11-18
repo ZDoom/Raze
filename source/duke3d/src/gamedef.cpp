@@ -779,70 +779,82 @@ const char *EventNames[MAXEVENTS] =
 };
 
 #if !defined LUNATIC
-#define LABEL_SETUP(struct, memb, idx)                                                                                \
+#define LABEL_SETUP_UNMATCHED(struct, memb, name, idx)                                                                \
     {                                                                                                                 \
-        #memb, idx, sizeof(struct[0].memb) | (is_unsigned <decltype(struct[0].memb)>::value ? LABEL_UNSIGNED : 0), 0, \
-        offsetof(std::remove_pointer <decltype(struct)>::type, memb)                                                  \
+        name, idx, sizeof(struct[0].memb) | (is_unsigned <decltype(struct[0].memb)>::value ? LABEL_UNSIGNED : 0), 0, \
+        offsetof(std::remove_pointer <decltype(&struct[0])>::type, memb)                                              \
     }
 
-const memberlabel_t SectorLabels[]=
-{
-    { "wallptr",         SECTOR_WALLPTR,         0, 0, -1 },
-    { "wallnum",         SECTOR_WALLNUM,         0, 0, -1 },
-    { "ceilingz",        SECTOR_CEILINGZ,        0, 0, -1 },
-    { "ceilingzgoal",    SECTOR_CEILINGZGOAL,    0, 0, -1 },
-    { "ceilingzvel",     SECTOR_CEILINGZVEL,     0, 0, -1 },
-    { "floorz",          SECTOR_FLOORZ,          0, 0, -1 },
-    { "floorzgoal",      SECTOR_FLOORZGOAL,      0, 0, -1 },
-    { "floorzvel",       SECTOR_FLOORZVEL,       0, 0, -1 },
-    { "ceilingstat",     SECTOR_CEILINGSTAT,     0, 0, -1 },
-    { "floorstat",       SECTOR_FLOORSTAT,       0, 0, -1 },
-    { "ceilingpicnum",   SECTOR_CEILINGPICNUM,   0, 0, -1 },
-    { "ceilingslope",    SECTOR_CEILINGSLOPE,    0, 0, -1 },
-    { "ceilingshade",    SECTOR_CEILINGSHADE,    0, 0, -1 },
-    { "ceilingpal",      SECTOR_CEILINGPAL,      0, 0, -1 },
-    { "ceilingxpanning", SECTOR_CEILINGXPANNING, 0, 0, -1 },
-    { "ceilingypanning", SECTOR_CEILINGYPANNING, 0, 0, -1 },
-    { "floorpicnum",     SECTOR_FLOORPICNUM,     0, 0, -1 },
-    { "floorslope",      SECTOR_FLOORSLOPE,      0, 0, -1 },
-    { "floorshade",      SECTOR_FLOORSHADE,      0, 0, -1 },
-    { "floorpal",        SECTOR_FLOORPAL,        0, 0, -1 },
-    { "floorxpanning",   SECTOR_FLOORXPANNING,   0, 0, -1 },
-    { "floorypanning",   SECTOR_FLOORYPANNING,   0, 0, -1 },
-    { "visibility",      SECTOR_VISIBILITY,      0, 0, -1 },
-    { "fogpal",          SECTOR_FOGPAL,          0, 0, -1 }, // formerly filler
-    { "alignto",         SECTOR_FOGPAL,          0, 0, -1 }, // formerly filler
-    { "lotag",           SECTOR_LOTAG,           0, 0, -1 },
-    { "hitag",           SECTOR_HITAG,           0, 0, -1 },
-    { "extra",           SECTOR_EXTRA,           0, 0, -1 },
-    { "ceilingbunch",    SECTOR_CEILINGBUNCH,    0, 0, -1 },
-    { "floorbunch",      SECTOR_FLOORBUNCH,      0, 0, -1 },
-    { "ulotag",          SECTOR_ULOTAG,          0, 0, -1 },
-    { "uhitag",          SECTOR_UHITAG,          0, 0, -1 },
+#define LABEL_SETUP(struct, memb, idx) LABEL_SETUP_UNMATCHED(struct, memb, #memb, idx)
+
+const memberlabel_t SectorLabels[] = {
+    { "wallptr",                         SECTOR_WALLPTR, sizeof(sector[0].wallptr) | LABEL_WRITEFUNC, 0, offsetof(usectortype, wallptr) },
+    LABEL_SETUP(sector, wallnum,         SECTOR_WALLNUM),
+
+    LABEL_SETUP(sector, ceilingz,        SECTOR_CEILINGZ),
+    { "ceilingzgoal",                    SECTOR_CEILINGZGOAL, 0, 0, -1 },
+    { "ceilingzvel",                     SECTOR_CEILINGZVEL, 0, 0, -1 },
+
+    LABEL_SETUP(sector, floorz,          SECTOR_FLOORZ),
+    { "floorzgoal",                      SECTOR_FLOORZGOAL, 0, 0, -1 },
+    { "floorzvel",                       SECTOR_FLOORZVEL, 0, 0, -1 },
+
+    LABEL_SETUP(sector, ceilingstat,     SECTOR_CEILINGSTAT),
+    LABEL_SETUP(sector, floorstat,       SECTOR_FLOORSTAT),
+
+    LABEL_SETUP(sector, ceilingpicnum,   SECTOR_CEILINGPICNUM),
+    { "ceilingslope",                    SECTOR_CEILINGSLOPE, sizeof(sector[0].ceilingheinum), 0, offsetof(usectortype, ceilingheinum) },
+    LABEL_SETUP(sector, ceilingshade,    SECTOR_CEILINGSHADE),
+    LABEL_SETUP(sector, ceilingpal,      SECTOR_CEILINGPAL),
+    LABEL_SETUP(sector, ceilingxpanning, SECTOR_CEILINGXPANNING),
+    LABEL_SETUP(sector, ceilingypanning, SECTOR_CEILINGYPANNING),
+
+    LABEL_SETUP(sector, floorpicnum,     SECTOR_FLOORPICNUM),
+    { "floorslope",                      SECTOR_FLOORSLOPE, sizeof(sector[0].floorheinum), 0, offsetof(usectortype, floorheinum) },
+    LABEL_SETUP(sector, floorshade,      SECTOR_FLOORSHADE),
+    LABEL_SETUP(sector, floorpal,        SECTOR_FLOORPAL),
+    LABEL_SETUP(sector, floorxpanning,   SECTOR_FLOORXPANNING),
+    LABEL_SETUP(sector, floorypanning,   SECTOR_FLOORYPANNING),
+
+    LABEL_SETUP(sector, visibility,      SECTOR_VISIBILITY),
+    LABEL_SETUP(sector, fogpal,          SECTOR_FOGPAL),
+
+    LABEL_SETUP(sector, lotag,           SECTOR_LOTAG),
+    LABEL_SETUP(sector, hitag,           SECTOR_HITAG),
+    LABEL_SETUP(sector, extra,           SECTOR_EXTRA),
+
+    { "ceilingbunch",                    SECTOR_CEILINGBUNCH, 0, 0, -1 },
+    { "floorbunch",                      SECTOR_FLOORBUNCH, 0, 0, -1 },
+
+    { "ulotag",                          SECTOR_ULOTAG, sizeof(sector[0].lotag) | LABEL_UNSIGNED, 0, offsetof(usectortype, lotag) },
+    { "uhitag",                          SECTOR_UHITAG, sizeof(sector[0].hitag) | LABEL_UNSIGNED, 0, offsetof(usectortype, hitag) },
+
 };
 
 const memberlabel_t WallLabels[]=
 {
-    { "x",          WALL_X,          0, 0, -1 },
-    { "y",          WALL_Y,          0, 0, -1 },
-    { "point2",     WALL_POINT2,     0, 0, -1 },
-    { "nextwall",   WALL_NEXTWALL,   0, 0, -1 },
-    { "nextsector", WALL_NEXTSECTOR, 0, 0, -1 },
-    { "cstat",      WALL_CSTAT,      0, 0, -1 },
-    { "picnum",     WALL_PICNUM,     0, 0, -1 },
-    { "overpicnum", WALL_OVERPICNUM, 0, 0, -1 },
-    { "shade",      WALL_SHADE,      0, 0, -1 },
-    { "pal",        WALL_PAL,        0, 0, -1 },
-    { "xrepeat",    WALL_XREPEAT,    0, 0, -1 },
-    { "yrepeat",    WALL_YREPEAT,    0, 0, -1 },
-    { "xpanning",   WALL_XPANNING,   0, 0, -1 },
-    { "ypanning",   WALL_YPANNING,   0, 0, -1 },
-    { "lotag",      WALL_LOTAG,      0, 0, -1 },
-    { "hitag",      WALL_HITAG,      0, 0, -1 },
-    { "extra",      WALL_EXTRA,      0, 0, -1 },
-    { "ulotag",     WALL_ULOTAG,     0, 0, -1 },
-    { "uhitag",     WALL_UHITAG,     0, 0, -1 },
-    { "blend",      WALL_BLEND,      0, 0, -1 },
+    LABEL_SETUP(wall, x,          WALL_X),
+    LABEL_SETUP(wall, y,          WALL_Y),
+    LABEL_SETUP(wall, point2,     WALL_POINT2),
+    LABEL_SETUP(wall, nextwall,   WALL_NEXTWALL),
+    LABEL_SETUP(wall, nextsector, WALL_NEXTSECTOR),
+    LABEL_SETUP(wall, cstat,      WALL_CSTAT),
+    LABEL_SETUP(wall, picnum,     WALL_PICNUM),
+    LABEL_SETUP(wall, overpicnum, WALL_OVERPICNUM),
+    LABEL_SETUP(wall, shade,      WALL_SHADE),
+    LABEL_SETUP(wall, pal,        WALL_PAL),
+    LABEL_SETUP(wall, xrepeat,    WALL_XREPEAT),
+    LABEL_SETUP(wall, yrepeat,    WALL_YREPEAT),
+    LABEL_SETUP(wall, xpanning,   WALL_XPANNING),
+    LABEL_SETUP(wall, ypanning,   WALL_YPANNING),
+    LABEL_SETUP(wall, lotag,      WALL_LOTAG),
+    LABEL_SETUP(wall, hitag,      WALL_HITAG),
+    LABEL_SETUP(wall, extra,      WALL_EXTRA),
+
+    { "ulotag", WALL_ULOTAG, sizeof(wall[0].lotag) | LABEL_UNSIGNED, 0, offsetof(uwalltype, lotag) },
+    { "uhitag", WALL_UHITAG, sizeof(wall[0].hitag) | LABEL_UNSIGNED, 0, offsetof(uwalltype, hitag) },
+
+    { "blend", WALL_BLEND, 0, 0, -1 },
 };
 
 const memberlabel_t ActorLabels[]=
@@ -1142,7 +1154,6 @@ const memberlabel_t ProjectileLabels[]=
 
 const memberlabel_t UserdefsLabels[]=
 {
-    //   { "<null>", 1,                                          0, 0, -1 },
     { "god",                    USERDEFS_GOD,                    0, 0, -1 },
     { "warp_on",                USERDEFS_WARP_ON,                0, 0, -1 },
     { "cashman",                USERDEFS_CASHMAN,                0, 0, -1 },
@@ -1376,7 +1387,7 @@ const tokenmap_t iter_tokens [] =
     { "sprofstat",       ITER_SPRITESOFSTATUS },
     { "walofsec",        ITER_WALLSOFSECTOR },
 };
-
+#undef LABEL_SETUP
 #endif
 
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
@@ -3577,14 +3588,9 @@ DO_DEFSTATE:
 
             if (tw == CON_USERACTOR)
             {
-                if (j & 1)
-                    g_tile[*g_scriptPtr].flags |= SFLAG_BADGUY;
-
-                if (j & 2)
-                    g_tile[*g_scriptPtr].flags |= (SFLAG_BADGUY|SFLAG_BADGUYSTAYPUT);
-
-                if (j & 4)
-                    g_tile[*g_scriptPtr].flags |= SFLAG_ROTFIXED;
+                if (j & 1) g_tile[*g_scriptPtr].flags |= SFLAG_BADGUY;
+                if (j & 2) g_tile[*g_scriptPtr].flags |= (SFLAG_BADGUY|SFLAG_BADGUYSTAYPUT);
+                if (j & 4) g_tile[*g_scriptPtr].flags |= SFLAG_ROTFIXED;
             }
 
             for (j=0; j<4; j++)

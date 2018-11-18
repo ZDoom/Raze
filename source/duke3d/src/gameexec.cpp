@@ -4401,20 +4401,32 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_SETSECTOR:
                 insptr++;
                 {
-                    int const sectNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : sprite[vm.spriteNum].sectnum;
-                    int const labelNum = *insptr++;
+                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : sprite[vm.spriteNum].sectnum;
+                    int const   labelNum  = *insptr++;
+                    auto const &sectLabel = SectorLabels[labelNum];
+                    int const   newValue  = Gv_GetVarX(*insptr++);
 
-                    VM_SetSector(sectNum, labelNum, Gv_GetVarX(*insptr++));
+                    if (sectLabel.offset == -1 || sectLabel.flags & LABEL_WRITEFUNC)
+                    {
+                        VM_SetSector(sectNum, labelNum, Gv_GetVarX(*insptr++));
+                        continue;
+                    }
+
+                    VM_SetStruct(sectLabel.flags, (intptr_t *)((char *)&sector[sectNum] + sectLabel.offset), newValue);
                     continue;
                 }
 
             case CON_GETSECTOR:
                 insptr++;
                 {
-                    int const sectNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : sprite[vm.spriteNum].sectnum;
-                    int const labelNum = *insptr++;
+                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : sprite[vm.spriteNum].sectnum;
+                    int const   labelNum  = *insptr++;
+                    auto const &sectLabel = SectorLabels[labelNum];
 
-                    Gv_SetVarX(*insptr++, VM_GetSector(sectNum, labelNum));
+                    Gv_SetVarX(*insptr++,
+                               (sectLabel.offset != -1 && (sectLabel.flags & LABEL_READFUNC) != LABEL_READFUNC)
+                               ? VM_GetStruct(sectLabel.flags, (intptr_t *)((char *)&sector[sectNum] + sectLabel.offset))
+                               : VM_GetSector(sectNum, labelNum));
                     continue;
                 }
 
@@ -4647,7 +4659,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_GETPROJECTILE:
                 insptr++;
                 {
-                    tw                 = Gv_GetVarX(*insptr++);
+                    tw = Gv_GetVarX(*insptr++);
                     int const labelNum = *insptr++;
                     Gv_SetVarX(*insptr++, VM_GetProjectile(tw, labelNum));
                     continue;
@@ -4656,7 +4668,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_SETPROJECTILE:
                 insptr++;
                 {
-                    tw                 = Gv_GetVarX(*insptr++);
+                    tw = Gv_GetVarX(*insptr++);
                     int const labelNum = *insptr++;
                     VM_SetProjectile(tw, labelNum, Gv_GetVarX(*insptr++));
                     continue;
@@ -4667,10 +4679,19 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 {
                     tw = *insptr++;
 
-                    int const wallNum  = Gv_GetVarX(tw);
-                    int const labelNum = *insptr++;
+                    int const   wallNum   = Gv_GetVarX(tw);
+                    int const   labelNum  = *insptr++;
+                    auto const &wallLabel = WallLabels[labelNum];
+                    int const   newValue  = Gv_GetVarX(*insptr++);
 
-                    VM_SetWall(wallNum, labelNum, Gv_GetVarX(*insptr++));
+                    if (wallLabel.offset == -1 || wallLabel.flags & LABEL_WRITEFUNC)
+                    {
+                        VM_SetWall(wallNum, labelNum, newValue);
+                        continue;
+                    }
+
+                    VM_SetStruct(wallLabel.flags, (intptr_t *)((char *)&wall[wallNum] + wallLabel.offset), newValue);
+
                     continue;
                 }
 
@@ -4679,10 +4700,15 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 {
                     tw = *insptr++;
 
-                    int const wallNum  = Gv_GetVarX(tw);
-                    int const labelNum = *insptr++;
+                    int const   wallNum   = Gv_GetVarX(tw);
+                    int const   labelNum  = *insptr++;
+                    auto const &wallLabel = WallLabels[labelNum];
 
-                    Gv_SetVarX(*insptr++, VM_GetWall(wallNum, labelNum));
+                    Gv_SetVarX(*insptr++,
+                               (wallLabel.offset != -1 && (wallLabel.flags & LABEL_READFUNC) != LABEL_READFUNC)
+                               ? VM_GetStruct(wallLabel.flags, (intptr_t *)((char *)&wall[wallNum] + wallLabel.offset))
+                               : VM_GetWall(wallNum, labelNum));
+
                     continue;
                 }
 

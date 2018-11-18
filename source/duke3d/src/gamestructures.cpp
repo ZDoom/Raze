@@ -34,7 +34,7 @@ int32_t __fastcall VM_GetPlayerInput(int const playerNum, int32_t labelNum);
 void __fastcall VM_SetPlayerInput(int const playerNum, int const labelNum, int32_t const newValue);
 int32_t __fastcall VM_GetWall(int const wallNum, int32_t labelNum);
 void __fastcall VM_SetWall(int const wallNum, int const labelNum, int32_t const newValue);
-int32_t __fastcall VM_GetSector(int const sectNum, int labelNum);
+int32_t __fastcall VM_GetSector(int const sectNum, int32_t labelNum);
 void __fastcall VM_SetSector(int const sectNum, int const labelNum, int32_t newValue);
 int32_t __fastcall VM_GetSprite(int const spriteNum, int32_t labelNum, int const lParm2);
 void __fastcall VM_SetSprite(int const spriteNum, int const labelNum, int const lParm2, int32_t const newValue);
@@ -969,8 +969,6 @@ void __fastcall VM_SetPlayerInput(int const playerNum, int const labelNum, int32
     }
 }
 
-
-
 int32_t __fastcall VM_GetWall(int const wallNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
@@ -979,31 +977,8 @@ int32_t __fastcall VM_GetWall(int const wallNum, int32_t labelNum)
         return -1;
     }
 
-    auto const &w = *(uwalltype *)&wall[wallNum];
-
     switch (labelNum)
     {
-        case WALL_X:          labelNum = w.x;          break;
-        case WALL_Y:          labelNum = w.y;          break;
-        case WALL_POINT2:     labelNum = w.point2;     break;
-        case WALL_NEXTWALL:   labelNum = w.nextwall;   break;
-        case WALL_NEXTSECTOR: labelNum = w.nextsector; break;
-        case WALL_CSTAT:      labelNum = w.cstat;      break;
-        case WALL_PICNUM:     labelNum = w.picnum;     break;
-        case WALL_OVERPICNUM: labelNum = w.overpicnum; break;
-        case WALL_SHADE:      labelNum = w.shade;      break;
-        case WALL_PAL:        labelNum = w.pal;        break;
-        case WALL_XREPEAT:    labelNum = w.xrepeat;    break;
-        case WALL_YREPEAT:    labelNum = w.yrepeat;    break;
-        case WALL_XPANNING:   labelNum = w.xpanning;   break;
-        case WALL_YPANNING:   labelNum = w.ypanning;   break;
-
-        case WALL_LOTAG:  labelNum =  (int16_t)w.lotag; break;
-        case WALL_HITAG:  labelNum =  (int16_t)w.hitag; break;
-        case WALL_ULOTAG: labelNum = (uint16_t)w.lotag; break;
-        case WALL_UHITAG: labelNum = (uint16_t)w.hitag; break;
-
-        case WALL_EXTRA: labelNum = w.extra; break;
         case WALL_BLEND:
 #ifdef NEW_MAP_FORMAT
             labelNum = w.blend;
@@ -1026,31 +1001,8 @@ void __fastcall VM_SetWall(int const wallNum, int const labelNum, int32_t const 
         return;
     }
 
-    auto &w = wall[wallNum];
-
     switch (labelNum)
     {
-        case WALL_X:          w.x          = newValue; break;
-        case WALL_Y:          w.y          = newValue; break;
-        case WALL_POINT2:     w.point2     = newValue; break;
-        case WALL_NEXTWALL:   w.nextwall   = newValue; break;
-        case WALL_NEXTSECTOR: w.nextsector = newValue; break;
-        case WALL_CSTAT:      w.cstat      = newValue; break;
-        case WALL_PICNUM:     w.picnum     = newValue; break;
-        case WALL_OVERPICNUM: w.overpicnum = newValue; break;
-        case WALL_SHADE:      w.shade      = newValue; break;
-        case WALL_PAL:        w.pal        = newValue; break;
-        case WALL_XREPEAT:    w.xrepeat    = newValue; break;
-        case WALL_YREPEAT:    w.yrepeat    = newValue; break;
-        case WALL_XPANNING:   w.xpanning   = newValue; break;
-        case WALL_YPANNING:   w.ypanning   = newValue; break;
-
-        case WALL_LOTAG:  w.lotag =  (int16_t)newValue; break;
-        case WALL_HITAG:  w.hitag =  (int16_t)newValue; break;
-        case WALL_ULOTAG: w.lotag = (uint16_t)newValue; break;
-        case WALL_UHITAG: w.hitag = (uint16_t)newValue; break;
-
-        case WALL_EXTRA: w.extra = newValue; break;
         case WALL_BLEND:
 #ifdef NEW_MAP_FORMAT
             w.blend = newValue;
@@ -1062,7 +1014,7 @@ void __fastcall VM_SetWall(int const wallNum, int const labelNum, int32_t const 
 
 }
 
-int32_t __fastcall VM_GetSector(int const sectNum, int labelNum)
+int32_t __fastcall VM_GetSector(int const sectNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
     {
@@ -1074,12 +1026,6 @@ int32_t __fastcall VM_GetSector(int const sectNum, int labelNum)
 
     switch (labelNum)
     {
-        case SECTOR_WALLPTR:  labelNum = s.wallptr;  break;
-        case SECTOR_WALLNUM:  labelNum = s.wallnum;  break;
-
-        case SECTOR_CEILINGZ: labelNum = s.ceilingz; break;
-        case SECTOR_FLOORZ:   labelNum = s.floorz;   break;
-
         case SECTOR_CEILINGZVEL:
             labelNum = (GetAnimationGoal(&s.ceilingz) == -1) ? 0 : s.extra; break;
         case SECTOR_CEILINGZGOAL:
@@ -1090,28 +1036,6 @@ int32_t __fastcall VM_GetSector(int const sectNum, int labelNum)
 
         case SECTOR_FLOORZGOAL:
             labelNum = GetAnimationGoal(&s.floorz); break;
-
-        case SECTOR_CEILINGSTAT:     labelNum = s.ceilingstat;     break;
-        case SECTOR_FLOORSTAT:       labelNum = s.floorstat;       break;
-        case SECTOR_CEILINGPICNUM:   labelNum = s.ceilingpicnum;   break;
-        case SECTOR_CEILINGSLOPE:    labelNum = s.ceilingheinum;   break;
-        case SECTOR_CEILINGSHADE:    labelNum = s.ceilingshade;    break;
-        case SECTOR_CEILINGPAL:      labelNum = s.ceilingpal;      break;
-        case SECTOR_CEILINGXPANNING: labelNum = s.ceilingxpanning; break;
-        case SECTOR_CEILINGYPANNING: labelNum = s.ceilingypanning; break;
-        case SECTOR_FLOORPICNUM:     labelNum = s.floorpicnum;     break;
-        case SECTOR_FLOORSLOPE:      labelNum = s.floorheinum;     break;
-        case SECTOR_FLOORSHADE:      labelNum = s.floorshade;      break;
-        case SECTOR_FLOORPAL:        labelNum = s.floorpal;        break;
-        case SECTOR_FLOORXPANNING:   labelNum = s.floorxpanning;   break;
-        case SECTOR_FLOORYPANNING:   labelNum = s.floorypanning;   break;
-        case SECTOR_VISIBILITY:      labelNum = s.visibility;      break;
-        case SECTOR_FOGPAL:          labelNum = s.fogpal;          break;
-        case SECTOR_LOTAG:           labelNum = (int16_t)s.lotag;  break;
-        case SECTOR_HITAG:           labelNum = (int16_t)s.hitag;  break;
-        case SECTOR_ULOTAG:          labelNum = (uint16_t)s.lotag; break;
-        case SECTOR_UHITAG:          labelNum = (uint16_t)s.hitag; break;
-        case SECTOR_EXTRA:           labelNum = s.extra;           break;
 
         case SECTOR_CEILINGBUNCH:
         case SECTOR_FLOORBUNCH:
@@ -1143,10 +1067,6 @@ void __fastcall VM_SetSector(int const sectNum, int const labelNum, int32_t newV
         case SECTOR_WALLPTR:
             setfirstwall(sectNum, newValue); break;
 
-        case SECTOR_WALLNUM:  s.wallnum  = newValue; break;
-        case SECTOR_CEILINGZ: s.ceilingz = newValue; break;
-        case SECTOR_FLOORZ:   s.floorz   = newValue; break;
-
         case SECTOR_CEILINGZVEL:
             s.extra = newValue;
             if ((newValue = GetAnimationGoal(&s.ceilingz)) != -1)
@@ -1165,31 +1085,11 @@ void __fastcall VM_SetSector(int const sectNum, int const labelNum, int32_t newV
             }
             break;
 
-        case SECTOR_CEILINGSTAT:     s.ceilingstat     = newValue; break;
-        case SECTOR_FLOORSTAT:       s.floorstat       = newValue; break;
-        case SECTOR_CEILINGPICNUM:   s.ceilingpicnum   = newValue; break;
-        case SECTOR_CEILINGSLOPE:    s.ceilingheinum   = newValue; break;
-        case SECTOR_CEILINGSHADE:    s.ceilingshade    = newValue; break;
-        case SECTOR_CEILINGPAL:      s.ceilingpal      = newValue; break;
-        case SECTOR_CEILINGXPANNING: s.ceilingxpanning = newValue; break;
-        case SECTOR_CEILINGYPANNING: s.ceilingypanning = newValue; break;
-        case SECTOR_FLOORPICNUM:     s.floorpicnum     = newValue; break;
-        case SECTOR_FLOORSLOPE:      s.floorheinum     = newValue; break;
-        case SECTOR_FLOORSHADE:      s.floorshade      = newValue; break;
-        case SECTOR_FLOORPAL:        s.floorpal        = newValue; break;
-        case SECTOR_FLOORXPANNING:   s.floorxpanning   = newValue; break;
-        case SECTOR_FLOORYPANNING:   s.floorypanning   = newValue; break;
-        case SECTOR_VISIBILITY:      s.visibility      = newValue; break;
-        case SECTOR_FOGPAL:          s.fogpal          = newValue; break;
-        case SECTOR_LOTAG:           s.lotag =  (int16_t)newValue; break;
-        case SECTOR_HITAG:           s.hitag =  (int16_t)newValue; break;
-        case SECTOR_ULOTAG:          s.lotag = (uint16_t)newValue; break;
-        case SECTOR_UHITAG:          s.hitag = (uint16_t)newValue; break;
-        case SECTOR_EXTRA:           s.extra           = newValue; break;
-
         case SECTOR_CEILINGBUNCH:
         case SECTOR_FLOORBUNCH:
             break;
+
+        default: EDUKE32_UNREACHABLE_SECTION(break);
     }
 }
 

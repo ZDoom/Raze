@@ -596,13 +596,13 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
 
     switch (aGameArrays[id].flags & GAMEARRAY_TYPE_MASK)
     {
-        case 0:               returnValue = (aGameArrays[id].pValues)[index]; break;
+        case 0: returnValue = (aGameArrays[id].pValues)[index]; break;
 
         case GAMEARRAY_INT16: returnValue = ((int16_t *)aGameArrays[id].pValues)[index]; break;
-        case GAMEARRAY_INT8:  returnValue = ((int8_t *)aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_INT8:  returnValue =  ((int8_t *)aGameArrays[id].pValues)[index]; break;
 
-        case GAMEARRAY_UINT16:returnValue = ((uint16_t *)aGameArrays[id].pValues)[index]; break;
-        case GAMEARRAY_UINT8: returnValue = ((uint8_t *)aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_UINT16: returnValue = ((uint16_t *)aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_UINT8:  returnValue =  ((uint8_t *)aGameArrays[id].pValues)[index]; break;
 
         case GAMEARRAY_BITMAP:returnValue = !!(((uint8_t *)aGameArrays[id].pValues)[index >> 3] & pow2char[index & 7]); break;
     }
@@ -748,13 +748,19 @@ special:
         case STRUCT_SECTOR:
             if (arrayIndexVar == g_thisActorVarID)
                 arrayIndex = vm.pSprite->sectnum;
+
             CHECK_INDEX(MAXSECTORS);
-            returnValue = VM_GetSector(arrayIndex, labelNum);
+
+            returnValue = (SectorLabels[labelNum].offset != -1 && (SectorLabels[labelNum].flags & LABEL_READFUNC) == 0)
+                          ? VM_GetStruct(SectorLabels[labelNum].flags, (intptr_t *)((char *)&sector[arrayIndex] + SectorLabels[labelNum].offset))
+                          : VM_GetSector(arrayIndex, labelNum);
             break;
 
         case STRUCT_WALL:
             CHECK_INDEX(MAXWALLS);
-            returnValue = VM_GetWall(arrayIndex, labelNum);
+            returnValue = (WallLabels[labelNum].offset != -1 && (WallLabels[labelNum].flags & LABEL_READFUNC) == 0)
+                              ? VM_GetStruct(WallLabels[labelNum].flags, (intptr_t *)((char *)&wall[arrayIndex] + WallLabels[labelNum].offset))
+                              : VM_GetWall(arrayIndex, labelNum);
             break;
 
         case STRUCT_USERDEF:
@@ -951,13 +957,19 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
             case STRUCT_SECTOR:
                 if (arrayIndexVar == g_thisActorVarID)
                     arrayIndex = vm.pSprite->sectnum;
+
                 CHECK_INDEX(MAXSECTORS, GVX_BADSECTOR);
-                returnValue = VM_GetSector(arrayIndex, labelNum);
+
+                returnValue = (SectorLabels[labelNum].offset != -1 && (SectorLabels[labelNum].flags & LABEL_READFUNC) == 0)
+                              ? VM_GetStruct(SectorLabels[labelNum].flags, (intptr_t *)((char *)&sector[arrayIndex] + SectorLabels[labelNum].offset))
+                              : VM_GetSector(arrayIndex, labelNum);
                 break;
 
             case STRUCT_WALL:
                 CHECK_INDEX(MAXWALLS, GVX_BADWALL);
-                returnValue = VM_GetWall(arrayIndex, labelNum);
+                returnValue = (WallLabels[labelNum].offset != -1 && (WallLabels[labelNum].flags & LABEL_READFUNC) == 0)
+                              ? VM_GetStruct(WallLabels[labelNum].flags, (intptr_t *)((char *)&wall[arrayIndex] + WallLabels[labelNum].offset))
+                              : VM_GetWall(arrayIndex, labelNum);
                 break;
 
             case STRUCT_USERDEF:
