@@ -1,43 +1,41 @@
 // SDL interface layer for the Build Engine
 // Use SDL 1.2 or 2.0 from http://www.libsdl.org
 
-#include "compat.h"
 #include <signal.h>
-#include "sdl_inc.h"
-#include "renderlayer.h"
-#include "cache1d.h"
-//#include "pragmas.h"
+
 #include "a.h"
 #include "build.h"
-#include "osd.h"
+#include "cache1d.h"
+#include "compat.h"
 #include "engine_priv.h"
+#include "osd.h"
 #include "palette.h"
-
+#include "renderlayer.h"
+#include "sdl_inc.h"
 #include "softsurface.h"
+
 #ifdef USE_OPENGL
 # include "glad/glad.h"
 # include "glbuild.h"
 # include "glsurface.h"
 #endif
 
-#if defined _WIN32
-# include "winbits.h"
-#endif
-#if defined __APPLE__
-# include "osxbits.h"
-# include <mach/mach.h>
-# include <mach/mach_time.h>
-#endif
 #if defined HAVE_GTK2
 # include "gtkbits.h"
 #endif
+
 #ifdef __ANDROID__
 # include <android/log.h>
-#endif
-#if defined GEKKO
+#elif defined __APPLE__
+# include "osxbits.h"
+# include <mach/mach.h>
+# include <mach/mach_time.h>
+#elif defined GEKKO
 # include "wiibits.h"
 # include <ogc/lwp.h>
 # include <ogc/lwp_watchdog.h>
+#elif defined _WIN32
+# include "winbits.h"
 #endif
 
 #if SDL_MAJOR_VERSION != 1

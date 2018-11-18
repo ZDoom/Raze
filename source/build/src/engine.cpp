@@ -6,36 +6,34 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 // by the EDuke32 team (development@voidpoint.com)
 
-#define ENGINE
+#define engine_c_
 
-#include "compat.h"
-#include "build.h"
-#include "editor.h"
-#include "pragmas.h"
-#include "cache1d.h"
 #include "a.h"
-#include "osd.h"
-#include "crc32.h"
-#include "lz4.h"
-#include "colmatch.h"
-
 #include "baselayer.h"
+#include "build.h"
+#include "cache1d.h"
+#include "colmatch.h"
+#include "compat.h"
+#include "crc32.h"
+#include "editor.h"
+#include "engine_priv.h"
+#include "lz4.h"
+#include "osd.h"
+#include "palette.h"
+#include "pragmas.h"
 #include "scriptfile.h"
-
 #include "softsurface.h"
+
 #ifdef USE_OPENGL
 # include "glad/glad.h"
 # include "glsurface.h"
+# include "hightile.h"
 # include "mdsprite.h"
 # ifdef POLYMER
 #  include "polymer.h"
 # endif
-# include "hightile.h"
 # include "polymost.h"
 #endif
-
-#include "engine_priv.h"
-#include "palette.h"
 
 #ifdef LUNATIC
 # include "lunatic.h"

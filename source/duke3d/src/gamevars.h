@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef gamevars_h_
 #define gamevars_h_
 
-#include "gamedef.h"
 #include "fix16.hpp"
+#include "gamedef.h"
 
 #define MAXGAMEVARS 2048 // must be a power of two
 #define MAXVARLABEL 26

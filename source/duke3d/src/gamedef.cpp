@@ -20,17 +20,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "duke3d.h"
-#include "namesdyn.h"
-#include "gamedef.h"
-#include "gameexec.h"
-#include "savegame.h"
+#include "cheats.h"
 #include "common.h"
 #include "common_game.h"
-#include "cheats.h"
-
-#include "osd.h"
 #include "crc32.h"
+#include "duke3d.h"
+#include "gamedef.h"
+#include "gameexec.h"
+#include "namesdyn.h"
+#include "osd.h"
+#include "savegame.h"
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 

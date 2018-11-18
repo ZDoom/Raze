@@ -20,16 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "compat.h"
 #include "baselayer.h"
-
-#include "scriptfile.h"
 #include "cache1d.h"
-#include "crc32.h"
-
-#include "duke3d.h"
 #include "common_game.h"
+#include "compat.h"
+#include "crc32.h"
+#include "duke3d.h"
 #include "grpscan.h"
+#include "scriptfile.h"
 
 #ifndef EDUKE32_STANDALONE
 static void process_vaca13(int32_t crcval);

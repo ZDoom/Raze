@@ -21,7 +21,7 @@ void hash_loop(hashtable_t *t, void(*func)(const char *, intptr_t))
 
 void hash_free(hashtable_t *t)
 {
-    if (t->items == NULL)
+    if (t == NULL || t->items == NULL)
         return;
 
     int remaining = t->size - 1;

@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef EDUKE32_MACROS_H_
 #define EDUKE32_MACROS_H_
 
+#include "mmulti.h"
+
 // Macros, some from SW source
 
 #define BGSTRETCH (ud.bgstretch ? 1024 : 0)

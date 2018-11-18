@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef demo_h_
 #define demo_h_
 
+#include "compat.h"
+
 #define DEMOFN_FMT "edemo%03d.edm"
 #define MAXDEMOS 1000
 

@@ -1,7 +1,7 @@
+#include "baselayer.h"
 #include "compat.h"
 #include "glad/glad.h"
 #include "glbuild.h"
-#include "baselayer.h"
 
 #if defined USE_OPENGL
 

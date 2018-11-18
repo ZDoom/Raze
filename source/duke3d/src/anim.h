@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef anim_h_
 #define anim_h_
 
+#include "compat.h"
+#include "hash.h"
+
 typedef struct {
     uint16_t frame;
     int16_t sound;

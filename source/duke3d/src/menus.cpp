@@ -20,17 +20,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "cheats.h"
 #include "compat.h"
+#include "demo.h"
 #include "duke3d.h"
+#include "input.h"
+#include "in_android.h"
+#include "menus.h"
 #include "osdcmds.h"
 #include "savegame.h"
-#include "demo.h"
 #include "xxhash.h"
-#include "input.h"
-#include "menus.h"
-#include "cheats.h"
 
-#include "in_android.h"
 #ifndef __ANDROID__
 droidinput_t droidinput;
 #endif

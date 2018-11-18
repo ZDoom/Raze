@@ -3,14 +3,14 @@
 #ifndef polymer_h_
 # define polymer_h_
 
-# include "compat.h"
 # include "baselayer.h"
-# include "glad/glad.h"
 # include "build.h"
+# include "compat.h"
+# include "glad/glad.h"
 # include "glbuild.h"
-# include "osd.h"
 # include "hightile.h"
 # include "mdsprite.h"
+# include "osd.h"
 # include "polymost.h"
 # include "pragmas.h"
 

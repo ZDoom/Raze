@@ -20,12 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "anim.h"
 #include "colmatch.h"
 #include "compat.h"
-
+#include "debugbreak.h"
 #include "duke3d.h"
-
-#include "anim.h"
 #include "input.h"
 #include "menus.h"
 #include "osdcmds.h"
@@ -35,8 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef LUNATIC
 # include "lunatic_game.h"
 #endif
-
-#include "debugbreak.h"
 
 #if KRANDDEBUG
 # define GAMEEXEC_INLINE

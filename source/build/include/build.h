@@ -19,12 +19,12 @@
 # error Visual Studio 2013 is the minimum supported version.
 #endif
 
+#include "collections.h"
 #include "compat.h"
-#include "pragmas.h"
 #include "glad/glad.h"
 #include "glbuild.h"
 #include "palette.h"
-#include "collections.h"
+#include "pragmas.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -255,7 +255,7 @@ enum {
 
     //Make all variables in BUILD.H defined in the ENGINE,
     //and externed in GAME
-#ifdef ENGINE
+#ifdef engine_c_
 #  define EXTERN
 #else
 #  define EXTERN extern

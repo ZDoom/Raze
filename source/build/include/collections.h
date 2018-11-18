@@ -4,6 +4,8 @@
 #ifndef collections_h_
 #define collections_h_
 
+#include "compat.h"
+
 #if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
 
 // GrowArray - heap-allocated storage that can expand at runtime

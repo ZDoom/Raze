@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #include "fix16.h"
+#include "gamedefs.h"
+#include "gamevars.h"
+#include "net.h"
 
 #ifdef __cplusplus
 extern "C" {

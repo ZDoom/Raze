@@ -3,17 +3,14 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 
 #include "build.h"
-#include "osd.h"
-#include "compat.h"
-#include "baselayer.h"
 #include "cache1d.h"
-#include "pragmas.h"
-#include "scancodes.h"
 #include "crc32.h"
+#include "editor.h"
+#include "osd.h"
+#include "scancodes.h"
+
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash.h"
-#include "common.h"
-#include "editor.h"
 
 static osdsymbol_t *osd_addsymbol(const char *name);
 static osdsymbol_t *osd_findsymbol(const char *pszName, osdsymbol_t *pSymbol);

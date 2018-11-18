@@ -20,12 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "duke3d.h"
 #include "demo.h"
-//#include "premap.h"  // G_UpdateScreenArea()
+#include "duke3d.h"
+#include "input.h"
 #include "menus.h"
 #include "savegame.h"
-#include "input.h"
 #include "screens.h"
 
 char g_firstDemoFile[BMAX_PATH];

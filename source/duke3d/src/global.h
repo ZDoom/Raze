@@ -23,6 +23,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef global_h_
 #define global_h_
 
+#include "build.h"
+#include "compat.h"
+#include "duke3d.h"
+#include "mmulti.h"
+#include "quotes.h"
+#include "sector.h"
+#include "sounds.h"
+
 #ifdef global_c_
     #define G_EXTERN
 #else
@@ -35,9 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // duke3d global soup :(
 
-// XXX: we don't #include everything we need.
-#include "compat.h"
-#include "build.h"
 
 G_EXTERN int32_t g_interpolationCnt;
 G_EXTERN int32_t g_interpolationLock;
@@ -45,11 +50,6 @@ G_EXTERN int32_t oldipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t *curipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t bakipos[MAXINTERPOLATIONS];
 
-#include "mmulti.h"
-
-#include "duke3d.h"
-#include "sector.h"
-#include "quotes.h"
 
 #ifdef __cplusplus
 extern "C" {

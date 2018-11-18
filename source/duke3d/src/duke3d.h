@@ -24,9 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define duke3d_h_
 
 // JBF
-#include "compat.h"
 #include "a.h"
+#include "baselayer.h"
 #include "build.h"
+#include "cache1d.h"
+#include "compat.h"
+#include "file_lib.h"
+#include "fx_man.h"
+#include "keyboard.h"
+#include "pragmas.h"
 
 #ifdef POLYMER
     #include "polymer.h"
@@ -36,12 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 #endif
 
-#include "cache1d.h"
-#include "pragmas.h"
-#include "baselayer.h"
-#include "file_lib.h"
-#include "keyboard.h"
-#include "fx_man.h"
 
 #define HEAD2                   APPNAME
 
@@ -125,30 +125,30 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 // so that debugging with valgrind --smc-check=none is possible:
 //#define DEBUG_VALGRIND_NO_SMC
 
-#include "common_game.h"
-#include "namesdyn.h"
-#include "function.h"
-#include "macros.h"
-#include "gamedefs.h"
-#include "config.h"
-#include "sounds.h"
-#include "control.h"
 #include "_rts.h"
-#include "rts.h"
-#include "soundsdyn.h"
-#include "music.h"
-#include "inv.h"
-#include "player.h"
 #include "actors.h"
-#include "quotes.h"
-#include "global.h"
-#include "sector.h"
-#include "net.h"
+#include "common_game.h"
+#include "config.h"
+#include "control.h"
+#include "function.h"
 #include "game.h"
 #include "gamedef.h"
+#include "gamedefs.h"
 #include "gameexec.h"
 #include "gamevars.h"
+#include "global.h"
+#include "inv.h"
+#include "macros.h"
+#include "music.h"
+#include "namesdyn.h"
+#include "net.h"
+#include "player.h"
+#include "quotes.h"
+#include "rts.h"
 #include "screentext.h"
+#include "sector.h"
+#include "sounds.h"
+#include "soundsdyn.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"

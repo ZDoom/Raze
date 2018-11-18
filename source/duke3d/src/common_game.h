@@ -7,6 +7,7 @@
 #ifndef EDUKE32_COMMON_GAME_H_
 #define EDUKE32_COMMON_GAME_H_
 
+#include "collections.h"
 #include "grpscan.h"
 
 #ifdef __cplusplus

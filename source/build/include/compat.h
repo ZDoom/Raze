@@ -388,25 +388,25 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #endif
 
 #if !defined _MSC_VER || defined __cplusplus
-# include <stdint.h>
 # include <inttypes.h>
+# include <stdint.h>
 #else
 # include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
 #endif
 
 #include <limits.h>
-#include <stddef.h>
 #include <stdarg.h>
-#include <stdlib.h>
+#include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include <math.h>
 #include <float.h>
+#include <math.h>
 
-#include <time.h>
 #include <ctype.h>
 #include <errno.h>
+#include <time.h>
 
 #include <assert.h>
 
@@ -425,12 +425,12 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #endif
 
 #include <fcntl.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #if defined(_WIN32)
-# include <io.h>
 # include <direct.h>
+# include <io.h>
 #else
 # include <unistd.h>
 #endif
@@ -1260,8 +1260,8 @@ static inline void maybe_grow_buffer(char ** const buffer, int32_t * const buffe
 #define LIBDIVIDE_C_HEADERS
 #define LIBDIVIDE_NONAMESPACE
 #define LIBDIVIDE_NOINLINE
-#include "libdivide.h"
 #include "fix16.h"
+#include "libdivide.h"
 
 /* End dependence on compat.o object. */
 

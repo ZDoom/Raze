@@ -21,8 +21,8 @@
 #include <cstdlib>
 #include <cstdio>
 #else
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #endif
 
 #if defined(__x86_64__) || defined(_WIN64) || defined(_M_X64)
