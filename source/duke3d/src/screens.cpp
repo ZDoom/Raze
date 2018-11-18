@@ -1445,70 +1445,231 @@ int32_t g_logoFlags = 255;
 int inExtraScreens = 0;
 #endif
 
+void gameDisplayTENScreen()
+{
+#ifdef __ANDROID__
+    inExtraScreens = 1;
+#endif
+    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
+    renderFlushPerms();
+    // g_player[myconnectindex].ps->palette = palette;
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);  // JBF 20040308
+    fadepal(0, 0, 0, 0, 252, 28);
+    I_ClearAllInput();
+    totalclock = 0;
+    rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, TENSCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH);
+    fadepaltile(0, 0, 0, 252, 0, -28, TENSCREEN);
+    while (!I_CheckAllInput() && totalclock < 2400)
+        G_HandleAsync();
+
+    fadepaltile(0, 0, 0, 0, 252, 28, TENSCREEN);
+    I_ClearAllInput();
+#ifdef __ANDROID__
+    inExtraScreens = 0;
+#endif
+}
+
+void gameDisplaySharewareScreens()
+{
+#ifdef __ANDROID__
+    inExtraScreens = 1;
+#endif
+    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
+    renderFlushPerms();
+    // g_player[myconnectindex].ps->palette = palette;
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);  // JBF 20040308
+    fadepal(0, 0, 0, 0, 252, 28);
+    I_ClearAllInput();
+    rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 3291, 0, 0, 2 + 8 + 64 + BGSTRETCH);
+    fadepaltile(0, 0, 0, 252, 0, -28, 3291);
+    while (!I_CheckAllInput())
+        G_HandleAsync();
+
+    fadepaltile(0, 0, 0, 0, 252, 28, 3291);
+    I_ClearAllInput();
+    rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 3290, 0, 0, 2 + 8 + 64 + BGSTRETCH);
+    fadepaltile(0, 0, 0, 252, 0, -28, 3290);
+    while (!I_CheckAllInput())
+        G_HandleAsync();
+
+#ifdef __ANDROID__
+    inExtraScreens = 0;
+#endif
+}
+
 void G_DisplayExtraScreens(void)
 {
-    int32_t flags = G_GetLogoFlags();
-
     S_StopMusic();
     FX_StopAllSounds();
 
-    if (!DUKEBETA && (!VOLUMEALL || flags & LOGO_SHAREWARESCREENS))
+    if (!DUKEBETA && (!VOLUMEALL || G_GetLogoFlags() & LOGO_SHAREWARESCREENS))
+        gameDisplaySharewareScreens();
+
+    if (G_GetLogoFlags() & LOGO_TENSCREEN)
+        gameDisplayTENScreen();
+}
+
+void gameDisplay3DRScreen()
+{
+    if (!I_CheckAllInput() && g_noLogoAnim == 0)
     {
-#ifdef __ANDROID__
-        inExtraScreens = 1;
-#endif
-        videoSetViewableArea(0, 0, xdim-1, ydim-1);
-        renderFlushPerms();
-        //g_player[myconnectindex].ps->palette = palette;
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
-        fadepal(0, 0, 0, 0, 252, 28);
-        I_ClearAllInput();
-        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3291, 0, 0, 2+8+64+BGSTRETCH);
-        fadepaltile(0, 0, 0, 252, 0, -28, 3291);
-        while (!I_CheckAllInput())
-            G_HandleAsync();
+        int32_t i;
+        Net_GetPackets();
 
-        fadepaltile(0, 0, 0, 0, 252, 28, 3291);
-        I_ClearAllInput();
-        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3290, 0, 0, 2+8+64+BGSTRETCH);
-        fadepaltile(0, 0, 0, 252, 0, -28, 3290);
-        while (!I_CheckAllInput())
-            G_HandleAsync();
+        i = kopen4loadfrommod("3dr.ivf", 0);
 
-#ifdef __ANDROID__
-        inExtraScreens = 0;
-#endif
+        if (i == -1)
+            i = kopen4loadfrommod("3dr.anm", 0);
+
+        if (i != -1)
+        {
+            kclose(i);
+            Anim_Play("3dr.anm");
+            G_FadePalette(0, 0, 0, 252);
+            I_ClearAllInput();
+        }
+        else
+        {
+            videoClearScreen(0);
+
+            P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8 + 2 + 1);  // JBF 20040308
+            fadepal(0, 0, 0, 0, 252, 28);
+            renderFlushPerms();
+            rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
+            videoNextPage();
+            fadepaltile(0, 0, 0, 252, 0, -28, DREALMS);
+            totalclock = 0;
+
+            while (totalclock < (120 * 7) && !I_CheckAllInput())
+            {
+                if (G_FPSLimit())
+                {
+                    videoClearScreen(0);
+                    rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
+                    G_HandleAsync();
+
+                    if (g_restorePalette)
+                    {
+                        P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
+                        g_restorePalette = 0;
+                    }
+                }
+            }
+
+            fadepaltile(0, 0, 0, 0, 252, 28, DREALMS);
+        }
     }
+}
 
-    if (flags & LOGO_TENSCREEN)
+void gameDisplayTitleScreen(void)
+{
+    int titlesound  = 0;
+    int32_t const logoflags = G_GetLogoFlags();
+
+    videoClearScreen(0);
+
+    // g_player[myconnectindex].ps->palette = titlepal;
+    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8 + 2 + 1);  // JBF 20040308
+    renderFlushPerms();
+    rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, BETASCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH);
+    KB_FlushKeyboardQueue();
+    fadepaltile(0, 0, 0, 252, 0, -28, BETASCREEN);
+    totalclock = 0;
+
+    while (
+#ifndef EDUKE32_SIMPLE_MENU
+    totalclock < (860 + 120) &&
+#endif
+    !I_CheckAllInput())
     {
-#ifdef __ANDROID__
-        inExtraScreens = 1;
-#endif
-        videoSetViewableArea(0, 0, xdim-1, ydim-1);
-        renderFlushPerms();
-        //g_player[myconnectindex].ps->palette = palette;
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
-        fadepal(0, 0, 0, 0, 252, 28);
-        I_ClearAllInput();
-        totalclock = 0;
-        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, TENSCREEN, 0, 0, 2+8+64+BGSTRETCH);
-        fadepaltile(0, 0, 0, 252, 0, -28, TENSCREEN);
-        while (!I_CheckAllInput() && totalclock < 2400)
-            G_HandleAsync();
+        if (G_FPSLimit())
+        {
+            videoClearScreen(0);
+            rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, BETASCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH);
+            if (logoflags & LOGO_DUKENUKEM)
+            {
+                if (totalclock > 120 && totalclock < (120 + 60))
+                {
+                    if (titlesound == 0)
+                    {
+                        titlesound++;
+                        S_PlaySound(PIPEBOMB_EXPLODE);
+                    }
+                    rotatesprite_fs(160 << 16, 104 << 16, (totalclock - 120) << 10, 0, DUKENUKEM, 0, 0, 2 + 8);
+                }
+                else if (totalclock >= (120 + 60))
+                    rotatesprite_fs(160 << 16, (104) << 16, 60 << 10, 0, DUKENUKEM, 0, 0, 2 + 8);
+            }
+            else
+                titlesound++;
 
-        fadepaltile(0, 0, 0, 0, 252, 28, TENSCREEN);
-        I_ClearAllInput();
-#ifdef __ANDROID__
-        inExtraScreens = 0;
+            if (logoflags & LOGO_THREEDEE)
+            {
+                if (totalclock > 220 && totalclock < (220 + 30))
+                {
+                    if (titlesound == 1)
+                    {
+                        titlesound++;
+                        S_PlaySound(PIPEBOMB_EXPLODE);
+                    }
+
+                    rotatesprite_fs(160 << 16, (104) << 16, 60 << 10, 0, DUKENUKEM, 0, 0, 2 + 8);
+                    rotatesprite_fs(160 << 16, (129) << 16, (totalclock - 220) << 11, 0, THREEDEE, 0, 0, 2 + 8);
+                }
+                else if (totalclock >= (220 + 30))
+                    rotatesprite_fs(160 << 16, (129) << 16, 30 << 11, 0, THREEDEE, 0, 0, 2 + 8);
+            }
+            else
+                titlesound++;
+
+            if (PLUTOPAK && (logoflags & LOGO_PLUTOPAKSPRITE))
+            {
+                // JBF 20030804
+                if (totalclock >= 280 && totalclock < 395)
+                {
+                    rotatesprite_fs(160 << 16, (151) << 16, (410 - totalclock) << 12, 0, PLUTOPAKSPRITE + 1,
+                                    (sintable[(totalclock << 4) & 2047] >> 11), 0, 2 + 8);
+                    if (titlesound == 2)
+                    {
+                        titlesound++;
+                        S_PlaySound(FLY_BY);
+                    }
+                }
+                else if (totalclock >= 395)
+                {
+                    if (titlesound == 3)
+                    {
+                        titlesound++;
+                        S_PlaySound(PIPEBOMB_EXPLODE);
+                    }
+                    rotatesprite_fs(160 << 16, (151) << 16, 30 << 11, 0, PLUTOPAKSPRITE + 1, (sintable[(totalclock << 4) & 2047] >> 11), 0,
+                                    2 + 8);
+                }
+            }
+
+#ifdef LUNATIC
+            g_elEventError = 0;
 #endif
+            VM_OnEvent(EVENT_LOGO, -1, screenpeek);
+
+            if (g_restorePalette)
+            {
+                P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
+                g_restorePalette = 0;
+            }
+#ifdef LUNATIC
+            if (g_elEventError)
+                break;
+#endif
+        }
+
+        G_HandleAsync();
     }
 }
 
 void G_DisplayLogo(void)
 {
-    int32_t soundanm = 0;
-    int32_t logoflags = G_GetLogoFlags();
+    int32_t const logoflags = G_GetLogoFlags();
 
     ready2send = 0;
 
@@ -1526,6 +1687,7 @@ void G_DisplayLogo(void)
     S_StopMusic();
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
+
     if (!g_noLogo /* && (!g_netServer && ud.multimode < 2) */ &&
         VM_OnEventWithReturn(EVENT_MAINMENUSCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
         (logoflags & LOGO_ENABLED))
@@ -1564,54 +1726,7 @@ void G_DisplayLogo(void)
 
             if (logoflags & LOGO_3DRSCREEN)
             {
-                if (!I_CheckAllInput() && g_noLogoAnim == 0)
-                {
-                    int32_t i;
-                    Net_GetPackets();
-
-                    i = kopen4loadfrommod("3dr.ivf", 0);
-
-                    if (i == -1)
-                        i = kopen4loadfrommod("3dr.anm", 0);
-
-                    if (i != -1)
-                    {
-                        kclose(i);
-                        Anim_Play("3dr.anm");
-                        G_FadePalette(0, 0, 0, 252);
-                        I_ClearAllInput();
-                    }
-                    else
-                    {
-                        videoClearScreen(0);
-
-                        P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8 + 2 + 1);    // JBF 20040308
-                        fadepal(0, 0, 0, 0, 252, 28);
-                        renderFlushPerms();
-                        rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
-                        videoNextPage();
-                        fadepaltile(0, 0, 0, 252, 0, -28, DREALMS);
-                        totalclock = 0;
-
-                        while (totalclock < (120 * 7) && !I_CheckAllInput())
-                        {
-                            if (G_FPSLimit())
-                            {
-                                videoClearScreen(0);
-                                rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
-                                G_HandleAsync();
-
-                                if (g_restorePalette)
-                                {
-                                    P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
-                                    g_restorePalette = 0;
-                                }
-                            }
-                        }
-
-                        fadepaltile(0, 0, 0, 0, 252, 28, DREALMS);
-                    }
-                }
+                gameDisplay3DRScreen();
 
                 videoClearScreen(0L);
                 videoNextPage();
@@ -1624,103 +1739,7 @@ void G_DisplayLogo(void)
         videoNextPage();
 
         if (logoflags & LOGO_TITLESCREEN)
-        {
-            videoClearScreen(0);
-
-            //g_player[myconnectindex].ps->palette = titlepal;
-            P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);   // JBF 20040308
-            renderFlushPerms();
-            rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BETASCREEN, 0, 0, 2+8+64+BGSTRETCH);
-            KB_FlushKeyboardQueue();
-            fadepaltile(0, 0, 0, 252, 0, -28, BETASCREEN);
-            totalclock = 0;
-
-            while (
-#ifndef EDUKE32_SIMPLE_MENU
-                totalclock < (860+120) &&
-#endif
-                !I_CheckAllInput())
-            {
-                if (G_FPSLimit())
-                {
-                    videoClearScreen(0);
-                    rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BETASCREEN, 0, 0, 2+8+64+BGSTRETCH);
-                    if (logoflags & LOGO_DUKENUKEM)
-                    {
-                        if (totalclock > 120 && totalclock < (120+60))
-                        {
-                            if (soundanm == 0)
-                            {
-                                soundanm++;
-                                S_PlaySound(PIPEBOMB_EXPLODE);
-                            }
-                            rotatesprite_fs(160<<16, 104<<16, (totalclock-120)<<10, 0, DUKENUKEM, 0, 0, 2+8);
-                        }
-                        else if (totalclock >= (120+60))
-                            rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, DUKENUKEM, 0, 0, 2+8);
-                    }
-                    else soundanm++;
-
-                    if (logoflags & LOGO_THREEDEE)
-                    {
-                        if (totalclock > 220 && totalclock < (220+30))
-                        {
-                            if (soundanm == 1)
-                            {
-                                soundanm++;
-                                S_PlaySound(PIPEBOMB_EXPLODE);
-                            }
-
-                            rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, DUKENUKEM, 0, 0, 2+8);
-                            rotatesprite_fs(160<<16, (129)<<16, (totalclock - 220)<<11, 0, THREEDEE, 0, 0, 2+8);
-                        }
-                        else if (totalclock >= (220+30))
-                            rotatesprite_fs(160<<16, (129)<<16, 30<<11, 0, THREEDEE, 0, 0, 2+8);
-                    }
-                    else soundanm++;
-
-                    if (PLUTOPAK && (logoflags & LOGO_PLUTOPAKSPRITE))
-                    {
-                        // JBF 20030804
-                        if (totalclock >= 280 && totalclock < 395)
-                        {
-                            rotatesprite_fs(160<<16, (151)<<16, (410-totalclock)<<12, 0, PLUTOPAKSPRITE+1, (sintable[(totalclock<<4)&2047]>>11), 0, 2+8);
-                            if (soundanm == 2)
-                            {
-                                soundanm++;
-                                S_PlaySound(FLY_BY);
-                            }
-                        }
-                        else if (totalclock >= 395)
-                        {
-                            if (soundanm == 3)
-                            {
-                                soundanm++;
-                                S_PlaySound(PIPEBOMB_EXPLODE);
-                            }
-                            rotatesprite_fs(160<<16, (151)<<16, 30<<11, 0, PLUTOPAKSPRITE+1, (sintable[(totalclock<<4)&2047]>>11), 0, 2+8);
-                        }
-                    }
-
-#ifdef LUNATIC
-                    g_elEventError = 0;
-#endif
-                    VM_OnEvent(EVENT_LOGO, -1, screenpeek);
-
-                    if (g_restorePalette)
-                    {
-                        P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
-                        g_restorePalette = 0;
-                    }
-#ifdef LUNATIC
-                    if (g_elEventError)
-                        break;
-#endif
-                }
-
-                G_HandleAsync();
-            }
-        }
+            gameDisplayTitleScreen();
 
         I_ClearAllInput();
     }
@@ -1729,8 +1748,8 @@ void G_DisplayLogo(void)
     videoClearScreen(0L);
     videoNextPage();
 
-    //g_player[myconnectindex].ps->palette = palette;
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
+
     if ((G_GetLogoFlags() & LOGO_STOPMISCSOUNDS) == 0)
         S_PlaySound(NITEVISION_ONOFF);
 
@@ -1741,13 +1760,10 @@ void G_DisplayLogo(void)
 #ifndef EDUKE32_STANDALONE
 void G_DoOrderScreen(void)
 {
-    int32_t i;
-
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
-
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
 
-    for (i=0; i<4; i++)
+    for (int i=0; i<4; i++)
     {
         fadepal(0, 0, 0, 0, 252, 28);
         I_ClearAllInput();
@@ -1774,8 +1790,8 @@ static void G_BonusCutscenes(void)
 
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE1BONUSSCENE))
         {
-            int32_t bonuscnt=0;
-            int32_t const bossmove [] =
+            int bonuscnt=0;
+            int const bossmove [] =
             {
                 0, 120, VICTORY1+3, 86, 59,
                 220, 260, VICTORY1+4, 86, 59,
@@ -1795,7 +1811,7 @@ static void G_BonusCutscenes(void)
             I_ClearAllInput();
             totalclock = 0;
 
-            while (1)
+            do
             {
                 if (G_FPSLimit())
                 {
@@ -1852,7 +1868,7 @@ static void G_BonusCutscenes(void)
                 G_HandleAsync();
 
                 if (I_CheckAllInput()) break;
-            }
+            } while (1);
 
             fadepal(0, 0, 0, 0, 252, 4);
         }
