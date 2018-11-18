@@ -93,7 +93,6 @@ G_EXTERN int32_t g_curViewscreen;
 G_EXTERN int32_t g_frameRate;
 G_EXTERN int32_t g_cyclerCnt;
 G_EXTERN int32_t g_damageCameras;
-G_EXTERN int32_t g_defaultLabelCnt;
 G_EXTERN int32_t g_doQuickSave;
 G_EXTERN int32_t g_earthquakeTime;
 G_EXTERN int32_t g_freezerSelfDamage;

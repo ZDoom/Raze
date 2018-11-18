@@ -35,14 +35,15 @@ extern "C" {
 
 enum
 {
+    LABEL_ACTION = 0x01,
+    LABEL_ACTOR  = 0x02,
+    LABEL_AI     = 0x04,
+    LABEL_DEFINE = 0x08,
+    LABEL_EVENT  = 0x10,
+    LABEL_MOVE   = 0x20,
+    LABEL_STATE  = 0x40,
+
     LABEL_ANY    = -1,
-    LABEL_DEFINE = 1,
-    LABEL_STATE  = 2,
-    LABEL_ACTOR  = 4,
-    LABEL_ACTION = 8,
-    LABEL_AI     = 16,
-    LABEL_MOVE   = 32,
-    LABEL_EVENT  = 64,
 };
 
 #define LABEL_CHAR sizeof(uint8_t)

@@ -52,8 +52,8 @@ static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
 static int32_t g_labelsOnly = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
 static int32_t g_numBraces = 0;
 
-static int32_t C_ParseCommand(int32_t loop);
-static int32_t C_SetScriptSize(int32_t size);
+static bool C_ParseCommand(bool loop);
+static void C_SetScriptSize(int32_t newsize);
 #endif
 
 int32_t g_numXStrings = 0;
@@ -73,27 +73,31 @@ static char *textptr;
 int32_t g_errorCnt,g_warningCnt;
 
 #if !defined LUNATIC
-static char *C_GetLabelType(int32_t type)
+static char *C_GetLabelType(int const type)
 {
-    int32_t i;
-    char x[64];
-
-    const char *LabelTypeText[] =
+    static tokenmap_t const LabelType[] =
     {
-        "define",
-        "state",
-        "actor",
-        "action",
-        "ai",
-        "move"
+        { "action", LABEL_ACTION },
+        { "actor",  LABEL_ACTOR },
+        { "ai",     LABEL_AI },
+        { "define", LABEL_DEFINE },
+        { "event",  LABEL_EVENT },
+        { "move",   LABEL_MOVE },
+        { "state",  LABEL_STATE },
     };
 
-    x[0] = 0;
-    for (i=0; i<6; i++)
+    char x[64] = {};
+
+    for (auto &label : LabelType)
     {
-        if (!(type & (1<<i))) continue;
+        if ((type & label.val) != label.val)
+            continue;
+
         if (x[0]) Bstrcat(x, " or ");
-        Bstrcat(x, LabelTypeText[i]);
+        Bstrcat(x, label.token);
+
+        if (type == label.val)
+            break;
     }
 
     return Xstrdup(x);
@@ -1410,7 +1414,7 @@ static hashtable_t *const tables_free[] = {
 
 #define STRUCT_HASH_SETUP(table, labels) do { for (int i=0; i < ARRAY_SSIZE(labels); i++) hash_add(&table, labels[i].name, i, 0); } while (0)
 
-void C_InitHashes()
+static void C_InitHashes()
 {
     for (auto table : tables)
         hash_init(table);
@@ -1442,18 +1446,12 @@ void C_InitHashes()
 #define IFELSE_MAGIC 31337
 static int32_t g_ifElseAborted;
 
-static int32_t C_SetScriptSize(int32_t newsize)
+static void C_SetScriptSize(int32_t newsize)
 {
     intptr_t const oscript = (intptr_t)apScript;
-    intptr_t *newscript;
-    intptr_t i, j;
-    int32_t osize = g_scriptSize;
-    char *scriptptrs;
-    char *newbitptr;
+    int32_t const  osize   = g_scriptSize;
 
-    scriptptrs = (char *)Xcalloc(1, g_scriptSize * sizeof(uint8_t));
-
-    for (i=g_scriptSize-1; i>=0; i--)
+    for (int i = 0; i < osize - 1; ++i)
     {
         if (BITPTR_IS_POINTER(i))
         {
@@ -1462,30 +1460,30 @@ static int32_t C_SetScriptSize(int32_t newsize)
                 g_errorCnt++;
                 buildprint("Internal compiler error at ", i, " (0x", hex(i), ")\n");
                 VM_ScriptInfo(&apScript[i], 16);
+                BITPTR_CLEAR(i);
             }
-
-            scriptptrs[i] = 1;
-            apScript[i] -= (intptr_t)&apScript[0];
+            else
+                apScript[i] -= (intptr_t)&apScript[0];
         }
-        else scriptptrs[i] = 0;
     }
 
     G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
 
-    newscript = (intptr_t *)Xrealloc(apScript, newsize * sizeof(intptr_t));
-    newbitptr = (char *)Xcalloc(1,(((newsize+7)>>3)+1) * sizeof(uint8_t));
+    auto newscript = (intptr_t *)Xrealloc(apScript, newsize * sizeof(intptr_t));
+    auto newbitptr = (char *)Xcalloc(1, (((newsize + 7) >> 3) + 1) * sizeof(uint8_t));
 
     if (newsize >= osize)
     {
-        Bmemset(&newscript[0]+osize,0,(newsize-osize) * sizeof(uint8_t));
-        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((osize+7)>>3));
+        Bmemset(&newscript[0] + osize, 0, (newsize - osize) * sizeof(uint8_t));
+        Bmemcpy(newbitptr, bitptr, sizeof(uint8_t) * ((osize + 7) >> 3));
     }
     else
-        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((newsize+7)>>3));
+        Bmemcpy(newbitptr, bitptr, sizeof(uint8_t) * ((newsize + 7) >> 3));
 
     Bfree(bitptr);
     bitptr = newbitptr;
+
     if (apScript != newscript)
     {
         buildprint("Relocating compiled code from to 0x", hex((intptr_t)apScript), " to 0x", hex((intptr_t)newscript), "\n");
@@ -1498,21 +1496,23 @@ static int32_t C_SetScriptSize(int32_t newsize)
     if (g_caseScriptPtr)
         g_caseScriptPtr = apScript + (intptr_t)g_caseScriptPtr - oscript;
 
-    for (i=(((newsize>=osize)?osize:newsize))-1; i>=0; i--)
-        if (scriptptrs[i])
+    int32_t const size = (newsize >= osize) ? osize : newsize;
+
+    for (int i = 0; i < size - 1; ++i)
+    {
+        if (BITPTR_IS_POINTER(i))
         {
-            j = (intptr_t)apScript[i]+(intptr_t)&apScript[0];
+            intptr_t const j = (intptr_t)apScript[i] + (intptr_t)&apScript[0];
+
             apScript[i] = j;
         }
+    }
 
     G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
-
-    Bfree(scriptptrs);
-    return 0;
 }
 
-static inline int32_t ispecial(const char c)
+static inline bool ispecial(const char c)
 {
     return (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
         c == ',' || c == ';' || (c == 0x0a /*&& ++g_lineNumber*/));
@@ -1530,7 +1530,7 @@ static inline void C_SkipSpace(void)
         textptr++;
 }
 
-static int32_t C_SkipComments(void)
+static void C_SkipComments(void)
 {
     do
     {
@@ -1597,7 +1597,9 @@ static int32_t C_SkipComments(void)
             }
             fallthrough__;
         case 0: // EOF
-            return ((g_scriptPtr-apScript) > (g_scriptSize-32)) ? C_SetScriptSize(g_scriptSize<<1) : 0;
+            if ((g_scriptPtr-apScript) > (g_scriptSize-32))
+                C_SetScriptSize(g_scriptSize<<1);
+            return;
         }
     }
     while (1);
@@ -1606,13 +1608,13 @@ static int32_t C_SkipComments(void)
 #define GetDefID(szGameLabel) hash_find(&h_gamevars,szGameLabel)
 #define GetADefID(szGameLabel) hash_find(&h_arrays,szGameLabel)
 
-static inline int32_t isaltok(const char c)
+static inline bool isaltok(const char c)
 {
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '\\' || c == '*' || c == '-' || c == '_' ||
             c == '.');
 }
 
-static inline int32_t C_IsLabelChar(const char c, int32_t const i)
+static inline bool C_IsLabelChar(const char c, int32_t const i)
 {
     return (isalnum(c) || c == '_' || c == '*' || c == '?' || (i > 0 && (c == '+' || c == '-' || c == '.')));
 }
@@ -1622,7 +1624,7 @@ static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t 
     // find the label psz in the table pLabel.
     // returns the ID for the label, or -1
 
-    int32_t l = hash_findcase(table, psz);
+    int const l = hash_findcase(table, psz);
     return (l >= 0) ? pLabel[l].lId : -1;
 }
 
@@ -2359,7 +2361,7 @@ static int32_t C_CountCaseStatements()
 
 static void C_Include(const char *confile)
 {
-    int32_t fp = kopen4loadfrommod(confile,g_loadFromGroupOnly);
+    int32_t const fp = kopen4loadfrommod(confile,g_loadFromGroupOnly);
 
     if (EDUKE32_PREDICT_FALSE(fp < 0))
     {
@@ -2368,30 +2370,30 @@ static void C_Include(const char *confile)
         return;
     }
 
-    int32_t j = kfilelength(fp);
+    int32_t const len = kfilelength(fp);
+    char *mptr = (char *)Xmalloc(len+1);
 
-    char *mptr = (char *)Xmalloc(j+1);
+    initprintf("Including: %s (%d bytes)\n",confile, len);
 
-    initprintf("Including: %s (%d bytes)\n",confile, j);
-
-    kread(fp, mptr, j);
+    kread(fp, mptr, len);
     kclose(fp);
-    g_scriptcrc = Bcrc32(mptr, j, g_scriptcrc);
-    mptr[j] = 0;
+
+    mptr[len] = 0;
+    g_scriptcrc = Bcrc32(mptr, len, g_scriptcrc);
 
     if (*textptr == '"') // skip past the closing quote if it's there so we don't screw up the next line
         textptr++;
 
-    char *origtptr = textptr;
-    char parentScriptFileName[255];
+    char * const origtptr = textptr;
+    char parentScriptFileName[BMAX_PATH];
 
     Bstrcpy(parentScriptFileName, g_scriptFileName);
     Bstrcpy(g_scriptFileName, confile);
 
-    int32_t temp_ScriptLineNumber = g_lineNumber;
+    int const temp_ScriptLineNumber = g_lineNumber;
     g_lineNumber = 1;
 
-    int32_t temp_ifelse_check = g_checkingIfElse;
+    int const temp_ifelse_check = g_checkingIfElse;
     g_checkingIfElse = 0;
 
     textptr = mptr;
@@ -2930,19 +2932,21 @@ static void C_FillEventBreakStackWithJump(intptr_t *breakPtr, intptr_t destinati
     }
 }
 
-static int32_t C_ParseCommand(int32_t loop)
+static bool C_ParseCommand(bool loop)
 {
     int32_t i, j=0, k=0, tw;
 
     do
     {
-        if (EDUKE32_PREDICT_FALSE(g_errorCnt > 63 || (*textptr == '\0') || (*(textptr+1) == '\0') || C_SkipComments()))
+        if (EDUKE32_PREDICT_FALSE(g_errorCnt > 63 || (*textptr == '\0') || (*(textptr+1) == '\0')))
             return 1;
 
         if (EDUKE32_PREDICT_FALSE(g_scriptDebug))
             C_ReportError(-1);
 
-        int32_t const otw = g_lastKeyword;
+        int const otw = g_lastKeyword;
+
+        C_SkipComments();
 
         switch ((g_lastKeyword = tw = C_GetNextKeyword()))
         {
@@ -3028,38 +3032,36 @@ DO_DEFSTATE:
                 initprintf("%s:%d: error: found `ends' without open `state'.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
             }
-            //            else
+
+            if (EDUKE32_PREDICT_FALSE(g_numBraces > 0))
             {
-                if (EDUKE32_PREDICT_FALSE(g_numBraces > 0))
-                {
-                    C_ReportError(ERROR_OPENBRACKET);
-                    g_errorCnt++;
-                }
-                else if (EDUKE32_PREDICT_FALSE(g_numBraces < 0))
-                {
-                    C_ReportError(ERROR_CLOSEBRACKET);
-                    g_errorCnt++;
-                }
-
-                if (EDUKE32_PREDICT_FALSE(g_checkingSwitch > 0))
-                {
-                    C_ReportError(ERROR_NOENDSWITCH);
-                    g_errorCnt++;
-
-                    g_checkingSwitch = 0; // can't be checking anymore...
-                }
-
-                g_processingState = 0;
-                Bsprintf(g_szCurrentBlockName,"(none)");
+                C_ReportError(ERROR_OPENBRACKET);
+                g_errorCnt++;
             }
+            else if (EDUKE32_PREDICT_FALSE(g_numBraces < 0))
+            {
+                C_ReportError(ERROR_CLOSEBRACKET);
+                g_errorCnt++;
+            }
+
+            if (EDUKE32_PREDICT_FALSE(g_checkingSwitch > 0))
+            {
+                C_ReportError(ERROR_NOENDSWITCH);
+                g_errorCnt++;
+
+                g_checkingSwitch = 0; // can't be checking anymore...
+            }
+
+            g_processingState = 0;
+            Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
 
-        case CON_SETTHISPROJECTILE:
-        case CON_SETPROJECTILE:
-        case CON_GETTHISPROJECTILE:
         case CON_GETPROJECTILE:
+        case CON_GETTHISPROJECTILE:
+        case CON_SETPROJECTILE:
+        case CON_SETTHISPROJECTILE:
             {
-                int32_t const labelNum = C_GetStructureIndexes(tw == CON_SETTHISPROJECTILE || tw == CON_GETTHISPROJECTILE, &h_projectile);
+                int const labelNum = C_GetStructureIndexes(tw == CON_SETTHISPROJECTILE || tw == CON_GETTHISPROJECTILE, &h_projectile);
 
                 if (labelNum == -1)
                     continue;
@@ -6208,7 +6210,7 @@ repeatcase:
             j = *(g_scriptPtr-1);
             g_scriptPtr--;
             C_SkipComments();
-            if (C_SetScriptSize(j)) return 1;
+            C_SetScriptSize(j);
             continue;
 
         case CON_SHADETO:
@@ -6335,7 +6337,6 @@ static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
     labeltype[g_labelCnt] = lType;
     hash_add(&h_labels,label+(g_labelCnt<<6),g_labelCnt,0);
     labelcode[g_labelCnt++] = lValue;
-    g_defaultLabelCnt++;
 }
 
 // KEEPINSYNC lunatic/con_lang.lua
@@ -6463,8 +6464,8 @@ static void C_AddDefaultDefinitions(void)
         { "STR_YOURTIME",        STR_YOURTIME },
     };
 
-    for (auto & i : predefined)
-        C_AddDefinition(i.token, i.val, LABEL_DEFINE);
+    for (auto & def : predefined)
+        C_AddDefinition(def.token, def.val, LABEL_DEFINE);
 
     C_AddDefinition("NO", 0, LABEL_DEFINE | LABEL_ACTION | LABEL_AI | LABEL_MOVE);
 }
@@ -6493,22 +6494,22 @@ void C_InitProjectiles(void)
 
     DefaultProjectile = Projectile;
 
-    for (bssize_t i=MAXTILES-1; i>=0; i--)
+    for (auto & tile : g_tile)
     {
-        if (g_tile[i].proj)
-            *g_tile[i].proj = DefaultProjectile;
+        if (tile.proj)
+            *tile.proj = DefaultProjectile;
 
-        if (g_tile[i].defproj)
-            *g_tile[i].defproj = DefaultProjectile;
+        if (tile.defproj)
+            *tile.defproj = DefaultProjectile;
     }
 }
 
 #if !defined LUNATIC
 static char const * C_ScriptVersionString(int32_t version)
 {
+#ifndef EDUKE32_STANDALONE
     switch (version)
     {
-#ifndef EDUKE32_STANDALONE
     case 9:
         return ", v0.99 compatibility mode";
     case 10:
@@ -6517,10 +6518,9 @@ static char const * C_ScriptVersionString(int32_t version)
         return ", v1.1 compatibility mode";
     case 13:
         return ", v1.3D compatibility mode";
-#endif
-    default:
-        return "";
     }
+#endif
+    return "";
 }
 
 void C_PrintStats(void)
@@ -6530,30 +6530,27 @@ void C_PrintStats(void)
             MAXSPRITES * sizeof(spritetype)/(1<<6)),
         g_gameVarCount, MAXGAMEVARS, g_gameArrayCount, MAXGAMEARRAYS);
 
-    int i, j;
+    int cnt = g_numXStrings;
 
-    for (i=MAXQUOTES-1, j=g_numXStrings; i>=0; i--)
-    {
-        if (apStrings[i])
-            j++;
-    }
+    for (auto &ptr : apStrings)
+        if (ptr)
+            cnt++;
 
-    if (j) initprintf("%d strings, ", j);
+    if (cnt) initprintf("%d strings, ", cnt);
+    cnt = 0;
 
-    for (i=MAXEVENTS-1, j=0; i>=0; i--)
-    {
-        if (apScriptEvents[i])
-            j++;
-    }
-    if (j) initprintf("%d events, ", j);
+    for (auto & apScriptEvent : apScriptEvents)
+        if (apScriptEvent)
+            cnt++;
 
-    for (i=MAXTILES-1, j=0; i>=0; i--)
-    {
-        if (g_tile[i].execPtr)
-            j++;
-    }
-    if (j) initprintf("%d actors", j);
+    if (cnt) initprintf("%d events, ", cnt);
+    cnt = 0;
 
+    for (auto & tile : g_tile)
+        if (tile.execPtr)
+            cnt++;
+
+    if (cnt) initprintf("%d actors", cnt);
     initprintf("\n");
 }
 
@@ -6562,17 +6559,17 @@ void C_Compile(const char *fileName)
     Bmemset(apScriptEvents, 0, sizeof(apScriptEvents));
     Bmemset(apScriptGameEventEnd, 0, sizeof(apScriptGameEventEnd));
 
-    for (int i=0; i<MAXTILES; i++)
-    {
-        Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
-        g_actorMinMs[i] = 1e308;
-    }
+    for (auto & i : g_tile)
+        Bmemset(&i, 0, sizeof(tiledata_t));
+
+    for (double & actorMinMs : g_actorMinMs)
+        actorMinMs = 1e308;
 
     C_InitHashes();
     Gv_Init();
     C_InitProjectiles();
 
-    int kFile = kopen4loadfrommod(fileName,g_loadFromGroupOnly);
+    int const kFile = kopen4loadfrommod(fileName, g_loadFromGroupOnly);
 
     if (kFile == -1) // JBF: was 0
     {
@@ -6608,8 +6605,8 @@ void C_Compile(const char *fileName)
     char * mptr = (char *)Xmalloc(kFileLen+1);
     mptr[kFileLen] = 0;
 
-    textptr = (char *) mptr;
-    kread(kFile,(char *)textptr,kFileLen);
+    textptr = (char *)mptr;
+    kread(kFile, (char *)textptr, kFileLen);
     kclose(kFile);
 
     g_scriptcrc = Bcrc32(NULL, 0, 0L);
@@ -6619,20 +6616,17 @@ void C_Compile(const char *fileName)
 
     apScript = (intptr_t *)Xcalloc(1, g_scriptSize * sizeof(intptr_t));
     bitptr   = (char *)Xcalloc(1, (((g_scriptSize + 7) >> 3) + 1) * sizeof(uint8_t));
-    //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
-    g_labelCnt        = 0;
-    g_defaultLabelCnt = 0;
-    g_scriptPtr       = apScript + 3;  // move permits constants 0 and 1; moveptr[1] would be script[2] (reachable?)
-    g_warningCnt      = 0;
-    g_errorCnt        = 0;
-    g_lineNumber      = 1;
-    g_totalLines      = 0;
-
-    C_AddDefaultDefinitions();
+    g_errorCnt   = 0;
+    g_labelCnt   = 0;
+    g_lineNumber = 1;
+    g_scriptPtr  = apScript + 3;  // move permits constants 0 and 1; moveptr[1] would be script[2] (reachable?)
+    g_totalLines = 0;
+    g_warningCnt = 0;
 
     Bstrcpy(g_scriptFileName, fileName);
 
+    C_AddDefaultDefinitions();
     C_ParseCommand(1);
 
     for (char * m : g_scriptModules)
@@ -6652,12 +6646,14 @@ void C_Compile(const char *fileName)
     DO_FREE_AND_NULL(mptr);
 
     if (g_warningCnt || g_errorCnt)
+    {
         initprintf("Found %d warning(s), %d error(s).\n", g_warningCnt, g_errorCnt);
 
-    if (g_errorCnt)
-    {
-        Bsprintf(buf, "Error compiling CON files.");
-        G_GameExit(buf);
+        if (g_errorCnt)
+        {
+            Bsprintf(buf, "Error compiling CON files.");
+            G_GameExit(buf);
+        }
     }
 
     for (intptr_t i : apScriptGameEventEnd)
@@ -6665,9 +6661,9 @@ void C_Compile(const char *fileName)
         if (!i)
             continue;
 
-        intptr_t *eventEnd = apScript + i;
-        // C_FillEventBreakStackWithEndEvent
-        intptr_t *breakPtr = (intptr_t*)*(eventEnd + 2);
+        auto const eventEnd = apScript + i;
+        auto breakPtr = (intptr_t*)*(eventEnd + 2);
+
         while (breakPtr)
         {
             breakPtr = apScript + (intptr_t)breakPtr;
@@ -6680,8 +6676,8 @@ void C_Compile(const char *fileName)
 
     C_SetScriptSize(g_scriptPtr-apScript+8);
 
-    initprintf("Script compiled in %dms, %ld bytes%s\n", timerGetTicks() - startcompiletime,
-                (unsigned long)(g_scriptPtr-apScript), C_ScriptVersionString(g_scriptVersion));
+    initprintf("Compiled %ld bytes in %dms%s\n", (unsigned long)(g_scriptPtr - apScript),
+               timerGetTicks() - startcompiletime, C_ScriptVersionString(g_scriptVersion));
 
     for (auto *i : tables_free)
         hash_free(i);
