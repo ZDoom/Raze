@@ -594,10 +594,8 @@ static int osdcmd_spawn(osdfuncparm_t const * const parm)
 #if !defined LUNATIC
 static int osdcmd_setvar(osdfuncparm_t const * const parm)
 {
-    int32_t i, varval;
-    char varname[256];
-
-    if (parm->numparms != 2) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 2)
+        return OSDCMD_SHOWHELP;
 
     if (numplayers > 1)
     {
@@ -605,25 +603,19 @@ static int osdcmd_setvar(osdfuncparm_t const * const parm)
         return OSDCMD_OK;
     }
 
-    strcpy(varname,parm->parms[1]);
-    varval = Batol(varname);
-    i = hash_find(&h_gamevars,varname);
-    if (i >= 0)
-        varval=Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek);
+    int i = hash_find(&h_gamevars, parm->parms[1]);
+    int const newValue = (i >= 0) ? Batol(parm->parms[1]) : Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek);
 
-    strcpy(varname,parm->parms[0]);
-    i = hash_find(&h_gamevars,varname);
-    if (i >= 0)
-        Gv_SetVar(i, varval, g_player[screenpeek].ps->i, screenpeek);
+    if ((i = hash_find(&h_gamevars, parm->parms[0])) >= 0)
+        Gv_SetVar(i, newValue, g_player[screenpeek].ps->i, screenpeek);
+
     return OSDCMD_OK;
 }
 
 static int osdcmd_addlogvar(osdfuncparm_t const * const parm)
 {
-    int32_t i;
-    char varname[256];
-
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
 
     if (numplayers > 1)
     {
@@ -631,10 +623,11 @@ static int osdcmd_addlogvar(osdfuncparm_t const * const parm)
         return OSDCMD_OK;
     }
 
-    strcpy(varname,parm->parms[0]);
-    i = hash_find(&h_gamevars,varname);
+    int const i = hash_find(&h_gamevars, parm->parms[0]);
+
     if (i >= 0)
-        OSD_Printf("%s = %d\n", varname, Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek));
+        OSD_Printf("%s = %d\n", parm->parms[0], Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek));
+
     return OSDCMD_OK;
 }
 
@@ -648,7 +641,7 @@ static int osdcmd_setactorvar(osdfuncparm_t const * const parm)
         return OSDCMD_OK;
     }
 
-    int32_t spriteNum = Batol(parm->parms[0]);
+    int16_t const spriteNum = Batol(parm->parms[0]);
 
     if ((unsigned)spriteNum >= MAXSPRITES)
     {
@@ -657,16 +650,11 @@ static int osdcmd_setactorvar(osdfuncparm_t const * const parm)
     }
 
     // get value to set
-    char varname[MAXVARLABEL];
-    strcpy(varname, parm->parms[2]);
+    int i = hash_find(&h_gamevars, parm->parms[2]);
+    int const newValue = (i >= 0) ? Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek) : Batol(parm->parms[2]);
 
-    int32_t i = hash_find(&h_gamevars, varname);
-    int32_t const newValue = (i >= 0) ? Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek) : Batol(varname);
-
-    strcpy(varname, parm->parms[1]);
-    i = hash_find(&h_gamevars, varname);
-    if (i >= 0)
-        Gv_SetVar(i, newValue, spriteNum, -1);
+    if ((i = hash_find(&h_gamevars, parm->parms[1])) >= 0)
+        Gv_SetVar(i, newValue, spriteNum, screenpeek);
 
     return OSDCMD_OK;
 }
@@ -707,38 +695,36 @@ static int osdcmd_lua(osdfuncparm_t const * const parm)
 
 static int osdcmd_addpath(osdfuncparm_t const * const parm)
 {
-    char pathname[BMAX_PATH];
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    addsearchpath(parm->parms[0]);
 
-    strcpy(pathname,parm->parms[0]);
-    addsearchpath(pathname);
     return OSDCMD_OK;
 }
 
 static int osdcmd_initgroupfile(osdfuncparm_t const * const parm)
 {
-    char file[BMAX_PATH];
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    initgroupfile(parm->parms[0]);
 
-    strcpy(file,parm->parms[0]);
-    initgroupfile(file);
     return OSDCMD_OK;
 }
 
 static int osdcmd_cmenu(osdfuncparm_t const * const parm)
 {
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
     if (numplayers > 1)
     {
-        OSD_Printf("cmenu: disallowed in multiplayer\n");
+        OSD_Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
-    else
-    {
-        Menu_Change(Batol(parm->parms[0]));
-    }
+
+    Menu_Change(Batol(parm->parms[0]));
 
     return OSDCMD_OK;
 }
@@ -748,16 +734,16 @@ static int osdcmd_cmenu(osdfuncparm_t const * const parm)
 
 static int osdcmd_crosshaircolor(osdfuncparm_t const * const parm)
 {
-    int32_t r, g, b;
-
     if (parm->numparms != 3)
     {
         OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",CrosshairColors.r,CrosshairColors.g,CrosshairColors.b);
         return OSDCMD_SHOWHELP;
     }
-    r = Batol(parm->parms[0]);
-    g = Batol(parm->parms[1]);
-    b = Batol(parm->parms[2]);
+
+    uint8_t const r = Batol(parm->parms[0]);
+    uint8_t const g = Batol(parm->parms[1]);
+    uint8_t const b = Batol(parm->parms[2]);
+
     G_SetCrosshairColor(r,g,b);
 
     if (!OSD_ParsingScript())
@@ -1108,8 +1094,8 @@ static int osdcmd_bind(osdfuncparm_t const * const parm)
 
     // Populate the keyboard config menu based on the bind.
     // Take care of processing one-to-many bindings properly, too.
-    static char const s_gamefunc_[]    = "gamefunc_";
-    size_t constexpr  strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
+    static char const s_gamefunc_[] = "gamefunc_";
+    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
 
     while ((cp = Bstrstr(cp, s_gamefunc_)))
     {
@@ -1413,19 +1399,20 @@ static int osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
     char buf[32];
     int32_t maxlen = 0;
     int32_t haveev=0, haveac=0;
-    const char nn = Bstrlen("EVENT_");
+    static char const s_event_[] = "EVENT_";
+    int constexpr strlen_event_  = ARRAY_SIZE(s_event_) - 1;
 
-    for (int i=0; i<MAXEVENTS; i++)
+    for (auto & EventName : EventNames)
     {
-        int32_t len = Bstrlen(EventNames[i]+nn);
-        Bassert(len < (int32_t)sizeof(buf));
+        int const len = Bstrlen(EventName+strlen_event_);
+        Bassert(len < ARRAY_SIZE(buf));
         maxlen = max(len, maxlen);
     }
 
     for (int i=0; i<MAXEVENTS; i++)
         if (g_eventCalls[i])
         {
-            int32_t n=Bsprintf(buf, "%s", EventNames[i]+nn);
+            int32_t n=Bsprintf(buf, "%s", EventNames[i]+strlen_event_);
 
             if (!haveev)
             {
@@ -1474,7 +1461,7 @@ static int osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
 
 static int osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
 {
-    int32_t r = osdcmd_cvar_set(parm);
+    int const r = osdcmd_cvar_set(parm);
 
     if (r != OSDCMD_OK) return r;
 
@@ -1598,7 +1585,7 @@ static int osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
 
 static int osdcmd_cvar_set_multi(osdfuncparm_t const * const parm)
 {
-    int32_t r = osdcmd_cvar_set_game(parm);
+    int const r = osdcmd_cvar_set_game(parm);
 
     if (r != OSDCMD_OK) return r;
 
@@ -1786,13 +1773,10 @@ int32_t registerosdcommands(void)
 
         Bsprintf(tempbuf, "gamefunc_%s", func);
 
-        char *const t = Xstrdup(tempbuf);
-        int const len = Bstrlen(t);
-
-        for (int j=0; j <= len; j++)
-            t[j] = Btolower(t[j]);
+        char *const t = Bstrtolower(Xstrdup(tempbuf));
 
         Bstrcat(tempbuf, ": game button");
+
         OSD_RegisterFunction(t, Xstrdup(tempbuf), osdcmd_button);
     }
 

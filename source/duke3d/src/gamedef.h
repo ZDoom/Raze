@@ -130,7 +130,7 @@ extern int32_t g_warningCnt;
 extern uint32_t g_scriptcrc;
 extern int32_t otherp;
 
-extern const char *EventNames[];  // MAXEVENTS
+extern const char *EventNames[MAXEVENTS];
 
 #if !defined LUNATIC
 extern intptr_t *g_scriptPtr;
