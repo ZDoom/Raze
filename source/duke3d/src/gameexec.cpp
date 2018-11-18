@@ -1179,7 +1179,7 @@ static int G_StartTrackSlotWrap(int const volumeNum, int const levelNum)
 int G_StartTrack(int const levelNum) { return G_StartTrackSlot(ud.volume_number, levelNum); }
 #endif
 
-LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int32_t sect, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp)
+LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, int x1, int y1, int x2, int y2, bool unbiasedp)
 {
     if (g_screenCapture)
         return;
@@ -2689,7 +2689,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_QGETSYSSTR:
                 insptr++;
                 {
-                    int32_t i = Gv_GetVarX(*insptr++), j;
+                    int const q = Gv_GetVarX(*insptr++);
+                    int j;
                     if (tw == CON_GETPNAME && *insptr == g_thisActorVarID)
                     {
                         j = vm.playerNum;
@@ -2701,20 +2702,20 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     switch (tw)
                     {
                         case CON_GETPNAME:
-                            if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXQUOTES || apStrings[i] == NULL))
+                            if (EDUKE32_PREDICT_FALSE((unsigned)q >= MAXQUOTES || apStrings[q] == NULL))
                             {
-                                CON_ERRPRINTF("invalid quote %d\n", i);
+                                CON_ERRPRINTF("invalid quote %d\n", q);
                                 break;
                             }
                             if (g_player[j].user_name[0])
-                                Bstrcpy(apStrings[i], g_player[j].user_name);
+                                Bstrcpy(apStrings[q], g_player[j].user_name);
                             else
-                                Bsprintf(apStrings[i], "%d", j);
+                                Bsprintf(apStrings[q], "%d", j);
                             break;
                         case CON_QGETSYSSTR:
-                            if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXQUOTES || apStrings[i] == NULL))
+                            if (EDUKE32_PREDICT_FALSE((unsigned)q >= MAXQUOTES || apStrings[q] == NULL))
                             {
-                                CON_ERRPRINTF("invalid quote %d\n", i);
+                                CON_ERRPRINTF("invalid quote %d\n", q);
                                 continue;
                             }
                             switch (j)
@@ -2722,7 +2723,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                 case STR_MAPNAME:
                                 case STR_MAPFILENAME:
                                 {
-                                    int32_t     levelNum = ud.volume_number * MAXLEVELS + ud.level_number;
+                                    int const levelNum = ud.volume_number * MAXLEVELS + ud.level_number;
                                     const char *pName;
 
                                     if (EDUKE32_PREDICT_FALSE((unsigned)levelNum >= ARRAY_SIZE(g_mapInfo)))
@@ -2740,7 +2741,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                         continue;
                                     }
 
-                                    Bstrcpy(apStrings[i], j == STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename);
+                                    Bstrcpy(apStrings[q], j == STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename);
                                     break;
                                 }
                                 case STR_PLAYERNAME:
@@ -2749,48 +2750,48 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                         CON_ERRPRINTF("invalid player %d\n", vm.playerNum);
                                         continue;
                                     }
-                                    Bstrcpy(apStrings[i], g_player[vm.playerNum].user_name);
+                                    Bstrcpy(apStrings[q], g_player[vm.playerNum].user_name);
                                     break;
                                 case STR_VERSION:
                                     Bsprintf(tempbuf, HEAD2 " %s", s_buildRev);
-                                    Bstrcpy(apStrings[i], tempbuf);
+                                    Bstrcpy(apStrings[q], tempbuf);
                                     break;
-                                case STR_GAMETYPE: Bstrcpy(apStrings[i], g_gametypeNames[ud.coop]); break;
+                                case STR_GAMETYPE: Bstrcpy(apStrings[q], g_gametypeNames[ud.coop]); break;
                                 case STR_VOLUMENAME:
                                     if (EDUKE32_PREDICT_FALSE((unsigned)ud.volume_number >= MAXVOLUMES))
                                     {
                                         CON_ERRPRINTF("invalid volume %d\n", ud.volume_number);
                                         continue;
                                     }
-                                    Bstrcpy(apStrings[i], g_volumeNames[ud.volume_number]);
+                                    Bstrcpy(apStrings[q], g_volumeNames[ud.volume_number]);
                                     break;
-                                case STR_YOURTIME: Bstrcpy(apStrings[i], G_PrintYourTime()); break;
-                                case STR_PARTIME: Bstrcpy(apStrings[i], G_PrintParTime()); break;
-                                case STR_DESIGNERTIME: Bstrcpy(apStrings[i], G_PrintDesignerTime()); break;
-                                case STR_BESTTIME: Bstrcpy(apStrings[i], G_PrintBestTime()); break;
-                                case STR_USERMAPFILENAME: Bstrcpy(apStrings[i], boardfilename); break;
-                                default: CON_ERRPRINTF("invalid string index %d or %d\n", i, j); continue;
+                                case STR_YOURTIME: Bstrcpy(apStrings[q], G_PrintYourTime()); break;
+                                case STR_PARTIME: Bstrcpy(apStrings[q], G_PrintParTime()); break;
+                                case STR_DESIGNERTIME: Bstrcpy(apStrings[q], G_PrintDesignerTime()); break;
+                                case STR_BESTTIME: Bstrcpy(apStrings[q], G_PrintBestTime()); break;
+                                case STR_USERMAPFILENAME: Bstrcpy(apStrings[q], boardfilename); break;
+                                default: CON_ERRPRINTF("invalid string index %d or %d\n", q, j); continue;
                             }
                             break;
                         case CON_QSTRCAT:
-                            if (EDUKE32_PREDICT_FALSE(apStrings[i] == NULL || apStrings[j] == NULL))
+                            if (EDUKE32_PREDICT_FALSE(apStrings[q] == NULL || apStrings[j] == NULL))
                                 goto nullquote;
-                            Bstrncat(apStrings[i], apStrings[j], (MAXQUOTELEN - 1) - Bstrlen(apStrings[i]));
+                            Bstrncat(apStrings[q], apStrings[j], (MAXQUOTELEN - 1) - Bstrlen(apStrings[q]));
                             break;
                         case CON_QSTRNCAT:
-                            if (EDUKE32_PREDICT_FALSE(apStrings[i] == NULL || apStrings[j] == NULL))
+                            if (EDUKE32_PREDICT_FALSE(apStrings[q] == NULL || apStrings[j] == NULL))
                                 goto nullquote;
-                            Bstrncat(apStrings[i], apStrings[j], Gv_GetVarX(*insptr++));
+                            Bstrncat(apStrings[q], apStrings[j], Gv_GetVarX(*insptr++));
                             break;
                         case CON_QSTRCPY:
-                            if (EDUKE32_PREDICT_FALSE(apStrings[i] == NULL || apStrings[j] == NULL))
+                            if (EDUKE32_PREDICT_FALSE(apStrings[q] == NULL || apStrings[j] == NULL))
                                 goto nullquote;
-                            if (i != j)
-                                Bstrcpy(apStrings[i], apStrings[j]);
+                            if (q != j)
+                                Bstrcpy(apStrings[q], apStrings[j]);
                             break;
                         default:
                         nullquote:
-                            CON_ERRPRINTF("invalid quote %d\n", apStrings[i] ? j : i);
+                            CON_ERRPRINTF("invalid quote %d\n", apStrings[q] ? j : q);
                             continue;
                     }
                     continue;
@@ -2799,8 +2800,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_CHANGESPRITESECT:
                 insptr++;
                 {
-                    int32_t const spriteNum = Gv_GetVarX(*insptr++);
-                    int32_t       sectNum   = Gv_GetVarX(*insptr++);
+                    int const spriteNum = Gv_GetVarX(*insptr++);
+                    int const sectNum   = Gv_GetVarX(*insptr++);
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES || (unsigned)sectNum >= MAXSECTORS))
                     {
@@ -2818,8 +2819,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_CHANGESPRITESTAT:
                 insptr++;
                 {
-                    int32_t const spriteNum = Gv_GetVarX(*insptr++);
-                    int32_t       statNum   = Gv_GetVarX(*insptr++);
+                    int const spriteNum = Gv_GetVarX(*insptr++);
+                    int const statNum   = Gv_GetVarX(*insptr++);
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES || (unsigned)statNum >= MAXSECTORS))
                     {
@@ -2835,26 +2836,28 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
                     if (sprite[spriteNum].statnum > STAT_ZOMBIEACTOR && (statNum == STAT_ACTOR || statNum == STAT_ZOMBIEACTOR))
                     {
-                        actor_t *const pActor = &actor[spriteNum];
+                        auto pActor = &actor[spriteNum];
+                        auto pSprite = &sprite[spriteNum];
+
 
                         Bmemset(&pActor->t_data, 0, sizeof pActor->t_data);
-                        pActor->lastv.x         = 0;
-                        pActor->lastv.y         = 0;
-                        pActor->timetosleep     = 0;
-                        pActor->cgg             = 0;
-                        pActor->movflag         = 0;
-                        pActor->tempang         = 0;
-                        pActor->dispicnum       = 0;
-                        pActor->flags           = 0;
-                        sprite[spriteNum].hitag = 0;
 
-                        if (G_HaveActor(sprite[spriteNum].picnum))
+                        pActor->lastv       = { 0, 0 };
+                        pActor->timetosleep = 0;
+                        pActor->cgg         = 0;
+                        pActor->movflag     = 0;
+                        pActor->tempang     = 0;
+                        pActor->dispicnum   = 0;
+                        pActor->flags       = 0;
+                        pSprite->hitag      = 0;
+
+                        if (G_HaveActor(pSprite->picnum))
                         {
-                            const intptr_t *actorptr = g_tile[sprite[spriteNum].picnum].execPtr;
+                            auto actorptr = g_tile[pSprite->picnum].execPtr;
                             // offsets
                             AC_ACTION_ID(pActor->t_data) = actorptr[1];
                             AC_MOVE_ID(pActor->t_data)   = actorptr[2];
-                            AC_MOVFLAGS(&sprite[spriteNum], &actor[spriteNum]) = actorptr[3];  // ai bits (movflags)
+                            AC_MOVFLAGS(pSprite, pActor) = actorptr[3];  // ai bits (movflags)
                         }
                     }
 
@@ -2920,17 +2923,17 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     // count of case statements
                     // script offset to default case (null if none)
                     // For each case: value, ptr to code
-                    int32_t const lValue = Gv_GetVarX(*insptr++);
-                    int32_t const lEnd   = *insptr++;
-                    int32_t const lCases = *insptr++;
+                    int const lValue    = Gv_GetVarX(*insptr++);
+                    int const endOffset = *insptr++;
+                    int const numCases  = *insptr++;
 
-                    intptr_t const *const lpDefault = insptr++;
-                    intptr_t const *const lpCases   = insptr;
+                    auto lpDefault = insptr++;
+                    auto lpCases   = insptr;
 
                     int left  = 0;
-                    int right = lCases - 1;
+                    int right = numCases - 1;
 
-                    insptr += lCases << 1;
+                    insptr += numCases << 1;
 
                     do
                     {
@@ -2959,7 +2962,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     }
 
                 matched:
-                    insptr = (intptr_t *)(lEnd + (intptr_t)&apScript[0]);
+                    insptr = (intptr_t *)(endOffset + (intptr_t)&apScript[0]);
 
                     continue;
                 }
