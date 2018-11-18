@@ -278,7 +278,12 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     ud.multimode = 1;
 
-    G_NewGame_EnterLevel();
+    if (g_player[myconnectindex].ps->gm & MODE_GAME)
+    {
+        G_NewGame(ud.m_volume_number, ud.m_level_number, ud.m_player_skill);
+        g_player[myconnectindex].ps->gm = MODE_RESTART;
+    }
+    else G_NewGame_EnterLevel();
 
     return OSDCMD_OK;
 }
