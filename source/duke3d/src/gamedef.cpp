@@ -859,69 +859,70 @@ const memberlabel_t WallLabels[]=
 
 const memberlabel_t ActorLabels[]=
 {
-    { "x",              ACTOR_X,                      0, 0, -1 },
-    { "y",              ACTOR_Y,                      0, 0, -1 },
-    { "z",              ACTOR_Z,                      0, 0, -1 },
-    { "cstat",          ACTOR_CSTAT,                  0, 0, -1 },
-    { "picnum",         ACTOR_PICNUM,                 0, 0, -1 },
-    { "shade",          ACTOR_SHADE,                  0, 0, -1 },
-    { "pal",            ACTOR_PAL,                    0, 0, -1 },
-    { "clipdist",       ACTOR_CLIPDIST,               0, 0, -1 },
-//    { "filler",       ACTOR_DETAIL,                 0, 0, -1 },
-    { "blend",          ACTOR_DETAIL,                 0, 0, -1 },
-    { "xrepeat",        ACTOR_XREPEAT,                0, 0, -1 },
-    { "yrepeat",        ACTOR_YREPEAT,                0, 0, -1 },
-    { "xoffset",        ACTOR_XOFFSET,                0, 0, -1 },
-    { "yoffset",        ACTOR_YOFFSET,                0, 0, -1 },
-    { "sectnum",        ACTOR_SECTNUM,                0, 0, -1 },
-    { "statnum",        ACTOR_STATNUM,                0, 0, -1 },
-    { "ang",            ACTOR_ANG,                    0, 0, -1 },
-    { "owner",          ACTOR_OWNER,                  0, 0, -1 },
-    { "xvel",           ACTOR_XVEL,                   0, 0, -1 },
-    { "yvel",           ACTOR_YVEL,                   0, 0, -1 },
-    { "zvel",           ACTOR_ZVEL,                   0, 0, -1 },
-    { "lotag",          ACTOR_LOTAG,                  0, 0, -1 },
-    { "hitag",          ACTOR_HITAG,                  0, 0, -1 },
-    { "extra",          ACTOR_EXTRA,                  0, 0, -1 },
+    LABEL_SETUP(sprite, x,        ACTOR_X),
+    LABEL_SETUP(sprite, y,        ACTOR_Y),
+    LABEL_SETUP(sprite, z,        ACTOR_Z),
+    LABEL_SETUP(sprite, cstat,    ACTOR_CSTAT),
+    LABEL_SETUP(sprite, picnum,   ACTOR_PICNUM),
+    LABEL_SETUP(sprite, shade,    ACTOR_SHADE),
+    LABEL_SETUP(sprite, pal,      ACTOR_PAL),
+    LABEL_SETUP(sprite, clipdist, ACTOR_CLIPDIST),
+    LABEL_SETUP(sprite, blend,    ACTOR_DETAIL),
+    LABEL_SETUP(sprite, xrepeat,  ACTOR_XREPEAT),
+    LABEL_SETUP(sprite, yrepeat,  ACTOR_YREPEAT),
+    LABEL_SETUP(sprite, xoffset,  ACTOR_XOFFSET),
+    LABEL_SETUP(sprite, yoffset,  ACTOR_YOFFSET),
+    { "sectnum", ACTOR_SECTNUM, sizeof(sprite[0].sectnum) | LABEL_WRITEFUNC, 0, offsetof(uspritetype, sectnum) },
+    { "statnum", ACTOR_STATNUM, sizeof(sprite[0].statnum) | LABEL_WRITEFUNC, 0, offsetof(uspritetype, statnum) },
+    LABEL_SETUP(sprite, ang,      ACTOR_ANG),
+    LABEL_SETUP(sprite, owner,    ACTOR_OWNER),
+    LABEL_SETUP(sprite, xvel,     ACTOR_XVEL),
+    LABEL_SETUP(sprite, yvel,     ACTOR_YVEL),
+    LABEL_SETUP(sprite, zvel,     ACTOR_ZVEL),
+    LABEL_SETUP(sprite, lotag,    ACTOR_LOTAG),
+    LABEL_SETUP(sprite, hitag,    ACTOR_HITAG),
+    LABEL_SETUP(sprite, extra,    ACTOR_EXTRA),
+
+    { "ulotag", ACTOR_ULOTAG, sizeof(sprite[0].lotag) | LABEL_UNSIGNED, 0, offsetof(uspritetype, lotag) },
+    { "uhitag", ACTOR_UHITAG, sizeof(sprite[0].hitag) | LABEL_UNSIGNED, 0, offsetof(uspritetype, hitag) },
 
     // ActorExtra labels...
-    { "htcgg",          ACTOR_HTCGG,                  0, 0, -1 },
-    { "htpicnum",       ACTOR_HTPICNUM,               0, 0, -1 },
-    { "htang",          ACTOR_HTANG,                  0, 0, -1 },
-    { "htextra",        ACTOR_HTEXTRA,                0, 0, -1 },
-    { "htowner",        ACTOR_HTOWNER,                0, 0, -1 },
-    { "htmovflag",      ACTOR_HTMOVFLAG,              0, 0, -1 },
-    { "httempang",      ACTOR_HTTEMPANG,              0, 0, -1 },
-    { "htactorstayput", ACTOR_HTSTAYPUT,              0, 0, -1 },
-    { "htdispicnum",    ACTOR_HTDISPICNUM,            0, 0, -1 },
-    { "httimetosleep",  ACTOR_HTTIMETOSLEEP,          0, 0, -1 },
-    { "htfloorz",       ACTOR_HTFLOORZ,               0, 0, -1 },
-    { "htceilingz",     ACTOR_HTCEILINGZ,             0, 0, -1 },
-    { "htlastvx",       ACTOR_HTLASTVX,               0, 0, -1 },
-    { "htlastvy",       ACTOR_HTLASTVY,               0, 0, -1 },
-    { "htbposx",        ACTOR_HTBPOSX,                0, 0, -1 },
-    { "htbposy",        ACTOR_HTBPOSY,                0, 0, -1 },
-    { "htbposz",        ACTOR_HTBPOSZ,                0, 0, -1 },
+    LABEL_SETUP_UNMATCHED(actor, cgg,         "htcgg",          ACTOR_HTCGG),
+    LABEL_SETUP_UNMATCHED(actor, picnum,      "htpicnum",       ACTOR_HTPICNUM),
+    LABEL_SETUP_UNMATCHED(actor, ang,         "htang",          ACTOR_HTANG),
+    LABEL_SETUP_UNMATCHED(actor, extra,       "htextra",        ACTOR_HTEXTRA),
+    LABEL_SETUP_UNMATCHED(actor, owner,       "htowner",        ACTOR_HTOWNER),
+    LABEL_SETUP_UNMATCHED(actor, movflag,     "htmovflag",      ACTOR_HTMOVFLAG),
+    LABEL_SETUP_UNMATCHED(actor, tempang,     "httempang",      ACTOR_HTTEMPANG),
+    LABEL_SETUP_UNMATCHED(actor, stayput,     "htactorstayput", ACTOR_HTSTAYPUT),
+    LABEL_SETUP_UNMATCHED(actor, dispicnum,   "htdispicnum",    ACTOR_HTDISPICNUM),
+    LABEL_SETUP_UNMATCHED(actor, timetosleep, "httimetosleep",  ACTOR_HTTIMETOSLEEP),
+    LABEL_SETUP_UNMATCHED(actor, floorz,      "htfloorz",       ACTOR_HTFLOORZ),
+    LABEL_SETUP_UNMATCHED(actor, ceilingz,    "htceilingz",     ACTOR_HTCEILINGZ),
+    LABEL_SETUP_UNMATCHED(actor, lastv.x,     "htlastvx",       ACTOR_HTLASTVX),
+    LABEL_SETUP_UNMATCHED(actor, lastv.y,     "htlastvy",       ACTOR_HTLASTVY),
+    LABEL_SETUP_UNMATCHED(actor, bpos.x,      "htbposx",        ACTOR_HTBPOSX),
+    LABEL_SETUP_UNMATCHED(actor, bpos.y,      "htbposy",        ACTOR_HTBPOSY),
+    LABEL_SETUP_UNMATCHED(actor, bpos.z,      "htbposz",        ACTOR_HTBPOSZ),
+
     { "htg_t",          ACTOR_HTG_T,                  LABEL_HASPARM2, 10, -1 },
+    LABEL_SETUP_UNMATCHED(actor, flags,       "htflags",        ACTOR_HTFLAGS),
 
     // model flags
 
-    { "angoff",         ACTOR_ANGOFF,                 0, 0, -1 },
-    { "pitch",          ACTOR_PITCH,                  0, 0, -1 },
-    { "roll",           ACTOR_ROLL,                   0, 0, -1 },
-    { "mdxoff",         ACTOR_MDXOFF,                 0, 0, -1 },
-    { "mdyoff",         ACTOR_MDYOFF,                 0, 0, -1 },
-    { "mdzoff",         ACTOR_MDZOFF,                 0, 0, -1 },
-    { "mdflags",        ACTOR_MDFLAGS,                0, 0, -1 },
-    { "xpanning",       ACTOR_XPANNING,               0, 0, -1 },
-    { "ypanning",       ACTOR_YPANNING,               0, 0, -1 },
+    LABEL_SETUP(spriteext, angoff, ACTOR_ANGOFF),
+    LABEL_SETUP(spriteext, pitch, ACTOR_PITCH),
+    LABEL_SETUP(spriteext, roll, ACTOR_ROLL),
 
-    { "htflags",        ACTOR_HTFLAGS,                0, 0, -1 },
+    LABEL_SETUP_UNMATCHED(spriteext, offset.x, "mdxoff",  ACTOR_MDXOFF),
+    LABEL_SETUP_UNMATCHED(spriteext, offset.y, "mdyoff",  ACTOR_MDYOFF),
+    LABEL_SETUP_UNMATCHED(spriteext, offset.z, "mdzoff",  ACTOR_MDZOFF),
+    LABEL_SETUP_UNMATCHED(spriteext, flags,    "mdflags", ACTOR_MDFLAGS),
+
+    LABEL_SETUP(spriteext, xpanning, ACTOR_XPANNING),
+    LABEL_SETUP(spriteext, ypanning, ACTOR_YPANNING),
 
     { "alpha",          ACTOR_ALPHA,                  0, 0, -1 },
-
-    { "ulotag",         ACTOR_ULOTAG,                 0, 0, -1 },
-    { "uhitag",         ACTOR_UHITAG,                 0, 0, -1 },
 
     { "isvalid",        ACTOR_ISVALID,                0, 0, -1 },
 // aliases:
@@ -2001,10 +2002,25 @@ static void C_GetNextVarType(int32_t type)
             switch (id - g_structVarIDs)
             {
             case STRUCT_SPRITE:
-                *g_scriptPtr++=ActorLabels[labelNum].lId;
+                {
+                    auto const &label = ActorLabels[labelNum];
+                    *g_scriptPtr++ = label.lId;
 
-                if (ActorLabels[labelNum].flags & LABEL_HASPARM2)
-                    C_GetNextVarType(0);
+                    Bassert((*varptr & (MAXGAMEVARS-1)) == g_structVarIDs + STRUCT_SPRITE);
+
+                    if (label.flags & LABEL_HASPARM2)
+                        C_GetNextVarType(0);
+                    else if (label.offset != -1 && (label.flags & LABEL_READFUNC) == 0)
+                    {
+                        if (labelNum >= ACTOR_SPRITEEXT_BEGIN)
+                            *varptr = (*varptr & ~(MAXGAMEVARS-1)) + g_structVarIDs + STRUCT_SPRITEEXT_INTERNAL__;
+                        else if (labelNum >= ACTOR_STRUCT_BEGIN)
+                            *varptr = (*varptr & ~(MAXGAMEVARS-1)) + g_structVarIDs + STRUCT_ACTOR_INTERNAL__;
+                        else
+                            *varptr = (*varptr & ~(MAXGAMEVARS-1)) + g_structVarIDs + STRUCT_SPRITE_INTERNAL__;
+                    }
+                }
+
                 break;
             case STRUCT_SECTOR:
                 *g_scriptPtr++=SectorLabels[labelNum].lId;
@@ -4080,20 +4096,66 @@ DO_DEFSTATE:
             }
 
         case CON_SETACTOR:
-        case CON_GETACTOR:
             {
-                int32_t const labelNum = C_GetStructureIndexes(1, &h_actor);
+                intptr_t * const ins = g_scriptPtr-1;
+                int const labelNum = C_GetStructureIndexes(1, &h_actor);
 
                 if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=ActorLabels[labelNum].lId;
+                Bassert((*ins & VM_INSTMASK) == CON_SETACTOR);
 
-                if (ActorLabels[labelNum].flags & LABEL_HASPARM2)
+                auto const &label = ActorLabels[labelNum];
+
+                if (label.offset != -1 && (label.flags & (LABEL_WRITEFUNC|LABEL_HASPARM2)) == 0)
+                {
+                    if (labelNum >= ACTOR_SPRITEEXT_BEGIN)
+                        *ins = CON_SETSPRITEEXT;
+                    else if (labelNum >= ACTOR_STRUCT_BEGIN)
+                        *ins = CON_SETACTORSTRUCT;
+                    else
+                        *ins = CON_SETSPRITESTRUCT;
+                }
+
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=label.lId;
+
+                if (label.flags & LABEL_HASPARM2)
                     C_GetNextVar();
 
-                C_GetNextVarType((tw == CON_GETACTOR) ? GAMEVAR_READONLY : 0);
+                C_GetNextVar();
+                continue;
+            }
+
+        case CON_GETACTOR:
+            {
+                intptr_t * const ins = g_scriptPtr-1;
+                int const labelNum = C_GetStructureIndexes(1, &h_actor);
+
+                if (labelNum == -1)
+                    continue;
+
+                Bassert((*ins & VM_INSTMASK) == CON_GETACTOR);
+
+                auto const &label = ActorLabels[labelNum];
+
+                if (label.offset != -1 && (label.flags & (LABEL_READFUNC|LABEL_HASPARM2)) == 0)
+                {
+                    if (labelNum >= ACTOR_SPRITEEXT_BEGIN)
+                        *ins = CON_GETSPRITEEXT;
+                    else if (labelNum >= ACTOR_STRUCT_BEGIN)
+                        *ins = CON_GETACTORSTRUCT;
+                    else
+                        *ins = CON_GETSPRITESTRUCT;
+                }
+
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=label.lId;
+
+                if (label.flags & LABEL_HASPARM2)
+                    C_GetNextVar();
+
+                C_GetNextVarType(GAMEVAR_READONLY);
                 continue;
             }
 
@@ -6502,7 +6564,9 @@ void C_InitProjectiles(void)
 #if !defined LUNATIC
 static char const * C_ScriptVersionString(int32_t version)
 {
-#ifndef EDUKE32_STANDALONE
+#ifdef EDUKE32_STANDALONE
+    UNREFERENCED_PARAMETER(version);
+#else
     switch (version)
     {
     case 9:

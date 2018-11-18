@@ -1095,80 +1095,15 @@ void __fastcall VM_SetSector(int const sectNum, int const labelNum, int32_t newV
 
 void __fastcall VM_SetSprite(int const spriteNum, int const labelNum, int const lParm2, int32_t const newValue)
 {
-    if (EDUKE32_PREDICT_FALSE(((unsigned)spriteNum >= MAXSPRITES) ||
-        (ActorLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[labelNum].maxParm2)))
-    {
-        CON_ERRPRINTF("%s[%d] invalid for sprite %d\n", ActorLabels[labelNum].name, lParm2, spriteNum);
-        return;
-    }
-
-    auto &s   = sprite[spriteNum];
     auto &a   = actor[spriteNum];
     auto &ext = spriteext[spriteNum];
 
     switch (labelNum)
     {
-        case ACTOR_X:        s.x        = newValue; break;
-        case ACTOR_Y:        s.y        = newValue; break;
-        case ACTOR_Z:        s.z        = newValue; break;
-        case ACTOR_CSTAT:    s.cstat    = newValue; break;
-        case ACTOR_PICNUM:   s.picnum   = newValue; break;
-        case ACTOR_SHADE:    s.shade    = newValue; break;
-        case ACTOR_PAL:      s.pal      = newValue; break;
-        case ACTOR_CLIPDIST: s.clipdist = newValue; break;
-        case ACTOR_DETAIL:   s.blend    = newValue; break;
-        case ACTOR_XREPEAT:  s.xrepeat  = newValue; break;
-        case ACTOR_YREPEAT:  s.yrepeat  = newValue; break;
-        case ACTOR_XOFFSET:  s.xoffset  = newValue; break;
-        case ACTOR_YOFFSET:  s.yoffset  = newValue; break;
-        case ACTOR_ANG:      s.ang      = newValue; break;
-        case ACTOR_OWNER:    s.owner    = newValue; break;
-        case ACTOR_XVEL:     s.xvel     = newValue; break;
-        case ACTOR_YVEL:     s.yvel     = newValue; break;
-        case ACTOR_ZVEL:     s.zvel     = newValue; break;
-        case ACTOR_EXTRA:    s.extra    = newValue; break;
-
-        case ACTOR_LOTAG:  s.lotag =  (int16_t)newValue; break;
-        case ACTOR_HITAG:  s.hitag =  (int16_t)newValue; break;
-        case ACTOR_ULOTAG: s.lotag = (uint16_t)newValue; break;
-        case ACTOR_UHITAG: s.hitag = (uint16_t)newValue; break;
-
         case ACTOR_SECTNUM: changespritesect(spriteNum, newValue); break;
         case ACTOR_STATNUM: changespritestat(spriteNum, newValue); break;
-
-        case ACTOR_HTCGG:         a.cgg         = newValue; break;
-        case ACTOR_HTPICNUM:      a.picnum      = newValue; break;
-        case ACTOR_HTANG:         a.ang         = newValue; break;
-        case ACTOR_HTEXTRA:       a.extra       = newValue; break;
-        case ACTOR_HTOWNER:       a.owner       = newValue; break;
-        case ACTOR_HTMOVFLAG:     a.movflag     = newValue; break;
-        case ACTOR_HTTEMPANG:     a.tempang     = newValue; break;
-        case ACTOR_HTSTAYPUT:     a.stayput     = newValue; break;
-        case ACTOR_HTDISPICNUM:   a.dispicnum   = newValue; break;
-        case ACTOR_HTTIMETOSLEEP: a.timetosleep = newValue; break;
-        case ACTOR_HTFLOORZ:      a.floorz      = newValue; break;
-        case ACTOR_HTCEILINGZ:    a.ceilingz    = newValue; break;
-        case ACTOR_HTLASTVX:      a.lastv.x     = newValue; break;
-        case ACTOR_HTLASTVY:      a.lastv.y     = newValue; break;
-        case ACTOR_HTBPOSX:       a.bpos.x      = newValue; break;
-        case ACTOR_HTBPOSY:       a.bpos.y      = newValue; break;
-        case ACTOR_HTBPOSZ:       a.bpos.z      = newValue; break;
-        case ACTOR_HTFLAGS:       a.flags       = newValue; break;
-
         case ACTOR_HTG_T: a.t_data[lParm2] = newValue; break;
-
-        case ACTOR_ANGOFF:   ext.angoff   = newValue; break;
-        case ACTOR_PITCH:    ext.pitch    = newValue; break;
-        case ACTOR_ROLL:     ext.roll     = newValue; break;
-        case ACTOR_MDXOFF:   ext.offset.x = newValue; break;
-        case ACTOR_MDYOFF:   ext.offset.y = newValue; break;
-        case ACTOR_MDZOFF:   ext.offset.z = newValue; break;
-        case ACTOR_MDFLAGS:  ext.flags    = newValue; break;
-        case ACTOR_XPANNING: ext.xpanning = newValue; break;
-        case ACTOR_YPANNING: ext.ypanning = newValue; break;
-
         case ACTOR_ALPHA: ext.alpha = (float)newValue * (1.f / 255.0f); break;
-
         default: EDUKE32_UNREACHABLE_SECTION(break);
     }
 }
@@ -1176,80 +1111,15 @@ void __fastcall VM_SetSprite(int const spriteNum, int const labelNum, int const 
 
 int32_t __fastcall VM_GetSprite(int const spriteNum, int32_t labelNum, int const lParm2)
 {
-    if (EDUKE32_PREDICT_FALSE(((unsigned) spriteNum >= MAXSPRITES) ||
-        (ActorLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned) lParm2 >= (unsigned) ActorLabels[labelNum].maxParm2)))
-    {
-        CON_ERRPRINTF("%s[%d] invalid for sprite %d\n", ActorLabels[labelNum].name, lParm2, spriteNum);
-        return -1;
-    }
-
-    auto const &s   = sprite[spriteNum];
     auto const &a   = actor[spriteNum];
+    auto const &s   = sprite[spriteNum];
     auto const &ext = spriteext[spriteNum];
 
     switch (labelNum)
     {
-        case ACTOR_X:        labelNum = s.x;        break;
-        case ACTOR_Y:        labelNum = s.y;        break;
-        case ACTOR_Z:        labelNum = s.z;        break;
-        case ACTOR_CSTAT:    labelNum = s.cstat;    break;
-        case ACTOR_PICNUM:   labelNum = s.picnum;   break;
-        case ACTOR_SHADE:    labelNum = s.shade;    break;
-        case ACTOR_PAL:      labelNum = s.pal;      break;
-        case ACTOR_CLIPDIST: labelNum = s.clipdist; break;
-        case ACTOR_DETAIL:   labelNum = s.blend;    break;
-        case ACTOR_XREPEAT:  labelNum = s.xrepeat;  break;
-        case ACTOR_YREPEAT:  labelNum = s.yrepeat;  break;
-        case ACTOR_XOFFSET:  labelNum = s.xoffset;  break;
-        case ACTOR_YOFFSET:  labelNum = s.yoffset;  break;
-        case ACTOR_SECTNUM:  labelNum = s.sectnum;  break;
-        case ACTOR_STATNUM:  labelNum = s.statnum;  break;
-        case ACTOR_ANG:      labelNum = s.ang;      break;
-        case ACTOR_OWNER:    labelNum = s.owner;    break;
-        case ACTOR_XVEL:     labelNum = s.xvel;     break;
-        case ACTOR_YVEL:     labelNum = s.yvel;     break;
-        case ACTOR_ZVEL:     labelNum = s.zvel;     break;
-        case ACTOR_EXTRA:    labelNum = s.extra;    break;
-
-        case ACTOR_LOTAG:  labelNum =  (int16_t)s.lotag; break;
-        case ACTOR_HITAG:  labelNum =  (int16_t)s.hitag; break;
-        case ACTOR_ULOTAG: labelNum = (uint16_t)s.lotag; break;
-        case ACTOR_UHITAG: labelNum = (uint16_t)s.hitag; break;
-
-        case ACTOR_HTCGG:         labelNum = a.cgg;         break;
-        case ACTOR_HTPICNUM:      labelNum = a.picnum;      break;
-        case ACTOR_HTANG:         labelNum = a.ang;         break;
-        case ACTOR_HTEXTRA:       labelNum = a.extra;       break;
-        case ACTOR_HTOWNER:       labelNum = a.owner;       break;
-        case ACTOR_HTMOVFLAG:     labelNum = a.movflag;     break;
-        case ACTOR_HTTEMPANG:     labelNum = a.tempang;     break;
-        case ACTOR_HTSTAYPUT:     labelNum = a.stayput;     break;
-        case ACTOR_HTDISPICNUM:   labelNum = a.dispicnum;   break;
-        case ACTOR_HTTIMETOSLEEP: labelNum = a.timetosleep; break;
-        case ACTOR_HTFLOORZ:      labelNum = a.floorz;      break;
-        case ACTOR_HTCEILINGZ:    labelNum = a.ceilingz;    break;
-        case ACTOR_HTLASTVX:      labelNum = a.lastv.x;     break;
-        case ACTOR_HTLASTVY:      labelNum = a.lastv.y;     break;
-        case ACTOR_HTBPOSX:       labelNum = a.bpos.x;      break;
-        case ACTOR_HTBPOSY:       labelNum = a.bpos.y;      break;
-        case ACTOR_HTBPOSZ:       labelNum = a.bpos.z;      break;
-        case ACTOR_HTFLAGS:       labelNum = a.flags;       break;
-
         case ACTOR_HTG_T: labelNum = a.t_data[lParm2]; break;
-
-        case ACTOR_ANGOFF:   labelNum = ext.angoff;   break;
-        case ACTOR_PITCH:    labelNum = ext.pitch;    break;
-        case ACTOR_ROLL:     labelNum = ext.roll;     break;
-        case ACTOR_MDXOFF:   labelNum = ext.offset.x; break;
-        case ACTOR_MDYOFF:   labelNum = ext.offset.y; break;
-        case ACTOR_MDZOFF:   labelNum = ext.offset.z; break;
-        case ACTOR_MDFLAGS:  labelNum = ext.flags;    break;
-        case ACTOR_XPANNING: labelNum = ext.xpanning; break;
-        case ACTOR_YPANNING: labelNum = ext.ypanning; break;
-
         case ACTOR_ALPHA: labelNum = (uint8_t)(ext.alpha * 255.0f); break;
-        case ACTOR_ISVALID: labelNum = (sprite[spriteNum].statnum != MAXSTATUS); break;
-
+        case ACTOR_ISVALID: labelNum = (s.statnum != MAXSTATUS); break;
         default: EDUKE32_UNREACHABLE_SECTION(labelNum = -1; break);
     }
 

@@ -4734,6 +4734,14 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+                    auto const &actorLabel = ActorLabels[labelNum];
+
+                    if (EDUKE32_PREDICT_FALSE(((unsigned)spriteNum >= MAXSPRITES)
+                                              || (actorLabel.flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)actorLabel.maxParm2)))
+                    {
+                        CON_ERRPRINTF("%s[%d] invalid for sprite %d\n", actorLabel.name, lParm2, spriteNum);
+                        continue;
+                    }
 
                     VM_SetSprite(spriteNum, labelNum, lParm2, Gv_GetVarX(*insptr++));
                     continue;
@@ -4745,8 +4753,117 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+                    auto const &actorLabel = ActorLabels[labelNum];
+
+                    if (EDUKE32_PREDICT_FALSE(((unsigned)spriteNum >= MAXSPRITES)
+                                              || (actorLabel.flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)actorLabel.maxParm2)))
+                    {
+                        CON_ERRPRINTF("%s[%d] invalid for sprite %d\n", actorLabel.name, lParm2, spriteNum);
+                        continue;
+                    }
 
                     Gv_SetVarX(*insptr++, VM_GetSprite(spriteNum, labelNum, lParm2));
+                    continue;
+                }
+
+            case CON_SETACTORSTRUCT:
+                insptr++;
+                {
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const labelNum  = *insptr++;
+                    auto const &actorLabel = ActorLabels[labelNum];
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+                    {
+                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
+                        continue;
+                    }
+
+                    VM_SetStruct(actorLabel.flags, (intptr_t *)((char *)&actor[spriteNum] + actorLabel.offset), Gv_GetVarX(*insptr++));
+                    continue;
+                }
+
+            case CON_GETACTORSTRUCT:
+                insptr++;
+                {
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const labelNum  = *insptr++;
+                    auto const &actorLabel = ActorLabels[labelNum];
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+                    {
+                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
+                        continue;
+                    }
+
+                    Gv_SetVarX(*insptr++, VM_GetStruct(actorLabel.flags, (intptr_t *)((char *)&actor[spriteNum] + actorLabel.offset)));
+                    continue;
+                }
+
+            case CON_SETSPRITESTRUCT:
+                insptr++;
+                {
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const labelNum  = *insptr++;
+                    auto const &spriteLabel = ActorLabels[labelNum];
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+                    {
+                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
+                        continue;
+                    }
+
+                    VM_SetStruct(spriteLabel.flags, (intptr_t *)((char *)&sprite[spriteNum] + spriteLabel.offset), Gv_GetVarX(*insptr++));
+                    continue;
+                }
+
+            case CON_GETSPRITESTRUCT:
+                insptr++;
+                {
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const labelNum  = *insptr++;
+                    auto const &spriteLabel = ActorLabels[labelNum];
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+                    {
+                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
+                        continue;
+                    }
+
+                    Gv_SetVarX(*insptr++, VM_GetStruct(spriteLabel.flags, (intptr_t *)((char *)&sprite[spriteNum] + spriteLabel.offset)));
+                    continue;
+                }
+            case CON_SETSPRITEEXT:
+                insptr++;
+                {
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const labelNum  = *insptr++;
+                    auto const &spriteExtLabel = ActorLabels[labelNum];
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+                    {
+                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
+                        continue;
+                    }
+
+                    VM_SetStruct(spriteExtLabel.flags, (intptr_t *)((char *)&spriteext[spriteNum] + spriteExtLabel.offset), Gv_GetVarX(*insptr++));
+                    continue;
+                }
+
+            case CON_GETSPRITEEXT:
+                insptr++;
+                {
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const labelNum  = *insptr++;
+                    auto const &spriteExtLabel = ActorLabels[labelNum];
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+                    {
+                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
+                        continue;
+                    }
+
+                    Gv_SetVarX(*insptr++, VM_GetStruct(spriteExtLabel.flags, (intptr_t *)((char *)&spriteext[spriteNum] + spriteExtLabel.offset)));
                     continue;
                 }
 

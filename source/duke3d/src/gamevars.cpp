@@ -687,10 +687,24 @@ special:
         switch (gameVar - g_structVarIDs)
         {
         case STRUCT_SPRITE:
-            arrayIndexVar = (EDUKE32_PREDICT_FALSE(ActorLabels[labelNum].flags & LABEL_HASPARM2)) ?
-                        Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
+            arrayIndexVar = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
             CHECK_INDEX(MAXSPRITES);
             returnValue = VM_GetSprite(arrayIndex, labelNum, arrayIndexVar);
+            break;
+
+        case STRUCT_SPRITE_INTERNAL__:
+            CHECK_INDEX(MAXSPRITES);
+            returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((char *)&sprite[arrayIndex] + ActorLabels[labelNum].offset));
+            break;
+
+        case STRUCT_ACTOR_INTERNAL__:
+            CHECK_INDEX(MAXSPRITES);
+            returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((char *)&actor[arrayIndex] + ActorLabels[labelNum].offset));
+            break;
+
+        case STRUCT_SPRITEEXT_INTERNAL__:
+            CHECK_INDEX(MAXSPRITES);
+            returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((char *)&spriteext[arrayIndex] + ActorLabels[labelNum].offset));
             break;
 
         case STRUCT_TSPR:
@@ -896,9 +910,24 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
         switch (structIndex)
         {
             case STRUCT_SPRITE:
-                arrayIndexVar = (EDUKE32_PREDICT_FALSE(ActorLabels[labelNum].flags & LABEL_HASPARM2)) ? Gv_GetVarX(*insptr++) : 0;
+                arrayIndexVar = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
                 CHECK_INDEX(MAXSPRITES, GVX_BADSPRITE);
                 returnValue = VM_GetSprite(arrayIndex, labelNum, arrayIndexVar);
+                break;
+
+            case STRUCT_SPRITE_INTERNAL__:
+                CHECK_INDEX(MAXSPRITES, GVX_BADSPRITE);
+                returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((char *)&sprite[arrayIndex] + ActorLabels[labelNum].offset));
+                break;
+
+            case STRUCT_ACTOR_INTERNAL__:
+                CHECK_INDEX(MAXSPRITES, GVX_BADSPRITE);
+                returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((char *)&actor[arrayIndex] + ActorLabels[labelNum].offset));
+                break;
+
+            case STRUCT_SPRITEEXT_INTERNAL__:
+                CHECK_INDEX(MAXSPRITES, GVX_BADSPRITE);
+                returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((char *)&spriteext[arrayIndex] + ActorLabels[labelNum].offset));
                 break;
 
             case STRUCT_TSPR:
@@ -1081,11 +1110,11 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
         }
 
         outBuf[j] = (value ^ -invertResult) + invertResult;
-        continue;
-
-    perr:
-        CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], vm.playerNum);
     }
+    return;
+
+perr:
+    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], vm.playerNum);
 }
 
 void __fastcall Gv_SetVarX(int const gameVar, int const newValue)
@@ -1555,6 +1584,9 @@ static void Gv_AddSystemVars(void)
     // special vars for struct access
     // KEEPINSYNC gamedef.h: enum QuickStructureAccess_t
     Gv_NewVar("sprite", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("__sprite__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("__actor__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("__spriteext__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("sector", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("wall", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("player", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
