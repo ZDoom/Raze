@@ -36,6 +36,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
+enum vmflags_t
+{
+    VM_RETURN       = 0x00000001,
+    VM_KILL         = 0x00000002,
+    VM_NOEXECUTE    = 0x00000004,
+};
+
 extern int32_t ticrandomseed;
 
 extern vmstate_t vm;
@@ -103,10 +110,12 @@ static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNu
 }
 
 #define CON_ERRPRINTF(Text, ...) do { \
+    vm.flags |= VM_RETURN; \
     OSD_Printf("Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
 } while (0)
 
 #define CON_CRITICALERRPRINTF(Text, ...) do { \
+    vm.flags |= VM_RETURN; \
     OSD_Printf("Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
     wm_msgbox(APPNAME, "Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
 } while (0)

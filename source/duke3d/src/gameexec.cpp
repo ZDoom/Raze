@@ -46,13 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 vmstate_t vm;
 
 #if !defined LUNATIC
-enum vmflags_t
-{
-    VM_RETURN       = 0x00000001,
-    VM_KILL         = 0x00000002,
-    VM_NOEXECUTE    = 0x00000004,
-};
-
 int32_t g_tw;
 int32_t g_errorLineNum;
 int32_t g_currentEventExec = -1;
@@ -1277,7 +1270,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
     while (loop)
     {
-        if (vm.flags & (VM_RETURN | VM_KILL | VM_NOEXECUTE))
+        if (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE))
             break;
 
         tw = *insptr;
@@ -1436,7 +1429,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE(*(insptr + 1) == 0))
                 {
                     CON_CRITICALERRPRINTF("divide by zero!\n");
-                    insptr += 2;
                     continue;
                 }
                 Gv_DivVar(*insptr, *(insptr + 1));
@@ -1616,7 +1608,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE(*(insptr + 1) == 0))
                 {
                     CON_CRITICALERRPRINTF("mod by zero!\n");
-                    insptr += 2;
                     continue;
                 }
 
@@ -1710,7 +1701,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((apStrings[strIndex] == NULL || apXStrings[XstrIndex] == NULL)))
                     {
                         CON_ERRPRINTF("invalid source quote %d or destination quote %d\n", XstrIndex, strIndex);
-                        break;
+                        continue;
                     }
                     Bstrcpy(apStrings[strIndex], apXStrings[XstrIndex]);
                     continue;
@@ -2027,7 +2018,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)soundNum >= MAXSOUNDS))
                     {
                         CON_ERRPRINTF("invalid sound %d\n", soundNum);
-                        insptr++;
                         continue;
                     }
 
@@ -2040,7 +2030,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE((unsigned)*(++insptr) >= MAXSOUNDS))
                 {
                     CON_ERRPRINTF("invalid sound %d\n", (int32_t)*insptr);
-                    insptr++;
                     continue;
                 }
                 VM_CONDITIONAL(S_CheckSoundPlaying(vm.spriteNum, *insptr));
@@ -2051,7 +2040,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE((unsigned)*(++insptr) >= MAXSOUNDS))
                 {
                     CON_ERRPRINTF("invalid sound %d\n", (int32_t)*insptr);
-                    insptr++;
                     continue;
                 }
                 if (S_CheckSoundPlaying(vm.spriteNum, *insptr))
@@ -2116,7 +2104,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE((unsigned)*(++insptr) >= MAXSOUNDS))
                 {
                     CON_ERRPRINTF("invalid sound %d\n", (int32_t)*insptr);
-                    insptr++;
                     continue;
                 }
                 if (vm.playerNum == screenpeek || (g_gametypeFlags[ud.coop] & GAMETYPE_COOPSOUND)
@@ -2132,7 +2119,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE((unsigned)*(++insptr) >= MAXSOUNDS))
                 {
                     CON_ERRPRINTF("invalid sound %d\n", (int32_t)*insptr);
-                    insptr++;
                     continue;
                 }
                 A_PlaySound(*insptr++, vm.spriteNum);
@@ -2341,7 +2327,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 {
                     int const xRange = Gv_GetVarX(*insptr++);
                     renderSetAspect(xRange, Gv_GetVarX(*insptr++));
-                    break;
+                    continue;
                 }
 
             case CON_SSP:
@@ -2353,10 +2339,10 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
                     {
                         CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        break;
+                        continue;
                     }
                     A_SetSprite(spriteNum, clipType);
-                    break;
+                    continue;
                 }
 
             case CON_ACTIVATEBYSECTOR:
@@ -2368,10 +2354,10 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
                     {
                         CON_ERRPRINTF("invalid sector %d\n", sectNum);
-                        break;
+                        continue;
                     }
                     G_ActivateBySector(sectNum, spriteNum);
-                    break;
+                    continue;
                 }
 
             case CON_OPERATESECTORS:
@@ -2383,10 +2369,10 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
                     {
                         CON_ERRPRINTF("invalid sector %d\n", sectNum);
-                        break;
+                        continue;
                     }
                     G_OperateSectors(sectNum, spriteNum);
-                    break;
+                    continue;
                 }
 
             case CON_OPERATEACTIVATORS:
@@ -2398,10 +2384,10 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
                     {
                         CON_ERRPRINTF("invalid player %d\n", playerNum);
-                        break;
+                        continue;
                     }
                     G_OperateActivators(nTag, playerNum);
-                    break;
+                    continue;
                 }
 
 
@@ -2414,7 +2400,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)nSprite1 >= MAXSPRITES || (unsigned)nSprite2 >= MAXSPRITES))
                     {
                         CON_ERRPRINTF("invalid sprite %d\n", (unsigned)nSprite1 >= MAXSPRITES ? nSprite1 : nSprite2);
-                        insptr++;
                         continue;
                     }
 
@@ -2454,7 +2439,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE(apStrings[quoteNum] == NULL))
                     {
                         CON_ERRPRINTF("null quote %d\n", quoteNum);
-                        Gv_SetVarX(gameVar, -1);
                         continue;
                     }
 
@@ -2681,7 +2665,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE(apStrings[quote1] == NULL || apStrings[quote2] == NULL))
                     {
                         CON_ERRPRINTF("null quote %d\n", apStrings[quote1] ? quote2 : quote1);
-                        Gv_SetVarX(gameVar, -2);
                         continue;
                     }
 
@@ -2722,7 +2705,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                             if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXQUOTES || apStrings[i] == NULL))
                             {
                                 CON_ERRPRINTF("invalid quote %d\n", i);
-                                break;
+                                continue;
                             }
                             switch (j)
                             {
@@ -2735,7 +2718,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                     if (EDUKE32_PREDICT_FALSE((unsigned)levelNum >= ARRAY_SIZE(g_mapInfo)))
                                     {
                                         CON_ERRPRINTF("out of bounds map number (vol=%d, lev=%d)\n", ud.volume_number, ud.level_number);
-                                        break;
+                                        continue;
                                     }
 
                                     pName = j == STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename;
@@ -2744,7 +2727,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                     {
                                         CON_ERRPRINTF("attempted access to %s of non-existent map (vol=%d, lev=%d)",
                                                       j == STR_MAPNAME ? "name" : "file name", ud.volume_number, ud.level_number);
-                                        break;
+                                        continue;
                                     }
 
                                     Bstrcpy(apStrings[i], j == STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename);
@@ -2754,7 +2737,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                     if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= (unsigned)g_mostConcurrentPlayers))
                                     {
                                         CON_ERRPRINTF("invalid player %d\n", vm.playerNum);
-                                        break;
+                                        continue;
                                     }
                                     Bstrcpy(apStrings[i], g_player[vm.playerNum].user_name);
                                     break;
@@ -2767,7 +2750,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                     if (EDUKE32_PREDICT_FALSE((unsigned)ud.volume_number >= MAXVOLUMES))
                                     {
                                         CON_ERRPRINTF("invalid volume %d\n", ud.volume_number);
-                                        break;
+                                        continue;
                                     }
                                     Bstrcpy(apStrings[i], g_volumeNames[ud.volume_number]);
                                     break;
@@ -2776,7 +2759,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                 case STR_DESIGNERTIME: Bstrcpy(apStrings[i], G_PrintDesignerTime()); break;
                                 case STR_BESTTIME: Bstrcpy(apStrings[i], G_PrintBestTime()); break;
                                 case STR_USERMAPFILENAME: Bstrcpy(apStrings[i], boardfilename); break;
-                                default: CON_ERRPRINTF("invalid string index %d or %d\n", i, j);
+                                default: CON_ERRPRINTF("invalid string index %d or %d\n", i, j); continue;
                             }
                             break;
                         case CON_QSTRCAT:
@@ -2798,7 +2781,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         default:
                         nullquote:
                             CON_ERRPRINTF("invalid quote %d\n", apStrings[i] ? j : i);
-                            break;
+                            continue;
                     }
                     continue;
                 }
@@ -3575,7 +3558,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
                     {
                         CON_ERRPRINTF("invalid sector %d\n", sectNum);
-                        Gv_SetVarX(returnVar, 0);
                         continue;
                     }
 
@@ -3643,7 +3625,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)v.firstSector >= (unsigned)numsectors || (unsigned)v.secondSector >= (unsigned)numsectors))
                     {
                         CON_ERRPRINTF("invalid sector %d\n", (unsigned)v.firstSector >= (unsigned)numsectors ? v.firstSector : v.secondSector);
-                        Gv_SetVarX(returnVar, 0);
+                        continue;
                     }
 
                     Gv_SetVarX(returnVar, cansee(v.vec1.x, v.vec1.y, v.vec1.z, v.firstSector, v.vec2.x, v.vec2.y, v.vec2.z, v.secondSector));
@@ -3745,7 +3727,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)v.spriteNum >= MAXSPRITES))
                     {
                         CON_ERRPRINTF("invalid sprite %d\n", v.spriteNum);
-                        insptr++;
                         continue;
                     }
 
@@ -3786,7 +3767,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)v.sectNum >= (unsigned)numsectors))
                     {
                         CON_ERRPRINTF("invalid sector %d\n", v.sectNum);
-                        insptr++;
                         continue;
                     }
                     Gv_SetVarX(*insptr++, (tw == CON_GETFLORZOFSLOPE ? getflorzofslope : getceilzofslope)(v.sectNum, v.vect.x, v.vect.y));
@@ -3826,7 +3806,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if ((unsigned)vm.pSprite->sectnum >= MAXSECTORS)
                 {
                     CON_ERRPRINTF("invalid sector %d\n", vm.pUSprite->sectnum);
-                    insptr++;
                     continue;
                 }
                 A_Spawn(vm.spriteNum, *insptr++);
@@ -4176,7 +4155,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= (unsigned)g_mostConcurrentPlayers))
                 {
                     CON_ERRPRINTF("invalid player %d\n", vm.playerNum);
-                    insptr += 4;
+                    continue;
                 }
                 else
                 {
@@ -4210,11 +4189,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE(apStrings[inputQuote] == NULL || apStrings[outputQuote] == NULL))
                     {
                         CON_ERRPRINTF("null quote %d\n", apStrings[inputQuote] ? outputQuote : inputQuote);
-
-                        while ((*insptr & VM_INSTMASK) != CON_NULLOP)
-                            Gv_GetVarX(*insptr++);
-
-                        insptr++;  // skip the NOP
                         continue;
                     }
 
@@ -4351,7 +4325,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                 if (EDUKE32_PREDICT_FALSE((unsigned)index >= MAXSPRITES - 1))
                                 {
                                     CON_ERRPRINTF("invalid array index\n");
-                                    Gv_GetVarX(*insptr++);
                                     continue;
                                 }
                                 initprintf(OSDTEXT_GREEN "CONLOGVAR: L=%d %d %d\n", g_errorLineNum, index, Gv_GetVar(*insptr++, index, vm.playerNum));
@@ -4366,7 +4339,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         else
                         {
                             // invalid varID
-                            insptr++;
                             CON_ERRPRINTF("invalid variable\n");
                             continue;  // out of switch
                         }
@@ -4723,13 +4695,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)lSprite >= MAXSPRITES))
                     {
                         CON_ERRPRINTF("invalid sprite %d\n", lSprite);
-
-                        if (lVar1 == MAXGAMEVARS || lVar1 & ((MAXGAMEVARS << 2) | (MAXGAMEVARS << 3)))
-                            insptr++;
-
-                        if (lVar2 == MAXGAMEVARS || lVar2 & ((MAXGAMEVARS << 2) | (MAXGAMEVARS << 3)))
-                            insptr++;
-
                         continue;
                     }
 
@@ -4752,13 +4717,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
                     {
                         CON_ERRPRINTF("invalid player %d\n", playerNum);
-
-                        if (lVar1 == MAXGAMEVARS || lVar1 & ((MAXGAMEVARS << 2) | (MAXGAMEVARS << 3)))
-                            insptr++;
-
-                        if (lVar2 == MAXGAMEVARS || lVar2 & ((MAXGAMEVARS << 2) | (MAXGAMEVARS << 3)))
-                            insptr++;
-
                         continue;
                     }
 
@@ -4889,12 +4847,14 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array %d or index out of bounds from "
                                              "sprite %d (%d), player %d\n",
                                    (int)tw, vm.spriteNum, TrackerCast(sprite[vm.spriteNum].picnum), vm.playerNum);
+                        vm.flags |= VM_RETURN;
                         continue;
                     }
 
                     if (EDUKE32_PREDICT_FALSE(aGameArrays[tw].flags & GAMEARRAY_READONLY))
                     {
-                        OSD_Printf("Tried to set on read-only array `%s'", aGameArrays[tw].szLabel);
+                        OSD_Printf(OSD_ERROR "Tried to set value in read-only array `%s'", aGameArrays[tw].szLabel);
+                        vm.flags |= VM_RETURN;
                         continue;
                     }
 
@@ -5210,7 +5170,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_CLAMP:
                 insptr++;
                 {
-                    tw            = *insptr++;
+                    tw = *insptr++;
                     int const min = Gv_GetVarX(*insptr++);
                     Gv_SetVarX(tw, clamp2(Gv_GetVarX(tw), min, Gv_GetVarX(*insptr++)));
                 }
@@ -5219,7 +5179,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_GETCLOSESTCOL:
                 insptr++;
                 {
-                    tw                = *insptr++;
+                    tw = *insptr++;
                     int32_t const rgb = Gv_GetVarX(*insptr++);
                     Gv_SetVarX(tw, getclosestcol_lim(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVarX(*insptr++)));
                 }
@@ -5285,7 +5245,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAX_WEAPONS))
                 {
                     CON_ERRPRINTF("invalid weapon %d\n", (int)tw);
-                    insptr++;
                     continue;
                 }
                 Gv_SetVarX(*insptr++, pPlayer->max_ammo_amount[tw]);
@@ -5297,7 +5256,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAX_WEAPONS))
                 {
                     CON_ERRPRINTF("invalid weapon %d\n", (int)tw);
-                    insptr++;
                     continue;
                 }
                 pPlayer->max_ammo_amount[tw] = Gv_GetVarX(*insptr++);
@@ -5666,6 +5624,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                             continue;
                         badindex:
                             OSD_Printf(OSD_ERROR "Line %d, for %s: index %d out of range!\n", g_errorLineNum, iter_tokens[iterType].token, nIndex);
+                            vm.flags |= VM_RETURN;
                             continue;
                     }
                     insptr = pEnd;
@@ -5700,6 +5659,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         }
                         break;
                     default: tw = 0; CON_ERRPRINTF("invalid inventory item %d\n", (int32_t) * (insptr - 1));
+                        continue;
                 }
 
                 VM_CONDITIONAL(tw);
@@ -5765,14 +5725,12 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 if (EDUKE32_PREDICT_FALSE((unsigned)(*insptr) >= MAXQUOTES) || apStrings[*insptr] == NULL)
                 {
                     CON_ERRPRINTF("invalid quote %d\n", (int32_t)(*insptr));
-                    insptr++;
                     continue;
                 }
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= MAXPLAYERS))
                 {
                     CON_ERRPRINTF("invalid player %d\n", vm.playerNum);
-                    insptr++;
                     continue;
                 }
 
@@ -5894,7 +5852,7 @@ void A_LoadActor(int32_t spriteNum)
     vm.playerDist = -1;                           // Distance
     vm.pPlayer    = g_player[0].ps;
 
-    vm.flags &= ~(VM_RETURN | VM_KILL | VM_NOEXECUTE);
+    vm.flags &= ~(VM_RETURN|VM_KILL|VM_NOEXECUTE);
 
     if ((unsigned)vm.pSprite->sectnum >= MAXSECTORS)
     {
