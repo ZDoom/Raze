@@ -2424,16 +2424,19 @@ static void check_filename_case(const char *fn) { UNREFERENCED_PARAMETER(fn); }
 
 void G_DoGameStartup(const int32_t *params)
 {
+    auto &p0 = *g_player[0].ps;
     int j = 0;
 
-    ud.const_visibility               = params[j++];
-    g_impactDamage                    = params[j++];
-    g_player[0].ps->max_shield_amount = params[j++];
-    g_player[0].ps->max_player_health = g_player[0].ps->max_shield_amount;
-    g_maxPlayerHealth                 = g_player[0].ps->max_player_health;
-    g_startArmorAmount                = params[j++];
-    g_actorRespawnTime                = params[j++];
-    g_itemRespawnTime                 = (g_scriptVersion >= 11) ? params[j++] : g_actorRespawnTime;
+    ud.const_visibility  = params[j++];
+    g_impactDamage       = params[j++];
+
+    p0.max_shield_amount = params[j];
+    p0.max_player_health = params[j];
+    g_maxPlayerHealth    = params[j++];
+
+    g_startArmorAmount   = params[j++];
+    g_actorRespawnTime   = params[j++];
+    g_itemRespawnTime    = (g_scriptVersion >= 11) ? params[j++] : g_actorRespawnTime;
 
     if (g_scriptVersion >= 11)
         g_playerFriction = params[j++];
@@ -2452,21 +2455,21 @@ void G_DoGameStartup(const int32_t *params)
         g_seenineRadius    = params[j++];
     }
 
-    g_player[0].ps->max_ammo_amount[PISTOL_WEAPON]     = params[j++];
-    g_player[0].ps->max_ammo_amount[SHOTGUN_WEAPON]    = params[j++];
-    g_player[0].ps->max_ammo_amount[CHAINGUN_WEAPON]   = params[j++];
-    g_player[0].ps->max_ammo_amount[RPG_WEAPON]        = params[j++];
-    g_player[0].ps->max_ammo_amount[HANDBOMB_WEAPON]   = params[j++];
-    g_player[0].ps->max_ammo_amount[SHRINKER_WEAPON]   = params[j++];
-    g_player[0].ps->max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
-    g_player[0].ps->max_ammo_amount[TRIPBOMB_WEAPON]   = params[j++];
+    p0.max_ammo_amount[PISTOL_WEAPON]     = params[j++];
+    p0.max_ammo_amount[SHOTGUN_WEAPON]    = params[j++];
+    p0.max_ammo_amount[CHAINGUN_WEAPON]   = params[j++];
+    p0.max_ammo_amount[RPG_WEAPON]        = params[j++];
+    p0.max_ammo_amount[HANDBOMB_WEAPON]   = params[j++];
+    p0.max_ammo_amount[SHRINKER_WEAPON]   = params[j++];
+    p0.max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
+    p0.max_ammo_amount[TRIPBOMB_WEAPON]   = params[j++];
 
     if (g_scriptVersion >= 13)
     {
-        g_player[0].ps->max_ammo_amount[FREEZE_WEAPON] = params[j++];
+        p0.max_ammo_amount[FREEZE_WEAPON] = params[j++];
 
         if (g_scriptVersion >= 14)
-            g_player[0].ps->max_ammo_amount[GROW_WEAPON] = params[j++];
+            p0.max_ammo_amount[GROW_WEAPON] = params[j++];
 
         g_damageCameras     = params[j++];
         g_numFreezeBounces  = params[j++];
@@ -2474,7 +2477,7 @@ void G_DoGameStartup(const int32_t *params)
 
         if (g_scriptVersion >= 14)
         {
-            g_deleteQueueSize   = clamp(params[j++], 0, 1024);
+            g_deleteQueueSize   = clamp(params[j++], 0, ARRAY_SSIZE(SpriteDeletionQueue));
             g_tripbombLaserMode = params[j++];
         }
     }
