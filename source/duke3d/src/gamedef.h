@@ -45,8 +45,12 @@ enum
     LABEL_EVENT  = 64,
 };
 
-#define LABEL_HASPARM2  1
-#define LABEL_ISSTRING  2
+#define LABEL_CHAR sizeof(uint8_t)
+#define LABEL_SHORT sizeof(uint16_t)
+#define LABEL_INT sizeof(uint32_t)
+#define LABEL_UNSIGNED 8
+#define LABEL_HASPARM2 16
+#define LABEL_ISSTRING 32
 
 #define VM_INSTMASK 0xfff
 
@@ -133,11 +137,15 @@ extern const char *EventNames[MAXEVENTS];
 #if !defined LUNATIC
 extern intptr_t *g_scriptPtr;
 
-typedef struct
-{
-    const char *name;
-    int lId, flags, maxParm2;
-} memberlabel_t;
+ typedef struct
+ {
+     const char *name;
+
+     int32_t  lId;
+     uint32_t flags;
+     int16_t  maxParm2;
+     int16_t  offset;
+ } memberlabel_t;
 
 extern const memberlabel_t ActorLabels[];
 extern const memberlabel_t InputLabels[];
