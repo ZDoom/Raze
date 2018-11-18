@@ -1500,9 +1500,6 @@ static void C_SetScriptSize(int32_t newsize)
     g_scriptSize = newsize;
     g_scriptPtr = apScript + (intptr_t)g_scriptPtr - oscript;
 
-    if (g_caseScriptPtr)
-        g_caseScriptPtr = apScript + (intptr_t)g_caseScriptPtr - oscript;
-
     int32_t const size = (newsize >= osize) ? osize : newsize;
 
     for (int i = 0; i < size - 1; ++i)
@@ -1604,8 +1601,6 @@ static void C_SkipComments(void)
             }
             fallthrough__;
         case 0: // EOF
-            if ((g_scriptPtr-apScript) > (g_scriptSize-32))
-                C_SetScriptSize(g_scriptSize<<1);
             return;
         }
     }
@@ -2934,6 +2929,9 @@ static bool C_ParseCommand(bool loop)
     {
         if (EDUKE32_PREDICT_FALSE(g_errorCnt > 63 || (*textptr == '\0') || (*(textptr+1) == '\0')))
             return 1;
+
+        if ((g_scriptPtr - apScript) > (g_scriptSize - 4096) && g_caseScriptPtr == NULL)
+            C_SetScriptSize(g_scriptSize << 1);
 
         if (EDUKE32_PREDICT_FALSE(g_scriptDebug))
             C_ReportError(-1);
@@ -5041,17 +5039,22 @@ DO_DEFSTATE:
 
         case CON_SWITCH:
             {
-                intptr_t tempoffset;
-
                 g_checkingSwitch++; // allow nesting (if other things work)
                 C_GetNextVar();
 
-                tempoffset = (unsigned)(g_scriptPtr-apScript);
+                intptr_t const tempoffset = (unsigned)(g_scriptPtr-apScript);
+
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=0; // leave spot for end location (for after processing)
+
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=0; // count of case statements
+
+                auto const backupCaseScriptPtr = g_caseScriptPtr;
                 g_caseScriptPtr=g_scriptPtr;        // the first case's pointer.
+
+                int const backupNumCases = g_numCases;
+
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=0; // leave spot for 'default' location (null if none)
 
@@ -5063,7 +5066,7 @@ DO_DEFSTATE:
                 g_scriptPtr+=j*2;
                 C_SkipComments();
                 g_scriptPtr-=j*2; // allocate buffer for the table
-                intptr_t *tempscrptr = (intptr_t *)(apScript+tempoffset);
+                auto tempscrptr = (intptr_t *)(apScript+tempoffset);
 
                 //AddLog(g_szBuf);
 
@@ -5138,15 +5141,8 @@ DO_DEFSTATE:
                     //Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__);
                     //AddLog(g_szBuf);
                 }
-                g_caseScriptPtr=NULL;
-                // decremented in endswitch.  Don't decrement here...
-                //                    g_checkingSwitch--; // allow nesting (maybe if other things work)
-                tempscrptr=NULL;
-                if (g_checkingSwitch)
-                {
-                    //Bsprintf(g_szBuf,"ERROR::%s %d: g_checkingSwitch=%d",__FILE__,__LINE__, g_checkingSwitch);
-                    //AddLog(g_szBuf);
-                }
+                g_caseScriptPtr=backupCaseScriptPtr;
+                g_numCases=backupNumCases;
                 //AddLog("End of Switch statement");
             }
             continue;
