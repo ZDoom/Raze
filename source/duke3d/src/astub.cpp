@@ -2454,7 +2454,8 @@ int32_t AskIfSure(const char *text)
 
 static int32_t IsValidTile(int32_t idTile)
 {
-    return (idTile>=0 && idTile<MAXTILES) && (tilesiz[idTile].x && tilesiz[idTile].y);
+    // this is MAXTILES-1 because TROR uses that tile and we don't need it showing up in the tile selector, etc
+    return (idTile>=0 && idTile<MAXTILES-1) && (tilesiz[idTile].x && tilesiz[idTile].y) && !rottile[idTile].owner;
 }
 
 static int32_t SelectAllTiles(int32_t iCurrentTile)
@@ -3597,6 +3598,10 @@ restart:
             // Get pointer to tile's raw pixel data
             pRawPixels = GetTilePixels(idTile);
 
+            // don't draw rotated tiles generated near MAXTILES
+            if (EDUKE32_PREDICT_FALSE(rottile[idTile].owner))
+                pRawPixels = NULL;
+
             if (pRawPixels != NULL)
             {
                 x = XTile * TileDim;
@@ -4414,9 +4419,9 @@ static void Keys3d(void)
                     break;
 
                 if (searchwall != searchbottomwall)
-                    Bsprintf(lines[num++],"^%dWall %d ->^%d %d", editorcolors[10], searchwall, editorcolors[14], searchbottomwall);
+                    Bsprintf(lines[num++],"^%dWall%d ->^%d %d", editorcolors[10], searchwall, editorcolors[14], searchbottomwall);
                 else
-                    Bsprintf(lines[num++],"^%dWall %d", editorcolors[10], searchwall);
+                    Bsprintf(lines[num++],"^%dWall^%d %d", editorcolors[10], (wall[searchwall].cstat & CSTAT_WALL_ROTATE_90) ? editorcolors[11] : editorcolors[10], searchwall);
 
                 if (wall[searchwall].nextsector!=-1)
                     Bsprintf(lines[num++],"LoHeight:%d, HiHeight:%d, Length:%d",height1,height3,dist);
@@ -4479,7 +4484,7 @@ static void Keys3d(void)
                     else
                         Bsprintf(lines[num++],"^%dSprite %d^%d %s", editorcolors[10], searchwall, whitecol, names[sprite[searchwall].picnum]);
                 }
-                else Bsprintf(lines[num++],"^%dSprite %d^%d, picnum %d", editorcolors[10], searchwall, whitecol, TrackerCast(sprite[searchwall].picnum));
+                else Bsprintf(lines[num++],"^%dSprite %d^%d", editorcolors[10], searchwall, whitecol);
 
                 Bsprintf(lines[num++], "Elevation:%d",
                          getflorzofslope(searchsector, sprite[searchwall].x, sprite[searchwall].y) - sprite[searchwall].z);
@@ -5187,7 +5192,7 @@ static void Keys3d(void)
                 pic += dir + MAXTILES;
                 pic %= MAXTILES;
             }
-            while (tilesiz[pic].x<=0 || tilesiz[pic].y<=0);
+            while (!IsValidTile(pic));
             AIMED_SELOVR_PICNUM = pic;
 
             if (AIMING_AT_SPRITE)
@@ -5224,6 +5229,14 @@ static void Keys3d(void)
                 AIMED_CEILINGFLOOR(stat) ^= 64;
                 message("Sector %d %s texture relativity bit %s", searchsector, typestr[searchstat],
                         ONOFF(AIMED_CEILINGFLOOR(stat)&64));
+                asksave = 1;
+            }
+            if (AIMING_AT_WALL_OR_MASK)
+            {
+                AIMED_SEL_WALL(cstat) ^= CSTAT_WALL_ROTATE_90;
+
+                message("Wall %d texture rotation bit %s", SELECT_WALL(),
+                        ONOFF(AIMED_SEL_WALL(cstat)&CSTAT_WALL_ROTATE_90));
                 asksave = 1;
             }
             else if (AIMING_AT_SPRITE)
@@ -6685,8 +6698,8 @@ static void Keys3d(void)
                     wall[i].xpanning = tempxpanning;
                     wall[i].ypanning = tempypanning;
 
-                    wall[i].cstat &= ~(4 + 1+64 + 8+256);
-                    wall[i].cstat |= (tempcstat & (4 + 1+64 + 8+256));
+                    wall[i].cstat &= ~(4 + 1+64 + 8+256 + 4096);
+                    wall[i].cstat |= (tempcstat & (4 + 1+64 + 8+256 + 4096));
 
                     fixxrepeat(i, templenrepquot);
                 }
@@ -6785,7 +6798,7 @@ static void Keys3d(void)
                 wall[searchwall].xpanning = tempxpanning;
                 wall[searchwall].ypanning = tempypanning;
 
-                SET_PROTECT_BITS(wall[searchwall].cstat, tempcstat, ~(4 + 1+64 + 8+256));
+                SET_PROTECT_BITS(wall[searchwall].cstat, tempcstat, ~(4 + 1+64 + 8+256 + 4096));
 
                 wall[searchwall].hitag = temphitag;
 #ifdef YAX_ENABLE

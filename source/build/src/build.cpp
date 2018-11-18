@@ -10814,17 +10814,16 @@ static int32_t AlignGetWall(int32_t botswap, int32_t w)
 // 32: use special logic for 'bottom-swapped' walls
 int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 {
-    static int32_t numaligned, wall0, cstat0;
+    static int numaligned, wall0;
+    static int32_t cstat0;
     static uint32_t lenrepquot;
 
-    const int32_t totheleft = flags&16;
-    const int32_t botswap = flags&32;
+    int const totheleft = flags & 16;
+    int const botswap   = flags & 32;
 
-    int32_t z0 = GetWallBaseZ(w0);
-    int32_t w1 = totheleft ? lastwall(w0) : wall[w0].point2;
-
+    int32_t z0  = GetWallBaseZ(w0);
+    int32_t w1  = totheleft ? lastwall(w0) : wall[w0].point2;
     int32_t w0b = AlignGetWall(botswap, w0);
-    const int32_t tilenum = wall[w0b].picnum;
 
     if (nrecurs == 0)
     {
@@ -10837,10 +10836,13 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
         cstat0 = wall[w0b].cstat & ALIGN_WALLS_CSTAT_MASK;  // top/bottom orientation; x/y-flip
     }
 
+    int const tilenum = wall[w0b].picnum;
+    int const rotated = wall[w0b].cstat & CSTAT_WALL_ROTATE_90;
+
     //loop through walls at this vertex in point2 order
-    while (1)
+    do
     {
-        int32_t w1b = AlignGetWall(botswap, w1);
+        int const w1b = AlignGetWall(botswap, w1);
 
         //break if this wall would connect us in a loop
         if (visited[w1>>3]&(1<<(w1&7)))
@@ -10851,15 +10853,14 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 #ifdef YAX_ENABLE
         if (flags&8)
         {
-            int32_t cf, ynw;
-
-            for (cf=0; cf<2; cf++)
+            for (int cf=0; cf<2; cf++)
             {
-                ynw = yax_getnextwall(w0, cf);
+                int const ynw = yax_getnextwall(w0, cf);
 
-                if (ynw >= 0 && wall[ynw].picnum==tilenum && (visited[ynw>>3]&(1<<(ynw&7)))==0)
+                if (ynw >= 0 && wall[ynw].picnum == tilenum && ((wall[ynw].cstat & CSTAT_WALL_ROTATE_90) == rotated)
+                    && (visited[ynw >> 3] & (1 << (ynw & 7))) == 0)
                 {
-                    wall[ynw].xrepeat = wall[w0].xrepeat;
+                    wall[ynw].xrepeat  = wall[w0].xrepeat;
                     wall[ynw].xpanning = wall[w0].xpanning;
                     AlignWalls(w0,z0, ynw,GetWallBaseZ(ynw), 0);  // initial vertical alignment
                 }
@@ -10871,25 +10872,26 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
         if (wall[w1].nextwall == w0)
             break;
 
-        if (wall[w1b].picnum == tilenum)
+        if (wall[w1b].picnum == tilenum && ((wall[w1b].cstat & CSTAT_WALL_ROTATE_90) == rotated))
         {
-            int32_t visible = 1;
-            const int32_t nextsec = wall[w1].nextsector;
+            bool visible = true;
+            int const nextsec = wall[w1].nextsector;
 
             if (nextsec >= 0)
             {
-                int32_t cz,fz, czn,fzn;
-                const int32_t sectnum = NEXTWALL(w1).nextsector;
+                int const sectnum = NEXTWALL(w1).nextsector;
 
                 //ignore two sided walls that have no visible face
                 // TODO: can be more precise (i.e. taking into account the wall face)
                 //  ... needs to be factored out from some engine code maybe...
                 // as is the whole "z base" determination.
+
+                int32_t cz,fz, czn,fzn;
                 getzsofslope(sectnum, wall[w1].x,wall[w1].y, &cz, &fz);
                 getzsofslope(nextsec, wall[w1].x,wall[w1].y, &czn, &fzn);
 
                 if (czn <= cz && fzn >= fz)
-                    visible = 0;
+                    visible = false;
             }
 
             if (visible)
@@ -10898,6 +10900,7 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 
                 if ((flags&4) && w1!=wall0)
                     fixxrepeat(w1, lenrepquot);
+
                 AlignWalls_(tilenum,z0, z1, 1, w0b, w0, w1b, w1);
                 wall[w1b].cstat &= ~ALIGN_WALLS_CSTAT_MASK;
                 wall[w1b].cstat |= cstat0;
@@ -10924,7 +10927,7 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
         if (wall[w1].nextwall < 0)
             break;
         w1 = totheleft ? lastwall(wall[w1].nextwall) : NEXTWALL(w1).point2;
-    }
+    } while (1);
 
     return numaligned;
 }

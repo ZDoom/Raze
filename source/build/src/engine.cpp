@@ -1614,6 +1614,17 @@ static int get_screen_coords(const vec2_t &p1, const vec2_t &p2,
     return 1;
 }
 
+int lastUnusedTile = MAXUSERTILES-1;
+
+static inline int findUnusedTile(void)
+{
+    for (; lastUnusedTile > 0; --lastUnusedTile)
+        if (tilesiz[lastUnusedTile].x * tilesiz[lastUnusedTile].y == 0)
+            return lastUnusedTile;
+
+    return MAXTILES;
+}
+
 //
 // scansector (internal)
 //
@@ -2267,16 +2278,8 @@ static void prepwall(int32_t z, const uwalltype *wal)
 //
 // animateoffs (internal)
 //
-#ifdef DEBUGGINGAIDS
-int32_t animateoffs(int const tilenum, int fakevar)
-#else
 int32_t animateoffs(int const tilenum)
-#endif
 {
-#ifdef DEBUGGINGAIDS
-    UNREFERENCED_PARAMETER(fakevar);
-#endif
-
     int const animnum = picanm[tilenum].num;
 
     if (animnum <= 0)
@@ -3734,7 +3737,7 @@ static void setup_globals_wall1(const uwalltype *wal, int32_t dapicnum)
 
     globalpicnum = dapicnum;
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
-    DO_TILE_ANIM(globalpicnum, 0);
+    DO_TILE_ANIM(globalpicnum, 16384);
 
     globalxpanning = wal->xpanning;
     globalypanning = wal->ypanning;
@@ -7991,6 +7994,29 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
         while (i--);  // xdimen == 1 is OK!
         umost[0] = shortptr1[0]-windowxy1.y;
         dmost[0] = shortptr2[0]-windowxy1.y;
+    }
+
+    for (int i = 0; i < numwalls; ++i)
+    {
+        if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
+        {
+            auto &w    = wall[i];
+            auto &tile = rottile[w.picnum+animateoffs(w.picnum)];
+
+            if (!tile.newtile && !tile.owner)
+            {
+                tile.newtile = findUnusedTile();
+                Bassert(tile.newtile != MAXTILES);
+
+                rottile[tile.newtile].owner = w.picnum+animateoffs(w.picnum);
+
+                auto &siz  = tilesiz[w.picnum+animateoffs(w.picnum)];
+                tileSetSize(tile.newtile, siz.x, siz.y);
+
+                tileLoad(tile.newtile);
+                Bassert(waloff[tile.newtile]);
+            }
+        }
     }
 
 #ifdef USE_OPENGL

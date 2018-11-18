@@ -5004,7 +5004,7 @@ static void polymost_drawalls(int32_t const bunch)
                 globalpicnum = wal->picnum; globalshade = wal->shade; globalpal = (int32_t)((uint8_t)wal->pal);
                 globvis = globalvisibility;
                 if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
-
+                globalorientation = wal->cstat;
                 DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
                 int i = (!(wal->cstat&4)) ? sector[nextsectnum].ceilingz : sec->ceilingz;
@@ -5041,7 +5041,7 @@ static void polymost_drawalls(int32_t const bunch)
                 globalpicnum = nwal->picnum; globalshade = nwal->shade; globalpal = (int32_t)((uint8_t)nwal->pal);
                 globvis = globalvisibility;
                 if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
-
+                globalorientation = wal->cstat;
                 DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
                 int i = (!(nwal->cstat&4)) ? sector[nextsectnum].floorz : sec->ceilingz;
@@ -5085,7 +5085,7 @@ static void polymost_drawalls(int32_t const bunch)
                 globvis = (sector[sectnum].visibility != 0) ?
                           mulscale4(globalvisibility, (uint8_t)(sector[sectnum].visibility + 16)) :
                           globalvisibility;
-
+                globalorientation = wal->cstat;
                 DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
                 int i;
@@ -5533,13 +5533,13 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     if ((uint32_t)globalpicnum >= MAXTILES)
         globalpicnum = 0;
 
+    globalorientation = (int32_t)wal->cstat;
     DO_TILE_ANIM(globalpicnum, (int16_t)thewall[z]+16384);
 
     globvis = (sector[sectnum].visibility != 0) ? mulscale4(globvis, (uint8_t)(sector[sectnum].visibility + 16)) : globalvisibility;
 
     globalshade = (int32_t)wal->shade;
     globalpal = (int32_t)((uint8_t)wal->pal);
-    globalorientation = (int32_t)wal->cstat;
 
     vec2f_t s0 = { (float)(wal->x-globalposx), (float)(wal->y-globalposy) };
     vec2f_t p0 = { s0.y*gcosang - s0.x*gsinang, s0.x*gcosang2 + s0.y*gsinang2 };

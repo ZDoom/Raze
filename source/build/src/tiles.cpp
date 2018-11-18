@@ -615,10 +615,43 @@ bool tileLoad(int16_t tileNum)
     return (waloff[tileNum] != 0 && tilesiz[tileNum].x > 0 && tilesiz[tileNum].y > 0);
 }
 
+void tileMaybeRotate(int16_t tilenume)
+{
+    auto &rot = rottile[tilenume];
+    auto &siz = tilesiz[rot.owner];
+
+    auto src = (char *)waloff[rot.owner];
+    auto dst = (char *)waloff[tilenume];
+
+    // the engine has a squarerotatetile() we could call, but it mirrors at the same time
+    for (int x = 0; x < siz.x; ++x)
+    {
+        int const xofs = siz.x - x - 1;
+        int const yofs = siz.y * x;
+
+        for (int y = 0; y < siz.y; ++y)
+            *(dst + y * siz.x + xofs) = *(src + y + yofs);
+    }
+
+    tileSetSize(tilenume, siz.y, siz.x);
+}
+
 void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
 {
-    // dummy tiles for highres replacements and tilefromtexture definitions
+    int const owner = rottile[tilenume].owner;
 
+    if (owner)
+    {
+        if (!waloff[owner])
+            tileLoad(owner);
+
+        tileMaybeRotate(tilenume);
+        return;
+    }
+
+    int const tfn = tilefilenum[tilenume];
+
+    // dummy tiles for highres replacements and tilefromtexture definitions
     if (faketile[tilenume>>3] & pow2char[tilenume&7])
     {
         if (faketiledata[tilenume] != NULL)
@@ -627,8 +660,6 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
         faketimerhandler();
         return;
     }
-
-    int const tfn = tilefilenum[tilenume];
 
     // Potentially switch open ART file.
     if (tfn != artfilnum)

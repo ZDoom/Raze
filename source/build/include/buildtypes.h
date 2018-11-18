@@ -135,6 +135,23 @@ enum
 
     CSTAT_SPRITE_ALIGNMENT_MASK   = 1u<<4u | 1u<<5u,
 };
+
+enum
+{
+    CSTAT_WALL_BLOCK         = 1u,
+    CSTAT_WALL_BOTTOM_SWAP   = 1u<<1u,
+    CSTAT_WALL_ALIGN_BOTTOM  = 1u<<2u,
+    CSTAT_WALL_XFLIP         = 1u<<3u,
+    CSTAT_WALL_MASKED        = 1u<<4u,
+    CSTAT_WALL_1WAY          = 1u<<5u,
+    CSTAT_WALL_BLOCK_HITSCAN = 1u<<6u,
+    CSTAT_WALL_TRANSLUCENT   = 1u<<7u,
+    CSTAT_WALL_YFLIP         = 1u<<8u,
+    CSTAT_WALL_TRANS_FLIP    = 1u<<9u,
+    CSTAT_WALL_YAX_UPWALL    = 1u<<10u,
+    CSTAT_WALL_YAX_DOWNWALL  = 1u<<11u,
+    CSTAT_WALL_ROTATE_90     = 1u<<12u,
+};
 #endif
 
 //44 bytes

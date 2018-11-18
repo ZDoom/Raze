@@ -832,6 +832,8 @@ typedef struct {
     uint8_t sf;  // anim. speed and flags
 } picanm_t;
 EXTERN picanm_t picanm[MAXTILES];
+typedef struct { int16_t newtile; int16_t owner; } rottile_t;
+EXTERN rottile_t rottile[MAXTILES];
 EXTERN intptr_t waloff[MAXTILES];  // stores pointers to cache  -- SA
 
 EXTERN int32_t windowpos, windowx, windowy;
