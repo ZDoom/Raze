@@ -2541,6 +2541,9 @@ static int32_t m32gettile(int32_t idInitialTile)
     int32_t noTilesMarked=1;
     int32_t mark_lastk = -1;
 
+    FX_StopAllSounds();
+    S_ClearSoundLocks();
+
     pushDisableFog();
 
     // Enable following line for testing. I couldn't work out how to change vidmode on the fly
