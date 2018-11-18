@@ -1601,8 +1601,6 @@ void G_ResetTimers(uint8_t keepgtics)
 
 void G_ClearFIFO(void)
 {
-    g_emuJumpTics = 0;
-
     clearbufbyte(&localInput, sizeof(input_t), 0L);
     clearbufbyte(&inputfifo, sizeof(input_t) * MOVEFIFOSIZ * MAXPLAYERS, 0L);
 
