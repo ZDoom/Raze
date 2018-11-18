@@ -410,9 +410,9 @@ void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t ste
 //void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
 void G_InitTimer(int32_t ticspersec);
 
-static inline int32_t G_GetTeamPalette(int32_t team)
+static inline int G_GetTeamPalette(int team)
 {
-    int8_t pal[] = { 3, 10, 11, 12 };
+    static CONSTEXPR int8_t pal[] = { 3, 10, 11, 12 };
 
     if ((unsigned)team >= ARRAY_SIZE(pal))
         return 0;
@@ -560,7 +560,7 @@ static inline int G_GetViewscreenSizeShift(const uspritetype *tspr)
     static const int mask = (1<<VIEWSCREENFACTOR)-1;
     const int rem = (tspr->xrepeat & mask) | (tspr->yrepeat & mask);
 
-    for (bssize_t i=0; i < VIEWSCREENFACTOR; i++)
+    for (int i=0; i < VIEWSCREENFACTOR; i++)
         if (rem & (1<<i))
             return i;
 
