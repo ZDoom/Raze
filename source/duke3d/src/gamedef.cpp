@@ -830,23 +830,19 @@ hashtable_t h_labels      = { 11264>>1, NULL };
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
-static int32_t g_ifElseAborted;
+static bool g_ifElseAborted;
 
 static void C_SetScriptSize(int32_t newsize)
 {
-    intptr_t const oscript = (intptr_t)apScript;
-    int32_t const  osize   = g_scriptSize;
-
-    for (int i = 0; i < osize - 1; ++i)
+    for (int i = 0; i < g_scriptSize - 1; ++i)
     {
         if (BITPTR_IS_POINTER(i))
         {
-            if (EDUKE32_PREDICT_FALSE((intptr_t)apScript[i] < (intptr_t)&apScript[0] || (intptr_t)apScript[i] >= (intptr_t)&apScript[g_scriptSize]))
+            if (EDUKE32_PREDICT_FALSE(apScript[i] < (intptr_t)apScript || apScript[i] >= (intptr_t)g_scriptPtr))
             {
                 g_errorCnt++;
                 buildprint("Internal compiler error at ", i, " (0x", hex(i), ")\n");
                 VM_ScriptInfo(&apScript[i], 16);
-                BITPTR_CLEAR(i);
             }
             else
                 apScript[i] -= (intptr_t)&apScript[0];
@@ -857,39 +853,27 @@ static void C_SetScriptSize(int32_t newsize)
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
 
     auto newscript = (intptr_t *)Xrealloc(apScript, newsize * sizeof(intptr_t));
-    auto newbitptr = (char *)Xcalloc(1, (((newsize + 7) >> 3) + 1) * sizeof(uint8_t));
+    bitptr = (char *)Xrealloc(bitptr, (((newsize + 7) >> 3) + 1) * sizeof(uint8_t));
 
-    if (newsize >= osize)
-    {
-        Bmemset(&newscript[0] + osize, 0, (newsize - osize) * sizeof(uint8_t));
-        Bmemcpy(newbitptr, bitptr, sizeof(uint8_t) * ((osize + 7) >> 3));
-    }
-    else
-        Bmemcpy(newbitptr, bitptr, sizeof(uint8_t) * ((newsize + 7) >> 3));
-
-    Bfree(bitptr);
-    bitptr = newbitptr;
+    if (newsize > g_scriptSize)
+        Bmemset(&newscript[g_scriptSize], 0, (newsize - g_scriptSize) * sizeof(intptr_t));
 
     if (apScript != newscript)
     {
-        buildprint("Relocating compiled code from to 0x", hex((intptr_t)apScript), " to 0x", hex((intptr_t)newscript), "\n");
-        apScript = newscript;
+        buildprint("Relocated compiled code from 0x", hex((intptr_t)apScript), " to 0x", hex((intptr_t)newscript), "\n");
+        g_scriptPtr = g_scriptPtr - apScript + newscript;
+        apScript    = newscript;
+    }
+
+    int const smallestSize = min(g_scriptSize, newsize);
+
+    for (int i = 0; i < smallestSize - 1; ++i)
+    {
+        if (BITPTR_IS_POINTER(i))
+            apScript[i] += (intptr_t)&apScript[0];
     }
 
     g_scriptSize = newsize;
-    g_scriptPtr = apScript + (intptr_t)g_scriptPtr - oscript;
-
-    int32_t const size = (newsize >= osize) ? osize : newsize;
-
-    for (int i = 0; i < size - 1; ++i)
-    {
-        if (BITPTR_IS_POINTER(i))
-        {
-            intptr_t const j = (intptr_t)apScript[i] + (intptr_t)&apScript[0];
-
-            apScript[i] = j;
-        }
-    }
 
     G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
