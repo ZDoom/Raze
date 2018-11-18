@@ -176,6 +176,7 @@ typedef struct
     osdcvar_t *cvars;
     uint32_t   numcvars;
 
+    osdsymbol_t *symbols;
     osdsymbol_t *symbptrs[OSDMAXSYMBOLS];
 
     int32_t numsymbols;
