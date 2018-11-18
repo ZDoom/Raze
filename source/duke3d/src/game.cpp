@@ -195,7 +195,7 @@ void G_HandleSpecialKeys(void)
 
     if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
-        if (videoSetGameMode(!ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail))
+        if (videoSetGameMode(!ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail))
         {
             OSD_Printf(OSD_ERROR "Failed setting fullscreen video mode.\n");
             if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail))
@@ -290,7 +290,7 @@ void G_GameExit(const char *msg)
            g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
-            videoSetGameMode(ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail);
+            videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail);
         }
 
         // shareware and TEN screens
@@ -6492,7 +6492,7 @@ int app_main(int argc, char const * const * argv)
         CONTROL_MouseEnabled    = (ud.setup.usemouse && CONTROL_MousePresent);
 
         // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-        for (bssize_t i=0; i<joystick.numAxes; i++)
+        for (int i=0; i<joystick.numAxes; i++)
             joySetDeadZone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
     }
 
@@ -6525,44 +6525,46 @@ int app_main(int argc, char const * const * argv)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (videoSetGameMode(ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail) < 0)
+        if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail) < 0)
         {
-            vec2_t const res[] = {
-                { ud.setup.xdim, ud.setup.ydim }, { 800, 600 }, { 640, 480 }, { 320, 240 },
-            };
-
-#ifdef USE_OPENGL
-            int const bpp[] = { 32, 16, 8 };
-#else
-            int const bpp[] = { 8 };
-#endif
-
-            initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n", ud.setup.xdim, ud.setup.ydim,
+            initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", ud.setup.xdim, ud.setup.ydim,
                        ud.setup.bpp, ud.setup.fullscreen ? "fullscreen" : "windowed");
 
             int resIdx = 0;
-            int bppIdx = 0;
 
-            while (videoSetGameMode(0, res[resIdx].x, res[resIdx].y, bpp[bppIdx], ud.detail) < 0)
+            for (int i=0; i < validmodecnt; i++)
             {
-                initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n", res[resIdx].x, res[resIdx].y,
-                           bpp[bppIdx]);
-
-                if (++bppIdx == ARRAY_SIZE(bpp))
+                if (validmode[i].xdim == ud.setup.xdim && validmode[i].ydim == ud.setup.ydim)
                 {
-                    if (++resIdx == ARRAY_SIZE(res))
-                        G_GameExit("Unable to set failsafe video mode!");
-                    bppIdx = 0;
+                    resIdx = i;
+                    break;
                 }
             }
 
-            ud.setup.xdim  = res[resIdx].x;
-            ud.setup.ydim = res[resIdx].y;
-            ud.setup.bpp    = bpp[bppIdx];
+            int const savedIdx = resIdx;
+            int bpp = ud.setup.bpp;
+
+            while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, ud.detail) < 0)
+            {
+                initprintf("Failure setting video mode %dx%dx%d windowed! Trying next mode...\n",
+                           validmode[resIdx].xdim, validmode[resIdx].ydim, bpp);
+
+                if (++resIdx == validmodecnt)
+                {
+                    if (bpp == 8)
+                        G_GameExit("Fatal error: unable to set any video mode!");
+
+                    resIdx = savedIdx;
+                    bpp = 8;
+                }
+            }
+
+            ud.setup.xdim = validmode[resIdx].xdim;
+            ud.setup.ydim = validmode[resIdx].ydim;
+            ud.setup.bpp  = bpp;
         }
 
-        videoSetPalette(ud.brightness>>2,myplayer.palette,0);
-
+        videoSetPalette(ud.brightness>>2, myplayer.palette, 0);
         S_MusicStartup();
         S_SoundStartup();
     }
@@ -6571,7 +6573,7 @@ int app_main(int argc, char const * const * argv)
     // there is room for them in tiles012.art between "[\]^_." and "{|}~"
     minitext_lowercase = 1;
 
-    for (bssize_t i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
+    for (int i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
         minitext_lowercase &= (int)tileLoad(i);
 
     if (g_networkMode != NET_DEDICATED_SERVER)
