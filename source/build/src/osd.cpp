@@ -178,7 +178,7 @@ int OSD_Exec(const char *szScript)
 
     if (err || kread(handle, buf, len) != len)
     {
-        if (err != 2) // no error message for blank file
+        if (!err) // no error message for blank file
             OSD_Printf("Error executing \"%s\"!\n", szScript);
 
         if (handle != -1)
@@ -421,7 +421,7 @@ static int osdfunc_alias(osdcmdptr_t parm)
 
         for (auto &symb : osd->symbptrs)
         {
-            if (!symb->func || !symb->name)
+            if (symb == NULL)
                 break;
             else if (symb->func == OSD_ALIAS)
             {
@@ -438,7 +438,7 @@ static int osdfunc_alias(osdcmdptr_t parm)
 
     for (auto &symb : osd->symbptrs)
     {
-        if (!symb->func || !symb->name)
+        if (symb == NULL)
             break;
         else if (!Bstrcasecmp(parm->parms[0], symb->name))
         {
@@ -2001,7 +2001,8 @@ static osdsymbol_t *osd_addsymbol(const char *pszName)
 //
 static osdsymbol_t * osd_findsymbol(const char * const pszName, osdsymbol_t *pSymbol)
 {
-    Bassert(osd->symbols != NULL);
+    if (osd->symbols == NULL)
+        return NULL;
 
     if (!pSymbol) pSymbol = osd->symbols;
 
@@ -2021,7 +2022,8 @@ static osdsymbol_t * osd_findsymbol(const char * const pszName, osdsymbol_t *pSy
 //
 static osdsymbol_t * osd_findexactsymbol(const char *pszName)
 {
-    Bassert(osd->symbols != NULL);
+    if (osd->symbols == NULL)
+        return NULL;
 
     int symbolNum = hash_find(&h_osd, pszName);
 
@@ -2180,7 +2182,9 @@ void OSD_WriteAliases(FILE *fp)
 
     for (auto &symb : osd->symbptrs)
     {
-        if (symb->func == (void *)OSD_ALIAS)
+        if (symb == NULL)
+            break;
+        else if (symb->func == (void *)OSD_ALIAS)
             Bfprintf(fp, "alias \"%s\" \"%s\"\n", symb->name, symb->help);
     }
 }
