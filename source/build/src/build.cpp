@@ -3490,7 +3490,7 @@ void overheadeditor(void)
             linehighlight2 = getlinehighlight(mousxplc, mousyplc, linehighlight, 1);
         }
 
-        if (newnumwalls >= numwalls)
+        if ((unsigned)newnumwalls < MAXWALLS && newnumwalls >= numwalls)
         {
             // if we're in the process of drawing a wall, set the end point's coordinates
             dax = mousxplc;
