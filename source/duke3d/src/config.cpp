@@ -146,13 +146,13 @@ void CONFIG_SetDefaults(void)
     ud.config.scripthandle = -1;
 #ifdef __ANDROID__
     droidinput.forward_sens = 5.f;
-    droidinput.strafe_sens = 5.f;
-    droidinput.pitch_sens = 5.f;
-    droidinput.yaw_sens = 5.f;
-    droidinput.hideStick = 0;
     droidinput.gameControlsAlpha = 0.5;
-    droidinput.toggleCrouch = 1;
+    droidinput.hideStick = 0;
+    droidinput.pitch_sens = 5.f;
     droidinput.quickSelectWeapon = 1;
+    droidinput.strafe_sens = 5.f;
+    droidinput.toggleCrouch = 1;
+    droidinput.yaw_sens = 5.f;
 
     ud.config.ScreenWidth = droidinfo.screen_width;
     ud.config.ScreenHeight = droidinfo.screen_height;
@@ -178,19 +178,12 @@ void CONFIG_SetDefaults(void)
     }
 #endif
 
-    ud.config.ScreenMode = 1;
-
 #ifdef USE_OPENGL
     ud.config.ScreenBPP = 32;
 #else
     ud.config.ScreenBPP = 8;
 #endif
-    ud.config.useprecache = 1;
-    ud.config.ForceSetup = 1;
-    ud.config.NoAutoLoad = 1;
-    ud.config.AmbienceToggle = 1;
-    ud.config.AutoAim = 1;
-    ud.config.FXVolume = 255;
+
 #if defined(_WIN32)
     ud.config.MixRate = 44100;
 #elif defined __ANDROID__
@@ -198,94 +191,104 @@ void CONFIG_SetDefaults(void)
 #else
     ud.config.MixRate = 48000;
 #endif
-    ud.config.MouseBias = 0;
-    ud.config.MouseDeadZone = 0;
-    ud.config.MusicToggle = 1;
-    ud.config.MusicVolume = 195;
-    g_myAimMode = g_player[0].ps->aim_mode = 1;
-    ud.config.NumBits = 16;
-    ud.config.NumChannels = 2;
+
 #if defined GEKKO || defined __OPENDINGUX__
     ud.config.NumVoices = 32;
 #else
     ud.config.NumVoices = 64;
 #endif
-    ud.config.ReverseStereo = 0;
-    ud.auto_run = 1;
-    ud.config.ShowOpponentWeapons = 0;
-    ud.config.SmoothInput = 1;
-    ud.config.SoundToggle = 1;
-    ud.althud = 1;
-    ud.automsg = 0;
-    ud.autovote = 0;
-    ud.brightness = 8;
-    ud.camerasprite = -1;
 
 #if defined GEKKO || defined __OPENDINGUX__
     ud.camera_time = 11;
 #elif defined(__ANDROID__)
-    ud.camera_time = 7;
+    ud.camera_time        = 7;
 #else
-    ud.camera_time = 4;
+    ud.camera_time    = 4;
 #endif
 
-    ud.color = 0;
-    ud.crosshair = 1;
-    ud.crosshairscale = 50;
-    ud.obituaries = 1;
-    ud.democams = 1;
-    ud.detail = 0;
-    ud.drawweapon = 1;
-    ud.idplayers = 1;
-    ud.levelstats = 0;
-    ud.lockout = 0;
-    ud.m_ffire = 1;
-    ud.m_marker = 1;
-    ud.menu_slidebarz = 65536;
-    ud.menu_slidebarmargin = 65536;
-    ud.menu_slidecursorz = 65536;
-    ud.mouseaiming = 0;
-    ud.mouseflip = 1;
-    ud.msgdisptime = 120;
-    ud.pwlockout[0] = '\0';
-    ud.runkey_mode = 0;
-    ud.screen_size = 4;
-    ud.screen_tilting = 1;
-    ud.shadows = 1;
-    ud.statusbarflags = STATUSBAR_NOSHRINK;
-    ud.statusbarmode = 1;
-    ud.statusbarscale = 100;
-    ud.team = 0;
-    ud.viewbob = 1;
-    ud.weaponsway = 1;
-    ud.weaponswitch = 3;	// new+empty
-    ud.angleinterpolation = 0;
 #ifdef GEKKO
     ud.config.UseJoystick = 1;
 #else
     ud.config.UseJoystick = 0;
 #endif
-    ud.config.UseMouse = 1;
-    ud.config.VoiceToggle = 5; // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
-    ud.display_bonus_screen = 1;
-    ud.show_level_text = 1;
-    ud.configversion = 0;
-    ud.weaponscale = 100;
-    ud.textscale = 200;
-    ud.screenfade = 1;
-    ud.menubackground = 1;
-    ud.hudontop = 0;
-    ud.default_skill = 1;
-    ud.slidebar_paldisabled = 1;
-    ud.shadow_pal = 4;
-    ud.menu_scrollbartilenum = -1;
-    ud.menu_scrollbarz = 65536;
-    ud.menu_scrollcursorz = 65536;
-    ud.autosave = 1;
-    ud.autosavedeletion = 1;
-    ud.maxautosaves = 5;
 
+    g_myAimMode = 1;
+    g_player[0].ps->aim_mode = 1;
+
+    ud.althud                 = 1;
+    ud.angleinterpolation     = 0;
+    ud.auto_run               = 1;
+    ud.automsg                = 0;
+    ud.autosave               = 1;
+    ud.autosavedeletion       = 1;
+    ud.autovote               = 0;
+    ud.brightness             = 8;
+    ud.camerasprite           = -1;
+    ud.color                  = 0;
+    ud.config.AmbienceToggle  = 1;
+    ud.config.AutoAim         = 1;
     ud.config.CheckForUpdates = 1;
+    ud.config.FXVolume        = 255;
+    ud.config.ForceSetup      = 1;
+    ud.config.MouseBias       = 0;
+    ud.config.MouseDeadZone   = 0;
+    ud.config.MusicToggle     = 1;
+    ud.config.MusicVolume     = 195;
+    ud.config.NoAutoLoad      = 1;
+    ud.config.NumBits         = 16;
+    ud.config.NumChannels     = 2;
+    ud.config.ReverseStereo   = 0;
+    ud.config.ScreenMode      = 1;
+    ud.config.ShowWeapons     = 0;
+    ud.config.SmoothInput     = 1;
+    ud.config.SoundToggle     = 1;
+    ud.config.UseMouse        = 1;
+    ud.config.VoiceToggle     = 5;  // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
+    ud.config.useprecache     = 1;
+    ud.configversion          = 0;
+    ud.crosshair              = 1;
+    ud.crosshairscale         = 50;
+    ud.default_skill          = 1;
+    ud.democams               = 1;
+    ud.detail                 = 0;
+    ud.display_bonus_screen   = 1;
+    ud.drawweapon             = 1;
+    ud.hudontop               = 0;
+    ud.idplayers              = 1;
+    ud.levelstats             = 0;
+    ud.lockout                = 0;
+    ud.m_ffire                = 1;
+    ud.m_marker               = 1;
+    ud.maxautosaves           = 5;
+    ud.menu_scrollbartilenum  = -1;
+    ud.menu_scrollbarz        = 65536;
+    ud.menu_scrollcursorz     = 65536;
+    ud.menu_slidebarmargin    = 65536;
+    ud.menu_slidebarz         = 65536;
+    ud.menu_slidecursorz      = 65536;
+    ud.menubackground         = 1;
+    ud.mouseaiming            = 0;
+    ud.mouseflip              = 1;
+    ud.msgdisptime            = 120;
+    ud.obituaries             = 1;
+    ud.pwlockout[0]           = '\0';
+    ud.runkey_mode            = 0;
+    ud.screen_size            = 4;
+    ud.screen_tilting         = 1;
+    ud.screenfade             = 1;
+    ud.shadow_pal             = 4;
+    ud.shadows                = 1;
+    ud.show_level_text        = 1;
+    ud.slidebar_paldisabled   = 1;
+    ud.statusbarflags         = STATUSBAR_NOSHRINK;
+    ud.statusbarmode          = 1;
+    ud.statusbarscale         = 100;
+    ud.team                   = 0;
+    ud.textscale              = 200;
+    ud.viewbob                = 1;
+    ud.weaponscale            = 100;
+    ud.weaponsway             = 1;
+    ud.weaponswitch           = 3;  // new+empty
 
     Bstrcpy(ud.rtsname, G_DefaultRtsFile());
 
@@ -304,11 +307,15 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 #endif
 
-    // JBF 20031211
-
     CONFIG_SetDefaultKeys(keydefaults);
 
     memset(ud.config.MouseFunctions, -1, sizeof(ud.config.MouseFunctions));
+    memset(ud.config.MouseDigitalFunctions, -1, sizeof(ud.config.MouseDigitalFunctions));
+    memset(ud.config.JoystickFunctions, -1, sizeof(ud.config.JoystickFunctions));
+    memset(ud.config.JoystickDigitalFunctions, -1, sizeof(ud.config.JoystickDigitalFunctions));
+
+    CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
+
     for (i=0; i<MAXMOUSEBUTTONS; i++)
     {
         ud.config.MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);
@@ -318,7 +325,6 @@ void CONFIG_SetDefaults(void)
         CONTROL_MapButton(ud.config.MouseFunctions[i][1], i, 1, controldevice_mouse);
     }
 
-    memset(ud.config.MouseDigitalFunctions, -1, sizeof(ud.config.MouseDigitalFunctions));
     for (i=0; i<MAXMOUSEAXES; i++)
     {
         ud.config.MouseAnalogueScale[i] = DEFAULTMOUSEANALOGUESCALE;
@@ -332,9 +338,7 @@ void CONFIG_SetDefaults(void)
         ud.config.MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
         CONTROL_MapAnalogAxis(i, ud.config.MouseAnalogueAxes[i], controldevice_mouse);
     }
-    CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 
-    memset(ud.config.JoystickFunctions, -1, sizeof(ud.config.JoystickFunctions));
     for (i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
         ud.config.JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdefaults[i]);
@@ -343,7 +347,6 @@ void CONFIG_SetDefaults(void)
         CONTROL_MapButton(ud.config.JoystickFunctions[i][1], i, 1, controldevice_joystick);
     }
 
-    memset(ud.config.JoystickDigitalFunctions, -1, sizeof(ud.config.JoystickDigitalFunctions));
     for (i=0; i<MAXJOYAXES; i++)
     {
         ud.config.JoystickAnalogueScale[i] = DEFAULTJOYSTICKANALOGUESCALE;
@@ -365,47 +368,48 @@ void CONFIG_SetDefaults(void)
 
 
 // wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
-void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
+void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
 {
-    int32_t i, j, k;
-    int32_t ii[] = { key1, key2, oldkey1, oldkey2 };
+    int const keys[] = { key1, key2, oldkey1, oldkey2 };
     char buf[2*MAXGAMEFUNCLEN];
-
-    UNREFERENCED_PARAMETER(which);
-//    CONTROL_MapKey(which, key1, key2);
 
     if (which == gamefunc_Show_Console)
         OSD_CaptureKey(key1);
 
-    for (k = 0; (unsigned)k < ARRAY_SIZE(ii); k++)
+    for (int k = 0; (unsigned)k < ARRAY_SIZE(keys); k++)
     {
-        if (ii[k] == 0xff || !ii[k])
+        if (keys[k] == 0xff || !keys[k])
             continue;
 
-        for (j=0; sctokeylut[j].key; j++)
-            if (ii[k] == sctokeylut[j].sc)
+        int match = 0;
+
+        for (; sctokeylut[match].key; match++)
+        {
+            if (keys[k] == sctokeylut[match].sc)
                 break;
+        }
 
         tempbuf[0] = 0;
 
-        for (i=NUMGAMEFUNCTIONS-1; i>=0; i--)
+        for (int i=NUMGAMEFUNCTIONS-1; i>=0; i--)
         {
-            if (ud.config.KeyboardKeys[i][0] == ii[k] || ud.config.KeyboardKeys[i][1] == ii[k])
+            if (ud.config.KeyboardKeys[i][0] == keys[k] || ud.config.KeyboardKeys[i][1] == keys[k])
             {
-                Bsprintf(buf,"gamefunc_%s; ",CONFIG_FunctionNumToName(i));
+                Bsprintf(buf, "gamefunc_%s; ", CONFIG_FunctionNumToName(i));
                 Bstrcat(tempbuf,buf);
             }
         }
 
-        i = Bstrlen(tempbuf);
-        if (i >= 2)
+        int const len = Bstrlen(tempbuf);
+
+        if (len >= 2)
         {
-            tempbuf[i-2] = 0;  // cut off the trailing "; "
-            CONTROL_BindKey(ii[k], tempbuf, 1, sctokeylut[j].key ? sctokeylut[j].key : "<?>");
+            tempbuf[len-2] = 0;  // cut off the trailing "; "
+            CONTROL_BindKey(keys[k], tempbuf, 1, sctokeylut[match].key ? sctokeylut[match].key : "<?>");
         }
         else
         {
-            CONTROL_FreeKeyBind(ii[k]);
+            CONTROL_FreeKeyBind(keys[k]);
         }
     }
 }
@@ -413,14 +417,13 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
 
 void CONFIG_SetupMouse(void)
 {
-    int32_t i;
+    if (ud.config.scripthandle < 0)
+        return;
+
     char str[80];
     char temp[80];
-    int32_t scale;
 
-    if (ud.config.scripthandle < 0) return;
-
-    for (i=0; i<MAXMOUSEBUTTONS; i++)
+    for (int i=0; i<MAXMOUSEBUTTONS; i++)
     {
         Bsprintf(str,"MouseButton%d",i);
         temp[0] = 0;
@@ -434,7 +437,7 @@ void CONFIG_SetupMouse(void)
     }
 
     // map over the axes
-    for (i=0; i<MAXMOUSEAXES; i++)
+    for (int i=0; i<MAXMOUSEAXES; i++)
     {
         Bsprintf(str,"MouseAnalogAxes%d",i);
         temp[0] = 0;
@@ -455,17 +458,17 @@ void CONFIG_SetupMouse(void)
                 ud.config.MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseAnalogScale%d",i);
-        scale = ud.config.MouseAnalogueScale[i];
-        SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
+        int32_t scale = ud.config.MouseAnalogueScale[i];
+        SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str, &scale);
         ud.config.MouseAnalogueScale[i] = scale;
     }
 
-    for (i=0; i<MAXMOUSEBUTTONS; i++)
+    for (int i=0; i<MAXMOUSEBUTTONS; i++)
     {
         CONTROL_MapButton(ud.config.MouseFunctions[i][0], i, 0, controldevice_mouse);
         CONTROL_MapButton(ud.config.MouseFunctions[i][1], i, 1,  controldevice_mouse);
     }
-    for (i=0; i<MAXMOUSEAXES; i++)
+    for (int i=0; i<MAXMOUSEAXES; i++)
     {
         CONTROL_MapAnalogAxis(i, ud.config.MouseAnalogueAxes[i], controldevice_mouse);
         CONTROL_MapDigitalAxis(i, ud.config.MouseDigitalFunctions[i][0], 0,controldevice_mouse);
@@ -549,10 +552,8 @@ void CONFIG_SetupJoystick(void)
 }
 
 
-int32_t CONFIG_ReadSetup(void)
+int CONFIG_ReadSetup(void)
 {
-    int32_t dummy;
-    char commmacro[] = "CommbatMacro# ";
     char tempbuf[1024];
 
     CONTROL_ClearAssignments();
@@ -568,10 +569,12 @@ int32_t CONFIG_ReadSetup(void)
 #if !defined(EDUKE32_TOUCH_DEVICES) && !defined(EDUKE32_STANDALONE)
         else if (SafeFileExists(SETUPFILENAME))
         {
-            int32_t i;
-            i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
-                "Import configuration data from \"%s\"?", g_setupFileName, SETUPFILENAME);
-            if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
+            int const i = wm_ynbox("Import Configuration Settings",
+                                   "The configuration file \"%s\" was not found. "
+                                   "Import configuration data from \"%s\"?",
+                                   g_setupFileName, SETUPFILENAME);
+            if (i)
+                ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
         }
 #endif
     }
@@ -581,10 +584,12 @@ int32_t CONFIG_ReadSetup(void)
     if (ud.config.scripthandle < 0)
         return -1;
 
-    for (dummy = 0; dummy < MAXRIDECULE; dummy++)
+    char commmacro[] = "CommbatMacro# ";
+
+    for (int i = 0; i < MAXRIDECULE; i++)
     {
-        commmacro[13] = dummy+'0';
-        SCRIPT_GetString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
+        commmacro[13] = i+'0';
+        SCRIPT_GetString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[i][0]);
     }
 
     Bmemset(tempbuf, 0, sizeof(tempbuf));
@@ -602,10 +607,12 @@ int32_t CONFIG_ReadSetup(void)
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ConfigVersion", &ud.configversion);
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.config.ForceSetup);
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.config.NoAutoLoad);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "CacheSize", &dummy);
 
-    if (dummy > MAXCACHE1DSIZE)
-        MAXCACHE1DSIZE = dummy;
+    int32_t cachesize;
+    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "CacheSize", &cachesize);
+
+    if (cachesize > MAXCACHE1DSIZE)
+        MAXCACHE1DSIZE = cachesize;
 
     if (g_noSetup == 0 && g_modDir[0] == '/')
     {
@@ -624,40 +631,38 @@ int32_t CONFIG_ReadSetup(void)
 
     if (g_grpNamePtr == NULL && g_addonNum == 0)
     {
-        SCRIPT_GetStringPtr(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr);
+        SCRIPT_GetStringPtr(ud.config.scripthandle, "Setup", "SelectedGRP", &g_grpNamePtr);
         if (g_grpNamePtr && !Bstrlen(g_grpNamePtr))
             g_grpNamePtr = dup_filename(G_DefaultGrpFile());
     }
 
     if (!NAM_WW2GI)
     {
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Out",&ud.lockout);
-        SCRIPT_GetString(ud.config.scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Out", &ud.lockout);
+        SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "Password", &ud.pwlockout[0]);
     }
-
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight",&ud.config.ScreenHeight);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",&ud.config.ScreenMode);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",&ud.config.ScreenWidth);
-
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", (int32_t *)&windowpos);
 
     windowx = -1;
     windowy = -1;
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", (int32_t *)&windowx);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32_t *)&windowy);
 
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t *)&maxrefreshfreq);
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight", &ud.config.ScreenHeight);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode", &ud.config.ScreenMode);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth", &ud.config.ScreenWidth);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", (int32_t *)&windowx);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32_t *)&windowy);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", (int32_t *)&windowpos);
 
     if (ud.config.ScreenBPP < 8) ud.config.ScreenBPP = 32;
 
 #ifdef POLYMER
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &dummy);
-    if (dummy > 0 && ud.config.ScreenBPP >= 16) glrendmode = REND_POLYMER;
-    else glrendmode = REND_POLYMOST;
+    int32_t rendmode = 0;
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &rendmode);
+    glrendmode = (rendmode > 0) ? REND_POLYMER : REND_POLYMOST;
 #endif
 
-    SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions", &ud.executions);
 
 #ifdef _WIN32
     SCRIPT_GetNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", &ud.config.CheckForUpdates);
@@ -671,26 +676,30 @@ int32_t CONFIG_ReadSetup(void)
 
 void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.cfg
 {
-    int32_t i;
-    BFILE *fp;
     char *ptr = Xstrdup(g_setupFileName);
-    char tempbuf[128];
+    char filename[BMAX_PATH];
 
     if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
-        Bsprintf(tempbuf, "settings.cfg");
-    else Bsprintf(tempbuf, "%s_settings.cfg", strtok(ptr, "."));
+        Bsprintf(filename, "settings.cfg");
+    else
+        Bsprintf(filename, "%s_settings.cfg", strtok(ptr, "."));
 
-    fp = Bfopen(tempbuf, "wt");
+    BFILE *fp = Bfopen(filename, "wt");
 
     if (fp)
     {
         Bfprintf(fp,"// this file is automatically generated by %s\n", AppProperName);
         Bfprintf(fp,"unbindall\n");
 
-        for (i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
+        for (int i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
+        {
             if (CONTROL_KeyIsBound(i))
-                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_KeyBinds[i].key,
-                CONTROL_KeyBinds[i].repeat?"":" norepeat",CONTROL_KeyBinds[i].cmdstr);
+            {
+                Bfprintf(fp, "bind \"%s\"%s \"%s\"\n", CONTROL_KeyBinds[i].key,
+                                                       CONTROL_KeyBinds[i].repeat ? "" : " norepeat",
+                                                       CONTROL_KeyBinds[i].cmdstr);
+            }
+        }
 
         OSD_WriteAliases(fp);
 
@@ -700,53 +709,47 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
         OSD_WriteCvars(fp);
 
         Bfclose(fp);
-
-        if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
-            OSD_Printf("Wrote settings.cfg\n");
-        else OSD_Printf("Wrote %s_settings.cfg\n",ptr);
-
         Bfree(ptr);
+
+        OSD_Printf("Wrote %s\n", filename);
+
         return;
     }
 
-    if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
-        OSD_Printf("Error writing settings.cfg: %s\n", strerror(errno));
-    else OSD_Printf("Error writing %s_settings.cfg: %s\n",ptr,strerror(errno));
+    OSD_Printf("Error writing %s: %s\n", filename, strerror(errno));
 
     Bfree(ptr);
 }
 
 void CONFIG_WriteSetup(uint32_t flags)
 {
-    int32_t dummy;
-
     if (!ud.config.setupread) return;
 
     if (ud.config.scripthandle < 0)
         ud.config.scripthandle = SCRIPT_Init(g_setupFileName);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions",ud.executions,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions", ud.executions, FALSE, FALSE);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_EDUKE32,FALSE,FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup",ud.config.ForceSetup,FALSE,FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad",ud.config.NoAutoLoad,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "CacheSize", MAXCACHE1DSIZE, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ConfigVersion", BYTEVERSION_EDUKE32, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup", ud.config.ForceSetup, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", ud.config.NoAutoLoad, FALSE, FALSE);
 
 #ifdef POLYMER
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer",glrendmode == REND_POLYMER,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer", videoGetRenderMode() == REND_POLYMER, FALSE, FALSE);
 #endif
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP",ud.config.ScreenBPP,FALSE,FALSE);  // JBF 20040523
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight",ud.config.ScreenHeight,FALSE,FALSE);    // JBF 20031206
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",ud.config.ScreenMode,FALSE,FALSE);    // JBF 20031206
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",ud.config.ScreenWidth,FALSE,FALSE);  // JBF 20031206
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", ud.config.ScreenBPP, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight", ud.config.ScreenHeight, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode", ud.config.ScreenMode, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth", ud.config.ScreenWidth, FALSE, FALSE);
 
     if (g_grpNamePtr && !g_addonNum)
-        SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",g_grpNamePtr);
+        SCRIPT_PutString(ud.config.scripthandle, "Setup", "SelectedGRP", g_grpNamePtr);
 
 #ifdef STARTUP_SETUP_WINDOW
     if (g_noSetup == 0)
-        SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
+        SCRIPT_PutString(ud.config.scripthandle, "Setup", "ModDir", &g_modDir[0]);
 #endif
     // exit early after only updating the values that can be changed from the startup window
     if (flags & 1)
@@ -756,10 +759,10 @@ void CONFIG_WriteSetup(uint32_t flags)
         return;
     }
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", windowpos, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", maxrefreshfreq, FALSE, FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", windowx, FALSE, FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", windowy, FALSE, FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", maxrefreshfreq, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", windowpos, FALSE, FALSE);
 
     if (!NAM_WW2GI)
     {
@@ -774,54 +777,54 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     if (ud.config.UseMouse)
     {
-        for (dummy=0; dummy<MAXMOUSEBUTTONS; dummy++)
+        for (int i=0; i<MAXMOUSEBUTTONS; i++)
         {
-            if (CONFIG_FunctionNumToName(ud.config.MouseFunctions[dummy][0]))
+            if (CONFIG_FunctionNumToName(ud.config.MouseFunctions[i][0]))
             {
-                Bsprintf(buf, "MouseButton%d", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseFunctions[dummy][0]));
+                Bsprintf(buf, "MouseButton%d", i);
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseFunctions[i][0]));
             }
 
-            if (dummy >= (MAXMOUSEBUTTONS-2)) continue;
+            if (i >= (MAXMOUSEBUTTONS-2)) continue;
 
-            if (CONFIG_FunctionNumToName(ud.config.MouseFunctions[dummy][1]))
+            if (CONFIG_FunctionNumToName(ud.config.MouseFunctions[i][1]))
             {
-                Bsprintf(buf, "MouseButtonClicked%d", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseFunctions[dummy][1]));
+                Bsprintf(buf, "MouseButtonClicked%d", i);
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseFunctions[i][1]));
             }
         }
 
-        for (dummy=0; dummy<MAXMOUSEAXES; dummy++)
+        for (int i=0; i<MAXMOUSEAXES; i++)
         {
-            if (CONFIG_AnalogNumToName(ud.config.MouseAnalogueAxes[dummy]))
+            if (CONFIG_AnalogNumToName(ud.config.MouseAnalogueAxes[i]))
             {
-                Bsprintf(buf, "MouseAnalogAxes%d", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_AnalogNumToName(ud.config.MouseAnalogueAxes[dummy]));
+                Bsprintf(buf, "MouseAnalogAxes%d", i);
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_AnalogNumToName(ud.config.MouseAnalogueAxes[i]));
             }
 
-            if (CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[dummy][0]))
+            if (CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[i][0]))
             {
-                Bsprintf(buf, "MouseDigitalAxes%d_0", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[dummy][0]));
+                Bsprintf(buf, "MouseDigitalAxes%d_0", i);
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[i][0]));
             }
 
-            if (CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[dummy][1]))
+            if (CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[i][1]))
             {
-                Bsprintf(buf, "MouseDigitalAxes%d_1", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[dummy][1]));
+                Bsprintf(buf, "MouseDigitalAxes%d_1", i);
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[i][1]));
             }
 
-            if (ud.config.MouseAnalogueScale[dummy] != DEFAULTMOUSEANALOGUESCALE)
+            if (ud.config.MouseAnalogueScale[i] != DEFAULTMOUSEANALOGUESCALE)
             {
-                Bsprintf(buf, "MouseAnalogScale%d", dummy);
-                SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.MouseAnalogueScale[dummy], FALSE, FALSE);
+                Bsprintf(buf, "MouseAnalogScale%d", i);
+                SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.MouseAnalogueScale[i], FALSE, FALSE);
             }
         }
     }
 
     if (ud.config.UseJoystick)
     {
-        for (dummy=0; dummy<MAXJOYBUTTONSANDHATS; dummy++)
+        for (int dummy=0; dummy<MAXJOYBUTTONSANDHATS; dummy++)
         {
             if (CONFIG_FunctionNumToName(ud.config.JoystickFunctions[dummy][0]))
             {
@@ -835,7 +838,7 @@ void CONFIG_WriteSetup(uint32_t flags)
                 SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.JoystickFunctions[dummy][1]));
             }
         }
-        for (dummy=0; dummy<MAXJOYAXES; dummy++)
+        for (int dummy=0; dummy<MAXJOYAXES; dummy++)
         {
             if (CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[dummy]))
             {
@@ -881,7 +884,7 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     char commmacro[] = "CommbatMacro# ";
 
-    for (dummy = 0; dummy < MAXRIDECULE; dummy++)
+    for (int dummy = 0; dummy < MAXRIDECULE; dummy++)
     {
         commmacro[13] = dummy+'0';
         SCRIPT_PutString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
@@ -926,6 +929,7 @@ int32_t CONFIG_GetMapBestTime(char const * const mapname, uint8_t const * const 
         return -1;
 
     char m[37];
+
     CONFIG_GetMD4EntryName(m, mapmd4);
 
     int32_t t = -1;
@@ -933,21 +937,24 @@ int32_t CONFIG_GetMapBestTime(char const * const mapname, uint8_t const * const 
     {
         // fall back to map filenames
         char m2[BMAX_PATH];
-        char const * const p = CONFIG_GetMapEntryName(m2, mapname);
+        auto p = CONFIG_GetMapEntryName(m2, mapname);
+
         SCRIPT_GetNumber(ud.config.scripthandle, "MapTimes", p, &t);
     }
+
     return t;
 }
 
-int32_t CONFIG_SetMapBestTime(uint8_t const * const mapmd4, int32_t const tm)
+int CONFIG_SetMapBestTime(uint8_t const * const mapmd4, int32_t tm)
 {
-    if (ud.config.scripthandle < 0) ud.config.scripthandle = SCRIPT_Init(g_setupFileName);
-    if (ud.config.scripthandle < 0) return -1;
+    if (ud.config.scripthandle < 0 && (ud.config.scripthandle = SCRIPT_Init(g_setupFileName)) < 0)
+        return -1;
 
     char m[37];
-    CONFIG_GetMD4EntryName(m, mapmd4);
 
+    CONFIG_GetMD4EntryName(m, mapmd4);
     SCRIPT_PutNumber(ud.config.scripthandle, "MapTimes", m, tm, FALSE, FALSE);
+
     return 0;
 }
 

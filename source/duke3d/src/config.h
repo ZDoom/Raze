@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define SETUPNAMEPARM "SETUPFILE"
 
-int32_t CONFIG_ReadSetup( void );
+int CONFIG_ReadSetup(void);
 void CONFIG_GetSetupFilename( void );
 void CONFIG_WriteSetup(uint32_t flags);
 void CONFIG_SetupMouse( void );
@@ -33,9 +33,9 @@ void CONFIG_SetupJoystick( void );
 void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN]);
 
 int32_t CONFIG_GetMapBestTime(char const * mapname, uint8_t const * mapmd4);
-int32_t CONFIG_SetMapBestTime(uint8_t const * mapmd4, int32_t tm);
+int CONFIG_SetMapBestTime(uint8_t const * mapmd4, int32_t tm);
 
-void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
+void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 
 int32_t CONFIG_FunctionNameToNum(const char *func);
 char *CONFIG_FunctionNumToName(int32_t func);

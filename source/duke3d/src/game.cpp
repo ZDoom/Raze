@@ -4571,7 +4571,7 @@ void G_HandleLocalKeys(void)
     if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_Show_Opponents_Weapon))
     {
         CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
-        ud.config.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
+        ud.config.ShowWeapons = ud.showweapons = 1-ud.showweapons;
         P_DoQuote(QUOTE_WEAPON_MODE_OFF-ud.showweapons,g_player[screenpeek].ps);
     }
 
@@ -6694,7 +6694,7 @@ MAIN_LOOP_RESTART:
 //    G_GameExit(" "); ///
 
 //    ud.auto_run = ud.config.RunMode;
-    ud.showweapons = ud.config.ShowOpponentWeapons;
+    ud.showweapons = ud.config.ShowWeapons;
     P_SetupMiscInputSettings();
     g_player[myconnectindex].pteam = ud.team;
 

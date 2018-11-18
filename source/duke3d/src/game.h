@@ -210,7 +210,7 @@ typedef struct {
         int32_t UseJoystick;
         int32_t UseMouse;
         int32_t AutoAim;
-        int32_t ShowOpponentWeapons;
+        int32_t ShowWeapons;
         int32_t MouseDeadZone,MouseBias;
         int32_t SmoothInput;
 
