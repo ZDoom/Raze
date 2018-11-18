@@ -35,22 +35,23 @@ credits.
 #include "pragmas.h"
 
 #if !defined(_WIN32)
-#include <dirent.h>
-static inline int32_t _lrotl(int32_t i, int sh) { return (i >> (-sh)) | (i << sh); }
+# include <dirent.h>
+static FORCE_INLINE CONSTEXPR int32_t klrotl(int32_t i, int sh) { return (i >> (-sh)) | (i << sh); }
 /*inline*/ int32_t filelength(int h)
 {
     struct stat st;
     if (fstat(h,&st) < 0) return -1;
     return st.st_size;
 }
-#define _fileno fileno
+# define _fileno fileno
 #else
-#include <io.h>
-#ifdef __clang__
-#include <emmintrin.h>
-#else
-#include <intrin.h>
-#endif
+# define klrotl(i, sh) _lrotl(i, sh)
+# include <io.h>
+# ifdef __clang__
+#  include <emmintrin.h>
+# else
+#  include <intrin.h>
+# endif
 #endif
 
 //use GCC-specific extension to force symbol name to be something in particular to override underscoring.
@@ -1980,17 +1981,17 @@ static int32_t kbmprend(const char *buf, int32_t fleng,
         case 16: for (x=x0; x<x1; x++)
                 {
                     i = ((int32_t)(B_UNBUF16(&cptr[x<<1])));
-                    lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
-                              (_lrotl(i,palcol[1])&palcol[4]) +
-                              (_lrotl(i,palcol[2])&palcol[5]) + B_LITTLE32(0xff000000);
+                    lptr[x] = (klrotl(i,palcol[0])&palcol[3]) +
+                              (klrotl(i,palcol[1])&palcol[4]) +
+                              (klrotl(i,palcol[2])&palcol[5]) + B_LITTLE32(0xff000000);
                 } break;
         case 24: for (x=x0; x<x1; x++) lptr[x] = ((B_UNBUF32(&cptr[x*3]))|B_LITTLE32(0xff000000)); break;
         case 32: for (x=x0; x<x1; x++)
                 {
                     i = (B_UNBUF32(&cptr[x<<2]));
-                    lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
-                              (_lrotl(i,palcol[1])&palcol[4]) +
-                              (_lrotl(i,palcol[2])&palcol[5]) + B_LITTLE32(0xff000000);
+                    lptr[x] = (klrotl(i,palcol[0])&palcol[3]) +
+                              (klrotl(i,palcol[1])&palcol[4]) +
+                              (klrotl(i,palcol[2])&palcol[5]) + B_LITTLE32(0xff000000);
                 } break;
         }
 
