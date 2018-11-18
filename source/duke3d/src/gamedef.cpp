@@ -824,9 +824,9 @@ char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_IS_POINTER(x) (bitptr[(x)>>3] & (1<<((x) &7)))
 
 #if !defined LUNATIC
-hashtable_t h_arrays      = { MAXGAMEARRAYS>>1, NULL };
-hashtable_t h_gamevars    = { MAXGAMEVARS>>1, NULL };
-hashtable_t h_labels      = { 11264>>1, NULL };
+hashtable_t h_arrays   = { MAXGAMEARRAYS >> 1, NULL };
+hashtable_t h_gamevars = { MAXGAMEVARS >> 1, NULL };
+hashtable_t h_labels   = { 11264 >> 1, NULL };
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
@@ -885,13 +885,13 @@ static inline bool ispecial(const char c)
         c == ',' || c == ';' || (c == 0x0a /*&& ++g_lineNumber*/));
 }
 
-static inline void C_NextLine(void)
+static inline void scriptSkipLine(void)
 {
     while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
         textptr++;
 }
 
-static inline void C_SkipSpace(void)
+static inline void scriptSkipSpaces(void)
 {
     while (*textptr == ' ' || *textptr == '\t')
         textptr++;
@@ -918,7 +918,7 @@ static void C_SkipComments(void)
             case '/': // C++ style comment
                 if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
                     initprintf("%s:%d: debug: got comment.\n",g_scriptFileName,g_lineNumber);
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             case '*': // beginning of a C style comment
                 if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
@@ -950,7 +950,7 @@ static void C_SkipComments(void)
             default:
                 C_ReportError(-1);
                 initprintf("%s:%d: error: malformed comment.\n", g_scriptFileName, g_lineNumber);
-                C_NextLine();
+                scriptSkipLine();
                 g_errorCnt++;
                 continue;
             }
@@ -1052,14 +1052,11 @@ static int32_t C_GetNextGameArrayName(void)
     return i;
 }
 
-static int32_t C_GetKeyword(void)
+static int C_GetKeyword(void)
 {
-    int32_t i;
-    char *temptextptr;
-
     C_SkipComments();
 
-    temptextptr = textptr;
+    char *temptextptr = textptr;
 
     if (*temptextptr == 0) // EOF
         return -2;
@@ -1071,7 +1068,8 @@ static int32_t C_GetKeyword(void)
             return 0;
     }
 
-    i = 0;
+    int i = 0;
+
     while (isaltok(*temptextptr))
         tempbuf[i++] = *(temptextptr++);
     tempbuf[i] = 0;
@@ -1079,16 +1077,14 @@ static int32_t C_GetKeyword(void)
     return hash_find(&h_keywords,tempbuf);
 }
 
-static int32_t C_GetNextKeyword(void) //Returns its code #
+static int C_GetNextKeyword(void) //Returns its code #
 {
-    int32_t i, l;
-
     C_SkipComments();
 
     if (*textptr == 0) // EOF
         return -2;
 
-    l = 0;
+    int l = 0;
     while (isaltok(*(textptr+l)))
     {
         tempbuf[l] = textptr[l];
@@ -1096,6 +1092,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     }
     tempbuf[l] = 0;
 
+    int i;
     if (EDUKE32_PREDICT_TRUE((i = hash_find(&h_keywords,tempbuf)) >= 0))
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
@@ -1403,11 +1400,10 @@ static void C_GetNextVarType(int32_t type)
         }
         return;
     }
-//    initprintf("not an array");
     id=GetDefID(LAST_LABEL);
     if (id<0)   //gamevar not found
     {
-        if (!type && !g_labelsOnly)
+        if (EDUKE32_PREDICT_TRUE(!type && !g_labelsOnly))
         {
             //try looking for a define instead
             Bstrcpy(tempbuf,LAST_LABEL);
@@ -1450,10 +1446,9 @@ static void C_GetNextVarType(int32_t type)
 
 #define C_GetNextVar() C_GetNextVarType(0)
 
-static inline void C_GetManyVarsType(int32_t type, int32_t num)
+static FORCE_INLINE void C_GetManyVarsType(int32_t type, int num)
 {
-    int32_t i;
-    for (i=num-1; i>=0; i--)
+    for (; num>0; --num)
         C_GetNextVarType(type);
 }
 
@@ -1509,8 +1504,8 @@ static int32_t C_GetNextValue(int32_t type)
 
         scriptWriteValue(0);
         textptr += l;
-        char *el = C_GetLabelType(type);
-        char *gl = C_GetLabelType(labeltype[i]);
+        char * const el = C_GetLabelType(type);
+        char * const gl = C_GetLabelType(labeltype[i]);
         C_ReportError(-1);
         initprintf("%s:%d: warning: expected %s, found %s.\n",g_scriptFileName,g_lineNumber,el,gl);
         g_warningCnt++;
@@ -1607,7 +1602,7 @@ static int C_GetStructureIndexes(bool const labelsonly, hashtable_t const * cons
 
     C_GetNextLabelName();
 
-    int32_t const labelNum = C_GetLabelNameOffset(table, Bstrtolower(LAST_LABEL));
+    int const labelNum = C_GetLabelNameOffset(table, Bstrtolower(LAST_LABEL));
 
     if (EDUKE32_PREDICT_FALSE(labelNum == -1))
     {
@@ -1619,26 +1614,24 @@ static int C_GetStructureIndexes(bool const labelsonly, hashtable_t const * cons
     return labelNum;
 }
 
-static inline int32_t C_IntPow2(int32_t const v)
+static FORCE_INLINE bool C_IntPow2(int32_t const v)
 {
     return ((v!=0) && (v&(v-1))==0);
 }
 
 static inline uint32_t C_Pow2IntLogBase2(int32_t const v)
 {
-    static const uint32_t b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0,
-                                 0xFF00FF00, 0xFFFF0000
-                                };
+    static constexpr uint32_t b[] = { 0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 0xFF00FF00, 0xFFFF0000 };
 
     uint32_t r = (v & b[0]) != 0;
 
-    for (bssize_t i = 4; i > 0; i--)
+    for (int i = 0; i < ARRAY_SSIZE(b); ++i)
         r |= ((v & b[i]) != 0) << i;
 
     return r;
 }
 
-static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
+static bool C_CheckMalformedBranch(intptr_t lastScriptPtr)
 {
     switch (C_GetKeyword())
     {
@@ -1653,12 +1646,12 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
         g_warningCnt++;
         initprintf("%s:%d: warning: malformed `%s' branch\n",g_scriptFileName,g_lineNumber,
                    VM_GetKeywordForID(*(g_scriptPtr) & VM_INSTMASK));
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
-static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
+static bool C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
 {
     // ifrnd and the others actually do something when the condition is executed
     if ((Bstrncmp(VM_GetKeywordForID(tw), "if", 2) && tw != CON_ELSE) ||
@@ -1666,7 +1659,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
             tw == CON_IFPDISTL || tw == CON_IFPDISTG || tw == CON_IFGOTWEAPONCE)
     {
         g_ifElseAborted = 0;
-        return 0;
+        return false;
     }
 
     if ((*(g_scriptPtr) & VM_INSTMASK) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
@@ -1680,36 +1673,36 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
         initprintf("%s:%d: warning: empty `%s' branch\n",g_scriptFileName,g_lineNumber,
                    VM_GetKeywordForID(*(g_scriptPtr) & VM_INSTMASK));
         *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
-        return 1;
+        return true;
     }
-    return 0;
+
+    return false;
 }
 
-static int32_t C_CountCaseStatements()
+static int C_CountCaseStatements()
 {
-    char *temptextptr = textptr;
-    int32_t temp_ScriptLineNumber = g_lineNumber;
-    intptr_t scriptoffset = (unsigned)(g_scriptPtr-apScript);
-    intptr_t caseoffset = (unsigned)(g_caseScriptPtr-apScript);
-//    int32_t i;
+    char *const temptextptr = textptr;
+    int const backupLineNumber = g_lineNumber;
+    int const backupNumCases   = g_numCases;
+    uint32_t const casePtrOffset   = g_caseScriptPtr - apScript;
+    uint32_t const scriptPtrOffset = g_scriptPtr - apScript;
 
-    g_numCases=0;
-    g_caseScriptPtr=NULL;
-    //Bsprintf(g_szBuf,"CSS: %.12s",textptr);
-    //AddLog(g_szBuf);
+    g_numCases = 0;
+    g_caseScriptPtr = NULL;
     C_ParseCommand(1);
+
     // since we processed the endswitch, we need to re-increment g_checkingSwitch
     g_checkingSwitch++;
 
-    textptr=temptextptr;
-    g_scriptPtr = (intptr_t *)(apScript+scriptoffset);
+    int const numCases = g_numCases;
 
-    g_lineNumber = temp_ScriptLineNumber;
+    textptr = temptextptr;
+    g_lineNumber = backupLineNumber;
+    g_numCases   = backupNumCases;
+    g_caseScriptPtr = (intptr_t *)(apScript + casePtrOffset);
+    g_scriptPtr     = (intptr_t *)(apScript + scriptPtrOffset);
 
-    int32_t const lCount=g_numCases;
-    g_caseScriptPtr = (intptr_t *)(apScript+caseoffset);
-    g_numCases = 0;
-    return lCount;
+    return numCases;
 }
 
 static void C_Include(const char *confile)
@@ -3117,7 +3110,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE(!g_checkingIfElse))
                 {
                     g_scriptPtr--;
-                    intptr_t *tempscrptr = g_scriptPtr;
+                    auto const tempscrptr = g_scriptPtr;
                     g_warningCnt++;
                     C_ReportError(-1);
 
@@ -3154,7 +3147,7 @@ DO_DEFSTATE:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                intptr_t *tempscrptr = (intptr_t *) apScript+offset;
+                auto const tempscrptr = (intptr_t *) apScript+offset;
                 scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 continue;
@@ -3163,7 +3156,7 @@ DO_DEFSTATE:
         case CON_SETSECTOR:
         case CON_GETSECTOR:
             {
-                int32_t const labelNum = C_GetStructureIndexes(1, &h_sector);
+                int const labelNum = C_GetStructureIndexes(1, &h_sector);
 
                 if (labelNum == -1)
                     continue;
@@ -3202,7 +3195,7 @@ DO_DEFSTATE:
         case CON_SETWALL:
         case CON_GETWALL:
             {
-                int32_t const labelNum = C_GetStructureIndexes(1, &h_wall);
+                int const labelNum = C_GetStructureIndexes(1, &h_wall);
 
                 if (labelNum == -1)
                     continue;
@@ -3216,7 +3209,7 @@ DO_DEFSTATE:
         case CON_SETPLAYER:
         case CON_GETPLAYER:
             {
-                int32_t const labelNum = C_GetStructureIndexes(1, &h_player);
+                int const labelNum = C_GetStructureIndexes(1, &h_player);
 
                 if (labelNum == -1)
                     continue;
@@ -3233,7 +3226,7 @@ DO_DEFSTATE:
         case CON_SETINPUT:
         case CON_GETINPUT:
             {
-                int32_t const labelNum = C_GetStructureIndexes(1, &h_input);
+                int const labelNum = C_GetStructureIndexes(1, &h_input);
 
                 if (labelNum == -1)
                     continue;
@@ -3247,7 +3240,7 @@ DO_DEFSTATE:
         case CON_SETTILEDATA:
         case CON_GETTILEDATA:
         {
-            int32_t const labelNum = C_GetStructureIndexes(0, &h_tiledata);
+            int const labelNum = C_GetStructureIndexes(0, &h_tiledata);
 
             if (labelNum == -1)
                 continue;
@@ -3279,7 +3272,7 @@ DO_DEFSTATE:
                 textptr++;
                 C_GetNextLabelName();
 
-                int32_t const labelNum=C_GetLabelNameID(UserdefsLabels,&h_userdef,Bstrtolower(LAST_LABEL));
+                int const labelNum=C_GetLabelNameID(UserdefsLabels,&h_userdef,Bstrtolower(LAST_LABEL));
 
                 if (EDUKE32_PREDICT_FALSE(labelNum == -1))
                 {
@@ -3463,7 +3456,7 @@ DO_DEFSTATE:
                     g_numCompilerWarnings++;
                 }
 #endif
-                int32_t const labelNum = C_GetStructureIndexes(1, &h_tsprite);
+                int const labelNum = C_GetStructureIndexes(1, &h_tsprite);
 
                 if (labelNum == -1)
                     continue;
@@ -4093,8 +4086,7 @@ DO_DEFSTATE:
         case CON_WHILEVARVARL:
         case CON_WHILEVARVARN:
             {
-                intptr_t offset;
-                intptr_t lastScriptPtr = g_scriptPtr - &apScript[0] - 1;
+                intptr_t const lastScriptPtr = g_scriptPtr - apScript - 1;
 
                 g_ifElseAborted = 0;
 
@@ -4103,7 +4095,7 @@ DO_DEFSTATE:
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                offset = (unsigned)(g_scriptPtr-apScript);
+                intptr_t const offset = (unsigned)(g_scriptPtr-apScript);
                 g_scriptPtr++; // Leave a spot for the fail location
 
                 C_ParseCommand(0);
@@ -4111,7 +4103,7 @@ DO_DEFSTATE:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                intptr_t *tempscrptr = (intptr_t *)apScript+offset;
+                auto const tempscrptr = (intptr_t *)apScript+offset;
                 scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 if (tw != CON_WHILEVARVARN)
@@ -4147,7 +4139,7 @@ DO_DEFSTATE:
         case CON_WHILEVARL:
         case CON_WHILEVARN:
             {
-                intptr_t lastScriptPtr = (g_scriptPtr-apScript-1);
+                intptr_t const lastScriptPtr = (g_scriptPtr-apScript-1);
 
                 g_ifElseAborted = 0;
                 // get the ID of the DEF
@@ -4157,8 +4149,7 @@ DO_DEFSTATE:
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                intptr_t *tempscrptr = g_scriptPtr;
-                intptr_t offset = (unsigned)(tempscrptr-apScript);
+                intptr_t const offset = (unsigned)(g_scriptPtr-apScript);
                 g_scriptPtr++; //Leave a spot for the fail location
 
                 C_ParseCommand(0);
@@ -4166,7 +4157,7 @@ DO_DEFSTATE:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                tempscrptr = (intptr_t *)apScript+offset;
+                auto const tempscrptr = (intptr_t *)apScript+offset;
                 scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 if (tw != CON_WHILEVARN && tw != CON_WHILEVARL)
@@ -4183,22 +4174,22 @@ DO_DEFSTATE:
         case CON_FOR:  // special-purpose iteration
         {
             C_GetNextVarType(GAMEVAR_READONLY);
-
             C_GetNextLabelName();
 
             int const iterType = hash_find(&h_iter, LAST_LABEL);
 
-            if (iterType < 0)
+            if (EDUKE32_PREDICT_FALSE(iterType < 0))
             {
                 C_CUSTOMERROR("unknown iteration type `%s'.", LAST_LABEL);
                 return 1;
             }
+
             scriptWriteValue(iterType);
 
             if (iterType >= ITER_SPRITESOFSECTOR)
                 C_GetNextVar();
 
-            intptr_t offset = g_scriptPtr-apScript;
+            intptr_t const offset = g_scriptPtr-apScript;
             g_scriptPtr++; //Leave a spot for the location to jump to after completion
 
             C_ParseCommand(0);
@@ -4435,7 +4426,7 @@ DO_DEFSTATE:
                     for (i = 3; i < 3 + tempscrptr[1] * 2 - 2; i += 2)  // sort them
                     {
                         intptr_t t = tempscrptr[i];
-                        intptr_t n = i;
+                        int n = i;
 
                         for (j = i + 2; j < 3 + tempscrptr[1] * 2; j += 2)
                         {
@@ -4622,8 +4613,7 @@ repeatcase:
         case CON_IFSTRENGTH:
         case CON_IFWASWEAPON:
             {
-                intptr_t offset;
-                intptr_t lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
+                auto const lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
 
                 g_ifElseAborted = 0;
 
@@ -4668,8 +4658,7 @@ repeatcase:
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                intptr_t *tempscrptr = g_scriptPtr;
-                offset = (unsigned)(tempscrptr-apScript);
+                intptr_t const offset = (unsigned)(g_scriptPtr-apScript);
 
                 g_scriptPtr++; //Leave a spot for the fail location
 
@@ -4678,7 +4667,7 @@ repeatcase:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                tempscrptr = (intptr_t *)apScript+offset;
+                auto const tempscrptr = (intptr_t *)apScript+offset;
                 scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 j = C_GetKeyword();
@@ -4712,16 +4701,14 @@ repeatcase:
         case CON_IFSERVER:
         case CON_IFSQUISHED:
             {
-                intptr_t offset;
-                intptr_t lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
+                auto const lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
 
                 g_ifElseAborted = 0;
 
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                intptr_t *tempscrptr = g_scriptPtr;
-                offset = (unsigned)(tempscrptr-apScript);
+                intptr_t const offset = (unsigned)(g_scriptPtr-apScript);
 
                 g_scriptPtr++; //Leave a spot for the fail location
 
@@ -4730,7 +4717,7 @@ repeatcase:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                tempscrptr = (intptr_t *)apScript+offset;
+                auto const tempscrptr = (intptr_t *)apScript+offset;
                 scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 j = C_GetKeyword();
@@ -4794,7 +4781,7 @@ repeatcase:
         case CON_BETANAME:
             g_scriptPtr--;
             j = 0;
-            C_NextLine();
+            scriptSkipLine();
             continue;
 
 
@@ -4811,14 +4798,14 @@ repeatcase:
             {
                 initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
             if (EDUKE32_PREDICT_FALSE((unsigned)k > MAXLEVELS-1))
             {
                 initprintf("%s:%d: error: level number exceeds maximum number of levels per episode.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -4837,7 +4824,7 @@ repeatcase:
                 initprintf("%s:%d: error: skill number exceeds maximum skill count %d.\n",
                            g_scriptFileName,g_lineNumber, MAXSKILLS);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -4856,7 +4843,7 @@ repeatcase:
                 initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",
                     g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -4870,14 +4857,14 @@ repeatcase:
             g_scriptPtr--;
             j = *g_scriptPtr;
 
-            C_SkipSpace();
+            scriptSkipSpaces();
 
             if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXVOLUMES-1))
             {
                 initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",
                     g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -4892,7 +4879,7 @@ repeatcase:
                     initprintf("%s:%d: warning: truncating volume name to %d characters.\n",
                         g_scriptFileName,g_lineNumber,(int32_t)sizeof(g_volumeNames[j])-1);
                     g_warningCnt++;
-                    C_NextLine();
+                    scriptSkipLine();
                     break;
                 }
             }
@@ -4913,7 +4900,7 @@ repeatcase:
             {
                 initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -4926,14 +4913,14 @@ repeatcase:
             g_scriptPtr--;
             j = *g_scriptPtr;
 
-            C_SkipSpace();
+            scriptSkipSpaces();
 
             if (EDUKE32_PREDICT_FALSE((unsigned)j > NUMGAMEFUNCTIONS-1))
             {
                 initprintf("%s:%d: error: function number exceeds number of game functions.\n",
                     g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -4948,7 +4935,7 @@ repeatcase:
                     initprintf("%s:%d: warning: invalid character in function name.\n",
                         g_scriptFileName,g_lineNumber);
                     g_warningCnt++;
-                    C_NextLine();
+                    scriptSkipLine();
                     break;
                 }
                 if (EDUKE32_PREDICT_FALSE(i >= MAXGAMEFUNCLEN-1))
@@ -4956,7 +4943,7 @@ repeatcase:
                     initprintf("%s:%d: warning: truncating function name to %d characters.\n",
                         g_scriptFileName,g_lineNumber,MAXGAMEFUNCLEN);
                     g_warningCnt++;
-                    C_NextLine();
+                    scriptSkipLine();
                     break;
                 }
             }
@@ -4981,7 +4968,7 @@ repeatcase:
                 initprintf("%s:%d: error: function number exceeds number of game functions.\n",
                     g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -4996,14 +4983,14 @@ repeatcase:
             g_scriptPtr--;
             j = *g_scriptPtr;
 
-            C_SkipSpace();
+            scriptSkipSpaces();
 
             if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXSKILLS))
             {
                 initprintf("%s:%d: error: skill number exceeds maximum skill count %d.\n",
                            g_scriptFileName,g_lineNumber, MAXSKILLS);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -5018,7 +5005,7 @@ repeatcase:
                     initprintf("%s:%d: warning: truncating skill name to %d characters.\n",
                         g_scriptFileName,g_lineNumber,(int32_t)sizeof(g_skillNames[j])-1);
                     g_warningCnt++;
-                    C_NextLine();
+                    scriptSkipLine();
                     break;
                 }
             }
@@ -5050,7 +5037,7 @@ repeatcase:
                         initprintf("%s:%d: warning: truncating game name to %d characters.\n",
                             g_scriptFileName,g_lineNumber,(int32_t)sizeof(gamename)-1);
                         g_warningCnt++;
-                        C_NextLine();
+                        scriptSkipLine();
                         break;
                     }
                 }
@@ -5110,7 +5097,7 @@ repeatcase:
             {
                 initprintf("%s:%d: error: gametype number exceeds maximum gametype count.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
             g_gametypeCnt = j+1;
@@ -5126,7 +5113,7 @@ repeatcase:
                     initprintf("%s:%d: warning: truncating gametype name to %d characters.\n",
                         g_scriptFileName,g_lineNumber,(int32_t)sizeof(g_gametypeNames[j])-1);
                     g_warningCnt++;
-                    C_NextLine();
+                    scriptSkipLine();
                     break;
                 }
             }
@@ -5147,14 +5134,14 @@ repeatcase:
             {
                 initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
             if (EDUKE32_PREDICT_FALSE((unsigned)k > MAXLEVELS-1))
             {
                 initprintf("%s:%d: error: level number exceeds maximum number of levels per episode.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -5170,7 +5157,7 @@ repeatcase:
                 {
                     initprintf("%s:%d: error: level file name exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,BMAX_PATH);
                     g_errorCnt++;
-                    C_SkipSpace();
+                    scriptSkipSpaces();
                     break;
                 }
             }
@@ -5192,7 +5179,7 @@ repeatcase:
                 (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
             textptr += 5;
-            C_SkipSpace();
+            scriptSkipSpaces();
 
             // cheap hack, 0.99 doesn't have the 3D Realms time
             if (*(textptr+2) == ':')
@@ -5202,7 +5189,7 @@ repeatcase:
                     (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
                 textptr += 5;
-                C_SkipSpace();
+                scriptSkipSpaces();
             }
             else if (g_scriptVersion == 10) g_scriptVersion = 9;
 
@@ -5217,7 +5204,7 @@ repeatcase:
                     initprintf("%s:%d: warning: truncating level name to %d characters.\n",
                         g_scriptFileName,g_lineNumber,32);
                     g_warningCnt++;
-                    C_NextLine();
+                    scriptSkipLine();
                     break;
                 }
             }
@@ -5261,7 +5248,7 @@ repeatcase:
 
             i = 0;
 
-            C_SkipSpace();
+            scriptSkipSpaces();
 
             if (tw == CON_REDEFINEQUOTE)
             {
@@ -5289,7 +5276,7 @@ repeatcase:
                 {
                     initprintf("%s:%d: warning: truncating quote text to %d characters.\n",g_scriptFileName,g_lineNumber,MAXQUOTELEN-1);
                     g_warningCnt++;
-                    C_NextLine();
+                    scriptSkipLine();
                     break;
                 }
             }
@@ -5326,7 +5313,7 @@ repeatcase:
             {
                 initprintf("%s:%d: error: cheat undefinition attempts to undefine nonexistent cheat.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
 
@@ -5342,12 +5329,12 @@ repeatcase:
             {
                 initprintf("%s:%d: error: cheat redefinition attempts to redefine nonexistent cheat.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                C_NextLine();
+                scriptSkipLine();
                 continue;
             }
             g_scriptPtr--;
             i = 0;
-            C_SkipSpace();
+            scriptSkipSpaces();
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ')
             {
                 CheatStrings[k][i] = Btolower(*textptr);
@@ -5357,7 +5344,7 @@ repeatcase:
                     initprintf("%s:%d: warning: truncating cheat string to %d characters.\n",
                         g_scriptFileName,g_lineNumber,(signed)sizeof(CheatStrings[k])-1);
                     g_warningCnt++;
-                    C_NextLine();
+                    scriptSkipLine();
                     break;
                 }
             }

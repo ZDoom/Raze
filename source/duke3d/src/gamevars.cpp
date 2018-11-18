@@ -772,7 +772,7 @@ static FORCE_INLINE int __fastcall Gv_GetVar__(int &gameVar, int &spriteNum, int
             }
             returnValue = var.pValues[playerNum];
         }
-        else switch (varFlags)
+        else switch (varFlags & GAMEVAR_PTR_MASK)
         {
             case GAMEVAR_INT32PTR: returnValue = *(int32_t *)var.global; break;
             case GAMEVAR_INT16PTR: returnValue = *(int16_t *)var.global; break;
@@ -821,7 +821,7 @@ static FORCE_INLINE void __fastcall Gv_SetVar__(int const &gameVar, int const &n
         if (EDUKE32_PREDICT_FALSE((unsigned) playerNum > MAXPLAYERS-1)) goto badindex;
         var.pValues[playerNum] = newValue;
     }
-    else switch (varFlags)
+    else switch (varFlags & GAMEVAR_PTR_MASK)
     {
         case GAMEVAR_INT32PTR: *((int32_t *)var.global) = (int32_t)newValue; break;
         case GAMEVAR_INT16PTR: *((int16_t *)var.global) = (int16_t)newValue; break;
