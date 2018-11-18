@@ -613,7 +613,7 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
         goto badindex;                                                  \
     }
 
-static int __fastcall Gv_GetSpecialVar(int gameVar, int spriteNum, int const playerNum)
+static int __fastcall Gv_GetArrayOrStruct(int gameVar, int spriteNum, int const playerNum)
 {
     int returnValue = gameVar;
 
@@ -746,7 +746,7 @@ static FORCE_INLINE int __fastcall Gv_GetVar__(int &gameVar, int &spriteNum, int
     else if (gameVar == GV_FLAG_CONSTANT)
         returnValue = *insptr++;
     else if ((gameVar & ~GV_FLAG_NEGATIVE) >= g_gameVarCount)
-        returnValue = Gv_GetSpecialVar(gameVar, spriteNum, playerNum);
+        returnValue = Gv_GetArrayOrStruct(gameVar, spriteNum, playerNum);
     else
     {
         int const invertResult = !!(gameVar & GV_FLAG_NEGATIVE);
@@ -854,7 +854,7 @@ static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 
     gamevar_t &var = aGameVars[gameVar];
 
-    if (var.flags & (GAMEVAR_PERACTOR | GAMEVAR_PERPLAYER))
+    if (var.flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
     {
         if (EDUKE32_PREDICT_FALSE(!var.pValues))
             CON_ERRPRINTF("Gv_GetVarDataPtr(): INTERNAL ERROR: NULL array !!!\n");
