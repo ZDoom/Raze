@@ -1729,14 +1729,16 @@ void OSD_Puts(const char *tmpstr)
 //
 void OSD_DispatchQueued(void)
 {
-    if (!osd->history.exec) return;
+    if (!osd->history.exec)
+        return;
 
-    for (int cmd=osd->history.exec-1; cmd>=0; cmd--)
-        OSD_Dispatch((const char *)osd->history.buf[cmd]);
+    int cmd = osd->history.exec - 1;
 
     osd->history.exec = 0;
-}
 
+    for (; cmd >= 0; cmd--)
+        OSD_Dispatch((const char *)osd->history.buf[cmd]);
+}
 
 //
 // OSD_Dispatch() -- Executes a command string
