@@ -1389,6 +1389,7 @@ const tokenmap_t iter_tokens [] =
     { "walofsec",        ITER_WALLSOFSECTOR },
 };
 #undef LABEL_SETUP
+#undef LABEL_SETUP_UNMATCHED
 #endif
 
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
@@ -1619,7 +1620,7 @@ static void C_SkipComments(void)
 
 #define GetDefID(szGameLabel) hash_find(&h_gamevars,szGameLabel)
 #define GetADefID(szGameLabel) hash_find(&h_arrays,szGameLabel)
-
+#define LAST_LABEL (label+(g_labelCnt<<6))
 static inline bool isaltok(const char c)
 {
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '\\' || c == '*' || c == '-' || c == '_' ||
@@ -1661,13 +1662,13 @@ static void C_GetNextLabelName(void)
     label[(g_labelCnt<<6)+i] = 0;
 
     if (!(g_errorCnt|g_warningCnt) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: label `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: debug: label `%s'.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
 }
 
 static int32_t C_GetNextGameArrayName(void)
 {
     C_GetNextLabelName();
-    int32_t const i = GetADefID(label+(g_labelCnt<<6));
+    int32_t const i = GetADefID(LAST_LABEL);
     if (EDUKE32_PREDICT_FALSE(i < 0))
     {
         g_errorCnt++;
@@ -1850,7 +1851,7 @@ static void C_GetNextVarType(int32_t type)
 
     C_GetNextLabelName();
 
-    if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+    if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
     {
         g_errorCnt++;
         C_ReportError(ERROR_ISAKEYWORD);
@@ -1863,11 +1864,11 @@ static void C_GetNextVarType(int32_t type)
     {
         flags |= GV_FLAG_ARRAY;
         textptr++;
-        id=GetADefID(label+(g_labelCnt<<6));
+        id=GetADefID(LAST_LABEL);
 
         if (id < 0)
         {
-            id=GetDefID(label+(g_labelCnt<<6));
+            id=GetDefID(LAST_LABEL);
             if ((unsigned) (id - g_structVarIDs) >= NUMQUICKSTRUCTS)
                 id = -1;
 
@@ -1957,39 +1958,39 @@ static void C_GetNextVarType(int32_t type)
             switch (id - g_structVarIDs)
             {
             case STRUCT_SPRITE:
-                labelNum=C_GetLabelNameOffset(&h_actor,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_actor,Bstrtolower(LAST_LABEL));
                 break;
             case STRUCT_SECTOR:
-                labelNum=C_GetLabelNameOffset(&h_sector,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_sector,Bstrtolower(LAST_LABEL));
                 break;
             case STRUCT_WALL:
-                labelNum=C_GetLabelNameOffset(&h_wall,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_wall,Bstrtolower(LAST_LABEL));
                 break;
             case STRUCT_PLAYER:
-                labelNum=C_GetLabelNameOffset(&h_player,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_player,Bstrtolower(LAST_LABEL));
                 break;
             case STRUCT_ACTORVAR:
             case STRUCT_PLAYERVAR:
-                labelNum=GetDefID(label+(g_labelCnt<<6));
+                labelNum=GetDefID(LAST_LABEL);
                 break;
             case STRUCT_TSPR:
-                labelNum=C_GetLabelNameOffset(&h_tsprite,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_tsprite,Bstrtolower(LAST_LABEL));
                 break;
             case STRUCT_PROJECTILE:
             case STRUCT_THISPROJECTILE:
-                labelNum=C_GetLabelNameOffset(&h_projectile,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_projectile,Bstrtolower(LAST_LABEL));
                 break;
             case STRUCT_USERDEF:
-                labelNum=C_GetLabelNameOffset(&h_userdef,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_userdef,Bstrtolower(LAST_LABEL));
                 break;
             case STRUCT_INPUT:
-                labelNum=C_GetLabelNameOffset(&h_input,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_input,Bstrtolower(LAST_LABEL));
                 break;
             case STRUCT_TILEDATA:
-                labelNum=C_GetLabelNameOffset(&h_tiledata,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_tiledata,Bstrtolower(LAST_LABEL));
                 break;
             case STRUCT_PALDATA:
-                labelNum=C_GetLabelNameOffset(&h_paldata,Bstrtolower(label+(g_labelCnt<<6)));
+                labelNum=C_GetLabelNameOffset(&h_paldata,Bstrtolower(LAST_LABEL));
                 break;
             default:
                 g_errorCnt++;
@@ -2065,13 +2066,13 @@ static void C_GetNextVarType(int32_t type)
         return;
     }
 //    initprintf("not an array");
-    id=GetDefID(label+(g_labelCnt<<6));
+    id=GetDefID(LAST_LABEL);
     if (id<0)   //gamevar not found
     {
         if (!type && !g_labelsOnly)
         {
             //try looking for a define instead
-            Bstrcpy(tempbuf,label+(g_labelCnt<<6));
+            Bstrcpy(tempbuf,LAST_LABEL);
             id = hash_find(&h_labels,tempbuf);
 
             if (EDUKE32_PREDICT_TRUE(id>=0 && labeltype[id] & LABEL_DEFINE))
@@ -2105,7 +2106,7 @@ static void C_GetNextVarType(int32_t type)
     }
 
     if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: gamevar `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: debug: gamevar `%s'.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
 
     BITPTR_CLEAR(g_scriptPtr-apScript);
     *g_scriptPtr++=(id|flags);
@@ -2280,7 +2281,7 @@ static int32_t C_GetStructureIndexes(int32_t const labelsonly, hashtable_t const
 
     C_GetNextLabelName();
 
-    int32_t const labelNum = C_GetLabelNameOffset(table, Bstrtolower(label + (g_labelCnt << 6)));
+    int32_t const labelNum = C_GetLabelNameOffset(table, Bstrtolower(LAST_LABEL));
 
     if (EDUKE32_PREDICT_FALSE(labelNum == -1))
     {
@@ -2998,32 +2999,32 @@ DO_DEFSTATE:
                 labeltype[g_labelCnt] = LABEL_STATE;
 
                 g_processingState = 1;
-                Bsprintf(g_szCurrentBlockName,"%s",label+(g_labelCnt<<6));
+                Bsprintf(g_szCurrentBlockName,"%s",LAST_LABEL);
 
-                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
                 {
                     g_errorCnt++;
                     C_ReportError(ERROR_ISAKEYWORD);
                     continue;
                 }
 
-                if (EDUKE32_PREDICT_FALSE(hash_find(&h_gamevars,label+(g_labelCnt<<6))>=0))
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_gamevars,LAST_LABEL)>=0))
                 {
                     g_warningCnt++;
                     C_ReportError(WARNING_NAMEMATCHESVAR);
                 }
 
-                hash_add(&h_labels,label+(g_labelCnt<<6),g_labelCnt,0);
+                hash_add(&h_labels,LAST_LABEL,g_labelCnt,0);
                 g_labelCnt++;
                 continue;
             }
 
             C_GetNextLabelName();
 
-            if (EDUKE32_PREDICT_FALSE((j = hash_find(&h_labels,label+(g_labelCnt<<6))) < 0))
+            if (EDUKE32_PREDICT_FALSE((j = hash_find(&h_labels,LAST_LABEL)) < 0))
             {
                 C_ReportError(-1);
-                initprintf("%s:%d: error: state `%s' not found.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+                initprintf("%s:%d: error: state `%s' not found.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
                 g_errorCnt++;
                 g_scriptPtr++;
                 continue;
@@ -3128,11 +3129,11 @@ DO_DEFSTATE:
 
             C_GetNextLabelName();
 
-            if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords, label+(g_labelCnt<<6))>=0))
+            if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords, LAST_LABEL)>=0))
             {
                 g_warningCnt++;
                 C_ReportError(WARNING_VARMASKSKEYWORD);
-                hash_delete(&h_keywords, label+(g_labelCnt<<6));
+                hash_delete(&h_keywords, LAST_LABEL);
             }
 
             int32_t defaultValue = 0;
@@ -3159,7 +3160,7 @@ DO_DEFSTATE:
                 }
             }
 
-            Gv_NewVar(label+(g_labelCnt<<6), defaultValue, varFlags);
+            Gv_NewVar(LAST_LABEL, defaultValue, varFlags);
             continue;
         }
 
@@ -3177,14 +3178,14 @@ DO_DEFSTATE:
             }
             C_GetNextLabelName();
 
-            if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+            if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
             {
                 g_warningCnt++;
                 C_ReportError(WARNING_ARRAYMASKSKEYWORD);
-                hash_delete(&h_keywords, label+(g_labelCnt<<6));
+                hash_delete(&h_keywords, LAST_LABEL);
             }
 
-            i = hash_find(&h_gamevars,label+(g_labelCnt<<6));
+            i = hash_find(&h_gamevars,LAST_LABEL);
             if (EDUKE32_PREDICT_FALSE(i>=0))
             {
                 g_warningCnt++;
@@ -3193,7 +3194,7 @@ DO_DEFSTATE:
 
             C_GetNextValue(LABEL_DEFINE);
 
-            char const * const arrayName = label+(g_labelCnt<<6);
+            char const * const arrayName = LAST_LABEL;
             int32_t arrayFlags = 0;
 
             while (C_GetKeyword() == -1)
@@ -3214,14 +3215,14 @@ DO_DEFSTATE:
             {
                 C_GetNextLabelName();
 
-                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
                 {
                     g_errorCnt++;
                     C_ReportError(ERROR_ISAKEYWORD);
                     continue;
                 }
 
-                i = hash_find(&h_gamevars,label+(g_labelCnt<<6));
+                i = hash_find(&h_gamevars,LAST_LABEL);
                 if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_warningCnt++;
@@ -3230,7 +3231,7 @@ DO_DEFSTATE:
 
                 C_GetNextValue(LABEL_DEFINE);
 
-                i = hash_find(&h_labels,label+(g_labelCnt<<6));
+                i = hash_find(&h_labels,LAST_LABEL);
                 if (i>=0)
                 {
                     // if (i >= g_numDefaultLabels)
@@ -3239,12 +3240,12 @@ DO_DEFSTATE:
                     {
                         g_warningCnt++;
                         initprintf("%s:%d: warning: ignored redefinition of `%s' to %d (old: %d).\n",g_scriptFileName,
-                                   g_lineNumber,label+(g_labelCnt<<6), (int32_t)(*(g_scriptPtr-1)), labelcode[i]);
+                                   g_lineNumber,LAST_LABEL, (int32_t)(*(g_scriptPtr-1)), labelcode[i]);
                     }
                 }
                 else
                 {
-                    hash_add(&h_labels,label+(g_labelCnt<<6),g_labelCnt,0);
+                    hash_add(&h_labels,LAST_LABEL,g_labelCnt,0);
                     labeltype[g_labelCnt] = LABEL_DEFINE;
                     labelcode[g_labelCnt++] = *(g_scriptPtr-1);
                     if (*(g_scriptPtr-1) >= 0 && *(g_scriptPtr-1) < MAXTILES && g_dynamicTileMapping)
@@ -3294,27 +3295,27 @@ DO_DEFSTATE:
                 C_GetNextLabelName();
                 // Check to see it's already defined
 
-                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
                 {
                     g_errorCnt++;
                     C_ReportError(ERROR_ISAKEYWORD);
                     continue;
                 }
 
-                if (EDUKE32_PREDICT_FALSE(hash_find(&h_gamevars,label+(g_labelCnt<<6))>=0))
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_gamevars,LAST_LABEL)>=0))
                 {
                     g_warningCnt++;
                     C_ReportError(WARNING_NAMEMATCHESVAR);
                 }
 
-                if (EDUKE32_PREDICT_FALSE((i = hash_find(&h_labels,label+(g_labelCnt<<6))) >= 0))
+                if (EDUKE32_PREDICT_FALSE((i = hash_find(&h_labels,LAST_LABEL)) >= 0))
                 {
                     g_warningCnt++;
-                    initprintf("%s:%d: warning: duplicate move `%s' ignored.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+                    initprintf("%s:%d: warning: duplicate move `%s' ignored.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
                 }
                 else
                 {
-                    hash_add(&h_labels,label+(g_labelCnt<<6),g_labelCnt,0);
+                    hash_add(&h_labels,LAST_LABEL,g_labelCnt,0);
                     labeltype[g_labelCnt] = LABEL_MOVE;
                     labelcode[g_labelCnt++] = g_scriptPtr-apScript;
                 }
@@ -3415,30 +3416,30 @@ DO_DEFSTATE:
                 g_scriptPtr--;
                 C_GetNextLabelName();
 
-                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
                 {
                     g_errorCnt++;
                     C_ReportError(ERROR_ISAKEYWORD);
                     continue;
                 }
 
-                i = hash_find(&h_gamevars,label+(g_labelCnt<<6));
+                i = hash_find(&h_gamevars,LAST_LABEL);
                 if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_warningCnt++;
                     C_ReportError(WARNING_NAMEMATCHESVAR);
                 }
 
-                i = hash_find(&h_labels,label+(g_labelCnt<<6));
+                i = hash_find(&h_labels,LAST_LABEL);
                 if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_warningCnt++;
-                    initprintf("%s:%d: warning: duplicate ai `%s' ignored.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+                    initprintf("%s:%d: warning: duplicate ai `%s' ignored.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
                 }
                 else
                 {
                     labeltype[g_labelCnt] = LABEL_AI;
-                    hash_add(&h_labels,label+(g_labelCnt<<6),g_labelCnt,0);
+                    hash_add(&h_labels,LAST_LABEL,g_labelCnt,0);
                     labelcode[g_labelCnt++] = g_scriptPtr-apScript;
                 }
 
@@ -3492,31 +3493,31 @@ DO_DEFSTATE:
                 C_GetNextLabelName();
                 // Check to see it's already defined
 
-                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
                 {
                     g_errorCnt++;
                     C_ReportError(ERROR_ISAKEYWORD);
                     continue;
                 }
 
-                i = hash_find(&h_gamevars,label+(g_labelCnt<<6));
+                i = hash_find(&h_gamevars,LAST_LABEL);
                 if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_warningCnt++;
                     C_ReportError(WARNING_NAMEMATCHESVAR);
                 }
 
-                i = hash_find(&h_labels,label+(g_labelCnt<<6));
+                i = hash_find(&h_labels,LAST_LABEL);
                 if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_warningCnt++;
-                    initprintf("%s:%d: warning: duplicate action `%s' ignored.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+                    initprintf("%s:%d: warning: duplicate action `%s' ignored.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
                 }
                 else
                 {
                     labeltype[g_labelCnt] = LABEL_ACTION;
                     labelcode[g_labelCnt] = g_scriptPtr-apScript;
-                    hash_add(&h_labels,label+(g_labelCnt<<6),g_labelCnt,0);
+                    hash_add(&h_labels,LAST_LABEL,g_labelCnt,0);
                     g_labelCnt++;
                 }
 
@@ -3982,7 +3983,7 @@ DO_DEFSTATE:
                 textptr++;
                 C_GetNextLabelName();
 
-                int32_t const labelNum=C_GetLabelNameID(UserdefsLabels,&h_userdef,Bstrtolower(label+(g_labelCnt<<6)));
+                int32_t const labelNum=C_GetLabelNameID(UserdefsLabels,&h_userdef,Bstrtolower(LAST_LABEL));
 
                 if (EDUKE32_PREDICT_FALSE(labelNum == -1))
                 {
@@ -4035,14 +4036,14 @@ DO_DEFSTATE:
 
                 C_GetNextLabelName();
 
-                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
                 {
                     g_errorCnt++;
                     C_ReportError(ERROR_ISAKEYWORD);
                     continue;
                 }
 
-                i=GetDefID(label+(g_labelCnt<<6));
+                i=GetDefID(LAST_LABEL);
 
                 if (EDUKE32_PREDICT_FALSE(i<0))
                 {
@@ -4064,7 +4065,7 @@ DO_DEFSTATE:
                     {
                         g_errorCnt++;
                         C_ReportError(-1);
-                        initprintf("%s:%d: error: variable `%s' is not per-actor.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+                        initprintf("%s:%d: error: variable `%s' is not per-actor.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
                         continue;
                     }
                     break;
@@ -4073,7 +4074,7 @@ DO_DEFSTATE:
                     {
                         g_errorCnt++;
                         C_ReportError(-1);
-                        initprintf("%s:%d: error: variable `%s' is not per-player.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+                        initprintf("%s:%d: error: variable `%s' is not per-player.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
                         continue;
                     }
                     break;
@@ -4487,7 +4488,7 @@ DO_DEFSTATE:
             {
                 g_errorCnt++;
                 C_ReportError(-1);
-                initprintf("%s:%d: error: can't resize system array `%s'.\n", g_scriptFileName, g_lineNumber, label+(g_labelCnt<<6));
+                initprintf("%s:%d: error: can't resize system array `%s'.\n", g_scriptFileName, g_lineNumber, LAST_LABEL);
                 return 1;
             }
 
@@ -4504,7 +4505,7 @@ DO_DEFSTATE:
             {
                 g_errorCnt++;
                 C_ReportError(-1);
-                initprintf("%s:%d: error: can't swap system array `%s'.\n", g_scriptFileName, g_lineNumber, label+(g_labelCnt<<6));
+                initprintf("%s:%d: error: can't swap system array `%s'.\n", g_scriptFileName, g_lineNumber, LAST_LABEL);
                 return 1;
             }
 
@@ -4518,7 +4519,7 @@ DO_DEFSTATE:
             {
                 g_errorCnt++;
                 C_ReportError(-1);
-                initprintf("%s:%d: error: can't swap system array `%s'.\n", g_scriptFileName, g_lineNumber, label+(g_labelCnt<<6));
+                initprintf("%s:%d: error: can't swap system array `%s'.\n", g_scriptFileName, g_lineNumber, LAST_LABEL);
                 return 1;
             }
 
@@ -4896,11 +4897,11 @@ DO_DEFSTATE:
 
             C_GetNextLabelName();
 
-            int const iterType = hash_find(&h_iter, label + (g_labelCnt << 6));
+            int const iterType = hash_find(&h_iter, LAST_LABEL);
 
             if (iterType < 0)
             {
-                C_CUSTOMERROR("unknown iteration type `%s'.", label + (g_labelCnt << 6));
+                C_CUSTOMERROR("unknown iteration type `%s'.", LAST_LABEL);
                 return 1;
             }
             *g_scriptPtr++ = iterType;
@@ -6390,9 +6391,9 @@ repeatcase:
 /* Anything added with C_AddDefinition() cannot be overwritten in the CONs */
 static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
 {
-    Bstrcpy(label+(g_labelCnt<<6),lLabel);
+    Bstrcpy(LAST_LABEL,lLabel);
     labeltype[g_labelCnt] = lType;
-    hash_add(&h_labels,label+(g_labelCnt<<6),g_labelCnt,0);
+    hash_add(&h_labels,LAST_LABEL,g_labelCnt,0);
     labelcode[g_labelCnt++] = lValue;
 }
 
@@ -6777,19 +6778,19 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: error: found `%s' within %s.\n",g_scriptFileName,g_lineNumber,tempbuf,g_parsingEventPtr?"an event":g_parsingActorPtr?"an actor":"a state");
         break;
     case ERROR_ISAKEYWORD:
-        initprintf("%s:%d: error: symbol `%s' is a keyword.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: error: symbol `%s' is a keyword.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case ERROR_NOENDSWITCH:
-        initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case ERROR_NOTAGAMEDEF:
-        initprintf("%s:%d: error: symbol `%s' is not a definition.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: error: symbol `%s' is not a definition.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case ERROR_NOTAGAMEVAR:
-        initprintf("%s:%d: error: symbol `%s' is not a variable.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: error: symbol `%s' is not a variable.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case ERROR_NOTAGAMEARRAY:
-        initprintf("%s:%d: error: symbol `%s' is not an array.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: error: symbol `%s' is not an array.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case ERROR_GAMEARRAYBNC:
         initprintf("%s:%d: error: malformed array index: expected ], found %c\n",g_scriptFileName,g_lineNumber,*textptr);
@@ -6804,28 +6805,28 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: error: parameter `%s' is undefined.\n",g_scriptFileName,g_lineNumber,tempbuf);
         break;
     case ERROR_NOTAMEMBER:
-        initprintf("%s:%d: error: symbol `%s' is not a valid structure member.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: error: symbol `%s' is not a valid structure member.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case ERROR_SYNTAXERROR:
         initprintf("%s:%d: error: syntax error.\n",g_scriptFileName,g_lineNumber);
         break;
     case ERROR_VARREADONLY:
-        initprintf("%s:%d: error: variable `%s' is read-only.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: error: variable `%s' is read-only.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case ERROR_ARRAYREADONLY:
-        initprintf("%s:%d: error: array `%s' is read-only.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: error: array `%s' is read-only.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case ERROR_VARTYPEMISMATCH:
-        initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case WARNING_BADGAMEVAR:
-        initprintf("%s:%d: warning: variable `%s' should be either per-player OR per-actor, not both.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: warning: variable `%s' should be either per-player OR per-actor, not both.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case WARNING_DUPLICATECASE:
         initprintf("%s:%d: warning: duplicate case ignored.\n",g_scriptFileName,g_lineNumber);
         break;
     case WARNING_DUPLICATEDEFINITION:
-        initprintf("%s:%d: warning: duplicate definition `%s' ignored.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: warning: duplicate definition `%s' ignored.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case WARNING_EVENTSYNC:
         initprintf("%s:%d: warning: found `%s' within a local event.\n",g_scriptFileName,g_lineNumber,tempbuf);
@@ -6834,13 +6835,13 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: warning: expected a label, found a constant.\n",g_scriptFileName,g_lineNumber);
         break;
     case WARNING_NAMEMATCHESVAR:
-        initprintf("%s:%d: warning: symbol `%s' already used for variable.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+        initprintf("%s:%d: warning: symbol `%s' already used for variable.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
         break;
     case WARNING_VARMASKSKEYWORD:
-        initprintf("%s:%d: warning: variable `%s' masks keyword.\n", g_scriptFileName, g_lineNumber, label+(g_labelCnt<<6));
+        initprintf("%s:%d: warning: variable `%s' masks keyword.\n", g_scriptFileName, g_lineNumber, LAST_LABEL);
         break;
     case WARNING_ARRAYMASKSKEYWORD:
-        initprintf("%s:%d: warning: array `%s' masks keyword.\n", g_scriptFileName, g_lineNumber, label+(g_labelCnt<<6));
+        initprintf("%s:%d: warning: array `%s' masks keyword.\n", g_scriptFileName, g_lineNumber, LAST_LABEL);
         break;
     }
 }
