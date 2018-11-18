@@ -83,7 +83,10 @@ enet_address_set_host (ENetAddress * address, const char * name)
 int
 enet_address_get_host_ip (const ENetAddress * address, char * name, size_t nameLength)
 {
-    char * addr = inet_ntoa (* (struct in_addr const *) & address -> host);
+    struct in_addr in;
+    memcpy(&in, &address->host, sizeof(struct in_addr));
+    char *addr = inet_ntoa (in);
+
     if (addr == NULL)
         return -1;
     else

@@ -350,10 +350,12 @@ int32_t __fastcall Gv_GetVarX(int32_t id)
             return (aGameVars[id].val.plValues[vm.g_st] ^ -negateResult) + negateResult;
         case GAMEVAR_FLOATPTR:
         {
-            float fval = *(float *)aGameVars[id].val.lValue;
+            union { int32_t ival; float fval; };
+
+            fval = *(float *)aGameVars[id].val.plValues;
             if (negateResult)
                 fval *= -1;
-            return *(int32_t *)&fval;
+            return ival;
         }
         case GAMEVAR_INTPTR:
             return (*((int32_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult;
@@ -465,8 +467,9 @@ void __fastcall Gv_SetVarX(int32_t id, int32_t lValue)
             return;
         case GAMEVAR_FLOATPTR:
         {
-            int32_t ival = lValue;
-            float fval = *(float *)&ival;
+            union { int32_t ival; float fval; };
+            ival = lValue;
+
             if (fval!=fval || fval<-3.4e38 || fval > 3.4e38)
             {
                 M32_ERROR("Gv_SetVarX(): tried to set float var to NaN or infinity");

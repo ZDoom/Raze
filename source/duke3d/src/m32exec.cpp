@@ -833,8 +833,10 @@ skip_check:
         case CON_FTOI:
             insptr++;
             {
-                int32_t bits=Gv_GetVarX(*insptr), scale=*(insptr+1);
-                float fval = *((float *)&bits);
+                union { int32_t ival; float fval; };
+
+                ival=Gv_GetVarX(*insptr);
+                int32_t const scale=*(insptr+1);
 // rounding must absolutely be!
 //OSD_Printf("ftoi: bits:%8x, scale=%d, fval=%f, (int32_t)(fval*scale)=%d\n", bits, scale, fval, (int32_t)(fval*scale));
                 Gv_SetVarX(*insptr, (int32_t)Blrintf(fval * scale));
@@ -845,9 +847,12 @@ skip_check:
         case CON_ITOF:
             insptr++;
             {
-                int32_t scaled=Gv_GetVarX(*insptr), scale=*(insptr+1);
-                float fval = (float)scaled/(float)scale;
-                Gv_SetVarX(*insptr, *((int32_t *)&fval));
+                union { int32_t ival; float fval; };
+
+                ival=Gv_GetVarX(*insptr);
+                int32_t const scale=*(insptr+1);
+                fval = (float)ival/(float)scale;
+                Gv_SetVarX(*insptr, ival);
             }
             insptr += 2;
             continue;
@@ -2737,8 +2742,10 @@ badindex:
                             {
                                 char buf[64];
                                 int32_t ii = 0;
+                                union { int32_t ival; float fval; };
+                                ival = arg[i++];
 
-                                Bsprintf(buf, "%f", *((float *)&arg[i++]));
+                                Bsprintf(buf, "%f", fval);
 
                                 ii = Bstrlen(buf);
                                 Bmemcpy(&tmpbuf[j], buf, ii);
