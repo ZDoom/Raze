@@ -215,15 +215,15 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
 
 int32_t ldist(const void *s1, const void *s2)
 {
-    vec2_t const *const sp1 = (vec2_t const *)s1;
-    vec2_t const *const sp2 = (vec2_t const *)s2;
+    auto sp1 = (vec2_t const *)s1;
+    auto sp2 = (vec2_t const *)s2;
     return sepldist(sp1->x - sp2->x, sp1->y - sp2->y);
 }
 
 int32_t dist(const void *s1, const void *s2)
 {
-    vec3_t const *const sp1 = (vec3_t const *)s1;
-    vec3_t const *const sp2 = (vec3_t const *)s2;
+    auto sp1 = (vec3_t const *)s1;
+    auto sp2 = (vec3_t const *)s2;
     return sepdist(sp1->x - sp2->x, sp1->y - sp2->y, sp1->z - sp2->z);
 }
 
