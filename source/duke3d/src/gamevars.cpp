@@ -1459,13 +1459,31 @@ static int32_t lastvisinc;
 static void Gv_AddSystemVars(void)
 {
     // only call ONCE
+
 #if !defined LUNATIC
-    char aszBuf[64];
+    // special vars for struct access
+    // KEEPINSYNC gamedef.h: enum QuickStructureAccess_t (including order)
+    Gv_NewVar("sprite", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("__sprite__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("__actor__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("__spriteext__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("sector", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("wall", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("player", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("actorvar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("playervar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("tspr", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("projectile", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("thisprojectile", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("userdef", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("input", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("tiledata", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("paldata", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
 #endif
 
     if (NAM_WW2GI)
     {
-        weapondefaults[PISTOL_WEAPON].Clip = 20;
+        weapondefaults[PISTOL_WEAPON].Clip   = 20;
         weapondefaults[PISTOL_WEAPON].Reload = 50;
         weapondefaults[PISTOL_WEAPON].Flags |= WEAPON_HOLSTER_CLEARS_CLIP;
 
@@ -1476,34 +1494,34 @@ static void Gv_AddSystemVars(void)
         if (NAM)
         {
             weapondefaults[GROW_WEAPON].SpawnTime = 2;
-            weapondefaults[GROW_WEAPON].Spawn = SHELL;
+            weapondefaults[GROW_WEAPON].Spawn     = SHELL;
             weapondefaults[GROW_WEAPON].FireSound = 0;
         }
         else if (WW2GI)
         {
-            weapondefaults[KNEE_WEAPON].Reload = 30;
             weapondefaults[KNEE_WEAPON].HoldDelay = 14;
+            weapondefaults[KNEE_WEAPON].Reload    = 30;
 
             weapondefaults[PISTOL_WEAPON].Flags |= WEAPON_AUTOMATIC;
 
             weapondefaults[SHOTGUN_WEAPON].TotalTime = 31;
 
-            weapondefaults[CHAINGUN_WEAPON].Reload = 30;
             weapondefaults[CHAINGUN_WEAPON].FireDelay = 1;
             weapondefaults[CHAINGUN_WEAPON].HoldDelay = 10;
+            weapondefaults[CHAINGUN_WEAPON].Reload    = 30;
             weapondefaults[CHAINGUN_WEAPON].SpawnTime = 0;
 
             weapondefaults[RPG_WEAPON].Reload = 30;
 
-            weapondefaults[DEVISTATOR_WEAPON].Reload = 30;
-            weapondefaults[DEVISTATOR_WEAPON].FireDelay = 2;
-            weapondefaults[DEVISTATOR_WEAPON].TotalTime = 5;
-            weapondefaults[DEVISTATOR_WEAPON].Flags = WEAPON_FIREEVERYOTHER;
+            weapondefaults[DEVISTATOR_WEAPON].FireDelay     = 2;
+            weapondefaults[DEVISTATOR_WEAPON].Flags         = WEAPON_FIREEVERYOTHER;
+            weapondefaults[DEVISTATOR_WEAPON].Reload        = 30;
             weapondefaults[DEVISTATOR_WEAPON].ShotsPerBurst = 0;
+            weapondefaults[DEVISTATOR_WEAPON].TotalTime     = 5;
 
-            weapondefaults[TRIPBOMB_WEAPON].Reload = 30;
+            weapondefaults[TRIPBOMB_WEAPON].Flags     = WEAPON_STANDSTILL;
             weapondefaults[TRIPBOMB_WEAPON].HoldDelay = 0;
-            weapondefaults[TRIPBOMB_WEAPON].Flags = WEAPON_STANDSTILL;
+            weapondefaults[TRIPBOMB_WEAPON].Reload    = 30;
 
             weapondefaults[FREEZE_WEAPON].Flags = WEAPON_FIREEVERYOTHER;
 
@@ -1512,6 +1530,8 @@ static void Gv_AddSystemVars(void)
             weapondefaults[GROW_WEAPON].InitialSound = EXPANDERSHOOT;
         }
     }
+
+    char aszBuf[64];
 
     for (int i=0; i<MAX_WEAPONS; i++)
     {
@@ -1535,6 +1555,7 @@ static void Gv_AddSystemVars(void)
         ADDWEAPONVAR(i, SelectSound);
         ADDWEAPONVAR(i, FlashColor);
     }
+
 #ifdef LUNATIC
     for (int i=0; i<MAXPLAYERS; i++)
     {
@@ -1549,117 +1570,88 @@ static void Gv_AddSystemVars(void)
         ps->tripbombLifetimeVar = NAM_GRENADE_LIFETIME_VAR;
     }
 #else
-    Gv_NewVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
-    Gv_NewVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Gv_NewVar("ANGRANGE",              18,                                      GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("AUTOAIMANGLE",          0,                                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("CLIPMASK0",             CLIPMASK0,                               GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("CLIPMASK1",             CLIPMASK1,                               GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("COOP",                  (intptr_t)&ud.coop,                      GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("FFIRE",                 (intptr_t)&ud.ffire,                     GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("GRENADE_LIFETIME",      NAM_GRENADE_LIFETIME,                    GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("GRENADE_LIFETIME_VAR",  NAM_GRENADE_LIFETIME_VAR,                GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("HITAG",                 0,                                       GAMEVAR_SYSTEM);
+    Gv_NewVar("LEVEL",                 (intptr_t)&ud.level_number,              GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("LOTAG",                 0,                                       GAMEVAR_SYSTEM);
+    Gv_NewVar("MARKER",                (intptr_t)&ud.marker,                    GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("MONSTERS_OFF",          (intptr_t)&ud.monsters_off,              GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("MULTIMODE",             (intptr_t)&ud.multimode,                 GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("NUMSECTORS",            (intptr_t)&numsectors,                   GAMEVAR_SYSTEM | GAMEVAR_INT16PTR | GAMEVAR_READONLY);
+    Gv_NewVar("NUMWALLS",              (intptr_t)&numwalls,                     GAMEVAR_SYSTEM | GAMEVAR_INT16PTR | GAMEVAR_READONLY);
+    Gv_NewVar("Numsprites",            (intptr_t)&Numsprites,                   GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("PIPEBOMB_CONTROL", NAM_WW2GI ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE, GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("RESPAWN_INVENTORY",     (intptr_t)&ud.respawn_inventory,         GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("RESPAWN_ITEMS",         (intptr_t)&ud.respawn_items,             GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("RESPAWN_MONSTERS",      (intptr_t)&ud.respawn_monsters,          GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("RETURN",                0,                                       GAMEVAR_SYSTEM);
+    Gv_NewVar("STICKYBOMB_LIFETIME",   NAM_GRENADE_LIFETIME,                    GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR,              GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("TEXTURE",               0,                                       GAMEVAR_SYSTEM);
+    Gv_NewVar("THISACTOR",             0,                                       GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("TRIPBOMB_CONTROL",      TRIPBOMB_TRIPWIRE,                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("VOLUME",                (intptr_t)&ud.volume_number,             GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("WEAPON",                0,                                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER | GAMEVAR_READONLY);
+    Gv_NewVar("WORKSLIKE",             0,                                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER | GAMEVAR_READONLY);
+    Gv_NewVar("ZRANGE",                4,                                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
 
-    Gv_NewVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
-    Gv_NewVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
-
-    Gv_NewVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
-    Gv_NewVar("PIPEBOMB_CONTROL", NAM_WW2GI ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
-
-    Gv_NewVar("RESPAWN_MONSTERS", (intptr_t)&ud.respawn_monsters,GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("RESPAWN_ITEMS",(intptr_t)&ud.respawn_items, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("RESPAWN_INVENTORY",(intptr_t)&ud.respawn_inventory, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("MONSTERS_OFF",(intptr_t)&ud.monsters_off, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("MARKER",(intptr_t)&ud.marker, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("FFIRE",(intptr_t)&ud.ffire, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("LEVEL",(intptr_t)&ud.level_number, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
-    Gv_NewVar("VOLUME",(intptr_t)&ud.volume_number, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
-
-    Gv_NewVar("COOP",(intptr_t)&ud.coop, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("MULTIMODE",(intptr_t)&ud.multimode, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-
-    Gv_NewVar("WEAPON", 0, GAMEVAR_PERPLAYER | GAMEVAR_READONLY | GAMEVAR_SYSTEM);
-    Gv_NewVar("WORKSLIKE", 0, GAMEVAR_PERPLAYER | GAMEVAR_READONLY | GAMEVAR_SYSTEM);
-    Gv_NewVar("RETURN", 0, GAMEVAR_SYSTEM);
-    Gv_NewVar("ZRANGE", 4, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
-    Gv_NewVar("ANGRANGE", 18, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
-    Gv_NewVar("AUTOAIMANGLE", 0, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
-    Gv_NewVar("LOTAG", 0, GAMEVAR_SYSTEM);
-    Gv_NewVar("HITAG", 0, GAMEVAR_SYSTEM);
-    Gv_NewVar("TEXTURE", 0, GAMEVAR_SYSTEM);
-    Gv_NewVar("THISACTOR", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
-
-    // special vars for struct access
-    // KEEPINSYNC gamedef.h: enum QuickStructureAccess_t
-    Gv_NewVar("sprite", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("__sprite__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("__actor__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("__spriteext__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("sector", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("wall", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("player", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("actorvar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("playervar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("tspr", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("projectile", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("thisprojectile", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("userdef", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("input", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("tiledata", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("paldata", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-
-    Gv_NewVar("myconnectindex", (intptr_t)&myconnectindex, GAMEVAR_READONLY | GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("screenpeek", (intptr_t)&screenpeek, GAMEVAR_READONLY | GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("currentweapon",(intptr_t)&hudweap.cur, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("gs",(intptr_t)&hudweap.shade, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("looking_arc",(intptr_t)&hudweap.lookhoriz, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("gun_pos",(intptr_t)&hudweap.gunposy, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("weapon_xoffset",(intptr_t)&hudweap.gunposx, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("weaponcount",(intptr_t)&hudweap.count, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("looking_angSR1",(intptr_t)&hudweap.lookhalfang, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("xdim",(intptr_t)&xdim, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
-    Gv_NewVar("ydim",(intptr_t)&ydim, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
-    Gv_NewVar("windowx1",(intptr_t)&windowxy1.x, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
-    Gv_NewVar("windowx2",(intptr_t)&windowxy2.x, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
-    Gv_NewVar("windowy1",(intptr_t)&windowxy1.y, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
-    Gv_NewVar("windowy2",(intptr_t)&windowxy2.y, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
-    Gv_NewVar("totalclock",(intptr_t)&totalclock, GAMEVAR_INT32PTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
-    Gv_NewVar("lastvisinc",(intptr_t)&lastvisinc, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("numsectors",(intptr_t)&numsectors, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR | GAMEVAR_READONLY);
-
-    Gv_NewVar("current_menu",(intptr_t)&g_currentMenu, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
-    Gv_NewVar("numplayers",(intptr_t)&numplayers, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
-    Gv_NewVar("viewingrange",(intptr_t)&viewingrange, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
-    Gv_NewVar("yxaspect",(intptr_t)&yxaspect, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
-    Gv_NewVar("gravitationalconstant",(intptr_t)&g_spriteGravity, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("gametype_flags",(intptr_t)&g_gametypeFlags[ud.coop], GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("framerate",(intptr_t)&g_frameRate, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
-    Gv_NewVar("CLIPMASK0", CLIPMASK0, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
-    Gv_NewVar("CLIPMASK1", CLIPMASK1, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
-
-    Gv_NewVar("camerax",(intptr_t)&ud.camerapos.x, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("cameray",(intptr_t)&ud.camerapos.y, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("cameraz",(intptr_t)&ud.camerapos.z, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("cameraang",(intptr_t)&ud.cameraq16ang, GAMEVAR_SYSTEM | GAMEVAR_Q16PTR);
-    Gv_NewVar("camerahoriz",(intptr_t)&ud.cameraq16horiz, GAMEVAR_SYSTEM | GAMEVAR_Q16PTR);
-    Gv_NewVar("cameraq16ang", (intptr_t) &ud.cameraq16ang, GAMEVAR_SYSTEM | GAMEVAR_Q16PTR | GAMEVAR_SPECIAL);
-    Gv_NewVar("cameraq16horiz", (intptr_t) &ud.cameraq16horiz, GAMEVAR_SYSTEM | GAMEVAR_Q16PTR | GAMEVAR_SPECIAL);
-    Gv_NewVar("camerasect",(intptr_t)&ud.camerasect, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR);
-    Gv_NewVar("cameradist",(intptr_t)&g_cameraDistance, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("cameraclock",(intptr_t)&g_cameraClock, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-
-    Gv_NewVar("display_mirror",(intptr_t)&display_mirror, GAMEVAR_SYSTEM | GAMEVAR_UINT8PTR);
-    Gv_NewVar("randomseed",(intptr_t)&randomseed, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-
-    Gv_NewVar("NUMWALLS",(intptr_t)&numwalls, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR | GAMEVAR_READONLY);
-    Gv_NewVar("NUMSECTORS",(intptr_t)&numsectors, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR | GAMEVAR_READONLY);
-    Gv_NewVar("Numsprites",(intptr_t)&Numsprites, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
-
-    Gv_NewVar("lastsavepos",(intptr_t)&g_lastAutoSaveArbitraryID, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("cameraang",             (intptr_t)&ud.cameraq16ang,              GAMEVAR_SYSTEM | GAMEVAR_Q16PTR);
+    Gv_NewVar("cameraclock",           (intptr_t)&g_cameraClock,                GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("cameradist",            (intptr_t)&g_cameraDistance,             GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("camerahoriz",           (intptr_t)&ud.cameraq16horiz,            GAMEVAR_SYSTEM | GAMEVAR_Q16PTR);
+    Gv_NewVar("cameraq16ang",          (intptr_t)&ud.cameraq16ang,              GAMEVAR_SYSTEM | GAMEVAR_Q16PTR | GAMEVAR_SPECIAL);
+    Gv_NewVar("cameraq16horiz",        (intptr_t)&ud.cameraq16horiz,            GAMEVAR_SYSTEM | GAMEVAR_Q16PTR | GAMEVAR_SPECIAL);
+    Gv_NewVar("camerasect",            (intptr_t)&ud.camerasect,                GAMEVAR_SYSTEM | GAMEVAR_INT16PTR);
+    Gv_NewVar("camerax",               (intptr_t)&ud.camerapos.x,               GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("cameray",               (intptr_t)&ud.camerapos.y,               GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("cameraz",               (intptr_t)&ud.camerapos.z,               GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("current_menu",          (intptr_t)&g_currentMenu,                GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("currentweapon",         (intptr_t)&hudweap.cur,                  GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("display_mirror",        (intptr_t)&display_mirror,               GAMEVAR_SYSTEM | GAMEVAR_UINT8PTR);
+    Gv_NewVar("framerate",             (intptr_t)&g_frameRate,                  GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("gametype_flags",        (intptr_t)&g_gametypeFlags[ud.coop],     GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("gravitationalconstant", (intptr_t)&g_spriteGravity,              GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("gs",                    (intptr_t)&hudweap.shade,                GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("gun_pos",               (intptr_t)&hudweap.gunposy,              GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("lastsavepos",           (intptr_t)&g_lastAutoSaveArbitraryID,    GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("lastvisinc",            (intptr_t)&lastvisinc,                   GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("looking_angSR1",        (intptr_t)&hudweap.lookhalfang,          GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("looking_arc",           (intptr_t)&hudweap.lookhoriz,            GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("myconnectindex",        (intptr_t)&myconnectindex,               GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("numplayers",            (intptr_t)&numplayers,                   GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("numsectors",            (intptr_t)&numsectors,                   GAMEVAR_SYSTEM | GAMEVAR_INT16PTR | GAMEVAR_READONLY);
+    Gv_NewVar("randomseed",            (intptr_t)&randomseed,                   GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("screenpeek",            (intptr_t)&screenpeek,                   GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("totalclock",            (intptr_t)&totalclock,                   GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("viewingrange",          (intptr_t)&viewingrange,                 GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("weapon_xoffset",        (intptr_t)&hudweap.gunposx,              GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("weaponcount",           (intptr_t)&hudweap.count,                GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("windowx1",              (intptr_t)&windowxy1.x,                  GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("windowx2",              (intptr_t)&windowxy2.x,                  GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("windowy1",              (intptr_t)&windowxy1.y,                  GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("windowy2",              (intptr_t)&windowxy2.y,                  GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("xdim",                  (intptr_t)&xdim,                         GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("ydim",                  (intptr_t)&ydim,                         GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
+    Gv_NewVar("yxaspect",              (intptr_t)&yxaspect,                     GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
 
 # ifdef USE_OPENGL
-    Gv_NewVar("rendmode",(intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("rendmode", (intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
 # else
     Gv_NewVar("rendmode", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
 # endif
 
     // SYSTEM_GAMEARRAY
-    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
-    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
-    Gv_NewArray("gotpic", (void *) &gotpic[0], MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_BITMAP);
-    Gv_NewArray("show2dsector", (void *) &show2dsector[0], MAXSECTORS, GAMEARRAY_SYSTEM|GAMEARRAY_BITMAP);
+    Gv_NewArray("gotpic",       (void *)&gotpic[0],       MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
+    Gv_NewArray("show2dsector", (void *)&show2dsector[0], MAXSECTORS, GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
+    Gv_NewArray("tilesizx",     (void *)&tilesiz[0].x,    MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_STRIDE2 | GAMEARRAY_READONLY | GAMEARRAY_INT16);
+    Gv_NewArray("tilesizy",     (void *)&tilesiz[0].y,    MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_STRIDE2 | GAMEARRAY_READONLY | GAMEARRAY_INT16);
 #endif
 }
 
@@ -1749,64 +1741,60 @@ void Gv_InitWeaponPointers(void)
 
 void Gv_RefreshPointers(void)
 {
-    aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].global  = (intptr_t)&ud.respawn_monsters;
-    aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].global     = (intptr_t)&ud.respawn_items;
-    aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].global = (intptr_t)&ud.respawn_inventory;
-    aGameVars[Gv_GetVarIndex("MONSTERS_OFF")].global      = (intptr_t)&ud.monsters_off;
-    aGameVars[Gv_GetVarIndex("MARKER")].global            = (intptr_t)&ud.marker;
+    aGameVars[Gv_GetVarIndex("COOP")].global              = (intptr_t)&ud.coop;
     aGameVars[Gv_GetVarIndex("FFIRE")].global             = (intptr_t)&ud.ffire;
     aGameVars[Gv_GetVarIndex("LEVEL")].global             = (intptr_t)&ud.level_number;
+    aGameVars[Gv_GetVarIndex("MARKER")].global            = (intptr_t)&ud.marker;
+    aGameVars[Gv_GetVarIndex("MONSTERS_OFF")].global      = (intptr_t)&ud.monsters_off;
+    aGameVars[Gv_GetVarIndex("MULTIMODE")].global         = (intptr_t)&ud.multimode;
+    aGameVars[Gv_GetVarIndex("NUMSECTORS")].global        = (intptr_t)&numsectors;
+    aGameVars[Gv_GetVarIndex("NUMWALLS")].global          = (intptr_t)&numwalls;
+    aGameVars[Gv_GetVarIndex("Numsprites")].global        = (intptr_t)&Numsprites;
+    aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].global = (intptr_t)&ud.respawn_inventory;
+    aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].global     = (intptr_t)&ud.respawn_items;
+    aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].global  = (intptr_t)&ud.respawn_monsters;
     aGameVars[Gv_GetVarIndex("VOLUME")].global            = (intptr_t)&ud.volume_number;
 
-    aGameVars[Gv_GetVarIndex("COOP")].global      = (intptr_t)&ud.coop;
-    aGameVars[Gv_GetVarIndex("MULTIMODE")].global = (intptr_t)&ud.multimode;
+    aGameVars[Gv_GetVarIndex("cameraang")].global         = (intptr_t)&ud.cameraq16ang;  // XXX FIXME
+    aGameVars[Gv_GetVarIndex("cameraclock")].global       = (intptr_t)&g_cameraClock;
+    aGameVars[Gv_GetVarIndex("cameradist")].global        = (intptr_t)&g_cameraDistance;
+    aGameVars[Gv_GetVarIndex("camerahoriz")].global       = (intptr_t)&ud.cameraq16horiz;  // XXX FIXME
+    aGameVars[Gv_GetVarIndex("cameraq16ang")].global      = (intptr_t)&ud.cameraq16ang;    // XXX FIXME
+    aGameVars[Gv_GetVarIndex("cameraq16horiz")].global    = (intptr_t)&ud.cameraq16horiz;  // XXX FIXME
+    aGameVars[Gv_GetVarIndex("camerasect")].global        = (intptr_t)&ud.camerasect;
+    aGameVars[Gv_GetVarIndex("camerax")].global           = (intptr_t)&ud.camerapos.x;
+    aGameVars[Gv_GetVarIndex("cameray")].global           = (intptr_t)&ud.camerapos.y;
+    aGameVars[Gv_GetVarIndex("cameraz")].global           = (intptr_t)&ud.camerapos.z;
+    aGameVars[Gv_GetVarIndex("current_menu")].global      = (intptr_t)&g_currentMenu;
+    aGameVars[Gv_GetVarIndex("currentweapon")].global     = (intptr_t)&hudweap.cur;
+    aGameVars[Gv_GetVarIndex("display_mirror")].global    = (intptr_t)&display_mirror;
+    aGameVars[Gv_GetVarIndex("framerate")].global         = (intptr_t)&g_frameRate;
+    aGameVars[Gv_GetVarIndex("gametype_flags")].global    = (intptr_t)&g_gametypeFlags[ud.coop];
+    aGameVars[Gv_GetVarIndex("gravitationalconstant")].global =
+                                                            (intptr_t)&g_spriteGravity;
+    aGameVars[Gv_GetVarIndex("gs")].global                = (intptr_t)&hudweap.shade;
+    aGameVars[Gv_GetVarIndex("gun_pos")].global           = (intptr_t)&hudweap.gunposy;
+    aGameVars[Gv_GetVarIndex("lastsavepos")].global       = (intptr_t)&g_lastAutoSaveArbitraryID;
+    aGameVars[Gv_GetVarIndex("lastvisinc")].global        = (intptr_t)&lastvisinc;
+    aGameVars[Gv_GetVarIndex("looking_angSR1")].global    = (intptr_t)&hudweap.lookhalfang;
+    aGameVars[Gv_GetVarIndex("looking_arc")].global       = (intptr_t)&hudweap.lookhoriz;
+    aGameVars[Gv_GetVarIndex("myconnectindex")].global    = (intptr_t)&myconnectindex;
+    aGameVars[Gv_GetVarIndex("numplayers")].global        = (intptr_t)&numplayers;
+    aGameVars[Gv_GetVarIndex("numsectors")].global        = (intptr_t)&numsectors;
+    aGameVars[Gv_GetVarIndex("randomseed")].global        = (intptr_t)&randomseed;
+    aGameVars[Gv_GetVarIndex("screenpeek")].global        = (intptr_t)&screenpeek;
+    aGameVars[Gv_GetVarIndex("totalclock")].global        = (intptr_t)&totalclock;
+    aGameVars[Gv_GetVarIndex("viewingrange")].global      = (intptr_t)&viewingrange;
+    aGameVars[Gv_GetVarIndex("weapon_xoffset")].global    = (intptr_t)&hudweap.gunposx;
+    aGameVars[Gv_GetVarIndex("weaponcount")].global       = (intptr_t)&hudweap.count;
+    aGameVars[Gv_GetVarIndex("windowx1")].global          = (intptr_t)&windowxy1.x;
+    aGameVars[Gv_GetVarIndex("windowx2")].global          = (intptr_t)&windowxy2.x;
+    aGameVars[Gv_GetVarIndex("windowy1")].global          = (intptr_t)&windowxy1.y;
+    aGameVars[Gv_GetVarIndex("windowy2")].global          = (intptr_t)&windowxy2.y;
+    aGameVars[Gv_GetVarIndex("xdim")].global              = (intptr_t)&xdim;
+    aGameVars[Gv_GetVarIndex("ydim")].global              = (intptr_t)&ydim;
+    aGameVars[Gv_GetVarIndex("yxaspect")].global          = (intptr_t)&yxaspect;
 
-    aGameVars[Gv_GetVarIndex("myconnectindex")].global = (intptr_t)&myconnectindex;
-    aGameVars[Gv_GetVarIndex("screenpeek")].global     = (intptr_t)&screenpeek;
-    aGameVars[Gv_GetVarIndex("currentweapon")].global  = (intptr_t)&hudweap.cur;
-    aGameVars[Gv_GetVarIndex("gs")].global             = (intptr_t)&hudweap.shade;
-    aGameVars[Gv_GetVarIndex("looking_arc")].global    = (intptr_t)&hudweap.lookhoriz;
-    aGameVars[Gv_GetVarIndex("gun_pos")].global        = (intptr_t)&hudweap.gunposy;
-    aGameVars[Gv_GetVarIndex("weapon_xoffset")].global = (intptr_t)&hudweap.gunposx;
-    aGameVars[Gv_GetVarIndex("weaponcount")].global    = (intptr_t)&hudweap.count;
-    aGameVars[Gv_GetVarIndex("looking_angSR1")].global = (intptr_t)&hudweap.lookhalfang;
-    aGameVars[Gv_GetVarIndex("xdim")].global           = (intptr_t)&xdim;
-    aGameVars[Gv_GetVarIndex("ydim")].global           = (intptr_t)&ydim;
-    aGameVars[Gv_GetVarIndex("windowx1")].global       = (intptr_t)&windowxy1.x;
-    aGameVars[Gv_GetVarIndex("windowx2")].global       = (intptr_t)&windowxy2.x;
-    aGameVars[Gv_GetVarIndex("windowy1")].global       = (intptr_t)&windowxy1.y;
-    aGameVars[Gv_GetVarIndex("windowy2")].global       = (intptr_t)&windowxy2.y;
-    aGameVars[Gv_GetVarIndex("totalclock")].global     = (intptr_t)&totalclock;
-    aGameVars[Gv_GetVarIndex("lastvisinc")].global     = (intptr_t)&lastvisinc;
-    aGameVars[Gv_GetVarIndex("numsectors")].global     = (intptr_t)&numsectors;
-    aGameVars[Gv_GetVarIndex("numplayers")].global     = (intptr_t)&numplayers;
-    aGameVars[Gv_GetVarIndex("current_menu")].global   = (intptr_t)&g_currentMenu;
-    aGameVars[Gv_GetVarIndex("viewingrange")].global   = (intptr_t)&viewingrange;
-    aGameVars[Gv_GetVarIndex("yxaspect")].global       = (intptr_t)&yxaspect;
-    aGameVars[Gv_GetVarIndex("gametype_flags")].global = (intptr_t)&g_gametypeFlags[ud.coop];
-    aGameVars[Gv_GetVarIndex("framerate")].global      = (intptr_t)&g_frameRate;
-
-    aGameVars[Gv_GetVarIndex("gravitationalconstant")].global = (intptr_t)&g_spriteGravity;
-
-    aGameVars[Gv_GetVarIndex("camerax")].global     = (intptr_t)&ud.camerapos.x;
-    aGameVars[Gv_GetVarIndex("cameray")].global     = (intptr_t)&ud.camerapos.y;
-    aGameVars[Gv_GetVarIndex("cameraz")].global     = (intptr_t)&ud.camerapos.z;
-    aGameVars[Gv_GetVarIndex("cameraang")].global   = (intptr_t)&ud.cameraq16ang; // XXX FIXME
-    aGameVars[Gv_GetVarIndex("camerahoriz")].global = (intptr_t)&ud.cameraq16horiz; // XXX FIXME
-    aGameVars[Gv_GetVarIndex("cameraq16ang")].global   = (intptr_t) &ud.cameraq16ang; // XXX FIXME
-    aGameVars[Gv_GetVarIndex("cameraq16horiz")].global = (intptr_t) &ud.cameraq16horiz; // XXX FIXME
-    aGameVars[Gv_GetVarIndex("camerasect")].global  = (intptr_t)&ud.camerasect;
-    aGameVars[Gv_GetVarIndex("cameradist")].global  = (intptr_t)&g_cameraDistance;
-    aGameVars[Gv_GetVarIndex("cameraclock")].global = (intptr_t)&g_cameraClock;
-
-    aGameVars[Gv_GetVarIndex("display_mirror")].global = (intptr_t)&display_mirror;
-    aGameVars[Gv_GetVarIndex("randomseed")].global = (intptr_t)&randomseed;
-
-    aGameVars[Gv_GetVarIndex("NUMWALLS")].global = (intptr_t)&numwalls;
-    aGameVars[Gv_GetVarIndex("NUMSECTORS")].global = (intptr_t)&numsectors;
-    aGameVars[Gv_GetVarIndex("Numsprites")].global = (intptr_t)&Numsprites;
-
-    aGameVars[Gv_GetVarIndex("lastsavepos")].global = (intptr_t)&g_lastAutoSaveArbitraryID;
 # ifdef USE_OPENGL
     aGameVars[Gv_GetVarIndex("rendmode")].global = (intptr_t)&rendmode;
 # endif
