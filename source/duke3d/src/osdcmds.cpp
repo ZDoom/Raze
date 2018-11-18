@@ -872,113 +872,6 @@ static int osdcmd_button(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-const keydef_t ConsoleKeys[]=
-{
-    { "Escape", 0x1 },
-    { "1", 0x2 },
-    { "2", 0x3 },
-    { "3", 0x4 },
-    { "4", 0x5 },
-    { "5", 0x6 },
-    { "6", 0x7 },
-    { "7", 0x8 },
-    { "8", 0x9 },
-    { "9", 0xa },
-    { "0", 0xb },
-    { "-", 0xc },
-    { "=", 0xd },
-    { "BakSpc", 0xe },
-    { "Tab", 0xf },
-    { "Q", 0x10 },
-    { "W", 0x11 },
-    { "E", 0x12 },
-    { "R", 0x13 },
-    { "T", 0x14 },
-    { "Y", 0x15 },
-    { "U", 0x16 },
-    { "I", 0x17 },
-    { "O", 0x18 },
-    { "P", 0x19 },
-    { "[", 0x1a },
-    { "]", 0x1b },
-    { "Enter", 0x1c },
-    { "LCtrl", 0x1d },
-    { "A", 0x1e },
-    { "S", 0x1f },
-    { "D", 0x20 },
-    { "F", 0x21 },
-    { "G", 0x22 },
-    { "H", 0x23 },
-    { "J", 0x24 },
-    { "K", 0x25 },
-    { "L", 0x26 },
-    { "SemiColon", 0x27 },
-    { "'", 0x28 },
-    { "Tilde", 0x29 },
-    { "LShift", 0x2a },
-    { "Backslash", 0x2b },
-    { "Z", 0x2c },
-    { "X", 0x2d },
-    { "C", 0x2e },
-    { "V", 0x2f },
-    { "B", 0x30 },
-    { "N", 0x31 },
-    { "M", 0x32 },
-    { ",", 0x33 },
-    { ".", 0x34 },
-    { "/", 0x35 },
-    { "RShift", 0x36 },
-    { "Kpad*", 0x37 },
-    { "LAlt", 0x38 },
-    { "Space", 0x39 },
-    { "CapLck", 0x3a },
-    { "F1", 0x3b },
-    { "F2", 0x3c },
-    { "F3", 0x3d },
-    { "F4", 0x3e },
-    { "F5", 0x3f },
-    { "F6", 0x40 },
-    { "F7", 0x41 },
-    { "F8", 0x42 },
-    { "F9", 0x43 },
-    { "F10", 0x44 },
-    { "NumLck", 0x45 },
-    { "ScrLck", 0x46 },
-    { "Kpad7", 0x47 },
-    { "Kpad8", 0x48 },
-    { "Kpad9", 0x49 },
-    { "Kpad-", 0x4a },
-    { "Kpad4", 0x4b },
-    { "Kpad5", 0x4c },
-    { "Kpad6", 0x4d },
-    { "Kpad+", 0x4e },
-    { "Kpad1", 0x4f },
-    { "Kpad2", 0x50 },
-    { "Kpad3", 0x51 },
-    { "Kpad0", 0x52 },
-    { "Kpad.", 0x53 },
-    { "F11", 0x57 },
-    { "F12", 0x58 },
-    { "KpdEnt", 0x9c },
-    { "RCtrl", 0x9d },
-    { "Kpad/", 0xb5 },
-    { "RAlt", 0xb8 },
-    { "PrtScn", 0xb7 },
-    { "Pause", 0xc5 },
-    { "Home", 0xc7 },
-    { "Up", 0xc8 },
-    { "PgUp", 0xc9 },
-    { "Left", 0xcb },
-    { "Right", 0xcd },
-    { "End", 0xcf },
-    { "Down", 0xd0 },
-    { "PgDn", 0xd1 },
-    { "Insert", 0xd2 },
-    { "Delete", 0xd3 },
-
-    {0,0}
-};
-
 const char *const ConsoleButtons[] =
 {
     "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup",
@@ -989,8 +882,8 @@ static int osdcmd_bind(osdcmdptr_t parm)
 {
     if (parm->numparms==1 && !Bstrcasecmp(parm->parms[0],"showkeys"))
     {
-        for (int i=0; ConsoleKeys[i].name; i++)
-            OSD_Printf("%s\n",ConsoleKeys[i].name);
+        for (int i=0; sctokeylut[i].key; i++)
+            OSD_Printf("%s\n",sctokeylut[i].key);
         for (auto ConsoleButton : ConsoleButtons)
             OSD_Printf("%s\n",ConsoleButton);
         return OSDCMD_OK;
@@ -1018,15 +911,19 @@ static int osdcmd_bind(osdcmdptr_t parm)
 
     int i, j, repeat;
 
-    for (i=0; ConsoleKeys[i].name; i++)
-        if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
+    for (i=0; i < ARRAY_SSIZE(sctokeylut); i++)
+    {
+        if (!Bstrcasecmp(parm->parms[0], sctokeylut[i].key))
             break;
+    }
 
-    if (!ConsoleKeys[i].name)
+    // didn't find the key
+    if (i == ARRAY_SSIZE(sctokeylut))
     {
         for (i=0; i<MAXMOUSEBUTTONS; i++)
             if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
                 break;
+
         if (i >= MAXMOUSEBUTTONS)
             return OSDCMD_SHOWHELP;
 
@@ -1064,10 +961,10 @@ static int osdcmd_bind(osdcmdptr_t parm)
 
     if (parm->numparms < 2)
     {
-        if (CONTROL_KeyIsBound(ConsoleKeys[i].id))
-            OSD_Printf("%-9s %s\"%s\"\n", ConsoleKeys[i].name, CONTROL_KeyBinds[ConsoleKeys[i].id].repeat?"":"norepeat ",
-                       CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr);
-        else OSD_Printf("%s is unbound\n", ConsoleKeys[i].name);
+        if (CONTROL_KeyIsBound(sctokeylut[i].sc))
+            OSD_Printf("%-9s %s\"%s\"\n", sctokeylut[i].key, CONTROL_KeyBinds[sctokeylut[i].sc].repeat?"":"norepeat ",
+                       CONTROL_KeyBinds[sctokeylut[i].sc].cmdstr);
+        else OSD_Printf("%s is unbound\n", sctokeylut[i].key);
 
         return OSDCMD_OK;
     }
@@ -1088,7 +985,7 @@ static int osdcmd_bind(osdcmdptr_t parm)
         Bstrcat(tempbuf,parm->parms[j++]);
     }
 
-    CONTROL_BindKey(ConsoleKeys[i].id, tempbuf, repeat, ConsoleKeys[i].name);
+    CONTROL_BindKey(sctokeylut[i].sc, tempbuf, repeat, sctokeylut[i].key);
 
     char *cp = tempbuf;
 
@@ -1114,11 +1011,11 @@ static int osdcmd_bind(osdcmdptr_t parm)
         if (j != -1)
         {
             ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
-            ud.config.KeyboardKeys[j][0] = ConsoleKeys[i].id;
-//            CONTROL_MapKey(j, ConsoleKeys[i].id, ud.config.KeyboardKeys[j][0]);
+            ud.config.KeyboardKeys[j][0] = sctokeylut[i].sc;
+//            CONTROL_MapKey(j, sctokeylut[i].sc, ud.config.KeyboardKeys[j][0]);
 
             if (j == gamefunc_Show_Console)
-                OSD_CaptureKey(ConsoleKeys[i].id);
+                OSD_CaptureKey(sctokeylut[i].sc);
         }
     }
 
@@ -1152,12 +1049,12 @@ static int osdcmd_unbind(osdcmdptr_t parm)
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
 
-    for (auto ConsoleKey : ConsoleKeys)
+    for (auto ConsoleKey : sctokeylut)
     {
-        if (ConsoleKey.name && !Bstrcasecmp(parm->parms[0], ConsoleKey.name))
+        if (ConsoleKey.key && !Bstrcasecmp(parm->parms[0], ConsoleKey.key))
         {
-            CONTROL_FreeKeyBind(ConsoleKey.id);
-            OSD_Printf("unbound key %s\n", ConsoleKey.name);
+            CONTROL_FreeKeyBind(ConsoleKey.sc);
+            OSD_Printf("unbound key %s\n", ConsoleKey.key);
             return OSDCMD_OK;
         }
     }

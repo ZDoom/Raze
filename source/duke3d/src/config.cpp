@@ -382,8 +382,8 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
         if (ii[k] == 0xff || !ii[k])
             continue;
 
-        for (j=0; ConsoleKeys[j].name; j++)
-            if (ii[k] == ConsoleKeys[j].id)
+        for (j=0; sctokeylut[j].key; j++)
+            if (ii[k] == sctokeylut[j].sc)
                 break;
 
         tempbuf[0] = 0;
@@ -401,7 +401,7 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
         if (i >= 2)
         {
             tempbuf[i-2] = 0;  // cut off the trailing "; "
-            CONTROL_BindKey(ii[k], tempbuf, 1, ConsoleKeys[j].name ? ConsoleKeys[j].name : "<?>");
+            CONTROL_BindKey(ii[k], tempbuf, 1, sctokeylut[j].key ? sctokeylut[j].key : "<?>");
         }
         else
         {
