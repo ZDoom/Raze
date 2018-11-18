@@ -1001,24 +1001,22 @@ const char *const ConsoleButtons[] =
 
 static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
 {
-    int32_t i, j, repeat;
-
     if (parm->numparms==1 && !Bstrcasecmp(parm->parms[0],"showkeys"))
     {
-        for (i=0; ConsoleKeys[i].name; i++)
+        for (int i=0; ConsoleKeys[i].name; i++)
             OSD_Printf("%s\n",ConsoleKeys[i].name);
-        for (i=0; i<MAXMOUSEBUTTONS; i++)
-            OSD_Printf("%s\n",ConsoleButtons[i]);
+        for (auto ConsoleButton : ConsoleButtons)
+            OSD_Printf("%s\n",ConsoleButton);
         return OSDCMD_OK;
     }
 
     if (parm->numparms==0)
     {
-        int32_t j=0;
+        int j=0;
 
         OSD_Printf("Current key bindings:\n");
 
-        for (i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
+        for (int i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
             if (CONTROL_KeyIsBound(i))
             {
                 j++;
@@ -1031,6 +1029,8 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
 
         return OSDCMD_OK;
     }
+
+    int i, j, repeat;
 
     for (i=0; ConsoleKeys[i].name; i++)
         if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
@@ -1104,35 +1104,35 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
 
     CONTROL_BindKey(ConsoleKeys[i].id, tempbuf, repeat, ConsoleKeys[i].name);
 
+    char *cp = tempbuf;
+
+    // Populate the keyboard config menu based on the bind.
+    // Take care of processing one-to-many bindings properly, too.
+    static char const s_gamefunc_[]    = "gamefunc_";
+    size_t constexpr  strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
+
+    while ((cp = Bstrstr(cp, s_gamefunc_)))
     {
-        char *cp = tempbuf;
+        cp += strlen_gamefunc_;
 
-        // Populate the keyboard config menu based on the bind.
-        // Take care of processing one-to-many bindings properly, too.
-        while ((cp = Bstrstr(cp, "gamefunc_")))
+        char *semi = Bstrchr(cp, ';');
+
+        if (semi)
+            *semi = 0;
+
+        j = CONFIG_FunctionNameToNum(cp);
+
+        if (semi)
+            cp = semi+1;
+
+        if (j != -1)
         {
-            char *semi;
-
-            cp += 9;  // skip the "gamefunc_"
-
-            semi = Bstrchr(cp, ';');
-            if (semi)
-                *semi = 0;
-
-            j = CONFIG_FunctionNameToNum(cp);
-
-            if (semi)
-                cp = semi+1;
-
-            if (j != -1)
-            {
-                ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
-                ud.config.KeyboardKeys[j][0] = ConsoleKeys[i].id;
+            ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
+            ud.config.KeyboardKeys[j][0] = ConsoleKeys[i].id;
 //            CONTROL_MapKey(j, ConsoleKeys[i].id, ud.config.KeyboardKeys[j][0]);
 
-                if (j == gamefunc_Show_Console)
-                    OSD_CaptureKey(ConsoleKeys[i].id);
-            }
+            if (j == gamefunc_Show_Console)
+                OSD_CaptureKey(ConsoleKeys[i].id);
         }
     }
 
@@ -1144,21 +1144,16 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
 
 static int32_t osdcmd_unbindall(osdfuncparm_t const * const UNUSED(parm))
 {
-    int32_t i;
-
     UNREFERENCED_CONST_PARAMETER(parm);
 
-    for (i=0; i<MAXBOUNDKEYS; i++)
+    for (int i = 0; i < MAXBOUNDKEYS; ++i)
         CONTROL_FreeKeyBind(i);
 
-    for (i=0; i<MAXMOUSEBUTTONS; i++)
+    for (int i = 0; i < MAXMOUSEBUTTONS; ++i)
         CONTROL_FreeMouseBind(i);
 
-    for (i=0; i<NUMGAMEFUNCTIONS; i++)
-    {
-        ud.config.KeyboardKeys[i][0] = ud.config.KeyboardKeys[i][1] = 0xff;
-//        CONTROL_MapKey(i, ud.config.KeyboardKeys[i][0], ud.config.KeyboardKeys[i][1]);
-    }
+    for (auto &KeyboardKey : ud.config.KeyboardKeys)
+        KeyboardKey[0] = KeyboardKey[1] = 0xff;
 
     if (!OSD_ParsingScript())
         OSD_Printf("unbound all controls\n");
@@ -1168,35 +1163,30 @@ static int32_t osdcmd_unbindall(osdfuncparm_t const * const UNUSED(parm))
 
 static int32_t osdcmd_unbind(osdfuncparm_t const * const parm)
 {
-    int32_t i;
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
 
-    if (parm->numparms < 1) return OSDCMD_SHOWHELP;
-
-    for (i=0; ConsoleKeys[i].name; i++)
-        if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
-            break;
-
-    if (!ConsoleKeys[i].name)
+    for (auto ConsoleKey : ConsoleKeys)
     {
-        for (i=0; i<MAXMOUSEBUTTONS; i++)
-            if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
-                break;
-
-        if (i >= MAXMOUSEBUTTONS)
-            return OSDCMD_SHOWHELP;
-
-        CONTROL_FreeMouseBind(i);
-
-        OSD_Printf("unbound %s\n",ConsoleButtons[i]);
-
-        return OSDCMD_OK;
+        if (ConsoleKey.name && !Bstrcasecmp(parm->parms[0], ConsoleKey.name))
+        {
+            CONTROL_FreeKeyBind(ConsoleKey.id);
+            OSD_Printf("unbound key %s\n", ConsoleKey.name);
+            return OSDCMD_OK;
+        }
     }
 
-    CONTROL_FreeKeyBind(ConsoleKeys[i].id);
+    for (int i = 0; i < MAXMOUSEBUTTONS; i++)
+    {
+        if (!Bstrcasecmp(parm->parms[0], ConsoleButtons[i]))
+        {
+            CONTROL_FreeMouseBind(i);
+            OSD_Printf("unbound %s\n", ConsoleButtons[i]);
+            return OSDCMD_OK;
+        }
+    }
 
-    OSD_Printf("unbound key %s\n",ConsoleKeys[i].name);
-
-    return OSDCMD_OK;
+    return OSDCMD_SHOWHELP;
 }
 
 static int32_t osdcmd_quicksave(osdfuncparm_t const * const UNUSED(parm))
@@ -1619,8 +1609,6 @@ static int32_t osdcmd_cvar_set_multi(osdfuncparm_t const * const parm)
 
 int32_t registerosdcommands(void)
 {
-    uint32_t i;
-
     static osdcvardata_t cvars_game[] =
     {
         { "crosshair", "enable/disable crosshair", (void *)&ud.crosshair, CVAR_BOOL, 0, 1 },
@@ -1756,17 +1744,17 @@ int32_t registerosdcommands(void)
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;
 
-    for (i=0; i<ARRAY_SIZE(cvars_game); i++)
+    for (auto & cv : cvars_game)
     {
-        switch (cvars_game[i].flags & (CVAR_FUNCPTR|CVAR_MULTI))
+        switch (cv.flags & (CVAR_FUNCPTR|CVAR_MULTI))
         {
-        case CVAR_FUNCPTR:
-            OSD_RegisterCvar(&cvars_game[i], osdcmd_cvar_set_game); break;
-        case CVAR_MULTI:
-        case CVAR_FUNCPTR|CVAR_MULTI:
-            OSD_RegisterCvar(&cvars_game[i], osdcmd_cvar_set_multi); break;
-        default:
-            OSD_RegisterCvar(&cvars_game[i], osdcmd_cvar_set); break;
+            case CVAR_FUNCPTR:
+                OSD_RegisterCvar(&cv, osdcmd_cvar_set_game); break;
+            case CVAR_MULTI:
+            case CVAR_FUNCPTR|CVAR_MULTI:
+                OSD_RegisterCvar(&cv, osdcmd_cvar_set_multi); break;
+            default:
+                OSD_RegisterCvar(&cv, osdcmd_cvar_set); break;
         }
     }
 
@@ -1789,21 +1777,22 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
 #endif
 
-    for (i=0; i<NUMGAMEFUNCTIONS; i++)
+    for (auto & func : gamefunctions)
     {
-        char *t;
-        int32_t j;
-
-        if (gamefunctions[i][0] == '\0')
+        if (func[0] == '\0')
             continue;
 
 //        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
 
-        Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
-        t = Xstrdup(tempbuf);
-        for (j=Bstrlen(t); j>=0; j--)
+        Bsprintf(tempbuf, "gamefunc_%s", func);
+
+        char *const t = Xstrdup(tempbuf);
+        int const len = Bstrlen(t);
+
+        for (int j=0; j <= len; j++)
             t[j] = Btolower(t[j]);
-        Bstrcat(tempbuf,": game button");
+
+        Bstrcat(tempbuf, ": game button");
         OSD_RegisterFunction(t, Xstrdup(tempbuf), osdcmd_button);
     }
 

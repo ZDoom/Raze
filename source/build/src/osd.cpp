@@ -500,26 +500,24 @@ static int32_t osdfunc_listsymbols(osdfuncparm_t const * const parm)
         else
             OSD_Printf("%sSymbol listing:\n", osd->draw.highlight);
 
-        int const parmlen = Bstrlen(parm->parms[0]);
+        int const parmlen = parm->numparms ? Bstrlen(parm->parms[0]) : 0;
 
         for (i=symbols; i!=NULL; i=i->next)
         {
             if (i->func == OSD_UNALIASED || (parm->numparms == 1 && Bstrncmp(parm->parms[0], i->name, parmlen)))
                 continue;
 
+            int32_t j = hash_find(&h_cvars, i->name);
+
+            if (j != -1 && OSD_CvarModified(&osd->cvars[j]))
             {
-                int32_t j = hash_find(&h_cvars, i->name);
-
-                if (j != -1 && OSD_CvarModified(&osd->cvars[j]))
-                {
-                    OSD_Printf("%s*", osd->draw.highlight);
-                    OSD_Printf("%-*s",maxwidth-1,i->name);
-                }
-                else OSD_Printf("%-*s",maxwidth,i->name);
-
-                x += maxwidth;
-                count++;
+                OSD_Printf("%s*", osd->draw.highlight);
+                OSD_Printf("%-*s",maxwidth-1,i->name);
             }
+            else OSD_Printf("%-*s",maxwidth,i->name);
+
+            x += maxwidth;
+            count++;
 
             if (x > osd->draw.cols - maxwidth)
             {
@@ -1882,23 +1880,17 @@ void OSD_Dispatch(const char *cmd)
 //
 int32_t OSD_RegisterFunction(const char *pszName, const char *pszDesc, int32_t (*func)(const osdfuncparm_t*))
 {
-    osdsymbol_t *symb;
-
     if (!osd)
         OSD_Init();
 
-    symb = osd_findexactsymbol(pszName);
+    auto symb = osd_findexactsymbol(pszName);
 
-    if (symb) // allow this now for reusing an alias name
+    if (!symb) // allow reusing an alias name
     {
-        symb->help = pszDesc;
-        symb->func = func;
-        return 0;
+        symb = osd_addsymbol(pszName);
+        symb->name = pszName;
     }
 
-    symb = osd_addsymbol(pszName);
-
-    symb->name = pszName;
     symb->help = pszDesc;
     symb->func = func;
 
