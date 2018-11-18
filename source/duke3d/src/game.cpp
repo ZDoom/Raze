@@ -5985,23 +5985,25 @@ void G_UpdatePlayerFromMenu(void)
     if (ud.recstat != 0)
         return;
 
+    auto &p = *g_player[myconnectindex].ps;
+
     if (numplayers > 1)
     {
         Net_SendClientInfo();
-        if (sprite[g_player[myconnectindex].ps->i].picnum == APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
-            sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
+        if (sprite[p.i].picnum == APLAYER && sprite[p.i].pal != 1)
+            sprite[p.i].pal = g_player[myconnectindex].pcolor;
     }
     else
     {
-        /*int32_t j = g_player[myconnectindex].ps->team;*/
+        /*int32_t j = p.team;*/
 
         P_SetupMiscInputSettings();
-        g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
+        p.palookup = g_player[myconnectindex].pcolor = ud.color;
 
         g_player[myconnectindex].pteam = ud.team;
 
-        if (sprite[g_player[myconnectindex].ps->i].picnum == APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
-            sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
+        if (sprite[p.i].picnum == APLAYER && sprite[p.i].pal != 1)
+            sprite[p.i].pal = g_player[myconnectindex].pcolor;
     }
 }
 
@@ -6019,26 +6021,26 @@ void G_BackToMenu(void)
 
 static int G_EndOfLevel(void)
 {
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
-    P_UpdateScreenPal(g_player[myconnectindex].ps);
+    auto &p = *g_player[myconnectindex].ps;
 
-    if (g_player[myconnectindex].ps->gm&MODE_EOL)
+    P_SetGamePalette(&p, BASEPAL, 0);
+    P_UpdateScreenPal(&p);
+
+    if (p.gm & MODE_EOL)
     {
         G_CloseDemoWrite();
 
         ready2send = 0;
 
-        if (g_player[myconnectindex].ps->player_par > 0 && (g_player[myconnectindex].ps->player_par < ud.playerbest || ud.playerbest < 0) &&
-            ud.display_bonus_screen == 1)
-            CONFIG_SetMapBestTime(g_loadedMapHack.md4, g_player[myconnectindex].ps->player_par);
+        if (p.player_par > 0 && (p.player_par < ud.playerbest || ud.playerbest < 0) && ud.display_bonus_screen == 1)
+            CONFIG_SetMapBestTime(g_loadedMapHack.md4, p.player_par);
 
-        if ((VM_OnEventWithReturn(EVENT_ENDLEVELSCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)) == 0 &&
-            ud.display_bonus_screen == 1)
+        if ((VM_OnEventWithReturn(EVENT_ENDLEVELSCREEN, p.i, myconnectindex, 0)) == 0 && ud.display_bonus_screen == 1)
         {
-            int32_t i = ud.screen_size;
+            int const ssize = ud.screen_size;
             ud.screen_size = 0;
             G_UpdateScreenArea();
-            ud.screen_size = i;
+            ud.screen_size = ssize;
             G_BonusScreen(0);
         }
 
@@ -6054,7 +6056,7 @@ static int G_EndOfLevel(void)
                 if (!VOLUMEALL)
                     G_DoOrderScreen();
 #endif
-                g_player[myconnectindex].ps->gm = 0;
+                p.gm = 0;
                 Menu_Open(myconnectindex);
                 Menu_Change(MENU_MAIN);
                 return 2;
@@ -6071,9 +6073,9 @@ static int G_EndOfLevel(void)
     ready2send = 0;
 
     if (numplayers > 1)
-        g_player[myconnectindex].ps->gm = MODE_GAME;
+        p.gm = MODE_GAME;
 
-    if (G_EnterLevel(g_player[myconnectindex].ps->gm))
+    if (G_EnterLevel(p.gm))
     {
         G_BackToMenu();
         return 2;
