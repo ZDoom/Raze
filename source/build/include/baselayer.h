@@ -122,14 +122,26 @@ struct glinfo_t {
 
 extern struct glinfo_t glinfo;
 #endif
-extern vec2_t const g_defaultVideoModes[];
+
+vec2_t CONSTEXPR const g_defaultVideoModes []
+={ { 2560, 1440 }, { 2560, 1200 }, { 2560, 1080 }, { 1920, 1440 }, { 1920, 1200 }, { 1920, 1080 }, { 1680, 1050 },
+    { 1600, 1200 }, { 1600, 900 },  { 1366, 768 },  { 1280, 1024 }, { 1280, 960 },  { 1280, 720 },  { 1152, 864 },
+    { 1024, 768 },  { 1024, 600 },  { 800, 600 },   { 640, 480 },   { 640, 400 },   { 512, 384 },   { 480, 360 },
+    { 400, 300 },   { 320, 240 },   { 320, 200 },   { 0, 0 } };
 
 extern char inputdevices;
 
 // keys
 #define NUMKEYS 256
 #define KEYFIFOSIZ 64
-extern char const g_keyAsciiTable[128];
+
+char CONSTEXPR const g_keyAsciiTable[128] ={
+    0  ,   0,   '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0,  0,   'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
+    '[', ']', 0,   0,   'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 39, '`', 0,   92,  'z', 'x', 'c', 'v', 'b', 'n', 'm', ',',
+    '.', '/', 0,   '*', 0,   32,  0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6',
+    '+', '1', '2', '3', '0', '.', 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0  ,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,
+};
 
 extern char    keystatus[NUMKEYS];
 extern char    g_keyFIFO[KEYFIFOSIZ];
