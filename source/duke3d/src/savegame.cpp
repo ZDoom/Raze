@@ -2252,6 +2252,7 @@ static void postloadplayer(int32_t savegamep)
     //4
     if (savegamep)
     {
+#ifndef EDUKE32_STANDALONE
         if (ud.lockout)
         {
             for (i=0; i<g_animWallCnt; i++)
@@ -2273,6 +2274,7 @@ static void postloadplayer(int32_t savegamep)
                 if (wall[animwall[i].wallnum].extra >= 0)
                     wall[animwall[i].wallnum].picnum = wall[animwall[i].wallnum].extra;
         }
+#endif
 #endif
     }
 

@@ -623,6 +623,7 @@ static int32_t VM_GetCeilZOfSlope(void)
     return getceilzofslope(sectnum, vect.x, vect.y);
 }
 
+#ifndef EDUKE32_STANDALONE
 static int32_t VM_GetFlorZOfSlope(void)
 {
     vec2_t const vect    = *(vec2_t *)vm.pSprite;
@@ -638,6 +639,7 @@ static int32_t VM_GetFlorZOfSlope(void)
 #endif
     return getflorzofslope(sectnum, vect.x, vect.y);
 }
+#endif
 
 ////////////////////
 
@@ -726,6 +728,7 @@ dead:
         int spriteXvel = vm.pSprite->xvel;
         int angDiff    = vm.pSprite->ang;
 
+#ifndef EDUKE32_STANDALONE
         if (badguyp && vm.pSprite->picnum != ROTATEGUN)
         {
             if ((vm.pSprite->picnum == DRONE || vm.pSprite->picnum == COMMANDER) && vm.pSprite->extra > 0)
@@ -771,6 +774,10 @@ dead:
                 }
             }
             else if (vm.pSprite->picnum != ORGANTIC)
+#else
+        if (badguyp)
+        {
+#endif
             {
                 // All other actors besides ORGANTIC don't update .floorz or
                 // .ceilingz here.
@@ -808,7 +815,10 @@ dead:
                     vm.pPlayer->vel.y = mulscale16(vm.pPlayer->vel.y, vm.pPlayer->runspeed - 0x2000);
                 }
             }
-            else if (vm.pSprite->picnum != DRONE && vm.pSprite->picnum != SHARK && vm.pSprite->picnum != COMMANDER)
+            else
+#ifndef EDUKE32_STANDALONE
+                if (vm.pSprite->picnum != DRONE && vm.pSprite->picnum != SHARK && vm.pSprite->picnum != COMMANDER)
+#endif
             {
                 if (vm.pPlayer->actorsqu == vm.spriteNum)
                     return;
@@ -2257,7 +2267,16 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
                     int newHealth = sprite[pPlayer->i].extra;
 
-                    if (vm.pSprite->picnum != ATOMICHEALTH)
+#ifndef EDUKE32_STANDALONE
+                    if (vm.pSprite->picnum == ATOMICHEALTH)
+                    {
+                        if (newHealth > 0)
+                            newHealth += *insptr;
+                        if (newHealth > (pPlayer->max_player_health << 1))
+                            newHealth = (pPlayer->max_player_health << 1);
+                    }
+                    else
+#endif
                     {
                         if (newHealth > pPlayer->max_player_health && *insptr > 0)
                         {
@@ -2271,13 +2290,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                             if (newHealth > pPlayer->max_player_health && *insptr > 0)
                                 newHealth = pPlayer->max_player_health;
                         }
-                    }
-                    else
-                    {
-                        if (newHealth > 0)
-                            newHealth += *insptr;
-                        if (newHealth > (pPlayer->max_player_health << 1))
-                            newHealth = (pPlayer->max_player_health << 1);
                     }
 
                     if (newHealth < 0)
@@ -3838,6 +3850,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_DEBRIS:
                 insptr++;
                 {
+#ifndef EDUKE32_STANDALONE
                     int debrisTile = *insptr++;
 
                     if ((unsigned)vm.pSprite->sectnum < MAXSECTORS)
@@ -3853,6 +3866,9 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                             sprite[spriteNum].yvel = (vm.pSprite->picnum == BLIMP && debrisTile == SCRAP1) ? g_blimpSpawnItems[cnt % 14] : -1;
                             sprite[spriteNum].pal  = vm.pSprite->pal;
                         }
+#else
+                    insptr++;
+#endif
                     insptr++;
                 }
                 continue;
@@ -5889,6 +5905,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 insptr++;
                 switch (DYNAMICTILEMAP(vm.pSprite->picnum))
                 {
+#ifndef EDUKE32_STANDALONE
                     case FEM1__STATIC:
                     case FEM2__STATIC:
                     case FEM3__STATIC:
@@ -5905,6 +5922,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         if (vm.pSprite->yvel)
                             G_OperateRespawns(vm.pSprite->yvel);
                         break;
+#endif
                     default:
                         if (vm.pSprite->hitag >= 0)
                             G_OperateRespawns(vm.pSprite->hitag);
@@ -6429,6 +6447,7 @@ void G_RestoreMapState(void)
 
         screenpeek = myconnectindex;
 
+#ifndef EDUKE32_STANDALONE
         if (ud.lockout)
         {
             for (native_t x=g_animWallCnt-1; x>=0; x--)
@@ -6446,6 +6465,7 @@ void G_RestoreMapState(void)
                 if (wall[animwall[x].wallnum].extra >= 0)
                     wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
         }
+#endif
 #endif
 #ifdef YAX_ENABLE
         sv_postyaxload();
