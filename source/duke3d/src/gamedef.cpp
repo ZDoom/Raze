@@ -982,7 +982,7 @@ static inline bool isaltok(const char c)
 
 static inline bool C_IsLabelChar(const char c, int32_t const i)
 {
-    return (isalnum(c) || c == '_' || c == '*' || c == '?' || (i > 0 && (c == '+' || c == '-' || c == '.')));
+    return (isalnum(c) || c == '_' || c == '*' || c == '?' || (i > 0 && (c == '+' || c == '-')));
 }
 
 static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t const * const table, const char *psz)
@@ -1219,10 +1219,10 @@ static void C_GetNextVarType(int32_t type)
 
     C_SkipComments();
 
-    if (*textptr == '[')     //read of array as a gamevar
+    if (*textptr == '[' || *textptr == '.')     //read of array as a gamevar
     {
         flags |= GV_FLAG_ARRAY;
-        textptr++;
+        if (*textptr != '.') textptr++;
         id=GetADefID(LAST_LABEL);
 
         if (id < 0)
@@ -1247,7 +1247,7 @@ static void C_GetNextVarType(int32_t type)
         if ((flags & GV_FLAG_STRUCT) && id - g_structVarIDs == STRUCT_USERDEF)
         {
             // userdef doesn't really have an array index
-            while (*textptr != ']')
+            while (*textptr != '.')
             {
                 if (*textptr == 0xa || *textptr == 0)
                     break;
@@ -1259,7 +1259,7 @@ static void C_GetNextVarType(int32_t type)
         }
         else
         {
-            if (*textptr == ']')
+            if (*textptr == ']' || *textptr == '.')
             {
                 scriptWriteValue(g_thisActorVarID);
             }
@@ -1269,13 +1269,14 @@ static void C_GetNextVarType(int32_t type)
             C_SkipComments();
         }
 
-        if (EDUKE32_PREDICT_FALSE(*textptr != ']'))
+        if (EDUKE32_PREDICT_FALSE(*textptr != ']' && *textptr != '.'))
         {
             g_errorCnt++;
             C_ReportError(ERROR_GAMEARRAYBNC);
             return;
         }
-        textptr++;
+
+        if (*textptr != '.') textptr++;
 
         //writing arrays in this way is not supported because it would require too many changes to other code
 
@@ -1400,6 +1401,7 @@ static void C_GetNextVarType(int32_t type)
         }
         return;
     }
+
     id=GetDefID(LAST_LABEL);
     if (id<0)   //gamevar not found
     {
@@ -1562,16 +1564,18 @@ static int C_GetStructureIndexes(bool const labelsonly, hashtable_t const * cons
 {
     C_SkipComments();
 
-    if (EDUKE32_PREDICT_FALSE(*textptr++ != '['))
+    if (EDUKE32_PREDICT_FALSE(*textptr != '[' && *textptr != '.'))
     {
         g_errorCnt++;
         C_ReportError(ERROR_SYNTAXERROR);
         return -1;
     }
 
+    if (*textptr != '.') textptr++;
+
     C_SkipComments();
 
-    if (*textptr == ']')
+    if (*textptr == ']' || *textptr == '.')
     {
         scriptWriteValue(g_thisActorVarID);
     }
@@ -1582,7 +1586,7 @@ static int C_GetStructureIndexes(bool const labelsonly, hashtable_t const * cons
         g_labelsOnly = 0;
     }
 
-    textptr++;
+    if (*textptr != '.') textptr++;
 
     C_SkipComments();
 
