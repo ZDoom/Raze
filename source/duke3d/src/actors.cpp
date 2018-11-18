@@ -179,7 +179,7 @@ SKIPWALLCHECK:
     // this is really weird
     int32_t const zRand = -ZOFFSET2 + (krand()&(ZOFFSET5-1));
 
-    static const uint8_t statnumList [] ={
+    static const uint8_t statnumList [] = {
         STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE,
         STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC
     };

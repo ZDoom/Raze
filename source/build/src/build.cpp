@@ -3357,7 +3357,7 @@ void overheadeditor(void)
     int32_t resetsynctics = 0, lasttick=timerGetTicks(), waitdelay=totalclock, lastdraw=timerGetTicks();
     int32_t olen[2] = {0, 0}, dragwall[2] = {-1, -1};
     int16_t linehighlight2 = -1;
-    vec2_t highlight1 ={ 0, 0 }, highlight2 ={ 0, 0 };
+    vec2_t highlight1 = { 0, 0 }, highlight2 = { 0, 0 };
 
     ovh.suckwall = -1;
     ovh.split = 0;
@@ -4449,7 +4449,7 @@ rotate_hlsect_out:
                 ////////// YAX //////////
                 static const char *cfs[2] = {"ceiling", "floor"};
 
-                int32_t cf, thez, ulz[2]={0,0};
+                int32_t cf, thez, ulz[2] = {0,0};
                 int16_t bn, sandwichbunch=-1;
 
                 if (numyaxbunches==YAX_MAXBUNCHES)
@@ -5223,7 +5223,7 @@ end_yax: ;
                         int16_t ignore, refsect;
                         int32_t n;
 #ifdef YAX_ENABLE
-                        int16_t refsectbn[2]={-1,-1};
+                        int16_t refsectbn[2] = {-1,-1};
                         int32_t refextcf=-1;
 #endif
                         Bmemset(visited, 0, sizeof(visited));
@@ -6082,7 +6082,7 @@ end_point_dragging:
             {
                 // [component][ceiling(0) or floor(1)]
                 // compstat: &1: "has extension", &2: "differ in z", &4: "sloped", -1: "uninited"
-                int32_t cf, comp, compstat[2][2]={{-1,-1},{-1,-1}}, compcfz[2][2];
+                int32_t cf, comp, compstat[2][2] = {{-1,-1},{-1,-1}}, compcfz[2][2];
 
                 // joinstat: join what to what?
                 //  &1: ceil(comp 0) <-> flor(comp 1),  &2: flor(comp 0) <-> ceil(comp 1)
