@@ -318,8 +318,6 @@ extern int32_t g_cameraDistance;
 #endif
 extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
-extern int32_t g_forceWeaponChoice;
-extern int32_t g_fakeMultiMode;
 extern int32_t g_levelTextTime;
 extern int32_t g_quitDeadline;
 extern int32_t g_restorePalette;
