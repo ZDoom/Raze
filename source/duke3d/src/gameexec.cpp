@@ -48,7 +48,7 @@ vmstate_t vm;
 #if !defined LUNATIC
 int32_t g_tw;
 int32_t g_errorLineNum;
-int32_t g_currentEventExec = -1;
+int32_t g_currentEvent = -1;
 
 intptr_t const *insptr;
 
@@ -85,7 +85,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop);
 #if !defined LUNATIC
 void VM_ScriptInfo(intptr_t const *ptr, int range)
 {
-    if (!apScript || (!vm.pSprite && !vm.pPlayer && g_currentEventExec == -1))
+    if (!apScript || (!vm.pSprite && !vm.pPlayer && g_currentEvent == -1))
         return;
 
     if (ptr)
@@ -134,7 +134,7 @@ intptr_t apScriptEvents[MAXEVENTS];
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
 #ifdef LUNATIC
-static FORCE_INLINE int32_t VM_EventCommon_(int eventNum, int spriteNum, int playerNum, int playerDist, int32_t returnValue)
+static FORCE_INLINE int32_t VM_EventCommon__(int const &eventNum, int const &spriteNum, int const &playerNum, int const &playerDist, int32_t returnValue)
 {
     const double t = timerGetHiTicks();
     int32_t ret = El_CallEvent(&g_ElState, eventNum, spriteNum, playerNum, playerDist, &returnValue);
@@ -161,20 +161,20 @@ static void VM_DummySprite(void)
     vm.pData = &dummy.t_data[0];
 }
 
-static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const spriteNum, int const playerNum, int const playerDist, int32_t returnValue)
+static FORCE_INLINE int32_t VM_EventCommon__(int const &eventNum, int const &spriteNum, int const &playerNum, int const &playerDist, int32_t returnValue)
 {
-    const double t = timerGetHiTicks();
+    double const    t      = timerGetHiTicks();
+    vmstate_t const tempvm = { spriteNum, playerNum, playerDist, 0, NULL, NULL, g_player[playerNum].ps, NULL };
 
-    const vmstate_t tempvm = { spriteNum, playerNum, playerDist, 0, NULL, NULL, g_player[playerNum].ps, NULL };
+    auto &    returnVar       = aGameVars[g_returnVarID].global;
+    int const backupReturnVar = returnVar;
+    int const backupEvent     = g_currentEvent;
 
-    int const backupReturnVar = aGameVars[g_returnVarID].global;
-    int const backupEventExec = g_currentEventExec;
+    returnVar = returnValue;
+    g_currentEvent  = eventNum;
 
-    aGameVars[g_returnVarID].global = returnValue;
-    g_currentEventExec              = eventNum;
-
-    intptr_t const *oinsptr   = insptr;
-    const vmstate_t vm_backup = vm;
+    intptr_t const *backupinsptr = insptr;
+    const vmstate_t vm_backup    = vm;
 
     insptr = apScript + apScriptEvents[eventNum];
     vm     = tempvm;
@@ -201,12 +201,11 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
     // this needs to happen after VM_DeleteSprite() because VM_DeleteSprite()
     // can trigger additional events
 
-    vm                 = vm_backup;
-    insptr             = oinsptr;
-    g_currentEventExec = backupEventExec;
-    returnValue        = aGameVars[g_returnVarID].global;
-
-    aGameVars[g_returnVarID].global  = backupReturnVar;
+    vm             = vm_backup;
+    insptr         = backupinsptr;
+    g_currentEvent = backupEvent;
+    returnValue    = returnVar;
+    returnVar      = backupReturnVar;
 
     g_eventTotalMs[eventNum] += timerGetHiTicks()-t;
     g_eventCalls[eventNum]++;
@@ -219,34 +218,32 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
 // which are not only optimized further based on lDist or iReturn (or both) having values known at compile time,
 // but are called faster due to having less parameters
 
-int32_t VM_OnEventWithBoth_(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn)
+int32_t VM_OnEventWithBoth__(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn)
 {
-    return VM_EventCommon_(nEventID, spriteNum, playerNum, nDist, nReturn);
+    return VM_EventCommon__(nEventID, spriteNum, playerNum, nDist, nReturn);
 }
 
-int32_t VM_OnEventWithReturn_(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn)
+int32_t VM_OnEventWithReturn__(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn)
 {
-    return VM_EventCommon_(nEventID, spriteNum, playerNum, -1, nReturn);
+    return VM_EventCommon__(nEventID, spriteNum, playerNum, -1, nReturn);
 }
 
-int32_t VM_OnEventWithDist_(int const nEventID, int const spriteNum, int const playerNum, int const nDist)
+int32_t VM_OnEventWithDist__(int const nEventID, int const spriteNum, int const playerNum, int const nDist)
 {
-    return VM_EventCommon_(nEventID, spriteNum, playerNum, nDist, 0);
+    return VM_EventCommon__(nEventID, spriteNum, playerNum, nDist, 0);
 }
 
-int32_t VM_OnEvent_(int const nEventID, int const spriteNum, int const playerNum)
+int32_t VM_OnEvent__(int const nEventID, int const spriteNum, int const playerNum)
 {
-    return VM_EventCommon_(nEventID, spriteNum, playerNum, -1, 0);
+    return VM_EventCommon__(nEventID, spriteNum, playerNum, -1, 0);
 }
 
-static int32_t VM_CheckSquished(void)
+static bool VM_CheckSquished(void)
 {
-    usectortype const * const pSector = (usectortype *)&sector[vm.pSprite->sectnum];
+    auto const pSector = (usectortype *)&sector[vm.pSprite->sectnum];
 
-    if (pSector->lotag == ST_23_SWINGING_DOOR ||
-        (pSector->lotag == ST_1_ABOVE_WATER &&
-         !A_CheckNoSE7Water((uspritetype const *)vm.pSprite, vm.pSprite->sectnum, pSector->lotag, NULL)) ||
-        (vm.pSprite->picnum == APLAYER && ud.noclip))
+    if (pSector->lotag == ST_23_SWINGING_DOOR || (vm.pSprite->picnum == APLAYER && ud.noclip) ||
+        (pSector->lotag == ST_1_ABOVE_WATER && !A_CheckNoSE7Water((uspritetype const *)vm.pSprite, vm.pSprite->sectnum, pSector->lotag, NULL)))
         return 0;
 
     int32_t floorZ = pSector->floorz;
@@ -6173,7 +6170,7 @@ void G_SaveMapState(void)
 
     // If we're in EVENT_ANIMATESPRITES, we'll be saving pointer values to disk :-/
 #if !defined LUNATIC
-    if (g_currentEventExec == EVENT_ANIMATESPRITES)
+    if (g_currentEvent == EVENT_ANIMATESPRITES)
         initprintf("Line %d: savemapstate called from EVENT_ANIMATESPRITES. WHY?\n", g_errorLineNum);
 #endif
     Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
@@ -6312,7 +6309,7 @@ void G_RestoreMapState(void)
         // If we're restoring from EVENT_ANIMATESPRITES, all spriteext[].tspr
         // will be overwritten, so NULL them.
 #if !defined LUNATIC
-        if (g_currentEventExec == EVENT_ANIMATESPRITES)
+        if (g_currentEvent == EVENT_ANIMATESPRITES)
         {
             initprintf("Line %d: loadmapstate called from EVENT_ANIMATESPRITES. WHY?\n",g_errorLineNum);
             for (native_t i=0; i<MAXSPRITES; i++)

@@ -1323,7 +1323,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
         int32_t p, pl = A_FindPlayer(s, &p);
 
         block_deletesprite++;
-        VM_OnEventWithDist_(EVENT_EGS, i, pl, p);
+        VM_OnEventWithDist__(EVENT_EGS, i, pl, p);
         block_deletesprite--;
     }
 
@@ -3411,7 +3411,7 @@ SPAWN_END:
     {
         int32_t p;
         int32_t pl=A_FindPlayer(&sprite[newSprite],&p);
-        VM_OnEventWithDist_(EVENT_SPAWN,newSprite, pl, p);
+        VM_OnEventWithDist__(EVENT_SPAWN,newSprite, pl, p);
     }
 
     return newSprite;
@@ -3537,7 +3537,7 @@ static inline void G_DoEventAnimSprites(int tspriteNum)
         return;
 
     spriteext[tsprOwner].tspr = &tsprite[tspriteNum];
-    VM_OnEvent_(EVENT_ANIMATESPRITES, tsprOwner, screenpeek);
+    VM_OnEvent__(EVENT_ANIMATESPRITES, tsprOwner, screenpeek);
     spriteext[tsprOwner].tspr = NULL;
 }
 

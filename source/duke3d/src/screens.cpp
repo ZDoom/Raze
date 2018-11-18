@@ -1250,7 +1250,7 @@ void G_DisplayRest(int32_t smoothratio)
     if (VM_HaveEvent(EVENT_DISPLAYREST))
     {
         int32_t vr=viewingrange, asp=yxaspect;
-        VM_OnEvent_(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek);
+        VM_OnEvent__(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek);
         renderSetAspect(vr, asp);
     }
 

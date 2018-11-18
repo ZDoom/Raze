@@ -48,7 +48,7 @@ static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
 static intptr_t *g_caseScriptPtr;
 static intptr_t previous_event;
 static int32_t g_numCases = 0, g_checkingCase = 0;
-static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
+static int32_t g_checkingSwitch = 0;
 static int32_t g_labelsOnly = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
 static int32_t g_numBraces = 0;
 
@@ -779,10 +779,10 @@ const char *EventNames[MAXEVENTS] =
 };
 
 #if !defined LUNATIC
-#define LABEL_SETUP_UNMATCHED(struct, memb, name, idx)                                                                \
-    {                                                                                                                 \
-        name, idx, sizeof(struct[0].memb) | (is_unsigned <decltype(struct[0].memb)>::value ? LABEL_UNSIGNED : 0), 0, \
-        offsetof(std::remove_pointer <decltype(&struct[0])>::type, memb)                                              \
+#define LABEL_SETUP_UNMATCHED(struct, memb, name, idx)                                                              \
+    {                                                                                                               \
+        name, idx, sizeof(struct[0].memb) | (is_unsigned<decltype(struct[0].memb)>::value ? LABEL_UNSIGNED : 0), 0, \
+        offsetof(std::remove_pointer<decltype(&struct[0])>::type, memb)                                             \
     }
 
 #define LABEL_SETUP(struct, memb, idx) LABEL_SETUP_UNMATCHED(struct, memb, #memb, idx)

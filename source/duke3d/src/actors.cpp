@@ -606,7 +606,7 @@ void A_DeleteSprite(int spriteNum)
         int32_t playerDist;
         int playerNum = A_FindPlayer(&sprite[spriteNum], &playerDist);
 
-        if (VM_OnEventWithDist_(EVENT_KILLIT, spriteNum, playerNum, playerDist))
+        if (VM_OnEventWithDist__(EVENT_KILLIT, spriteNum, playerNum, playerDist))
             return;
     }
 
@@ -8392,7 +8392,7 @@ static void G_DoEventGame(int const nEventID)
 
                 int32_t   playerDist;
                 int const playerNum = A_FindPlayer(&sprite[spriteNum], &playerDist);
-                VM_OnEventWithDist_(nEventID, spriteNum, playerNum, playerDist);
+                VM_OnEventWithDist__(nEventID, spriteNum, playerNum, playerDist);
 
                 spriteNum = nextSprite;
             }
