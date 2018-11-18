@@ -680,11 +680,11 @@ int startwin_run(void)
 {
     if (startwin == nil) return 0;
 
-    settings.fullscreen = ud.config.ScreenMode;
-    settings.xdim3d = ud.config.ScreenWidth;
-    settings.ydim3d = ud.config.ScreenHeight;
-    settings.bpp3d = ud.config.ScreenBPP;
-    settings.forcesetup = ud.config.ForceSetup;
+    settings.fullscreen = ud.setup.fullscreen;
+    settings.xdim3d = ud.setup.xdim;
+    settings.ydim3d = ud.setup.ydim;
+    settings.bpp3d = ud.setup.bpp;
+    settings.forcesetup = ud.setup.forcesetup.
     settings.grp = g_selectedGrp;
 
     [startwin setupRunMode];
@@ -701,11 +701,11 @@ int startwin_run(void)
     [nsapp updateWindows];
 
     if (retval) {
-        ud.config.ScreenMode = settings.fullscreen;
-        ud.config.ScreenWidth = settings.xdim3d;
-        ud.config.ScreenHeight = settings.ydim3d;
-        ud.config.ScreenBPP = settings.bpp3d;
-        ud.config.ForceSetup = settings.forcesetup;
+        ud.setup.fullscreen = settings.fullscreen;
+        ud.setup.xdim = settings.xdim3d;
+        ud.setup.ydim = settings.ydim3d;
+        ud.setup.bpp = settings.bpp3d;
+        ud.setup.forcesetup = settings.forcesetup;
         g_selectedGrp = settings.grp;
     }
 
