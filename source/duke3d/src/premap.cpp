@@ -1763,6 +1763,13 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
 #ifdef HAVE_VORBIS
         "ogg",
 #endif
+#ifdef HAVE_XMP
+        "xm",
+        "mod",
+        "it",
+        "s3m",
+        "mtm",
+#endif
         "mid"
     };
 
