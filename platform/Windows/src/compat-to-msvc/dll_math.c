@@ -548,6 +548,24 @@ __umoddi3(a, b)
 	(void)__qdivrem(a, b, &r);
 	return (r);
 }
+
+/*
+ * Divide two unsigned quads.
+ * This function is new in GCC 7.
+ */
+u_quad_t
+__udivmoddi4(a, b, rem)
+	u_quad_t a, b, *rem;
+{
+	u_quad_t ua, ub, uq, ur;
+
+	ua = a;
+	ub = b;
+	uq = __qdivrem(ua, ub, &ur);
+	if (rem)
+		*rem = ur;
+	return uq;
+}
 #else
 static int __attribute__((unused)) dummy;
 #endif /* defined (_X86_) && !defined (__x86_64__) */
