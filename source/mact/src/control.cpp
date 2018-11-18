@@ -6,15 +6,13 @@
  *
  */
 
+#include "_control.h"
+#include "baselayer.h"
 #include "compat.h"
-
+#include "control.h"
+#include "joystick.h"
 #include "keyboard.h"
 #include "mouse.h"
-#include "joystick.h"
-#include "control.h"
-#include "_control.h"
-
-#include "baselayer.h"
 #include "osd.h"
 #include "pragmas.h"
 
@@ -23,15 +21,14 @@
 #endif
 
 bool CONTROL_Started         = false;
+bool CONTROL_MouseEnabled    = false;
+bool CONTROL_MousePresent    = false;
 bool CONTROL_JoyPresent      = false;
 bool CONTROL_JoystickEnabled = false;
-bool CONTROL_MousePresent    = false;
-bool CONTROL_MouseEnabled    = false;
 
 uint64_t CONTROL_ButtonState     = 0;
 uint64_t CONTROL_ButtonHeldState = 0;
 
-// static int32_t CONTROL_UserInputDelay = -1;
 float          CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 static int32_t CONTROL_NumMouseButtons  = 0;
 static int32_t CONTROL_NumMouseAxes     = 0;
@@ -39,31 +36,33 @@ static int32_t CONTROL_NumJoyButtons    = 0;
 static int32_t CONTROL_NumJoyAxes       = 0;
 
 static controlflags      CONTROL_Flags[CONTROL_NUM_FLAGS];
-static controlbuttontype CONTROL_MouseButtonMapping[MAXMOUSEBUTTONS];
-static controlbuttontype CONTROL_JoyButtonMapping[MAXJOYBUTTONS];
 
 // static controlkeymaptype  CONTROL_KeyMapping[CONTROL_NUM_FLAGS];
+
 static controlaxismaptype CONTROL_MouseAxesMap[MAXMOUSEAXES];  // maps physical axes onto virtual ones
+static controlaxistype    CONTROL_MouseAxes[MAXMOUSEAXES];     // physical axes
+static controlaxistype    CONTROL_LastMouseAxes[MAXMOUSEAXES];
+static int32_t            CONTROL_MouseAxesScale[MAXMOUSEAXES];
+
 static controlaxismaptype CONTROL_JoyAxesMap[MAXJOYAXES];
+static controlaxistype    CONTROL_JoyAxes[MAXJOYAXES];
+static controlaxistype    CONTROL_LastJoyAxes[MAXJOYAXES];
+static int32_t            CONTROL_JoyAxesScale[MAXJOYAXES];
 
-static controlaxistype CONTROL_MouseAxes[MAXMOUSEAXES];  // physical axes
-static controlaxistype CONTROL_JoyAxes[MAXJOYAXES];
-static controlaxistype CONTROL_LastMouseAxes[MAXMOUSEAXES];
-static controlaxistype CONTROL_LastJoyAxes[MAXJOYAXES];
+static controlbuttontype CONTROL_MouseButtonMapping[MAXMOUSEBUTTONS];
 
-static int32_t CONTROL_MouseAxesScale[MAXMOUSEAXES];
-static int32_t CONTROL_JoyAxesScale[MAXJOYAXES];
-
-static int32_t CONTROL_MouseButtonState[MAXMOUSEBUTTONS];
-static int32_t CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS];
-static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS];
 static int32_t CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS];
+static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS];
+static int32_t CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS];
+static int32_t CONTROL_MouseButtonState[MAXMOUSEBUTTONS];
 static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS];
 
-static int32_t CONTROL_JoyButtonState[MAXJOYBUTTONS];
-static int32_t CONTROL_JoyButtonClickedTime[MAXJOYBUTTONS];
-static int32_t CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
+static controlbuttontype CONTROL_JoyButtonMapping[MAXJOYBUTTONS];
+
 static int32_t CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
+static int32_t CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
+static int32_t CONTROL_JoyButtonClickedTime[MAXJOYBUTTONS];
+static int32_t CONTROL_JoyButtonState[MAXJOYBUTTONS];
 static uint8_t CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
 
 static int32_t(*ExtGetTime)(void);
