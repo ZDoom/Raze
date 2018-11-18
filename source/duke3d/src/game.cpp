@@ -5940,27 +5940,24 @@ static void G_Startup(void)
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
 
+    char *cwd;
+
+    if (g_modDir[0] != '/' && (cwd = getcwd(NULL, 0)))
     {
-        char *cwd;
-
-        if (g_modDir[0] != '/' && (cwd = getcwd(NULL, 0)))
+        Bchdir(g_modDir);
+        if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
         {
-            Bchdir(g_modDir);
-            if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
-            {
-                Bchdir(cwd);
-                if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
-                    G_GameExit("Failed loading art.");
-            }
             Bchdir(cwd);
-#ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
-            Bfree(cwd);
-#endif
-
+            if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
+                G_GameExit("Failed loading art.");
         }
-        else if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
-            G_GameExit("Failed loading art.");
+        Bchdir(cwd);
+#ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
+        Bfree(cwd);
+#endif
     }
+    else if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
+        G_GameExit("Failed loading art.");
 
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
     // after dynamic tile remapping (from C_Compile) and loading tiles.
