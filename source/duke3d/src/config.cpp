@@ -116,24 +116,42 @@ const char *CONFIG_AnalogNumToName(int32_t func)
 }
 
 
-void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
+void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy/*=false*/)
 {
-    Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
+    if (!lazy)
+    {
+        Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
+        CONTROL_ClearAllBinds();
+    }
 
-    CONTROL_ClearAllBinds();
-
-    for (size_t i=0; i < ARRAY_SIZE(gamefunctions); ++i)
+    for (int i=0; i < ARRAY_SSIZE(gamefunctions); ++i)
     {
         if (gamefunctions[i][0] == '\0')
             continue;
 
-        ud.config.KeyboardKeys[i][0] = KB_StringToScanCode(keyptr[i<<1]);
-        ud.config.KeyboardKeys[i][1] = KB_StringToScanCode(keyptr[(i<<1)+1]);
+        auto &key = ud.config.KeyboardKeys[i];
+
+        int const default0 = KB_StringToScanCode(keyptr[i<<1]);
+        int const default1 = KB_StringToScanCode(keyptr[(i<<1)+1]);
+
+        // skip the function if the default key is already used
+        // or the function is assigned to another key
+        if (lazy && (CONTROL_KeyIsBound(default0) || key[0] != 0xff))
+            continue;
+
+        key[0] = default0;
+        key[1] = default1;
+
+        if (key[0])
+            CONTROL_FreeKeyBind(key[0]);
+
+        if (key[1])
+            CONTROL_FreeKeyBind(key[1]);
 
         if (i == gamefunc_Show_Console)
-            OSD_CaptureKey(ud.config.KeyboardKeys[i][0]);
+            OSD_CaptureKey(key[0]);
         else
-            CONFIG_MapKey(i, ud.config.KeyboardKeys[i][0], 0, ud.config.KeyboardKeys[i][1], 0);
+            CONFIG_MapKey(i, key[0], 0, key[1], 0);
     }
 }
 

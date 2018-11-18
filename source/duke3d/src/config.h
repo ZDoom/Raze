@@ -30,7 +30,7 @@ void CONFIG_WriteSetup(uint32_t flags);
 void CONFIG_SetDefaults(void);
 void CONFIG_SetupMouse(void);
 void CONFIG_SetupJoystick(void);
-void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN]);
+void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy=false);
 
 int32_t CONFIG_GetMapBestTime(char const *mapname, uint8_t const *mapmd4);
 int     CONFIG_SetMapBestTime(uint8_t const *mapmd4, int32_t tm);
