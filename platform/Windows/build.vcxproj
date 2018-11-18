@@ -316,6 +316,7 @@
     <ClInclude Include="..\..\source\build\include\buildtypes.h" />
     <ClInclude Include="..\..\source\build\include\cache1d.h" />
     <ClInclude Include="..\..\source\build\include\clip.h" />
+    <ClInclude Include="..\..\source\build\include\collections.h" />
     <ClInclude Include="..\..\source\build\include\colmatch.h" />
     <ClInclude Include="..\..\source\build\include\common.h" />
     <ClInclude Include="..\..\source\build\include\compat.h" />
@@ -357,6 +358,7 @@
     <ClInclude Include="..\..\source\build\include\pragmas_ppc.h" />
     <ClInclude Include="..\..\source\build\include\pragmas_x86_gcc.h" />
     <ClInclude Include="..\..\source\build\include\pragmas_x86_msvc.h" />
+    <ClInclude Include="..\..\source\build\include\print.h" />
     <ClInclude Include="..\..\source\build\include\prlights.h" />
     <ClInclude Include="..\..\source\build\include\rawinput.h" />
     <ClInclude Include="..\..\source\build\include\renderlayer.h" />
