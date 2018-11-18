@@ -270,51 +270,60 @@ static int osdfunc_echo(osdfuncparm_t const * const parm)
 
 static int osdfunc_fileinfo(osdfuncparm_t const * const parm)
 {
-    int32_t i,j;
-
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-    if ((i = kopen4load(parm->parms[0],0)) < 0)
+    int32_t h;
+
+    if ((h = kopen4load(parm->parms[0],0)) < 0)
     {
         OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
         return OSDCMD_OK;
     }
 
-    char buf[256];
-    uint32_t length = kfilelength(i);
-    int32_t crctime = timerGetTicks();
-    uint32_t crc = 0;
+    int32_t  crctime = timerGetTicks();
+    uint32_t crcval  = 0;
+    int32_t  siz     = 0;
+
+    static constexpr int ReadSize = 65536;
+    auto *buf = (uint8_t *)Xmalloc(ReadSize);
+
     do
     {
-        j = kread(i,buf,256);
-        crc = Bcrc32((uint8_t *)buf,j,crc);
+        siz   = kread(h, buf, ReadSize);
+        crcval = Bcrc32((uint8_t *)buf, siz, crcval);
     }
-    while (j == 256);
+    while (siz == ReadSize);
+
     crctime = timerGetTicks() - crctime;
 
-    klseek(i, 0, BSEEK_SET);
+    klseek(h, 0, BSEEK_SET);
 
     int32_t xxhtime = timerGetTicks();
+
     XXH32_state_t xxh;
     XXH32_reset(&xxh, 0x1337);
+
     do
     {
-        j = kread(i, buf, 256);
-        XXH32_update(&xxh, (uint8_t *) buf, j);
+        siz = kread(h, buf, ReadSize);
+        XXH32_update(&xxh, (uint8_t *)buf, siz);
     }
-    while (j == 256);
-    uint32_t xxhash = XXH32_digest(&xxh);
+    while (siz == ReadSize);
+
+    uint32_t const xxhash = XXH32_digest(&xxh);
     xxhtime = timerGetTicks() - xxhtime;
 
-    kclose(i);
+    Bfree(buf);
 
     OSD_Printf("fileinfo: %s\n"
                "  File size: %d\n"
                "  CRC-32:    %08X (%g sec)\n"
                "  xxHash:    %08X (%g sec)\n",
-               parm->parms[0], length,
-               crc, (double)crctime/timerGetFreq(),
+               parm->parms[0], kfilelength(h),
+               crcval, (double)crctime/timerGetFreq(),
                xxhash, (double)xxhtime/timerGetFreq());
+
+    kclose(h);
 
     return OSDCMD_OK;
 }
