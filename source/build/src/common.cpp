@@ -239,7 +239,7 @@ int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
 
 
 // Clear OSD background
-void COMMON_clearbackground(int32_t numcols, int32_t numrows)
+void COMMON_clearbackground(int numcols, int numrows)
 {
     UNREFERENCED_PARAMETER(numcols);
 

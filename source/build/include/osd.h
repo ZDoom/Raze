@@ -204,8 +204,8 @@ enum osdflags_t
     OSD_PROTECTED   = 0x00000080,
 };
 
-#define OSD_ALIAS     (int32_t (*)(osdcmdptr_t))0x1337
-#define OSD_UNALIASED (int32_t (*)(osdcmdptr_t))0xDEAD
+#define OSD_ALIAS     (int (*)(osdcmdptr_t))0x1337
+#define OSD_UNALIASED (int (*)(osdcmdptr_t))0xDEAD
 
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
@@ -214,12 +214,12 @@ int OSD_ParsingScript(void);
 
 int OSD_OSDKey(void);
 int OSD_GetTextMode(void);
-void OSD_SetTextMode(int32_t mode);
+void OSD_SetTextMode(int mode);
 
 int OSD_Exec(const char *szScript);
 
 // Get shade and pal index from the OSD format buffer.
-void OSD_GetShadePal(const char *ch, int32_t *shadeptr, int32_t *palptr);
+void OSD_GetShadePal(const char *ch, int *shd, int *pal);
 
 int OSD_GetCols(void);
 int OSD_IsMoving(void);
@@ -235,17 +235,17 @@ void OSD_Cleanup(void);
 void OSD_SetLogFile(const char *fn);
 
 // sets the functions the OSD will call to interrogate the environment
-void OSD_SetFunctions(void (*drawchar)(int32_t, int32_t, char, int32_t, int32_t),
-                      void (*drawstr)(int32_t, int32_t, const char *, int32_t, int32_t, int32_t),
-                      void (*drawcursor)(int32_t, int32_t, int32_t, int32_t),
-                      int32_t (*colwidth)(int32_t),
-                      int32_t (*rowheight)(int32_t),
-                      void (*clearbg)(int32_t, int32_t),
+void OSD_SetFunctions(void (*drawchar)(int, int, char, int, int),
+                      void (*drawstr)(int, int, const char *, int, int, int),
+                      void (*drawcursor)(int, int, int, int),
+                      int (*colwidth)(int),
+                      int (*rowheight)(int),
+                      void (*clearbg)(int, int),
                       int32_t (*gtime)(void),
-                      void (*showosd)(int32_t));
+                      void (*showosd)(int));
 
 // sets the parameters for presenting the text
-void OSD_SetParameters(int32_t promptShade, int32_t promptPal, int32_t editShade, int32_t editPal, int32_t textShade, int32_t textPal,
+void OSD_SetParameters(int promptShade, int promptPal, int editShade, int editPal, int textShade, int textPal,
                        char const *errorStr, char const *highlight, uint32_t flags);
 
 // sets the scancode for the key which activates the onscreen display
@@ -254,19 +254,19 @@ void OSD_CaptureKey(uint8_t scanCode);
 // handles keyboard input when capturing input. returns 0 if key was handled
 // or the scancode if it should be handled by the game.
 int OSD_HandleScanCode(uint8_t scanCode, int keyDown);
-int32_t  OSD_HandleChar(char ch);
+int OSD_HandleChar(char ch);
 
 // handles the readjustment when screen resolution changes
-void OSD_ResizeDisplay(int32_t w,int32_t h);
+void OSD_ResizeDisplay(int w,int h);
 
 // captures and frees osd input
-void OSD_CaptureInput(int32_t cap);
+void OSD_CaptureInput(int cap);
 
 // sets the console version string
 void OSD_SetVersion(const char *pszVersion, int osdShade, int osdPal);
 
 // shows or hides the onscreen display
-void OSD_ShowDisplay(int32_t onf);
+void OSD_ShowDisplay(int onf);
 
 // draw the osd to the screen
 void OSD_Draw(void);
@@ -287,17 +287,17 @@ void OSD_Dispatch(const char *cmd);
 //   name = name of the function
 //   help = a short help string
 //   func = the entry point to the function
-int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int32_t (*func)(osdcmdptr_t));
+int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int (*func)(osdcmdptr_t));
 
 int osdcmd_cvar_set(osdcmdptr_t parm);
-void OSD_RegisterCvar(osdcvardata_t * cvar, int32_t (*func)(osdcmdptr_t));
+void OSD_RegisterCvar(osdcvardata_t * cvar, int (*func)(osdcmdptr_t));
 void OSD_WriteAliases(FILE *fp);
 void OSD_WriteCvars(FILE *fp);
 
-static inline void OSD_SetHistory(int32_t histIdx, const char *src)
+static inline void OSD_SetHistory(int idx, const char *src)
 {
-    osd->history.buf[histIdx] = (char *)Xmalloc(OSDEDITLENGTH);
-    Bstrncpyz(osd->history.buf[histIdx], src, OSDEDITLENGTH);
+    osd->history.buf[idx] = (char *)Xmalloc(OSDEDITLENGTH);
+    Bstrncpyz(osd->history.buf[idx], src, OSDEDITLENGTH);
 }
 
 extern int osdcmd_restartvid(osdcmdptr_t parm);

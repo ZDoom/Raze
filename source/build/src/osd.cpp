@@ -212,15 +212,15 @@ int OSD_IsMoving(void)      { return (osdrowscur != -1 && osdrowscur != osd->dra
 int OSD_GetRowsCur(void)    { return osdrowscur; }
 int OSD_GetTextMode(void)   { return osd->draw.mode; }
 
-void OSD_GetShadePal(const char *ch, int32_t *shadeptr, int32_t *palptr)
+void OSD_GetShadePal(const char *ch, int *shd, int *pal)
 {
     auto &t = osd->text;
 
     if (ch < t.buf || ch >= t.buf + OSDBUFFERSIZE)
         return;
 
-    *shadeptr = (t.fmt[ch - t.buf] & ~0x1F) >> 4;
-    *palptr   = t.fmt[ch - t.buf] & ~0xE0;
+    *shd = (t.fmt[ch-t.buf] & ~0x1F)>>4;
+    *pal = (t.fmt[ch-t.buf] & ~0xE0);
 }
 
 // XXX: well, converting function pointers to "data pointers" (void *) is
@@ -238,7 +238,7 @@ static inline void swaposdptrs(void)
     swapptr(&_getrowheight,   &getrowheight);
 }
 
-void OSD_SetTextMode(int32_t mode)
+void OSD_SetTextMode(int mode)
 {
     osd->draw.mode = (mode != 0);
 
@@ -328,7 +328,7 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static void _internal_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
+static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
     UNREFERENCED_PARAMETER(shade);
     UNREFERENCED_PARAMETER(pal);
@@ -338,7 +338,7 @@ static void _internal_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, 
     printext256(4+(x<<3),4+(y<<3), whiteColorIdx, -1, st, 0);
 }
 
-static void _internal_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t len, int32_t shade, int32_t pal)
+static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shade, int pal)
 {
     char st[1024];
 
@@ -356,7 +356,7 @@ static void _internal_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t l
     }
 }
 
-static void _internal_drawosdcursor(int32_t x, int32_t y, int32_t flags, int32_t lastkeypress)
+static void _internal_drawosdcursor(int x, int y, int flags, int lastkeypress)
 {
     char st[2] = { '_',0 };
 
@@ -370,14 +370,12 @@ static void _internal_drawosdcursor(int32_t x, int32_t y, int32_t flags, int32_t
         return;
     }
 
-    int32_t i, k;
     // Find the palette index closest to Duke3D's brightest blue
     // "foreground" color.  (Index 79, or the last column of the 5th row,
     // if the palette is laid out in a 16x16 pattern.)
-    k = INT32_MAX;
-    for (i=0; i<256; i++)
+    for (int i=0, k=UINT8_MAX+1; i<256; i++)
     {
-        int32_t j =
+        int const j =
             klabs(curpalette[i].r - 4*47) +
             klabs(curpalette[i].g - 4*55) +
             klabs(curpalette[i].b - 4*63);
@@ -385,17 +383,17 @@ static void _internal_drawosdcursor(int32_t x, int32_t y, int32_t flags, int32_t
     }
 }
 
-static int32_t _internal_getcolumnwidth(int32_t w)
+static int _internal_getcolumnwidth(int w)
 {
     return w/8 - 1;
 }
 
-static int32_t _internal_getrowheight(int32_t w)
+static int _internal_getrowheight(int w)
 {
     return w/8;
 }
 
-static void _internal_clearbackground(int32_t cols, int32_t rows)
+static void _internal_clearbackground(int cols, int rows)
 {
     UNREFERENCED_PARAMETER(cols);
     UNREFERENCED_PARAMETER(rows);
@@ -406,7 +404,7 @@ static int32_t _internal_gettime(void)
     return 0;
 }
 
-static void _internal_onshowosd(int32_t a)
+static void _internal_onshowosd(int a)
 {
     UNREFERENCED_PARAMETER(a);
 }
@@ -421,14 +419,14 @@ static int osdfunc_alias(osdcmdptr_t parm)
 
         OSD_Printf("Alias listing:\n");
 
-        for (auto &symbptr : osd->symbptrs)
+        for (auto &symb : osd->symbptrs)
         {
-            if (!symbptr->func || !symbptr->name)
+            if (!symb->func || !symb->name)
                 break;
-            else if (symbptr->func == OSD_ALIAS)
+            else if (symb->func == OSD_ALIAS)
             {
                 cnt++;
-                OSD_Printf("     %s \"%s\"\n", symbptr->name, symbptr->help);
+                OSD_Printf("     %s \"%s\"\n", symb->name, symb->help);
             }
         }
 
@@ -438,22 +436,22 @@ static int osdfunc_alias(osdcmdptr_t parm)
         return OSDCMD_OK;
     }
 
-    for (auto &symbptr : osd->symbptrs)
+    for (auto &symb : osd->symbptrs)
     {
-        if (!symbptr->func || !symbptr->name)
+        if (!symb->func || !symb->name)
             break;
-        else if (!Bstrcasecmp(parm->parms[0], symbptr->name))
+        else if (!Bstrcasecmp(parm->parms[0], symb->name))
         {
             if (parm->numparms < 2)
             {
-                if (symbptr->func == OSD_ALIAS)
-                    OSD_Printf("alias %s \"%s\"\n", symbptr->name, symbptr->help);
+                if (symb->func == OSD_ALIAS)
+                    OSD_Printf("alias %s \"%s\"\n", symb->name, symb->help);
                 else
-                    OSD_Printf("%s is not an alias\n", symbptr->name);
+                    OSD_Printf("%s is not an alias\n", symb->name);
 
                 return OSDCMD_OK;
             }
-            else if (symbptr->func != OSD_ALIAS && symbptr->func != OSD_UNALIASED)
+            else if (symb->func != OSD_ALIAS && symb->func != OSD_UNALIASED)
             {
                 OSD_Printf("Cannot override a function or cvar with an alias\n");
 
@@ -612,8 +610,8 @@ void OSD_Cleanup(void)
     hash_free(&h_osd);
     hash_free(&h_cvars);
 
-    for (auto &symbptr : osd->symbptrs)
-        DO_FREE_AND_NULL(symbptr);
+    for (auto &symb : osd->symbptrs)
+        DO_FREE_AND_NULL(symb);
 
     osd->symbols = NULL;
 
@@ -784,14 +782,14 @@ void OSD_SetLogFile(const char *fn)
 //
 // OSD_SetFunctions() -- Sets some callbacks which the OSD uses to understand its world
 //
-void OSD_SetFunctions(void (*drawchar)(int32_t, int32_t, char, int32_t, int32_t),
-                      void (*drawstr)(int32_t, int32_t, const char *, int32_t, int32_t, int32_t),
-                      void (*drawcursor)(int32_t, int32_t, int32_t, int32_t),
-                      int32_t (*colwidth)(int32_t),
-                      int32_t (*rowheight)(int32_t),
-                      void (*clearbg)(int32_t, int32_t),
+void OSD_SetFunctions(void (*drawchar)(int, int, char, int, int),
+                      void (*drawstr)(int, int, const char *, int, int, int),
+                      void (*drawcursor)(int, int, int, int),
+                      int (*colwidth)(int),
+                      int (*rowheight)(int),
+                      void (*clearbg)(int, int),
                       int32_t (*gtime)(void),
-                      void (*showosd)(int32_t))
+                      void (*showosd)(int))
 {
     drawosdchar     = drawchar   ? drawchar   : _internal_drawosdchar;
     drawosdstr      = drawstr    ? drawstr    : _internal_drawosdstr;
@@ -807,8 +805,8 @@ void OSD_SetFunctions(void (*drawchar)(int32_t, int32_t, char, int32_t, int32_t)
 //
 // OSD_SetParameters() -- Sets the parameters for presenting the text
 //
-void OSD_SetParameters(int32_t promptShade, int32_t promptPal, int32_t editShade, int32_t editPal, int32_t textShade, int32_t textPal,
-                       char const *const errorStr, char const *const highlight, uint32_t flags)
+void OSD_SetParameters(int promptShade, int promptPal, int editShade, int editPal, int textShade, int textPal,
+                       char const *errorStr, char const *highlight, uint32_t flags)
 {
     osddraw_t &draw = osd->draw;
 
@@ -838,7 +836,7 @@ void OSD_CaptureKey(uint8_t scanCode)
 //
 static int OSD_FindDiffPoint(const char *str1, const char *str2)
 {
-    int32_t i;
+    int i;
 
     for (i = 0; Btolower(str1[i]) == Btolower(str2[i]); i++)
         if (str1[i] == 0 || str2[i] == 0)
@@ -876,7 +874,8 @@ static void OSD_HistoryPrev(void)
 {
     osdhist_t &h = osd->history;
 
-    if (h.pos >= h.lines-1) return;
+    if (h.pos >= h.lines - 1)
+        return;
 
     osdedit_t &e = osd->editor;
 
@@ -889,7 +888,8 @@ static void OSD_HistoryNext(void)
 {
     osdhist_t &h = osd->history;
 
-    if (h.pos < 0) return;
+    if (h.pos < 0)
+        return;
 
     osdedit_t &e = osd->editor;
 
@@ -900,6 +900,7 @@ static void OSD_HistoryNext(void)
         e.start = 0;
         e.end   = OSD_EDIT_LINE_WIDTH;
         h.pos  = -1;
+
         return;
     }
 
@@ -938,7 +939,7 @@ int OSD_HandleChar(char ch)
 
         case asc_Ctrl_B:  // move one character left
             if (ed.pos > 0)
-                ed.pos--;
+                --ed.pos;
             return 0;
 
         case asc_Ctrl_C:  // discard line
@@ -993,7 +994,7 @@ int OSD_HandleChar(char ch)
 
         case asc_Tab:  // tab
         {
-            int32_t commonsize = 512;
+            int commonsize = INT_MAX;
 
             if (!lastmatch)
             {
@@ -1014,8 +1015,8 @@ int OSD_HandleChar(char ch)
 
                     if (tabc && tabc->next && osd_findsymbol(ed.tmp, tabc->next))
                     {
-                        osdsymbol_t *symb     = tabc;
-                        int32_t      maxwidth = 0, x = 0, num = 0, diffpt;
+                        auto symb     = tabc;
+                        int  maxwidth = 0, x = 0, num = 0, diffpt;
 
                         while (symb && symb != lastmatch)
                         {
@@ -1262,12 +1263,12 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
 
     case sc_PgUp:
         if (draw.head < osd->text.lines-1)
-            draw.head++;
+            ++draw.head;
         break;
 
     case sc_PgDn:
         if (draw.head > 0)
-            draw.head--;
+            --draw.head;
         break;
 
     case sc_Home:
@@ -1312,7 +1313,7 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
                     if (ed.buf[ed.pos-1] != asc_Space)
                         break;
 
-                    ed.pos--;
+                    --ed.pos;
                 }
 
                 while (ed.pos > 0)
@@ -1320,10 +1321,10 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
                     if (ed.buf[ed.pos-1] == asc_Space)
                         break;
 
-                    ed.pos--;
+                    --ed.pos;
                 }
             }
-            else ed.pos--;
+            else --ed.pos;
         }
 
         if (ed.pos < ed.start)
@@ -1405,46 +1406,47 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
 // OSD_ResizeDisplay() -- Handles readjustment of the display when the screen resolution
 //  changes on us.
 //
-void OSD_ResizeDisplay(int32_t w, int32_t h)
+void OSD_ResizeDisplay(int w, int h)
 {
-    int32_t newcols, newmaxlines;
-    char *newtext, *newfmt;
-    int32_t i,j,k;
+    auto &t = osd->text;
+    auto &d = osd->draw;
 
-    newcols = getcolumnwidth(w);
-    newmaxlines = OSDBUFFERSIZE / newcols;
+    int const newcols     = getcolumnwidth(w);
+    int const newmaxlines = OSDBUFFERSIZE / newcols;
 
-    j = min(newmaxlines, osd->text.maxlines);
-    k = min(newcols, osd->draw.cols);
-
-    newtext = (char *)Xmalloc(OSDBUFFERSIZE);
-    newfmt = (char *)Xmalloc(OSDBUFFERSIZE);
+    auto newtext = (char *)Xmalloc(OSDBUFFERSIZE);
+    auto newfmt  = (char *)Xmalloc(OSDBUFFERSIZE);
 
     Bmemset(newtext, asc_Space, OSDBUFFERSIZE);
 
-    for (i=j-1; i>=0; i--)
+    int const copylines = min(newmaxlines, t.maxlines);
+    int const copycols  = min(newcols, d.cols);
+
+    for (int i = 0; i < copylines; ++i)
     {
-        Bmemcpy(newtext+newcols*i, osd->text.buf+osd->draw.cols*i, k);
-        Bmemcpy(newfmt+newcols*i, osd->text.fmt+osd->draw.cols*i, k);
+        Bmemcpy(newtext + newcols * i, t.buf + d.cols * i, copycols);
+        Bmemcpy(newfmt  + newcols * i, t.fmt + d.cols * i, copycols);
     }
 
-    Bfree(osd->text.buf);
-    osd->text.buf = newtext;
+    Bfree(t.buf);
+    t.buf = newtext;
 
-    Bfree(osd->text.fmt);
-    osd->text.fmt = newfmt;
+    Bfree(t.fmt);
+    t.fmt = newfmt;
 
-    osd->text.maxlines = newmaxlines;
+    t.maxlines = newmaxlines;
+    osdmaxrows = getrowheight(h) - 2;
+    d.cols     = newcols;
 
-    osd->draw.cols = newcols;
-    osdmaxrows = getrowheight(h)-2;
+    if (d.rows > osdmaxrows)
+        d.rows = osdmaxrows;
 
-    if (osd->draw.rows > osdmaxrows) osd->draw.rows = osdmaxrows;
+    t.pos  = 0;
+    d.head = 0;
 
-    osd->text.pos = 0;
-    osd->draw.head = 0;
     osd->editor.start = 0;
-    osd->editor.end = OSD_EDIT_LINE_WIDTH;
+    osd->editor.end   = OSD_EDIT_LINE_WIDTH;
+
     whiteColorIdx = -1;
 }
 
@@ -1452,7 +1454,7 @@ void OSD_ResizeDisplay(int32_t w, int32_t h)
 //
 // OSD_CaptureInput()
 //
-void OSD_CaptureInput(int32_t cap)
+void OSD_CaptureInput(int cap)
 {
     osd->flags = (osd->flags & ~(OSD_CAPTURE|OSD_CTRL|OSD_SHIFT)) | (-cap & OSD_CAPTURE);
 
@@ -1466,7 +1468,7 @@ void OSD_CaptureInput(int32_t cap)
 //
 // OSD_ShowDisplay() -- Shows or hides the onscreen display
 //
-void OSD_ShowDisplay(int32_t onf)
+void OSD_ShowDisplay(int onf)
 {
     osd->flags = (osd->flags & ~OSD_DRAW) | (-onf & OSD_DRAW);
     OSD_CaptureInput(onf);
@@ -1491,23 +1493,23 @@ void OSD_Draw(void)
     {
         if ((osdrowscur < osd->draw.rows && osd->draw.scrolling == 1) || osdrowscur < -1)
         {
-            int32_t j = (timerGetTicks()-osdscrtime);
-            while (j >= 0)
+            uint32_t j = (timerGetTicks() - osdscrtime);
+
+            while (j < UINT32_MAX)
             {
-                osdrowscur++;
                 j -= tabledivide32_noinline(200, osd->draw.rows);
-                if (osdrowscur > osd->draw.rows-1)
+                if (++osdrowscur > osd->draw.rows-1)
                     break;
             }
         }
         else if ((osdrowscur > -1 && osd->draw.scrolling == -1) || osdrowscur > osd->draw.rows)
         {
-            int32_t j = (timerGetTicks()-osdscrtime);
-            while (j >= 0)
+            uint32_t j = (timerGetTicks() - osdscrtime);
+
+            while (j < UINT32_MAX)
             {
-                osdrowscur--;
                 j -= tabledivide32_noinline(200, osd->draw.rows);
-                if (osdrowscur < 1)
+                if (--osdrowscur < 1)
                     break;
             }
         }
@@ -1621,8 +1623,8 @@ void OSD_Puts(const char *tmpstr)
 
     const char *chp;
 
-    uint8_t textPal   = osd->draw.textpal;
-    uint8_t textShade = osd->draw.textshade;
+    int textPal   = osd->draw.textpal;
+    int textShade = osd->draw.textshade;
 
     mutex_lock(&osd->mutex);
 
@@ -1658,15 +1660,15 @@ void OSD_Puts(const char *tmpstr)
     {
         if (*chp == '\n')
         {
-            osd->text.pos=0;
-            log.lines++;
+            osd->text.pos = 0;
+            ++log.lines;
             OSD_LineFeed();
             continue;
         }
 
         if (*chp == '\r')
         {
-            osd->text.pos=0;
+            osd->text.pos = 0;
             continue;
         }
 
@@ -1701,7 +1703,7 @@ void OSD_Puts(const char *tmpstr)
             if (Btoupper(*(chp+1)) == 'O')
             {
                 chp++;
-                textPal = osd->draw.textpal;
+                textPal   = osd->draw.textpal;
                 textShade = osd->draw.textshade;
                 continue;
             }
@@ -2176,7 +2178,7 @@ void OSD_WriteAliases(FILE *fp)
 {
     Bassert(fp);
 
-    for (auto symb=osd->symbols; symb!=NULL; symb=symb->next)
+    for (auto &symb : osd->symbptrs)
     {
         if (symb->func == (void *)OSD_ALIAS)
             Bfprintf(fp, "alias \"%s\" \"%s\"\n", symb->name, symb->help);

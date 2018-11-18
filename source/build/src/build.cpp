@@ -562,7 +562,7 @@ void M32_DrawRoomsAndMasks(void)
     }
 }
 
-void M32_OnShowOSD(int32_t shown)
+void M32_OnShowOSD(int shown)
 {
     mouseLockToWindow((!shown) + 2);
 }
