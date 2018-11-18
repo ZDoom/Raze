@@ -1262,7 +1262,7 @@ void Screen_Play(void)
 #if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(native_t loop)
 {
-    native_t            tw      = *insptr;
+    native_t tw = *insptr;
     DukePlayer_t *const pPlayer = vm.pPlayer;
 
     // jump directly into the loop, skipping branches during the first iteration
@@ -4851,25 +4851,27 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         continue;
                     }
 
-                    if (EDUKE32_PREDICT_FALSE(aGameArrays[tw].flags & GAMEARRAY_READONLY))
+                    auto &arr = aGameArrays[tw];
+
+                    if (EDUKE32_PREDICT_FALSE(arr.flags & GAMEARRAY_READONLY))
                     {
-                        OSD_Printf(OSD_ERROR "Tried to set value in read-only array `%s'", aGameArrays[tw].szLabel);
+                        OSD_Printf(OSD_ERROR "Tried to set value in read-only array `%s'", arr.szLabel);
                         vm.flags |= VM_RETURN;
                         continue;
                     }
 
-                    switch (aGameArrays[tw].flags & GAMEARRAY_TYPE_MASK)
+                    switch (arr.flags & GAMEARRAY_TYPE_MASK)
                     {
-                        case 0: aGameArrays[tw].pValues[arrayIndex]                              = newValue; break;
-                        case GAMEARRAY_INT16: ((int16_t *)aGameArrays[tw].pValues)[arrayIndex]   = newValue; break;
-                        case GAMEARRAY_INT8: ((int8_t *)aGameArrays[tw].pValues)[arrayIndex]     = newValue; break;
-                        case GAMEARRAY_UINT16: ((uint16_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
-                        case GAMEARRAY_UINT8: ((int8_t *)aGameArrays[tw].pValues)[arrayIndex]    = newValue; break;
+                        case 0: arr.pValues[arrayIndex]                              = newValue; break;
+                        case GAMEARRAY_INT16: ((int16_t *)arr.pValues)[arrayIndex]   = newValue; break;
+                        case GAMEARRAY_INT8: ((int8_t *)arr.pValues)[arrayIndex]     = newValue; break;
+                        case GAMEARRAY_UINT16: ((uint16_t *)arr.pValues)[arrayIndex] = newValue; break;
+                        case GAMEARRAY_UINT8: ((int8_t *)arr.pValues)[arrayIndex]    = newValue; break;
                         case GAMEARRAY_BITMAP:
                         {
                             uint32_t const mask  = (1 << (arrayIndex & 7));
-                            uint8_t &      value = ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex >> 3];
-                            value                = (value & ~mask) | (-!!newValue & mask);
+                            uint8_t &value = ((uint8_t *)arr.pValues)[arrayIndex >> 3];
+                            value = (value & ~mask) | (-!!newValue & mask);
                             break;
                         }
                     }
@@ -4999,7 +5001,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     }
 
                     Bfclose(fil);
-
                     continue;
                 }
 
@@ -5014,30 +5015,30 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 {
                     tw = *insptr++;
 
-                    gamearray_t & array = aGameArrays[tw];
+                    auto &arr = aGameArrays[tw];
+
                     int const newSize = Gv_GetVarX(*insptr++);
-                    int const oldSize = array.size;
+                    int const oldSize = arr.size;
 
                     if (newSize == oldSize || newSize < 0)
                         continue;
-
 #if 0
                     OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
                                array.szLabel, array.size, newSize);
 #endif
-
                     if (newSize == 0)
                     {
-                        Baligned_free(array.pValues);
-                        array.pValues = nullptr;
-                        array.size = 0;
+                        Baligned_free(arr.pValues);
+                        arr.pValues = nullptr;
+                        arr.size = 0;
                         continue;
                     }
 
                     size_t const oldBytes = Gv_GetArrayAllocSizeForCount(tw, oldSize);
                     size_t const newBytes = Gv_GetArrayAllocSizeForCount(tw, newSize);
-                    intptr_t * const oldArray = array.pValues;
-                    intptr_t * const newArray = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, newBytes);
+
+                    auto const oldArray = arr.pValues;
+                    auto const newArray = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, newBytes);
 
                     if (oldSize != 0)
                         Bmemcpy(newArray, oldArray, min(oldBytes, newBytes));
@@ -5045,8 +5046,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (newSize > oldSize)
                         Bmemset((char *)newArray + oldBytes, 0, newBytes - oldBytes);
 
-                    array.pValues = newArray;
-                    array.size = newSize;
+                    arr.pValues = newArray;
+                    arr.size = newSize;
 
                     Baligned_free(oldArray);
 
@@ -5062,11 +5063,11 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     int       destArrayIndex = Gv_GetVarX(*insptr++);
                     int       numElements    = Gv_GetVarX(*insptr++);
 
-                    int const srcArraySize
-                    = (aGameArrays[srcArray].flags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(aGameArrays[srcArray].size) : aGameArrays[srcArray].size;
+                    auto &src = aGameArrays[srcArray];
+                    auto &dest = aGameArrays[destArray];
 
-                    int const destArraySize
-                    = (aGameArrays[destArray].flags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(aGameArrays[destArray].size) : aGameArrays[destArray].size;
+                    int const srcArraySize = (src.flags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(src.size) : src.size;
+                    int const destArraySize = (dest.flags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(dest.size) : dest.size;
 
                     if (EDUKE32_PREDICT_FALSE(srcArrayIndex > srcArraySize || destArrayIndex > destArraySize))
                         continue;
@@ -5079,66 +5080,66 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
                     // Switch depending on the source array type.
 
-                    int const srcInc  = 1 << (int)!!(EDUKE32_PREDICT_FALSE(aGameArrays[srcArray].flags & GAMEARRAY_STRIDE2));
-                    int const destInc = 1 << (int)!!(EDUKE32_PREDICT_FALSE(aGameArrays[destArray].flags & GAMEARRAY_STRIDE2));
+                    int const srcInc  = 1 << (int)!!(EDUKE32_PREDICT_FALSE(src.flags & GAMEARRAY_STRIDE2));
+                    int const destInc = 1 << (int)!!(EDUKE32_PREDICT_FALSE(dest.flags & GAMEARRAY_STRIDE2));
 
                     // matching array types, no BITMAPs, no STRIDE2 flag
-                    if ((aGameArrays[srcArray].flags & GAMEARRAY_SIZE_MASK) == (aGameArrays[destArray].flags & GAMEARRAY_SIZE_MASK)
-                        && !((aGameArrays[srcArray].flags | aGameArrays[destArray].flags) & GAMEARRAY_BITMAP)
-                        && (srcInc & destInc) == 1)
+                    if ((src.flags & GAMEARRAY_SIZE_MASK) == (dest.flags & GAMEARRAY_SIZE_MASK)
+                        && !((src.flags | dest.flags) & GAMEARRAY_BITMAP) && (srcInc & destInc) == 1)
                     {
-                        Bmemcpy(aGameArrays[destArray].pValues + destArrayIndex, aGameArrays[srcArray].pValues + srcArrayIndex,
+                        Bmemcpy(dest.pValues + destArrayIndex, src.pValues + srcArrayIndex,
                                 numElements * Gv_GetArrayElementSize(srcArray));
+                        continue;
                     }
-                    else
-                        switch (aGameArrays[destArray].flags & GAMEARRAY_TYPE_MASK)
-                        {
-                            case 0:
-                                for (; numElements > 0; --numElements)
-                                {
-                                    aGameArrays[destArray].pValues[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
-                                    destArrayIndex += destInc;
-                                }
-                                break;
-                            case GAMEARRAY_INT16:
-                                for (; numElements > 0; --numElements)
-                                {
-                                    ((int16_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
-                                    destArrayIndex += destInc;
-                                }
-                                break;
-                            case GAMEARRAY_INT8:
-                                for (; numElements > 0; --numElements)
-                                {
-                                    ((int8_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
-                                    destArrayIndex += destInc;
-                                }
-                                break;
-                            case GAMEARRAY_UINT16:
-                                for (; numElements > 0; --numElements)
-                                {
-                                    ((uint16_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
-                                    destArrayIndex += destInc;
-                                }
-                                break;
-                            case GAMEARRAY_UINT8:
-                                for (; numElements > 0; --numElements)
-                                {
-                                    ((uint8_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
-                                    destArrayIndex += destInc;
-                                }
-                                break;
-                            case GAMEARRAY_BITMAP:
-                                for (; numElements > 0; --numElements)
-                                {
-                                    uint32_t const newValue = Gv_GetArrayValue(srcArray, srcArrayIndex++);
-                                    uint32_t const mask = 1 << (destArrayIndex & 7);
-                                    uint8_t & value = ((uint8_t *)aGameArrays[destArray].pValues)[destArrayIndex >> 3];
-                                    value = (value & ~mask) | (-!!newValue & mask);
-                                    destArrayIndex += destInc;
-                                }
-                                break;
-                        }
+
+                    switch (dest.flags & GAMEARRAY_TYPE_MASK)
+                    {
+                        case 0:
+                            for (; numElements > 0; --numElements)
+                            {
+                                dest.pValues[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                destArrayIndex += destInc;
+                            }
+                            break;
+                        case GAMEARRAY_INT16:
+                            for (; numElements > 0; --numElements)
+                            {
+                                ((int16_t *)dest.pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                destArrayIndex += destInc;
+                            }
+                            break;
+                        case GAMEARRAY_INT8:
+                            for (; numElements > 0; --numElements)
+                            {
+                                ((int8_t *)dest.pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                destArrayIndex += destInc;
+                            }
+                            break;
+                        case GAMEARRAY_UINT16:
+                            for (; numElements > 0; --numElements)
+                            {
+                                ((uint16_t *)dest.pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                destArrayIndex += destInc;
+                            }
+                            break;
+                        case GAMEARRAY_UINT8:
+                            for (; numElements > 0; --numElements)
+                            {
+                                ((uint8_t *)dest.pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                destArrayIndex += destInc;
+                            }
+                            break;
+                        case GAMEARRAY_BITMAP:
+                            for (; numElements > 0; --numElements)
+                            {
+                                uint32_t const newValue = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                uint32_t const mask = 1 << (destArrayIndex & 7);
+                                uint8_t & value = ((uint8_t *)dest.pValues)[destArrayIndex >> 3];
+                                value = (value & ~mask) | (-!!newValue & mask);
+                                destArrayIndex += destInc;
+                            }
+                            break;
+                    }
 
                     continue;
                 }
@@ -5146,11 +5147,11 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_SWAPARRAYS:
                 insptr++;
                 {
-                    uint32_t const array1 = *insptr++;
-                    uint32_t const array2 = *insptr++;
+                    auto &array1 = aGameArrays[*insptr++];
+                    auto &array2 = aGameArrays[*insptr++];
 
-                    swap(&aGameArrays[array1].size, &aGameArrays[array2].size);
-                    swap(&aGameArrays[array1].pValues, &aGameArrays[array2].pValues);
+                    swap(&array1.size, &array2.size);
+                    swap(&array1.pValues, &array2.pValues);
 
                     continue;
                 }
