@@ -1265,16 +1265,12 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
     return 0;
 }
 
-static actor_t NullActor;
-static spriteext_t NullSprExt;
-static spritesmooth_t NullSprSmooth;
-
 int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int16_t s_pn,int8_t s_s,
                        uint8_t s_xr,uint8_t s_yr,int16_t s_a,int16_t s_ve,int16_t s_zv,int16_t s_ow,int16_t s_ss)
 {
-    int32_t i = Net_IsRelevantStat(s_ss) ? Net_InsertSprite(whatsect, s_ss) : insertsprite(whatsect, s_ss);
+    int const newSprite = Net_IsRelevantStat(s_ss) ? Net_InsertSprite(whatsect, s_ss) : insertsprite(whatsect, s_ss);
 
-    if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)newSprite >= MAXSPRITES))
     {
         G_DumpDebugInfo();
         OSD_Printf("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
@@ -1282,54 +1278,53 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
         G_GameExit("Too many sprites spawned.");
     }
 
-    uspritetype spr_temp = { s_x, s_y,      s_z,  0,   s_pn, s_s,  0, 0,    0, s_xr, s_yr, 0,
-                             0,   whatsect, s_ss, s_a, s_ow, s_ve, 0, s_zv, 0, 0,    0 };
-
 #ifdef DEBUGGINGAIDS
     g_spriteStat.numins++;
 #endif
 
-    spritetype *s = &sprite[i];
-    *s = *(spritetype *)&spr_temp;
-    actor[i] = NullActor;
-    actor[i].bpos = *(vec3_t *)s;
+    sprite[newSprite] = { s_x, s_y, s_z, 0, s_pn, s_s, 0, 0, 0, s_xr, s_yr, 0, 0, whatsect, s_ss, s_a, s_ow, s_ve, 0, s_zv, 0, 0, 0 };
+
+    auto &a = actor[newSprite];
+    a = {};
+    a.bpos = { s_x, s_y, s_z };
 
     if ((unsigned)s_ow < MAXSPRITES)
     {
-        actor[i].picnum = sprite[s_ow].picnum;
-        actor[i].floorz = actor[s_ow].floorz;
-        actor[i].ceilingz = actor[s_ow].ceilingz;
+        a.picnum   = sprite[s_ow].picnum;
+        a.floorz   = actor[s_ow].floorz;
+        a.ceilingz = actor[s_ow].ceilingz;
     }
 
-    actor[i].stayput = actor[i].extra = -1;
+    a.stayput = -1;
+    a.extra   = -1;
 #ifdef POLYMER
-    actor[i].lightId = -1;
+    a.lightId = -1;
 #endif
-    actor[i].owner = s_ow;
+    a.owner = s_ow;
 
-    G_InitActor(i, s_pn, 1);
+    G_InitActor(newSprite, s_pn, 1);
 
-    spriteext[i] = NullSprExt;
-    spritesmooth[i] = NullSprSmooth;
+    spriteext[newSprite]    = {};
+    spritesmooth[newSprite] = {};
 
 #if defined LUNATIC
     if (!g_noResetVars)
 #endif
-        A_ResetVars(i);
+        A_ResetVars(newSprite);
 #if defined LUNATIC
     g_noResetVars = 0;
 #endif
 
     if (VM_HaveEvent(EVENT_EGS))
     {
-        int32_t p, pl = A_FindPlayer(s, &p);
+        int32_t p, pl = A_FindPlayer(&sprite[newSprite], &p);
 
         block_deletesprite++;
-        VM_OnEventWithDist__(EVENT_EGS, i, pl, p);
+        VM_OnEventWithDist__(EVENT_EGS, newSprite, pl, p);
         block_deletesprite--;
     }
 
-    return i;
+    return newSprite;
 }
 
 #ifdef YAX_ENABLE
@@ -1373,7 +1368,6 @@ int A_Spawn(int spriteNum, int tileNum)
     actor_t *   pActor;
     int         sectNum;
 
-
     if (spriteNum >= 0)
     {
         // spawn from parent sprite <j>
@@ -1384,80 +1378,74 @@ int A_Spawn(int spriteNum, int tileNum)
     else
     {
         // spawn from already existing sprite <pn>
-        newSprite                 = tileNum;
-        spritetype *const pSprite = &sprite[newSprite];
-        actor_t *const    pActor  = &actor[newSprite];
+        newSprite = tileNum;
+        auto &s = sprite[newSprite];
+        auto &a = actor[newSprite];
 
-        Bmemset(&actor[newSprite], 0, sizeof(actor_t));
-        Bmemcpy(&pActor->bpos, &sprite[newSprite], sizeof(vec3_t));
+        a = { };
+        a.bpos = { s.x, s.y, s.z };
 
-        pActor->picnum = pSprite->picnum;
+        a.picnum = s.picnum;
 
-        if (pSprite->picnum == SECTOREFFECTOR && pSprite->lotag == 50)
-            pActor->picnum = pSprite->owner;
+        if (s.picnum == SECTOREFFECTOR && s.lotag == 50)
+            a.picnum = s.owner;
 
-        pSprite->owner = pActor->owner = newSprite;
+        s.owner = a.owner = newSprite;
 
-        pActor->floorz   = sector[pSprite->sectnum].floorz;
-        pActor->ceilingz = sector[pSprite->sectnum].ceilingz;
+        a.floorz   = sector[s.sectnum].floorz;
+        a.ceilingz = sector[s.sectnum].ceilingz;
 
-        pActor->stayput = pActor->extra = -1;
+        a.stayput = a.extra = -1;
 
 #ifdef POLYMER
-        pActor->lightId = -1;
+        a.lightId = -1;
 #endif
 
-        if ((pSprite->cstat & 48)
+        if ((s.cstat & 48)
 #ifndef EDUKE32_STANDALONE
-            && pSprite->picnum != SPEAKER
-            && pSprite->picnum != LETTER
-            && pSprite->picnum != DUCK
-            && pSprite->picnum != TARGET
-            && pSprite->picnum != TRIPBOMB
+            && s.picnum != SPEAKER && s.picnum != LETTER && s.picnum != DUCK && s.picnum != TARGET && s.picnum != TRIPBOMB
 #endif
-            && pSprite->picnum != VIEWSCREEN
-            && pSprite->picnum != VIEWSCREEN2
-            && (!(pSprite->picnum >= CRACK1 && pSprite->picnum <= CRACK4)))
+            && s.picnum != VIEWSCREEN && s.picnum != VIEWSCREEN2 && (!(s.picnum >= CRACK1 && s.picnum <= CRACK4)))
         {
-            if (pSprite->shade == 127)
+            if (s.shade == 127)
                 goto SPAWN_END;
 
 #ifndef EDUKE32_STANDALONE
-            if (A_CheckSwitchTile(newSprite) && (pSprite->cstat & 16))
+            if (A_CheckSwitchTile(newSprite) && (s.cstat & 16))
             {
-                if (pSprite->pal && pSprite->picnum != ACCESSSWITCH && pSprite->picnum != ACCESSSWITCH2)
+                if (s.pal && s.picnum != ACCESSSWITCH && s.picnum != ACCESSSWITCH2)
                 {
                     if (((!g_netServer && ud.multimode < 2)) || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_DMSWITCHES)))
                     {
-                        pSprite->xrepeat = pSprite->yrepeat = 0;
-                        pSprite->lotag = pSprite->hitag = 0;
-                        pSprite->cstat = 32768;
+                        s.xrepeat = s.yrepeat = 0;
+                        s.lotag = s.hitag = 0;
+                        s.cstat = 32768;
                         goto SPAWN_END;
                     }
                 }
 
-                pSprite->cstat |= 257;
+                s.cstat |= 257;
 
-                if (pSprite->pal && pSprite->picnum != ACCESSSWITCH && pSprite->picnum != ACCESSSWITCH2)
-                    pSprite->pal = 0;
+                if (s.pal && s.picnum != ACCESSSWITCH && s.picnum != ACCESSSWITCH2)
+                    s.pal = 0;
 
                 goto SPAWN_END;
             }
 #endif
 
-            if (pSprite->hitag)
+            if (s.hitag)
             {
                 changespritestat(newSprite, STAT_FALLER);
-                pSprite->cstat |= 257;
-                pSprite->extra = g_impactDamage;
+                s.cstat |= 257;
+                s.extra = g_impactDamage;
                 goto SPAWN_END;
             }
         }
 
-        if (pSprite->cstat & 1)
-            pSprite->cstat |= 256;
+        if (s.cstat & 1)
+            s.cstat |= 256;
 
-        if (!G_InitActor(newSprite, pSprite->picnum, 0))
+        if (!G_InitActor(newSprite, s.picnum, 0))
             T2(newSprite) = T5(newSprite) = 0;  // AC_MOVE_ID, AC_ACTION_ID
     }
 
@@ -5674,23 +5662,17 @@ static void G_CompileScripts(void)
     if ((uint32_t)g_labelCnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");
 
-    {
-        char *newlabel;
-        int32_t *newlabelcode;
-        int32_t *newlabeltype;
+    auto newlabel     = (char *)Xmalloc(g_labelCnt << 6);
+    auto newlabelcode = (int32_t *)Xmalloc(g_labelCnt * sizeof(int32_t));
+    auto newlabeltype = (int32_t *)Xmalloc(g_labelCnt * sizeof(int32_t));
 
-        newlabel     = (char *)Xmalloc(g_labelCnt << 6);
-        newlabelcode = (int32_t *)Xmalloc(g_labelCnt * sizeof(int32_t));
-        newlabeltype = (int32_t *)Xmalloc(g_labelCnt * sizeof(int32_t));
+    Bmemcpy(newlabel, label, g_labelCnt * 64);
+    Bmemcpy(newlabelcode, labelcode, g_labelCnt * sizeof(int32_t));
+    Bmemcpy(newlabeltype, labeltype, g_labelCnt * sizeof(int32_t));
 
-        Bmemcpy(newlabel, label, g_labelCnt*64);
-        Bmemcpy(newlabelcode, labelcode, g_labelCnt*sizeof(int32_t));
-        Bmemcpy(newlabeltype, labeltype, g_labelCnt*sizeof(int32_t));
-
-        label = newlabel;
-        labelcode = newlabelcode;
-        labeltype = newlabeltype;
-    }
+    label     = newlabel;
+    labelcode = newlabelcode;
+    labeltype = newlabeltype;
 
     Bmemset(sprite, 0, MAXSPRITES*sizeof(spritetype));
     Bmemset(sector, 0, MAXSECTORS*sizeof(sectortype));
