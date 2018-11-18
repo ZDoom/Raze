@@ -50,8 +50,6 @@ SECTION .text
 %define bufplce _bufplce
 %define ebpbak _ebpbak
 %define espbak _espbak
-%define pow2char _pow2char
-%define pow2long _pow2long
 %define globaltilesizy _globaltilesizy
 
 %define sethlinesizes		_sethlinesizes
@@ -201,9 +199,6 @@ SECTION .text
 
 	EXTERN ebpbak
 	EXTERN espbak
-
-	EXTERN pow2char
-	EXTERN pow2long
 
 	EXTERN globaltilesizy
 

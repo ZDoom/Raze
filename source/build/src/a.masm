@@ -40,9 +40,6 @@ EXTRN _bufplce : near
 EXTRN _ebpbak : dword
 EXTRN _espbak : dword
 
-EXTRN _pow2char : near
-EXTRN _pow2long : near
-
 EXTRN _globaltilesizy : dword
 
 ; Some macros to help make cdecl calling easier to manage

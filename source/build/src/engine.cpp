@@ -168,20 +168,9 @@ static intptr_t slopalookup[16384];    // was 2048
 
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280], *radarang2;
+const char ATTRIBUTE((used)) pow2char_[8] = {1,2,4,8,16,32,64,128};
 
 uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
-const char pow2char[8] = {1,2,4,8,16,32,64,128};
-const int32_t pow2long[32] =
-{
-    1, 2, 4, 8,
-    16, 32, 64, 128,
-    256, 512, 1024, 2048,
-    4096, 8192, 16384, 32768,
-    65536, 131072, 262144, 524288,
-    1048576, 2097152, 4194304, 8388608,
-    16777216, 33554432, 67108864, 134217728,
-    268435456, 536870912, 1073741824, 2147483647
-};
 
 char britable[16][256]; // JBF 20040207: full 8bit precision
 

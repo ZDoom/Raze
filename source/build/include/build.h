@@ -792,8 +792,20 @@ EXTERN vec2s_t tilesiz[MAXTILES];
 
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
-extern const char pow2char[8];
-extern const int32_t pow2long[32];
+
+extern const char pow2char_[];
+static CONSTEXPR const char pow2char[8] = {1,2,4,8,16,32,64,128};
+static CONSTEXPR const int32_t pow2long[32] =
+{
+    1, 2, 4, 8,
+    16, 32, 64, 128,
+    256, 512, 1024, 2048,
+    4096, 8192, 16384, 32768,
+    65536, 131072, 262144, 524288,
+    1048576, 2097152, 4194304, 8388608,
+    16777216, 33554432, 67108864, 134217728,
+    268435456, 536870912, 1073741824, 2147483647
+};
 
 // picanm[].sf:
 // |bit(1<<7)

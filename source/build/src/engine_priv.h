@@ -362,7 +362,7 @@ skipit:
                    "shrl $3, %%eax\n\t" \
                    "andl $7, %%ebx\n\t" \
                    "movb " ASMSYM("gotpic") "(%%eax), %%dl\n\t" \
-                   "movb " ASMSYM("pow2char") "(%%ebx), %%bl\n\t" \
+                   "movb " ASMSYM("pow2char_") "(%%ebx), %%bl\n\t" \
                    "orb %%bl, %%dl\n\t" \
                    "movb %%dl, " ASMSYM("gotpic") "(%%eax)" \
                    : "=a" (__a) : "a" (__a) \
