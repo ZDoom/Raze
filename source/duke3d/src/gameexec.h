@@ -59,9 +59,9 @@ extern double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[
 
 void A_Execute(int spriteNum, int playerNum, int playerDist);
 void A_Fall(int spriteNum);
-int32_t A_GetFurthestAngle(int spriteNum, int angDiv);
+int A_GetFurthestAngle(int spriteNum, int angDiv);
 void A_GetZLimits(int spriteNum);
-int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
+int __fastcall G_GetAngleDelta(int currAngle, int newAngle);
 void G_RestoreMapState();
 void G_SaveMapState();
 

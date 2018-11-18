@@ -263,19 +263,21 @@ static int32_t VM_CheckSquished(void)
 #endif
 
     if (vm.pSprite->pal == 1 ? (floorZ - ceilZ >= ZOFFSET5 || (pSector->lotag & 32768u)) : (floorZ - ceilZ >= ZOFFSET4))
-    return 0;
+        return 0;
 
     P_DoQuote(QUOTE_SQUISHED, vm.pPlayer);
 
     if (A_CheckEnemySprite(vm.pSprite))
         vm.pSprite->xvel = 0;
 
+#ifndef EDUKE32_STANDALONE
     if (EDUKE32_PREDICT_FALSE(vm.pSprite->pal == 1)) // frozen
     {
         vm.pActor->picnum = SHOTSPARK1;
         vm.pActor->extra  = 1;
         return 0;
     }
+#endif
 
     return 1;
 }
@@ -296,8 +298,8 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 #ifdef __cplusplus
 extern "C"
 #endif
-int32_t A_Dodge(spritetype * const);
-int32_t A_Dodge(spritetype * const pSprite)
+bool A_Dodge(spritetype * const);
+bool A_Dodge(spritetype * const pSprite)
 {
     if (A_CheckEnemySprite(pSprite) && pSprite->extra <= 0)  // hack
         return 0;
@@ -325,16 +327,16 @@ int32_t A_Dodge(spritetype * const pSprite)
     return 0;
 }
 
-int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv)
+int A_GetFurthestAngle(int spriteNum, int angDiv)
 {
-    uspritetype *const pSprite = (uspritetype *)&sprite[spriteNum];
+    auto const pSprite = (uspritetype *)&sprite[spriteNum];
 
     if (pSprite->picnum != APLAYER && (AC_COUNT(actor[spriteNum].t_data)&63) > 2)
         return pSprite->ang + 1024;
 
-    int32_t   furthestAngle = 0;
-    int32_t   greatestDist  = INT32_MIN;
+    int       furthestAngle = 0;
     int const angIncs       = tabledivide32_noinline(2048, angDiv);
+    int32_t   greatestDist  = INT32_MIN;
     hitdata_t hit;
 
     for (native_t j = pSprite->ang; j < (2048 + pSprite->ang); j += angIncs)
@@ -352,7 +354,7 @@ int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv)
         }
     }
 
-    return furthestAngle&2047;
+    return furthestAngle & 2047;
 }
 
 int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, vec2_t * const vect)
@@ -485,7 +487,7 @@ void A_Fall(int const spriteNum)
         }
 }
 
-int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle)
+int __fastcall G_GetAngleDelta(int currAngle, int newAngle)
 {
     currAngle &= 2047;
     newAngle &= 2047;
@@ -955,7 +957,7 @@ static void VM_AddInventory(DukePlayer_t * const pPlayer, int const itemNum, int
 }
 #endif
 
-static int32_t A_GetVerticalVel(actor_t const * const pActor)
+static int A_GetVerticalVel(actor_t const * const pActor)
 {
 #ifdef LUNATIC
     return pActor->mv.vvel;
@@ -1236,7 +1238,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int32_t sec
 
 void Screen_Play(void)
 {
-    int32_t running = 1;
+    bool running = true;
 
     I_ClearAllInput();
 
@@ -1250,10 +1252,9 @@ void Screen_Play(void)
             continue;
 
         videoClearScreen(0);
-        if (VM_OnEventWithReturn(EVENT_SCREEN, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
-            running = 0;
 
-        // nextpage();
+        if (VM_OnEventWithReturn(EVENT_SCREEN, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
+            running = false;
 
         I_ClearAllInput();
     } while (running);

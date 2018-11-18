@@ -38,24 +38,24 @@ int32_t     g_gameArrayCount = 0;
 
 // pointers to weapon gamevar data
 intptr_t *aplWeaponClip[MAX_WEAPONS];           // number of items in magazine
-intptr_t *aplWeaponReload[MAX_WEAPONS];         // delay to reload (include fire)
 intptr_t *aplWeaponFireDelay[MAX_WEAPONS];      // delay to fire
-intptr_t *aplWeaponHoldDelay[MAX_WEAPONS];      // delay after release fire button to fire (0 for none)
-intptr_t *aplWeaponTotalTime[MAX_WEAPONS];      // The total time the weapon is cycling before next fire.
-intptr_t *aplWeaponFlags[MAX_WEAPONS];          // Flags for weapon
-intptr_t *aplWeaponShoots[MAX_WEAPONS];         // what the weapon shoots
-intptr_t *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn an item
-intptr_t *aplWeaponSpawn[MAX_WEAPONS];          // the item to spawn
-intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst')
-intptr_t *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
-intptr_t *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when weapon starts firing. zero for no sound
 intptr_t *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
-intptr_t *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
-intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
+intptr_t *aplWeaponFlags[MAX_WEAPONS];          // Flags for weapon
+intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
+intptr_t *aplWeaponHoldDelay[MAX_WEAPONS];      // delay after release fire button to fire (0 for none)
+intptr_t *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when weapon starts firing. zero for no sound
+intptr_t *aplWeaponReload[MAX_WEAPONS];         // delay to reload (include fire)
 intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];   // Sound of magazine being removed
 intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];   // Sound of magazine being inserted
 intptr_t *aplWeaponSelectSound[MAX_WEAPONS];    // Sound of weapon being selected
-intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
+intptr_t *aplWeaponShoots[MAX_WEAPONS];         // what the weapon shoots
+intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst')
+intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
+intptr_t *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
+intptr_t *aplWeaponSpawn[MAX_WEAPONS];          // the item to spawn
+intptr_t *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn an item
+intptr_t *aplWeaponTotalTime[MAX_WEAPONS];      // The total time the weapon is cycling before next fire.
+intptr_t *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
 
 # include "gamestructures.cpp"
 
@@ -65,20 +65,18 @@ intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
 // Returns: old g_gameVarCount | (g_gameArrayCount<<16).
 int Gv_Free(void)
 {
-    for (bssize_t i=0; i<g_gameVarCount; ++i)
+    for (auto &gameVar : aGameVars)
     {
-        if (aGameVars[i].flags & GAMEVAR_USER_MASK)
-            ALIGNED_FREE_AND_NULL(aGameVars[i].pValues);
-
-        aGameVars[i].flags |= GAMEVAR_RESET;
+        if (gameVar.flags & GAMEVAR_USER_MASK)
+            ALIGNED_FREE_AND_NULL(gameVar.pValues);
+        gameVar.flags |= GAMEVAR_RESET;
     }
 
-    for (bssize_t i=0; i<g_gameArrayCount; ++i)
+    for (auto & gameArray : aGameArrays)
     {
-        if (aGameArrays[i].flags & GAMEARRAY_ALLOCATED)
-            ALIGNED_FREE_AND_NULL(aGameArrays[i].pValues);
-
-        aGameArrays[i].flags |= GAMEARRAY_RESET;
+        if (gameArray.flags & GAMEARRAY_ALLOCATED)
+            ALIGNED_FREE_AND_NULL(gameArray.pValues);
+        gameArray.flags |= GAMEARRAY_RESET;
     }
 
     EDUKE32_STATIC_ASSERT(MAXGAMEVARS < 32768);
@@ -96,16 +94,14 @@ int Gv_Free(void)
 // Only call this function during initialization or at exit
 void Gv_Clear(void)
 {
-    int       gameVarCount   = Gv_Free();
-    int const gameArrayCount = gameVarCount >> 16;
-    gameVarCount &= 65535;
+    Gv_Free();
 
     // Now, only do work that Gv_Free() hasn't done.
-    for (bssize_t i=0; i<gameVarCount; ++i)
-        DO_FREE_AND_NULL(aGameVars[i].szLabel);
+    for (auto & gameVar : aGameVars)
+        DO_FREE_AND_NULL(gameVar.szLabel);
 
-    for (bssize_t i=0; i<gameArrayCount; i++)
-        DO_FREE_AND_NULL(aGameArrays[i].szLabel);
+    for (auto & gameArray : aGameArrays)
+        DO_FREE_AND_NULL(gameArray.szLabel);
 }
 
 int Gv_ReadSave(int32_t kFile)
@@ -592,7 +588,7 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
     if (aGameArrays[id].flags & GAMEARRAY_STRIDE2)
         index <<= 1;
 
-    int returnValue = -1;
+    int returnValue = 0;
 
     switch (aGameArrays[id].flags & GAMEARRAY_TYPE_MASK)
     {
@@ -610,14 +606,14 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
     return returnValue;
 }
 
-#define CHECK_INDEX(range)                                    \
-    if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= range)) \
-    {                                                         \
-        spriteNum = arrayIndex;                               \
-        goto badindex;                                        \
+#define CHECK_INDEX(range)                                              \
+    if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= (unsigned)range)) \
+    {                                                                   \
+        spriteNum = arrayIndex;                                         \
+        goto badindex;                                                  \
     }
 
-int __fastcall Gv_GetSpecialVar(int gameVar, int spriteNum, int playerNum)
+static int __fastcall Gv_GetSpecialVar(int gameVar, int spriteNum, int const playerNum)
 {
     int returnValue = 0;
 
@@ -646,8 +642,8 @@ int __fastcall Gv_GetSpecialVar(int gameVar, int spriteNum, int playerNum)
         switch (gameVar - g_structVarIDs)
         {
             case STRUCT_SPRITE:
-                arrayIndexVar = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
                 CHECK_INDEX(MAXSPRITES);
+                arrayIndexVar = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
                 returnValue = VM_GetSprite(arrayIndex, labelNum, arrayIndexVar);
                 break;
 
@@ -1184,7 +1180,7 @@ void Gv_ResetSystemDefaults(void)
 
     for (int weaponNum = 0; weaponNum < MAX_WEAPONS; ++weaponNum)
     {
-        for (bssize_t playerNum = 0; playerNum < MAXPLAYERS; ++playerNum)
+        for (int playerNum = 0; playerNum < MAXPLAYERS; ++playerNum)
         {
             Bsprintf(aszBuf, "WEAPON%d_CLIP", weaponNum);
             aplWeaponClip[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
@@ -1229,17 +1225,17 @@ void Gv_ResetSystemDefaults(void)
         }
     }
 
+    g_aimAngleVarID  = Gv_GetVarIndex("AUTOAIMANGLE");
+    g_angRangeVarID  = Gv_GetVarIndex("ANGRANGE");
+    g_hitagVarID     = Gv_GetVarIndex("HITAG");
+    g_lotagVarID     = Gv_GetVarIndex("LOTAG");
     g_returnVarID    = Gv_GetVarIndex("RETURN");
+    g_structVarIDs   = Gv_GetVarIndex("sprite");
+    g_textureVarID   = Gv_GetVarIndex("TEXTURE");
+    g_thisActorVarID = Gv_GetVarIndex("THISACTOR");
     g_weaponVarID    = Gv_GetVarIndex("WEAPON");
     g_worksLikeVarID = Gv_GetVarIndex("WORKSLIKE");
     g_zRangeVarID    = Gv_GetVarIndex("ZRANGE");
-    g_angRangeVarID  = Gv_GetVarIndex("ANGRANGE");
-    g_aimAngleVarID  = Gv_GetVarIndex("AUTOAIMANGLE");
-    g_lotagVarID     = Gv_GetVarIndex("LOTAG");
-    g_hitagVarID     = Gv_GetVarIndex("HITAG");
-    g_textureVarID   = Gv_GetVarIndex("TEXTURE");
-    g_thisActorVarID = Gv_GetVarIndex("THISACTOR");
-    g_structVarIDs   = Gv_GetVarIndex("sprite");
 #endif
 
     for (auto & tile : g_tile)
@@ -1462,22 +1458,22 @@ static void Gv_AddSystemVars(void)
 #if !defined LUNATIC
     // special vars for struct access
     // KEEPINSYNC gamedef.h: enum QuickStructureAccess_t (including order)
-    Gv_NewVar("sprite", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("__sprite__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("__actor__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("__spriteext__", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("sector", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("wall", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("player", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("actorvar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("playervar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("tspr", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("projectile", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("sprite",         -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("__sprite__",     -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("__actor__",      -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("__spriteext__",  -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("sector",         -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("wall",           -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("player",         -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("actorvar",       -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("playervar",      -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("tspr",           -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("projectile",     -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("thisprojectile", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("userdef", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("input", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("tiledata", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-    Gv_NewVar("paldata", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("userdef",        -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("input",          -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("tiledata",       -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
+    Gv_NewVar("paldata",        -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
 #endif
 
     if (NAM_WW2GI)
@@ -1534,25 +1530,25 @@ static void Gv_AddSystemVars(void)
 
     for (int i=0; i<MAX_WEAPONS; i++)
     {
-        ADDWEAPONVAR(i, WorksLike);
         ADDWEAPONVAR(i, Clip);
-        ADDWEAPONVAR(i, Reload);
         ADDWEAPONVAR(i, FireDelay);
-        ADDWEAPONVAR(i, TotalTime);
-        ADDWEAPONVAR(i, HoldDelay);
-        ADDWEAPONVAR(i, Flags);
-        ADDWEAPONVAR(i, Shoots);
-        ADDWEAPONVAR(i, SpawnTime);
-        ADDWEAPONVAR(i, Spawn);
-        ADDWEAPONVAR(i, ShotsPerBurst);
-        ADDWEAPONVAR(i, InitialSound);
         ADDWEAPONVAR(i, FireSound);
-        ADDWEAPONVAR(i, Sound2Time);
-        ADDWEAPONVAR(i, Sound2Sound);
+        ADDWEAPONVAR(i, Flags);
+        ADDWEAPONVAR(i, FlashColor);
+        ADDWEAPONVAR(i, HoldDelay);
+        ADDWEAPONVAR(i, InitialSound);
+        ADDWEAPONVAR(i, Reload);
         ADDWEAPONVAR(i, ReloadSound1);
         ADDWEAPONVAR(i, ReloadSound2);
         ADDWEAPONVAR(i, SelectSound);
-        ADDWEAPONVAR(i, FlashColor);
+        ADDWEAPONVAR(i, Shoots);
+        ADDWEAPONVAR(i, ShotsPerBurst);
+        ADDWEAPONVAR(i, Sound2Sound);
+        ADDWEAPONVAR(i, Sound2Time);
+        ADDWEAPONVAR(i, Spawn);
+        ADDWEAPONVAR(i, SpawnTime);
+        ADDWEAPONVAR(i, TotalTime);
+        ADDWEAPONVAR(i, WorksLike);
     }
 
 #ifdef LUNATIC
