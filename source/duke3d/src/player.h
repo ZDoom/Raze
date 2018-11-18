@@ -140,7 +140,6 @@ typedef struct {
     fix16_t q16ang, oq16ang, q16angvel;
 
     int32_t truefz, truecz, player_par;
-    int32_t randomflamex, exitx, exity;
     int32_t runspeed, max_player_health, max_shield_amount;
     int32_t autostep, autostep_sbw;
 
@@ -186,11 +185,11 @@ typedef struct {
     uint8_t hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
     uint8_t inven_icon, buttonpalette, over_shoulder_on, show_empty_weapon;
 
-    uint8_t jetpack_on, spritebridge, lastrandomspot;
+    uint8_t jetpack_on, spritebridge;
     uint8_t scuba_on, footprintpal, heat_on, invdisptime;
 
     uint8_t holster_weapon, falling_counter, footprintshade;
-    uint8_t refresh_inventory, last_full_weapon;
+    uint8_t last_full_weapon;
 
     uint8_t toggle_key_flag, knuckle_incs, knee_incs, access_incs;
     uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
@@ -210,7 +209,7 @@ typedef struct {
     // anywhere (like with spritetype_t): g_player[i].ps->wa.idx == i.
     struct { int32_t idx; } wa;
 #endif
-    // int8_t padding_[0];
+    int8_t padding_[2];
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua

@@ -570,8 +570,6 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
         case PLAYER_CUSTOMEXITSOUND:    labelNum = ps.customexitsound;    break;
         case PLAYER_DEAD_FLAG:          labelNum = ps.dead_flag;          break;
         case PLAYER_DUMMYPLAYERSPRITE:  labelNum = ps.dummyplayersprite;  break;
-        case PLAYER_EXITX:              labelNum = ps.exitx;              break;
-        case PLAYER_EXITY:              labelNum = ps.exity;              break;
         case PLAYER_EXTRA_EXTRA8:       labelNum = ps.extra_extra8;       break;
         case PLAYER_FALLING_COUNTER:    labelNum = ps.falling_counter;    break;
         case PLAYER_FIST_INCS:          labelNum = ps.fist_incs;          break;
@@ -610,7 +608,6 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
         case PLAYER_LAST_QUICK_KICK:    labelNum = ps.last_quick_kick;    break;
         case PLAYER_LAST_USED_WEAPON:   labelNum = ps.last_used_weapon;   break;
         case PLAYER_LAST_WEAPON:        labelNum = ps.last_weapon;        break;
-        case PLAYER_LASTRANDOMSPOT:     labelNum = ps.lastrandomspot;     break;
         case PLAYER_LOOGCNT:            labelNum = ps.loogcnt;            break;
         case PLAYER_LOOGIEX:            labelNum = ps.loogiex[lParm2];    break;
         case PLAYER_LOOGIEY:            labelNum = ps.loogiey[lParm2];    break;
@@ -646,9 +643,7 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
         case PLAYER_PYOFF:              labelNum = ps.pyoff;              break;
         case PLAYER_QUICK_KICK:         labelNum = ps.quick_kick;         break;
         case PLAYER_RANDOM_CLUB_FRAME:  labelNum = ps.random_club_frame;  break;
-        case PLAYER_RANDOMFLAMEX:       labelNum = ps.randomflamex;       break;
         case PLAYER_RAPID_FIRE_HOLD:    labelNum = ps.rapid_fire_hold;    break;
-        case PLAYER_REFRESH_INVENTORY:  labelNum = ps.refresh_inventory;  break;
         case PLAYER_RELOADING:          labelNum = ps.reloading;          break;
         case PLAYER_RETURN_TO_CENTER:   labelNum = ps.return_to_center;   break;
         case PLAYER_ROTSCRNANG:         labelNum = ps.rotscrnang;         break;
@@ -758,8 +753,6 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
         case PLAYER_CUSTOMEXITSOUND:    ps.customexitsound    = newValue; break;
         case PLAYER_DEAD_FLAG:          ps.dead_flag          = newValue; break;
         case PLAYER_DUMMYPLAYERSPRITE:  ps.dummyplayersprite  = newValue; break;
-        case PLAYER_EXITX:              ps.exitx              = newValue; break;
-        case PLAYER_EXITY:              ps.exity              = newValue; break;
         case PLAYER_EXTRA_EXTRA8:       ps.extra_extra8       = newValue; break;
         case PLAYER_FALLING_COUNTER:    ps.falling_counter    = newValue; break;
         case PLAYER_FIST_INCS:          ps.fist_incs          = newValue; break;
@@ -794,7 +787,6 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
         case PLAYER_LAST_QUICK_KICK:    ps.last_quick_kick    = newValue; break;
         case PLAYER_LAST_USED_WEAPON:   ps.last_used_weapon   = newValue; break;
         case PLAYER_LAST_WEAPON:        ps.last_weapon        = newValue; break;
-        case PLAYER_LASTRANDOMSPOT:     ps.lastrandomspot     = newValue; break;
         case PLAYER_LOOGCNT:            ps.loogcnt            = newValue; break;
         case PLAYER_LOOGIEX:            ps.loogiex[lParm2]    = newValue; break;
         case PLAYER_LOOGIEY:            ps.loogiey[lParm2]    = newValue; break;
@@ -829,9 +821,7 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
         case PLAYER_PYOFF:              ps.pyoff              = newValue; break;
         case PLAYER_QUICK_KICK:         ps.quick_kick         = newValue; break;
         case PLAYER_RANDOM_CLUB_FRAME:  ps.random_club_frame  = newValue; break;
-        case PLAYER_RANDOMFLAMEX:       ps.randomflamex       = newValue; break;
         case PLAYER_RAPID_FIRE_HOLD:    ps.rapid_fire_hold    = newValue; break;
-        case PLAYER_REFRESH_INVENTORY:  ps.refresh_inventory  = newValue; break;
         case PLAYER_RELOADING:          ps.reloading          = newValue; break;
         case PLAYER_RETURN_TO_CENTER:   ps.return_to_center   = newValue; break;
         case PLAYER_ROTSCRNANG:         ps.rotscrnang         = newValue; break;

@@ -796,7 +796,6 @@ void P_ResetPlayer(int playerNum)
     p.quick_kick         = 0;
     p.random_club_frame  = 0;
     p.rapid_fire_hold    = 0;
-    p.refresh_inventory  = 0;
     p.reloading          = 0;
     p.return_to_center   = 9;
     p.rotscrnang         = 0;
@@ -902,7 +901,6 @@ static void P_PrepForNewLevel(int playerNum, int gameMode)
     p.interface_toggle  = 0;
     p.last_pissed_time  = 0;
     p.last_weapon       = -1;
-    p.lastrandomspot    = 0;
     p.max_actors_killed = 0;
     p.max_secret_rooms  = 0;
     p.parallax_sectnum  = -1;
@@ -995,11 +993,6 @@ static void G_SetupRotfixedSprites(void)
             while (sectSprite >= 0);
         }
     }
-}
-
-static inline int G_CheckExitSprite(int spriteNum)
-{
-    return ((uint16_t)sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & CSTAT_SPRITE_ALIGNMENT_WALL));
 }
 
 static void G_SetupLightSwitches()
@@ -1265,13 +1258,10 @@ static void G_DeleteTempEffectors()
 {
     for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
     {
-        if (!G_CheckExitSprite(i))
+        switch (DYNAMICTILEMAP(PN(i)))
         {
-            switch (DYNAMICTILEMAP(PN(i)))
-            {
-                case GPSPEED__STATIC:
-                case CYCLER__STATIC: A_DeleteSprite(i); break;
-            }
+            case GPSPEED__STATIC:
+            case CYCLER__STATIC: A_DeleteSprite(i); break;
         }
     }
 }
@@ -1327,13 +1317,6 @@ static void prelevel(int g)
             p0.max_secret_rooms++;
             continue;
         }
-
-        if ((uint16_t)s.lotag == UINT16_MAX)
-        {
-            p0.exitx = wall[s.wallptr].x;
-            p0.exity = wall[s.wallptr].y;
-            continue;
-        }
     }
 
     if (missedCloudSectors > 0)
@@ -1347,13 +1330,6 @@ static void prelevel(int g)
         A_LoadActor(i);
 #endif
         VM_OnEvent(EVENT_LOADACTOR, i, -1);
-
-        if (G_CheckExitSprite(i))
-        {
-            p0.exitx = SX(i);
-            p0.exity = SY(i);
-            continue;
-        }
 
         A_MaybeProcessEffector(i);
     }

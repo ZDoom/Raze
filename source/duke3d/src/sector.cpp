@@ -2561,8 +2561,6 @@ void P_HandleSharedKeys(int playerNum)
             }
             return;		// is there significance to returning?
         }
-        if (pPlayer->refresh_inventory)
-            playerBits |= BIT(SK_INV_LEFT);   // emulate move left...
 
         if (pPlayer->newowner == -1 && (TEST_SYNC_KEY(playerBits, SK_INV_LEFT) || TEST_SYNC_KEY(playerBits, SK_INV_RIGHT)))
         {
@@ -2570,7 +2568,6 @@ void P_HandleSharedKeys(int playerNum)
 
             int const inventoryRight = !!(TEST_SYNC_KEY(playerBits, SK_INV_RIGHT));
 
-            if (pPlayer->refresh_inventory) pPlayer->refresh_inventory = 0;
             int32_t inventoryIcon = pPlayer->inven_icon;
 
             int i = 0;
