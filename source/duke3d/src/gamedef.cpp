@@ -1799,7 +1799,10 @@ static int32_t parse_hex_constant(const char *hexnum)
 
 static void C_GetNextVarType(int32_t type)
 {
-    int32_t i=0,f=0;
+    int32_t id    = 0;
+    int32_t flags = 0;
+
+    auto varptr = g_scriptPtr;
 
     C_SkipComments();
 
@@ -1807,7 +1810,7 @@ static void C_GetNextVarType(int32_t type)
     {
         BITPTR_CLEAR(g_scriptPtr-apScript);
 
-        *g_scriptPtr++ = MAXGAMEVARS;
+        *g_scriptPtr++ = GV_FLAG_CONSTANT;
 
         if (tolower(textptr[1])=='x')  // hex constants
             *g_scriptPtr = parse_hex_constant(textptr+2);
@@ -1839,8 +1842,8 @@ static void C_GetNextVarType(int32_t type)
 
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
             initprintf("%s:%d: debug: flagging gamevar as negative.\n", g_scriptFileName, g_lineNumber); //,Batol(textptr));
-        f = (MAXGAMEVARS<<1);
 
+        flags = GV_FLAG_NEGATIVE;
         textptr++;
     }
 
@@ -1853,39 +1856,40 @@ static void C_GetNextVarType(int32_t type)
         return;
     }
 
-    C_SkipComments(); //skip comments and whitespace
+    C_SkipComments();
+
     if (*textptr == '[')     //read of array as a gamevar
     {
-        f |= (MAXGAMEVARS<<2);
+        flags |= GV_FLAG_ARRAY;
         textptr++;
-        i=GetADefID(label+(g_labelCnt<<6));
-        if (i < 0)
-        {
-            i=GetDefID(label+(g_labelCnt<<6));
-            if ((unsigned) (i - g_structVarIDs) >= NUMQUICKSTRUCTS)
-                i = -1;
+        id=GetADefID(label+(g_labelCnt<<6));
 
-            if (EDUKE32_PREDICT_FALSE(i < 0))
+        if (id < 0)
+        {
+            id=GetDefID(label+(g_labelCnt<<6));
+            if ((unsigned) (id - g_structVarIDs) >= NUMQUICKSTRUCTS)
+                id = -1;
+
+            if (EDUKE32_PREDICT_FALSE(id < 0))
             {
                 g_errorCnt++;
                 C_ReportError(ERROR_NOTAGAMEARRAY);
                 return;
             }
-            f &= ~(MAXGAMEVARS<<2); // not an array
-            f |= (MAXGAMEVARS<<3);
+
+            flags &= ~GV_FLAG_ARRAY; // not an array
+            flags |= GV_FLAG_STRUCT;
         }
 
         BITPTR_CLEAR(g_scriptPtr-apScript);
-        *g_scriptPtr++=(i|f);
+        *g_scriptPtr++=(id|flags);
 
-        if ((f & (MAXGAMEVARS<<3)) && i - g_structVarIDs == STRUCT_USERDEF)
+        if ((flags & GV_FLAG_STRUCT) && id - g_structVarIDs == STRUCT_USERDEF)
         {
             // userdef doesn't really have an array index
             while (*textptr != ']')
             {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
+                if (*textptr == 0xa || *textptr == 0)
                     break;
 
                 textptr++;
@@ -1924,7 +1928,7 @@ static void C_GetNextVarType(int32_t type)
             return;
         }
 
-        if (f & (MAXGAMEVARS<<3))
+        if (flags & GV_FLAG_STRUCT)
         {
             while (*textptr != '.')
             {
@@ -1949,7 +1953,7 @@ static void C_GetNextVarType(int32_t type)
 
             int32_t labelNum = -1;
 
-            switch (i - g_structVarIDs)
+            switch (id - g_structVarIDs)
             {
             case STRUCT_SPRITE:
                 labelNum=C_GetLabelNameOffset(&h_actor,Bstrtolower(label+(g_labelCnt<<6)));
@@ -1994,7 +1998,7 @@ static void C_GetNextVarType(int32_t type)
 
             BITPTR_CLEAR(g_scriptPtr-apScript);
 
-            switch (i - g_structVarIDs)
+            switch (id - g_structVarIDs)
             {
             case STRUCT_SPRITE:
                 *g_scriptPtr++=ActorLabels[labelNum].lId;
@@ -2045,44 +2049,39 @@ static void C_GetNextVarType(int32_t type)
         return;
     }
 //    initprintf("not an array");
-    i=GetDefID(label+(g_labelCnt<<6));
-    if (i<0)   //gamevar not found
+    id=GetDefID(label+(g_labelCnt<<6));
+    if (id<0)   //gamevar not found
     {
         if (!type && !g_labelsOnly)
         {
             //try looking for a define instead
             Bstrcpy(tempbuf,label+(g_labelCnt<<6));
-            i = hash_find(&h_labels,tempbuf);
-            if (EDUKE32_PREDICT_TRUE(i>=0))
+            id = hash_find(&h_labels,tempbuf);
+
+            if (EDUKE32_PREDICT_TRUE(id>=0 && labeltype[id] & LABEL_DEFINE))
             {
-                if (EDUKE32_PREDICT_TRUE(labeltype[i] & LABEL_DEFINE))
-                {
-                    if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
-                        initprintf("%s:%d: debug: label `%s' in place of gamevar.\n",g_scriptFileName,g_lineNumber,label+(i<<6));
-                    BITPTR_CLEAR(g_scriptPtr-apScript);
-                    *g_scriptPtr++ = MAXGAMEVARS;
-                    BITPTR_CLEAR(g_scriptPtr-apScript);
-                    *g_scriptPtr++ = labelcode[i];
-                    return;
-                }
+                if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
+                    initprintf("%s:%d: debug: label `%s' in place of gamevar.\n",g_scriptFileName,g_lineNumber,label+(id<<6));
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++ = GV_FLAG_CONSTANT;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++ = labelcode[id];
+                return;
             }
-            g_errorCnt++;
-            C_ReportError(ERROR_NOTAGAMEVAR);
-            return;
         }
+
         g_errorCnt++;
         C_ReportError(ERROR_NOTAGAMEVAR);
-        textptr++;
         return;
-
     }
-    if (EDUKE32_PREDICT_FALSE(type == GAMEVAR_READONLY && aGameVars[i].flags & GAMEVAR_READONLY))
+
+    if (EDUKE32_PREDICT_FALSE(type == GAMEVAR_READONLY && aGameVars[id].flags & GAMEVAR_READONLY))
     {
         g_errorCnt++;
         C_ReportError(ERROR_VARREADONLY);
         return;
     }
-    else if (EDUKE32_PREDICT_FALSE(aGameVars[i].flags & type))
+    else if (EDUKE32_PREDICT_FALSE(aGameVars[id].flags & type))
     {
         g_errorCnt++;
         C_ReportError(ERROR_VARTYPEMISMATCH);
@@ -2093,7 +2092,7 @@ static void C_GetNextVarType(int32_t type)
         initprintf("%s:%d: debug: gamevar `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
 
     BITPTR_CLEAR(g_scriptPtr-apScript);
-    *g_scriptPtr++=(i|f);
+    *g_scriptPtr++=(id|flags);
 }
 
 #define C_GetNextVar() C_GetNextVarType(0)
@@ -3697,7 +3696,7 @@ DO_DEFSTATE:
                 BITPTR_CLEAR(previous_event_end-apScript);
                 *(previous_event_end++) = CON_JUMP | (g_lineNumber << 12);
                 BITPTR_CLEAR(previous_event_end-apScript);
-                *(previous_event_end++) = MAXGAMEVARS;
+                *(previous_event_end++) = GV_FLAG_CONSTANT;
                 C_FillEventBreakStackWithJump((intptr_t *)*previous_event_end, g_parsingEventPtr);
                 BITPTR_CLEAR(previous_event_end-apScript);
                 *(previous_event_end++) = g_parsingEventPtr;
@@ -4045,23 +4044,23 @@ DO_DEFSTATE:
                 switch (tw)
                 {
                 case CON_SETACTORVAR:
-                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERACTOR)))
-                        {
-                            g_errorCnt++;
-                            C_ReportError(-1);
-                            initprintf("%s:%d: error: variable `%s' is not per-actor.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
-                            continue;
-                        }
-                        break;
+                    if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERACTOR)))
+                    {
+                        g_errorCnt++;
+                        C_ReportError(-1);
+                        initprintf("%s:%d: error: variable `%s' is not per-actor.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+                        continue;
+                    }
+                    break;
                 case CON_SETPLAYERVAR:
-                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERPLAYER)))
-                        {
-                            g_errorCnt++;
-                            C_ReportError(-1);
-                            initprintf("%s:%d: error: variable `%s' is not per-player.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
-                            continue;
-                        }
-                        break;
+                    if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERPLAYER)))
+                    {
+                        g_errorCnt++;
+                        C_ReportError(-1);
+                        initprintf("%s:%d: error: variable `%s' is not per-player.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+                        continue;
+                    }
+                    break;
                 }
 
                 BITPTR_CLEAR(g_scriptPtr-apScript);
@@ -6120,7 +6119,7 @@ repeatcase:
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
                 BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = MAXGAMEVARS;
+                *(g_scriptPtr++) = GV_FLAG_CONSTANT;
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = previous_event;
                 BITPTR_CLEAR(g_scriptPtr-apScript);
@@ -6193,7 +6192,7 @@ repeatcase:
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
                 BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = MAXGAMEVARS;
+                *(g_scriptPtr++) = GV_FLAG_CONSTANT;
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr = g_parsingEventBreakPtr;
                 g_parsingEventBreakPtr = g_scriptPtr++ - apScript;

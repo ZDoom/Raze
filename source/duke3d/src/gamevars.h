@@ -29,6 +29,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MAXGAMEVARS 2048 // must be a power of two
 #define MAXVARLABEL 26
 
+#define GV_FLAG_CONSTANT (MAXGAMEVARS)
+#define GV_FLAG_NEGATIVE (MAXGAMEVARS<<1)
+#define GV_FLAG_ARRAY (MAXGAMEVARS<<2)
+#define GV_FLAG_STRUCT (MAXGAMEVARS<<3)
+
 // store global game definitions
 enum GamevarFlags_t
 {

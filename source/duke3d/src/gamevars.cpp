@@ -610,11 +610,11 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
     return returnValue;
 }
 
-#define CHECK_INDEX(range)                                                                                                                 \
-    if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= range))                                                                              \
-    {                                                                                                                                      \
-        spriteNum = arrayIndex;                                                                                                            \
-        goto badindex;                                                                                                                     \
+#define CHECK_INDEX(range)                                    \
+    if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= range)) \
+    {                                                         \
+        spriteNum = arrayIndex;                               \
+        goto badindex;                                        \
     }
 
 int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
@@ -622,13 +622,13 @@ int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
     if (gameVar == g_thisActorVarID)
         return spriteNum;
 
-    if (gameVar == MAXGAMEVARS)
+    if (gameVar == GV_FLAG_CONSTANT)
         return *insptr++;
 
-    int invertResult = !!(gameVar & (MAXGAMEVARS << 1));
-    gamevar_t & var = aGameVars[gameVar &= (MAXGAMEVARS - 1)];
+    int invertResult = !!(gameVar & GV_FLAG_NEGATIVE);
+    gamevar_t const & var = aGameVars[gameVar &= (MAXGAMEVARS-1)];
 
-    if ((gameVar & ~(MAXGAMEVARS << 1)) >= g_gameVarCount)
+    if ((gameVar & ~GV_FLAG_NEGATIVE) >= g_gameVarCount)
         goto special;
 
 
@@ -662,9 +662,9 @@ int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
     return (returnValue ^ -invertResult) + invertResult;
 
 special:
-    if (gameVar & (MAXGAMEVARS << 2))  // array
+    if (gameVar & GV_FLAG_ARRAY)
     {
-        gameVar &= (MAXGAMEVARS - 1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
+        gameVar &= (MAXGAMEVARS-1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
         int const arrayIndex = Gv_GetVar(*insptr++, spriteNum, playerNum);
 
@@ -676,13 +676,13 @@ special:
 
         returnValue = Gv_GetArrayValue(gameVar, arrayIndex);
     }
-    else if (gameVar&(MAXGAMEVARS<<3)) // struct shortcut vars
+    else if (gameVar & GV_FLAG_STRUCT) // struct shortcut vars
     {
         int       arrayIndexVar = *insptr++;
         int       arrayIndex    = Gv_GetVar(arrayIndexVar, spriteNum, playerNum);
         int const labelNum      = *insptr++;
 
-        gameVar &= (MAXGAMEVARS - 1);
+        gameVar &= (MAXGAMEVARS-1);
 
         switch (gameVar - g_structVarIDs)
         {
@@ -869,11 +869,11 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
 {
     int returnValue = -1;
 
-    if (gameVar & (MAXGAMEVARS << 2))  // array
+    if (gameVar & GV_FLAG_ARRAY)  // array
     {
         int const arrayIndex = Gv_GetVarX(*insptr++);
 
-        gameVar &= (MAXGAMEVARS - 1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
+        gameVar &= (MAXGAMEVARS-1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
         int const arraySiz
         = (aGameArrays[gameVar].flags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(aGameArrays[gameVar].size) : aGameArrays[gameVar].size;
@@ -886,10 +886,10 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
 
         returnValue = Gv_GetArrayValue(gameVar, arrayIndex);
     }
-    else if (gameVar & (MAXGAMEVARS << 3))  // struct shortcut vars
+    else if (gameVar & GV_FLAG_STRUCT)  // struct shortcut vars
     {
         int       arrayIndexVar = *insptr++;
-        auto const structIndex  = (gameVar & (MAXGAMEVARS - 1)) - g_structVarIDs;
+        auto const structIndex  = (gameVar & (MAXGAMEVARS-1)) - g_structVarIDs;
         int       arrayIndex    = structIndex != STRUCT_USERDEF ? Gv_GetVarX(arrayIndexVar) : -1;
         int const labelNum      = *insptr++;
 
@@ -995,17 +995,17 @@ int __fastcall Gv_GetVarX(int gameVar)
     if (gameVar == g_thisActorVarID)
         return vm.spriteNum;
 
-    if (gameVar == MAXGAMEVARS)
+    if (gameVar == GV_FLAG_CONSTANT)
         return *insptr++;
 
-    int const invertResult = !!(gameVar & (MAXGAMEVARS << 1));
+    int const invertResult = !!(gameVar & GV_FLAG_NEGATIVE);
     int       returnValue  = -1;
 
     if (gameVar >= g_gameVarCount && invertResult == 0)
         returnValue = Gv_GetSpecialVarX(gameVar);
     else
     {
-        gamevar_t &var = aGameVars[gameVar &= MAXGAMEVARS - 1];
+        gamevar_t const &var = aGameVars[gameVar &= MAXGAMEVARS-1];
         int const varFlags = var.flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
 
         if (!varFlags) returnValue = var.global;
@@ -1038,9 +1038,9 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
     for (native_t j = 0; j < numVars; ++j)
     {
         int gameVar = *insptr++;
-        int const invertResult = !!(gameVar & (MAXGAMEVARS << 1));
+        int const invertResult = !!(gameVar & GV_FLAG_NEGATIVE);
 
-        if (gameVar == MAXGAMEVARS)
+        if (gameVar == GV_FLAG_CONSTANT)
         {
             outBuf[j] = *insptr++;
             continue;
@@ -1056,7 +1056,7 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
             continue;
         }
 
-        gamevar_t &var = aGameVars[gameVar &= MAXGAMEVARS - 1];
+        gamevar_t &var = aGameVars[gameVar &= MAXGAMEVARS-1];
 
         int const varFlags = var.flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK);
         int       value    = var.global;

@@ -4293,10 +4293,10 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
                             lVarID ^= (MAXGAMEVARS << 2);
 
-                            if (lVarID & (MAXGAMEVARS << 1))
+                            if (lVarID & GV_FLAG_NEGATIVE)
                             {
                                 m = -m;
-                                lVarID ^= (MAXGAMEVARS << 1);
+                                lVarID ^= GV_FLAG_NEGATIVE;
                             }
 
                             insptr++;
@@ -4331,10 +4331,10 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                 continue;
                             }
                         }
-                        else if (EDUKE32_PREDICT_TRUE(*insptr & (MAXGAMEVARS << 1)))
+                        else if (EDUKE32_PREDICT_TRUE(*insptr & GV_FLAG_NEGATIVE))
                         {
                             m = -m;
-                            lVarID ^= (MAXGAMEVARS << 1);
+                            lVarID ^= GV_FLAG_NEGATIVE;
                         }
                         else
                         {
