@@ -282,6 +282,7 @@ const memberlabel_t ActorLabels[]=
     LABEL_SETUP_UNMATCHED(actor, extra,       "htextra",        ACTOR_HTEXTRA),
     LABEL_SETUP_UNMATCHED(actor, owner,       "htowner",        ACTOR_HTOWNER),
     LABEL_SETUP_UNMATCHED(actor, movflag,     "htmovflag",      ACTOR_HTMOVFLAG),
+    { "htumovflag", ACTOR_HTUMOVFLAG, sizeof(actor[0].movflag) | LABEL_UNSIGNED, 0, offsetof(actor_t, movflag) },
     LABEL_SETUP_UNMATCHED(actor, tempang,     "httempang",      ACTOR_HTTEMPANG),
     LABEL_SETUP_UNMATCHED(actor, stayput,     "htactorstayput", ACTOR_HTSTAYPUT),
     LABEL_SETUP_UNMATCHED(actor, dispicnum,   "htdispicnum",    ACTOR_HTDISPICNUM),
