@@ -41,8 +41,6 @@ droidinput_t droidinput;
 #define MENU_MARGIN_CENTER  160
 #define MENU_HEIGHT_CENTER  100
 
-int32_t g_skillSoundVoice = -1;
-
 #define USERMAPENTRYLENGTH 25
 
 static FORCE_INLINE void Menu_StartTextInput()
@@ -2866,7 +2864,7 @@ static void Menu_StartGameWithoutSkill(void)
 {
     ud.m_player_skill = M_SKILL.currentEntry+1;
 
-    g_skillSoundVoice = S_PlaySound(PISTOL_BODYHIT);
+    ud.skill_voice = S_PlaySound(PISTOL_BODYHIT);
 
     ud.m_respawn_monsters = 0;
 
@@ -2975,7 +2973,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 
         ud.m_player_skill = M_SKILL.currentEntry+1;
 
-        g_skillSoundVoice = S_PlaySound(skillsound);
+        ud.skill_voice = S_PlaySound(skillsound);
 
         if (M_SKILL.currentEntry == 3) ud.m_respawn_monsters = 1;
         else ud.m_respawn_monsters = 0;

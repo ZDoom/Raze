@@ -30,8 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "lunatic_game.h"
 #endif
 
-static int32_t g_whichPalForPlayer = 9;
-
 static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t g_precacheCount;
 
@@ -576,9 +574,8 @@ void G_UpdateScreenArea(void)
 
 void P_RandomSpawnPoint(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-
-    int32_t i = playerNum;
+    auto &p = *g_player[playerNum].ps;
+    int i = playerNum;
 
     if ((g_netServer || ud.multimode > 1) && !(g_gametypeFlags[ud.coop] & GAMETYPE_FIXEDRESPAWN))
     {
@@ -586,16 +583,22 @@ void P_RandomSpawnPoint(int playerNum)
 
         if (g_gametypeFlags[ud.coop] & GAMETYPE_TDMSPAWN)
         {
-            uint32_t pdist = -1;
-            for (bssize_t j=0; j<ud.multimode; j++)
-            {
-                if (j != playerNum && g_player[j].ps->team == pPlayer->team && sprite[g_player[j].ps->i].extra > 0)
-                {
-                    for (bssize_t k=0; k<g_playerSpawnCnt; k++)
-                    {
-                        uint32_t dist = FindDistance2D(g_player[j].ps->pos.x - g_playerSpawnPoints[k].pos.x,
-                                              g_player[j].ps->pos.y - g_playerSpawnPoints[k].pos.y);
+            uint32_t pdist = INT_MAX;
 
+            for (int TRAVERSE_CONNECT(j))
+            {
+                if (j == playerNum)
+                    continue;
+
+                auto const &op = *g_player[j].ps;
+
+                // pick a spawn near a living teammate
+                if (op.team == p.team && sprite[op.i].extra > 0)
+                {
+                    for (int k = 0; k < g_playerSpawnCnt; k++)
+                    {
+                        uint32_t const dist = FindDistance2D(op.pos.x - g_playerSpawnPoints[k].pos.x,
+                                                             op.pos.y - g_playerSpawnPoints[k].pos.y);
                         if (dist < pdist)
                             i = k, pdist = dist;
                     }
@@ -605,13 +608,13 @@ void P_RandomSpawnPoint(int playerNum)
         }
     }
 
-    pPlayer->pos        = g_playerSpawnPoints[i].pos;
-    pPlayer->opos       = pPlayer->pos;
-    pPlayer->bobpos     = *(vec2_t *)&pPlayer->pos;
-    pPlayer->q16ang       = fix16_from_int(g_playerSpawnPoints[i].ang);
-    pPlayer->cursectnum = g_playerSpawnPoints[i].sect;
+    p.opos = p.pos = g_playerSpawnPoints[i].pos;
 
-    sprite[pPlayer->i].cstat = 1 + 256;
+    p.bobpos     = *(vec2_t *)&p.pos;
+    p.cursectnum = g_playerSpawnPoints[i].sect;
+    p.q16ang     = fix16_from_int(g_playerSpawnPoints[i].ang);
+
+    sprite[p.i].cstat = CSTAT_SPRITE_BLOCK + CSTAT_SPRITE_BLOCK_HITSCAN;
 }
 
 static inline void P_ResetTintFade(DukePlayer_t *const pPlayer)
@@ -624,258 +627,267 @@ static inline void P_ResetTintFade(DukePlayer_t *const pPlayer)
 
 void P_ResetPlayer(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-    spritetype *const   pSprite = &sprite[pPlayer->i];
-    vec3_t              tmpvect = pPlayer->pos;
+    auto &p = *g_player[playerNum].ps;
+
+    Bassert((unsigned)p.i < MAXSPRITES);
+
+    auto &s = sprite[p.i];
+    auto &a = actor[p.i];
+
+    vec3_t tmpvect = p.pos;
 
     tmpvect.z += PHEIGHT;
 
     P_RandomSpawnPoint(playerNum);
 
-    pPlayer->opos          = pPlayer->pos;
-    pPlayer->bobpos        = *(vec2_t *)&pPlayer->pos;
-    actor[pPlayer->i].bpos = pPlayer->pos;
-    *(vec3_t *)pSprite     = pPlayer->pos;
+    a.bpos = p.opos = p.pos;
+    p.bobpos = *(vec2_t *)&p.pos;
 
-    updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
-    setsprite(pPlayer->i, &tmpvect);
+    *(vec3_t *)&s = p.pos;
 
-    pSprite->cstat    = 257;
-    pSprite->shade    = -12;
-    pSprite->clipdist = 64;
-    pSprite->xrepeat  = 42;
-    pSprite->yrepeat  = 36;
-    pSprite->owner    = pPlayer->i;
-    pSprite->xoffset  = 0;
-    pSprite->pal      = pPlayer->palookup;
+    updatesector(p.pos.x, p.pos.y, &p.cursectnum);
+    setsprite(p.i, &tmpvect);
 
-    pPlayer->last_extra = pSprite->extra = pPlayer->max_player_health;
+    s.clipdist = 64;
+    s.cstat    = 257;
+    s.owner    = p.i;
+    s.pal      = p.palookup;
+    s.shade    = -12; // ???
+    s.xoffset  = 0;
+    s.xrepeat  = 42;
+    s.yrepeat  = 36;
 
-    pPlayer->wantweaponfire         = -1;
-    pPlayer->q16horiz                  = F16(100);
-    pPlayer->on_crane               = -1;
-    pPlayer->frag_ps                = playerNum;
-    pPlayer->q16horizoff               = 0;
-    pPlayer->opyoff                 = 0;
-    pPlayer->wackedbyactor          = -1;
-    pPlayer->inv_amount[GET_SHIELD] = g_startArmorAmount;
-    pPlayer->dead_flag              = 0;
-    pPlayer->footprintcount         = 0;
-    pPlayer->weapreccnt             = 0;
-    pPlayer->fta                    = 0;
-    pPlayer->ftq                    = 0;
-    pPlayer->vel.x = pPlayer->vel.y = 0;
-    pPlayer->rotscrnang             = 0;
-    pPlayer->runspeed               = g_playerFriction;
-    pPlayer->falling_counter        = 0;
+    p.last_extra = s.extra = p.max_player_health;
+    p.inv_amount[GET_SHIELD] = g_startArmorAmount;
 
-    P_ResetTintFade(pPlayer);
+    p.dead_flag       = 0;
+    p.falling_counter = 0;
+    p.footprintcount  = 0;
+    p.frag_ps         = playerNum;
+    p.fta             = 0;
+    p.ftq             = 0;
+    p.on_crane        = -1;
+    p.opyoff          = 0;
+    p.q16horiz        = F16(100);
+    p.q16horizoff     = 0;
+    p.rotscrnang      = 0;
+    p.runspeed        = g_playerFriction;
+    p.vel             = { 0, 0, 0 };
+    p.wackedbyactor   = -1;
+    p.wantweaponfire  = -1;
+    p.weapreccnt      = 0;
 
-    actor[pPlayer->i].extra        = -1;
-    actor[pPlayer->i].owner        = pPlayer->i;
-    actor[pPlayer->i].cgg          = 0;
-    actor[pPlayer->i].movflag      = 0;
-    actor[pPlayer->i].tempang      = 0;
-    actor[pPlayer->i].stayput = -1;
-    actor[pPlayer->i].dispicnum    = 0;
-    actor[pPlayer->i].owner        = pPlayer->i;
-    actor[pPlayer->i].t_data[4]    = 0;
+    P_ResetTintFade(&p);
+
+    a.cgg       = 0;
+    a.dispicnum = 0;
+    a.extra     = -1;
+    a.movflag   = 0;
+    a.owner     = p.i;
+    a.stayput   = -1;
+    a.t_data[4] = 0;
+    a.tempang   = 0;
 
     P_ResetInventory(playerNum);
     P_ResetWeapons(playerNum);
 
-    pPlayer->reloading     = 0;
-    pPlayer->movement_lock = 0;
+    p.reloading     = 0;
+    p.movement_lock = 0;
 
-    VM_OnEvent(EVENT_RESETPLAYER, pPlayer->i, playerNum);
+    VM_OnEvent(EVENT_RESETPLAYER, p.i, playerNum);
 }
 
 void P_ResetStatus(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto &p = *g_player[playerNum].ps;
 
-    ud.show_help               = 0;
-    ud.showallmap              = 0;
-    pPlayer->dead_flag         = 0;
-    pPlayer->wackedbyactor     = -1;
-    pPlayer->falling_counter   = 0;
-    pPlayer->quick_kick        = 0;
-    pPlayer->subweapon         = 0;
-    pPlayer->last_full_weapon  = 0;
-    pPlayer->ftq               = 0;
-    pPlayer->fta               = 0;
-    pPlayer->tipincs           = 0;
-    pPlayer->buttonpalette     = 0;
-    pPlayer->actorsqu          = -1;
-    pPlayer->invdisptime       = 0;
-    pPlayer->refresh_inventory = 0;
-    pPlayer->last_pissed_time  = 0;
-    pPlayer->holster_weapon    = 0;
-    pPlayer->pycount           = 0;
-    pPlayer->pyoff             = 0;
-    pPlayer->opyoff            = 0;
-    pPlayer->loogcnt           = 0;
-    pPlayer->q16angvel           = 0;
-    pPlayer->weapon_sway       = 0;
-    pPlayer->extra_extra8      = 0;
-    pPlayer->show_empty_weapon = 0;
-    pPlayer->dummyplayersprite = -1;
-    pPlayer->crack_time        = 0;
-    pPlayer->hbomb_hold_delay  = 0;
-    pPlayer->transporter_hold  = 0;
-    pPlayer->clipdist          = 164;
-    pPlayer->wantweaponfire    = -1;
-    pPlayer->hurt_delay        = 0;
-    pPlayer->footprintcount    = 0;
-    pPlayer->footprintpal      = 0;
-    pPlayer->footprintshade    = 0;
-    pPlayer->jumping_toggle    = 0;
-    pPlayer->oq16horiz           = F16(140);
-    pPlayer->q16horiz            = F16(140);
-    pPlayer->q16horizoff         = 0;
-    pPlayer->bobcounter        = 0;
-    pPlayer->on_ground         = 0;
-    pPlayer->player_par        = 0;
-    pPlayer->return_to_center  = 9;
-    pPlayer->airleft           = 15 * GAMETICSPERSEC;
-    pPlayer->rapid_fire_hold   = 0;
-    pPlayer->toggle_key_flag   = 0;
-    pPlayer->access_spritenum  = -1;
-    pPlayer->got_access        = ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_ACCESSATSTART)) ? 7 : 0;
-    pPlayer->random_club_frame = 0;
-    pus                        = 1;
-    pPlayer->on_warping_sector = 0;
-    pPlayer->spritebridge      = 0;
-    pPlayer->sbs               = 0;
-    pPlayer->palette           = BASEPAL;
+    ud.show_help  = 0;
+    ud.showallmap = 0;
 
-    if (pPlayer->inv_amount[GET_STEROIDS] < 400)
+    p.access_spritenum   = -1;
+    p.actorsqu           = -1;
+    p.airleft            = 15 * GAMETICSPERSEC;
+    p.autostep           = (20L << 8);
+    p.autostep_sbw       = (4L << 8);
+    p.bobcounter         = 0;
+    p.buttonpalette      = 0;
+    p.cheat_phase        = 0;
+    p.clipdist           = 164;
+    p.crack_time         = 0;
+    p.dead_flag          = 0;
+    p.dummyplayersprite  = -1;
+    p.extra_extra8       = 0;
+    p.falling_counter    = 0;
+    p.fist_incs          = 0;
+    p.footprintcount     = 0;
+    p.footprintpal       = 0;
+    p.footprintshade     = 0;
+    p.frag_ps            = playerNum;
+    p.fric               = { 0, 0 };
+    p.fta                = 0;
+    p.ftq                = 0;
+    p.got_access         = ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_ACCESSATSTART)) ? 7 : 0;
+    p.hard_landing       = 0;
+    p.hbomb_hold_delay   = 0;
+    p.heat_on            = 0;
+    p.holoduke_on        = -1;
+    p.holster_weapon     = 0;
+    p.hurt_delay         = 0;
+    p.invdisptime        = 0;
+    p.jetpack_on         = 0;
+    p.jumping_counter    = 0;
+    p.jumping_toggle     = 0;
+    p.knee_incs          = 0;
+    p.knuckle_incs       = 1;
+    p.last_full_weapon   = 0;
+    p.last_pissed_time   = 0;
+    p.loogcnt            = 0;
+    p.look_ang           = 512 - ((ud.level_number&1)<<10);
+    p.movement_lock      = 0;
+    p.newowner           = -1;
+    p.on_crane           = -1;
+    p.on_ground          = 0;
+    p.on_warping_sector  = 0;
+    p.one_eighty_count   = 0;
+    p.opyoff             = 0;
+    p.oq16horiz          = F16(140);
+    p.orotscrnang        = 1;  // JBF 20031220
+    p.palette            = BASEPAL;
+    p.player_par         = 0;
+    p.pycount            = 0;
+    p.pyoff              = 0;
+    p.q16angvel          = 0;
+    p.q16horiz           = F16(140);
+    p.q16horizoff        = 0;
+    p.quick_kick         = 0;
+    p.random_club_frame  = 0;
+    p.rapid_fire_hold    = 0;
+    p.refresh_inventory  = 0;
+    p.reloading          = 0;
+    p.return_to_center   = 9;
+    p.rotscrnang         = 0;
+    p.sbs                = 0;
+    p.show_empty_weapon  = 0;
+    p.somethingonplayer  = -1;
+    p.spritebridge       = 0;
+    p.subweapon          = 0;
+    p.tipincs            = 0;
+    p.toggle_key_flag    = 0;
+    p.transporter_hold   = 0;
+    p.vel.x              = 0;
+    p.vel.y              = 0;
+    p.vel.z              = 0;
+    p.wackedbyactor      = -1;
+    p.walking_snd_toggle = 0;
+    p.wantweaponfire     = -1;
+    p.weapon_ang         = 0;
+    p.weapon_pos         = WEAPON_POS_START;
+    p.weapon_sway        = 0;
+
+    pus = 1;
+
+    if (p.inv_amount[GET_STEROIDS] < 400)
     {
-        pPlayer->inv_amount[GET_STEROIDS] = 0;
-        pPlayer->inven_icon = ICON_NONE;
+        p.inv_amount[GET_STEROIDS] = 0;
+        p.inven_icon = ICON_NONE;
     }
 
-    pPlayer->heat_on           = 0;
-    pPlayer->jetpack_on        = 0;
-    pPlayer->holoduke_on       = -1;
-    pPlayer->look_ang          = 512 - ((ud.level_number & 1) << 10);
-    pPlayer->rotscrnang        = 0;
-    pPlayer->orotscrnang       = 1;  // JBF 20031220
-    pPlayer->newowner          = -1;
-    pPlayer->jumping_counter   = 0;
-    pPlayer->hard_landing      = 0;
-    pPlayer->vel.x             = 0;
-    pPlayer->vel.y             = 0;
-    pPlayer->vel.z             = 0;
-    pPlayer->fric.x            = 0;
-    pPlayer->fric.y            = 0;
-    pPlayer->somethingonplayer = -1;
-    pPlayer->one_eighty_count  = 0;
-    pPlayer->cheat_phase       = 0;
-    pPlayer->on_crane          = -1;
+    p.kickback_pic = ((PWEAPON(playerNum, p.curr_weapon, WorksLike) == PISTOL_WEAPON)
+                      && (PWEAPON(playerNum, p.curr_weapon, Reload) > PWEAPON(playerNum, p.curr_weapon, TotalTime)))
+                     ? PWEAPON(playerNum, p.curr_weapon, TotalTime)
+                     : 0;
 
-    pPlayer->kickback_pic = ((PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == PISTOL_WEAPON)
-                             && (PWEAPON(playerNum, pPlayer->curr_weapon, Reload) > PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime)))
-                            ? PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime)
-                            : 0;
-
-    pPlayer->weapon_pos         = WEAPON_POS_START;
-    pPlayer->walking_snd_toggle = 0;
-    pPlayer->weapon_ang         = 0;
-    pPlayer->knuckle_incs       = 1;
-    pPlayer->fist_incs          = 0;
-    pPlayer->knee_incs          = 0;
-    pPlayer->reloading          = 0;
-    pPlayer->movement_lock      = 0;
-    pPlayer->frag_ps            = playerNum;
-
-    P_UpdateScreenPal(pPlayer);
-    VM_OnEvent(EVENT_RESETPLAYER, pPlayer->i, playerNum);
+    P_UpdateScreenPal(&p);
+    VM_OnEvent(EVENT_RESETPLAYER, p.i, playerNum);
 }
 
 void P_ResetWeapons(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto &p = *g_player[playerNum].ps;
 
-    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
-        pPlayer->ammo_amount[weaponNum] = 0;
+    for (short & ammo : p.ammo_amount)
+        ammo = 0;
 
-    pPlayer->weapon_pos                 = WEAPON_POS_START;
-    pPlayer->curr_weapon                = PISTOL_WEAPON;
-    pPlayer->kickback_pic               = PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime);
-    pPlayer->gotweapon                  = ((1 << PISTOL_WEAPON) | (1 << KNEE_WEAPON) | (1 << HANDREMOTE_WEAPON));
-    pPlayer->ammo_amount[PISTOL_WEAPON] = min<int16_t>(pPlayer->max_ammo_amount[PISTOL_WEAPON], 48);
-    pPlayer->last_weapon                = -1;
-    pPlayer->show_empty_weapon          = 0;
-    pPlayer->last_pissed_time           = 0;
-    pPlayer->holster_weapon             = 0;
-    pPlayer->last_used_weapon           = -1;
+    p.curr_weapon       = PISTOL_WEAPON;
+    p.gotweapon         = ((1 << PISTOL_WEAPON) | (1 << KNEE_WEAPON) | (1 << HANDREMOTE_WEAPON));
+    p.holster_weapon    = 0;
+    p.kickback_pic      = PWEAPON(playerNum, p.curr_weapon, TotalTime);
+    p.last_pissed_time  = 0;
+    p.last_used_weapon  = -1;
+    p.last_weapon       = -1;
+    p.show_empty_weapon = 0;
+    p.weapon_pos        = WEAPON_POS_START;
 
-    VM_OnEvent(EVENT_RESETWEAPONS, pPlayer->i, playerNum);
+    p.ammo_amount[PISTOL_WEAPON] = min<int16_t>(p.max_ammo_amount[PISTOL_WEAPON], 48);
+
+    VM_OnEvent(EVENT_RESETWEAPONS, p.i, playerNum);
 }
 
 void P_ResetInventory(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto &p = *g_player[playerNum].ps;
 
-    Bmemset(pPlayer->inv_amount, 0, sizeof(pPlayer->inv_amount));
+    Bmemset(p.inv_amount, 0, sizeof(p.inv_amount));
 
-    pPlayer->scuba_on               = 0;
-    pPlayer->heat_on                = 0;
-    pPlayer->jetpack_on             = 0;
-    pPlayer->holoduke_on            = -1;
-    pPlayer->inven_icon             = ICON_NONE;
-    pPlayer->inv_amount[GET_SHIELD] = g_startArmorAmount;
+    p.heat_on     = 0;
+    p.holoduke_on = -1;
+    p.inven_icon  = ICON_NONE;
+    p.jetpack_on  = 0;
+    p.scuba_on    = 0;
 
-    VM_OnEvent(EVENT_RESETINVENTORY, pPlayer->i, playerNum);
+    p.inv_amount[GET_SHIELD] = g_startArmorAmount;
+
+    VM_OnEvent(EVENT_RESETINVENTORY, p.i, playerNum);
 }
 
 static void resetprestat(int playerNum, int gameMode)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto &p = *g_player[playerNum].ps;
 
     g_spriteDeleteQueuePos = 0;
-    for (bssize_t i = 0; i < g_deleteQueueSize; i++) SpriteDeletionQueue[i] = -1;
 
-    pPlayer->hbomb_on          = 0;
-    pPlayer->cheat_phase       = 0;
-    pPlayer->toggle_key_flag   = 0;
-    pPlayer->secret_rooms      = 0;
-    pPlayer->max_secret_rooms  = 0;
-    pPlayer->actors_killed     = 0;
-    pPlayer->max_actors_killed = 0;
-    pPlayer->lastrandomspot    = 0;
-    pPlayer->weapon_pos        = WEAPON_POS_START;
+    for (short &i : SpriteDeletionQueue)
+        i = -1;
 
-    P_ResetTintFade(pPlayer);
-
-    pPlayer->kickback_pic = ((PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == PISTOL_WEAPON)
-                             && (PWEAPON(playerNum, pPlayer->curr_weapon, Reload) > PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime)))
-                            ? PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime)
-                            : 0;
-
-    pPlayer->last_weapon       = -1;
-    pPlayer->weapreccnt        = 0;
-    pPlayer->interface_toggle  = 0;
-    pPlayer->show_empty_weapon = 0;
-    pPlayer->holster_weapon    = 0;
-    pPlayer->last_pissed_time  = 0;
-    pPlayer->parallax_sectnum  = -1;
-    pPlayer->visibility        = ud.const_visibility;
-
-    screenpeek         = myconnectindex;
     g_animWallCnt      = 0;
-    g_cyclerCnt        = 0;
     g_animateCnt       = 0;
-    parallaxtype       = 0;
-    randomseed         = 1996;
-    ud.pause_on        = 0;
-    ud.camerasprite    = -1;
-    ud.eog             = 0;
-    tempwallptr        = 0;
     g_curViewscreen    = -1;
+    g_cyclerCnt        = 0;
     g_earthquakeTime   = 0;
     g_interpolationCnt = 0;
+
+    randomseed  = 1996;
+    screenpeek  = myconnectindex;
+    tempwallptr = 0;
+
+    p.actors_killed     = 0;
+    p.cheat_phase       = 0;
+    p.customexitsound   = 0;
+    p.hbomb_on          = 0;
+    p.holster_weapon    = 0;
+    p.interface_toggle  = 0;
+    p.last_pissed_time  = 0;
+    p.last_weapon       = -1;
+    p.lastrandomspot    = 0;
+    p.max_actors_killed = 0;
+    p.max_secret_rooms  = 0;
+    p.parallax_sectnum  = -1;
+    p.secret_rooms      = 0;
+    p.show_empty_weapon = 0;
+    p.timebeforeexit    = 0;
+    p.toggle_key_flag   = 0;
+    p.visibility        = ud.const_visibility;
+    p.weapon_pos        = WEAPON_POS_START;
+    p.weapreccnt        = 0;
+
+    p.kickback_pic = ((PWEAPON(playerNum, p.curr_weapon, WorksLike) == PISTOL_WEAPON)
+                      && (PWEAPON(playerNum, p.curr_weapon, Reload) > PWEAPON(playerNum, p.curr_weapon, TotalTime)))
+                     ? PWEAPON(playerNum, p.curr_weapon, TotalTime)
+                     : 0;
+
+    ud.camerasprite = -1;
+    ud.eog          = 0;
+    ud.pause_on     = 0;
 
     if (((gameMode & MODE_EOL) != MODE_EOL && numplayers < 2 && !g_netServer)
         || (!(g_gametypeFlags[ud.coop] & GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
@@ -883,14 +895,13 @@ static void resetprestat(int playerNum, int gameMode)
         P_ResetWeapons(playerNum);
         P_ResetInventory(playerNum);
     }
-    else if (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
+    else if (PWEAPON(playerNum, p.curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
     {
-        pPlayer->ammo_amount[HANDBOMB_WEAPON]++;
-        pPlayer->curr_weapon = HANDBOMB_WEAPON;
+        p.ammo_amount[HANDBOMB_WEAPON]++;
+        p.curr_weapon = HANDBOMB_WEAPON;
     }
 
-    pPlayer->timebeforeexit  = 0;
-    pPlayer->customexitsound = 0;
+    P_ResetTintFade(&p);
 }
 
 // Tweak sprites contained in moving sectors with these SE lotags.
@@ -905,41 +916,39 @@ static void G_SetupRotfixedSprites(void)
 
     for (SPRITES_OF_STAT_SAFE(STAT_EFFECTOR, spriteNum, nextSpriteNum))
     {
-        if (FIXSPR_SELOTAGP(sprite[spriteNum].lotag))
+        auto const &s = sprite[spriteNum];
+
+        if (FIXSPR_SELOTAGP(s.lotag))
         {
 #ifdef YAX_ENABLE
             int firstrun = 1;
 #endif
-            int sectSprite = headspritesect[sprite[spriteNum].sectnum];
+            int sectSprite = headspritesect[s.sectnum];
 
             do
             {
-                const spritetype *const pSprite = &sprite[sectSprite];
+                auto const &ss = sprite[sectSprite];
+                auto       &a  = actor[sectSprite];
 
                 // TRIPBOMB uses t_data[7] for its own purposes. Wouldn't be
                 // too useful with moving sectors anyway
-                if ((ROTFIXSPR_STATNUMP(pSprite->statnum) && pSprite->picnum != TRIPBOMB)
-                    || ((pSprite->statnum == STAT_ACTOR || pSprite->statnum == STAT_ZOMBIEACTOR)
-                        && A_CheckSpriteFlags(sectSprite, SFLAG_ROTFIXED)))
+                if ((ROTFIXSPR_STATNUMP(ss.statnum) && ss.picnum != TRIPBOMB)
+                    || ((ss.statnum == STAT_ACTOR || ss.statnum == STAT_ZOMBIEACTOR) && A_CheckSpriteFlags(sectSprite, SFLAG_ROTFIXED)))
                 {
-                    int pivotSprite = spriteNum;
-
-                    if (sprite[spriteNum].lotag == 0)
-                        pivotSprite = sprite[spriteNum].owner;
+                    int const pivotSprite = (s.lotag == 0) ? s.owner : spriteNum;
 
                     if (sectSprite != spriteNum && sectSprite != pivotSprite && pivotSprite >= 0 && pivotSprite < MAXSPRITES)
                     {
                         // let's hope we don't step on anyone's toes here
-                        actor[sectSprite].t_data[7] = ROTFIXSPR_MAGIC | pivotSprite;  // 'rs' magic + pivot SE sprite index
-                        actor[sectSprite].t_data[8] = pSprite->x - sprite[pivotSprite].x;
-                        actor[sectSprite].t_data[9] = pSprite->y - sprite[pivotSprite].y;
+                        a.t_data[7] = ROTFIXSPR_MAGIC | pivotSprite;  // 'rs' magic + pivot SE sprite index
+                        a.t_data[8] = ss.x - sprite[pivotSprite].x;
+                        a.t_data[9] = ss.y - sprite[pivotSprite].y;
                     }
                 }
 
                 sectSprite = nextspritesect[sectSprite];
 #ifdef YAX_ENABLE
-                if ((sectSprite < 0 && firstrun) &&
-                    (sprite[spriteNum].lotag == SE_6_SUBWAY || sprite[spriteNum].lotag == SE_14_SUBWAY_CAR))
+                if ((sectSprite < 0 && firstrun) && (s.lotag == SE_6_SUBWAY || s.lotag == SE_14_SUBWAY_CAR))
                 {
                     firstrun   = 0;
                     sectSprite = actor[spriteNum].t_data[9];
@@ -948,31 +957,30 @@ static void G_SetupRotfixedSprites(void)
                         sectSprite = headspritesect[sectSprite];
                 }
 #endif
-            } while (sectSprite>=0);
+            }
+            while (sectSprite >= 0);
         }
     }
 }
 
 static inline int G_CheckExitSprite(int spriteNum) { return ((uint16_t)sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & 16)); }
 
-static void prelevel(char g)
+static void prelevel(int g)
 {
-    uint8_t *tagbitmap = (uint8_t *)Xcalloc(65536>>3, 1);
-
     Bmemset(show2dsector, 0, sizeof(show2dsector));
 #ifdef LEGACY_ROR
     Bmemset(ror_protectedsectors, 0, MAXSECTORS);
 #endif
-    resetprestat(0,g);
     g_cloudCnt = 0;
 
+    resetprestat(0, g);
     G_SetupGlobalPsky();
 
     VM_OnEvent(EVENT_PRELEVEL, -1, -1);
 
     int missedCloudSectors = 0;
 
-    for (bssize_t i=0; i<numsectors; i++)
+    for (int i = 0; i < numsectors; i++)
     {
         sector[i].extra = 256;
 
@@ -990,8 +998,10 @@ static void prelevel(char g)
             if (waloff[sector[i].ceilingpicnum] == 0)
             {
                 if (sector[i].ceilingpicnum == LA)
-                    for (bsize_t j = 0; j < 5; j++)
+                {
+                    for (int j = 0; j < 5; j++)
                         tloadtile(sector[i].ceilingpicnum + j, 0);
+                }
             }
 
             if (sector[i].ceilingpicnum == CLOUDYSKIES)
@@ -1024,7 +1034,7 @@ static void prelevel(char g)
         OSD_Printf(OSDTEXT_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
 
     // NOTE: must be safe loop because callbacks could delete sprites.
-    for (bssize_t nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
+    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
     {
         A_ResetVars(i);
 #if !defined LUNATIC
@@ -1036,61 +1046,72 @@ static void prelevel(char g)
             g_player[0].ps->exitx = SX(i);
             g_player[0].ps->exity = SY(i);
         }
-        else switch (DYNAMICTILEMAP(PN(i)))
+        else
+        {
+            switch (DYNAMICTILEMAP(PN(i)))
             {
-            case GPSPEED__STATIC:
-                // DELETE_AFTER_LOADACTOR. Must not change statnum.
-                sector[SECT(i)].extra = SLT(i);
-                break;
+                case GPSPEED__STATIC:
+                    // DELETE_AFTER_LOADACTOR. Must not change statnum.
+                    sector[SECT(i)].extra = SLT(i);
+                    break;
 
-            case CYCLER__STATIC:
-                // DELETE_AFTER_LOADACTOR. Must not change statnum.
-                if (g_cyclerCnt >= MAXCYCLERS)
+                case CYCLER__STATIC:
                 {
-                    Bsprintf(tempbuf,"\nToo many cycling sectors (%d max).",MAXCYCLERS);
-                    G_GameExit(tempbuf);
-                }
-                g_cyclers[g_cyclerCnt][0] = SECT(i);
-                g_cyclers[g_cyclerCnt][1] = SLT(i);
-                g_cyclers[g_cyclerCnt][2] = SS(i);
-                g_cyclers[g_cyclerCnt][3] = sector[SECT(i)].floorshade;
-                g_cyclers[g_cyclerCnt][4] = SHT(i);
-                g_cyclers[g_cyclerCnt][5] = (SA(i) == 1536);
-                g_cyclerCnt++;
-                break;
+                    // DELETE_AFTER_LOADACTOR. Must not change statnum.
+                    if (g_cyclerCnt >= MAXCYCLERS)
+                    {
+                        Bsprintf(tempbuf, "\nToo many cycling sectors (%d max).", MAXCYCLERS);
+                        G_GameExit(tempbuf);
+                    }
 
-            case SECTOREFFECTOR__STATIC:
-            case ACTIVATOR__STATIC:
-            case TOUCHPLATE__STATIC:
-            case ACTIVATORLOCKED__STATIC:
-            case MUSICANDSFX__STATIC:
-            case LOCATORS__STATIC:
-            case MASTERSWITCH__STATIC:
-            case RESPAWN__STATIC:
-                sprite[i].cstat &= ~(1|16|32|256);
-                break;
+                    auto &cycler = g_cyclers[g_cyclerCnt];
+
+                    cycler[0] = SECT(i);
+                    cycler[1] = SLT(i);
+                    cycler[2] = SS(i);
+                    cycler[3] = sector[SECT(i)].floorshade;
+                    cycler[4] = SHT(i);
+                    cycler[5] = (SA(i) == 1536);
+
+                    g_cyclerCnt++;
+                    break;
+                }
+
+                case SECTOREFFECTOR__STATIC:
+                case ACTIVATOR__STATIC:
+                case TOUCHPLATE__STATIC:
+                case ACTIVATORLOCKED__STATIC:
+                case MUSICANDSFX__STATIC:
+                case LOCATORS__STATIC:
+                case MASTERSWITCH__STATIC:
+                case RESPAWN__STATIC:
+                    sprite[i].cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_ALIGNMENT_MASK);
+                    break;
             }
+        }
     }
 
     // Delete some effector / effector modifier sprites AFTER the loop running
     // the LOADACTOR events. DELETE_AFTER_LOADACTOR.
-    for (bssize_t nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
+    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
+    {
         if (!G_CheckExitSprite(i))
+        {
             switch (DYNAMICTILEMAP(PN(i)))
             {
-            case GPSPEED__STATIC:
-            case CYCLER__STATIC:
-                A_DeleteSprite(i);
-                break;
+                case GPSPEED__STATIC:
+                case CYCLER__STATIC: A_DeleteSprite(i); break;
             }
+        }
+    }
 
-    for (size_t i = 0; i < MAXSPRITES; i++)
+    for (int i = 0; i < MAXSPRITES; i++)
     {
         if (sprite[i].statnum < MAXSTATUS && (PN(i) != SECTOREFFECTOR || SLT(i) != SE_14_SUBWAY_CAR))
             A_Spawn(-1, i);
     }
 
-    for (size_t i = 0; i < MAXSPRITES; i++)
+    for (int i = 0; i < MAXSPRITES; i++)
     {
         if (sprite[i].statnum < MAXSTATUS && PN(i) == SECTOREFFECTOR && SLT(i) == SE_14_SUBWAY_CAR)
             A_Spawn(-1, i);
@@ -1098,14 +1119,16 @@ static void prelevel(char g)
 
     G_SetupRotfixedSprites();
 
-    for (bssize_t i=headspritestat[STAT_DEFAULT]; i>=0; i=nextspritestat[i])
+    auto tagbitmap = (uint8_t *)Xcalloc(65536 >> 3, 1);
+
+    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
     {
         if (PN(i) <= 0)  // oob safety for switch below
             continue;
 
-        for (bsize_t ii=0; ii<2; ii++)
+        for (int ii=0; ii<2; ii++)
         {
-            switch (DYNAMICTILEMAP(PN(i)-1+ii))
+            switch (DYNAMICTILEMAP(PN(i) - 1 + ii))
             {
             case DIPSWITCH__STATIC:
             case DIPSWITCH2__STATIC:
@@ -1133,7 +1156,7 @@ static void prelevel(char g)
     }
 
     // initially 'on' SE 12 light (*)
-    for (bssize_t j=headspritestat[STAT_EFFECTOR]; j>=0; j=nextspritestat[j])
+    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_EFFECTOR, j, nextSprite))
     {
         uint16_t const tag = sprite[j].hitag;
 
@@ -1141,17 +1164,16 @@ static void prelevel(char g)
             actor[j].t_data[0] = 1;
     }
 
-    Bfree(tagbitmap);
-
+    DO_FREE_AND_NULL(tagbitmap);
     g_mirrorCount = 0;
 
-    for (bssize_t i = 0; i < numwalls; i++)
+    for (int i = 0; i < numwalls; i++)
     {
-        walltype * const pWall = &wall[i];
+        auto &w = wall[i];
 
-        if (pWall->overpicnum == MIRROR && (pWall->cstat&32) != 0)
+        if (w.overpicnum == MIRROR && (w.cstat&32) != 0)
         {
-            int const nextSectnum = pWall->nextsector;
+            int const nextSectnum = w.nextsector;
 
             if ((nextSectnum >= 0) && sector[nextSectnum].ceilingpicnum != MIRROR)
             {
@@ -1175,85 +1197,83 @@ static void prelevel(char g)
             G_GameExit(tempbuf);
         }
 
-        animwall[g_animWallCnt].tag = 0;
-        animwall[g_animWallCnt].wallnum = 0;
+        auto &aw = animwall[g_animWallCnt];
 
-        int const switchPic = G_GetForcefieldPicnum(i);
+        aw.tag     = 0;
+        aw.wallnum = 0;
 
-        if (switchPic >= 0)
+        switch (DYNAMICTILEMAP(G_GetForcefieldPicnum(i)))
         {
-            switch (DYNAMICTILEMAP(switchPic))
-            {
-                case FANSHADOW__STATIC:
-                case FANSPRITE__STATIC:
-                    wall->cstat |= 65;
-                    animwall[g_animWallCnt].wallnum = i;
-                    g_animWallCnt++;
-                    break;
+            case FANSHADOW__STATIC:
+            case FANSPRITE__STATIC:
+                w.cstat |= 65;
+                aw.wallnum = i;
+                g_animWallCnt++;
+                break;
 
-                case W_FORCEFIELD__STATIC:
-                    if (pWall->overpicnum == W_FORCEFIELD__STATIC)
-                        for (bsize_t j = 0; j < 3; j++) tloadtile(W_FORCEFIELD + j, 0);
-                    if (pWall->shade > 31)
-                        pWall->cstat = 0;
-                    else
-                        pWall->cstat |= FORCEFIELD_CSTAT | 256;
+            case W_FORCEFIELD__STATIC:
+                if (w.overpicnum == W_FORCEFIELD__STATIC)
+                {
+                    for (int j = 0; j < 3; j++)
+                        tloadtile(W_FORCEFIELD + j, 0);
+                }
 
+                if (w.shade > 31)
+                    w.cstat = 0;
+                else
+                    w.cstat |= FORCEFIELD_CSTAT | CSTAT_WALL_BLOCK;
 
-                    if (pWall->lotag && pWall->nextwall >= 0)
-                        wall[pWall->nextwall].lotag = pWall->lotag;
-                    fallthrough__;
-                case BIGFORCE__STATIC:
-                    animwall[g_animWallCnt].wallnum = i;
-                    g_animWallCnt++;
+                if (w.lotag && w.nextwall >= 0)
+                    wall[w.nextwall].lotag = w.lotag;
 
-                    continue;
-            }
+                fallthrough__;
+            case BIGFORCE__STATIC:
+                aw.wallnum = i;
+                g_animWallCnt++;
+                continue;
         }
 
-        pWall->extra = -1;
+        w.extra = -1;
 
-        switch (DYNAMICTILEMAP(pWall->picnum))
+        switch (DYNAMICTILEMAP(w.picnum))
         {
 #ifndef EDUKE32_STANDALONE
             case WATERTILE2__STATIC:
-                for (bsize_t j = 0; j < 3; j++)
-                    tloadtile(pWall->picnum + j, 0);
+                for (int j = 0; j < 3; j++)
+                    tloadtile(w.picnum + j, 0);
                 break;
 
             case FEMPIC1__STATIC:
             case FEMPIC2__STATIC:
             case FEMPIC3__STATIC:
-                pWall->extra                 = pWall->picnum;
-                animwall[g_animWallCnt].tag = -1;
+                w.extra = w.picnum;
 
                 if (ud.lockout)
-                    pWall->picnum = (pWall->picnum == FEMPIC1) ? BLANKSCREEN : SCREENBREAK6;
+                    w.picnum = (w.picnum == FEMPIC1) ? BLANKSCREEN : SCREENBREAK6;
 
-                animwall[g_animWallCnt].wallnum = i;
-                animwall[g_animWallCnt].tag     = pWall->picnum;
+                aw.tag     = w.picnum;
+                aw.wallnum = i;
                 g_animWallCnt++;
                 break;
 #endif
 
             case TECHLIGHT2__STATIC:
-            case TECHLIGHT4__STATIC: tloadtile(pWall->picnum, 0); break;
+            case TECHLIGHT4__STATIC: tloadtile(w.picnum, 0); break;
             case W_TECHWALL1__STATIC:
             case W_TECHWALL2__STATIC:
             case W_TECHWALL3__STATIC:
             case W_TECHWALL4__STATIC:
-                animwall[g_animWallCnt].wallnum = i;
-                //                animwall[g_numAnimWalls].tag = -1;
+                aw.wallnum = i;
                 g_animWallCnt++;
                 break;
             case SCREENBREAK6__STATIC:
             case SCREENBREAK7__STATIC:
             case SCREENBREAK8__STATIC:
-                for (bssize_t j = SCREENBREAK6; j < SCREENBREAK9; j++)
+                for (int j = SCREENBREAK6; j < SCREENBREAK9; j++)
                     tloadtile(j, 0);
 
-                animwall[g_animWallCnt].wallnum = i;
-                animwall[g_animWallCnt].tag     = -1;
+                aw.tag     = -1;
+                aw.wallnum = i;
                 g_animWallCnt++;
                 break;
 
@@ -1274,23 +1294,22 @@ static void prelevel(char g)
             case SCREENBREAK17__STATIC:
             case SCREENBREAK18__STATIC:
             case SCREENBREAK19__STATIC:
-                animwall[g_animWallCnt].wallnum = i;
-                animwall[g_animWallCnt].tag     = pWall->picnum;
+                aw.tag     = w.picnum;
+                aw.wallnum = i;
                 g_animWallCnt++;
                 break;
         }
     }
 
     //Invalidate textures in sector behind mirror
-    for (bssize_t i=0; i<g_mirrorCount; i++)
+    for (int i = 0; i < g_mirrorCount; i++)
     {
         int const startWall = sector[g_mirrorSector[i]].wallptr;
         int const endWall   = startWall + sector[g_mirrorSector[i]].wallnum;
 
-        for (bssize_t j = startWall; j < endWall; j++)
+        for (int j = startWall; j < endWall; j++)
         {
-            wall[j].picnum     = MIRROR;
-            wall[j].overpicnum = MIRROR;
+            wall[j].picnum = wall[j].overpicnum = MIRROR;
 
             if (wall[g_mirrorWall[i]].pal == 4)
                 wall[j].pal = 4;
@@ -1301,110 +1320,104 @@ static void prelevel(char g)
 
 void G_NewGame(int volumeNum, int levelNum, int skillNum)
 {
-    DukePlayer_t *const pPlayer = g_player[0].ps;
+    auto &p = *g_player[0].ps;
 
     G_HandleAsync();
 
-    if (g_skillSoundVoice >= 0 && ud.config.SoundToggle)
+    if (ud.skill_voice >= 0 && ud.config.SoundToggle)
     {
-        while (FX_SoundActive(g_skillSoundVoice))
+        while (FX_SoundActive(ud.skill_voice))
             G_HandleAsync();
     }
 
-    g_skillSoundVoice = -1;
-
     ready2send = 0;
 
-    if (ud.m_recstat != 2 && ud.last_level >= 0 &&
-        VM_OnEventWithReturn(EVENT_EXITGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
-        (g_netServer || ud.multimode > 1) && (ud.coop&GAMETYPE_SCORESHEET))
+    if (ud.m_recstat != 2 && ud.last_level != -1 && !VM_OnEventWithReturn(EVENT_EXITGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)
+        && (g_netServer || ud.multimode > 1) && (ud.coop & GAMETYPE_SCORESHEET))
         G_BonusScreen(1);
 
     g_showShareware = GAMETICSPERSEC*34;
 
-    ud.level_number = levelNum;
+    ud.from_bonus    = 0;
+    ud.last_level    = -1;
+    ud.level_number  = levelNum;
+    ud.player_skill  = skillNum;
+    ud.secretlevel   = 0;
+    ud.skill_voice   = -1;
     ud.volume_number = volumeNum;
-    ud.player_skill = skillNum;
-    ud.secretlevel = 0;
-    ud.from_bonus = 0;
 
-    ud.last_level = -1;
     g_lastAutoSaveArbitraryID = -1;
     g_lastautosave.reset();
     g_lastusersave.reset();
     g_quickload = nullptr;
 
-    int const UserMap = Menu_HaveUserMap();
-
     // we don't want the intro to play after the multiplayer setup screen
-    if ((!g_netServer && ud.multimode < 2) && UserMap == 0 &&
-        VM_OnEventWithReturn(EVENT_NEWGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
-        levelNum == 0 && volumeNum == 3 && ud.lockout == 0 && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
+    if ((!g_netServer && ud.multimode < 2) && !Menu_HaveUserMap()
+        && !VM_OnEventWithReturn(EVENT_NEWGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)
+        && !levelNum && volumeNum == 3 && !ud.lockout && !(G_GetLogoFlags() & LOGO_NOE4CUTSCENE))
     {
         S_PlaySpecialMusicOrNothing(MUS_BRIEFING);
 
         renderFlushPerms();
-        videoSetViewableArea(0,0,xdim-1,ydim-1);
+        videoSetViewableArea(0, 0, xdim-1, ydim-1);
         videoClearViewableArea(0L);
         videoNextPage();
 
-        int animReturn = Anim_Play("vol41a.anm");
-        videoClearViewableArea(0L);
-        videoNextPage();
-        if (animReturn)
+        if (Anim_Play("vol41a.anm"))
             goto end_vol4a;
 
-        animReturn = Anim_Play("vol42a.anm");
         videoClearViewableArea(0L);
         videoNextPage();
-        if (animReturn)
+
+        if (Anim_Play("vol42a.anm"))
             goto end_vol4a;
+
+        videoClearViewableArea(0L);
+        videoNextPage();
 
         Anim_Play("vol43a.anm");
+
+end_vol4a:
         videoClearViewableArea(0L);
         videoNextPage();
 
-end_vol4a:
         FX_StopAllSounds();
     }
 
 #ifdef EDUKE32_TOUCH_DEVICES
-    pPlayer->zoom = 360;
+    p.zoom = 360;
 #else
-    pPlayer->zoom = 768;
+    p.zoom = 768;
 #endif
-    pPlayer->gm = 0;
+    p.gm = 0;
+
     Menu_Close(0);
 
 #if !defined LUNATIC
-    //AddLog("Newgame");
     Gv_ResetVars();
-
     Gv_InitWeaponPointers();
-
-    // PK: Gv_ResetVars() might trip up the system (pointer) gamevars,
-    // e.g. if some earlier-version CON code had been loaded before
     Gv_RefreshPointers();
 #endif
     Gv_ResetSystemDefaults();
 
-    for (bssize_t i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
+    for (int i=0; i < (MAXVOLUMES*MAXLEVELS); i++)
         G_FreeMapState(i);
 
     if (ud.m_coop != 1)
     {
-        for (bssize_t weaponNum = 0; weaponNum < MAX_WEAPONS; weaponNum++)
+        for (int weaponNum = 0; weaponNum < MAX_WEAPONS; weaponNum++)
         {
             if (PWEAPON(0, weaponNum, WorksLike) == PISTOL_WEAPON)
             {
-                pPlayer->curr_weapon = weaponNum;
-                pPlayer->gotweapon |= (1 << weaponNum);
-                pPlayer->ammo_amount[weaponNum] = min<int16_t>(pPlayer->max_ammo_amount[weaponNum], 48);
+                p.curr_weapon = weaponNum;
+                p.gotweapon |= (1 << weaponNum);
+                p.ammo_amount[weaponNum] = min<int16_t>(p.max_ammo_amount[weaponNum], 48);
             }
             else if (PWEAPON(0, weaponNum, WorksLike) == KNEE_WEAPON || PWEAPON(0, weaponNum, WorksLike) == HANDREMOTE_WEAPON)
-                pPlayer->gotweapon |= (1 << weaponNum);
+                p.gotweapon |= (1 << weaponNum);
         }
-        pPlayer->last_weapon = -1;
+
+        p.last_weapon = -1;
     }
 
     display_mirror = 0;
@@ -1415,14 +1428,13 @@ end_vol4a:
     El_CreateGameState();
     G_PostCreateGameState();
 #endif
+
     VM_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek);
 }
 
-static void resetpspritevars(char gameMode)
+static void resetpspritevars(int gameMode)
 {
-    int16_t i, j; //circ;
-
-    uint8_t aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
+    uint8_t aimmode[MAXPLAYERS], autoaim[MAXPLAYERS], wswitch[MAXPLAYERS];
     DukeStatus_t tsbar[MAXPLAYERS];
 
     if (g_player[0].ps->cursectnum >= 0)  // < 0 may happen if we start a map in void space (e.g. testing it)
@@ -1432,145 +1444,152 @@ static void resetpspritevars(char gameMode)
     }
 
     if (ud.recstat != 2)
-        for (TRAVERSE_CONNECT(i))
+    {
+        for (int TRAVERSE_CONNECT(i))
         {
-            aimmode[i] = g_player[i].ps->aim_mode;
-            autoaim[i] = g_player[i].ps->auto_aim;
-            weaponswitch[i] = g_player[i].ps->weaponswitch;
-            if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
-            {
-                for (j=0; j<MAX_WEAPONS; j++)
-                    tsbar[i].ammo_amount[j] = g_player[i].ps->ammo_amount[j];
+            auto &p = *g_player[i].ps;
 
-                tsbar[i].gotweapon = g_player[i].ps->gotweapon;
-                Bmemcpy(tsbar[i].inv_amount, g_player[i].ps->inv_amount, sizeof(tsbar[i].inv_amount));
-                tsbar[i].curr_weapon = g_player[i].ps->curr_weapon;
-                tsbar[i].inven_icon = g_player[i].ps->inven_icon;
+            aimmode[i] = p.aim_mode;
+            autoaim[i] = p.auto_aim;
+            wswitch[i] = p.weaponswitch;
+
+            if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            {
+                for (int j = 0; j < MAX_WEAPONS; j++)
+                    tsbar[i].ammo_amount[j] = p.ammo_amount[j];
+
+                tsbar[i].gotweapon   = p.gotweapon;
+                tsbar[i].curr_weapon = p.curr_weapon;
+                tsbar[i].inven_icon  = p.inven_icon;
+                Bmemcpy(tsbar[i].inv_amount, p.inv_amount, sizeof(tsbar[i].inv_amount));
             }
         }
+    }
 
     P_ResetStatus(0);
 
-    for (TRAVERSE_CONNECT(i))
-        if (i) Bmemcpy(g_player[i].ps,g_player[0].ps,sizeof(DukePlayer_t));
+    for (int TRAVERSE_CONNECT(i))
+    {
+        if (i)
+            Bmemcpy(g_player[i].ps, g_player[0].ps, sizeof(DukePlayer_t));
+    }
 
     if (ud.recstat != 2)
-        for (TRAVERSE_CONNECT(i))
+    {
+        for (int TRAVERSE_CONNECT(i))
         {
-            g_player[i].ps->aim_mode = aimmode[i];
-            g_player[i].ps->auto_aim = autoaim[i];
-            g_player[i].ps->weaponswitch = weaponswitch[i];
-            if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
-            {
-                for (j=0; j<MAX_WEAPONS; j++)
-                    g_player[i].ps->ammo_amount[j] = tsbar[i].ammo_amount[j];
+            auto &p = *g_player[i].ps;
 
-                g_player[i].ps->gotweapon = tsbar[i].gotweapon;
-                g_player[i].ps->curr_weapon = tsbar[i].curr_weapon;
-                g_player[i].ps->inven_icon = tsbar[i].inven_icon;
-                Bmemcpy(g_player[i].ps->inv_amount, tsbar[i].inv_amount, sizeof(tsbar[i].inv_amount));
+            p.aim_mode     = aimmode[i];
+            p.auto_aim     = autoaim[i];
+            p.weaponswitch = wswitch[i];
+
+            if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            {
+                for (int j = 0; j < MAX_WEAPONS; j++)
+                    p.ammo_amount[j] = tsbar[i].ammo_amount[j];
+
+                p.gotweapon   = tsbar[i].gotweapon;
+                p.curr_weapon = tsbar[i].curr_weapon;
+                p.inven_icon  = tsbar[i].inven_icon;
+                Bmemcpy(p.inv_amount, tsbar[i].inv_amount, sizeof(tsbar[i].inv_amount));
             }
         }
+    }
 
     g_playerSpawnCnt = 0;
 //    circ = 2048/ud.multimode;
 
-    g_whichPalForPlayer = 9;
-    j = 0;
-    i = headspritestat[STAT_PLAYER];
-    while (i >= 0)
+    for (int pindex = 0, pal = 9, nexti, SPRITES_OF_STAT_SAFE(STAT_PLAYER, i, nexti))
     {
-        const int32_t nexti = nextspritestat[i];
-        spritetype *const s = &sprite[i];
-
         if (g_playerSpawnCnt == MAXPLAYERS)
             G_GameExit("\nToo many player sprites (max 16.)");
 
-        g_playerSpawnPoints[g_playerSpawnCnt].pos.x = s->x;
-        g_playerSpawnPoints[g_playerSpawnCnt].pos.y = s->y;
-        g_playerSpawnPoints[g_playerSpawnCnt].pos.z = s->z;
-        g_playerSpawnPoints[g_playerSpawnCnt].ang   = s->ang;
-        g_playerSpawnPoints[g_playerSpawnCnt].sect  = s->sectnum;
+        auto &s = sprite[i];
+        auto &spawn = g_playerSpawnPoints[g_playerSpawnCnt];
+
+        spawn.pos  = *(vec3_t *)&s.x;
+        spawn.ang  = s.ang;
+        spawn.sect = s.sectnum;
 
         g_playerSpawnCnt++;
 
-        if (j < MAXPLAYERS)
+        if (pindex >= MAXPLAYERS)
         {
-            s->owner = i;
-            s->shade = 0;
-            s->xrepeat = 42;
-            s->yrepeat = 36;
-            if (!g_fakeMultiMode)
-                s->cstat = j < numplayers ? 1+256 : 32768;
-            else
-                s->cstat = j < ud.multimode ? 1+256 : 32768;
-            s->xoffset = 0;
-            s->clipdist = 64;
+            A_DeleteSprite(i);
+            i = nexti;
+            continue;
+        }
 
-//            if (j < g_mostConcurrentPlayers)
+        s.clipdist = 64;
+        s.owner    = i;
+        s.shade    = 0;
+        s.xoffset  = 0;
+        s.xrepeat  = 42;
+        s.yrepeat  = 36;
+
+        s.cstat = (pindex < (!g_fakeMultiMode ? numplayers : ud.multimode)) ?
+                    CSTAT_SPRITE_BLOCK+CSTAT_SPRITE_BLOCK_HITSCAN :
+                    CSTAT_SPRITE_INVISIBLE;
+
+        auto &plr = g_player[pindex];
+        auto &p   = *plr.ps;
+
+        if ((gameMode&MODE_EOL) != MODE_EOL || p.last_extra == 0)
+        {
+            p.runspeed   = g_playerFriction;
+            p.last_extra = p.max_player_health;
+            s.extra      = p.max_player_health;
+        }
+        else s.extra = p.last_extra;
+
+        s.yvel = pindex;
+
+        if (!plr.pcolor && (g_netServer || ud.multimode > 1) && !(g_gametypeFlags[ud.coop] & GAMETYPE_TDM))
+        {
+            if (s.pal == 0)
             {
-                if ((gameMode&MODE_EOL) != MODE_EOL || g_player[j].ps->last_extra == 0)
+                for (int TRAVERSE_CONNECT(k))
                 {
-                    g_player[j].ps->last_extra = g_player[j].ps->max_player_health;
-                    s->extra = g_player[j].ps->max_player_health;
-                    g_player[j].ps->runspeed = g_playerFriction;
-                }
-                else s->extra = g_player[j].ps->last_extra;
-
-                s->yvel = j;
-
-                if (!g_player[j].pcolor && (g_netServer || ud.multimode > 1) && !(g_gametypeFlags[ud.coop] & GAMETYPE_TDM))
-                {
-                    if (s->pal == 0)
+                    if (pal == g_player[k].ps->palookup)
                     {
-                        int32_t k = 0;
-
-                        for (; k<ud.multimode; k++)
-                        {
-                            if (g_whichPalForPlayer == g_player[k].ps->palookup)
-                            {
-                                g_whichPalForPlayer++;
-                                if (g_whichPalForPlayer >= 17)
-                                    g_whichPalForPlayer = 9;
-                                k=0;
-                            }
-                        }
-                        g_player[j].pcolor = s->pal = g_player[j].ps->palookup = g_whichPalForPlayer++;
-                        if (g_whichPalForPlayer >= 17)
-                            g_whichPalForPlayer = 9;
+                        if (++pal > 16)
+                            pal = 9;
+                        k = 0;
                     }
-                    else g_player[j].pcolor = g_player[j].ps->palookup = s->pal;
-                }
-                else
-                {
-                    int32_t k = g_player[j].pcolor;
-
-                    if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
-                    {
-                        k = G_GetTeamPalette(g_player[j].pteam);
-                        g_player[j].ps->team = g_player[j].pteam;
-                    }
-                    s->pal = g_player[j].ps->palookup = k;
                 }
 
-                g_player[j].ps->i = i;
-                g_player[j].ps->frag_ps = j;
-                actor[i].owner = i;
+                plr.pcolor = s.pal = p.palookup = pal++;
 
-                g_player[j].ps->autostep = (20L<<8);
-                g_player[j].ps->autostep_sbw = (4L<<8);
+                if (pal > 16)
+                    pal = 9;
+            }
+            else plr.pcolor = p.palookup = s.pal;
+        }
+        else
+        {
+            int k = plr.pcolor;
 
-                actor[i].bpos.x = g_player[j].ps->bobpos.x = g_player[j].ps->opos.x = g_player[j].ps->pos.x =        s->x;
-                actor[i].bpos.y = g_player[j].ps->bobpos.y = g_player[j].ps->opos.y = g_player[j].ps->pos.y =        s->y;
-                actor[i].bpos.z = g_player[j].ps->opos.z = g_player[j].ps->pos.z =        s->z;
-                g_player[j].ps->oq16ang = g_player[j].ps->q16ang = fix16_from_int(s->ang);
-
-                updatesector(s->x,s->y,&g_player[j].ps->cursectnum);
+            if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
+            {
+                k = G_GetTeamPalette(plr.pteam);
+                p.team = plr.pteam;
             }
 
-            j++;
+            s.pal = p.palookup = k;
         }
-        else A_DeleteSprite(i);
+
+        p.frag_ps = pindex;
+
+        actor[i].owner = p.i = i;
+        actor[i].bpos = p.opos = p.pos = *(vec3_t *)&s.x;
+        p.bobpos                       = *(vec2_t *)&s.x;
+
+        p.oq16ang = p.q16ang = fix16_from_int(s.ang);
+
+        updatesector(s.x, s.y, &p.cursectnum);
+
+        pindex++;
 
         i = nexti;
     }
@@ -1578,21 +1597,21 @@ static void resetpspritevars(char gameMode)
 
 static inline void clearfrags(void)
 {
-    for (bssize_t i = 0; i < ud.multimode; i++)
+    for (int TRAVERSE_CONNECT(i))
     {
-        playerdata_t *const pPlayerData = &g_player[i];
-        pPlayerData->ps->frag = pPlayerData->ps->fraggedself = 0;
-        Bmemset(pPlayerData->frags, 0, sizeof(pPlayerData->frags));
+        auto &plr = g_player[i];
+        plr.ps->frag = plr.ps->fraggedself = 0;
+        Bmemset(plr.frags, 0, sizeof(plr.frags));
     }
 }
 
-void G_ResetTimers(uint8_t keepgtics)
+void G_ResetTimers(bool saveMoveCnt)
 {
     totalclock = g_cloudClock = ototalclock = lockclock = 0;
     ready2send = 1;
     g_levelTextTime = 85;
 
-    if (!keepgtics)
+    if (!saveMoveCnt)
         g_moveThingsCount = 0;
 
     if (g_curViewscreen >= 0)
@@ -1604,7 +1623,7 @@ void G_ClearFIFO(void)
     clearbufbyte(&localInput, sizeof(input_t), 0L);
     clearbufbyte(&inputfifo, sizeof(input_t) * MOVEFIFOSIZ * MAXPLAYERS, 0L);
 
-    for (bsize_t p = 0; p <= MAXPLAYERS - 1; ++p)
+    for (int p = 0; p < MAXPLAYERS; ++p)
     {
         if (g_player[p].inputBits != NULL)
             Bmemset(g_player[p].inputBits, 0, sizeof(input_t));
@@ -1614,21 +1633,20 @@ void G_ClearFIFO(void)
 
 int G_FindLevelByFile(const char *fileName)
 {
-    for (bssize_t volumeNum = 0; volumeNum < MAXVOLUMES; volumeNum++)
+    int i = 0;
+
+    for (auto &levelNum : g_mapInfo)
     {
-        int const volOffset = volumeNum * MAXLEVELS;
+        i++;
 
-        for (bssize_t levelNum = 0; levelNum < MAXLEVELS; levelNum++)
-        {
-            if (g_mapInfo[volOffset + levelNum].filename == NULL)
-                continue;
+        if (levelNum.filename == NULL)
+            continue;
 
-            if (!Bstrcasecmp(fileName, g_mapInfo[volOffset + levelNum].filename))
-                return volOffset + levelNum;
-        }
+        if (!Bstrcasecmp(fileName, levelNum.filename))
+            return i;
     }
 
-    return MAXLEVELS * MAXVOLUMES;
+    return -1;
 }
 
 #if 0
@@ -1659,7 +1677,7 @@ static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t e
 
 static int G_TryMapHack(const char *mhkfile)
 {
-    int32_t failure = engineLoadMHK(mhkfile);
+    int const failure = engineLoadMHK(mhkfile);
 
     if (!failure)
         initprintf("Loaded map hack file \"%s\"\n", mhkfile);
@@ -1676,10 +1694,8 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 
     if (G_TryMapHack(outbuf) && usermaphacks != NULL)
     {
-        usermaphack_t *pMapInfo = (usermaphack_t*)bsearch(
-            &g_loadedMapHack, usermaphacks, num_usermaphacks, sizeof(usermaphack_t),
-            compare_usermaphacks);
-
+        auto pMapInfo = (usermaphack_t *)bsearch(&g_loadedMapHack, usermaphacks, num_usermaphacks,
+                                                 sizeof(usermaphack_t), compare_usermaphacks);
         if (pMapInfo)
             G_TryMapHack(pMapInfo->mhkfile);
     }
@@ -1728,11 +1744,6 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
 
 int G_EnterLevel(int gameMode)
 {
-    int32_t i, mii;
-    char levelName[BMAX_PATH];
-
-//    flushpackets();
-//    waitforeverybody();
     vote_map = vote_episode = voting = -1;
 
     ud.respawn_monsters  = ud.m_respawn_monsters;
@@ -1764,7 +1775,7 @@ int G_EnterLevel(int gameMode)
 
         int levelNum = G_FindLevelByFile(boardfilename);
 
-        if (levelNum != MAXLEVELS*MAXVOLUMES)
+        if (levelNum != -1)
         {
             int volumeNum = levelNum;
 
@@ -1778,16 +1789,21 @@ int G_EnterLevel(int gameMode)
         }
     }
 
-    mii = (ud.volume_number*MAXLEVELS)+ud.level_number;
+    int const mapidx = (ud.volume_number * MAXLEVELS) + ud.level_number;
 
-    if (g_mapInfo[mii].name == NULL || g_mapInfo[mii].filename == NULL)
+    Bassert((unsigned)mapidx < MAXLEVELS);
+
+    auto &m = g_mapInfo[mapidx];
+
+    if (m.name == NULL || m.filename == NULL)
     {
         if (Menu_HaveUserMap())
         {
-            if (g_mapInfo[mii].filename == NULL)
-                g_mapInfo[mii].filename = (char *)Xcalloc(BMAX_PATH, sizeof(uint8_t));
-            if (g_mapInfo[mii].name == NULL)
-                g_mapInfo[mii].name = Xstrdup("User Map");
+            if (m.filename == NULL)
+                m.filename = (char *)Xcalloc(BMAX_PATH, sizeof(uint8_t));
+
+            if (m.name == NULL)
+                m.name = Xstrdup("User Map");
         }
         else
         {
@@ -1796,13 +1812,13 @@ int G_EnterLevel(int gameMode)
         }
     }
 
-    i = ud.screen_size;
+    int const ssize = ud.screen_size;
     ud.screen_size = 0;
 
     G_DoLoadScreen("Loading map . . .", -1);
     G_UpdateScreenArea();
 
-    ud.screen_size = i;
+    ud.screen_size = ssize;
 
     if (Menu_HaveUserMap())
     {
@@ -1819,23 +1835,25 @@ int G_EnterLevel(int gameMode)
     {
         if (g_gameNamePtr)
 #ifdef EDUKE32_STANDALONE
-            Bsprintf(apptitle,"%s - %s",g_mapInfo[mii].name,g_gameNamePtr);
+            Bsprintf(apptitle,"%s - %s",m.name,g_gameNamePtr);
 #else
-            Bsprintf(apptitle, "%s - %s - " APPNAME, g_mapInfo[mii].name, g_gameNamePtr);
+            Bsprintf(apptitle, "%s - %s - " APPNAME, m.name, g_gameNamePtr);
 #endif
         else
-            Bsprintf(apptitle,"%s - " APPNAME,g_mapInfo[mii].name);
+            Bsprintf(apptitle,"%s - " APPNAME,m.name);
     }
 
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
 
-    DukePlayer_t *const pPlayer = g_player[0].ps;
-    int16_t lbang;
+    auto   &p = *g_player[0].ps;
+    int16_t playerAngle;
+
+    char levelName[BMAX_PATH];
 
     if (!VOLUMEONE && Menu_HaveUserMap())
     {
-        if (engineLoadBoard(boardfilename, 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
+        if (engineLoadBoard(boardfilename, 0, &p.pos, &playerAngle, &p.cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
@@ -1844,17 +1862,17 @@ int G_EnterLevel(int gameMode)
         G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename, ud.m_level_number);
     }
-    else if (engineLoadBoard(g_mapInfo[mii].filename, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
+    else if (engineLoadBoard(m.filename, VOLUMEONE, &p.pos, &playerAngle, &p.cursectnum) < 0)
     {
-        OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", g_mapInfo[mii].filename);
+        OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", m.filename);
         return 1;
     }
     else
     {
-        G_LoadMapHack(levelName, g_mapInfo[mii].filename);
+        G_LoadMapHack(levelName, m.filename);
     }
 
-    pPlayer->q16ang = fix16_from_int(lbang);
+    p.q16ang = fix16_from_int(playerAngle);
 
     g_precacheCount = 0;
     Bmemset(gotpic, 0, sizeof(gotpic));
@@ -1867,7 +1885,7 @@ int G_EnterLevel(int gameMode)
     G_AlignWarpElevators();
     resetpspritevars(gameMode);
 
-    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : g_mapInfo[mii].filename, g_loadedMapHack.md4);
+    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : m.filename, g_loadedMapHack.md4);
 
     // G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
@@ -1875,13 +1893,10 @@ int G_EnterLevel(int gameMode)
 
     if (ud.recstat != 2)
     {
-        if (g_mapInfo[g_musicIndex].musicfn == NULL ||
-            g_mapInfo[mii].musicfn == NULL || // intentional, to pass control further while avoiding the strcmp on null
-            strcmp(g_mapInfo[g_musicIndex].musicfn, g_mapInfo[mii].musicfn) ||
-            g_musicSize == 0 ||
-            ud.last_level == -1)
+        if (g_mapInfo[g_musicIndex].musicfn == NULL || m.musicfn == NULL ||
+            strcmp(g_mapInfo[g_musicIndex].musicfn, m.musicfn) || g_musicSize == 0 || ud.last_level == -1)
         {
-            S_PlayLevelMusicOrNothing(mii);
+            S_PlayLevelMusicOrNothing(mapidx);
         }
         else
         {
@@ -1891,18 +1906,14 @@ int G_EnterLevel(int gameMode)
 
     if (gameMode & (MODE_GAME|MODE_EOL))
     {
-        for (TRAVERSE_CONNECT(i))
+        for (int TRAVERSE_CONNECT(i))
         {
             g_player[i].ps->gm = MODE_GAME;
             Menu_Close(i);
         }
     }
     else if (gameMode & MODE_RESTART)
-    {
-        if (ud.recstat == 2)
-            g_player[myconnectindex].ps->gm = MODE_DEMO;
-        else g_player[myconnectindex].ps->gm = MODE_GAME;
-    }
+        g_player[myconnectindex].ps->gm = (ud.recstat == 2) ? MODE_DEMO : MODE_GAME;
 
     if ((ud.recstat == 1) && (gameMode&MODE_RESTART) != MODE_RESTART)
         G_OpenDemoWrite();
@@ -1912,9 +1923,11 @@ int G_EnterLevel(int gameMode)
         P_DoQuote(QUOTE_F1HELP,g_player[myconnectindex].ps);
 #endif
 
-    for (TRAVERSE_CONNECT(i))
+    // take away the pistol if the player spawns on any of these textures
+    for (int TRAVERSE_CONNECT(i))
     {
-        switch (DYNAMICTILEMAP(sector[sprite[g_player[i].ps->i].sectnum].floorpicnum))
+        auto &p = *g_player[i].ps;
+        switch (DYNAMICTILEMAP(sector[sprite[p.i].sectnum].floorpicnum))
         {
             case HURTRAIL__STATIC:
             case FLOORSLIME__STATIC:
@@ -1922,11 +1935,11 @@ int G_EnterLevel(int gameMode)
                 P_ResetWeapons(i);
                 P_ResetInventory(i);
 
-                g_player[i].ps->gotweapon &= ~(1 << PISTOL_WEAPON);
-                g_player[i].ps->ammo_amount[PISTOL_WEAPON] = 0;
+                p.ammo_amount[PISTOL_WEAPON] = 0;
+                p.gotweapon &= ~(1 << PISTOL_WEAPON);
+                p.curr_weapon  = KNEE_WEAPON;
+                p.kickback_pic = 0;
 
-                g_player[i].ps->curr_weapon  = KNEE_WEAPON;
-                g_player[i].ps->kickback_pic = 0;
                 break;
         }
     }
@@ -1949,7 +1962,7 @@ int G_EnterLevel(int gameMode)
 
     G_ClearFIFO();
 
-    for (i=g_interpolationCnt-1; i>=0; i--) bakipos[i] = *curipos[i];
+    for (int i=g_interpolationCnt-1; i>=0; i--) bakipos[i] = *curipos[i];
 
     g_player[myconnectindex].ps->over_shoulder_on = 0;
 
@@ -1963,10 +1976,9 @@ int G_EnterLevel(int gameMode)
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
 
-    for (TRAVERSE_CONNECT(i))
+    for (int TRAVERSE_CONNECT(i))
     {
-        const int32_t ret = VM_OnEventWithReturn(EVENT_ENTERLEVEL, g_player[i].ps->i, i, 0);
-        if (ret == 0)
+        if (!VM_OnEventWithReturn(EVENT_ENTERLEVEL, g_player[i].ps->i, i, 0))
             break;
     }
 
@@ -1977,7 +1989,7 @@ int G_EnterLevel(int gameMode)
     else
     {
         OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
-                   g_mapInfo[mii].name);
+                   m.name);
     }
 
     g_restorePalette = -1;
@@ -1993,29 +2005,29 @@ int G_EnterLevel(int gameMode)
 
 void G_FreeMapState(int levelNum)
 {
-    map_t *const pMapInfo = &g_mapInfo[levelNum];
+    auto &board = g_mapInfo[levelNum];
 
-    if (pMapInfo->savedstate == NULL)
+    if (board.savedstate == NULL)
         return;
 
 #if !defined LUNATIC
-    for (bssize_t j=0; j<g_gameVarCount; j++)
+    for (int j=0; j<g_gameVarCount; j++)
     {
         if (aGameVars[j].flags & GAMEVAR_NORESET)
             continue;
 
         if (aGameVars[j].flags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
-            ALIGNED_FREE_AND_NULL(pMapInfo->savedstate->vars[j]);
+            ALIGNED_FREE_AND_NULL(board.savedstate->vars[j]);
     }
 
-    for (bssize_t j=0; j<g_gameArrayCount; j++)
+    for (int j=0; j<g_gameArrayCount; j++)
     {
         if (aGameArrays[j].flags & GAMEARRAY_RESTORE)
-            ALIGNED_FREE_AND_NULL(pMapInfo->savedstate->arrays[j]);
+            ALIGNED_FREE_AND_NULL(board.savedstate->arrays[j]);
     }
 #else
-    Bfree(pMapInfo->savedstate->savecode);
+    Bfree(board.savedstate->savecode);
 #endif
 
-    ALIGNED_FREE_AND_NULL(pMapInfo->savedstate);
+    ALIGNED_FREE_AND_NULL(board.savedstate);
 }

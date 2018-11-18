@@ -61,7 +61,6 @@ typedef struct
 
 extern char g_soundlocks[MAXSOUNDS];
 extern sound_t g_sounds[MAXSOUNDS];
-extern int32_t g_skillSoundVoice;
 extern int32_t g_numEnvSoundsPlaying,g_highestSoundIdx;
 
 bool A_CheckSoundPlaying(int spriteNum,int soundNum);

@@ -181,7 +181,7 @@ typedef struct {
     int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;
     int32_t m_ffire,ffire,m_player_skill,m_level_number,m_volume_number,multimode;
     int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
-    int32_t music_episode, music_level;
+    int32_t music_episode, music_level, skill_voice;
 
     int32_t playerbest;
 

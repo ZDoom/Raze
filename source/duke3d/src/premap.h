@@ -36,7 +36,7 @@ int G_FindLevelByFile(const char *fileName);
 void G_CacheMapData(void);
 void G_FreeMapState(int levelNum);
 void G_NewGame(int volumeNum, int levelNum, int skillNum);
-void G_ResetTimers(uint8_t keepgtics);
+void G_ResetTimers(bool saveMoveCnt);
 void G_SetCrosshairColor(int32_t r,int32_t g,int32_t b);
 void G_UpdateScreenArea(void);
 void G_SetViewportShrink(int32_t dir);

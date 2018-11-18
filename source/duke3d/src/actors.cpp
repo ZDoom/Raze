@@ -5032,7 +5032,7 @@ DETONATEB:
         if (G_HaveActor(sprite[spriteNum].picnum))
         {
             int32_t playerDist;
-            int     playerNum = A_FindPlayer(pSprite, &playerDist);
+            int const playerNum = A_FindPlayer(pSprite, &playerDist);
             A_Execute(spriteNum, playerNum, playerDist);
         }
 next_sprite:
