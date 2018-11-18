@@ -15,7 +15,7 @@
 #include "common.h"
 #include "editor.h"
 
-static osdsymbol_t *symbols = NULL;
+static osdsymbol_t *osd_symbols = NULL;
 static osdsymbol_t *osd_addsymbol(const char *name);
 static osdsymbol_t *osd_findsymbol(const char *pszName, osdsymbol_t *pSymbol);
 static osdsymbol_t *osd_findexactsymbol(const char *pszName);
@@ -32,17 +32,17 @@ static void _internal_onshowosd(int32_t);
 
 osdmain_t *osd = NULL;
 
-static int32_t  osdrowscur=-1;
-static int32_t  osdmaxrows=20;      // maximum number of lines which can fit on the screen
+static int32_t osdrowscur=-1;
+static int32_t osdmaxrows=20;      // maximum number of lines which can fit on the screen
 BFILE *osdlog;      // log filehandle
 const char* osdlogfn;
-static int32_t  keytime=0;
+static int32_t osdkeytime=0;
 static int32_t osdscrtime = 0;
 
 
-#define editlinewidth (osd->draw.cols-1-3)
+#define OSD_EDIT_LINE_WIDTH (osd->draw.cols - 1 - 3)
 
-static hashtable_t h_osd = { OSDMAXSYMBOLS << 1, NULL };
+static hashtable_t h_osd = { OSDMAXSYMBOLS >> 1, NULL };
 
 // Application callbacks: these are the currently effective ones.
 static void (*drawosdchar)(int32_t, int32_t, char, int32_t, int32_t) = _internal_drawosdchar;
@@ -412,7 +412,7 @@ static int32_t osdfunc_alias(osdfuncparm_t const * const parm)
     {
         int32_t j = 0;
         OSD_Printf("Alias listing:\n");
-        for (i=symbols; i!=NULL; i=i->next)
+        for (i=osd_symbols; i!=NULL; i=i->next)
             if (i->func == OSD_ALIAS)
             {
                 j++;
@@ -423,7 +423,7 @@ static int32_t osdfunc_alias(osdfuncparm_t const * const parm)
         return OSDCMD_OK;
     }
 
-    for (i=symbols; i!=NULL; i=i->next)
+    for (i=osd_symbols; i!=NULL; i=i->next)
     {
         if (!Bstrcasecmp(parm->parms[0],i->name))
         {
@@ -453,46 +453,48 @@ static int32_t osdfunc_alias(osdfuncparm_t const * const parm)
 
 static int32_t osdfunc_unalias(osdfuncparm_t const * const parm)
 {
-    osdsymbol_t *i;
-
     if (parm->numparms < 1)
         return OSDCMD_SHOWHELP;
 
-    for (i=symbols; i!=NULL; i=i->next)
+    for (auto symb=osd_symbols; symb!=NULL; symb=symb->next)
     {
-        if (!Bstrcasecmp(parm->parms[0],i->name))
+        if (!Bstrcasecmp(parm->parms[0], symb->name))
         {
             if (parm->numparms < 2)
             {
-                if (i->func == OSD_ALIAS)
+                if (symb->func == OSD_ALIAS)
                 {
-                    OSD_Printf("Removed alias %s (\"%s\")\n", i->name, i->help);
-                    i->func = OSD_UNALIASED;
+                    OSD_Printf("Removed alias %s (\"%s\")\n", symb->name, symb->help);
+                    symb->func = OSD_UNALIASED;
                 }
-                else OSD_Printf("Invalid alias %s\n",i->name);
+                else
+                    OSD_Printf("Invalid alias %s\n", symb->name);
+
                 return OSDCMD_OK;
             }
         }
     }
-    OSD_Printf("Invalid alias %s\n",parm->parms[0]);
+
+    OSD_Printf("Invalid alias %s\n", parm->parms[0]);
     return OSDCMD_OK;
 }
 
 static int32_t osdfunc_listsymbols(osdfuncparm_t const * const parm)
 {
-    osdsymbol_t *i;
-    int32_t maxwidth = 0;
-
     if (parm->numparms > 1)
         return OSDCMD_SHOWHELP;
 
-    for (i=symbols; i!=NULL; i=i->next)
-        if (i->func != OSD_UNALIASED)
-            maxwidth = max<int>(maxwidth, Bstrlen(i->name));
+    int maxwidth = 0;
+
+    for (auto symb=osd_symbols; symb!=NULL; symb=symb->next)
+        if (symb->func != OSD_UNALIASED)
+            maxwidth = max<int>(maxwidth, Bstrlen(symb->name));
 
     if (maxwidth > 0)
     {
-        int32_t x = 0, count = 0;
+        int width = 0;
+        int count = 0;
+
         maxwidth += 3;
 
         if (parm->numparms > 0)
@@ -502,30 +504,34 @@ static int32_t osdfunc_listsymbols(osdfuncparm_t const * const parm)
 
         int const parmlen = parm->numparms ? Bstrlen(parm->parms[0]) : 0;
 
-        for (i=symbols; i!=NULL; i=i->next)
+        for (auto symb=osd_symbols; symb!=NULL; symb=symb->next)
         {
-            if (i->func == OSD_UNALIASED || (parm->numparms == 1 && Bstrncmp(parm->parms[0], i->name, parmlen)))
+            if (symb->func == OSD_UNALIASED || (parm->numparms == 1 && Bstrncmp(parm->parms[0], symb->name, parmlen)))
                 continue;
 
-            int32_t j = hash_find(&h_cvars, i->name);
+            int const var = hash_find(&h_cvars, symb->name);
 
-            if (j != -1 && OSD_CvarModified(&osd->cvars[j]))
+            if ((unsigned)var < osd->numcvars && OSD_CvarModified(&osd->cvars[var]))
             {
                 OSD_Printf("%s*", osd->draw.highlight);
-                OSD_Printf("%-*s",maxwidth-1,i->name);
+                OSD_Printf("%-*s", maxwidth-1, symb->name);
             }
-            else OSD_Printf("%-*s",maxwidth,i->name);
+            else
+                OSD_Printf("%-*s", maxwidth, symb->name);
 
-            x += maxwidth;
+            width += maxwidth;
             count++;
 
-            if (x > osd->draw.cols - maxwidth)
+            if (width > osd->draw.cols - maxwidth)
             {
-                x = 0;
+                width = 0;
                 OSD_Printf("\n");
             }
         }
-        if (x) OSD_Printf("\n");
+
+        if (width)
+            OSD_Printf("\n");
+
         OSD_Printf("%sFound %d symbols\n", osd->draw.highlight, count);
     }
     return OSDCMD_OK;
@@ -586,10 +592,10 @@ void OSD_Cleanup(void)
     hash_free(&h_osd);
     hash_free(&h_cvars);
 
-    for (osdsymbol_t *s; symbols; symbols=s)
+    for (osdsymbol_t *s; osd_symbols; osd_symbols=s)
     {
-        s=symbols->next;
-        Bfree(symbols);
+        s=osd_symbols->next;
+        Bfree(osd_symbols);
     }
 
     MAYBE_FCLOSE_AND_NULL(osdlog);
@@ -824,7 +830,7 @@ static void OSD_HistoryPrev(void)
     if (editor.pos < editor.start)
     {
         editor.end   = editor.pos;
-        editor.start = editor.end - editlinewidth;
+        editor.start = editor.end - OSD_EDIT_LINE_WIDTH;
 
         if (editor.start < 0)
         {
@@ -852,7 +858,7 @@ static void OSD_HistoryNext(void)
         editor.len   = 0;
         editor.pos   = 0;
         editor.start = 0;
-        editor.end   = editlinewidth;
+        editor.end   = OSD_EDIT_LINE_WIDTH;
         history.pos  = -1;
         return;
     }
@@ -866,7 +872,7 @@ static void OSD_HistoryNext(void)
     if (editor.pos < editor.start)
     {
         editor.end   = editor.pos;
-        editor.start = editor.end - editlinewidth;
+        editor.start = editor.end - OSD_EDIT_LINE_WIDTH;
 
         if (editor.start < 0)
         {
@@ -906,7 +912,7 @@ int32_t OSD_HandleChar(char ch)
         case asc_Ctrl_A:  // jump to beginning of line
             editor.pos   = 0;
             editor.start = 0;
-            editor.end   = editlinewidth;
+            editor.end   = OSD_EDIT_LINE_WIDTH;
             return 0;
 
         case asc_Ctrl_B:  // move one character left
@@ -921,19 +927,19 @@ int32_t OSD_HandleChar(char ch)
             editor.len    = 0;
             editor.pos    = 0;
             editor.start  = 0;
-            editor.end    = editlinewidth;
+            editor.end    = OSD_EDIT_LINE_WIDTH;
             editor.buf[0] = 0;
             return 0;
 
         case asc_Ctrl_E:  // jump to end of line
             editor.pos   = editor.len;
             editor.end   = editor.pos;
-            editor.start = editor.end - editlinewidth;
+            editor.start = editor.end - OSD_EDIT_LINE_WIDTH;
 
             if (editor.start < 0)
             {
                 editor.start = 0;
-                editor.end   = editlinewidth;
+                editor.end   = OSD_EDIT_LINE_WIDTH;
             }
             return 0;
 
@@ -1067,12 +1073,12 @@ int32_t OSD_HandleChar(char ch)
 
                 editor.pos   = editor.len;
                 editor.end   = editor.pos;
-                editor.start = editor.end - editlinewidth;
+                editor.start = editor.end - OSD_EDIT_LINE_WIDTH;
 
                 if (editor.start < 0)
                 {
                     editor.start = 0;
-                    editor.end   = editlinewidth;
+                    editor.end   = OSD_EDIT_LINE_WIDTH;
                 }
 
                 lastmatch = tabc;
@@ -1116,7 +1122,7 @@ int32_t OSD_HandleChar(char ch)
             editor.len   = 0;
             editor.pos   = 0;
             editor.start = 0;
-            editor.end   = editlinewidth;
+            editor.end   = OSD_EDIT_LINE_WIDTH;
             return 0;
 
         case asc_Ctrl_N:  // next (ie. down arrow)
@@ -1136,7 +1142,7 @@ int32_t OSD_HandleChar(char ch)
                 editor.len -= editor.pos;
                 editor.pos   = 0;
                 editor.start = 0;
-                editor.end   = editlinewidth;
+                editor.end   = OSD_EDIT_LINE_WIDTH;
             }
             return 0;
 
@@ -1157,7 +1163,7 @@ int32_t OSD_HandleChar(char ch)
                 if (editor.pos < editor.start)
                 {
                     editor.start = editor.pos;
-                    editor.end   = editor.start + editlinewidth;
+                    editor.end   = editor.start + OSD_EDIT_LINE_WIDTH;
                 }
             }
             return 0;
@@ -1223,7 +1229,7 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
     }
 
     osdedit_t &editor  = osd->editor;
-    keytime = gettime();
+    osdkeytime = gettime();
 
     switch (scanCode)
     {
@@ -1252,7 +1258,7 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
         {
             editor.pos   = 0;
             editor.start = editor.pos;
-            editor.end   = editor.start + editlinewidth;
+            editor.end   = editor.start + OSD_EDIT_LINE_WIDTH;
         }
         break;
 
@@ -1263,12 +1269,12 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
         {
             editor.pos   = editor.len;
             editor.end   = editor.pos;
-            editor.start = editor.end - editlinewidth;
+            editor.start = editor.end - OSD_EDIT_LINE_WIDTH;
 
             if (editor.start < 0)
             {
                 editor.start = 0;
-                editor.end   = editlinewidth;
+                editor.end   = OSD_EDIT_LINE_WIDTH;
             }
         }
         break;
@@ -1419,7 +1425,7 @@ void OSD_ResizeDisplay(int32_t w, int32_t h)
     osd->text.pos = 0;
     osd->draw.head = 0;
     osd->editor.start = 0;
-    osd->editor.end = editlinewidth;
+    osd->editor.end = OSD_EDIT_LINE_WIDTH;
     whiteColorIdx = -1;
 }
 
@@ -1532,7 +1538,7 @@ void OSD_Draw(void)
 
         offset += 3+osd->editor.pos-osd->editor.start;
 
-        drawosdcursor(offset,osdrowscur,osd->flags & OSD_OVERTYPE,keytime);
+        drawosdcursor(offset,osdrowscur,osd->flags & OSD_OVERTYPE,osdkeytime);
 
         if (osd->version.buf)
             drawosdstr(osd->draw.cols - osd->version.len, osdrowscur - (offset >= osd->draw.cols - osd->version.len),
@@ -1921,19 +1927,19 @@ static osdsymbol_t *osd_addsymbol(const char *pszName)
     osdsymbol_t *const pSymbol = (osdsymbol_t *)Xcalloc(1, sizeof(osdsymbol_t));
 
     // link it to the main chain
-    if (!symbols)
-        symbols = pSymbol;
+    if (!osd_symbols)
+        osd_symbols = pSymbol;
     else
     {
-        if (Bstrcasecmp(pszName, symbols->name) <= 0)
+        if (Bstrcasecmp(pszName, osd_symbols->name) <= 0)
         {
-            osdsymbol_t * const t = symbols;
-            symbols = pSymbol;
-            symbols->next = t;
+            osdsymbol_t * const t = osd_symbols;
+            osd_symbols = pSymbol;
+            osd_symbols->next = t;
         }
         else
         {
-            osdsymbol_t *s = symbols;
+            osdsymbol_t *s = osd_symbols;
 
             while (s->next)
             {
@@ -1965,7 +1971,7 @@ static osdsymbol_t *osd_addsymbol(const char *pszName)
 //
 static osdsymbol_t * osd_findsymbol(const char * const pszName, osdsymbol_t *pSymbol)
 {
-    if (!pSymbol) pSymbol = symbols;
+    if (!pSymbol) pSymbol = osd_symbols;
     if (!pSymbol) return NULL;
 
     int const nameLen = Bstrlen(pszName);
@@ -1981,7 +1987,7 @@ static osdsymbol_t * osd_findsymbol(const char * const pszName, osdsymbol_t *pSy
 //
 static osdsymbol_t * osd_findexactsymbol(const char *pszName)
 {
-    if (!symbols) return NULL;
+    if (!osd_symbols) return NULL;
     int symbolNum = hash_find(&h_osd, pszName);
 
     if (symbolNum < 0)
@@ -2136,7 +2142,7 @@ int32_t osdcmd_cvar_set(osdfuncparm_t const * const parm)
 
 void OSD_WriteAliases(FILE *fp)
 {
-    for (osdsymbol_t *symb=symbols; symb!=NULL; symb=symb->next)
+    for (osdsymbol_t *symb=osd_symbols; symb!=NULL; symb=symb->next)
         if (symb->func == (void *)OSD_ALIAS)
             Bfprintf(fp, "alias \"%s\" \"%s\"\n", symb->name, symb->help);
 }
