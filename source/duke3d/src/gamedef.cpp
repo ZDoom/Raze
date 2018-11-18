@@ -2676,67 +2676,37 @@ LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
 
     switch (what)
     {
-    case PROJ_WORKSLIKE:
-        proj->workslike = val; break;
-    case PROJ_SPAWNS:
-        proj->spawns = val; break;
-    case PROJ_SXREPEAT:
-        proj->sxrepeat = val; break;
-    case PROJ_SYREPEAT:
-        proj->syrepeat = val; break;
-    case PROJ_SOUND:
-        proj->sound = val; break;
-    case PROJ_ISOUND:
-        proj->isound = val; break;
-    case PROJ_VEL:
-        proj->vel = val; break;
-    case PROJ_EXTRA:
-        proj->extra = val; break;
-    case PROJ_DECAL:
-        proj->decal = val; break;
-    case PROJ_TRAIL:
-        proj->trail = val; break;
-    case PROJ_TXREPEAT:
-        proj->txrepeat = val; break;
-    case PROJ_TYREPEAT:
-        proj->tyrepeat = val; break;
-    case PROJ_TOFFSET:
-        proj->toffset = val; break;
-    case PROJ_TNUM:
-        proj->tnum = val; break;
-    case PROJ_DROP:
-        proj->drop = val; break;
-    case PROJ_CSTAT:
-        proj->cstat = val; break;
-    case PROJ_CLIPDIST:
-        proj->clipdist = val; break;
-    case PROJ_SHADE:
-        proj->shade = val; break;
-    case PROJ_XREPEAT:
-        proj->xrepeat = val; break;
-    case PROJ_YREPEAT:
-        proj->yrepeat = val; break;
-    case PROJ_PAL:
-        proj->pal = val; break;
-    case PROJ_EXTRA_RAND:
-        proj->extra_rand = val; break;
-    case PROJ_HITRADIUS:
-        proj->hitradius = val; break;
-    case PROJ_MOVECNT:
-        proj->movecnt = val; break;
-    case PROJ_OFFSET:
-        proj->offset = val; break;
-    case PROJ_BOUNCES:
-        proj->bounces = val; break;
-    case PROJ_BSOUND:
-        proj->bsound = val; break;
-    case PROJ_RANGE:
-        proj->range = val; break;
-    case PROJ_FLASH_COLOR:
-        proj->flashcolor = val; break;
-    case PROJ_USERDATA:
-        proj->userdata = val; break;
-    default: break;
+        case PROJ_WORKSLIKE:   proj->workslike  = val; break;
+        case PROJ_SPAWNS:      proj->spawns     = val; break;
+        case PROJ_SXREPEAT:    proj->sxrepeat   = val; break;
+        case PROJ_SYREPEAT:    proj->syrepeat   = val; break;
+        case PROJ_SOUND:       proj->sound      = val; break;
+        case PROJ_ISOUND:      proj->isound     = val; break;
+        case PROJ_VEL:         proj->vel        = val; break;
+        case PROJ_EXTRA:       proj->extra      = val; break;
+        case PROJ_DECAL:       proj->decal      = val; break;
+        case PROJ_TRAIL:       proj->trail      = val; break;
+        case PROJ_TXREPEAT:    proj->txrepeat   = val; break;
+        case PROJ_TYREPEAT:    proj->tyrepeat   = val; break;
+        case PROJ_TOFFSET:     proj->toffset    = val; break;
+        case PROJ_TNUM:        proj->tnum       = val; break;
+        case PROJ_DROP:        proj->drop       = val; break;
+        case PROJ_CSTAT:       proj->cstat      = val; break;
+        case PROJ_CLIPDIST:    proj->clipdist   = val; break;
+        case PROJ_SHADE:       proj->shade      = val; break;
+        case PROJ_XREPEAT:     proj->xrepeat    = val; break;
+        case PROJ_YREPEAT:     proj->yrepeat    = val; break;
+        case PROJ_PAL:         proj->pal        = val; break;
+        case PROJ_EXTRA_RAND:  proj->extra_rand = val; break;
+        case PROJ_HITRADIUS:   proj->hitradius  = val; break;
+        case PROJ_MOVECNT:     proj->movecnt    = val; break;
+        case PROJ_OFFSET:      proj->offset     = val; break;
+        case PROJ_BOUNCES:     proj->bounces    = val; break;
+        case PROJ_BSOUND:      proj->bsound     = val; break;
+        case PROJ_RANGE:       proj->range      = val; break;
+        case PROJ_FLASH_COLOR: proj->flashcolor = val; break;
+        case PROJ_USERDATA:    proj->userdata   = val; break;
+        default: break;
     }
 
     *g_tile[j].defproj = *proj;
@@ -3784,40 +3754,40 @@ DO_DEFSTATE:
             C_GetNextValue(LABEL_DEFINE);
             fallthrough__;
         case CON_ADDAMMO:
-        case CON_ADDWEAPON:
-        case CON_SIZETO:
-        case CON_SIZEAT:
-        case CON_DEBRIS:
         case CON_ADDINVENTORY:
+        case CON_ADDWEAPON:
+        case CON_DEBRIS:
         case CON_GUTS:
+        case CON_SIZEAT:
+        case CON_SIZETO:
             C_GetNextValue(LABEL_DEFINE);
             fallthrough__;
-        case CON_STRENGTH:
+        case CON_ADDKILLS:
         case CON_ADDPHEALTH:
-        case CON_SPAWN:
+        case CON_ADDSTRENGTH:
+        case CON_ANGOFF:
+        case CON_CACTOR:
+        case CON_CLIPDIST:
         case CON_COUNT:
+        case CON_CSTATOR:
+        case CON_DEBUG:
         case CON_ENDOFGAME:
         case CON_ENDOFLEVEL:
-        case CON_SPRITEPAL:
-        case CON_CACTOR:
-        case CON_MONEY:
-        case CON_ADDKILLS:
-        case CON_DEBUG:
-        case CON_ADDSTRENGTH:
-        case CON_CSTATOR:
-        case CON_MAIL:
-        case CON_PAPER:
-        case CON_SLEEPTIME:
-        case CON_CLIPDIST:
-        case CON_LOTSOFGLASS:
-        case CON_SAVENN:
-        case CON_SAVE:
-        case CON_ANGOFF:
-        case CON_QUOTE:
-        case CON_SOUND:
         case CON_GLOBALSOUND:
+        case CON_LOTSOFGLASS:
+        case CON_MAIL:
+        case CON_MONEY:
+        case CON_PAPER:
+        case CON_QUOTE:
+        case CON_SAVE:
+        case CON_SAVENN:
+        case CON_SLEEPTIME:
+        case CON_SOUND:
         case CON_SOUNDONCE:
+        case CON_SPAWN:
+        case CON_SPRITEPAL:
         case CON_STOPSOUND:
+        case CON_STRENGTH:
             C_GetNextValue(LABEL_DEFINE);
             continue;
 
@@ -3885,11 +3855,11 @@ DO_DEFSTATE:
                 continue;
             }
 
-        case CON_FINDNEARACTORVAR:
         case CON_FINDNEARACTOR3DVAR:
-        case CON_FINDNEARSPRITEVAR:
-        case CON_FINDNEARSPRITE3DVAR:
+        case CON_FINDNEARACTORVAR:
         case CON_FINDNEARACTORZVAR:
+        case CON_FINDNEARSPRITE3DVAR:
+        case CON_FINDNEARSPRITEVAR:
         case CON_FINDNEARSPRITEZVAR:
             {
                 C_GetNextValue(LABEL_DEFINE); // get <type>
@@ -4012,10 +3982,10 @@ DO_DEFSTATE:
                 continue;
             }
 
-        case CON_SETACTORVAR:
-        case CON_SETPLAYERVAR:
         case CON_GETACTORVAR:
         case CON_GETPLAYERVAR:
+        case CON_SETACTORVAR:
+        case CON_SETPLAYERVAR:
             {
                 // syntax [gs]etactorvar[<var>].<varx> <VAR>
                 // gets the value of the per-actor variable varx into VAR
@@ -4148,115 +4118,115 @@ DO_DEFSTATE:
                 continue;
             }
 
-        case CON_RANDVARVAR:
-        case CON_SETVARVAR:
         case CON_ADDVARVAR:
-        case CON_SUBVARVAR:
-        case CON_MULVARVAR:
-        case CON_DIVVARVAR:
-        case CON_MODVARVAR:
         case CON_ANDVARVAR:
-        case CON_ORVARVAR:
-        case CON_XORVARVAR:
-        case CON_SHIFTVARVARL:
-        case CON_SHIFTVARVARR:
-        case CON_DISPLAYRANDVARVAR:
-        case CON_SIN:
         case CON_COS:
-        case CON_QSTRLEN:
-        case CON_HEADSPRITESTAT:
-        case CON_PREVSPRITESTAT:
-        case CON_NEXTSPRITESTAT:
-        case CON_HEADSPRITESECT:
-        case CON_PREVSPRITESECT:
-        case CON_NEXTSPRITESECT:
-        case CON_SECTOROFWALL:
+        case CON_DISPLAYRANDVARVAR:
         case CON_DIVR:
         case CON_DIVRU:
+        case CON_DIVVARVAR:
+        case CON_HEADSPRITESECT:
+        case CON_HEADSPRITESTAT:
+        case CON_MODVARVAR:
+        case CON_MULVARVAR:
+        case CON_NEXTSPRITESECT:
+        case CON_NEXTSPRITESTAT:
+        case CON_ORVARVAR:
+        case CON_PREVSPRITESECT:
+        case CON_PREVSPRITESTAT:
+        case CON_QSTRLEN:
+        case CON_RANDVARVAR:
+        case CON_SECTOROFWALL:
+        case CON_SETVARVAR:
+        case CON_SHIFTVARVARL:
+        case CON_SHIFTVARVARR:
+        case CON_SIN:
+        case CON_SUBVARVAR:
+        case CON_XORVARVAR:
             C_GetNextVarType(GAMEVAR_READONLY);
             fallthrough__;
+        case CON_ACTIVATECHEAT:
         case CON_ADDLOGVAR:
+        case CON_ANGOFFVAR:
+        case CON_CHECKACTIVATORMOTION:
+        case CON_CHECKAVAILINVEN:
+        case CON_CHECKAVAILWEAPON:
+        case CON_CLEARMAPSTATE:
+        case CON_CMENU:
+        case CON_ECHO:
+        case CON_EQSPAWNVAR:
         case CON_ESHOOTVAR:
         case CON_ESPAWNVAR:
-        case CON_QSPAWNVAR:
-        case CON_EQSPAWNVAR:
-        case CON_OPERATERESPAWNS:
-        case CON_OPERATEMASTERSWITCHES:
-        case CON_CHECKACTIVATORMOTION:
-        case CON_TIME:
-        case CON_INITTIMER:
-        case CON_LOCKPLAYER:
-        case CON_SHOOTVAR:
-        case CON_QUAKE:
-        case CON_JUMP:
-        case CON_CMENU:
-        case CON_SOUNDVAR:
         case CON_GLOBALSOUNDVAR:
-        case CON_STOPSOUNDVAR:
-        case CON_SCREENSOUND:
-        case CON_SOUNDONCEVAR:
-        case CON_ANGOFFVAR:
-        case CON_CHECKAVAILWEAPON:
-        case CON_CHECKAVAILINVEN:
         case CON_GUNIQHUDID:
-        case CON_SAVEGAMEVAR:
-        case CON_USERQUOTE:
-        case CON_ECHO:
-        case CON_STARTTRACKVAR:
-        case CON_CLEARMAPSTATE:
-        case CON_ACTIVATECHEAT:
-        case CON_SETGAMEPALETTE:
-        case CON_SECTSETINTERPOLATION:
-        case CON_SECTCLEARINTERPOLATION:
-        case CON_SETACTORANGLE:
-        case CON_SETPLAYERANGLE:
-        case CON_SETMUSICPOSITION:
-        case CON_STARTCUTSCENE:
-        case CON_RESETPLAYERFLAGS:
+        case CON_INITTIMER:
+        case CON_JUMP:
+        case CON_LOCKPLAYER:
         case CON_MOVESECTOR:
+        case CON_OPERATEMASTERSWITCHES:
+        case CON_OPERATERESPAWNS:
+        case CON_QSPAWNVAR:
+        case CON_QUAKE:
+        case CON_RESETPLAYERFLAGS:
+        case CON_SAVEGAMEVAR:
+        case CON_SCREENSOUND:
+        case CON_SECTCLEARINTERPOLATION:
+        case CON_SECTSETINTERPOLATION:
+        case CON_SETACTORANGLE:
+        case CON_SETGAMEPALETTE:
+        case CON_SETMUSICPOSITION:
+        case CON_SETPLAYERANGLE:
+        case CON_SHOOTVAR:
+        case CON_SOUNDONCEVAR:
+        case CON_SOUNDVAR:
+        case CON_STARTCUTSCENE:
+        case CON_STARTTRACKVAR:
+        case CON_STOPSOUNDVAR:
+        case CON_TIME:
+        case CON_USERQUOTE:
             C_GetNextVar();
             continue;
 
         case CON_SQRT:
             C_GetNextVar();
             fallthrough__;
-        case CON_FINDPLAYER:
-        case CON_FINDOTHERPLAYER:
         case CON_DISPLAYRAND:
-        case CON_READGAMEVAR:
-        case CON_GETANGLETOTARGET:
+        case CON_FINDOTHERPLAYER:
+        case CON_FINDPLAYER:
         case CON_GETACTORANGLE:
-        case CON_GETPLAYERANGLE:
-        case CON_GETTICKS:
+        case CON_GETANGLETOTARGET:
         case CON_GETCURRADDRESS:
         case CON_GETMUSICPOSITION:
-        case CON_KLABS:
+        case CON_GETPLAYERANGLE:
+        case CON_GETTICKS:
         case CON_INV:
+        case CON_KLABS:
+        case CON_READGAMEVAR:
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 
+        case CON_CALCHYPOTENUSE:
         case CON_CLAMP:
         case CON_GETCLOSESTCOL:
-        case CON_CALCHYPOTENUSE:
             C_GetNextVarType(GAMEVAR_READONLY);
             fallthrough__;
-        case CON_CHANGESPRITESTAT:
+        case CON_ACTORSOUND:
         case CON_CHANGESPRITESECT:
-        case CON_ZSHOOTVAR:
+        case CON_CHANGESPRITESTAT:
         case CON_EZSHOOTVAR:
         case CON_GETPNAME:
-        case CON_STARTLEVEL:
+        case CON_PRELOADTRACKSLOTFORSWAP:
+        case CON_QGETSYSSTR:
         case CON_QSTRCAT:
         case CON_QSTRCPY:
-        case CON_QGETSYSSTR:
-        case CON_ACTORSOUND:
-        case CON_STOPACTORSOUND:
-        case CON_STARTTRACKSLOT:
-        case CON_SWAPTRACKSLOT:
-        case CON_PRELOADTRACKSLOTFORSWAP:
+        case CON_SPAWNCEILINGGLASS:
         case CON_SPAWNWALLGLASS:
         case CON_SPAWNWALLSTAINEDGLASS:
-        case CON_SPAWNCEILINGGLASS:
+        case CON_STARTLEVEL:
+        case CON_STARTTRACKSLOT:
+        case CON_STOPACTORSOUND:
+        case CON_SWAPTRACKSLOT:
+        case CON_ZSHOOTVAR:
             C_GetManyVars(2);
             continue;
 
@@ -4313,19 +4283,19 @@ DO_DEFSTATE:
 #endif
             continue;
 
-        case CON_RANDVAR:
-        case CON_SETVAR:
         case CON_ADDVAR:
-        case CON_SUBVAR:
+        case CON_ANDVAR:
         case CON_DISPLAYRANDVAR:
-        case CON_MULVAR:
         case CON_DIVVAR:
         case CON_MODVAR:
-        case CON_ANDVAR:
+        case CON_MULVAR:
         case CON_ORVAR:
-        case CON_XORVAR:
+        case CON_RANDVAR:
+        case CON_SETVAR:
         case CON_SHIFTVARL:
         case CON_SHIFTVARR:
+        case CON_SUBVAR:
+        case CON_XORVAR:
 
             {
                 intptr_t *inst = g_scriptPtr-1;
@@ -4498,30 +4468,30 @@ DO_DEFSTATE:
 
             continue;
 
-        case CON_SMAXAMMO:
-        case CON_ADDWEAPONVAR:
         case CON_ACTIVATEBYSECTOR:
-        case CON_OPERATESECTORS:
-        case CON_OPERATEACTIVATORS:
-        case CON_SSP:
-        case CON_GMAXAMMO:
+        case CON_ADDWEAPONVAR:
         case CON_DIST:
-        case CON_LDIST:
-        case CON_GETINCANGLE:
-        case CON_GETANGLE:
-        case CON_MULSCALE:
         case CON_DIVSCALE:
+        case CON_GETANGLE:
+        case CON_GETINCANGLE:
+        case CON_GMAXAMMO:
+        case CON_LDIST:
+        case CON_MULSCALE:
+        case CON_OPERATEACTIVATORS:
+        case CON_OPERATESECTORS:
         case CON_SCALEVAR:
         case CON_SETASPECT:
+        case CON_SMAXAMMO:
+        case CON_SSP:
             // get the ID of the DEF
             switch (tw)
             {
             case CON_DIST:
-            case CON_LDIST:
+            case CON_DIVSCALE:
             case CON_GETANGLE:
             case CON_GETINCANGLE:
+            case CON_LDIST:
             case CON_MULSCALE:
-            case CON_DIVSCALE:
             case CON_SCALEVAR:
                 C_GetNextVarType(GAMEVAR_READONLY);
                 break;
@@ -4538,13 +4508,13 @@ DO_DEFSTATE:
             switch (tw)
             {
             case CON_DIST:
-            case CON_LDIST:
             case CON_GETANGLE:
             case CON_GETINCANGLE:
+            case CON_LDIST:
                 C_GetNextVar();
                 break;
-            case CON_MULSCALE:
             case CON_DIVSCALE:
+            case CON_MULSCALE:
             case CON_SCALEVAR:
                 C_GetManyVars(2);
                 break;
@@ -4690,11 +4660,11 @@ DO_DEFSTATE:
             C_GetNextVar();
             continue;
 
-        case CON_SPRITESHADOW:
-        case CON_SPRITENVG:
-        case CON_SPRITENOSHADE:
-        case CON_SPRITENOPAL:
         case CON_PRECACHE:
+        case CON_SPRITENOPAL:
+        case CON_SPRITENOSHADE:
+        case CON_SPRITENVG:
+        case CON_SPRITESHADOW:
             if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
@@ -4749,23 +4719,23 @@ DO_DEFSTATE:
             continue;
 
         case CON_IFACTORSOUND:
-        case CON_IFVARVARG:
-        case CON_IFVARVARL:
-        case CON_IFVARVARE:
-        case CON_IFVARVARLE:
-        case CON_IFVARVARGE:
         case CON_IFVARVARA:
-        case CON_IFVARVARB:
         case CON_IFVARVARAE:
+        case CON_IFVARVARAND:
+        case CON_IFVARVARB:
         case CON_IFVARVARBE:
         case CON_IFVARVARBOTH:
+        case CON_IFVARVARE:
+        case CON_IFVARVAREITHER:
+        case CON_IFVARVARG:
+        case CON_IFVARVARGE:
+        case CON_IFVARVARL:
+        case CON_IFVARVARLE:
         case CON_IFVARVARN:
-        case CON_IFVARVARAND:
         case CON_IFVARVAROR:
         case CON_IFVARVARXOR:
-        case CON_IFVARVAREITHER:
-        case CON_WHILEVARVARN:
         case CON_WHILEVARVARL:
+        case CON_WHILEVARVARN:
             {
                 intptr_t offset;
                 intptr_t lastScriptPtr = g_scriptPtr - &apScript[0] - 1;
@@ -4804,23 +4774,23 @@ DO_DEFSTATE:
             C_GetNextValue(LABEL_DEFINE);
             continue;
 
-        case CON_IFVARL:
-        case CON_IFVARLE:
-        case CON_IFVARG:
-        case CON_IFVARGE:
         case CON_IFVARA:
         case CON_IFVARAE:
+        case CON_IFVARAND:
         case CON_IFVARB:
         case CON_IFVARBE:
+        case CON_IFVARBOTH:
         case CON_IFVARE:
+        case CON_IFVAREITHER:
+        case CON_IFVARG:
+        case CON_IFVARGE:
+        case CON_IFVARL:
+        case CON_IFVARLE:
         case CON_IFVARN:
-        case CON_IFVARAND:
         case CON_IFVAROR:
         case CON_IFVARXOR:
-        case CON_IFVARBOTH:
-        case CON_IFVAREITHER:
-        case CON_WHILEVARN:
         case CON_WHILEVARL:
+        case CON_WHILEVARN:
             {
                 intptr_t lastScriptPtr = (g_scriptPtr-apScript-1);
 
@@ -4982,11 +4952,11 @@ DO_DEFSTATE:
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 
-        case CON_MINITEXT:
-        case CON_GAMETEXT:
-        case CON_GAMETEXTZ:
         case CON_DIGITALNUMBER:
         case CON_DIGITALNUMBERZ:
+        case CON_GAMETEXT:
+        case CON_GAMETEXTZ:
+        case CON_MINITEXT:
         case CON_SCREENTEXT:
             if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
             {
@@ -5260,9 +5230,9 @@ repeatcase:
             }
             return 1;      // end of block
 
-        case CON_QSTRNCAT:
         case CON_DRAGPOINT:
         case CON_GETKEYNAME:
+        case CON_QSTRNCAT:
         case CON_SETACTORSOUNDPITCH:
             C_GetManyVars(3);
             continue;
@@ -5278,30 +5248,30 @@ repeatcase:
             C_GetManyVars(4);
             continue;
 
-        case CON_IFRND:
-        case CON_IFPDISTL:
-        case CON_IFPDISTG:
-        case CON_IFWASWEAPON:
-        case CON_IFACTIONCOUNT:
-        case CON_IFCOUNT:
-        case CON_IFACTOR:
-        case CON_IFSTRENGTH:
-        case CON_IFSPAWNEDBY:
-        case CON_IFGAPZL:
-        case CON_IFFLOORDISTL:
-        case CON_IFCEILINGDISTL:
-        case CON_IFPHEALTHL:
-        case CON_IFSPRITEPAL:
-        case CON_IFGOTWEAPONCE:
-        case CON_IFANGDIFFL:
-        case CON_IFSOUND:
-        case CON_IFAI:
         case CON_IFACTION:
+        case CON_IFACTIONCOUNT:
+        case CON_IFACTOR:
+        case CON_IFAI:
+        case CON_IFANGDIFFL:
+        case CON_IFCEILINGDISTL:
+        case CON_IFCOUNT:
+        case CON_IFCUTSCENE:
+        case CON_IFFLOORDISTL:
+        case CON_IFGAPZL:
+        case CON_IFGOTWEAPONCE:
         case CON_IFMOVE:
         case CON_IFP:
+        case CON_IFPDISTG:
+        case CON_IFPDISTL:
+        case CON_IFPHEALTHL:
         case CON_IFPINVENTORY:
         case CON_IFPLAYERSL:
-        case CON_IFCUTSCENE:
+        case CON_IFRND:
+        case CON_IFSOUND:
+        case CON_IFSPAWNEDBY:
+        case CON_IFSPRITEPAL:
+        case CON_IFSTRENGTH:
+        case CON_IFWASWEAPON:
             {
                 intptr_t offset;
                 intptr_t lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
@@ -5371,28 +5341,28 @@ repeatcase:
                 continue;
             }
 
-        case CON_IFCLIENT:
-        case CON_IFSERVER:
-        case CON_IFONWATER:
-        case CON_IFINWATER:
         case CON_IFACTORNOTSTAYPUT:
-        case CON_IFCANSEE:
-        case CON_IFHITWEAPON:
-        case CON_IFSQUISHED:
-        case CON_IFDEAD:
-        case CON_IFCANSHOOTTARGET:
-        case CON_IFHITSPACE:
-        case CON_IFOUTSIDE:
-        case CON_IFMULTIPLAYER:
-        case CON_IFINSPACE:
-        case CON_IFBULLETNEAR:
-        case CON_IFRESPAWN:
-        case CON_IFINOUTERSPACE:
-        case CON_IFNOTMOVING:
         case CON_IFAWAYFROMWALL:
+        case CON_IFBULLETNEAR:
+        case CON_IFCANSEE:
         case CON_IFCANSEETARGET:
+        case CON_IFCANSHOOTTARGET:
+        case CON_IFCLIENT:
+        case CON_IFDEAD:
+        case CON_IFHITSPACE:
+        case CON_IFHITWEAPON:
+        case CON_IFINOUTERSPACE:
+        case CON_IFINSPACE:
+        case CON_IFINWATER:
+        case CON_IFMULTIPLAYER:
         case CON_IFNOSOUNDS:
+        case CON_IFNOTMOVING:
+        case CON_IFONWATER:
+        case CON_IFOUTSIDE:
         case CON_IFPLAYBACKON:
+        case CON_IFRESPAWN:
+        case CON_IFSERVER:
+        case CON_IFSQUISHED:
             {
                 intptr_t offset;
                 intptr_t lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
@@ -6249,30 +6219,29 @@ repeatcase:
 
         case CON_ADDLOG:
         case CON_FALL:
-        case CON_TIP:
-            //        case 21:
-        case CON_KILLIT:
-        case CON_RESETACTIONCOUNT:
-        case CON_PSTOMP:
-        case CON_RESETPLAYER:
-        case CON_RESETCOUNT:
-        case CON_WACKPLAYER:
-        case CON_OPERATE:
-        case CON_RESPAWNHITAG:
         case CON_GETLASTPAL:
-        case CON_PKICK:
-        case CON_MIKESND:
-        case CON_TOSSWEAPON:
-        case CON_SPGETLOTAG:
-        case CON_SPGETHITAG:
-        case CON_SECTGETLOTAG:
-        case CON_SECTGETHITAG:
-        case CON_GETTEXTUREFLOOR:
         case CON_GETTEXTURECEILING:
+        case CON_GETTEXTUREFLOOR:
         case CON_INSERTSPRITEQ:
-        case CON_STOPALLSOUNDS:
-        case CON_STOPALLMUSIC:
+        case CON_KILLIT:
+        case CON_MIKESND:
+        case CON_OPERATE:
+        case CON_PKICK:
+        case CON_PSTOMP:
+        case CON_RESETACTIONCOUNT:
+        case CON_RESETCOUNT:
+        case CON_RESETPLAYER:
+        case CON_RESPAWNHITAG:
+        case CON_SECTGETHITAG:
+        case CON_SECTGETLOTAG:
+        case CON_SPGETHITAG:
+        case CON_SPGETLOTAG:
         case CON_STARTSCREEN:
+        case CON_STOPALLMUSIC:
+        case CON_STOPALLSOUNDS:
+        case CON_TIP:
+        case CON_TOSSWEAPON:
+        case CON_WACKPLAYER:
             continue;
 
         case CON_NULLOP:
@@ -6394,103 +6363,104 @@ static void C_AddDefaultDefinitions(void)
     }
 #endif
 
-    tokenmap_t predefined[] = {
-        { "STAT_DEFAULT", STAT_DEFAULT },
-        { "STAT_ACTOR", STAT_ACTOR },
-        { "STAT_ZOMBIEACTOR", STAT_ZOMBIEACTOR },
-        { "STAT_EFFECTOR", STAT_EFFECTOR },
-        { "STAT_PROJECTILE", STAT_PROJECTILE },
-        { "STAT_MISC", STAT_MISC },
-        { "STAT_STANDABLE", STAT_STANDABLE },
-        { "STAT_LOCATOR", STAT_LOCATOR },
-        { "STAT_ACTIVATOR", STAT_ACTIVATOR },
-        { "STAT_TRANSPORT", STAT_TRANSPORT },
-        { "STAT_PLAYER", STAT_PLAYER },
-        { "STAT_FX", STAT_FX },
-        { "STAT_FALLER", STAT_FALLER },
-        { "STAT_DUMMYPLAYER", STAT_DUMMYPLAYER },
-        { "STAT_LIGHT", STAT_LIGHT },
-
-        { "SFLAG_SHADOW", SFLAG_SHADOW },
-        { "SFLAG_NVG", SFLAG_NVG },
-        { "SFLAG_NOSHADE", SFLAG_NOSHADE },
-        { "SFLAG_BADGUY", SFLAG_BADGUY },
-        { "SFLAG_NOPAL", SFLAG_NOPAL },
-        { "SFLAG_NOEVENTS", SFLAG_NOEVENTCODE },
-        { "SFLAG_NOLIGHT", SFLAG_NOLIGHT },
-        { "SFLAG_USEACTIVATOR", SFLAG_USEACTIVATOR },
-        { "SFLAG_NOCLIP", SFLAG_NOCLIP },
-        { "SFLAG_SMOOTHMOVE", SFLAG_SMOOTHMOVE },
-        { "SFLAG_NOTELEPORT", SFLAG_NOTELEPORT },
-        { "SFLAG_NODAMAGEPUSH", SFLAG_NODAMAGEPUSH },
-        { "SFLAG_NOWATERDIP", SFLAG_NOWATERDIP },
-        { "SFLAG_HURTSPAWNBLOOD", SFLAG_HURTSPAWNBLOOD },
-        { "SFLAG_GREENSLIMEFOOD", SFLAG_GREENSLIMEFOOD },
-        { "SFLAG_REALCLIPDIST", SFLAG_REALCLIPDIST },
-        { "SFLAG_WAKEUPBADGUYS", SFLAG_WAKEUPBADGUYS },
-        { "SFLAG_DAMAGEEVENT", SFLAG_DAMAGEEVENT },
-
-        { "STR_MAPNAME", STR_MAPNAME },
-        { "STR_MAPFILENAME", STR_MAPFILENAME },
-        { "STR_PLAYERNAME", STR_PLAYERNAME },
-        { "STR_VERSION", STR_VERSION },
-        { "STR_GAMETYPE", STR_GAMETYPE },
-        { "STR_VOLUMENAME", STR_VOLUMENAME },
-        { "STR_YOURTIME", STR_YOURTIME },
-        { "STR_PARTIME", STR_PARTIME },
-        { "STR_DESIGNERTIME", STR_DESIGNERTIME },
-        { "STR_BESTTIME", STR_BESTTIME },
-        { "STR_USERMAPFILENAME", STR_USERMAPFILENAME },
-
-        { "MAXSTATUS", MAXSTATUS },
-        { "MAXSPRITES", MAXSPRITES },
-        { "MAX_WEAPONS", MAX_WEAPONS },
-        { "MAXSPRITESONSCREEN", MAXSPRITESONSCREEN },
-        { "MAXTILES", MAXTILES },
-
-        { "PROJ_BOUNCES", PROJ_BOUNCES },
-        { "PROJ_BSOUND", PROJ_BSOUND },
-        { "PROJ_CLIPDIST", PROJ_CLIPDIST },
-        { "PROJ_CSTAT", PROJ_CSTAT },
-        { "PROJ_DECAL", PROJ_DECAL },
-        { "PROJ_DROP", PROJ_DROP },
-        { "PROJ_EXTRA", PROJ_EXTRA },
-        { "PROJ_EXTRA_RAND", PROJ_EXTRA_RAND },
-        { "PROJ_FLASH_COLOR", PROJ_FLASH_COLOR },
-        { "PROJ_HITRADIUS", PROJ_HITRADIUS },
-        { "PROJ_ISOUND", PROJ_ISOUND },
-        { "PROJ_OFFSET", PROJ_OFFSET },
-        { "PROJ_PAL", PROJ_PAL },
-        { "PROJ_RANGE", PROJ_RANGE },
-        { "PROJ_SHADE", PROJ_SHADE },
-        { "PROJ_SOUND", PROJ_SOUND },
-        { "PROJ_SPAWNS", PROJ_SPAWNS },
-        { "PROJ_SXREPEAT", PROJ_SXREPEAT },
-        { "PROJ_SYREPEAT", PROJ_SYREPEAT },
-        { "PROJ_TNUM", PROJ_TNUM },
-        { "PROJ_TOFFSET", PROJ_TOFFSET },
-        { "PROJ_TRAIL", PROJ_TRAIL },
-        { "PROJ_TXREPEAT", PROJ_TXREPEAT },
-        { "PROJ_TYREPEAT", PROJ_TYREPEAT },
-        { "PROJ_USERDATA", PROJ_USERDATA },
-        { "PROJ_VEL_MULT", PROJ_MOVECNT },
-        { "PROJ_VEL", PROJ_VEL },
-        { "PROJ_WORKSLIKE", PROJ_WORKSLIKE },
-        { "PROJ_XREPEAT", PROJ_XREPEAT },
-        { "PROJ_YREPEAT", PROJ_YREPEAT },
-
-        { "GAMEVAR_PERPLAYER", GAMEVAR_PERPLAYER },
-        { "GAMEVAR_PERACTOR", GAMEVAR_PERACTOR },
-        { "GAMEVAR_NODEFAULT", GAMEVAR_NODEFAULT },
-        { "GAMEVAR_NORESET", GAMEVAR_NORESET },
-        { "GAMEVAR_NOMULTI", GAMEVAR_NOMULTI },
-
-        { "GAMEARRAY_RESTORE", GAMEARRAY_RESTORE },
-        { "GAMEARRAY_INT16", GAMEARRAY_INT16 },
-        { "GAMEARRAY_INT8", GAMEARRAY_INT8 },
-        { "GAMEARRAY_UINT16", GAMEARRAY_UINT16 },
-        { "GAMEARRAY_UINT8", GAMEARRAY_UINT8 },
+    static tokenmap_t predefined[] =
+    {
         { "GAMEARRAY_BOOLEAN", GAMEARRAY_BITMAP },
+        { "GAMEARRAY_INT16",   GAMEARRAY_INT16 },
+        { "GAMEARRAY_INT8",    GAMEARRAY_INT8 },
+        { "GAMEARRAY_RESTORE", GAMEARRAY_RESTORE },
+        { "GAMEARRAY_UINT16",  GAMEARRAY_UINT16 },
+        { "GAMEARRAY_UINT8",   GAMEARRAY_UINT8 },
+
+        { "GAMEVAR_NODEFAULT", GAMEVAR_NODEFAULT },
+        { "GAMEVAR_NOMULTI",   GAMEVAR_NOMULTI },
+        { "GAMEVAR_NORESET",   GAMEVAR_NORESET },
+        { "GAMEVAR_PERACTOR",  GAMEVAR_PERACTOR },
+        { "GAMEVAR_PERPLAYER", GAMEVAR_PERPLAYER },
+
+        { "MAX_WEAPONS",        MAX_WEAPONS },
+        { "MAXSPRITES",         MAXSPRITES },
+        { "MAXSPRITESONSCREEN", MAXSPRITESONSCREEN },
+        { "MAXSTATUS",          MAXSTATUS },
+        { "MAXTILES",           MAXTILES },
+
+        { "PROJ_BOUNCES",     PROJ_BOUNCES },
+        { "PROJ_BSOUND",      PROJ_BSOUND },
+        { "PROJ_CLIPDIST",    PROJ_CLIPDIST },
+        { "PROJ_CSTAT",       PROJ_CSTAT },
+        { "PROJ_DECAL",       PROJ_DECAL },
+        { "PROJ_DROP",        PROJ_DROP },
+        { "PROJ_EXTRA",       PROJ_EXTRA },
+        { "PROJ_EXTRA_RAND",  PROJ_EXTRA_RAND },
+        { "PROJ_FLASH_COLOR", PROJ_FLASH_COLOR },
+        { "PROJ_HITRADIUS",   PROJ_HITRADIUS },
+        { "PROJ_ISOUND",      PROJ_ISOUND },
+        { "PROJ_OFFSET",      PROJ_OFFSET },
+        { "PROJ_PAL",         PROJ_PAL },
+        { "PROJ_RANGE",       PROJ_RANGE },
+        { "PROJ_SHADE",       PROJ_SHADE },
+        { "PROJ_SOUND",       PROJ_SOUND },
+        { "PROJ_SPAWNS",      PROJ_SPAWNS },
+        { "PROJ_SXREPEAT",    PROJ_SXREPEAT },
+        { "PROJ_SYREPEAT",    PROJ_SYREPEAT },
+        { "PROJ_TNUM",        PROJ_TNUM },
+        { "PROJ_TOFFSET",     PROJ_TOFFSET },
+        { "PROJ_TRAIL",       PROJ_TRAIL },
+        { "PROJ_TXREPEAT",    PROJ_TXREPEAT },
+        { "PROJ_TYREPEAT",    PROJ_TYREPEAT },
+        { "PROJ_USERDATA",    PROJ_USERDATA },
+        { "PROJ_VEL",         PROJ_VEL },
+        { "PROJ_VEL_MULT",    PROJ_MOVECNT },
+        { "PROJ_WORKSLIKE",   PROJ_WORKSLIKE },
+        { "PROJ_XREPEAT",     PROJ_XREPEAT },
+        { "PROJ_YREPEAT",     PROJ_YREPEAT },
+
+        { "SFLAG_BADGUY",         SFLAG_BADGUY },
+        { "SFLAG_DAMAGEEVENT",    SFLAG_DAMAGEEVENT },
+        { "SFLAG_GREENSLIMEFOOD", SFLAG_GREENSLIMEFOOD },
+        { "SFLAG_HURTSPAWNBLOOD", SFLAG_HURTSPAWNBLOOD },
+        { "SFLAG_NOCLIP",         SFLAG_NOCLIP },
+        { "SFLAG_NODAMAGEPUSH",   SFLAG_NODAMAGEPUSH },
+        { "SFLAG_NOEVENTS",       SFLAG_NOEVENTCODE },
+        { "SFLAG_NOLIGHT",        SFLAG_NOLIGHT },
+        { "SFLAG_NOPAL",          SFLAG_NOPAL },
+        { "SFLAG_NOSHADE",        SFLAG_NOSHADE },
+        { "SFLAG_NOTELEPORT",     SFLAG_NOTELEPORT },
+        { "SFLAG_NOWATERDIP",     SFLAG_NOWATERDIP },
+        { "SFLAG_NVG",            SFLAG_NVG },
+        { "SFLAG_REALCLIPDIST",   SFLAG_REALCLIPDIST },
+        { "SFLAG_SHADOW",         SFLAG_SHADOW },
+        { "SFLAG_SMOOTHMOVE",     SFLAG_SMOOTHMOVE },
+        { "SFLAG_USEACTIVATOR",   SFLAG_USEACTIVATOR },
+        { "SFLAG_WAKEUPBADGUYS",  SFLAG_WAKEUPBADGUYS },
+
+        { "STAT_ACTIVATOR",   STAT_ACTIVATOR },
+        { "STAT_ACTOR",       STAT_ACTOR },
+        { "STAT_DEFAULT",     STAT_DEFAULT },
+        { "STAT_DUMMYPLAYER", STAT_DUMMYPLAYER },
+        { "STAT_EFFECTOR",    STAT_EFFECTOR },
+        { "STAT_FALLER",      STAT_FALLER },
+        { "STAT_FX",          STAT_FX },
+        { "STAT_LIGHT",       STAT_LIGHT },
+        { "STAT_LOCATOR",     STAT_LOCATOR },
+        { "STAT_MISC",        STAT_MISC },
+        { "STAT_PLAYER",      STAT_PLAYER },
+        { "STAT_PROJECTILE",  STAT_PROJECTILE },
+        { "STAT_STANDABLE",   STAT_STANDABLE },
+        { "STAT_TRANSPORT",   STAT_TRANSPORT },
+        { "STAT_ZOMBIEACTOR", STAT_ZOMBIEACTOR },
+
+        { "STR_BESTTIME",        STR_BESTTIME },
+        { "STR_DESIGNERTIME",    STR_DESIGNERTIME },
+        { "STR_GAMETYPE",        STR_GAMETYPE },
+        { "STR_MAPFILENAME",     STR_MAPFILENAME },
+        { "STR_MAPNAME",         STR_MAPNAME },
+        { "STR_PARTIME",         STR_PARTIME },
+        { "STR_PLAYERNAME",      STR_PLAYERNAME },
+        { "STR_USERMAPFILENAME", STR_USERMAPFILENAME },
+        { "STR_VERSION",         STR_VERSION },
+        { "STR_VOLUMENAME",      STR_VOLUMENAME },
+        { "STR_YOURTIME",        STR_YOURTIME },
     };
 
     for (auto & i : predefined)

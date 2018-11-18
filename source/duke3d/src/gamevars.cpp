@@ -851,12 +851,12 @@ static const char *gvxerrs[] = {
     "invalid pal ID",
 };
 
-#define CHECK_INDEX(range, error)                                                                                                          \
-    if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= range))                                                                              \
-    {                                                                                                                                      \
-        gameVar     = arrayIndex;                                                                                                          \
-        returnValue = error;                                                                                                               \
-        goto badindex;                                                                                                                     \
+#define CHECK_INDEX(range, error)                             \
+    if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= range)) \
+    {                                                         \
+        gameVar     = arrayIndex;                             \
+        returnValue = error;                                  \
+        goto badindex;                                        \
     }
 
 int __fastcall Gv_GetSpecialVarX(int gameVar)
@@ -1043,7 +1043,6 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
             outBuf[j] = Gv_GetSpecialVarX(gameVar);
             continue;
         }
-
 
         gamevar_t &var = aGameVars[gameVar &= MAXGAMEVARS - 1];
 
