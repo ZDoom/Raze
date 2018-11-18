@@ -47,7 +47,7 @@ void P_ResetPlayer(int playerNum);
 void P_ResetWeapons(int playerNum);
 void G_ClearFIFO(void);
 void G_ResetInterpolations(void);
-extern int32_t fragbarheight(void);
+int fragbarheight(void);
 
 #ifdef __cplusplus
 }

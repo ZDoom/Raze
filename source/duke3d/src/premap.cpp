@@ -34,34 +34,35 @@ static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t g_precacheCount;
 
 
-static void flag_precache(int32_t tile, int32_t type)
+static inline void flag_precache(int tile, int type)
 {
     if (!(gotpic[tile>>3] & pow2char[tile&7]))
         g_precacheCount++;
+
     gotpic[tile>>3] |= pow2char[tile&7];
     precachehightile[type][tile>>3] |= pow2char[tile&7];
 }
 
-static void tloadtile(int32_t tilenume, int32_t type)
+static void tloadtile(int tilenume, int type)
 {
-    int32_t i,j;
+    int firstTile, lastTile;
 
-    if ((picanm[tilenume].sf&PICANM_ANIMTYPE_MASK)==PICANM_ANIMTYPE_BACK)
+    if ((picanm[tilenume].sf & PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
     {
-        i = tilenume - picanm[tilenume].num;
-        j = tilenume;
+        firstTile = tilenume - picanm[tilenume].num;
+        lastTile  = tilenume;
     }
     else
     {
-        i = tilenume;
-        j = tilenume + picanm[tilenume].num;
+        firstTile = tilenume;
+        lastTile  = tilenume + picanm[tilenume].num;
     }
 
-    for (; i<=j; i++)
-        flag_precache(i, type);
+    for (; firstTile <= lastTile; firstTile++)
+        flag_precache(firstTile, type);
 }
 
-static void G_CacheSpriteNum(int32_t i)
+static void G_CacheSpriteNum(int i)
 {
     char maxc;
     int32_t j;
@@ -200,178 +201,216 @@ static void G_CacheSpriteNum(int32_t i)
     for (j = PN(i); j < (PN(i)+maxc); j++) tloadtile(j,1);
 }
 
+#ifndef EDUKE32_STANDALONE
+static void CacheDukeSprites(void)
+{
+    tloadtile(BOTTOMSTATUSBAR, 1);
+
+    if ((g_netServer || ud.multimode > 1))
+        tloadtile(FRAGBAR, 1);
+
+    tloadtile(VIEWSCREEN, 1);
+
+    for (int i = STARTALPHANUM; i < ENDALPHANUM+1; i++)
+        tloadtile(i, 1);
+    for (int i = BIGALPHANUM-11; i < BIGALPHANUM+82; i++)
+        tloadtile(i, 1);
+    for (int i = MINIFONT; i < MINIFONT+93; i++)
+        tloadtile(i, 1);
+
+    for (int i = FOOTPRINTS; i < FOOTPRINTS+3; i++)
+        tloadtile(i, 1);
+
+    for (int i = BURNING; i < BURNING+14; i++)
+        tloadtile(i, 1);
+    for (int i = BURNING2; i < BURNING2+14; i++)
+        tloadtile(i, 1);
+
+    for (int i = CRACKKNUCKLES; i < CRACKKNUCKLES+4; i++)
+        tloadtile(i, 1);
+
+    for (int i = FIRSTGUN; i < FIRSTGUN+3; i++)
+        tloadtile(i, 1);
+    for (int i = FIRSTGUNRELOAD; i < FIRSTGUNRELOAD+8; i++)
+        tloadtile(i, 1);
+
+    for (int i = EXPLOSION2; i < EXPLOSION2+21; i++)
+        tloadtile(i, 1);
+
+    for (int i = COOLEXPLOSION1; i < COOLEXPLOSION1+21; i++)
+        tloadtile(i, 1);
+
+    tloadtile(BULLETHOLE, 1);
+    tloadtile(BLOODPOOL, 1);
+
+    for (int i = TRANSPORTERBEAM; i < (TRANSPORTERBEAM+6); i++)
+        tloadtile(i, 1);
+
+    for (int i = SMALLSMOKE; i < (SMALLSMOKE+4); i++)
+        tloadtile(i, 1);
+    for (int i = SHOTSPARK1; i < (SHOTSPARK1+4); i++)
+        tloadtile(i, 1);
+
+    for (int i = BLOOD; i < (BLOOD+4); i++)
+        tloadtile(i, 1);
+    for (int i = JIBS1; i < (JIBS5+5); i++)
+        tloadtile(i, 1);
+    for (int i = JIBS6; i < (JIBS6+8); i++)
+        tloadtile(i, 1);
+
+    for (int i = SCRAP1; i < (SCRAP1+29); i++)
+        tloadtile(i, 1);
+
+    tloadtile(FIRELASER, 1);
+
+    for (int i = TRANSPORTERSTAR; i < TRANSPORTERSTAR+6; i++)
+        tloadtile(i, 1);
+
+    for (int i = FORCERIPPLE; i < (FORCERIPPLE+9); i++)
+        tloadtile(i, 1);
+
+    for (int i = MENUSCREEN; i < DUKECAR; i++)
+        tloadtile(i, 1);
+
+    for (int i = RPG; i < RPG+7; i++)
+        tloadtile(i, 1);
+    for (int i = FREEZEBLAST; i < FREEZEBLAST+3; i++)
+        tloadtile(i, 1);
+    for (int i = SHRINKSPARK; i < SHRINKSPARK+4; i++)
+        tloadtile(i, 1);
+    for (int i = GROWSPARK; i < GROWSPARK+4; i++)
+        tloadtile(i, 1);
+    for (int i = SHRINKEREXPLOSION; i < SHRINKEREXPLOSION+4; i++)
+        tloadtile(i, 1);
+    for (int i = MORTER; i < MORTER+4; i++)
+        tloadtile(i, 1);
+    for (int i = 0; i <= 60; i++)
+        tloadtile(i, 1);
+}
+#endif
+
 static void G_PrecacheSprites(void)
 {
-    int32_t i,j;
-
-    for (i=0; i<MAXTILES; i++)
+    for (int i = 0; i < MAXTILES; i++)
     {
         if (g_tile[i].flags & SFLAG_PROJECTILE)
-            tloadtile(i,1);
+            tloadtile(i, 1);
 
         if (A_CheckSpriteTileFlags(i, SFLAG_CACHE))
-            for (j = i; j <= g_tile[i].cacherange; j++)
-                tloadtile(j,1);
+            for (int j = i; j <= g_tile[i].cacherange; j++)
+                tloadtile(j, 1);
     }
+
 #ifndef EDUKE32_STANDALONE
-    tloadtile(BOTTOMSTATUSBAR,1);
-    if ((g_netServer || ud.multimode > 1))
-        tloadtile(FRAGBAR,1);
-
-    tloadtile(VIEWSCREEN,1);
-
-    for (i=STARTALPHANUM; i<ENDALPHANUM+1; i++) tloadtile(i,1);
-    for (i=BIGALPHANUM-11; i<BIGALPHANUM+82; i++) tloadtile(i,1);
-    for (i=MINIFONT; i<MINIFONT+93; i++) tloadtile(i,1);
-
-    for (i=FOOTPRINTS; i<FOOTPRINTS+3; i++) tloadtile(i,1);
-
-    for (i = BURNING; i < BURNING+14; i++) tloadtile(i,1);
-    for (i = BURNING2; i < BURNING2+14; i++) tloadtile(i,1);
-
-    for (i = CRACKKNUCKLES; i < CRACKKNUCKLES+4; i++) tloadtile(i,1);
-
-    for (i = FIRSTGUN; i < FIRSTGUN+3 ; i++) tloadtile(i,1);
-    for (i = FIRSTGUNRELOAD; i < FIRSTGUNRELOAD+8 ; i++) tloadtile(i,1);
-
-    for (i = EXPLOSION2; i < EXPLOSION2+21 ; i++) tloadtile(i,1);
-
-    for (i = COOLEXPLOSION1; i < COOLEXPLOSION1+21 ; i++) tloadtile(i,1);
-
-    tloadtile(BULLETHOLE,1);
-    tloadtile(BLOODPOOL,1);
-    for (i = TRANSPORTERBEAM; i < (TRANSPORTERBEAM+6); i++) tloadtile(i,1);
-
-    for (i = SMALLSMOKE; i < (SMALLSMOKE+4); i++) tloadtile(i,1);
-    for (i = SHOTSPARK1; i < (SHOTSPARK1+4); i++) tloadtile(i,1);
-
-    for (i = BLOOD; i < (BLOOD+4); i++) tloadtile(i,1);
-    for (i = JIBS1; i < (JIBS5+5); i++) tloadtile(i,1);
-    for (i = JIBS6; i < (JIBS6+8); i++) tloadtile(i,1);
-
-    for (i = SCRAP1; i < (SCRAP1+29); i++) tloadtile(i,1);
-
-    tloadtile(FIRELASER,1);
-    for (i=TRANSPORTERSTAR; i<TRANSPORTERSTAR+6; i++) tloadtile(i,1);
-    for (i=FORCERIPPLE; i<(FORCERIPPLE+9); i++) tloadtile(i,1);
-
-    for (i=MENUSCREEN; i<DUKECAR; i++) tloadtile(i,1);
-
-    for (i=RPG; i<RPG+7; i++) tloadtile(i,1);
-    for (i=FREEZEBLAST; i<FREEZEBLAST+3; i++) tloadtile(i,1);
-    for (i=SHRINKSPARK; i<SHRINKSPARK+4; i++) tloadtile(i,1);
-    for (i=GROWSPARK; i<GROWSPARK+4; i++) tloadtile(i,1);
-    for (i=SHRINKEREXPLOSION; i<SHRINKEREXPLOSION+4; i++) tloadtile(i,1);
-    for (i=MORTER; i<MORTER+4; i++) tloadtile(i,1);
-    for (i=0; i<=60; i++) tloadtile(i,1);
+    CacheDukeSprites();
 #endif
 }
 
-static void G_DoLoadScreen(const char *statustext, int32_t percent)
+static void G_DemoLoadScreen(const char *statustext, int const loadScreenTile, int percent)
 {
-    if (ud.recstat != 2)
+    if (statustext == NULL)
     {
-        int32_t i = 0;
-        int32_t j = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
+        videoClearScreen(0L);
+        // g_player[myconnectindex].ps->palette = palette;
+        // G_FadePalette(0,0,0,0);
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);  // JBF 20040308
+    }
 
-        //g_player[myconnectindex].ps->palette = palette;
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
-
-        if (!statustext)
-        {
-            i = ud.screen_size;
-            ud.screen_size = 0;
-            G_UpdateScreenArea();
-            videoClearScreen(0L);
-        }
-
-        if ((uint32_t)j < 2*MAXTILES)
-        {
-            videoClearScreen(0);
-
-            rotatesprite_fs(320<<15,200<<15,65536L,0, j > MAXTILES-1?j-MAXTILES:j,0,0,
-                            2+8+64+BGSTRETCH);
-        }
-        else
-        {
-            videoNextPage();
-            return;
-        }
-
-        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
-        {
-            menutext_center(90,"Loading User Map");
-            gametext_center_shade_pal(90+10, boardfilename, 14, 2);
-        }
-        else
-        {
-            menutext_center(90,"Loading");
-            if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
-                menutext_center(90+16+8,g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
-        }
-
-#ifndef EDUKE32_TOUCH_DEVICES
-        if (statustext) gametext_center_number(180, statustext);
-#endif
-
-        if (percent != -1)
-        {
-            int32_t ii = scale(scale(xdim-1,288,320),percent,100);
-            rotatesprite(31<<16,145<<16,65536,0,929,15,0,2+8+16,0,0,ii,ydim-1);
-            rotatesprite(159<<16,145<<16,65536,0,929,15,0,2+8+16,0,0,ii,ydim-1);
-            rotatesprite(30<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);
-            rotatesprite(158<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);
-        }
-
-        VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
-        videoNextPage();
-
-        if (!statustext)
-        {
-            KB_FlushKeyboardQueue();
-            ud.screen_size = i;
-        }
+    if ((unsigned)loadScreenTile < (MAXTILES << 1))
+    {
+        rotatesprite_fs(320<<15, 200<<15, 65536L, 0, loadScreenTile & (MAXTILES-1), 0, 0, 2+8+64+BGSTRETCH);
     }
     else
     {
-        if (!statustext)
-        {
-            videoClearScreen(0L);
-            //g_player[myconnectindex].ps->palette = palette;
-            //G_FadePalette(0,0,0,0);
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-        }
-        /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
-
-        int32_t j = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
-
-        if ((uint32_t)j < 2*MAXTILES)
-        {
-            rotatesprite_fs(320<<15,200<<15,65536L, 0,j > MAXTILES-1?j-MAXTILES:j,0,0,
-                            2+8+64+BGSTRETCH);
-        }
-        else
-        {
-            videoNextPage();
-            return;
-        }
-
-        menutext_center(105,"Loading...");
-        if (statustext) gametext_center_number(180, statustext);
-        VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
         videoNextPage();
+        return;
     }
+
+    menutext_center(105, "Loading...");
+
+    if (statustext)
+        gametext_center_number(180, statustext);
+
+    VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
+    videoNextPage();
 }
 
+static void G_DoLoadScreen(const char *statustext, int percent)
+{
+    int const loadScreenTile = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
 
+    if (ud.recstat == 2)
+    {
+        G_DemoLoadScreen(statustext, loadScreenTile, percent);
+        return;
+    }
+
+    int const screenSize = ud.screen_size;
+
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);
+
+    if (statustext == NULL)
+    {
+        ud.screen_size = 0;
+        G_UpdateScreenArea();
+        videoClearScreen(0L);
+    }
+
+    if ((unsigned)loadScreenTile < (MAXTILES<<1))
+    {
+        videoClearScreen(0);
+        rotatesprite_fs(320<<15, 200<<15, 65536L, 0, loadScreenTile & (MAXTILES-1), 0, 0, 2+8+64+BGSTRETCH);
+    }
+    else
+    {
+        videoNextPage();
+        return;
+    }
+
+    if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
+    {
+        menutext_center(90, "Loading User Map");
+        gametext_center_shade_pal(90+10, boardfilename, 14, 2);
+    }
+    else
+    {
+        menutext_center(90, "Loading");
+
+        if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
+            menutext_center(90+16+8, g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
+    }
+
+#ifndef EDUKE32_TOUCH_DEVICES
+    if (statustext)
+        gametext_center_number(180, statustext);
+#endif
+
+    if (percent != -1)
+    {
+        int const     width = scale(scale(xdim-1, 288, 320), percent, 100);
+        int constexpr tile  = 929;
+        int constexpr bits  = 2+8+16;
+
+        rotatesprite(31<<16 , 145<<16, 65536, 0, tile, 15, 0, bits, 0, 0, width, ydim-1);
+        rotatesprite(159<<16, 145<<16, 65536, 0, tile, 15, 0, bits, 0, 0, width, ydim-1);
+
+        rotatesprite(30<<16 , 144<<16, 65536, 0, tile, 0, 0, bits, 0, 0, width, ydim-1);
+        rotatesprite(158<<16, 144<<16, 65536, 0, tile, 0, 0, bits, 0, 0, width, ydim-1);
+    }
+
+    VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
+    videoNextPage();
+
+    if (!statustext)
+    {
+        KB_FlushKeyboardQueue();
+        ud.screen_size = screenSize;
+    }
+}
 
 
 void G_CacheMapData(void)
 {
-    int32_t i,j,pc=0;
-    int32_t tc;
-    uint32_t starttime, endtime;
-
     if (ud.recstat == 2)
         return;
 
@@ -381,42 +420,36 @@ void G_CacheMapData(void)
     polymost_glreset();
 #endif
 
-    starttime = timerGetTicks();
+    uint32_t const starttime = timerGetTicks();
 
     S_PrecacheSounds();
     G_PrecacheSprites();
 
-    for (i=0; i<numwalls; i++)
+    for (int i=0; i<numwalls; i++)
     {
         tloadtile(wall[i].picnum, 0);
 
         if (wall[i].overpicnum >= 0)
-        {
             tloadtile(wall[i].overpicnum, 0);
-        }
     }
 
-    for (i=0; i<numsectors; i++)
+    for (int i=0; i<numsectors; i++)
     {
         tloadtile(sector[i].floorpicnum, 0);
         tloadtile(sector[i].ceilingpicnum, 0);
-        if (sector[i].ceilingpicnum == LA)  // JBF 20040509: if( waloff[sector[i].ceilingpicnum] == LA) WTF?!?!?!?
-        {
-            tloadtile(LA+1, 0);
-            tloadtile(LA+2, 0);
-        }
 
-        for (SPRITES_OF_SECT(i, j))
-            if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat&32768) == 0)
+        for (int SPRITES_OF_SECT(i, j))
+        {
+            if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat & CSTAT_SPRITE_INVISIBLE) == 0)
                 G_CacheSpriteNum(j);
+        }
     }
 
-    tc = totalclock;
-    j = 0;
+    int clock = totalclock;
+    int cnt = 0;
+    int percentDisplayed = -1;
 
-    int lpc = -1;
-
-    for (i=0; i<MAXTILES; i++)
+    for (int i=0; i<MAXTILES && !KB_KeyPressed(sc_Space); i++)
     {
         if (!(i&7) && !gotpic[i>>3])
         {
@@ -432,13 +465,11 @@ void G_CacheMapData(void)
 // PRECACHE
             if (ud.config.useprecache && bpp > 8)
             {
-                int32_t k,type;
-
-                for (type=0; type<=1; type++)
+                for (int type = 0; type < 2 && !KB_KeyPressed(sc_Space); type++)
+                {
                     if (precachehightile[type][i>>3] & pow2char[i&7])
                     {
-                        k = 0;
-                        for (k=0; k<MAXPALOOKUPS-RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
+                        for (int k=0; k < MAXPALOOKUPS-RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
                         {
                             // this is the CROSSHAIR_PAL, see comment in game.c
                             if (k == MAXPALOOKUPS-RESERVEDPALS-1)
@@ -446,68 +477,67 @@ void G_CacheMapData(void)
 #ifdef POLYMER
                             if (videoGetRenderMode() != REND_POLYMER || !polymer_havehighpalookup(0, k))
 #endif
-                                polymost_precache(i,k,type);
+                                polymost_precache(i, k, type);
                         }
 
 #ifdef USE_GLEXT
-                        if (r_detailmapping && !KB_KeyPressed(sc_Space))
-                            polymost_precache(i,DETAILPAL,type);
-                        if (r_glowmapping && !KB_KeyPressed(sc_Space))
-                            polymost_precache(i,GLOWPAL,type);
+                        if (r_detailmapping)
+                            polymost_precache(i, DETAILPAL, type);
+
+                        if (r_glowmapping)
+                            polymost_precache(i, GLOWPAL, type);
 #endif
 #ifdef POLYMER
                         if (videoGetRenderMode() == REND_POLYMER)
                         {
-                            if (pr_specularmapping && !KB_KeyPressed(sc_Space))
-                                polymost_precache(i,SPECULARPAL,type);
-                            if (pr_normalmapping && !KB_KeyPressed(sc_Space))
-                                polymost_precache(i,NORMALPAL,type);
+                            if (pr_specularmapping)
+                                polymost_precache(i, SPECULARPAL, type);
+
+                            if (pr_normalmapping)
+                                polymost_precache(i, NORMALPAL, type);
                         }
 #endif
                     }
+                }
             }
 #endif
-            j++;
-            pc++;
+            cnt++;
         }
         else continue;
 
         MUSIC_Update();
 
-        if ((j&7) == 0)
+        if ((cnt&7) == 0)
             G_HandleAsync();
 
-        if (bpp > 8 && totalclock - tc > TICRATE/4)
+        if (bpp > 8 && totalclock - clock > TICRATE/4)
         {
-            /*Bsprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc+1);*/
-            int percentage = min(100, tabledivide32_noinline(100 * pc, g_precacheCount));
+            int const percentComplete = min(100, tabledivide32_noinline(100 * cnt, g_precacheCount));
 
-            while (percentage > lpc)
+            // this just prevents the loading screen percentage bar from making large jumps
+            while (percentDisplayed < percentComplete)
             {
-                Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", lpc, pc, g_precacheCount);
-                G_DoLoadScreen(tempbuf, lpc);
+                Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", percentDisplayed, cnt, g_precacheCount);
+                G_DoLoadScreen(tempbuf, percentDisplayed);
                 timerUpdate();
 
-                if (totalclock - tc >= 1)
+                if (totalclock - clock >= 1)
                 {
-                    tc = totalclock;
-                    lpc++;
+                    clock = totalclock;
+                    percentDisplayed++;
                 }
-
-//                OSD_Printf("percentage %d lpc %d\n", percentage, lpc);
             }
 
-            tc = totalclock;
+            clock = totalclock;
         }
     }
 
     Bmemset(gotpic, 0, sizeof(gotpic));
 
-    endtime = timerGetTicks();
-    OSD_Printf("Cache time: %dms\n", endtime-starttime);
+    OSD_Printf("Cache time: %dms\n", timerGetTicks() - starttime);
 }
 
-extern int32_t fragbarheight(void)
+int fragbarheight(void)
 {
     if (ud.screen_size > 0 && !(ud.statusbarflags & STATUSBAR_NOFRAGBAR)
 #ifdef SPLITSCREEN_MOD_HACKS
@@ -515,13 +545,13 @@ extern int32_t fragbarheight(void)
 #endif
         && (g_netServer || ud.multimode > 1) && GTFLAGS(GAMETYPE_FRAGBAR))
     {
-        int32_t i, j = 0;
+        int j = 0;
 
-        for (TRAVERSE_CONNECT(i))
+        for (int TRAVERSE_CONNECT(i))
             if (i > j)
                 j = i;
 
-        return ((j + 3) >> 2) << 3;
+        return ((j + 3) >> 2) * tilesiz[FRAGBAR].y;
     }
 
     return 0;
@@ -532,38 +562,36 @@ void G_UpdateScreenArea(void)
     if (!in3dmode())
         return;
 
-    ud.screen_size = clamp(ud.screen_size, 0, 64);
-    if (ud.screen_size == 0)
+    if ((ud.screen_size = clamp(ud.screen_size, 0, 64)) == 0)
         renderFlushPerms();
 
+    int const screenSize    = max(ud.screen_size - 8, 0);
+    int const bottomStatusY = tilesiz[BOTTOMSTATUSBAR].y;
+
+    vec2_t v1 = { scale(screenSize, xdim, 160),
+                  scale(screenSize, (200 * 100) - (bottomStatusY * ud.statusbarscale), 200 - bottomStatusY) };
+    vec2_t v2 = { xdim - v1.x, 200 * 100 - v1.y };
+
+    v1.y += fragbarheight() * 100;
+
+    if (ud.screen_size >= 8 && ud.statusbarmode == 0)
+        v2.y -= bottomStatusY * ud.statusbarscale;
+
+    v1.y = scale(v1.y, ydim, 200 * 100);
+    v2.y = scale(v2.y, ydim, 200 * 100);
+
+    if (VM_HaveEvent(EVENT_UPDATESCREENAREA))
     {
-        const int32_t ss = max(ud.screen_size-8,0);
-
-        int32_t x1 = scale(ss,xdim,160);
-        int32_t x2 = xdim-x1;
-
-        int32_t y1 = scale(ss,(200 * 100) - (tilesiz[BOTTOMSTATUSBAR].y * ud.statusbarscale),200 - tilesiz[BOTTOMSTATUSBAR].y);
-        int32_t y2 = 200*100-y1;
-
-        y1 += fragbarheight()*100;
-        if (ud.screen_size >= 8 && ud.statusbarmode==0)
-            y2 -= tilesiz[BOTTOMSTATUSBAR].y*ud.statusbarscale;
-        y1 = scale(y1,ydim,200*100);
-        y2 = scale(y2,ydim,200*100);
-
-        if (VM_HaveEvent(EVENT_UPDATESCREENAREA))
-        {
-            ud.returnvar[0] = y1;
-            ud.returnvar[1] = x2;
-            ud.returnvar[2] = y2;
-            x1 = VM_OnEventWithReturn(EVENT_UPDATESCREENAREA, g_player[screenpeek].ps->i, screenpeek, x1);
-            y1 = ud.returnvar[0];
-            x2 = ud.returnvar[1];
-            y2 = ud.returnvar[2];
-        }
-
-        videoSetViewableArea(x1,y1,x2-1,y2-1);
+        ud.returnvar[0] = v1.y;
+        ud.returnvar[1] = v2.x;
+        ud.returnvar[2] = v2.y;
+        v1.x = VM_OnEventWithReturn(EVENT_UPDATESCREENAREA, g_player[screenpeek].ps->i, screenpeek, v1.x);
+        v1.y = ud.returnvar[0];
+        v2.x = ud.returnvar[1];
+        v2.y = ud.returnvar[2];
     }
+
+    videoSetViewableArea(v1.x, v1.y, v2.x-1, v2.y-1);
 
     G_GetCrosshairColor();
     G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
@@ -1350,9 +1378,39 @@ static void prelevel(int g)
 }
 
 
+void G_PlayE4Cutscene(void)
+{
+    S_PlaySpecialMusicOrNothing(MUS_BRIEFING);
+
+    renderFlushPerms();
+    videoSetViewableArea(0, 0, xdim-1, ydim-1);
+    videoClearViewableArea(0L);
+    videoNextPage();
+
+    if (Anim_Play("vol41a.anm"))
+        goto end_vol4a;
+
+    videoClearViewableArea(0L);
+    videoNextPage();
+
+    if (Anim_Play("vol42a.anm"))
+        goto end_vol4a;
+
+    videoClearViewableArea(0L);
+    videoNextPage();
+
+    Anim_Play("vol43a.anm");
+
+end_vol4a:
+    videoClearViewableArea(0L);
+    videoNextPage();
+
+    FX_StopAllSounds();
+}
+
 void G_NewGame(int volumeNum, int levelNum, int skillNum)
 {
-    auto &p = *g_player[0].ps;
+    auto &p0 = *g_player[0].ps;
 
     G_HandleAsync();
 
@@ -1387,41 +1445,14 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     if ((!g_netServer && ud.multimode < 2) && !Menu_HaveUserMap()
         && !VM_OnEventWithReturn(EVENT_NEWGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)
         && !levelNum && volumeNum == 3 && !ud.lockout && !(G_GetLogoFlags() & LOGO_NOE4CUTSCENE))
-    {
-        S_PlaySpecialMusicOrNothing(MUS_BRIEFING);
-
-        renderFlushPerms();
-        videoSetViewableArea(0, 0, xdim-1, ydim-1);
-        videoClearViewableArea(0L);
-        videoNextPage();
-
-        if (Anim_Play("vol41a.anm"))
-            goto end_vol4a;
-
-        videoClearViewableArea(0L);
-        videoNextPage();
-
-        if (Anim_Play("vol42a.anm"))
-            goto end_vol4a;
-
-        videoClearViewableArea(0L);
-        videoNextPage();
-
-        Anim_Play("vol43a.anm");
-
-end_vol4a:
-        videoClearViewableArea(0L);
-        videoNextPage();
-
-        FX_StopAllSounds();
-    }
+        G_PlayE4Cutscene();
 
 #ifdef EDUKE32_TOUCH_DEVICES
-    p.zoom = 360;
+    p0.zoom = 360;
 #else
-    p.zoom = 768;
+    p0.zoom = 768;
 #endif
-    p.gm = 0;
+    p0.gm = 0;
 
     Menu_Close(0);
 
@@ -1441,15 +1472,15 @@ end_vol4a:
         {
             if (PWEAPON(0, weaponNum, WorksLike) == PISTOL_WEAPON)
             {
-                p.curr_weapon = weaponNum;
-                p.gotweapon |= (1 << weaponNum);
-                p.ammo_amount[weaponNum] = min<int16_t>(p.max_ammo_amount[weaponNum], 48);
+                p0.curr_weapon = weaponNum;
+                p0.gotweapon |= (1 << weaponNum);
+                p0.ammo_amount[weaponNum] = min<int16_t>(p0.max_ammo_amount[weaponNum], 48);
             }
             else if (PWEAPON(0, weaponNum, WorksLike) == KNEE_WEAPON || PWEAPON(0, weaponNum, WorksLike) == HANDREMOTE_WEAPON)
-                p.gotweapon |= (1 << weaponNum);
+                p0.gotweapon |= (1 << weaponNum);
         }
 
-        p.last_weapon = -1;
+        p0.last_weapon = -1;
     }
 
     display_mirror = 0;
@@ -1692,9 +1723,8 @@ int G_FindLevelByFile(const char *fileName)
 
         if (levelNum.filename == NULL)
             continue;
-
-        if (!Bstrcasecmp(fileName, levelNum.filename))
-            return i;
+        else if (!Bstrcasecmp(fileName, levelNum.filename))
+            return i-1;
     }
 
     return -1;
