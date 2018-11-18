@@ -272,7 +272,8 @@ void G_GameExit(const char *msg)
     El_PrintTimes();
     El_DestroyState(&g_ElState);
 #endif
-    if (*msg != 0) g_player[myconnectindex].ps->palette = BASEPAL;
+    if (*msg != 0 && g_player[myconnectindex].ps != NULL)
+        g_player[myconnectindex].ps->palette = BASEPAL;
 
     if (ud.recstat == 1)
         G_CloseDemoWrite();
