@@ -676,7 +676,7 @@ void P_ResetPlayer(int playerNum)
     actor[pPlayer->i].cgg          = 0;
     actor[pPlayer->i].movflag      = 0;
     actor[pPlayer->i].tempang      = 0;
-    actor[pPlayer->i].actorstayput = -1;
+    actor[pPlayer->i].stayput = -1;
     actor[pPlayer->i].dispicnum    = 0;
     actor[pPlayer->i].owner        = pPlayer->i;
     actor[pPlayer->i].t_data[4]    = 0;
@@ -854,14 +854,14 @@ static void resetprestat(int playerNum, int gameMode)
                             ? PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime)
                             : 0;
 
-    pPlayer->last_weapon           = -1;
-    pPlayer->weapreccnt            = 0;
-    pPlayer->interface_toggle_flag = 0;
-    pPlayer->show_empty_weapon     = 0;
-    pPlayer->holster_weapon        = 0;
-    pPlayer->last_pissed_time      = 0;
-    pPlayer->one_parallax_sectnum  = -1;
-    pPlayer->visibility            = ud.const_visibility;
+    pPlayer->last_weapon       = -1;
+    pPlayer->weapreccnt        = 0;
+    pPlayer->interface_toggle  = 0;
+    pPlayer->show_empty_weapon = 0;
+    pPlayer->holster_weapon    = 0;
+    pPlayer->last_pissed_time  = 0;
+    pPlayer->parallax_sectnum  = -1;
+    pPlayer->visibility        = ud.const_visibility;
 
     screenpeek         = myconnectindex;
     g_animWallCnt      = 0;
@@ -1002,8 +1002,8 @@ static void prelevel(char g)
                     missedCloudSectors++;
             }
 
-            if (g_player[0].ps->one_parallax_sectnum == -1)
-                g_player[0].ps->one_parallax_sectnum = i;
+            if (g_player[0].ps->parallax_sectnum == -1)
+                g_player[0].ps->parallax_sectnum = i;
         }
 
         if (sector[i].lotag == 32767) //Found a secret room

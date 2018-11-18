@@ -2486,9 +2486,9 @@ void P_HandleSharedKeys(int playerNum)
     weaponNum = playerBits & ((15u<<SK_WEAPON_BITS)|BIT(SK_STEROIDS)|BIT(SK_NIGHTVISION)|BIT(SK_MEDKIT)|BIT(SK_QUICK_KICK)| \
                    BIT(SK_HOLSTER)|BIT(SK_INV_LEFT)|BIT(SK_PAUSE)|BIT(SK_HOLODUKE)|BIT(SK_JETPACK)|BIT(SK_INV_RIGHT)| \
                    BIT(SK_TURNAROUND)|BIT(SK_OPEN)|BIT(SK_INVENTORY)|BIT(SK_ESCAPE));
-    playerBits = weaponNum & ~pPlayer->interface_toggle_flag;
-    pPlayer->interface_toggle_flag |= playerBits | ((playerBits&0xf00)?0xf00:0);
-    pPlayer->interface_toggle_flag &= weaponNum | ((weaponNum&0xf00)?0xf00:0);
+    playerBits = weaponNum & ~pPlayer->interface_toggle;
+    pPlayer->interface_toggle |= playerBits | ((playerBits&0xf00)?0xf00:0);
+    pPlayer->interface_toggle &= weaponNum | ((weaponNum&0xf00)?0xf00:0);
 
     if (playerBits && TEST_SYNC_KEY(playerBits, SK_MULTIFLAG) == 0)
     {

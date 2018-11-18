@@ -1271,7 +1271,7 @@ void Net_CopyToNet(int32_t i, netactor_t *netactor)
     netactor->lastv.x = actor[i].lastv.x;
     netactor->lastv.y = actor[i].lastv.y;
     netactor->lasttransport = actor[i].lasttransport;
-    netactor->actorstayput = actor[i].actorstayput;
+    netactor->stayput = actor[i].stayput;
     netactor->cgg = actor[i].cgg;
     netactor->owner = actor[i].owner;
 
@@ -1311,7 +1311,7 @@ void Net_CopyFromNet(int32_t i, netactor_t *netactor)
     actor[i].lastv.x = netactor->lastv.x;
     actor[i].lastv.y = netactor->lastv.y;
     actor[i].lasttransport = netactor->lasttransport;
-    actor[i].actorstayput = netactor->actorstayput;
+    actor[i].stayput = netactor->stayput;
     actor[i].cgg = netactor->cgg;
     actor[i].owner = netactor->owner;
 
@@ -1339,7 +1339,7 @@ int32_t Net_ActorsAreDifferent(netactor_t *actor1, netactor_t *actor2)
         actor1->lastv.x			!= actor2->lastv.x ||
         actor1->lastv.y			!= actor2->lastv.y ||
         actor1->lasttransport	!= actor2->lasttransport ||
-        actor1->actorstayput	!= actor2->actorstayput ||
+        actor1->stayput	!= actor2->stayput ||
         //actor1->cgg			!= actor2->cgg ||
 
         actor1->sprite.owner	!= actor2->sprite.owner ||

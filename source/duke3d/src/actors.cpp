@@ -476,7 +476,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     {
         // Handle potential stayput condition (map-provided or hard-coded).
         if (newSectnum < 0
-            || ((actor[spriteNum].actorstayput >= 0 && actor[spriteNum].actorstayput != newSectnum)
+            || ((actor[spriteNum].stayput >= 0 && actor[spriteNum].stayput != newSectnum)
 #ifndef EDUKE32_STANDALONE
                 || (pSprite->picnum == BOSS2 && pSprite->pal == 0 && sector[newSectnum].lotag != ST_3)
                 || ((pSprite->picnum == BOSS1 || pSprite->picnum == BOSS2) && sector[newSectnum].lotag == ST_1_ABOVE_WATER)
@@ -6822,10 +6822,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         pSector->floorshade = pSprite->shade;
 
-                        if (g_player[0].ps->one_parallax_sectnum >= 0)
+                        if (g_player[0].ps->parallax_sectnum >= 0)
                         {
-                            pSector->ceilingpicnum = sector[g_player[0].ps->one_parallax_sectnum].ceilingpicnum;
-                            pSector->ceilingshade  = sector[g_player[0].ps->one_parallax_sectnum].ceilingshade;
+                            pSector->ceilingpicnum = sector[g_player[0].ps->parallax_sectnum].ceilingpicnum;
+                            pSector->ceilingshade  = sector[g_player[0].ps->parallax_sectnum].ceilingshade;
                         }
                     }
                 }

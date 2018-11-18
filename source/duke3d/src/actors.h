@@ -171,7 +171,7 @@ typedef struct
     vec2_t lastv;                              // 8b
     int16_t picnum, ang, extra, owner;         // 8b
     int16_t movflag, tempang, timetosleep;     // 6b
-    int16_t actorstayput;                      // 2b
+    int16_t stayput;                           // 2b
 
     uint8_t cgg, lasttransport;                // 2b
     // NOTE: 'dispicnum' is updated every frame, not in sync with game tics!
@@ -202,7 +202,7 @@ typedef struct
     vec2_t lastv;                              // 8b
     int16_t picnum, ang, extra, owner;         // 8b
     int16_t movflag, tempang, timetosleep;     // 6b
-    int16_t actorstayput;
+    int16_t stayput;
 
     uint8_t cgg, lasttransport;
 

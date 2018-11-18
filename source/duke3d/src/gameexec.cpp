@@ -1807,7 +1807,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     vm.pActor->timetosleep = SLEEPTIME;
                 continue;
 
-            case CON_IFACTORNOTSTAYPUT: VM_CONDITIONAL(vm.pActor->actorstayput == -1); continue;
+            case CON_IFACTORNOTSTAYPUT: VM_CONDITIONAL(vm.pActor->stayput == -1); continue;
 
             case CON_IFCANSEE:
             {
@@ -2187,7 +2187,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_ADDKILLS:
                 insptr++;
                 P_AddKills(pPlayer, *insptr++);
-                vm.pActor->actorstayput = -1;
+                vm.pActor->stayput = -1;
                 continue;
 
             case CON_LOTSOFGLASS:

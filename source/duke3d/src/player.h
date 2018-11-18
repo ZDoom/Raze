@@ -144,7 +144,7 @@ typedef struct {
     int32_t runspeed, max_player_health, max_shield_amount;
     int32_t autostep, autostep_sbw;
 
-    uint32_t interface_toggle_flag;
+    uint32_t interface_toggle;
 #ifdef LUNATIC
     int32_t pipebombControl, pipebombLifetime, pipebombLifetimeVar;
     int32_t tripbombControl, tripbombLifetime, tripbombLifetimeVar;
@@ -164,7 +164,7 @@ typedef struct {
     int16_t newowner, jumping_counter, airleft;
     int16_t fta, ftq, access_wallnum, access_spritenum;
     int16_t got_access, weapon_ang, visibility;
-    int16_t somethingonplayer, on_crane, i, one_parallax_sectnum;
+    int16_t somethingonplayer, on_crane, i, parallax_sectnum;
     int16_t random_club_frame, one_eighty_count;
     int16_t dummyplayersprite, extra_extra8;
     int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
