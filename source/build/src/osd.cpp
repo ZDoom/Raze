@@ -65,7 +65,7 @@ static int32_t (*_getrowheight)(int32_t) = _internal_getrowheight;
 static hashtable_t h_cvars      = { OSDMAXSYMBOLS >> 1, NULL };
 bool m32_osd_tryscript = false;  // whether to try executing m32script on unkown command in the osd
 
-void OSD_RegisterCvar(osdcvardata_t * const cvar, int (*func)(osdfuncparm_t const * const))
+void OSD_RegisterCvar(osdcvardata_t * const cvar, int (*func)(osdcmdptr_t))
 {
     if (!osd)
         OSD_Init();
@@ -249,7 +249,7 @@ void OSD_SetTextMode(int32_t mode)
         OSD_ResizeDisplay(xdim, ydim);
 }
 
-static int osdfunc_exec(osdfuncparm_t const * const parm)
+static int osdfunc_exec(osdcmdptr_t parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -260,14 +260,14 @@ static int osdfunc_exec(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int osdfunc_echo(osdfuncparm_t const * const parm)
+static int osdfunc_echo(osdcmdptr_t parm)
 {
     OSD_Printf("%s\n", parm->raw + 5);
 
     return OSDCMD_OK;
 }
 
-static int osdfunc_fileinfo(osdfuncparm_t const * const parm)
+static int osdfunc_fileinfo(osdcmdptr_t parm)
 {
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
@@ -412,7 +412,7 @@ static void _internal_onshowosd(int32_t a)
 
 ////////////////////////////
 
-static int osdfunc_alias(osdfuncparm_t const * const parm)
+static int osdfunc_alias(osdcmdptr_t parm)
 {
     osdsymbol_t *i;
 
@@ -459,7 +459,7 @@ static int osdfunc_alias(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int osdfunc_unalias(osdfuncparm_t const * const parm)
+static int osdfunc_unalias(osdcmdptr_t parm)
 {
     if (parm->numparms < 1)
         return OSDCMD_SHOWHELP;
@@ -487,7 +487,7 @@ static int osdfunc_unalias(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int osdfunc_listsymbols(osdfuncparm_t const * const parm)
+static int osdfunc_listsymbols(osdcmdptr_t parm)
 {
     if (parm->numparms > 1)
         return OSDCMD_SHOWHELP;
@@ -545,7 +545,7 @@ static int osdfunc_listsymbols(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int osdfunc_help(osdfuncparm_t const * const parm)
+static int osdfunc_help(osdcmdptr_t parm)
 {
     osdsymbol_t *symb;
 
@@ -562,7 +562,7 @@ static int osdfunc_help(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int osdfunc_clear(osdfuncparm_t const * const UNUSED(parm))
+static int osdfunc_clear(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -575,7 +575,7 @@ static int osdfunc_clear(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdfunc_history(osdfuncparm_t const * const UNUSED(parm))
+static int osdfunc_history(osdcmdptr_t UNUSED(parm))
 {
     int32_t j = 0;
     osdhist_t *h = &osd->history;
@@ -620,7 +620,7 @@ void OSD_Cleanup(void)
 }
 
 
-static int osdcmd_cvar_set_osd(osdfuncparm_t const * const parm)
+static int osdcmd_cvar_set_osd(osdcmdptr_t parm)
 {
     int const r = osdcmd_cvar_set(parm);
 
@@ -646,7 +646,7 @@ static int osdcmd_cvar_set_osd(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int osdfunc_toggle(osdfuncparm_t const * const parm)
+static int osdfunc_toggle(osdcmdptr_t parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -1902,7 +1902,7 @@ void OSD_Dispatch(const char *cmd)
 //
 // OSD_RegisterFunction() -- Registers a new function
 //
-int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int (*func)(const osdfuncparm_t*))
+int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int (*func)(osdcmdptr_t))
 {
     if (!osd)
         OSD_Init();
@@ -2026,7 +2026,7 @@ static osdsymbol_t * osd_findexactsymbol(const char *pszName)
     return (symbolNum >= 0) ? osd->symbptrs[symbolNum] : NULL;
 }
 
-int osdcmd_cvar_set(osdfuncparm_t const * const parm)
+int osdcmd_cvar_set(osdcmdptr_t parm)
 {
     int const printValue = (parm->numparms == 0);
     int const cvaridx    = hash_find(&h_cvars, parm->name);

@@ -7795,7 +7795,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 }
 
 // Console commands by JBF
-static int32_t gltexturemode(osdfuncparm_t const * const parm)
+static int32_t gltexturemode(osdcmdptr_t parm)
 {
     int32_t m;
     char *p;
@@ -7836,7 +7836,7 @@ static int32_t gltexturemode(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_cvar_set_polymost(osdfuncparm_t const * const parm)
+static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
 

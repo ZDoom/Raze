@@ -18,6 +18,8 @@ typedef struct {
     const char *raw;
 } osdfuncparm_t;
 
+using osdcmdptr_t = osdfuncparm_t const * const;
+
 const char *OSD_StripColors(char *outBuf, const char *inBuf);
 
 #define OSDDEFAULTMAXLINES  128
@@ -56,7 +58,7 @@ typedef struct _symbol
     struct _symbol *next;
 
     const char *help;
-    int32_t(*func)(osdfuncparm_t const * const);
+    int32_t(*func)(osdcmdptr_t);
 } osdsymbol_t;
 
 typedef struct
@@ -201,8 +203,8 @@ enum osdflags_t
     OSD_PROTECTED   = 0x00000080,
 };
 
-#define OSD_ALIAS     (int32_t (*)(const osdfuncparm_t*))0x1337
-#define OSD_UNALIASED (int32_t (*)(const osdfuncparm_t*))0xDEAD
+#define OSD_ALIAS     (int32_t (*)(osdcmdptr_t))0x1337
+#define OSD_UNALIASED (int32_t (*)(osdcmdptr_t))0xDEAD
 
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
@@ -284,10 +286,10 @@ void OSD_Dispatch(const char *cmd);
 //   name = name of the function
 //   help = a short help string
 //   func = the entry point to the function
-int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int32_t (*func)(const osdfuncparm_t *));
+int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int32_t (*func)(osdcmdptr_t));
 
-int osdcmd_cvar_set(osdfuncparm_t const * parm);
-void OSD_RegisterCvar(osdcvardata_t * cvar, int32_t (*func)(osdfuncparm_t const * const));
+int osdcmd_cvar_set(osdcmdptr_t parm);
+void OSD_RegisterCvar(osdcvardata_t * cvar, int32_t (*func)(osdcmdptr_t));
 void OSD_WriteAliases(FILE *fp);
 void OSD_WriteCvars(FILE *fp);
 
@@ -297,7 +299,7 @@ static inline void OSD_SetHistory(int32_t histIdx, const char *src)
     Bstrncpyz(osd->history.buf[histIdx], src, OSDEDITLENGTH);
 }
 
-extern int osdcmd_restartvid(osdfuncparm_t const * parm);
+extern int osdcmd_restartvid(osdcmdptr_t parm);
 
 extern void M32RunScript(const char *s);
 

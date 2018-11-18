@@ -416,7 +416,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 }
 
 
-static int32_t set_maxrefreshfreq(osdfuncparm_t const * const parm)
+static int32_t set_maxrefreshfreq(osdcmdptr_t parm)
 {
     int32_t freq;
     if (parm->numparms == 0)
