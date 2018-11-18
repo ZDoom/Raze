@@ -1387,6 +1387,7 @@ const tokenmap_t iter_tokens [] =
 #endif
 
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
+
 #define BITPTR_SET(x) (bitptr[(x)>>3] |= (1<<((x)&7)))
 #define BITPTR_CLEAR(x) (bitptr[(x)>>3] &= ~(1<<((x)&7)))
 #define BITPTR_IS_POINTER(x) (bitptr[(x)>>3] & (1<<((x) &7)))
@@ -1654,6 +1655,25 @@ static void C_GetNextLabelName(void)
         initprintf("%s:%d: debug: label `%s'.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
 }
 
+static inline void scriptWriteValue(int32_t const value)
+{
+    BITPTR_CLEAR(g_scriptPtr-apScript);
+    *g_scriptPtr++ = value;
+}
+
+// addresses passed to these functions must be within the block of memory pointed to by apScript
+static inline void scriptWriteAtOffset(int32_t const value, intptr_t * const addr)
+{
+    BITPTR_CLEAR(addr-apScript);
+    *(addr) = value;
+}
+
+static inline void scriptWritePointer(intptr_t const value, intptr_t * const addr)
+{
+    BITPTR_SET(addr-apScript);
+    *(addr) = value;
+}
+
 static int32_t C_GetNextGameArrayName(void)
 {
     C_GetNextLabelName();
@@ -1665,8 +1685,7 @@ static int32_t C_GetNextGameArrayName(void)
         return -1;
     }
 
-    BITPTR_CLEAR(g_scriptPtr-apScript);
-    *g_scriptPtr++ = i;
+    scriptWriteValue(i);
     return i;
 }
 
@@ -1717,13 +1736,10 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     if (EDUKE32_PREDICT_TRUE((i = hash_find(&h_keywords,tempbuf)) >= 0))
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
-            *g_scriptPtr = i + (IFELSE_MAGIC<<12);
-        else *g_scriptPtr = i + (g_lineNumber<<12);
+            scriptWriteValue(i + (IFELSE_MAGIC<<12));
+        else scriptWriteValue(i + (g_lineNumber<<12));
 
-        BITPTR_CLEAR(g_scriptPtr-apScript);
         textptr += l;
-        g_scriptPtr++;
-
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
             initprintf("%s:%d: debug: keyword `%s'.\n", g_scriptFileName, g_lineNumber, tempbuf);
         return i;
@@ -1799,21 +1815,15 @@ static void C_GetNextVarType(int32_t type)
 
     if (!type && !g_labelsOnly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
     {
-        BITPTR_CLEAR(g_scriptPtr-apScript);
-
-        *g_scriptPtr++ = GV_FLAG_CONSTANT;
+        scriptWriteValue(GV_FLAG_CONSTANT);
 
         if (tolower(textptr[1])=='x')  // hex constants
-            *g_scriptPtr = parse_hex_constant(textptr+2);
+            scriptWriteValue(parse_hex_constant(textptr+2));
         else
-            *g_scriptPtr = parse_decimal_number();
+            scriptWriteValue(parse_decimal_number());
 
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
-            initprintf("%s:%d: debug: constant %ld in place of gamevar.\n",
-                       g_scriptFileName,g_lineNumber,(long)*g_scriptPtr);
-
-        BITPTR_CLEAR(g_scriptPtr-apScript);
-        g_scriptPtr++;
+            initprintf("%s:%d: debug: constant %ld in place of gamevar.\n", g_scriptFileName, g_lineNumber, (long)*(g_scriptPtr-1));
 #if 1
         while (!ispecial(*textptr) && *textptr != ']') textptr++;
 #else
@@ -1872,8 +1882,7 @@ static void C_GetNextVarType(int32_t type)
             flags |= GV_FLAG_STRUCT;
         }
 
-        BITPTR_CLEAR(g_scriptPtr-apScript);
-        *g_scriptPtr++=(id|flags);
+        scriptWriteValue(id|flags);
 
         if ((flags & GV_FLAG_STRUCT) && id - g_structVarIDs == STRUCT_USERDEF)
         {
@@ -1886,15 +1895,13 @@ static void C_GetNextVarType(int32_t type)
                 textptr++;
             }
 
-            BITPTR_CLEAR(g_scriptPtr-apScript);
-            *g_scriptPtr++ = 0; // help out the VM by inserting a dummy index
+            scriptWriteValue(0); // help out the VM by inserting a dummy index
         }
         else
         {
             if (*textptr == ']')
             {
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++ = g_thisActorVarID;
+                scriptWriteValue(g_thisActorVarID);
             }
             else
                 C_GetNextVarType(0);
@@ -1967,14 +1974,13 @@ static void C_GetNextVarType(int32_t type)
                     return;
             }
 
-            BITPTR_CLEAR(g_scriptPtr-apScript);
-
             switch (id - g_structVarIDs)
             {
             case STRUCT_SPRITE:
                 {
                     auto const &label = ActorLabels[labelNum];
-                    *g_scriptPtr++ = label.lId;
+
+                    scriptWriteValue(label.lId);
 
                     Bassert((*varptr & (MAXGAMEVARS-1)) == g_structVarIDs + STRUCT_SPRITE);
 
@@ -1993,42 +1999,42 @@ static void C_GetNextVarType(int32_t type)
 
                 break;
             case STRUCT_SECTOR:
-                *g_scriptPtr++=SectorLabels[labelNum].lId;
+                scriptWriteValue(SectorLabels[labelNum].lId);
                 break;
             case STRUCT_WALL:
-                *g_scriptPtr++=WallLabels[labelNum].lId;
+                scriptWriteValue(WallLabels[labelNum].lId);
                 break;
             case STRUCT_PLAYER:
-                *g_scriptPtr++=PlayerLabels[labelNum].lId;
+                scriptWriteValue(PlayerLabels[labelNum].lId);
 
                 if (PlayerLabels[labelNum].flags & LABEL_HASPARM2)
                     C_GetNextVarType(0);
                 break;
             case STRUCT_ACTORVAR:
             case STRUCT_PLAYERVAR:
-                *g_scriptPtr++=labelNum;
+                scriptWriteValue(labelNum);
                 break;
             case STRUCT_TSPR:
-                *g_scriptPtr++=TsprLabels[labelNum].lId;
+                scriptWriteValue(TsprLabels[labelNum].lId);
                 break;
             case STRUCT_PROJECTILE:
             case STRUCT_THISPROJECTILE:
-                *g_scriptPtr++=ProjectileLabels[labelNum].lId;
+                scriptWriteValue(ProjectileLabels[labelNum].lId);
                 break;
             case STRUCT_USERDEF:
-                *g_scriptPtr++=UserdefsLabels[labelNum].lId;
+                scriptWriteValue(UserdefsLabels[labelNum].lId);
 
                 if (UserdefsLabels[labelNum].flags & LABEL_HASPARM2)
                     C_GetNextVarType(0);
                 break;
             case STRUCT_INPUT:
-                *g_scriptPtr++=InputLabels[labelNum].lId;
+                scriptWriteValue(InputLabels[labelNum].lId);
                 break;
             case STRUCT_TILEDATA:
-                *g_scriptPtr++=TileDataLabels[labelNum].lId;
+                scriptWriteValue(TileDataLabels[labelNum].lId);
                 break;
             case STRUCT_PALDATA:
-                *g_scriptPtr++=PalDataLabels[labelNum].lId;
+                scriptWriteValue(PalDataLabels[labelNum].lId);
                 break;
             }
         }
@@ -2048,10 +2054,9 @@ static void C_GetNextVarType(int32_t type)
             {
                 if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
                     initprintf("%s:%d: debug: label `%s' in place of gamevar.\n",g_scriptFileName,g_lineNumber,label+(id<<6));
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++ = GV_FLAG_CONSTANT;
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++ = labelcode[id];
+
+                scriptWriteValue(GV_FLAG_CONSTANT);
+                scriptWriteValue(labelcode[id]);
                 return;
             }
         }
@@ -2077,8 +2082,7 @@ static void C_GetNextVarType(int32_t type)
     if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
         initprintf("%s:%d: debug: gamevar `%s'.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
 
-    BITPTR_CLEAR(g_scriptPtr-apScript);
-    *g_scriptPtr++=(id|flags);
+    scriptWriteValue(id|flags);
 }
 
 #define C_GetNextVar() C_GetNextVarType(0)
@@ -2134,15 +2138,13 @@ static int32_t C_GetNextValue(int32_t type)
                 Bfree(gl);
             }
 
-            BITPTR_CLEAR(g_scriptPtr-apScript);
-            *(g_scriptPtr++) = labelcode[i];
+            scriptWriteValue(labelcode[i]);
 
             textptr += l;
             return labeltype[i];
         }
 
-        BITPTR_CLEAR(g_scriptPtr-apScript);
-        *(g_scriptPtr++) = 0;
+        scriptWriteValue(0);
         textptr += l;
         char *el = C_GetLabelType(type);
         char *gl = C_GetLabelType(labeltype[i]);
@@ -2158,9 +2160,7 @@ static int32_t C_GetNextValue(int32_t type)
     {
         C_ReportError(ERROR_PARAMUNDEFINED);
         g_errorCnt++;
-        BITPTR_CLEAR(g_scriptPtr-apScript);
-        *g_scriptPtr = 0;
-        g_scriptPtr++;
+        scriptWriteValue(0);
         textptr+=l;
         if (!l) textptr++;
         return -1; // error!
@@ -2187,18 +2187,13 @@ static int32_t C_GetNextValue(int32_t type)
     }
     while (i > 0);
 
-    BITPTR_CLEAR(g_scriptPtr-apScript);
-
     if (textptr[0] == '0' && tolower(textptr[1])=='x')
-        *g_scriptPtr = parse_hex_constant(textptr+2);
+        scriptWriteValue(parse_hex_constant(textptr+2));
     else
-        *g_scriptPtr = parse_decimal_number();
+        scriptWriteValue(parse_decimal_number());
 
     if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: constant %ld.\n",
-                   g_scriptFileName,g_lineNumber,(long)*g_scriptPtr);
-
-    g_scriptPtr++;
+        initprintf("%s:%d: debug: constant %ld.\n", g_scriptFileName, g_lineNumber, (long)*(g_scriptPtr-1));
 
     textptr += l;
 
@@ -2220,8 +2215,7 @@ static int32_t C_GetStructureIndexes(int32_t const labelsonly, hashtable_t const
 
     if (*textptr == ']')
     {
-        BITPTR_CLEAR(g_scriptPtr-apScript);
-        *g_scriptPtr++ = g_thisActorVarID;
+        scriptWriteValue(g_thisActorVarID);
     }
     else
     {
@@ -2905,8 +2899,7 @@ static inline void C_BitOrNextValue(int32_t *valptr)
 
 static inline void C_FinishBitOr(int32_t value)
 {
-    BITPTR_CLEAR(g_scriptPtr-apScript);
-    *g_scriptPtr++ = value;
+    scriptWriteValue(value);
 }
 
 static void C_FillEventBreakStackWithJump(intptr_t *breakPtr, intptr_t destination)
@@ -2915,8 +2908,7 @@ static void C_FillEventBreakStackWithJump(intptr_t *breakPtr, intptr_t destinati
     {
         breakPtr = apScript + (intptr_t)breakPtr;
         intptr_t const tempPtr = *breakPtr;
-        BITPTR_CLEAR(breakPtr-apScript);
-        *breakPtr = destination;
+        scriptWriteAtOffset(destination, breakPtr);
         breakPtr = (intptr_t *)tempPtr;
     }
 }
@@ -3002,19 +2994,15 @@ DO_DEFSTATE:
                 initprintf("%s:%d: warning: expected state, found %s.\n", g_scriptFileName, g_lineNumber, gl);
                 g_warningCnt++;
                 Bfree(gl);
-                *(g_scriptPtr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
-                BITPTR_CLEAR(g_scriptPtr-apScript-1);
+                scriptWriteAtOffset(CON_NULLOP, g_scriptPtr-1); // get rid of the state, leaving a nullop to satisfy if conditions
                 continue;  // valid label name, but wrong type
             }
 
             if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
                 initprintf("%s:%d: debug: state label `%s'.\n", g_scriptFileName, g_lineNumber, label+(j<<6));
-            *g_scriptPtr = (intptr_t) (apScript+labelcode[j]);
 
             // 'state' type labels are always script addresses, as far as I can see
-            BITPTR_SET(g_scriptPtr-apScript);
-
-            g_scriptPtr++;
+            scriptWritePointer((intptr_t)(apScript+labelcode[j]), g_scriptPtr++);
             continue;
 
         case CON_ENDS:
@@ -3053,8 +3041,7 @@ DO_DEFSTATE:
                 if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=ProjectileLabels[labelNum].lId;
+                scriptWriteValue(ProjectileLabels[labelNum].lId);
 
                 switch (tw)
                 {
@@ -3230,8 +3217,7 @@ DO_DEFSTATE:
 
             while (j>-1)
             {
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++ = 0;
+                scriptWriteValue(0);
                 j--;
             }
             continue;
@@ -3242,8 +3228,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                 {
                     C_ReportError(-1);
-                    BITPTR_CLEAR(g_scriptPtr-apScript-1);
-                    *(g_scriptPtr-1) = 0;
+                    scriptWriteAtOffset(0, g_scriptPtr-1);
                     initprintf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,g_lineNumber);
                     g_warningCnt++;
                 }
@@ -3293,9 +3278,7 @@ DO_DEFSTATE:
 
                 for (k=j; k>=0; k--)
                 {
-                    BITPTR_CLEAR(g_scriptPtr-apScript);
-                    *g_scriptPtr = 0;
-                    g_scriptPtr++;
+                    scriptWriteValue(0);
                 }
             }
             continue;
@@ -3419,8 +3402,7 @@ DO_DEFSTATE:
                             (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                         {
                             C_ReportError(-1);
-                            BITPTR_CLEAR(g_scriptPtr-apScript-1);
-                            *(g_scriptPtr-1) = 0;
+                            scriptWriteAtOffset(0, g_scriptPtr-1);
                             initprintf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,g_lineNumber);
                             g_warningCnt++;
                         }
@@ -3440,9 +3422,7 @@ DO_DEFSTATE:
 
                 for (k=j; k<3; k++)
                 {
-                    BITPTR_CLEAR(g_scriptPtr-apScript);
-                    *g_scriptPtr = 0;
-                    g_scriptPtr++;
+                    scriptWriteValue(0);
                 }
             }
             continue;
@@ -3493,8 +3473,7 @@ DO_DEFSTATE:
                 }
                 for (k=j; k>=0; k--)
                 {
-                    BITPTR_CLEAR(g_scriptPtr-apScript);
-                    *(g_scriptPtr++) = 0;
+                    scriptWriteValue(0);
                 }
             }
             continue;
@@ -3576,8 +3555,7 @@ DO_DEFSTATE:
 
             for (j=0; j<4; j++)
             {
-                BITPTR_CLEAR(g_parsingActorPtr+j);
-                *((apScript+j)+g_parsingActorPtr) = 0;
+                scriptWriteAtOffset(0, apScript+g_parsingActorPtr+j);
                 if (j == 3)
                 {
                     j = 0;
@@ -3593,8 +3571,7 @@ DO_DEFSTATE:
                     {
                         for (i=4-j; i; i--)
                         {
-                            BITPTR_CLEAR(g_scriptPtr-apScript);
-                            *(g_scriptPtr++) = 0;
+                            scriptWriteValue(0);
                         }
                         break;
                     }
@@ -3612,17 +3589,17 @@ DO_DEFSTATE:
                         if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                         {
                             C_ReportError(-1);
-                            BITPTR_CLEAR(g_scriptPtr-apScript-1);
-                            *(g_scriptPtr-1) = 0;
+                            scriptWriteAtOffset(0, g_scriptPtr-1);
                             initprintf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,g_lineNumber);
                             g_warningCnt++;
                         }
                         break;
                     }
+
                     if (*(g_scriptPtr-1) >= (intptr_t)&apScript[0] && *(g_scriptPtr-1) < (intptr_t)&apScript[g_scriptSize])
-                        BITPTR_SET(g_parsingActorPtr+j);
-                    else BITPTR_CLEAR(g_parsingActorPtr+j);
-                    *((apScript+j)+g_parsingActorPtr) = *(g_scriptPtr-1);
+                        scriptWritePointer(*(g_scriptPtr-1), apScript + g_parsingActorPtr + j);
+                    else
+                        scriptWriteAtOffset(*(g_scriptPtr-1), apScript + g_parsingActorPtr + j);
                 }
             }
             g_checkingIfElse = 0;
@@ -3674,14 +3651,11 @@ DO_DEFSTATE:
             }
             else // if (tw == CON_APPENDEVENT)
             {
-                intptr_t *previous_event_end = apScript + apScriptGameEventEnd[j];
-                BITPTR_CLEAR(previous_event_end-apScript);
-                *(previous_event_end++) = CON_JUMP | (g_lineNumber << 12);
-                BITPTR_CLEAR(previous_event_end-apScript);
-                *(previous_event_end++) = GV_FLAG_CONSTANT;
+                auto previous_event_end = apScript + apScriptGameEventEnd[j];
+                scriptWriteAtOffset(CON_JUMP | (g_lineNumber << 12), previous_event_end++);
+                scriptWriteAtOffset(GV_FLAG_CONSTANT, previous_event_end++);
                 C_FillEventBreakStackWithJump((intptr_t *)*previous_event_end, g_parsingEventPtr);
-                BITPTR_CLEAR(previous_event_end-apScript);
-                *(previous_event_end++) = g_parsingEventPtr;
+                scriptWriteAtOffset(g_parsingEventPtr, previous_event_end++);
             }
 
             g_checkingIfElse = 0;
@@ -3696,7 +3670,7 @@ DO_DEFSTATE:
             while (C_GetKeyword() == -1 && j < 32)
                 C_GetNextVar(), j++;
 
-            *g_scriptPtr++ = CON_NULLOP + (g_lineNumber<<12);
+            scriptWriteValue(CON_NULLOP + (g_lineNumber<<12));
             continue;
 
         case CON_CSTAT:
@@ -3818,8 +3792,7 @@ DO_DEFSTATE:
                     continue;
 
                 intptr_t *tempscrptr = (intptr_t *) apScript+offset;
-                *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-apScript);
+                scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 continue;
             }
@@ -3832,8 +3805,7 @@ DO_DEFSTATE:
                 if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=SectorLabels[labelNum].lId;
+                scriptWriteValue(SectorLabels[labelNum].lId);
 
                 C_GetNextVarType((tw == CON_GETSECTOR) ? GAMEVAR_READONLY : 0);
                 continue;
@@ -3872,8 +3844,7 @@ DO_DEFSTATE:
                 if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=WallLabels[labelNum].lId;
+                scriptWriteValue(WallLabels[labelNum].lId);
 
                 C_GetNextVarType((tw == CON_GETWALL) ? GAMEVAR_READONLY : 0);
                 continue;
@@ -3887,8 +3858,7 @@ DO_DEFSTATE:
                 if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=PlayerLabels[labelNum].lId;
+                scriptWriteValue(PlayerLabels[labelNum].lId);
 
                 if (PlayerLabels[labelNum].flags & LABEL_HASPARM2)
                     C_GetNextVar();
@@ -3905,8 +3875,7 @@ DO_DEFSTATE:
                 if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=InputLabels[labelNum].lId;
+                scriptWriteValue(InputLabels[labelNum].lId);
 
                 C_GetNextVarType(tw == CON_GETINPUT ? GAMEVAR_READONLY : 0);
                 continue;
@@ -3920,8 +3889,7 @@ DO_DEFSTATE:
             if (labelNum == -1)
                 continue;
 
-            BITPTR_CLEAR(g_scriptPtr - apScript);
-            *g_scriptPtr++ = TileDataLabels[labelNum].lId;
+            scriptWriteValue(TileDataLabels[labelNum].lId);
 
             C_GetNextVarType((tw == CON_GETTILEDATA) ? GAMEVAR_READONLY : 0);
             continue;
@@ -3956,8 +3924,7 @@ DO_DEFSTATE:
                     C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=labelNum;
+                scriptWriteValue(labelNum);
 
                 if (UserdefsLabels[labelNum].flags & LABEL_HASPARM2)
                     C_GetNextVar();
@@ -4045,8 +4012,7 @@ DO_DEFSTATE:
                     break;
                 }
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=i; // the ID of the DEF (offset into array...)
+                scriptWriteValue(i); // the ID of the DEF (offset into array...)
 
                 switch (tw)
                 {
@@ -4083,8 +4049,7 @@ DO_DEFSTATE:
                         *ins = CON_SETSPRITESTRUCT;
                 }
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=label.lId;
+                scriptWriteValue(label.lId);
 
                 if (label.flags & LABEL_HASPARM2)
                     C_GetNextVar();
@@ -4115,8 +4080,7 @@ DO_DEFSTATE:
                         *ins = CON_GETSPRITESTRUCT;
                 }
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=label.lId;
+                scriptWriteValue(label.lId);
 
                 if (label.flags & LABEL_HASPARM2)
                     C_GetNextVar();
@@ -4141,8 +4105,7 @@ DO_DEFSTATE:
                 if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=TsprLabels[labelNum].lId;
+                scriptWriteValue(TsprLabels[labelNum].lId);
 
                 C_GetNextVarType((tw == CON_GETTSPR) ? GAMEVAR_READONLY : 0);
                 continue;
@@ -4360,7 +4323,7 @@ DO_DEFSTATE:
                         if (i == j)
                             continue;
 
-                        *g_scriptPtr++ = CON_INV+(g_lineNumber<<12);
+                        scriptWriteValue(CON_INV+(g_lineNumber<<12));
                         textptr = tptr;
                         C_GetNextVarType(GAMEVAR_READONLY);
                         C_GetNextValue(LABEL_DEFINE);
@@ -4568,7 +4531,7 @@ DO_DEFSTATE:
         case CON_ACTIVATE:
             *(g_scriptPtr-1) = CON_OPERATEACTIVATORS;
             C_GetNextValue(LABEL_DEFINE);
-            *g_scriptPtr++ = 0;
+            scriptWriteValue(0);
             continue;
 
         case CON_GETFLORZOFSLOPE:
@@ -4620,7 +4583,7 @@ DO_DEFSTATE:
             g_scriptPtr--;
 
             C_GetNextValue(LABEL_DEFINE);
-            j = *(g_scriptPtr - 1);
+            j = *(g_scriptPtr-1);
 
             if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
             {
@@ -4645,9 +4608,9 @@ DO_DEFSTATE:
             g_scriptPtr--;
 
             C_GetNextValue(LABEL_DEFINE);
-            i = *(g_scriptPtr - 1);
+            i = *(g_scriptPtr-1);
             C_GetNextValue(LABEL_DEFINE);
-            j = *(g_scriptPtr - 1);
+            j = *(g_scriptPtr-1);
 
             if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXTILES || (unsigned)j >= MAXTILES))
             {
@@ -4786,8 +4749,7 @@ DO_DEFSTATE:
                     continue;
 
                 intptr_t *tempscrptr = (intptr_t *)apScript+offset;
-                *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-apScript);
+                scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 if (tw != CON_WHILEVARVARN)
                 {
@@ -4842,8 +4804,7 @@ DO_DEFSTATE:
                     continue;
 
                 tempscrptr = (intptr_t *)apScript+offset;
-                *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-apScript);
+                scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 if (tw != CON_WHILEVARN && tw != CON_WHILEVARL)
                 {
@@ -4869,7 +4830,7 @@ DO_DEFSTATE:
                 C_CUSTOMERROR("unknown iteration type `%s'.", LAST_LABEL);
                 return 1;
             }
-            *g_scriptPtr++ = iterType;
+            scriptWriteValue(iterType);
 
             if (iterType >= ITER_SPRITESOFSECTOR)
                 C_GetNextVar();
@@ -4879,8 +4840,9 @@ DO_DEFSTATE:
 
             C_ParseCommand(0);
 
-            intptr_t *tscrptr = (intptr_t *) apScript+offset;
-            *tscrptr = (g_scriptPtr-apScript)-offset;  // relative offset
+            // write relative offset
+            auto const tscrptr = (intptr_t *) apScript+offset;
+            scriptWriteAtOffset((g_scriptPtr-apScript)-offset, tscrptr);
             continue;
         }
 
@@ -5044,19 +5006,15 @@ DO_DEFSTATE:
 
                 intptr_t const tempoffset = (unsigned)(g_scriptPtr-apScript);
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=0; // leave spot for end location (for after processing)
-
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=0; // count of case statements
+                scriptWriteValue(0); // leave spot for end location (for after processing)
+                scriptWriteValue(0); // count of case statements
 
                 auto const backupCaseScriptPtr = g_caseScriptPtr;
                 g_caseScriptPtr=g_scriptPtr;        // the first case's pointer.
 
                 int const backupNumCases = g_numCases;
 
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=0; // leave spot for 'default' location (null if none)
+                scriptWriteValue(0); // leave spot for 'default' location (null if none)
 
 //                temptextptr=textptr;
                 // probably does not allow nesting...
@@ -5077,8 +5035,8 @@ DO_DEFSTATE:
 
                 if (tempscrptr)
                 {
-                    tempscrptr[1]=(intptr_t)j;  // save count of cases
-                    BITPTR_CLEAR(&tempscrptr[1]-apScript);
+                    // save count of cases
+                    scriptWriteAtOffset(j, &tempscrptr[1]);
                 }
                 else
                 {
@@ -5089,10 +5047,9 @@ DO_DEFSTATE:
                 while (j--)
                 {
                     // leave room for statements
-                    BITPTR_CLEAR(g_scriptPtr-apScript);
-                    *g_scriptPtr++=0; // value check
-                    BITPTR_CLEAR(g_scriptPtr-apScript);
-                    *g_scriptPtr++=0; // code offset
+
+                    scriptWriteValue(0); // value check
+                    scriptWriteValue(0); // code offset
                     C_SkipComments();
                 }
 
@@ -5133,8 +5090,9 @@ DO_DEFSTATE:
                         }
                     }
                     //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
-                    tempscrptr[0]= (intptr_t)g_scriptPtr - (intptr_t)&apScript[0];    // save 'end' location
-                    BITPTR_CLEAR(tempscrptr-apScript);
+
+                    // save 'end' location
+                    scriptWriteAtOffset((intptr_t)g_scriptPtr - (intptr_t)&apScript[0], tempscrptr);
                 }
                 else
                 {
@@ -5358,8 +5316,7 @@ repeatcase:
                     continue;
 
                 tempscrptr = (intptr_t *)apScript+offset;
-                *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-apScript);
+                scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 j = C_GetKeyword();
 
@@ -5411,8 +5368,7 @@ repeatcase:
                     continue;
 
                 tempscrptr = (intptr_t *)apScript+offset;
-                *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-apScript);
+                scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 j = C_GetKeyword();
 
@@ -5983,9 +5939,7 @@ repeatcase:
             else
             {
                 *(apXStrings[g_numXStrings]+i) = '\0';
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr++=g_numXStrings;
-                g_numXStrings++;
+                scriptWriteValue(g_numXStrings++);
             }
             continue;
 
@@ -6142,14 +6096,10 @@ repeatcase:
             if (previous_event)
             {
                 g_scriptPtr--;
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = GV_FLAG_CONSTANT;
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = previous_event;
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
+                scriptWriteValue(CON_JUMP | (g_lineNumber << 12));
+                scriptWriteValue(GV_FLAG_CONSTANT);
+                scriptWriteValue(previous_event);
+                scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
 
                 C_FillEventBreakStackWithJump((intptr_t *)g_parsingEventBreakPtr, previous_event);
 
@@ -6159,12 +6109,9 @@ repeatcase:
             {
                 // pad space for the next potential appendevent
                 apScriptGameEventEnd[g_currentEvent] = (g_scriptPtr-1)-apScript;
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = g_parsingEventBreakPtr;
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
+                scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
+                scriptWriteValue(g_parsingEventBreakPtr);
+                scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
             }
 
             g_parsingEventBreakPtr = g_parsingEventPtr = g_parsingActorPtr = 0;
@@ -6215,13 +6162,10 @@ repeatcase:
             else if (g_parsingEventPtr)
             {
                 g_scriptPtr--;
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *(g_scriptPtr++) = GV_FLAG_CONSTANT;
-                BITPTR_CLEAR(g_scriptPtr-apScript);
-                *g_scriptPtr = g_parsingEventBreakPtr;
-                g_parsingEventBreakPtr = g_scriptPtr++ - apScript;
+                scriptWriteValue(CON_JUMP | (g_lineNumber << 12));
+                scriptWriteValue(GV_FLAG_CONSTANT);
+                scriptWriteValue(g_parsingEventBreakPtr);
+                g_parsingEventBreakPtr = g_scriptPtr-1 - apScript;
             }
             continue;
 
@@ -6690,7 +6634,7 @@ void C_Compile(const char *fileName)
         while (breakPtr)
         {
             breakPtr = apScript + (intptr_t)breakPtr;
-            *(breakPtr-2) = CON_ENDEVENT | (g_lineNumber << 12);
+            scriptWriteAtOffset(CON_ENDEVENT | (g_lineNumber << 12), breakPtr-2);
             breakPtr = (intptr_t*)*breakPtr;
         }
     }
