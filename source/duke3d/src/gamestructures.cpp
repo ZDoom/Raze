@@ -38,8 +38,6 @@ int32_t __fastcall VM_GetSector(int const sectNum, int32_t labelNum);
 void __fastcall VM_SetSector(int const sectNum, int const labelNum, int32_t newValue);
 int32_t __fastcall VM_GetSprite(int const spriteNum, int32_t labelNum, int const lParm2);
 void __fastcall VM_SetSprite(int const spriteNum, int const labelNum, int const lParm2, int32_t const newValue);
-int32_t __fastcall VM_GetTsprite(int const spriteNum, int32_t labelNum);
-void __fastcall VM_SetTsprite(int const spriteNum, int const labelNum, int32_t const newValue);
 int32_t __fastcall VM_GetProjectile(int const tileNum, int32_t labelNum);
 void __fastcall VM_SetProjectile(int const tileNum, int const labelNum, int32_t const newValue);
 int32_t __fastcall VM_GetTileData(int const tileNum, int32_t labelNum);
@@ -1124,92 +1122,6 @@ int32_t __fastcall VM_GetSprite(int const spriteNum, int32_t labelNum, int const
     }
 
     return labelNum;
-}
-
-int32_t __fastcall VM_GetTsprite(int const spriteNum, int32_t labelNum)
-{
-    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES || spriteext[spriteNum].tspr == NULL))
-    {
-        CON_ERRPRINTF("invalid sprite %d or no tsprite\n", spriteNum);
-        return -1;
-    }
-
-    auto const &t = *spriteext[spriteNum].tspr;
-
-    switch (labelNum)
-    {
-        case ACTOR_X:        labelNum = t.x;        break;
-        case ACTOR_Y:        labelNum = t.y;        break;
-        case ACTOR_Z:        labelNum = t.z;        break;
-        case ACTOR_CSTAT:    labelNum = t.cstat;    break;
-        case ACTOR_PICNUM:   labelNum = t.picnum;   break;
-        case ACTOR_SHADE:    labelNum = t.shade;    break;
-        case ACTOR_PAL:      labelNum = t.pal;      break;
-        case ACTOR_CLIPDIST: labelNum = t.clipdist; break;
-        case ACTOR_DETAIL:   labelNum = t.blend;    break;
-        case ACTOR_XREPEAT:  labelNum = t.xrepeat;  break;
-        case ACTOR_YREPEAT:  labelNum = t.yrepeat;  break;
-        case ACTOR_XOFFSET:  labelNum = t.xoffset;  break;
-        case ACTOR_YOFFSET:  labelNum = t.yoffset;  break;
-        case ACTOR_SECTNUM:  labelNum = t.sectnum;  break;
-        case ACTOR_STATNUM:  labelNum = t.statnum;  break;
-        case ACTOR_ANG:      labelNum = t.ang;      break;
-        case ACTOR_OWNER:    labelNum = t.owner;    break;
-        case ACTOR_XVEL:     labelNum = t.xvel;     break;
-        case ACTOR_YVEL:     labelNum = t.yvel;     break;
-        case ACTOR_ZVEL:     labelNum = t.zvel;     break;
-        case ACTOR_EXTRA:    labelNum = t.extra;    break;
-
-        case ACTOR_LOTAG:  labelNum =  (int16_t)t.lotag; break;
-        case ACTOR_HITAG:  labelNum =  (int16_t)t.hitag; break;
-        case ACTOR_ULOTAG: labelNum = (uint16_t)t.lotag; break;
-        case ACTOR_UHITAG: labelNum = (uint16_t)t.hitag; break;
-
-        default: EDUKE32_UNREACHABLE_SECTION(labelNum = -1; break);
-    }
-
-    return labelNum;
-}
-
-void __fastcall VM_SetTsprite(int const spriteNum, int const labelNum, int32_t const newValue)
-{
-    if (EDUKE32_PREDICT_FALSE((unsigned) spriteNum >= MAXSPRITES || spriteext[spriteNum].tspr == NULL))
-    {
-        CON_ERRPRINTF("invalid sprite %d or no tsprite\n", spriteNum);
-        return;
-    }
-
-    auto &t = *spriteext[spriteNum].tspr;
-
-    switch (labelNum)
-    {
-        case ACTOR_X:        t.x        = newValue; break;
-        case ACTOR_Y:        t.y        = newValue; break;
-        case ACTOR_Z:        t.z        = newValue; break;
-        case ACTOR_CSTAT:    t.cstat    = newValue; break;
-        case ACTOR_PICNUM:   t.picnum   = newValue; break;
-        case ACTOR_SHADE:    t.shade    = newValue; break;
-        case ACTOR_PAL:      t.pal      = newValue; break;
-        case ACTOR_CLIPDIST: t.clipdist = newValue; break;
-        case ACTOR_DETAIL:   t.blend    = newValue; break;
-        case ACTOR_XREPEAT:  t.xrepeat  = newValue; break;
-        case ACTOR_YREPEAT:  t.yrepeat  = newValue; break;
-        case ACTOR_XOFFSET:  t.xoffset  = newValue; break;
-        case ACTOR_YOFFSET:  t.yoffset  = newValue; break;
-        case ACTOR_SECTNUM:  t.sectnum  = newValue; break;
-        case ACTOR_STATNUM:  t.statnum  = newValue; break;
-        case ACTOR_ANG:      t.ang      = newValue; break;
-        case ACTOR_OWNER:    t.owner    = newValue; break;
-        case ACTOR_XVEL:     t.xvel     = newValue; break;
-        case ACTOR_YVEL:     t.yvel     = newValue; break;
-        case ACTOR_ZVEL:     t.zvel     = newValue; break;
-        case ACTOR_EXTRA:    t.extra    = newValue; break;
-
-        case ACTOR_LOTAG:    t.lotag =  (int16_t)newValue; break;
-        case ACTOR_HITAG:    t.hitag =  (int16_t)newValue; break;
-        case ACTOR_ULOTAG:   t.lotag = (uint16_t)newValue; break;
-        case ACTOR_UHITAG:   t.hitag = (uint16_t)newValue; break;
-    }
 }
 
 int32_t __fastcall VM_GetProjectile(int const tileNum, int32_t labelNum)

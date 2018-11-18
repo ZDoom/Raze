@@ -57,20 +57,20 @@ enum
 
 #define VM_INSTMASK 0xfff
 
-#define C_CUSTOMERROR(Text, ...)                                                                                                           \
-    do                                                                                                                                     \
-    {                                                                                                                                      \
-        C_ReportError(-1);                                                                                                                 \
-        initprintf("%s:%d: error: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__);                                             \
-        g_errorCnt++;                                                                                                                      \
+#define C_CUSTOMERROR(Text, ...)                                                               \
+    do                                                                                         \
+    {                                                                                          \
+        C_ReportError(-1);                                                                     \
+        initprintf("%s:%d: error: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__); \
+        g_errorCnt++;                                                                          \
     } while (0)
 
-#define C_CUSTOMWARNING(Text, ...)                                                                                                         \
-    do                                                                                                                                     \
-    {                                                                                                                                      \
-        C_ReportError(-1);                                                                                                                 \
-        initprintf("%s:%d: warning: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__);                                           \
-        g_warningCnt++;                                                                                                                    \
+#define C_CUSTOMWARNING(Text, ...)                                                               \
+    do                                                                                           \
+    {                                                                                            \
+        C_ReportError(-1);                                                                       \
+        initprintf("%s:%d: warning: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__); \
+        g_warningCnt++;                                                                          \
     } while (0)
 
 #if !defined LUNATIC
@@ -96,7 +96,7 @@ extern int32_t g_weaponVarID;     // var ID of "WEAPON"
 extern int32_t g_worksLikeVarID;  // var ID of "WORKSLIKE"
 extern int32_t g_zRangeVarID;     // var ID of "ZRANGE"
 
-// KEEPINSYNC gamevars.c: "special vars for struct access"
+// KEEPINSYNC gamevars.cpp: "special vars for struct access"
 enum QuickStructureAccess_t
 {
     STRUCT_SPRITE,

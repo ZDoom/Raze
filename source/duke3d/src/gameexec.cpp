@@ -4872,8 +4872,9 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 {
                     int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
                     int const labelNum  = *insptr++;
+                    auto const &tsprLabel = TsprLabels[labelNum];
 
-                    VM_SetTsprite(spriteNum, labelNum, Gv_GetVarX(*insptr++));
+                    VM_SetStruct(tsprLabel.flags, (intptr_t *)((char *)spriteext[spriteNum].tspr + tsprLabel.offset), Gv_GetVarX(*insptr++));
                     continue;
                 }
 
@@ -4882,8 +4883,9 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 {
                     int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
                     int const labelNum  = *insptr++;
+                    auto const &tsprLabel = TsprLabels[labelNum];
 
-                    Gv_SetVarX(*insptr++, VM_GetTsprite(spriteNum, labelNum));
+                    Gv_SetVarX(*insptr++, VM_GetStruct(tsprLabel.flags, (intptr_t *)((char *)spriteext[spriteNum].tspr + tsprLabel.offset)));
                     continue;
                 }
 

@@ -930,39 +930,33 @@ const memberlabel_t ActorLabels[]=
     { "detail",         ACTOR_DETAIL,                 0, 0, -1 },  // deprecated name for 'blend'
 };
 
-const memberlabel_t TsprLabels[]=
+const memberlabel_t TsprLabels[] =
 {
     // tsprite access
 
-    { "tsprx",        ACTOR_X,        0, 0, -1 },
-    { "tspry",        ACTOR_Y,        0, 0, -1 },
-    { "tsprz",        ACTOR_Z,        0, 0, -1 },
-    { "tsprcstat",    ACTOR_CSTAT,    0, 0, -1 },
-    { "tsprpicnum",   ACTOR_PICNUM,   0, 0, -1 },
-    { "tsprshade",    ACTOR_SHADE,    0, 0, -1 },
-    { "tsprpal",      ACTOR_PAL,      0, 0, -1 },
-    { "tsprclipdist", ACTOR_CLIPDIST, 0, 0, -1 },
-//    { "tsprfiller", ACTOR_DETAIL,   0, 0, -1 },
-    { "tsprblend",    ACTOR_DETAIL,   0, 0, -1 },
-    { "tsprxrepeat",  ACTOR_XREPEAT,  0, 0, -1 },
-    { "tspryrepeat",  ACTOR_YREPEAT,  0, 0, -1 },
-    { "tsprxoffset",  ACTOR_XOFFSET,  0, 0, -1 },
-    { "tspryoffset",  ACTOR_YOFFSET,  0, 0, -1 },
-    { "tsprsectnum",  ACTOR_SECTNUM,  0, 0, -1 },
-    { "tsprstatnum",  ACTOR_STATNUM,  0, 0, -1 },
-    { "tsprang",      ACTOR_ANG,      0, 0, -1 },
-    { "tsprowner",    ACTOR_OWNER,    0, 0, -1 },
-#if 1
-    { "tsprxvel",     ACTOR_XVEL,     0, 0, -1 },
-    { "tspryvel",     ACTOR_YVEL,     0, 0, -1 },
-    { "tsprzvel",     ACTOR_ZVEL,     0, 0, -1 },
-    { "tsprlotag",    ACTOR_LOTAG,    0, 0, -1 },
-    { "tsprhitag",    ACTOR_HITAG,    0, 0, -1 },
-    { "tsprextra",    ACTOR_EXTRA,    0, 0, -1 },
-#endif
-// aliases:
-    { "tsprdetail",   ACTOR_DETAIL,   0, 0, -1 },  // deprecated name for 'tsprblend'
-
+    LABEL_SETUP_UNMATCHED(sprite, x,        "tsprx",        ACTOR_X),
+    LABEL_SETUP_UNMATCHED(sprite, y,        "tspry",        ACTOR_Y),
+    LABEL_SETUP_UNMATCHED(sprite, z,        "tsprz",        ACTOR_Z),
+    LABEL_SETUP_UNMATCHED(sprite, cstat,    "tsprcstat",    ACTOR_CSTAT),
+    LABEL_SETUP_UNMATCHED(sprite, picnum,   "tsprpicnum",   ACTOR_PICNUM),
+    LABEL_SETUP_UNMATCHED(sprite, shade,    "tsprshade",    ACTOR_SHADE),
+    LABEL_SETUP_UNMATCHED(sprite, pal,      "tsprpal",      ACTOR_PAL),
+    LABEL_SETUP_UNMATCHED(sprite, clipdist, "tsprclipdist", ACTOR_CLIPDIST),
+    LABEL_SETUP_UNMATCHED(sprite, blend,    "tsprblend",    ACTOR_DETAIL),
+    LABEL_SETUP_UNMATCHED(sprite, xrepeat,  "tsprxrepeat",  ACTOR_XREPEAT),
+    LABEL_SETUP_UNMATCHED(sprite, yrepeat,  "tspryrepeat",  ACTOR_YREPEAT),
+    LABEL_SETUP_UNMATCHED(sprite, xoffset,  "tsprxoffset",  ACTOR_XOFFSET),
+    LABEL_SETUP_UNMATCHED(sprite, yoffset,  "tspryoffset",  ACTOR_YOFFSET),
+    LABEL_SETUP_UNMATCHED(sprite, sectnum,  "tsprsectnum",  ACTOR_SECTNUM),
+    LABEL_SETUP_UNMATCHED(sprite, statnum,  "tsprstatnum",  ACTOR_STATNUM),
+    LABEL_SETUP_UNMATCHED(sprite, ang,      "tsprang",      ACTOR_ANG),
+    LABEL_SETUP_UNMATCHED(sprite, owner,    "tsprowner",    ACTOR_OWNER),
+    LABEL_SETUP_UNMATCHED(sprite, xvel,     "tsprxvel",     ACTOR_XVEL),
+    LABEL_SETUP_UNMATCHED(sprite, yvel,     "tspryvel",     ACTOR_YVEL),
+    LABEL_SETUP_UNMATCHED(sprite, zvel,     "tsprzvel",     ACTOR_ZVEL),
+    LABEL_SETUP_UNMATCHED(sprite, lotag,    "tsprlotag",    ACTOR_LOTAG),
+    LABEL_SETUP_UNMATCHED(sprite, hitag,    "tsprhitag",    ACTOR_HITAG),
+    LABEL_SETUP_UNMATCHED(sprite, extra,    "tsprextra",    ACTOR_EXTRA),
 };
 
 const memberlabel_t PlayerLabels[]=
