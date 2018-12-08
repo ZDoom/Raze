@@ -1268,7 +1268,16 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
 int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int16_t s_pn,int8_t s_s,
                        uint8_t s_xr,uint8_t s_yr,int16_t s_a,int16_t s_ve,int16_t s_zv,int16_t s_ow,int16_t s_ss)
 {
-    int const newSprite = Net_IsRelevantStat(s_ss) ? Net_InsertSprite(whatsect, s_ss) : insertsprite(whatsect, s_ss);
+
+
+    int32_t newSprite;
+    
+#ifdef NETCODE_DISABLE
+    newSprite = insertsprite(whatsect, s_ss);
+#else
+    newSprite = Net_InsertSprite(whatsect, s_ss);
+
+#endif
 
     if (EDUKE32_PREDICT_FALSE((unsigned)newSprite >= MAXSPRITES))
     {
@@ -4727,9 +4736,9 @@ void G_HandleLocalKeys(void)
                 tempbuf[ridiculeNum++] = myconnectindex;
 
                 if (g_netClient)
-                    enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, ridiculeNum, 0));
+                    enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(&tempbuf[0], ridiculeNum, 0));
                 else if (g_netServer)
-                    enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, ridiculeNum, 0));
+                    enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(&tempbuf[0], ridiculeNum, 0));
 #endif
                 pus = NUMPAGES;
                 pub = NUMPAGES;
@@ -4748,9 +4757,9 @@ void G_HandleLocalKeys(void)
                     tempbuf[2] = myconnectindex;
 
                     if (g_netClient)
-                        enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, 3, 0));
+                        enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(&tempbuf[0], 3, 0));
                     else if (g_netServer)
-                        enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, 3, 0));
+                        enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(&tempbuf[0], 3, 0));
                 }
 #endif
                 pus = NUMPAGES;
@@ -6599,6 +6608,14 @@ MAIN_LOOP_RESTART:
 
     Menu_Change(MENU_MAIN);
 
+    if(g_netClient)
+    {
+        OSD_Printf("Waiting for initial snapshot...");
+        Net_WaitForInitialSnapshot();
+        
+        
+    }
+
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
         G_GetCrosshairColor();
@@ -6661,6 +6678,11 @@ MAIN_LOOP_RESTART:
 
     ud.warp_on = 0;
     KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
+
+    if(g_netClient)
+    {
+        ready2send = 1; // TESTING
+    }
 
     do //main loop
     {
@@ -6981,9 +7003,16 @@ int G_DoMoveThings(void)
         G_AnimateWalls();
         A_MoveCyclers();
 
-        if (g_netServer && (everyothertime % 10) == 0)
+        if ((everyothertime % 10) == 0)
         {
-            Net_SendMapUpdate();
+            if(g_netServer)
+            {
+                Net_SendMapUpdate();
+            }
+            else if(g_netClient)
+            {
+                Net_StoreClientState();
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2017 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -23,10 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef netplay_h_
 #define netplay_h_
 
-#ifdef _WIN32
-// include this before enet does
-# define NEED_WINSOCK2_H
-# include "windows_inc.h"
+// As of Nov. of 2018, the version of gcc that the Makefile is using is too old for [[maybe_unused]],
+// but __attribute__ is GNU C only.
+#ifdef __GNUC__
+#define EDUKE32_UNUSED __attribute__((unused))
+#else
+#define EDUKE32_UNUSED
 #endif
 
 #include "enet/enet.h"
@@ -41,16 +43,8 @@ extern char           g_netPassword[32];
 extern int32_t        g_netDisconnect;
 extern int32_t        g_netPlayersWaiting;
 extern enet_uint16    g_netPort;
-#ifndef NETCODE_DISABLE
 extern int32_t        g_networkMode;
-#else
-#define g_networkMode 0
-#endif
 extern int32_t        g_netIndex;
-extern int32_t        lastsectupdate[MAXSECTORS];
-extern int32_t        lastupdate[MAXSPRITES];
-extern int32_t        lastwallupdate[MAXWALLS];
-extern int16_t		  g_netStatnums[];
 
 #define NET_REVISIONS 64
 
@@ -62,6 +56,7 @@ enum netchan_t
     CHAN_MISC,      // whatever else
     CHAN_MAX
 };
+
 
 enum DukePacket_t
 {
@@ -77,7 +72,7 @@ enum DukePacket_t
     PACKET_AUTH,
     PACKET_PLAYER_PING,
     PACKET_PLAYER_READY,
-    PACKET_MAP_STREAM,
+    PACKET_WORLD_UPDATE, //[75]
 
     // any packet with an ID higher than PACKET_BROADCAST is rebroadcast by server
     // so hacked clients can't create fake server packets and get the server to
@@ -86,7 +81,7 @@ enum DukePacket_t
     // channel the packet was broadcast on
 
     PACKET_BROADCAST,
-    PACKET_NEW_GAME,
+    PACKET_NEW_GAME, // [S->C]
     PACKET_RTS,
     PACKET_CLIENT_INFO,
     PACKET_MESSAGE,
@@ -96,6 +91,8 @@ enum DukePacket_t
     PACKET_MAP_VOTE_INITIATE,
     PACKET_MAP_VOTE_CANCEL,
 };
+
+
 
 enum netdisconnect_t
 {
@@ -116,41 +113,101 @@ enum netmode_t
     NET_DEDICATED_SERVER
 };
 
-#define NETMAXACTORS 1024
+
+//[75]
+
+typedef struct netWall_s
+{
+    uint16_t netIndex;
+
+    int32_t	x,
+        y,
+        point2,
+        nextwall,
+        nextsector,
+
+        cstat,
+        picnum,
+        overpicnum,
+        shade,
+        pal,
+
+        xrepeat,
+        yrepeat,
+        xpanning,
+        ypanning,
+        lotag,
+
+        hitag,
+        extra;
+
+} netWall_t;
+
+// sector struct with all 32 bit entries 
+typedef struct netSector_s
+{
+    uint16_t netIndex;
+
+    int32_t	wallptr,
+        wallnum,
+        ceilingz,
+        floorz,
+        ceilingstat,
+
+        floorstat,
+        ceilingpicnum,
+        ceilingheinum,
+        ceilingshade,
+        ceilingpal,
+
+        ceilingxpanning,
+        ceilingypanning,
+        floorpicnum,
+        floorheinum,
+        floorshade,
+
+        floorpal,
+        floorxpanning,
+        floorypanning,
+        visibility,
+        fogpal,
+
+        lotag,
+        hitag,
+        extra;
+} netSector_t;
+
+const uint64_t cSnapshotMemUsage = NET_REVISIONS *	(
+                                                            (sizeof(netWall_t) * MAXWALLS) 
+                                                        +   (sizeof(netSector_t)  * MAXSECTORS) 
+                                                        +   (sizeof(netactor_t) * MAXSPRITES)
+                                                    );
+
 
 #pragma pack(push,1)
-typedef struct
+typedef struct netmapstate_s
 {
-
-    uint32_t numActors;
-    netactor_t actor[NETMAXACTORS];
+    uint32_t revisionNumber;
+    int32_t maxActorIndex;
+    netactor_t actor[MAXSPRITES];
+    netWall_t wall[MAXWALLS];
+    netSector_t sector[MAXSECTORS];
 
 } netmapstate_t;
 
-typedef struct
-{
-
-    uint32_t numActors;
-    uint32_t numToDelete;
-    uint32_t fromRevision;
-    uint32_t toRevision;
-    char data[MAXSPRITES *sizeof(netactor_t)];
-
-} netmapdiff_t;
-
-extern netmapstate_t  *g_multiMapState[MAXPLAYERS];
-extern netmapstate_t  *g_multiMapRevisions[NET_REVISIONS];
 #pragma pack(pop)
 
 #pragma pack(push,1)
-typedef struct
+typedef struct playerupdate_s
 {
     vec3_t pos;
     vec3_t opos;
     vec3_t vel;
-    int16_t ang;
-    int16_t horiz;
-    int16_t horizoff;
+
+    fix16_t q16ang;
+    fix16_t q16horiz;
+    fix16_t q16horizoff;
+
     int16_t ping;
     int16_t playerindex;
     int16_t deadflag;
@@ -159,7 +216,7 @@ typedef struct
 #pragma pack(pop)
 
 #pragma pack(push,1)
-typedef struct
+typedef struct newgame_s
 {
     int8_t header;
     int8_t connection;
@@ -177,181 +234,119 @@ typedef struct
 } newgame_t;
 #pragma pack(pop)
 
+
+
 extern newgame_t pendingnewgame;
 
 #ifndef NETCODE_DISABLE
 
 // Connect/Disconnect
 void    Net_Connect(const char *srvaddr);
-void    Net_Disconnect(void);
-void    Net_ReceiveDisconnect(ENetEvent *event);
 
 // Packet Handlers
 #endif
 void    Net_GetPackets(void);
 #ifndef NETCODE_DISABLE
-void    Net_HandleServerPackets(void);
-void    Net_HandleClientPackets(void);
-void    Net_ParseClientPacket(ENetEvent *event);
-void    Net_ParseServerPacket(ENetEvent *event);
-void    Net_ParsePacketCommon(uint8_t *pbuf, int32_t packbufleng, int32_t serverpacketp);
-
-void    Net_SendAcknowledge(ENetPeer *client);
-void    Net_ReceiveAcknowledge(uint8_t *pbuf, int32_t packbufleng);
-
-void    Net_SendChallenge();
-void    Net_ReceiveChallenge(uint8_t *pbuf, int32_t packbufleng, ENetEvent *event);
-
-void    Net_SendNewPlayer(int32_t newplayerindex);
-void    Net_ReceiveNewPlayer(uint8_t *pbuf, int32_t packbufleng);
-
-void    Net_SendPlayerIndex(int32_t index, ENetPeer *peer);
-void    Net_ReceivePlayerIndex(uint8_t *pbuf, int32_t packbufleng);
 
 void    Net_SendClientInfo(void);
-void    Net_ReceiveClientInfo(uint8_t *pbuf, int32_t packbufleng, int32_t fromserver);
 
 void    Net_SendUserMapName(void);
-void    Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng);
-
-netmapstate_t *Net_GetRevision(uint8_t revision, uint8_t cancreate);
 
 void    Net_SendMapUpdate(void);
-void    Net_ReceiveMapUpdate(ENetEvent *event);
 
-void    Net_FillMapDiff(uint32_t fromRevision, uint32_t toRevision);
-void	Net_SaveMapState(netmapstate_t *save);
-void    Net_RestoreMapState();
-
-void    Net_CopyToNet(int32_t i, netactor_t *netactor);
-void    Net_CopyFromNet(int32_t i, netactor_t *netactor);
-int32_t Net_ActorsAreDifferent(netactor_t *actor1, netactor_t *actor2);
-int32_t Net_IsRelevantSprite(int32_t i);
-int32_t Net_IsRelevantStat(int32_t stat);
 int32_t Net_InsertSprite(int32_t sect, int32_t stat);
 void    Net_DeleteSprite(int32_t spritenum);
 
-void    Net_FillPlayerUpdate(playerupdate_t *update, int32_t player);
-void    Net_ExtractPlayerUpdate(playerupdate_t *update, int32_t type);
-
 void    Net_SendServerUpdates(void);
-void    Net_ReceiveServerUpdate(ENetEvent *event);
 
 void    Net_SendClientUpdate(void);
-void    Net_ReceiveClientUpdate(ENetEvent *event);
 
 void    Net_SendMessage(void);
-void    Net_ReceiveMessage(uint8_t *pbuf, int32_t packbufleng);
 
 void    Net_StartNewGame();
 void    Net_NotifyNewGame();
 void    Net_SendNewGame(int32_t frommenu, ENetPeer *peer);
-void    Net_ReceiveNewGame(ENetEvent *event);
 
 void    Net_FillNewGame(newgame_t *newgame, int32_t frommenu);
-void    Net_ExtractNewGame(newgame_t *newgame, int32_t menuonly);
 
 void    Net_SendMapVoteInitiate(void);
-void    Net_ReceiveMapVoteInitiate(uint8_t *pbuf);
 
 void    Net_SendMapVote(int32_t votefor);
-void    Net_ReceiveMapVote(uint8_t *pbuf);
-void    Net_CheckForEnoughVotes();
 
 void    Net_SendMapVoteCancel(int32_t failed);
-void    Net_ReceiveMapVoteCancel(uint8_t *pbuf);
+
+void    Net_StoreClientState(void);
 
 //////////
 
 void    Net_ResetPrediction(void);
 void    Net_SpawnPlayer(int32_t player);
-void    Net_SyncPlayer(ENetEvent *event);
 void    Net_WaitForServer(void);
 void    faketimerhandler(void);
 
+void Net_InitMapStateHistory();
+void Net_AddWorldToInitialSnapshot();
+
+// Debugging
+int32_t Dbg_PacketSent(enum DukePacket_t iPacketType);
+
+void DumpMapStateHistory();
+
+void Net_WaitForInitialSnapshot();
+
 #else
 
-/* NETCODE_ENABLE is not defined */
+// note: don't include faketimerhandler in this
 
-// Connect/Disconnect
+#define Net_GetPackets(...) ((void)0)
+
 #define Net_Connect(...) ((void)0)
-#define Net_Disconnect(...) ((void)0)
-#define Net_ReceiveDisconnect(...) ((void)0)
-
-// Packet Handlers
-#define Net_HandleServerPackets(...) ((void)0)
-#define Net_HandleClientPackets(...) ((void)0)
-#define Net_ParseClientPacket(...) ((void)0)
-#define Net_ParseServerPacket(...) ((void)0)
-#define Net_ParsePacketCommon(...) ((void)0)
-
-#define Net_SendAcknowledge(...) ((void)0)
-#define Net_ReceiveAcknowledge(...) ((void)0)
-
-#define Net_SendChallenge(...) ((void)0)
-#define Net_ReceiveChallenge(...) ((void)0)
-
-#define Net_SendNewPlayer(...) ((void)0)
-#define Net_ReceiveNewPlayer(...) ((void)0)
-
-#define Net_SendPlayerIndex(...) ((void)0)
-#define Net_ReceivePlayerIndex(...) ((void)0)
 
 #define Net_SendClientInfo(...) ((void)0)
-#define Net_ReceiveClientInfo(...) ((void)0)
 
 #define Net_SendUserMapName(...) ((void)0)
-#define Net_ReceiveUserMapName(...) ((void)0)
 
 #define Net_SendClientSync(...) ((void)0)
 #define Net_ReceiveClientSync(...) ((void)0)
 
-#define Net_SendMapUpdate(...) ((void)0)
+#define Net_SendMapUpdates(...) ((void)0)
 #define Net_ReceiveMapUpdate(...) ((void)0)
 
-#define Net_FillPlayerUpdate(...) ((void)0)
-#define Net_ExtractPlayerUpdate(...) ((void)0)
-
 #define Net_SendServerUpdates(...) ((void)0)
-#define Net_ReceiveServerUpdate(...) ((void)0)
 
 #define Net_SendClientUpdate(...) ((void)0)
-#define Net_ReceiveClientUpdate(...) ((void)0)
 
 #define Net_SendMessage(...) ((void)0)
-#define Net_ReceiveMessage(...) ((void)0)
 
 #define Net_StartNewGame(...) ((void)0)
 #define Net_SendNewGame(...) ((void)0)
-#define Net_ReceiveNewGame(...) ((void)0)
 
 #define Net_FillNewGame(...) ((void)0)
-#define Net_ExtractNewGame(...) ((void)0)
 
 #define Net_SendMapVoteInitiate(...) ((void)0)
-#define Net_ReceiveMapVoteInitiate(...) ((void)0)
 
 #define Net_SendMapVote(...) ((void)0)
-#define Net_ReceiveMapVote(...) ((void)0)
-#define Net_CheckForEnoughVotes(...) ((void)0)
 
 #define Net_SendMapVoteCancel(...) ((void)0)
-#define Net_ReceiveMapVoteCancel(...) ((void)0)
-
-//////////
 
 #define Net_ResetPrediction(...) ((void)0)
 #define Net_RestoreMapState(...) ((void)0)
-#define Net_SyncPlayer(...) ((void)0)
 #define Net_WaitForServer(...) ((void)0)
 
-#define Net_ActorsAreDifferent(...) 0
-#define Net_IsRelevantSprite(...) 0
-#define Net_IsRelevantStat(...) 0
-#define Net_InsertSprite(...) 0
+#define Net_InsertSprite(...) ((void)0)
 #define Net_DeleteSprite(...) ((void)0)
 
 #define Net_NotifyNewGame(...) ((void)0)
+
+#define Net_WaitForInitialSnapshot(...) ((void)0)
+#define Net_SendMapUpdate(...) ((void)0)
+#define Net_StoreClientState(...) ((void)0)
+#define Net_InitMapStateHistory(...) ((void)0)
+#define Net_AddWorldToInitialSnapshot(...) ((void)0)
+#define DumpMapStateHistory(...) ((void)0)
+
+
+
 
 #endif
 

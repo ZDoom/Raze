@@ -184,30 +184,167 @@ typedef struct
 #endif
 } actor_t;
 
-// this struct needs to match the beginning of actor_t above
-typedef struct
+// note: fields in this struct DO NOT have to be in this order,
+// however if you add something to this struct, please make sure
+// a field gets added to ActorFields[], otherwise the field
+// won't get synced over the network!
+//
+// I don't think the ActorFields array needs to be in the same order,
+// need to verify this...
+typedef struct netactor_s
 {
-    int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
+    // actor fields
+    //--------------------------------------------
+    int32_t
+        t_data_0,
+        t_data_1,
+        t_data_2,
+        t_data_3,
+        t_data_4,
+        t_data_5,
+        t_data_6,
+        t_data_7,
+        t_data_8,
+        t_data_9;
 
 #ifdef LUNATIC
-    struct move   mv;
-    struct action ac;
-    uint16_t      actiontics;
-    uint16_t movflags;
+
+    int32_t
+        hvel,
+        vvel;
+
+
+    int32_t
+        startframe,
+        numframes;
+
+    int32_t
+        viewtype,
+        incval,
+        delay;
+
+    int32_t 
+        actiontics;
 #endif
 
-    int32_t flags;                             // 4b
-    vec3_t  bpos;                              // 12b
-    int32_t floorz, ceilingz;                  // 8b
-    vec2_t lastv;                              // 8b
-    int16_t picnum, ang, extra, owner;         // 8b
-    int16_t movflag, tempang, timetosleep;     // 6b
-    int16_t stayput;
+    int32_t
+        flags;
 
-    uint8_t cgg, lasttransport;
 
-    spritetype sprite;
-    int16_t    netIndex;
+    int32_t
+        bpos_x,
+        bpos_y,
+        bpos_z;
+
+    int32_t
+        floorz,
+        ceilingz,
+        lastvx,
+        lastvy,
+
+        lasttransport,
+
+        picnum,
+        ang,
+        extra,
+        owner,
+
+        movflag,
+        tempang,
+        timetosleep,
+
+        stayput,
+        dispicnum;
+
+
+#if defined LUNATIC
+    int32_t movflags;
+#endif
+
+    // note: lightId, lightcount, lightmaxrange are not synchronized between client and server
+
+    int32_t 
+        cgg;
+
+
+    // sprite fields
+    //-----------------------------
+
+    int32_t
+        spr_x,
+        spr_y,
+        spr_z,
+
+        spr_cstat,
+
+        spr_picnum,
+
+        spr_shade,
+
+        spr_pal,
+        spr_clipdist,
+        spr_blend,
+
+        spr_xrepeat,
+        spr_yrepeat,
+
+        spr_xoffset,
+        spr_yoffset,
+
+        spr_sectnum,
+        spr_statnum,
+
+        spr_ang,
+        spr_owner,
+        spr_xvel,
+        spr_yvel,
+        spr_zvel,
+
+        spr_lotag,
+        spr_hitag,
+
+        spr_extra;
+
+    //---------------------------------------------
+    //spriteext fields
+
+    int32_t
+        ext_mdanimtims,
+
+        ext_mdanimcur,
+        ext_angoff,
+        ext_pitch,
+        ext_roll,
+
+        ext_offset_x,
+        ext_offset_y,
+        ext_offset_z,
+
+        ext_flags,
+        ext_xpanning,
+        ext_ypanning;
+
+    float       ext_alpha;
+
+    // DON'T send tsprites over the internet
+
+    //--------------------------------------------
+    //spritesmooth fields
+
+    float       sm_smoothduration;
+
+    int32_t
+        sm_mdcurframe,
+        sm_mdoldframe,
+
+        sm_mdsmooth;
+
+    //--------------------------------------------
+    // SpriteProjectile fields
+
+    // may want to put projectile fields here
+    int32_t netIndex;
+
 } netactor_t;
 #pragma pack(pop)
 

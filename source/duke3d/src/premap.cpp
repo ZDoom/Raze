@@ -35,7 +35,9 @@ static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t g_precacheCount;
 
 
-static inline void flag_precache(int tile, int type)
+static int32_t NET_75_CHECK = 0;
+
+static void flag_precache(int32_t tile, int32_t type)
 {
     if (!(gotpic[tile>>3] & pow2char[tile&7]))
         g_precacheCount++;
@@ -1906,8 +1908,10 @@ int G_EnterLevel(int gameMode)
     int16_t playerAngle;
 
     char levelName[BMAX_PATH];
+    NET_75_CHECK++; // a major problem with how STAT_NETALLOC works, is that loadboard loads sprites directly into the arrays and does not take from
+                    // STAT_NETALLOC, even though the loaded sprites are very, very likely to be relevant to the netcode.
 
-    if (!VOLUMEONE && Menu_HaveUserMap())
+    if (!VOLUMEONE && G_HaveUserMap())
     {
         if (engineLoadBoard(boardfilename, 0, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
         {
@@ -1933,6 +1937,12 @@ int G_EnterLevel(int gameMode)
     g_precacheCount = 0;
     Bmemset(gotpic, 0, sizeof(gotpic));
     Bmemset(precachehightile, 0, sizeof(precachehightile));
+
+    NET_75_CHECK++; // resetpspritevars attempts to insert player 0's sprite, which isn't going to work because we don't have
+                    // the STAT_NETALLOC sprites allocated yet.
+
+    Net_NotifyNewGame();
+
 
     prelevel(gameMode);
 
@@ -1978,7 +1988,7 @@ int G_EnterLevel(int gameMode)
         P_DoQuote(QUOTE_F1HELP,g_player[myconnectindex].ps);
 #endif
 
-    Net_NotifyNewGame();
+    //Net_NotifyNewGame();
     Net_ResetPrediction();
 
     //g_player[myconnectindex].ps->palette = palette;
@@ -2017,6 +2027,12 @@ int G_EnterLevel(int gameMode)
     videoClearViewableArea(0L);
     G_DrawBackground();
     G_DrawRooms(myconnectindex,65536);
+
+    if (g_netClient || g_netServer) // [75] : Initialize map states after map load
+    {
+        Net_InitMapStateHistory();
+        Net_AddWorldToInitialSnapshot(); 
+    }
 
     Net_WaitForServer();
     return 0;

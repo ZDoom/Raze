@@ -422,6 +422,9 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     int const         isEnemy = A_CheckEnemySprite(pSprite);
     vec2_t const      oldPos  = *(vec2_t *)pSprite;
 
+    // check to make sure the netcode didn't leave a deleted sprite in the sprite lists.
+    Bassert(pSprite->sectnum < MAXSECTORS);
+
     if (pSprite->statnum == STAT_MISC || (isEnemy && pSprite->xrepeat < 4))
     {
         pSprite->x += change->x;
@@ -472,6 +475,9 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     clipmove((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, ZOFFSET6, ZOFFSET6, clipType);
     pSprite->z = oldZ;
 
+    // Testing: For some reason the assert below this was tripping for clients
+    EDUKE32_UNUSED int16_t   dbg_ClipMoveSectnum = newSectnum;
+
     if (isEnemy)
     {
         // Handle potential stayput condition (map-provided or hard-coded).
@@ -500,6 +506,8 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
         if ((returnValue&49152) >= 32768 && actor[spriteNum].cgg==0)
             pSprite->ang += 768;
     }
+
+    EDUKE32_UNUSED int16_t   dbg_newSectnum2 = newSectnum;
 
     if (newSectnum == -1)
     {
@@ -619,19 +627,16 @@ void A_DeleteSprite(int spriteNum)
     if (sprite[spriteNum].picnum == MUSICANDSFX && actor[spriteNum].t_data[0] == 1)
         S_StopEnvSound(sprite[spriteNum].lotag, spriteNum);
 
-    // NetAlloc
-    if (Net_IsRelevantSprite(spriteNum))
-    {
-        Net_DeleteSprite(spriteNum);
-        return;
-    }
-
+#ifdef NETCODE_DISABLE
     deletesprite(spriteNum);
+#else
+    Net_DeleteSprite(spriteNum);
+#endif
 }
 
 void A_AddToDeleteQueue(int spriteNum)
 {
-    if (g_deleteQueueSize == 0)
+    if (g_netClient || (g_deleteQueueSize == 0)) // [75] Clients should not use SpriteDeletionQueue[] and just set the sprites invisible immediately in A_DeleteSprite
     {
         A_DeleteSprite(spriteNum);
         return;

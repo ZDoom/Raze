@@ -7262,7 +7262,7 @@ LISTFN_STATIC int32_t insertspritestat(int16_t statnum)
 }
 
 // remove sprite 'deleteme' from its status list
-static void do_deletespritestat(int16_t deleteme)
+LISTFN_STATIC void do_deletespritestat(int16_t deleteme)
 {
     int32_t const sectnum = sprite[deleteme].statnum;
     int32_t const prev = prevspritestat[deleteme];

@@ -62,6 +62,7 @@ void G_ShowParameterHelp(void)
         "-mh [file.def]\tInclude an additional definitions module\n"
         "-mx [file.con]\tInclude an additional CON script module\n"
         "-m\t\tDisable enemies\n"
+        "-noffire\t\tDisable friendly fire\n"
 #ifndef EDUKE32_STANDALONE
         "-nam\t\tRun in NAM compatibility mode\n"
         "-napalm\t\tRun in NAPALM compatibility mode\n"
@@ -176,6 +177,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
     ud.m_respawn_inventory = 0;
     ud.warp_on = 0;
     ud.cashman = 0;
+    ud.m_ffire = 1;
     ud.m_player_skill = ud.player_skill = 2;
     g_player[0].wchoice[0] = 3;
     g_player[0].wchoice[1] = 4;
@@ -417,6 +419,12 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                         CommandMap = argv[i+1];
                         i++;
                     }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1, "noffire"))
+                {
+                    ud.m_ffire = 0;
                     i++;
                     continue;
                 }

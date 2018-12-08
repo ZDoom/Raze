@@ -3674,6 +3674,7 @@ void P_FragPlayer(int playerNum)
 #ifndef NETCODE_DISABLE
         if (g_netServer)
         {
+            // this packet might not be needed anymore with the new snapshot code
             packbuf[0] = PACKET_FRAG;
             packbuf[1] = playerNum;
             packbuf[2] = pPlayer->frag_ps;
@@ -3681,7 +3682,7 @@ void P_FragPlayer(int playerNum)
             B_BUF32(&packbuf[4], ticrandomseed);
             packbuf[8] = myconnectindex;
 
-            enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 9, ENET_PACKET_FLAG_RELIABLE));
+            enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(&packbuf[0], 9, ENET_PACKET_FLAG_RELIABLE));
         }
 #endif
     }
@@ -5473,9 +5474,9 @@ HORIZONLY:;
                         break;
                     case APLAYER__STATIC:
                     {
-                        int playerNum = P_Get(pPlayer->actorsqu);
-                        P_QuickKill(g_player[playerNum].ps);
-                        g_player[playerNum].ps->frag_ps = playerNum;
+                        const int playerSquished = P_Get(pPlayer->actorsqu);
+                        P_QuickKill(g_player[playerSquished].ps);
+                        g_player[playerSquished].ps->frag_ps = playerNum;
                         break;
                     }
                     default:

@@ -1502,6 +1502,36 @@ static int osdcmd_cvar_set_multi(osdcmdptr_t parm)
     return r;
 }
 
+#ifndef NETCODE_DISABLE
+static int32_t osdcmd_dumpmapstate(osdfuncparm_t const * const)
+{
+    // this command takes no parameters
+
+    DumpMapStateHistory();
+
+    return OSDCMD_OK;
+}
+
+static int32_t osdcmd_playerinfo(osdfuncparm_t const * const)
+{
+    OSD_Printf("Your player index is %d.\n", myconnectindex);
+
+    for(int32_t playerIndex = 0; playerIndex < MAXPLAYERS; playerIndex++)
+    {
+        if(g_player[playerIndex].ps == nullptr)
+        {
+            OSD_Printf("g_player[%d]: ps unallocated.\n", playerIndex);
+        }
+        else
+        {
+            OSD_Printf("g_player[%d]: ps->i is %d.\n", playerIndex, g_player[playerIndex].ps->i);
+        }
+    }
+
+    return OSDCMD_OK;
+}
+#endif
+
 int32_t registerosdcommands(void)
 {
     static osdcvardata_t cvars_game[] =
@@ -1745,6 +1775,12 @@ int32_t registerosdcommands(void)
 #ifdef USE_OPENGL
     baselayer_osdcmd_vidmode_func = osdcmd_vidmode;
 #endif
+
+#ifndef NETCODE_DISABLE
+    OSD_RegisterFunction("dumpmapstates", "Dumps current snapshots to CL/Srv_MapStates.bin", osdcmd_dumpmapstate);
+    OSD_RegisterFunction("playerinfo", "Prints information about the current player", osdcmd_playerinfo);
+#endif
+
     return 0;
 }
 

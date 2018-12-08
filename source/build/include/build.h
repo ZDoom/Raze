@@ -1240,6 +1240,7 @@ int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy,
 #if !defined NETCODE_DISABLE
 void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum);
 int32_t insertspritestat(int16_t statnum);
+void do_deletespritestat(int16_t deleteme);
 void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum);
 void do_deletespritesect(int16_t deleteme);
 #endif

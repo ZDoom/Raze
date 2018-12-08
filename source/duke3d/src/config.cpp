@@ -268,7 +268,6 @@ void CONFIG_SetDefaults(void)
     ud.idplayers              = 1;
     ud.levelstats             = 0;
     ud.lockout                = 0;
-    ud.m_ffire                = 1;
     ud.m_marker               = 1;
     ud.maxautosaves           = 5;
     ud.menu_scrollbartilenum  = -1;
