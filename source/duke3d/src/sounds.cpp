@@ -970,8 +970,8 @@ bool A_CheckAnySoundPlaying(int spriteNum)
     return 0;
 }
 
-bool S_CheckSoundPlaying(int spriteNum, int soundNum)
+bool S_CheckSoundPlaying(int soundNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)soundNum > (unsigned)g_highestSoundIdx)) return 0;
-    return (spriteNum == -1) ? (g_soundlocks[soundNum] > 200) : (g_sounds[soundNum].num != 0);
+    if (EDUKE32_PREDICT_FALSE((unsigned)soundNum > (unsigned)g_highestSoundIdx)) return false;
+    return (g_sounds[soundNum].num != 0);
 }

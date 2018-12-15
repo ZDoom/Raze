@@ -555,7 +555,6 @@ static void Net_DeleteAllScratchPadSprites()
     Net_InitScratchPadSpriteList();
 }
 
-
 static void Net_Error_Disconnect(const char* message)
 {
     OSD_Printf("Net_Error_Disconnect: %s\n", message);
@@ -4769,7 +4768,7 @@ void Net_GetPackets(void)
 {
     timerUpdate();
     MUSIC_Update();
-    S_Update();
+    S_Cleanup();
 
     G_HandleSpecialKeys();
 

@@ -64,7 +64,7 @@ static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
 {
     S_PlaySound(soundnum);
     I_ClearAllInput();
-    while (S_CheckSoundPlaying(-1, soundnum))
+    while (S_CheckSoundPlaying(soundnum))
     {
         G_HandleAsync();
         if (I_CheckAllInput())

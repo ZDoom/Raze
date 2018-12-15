@@ -6725,6 +6725,7 @@ MAIN_LOOP_RESTART:
         else
 #endif
         {
+            S_Cleanup();
             MUSIC_Update();
             G_HandleLocalKeys();
         }

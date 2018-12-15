@@ -3143,7 +3143,7 @@ badindex:
                     CON_ERRPRINTF("invalid sound %d\n", vm.pUSprite->yvel);
                     continue;
                 }
-                if (!S_CheckSoundPlaying(vm.spriteNum, vm.pSprite->yvel))
+                if (!S_CheckSoundPlaying(vm.pSprite->yvel))
                     A_PlaySound(vm.pSprite->yvel, vm.spriteNum);
                 continue;
 
@@ -3206,7 +3206,7 @@ badindex:
                     CON_ERRPRINTF("invalid sound %d\n", (int32_t)*insptr);
                     continue;
                 }
-                VM_CONDITIONAL(S_CheckSoundPlaying(vm.spriteNum, *insptr));
+                VM_CONDITIONAL(S_CheckSoundPlaying(*insptr));
                 //    VM_DoConditional(SoundOwner[*insptr][0].ow == vm.spriteNum);
                 continue;
 
@@ -4229,7 +4229,7 @@ badindex:
                     switch (tw)
                     {
                         case CON_SOUNDONCE:
-                            if (!S_CheckSoundPlaying(vm.spriteNum, soundNum))
+                            if (!S_CheckSoundPlaying(soundNum))
                             {
                                 fallthrough__;
                                 case CON_SOUND: A_PlaySound((int16_t)soundNum, vm.spriteNum);
@@ -4237,10 +4237,10 @@ badindex:
                             continue;
                         case CON_GLOBALSOUND: A_PlaySound((int16_t)soundNum, g_player[screenpeek].ps->i); continue;
                         case CON_STOPSOUND:
-                            if (S_CheckSoundPlaying(vm.spriteNum, soundNum))
+                            if (S_CheckSoundPlaying(soundNum))
                                 S_StopSound((int16_t)soundNum);
                             continue;
-                        case CON_SCREENSOUND: A_PlaySound(soundNum, -1); continue;
+                        case CON_SCREENSOUND: S_PlaySound(soundNum); continue;
                     }
                 }
                 continue;

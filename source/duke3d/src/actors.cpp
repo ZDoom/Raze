@@ -3090,7 +3090,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
             case COOLEXPLOSION1__STATIC:
             {
                 if (pSprite->picnum == COOLEXPLOSION1)
-                    if (!S_CheckSoundPlaying(spriteNum, WIERDSHOT_FLY))
+                    if (!S_CheckSoundPlaying(WIERDSHOT_FLY))
                         A_PlaySound(WIERDSHOT_FLY, spriteNum);
 
                 int spriteXvel = pSprite->xvel;
@@ -5227,7 +5227,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     }
                     else
                     */
-                    if (!S_CheckSoundPlaying(spriteNum,ITEM_SPLASH))
+                    if (!S_CheckSoundPlaying(ITEM_SPLASH))
                         A_PlaySound(ITEM_SPLASH,spriteNum);
                 }
                 if (pData[0] == 3)
@@ -6020,7 +6020,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if ((pSector->floorstat&1) == 0 && (pSector->ceilingstat&1) == 0)
                     {
-                        if (!S_CheckSoundPlaying(spriteNum,actor[spriteNum].lastv.x))
+                        if (!S_CheckSoundPlaying(actor[spriteNum].lastv.x))
                             A_PlaySound(actor[spriteNum].lastv.x,spriteNum);
                     }
                     else if (ud.monsters_off == 0 && pSector->floorpal == 0 && (pSector->floorstat&1) && rnd(8))

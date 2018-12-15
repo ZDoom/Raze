@@ -67,7 +67,7 @@ bool A_CheckSoundPlaying(int spriteNum,int soundNum);
 int A_PlaySound(int soundNum, int spriteNum);
 void S_Callback(uint32_t num);
 bool A_CheckAnySoundPlaying(int spriteNum);
-bool S_CheckSoundPlaying(int spriteNum,int soundNum);
+bool S_CheckSoundPlaying(int soundNum);
 void S_Cleanup(void);
 void S_ClearSoundLocks(void);
 int32_t S_LoadSound(uint32_t num);
