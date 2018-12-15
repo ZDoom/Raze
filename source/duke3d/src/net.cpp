@@ -76,6 +76,37 @@ void faketimerhandler(void)
 }
 #endif
 
+void Net_GetPackets(void)
+{
+    timerUpdate();
+    MUSIC_Update();
+    S_Cleanup();
+
+    G_HandleSpecialKeys();
+
+#ifndef NETCODE_DISABLE
+    if (g_netDisconnect)
+    {
+        Net_Disconnect();
+        g_netDisconnect = 0;
+
+        if (g_gameQuit)
+            G_GameExit(" ");
+
+        return;
+    }
+
+    if (g_netServer)
+    {
+        Net_HandleClientPackets();
+    }
+    else if (g_netClient)
+    {
+        Net_HandleServerPackets();
+    }
+#endif
+}
+
 // (the rest of the file)
 #ifndef NETCODE_DISABLE
 
@@ -4762,35 +4793,6 @@ void Net_Connect(const char *srvaddr)
 void Net_AddWorldToInitialSnapshot()
 {
     Net_AddWorldToSnapshot(&g_mapStartState);
-}
-
-void Net_GetPackets(void)
-{
-    timerUpdate();
-    MUSIC_Update();
-    S_Cleanup();
-
-    G_HandleSpecialKeys();
-
-    if (g_netDisconnect)
-    {
-        Net_Disconnect();
-        g_netDisconnect = 0;
-
-        if (g_gameQuit)
-            G_GameExit(" ");
-
-        return;
-    }
-
-    if (g_netServer)
-    {
-        Net_HandleClientPackets();
-    }
-    else if (g_netClient)
-    {
-        Net_HandleServerPackets();
-    }
 }
 
 void Net_SendClientInfo(void)

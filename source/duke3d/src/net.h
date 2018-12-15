@@ -143,7 +143,7 @@ typedef struct netWall_s
 
 } netWall_t;
 
-// sector struct with all 32 bit entries 
+// sector struct with all 32 bit entries
 typedef struct netSector_s
 {
     uint16_t netIndex;
@@ -178,8 +178,8 @@ typedef struct netSector_s
 } netSector_t;
 
 const uint64_t cSnapshotMemUsage = NET_REVISIONS *	(
-                                                            (sizeof(netWall_t) * MAXWALLS) 
-                                                        +   (sizeof(netSector_t)  * MAXSECTORS) 
+                                                            (sizeof(netWall_t) * MAXWALLS)
+                                                        +   (sizeof(netSector_t)  * MAXSECTORS)
                                                         +   (sizeof(netactor_t) * MAXSPRITES)
                                                     );
 
@@ -297,8 +297,6 @@ void Net_WaitForInitialSnapshot();
 #else
 
 // note: don't include faketimerhandler in this
-
-#define Net_GetPackets(...) ((void)0)
 
 #define Net_Connect(...) ((void)0)
 
