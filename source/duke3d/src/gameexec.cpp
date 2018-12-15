@@ -74,16 +74,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop);
 # include "gamestructures.cpp"
 #endif
 
-// be careful when changing this--the assignment used as a condition doubles as a null pointer check
-#define VM_CONDITIONAL(xxx)                                                                       \
-    {                                                                                             \
-        if ((xxx) || ((insptr = (intptr_t *)insptr[1]) && ((*insptr & VM_INSTMASK) == CON_ELSE))) \
-        {                                                                                         \
-            insptr += 2;                                                                          \
-            VM_Execute(0);                                                                        \
-        }                                                                                         \
-    }
-
 #if !defined LUNATIC
 void VM_ScriptInfo(intptr_t const *ptr, int range)
 {
@@ -1266,15 +1256,26 @@ void Screen_Play(void)
 }
 
 #if !defined LUNATIC
-GAMEEXEC_STATIC void VM_Execute(native_t loop)
+// be careful when changing this--the assignment used as a condition doubles as a null pointer check
+#define VM_CONDITIONAL(xxx)                                                                       \
+    {                                                                                             \
+        if ((xxx) || ((insptr = (intptr_t *)insptr[1]) && ((*insptr & VM_INSTMASK) == CON_ELSE))) \
+        {                                                                                         \
+            insptr += 2;                                                                          \
+            VM_Execute(0);                                                                        \
+        }                                                                                         \
+    }
+
+GAMEEXEC_STATIC void VM_Execute(native_t const poop)
 {
-    native_t tw;
-    auto &p = *(vm.pPlayer);
+    native_t loop = poop;
 
     do
     {
 next_instruction:
-        tw = *insptr;
+        native_t tw = *insptr;
+        // set up "p" in between tw and g_errorLineNum to avoid read after write penalty
+        auto &p = *(vm.pPlayer);
         g_errorLineNum = tw >> 12;
         g_tw = tw &= VM_INSTMASK;
 
@@ -1295,15 +1296,6 @@ next_instruction:
         }
         else switch (tw)
         {
-            case CON_STATE:
-                {
-                    auto tempscrptr = &insptr[2];
-                    insptr = (intptr_t *)insptr[1];
-                    VM_Execute(1);
-                    insptr = tempscrptr;
-                }
-                continue;
-
             case CON_IFVARE_GLOBAL:
                 insptr++;
                 tw = aGameVars[*insptr++].global;
@@ -1425,6 +1417,15 @@ next_instruction:
                 aGameVars[*insptr].global >>= insptr[1];
                 insptr += 2;
                 continue;
+            case CON_STATE:
+                {
+                    auto tempscrptr = &insptr[2];
+                    insptr = (intptr_t *)insptr[1];
+                    VM_Execute(1);
+                    insptr = tempscrptr;
+                }
+                continue;
+/*
 
             case CON_IFVARE_ACTOR:
                 insptr++;
@@ -1669,6 +1670,7 @@ next_instruction:
                 aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] >>= insptr[1];
                 insptr += 2;
                 continue;
+*/
 
             case CON_WHILEVARN_GLOBAL:
             {
