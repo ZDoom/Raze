@@ -732,6 +732,9 @@ static int osdcmd_cmenu(osdcmdptr_t parm)
         return OSDCMD_OK;
     }
 
+    if ((g_player[myconnectindex].ps->gm & MODE_MENU) != MODE_MENU)
+        Menu_Open(myconnectindex);
+
     Menu_Change(Batol(parm->parms[0]));
 
     return OSDCMD_OK;
