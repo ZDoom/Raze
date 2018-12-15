@@ -97,7 +97,7 @@ int main(int argc, char **argv)
     }
     Bread(fil,origpalette,768);
     Bread(fil,&orignumshades,2); orignumshades = B_LITTLE16(orignumshades);
-    orignumshades = min(max(orignumshades,1),256);
+    orignumshades = min(max<int>(orignumshades,1),256);
     Bread(fil,origpalookup,(int)orignumshades<<8);
     Bclose(fil);
 
