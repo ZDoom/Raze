@@ -674,7 +674,37 @@ static const vec2_t varvartable[] =
     { CON_XORVARVAR,         CON_XORVAR },
 };
 
+static const vec2_t globalvartable[] =
+{
+    { CON_SHIFTVARL,      CON_SHIFTGLOBALVARL },
+    { CON_SHIFTVARR,      CON_SHIFTGLOBALVARR },
+    { CON_RANDVAR,        CON_RANDGLOBALVAR },
+    { CON_MODVAR,         CON_MODGLOBALVAR },
+    { CON_ANDVAR,         CON_ANDGLOBALVAR },
+    { CON_ADDVAR,         CON_ADDGLOBALVAR },
+    { CON_ORVAR,          CON_ORGLOBALVAR },
+    { CON_SETVAR,         CON_SETGLOBALVAR },
+    { CON_SUBVAR,         CON_SUBGLOBALVAR },
+    { CON_XORVAR,         CON_XORGLOBALVAR },
+    { CON_MULVAR,         CON_MULGLOBALVAR },
+    { CON_DIVVAR,         CON_DIVGLOBALVAR },
+    { CON_WHILEVARL,      CON_WHILEGLOBALVARL },
+    { CON_WHILEVARN,      CON_WHILEGLOBALVARN },
+};
+
 static inthashtable_t h_varvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(varvartable)) };
+static inthashtable_t h_globalvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(globalvartable)) };
+
+static inthashtable_t *const inttables[] = {
+    &h_varvar,
+    &h_globalvar,
+};
+
+static inthashtable_t *const inttables_free[] = {
+    &h_varvar,
+    &h_globalvar,
+};
+
 
 const tokenmap_t iter_tokens [] =
 {
@@ -704,7 +734,7 @@ char const * VM_GetKeywordForID(int32_t id)
         if (keyword.val == id)
             return keyword.token;
 
-    return "<invalid keyword>";
+    return id < CON_OPCODE_END ? "<internal instruction>" : "<invalid keyword>";
 }
 #endif
 
@@ -3324,139 +3354,6 @@ DO_DEFSTATE:
                 continue;
             }
 
-        case CON_ADDVARVAR:
-        case CON_ANDVARVAR:
-        case CON_DISPLAYRANDVARVAR:
-        case CON_DIVVARVAR:
-        case CON_MODVARVAR:
-        case CON_MULVARVAR:
-        case CON_ORVARVAR:
-        case CON_RANDVARVAR:
-        case CON_SETVARVAR:
-        case CON_SHIFTVARVARL:
-        case CON_SHIFTVARVARR:
-        case CON_SUBVARVAR:
-        case CON_XORVARVAR:
-            {
-setvarvar:
-                auto ins = &g_scriptPtr[-1];
-
-                C_GetNextVarType(GAMEVAR_READONLY);
-                C_GetNextVar();
-
-                int const opcode = inthash_find(&h_varvar, *ins & VM_INSTMASK);
-
-                if (ins[2] == GV_FLAG_CONSTANT && opcode != -1)
-                {
-                    if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
-                    {
-                        initprintf("%s:%d: replacing %s with %s\n", g_scriptFileName, g_lineNumber,
-                                    VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
-                    }
-
-                    g_scriptPtr--;
-                    tw = opcode;
-                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
-                    scriptWriteAtOffset(ins[3], &ins[2]);
-                }
-
-                continue;
-            }
-
-        case CON_GETACTORVAR:
-        case CON_GETPLAYERVAR:
-        case CON_SETACTORVAR:
-        case CON_SETPLAYERVAR:
-            {
-                // syntax [gs]etactorvar[<var>].<varx> <VAR>
-                // gets the value of the per-actor variable varx into VAR
-
-                if (C_GetStructureIndexes(1, NULL) == -1)
-                    continue;
-
-                if (g_scriptPtr[-1] == g_thisActorVarID) // convert to "setvarvar"
-                {
-                    g_scriptPtr--;
-                    g_scriptPtr[-1]=CON_SETVARVAR;
-                    if (tw == CON_SETACTORVAR || tw == CON_SETPLAYERVAR)
-                    {
-                        tw = inthash_find(&h_varvar, tw);
-                        goto setvarvar;
-                    }
-                    else
-                    {
-                        g_scriptPtr++;
-                        C_GetNextVar();
-                        g_scriptPtr-=2;
-                        C_GetNextVarType(GAMEVAR_READONLY);
-                        g_scriptPtr++;
-                    }
-                    continue;
-                }
-
-                /// now pointing at 'xxx'
-
-                C_GetNextLabelName();
-
-                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
-                {
-                    g_errorCnt++;
-                    C_ReportError(ERROR_ISAKEYWORD);
-                    continue;
-                }
-
-                i=GetDefID(LAST_LABEL);
-
-                if (EDUKE32_PREDICT_FALSE(i<0))
-                {
-                    g_errorCnt++;
-                    C_ReportError(ERROR_NOTAGAMEVAR);
-                    continue;
-                }
-                if (EDUKE32_PREDICT_FALSE(aGameVars[i].flags & GAMEVAR_READONLY))
-                {
-                    g_errorCnt++;
-                    C_ReportError(ERROR_VARREADONLY);
-                    continue;
-                }
-
-                switch (tw)
-                {
-                case CON_SETACTORVAR:
-                    if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERACTOR)))
-                    {
-                        g_errorCnt++;
-                        C_ReportError(-1);
-                        initprintf("%s:%d: error: variable `%s' is not per-actor.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
-                        continue;
-                    }
-                    break;
-                case CON_SETPLAYERVAR:
-                    if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERPLAYER)))
-                    {
-                        g_errorCnt++;
-                        C_ReportError(-1);
-                        initprintf("%s:%d: error: variable `%s' is not per-player.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
-                        continue;
-                    }
-                    break;
-                }
-
-                scriptWriteValue(i); // the ID of the DEF (offset into array...)
-
-                switch (tw)
-                {
-                case CON_GETACTORVAR:
-                case CON_GETPLAYERVAR:
-                    C_GetNextVarType(GAMEVAR_READONLY);
-                    break;
-                default:
-                    C_GetNextVar();
-                    break;
-                }
-                continue;
-            }
-
         case CON_SETACTOR:
             {
                 intptr_t * const ins = &g_scriptPtr[-1];
@@ -3708,50 +3605,207 @@ setvarvar:
         case CON_SHIFTVARR:
         case CON_SUBVAR:
         case CON_XORVAR:
+setvar:
+        {
+            auto ins = &g_scriptPtr[-1];
 
+            C_GetNextVarType(GAMEVAR_READONLY);
+            C_GetNextValue(LABEL_DEFINE);
+#if 0
+            if (tw == CON_DIVVAR || tw == CON_MULVAR)
             {
-                intptr_t *inst = &g_scriptPtr[-1];
-                char *tptr = textptr;
-                // syntax: [rand|add|set]var    <var1> <const1>
-                // sets var1 to const1
-                // adds const1 to var1 (const1 can be negative...)
-                //printf("Found [add|set]var at line= %d\n",g_lineNumber);
+                int32_t const i = ins[2];
 
-                C_GetNextVarType(GAMEVAR_READONLY);
-
-                C_GetNextValue(LABEL_DEFINE); // the number to check against...
-
-                if (tw == CON_DIVVAR || tw == CON_MULVAR)
+                if (i == -1)
                 {
-                    int32_t i = g_scriptPtr[-1];
-                    j = klabs(i);
+                    int constexpr const opcode = CON_INV;
 
-                    if (i == -1)
+                    // if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
                     {
-                        *inst = CON_INV | LINE_NUMBER;
-                        g_scriptPtr--;
-                        continue;
+                        initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
+                                   VM_GetKeywordForID(tw), VM_GetKeywordForID(opcode));
                     }
 
-                    if (C_IntPow2(j))
+                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                    g_scriptPtr--;
+                    continue;
+                }
+                else if (C_IntPow2((j = klabs(i))))
+                {
+                    int const opcode = (tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL;
+
+                    // if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
                     {
-                        *inst = ((tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL) | LINE_NUMBER;
-                        g_scriptPtr[-1] = C_Pow2IntLogBase2(j);
-                        //                    initprintf("%s:%d: replacing multiply/divide with shift\n",g_szScriptFileName,g_lineNumber);
+                        initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
+                                    VM_GetKeywordForID(tw), VM_GetKeywordForID(opcode));
+                    }
 
-                        if (i == j)
-                            continue;
+                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                    scriptWriteAtOffset(C_Pow2IntLogBase2(j), &ins[2]);
 
+                    if (i != j)
+                    {
                         scriptWriteValue(CON_INV | LINE_NUMBER);
-                        textptr = tptr;
-                        C_GetNextVarType(GAMEVAR_READONLY);
-                        C_GetNextValue(LABEL_DEFINE);
-                        g_scriptPtr--;
-                        //                    initprintf("%s:%d: adding inversion\n",g_szScriptFileName,g_lineNumber);
+                        scriptWriteValue(ins[1]);
+                        initprintf("%s:%d: +++ CON_INV\n", g_scriptFileName, g_lineNumber);
                     }
                 }
             }
+#endif
+            // replace instructions with special versions that operate only on globals
+            if ((aGameVars[ins[1]].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
+            {
+                int const opcode = inthash_find(&h_globalvar, *ins & VM_INSTMASK);
+
+                if (opcode != -1)
+                {
+                    //if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                    {
+                        initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
+                                   VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
+                    }
+
+                    tw = opcode;
+                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                }
+            }
             continue;
+        }
+
+        case CON_ADDVARVAR:
+        case CON_ANDVARVAR:
+        case CON_DISPLAYRANDVARVAR:
+        case CON_DIVVARVAR:
+        case CON_MODVARVAR:
+        case CON_MULVARVAR:
+        case CON_ORVARVAR:
+        case CON_RANDVARVAR:
+        case CON_SETVARVAR:
+        case CON_SHIFTVARVARL:
+        case CON_SHIFTVARVARR:
+        case CON_SUBVARVAR:
+        case CON_XORVARVAR:
+            {
+setvarvar:
+                auto ins = &g_scriptPtr[-1];
+                auto tptr = textptr;
+
+                C_GetNextVarType(GAMEVAR_READONLY);
+                C_GetNextVar();
+
+                int const opcode = inthash_find(&h_varvar, *ins & VM_INSTMASK);
+
+                if (ins[2] == GV_FLAG_CONSTANT && opcode != -1)
+                {
+                    if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                    {
+                        initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
+                                    VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
+                    }
+
+                    tw = opcode;
+                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                    g_scriptPtr = &ins[1];
+                    textptr = tptr;
+                    goto setvar;
+                }
+
+                continue;
+            }
+
+        case CON_GETACTORVAR:
+        case CON_GETPLAYERVAR:
+        case CON_SETACTORVAR:
+        case CON_SETPLAYERVAR:
+            {
+                // syntax [gs]etactorvar[<var>].<varx> <VAR>
+                // gets the value of the per-actor variable varx into VAR
+
+                if (C_GetStructureIndexes(1, NULL) == -1)
+                    continue;
+
+                if (g_scriptPtr[-1] == g_thisActorVarID) // convert to "setvarvar"
+                {
+                    g_scriptPtr--;
+                    g_scriptPtr[-1]=CON_SETVARVAR;
+                    if (tw == CON_SETACTORVAR || tw == CON_SETPLAYERVAR)
+                    {
+                        tw = inthash_find(&h_varvar, tw);
+                        goto setvarvar;
+                    }
+                    else
+                    {
+                        g_scriptPtr++;
+                        C_GetNextVar();
+                        g_scriptPtr-=2;
+                        C_GetNextVarType(GAMEVAR_READONLY);
+                        g_scriptPtr++;
+                    }
+                    continue;
+                }
+
+                /// now pointing at 'xxx'
+
+                C_GetNextLabelName();
+
+                if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
+                {
+                    g_errorCnt++;
+                    C_ReportError(ERROR_ISAKEYWORD);
+                    continue;
+                }
+
+                i=GetDefID(LAST_LABEL);
+
+                if (EDUKE32_PREDICT_FALSE(i<0))
+                {
+                    g_errorCnt++;
+                    C_ReportError(ERROR_NOTAGAMEVAR);
+                    continue;
+                }
+                if (EDUKE32_PREDICT_FALSE(aGameVars[i].flags & GAMEVAR_READONLY))
+                {
+                    g_errorCnt++;
+                    C_ReportError(ERROR_VARREADONLY);
+                    continue;
+                }
+
+                switch (tw)
+                {
+                case CON_SETACTORVAR:
+                    if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERACTOR)))
+                    {
+                        g_errorCnt++;
+                        C_ReportError(-1);
+                        initprintf("%s:%d: error: variable `%s' is not per-actor.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
+                        continue;
+                    }
+                    break;
+                case CON_SETPLAYERVAR:
+                    if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERPLAYER)))
+                    {
+                        g_errorCnt++;
+                        C_ReportError(-1);
+                        initprintf("%s:%d: error: variable `%s' is not per-player.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
+                        continue;
+                    }
+                    break;
+                }
+
+                scriptWriteValue(i); // the ID of the DEF (offset into array...)
+
+                switch (tw)
+                {
+                case CON_GETACTORVAR:
+                case CON_GETPLAYERVAR:
+                    C_GetNextVarType(GAMEVAR_READONLY);
+                    break;
+                default:
+                    C_GetNextVar();
+                    break;
+                }
+                continue;
+            }
 
         case CON_WRITEARRAYTOFILE:
         case CON_READARRAYFROMFILE:
@@ -4223,6 +4277,7 @@ setvarvar:
         case CON_WHILEVARN:
             {
 singlevar:
+                auto const ins = &g_scriptPtr[-1];
                 auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
                 g_skipBranch = false;
@@ -4232,6 +4287,23 @@ singlevar:
 
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
+
+                if (aGameVars[ins[1]].flags == 0)
+                {
+                    int const opcode = inthash_find(&h_globalvar, *ins & VM_INSTMASK);
+
+                    if (opcode != -1)
+                    {
+                        if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                        {
+                            initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
+                                       VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
+                        }
+
+                        tw = opcode;
+                        scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                    }
+                }
 
                 auto const offset = g_scriptPtr - apScript;
                 g_scriptPtr++; //Leave a spot for the fail location
@@ -5954,12 +6026,14 @@ void C_PrintStats(void)
     initprintf("\n");
 }
 
+// TODO: add some kind of mapping between the table and the struct holding the tokens
 void scriptInitTables()
 {
     for (auto table : tables)
         hash_init(table);
 
-    inthash_init(&h_varvar);
+    for (auto table : inttables)
+        inthash_init(table);
 
     for (auto &keyword : vm_keywords)
         hash_add(&h_keywords, keyword.token, keyword.val, 0);
@@ -5969,6 +6043,9 @@ void scriptInitTables()
 
     for (auto &varvar : varvartable)
         inthash_add(&h_varvar, varvar.x, varvar.y, 0);
+
+    for (auto &globalvar : globalvartable)
+        inthash_add(&h_globalvar, globalvar.x, globalvar.y, 0);
 }
 
 void C_Compile(const char *fileName)
@@ -6102,6 +6179,7 @@ void C_Compile(const char *fileName)
         hash_free(i);
 
     inthash_free(&h_varvar);
+    inthash_free(&h_globalvar);
 
     freehashnames();
     freesoundhashnames();

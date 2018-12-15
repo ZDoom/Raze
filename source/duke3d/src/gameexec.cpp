@@ -1304,10 +1304,13 @@ next_instruction:
 
             case CON_SETVAR:
                 insptr++;
-                if ((aGameVars[*insptr].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
-                    aGameVars[*insptr].global = insptr[1];
-                else
-                    Gv_SetVarX(*insptr, insptr[1]);
+                Gv_SetVarX(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_SETGLOBALVAR:
+                insptr++;
+                aGameVars[*insptr].global = insptr[1];
                 insptr += 2;
                 continue;
 
@@ -1324,10 +1327,34 @@ next_instruction:
                 }
                 continue;
 
+            case CON_ADDVAR:
+                insptr++;
+                Gv_AddVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_ADDGLOBALVAR:
+                insptr++;
+                aGameVars[*insptr].global += insptr[1];
+                insptr += 2;
+                continue;
+
             case CON_ADDVARVAR:
                 insptr++;
                 tw = *insptr++;
                 Gv_AddVar(tw, Gv_GetVarX(*insptr++));
+                continue;
+
+            case CON_SUBVAR:
+                insptr++;
+                Gv_SubVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_SUBGLOBALVAR:
+                insptr++;
+                aGameVars[*insptr].global -= insptr[1];
+                insptr += 2;
                 continue;
 
             case CON_SUBVARVAR:
@@ -1352,10 +1379,44 @@ next_instruction:
                 VM_CONDITIONAL(tw);
                 continue;
 
+            case CON_MULVAR:
+                insptr++;
+                Gv_MulVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_MULGLOBALVAR:
+                insptr++;
+                aGameVars[*insptr].global *= insptr[1];
+                insptr += 2;
+                continue;
+
             case CON_MULVARVAR:
                 insptr++;
                 tw = *insptr++;
                 Gv_MulVar(tw, Gv_GetVarX(*insptr++));
+                continue;
+
+            case CON_DIVVAR:
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("divide by zero!\n");
+                    continue;
+                }
+                Gv_DivVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_DIVGLOBALVAR:
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("divide by zero!\n");
+                    continue;
+                }
+                aGameVars[*insptr].global = tabledivide32(aGameVars[*insptr].global, insptr[1]);
+                insptr += 2;
                 continue;
 
             case CON_DIVVARVAR:
@@ -1385,35 +1446,6 @@ next_instruction:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
                 VM_CONDITIONAL(tw != *insptr);
-                continue;
-
-            case CON_ADDVAR:
-                insptr++;
-                Gv_AddVar(*insptr, insptr[1]);
-                insptr += 2;
-                continue;
-
-            case CON_SUBVAR:
-                insptr++;
-                Gv_SubVar(*insptr, insptr[1]);
-                insptr += 2;
-                continue;
-
-            case CON_MULVAR:
-                insptr++;
-                Gv_MulVar(*insptr, insptr[1]);
-                insptr += 2;
-                continue;
-
-            case CON_DIVVAR:
-                insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("divide by zero!\n");
-                    continue;
-                }
-                Gv_DivVar(*insptr, insptr[1]);
-                insptr += 2;
                 continue;
 
             case CON_IFVARVARG:
@@ -1614,13 +1646,13 @@ next_instruction:
                 continue;
             }
 
-            case CON_WHILEVARL:
+            case CON_WHILEGLOBALVARN:
             {
                 auto const savedinsptr = &insptr[2];
                 do
                 {
                     insptr = savedinsptr;
-                    tw = (Gv_GetVarX(insptr[-1]) < *insptr);
+                    tw = (aGameVars[insptr[-1]].global != *insptr);
                     VM_CONDITIONAL(tw);
                 } while (tw);
                 continue;
@@ -1640,6 +1672,30 @@ next_instruction:
                 continue;
             }
 
+            case CON_WHILEVARL:
+            {
+                auto const savedinsptr = &insptr[2];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (Gv_GetVarX(insptr[-1]) < *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+                continue;
+            }
+
+            case CON_WHILEGLOBALVARL:
+            {
+                auto const savedinsptr = &insptr[2];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (aGameVars[insptr[-1]].global < *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+                continue;
+            }
+
             case CON_WHILEVARVARL:
             {
                 auto const savedinsptr = &insptr[2];
@@ -1654,33 +1710,15 @@ next_instruction:
                 continue;
             }
 
-            case CON_MODVAR:
-                insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("mod by zero!\n");
-                    continue;
-                }
-
-                Gv_ModVar(*insptr, insptr[1]);
-                insptr += 2;
-                continue;
-
             case CON_ANDVAR:
                 insptr++;
                 Gv_AndVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
-            case CON_ORVAR:
+            case CON_ANDGLOBALVAR:
                 insptr++;
-                Gv_OrVar(*insptr, insptr[1]);
-                insptr += 2;
-                continue;
-
-            case CON_XORVAR:
-                insptr++;
-                Gv_XorVar(*insptr, insptr[1]);
+                aGameVars[*insptr].global &= insptr[1];
                 insptr += 2;
                 continue;
 
@@ -1690,10 +1728,34 @@ next_instruction:
                 Gv_AndVar(tw, Gv_GetVarX(*insptr++));
                 continue;
 
+            case CON_XORVAR:
+                insptr++;
+                Gv_XorVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_XORGLOBALVAR:
+                insptr++;
+                aGameVars[*insptr].global ^= insptr[1];
+                insptr += 2;
+                continue;
+
             case CON_XORVARVAR:
                 insptr++;
                 tw = *insptr++;
                 Gv_XorVar(tw, Gv_GetVarX(*insptr++));
+                continue;
+
+            case CON_ORVAR:
+                insptr++;
+                Gv_OrVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_ORGLOBALVAR:
+                insptr++;
+                aGameVars[*insptr].global |= insptr[1];
+                insptr += 2;
                 continue;
 
             case CON_ORVARVAR:
@@ -1708,9 +1770,9 @@ next_instruction:
                 insptr += 2;
                 continue;
 
-            case CON_SHIFTVARR:
+            case CON_SHIFTGLOBALVARL:
                 insptr++;
-                Gv_ShiftVarR(*insptr, insptr[1]);
+                aGameVars[*insptr].global <<= insptr[1];
                 insptr += 2;
                 continue;
 
@@ -1720,10 +1782,46 @@ next_instruction:
                 Gv_ShiftVarL(tw, Gv_GetVarX(*insptr++));
                 continue;
 
+            case CON_SHIFTVARR:
+                insptr++;
+                Gv_ShiftVarR(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_SHIFTGLOBALVARR:
+                insptr++;
+                aGameVars[*insptr].global >>= insptr[1];
+                insptr += 2;
+                continue;
+
             case CON_SHIFTVARVARR:
                 insptr++;
                 tw = *insptr++;
                 Gv_ShiftVarR(tw, Gv_GetVarX(*insptr++));
+                continue;
+
+            case CON_MODVAR:
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("mod by zero!\n");
+                    continue;
+                }
+
+                Gv_ModVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_MODGLOBALVAR:
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("mod by zero!\n");
+                    continue;
+                }
+
+                aGameVars[*insptr].global %= insptr[1];
+                insptr += 2;
                 continue;
 
             case CON_MODVARVAR:
@@ -1742,6 +1840,24 @@ next_instruction:
                     Gv_ModVar(tw, nValue);
                     continue;
                 }
+
+            case CON_RANDVAR:
+                insptr++;
+                Gv_SetVarX(*insptr, mulscale16(krand(), insptr[1] + 1));
+                insptr += 2;
+                continue;
+
+            case CON_RANDGLOBALVAR:
+                insptr++;
+                aGameVars[*insptr].global = mulscale16(krand(), insptr[1] + 1);
+                insptr += 2;
+                continue;
+
+            case CON_RANDVARVAR:
+                insptr++;
+                tw = *insptr++;
+                Gv_SetVarX(tw, mulscale16(krand(), Gv_GetVarX(*insptr++) + 1));
+                continue;
 
             case CON_SETPLAYER:
                 insptr++;
@@ -5461,12 +5577,6 @@ badindex:
                     continue;
                 }
 
-            case CON_RANDVAR:
-                insptr++;
-                Gv_SetVarX(*insptr, mulscale16(krand(), insptr[1] + 1));
-                insptr += 2;
-                continue;
-
             case CON_DISPLAYRANDVAR:
                 insptr++;
                 Gv_SetVarX(*insptr, mulscale15(system_15bit_rand(), insptr[1] + 1));
@@ -5530,13 +5640,6 @@ badindex:
                 else
                     Gv_SetVarX(insptr[1], -Gv_GetVarX(insptr[1]));
                 insptr += 2;
-                continue;
-
-
-            case CON_RANDVARVAR:
-                insptr++;
-                tw = *insptr++;
-                Gv_SetVarX(tw, mulscale16(krand(), Gv_GetVarX(*insptr++) + 1));
                 continue;
 
             case CON_DISPLAYRANDVARVAR:
