@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osd.h"
 #include "savegame.h"
 
+#define LINE_NUMBER (g_lineNumber << 12)
+
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
 char g_scriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
@@ -1108,7 +1110,7 @@ static int C_GetNextKeyword(void) //Returns its code #
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
             scriptWriteValue(i | (IFELSE_MAGIC<<12));
-        else scriptWriteValue(i | (g_lineNumber<<12));
+        else scriptWriteValue(i | LINE_NUMBER);
 
         textptr += l;
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
@@ -3013,7 +3015,7 @@ DO_DEFSTATE:
             else // if (tw == CON_APPENDEVENT)
             {
                 auto previous_event_end = apScript + apScriptGameEventEnd[j];
-                scriptWriteAtOffset(CON_JUMP | (g_lineNumber << 12), previous_event_end++);
+                scriptWriteAtOffset(CON_JUMP | LINE_NUMBER, previous_event_end++);
                 scriptWriteAtOffset(GV_FLAG_CONSTANT, previous_event_end++);
                 C_FillEventBreakStackWithJump((intptr_t *)*previous_event_end, g_scriptEventOffset);
                 scriptWriteAtOffset(g_scriptEventOffset, previous_event_end++);
@@ -3031,7 +3033,7 @@ DO_DEFSTATE:
             while (C_GetKeyword() == -1 && j < 32)
                 C_GetNextVar(), j++;
 
-            scriptWriteValue(CON_NULLOP | (g_lineNumber<<12));
+            scriptWriteValue(CON_NULLOP | LINE_NUMBER);
             continue;
 
         case CON_CSTAT:
@@ -3672,21 +3674,21 @@ DO_DEFSTATE:
 
                     if (i == -1)
                     {
-                        *inst = CON_INV | (g_lineNumber<<12);
+                        *inst = CON_INV | LINE_NUMBER;
                         g_scriptPtr--;
                         continue;
                     }
 
                     if (C_IntPow2(j))
                     {
-                        *inst = ((tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL) | (g_lineNumber<<12);
+                        *inst = ((tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL) | LINE_NUMBER;
                         g_scriptPtr[-1] = C_Pow2IntLogBase2(j);
                         //                    initprintf("%s:%d: replacing multiply/divide with shift\n",g_szScriptFileName,g_lineNumber);
 
                         if (i == j)
                             continue;
 
-                        scriptWriteValue(CON_INV | (g_lineNumber<<12));
+                        scriptWriteValue(CON_INV | LINE_NUMBER);
                         textptr = tptr;
                         C_GetNextVarType(GAMEVAR_READONLY);
                         C_GetNextValue(LABEL_DEFINE);
@@ -5453,10 +5455,10 @@ repeatcase:
             if (g_scriptEventChainOffset)
             {
                 g_scriptPtr--;
-                scriptWriteValue(CON_JUMP | (g_lineNumber << 12));
+                scriptWriteValue(CON_JUMP | LINE_NUMBER);
                 scriptWriteValue(GV_FLAG_CONSTANT);
                 scriptWriteValue(g_scriptEventChainOffset);
-                scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
+                scriptWriteValue(CON_ENDEVENT | LINE_NUMBER);
 
                 C_FillEventBreakStackWithJump((intptr_t *)g_scriptEventBreakOffset, g_scriptEventChainOffset);
 
@@ -5466,9 +5468,9 @@ repeatcase:
             {
                 // pad space for the next potential appendevent
                 apScriptGameEventEnd[g_currentEvent] = &g_scriptPtr[-1] - apScript;
-                scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
+                scriptWriteValue(CON_ENDEVENT | LINE_NUMBER);
                 scriptWriteValue(g_scriptEventBreakOffset);
-                scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
+                scriptWriteValue(CON_ENDEVENT | LINE_NUMBER);
             }
 
             g_scriptEventBreakOffset = g_scriptEventOffset = g_scriptActorOffset = 0;
@@ -5519,7 +5521,7 @@ repeatcase:
             else if (g_scriptEventOffset)
             {
                 g_scriptPtr--;
-                scriptWriteValue(CON_JUMP | (g_lineNumber << 12));
+                scriptWriteValue(CON_JUMP | LINE_NUMBER);
                 scriptWriteValue(GV_FLAG_CONSTANT);
                 scriptWriteValue(g_scriptEventBreakOffset);
                 g_scriptEventBreakOffset = &g_scriptPtr[-1] - apScript;
@@ -6005,7 +6007,7 @@ void C_Compile(const char *fileName)
         while (breakPtr)
         {
             breakPtr = apScript + (intptr_t)breakPtr;
-            scriptWriteAtOffset(CON_ENDEVENT | (g_lineNumber << 12), breakPtr-2);
+            scriptWriteAtOffset(CON_ENDEVENT | LINE_NUMBER, breakPtr-2);
             breakPtr = (intptr_t*)*breakPtr;
         }
     }
