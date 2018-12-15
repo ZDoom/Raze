@@ -3784,30 +3784,6 @@ setvar:
                     scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
                     g_scriptPtr--;
                 }
-                // replace multiplies or divides by a power of 2 with the appropriate shift
-#if 0
-                else if (C_IntPow2((j = klabs(i))))
-                {
-                    int const opcode = (tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL;
-
-                    // if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
-                    {
-                        initprintf("%s:%d: %s %s %d -> %s %d\n", g_scriptFileName, g_lineNumber,
-                                    VM_GetKeywordForID(tw), aGameVars[ins[1]].szLabel, (int)(ins[2]), VM_GetKeywordForID(opcode), C_Pow2IntLogBase2(j));
-                    }
-
-                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
-                    scriptWriteAtOffset(C_Pow2IntLogBase2(j), &ins[2]);
-
-                    if (i != j)
-                    {
-                        scriptWriteValue(CON_INV | LINE_NUMBER);
-                        scriptWriteValue(ins[1]);
-                        initprintf("%s:%d: +++ CON_INV\n", g_scriptFileName, g_lineNumber);
-                    }
-                    // debug_break();
-                }
-#endif
             }
             // replace instructions with special versions for specific var types
             scriptUpdateOpcodeForVariableType(ins);
