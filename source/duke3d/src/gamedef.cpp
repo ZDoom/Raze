@@ -4076,6 +4076,11 @@ DO_DEFSTATE:
             }
             continue;
 
+        case CON_STARTTRACK:
+            // one parameter (track#)
+            C_GetNextValue(LABEL_DEFINE);
+            continue;
+
         case CON_IFACTORSOUND:
         case CON_IFVARVARA:
         case CON_IFVARVARAE:
@@ -4124,11 +4129,6 @@ DO_DEFSTATE:
                 }
                 continue;
             }
-
-        case CON_STARTTRACK:
-            // one parameter (track#)
-            C_GetNextValue(LABEL_DEFINE);
-            continue;
 
         case CON_IFVARA:
         case CON_IFVARAE:
