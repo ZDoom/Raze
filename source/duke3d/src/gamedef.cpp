@@ -1263,7 +1263,8 @@ static void C_GetNextVarType(int32_t type)
         }
         else
         {
-            if (*textptr == ']' || *textptr == '.')
+            // allow "[]" or "." but not "[."
+            if (*textptr == ']' || (*textptr == '.' && textptr[-1] != '['))
             {
                 scriptWriteValue(g_thisActorVarID);
             }
