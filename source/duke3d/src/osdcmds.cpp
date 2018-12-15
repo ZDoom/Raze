@@ -610,11 +610,12 @@ static int osdcmd_setvar(osdcmdptr_t parm)
     }
 
     int i = hash_find(&h_gamevars, parm->parms[1]);
-    int const newValue = (i >= 0) ? Batol(parm->parms[1]) : Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek);
+    int const newValue = (i == -1) ? Batol(parm->parms[1]) : Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     if ((i = hash_find(&h_gamevars, parm->parms[0])) >= 0)
-        Gv_SetVar(i, newValue, g_player[screenpeek].ps->i, screenpeek);
+        Gv_SetVar(i, newValue, g_player[myconnectindex].ps->i, myconnectindex);
 
+    OSD_Printf("Script variable \"%s\" set to %d (input: %d)\n", aGameVars[i].szLabel, Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex), newValue);
     return OSDCMD_OK;
 }
 
@@ -632,7 +633,7 @@ static int osdcmd_addlogvar(osdcmdptr_t parm)
     int const i = hash_find(&h_gamevars, parm->parms[0]);
 
     if (i >= 0)
-        OSD_Printf("%s = %d\n", parm->parms[0], Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek));
+        OSD_Printf("Variable \"%s\" has value %d, default %d\n", parm->parms[0], Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek), (int)aGameVars[i].defaultValue);
 
     return OSDCMD_OK;
 }
@@ -657,11 +658,12 @@ static int osdcmd_setactorvar(osdcmdptr_t parm)
 
     // get value to set
     int i = hash_find(&h_gamevars, parm->parms[2]);
-    int const newValue = (i >= 0) ? Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek) : Batol(parm->parms[2]);
+    int const newValue = (i >= 0) ? Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex) : Batol(parm->parms[2]);
 
     if ((i = hash_find(&h_gamevars, parm->parms[1])) >= 0)
-        Gv_SetVar(i, newValue, spriteNum, screenpeek);
+        Gv_SetVar(i, newValue, spriteNum, myconnectindex);
 
+    OSD_Printf("Script variable \"%s\" set to %d (input: %d)\n", aGameVars[i].szLabel, Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex), newValue);
     return OSDCMD_OK;
 }
 #else
