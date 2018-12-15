@@ -1639,20 +1639,24 @@ static void G_ResetAllPlayers(void)
     for (int TRAVERSE_CONNECT(i))
     {
         auto &p = *g_player[i].ps;
-        switch (DYNAMICTILEMAP(sector[sprite[p.i].sectnum].floorpicnum))
+
+        if (p.cursectnum >= 0)
         {
-            case HURTRAIL__STATIC:
-            case FLOORSLIME__STATIC:
-            case FLOORPLASMA__STATIC:
-                P_ResetWeapons(i);
-                P_ResetInventory(i);
+            switch (DYNAMICTILEMAP(sector[p.cursectnum].floorpicnum))
+            {
+                case HURTRAIL__STATIC:
+                case FLOORSLIME__STATIC:
+                case FLOORPLASMA__STATIC:
+                    P_ResetWeapons(i);
+                    P_ResetInventory(i);
 
-                p.ammo_amount[PISTOL_WEAPON] = 0;
-                p.gotweapon &= ~(1 << PISTOL_WEAPON);
-                p.curr_weapon  = KNEE_WEAPON;
-                p.kickback_pic = 0;
+                    p.ammo_amount[PISTOL_WEAPON] = 0;
+                    p.gotweapon &= ~(1 << PISTOL_WEAPON);
+                    p.curr_weapon  = KNEE_WEAPON;
+                    p.kickback_pic = 0;
 
-                break;
+                    break;
+            }
         }
     }
 }
@@ -2031,7 +2035,7 @@ int G_EnterLevel(int gameMode)
     if (g_netClient || g_netServer) // [75] : Initialize map states after map load
     {
         Net_InitMapStateHistory();
-        Net_AddWorldToInitialSnapshot(); 
+        Net_AddWorldToInitialSnapshot();
     }
 
     Net_WaitForServer();
