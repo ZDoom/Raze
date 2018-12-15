@@ -374,7 +374,7 @@ void palettePostLoadTables(void)
 
 void paletteFixTranslucencyMask(void)
 {
-    for (auto *thispalookup : palookup)
+    for (auto thispalookup : palookup)
     {
         if (thispalookup == NULL)
             continue;
@@ -385,7 +385,7 @@ void paletteFixTranslucencyMask(void)
 
     // fix up translucency table so that transluc(255,x)
     // and transluc(x,255) is black instead of purple.
-    for (auto *transluc : blendtable)
+    for (auto transluc : blendtable)
     {
         if (transluc == NULL)
             continue;

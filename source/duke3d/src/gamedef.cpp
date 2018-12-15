@@ -6300,7 +6300,7 @@ void C_Compile(const char *fileName)
     initprintf("Compiled %d bytes in %ums%s\n", (int)((intptr_t)g_scriptPtr - (intptr_t)apScript),
                timerGetTicks() - startcompiletime, C_ScriptVersionString(g_scriptVersion));
 
-    for (auto *i : tables_free)
+    for (auto i : tables_free)
         hash_free(i);
 
     inthash_free(&h_varvar);

@@ -71,7 +71,7 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
         return KeepPlaying;
     }
 
-    auto *ptr = (uint8_t const *)voice->NextBlock;
+    auto ptr = (uint8_t const *)voice->NextBlock;
 
     voice->Paused = FALSE;
 

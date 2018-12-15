@@ -103,7 +103,7 @@ void Gv_Clear(void)
     for (auto & gameArray : aGameArrays)
         DO_FREE_AND_NULL(gameArray.szLabel);
 
-    for (auto *i : struct_tables)
+    for (auto i : struct_tables)
         hash_free(i);
 }
 

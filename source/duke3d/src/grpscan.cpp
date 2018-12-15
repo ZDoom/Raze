@@ -366,7 +366,7 @@ static void ProcessGroups(CACHE1D_FIND_REC *srch)
 
     static constexpr int ReadSize = 65536;
 
-    auto *buf = (uint8_t *)Xmalloc(ReadSize);
+    auto buf = (uint8_t *)Xmalloc(ReadSize);
 
     for (sidx = srch; sidx; sidx = sidx->next)
     {

@@ -282,8 +282,8 @@ void clearbuf(void *d, int32_t c, int32_t a)
 #ifndef pragmas_have_copybuf
 void copybuf(const void *s, void *d, int32_t c)
 {
-    auto *p = (const int32_t *) s;
-    auto *q = (int32_t *) d;
+    auto p = (const int32_t *) s;
+    auto q = (int32_t *) d;
 
     while (c--)
         *q++ = *p++;
@@ -293,8 +293,8 @@ void copybuf(const void *s, void *d, int32_t c)
 #ifndef pragmas_have_swaps
 void swapbuf4(void *a, void *b, int32_t c)
 {
-    auto *p = (int32_t *) a;
-    auto *q = (int32_t *) b;
+    auto p = (int32_t *) a;
+    auto q = (int32_t *) b;
 
     while ((c--) > 0)
     {
@@ -311,7 +311,7 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
     // Cringe City
     constexpr int32_t m[4] = { 0xffl, 0xff00l, 0xff0000l, (int32_t)0xff000000l };
     int   z = 0;
-    auto *p = (char *)D;
+    auto p = (char *)D;
 
     while ((c--) > 0)
     {
@@ -324,8 +324,8 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
 #ifndef pragmas_have_copybufbyte
 void copybufbyte(const void *s, void *d, int32_t c)
 {
-    auto *src = (const char *)s;
-    auto *dst = (char *)d;
+    auto src = (const char *)s;
+    auto dst = (char *)d;
 
     while (c--)
         *dst++ = *src++;
@@ -378,8 +378,8 @@ void copybufreverse(const void *S, void *D, int32_t c)
 #elif !defined pragmas_have_copybufreverse
 void copybufreverse(const void *s, void *d, int32_t c)
 {
-    auto *src = (const char *)s;
-    auto *dst = (char *)d;
+    auto src = (const char *)s;
+    auto dst = (char *)d;
 
     while (c--)
         *dst++ = *src--;

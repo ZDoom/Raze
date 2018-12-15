@@ -282,7 +282,7 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
     int32_t  siz     = 0;
 
     static constexpr int ReadSize = 65536;
-    auto *buf = (uint8_t *)Xmalloc(ReadSize);
+    auto buf = (uint8_t *)Xmalloc(ReadSize);
 
     do
     {
@@ -1876,7 +1876,7 @@ void OSD_Dispatch(const char *cmd)
             return;
         }
 
-        auto *name = token;
+        auto name = token;
         char const *parms[MAXPARMS] = {};
         int numparms = 0;
 

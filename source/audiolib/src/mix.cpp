@@ -30,8 +30,8 @@
 // 8-bit mono source, 16-bit mono output
 void MV_Mix16BitMono(struct VoiceNode const * const voice, uint32_t length)
 {
-    auto *const source = (uint8_t const *)voice->sound;
-    auto *      dest   = (int16_t *)MV_MixDestination;
+    auto const source = (uint8_t const *)voice->sound;
+    auto       dest   = (int16_t *)MV_MixDestination;
 
     uint32_t       position = voice->position;
     uint32_t const rate     = voice->RateScale;
@@ -54,8 +54,8 @@ void MV_Mix16BitMono(struct VoiceNode const * const voice, uint32_t length)
 // 8-bit mono source, 16-bit stereo output
 void MV_Mix16BitStereo(struct VoiceNode const * const voice, uint32_t length)
 {
-    auto *const source = (uint8_t const *)voice->sound;
-    auto *      dest   = (int16_t *)MV_MixDestination;
+    auto const source = (uint8_t const *)voice->sound;
+    auto       dest   = (int16_t *)MV_MixDestination;
 
     uint32_t       position = voice->position;
     uint32_t const rate     = voice->RateScale;
@@ -80,8 +80,8 @@ void MV_Mix16BitStereo(struct VoiceNode const * const voice, uint32_t length)
 // 16-bit mono source, 16-bit mono output
 void MV_Mix16BitMono16(struct VoiceNode const * const voice, uint32_t length)
 {
-    auto *const source = (int16_t const *)voice->sound;
-    auto *      dest   = (int16_t *)MV_MixDestination;
+    auto const source = (int16_t const *)voice->sound;
+    auto       dest   = (int16_t *)MV_MixDestination;
 
     uint32_t       position = voice->position;
     uint32_t const rate     = voice->RateScale;
@@ -108,8 +108,8 @@ void MV_Mix16BitMono16(struct VoiceNode const * const voice, uint32_t length)
 // 16-bit mono source, 16-bit stereo output
 void MV_Mix16BitStereo16(struct VoiceNode const * const voice, uint32_t length)
 {
-    auto *const source = (int16_t const *)voice->sound;
-    auto *      dest   = (int16_t *)MV_MixDestination;
+    auto const source = (int16_t const *)voice->sound;
+    auto       dest   = (int16_t *)MV_MixDestination;
 
     uint32_t       position = voice->position;
     uint32_t const rate     = voice->RateScale;
@@ -139,8 +139,8 @@ void MV_Mix16BitStereo16(struct VoiceNode const * const voice, uint32_t length)
 
 void MV_16BitReverb(char const *src, char *dest, const int16_t *volume, int32_t count)
 {
-    auto *input  = (uint16_t const *)src;
-    auto *output = (int16_t *)dest;
+    auto input  = (uint16_t const *)src;
+    auto output = (int16_t *)dest;
 
     do
     {
