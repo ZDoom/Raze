@@ -3807,6 +3807,7 @@ setvar:
 setvarvar:
                 auto ins = &g_scriptPtr[-1];
                 auto tptr = textptr;
+                int const lnum = g_lineNumber;
 
                 C_GetNextVarType(GAMEVAR_READONLY);
                 C_GetNextVar();
@@ -3825,6 +3826,7 @@ setvarvar:
                     scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
                     g_scriptPtr = &ins[1];
                     textptr = tptr;
+                    g_lineNumber = lnum;
                     goto setvar;
                 }
 
@@ -4120,7 +4122,7 @@ setvarvar:
             continue;
 
         case CON_ACTIVATE:
-            g_scriptPtr[-1] = CON_OPERATEACTIVATORS;
+            g_scriptPtr[-1] = CON_OPERATEACTIVATORS | LINE_NUMBER;
             C_GetNextValue(LABEL_DEFINE);
             scriptWriteValue(0);
             continue;
@@ -4253,6 +4255,8 @@ setvarvar:
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_errorCnt++;
+                scriptSkipLine();
+                continue;
             }
 
             g_scriptPtr--;
@@ -4265,6 +4269,7 @@ setvarvar:
             {
                 C_ReportError(ERROR_EXCEEDSMAXTILES);
                 g_errorCnt++;
+                scriptSkipLine();
                 continue;
             }
 
@@ -4290,6 +4295,8 @@ setvarvar:
                 {
                     C_ReportError(ERROR_EXCEEDSMAXTILES);
                     g_errorCnt++;
+                    scriptSkipLine();
+                    continue;
                 }
                 g_tile[j].cacherange = i;
 
@@ -4324,6 +4331,7 @@ setvarvar:
                 auto const ins = &g_scriptPtr[-1];
                 auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
                 auto const lasttextptr = textptr;
+                int const lnum = g_lineNumber;
 
                 g_skipBranch = false;
 
@@ -4347,6 +4355,7 @@ setvarvar:
                         tw = opcode;
                         g_scriptPtr = &ins[1];
                         textptr = lasttextptr;
+                        g_lineNumber = lnum;
                         goto ifvar;
                     }
                 }
