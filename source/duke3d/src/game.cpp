@@ -116,6 +116,7 @@ int32_t hud_showmapname = 1;
 int32_t g_levelTextTime = 0;
 
 int32_t r_maxfps = 60;
+int32_t r_maxfpsoffset = 0;
 uint64_t g_frameDelay = 17;
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)

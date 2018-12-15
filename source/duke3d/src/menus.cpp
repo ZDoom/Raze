@@ -522,12 +522,14 @@ static MenuOptionSet_t MEOS_VIDEOSETUP_VSYNC = MAKE_MENUOPTIONSET(MEOSN_VIDEOSET
 static MenuOption_t MEO_VIDEOSETUP_VSYNC = MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_VSYNC, &newvsync);
 static MenuEntry_t ME_VIDEOSETUP_VSYNC = MAKE_MENUENTRY("VSync:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_VSYNC, Option);
 
-static char const *MEOSN_VIDEOSETUP_FRAMELIMIT [] = { "None", "30 fps", "60 fps", "120 fps", };
-static int32_t MEOSV_VIDEOSETUP_FRAMELIMIT [] = { 0, 30, 60, 120 };
-static MenuOptionSet_t MEOS_VIDEOSETUP_FRAMELIMIT = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_FRAMELIMIT, MEOSV_VIDEOSETUP_FRAMELIMIT, 0x2);
+static char const *MEOSN_VIDEOSETUP_FRAMELIMIT [] = { "None", "30 fps", "60 fps", "120 fps", "144 fps", "165 fps", "240 fps" };
+static int32_t MEOSV_VIDEOSETUP_FRAMELIMIT [] = { 0, 30, 60, 120, 144, 165, 240 };
+static MenuOptionSet_t MEOS_VIDEOSETUP_FRAMELIMIT = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_FRAMELIMIT, MEOSV_VIDEOSETUP_FRAMELIMIT, 0x0);
 static MenuOption_t MEO_VIDEOSETUP_FRAMELIMIT= MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_FRAMELIMIT, &r_maxfps);
 static MenuEntry_t ME_VIDEOSETUP_FRAMELIMIT = MAKE_MENUENTRY("Framerate limit:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FRAMELIMIT, Option);
 
+static MenuRangeInt32_t MEO_VIDEOSETUP_FRAMELIMITOFFSET = MAKE_MENURANGE( &r_maxfpsoffset, &MF_Redfont, -10, 10, 0, 21, 1 );
+static MenuEntry_t ME_VIDEOSETUP_FRAMELIMITOFFSET = MAKE_MENUENTRY( "FPS offset:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FRAMELIMITOFFSET, RangeInt32 );
 
 static MenuEntry_t ME_VIDEOSETUP_APPLY = MAKE_MENUENTRY( "Apply Changes", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_NULL, Link );
 
@@ -536,8 +538,8 @@ static MenuLink_t MEO_DISPLAYSETUP_COLORCORR = { MENU_COLCORR, MA_Advance, };
 static MenuEntry_t ME_DISPLAYSETUP_COLORCORR = MAKE_MENUENTRY( "Color Correction", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_COLORCORR, Link );
 
 
-static char const *MEOSN_DISPLAYSETUP_UPSCALING[] = { "None", "2x", "4x" };
-static int32_t MEOSV_DISPLAYSETUP_UPSCALING[] = { 1, 2, 4  };
+static char const *MEOSN_DISPLAYSETUP_UPSCALING[] = { "None", "2x" };
+static int32_t MEOSV_DISPLAYSETUP_UPSCALING[] = { 1, 2 };
 static MenuOptionSet_t MEOS_DISPLAYSETUP_UPSCALING = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_UPSCALING, MEOSV_DISPLAYSETUP_UPSCALING, 0x0 );
 static MenuOption_t MEO_DISPLAYSETUP_UPSCALING = MAKE_MENUOPTION( &MF_Redfont, &MEOS_DISPLAYSETUP_UPSCALING, &ud.detail );
 static MenuEntry_t ME_DISPLAYSETUP_UPSCALING = MAKE_MENUENTRY( "Upscaling:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_UPSCALING, Option );
@@ -711,6 +713,7 @@ static MenuEntry_t *MEL_VIDEOSETUP[] = {
     &ME_VIDEOSETUP_FULLSCREEN,
     &ME_VIDEOSETUP_VSYNC,
     &ME_VIDEOSETUP_FRAMELIMIT,
+    &ME_VIDEOSETUP_FRAMELIMITOFFSET,
     &ME_Space6_Redfont,
     &ME_VIDEOSETUP_APPLY,
 };
@@ -1989,6 +1992,8 @@ static void Menu_Pre(MenuID_t cm)
               && vsync == newvsync
              )
              || (newrendermode != REND_CLASSIC && resolution[nr].bppmax <= 8));
+
+        MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_FRAMELIMITOFFSET, !r_maxfps);
         break;
     }
 
@@ -3216,7 +3221,11 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     }
     else if (entry == &ME_VIDEOSETUP_FRAMELIMIT)
     {
-        g_frameDelay = newOption ? (timerGetFreqU64()/newOption) : 0;
+        g_frameDelay = newOption ? (timerGetFreqU64()/(newOption + r_maxfpsoffset)) : 0;
+    }
+    else if (entry == &ME_VIDEOSETUP_FRAMELIMITOFFSET)
+    {
+        g_frameDelay = r_maxfps ? (timerGetFreqU64()/(r_maxfps + newOption)) : 0;
     }
 
     switch (g_currentMenu)

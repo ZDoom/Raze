@@ -324,6 +324,7 @@ extern int32_t g_restorePalette;
 extern int32_t hud_glowingquotes;
 extern int32_t hud_showmapname;
 extern int32_t r_maxfps;
+extern int32_t r_maxfpsoffset;
 extern int32_t tempwallptr;
 extern int32_t ticrandomseed;
 extern int32_t vote_map;

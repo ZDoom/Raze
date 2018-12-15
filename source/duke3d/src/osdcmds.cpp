@@ -1390,10 +1390,10 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
         ud.statusbarmode = (ud.screen_size < 8);
         G_UpdateScreenArea();
     }
-    else if (!Bstrcasecmp(parm->name, "r_maxfps"))
+    else if (!Bstrcasecmp(parm->name, "r_maxfps") || !Bstrcasecmp(parm->name, "r_maxfpsoffset"))
     {
         if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);
-        g_frameDelay = r_maxfps ? (timerGetFreqU64()/r_maxfps) : 0;
+        g_frameDelay = r_maxfps ? (timerGetFreqU64()/(r_maxfps + r_maxfpsoffset)) : 0;
     }
     else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
     {
@@ -1642,6 +1642,7 @@ int32_t registerosdcommands(void)
 
         { "r_ambientlight", "sets the global map light level",(void *)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
         { "r_maxfps", "limit the frame rate",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
+        { "r_maxfpsoffset", "menu-controlled offset for r_maxfps",(void *)&r_maxfpsoffset, CVAR_INT|CVAR_FUNCPTR, -10, 10 },
 
         { "sensitivity","changes the mouse sensitivity", (void *)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
 
