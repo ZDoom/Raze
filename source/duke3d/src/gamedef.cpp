@@ -3735,16 +3735,16 @@ setvar:
 
             C_GetNextVarType(GAMEVAR_READONLY);
             C_GetNextValue(LABEL_DEFINE);
-#if 0
             if (tw == CON_DIVVAR || tw == CON_MULVAR)
             {
-                int32_t const i = ins[2];
+                auto const i = ins[2];
 
-                if (i == -1)
+                // replace multiplies or divides by 1 with nullop
+                if (i == 1)
                 {
-                    int constexpr const opcode = CON_INV;
+                    int constexpr const opcode = CON_NULLOP;
 
-                    if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
+                    if (!g_errorCnt && !g_warningCnt && g_scriptDebug > 1)
                     {
                         initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
                                    VM_GetKeywordForID(tw), VM_GetKeywordForID(opcode));
@@ -3766,16 +3766,17 @@ setvar:
 
                     scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
                     g_scriptPtr--;
-                    continue;
                 }
+                // replace multiplies or divides by a power of 2 with the appropriate shift
+#if 0
                 else if (C_IntPow2((j = klabs(i))))
                 {
                     int const opcode = (tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL;
 
                     // if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
                     {
-                        initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
-                                    VM_GetKeywordForID(tw), VM_GetKeywordForID(opcode));
+                        initprintf("%s:%d: %s %s %d -> %s %d\n", g_scriptFileName, g_lineNumber,
+                                    VM_GetKeywordForID(tw), aGameVars[ins[1]].szLabel, (int)(ins[2]), VM_GetKeywordForID(opcode), C_Pow2IntLogBase2(j));
                     }
 
                     scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
@@ -3787,9 +3788,10 @@ setvar:
                         scriptWriteValue(ins[1]);
                         initprintf("%s:%d: +++ CON_INV\n", g_scriptFileName, g_lineNumber);
                     }
+                    // debug_break();
                 }
-            }
 #endif
+            }
             // replace instructions with special versions for specific var types
             scriptUpdateOpcodeForVariableType(ins);
             continue;
