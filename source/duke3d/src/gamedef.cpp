@@ -994,12 +994,12 @@ static void C_SkipComments(void)
             switch (textptr[1])
             {
             case '/': // C++ style comment
-                if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
                     initprintf("%s:%d: debug: got comment.\n",g_scriptFileName,g_lineNumber);
                 scriptSkipLine();
                 continue;
             case '*': // beginning of a C style comment
-                if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
                     initprintf("%s:%d: debug: got start of comment block.\n",g_scriptFileName,g_lineNumber);
                 do
                 {
@@ -1020,7 +1020,7 @@ static void C_SkipComments(void)
                     continue;
                 }
 
-                if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
                     initprintf("%s:%d: debug: got end of comment block.\n",g_scriptFileName,g_lineNumber);
 
                 textptr+=2;
@@ -1521,7 +1521,7 @@ static void C_GetNextVarType(int32_t type)
         return;
     }
 
-    if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+    if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
         initprintf("%s:%d: debug: gamevar `%s'.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
 
     scriptWriteValue(id|flags);
@@ -1572,7 +1572,7 @@ static int32_t C_GetNextValue(int32_t type)
     {
         if (EDUKE32_PREDICT_TRUE(labeltype[i] & type))
         {
-            if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+            if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
             {
                 char *gl = C_GetLabelType(labeltype[i]);
                 initprintf("%s:%d: debug: %s label `%s'.\n",g_scriptFileName,g_lineNumber,gl,label+(i<<6));
@@ -1633,7 +1633,7 @@ static int32_t C_GetNextValue(int32_t type)
     else
         scriptWriteValue(parse_decimal_number());
 
-    if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+    if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
         initprintf("%s:%d: debug: constant %ld.\n", g_scriptFileName, g_lineNumber, (long)g_scriptPtr[-1]);
 
     textptr += l;
@@ -2354,6 +2354,40 @@ static void C_FillEventBreakStackWithJump(intptr_t *breakPtr, intptr_t destinati
     }
 }
 
+static void scriptUpdateOpcodeForVariableType(intptr_t *ins)
+{
+    int opcode = -1;
+
+    if (ins[1] < MAXGAMEVARS)
+    {
+        switch (aGameVars[ins[1] & (MAXGAMEVARS - 1)].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))
+        {
+            case 0:
+                opcode = inthash_find(&h_globalvar, *ins & VM_INSTMASK);
+                break;
+/*
+            case GAMEVAR_PERACTOR:
+                opcode = inthash_find(&h_actorvar, *ins & VM_INSTMASK);
+                break;
+            case GAMEVAR_PERPLAYER:
+                opcode = inthash_find(&h_playervar, *ins & VM_INSTMASK);
+                break;
+*/
+        }
+    }
+
+    if (opcode != -1)
+    {
+        if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
+        {
+            initprintf("%s:%d: %s -> %s for var %s\n", g_scriptFileName, g_lineNumber,
+                        VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode), aGameVars[ins[1] & (MAXGAMEVARS-1)].szLabel);
+        }
+
+        scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+    }
+}
+
 static bool C_ParseCommand(bool loop)
 {
     int32_t i, j=0, k=0, tw;
@@ -2439,7 +2473,7 @@ DO_DEFSTATE:
                 continue;  // valid label name, but wrong type
             }
 
-            if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+            if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
                 initprintf("%s:%d: debug: state label `%s'.\n", g_scriptFileName, g_lineNumber, label+(j<<6));
 
             // 'state' type labels are always script addresses, as far as I can see
@@ -3620,7 +3654,21 @@ setvar:
                 {
                     int constexpr const opcode = CON_INV;
 
-                    // if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                    if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
+                    {
+                        initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
+                                   VM_GetKeywordForID(tw), VM_GetKeywordForID(opcode));
+                    }
+
+                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                    g_scriptPtr = &ins[1];
+                }
+                // replace multiplies or divides by -1 with inversion
+                else if (i == -1)
+                {
+                    int constexpr const opcode = CON_INV;
+
+                    if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
                     {
                         initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
                                    VM_GetKeywordForID(tw), VM_GetKeywordForID(opcode));
@@ -3634,7 +3682,7 @@ setvar:
                 {
                     int const opcode = (tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL;
 
-                    // if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                    // if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
                     {
                         initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
                                     VM_GetKeywordForID(tw), VM_GetKeywordForID(opcode));
@@ -3659,7 +3707,7 @@ setvar:
 
                 if (opcode != -1)
                 {
-                    //if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                    if (!g_errorCnt && !g_warningCnt && g_scriptDebug > 1)
                     {
                         initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
                                    VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
@@ -3697,7 +3745,7 @@ setvarvar:
 
                 if (ins[2] == GV_FLAG_CONSTANT && opcode != -1)
                 {
-                    if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                    if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
                     {
                         initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
                                     VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
@@ -4219,7 +4267,7 @@ setvarvar:
 
                     if (opcode != -1)
                     {
-                        if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                        if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
                         {
                             initprintf("%s:%d: replacing %s with %s\n", g_scriptFileName, g_lineNumber,
                                        VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
@@ -4294,7 +4342,7 @@ singlevar:
 
                     if (opcode != -1)
                     {
-                        if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                        if (!g_errorCnt && !g_warningCnt && g_scriptDebug > 1)
                         {
                             initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
                                        VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
