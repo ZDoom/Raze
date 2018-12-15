@@ -35,43 +35,51 @@ int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style C
 
 char g_scriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
 
-int32_t g_totalLines, g_lineNumber;
+int32_t g_totalLines;
+int32_t g_lineNumber;
 uint32_t g_scriptcrc;
 char g_szBuf[1024];
 
 #if !defined LUNATIC
-static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
-static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
+static char *textptr;
+
+static char g_szCurrentBlockName[64] = "(none)";
+static char g_szLastBlockName[64] = "NULL";
+
+static bool g_checkingCase;
+static bool g_dynamicSoundMapping;
+static bool g_dynamicTileMapping;
+static bool g_labelsOnly;
+static bool g_processingState;
+static bool g_skipBranch;
+
+static int g_checkingIfElse;
+static int g_checkingSwitch;
+static int g_lastKeyword = -1;
+static int g_numBraces;
+static int g_numCases;
+
+static intptr_t apScriptGameEventEnd[MAXEVENTS];
+static intptr_t g_scriptActorOffset;
+static intptr_t g_scriptEventBreakOffset;
+static intptr_t g_scriptEventChainOffset;
+static intptr_t g_scriptEventOffset;
 
 // The pointer to the start of the case table in a switch statement.
 // First entry is 'default' code.
-static intptr_t *g_caseScriptPtr;
-static intptr_t previous_event;
-static int32_t g_numCases = 0, g_checkingCase = 0;
-static int32_t g_checkingSwitch = 0;
-static bool g_labelsOnly = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
-static int32_t g_numBraces = 0;
+static intptr_t *g_caseTablePtr;
 
 static bool C_ParseCommand(bool loop);
 static void C_SetScriptSize(int32_t newsize);
 #endif
 
-int32_t g_numXStrings = 0;
+int32_t g_errorCnt;
+int32_t g_warningCnt;
+int32_t g_numXStrings;
 
 #ifdef LUNATIC
 weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
 #endif
-
-#if !defined LUNATIC
-static intptr_t g_parsingActorPtr;
-static intptr_t g_parsingEventPtr;
-static intptr_t g_parsingEventBreakPtr;
-static intptr_t apScriptGameEventEnd[MAXEVENTS];
-static char *textptr;
-#endif
-
-int32_t g_errorCnt,g_warningCnt;
-
 
 #if !defined LUNATIC
 static char *C_GetLabelType(int const type)
@@ -830,7 +838,6 @@ hashtable_t h_labels   = { 11264 >> 1, NULL };
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
-static bool g_ifElseAborted;
 
 static void C_SetScriptSize(int32_t newsize)
 {
@@ -937,7 +944,7 @@ static void C_SkipComments(void)
                         initprintf("%s:%d: debug: EOF in comment!\n",g_scriptFileName,g_lineNumber);
                     C_ReportError(-1);
                     initprintf("%s:%d: error: found `/*' with no `*/'.\n",g_scriptFileName,g_lineNumber);
-                    g_parsingActorPtr = g_processingState = g_numBraces = 0;
+                    g_scriptActorOffset = g_numBraces = g_processingState = 0;
                     g_errorCnt++;
                     continue;
                 }
@@ -1100,8 +1107,8 @@ static int C_GetNextKeyword(void) //Returns its code #
     if (EDUKE32_PREDICT_TRUE((i = hash_find(&h_keywords,tempbuf)) >= 0))
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
-            scriptWriteValue(i + (IFELSE_MAGIC<<12));
-        else scriptWriteValue(i + (g_lineNumber<<12));
+            scriptWriteValue(i | (IFELSE_MAGIC<<12));
+        else scriptWriteValue(i | (g_lineNumber<<12));
 
         textptr += l;
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
@@ -1187,7 +1194,7 @@ static void C_GetNextVarType(int32_t type)
             scriptWriteValue(parse_decimal_number());
 
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
-            initprintf("%s:%d: debug: constant %ld in place of gamevar.\n", g_scriptFileName, g_lineNumber, (long)g_scriptPtr[-1]);
+            initprintf("%s:%d: debug: constant %ld in place of gamevar.\n", g_scriptFileName, g_lineNumber, (long)(g_scriptPtr[-1]));
 #if 1
         while (!ispecial(*textptr) && *textptr != ']') textptr++;
 #else
@@ -1296,9 +1303,7 @@ static void C_GetNextVarType(int32_t type)
         {
             while (*textptr != '.')
             {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
+                if (*textptr == 0xa || !*textptr)
                     break;
 
                 textptr++;
@@ -1650,7 +1655,7 @@ static bool C_CheckMalformedBranch(intptr_t lastScriptPtr)
     case CON_ENDS:
     case CON_ELSE:
         g_scriptPtr = lastScriptPtr + apScript;
-        g_ifElseAborted = 1;
+        g_skipBranch = true;
         C_ReportError(-1);
         g_warningCnt++;
         initprintf("%s:%d: warning: malformed `%s' branch\n",g_scriptFileName,g_lineNumber,
@@ -1667,21 +1672,21 @@ static bool C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
             tw == CON_IFRND || tw == CON_IFHITWEAPON || tw == CON_IFCANSEE || tw == CON_IFCANSEETARGET ||
             tw == CON_IFPDISTL || tw == CON_IFPDISTG || tw == CON_IFGOTWEAPONCE)
     {
-        g_ifElseAborted = 0;
+        g_skipBranch = false;
         return false;
     }
 
     if ((*(g_scriptPtr) & VM_INSTMASK) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
-        g_ifElseAborted = 0;
+        g_skipBranch = false;
 
-    if (EDUKE32_PREDICT_FALSE(g_ifElseAborted))
+    if (EDUKE32_PREDICT_FALSE(g_skipBranch))
     {
         C_ReportError(-1);
         g_warningCnt++;
         g_scriptPtr = lastScriptPtr + apScript;
         initprintf("%s:%d: warning: empty `%s' branch\n",g_scriptFileName,g_lineNumber,
                    VM_GetKeywordForID(*(g_scriptPtr) & VM_INSTMASK));
-        *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
+        scriptWriteAtOffset(CON_NULLOP | (IFELSE_MAGIC<<12), g_scriptPtr);
         return true;
     }
 
@@ -1690,14 +1695,14 @@ static bool C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
 
 static int C_CountCaseStatements()
 {
-    char *const temptextptr = textptr;
-    int const backupLineNumber = g_lineNumber;
-    int const backupNumCases   = g_numCases;
-    uint32_t const casePtrOffset   = g_caseScriptPtr - apScript;
-    uint32_t const scriptPtrOffset = g_scriptPtr - apScript;
+    char *const    temptextptr      = textptr;
+    int const      backupLineNumber = g_lineNumber;
+    int const      backupNumCases   = g_numCases;
+    intptr_t const casePtrOffset    = g_caseTablePtr - apScript;
+    intptr_t const scriptPtrOffset  = g_scriptPtr - apScript;
 
     g_numCases = 0;
-    g_caseScriptPtr = NULL;
+    g_caseTablePtr = NULL;
     C_ParseCommand(1);
 
     // since we processed the endswitch, we need to re-increment g_checkingSwitch
@@ -1705,11 +1710,11 @@ static int C_CountCaseStatements()
 
     int const numCases = g_numCases;
 
-    textptr = temptextptr;
-    g_lineNumber = backupLineNumber;
-    g_numCases   = backupNumCases;
-    g_caseScriptPtr = (intptr_t *)(apScript + casePtrOffset);
-    g_scriptPtr     = (intptr_t *)(apScript + scriptPtrOffset);
+    textptr        = temptextptr;
+    g_lineNumber   = backupLineNumber;
+    g_numCases     = backupNumCases;
+    g_caseTablePtr = apScript + casePtrOffset;
+    g_scriptPtr    = apScript + scriptPtrOffset;
 
     return numCases;
 }
@@ -2287,7 +2292,7 @@ static bool C_ParseCommand(bool loop)
         if (EDUKE32_PREDICT_FALSE(g_errorCnt > 63 || (*textptr == '\0') || (*(textptr+1) == '\0')))
             return 1;
 
-        if ((g_scriptPtr - apScript) > (g_scriptSize - 4096) && g_caseScriptPtr == NULL)
+        if ((g_scriptPtr - apScript) > (g_scriptSize - 4096) && g_caseTablePtr == NULL)
             C_SetScriptSize(g_scriptSize << 1);
 
         if (EDUKE32_PREDICT_FALSE(g_scriptDebug))
@@ -2304,7 +2309,7 @@ static bool C_ParseCommand(bool loop)
         case -2:
             return 1; //End
         case CON_DEFSTATE:
-            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_scriptActorOffset))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_errorCnt++;
@@ -2312,7 +2317,7 @@ static bool C_ParseCommand(bool loop)
             }
             goto DO_DEFSTATE;
         case CON_STATE:
-            if (!g_parsingActorPtr && g_processingState == 0)
+            if (!g_scriptActorOffset && g_processingState == 0)
             {
 DO_DEFSTATE:
                 C_GetNextLabelName();
@@ -2430,15 +2435,9 @@ DO_DEFSTATE:
 
             if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) || (*textptr == '-')))
             {
-                C_GetNextLabelName();
                 g_errorCnt++;
                 C_ReportError(ERROR_SYNTAXERROR);
-                C_GetNextValue(LABEL_DEFINE);
-                j = 0;
-                while (C_GetKeyword() == -1)
-                    C_BitOrNextValue(&j);
-                C_FinishBitOr(j);
-                g_scriptPtr -= 3; // we complete the process anyways just to skip past the fucked up section
+                scriptSkipLine();
                 continue;
             }
 
@@ -2485,12 +2484,9 @@ DO_DEFSTATE:
         {
             if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) || (*textptr == '-')))
             {
-                C_GetNextLabelName();
                 g_errorCnt++;
                 C_ReportError(ERROR_SYNTAXERROR);
-                C_GetNextValue(LABEL_DEFINE);
-                C_GetNextValue(LABEL_DEFINE);
-                g_scriptPtr -= 2; // we complete the process anyways just to skip past the fucked up section
+                scriptSkipLine();
                 continue;
             }
             C_GetNextLabelName();
@@ -2588,7 +2584,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_MOVE:
-            if (g_parsingActorPtr || g_processingState)
+            if (g_scriptActorOffset || g_processingState)
             {
                 if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (g_scriptPtr[-1] != 0) && (g_scriptPtr[-1] != 1)))
                 {
@@ -2720,7 +2716,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_AI:
-            if (g_parsingActorPtr || g_processingState)
+            if (g_scriptActorOffset || g_processingState)
             {
                 C_GetNextValue(LABEL_AI);
             }
@@ -2793,7 +2789,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_ACTION:
-            if (g_parsingActorPtr || g_processingState)
+            if (g_scriptActorOffset || g_processingState)
             {
                 C_GetNextValue(LABEL_ACTION);
             }
@@ -2846,7 +2842,7 @@ DO_DEFSTATE:
         case CON_ACTOR:
         case CON_USERACTOR:
         case CON_EVENTLOADACTOR:
-            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_scriptActorOffset))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_errorCnt++;
@@ -2854,7 +2850,7 @@ DO_DEFSTATE:
 
             g_numBraces = 0;
             g_scriptPtr--;
-            g_parsingActorPtr = g_scriptPtr - apScript;
+            g_scriptActorOffset = g_scriptPtr - apScript;
 
             if (tw == CON_USERACTOR)
             {
@@ -2904,12 +2900,12 @@ DO_DEFSTATE:
 
             if (tw == CON_EVENTLOADACTOR)
             {
-                g_tile[*g_scriptPtr].loadPtr = apScript + g_parsingActorPtr;
+                g_tile[*g_scriptPtr].loadPtr = apScript + g_scriptActorOffset;
                 g_checkingIfElse = 0;
                 continue;
             }
 
-            g_tile[*g_scriptPtr].execPtr = apScript + g_parsingActorPtr;
+            g_tile[*g_scriptPtr].execPtr = apScript + g_scriptActorOffset;
 
             if (tw == CON_USERACTOR)
             {
@@ -2920,7 +2916,7 @@ DO_DEFSTATE:
 
             for (j=0; j<4; j++)
             {
-                scriptWriteAtOffset(0, apScript+g_parsingActorPtr+j);
+                scriptWriteAtOffset(0, apScript+g_scriptActorOffset+j);
                 if (j == 3)
                 {
                     j = 0;
@@ -2962,9 +2958,9 @@ DO_DEFSTATE:
                     }
 
                     if (g_scriptPtr[-1] >= (intptr_t)apScript && g_scriptPtr[-1] < (intptr_t)&apScript[g_scriptSize])
-                        scriptWritePointer(g_scriptPtr[-1], apScript + g_parsingActorPtr + j);
+                        scriptWritePointer(g_scriptPtr[-1], apScript + g_scriptActorOffset + j);
                     else
-                        scriptWriteAtOffset(g_scriptPtr[-1], apScript + g_parsingActorPtr + j);
+                        scriptWriteAtOffset(g_scriptPtr[-1], apScript + g_scriptActorOffset + j);
                 }
             }
             g_checkingIfElse = 0;
@@ -2972,7 +2968,7 @@ DO_DEFSTATE:
 
         case CON_ONEVENT:
         case CON_APPENDEVENT:
-            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_scriptActorOffset))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_errorCnt++;
@@ -2980,7 +2976,7 @@ DO_DEFSTATE:
 
             g_numBraces = 0;
             g_scriptPtr--;
-            g_parsingEventPtr = g_parsingActorPtr = g_scriptPtr - apScript;
+            g_scriptEventOffset = g_scriptActorOffset = g_scriptPtr - apScript;
 
             C_SkipComments();
             j = 0;
@@ -3007,20 +3003,20 @@ DO_DEFSTATE:
             // if event has already been declared then store previous script location
             if (!apScriptEvents[j])
             {
-                apScriptEvents[j] = g_parsingEventPtr;
+                apScriptEvents[j] = g_scriptEventOffset;
             }
             else if (tw == CON_ONEVENT)
             {
-                previous_event = apScriptEvents[j];
-                apScriptEvents[j] = g_parsingEventPtr;
+                g_scriptEventChainOffset = apScriptEvents[j];
+                apScriptEvents[j] = g_scriptEventOffset;
             }
             else // if (tw == CON_APPENDEVENT)
             {
                 auto previous_event_end = apScript + apScriptGameEventEnd[j];
                 scriptWriteAtOffset(CON_JUMP | (g_lineNumber << 12), previous_event_end++);
                 scriptWriteAtOffset(GV_FLAG_CONSTANT, previous_event_end++);
-                C_FillEventBreakStackWithJump((intptr_t *)*previous_event_end, g_parsingEventPtr);
-                scriptWriteAtOffset(g_parsingEventPtr, previous_event_end++);
+                C_FillEventBreakStackWithJump((intptr_t *)*previous_event_end, g_scriptEventOffset);
+                scriptWriteAtOffset(g_scriptEventOffset, previous_event_end++);
             }
 
             g_checkingIfElse = 0;
@@ -3035,7 +3031,7 @@ DO_DEFSTATE:
             while (C_GetKeyword() == -1 && j < 32)
                 C_GetNextVar(), j++;
 
-            scriptWriteValue(CON_NULLOP + (g_lineNumber<<12));
+            scriptWriteValue(CON_NULLOP | (g_lineNumber<<12));
             continue;
 
         case CON_CSTAT:
@@ -3141,7 +3137,7 @@ DO_DEFSTATE:
 
                 intptr_t const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
-                g_ifElseAborted = 0;
+                g_skipBranch = false;
                 g_checkingIfElse--;
 
                 if (C_CheckMalformedBranch(lastScriptPtr))
@@ -3630,7 +3626,9 @@ DO_DEFSTATE:
             }
             else
 #ifdef DYNSOUNDREMAP_ENABLE
+#ifdef DEBUGGINGAIDS
                 initprintf("Using dynamic sound remapping\n");
+#endif
 
             g_dynamicSoundMapping = 1;
 #else
@@ -3674,21 +3672,21 @@ DO_DEFSTATE:
 
                     if (i == -1)
                     {
-                        *inst = CON_INV+(g_lineNumber<<12);
+                        *inst = CON_INV | (g_lineNumber<<12);
                         g_scriptPtr--;
                         continue;
                     }
 
                     if (C_IntPow2(j))
                     {
-                        *inst = ((tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL)+(g_lineNumber<<12);
+                        *inst = ((tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL) | (g_lineNumber<<12);
                         g_scriptPtr[-1] = C_Pow2IntLogBase2(j);
                         //                    initprintf("%s:%d: replacing multiply/divide with shift\n",g_szScriptFileName,g_lineNumber);
 
                         if (i == j)
                             continue;
 
-                        scriptWriteValue(CON_INV+(g_lineNumber<<12));
+                        scriptWriteValue(CON_INV | (g_lineNumber<<12));
                         textptr = tptr;
                         C_GetNextVarType(GAMEVAR_READONLY);
                         C_GetNextValue(LABEL_DEFINE);
@@ -3910,7 +3908,7 @@ DO_DEFSTATE:
             {
                 int32_t y, z;
 
-                if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+                if (EDUKE32_PREDICT_FALSE(g_processingState || g_scriptActorOffset))
                 {
                     C_ReportError(ERROR_FOUNDWITHIN);
                     g_errorCnt++;
@@ -3939,7 +3937,7 @@ DO_DEFSTATE:
 
         case CON_DAMAGEEVENTTILE:
         {
-            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_scriptActorOffset))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_errorCnt++;
@@ -3964,7 +3962,7 @@ DO_DEFSTATE:
 
         case CON_DAMAGEEVENTTILERANGE:
         {
-            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_scriptActorOffset))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_errorCnt++;
@@ -3991,7 +3989,7 @@ DO_DEFSTATE:
         }
 
         case CON_SPRITEFLAGS:
-            if (!g_parsingActorPtr && g_processingState == 0)
+            if (!g_scriptActorOffset && g_processingState == 0)
             {
                 g_scriptPtr--;
 
@@ -4023,7 +4021,7 @@ DO_DEFSTATE:
         case CON_SPRITENOSHADE:
         case CON_SPRITENVG:
         case CON_SPRITESHADOW:
-            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_scriptActorOffset))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_errorCnt++;
@@ -4097,7 +4095,7 @@ DO_DEFSTATE:
             {
                 intptr_t const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
-                g_ifElseAborted = 0;
+                g_skipBranch = false;
 
                 C_GetManyVars(2);
 
@@ -4150,7 +4148,7 @@ DO_DEFSTATE:
             {
                 intptr_t const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
-                g_ifElseAborted = 0;
+                g_skipBranch = false;
                 // get the ID of the DEF
                 C_GetNextVar();
                 C_GetNextValue(LABEL_DEFINE); // the number to check against...
@@ -4211,7 +4209,7 @@ DO_DEFSTATE:
 
         case CON_ROTATESPRITE16:
         case CON_ROTATESPRITE:
-            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_scriptEventOffset && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_errorCnt++;
@@ -4227,7 +4225,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_ROTATESPRITEA:
-            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_scriptEventOffset && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_errorCnt++;
@@ -4240,7 +4238,7 @@ DO_DEFSTATE:
         case CON_SHOWVIEWUNBIASED:
         case CON_SHOWVIEWQ16:
         case CON_SHOWVIEWQ16UNBIASED:
-            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_scriptEventOffset && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_errorCnt++;
@@ -4313,7 +4311,7 @@ DO_DEFSTATE:
         case CON_GAMETEXTZ:
         case CON_MINITEXT:
         case CON_SCREENTEXT:
-            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_scriptEventOffset && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_errorCnt++;
@@ -4342,7 +4340,7 @@ DO_DEFSTATE:
         case CON_MYOSPAL:
         case CON_MYOSX:
         case CON_MYOSPALX:
-            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_scriptEventOffset && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_errorCnt++;
@@ -4372,8 +4370,8 @@ DO_DEFSTATE:
                 scriptWriteValue(0); // leave spot for end location (for after processing)
                 scriptWriteValue(0); // count of case statements
 
-                auto const backupCaseScriptPtr = g_caseScriptPtr;
-                g_caseScriptPtr=g_scriptPtr;        // the first case's pointer.
+                auto const backupCaseScriptPtr = g_caseTablePtr;
+                g_caseTablePtr=g_scriptPtr;        // the first case's pointer.
 
                 int const backupNumCases = g_numCases;
 
@@ -4462,7 +4460,7 @@ DO_DEFSTATE:
                     //Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__);
                     //AddLog(g_szBuf);
                 }
-                g_caseScriptPtr=backupCaseScriptPtr;
+                g_caseTablePtr=backupCaseScriptPtr;
                 g_numCases=backupNumCases;
                 //AddLog("End of Switch statement");
             }
@@ -4484,7 +4482,7 @@ DO_DEFSTATE:
                 intptr_t tempoffset = 0;
                 intptr_t *tempscrptr = g_scriptPtr;
 
-                g_checkingCase++;
+                g_checkingCase = true;
 repeatcase:
                 g_scriptPtr--;
 
@@ -4504,30 +4502,30 @@ repeatcase:
 
                 C_SkipComments();
 
-                if (g_caseScriptPtr)
+                if (g_caseTablePtr)
                 {
                     if (tw == CON_DEFAULT)
                     {
-                        if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr[0] != 0))
+                        if (EDUKE32_PREDICT_FALSE(g_caseTablePtr[0] != 0))
                         {
                             // duplicate default statement
                             g_errorCnt++;
                             C_ReportError(-1);
                             initprintf("%s:%d: error: multiple `default' statements found in switch\n", g_scriptFileName, g_lineNumber);
                         }
-                        g_caseScriptPtr[0]=(intptr_t) (g_scriptPtr-apScript);   // save offset
+                        g_caseTablePtr[0]=(intptr_t) (g_scriptPtr-apScript);   // save offset
                     }
                     else
                     {
                         for (i=(g_numCases/2)-1; i>=0; i--)
-                            if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr[i*2+1]==j))
+                            if (EDUKE32_PREDICT_FALSE(g_caseTablePtr[i*2+1]==j))
                             {
                                 g_warningCnt++;
                                 C_ReportError(WARNING_DUPLICATECASE);
                                 break;
                             }
-                        g_caseScriptPtr[g_numCases++]=j;
-                        g_caseScriptPtr[g_numCases]=(intptr_t) ((intptr_t *) g_scriptPtr-apScript);
+                        g_caseTablePtr[g_numCases++]=j;
+                        g_caseTablePtr[g_numCases]=(intptr_t) ((intptr_t *) g_scriptPtr-apScript);
                     }
                 }
 
@@ -4561,7 +4559,7 @@ repeatcase:
 
         case CON_ENDSWITCH:
             //AddLog("End Switch");
-            if (g_caseScriptPtr)
+            if (g_caseTablePtr)
             {
                 if (EDUKE32_PREDICT_FALSE(g_checkingCase))
                 {
@@ -4624,7 +4622,7 @@ repeatcase:
             {
                 auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
-                g_ifElseAborted = 0;
+                g_skipBranch = false;
 
                 switch (tw)
                 {
@@ -4712,7 +4710,7 @@ repeatcase:
             {
                 auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
-                g_ifElseAborted = 0;
+                g_skipBranch = false;
 
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
@@ -4738,7 +4736,7 @@ repeatcase:
             }
 
         case CON_LEFTBRACE:
-            if (EDUKE32_PREDICT_FALSE(!(g_processingState || g_parsingActorPtr || g_parsingEventPtr)))
+            if (EDUKE32_PREDICT_FALSE(!(g_processingState || g_scriptActorOffset || g_scriptEventOffset)))
             {
                 g_errorCnt++;
                 C_ReportError(ERROR_SYNTAXERROR);
@@ -4755,12 +4753,12 @@ repeatcase:
                 ((g_scriptPtr[-2] & VM_INSTMASK) == CON_LEFTBRACE)) // rewrite "{ }" into "nullop"
             {
                 //            initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop' from right\n",g_szScriptFileName,g_lineNumber);
-                g_scriptPtr[-2] = CON_NULLOP + (IFELSE_MAGIC<<12);
+                g_scriptPtr[-2] = CON_NULLOP | (IFELSE_MAGIC<<12);
                 g_scriptPtr -= 2;
 
                 if (C_GetKeyword() != CON_ELSE && (g_scriptPtr[-2] & VM_INSTMASK) != CON_ELSE)
-                    g_ifElseAborted = 1;
-                else g_ifElseAborted = 0;
+                    g_skipBranch = true;
+                else g_skipBranch = false;
 
                 j = C_GetKeyword();
 
@@ -5440,7 +5438,7 @@ repeatcase:
 
         case CON_ENDEVENT:
 
-            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr))
+            if (EDUKE32_PREDICT_FALSE(!g_scriptEventOffset))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `endevent' without open `onevent'.\n",g_scriptFileName,g_lineNumber);
@@ -5452,53 +5450,53 @@ repeatcase:
                 g_errorCnt++;
             }
             // if event has already been declared then put a jump in instead
-            if (previous_event)
+            if (g_scriptEventChainOffset)
             {
                 g_scriptPtr--;
                 scriptWriteValue(CON_JUMP | (g_lineNumber << 12));
                 scriptWriteValue(GV_FLAG_CONSTANT);
-                scriptWriteValue(previous_event);
+                scriptWriteValue(g_scriptEventChainOffset);
                 scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
 
-                C_FillEventBreakStackWithJump((intptr_t *)g_parsingEventBreakPtr, previous_event);
+                C_FillEventBreakStackWithJump((intptr_t *)g_scriptEventBreakOffset, g_scriptEventChainOffset);
 
-                previous_event = 0;
+                g_scriptEventChainOffset = 0;
             }
             else
             {
                 // pad space for the next potential appendevent
                 apScriptGameEventEnd[g_currentEvent] = &g_scriptPtr[-1] - apScript;
                 scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
-                scriptWriteValue(g_parsingEventBreakPtr);
+                scriptWriteValue(g_scriptEventBreakOffset);
                 scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
             }
 
-            g_parsingEventBreakPtr = g_parsingEventPtr = g_parsingActorPtr = 0;
+            g_scriptEventBreakOffset = g_scriptEventOffset = g_scriptActorOffset = 0;
             g_currentEvent = -1;
             Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
 
         case CON_ENDA:
-            if (EDUKE32_PREDICT_FALSE(!g_parsingActorPtr || g_parsingEventPtr))
+            if (EDUKE32_PREDICT_FALSE(!g_scriptActorOffset || g_scriptEventOffset))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `enda' without open `actor'.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
-                g_parsingEventPtr = 0;
+                g_scriptEventOffset = 0;
             }
             if (EDUKE32_PREDICT_FALSE(g_numBraces > 0))
             {
                 C_ReportError(ERROR_NOTTOPLEVEL);
                 g_errorCnt++;
             }
-            g_parsingActorPtr = 0;
+            g_scriptActorOffset = 0;
             Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
 
         case CON_RETURN:
             if (g_checkingSwitch)
             {
-                g_checkingCase = 0;
+                g_checkingCase = false;
                 return 1;
             }
             continue;
@@ -5515,16 +5513,16 @@ repeatcase:
                     continue;
                 }
 
-                g_checkingCase = 0;
+                g_checkingCase = false;
                 return 1;
             }
-            else if (g_parsingEventPtr)
+            else if (g_scriptEventOffset)
             {
                 g_scriptPtr--;
                 scriptWriteValue(CON_JUMP | (g_lineNumber << 12));
                 scriptWriteValue(GV_FLAG_CONSTANT);
-                scriptWriteValue(g_parsingEventBreakPtr);
-                g_parsingEventBreakPtr = &g_scriptPtr[-1] - apScript;
+                scriptWriteValue(g_scriptEventBreakOffset);
+                g_scriptEventBreakOffset = &g_scriptPtr[-1] - apScript;
             }
             continue;
 
@@ -5577,7 +5575,7 @@ repeatcase:
                 g_warningCnt++;
                 initprintf("%s:%d: warning: `nullop' found without `else'\n",g_scriptFileName,g_lineNumber);
                 g_scriptPtr--;
-                g_ifElseAborted = 1;
+                g_skipBranch = true;
             }
             continue;
 
@@ -6035,8 +6033,8 @@ void C_ReportError(int error)
 {
     if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
     {
-        if (g_parsingEventPtr || g_processingState || g_parsingActorPtr)
-            initprintf("%s: In %s `%s':\n",g_scriptFileName,g_parsingEventPtr?"event":g_parsingActorPtr?"actor":"state",g_szCurrentBlockName);
+        if (g_scriptEventOffset || g_processingState || g_scriptActorOffset)
+            initprintf("%s: In %s `%s':\n",g_scriptFileName,g_scriptEventOffset?"event":g_scriptActorOffset?"actor":"state",g_szCurrentBlockName);
         else initprintf("%s: At top level:\n",g_scriptFileName);
         Bstrcpy(g_szLastBlockName,g_szCurrentBlockName);
     }
@@ -6055,7 +6053,7 @@ void C_ReportError(int error)
         initprintf("%s:%d: error: expected a keyword but found `%s'.\n",g_scriptFileName,g_lineNumber,tempbuf);
         break;
     case ERROR_FOUNDWITHIN:
-        initprintf("%s:%d: error: found `%s' within %s.\n",g_scriptFileName,g_lineNumber,tempbuf,g_parsingEventPtr?"an event":g_parsingActorPtr?"an actor":"a state");
+        initprintf("%s:%d: error: found `%s' within %s.\n",g_scriptFileName,g_lineNumber,tempbuf,g_scriptEventOffset?"an event":g_scriptActorOffset?"an actor":"a state");
         break;
     case ERROR_ISAKEYWORD:
         initprintf("%s:%d: error: symbol `%s' is a keyword.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
