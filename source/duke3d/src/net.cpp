@@ -54,7 +54,7 @@ int32_t     g_networkMode       = NET_CLIENT;
 #ifdef __GNUC__
 #define TYPE_PUNNED __attribute__((__may_alias__))
 #else
-#define TYPE_PUNNED 
+#define TYPE_PUNNED
 #endif
 
 typedef TYPE_PUNNED int32_t NetChunk32;
@@ -202,7 +202,7 @@ typedef struct netField_s
 {
     const char  *name;      // field name
     int32_t     offset;     // offset from the start of the entity struct
-    int32_t     bits;       // field size 
+    int32_t     bits;       // field size
 
 } netField_t;
 
@@ -519,7 +519,7 @@ static void Net_DoDeleteSprite(int32_t spritenum)
     }
 
     changespritestat(spritenum, STAT_NETALLOC);
-    
+
     Net_DeleteFromSect(spritenum);
     sprite[spritenum].sectnum = MAXSECTORS;
 }
@@ -558,10 +558,10 @@ static void Net_DeleteAllScratchPadSprites()
 static void Net_Error_Disconnect(const char* message)
 {
     OSD_Printf("Net_Error_Disconnect: %s\n", message);
-    // Here I could longjmp to the game main loop and unload the map somehow 
+    // Here I could longjmp to the game main loop and unload the map somehow
     //
     // If we go to C++ it may be a good idea to throw an exception
-    // 
+    //
     Bassert(0);
 }
 
@@ -691,7 +691,7 @@ EDUKE32_UNUSED static void Test_Iterate()
             }
         }
     }
-    
+
     for (int32_t sectnum = 0; sectnum < MAXSECTORS; sectnum++)
     {
         watchdogIndex = 0;
@@ -758,7 +758,7 @@ static void Net_UpdateSpriteLinkedLists(int16_t spriteIndex, const netactor_t* s
 
         Net_DeleteFromStat(spriteIndex);
         Net_DeleteFromSect(spriteIndex);
-        
+
         return;
     }
 
@@ -771,19 +771,19 @@ static void Net_UpdateSpriteLinkedLists(int16_t spriteIndex, const netactor_t* s
 
         do_insertsprite_at_headofstat(spriteIndex, snapActor->spr_statnum);
         do_insertsprite_at_headofsect(spriteIndex, snapActor->spr_sectnum);
-        
+
     }
 
     // [4]
     else if ((oldGameStatnum == STAT_NETALLOC) &&  snapActorIsNormalStat)
-    {   
+    {
 #ifdef SPRLIST_PRINT
         OSD_Printf("DEBUG: Sprite %d: Case 4 (STAT_NETALLOC to stat %d)\n", spriteIndex, snapActor->spr_statnum);
 #endif
 
         changespritestat(spriteIndex, snapActor->spr_statnum);
         do_insertsprite_at_headofsect(spriteIndex, snapActor->spr_sectnum);
-        
+
     }
 
     // [5]
@@ -795,7 +795,7 @@ static void Net_UpdateSpriteLinkedLists(int16_t spriteIndex, const netactor_t* s
 
         changespritestat(spriteIndex, snapActor->spr_statnum);
         Net_DeleteFromSect(spriteIndex);
-        
+
     }
 
     // [6]
@@ -820,7 +820,7 @@ static void Net_UpdateSpriteLinkedLists(int16_t spriteIndex, const netactor_t* s
                     );
 
     Bassert(!invalid);
-        
+
 #ifdef ITERATE_ON_UPDATE
     Test_Iterate();
 #endif
@@ -841,8 +841,8 @@ static void Net_CopySpriteFromNet(const netactor_t* netActor, spritetype* gameSp
     gameSprite->z = netActor->spr_z;
 
     // don't set statnum / sectnum here, that should be done in Net_UpdateSpriteLinkedLists,
-    // otherwise it's harder than it has to be because most of the engine functions 
-    // asssume that if the sprite's stat / sectnum matches there's nothing to do as 
+    // otherwise it's harder than it has to be because most of the engine functions
+    // asssume that if the sprite's stat / sectnum matches there's nothing to do as
     // far as the linked lists are concerned
 
     gameSprite->cstat = netActor->spr_cstat;
@@ -902,10 +902,10 @@ static void Net_CopyActorFromNet(const netactor_t* netActor, actor_t *gameActor)
     // Prevents:
     // - Rotating sector stuttering
     // - Trains running backwards
-    bool isSyncedSE =   (DYNAMICTILEMAP(netActor->picnum) == SECTOREFFECTOR) && 
+    bool isSyncedSE =   (DYNAMICTILEMAP(netActor->picnum) == SECTOREFFECTOR) &&
                         (
-                                (netActor->spr_lotag == SE_0_ROTATING_SECTOR) 
-                            ||  (netActor->spr_lotag == SE_1_PIVOT)                           
+                                (netActor->spr_lotag == SE_0_ROTATING_SECTOR)
+                            ||  (netActor->spr_lotag == SE_1_PIVOT)
                             ||  (netActor->spr_lotag == SE_6_SUBWAY)
                             ||  (netActor->spr_lotag == SE_11_SWINGING_DOOR)
                             ||  (netActor->spr_lotag == SE_14_SUBWAY_CAR)
@@ -924,8 +924,8 @@ static void Net_CopyActorFromNet(const netactor_t* netActor, actor_t *gameActor)
         gameActor->t_data[3] = netActor->t_data_3;
     }
 
-    
-    
+
+
     gameActor->t_data[6] = netActor->t_data_6;
     gameActor->t_data[7] = netActor->t_data_7;
     gameActor->t_data[8] = netActor->t_data_8;
@@ -1139,7 +1139,7 @@ static void Net_CopyActorsToGameArrays(const netmapstate_t* srv_snapshot, const 
         Net_CopyAllActorDataFromNet(snapshotActor, gameSprite, gameActor, gameExt, gameSm);
 
         Net_UpdateSpriteLinkedLists(actorIndex, snapshotActor);
-        
+
 
         if (!snapSpriteIsDeleted)
         {
@@ -2120,12 +2120,12 @@ static void Net_ParseClientPacket(ENetEvent *event)
             g_player[other].pingcnt++;
             break;
 
-        case PACKET_AUTH: 
-            Net_ReceiveChallenge(pbuf, packbufleng, event); 
+        case PACKET_AUTH:
+            Net_ReceiveChallenge(pbuf, packbufleng, event);
             break;
 
-        default: 
-            Net_ParsePacketCommon(pbuf, packbufleng, 0); 
+        default:
+            Net_ParsePacketCommon(pbuf, packbufleng, 0);
             break;
     }
 }
@@ -2448,7 +2448,7 @@ static void Net_ParseServerPacket(ENetEvent *event)
         break;
 
     case PACKET_PLAYER_SPAWN:
-        if (!(g_player[myconnectindex].ps->gm & MODE_GAME)) 
+        if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         {
             break;
         }
@@ -2568,7 +2568,7 @@ static void Net_InitMapState(netmapstate_t* mapState)
 
     mapState->maxActorIndex = 0;
 
-    // this code is just a (slow) memset as it is now, 
+    // this code is just a (slow) memset as it is now,
     // it may be a good idea to use "baselines", which can reduce the amount
     // of delta encoding when a sprite is first added. This
     // could be a good optimization to consider later.
@@ -2634,7 +2634,7 @@ static void Net_ResetPlayerReady()
 
 #define LOG_MESSAGE_BITS 1
 
-#define NetNumberOfIndexes (1 << NETINDEX_BITS) 
+#define NetNumberOfIndexes (1 << NETINDEX_BITS)
 #define IndexesOK (MAXWALLS < NetNumberOfIndexes) && (MAXSPRITES < NetNumberOfIndexes) && (MAXSECTORS < NetNumberOfIndexes)
 
 #if(!IndexesOK)
@@ -2960,7 +2960,7 @@ static void NetBuffer_WriteDeltaFloat(NetBuffer_t *netBuffer, NetChunk32 rawFloa
 }
 
 //-------------------------------------------------------------------------------------
-// low level buffer reading functions 
+// low level buffer reading functions
 
 static int32_t NetBuffer_ReadBits(NetBuffer_t *netBuffer, int32_t numberOfBits)
 {
@@ -3123,7 +3123,7 @@ static void NetBuffer_WriteDeltaNetWall(NetBuffer_t *netBuffer, const netWall_t 
         else
         {
             NetBuffer_WriteBits(netBuffer, 1, 1);                       // don't zero this field
-            NetBuffer_WriteBits(netBuffer, *toField, fieldPtr->bits);   // new field value	
+            NetBuffer_WriteBits(netBuffer, *toField, fieldPtr->bits);   // new field value
         }
 
     }
@@ -3445,7 +3445,7 @@ static void Net_WriteWorldToBuffer(NetBuffer_t* netBuffer, const netmapstate_t* 
 // buffer -> net struct functions
 //----------------------------------------------------------------------------------------------------------
 
-// I agonized over whether to just make a more generic NetBuffer_ReadDeltaWorldEntry since there's so little 
+// I agonized over whether to just make a more generic NetBuffer_ReadDeltaWorldEntry since there's so little
 // difference between walls and sectors for this function but my attempts ended up being much harder
 // to read and probably more error prone than using "clipboard" inheritance, I really hope I made the right call here...
 
@@ -4197,7 +4197,7 @@ static void Net_SendWorldUpdate(uint32_t fromRevisionNumber, uint32_t toRevision
     netmapstate_t*  toMapState = &g_mapStateHistory[toRevisionNumber % NET_REVISIONS];
     netmapstate_t*  fromMapState = NULL;
 
-    NET_75_CHECK++; // during the rollover state it might be a good idea to init the map state history? 
+    NET_75_CHECK++; // during the rollover state it might be a good idea to init the map state history?
                     // maybe not? I do init map states before using them, so it might not be needed.
 
 
@@ -4247,7 +4247,7 @@ static void Net_CopySnapshotToGameArrays(netmapstate_t* srv_snapshot, netmapstat
 {
     int32_t index;
 
-    // this isn't just copying the entries that "changed" into the game arrays, 
+    // this isn't just copying the entries that "changed" into the game arrays,
     // remember that we need to correct any incorrect guesses the client made.
     // don't do memcpy either, e.g., sizeof(netWall_t) != sizeof(walltype)
 
@@ -4345,8 +4345,8 @@ static void Net_ReadWorldUpdate(uint8_t* packetData, int32_t packetSize)
     if (from_IsInitialState)
     {
         // clients must always accept the initial map state as a snapshot,
-        // If a client's current revision is too old, the server will send them 
-        // a snapshot to update them from the initial state instead of the 
+        // If a client's current revision is too old, the server will send them
+        // a snapshot to update them from the initial state instead of the
         // client's last known state.
         fromMapState = &g_mapStartState;
     }
@@ -4759,9 +4759,9 @@ void Net_Connect(const char *srvaddr)
 ///< summary>
 /// Record the current state of the game arrays to the initial snapshot
 ///</summary>
-void Net_AddWorldToInitialSnapshot() 
-{ 
-    Net_AddWorldToSnapshot(&g_mapStartState); 
+void Net_AddWorldToInitialSnapshot()
+{
+    Net_AddWorldToSnapshot(&g_mapStartState);
 }
 
 void Net_GetPackets(void)
