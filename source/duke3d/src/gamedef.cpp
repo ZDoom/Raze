@@ -676,49 +676,123 @@ static const vec2_t varvartable[] =
 
 static const vec2_t globalvartable[] =
 {
-    { CON_IFVARA,         CON_IFGLOBALVARA },
-    { CON_IFVARAE,        CON_IFGLOBALVARAE },
-    { CON_IFVARAND,       CON_IFGLOBALVARAND },
-    { CON_IFVARB,         CON_IFGLOBALVARB },
-    { CON_IFVARBE,        CON_IFGLOBALVARBE },
-    { CON_IFVARBOTH,      CON_IFGLOBALVARBOTH },
-    { CON_IFVARE,         CON_IFGLOBALVARE },
-    { CON_IFVAREITHER,    CON_IFGLOBALVAREITHER },
-    { CON_IFVARG,         CON_IFGLOBALVARG },
-    { CON_IFVARGE,        CON_IFGLOBALVARGE },
-    { CON_IFVARL,         CON_IFGLOBALVARL },
-    { CON_IFVARLE,        CON_IFGLOBALVARLE },
-    { CON_IFVARN,         CON_IFGLOBALVARN },
-    { CON_IFVAROR,        CON_IFGLOBALVAROR },
-    { CON_IFVARXOR,       CON_IFGLOBALVARXOR },
+    { CON_IFVARA,         CON_IFVARA_GLOBAL },
+    { CON_IFVARAE,        CON_IFVARAE_GLOBAL },
+    { CON_IFVARAND,       CON_IFVARAND_GLOBAL },
+    { CON_IFVARB,         CON_IFVARB_GLOBAL },
+    { CON_IFVARBE,        CON_IFVARBE_GLOBAL },
+    { CON_IFVARBOTH,      CON_IFVARBOTH_GLOBAL },
+    { CON_IFVARE,         CON_IFVARE_GLOBAL },
+    { CON_IFVAREITHER,    CON_IFVAREITHER_GLOBAL },
+    { CON_IFVARG,         CON_IFVARG_GLOBAL },
+    { CON_IFVARGE,        CON_IFVARGE_GLOBAL },
+    { CON_IFVARL,         CON_IFVARL_GLOBAL },
+    { CON_IFVARLE,        CON_IFVARLE_GLOBAL },
+    { CON_IFVARN,         CON_IFVARN_GLOBAL },
+    { CON_IFVAROR,        CON_IFVAROR_GLOBAL },
+    { CON_IFVARXOR,       CON_IFVARXOR_GLOBAL },
+    { CON_WHILEVARL,      CON_WHILEVARL_GLOBAL },
+    { CON_WHILEVARN,      CON_WHILEVARN_GLOBAL },
 
-    { CON_ADDVAR,         CON_ADDGLOBALVAR },
-    { CON_ANDVAR,         CON_ANDGLOBALVAR },
-    { CON_DIVVAR,         CON_DIVGLOBALVAR },
-    { CON_MODVAR,         CON_MODGLOBALVAR },
-    { CON_MULVAR,         CON_MULGLOBALVAR },
-    { CON_ORVAR,          CON_ORGLOBALVAR },
-    { CON_RANDVAR,        CON_RANDGLOBALVAR },
-    { CON_SETVAR,         CON_SETGLOBALVAR },
-    { CON_SHIFTVARL,      CON_SHIFTGLOBALVARL },
-    { CON_SHIFTVARR,      CON_SHIFTGLOBALVARR },
-    { CON_SUBVAR,         CON_SUBGLOBALVAR },
-    { CON_WHILEVARL,      CON_WHILEGLOBALVARL },
-    { CON_WHILEVARN,      CON_WHILEGLOBALVARN },
-    { CON_XORVAR,         CON_XORGLOBALVAR },
+    { CON_ADDVAR,         CON_ADDVAR_GLOBAL },
+    { CON_ANDVAR,         CON_ANDVAR_GLOBAL },
+    { CON_DIVVAR,         CON_DIVVAR_GLOBAL },
+    { CON_MODVAR,         CON_MODVAR_GLOBAL },
+    { CON_MULVAR,         CON_MULVAR_GLOBAL },
+    { CON_ORVAR,          CON_ORVAR_GLOBAL },
+    { CON_RANDVAR,        CON_RANDVAR_GLOBAL },
+    { CON_SETVAR,         CON_SETVAR_GLOBAL },
+    { CON_SHIFTVARL,      CON_SHIFTVARL_GLOBAL },
+    { CON_SHIFTVARR,      CON_SHIFTVARR_GLOBAL },
+    { CON_SUBVAR,         CON_SUBVAR_GLOBAL },
+    { CON_XORVAR,         CON_XORVAR_GLOBAL },
+};
+
+static const vec2_t playervartable[] =
+{
+    { CON_IFVARA,         CON_IFVARA_PLAYER },
+    { CON_IFVARAE,        CON_IFVARAE_PLAYER },
+    { CON_IFVARAND,       CON_IFVARAND_PLAYER },
+    { CON_IFVARB,         CON_IFVARB_PLAYER },
+    { CON_IFVARBE,        CON_IFVARBE_PLAYER },
+    { CON_IFVARBOTH,      CON_IFVARBOTH_PLAYER },
+    { CON_IFVARE,         CON_IFVARE_PLAYER },
+    { CON_IFVAREITHER,    CON_IFVAREITHER_PLAYER },
+    { CON_IFVARG,         CON_IFVARG_PLAYER },
+    { CON_IFVARGE,        CON_IFVARGE_PLAYER },
+    { CON_IFVARL,         CON_IFVARL_PLAYER },
+    { CON_IFVARLE,        CON_IFVARLE_PLAYER },
+    { CON_IFVARN,         CON_IFVARN_PLAYER },
+    { CON_IFVAROR,        CON_IFVAROR_PLAYER },
+    { CON_IFVARXOR,       CON_IFVARXOR_PLAYER },
+    { CON_WHILEVARL,      CON_WHILEVARL_PLAYER },
+    { CON_WHILEVARN,      CON_WHILEVARN_PLAYER },
+
+    { CON_ADDVAR,         CON_ADDVAR_PLAYER },
+    { CON_ANDVAR,         CON_ANDVAR_PLAYER },
+    { CON_DIVVAR,         CON_DIVVAR_PLAYER },
+    { CON_MODVAR,         CON_MODVAR_PLAYER },
+    { CON_MULVAR,         CON_MULVAR_PLAYER },
+    { CON_ORVAR,          CON_ORVAR_PLAYER },
+    { CON_RANDVAR,        CON_RANDVAR_PLAYER },
+    { CON_SETVAR,         CON_SETVAR_PLAYER },
+    { CON_SHIFTVARL,      CON_SHIFTVARL_PLAYER },
+    { CON_SHIFTVARR,      CON_SHIFTVARR_PLAYER },
+    { CON_SUBVAR,         CON_SUBVAR_PLAYER },
+    { CON_XORVAR,         CON_XORVAR_PLAYER },
+};
+
+static const vec2_t actorvartable[] =
+{
+    { CON_IFVARA,         CON_IFVARA_ACTOR },
+    { CON_IFVARAE,        CON_IFVARAE_ACTOR },
+    { CON_IFVARAND,       CON_IFVARAND_ACTOR },
+    { CON_IFVARB,         CON_IFVARB_ACTOR },
+    { CON_IFVARBE,        CON_IFVARBE_ACTOR },
+    { CON_IFVARBOTH,      CON_IFVARBOTH_ACTOR },
+    { CON_IFVARE,         CON_IFVARE_ACTOR },
+    { CON_IFVAREITHER,    CON_IFVAREITHER_ACTOR },
+    { CON_IFVARG,         CON_IFVARG_ACTOR },
+    { CON_IFVARGE,        CON_IFVARGE_ACTOR },
+    { CON_IFVARL,         CON_IFVARL_ACTOR },
+    { CON_IFVARLE,        CON_IFVARLE_ACTOR },
+    { CON_IFVARN,         CON_IFVARN_ACTOR },
+    { CON_IFVAROR,        CON_IFVAROR_ACTOR },
+    { CON_IFVARXOR,       CON_IFVARXOR_ACTOR },
+    { CON_WHILEVARL,      CON_WHILEVARL_ACTOR },
+    { CON_WHILEVARN,      CON_WHILEVARN_ACTOR },
+
+    { CON_ADDVAR,         CON_ADDVAR_ACTOR },
+    { CON_ANDVAR,         CON_ANDVAR_ACTOR },
+    { CON_DIVVAR,         CON_DIVVAR_ACTOR },
+    { CON_MODVAR,         CON_MODVAR_ACTOR },
+    { CON_MULVAR,         CON_MULVAR_ACTOR },
+    { CON_ORVAR,          CON_ORVAR_ACTOR },
+    { CON_RANDVAR,        CON_RANDVAR_ACTOR },
+    { CON_SETVAR,         CON_SETVAR_ACTOR },
+    { CON_SHIFTVARL,      CON_SHIFTVARL_ACTOR },
+    { CON_SHIFTVARR,      CON_SHIFTVARR_ACTOR },
+    { CON_SUBVAR,         CON_SUBVAR_ACTOR },
+    { CON_XORVAR,         CON_XORVAR_ACTOR },
 };
 
 static inthashtable_t h_varvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(varvartable)) };
 static inthashtable_t h_globalvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(globalvartable)) };
+static inthashtable_t h_playervar = { NULL, INTHASH_SIZE(ARRAY_SIZE(playervartable)) };
+static inthashtable_t h_actorvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(actorvartable)) };
 
 static inthashtable_t *const inttables[] = {
     &h_varvar,
     &h_globalvar,
+    &h_playervar,
+    &h_actorvar,
 };
 
 static inthashtable_t *const inttables_free[] = {
     &h_varvar,
     &h_globalvar,
+    &h_playervar,
+    &h_actorvar,
 };
 
 
@@ -750,7 +824,7 @@ char const * VM_GetKeywordForID(int32_t id)
         if (keyword.val == id)
             return keyword.token;
 
-    return id < CON_OPCODE_END ? "<internal instruction>" : "<invalid keyword>";
+    return "<unknown>";
 }
 #endif
 
@@ -3716,22 +3790,8 @@ setvar:
                 }
             }
 #endif
-            // replace instructions with special versions that operate only on globals
-            if ((aGameVars[ins[1]].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
-            {
-                int const opcode = inthash_find(&h_globalvar, *ins & VM_INSTMASK);
-
-                if (opcode != -1)
-                {
-                    if (!g_errorCnt && !g_warningCnt && g_scriptDebug > 1)
-                    {
-                        initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
-                                   VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
-                    }
-
-                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
-                }
-            }
+            // replace instructions with special versions for specific var types
+            scriptUpdateOpcodeForVariableType(ins);
             continue;
         }
 
@@ -4292,8 +4352,7 @@ setvarvar:
                         tw = opcode;
                         g_scriptPtr = &ins[1];
                         textptr = lasttextptr;
-
-                        goto singlevar;
+                        goto ifvar;
                     }
                 }
 
@@ -4339,7 +4398,7 @@ setvarvar:
         case CON_WHILEVARL:
         case CON_WHILEVARN:
             {
-singlevar:
+ifvar:
                 auto const ins = &g_scriptPtr[-1];
                 auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
@@ -4351,23 +4410,7 @@ singlevar:
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                // substitute instructions that operate on global vars directly if appropriate
-                if (aGameVars[ins[1] & (MAXGAMEVARS-1)].flags == 0)
-                {
-                    int const opcode = inthash_find(&h_globalvar, *ins & VM_INSTMASK);
-
-                    if (opcode != -1)
-                    {
-                        //if (!g_errorCnt && !g_warningCnt && g_scriptDebug > 1)
-                        {
-                            initprintf("%s:%d: %s -> %s for var %s(%d)\n", g_scriptFileName, g_lineNumber,
-                                       VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode), aGameVars[ins[1] & (MAXGAMEVARS-1)].szLabel, (int)(ins[1]));
-                        }
-
-                        tw = opcode;
-                        scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
-                    }
-                }
+                scriptUpdateOpcodeForVariableType(ins);
 
                 auto const offset = g_scriptPtr - apScript;
                 g_scriptPtr++; //Leave a spot for the fail location
@@ -6110,6 +6153,12 @@ void scriptInitTables()
 
     for (auto &globalvar : globalvartable)
         inthash_add(&h_globalvar, globalvar.x, globalvar.y, 0);
+
+    for (auto &playervar : playervartable)
+        inthash_add(&h_playervar, playervar.x, playervar.y, 0);
+
+    for (auto &actorvar : actorvartable)
+        inthash_add(&h_actorvar, actorvar.x, actorvar.y, 0);
 }
 
 void C_Compile(const char *fileName)
@@ -6244,6 +6293,8 @@ void C_Compile(const char *fileName)
 
     inthash_free(&h_varvar);
     inthash_free(&h_globalvar);
+    inthash_free(&h_playervar);
+    inthash_free(&h_actorvar);
 
     freehashnames();
     freesoundhashnames();

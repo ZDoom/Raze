@@ -99,8 +99,10 @@ void VM_ScriptInfo(intptr_t const *ptr, int range)
     {
         initprintf("%5d: %3d: ", (int32_t)(pScript - apScript), (int32_t)(pScript - ptr));
 
-        if (*pScript >> 12 && (*pScript & VM_INSTMASK) < CON_OPCODE_END)
-            initprintf("%5d %s\n", (int32_t)(*pScript >> 12), VM_GetKeywordForID(*pScript & VM_INSTMASK));
+        auto &v = *pScript;
+
+        if (v >> 12 && (v & VM_INSTMASK) < CON_OPCODE_END)
+            initprintf("%5d %s (%d)\n", (int32_t)(v >> 12), VM_GetKeywordForID(v & VM_INSTMASK), (int)v & VM_INSTMASK);
         else
             initprintf("%d\n", (int32_t)*pScript);
     }
@@ -1302,16 +1304,563 @@ next_instruction:
                 }
                 continue;
 
-            case CON_SETVAR:
+            case CON_IFVARE_GLOBAL:
                 insptr++;
-                Gv_SetVarX(*insptr, insptr[1]);
-                insptr += 2;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw == *insptr);
+                continue;
+            case CON_IFVARN_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw != *insptr);
+                continue;
+            case CON_IFVARAND_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw & *insptr);
+                continue;
+            case CON_IFVAROR_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw | *insptr);
+                continue;
+            case CON_IFVARXOR_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw ^ *insptr);
+                continue;
+            case CON_IFVAREITHER_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw || *insptr);
+                continue;
+            case CON_IFVARBOTH_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw && *insptr);
+                continue;
+            case CON_IFVARG_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw > *insptr);
+                continue;
+            case CON_IFVARGE_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw >= *insptr);
+                continue;
+            case CON_IFVARL_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw < *insptr);
+                continue;
+            case CON_IFVARLE_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw <= *insptr);
+                continue;
+            case CON_IFVARA_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL((uint32_t)tw > (uint32_t)*insptr);
+                continue;
+            case CON_IFVARAE_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL((uint32_t)tw >= (uint32_t)*insptr);
+                continue;
+            case CON_IFVARB_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL((uint32_t)tw < (uint32_t)*insptr);
+                continue;
+            case CON_IFVARBE_GLOBAL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL((uint32_t)tw <= (uint32_t)*insptr);
                 continue;
 
-            case CON_SETGLOBALVAR:
+            case CON_SETVAR_GLOBAL:
                 insptr++;
                 aGameVars[*insptr].global = insptr[1];
                 insptr += 2;
+                continue;
+            case CON_ADDVAR_GLOBAL:
+                insptr++;
+                aGameVars[*insptr].global += insptr[1];
+                insptr += 2;
+                continue;
+            case CON_SUBVAR_GLOBAL:
+                insptr++;
+                aGameVars[*insptr].global -= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_MULVAR_GLOBAL:
+                insptr++;
+                aGameVars[*insptr].global *= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_ANDVAR_GLOBAL:
+                insptr++;
+                aGameVars[*insptr].global &= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_XORVAR_GLOBAL:
+                insptr++;
+                aGameVars[*insptr].global ^= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_ORVAR_GLOBAL:
+                insptr++;
+                aGameVars[*insptr].global |= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_SHIFTVARL_GLOBAL:
+                insptr++;
+                aGameVars[*insptr].global <<= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_SHIFTVARR_GLOBAL:
+                insptr++;
+                aGameVars[*insptr].global >>= insptr[1];
+                insptr += 2;
+                continue;
+
+            case CON_IFVARE_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw == *insptr);
+                continue;
+            case CON_IFVARN_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw != *insptr);
+                continue;
+            case CON_IFVARAND_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw & *insptr);
+                continue;
+            case CON_IFVAROR_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw | *insptr);
+                continue;
+            case CON_IFVARXOR_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw ^ *insptr);
+                continue;
+            case CON_IFVAREITHER_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw || *insptr);
+                continue;
+            case CON_IFVARBOTH_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw && *insptr);
+                continue;
+            case CON_IFVARG_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw > *insptr);
+                continue;
+            case CON_IFVARGE_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw >= *insptr);
+                continue;
+            case CON_IFVARL_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw < *insptr);
+                continue;
+            case CON_IFVARLE_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL(tw <= *insptr);
+                continue;
+            case CON_IFVARA_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL((uint32_t)tw > (uint32_t)*insptr);
+                continue;
+            case CON_IFVARAE_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL((uint32_t)tw >= (uint32_t)*insptr);
+                continue;
+            case CON_IFVARB_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL((uint32_t)tw < (uint32_t)*insptr);
+                continue;
+            case CON_IFVARBE_ACTOR:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                VM_CONDITIONAL((uint32_t)tw <= (uint32_t)*insptr);
+                continue;
+
+            case CON_SETVAR_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] = insptr[1];
+                insptr += 2;
+                continue;
+            case CON_ADDVAR_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] += insptr[1];
+                insptr += 2;
+                continue;
+            case CON_SUBVAR_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] -= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_MULVAR_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] *= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_ANDVAR_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] &= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_XORVAR_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] ^= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_ORVAR_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] |= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_SHIFTVARL_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] <<= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_SHIFTVARR_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] >>= insptr[1];
+                insptr += 2;
+                continue;
+
+            case CON_IFVARE_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw == *insptr);
+                continue;
+            case CON_IFVARN_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw != *insptr);
+                continue;
+            case CON_IFVARAND_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw & *insptr);
+                continue;
+            case CON_IFVAROR_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw | *insptr);
+                continue;
+            case CON_IFVARXOR_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw ^ *insptr);
+                continue;
+            case CON_IFVAREITHER_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw || *insptr);
+                continue;
+            case CON_IFVARBOTH_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw && *insptr);
+                continue;
+            case CON_IFVARG_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw > *insptr);
+                continue;
+            case CON_IFVARGE_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw >= *insptr);
+                continue;
+            case CON_IFVARL_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw < *insptr);
+                continue;
+            case CON_IFVARLE_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL(tw <= *insptr);
+                continue;
+            case CON_IFVARA_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL((uint32_t)tw > (uint32_t)*insptr);
+                continue;
+            case CON_IFVARAE_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL((uint32_t)tw >= (uint32_t)*insptr);
+                continue;
+            case CON_IFVARB_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL((uint32_t)tw < (uint32_t)*insptr);
+                continue;
+            case CON_IFVARBE_PLAYER:
+                insptr++;
+                tw = aGameVars[*insptr++].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                VM_CONDITIONAL((uint32_t)tw <= (uint32_t)*insptr);
+                continue;
+
+            case CON_SETVAR_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] = insptr[1];
+                insptr += 2;
+                continue;
+            case CON_ADDVAR_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] += insptr[1];
+                insptr += 2;
+                continue;
+            case CON_SUBVAR_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] -= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_MULVAR_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] *= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_ANDVAR_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] &= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_XORVAR_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] ^= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_ORVAR_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] |= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_SHIFTVARL_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] <<= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_SHIFTVARR_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] >>= insptr[1];
+                insptr += 2;
+                continue;
+
+            case CON_WHILEVARN_GLOBAL:
+            {
+                auto const savedinsptr = &insptr[2];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (aGameVars[insptr[-1]].global != *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+                continue;
+            }
+
+            case CON_WHILEVARL_GLOBAL:
+            {
+                auto const savedinsptr = &insptr[2];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (aGameVars[insptr[-1]].global < *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+                continue;
+            }
+
+            case CON_WHILEVARN_ACTOR:
+            {
+                auto const savedinsptr = &insptr[2];
+                auto &v = aGameVars[savedinsptr[-1]].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (v != *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+
+                continue;
+            }
+
+            case CON_WHILEVARL_ACTOR:
+            {
+                auto const savedinsptr = &insptr[2];
+                auto &v = aGameVars[savedinsptr[-1]].pValues[vm.spriteNum & (MAXSPRITES-1)];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (v < *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+
+                continue;
+            }
+
+            case CON_WHILEVARN_PLAYER:
+            {
+                auto const savedinsptr = &insptr[2];
+                auto &v = aGameVars[savedinsptr[-1]].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (v != *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+
+                continue;
+            }
+
+            case CON_WHILEVARL_PLAYER:
+            {
+                auto const savedinsptr = &insptr[2];
+                auto &v = aGameVars[savedinsptr[-1]].pValues[vm.playerNum & (MAXPLAYERS-1)];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (v < *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+
+                continue;
+            }
+
+            case CON_MODVAR_GLOBAL:
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("mod by zero!\n");
+                    continue;
+                }
+                aGameVars[*insptr].global %= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_MODVAR_ACTOR:
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("mod by zero!\n");
+                    continue;
+                }
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] %= insptr[1];
+                insptr += 2;
+                continue;
+            case CON_MODVAR_PLAYER:
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("mod by zero!\n");
+                    continue;
+                }
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] %= insptr[1];
+                insptr += 2;
+                continue;
+
+            case CON_IFVARAND:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw & *insptr);
+                continue;
+
+            case CON_IFVAROR:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw | *insptr);
+                continue;
+
+            case CON_IFVARXOR:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw ^ *insptr);
+                continue;
+
+            case CON_IFVAREITHER:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw || *insptr);
+                continue;
+
+            case CON_IFVARBOTH:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw && *insptr);
+                continue;
+
+            case CON_IFRND:
+                VM_CONDITIONAL(rnd(*(++insptr)));
+                continue;
+
+            case CON_IFVARG:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw > *insptr);
+                continue;
+
+            case CON_IFVARGE:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw >= *insptr);
+                continue;
+
+            case CON_IFVARL:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw < *insptr);
+                continue;
+
+            case CON_IFVARLE:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw <= *insptr);
+                continue;
+
+            case CON_IFVARA:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL((uint32_t)tw > (uint32_t)*insptr);
+                continue;
+
+            case CON_IFVARAE:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL((uint32_t)tw >= (uint32_t)*insptr);
+                continue;
+
+            case CON_IFVARB:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL((uint32_t)tw < (uint32_t)*insptr);
+                continue;
+
+            case CON_IFVARBE:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL((uint32_t)tw <= (uint32_t)*insptr);
                 continue;
 
             case CON_SETVARVAR:
@@ -1327,34 +1876,10 @@ next_instruction:
                 }
                 continue;
 
-            case CON_ADDVAR:
-                insptr++;
-                Gv_AddVar(*insptr, insptr[1]);
-                insptr += 2;
-                continue;
-
-            case CON_ADDGLOBALVAR:
-                insptr++;
-                aGameVars[*insptr].global += insptr[1];
-                insptr += 2;
-                continue;
-
             case CON_ADDVARVAR:
                 insptr++;
                 tw = *insptr++;
                 Gv_AddVar(tw, Gv_GetVarX(*insptr++));
-                continue;
-
-            case CON_SUBVAR:
-                insptr++;
-                Gv_SubVar(*insptr, insptr[1]);
-                insptr += 2;
-                continue;
-
-            case CON_SUBGLOBALVAR:
-                insptr++;
-                aGameVars[*insptr].global -= insptr[1];
-                insptr += 2;
                 continue;
 
             case CON_SUBVARVAR:
@@ -1363,32 +1888,34 @@ next_instruction:
                 Gv_SubVar(tw, Gv_GetVarX(*insptr++));
                 continue;
 
-            case CON_IFVARVARE:
+            case CON_ANDVARVAR:
                 insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                tw = (tw == Gv_GetVarX(*insptr++));
-                insptr--;
-                VM_CONDITIONAL(tw);
+                tw = *insptr++;
+                Gv_AndVar(tw, Gv_GetVarX(*insptr++));
                 continue;
 
-            case CON_IFVARVARN:
+            case CON_XORVARVAR:
                 insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                tw = (tw != Gv_GetVarX(*insptr++));
-                insptr--;
-                VM_CONDITIONAL(tw);
+                tw = *insptr++;
+                Gv_XorVar(tw, Gv_GetVarX(*insptr++));
                 continue;
 
-            case CON_MULVAR:
+            case CON_ORVARVAR:
                 insptr++;
-                Gv_MulVar(*insptr, insptr[1]);
-                insptr += 2;
+                tw = *insptr++;
+                Gv_OrVar(tw, Gv_GetVarX(*insptr++));
                 continue;
 
-            case CON_MULGLOBALVAR:
+            case CON_SHIFTVARVARL:
                 insptr++;
-                aGameVars[*insptr].global *= insptr[1];
-                insptr += 2;
+                tw = *insptr++;
+                Gv_ShiftVarL(tw, Gv_GetVarX(*insptr++));
+                continue;
+
+            case CON_SHIFTVARVARR:
+                insptr++;
+                tw = *insptr++;
+                Gv_ShiftVarR(tw, Gv_GetVarX(*insptr++));
                 continue;
 
             case CON_MULVARVAR:
@@ -1397,18 +1924,7 @@ next_instruction:
                 Gv_MulVar(tw, Gv_GetVarX(*insptr++));
                 continue;
 
-            case CON_DIVVAR:
-                insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("divide by zero!\n");
-                    continue;
-                }
-                Gv_DivVar(*insptr, insptr[1]);
-                insptr += 2;
-                continue;
-
-            case CON_DIVGLOBALVAR:
+            case CON_DIVVAR_GLOBAL:
                 insptr++;
                 if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
                 {
@@ -1418,6 +1934,36 @@ next_instruction:
                 aGameVars[*insptr].global = tabledivide32(aGameVars[*insptr].global, insptr[1]);
                 insptr += 2;
                 continue;
+
+            case CON_DIVVAR_PLAYER:
+            {
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("divide by zero!\n");
+                    continue;
+                }
+                auto &v = aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS - 1)];
+
+                v = tabledivide32(v, insptr[1]);
+                insptr += 2;
+                continue;
+            }
+
+            case CON_DIVVAR_ACTOR:
+            {
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("divide by zero!\n");
+                    continue;
+                }
+                auto &v = aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES - 1)];
+
+                v = tabledivide32(v, insptr[1]);
+                insptr += 2;
+                continue;
+            }
 
             case CON_DIVVARVAR:
                 insptr++;
@@ -1442,22 +1988,26 @@ next_instruction:
                 VM_CONDITIONAL(tw == *insptr);
                 continue;
 
-            case CON_IFGLOBALVARE:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw == *insptr);
-                continue;
-
             case CON_IFVARN:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
                 VM_CONDITIONAL(tw != *insptr);
                 continue;
 
-            case CON_IFGLOBALVARN:
+            case CON_IFVARVARE:
                 insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw != *insptr);
+                tw = Gv_GetVarX(*insptr++);
+                tw = (tw == Gv_GetVarX(*insptr++));
+                insptr--;
+                VM_CONDITIONAL(tw);
+                continue;
+
+            case CON_IFVARVARN:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                tw = (tw != Gv_GetVarX(*insptr++));
+                insptr--;
+                VM_CONDITIONAL(tw);
                 continue;
 
             case CON_IFVARVARG:
@@ -1548,166 +2098,6 @@ next_instruction:
                 VM_CONDITIONAL(tw);
                 continue;
 
-            case CON_IFGLOBALVARAND:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw & *insptr);
-                continue;
-
-            case CON_IFVARAND:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL(tw & *insptr);
-                continue;
-
-            case CON_IFGLOBALVAROR:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw | *insptr);
-                continue;
-
-            case CON_IFVAROR:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL(tw | *insptr);
-                continue;
-
-            case CON_IFGLOBALVARXOR:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw ^ *insptr);
-                continue;
-
-            case CON_IFVARXOR:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL(tw ^ *insptr);
-                continue;
-
-            case CON_IFGLOBALVAREITHER:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw || *insptr);
-                continue;
-
-            case CON_IFVAREITHER:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL(tw || *insptr);
-                continue;
-
-            case CON_IFGLOBALVARBOTH:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw && *insptr);
-                continue;
-
-            case CON_IFVARBOTH:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL(tw && *insptr);
-                continue;
-
-            case CON_IFRND:
-                VM_CONDITIONAL(rnd(*(++insptr)));
-                continue;
-
-            case CON_IFGLOBALVARG:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw > *insptr);
-                continue;
-
-            case CON_IFVARG:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL(tw > *insptr);
-                continue;
-
-            case CON_IFGLOBALVARGE:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw >= *insptr);
-                continue;
-
-            case CON_IFVARGE:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL(tw >= *insptr);
-                continue;
-
-            case CON_IFGLOBALVARL:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw < *insptr);
-                continue;
-
-            case CON_IFVARL:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL(tw < *insptr);
-                continue;
-
-            case CON_IFGLOBALVARLE:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL(tw <= *insptr);
-                continue;
-
-            case CON_IFVARLE:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL(tw <= *insptr);
-                continue;
-
-            case CON_IFGLOBALVARA:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL((uint32_t)tw > (uint32_t)*insptr);
-                continue;
-
-            case CON_IFVARA:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL((uint32_t)tw > (uint32_t)*insptr);
-                continue;
-
-            case CON_IFGLOBALVARAE:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL((uint32_t)tw >= (uint32_t)*insptr);
-                continue;
-
-            case CON_IFVARAE:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL((uint32_t)tw >= (uint32_t)*insptr);
-                continue;
-
-            case CON_IFGLOBALVARB:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL((uint32_t)tw < (uint32_t)*insptr);
-                continue;
-
-            case CON_IFVARB:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL((uint32_t)tw < (uint32_t)*insptr);
-                continue;
-
-            case CON_IFGLOBALVARBE:
-                insptr++;
-                tw = aGameVars[*insptr++].global;
-                VM_CONDITIONAL((uint32_t)tw <= (uint32_t)*insptr);
-                continue;
-
-            case CON_IFVARBE:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                VM_CONDITIONAL((uint32_t)tw <= (uint32_t)*insptr);
-                continue;
-
             case CON_IFVARVAREITHER:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
@@ -1731,18 +2121,6 @@ next_instruction:
                 {
                     insptr = savedinsptr;
                     tw = (Gv_GetVarX(insptr[-1]) != *insptr);
-                    VM_CONDITIONAL(tw);
-                } while (tw);
-                continue;
-            }
-
-            case CON_WHILEGLOBALVARN:
-            {
-                auto const savedinsptr = &insptr[2];
-                do
-                {
-                    insptr = savedinsptr;
-                    tw = (aGameVars[insptr[-1]].global != *insptr);
                     VM_CONDITIONAL(tw);
                 } while (tw);
                 continue;
@@ -1774,18 +2152,6 @@ next_instruction:
                 continue;
             }
 
-            case CON_WHILEGLOBALVARL:
-            {
-                auto const savedinsptr = &insptr[2];
-                do
-                {
-                    insptr = savedinsptr;
-                    tw = (aGameVars[insptr[-1]].global < *insptr);
-                    VM_CONDITIONAL(tw);
-                } while (tw);
-                continue;
-            }
-
             case CON_WHILEVARVARL:
             {
                 auto const savedinsptr = &insptr[2];
@@ -1800,22 +2166,45 @@ next_instruction:
                 continue;
             }
 
+            case CON_SETVAR:
+                insptr++;
+                Gv_SetVarX(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_ADDVAR:
+                insptr++;
+                Gv_AddVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_SUBVAR:
+                insptr++;
+                Gv_SubVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_MULVAR:
+                insptr++;
+                Gv_MulVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
+            case CON_DIVVAR:
+                insptr++;
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
+                {
+                    CON_CRITICALERRPRINTF("divide by zero!\n");
+                    continue;
+                }
+                Gv_DivVar(*insptr, insptr[1]);
+                insptr += 2;
+                continue;
+
             case CON_ANDVAR:
                 insptr++;
                 Gv_AndVar(*insptr, insptr[1]);
                 insptr += 2;
-                continue;
-
-            case CON_ANDGLOBALVAR:
-                insptr++;
-                aGameVars[*insptr].global &= insptr[1];
-                insptr += 2;
-                continue;
-
-            case CON_ANDVARVAR:
-                insptr++;
-                tw = *insptr++;
-                Gv_AndVar(tw, Gv_GetVarX(*insptr++));
                 continue;
 
             case CON_XORVAR:
@@ -1824,34 +2213,10 @@ next_instruction:
                 insptr += 2;
                 continue;
 
-            case CON_XORGLOBALVAR:
-                insptr++;
-                aGameVars[*insptr].global ^= insptr[1];
-                insptr += 2;
-                continue;
-
-            case CON_XORVARVAR:
-                insptr++;
-                tw = *insptr++;
-                Gv_XorVar(tw, Gv_GetVarX(*insptr++));
-                continue;
-
             case CON_ORVAR:
                 insptr++;
                 Gv_OrVar(*insptr, insptr[1]);
                 insptr += 2;
-                continue;
-
-            case CON_ORGLOBALVAR:
-                insptr++;
-                aGameVars[*insptr].global |= insptr[1];
-                insptr += 2;
-                continue;
-
-            case CON_ORVARVAR:
-                insptr++;
-                tw = *insptr++;
-                Gv_OrVar(tw, Gv_GetVarX(*insptr++));
                 continue;
 
             case CON_SHIFTVARL:
@@ -1860,34 +2225,10 @@ next_instruction:
                 insptr += 2;
                 continue;
 
-            case CON_SHIFTGLOBALVARL:
-                insptr++;
-                aGameVars[*insptr].global <<= insptr[1];
-                insptr += 2;
-                continue;
-
-            case CON_SHIFTVARVARL:
-                insptr++;
-                tw = *insptr++;
-                Gv_ShiftVarL(tw, Gv_GetVarX(*insptr++));
-                continue;
-
             case CON_SHIFTVARR:
                 insptr++;
                 Gv_ShiftVarR(*insptr, insptr[1]);
                 insptr += 2;
-                continue;
-
-            case CON_SHIFTGLOBALVARR:
-                insptr++;
-                aGameVars[*insptr].global >>= insptr[1];
-                insptr += 2;
-                continue;
-
-            case CON_SHIFTVARVARR:
-                insptr++;
-                tw = *insptr++;
-                Gv_ShiftVarR(tw, Gv_GetVarX(*insptr++));
                 continue;
 
             case CON_MODVAR:
@@ -1899,18 +2240,6 @@ next_instruction:
                 }
 
                 Gv_ModVar(*insptr, insptr[1]);
-                insptr += 2;
-                continue;
-
-            case CON_MODGLOBALVAR:
-                insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("mod by zero!\n");
-                    continue;
-                }
-
-                aGameVars[*insptr].global %= insptr[1];
                 insptr += 2;
                 continue;
 
@@ -1937,9 +2266,21 @@ next_instruction:
                 insptr += 2;
                 continue;
 
-            case CON_RANDGLOBALVAR:
+            case CON_RANDVAR_GLOBAL:
                 insptr++;
                 aGameVars[*insptr].global = mulscale16(krand(), insptr[1] + 1);
+                insptr += 2;
+                continue;
+
+            case CON_RANDVAR_PLAYER:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] = mulscale16(krand(), insptr[1] + 1);
+                insptr += 2;
+                continue;
+
+            case CON_RANDVAR_ACTOR:
+                insptr++;
+                aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] = mulscale16(krand(), insptr[1] + 1);
                 insptr += 2;
                 continue;
 
