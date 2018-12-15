@@ -90,8 +90,6 @@ const int16_t *MV_RightVolume;
 int32_t MV_SampleSize = 1;
 int32_t MV_RightChannelOffset;
 
-uint32_t MV_MixPosition;
-
 int32_t MV_ErrorCode = MV_NotInstalled;
 
 float MV_GlobalVolume = 1.f;
@@ -182,11 +180,9 @@ static bool MV_Mix(VoiceNode *voice, int const buffer)
         if (voice->priority == FX_MUSIC_PRIORITY)
             MV_GlobalVolume = 1.f;
 
-        if (voice->mix)
-            voice->mix(voice, voclength);
+        voice->position = voice->mix(voice, voclength);
 
         MV_GlobalVolume = gv;
-        voice->position = MV_MixPosition;
 
         length -= voclength;
 

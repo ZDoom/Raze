@@ -28,7 +28,7 @@
  */
 
 // 8-bit mono source, 16-bit mono output
-void MV_Mix16BitMono(struct VoiceNode const * const voice, uint32_t length)
+uint32_t MV_Mix16BitMono(struct VoiceNode const * const voice, uint32_t length)
 {
     auto const source = (uint8_t const *)voice->sound;
     auto       dest   = (int16_t *)MV_MixDestination;
@@ -37,7 +37,7 @@ void MV_Mix16BitMono(struct VoiceNode const * const voice, uint32_t length)
     uint32_t const rate     = voice->RateScale;
     float const    volume   = voice->volume;
 
-    while (length--)
+    do
     {
         uint8_t const usample0 = SCALE_SAMPLE(source[position >> 16], volume);
 
@@ -46,13 +46,15 @@ void MV_Mix16BitMono(struct VoiceNode const * const voice, uint32_t length)
         *dest = (int16_t)clamp(SCALE_SAMPLE(MV_LeftVolume[usample0], MV_GlobalVolume) + *dest, INT16_MIN, INT16_MAX);
         dest += MV_SampleSize >> 1;
     }
+    while (--length);
 
-    MV_MixPosition    = position;
     MV_MixDestination = (char *)dest;
+
+    return position;
 }
 
 // 8-bit mono source, 16-bit stereo output
-void MV_Mix16BitStereo(struct VoiceNode const * const voice, uint32_t length)
+uint32_t MV_Mix16BitStereo(struct VoiceNode const * const voice, uint32_t length)
 {
     auto const source = (uint8_t const *)voice->sound;
     auto       dest   = (int16_t *)MV_MixDestination;
@@ -61,7 +63,7 @@ void MV_Mix16BitStereo(struct VoiceNode const * const voice, uint32_t length)
     uint32_t const rate     = voice->RateScale;
     float const    volume   = voice->volume;
 
-    while (length--)
+    do
     {
         uint8_t const usample0 = SCALE_SAMPLE(source[position >> 16], volume);
 
@@ -72,13 +74,15 @@ void MV_Mix16BitStereo(struct VoiceNode const * const voice, uint32_t length)
             = (int16_t)clamp(SCALE_SAMPLE(MV_RightVolume[usample0], MV_GlobalVolume) + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
         dest += MV_SampleSize >> 1;
     }
+    while (--length);
 
-    MV_MixPosition    = position;
     MV_MixDestination = (char *)dest;
+
+    return position;
 }
 
 // 16-bit mono source, 16-bit mono output
-void MV_Mix16BitMono16(struct VoiceNode const * const voice, uint32_t length)
+uint32_t MV_Mix16BitMono16(struct VoiceNode const * const voice, uint32_t length)
 {
     auto const source = (int16_t const *)voice->sound;
     auto       dest   = (int16_t *)MV_MixDestination;
@@ -87,7 +91,7 @@ void MV_Mix16BitMono16(struct VoiceNode const * const voice, uint32_t length)
     uint32_t const rate     = voice->RateScale;
     float const    volume   = voice->volume;
 
-    while (length--)
+    do
     {
         int16_t const isample0 = B_LITTLE16(source[position >> 16]);
         split16_t const usample0{FLIP_SIGN(SCALE_SAMPLE(isample0, volume))};
@@ -100,13 +104,15 @@ void MV_Mix16BitMono16(struct VoiceNode const * const voice, uint32_t length)
         *dest = (int16_t)clamp(sample0 + *dest, INT16_MIN, INT16_MAX);
         dest += MV_SampleSize >> 1;
     }
+    while (--length);
 
-    MV_MixPosition    = position;
     MV_MixDestination = (char *)dest;
+
+    return position;
 }
 
 // 16-bit mono source, 16-bit stereo output
-void MV_Mix16BitStereo16(struct VoiceNode const * const voice, uint32_t length)
+uint32_t MV_Mix16BitStereo16(struct VoiceNode const * const voice, uint32_t length)
 {
     auto const source = (int16_t const *)voice->sound;
     auto       dest   = (int16_t *)MV_MixDestination;
@@ -115,7 +121,7 @@ void MV_Mix16BitStereo16(struct VoiceNode const * const voice, uint32_t length)
     uint32_t const rate     = voice->RateScale;
     float const    volume   = voice->volume;
 
-    while (length--)
+    do
     {
         int16_t const isample0 = B_LITTLE16(source[position >> 16]);
         split16_t const usample0{FLIP_SIGN(SCALE_SAMPLE(isample0, volume))};
@@ -132,9 +138,11 @@ void MV_Mix16BitStereo16(struct VoiceNode const * const voice, uint32_t length)
             = (int16_t)clamp(sample1 + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
         dest += MV_SampleSize >> 1;
     }
+    while (--length);
 
-    MV_MixPosition    = position;
     MV_MixDestination = (char *)dest;
+
+    return position;
 }
 
 void MV_16BitReverb(char const *src, char *dest, const int16_t *volume, int32_t count)
@@ -156,5 +164,6 @@ void MV_16BitReverb(char const *src, char *dest, const int16_t *volume, int32_t 
         sample0l  = (volume)[sample0l] >> 8;
         sample0h  = (volume)[sample0h];
         *output++ = (int16_t)(sample0l + sample0h + 128);
-    } while (--count > 0);
+    }
+    while (--count > 0);
 }

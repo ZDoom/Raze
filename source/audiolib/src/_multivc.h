@@ -112,7 +112,7 @@ typedef struct VoiceNode
 
     playbackstatus (*GetSound)(struct VoiceNode *);
 
-    void (*mix)(struct VoiceNode const *, uint32_t);
+    uint32_t (*mix)(struct VoiceNode const *, uint32_t);
 
     const char *sound;
 
@@ -215,20 +215,19 @@ void MV_ReleaseXAVoice(VoiceNode *voice);
 void MV_ReleaseXMPVoice(VoiceNode *voice);
 
 // implemented in mix.c
-void MV_Mix16BitMono(struct VoiceNode const *voice, uint32_t length);
-void MV_Mix16BitStereo(struct VoiceNode const *voice, uint32_t length);
-void MV_Mix16BitMono16(struct VoiceNode const *voice, uint32_t length);
-void MV_Mix16BitStereo16(struct VoiceNode const *voice, uint32_t length);
+uint32_t MV_Mix16BitMono(struct VoiceNode const *voice, uint32_t length);
+uint32_t MV_Mix16BitStereo(struct VoiceNode const *voice, uint32_t length);
+uint32_t MV_Mix16BitMono16(struct VoiceNode const *voice, uint32_t length);
+uint32_t MV_Mix16BitStereo16(struct VoiceNode const *voice, uint32_t length);
 void MV_16BitReverb(char const *src, char *dest, const int16_t *volume, int32_t count);
 
 // implemented in mixst.c
-void MV_Mix16BitMono8Stereo(struct VoiceNode const *voice, uint32_t length);
-void MV_Mix16BitStereo8Stereo(struct VoiceNode const *voice, uint32_t length);
-void MV_Mix16BitMono16Stereo(struct VoiceNode const *voice, uint32_t length);
-void MV_Mix16BitStereo16Stereo(struct VoiceNode const *voice, uint32_t length);
+uint32_t MV_Mix16BitMono8Stereo(struct VoiceNode const *voice, uint32_t length);
+uint32_t MV_Mix16BitStereo8Stereo(struct VoiceNode const *voice, uint32_t length);
+uint32_t MV_Mix16BitMono16Stereo(struct VoiceNode const *voice, uint32_t length);
+uint32_t MV_Mix16BitStereo16Stereo(struct VoiceNode const *voice, uint32_t length);
 
 extern char *MV_MixDestination;  // pointer to the next output sample
-extern uint32_t MV_MixPosition;  // return value of where the source pointer got to
 extern const int16_t *MV_LeftVolume;
 extern const int16_t *MV_RightVolume;
 extern int32_t MV_SampleSize;
