@@ -1010,7 +1010,11 @@ static void C_GetNextLabelName(void)
 
 //    while (ispecial(*textptr) == 0 && *textptr!='['&& *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
     while (C_IsLabelChar(*textptr, i))
-        label[(g_labelCnt<<6)+(i++)] = *(textptr++);
+    {
+        if (i < (1<<6)-1)
+            label[(g_labelCnt<<6) + (i++)] = *textptr;
+        textptr++;
+    }
 
     label[(g_labelCnt<<6)+i] = 0;
 
