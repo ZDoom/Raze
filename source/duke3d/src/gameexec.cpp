@@ -1442,9 +1442,21 @@ next_instruction:
                 VM_CONDITIONAL(tw == *insptr);
                 continue;
 
+            case CON_IFGLOBALVARE:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw == *insptr);
+                continue;
+
             case CON_IFVARN:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
+                VM_CONDITIONAL(tw != *insptr);
+                continue;
+
+            case CON_IFGLOBALVARN:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
                 VM_CONDITIONAL(tw != *insptr);
                 continue;
 
@@ -1536,10 +1548,22 @@ next_instruction:
                 VM_CONDITIONAL(tw);
                 continue;
 
+            case CON_IFGLOBALVARAND:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw & *insptr);
+                continue;
+
             case CON_IFVARAND:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
                 VM_CONDITIONAL(tw & *insptr);
+                continue;
+
+            case CON_IFGLOBALVAROR:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw | *insptr);
                 continue;
 
             case CON_IFVAROR:
@@ -1548,16 +1572,34 @@ next_instruction:
                 VM_CONDITIONAL(tw | *insptr);
                 continue;
 
+            case CON_IFGLOBALVARXOR:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw ^ *insptr);
+                continue;
+
             case CON_IFVARXOR:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
                 VM_CONDITIONAL(tw ^ *insptr);
                 continue;
 
+            case CON_IFGLOBALVAREITHER:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw || *insptr);
+                continue;
+
             case CON_IFVAREITHER:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
                 VM_CONDITIONAL(tw || *insptr);
+                continue;
+
+            case CON_IFGLOBALVARBOTH:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw && *insptr);
                 continue;
 
             case CON_IFVARBOTH:
@@ -1570,10 +1612,22 @@ next_instruction:
                 VM_CONDITIONAL(rnd(*(++insptr)));
                 continue;
 
+            case CON_IFGLOBALVARG:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw > *insptr);
+                continue;
+
             case CON_IFVARG:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
                 VM_CONDITIONAL(tw > *insptr);
+                continue;
+
+            case CON_IFGLOBALVARGE:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw >= *insptr);
                 continue;
 
             case CON_IFVARGE:
@@ -1582,10 +1636,22 @@ next_instruction:
                 VM_CONDITIONAL(tw >= *insptr);
                 continue;
 
+            case CON_IFGLOBALVARL:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw < *insptr);
+                continue;
+
             case CON_IFVARL:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
                 VM_CONDITIONAL(tw < *insptr);
+                continue;
+
+            case CON_IFGLOBALVARLE:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL(tw <= *insptr);
                 continue;
 
             case CON_IFVARLE:
@@ -1594,10 +1660,22 @@ next_instruction:
                 VM_CONDITIONAL(tw <= *insptr);
                 continue;
 
+            case CON_IFGLOBALVARA:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL((uint32_t)tw > (uint32_t)*insptr);
+                continue;
+
             case CON_IFVARA:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
                 VM_CONDITIONAL((uint32_t)tw > (uint32_t)*insptr);
+                continue;
+
+            case CON_IFGLOBALVARAE:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL((uint32_t)tw >= (uint32_t)*insptr);
                 continue;
 
             case CON_IFVARAE:
@@ -1606,10 +1684,22 @@ next_instruction:
                 VM_CONDITIONAL((uint32_t)tw >= (uint32_t)*insptr);
                 continue;
 
+            case CON_IFGLOBALVARB:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL((uint32_t)tw < (uint32_t)*insptr);
+                continue;
+
             case CON_IFVARB:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
                 VM_CONDITIONAL((uint32_t)tw < (uint32_t)*insptr);
+                continue;
+
+            case CON_IFGLOBALVARBE:
+                insptr++;
+                tw = aGameVars[*insptr++].global;
+                VM_CONDITIONAL((uint32_t)tw <= (uint32_t)*insptr);
                 continue;
 
             case CON_IFVARBE:

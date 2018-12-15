@@ -676,20 +676,36 @@ static const vec2_t varvartable[] =
 
 static const vec2_t globalvartable[] =
 {
+    { CON_IFVARA,         CON_IFGLOBALVARA },
+    { CON_IFVARAE,        CON_IFGLOBALVARAE },
+    { CON_IFVARAND,       CON_IFGLOBALVARAND },
+    { CON_IFVARB,         CON_IFGLOBALVARB },
+    { CON_IFVARBE,        CON_IFGLOBALVARBE },
+    { CON_IFVARBOTH,      CON_IFGLOBALVARBOTH },
+    { CON_IFVARE,         CON_IFGLOBALVARE },
+    { CON_IFVAREITHER,    CON_IFGLOBALVAREITHER },
+    { CON_IFVARG,         CON_IFGLOBALVARG },
+    { CON_IFVARGE,        CON_IFGLOBALVARGE },
+    { CON_IFVARL,         CON_IFGLOBALVARL },
+    { CON_IFVARLE,        CON_IFGLOBALVARLE },
+    { CON_IFVARN,         CON_IFGLOBALVARN },
+    { CON_IFVAROR,        CON_IFGLOBALVAROR },
+    { CON_IFVARXOR,       CON_IFGLOBALVARXOR },
+
+    { CON_ADDVAR,         CON_ADDGLOBALVAR },
+    { CON_ANDVAR,         CON_ANDGLOBALVAR },
+    { CON_DIVVAR,         CON_DIVGLOBALVAR },
+    { CON_MODVAR,         CON_MODGLOBALVAR },
+    { CON_MULVAR,         CON_MULGLOBALVAR },
+    { CON_ORVAR,          CON_ORGLOBALVAR },
+    { CON_RANDVAR,        CON_RANDGLOBALVAR },
+    { CON_SETVAR,         CON_SETGLOBALVAR },
     { CON_SHIFTVARL,      CON_SHIFTGLOBALVARL },
     { CON_SHIFTVARR,      CON_SHIFTGLOBALVARR },
-    { CON_RANDVAR,        CON_RANDGLOBALVAR },
-    { CON_MODVAR,         CON_MODGLOBALVAR },
-    { CON_ANDVAR,         CON_ANDGLOBALVAR },
-    { CON_ADDVAR,         CON_ADDGLOBALVAR },
-    { CON_ORVAR,          CON_ORGLOBALVAR },
-    { CON_SETVAR,         CON_SETGLOBALVAR },
     { CON_SUBVAR,         CON_SUBGLOBALVAR },
-    { CON_XORVAR,         CON_XORGLOBALVAR },
-    { CON_MULVAR,         CON_MULGLOBALVAR },
-    { CON_DIVVAR,         CON_DIVGLOBALVAR },
     { CON_WHILEVARL,      CON_WHILEGLOBALVARL },
     { CON_WHILEVARN,      CON_WHILEGLOBALVARN },
+    { CON_XORVAR,         CON_XORGLOBALVAR },
 };
 
 static inthashtable_t h_varvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(varvartable)) };
@@ -3713,7 +3729,6 @@ setvar:
                                    VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
                     }
 
-                    tw = opcode;
                     scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
                 }
             }
@@ -4336,16 +4351,17 @@ singlevar:
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                if (aGameVars[ins[1]].flags == 0)
+                // substitute instructions that operate on global vars directly if appropriate
+                if (aGameVars[ins[1] & (MAXGAMEVARS-1)].flags == 0)
                 {
                     int const opcode = inthash_find(&h_globalvar, *ins & VM_INSTMASK);
 
                     if (opcode != -1)
                     {
-                        if (!g_errorCnt && !g_warningCnt && g_scriptDebug > 1)
+                        //if (!g_errorCnt && !g_warningCnt && g_scriptDebug > 1)
                         {
-                            initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
-                                       VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
+                            initprintf("%s:%d: %s -> %s for var %s(%d)\n", g_scriptFileName, g_lineNumber,
+                                       VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode), aGameVars[ins[1] & (MAXGAMEVARS-1)].szLabel, (int)(ins[1]));
                         }
 
                         tw = opcode;
