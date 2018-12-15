@@ -845,7 +845,7 @@ static void C_SetScriptSize(int32_t newsize)
                 VM_ScriptInfo(&apScript[i], 16);
             }
             else
-                apScript[i] -= (intptr_t)&apScript[0];
+                apScript[i] -= (intptr_t)apScript;
         }
     }
 
@@ -870,7 +870,7 @@ static void C_SetScriptSize(int32_t newsize)
     for (int i = 0; i < smallestSize - 1; ++i)
     {
         if (BITPTR_IS_POINTER(i))
-            apScript[i] += (intptr_t)&apScript[0];
+            apScript[i] += (intptr_t)apScript;
     }
 
     g_scriptSize = newsize;
@@ -1183,7 +1183,7 @@ static void C_GetNextVarType(int32_t type)
             scriptWriteValue(parse_decimal_number());
 
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
-            initprintf("%s:%d: debug: constant %ld in place of gamevar.\n", g_scriptFileName, g_lineNumber, (long)*(g_scriptPtr-1));
+            initprintf("%s:%d: debug: constant %ld in place of gamevar.\n", g_scriptFileName, g_lineNumber, (long)g_scriptPtr[-1]);
 #if 1
         while (!ispecial(*textptr) && *textptr != ']') textptr++;
 #else
@@ -1553,7 +1553,7 @@ static int32_t C_GetNextValue(int32_t type)
         scriptWriteValue(parse_decimal_number());
 
     if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: constant %ld.\n", g_scriptFileName, g_lineNumber, (long)*(g_scriptPtr-1));
+        initprintf("%s:%d: debug: constant %ld.\n", g_scriptFileName, g_lineNumber, (long)g_scriptPtr[-1]);
 
     textptr += l;
 
@@ -1644,7 +1644,7 @@ static bool C_CheckMalformedBranch(intptr_t lastScriptPtr)
     case CON_ENDEVENT:
     case CON_ENDS:
     case CON_ELSE:
-        g_scriptPtr = lastScriptPtr + &apScript[0];
+        g_scriptPtr = lastScriptPtr + apScript;
         g_ifElseAborted = 1;
         C_ReportError(-1);
         g_warningCnt++;
@@ -1673,7 +1673,7 @@ static bool C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
     {
         C_ReportError(-1);
         g_warningCnt++;
-        g_scriptPtr = lastScriptPtr + &apScript[0];
+        g_scriptPtr = lastScriptPtr + apScript;
         initprintf("%s:%d: warning: empty `%s' branch\n",g_scriptFileName,g_lineNumber,
                    VM_GetKeywordForID(*(g_scriptPtr) & VM_INSTMASK));
         *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
@@ -2354,7 +2354,7 @@ DO_DEFSTATE:
                 initprintf("%s:%d: warning: expected state, found %s.\n", g_scriptFileName, g_lineNumber, gl);
                 g_warningCnt++;
                 Bfree(gl);
-                scriptWriteAtOffset(CON_NULLOP, g_scriptPtr-1); // get rid of the state, leaving a nullop to satisfy if conditions
+                scriptWriteAtOffset(CON_NULLOP, &g_scriptPtr[-1]); // get rid of the state, leaving a nullop to satisfy if conditions
                 continue;  // valid label name, but wrong type
             }
 
@@ -2514,10 +2514,10 @@ DO_DEFSTATE:
 
             C_FinishBitOr(arrayFlags);
 
-            arrayFlags = *(g_scriptPtr-1);
+            arrayFlags = g_scriptPtr[-1];
             g_scriptPtr--;
 
-            Gv_NewArray(arrayName, NULL, *(g_scriptPtr-1), arrayFlags);
+            Gv_NewArray(arrayName, NULL, g_scriptPtr[-1], arrayFlags);
 
             g_scriptPtr -= 2; // no need to save in script...
             continue;
@@ -2548,20 +2548,20 @@ DO_DEFSTATE:
                 {
                     // if (i >= g_numDefaultLabels)
 
-                    if (EDUKE32_PREDICT_FALSE(labelcode[i] != *(g_scriptPtr-1)))
+                    if (EDUKE32_PREDICT_FALSE(labelcode[i] != g_scriptPtr[-1]))
                     {
                         g_warningCnt++;
                         initprintf("%s:%d: warning: ignored redefinition of `%s' to %d (old: %d).\n",g_scriptFileName,
-                                   g_lineNumber,LAST_LABEL, (int32_t)(*(g_scriptPtr-1)), labelcode[i]);
+                                   g_lineNumber,LAST_LABEL, (int32_t)(g_scriptPtr[-1]), labelcode[i]);
                     }
                 }
                 else
                 {
                     hash_add(&h_labels,LAST_LABEL,g_labelCnt,0);
                     labeltype[g_labelCnt] = LABEL_DEFINE;
-                    labelcode[g_labelCnt++] = *(g_scriptPtr-1);
-                    if (*(g_scriptPtr-1) >= 0 && *(g_scriptPtr-1) < MAXTILES && g_dynamicTileMapping)
-                        G_ProcessDynamicTileMapping(label+((g_labelCnt-1)<<6),*(g_scriptPtr-1));
+                    labelcode[g_labelCnt++] = g_scriptPtr[-1];
+                    if (g_scriptPtr[-1] >= 0 && g_scriptPtr[-1] < MAXTILES && g_dynamicTileMapping)
+                        G_ProcessDynamicTileMapping(label+((g_labelCnt-1)<<6),g_scriptPtr[-1]);
                 }
                 g_scriptPtr -= 2;
                 continue;
@@ -2585,10 +2585,10 @@ DO_DEFSTATE:
         case CON_MOVE:
             if (g_parsingActorPtr || g_processingState)
             {
-                if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
+                if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (g_scriptPtr[-1] != 0) && (g_scriptPtr[-1] != 1)))
                 {
                     C_ReportError(-1);
-                    scriptWriteAtOffset(0, g_scriptPtr-1);
+                    scriptWriteAtOffset(0, &g_scriptPtr[-1]);
                     initprintf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,g_lineNumber);
                     g_warningCnt++;
                 }
@@ -2759,10 +2759,10 @@ DO_DEFSTATE:
                     else if (j == 2)
                     {
                         if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) &&
-                            (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
+                            (g_scriptPtr[-1] != 0) && (g_scriptPtr[-1] != 1)))
                         {
                             C_ReportError(-1);
-                            scriptWriteAtOffset(0, g_scriptPtr-1);
+                            scriptWriteAtOffset(0, &g_scriptPtr[-1]);
                             initprintf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,g_lineNumber);
                             g_warningCnt++;
                         }
@@ -2946,20 +2946,20 @@ DO_DEFSTATE:
                     case 2:
                         // XXX: LABEL_MOVE|LABEL_DEFINE, what is this shit? compatibility?
                         // yep, it sure is :(
-                        if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
+                        if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (g_scriptPtr[-1] != 0) && (g_scriptPtr[-1] != 1)))
                         {
                             C_ReportError(-1);
-                            scriptWriteAtOffset(0, g_scriptPtr-1);
+                            scriptWriteAtOffset(0, &g_scriptPtr[-1]);
                             initprintf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,g_lineNumber);
                             g_warningCnt++;
                         }
                         break;
                     }
 
-                    if (*(g_scriptPtr-1) >= (intptr_t)&apScript[0] && *(g_scriptPtr-1) < (intptr_t)&apScript[g_scriptSize])
-                        scriptWritePointer(*(g_scriptPtr-1), apScript + g_parsingActorPtr + j);
+                    if (g_scriptPtr[-1] >= (intptr_t)apScript && g_scriptPtr[-1] < (intptr_t)&apScript[g_scriptSize])
+                        scriptWritePointer(g_scriptPtr[-1], apScript + g_parsingActorPtr + j);
                     else
-                        scriptWriteAtOffset(*(g_scriptPtr-1), apScript + g_parsingActorPtr + j);
+                        scriptWriteAtOffset(g_scriptPtr[-1], apScript + g_parsingActorPtr + j);
                 }
             }
             g_checkingIfElse = 0;
@@ -3036,19 +3036,19 @@ DO_DEFSTATE:
         case CON_CSTAT:
             C_GetNextValue(LABEL_DEFINE);
 
-            if (EDUKE32_PREDICT_FALSE(*(g_scriptPtr-1) == 32767))
+            if (EDUKE32_PREDICT_FALSE(g_scriptPtr[-1] == 32767))
             {
-                *(g_scriptPtr-1) = 32768;
+                g_scriptPtr[-1] = 32768;
                 C_ReportError(-1);
                 initprintf("%s:%d: warning: tried to set cstat 32767, using 32768 instead.\n",g_scriptFileName,g_lineNumber);
                 g_warningCnt++;
             }
-            else if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr-1) & 48) == 48))
+            else if (EDUKE32_PREDICT_FALSE((g_scriptPtr[-1] & 48) == 48))
             {
-                i = *(g_scriptPtr-1);
-                *(g_scriptPtr-1) ^= 48;
+                i = g_scriptPtr[-1];
+                g_scriptPtr[-1] ^= 48;
                 C_ReportError(-1);
-                initprintf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",g_scriptFileName,g_lineNumber,i,(int32_t)(*(g_scriptPtr-1)));
+                initprintf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",g_scriptFileName,g_lineNumber,i,(int32_t)(g_scriptPtr[-1]));
                 g_warningCnt++;
             }
             continue;
@@ -3134,7 +3134,7 @@ DO_DEFSTATE:
                     continue;
                 }
 
-                intptr_t const lastScriptPtr = g_scriptPtr - apScript - 1;
+                intptr_t const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
                 g_ifElseAborted = 0;
                 g_checkingIfElse--;
@@ -3389,7 +3389,7 @@ DO_DEFSTATE:
 
         case CON_SETACTOR:
             {
-                intptr_t * const ins = g_scriptPtr-1;
+                intptr_t * const ins = &g_scriptPtr[-1];
                 int const labelNum = C_GetStructureIndexes(1, &h_actor);
 
                 if (labelNum == -1)
@@ -3420,7 +3420,7 @@ DO_DEFSTATE:
 
         case CON_GETACTOR:
             {
-                intptr_t * const ins = g_scriptPtr-1;
+                intptr_t * const ins = &g_scriptPtr[-1];
                 int const labelNum = C_GetStructureIndexes(1, &h_actor);
 
                 if (labelNum == -1)
@@ -3651,7 +3651,7 @@ DO_DEFSTATE:
         case CON_XORVAR:
 
             {
-                intptr_t *inst = g_scriptPtr-1;
+                intptr_t *inst = &g_scriptPtr[-1];
                 char *tptr = textptr;
                 // syntax: [rand|add|set]var    <var1> <const1>
                 // sets var1 to const1
@@ -3664,7 +3664,7 @@ DO_DEFSTATE:
 
                 if (tw == CON_DIVVAR || tw == CON_MULVAR)
                 {
-                    int32_t i = *(g_scriptPtr-1);
+                    int32_t i = g_scriptPtr[-1];
                     j = klabs(i);
 
                     if (i == -1)
@@ -3677,7 +3677,7 @@ DO_DEFSTATE:
                     if (C_IntPow2(j))
                     {
                         *inst = ((tw == CON_DIVVAR) ? CON_SHIFTVARR : CON_SHIFTVARL)+(g_lineNumber<<12);
-                        *(g_scriptPtr-1) = C_Pow2IntLogBase2(j);
+                        g_scriptPtr[-1] = C_Pow2IntLogBase2(j);
                         //                    initprintf("%s:%d: replacing multiply/divide with shift\n",g_szScriptFileName,g_lineNumber);
 
                         if (i == j)
@@ -3889,7 +3889,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_ACTIVATE:
-            *(g_scriptPtr-1) = CON_OPERATEACTIVATORS;
+            g_scriptPtr[-1] = CON_OPERATEACTIVATORS;
             C_GetNextValue(LABEL_DEFINE);
             scriptWriteValue(0);
             continue;
@@ -3914,12 +3914,12 @@ DO_DEFSTATE:
                 g_scriptPtr--;
 
                 C_GetNextValue(LABEL_DEFINE);
-                j = *(g_scriptPtr-1);
+                j = g_scriptPtr[-1];
 
                 C_GetNextValue(LABEL_DEFINE);
-                y = *(g_scriptPtr-1);
+                y = g_scriptPtr[-1];
                 C_GetNextValue(LABEL_DEFINE);
-                z = *(g_scriptPtr-1);
+                z = g_scriptPtr[-1];
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
                 {
@@ -3943,7 +3943,7 @@ DO_DEFSTATE:
             g_scriptPtr--;
 
             C_GetNextValue(LABEL_DEFINE);
-            j = *(g_scriptPtr-1);
+            j = g_scriptPtr[-1];
 
             if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
             {
@@ -3968,9 +3968,9 @@ DO_DEFSTATE:
             g_scriptPtr--;
 
             C_GetNextValue(LABEL_DEFINE);
-            i = *(g_scriptPtr-1);
+            i = g_scriptPtr[-1];
             C_GetNextValue(LABEL_DEFINE);
-            j = *(g_scriptPtr-1);
+            j = g_scriptPtr[-1];
 
             if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXTILES || (unsigned)j >= MAXTILES))
             {
@@ -4090,7 +4090,7 @@ DO_DEFSTATE:
         case CON_WHILEVARVARL:
         case CON_WHILEVARVARN:
             {
-                intptr_t const lastScriptPtr = g_scriptPtr - apScript - 1;
+                intptr_t const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
                 g_ifElseAborted = 0;
 
@@ -4143,7 +4143,7 @@ DO_DEFSTATE:
         case CON_WHILEVARL:
         case CON_WHILEVARN:
             {
-                intptr_t const lastScriptPtr = (g_scriptPtr-apScript-1);
+                intptr_t const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
                 g_ifElseAborted = 0;
                 // get the ID of the DEF
@@ -4450,7 +4450,7 @@ DO_DEFSTATE:
                     //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
 
                     // save 'end' location
-                    scriptWriteAtOffset((intptr_t)g_scriptPtr - (intptr_t)&apScript[0], tempscrptr);
+                    scriptWriteAtOffset((intptr_t)g_scriptPtr - (intptr_t)apScript, tempscrptr);
                 }
                 else
                 {
@@ -4510,7 +4510,7 @@ repeatcase:
                             C_ReportError(-1);
                             initprintf("%s:%d: error: multiple `default' statements found in switch\n", g_scriptFileName, g_lineNumber);
                         }
-                        g_caseScriptPtr[0]=(intptr_t) (g_scriptPtr-&apScript[0]);   // save offset
+                        g_caseScriptPtr[0]=(intptr_t) (g_scriptPtr-apScript);   // save offset
                     }
                     else
                     {
@@ -4522,7 +4522,7 @@ repeatcase:
                                 break;
                             }
                         g_caseScriptPtr[g_numCases++]=j;
-                        g_caseScriptPtr[g_numCases]=(intptr_t) ((intptr_t *) g_scriptPtr-&apScript[0]);
+                        g_caseScriptPtr[g_numCases]=(intptr_t) ((intptr_t *) g_scriptPtr-apScript);
                     }
                 }
 
@@ -4617,7 +4617,7 @@ repeatcase:
         case CON_IFSTRENGTH:
         case CON_IFWASWEAPON:
             {
-                auto const lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
+                auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
                 g_ifElseAborted = 0;
 
@@ -4633,10 +4633,10 @@ repeatcase:
                     C_GetNextValue(LABEL_ACTION);
                     break;
                 case CON_IFMOVE:
-                    if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
+                    if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (g_scriptPtr[-1] != 0) && (g_scriptPtr[-1] != 1)))
                     {
                         C_ReportError(-1);
-                        *(g_scriptPtr-1) = 0;
+                        g_scriptPtr[-1] = 0;
                         initprintf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,g_lineNumber);
                         g_warningCnt++;
                     }
@@ -4705,7 +4705,7 @@ repeatcase:
         case CON_IFSERVER:
         case CON_IFSQUISHED:
             {
-                auto const lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
+                auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
                 g_ifElseAborted = 0;
 
@@ -4746,14 +4746,14 @@ repeatcase:
         case CON_RIGHTBRACE:
             g_numBraces--;
 
-            if ((*(g_scriptPtr-2)>>12) == (IFELSE_MAGIC) &&
-                ((*(g_scriptPtr-2) & VM_INSTMASK) == CON_LEFTBRACE)) // rewrite "{ }" into "nullop"
+            if ((g_scriptPtr[-2]>>12) == (IFELSE_MAGIC) &&
+                ((g_scriptPtr[-2] & VM_INSTMASK) == CON_LEFTBRACE)) // rewrite "{ }" into "nullop"
             {
                 //            initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop' from right\n",g_szScriptFileName,g_lineNumber);
-                *(g_scriptPtr-2) = CON_NULLOP + (IFELSE_MAGIC<<12);
+                g_scriptPtr[-2] = CON_NULLOP + (IFELSE_MAGIC<<12);
                 g_scriptPtr -= 2;
 
-                if (C_GetKeyword() != CON_ELSE && (*(g_scriptPtr-2) & VM_INSTMASK) != CON_ELSE)
+                if (C_GetKeyword() != CON_ELSE && (g_scriptPtr[-2] & VM_INSTMASK) != CON_ELSE)
                     g_ifElseAborted = 1;
                 else g_ifElseAborted = 0;
 
@@ -5235,7 +5235,7 @@ repeatcase:
 
             C_GetNextValue(LABEL_DEFINE);
 
-            k = *(g_scriptPtr-1);
+            k = g_scriptPtr[-1];
 
             if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXQUOTES))
             {
@@ -5300,9 +5300,9 @@ repeatcase:
         case CON_CHEATKEYS:
             g_scriptPtr--;
             C_GetNextValue(LABEL_DEFINE);
-            CheatKeys[0] = *(g_scriptPtr-1);
+            CheatKeys[0] = g_scriptPtr[-1];
             C_GetNextValue(LABEL_DEFINE);
-            CheatKeys[1] = *(g_scriptPtr-1);
+            CheatKeys[1] = g_scriptPtr[-1];
             g_scriptPtr -= 2;
             continue;
 
@@ -5327,7 +5327,7 @@ repeatcase:
         case CON_DEFINECHEAT:
             g_scriptPtr--;
             C_GetNextValue(LABEL_DEFINE);
-            k = *(g_scriptPtr-1);
+            k = g_scriptPtr[-1];
 
             if (EDUKE32_PREDICT_FALSE((unsigned)k >= NUMCHEATS))
             {
@@ -5363,7 +5363,7 @@ repeatcase:
             // This depends on tempbuf remaining in place after C_GetNextValue():
             j = hash_find(&h_labels,tempbuf);
 
-            k = *(g_scriptPtr-1);
+            k = g_scriptPtr[-1];
             if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXSOUNDS-1))
             {
                 initprintf("%s:%d: error: sound index exceeds limit of %d.\n",g_scriptFileName,g_lineNumber, MAXSOUNDS-1);
@@ -5409,19 +5409,19 @@ repeatcase:
             check_filename_case(g_sounds[k].filename);
 
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].ps = *(g_scriptPtr-1);
+            g_sounds[k].ps = g_scriptPtr[-1];
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].pe = *(g_scriptPtr-1);
+            g_sounds[k].pe = g_scriptPtr[-1];
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].pr = *(g_scriptPtr-1);
+            g_sounds[k].pr = g_scriptPtr[-1];
 
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].m = *(g_scriptPtr-1) & ~SF_ONEINST_INTERNAL;
-            if (*(g_scriptPtr-1) & SF_LOOP)
+            g_sounds[k].m = g_scriptPtr[-1] & ~SF_ONEINST_INTERNAL;
+            if (g_scriptPtr[-1] & SF_LOOP)
                 g_sounds[k].m |= SF_ONEINST_INTERNAL;
 
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].vo = *(g_scriptPtr-1);
+            g_sounds[k].vo = g_scriptPtr[-1];
             g_scriptPtr -= 5;
 
             g_sounds[k].volume = 1.f;
@@ -5462,7 +5462,7 @@ repeatcase:
             else
             {
                 // pad space for the next potential appendevent
-                apScriptGameEventEnd[g_currentEvent] = (g_scriptPtr-1)-apScript;
+                apScriptGameEventEnd[g_currentEvent] = &g_scriptPtr[-1] - apScript;
                 scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
                 scriptWriteValue(g_parsingEventBreakPtr);
                 scriptWriteValue(CON_ENDEVENT | (g_lineNumber << 12));
@@ -5519,14 +5519,14 @@ repeatcase:
                 scriptWriteValue(CON_JUMP | (g_lineNumber << 12));
                 scriptWriteValue(GV_FLAG_CONSTANT);
                 scriptWriteValue(g_parsingEventBreakPtr);
-                g_parsingEventBreakPtr = g_scriptPtr-1 - apScript;
+                g_parsingEventBreakPtr = &g_scriptPtr[-1] - apScript;
             }
             continue;
 
         case CON_SCRIPTSIZE:
             g_scriptPtr--;
             C_GetNextValue(LABEL_DEFINE);
-            j = *(g_scriptPtr-1);
+            j = g_scriptPtr[-1];
             g_scriptPtr--;
             C_SkipComments();
             C_SetScriptSize(j);
@@ -6011,7 +6011,7 @@ void C_Compile(const char *fileName)
 
     C_SetScriptSize(g_scriptPtr-apScript+8);
 
-    initprintf("Compiled %ld bytes in %dms%s\n", (unsigned long)(g_scriptPtr - apScript),
+    initprintf("Compiled %d bytes in %ums%s\n", (int)((intptr_t)g_scriptPtr - (intptr_t)apScript),
                timerGetTicks() - startcompiletime, C_ScriptVersionString(g_scriptVersion));
 
     for (auto *i : tables_free)
