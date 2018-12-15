@@ -3735,10 +3735,18 @@ setvar:
 
             C_GetNextVarType(GAMEVAR_READONLY);
             C_GetNextValue(LABEL_DEFINE);
-            if (tw == CON_DIVVAR || tw == CON_MULVAR)
+
+            // replace divides and multiplies by 0 with an error asking if the user is stupid
+            if (ins[2] == 0 && (tw == CON_MODVAR || tw == CON_MULVAR || tw == CON_DIVVAR))
+            {
+                g_errorCnt++;
+                C_ReportError(-1);
+                initprintf("%s:%d: error: divide or multiply by zero! What are you doing?\n", g_scriptFileName, g_lineNumber);
+                continue;
+            }
+            else if (tw == CON_DIVVAR || tw == CON_MULVAR)
             {
                 auto const i = ins[2];
-
                 // replace multiplies or divides by 1 with nullop
                 if (i == 1)
                 {
