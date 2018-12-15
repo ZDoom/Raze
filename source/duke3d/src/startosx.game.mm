@@ -684,7 +684,7 @@ int startwin_run(void)
     settings.xdim3d = ud.setup.xdim;
     settings.ydim3d = ud.setup.ydim;
     settings.bpp3d = ud.setup.bpp;
-    settings.forcesetup = ud.setup.forcesetup.
+    settings.forcesetup = ud.setup.forcesetup;
     settings.grp = g_selectedGrp;
 
     [startwin setupRunMode];
