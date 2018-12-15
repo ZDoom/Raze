@@ -20,12 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "gamedef.h"
+
 #include "cheats.h"
 #include "common.h"
 #include "common_game.h"
 #include "crc32.h"
+#include "debugbreak.h"
 #include "duke3d.h"
-#include "gamedef.h"
 #include "gameexec.h"
 #include "namesdyn.h"
 #include "osd.h"
@@ -636,6 +638,43 @@ static tokenmap_t const vm_keywords[] =
     { "findnearsprite3d",       CON_FINDNEARSPRITE3DVAR },
     { "findnearspritez",        CON_FINDNEARSPRITEZVAR },
 };
+
+static const vec2_t varvartable[] =
+{
+    { CON_IFVARVARA,         CON_IFVARA },
+    { CON_IFVARVARAE,        CON_IFVARAE },
+    { CON_IFVARVARAND,       CON_IFVARAND },
+    { CON_IFVARVARB,         CON_IFVARB },
+    { CON_IFVARVARBE,        CON_IFVARBE },
+    { CON_IFVARVARBOTH,      CON_IFVARBOTH },
+    { CON_IFVARVARE,         CON_IFVARE },
+    { CON_IFVARVAREITHER,    CON_IFVAREITHER },
+    { CON_IFVARVARG,         CON_IFVARG },
+    { CON_IFVARVARGE,        CON_IFVARGE },
+    { CON_IFVARVARL,         CON_IFVARL },
+    { CON_IFVARVARLE,        CON_IFVARLE },
+    { CON_IFVARVARN,         CON_IFVARN },
+    { CON_IFVARVAROR,        CON_IFVAROR },
+    { CON_IFVARVARXOR,       CON_IFVARXOR },
+
+    { CON_ADDVARVAR,         CON_ADDVAR },
+    { CON_ANDVARVAR,         CON_ANDVAR },
+    { CON_DISPLAYRANDVARVAR, CON_DISPLAYRANDVAR },
+    { CON_DIVVARVAR,         CON_DIVVAR },
+    { CON_MODVARVAR,         CON_MODVAR },
+    { CON_MULVARVAR,         CON_MULVAR },
+    { CON_ORVARVAR,          CON_ORVAR },
+    { CON_RANDVARVAR,        CON_RANDVAR },
+    { CON_SETVARVAR,         CON_SETVAR },
+    { CON_SHIFTVARVARL,      CON_SHIFTVARL },
+    { CON_SHIFTVARVARR,      CON_SHIFTVARR },
+    { CON_SUBVARVAR,         CON_SUBVAR },
+    { CON_WHILEVARVARL,      CON_WHILEVARL },
+    { CON_WHILEVARVARN,      CON_WHILEVARN },
+    { CON_XORVARVAR,         CON_XORVAR },
+};
+
+static inthashtable_t h_varvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(varvartable)) };
 
 const tokenmap_t iter_tokens [] =
 {
@@ -3296,6 +3335,45 @@ DO_DEFSTATE:
                 continue;
             }
 
+        case CON_ADDVARVAR:
+        case CON_ANDVARVAR:
+        case CON_DISPLAYRANDVARVAR:
+        case CON_DIVVARVAR:
+        case CON_MODVARVAR:
+        case CON_MULVARVAR:
+        case CON_ORVARVAR:
+        case CON_RANDVARVAR:
+        case CON_SETVARVAR:
+        case CON_SHIFTVARVARL:
+        case CON_SHIFTVARVARR:
+        case CON_SUBVARVAR:
+        case CON_XORVARVAR:
+            {
+setvarvar:
+                auto ins = &g_scriptPtr[-1];
+
+                C_GetNextVarType(GAMEVAR_READONLY);
+                C_GetNextVar();
+
+                int const opcode = inthash_find(&h_varvar, *ins & VM_INSTMASK);
+
+                if (ins[2] == GV_FLAG_CONSTANT && opcode != -1)
+                {
+                    if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                    {
+                        initprintf("%s:%d: replacing %s with %s\n", g_scriptFileName, g_lineNumber,
+                                    VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
+                    }
+
+                    g_scriptPtr--;
+                    tw = opcode;
+                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                    scriptWriteAtOffset(ins[3], &ins[2]);
+                }
+
+                continue;
+            }
+
         case CON_GETACTORVAR:
         case CON_GETPLAYERVAR:
         case CON_SETACTORVAR:
@@ -3313,8 +3391,8 @@ DO_DEFSTATE:
                     g_scriptPtr[-1]=CON_SETVARVAR;
                     if (tw == CON_SETACTORVAR || tw == CON_SETPLAYERVAR)
                     {
-                        C_GetNextVarType(GAMEVAR_READONLY);
-                        C_GetNextVar();
+                        tw = inthash_find(&h_varvar, tw);
+                        goto setvarvar;
                     }
                     else
                     {
@@ -3474,31 +3552,18 @@ DO_DEFSTATE:
                 continue;
             }
 
-        case CON_ADDVARVAR:
-        case CON_ANDVARVAR:
         case CON_COS:
-        case CON_DISPLAYRANDVARVAR:
         case CON_DIVR:
         case CON_DIVRU:
-        case CON_DIVVARVAR:
         case CON_HEADSPRITESECT:
         case CON_HEADSPRITESTAT:
-        case CON_MODVARVAR:
-        case CON_MULVARVAR:
         case CON_NEXTSPRITESECT:
         case CON_NEXTSPRITESTAT:
-        case CON_ORVARVAR:
         case CON_PREVSPRITESECT:
         case CON_PREVSPRITESTAT:
         case CON_QSTRLEN:
-        case CON_RANDVARVAR:
         case CON_SECTOROFWALL:
-        case CON_SETVARVAR:
-        case CON_SHIFTVARVARL:
-        case CON_SHIFTVARVARR:
         case CON_SIN:
-        case CON_SUBVARVAR:
-        case CON_XORVARVAR:
             C_GetNextVarType(GAMEVAR_READONLY);
             fallthrough__;
         case CON_ACTIVATECHEAT:
@@ -4100,16 +4165,41 @@ DO_DEFSTATE:
         case CON_WHILEVARVARL:
         case CON_WHILEVARVARN:
             {
-                intptr_t const lastScriptPtr = &g_scriptPtr[-1] - apScript;
+                auto const ins = &g_scriptPtr[-1];
+                auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
+                auto const lasttextptr = textptr;
 
                 g_skipBranch = false;
 
-                C_GetManyVars(2);
+                C_GetNextVar();
+                auto const var = g_scriptPtr;
+                C_GetNextVar();
+
+                if (*var == GV_FLAG_CONSTANT)
+                {
+                    int const opcode = inthash_find(&h_varvar, tw);
+
+                    if (opcode != -1)
+                    {
+                        if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
+                        {
+                            initprintf("%s:%d: replacing %s with %s\n", g_scriptFileName, g_lineNumber,
+                                       VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
+                        }
+
+                        scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                        tw = opcode;
+                        g_scriptPtr = &ins[1];
+                        textptr = lasttextptr;
+
+                        goto singlevar;
+                    }
+                }
 
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                intptr_t const offset = (unsigned)(g_scriptPtr-apScript);
+                auto const offset = g_scriptPtr - apScript;
                 g_scriptPtr++; // Leave a spot for the fail location
 
                 C_ParseCommand(0);
@@ -4117,7 +4207,7 @@ DO_DEFSTATE:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                auto const tempscrptr = (intptr_t *)apScript+offset;
+                auto const tempscrptr = apScript + offset;
                 scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 if (tw != CON_WHILEVARVARN && tw != CON_WHILEVARVARL)
@@ -4148,17 +4238,18 @@ DO_DEFSTATE:
         case CON_WHILEVARL:
         case CON_WHILEVARN:
             {
-                intptr_t const lastScriptPtr = &g_scriptPtr[-1] - apScript;
+singlevar:
+                auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
 
                 g_skipBranch = false;
-                // get the ID of the DEF
+
                 C_GetNextVar();
-                C_GetNextValue(LABEL_DEFINE); // the number to check against...
+                C_GetNextValue(LABEL_DEFINE);
 
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                intptr_t const offset = (unsigned)(g_scriptPtr-apScript);
+                auto const offset = g_scriptPtr - apScript;
                 g_scriptPtr++; //Leave a spot for the fail location
 
                 C_ParseCommand(0);
@@ -4166,7 +4257,7 @@ DO_DEFSTATE:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                auto const tempscrptr = (intptr_t *)apScript+offset;
+                auto const tempscrptr = apScript + offset;
                 scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
                 if (tw != CON_WHILEVARN && tw != CON_WHILEVARL)
@@ -5885,11 +5976,16 @@ void scriptInitTables()
     for (auto table : tables)
         hash_init(table);
 
+    inthash_init(&h_varvar);
+
     for (auto &keyword : vm_keywords)
         hash_add(&h_keywords, keyword.token, keyword.val, 0);
 
     for (auto &iter_token : iter_tokens)
         hash_add(&h_iter, iter_token.token, iter_token.val, 0);
+
+    for (auto &varvar : varvartable)
+        inthash_add(&h_varvar, varvar.x, varvar.y, 0);
 }
 
 void C_Compile(const char *fileName)
@@ -6021,6 +6117,8 @@ void C_Compile(const char *fileName)
 
     for (auto *i : tables_free)
         hash_free(i);
+
+    inthash_free(&h_varvar);
 
     freehashnames();
     freesoundhashnames();
