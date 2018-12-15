@@ -4900,6 +4900,13 @@ void Net_DeleteSprite(int32_t spritenum)
 
     // [75] for most cases, only the server deletes sprites, clients just set their sprites invisible and to
     //      the null picnum so no CON gets executed
+
+    if ((!g_netServer) && (!g_netClient))
+    {
+        deletesprite(spritenum);
+        return;
+    }
+
     if (g_netClient)
     {
         sprite[spritenum].cstat  = 32768;
