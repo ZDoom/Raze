@@ -621,8 +621,8 @@ sprstat_t g_spriteStat;
 
 static void G_PrintCoords(int32_t snum)
 {
-    const int32_t x = 250;
-    int32_t y = 16;
+    const int32_t x = g_Debug ? 288 : 0;
+    int32_t y = 0;
 
     const DukePlayer_t *ps = g_player[snum].ps;
     const int32_t sectnum = ps->cursectnum;
@@ -680,10 +680,6 @@ static void G_PrintCoords(int32_t snum)
     y += 7;
     Bsprintf(tempbuf, "VR=%.03f  YX=%.03f", (double) dr_viewingrange/65536.0, (double) dr_yxaspect/65536.0);
     printext256(x, y+72, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "MOVEACTORS [ms]= %.3e", g_moveActorsTime);
-    printext256(x, y+81, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "MOVEWORLD [ms]= %.3e", g_moveWorldTime);
-    printext256(x, y+90, COLOR_WHITE, -1, tempbuf, 0);
 
 #ifdef USE_OPENGL
     if (ud.coords == 2)
@@ -714,15 +710,15 @@ extern cactype cac [];
 
 static void G_ShowCacheLocks(void)
 {
-    int16_t i, k;
-
     if (offscreenrendering)
         return;
 
-    k = 0;
+    int k = 0;
+
 #if !defined DEBUG_ALLOCACHE_AS_MALLOC
-    for (i=cacnum-1; i>=0; i--)
-        if ((*cac[i].lock) >= 200)
+    for (int i=cacnum-1; i>=0; i--)
+    {
+        if ((*cac[i].lock) != 200 && (*cac[i].lock) != 1)
         {
             if (k >= ydim-12)
                 break;
@@ -731,11 +727,14 @@ static void G_ShowCacheLocks(void)
             printext256(0L, k, COLOR_WHITE, -1, tempbuf, 1);
             k += 6;
         }
+    }
 #endif
+
     if (k < ydim-12)
         k += 6;
 
-    for (i=10; i>=0; i--)
+    for (int i=10; i>=0; i--)
+    {
         if (rts_lumplockbyte[i] >= 200)
         {
             if (k >= ydim-12)
@@ -745,6 +744,7 @@ static void G_ShowCacheLocks(void)
             printext256(0, k, COLOR_WHITE, -1, tempbuf, 1);
             k += 6;
         }
+    }
 
     if (k >= ydim-12 && k<ydim-6)
         printext256(0, k, COLOR_WHITE, -1, "(MORE . . .)", 1);
@@ -753,28 +753,28 @@ static void G_ShowCacheLocks(void)
     if (xdim < 640)
         return;
 
-    k = 18;
-    for (i=0; i<=g_highestSoundIdx; i++)
+    k = 0;
+
+    for (int i=0; i<=g_highestSoundIdx; i++)
+    {
         if (g_sounds[i].num > 0)
         {
-            int32_t j, n=g_sounds[i].num;
-
-            for (j=0; j<n; j++)
+            for (int j = 0, n = g_sounds[i].num; j < n; j++)
             {
                 if (k >= ydim-12)
-                    break;
+                    return;
 
-                Bsprintf(tempbuf, "snd #%d inst %d: voice %d, ow %d", i, j,
-                    g_sounds[i].voices[j].id, g_sounds[i].voices[j].owner);
-                printext256(240, k, COLOR_WHITE, -1, tempbuf, 0);
+                Bsprintf(tempbuf, "snd %d_%d: voice %d, ow %d", i, j, g_sounds[i].voices[j].id, g_sounds[i].voices[j].owner);
+                printext256(160, k, COLOR_WHITE, -1, tempbuf, 1);
 
-                k += 9;
+                k += 6;
             }
         }
+    }
 }
 
-#define LOW_FPS 30
-#define SLOW_FRAME_TIME 33
+#define LOW_FPS 60
+#define SLOW_FRAME_TIME 20
 
 #if defined GEKKO
 # define FPS_YOFFSET 16
@@ -825,17 +825,29 @@ static void G_PrintFPS(void)
                 if (g_gameUpdateTime > maxGameUpdate) maxGameUpdate = g_gameUpdateTime;
                 if (g_gameUpdateTime < minGameUpdate) minGameUpdate = g_gameUpdateTime;
 
-                chars = Bsprintf(tempbuf, "Game Update: %2u ms GU & Draw: %2u ms", g_gameUpdateTime, g_gameUpdateAndDrawTime);
+                chars = Bsprintf(tempbuf, "Game Update: %2u ms + draw: %2u ms", g_gameUpdateTime, g_gameUpdateAndDrawTime);
 
                 printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+30+2+FPS_YOFFSET, 0, -1, tempbuf, x);
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+30+FPS_YOFFSET,
                     FPS_COLOR(g_gameUpdateAndDrawTime >= SLOW_FRAME_TIME), -1, tempbuf, x);
 
-                chars = Bsprintf(tempbuf, "Min GU: %2u ms Max GU: %2u ms Avg GU: %5.2f ms", minGameUpdate, maxGameUpdate, g_gameUpdateAvgTime);
+                chars = Bsprintf(tempbuf, "GU min/max/avg: %2u/%2u/%5.2f ms", minGameUpdate, maxGameUpdate, g_gameUpdateAvgTime);
 
                 printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+40+2+FPS_YOFFSET, 0, -1, tempbuf, x);
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+40+FPS_YOFFSET,
                     FPS_COLOR(maxGameUpdate >= SLOW_FRAME_TIME), -1, tempbuf, x);
+
+                chars = Bsprintf(tempbuf, "G_MoveActors(): %.3e ms", g_moveActorsTime);
+
+                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+50+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+50+FPS_YOFFSET,
+                    COLOR_WHITE, -1, tempbuf, x);
+
+                chars = Bsprintf(tempbuf, "G_MoveWorld(): %.3e ms", g_moveWorldTime);
+
+                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+60+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+60+FPS_YOFFSET,
+                    COLOR_WHITE, -1, tempbuf, x);
             }
 
             // lag meter
