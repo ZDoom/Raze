@@ -3284,7 +3284,6 @@ DO_DEFSTATE:
         case CON_MAIL:
         case CON_MONEY:
         case CON_PAPER:
-        case CON_QUOTE:
         case CON_SAVE:
         case CON_SAVENN:
         case CON_SLEEPTIME:
@@ -3292,6 +3291,16 @@ DO_DEFSTATE:
         case CON_SPRITEPAL:
         case CON_STRENGTH:
             C_GetNextValue(LABEL_DEFINE);
+            continue;
+
+        case CON_QUOTE:
+            C_GetNextValue(LABEL_DEFINE);
+            if (EDUKE32_PREDICT_FALSE(((unsigned)g_scriptPtr[-1] >= MAXQUOTES) || apStrings[g_scriptPtr[-1]] == NULL))
+            {
+                g_errorCnt++;
+                C_ReportError(-1);
+                initprintf("%s:%d: error: invalid quote\n", g_scriptFileName, g_lineNumber);
+            }
             continue;
 
         case CON_ELSE:
@@ -3303,7 +3312,7 @@ DO_DEFSTATE:
                     g_warningCnt++;
                     C_ReportError(-1);
 
-                    initprintf("%s:%d: warning: found `else' with no `if'.\n", g_scriptFileName, g_lineNumber);
+                    initprintf("%s:%d: warning: found `else' with no `if'\n", g_scriptFileName, g_lineNumber);
 
                     if (C_GetKeyword() == CON_LEFTBRACE)
                     {

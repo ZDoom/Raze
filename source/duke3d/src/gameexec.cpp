@@ -1754,31 +1754,16 @@ next_instruction:
 
             case CON_MODVAR_GLOBAL:
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("mod by zero!\n");
-                    continue;
-                }
                 aGameVars[*insptr].global %= insptr[1];
                 insptr += 2;
                 continue;
             case CON_MODVAR_ACTOR:
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("mod by zero!\n");
-                    continue;
-                }
                 aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] %= insptr[1];
                 insptr += 2;
                 continue;
             case CON_MODVAR_PLAYER:
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("mod by zero!\n");
-                    continue;
-                }
                 aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] %= insptr[1];
                 insptr += 2;
                 continue;
@@ -1928,23 +1913,14 @@ next_instruction:
 
             case CON_DIVVAR_GLOBAL:
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("divide by zero!\n");
-                    continue;
-                }
                 aGameVars[*insptr].global = tabledivide32(aGameVars[*insptr].global, insptr[1]);
                 insptr += 2;
                 continue;
 
+/*
             case CON_DIVVAR_PLAYER:
             {
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("divide by zero!\n");
-                    continue;
-                }
                 auto &v = aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS - 1)];
 
                 v = tabledivide32(v, insptr[1]);
@@ -1955,17 +1931,13 @@ next_instruction:
             case CON_DIVVAR_ACTOR:
             {
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("divide by zero!\n");
-                    continue;
-                }
                 auto &v = aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES - 1)];
 
                 v = tabledivide32(v, insptr[1]);
                 insptr += 2;
                 continue;
             }
+*/
 
             case CON_DIVVARVAR:
                 insptr++;
@@ -2194,11 +2166,6 @@ next_instruction:
 
             case CON_DIVVAR:
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("divide by zero!\n");
-                    continue;
-                }
                 Gv_DivVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
@@ -2235,12 +2202,6 @@ next_instruction:
 
             case CON_MODVAR:
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
-                {
-                    CON_CRITICALERRPRINTF("mod by zero!\n");
-                    continue;
-                }
-
                 Gv_ModVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
@@ -2815,11 +2776,6 @@ badindex:
                     int const strIndex  = *insptr++;
                     int const XstrIndex = *insptr++;
 
-                    if (EDUKE32_PREDICT_FALSE((apStrings[strIndex] == NULL || apXStrings[XstrIndex] == NULL)))
-                    {
-                        CON_ERRPRINTF("invalid source quote %d or destination quote %d\n", XstrIndex, strIndex);
-                        continue;
-                    }
                     Bstrcpy(apStrings[strIndex], apXStrings[XstrIndex]);
                     continue;
                 }
@@ -6332,12 +6288,6 @@ badindex:
 
             case CON_QUOTE:
                 insptr++;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)(*insptr) >= MAXQUOTES) || apStrings[*insptr] == NULL)
-                {
-                    CON_ERRPRINTF("invalid quote %d\n", (int32_t)(*insptr));
-                    continue;
-                }
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= MAXPLAYERS))
                 {
