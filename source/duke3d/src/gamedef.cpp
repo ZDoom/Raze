@@ -4148,11 +4148,15 @@ setvarvar:
 
                 C_GetNextValue(LABEL_DEFINE);
                 j = g_scriptPtr[-1];
+                g_scriptPtr--;
 
                 C_GetNextValue(LABEL_DEFINE);
                 y = g_scriptPtr[-1];
+                g_scriptPtr--;
+
                 C_GetNextValue(LABEL_DEFINE);
                 z = g_scriptPtr[-1];
+                g_scriptPtr--;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
                 {
@@ -4177,6 +4181,7 @@ setvarvar:
 
             C_GetNextValue(LABEL_DEFINE);
             j = g_scriptPtr[-1];
+            g_scriptPtr--;
 
             if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
             {
@@ -4202,8 +4207,11 @@ setvarvar:
 
             C_GetNextValue(LABEL_DEFINE);
             i = g_scriptPtr[-1];
+            g_scriptPtr--;
+
             C_GetNextValue(LABEL_DEFINE);
             j = g_scriptPtr[-1];
+            g_scriptPtr--;
 
             if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXTILES || (unsigned)j >= MAXTILES))
             {
@@ -4222,15 +4230,17 @@ setvarvar:
             if (!g_scriptActorOffset && g_processingState == 0)
             {
                 g_scriptPtr--;
+                auto tmpscrptr = g_scriptPtr;
 
                 C_GetNextValue(LABEL_DEFINE);
-                g_scriptPtr--;
-                j = *g_scriptPtr;
+                j = g_scriptPtr[-1];
 
                 int32_t flags = 0;
                 do
                     C_BitOrNextValue(&flags);
                 while (C_GetKeyword() == -1);
+
+                g_scriptPtr = tmpscrptr;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
                 {
@@ -4240,10 +4250,8 @@ setvarvar:
                 }
 
                 g_tile[j].flags = flags;
-
-                continue;
             }
-            C_GetNextVar();
+            else C_GetNextVar();
             continue;
 
         case CON_PRECACHE:
