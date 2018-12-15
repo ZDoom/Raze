@@ -41,7 +41,7 @@
 # include "vorbis/vorbisfile.h"
 #endif
 
-#define BLOCKSIZE 0x8000
+#define BLOCKSIZE MV_MIXBUFFERSIZE
 
 
 typedef struct {
