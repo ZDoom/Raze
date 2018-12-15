@@ -362,96 +362,97 @@ priority.
 
 int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, uint32_t callbackval)
 {
-   UNREFERENCED_PARAMETER(loopend);
+    UNREFERENCED_PARAMETER(loopend);
 
-   if (!MV_Installed)
-   {
-       MV_SetErrorCode(MV_NotInstalled);
-       return MV_Error;
-   }
+    if (!MV_Installed)
+    {
+        MV_SetErrorCode(MV_NotInstalled);
+        return MV_Error;
+    }
 
-   auto *vd = (vorbis_data *)calloc(1, sizeof(vorbis_data));
+    auto *vd = (vorbis_data *)calloc(1, sizeof(vorbis_data));
 
-   if (!vd)
-   {
-       MV_SetErrorCode(MV_InvalidFile);
-       return MV_Error;
-   }
+    if (!vd)
+    {
+        MV_SetErrorCode(MV_InvalidFile);
+        return MV_Error;
+    }
 
-   vd->ptr = ptr;
-   vd->pos = 0;
-   vd->length = length;
-   vd->lastbitstream = -1;
+    vd->ptr    = ptr;
+    vd->pos    = 0;
+    vd->length = length;
 
-   int32_t status = ov_open_callbacks((void *)vd, &vd->vf, 0, 0, vorbis_callbacks);
+    vd->lastbitstream = -1;
 
-   if (status < 0)
-   {
-       free(vd);
-       MV_Printf("MV_PlayVorbis: err %d\n", status);
-       MV_SetErrorCode(MV_InvalidFile);
-       return MV_Error;
-   }
+    int32_t status = ov_open_callbacks((void *)vd, &vd->vf, 0, 0, vorbis_callbacks);
 
-   vorbis_info *vi = ov_info(&vd->vf, 0);
+    if (status < 0)
+    {
+        free(vd);
+        MV_Printf("MV_PlayVorbis: err %d\n", status);
+        MV_SetErrorCode(MV_InvalidFile);
+        return MV_Error;
+    }
 
-   if (!vi)
-   {
-       ov_clear(&vd->vf);
-       free(vd);
-       MV_SetErrorCode(MV_InvalidFile);
-       return MV_Error;
-   }
+    vorbis_info *vi = ov_info(&vd->vf, 0);
 
-   if (vi->channels != 1 && vi->channels != 2)
-   {
-       ov_clear(&vd->vf);
-       free(vd);
-       MV_SetErrorCode(MV_InvalidFile);
-       return MV_Error;
-   }
+    if (!vi)
+    {
+        ov_clear(&vd->vf);
+        free(vd);
+        MV_SetErrorCode(MV_InvalidFile);
+        return MV_Error;
+    }
 
-   // Request a voice from the voice pool
-   VoiceNode *voice = MV_AllocVoice(priority);
+    if (vi->channels != 1 && vi->channels != 2)
+    {
+        ov_clear(&vd->vf);
+        free(vd);
+        MV_SetErrorCode(MV_InvalidFile);
+        return MV_Error;
+    }
 
-   if (voice == NULL)
-   {
-       ov_clear(&vd->vf);
-       free(vd);
-       MV_SetErrorCode(MV_NoVoices);
-       return MV_Error;
-   }
+    // Request a voice from the voice pool
+    VoiceNode *voice = MV_AllocVoice(priority);
 
-   voice->wavetype    = FMT_VORBIS;
-   voice->bits        = 16;
-   voice->channels    = vi->channels;
-   voice->rawdataptr       = (void *) vd;
-   voice->GetSound    = MV_GetNextVorbisBlock;
-   voice->NextBlock   = vd->block;
-   voice->LoopCount   = 0;
-   voice->BlockLength = 0;
-   voice->length      = 0;
-   voice->next        = NULL;
-   voice->prev        = NULL;
-   voice->priority    = priority;
-   voice->callbackval = callbackval;
+    if (voice == NULL)
+    {
+        ov_clear(&vd->vf);
+        free(vd);
+        MV_SetErrorCode(MV_NoVoices);
+        return MV_Error;
+    }
 
-   voice->LoopStart   = 0;
-   voice->LoopEnd     = 0;
-   voice->LoopSize    = (loopstart >= 0 ? 1 : 0);
+    voice->wavetype    = FMT_VORBIS;
+    voice->bits        = 16;
+    voice->channels    = vi->channels;
+    voice->rawdataptr  = (void *)vd;
+    voice->GetSound    = MV_GetNextVorbisBlock;
+    voice->NextBlock   = vd->block;
+    voice->LoopCount   = 0;
+    voice->BlockLength = 0;
+    voice->length      = 0;
+    voice->next        = NULL;
+    voice->prev        = NULL;
+    voice->priority    = priority;
+    voice->callbackval = callbackval;
+
+    voice->LoopStart = 0;
+    voice->LoopEnd   = 0;
+    voice->LoopSize  = (loopstart >= 0 ? 1 : 0);
 
     // load loop tags from metadata
     MV_GetVorbisCommentLoops(voice, ov_comment(&vd->vf, 0));
 
-   voice->Paused      = FALSE;
+    voice->Paused = FALSE;
 
-   MV_SetVoicePitch(voice, vi->rate, pitchoffset);
-   MV_SetVoiceMixMode( voice );
+    MV_SetVoicePitch(voice, vi->rate, pitchoffset);
+    MV_SetVoiceMixMode(voice);
 
-   MV_SetVoiceVolume( voice, vol, left, right, volume );
-   MV_PlayVoice( voice );
+    MV_SetVoiceVolume(voice, vol, left, right, volume);
+    MV_PlayVoice(voice);
 
-   return voice->handle;
+    return voice->handle;
 }
 
 void MV_ReleaseVorbisVoice( VoiceNode * voice )
