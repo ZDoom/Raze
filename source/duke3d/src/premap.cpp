@@ -318,9 +318,9 @@ static void G_DemoLoadScreen(const char *statustext, int const loadScreenTile, i
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);  // JBF 20040308
     }
 
-    if ((unsigned)loadScreenTile < (MAXTILES << 1))
+    if ((unsigned)loadScreenTile < (MAXTILES<<1))
     {
-        rotatesprite_fs(320<<15, 200<<15, 65536L, 0, loadScreenTile & (MAXTILES-1), 0, 0, 2+8+64+BGSTRETCH);
+        rotatesprite_fs(320<<15, 200<<15, 65536L, 0, loadScreenTile, 0, 0, 2+8+64+BGSTRETCH);
     }
     else
     {
@@ -361,7 +361,7 @@ static void G_DoLoadScreen(const char *statustext, int percent)
     if ((unsigned)loadScreenTile < (MAXTILES<<1))
     {
         videoClearScreen(0);
-        rotatesprite_fs(320<<15, 200<<15, 65536L, 0, loadScreenTile & (MAXTILES-1), 0, 0, 2+8+64+BGSTRETCH);
+        rotatesprite_fs(320<<15, 200<<15, 65536L, 0, loadScreenTile, 0, 0, 2+8+64+BGSTRETCH);
     }
     else
     {
