@@ -678,23 +678,23 @@ static inthashtable_t h_varvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(varvartable)) }
 
 const tokenmap_t iter_tokens [] =
 {
-    { "allsprites",      ITER_ALLSPRITES },
-    { "allspritesbystat",ITER_ALLSPRITESBYSTAT },
-    { "allspritesbysect",ITER_ALLSPRITESBYSECT },
-    { "allsectors",      ITER_ALLSECTORS },
-    { "allwalls",        ITER_ALLWALLS },
-    { "activelights",    ITER_ACTIVELIGHTS },
-    { "drawnsprites",    ITER_DRAWNSPRITES },
-    { "spritesofsector", ITER_SPRITESOFSECTOR },
-    { "spritesofstatus", ITER_SPRITESOFSTATUS },
-    { "loopofwall",      ITER_LOOPOFWALL },
-    { "wallsofsector",   ITER_WALLSOFSECTOR },
-    { "range",           ITER_RANGE },
+    { "allsprites",       ITER_ALLSPRITES },
+    { "allspritesbystat", ITER_ALLSPRITESBYSTAT },
+    { "allspritesbysect", ITER_ALLSPRITESBYSECT },
+    { "allsectors",       ITER_ALLSECTORS },
+    { "allwalls",         ITER_ALLWALLS },
+    { "activelights",     ITER_ACTIVELIGHTS },
+    { "drawnsprites",     ITER_DRAWNSPRITES },
+    { "spritesofsector",  ITER_SPRITESOFSECTOR },
+    { "spritesofstatus",  ITER_SPRITESOFSTATUS },
+    { "loopofwall",       ITER_LOOPOFWALL },
+    { "wallsofsector",    ITER_WALLSOFSECTOR },
+    { "range",            ITER_RANGE },
     // vvv alternatives go here vvv
-    { "lights",          ITER_ACTIVELIGHTS },
-    { "sprofsec",        ITER_SPRITESOFSECTOR },
-    { "sprofstat",       ITER_SPRITESOFSTATUS },
-    { "walofsec",        ITER_WALLSOFSECTOR },
+    { "lights",           ITER_ACTIVELIGHTS },
+    { "sprofsec",         ITER_SPRITESOFSECTOR },
+    { "sprofstat",        ITER_SPRITESOFSTATUS },
+    { "walofsec",         ITER_WALLSOFSECTOR },
 };
 
 char const * VM_GetKeywordForID(int32_t id)

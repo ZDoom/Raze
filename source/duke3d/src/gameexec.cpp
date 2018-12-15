@@ -174,7 +174,7 @@ static FORCE_INLINE int32_t VM_EventCommon__(int const &eventNum, int const &spr
     returnVar = returnValue;
     g_currentEvent  = eventNum;
 
-    intptr_t const *backupinsptr = insptr;
+    auto const      backupinsptr = insptr;
     const vmstate_t vm_backup    = vm;
 
     insptr = apScript + apScriptEvents[eventNum];
@@ -244,7 +244,7 @@ static bool VM_CheckSquished(void)
     auto const pSector = (usectortype *)&sector[vm.pSprite->sectnum];
 
     if (pSector->lotag == ST_23_SWINGING_DOOR || (vm.pSprite->picnum == APLAYER && ud.noclip) ||
-        (pSector->lotag == ST_1_ABOVE_WATER && !A_CheckNoSE7Water((uspritetype const *)vm.pSprite, vm.pSprite->sectnum, pSector->lotag, NULL)))
+        (pSector->lotag == ST_1_ABOVE_WATER && !A_CheckNoSE7Water(vm.pUSprite, vm.pSprite->sectnum, pSector->lotag, NULL)))
         return 0;
 
     int32_t floorZ = pSector->floorz;
@@ -408,15 +408,15 @@ static void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t *
 
 void A_GetZLimits(int const spriteNum)
 {
-    spritetype *const pSprite = &sprite[spriteNum];
-    int32_t           ceilhit, florhit;
+    auto const pSprite = &sprite[spriteNum];
+    int32_t    ceilhit, florhit;
 
     VM_GetZRange(spriteNum, &ceilhit, &florhit, (pSprite->statnum == STAT_PROJECTILE) ? 4 : 127);
     actor[spriteNum].flags &= ~SFLAG_NOFLOORSHADOW;
 
     if ((florhit&49152) == 49152 && (sprite[florhit&(MAXSPRITES-1)].cstat&48) == 0)
     {
-        uspritetype const * const hitspr = (uspritetype *)&sprite[florhit&(MAXSPRITES-1)];
+        auto const hitspr = (uspritetype *)&sprite[florhit&(MAXSPRITES-1)];
 
         florhit &= (MAXSPRITES-1);
 
@@ -438,7 +438,7 @@ void A_GetZLimits(int const spriteNum)
 
 void A_Fall(int const spriteNum)
 {
-    spritetype *const pSprite = &sprite[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
     int spriteGravity = g_spriteGravity;
 
     if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceFloor(pSprite->sectnum)))
@@ -700,7 +700,7 @@ dead:
         return;
     }
 
-    intptr_t const * const moveptr = apScript + AC_MOVE_ID(vm.pData);
+    auto const moveptr = apScript + AC_MOVE_ID(vm.pData);
 
     if (movflags & geth)
         vm.pSprite->xvel += ((moveptr[0]) - vm.pSprite->xvel) >> 1;
@@ -978,8 +978,8 @@ static int A_GetVerticalVel(actor_t const * const pActor)
 
 static int32_t A_GetWaterZOffset(int const spriteNum)
 {
-    uspritetype const *const pSprite = (uspritetype *)&sprite[spriteNum];
-    actor_t const *const     pActor  = &actor[spriteNum];
+    auto const pSprite = (uspritetype *)&sprite[spriteNum];
+    auto const pActor  = &actor[spriteNum];
 
     if (sector[pSprite->sectnum].lotag == ST_1_ABOVE_WATER)
     {
@@ -1297,14 +1297,14 @@ next_instruction:
         }
         else if (tw == CON_ELSE)
         {
-            insptr = (intptr_t *)*(insptr + 1);
+            insptr = (intptr_t *)insptr[1];
             tw = *insptr;
             goto next_instruction;
         }
         else if (tw == CON_STATE)
         {
-            auto tempscrptr = insptr + 2;
-            insptr = (intptr_t *)*(insptr + 1);
+            auto tempscrptr = &insptr[2];
+            insptr = (intptr_t *)insptr[1];
             VM_Execute(1);
             insptr = tempscrptr;
             continue;
@@ -1314,9 +1314,9 @@ next_instruction:
             case CON_SETVAR:
                 insptr++;
                 if ((aGameVars[*insptr].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
-                    aGameVars[*insptr].global = *(insptr + 1);
+                    aGameVars[*insptr].global = insptr[1];
                 else
-                    Gv_SetVarX(*insptr, *(insptr + 1));
+                    Gv_SetVarX(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
@@ -1398,30 +1398,30 @@ next_instruction:
 
             case CON_ADDVAR:
                 insptr++;
-                Gv_AddVar(*insptr, *(insptr + 1));
+                Gv_AddVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
             case CON_SUBVAR:
                 insptr++;
-                Gv_SubVar(*insptr, *(insptr + 1));
+                Gv_SubVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
             case CON_MULVAR:
                 insptr++;
-                Gv_MulVar(*insptr, *(insptr + 1));
+                Gv_MulVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
             case CON_DIVVAR:
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(*(insptr + 1) == 0))
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
                 {
                     CON_CRITICALERRPRINTF("divide by zero!\n");
                     continue;
                 }
-                Gv_DivVar(*insptr, *(insptr + 1));
+                Gv_DivVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
@@ -1543,7 +1543,9 @@ next_instruction:
                 VM_CONDITIONAL(tw && *insptr);
                 continue;
 
-            case CON_IFRND: VM_CONDITIONAL(rnd(*(++insptr))); continue;
+            case CON_IFRND:
+                VM_CONDITIONAL(rnd(*(++insptr)));
+                continue;
 
             case CON_IFVARG:
                 insptr++;
@@ -1593,33 +1595,101 @@ next_instruction:
                 VM_CONDITIONAL((uint32_t)tw <= (uint32_t)*insptr);
                 continue;
 
+            case CON_IFVARVAREITHER:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                tw = (Gv_GetVarX(*insptr++) || tw);
+                insptr--;
+                VM_CONDITIONAL(tw);
+                continue;
+
+            case CON_IFVARVARBOTH:
+                insptr++;
+                tw = Gv_GetVarX(*insptr++);
+                tw = (Gv_GetVarX(*insptr++) && tw);
+                insptr--;
+                VM_CONDITIONAL(tw);
+                continue;
+
+            case CON_WHILEVARN:
+            {
+                auto const savedinsptr = &insptr[2];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (Gv_GetVarX(insptr[-1]) != *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+                continue;
+            }
+
+            case CON_WHILEVARL:
+            {
+                auto const savedinsptr = &insptr[2];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = (Gv_GetVarX(insptr[-1]) < *insptr);
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+                continue;
+            }
+
+            case CON_WHILEVARVARN:
+            {
+                auto const savedinsptr = &insptr[2];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = Gv_GetVarX(insptr[-1]);
+                    tw = (tw != Gv_GetVarX(*insptr++));
+                    insptr--;
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+                continue;
+            }
+
+            case CON_WHILEVARVARL:
+            {
+                auto const savedinsptr = &insptr[2];
+                do
+                {
+                    insptr = savedinsptr;
+                    tw = Gv_GetVarX(insptr[-1]);
+                    tw = (tw < Gv_GetVarX(*insptr++));
+                    insptr--;
+                    VM_CONDITIONAL(tw);
+                } while (tw);
+                continue;
+            }
+
             case CON_MODVAR:
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(*(insptr + 1) == 0))
+                if (EDUKE32_PREDICT_FALSE(insptr[1] == 0))
                 {
                     CON_CRITICALERRPRINTF("mod by zero!\n");
                     continue;
                 }
 
-                Gv_ModVar(*insptr, *(insptr + 1));
+                Gv_ModVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
             case CON_ANDVAR:
                 insptr++;
-                Gv_AndVar(*insptr, *(insptr + 1));
+                Gv_AndVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
             case CON_ORVAR:
                 insptr++;
-                Gv_OrVar(*insptr, *(insptr + 1));
+                Gv_OrVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
             case CON_XORVAR:
                 insptr++;
-                Gv_XorVar(*insptr, *(insptr + 1));
+                Gv_XorVar(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
@@ -1643,13 +1713,13 @@ next_instruction:
 
             case CON_SHIFTVARL:
                 insptr++;
-                Gv_ShiftVarL(*insptr, *(insptr + 1));
+                Gv_ShiftVarL(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
             case CON_SHIFTVARR:
                 insptr++;
-                Gv_ShiftVarR(*insptr, *(insptr + 1));
+                Gv_ShiftVarR(*insptr, insptr[1]);
                 insptr += 2;
                 continue;
 
@@ -1685,7 +1755,7 @@ next_instruction:
             case CON_SETPLAYER:
                 insptr++;
                 {
-                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
+                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.playerNum;
                     int const labelNum  = *insptr++;
                     int const lParm2    = (PlayerLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
 
@@ -1696,7 +1766,7 @@ next_instruction:
             case CON_GETPLAYER:
                 insptr++;
                 {
-                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
+                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.playerNum;
                     int const labelNum  = *insptr++;
                     int const lParm2    = (PlayerLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
 
@@ -1708,10 +1778,10 @@ next_instruction:
                 {
                     tw = *insptr++;
 
-                    int const   wallNum   = Gv_GetVarX(tw);
-                    int const   labelNum  = *insptr++;
+                    int const wallNum  = Gv_GetVarX(tw);
+                    int const labelNum = *insptr++;
+                    int const newValue = Gv_GetVarX(*insptr++);
                     auto const &wallLabel = WallLabels[labelNum];
-                    int const   newValue  = Gv_GetVarX(*insptr++);
 
                     if (wallLabel.offset == -1 || wallLabel.flags & LABEL_WRITEFUNC)
                     {
@@ -1729,8 +1799,8 @@ next_instruction:
                 {
                     tw = *insptr++;
 
-                    int const   wallNum   = Gv_GetVarX(tw);
-                    int const   labelNum  = *insptr++;
+                    int const wallNum  = Gv_GetVarX(tw);
+                    int const labelNum = *insptr++;
                     auto const &wallLabel = WallLabels[labelNum];
 
                     Gv_SetVarX(*insptr++,
@@ -1767,7 +1837,7 @@ next_instruction:
             case CON_GETPLAYERVAR:
                 insptr++;
                 {
-                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
+                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.playerNum;
                     int const lVar1     = *insptr++;
                     int const lVar2     = *insptr++;
 
@@ -1788,7 +1858,7 @@ next_instruction:
             case CON_SETACTOR:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
                     auto const &actorLabel = ActorLabels[labelNum];
@@ -1807,7 +1877,7 @@ next_instruction:
             case CON_GETACTOR:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
                     auto const &actorLabel = ActorLabels[labelNum];
@@ -1826,7 +1896,7 @@ next_instruction:
             case CON_SETACTORSTRUCT:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     auto const &actorLabel = ActorLabels[labelNum];
 
@@ -1843,7 +1913,7 @@ next_instruction:
             case CON_GETACTORSTRUCT:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     auto const &actorLabel = ActorLabels[labelNum];
 
@@ -1860,7 +1930,7 @@ next_instruction:
             case CON_SETSPRITESTRUCT:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     auto const &spriteLabel = ActorLabels[labelNum];
 
@@ -1877,7 +1947,7 @@ next_instruction:
             case CON_GETSPRITESTRUCT:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     auto const &spriteLabel = ActorLabels[labelNum];
 
@@ -1893,7 +1963,7 @@ next_instruction:
             case CON_SETSPRITEEXT:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     auto const &spriteExtLabel = ActorLabels[labelNum];
 
@@ -1910,7 +1980,7 @@ next_instruction:
             case CON_GETSPRITEEXT:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     auto const &spriteExtLabel = ActorLabels[labelNum];
 
@@ -1927,7 +1997,7 @@ next_instruction:
             case CON_SETTSPR:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     auto const &tsprLabel = TsprLabels[labelNum];
 
@@ -1938,7 +2008,7 @@ next_instruction:
             case CON_GETTSPR:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const labelNum  = *insptr++;
                     auto const &tsprLabel = TsprLabels[labelNum];
 
@@ -1949,7 +2019,7 @@ next_instruction:
             case CON_SETSECTOR:
                 insptr++;
                 {
-                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : sprite[vm.spriteNum].sectnum;
+                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : sprite[vm.spriteNum].sectnum;
                     int const   labelNum  = *insptr++;
                     auto const &sectLabel = SectorLabels[labelNum];
                     int const   newValue  = Gv_GetVarX(*insptr++);
@@ -1967,7 +2037,7 @@ next_instruction:
             case CON_GETSECTOR:
                 insptr++;
                 {
-                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : sprite[vm.spriteNum].sectnum;
+                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : sprite[vm.spriteNum].sectnum;
                     int const   labelNum  = *insptr++;
                     auto const &sectLabel = SectorLabels[labelNum];
 
@@ -2043,6 +2113,162 @@ next_instruction:
 
                     continue;
                 }
+
+            case CON_FOR:  // special-purpose iteration
+                insptr++;
+                {
+                    int const returnVar = *insptr++;
+                    int const iterType  = *insptr++;
+                    int const nIndex    = iterType <= ITER_DRAWNSPRITES ? 0 : Gv_GetVarX(*insptr++);
+
+                    auto const pEnd  = insptr + *insptr;
+                    auto const pNext = ++insptr;
+
+                    switch (iterType)
+                    {
+                        case ITER_ALLSPRITES:
+                            for (native_t jj = 0; jj < MAXSPRITES; ++jj)
+                            {
+                                if (sprite[jj].statnum == MAXSTATUS)
+                                    continue;
+
+                                Gv_SetVarX(returnVar, jj);
+                                insptr = pNext;
+                                VM_Execute(0);
+                            }
+                            break;
+                        case ITER_ALLSPRITESBYSTAT:
+                            for (native_t statNum = 0; statNum < MAXSTATUS; ++statNum)
+                            {
+                                for (native_t jj = headspritestat[statNum]; jj >= 0;)
+                                {
+                                    int const kk = nextspritestat[jj];
+                                    Gv_SetVarX(returnVar, jj);
+                                    insptr = pNext;
+                                    VM_Execute(0);
+                                    jj = kk;
+                                }
+                            }
+                            break;
+                        case ITER_ALLSPRITESBYSECT:
+                            for (native_t sectNum = 0; sectNum < numsectors; ++sectNum)
+                            {
+                                for (native_t jj = headspritesect[sectNum]; jj >= 0;)
+                                {
+                                    int const kk = nextspritesect[jj];
+                                    Gv_SetVarX(returnVar, jj);
+                                    insptr = pNext;
+                                    VM_Execute(0);
+                                    jj = kk;
+                                }
+                            }
+                            break;
+                        case ITER_ALLSECTORS:
+                            for (native_t jj = 0; jj < numsectors; ++jj)
+                            {
+                                Gv_SetVarX(returnVar, jj);
+                                insptr = pNext;
+                                VM_Execute(0);
+                            }
+                            break;
+                        case ITER_ALLWALLS:
+                            for (native_t jj = 0; jj < numwalls; ++jj)
+                            {
+                                Gv_SetVarX(returnVar, jj);
+                                insptr = pNext;
+                                VM_Execute(0);
+                            }
+                            break;
+                        case ITER_ACTIVELIGHTS:
+#ifdef POLYMER
+                            for (native_t jj = 0; jj < PR_MAXLIGHTS; ++jj)
+                            {
+                                if (!prlights[jj].flags.active)
+                                    continue;
+
+                                Gv_SetVarX(returnVar, jj);
+                                insptr = pNext;
+                                VM_Execute(0);
+                            }
+#endif
+                            break;
+
+                        case ITER_DRAWNSPRITES:
+                        {
+                            for (native_t ii = 0; ii < spritesortcnt; ii++)
+                            {
+                                Gv_SetVarX(returnVar, ii);
+                                insptr = pNext;
+                                VM_Execute(0);
+                            }
+                            break;
+                        }
+
+                        case ITER_SPRITESOFSECTOR:
+                            if ((unsigned)nIndex >= MAXSECTORS)
+                                goto badindex;
+                            for (native_t jj = headspritesect[nIndex]; jj >= 0;)
+                            {
+                                int const kk = nextspritesect[jj];
+                                Gv_SetVarX(returnVar, jj);
+                                insptr = pNext;
+                                VM_Execute(0);
+                                jj = kk;
+                            }
+                            break;
+                        case ITER_SPRITESOFSTATUS:
+                            if ((unsigned)nIndex >= MAXSTATUS)
+                                goto badindex;
+                            for (native_t jj = headspritestat[nIndex]; jj >= 0;)
+                            {
+                                int const kk = nextspritestat[jj];
+                                Gv_SetVarX(returnVar, jj);
+                                insptr = pNext;
+                                VM_Execute(0);
+                                jj = kk;
+                            }
+                            break;
+                        case ITER_WALLSOFSECTOR:
+                            if ((unsigned)nIndex >= MAXSECTORS)
+                                goto badindex;
+                            for (native_t jj = sector[nIndex].wallptr, endwall = jj + sector[nIndex].wallnum - 1; jj <= endwall; jj++)
+                            {
+                                Gv_SetVarX(returnVar, jj);
+                                insptr = pNext;
+                                VM_Execute(0);
+                            }
+                            break;
+                        case ITER_LOOPOFWALL:
+                            if ((unsigned)nIndex >= (unsigned)numwalls)
+                                goto badindex;
+                            {
+                                int jj = nIndex;
+                                do
+                                {
+                                    Gv_SetVarX(returnVar, jj);
+                                    insptr = pNext;
+                                    VM_Execute(0);
+                                    jj = wall[jj].point2;
+                                } while (jj != nIndex);
+                            }
+                            break;
+                        case ITER_RANGE:
+                            for (native_t jj = 0; jj < nIndex; jj++)
+                            {
+                                Gv_SetVarX(returnVar, jj);
+                                insptr = pNext;
+                                VM_Execute(0);
+                            }
+                            break;
+badindex:
+                            OSD_Printf(OSD_ERROR "Line %d, for %s: index %d out of range!\n", g_errorLineNum, iter_tokens[iterType].token, nIndex);
+                            vm.flags |= VM_RETURN;
+                            continue;
+                    }
+                    insptr = pEnd;
+                }
+                continue;
+
             case CON_REDEFINEQUOTE:
                 insptr++;
                 {
@@ -2276,6 +2502,14 @@ next_instruction:
                     VM_CONDITIONAL(ud.respawn_items)
                 continue;
 
+            case CON_IFINOUTERSPACE:
+                VM_CONDITIONAL(G_CheckForSpaceFloor(vm.pSprite->sectnum));
+                continue;
+
+            case CON_IFNOTMOVING:
+                VM_CONDITIONAL((vm.pActor->movflag & 49152) > 16384);
+                continue;
+
             case CON_IFCANSEE:
             {
                 auto pSprite = (uspritetype *)&sprite[pPlayer->i];
@@ -2461,7 +2695,7 @@ next_instruction:
                 }
 
                 if (!S_CheckSoundPlaying(vm.spriteNum, *insptr++))
-                    A_PlaySound(*(insptr - 1), vm.spriteNum);
+                    A_PlaySound(insptr[-1], vm.spriteNum);
 
                 continue;
 
@@ -2524,7 +2758,7 @@ next_instruction:
             case CON_ACTORSOUND:
                 insptr++;
                 {
-                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                    int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const soundNum  = Gv_GetVarX(*insptr++);
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)soundNum >= MAXSOUNDS))
@@ -2837,7 +3071,7 @@ next_instruction:
                 insptr++;
                 {
                     int const nTag      = Gv_GetVarX(*insptr++);
-                    int const playerNum = (*insptr++ == g_thisActorVarID) ? vm.playerNum : Gv_GetVarX(*(insptr - 1));
+                    int const playerNum = (*insptr++ == g_thisActorVarID) ? vm.playerNum : Gv_GetVarX(insptr[-1]);
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
                     {
@@ -4324,7 +4558,7 @@ next_instruction:
             case CON_ADDINVENTORY:
                 insptr += 2;
 
-                VM_AddInventory(pPlayer, *(insptr - 1), *insptr);
+                VM_AddInventory(pPlayer, insptr[-1], *insptr);
 
                 insptr++;
                 continue;
@@ -4339,7 +4573,7 @@ next_instruction:
                 continue;
 
             case CON_HITRADIUS:
-                A_RadiusDamage(vm.spriteNum, *(insptr + 1), *(insptr + 2), *(insptr + 3), *(insptr + 4), *(insptr + 5));
+                A_RadiusDamage(vm.spriteNum, insptr[1], insptr[2], insptr[3], insptr[4], insptr[5]);
                 insptr += 6;
                 continue;
 
@@ -4385,7 +4619,7 @@ next_instruction:
 
             case CON_GUTS:
 #ifndef EDUKE32_STANDALONE
-                A_DoGuts(vm.spriteNum, *(insptr + 1), *(insptr + 2));
+                A_DoGuts(vm.spriteNum, insptr[1], insptr[2]);
 #endif
                 insptr += 3;
                 continue;
@@ -4484,7 +4718,7 @@ next_instruction:
                 }
                 else
                 {
-                    palette_t const pal = { (uint8_t) * (insptr + 1), (uint8_t) * (insptr + 2), (uint8_t) * (insptr + 3), (uint8_t) * (insptr) };
+                    palette_t const pal = { uint8_t(insptr[1]), uint8_t(insptr[2]), uint8_t(insptr[3]), uint8_t(insptr[0]) };
                     insptr += 4;
                     P_PalFrom(pPlayer, pal.f, pal.r, pal.g, pal.b);
                 }
@@ -4644,9 +4878,10 @@ next_instruction:
                             //                    FIXME FIXME FIXME
                             if ((lVarID & (MAXGAMEVARS - 1)) == g_structVarIDs + STRUCT_ACTORVAR)
                             {
-                                intptr_t const *oinsptr = insptr++;
-                                int32_t         index   = Gv_GetVarX(*insptr++);
-                                insptr                  = oinsptr;
+                                auto const oinsptr = insptr++;
+                                int32_t    index   = Gv_GetVarX(*insptr++);
+                                insptr             = oinsptr;
+
                                 if (EDUKE32_PREDICT_FALSE((unsigned)index >= MAXSPRITES - 1))
                                 {
                                     CON_ERRPRINTF("invalid array index\n");
@@ -4843,7 +5078,7 @@ next_instruction:
             case CON_GETINPUT:
                 insptr++;
                 {
-                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
+                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.playerNum;
                     int const labelNum  = *insptr++;
 
                     Gv_SetVarX(*insptr++, VM_GetPlayerInput(playerNum, labelNum));
@@ -4853,7 +5088,7 @@ next_instruction:
             case CON_SETINPUT:
                 insptr++;
                 {
-                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
+                    int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.playerNum;
                     int const labelNum  = *insptr++;
 
                     VM_SetPlayerInput(playerNum, labelNum, Gv_GetVarX(*insptr++));
@@ -4873,7 +5108,7 @@ next_instruction:
             case CON_GETTILEDATA:
                 insptr++;
                 {
-                    int const tileNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.pSprite->picnum;
+                    int const tileNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.pSprite->picnum;
                     int const labelNum = *insptr++;
 
                     Gv_SetVarX(*insptr++, VM_GetTileData(tileNum, labelNum));
@@ -4883,7 +5118,7 @@ next_instruction:
             case CON_SETTILEDATA:
                 insptr++;
                 {
-                    int const tileNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.pSprite->picnum;
+                    int const tileNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.pSprite->picnum;
                     int const labelNum = *insptr++;
 
                     VM_SetTileData(tileNum, labelNum, Gv_GetVarX(*insptr++));
@@ -4975,10 +5210,10 @@ next_instruction:
                 continue;
 
             case CON_KLABS:
-                if ((aGameVars[*(insptr + 1)].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
-                    aGameVars[*(insptr + 1)].global = klabs(aGameVars[*(insptr + 1)].global);
+                if ((aGameVars[insptr[1]].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
+                    aGameVars[insptr[1]].global = klabs(aGameVars[insptr[1]].global);
                 else
-                    Gv_SetVarX(*(insptr + 1), klabs(Gv_GetVarX(*(insptr + 1))));
+                    Gv_SetVarX(insptr[1], klabs(Gv_GetVarX(insptr[1])));
                 insptr += 2;
                 continue;
 
@@ -5306,13 +5541,13 @@ next_instruction:
 
             case CON_RANDVAR:
                 insptr++;
-                Gv_SetVarX(*insptr, mulscale16(krand(), *(insptr + 1) + 1));
+                Gv_SetVarX(*insptr, mulscale16(krand(), insptr[1] + 1));
                 insptr += 2;
                 continue;
 
             case CON_DISPLAYRANDVAR:
                 insptr++;
-                Gv_SetVarX(*insptr, mulscale15(system_15bit_rand(), *(insptr + 1) + 1));
+                Gv_SetVarX(*insptr, mulscale15(system_15bit_rand(), insptr[1] + 1));
                 insptr += 2;
                 continue;
 
@@ -5368,10 +5603,10 @@ next_instruction:
                 continue;
 
             case CON_INV:
-                if ((aGameVars[*(insptr + 1)].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
-                    aGameVars[*(insptr + 1)].global = -aGameVars[*(insptr + 1)].global;
+                if ((aGameVars[insptr[1]].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
+                    aGameVars[insptr[1]].global = -aGameVars[insptr[1]].global;
                 else
-                    Gv_SetVarX(*(insptr + 1), -Gv_GetVarX(*(insptr + 1)));
+                    Gv_SetVarX(insptr[1], -Gv_GetVarX(insptr[1]));
                 insptr += 2;
                 continue;
 
@@ -5554,232 +5789,6 @@ next_instruction:
                 aGameVars[g_textureVarID].global = sector[vm.pSprite->sectnum].ceilingpicnum;
                 continue;
 
-            case CON_IFVARVAREITHER:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                tw = (Gv_GetVarX(*insptr++) || tw);
-                insptr--;
-                VM_CONDITIONAL(tw);
-                continue;
-
-            case CON_IFVARVARBOTH:
-                insptr++;
-                tw = Gv_GetVarX(*insptr++);
-                tw = (Gv_GetVarX(*insptr++) && tw);
-                insptr--;
-                VM_CONDITIONAL(tw);
-                continue;
-
-            case CON_WHILEVARN:
-            {
-                intptr_t const *const savedinsptr = insptr + 2;
-                do
-                {
-                    insptr = savedinsptr;
-                    tw     = (Gv_GetVarX(*(insptr - 1)) != *insptr);
-                    VM_CONDITIONAL(tw);
-                } while (tw);
-                continue;
-            }
-
-            case CON_WHILEVARL:
-            {
-                intptr_t const *const savedinsptr = insptr + 2;
-                do
-                {
-                    insptr = savedinsptr;
-                    tw     = (Gv_GetVarX(*(insptr - 1)) < *insptr);
-                    VM_CONDITIONAL(tw);
-                } while (tw);
-                continue;
-            }
-
-            case CON_WHILEVARVARN:
-            {
-                intptr_t const *const savedinsptr = insptr + 2;
-                do
-                {
-                    insptr = savedinsptr;
-                    tw     = Gv_GetVarX(*(insptr - 1));
-                    tw     = (tw != Gv_GetVarX(*insptr++));
-                    insptr--;
-                    VM_CONDITIONAL(tw);
-                } while (tw);
-                continue;
-            }
-
-            case CON_WHILEVARVARL:
-            {
-                intptr_t const *const savedinsptr = insptr + 2;
-                do
-                {
-                    insptr = savedinsptr;
-                    tw     = Gv_GetVarX(*(insptr - 1));
-                    tw     = (tw < Gv_GetVarX(*insptr++));
-                    insptr--;
-                    VM_CONDITIONAL(tw);
-                } while (tw);
-                continue;
-            }
-
-            case CON_FOR:  // special-purpose iteration
-                insptr++;
-                {
-                    int const returnVar = *insptr++;
-                    int const iterType  = *insptr++;
-                    int const nIndex    = iterType <= ITER_DRAWNSPRITES ? 0 : Gv_GetVarX(*insptr++);
-
-                    intptr_t const *const pEnd  = insptr + *insptr;
-                    intptr_t const *const pNext = ++insptr;
-
-                    switch (iterType)
-                    {
-                        case ITER_ALLSPRITES:
-                            for (native_t jj = 0; jj < MAXSPRITES; ++jj)
-                            {
-                                if (sprite[jj].statnum == MAXSTATUS)
-                                    continue;
-
-                                Gv_SetVarX(returnVar, jj);
-                                insptr = pNext;
-                                VM_Execute(0);
-                            }
-                            break;
-                        case ITER_ALLSPRITESBYSTAT:
-                            for (native_t statNum = 0; statNum < MAXSTATUS; ++statNum)
-                            {
-                                for (native_t jj = headspritestat[statNum]; jj >= 0;)
-                                {
-                                    int const kk = nextspritestat[jj];
-                                    Gv_SetVarX(returnVar, jj);
-                                    insptr = pNext;
-                                    VM_Execute(0);
-                                    jj = kk;
-                                }
-                            }
-                            break;
-                        case ITER_ALLSPRITESBYSECT:
-                            for (native_t sectNum = 0; sectNum < numsectors; ++sectNum)
-                            {
-                                for (native_t jj = headspritesect[sectNum]; jj >= 0;)
-                                {
-                                    int const kk = nextspritesect[jj];
-                                    Gv_SetVarX(returnVar, jj);
-                                    insptr = pNext;
-                                    VM_Execute(0);
-                                    jj = kk;
-                                }
-                            }
-                            break;
-                        case ITER_ALLSECTORS:
-                            for (native_t jj = 0; jj < numsectors; ++jj)
-                            {
-                                Gv_SetVarX(returnVar, jj);
-                                insptr = pNext;
-                                VM_Execute(0);
-                            }
-                            break;
-                        case ITER_ALLWALLS:
-                            for (native_t jj = 0; jj < numwalls; ++jj)
-                            {
-                                Gv_SetVarX(returnVar, jj);
-                                insptr = pNext;
-                                VM_Execute(0);
-                            }
-                            break;
-                        case ITER_ACTIVELIGHTS:
-#ifdef POLYMER
-                            for (native_t jj = 0; jj < PR_MAXLIGHTS; ++jj)
-                            {
-                                if (!prlights[jj].flags.active)
-                                    continue;
-
-                                Gv_SetVarX(returnVar, jj);
-                                insptr = pNext;
-                                VM_Execute(0);
-                            }
-#endif
-                            break;
-
-                        case ITER_DRAWNSPRITES:
-                        {
-                            for (native_t ii = 0; ii < spritesortcnt; ii++)
-                            {
-                                Gv_SetVarX(returnVar, ii);
-                                insptr = pNext;
-                                VM_Execute(0);
-                            }
-                            break;
-                        }
-
-                        case ITER_SPRITESOFSECTOR:
-                            if ((unsigned)nIndex >= MAXSECTORS)
-                                goto badindex;
-                            for (native_t jj = headspritesect[nIndex]; jj >= 0;)
-                            {
-                                int const kk = nextspritesect[jj];
-                                Gv_SetVarX(returnVar, jj);
-                                insptr = pNext;
-                                VM_Execute(0);
-                                jj = kk;
-                            }
-                            break;
-                        case ITER_SPRITESOFSTATUS:
-                            if ((unsigned)nIndex >= MAXSTATUS)
-                                goto badindex;
-                            for (native_t jj = headspritestat[nIndex]; jj >= 0;)
-                            {
-                                int const kk = nextspritestat[jj];
-                                Gv_SetVarX(returnVar, jj);
-                                insptr = pNext;
-                                VM_Execute(0);
-                                jj = kk;
-                            }
-                            break;
-                        case ITER_WALLSOFSECTOR:
-                            if ((unsigned)nIndex >= MAXSECTORS)
-                                goto badindex;
-                            for (native_t jj = sector[nIndex].wallptr, endwall = jj + sector[nIndex].wallnum - 1; jj <= endwall; jj++)
-                            {
-                                Gv_SetVarX(returnVar, jj);
-                                insptr = pNext;
-                                VM_Execute(0);
-                            }
-                            break;
-                        case ITER_LOOPOFWALL:
-                            if ((unsigned)nIndex >= (unsigned)numwalls)
-                                goto badindex;
-                            {
-                                int jj = nIndex;
-                                do
-                                {
-                                    Gv_SetVarX(returnVar, jj);
-                                    insptr = pNext;
-                                    VM_Execute(0);
-                                    jj = wall[jj].point2;
-                                } while (jj != nIndex);
-                            }
-                            break;
-                        case ITER_RANGE:
-                            for (native_t jj = 0; jj < nIndex; jj++)
-                            {
-                                Gv_SetVarX(returnVar, jj);
-                                insptr = pNext;
-                                VM_Execute(0);
-                            }
-                            break;
-                        default:
-                            CON_ERRPRINTF("invalid iterator type %d", iterType);
-                            continue;
-                        badindex:
-                            OSD_Printf(OSD_ERROR "Line %d, for %s: index %d out of range!\n", g_errorLineNum, iter_tokens[iterType].token, nIndex);
-                            vm.flags |= VM_RETURN;
-                            continue;
-                    }
-                    insptr = pEnd;
-                }
-                continue;
-
             case CON_IFPHEALTHL:
                 insptr++;
                 VM_CONDITIONAL(sprite[pPlayer->i].extra < *insptr);
@@ -5797,7 +5806,7 @@ next_instruction:
                     case GET_HEATS:
                     case GET_FIRSTAID:
                     case GET_BOOTS:
-                    case GET_JETPACK: tw = (pPlayer->inv_amount[*(insptr - 1)] != *insptr); break;
+                    case GET_JETPACK: tw = (pPlayer->inv_amount[insptr[-1]] != *insptr); break;
 
                     case GET_ACCESS:
                         switch (vm.pSprite->pal)
@@ -5912,10 +5921,6 @@ next_instruction:
                 OSD_Printf("%s\n", apStrings[tw]);
                 continue;
 
-            case CON_IFINOUTERSPACE: VM_CONDITIONAL(G_CheckForSpaceFloor(vm.pSprite->sectnum)); continue;
-
-            case CON_IFNOTMOVING: VM_CONDITIONAL((vm.pActor->movflag & 49152) > 16384); continue;
-
             case CON_RESPAWNHITAG:
                 insptr++;
                 switch (DYNAMICTILEMAP(vm.pSprite->picnum))
@@ -6024,7 +6029,7 @@ void VM_UpdateAnim(int spriteNum, int32_t *pData)
 {
 #if !defined LUNATIC
     size_t const actionofs = AC_ACTION_ID(pData);
-    intptr_t const *actionptr = (actionofs != 0 && actionofs + (ACTION_PARAM_COUNT-1) < (unsigned) g_scriptSize) ? &apScript[actionofs] : NULL;
+    auto const actionptr = (actionofs != 0 && actionofs + (ACTION_PARAM_COUNT-1) < (unsigned) g_scriptSize) ? &apScript[actionofs] : NULL;
 
     if (actionptr != NULL)
 #endif
