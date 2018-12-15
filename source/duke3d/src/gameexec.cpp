@@ -1275,26 +1275,20 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
     DukePlayer_t *const pPlayer = vm.pPlayer;
 
     // jump directly into the loop, skipping branches during the first iteration
-    goto skip_check;
+    goto next_instruction;
 
-    while (loop)
+    while (loop && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0)
     {
-        if (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE))
-            break;
-
         tw = *insptr;
 
-    skip_check:
-        //      Bsprintf(g_szBuf,"Parsing: %d",*insptr);
-        //      AddLog(g_szBuf);
-
+next_instruction:
         g_errorLineNum = tw >> 12;
-        g_tw           = tw &= VM_INSTMASK;
+        g_tw = tw &= VM_INSTMASK;
 
         if (tw == CON_LEFTBRACE)
         {
-            insptr++, loop++;
-            continue;
+            tw = *(++insptr), loop++;
+            goto next_instruction;
         }
         else if (tw == CON_RIGHTBRACE)
         {
@@ -1304,12 +1298,13 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
         else if (tw == CON_ELSE)
         {
             insptr = (intptr_t *)*(insptr + 1);
-            continue;
+            tw = *insptr;
+            goto next_instruction;
         }
         else if (tw == CON_STATE)
         {
-            intptr_t const *const tempscrptr = insptr + 2;
-            insptr                           = (intptr_t *)*(insptr + 1);
+            auto tempscrptr = insptr + 2;
+            insptr = (intptr_t *)*(insptr + 1);
             VM_Execute(1);
             insptr = tempscrptr;
             continue;
@@ -1326,14 +1321,15 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case CON_JUMP:  // this is used for event chaining
                 insptr++;
-                tw     = Gv_GetVarX(*insptr++);
+                tw = Gv_GetVarX(*insptr++);
                 insptr = (intptr_t *)(tw + apScript);
-                continue;
+                tw = *insptr;
+                goto next_instruction;
 
             case CON_SETVARVAR:
                 insptr++;
                 {
-                    tw               = *insptr++;
+                    tw = *insptr++;
                     int const nValue = Gv_GetVarX(*insptr++);
 
                     if ((aGameVars[tw].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
