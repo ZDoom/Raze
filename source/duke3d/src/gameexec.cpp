@@ -6383,8 +6383,8 @@ badindex:
                 continue;
 
             default:  // you aren't supposed to be here!
-                debug_break();
                 VM_ScriptInfo(insptr, 64);
+                debug_break();
                 G_GameExit("An error has occurred in the " APPNAME " virtual machine.\n\n"
                            "If you are an end user, please e-mail the file " APPBASENAME ".log\n"
                            "along with links to any mods you're using to development@voidpoint.com.\n\n"
