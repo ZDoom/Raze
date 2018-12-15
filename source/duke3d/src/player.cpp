@@ -2854,8 +2854,8 @@ enddisplayweapon:
 #define NORMALKEYMOVE 40
 #define MAXVEL       ((NORMALKEYMOVE*2)+10)
 #define MAXSVEL      ((NORMALKEYMOVE*2)+10)
-#define MAXANGVEL    255
-#define MAXHORIZ     127
+#define MAXANGVEL    512
+#define MAXHORIZ     256
 
 int32_t g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
