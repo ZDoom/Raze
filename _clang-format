@@ -1,16 +1,16 @@
+AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AlignEscapedNewlinesLeft: true 
 AlignOperands: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortCaseLabelsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: false 
 AllowShortFunctionsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: false
-ExperimentalAutoDetectBinPacking: true
 BinPackArguments: true
 BinPackParameters: true
 BreakBeforeBinaryOperators: true
@@ -23,6 +23,7 @@ ConstructorInitializerIndentWidth: 0
 ContinuationIndentWidth: 0
 Cpp11BracedListStyle: false
 DerivePointerBinding: false
+ExperimentalAutoDetectBinPacking: true
 IndentCaseLabels: true
 IndentFunctionDeclarationAfterType: true
 IndentWidth: 4
@@ -37,8 +38,8 @@ SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
 SpacesInAngles: false
-SpacesInCStyleCastParentheses: false
 SpacesInContainerLiterals: false
+SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 Standard: Cpp11
