@@ -1206,8 +1206,8 @@ next_sprite:
 }
 
 
-static int P_Submerge(int, int, DukePlayer_t *, int, int);
-static int P_Emerge(int, int, DukePlayer_t *, int, int);
+static int P_Submerge(int, DukePlayer_t *, int, int);
+static int P_Emerge(int, DukePlayer_t *, int, int);
 static void P_FinishWaterChange(int, DukePlayer_t *, int, int, int);
 
 ACTOR_STATIC void G_MovePlayers(void)
@@ -1247,8 +1247,8 @@ ACTOR_STATIC void G_MovePlayers(void)
                     pPlayer->on_warping_sector = 1;
 
                     if ((sectorLotag == ST_1_ABOVE_WATER ?
-                        P_Submerge(spriteNum, P_GetP(pSprite), pPlayer, playerSectnum, otherSector) :
-                        P_Emerge(spriteNum, P_GetP(pSprite), pPlayer, playerSectnum, otherSector)) == 1)
+                        P_Submerge(P_GetP(pSprite), pPlayer, playerSectnum, otherSector) :
+                        P_Emerge(P_GetP(pSprite), pPlayer, playerSectnum, otherSector)) == 1)
                         P_FinishWaterChange(spriteNum, pPlayer, sectorLotag, -1, otherSector);
                 }
 #endif
@@ -3332,7 +3332,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
 }
 
 
-static int P_Submerge(int const spriteNum, int const playerNum, DukePlayer_t * const pPlayer, int const sectNum, int const otherSect)
+static int P_Submerge(int const playerNum, DukePlayer_t * const pPlayer, int const sectNum, int const otherSect)
 {
     if (pPlayer->on_ground && pPlayer->pos.z >= sector[sectNum].floorz
         && (TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_CROUCH) || pPlayer->vel.z > 2048))
@@ -3346,7 +3346,7 @@ static int P_Submerge(int const spriteNum, int const playerNum, DukePlayer_t * c
 
 #ifndef EDUKE32_STANDALONE
         if (sprite[pPlayer->i].extra > 0)
-            A_PlaySound(DUKE_UNDERWATER, spriteNum);
+            A_PlaySound(DUKE_UNDERWATER, pPlayer->i);
 #endif
 
         pPlayer->opos.z = pPlayer->pos.z = sector[otherSect].ceilingz;
@@ -3360,7 +3360,7 @@ static int P_Submerge(int const spriteNum, int const playerNum, DukePlayer_t * c
     return 0;
 }
 
-static int P_Emerge(int const spriteNum, int const playerNum, DukePlayer_t * const pPlayer, int const sectNum, int const otherSect)
+static int P_Emerge(int const playerNum, DukePlayer_t * const pPlayer, int const sectNum, int const otherSect)
 {
     // r1449-:
     if (pPlayer->pos.z < (sector[sectNum].ceilingz+1080) && pPlayer->vel.z == 0)
@@ -3375,7 +3375,7 @@ static int P_Emerge(int const spriteNum, int const playerNum, DukePlayer_t * con
         }
 
 #ifndef EDUKE32_STANDALONE
-        A_PlaySound(DUKE_GASP, spriteNum);
+        A_PlaySound(DUKE_GASP, pPlayer->i);
 #endif
 
         pPlayer->opos.z = pPlayer->pos.z = sector[otherSect].floorz;
@@ -3536,9 +3536,9 @@ ACTOR_STATIC void G_MoveTransports(void)
                             if (onFloor)
                             {
                                 if (sectLotag == ST_1_ABOVE_WATER)
-                                    doWater = P_Submerge(sectSprite, playerNum, pPlayer, sectNum, sprite[OW(spriteNum)].sectnum);
+                                    doWater = P_Submerge(playerNum, pPlayer, sectNum, sprite[OW(spriteNum)].sectnum);
                                 else if (sectLotag == ST_2_UNDERWATER)
-                                    doWater = P_Emerge(sectSprite, playerNum, pPlayer, sectNum, sprite[OW(spriteNum)].sectnum);
+                                    doWater = P_Emerge(playerNum, pPlayer, sectNum, sprite[OW(spriteNum)].sectnum);
 
                                 if (doWater == 1)
                                 {
