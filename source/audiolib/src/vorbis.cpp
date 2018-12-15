@@ -67,10 +67,10 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
 
     for (int comment = 0; comment < vc->comments; ++comment)
     {
-        const char *entry = (const char *)vc->user_comments[comment];
+        auto entry = (const char *)vc->user_comments[comment];
         if (entry != NULL && entry[0] != '\0')
         {
-            const char *value = strchr(entry, '=');
+            const char *value = Bstrchr(entry, '=');
 
             if (!value)
                 continue;
@@ -80,22 +80,22 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
 
             for (size_t t = 0; t < loopStartTagCount && vc_loopstart == NULL; ++t)
             {
-                char const * const tag = loopStartTags[t];
-                if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
+                auto tag = loopStartTags[t];
+                if (field == Bstrlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                     vc_loopstart = value;
             }
 
             for (size_t t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
             {
-                char const * const tag = loopEndTags[t];
-                if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
+                auto tag = loopEndTags[t];
+                if (field == Bstrlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                     vc_loopend = value;
             }
 
             for (size_t t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
             {
-                char const * const tag = loopLengthTags[t];
-                if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
+                auto tag = loopLengthTags[t];
+                if (field == Bstrlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                     vc_looplength = value;
             }
         }
@@ -103,20 +103,18 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
 
     if (vc_loopstart != NULL)
     {
+        const ogg_int64_t ov_loopstart = Batol(vc_loopstart);
+        if (ov_loopstart >= 0) // a loop starting at 0 is valid
         {
-            const ogg_int64_t ov_loopstart = atol(vc_loopstart);
-            if (ov_loopstart >= 0) // a loop starting at 0 is valid
-            {
-                voice->LoopStart = (const char *) (intptr_t) ov_loopstart;
-                voice->LoopSize = 1;
-            }
+            voice->LoopStart = (const char *) (intptr_t) ov_loopstart;
+            voice->LoopSize = 1;
         }
     }
     if (vc_loopend != NULL)
     {
         if (voice->LoopSize > 0)
         {
-            const ogg_int64_t ov_loopend = atol(vc_loopend);
+            const ogg_int64_t ov_loopend = Batol(vc_loopend);
             if (ov_loopend > 0) // a loop ending at 0 is invalid
                 voice->LoopEnd = (const char *) (intptr_t) ov_loopend;
         }
@@ -125,7 +123,7 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
     {
         if (voice->LoopSize > 0 && voice->LoopEnd == 0)
         {
-            const ogg_int64_t ov_looplength = atol(vc_looplength);
+            const ogg_int64_t ov_looplength = Batol(vc_looplength);
             if (ov_looplength > 0) // a loop of length 0 is invalid
                 voice->LoopEnd = (const char *) ((intptr_t) ov_looplength + (intptr_t) voice->LoopStart);
         }
