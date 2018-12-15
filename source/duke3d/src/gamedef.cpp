@@ -144,19 +144,19 @@ static tokenmap_t const vm_keywords[] =
     { "addammo",                CON_ADDAMMO },
     { "addinventory",           CON_ADDINVENTORY },
     { "addkills",               CON_ADDKILLS },
-    { "addlog",                 CON_ADDLOG },
+    { "addlog",                 CON_ADDLOGVAR },
     { "addlogvar",              CON_ADDLOGVAR },
     { "addphealth",             CON_ADDPHEALTH },
     { "addstrength",            CON_ADDSTRENGTH },
     { "addvar",                 CON_ADDVAR },
     { "addvarvar",              CON_ADDVARVAR },
     { "addweapon",              CON_ADDWEAPON },
-    { "addweaponvar",           CON_ADDWEAPONVAR },
+    { "addweaponvar",           CON_ADDWEAPON },
     { "ai",                     CON_AI },
     { "andvar",                 CON_ANDVAR },
     { "andvarvar",              CON_ANDVARVAR },
     { "angoff",                 CON_ANGOFF },
-    { "angoffvar",              CON_ANGOFFVAR },
+    { "angoffvar",              CON_ANGOFF },
     { "appendevent",            CON_APPENDEVENT },
     { "betaname",               CON_BETANAME },
     { "break",                  CON_BREAK },
@@ -225,18 +225,18 @@ static tokenmap_t const vm_keywords[] =
     { "ends",                   CON_ENDS },
     { "endswitch",              CON_ENDSWITCH },
     { "enhanced",               CON_ENHANCED },
-    { "eqspawnvar",             CON_EQSPAWNVAR },
-    { "eshootvar",              CON_ESHOOTVAR },
-    { "espawnvar",              CON_ESPAWNVAR },
+    { "eqspawnvar",             CON_EQSPAWN },
+    { "eshootvar",              CON_ESHOOT },
+    { "espawnvar",              CON_ESPAWN },
     { "eventloadactor",         CON_EVENTLOADACTOR },
-    { "ezshootvar",             CON_EZSHOOTVAR },
+    { "ezshootvar",             CON_EZSHOOT },
     { "fall",                   CON_FALL },
-    { "findnearactor3dvar",     CON_FINDNEARACTOR3DVAR },
-    { "findnearactorvar",       CON_FINDNEARACTORVAR },
-    { "findnearactorzvar",      CON_FINDNEARACTORZVAR },
-    { "findnearsprite3dvar",    CON_FINDNEARSPRITE3DVAR },
-    { "findnearspritevar",      CON_FINDNEARSPRITEVAR },
-    { "findnearspritezvar",     CON_FINDNEARSPRITEZVAR },
+    { "findnearactor3dvar",     CON_FINDNEARACTOR3D },
+    { "findnearactorvar",       CON_FINDNEARACTOR },
+    { "findnearactorzvar",      CON_FINDNEARACTORZ },
+    { "findnearsprite3dvar",    CON_FINDNEARSPRITE3D },
+    { "findnearspritevar",      CON_FINDNEARSPRITE },
+    { "findnearspritezvar",     CON_FINDNEARSPRITEZ },
     { "findotherplayer",        CON_FINDOTHERPLAYER },
     { "findplayer",             CON_FINDPLAYER },
     { "flash",                  CON_FLASH },
@@ -278,14 +278,14 @@ static tokenmap_t const vm_keywords[] =
     { "getwall",                CON_GETWALL },
     { "getzrange",              CON_GETZRANGE },
     { "globalsound",            CON_GLOBALSOUND },
-    { "globalsoundvar",         CON_GLOBALSOUNDVAR },
+    { "globalsoundvar",         CON_GLOBALSOUND },
     { "gmaxammo",               CON_GMAXAMMO },
     { "guniqhudid",             CON_GUNIQHUDID },
     { "guts",                   CON_GUTS },
     { "headspritesect",         CON_HEADSPRITESECT },
     { "headspritestat",         CON_HEADSPRITESTAT },
     { "hitradius",              CON_HITRADIUS },
-    { "hitradiusvar",           CON_HITRADIUSVAR },
+    { "hitradiusvar",           CON_HITRADIUS },
     { "hitscan",                CON_HITSCAN },
     { "ifaction",               CON_IFACTION },
     { "ifactioncount",          CON_IFACTIONCOUNT },
@@ -416,7 +416,7 @@ static tokenmap_t const vm_keywords[] =
     { "preloadtrackslotforswap", CON_PRELOADTRACKSLOTFORSWAP },
     { "pstomp",                 CON_PSTOMP },
     { "qgetsysstr",             CON_QGETSYSSTR },
-    { "qspawnvar",              CON_QSPAWNVAR },
+    { "qspawnvar",              CON_QSPAWN },
     { "qsprintf",               CON_QSPRINTF },
     { "qstrcat",                CON_QSTRCAT },
     { "qstrcmp",                CON_QSTRCMP },
@@ -488,7 +488,7 @@ static tokenmap_t const vm_keywords[] =
     { "shiftvarr",              CON_SHIFTVARR },
     { "shiftvarvarl",           CON_SHIFTVARVARL },
     { "shiftvarvarr",           CON_SHIFTVARVARR },
-    { "shootvar",               CON_SHOOTVAR },
+    { "shootvar",               CON_SHOOT },
     { "showview",               CON_SHOWVIEW },
     { "showviewunbiased",       CON_SHOWVIEWUNBIASED },
     { "showviewq16",            CON_SHOWVIEWQ16 },
@@ -500,8 +500,8 @@ static tokenmap_t const vm_keywords[] =
     { "smaxammo",               CON_SMAXAMMO },
     { "sound",                  CON_SOUND },
     { "soundonce",              CON_SOUNDONCE },
-    { "soundoncevar",           CON_SOUNDONCEVAR },
-    { "soundvar",               CON_SOUNDVAR },
+    { "soundoncevar",           CON_SOUNDONCE },
+    { "soundvar",               CON_SOUND },
     { "spawn",                  CON_SPAWN },
     { "spawnceilingglass",      CON_SPAWNCEILINGGLASS },
     { "spawnwallstainedglass",  CON_SPAWNWALLSTAINEDGLASS },
@@ -521,13 +521,13 @@ static tokenmap_t const vm_keywords[] =
     { "startscreen",            CON_STARTSCREEN },
     { "starttrack",             CON_STARTTRACK },
     { "starttrackslot",         CON_STARTTRACKSLOT },
-    { "starttrackvar",          CON_STARTTRACKVAR },
+    { "starttrackvar",          CON_STARTTRACK },
     { "state",                  CON_STATE },
     { "stopactorsound",         CON_STOPACTORSOUND },
     { "stopallmusic",           CON_STOPALLMUSIC },
     { "stopallsounds",          CON_STOPALLSOUNDS },
     { "stopsound",              CON_STOPSOUND },
-    { "stopsoundvar",           CON_STOPSOUNDVAR },
+    { "stopsoundvar",           CON_STOPSOUND },
     { "strength",               CON_STRENGTH },
     { "subvar",                 CON_SUBVAR },
     { "subvarvar",              CON_SUBVARVAR },
@@ -554,7 +554,7 @@ static tokenmap_t const vm_keywords[] =
     { "writearraytofile",       CON_WRITEARRAYTOFILE },
     { "xorvar",                 CON_XORVAR },
     { "xorvarvar",              CON_XORVARVAR },
-    { "zshootvar",              CON_ZSHOOTVAR },
+    { "zshootvar",              CON_ZSHOOT },
     { "{",                      CON_LEFTBRACE },
     { "}",                      CON_RIGHTBRACE },
 
@@ -621,22 +621,22 @@ static tokenmap_t const vm_keywords[] =
 
     { "qputs",                  CON_REDEFINEQUOTE },
 
-    { "espawn",                 CON_ESPAWNVAR },
-    { "qspawn",                 CON_QSPAWNVAR },
-    { "eqspawn",                CON_EQSPAWNVAR },
+    { "espawn",                 CON_ESPAWN },
+    { "qspawn",                 CON_QSPAWN },
+    { "eqspawn",                CON_EQSPAWN },
 
-    { "eshoot",                 CON_ESHOOTVAR },
-    { "zshoot",                 CON_ZSHOOTVAR },
-    { "ezshoot",                CON_EZSHOOTVAR },
-    { "shoot",                  CON_SHOOTVAR },
+    { "eshoot",                 CON_ESHOOT },
+    { "zshoot",                 CON_ZSHOOT },
+    { "ezshoot",                CON_EZSHOOT },
+    { "shoot",                  CON_SHOOT },
 
-    { "findnearactor",          CON_FINDNEARACTORVAR },
-    { "findnearactor3d",        CON_FINDNEARACTOR3DVAR },
-    { "findnearactorz",         CON_FINDNEARACTORZVAR },
+    { "findnearactor",          CON_FINDNEARACTOR },
+    { "findnearactor3d",        CON_FINDNEARACTOR3D },
+    { "findnearactorz",         CON_FINDNEARACTORZ },
 
-    { "findnearsprite",         CON_FINDNEARSPRITEVAR },
-    { "findnearsprite3d",       CON_FINDNEARSPRITE3DVAR },
-    { "findnearspritez",        CON_FINDNEARSPRITEZVAR },
+    { "findnearsprite",         CON_FINDNEARSPRITE },
+    { "findnearsprite3d",       CON_FINDNEARSPRITE3D },
+    { "findnearspritez",        CON_FINDNEARSPRITEZ },
 };
 
 static const vec2_t varvartable[] =
@@ -3099,7 +3099,7 @@ DO_DEFSTATE:
             C_GetManyVars(4);
             continue;
 
-        case CON_HITRADIUSVAR:
+        case CON_HITRADIUS:
         case CON_DRAWLINE256:
             C_GetManyVars(5);
             continue;
@@ -3108,14 +3108,8 @@ DO_DEFSTATE:
             C_GetManyVars(6);
             continue;
 
-        case CON_HITRADIUS:
-            C_GetNextValue(LABEL_DEFINE);
-            C_GetNextValue(LABEL_DEFINE);
-            C_GetNextValue(LABEL_DEFINE);
-            fallthrough__;
         case CON_ADDAMMO:
         case CON_ADDINVENTORY:
-        case CON_ADDWEAPON:
         case CON_DEBRIS:
         case CON_GUTS:
         case CON_SIZEAT:
@@ -3125,7 +3119,6 @@ DO_DEFSTATE:
         case CON_ADDKILLS:
         case CON_ADDPHEALTH:
         case CON_ADDSTRENGTH:
-        case CON_ANGOFF:
         case CON_CACTOR:
         case CON_CLIPDIST:
         case CON_COUNT:
@@ -3133,7 +3126,6 @@ DO_DEFSTATE:
         case CON_DEBUG:
         case CON_ENDOFGAME:
         case CON_ENDOFLEVEL:
-        case CON_GLOBALSOUND:
         case CON_LOTSOFGLASS:
         case CON_MAIL:
         case CON_MONEY:
@@ -3142,11 +3134,8 @@ DO_DEFSTATE:
         case CON_SAVE:
         case CON_SAVENN:
         case CON_SLEEPTIME:
-        case CON_SOUND:
-        case CON_SOUNDONCE:
         case CON_SPAWN:
         case CON_SPRITEPAL:
-        case CON_STOPSOUND:
         case CON_STRENGTH:
             C_GetNextValue(LABEL_DEFINE);
             continue;
@@ -3213,12 +3202,12 @@ DO_DEFSTATE:
                 continue;
             }
 
-        case CON_FINDNEARACTOR3DVAR:
-        case CON_FINDNEARACTORVAR:
-        case CON_FINDNEARACTORZVAR:
-        case CON_FINDNEARSPRITE3DVAR:
-        case CON_FINDNEARSPRITEVAR:
-        case CON_FINDNEARSPRITEZVAR:
+        case CON_FINDNEARACTOR3D:
+        case CON_FINDNEARACTOR:
+        case CON_FINDNEARACTORZ:
+        case CON_FINDNEARSPRITE3D:
+        case CON_FINDNEARSPRITE:
+        case CON_FINDNEARSPRITEZ:
             {
                 C_GetNextValue(LABEL_DEFINE); // get <type>
 
@@ -3226,8 +3215,8 @@ DO_DEFSTATE:
                 C_GetNextVar();
                 switch (tw)
                 {
-                case CON_FINDNEARACTORZVAR:
-                case CON_FINDNEARSPRITEZVAR:
+                case CON_FINDNEARACTORZ:
+                case CON_FINDNEARSPRITEZ:
                     C_GetNextVar();
                 default:
                     break;
@@ -3568,17 +3557,17 @@ setvarvar:
             fallthrough__;
         case CON_ACTIVATECHEAT:
         case CON_ADDLOGVAR:
-        case CON_ANGOFFVAR:
+        case CON_ANGOFF:
         case CON_CHECKACTIVATORMOTION:
         case CON_CHECKAVAILINVEN:
         case CON_CHECKAVAILWEAPON:
         case CON_CLEARMAPSTATE:
         case CON_CMENU:
         case CON_ECHO:
-        case CON_EQSPAWNVAR:
-        case CON_ESHOOTVAR:
-        case CON_ESPAWNVAR:
-        case CON_GLOBALSOUNDVAR:
+        case CON_EQSPAWN:
+        case CON_ESHOOT:
+        case CON_ESPAWN:
+        case CON_GLOBALSOUND:
         case CON_GUNIQHUDID:
         case CON_INITTIMER:
         case CON_JUMP:
@@ -3586,7 +3575,7 @@ setvarvar:
         case CON_MOVESECTOR:
         case CON_OPERATEMASTERSWITCHES:
         case CON_OPERATERESPAWNS:
-        case CON_QSPAWNVAR:
+        case CON_QSPAWN:
         case CON_QUAKE:
         case CON_RESETPLAYERFLAGS:
         case CON_SAVEGAMEVAR:
@@ -3597,12 +3586,12 @@ setvarvar:
         case CON_SETGAMEPALETTE:
         case CON_SETMUSICPOSITION:
         case CON_SETPLAYERANGLE:
-        case CON_SHOOTVAR:
-        case CON_SOUNDONCEVAR:
-        case CON_SOUNDVAR:
+        case CON_SHOOT:
+        case CON_SOUNDONCE:
+        case CON_SOUND:
         case CON_STARTCUTSCENE:
-        case CON_STARTTRACKVAR:
-        case CON_STOPSOUNDVAR:
+        case CON_STARTTRACK:
+        case CON_STOPSOUND:
         case CON_TIME:
         case CON_USERQUOTE:
             C_GetNextVar();
@@ -3634,7 +3623,7 @@ setvarvar:
         case CON_ACTORSOUND:
         case CON_CHANGESPRITESECT:
         case CON_CHANGESPRITESTAT:
-        case CON_EZSHOOTVAR:
+        case CON_EZSHOOT:
         case CON_GETPNAME:
         case CON_PRELOADTRACKSLOTFORSWAP:
         case CON_QGETSYSSTR:
@@ -3647,7 +3636,7 @@ setvarvar:
         case CON_STARTTRACKSLOT:
         case CON_STOPACTORSOUND:
         case CON_SWAPTRACKSLOT:
-        case CON_ZSHOOTVAR:
+        case CON_ZSHOOT:
             C_GetManyVars(2);
             continue;
 
@@ -3892,7 +3881,7 @@ setvarvar:
             continue;
 
         case CON_ACTIVATEBYSECTOR:
-        case CON_ADDWEAPONVAR:
+        case CON_ADDWEAPON:
         case CON_DIST:
         case CON_DIVSCALE:
         case CON_GETANGLE:
@@ -4139,11 +4128,6 @@ setvarvar:
 
                 break;
             }
-            continue;
-
-        case CON_STARTTRACK:
-            // one parameter (track#)
-            C_GetNextValue(LABEL_DEFINE);
             continue;
 
         case CON_IFACTORSOUND:
@@ -5634,7 +5618,6 @@ repeatcase:
             g_scriptPtr--;
             continue;
 
-        case CON_ADDLOG:
         case CON_FALL:
         case CON_GETLASTPAL:
         case CON_GETTEXTURECEILING:
