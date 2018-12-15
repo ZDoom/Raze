@@ -4120,7 +4120,7 @@ DO_DEFSTATE:
                 auto const tempscrptr = (intptr_t *)apScript+offset;
                 scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
 
-                if (tw != CON_WHILEVARVARN)
+                if (tw != CON_WHILEVARVARN && tw != CON_WHILEVARVARL)
                 {
                     j = C_GetKeyword();
 
