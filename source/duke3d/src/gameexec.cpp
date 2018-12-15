@@ -4751,12 +4751,16 @@ badindex:
                         continue;
                     }
 
-                    int32_t   arg[32];
-                    int const quoteLen = Bstrlen(apStrings[inputQuote]);
-                    int       inputPos = 0;
-                    char      outBuf[MAXQUOTELEN];
-                    int       outBufPos = 0;
-                    int       argIdx    = 0;
+                    auto &inBuf = apStrings[inputQuote];
+
+                    int32_t arg[32];
+                    char    outBuf[MAXQUOTELEN];
+
+                    int const quoteLen = Bstrlen(inBuf);
+
+                    int inputPos  = 0;
+                    int outputPos = 0;
+                    int argIdx    = 0;
 
                     while ((*insptr & VM_INSTMASK) != CON_NULLOP && argIdx < 32)
                         arg[argIdx++] = Gv_GetVarX(*insptr++);
@@ -4769,20 +4773,20 @@ badindex:
 
                     do
                     {
-                        while (inputPos < quoteLen && outBufPos < MAXQUOTELEN && apStrings[inputQuote][inputPos] != '%')
-                            outBuf[outBufPos++] = apStrings[inputQuote][inputPos++];
+                        while (inputPos < quoteLen && outputPos < MAXQUOTELEN && inBuf[inputPos] != '%')
+                            outBuf[outputPos++] = inBuf[inputPos++];
 
-                        if (apStrings[inputQuote][inputPos] == '%')
+                        if (inBuf[inputPos] == '%')
                         {
                             inputPos++;
-                            switch (apStrings[inputQuote][inputPos])
+                            switch (inBuf[inputPos])
                             {
                                 case 'l':
-                                    if (apStrings[inputQuote][inputPos + 1] != 'd')
+                                    if (inBuf[inputPos + 1] != 'd')
                                     {
                                         // write the % and l
-                                        outBuf[outBufPos++] = apStrings[inputQuote][inputPos - 1];
-                                        outBuf[outBufPos++] = apStrings[inputQuote][inputPos++];
+                                        outBuf[outputPos++] = inBuf[inputPos - 1];
+                                        outBuf[outputPos++] = inBuf[inputPos++];
                                         break;
                                     }
                                     inputPos++;
@@ -4796,8 +4800,8 @@ badindex:
                                     Bsprintf(buf, "%d", arg[argIdx++]);
 
                                     int const bufLen = Bstrlen(buf);
-                                    Bmemcpy(&outBuf[outBufPos], buf, bufLen);
-                                    outBufPos += bufLen;
+                                    Bmemcpy(&outBuf[outputPos], buf, bufLen);
+                                    outputPos += bufLen;
                                     inputPos++;
                                 }
                                 break;
@@ -4809,19 +4813,19 @@ badindex:
 
                                     int const argLen = Bstrlen(apStrings[arg[argIdx]]);
 
-                                    Bmemcpy(&outBuf[outBufPos], apStrings[arg[argIdx]], argLen);
-                                    outBufPos += argLen;
+                                    Bmemcpy(&outBuf[outputPos], apStrings[arg[argIdx]], argLen);
+                                    outputPos += argLen;
                                     argIdx++;
                                     inputPos++;
                                 }
                                 break;
 
-                                default: outBuf[outBufPos++] = apStrings[inputQuote][inputPos - 1]; break;
+                                default: outBuf[outputPos++] = inBuf[inputPos - 1]; break;
                             }
                         }
-                    } while (inputPos < quoteLen && outBufPos < MAXQUOTELEN);
+                    } while (inputPos < quoteLen && outputPos < MAXQUOTELEN);
                 finish_qsprintf:
-                    outBuf[outBufPos] = '\0';
+                    outBuf[outputPos] = '\0';
                     Bstrncpyz(apStrings[outputQuote], outBuf, MAXQUOTELEN);
                     continue;
                 }
