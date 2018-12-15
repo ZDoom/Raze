@@ -919,8 +919,7 @@ void S_Callback(uint32_t num)
     if ((int32_t)num == MUSIC_ID)
         return;
 
-    dq[dnum & (DQSIZE - 1)] = num;
-    dnum++;
+    dq[dnum++ & (DQSIZE - 1)] = num;
 }
 
 void S_ClearSoundLocks(void)
