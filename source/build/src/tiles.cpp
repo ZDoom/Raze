@@ -555,9 +555,12 @@ int32_t artLoadFiles(const char *filename, int32_t askedsize)
     Bmemset(&tilesiz[0], 0, sizeof(vec2s_t) * MAXTILES);
     Bmemset(picanm, 0, sizeof(picanm));
 
+    for (auto &rot : rottile)
+        rot = { -1, -1 };
+
     //    artsize = 0;
 
-    for (bssize_t tilefilei=0; tilefilei<MAXARTFILES_BASE; tilefilei++)
+    for (int tilefilei=0; tilefilei<MAXARTFILES_BASE; tilefilei++)
         artReadIndexedFile(tilefilei);
 
     Bmemset(gotpic, 0, sizeof(gotpic));
