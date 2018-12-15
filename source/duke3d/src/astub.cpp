@@ -7575,56 +7575,53 @@ static void Keys2d(void)
         }
     }
 
-    if (graphicsmode)
+    for (k=0; k<2; k++)    // panning/repeat
     {
-        for (k=0; k<2; k++)    // panning/repeat
+        if (k==0)
+            j = (keystatus[KEYSC_gLEFT]<<1)|keystatus[KEYSC_gRIGHT];  // 4 & 6 (keypad 2D)
+        else
+            j = (keystatus[KEYSC_gUP]<<1)|keystatus[KEYSC_gDOWN];  // 2 & 8 (keypad 2D)
+
+        if (j)
         {
-            if (k==0)
-                j = (keystatus[KEYSC_gLEFT]<<1)|keystatus[KEYSC_gRIGHT];  // 4 & 6 (keypad 2D)
-            else
-                j = (keystatus[KEYSC_gUP]<<1)|keystatus[KEYSC_gDOWN];  // 2 & 8 (keypad 2D)
+            smooshy = keystatus[KEYSC_gKP5];
 
-            if (j)
+            if (repeatcnt[k] == 0 || repeatcnt[k] > 32)
             {
-                smooshy = keystatus[KEYSC_gKP5];
+                changedir = 1-(j&2);
 
-                if (repeatcnt[k] == 0 || repeatcnt[k] > 32)
+                if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
                 {
-                    changedir = 1-(j&2);
-
-                    if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
-                    {
-                        uint8_t *repeat = (k==0) ? &sprite[cursprite].xrepeat : &sprite[cursprite].yrepeat;
-                        *repeat = max<uint8_t>(4, changechar(*repeat, changedir, smooshy, 1));
-                        silentmessage("Sprite %d repeat: %d, %d", cursprite,
-                            TrackerCast(sprite[cursprite].xrepeat),
-                            TrackerCast(sprite[cursprite].yrepeat));
-                    }
-                    else
-                    {
-                        i = tcursectornum;
-
-                        if (i >= 0)
-#ifdef YAX_ENABLE
-                            if (k==1 || yax_getbunch(i, YAX_FLOOR) < 0)
-#endif
-                            {
-                                uint8_t *panning = (k==0) ? &sector[i].floorxpanning : &sector[i].floorypanning;
-                                *panning = changechar(*panning, changedir, smooshy, 0);
-                                silentmessage("Sector %d floor panning: %d, %d", searchsector,
-                                    TrackerCast(sector[i].floorxpanning),
-                                    TrackerCast(sector[i].floorypanning));
-                            }
-                    }
-
-                    asksave = 1;
-                    repeatcnt[k] = max(1, repeatcnt[k]-2);
+                    uint8_t *repeat = (k==0) ? &sprite[cursprite].xrepeat : &sprite[cursprite].yrepeat;
+                    *repeat = max<uint8_t>(4, changechar(*repeat, changedir, smooshy, 1));
+                    silentmessage("Sprite %d repeat: %d, %d", cursprite,
+                        TrackerCast(sprite[cursprite].xrepeat),
+                        TrackerCast(sprite[cursprite].yrepeat));
                 }
-                repeatcnt[k] += synctics;
+                else if (graphicsmode)
+                {
+                    i = tcursectornum;
+
+                    if (i >= 0)
+#ifdef YAX_ENABLE
+                        if (k==1 || yax_getbunch(i, YAX_FLOOR) < 0)
+#endif
+                        {
+                            uint8_t *panning = (k==0) ? &sector[i].floorxpanning : &sector[i].floorypanning;
+                            *panning = changechar(*panning, changedir, smooshy, 0);
+                            silentmessage("Sector %d floor panning: %d, %d", searchsector,
+                                TrackerCast(sector[i].floorxpanning),
+                                TrackerCast(sector[i].floorypanning));
+                        }
+                }
+
+                asksave = 1;
+                repeatcnt[k] = max(1, repeatcnt[k]-2);
             }
-            else
-                repeatcnt[k] = 0;
+            repeatcnt[k] += synctics;
         }
+        else
+            repeatcnt[k] = 0;
     }
 
     if (PRESSED_KEYSC(R))  // R (relative alignment, rotation)
