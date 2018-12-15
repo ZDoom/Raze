@@ -1267,7 +1267,7 @@ void Screen_Play(void)
 GAMEEXEC_STATIC void VM_Execute(native_t loop)
 {
     native_t tw;
-    auto const pPlayer = vm.pPlayer;
+    auto &p = *(vm.pPlayer);
 
     do
     {
@@ -2359,8 +2359,8 @@ badindex:
 #undef CHECK2
 
             case CON_IFCANSEETARGET:
-                tw = cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - ((krand() & 41) << 8), vm.pSprite->sectnum, pPlayer->pos.x, pPlayer->pos.y,
-                            pPlayer->pos.z /*-((krand()&41)<<8)*/, sprite[pPlayer->i].sectnum);
+                tw = cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - ((krand() & 41) << 8), vm.pSprite->sectnum, p.pos.x, p.pos.y,
+                            p.pos.z /*-((krand()&41)<<8)*/, sprite[p.i].sectnum);
                 VM_CONDITIONAL(tw);
                 if (tw)
                     vm.pActor->timetosleep = SLEEPTIME;
@@ -2391,7 +2391,7 @@ badindex:
                 continue;
 
             case CON_IFCEILINGDISTL:
-                VM_CONDITIONAL((vm.pSprite->z - vm.pActor->ceilingz) <= ((*(++insptr)) << 8));
+                VM_CONDITIONAL((vm.pSprite->z - vm.pActor->ceilingz) <= (*(++insptr) << 8));
                 continue;
 
             case CON_IFCLIENT:
@@ -2407,7 +2407,7 @@ badindex:
                 continue;
 
             case CON_IFFLOORDISTL:
-                VM_CONDITIONAL((vm.pActor->floorz - vm.pSprite->z) <= ((*(++insptr)) << 8));
+                VM_CONDITIONAL((vm.pActor->floorz - vm.pSprite->z) <= (*(++insptr) << 8));
                 continue;
 
             case CON_IFGAPZL:
@@ -2503,15 +2503,15 @@ badindex:
 
             case CON_IFCANSEE:
             {
-                auto pSprite = (uspritetype *)&sprite[pPlayer->i];
+                auto pSprite = (uspritetype *)&sprite[p.i];
 
 // select sprite for monster to target
 // if holoduke is on, let them target holoduke first.
 //
 #ifndef EDUKE32_STANDALONE
-                if (pPlayer->holoduke_on >= 0)
+                if (p.holoduke_on >= 0)
                 {
-                    pSprite = (uspritetype *)&sprite[pPlayer->holoduke_on];
+                    pSprite = (uspritetype *)&sprite[p.holoduke_on];
                     tw = cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - (krand() & (ZOFFSET5 - 1)), vm.pSprite->sectnum, pSprite->x, pSprite->y,
                                 pSprite->z, pSprite->sectnum);
 
@@ -2519,7 +2519,7 @@ badindex:
                     {
                         // they can't see player's holoduke
                         // check for player...
-                        pSprite = (uspritetype *)&sprite[pPlayer->i];
+                        pSprite = (uspritetype *)&sprite[p.i];
                     }
                 }
 #endif
@@ -2595,16 +2595,16 @@ badindex:
                     if (*insptr == 0)
                     {
                         int j = 0;
-                        for (; j < pPlayer->weapreccnt; ++j)
-                            if (pPlayer->weaprecs[j] == vm.pSprite->picnum)
+                        for (; j < p.weapreccnt; ++j)
+                            if (p.weaprecs[j] == vm.pSprite->picnum)
                                 break;
 
-                        VM_CONDITIONAL(j < pPlayer->weapreccnt && vm.pSprite->owner == vm.spriteNum);
+                        VM_CONDITIONAL(j < p.weapreccnt && vm.pSprite->owner == vm.spriteNum);
                         continue;
                     }
-                    else if (pPlayer->weapreccnt < MAX_WEAPONS)
+                    else if (p.weapreccnt < MAX_WEAPONS)
                     {
-                        pPlayer->weaprecs[pPlayer->weapreccnt++] = vm.pSprite->picnum;
+                        p.weaprecs[p.weapreccnt++] = vm.pSprite->picnum;
                         VM_CONDITIONAL(vm.pSprite->owner == vm.spriteNum);
                         continue;
                     }
@@ -2650,8 +2650,8 @@ badindex:
                     if (g_player[otherp].ps->quick_kick == 0)
                         g_player[otherp].ps->quick_kick = 14;
                 }
-                else if (vm.pSprite->picnum != APLAYER && pPlayer->quick_kick == 0)
-                    pPlayer->quick_kick = 14;
+                else if (vm.pSprite->picnum != APLAYER && p.quick_kick == 0)
+                    p.quick_kick = 14;
                 continue;
 
             case CON_SIZETO:
@@ -2760,7 +2760,7 @@ badindex:
 
             case CON_TIP:
                 insptr++;
-                pPlayer->tipincs = GAMETICSPERSEC;
+                p.tipincs = GAMETICSPERSEC;
                 continue;
 
             case CON_FALL:
@@ -2776,7 +2776,7 @@ badindex:
                     int const weaponNum = *insptr++;
                     int const addAmount = *insptr++;
 
-                    VM_AddAmmo(pPlayer, weaponNum, addAmount);
+                    VM_AddAmmo(&p, weaponNum, addAmount);
 
                     continue;
                 }
@@ -2803,7 +2803,7 @@ badindex:
 
             case CON_ADDKILLS:
                 insptr++;
-                P_AddKills(pPlayer, *insptr++);
+                P_AddKills(&p, *insptr++);
                 vm.pActor->stayput = -1;
                 continue;
 
@@ -2871,8 +2871,8 @@ badindex:
             case CON_ENDOFGAME:
             case CON_ENDOFLEVEL:
                 insptr++;
-                pPlayer->timebeforeexit  = *insptr++;
-                pPlayer->customexitsound = -1;
+                p.timebeforeexit  = *insptr++;
+                p.customexitsound = -1;
                 ud.eog = 1;
                 continue;
 
@@ -2880,23 +2880,23 @@ badindex:
                 insptr++;
 
                 {
-                    if (pPlayer->newowner >= 0)
-                        G_ClearCameraView(pPlayer);
+                    if (p.newowner >= 0)
+                        G_ClearCameraView(&p);
 
-                    int newHealth = sprite[pPlayer->i].extra;
+                    int newHealth = sprite[p.i].extra;
 
 #ifndef EDUKE32_STANDALONE
                     if (vm.pSprite->picnum == ATOMICHEALTH)
                     {
                         if (newHealth > 0)
                             newHealth += *insptr;
-                        if (newHealth > (pPlayer->max_player_health << 1))
-                            newHealth = (pPlayer->max_player_health << 1);
+                        if (newHealth > (p.max_player_health << 1))
+                            newHealth = (p.max_player_health << 1);
                     }
                     else
 #endif
                     {
-                        if (newHealth > pPlayer->max_player_health && *insptr > 0)
+                        if (newHealth > p.max_player_health && *insptr > 0)
                         {
                             insptr++;
                             continue;
@@ -2905,8 +2905,8 @@ badindex:
                         {
                             if (newHealth > 0)
                                 newHealth += *insptr;
-                            if (newHealth > pPlayer->max_player_health && *insptr > 0)
-                                newHealth = pPlayer->max_player_health;
+                            if (newHealth > p.max_player_health && *insptr > 0)
+                                newHealth = p.max_player_health;
                         }
                     }
 
@@ -2918,13 +2918,13 @@ badindex:
                         if (*insptr > 0)
                         {
 #ifndef EDUKE32_STANDALONE
-                            if ((newHealth - *insptr) < (pPlayer->max_player_health >> 2) && newHealth >= (pPlayer->max_player_health >> 2))
-                                A_PlaySound(DUKE_GOTHEALTHATLOW, pPlayer->i);
+                            if ((newHealth - *insptr) < (p.max_player_health >> 2) && newHealth >= (p.max_player_health >> 2))
+                                A_PlaySound(DUKE_GOTHEALTHATLOW, p.i);
 #endif
-                            pPlayer->last_extra = newHealth;
+                            p.last_extra = newHealth;
                         }
 
-                        sprite[pPlayer->i].extra = newHealth;
+                        sprite[p.i].extra = newHealth;
                     }
                 }
 
@@ -2946,7 +2946,7 @@ badindex:
                 insptr++;
                 {
                     int const weaponNum = Gv_GetVarX(*insptr++);
-                    VM_AddWeapon(pPlayer, weaponNum, Gv_GetVarX(*insptr++));
+                    VM_AddWeapon(&p, weaponNum, Gv_GetVarX(*insptr++));
                     continue;
                 }
 
@@ -3759,10 +3759,10 @@ badindex:
                         continue;
                     }
 
-                    tw = pPlayer->palette;
+                    tw = p.palette;
                     I_ClearAllInput();
                     Anim_Play(apStrings[nQuote]);
-                    P_SetGamePalette(pPlayer, tw, 2 + 16);
+                    P_SetGamePalette(&p, tw, 2 + 16);
                     continue;
                 }
 
@@ -4489,7 +4489,7 @@ badindex:
             case CON_ADDINVENTORY:
                 insptr += 2;
 
-                VM_AddInventory(pPlayer, insptr[-1], *insptr);
+                VM_AddInventory(&p, insptr[-1], *insptr);
 
                 insptr++;
                 continue;
@@ -4507,35 +4507,35 @@ badindex:
             {
                 int const moveFlags  = *(++insptr);
                 int       nResult    = 0;
-                int const playerXVel = sprite[pPlayer->i].xvel;
+                int const playerXVel = sprite[p.i].xvel;
                 int const syncBits   = g_player[vm.playerNum].inputBits->bits;
 
-                if (((moveFlags & pducking) && pPlayer->on_ground && TEST_SYNC_KEY(syncBits, SK_CROUCH))
-                    || ((moveFlags & pfalling) && pPlayer->jumping_counter == 0 && !pPlayer->on_ground && pPlayer->vel.z > 2048)
-                    || ((moveFlags & pjumping) && pPlayer->jumping_counter > 348)
+                if (((moveFlags & pducking) && p.on_ground && TEST_SYNC_KEY(syncBits, SK_CROUCH))
+                    || ((moveFlags & pfalling) && p.jumping_counter == 0 && !p.on_ground && p.vel.z > 2048)
+                    || ((moveFlags & pjumping) && p.jumping_counter > 348)
                     || ((moveFlags & pstanding) && playerXVel >= 0 && playerXVel < 8)
                     || ((moveFlags & pwalking) && playerXVel >= 8 && !TEST_SYNC_KEY(syncBits, SK_RUN))
                     || ((moveFlags & prunning) && playerXVel >= 8 && TEST_SYNC_KEY(syncBits, SK_RUN))
-                    || ((moveFlags & phigher) && pPlayer->pos.z < (vm.pSprite->z - (48 << 8)))
+                    || ((moveFlags & phigher) && p.pos.z < (vm.pSprite->z - (48 << 8)))
                     || ((moveFlags & pwalkingback) && playerXVel <= -8 && !TEST_SYNC_KEY(syncBits, SK_RUN))
                     || ((moveFlags & prunningback) && playerXVel <= -8 && TEST_SYNC_KEY(syncBits, SK_RUN))
                     || ((moveFlags & pkicking)
-                        && (pPlayer->quick_kick > 0
-                            || (PWEAPON(vm.playerNum, pPlayer->curr_weapon, WorksLike) == KNEE_WEAPON && pPlayer->kickback_pic > 0)))
-                    || ((moveFlags & pshrunk) && sprite[pPlayer->i].xrepeat < 32)
-                    || ((moveFlags & pjetpack) && pPlayer->jetpack_on)
-                    || ((moveFlags & ponsteroids) && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
-                    || ((moveFlags & ponground) && pPlayer->on_ground)
-                    || ((moveFlags & palive) && sprite[pPlayer->i].xrepeat > 32 && sprite[pPlayer->i].extra > 0 && pPlayer->timebeforeexit == 0)
-                    || ((moveFlags & pdead) && sprite[pPlayer->i].extra <= 0))
+                        && (p.quick_kick > 0
+                            || (PWEAPON(vm.playerNum, p.curr_weapon, WorksLike) == KNEE_WEAPON && p.kickback_pic > 0)))
+                    || ((moveFlags & pshrunk) && sprite[p.i].xrepeat < 32)
+                    || ((moveFlags & pjetpack) && p.jetpack_on)
+                    || ((moveFlags & ponsteroids) && p.inv_amount[GET_STEROIDS] > 0 && p.inv_amount[GET_STEROIDS] < 400)
+                    || ((moveFlags & ponground) && p.on_ground)
+                    || ((moveFlags & palive) && sprite[p.i].xrepeat > 32 && sprite[p.i].extra > 0 && p.timebeforeexit == 0)
+                    || ((moveFlags & pdead) && sprite[p.i].extra <= 0))
                     nResult = 1;
                 else if ((moveFlags & pfacing))
                 {
                     nResult
                     = (vm.pSprite->picnum == APLAYER && (g_netServer || ud.multimode > 1))
                       ? G_GetAngleDelta(fix16_to_int(g_player[otherp].ps->q16ang),
-                                        getangle(pPlayer->pos.x - g_player[otherp].ps->pos.x, pPlayer->pos.y - g_player[otherp].ps->pos.y))
-                      : G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), getangle(vm.pSprite->x - pPlayer->pos.x, vm.pSprite->y - pPlayer->pos.y));
+                                        getangle(p.pos.x - g_player[otherp].ps->pos.x, p.pos.y - g_player[otherp].ps->pos.y))
+                      : G_GetAngleDelta(fix16_to_int(p.q16ang), getangle(vm.pSprite->x - p.pos.x, vm.pSprite->y - p.pos.y));
 
                     nResult = (nResult > -128 && nResult < 128);
                 }
@@ -4552,13 +4552,13 @@ badindex:
 
             case CON_WACKPLAYER:
                 insptr++;
-                P_ForceAngle(pPlayer);
+                P_ForceAngle(&p);
                 continue;
 
             case CON_FLASH:
                 insptr++;
                 sprite[vm.spriteNum].shade = -127;
-                pPlayer->visibility        = -127;
+                p.visibility        = -127;
                 continue;
 
             case CON_SAVEMAPSTATE:
@@ -4646,7 +4646,7 @@ badindex:
                 {
                     palette_t const pal = { uint8_t(insptr[1]), uint8_t(insptr[2]), uint8_t(insptr[3]), uint8_t(insptr[0]) };
                     insptr += 4;
-                    P_PalFrom(pPlayer, pal.f, pal.r, pal.g, pal.b);
+                    P_PalFrom(&p, pal.f, pal.r, pal.g, pal.b);
                 }
                 continue;
 
@@ -5088,7 +5088,7 @@ badindex:
 
             case CON_LOCKPLAYER:
                 insptr++;
-                pPlayer->transporter_hold = Gv_GetVarX(*insptr++);
+                p.transporter_hold = Gv_GetVarX(*insptr++);
                 continue;
 
             case CON_CHECKAVAILWEAPON:
@@ -5113,7 +5113,7 @@ badindex:
 
             case CON_GETPLAYERANGLE:
                 insptr++;
-                Gv_SetVarX(*insptr++, fix16_to_int(pPlayer->q16ang));
+                Gv_SetVarX(*insptr++, fix16_to_int(p.q16ang));
                 continue;
 
             case CON_GETACTORANGLE:
@@ -5123,7 +5123,7 @@ badindex:
 
             case CON_SETPLAYERANGLE:
                 insptr++;
-                pPlayer->q16ang = fix16_from_int(Gv_GetVarX(*insptr++) & 2047);
+                p.q16ang = fix16_from_int(Gv_GetVarX(*insptr++) & 2047);
                 continue;
 
             case CON_SETACTORANGLE:
@@ -5553,7 +5553,7 @@ badindex:
                     CON_ERRPRINTF("invalid weapon %d\n", (int)tw);
                     continue;
                 }
-                Gv_SetVarX(*insptr++, pPlayer->max_ammo_amount[tw]);
+                Gv_SetVarX(*insptr++, p.max_ammo_amount[tw]);
                 continue;
 
             case CON_SMAXAMMO:
@@ -5564,7 +5564,7 @@ badindex:
                     CON_ERRPRINTF("invalid weapon %d\n", (int)tw);
                     continue;
                 }
-                pPlayer->max_ammo_amount[tw] = Gv_GetVarX(*insptr++);
+                p.max_ammo_amount[tw] = Gv_GetVarX(*insptr++);
                 continue;
 
 
@@ -5698,7 +5698,7 @@ badindex:
 
             case CON_SETGAMEPALETTE:
                 insptr++;
-                P_SetGamePalette(pPlayer, Gv_GetVarX(*(insptr++)), 2 + 16);
+                P_SetGamePalette(&p, Gv_GetVarX(*(insptr++)), 2 + 16);
                 continue;
 
             case CON_GETTEXTURECEILING:
@@ -5708,7 +5708,7 @@ badindex:
 
             case CON_IFPHEALTHL:
                 insptr++;
-                VM_CONDITIONAL(sprite[pPlayer->i].extra < *insptr);
+                VM_CONDITIONAL(sprite[p.i].extra < *insptr);
                 continue;
 
             case CON_IFPINVENTORY:
@@ -5723,14 +5723,14 @@ badindex:
                     case GET_HEATS:
                     case GET_FIRSTAID:
                     case GET_BOOTS:
-                    case GET_JETPACK: tw = (pPlayer->inv_amount[insptr[-1]] != *insptr); break;
+                    case GET_JETPACK: tw = (p.inv_amount[insptr[-1]] != *insptr); break;
 
                     case GET_ACCESS:
                         switch (vm.pSprite->pal)
                         {
-                            case 0: tw  = (pPlayer->got_access & 1); break;
-                            case 21: tw = (pPlayer->got_access & 2); break;
-                            case 23: tw = (pPlayer->got_access & 4); break;
+                            case 0: tw  = (p.got_access & 1); break;
+                            case 21: tw = (p.got_access & 2); break;
+                            case 23: tw = (p.got_access & 4); break;
                         }
                         break;
                     default: tw = 0; CON_ERRPRINTF("invalid inventory item %d\n", (int32_t) * (insptr - 1));
@@ -5742,9 +5742,9 @@ badindex:
 
             case CON_PSTOMP:
                 insptr++;
-                if (pPlayer->knee_incs == 0 && sprite[pPlayer->i].xrepeat >= 40)
-                    if (cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - ZOFFSET6, vm.pSprite->sectnum, pPlayer->pos.x, pPlayer->pos.y,
-                               pPlayer->pos.z + ZOFFSET2, sprite[pPlayer->i].sectnum))
+                if (p.knee_incs == 0 && sprite[p.i].xrepeat >= 40)
+                    if (cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - ZOFFSET6, vm.pSprite->sectnum, p.pos.x, p.pos.y,
+                               p.pos.z + ZOFFSET2, sprite[p.i].sectnum))
                     {
                         int numPlayers = g_mostConcurrentPlayers - 1;
 
@@ -5756,11 +5756,11 @@ badindex:
 
                         if (numPlayers == -1)
                         {
-                            if (pPlayer->weapon_pos == 0)
-                                pPlayer->weapon_pos = -1;
+                            if (p.weapon_pos == 0)
+                                p.weapon_pos = -1;
 
-                            pPlayer->actorsqu  = vm.spriteNum;
-                            pPlayer->knee_incs = 1;
+                            p.actorsqu  = vm.spriteNum;
+                            p.knee_incs = 1;
                         }
                     }
                 continue;
@@ -5809,7 +5809,7 @@ badindex:
                     continue;
                 }
 
-                P_DoQuote(*(insptr++) | MAXQUOTES, pPlayer);
+                P_DoQuote(*(insptr++) | MAXQUOTES, &p);
                 continue;
 
             case CON_USERQUOTE:
@@ -5874,7 +5874,7 @@ badindex:
 
             case CON_IFANGDIFFL:
                 insptr++;
-                tw = klabs(G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), vm.pSprite->ang));
+                tw = klabs(G_GetAngleDelta(fix16_to_int(p.q16ang), vm.pSprite->ang));
                 VM_CONDITIONAL(tw <= *insptr);
                 continue;
 
