@@ -74,6 +74,10 @@ void faketimerhandler(void)
 
     enet_host_service(g_netServer ? g_netServer : g_netClient, NULL, 0);
 }
+
+static void Net_Disconnect(void);
+static void Net_HandleClientPackets(void);
+static void Net_HandleServerPackets(void);
 #endif
 
 void Net_GetPackets(void)
