@@ -129,14 +129,6 @@
 # define inline __inline
 #endif
 
-#ifndef MAY_ALIAS
-# ifdef _MSC_VER
-#  define MAY_ALIAS
-# else
-#  define MAY_ALIAS __attribute__((may_alias))
-# endif
-#endif
-
 #ifndef FORCE_INLINE
 # ifdef _MSC_VER
 #  define FORCE_INLINE __forceinline
@@ -791,7 +783,7 @@ typedef reg_t unative_t;
 #endif
 EDUKE32_STATIC_ASSERT(sizeof(native_t) == sizeof(unative_t));
 
-typedef struct MAY_ALIAS {
+typedef struct {
     int32_t x, y;
 } vec2_t;
 
@@ -803,7 +795,7 @@ typedef struct {
     uint32_t x, y;
 } vec2u_t;
 
-typedef struct MAY_ALIAS {
+typedef struct {
     int32_t x, y, z;
 } vec3_t;
 
