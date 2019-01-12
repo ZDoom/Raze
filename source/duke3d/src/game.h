@@ -199,7 +199,7 @@ typedef struct {
 
     int32_t playerbest;
 
-    int32_t configversion, bgstretch;
+    int32_t configversion, bgstretch, frameperiod;
 
     int32_t default_volume, default_skill;
 

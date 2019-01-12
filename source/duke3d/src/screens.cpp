@@ -877,7 +877,7 @@ static void G_PrintFPS(void)
 
                 static int secondCounter;
 
-                if (++secondCounter == 1)
+                if (++secondCounter >= ud.frameperiod)
                 {
                     maxFPS = (lastFPS + maxFPS) * .5f;
                     minFPS = (lastFPS + minFPS) * .5f;
