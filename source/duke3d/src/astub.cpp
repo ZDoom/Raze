@@ -7201,21 +7201,7 @@ static void Keys2d(void)
         }
     }
     searchsector = tcursectornum;
-#if M32_UNDO
-    if (eitherCTRL && PRESSED_KEYSC(Z)) // CTRL+Z
-    {
-        if (eitherSHIFT)
-        {
-            if (map_undoredo(1)) message("Nothing to redo!");
-            else message("Redo: restored revision %d", map_revision-1);
-        }
-        else
-        {
-            if (map_undoredo(0)) message("Nothing to undo!");
-            else message("Undo: restored revision %d", map_revision-1);
-        }
-    }
-#endif
+
     if (keystatus[KEYSC_TAB])  //TAB
     {
         if (eitherCTRL)
@@ -10692,6 +10678,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
 static void Keys2d3d(void)
 {
     int32_t i;
+
 #if M32_UNDO
     if (mapstate == NULL)
     {
@@ -10773,6 +10760,26 @@ static void Keys2d3d(void)
         if (!in3dmode())
             if (PRESSED_KEYSC(P)) // Ctrl-P: Map playtesting
                 test_map(eitherALT);
+
+        if (PRESSED_KEYSC(Z)) // CTRL+Z
+        {
+            if (eitherSHIFT)
+            {
+                if (map_undoredo(1)) message("Nothing to redo!");
+                else message("Redo: restored revision %d", map_revision-1);
+            }
+            else
+            {
+                if (map_undoredo(0)) message("Nothing to undo!");
+                else message("Undo: restored revision %d", map_revision-1);
+            }
+
+            updatesectorz(pos.x, pos.y, pos.z, &cursectnum);
+
+            // kick the user back to 2d mode if the sector they were in was deleted by the undo/redo operation
+            if (cursectnum == -1 && (in3dmode() && !m32_is2d3dmode()))
+                keystatus[buildkeys[BK_MODE2D_3D]] = 1;
+        }
 
         if (keystatus[KEYSC_S]) // S
         {
