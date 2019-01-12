@@ -1393,7 +1393,7 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
     else if (!Bstrcasecmp(parm->name, "r_maxfps") || !Bstrcasecmp(parm->name, "r_maxfpsoffset"))
     {
         if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);
-        g_frameDelay = r_maxfps ? (timerGetFreqU64()/(r_maxfps + r_maxfpsoffset)) : 0;
+        g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
     }
     else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
     {

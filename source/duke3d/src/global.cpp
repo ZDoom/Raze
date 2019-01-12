@@ -90,7 +90,7 @@ int32_t g_gametypeFlags[MAXGAMETYPES] =
     GAMETYPE_TDMSPAWN,
 };
 
-float g_gameUpdateAvgTime = -1.f;
+double g_gameUpdateAvgTime = 0.001;
 
 int32_t g_actorRespawnTime   = 768;
 int32_t g_bouncemineRadius   = 2500;

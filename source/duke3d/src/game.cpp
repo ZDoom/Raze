@@ -117,7 +117,7 @@ int32_t g_levelTextTime = 0;
 
 int32_t r_maxfps = 60;
 int32_t r_maxfpsoffset = 0;
-uint64_t g_frameDelay = 17;
+double g_frameDelay = 0.0;
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
@@ -1272,7 +1272,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
 
 
     int32_t newSprite;
-    
+
 #ifdef NETCODE_DISABLE
     newSprite = insertsprite(whatsect, s_ss);
 #else
@@ -6130,7 +6130,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
 
 int G_FPSLimit(void)
 {
-    static uint64_t nextPageTicks = 0;
+    static auto nextPageTicks = (double)timerGetTicksU64();
     static unsigned frameWaiting  = 0;
 
     if (frameWaiting)
@@ -6139,7 +6139,7 @@ int G_FPSLimit(void)
         videoNextPage();
     }
 
-    uint64_t const frameTicks = timerGetTicksU64();
+    auto const frameTicks = (double)timerGetTicksU64();
 
     if (!r_maxfps || frameTicks >= nextPageTicks)
     {
@@ -6556,6 +6556,7 @@ int app_main(int argc, char const * const * argv)
             ud.setup.bpp  = bpp;
         }
 
+        g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
         videoSetPalette(ud.brightness>>2, myplayer.palette, 0);
         S_MusicStartup();
         S_SoundStartup();
@@ -6613,8 +6614,8 @@ MAIN_LOOP_RESTART:
     {
         OSD_Printf("Waiting for initial snapshot...");
         Net_WaitForInitialSnapshot();
-        
-        
+
+
     }
 
     if (g_networkMode != NET_DEDICATED_SERVER)
@@ -6734,7 +6735,7 @@ MAIN_LOOP_RESTART:
         OSD_DispatchQueued();
 
         char gameUpdate = false;
-        uint32_t gameUpdateStartTime = timerGetTicks();
+        double const gameUpdateStartTime = timerGetHiTicks();
         if (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU|MODE_DEMO)) == 0) && totalclock >= ototalclock+TICSPERFRAME)
         {
             if (g_networkMode != NET_DEDICATED_SERVER)
@@ -6779,7 +6780,7 @@ MAIN_LOOP_RESTART:
             while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU|MODE_DEMO)) == 0) && totalclock >= ototalclock+TICSPERFRAME);
 
             gameUpdate = true;
-            g_gameUpdateTime = timerGetTicks()-gameUpdateStartTime;
+            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
             if (g_gameUpdateAvgTime < 0.f)
                 g_gameUpdateAvgTime = g_gameUpdateTime;
             g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
@@ -6816,7 +6817,7 @@ MAIN_LOOP_RESTART:
 
             if (gameUpdate)
             {
-                g_gameUpdateAndDrawTime = timerGetTicks()-gameUpdateStartTime;
+                g_gameUpdateAndDrawTime = timerGetHiTicks()-gameUpdateStartTime;
             }
         }
 

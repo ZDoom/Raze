@@ -773,7 +773,7 @@ static void G_ShowCacheLocks(void)
     }
 }
 
-#define LOW_FPS 60
+#define LOW_FPS ((videoGetRenderMode() == REND_CLASSIC) ? 35 : 50)
 #define SLOW_FRAME_TIME 20
 
 #if defined GEKKO
@@ -786,12 +786,14 @@ static void G_ShowCacheLocks(void)
 
 static void G_PrintFPS(void)
 {
-    static int32_t frameCount = 0, lastFPS = 0, lastFrameTime = 0, cumulativeFrameDelay = 0;
-    static int32_t minFPS = -1, maxFPS = 0;
-    static uint32_t minGameUpdate = -1, maxGameUpdate = 0;
+    static int32_t frameCount;
+    static double cumulativeFrameDelay;
+    static double lastFrameTime;
+    static float lastFPS, minFPS = FLT_MAX, maxFPS;
+    static double minGameUpdate = DBL_MAX, maxGameUpdate;
 
-    int32_t frameTime = timerGetTicks();
-    int32_t frameDelay = frameTime - lastFrameTime;
+    double frameTime = timerGetHiTicks();
+    double frameDelay = frameTime - lastFrameTime;
     cumulativeFrameDelay += frameDelay;
 
     if (frameDelay >= 0)
@@ -800,7 +802,7 @@ static void G_PrintFPS(void)
 
         if (ud.showfps)
         {
-            int32_t chars = Bsprintf(tempbuf, "%d ms (%3d fps)", frameDelay, lastFPS);
+            int32_t chars = Bsprintf(tempbuf, "%.1f ms, %5.1f fps", frameDelay, lastFPS);
 
             printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+2+FPS_YOFFSET, 0, -1, tempbuf, x);
             printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+1+FPS_YOFFSET,
@@ -808,13 +810,13 @@ static void G_PrintFPS(void)
 
             if (ud.showfps > 1)
             {
-                chars = Bsprintf(tempbuf, "max fps: %3d", maxFPS);
+                chars = Bsprintf(tempbuf, "max: %5.1f fps", maxFPS);
 
                 printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+10+2+FPS_YOFFSET, 0, -1, tempbuf, x);
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+10+FPS_YOFFSET,
                     FPS_COLOR(maxFPS < LOW_FPS), -1, tempbuf, x);
 
-                chars = Bsprintf(tempbuf, "min fps: %3d", minFPS);
+                chars = Bsprintf(tempbuf, "min: %5.1f fps", minFPS);
 
                 printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+20+2+FPS_YOFFSET, 0, -1, tempbuf, x);
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+20+FPS_YOFFSET,
@@ -825,13 +827,13 @@ static void G_PrintFPS(void)
                 if (g_gameUpdateTime > maxGameUpdate) maxGameUpdate = g_gameUpdateTime;
                 if (g_gameUpdateTime < minGameUpdate) minGameUpdate = g_gameUpdateTime;
 
-                chars = Bsprintf(tempbuf, "Game Update: %2u ms + draw: %2u ms", g_gameUpdateTime, g_gameUpdateAndDrawTime);
+                chars = Bsprintf(tempbuf, "Game Update: %2.2f ms + draw: %2.2f ms", g_gameUpdateTime, g_gameUpdateAndDrawTime);
 
                 printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+30+2+FPS_YOFFSET, 0, -1, tempbuf, x);
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+30+FPS_YOFFSET,
                     FPS_COLOR(g_gameUpdateAndDrawTime >= SLOW_FRAME_TIME), -1, tempbuf, x);
 
-                chars = Bsprintf(tempbuf, "GU min/max/avg: %2u/%2u/%5.2f ms", minGameUpdate, maxGameUpdate, g_gameUpdateAvgTime);
+                chars = Bsprintf(tempbuf, "GU min/max/avg: %5.2f/%5.2f/%5.2f ms", minGameUpdate, maxGameUpdate, g_gameUpdateAvgTime);
 
                 printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+40+2+FPS_YOFFSET, 0, -1, tempbuf, x);
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+40+FPS_YOFFSET,
@@ -861,24 +863,26 @@ static void G_PrintFPS(void)
             }
         }
 
-        if (cumulativeFrameDelay >= 1000)
+        if (cumulativeFrameDelay >= 1000.0)
         {
-            g_frameRate = lastFPS = tabledivide32_noinline(1000*frameCount, cumulativeFrameDelay);
+            lastFPS = 1000.f * frameCount / cumulativeFrameDelay;
+            g_frameRate = Blrintf(lastFPS);
             frameCount = 0;
-            cumulativeFrameDelay = 0;
+            cumulativeFrameDelay = 0.0;
 
             if (ud.showfps > 1)
             {
                 if (lastFPS > maxFPS) maxFPS = lastFPS;
-                if ((unsigned) lastFPS < (unsigned) minFPS) minFPS = lastFPS;
+                if (lastFPS < minFPS) minFPS = lastFPS;
+
                 static int secondCounter;
 
-                if (++secondCounter == 3)
+                if (++secondCounter == 1)
                 {
-                    maxFPS = (lastFPS + maxFPS) >> 1;
-                    minFPS = (lastFPS + minFPS) >> 1;
-                    maxGameUpdate = (g_gameUpdateTime + maxGameUpdate) >> 1;
-                    minGameUpdate = (g_gameUpdateTime + minGameUpdate) >> 1;
+                    maxFPS = (lastFPS + maxFPS) * .5f;
+                    minFPS = (lastFPS + minFPS) * .5f;
+                    maxGameUpdate = (g_gameUpdateTime + maxGameUpdate) * 0.5;
+                    minGameUpdate = (g_gameUpdateTime + minGameUpdate) * 0.5;
                     secondCounter = 0;
                 }
             }
