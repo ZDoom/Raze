@@ -98,14 +98,16 @@ static int32_t lockdepth = 0;
 
 static FORCE_INLINE void DisableInterrupts(void)
 {
-    if (lockdepth++ <= 0)
+    if (!lockdepth++)
         SoundDriver_Lock();
 }
 
 static FORCE_INLINE void RestoreInterrupts(void)
 {
-    if (--lockdepth <= 0)
+    if (!--lockdepth)
         SoundDriver_Unlock();
+    else if (lockdepth < 0 && MV_Printf)
+        MV_Printf("RestoreInterrupts(): lockdepth < 0!\n");
 }
 
 const char *MV_ErrorString(int32_t ErrorNumber)
@@ -376,16 +378,15 @@ VoiceNode *MV_BeginService(int32_t handle)
     if (!MV_Installed)
         return NULL;
 
-    DisableInterrupts();
+    VoiceNode *voice = MV_GetVoice(handle);
 
-    VoiceNode *voice;
-
-    if ((voice = MV_GetVoice(handle)) == NULL)
+    if (voice == NULL)
     {
-        RestoreInterrupts();
         MV_SetErrorCode(MV_VoiceNotFound);
         return NULL;
     }
+
+    DisableInterrupts();
 
     return voice;
 }
