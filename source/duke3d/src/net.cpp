@@ -4250,7 +4250,7 @@ static void Net_SendWorldUpdate(uint32_t fromRevisionNumber, uint32_t toRevision
     }
 
 
-    Bmemset(byteBuffer, 0, sizeof(tempnetbuf));
+    Bmemset(byteBuffer, 0, sizeof(tempnetbuf) - 1);
 
     tempnetbuf[0] = PACKET_WORLD_UPDATE;
 
