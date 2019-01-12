@@ -212,15 +212,10 @@ void MV_PlayVoice(VoiceNode *voice)
     RestoreInterrupts();
 }
 
-static void MV_StopVoice(VoiceNode *voice)
+static void MV_CleanupVoice(VoiceNode *voice)
 {
-    DisableInterrupts();
-
-    // move the voice from the play list to the free list
-    LL_Remove(voice, next, prev);
-    LL_Add((VoiceNode*) &VoicePool, voice, next, prev);
-
-    RestoreInterrupts();
+    if (MV_CallBackFunc)
+        MV_CallBackFunc(voice->callbackval);
 
     switch (voice->wavetype)
     {
@@ -238,6 +233,17 @@ static void MV_StopVoice(VoiceNode *voice)
     }
 
     voice->handle = 0;
+}
+
+static void MV_StopVoice(VoiceNode *voice)
+{
+    MV_CleanupVoice(voice);
+
+    DisableInterrupts();
+    // move the voice from the play list to the free list
+    LL_Remove(voice, next, prev);
+    LL_Add((VoiceNode*) &VoicePool, voice, next, prev);
+    RestoreInterrupts();
 }
 
 /*---------------------------------------------------------------------
@@ -317,30 +323,10 @@ static void MV_ServiceVoc(void)
         // Is this voice done?
         if (!MV_Mix(voice, MV_MixPage))
         {
-            //JBF: prevent a deadlock caused by MV_StopVoice grabbing the mutex again
-            //MV_StopVoice( voice );
+            MV_CleanupVoice(voice);
+
             LL_Remove(voice, next, prev);
             LL_Add((VoiceNode*) &VoicePool, voice, next, prev);
-
-            switch (voice->wavetype)
-            {
-#ifdef HAVE_VORBIS
-                case FMT_VORBIS: MV_ReleaseVorbisVoice(voice); break;
-#endif
-#ifdef HAVE_FLAC
-                case FMT_FLAC: MV_ReleaseFLACVoice(voice); break;
-#endif
-                case FMT_XA: MV_ReleaseXAVoice(voice); break;
-#ifdef HAVE_XMP
-                case FMT_XMP: MV_ReleaseXMPVoice(voice); break;
-#endif
-                default: break;
-            }
-
-            voice->handle = 0;
-
-            if (MV_CallBackFunc)
-                MV_CallBackFunc(voice->callbackval);
         }
     }
     while ((voice = next) != &VoiceList);
@@ -438,14 +424,8 @@ int32_t MV_Kill(int32_t handle)
     if (voice == NULL)
         return MV_Error;
 
-    uint32_t const callbackval = voice->callbackval;
-
     MV_StopVoice(voice);
-
     MV_EndService();
-
-    if (MV_CallBackFunc)
-        MV_CallBackFunc(callbackval);
 
     return MV_Ok;
 }
@@ -846,11 +826,7 @@ static void MV_StopPlayback(void)
     for (VoiceNode *voice = VoiceList.next, *next; voice != &VoiceList; voice = next)
     {
         next = voice->next;
-
         MV_StopVoice(voice);
-
-        if (MV_CallBackFunc)
-            MV_CallBackFunc(voice->callbackval);
     }
 
     RestoreInterrupts();
