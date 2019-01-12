@@ -1289,7 +1289,7 @@ void editinput(void)
         goalz = pos.z;
         if (DOWN_BK(MOVEUP))  //A
         {
-            if (eitherCTRL)
+            if (eitherALT)
             {
                 horiz = max(-100,horiz-((DOWN_BK(RUN)+1)*synctics*2));
             }
@@ -1306,7 +1306,7 @@ void editinput(void)
         }
         if (DOWN_BK(MOVEDOWN))  //Z (stand low)
         {
-            if (eitherCTRL)
+            if (eitherALT)
             {
                 horiz = min(300,horiz+((DOWN_BK(RUN)+1)*synctics*2));
             }
