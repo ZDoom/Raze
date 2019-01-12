@@ -743,7 +743,7 @@ int32_t MV_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right)
     if (voice == NULL)
         return MV_Error;
 
-    MV_SetVoiceVolume(voice, vol, left, right, MV_GetVoice(handle)->volume);
+    MV_SetVoiceVolume(voice, vol, left, right, voice->volume);
     MV_EndService();
     return MV_Ok;
 }
