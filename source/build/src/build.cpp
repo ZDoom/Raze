@@ -3341,6 +3341,119 @@ static void drawspritelabel(int i)
 #define HLMEMBERX(Hl, Member) (*(((Hl)&16384) ? &sprite[(Hl)&16383].Member : &wall[Hl].Member))
 #define HLMEMBER(Hlidx, Member) HLMEMBERX(highlight[Hlidx], Member)
 
+static void maybedeletewalls(int32_t dax, int32_t day)
+{
+    int       numdelpoints   = 0;
+    int const havedrawnwalls = (newnumwalls != -1);
+    int       restorestat    = 1;
+
+    // attempt to delete some points
+    for (int runi=0; runi<3; runi++)  // check, tweak, carry out
+        for (int i=numwalls-1; i>=0; i--)
+        {
+            if (runi==0)
+                wall[i].cstat &= ~(1<<14);
+
+            if (wall[i].x == POINT2(i).x && wall[i].y == POINT2(i).y)
+            {
+                if (havedrawnwalls)
+                {
+                    if (i==ovh.suckwall || (ovh.split && i==ovh.splitstartwall))
+                    {
+                        // if we're about to delete a wall that participates
+                        // in splitting, discard the already drawn walls
+                        restorestat = 2;
+                    }
+                    else if (runi == 1)
+                    {
+                        // correct drawn wall anchors
+                        if (ovh.suckwall > i)
+                            ovh.suckwall--;
+                        if (ovh.split && ovh.splitstartwall > i)
+                            ovh.splitstartwall--;
+                    }
+                }
+
+                if (runi == 0)
+                {
+                    int32_t sectnum = sectorofwall(i);
+                    if (sector[sectnum].wallnum <= 3)
+                    {
+                        message("Deleting wall %d would leave sector %d with %d walls.",
+                            i, sectnum, sector[sectnum].wallnum-1);
+                        goto end_after_dragging;
+                    }
+
+                    sectnum = wall[i].nextsector;
+                    if (sectnum >= 0 && sector[sectnum].wallnum <= 3)
+                    {
+                        message("Deleting wall %d would leave sector %d with %d walls.",
+                            i, sectnum, sector[sectnum].wallnum-1);
+                        goto end_after_dragging;
+                    }
+                }
+                else
+                {
+                    deletepoint(i, runi);
+                    if (runi==2)
+                        numdelpoints++;
+                }
+            }
+        }
+
+    if (numdelpoints)
+    {
+        if (numdelpoints > 1)
+            message("Deleted %d points%s", numdelpoints,
+            (havedrawnwalls && restorestat==2) ? " and cleared drawn walls" : "");
+        else
+            printmessage16("Point deleted%s", (havedrawnwalls && restorestat==2) ?
+                ", cleared drawn walls" : "");
+        asksave = 1;
+    }
+    else
+    {
+        for (int i=0; i<numwalls; i++)     //make new red lines?
+        {
+            YAX_SKIPWALL(i);
+
+            if ((wall[i].x == dax && wall[i].y == day)
+                || (POINT2(i).x == dax && POINT2(i).y == day))
+            {
+                checksectorpointer(i, sectorofwall(i));
+                //                    fixrepeats(i);
+                asksave = 1;
+            }
+        }
+    }
+#ifdef YAX_ENABLE
+    yax_update(0);
+    yax_updategrays(pos.z);
+#endif
+end_after_dragging:
+    backup_drawn_walls(restorestat);
+}
+
+static void deletewall(int w)
+{
+    if ((w & 0xc000) != 16384)
+    {
+        if (sector[sectorofwall(w)].wallnum > 3 && (wall[w].nextwall == -1 || sector[sectorofwall(wall[w].nextwall)].wallnum > 3))
+        {
+            dragpoint(w, POINT2(w).x, POINT2(w).y, 0);
+            maybedeletewalls(wall[w].x, wall[w].y);
+        }
+/*
+        else
+        {
+            deletesector(sectorofwall(w));
+            mkonwinvalid();
+            printmessage16("Sector deleted.");
+        }
+*/
+    }
+}
+
 void overheadeditor(void)
 {
     char buffer[80];
@@ -5481,8 +5594,6 @@ end_autoredwall:
 
         if (((bstatus&1) < (oldmousebstatus&1)) && highlightsectorcnt < 0)  //after dragging
         {
-            int32_t runi, numdelpoints=0;
-            int32_t havedrawnwalls = (newnumwalls!=-1), restorestat=1;
 
             // restorestat is set to 2 whenever the drawn walls should NOT be
             // restored afterwards
@@ -5492,6 +5603,7 @@ end_autoredwall:
             if (err)
             {
                 message("Error backing up drawn walls (code %d)!", err);
+                backup_drawn_walls(1);
                 goto end_after_dragging;
             }
 
@@ -5554,93 +5666,9 @@ end_autoredwall:
 
             dragwall[0] = dragwall[1] = -1;
 
-            // attempt to delete some points
-            for (runi=0; runi<3; runi++)  // check, tweak, carry out
-                for (i=numwalls-1; i>=0; i--)
-                {
-                    if (runi==0)
-                        wall[i].cstat &= ~(1<<14);
-
-                    if (wall[i].x == POINT2(i).x && wall[i].y == POINT2(i).y)
-                    {
-                        if (havedrawnwalls)
-                        {
-                            if (i==ovh.suckwall || (ovh.split && i==ovh.splitstartwall))
-                            {
-                                // if we're about to delete a wall that participates
-                                // in splitting, discard the already drawn walls
-                                restorestat = 2;
-                            }
-                            else if (runi == 1)
-                            {
-                                // correct drawn wall anchors
-                                if (ovh.suckwall > i)
-                                    ovh.suckwall--;
-                                if (ovh.split && ovh.splitstartwall > i)
-                                    ovh.splitstartwall--;
-                            }
-                        }
-
-                        if (runi == 0)
-                        {
-                            int32_t sectnum = sectorofwall(i);
-                            if (sector[sectnum].wallnum <= 3)
-                            {
-                                message("Deleting wall %d would leave sector %d with %d walls.",
-                                        i, sectnum, sector[sectnum].wallnum-1);
-                                goto end_after_dragging;
-                            }
-
-                            sectnum = wall[i].nextsector;
-                            if (sectnum >= 0 && sector[sectnum].wallnum <= 3)
-                            {
-                                message("Deleting wall %d would leave sector %d with %d walls.",
-                                        i, sectnum, sector[sectnum].wallnum-1);
-                                goto end_after_dragging;
-                            }
-                        }
-                        else
-                        {
-                            deletepoint(i, runi);
-                            if (runi==2)
-                                numdelpoints++;
-                        }
-                    }
-                }
-
-            if (numdelpoints)
-            {
-                if (numdelpoints > 1)
-                    message("Deleted %d points%s", numdelpoints,
-                            (havedrawnwalls && restorestat==2) ? " and cleared drawn walls":"");
-                else
-                    printmessage16("Point deleted%s", (havedrawnwalls && restorestat==2) ?
-                                   ", cleared drawn walls":"");
-                asksave = 1;
-            }
-            else
-            {
-                for (i=0; i<numwalls; i++)     //make new red lines?
-                {
-                    YAX_SKIPWALL(i);
-
-                    if ((wall[i].x == dax && wall[i].y == day)
-                        || (POINT2(i).x == dax && POINT2(i).y == day))
-                    {
-                        checksectorpointer(i, sectorofwall(i));
-//                    fixrepeats(i);
-                        asksave = 1;
-                    }
-                }
-            }
-#ifdef YAX_ENABLE
-            yax_update(0);
-            yax_updategrays(pos.z);
-#endif
-end_after_dragging:
-            backup_drawn_walls(restorestat);
+            maybedeletewalls(dax, day);
         }
-
+end_after_dragging:
         if ((bstatus&1) > 0)                //drag points
         {
             if (highlightsectorcnt > 0)
@@ -7702,7 +7730,7 @@ end_batch_insert_points:
         else
             backspace_last = 0;
 
-        if (keystatus[sc_Delete] && eitherCTRL && numwalls > 0)  //sector delete
+        if ((keystatus[sc_Delete]|keystatus[sc_D]) && eitherCTRL && numwalls > 0)  //sector delete
         {
             int32_t numdelsectors = 0;
             char *origframe=NULL;
@@ -7713,6 +7741,7 @@ end_batch_insert_points:
             Bmemset(bunchbitmap, 0, sizeof(bunchbitmap));
 #endif
             keystatus[sc_Delete] = 0;
+            keystatus[sc_D] = 0;
 
             for (i=0; i<numsectors; i++)
             {
@@ -7798,7 +7827,7 @@ end_batch_insert_points:
             }
         }
 
-        if (keystatus[sc_Delete] && (pointhighlight >= 0))
+        if ((keystatus[sc_Delete]|keystatus[sc_D]) && (pointhighlight >= 0))
         {
             if ((pointhighlight&0xc000) == 16384)   //Sprite Delete
             {
@@ -7808,7 +7837,13 @@ end_batch_insert_points:
                 update_highlight();
                 asksave = 1;
             }
+            else if (eitherSHIFT|keystatus[sc_D])
+            {
+                deletewall(pointhighlight);
+                asksave = 1;
+            }
             keystatus[sc_Delete] = 0;
+            keystatus[sc_D] = 0;
         }
 
         if (keystatus[sc_Insert] || keystatus[sc_I])  //InsertPoint
