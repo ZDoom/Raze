@@ -38,6 +38,7 @@ static bool SoundPaused = false;
 
 std::atomic<uint32_t> dnum;
 uint32_t dq[DQSIZE];
+static mutex_t m_callback;
 
 void S_SoundStartup(void)
 {
@@ -78,6 +79,7 @@ void S_SoundStartup(void)
     S_MusicVolume(ud.config.MusicVolume);
 
     FX_SetReverseStereo(ud.config.ReverseStereo);
+    mutex_init(&m_callback);
     FX_SetCallBack(S_Callback);
     FX_SetPrintf(OSD_Printf);
 }
@@ -915,14 +917,18 @@ void S_Update(void)
     } while (++sndnum <= highest);
 }
 
+// S_Callback() can be called from either the audio thread when a sound ends, or the main thread
+// when playing back a new sound needs an existing sound to be stopped first
 void S_Callback(uint32_t num)
 {
     if ((int32_t)num == MUSIC_ID)
         return;
 
+    mutex_lock(&m_callback);
     int const ldnum = dnum;
     dq[ldnum & (DQSIZE - 1)] = num;
     dnum++;
+    mutex_unlock(&m_callback);
 }
 
 void S_ClearSoundLocks(void)
