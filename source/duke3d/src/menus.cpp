@@ -1096,7 +1096,7 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] = {
 #ifdef EDUKE32_ANDROID_MENU
 static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &g_videoGamma, &MF_Bluefont, 1.f, 2.5f, 0.f, 39, 1 );
 #else
-static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &g_videoGamma, &MF_Bluefont, 0.3f, 4.f, 0.f, 38, 1 );
+static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &g_videoGamma, &MF_Bluefont, 0.3f, 4.f, 0.f, 75, 1 );
 #endif
 static MenuEntry_t ME_COLCORR_GAMMA = MAKE_MENUENTRY( "Gamma:", &MF_Redfont, &MEF_ColorCorrect, &MEO_COLCORR_GAMMA, RangeFloat );
 static MenuRangeFloat_t MEO_COLCORR_CONTRAST = MAKE_MENURANGE( &g_videoContrast, &MF_Bluefont, 0.1f, 2.7f, 0.f, 53, 1 );
