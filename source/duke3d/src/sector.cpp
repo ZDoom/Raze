@@ -376,11 +376,22 @@ int SetAnimation(int sectNum, int32_t *animPtr, int goalVal, int animVel)
 
 static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
 {
+    int const playerNum = screenpeek;
+    int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERATILE, spriteNum, playerNum, 0);
+
     vec3_t const camera     = G_GetCameraPosition(spriteNum, smoothRatio);
     int const    saveMirror = display_mirror;
 
     //if (waloff[wn] == 0) loadtile(wn);
     renderSetTarget(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
+
+    if (noDraw == 1)
+        return;
+#ifdef DEBUGGINGAIDS
+    else if (EDUKE32_PREDICT_FALSE(noDraw != 0)) // event return values other than 0 and 1 are reserved
+        OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERATILE return value must be 0 or 1, "
+                   "other values are reserved.\n");
+#endif
 
     yax_preparedrawrooms();
     drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));

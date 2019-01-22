@@ -756,13 +756,15 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         CAMERA(q16ang) = fix16_from_int(actor[ud.camerasprite].tempang
                                       + mulscale16(((pSprite->ang + 1024 - actor[ud.camerasprite].tempang) & 2047) - 1024, smoothRatio));
 
-        int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERA, pPlayer->i, playerNum, 0);
+        int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERA, ud.camerasprite, playerNum, 0);
 
         if (noDraw != 1)  // event return values other than 0 and 1 are reserved
         {
+#ifdef DEBUGGINGAIDS
             if (EDUKE32_PREDICT_FALSE(noDraw != 0))
                 OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERA return value must be 0 or 1, "
                            "other values are reserved.\n");
+#endif
 
 #ifdef LEGACY_ROR
             G_SE40(smoothRatio);
@@ -1016,11 +1018,11 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         if (noDraw != 1)  // event return values other than 0 and 1 are reserved
         {
-/*
-            if (EDUKE32_PREDICT_FALSE(dont_draw != 0))
+#ifdef DEBUGGINGAIDS
+            if (EDUKE32_PREDICT_FALSE(noDraw != 0))
                 OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
                            "other values are reserved.\n");
-*/
+#endif
 
             G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
 #ifdef LEGACY_ROR
