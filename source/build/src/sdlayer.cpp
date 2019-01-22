@@ -1863,10 +1863,13 @@ int32_t videoSetGamma(void)
 */
 #endif
 
+        OSD_Printf("videoSetGamma(): %s\n", SDL_GetError());
+
 #ifndef EDUKE32_GLES
 #if SDL_MAJOR_VERSION == 1
         SDL_SetGammaRamp(&sysgamma[0][0], &sysgamma[1][0], &sysgamma[2][0]);
 #else
+
         if (sdl_window)
             SDL_SetWindowGammaRamp(sdl_window, &sysgamma[0][0], &sysgamma[1][0], &sysgamma[2][0]);
 #endif
