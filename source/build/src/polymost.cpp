@@ -7491,7 +7491,8 @@ void polymost_fillpolygon(int32_t npoints)
         if (!(pth->flags & PTH_INDEXED))
             polymost_usePaletteIndexing(false);
     }
-    else
+
+    if (videoGetRenderMode() == REND_POLYMOST)
         polymost_updatePalette();
 
     float const f = getshadefactor(globalshade);
@@ -7570,7 +7571,8 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
         if (!(pth->flags & PTH_INDEXED))
             polymost_usePaletteIndexing(false);
     }
-    else
+
+    if (videoGetRenderMode() == REND_POLYMOST)
         polymost_updatePalette();
 
     glDisable(GL_ALPHA_TEST);
