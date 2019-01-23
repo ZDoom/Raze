@@ -118,6 +118,9 @@ const char *CONFIG_AnalogNumToName(int32_t func)
 
 void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy/*=false*/)
 {
+    static char const s_gamefunc_[] = "gamefunc_";
+    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
+
     if (!lazy)
     {
         Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
@@ -136,8 +139,15 @@ void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy/*=fal
 
         // skip the function if the default key is already used
         // or the function is assigned to another key
-        if (lazy && (CONTROL_KeyIsBound(default0) || key[0] != 0xff))
+        if (lazy && (key[0] != 0xff || (CONTROL_KeyIsBound(default0) && Bstrlen(CONTROL_KeyBinds[default0].cmdstr) > strlen_gamefunc_
+                        && CONFIG_FunctionNameToNum(CONTROL_KeyBinds[default0].cmdstr + strlen_gamefunc_) >= 0)))
+        {
+#if 0 // defined(DEBUGGINGAIDS)
+            if (key[0] != 0xff)
+                initprintf("Skipping %s bound to %s\n", keyptr[i<<1], CONTROL_KeyBinds[default0].cmdstr);
+#endif
             continue;
+        }
 
         key[0] = default0;
         key[1] = default1;
