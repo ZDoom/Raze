@@ -945,7 +945,7 @@ ifeq ($(PLATFORM),WINDOWS)
     else
         LIBS += -ldxguid_sdl -lmingw32 -limm32 -lole32 -loleaut32 -lversion
     endif
-    LIBS += -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi -lsetupapi
+    LIBS += -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
     # -lshfolder
 else ifeq ($(PLATFORM),SKYOS)
     LIBS += -lnet
