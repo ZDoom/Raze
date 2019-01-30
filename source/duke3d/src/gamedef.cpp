@@ -1500,11 +1500,13 @@ static void C_GetNextVarType(int32_t type)
 
                 case STRUCT_ACTORVAR:
                 case STRUCT_PLAYERVAR:      labelNum = GetDefID(LAST_LABEL); break;
+            }
 
-                default:
-                    g_errorCnt++;
-                    C_ReportError(ERROR_NOTAMEMBER);
-                    return;
+            if (labelNum == -1)
+            {
+                g_errorCnt++;
+                C_ReportError(ERROR_NOTAMEMBER);
+                return;
             }
 
             switch (id - g_structVarIDs)
