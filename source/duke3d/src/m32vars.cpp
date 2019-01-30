@@ -615,6 +615,7 @@ static void Gv_AddSystemVars(void)
 
     Gv_NewVar("mousxplc",(intptr_t)&mousxplc, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("mousyplc",(intptr_t)&mousyplc, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("mousebits",(intptr_t)&g_mouseBits, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
 
     Gv_NewVar("zoom",(intptr_t)&zoom, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("drawlinepat",(intptr_t)&m32_drawlinepat, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
