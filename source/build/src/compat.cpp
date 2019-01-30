@@ -589,17 +589,18 @@ uint32_t Bgetsysmemsize(void)
             MEMORYSTATUSEX memst;
             memst.dwLength = sizeof(MEMORYSTATUSEX);
             if (aGlobalMemoryStatusEx(&memst))
-                siz = min<uint32_t>(UINT32_MAX, memst.ullTotalPhys);
+                siz = min<decltype(memst.ullTotalPhys)>(UINT32_MAX, memst.ullTotalPhys);
         }
-        else
+
+        if (siz == UINT32_MAX || siz == 0)
         {
-            // Yeah, there's enough Win9x hatred here that a perfectly good workaround
-            // has been replaced by an error message.  Oh well, we don't support 9x anyway.
             initprintf("Bgetsysmemsize(): error determining system memory size!\n");
+            siz = UINT32_MAX;
         }
 
         FreeLibrary(lib);
     }
+    else initprintf("Bgetsysmemsize(): unable to load KERNEL32.DLL!\n");
 
     return siz;
 #elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES) && !defined(GEKKO)
