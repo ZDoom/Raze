@@ -118,6 +118,8 @@ int32_t mouseReadAbs(vec2_t * const pResult, vec2_t const * const pInput)
     pResult->x = scale(pInput->x, xwidth, xres) - ((xwidth>>1) - (320<<15));
     pResult->y = scale(pInput->y, 200<<16, yres);
 
+    pResult->y = divscale16(pResult->y - (200<<15), rotatesprite_yxaspect) + (200<<15) - rotatesprite_y_offset;
+
     return 1;
 }
 

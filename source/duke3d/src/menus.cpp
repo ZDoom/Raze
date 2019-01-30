@@ -4357,6 +4357,7 @@ static int32_t xdim_from_320_16(int32_t x)
 }
 static int32_t ydim_from_200_16(int32_t y)
 {
+    y = mulscale16(y + rotatesprite_y_offset - (200<<15), rotatesprite_yxaspect) + (200<<15);
     return scale(y, ydim, 200<<16);
 }
 

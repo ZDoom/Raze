@@ -668,6 +668,9 @@ EXTERN int32_t xdim, ydim, numpages, upscalefactor;
 EXTERN int32_t yxaspect, viewingrange;
 EXTERN intptr_t *ylookup;
 
+EXTERN int32_t rotatesprite_y_offset;
+EXTERN int32_t rotatesprite_yxaspect;
+
 #ifndef GEKKO
 #define MAXVALIDMODES 256
 #else

@@ -1344,6 +1344,8 @@ const memberlabel_t UserdefsLabels[]=
     { "return",                 USERDEFS_RETURN,                 LABEL_HASPARM2, MAX_RETURN_VALUES, -1 },
     { "userbyteversion",        USERDEFS_USERBYTEVERSION,        0, 0, -1 },
     { "autosave",               USERDEFS_AUTOSAVE,               0, 0, -1 },
+    { "draw_y",                 USERDEFS_DRAW_Y,                 0, 0, -1 },
+    { "draw_yxaspect",          USERDEFS_DRAW_YXASPECT,          0, 0, -1 },
 };
 
 int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
@@ -1531,6 +1533,8 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
             break;
         case USERDEFS_USERBYTEVERSION:        labelNum = ud.userbytever;                  break;
         case USERDEFS_AUTOSAVE:               labelNum = ud.autosave;                     break;
+        case USERDEFS_DRAW_Y:                 labelNum = rotatesprite_y_offset;           break;
+        case USERDEFS_DRAW_YXASPECT:          labelNum = rotatesprite_yxaspect;           break;
 
         default: EDUKE32_UNREACHABLE_SECTION(labelNum = -1; break);
     }
@@ -1730,6 +1734,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
             break;
         case USERDEFS_USERBYTEVERSION:              ud.userbytever                   = iSet; break;
         case USERDEFS_AUTOSAVE:                     ud.autosave                      = iSet; break;
+        case USERDEFS_DRAW_Y:                       rotatesprite_y_offset            = iSet; break;
+        case USERDEFS_DRAW_YXASPECT:                rotatesprite_yxaspect            = iSet; break;
     }
 }
 
