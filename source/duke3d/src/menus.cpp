@@ -131,7 +131,7 @@ static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
     char *p = &t[dstlen-1];
     if (*p == ':')
         *p = '\0';
-    captionmenutext(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (24<<16) + (15<<15), t);
+    captionmenutext(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (24<<16) + ((15>>1)<<16), t);
 }
 
 static FORCE_INLINE int32_t Menu_CursorShade(void)
@@ -154,7 +154,7 @@ static void Menu_DrawCursorRight(int32_t x, int32_t y, int32_t z)
 }
 static void Menu_DrawCursorTextTile(int32_t x, int32_t y, int32_t h, int32_t picnum, vec2s_t const & siz, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
 {
-    vec2_t const adjsiz = { siz.x<<15, siz.y<<16 };
+    vec2_t const adjsiz = { (siz.x>>1)<<16, siz.y<<16 };
     Menu_DrawCursorCommon(x + scale(adjsiz.x, h, adjsiz.y), y, divscale16(h, adjsiz.y), picnum, ydim_upper, ydim_lower);
 }
 static void Menu_DrawCursorText(int32_t x, int32_t y, int32_t h, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
@@ -4511,11 +4511,11 @@ static void Menu_RunScrollbar(Menu_t *cm, MenuMenuFormat_t const * const format,
         else
             Menu_BlackRectangle(scrollx, scrolly, scrollwidth, scrollheight, 1|32);
 
-        rotatesprite_fs(scrollx + (scrollwidth>>1) - ((tilesiz[scrollTileCursor].x*ud.menu_scrollcursorz)>>1), scrollregionstart + scale(scrollregionheight, *scrollPos, scrollPosMax), ud.menu_scrollcursorz, 0, scrollTileCursor, 0, 0, 26);
+        rotatesprite_fs(scrollx + ((scrollwidth>>17)<<16) - ((tilesiz[scrollTileCursor].x>>1)*ud.menu_scrollcursorz), scrollregionstart + scale(scrollregionheight, *scrollPos, scrollPosMax), ud.menu_scrollcursorz, 0, scrollTileCursor, 0, 0, 26);
 
         if (cm == m_currentMenu && !m_mousecaught && MOUSEACTIVECONDITIONAL(g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
         {
-            const int32_t scrolltilehalfheight = (tilesiz[scrollTileCursor].y*ud.menu_scrollcursorz)>>1;
+            const int32_t scrolltilehalfheight = (tilesiz[scrollTileCursor].y>>1)*ud.menu_scrollcursorz;
             const int32_t scrollregiony = scrollregionstart + scrolltilehalfheight;
 
             // region between the y-midline of the arrow at the extremes scrolls proportionally
@@ -4528,7 +4528,7 @@ static void Menu_RunScrollbar(Menu_t *cm, MenuMenuFormat_t const * const format,
             // region outside the y-midlines clamps to the extremes
             else if (!Menu_MouseOutsideBounds(&m_mousepos, scrollx, scrolly, scrollwidth, scrollheight))
             {
-                if (m_mousepos.y > scrolly + scrollheight/2)
+                if (m_mousepos.y > scrolly + ((scrollheight>>17)<<16))
                     *scrollPos = scrollPosMax;
                 else
                     *scrollPos = 0;
@@ -4664,7 +4664,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
             int32_t const height = entry->getHeight(); // max(textsize.y, entry->font->get_yline()); // bluefont Q ruins this
             status |= MT_YCenter;
-            int32_t const y_internal = origin.y + y_upper + y + (height>>1) - menu->scrollPos;
+            int32_t const y_internal = origin.y + y_upper + y + ((height>>17)<<16) - menu->scrollPos;
 
             vec2_t textsize;
             if (dodraw)
@@ -4692,7 +4692,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
             if (dodraw)
             {
-                const int32_t mousex = origin.x + indent + entry->format->width == 0 ? x - textsize.x/2 : x;
+                const int32_t mousex = origin.x + indent + entry->format->width == 0 ? x - ((textsize.x>>17)<<16) : x;
                 const int32_t mousey = origin.y + y_upper + y - menu->scrollPos;
                 int32_t mousewidth = entry->format->width == 0 ? textsize.x : klabs(entry->format->width);
 
@@ -4750,7 +4750,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         int32_t optiontextx = origin.x + x;
                         const int32_t optiontexty = origin.y + y_upper + y - menu->scrollPos;
 
-                        const vec2_t optiontextsize = Menu_Text(optiontextx, optiontexty + (height>>1), object->font,
+                        const vec2_t optiontextsize = Menu_Text(optiontextx, optiontexty + ((height>>17)<<16), object->font,
                             currentOption < 0 ? MenuCustom : currentOption < object->options->numOptions ? object->options->optionNames[currentOption] : NULL,
                             status, ydim_upper, ydim_lower);
 
@@ -4791,8 +4791,8 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         int32_t columnx[2] = { origin.x + x - ((status & MT_XRight) ? object->columnWidth : 0), origin.x + x + ((status & MT_XRight) ? 0 : object->columnWidth) };
                         const int32_t columny = origin.y + y_upper + y - menu->scrollPos;
 
-                        const vec2_t column0textsize = Menu_Text(columnx[0], columny + (height>>1), object->font, object->key[*object->column[0]], menu->currentColumn == 0 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
-                        const vec2_t column1textsize = Menu_Text(columnx[1], columny + (height>>1), object->font, object->key[*object->column[1]], menu->currentColumn == 1 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
+                        const vec2_t column0textsize = Menu_Text(columnx[0], columny + ((height>>17)<<16), object->font, object->key[*object->column[0]], menu->currentColumn == 0 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
+                        const vec2_t column1textsize = Menu_Text(columnx[1], columny + ((height>>17)<<16), object->font, object->key[*object->column[1]], menu->currentColumn == 1 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
 
                         if (entry->format->width > 0)
                             mousewidth += object->columnWidth + column1textsize.x;
@@ -4883,13 +4883,13 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             mousewidth += slidebarwidth;
 
                         const int32_t slidebarx = origin.x + x;
-                        const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
+                        const int32_t slidebary = origin.y + y_upper + y + (((height - slidebarheight)>>17)<<16) - menu->scrollPos;
 
                         rotatesprite_ybounds(slidebarx, slidebary, mulscale16(ud.menu_slidebarz, z), 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         const int32_t slideregionwidth = mulscale16((tilesiz[SLIDEBAR].x * ud.menu_slidebarz) - (ud.menu_slidebarmargin<<1) - (tilesiz[SLIDEBAR+1].x * ud.menu_slidecursorz), z);
                         const int32_t slidepointx = slidebarx + mulscale16(ud.menu_slidebarmargin, z) + scale(slideregionwidth, *object->variable - object->min, object->max - object->min);
-                        const int32_t slidepointy = slidebary + mulscale16(((tilesiz[SLIDEBAR].y * ud.menu_slidebarz) - (tilesiz[SLIDEBAR+1].y * ud.menu_slidecursorz))>>1, z);
+                        const int32_t slidepointy = slidebary + mulscale16((((tilesiz[SLIDEBAR].y>>1) * ud.menu_slidebarz) - ((tilesiz[SLIDEBAR+1].y>>1) * ud.menu_slidecursorz)), z);
 
                         rotatesprite_ybounds(slidepointx, slidepointy, mulscale16(ud.menu_slidecursorz, z), 0, SLIDEBAR+1, s, p, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
@@ -4914,7 +4914,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     break;
                             }
 
-                            Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
+                            Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + ((height>>17)<<16) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
                         }
 
                         if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
@@ -4946,7 +4946,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 // region outside the x-midlines clamps to the extremes
                                 else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
                                 {
-                                    if (m_mousepos.x > slideregionx + slideregionwidth/2)
+                                    if (m_mousepos.x > slideregionx + ((slideregionwidth>>17)<<16))
                                         Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, object->max);
                                     else
                                         Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, object->min);
@@ -4982,13 +4982,13 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             mousewidth += slidebarwidth;
 
                         const int32_t slidebarx = origin.x + x;
-                        const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
+                        const int32_t slidebary = origin.y + y_upper + y + (((height - slidebarheight)>>17)<<16) - menu->scrollPos;
 
                         rotatesprite_ybounds(slidebarx, slidebary, mulscale16(ud.menu_slidebarz, z), 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         const int32_t slideregionwidth = mulscale16((tilesiz[SLIDEBAR].x * ud.menu_slidebarz) - (ud.menu_slidebarmargin<<1) - (tilesiz[SLIDEBAR+1].x * ud.menu_slidecursorz), z);
                         const int32_t slidepointx = slidebarx + mulscale16(ud.menu_slidebarmargin, z) + Blrintf((float) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
-                        const int32_t slidepointy = slidebary + mulscale16(((tilesiz[SLIDEBAR].y * ud.menu_slidebarz) - (tilesiz[SLIDEBAR+1].y * ud.menu_slidecursorz))>>1, z);
+                        const int32_t slidepointy = slidebary + mulscale16(((tilesiz[SLIDEBAR].y>>1) * ud.menu_slidebarz) - ((tilesiz[SLIDEBAR+1].y>>1) * ud.menu_slidecursorz), z);
 
                         rotatesprite_ybounds(slidepointx, slidepointy, mulscale16(ud.menu_slidecursorz, z), 0, SLIDEBAR+1, s, p, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
@@ -5013,7 +5013,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     break;
                             }
 
-                            Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
+                            Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + ((height>>17)<<16) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
                         }
 
                         if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
@@ -5045,7 +5045,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 // region outside the x-midlines clamps to the extremes
                                 else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
                                 {
-                                    if (m_mousepos.x > slideregionx + slideregionwidth/2)
+                                    if (m_mousepos.x > slideregionx + (slideregionwidth>>17<<16))
                                         Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, object->max);
                                     else
                                         Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, object->min);
@@ -5082,13 +5082,13 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             mousewidth += slidebarwidth;
 
                         const int32_t slidebarx = origin.x + x;
-                        const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
+                        const int32_t slidebary = origin.y + y_upper + y + (((height - slidebarheight)>>17)<<16) - menu->scrollPos;
 
                         rotatesprite_ybounds(slidebarx, slidebary, mulscale16(ud.menu_slidebarz, z), 0, SLIDEBAR, s, p, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         const int32_t slideregionwidth = mulscale16((tilesiz[SLIDEBAR].x * ud.menu_slidebarz) - (ud.menu_slidebarmargin<<1) - (tilesiz[SLIDEBAR+1].x * ud.menu_slidecursorz), z);
                         const int32_t slidepointx = slidebarx + mulscale16(ud.menu_slidebarmargin, z) + lrint((double) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
-                        const int32_t slidepointy = slidebary + mulscale16(((tilesiz[SLIDEBAR].y * ud.menu_slidebarz) - (tilesiz[SLIDEBAR+1].y * ud.menu_slidecursorz))>>1, z);
+                        const int32_t slidepointy = slidebary + mulscale16(((tilesiz[SLIDEBAR].y)>>1 * ud.menu_slidebarz) - ((tilesiz[SLIDEBAR+1].y)>>1 * ud.menu_slidecursorz), z);
 
                         rotatesprite_ybounds(slidepointx, slidepointy, mulscale16(ud.menu_slidecursorz, z), 0, SLIDEBAR+1, s, p, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
@@ -5113,7 +5113,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     break;
                             }
 
-                            Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
+                            Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + ((height>>17)<<16) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
                         }
 
                         if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
@@ -5145,7 +5145,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 // region outside the x-midlines clamps to the extremes
                                 else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
                                 {
-                                    if (m_mousepos.x > slideregionx + slideregionwidth/2)
+                                    if (m_mousepos.x > slideregionx + ((slideregionwidth>>17)<<16))
                                         Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, object->max);
                                     else
                                         Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, object->min);
@@ -5164,7 +5164,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                         vec2_t dim;
                         int32_t stringx = x;
-                        const int32_t stringy = origin.y + y_upper + y + (height>>1) - menu->scrollPos;
+                        const int32_t stringy = origin.y + y_upper + y + ((height>>17)<<16) - menu->scrollPos;
                         int32_t h;
 
                         if (entry == currentry && object->editfield != NULL)
@@ -5292,7 +5292,7 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
 
         int32_t const height = object->options->font->get_yline(); // max(textsize.y, object->options->font->get_yline());
         status |= MT_YCenter;
-        int32_t const y_internal = origin.y + y_upper + y + (height>>1) - object->options->scrollPos;
+        int32_t const y_internal = origin.y + y_upper + y + ((height>>17)<<16) - object->options->scrollPos;
 
         vec2_t textsize;
         if (dodraw)
@@ -5314,7 +5314,7 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
 
         if (dodraw)
         {
-            const int32_t mousex = origin.x + object->options->entryFormat->width == 0 ? x - textsize.x/2 : x;
+            const int32_t mousex = origin.x + object->options->entryFormat->width == 0 ? x - ((textsize.x>>17)<<16) : x;
             const int32_t mousey = origin.y + y_upper + y - object->options->scrollPos;
             const int32_t mousewidth = object->options->entryFormat->width == 0 ? textsize.x : klabs(object->options->entryFormat->width);
 
@@ -5367,7 +5367,7 @@ static void Menu_Run_MouseReturn(Menu_t *cm, const vec2_t origin)
     rotatesprite_(origin.x + posx, 0, SELECTDIR_z, 512, SELECTDIR,
                   Menu_RunInput_MouseReturn_status ? 4 - (sintable[(totalclock << 4) & 2047] >> 11) : 6, 0,
                   2 | 8 | 16 | RS_ALIGN_L, MOUSEALPHA, 0, xdim_from_320_16(origin.x + x_widescreen_left()), 0,
-                  xdim_from_320_16(origin.x + x_widescreen_left() + (posx>>1)), ydim - 1);
+                  xdim_from_320_16(origin.x + x_widescreen_left() + ((posx>>17)<<16)), ydim - 1);
 }
 #endif
 
@@ -5386,7 +5386,7 @@ static int32_t Menu_RunInput_MouseReturn(void)
 
     const int32_t MouseReturnRegionX = x_widescreen_left();
 
-    vec2_t backbuttonbound = { (tilesiz[SELECTDIR].y * SELECTDIR_z)>>1, tilesiz[SELECTDIR].x * SELECTDIR_z };
+    vec2_t backbuttonbound = { ((tilesiz[SELECTDIR].y * SELECTDIR_z)>>17)<<16, tilesiz[SELECTDIR].x * SELECTDIR_z };
 
     if (!Menu_MouseOutsideBounds(&m_mousepos, MouseReturnRegionX, 0, backbuttonbound.x, backbuttonbound.y))
     {
@@ -5504,7 +5504,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
             int32_t const h = MF_Bluefont.get_yline();
 
-            Menu_DrawCursorText(origin.x + (MENU_MARGIN_CENTER<<16) + (textreturn.x>>1) + (1<<16), origin.y + (102<<16) + (h>>1), h);
+            Menu_DrawCursorText(origin.x + (MENU_MARGIN_CENTER<<16) + ((textreturn.x>>17)<<16) + (1<<16), origin.y + (102<<16) + ((h>>17)<<16), h);
 
             break;
         }
@@ -5582,7 +5582,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                             status |= MT_YCenter;
 
                             const int32_t mousex = origin.x + thisx;
-                            const int32_t mousey = origin.y + y_upper + thisy + (height>>1);
+                            const int32_t mousey = origin.y + y_upper + thisy + ((height>>17)<<16);
 
                             vec2_t textdim = Menu_Text(mousex, mousey, object->font[i], tempbuf, status, ydim_upper, ydim_lower);
 
