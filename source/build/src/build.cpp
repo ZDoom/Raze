@@ -3511,7 +3511,7 @@ void overheadeditor(void)
 
     while ((keystatus[buildkeys[BK_MODE2D_3D]]>>1) == 0)
     {
-        int32_t mousx, mousy;
+        int32_t mousx = 0, mousy = 0;
 
         if (zoom < ztarget)
         {
