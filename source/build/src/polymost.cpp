@@ -5041,7 +5041,7 @@ static void polymost_drawalls(int32_t const bunch)
                 globalpicnum = nwal->picnum; globalshade = nwal->shade; globalpal = (int32_t)((uint8_t)nwal->pal);
                 globvis = globalvisibility;
                 if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
-                globalorientation = wal->cstat;
+                globalorientation = nwal->cstat;
                 DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
                 int i = (!(nwal->cstat&4)) ? sector[nextsectnum].floorz : sec->ceilingz;

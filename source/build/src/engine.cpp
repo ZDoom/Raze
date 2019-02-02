@@ -8004,7 +8004,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
                 tileSetSize(tile.newtile, siz.x, siz.y);
 
                 tileLoad(tile.newtile);
-                Bassert(waloff[tile.newtile]);
+                // Bassert(waloff[tile.newtile]);
             }
         }
     }
