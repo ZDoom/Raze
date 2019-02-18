@@ -2019,6 +2019,10 @@ void P_DisplayScuba(void)
             return;
 
         int const scubaPal = P_GetHudPal(pPlayer);
+        int scubaY = 200 - tilesiz[SCUBAMASK].y;
+        if (ud.screen_size > 4 && ud.statusbarmode == 0)
+            // Scale the offset of 8px with the status bar, otherwise the bottom of the tile is cut
+            scubaY -= scale(8, ud.statusbarscale, 100);
 
 #ifdef SPLITSCREEN_MOD_HACKS
         g_snum = screenpeek;
@@ -2027,10 +2031,10 @@ void P_DisplayScuba(void)
         // this is a hack to hide the seam that appears between the two halves of the mask in GL
 #ifdef USE_OPENGL
         if (videoGetRenderMode() >= REND_POLYMOST)
-            G_DrawTileScaled(44, (200 - tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
+            G_DrawTileScaled(44, scubaY, SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
 #endif
-        G_DrawTileScaled(43, (200 - tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
-        G_DrawTileScaled(320 - 43, (200 - tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2 + 4 + 16 + DRAWEAP_CENTER, scubaPal);
+        G_DrawTileScaled(43, scubaY, SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
+        G_DrawTileScaled(320 - 43, scubaY, SCUBAMASK, 0, 2 + 4 + 16 + DRAWEAP_CENTER, scubaPal);
     }
 }
 
