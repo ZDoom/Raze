@@ -574,8 +574,9 @@ typedef BOOL (WINAPI *aGlobalMemoryStatusExType)(LPMEMORYSTATUSEX);
 
 uint32_t Bgetsysmemsize(void)
 {
-#ifdef _WIN32
     uint32_t siz = UINT32_MAX;
+
+#ifdef _WIN32
     HMODULE lib = LoadLibrary("KERNEL32.DLL");
 
     if (lib)
@@ -592,7 +593,7 @@ uint32_t Bgetsysmemsize(void)
                 siz = min<decltype(memst.ullTotalPhys)>(UINT32_MAX, memst.ullTotalPhys);
         }
 
-        if (siz == UINT32_MAX || siz == 0)
+        if (!aGlobalMemoryStatusEx || siz == 0)
         {
             initprintf("Bgetsysmemsize(): error determining system memory size!\n");
             siz = UINT32_MAX;
@@ -601,10 +602,7 @@ uint32_t Bgetsysmemsize(void)
         FreeLibrary(lib);
     }
     else initprintf("Bgetsysmemsize(): unable to load KERNEL32.DLL!\n");
-
-    return siz;
 #elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES) && !defined(GEKKO)
-    uint32_t siz = UINT32_MAX;
 #ifdef _SC_PAGE_SIZE
     int64_t const scpagesiz = sysconf(_SC_PAGE_SIZE);
 #else
@@ -613,15 +611,14 @@ uint32_t Bgetsysmemsize(void)
     int64_t const scphyspages = sysconf(_SC_PHYS_PAGES);
 
     if (scpagesiz >= 0 && scphyspages >= 0)
-        siz = min<uint32_t>(UINT32_MAX, scpagesiz * scphyspages);
+        siz = (uint32_t)min<uint64_t>(UINT32_MAX, scpagesiz * scphyspages);
 
     //initprintf("Bgetsysmemsize(): %d pages of %d bytes, %d bytes of system memory\n",
     //		scphyspages, scpagesiz, siz);
 
-    return siz;
-#else
-    return UINT32_MAX;
 #endif
+
+    return siz;
 }
 
 #ifdef GEKKO
