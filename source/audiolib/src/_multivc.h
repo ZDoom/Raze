@@ -48,7 +48,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MV_NUMPANPOSITIONS ( MV_MAXPANPOSITION + 1 )
 #define MV_MAXTOTALVOLUME  255
 #define MV_MAXVOLUME       127  /* formerly 63 */
-#define MV_NUMVOICES       8
 
 // mirrors FX_MUSIC_PRIORITY from fx_man.h
 #define MV_MUSIC_PRIORITY INT_MAX
@@ -95,8 +94,6 @@ private:
 #define MV_MIXBUFFERSIZE     256
 #define MV_NUMBEROFBUFFERS   16
 #define MV_TOTALBUFFERSIZE   ( MV_MIXBUFFERSIZE * MV_NUMBEROFBUFFERS )
-
-//#define PI                3.1415926536
 
 typedef enum
 {
@@ -187,8 +184,6 @@ extern Pan MV_PanTable[ MV_NUMPANPOSITIONS ][ MV_MAXVOLUME + 1 ];
 extern int32_t MV_ErrorCode;
 extern int32_t MV_Installed;
 extern int32_t MV_MixRate;
-
-using HARSH_CLIP_TABLE_8 = char[MV_NUMVOICES * 256];
 
 #define MV_SetErrorCode(status) MV_ErrorCode = (status);
 
