@@ -12047,10 +12047,11 @@ void videoSetCorrectedAspect()
 {
     if (r_usenewaspect && newaspect_enable && videoGetRenderMode() != REND_POLYMER)
     {
-        // The correction factor 100/107 has been found
-        // out experimentally. Squares FTW!
-        int32_t vr, yx=(65536*4*100)/(3*107);
-        int32_t y, x;
+        // In DOS the game world is displayed with an aspect of 1.28 instead 1.333,
+        // meaning we have to stretch it by a factor of 1.25 instead of 1.2
+        // to get perfect squares
+        int32_t yx = (65536 * 5) / 4;
+        int32_t vr, y, x;
 
         const int32_t xd = setaspect_new_use_dimen ? xdimen : xdim;
         const int32_t yd = setaspect_new_use_dimen ? ydimen : ydim;

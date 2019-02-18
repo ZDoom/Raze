@@ -210,6 +210,8 @@ typedef struct {
 
     uint32_t userbytever;
 
+    int32_t fov;
+
 #if !defined LUNATIC
     fix16_t cameraq16ang, cameraq16horiz;
     int16_t camerasect;

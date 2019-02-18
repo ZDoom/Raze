@@ -1438,9 +1438,17 @@ static float get_projhack_ratio(void)
 {
     if (glprojectionhacks)
     {
-        static constexpr float const projhack_zoom = 1.3f;
+        float const projhack_zoom = 1.4f *
+        // adjust for the FOV, increasing the FOV reduces the zenith glitch
+        // don't apply if the zenith is cut from the viewing area
+        (65536.f / fviewingrange) *
+        (float)(windowxy2.y-windowxy1.y+1) /
+        (float)(windowxy2.x-windowxy1.x+1) *
+        (float)(xdim)/(float)(ydim);
+        if (projhack_zoom < 1.f)
+            return 1.f;
         static constexpr float const maxcoshoriz = 0.540971179375801f; // 128/sqrt(128^2+199^2) = cos of an horiz diff of 199
-        static constexpr float const factor = (projhack_zoom - 1.f) * (1.f / maxcoshoriz);
+        float const factor = (projhack_zoom - 1.f) * (1.f / maxcoshoriz);
         return 1.f + (factor * (1.f - Bfabsf(gchang)));
     }
 
@@ -7958,7 +7966,6 @@ void polymost_initosdfuncs(void)
         { "r_pr_shadowfiltering", "enable/disable shadow edges filtering - you need to restart the renderer for it to take effect", (void *) &pr_shadowfiltering, CVAR_BOOL, 0, 1 },
         { "r_pr_maxlightpasses", "the maximal amount of lights a single object can by affected by", (void *) &r_pr_maxlightpasses, CVAR_INT|CVAR_FUNCPTR, 0, PR_MAXLIGHTS },
         { "r_pr_maxlightpriority", "lowering that value removes less meaningful lights from the scene", (void *) &pr_maxlightpriority, CVAR_INT, 0, PR_MAXLIGHTPRIORITY },
-        { "r_pr_fov", "sets the field of vision in build angle", (void *) &pr_fov, CVAR_INT, 0, 1023},
         { "r_pr_customaspect", "if non-zero, forces the 3D view aspect ratio", (void *) &pr_customaspect, CVAR_DOUBLE, 0, 3 },
         { "r_pr_billboardingmode", "face sprite display method. 0: classic mode; 1: polymost mode", (void *) &pr_billboardingmode, CVAR_INT, 0, 1 },
         { "r_pr_verbosity", "verbosity level of the polymer renderer", (void *) &pr_verbosity, CVAR_INT, 0, 3 },

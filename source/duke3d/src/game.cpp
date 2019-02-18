@@ -792,11 +792,12 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
                                                                   )));
 
+        viewingRange = Blrintf(float(vr) * tanf(ud.fov * (PI/360.f)));
+
         if (!r_usenewaspect)
-            renderSetAspect(vr, yxaspect);
+            renderSetAspect(viewingRange, yxaspect);
         else
         {
-            viewingRange = vr;
             yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
 
             renderSetAspect(mulscale16(viewingRange,viewingrange), yxaspect);

@@ -274,6 +274,7 @@ void CONFIG_SetDefaults(void)
     ud.detail                 = 0;
     ud.display_bonus_screen   = 1;
     ud.drawweapon             = 1;
+    ud.fov                    = 90;
     ud.hudontop               = 0;
     ud.idplayers              = 1;
     ud.levelstats             = 0;

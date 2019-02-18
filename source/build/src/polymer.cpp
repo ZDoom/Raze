@@ -20,7 +20,7 @@ int32_t         pr_shadowdetail = 4;
 int32_t         pr_shadowfiltering = 1;
 int32_t         pr_maxlightpasses = 10;
 int32_t         pr_maxlightpriority = PR_MAXLIGHTPRIORITY;
-int32_t         pr_fov = 426;           // appears to be the classic setting.
+int32_t         pr_fov = 512;
 double          pr_customaspect = 0.0f;
 int32_t         pr_billboardingmode = 1;
 int32_t         pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
@@ -41,7 +41,7 @@ float           pr_hudxadd = 0.0f;
 float           pr_hudyadd = 0.0f;
 float           pr_hudzadd = 0.0f;
 int32_t         pr_hudangadd = 0;
-int32_t         pr_hudfov = 426;
+int32_t         pr_hudfov = 512;
 float           pr_overridemodelscale = 0.0f;
 int32_t         pr_ati_fboworkaround = 0;
 int32_t         pr_ati_nodepthoffset = 0;
@@ -907,6 +907,10 @@ void                polymer_setaspect(int32_t ang)
 {
     float           aspect;
     float fang = (float)ang * atanf(fviewingrange*(1.f/65536.f)) * (4.f/fPI);
+
+    // use horizontal fov instead of vertical
+    fang = atanf(tanf(fang * (PI / 2048.f)) * float(windowxy2.y - windowxy1.y + 1) / float(windowxy2.x - windowxy1.x + 1) *
+                      float(xdim) / float(ydim) * (3.f / 4.f)) * (2048.f / PI);
 
     if (pr_customaspect != 0.0f)
         aspect = pr_customaspect;
