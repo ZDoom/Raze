@@ -138,6 +138,35 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
     polymost_useColorOnly(true);
     glBegin(GL_LINES);
     glColor4ub(p.r, p.g, p.b, 255);
+
+    int const dx = x2-x1;
+    int const dy = y2-y1;
+
+    if (dx >= 0)
+    {
+        if ((x1 >= wx2) || (x2 < wx1)) return;
+        if (x1 < wx1) y1 += scale(wx1-x1, dy, dx), x1 = wx1;
+        if (x2 > wx2) y2 += scale(wx2-x2, dy, dx), x2 = wx2;
+    }
+    else
+    {
+        if ((x2 >= wx2) || (x1 < wx1)) return;
+        if (x2 < wx1) y2 += scale(wx1-x2, dy, dx), x2 = wx1;
+        if (x1 > wx2) y1 += scale(wx2-x1, dy, dx), x1 = wx2;
+    }
+    if (dy >= 0)
+    {
+        if ((y1 >= wy2) || (y2 < wy1)) return;
+        if (y1 < wy1) x1 += scale(wy1-y1, dx, dy), y1 = wy1;
+        if (y2 > wy2) x2 += scale(wy2-y2, dx, dy), y2 = wy2;
+    }
+    else
+    {
+        if ((y2 >= wy2) || (y1 < wy1)) return;
+        if (y2 < wy1) x2 += scale(wy1-y2, dx, dy), y2 = wy1;
+        if (y1 > wy2) x1 += scale(wy2-y1, dx, dy), y1 = wy2;
+    }
+
     glVertex2f((float) x1 * (1.f/4096.f), (float) y1 * (1.f/4096.f));
     glVertex2f((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
 

@@ -1102,6 +1102,12 @@ void G_DisplayRest(int32_t smoothratio)
             if (ud.overhead_on == 2)
             {
                 videoClearViewableArea(0L);
+#ifdef USE_OPENGL
+                if (videoGetRenderMode() >= REND_POLYMOST)
+                {
+                    G_DrawBackground(); // Necessary GL fills the entire screen with black
+                }
+#endif
                 renderDrawMapView(cposx, cposy, pp->zoom, cang);
             }
             G_DrawOverheadMap(cposx, cposy, pp->zoom, cang);
