@@ -549,9 +549,9 @@ vec2_t G_ScreenText(const int32_t font,
             }
 
             if (f & TEXT_XRIGHT)
-                origin.x = -((linewidth>>16)<<16);
+                origin.x = -(linewidth/z*z);
             else if (f & TEXT_XCENTER)
-                origin.x = -((linewidth>>17)<<16);
+                origin.x = -(linewidth/2/z*z);
         }
 
         if (f & TEXT_YJUSTIFY)
@@ -562,9 +562,9 @@ vec2_t G_ScreenText(const int32_t font,
         }
 
         if (f & TEXT_YBOTTOM)
-            origin.y = -((size.y>>16)<<16);
+            origin.y = -(size.y/z*z);
         else if (f & TEXT_YCENTER)
-            origin.y = -((size.y>>17)<<16);
+            origin.y = -(size.y/2/z*z);
     }
 
     // loop through the string
