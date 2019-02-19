@@ -6958,7 +6958,7 @@ void M_DisplayMenus(void)
             vec2_t cursorpos = m_mousepos;
             int32_t z = 65536;
             uint8_t p = CROSSHAIR_PAL;
-            uint32_t o = 2;
+            uint32_t o = 2|8;
 
             auto const oyxaspect = yxaspect;
             int32_t alpha;
