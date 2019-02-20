@@ -2944,7 +2944,7 @@ void P_GetInput(int const playerNum)
     else
         input.q16avel = fix16_div(fix16_from_int(info.dyaw), F16(32));
 
-    input.q16horz = fix16_div(fix16_from_int(info.dpitch), F16(256));
+    input.q16horz = fix16_div(fix16_from_int(info.dpitch), F16(128));
 
     if (ud.mouseflip) input.q16horz = -input.q16horz;
 
@@ -5362,12 +5362,17 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_RETURNTOCENTER,pPlayer->i,playerNum) == 0)
             pPlayer->return_to_center = 9;
 
+    // A horiz diff of 128 equal 45 degrees,
+    // so we convert horiz to 1024 angle units
+
+    float horizAngle = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / PI) + fix16_to_float(g_player[playerNum].inputBits->q16horz);
+
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {
         if (VM_OnEvent(EVENT_LOOKUP,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            pPlayer->q16horiz += fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            horizAngle += float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             centerHoriz++;
         }
     }
@@ -5377,7 +5382,7 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_LOOKDOWN,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            pPlayer->q16horiz -= fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            horizAngle -= float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             centerHoriz++;
         }
     }
@@ -5386,7 +5391,7 @@ HORIZONLY:;
     {
         if (VM_OnEvent(EVENT_AIMUP,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->q16horiz += fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            horizAngle += float(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             centerHoriz++;
         }
     }
@@ -5395,10 +5400,12 @@ HORIZONLY:;
     {
         if (VM_OnEvent(EVENT_AIMDOWN,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->q16horiz -= fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            horizAngle -= float(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             centerHoriz++;
         }
     }
+
+    pPlayer->q16horiz = F16(100) + F16(128) * tanf(horizAngle * (PI / 512.f));
 
     if (pPlayer->return_to_center > 0 && !TEST_SYNC_KEY(playerBits, SK_LOOK_UP) && !TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {
@@ -5419,7 +5426,7 @@ HORIZONLY:;
         if (pPlayer->q16horizoff > F16(-5) && pPlayer->q16horizoff < F16(5)) pPlayer->q16horizoff = 0;
     }
 
-    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + g_player[playerNum].inputBits->q16horz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
     //Shooting code/changes
 
