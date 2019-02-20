@@ -1,5 +1,5 @@
 /*
- * Playing-field leveller for Build
+ * Playing-field leveler for Build
  */
 
 #define LIBDIVIDE_BODY
