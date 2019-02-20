@@ -1752,14 +1752,14 @@ void videoShowFrame(int32_t w)
             glsurface_blitBuffer();
         }
 
-        static uint32_t lastSwapTime = 0;
         SDL_GL_SwapWindow(sdl_window);
         if (vsync)
         {
+            static uint32_t lastSwapTime = 0;
             // busy loop until we're ready to update again
             while (SDL_GetTicks()-lastSwapTime < currentVBlankInterval) {}
+            lastSwapTime = SDL_GetTicks();
         }
-        lastSwapTime = SDL_GetTicks();
         return;
     }
 #endif
