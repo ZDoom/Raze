@@ -5365,7 +5365,7 @@ HORIZONLY:;
     // A horiz diff of 128 equal 45 degrees,
     // so we convert horiz to 1024 angle units
 
-    float horizAngle = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / PI) + fix16_to_float(g_player[playerNum].inputBits->q16horz);
+    float horizAngle = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + fix16_to_float(g_player[playerNum].inputBits->q16horz);
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {
@@ -5405,7 +5405,7 @@ HORIZONLY:;
         }
     }
 
-    pPlayer->q16horiz = F16(100) + F16(128) * tanf(horizAngle * (PI / 512.f));
+    pPlayer->q16horiz = F16(100) + F16(128) * tanf(horizAngle * (fPI / 512.f));
 
     if (pPlayer->return_to_center > 0 && !TEST_SYNC_KEY(playerBits, SK_LOOK_UP) && !TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {

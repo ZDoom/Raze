@@ -909,8 +909,8 @@ void                polymer_setaspect(int32_t ang)
     float fang = (float)ang * atanf(fviewingrange*(1.f/65536.f)) * (4.f/fPI);
 
     // use horizontal fov instead of vertical
-    fang = atanf(tanf(fang * (PI / 2048.f)) * float(windowxy2.y - windowxy1.y + 1) / float(windowxy2.x - windowxy1.x + 1) *
-                      float(xdim) / float(ydim) * (3.f / 4.f)) * (2048.f / PI);
+    fang = atanf(tanf(fang * (fPI / 2048.f)) * float(windowxy2.y - windowxy1.y + 1) / float(windowxy2.x - windowxy1.x + 1) *
+                      float(xdim) / float(ydim) * (3.f / 4.f)) * (2048.f / fPI);
 
     if (pr_customaspect != 0.0f)
         aspect = pr_customaspect;
