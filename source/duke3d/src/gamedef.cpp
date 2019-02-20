@@ -5529,6 +5529,8 @@ repeatcase:
             {
                 initprintf("%s:%d: error: quote number exceeds limit of %d.\n",g_scriptFileName,g_lineNumber,MAXQUOTES);
                 g_errorCnt++;
+                scriptSkipLine();
+                continue;
             }
             else
             {
