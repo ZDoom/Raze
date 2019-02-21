@@ -5405,7 +5405,7 @@ HORIZONLY:;
         }
     }
 
-    pPlayer->q16horiz = F16(100) + F16(128) * tanf(horizAngle * (fPI / 512.f));
+    pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
 
     if (pPlayer->return_to_center > 0 && !TEST_SYNC_KEY(playerBits, SK_LOOK_UP) && !TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {
