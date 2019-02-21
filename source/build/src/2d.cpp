@@ -118,27 +118,6 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
 {
     //        setpolymost2dview();	// JBF 20040205: more efficient setup
 
-    glViewport(0, 0, xdim, ydim);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, xdim, ydim, 0, -1, 1);
-    if (videoGetRenderMode() == REND_POLYMER)
-    {
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-
-        glDisable(GL_TEXTURE_2D);
-    }
-
-    gloy1 = -1;
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);	// When using line antialiasing, this is needed
-
-    polymost_useColorOnly(true);
-    glBegin(GL_LINES);
-    glColor4ub(p.r, p.g, p.b, 255);
-
     int const dx = x2-x1;
     int const dy = y2-y1;
 
@@ -166,6 +145,27 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
         if (y2 < wy1) x2 += scale(wy1-y2, dx, dy), y2 = wy1;
         if (y1 > wy2) x1 += scale(wy2-y1, dx, dy), y1 = wy2;
     }
+
+    glViewport(0, 0, xdim, ydim);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, xdim, ydim, 0, -1, 1);
+    if (videoGetRenderMode() == REND_POLYMER)
+    {
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        glDisable(GL_TEXTURE_2D);
+    }
+
+    gloy1 = -1;
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);	// When using line antialiasing, this is needed
+
+    polymost_useColorOnly(true);
+    glBegin(GL_LINES);
+    glColor4ub(p.r, p.g, p.b, 255);
 
     glVertex2f((float) x1 * (1.f/4096.f), (float) y1 * (1.f/4096.f));
     glVertex2f((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
