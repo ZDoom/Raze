@@ -2944,7 +2944,7 @@ void P_GetInput(int const playerNum)
     else
         input.q16avel = fix16_div(fix16_from_int(info.dyaw), F16(32));
 
-    input.q16horz = fix16_div(fix16_from_int(info.dpitch), F16(128));
+    input.q16horz = fix16_div(fix16_from_int(info.dpitch), F16(64));
 
     if (ud.mouseflip) input.q16horz = -input.q16horz;
 

@@ -120,7 +120,7 @@ static void CONTROL_GetMouseDelta(void)
     }
 
     CONTROL_MouseAxes[0].analog = Blrintf(finput.x * 4.f * CONTROL_MouseSensitivity);
-    CONTROL_MouseAxes[1].analog = Blrintf(finput.y * 8.f * CONTROL_MouseSensitivity);
+    CONTROL_MouseAxes[1].analog = Blrintf(finput.y * 4.f * CONTROL_MouseSensitivity);
 }
 
 static int32_t CONTROL_GetTime(void)
