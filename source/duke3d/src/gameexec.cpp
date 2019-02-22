@@ -1205,13 +1205,11 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
 
     horiz = fix16_clamp(horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
-    int const onewaspect = newaspect_enable;
-    newaspect_enable = r_usenewaspect;
-    setaspect_new_use_dimen = 1;
-    videoSetViewableArea(x1,y1,x2,y2);
-    setaspect_new_use_dimen = 0;
-    newaspect_enable = onewaspect;
+    int const viewingRange = viewingrange;
+    int const yxAspect = yxaspect;
 
+    videoSetViewableArea(x1,y1,x2,y2);
+    renderSetAspect(viewingRange, yxAspect);
     int const smoothratio = calc_smoothratio(totalclock, ototalclock);
     G_DoInterpolations(smoothratio);
     G_HandleMirror(vec.x, vec.y, vec.z, a, horiz, smoothratio);
@@ -1229,6 +1227,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
     renderDrawMasks();
     G_RestoreInterpolations();
     G_UpdateScreenArea();
+    renderSetAspect(viewingRange, yxAspect);
 }
 
 void Screen_Play(void)
