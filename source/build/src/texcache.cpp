@@ -16,7 +16,7 @@
 
 globaltexcache texcache;
 
-char TEXCACHEFILE[BMAX_PATH] = "textures";
+char TEXCACHEFILE[BMAX_PATH] = "texturecache";
 
 static const char *texcache_errors[TEXCACHEERRORS] = {
     "no error",
@@ -283,7 +283,7 @@ static void texcache_deletefiles(void)
 {
     unlink(TEXCACHEFILE);
     Bstrcpy(ptempbuf, TEXCACHEFILE);
-    Bstrcat(ptempbuf, ".cache");
+    Bstrcat(ptempbuf, ".index");
     unlink(ptempbuf);
 }
 
@@ -308,7 +308,7 @@ int32_t texcache_enabled(void)
 void texcache_openfiles(void)
 {
     Bstrcpy(ptempbuf, TEXCACHEFILE);
-    Bstrcat(ptempbuf, ".cache");
+    Bstrcat(ptempbuf, ".index");
 
     texcache.index      = Bfopen(ptempbuf, "at+");
     texcache.handle = Bopen(TEXCACHEFILE, BO_BINARY | BO_CREAT | BO_APPEND | BO_RDWR, BS_IREAD | BS_IWRITE);
@@ -371,7 +371,7 @@ void texcache_invalidate(void)
 int texcache_loadoffsets(void)
 {
     Bstrcpy(ptempbuf, TEXCACHEFILE);
-    Bstrcat(ptempbuf, ".cache");
+    Bstrcat(ptempbuf, ".index");
     scriptfile *script = scriptfile_fromfile(ptempbuf);
 
     if (!script) return -1;
