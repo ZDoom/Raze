@@ -705,8 +705,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
-    int yxAspect     = yxaspect;
-    int viewingRange = viewingrange;
+    int const viewingRange = viewingrange;
 
     if (g_networkMode == NET_DEDICATED_SERVER) return;
 
@@ -785,23 +784,21 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         int32_t floorZ, ceilZ;
         int32_t tiltcx, tiltcy, tiltcs=0;    // JBF 20030807
 
-        int const vr            = divscale22(1, sprite[pPlayer->i].yrepeat + 28);
-        int       screenTilting = (videoGetRenderMode() == REND_CLASSIC && ((ud.screen_tilting && pPlayer->rotscrnang
-#ifdef SPLITSCREEN_MOD_HACKS
-                                                                  && !g_fakeMultiMode
-#endif
-                                                                  )));
+        int vr            = divscale22(1, sprite[pPlayer->i].yrepeat + 28);
+        int screenTilting = (videoGetRenderMode() == REND_CLASSIC
+                             && ((ud.screen_tilting && pPlayer->rotscrnang
 
-        viewingRange = Blrintf(float(vr) * tanf(ud.fov * (fPI/360.f)));
+#ifdef SPLITSCREEN_MOD_HACKS
+                                  && !g_fakeMultiMode
+#endif
+                                  )));
+
+        vr = Blrintf(float(vr) * tanf(ud.fov * (fPI/360.f)));
 
         if (!r_usenewaspect)
-            renderSetAspect(viewingRange, yxaspect);
+            renderSetAspect(vr, yxaspect);
         else
-        {
-            yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
-
-            renderSetAspect(mulscale16(viewingRange,viewingrange), yxaspect);
-        }
+            renderSetAspect(mulscale16(vr, viewingrange), yxaspect);
 
         if (g_screenCapture)
         {
@@ -814,7 +811,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         }
         else if (screenTilting)
         {
-            int32_t oviewingrange = viewingrange;  // save it from setaspect()
+            int32_t oviewingrange = viewingrange;  // save it from renderSetAspect()
             const int16_t tang = (ud.screen_tilting) ? pPlayer->rotscrnang : 0;
 
             if (tang == 1024)
@@ -890,12 +887,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                     vRange = 512 - vRange;
 
                 vRange = sintable[vRange + 512] * 8 + sintable[vRange] * 5;
-
-                //                setaspect(i>>1, yxaspect);
                 renderSetAspect(mulscale16(oviewingrange, vRange >> 1), yxaspect);
-
-                viewingRange = vRange >> 1;
-                yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
             }
         }
         else if (videoGetRenderMode() >= REND_POLYMOST && (ud.screen_tilting
@@ -1149,7 +1141,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     if (r_usenewaspect)
     {
         newaspect_enable = 0;
-        renderSetAspect(viewingRange, yxAspect);
+        renderSetAspect(viewingRange, tabledivide32_noinline(65536 * ydim * 8, xdim * 5));
     }
 
     VM_OnEvent(EVENT_DISPLAYROOMSEND, g_player[screenpeek].ps->i, screenpeek);
