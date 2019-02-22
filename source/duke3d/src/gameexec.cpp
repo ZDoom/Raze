@@ -2526,7 +2526,7 @@ next_instruction:
 
                     if (sectLabel.offset == -1 || sectLabel.flags & LABEL_WRITEFUNC)
                     {
-                        VM_SetSector(sectNum, labelNum, Gv_GetVarX(*insptr++));
+                        VM_SetSector(sectNum, labelNum, newValue);
                         continue;
                     }
 
