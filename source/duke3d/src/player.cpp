@@ -297,7 +297,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                         }
 
 #ifndef EDUKE32_STANDALONE
-                        int const zOffset = (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN) ? ZOFFSET5 : 0;
+                        int const zOffset = (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN) ? 0 : ZOFFSET5;
 #else
                         int const zOffset = 0;
 #endif
