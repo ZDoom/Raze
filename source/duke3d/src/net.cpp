@@ -199,7 +199,9 @@ static const uint32_t cInitialMapStateRevisionNumber = 0;
 static const uint32_t cStartingRevisionIndex = 1;
 
 static const int32_t cLocSprite_DeletedSpriteStat = MAXSTATUS;
+#ifdef CURRENTLY_UNUSED
 static const int32_t cNetSprite_DeletedSpriteStat = STAT_NETALLOC;
+#endif
 
 //[75]  When a client attempts to allocate a sprite during the game loop, which is not defined as a clientside sprite,
 //      the insert will go through, and the sprite will be put on this list.
@@ -441,6 +443,7 @@ static netField_t ActorFields[] =
 // max packet array size
 #define MAX_WORLDBUFFER WORLD_DATASIZE + WORLD_OVERHEADSIZE
 
+#ifdef CURRENTLY_UNUSED
 // Just so you can get an idea of how much memory the netcode needs...
 static const int64_t cWORLD_DataSize     = WORLD_DATASIZE;
 static const int64_t cWORLD_OverheadSize = WORLD_OVERHEADSIZE;
@@ -448,6 +451,7 @@ static const int64_t cWORLD_TotalSize    = MAX_WORLDBUFFER;
 
 // ...it's pretty big for now (!)
 static const int64_t SnapshotArraySize = sizeof(netmapstate_t) * NET_REVISIONS;
+#endif
 
 
 // both the client and server store their current revision number here,

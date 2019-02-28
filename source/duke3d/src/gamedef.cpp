@@ -788,13 +788,6 @@ static inthashtable_t *const inttables[] = {
     &h_actorvar,
 };
 
-static inthashtable_t *const inttables_free[] = {
-    &h_varvar,
-    &h_globalvar,
-    &h_playervar,
-    &h_actorvar,
-};
-
 
 const tokenmap_t iter_tokens [] =
 {
@@ -1792,6 +1785,7 @@ static int C_GetStructureIndexes(bool const labelsonly, hashtable_t const * cons
     return labelNum;
 }
 
+#ifdef CURRENTLY_UNUSED
 static FORCE_INLINE bool C_IntPow2(int32_t const v)
 {
     return ((v!=0) && (v&(v-1))==0);
@@ -1808,6 +1802,7 @@ static inline uint32_t C_Pow2IntLogBase2(int32_t const v)
 
     return r;
 }
+#endif
 
 static bool C_CheckMalformedBranch(intptr_t lastScriptPtr)
 {
