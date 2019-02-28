@@ -241,7 +241,7 @@ typedef struct netField_s
 
 } netField_t;
 
-#define	SECTF(x) #x,(size_t)&((netSector_t*)0)->x
+#define	SECTF(x) #x,(int32_t)(size_t)&((netSector_t*)0)->x
 
 static netField_t SectorFields[] =
 {
@@ -280,7 +280,7 @@ static netField_t SectorFields[] =
 #undef SECTF
 
 
-#define	WALLF(x) #x,(size_t)&((netWall_t*)0)->x
+#define	WALLF(x) #x,(int32_t)(size_t)&((netWall_t*)0)->x
 
 static netField_t WallFields[] =
 {
@@ -311,7 +311,7 @@ static netField_t WallFields[] =
 #undef WALLF
 
 
-#define	ACTF(x) #x,(size_t)&((netactor_t*)0)->x
+#define	ACTF(x) #x,(int32_t)(size_t)&((netactor_t*)0)->x
 
 static netField_t ActorFields[] =
 {
