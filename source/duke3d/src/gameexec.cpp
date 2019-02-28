@@ -1424,8 +1424,8 @@ next_instruction:
                     insptr = tempscrptr;
                 }
                 continue;
-/*
 
+#ifdef INCOMPLETE_STRUCT_ACCESS
             case CON_IFVARE_ACTOR:
                 insptr++;
                 tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
@@ -1669,7 +1669,7 @@ next_instruction:
                 aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] >>= insptr[1];
                 insptr += 2;
                 continue;
-*/
+#endif
 
             case CON_WHILEVARN_GLOBAL:
             {
@@ -1695,6 +1695,7 @@ next_instruction:
                 continue;
             }
 
+#ifdef INCOMPLETE_STRUCT_ACCESS
             case CON_WHILEVARN_ACTOR:
             {
                 auto const savedinsptr = &insptr[2];
@@ -1750,12 +1751,14 @@ next_instruction:
 
                 continue;
             }
+#endif
 
             case CON_MODVAR_GLOBAL:
                 insptr++;
                 aGameVars[*insptr].global %= insptr[1];
                 insptr += 2;
                 continue;
+#ifdef INCOMPLETE_STRUCT_ACCESS
             case CON_MODVAR_ACTOR:
                 insptr++;
                 aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] %= insptr[1];
@@ -1766,6 +1769,7 @@ next_instruction:
                 aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] %= insptr[1];
                 insptr += 2;
                 continue;
+#endif
 
             case CON_IFVARAND:
                 insptr++;
@@ -1916,7 +1920,7 @@ next_instruction:
                 insptr += 2;
                 continue;
 
-/*
+#ifdef INCOMPLETE_STRUCT_ACCESS
             case CON_DIVVAR_PLAYER:
             {
                 insptr++;
@@ -1936,7 +1940,7 @@ next_instruction:
                 insptr += 2;
                 continue;
             }
-*/
+#endif
 
             case CON_DIVVARVAR:
                 insptr++;
@@ -2234,6 +2238,7 @@ next_instruction:
                 insptr += 2;
                 continue;
 
+#ifdef INCOMPLETE_STRUCT_ACCESS
             case CON_RANDVAR_PLAYER:
                 insptr++;
                 aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] = mulscale16(krand(), insptr[1] + 1);
@@ -2245,6 +2250,7 @@ next_instruction:
                 aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] = mulscale16(krand(), insptr[1] + 1);
                 insptr += 2;
                 continue;
+#endif
 
             case CON_RANDVARVAR:
                 insptr++;

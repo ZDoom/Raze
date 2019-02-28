@@ -708,6 +708,7 @@ static const vec2_t globalvartable[] =
     { CON_XORVAR,         CON_XORVAR_GLOBAL },
 };
 
+#ifdef INCOMPLETE_STRUCT_ACCESS
 static const vec2_t playervartable[] =
 {
     { CON_IFVARA,         CON_IFVARA_PLAYER },
@@ -775,17 +776,22 @@ static const vec2_t actorvartable[] =
     { CON_SUBVAR,         CON_SUBVAR_ACTOR },
     { CON_XORVAR,         CON_XORVAR_ACTOR },
 };
+#endif
 
 static inthashtable_t h_varvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(varvartable)) };
 static inthashtable_t h_globalvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(globalvartable)) };
+#ifdef INCOMPLETE_STRUCT_ACCESS
 static inthashtable_t h_playervar = { NULL, INTHASH_SIZE(ARRAY_SIZE(playervartable)) };
 static inthashtable_t h_actorvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(actorvartable)) };
+#endif
 
 static inthashtable_t *const inttables[] = {
     &h_varvar,
     &h_globalvar,
+#ifdef INCOMPLETE_STRUCT_ACCESS
     &h_playervar,
     &h_actorvar,
+#endif
 };
 
 
@@ -2453,14 +2459,14 @@ static void scriptUpdateOpcodeForVariableType(intptr_t *ins)
             case 0:
                 opcode = inthash_find(&h_globalvar, *ins & VM_INSTMASK);
                 break;
-/*
+#ifdef INCOMPLETE_STRUCT_ACCESS
             case GAMEVAR_PERACTOR:
                 opcode = inthash_find(&h_actorvar, *ins & VM_INSTMASK);
                 break;
             case GAMEVAR_PERPLAYER:
                 opcode = inthash_find(&h_playervar, *ins & VM_INSTMASK);
                 break;
-*/
+#endif
         }
     }
 
@@ -6180,11 +6186,13 @@ void scriptInitTables()
     for (auto &globalvar : globalvartable)
         inthash_add(&h_globalvar, globalvar.x, globalvar.y, 0);
 
+#ifdef INCOMPLETE_STRUCT_ACCESS
     for (auto &playervar : playervartable)
         inthash_add(&h_playervar, playervar.x, playervar.y, 0);
 
     for (auto &actorvar : actorvartable)
         inthash_add(&h_actorvar, actorvar.x, actorvar.y, 0);
+#endif
 }
 
 void C_Compile(const char *fileName)
@@ -6319,8 +6327,10 @@ void C_Compile(const char *fileName)
 
     inthash_free(&h_varvar);
     inthash_free(&h_globalvar);
+#ifdef INCOMPLETE_STRUCT_ACCESS
     inthash_free(&h_playervar);
     inthash_free(&h_actorvar);
+#endif
 
     freehashnames();
     freesoundhashnames();
