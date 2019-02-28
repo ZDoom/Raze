@@ -1265,10 +1265,23 @@ void Screen_Play(void)
         }                                                                                         \
     }
 
+#if defined __GNUC__ || defined __clang__
+# define CON_DIRECT_THREADING_DISPATCH
+#endif
+#ifdef CON_DIRECT_THREADING_DISPATCH
+# define vInstruction(KEYWORDID) VINST_ ## KEYWORDID
+# define eval(INSTRUCTION) {if (INSTRUCTION >= 0 && INSTRUCTION <= CON_OPCODE_END) {goto *jumpTable[INSTRUCTION];} else {goto VINST_CON_OPCODE_END;}}
+# define dispatch(INSTRUCTION) {if (loop) {tw = *insptr; g_errorLineNum = tw >> 12; g_tw = tw &= VM_INSTMASK; eval(INSTRUCTION)} else {return;}}
+# define vInstructionPointer(KEYWORDID) &&VINST_ ## KEYWORDID
+# define COMMA ,
+# define JUMP_TABLE_ARRAY_LITERAL { TRANSFORM_SCRIPT_KEYWORDS_LIST(vInstructionPointer, COMMA) }
+# define vmErrorCase VINST_CON_OPCODE_END
+#else
 # define vInstruction(KEYWORDID) case KEYWORDID
 # define dispatch(INSTRUCTION) continue;
 # define eval(INSTRUCTION) switch(INSTRUCTION)
 # define vmErrorCase default
+#endif
 
 GAMEEXEC_STATIC void VM_Execute(native_t const poop)
 {
@@ -1276,13 +1289,18 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
 
     do
     {
-next_instruction:
+#ifndef CON_DIRECT_THREADING_DISPATCH
+    next_instruction:
+#endif
         native_t tw = *insptr;
         // set up "p" in between tw and g_errorLineNum to avoid read after write penalty
         auto &p = *(vm.pPlayer);
         g_errorLineNum = tw >> 12;
         g_tw = tw &= VM_INSTMASK;
 
+#ifdef CON_DIRECT_THREADING_DISPATCH
+        static void* jumpTable[] = JUMP_TABLE_ARRAY_LITERAL;
+#else
         if (tw == CON_ELSE)
         {
             insptr = (intptr_t *)insptr[1];
@@ -1298,8 +1316,30 @@ next_instruction:
             insptr++, loop--;
             continue;
         }
-        else eval(tw)
+        else
+#endif
+        eval(tw)
         {
+#ifdef CON_DIRECT_THREADING_DISPATCH
+            vInstruction(CON_LEFTBRACE):
+            {
+                insptr++, loop++;
+                dispatch(tw);
+            }
+
+            vInstruction(CON_RIGHTBRACE):
+            {
+                insptr++, loop--;
+                dispatch(tw);
+            }
+
+            vInstruction(CON_ELSE):
+            {
+                insptr = (intptr_t *)insptr[1];
+                dispatch(tw);
+            }
+#endif
+
             vInstruction(CON_IFVARE_GLOBAL):
                 insptr++;
                 tw = aGameVars[*insptr++].global;
@@ -2561,7 +2601,9 @@ next_instruction:
 
             vInstruction(CON_RETURN):
                 vm.flags |= VM_RETURN;
+#if !defined CON_DIRECT_THREADING_DISPATCH
                 fallthrough__;
+#endif
             vInstruction(CON_ENDSWITCH):
             vInstruction(CON_ENDA):
             vInstruction(CON_BREAK):
@@ -6403,7 +6445,9 @@ badindex:
                            "If you are a developer, please attach all of your script files\n"
                            "along with instructions on how to reproduce this error.\n\n"
                            "Thank you!");
+#if !defined CON_DIRECT_THREADING_DISPATCH
                 break;
+#endif
         }
     } while (loop && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0);
 }
