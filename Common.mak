@@ -340,6 +340,12 @@ HAVE_XMP := 1
 RENDERTYPE := SDL
 MIXERTYPE := SDL
 SDL_TARGET := 2
+USE_PHYSFS := 0
+
+ifneq (0,$(USE_PHYSFS))
+    # PhysFS requires this to be off
+    override CPLUSPLUS := 0
+endif
 
 # Debugging/Build options
 FORCEDEBUG := 0

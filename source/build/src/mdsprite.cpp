@@ -17,6 +17,8 @@
 #include "common.h"
 #include "palette.h"
 
+#include "vfs.h"
+
 static int32_t curextra=MAXTILES;
 
 #define MIN_CACHETIME_PRINT 10
@@ -691,8 +693,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     *texidx = 0;
 
-    int32_t filh;
-    if ((filh = kopen4load(fn, 0)) < 0)
+    buildvfs_kfd filh;
+    if ((filh = kopen4load(fn, 0)) == buildvfs_kfd_invalid)
         return mdloadskin_notfound(skinfile, fn);
 
 
@@ -1192,7 +1194,7 @@ static void mdloadvbos(md3model_t *m)
 #endif
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
-static md2model_t *md2load(int32_t fil, const char *filnam)
+static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
 {
     md2model_t *m;
     md3model_t *m3;
@@ -1477,7 +1479,7 @@ static inline void quicksort(uint16_t *indexes, float *depths, int32_t first, in
 
 //--------------------------------------- MD3 LIBRARY BEGINS ---------------------------------------
 
-static md3model_t *md3load(int32_t fil)
+static md3model_t *md3load(buildvfs_kfd fil)
 {
     int32_t i, surfi, ofsurf, offs[4], leng[4];
     int32_t maxtrispersurf;
@@ -2653,15 +2655,14 @@ static void md3free(md3model_t *m)
 mdmodel_t *mdload(const char *filnam)
 {
     mdmodel_t *vm;
-    int32_t fil;
     int32_t i;
 
     vm = (mdmodel_t *)voxload(filnam);
     if (vm) return vm;
 
-    fil = kopen4load(filnam,0);
+    buildvfs_kfd fil = kopen4load(filnam,0);
 
-    if (fil < 0)
+    if (fil == buildvfs_kfd_invalid)
         return NULL;
 
     kread(fil,&i,4);

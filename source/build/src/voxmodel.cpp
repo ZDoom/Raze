@@ -16,6 +16,8 @@
 #include "kplib.h"
 #include "palette.h"
 
+#include "vfs.h"
+
 
 //For loading/conversion only
 static vec3_t voxsiz;
@@ -599,7 +601,7 @@ static void alloc_vbit(void)
     memset(vbit, 0, i);
 }
 
-static void read_pal(int32_t fil, int32_t pal[256])
+static void read_pal(buildvfs_kfd fil, int32_t pal[256])
 {
     klseek(fil, -768, SEEK_END);
 
@@ -615,8 +617,8 @@ static void read_pal(int32_t fil, int32_t pal[256])
 
 static int32_t loadvox(const char *filnam)
 {
-    const int32_t fil = kopen4load(filnam, 0);
-    if (fil < 0)
+    const buildvfs_kfd fil = kopen4load(filnam, 0);
+    if (fil == buildvfs_kfd_invalid)
         return -1;
 
     kread(fil, &voxsiz, sizeof(vec3_t));
@@ -692,8 +694,8 @@ static int32_t loadkvx(const char *filnam)
 {
     int32_t i, mip1leng;
 
-    const int32_t fil = kopen4load(filnam, 0);
-    if (fil < 0)
+    const buildvfs_kfd fil = kopen4load(filnam, 0);
+    if (fil == buildvfs_kfd_invalid)
         return -1;
 
     kread(fil, &mip1leng, 4); mip1leng = B_LITTLE32(mip1leng);
@@ -777,8 +779,8 @@ static int32_t loadkv6(const char *filnam)
 {
     int32_t i;
 
-    const int32_t fil = kopen4load(filnam, 0);
-    if (fil < 0)
+    const buildvfs_kfd fil = kopen4load(filnam, 0);
+    if (fil == buildvfs_kfd_invalid)
         return -1;
 
     kread(fil, &i, 4);

@@ -27,10 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "screens.h"
 
+#include "vfs.h"
+
 char g_firstDemoFile[BMAX_PATH];
 
-FILE *g_demo_filePtr = (FILE *)NULL;  // write
-int32_t g_demo_recFilePtr = -1;  // read
+buildvfs_FILE g_demo_filePtr{};  // write
+buildvfs_kfd g_demo_recFilePtr = buildvfs_kfd_invalid;  // read
 
 int32_t g_demo_cnt;
 int32_t g_demo_goalCnt=0;
@@ -95,7 +97,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     }
 
     g_demo_recFilePtr = kopen4loadfrommod(demofnptr, g_loadFromGroupOnly);
-    if (g_demo_recFilePtr == -1)
+    if (g_demo_recFilePtr == buildvfs_kfd_invalid)
         return 0;
 
     Bassert(g_whichDemo >= 1);
@@ -103,7 +105,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     if (i)
     {
         OSD_Printf(OSD_ERROR "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
-        kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
+        kclose(g_demo_recFilePtr); g_demo_recFilePtr = buildvfs_kfd_invalid;
         return 0;
     }
 
@@ -148,7 +150,7 @@ void G_OpenDemoWrite(void)
     if (ud.recstat == 2)
     {
         kclose(g_demo_recFilePtr);
-        g_demo_recFilePtr = -1;
+        g_demo_recFilePtr = buildvfs_kfd_invalid;
     }
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) && g_player[myconnectindex].ps->dead_flag)
@@ -191,7 +193,7 @@ void G_OpenDemoWrite(void)
 
         demonum++;
 
-        g_demo_filePtr = Bfopen(demofn, "rb");
+        g_demo_filePtr = buildvfs_fopen_read(demofn);
         if (g_demo_filePtr == NULL)
             break;
 
@@ -199,7 +201,7 @@ void G_OpenDemoWrite(void)
     }
     while (1);
 
-    g_demo_filePtr = Bfopen(demofn,"wb");
+    g_demo_filePtr = buildvfs_fopen_write(demofn);
     if (g_demo_filePtr == NULL)
         return;
 
@@ -262,16 +264,16 @@ static void Demo_WriteSync()
 {
     int16_t tmpreccnt;
 
-    fwrite("sYnC", 4, 1, g_demo_filePtr);
+    buildvfs_fwrite("sYnC", 4, 1, g_demo_filePtr);
     tmpreccnt = (int16_t)ud.reccnt;
-    fwrite(&tmpreccnt, sizeof(int16_t), 1, g_demo_filePtr);
+    buildvfs_fwrite(&tmpreccnt, sizeof(int16_t), 1, g_demo_filePtr);
     if (demorec_seeds)
-        fwrite(g_demo_seedbuf, 1, ud.reccnt, g_demo_filePtr);
+        buildvfs_fwrite(g_demo_seedbuf, 1, ud.reccnt, g_demo_filePtr);
 
     if (demo_synccompress)
         dfwrite_LZ4(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
     else //if (demo_synccompress==0)
-        fwrite(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
+        buildvfs_fwrite(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
 
     ud.reccnt = 0;
 }
@@ -308,13 +310,13 @@ void G_CloseDemoWrite(void)
         if (ud.reccnt > 0)
             Demo_WriteSync();
 
-        fwrite("EnD!", 4, 1, g_demo_filePtr);
+        buildvfs_fwrite("EnD!", 4, 1, g_demo_filePtr);
 
         // lastly, we need to write the number of written recsyncs to the demo file
-        if (fseek(g_demo_filePtr, offsetof(savehead_t, reccnt), SEEK_SET))
+        if (buildvfs_fseek_abs(g_demo_filePtr, offsetof(savehead_t, reccnt)))
             perror("G_CloseDemoWrite: final fseek");
         else
-            fwrite(&g_demo_cnt, sizeof(g_demo_cnt), 1, g_demo_filePtr);
+            buildvfs_fwrite(&g_demo_cnt, sizeof(g_demo_cnt), 1, g_demo_filePtr);
 
         ud.recstat = ud.m_recstat = 0;
         MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
@@ -709,7 +711,7 @@ nextdemo:
 nextdemo_nomenu:
                         foundemo = 0;
                         ud.reccnt = 0;
-                        kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
+                        kclose(g_demo_recFilePtr); g_demo_recFilePtr = buildvfs_kfd_invalid;
 
                         if (g_demo_goalCnt>0)
                         {
@@ -971,7 +973,7 @@ nextdemo_nomenu:
 #if KRANDDEBUG
                 krd_print("krandplay.log");
 #endif
-                kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
+                kclose(g_demo_recFilePtr); g_demo_recFilePtr = buildvfs_kfd_invalid;
             }
 
             return 0;
@@ -979,7 +981,7 @@ nextdemo_nomenu:
     }
 
     ud.multimode = numplayers;  // fixes 2 infinite loops after watching demo
-    kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
+    kclose(g_demo_recFilePtr); g_demo_recFilePtr = buildvfs_kfd_invalid;
 
     Demo_FinishProfile();
 

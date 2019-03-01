@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 
+#include "vfs.h"
+
 
 static int32_t rts_numlumps;
 static void  **rts_lumpcache;
@@ -41,15 +43,15 @@ char rts_lumplockbyte[11];
 static int32_t RTS_AddFile(const char *filename)
 {
     wadinfo_t  header;
-    int32_t i, handle, length, startlump;
+    int32_t i, length, startlump;
     filelump_t *fileinfo, *fileinfoo;
 
     // read the entire file in
     //      FIXME: shared opens
 
-    handle = kopen4loadfrommod(filename, 0);
+    buildvfs_kfd handle = kopen4loadfrommod(filename, 0);
 
-    if (handle < 0)
+    if (handle == buildvfs_kfd_invalid)
         return -1;
     else
         initprintf("RTS file \"%s\" loaded\n", filename);

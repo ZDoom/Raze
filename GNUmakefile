@@ -89,6 +89,43 @@ lpeg_inc := $(lpeg_root)/include
 lpeg_obj := $(obj)/$(lpeg)
 
 
+#### PhysicsFS
+
+physfs := physfs
+
+physfs_objs := \
+    physfs.c \
+    physfs_archiver_7z.c \
+    physfs_archiver_dir.c \
+    physfs_archiver_grp.c \
+    physfs_archiver_hog.c \
+    physfs_archiver_iso9660.c \
+    physfs_archiver_mvl.c \
+    physfs_archiver_qpak.c \
+    physfs_archiver_slb.c \
+    physfs_archiver_unpacked.c \
+    physfs_archiver_vdf.c \
+    physfs_archiver_wad.c \
+    physfs_archiver_zip.c \
+    physfs_byteorder.c \
+    physfs_unicode.c \
+
+ifeq ($(PLATFORM),APPLE)
+    physfs_objs += physfs_platform_apple.m
+else ifeq ($(PLATFORM),WINDOWS)
+    physfs_objs += physfs_platform_windows.c
+else
+    physfs_objs += physfs_platform_unix.c
+endif
+
+physfs_root := $(source)/$(physfs)
+physfs_src := $(physfs_root)/src
+physfs_inc := $(physfs_root)/include
+physfs_obj := $(obj)/$(physfs)
+
+physfs_cflags :=
+
+
 #### ENet
 
 enet := enet
@@ -161,9 +198,14 @@ engine_cflags := -I$(engine_src)
 
 engine_deps :=
 
+ifneq (0,$(USE_PHYSFS))
+    engine_deps += physfs
+endif
+
 engine_objs := \
     rev.cpp \
     baselayer.cpp \
+    vfs.cpp \
     cache1d.cpp \
     klzw.cpp \
     common.cpp \
@@ -286,7 +328,6 @@ mact_inc := $(mact_root)/include
 mact_obj := $(obj)/$(mact)
 
 mact_objs := \
-    file_lib.cpp \
     control.cpp \
     keyboard.cpp \
     joystick.cpp \
@@ -786,6 +827,9 @@ endif
 #### Final setup
 
 COMPILERFLAGS += -I$(engine_inc) -I$(mact_inc) -I$(audiolib_inc) -I$(enet_inc) -I$(glad_inc)
+ifneq (0,$(USE_PHYSFS))
+    COMPILERFLAGS += -I$(physfs_inc) -DUSE_PHYSFS
+endif
 
 
 ##### Recipes
@@ -803,6 +847,10 @@ libraries := \
     libxmplite \
     lpeg \
     glad \
+
+ifneq (0,$(USE_PHYSFS))
+    libraries += physfs
+endif
 
 components := \
     $(games) \

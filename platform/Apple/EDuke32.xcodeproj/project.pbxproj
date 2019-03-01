@@ -50,8 +50,6 @@
 		0008E73819F1ABB80091588D /* animlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72619F1ABB80091588D /* animlib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E73919F1ABB80091588D /* control.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72719F1ABB80091588D /* control.cpp */; };
 		0008E73A19F1ABB80091588D /* control.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72819F1ABB80091588D /* control.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0008E73B19F1ABB80091588D /* file_lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72919F1ABB80091588D /* file_lib.cpp */; };
-		0008E73C19F1ABB80091588D /* file_lib.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72A19F1ABB80091588D /* file_lib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E73D19F1ABB80091588D /* joystick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72B19F1ABB80091588D /* joystick.cpp */; };
 		0008E73E19F1ABB80091588D /* joystick.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72C19F1ABB80091588D /* joystick.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E73F19F1ABB80091588D /* keyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72D19F1ABB80091588D /* keyboard.cpp */; };
@@ -314,13 +312,11 @@
 		001382E219F361B80007DA6C /* animlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72519F1ABB80091588D /* animlib.cpp */; };
 		001382E319F361B80007DA6C /* control.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72719F1ABB80091588D /* control.cpp */; };
 		001382E419F361B80007DA6C /* scriplib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E73319F1ABB80091588D /* scriplib.cpp */; };
-		001382E719F361B80007DA6C /* file_lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72919F1ABB80091588D /* file_lib.cpp */; };
 		001382E819F361B80007DA6C /* joystick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72B19F1ABB80091588D /* joystick.cpp */; };
 		001382EB19F361B80007DA6C /* mouse.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E73219F1ABB80091588D /* mouse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382ED19F361B80007DA6C /* joystick.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72C19F1ABB80091588D /* joystick.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382EE19F361B80007DA6C /* control.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72819F1ABB80091588D /* control.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382EF19F361B80007DA6C /* _scrplib.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72419F1ABB80091588D /* _scrplib.h */; };
-		001382F019F361B80007DA6C /* file_lib.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72A19F1ABB80091588D /* file_lib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382F119F361B80007DA6C /* scriplib.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E73419F1ABB80091588D /* scriplib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382F219F361B80007DA6C /* _control.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72319F1ABB80091588D /* _control.h */; };
 		001382F319F361B80007DA6C /* animlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72619F1ABB80091588D /* animlib.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -564,8 +560,6 @@
 		0008E72619F1ABB80091588D /* animlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = animlib.h; path = ../../source/mact/include/animlib.h; sourceTree = SOURCE_ROOT; };
 		0008E72719F1ABB80091588D /* control.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = control.cpp; path = ../../source/mact/src/control.cpp; sourceTree = SOURCE_ROOT; };
 		0008E72819F1ABB80091588D /* control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = control.h; path = ../../source/mact/include/control.h; sourceTree = SOURCE_ROOT; };
-		0008E72919F1ABB80091588D /* file_lib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = file_lib.cpp; path = ../../source/mact/src/file_lib.cpp; sourceTree = SOURCE_ROOT; };
-		0008E72A19F1ABB80091588D /* file_lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = file_lib.h; path = ../../source/mact/include/file_lib.h; sourceTree = SOURCE_ROOT; };
 		0008E72B19F1ABB80091588D /* joystick.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = joystick.cpp; path = ../../source/mact/src/joystick.cpp; sourceTree = SOURCE_ROOT; };
 		0008E72C19F1ABB80091588D /* joystick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = joystick.h; path = ../../source/mact/include/joystick.h; sourceTree = SOURCE_ROOT; };
 		0008E72D19F1ABB80091588D /* keyboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = keyboard.cpp; path = ../../source/mact/src/keyboard.cpp; sourceTree = SOURCE_ROOT; };
@@ -1161,8 +1155,6 @@
 				0008E72619F1ABB80091588D /* animlib.h */,
 				0008E72719F1ABB80091588D /* control.cpp */,
 				0008E72819F1ABB80091588D /* control.h */,
-				0008E72919F1ABB80091588D /* file_lib.cpp */,
-				0008E72A19F1ABB80091588D /* file_lib.h */,
 				0008E72B19F1ABB80091588D /* joystick.cpp */,
 				0008E72C19F1ABB80091588D /* joystick.h */,
 				0008E72D19F1ABB80091588D /* keyboard.cpp */,
@@ -1509,7 +1501,6 @@
 				0008E73E19F1ABB80091588D /* joystick.h in Headers */,
 				0008E73A19F1ABB80091588D /* control.h in Headers */,
 				0008E73619F1ABB80091588D /* _scrplib.h in Headers */,
-				0008E73C19F1ABB80091588D /* file_lib.h in Headers */,
 				0008E74619F1ABB80091588D /* scriplib.h in Headers */,
 				0008E73519F1ABB80091588D /* _control.h in Headers */,
 				0008E73819F1ABB80091588D /* animlib.h in Headers */,
@@ -1621,7 +1612,6 @@
 				001382ED19F361B80007DA6C /* joystick.h in Headers */,
 				001382EE19F361B80007DA6C /* control.h in Headers */,
 				001382EF19F361B80007DA6C /* _scrplib.h in Headers */,
-				001382F019F361B80007DA6C /* file_lib.h in Headers */,
 				001382F119F361B80007DA6C /* scriplib.h in Headers */,
 				001382F219F361B80007DA6C /* _control.h in Headers */,
 				001382F319F361B80007DA6C /* animlib.h in Headers */,
@@ -2040,7 +2030,6 @@
 				0008E73719F1ABB80091588D /* animlib.cpp in Sources */,
 				0008E73919F1ABB80091588D /* control.cpp in Sources */,
 				0008E74519F1ABB80091588D /* scriplib.cpp in Sources */,
-				0008E73B19F1ABB80091588D /* file_lib.cpp in Sources */,
 				0008E73D19F1ABB80091588D /* joystick.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2173,7 +2162,6 @@
 				001382E219F361B80007DA6C /* animlib.cpp in Sources */,
 				001382E319F361B80007DA6C /* control.cpp in Sources */,
 				001382E419F361B80007DA6C /* scriplib.cpp in Sources */,
-				001382E719F361B80007DA6C /* file_lib.cpp in Sources */,
 				001382E819F361B80007DA6C /* joystick.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -43,6 +43,13 @@ Description of Ken's filter to improve LZW compression of DXT1 format by ~15%: (
 #include "texcache.h"
 #include "lz4.h"
 
+#include <fcntl.h>
+#ifdef _WIN32
+# include <io.h>
+#else
+# include <unistd.h>
+#endif
+
 #ifndef EDUKE32_GLES
 static uint16_t dxt_hicosub(uint16_t c)
 {

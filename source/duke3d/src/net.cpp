@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "lz4.h"
 #include "crc32.h"
 
+#include "vfs.h"
+
 // Data needed even if netcode is disabled
 ENetHost    *g_netServer     = NULL;
 ENetHost    *g_netClient     = NULL;
@@ -2000,8 +2002,8 @@ static void Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng)
     Bcorrectfilename(boardfilename, 0);
     if (boardfilename[0] != 0)
     {
-        int32_t i;
-        if ((i = kopen4loadfrommod(boardfilename, 0)) < 0)
+        buildvfs_kfd i;
+        if ((i = kopen4loadfrommod(boardfilename, 0)) == buildvfs_kfd_invalid)
         {
             Bmemset(boardfilename, 0, sizeof(boardfilename));
             Net_SendUserMapName();

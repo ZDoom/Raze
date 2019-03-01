@@ -21,6 +21,8 @@
 # include "hightile.h"
 #endif
 
+#include "vfs.h"
+
 enum scripttoken_t
 {
     T_INCLUDE = 0,
@@ -670,8 +672,8 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            int32_t const fil = kopen4load(fn, 0);
-            if (fil == -1)
+            buildvfs_kfd const fil = kopen4load(fn, 0);
+            if (fil == buildvfs_kfd_invalid)
                 break;
 
             artheader_t local;
@@ -1962,7 +1964,7 @@ static int32_t defsparser(scriptfile *script)
             char *fn = NULL;
             char *highpalend;
 #ifdef POLYMER
-            int32_t fd;
+            buildvfs_kfd fd;
             char *highpaldata;
 #endif
             static const tokenlist highpaltokens[] =
@@ -2834,8 +2836,8 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    int32_t const fil = kopen4load(fn, 0);
-                    if (EDUKE32_PREDICT_FALSE(fil == -1))
+                    buildvfs_kfd const fil = kopen4load(fn, 0);
+                    if (EDUKE32_PREDICT_FALSE(fil == buildvfs_kfd_invalid))
                     {
                         initprintf("Error: basepalette: Failed opening \"%s\" on line %s:%d\n", fn,
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -3014,8 +3016,8 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    int32_t const fil = kopen4load(fn, 0);
-                    if (EDUKE32_PREDICT_FALSE(fil == -1))
+                    buildvfs_kfd const fil = kopen4load(fn, 0);
+                    if (EDUKE32_PREDICT_FALSE(fil == buildvfs_kfd_invalid))
                     {
                         initprintf("Error: palookup: Failed opening \"%s\" on line %s:%d\n", fn,
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -3314,8 +3316,8 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    int32_t const fil = kopen4load(fn, 0);
-                    if (EDUKE32_PREDICT_FALSE(fil == -1))
+                    buildvfs_kfd const fil = kopen4load(fn, 0);
+                    if (EDUKE32_PREDICT_FALSE(fil == buildvfs_kfd_invalid))
                     {
                         initprintf("Error: blendtable: Failed opening \"%s\" on line %s:%d\n", fn,
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));

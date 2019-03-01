@@ -1533,15 +1533,15 @@ void gameDisplay3DRScreen()
 {
     if (!I_CheckAllInput() && g_noLogoAnim == 0)
     {
-        int32_t i;
+        buildvfs_kfd i;
         Net_GetPackets();
 
         i = kopen4loadfrommod("3dr.ivf", 0);
 
-        if (i == -1)
+        if (i == buildvfs_kfd_invalid)
             i = kopen4loadfrommod("3dr.anm", 0);
 
-        if (i != -1)
+        if (i != buildvfs_kfd_invalid)
         {
             kclose(i);
             Anim_Play("3dr.anm");

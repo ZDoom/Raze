@@ -1189,7 +1189,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Alloc extra samples for sustain loop */
 	if (mod->smp > 0) {
-		m->xsmp = (xmp_sample *)calloc(sizeof (struct xmp_sample), mod->smp);
+		m->xsmp = (struct xmp_sample *)calloc(sizeof (struct xmp_sample), mod->smp);
 		if (m->xsmp == NULL) {
 			goto err4;
 		}

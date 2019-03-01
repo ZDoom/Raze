@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "lunatic_game.h"
 #endif
 
+#include "vfs.h"
+
 #if KRANDDEBUG
 # define GAMEEXEC_INLINE
 # define GAMEEXEC_STATIC
@@ -5755,9 +5757,9 @@ badindex:
                         dispatch(tw);
                     }
 
-                    int kFile = kopen4loadfrommod(apStrings[quoteFilename], 0);
+                    buildvfs_kfd kFile = kopen4loadfrommod(apStrings[quoteFilename], 0);
 
-                    if (kFile < 0)
+                    if (kFile == buildvfs_kfd_invalid)
                         dispatch(tw);
 
                     size_t const filelength  = kfilelength(kFile);
@@ -5836,7 +5838,7 @@ badindex:
                         dispatch(tw);
                     }
 
-                    FILE *const fil = Bfopen(temp, "wb");
+                    buildvfs_FILE const fil = buildvfs_fopen_write(temp);
 
                     if (EDUKE32_PREDICT_FALSE(fil == NULL))
                     {
@@ -5856,15 +5858,15 @@ badindex:
                             for (unative_t k = 0; k < numElements; ++k)
                                 pArray[k]    = Gv_GetArrayValue(arrayNum, k);
 
-                            Bfwrite(pArray, 1, numDiskBytes, fil);
+                            buildvfs_fwrite(pArray, 1, numDiskBytes, fil);
                             Bfree(pArray);
                             break;
                         }
 #endif
-                        default: Bfwrite(aGameArrays[arrayNum].pValues, 1, Gv_GetArrayAllocSize(arrayNum), fil); break;
+                        default: buildvfs_fwrite(aGameArrays[arrayNum].pValues, 1, Gv_GetArrayAllocSize(arrayNum), fil); break;
                     }
 
-                    Bfclose(fil);
+                    buildvfs_fclose(fil);
                     dispatch(tw);
                 }
 

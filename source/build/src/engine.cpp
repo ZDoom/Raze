@@ -40,6 +40,8 @@
 L_State g_engState;
 #endif
 
+#include "vfs.h"
+
 //////////
 // Compilation switches for optional/extended engine features
 
@@ -8971,7 +8973,7 @@ static FORCE_INLINE int32_t have_maptext(void)
     return (mapversion >= 10);
 }
 
-static void enginePrepareLoadBoard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
+static void enginePrepareLoadBoard(buildvfs_kfd fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     initspritelists();
 
@@ -9129,7 +9131,7 @@ static void check_sprite(int32_t i)
 
 #ifdef NEW_MAP_FORMAT
 // Returns the number of sprites, or <0 on error.
-LUNATIC_CB int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+LUNATIC_CB int32_t (*loadboard_maptext)(buildvfs_kfd fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 #endif
 
 #include "md4.h"
@@ -9144,13 +9146,14 @@ LUNATIC_CB int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daa
 //       <= -4: map-text error
 int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
-    int32_t fil, i;
+    int32_t i;
     int16_t numsprites;
     const char myflags = flags&(~3);
 
     flags &= 3;
 
-    if ((fil = kopen4load(filename,flags)) == -1)
+    buildvfs_kfd fil;
+    if ((fil = kopen4load(filename,flags)) == buildvfs_kfd_invalid)
         { mapversion = 7; return -1; }
 
     if (kread(fil, &mapversion, 4) != 4)
@@ -9365,7 +9368,7 @@ skip_reading_mapbin:
 // Witchaven 1 and TekWar and LameDuke use v5
 int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
-    int32_t fil, i;
+    int32_t i;
     int16_t numsprites;
 
     struct sectortypev5 v5sect;
@@ -9375,7 +9378,8 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
     struct walltypev6   v6wall;
     struct spritetypev6 v6spr;
 
-    if ((fil = kopen4load(filename,fromwhere)) == -1)
+    buildvfs_kfd fil;
+    if ((fil = kopen4load(filename,fromwhere)) == buildvfs_kfd_invalid)
         { mapversion = 5L; return -1; }
 
     kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
@@ -9579,7 +9583,7 @@ static int32_t get_mapversion(void)
 int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum)
 {
     int16_t numsprites, ts;
-    int32_t i, j, fil, tl;
+    int32_t i, j, tl;
 
     // First, some checking.
     for (j=0; j<MAXSPRITES; j++)
@@ -9623,23 +9627,23 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     }
 #endif
 
-    fil = Bopen(filename, BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY, BS_IREAD|BS_IWRITE);
+    buildvfs_fd fil = buildvfs_open_write(filename);
 
-    if (fil == -1)
+    if (fil == buildvfs_fd_invalid)
     {
         initprintf("Couldn't open \"%s\" for writing: %s\n", filename, strerror(errno));
         return -1;
     }
 
-    tl = B_LITTLE32(mapversion);    Bwrite(fil,&tl,4);
+    tl = B_LITTLE32(mapversion);    buildvfs_write(fil,&tl,4);
 
-    tl = B_LITTLE32(dapos->x);      Bwrite(fil,&tl,4);
-    tl = B_LITTLE32(dapos->y);      Bwrite(fil,&tl,4);
-    tl = B_LITTLE32(dapos->z);      Bwrite(fil,&tl,4);
-    ts = B_LITTLE16(daang);        Bwrite(fil,&ts,2);
-    ts = B_LITTLE16(dacursectnum); Bwrite(fil,&ts,2);
+    tl = B_LITTLE32(dapos->x);      buildvfs_write(fil,&tl,4);
+    tl = B_LITTLE32(dapos->y);      buildvfs_write(fil,&tl,4);
+    tl = B_LITTLE32(dapos->z);      buildvfs_write(fil,&tl,4);
+    ts = B_LITTLE16(daang);        buildvfs_write(fil,&ts,2);
+    ts = B_LITTLE16(dacursectnum); buildvfs_write(fil,&ts,2);
 
-    ts = B_LITTLE16(numsectors);    Bwrite(fil,&ts,2);
+    ts = B_LITTLE16(numsectors);    buildvfs_write(fil,&ts,2);
 
     while (1)  // if, really
     {
@@ -9683,11 +9687,11 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 #endif
         }
 
-        Bwrite(fil, tsect, sizeof(sectortypev7)*numsectors);
+        buildvfs_write(fil, tsect, sizeof(sectortypev7)*numsectors);
         Bfree(tsect);
 
         ts = B_LITTLE16(numwalls);
-        Bwrite(fil,&ts,2);
+        buildvfs_write(fil,&ts,2);
 
         twall = (uwalltypev7 *)Xmalloc(sizeof(uwalltypev7) * numwalls);
 
@@ -9726,10 +9730,10 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
             wal->extra      = B_LITTLE16(wal->extra);
         }
 
-        Bwrite(fil, twall, sizeof(walltypev7)*numwalls);
+        buildvfs_write(fil, twall, sizeof(walltypev7)*numwalls);
         Bfree(twall);
 
-        ts = B_LITTLE16(numsprites);    Bwrite(fil,&ts,2);
+        ts = B_LITTLE16(numsprites);    buildvfs_write(fil,&ts,2);
 
         if (numsprites > 0)
         {
@@ -9760,15 +9764,15 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
                 }
             }
 
-            Bwrite(fil, tspri, sizeof(spritetype)*numsprites);
+            buildvfs_write(fil, tspri, sizeof(spritetype)*numsprites);
             Bfree(tspri);
         }
 
-        Bclose(fil);
+        buildvfs_close(fil);
         return 0;
     }
 
-    Bclose(fil);
+    buildvfs_close(fil);
     return -1;
 }
 
@@ -10041,8 +10045,8 @@ void videoNextPage(void)
 //
 int32_t qloadkvx(int32_t voxindex, const char *filename)
 {
-    const int32_t fil = kopen4load(filename, 0);
-    if (fil == -1)
+    const buildvfs_kfd fil = kopen4load(filename, 0);
+    if (fil == buildvfs_kfd_invalid)
         return -1;
 
     int32_t lengcnt = 0;
@@ -11575,13 +11579,13 @@ void krd_enable(int which)  // 0: disable, 1: rec, 2: play
 
 int32_t krd_print(const char *filename)
 {
-    FILE *fp;
+    buildvfs_FILE fp;
     int32_t i, j;
 
     if (!krd_enabled) return 1;
     krd_enabled = 0;
 
-    fp = fopen(filename, "wb");
+    fp = buildvfs_fopen_write(filename);
     if (!fp) { OSD_Printf("krd_print (2): fopen"); return 1; }
 
     for (i=0; i<krd_numcalls; i++)
@@ -11599,7 +11603,7 @@ int32_t krd_print(const char *filename)
 
     krd_numcalls = 0;
 
-    fclose(fp);
+    buildvfs_fclose(fp);
     return 0;
 }
 #endif  // KRANDDEBUG

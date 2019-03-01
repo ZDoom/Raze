@@ -405,7 +405,9 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #include <limits.h>
 #include <stdarg.h>
 #include <stddef.h>
+#ifndef USE_PHYSFS
 #include <stdio.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -432,6 +434,7 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 # include <malloc.h>
 #endif
 
+#ifndef USE_PHYSFS
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -441,6 +444,7 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 # include <io.h>
 #else
 # include <unistd.h>
+#endif
 #endif
 
 
@@ -902,10 +906,6 @@ static FORCE_INLINE void *Baligned_alloc(const size_t alignment, const size_t si
     Baligned_free(var); (var) = NULL; \
 } while (0)
 
-#define MAYBE_FCLOSE_AND_NULL(fileptr) do { \
-    if (fileptr) { Bfclose(fileptr); fileptr=NULL; } \
-} while (0)
-
 
 ////////// Data serialization //////////
 
@@ -1124,6 +1124,7 @@ extern "C" {
 #endif
 
 
+#ifndef USE_PHYSFS
 ////////// Directory enumeration //////////
 
 struct Bdirent
@@ -1140,6 +1141,7 @@ typedef void BDIR;
 BDIR *Bopendir(const char *name);
 struct Bdirent *Breaddir(BDIR *dir);
 int32_t Bclosedir(BDIR *dir);
+#endif
 
 
 ////////// Paths //////////
@@ -1175,8 +1177,6 @@ char *Bstrupr(char *);
 
 
 ////////// Miscellaneous //////////
-
-int32_t Bfilelength(int32_t fd);
 
 uint32_t Bgetsysmemsize(void);
 

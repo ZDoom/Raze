@@ -31,7 +31,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "baselayer.h"
 
 #include "mytypes.h"
-#include "file_lib.h"
 #include "_rts.h"
 #include "rts.h"
 #include "cache.h"

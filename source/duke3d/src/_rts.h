@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef rts_private__
 #define rts_private__
 
+#include "cache1d.h"
+#include "vfs.h"
+
 //===============
 //   TYPES
 //===============
@@ -30,7 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 typedef struct
 {
     char name[8];
-    int32_t handle, position, size;
+    buildvfs_kfd handle;
+    int32_t position, size;
 } lumpinfo_t;
 
 typedef struct

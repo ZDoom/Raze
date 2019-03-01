@@ -27,7 +27,7 @@ const char *animvpx_read_ivf_header_errmsg[] = {
 
 EDUKE32_STATIC_ASSERT(sizeof(animvpx_ivf_header_t) == 32);
 
-int32_t animvpx_read_ivf_header(int32_t inhandle, animvpx_ivf_header_t *hdr)
+int32_t animvpx_read_ivf_header(buildvfs_kfd inhandle, animvpx_ivf_header_t *hdr)
 {
     int32_t err;
 
@@ -85,7 +85,7 @@ static void get_codec_error(animvpx_codec_ctx *codec)
 }
 
 // no checks for double-init!
-int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, int32_t inhandle, animvpx_codec_ctx *codec)
+int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, buildvfs_kfd inhandle, animvpx_codec_ctx *codec)
 {
     vpx_codec_dec_cfg_t cfg;
 
@@ -152,7 +152,7 @@ int32_t animvpx_uninit_codec(animvpx_codec_ctx *codec)
 ////////// FRAME RETRIEVAL //////////
 
 // read one IVF/VP8 frame, which may code multiple "picture-frames"
-static int32_t animvpx_read_frame(int32_t inhandle, uint8_t **bufptr, uint32_t *bufsizptr, uint32_t *bufallocsizptr)
+static int32_t animvpx_read_frame(buildvfs_kfd inhandle, uint8_t **bufptr, uint32_t *bufsizptr, uint32_t *bufallocsizptr)
 {
 #pragma pack(push,1)
     struct { uint32_t framesiz; uint64_t timestamp; } hdr;

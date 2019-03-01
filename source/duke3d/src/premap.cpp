@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 
+#include "vfs.h"
+
 #ifdef LUNATIC
 # include "lunatic_game.h"
 #endif
@@ -1789,11 +1791,11 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
 
     for (auto & ext : exts)
     {
-        int32_t kFile;
+        buildvfs_kfd kFile;
 
         Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
-        if ((kFile = kopen4loadfrommod(nameBuf, 0)) != -1)
+        if ((kFile = kopen4loadfrommod(nameBuf, 0)) != buildvfs_kfd_invalid)
         {
             kclose(kFile);
             realloc_copy(&g_mapInfo[levelNum].musicfn, nameBuf);

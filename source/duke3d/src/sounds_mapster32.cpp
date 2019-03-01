@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"
 #include "common_game.h"
 
+#include "vfs.h"
+
 #define LOUDESTVOLUME 150
 #define MUSICANDSFX 5
 
@@ -128,8 +130,8 @@ int32_t S_LoadSound(uint32_t num)
         return 0;
     }
 
-    int32_t fp = S_OpenAudio(g_sounds[num].filename, 0, 0);
-    if (fp == -1)
+    buildvfs_kfd fp = S_OpenAudio(g_sounds[num].filename, 0, 0);
+    if (fp == buildvfs_kfd_invalid)
     {
         OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
         return 0;

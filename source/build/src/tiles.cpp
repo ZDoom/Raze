@@ -13,6 +13,8 @@
 #include "cache1d.h"
 #include "lz4.h"
 
+#include "vfs.h"
+
 void *pic = NULL;
 
 // The tile file number (tilesXXX <- this) of each tile:
@@ -39,7 +41,8 @@ static int32_t cachesize = 0;
 static char artfilename[20];
 static char mapartfilename[BMAX_PATH];  // map-specific ART file name
 static int32_t mapartfnXXofs;  // byte offset to 'XX' (the number part) in the above
-static int32_t artfil = -1, artfilnum, artfilplc;
+static int32_t artfilnum, artfilplc;
+static buildvfs_kfd artfil;
 
 ////////// Per-map ART file loading //////////
 
@@ -86,7 +89,7 @@ void artClearMapArt(void)
     {
         kclose(artfil);
 
-        artfil = -1;
+        artfil = buildvfs_kfd_invalid;
         artfilnum = -1;
         artfilplc = 0L;
     }
@@ -141,9 +144,9 @@ void artSetupMapArt(const char *filename)
     mapartfnXXofs = Bstrlen(mapartfilename) - 6;
 
     // Check for first per-map ART file: if that one doesn't exist, don't load any.
-    int32_t fil = kopen4load(artGetIndexedFileName(MAXARTFILES_BASE), 0);
+    buildvfs_kfd fil = kopen4load(artGetIndexedFileName(MAXARTFILES_BASE), 0);
 
-    if (fil == -1)
+    if (fil == buildvfs_kfd_invalid)
     {
         artClearMapArtFilename();
         return;
@@ -284,7 +287,7 @@ void tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy)
     tileUpdatePicSiz(picnum);
 }
 
-int32_t artReadHeader(int32_t const fil, char const * const fn, artheader_t * const local)
+int32_t artReadHeader(buildvfs_kfd const fil, char const * const fn, artheader_t * const local)
 {
     int32_t artversion;
     kread(fil, &artversion, 4); artversion = B_LITTLE32(artversion);
@@ -378,7 +381,7 @@ void tileConvertAnimFormat(int32_t const picnum)
     thispicanm->sf &= ~PICANM_MISC_MASK;
 }
 
-void artReadManifest(int32_t const fil, artheader_t const * const local)
+void artReadManifest(buildvfs_kfd const fil, artheader_t const * const local)
 {
     int16_t *tilesizx = (int16_t *) Xmalloc(local->numtiles * sizeof(int16_t));
     int16_t *tilesizy = (int16_t *) Xmalloc(local->numtiles * sizeof(int16_t));
@@ -398,7 +401,7 @@ void artReadManifest(int32_t const fil, artheader_t const * const local)
     DO_FREE_AND_NULL(tilesizy);
 }
 
-void artPreloadFile(int32_t const fil, artheader_t const * const local)
+void artPreloadFile(buildvfs_kfd const fil, artheader_t const * const local)
 {
     char *buffer = NULL;
     int32_t buffersize = 0;
@@ -421,7 +424,7 @@ void artPreloadFile(int32_t const fil, artheader_t const * const local)
     DO_FREE_AND_NULL(buffer);
 }
 
-static void artPreloadFileSafe(int32_t const fil, artheader_t const * const local)
+static void artPreloadFileSafe(buildvfs_kfd const fil, artheader_t const * const local)
 {
     char *buffer = NULL;
     int32_t buffersize = 0;
@@ -475,9 +478,9 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
 {
     const char *fn = artGetIndexedFileName(tilefilei);
     const int32_t permap = (tilefilei >= MAXARTFILES_BASE);  // is it a per-map ART file?
-    int32_t fil;
+    buildvfs_kfd fil;
 
-    if ((fil = kopen4load(fn, 0)) != -1)
+    if ((fil = kopen4load(fn, 0)) != buildvfs_kfd_invalid)
     {
         artheader_t local;
         int const headerval = artReadHeader(fil, fn, &local);
@@ -511,7 +514,11 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
 
         artReadManifest(fil, &local);
 
+#ifndef USE_PHYSFS
         if (cache1d_file_fromzip(fil))
+#else
+        if (1)
+#endif
         {
             if (permap)
                 artPreloadFileSafe(fil, &local);
@@ -572,7 +579,7 @@ int32_t artLoadFiles(const char *filename, int32_t askedsize)
 
     artUpdateManifest();
 
-    artfil = -1;
+    artfil = buildvfs_kfd_invalid;
     artfilnum = -1;
     artfilplc = 0L;
 
@@ -667,14 +674,14 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
     // Potentially switch open ART file.
     if (tfn != artfilnum)
     {
-        if (artfil != -1)
+        if (artfil != buildvfs_kfd_invalid)
             kclose(artfil);
 
         char const *fn = artGetIndexedFileName(tfn);
 
         artfil = kopen4load(fn, 0);
 
-        if (artfil == -1)
+        if (artfil == buildvfs_kfd_invalid)
         {
             initprintf("Failed opening ART file \"%s\"!\n", fn);
             engineUnInit();
@@ -819,7 +826,7 @@ void tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, 
 
 void Buninitart(void)
 {
-    if (artfil != -1)
+    if (artfil != buildvfs_kfd_invalid)
         kclose(artfil);
 
     ALIGNED_FREE_AND_NULL(pic);

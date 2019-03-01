@@ -5,6 +5,8 @@
 #ifndef osd_h_
 #define osd_h_
 
+#include "vfs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -158,7 +160,7 @@ typedef struct
 
 typedef struct
 {
-    BFILE *fp;
+    buildvfs_FILE fp;
     int32_t cutoff;
     int32_t errors;
     int32_t lines;
@@ -189,7 +191,7 @@ typedef struct
 
 extern osdmain_t *osd;
 
-extern BFILE *osdlog;
+extern buildvfs_FILE osdlog;
 extern const char* osdlogfn;
 
 enum osdflags_t
@@ -291,8 +293,8 @@ int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int (*func)(o
 
 int osdcmd_cvar_set(osdcmdptr_t parm);
 void OSD_RegisterCvar(osdcvardata_t * cvar, int (*func)(osdcmdptr_t));
-void OSD_WriteAliases(FILE *fp);
-void OSD_WriteCvars(FILE *fp);
+void OSD_WriteAliases(buildvfs_FILE fp);
+void OSD_WriteCvars(buildvfs_FILE fp);
 
 static inline void OSD_SetHistory(int idx, const char *src)
 {

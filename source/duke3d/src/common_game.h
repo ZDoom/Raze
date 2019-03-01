@@ -10,6 +10,8 @@
 #include "collections.h"
 #include "grpscan.h"
 
+#include "vfs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -126,7 +128,7 @@ extern void G_SetupGlobalPsky(void);
 //////////
 
 extern char g_modDir[BMAX_PATH];
-extern int kopen4loadfrommod(const char *filename, char searchfirst);
+extern buildvfs_kfd kopen4loadfrommod(const char *filename, char searchfirst);
 extern void G_AddSearchPaths(void);
 extern void G_CleanupSearchPaths(void);
 
@@ -150,7 +152,7 @@ extern void G_LoadLookups(void);
 
 #if defined HAVE_FLAC || defined HAVE_VORBIS
 # define FORMAT_UPGRADE_ELIGIBLE
-extern int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
+extern buildvfs_kfd S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
 #else
 # define S_OpenAudio(fn, searchfirst, ismusic) kopen4loadfrommod(fn, searchfirst)
 #endif

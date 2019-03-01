@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osd.h"
 #include "savegame.h"
 
+#include "vfs.h"
+
 #define LINE_NUMBER (g_lineNumber << 12)
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
@@ -1886,9 +1888,9 @@ static int C_CountCaseStatements()
 
 static void C_Include(const char *confile)
 {
-    int32_t const fp = kopen4loadfrommod(confile,g_loadFromGroupOnly);
+    buildvfs_kfd fp = kopen4loadfrommod(confile, g_loadFromGroupOnly);
 
-    if (EDUKE32_PREDICT_FALSE(fp < 0))
+    if (EDUKE32_PREDICT_FALSE(fp == buildvfs_kfd_invalid))
     {
         g_errorCnt++;
         initprintf("%s:%d: error: could not find file `%s'.\n",g_scriptFileName,g_lineNumber,confile);
@@ -1941,8 +1943,8 @@ static void C_Include(const char *confile)
 #ifdef _WIN32
 static void check_filename_case(const char *fn)
 {
-    int32_t fp;
-    if ((fp = kopen4loadfrommod(fn, g_loadFromGroupOnly)) >= 0)
+    buildvfs_kfd fp;
+    if ((fp = kopen4loadfrommod(fn, g_loadFromGroupOnly)) != buildvfs_kfd_invalid)
         kclose(fp);
 }
 #else
@@ -2378,28 +2380,16 @@ LUNATIC_EXTERN void C_SetCfgName(const char *cfgname)
 #ifdef POLYMER
     int const renderMode = glrendmode;
 #endif
-    struct Bstat st;
 
-    if (Bstat(g_modDir, &st) < 0)
+    if (!buildvfs_isdir(g_modDir))
     {
-        if (errno == ENOENT)     // path doesn't exist
+        if (buildvfs_mkdir(g_modDir, S_IRWXU) != 0)
         {
-            if (Bmkdir(g_modDir, S_IRWXU) < 0)
-            {
-                OSD_Printf("Failed to create directory \"%s\"!\n", g_modDir);
-                return;
-            }
-        }
-        else
-        {
-            // another type of failure
+            OSD_Printf("Failed to create directory \"%s\"!\n", g_modDir);
             return;
         }
-    }
-    else if ((st.st_mode & S_IFDIR) != S_IFDIR)
-    {
-        // directory isn't a directory
-        return;
+        else
+            OSD_Printf("Created configuration file directory %s\n", g_modDir);
     }
 
     // XXX: Back up 'cfgname' as it may be the global 'tempbuf'.
@@ -6212,9 +6202,9 @@ void C_Compile(const char *fileName)
     Gv_Init();
     C_InitProjectiles();
 
-    int const kFile = kopen4loadfrommod(fileName, g_loadFromGroupOnly);
+    buildvfs_kfd kFile = kopen4loadfrommod(fileName, g_loadFromGroupOnly);
 
-    if (kFile == -1) // JBF: was 0
+    if (kFile == buildvfs_kfd_invalid) // JBF: was 0
     {
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {

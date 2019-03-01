@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "animvpx.h"
 #endif
 
+#include "vfs.h"
+
 // animsound_t.sound
 EDUKE32_STATIC_ASSERT(INT16_MAX >= MAXSOUNDS);
 
@@ -245,11 +247,11 @@ int32_t Anim_Play(const char *fn)
             break;
 
         dukeanim_t const * origanim = anim;
-        int32_t handle = -1;
+        buildvfs_kfd handle = buildvfs_kfd_invalid;
         if (!Bstrcmp(dot, ".ivf"))
         {
             handle = kopen4loadfrommod(fn, 0);
-            if (handle == -1)
+            if (handle == buildvfs_kfd_invalid)
                 break;
         }
         else
@@ -268,7 +270,7 @@ int32_t Anim_Play(const char *fn)
             vpxfndot[4] = '\0';
 
             handle = kopen4loadfrommod(vpxfn, 0);
-            if (handle == -1)
+            if (handle == buildvfs_kfd_invalid)
                 break;
 
             anim = Anim_Find(vpxfn);
@@ -417,9 +419,9 @@ int32_t Anim_Play(const char *fn)
 #ifdef USE_OPENGL
     int32_t ogltexfiltermode = gltexfiltermode;
 #endif
-    int32_t handle = kopen4load(fn, 0);
+    buildvfs_kfd handle = kopen4load(fn, 0);
 
-    if (handle == -1)
+    if (handle == buildvfs_kfd_invalid)
         return 0;
 
     int32_t length = kfilelength(handle);

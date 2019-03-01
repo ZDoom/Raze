@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include "vfs.h"
+
 #ifdef USE_OPENGL
 
 #define TEXCACHEMAGIC "LZ41"
@@ -33,7 +35,7 @@ typedef struct texcacheitem_
 
 typedef struct {
     uint8_t *buf;
-    FILE *   index;
+    buildvfs_FILE   index;
 
     texcacheindex * first;
     texcacheindex * current;

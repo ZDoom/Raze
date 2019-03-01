@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "in_android.h"
 #endif
 
+#include "vfs.h"
+
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 
@@ -162,7 +164,6 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
 
 static int osdcmd_map(osdcmdptr_t parm)
 {
-    int32_t i;
     char filename[BMAX_PATH];
 
     const int32_t wildcardp = parm->numparms==1 &&
@@ -210,12 +211,13 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
 
-    if ((i = kopen4loadfrommod(filename,0)) < 0)
+    buildvfs_kfd ii;
+    if ((ii = kopen4loadfrommod(filename,0)) == buildvfs_kfd_invalid)
     {
         OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
     }
-    kclose(i);
+    kclose(ii);
 
     boardfilename[0] = '/';
     boardfilename[1] = 0;

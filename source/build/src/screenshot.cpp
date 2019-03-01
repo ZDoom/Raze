@@ -4,13 +4,15 @@
 
 #include "pngwrite.h"
 
+#include "vfs.h"
+
 //
 // screencapture
 //
 
-FILE *OutputFileCounter::opennextfile(char *fn, char *zeros)
+buildvfs_FILE OutputFileCounter::opennextfile(char *fn, char *zeros)
 {
-    FILE *file;
+    buildvfs_FILE file;
 
     do      // JBF 2004022: So we don't overwrite existing screenshots
     {
@@ -21,15 +23,15 @@ FILE *OutputFileCounter::opennextfile(char *fn, char *zeros)
         zeros[2] = ((count/10)%10)+'0';
         zeros[3] = (count%10)+'0';
 
-        if ((file = fopen(fn, "rb")) == nullptr) break;
-        fclose(file);
+        if ((file = buildvfs_fopen_read(fn)) == nullptr) break;
+        buildvfs_fclose(file);
         count++;
     } while (1);
 
-    return fopen(fn, "wb");
+    return buildvfs_fopen_write(fn);
 }
 
-FILE *OutputFileCounter::opennextfile_withext(char *fn, const char *ext)
+buildvfs_FILE OutputFileCounter::opennextfile_withext(char *fn, const char *ext)
 {
     char *dot = strrchr(fn, '.');
     strcpy(dot+1, ext);
@@ -38,9 +40,9 @@ FILE *OutputFileCounter::opennextfile_withext(char *fn, const char *ext)
 
 static OutputFileCounter capturecounter;
 
-static void screencapture_end(char *fn, BFILE** filptr)
+static void screencapture_end(char *fn, buildvfs_FILE * filptr)
 {
-    Bfclose(*filptr);
+    buildvfs_fclose(*filptr);
     OSD_Printf("Saved screenshot to %s\n", fn);
     Bfree(fn);
     capturecounter.count++;
@@ -55,7 +57,7 @@ static void screencapture_end(char *fn, BFILE** filptr)
 int videoCaptureScreen(const char *filename, char inverseit)
 {
     char *fn = Xstrdup(filename);
-    FILE *fp = capturecounter.opennextfile_withext(fn, "png");
+    buildvfs_FILE fp = capturecounter.opennextfile_withext(fn, "png");
 
     if (fp == nullptr)
     {
@@ -136,7 +138,7 @@ int videoCaptureScreenTGA(const char *filename, char inverseit)
     //char palette[4*256];
     char *fn = Xstrdup(filename);
 
-    FILE *fil = capturecounter.opennextfile_withext(fn, "tga");
+    buildvfs_FILE fil = capturecounter.opennextfile_withext(fn, "tga");
     if (fil == nullptr)
     {
         Bfree(fn);
@@ -162,7 +164,7 @@ int videoCaptureScreenTGA(const char *filename, char inverseit)
     head[14] = ydim & 0xff;
     head[15] = (ydim >> 8) & 0xff;
 
-    Bfwrite(head, 18, 1, fil);
+    buildvfs_fwrite(head, 18, 1, fil);
 
     // palette first
 #ifdef USE_OPENGL
@@ -173,18 +175,18 @@ int videoCaptureScreenTGA(const char *filename, char inverseit)
         {
             for (i=0; i<256; i++)
             {
-                Bfputc(255 - curpalettefaded[i].b, fil);
-                Bfputc(255 - curpalettefaded[i].g, fil);
-                Bfputc(255 - curpalettefaded[i].r, fil);
+                buildvfs_fputc(255 - curpalettefaded[i].b, fil);
+                buildvfs_fputc(255 - curpalettefaded[i].g, fil);
+                buildvfs_fputc(255 - curpalettefaded[i].r, fil);
             }
         }
         else
         {
             for (i=0; i<256; i++)
             {
-                Bfputc(curpalettefaded[i].b, fil);
-                Bfputc(curpalettefaded[i].g, fil);
-                Bfputc(curpalettefaded[i].r, fil);
+                buildvfs_fputc(curpalettefaded[i].b, fil);
+                buildvfs_fputc(curpalettefaded[i].g, fil);
+                buildvfs_fputc(curpalettefaded[i].r, fil);
             }
         }
     }
@@ -203,7 +205,7 @@ int videoCaptureScreenTGA(const char *filename, char inverseit)
         for (i = 0; i < size; i += 3)
             swapchar(&inversebuf[i], &inversebuf[i + 2]);
 
-        Bfwrite(inversebuf, xdim*ydim, 3, fil);
+        buildvfs_fwrite(inversebuf, xdim*ydim, 3, fil);
         Bfree(inversebuf);
     }
     else
@@ -212,7 +214,7 @@ int videoCaptureScreenTGA(const char *filename, char inverseit)
         char * const ptr = (char *) frameplace;
 
         for (i = ydim-1; i >= 0; i--)
-            Bfwrite(ptr + i * bytesperline, xdim, 1, fil);
+            buildvfs_fwrite(ptr + i * bytesperline, xdim, 1, fil);
     }
 
     videoEndDrawing();   //}}}

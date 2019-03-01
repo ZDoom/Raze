@@ -19,6 +19,8 @@
 #include "baselayer.h"
 #include "renderlayer.h"
 
+#include "vfs.h"
+
 #ifdef _WIN32
 # include "winbits.h"
 #endif
@@ -646,7 +648,7 @@ int app_main(int argc, char const * const * argv)
         M32_OnShowOSD
     );
 
-    if (!getcwd(program_origcwd,BMAX_PATH))
+    if (!buildvfs_getcwd(program_origcwd,BMAX_PATH))
         program_origcwd[0] = '\0';
 
     Bstrncpy(game_executable, DefaultGameLocalExec, sizeof(game_executable));
@@ -10989,16 +10991,16 @@ void test_map(int32_t mode)
         char const *param = " -map " PLAYTEST_MAPNAME " -noinstancechecking";
         char current_cwd[BMAX_PATH];
         int32_t slen = 0;
-        BFILE *fp;
+        buildvfs_FILE fp;
 
-        if ((program_origcwd[0] == '\0') || !getcwd(current_cwd, BMAX_PATH))
+        if ((program_origcwd[0] == '\0') || !buildvfs_getcwd(current_cwd, BMAX_PATH))
             current_cwd[0] = '\0';
         else // Before we check if file exists, for the case there's no absolute path.
-            Bchdir(program_origcwd);
+            buildvfs_chdir(program_origcwd);
 
-        fp = fopen(game_executable, "rb"); // File exists?
+        fp = buildvfs_fopen_read(game_executable); // File exists?
         if (fp != NULL)
-            fclose(fp);
+            buildvfs_fclose(fp);
         else
         {
             char const * lastslash = (char const *)Bstrrchr(mapster32_fullpath, '/');
@@ -11017,7 +11019,7 @@ void test_map(int32_t mode)
         }
 
         if (current_cwd[0] != '\0') // Temporarily changing back,
-            Bchdir(current_cwd);     // after checking if file exists.
+            buildvfs_chdir(current_cwd);     // after checking if file exists.
 
         if (testplay_addparam)
             slen = Bstrlen(testplay_addparam);
@@ -11063,10 +11065,10 @@ void test_map(int32_t mode)
 #else
         if (current_cwd[0] != '\0')
         {
-            Bchdir(program_origcwd);
+            buildvfs_chdir(program_origcwd);
             if (system(fullparam))
                 message("Error launching the game!");
-            Bchdir(current_cwd);
+            buildvfs_chdir(current_cwd);
         }
         else system(fullparam);
 #endif

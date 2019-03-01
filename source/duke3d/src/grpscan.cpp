@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "grpscan.h"
 #include "scriptfile.h"
 
+#include "vfs.h"
+
 #ifndef EDUKE32_STANDALONE
 static void process_vaca13(int32_t crcval);
 static void process_vacapp15(int32_t crcval);
@@ -232,7 +234,12 @@ static void LoadGameList(void)
     }
 #endif
 
-    CACHE1D_FIND_REC * const srch = klistpath("/", "*.grpinfo", CACHE1D_FIND_FILE);
+#ifdef USE_PHYSFS
+    auto const base = PHYSFS_getBaseDir();
+#else
+    static char const base[] = "/";
+#endif
+    CACHE1D_FIND_REC * const srch = klistpath(base, "*.grpinfo", CACHE1D_FIND_FILE);
 
     for (CACHE1D_FIND_REC *sidx = srch; sidx; sidx = sidx->next)
         LoadList(sidx->name);
@@ -344,6 +351,7 @@ grpfile_t * FindGroup(int32_t crcval)
     return NULL;
 }
 
+#ifndef USE_PHYSFS
 static grpinfo_t const * FindGrpInfo(int32_t crcval, int32_t size)
 {
     grpinfo_t *grpinfo;
@@ -447,9 +455,11 @@ static void ProcessGroups(CACHE1D_FIND_REC *srch)
 
     Bfree(buf);
 }
+#endif
 
 int32_t ScanGroups(void)
 {
+#ifndef USE_PHYSFS
     struct grpcache *fg, *fgg;
 
     initprintf("Searching for game data...\n");
@@ -491,8 +501,7 @@ int32_t ScanGroups(void)
     if (usedgrpcache)
     {
         int32_t i = 0;
-        FILE *fp;
-        fp = fopen(GRPCACHEFILE, "wt");
+        buildvfs_FILE fp = buildvfs_fopen_write(GRPCACHEFILE);
         if (fp)
         {
             for (fg = usedgrpcache; fg; fg=fgg)
@@ -502,7 +511,7 @@ int32_t ScanGroups(void)
                 Bfree(fg);
                 i++;
             }
-            fclose(fp);
+            buildvfs_fclose(fp);
         }
 //        initprintf("Found %d recognized GRP %s.\n",i,i>1?"files":"file");
 
@@ -510,6 +519,7 @@ int32_t ScanGroups(void)
     }
 
     initprintf("Found no recognized game data!\n");
+#endif
 
     return 0;
 }

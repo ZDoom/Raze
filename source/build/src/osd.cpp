@@ -12,6 +12,8 @@
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash.h"
 
+#include "vfs.h"
+
 static osdsymbol_t *osd_addsymbol(const char *name);
 static osdsymbol_t *osd_findsymbol(const char *pszName, osdsymbol_t *pSymbol);
 static osdsymbol_t *osd_findexactsymbol(const char *pszName);
@@ -31,7 +33,7 @@ osdmain_t *osd;
 static int osdrowscur = -1;
 static int osdmaxrows = 20;
 
-BFILE *osdlog;
+buildvfs_FILE osdlog;
 
 const char *osdlogfn;
 
@@ -161,9 +163,10 @@ const char * OSD_StripColors(char *outBuf, const char *inBuf)
 int OSD_Exec(const char *szScript)
 {
     int err = 0;
-    int32_t handle, len = 0;
+    int32_t len = 0;
+    buildvfs_kfd handle;
 
-    if ((handle = kopen4load(szScript, 0)) == -1)
+    if ((handle = kopen4load(szScript, 0)) == buildvfs_kfd_invalid)
         err = 1;
     else if ((len = kfilelength(handle)) <= 0)
         err = 2; // blank file
@@ -178,7 +181,7 @@ int OSD_Exec(const char *szScript)
         if (!err) // no error message for blank file
             OSD_Printf("Error executing \"%s\"!\n", szScript);
 
-        if (handle != -1)
+        if (handle != buildvfs_kfd_invalid)
             kclose(handle);
 
         Bfree(buf);
@@ -269,9 +272,9 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
 {
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-    int32_t h;
+    buildvfs_kfd h;
 
-    if ((h = kopen4load(parm->parms[0],0)) < 0)
+    if ((h = kopen4load(parm->parms[0],0)) == buildvfs_kfd_invalid)
     {
         OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
         return OSDCMD_OK;
@@ -761,16 +764,18 @@ void OSD_SetLogFile(const char *fn)
     if (!fn)
         return;
 
-    osdlog = Bfopen(fn, "w");
+    osdlog = buildvfs_fopen_write(fn);
 
     if (osdlog)
     {
+#ifndef USE_PHYSFS
 #ifdef DEBUGGINGAIDS
         const int bufmode = _IONBF;
 #else
         const int bufmode = _IOLBF;
 #endif
         setvbuf(osdlog, (char *)NULL, bufmode, BUFSIZ);
+#endif
         osdlogfn = fn;
     }
 }
@@ -1642,13 +1647,13 @@ void OSD_Puts(const char *tmpstr)
     if (log.lines < log.cutoff)
     {
         char *chp2 = Xstrdup(tmpstr);
-        Bfputs(OSD_StripColors(chp2, tmpstr), osdlog);
+        buildvfs_fputs(OSD_StripColors(chp2, tmpstr), osdlog);
         Bprintf("%s", chp2);
         Bfree(chp2);
     }
     else if (log.lines == log.cutoff)
     {
-        Bfputs("\nLog file full! Consider increasing \"osdlogcutoff\".\n", osdlog);
+        buildvfs_fputs("\nLog file full! Consider increasing \"osdlogcutoff\".\n", osdlog);
         log.lines = log.cutoff + 1;
     }
 
@@ -2175,22 +2180,28 @@ int osdcmd_cvar_set(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-void OSD_WriteAliases(FILE *fp)
+void OSD_WriteAliases(buildvfs_FILE fp)
 {
-    Bassert(fp);
-
     for (auto &symb : osd->symbptrs)
     {
         if (symb == NULL)
             break;
         else if (symb->func == (void *)OSD_ALIAS)
-            Bfprintf(fp, "alias \"%s\" \"%s\"\n", symb->name, symb->help);
+        {
+            buildvfs_fputstr(fp, "alias \"");
+            buildvfs_fputstrptr(fp, symb->name);
+            buildvfs_fputstr(fp, "\" \"");
+            buildvfs_fputstrptr(fp, symb->help);
+            buildvfs_fputstr(fp, "\"\n");
+        }
     }
 }
 
-void OSD_WriteCvars(FILE *fp)
+void OSD_WriteCvars(buildvfs_FILE fp)
 {
     Bassert(fp);
+
+    char buf[64];
 
     for (unsigned i = 0; i < osd->numcvars; i++)
     {
@@ -2200,12 +2211,33 @@ void OSD_WriteCvars(FILE *fp)
         {
             switch (pData.flags & CVAR_TYPEMASK)
             {
-            case CVAR_FLOAT:  fprintf(fp, "%s \"%f\"\n", pData.name, *pData.f); break;
-            case CVAR_DOUBLE: fprintf(fp, "%s \"%f\"\n", pData.name, *pData.d); break;
+            case CVAR_FLOAT:
+                buildvfs_fputstrptr(fp, pData.name);
+                snprintf(buf, sizeof(buf), " \"%f\"\n", *pData.f);
+                buildvfs_fputstrptr(fp, buf);
+                break;
+            case CVAR_DOUBLE:
+                buildvfs_fputstrptr(fp, pData.name);
+                snprintf(buf, sizeof(buf), " \"%f\"\n", *pData.d);
+                buildvfs_fputstrptr(fp, buf);
+                break;
             case CVAR_INT:
-            case CVAR_BOOL:   fprintf(fp, "%s \"%d\"\n", pData.name, *pData.i32); break;
-            case CVAR_UINT:   fprintf(fp, "%s \"%u\"\n", pData.name, *pData.u32); break;
-            case CVAR_STRING: fprintf(fp, "%s \"%s\"\n", pData.name, pData.string); break;
+            case CVAR_BOOL:
+                buildvfs_fputstrptr(fp, pData.name);
+                snprintf(buf, sizeof(buf), " \"%d\"\n", *pData.i32);
+                buildvfs_fputstrptr(fp, buf);
+                break;
+            case CVAR_UINT:
+                buildvfs_fputstrptr(fp, pData.name);
+                snprintf(buf, sizeof(buf), " \"%u\"\n", *pData.u32);
+                buildvfs_fputstrptr(fp, buf);
+                break;
+            case CVAR_STRING:
+                buildvfs_fputstrptr(fp, pData.name);
+                buildvfs_fputstr(fp, " \"");
+                buildvfs_fputstrptr(fp, pData.string);
+                buildvfs_fputstr(fp, "\"\n");
+                break;
             default: EDUKE32_UNREACHABLE_SECTION(break);
             }
         }

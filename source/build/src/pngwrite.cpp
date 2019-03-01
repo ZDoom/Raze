@@ -2,9 +2,11 @@
 #include "pngwrite.h"
 #include "crc32.h"
 
+#include "vfs.h"
+
 pngwrite_t png;
 
-#define png_write_buf(p, size) Bfwrite(p, size, 1, png.file)
+#define png_write_buf(p, size) buildvfs_fwrite(p, size, 1, png.file)
 
 static FORCE_INLINE void png_write_uint32(uint32_t const in)
 {
@@ -57,7 +59,7 @@ void png_set_text(char const * const keyword, char const * const text)
     Bmemcpy(png.text + keylen + 1, text, textlen);
 }
 
-void png_write(FILE * const file, uint32_t const width, uint32_t const height,
+void png_write(buildvfs_FILE const file, uint32_t const width, uint32_t const height,
                uint8_t const type, uint8_t const * const data)
 {
     png.file = file;

@@ -11,6 +11,9 @@
 #ifndef palette_h_
 #define palette_h_
 
+#include "cache1d.h"
+#include "vfs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -71,7 +74,7 @@ extern void setup_blend(int32_t blend, int32_t doreverse);
 extern uint8_t basepalreset;
 extern int32_t curbrightness, gammabrightness;
 
-extern int32_t paletteLoadLookupTable(int32_t fp);
+extern int32_t paletteLoadLookupTable(buildvfs_kfd fp);
 extern void paletteSetupDefaultFog(void);
 extern void palettePostLoadLookups(void);
 extern void paletteFixTranslucencyMask(void);

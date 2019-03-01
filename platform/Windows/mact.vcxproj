@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\source\mact\src\animlib.cpp" />
     <ClCompile Include="..\..\source\mact\src\control.cpp" />
-    <ClCompile Include="..\..\source\mact\src\file_lib.cpp" />
     <ClCompile Include="..\..\source\mact\src\joystick.cpp" />
     <ClCompile Include="..\..\source\mact\src\keyboard.cpp" />
     <ClCompile Include="..\..\source\mact\src\scriplib.cpp" />
@@ -29,7 +28,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\source\mact\include\animlib.h" />
     <ClInclude Include="..\..\source\mact\include\control.h" />
-    <ClInclude Include="..\..\source\mact\include\file_lib.h" />
     <ClInclude Include="..\..\source\mact\include\joystick.h" />
     <ClInclude Include="..\..\source\mact\include\keyboard.h" />
     <ClInclude Include="..\..\source\mact\include\mouse.h" />

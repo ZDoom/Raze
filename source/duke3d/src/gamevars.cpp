@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 
+#include "vfs.h"
+
 #define gamevars_c_
 
 #ifdef LUNATIC
@@ -107,7 +109,7 @@ void Gv_Clear(void)
         hash_free(i);
 }
 
-int Gv_ReadSave(int32_t kFile)
+int Gv_ReadSave(buildvfs_kfd kFile)
 {
     char tbuf[12];
 
@@ -226,10 +228,10 @@ corrupt:
     return -7;
 }
 
-void Gv_WriteSave(FILE *fil)
+void Gv_WriteSave(buildvfs_FILE fil)
 {
     //   AddLog("Saving Game Vars to File");
-    fwrite("BEG: EDuke32", 12, 1, fil);
+    buildvfs_fwrite("BEG: EDuke32", 12, 1, fil);
 
     dfwrite_LZ4(&g_gameVarCount,sizeof(g_gameVarCount),1,fil);
 
@@ -291,7 +293,7 @@ void Gv_WriteSave(FILE *fil)
             }
     }
 
-    fwrite("EOF: EDuke32", 12, 1, fil);
+    buildvfs_fwrite("EOF: EDuke32", 12, 1, fil);
 }
 
 void Gv_DumpValues(void)

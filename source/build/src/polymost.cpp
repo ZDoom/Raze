@@ -26,9 +26,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "palette.h"
 #include "tilepacker.h"
 
-#ifndef _WIN32
-extern int32_t filelength(int h); // kplib.c
-#endif
+#include "vfs.h"
 
 extern char textfont[2048], smalltextfont[2048];
 
@@ -2363,8 +2361,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         fn = hicr->filename;
     }
 
-    int32_t filh;
-    if (EDUKE32_PREDICT_FALSE((filh = kopen4load(fn, 0)) < 0))
+    buildvfs_kfd filh;
+    if (EDUKE32_PREDICT_FALSE((filh = kopen4load(fn, 0)) == buildvfs_kfd_invalid))
     {
         OSD_Printf("hightile: %s (pic %d) not found\n", fn, dapic);
         return -2;

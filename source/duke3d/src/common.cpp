@@ -9,6 +9,8 @@
 
 #include "grpscan.h"
 
+#include "vfs.h"
+
 #ifdef _WIN32
 # define NEED_SHLWAPI_H
 # include "windows_inc.h"
@@ -239,9 +241,9 @@ void G_SetupGlobalPsky(void)
 static char g_rootDir[BMAX_PATH];
 char g_modDir[BMAX_PATH] = "/";
 
-int kopen4loadfrommod(const char *fileName, char searchfirst)
+buildvfs_kfd kopen4loadfrommod(const char *fileName, char searchfirst)
 {
-    int kFile = -1;
+    buildvfs_kfd kFile = buildvfs_kfd_invalid;
 
     if (g_modDir[0] != '/' || g_modDir[1] != 0)
     {
@@ -250,7 +252,7 @@ int kopen4loadfrommod(const char *fileName, char searchfirst)
         kFile = kopen4load(staticFileName, searchfirst);
     }
 
-    return (kFile < 0) ? kopen4load(fileName, searchfirst) : kFile;
+    return (kFile == buildvfs_kfd_invalid) ? kopen4load(fileName, searchfirst) : kFile;
 }
 
 int g_useCwd;
@@ -264,9 +266,9 @@ void G_ExtPreInit(int32_t argc,char const * const * argv)
 #ifdef _WIN32
     GetModuleFileName(NULL,g_rootDir,BMAX_PATH);
     Bcorrectfilename(g_rootDir,1);
-    //chdir(g_rootDir);
+    //buildvfs_chdir(g_rootDir);
 #else
-    getcwd(g_rootDir,BMAX_PATH);
+    buildvfs_getcwd(g_rootDir,BMAX_PATH);
     strcat(g_rootDir,"/");
 #endif
 }
@@ -281,7 +283,12 @@ void G_ExtInit(void)
     Bfree(appdir);
 #endif
 
-    if (getcwd(cwd,BMAX_PATH) && Bstrcmp(cwd,"/") != 0)
+#ifdef USE_PHYSFS
+    strncpy(cwd, PHYSFS_getBaseDir(), ARRAY_SIZE(cwd));
+    cwd[ARRAY_SIZE(cwd)-1] = '\0';
+#else
+    if (buildvfs_getcwd(cwd, ARRAY_SIZE(cwd)) && Bstrcmp(cwd, "/") != 0)
+#endif
         addsearchpath(cwd);
 
     if (CommandPaths)
@@ -305,9 +312,9 @@ void G_ExtInit(void)
     }
 
 #if defined(_WIN32) && !defined(EDUKE32_STANDALONE)
-    if (!access("user_profiles_enabled", F_OK))
+    if (!buildvfs_exists("user_profiles_enabled"))
 #else
-    if (g_useCwd == 0 && access("user_profiles_disabled", F_OK))
+    if (g_useCwd == 0 && !buildvfs_exists("user_profiles_disabled"))
 #endif
     {
         char *homedir;
@@ -315,7 +322,7 @@ void G_ExtInit(void)
 
         if ((homedir = Bgethomedir()))
         {
-            Bsnprintf(cwd,sizeof(cwd),"%s/"
+            Bsnprintf(cwd, ARRAY_SIZE(cwd), "%s/"
 #if defined(_WIN32)
                       APPNAME
 #elif defined(GEKKO)
@@ -327,11 +334,11 @@ void G_ExtInit(void)
             asperr = addsearchpath(cwd);
             if (asperr == -2)
             {
-                if (Bmkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
+                if (buildvfs_mkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
                 else asperr = -1;
             }
             if (asperr == 0)
-                Bchdir(cwd);
+                buildvfs_chdir(cwd);
             Bfree(homedir);
         }
     }
@@ -412,13 +419,13 @@ void G_LoadGroups(int32_t autoload)
 
         char path[BMAX_PATH];
 
-        if (getcwd(cwd, BMAX_PATH))
+        if (buildvfs_getcwd(cwd, BMAX_PATH))
         {
             Bsnprintf(path, sizeof(path), "%s/%s", cwd, g_modDir);
             if (!Bstrcmp(g_rootDir, path))
             {
                 if (addsearchpath(path) == -2)
-                    if (Bmkdir(path, S_IRWXU) == 0)
+                    if (buildvfs_mkdir(path, S_IRWXU) == 0)
                         addsearchpath(path);
             }
         }
@@ -749,16 +756,16 @@ static char* KeyValues_FindKeyValue(char **vdfbuf, char * const vdfbufend, const
 
 static void G_ParseSteamKeyValuesForPaths(const char *vdf)
 {
-    int32_t fd = Bopen(vdf, BO_RDONLY);
-    int32_t size = Bfilelength(fd);
+    buildvfs_fd fd = buildvfs_open_read(vdf);
+    int32_t size = buildvfs_length(fd);
     char *vdfbufstart, *vdfbuf, *vdfbufend;
 
     if (size <= 0)
         return;
 
     vdfbufstart = vdfbuf = (char*)Xmalloc(size);
-    size = (int32_t)Bread(fd, vdfbuf, size);
-    Bclose(fd);
+    size = (int32_t)buildvfs_read(fd, vdfbuf, size);
+    buildvfs_close(fd);
     vdfbufend = vdfbuf + size;
 
     if (KeyValues_FindParentKey(&vdfbuf, vdfbufend, "LibraryFolders"))
@@ -1026,10 +1033,11 @@ void G_DoAutoload(const char *dirname)
 
 void G_LoadLookups(void)
 {
-    int32_t fp, j;
+    int32_t j;
+    buildvfs_kfd fp;
 
-    if ((fp=kopen4loadfrommod("lookup.dat",0)) == -1)
-        if ((fp=kopen4loadfrommod("lookup.dat",1)) == -1)
+    if ((fp=kopen4loadfrommod("lookup.dat",0)) == buildvfs_kfd_invalid)
+        if ((fp=kopen4loadfrommod("lookup.dat",1)) == buildvfs_kfd_invalid)
             return;
 
     j = paletteLoadLookupTable(fp);
@@ -1065,13 +1073,13 @@ void G_LoadLookups(void)
 
 #ifdef FORMAT_UPGRADE_ELIGIBLE
 
-static int32_t S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
+static buildvfs_kfd S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
 {
 #ifdef HAVE_FLAC
     {
         Bstrcpy(fn_suffix, ".flac");
-        int32_t const fp = kopen4loadfrommod(testfn, searchfirst);
-        if (fp >= 0)
+        buildvfs_kfd const fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp != buildvfs_kfd_invalid)
             return fp;
     }
 #endif
@@ -1079,16 +1087,16 @@ static int32_t S_TryFormats(char * const testfn, char * const fn_suffix, char co
 #ifdef HAVE_VORBIS
     {
         Bstrcpy(fn_suffix, ".ogg");
-        int32_t const fp = kopen4loadfrommod(testfn, searchfirst);
-        if (fp >= 0)
+        buildvfs_kfd const fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp != buildvfs_kfd_invalid)
             return fp;
     }
 #endif
 
-    return -1;
+    return buildvfs_kfd_invalid;
 }
 
-static int32_t S_TryExtensionReplacements(char * const testfn, char const searchfirst, uint8_t const ismusic)
+static buildvfs_kfd S_TryExtensionReplacements(char * const testfn, char const searchfirst, uint8_t const ismusic)
 {
     char * extension = Bstrrchr(testfn, '.');
     char * const fn_end = Bstrchr(testfn, '\0');
@@ -1098,8 +1106,8 @@ static int32_t S_TryExtensionReplacements(char * const testfn, char const search
     {
         *extension = '_';
 
-        int32_t const fp = S_TryFormats(testfn, fn_end, searchfirst);
-        if (fp >= 0)
+        buildvfs_kfd const fp = S_TryFormats(testfn, fn_end, searchfirst);
+        if (fp != buildvfs_kfd_invalid)
             return fp;
     }
     else
@@ -1110,29 +1118,34 @@ static int32_t S_TryExtensionReplacements(char * const testfn, char const search
     // ex: grabbag.mid --> grabbag.*
     if (ismusic)
     {
-        int32_t const fp = S_TryFormats(testfn, extension, searchfirst);
-        if (fp >= 0)
+        buildvfs_kfd const fp = S_TryFormats(testfn, extension, searchfirst);
+        if (fp != buildvfs_kfd_invalid)
             return fp;
     }
 
-    return -1;
+    return buildvfs_kfd_invalid;
 }
 
-int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
+buildvfs_kfd S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 {
-    int32_t const     origfp       = kopen4loadfrommod(fn, searchfirst);
-    char const *const origparent   = origfp != -1 ? kfileparent(origfp) : NULL;
+    buildvfs_kfd const origfp      = kopen4loadfrommod(fn, searchfirst);
+#ifndef USE_PHYSFS
+    char const * const origparent  = origfp != buildvfs_kfd_invalid ? kfileparent(origfp) : NULL;
     uint32_t const    parentlength = origparent != NULL ? Bstrlen(origparent) : 0;
 
     auto testfn = (char *)Xmalloc(Bstrlen(fn) + 12 + parentlength); // "music/" + overestimation of parent minus extension + ".flac" + '\0'
+#else
+    auto testfn = (char *)Xmalloc(Bstrlen(fn) + 12);
+#endif
 
     // look in ./
     // ex: ./grabbag.mid
     Bstrcpy(testfn, fn);
-    int32_t fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-    if (fp >= 0)
+    buildvfs_kfd fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+    if (fp != buildvfs_kfd_invalid)
         goto success;
 
+#ifndef USE_PHYSFS
     // look in ./music/<file's parent GRP name>/
     // ex: ./music/duke3d/grabbag.mid
     // ex: ./music/nwinter/grabbag.mid
@@ -1143,7 +1156,7 @@ int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 
         Bsprintf(testfn, "music/%.*s/%s", namelength, origparent, fn);
         fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-        if (fp >= 0)
+        if (fp != buildvfs_kfd_invalid)
             goto success;
     }
 
@@ -1151,15 +1164,16 @@ int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
     // ex: ./music/grabbag.mid
     Bsprintf(testfn, "music/%s", fn);
     fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-    if (fp >= 0)
+    if (fp != buildvfs_kfd_invalid)
         goto success;
+#endif
 
-    fp = origfp;
+    Bfree(testfn);
+    return origfp;
+
 success:
     Bfree(testfn);
-    if (fp != origfp)
-        kclose(origfp);
-
+    kclose(origfp);
     return fp;
 }
 

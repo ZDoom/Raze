@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sdlayer.h"
 #include "music.h"
 
+#include "vfs.h"
+
 #if !defined _WIN32 && !defined(GEKKO)
 //# define FORK_EXEC_MIDI 1
 #endif
@@ -216,12 +218,12 @@ fallback:
 
     {
         static const char *s[] = { "/etc/timidity.cfg", "/etc/timidity/timidity.cfg", "/etc/timidity/freepats.cfg" };
-        FILE *fp;
+        buildvfs_FILE fp;
         int32_t i;
 
         for (i = ARRAY_SIZE(s)-1; i>=0; i--)
         {
-            fp = Bfopen(s[i], "r");
+            fp = buildvfs_fopen_read(s[i]);
             if (fp == NULL)
             {
                 if (i == 0)
@@ -235,7 +237,7 @@ fallback:
             }
             else break;
         }
-        Bfclose(fp);
+        buildvfs_fclose(fp);
     }
 
     music_initialized = 1;
@@ -412,7 +414,7 @@ int32_t MUSIC_PlaySong(char *song, int32_t songsize, int32_t loopflag)
 {
     if (external_midi)
     {
-        FILE *fp;
+        buildvfs_FILE fp;
 
 #if defined FORK_EXEC_MIDI
         static int32_t sigchld_handler_set = 0;
@@ -431,11 +433,11 @@ int32_t MUSIC_PlaySong(char *song, int32_t songsize, int32_t loopflag)
         }
 #endif
 
-        fp = Bfopen(external_midi_tempfn, "wb");
+        fp = buildvfs_fopen_write(external_midi_tempfn);
         if (fp)
         {
-            fwrite(song, 1, songsize, fp);
-            Bfclose(fp);
+            buildvfs_fwrite(song, 1, songsize, fp);
+            buildvfs_fclose(fp);
 
 #if defined FORK_EXEC_MIDI
             external_midi_restart = loopflag;

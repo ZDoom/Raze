@@ -13,10 +13,12 @@
 # include "osxbits.h"
 #endif
 
+#ifndef USE_PHYSFS
 #if defined(_MSC_VER)
 # include <io.h>
 #else
 # include <dirent.h>
+#endif
 #endif
 
 #if defined __linux || defined EDUKE32_BSD
@@ -28,6 +30,8 @@
 #endif
 
 #include "baselayer.h"
+
+#include "vfs.h"
 
 ////////// PANICKING ALLOCATION FUNCTIONS //////////
 
@@ -112,7 +116,7 @@ char *Bgethomedir(void)
 #elif defined(GEKKO)
     // return current drive's name
     char *drv, cwd[BMAX_PATH] = {0};
-    getcwd(cwd, BMAX_PATH);
+    buildvfs_getcwd(cwd, BMAX_PATH);
     drv = strchr(cwd, ':');
     if (drv)
         drv[1] = '\0';
@@ -221,6 +225,7 @@ int32_t Bcorrectfilename(char *filename, int32_t removefn)
     return 0;
 }
 
+#ifndef USE_PHYSFS
 int32_t Bcanonicalisefilename(char *filename, int32_t removefn)
 {
     char cwd[BMAX_PATH];
@@ -243,7 +248,7 @@ int32_t Bcanonicalisefilename(char *filename, int32_t removefn)
         if (*p == '\\')
             *p = '/';
 #else
-    if (!getcwd(cwd, sizeof(cwd)))
+    if (!buildvfs_getcwd(cwd, sizeof(cwd)))
         return -1;
 #endif
 
@@ -284,6 +289,7 @@ int32_t Bcanonicalisefilename(char *filename, int32_t removefn)
     UNREFERENCED_PARAMETER(removefn);  // change the call below to use removefn instead of 1?
     return Bcorrectfilename(fnp, 1);
 }
+#endif
 
 char *Bgetsystemdrives(void)
 {
@@ -323,13 +329,7 @@ char *Bgetsystemdrives(void)
 }
 
 
-int32_t Bfilelength(int32_t fd)
-{
-    struct Bstat st;
-    return (Bfstat(fd, &st) < 0) ? -1 : (int32_t)(st.st_size);
-}
-
-
+#ifndef USE_PHYSFS
 typedef struct
 {
 #ifdef _MSC_VER
@@ -422,6 +422,16 @@ struct Bdirent *Breaddir(BDIR *dir)
 
     char *fn = (char *)Xmalloc(Bstrlen(dirr->name) + 1 + dirr->info.namlen + 1);
     Bsprintf(fn, "%s/%s", dirr->name, dirr->info.name);
+
+#ifdef USE_PHYSFS
+    PHYSFS_Stat st;
+    if (PHYSFS_stat(fn, &st))
+    {
+        // dirr->info.mode = TODO;
+        dirr->info.size = st.filesize;
+        dirr->info.mtime = st.modtime;
+    }
+#else
     struct Bstat st;
     if (!Bstat(fn, &st))
     {
@@ -429,6 +439,8 @@ struct Bdirent *Breaddir(BDIR *dir)
         dirr->info.size = st.st_size;
         dirr->info.mtime = st.st_mtime;
     }
+#endif
+
     Bfree(fn);
 
     return &dirr->info;
@@ -447,6 +459,7 @@ int32_t Bclosedir(BDIR *dir)
 
     return 0;
 }
+#endif
 
 
 char *Bstrtoken(char *s, const char *delim, char **ptrptr, int chop)

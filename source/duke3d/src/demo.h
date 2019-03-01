@@ -24,11 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define demo_h_
 
 #include "compat.h"
+#include "vfs.h"
+#include "cache1d.h"
 
 #define DEMOFN_FMT "edemo%03d.edm"
 #define MAXDEMOS 1000
 
-extern FILE *g_demo_filePtr;
+extern buildvfs_FILE g_demo_filePtr;
 extern char g_firstDemoFile[BMAX_PATH];
 
 extern int32_t demoplay_diffs;
@@ -42,7 +44,7 @@ extern int32_t demorec_synccompress_cvar;
 extern int32_t g_demo_cnt;
 extern int32_t g_demo_goalCnt;
 extern int32_t g_demo_paused;
-extern int32_t g_demo_recFilePtr;
+extern buildvfs_kfd g_demo_recFilePtr;
 extern int32_t g_demo_rewind;
 extern int32_t g_demo_showStats;
 extern int32_t g_demo_totalCnt;

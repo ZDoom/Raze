@@ -36,8 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 
 #include "scriplib.h"
-#include "file_lib.h"
 #include "_scrplib.h"
+
+#include "vfs.h"
 
 static script_t *scriptfiles[MAXSCRIPTFILES];
 
@@ -445,15 +446,16 @@ void SCRIPT_Free(int32_t scripthandle)
 
 int32_t SCRIPT_Load(char const * filename)
 {
-    int32_t s,h,l;
+    int32_t s,l;
     char *b;
+    buildvfs_fd h;
 
-    h = SafeOpenRead(filename, filetype_binary);
-    l = SafeFileLength(h)+1;
+    h = buildvfs_open_read(filename);
+    l = (int32_t)buildvfs_length(h)+1;
     b = (char *)Xmalloc(l);
-    SafeRead(h,b,l-1);
+    buildvfs_read(h,b,l-1);
     b[l-1] = '\n';	// JBF 20040111: evil nasty hack to trick my evil nasty parser
-    SafeClose(h);
+    buildvfs_close(h);
 
     s = SCRIPT_Init(filename);
     if (s<0)
@@ -473,22 +475,27 @@ void SCRIPT_Save(int32_t scripthandle, char const * filename)
 {
     char const *section, *entry, *value;
     int32_t sec, ent, numsect, nument;
-    FILE *fp;
+    buildvfs_FILE fp;
 
 
     if (!filename) return;
     if (!SC(scripthandle)) return;
 
-    fp = fopen(filename, "w");
+    fp = buildvfs_fopen_write(filename);
     if (!fp) return;
 
     numsect = SCRIPT_NumberSections(scripthandle);
     for (sec=0; sec<numsect; sec++)
     {
         section = SCRIPT_Section(scripthandle, sec);
-        if (sec>0) fprintf(fp, "\n");
+        if (sec>0)
+            buildvfs_fputc('\n', fp);
         if (section[0] != 0)
-            fprintf(fp, "[%s]\n", section);
+        {
+            buildvfs_fputc('[', fp);
+            buildvfs_fputstrptr(fp, section);
+            buildvfs_fputstr(fp, "]\n");
+        }
 
         nument = SCRIPT_NumberEntries(scripthandle,section);
         for (ent=0; ent<nument; ent++)
@@ -496,11 +503,14 @@ void SCRIPT_Save(int32_t scripthandle, char const * filename)
             entry = SCRIPT_Entry(scripthandle,section,ent);
             value = SCRIPT_GetRaw(scripthandle,section,entry);
 
-            fprintf(fp, "%s = %s\n", entry, value);
+            buildvfs_fputstrptr(fp, entry);
+            buildvfs_fputstr(fp, " = ");
+            buildvfs_fputstrptr(fp, value);
+            buildvfs_fputc('\n', fp);
         }
     }
 
-    fclose(fp);
+    buildvfs_fclose(fp);
 }
 
 int32_t SCRIPT_NumberSections(int32_t scripthandle)

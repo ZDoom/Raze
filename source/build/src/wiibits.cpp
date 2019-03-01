@@ -16,11 +16,13 @@
 #include <ogc/color.h>
 #include <gctypes.h> // for bool
 
+#include "vfs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern BFILE *osdlog;
+extern buildvfs_FILE osdlog;
 
 extern void L2Enhance();
 extern void CON_EnableGecko(int channel,int safe);

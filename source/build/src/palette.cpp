@@ -16,6 +16,8 @@
 #include "a.h"
 #include "xxhash.h"
 
+#include "vfs.h"
+
 uint8_t *basepaltable[MAXBASEPALS] = { palette };
 uint8_t basepalreset=1;
 uint8_t curbasepal;
@@ -151,8 +153,8 @@ void paletteLoadFromDisk(void)
         x = defaultglblend;
 #endif
 
-    int32_t fil;
-    if ((fil = kopen4load("palette.dat", 0)) == -1)
+    buildvfs_kfd fil;
+    if ((fil = kopen4load("palette.dat", 0)) == buildvfs_kfd_invalid)
         return;
 
 
@@ -407,7 +409,7 @@ void paletteFixTranslucencyMask(void)
 //  - on success, 0
 //  - on error, -1 (didn't read enough data)
 //  - -2: error, we already wrote an error message ourselves
-int32_t paletteLoadLookupTable(int32_t fp)
+int32_t paletteLoadLookupTable(buildvfs_kfd fp)
 {
     uint8_t numlookups;
     char remapbuf[256];

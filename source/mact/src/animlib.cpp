@@ -121,7 +121,7 @@ static inline uint16_t findpage(uint16_t framenumber)
         {
             lp_descriptor & lp = anim->LpArray[i];
             if (lp.baseRecord <= framenumber && framenumber < lp.baseRecord + lp.nRecords)
-                return i;
+                return (uint16_t)i;
         }
 
         if (j && i == nLps)
@@ -134,7 +134,7 @@ static inline uint16_t findpage(uint16_t framenumber)
     }
     while (0);
 
-    return i;
+    return (uint16_t)i;
 }
 
 

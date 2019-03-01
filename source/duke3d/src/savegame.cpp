@@ -30,6 +30,8 @@ static int32_t g_savedOK;
 const char *g_failedVarname;
 #endif
 
+#include "vfs.h"
+
 static OutputFileCounter savecounter;
 
 // For storing pointers in files.
@@ -152,8 +154,8 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
     for (; f != nullptr; f = f->next)
     {
         char const * fn = f->name;
-        int32_t fil = kopen4loadfrommod(fn, 0);
-        if (fil == -1)
+        buildvfs_kfd fil = kopen4loadfrommod(fn, 0);
+        if (fil == buildvfs_kfd_invalid)
             continue;
 
         menusave_t & msv = g_internalsaves[g_numinternalsaves];
@@ -283,8 +285,8 @@ void ReadSaveGameHeaders(void)
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 {
-    int32_t fil = kopen4loadfrommod(fn, 0);
-    if (fil == -1)
+    buildvfs_kfd fil = kopen4loadfrommod(fn, 0);
+    if (fil == buildvfs_kfd_invalid)
         return -1;
 
     int32_t i = sv_loadheader(fil, 0, saveh);
@@ -331,9 +333,9 @@ static int different_user_map;
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(savebrief_t & sv)
 {
-    int const fil = kopen4loadfrommod(sv.path, 0);
+    buildvfs_kfd const fil = kopen4loadfrommod(sv.path, 0);
 
-    if (fil == -1)
+    if (fil == buildvfs_kfd_invalid)
         return -1;
 
     ready2send = 0;
@@ -445,37 +447,6 @@ static void G_RestoreTimers(void)
 
 //////////
 
-#ifdef __ANDROID__
-static void G_SavePalette(void)
-{
-    int32_t pfil;
-
-    if ((pfil = kopen4load("palette.dat", 0)) != -1)
-    {
-        int len = kfilelength(pfil);
-
-        FILE *fil = fopen("palette.dat", "rb");
-
-        if (!fil)
-        {
-            fil = fopen("palette.dat", "wb");
-
-            if (fil)
-            {
-                char *buf = (char *) Xaligned_alloc(16, len);
-
-                kread(pfil, buf, len);
-                fwrite(buf, len, 1, fil);
-                fclose(fil);
-
-                Bfree(buf);
-            }
-        }
-        else fclose(fil);
-    }
-}
-#endif
-
 void G_DeleteSave(savebrief_t const & sv)
 {
     if (!sv.isValid())
@@ -489,7 +460,7 @@ void G_DeleteSave(savebrief_t const & sv)
         return;
     }
 
-    unlink(temp);
+    buildvfs_unlink(temp);
 }
 
 void G_DeleteOldSaves(void)
@@ -533,7 +504,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     char temp[BMAX_PATH];
 
     errno = 0;
-    FILE *fil;
+    buildvfs_FILE fil;
 
     if (sv.isValid())
     {
@@ -542,7 +513,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
             OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
             goto saveproblem;
         }
-        fil = fopen(temp, "wb");
+        fil = buildvfs_fopen_write(temp);
     }
     else
     {
@@ -580,7 +551,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     // SAVE!
     sv_saveandmakesnapshot(fil, sv.name, 0, 0, 0, 0, isAutoSave);
 
-    fclose(fil);
+    buildvfs_fclose(fil);
 
     if (!g_netServer && ud.multimode < 2)
     {
@@ -706,7 +677,7 @@ static inline void ds_get(const dataspec_t *spec, void **ptr, int32_t *cnt)
 }
 
 // write state to file and/or to dump
-static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
+static uint8_t *writespecdata(const dataspec_t *spec, buildvfs_FILE fil, uint8_t *dump)
 {
     for (; spec->flags != DS_END; spec++)
     {
@@ -721,7 +692,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
             continue;
         else if (spec->flags & DS_STRING)
         {
-            fwrite(spec->ptr, Bstrlen((const char *)spec->ptr), 1, fil);  // not null-terminated!
+            buildvfs_fwrite(spec->ptr, Bstrlen((const char *)spec->ptr), 1, fil);  // not null-terminated!
             continue;
         }
 
@@ -742,7 +713,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
         if (fil)
         {
             if ((spec->flags & DS_CMP) || ((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres))
-                fwrite(ptr, spec->size, cnt, fil);
+                buildvfs_fwrite(ptr, spec->size, cnt, fil);
             else
                 dfwrite_LZ4((void *)ptr, spec->size, cnt, fil);
         }
@@ -760,14 +731,14 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 // (fil>=0 && havedump): first restore dump from file, then restore state from dump
 // (fil<0 && havedump): only restore state from dump
 // (fil>=0 && !havedump): only restore state from file
-static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpvar)
+static int32_t readspecdata(const dataspec_t *spec, buildvfs_kfd fil, uint8_t **dumpvar)
 {
     uint8_t *  dump = dumpvar ? *dumpvar : NULL;
     auto const sptr = spec;
 
     for (; spec->flags != DS_END; spec++)
     {
-        if (fil < 0 && spec->flags & (DS_NOCHK|DS_STRING|DS_CMP))  // we're updating
+        if (fil == buildvfs_kfd_invalid && spec->flags & (DS_NOCHK|DS_STRING|DS_CMP))  // we're updating
             continue;
 
         if (spec->flags & (DS_LOADFN|DS_SAVEFN))
@@ -811,7 +782,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
         if (!ptr || !cnt)
             continue;
 
-        if (fil >= 0)
+        if (fil != buildvfs_kfd_invalid)
         {
             auto const mem  = (dump && (spec->flags & DS_NOCHK) == 0) ? dump : (uint8_t *)ptr;
             bool const comp = !((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres);
@@ -1320,8 +1291,8 @@ static const dataspec_t svgm_anmisc[] =
 #if !defined LUNATIC
 static dataspec_gv_t *svgm_vars=NULL;
 #endif
-static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem);
-static int32_t doloadplayer2(int32_t fil, uint8_t **memptr);
+static uint8_t *dosaveplayer2(buildvfs_FILE fil, uint8_t *mem);
+static int32_t doloadplayer2(buildvfs_kfd fil, uint8_t **memptr);
 static void postloadplayer(int32_t savegamep);
 
 // SVGM snapshot system
@@ -1424,7 +1395,7 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave)
+int32_t sv_saveandmakesnapshot(buildvfs_FILE fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave)
 {
     savehead_t h;
 
@@ -1498,11 +1469,11 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
 
 
     // write header
-    fwrite(&h, sizeof(savehead_t), 1, fil);
+    buildvfs_fwrite(&h, sizeof(savehead_t), 1, fil);
 
     // for savegames, the file offset after the screenshot goes here;
     // for demos, we keep it 0 to signify that we didn't save one
-    fwrite("\0\0\0\0", 4, 1, fil);
+    buildvfs_fwrite("\0\0\0\0", 4, 1, fil);
     if (spot >= 0 && waloff[TILE_SAVESHOT])
     {
         int32_t ofs;
@@ -1511,10 +1482,10 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
         dfwrite_LZ4((char *)waloff[TILE_SAVESHOT], 320, 200, fil);
 
         // write the current file offset right after the header
-        ofs = ftell(fil);
-        fseek(fil, sizeof(savehead_t), SEEK_SET);
-        fwrite(&ofs, 4, 1, fil);
-        fseek(fil, ofs, SEEK_SET);
+        ofs = buildvfs_ftell(fil);
+        buildvfs_fseek_abs(fil, sizeof(savehead_t));
+        buildvfs_fwrite(&ofs, 4, 1, fil);
+        buildvfs_fseek_abs(fil, ofs);
     }
 
 #ifdef DEBUGGINGAIDS
@@ -1553,7 +1524,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
 }
 
 // if file is not an EDuke32 savegame/demo, h->headerstr will be all zeros
-int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
+int32_t sv_loadheader(buildvfs_kfd fil, int32_t spot, savehead_t *h)
 {
     int32_t havedemo = (spot < 0);
 
@@ -1613,7 +1584,7 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
     return 0;
 }
 
-int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h)
+int32_t sv_loadsnapshot(buildvfs_kfd fil, int32_t spot, savehead_t *h)
 {
     uint8_t *p;
     int32_t i;
@@ -1697,7 +1668,7 @@ int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h)
 }
 
 
-uint32_t sv_writediff(FILE *fil)
+uint32_t sv_writediff(buildvfs_FILE fil)
 {
     uint8_t *p = svsnapshot;
     uint8_t *d = svdiff;
@@ -1715,18 +1686,18 @@ uint32_t sv_writediff(FILE *fil)
 
     uint32_t const diffsiz = d - svdiff;
 
-    fwrite("dIfF",4,1,fil);
-    fwrite(&diffsiz, sizeof(diffsiz), 1, fil);
+    buildvfs_fwrite("dIfF",4,1,fil);
+    buildvfs_fwrite(&diffsiz, sizeof(diffsiz), 1, fil);
 
     if (savegame_diffcompress)
         dfwrite_LZ4(svdiff, 1, diffsiz, fil);  // cnt and sz swapped
     else
-        fwrite(svdiff, 1, diffsiz, fil);
+        buildvfs_fwrite(svdiff, 1, diffsiz, fil);
 
     return diffsiz;
 }
 
-int32_t sv_readdiff(int32_t fil)
+int32_t sv_readdiff(buildvfs_kfd fil)
 {
     int32_t diffsiz;
 
@@ -1993,7 +1964,7 @@ static void sv_restload()
 LUNATIC_CB const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
 #endif
 
-static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
+static uint8_t *dosaveplayer2(buildvfs_FILE fil, uint8_t *mem)
 {
 #ifdef DEBUGGINGAIDS
     uint8_t *tmem = mem;
@@ -2019,9 +1990,9 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
             return mem;
         }
 
-        fwrite("\0\1LunaGVAR\3\4", 12, 1, fil);
+        buildvfs_fwrite("\0\1LunaGVAR\3\4", 12, 1, fil);
         slen_ext = B_LITTLE32(slen);
-        fwrite(&slen_ext, sizeof(slen_ext), 1, fil);
+        buildvfs_fwrite(&slen_ext, sizeof(slen_ext), 1, fil);
         dfwrite_LZ4(svcode, 1, slen, fil);  // cnt and sz swapped
 
         g_savedOK = 1;
@@ -2044,7 +2015,7 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
 #ifdef LUNATIC
 char *g_elSavecode = NULL;
 
-static int32_t El_ReadSaveCode(int32_t fil)
+static int32_t El_ReadSaveCode(buildvfs_kfd fil)
 {
     // Read Lua code to restore gamevar values from the savegame.
     // It will be run from Lua with its state creation later on.
@@ -2103,7 +2074,7 @@ void El_FreeSaveCode(void)
 }
 #endif
 
-static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
+static int32_t doloadplayer2(buildvfs_kfd fil, uint8_t **memptr)
 {
     uint8_t *mem = memptr ? *memptr : NULL;
 #ifdef DEBUGGINGAIDS
@@ -2157,13 +2128,13 @@ int32_t sv_updatestate(int32_t frominit)
     if (frominit)
         Bmemcpy(svsnapshot, svinitsnap, svsnapsiz);
 
-    if (readspecdata(svgm_udnetw, -1, &p)) return -2;
-    if (readspecdata(svgm_secwsp, -1, &p)) return -4;
-    if (readspecdata(svgm_script, -1, &p)) return -5;
-    if (readspecdata(svgm_anmisc, -1, &p)) return -6;
+    if (readspecdata(svgm_udnetw, buildvfs_kfd_invalid, &p)) return -2;
+    if (readspecdata(svgm_secwsp, buildvfs_kfd_invalid, &p)) return -4;
+    if (readspecdata(svgm_script, buildvfs_kfd_invalid, &p)) return -5;
+    if (readspecdata(svgm_anmisc, buildvfs_kfd_invalid, &p)) return -6;
 
 #if !defined LUNATIC
-    if (readspecdata((const dataspec_t *)svgm_vars, -1, &p)) return -8;
+    if (readspecdata((const dataspec_t *)svgm_vars, buildvfs_kfd_invalid, &p)) return -8;
 #endif
 
     if (p != pbeg+svsnapsiz)

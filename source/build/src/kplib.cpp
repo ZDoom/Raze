@@ -34,19 +34,12 @@ credits.
 #include "kplib.h"
 #include "pragmas.h"
 
+#include "vfs.h"
+
 #if !defined(_WIN32)
-# include <dirent.h>
 static FORCE_INLINE CONSTEXPR int32_t klrotl(int32_t i, int sh) { return (i >> (-sh)) | (i << sh); }
-/*inline*/ int32_t filelength(int h)
-{
-    struct stat st;
-    if (fstat(h,&st) < 0) return -1;
-    return st.st_size;
-}
-# define _fileno fileno
 #else
 # define klrotl(i, sh) _lrotl(i, sh)
-# include <io.h>
 # ifdef __clang__
 #  include <emmintrin.h>
 # else
@@ -195,7 +188,7 @@ static void suckbitsnextblock()
         //NOTE: should only read bytes inside compsize, not 64K!!! :/
         B_BUF32(&olinbuf[0], B_UNBUF32(&olinbuf[sizeof(olinbuf)-4]));
         uint32_t n = min<uint32_t>(kzfs.compleng-kzfs.comptell, sizeof(olinbuf)-4);
-        fread(&olinbuf[4], n, 1, kzfs.fil);
+        buildvfs_fread(&olinbuf[4], n, 1, kzfs.fil);
         kzfs.comptell += n;
         bitpos -= ((sizeof(olinbuf)-4)<<3);
         return;
@@ -2451,11 +2444,11 @@ void kzuninit()
 //If file not found, assumes it's a directory and adds it to an internal list
 int32_t kzaddstack(const char *filnam)
 {
-    FILE *fil;
+    buildvfs_FILE fil;
     int32_t i, j, k, leng, hashind, zipnamoffs, numfiles;
     char tempbuf[260+46];
 
-    fil = fopen(filnam,"rb");
+    fil = buildvfs_fopen_read(filnam);
     if (!fil) //if file not found, assume it's a directory
     {
         //Add directory name to internal list (using kzhashbuf for convenience of dynamic allocation)
@@ -2468,46 +2461,46 @@ int32_t kzaddstack(const char *filnam)
     }
 
     //Write ZIP/GRP filename to hash
-    i = strlen(filnam)+1; if (!kzcheckhashsiz(i)) { fclose(fil); return -1; }
+    i = strlen(filnam)+1; if (!kzcheckhashsiz(i)) { buildvfs_fclose(fil); return -1; }
     strcpy(&kzhashbuf[kzhashpos],filnam);
     zipnamoffs = kzhashpos; kzhashpos += i;
 
-    fread(&i,4,1,fil);
+    buildvfs_fread(&i,4,1,fil);
     if (i == (int32_t)B_LITTLE32(0x04034b50)) //'PK\3\4' is ZIP file id
     {
-        fseek(fil,-22,SEEK_END);
-        fread(tempbuf,22,1,fil);
+        buildvfs_fseek_abs(fil,buildvfs_flength(fil)-22);
+        buildvfs_fread(tempbuf,22,1,fil);
         if (B_UNBUF32(&tempbuf[0]) == B_LITTLE32(0x06054b50)) //Fast way of finding dir info
         {
             numfiles = B_LITTLE16(B_UNBUF16(&tempbuf[10]));
-            fseek(fil,B_LITTLE32(B_UNBUF32(&tempbuf[16])),SEEK_SET);
+            buildvfs_fseek_abs(fil,B_LITTLE32(B_UNBUF32(&tempbuf[16])));
         }
         else //Slow way of finding dir info (used when ZIP has junk at end)
         {
-            fseek(fil,0,SEEK_SET); numfiles = 0;
+            buildvfs_fseek_abs(fil,0); numfiles = 0;
             while (1)
             {
-                if (!fread(&j,4,1,fil)) { numfiles = -1; break; }
+                if (!buildvfs_fread(&j,4,1,fil)) { numfiles = -1; break; }
                 if (j == (int32_t)B_LITTLE32(0x02014b50)) break; //Found central file header :)
                 if (j != (int32_t)B_LITTLE32(0x04034b50)) { numfiles = -1; break; }
-                fread(tempbuf,26,1,fil);
-                fseek(fil,B_LITTLE32(B_UNBUF32(&tempbuf[14])) + B_LITTLE16(B_UNBUF16(&tempbuf[24])) + B_LITTLE16(B_UNBUF16(&tempbuf[22])),SEEK_CUR);
+                buildvfs_fread(tempbuf,26,1,fil);
+                buildvfs_fseek_rel(fil,B_LITTLE32(B_UNBUF32(&tempbuf[14])) + B_LITTLE16(B_UNBUF16(&tempbuf[24])) + B_LITTLE16(B_UNBUF16(&tempbuf[22])));
                 numfiles++;
             }
-            if (numfiles < 0) { fclose(fil); return -1; }
-            fseek(fil,-4,SEEK_CUR);
+            if (numfiles < 0) { buildvfs_fclose(fil); return -1; }
+            buildvfs_fseek_rel(fil,-4);
         }
         for (i=0; i<numfiles; i++)
         {
-            fread(tempbuf,46,1,fil);
-            if (B_UNBUF32(&tempbuf[0]) != B_LITTLE32(0x02014b50)) { fclose(fil); return 0; }
+            buildvfs_fread(tempbuf,46,1,fil);
+            if (B_UNBUF32(&tempbuf[0]) != B_LITTLE32(0x02014b50)) { buildvfs_fclose(fil); return 0; }
 
             j = B_LITTLE16(B_UNBUF16(&tempbuf[28])); //filename length
-            fread(&tempbuf[46],j,1,fil);
+            buildvfs_fread(&tempbuf[46],j,1,fil);
             tempbuf[j+46] = 0;
 
             //Write information into hash
-            j = strlen(&tempbuf[46])+22; if (!kzcheckhashsiz(j)) { fclose(fil); return -1; }
+            j = strlen(&tempbuf[46])+22; if (!kzcheckhashsiz(j)) { buildvfs_fclose(fil); return -1; }
             hashind = kzcalchash(&tempbuf[46]);
             B_BUF32(&kzhashbuf[kzhashpos], kzhashead[hashind]);
             B_BUF32(&kzhashbuf[kzhashpos+4], kzlastfnam);
@@ -2520,24 +2513,24 @@ int32_t kzaddstack(const char *filnam)
 
             j  = B_LITTLE16(B_UNBUF16(&tempbuf[30])); //extra field length
             j += B_LITTLE16(B_UNBUF16(&tempbuf[32])); //file comment length
-            fseek(fil,j,SEEK_CUR);
+            buildvfs_fseek_rel(fil,j);
         }
     }
     else if (i == (int32_t)B_LITTLE32(0x536e654b)) //'KenS' is GRP file id
     {
-        fread(tempbuf,12,1,fil);
+        buildvfs_fread(tempbuf,12,1,fil);
         if ((B_UNBUF32(&tempbuf[0]) != B_LITTLE32(0x65766c69)) || //'ilve'
                 (B_UNBUF32(&tempbuf[4]) != B_LITTLE32(0x6e616d72)))   //'rman'
-            { fclose(fil); return 0; }
+            { buildvfs_fclose(fil); return 0; }
         numfiles = B_LITTLE32(B_UNBUF32(&tempbuf[8])); k = ((numfiles+1)<<4);
         for (i=0; i<numfiles; i++,k+=leng)
         {
-            fread(tempbuf,16,1,fil);
+            buildvfs_fread(tempbuf,16,1,fil);
             leng = B_LITTLE32(B_UNBUF32(&tempbuf[12])); //File length
             tempbuf[12] = 0;
 
             //Write information into hash
-            j = strlen(tempbuf)+22; if (!kzcheckhashsiz(j)) { fclose(fil); return -1; }
+            j = strlen(tempbuf)+22; if (!kzcheckhashsiz(j)) { buildvfs_fclose(fil); return -1; }
             hashind = kzcalchash(tempbuf);
             B_BUF32(&kzhashbuf[kzhashpos], kzhashead[hashind]);
             B_BUF32(&kzhashbuf[kzhashpos+4], kzlastfnam);
@@ -2549,36 +2542,36 @@ int32_t kzaddstack(const char *filnam)
             kzhashead[hashind] = kzhashpos; kzlastfnam = kzhashpos; kzhashpos += j;
         }
     }
-    fclose(fil);
+    buildvfs_fclose(fil);
     return 0;
 }
 
 //this allows the use of kplib.c with a file that is already open
-void kzsetfil(FILE *fil)
+void kzsetfil(buildvfs_FILE fil)
 {
     kzfs.fil = fil;
     kzfs.comptyp = 0;
     kzfs.seek0 = 0;
-    kzfs.leng = filelength(_fileno(kzfs.fil));
+    kzfs.leng = buildvfs_flength(fil);
     kzfs.pos = 0;
     kzfs.i = 0;
 }
 
 intptr_t kzopen(const char *filnam)
 {
-    FILE *fil;
+    buildvfs_FILE fil{};
     int32_t i, fileoffs, fileleng;
     char tempbuf[46+260], *zipnam, iscomp;
 
     //kzfs.fil = 0;
     if (filnam[0] != '|') //Search standalone file first
     {
-        kzfs.fil = fopen(filnam,"rb");
+        kzfs.fil = buildvfs_fopen_read(filnam);
         if (kzfs.fil)
         {
             kzfs.comptyp = 0;
             kzfs.seek0 = 0;
-            kzfs.leng = filelength(_fileno(kzfs.fil));
+            kzfs.leng = buildvfs_flength(fil);
             kzfs.pos = 0;
             kzfs.i = 0;
             return (intptr_t)kzfs.fil;
@@ -2586,8 +2579,8 @@ intptr_t kzopen(const char *filnam)
     }
     if (kzcheckhash(filnam,&zipnam,&fileoffs,&fileleng,&iscomp)) //Then check mounted ZIP/GRP files
     {
-        fil = fopen(zipnam,"rb"); if (!fil) return 0;
-        fseek(fil,fileoffs,SEEK_SET);
+        fil = buildvfs_fopen_read(zipnam); if (!fil) return 0;
+        buildvfs_fseek_abs(fil,fileoffs);
         if (!iscomp) //Must be from GRP file
         {
             kzfs.fil = fil;
@@ -2600,13 +2593,13 @@ intptr_t kzopen(const char *filnam)
         }
         else
         {
-            fread(tempbuf,30,1,fil);
-            if (B_UNBUF32(&tempbuf[0]) != B_LITTLE32(0x04034b50)) { fclose(fil); return 0; }
-            fseek(fil,B_LITTLE16(B_UNBUF16(&tempbuf[26]))+B_LITTLE16(B_UNBUF16(&tempbuf[28])),SEEK_CUR);
+            buildvfs_fread(tempbuf,30,1,fil);
+            if (B_UNBUF32(&tempbuf[0]) != B_LITTLE32(0x04034b50)) { buildvfs_fclose(fil); return 0; }
+            buildvfs_fseek_rel(fil,B_LITTLE16(B_UNBUF16(&tempbuf[26]))+B_LITTLE16(B_UNBUF16(&tempbuf[28])));
 
             kzfs.fil = fil;
             kzfs.comptyp = B_LITTLE16(B_UNBUF16(&tempbuf[8]));
-            kzfs.seek0 = ftell(fil);
+            kzfs.seek0 = buildvfs_ftell(fil);
             kzfs.leng = B_LITTLE32(B_UNBUF32(&tempbuf[22]));
             kzfs.pos = 0;
             switch (kzfs.comptyp) //Compression method
@@ -2621,7 +2614,7 @@ intptr_t kzopen(const char *filnam)
                 gslidew = 0x7fffffff; //Force reload at beginning
 
                 return (intptr_t)kzfs.fil;
-            default: fclose(kzfs.fil); kzfs.fil = 0; return 0;
+            default: buildvfs_fclose(kzfs.fil); kzfs.fil = 0; return 0;
             }
         }
     }
@@ -2642,12 +2635,12 @@ intptr_t kzopen(const char *filnam)
             strcat(tempbuf,"/");
 #endif
         strcat(tempbuf,filnam);
-        kzfs.fil = fopen(tempbuf,"rb");
+        kzfs.fil = buildvfs_fopen_read(tempbuf);
         if (kzfs.fil)
         {
             kzfs.comptyp = 0;
             kzfs.seek0 = 0;
-            kzfs.leng = filelength(_fileno(kzfs.fil));
+            kzfs.leng = buildvfs_flength(fil);
             kzfs.pos = 0;
             kzfs.i = 0;
             return (intptr_t)kzfs.fil;
@@ -2657,12 +2650,14 @@ intptr_t kzopen(const char *filnam)
     return 0;
 }
 
+#ifndef USE_PHYSFS
 // --------------------------------------------------------------------------
 
 #if defined(_WIN32)
 static HANDLE hfind = INVALID_HANDLE_VALUE;
 static WIN32_FIND_DATA findata;
 #else
+#include <dirent.h>
 #define MAX_PATH 260
 static DIR *hfind = NULL;
 static struct dirent *findata = NULL;
@@ -2807,6 +2802,7 @@ int32_t kzfindfile(char *filnam)
 //NOTES:
 // * Directory names end with '\' or '/' (depending on system)
 // * Files inside zip begin with '|'
+#endif
 
 // --------------------------------------------------------------------------
 
@@ -2831,10 +2827,10 @@ int32_t kzread(void *buffer, int32_t leng)
     if (kzfs.comptyp == 0)
     {
         if (kzfs.pos != kzfs.i) //Seek only when position changes
-            { fseek(kzfs.fil,kzfs.seek0+kzfs.pos,SEEK_SET); kzfs.i = kzfs.pos; }
+            { buildvfs_fseek_abs(kzfs.fil,kzfs.seek0+kzfs.pos); kzfs.i = kzfs.pos; }
         i = min(kzfs.leng-kzfs.pos,leng);
-        fread(buffer,i,1,kzfs.fil);
-        kzfs.i += i; //kzfs.i is a local copy of ftell(kzfs.fil);
+        buildvfs_fread(buffer,i,1,kzfs.fil);
+        kzfs.i += i; //kzfs.i is a local copy of buildvfs_ftell(kzfs.fil);
     }
     else if (kzfs.comptyp == 8)
     {
@@ -2847,14 +2843,14 @@ int32_t kzread(void *buffer, int32_t leng)
 
         if (kzfs.pos < gslidew-32768) // Must go back to start :(
         {
-            if (kzfs.comptell) fseek(kzfs.fil,kzfs.seek0,SEEK_SET);
+            if (kzfs.comptell) buildvfs_fseek_abs(kzfs.fil,kzfs.seek0);
 
             gslidew = 0; gslider = 16384;
             kzfs.jmpplc = 0;
 
             //Initialize for suckbits/peekbits/getbits
             kzfs.comptell = min<int32_t>(kzfs.compleng,sizeof(olinbuf));
-            fread(&olinbuf[0],kzfs.comptell,1,kzfs.fil);
+            buildvfs_fread(&olinbuf[0],kzfs.comptell,1,kzfs.fil);
             //Make it re-load when there are < 32 bits left in FIFO
             bitpos = -(((int32_t)sizeof(olinbuf)-4)<<3);
             //Identity: filptr + (bitpos>>3) = &olinbuf[0]

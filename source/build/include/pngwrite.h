@@ -3,6 +3,8 @@
 
 #include "miniz.h"
 
+#include "vfs.h"
+
 #define CHUNK_COMPRESSED 1
 #define CHUNK_ROW 2
 
@@ -16,7 +18,7 @@ enum
 typedef struct
 {
     z_stream *zs;
-    FILE *file;
+    buildvfs_FILE file;
     uint8_t *pal_data;
     uint16_t pal_entries;
     uint8_t *text;
@@ -32,6 +34,6 @@ typedef struct
 
 void png_set_pal(uint8_t const * data, int numentries);
 void png_set_text(char const * keyword, char const * text);
-void png_write(FILE * file, uint32_t width, uint32_t height, uint8_t type, uint8_t const * data);
+void png_write(buildvfs_FILE file, uint32_t width, uint32_t height, uint8_t type, uint8_t const * data);
 
 #endif

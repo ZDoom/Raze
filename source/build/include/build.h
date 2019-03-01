@@ -26,6 +26,9 @@
 #include "palette.h"
 #include "pragmas.h"
 
+#include "vfs.h"
+#include "cache1d.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1054,12 +1057,12 @@ void    tileSetupDummy(int32_t tile);
 void    tileSetData(int32_t tile, int32_t tsiz, char const *buffer);
 void    tileDelete(int32_t tile);
 void    tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy);
-int32_t artReadHeader(int32_t fil, char const *fn, artheader_t *local);
+int32_t artReadHeader(buildvfs_kfd fil, char const *fn, artheader_t *local);
 int32_t artReadHeaderFromBuffer(uint8_t const *buf, artheader_t *local);
 int32_t artCheckUnitFileHeader(uint8_t const *buf, int32_t length);
 void    tileConvertAnimFormat(int32_t picnum);
-void    artReadManifest(int32_t fil, artheader_t const *local);
-void    artPreloadFile(int32_t fil, artheader_t const *local);
+void    artReadManifest(buildvfs_kfd fil, artheader_t const *local);
+void    artPreloadFile(buildvfs_kfd fil, artheader_t const *local);
 int32_t artLoadFiles(const char *filename, int32_t askedsize);
 void    artClearMapArt(void);
 void    artSetupMapArt(const char *filename);
@@ -1264,8 +1267,8 @@ int videoCaptureScreenTGA(const char *filename, char inverseit) ATTRIBUTE((nonnu
 
 struct OutputFileCounter {
     uint16_t count = 0;
-    FILE * opennextfile(char *, char *);
-    FILE * opennextfile_withext(char *, const char *);
+    buildvfs_FILE opennextfile(char *, char *);
+    buildvfs_FILE opennextfile_withext(char *, const char *);
 };
 
 // PLAG: line utility functions

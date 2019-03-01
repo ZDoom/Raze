@@ -38,6 +38,8 @@
 # include "winbits.h"
 #endif
 
+#include "vfs.h"
+
 #if SDL_MAJOR_VERSION != 1
 static SDL_version linked;
 #endif
@@ -488,8 +490,17 @@ int main(int argc, char *argv[])
     }
     buildargv[buildargc] = NULL;
 
+#ifdef USE_PHYSFS
+    PHYSFS_init(buildargv[0]);
+    PHYSFS_setWriteDir(PHYSFS_getBaseDir());
+#endif
     r = app_main(buildargc, (const char **)buildargv);
 #else
+#ifdef USE_PHYSFS
+    int pfsi = PHYSFS_init(argv[0]);
+    assert(pfsi != 0);
+    PHYSFS_setWriteDir(PHYSFS_getUserDir());
+#endif
     r = app_main(argc, (char const * const *)argv);
 #endif
 

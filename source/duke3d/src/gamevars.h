@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fix16.hpp"
 #include "gamedef.h"
 
+#include "vfs.h"
+
 #define MAXGAMEVARS 2048 // must be a power of two
 #define MAXVARLABEL 26
 
@@ -150,8 +152,8 @@ void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
 void Gv_ResetVars(void);
-int Gv_ReadSave(int32_t kFile);
-void Gv_WriteSave(FILE *fil);
+int Gv_ReadSave(buildvfs_kfd kFile);
+void Gv_WriteSave(buildvfs_FILE fil);
 void Gv_Clear(void);
 #else
 extern int32_t g_noResetVars;

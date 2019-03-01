@@ -32,7 +32,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "fx_man.h"
 #include "music.h"
 #include "scriplib.h"
-#include "file_lib.h"
 #include "gamedefs.h"
 #include "keyboard.h"
 
@@ -155,7 +154,6 @@ void TermSetup(void)
 #include "fx_man.h"
 #include "music.h"
 #include "scriplib.h"
-#include "file_lib.h"
 #include "gamedefs.h"
 #include "keyboard.h"
 

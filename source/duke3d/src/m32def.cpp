@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //#include "osd.h"
 #include "keys.h"
 
+#include "vfs.h"
+
 char        g_szScriptFileName[BMAX_PATH]   = "(none)";  // file we're currently compiling
 static char g_szCurrentBlockName[BMAX_PATH] = "(none)";
 static char g_szLastBlockName[BMAX_PATH]    = "NULL";
@@ -1736,10 +1738,10 @@ static int32_t C_ParseCommand(void)
             const char *origtptr;
             char *mptr;
             char parentScriptFileName[255];
-            int32_t fp;
+            buildvfs_kfd fp;
 
             fp = kopen4load(tempbuf, 0 /*g_loadFromGroupOnly*/);
-            if (fp < 0)
+            if (fp == buildvfs_kfd_invalid)
             {
                 g_numCompilerErrors++;
                 initprintf("%s:%d: error: could not find file `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
@@ -3664,7 +3666,8 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
     char *mptr = NULL;
     static char firstime=1;
     int32_t i,j;
-    int32_t fs=0,fp=0;
+    int32_t fs=0;
+    buildvfs_kfd fp = buildvfs_kfd_invalid;
     int32_t startcompiletime;
     instype *oscriptPtr;
     int32_t ostateCount = g_stateCount;
@@ -3707,7 +3710,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         Bmemcpy(mptr, filenameortext, fs+1);
 
         fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
-        if (fp == -1) // JBF: was 0
+        if (fp == buildvfs_kfd_invalid) // JBF: was 0
         {
             if (fs < 4 || Bmemcmp(&mptr[fs-4], ".m32", 4) != 0)
             {
@@ -3715,7 +3718,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
                 fp = kopen4load(mptr, 0 /*g_loadFromGroupOnly*/);
             }
 
-            if (fp == -1)
+            if (fp == buildvfs_kfd_invalid)
             {
                 initprintf("M32 file `%s' not found.\n", mptr);
                 Bfree(mptr);

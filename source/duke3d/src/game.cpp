@@ -49,6 +49,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "lunatic_game.h"
 #endif
 
+#include "vfs.h"
+
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
 //#define DEBUG_MIRRORS_ONLY
@@ -1152,7 +1154,7 @@ void G_DumpDebugInfo(void)
 #if !defined LUNATIC
     static char const s_WEAPON[] = "WEAPON";
     int32_t i,j,x;
-    //    FILE * fp=fopen("condebug.log","w");
+    //    buildvfs_FILE fp = buildvfs_fopen_write("condebug.log");
 
     VM_ScriptInfo(insptr, 64);
     buildprint("\nCurrent gamevar values:\n");
@@ -1216,7 +1218,7 @@ void G_DumpDebugInfo(void)
         }
     }
     Gv_DumpValues();
-//    fclose(fp);
+//    buildvfs_fclose(fp);
 #endif
     saveboard("debug.map", &g_player[myconnectindex].ps->pos, fix16_to_int(g_player[myconnectindex].ps->q16ang),
               g_player[myconnectindex].ps->cursectnum);
@@ -4675,7 +4677,7 @@ void G_HandleLocalKeys(void)
             KB_ClearKeyDown(sc_Return);
             g_demo_cnt = g_demo_goalCnt = ud.reccnt = ud.pause_on = ud.recstat = ud.m_recstat = 0;
             // XXX: probably redundant; this stuff needs an API anyway:
-            kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
+            kclose(g_demo_recFilePtr); g_demo_recFilePtr = buildvfs_kfd_invalid;
             myplayer.gm = MODE_GAME;
             ready2send=1;  // TODO: research this weird variable
             screenpeek=myconnectindex;
@@ -5902,11 +5904,11 @@ static void G_Startup(void)
 
             Bcorrectfilename(boardfilename,0);
 
-            i = kopen4loadfrommod(boardfilename,0);
-            if (i!=-1)
+            buildvfs_kfd ii = kopen4loadfrommod(boardfilename, 0);
+            if (ii != buildvfs_kfd_invalid)
             {
                 initprintf("Using level: \"%s\".\n",boardfilename);
-                kclose(i);
+                kclose(ii);
             }
             else
             {
@@ -5932,16 +5934,16 @@ static void G_Startup(void)
 
     char *cwd;
 
-    if (g_modDir[0] != '/' && (cwd = getcwd(NULL, 0)))
+    if (g_modDir[0] != '/' && (cwd = buildvfs_getcwd(NULL, 0)))
     {
-        Bchdir(g_modDir);
+        buildvfs_chdir(g_modDir);
         if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
         {
-            Bchdir(cwd);
+            buildvfs_chdir(cwd);
             if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
                 G_GameExit("Failed loading art.");
         }
-        Bchdir(cwd);
+        buildvfs_chdir(cwd);
 #ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
         Bfree(cwd);
 #endif
@@ -6170,9 +6172,11 @@ int app_main(int argc, char const * const * argv)
 
     backgroundidle = 0;
 
+#ifndef USE_PHYSFS
 #ifdef DEBUGGINGAIDS
     extern int32_t (*check_filename_casing_fn)(void);
     check_filename_casing_fn = check_filename_casing;
+#endif
 #endif
 #endif
 
@@ -6331,9 +6335,9 @@ int app_main(int argc, char const * const * argv)
         g_Shareware = 1;
     else
     {
-        int const kFile = kopen4load("DUKESW.BIN",1); // JBF 20030810
+        buildvfs_kfd const kFile = kopen4load("DUKESW.BIN",1); // JBF 20030810
 
-        if (kFile != -1)
+        if (kFile != buildvfs_kfd_invalid)
         {
             g_Shareware = 1;
             kclose(kFile);

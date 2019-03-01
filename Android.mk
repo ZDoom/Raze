@@ -87,7 +87,6 @@ BUILD_SRC = \
     source/build/src/palette.cpp \
 
 MACT_SRC = \
-    source/mact/src/file_lib.cpp \
     source/mact/src/control.cpp \
     source/mact/src/keyboard.cpp \
     source/mact/src/joystick.cpp \

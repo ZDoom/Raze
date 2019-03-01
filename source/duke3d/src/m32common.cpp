@@ -19,6 +19,8 @@
 // XXX: This breaks editors for games other than Duke. The OSD needs a way to specify colors in abstract instead of concatenating palswap escape sequences.
 #include "common_game.h"
 
+#include "vfs.h"
+
 //////////////////// Key stuff ////////////////////
 
 #define eitherALT   (keystatus[KEYSC_LALT] || keystatus[KEYSC_RALT])
@@ -140,7 +142,7 @@ void taglab_init()
 
 int32_t taglab_load(const char *filename, int32_t flags)
 {
-    int32_t fil, len, i;
+    int32_t len, i;
     char buf[BMAX_PATH], *dot, *filebuf;
 
     taglab_init();
@@ -160,7 +162,8 @@ int32_t taglab_load(const char *filename, int32_t flags)
     Bmemcpy(dot, ".maptags", 9);
     //
 
-    if ((fil = kopen4load(buf,flags)) == -1)
+    buildvfs_kfd fil;
+    if ((fil = kopen4load(buf,flags)) == buildvfs_kfd_invalid)
         return -1;
 
     len = kfilelength(fil);
@@ -223,7 +226,7 @@ nextline:
 
 int32_t taglab_save(const char *mapname)
 {
-    int32_t fil, len, i;
+    int32_t len, i;
     char buf[BMAX_PATH], *dot;
     const char *label;
 
@@ -243,7 +246,8 @@ int32_t taglab_save(const char *mapname)
     Bmemcpy(dot, ".maptags", 9);
     //
 
-    if ((fil = Bopen(buf,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
+    buildvfs_fd fil;
+    if ((fil = buildvfs_open_write(buf)) == buildvfs_fd_invalid)
     {
         initprintf("Couldn't open \"%s\" for writing: %s\n", buf, strerror(errno));
         return -1;
@@ -256,11 +260,11 @@ int32_t taglab_save(const char *mapname)
             continue;
 
         len = Bsprintf(buf, "%d %s" OURNEWL, i, label);
-        if (Bwrite(fil, buf, len)!=len)
+        if (buildvfs_write(fil, buf, len)!=len)
             break;
     }
 
-    Bclose(fil);
+    buildvfs_close(fil);
 
     return (i!=32768);
 }

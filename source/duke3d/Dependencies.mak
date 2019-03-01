@@ -7,7 +7,6 @@ duke3d_h=\
     $(engine_inc)/polymost.h \
     $(engine_inc)/texcache.h \
     $(engine_inc)/cache1d.h \
-    $(mact_inc)/file_lib.h \
     $(mact_inc)/keyboard.h \
     $(mact_inc)/mouse.h \
     $(mact_inc)/joystick.h \
@@ -120,7 +119,6 @@ $(duke3d_obj)/startgtk.game.$o: $(duke3d_src)/startgtk.game.cpp $(duke3d_h) $(en
 
 # mact objects
 $(mact_obj)/animlib.$o: $(mact_src)/animlib.cpp $(mact_inc)/animlib.h $(engine_inc)/compat.h
-$(mact_obj)/file_lib.$o: $(mact_src)/file_lib.cpp $(mact_inc)/file_lib.h
 $(mact_obj)/control.$o: $(mact_src)/control.cpp $(mact_inc)/control.h $(mact_inc)/keyboard.h $(mact_inc)/mouse.h $(mact_inc)/joystick.h $(engine_inc)/baselayer.h
 $(mact_obj)/keyboard.$o: $(mact_src)/keyboard.cpp $(mact_inc)/keyboard.h $(engine_inc)/compat.h $(engine_inc)/baselayer.h
 $(mact_obj)/joystick.$o: $(mact_src)/joystick.cpp $(mact_inc)/joystick.h $(engine_inc)/baselayer.h

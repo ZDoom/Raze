@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h" // for win_gethwnd()
 #include <atomic>
 
+#include "vfs.h"
+
 #define DQSIZE 256
 
 int32_t g_numEnvSoundsPlaying, g_highestSoundIdx = 0;
@@ -197,8 +199,8 @@ static int S_PlayMusic(const char *fn)
     if (fn == NULL)
         return 1;
 
-    int32_t fp = S_OpenAudio(fn, 0, 1);
-    if (EDUKE32_PREDICT_FALSE(fp < 0))
+    buildvfs_kfd fp = S_OpenAudio(fn, 0, 1);
+    if (EDUKE32_PREDICT_FALSE(fp == buildvfs_kfd_invalid))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
         return 2;
@@ -437,9 +439,9 @@ int32_t S_LoadSound(int num)
 
     auto &snd = g_sounds[num];
 
-    int32_t fp = S_OpenAudio(snd.filename, g_loadFromGroupOnly, 0);
+    buildvfs_kfd fp = S_OpenAudio(snd.filename, g_loadFromGroupOnly, 0);
 
-    if (EDUKE32_PREDICT_FALSE(fp == -1))
+    if (EDUKE32_PREDICT_FALSE(fp == buildvfs_kfd_invalid))
     {
         OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n", snd.filename, num);
         return 0;

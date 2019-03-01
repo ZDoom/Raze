@@ -19,6 +19,8 @@
 #include "lz4.h"
 #include "klzw.h"
 
+#include "vfs.h"
+
 #ifdef WITHKPLIB
 #include "kplib.h"
 
@@ -40,7 +42,7 @@ static intptr_t kzipopen(const char *filnam)
 char *kpzbuf = NULL;
 int32_t kpzbufsiz;
 
-int32_t kpzbufloadfil(int32_t const handle)
+int32_t kpzbufloadfil(buildvfs_kfd const handle)
 {
     int32_t const leng = kfilelength(handle);
     if (leng > kpzbufsiz)
@@ -59,8 +61,8 @@ int32_t kpzbufloadfil(int32_t const handle)
 
 int32_t kpzbufload(char const * const filnam)
 {
-    int32_t const handle = kopen4load(filnam, 0);
-    if (handle < 0)
+    buildvfs_kfd const handle = kopen4load(filnam, 0);
+    if (handle == buildvfs_kfd_invalid)
         return 0;
 
     int32_t const leng = kpzbufloadfil(handle);
@@ -354,6 +356,8 @@ static searchpath_t *searchpathhead = NULL;
 static size_t maxsearchpathlen = 0;
 int32_t pathsearchmode = 0;
 
+#ifndef USE_PHYSFS
+
 char *listsearchpath(int32_t initp)
 {
     static searchpath_t *sp;
@@ -508,7 +512,7 @@ int32_t findfrompath(const char *fn, char **where)
     if (pathsearchmode)
     {
         // test unmolested filename first
-        if (access(fn, F_OK) >= 0)
+        if (buildvfs_exists(fn))
         {
             *where = Xstrdup(fn);
             return 0;
@@ -518,7 +522,7 @@ int32_t findfrompath(const char *fn, char **where)
         {
             char *tfn = Bstrtolower(Xstrdup(fn));
 
-            if (access(tfn, F_OK) >= 0)
+            if (buildvfs_exists(tfn))
             {
                 *where = tfn;
                 return 0;
@@ -526,7 +530,7 @@ int32_t findfrompath(const char *fn, char **where)
 
             Bstrupr(tfn);
 
-            if (access(tfn, F_OK) >= 0)
+            if (buildvfs_exists(tfn))
             {
                 *where = tfn;
                 return 0;
@@ -552,7 +556,7 @@ int32_t findfrompath(const char *fn, char **where)
 
     strcpy(pfn, "./");
     strcat(pfn, ffn);
-    if (access(pfn, F_OK) >= 0)
+    if (buildvfs_exists(pfn))
     {
         *where = pfn;
         Bfree(ffn);
@@ -566,7 +570,7 @@ int32_t findfrompath(const char *fn, char **where)
         strcpy(pfn, sp->path);
         strcat(pfn, ffn);
         //initprintf("Trying %s\n", pfn);
-        if (access(pfn, F_OK) >= 0)
+        if (buildvfs_exists(pfn))
         {
             *where = pfn;
             Bfree(ffn);
@@ -579,7 +583,7 @@ int32_t findfrompath(const char *fn, char **where)
         strcpy(pfn, sp->path);
         Bstrtolower(tfn);
         strcat(pfn, tfn);
-        if (access(pfn, F_OK) >= 0)
+        if (buildvfs_exists(pfn))
         {
             *where = pfn;
             Bfree(ffn);
@@ -591,7 +595,7 @@ int32_t findfrompath(const char *fn, char **where)
         strcpy(pfn, sp->path);
         Bstrupr(tfn);
         strcat(pfn, tfn);
-        if (access(pfn, F_OK) >= 0)
+        if (buildvfs_exists(pfn))
         {
             *where = pfn;
             Bfree(ffn);
@@ -610,7 +614,7 @@ int32_t findfrompath(const char *fn, char **where)
 # define FILENAME_CASE_CHECK
 #endif
 
-static int32_t openfrompath_internal(const char *fn, char **where, int32_t flags, int32_t mode)
+static buildvfs_kfd openfrompath_internal(const char *fn, char **where, int32_t flags, int32_t mode)
 {
     if (findfrompath(fn, where) < 0)
         return -1;
@@ -618,21 +622,21 @@ static int32_t openfrompath_internal(const char *fn, char **where, int32_t flags
     return Bopen(*where, flags, mode);
 }
 
-int32_t openfrompath(const char *fn, int32_t flags, int32_t mode)
+buildvfs_kfd openfrompath(const char *fn, int32_t flags, int32_t mode)
 {
     char *pfn = NULL;
 
-    int32_t h = openfrompath_internal(fn, &pfn, flags, mode);
+    buildvfs_kfd h = openfrompath_internal(fn, &pfn, flags, mode);
 
     Bfree(pfn);
 
     return h;
 }
 
-BFILE *fopenfrompath(const char *fn, const char *mode)
+buildvfs_FILE fopenfrompath(const char *fn, const char *mode)
 {
     int32_t fh;
-    BFILE *h;
+    buildvfs_FILE h;
     int32_t bmode = 0, smode = 0;
     const char *c;
 
@@ -692,7 +696,7 @@ static intptr_t filehan[MAXOPENFILES] =
 static char filenamsav[MAXOPENFILES][260];
 static int32_t kzcurhand = -1;
 
-int32_t cache1d_file_fromzip(int32_t fil)
+int32_t cache1d_file_fromzip(buildvfs_kfd fil)
 {
     return (filegrp[fil] == GRP_ZIP);
 }
@@ -948,7 +952,7 @@ static int32_t check_filename_mismatch(const char * const filename, int ofs)
 
 static int32_t kopen_internal(const char *filename, char **lastpfn, char searchfirst, char checkcase, char tryzip, int32_t newhandle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
-    int32_t fil;
+    buildvfs_kfd fil;
     if (searchfirst == 0 && (fil = openfrompath_internal(filename, lastpfn, BO_BINARY|BO_RDONLY, BS_IREAD)) >= 0)
     {
 #ifdef FILENAME_CASE_CHECK
@@ -1180,8 +1184,7 @@ int32_t kfilelength_internal(int32_t handle, const uint8_t *arraygrp, intptr_t *
     int32_t const groupnum = arraygrp[handle];
     if (groupnum == GRP_FILESYSTEM)
     {
-        // return (filelength(arrayhan[handle]))
-        return Bfilelength(arrayhan[handle]);
+        return buildvfs_length(arrayhan[handle]);
     }
 #ifdef WITHKPLIB
     else if (groupnum == GRP_ZIP)
@@ -1270,6 +1273,7 @@ static void kclose_grp(int32_t handle)
 {
     return kclose_internal(handle, groupfilgrp, groupfil);
 }
+#endif
 
 static int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, int32_t source)
 {
@@ -1385,21 +1389,57 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
 
     if (*path && (type & CACHE1D_FIND_DIR))
     {
-        if (klistaddentry(&rec, "..", CACHE1D_FIND_DIR, CACHE1D_SOURCE_CURDIR) < 0) goto failure;
+        if (klistaddentry(&rec, "..", CACHE1D_FIND_DIR, CACHE1D_SOURCE_CURDIR) < 0)
+        {
+            Bfree(path);
+            klistfree(rec);
+            return NULL;
+        }
     }
 
     if (!(type & CACHE1D_OPT_NOSTACK))  	// current directory and paths in the search stack
     {
-        searchpath_t *search = NULL;
-        BDIR *dir;
-        struct Bdirent *dirent;
 
+        int32_t stackdepth = CACHE1D_SOURCE_CURDIR;
+
+
+#ifdef USE_PHYSFS
+        char **rc = PHYSFS_enumerateFiles("");
+        char **i;
+
+        for (i = rc; *i != NULL; i++)
+        {
+            char * name = *i;
+
+            if ((name[0] == '.' && name[1] == 0) ||
+                    (name[0] == '.' && name[1] == '.' && name[2] == 0))
+                continue;
+                
+            bool const isdir = buildvfs_isdir(name);
+            if ((type & CACHE1D_FIND_DIR) && !isdir) continue;
+            if ((type & CACHE1D_FIND_FILE) && isdir) continue;
+            if (!Bwildmatch(name, mask)) continue;
+            switch (klistaddentry(&rec, name,
+                                  isdir ? CACHE1D_FIND_DIR : CACHE1D_FIND_FILE,
+                                  stackdepth))
+            {
+            case -1: goto failure;
+                //case 1: initprintf("%s:%s dropped for lower priority\n", d,dirent->name); break;
+                //case 0: initprintf("%s:%s accepted\n", d,dirent->name); break;
+            default:
+                break;
+            }
+        }
+
+        PHYSFS_freeList(rc);
+#else
         static const char *const CUR_DIR = "./";
         // Adjusted for the following "autoload" dir fix - NY00123
+        searchpath_t *search = NULL;
         const char *d = pathsearchmode ? _path : CUR_DIR;
-        int32_t stackdepth = CACHE1D_SOURCE_CURDIR;
         char buf[BMAX_PATH];
-
+        BDIR *dir;
+        struct Bdirent *dirent;
         do
         {
             if (d==CUR_DIR && (type & CACHE1D_FIND_NOCURDIR))
@@ -1412,7 +1452,6 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
                 strcat(buf, path);
                 if (*path) strcat(buf, "/");
             }
-
             dir = Bopendir(buf);
             if (dir)
             {
@@ -1456,8 +1495,10 @@ next:
                 d = search->path;
         }
         while (search);
+#endif
     }
 
+#ifndef USE_PHYSFS
 #ifdef WITHKPLIB
     if (!(type & CACHE1D_FIND_NOCURDIR))  // TEMP, until we have sorted out fs.listpath() API
     if (!pathsearchmode)  	// next, zip files
@@ -1558,6 +1599,7 @@ next:
             }
         }
     }
+#endif
 
     if (pathsearchmode && (type & CACHE1D_FIND_DRIVE))
     {
@@ -1590,16 +1632,16 @@ failure:
 
 static int32_t kdfread_func(intptr_t fil, void *outbuf, int32_t length)
 {
-    return kread((int32_t)fil, outbuf, length);
+    return kread((buildvfs_kfd)fil, outbuf, length);
 }
 
 static void dfwrite_func(intptr_t fp, const void *inbuf, int32_t length)
 {
-    Bfwrite(inbuf, length, 1, (BFILE *)fp);
+    buildvfs_fwrite(inbuf, length, 1, (buildvfs_FILE)fp);
 }
 
 
-int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
+int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_kfd fil)
 {
     return klzw_read_compressed(buffer, dasizeof, count, (intptr_t)fil, kdfread_func);
 }
@@ -1611,7 +1653,7 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
 static char compressedDataStackBuf[131072];
 int32_t lz4CompressionLevel = LZ4_COMPRESSION_ACCELERATION_VALUE;
 
-int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
+int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_kfd fil)
 {
     int32_t leng;
 
@@ -1638,12 +1680,12 @@ int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
 }
 
 
-void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
+void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_FILE fil)
 {
     klzw_write_compressed(buffer, dasizeof, count, (intptr_t)fil, dfwrite_func);
 }
 
-void dfwrite_LZ4(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
+void dfwrite_LZ4(const void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_FILE fil)
 {
     char *        pCompressedData   = compressedDataStackBuf;
     int32_t const maxCompressedSize = LZ4_compressBound(dasizeof * count);
@@ -1654,8 +1696,8 @@ void dfwrite_LZ4(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil
     int32_t const leng = LZ4_compress_fast((const char*) buffer, pCompressedData, dasizeof*count, maxCompressedSize, lz4CompressionLevel);
     int32_t const swleng = B_LITTLE32(leng);
 
-    Bfwrite(&swleng, sizeof(swleng), 1, fil);
-    Bfwrite(pCompressedData, leng, 1, fil);
+    buildvfs_fwrite(&swleng, sizeof(swleng), 1, fil);
+    buildvfs_fwrite(pCompressedData, leng, 1, fil);
 
     if (pCompressedData != compressedDataStackBuf)
         Baligned_free(pCompressedData);
