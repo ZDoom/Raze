@@ -1068,6 +1068,7 @@ void    artClearMapArt(void);
 void    artSetupMapArt(const char *filename);
 bool    tileLoad(int16_t tilenume);
 void    tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer);
+int32_t tileCRC(int16_t tileNum);
 void    artConvertRGB(palette_t *pic, uint8_t const *buf, int32_t bufsizx, int32_t sizx, int32_t sizy);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);

@@ -12,6 +12,7 @@
 #include "engine_priv.h"
 #include "cache1d.h"
 #include "lz4.h"
+#include "crc32.h"
 
 #include "vfs.h"
 
@@ -738,6 +739,26 @@ static void tilePostLoad(int16_t tilenume)
         picanm[tilenume].yofs = 12;
     }
 #endif
+}
+
+int32_t tileCRC(int16_t tileNum)
+{
+    char *data;
+
+    if ((unsigned)tileNum >= (unsigned)MAXTILES)
+        return 0;
+    int const dasiz = tilesiz[tileNum].x * tilesiz[tileNum].y;
+    if (dasiz <= 0)
+        return 0;
+
+    data = (char *)Bmalloc(dasiz);
+    tileLoadData(tileNum, dasiz, data);
+
+    int32_t crc = Bcrc32((unsigned char *)data, (unsigned int)dasiz, 0);
+
+    Bfree(data);
+
+    return crc;
 }
 
 // Assumes pic has been initialized to zero.
