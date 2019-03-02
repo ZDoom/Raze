@@ -65,25 +65,16 @@ int32_t CONFIG_AnalogNameToNum(const char *func)
 {
     if (!func)
         return -1;
-
-    if (!Bstrcasecmp(func,"analog_turning"))
-    {
+    else if (!Bstrcasecmp(func, "analog_turning"))
         return analog_turning;
-    }
-    if (!Bstrcasecmp(func,"analog_strafing"))
-    {
+    else if (!Bstrcasecmp(func, "analog_strafing"))
         return analog_strafing;
-    }
-    if (!Bstrcasecmp(func,"analog_moving"))
-    {
+    else if (!Bstrcasecmp(func, "analog_moving"))
         return analog_moving;
-    }
-    if (!Bstrcasecmp(func,"analog_lookingupanddown"))
-    {
+    else if (!Bstrcasecmp(func, "analog_lookingupanddown"))
         return analog_lookingupanddown;
-    }
-
-    return -1;
+    else
+        return -1;
 }
 
 
