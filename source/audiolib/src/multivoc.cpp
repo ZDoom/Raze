@@ -137,9 +137,7 @@ const char *MV_ErrorString(int32_t ErrorNumber)
 
 static bool MV_Mix(VoiceNode *voice, int const buffer)
 {
-    /* cheap fix for a crash under 64-bit linux */
-    /*                            v  v  v  v    */
-    if (voice->length == 0 && (voice->GetSound == NULL || voice->GetSound(voice) != KeepPlaying))
+    if (voice->length == 0 && voice->GetSound(voice) != KeepPlaying)
         return false;
 
     int32_t length = MV_MIXBUFFERSIZE;
