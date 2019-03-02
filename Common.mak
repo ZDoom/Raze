@@ -881,6 +881,10 @@ ifeq ($(RENDERTYPE),SDL)
         endif
     endif
 
+    ifeq ($(PLATFORM), WINDOWS)
+        SDLCONFIG :=
+    endif
+
     ifeq ($(PLATFORM),WII)
         SDLCONFIG :=
     else ifeq ($(PLATFORM),SKYOS)
