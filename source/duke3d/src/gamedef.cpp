@@ -6300,12 +6300,8 @@ void C_Compile(const char *fileName)
     for (auto i : tables_free)
         hash_free(i);
 
-    inthash_free(&h_varvar);
-    inthash_free(&h_globalvar);
-#ifdef INCOMPLETE_STRUCT_ACCESS
-    inthash_free(&h_playervar);
-    inthash_free(&h_actorvar);
-#endif
+    for (auto i : inttables)
+        inthash_free(i);
 
     freehashnames();
     freesoundhashnames();
