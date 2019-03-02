@@ -816,6 +816,10 @@ typedef struct {
 } vec2f_t;
 
 typedef struct {
+    double x, y;
+} vec2d_t;
+
+typedef struct {
     union { float x; float d; };
     union { float y; float u; };
     union { float z; float v; };

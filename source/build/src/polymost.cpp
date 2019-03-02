@@ -5131,22 +5131,22 @@ static int32_t polymost_bunchfront(const int32_t b1, const int32_t b2)
     const float x2b2 = dxb2[bunchlast[b2]];
     const float x1b1 = dxb1[b1f];
 
-    if (x1b1 >= x2b2)
+    if (nexttowardf(x1b1, x2b2) >= x2b2)
         return -1;
 
     int b2f = bunchfirst[b2];
     const float x1b2 = dxb1[b2f];
 
-    if (x1b2 >= dxb2[bunchlast[b1]])
+    if (nexttowardf(x1b2, dxb2[bunchlast[b1]]) >= dxb2[bunchlast[b1]])
         return -1;
 
-    if (x1b1 >= x1b2)
+    if (nexttowardf(x1b1, x1b2) > x1b2)
     {
-        while (dxb2[b2f]<=x1b1) b2f=bunchp2[b2f];
+        while (nexttowardf(dxb2[b2f], x1b1) <= x1b1) b2f=bunchp2[b2f];
         return wallfront(b1f, b2f);
     }
 
-    while (dxb2[b1f]<=x1b2) b1f=bunchp2[b1f];
+    while (nexttowardf(dxb2[b1f], x1b2) <= x1b2) b1f=bunchp2[b1f];
     return wallfront(b1f, b2f);
 }
 
@@ -5186,7 +5186,7 @@ void polymost_scansector(int32_t sectnum)
 
         int scanfirst = numscans;
 
-        vec2f_t p2 = { 0, 0 };
+        vec2d_t p2 = { 0, 0 };
 
         uwalltype *wal;
         int z;
@@ -5195,12 +5195,10 @@ void polymost_scansector(int32_t sectnum)
         {
             uwalltype const *const wal2 = (uwalltype *)&wall[wal->point2];
 
-            vec2f_t const fp1 = { (float)(wal->x - globalposx), (float)(wal->y - globalposy) };
-            vec2f_t const fp2 = { (float)(wal2->x - globalposx), (float)(wal2->y - globalposy) };
+            vec2d_t const fp1 = { double(wal->x - globalposx), double(wal->y - globalposy) };
+            vec2d_t const fp2 = { double(wal2->x - globalposx), double(wal2->y - globalposy) };
 
             int const nextsectnum = wal->nextsector; //Scan close sectors
-
-            vec2f_t p1;
 
             if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < ARRAY_SSIZE(sectorborder))
 #ifdef YAX_ENABLE
@@ -5208,34 +5206,37 @@ void polymost_scansector(int32_t sectnum)
 #endif
             if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
             {
-                float const d = fp1.x*fp2.y - fp2.x*fp1.y;
-                p1.x = fp2.x-fp1.x;
-                p1.y = fp2.y-fp1.y;
+                double const d = fp1.x*fp2.y - fp2.x*fp1.y;
+                vec2d_t const p1 = { fp2.x-fp1.x, fp2.y-fp1.y };
 
-                if (d*d <= (p1.x*p1.x + p1.y*p1.y) * (SCISDIST*SCISDIST*260.f))
+                // this said (SCISDIST*SCISDIST*260.f), but SCISDIST is 1 and the significance of 260 isn't obvious to me
+                // is 260 fudged to solve a problem, and does the problem still apply to our version of the renderer?
+                if (d*d < (p1.x*p1.x + p1.y*p1.y) * 256.f)
                 {
                     sectorborder[sectorbordercnt++] = nextsectnum;
                     gotsector[nextsectnum>>3] |= pow2char[nextsectnum&7];
                 }
             }
 
+            vec2d_t p1;
+
             if ((z == startwall) || (wall[z-1].point2 != z))
             {
-                p1.x = ((fp1.y * fcosglobalang) - (fp1.x * fsinglobalang)) * (1.0f/64.f);
-                p1.y = ((fp1.x * (float)cosviewingrangeglobalang) + (fp1.y * (float)sinviewingrangeglobalang)) * (1.0f/64.f);
+                p1 = { (((fp1.y * fcosglobalang) - (fp1.x * fsinglobalang)) * (1.0/64.0)),
+                       (((fp1.x * cosviewingrangeglobalang) + (fp1.y * sinviewingrangeglobalang)) * (1.0/64.0)) };
             }
             else { p1 = p2; }
 
-            p2.x = ((fp2.y * fcosglobalang) - (fp2.x * fsinglobalang)) * (1.0f/64.f);
-            p2.y = ((fp2.x * (float) cosviewingrangeglobalang) + (fp2.y * (float) sinviewingrangeglobalang)) * (1.0f/64.f);
+            p2 = { (((fp2.y * fcosglobalang) - (fp2.x * fsinglobalang)) * (1.0/64.0)),
+                   (((fp2.x * cosviewingrangeglobalang) + (fp2.y * sinviewingrangeglobalang)) * (1.0/64.0)) };
 
             //if wall is facing you...
-            if ((p1.y >= SCISDIST || p2.y >= SCISDIST) && (p1.x*p2.y < p2.x*p1.y))
+            if ((p1.y >= SCISDIST || p2.y >= SCISDIST) && (nexttoward(p1.x*p2.y, p2.x*p1.y) < p2.x*p1.y))
             {
-                dxb1[numscans] = (p1.y >= SCISDIST) ? (p1.x*ghalfx/p1.y + ghalfx) : -1e32f;
-                dxb2[numscans] = (p2.y >= SCISDIST) ? (p2.x*ghalfx/p2.y + ghalfx) : 1e32f;
+                dxb1[numscans] = (p1.y >= SCISDIST) ? float(p1.x*ghalfx/p1.y + ghalfx) : -1e32f;
+                dxb2[numscans] = (p2.y >= SCISDIST) ? float(p2.x*ghalfx/p2.y + ghalfx) : 1e32f;
 
-                if (dxb1[numscans] < dxb2[numscans])
+                if (nexttowardf(dxb1[numscans], dxb2[numscans]) < dxb2[numscans])
                 {
                     thesector[numscans] = sectnum;
                     thewall[numscans] = z;
@@ -5253,7 +5254,7 @@ void polymost_scansector(int32_t sectnum)
 
         for (bssize_t z=onumscans; z<numscans; z++)
         {
-            if ((wall[thewall[z]].point2 != thewall[bunchp2[z]]) || (dxb2[z] > dxb1[bunchp2[z]]))
+            if ((wall[thewall[z]].point2 != thewall[bunchp2[z]]) || (dxb2[z] > nexttowardf(dxb1[bunchp2[z]], dxb2[z])))
             {
                 bunchfirst[numbunches++] = bunchp2[z];
                 bunchp2[z] = -1;
