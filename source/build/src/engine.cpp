@@ -3181,14 +3181,14 @@ static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, uint32
     const char *const A_C_RESTRICT buf = (char *)bufplc;
     const char *const A_C_RESTRICT pal = (char *)asm3;
 
-    const uint32_t xdiv = globalxspan > 1 ? (uint32_t)ourdivscale32(1, globalxspan) : UINT32_MAX;
-    const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
+    const uint32_t xmul = globalxspan;
+    const uint32_t ymul = globalyspan;
     const uint32_t yspan = globalyspan;
     const int32_t xinc = asm1, yinc = asm2;
 
     for (cntup16>>=16; cntup16>0; cntup16--)
     {
-        ch = buf[(divideu32(bx, xdiv))*yspan + divideu32(by, ydiv)];
+        ch = buf[mulscale31(bx>>1, xmul)*yspan + mulscale31(by>>1, ymul)];
 
         if (ch != 255) *p = pal[ch];
         bx += xinc;
@@ -3206,8 +3206,8 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, uint32
     const char *const A_C_RESTRICT pal = (char *)asm3;
     const char *const A_C_RESTRICT trans = paletteGetBlendTable(globalblend);
 
-    const uint32_t xdiv = globalxspan > 1 ? (uint32_t)ourdivscale32(1, globalxspan) : UINT32_MAX;
-    const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
+    const uint32_t xmul = globalxspan;
+    const uint32_t ymul = globalyspan;
     const uint32_t yspan = globalyspan;
     const int32_t xinc = asm1, yinc = asm2;
 
@@ -3215,7 +3215,7 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, uint32
     {
         for (cntup16>>=16; cntup16>0; cntup16--)
         {
-            ch = buf[divideu32(bx, xdiv)*yspan + divideu32(by, ydiv)];
+            ch = buf[mulscale31(bx>>1, xmul)*yspan + mulscale31(by>>1, ymul)];
             if (ch != 255) *p = trans[(*p)|(pal[ch]<<8)];
             bx += xinc;
             by += yinc;
@@ -3226,7 +3226,7 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, uint32
     {
         for (cntup16>>=16; cntup16>0; cntup16--)
         {
-            ch = buf[divideu32(bx, xdiv)*yspan + divideu32(by, ydiv)];
+            ch = buf[mulscale31(bx>>1, xmul)*yspan + mulscale31(by>>1, ymul)];
             if (ch != 255) *p = trans[((*p)<<8)|pal[ch]];
             bx += xinc;
             by += yinc;
