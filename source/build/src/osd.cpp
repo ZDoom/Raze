@@ -2045,7 +2045,7 @@ static osdsymbol_t * osd_findexactsymbol(const char *pszName)
 int osdcmd_cvar_set(osdcmdptr_t parm)
 {
     int const printValue = (parm->numparms == 0);
-    int const cvaridx    = hash_find(&h_cvars, parm->name);
+    int const cvaridx    = hash_findcase(&h_cvars, parm->name);
 
 #if 0
     if (i < 0)
