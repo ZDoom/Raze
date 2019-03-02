@@ -1272,8 +1272,8 @@ void Screen_Play(void)
 #endif
 #ifdef CON_DIRECT_THREADING_DISPATCH
 # define vInstruction(KEYWORDID) VINST_ ## KEYWORDID
-# define eval(INSTRUCTION) {if (INSTRUCTION >= 0 && INSTRUCTION <= CON_OPCODE_END) {goto *jumpTable[INSTRUCTION];} else {goto VINST_CON_OPCODE_END;}}
-# define dispatch(INSTRUCTION) {if (loop) {tw = *insptr; g_errorLineNum = tw >> 12; g_tw = tw &= VM_INSTMASK; eval(INSTRUCTION)} else {return;}}
+# define eval(INSTRUCTION) {if ((unsigned)INSTRUCTION <= CON_OPCODE_END) {goto *jumpTable[INSTRUCTION];} goto VINST_CON_OPCODE_END;}
+# define dispatch(INSTRUCTION) {if (loop) {tw = *insptr; g_errorLineNum = tw >> 12; g_tw = tw &= VM_INSTMASK; eval(INSTRUCTION)} return;}
 # define vInstructionPointer(KEYWORDID) &&VINST_ ## KEYWORDID
 # define COMMA ,
 # define JUMP_TABLE_ARRAY_LITERAL { TRANSFORM_SCRIPT_KEYWORDS_LIST(vInstructionPointer, COMMA) }
