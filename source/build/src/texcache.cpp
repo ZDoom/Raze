@@ -242,7 +242,7 @@ static inline void texcache_clearmemcache(void)
 
 void texcache_syncmemcache(void)
 {
-    int32_t len = filelength(texcache.handle);
+    int32_t len = buildvfs_length(texcache.handle);
 
     if (!texcache.buf || texcache.handle == -1 || len <= (int32_t)texcache.memsize)
         return;
@@ -848,7 +848,7 @@ void texcache_setupmemcache(void)
     if (!glusememcache || !texcache_enabled())
         return;
 
-    texcache.memsize = filelength(texcache.handle);
+    texcache.memsize = buildvfs_length(texcache.handle);
 
     if (texcache.memsize <= 0)
         return;
