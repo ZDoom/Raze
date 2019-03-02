@@ -20,12 +20,33 @@
 
 #include "inttypes.h"
 
+enum
+{
+    DSErr_Warning = -2,
+    DSErr_Error   = -1,
+    DSErr_Ok      = 0,
+    DSErr_Uninitialised,
+    DSErr_DirectSoundCreate,
+    DSErr_SetCooperativeLevel,
+    DSErr_CreateSoundBuffer,
+    DSErr_CreateSoundBufferSecondary,
+    DSErr_SetFormat,
+    DSErr_SetFormatSecondary,
+    DSErr_Notify,
+    DSErr_NotifyEvents,
+    DSErr_SetNotificationPositions,
+    DSErr_Play,
+    DSErr_PlaySecondary,
+    DSErr_CreateThread,
+    DSErr_CreateMutex
+};
+
 int32_t DirectSoundDrv_GetError(void);
-const char *DirectSoundDrv_ErrorString( int32_t ErrorNumber );
-int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata);
-void DirectSoundDrv_PCM_Shutdown(void);
-int32_t DirectSoundDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
-                 int32_t NumDivisions, void ( *CallBackFunc )( void ) );
-void DirectSoundDrv_PCM_StopPlayback(void);
-void DirectSoundDrv_PCM_Lock(void);
-void DirectSoundDrv_PCM_Unlock(void);
+const char *DirectSoundDrv_ErrorString(int32_t ErrorNumber);
+
+int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void *initdata);
+int32_t DirectSoundDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize, int32_t NumDivisions, void (*CallBackFunc)(void));
+void    DirectSoundDrv_PCM_StopPlayback(void);
+void    DirectSoundDrv_PCM_Lock(void);
+void    DirectSoundDrv_PCM_Unlock(void);
+void    DirectSoundDrv_PCM_Shutdown(void);
