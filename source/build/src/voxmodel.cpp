@@ -933,7 +933,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
     m0.z *= f; a0.z *= f;
 
     k0 = (float) tspr->z;
-    if (globalorientation&128) k0 += (float) ((tilesiz[tspr->picnum].y*tspr->yrepeat)<<1);
+    k0 -= (tspr->yoffset*tspr->yrepeat)*4.f*m->bscale;
+    if (!(tspr->cstat&128)) k0 -= (m->piv.z*tspr->yrepeat)*4.f*m->bscale;
 
     f = (65536.f*512.f) / ((float)xdimen*viewingrange);
     g = 32.f / ((float)xdimen*gxyaspect);
@@ -995,9 +996,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
     g = m0.y*f; mat[4] = omat[8]*g; mat[5] = omat[9]*g; mat[6] = omat[10]*g;
     g =-m0.z*f; mat[8] = omat[4]*g; mat[9] = omat[5]*g; mat[10] = omat[6]*g;
     //
-    mat[12] -= (m->piv.x*mat[0] + m->piv.y*mat[4] + (m->piv.z+m->siz.z*.5f)*mat[8]);
-    mat[13] -= (m->piv.x*mat[1] + m->piv.y*mat[5] + (m->piv.z+m->siz.z*.5f)*mat[9]);
-    mat[14] -= (m->piv.x*mat[2] + m->piv.y*mat[6] + (m->piv.z+m->siz.z*.5f)*mat[10]);
+    mat[12] -= (m->piv.x*mat[0] + m->piv.y*mat[4] + m->siz.z*.5f*mat[8]);
+    mat[13] -= (m->piv.x*mat[1] + m->piv.y*mat[5] + m->siz.z*.5f*mat[9]);
+    mat[14] -= (m->piv.x*mat[2] + m->piv.y*mat[6] + m->siz.z*.5f*mat[10]);
     //
     glMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
     mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
