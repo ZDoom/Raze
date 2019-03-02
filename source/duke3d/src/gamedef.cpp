@@ -5195,12 +5195,7 @@ repeatcase:
 
             i = 0;
 
-            {
-                hash_delete(&h_gamefuncs, gamefunctions[j]);
-                char *str = Bstrtolower(Xstrdup(gamefunctions[j]));
-                hash_delete(&h_gamefuncs, str);
-                Bfree(str);
-            }
+            hash_delete(&h_gamefuncs, gamefunctions[j]);
 
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
             {
@@ -5225,11 +5220,6 @@ repeatcase:
             }
             gamefunctions[j][i] = '\0';
             hash_add(&h_gamefuncs,gamefunctions[j],j,0);
-            {
-                char *str = Bstrtolower(Xstrdup(gamefunctions[j]));
-                hash_add(&h_gamefuncs,str,j,0);
-                Bfree(str);
-            }
 
             continue;
 
@@ -5248,12 +5238,7 @@ repeatcase:
                 continue;
             }
 
-            {
-                hash_delete(&h_gamefuncs, gamefunctions[j]);
-                char *str = Bstrtolower(Xstrdup(gamefunctions[j]));
-                hash_delete(&h_gamefuncs, str);
-                Bfree(str);
-            }
+            hash_delete(&h_gamefuncs, gamefunctions[j]);
 
             gamefunctions[j][0] = '\0';
 

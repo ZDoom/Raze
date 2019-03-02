@@ -6243,10 +6243,7 @@ int app_main(int argc, char const * const * argv)
         if (gamefunctions[i][0] == '\0')
             continue;
 
-        char *str = Bstrtolower(Xstrdup(gamefunctions[i]));
         hash_add(&h_gamefuncs,gamefunctions[i],i,0);
-        hash_add(&h_gamefuncs,str,i,0);
-        Bfree(str);
     }
 
 #ifdef STARTUP_SETUP_WINDOW

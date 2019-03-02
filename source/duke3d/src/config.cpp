@@ -46,23 +46,10 @@ hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
 
 int32_t CONFIG_FunctionNameToNum(const char *func)
 {
-    int32_t i;
-
     if (!func)
         return -1;
 
-    i = hash_find(&h_gamefuncs,func);
-
-    if (i < 0)
-    {
-        char *str = Bstrtolower(Xstrdup(func));
-        i = hash_find(&h_gamefuncs,str);
-        Bfree(str);
-
-        return i;
-    }
-
-    return i;
+    return hash_findcase(&h_gamefuncs, func);
 }
 
 
