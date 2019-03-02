@@ -29,7 +29,7 @@ static inline uint32_t hash_getcode(const char *s)
     uint32_t h = 5381;
     int32_t ch;
 
-    while ((ch = *s++) != '\0')
+    while ((ch = Btolower(*s++)) != '\0')
         h = ((h << 5) + h) ^ ch;
 
     return h;
