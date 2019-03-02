@@ -312,7 +312,7 @@ void G_ExtInit(void)
     }
 
 #if defined(_WIN32) && !defined(EDUKE32_STANDALONE)
-    if (!buildvfs_exists("user_profiles_enabled"))
+    if (buildvfs_exists("user_profiles_enabled"))
 #else
     if (g_useCwd == 0 && !buildvfs_exists("user_profiles_disabled"))
 #endif
