@@ -1270,6 +1270,7 @@ void Screen_Play(void)
 #if defined __GNUC__ || defined __clang__
 # define CON_DIRECT_THREADING_DISPATCH
 #endif
+
 #ifdef CON_DIRECT_THREADING_DISPATCH
 # define vInstruction(KEYWORDID) VINST_ ## KEYWORDID
 # define eval(INSTRUCTION) {if ((unsigned)INSTRUCTION <= CON_OPCODE_END) {goto *jumpTable[INSTRUCTION];} goto VINST_CON_OPCODE_END;}
@@ -1343,7 +1344,16 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                 dispatch_unconditionally();
             }
 #endif
+            vInstruction(CON_STATE):
+                {
+                    auto tempscrptr = &insptr[2];
+                    insptr = (intptr_t *)insptr[1];
+                    VM_Execute(1);
+                    insptr = tempscrptr;
+                }
+                dispatch();
 
+#ifdef CON_DISCRETE_VAR_ACCESS
             vInstruction(CON_IFVARE_GLOBAL):
                 insptr++;
                 tw = aGameVars[*insptr++].global;
@@ -1465,16 +1475,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                 aGameVars[*insptr].global >>= insptr[1];
                 insptr += 2;
                 dispatch();
-            vInstruction(CON_STATE):
-                {
-                    auto tempscrptr = &insptr[2];
-                    insptr = (intptr_t *)insptr[1];
-                    VM_Execute(1);
-                    insptr = tempscrptr;
-                }
-                dispatch();
 
-#ifdef INCOMPLETE_STRUCT_ACCESS
             vInstruction(CON_IFVARE_ACTOR):
                 insptr++;
                 tw = aGameVars[*insptr++].pValues[vm.spriteNum & (MAXSPRITES-1)];
@@ -1718,7 +1719,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                 aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] >>= insptr[1];
                 insptr += 2;
                 dispatch();
-#endif
 
             vInstruction(CON_WHILEVARN_GLOBAL):
             {
@@ -1744,7 +1744,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                 dispatch();
             }
 
-#ifdef INCOMPLETE_STRUCT_ACCESS
             vInstruction(CON_WHILEVARN_ACTOR):
             {
                 auto const savedinsptr = &insptr[2];
@@ -1800,14 +1799,12 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
 
                 dispatch();
             }
-#endif
 
             vInstruction(CON_MODVAR_GLOBAL):
                 insptr++;
                 aGameVars[*insptr].global %= insptr[1];
                 insptr += 2;
                 dispatch();
-#ifdef INCOMPLETE_STRUCT_ACCESS
             vInstruction(CON_MODVAR_ACTOR):
                 insptr++;
                 aGameVars[*insptr].pValues[vm.spriteNum & (MAXSPRITES-1)] %= insptr[1];
@@ -1963,13 +1960,13 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                 Gv_MulVar(tw, Gv_GetVarX(*insptr++));
                 dispatch();
 
+#ifdef CON_DISCRETE_VAR_ACCESS
             vInstruction(CON_DIVVAR_GLOBAL):
                 insptr++;
                 aGameVars[*insptr].global = tabledivide32(aGameVars[*insptr].global, insptr[1]);
                 insptr += 2;
                 dispatch();
 
-#ifdef INCOMPLETE_STRUCT_ACCESS
             vInstruction(CON_DIVVAR_PLAYER):
             {
                 insptr++;
@@ -2281,13 +2278,13 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                 insptr += 2;
                 dispatch();
 
+#ifdef CON_DISCRETE_VAR_ACCESS
             vInstruction(CON_RANDVAR_GLOBAL):
                 insptr++;
                 aGameVars[*insptr].global = mulscale16(krand(), insptr[1] + 1);
                 insptr += 2;
                 dispatch();
 
-#ifdef INCOMPLETE_STRUCT_ACCESS
             vInstruction(CON_RANDVAR_PLAYER):
                 insptr++;
                 aGameVars[*insptr].pValues[vm.playerNum & (MAXPLAYERS-1)] = mulscale16(krand(), insptr[1] + 1);

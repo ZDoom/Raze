@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef gamedef_h_
 #define gamedef_h_
 
+// #define CON_DISCRETE_VAR_ACCESS
+
 #include "actors.h"
 #include "build.h"  // hashtable_t
 #include "cheats.h"
@@ -846,7 +848,8 @@ enum IterationTypes_t
 
 // most keywords have opcodes but some opcodes don't have keywords
 #define TRANSFORM_SCRIPT_KEYWORDS_LIST(TRANSFORM, DELIMITER) \
-    \
+/*  CON_DISCRETE_VAR_ACCESS \
+
     TRANSFORM(CON_IFVARA_GLOBAL) DELIMITER \
     TRANSFORM(CON_IFVARAE_GLOBAL) DELIMITER \
     TRANSFORM(CON_IFVARAND_GLOBAL) DELIMITER \
@@ -878,7 +881,6 @@ enum IterationTypes_t
     TRANSFORM(CON_WHILEVARN_GLOBAL) DELIMITER \
     TRANSFORM(CON_XORVAR_GLOBAL) DELIMITER \
     \
-    /* INCOMPLETE_STRUCT_ACCESS
     TRANSFORM(CON_IFVARA_PLAYER) DELIMITER \
     TRANSFORM(CON_IFVARAE_PLAYER) DELIMITER \
     TRANSFORM(CON_IFVARAND_PLAYER) DELIMITER \
@@ -940,8 +942,7 @@ enum IterationTypes_t
     TRANSFORM(CON_WHILEVARL_ACTOR) DELIMITER \
     TRANSFORM(CON_WHILEVARN_ACTOR) DELIMITER \
     TRANSFORM(CON_XORVAR_ACTOR) DELIMITER \
-    */ \
-    \
+*/    \
     TRANSFORM(CON_IFVARVARA) DELIMITER \
     TRANSFORM(CON_IFVARVARAE) DELIMITER \
     TRANSFORM(CON_IFVARVARAND) DELIMITER \

@@ -676,6 +676,7 @@ static const vec2_t varvartable[] =
     { CON_XORVARVAR,         CON_XORVAR },
 };
 
+#ifdef CON_DISCRETE_VAR_ACCESS
 static const vec2_t globalvartable[] =
 {
     { CON_IFVARA,         CON_IFVARA_GLOBAL },
@@ -710,7 +711,6 @@ static const vec2_t globalvartable[] =
     { CON_XORVAR,         CON_XORVAR_GLOBAL },
 };
 
-#ifdef INCOMPLETE_STRUCT_ACCESS
 static const vec2_t playervartable[] =
 {
     { CON_IFVARA,         CON_IFVARA_PLAYER },
@@ -781,16 +781,16 @@ static const vec2_t actorvartable[] =
 #endif
 
 static inthashtable_t h_varvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(varvartable)) };
+#ifdef CON_DISCRETE_VAR_ACCESS
 static inthashtable_t h_globalvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(globalvartable)) };
-#ifdef INCOMPLETE_STRUCT_ACCESS
 static inthashtable_t h_playervar = { NULL, INTHASH_SIZE(ARRAY_SIZE(playervartable)) };
 static inthashtable_t h_actorvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(actorvartable)) };
 #endif
 
 static inthashtable_t *const inttables[] = {
     &h_varvar,
+#ifdef CON_DISCRETE_VAR_ACCESS
     &h_globalvar,
-#ifdef INCOMPLETE_STRUCT_ACCESS
     &h_playervar,
     &h_actorvar,
 #endif
@@ -2442,6 +2442,7 @@ static void scriptUpdateOpcodeForVariableType(intptr_t *ins)
 {
     int opcode = -1;
 
+#ifdef CON_DISCRETE_VAR_ACCESS
     if (ins[1] < MAXGAMEVARS)
     {
         switch (aGameVars[ins[1] & (MAXGAMEVARS - 1)].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))
@@ -2449,16 +2450,15 @@ static void scriptUpdateOpcodeForVariableType(intptr_t *ins)
             case 0:
                 opcode = inthash_find(&h_globalvar, *ins & VM_INSTMASK);
                 break;
-#ifdef INCOMPLETE_STRUCT_ACCESS
             case GAMEVAR_PERACTOR:
                 opcode = inthash_find(&h_actorvar, *ins & VM_INSTMASK);
                 break;
             case GAMEVAR_PERPLAYER:
                 opcode = inthash_find(&h_playervar, *ins & VM_INSTMASK);
                 break;
-#endif
         }
     }
+#endif
 
     if (opcode != -1)
     {
@@ -6158,10 +6158,10 @@ void scriptInitTables()
     for (auto &varvar : varvartable)
         inthash_add(&h_varvar, varvar.x, varvar.y, 0);
 
+#ifdef CON_DISCRETE_VAR_ACCESS
     for (auto &globalvar : globalvartable)
         inthash_add(&h_globalvar, globalvar.x, globalvar.y, 0);
 
-#ifdef INCOMPLETE_STRUCT_ACCESS
     for (auto &playervar : playervartable)
         inthash_add(&h_playervar, playervar.x, playervar.y, 0);
 
