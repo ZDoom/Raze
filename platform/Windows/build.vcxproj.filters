@@ -191,6 +191,9 @@
     <ClCompile Include="..\..\source\build\src\common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\build\src\vfs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\build\include\msvc\inttypes.h">
@@ -392,6 +395,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\build\include\print.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\build\include\vfs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
