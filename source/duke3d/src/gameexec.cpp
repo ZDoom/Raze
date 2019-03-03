@@ -1299,7 +1299,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
     next_instruction:
 #endif
         native_t tw = *insptr;
-        // set up "p" in between tw and g_errorLineNum to avoid read after write penalty
         g_errorLineNum = tw >> 12;
         g_tw = tw &= VM_INSTMASK;
 
