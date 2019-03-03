@@ -3507,6 +3507,7 @@ static inline void vsp_finalize_init(int32_t const vcnt)
 }
 
 #define COMBINE_STRIPS
+#define COMBINE_STRIPS_IS_STILL_BUGGED
 
 #ifdef COMBINE_STRIPS
 static inline void vsdel(int32_t const i)
