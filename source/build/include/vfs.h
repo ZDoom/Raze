@@ -20,18 +20,11 @@ using buildvfs_FILE = PHYSFS_File *;
 static inline int buildvfs_fgetc(buildvfs_FILE fp)
 {
   unsigned char c;
-
-  if (buildvfs_fread(&c, 1, 1, fp) != 1)
-    return buildvfs_EOF;
-
-  return c;
+  return buildvfs_fread(&c, 1, 1, fp) != 1 ? buildvfs_EOF : c;
 }
 static inline int buildvfs_fputc(char c, buildvfs_FILE fp)
 {
-    if (PHYSFS_writeBytes(fp, &c, 1) != 1)
-        return buildvfs_EOF;
-
-    return c;
+    return PHYSFS_writeBytes(fp, &c, 1) != 1 ? buildvfs_EOF : c;
 }
 #define buildvfs_fclose(fp) PHYSFS_close(fp)
 #define buildvfs_feof(fp) PHYSFS_eof(fp)
@@ -110,9 +103,7 @@ static inline int64_t buildvfs_length(int fd)
     return filelength(fd);
 #else
     struct stat st;
-    if (fstat(fd, &st) < 0)
-        return -1;
-    return st.st_size;
+    return fstat(fd, &st) < 0 ? -1 : st.st_size;
 #endif
 }
 
@@ -143,13 +134,8 @@ static inline int64_t buildvfs_flength(FILE * f)
 #define buildvfs_exists(fn) (access((fn), F_OK) == 0)
 static inline int buildvfs_isdir(char const *path)
 {
-    struct stat st;
-    if (stat(path, &st) != 0)
-        return 0;
-    else if ((st.st_mode & S_IFDIR) != S_IFDIR)
-        return 0;
-    else
-        return 1;
+    struct Bstat st;
+    return (Bstat(path, &st) ? 0 : (st.st_mode & S_IFDIR) == S_IFDIR);
 }
 #define buildvfs_unlink(path) unlink(path)
 
