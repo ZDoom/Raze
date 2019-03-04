@@ -3546,9 +3546,86 @@ static int32_t domostpolymethod = DAMETH_NOMASK;
 
 #define DOMOST_OFFSET .01f
 
-static void polymost_domost(float x0, float y0, float x1, float y1)
+static void polymost_clipmost(vec2f_t *dpxy, int &n, float x0, float x1, float y0top, float y0bot, float y1top, float y1bot)
+{
+    if (y0bot < y0top || y1bot < y1top)
+        return;
+
+    //Clip to (x0,y0top)-(x1,y1top)
+
+    vec2f_t dp2[8];
+
+    float t0, t1;
+    int n2 = 0;
+    t1 = -((dpxy[0].x - x0) * (y1top - y0top) - (dpxy[0].y - y0top) * (x1 - x0));
+
+    for (bssize_t i=0; i<n; i++)
+    {
+        int j = i + 1;
+
+        if (j >= n)
+            j = 0;
+
+        t0 = t1;
+        t1 = -((dpxy[j].x - x0) * (y1top - y0top) - (dpxy[j].y - y0top) * (x1 - x0));
+
+        if (t0 >= 0)
+            dp2[n2++] = dpxy[i];
+
+        if ((t0 >= 0) != (t1 >= 0) && (t0 <= 0) != (t1 <= 0))
+        {
+            float const r = t0 / (t0 - t1);
+            dp2[n2].x = (dpxy[j].x - dpxy[i].x) * r + dpxy[i].x;
+            dp2[n2].y = (dpxy[j].y - dpxy[i].y) * r + dpxy[i].y;
+            n2++;
+        }
+    }
+
+    if (n2 < 3)
+    {
+        n = 0;
+        return;
+    }
+
+    //Clip to (x1,y1bot)-(x0,y0bot)
+    t1 = -((dp2[0].x - x1) * (y0bot - y1bot) - (dp2[0].y - y1bot) * (x0 - x1));
+    n = 0;
+
+    for (bssize_t i = 0, j = 1; i < n2; j = ++i + 1)
+    {
+        if (j >= n2)
+            j = 0;
+
+        t0 = t1;
+        t1 = -((dp2[j].x - x1) * (y0bot - y1bot) - (dp2[j].y - y1bot) * (x0 - x1));
+
+        if (t0 >= 0)
+            dpxy[n++] = dp2[i];
+
+        if ((t0 >= 0) != (t1 >= 0) && (t0 <= 0) != (t1 <= 0))
+        {
+            float const r = t0 / (t0 - t1);
+            dpxy[n].x = (dp2[j].x - dp2[i].x) * r + dp2[i].x;
+            dpxy[n].y = (dp2[j].y - dp2[i].y) * r + dp2[i].y;
+            n++;
+        }
+    }
+
+    if (n < 3)
+    {
+        n = 0;
+        return;
+    }
+}
+
+static void polymost_domost(float x0, float y0, float x1, float y1, float y0top = 0.f, float y0bot = -1.f, float y1top = 0.f, float y1bot = -1.f)
 {
     int const dir = (x0 < x1);
+
+    y0top -= DOMOST_OFFSET;
+    y1top -= DOMOST_OFFSET;
+    y0bot += DOMOST_OFFSET;
+    y1bot += DOMOST_OFFSET;
 
     if (dir) //clip dmost (floor)
     {
@@ -3560,6 +3637,8 @@ static void polymost_domost(float x0, float y0, float x1, float y1)
         if (x0 == x1) return;
         swapfloat(&x0, &x1);
         swapfloat(&y0, &y1);
+        swapfloat(&y0top, &y1top);
+        swapfloat(&y0bot, &y1bot);
         y0 += DOMOST_OFFSET;
         y1 += DOMOST_OFFSET; //necessary?
     }
@@ -3702,44 +3781,56 @@ skip: ;
                     case 5:
                     case 7:
                     {
-                        vec2f_t const dpxy[4] = {
+                        vec2f_t dpxy[8] = {
                             { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, n1.y }, { dx0, n0.y }
                         };
+
+                        int n = 4;
+                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 
                         vsp[i].cy[0] = n0.y;
                         vsp[i].cy[1] = n1.y;
                         vsp[i].ctag = gtag;
-                        polymost_drawpoly(dpxy, 4, domostpolymethod);
+                        polymost_drawpoly(dpxy, n, domostpolymethod);
                     }
                     break;
                     case 1:
                     case 2:
                     {
-                        vec2f_t const dpxy[3] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx0, n0.y } };
+                        vec2f_t dpxy[8] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx0, n0.y } };
+
+                        int n = 3;
+                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 
                         vsp[i].cy[0] = n0.y;
                         vsp[i].ctag = gtag;
-                        polymost_drawpoly(dpxy, 3, domostpolymethod);
+                        polymost_drawpoly(dpxy, n, domostpolymethod);
                     }
                     break;
                     case 3:
                     case 6:
                     {
-                        vec2f_t const dpxy[3] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, n1.y } };
+                        vec2f_t dpxy[8] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, n1.y } };
+
+                        int n = 3;
+                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 
                         vsp[i].cy[1] = n1.y;
                         vsp[i].ctag = gtag;
-                        polymost_drawpoly(dpxy, 3, domostpolymethod);
+                        polymost_drawpoly(dpxy, n, domostpolymethod);
                     }
                     break;
                     case 8:
                     {
-                        vec2f_t const dpxy[4] = {
+                        vec2f_t dpxy[8] = {
                             { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] }
                         };
 
+                        int n = 4;
+                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
+
                         vsp[i].ctag = vsp[i].ftag = -1;
-                        polymost_drawpoly(dpxy, 4, domostpolymethod);
+                        polymost_drawpoly(dpxy, n, domostpolymethod);
                     }
                     default: break;
                 }
@@ -3752,41 +3843,53 @@ skip: ;
                 case 3:
                 case 1:
                 {
-                    vec2f_t const dpxy[4] = {
+                    vec2f_t dpxy[8] = {
                         { dx0, n0.y }, { dx1, n1.y }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] }
                     };
+
+                    int n = 4;
+                    polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 
                     vsp[i].fy[0] = n0.y;
                     vsp[i].fy[1] = n1.y;
                     vsp[i].ftag = gtag;
-                    polymost_drawpoly(dpxy, 4, domostpolymethod);
+                    polymost_drawpoly(dpxy, n, domostpolymethod);
                 }
                     break;
                 case 7:
                 case 6:
                 {
-                    vec2f_t const dpxy[3] = { { dx0, n0.y }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
+                    vec2f_t dpxy[8] = { { dx0, n0.y }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
+
+                    int n = 3;
+                    polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 
                     vsp[i].fy[0] = n0.y;
                     vsp[i].ftag = gtag;
-                    polymost_drawpoly(dpxy, 3, domostpolymethod);
+                    polymost_drawpoly(dpxy, n, domostpolymethod);
                 }
                     break;
                 case 5:
                 case 2:
                 {
-                    vec2f_t const dpxy[3] = { { dx0, vsp[i].fy[0] }, { dx1, n1.y }, { dx1, vsp[i].fy[1] } };
+                    vec2f_t dpxy[8] = { { dx0, vsp[i].fy[0] }, { dx1, n1.y }, { dx1, vsp[i].fy[1] } };
+
+                    int n = 3;
+                    polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 
                     vsp[i].fy[1] = n1.y;
                     vsp[i].ftag = gtag;
-                    polymost_drawpoly(dpxy, 3, domostpolymethod);
+                    polymost_drawpoly(dpxy, n, domostpolymethod);
                 }
                     break;
                 case 0:
                 {
-                    vec2f_t const dpxy[4] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
+                    vec2f_t dpxy[8] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
+
+                    int n = 4;
+                    polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
                     vsp[i].ctag = vsp[i].ftag = -1;
-                    polymost_drawpoly(dpxy, 4, domostpolymethod);
+                    polymost_drawpoly(dpxy, n, domostpolymethod);
                 }
                 default:
                     break;
@@ -4356,9 +4459,7 @@ static void polymost_drawalls(int32_t const bunch)
 
         if (!(globalorientation&1))
         {
-#ifdef YAX_ENABLE
-            if (globalposz <= sec->floorz || yax_getbunch(sectnum, YAX_FLOOR) < 0 || yax_getnextwall(wallnum, YAX_FLOOR) >= 0)
-#endif
+            if (globalposz <= sec->floorz || (sec->floorstat&3) == 2)
                 polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, fy0, fy1, sectnum | MAXSECTORS);
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
@@ -4688,9 +4789,7 @@ static void polymost_drawalls(int32_t const bunch)
 
         if (!(globalorientation&1))
         {
-#ifdef YAX_ENABLE
-            if (globalposz >= sec->ceilingz || yax_getbunch(sectnum, YAX_CEILING) < 0 || yax_getnextwall(wallnum, YAX_CEILING) >= 0)
-#endif
+            if (globalposz >= sec->ceilingz || (sec->ceilingstat&3) == 2)
                 polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, cy0, cy1, sectnum);
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
@@ -5050,7 +5149,7 @@ static void polymost_drawalls(int32_t const bunch)
 
                 calc_and_apply_fog(wal->picnum, fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
-                pow2xsplit = 1; polymost_domost(x1,ocy1,x0,ocy0);
+                pow2xsplit = 1; polymost_domost(x1,ocy1,x0,ocy0,cy1,ocy1,cy0,ocy0);
                 if (wal->cstat&8) { xtex.u = ogux; ytex.u = oguy; otex.u = oguo; }
             }
             if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat)&1)))
@@ -5087,7 +5186,7 @@ static void polymost_drawalls(int32_t const bunch)
 
                 calc_and_apply_fog(nwal->picnum, fogshade(nwal->shade, nwal->pal), sec->visibility, get_floor_fogpal(sec));
 
-                pow2xsplit = 1; polymost_domost(x0,ofy0,x1,ofy1);
+                pow2xsplit = 1; polymost_domost(x0,ofy0,x1,ofy1,ofy0,fy0,ofy1,fy1);
                 if (wal->cstat&(2+8)) { otex.u = oguo; xtex.u = ogux; ytex.u = oguy; }
             }
         }
@@ -5134,7 +5233,7 @@ static void polymost_drawalls(int32_t const bunch)
                 if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
                 calc_and_apply_fog(wal->picnum, fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
-                pow2xsplit = 1; polymost_domost(x0, cy0, x1, cy1);
+                pow2xsplit = 1; polymost_domost(x0, cy0, x1, cy1, cy0, fy0, cy1, fy1);
             } while (0);
         }
 
