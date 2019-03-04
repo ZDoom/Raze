@@ -1035,7 +1035,7 @@ static BOOL InitDirectInput(void)
         else if (result != DI_OK) initprintf("    Fetched controller capabilities with warning: %s\n",GetDInputError(result));
 
         joystick.numAxes    = (uint8_t)didc.dwAxes;
-        joystick.numButtons = min(32,(uint8_t)didc.dwButtons);
+        joystick.numButtons = min<uint8_t>(32,didc.dwButtons);
         joystick.numHats    = (uint8_t)didc.dwPOVs;
         initprintf("Controller has %d axes, %d buttons, and %d hat(s).\n",joystick.numAxes,joystick.numButtons,joystick.numHats);
 
@@ -2134,7 +2134,7 @@ int32_t videoSetGamma(void)
         if (gamma != 1) val = pow(val, invgamma) / norm;
         val += bright * 128;
 
-        gammaTable.red[i] = gammaTable.green[i] = gammaTable.blue[i] = (WORD)max(0.f,(double)min(0xffff,val*256));
+        gammaTable.red[i] = gammaTable.green[i] = gammaTable.blue[i] = (uint16_t)max(0.f, min<float>(65535.f, val * 256.f));
     }
 
     return setgammaramp(&gammaTable);
@@ -2218,7 +2218,7 @@ static BOOL InitDirectDraw(void)
     }
 
     // get the pointer to DirectDrawEnumerate
-    aDirectDrawEnumerate = (HRESULT(WINAPI *)(LPDDENUMCALLBACK, LPVOID))GetProcAddress(hDDrawDLL, "DirectDrawEnumerateA");
+    aDirectDrawEnumerate = (decltype(aDirectDrawEnumerate))GetProcAddress(hDDrawDLL, "DirectDrawEnumerateA");
     if (!aDirectDrawEnumerate)
     {
         ShowErrorBox("Error fetching DirectDrawEnumerate()");
@@ -2231,7 +2231,7 @@ static BOOL InitDirectDraw(void)
     aDirectDrawEnumerate(InitDirectDraw_enum, NULL);
 
     // get the pointer to DirectDrawCreate
-    aDirectDrawCreate = (HRESULT(WINAPI *)(GUID *, LPDIRECTDRAW *, IUnknown *))GetProcAddress(hDDrawDLL, "DirectDrawCreate");
+    aDirectDrawCreate = (decltype(aDirectDrawCreate))GetProcAddress(hDDrawDLL, "DirectDrawCreate");
     if (!aDirectDrawCreate)
     {
         ShowErrorBox("Error fetching DirectDrawCreate()");

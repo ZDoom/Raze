@@ -4,6 +4,7 @@
 #ifndef build_interface_layer_
 #define build_interface_layer_ WIN
 
+#include "compat.h"
 #include "windows_inc.h"
 
 extern uint32_t maxrefreshfreq;
