@@ -3572,10 +3572,22 @@ static void polymost_domost(float x0, float y0, float x1, float y1)
         return;
     }
 
-    vec2f_t const dm0 = { x0, y0 };
-    vec2f_t const dm1 = { x1, y1 };
+    vec2f_t dm0 = { x0, y0 };
+    vec2f_t dm1 = { x1, y1 };
 
     float const slop = (dm1.y - dm0.y) / (dm1.x - dm0.x);
+
+    if (dm0.x < xbl)
+    {
+        dm0.y += slop*(xbl-dm0.x);
+        dm0.x = xbl;
+    }
+
+    if (dm1.x > xbr)
+    {
+        dm1.y += slop*(xbr-dm1.x);
+        dm1.x = xbr;
+    }
 
     drawpoly_alpha = 0.f;
     drawpoly_blend = 0;
