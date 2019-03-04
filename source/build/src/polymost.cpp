@@ -3507,7 +3507,7 @@ static inline void vsp_finalize_init(int32_t const vcnt)
 }
 
 #define COMBINE_STRIPS
-#define COMBINE_STRIPS_IS_STILL_BUGGED
+// #define COMBINE_STRIPS_IS_STILL_BUGGED
 
 #ifdef COMBINE_STRIPS
 static inline void vsdel(int32_t const i)
@@ -3791,9 +3791,9 @@ skip: ;
 #ifdef COMBINE_STRIPS
     int i = vsp[0].n;
 
-    while (i)
+    do
     {
-        if ((vsp[i].cy[0] >= vsp[i].fy[0]) && (vsp[i].cy[1] >= vsp[i].fy[1]))
+        if ((vsp[i].cy[0]+DOMOST_OFFSET >= vsp[i].fy[0]) && (vsp[i].cy[1]+DOMOST_OFFSET >= vsp[i].fy[1]))
             vsp[i].ctag = vsp[i].ftag = -1;
 
         int const ni = vsp[i].n;
@@ -3810,6 +3810,7 @@ skip: ;
         }
         else i = ni;
     }
+    while (i);
 #endif
 }
 
