@@ -1579,7 +1579,16 @@ static int32_t const comprtexfmts_rgb[] = { GL_ETC1_RGB8_OES, 0 };
 static int32_t const comprtexfmts_rgba[] = { 0 };
 static int32_t const comprtexfmts_rgb_mask[] = { 0 };
 #else
-static int32_t const comprtexfmts_rgb[] = { GL_COMPRESSED_RGB8_ETC2, GL_ETC1_RGB8_OES, 0 };
+static int32_t const comprtexfmts_rgb[] =
+{
+#ifdef GL_COMPRESSED_RGB8_ETC2
+    GL_COMPRESSED_RGB8_ETC2,
+#endif
+#ifdef GL_ETC1_RGB8_OES
+    GL_ETC1_RGB8_OES,
+#endif
+    0
+    };
 // TODO: waiting on etcpak support for ETC2 with alpha
 static int32_t const comprtexfmts_rgba[] = { /*GL_COMPRESSED_RGBA8_ETC2_EAC,*/ 0 };
 static int32_t const comprtexfmts_rgb_mask[] = { /*GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2,*/ 0 };
@@ -1604,16 +1613,21 @@ static ETCFunction_t Polymost_PickETCFunction(int32_t const comprtexfmt)
 {
     switch (comprtexfmt)
     {
+# ifdef GL_ETC1_RGB8_OES
         case GL_ETC1_RGB8_OES:
             return ProcessRGB;
+# endif
 
+# ifdef GL_COMPRESSED_RGB8_ETC2
         case GL_COMPRESSED_RGB8_ETC2:
             return ProcessRGB_ETC2;
+# endif
 
 # if 0
         case GL_COMPRESSED_RGBA8_ETC2_EAC:
-
+            fallthrough__;
         case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+            fallthrough__;
 # endif
 
         default:
@@ -1771,6 +1785,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     else
         intexfmt = GL_RGBA8;
 #else
+    const int hasalpha  = !!(dameth & (DAMETH_HASALPHA|DAMETH_ONEBITALPHA));
     const int onebitalpha  = !!(dameth & DAMETH_ONEBITALPHA);
 
     int32_t const intexfmt = hasalpha ? (onebitalpha ? texfmt_rgb_mask : texfmt_rgba) : texfmt_rgb;
