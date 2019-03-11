@@ -481,7 +481,7 @@ void SCRIPT_Save(int32_t scripthandle, char const * filename)
     if (!filename) return;
     if (!SC(scripthandle)) return;
 
-    fp = buildvfs_fopen_write(filename);
+    fp = buildvfs_fopen_write_text(filename);
     if (!fp) return;
 
     numsect = SCRIPT_NumberSections(scripthandle);

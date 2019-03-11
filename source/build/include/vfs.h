@@ -16,6 +16,7 @@ using buildvfs_FILE = PHYSFS_File *;
 #define buildvfs_fwrite(p, s, n, fp) PHYSFS_writeBytes((fp), (p), (s)*(n))
 #define buildvfs_fopen_read(fn) PHYSFS_openRead(fn)
 #define buildvfs_fopen_write(fn) PHYSFS_openWrite(fn)
+#define buildvfs_fopen_write_text(fn) PHYSFS_openWrite(fn)
 #define buildvfs_fopen_append(fn) PHYSFS_openAppend(fn)
 static inline int buildvfs_fgetc(buildvfs_FILE fp)
 {
@@ -86,6 +87,7 @@ using buildvfs_FILE = FILE *;
 #define buildvfs_fwrite(p, s, n, fp) fwrite((p), (s), (n), (fp))
 #define buildvfs_fopen_read(fn) fopen((fn), "rb")
 #define buildvfs_fopen_write(fn) fopen((fn), "wb")
+#define buildvfs_fopen_write_text(fn) fopen((fn), "w")
 #define buildvfs_fopen_append(fn) fopen((fn), "ab")
 #define buildvfs_fgetc(fp) fgetc(fp)
 #define buildvfs_fputc(c, fp) fputc((c), (fp))

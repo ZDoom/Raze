@@ -764,7 +764,7 @@ void OSD_SetLogFile(const char *fn)
     if (!fn)
         return;
 
-    osdlog = buildvfs_fopen_write(fn);
+    osdlog = buildvfs_fopen_write_text(fn);
 
     if (osdlog)
     {
