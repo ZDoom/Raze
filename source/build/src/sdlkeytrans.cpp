@@ -206,6 +206,8 @@ static int32_t buildkeytranslationtable(void)
     MAP(SDL_SCANCODE_KP_3,		0x51);
     MAP(SDL_SCANCODE_KP_4,		0x4b);
     MAP(SDL_SCANCODE_KP_5,		0x4c);
+    MAP(SDL_SCANCODE_KP_CLEAR,		0x4c);
+    MAP(SDL_SCANCODE_CLEAR,		0x4c);
     MAP(SDL_SCANCODE_KP_6,		0x4d);
     MAP(SDL_SCANCODE_KP_7,		0x47);
     MAP(SDL_SCANCODE_KP_8,		0x48);
