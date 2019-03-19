@@ -6601,7 +6601,7 @@ MAIN_LOOP_RESTART:
     lockclock = 0;
 
     myplayer.fta = 0;
-    for (int & q : user_quote_time)
+    for (int32_t & q : user_quote_time)
         q = 0;
 
     Menu_Change(MENU_MAIN);
@@ -6861,7 +6861,7 @@ int G_DoMoveThings(void)
     if (g_RTSPlaying > 0)
         g_RTSPlaying--;
 
-    for (int & i : user_quote_time)
+    for (int32_t & i : user_quote_time)
     {
         if (i)
         {
