@@ -576,32 +576,28 @@ void polymost_resetVertexPointers()
 
 void polymost_disableProgram()
 {
-    if (videoGetRenderMode() == REND_POLYMOST)
-    {
-        useShaderProgram(0);
-    }
+    if (videoGetRenderMode() != REND_POLYMOST)
+        return;
+
+    useShaderProgram(0);
 }
 
 void polymost_resetProgram()
 {
-    if (videoGetRenderMode() == REND_POLYMOST)
-    {
-        if (r_enablepolymost2)
-        {
-            useShaderProgram(polymost2BasicShaderProgramID);
-        }
-        else
-        {
-            useShaderProgram(polymost1CurrentShaderProgramID);
-        }
+    if (videoGetRenderMode() != REND_POLYMOST)
+        return;
 
-        // ensure that palswapTexture and paletteTexture[curbasepal] is bound
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, palswapTextureID);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, paletteTextureIDs[curbasepal]);
-        glActiveTexture(GL_TEXTURE0);
-    }
+    if (r_enablepolymost2)
+        useShaderProgram(polymost2BasicShaderProgramID);
+    else
+        useShaderProgram(polymost1CurrentShaderProgramID);
+
+    // ensure that palswapTexture and paletteTexture[curbasepal] is bound
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, palswapTextureID);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, paletteTextureIDs[curbasepal]);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 static void polymost_setCurrentShaderProgram(uint32_t programID)
@@ -653,166 +649,150 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
 
 void polymost_setTexturePosSize(vec4f_t const &texturePosSize)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1TexturePosSize = texturePosSize;
-        glUniform4f(polymost1TexturePosSizeLoc, polymost1TexturePosSize.x, polymost1TexturePosSize.y, polymost1TexturePosSize.z, polymost1TexturePosSize.w);
-    }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
+        return;
+
+    polymost1TexturePosSize = texturePosSize;
+    glUniform4f(polymost1TexturePosSizeLoc, polymost1TexturePosSize.x, polymost1TexturePosSize.y, polymost1TexturePosSize.z, polymost1TexturePosSize.w);
 }
 
 static inline void polymost_setHalfTexelSize(vec2f_t const &halfTexelSize)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1HalfTexelSize = halfTexelSize;
-        glUniform2f(polymost1HalfTexelSizeLoc, polymost1HalfTexelSize.x, polymost1HalfTexelSize.y);
-    }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID || (halfTexelSize.x == polymost1HalfTexelSize.x && halfTexelSize.y == polymost1HalfTexelSize.y))
+        return;
+
+    polymost1HalfTexelSize = halfTexelSize;
+    glUniform2f(polymost1HalfTexelSizeLoc, polymost1HalfTexelSize.x, polymost1HalfTexelSize.y);
 }
 
 static void polymost_setPalswap(uint32_t index)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        static uint32_t lastPalswapIndex = 0;
-        if (index == lastPalswapIndex)
-        {
-            return;
-        }
+    static uint32_t lastPalswapIndex;
 
-        lastPalswapIndex = index;
-        polymost1PalswapPos.x = index*polymost1PalswapSize.x;
-        polymost1PalswapPos.y = floorf(polymost1PalswapPos.x);
-        polymost1PalswapPos.x = polymost1PalswapPos.x - polymost1PalswapPos.y + (0.5f/PALSWAP_TEXTURE_SIZE);
-        polymost1PalswapPos.y = polymost1PalswapPos.y * polymost1PalswapSize.y + (0.5f/PALSWAP_TEXTURE_SIZE);
-        glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
-    }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID || index == lastPalswapIndex)
+        return;
+
+    lastPalswapIndex = index;
+    polymost1PalswapPos.x = index*polymost1PalswapSize.x;
+    polymost1PalswapPos.y = floorf(polymost1PalswapPos.x);
+    polymost1PalswapPos.x = polymost1PalswapPos.x - polymost1PalswapPos.y + (0.5f/PALSWAP_TEXTURE_SIZE);
+    polymost1PalswapPos.y = polymost1PalswapPos.y * polymost1PalswapSize.y + (0.5f/PALSWAP_TEXTURE_SIZE);
+    glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
 }
 
 static void polymost_setPalswapSize(uint32_t width, uint32_t height)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1PalswapSize.x = width*(1.f/PALSWAP_TEXTURE_SIZE);
-        polymost1PalswapSize.y = height*(1.f/PALSWAP_TEXTURE_SIZE);
-        polymost1PalswapInnerSize.x = (width-1)*(1.f/PALSWAP_TEXTURE_SIZE);
-        polymost1PalswapInnerSize.y = (height-1)*(1.f/PALSWAP_TEXTURE_SIZE);
-        glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
-    }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
+        return;
+
+    polymost1PalswapSize.x = width*(1.f/PALSWAP_TEXTURE_SIZE);
+    polymost1PalswapSize.y = height*(1.f/PALSWAP_TEXTURE_SIZE);
+    polymost1PalswapInnerSize.x = (width-1)*(1.f/PALSWAP_TEXTURE_SIZE);
+    polymost1PalswapInnerSize.y = (height-1)*(1.f/PALSWAP_TEXTURE_SIZE);
+    glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
 }
 
 static void polymost_setShade(int32_t shade)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        if (!r_usetileshades || (globalflags & GLOBAL_NO_GL_TILESHADES))
-            shade = 0;
-        else
-            shade = /*getpalookup(r_usetileshades == 1, */shade/*)*/;
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
+        return;
 
-        static int32_t lastShade = 0;
-        static int32_t lastNumShades = 0;
-        if (shade != lastShade)
-        {
-            lastShade = shade;
-            polymost1Shade = shade;
-            glUniform1f(polymost1ShadeLoc, polymost1Shade);
-        }
-        if (numshades != lastNumShades)
-        {
-            lastNumShades = numshades;
-            polymost1NumShades = numshades;
-            glUniform1f(polymost1NumShadesLoc, polymost1NumShades);
-        }
+    if (!r_usetileshades || (globalflags & GLOBAL_NO_GL_TILESHADES))
+        shade = 0;
+#if 0
+    else
+        shade = getpalookup(r_usetileshades == 1, shade);
+#endif
+
+    static int32_t lastShade;
+    static int32_t lastNumShades;
+
+    if (shade != lastShade)
+    {
+        lastShade = shade;
+        polymost1Shade = shade;
+        glUniform1f(polymost1ShadeLoc, polymost1Shade);
+    }
+
+    if (numshades != lastNumShades)
+    {
+        lastNumShades = numshades;
+        polymost1NumShades = numshades;
+        glUniform1f(polymost1NumShadesLoc, polymost1NumShades);
     }
 }
 
 static void polymost_setVisibility(float visibility)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1VisFactor = visibility*fviewingrange*(1.f/(64.f*65536.f));
-        glUniform1f(polymost1VisFactorLoc, polymost1VisFactor);
-    }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
+        return;
+
+    polymost1VisFactor = visibility * fviewingrange * (1.f / (64.f * 65536.f));
+    glUniform1f(polymost1VisFactorLoc, polymost1VisFactor);
 }
 
 void polymost_setFogEnabled(char fogEnabled)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1FogEnabled = fogEnabled;
-        glUniform1f(polymost1FogEnabledLoc, polymost1FogEnabled);
-    }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID || fogEnabled == polymost1FogEnabled)
+        return;
+
+    polymost1FogEnabled = fogEnabled;
+    glUniform1f(polymost1FogEnabledLoc, polymost1FogEnabled);
 }
 
 void polymost_useColorOnly(char useColorOnly)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1UseColorOnly = useColorOnly;
-        glUniform1f(polymost1UseColorOnlyLoc, polymost1UseColorOnly);
-    }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID || useColorOnly == polymost1UseColorOnly)
+        return;
+
+    polymost1UseColorOnly = useColorOnly;
+    glUniform1f(polymost1UseColorOnlyLoc, polymost1UseColorOnly);
 }
 
 void polymost_usePaletteIndexing(char usePaletteIndexing)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1UsePalette = usePaletteIndexing;
-        glUniform1f(polymost1UsePaletteLoc, polymost1UsePalette);
-    }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID || usePaletteIndexing == polymost1UsePalette)
+        return;
+
+    polymost1UsePalette = usePaletteIndexing;
+    glUniform1f(polymost1UsePaletteLoc, polymost1UsePalette);
 }
 
 void polymost_useDetailMapping(char useDetailMapping)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        if (useDetailMapping == polymost1UseDetailMapping)
-        {
-            return;
-        }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID || useDetailMapping == polymost1UseDetailMapping)
+        return;
 
-        if (useDetailMapping &&
-            currentShaderProgramID != polymost1ExtendedShaderProgramID)
-        {
-            polymost_setCurrentShaderProgram(polymost1ExtendedShaderProgramID);
-        }
+    if (useDetailMapping)
+        polymost_setCurrentShaderProgram(polymost1ExtendedShaderProgramID);
 
-        polymost1UseDetailMapping = useDetailMapping;
-        glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
-    }
+    polymost1UseDetailMapping = useDetailMapping;
+    glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
 }
 
 void polymost_useGlowMapping(char useGlowMapping)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        if (useGlowMapping == polymost1UseGlowMapping)
-        {
-            return;
-        }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID || useGlowMapping == polymost1UseGlowMapping)
+        return;
 
-        if (useGlowMapping &&
-            currentShaderProgramID != polymost1ExtendedShaderProgramID)
-        {
-            polymost_setCurrentShaderProgram(polymost1ExtendedShaderProgramID);
-        }
+    if (useGlowMapping)
+        polymost_setCurrentShaderProgram(polymost1ExtendedShaderProgramID);
 
-        polymost1UseGlowMapping = useGlowMapping;
-        glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
-    }
+    polymost1UseGlowMapping = useGlowMapping;
+    glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
 }
 
 void polymost_npotEmulation(char npotEmulation, float factor, float xOffset)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1NPOTEmulation = npotEmulation;
-        glUniform1f(polymost1NPOTEmulationLoc, polymost1NPOTEmulation);
-        polymost1NPOTEmulationFactor = factor;
-        glUniform1f(polymost1NPOTEmulationFactorLoc, polymost1NPOTEmulationFactor);
-        polymost1NPOTEmulationXOffset = xOffset;
-        glUniform1f(polymost1NPOTEmulationXOffsetLoc, polymost1NPOTEmulationXOffset);
-    }
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID || npotEmulation == polymost1NPOTEmulation)
+        return;
+
+    polymost1NPOTEmulation = npotEmulation;
+    glUniform1f(polymost1NPOTEmulationLoc, polymost1NPOTEmulation);
+    polymost1NPOTEmulationFactor = factor;
+    glUniform1f(polymost1NPOTEmulationFactorLoc, polymost1NPOTEmulationFactor);
+    polymost1NPOTEmulationXOffset = xOffset;
+    glUniform1f(polymost1NPOTEmulationXOffsetLoc, polymost1NPOTEmulationXOffset);
 }
 
 void polymost_activeTexture(GLenum texture)
@@ -3004,9 +2984,7 @@ static void polymost2_drawVBO(GLenum mode,
 static void polymost_updatePalette()
 {
     if (videoGetRenderMode() != REND_POLYMOST)
-    {
         return;
-    }
 
     polymost_setPalswap(globalpal);
     polymost_setShade(globalshade);
@@ -8393,8 +8371,7 @@ void polymost_fillpolygon(int32_t npoints)
             polymost_usePaletteIndexing(false);
     }
 
-    if (videoGetRenderMode() == REND_POLYMOST)
-        polymost_updatePalette();
+    polymost_updatePalette();
 
     float const f = getshadefactor(globalshade);
 
@@ -8473,8 +8450,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
             polymost_usePaletteIndexing(false);
     }
 
-    if (videoGetRenderMode() == REND_POLYMOST)
-        polymost_updatePalette();
+    polymost_updatePalette();
 
     glDisable(GL_ALPHA_TEST);
 
