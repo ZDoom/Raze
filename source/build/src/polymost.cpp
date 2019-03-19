@@ -8,25 +8,13 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 
 #ifdef USE_OPENGL
 
-#include "compat.h"
 #include "build.h"
-#include "glad/glad.h"
-#include "mdsprite.h"
-#include "pragmas.h"
-#include "baselayer.h"
-#include "osd.h"
-#include "engine_priv.h"
-#include "hightile.h"
-#include "polymost.h"
-#include "polymer.h"
-#include "cache1d.h"
-#include "kplib.h"
-#include "texcache.h"
 #include "common.h"
-#include "palette.h"
+#include "engine_priv.h"
+#include "kplib.h"
+#include "mdsprite.h"
+#include "polymost.h"
 #include "../../glbackend/glbackend.h"
-
-#include "vfs.h"
 
 extern char textfont[2048], smalltextfont[2048];
 
