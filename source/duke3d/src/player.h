@@ -45,6 +45,8 @@ extern int32_t g_mostConcurrentPlayers;
 #define PCROUCHINCREMENT            (2048+768)
 #define PMINHEIGHT                  (2048)
 
+#define PCRACKTIME                  777
+
 #define TRIPBOMB_TRIPWIRE       0x00000001
 #define TRIPBOMB_TIMER          0x00000002
 

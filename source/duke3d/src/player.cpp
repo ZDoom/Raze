@@ -1579,7 +1579,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
         startPos            = *(vec3_t *)pPlayer;
         startPos.z          += pPlayer->pyoff + ZOFFSET6;
         shootAng          = fix16_to_int(pPlayer->q16ang);
-        pPlayer->crack_time = 777;
+        pPlayer->crack_time = PCRACKTIME;
     }
     else
     {
@@ -3147,7 +3147,7 @@ static int32_t P_DoCounters(int playerNum)
         if (--pPlayer->crack_time == 0)
         {
             pPlayer->knuckle_incs = 1;
-            pPlayer->crack_time   = 777;
+            pPlayer->crack_time   = PCRACKTIME;
         }
     }
 
@@ -3903,7 +3903,7 @@ static void P_ProcessWeapon(int playerNum)
     else if ((playerBits & (1 << 2)) && (*weaponFrame) == 0 && pPlayer->fist_incs == 0 &&
              pPlayer->last_weapon == -1 && (pPlayer->weapon_pos == 0 || pPlayer->holster_weapon == 1))
     {
-        pPlayer->crack_time = 777;
+        pPlayer->crack_time = PCRACKTIME;
 
         if (pPlayer->holster_weapon == 1)
         {
@@ -4496,7 +4496,7 @@ static void P_DoJetpack(int const playerNum, int const playerBits, int const pla
         if (VM_OnEvent(EVENT_SOARUP, pPlayer->i, playerNum) == 0)
         {
             pPlayer->pos.z -= zAdjust;
-            pPlayer->crack_time = 777;
+            pPlayer->crack_time = PCRACKTIME;
         }
     }
 
@@ -4505,7 +4505,7 @@ static void P_DoJetpack(int const playerNum, int const playerBits, int const pla
         if (VM_OnEvent(EVENT_SOARDOWN, pPlayer->i, playerNum) == 0)
         {
             pPlayer->pos.z += zAdjust;
-            pPlayer->crack_time = 777;
+            pPlayer->crack_time = PCRACKTIME;
         }
     }
 
@@ -5069,7 +5069,7 @@ void P_ProcessInput(int playerNum)
                     if (pPlayer->jumping_toggle == 0)
                     {
                         pPlayer->pos.z += PCROUCHINCREMENT;
-                        pPlayer->crack_time = 777;
+                        pPlayer->crack_time = PCRACKTIME;
                     }
                 }
             }
@@ -5152,7 +5152,7 @@ void P_ProcessInput(int playerNum)
                                                                : fix16_mul(inputAng, fix16_from_int(ksgn(velocityModifier)));
         pPlayer->q16ang       += pPlayer->q16angvel;
         pPlayer->q16ang       &= 0x7FFFFFF;
-        pPlayer->crack_time = 777;
+        pPlayer->crack_time = PCRACKTIME;
     }
 
     if (pPlayer->spritebridge == 0)
@@ -5203,7 +5203,7 @@ void P_ProcessInput(int playerNum)
 
     if (pPlayer->vel.x || pPlayer->vel.y || g_player[playerNum].inputBits->fvel || g_player[playerNum].inputBits->svel)
     {
-        pPlayer->crack_time = 777;
+        pPlayer->crack_time = PCRACKTIME;
 
 #ifndef EDUKE32_STANDALONE
         if (!IONMAIDEN)
