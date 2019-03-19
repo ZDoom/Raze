@@ -1598,6 +1598,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
             }
         }
 
+#ifndef EDUKE32_STANDALONE
 #ifdef POLYMER
         switch (DYNAMICTILEMAP(projecTile))
         {
@@ -1622,6 +1623,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
                 break;
             }
 #endif // POLYMER
+#endif // !EDUKE32_STANDALONE
     }
 
 #ifdef EDUKE32_STANDALONE
@@ -5278,13 +5280,13 @@ HORIZONLY:;
             updatesectorz(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z, &pPlayer->cursectnum);
         }
 #endif
-        int const spriteNum = IONMAIDEN ? clipmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
+        int const touchObject = IONMAIDEN ? clipmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
                                                    pPlayer->vel.y + (pPlayer->fric.y << 9), pPlayer->clipdist, (4L << 8), stepHeight, CLIPMASK0)
                                         : clipmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->vel.x, pPlayer->vel.y, pPlayer->clipdist,
                                                    (4L << 8), stepHeight, CLIPMASK0);
 
-        if (spriteNum)
-            P_CheckTouchDamage(pPlayer, spriteNum);
+        if (touchObject)
+            P_CheckTouchDamage(pPlayer, touchObject);
 
         if (IONMAIDEN)
             pPlayer->fric.x = pPlayer->fric.y = 0;
