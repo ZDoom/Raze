@@ -1054,7 +1054,8 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 day = walldist; if (dx < 0) day = -day;
                 addclipline(x1+dax, y1+day, x2+dax, y2+day, objtype);
             }
-            else if (wal->nextsector>=0)
+
+            if (wal->nextsector>=0)
             {
                 for (i=clipsectnum-1; i>=0; i--)
                     if (wal->nextsector == clipsectorlist[i]) break;
@@ -1253,40 +1254,25 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             return retval;
         }
 
-    *sectnum = -1; tempint1 = INT32_MAX;
-    for (j=numsectors-1; j>=0; j--)
-        if (inside(pos->x, pos->y, j) == 1)
-        {
-            if (sector[j].ceilingstat&2)
-                tempint2 = getceilzofslope(j, pos->x, pos->y) - pos->z;
-            else
-                tempint2 = sector[j].ceilingz - pos->z;
+    updatesector(pos->x, pos->y, sectnum);
 
-            if (tempint2 > 0)
-            {
-                if (tempint2 < tempint1)
-                {
-                    *sectnum = j; tempint1 = tempint2;
-                }
-            }
-            else
-            {
-                if (sector[j].floorstat&2)
-                    tempint2 = pos->z - getflorzofslope(j, pos->x, pos->y);
-                else
-                    tempint2 = pos->z - sector[j].floorz;
+    j = *sectnum;
+    tempint1 = 0;
 
-                if (tempint2 <= 0)
-                {
-                    *sectnum = j;
-                    return retval;
-                }
-                if (tempint2 < tempint1)
-                {
-                    *sectnum = j; tempint1 = tempint2;
-                }
-            }
-        }
+    int const floorz = (sector[j].floorstat & 2) ? getflorzofslope(j, pos->x, pos->y) : sector[j].floorz;
+
+    if (pos->z + flordist - floorz <= 0)
+        tempint1++;
+    else
+    {
+        int const ceilz = (sector[j].ceilingstat & 2) ? getceilzofslope(j, pos->x, pos->y) : sector[j].ceilingz;
+
+        if (pos->z - ceildist - ceilz > 0)
+            tempint1++;
+    }
+
+    if (tempint1)
+        *sectnum = j;
 
     return retval;
 }
