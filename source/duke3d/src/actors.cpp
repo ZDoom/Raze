@@ -441,45 +441,59 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 
     setsprite(spriteNum, (vec3_t *)pSprite);
 
-    if (clipDist >= 0)
+    if (clipDist < 0)
     {
-        // use that value
-    }
-    else if (A_CheckSpriteFlags(spriteNum, SFLAG_REALCLIPDIST))
-        clipDist = pSprite->clipdist<<2;
-    else if (isEnemy)
-    {
-        if (pSprite->xrepeat > 60)
-            clipDist = 1024;
+        if (A_CheckSpriteFlags(spriteNum, SFLAG_REALCLIPDIST))
+            clipDist = pSprite->clipdist << 2;
+        else if (isEnemy)
+        {
+            if (pSprite->xrepeat > 60)
+                clipDist = 1024;
 #ifndef EDUKE32_STANDALONE
-        else if (pSprite->picnum == LIZMAN)
-            clipDist = 292;
+            else if (pSprite->picnum == LIZMAN)
+                clipDist = 292;
 #endif
-        else if (A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY))
-            clipDist = pSprite->clipdist<<2;
+            else if (A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY))
+                clipDist = pSprite->clipdist << 2;
+            else
+                clipDist = 192;
+        }
         else
-            clipDist = 192;
-    }
-    else
-    {
-        if (pSprite->statnum == STAT_PROJECTILE && (SpriteProjectile[spriteNum].workslike & PROJECTILE_REALCLIPDIST) == 0)
-            clipDist = 8;
-        else
-            clipDist = pSprite->clipdist<<2;
+        {
+            if (pSprite->statnum == STAT_PROJECTILE && (SpriteProjectile[spriteNum].workslike & PROJECTILE_REALCLIPDIST) == 0)
+                clipDist = 8;
+            else
+                clipDist = pSprite->clipdist << 2;
+        }
     }
 
     int16_t   newSectnum = pSprite->sectnum;
 #ifndef EDUKE32_STANDALONE
     int const oldSectnum = newSectnum;
 #endif
-    int32_t   newZ       = pSprite->z - 2 * tilesiz[pSprite->picnum].y * pSprite->yrepeat;
-    int const oldZ       = pSprite->z;
 
     // Handle horizontal movement first.
-    pSprite->z = newZ;
-    int returnValue =
-    clipmove((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, ZOFFSET6, ZOFFSET6, clipType);
-    pSprite->z = oldZ;
+
+    int returnValue;
+    int const diffZ = spriteheightofs(spriteNum, NULL, 0);
+    int newZ = pSprite->z - diffZ;
+
+    pSprite->z -= diffZ >> 1;
+    switch (pSprite->statnum)
+    {
+        default:
+        {
+            returnValue = clipmove((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, diffZ >> 1, diffZ >> 1, clipType);
+            break;
+        }
+
+        case STAT_PROJECTILE:
+        {
+            returnValue = clipmovex((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, diffZ >> 2, diffZ >> 2, clipType, 1);
+            break;
+        }
+    }
+    pSprite->z += diffZ >> 1;
 
     // Testing: For some reason the assert below this was tripping for clients
     EDUKE32_UNUSED int16_t   dbg_ClipMoveSectnum = newSectnum;
@@ -487,8 +501,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     if (isEnemy)
     {
         // Handle potential stayput condition (map-provided or hard-coded).
-        if (newSectnum < 0
-            || ((actor[spriteNum].stayput >= 0 && actor[spriteNum].stayput != newSectnum)
+        if (newSectnum < 0 || ((actor[spriteNum].stayput >= 0 && actor[spriteNum].stayput != newSectnum)
 #ifndef EDUKE32_STANDALONE
                 || (pSprite->picnum == BOSS2 && pSprite->pal == 0 && sector[newSectnum].lotag != ST_3)
                 || ((pSprite->picnum == BOSS1 || pSprite->picnum == BOSS2) && sector[newSectnum].lotag == ST_1_ABOVE_WATER)
@@ -2855,25 +2868,14 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
                 projZvel >>= 1;
             }
 
-            uint16_t backupCstat = 0;
-
-            if (!projectileMoved && (unsigned)pSprite->owner < MAXSPRITES)
-            {
-                backupCstat = sprite[pSprite->owner].cstat;
-                sprite[pSprite->owner].cstat &= (uint16_t)~CSTAT_SPRITE_BLOCK_HITSCAN;
-            }
-
             do
             {
                 vec3_t tmpvect = { (projVel * (sintable[(pSprite->ang + 512) & 2047])) >> 14,
                                    (projVel * (sintable[pSprite->ang & 2047])) >> 14, projZvel };
                 Bmemcpy(&davect, pSprite, sizeof(vec3_t));
-                otherSprite = A_MoveSprite(spriteNum, &tmpvect, (A_CheckSpriteFlags(spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
+                otherSprite = A_MoveSprite(spriteNum, &tmpvect, (!projectileMoved || A_CheckSpriteFlags(spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
             }
             while (!otherSprite && --projMoveCnt > 0);
-
-            if (backupCstat)
-                sprite[pSprite->owner].cstat = backupCstat;
 
             if (!(pProj->workslike & PROJECTILE_BOUNCESOFFWALLS) &&  // NOT_BOUNCESOFFWALLS_YVEL
                 (unsigned)pSprite->yvel < MAXSPRITES
@@ -3095,6 +3097,9 @@ ACTOR_STATIC void G_MoveWeapons(void)
             case SPIT__STATIC:
             case COOLEXPLOSION1__STATIC:
             {
+                int const projectileMoved = SpriteProjectile[spriteNum].workslike & PROJECTILE_MOVED;
+                SpriteProjectile[spriteNum].workslike |= PROJECTILE_MOVED;
+
                 if (pSprite->picnum == COOLEXPLOSION1)
                     if (!S_CheckSoundPlaying(WIERDSHOT_FLY))
                         A_PlaySound(WIERDSHOT_FLY, spriteNum);
@@ -3123,7 +3128,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 vec3_t const tmpvect = { (spriteXvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14,
                                          (spriteXvel * (sintable[pSprite->ang & 2047])) >> 14, spriteZvel };
 
-                int moveSprite = A_MoveSprite(spriteNum, &tmpvect, (A_CheckSpriteFlags(spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
+                int moveSprite = A_MoveSprite(spriteNum, &tmpvect, (!projectileMoved || A_CheckSpriteFlags(spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
 
                 if (pSprite->picnum == RPG && (unsigned) pSprite->yvel < MAXSPRITES)  // RPG_YVEL
                     if (FindDistance2D(pSprite->x - sprite[pSprite->yvel].x, pSprite->y - sprite[pSprite->yvel].y) < 256)
