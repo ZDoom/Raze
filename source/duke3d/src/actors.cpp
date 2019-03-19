@@ -425,6 +425,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     // check to make sure the netcode didn't leave a deleted sprite in the sprite lists.
     Bassert(pSprite->sectnum < MAXSECTORS);
 
+#ifndef EDUKE32_STANDALONE
     if (pSprite->statnum == STAT_MISC || (isEnemy && pSprite->xrepeat < 4))
     {
         pSprite->x += change->x;
@@ -436,6 +437,9 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 
         return 0;
     }
+#endif
+
+    setsprite(spriteNum, (vec3_t *)pSprite);
 
     if (clipDist >= 0)
     {
@@ -447,8 +451,10 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     {
         if (pSprite->xrepeat > 60)
             clipDist = 1024;
+#ifndef EDUKE32_STANDALONE
         else if (pSprite->picnum == LIZMAN)
             clipDist = 292;
+#endif
         else if (A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY))
             clipDist = pSprite->clipdist<<2;
         else
