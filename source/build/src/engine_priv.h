@@ -254,8 +254,8 @@ extern int32_t rxi[8], ryi[8];
 // For GL_EXP2 fog:
 #define FOGSCALE 0.0000768f
 
-void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal);
-void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor);
+void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal);
+void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float factor);
 #endif
 
 extern void get_wallspr_points(uspritetype const * spr, int32_t *x1, int32_t *x2,
