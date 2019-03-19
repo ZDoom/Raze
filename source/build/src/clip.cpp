@@ -1108,7 +1108,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             {
                 const int32_t daz = spr->z + spriteheightofs(j, &k, 1);
 
-                if (pos->z > daz-k-flordist && pos->z < daz+ceildist)
+                if (pos->z > daz-k-flordist && pos->z < spr->z + ceildist)
                 {
                     get_wallspr_points(spr, &x1, &x2, &y1, &y2);
 
