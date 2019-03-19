@@ -2751,7 +2751,7 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 384:
-        setup_blend(0, 0);
+        setup_blend(0, 1);
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     }
@@ -3364,10 +3364,39 @@ static void tslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int3
         int const i = (sloptable[(bz>>6)+8192]); bz += bzinc;
         uint32_t u = bx + xtou*i;
         uint32_t v = by + ytov*i;
-        uint8_t ch = *(uint8_t *)(slopalptr[0] + buf[((u>>(32-logx))<<logy)+(v>>(32-logy))]);
-
+        uint8_t ch = buf[((u>>(32-logx))<<logy)+(v>>(32-logy))];
         if (ch != 255)
-            *p = trans[transmode ? *p|(pal[ch]<<8) : (*p<<8)|pal[ch]];
+        {
+            ch = *(uint8_t *)(slopalptr[0] + ch);
+            *p = trans[transmode ? *p|(ch<<8) : (*p<<8)|ch];
+        }
+
+        slopalptr--;
+        p += pinc;
+    }
+    while (--cnt);
+}
+
+// cnt iterations
+static void mslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int32_t bx, int32_t by)
+{
+    const char *const A_C_RESTRICT buf = ggbuf;
+    const char *const A_C_RESTRICT pal = ggpal;
+    const int32_t bzinc = (asm1>>3), pinc = ggpinc;
+
+    const uint32_t xtou = globalx3, ytov = globaly3;
+    const int32_t logx = gglogx, logy = gglogy;
+
+    int32_t bz = asm3;
+
+    do
+    {
+        int const i = (sloptable[(bz>>6)+8192]); bz += bzinc;
+        uint32_t u = bx + xtou*i;
+        uint32_t v = by + ytov*i;
+        uint8_t ch = buf[((u>>(32-logx))<<logy)+(v>>(32-logy))];
+        if (ch != 255)
+            *p = *(uint8_t *)(slopalptr[0] + ch);
 
         slopalptr--;
         p += pinc;
@@ -3539,10 +3568,19 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
             globalx3 = (globalx2>>10);
             globaly3 = (globaly2>>10);
             asm3 = mulscale16(y2,globalzd) + (globalzx>>6);
-            if ((globalorientation&256)==0)
+            switch (globalorientation&0x180)
+            {
+            case 0:
                 slopevlin(ylookup[y2]+x+frameoffset,krecipasm(asm3>>3),(intptr_t)nptr2,y2-y1+1,globalx1,globaly1);
-            else
+                break;
+            case 128:
+                mslopevlin((uint8_t *)(ylookup[y2]+x+frameoffset),nptr2,y2-y1+1,globalx1,globaly1);
+                break;
+            case 256:
+            case 384:
                 tslopevlin((uint8_t *)(ylookup[y2]+x+frameoffset),nptr2,y2-y1+1,globalx1,globaly1);
+                break;
+            }
 
             if ((x&15) == 0) faketimerhandler();
         }
