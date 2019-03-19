@@ -4625,12 +4625,27 @@ void P_ProcessInput(int playerNum)
         pPlayer->cursectnum = 0;
     }
 
-    int sectorLotag       = sector[pPlayer->cursectnum].lotag;
+    int sectorLotag = sector[pPlayer->cursectnum].lotag;
+    // sectorLotag can be set to 0 later on, but the same block sets spritebridge to 1
+    int stepHeight = (sectorLotag == ST_1_ABOVE_WATER || pPlayer->spritebridge == 1) ? pPlayer->autostep_sbw : pPlayer->autostep;
+
+    if (pPlayer->on_ground && pPlayer->pos.z + stepHeight > actor[pPlayer->i].floorz - 128)
+        stepHeight -= pPlayer->pos.z + stepHeight - actor[pPlayer->i].floorz + 128;
+
+    int32_t floorZ, ceilZ, highZhit, lowZhit, dummy;
+
+    pPlayer->pos.z += stepHeight;
+    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - 16, CLIPMASK0);
+    pPlayer->pos.z -= stepHeight;
+
+    int32_t ceilZ2 = ceilZ;
+    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - 24, CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
+
+    if ((highZhit & 49152) == 49152 && (sprite[highZhit & (MAXSPRITES - 1)].cstat & CSTAT_SPRITE_BLOCK) != CSTAT_SPRITE_BLOCK)
+        ceilZ = ceilZ2;
+
     pPlayer->spritebridge = 0;
     pPlayer->sbs          = 0;
-
-    int32_t floorZ, ceilZ, highZhit, lowZhit;
-    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - 1, CLIPMASK0);
 
 #ifdef YAX_ENABLE
     getzsofslope_player(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y, &pPlayer->truecz, &pPlayer->truefz);
@@ -4679,18 +4694,18 @@ void P_ProcessInput(int playerNum)
         pPlayer->q16horizoff = min(pPlayer->q16horizoff, 0);
     }
 
-    if (highZhit >= 0 && (highZhit&49152) == 49152)
+    if ((highZhit & 49152) == 49152)
     {
-        highZhit &= (MAXSPRITES-1);
+        int const spriteNum = highZhit & (MAXSPRITES-1);
 
-        if (sprite[highZhit].statnum == STAT_ACTOR && sprite[highZhit].extra >= 0)
+        if (sprite[spriteNum].statnum == STAT_ACTOR && sprite[spriteNum].extra >= 0)
         {
             highZhit = 0;
             ceilZ    = pPlayer->truecz;
         }
     }
 
-    if (lowZhit >= 0 && (lowZhit&49152) == 49152)
+    if ((lowZhit & 49152) == 49152)
     {
         int spriteNum = lowZhit&(MAXSPRITES-1);
 
@@ -4698,9 +4713,8 @@ void P_ProcessInput(int playerNum)
                 clipshape_idx_for_sprite((uspritetype *)&sprite[spriteNum], -1) >= 0)
         {
             // EDuke32 extension: xvel of 1 makes a sprite be never regarded as a bridge.
-            if ((sprite[spriteNum].xvel & 1) == 0 /*&&
-                (sprite[spriteNum].z - ((tilesiz[sprite[spriteNum].picnum].y * sprite[spriteNum].yrepeat) << 2))
-                < (pSprite->z - (PHEIGHT - pPlayer->autostep))*/)
+
+            if ((sprite[spriteNum].xvel & 1) == 0)
             {
                 sectorLotag             = 0;
                 pPlayer->footprintcount = 0;
@@ -4948,7 +4962,6 @@ void P_ProcessInput(int playerNum)
         if (pPlayer->pos.z < (floorZ-(floorZOffset<<8)))  //falling
         {
             // not jumping or crouching
-
             if ((!TEST_SYNC_KEY(playerBits, SK_JUMP) && !TEST_SYNC_KEY(playerBits, SK_CROUCH)) && pPlayer->on_ground &&
                 (sector[pPlayer->cursectnum].floorstat & 2) && pPlayer->pos.z >= (floorZ - (floorZOffset << 8) - ZOFFSET2))
                 pPlayer->pos.z = floorZ - (floorZOffset << 8);
@@ -5033,9 +5046,9 @@ void P_ProcessInput(int playerNum)
             {
                 pPlayer->pos.z += ((floorZ - (floorZOffset << 7)) - pPlayer->pos.z) >> 1;  // Smooth on the water
 
-                if (pPlayer->on_warping_sector == 0 && pPlayer->pos.z > floorZ - ZOFFSET2)
+                if (pPlayer->on_warping_sector == 0 && pPlayer->pos.z > floorZ - PCROUCHHEIGHT)
                 {
-                    pPlayer->pos.z = floorZ - ZOFFSET2;
+                    pPlayer->pos.z = floorZ - PCROUCHHEIGHT;
                     pPlayer->vel.z >>= 1;
                 }
             }
@@ -5047,35 +5060,45 @@ void P_ProcessInput(int playerNum)
                 // crouching
                 if (VM_OnEvent(EVENT_CROUCH,pPlayer->i,playerNum) == 0)
                 {
-                    pPlayer->pos.z += (2048+768);
-                    pPlayer->crack_time = 777;
+                    if (pPlayer->jumping_toggle == 0)
+                    {
+                        pPlayer->pos.z += PCROUCHINCREMENT;
+                        pPlayer->crack_time = 777;
+                    }
                 }
             }
 
             // jumping
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle == 1)
-                pPlayer->jumping_toggle = 0;
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle)
+                pPlayer->jumping_toggle--;
             else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle == 0)
             {
-                if (pPlayer->jumping_counter == 0)
-                    if ((floorZ-ceilZ) > (56<<8))
+                getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &dummy, &dummy, &dummy, pPlayer->clipdist - 24, CLIPMASK0);
+
+                if ((floorZ-ceilZ) > (56<<8))
+                {
+                    if (VM_OnEvent(EVENT_JUMP,pPlayer->i,playerNum) == 0)
                     {
-                        if (VM_OnEvent(EVENT_JUMP,pPlayer->i,playerNum) == 0)
-                        {
+                        pPlayer->jumping_toggle = 1;
+
+                        if (!TEST_SYNC_KEY(playerBits, SK_CROUCH))
                             pPlayer->jumping_counter = 1;
-                            pPlayer->jumping_toggle = 1;
+                        else
+                        {
+                            pPlayer->jumping_toggle = 2;
+
+                            if (myconnectindex == playerNum)
+                                CONTROL_ClearButton(gamefunc_Jump);
                         }
                     }
+                }
             }
-
-            if (pPlayer->jumping_counter && !TEST_SYNC_KEY(playerBits, SK_JUMP))
-                pPlayer->jumping_toggle = 0;
         }
 
         if (pPlayer->jumping_counter)
         {
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle == 1)
-                pPlayer->jumping_toggle = 0;
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle)
+                pPlayer->jumping_toggle--;
 
             if (pPlayer->jumping_counter < (1024+256))
             {
@@ -5098,15 +5121,12 @@ void P_ProcessInput(int playerNum)
             }
         }
 
-        pPlayer->pos.z += pPlayer->vel.z;
-
-        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != sector[pPlayer->cursectnum].ceilingz) && pPlayer->pos.z < (ceilZ+ZOFFSET6))
+        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->pos.z < (ceilZ + PCROUCHINCREMENT))
         {
             pPlayer->jumping_counter = 0;
             if (pPlayer->vel.z < 0)
                 pPlayer->vel.x = pPlayer->vel.y = 0;
             pPlayer->vel.z = 128;
-            pPlayer->pos.z = ceilZ+ZOFFSET6;
         }
     }
 
@@ -5244,14 +5264,11 @@ void P_ProcessInput(int playerNum)
         }
     }
 
+    // This makes the player view lower when shrunk. This needs to happen before clipmove().
+    if (!IONMAIDEN && pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER && playerShrunk)
+        pPlayer->pos.z += ZOFFSET5 - (sprite[pPlayer->i].yrepeat<<8);
+
 HORIZONLY:;
-    int stepHeight = (sectorLotag == ST_1_ABOVE_WATER || pPlayer->spritebridge == 1) ? pPlayer->autostep_sbw : pPlayer->autostep;
-
-#ifdef EDUKE32_TOUCH_DEVICES
-    if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
-        stepHeight = pPlayer->autostep_sbw;
-#endif
-
     if (ud.noclip)
     {
         pPlayer->pos.x += pPlayer->vel.x >> 14;
@@ -5292,11 +5309,6 @@ HORIZONLY:;
             pPlayer->fric.x = pPlayer->fric.y = 0;
     }
 
-    // This makes the player view lower when shrunk.  NOTE that it can get the
-    // view below the sector floor (and does, when on the ground).
-    if (pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER && playerShrunk)
-        pPlayer->pos.z += ZOFFSET5;
-
     if (pPlayer->jetpack_on == 0)
     {
         if (pSprite->xvel > 16)
@@ -5305,16 +5317,41 @@ HORIZONLY:;
             {
                 pPlayer->pycount += 52;
                 pPlayer->pycount &= 2047;
-                pPlayer->pyoff   = klabs(pSprite->xvel * sintable[pPlayer->pycount]) / 1596;
+                pPlayer->pyoff = klabs(pSprite->xvel * sintable[pPlayer->pycount]) / 1536;
             }
         }
         else if (sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER)
             pPlayer->pyoff = 0;
+
+        pPlayer->pos.z += pPlayer->vel.z;
+
+        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz)
+            && (pPlayer->opos.z < ceilZ + PMINHEIGHT || trueFloorDist < PHEIGHT))
+        {
+            int32_t ceilZ2 = ceilZ;
+
+            getzrange((vec3_t *)&pPlayer->opos, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - 24,
+                      CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
+
+            if ((highZhit & 49152) == 49152 && (sprite[highZhit & (MAXSPRITES - 1)].cstat & CSTAT_SPRITE_BLOCK) != CSTAT_SPRITE_BLOCK)
+                ceilZ = ceilZ2;
+
+            if (pPlayer->pos.z < ceilZ + PMINHEIGHT)
+                pPlayer->pos.z = ceilZ + PMINHEIGHT;
+        }
     }
 
-    pPlayer->pos.z += PHEIGHT;
-    setsprite(pPlayer->i, &pPlayer->pos);
-    pPlayer->pos.z -= PHEIGHT;
+    if (sectorLotag != ST_1_ABOVE_WATER && pPlayer->pos.z > floorZ - PMINHEIGHT)
+        pPlayer->pos.z = floorZ - PMINHEIGHT;
+
+    if (pPlayer->cursectnum >= 0)
+    {
+        pPlayer->pos.z += PHEIGHT;
+        *(vec3_t *)&sprite[pPlayer->i] = pPlayer->pos;
+        pPlayer->pos.z -= PHEIGHT;
+
+        changespritesect(pPlayer->i, pPlayer->cursectnum);
+    }
 
     // ST_2_UNDERWATER
     if (pPlayer->cursectnum >= 0 && sectorLotag < 3)
@@ -5330,12 +5367,11 @@ HORIZONLY:;
         }
     }
 
-    if ((pPlayer->cursectnum >= 0 && trueFloorDist < PHEIGHT && pPlayer->on_ground && sectorLotag != ST_1_ABOVE_WATER &&
+#ifndef EDUKE32_STANDALONE
+    if (!IONMAIDEN && (pPlayer->cursectnum >= 0 && trueFloorDist < PHEIGHT && pPlayer->on_ground && sectorLotag != ST_1_ABOVE_WATER &&
          playerShrunk == 0 && sector[pPlayer->cursectnum].lotag == ST_1_ABOVE_WATER) && (!A_CheckSoundPlaying(pPlayer->i, DUKE_ONWATER)))
             A_PlaySound(DUKE_ONWATER, pPlayer->i);
-
-    if (pPlayer->cursectnum >= 0 && pPlayer->cursectnum != pSprite->sectnum)
-        changespritesect(pPlayer->i, pPlayer->cursectnum);
+#endif
 
     if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
     {

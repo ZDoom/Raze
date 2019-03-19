@@ -41,6 +41,9 @@ extern int32_t g_mostConcurrentPlayers;
 #define HORIZ_MAX                   299
 #define AUTO_AIM_ANGLE              48
 #define PHEIGHT                     (38<<8)
+#define PCROUCHHEIGHT               ZOFFSET2
+#define PCROUCHINCREMENT            (2048+768)
+#define PMINHEIGHT                  (2048)
 
 #define TRIPBOMB_TRIPWIRE       0x00000001
 #define TRIPBOMB_TIMER          0x00000002
@@ -223,8 +226,8 @@ typedef struct {
     // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
     uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
-    
-    char vote, gotvote, pingcnt, playerquitflag, 
+
+    char vote, gotvote, pingcnt, playerquitflag,
         ready; // currently unused. May be used later to indicate that a player has pressed use on intermission to indicate they are ready to go on to the next map
     char user_name[32];
     uint32_t revision;
