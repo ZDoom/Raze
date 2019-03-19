@@ -1162,6 +1162,9 @@ void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum) ATTRIBUT
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
+int32_t try_facespr_intersect(uspritetype const * const spr, const vec3_t *refpos,
+                                     int32_t vx, int32_t vy, int32_t vz,
+                                     vec3_t *intp, int32_t strictly_smaller_than_p);
 
 extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
