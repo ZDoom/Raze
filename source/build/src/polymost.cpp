@@ -939,6 +939,10 @@ void polymost_glinit()
     currentTextureID = 0;
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &tilesheetSize);
+#ifdef _MSC_VER
+    if (tilesheetSize > 8192)
+        tilesheetSize = 8192;
+#endif
     tilesheetHalfTexelSize = { 0.5f/tilesheetSize, 0.5f/tilesheetSize };
     vec2_t maxTexDimensions = { tilesheetSize, tilesheetSize };
     char allPacked = false;
