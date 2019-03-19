@@ -5132,7 +5132,7 @@ void P_ProcessInput(int playerNum)
             pPlayer->jumping_counter = 0;
             if (pPlayer->vel.z < 0)
                 pPlayer->vel.x = pPlayer->vel.y = 0;
-            pPlayer->vel.z = 128;
+            pPlayer->vel.z = 256;
         }
     }
 
