@@ -10230,7 +10230,8 @@ int32_t spriteheightofsptr(const uspritetype *spr, int32_t *height, int32_t also
     const int32_t picnum=spr->picnum, yrepeat=spr->yrepeat;
 
     hei = (tilesiz[picnum].y*yrepeat)<<2;
-    *height = hei;
+    if (height != NULL)
+        *height = hei;
 
     if (spr->cstat&128)
         zofs = hei>>1;
