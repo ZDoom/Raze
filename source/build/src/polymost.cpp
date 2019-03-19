@@ -3720,6 +3720,9 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
         y1 += DOMOST_OFFSET; //necessary?
     }
 
+    x0 -= DOMOST_OFFSET;
+    x1 += DOMOST_OFFSET;
+
     // Test if span is outside screen bounds
     if (x1+DOMOST_OFFSET < xbl || x0-DOMOST_OFFSET > xbr)
     {
