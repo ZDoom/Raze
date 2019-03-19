@@ -279,11 +279,12 @@ void yax_updategrays(int32_t posze)
 
 int32_t g_nodraw = 0;
 int32_t scansector_retfast = 0;
-static int32_t scansector_collectsprites = 1;
+int32_t scansector_collectsprites = 1;
 int32_t yax_globalcf = -1, yax_nomaskpass=0, yax_nomaskdidit;  // engine internal
 int32_t r_tror_nomaskpass = 1;  // cvar
 int32_t yax_globallev = YAX_MAXDRAWS;
 int32_t yax_globalbunch = -1;
+int32_t yax_polymostclearzbuffer = 1;
 
 // duplicated tsprites
 //  [i]:
@@ -1006,6 +1007,14 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 #endif
     }
 
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() == REND_POLYMOST)
+    {
+        glClear(GL_DEPTH_BUFFER_BIT);
+        yax_polymostclearzbuffer = 0;
+    }
+#endif
+
     for (cf=0; cf<2; cf++)
     {
         yax_globalcf = cf;
@@ -1119,6 +1128,10 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
         }
         videoEndDrawing();
     }
+#endif
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() == REND_POLYMOST)
+        yax_polymostclearzbuffer = 1;
 #endif
 }
 
