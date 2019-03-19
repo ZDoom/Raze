@@ -5275,7 +5275,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
             {
                 pSprite->xvel = (krand()&7)+(sintable[T1(spriteNum)&2047]>>9);
                 T1(spriteNum) += (krand()&63);
-                if ((T1(spriteNum)&2047) > 512 && (T1(spriteNum)&2047) < 1596)
+                if ((T1(spriteNum)&2047) > 512 && (T1(spriteNum)&2047) < 1536)
                 {
                     if (sector[sectNum].lotag == ST_2_UNDERWATER)
                     {
