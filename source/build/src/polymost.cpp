@@ -4514,13 +4514,21 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     if (globalorientation & 64)
     {
         //relative alignment
-        vec2f_t fxy = { (float)(wall[wall[sec->wallptr].point2].x - wall[sec->wallptr].x),
-                        (float)(wall[wall[sec->wallptr].point2].y - wall[sec->wallptr].y) };
+        vec2_t const xy = { wall[wall[sec->wallptr].point2].x - wall[sec->wallptr].x,
+                        wall[wall[sec->wallptr].point2].y - wall[sec->wallptr].y };
+        float r;
+        if (globalorientation & 2)
+        {
+            int i = krecipasm(nsqrtasm(uhypsq(xy.x,xy.y)));
+            r = i * (1.f/1073741824.f);
+        }
+        else
+        {
+            int i = nsqrtasm(uhypsq(xy.x,xy.y)); if (i == 0) i = 1024; else i = tabledivide32(1048576, i);
+            r = i * (1.f/1048576.f);
+        }
 
-        float r = polymost_invsqrt_approximation(fxy.x * fxy.x + fxy.y * fxy.y);
-
-        fxy.x *= r;
-        fxy.y *= r;
+        vec2f_t const fxy = { xy.x*r, xy.y*r };
 
         ft[0] = ((float)(globalposx - wall[sec->wallptr].x)) * fxy.x + ((float)(globalposy - wall[sec->wallptr].y)) * fxy.y;
         ft[1] = ((float)(globalposy - wall[sec->wallptr].y)) * fxy.x - ((float)(globalposx - wall[sec->wallptr].x)) * fxy.y;
