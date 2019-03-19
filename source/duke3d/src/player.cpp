@@ -4995,18 +4995,24 @@ void P_ProcessInput(int playerNum)
                             // Falling damage.
                             pSprite->extra -= pPlayer->falling_counter - (krand() & 3);
 
-                            if (pSprite->extra <= 0)
-                                A_PlaySound(SQUISHED, pPlayer->i);
-                            else
+#ifndef EDUKE32_STANDALONE
+                            if (!IONMAIDEN)
                             {
-                                A_PlaySound(DUKE_LAND, pPlayer->i);
-                                A_PlaySound(DUKE_LAND_HURT, pPlayer->i);
+                                if (pSprite->extra <= 0)
+                                    A_PlaySound(SQUISHED, pPlayer->i);
+                                else
+                                {
+                                    A_PlaySound(DUKE_LAND, pPlayer->i);
+                                    A_PlaySound(DUKE_LAND_HURT, pPlayer->i);
+                                }
                             }
-
+#endif
                             P_PalFrom(pPlayer, 32, 16, 0, 0);
                         }
-                        else if (pPlayer->vel.z > 2048)
+#ifndef EDUKE32_STANDALONE
+                        else if (!IONMAIDEN && pPlayer->vel.z > 2048)
                             A_PlaySound(DUKE_LAND, pPlayer->i);
+#endif
                     }
                 }
             }
@@ -5153,7 +5159,8 @@ void P_ProcessInput(int playerNum)
     {
         int const floorPicnum = sector[pSprite->sectnum].floorpicnum;
 
-        if (floorPicnum == PURPLELAVA || sector[pSprite->sectnum].ceilingpicnum == PURPLELAVA)
+#ifndef EDUKE32_STANDALONE
+        if (!IONMAIDEN && (floorPicnum == PURPLELAVA || sector[pSprite->sectnum].ceilingpicnum == PURPLELAVA))
         {
             if (pPlayer->inv_amount[GET_BOOTS] > 0)
             {
@@ -5170,7 +5177,7 @@ void P_ProcessInput(int playerNum)
                 pSprite->extra--;
             }
         }
-
+#endif
         if (pPlayer->on_ground && trueFloorDist <= PHEIGHT+ZOFFSET2 && P_CheckFloorDamage(pPlayer, floorPicnum))
         {
             P_DoQuote(QUOTE_BOOTS_ON, pPlayer);
@@ -5198,47 +5205,52 @@ void P_ProcessInput(int playerNum)
     {
         pPlayer->crack_time = 777;
 
-        int const checkWalkSound = sintable[pPlayer->bobcounter & 2047] >> 12;
-
-        if ((trueFloorDist < PHEIGHT + ZOFFSET3) && (checkWalkSound == 1 || checkWalkSound == 3))
+#ifndef EDUKE32_STANDALONE
+        if (!IONMAIDEN)
         {
-            if (pPlayer->walking_snd_toggle == 0 && pPlayer->on_ground)
+            int const checkWalkSound = sintable[pPlayer->bobcounter & 2047] >> 12;
+
+            if ((trueFloorDist < PHEIGHT + ZOFFSET3) && (checkWalkSound == 1 || checkWalkSound == 3))
             {
-                switch (sectorLotag)
+                if (pPlayer->walking_snd_toggle == 0 && pPlayer->on_ground)
                 {
-                    case 0:
+                    switch (sectorLotag)
                     {
-                        int const walkPicnum = (lowZhit >= 0 && (lowZhit & 49152) == 49152)
-                                               ? TrackerCast(sprite[lowZhit & (MAXSPRITES - 1)].picnum)
-                                               : TrackerCast(sector[pPlayer->cursectnum].floorpicnum);
-
-                        switch (DYNAMICTILEMAP(walkPicnum))
+                        case 0:
                         {
-                            case PANNEL1__STATIC:
-                            case PANNEL2__STATIC:
-                                A_PlaySound(DUKE_WALKINDUCTS, pPlayer->i);
-                                pPlayer->walking_snd_toggle = 1;
-                                break;
-                        }
-                    }
-                    break;
+                            int const walkPicnum = (lowZhit >= 0 && (lowZhit & 49152) == 49152)
+                                                   ? TrackerCast(sprite[lowZhit & (MAXSPRITES - 1)].picnum)
+                                                   : TrackerCast(sector[pPlayer->cursectnum].floorpicnum);
 
-                    case ST_1_ABOVE_WATER:
-                        if (!pPlayer->spritebridge)
-                        {
-                            if ((krand() & 1) == 0)
-                                A_PlaySound(DUKE_ONWATER, pPlayer->i);
-                            pPlayer->walking_snd_toggle = 1;
+                            switch (DYNAMICTILEMAP(walkPicnum))
+                            {
+                                case PANNEL1__STATIC:
+                                case PANNEL2__STATIC:
+                                    A_PlaySound(DUKE_WALKINDUCTS, pPlayer->i);
+                                    pPlayer->walking_snd_toggle = 1;
+                                    break;
+                            }
                         }
                         break;
+
+                        case ST_1_ABOVE_WATER:
+                            if (!pPlayer->spritebridge)
+                            {
+                                if ((krand() & 1) == 0)
+                                    A_PlaySound(DUKE_ONWATER, pPlayer->i);
+                                pPlayer->walking_snd_toggle = 1;
+                            }
+                            break;
+                    }
                 }
             }
-        }
-        else if (pPlayer->walking_snd_toggle > 0)
-            pPlayer->walking_snd_toggle--;
+            else if (pPlayer->walking_snd_toggle > 0)
+                pPlayer->walking_snd_toggle--;
 
-        if (pPlayer->jetpack_on == 0 && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
-            velocityModifier <<= 1;
+            if (pPlayer->jetpack_on == 0 && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
+                velocityModifier <<= 1;
+        }
+#endif
 
         pPlayer->vel.x += (((g_player[playerNum].inputBits->fvel) * velocityModifier) << 6);
         pPlayer->vel.y += (((g_player[playerNum].inputBits->svel) * velocityModifier) << 6);
@@ -5257,11 +5269,13 @@ void P_ProcessInput(int playerNum)
         if (klabs(pPlayer->vel.x) < 2048 && klabs(pPlayer->vel.y) < 2048)
             pPlayer->vel.x = pPlayer->vel.y = 0;
 
-        if (playerShrunk)
+#ifndef EDUKE32_STANDALONE
+        if (!IONMAIDEN && playerShrunk)
         {
             pPlayer->vel.x = mulscale16(pPlayer->vel.x, pPlayer->runspeed - (pPlayer->runspeed >> 1) + (pPlayer->runspeed >> 2));
             pPlayer->vel.y = mulscale16(pPlayer->vel.y, pPlayer->runspeed - (pPlayer->runspeed >> 1) + (pPlayer->runspeed >> 2));
         }
+#endif
     }
 
     // This makes the player view lower when shrunk. This needs to happen before clipmove().
@@ -5474,18 +5488,22 @@ HORIZONLY:;
 
         if (pPlayer->show_empty_weapon == 0 && (pPlayer->weaponswitch & 2) && pPlayer->ammo_amount[pPlayer->curr_weapon] <= 0)
         {
-            if (pPlayer->last_full_weapon == GROW_WEAPON)
-                pPlayer->subweapon |= (1 << GROW_WEAPON);
-            else if (pPlayer->last_full_weapon == SHRINKER_WEAPON)
-                pPlayer->subweapon &= ~(1 << GROW_WEAPON);
-
+#ifndef EDUKE32_STANDALONE
+            if (!IONMAIDEN)
+            {
+                if (pPlayer->last_full_weapon == GROW_WEAPON)
+                    pPlayer->subweapon |= (1 << GROW_WEAPON);
+                else if (pPlayer->last_full_weapon == SHRINKER_WEAPON)
+                    pPlayer->subweapon &= ~(1 << GROW_WEAPON);
+            }
+#endif
             P_AddWeapon(pPlayer, pPlayer->last_full_weapon, 1);
             return;
         }
     }
 
 #ifndef EDUKE32_STANDALONE
-    if (pPlayer->knee_incs > 0)
+    if (!IONMAIDEN && pPlayer->knee_incs > 0)
     {
         pPlayer->q16horiz -= F16(48);
         pPlayer->return_to_center = 9;
