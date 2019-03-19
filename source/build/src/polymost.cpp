@@ -53,6 +53,8 @@ static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 
 #define SCISDIST 1.0f  //1.0: Close plane clipping distance
 
+#define SOFTROTMAT 0
+
 float shadescale = 1.0f;
 int32_t shadescale_unbounded = 0;
 
@@ -188,6 +190,10 @@ static vec2f_t polymost1PalswapSize = { 0.f, 0.f };
 static vec2f_t polymost1PalswapInnerSize = { 0.f, 0.f };
 static GLint polymost1ShadeLoc = -1;
 static float polymost1Shade = 0.f;
+static GLint polymost1NumShadesLoc = -1;
+static float polymost1NumShades = 64.f;
+static GLint polymost1VisFactorLoc = -1;
+static float polymost1VisFactor = 128.f;
 static GLint polymost1FogEnabledLoc = -1;
 static float polymost1FogEnabled = 1.f;
 static GLint polymost1UseColorOnlyLoc = -1;
@@ -198,6 +204,11 @@ static GLint polymost1UseDetailMappingLoc = -1;
 static float polymost1UseDetailMapping = 0.f;
 static GLint polymost1UseGlowMappingLoc = -1;
 static float polymost1UseGlowMapping = 0.f;
+static GLint polymost1RotMatrixLoc = -1;
+static float polymost1RotMatrix[16] = { 1.f, 0.f, 0.f, 0.f,
+                                        0.f, 1.f, 0.f, 0.f,
+                                        0.f, 0.f, 1.f, 0.f,
+                                        0.f, 0.f, 0.f, 1.f };
 
 static inline float float_trans(uint32_t maskprops, uint8_t blend)
 {
@@ -603,11 +614,14 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     polymost1PalswapPosLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_palswapPos");
     polymost1PalswapSizeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_palswapSize");
     polymost1ShadeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_shade");
+    polymost1NumShadesLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_numShades");
+    polymost1VisFactorLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_visFactor");
     polymost1FogEnabledLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_fogEnabled");
     polymost1UsePaletteLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_usePalette");
     polymost1UseColorOnlyLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_useColorOnly");
     polymost1UseDetailMappingLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_useDetailMapping");
     polymost1UseGlowMappingLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_useGlowMapping");
+    polymost1RotMatrixLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_rotMatrix");
 
     //set the uniforms to the current values
     glUniform4f(polymost1TexturePosSizeLoc, polymost1TexturePosSize.x, polymost1TexturePosSize.y, polymost1TexturePosSize.z, polymost1TexturePosSize.w);
@@ -615,11 +629,14 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
     glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
     glUniform1f(polymost1ShadeLoc, polymost1Shade);
+    glUniform1f(polymost1NumShadesLoc, polymost1NumShades);
+    glUniform1f(polymost1VisFactorLoc, polymost1VisFactor);
     glUniform1f(polymost1FogEnabledLoc, polymost1FogEnabled);
     glUniform1f(polymost1UseColorOnlyLoc, polymost1UseColorOnly);
     glUniform1f(polymost1UsePaletteLoc, polymost1UsePalette);
     glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
     glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
+    glUniformMatrix4fv(polymost1RotMatrixLoc, 1, false, polymost1RotMatrix);
 }
 
 void polymost_setTexturePosSize(vec4f_t const &texturePosSize)
@@ -678,17 +695,31 @@ static void polymost_setShade(int32_t shade)
         if (!r_usetileshades || (globalflags & GLOBAL_NO_GL_TILESHADES))
             shade = 0;
         else
-            shade = getpalookup(r_usetileshades == 1, shade);
+            shade = /*getpalookup(r_usetileshades == 1, */shade/*)*/;
 
         static int32_t lastShade = 0;
-        if (shade == lastShade)
+        static int32_t lastNumShades = 0;
+        if (shade != lastShade)
         {
-            return;
+            lastShade = shade;
+            polymost1Shade = shade;
+            glUniform1f(polymost1ShadeLoc, polymost1Shade);
         }
+        if (numshades != lastNumShades)
+        {
+            lastNumShades = numshades;
+            polymost1NumShades = numshades;
+            glUniform1f(polymost1NumShadesLoc, polymost1NumShades);
+        }
+    }
+}
 
-        lastShade = shade;
-        polymost1Shade = shade/((float) numshades);
-        glUniform1f(polymost1ShadeLoc, polymost1Shade);
+static void polymost_setVisibility(float visibility)
+{
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        polymost1VisFactor = visibility*fviewingrange*(1.f/(64.f*65536.f));
+        glUniform1f(polymost1VisFactorLoc, polymost1VisFactor);
     }
 }
 
@@ -1019,18 +1050,21 @@ void polymost_glinit()
         "#version 110\n\
          \n\
          varying vec4 v_color;\n\
+         varying float v_distance;\n\
          \n\
          //u_texturePosSize is the texture position & size packaged into a single vec4 as {pos.x, pos.y, size.x, size.y}\n\
          uniform vec4 u_texturePosSize;\n\
          uniform float u_usePalette;\n\
+         uniform mat4 u_rotMatrix;\n\
          \n\
          const float c_zero = 0.0;\n\
          const float c_one  = 1.0;\n\
          \n\
          void main()\n\
          {\n\
-            vec4 eyeCoordPosition = gl_ModelViewMatrix * gl_Vertex;\n\
-            gl_Position = ftransform();\n\
+            vec4 vertex = u_rotMatrix * gl_Vertex;\n\
+            vec4 eyeCoordPosition = gl_ModelViewMatrix * vertex;\n\
+            gl_Position = gl_ModelViewProjectionMatrix * vertex;\n\
             \n\
             eyeCoordPosition.xyz /= eyeCoordPosition.w;\n\
             \n\
@@ -1044,6 +1078,7 @@ void polymost_glinit()
             //gl_FogFragCoord = clamp((gl_Fog.end-abs(eyeCoordPosition.z))*gl_Fog.scale, c_zero, c_one);\n\
             \n\
             v_color = gl_Color;\n\
+            v_distance = gl_Vertex.z;\n\
          }\n";
     const char* const POLYMOST1_BASIC_FRAGMENT_SHADER_CODE =
         "#version 110\n\
@@ -1062,12 +1097,15 @@ void polymost_glinit()
          uniform vec2 u_palswapSize;\n\
          \n\
          uniform float u_shade;\n\
+         uniform float u_numShades;\n\
+         uniform float u_visFactor;\n\
          uniform float u_fogEnabled;\n\
          \n\
          uniform float u_useColorOnly;\n\
          uniform float u_usePalette;\n\
          \n\
          varying vec4 v_color;\n\
+         varying float v_distance;\n\
          \n\
          const float c_basepalScale = 255.0/256.0;\n\
          const float c_basepalOffset = 0.5/256.0;\n\
@@ -1087,7 +1125,8 @@ void polymost_glinit()
              texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
              vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
              \n\
-             float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, u_shade)).r;\n\
+             float shade = clamp(floor(u_shade+u_visFactor*v_distance), c_zero, u_numShades-c_one)/u_numShades;\n\
+             float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, shade)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
              vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
              float fullbright = u_usePalette*palettedColor.a;\n\
@@ -1103,7 +1142,8 @@ void polymost_glinit()
              \n\
              color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);\n\
              \n\
-             fullbright = max(c_one-u_fogEnabled, fullbright);\n\
+             float fogEnabled = mix(u_fogEnabled, c_zero, u_usePalette);\n\
+             fullbright = max(c_one-fogEnabled, fullbright);\n\
              float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, fullbright, c_one);\n\
              //float fogFactor = clamp(gl_FogFragCoord, fullbright, c_one);\n\
              color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
@@ -1132,6 +1172,8 @@ void polymost_glinit()
          uniform vec2 u_palswapSize;\n\
          \n\
          uniform float u_shade;\n\
+         uniform float u_numShades;\n\
+         uniform float u_visFactor;\n\
          uniform float u_fogEnabled;\n\
          \n\
          uniform float u_useColorOnly;\n\
@@ -1141,6 +1183,7 @@ void polymost_glinit()
          uniform float u_useGlowMapping;\n\
          \n\
          varying vec4 v_color;\n\
+         varying float v_distance;\n\
          \n\
          const float c_basepalScale = 255.0/256.0;\n\
          const float c_basepalOffset = 0.5/256.0;\n\
@@ -1160,7 +1203,8 @@ void polymost_glinit()
              texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
              vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
              \n\
-             float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, u_shade)).r;\n\
+             float shade = clamp(floor(u_shade+u_visFactor*v_distance), c_zero, u_numShades-c_one)/u_numShades;\n\
+             float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, shade)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
              vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
              float fullbright = u_usePalette*palettedColor.a;\n\
@@ -1180,7 +1224,8 @@ void polymost_glinit()
              \n\
              color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);\n\
              \n\
-             fullbright = max(c_one-u_fogEnabled, fullbright);\n\
+             float fogEnabled = mix(u_fogEnabled, c_zero, u_usePalette);\n\
+             fullbright = max(c_one-fogEnabled, fullbright);\n\
              float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, fullbright, c_one);\n\
              //float fogFactor = clamp(gl_FogFragCoord, fullbright, c_one);\n\
              color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
@@ -2977,6 +3022,54 @@ static void polymost_waitForSubBuffer(uint32_t subBufferIndex)
     }
 }
 
+static void polymost_updaterotmat(void)
+{
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        float matrix[16] = {
+            1.f, 0.f, 0.f, 0.f,
+            0.f, 1.f, 0.f, 0.f,
+            0.f, 0.f, 1.f, 0.f,
+            0.f, 0.f, 0.f, 1.f,
+        };
+#if !SOFTROTMAT
+        //Up/down rotation
+        float udmatrix[16] = {
+            1.f, 0.f, 0.f, 0.f,
+            0.f, gchang, -gshang, 0.f,
+            0.f, gshang, gchang, 0.f,
+            0.f, 0.f, 0.f, 1.f,
+        };
+        // Tilt rotation
+        float tiltmatrix[16] = {
+            gctang, -gstang, 0.f, 0.f,
+            gstang, gctang, 0.f, 0.f,
+            0.f, 0.f, 1.f, 0.f,
+            0.f, 0.f, 0.f, 1.f,
+        };
+        multiplyMatrix4f(matrix, udmatrix);
+        multiplyMatrix4f(matrix, tiltmatrix);
+#endif
+        Bmemcpy(polymost1RotMatrix, matrix, sizeof(matrix));
+        glUniformMatrix4fv(polymost1RotMatrixLoc, 1, false, polymost1RotMatrix);
+    }
+}
+
+static void polymost_identityrotmat(void)
+{
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        float matrix[16] = {
+            1.f, 0.f, 0.f, 0.f,
+            0.f, 1.f, 0.f, 0.f,
+            0.f, 0.f, 1.f, 0.f,
+            0.f, 0.f, 0.f, 1.f,
+        };
+        Bmemcpy(polymost1RotMatrix, matrix, sizeof(matrix));
+        glUniformMatrix4fv(polymost1RotMatrixLoc, 1, false, polymost1RotMatrix);
+    }
+}
+
 static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method)
 {
     if (method == DAMETH_BACKFACECULL ||
@@ -3026,11 +3119,14 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int j = 0;
     float px[8], py[8], dd[8], uu[8], vv[8];
+#if SOFTROTMAT
     float const ozgs = ghalfx * gshang,
                 ozgc = ghalfx * gchang;
+#endif
 
     for (bssize_t i=0; i<n; ++i)
     {
+#if SOFTROTMAT
         //Up/down rotation
         vec3f_t const orot = { dpxy[i].x - ghalfx,
                               (dpxy[i].y - ghoriz) * gchang - ozgs,
@@ -3048,6 +3144,15 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         if ((!j) || (px[j] != px[j-1]) || (py[j] != py[j-1]))
             j++;
+#else
+        px[j] = dpxy[i].x;
+        py[j] = dpxy[i].y;
+
+        dd[j] = (dpxy[i].x * xtex.d + dpxy[i].y * ytex.d + otex.d);
+        uu[j] = (dpxy[i].x * xtex.u + dpxy[i].y * ytex.u + otex.u);
+        vv[j] = (dpxy[i].x * xtex.v + dpxy[i].y * ytex.v + otex.v);
+        j++;
+#endif
     }
 
     while ((j >= 3) && (px[j-1] == px[0]) && (py[j-1] == py[0])) j--;
@@ -3724,7 +3829,7 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
     x1 += DOMOST_OFFSET;
 
     // Test if span is outside screen bounds
-    if (x1+DOMOST_OFFSET < xbl || x0-DOMOST_OFFSET > xbr)
+    if (x1 < xbl || x0 > xbr)
     {
         domost_rejectcount++;
         return;
@@ -4104,8 +4209,11 @@ static void yax_polymost_domost(const int yaxbunch, float x0, float y0, float x1
         y1 += DOMOST_OFFSET; //necessary?
     }
 
+    x0 -= DOMOST_OFFSET;
+    x1 += DOMOST_OFFSET;
+
     // Test if span is outside screen bounds
-    if (x1+DOMOST_OFFSET < xbl || x0-DOMOST_OFFSET > xbr)
+    if (x1 < xbl || x0 > xbr)
     {
         domost_rejectcount++;
         return;
@@ -4515,8 +4623,9 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     {
         //relative alignment
         vec2_t const xy = { wall[wall[sec->wallptr].point2].x - wall[sec->wallptr].x,
-                        wall[wall[sec->wallptr].point2].y - wall[sec->wallptr].y };
+                            wall[wall[sec->wallptr].point2].y - wall[sec->wallptr].y };
         float r;
+
         if (globalorientation & 2)
         {
             int i = krecipasm(nsqrtasm(uhypsq(xy.x,xy.y)));
@@ -4843,6 +4952,10 @@ static void polymost_drawalls(int32_t const bunch)
         globvis = (sector[sectnum].visibility != 0) ?
                   mulscale4(globalcisibility, (uint8_t)(sector[sectnum].visibility + 16)) :
                   globalcisibility;
+        globvis2 = (sector[sectnum].visibility != 0) ?
+                  mulscale4(globalcisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
+                  globalcisibility2;
+        polymost_setVisibility(globvis2);
 
         DO_TILE_ANIM(globalpicnum, sectnum);
 
@@ -4864,6 +4977,12 @@ static void polymost_drawalls(int32_t const bunch)
         {
             //Parallaxing sky... hacked for Ken's mountain texture
             calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
+
+            globvis2 = globalpisibility;
+            if (sec->visibility != 0)
+                globvis2 = mulscale4(globvis2, (uint8_t)(sec->visibility + 16));
+            float viscale = xdimscale*fxdimen*(.0000001f/256.f);
+            polymost_setVisibility(globvis2*viscale);
 
             //Use clamping for tiled sky textures
             //(don't wrap around edges if the sky use multiple panels)
@@ -5179,6 +5298,10 @@ static void polymost_drawalls(int32_t const bunch)
         globvis = (sector[sectnum].visibility != 0) ?
                   mulscale4(globalcisibility, (uint8_t)(sector[sectnum].visibility + 16)) :
                   globalcisibility;
+        globvis2 = (sector[sectnum].visibility != 0) ?
+                  mulscale4(globalcisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
+                  globalcisibility2;
+        polymost_setVisibility(globvis2);
 
         DO_TILE_ANIM(globalpicnum, sectnum);
 
@@ -5200,6 +5323,12 @@ static void polymost_drawalls(int32_t const bunch)
         {
             //Parallaxing sky... hacked for Ken's mountain texture
             calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
+
+            globvis2 = globalpisibility;
+            if (sec->visibility != 0)
+                globvis2 = mulscale4(globvis2, (uint8_t)(sec->visibility + 16));
+            float viscale = xdimscale*fxdimen*(.0000001f/256.f);
+            polymost_setVisibility(globvis2*viscale);
 
             //Use clamping for tiled sky textures
             //(don't wrap around edges if the sky use multiple panels)
@@ -5589,6 +5718,9 @@ static void polymost_drawalls(int32_t const bunch)
                 globalpicnum = wal->picnum; globalshade = wal->shade; globalpal = (int32_t)((uint8_t)wal->pal);
                 globvis = globalvisibility;
                 if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
+                globvis2 = globalvisibility2;
+                if (sector[sectnum].visibility != 0) globvis2 = mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility+16));
+                polymost_setVisibility(globvis2);
                 globalorientation = wal->cstat;
                 DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
@@ -5626,6 +5758,9 @@ static void polymost_drawalls(int32_t const bunch)
                 globalpicnum = nwal->picnum; globalshade = nwal->shade; globalpal = (int32_t)((uint8_t)nwal->pal);
                 globvis = globalvisibility;
                 if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
+                globvis2 = globalvisibility2;
+                if (sector[sectnum].visibility != 0) globvis2 = mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility+16));
+                polymost_setVisibility(globvis2);
                 globalorientation = nwal->cstat;
                 DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
@@ -5670,6 +5805,10 @@ static void polymost_drawalls(int32_t const bunch)
                 globvis = (sector[sectnum].visibility != 0) ?
                           mulscale4(globalvisibility, (uint8_t)(sector[sectnum].visibility + 16)) :
                           globalvisibility;
+                globvis2 = (sector[sectnum].visibility != 0) ?
+                          mulscale4(globalvisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
+                          globalvisibility2;
+                polymost_setVisibility(globvis2);
                 globalorientation = wal->cstat;
                 DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
@@ -6089,6 +6228,8 @@ void polymost_drawrooms()
     if (searchit == 2)
         polymost_editorfunc();
 
+    polymost_updaterotmat();
+
     numscans = numbunches = 0;
 
     // MASKWALL_BAD_ACCESS
@@ -6145,6 +6286,7 @@ void polymost_drawrooms()
 
     glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
+    polymost_identityrotmat();
 
     videoEndDrawing();
 }
@@ -6169,7 +6311,12 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     globalorientation = (int32_t)wal->cstat;
     DO_TILE_ANIM(globalpicnum, (int16_t)thewall[z]+16384);
 
+    globvis = globalvisibility;
     globvis = (sector[sectnum].visibility != 0) ? mulscale4(globvis, (uint8_t)(sector[sectnum].visibility + 16)) : globalvisibility;
+
+    globvis2 = globalvisibility2;
+    globvis2 = (sector[sectnum].visibility != 0) ? mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility + 16)) : globalvisibility2;
+    polymost_setVisibility(globvis2);
 
     globalshade = (int32_t)wal->shade;
     globalpal = (int32_t)((uint8_t)wal->pal);
@@ -6353,7 +6500,9 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     pow2xsplit = 0;
     skyclamphack = 0;
 
+    polymost_updaterotmat();
     polymost_drawpoly(dpxy, n, method);
+    polymost_identityrotmat();
 }
 
 typedef struct
@@ -6853,6 +7002,11 @@ void polymost_drawsprite(int32_t snum)
     if (sector[tspr->sectnum].visibility != 0)
         globvis = mulscale4(globvis, (uint8_t)(sector[tspr->sectnum].visibility + 16));
 
+    globvis2 = globalvisibility2;
+    if (sector[tspr->sectnum].visibility != 0)
+        globvis2 = mulscale4(globvis2, (uint8_t)(sector[tspr->sectnum].visibility + 16));
+    polymost_setVisibility(globvis2);
+
     vec2_t off = { 0, 0 };
 
     if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
@@ -6925,6 +7079,8 @@ void polymost_drawsprite(int32_t snum)
     if (tsiz.x <= 0 || tsiz.y <= 0)
         return;
 
+    polymost_updaterotmat();
+
     vec2f_t const ftsiz = { (float) tsiz.x, (float) tsiz.y };
 
     switch ((globalorientation >> 4) & 3)
@@ -6950,7 +7106,7 @@ void polymost_drawsprite(int32_t snum)
             vec2f_t p0 = { s0.y * gcosang - s0.x * gsinang, s0.x * gcosang2 + s0.y * gsinang2 };
 
             if (p0.y <= SCISDIST)
-                return;
+                goto _drawsprite_return;
 
             float const ryp0 = 1.f / p0.y;
             s0.x = ghalfx * p0.x * ryp0 + ghalfx;
@@ -7128,7 +7284,7 @@ void polymost_drawsprite(int32_t snum)
                            pp.x * gcosang2 + pp.y * gsinang2 };
 
             if ((p0.y <= SCISDIST) && (p1.y <= SCISDIST))
-                return;
+                goto _drawsprite_return;
 
             // Clip to close parallel-screen plane
             vec2f_t const op0 = p0;
@@ -7246,7 +7402,7 @@ void polymost_drawsprite(int32_t snum)
             if (sx0 > sx1)
             {
                 if (globalorientation & 64)
-                    return;  // 1-sided sprite
+                    goto _drawsprite_return;  // 1-sided sprite
 
                 swapfloat(&sx0, &sx1);
                 swapfloat(&sc0, &sc1);
@@ -7266,8 +7422,13 @@ void polymost_drawsprite(int32_t snum)
         break;
 
         case 2:  // Floor sprite
+            globvis2 = globalhisibility2;
+            if (sector[tspr->sectnum].visibility != 0)
+                globvis2 = mulscale4(globvis2, (uint8_t)(sector[tspr->sectnum].visibility + 16));
+            polymost_setVisibility(globvis2);
+
             if ((globalorientation & 64) != 0 && (globalposz > tspr->z) == (!(globalorientation & 8)))
-                return;
+                goto _drawsprite_return;
             else
             {
                 if ((globalorientation & 4) > 0)
@@ -7342,7 +7503,7 @@ void polymost_drawsprite(int32_t snum)
                 }
 
                 if (npoints < 3)
-                    return;
+                    goto _drawsprite_return;
 
                 // Project rotated 3D points to screen
 
@@ -7443,7 +7604,8 @@ void polymost_drawsprite(int32_t snum)
         case 3:  // Voxel sprite
             break;
     }
-
+_drawsprite_return:
+    polymost_identityrotmat();
     tilesiz[globalpicnum] = oldsiz;
 }
 
@@ -7492,6 +7654,8 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     double const ogxyaspect = gxyaspect; gxyaspect = 1.f;
     int const oldviewingrange = viewingrange; viewingrange = 65536;
     float const oldfviewingrange = fviewingrange; fviewingrange = 65536.f;
+
+    polymost_updaterotmat();
 
     vec1 = hud->add;
 
@@ -7687,6 +7851,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     gshang = ogshang;
     gctang = ogctang;
     gstang = ogstang;
+    polymost_identityrotmat();
 }
 
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
@@ -7704,6 +7869,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     glPushMatrix();
 
     globvis = 0;
+    globvis2 = 0;
+    polymost_setVisibility(globvis2);
 
     int32_t const ogpicnum = globalpicnum;
     globalpicnum = picnum;
@@ -7729,6 +7896,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     gctang = 1.f;
     float const  ogstang = gstang;
     gstang = 0.f;
+
+    polymost_updaterotmat();
 
     float m[4][4];
 
@@ -7931,6 +8100,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     gshang = ogshang;
     gctang = ogctang;
     gstang = ogstang;
+
+    polymost_identityrotmat();
 }
 
 static float trapextx[2];
@@ -8096,6 +8267,9 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
 
 void polymost_fillpolygon(int32_t npoints)
 {
+    globvis2 = 0;
+    polymost_setVisibility(globvis2);
+
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
     xtex.u = ((float)asm1) * (1.f / 4294967296.f);

@@ -1381,6 +1381,9 @@ int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 static int32_t globaluclip, globaldclip;
 int32_t globvis, globalvisibility;
 int32_t globalhisibility, globalpisibility, globalcisibility;
+#ifdef USE_OPENGL
+int32_t globvis2, globalvisibility2, globalhisibility2, globalpisibility2, globalcisibility2;
+#endif
 //char globparaceilclip, globparaflorclip;
 
 int32_t xyaspect;
@@ -7955,6 +7958,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
             globalvisibility = scale(g_visibility<<2, xdimen, 1680);
         else
             globalvisibility = scale(g_visibility<<2, xdimen, 1100);
+        globalvisibility2 = mulscale16(g_visibility, i);
         break;
 # ifdef POLYMER
     case REND_POLYMER:
@@ -7973,6 +7977,11 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     globalhisibility = mulscale16(globalvisibility,xyaspect);
     globalcisibility = mulscale8(globalhisibility,320);
+
+#ifdef USE_OPENGL
+    globalhisibility2 = mulscale16(globalvisibility2,xyaspect);
+    globalcisibility2 = mulscale8(globalhisibility2,320);
+#endif
 
     globalcursectnum = dacursectnum;
     totalclocklock = totalclock;
