@@ -4644,8 +4644,8 @@ void P_ProcessInput(int playerNum)
     actor[pPlayer->i].floorz   = floorZ;
     actor[pPlayer->i].ceilingz = ceilZ;
 
-    pPlayer->oq16horiz            = pPlayer->q16horiz;
-    pPlayer->oq16horizoff         = pPlayer->q16horizoff;
+    pPlayer->oq16horiz    = pPlayer->q16horiz;
+    pPlayer->oq16horizoff = pPlayer->q16horizoff;
 
     // calculates automatic view angle for playing without a mouse
     if (pPlayer->aim_mode == 0 && pPlayer->on_ground && sectorLotag != ST_2_UNDERWATER
