@@ -2822,7 +2822,7 @@ void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
 //    +4 means it's a sprite, so wraparound isn't needed
 
 // drawpoly's hack globals
-static int32_t pow2xsplit = 0, skyclamphack = 0;
+static int32_t pow2xsplit = 0, skyclamphack = 0, skyzbufferhack = 0;
 static float drawpoly_alpha = 0.f;
 static uint8_t drawpoly_blend = 0;
 
@@ -3348,6 +3348,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             ; /* do nothing */
     }
 
+    static int32_t skyzbufferhack_pass = 0;
+
     if (!waloff[globalpicnum])
     {
         glEnable(GL_BLEND);
@@ -3408,6 +3410,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         hictinting_apply(pc, MAXPALOOKUPS-1);
 
     globaltinting_apply(pc);
+
+    if (skyzbufferhack_pass)
+        pc[3] = 0.01f;
 
     glColor4f(pc[0], pc[1], pc[2], pc[3]);
 
@@ -3680,6 +3685,16 @@ do                                                                              
 
         globalshade = shade;
         fullbright_pass = 0;
+    }
+
+    if (skyzbufferhack && skyzbufferhack_pass == 0)
+    {
+        vec3d_t const bxtex = xtex, bytex = ytex, botex = otex;
+        xtex = xtex2, ytex = ytex2, otex = otex2;
+        skyzbufferhack_pass++;
+        polymost_drawpoly(dpxy, n, DAMETH_MASK);
+        xtex = bxtex, ytex = bytex, otex = botex;
+        skyzbufferhack_pass--;
     }
 }
 
@@ -5063,6 +5078,8 @@ static void polymost_drawalls(int32_t const bunch)
                 if (dapskyoff[i] != dapskyoff[i-1])
                     { skyclamphack = r_parallaxskyclamping; break; }
 
+            skyzbufferhack = 1;
+
             if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
             {
                 float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
@@ -5353,6 +5370,7 @@ static void polymost_drawalls(int32_t const bunch)
             }
 
             skyclamphack = 0;
+            skyzbufferhack = 0;
             if (!nofog)
                 polymost_setFogEnabled(true);
         }
@@ -5408,6 +5426,8 @@ static void polymost_drawalls(int32_t const bunch)
             for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
                 if (dapskyoff[i] != dapskyoff[i-1])
                     { skyclamphack = r_parallaxskyclamping; break; }
+
+            skyzbufferhack = 1;
 
             if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
             {
@@ -5699,6 +5719,7 @@ static void polymost_drawalls(int32_t const bunch)
             }
 
             skyclamphack = 0;
+            skyzbufferhack = 0;
             if (!nofog)
                 polymost_setFogEnabled(true);
         }
