@@ -17,7 +17,8 @@ typedef struct { float r, g, b, a; } coltypef;
 extern int32_t rendmode;
 extern float gtang;
 extern float glox1, gloy1;
-extern float gxyaspect, grhalfxdown10x;
+extern double gxyaspect;
+extern float grhalfxdown10x;
 extern float gcosang, gsinang, gcosang2, gsinang2;
 extern float gchang, gshang, gctang, gstang, gvisibility;
 
@@ -274,7 +275,6 @@ extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
 extern int32_t hicprecaching;
-extern float gyxscale, gxyaspect, ghalfx, grhalfxdown10;
 extern float fcosglobalang, fsinglobalang;
 extern float fxdim, fydim, fydimen, fviewingrange;
 

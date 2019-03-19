@@ -64,7 +64,7 @@ int32_t r_npotwallmode = 0;
 
 static float gviewxrange;
 static float ghoriz;
-float gxyaspect;
+double gxyaspect;
 float gyxscale, ghalfx, grhalfxdown10, grhalfxdown10x;
 float gcosang, gsinang, gcosang2, gsinang2;
 float gchang, gshang, gctang, gstang, gvisibility;
@@ -4602,7 +4602,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
         float const ox2 = (oxy.y - fglobalposy) * gcosang - (oxy.x - fglobalposx) * gsinang;
         float oy2 = 1.f / ((oxy.x - fglobalposx) * gcosang2 + (oxy.y - fglobalposy) * gsinang2);
 
-        double const px[3] = { x0, x1, ghalfx * ox2 * oy2 + ghalfx };
+        double const px[3] = { x0, x1, (double)ghalfx * ox2 * oy2 + ghalfx };
 
         oy2 *= gyxscale;
 
@@ -4625,7 +4625,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
 
         py[0] = y0;
         py[1] = y1;
-        py[2] = (double)((float)(global_getzofslope_func(sectnum, (int)oxy.x, (int)oxy.y) - globalposz) * oy2 + ghoriz);
+        py[2] = double(global_getzofslope_func(sectnum, Blrintf(oxy.x), Blrintf(oxy.y)) - globalposz) * oy2 + ghoriz;
 
         vec3f_t oxyz[2] = { { (float)(py[1] - py[2]), (float)(py[2] - py[0]), (float)(py[0] - py[1]) },
                             { (float)(px[2] - px[1]), (float)(px[0] - px[2]), (float)(px[1] - px[0]) } };
@@ -4686,7 +4686,7 @@ static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
 {
     float const t0 = ((float)(refposz-globalposz))*ryp0 + ghoriz;
     float const t1 = ((float)(refposz-globalposz))*ryp1 + ghoriz;
-    float t = ((xtex.d*x0 + otex.d) * (float)yrepeat) / ((x1-x0) * ryp0 * 2048.f);
+    float t = (float(xtex.d*x0 + otex.d) * (float)yrepeat) / ((x1-x0) * ryp0 * 2048.f);
     int i = (1<<(picsiz[globalpicnum]>>4));
     if (i < tilesiz[globalpicnum].y) i <<= 1;
 
@@ -4710,10 +4710,13 @@ static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
             ypan -= yoffs;
     }
 
-    float const fy = (float) (ypan * i) * (1.f/256.f);
-    xtex.v = (t0-t1)*t;
-    ytex.v = (x1-x0)*t;
-    otex.v = -xtex.v*x0 - ytex.v*t0 + fy*otex.d; xtex.v += fy*xtex.d; ytex.v += fy*ytex.d;
+    float const fy = (float)(ypan * i) * (1.f / 256.f);
+
+    xtex.v = double(t0 - t1) * t;
+    ytex.v = double(x1 - x0) * t;
+    otex.v = -xtex.v * x0 - ytex.v * t0 + fy * otex.d;
+    xtex.v += fy * xtex.d;
+    ytex.v += fy * ytex.d;
 }
 
 static inline int32_t testvisiblemost(float const x0, float const x1)
@@ -4731,12 +4734,12 @@ static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32
 {
     vec2_t const w = { wall[dawall].x, wall[dawall].y };
     vec2_t const d = { POINT2(dawall).x - w.x, POINT2(dawall).y - w.y };
-    int64_t i = d.x * (pos->x - w.x) + d.y * (pos->y - w.y);
+    int64_t i = d.x * ((int64_t)pos->x - w.x) + d.y * ((int64_t)pos->y - w.y);
 
     if (i < 0)
         return 1;
 
-    int64_t const j = d.x * d.x + d.y * d.y;
+    int64_t const j = (int64_t)d.x * d.x + (int64_t)d.y * d.y;
 
     if (i > j)
         return 1;
@@ -4872,13 +4875,13 @@ static void polymost_drawalls(int32_t const bunch)
                     //Hack to draw black rectangle below sky when looking down...
                     xtex.d = xtex.u = xtex.v = 0;
 
-                    ytex.d = gxyaspect * (1.f / 262144.f);
+                    ytex.d = gxyaspect * (1.0 / 262144.0);
                     ytex.u = 0;
-                    ytex.v = (float)(tilesiz[globalpicnum].y - 1) * ytex.d;
+                    ytex.v = double(tilesiz[globalpicnum].y - 1) * ytex.d;
 
                     otex.d = -ghoriz * ytex.d;
                     otex.u = 0;
-                    otex.v = (float)(tilesiz[globalpicnum].y - 1) * otex.d;
+                    otex.v = double(tilesiz[globalpicnum].y - 1) * otex.d;
 
                     o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
 
@@ -4946,8 +4949,8 @@ static void polymost_drawalls(int32_t const bunch)
                 xtex.d = xtex.v = 0;
                 ytex.d = ytex.u = 0;
                 otex.d = dd;
-                xtex.u = otex.d * (t * (float)((uint64_t)(xdimscale * yxaspect) * viewingrange)) *
-                         (1.f / (16384.f * 65536.f * 65536.f * 5.f * 1024.f));
+                xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
+                                  (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
                 ytex.v = vv[1];
                 otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->floorypanning*(float)i*(1.f/256.f) : vv[0];
 
@@ -5055,7 +5058,7 @@ static void polymost_drawalls(int32_t const bunch)
                                           fsinglobalang * (1.f / 2147483648.f) };
 
                     xtex.d = 0;
-                    ytex.d = gxyaspect*(1.f/4194304.f);
+                    ytex.d = gxyaspect*(1.0/4194304.0);
                     otex.d = -ghoriz*ytex.d;
                     xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
                     xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
@@ -5089,11 +5092,11 @@ static void polymost_drawalls(int32_t const bunch)
 
                     //wall of skybox
                     drawingskybox = i+1; //i+1th texture/index i of skybox
-                    xtex.d = (sky_ryp0-sky_ryp1)*gxyaspect*(1.f/512.f) / (sky_ox0-sky_ox1);
+                    xtex.d = (sky_ryp0-sky_ryp1)*gxyaspect*(1.0/512.0) / (sky_ox0-sky_ox1);
                     ytex.d = 0;
-                    otex.d = sky_ryp0*gxyaspect*(1.f/512.f) - xtex.d*sky_ox0;
-                    xtex.u = (sky_t0*sky_ryp0 - sky_t1*sky_ryp1)*gxyaspect*(64.f/512.f) / (sky_ox0-sky_ox1);
-                    otex.u = sky_t0*sky_ryp0*gxyaspect*(64.f/512.f) - xtex.u*sky_ox0;
+                    otex.d = sky_ryp0*gxyaspect*(1.0/512.0) - xtex.d*sky_ox0;
+                    xtex.u = (sky_t0*sky_ryp0 - sky_t1*sky_ryp1)*gxyaspect*(64.0/512.0) / (sky_ox0-sky_ox1);
+                    otex.u = sky_t0*sky_ryp0*gxyaspect*(64.0/512.0) - xtex.u*sky_ox0;
                     ytex.u = 0;
                     sky_t0 = -8192.f*sky_ryp0 + ghoriz;
                     sky_t1 = -8192.f*sky_ryp1 + ghoriz;
@@ -5131,7 +5134,7 @@ static void polymost_drawalls(int32_t const bunch)
                                       fsinglobalang * (1.f / 2147483648.f) };
 
                 xtex.d = 0;
-                ytex.d = gxyaspect*(-1.f/4194304.f);
+                ytex.d = gxyaspect*(-1.0/4194304.0);
                 otex.d = -ghoriz*ytex.d;
                 xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
                 xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
@@ -5242,7 +5245,7 @@ static void polymost_drawalls(int32_t const bunch)
                     //Hack to draw color rectangle above sky when looking up...
                     xtex.d = xtex.u = xtex.v = 0;
 
-                    ytex.d = gxyaspect * (1.f / -262144.f);
+                    ytex.d = gxyaspect * (1.0 / -262144.0);
                     ytex.u = 0;
                     ytex.v = 0;
 
@@ -5282,8 +5285,8 @@ static void polymost_drawalls(int32_t const bunch)
                 xtex.d = xtex.v = 0;
                 ytex.d = ytex.u = 0;
                 otex.d = dd;
-                xtex.u = otex.d * (t * (float)((uint64_t)(xdimscale * yxaspect) * viewingrange)) *
-                         (1.f / (16384.f * 65536.f * 65536.f * 5.f * 1024.f));
+                xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
+                                  (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
                 ytex.v = vv[1];
                 otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->ceilingypanning*(float)i*(1.f/256.f) : vv[0];
 
@@ -5391,7 +5394,7 @@ static void polymost_drawalls(int32_t const bunch)
                                           fsinglobalang * (1.f / 2147483648.f) };
 
                     xtex.d = 0;
-                    ytex.d = gxyaspect*(-1.f/4194304.f);
+                    ytex.d = gxyaspect*(-1.0/4194304.0);
                     otex.d = -ghoriz*ytex.d;
                     xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
                     xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
@@ -5425,11 +5428,11 @@ static void polymost_drawalls(int32_t const bunch)
 
                     //wall of skybox
                     drawingskybox = i+1; //i+1th texture/index i of skybox
-                    xtex.d = (sky_ryp0-sky_ryp1)*gxyaspect*(1.f/512.f) / (sky_ox0-sky_ox1);
+                    xtex.d = (sky_ryp0-sky_ryp1)*gxyaspect*(1.0/512.0) / (sky_ox0-sky_ox1);
                     ytex.d = 0;
-                    otex.d = sky_ryp0*gxyaspect*(1.f/512.f) - xtex.d*sky_ox0;
-                    xtex.u = (sky_t0*sky_ryp0 - sky_t1*sky_ryp1)*gxyaspect*(64.f/512.f) / (sky_ox0-sky_ox1);
-                    otex.u = sky_t0*sky_ryp0*gxyaspect*(64.f/512.f) - xtex.u*sky_ox0;
+                    otex.d = sky_ryp0*gxyaspect*(1.0/512.0) - xtex.d*sky_ox0;
+                    xtex.u = (sky_t0*sky_ryp0 - sky_t1*sky_ryp1)*gxyaspect*(64.0/512.0) / (sky_ox0-sky_ox1);
+                    otex.u = sky_t0*sky_ryp0*gxyaspect*(64.0/512.0) - xtex.u*sky_ox0;
                     ytex.u = 0;
                     sky_t0 = -8192.f*sky_ryp0 + ghoriz;
                     sky_t1 = -8192.f*sky_ryp1 + ghoriz;
@@ -5467,7 +5470,7 @@ static void polymost_drawalls(int32_t const bunch)
                                       fsinglobalang * (1.f / 2147483648.f) };
 
                 xtex.d = 0;
-                ytex.d = gxyaspect*(1.f/4194304.f);
+                ytex.d = gxyaspect*(1.0/4194304.0);
                 otex.d = -ghoriz*ytex.d;
                 xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
                 xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
@@ -5546,7 +5549,7 @@ static void polymost_drawalls(int32_t const bunch)
         otex.d = ryp0*gxyaspect - xtex.d*x0;
 
         xtex.u = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)wal->xrepeat*8.f / (x0-x1);
-        otex.u = t0*ryp0*gxyaspect*(float)wal->xrepeat*8.f - xtex.u*x0;
+        otex.u = t0*ryp0*gxyaspect*wal->xrepeat*8.0 - xtex.u*x0;
         otex.u += (float)wal->xpanning*otex.d;
         xtex.u += (float)wal->xpanning*xtex.d;
         ytex.u = 0;
@@ -5555,7 +5558,7 @@ static void polymost_drawalls(int32_t const bunch)
 
         Bassert(domostpolymethod == DAMETH_NOMASK);
         domostpolymethod = DAMETH_WALL;
-        
+
 #ifdef YAX_ENABLE
         if (yax_nomaskpass==0 || !yax_isislandwall(wallnum, !yax_globalcf) || (yax_nomaskdidit=1, 0))
 #endif
@@ -5964,7 +5967,7 @@ void polymost_drawrooms()
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
-    gxyaspect = ((float)xyaspect*fviewingrange)*(5.f/(65536.f*262144.f));
+    gxyaspect = ((double)xyaspect*fviewingrange)*(5.0/(65536.0*262144.0));
     gviewxrange = fviewingrange * fxdimen * (1.f/(32768.f*1024.f));
     gcosang = fcosglobalang*(1.0f/262144.f);
     gsinang = fsinglobalang*(1.0f/262144.f);
@@ -7475,7 +7478,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     float const ogstang = gstang; gstang = (float) sintable[a&2047]*d;
     int const ogshade  = globalshade;  globalshade  = dashade;
     int const ogpal    = globalpal;    globalpal    = (int32_t) ((uint8_t) dapalnum);
-    float const ogxyaspect = gxyaspect; gxyaspect = 1.f;
+    double const ogxyaspect = gxyaspect; gxyaspect = 1.f;
     int const oldviewingrange = viewingrange; viewingrange = 65536;
     float const oldfviewingrange = fviewingrange; fviewingrange = 65536.f;
 
