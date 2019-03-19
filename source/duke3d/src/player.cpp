@@ -5127,12 +5127,12 @@ void P_ProcessInput(int playerNum)
             }
         }
 
-        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->pos.z < (ceilZ + PCROUCHINCREMENT))
+        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->opos.z < (ceilZ + PMINHEIGHT))
         {
             pPlayer->jumping_counter = 0;
             if (pPlayer->vel.z < 0)
                 pPlayer->vel.x = pPlayer->vel.y = 0;
-            pPlayer->vel.z = 256;
+            pPlayer->vel.z = 128;
         }
     }
 
