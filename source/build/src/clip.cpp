@@ -1674,11 +1674,9 @@ restart_grand:
 
     ////////// Sprites //////////
 
+    if (dasprclipmask)
     for (bssize_t i=0; i<clipsectnum; i++)
     {
-        if (dasprclipmask==0)
-            break;
-
         for (bssize_t j=headspritesect[clipsectorlist[i]]; j>=0; j=nextspritesect[j])
         {
             const int32_t cstat = sprite[j].cstat;
