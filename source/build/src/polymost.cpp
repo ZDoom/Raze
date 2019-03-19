@@ -3922,7 +3922,7 @@ skip: ;
 
     do
     {
-        if ((vsp[i].cy[0]+DOMOST_OFFSET >= vsp[i].fy[0]) && (vsp[i].cy[1]+DOMOST_OFFSET >= vsp[i].fy[1]))
+        if ((vsp[i].cy[0] >= vsp[i].fy[0]) && (vsp[i].cy[1] >= vsp[i].fy[1]))
             vsp[i].ctag = vsp[i].ftag = -1;
 
         int const ni = vsp[i].n;
