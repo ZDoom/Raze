@@ -279,7 +279,7 @@ void gltexapplyprops(void)
 
 //--------------------------------------------------------------------------------------------------
 
-float glox1, gloy1, glox2, gloy2;
+float glox1, gloy1, glox2, gloy2, gloyxscale, gloxyaspect;
 
 //Use this for both initialization and uninitialization of OpenGL.
 static int32_t gltexcacnum = -1;
@@ -1301,7 +1301,7 @@ static void resizeglcheck(void)
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 #endif
 
-    if ((glox1 != windowxy1.x) || (gloy1 != windowxy1.y) || (glox2 != windowxy2.x) || (gloy2 != windowxy2.y))
+    if ((glox1 != windowxy1.x) || (gloy1 != windowxy1.y) || (glox2 != windowxy2.x) || (gloy2 != windowxy2.y) || (gloxyaspect != gxyaspect) || (gloyxscale != gyxscale))
     {
         const int32_t ourxdimen = (windowxy2.x-windowxy1.x+1);
         float ratio = get_projhack_ratio();
@@ -1320,11 +1320,17 @@ static void resizeglcheck(void)
         float m[4][4];
         Bmemset(m,0,sizeof(m));
 
+        float const nearclip = SCISDIST / (gxyaspect * gyxscale * 1024.f);
+        float const farclip = 64.f;
 
-        m[0][0] = fydimen * ratio; m[0][2] = 1.f;
-        m[1][1] = fxdimen; m[1][2] = 1.f;
-        m[2][2] = 1.f; m[2][3] = fydimen * ratio;
-        m[3][2] =-1.f;
+        gloxyaspect = gxyaspect;
+        gloyxscale = gyxscale;
+
+        m[0][0] = 1.f;
+        m[1][1] = fxdimen / (fydimen * ratio);
+        m[2][2] = (farclip + nearclip) / (farclip - nearclip);
+        m[2][3] = 1.f;
+        m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
         glLoadMatrixf(&m[0][0]);
 
         glMatrixMode(GL_MODELVIEW);
@@ -5088,7 +5094,6 @@ void polymost_drawrooms()
     videoBeginDrawing();
     frameoffset = frameplace + windowxy1.y*bytesperline + windowxy1.x;
 
-    resizeglcheck();
 #ifdef YAX_ENABLE
     if (numyaxbunches==0)
 #endif
@@ -5121,6 +5126,8 @@ void polymost_drawrooms()
     ghoriz = fix16_to_float(qglobalhoriz);
 
     gvisibility = ((float)globalvisibility)*FOGSCALE;
+
+    resizeglcheck();
 
     //global cos/sin height angle
     float r = (float)(ydimen>>1) - ghoriz;
@@ -6349,7 +6356,10 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     tspr.cstat = globalorientation = (dastat&RS_TRANS1) | ((dastat&RS_TRANS2)<<4) | ((dastat&RS_YFLIP)<<1);
 
     if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
+    {
         glViewport(windowxy1.x, ydim-(windowxy2.y+1), windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
+        glox1 = -1;
+    }
     else
     {
         glViewport(0, 0, xdim, ydim);
