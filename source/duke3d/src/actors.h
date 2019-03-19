@@ -223,7 +223,7 @@ typedef struct netactor_s
         incval,
         delay;
 
-    int32_t 
+    int32_t
         actiontics;
 #endif
 
@@ -263,7 +263,7 @@ typedef struct netactor_s
 
     // note: lightId, lightcount, lightmaxrange are not synchronized between client and server
 
-    int32_t 
+    int32_t
         cgg;
 
 
@@ -442,6 +442,7 @@ void A_AddToDeleteQueue(int spriteNum);
 void A_DeleteSprite(int spriteNum);
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt);
 void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt);
+int A_GetClipdist(int spriteNum, int clipDist);
 void A_MoveCyclers(void);
 void A_MoveDummyPlayers(void);
 void A_MoveSector(int spriteNum);

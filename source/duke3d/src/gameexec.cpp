@@ -399,8 +399,9 @@ void A_GetZLimits(int const spriteNum)
 {
     auto const pSprite = &sprite[spriteNum];
     int32_t    ceilhit, florhit;
+    int const clipDist = A_GetClipdist(spriteNum, -1);
 
-    VM_GetZRange(spriteNum, &ceilhit, &florhit, (pSprite->statnum == STAT_PROJECTILE) ? 4 : 127);
+    VM_GetZRange(spriteNum, &ceilhit, &florhit, pSprite->statnum == STAT_PROJECTILE ? clipDist << 3 : clipDist);
     actor[spriteNum].flags &= ~SFLAG_NOFLOORSHADOW;
 
     if ((florhit&49152) == 49152 && (sprite[florhit&(MAXSPRITES-1)].cstat&48) == 0)

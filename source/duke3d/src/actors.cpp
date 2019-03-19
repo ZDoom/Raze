@@ -388,6 +388,8 @@ static int32_t A_CheckNeedZUpdate(int32_t spriteNum, int32_t zChange, int32_t *p
 
     *pZcoord = newZ;
 
+    A_GetZLimits(spriteNum);
+
     if (newZ > actor[spriteNum].ceilingz && newZ <= actor[spriteNum].floorz)
         return 1;
 
@@ -416,6 +418,40 @@ static int32_t A_CheckNeedZUpdate(int32_t spriteNum, int32_t zChange, int32_t *p
     return 0;
 }
 
+int A_GetClipdist(int spriteNum, int clipDist)
+{
+    if (clipDist < 0)
+    {
+        spritetype *const pSprite = &sprite[spriteNum];
+        int const         isEnemy = A_CheckEnemySprite(pSprite);
+
+        if (A_CheckSpriteFlags(spriteNum, SFLAG_REALCLIPDIST))
+            clipDist = pSprite->clipdist << 2;
+        else if (isEnemy)
+        {
+            if (pSprite->xrepeat > 60)
+                clipDist = 1024;
+#ifndef EDUKE32_STANDALONE
+            else if (pSprite->picnum == LIZMAN)
+                clipDist = 292;
+#endif
+            else if (A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY))
+                clipDist = pSprite->clipdist << 2;
+            else
+                clipDist = 192;
+        }
+        else
+        {
+            if (pSprite->statnum == STAT_PROJECTILE && (SpriteProjectile[spriteNum].workslike & PROJECTILE_REALCLIPDIST) == 0)
+                clipDist = 16;
+            else
+                clipDist = pSprite->clipdist << 2;
+        }
+    }
+
+    return clipDist;
+}
+
 int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uint32_t clipType, int32_t clipDist)
 {
     spritetype *const pSprite = &sprite[spriteNum];
@@ -441,31 +477,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 
     setsprite(spriteNum, (vec3_t *)pSprite);
 
-    if (clipDist < 0)
-    {
-        if (A_CheckSpriteFlags(spriteNum, SFLAG_REALCLIPDIST))
-            clipDist = pSprite->clipdist << 2;
-        else if (isEnemy)
-        {
-            if (pSprite->xrepeat > 60)
-                clipDist = 1024;
-#ifndef EDUKE32_STANDALONE
-            else if (pSprite->picnum == LIZMAN)
-                clipDist = 292;
-#endif
-            else if (A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY))
-                clipDist = pSprite->clipdist << 2;
-            else
-                clipDist = 192;
-        }
-        else
-        {
-            if (pSprite->statnum == STAT_PROJECTILE && (SpriteProjectile[spriteNum].workslike & PROJECTILE_REALCLIPDIST) == 0)
-                clipDist = 8;
-            else
-                clipDist = pSprite->clipdist << 2;
-        }
-    }
+    clipDist = A_GetClipdist(spriteNum, clipDist);
 
     int16_t   newSectnum = pSprite->sectnum;
 #ifndef EDUKE32_STANDALONE
@@ -489,7 +501,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 
         case STAT_PROJECTILE:
         {
-            returnValue = clipmovex((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, diffZ >> 2, diffZ >> 2, clipType, 1);
+            returnValue = clipmovex((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, diffZ >> 1, diffZ >> 1, clipType, 1);
             break;
         }
     }
@@ -2788,7 +2800,7 @@ static int Proj_MaybeDamageCF(int spriteNum)
 
 ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
 {
-    int const projectileMoved = SpriteProjectile[spriteNum].workslike & PROJECTILE_MOVED;
+    int projectileMoved = SpriteProjectile[spriteNum].workslike & PROJECTILE_MOVED;
     SpriteProjectile[spriteNum].workslike |= PROJECTILE_MOVED;
     const projectile_t *const pProj   = &SpriteProjectile[spriteNum];
     spritetype *const         pSprite = &sprite[spriteNum];
@@ -2840,8 +2852,6 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
             if (pProj->workslike & PROJECTILE_SPIT && pSprite->zvel < 6144)
                 pSprite->zvel += g_spriteGravity - 112;
 
-            A_GetZLimits(spriteNum);
-
             if (pProj->trail >= 0)
             {
                 for (bssize_t cnt = 0; cnt <= pProj->tnum; cnt++)
@@ -2870,10 +2880,11 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
 
             do
             {
-                vec3_t tmpvect = { (projVel * (sintable[(pSprite->ang + 512) & 2047])) >> 14,
-                                   (projVel * (sintable[pSprite->ang & 2047])) >> 14, projZvel };
+                vec3_t tmpvect = { (projVel * (sintable[(pSprite->ang + 512) & 2047])) >> 14 >> (int)!projectileMoved,
+                                   (projVel * (sintable[pSprite->ang & 2047])) >> 14 >> (int)!projectileMoved, projZvel >> (int)!projectileMoved };
                 Bmemcpy(&davect, pSprite, sizeof(vec3_t));
-                otherSprite = A_MoveSprite(spriteNum, &tmpvect, (!projectileMoved || A_CheckSpriteFlags(spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
+                projectileMoved++;
+                otherSprite = A_MoveSprite(spriteNum, &tmpvect, (A_CheckSpriteFlags(spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
             }
             while (!otherSprite && --projMoveCnt > 0);
 
@@ -3115,8 +3126,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                 vec3_t davect = *(vec3_t *) pSprite;
 
-                A_GetZLimits(spriteNum);
-
                 if (pSprite->picnum == RPG && actor[spriteNum].picnum != BOSS2 && pSprite->xrepeat >= 10
                     && sector[pSprite->sectnum].lotag != ST_2_UNDERWATER
                     && g_scriptVersion >= 13)
@@ -3125,10 +3134,10 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     sprite[newSprite].z += (1 << 8);
                 }
 
-                vec3_t const tmpvect = { (spriteXvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14,
-                                         (spriteXvel * (sintable[pSprite->ang & 2047])) >> 14, spriteZvel };
+                vec3_t const tmpvect = { (spriteXvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14 >> (int)!projectileMoved,
+                                         (spriteXvel * (sintable[pSprite->ang & 2047])) >> 14 >> (int)!projectileMoved, spriteZvel >> (int)!projectileMoved };
 
-                int moveSprite = A_MoveSprite(spriteNum, &tmpvect, (!projectileMoved || A_CheckSpriteFlags(spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
+                int moveSprite = A_MoveSprite(spriteNum, &tmpvect, (A_CheckSpriteFlags(spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
 
                 if (pSprite->picnum == RPG && (unsigned) pSprite->yvel < MAXSPRITES)  // RPG_YVEL
                     if (FindDistance2D(pSprite->x - sprite[pSprite->yvel].x, pSprite->y - sprite[pSprite->yvel].y) < 256)
