@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#define MAXCLIPNUM 1024
+#define MAXCLIPNUM 2048
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 
