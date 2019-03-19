@@ -697,7 +697,6 @@ static void G_PrintCoords(int32_t snum)
             else
                 printcoordsline("r_pr_artmapping = %d", pr_artmapping);
 #endif
-            printcoordsline("r_usetileshades = %d", r_usetileshades);
         }
     }
 #endif

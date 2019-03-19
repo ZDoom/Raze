@@ -63,7 +63,6 @@ int32_t shadescale_unbounded = 0;
 int32_t r_enablepolymost2 = 0;
 int32_t r_pogoDebug = 0;
 int32_t r_usenewshading = 4;
-int32_t r_usetileshades = 2;
 int32_t r_npotwallmode = 2;
 
 static float gviewxrange;
@@ -580,12 +579,8 @@ static void polymost_setShade(int32_t shade)
     if (currentShaderProgramID != polymost1CurrentShaderProgramID)
         return;
 
-    if (!r_usetileshades || (globalflags & GLOBAL_NO_GL_TILESHADES))
+    if (globalflags & GLOBAL_NO_GL_TILESHADES)
         shade = 0;
-#if 0
-    else
-        shade = getpalookup(r_usetileshades == 1, shade);
-#endif
 
     static int32_t lastShade;
     static int32_t lastNumShades;
@@ -1117,7 +1112,7 @@ static void fogcalc_old(int32_t shade, int32_t vis)
 
 static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
-    if (shade > 0 && videoGetRenderMode() == REND_POLYMOST && r_usetileshades == 1 &&
+    if (shade > 0 && videoGetRenderMode() == REND_POLYMOST &&
         !(globalflags & GLOBAL_NO_GL_TILESHADES) &&
         (!usehightile || !hicfindsubst(tile, pal, hictinting[pal].f & HICTINT_ALWAYSUSEART)) &&
         (!usemodels || md_tilehasmodel(tile, pal) < 0))
@@ -2068,10 +2063,9 @@ static uint8_t drawpoly_blend = 0;
 static inline pthtyp *our_texcache_fetch(int32_t dameth)
 {
     if (r_usenewshading == 4)
-        return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)), globalshade), dameth);
+        return texcache_fetch(globalpicnum, globalpal, getpalookup(!(globalflags & GLOBAL_NO_GL_TILESHADES), globalshade), dameth);
 
-    // r_usetileshades 1 is TX's method.
-    return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)) ? globvis>>3 : 0, globalshade), dameth);
+    return texcache_fetch(globalpicnum, globalpal, getpalookup(!(globalflags & GLOBAL_NO_GL_TILESHADES) ? globvis>>3 : 0, globalshade), dameth);
 }
 
 
@@ -2414,7 +2408,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
         polytint_t const & tint = hictinting[globalpal];
         float shadeFactor = (pth->flags & PTH_INDEXED) &&
-                            r_usetileshades &&
                             !(globalflags & GLOBAL_NO_GL_TILESHADES) ? 1.f : getshadefactor(globalshade);
         pc[0] = (1.f-(tint.sr*(1.f/255.f)))*shadeFactor+(tint.sr*(1.f/255.f));
         pc[1] = (1.f-(tint.sg*(1.f/255.f)))*shadeFactor+(tint.sg*(1.f/255.f));
@@ -7256,7 +7249,6 @@ void polymost_initosdfuncs(void)
           (void *) &r_usenewshading, CVAR_INT|CVAR_FUNCPTR, 0, 4
         },
 
-        { "r_usetileshades", "enable/disable Polymost tile shade textures", (void *) &r_usetileshades, CVAR_INT | CVAR_INVALIDATEART, 0, 2 },
         { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 1 },
 
 
