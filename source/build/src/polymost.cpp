@@ -545,8 +545,8 @@ static void polymost_setPalswap(uint32_t index)
     lastPalswapIndex = index;
     polymost1PalswapPos.x = index*polymost1PalswapSize.x;
     polymost1PalswapPos.y = floorf(polymost1PalswapPos.x);
-    polymost1PalswapPos.x = polymost1PalswapPos.x - polymost1PalswapPos.y + (0.5f/PALSWAP_TEXTURE_SIZE);
-    polymost1PalswapPos.y = polymost1PalswapPos.y * polymost1PalswapSize.y + (0.5f/PALSWAP_TEXTURE_SIZE);
+    polymost1PalswapPos = { polymost1PalswapPos.x - polymost1PalswapPos.y + (0.5f/PALSWAP_TEXTURE_SIZE),
+                            polymost1PalswapPos.y * polymost1PalswapSize.y + (0.5f/PALSWAP_TEXTURE_SIZE) };
     glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
 }
 
@@ -555,10 +555,12 @@ static void polymost_setPalswapSize(uint32_t width, uint32_t height)
     if (currentShaderProgramID != polymost1CurrentShaderProgramID)
         return;
 
-    polymost1PalswapSize.x = width*(1.f/PALSWAP_TEXTURE_SIZE);
-    polymost1PalswapSize.y = height*(1.f/PALSWAP_TEXTURE_SIZE);
-    polymost1PalswapInnerSize.x = (width-1)*(1.f/PALSWAP_TEXTURE_SIZE);
-    polymost1PalswapInnerSize.y = (height-1)*(1.f/PALSWAP_TEXTURE_SIZE);
+    polymost1PalswapSize = { width*(1.f/PALSWAP_TEXTURE_SIZE),
+                             height*(1.f/PALSWAP_TEXTURE_SIZE) };
+
+    polymost1PalswapInnerSize = { (width-1)*(1.f/PALSWAP_TEXTURE_SIZE),
+                                  (height-1)*(1.f/PALSWAP_TEXTURE_SIZE) };
+
     glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
 }
 
@@ -1347,8 +1349,9 @@ static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t
 
     vec2_t doxy = { dasiz2.x-1, dasiz2.y-1 };
 
-    if (dameth & DAMETH_CLAMPED) { doxy.x = min(doxy.x, dasiz.x); doxy.y = min(doxy.y, dasiz.y); }
-    else { dasiz = dasiz2; } //Make repeating textures duplicate top/left parts
+    if (dameth & DAMETH_CLAMPED)
+        doxy = { min(doxy.x, dasiz.x), min(doxy.y, dasiz.y) };
+    else  dasiz = dasiz2; //Make repeating textures duplicate top/left parts
 
     dasiz.x--; dasiz.y--; //Hacks for optimization inside loop
     int32_t const naxsiz2 = -dasiz2.x;
@@ -1796,8 +1799,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             if (artCheckUnitFileHeader((uint8_t *)kpzbuf, picfillen))
                 return -1;
 
-            tsiz.x = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
-            tsiz.y = B_LITTLE16(B_UNBUF16(&kpzbuf[18]));
+            tsiz = { B_LITTLE16(B_UNBUF16(&kpzbuf[16])), B_LITTLE16(B_UNBUF16(&kpzbuf[18])) };
 
             if (tsiz.x == 0 || tsiz.y == 0)
                 return -1;
@@ -1990,15 +1992,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     // precalculate scaling parameters for replacement
     if (facen > 0)
-    {
-        pth->scale.x = (float)tsiz.x * (1.0f/64.f);
-        pth->scale.y = (float)tsiz.y * (1.0f/64.f);
-    }
+        pth->scale = { (float)tsiz.x * (1.0f/64.f), (float)tsiz.y * (1.0f/64.f) };
     else
-    {
-        pth->scale.x = (float)tsiz.x / (float)tilesiz[dapic].x;
-        pth->scale.y = (float)tsiz.y / (float)tilesiz[dapic].y;
-    }
+        pth->scale = { (float)tsiz.x / (float)tilesiz[dapic].x, (float)tsiz.y / (float)tilesiz[dapic].y };
 
     polymost_setuptexture(pth->glpic, dameth, (hicr->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
 
@@ -2783,8 +2779,8 @@ static void polymost_clipmost(vec2f_t *dpxy, int &n, float x0, float x1, float y
         if ((t0 >= 0) != (t1 >= 0) && (t0 <= 0) != (t1 <= 0))
         {
             float const r = t0 / (t0 - t1);
-            dp2[n2].x = (dpxy[j].x - dpxy[i].x) * r + dpxy[i].x;
-            dp2[n2].y = (dpxy[j].y - dpxy[i].y) * r + dpxy[i].y;
+            dp2[n2] = { (dpxy[j].x - dpxy[i].x) * r + dpxy[i].x,
+                        (dpxy[j].y - dpxy[i].y) * r + dpxy[i].y };
             n2++;
         }
     }
@@ -2813,8 +2809,8 @@ static void polymost_clipmost(vec2f_t *dpxy, int &n, float x0, float x1, float y
         if ((t0 >= 0) != (t1 >= 0) && (t0 <= 0) != (t1 <= 0))
         {
             float const r = t0 / (t0 - t1);
-            dpxy[n].x = (dp2[j].x - dp2[i].x) * r + dp2[i].x;
-            dpxy[n].y = (dp2[j].y - dp2[i].y) * r + dp2[i].y;
+            dpxy[n] = { (dp2[j].x - dp2[i].x) * r + dp2[i].x,
+                        (dp2[j].y - dp2[i].y) * r + dp2[i].y };
             n++;
         }
     }
@@ -3443,15 +3439,17 @@ void polymost_editorfunc(void)
 {
     const float ratio = (r_usenewaspect ? (fxdim / fydim) / (320.f / 240.f) : 1.f)  * (1.f / get_projhack_ratio());
 
-    vec3f_t tvect = { (searchx - ghalfx) * ratio, (searchy - ghoriz) * ratio, ghalfx };
+    vec3f_t tvect = { (searchx - ghalfx) * ratio,
+                      (searchy - ghoriz) * ratio,
+                      ghalfx };
 
     //Tilt rotation
     vec3f_t o = { tvect.x * gctang + tvect.y * gstang, tvect.y * gctang - tvect.x * gstang, tvect.z };
 
     //Up/down rotation
-    tvect.x = o.z*gchang - o.y*gshang;
-    tvect.y = o.x;
-    tvect.z = o.y*gchang + o.z*gshang;
+    tvect = { o.z * gchang - o.y * gshang,
+              o.x,
+              o.y * gchang + o.z * gshang };
 
     //Standard Left/right rotation
     vec3_t v = { Blrintf(tvect.x * fcosglobalang - tvect.y * fsinglobalang),
@@ -3922,7 +3920,8 @@ static void polymost_drawalls(int32_t const bunch)
         vec2f_t p0 = { walpos.y * gcosang - walpos.x * gsinang, walpos.x * gcosang2 + walpos.y * gsinang2 };
         vec2f_t const op0 = p0;
 
-        walpos.x = (float)(wal2->x-globalposx); walpos.y = (float)(wal2->y-globalposy);
+        walpos = { (float)(wal2->x - globalposx),
+                   (float)(wal2->y - globalposy) };
 
         vec2f_t p1 = { walpos.y * gcosang - walpos.x * gsinang, walpos.x * gcosang2 + walpos.y * gsinang2 };
 
@@ -3934,18 +3933,29 @@ static void polymost_drawalls(int32_t const bunch)
         if (p0.y < SCISDIST)
         {
             if (p1.y < SCISDIST) continue;
-            t0 = (SCISDIST-p0.y)/(p1.y-p0.y); p0.x = (p1.x-p0.x)*t0+p0.x; p0.y = SCISDIST;
-            n0.x = (wal2->x-wal->x)*t0+wal->x;
-            n0.y = (wal2->y-wal->y)*t0+wal->y;
+            t0 = (SCISDIST-p0.y)/(p1.y-p0.y);
+            p0 = { (p1.x-p0.x)*t0+p0.x, SCISDIST };
+            n0 = { (wal2->x-wal->x)*t0+wal->x,
+                   (wal2->y-wal->y)*t0+wal->y };
         }
-        else { t0 = 0.f; n0.x = (float)wal->x; n0.y = (float)wal->y; }
+        else
+        {
+            t0 = 0.f;
+            n0 = { (float)wal->x, (float)wal->y };
+        }
+
         if (p1.y < SCISDIST)
         {
-            t1 = (SCISDIST-op0.y)/(p1.y-op0.y); p1.x = (p1.x-op0.x)*t1+op0.x; p1.y = SCISDIST;
-            n1.x = (wal2->x-wal->x)*t1+wal->x;
-            n1.y = (wal2->y-wal->y)*t1+wal->y;
+            t1 = (SCISDIST-op0.y)/(p1.y-op0.y);
+            p1 = { (p1.x-op0.x)*t1+op0.x, SCISDIST };
+            n1 = { (wal2->x-wal->x)*t1+wal->x,
+                   (wal2->y-wal->y)*t1+wal->y };
         }
-        else { t1 = 1.f; n1.x = (float)wal2->x; n1.y = (float)wal2->y; }
+        else
+        {
+            t1 = 1.f;
+            n1 = { (float)wal2->x, (float)wal2->y };
+        }
 
         float ryp0 = 1.f/p0.y, ryp1 = 1.f/p1.y;
 
@@ -4140,13 +4150,15 @@ static void polymost_drawalls(int32_t const bunch)
                     if (skyp0.y < SCISDIST)
                     {
                         if (skyp1.y < SCISDIST) continue;
-                        sky_t0 = (SCISDIST-skyp0.y)/(skyp1.y-skyp0.y); skyp0.x = (skyp1.x-skyp0.x)*sky_t0+skyp0.x; skyp0.y = SCISDIST;
+                        sky_t0 = (SCISDIST - skyp0.y) / (skyp1.y - skyp0.y);
+                        skyp0  = { (skyp1.x - skyp0.x) * sky_t0 + skyp0.x, SCISDIST };
                     }
                     else { sky_t0 = 0.f; }
 
                     if (skyp1.y < SCISDIST)
                     {
-                        sky_t1 = (SCISDIST-oskyp0.y)/(skyp1.y-oskyp0.y); skyp1.x = (skyp1.x-oskyp0.x)*sky_t1+oskyp0.x; skyp1.y = SCISDIST;
+                        sky_t1  = (SCISDIST - oskyp0.y) / (skyp1.y - oskyp0.y);
+                        skyp1 = { (skyp1.x - oskyp0.x) * sky_t1 + oskyp0.x, SCISDIST };
                     }
                     else { sky_t1 = 1.f; }
 
@@ -4467,13 +4479,15 @@ static void polymost_drawalls(int32_t const bunch)
                     if (skyp0.y < SCISDIST)
                     {
                         if (skyp1.y < SCISDIST) continue;
-                        sky_t0 = (SCISDIST-skyp0.y)/(skyp1.y-skyp0.y); skyp0.x = (skyp1.x-skyp0.x)*sky_t0+skyp0.x; skyp0.y = SCISDIST;
+                        sky_t0 = (SCISDIST - skyp0.y) / (skyp1.y - skyp0.y);
+                        skyp0  = { (skyp1.x - skyp0.x) * sky_t0 + skyp0.x, SCISDIST };
                     }
                     else { sky_t0 = 0.f; }
 
                     if (skyp1.y < SCISDIST)
                     {
-                        sky_t1 = (SCISDIST-oskyp0.y)/(skyp1.y-oskyp0.y); skyp1.x = (skyp1.x-oskyp0.x)*sky_t1+oskyp0.x; skyp1.y = SCISDIST;
+                        sky_t1 = (SCISDIST - oskyp0.y) / (skyp1.y - oskyp0.y);
+                        skyp1  = { (skyp1.x - oskyp0.x) * sky_t1 + oskyp0.x, SCISDIST };
                     }
                     else { sky_t1 = 1.f; }
 
@@ -5149,21 +5163,19 @@ void polymost_drawrooms()
         gstang = -gstang;
 
     //Generate viewport trapezoid (for handling screen up/down)
-    vec3f_t p[4] = {  { 0-1,                                  0-1,                                  0 },
+    vec3f_t p[4] = {  { 0-1,                                        0-1,                                  0 },
                       { (float)(windowxy2.x + 1 - windowxy1.x + 2), 0-1,                                  0 },
                       { (float)(windowxy2.x + 1 - windowxy1.x + 2), (float)(windowxy2.y + 1 - windowxy1.y + 2), 0 },
-                      { 0-1,                                  (float)(windowxy2.y + 1 - windowxy1.y + 2), 0 } };
+                      { 0-1,                                        (float)(windowxy2.y + 1 - windowxy1.y + 2), 0 } };
 
-    for (bssize_t i=0; i<4; i++)
+    for (auto & v : p)
     {
         //Tilt rotation (backwards)
-        vec2f_t const o = { p[i].x-ghalfx, p[i].y-ghoriz };
+        vec2f_t const o = { v.x-ghalfx, v.y-ghoriz };
         vec3f_t const o2 = { o.x*gctang + o.y*gstang, o.y*gctang - o.x*gstang, ghalfx };
 
         //Up/down rotation (backwards)
-        p[i].x = o2.x;
-        p[i].y = o2.y*gchang + o2.z*gshang;
-        p[i].z = o2.z*gchang - o2.y*gshang;
+        v = { o2.x, o2.y * gchang + o2.z * gshang, o2.z * gchang - o2.y * gshang };
     }
 
     //Clip to SCISDIST plane
@@ -5181,9 +5193,7 @@ void polymost_drawrooms()
         if ((p[i].z >= SCISDIST) != (p[j].z >= SCISDIST))
         {
             float const r = (SCISDIST - p[i].z) / (p[j].z - p[i].z);
-            p2[n].x = (p[j].x - p[i].x) * r + p[i].x;
-            p2[n].y = (p[j].y - p[i].y) * r + p[i].y;
-            p2[n].z = SCISDIST; n++;
+            p2[n++] = { (p[j].x - p[i].x) * r + p[i].x, (p[j].y - p[i].y) * r + p[i].y, SCISDIST };
         }
     }
 
@@ -5337,8 +5347,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     if (p0.y < SCISDIST)
     {
         t0 = (SCISDIST - p0.y) / (p1.y - p0.y);
-        p0.x = (p1.x - p0.x) * t0 + p0.x;
-        p0.y = SCISDIST;
+        p0 = { (p1.x - p0.x) * t0 + p0.x, SCISDIST };
     }
 
     float t1 = 1.f;
@@ -5346,8 +5355,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     if (p1.y < SCISDIST)
     {
         t1 = (SCISDIST - op0.y) / (p1.y - op0.y);
-        p1.x = (p1.x - op0.x) * t1 + op0.x;
-        p1.y = SCISDIST;
+        p1 = { (p1.x - op0.x) * t1 + op0.x, SCISDIST };
     }
 
     int32_t m0 = (int32_t)((wal2->x - wal->x) * t0 + wal->x);
@@ -5462,9 +5470,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
         if ((t0 >= 0) != (t1 >= 0) && (t0 <= 0) != (t1 <= 0))
         {
             float const r = t0 / (t0 - t1);
-            dp2[n2].x = (dpxy[j].x - dpxy[i].x) * r + dpxy[i].x;
-            dp2[n2].y = (dpxy[j].y - dpxy[i].y) * r + dpxy[i].y;
-            n2++;
+            dp2[n2++] = { (dpxy[j].x - dpxy[i].x) * r + dpxy[i].x, (dpxy[j].y - dpxy[i].y) * r + dpxy[i].y };
         }
     }
 
@@ -5489,9 +5495,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
         if ((t0 >= 0) != (t1 >= 0) && (t0 <= 0) != (t1 <= 0))
         {
             float const r = t0 / (t0 - t1);
-            dpxy[n].x = (dp2[j].x - dp2[i].x) * r + dp2[i].x;
-            dpxy[n].y = (dp2[j].y - dp2[i].y) * r + dp2[i].y;
-            n++;
+            dpxy[n++] = { (dp2[j].x - dp2[i].x) * r + dp2[i].x, (dp2[j].y - dp2[i].y) * r + dp2[i].y };
         }
     }
 
@@ -5624,8 +5628,8 @@ void polymost_drawsprite(int32_t snum)
     if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
     {
         int const flag = usehightile && h_xsize[globalpicnum];
-        off.x = (int32_t)tspr->xoffset + (flag ? h_xoffs[globalpicnum] : picanm[globalpicnum].xofs);
-        off.y = (int32_t)tspr->yoffset + (flag ? h_yoffs[globalpicnum] : picanm[globalpicnum].yofs);
+        off = { (int32_t)tspr->xoffset + (flag ? h_xoffs[globalpicnum] : picanm[globalpicnum].xofs),
+                (int32_t)tspr->yoffset + (flag ? h_yoffs[globalpicnum] : picanm[globalpicnum].yofs) };
     }
 
     int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
@@ -5685,10 +5689,7 @@ void polymost_drawsprite(int32_t snum)
     vec2_t tsiz = { oldsiz.x, oldsiz.y };
 
     if (usehightile && h_xsize[globalpicnum])
-    {
-        tsiz.x = h_xsize[globalpicnum];
-        tsiz.y = h_ysize[globalpicnum];
-    }
+        tsiz = { h_xsize[globalpicnum], h_ysize[globalpicnum] };
 
     if (tsiz.x <= 0 || tsiz.y <= 0)
         return;
@@ -5723,8 +5724,7 @@ void polymost_drawsprite(int32_t snum)
                 goto _drawsprite_return;
 
             float const ryp0 = 1.f / p0.y;
-            s0.x = ghalfx * p0.x * ryp0 + ghalfx;
-            s0.y = ((float) (tspr->z - globalposz)) * gyxscale * ryp0 + ghoriz;
+            s0 = { ghalfx * p0.x * ryp0 + ghalfx, ((float)(tspr->z - globalposz)) * gyxscale * ryp0 + ghoriz };
 
             float const f = ryp0 * fxdimen * (1.0f / 160.f);
 
@@ -5812,8 +5812,7 @@ void polymost_drawsprite(int32_t snum)
                     pxy[2].y = pxy[3].y = s0.y;
             }
 
-            tilesiz[globalpicnum].x = tsiz.x;
-            tilesiz[globalpicnum].y = tsiz.y;
+            tilesiz[globalpicnum] = { (int16_t)tsiz.x, (int16_t)tsiz.y };
             pow2xsplit = 0;
             polymost_drawpoly(pxy, 4, method);
 
@@ -5908,15 +5907,13 @@ void polymost_drawsprite(int32_t snum)
             if (p0.y < SCISDIST)
             {
                 t0 = (SCISDIST - p0.y) / (p1.y - p0.y);
-                p0.x = (p1.x - p0.x) * t0 + p0.x;
-                p0.y = SCISDIST;
+                p0 = { (p1.x - p0.x) * t0 + p0.x, SCISDIST };
             }
 
             if (p1.y < SCISDIST)
             {
                 t1 = (SCISDIST - op0.y) / (p1.y - op0.y);
-                p1.x = (p1.x - op0.x) * t1 + op0.x;
-                p1.y = SCISDIST;
+                p1 = { (p1.x - op0.x) * t1 + op0.x, SCISDIST };
             }
 
             f = 1.f / p0.y;
@@ -6025,8 +6022,7 @@ void polymost_drawsprite(int32_t snum)
 
             vec2f_t const pxy[4] = { { sx0, sc0 }, { sx1, sc1 }, { sx1, sf1 }, { sx0, sf0 } };
 
-            tilesiz[globalpicnum].x = tsiz.x;
-            tilesiz[globalpicnum].y = tsiz.y;
+            tilesiz[globalpicnum] = { (int16_t)tsiz.x, (int16_t)tsiz.y };
             pow2xsplit = 0;
             polymost_drawpoly(pxy, 4, method);
 
@@ -6086,8 +6082,7 @@ void polymost_drawsprite(int32_t snum)
                         s0.y -= c * p1.x;
                     }
 
-                    pxy[j].x = s0.y * gcosang - s0.x * gsinang;
-                    pxy[j].y = s0.x * gcosang2 + s0.y * gsinang2;
+                    pxy[j] = { s0.y * gcosang - s0.x * gsinang, s0.x * gcosang2 + s0.y * gsinang2 };
                 }
 
                 if (tspr->z < globalposz)  // if floor sprite is above you, reverse order of points
@@ -6135,8 +6130,7 @@ void polymost_drawsprite(int32_t snum)
                 for (bssize_t j = 0; j < npoints; j++)
                 {
                     float const ryp0 = 1.f / p2[j].y;
-                    pxy[j].x = ghalfx * p2[j].x * ryp0 + ghalfx;
-                    pxy[j].y = f * ryp0 + ghoriz;
+                    pxy[j] = { ghalfx * p2[j].x * ryp0 + ghalfx, f * ryp0 + ghoriz };
                 }
 
                 // gd? Copied from floor rendering code
@@ -6203,8 +6197,7 @@ void polymost_drawsprite(int32_t snum)
                     drawpoly_trepeat = 1;
                 }
 
-                tilesiz[globalpicnum].x = tsiz.x;
-                tilesiz[globalpicnum].y = tsiz.y;
+                tilesiz[globalpicnum] = { (int16_t)tsiz.x, (int16_t)tsiz.y };
                 pow2xsplit = 0;
 
                 polymost_drawpoly(pxy, npoints, method);
@@ -6572,8 +6565,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     if (!(dastat & RS_TOPLEFT))
     {
-        ofs.x = picanm[globalpicnum].xofs + (siz.x>>1);
-        ofs.y = picanm[globalpicnum].yofs + (siz.y>>1);
+        ofs = { int16_t(picanm[globalpicnum].xofs + (siz.x>>1)),
+                int16_t(picanm[globalpicnum].yofs + (siz.y>>1)) };
     }
 
     if (dastat & RS_YFLIP)
@@ -6604,15 +6597,15 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                        { 0, 0 },
                        { cx - (float)siz.y * sinang2, cy + (float)siz.y * cosang } };
 
-    pxy[2].x = pxy[1].x + pxy[3].x - pxy[0].x;
-    pxy[2].y = pxy[1].y + pxy[3].y - pxy[0].y;
+    pxy[2]= { pxy[1].x + pxy[3].x - pxy[0].x,
+              pxy[1].y + pxy[3].y - pxy[0].y };
 
     // Round after calculating pxy[2] so that it is calculated correctly
     // Rounding pxy[0].x & pxy[0].y is unnecessary so long as pxy[0] can never have fractional values
     //pxy[0].x = roundf(pxy[0].x); pxy[0].y = roundf(pxy[0].y);
-    pxy[1].x = roundf(pxy[1].x); pxy[1].y = roundf(pxy[1].y);
-    pxy[2].x = roundf(pxy[2].x); pxy[2].y = roundf(pxy[2].y);
-    pxy[3].x = roundf(pxy[3].x); pxy[3].y = roundf(pxy[3].y);
+    pxy[1] = { roundf(pxy[1].x), roundf(pxy[1].y) };
+    pxy[2] = { roundf(pxy[2].x), roundf(pxy[2].y) };
+    pxy[3] = { roundf(pxy[3].x), roundf(pxy[3].y) };
 
     int32_t n = 4;
 
