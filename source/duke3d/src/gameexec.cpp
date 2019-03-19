@@ -415,7 +415,7 @@ void A_GetZLimits(int const spriteNum)
         {
             actor[spriteNum].flags |= SFLAG_NOFLOORSHADOW;  // No shadows on actors
             pSprite->xvel = -256;  // SLIDE_ABOVE_ENEMY
-            A_SetSprite(spriteNum, CLIPMASK0);
+            A_SetSpriteNoZ(spriteNum, CLIPMASK0);
         }
         else if (pSprite->statnum == STAT_PROJECTILE && hitspr->picnum == APLAYER && pSprite->owner==florhit)
         {
