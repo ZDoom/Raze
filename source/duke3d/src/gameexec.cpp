@@ -5463,7 +5463,7 @@ badindex:
                                 break;
                         } while (findStatnum--);
                         Gv_SetVarX(returnVar, foundSprite);
-                        dispatch();
+                        continue;
                     }
 
                     do
@@ -5511,7 +5511,7 @@ badindex:
                         int spriteNum = headspritestat[tw == CON_FINDNEARACTORZ ? STAT_ACTOR : findStatnum];  // all sprites
 
                         if (spriteNum == -1)
-                            dispatch();
+                            continue;
                         do
                         {
                             if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum)
