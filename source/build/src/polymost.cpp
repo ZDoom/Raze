@@ -4590,7 +4590,14 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     if (globalorientation&2) //slopes
     {
         //Pick some point guaranteed to be not collinear to the 1st two points
-        vec2f_t const oxy = { n0.x + (n1.y - n0.y), n0.y + (n0.x - n1.x) };
+        vec2f_t dxy = { n1.y - n0.y, n0.x - n1.x };
+
+        float const dxyr = polymost_invsqrt_approximation(dxy.x * dxy.x + dxy.y * dxy.y);
+
+        dxy.x *= dxyr * 4096.f;
+        dxy.y *= dxyr * 4096.f;
+
+        vec2f_t const oxy = { n0.x + dxy.x, n0.y + dxy.y };
 
         float const ox2 = (oxy.y - fglobalposy) * gcosang - (oxy.x - fglobalposx) * gsinang;
         float oy2 = 1.f / ((oxy.x - fglobalposx) * gcosang2 + (oxy.y - fglobalposy) * gsinang2);
