@@ -957,7 +957,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
 
     if (tspr->extra&TSPR_EXTRA_MDHACK)
     {
-        glDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+        glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        glDepthRange(0.0, 0.9999);
     }
 
