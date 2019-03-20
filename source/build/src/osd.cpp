@@ -504,7 +504,7 @@ static int osdfunc_listsymbols(osdcmdptr_t parm)
     int maxwidth = 0;
 
     for (auto symb=osd->symbols; symb!=NULL; symb=symb->next)
-        if (symb->func != OSD_UNALIASED)
+        if (symb->func != OSD_UNALIASED && symb->help != NULL)
             maxwidth = max<int>(maxwidth, Bstrlen(symb->name));
 
     if (maxwidth > 0)
@@ -523,7 +523,7 @@ static int osdfunc_listsymbols(osdcmdptr_t parm)
 
         for (auto symb=osd->symbols; symb!=NULL; symb=symb->next)
         {
-            if (symb->func == OSD_UNALIASED || (parm->numparms == 1 && Bstrncmp(parm->parms[0], symb->name, parmlen)))
+            if (symb->func == OSD_UNALIASED || symb->help == NULL || (parm->numparms == 1 && Bstrncmp(parm->parms[0], symb->name, parmlen)))
                 continue;
 
             int const var = hash_find(&h_cvars, symb->name);
@@ -2014,7 +2014,7 @@ static osdsymbol_t * osd_findsymbol(const char * const pszName, osdsymbol_t *pSy
 
     for (; pSymbol; pSymbol=pSymbol->next)
     {
-        if (pSymbol->func != OSD_UNALIASED && !Bstrncasecmp(pszName, pSymbol->name, nameLen))
+        if (pSymbol->func != OSD_UNALIASED && pSymbol->help != NULL && !Bstrncasecmp(pszName, pSymbol->name, nameLen))
             return pSymbol;
     }
 

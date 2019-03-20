@@ -703,6 +703,16 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
             }
         }
 
+        for (int i=0; i<NUMGAMEFUNCTIONS; ++i)
+        {
+            if (ud.config.KeyboardKeys[i][0] == 0xff || !ud.config.KeyboardKeys[i][0])
+            {
+                buildvfs_fputstr(fp, "unbound ");
+                buildvfs_fputstrptr(fp, CONFIG_FunctionNumToName(i));
+                buildvfs_fputstr(fp, "\n");
+            }
+        }
+
         OSD_WriteAliases(fp);
 
         if (g_crosshairSum != -1 && g_crosshairSum != DefaultCrosshairColors.r+(DefaultCrosshairColors.g<<8)+(DefaultCrosshairColors.b<<16))
