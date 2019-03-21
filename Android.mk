@@ -107,7 +107,7 @@ GAME_SRC = \
     source/duke3d/src/input.cpp \
     source/duke3d/src/menus.cpp \
     source/duke3d/src/namesdyn.cpp \
-    source/duke3d/src/net.cpp \
+    source/duke3d/src/network.cpp \
     source/duke3d/src/player.cpp \
     source/duke3d/src/premap.cpp \
     source/duke3d/src/savegame.cpp \

@@ -50,7 +50,7 @@ $(duke3d_obj)/input.$o: $(duke3d_src)/input.cpp $(duke3d_h) $(duke3d_src)/input.
 $(duke3d_obj)/mdump.$o: $(duke3d_src)/mdump.cpp $(duke3d_src)/mdump.h
 $(duke3d_obj)/menus.$o: $(duke3d_src)/menus.cpp $(duke3d_h) $(duke3d_src)/input.h $(mact_inc)/mouse.h $(duke3d_src)/menus.h
 $(duke3d_obj)/namesdyn.$o: $(duke3d_src)/namesdyn.cpp $(duke3d_h)
-$(duke3d_obj)/net.$o: $(duke3d_src)/net.cpp $(duke3d_h)
+$(duke3d_obj)/network.$o: $(duke3d_src)/network.cpp $(duke3d_h)
 $(duke3d_obj)/player.$o: $(duke3d_src)/player.cpp $(duke3d_h)
 $(duke3d_obj)/premap.$o: $(duke3d_src)/premap.cpp $(duke3d_h) $(engine_inc)/osd.h
 $(duke3d_obj)/savegame.$o: $(duke3d_src)/savegame.cpp $(duke3d_h) $(duke3d_src)/savegame.h

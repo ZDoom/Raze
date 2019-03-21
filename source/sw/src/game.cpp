@@ -59,7 +59,7 @@ Things required to make savegames work:
 #include "weapon.h"
 #include "player.h"
 #include "lists.h"
-#include "net.h"
+#include "network.h"
 #include "pal.h"
 #include "fx_man.h"
 

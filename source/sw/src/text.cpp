@@ -36,7 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "text.h"
 #include "menus.h"
 
-#include "net.h"
+#include "network.h"
 
 #define PANEL_FONT_G 3636
 #define PANEL_FONT_Y 3646

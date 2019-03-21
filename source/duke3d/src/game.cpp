@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdfuncs.h"
 #include "osdcmds.h"
 #include "crc32.h"
-#include "net.h"
+#include "network.h"
 #include "menus.h"
 #include "savegame.h"
 #include "anim.h"

@@ -40,7 +40,7 @@ not load" error messages.
 #include "pal.h"
 #include "cache.h"
 #include "sounds.h"
-#include "net.h"
+#include "network.h"
 
 // Run the game with the -CACHEPRINT option and redirect to a file.
 // It will save out the tile and sound number every time one caches.

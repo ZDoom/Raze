@@ -90,7 +90,7 @@
     <ClInclude Include="..\..\source\duke3d\src\gamevars.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\duke3d\src\net.h">
+    <ClInclude Include="..\..\source\duke3d\src\network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\duke3d\src\global.h">
@@ -245,7 +245,7 @@
     <ClCompile Include="..\..\source\duke3d\src\winbits.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\duke3d\src\net.cpp">
+    <ClCompile Include="..\..\source\duke3d\src\network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\demo.cpp">

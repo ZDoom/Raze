@@ -141,7 +141,7 @@
 		0008E9F319F1AD9B0091588D /* input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9BE19F1AD9B0091588D /* input.cpp */; };
 		0008E9F419F1AD9B0091588D /* menus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C219F1AD9B0091588D /* menus.cpp */; };
 		0008E9F519F1AD9B0091588D /* namesdyn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C519F1AD9B0091588D /* namesdyn.cpp */; };
-		0008E9F619F1AD9B0091588D /* net.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C719F1AD9B0091588D /* net.cpp */; };
+		0008E9F619F1AD9B0091588D /* network.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C719F1AD9B0091588D /* network.cpp */; };
 		0008E9F719F1AD9B0091588D /* osdcmds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C919F1AD9B0091588D /* osdcmds.cpp */; };
 		0008E9F819F1AD9B0091588D /* osdfuncs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9CB19F1AD9B0091588D /* osdfuncs.cpp */; };
 		0008E9F919F1AD9B0091588D /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9CD19F1AD9B0091588D /* player.cpp */; };
@@ -217,7 +217,7 @@
 		000C48A619F35601006E6B52 /* input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9BE19F1AD9B0091588D /* input.cpp */; };
 		000C48A719F35601006E6B52 /* menus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C219F1AD9B0091588D /* menus.cpp */; };
 		000C48A819F35601006E6B52 /* namesdyn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C519F1AD9B0091588D /* namesdyn.cpp */; };
-		000C48A919F35601006E6B52 /* net.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C719F1AD9B0091588D /* net.cpp */; };
+		000C48A919F35601006E6B52 /* network.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C719F1AD9B0091588D /* network.cpp */; };
 		000C48AA19F35601006E6B52 /* osdcmds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9C919F1AD9B0091588D /* osdcmds.cpp */; };
 		000C48AB19F35601006E6B52 /* osdfuncs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9CB19F1AD9B0091588D /* osdfuncs.cpp */; };
 		000C48AC19F35601006E6B52 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9CD19F1AD9B0091588D /* player.cpp */; };
@@ -682,8 +682,8 @@
 		0008E9C419F1AD9B0091588D /* names.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = names.h; path = ../../source/duke3d/src/names.h; sourceTree = SOURCE_ROOT; };
 		0008E9C519F1AD9B0091588D /* namesdyn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = namesdyn.cpp; path = ../../source/duke3d/src/namesdyn.cpp; sourceTree = SOURCE_ROOT; };
 		0008E9C619F1AD9B0091588D /* namesdyn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = namesdyn.h; path = ../../source/duke3d/src/namesdyn.h; sourceTree = SOURCE_ROOT; };
-		0008E9C719F1AD9B0091588D /* net.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = net.cpp; path = ../../source/duke3d/src/net.cpp; sourceTree = SOURCE_ROOT; };
-		0008E9C819F1AD9B0091588D /* net.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = net.h; path = ../../source/duke3d/src/net.h; sourceTree = SOURCE_ROOT; };
+		0008E9C719F1AD9B0091588D /* network.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = network.cpp; path = ../../source/duke3d/src/network.cpp; sourceTree = SOURCE_ROOT; };
+		0008E9C819F1AD9B0091588D /* network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = network.h; path = ../../source/duke3d/src/network.h; sourceTree = SOURCE_ROOT; };
 		0008E9C919F1AD9B0091588D /* osdcmds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = osdcmds.cpp; path = ../../source/duke3d/src/osdcmds.cpp; sourceTree = SOURCE_ROOT; };
 		0008E9CA19F1AD9B0091588D /* osdcmds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = osdcmds.h; path = ../../source/duke3d/src/osdcmds.h; sourceTree = SOURCE_ROOT; };
 		0008E9CB19F1AD9B0091588D /* osdfuncs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = osdfuncs.cpp; path = ../../source/duke3d/src/osdfuncs.cpp; sourceTree = SOURCE_ROOT; };
@@ -1102,8 +1102,8 @@
 				0008E9C419F1AD9B0091588D /* names.h */,
 				0008E9C519F1AD9B0091588D /* namesdyn.cpp */,
 				0008E9C619F1AD9B0091588D /* namesdyn.h */,
-				0008E9C719F1AD9B0091588D /* net.cpp */,
-				0008E9C819F1AD9B0091588D /* net.h */,
+				0008E9C719F1AD9B0091588D /* network.cpp */,
+				0008E9C819F1AD9B0091588D /* network.h */,
 				0008E9C919F1AD9B0091588D /* osdcmds.cpp */,
 				0008E9CA19F1AD9B0091588D /* osdcmds.h */,
 				0008E9CB19F1AD9B0091588D /* osdfuncs.cpp */,
@@ -1934,7 +1934,7 @@
 				0008E9EA19F1AD9B0091588D /* game.cpp in Sources */,
 				0008EA0719F1ADC90091588D /* common.cpp in Sources */,
 				0008E9E619F1AD9B0091588D /* animvpx.cpp in Sources */,
-				0008E9F619F1AD9B0091588D /* net.cpp in Sources */,
+				0008E9F619F1AD9B0091588D /* network.cpp in Sources */,
 				0008E9F219F1AD9B0091588D /* grpscan.cpp in Sources */,
 				0008EA0119F1AD9B0091588D /* sounds.cpp in Sources */,
 				0008E9E419F1AD9B0091588D /* actors.cpp in Sources */,
@@ -2099,7 +2099,7 @@
 				000C489D19F35601006E6B52 /* demo.cpp in Sources */,
 				20F712561C6C1A07006B68D0 /* cheats.cpp in Sources */,
 				000C48A719F35601006E6B52 /* menus.cpp in Sources */,
-				000C48A919F35601006E6B52 /* net.cpp in Sources */,
+				000C48A919F35601006E6B52 /* network.cpp in Sources */,
 				000C48A819F35601006E6B52 /* namesdyn.cpp in Sources */,
 				000C48B219F35601006E6B52 /* sector.cpp in Sources */,
 				000C48AA19F35601006E6B52 /* osdcmds.cpp in Sources */,

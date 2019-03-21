@@ -277,7 +277,7 @@ DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 	$(DUKE3D_OBJ)\input.$o \
 	$(DUKE3D_OBJ)\menus.$o \
 	$(DUKE3D_OBJ)\namesdyn.$o \
-    $(DUKE3D_OBJ)\net.$o \
+    $(DUKE3D_OBJ)\network.$o \
 	$(DUKE3D_OBJ)\player.$o \
 	$(DUKE3D_OBJ)\premap.$o \
 	$(DUKE3D_OBJ)\savegame.$o \

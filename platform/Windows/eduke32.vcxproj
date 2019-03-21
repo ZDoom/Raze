@@ -185,7 +185,7 @@
     <ClInclude Include="..\..\source\duke3d\src\inv.h" />
     <ClInclude Include="..\..\source\duke3d\src\menus.h" />
     <ClInclude Include="..\..\source\duke3d\src\mpu401.h" />
-    <ClInclude Include="..\..\source\duke3d\src\net.h" />
+    <ClInclude Include="..\..\source\duke3d\src\network.h" />
     <ClInclude Include="..\..\source\duke3d\src\player.h" />
     <ClInclude Include="..\..\source\duke3d\src\premap.h" />
     <ClInclude Include="..\..\source\duke3d\src\quotes.h" />
@@ -244,7 +244,7 @@
     <ClCompile Include="..\..\source\duke3d\src\mpu401.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\music.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\namesdyn.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\net.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\network.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\osdcmds.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\osdfuncs.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\player.cpp" />

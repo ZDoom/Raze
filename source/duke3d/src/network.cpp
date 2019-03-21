@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "game.h"
 #include "gamedef.h"
-#include "net.h"
+#include "network.h"
 #include "premap.h"
 #include "savegame.h"
 #include "input.h"
@@ -62,7 +62,7 @@ int32_t     g_networkMode       = NET_CLIENT;
 typedef TYPE_PUNNED int32_t NetChunk32;
 
 
-// Unfortunately faketimerhandler needs extra "help" because the Build Engine source doesn't include net.h.
+// Unfortunately faketimerhandler needs extra "help" because the Build Engine source doesn't include network.h.
 #ifdef NETCODE_DISABLE
 void faketimerhandler(void)
 {
@@ -2679,7 +2679,7 @@ static void Net_ResetPlayerReady()
 #define IndexesOK (MAXWALLS < NetNumberOfIndexes) && (MAXSPRITES < NetNumberOfIndexes) && (MAXSECTORS < NetNumberOfIndexes)
 
 #if(!IndexesOK)
-#error "net.c: game arrays are now too big to send over the network, please update NETINDEX_BITS to be the right length to store a wall, sprite, and sector index"
+#error "network.cpp: game arrays are now too big to send over the network, please update NETINDEX_BITS to be the right length to store a wall, sprite, and sector index"
 #endif
 
 #define STRUCTINDEX_BITS 8 // hopefully no game structs ever have more than 255 fields....

@@ -37,7 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "jtags.h"
 
-#include "net.h"
+#include "network.h"
 
 #include "break.h"
 #include "track.h"

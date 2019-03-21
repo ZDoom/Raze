@@ -33,7 +33,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ai.h"
 #include "pal.h"
 #include "player.h"
-#include "net.h"
+#include "network.h"
 #include "sprite.h"
 #include "weapon.h"
 #include "actor.h"

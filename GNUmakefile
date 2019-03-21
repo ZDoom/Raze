@@ -540,7 +540,7 @@ duke3d_game_objs := \
     input.cpp \
     menus.cpp \
     namesdyn.cpp \
-    net.cpp \
+    network.cpp \
     savegame.cpp \
     rts.cpp \
     osdfuncs.cpp \
@@ -758,7 +758,7 @@ sw_game_objs := \
     menus.cpp \
     miscactr.cpp \
     morph.cpp \
-    net.cpp \
+    network.cpp \
     ninja.cpp \
     panel.cpp \
     player.cpp \

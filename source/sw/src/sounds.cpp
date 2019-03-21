@@ -41,7 +41,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "game.h"
 #include "sounds.h"
 #include "ai.h"
-#include "net.h"
+#include "network.h"
 
 #include "cache.h"
 #include "text.h"
