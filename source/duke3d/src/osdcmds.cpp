@@ -850,33 +850,6 @@ void onvideomodechange(int32_t newmode)
     g_crosshairSum = -1;
 }
 
-#if !defined NETCODE_DISABLE
-static int osdcmd_name(osdcmdptr_t parm)
-{
-    char namebuf[32];
-
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"name\" is \"%s\"\n",szPlayerName);
-        return OSDCMD_SHOWHELP;
-    }
-
-    Bstrcpy(tempbuf,parm->parms[0]);
-
-    while (Bstrlen(OSD_StripColors(namebuf,tempbuf)) > 10)
-        tempbuf[Bstrlen(tempbuf)-1] = '\0';
-
-    Bstrncpy(szPlayerName,tempbuf,sizeof(szPlayerName)-1);
-    szPlayerName[sizeof(szPlayerName)-1] = '\0';
-
-    OSD_Printf("name %s\n",szPlayerName);
-
-    Net_SendClientInfo();
-
-    return OSDCMD_OK;
-}
-#endif
-
 static int osdcmd_button(osdcmdptr_t parm)
 {
     static char const s_gamefunc_[] = "gamefunc_";
@@ -1170,6 +1143,59 @@ static int osdcmd_inittimer(osdcmdptr_t parm)
 #endif
 
 #if !defined NETCODE_DISABLE
+static int osdcmd_name(osdcmdptr_t parm)
+{
+    char namebuf[32];
+
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"name\" is \"%s\"\n",szPlayerName);
+        return OSDCMD_SHOWHELP;
+    }
+
+    Bstrcpy(tempbuf,parm->parms[0]);
+
+    while (Bstrlen(OSD_StripColors(namebuf,tempbuf)) > 10)
+        tempbuf[Bstrlen(tempbuf)-1] = '\0';
+
+    Bstrncpy(szPlayerName,tempbuf,sizeof(szPlayerName)-1);
+    szPlayerName[sizeof(szPlayerName)-1] = '\0';
+
+    OSD_Printf("name %s\n",szPlayerName);
+
+    Net_SendClientInfo();
+
+    return OSDCMD_OK;
+}
+
+static int32_t osdcmd_dumpmapstate(osdfuncparm_t const * const)
+{
+    // this command takes no parameters
+
+    DumpMapStateHistory();
+
+    return OSDCMD_OK;
+}
+
+static int32_t osdcmd_playerinfo(osdfuncparm_t const * const)
+{
+    OSD_Printf("Your player index is %d.\n", myconnectindex);
+
+    for(int32_t playerIndex = 0; playerIndex < MAXPLAYERS; playerIndex++)
+    {
+        if(g_player[playerIndex].ps == nullptr)
+        {
+            OSD_Printf("g_player[%d]: ps unallocated.\n", playerIndex);
+        }
+        else
+        {
+            OSD_Printf("g_player[%d]: ps->i is %d.\n", playerIndex, g_player[playerIndex].ps->i);
+        }
+    }
+
+    return OSDCMD_OK;
+}
+
 static int osdcmd_disconnect(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -1522,36 +1548,6 @@ static int osdcmd_cvar_set_multi(osdcmdptr_t parm)
     return r;
 }
 
-#ifndef NETCODE_DISABLE
-static int32_t osdcmd_dumpmapstate(osdfuncparm_t const * const)
-{
-    // this command takes no parameters
-
-    DumpMapStateHistory();
-
-    return OSDCMD_OK;
-}
-
-static int32_t osdcmd_playerinfo(osdfuncparm_t const * const)
-{
-    OSD_Printf("Your player index is %d.\n", myconnectindex);
-
-    for(int32_t playerIndex = 0; playerIndex < MAXPLAYERS; playerIndex++)
-    {
-        if(g_player[playerIndex].ps == nullptr)
-        {
-            OSD_Printf("g_player[%d]: ps unallocated.\n", playerIndex);
-        }
-        else
-        {
-            OSD_Printf("g_player[%d]: ps->i is %d.\n", playerIndex, g_player[playerIndex].ps->i);
-        }
-    }
-
-    return OSDCMD_OK;
-}
-#endif
-
 int32_t registerosdcommands(void)
 {
     static osdcvardata_t cvars_game[] =
@@ -1707,6 +1703,18 @@ int32_t registerosdcommands(void)
         }
     }
 
+#if !defined NETCODE_DISABLE
+    OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
+    OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
+    OSD_RegisterFunction("dumpmapstates", "Dumps current snapshots to CL/Srv_MapStates.bin", osdcmd_dumpmapstate);
+    OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
+    OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
+    OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
+    OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
+    OSD_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
+    OSD_RegisterFunction("playerinfo", "Prints information about the current player", osdcmd_playerinfo);
+#endif
+
     if (VOLUMEONE)
         OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
     else
@@ -1720,11 +1728,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("bind",R"(bind <key> <string>: associates a keypress with a string of console input. Type "bind showkeys" for a list of keys and "listsymbols" for a list of valid console commands.)", osdcmd_bind);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
-
-#if !defined NETCODE_DISABLE
-    OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
-    OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
-#endif
 
     for (auto & func : gamefunctions)
     {
@@ -1750,23 +1753,10 @@ int32_t registerosdcommands(void)
 #ifdef DEBUGGINGAIDS
     OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
 #endif
-#if !defined NETCODE_DISABLE
-    OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
-    OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
-
-    OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
-#endif
     OSD_RegisterFunction("music","music E<ep>L<lev>: change music", osdcmd_music);
-
-#if !defined NETCODE_DISABLE
-    OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
-#endif
 
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
-#if !defined NETCODE_DISABLE
-    OSD_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
-#endif
 
     OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
 
@@ -1799,11 +1789,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
 #ifdef USE_OPENGL
     baselayer_osdcmd_vidmode_func = osdcmd_vidmode;
-#endif
-
-#ifndef NETCODE_DISABLE
-    OSD_RegisterFunction("dumpmapstates", "Dumps current snapshots to CL/Srv_MapStates.bin", osdcmd_dumpmapstate);
-    OSD_RegisterFunction("playerinfo", "Prints information about the current player", osdcmd_playerinfo);
 #endif
 
     return 0;
