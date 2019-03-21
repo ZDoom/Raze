@@ -1168,7 +1168,7 @@ static int osdcmd_name(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_dumpmapstate(osdfuncparm_t const * const)
+static int osdcmd_dumpmapstate(osdfuncparm_t const * const)
 {
     // this command takes no parameters
 
@@ -1177,7 +1177,7 @@ static int32_t osdcmd_dumpmapstate(osdfuncparm_t const * const)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_playerinfo(osdfuncparm_t const * const)
+static int osdcmd_playerinfo(osdfuncparm_t const * const)
 {
     OSD_Printf("Your player index is %d.\n", myconnectindex);
 
