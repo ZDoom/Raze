@@ -4963,6 +4963,12 @@ void polymost_scansector(int32_t sectnum)
             p2 = { (((fp2.y * fcosglobalang) - (fp2.x * fsinglobalang)) * (1.0/64.0)),
                    (((fp2.x * cosviewingrangeglobalang) + (fp2.y * sinviewingrangeglobalang)) * (1.0/64.0)) };
 
+            if (numscans >= MAXWALLSB-1)
+            {
+                OSD_Printf("!!numscans\n");
+                return;
+            }
+
             //if wall is facing you...
             if ((p1.y >= SCISDIST || p2.y >= SCISDIST) && (nexttoward(p1.x*p2.y, p2.x*p1.y) < p2.x*p1.y))
             {

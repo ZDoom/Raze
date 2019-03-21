@@ -1725,6 +1725,12 @@ static void classicScanSector(int16_t startsectnum)
             if (dmulscale32(p1.x, p2.y, -p2.x, p1.y) >= 0)
                 goto skipitaddwall;
 
+            if (numscans >= MAXWALLSB-1)
+            {
+                OSD_Printf("!!numscans\n");
+                return;
+            }
+
             if (get_screen_coords(p1, p2, &xb1[numscans], &yb1[numscans], &xb2[numscans], &yb2[numscans]))
             {
                 // Made it all the way!
