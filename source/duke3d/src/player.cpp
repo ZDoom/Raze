@@ -5337,7 +5337,8 @@ HORIZONLY:;
         else if (sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER)
             pPlayer->pyoff = 0;
 
-        pPlayer->pos.z += pPlayer->vel.z;
+        if (sectorLotag != ST_2_UNDERWATER)
+            pPlayer->pos.z += pPlayer->vel.z;
 
         if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz)
             && (pPlayer->opos.z < ceilZ + PMINHEIGHT || trueFloorDist < PHEIGHT))
