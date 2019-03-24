@@ -1091,6 +1091,10 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
             if (wal->nextsector>=0)
             {
+                // This fixes Duke3D E1L2.
+                // We're not interested in any sector reached by portal traversal that we're "inside" of.
+                if (inside(pos->x, pos->y, wal->nextsector)) break;
+
                 for (i=clipsectnum-1; i>=0; i--)
                     if (wal->nextsector == clipsectorlist[i]) break;
                 if (i < 0) clipsectorlist[clipsectnum++] = wal->nextsector;
@@ -1262,7 +1266,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     clipit[j].y2-clipit[j].y1, oyvect);
                 if ((tempint1^tempint2) < 0)
                 {
-                    updatesector(pos->x, pos->y, sectnum);
+                    updatesectorz(pos->x, pos->y, pos->z, sectnum);
                     return retval;
                 }
             }
@@ -1279,8 +1283,10 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
         pos->x = intx;
         pos->y = inty;
+        updatesectorz(pos->x, pos->y, pos->z, sectnum);
     } while ((xvect|yvect) != 0 && hitwall >= 0 && cnt > 0);
 
+    // I'm not a fan of these brute-force searches but this one should be OK
     for (j=0; j<clipsectnum; j++)
         if (inside(pos->x, pos->y, clipsectorlist[j]) == 1)
         {
@@ -1288,25 +1294,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             return retval;
         }
 
-    updatesector(pos->x, pos->y, sectnum);
-
-    j = *sectnum;
-    tempint1 = 0;
-
-    int const floorz = (sector[j].floorstat & 2) ? getflorzofslope(j, pos->x, pos->y) : sector[j].floorz;
-
-    if (pos->z + flordist - floorz <= 0)
-        tempint1++;
-    else
-    {
-        int const ceilz = (sector[j].ceilingstat & 2) ? getceilzofslope(j, pos->x, pos->y) : sector[j].ceilingz;
-
-        if (pos->z - ceildist - ceilz > 0)
-            tempint1++;
-    }
-
-    if (tempint1)
-        *sectnum = j;
+    updatesectorz(pos->x, pos->y, pos->z, sectnum);
 
     return retval;
 }
