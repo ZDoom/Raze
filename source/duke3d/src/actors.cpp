@@ -495,7 +495,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     {
         default:
         {
-            returnValue = clipmove((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, diffZ >> 1, diffZ >> 1, clipType);
+            returnValue = clipmove((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, ZOFFSET6, ZOFFSET6, clipType);
             break;
         }
 
