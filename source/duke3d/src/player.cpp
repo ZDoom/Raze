@@ -3118,6 +3118,7 @@ static int32_t P_DoCounters(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
+#ifndef EDUKE32_STANDALONE
     if (pPlayer->invdisptime > 0)
         pPlayer->invdisptime--;
 
@@ -3205,6 +3206,7 @@ static int32_t P_DoCounters(int playerNum)
     }
     else if (pPlayer->last_quick_kick > 0)
         --pPlayer->last_quick_kick;
+#endif
 
     if (pPlayer->access_incs && sprite[pPlayer->i].pal != 1)
     {
@@ -3276,6 +3278,7 @@ static int32_t P_DoCounters(int playerNum)
         }
     }
 
+#ifndef EDUKE32_STANDALONE
     if (pPlayer->knuckle_incs)
     {
         if (++pPlayer->knuckle_incs == 10)
@@ -3298,6 +3301,7 @@ static int32_t P_DoCounters(int playerNum)
 
         return 1;
     }
+#endif
 
     return 0;
 }
@@ -3317,12 +3321,14 @@ void P_DropWeapon(int const playerNum)
 
     if (krand() & 1)
         A_Spawn(pPlayer->i, WeaponPickupSprites[currentWeapon]);
+#ifndef EDUKE32_STANDALONE
     else
-        switch (currentWeapon)
+        switch (PWEAPON(playerNum, currentWeapon, WorksLike))
         {
             case RPG_WEAPON:
             case HANDBOMB_WEAPON: A_Spawn(pPlayer->i, EXPLOSION2); break;
         }
+#endif
 }
 
 void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addAmount)
@@ -3341,8 +3347,10 @@ static void P_AddWeaponNoSwitch(DukePlayer_t * const p, int const weaponNum)
     {
         p->gotweapon |= (1<<weaponNum);
 
+#ifndef EDUKE32_STANDALONE
         if (weaponNum == SHRINKER_WEAPON)
             p->gotweapon |= (1<<GROW_WEAPON);
+#endif
     }
 
     if (PWEAPON(playerNum, p->curr_weapon, SelectSound) > 0)
@@ -3512,6 +3520,7 @@ static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
 
     if ((touchObject & 49152) == 49152)
     {
+#ifndef EDUKE32_STANDALONE
         int const touchSprite = touchObject & (MAXSPRITES - 1);
 
         if (sprite[touchSprite].picnum == CACTUS)
@@ -3525,6 +3534,7 @@ static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
                 A_PlaySound(DUKE_LONGTERM_PAIN, pPlayer->i);
             }
         }
+#endif
         return;
     }
 
@@ -3549,8 +3559,10 @@ static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
 
             pPlayer->vel.x = -(sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<8);
             pPlayer->vel.y = -(sintable[(fix16_to_int(pPlayer->q16ang))&2047]<<8);
-            A_PlaySound(DUKE_LONGTERM_PAIN,pPlayer->i);
 
+#ifndef EDUKE32_STANDALONE
+            A_PlaySound(DUKE_LONGTERM_PAIN,pPlayer->i);
+#endif
             DoWallTouchDamage(pPlayer, touchWall);
             break;
 
@@ -3578,14 +3590,16 @@ static int P_CheckFloorDamage(DukePlayer_t *pPlayer, int floorTexture)
                     return 1;
                 else
                 {
+#ifndef EDUKE32_STANDALONE
                     if (!A_CheckSoundPlaying(pPlayer->i, DUKE_LONGTERM_PAIN))
                         A_PlaySound(DUKE_LONGTERM_PAIN, pPlayer->i);
 
-                    P_PalFrom(pPlayer, 32, 64, 64, 64);
-
-                    pSprite->extra -= 1 + (krand() & 3);
                     if (!A_CheckSoundPlaying(pPlayer->i, SHORT_CIRCUIT))
                         A_PlaySound(SHORT_CIRCUIT, pPlayer->i);
+#endif
+
+                    P_PalFrom(pPlayer, 32, 64, 64, 64);
+                    pSprite->extra -= 1 + (krand() & 3);
 
                     return 0;
                 }
@@ -3599,8 +3613,10 @@ static int P_CheckFloorDamage(DukePlayer_t *pPlayer, int floorTexture)
                     return 1;
                 else
                 {
+#ifndef EDUKE32_STANDALONE
                     if (!A_CheckSoundPlaying(pPlayer->i, DUKE_LONGTERM_PAIN))
                         A_PlaySound(DUKE_LONGTERM_PAIN, pPlayer->i);
+#endif
 
                     P_PalFrom(pPlayer, 32, 0, 8, 0);
                     pSprite->extra -= 1 + (krand() & 3);
@@ -3610,6 +3626,7 @@ static int P_CheckFloorDamage(DukePlayer_t *pPlayer, int floorTexture)
             }
             break;
 
+#ifndef EDUKE32_STANDALONE
         case FLOORPLASMA__STATIC:
             if (rnd(32))
             {
@@ -3627,6 +3644,7 @@ static int P_CheckFloorDamage(DukePlayer_t *pPlayer, int floorTexture)
                 }
             }
             break;
+#endif
     }
 
     return 0;
@@ -3695,6 +3713,7 @@ void P_FragPlayer(int playerNum)
 #endif
     }
 
+#ifndef EDUKE32_STANDALONE
     pPlayer->jetpack_on  = 0;
     pPlayer->holoduke_on = -1;
 
@@ -3706,6 +3725,7 @@ void P_FragPlayer(int playerNum)
         S_Cleanup();
         pPlayer->scream_voice = -1;
     }
+#endif
 
     if (pSprite->pal != 1 && (pSprite->cstat & 32768) == 0)
         pSprite->cstat = 0;
@@ -3944,14 +3964,6 @@ static void P_ProcessWeapon(int playerNum)
                             A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         break;
 
-                    case SHOTGUN_WEAPON:
-                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
-                        {
-                            (*weaponFrame) = 1;
-                            if (PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
-                                A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
-                        }
-                        break;
 
                     case TRIPBOMB_WEAPON:
                         if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
@@ -3999,6 +4011,7 @@ static void P_ProcessWeapon(int playerNum)
                         break;
 
                     case PISTOL_WEAPON:
+                    case SHOTGUN_WEAPON:
                     case CHAINGUN_WEAPON:
                     case SHRINKER_WEAPON:
                     case GROW_WEAPON:
@@ -4323,6 +4336,7 @@ static int P_DoFist(DukePlayer_t *pPlayer)
 {
     // the fist punching NUKEBUTTON
 
+#ifndef EDUKE32_STANDALONE
     if (++(pPlayer->fist_incs) == 28)
     {
         if (ud.recstat == 1)
@@ -4353,6 +4367,7 @@ static int P_DoFist(DukePlayer_t *pPlayer)
 
         return 1;
     }
+#endif
 
     return 0;
 }
