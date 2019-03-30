@@ -4498,19 +4498,10 @@ static void P_DoWater(int const playerNum, int const playerBits, int const floor
         pPlayer->vel.z = 0;
     }
 
-    int spriteNum;
-
-    for (SPRITES_OF_SECT(pPlayer->cursectnum, spriteNum))
-        if (sprite[spriteNum].statnum == STAT_TRANSPORT)
-            break;
-
-    if (spriteNum == -1)
+    if ((pPlayer->on_warping_sector == 0 || ceilZ != pPlayer->truecz) && pPlayer->pos.z < ceilZ + PMINHEIGHT)
     {
-        if (pPlayer->pos.z < ceilZ + PMINHEIGHT)
-        {
-            pPlayer->pos.z = ceilZ + PMINHEIGHT;
-            pPlayer->vel.z = 0;
-        }
+        pPlayer->pos.z = ceilZ + PMINHEIGHT;
+        pPlayer->vel.z = 0;
     }
 
     if (pPlayer->scuba_on && (krand()&255) < 8)
@@ -5120,8 +5111,6 @@ void P_ProcessInput(int playerNum)
                 }
             }
 
-            pPlayer->on_warping_sector = 0;
-
             if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
             {
                 // crouching
@@ -5436,6 +5425,8 @@ HORIZONLY:;
          playerShrunk == 0 && sector[pPlayer->cursectnum].lotag == ST_1_ABOVE_WATER) && (!A_CheckSoundPlaying(pPlayer->i, DUKE_ONWATER)))
             A_PlaySound(DUKE_ONWATER, pPlayer->i);
 #endif
+
+    pPlayer->on_warping_sector = 0;
 
     if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
     {
