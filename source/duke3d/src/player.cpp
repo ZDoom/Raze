@@ -2214,11 +2214,13 @@ void P_DisplayWeapon(void)
             switch (ud.drawweapon)
             {
                 case 1: break;
+#ifndef EDUKE32_STANDALONE
                 case 2:
                     if ((unsigned)hudweap.cur < MAX_WEAPONS && hudweap.cur != KNEE_WEAPON)
                         rotatesprite_win(160 << 16, (180 + (pPlayer->weapon_pos * pPlayer->weapon_pos)) << 16, divscale16(ud.statusbarscale, 100), 0,
                                          hudweap.cur == GROW_WEAPON ? GROWSPRITEICON : WeaponPickupSprites[hudweap.cur], 0,
                                          0, 2);
+#endif
                 default: goto enddisplayweapon;
             }
 
