@@ -14,7 +14,7 @@
 int16_t clipnum;
 linetype clipit[MAXCLIPNUM];
 int32_t clipsectnum, origclipsectnum, clipspritenum;
-int16_t clipsectorlist[MAXCLIPNUM], origclipsectorlist[MAXCLIPNUM];
+int16_t clipsectorlist[MAXCLIPSECTORS], origclipsectorlist[MAXCLIPSECTORS];
 #ifdef HAVE_CLIPSHAPE_FEATURE
 int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
 #endif

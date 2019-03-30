@@ -15,7 +15,8 @@
 extern "C" {
 #endif
 
-#define MAXCLIPNUM 3072
+#define MAXCLIPSECTORS 1024
+#define MAXCLIPNUM 2048
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 
@@ -82,7 +83,7 @@ extern linetype clipit[MAXCLIPNUM];
 
 extern int16_t clipnum;
 extern int32_t clipsectnum, origclipsectnum, clipspritenum;
-extern int16_t clipsectorlist[MAXCLIPNUM], origclipsectorlist[MAXCLIPNUM];
+extern int16_t clipsectorlist[MAXCLIPSECTORS], origclipsectorlist[MAXCLIPSECTORS];
 
 int clipinsidebox(vec2_t *vect, int wallnum, int walldist);
 int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist);
