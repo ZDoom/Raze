@@ -4678,7 +4678,7 @@ void P_ProcessInput(int playerNum)
 
     int32_t floorZ, ceilZ, highZhit, lowZhit, dummy;
 
-    if (pPlayer->opos.z <= actor[pPlayer->i].ceilingz + PMINHEIGHT || pPlayer->opos.z >= actor[pPlayer->i].floorz - PMINHEIGHT)
+    if (pPlayer->pos.z < actor[pPlayer->i].ceilingz + PMINHEIGHT || pPlayer->pos.z > actor[pPlayer->i].floorz - PMINHEIGHT)
         stepHeight = 0;
 
 #if 0
