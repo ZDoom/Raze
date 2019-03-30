@@ -4670,10 +4670,15 @@ void P_ProcessInput(int playerNum)
     // sectorLotag can be set to 0 later on, but the same block sets spritebridge to 1
     int stepHeight = (sectorLotag == ST_1_ABOVE_WATER || pPlayer->spritebridge == 1) ? pPlayer->autostep_sbw : pPlayer->autostep;
 
-    if (pPlayer->on_ground && pPlayer->pos.z + stepHeight > actor[pPlayer->i].floorz - 128)
-        stepHeight -= pPlayer->pos.z + stepHeight - actor[pPlayer->i].floorz + 128;
-
     int32_t floorZ, ceilZ, highZhit, lowZhit, dummy;
+
+    if (pPlayer->opos.z <= actor[pPlayer->i].ceilingz + PMINHEIGHT || pPlayer->opos.z >= actor[pPlayer->i].floorz - PMINHEIGHT)
+        stepHeight = 0;
+
+#if 0
+    if (pPlayer->on_ground && (pPlayer->pos.z + stepHeight > actor[pPlayer->i].floorz - 128))
+        stepHeight -= pPlayer->pos.z + stepHeight - actor[pPlayer->i].floorz + 128;
+#endif
 
     pPlayer->pos.z += stepHeight;
     getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - 16, CLIPMASK0);
@@ -5168,7 +5173,7 @@ void P_ProcessInput(int playerNum)
             }
         }
 
-        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->opos.z < (ceilZ + PMINHEIGHT))
+        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->jumping_counter && pPlayer->opos.z < (ceilZ + PMINHEIGHT))
         {
             pPlayer->jumping_counter = 0;
             if (pPlayer->vel.z < 0)
@@ -5380,22 +5385,10 @@ HORIZONLY:;
 
         if (sectorLotag != ST_2_UNDERWATER)
             pPlayer->pos.z += pPlayer->vel.z;
-
-        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz)
-            && (pPlayer->opos.z < ceilZ + PMINHEIGHT || trueFloorDist < PHEIGHT))
-        {
-            int32_t ceilZ2 = ceilZ;
-
-            getzrange((vec3_t *)&pPlayer->opos, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - 24,
-                      CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
-
-            if ((highZhit & 49152) == 49152 && (sprite[highZhit & (MAXSPRITES - 1)].cstat & CSTAT_SPRITE_BLOCK) != CSTAT_SPRITE_BLOCK)
-                ceilZ = ceilZ2;
-
-            if (pPlayer->pos.z < ceilZ + PMINHEIGHT)
-                pPlayer->pos.z = ceilZ + PMINHEIGHT;
-        }
     }
+
+    if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->pos.z < ceilZ + PMINHEIGHT)
+        pPlayer->pos.z = ceilZ + PMINHEIGHT;
 
     if (sectorLotag != ST_1_ABOVE_WATER && pPlayer->pos.z > floorZ - PMINHEIGHT)
         pPlayer->pos.z = floorZ - PMINHEIGHT;
