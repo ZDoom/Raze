@@ -11101,7 +11101,7 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
         if (inside_z_p(x,y,z, i))
             SET_AND_RETURN(*sectnum, i);
 
-    *sectnum = -1;
+    updatesector(x, y, sectnum);
 }
 
 
