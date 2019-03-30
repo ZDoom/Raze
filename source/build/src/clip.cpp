@@ -909,22 +909,19 @@ static int32_t get_floorspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t 
     return clipyou;
 }
 
-static int sectoradjacent(int const sect1, int const sect2)
+#if 0
+static int sectoradjacent(int sect1, int sect2)
 {
-    if (sector[sect1].wallnum < sector[sect2].wallnum)
-    {
-        for (int i = 0; i < sector[sect1].wallnum; i++)
-            if (wall[sector[sect1].wallptr+i].nextsector == sect2)
-                return 1;
-    }
-    else
-    {
-        for (int i = 0; i < sector[sect2].wallnum; i++)
-            if (wall[sector[sect2].wallptr+i].nextsector == sect1)
-                return 1;
-    }
+    if (sector[sect1].wallnum > sector[sect2].wallnum)
+        swaplong(&sect1, &sect2);
+
+    for (int i = 0; i < sector[sect1].wallnum; i++)
+        if (wall[sector[sect1].wallptr+i].nextsector == sect2)
+            return 1;
+
     return 0;
 }
+#endif
 
 //
 // clipmove
@@ -1147,7 +1144,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
             if (clipsprite_try(spr, clipMin.x, clipMin.y, clipMax.x, clipMax.y))
                 continue;
 #endif
-            vec2_t p1 = *(vec2_t *)spr;
+            vec2_t p1 = *(vec2_t const *)spr;
 
             switch (cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
             {
@@ -1307,7 +1304,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
         int const osectnum = *sectnum;
         updatesectorz(vec.x, vec.y, pos->z, sectnum);
 
-        if (*sectnum == osectnum || (*sectnum != -1 && !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec.x, vec.y)))
+        if (*sectnum == osectnum || editstatus || (*sectnum != -1 && !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec.x, vec.y)))
         {
             pos->x = vec.x;
             pos->y = vec.y;
