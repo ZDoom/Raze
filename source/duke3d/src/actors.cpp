@@ -487,7 +487,8 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     // Handle horizontal movement first.
 
     int returnValue;
-    int const diffZ = spriteheightofs(spriteNum, NULL, 0);
+    int32_t diffZ;
+    spriteheightofs(spriteNum, &diffZ, 0);
     int newZ = pSprite->z - diffZ;
 
     pSprite->z -= diffZ >> 1;
