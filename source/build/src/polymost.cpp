@@ -3231,9 +3231,6 @@ static void yax_polymost_domost(const int yaxbunch, float x0, float y0, float x1
         y1 += DOMOST_OFFSET; //necessary?
     }
 
-    x0 -= DOMOST_OFFSET;
-    x1 += DOMOST_OFFSET;
-
     // Test if span is outside screen bounds
     if (x1 < xbl || x0 > xbr)
     {
@@ -3268,29 +3265,29 @@ static void yax_polymost_domost(const int yaxbunch, float x0, float y0, float x1
 
         if ((dm0.x >= n1.x) || (n0.x >= dm1.x) || (yax_vsp[yaxbunch][i].ctag <= 0)) continue;
 
-        float const dx = n1.x-n0.x;
-        float const cy = yax_vsp[yaxbunch][i].cy[0],
-                    cv = yax_vsp[yaxbunch][i].cy[1]-cy;
+        double const dx = double(n1.x)-double(n0.x);
+        double const cy = yax_vsp[yaxbunch][i].cy[0],
+                     cv = yax_vsp[yaxbunch][i].cy[1]-cy;
 
         int scnt = 0;
 
         //Test if left edge requires split (dm0.x,dm0.y) (nx0,cy(0)),<dx,cv(0)>
         if ((dm0.x > n0.x) && (dm0.x < n1.x))
         {
-            float const t = (dm0.x-n0.x)*cv - (dm0.y-cy)*dx;
-            if (((!dir) && (t < 0.f)) || ((dir) && (t > 0.f)))
+            double const t = (dm0.x-n0.x)*cv - (dm0.y-cy)*dx;
+            if (((!dir) && (t <= 0.0)) || ((dir) && (t >= 0.0)))
                 { spx[scnt] = dm0.x; spt[scnt] = -1; scnt++; }
         }
 
         //Test for intersection on umost (0) and dmost (1)
 
-        float const d = ((dm0.y - dm1.y) * dx) - ((dm0.x - dm1.x) * cv);
+        double const d = ((double(dm0.y) - double(dm1.y)) * dx) - ((double(dm0.x) - double(dm1.x)) * cv);
 
-        float const n = ((dm0.y - cy) * dx) - ((dm0.x - n0.x) * cv);
+        double const n = ((double(dm0.y) - cy) * dx) - ((double(dm0.x) - double(n0.x)) * cv);
 
-        float const fnx = dm0.x + ((n / d) * (dm1.x - dm0.x));
+        double const fnx = double(dm0.x) + ((n / d) * (double(dm1.x) - double(dm0.x)));
 
-        if ((Bfabsf(d) > Bfabsf(n)) && (d * n >= 0.f) && (fnx > n0.x) && (fnx < n1.x))
+        if ((fabs(d) > fabs(n)) && (d * n >= 0.0) && (fnx > n0.x) && (fnx < n1.x))
             spx[scnt] = fnx, spt[scnt++] = 0;
 
         //Nice hack to avoid full sort later :)
@@ -3303,8 +3300,8 @@ static void yax_polymost_domost(const int yaxbunch, float x0, float y0, float x1
         //Test if right edge requires split
         if ((dm1.x > n0.x) && (dm1.x < n1.x))
         {
-            float const t = (dm1.x-n0.x)*cv - (dm1.y-cy)*dx;
-            if (((!dir) && (t < 0.f)) || ((dir) && (t > 0.f)))
+            double const t = (double(dm1.x)- double(n0.x))*cv - (double(dm1.y)- double(cy))*dx;
+            if (((!dir) && (t <= 0.0)) || ((dir) && (t >= 0.0)))
                 { spx[scnt] = dm1.x; spt[scnt] = -1; scnt++; }
         }
 
@@ -4843,7 +4840,16 @@ static void polymost_drawalls(int32_t const bunch)
                 //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
                     calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
-                pow2xsplit = 1; polymost_domost(x0, cy0, x1, cy1, cy0, fy0, cy1, fy1);
+                pow2xsplit = 1;
+
+#ifdef YAX_ENABLE
+                // TODO: slopes?
+
+                if (globalposz > sec->floorz && yax_isislandwall(wallnum, YAX_FLOOR))
+                    polymost_domost(x1, fy1, x0, fy0, cy1, fy1, cy0, fy0);
+                else
+#endif
+                    polymost_domost(x0, cy0, x1, cy1, cy0, fy0, cy1, fy1);
             } while (0);
         }
 
