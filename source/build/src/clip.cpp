@@ -622,12 +622,12 @@ int32_t clipsprite_try(uspritetype const * const spr, int32_t xmin, int32_t ymin
         int32_t maxcorrection = clipinfo[i].maxdist;
         const int32_t k = sectq[clipinfo[i].qbeg];
 
-        if ((spr->cstat&48)!=32)  // face/wall sprite
+        if ((spr->cstat&CSTAT_SPRITE_ALIGNMENT)!=CSTAT_SPRITE_ALIGNMENT_FLOOR)
         {
             int32_t const tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
             maxcorrection = divideu32_noinline(maxcorrection * (int32_t) spr->xrepeat, tempint1);
         }
-        else  // floor sprite
+        else
         {
             int32_t const tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
             int32_t const tempint2 = clipmapinfo.sector[k].CM_YREPEAT;
@@ -650,6 +650,19 @@ int32_t clipsprite_try(uspritetype const * const spr, int32_t xmin, int32_t ymin
     return 0;
 }
 
+static int32_t clipmove_warned;
+
+static void addclipsect(int const sectnum)
+{
+    if (EDUKE32_PREDICT_TRUE(clipsectnum < MAXCLIPSECTORS))
+        clipsectorlist[clipsectnum++] = sectnum;
+    else if (!clipmove_warned)
+    {
+        OSD_Printf("!!clipsectnum\n");
+        clipmove_warned = 1;
+    }
+}
+
 // return: -1 if curspr has x-flip xor y-flip (in the horizontal map plane!), 1 else
 int32_t clipsprite_initindex(int32_t curidx, uspritetype const * const curspr, int32_t *clipsectcnt, const vec3_t *vect)
 {
@@ -664,7 +677,7 @@ int32_t clipsprite_initindex(int32_t curidx, uspritetype const * const curspr, i
     const int32_t rotang = (curspr->ang - sector[j].CM_ANG)&2047;
     const int32_t dorot = !CM_NOROTS(j);
 
-    if ((curspr->cstat&48)!=32)  // face/wall sprite
+    if ((curspr->cstat&CSTAT_SPRITE_ALIGNMENT)!=CSTAT_SPRITE_ALIGNMENT_FLOOR)  // face/wall sprite
     {
         scalex = scaley = divscale22(curspr->xrepeat, tempint1);
         scalez = divscale22(curspr->yrepeat, tempint2);
@@ -724,19 +737,17 @@ int32_t clipsprite_initindex(int32_t curidx, uspritetype const * const curspr, i
         }
 
         if (inside(vect->x, vect->y, j)==1)
-            clipsectorlist[clipsectnum++] = j;
+            addclipsect(j);
     }
 
     // add outer sector if not inside inner ones
     if (clipsectnum==0)
-        clipsectorlist[clipsectnum++] = sectq[k-1];
+        addclipsect(sectq[k-1]);
 
     return flipmul;
 }
 
 #endif
-
-static int32_t clipmove_warned=0;
 
 static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int32_t daoval)
 {
@@ -750,7 +761,7 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
     else if (!clipmove_warned)
     {
         initprintf("!!clipnum\n");
-        clipmove_warned = 1;
+        clipmove_warned = 2;
     }
 }
 
@@ -1115,7 +1126,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
                 int i;
                 for (i=clipsectnum-1; i>=0; i--)
                     if (wal->nextsector == clipsectorlist[i]) break;
-                if (i < 0) clipsectorlist[clipsectnum++] = wal->nextsector;
+                if (i < 0) addclipsect(wal->nextsector);
             }
         }
 
@@ -1300,7 +1311,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
         int const osectnum = *sectnum;
         updatesectorz(vec.x, vec.y, pos->z, sectnum);
 
-        if (*sectnum == osectnum || !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec.x, vec.y))
+        if (*sectnum == osectnum || (*sectnum != -1 && !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec.x, vec.y)))
         {
             pos->x = vec.x;
             pos->y = vec.y;
@@ -1441,7 +1452,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                     {
                         for (j=clipsectnum-1; j>=0; j--)
                             if (wal->nextsector == clipsectorlist[j]) break;
-                        if (j < 0) clipsectorlist[clipsectnum++] = wal->nextsector;
+                        if (j < 0) addclipsect(wal->nextsector);
                     }
                 }
 
@@ -1605,7 +1616,7 @@ restart_grand:
                 for (i=clipsectnum-1; i>=0; --i)
                     if (clipsectorlist[i] == k) break;
 
-                if (i < 0) clipsectorlist[clipsectnum++] = k;
+                if (i < 0) addclipsect(k);
 
                 if (((v1.x < xmin + MAXCLIPDIST) && (v2.x < xmin + MAXCLIPDIST)) ||
                     ((v1.x > xmax - MAXCLIPDIST) && (v2.x > xmax - MAXCLIPDIST)) ||
@@ -1811,7 +1822,7 @@ restart_grand:
                     for (bssize_t SECTORS_OF_BUNCH(cb,YAX_FLOOR, j))
                         if (inside(pos->x,pos->y, j)==1)
                         {
-                            clipsectorlist[clipsectnum++] = j;
+                            addclipsect(j);
                             int const daz = getceilzofslope(j, pos->x,pos->y);
                             if (!didchange || daz > *ceilz)
                                 didchange=1, *ceilhit = j+16384, *ceilz = daz;
@@ -1847,7 +1858,7 @@ restart_grand:
                     for (bssize_t SECTORS_OF_BUNCH(fb, YAX_CEILING, j))
                         if (inside(pos->x,pos->y, j)==1)
                         {
-                            clipsectorlist[clipsectnum++] = j;
+                            addclipsect(j);
                             int const daz = getflorzofslope(j, pos->x,pos->y);
                             if (!didchange || daz < *florz)
                                 didchange=1, *florhit = j+16384, *florz = daz;
@@ -2188,7 +2199,7 @@ restart_grand:
             }
 #endif
             x1 = spr->x; y1 = spr->y; z1 = spr->z;
-            switch (cstat&48)
+            switch (cstat&CSTAT_SPRITE_ALIGNMENT)
             {
             case 0:
             {
@@ -2202,7 +2213,7 @@ restart_grand:
                 break;
             }
 
-            case 16:
+            case CSTAT_SPRITE_ALIGNMENT_WALL:
             {
                 int32_t ucoefup16;
                 int32_t tilenum = spr->picnum;
@@ -2246,7 +2257,7 @@ restart_grand:
                 break;
             }
 
-            case 32:
+            case CSTAT_SPRITE_ALIGNMENT_FLOOR:
             {
                 int32_t x3, y3, x4, y4, zz;
 
