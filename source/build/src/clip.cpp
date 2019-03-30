@@ -549,11 +549,11 @@ int32_t clipmoveboxtracenum = 3;
 //
 int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
 {
-    int const        r   = walldist << 1;
-    uwalltype const *wal = (uwalltype *)&wall[wallnum];
-    vec2_t const     v1  = { wal->x + walldist - vect->x, wal->y + walldist - vect->y };
-    wal                  = (uwalltype *)&wall[wal->point2];
-    vec2_t v2            = { wal->x + walldist - vect->x, wal->y + walldist - vect->y };
+    int const    r   = walldist << 1;
+    auto const * wal = (uwalltype *)&wall[wallnum];
+    vec2_t const v1  = { wal->x + walldist - vect->x, wal->y + walldist - vect->y };
+    wal              = (uwalltype *)&wall[wal->point2];
+    vec2_t v2        = { wal->x + walldist - vect->x, wal->y + walldist - vect->y };
 
     if (((v1.x < 0) && (v2.x < 0)) || ((v1.y < 0) && (v2.y < 0)) || ((v1.x >= r) && (v2.x >= r)) || ((v1.y >= r) && (v2.y >= r)))
         return 0;
@@ -709,19 +709,18 @@ int32_t clipsprite_initindex(int32_t curidx, uspritetype const * const curspr, i
     // init sectors for this index
     for (k=clipinfo[curidx].qbeg; k<=clipinfo[curidx].qend; k++)
     {
-        const int32_t j = sectq[k];
-        usectortype *const sec = (usectortype *)&sector[j];
-        const int32_t startwall = sec->wallptr, endwall = startwall+sec->wallnum;
+        int32_t const j   = sectq[k];
+        auto const    sec = (usectortype *)&sector[j];
 
-        int32_t w;
-        uwalltype *wal;
+        int32_t const startwall = sec->wallptr, endwall = startwall+sec->wallnum;
 
         sec->floorz = daz + mulscale22(scalez, CM_FLOORZ(j));
         sec->ceilingz = daz + mulscale22(scalez, CM_CEILINGZ(j));
         //initprintf("sec %d: f=%d, c=%d\n", j, sec->floorz, sec->ceilingz);
 
-        for (w=startwall, wal=(uwalltype *)&wall[startwall]; w<endwall; w++, wal++)
+        for (int w=startwall; w<endwall; w++)
         {
+            auto wal=(uwalltype *)&wall[startwall];
             wal->x = mulscale22(scalex, CM_WALL_X(w));
             wal->y = mulscale22(scaley, CM_WALL_Y(w));
 
@@ -781,7 +780,7 @@ static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32
 static int32_t check_floor_curb(int32_t dasect, int32_t nextsect, int32_t flordist, int32_t posz,
                                 int32_t dax, int32_t day)
 {
-    usectortype const * const sec2 = (usectortype *)&sector[nextsect];
+    auto const    sec2 = (usectortype *)&sector[nextsect];
     int32_t const daz2 = getflorzofslope(nextsect, dax, day);
 
     return ((sec2->floorstat&1) == 0 &&  // parallaxed floor curbs don't clip
@@ -965,9 +964,6 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
 
     do
     {
-        const uwalltype *wal;
-        const usectortype *sec;
-
 #ifdef HAVE_CLIPSHAPE_FEATURE
         if (clipsectcnt>=clipsectnum)
         {
@@ -1004,14 +1000,14 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
 
         ////////// Walls //////////
 
-        sec = (usectortype *)&sector[dasect];
-        int const startwall = sec->wallptr;
-        int const endwall = startwall+sec->wallnum;
-        wal=(uwalltype *)&wall[startwall];
+        auto const sec       = (usectortype *)&sector[dasect];
+        int const  startwall = sec->wallptr;
+        int const  endwall   = startwall + sec->wallnum;
 
-        for (native_t j=startwall; j<endwall; j++, wal++)
+        for (native_t j=startwall; j<endwall; j++)
         {
-            const uwalltype *const wal2 = (uwalltype *)&wall[wal->point2];
+            auto const wal  = (uwalltype *)&wall[j];
+            auto const wal2 = (uwalltype *)&wall[wal->point2];
 
             if ((wal->x < clipMin.x && wal2->x < clipMin.x) || (wal->x > clipMax.x && wal2->x > clipMax.x) ||
                 (wal->y < clipMin.y && wal2->y < clipMin.y) || (wal->y > clipMax.y && wal2->y > clipMax.y))
@@ -1952,8 +1948,8 @@ static int32_t hitscan_trysector(const vec3_t *sv, const usectortype *sec, hitda
 
     if (stat&2)
     {
-        const uwalltype *const wal = (uwalltype *)&wall[sec->wallptr];
-        const uwalltype *const wal2 = (uwalltype *)&wall[wal->point2];
+        auto const wal  = (uwalltype *)&wall[sec->wallptr];
+        auto const wal2 = (uwalltype *)&wall[wal->point2];
         int32_t j, dax=wal2->x-wal->x, day=wal2->y-wal->y;
 
         i = nsqrtasm(uhypsq(dax,day)); if (i == 0) return 1; //continue;
@@ -2059,8 +2055,6 @@ restart_grand:
     clipspritecnt = clipspritenum = 0;
     do
     {
-        const usectortype *sec;
-        const uwalltype *wal;
         int32_t dasector, z, startwall, endwall;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -2088,7 +2082,8 @@ restart_grand:
             tempshortcnt = 0;
         }
 #endif
-        dasector = clipsectorlist[tempshortcnt]; sec = (usectortype *)&sector[dasector];
+        dasector = clipsectorlist[tempshortcnt];
+        auto const * sec = (usectortype *)&sector[dasector];
 
         i = 1;
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -2110,13 +2105,16 @@ restart_grand:
         ////////// Walls //////////
 
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
-        for (z=startwall,wal=(uwalltype *)&wall[startwall]; z<endwall; z++,wal++)
+        for (z=startwall; z<endwall; z++)
         {
-            const int32_t nextsector = wal->nextsector;
-            const uwalltype *const wal2 = (uwalltype *)&wall[wal->point2];
-            int32_t daz2, zz;
+            auto const wal  = (uwalltype *)&wall[z];
+            auto const wal2 = (uwalltype *)&wall[wal->point2];
+
+            int const  nextsector = wal->nextsector;
 
             if (curspr && nextsector<0) continue;
+
+            int32_t daz2, zz;
 
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
 
