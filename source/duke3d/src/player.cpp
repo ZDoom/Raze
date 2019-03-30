@@ -4498,6 +4498,21 @@ static void P_DoWater(int const playerNum, int const playerBits, int const floor
         pPlayer->vel.z = 0;
     }
 
+    int spriteNum;
+
+    for (SPRITES_OF_SECT(pPlayer->cursectnum, spriteNum))
+        if (sprite[spriteNum].statnum == STAT_TRANSPORT)
+            break;
+
+    if (spriteNum == -1)
+    {
+        if (pPlayer->pos.z < ceilZ + PMINHEIGHT)
+        {
+            pPlayer->pos.z = ceilZ + PMINHEIGHT;
+            pPlayer->vel.z = 0;
+        }
+    }
+
     if (pPlayer->scuba_on && (krand()&255) < 8)
     {
         int const spriteNum = A_Spawn(pPlayer->i, WATERBUBBLE);
