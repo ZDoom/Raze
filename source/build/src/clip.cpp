@@ -855,7 +855,7 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
     const int32_t ox = ksgn(-dy), oy = ksgn(dx);
     char first = (klabs(dx) <= klabs(dy));
 
-    while (1)
+    do
     {
         if (dx*(*y-y1) > (*x-x1)*dy)
             return;
@@ -867,6 +867,7 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
 
         first ^= 1;
     }
+    while (1);
 }
 
 static int32_t get_floorspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t x4,
@@ -896,6 +897,23 @@ static int32_t get_floorspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t 
     }
 
     return clipyou;
+}
+
+static int sectoradjacent(int const sect1, int const sect2)
+{
+    if (sector[sect1].wallnum < sector[sect2].wallnum)
+    {
+        for (int i = 0; i < sector[sect1].wallnum; i++)
+            if (wall[sector[sect1].wallptr+i].nextsector == sect2)
+                return 1;
+    }
+    else
+    {
+        for (int i = 0; i < sector[sect2].wallnum; i++)
+            if (wall[sector[sect2].wallptr+i].nextsector == sect1)
+                return 1;
+    }
+    return 0;
 }
 
 //
@@ -1066,7 +1084,9 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     }
                 }
 
-            if (clipyou)
+            // We're not interested in any sector reached by portal traversal that we're "inside" of.
+            if (clipsectcnt != 1 && inside(pos->x, pos->y, dasect) == 1) break;
+            else if (clipyou)
             {
                 int16_t objtype;
                 int32_t bsz;
@@ -1088,12 +1108,9 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 day = walldist; if (dx < 0) day = -day;
                 addclipline(x1+dax, y1+day, x2+dax, y2+day, objtype);
             }
-
-            if (wal->nextsector>=0)
+            else if (wal->nextsector>=0)
             {
-                // This fixes Duke3D E1L2.
-                // We're not interested in any sector reached by portal traversal that we're "inside" of.
-                if (inside(pos->x, pos->y, wal->nextsector)) break;
+                if (inside(pos->x, pos->y, wal->nextsector) == 1) continue;
 
                 for (i=clipsectnum-1; i>=0; i--)
                     if (wal->nextsector == clipsectorlist[i]) break;
@@ -1279,11 +1296,22 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 retval = (uint16_t) clipobjectval[hitwall];
             hitwalls[cnt] = hitwall;
         }
-        cnt--;
 
-        pos->x = intx;
-        pos->y = inty;
-        updatesectorz(pos->x, pos->y, pos->z, sectnum);
+        // this handles rejection of movement that managed to get past the clipping lines when it shouldn't have
+        int const osectnum = *sectnum;
+
+        updatesectorz(intx, inty, pos->z, sectnum);
+
+        if (*sectnum == osectnum ||
+           (!check_floor_curb(osectnum, *sectnum, flordist, pos->z, pos->x, pos->y) &&
+           (sectoradjacent(osectnum, *sectnum) || cansee(pos->x, pos->y, pos->z, osectnum, intx, inty, pos->z, *sectnum))))
+        {
+            pos->x = intx;
+            pos->y = inty;
+            cnt--;
+        }
+        else
+            *sectnum = osectnum;
     } while ((xvect|yvect) != 0 && hitwall >= 0 && cnt > 0);
 
     // I'm not a fan of these brute-force searches but this one should be OK
