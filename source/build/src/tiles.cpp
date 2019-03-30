@@ -658,7 +658,9 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
         if (!waloff[owner])
             tileLoad(owner);
 
-        tileMaybeRotate(tilenume);
+        if (waloff[tilenume])
+            tileMaybeRotate(tilenume);
+
         return;
     }
 
