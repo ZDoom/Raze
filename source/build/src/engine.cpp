@@ -7459,7 +7459,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
         const int32_t rayLengthSquared = ray.x*ray.x + ray.y*ray.y;
         const int32_t rayDotOriginDiff = ray.x*originDiff.x + ray.y*originDiff.y;
         const int32_t rayDotLineEndDiff = rayDotOriginDiff + ray.x*lineVec.x + ray.y*lineVec.y;
-        int32_t t = min(rayDotOriginDiff, rayDotLineEndDiff);
+        int64_t t = min(rayDotOriginDiff, rayDotLineEndDiff);
         if (rayDotOriginDiff < 0)
         {
             if (rayDotLineEndDiff < 0)
@@ -7474,7 +7474,8 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 
             t = rayDotLineEndDiff;
         }
-        t = divscale24(t, rayLengthSquared);
+        t = tabledivide64(t << 24L, rayLengthSquared);
+
         *intersectionX = originX + mulscale24(ray.x, t);
         *intersectionY = originY + mulscale24(ray.y, t);
         *intersectionZ = originZ + mulscale24(destZ-originZ, t);
@@ -7484,20 +7485,33 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 
     const int32_t originDiffCrossLineVec = originDiff.x*lineVec.y - originDiff.y*lineVec.x;
     static const int32_t signBit = 1u<<31u;
+    // Any point on either line can be expressed as p+t*r and q+u*s
+    // The two line segments intersect when we can find a t & u such that p+t*r = q+u*s
+    // If the point is outside of the bounds of the line segment, we know we don't have an intersection.
     // t is < 0 if (originDiffCrossLineVec^rayCrossLineVec) & signBit)
-    // t is > 1 if originDiffCrossLineVec > rayCrossLineVec
     // u is < 0 if (originDiffCrossRay^rayCrossLineVec) & signBit
-    // u is > 1 if originDiffCrossRay > rayCrossLineVec
-    // where int32_t u = divscale24(originDiffCrossRay, rayCrossLineVec);
-    if (originDiffCrossLineVec > rayCrossLineVec ||
-        originDiffCrossRay > rayCrossLineVec ||
-        ((originDiffCrossLineVec^rayCrossLineVec) & signBit) ||
-        ((originDiffCrossRay^rayCrossLineVec) & signBit))
+    // t is > 1 if abs(originDiffCrossLineVec) > abs(rayCrossLineVec)
+    // u is > 1 if abs(originDiffCrossRay) > abs(rayCrossLineVec)
+    // where int32_t u = tabledivide64(((int64_t) originDiffCrossRay) << 24L, rayCrossLineVec);
+    if (((originDiffCrossLineVec^rayCrossLineVec) & signBit) ||
+        ((originDiffCrossRay^rayCrossLineVec) & signBit) ||
+        abs(originDiffCrossLineVec) > abs(rayCrossLineVec) ||
+        abs(originDiffCrossRay) > abs(rayCrossLineVec))
     {
         // line segments do not overlap
         return 0;
     }
-    int32_t t = divscale24(originDiffCrossLineVec, rayCrossLineVec);
+
+    int64_t t = tabledivide64(((int64_t) originDiffCrossLineVec) << 24L, rayCrossLineVec);
+    // For sake of completeness/readability, alternative to the above approach for an early out & avoidance of an extra division:
+#if 0
+    int64_t u = tabledivide64(((int64_t) originDiffCrossRay) << 24L, rayCrossLineVec);
+    if (u < 0 || u > 1 << 24 || t < 0 || t > 1 << 24)
+    {
+        return 0;
+    }
+#endif
+
     *intersectionX = originX + mulscale24(ray.x, t);
     *intersectionY = originY + mulscale24(ray.y, t);
     *intersectionZ = originZ + mulscale24(destZ-originZ, t);
