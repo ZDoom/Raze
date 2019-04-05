@@ -1240,8 +1240,10 @@ int32_t sectorofwall_noquick(int16_t wallNum);
 int32_t   loopnumofsector(int16_t sectnum, int16_t wallnum);
 void setslope(int32_t sectnum, int32_t cf, int16_t slope);
 
-int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t x3,
-                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz);
+int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
+                   int32_t destX, int32_t destY, int32_t destZ,
+                   int32_t lineStartX, int32_t lineStartY, int32_t lineEndX, int32_t lineEndY,
+                   int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ);
 
 int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz);
