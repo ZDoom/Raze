@@ -6676,8 +6676,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     for (SPRITES_OF(STAT_ACTOR, k))
                     {
-                        if (sprite[k].extra > 0 && A_CheckEnemySprite(&sprite[k])
-                                && clipinsidebox((vec2_t *)&sprite[k], j, 256) == 1)
+                        if (sprite[k].extra > 0 &&
+                            (pSprite->sectnum == sprite[k].sectnum ||
+                             sectoradjacent(pSprite->sectnum, sprite[k].sectnum)) &&
+                            A_CheckEnemySprite(&sprite[k]) &&
+                            clipinsidebox((vec2_t *)&sprite[k], j, 256) == 1)
                             goto next_sprite;
                     }
                 }

@@ -909,8 +909,7 @@ static int32_t get_floorspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t 
     return clipyou;
 }
 
-#if 0
-static int sectoradjacent(int sect1, int sect2)
+int sectoradjacent(int sect1, int sect2)
 {
     if (sector[sect1].wallnum > sector[sect2].wallnum)
         swaplong(&sect1, &sect2);
@@ -921,7 +920,6 @@ static int sectoradjacent(int sect1, int sect2)
 
     return 0;
 }
-#endif
 
 //
 // clipmove
