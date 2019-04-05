@@ -7490,13 +7490,13 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
     // If the point is outside of the bounds of the line segment, we know we don't have an intersection.
     // t is < 0 if (originDiffCrossLineVec^rayCrossLineVec) & signBit)
     // u is < 0 if (originDiffCrossRay^rayCrossLineVec) & signBit
-    // t is > 1 if abs(originDiffCrossLineVec) > abs(rayCrossLineVec)
-    // u is > 1 if abs(originDiffCrossRay) > abs(rayCrossLineVec)
+    // t is > 1 if klabs(originDiffCrossLineVec) > klabs(rayCrossLineVec)
+    // u is > 1 if klabs(originDiffCrossRay) > klabs(rayCrossLineVec)
     // where int32_t u = tabledivide64(((int64_t) originDiffCrossRay) << 24L, rayCrossLineVec);
     if (((originDiffCrossLineVec^rayCrossLineVec) & signBit) ||
         ((originDiffCrossRay^rayCrossLineVec) & signBit) ||
-        abs(originDiffCrossLineVec) > abs(rayCrossLineVec) ||
-        abs(originDiffCrossRay) > abs(rayCrossLineVec))
+        klabs(originDiffCrossLineVec) > klabs(rayCrossLineVec) ||
+        klabs(originDiffCrossRay) > klabs(rayCrossLineVec))
     {
         // line segments do not overlap
         return 0;
