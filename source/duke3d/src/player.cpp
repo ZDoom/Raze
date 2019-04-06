@@ -3458,11 +3458,10 @@ void P_SelectNextInvItem(DukePlayer_t *pPlayer)
 
 void P_CheckWeapon(DukePlayer_t *pPlayer)
 {
-    int playerNum;
-    int weaponNum;
-
-    if (pPlayer->reloading)
+    if (pPlayer->reloading || (unsigned)pPlayer->curr_weapon >= MAX_WEAPONS)
         return;
+
+    int playerNum, weaponNum;
 
     if (pPlayer->wantweaponfire >= 0)
     {
