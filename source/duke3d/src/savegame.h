@@ -139,10 +139,6 @@ int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv);
 extern void sv_postyaxload(void);
 #endif
 
-// XXX: The 'bitptr' decl really belongs into gamedef.h, but we don't want to
-// pull all of it in savegame.c?
-extern char *bitptr;
-
 enum
 {
     P2I_BACK_BIT = 1,

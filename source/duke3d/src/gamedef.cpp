@@ -988,11 +988,11 @@ const char *EventNames[MAXEVENTS] =
 #endif
 };
 
-char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
+uint8_t *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 
-#define BITPTR_SET(x) (bitptr[(x)>>3] |= (1<<((x)&7)))
-#define BITPTR_CLEAR(x) (bitptr[(x)>>3] &= ~(1<<((x)&7)))
-#define BITPTR_IS_POINTER(x) (bitptr[(x)>>3] & (1<<((x) &7)))
+#define BITPTR_SET(x) bitmap_set(bitptr, x)
+#define BITPTR_CLEAR(x) bitmap_clear(bitptr, x)
+#define BITPTR_IS_POINTER(x) bitmap_test(bitptr, x)
 
 #if !defined LUNATIC
 hashtable_t h_arrays   = { MAXGAMEARRAYS >> 1, NULL };
@@ -1023,7 +1023,7 @@ static void C_SetScriptSize(int32_t newsize)
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
 
     auto newscript = (intptr_t *)Xrealloc(apScript, newsize * sizeof(intptr_t));
-    bitptr = (char *)Xrealloc(bitptr, (((newsize + 7) >> 3) + 1) * sizeof(uint8_t));
+    bitptr = (uint8_t *)Xrealloc(bitptr, (((newsize + 7) >> 3) + 1) * sizeof(uint8_t));
 
     if (newsize > g_scriptSize)
         Bmemset(&newscript[g_scriptSize], 0, (newsize - g_scriptSize) * sizeof(intptr_t));
@@ -6233,7 +6233,7 @@ void C_Compile(const char *fileName)
     Bfree(apScript);
 
     apScript = (intptr_t *)Xcalloc(1, g_scriptSize * sizeof(intptr_t));
-    bitptr   = (char *)Xcalloc(1, (((g_scriptSize + 7) >> 3) + 1) * sizeof(uint8_t));
+    bitptr   = (uint8_t *)Xcalloc(1, (((g_scriptSize + 7) >> 3) + 1) * sizeof(uint8_t));
 
     g_errorCnt   = 0;
     g_labelCnt   = 0;
