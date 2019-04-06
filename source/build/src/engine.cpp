@@ -10939,25 +10939,23 @@ int32_t lastwall(int16_t point)
 }
 
 // breadth-first search helpers
-void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt)
+void bfirst_search_init(int16_t * const list, uint8_t * const bitmap, int32_t * const eltnumptr, int const maxelts, int const firstelt)
 {
-    Bmemset(bitmap, 0, (maxnum+7)>>3);
+    Bmemset(bitmap, 0, (maxelts+7)>>3);
 
     list[0] = firstelt;
-    bitmap[firstelt>>3] |= (1<<(firstelt&7));
+    bitmap_set(bitmap, firstelt);
     *eltnumptr = 1;
 }
 
-void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt)
+void bfirst_search_try(int16_t * const list, uint8_t * const bitmap, int32_t * const eltnumptr, int const elt)
 {
     if (elt < 0)
         return;
-
-    if ((bitmap[elt>>3]&(1<<(elt&7)))==0)
+    else if (bitmap_test(bitmap, elt)==0)
     {
-        bitmap[elt>>3] |= (1<<(elt&7));
-        list[*eltnumptr] = elt;
-        (*eltnumptr)++;
+        bitmap_set(bitmap, elt);
+        list[(*eltnumptr)++] = elt;
     }
 }
 
