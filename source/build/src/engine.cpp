@@ -11021,29 +11021,27 @@ void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 
 void updatesectorbreadth(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
+    if ((unsigned)*sectnum >= (unsigned)numsectors)
+        return;
+
     static int16_t sectlist[MAXSECTORS];
     static uint8_t sectbitmap[MAXSECTORS>>3];
-    int32_t nsecs, sectcnt, j;
-
-    if ((unsigned)(*sectnum) >= (unsigned)numsectors)
-        return;
+    int32_t nsecs;
 
     bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
 
-    for (sectcnt=0; sectcnt<nsecs; sectcnt++)
+    for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
     {
-        if (inside_p(x,y, sectlist[sectcnt]))
+        if (inside_p(x, y, sectlist[sectcnt]))
             SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
 
-        {
-            const sectortype *sec = &sector[sectlist[sectcnt]];
-            int32_t startwall = sec->wallptr;
-            int32_t endwall = sec->wallptr + sec->wallnum;
+        auto const sec       = &sector[sectlist[sectcnt]];
+        int const  startwall = sec->wallptr;
+        int const  endwall   = sec->wallptr + sec->wallnum;
 
-            for (j=startwall; j<endwall; j++)
-                if (wall[j].nextsector >= 0)
-                    bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
-        }
+        for (int j=startwall; j<endwall; j++)
+            if (wall[j].nextsector >= 0)
+                bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
     }
 
     *sectnum = -1;
