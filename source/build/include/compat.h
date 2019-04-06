@@ -1119,6 +1119,11 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
         Bstrcpy(p, ext);
 }
 
+////////// Bitfield manipulation //////////
+
+static FORCE_INLINE void bitmap_set(uint8_t *const ptr, int const n) { ptr[n >> 3] |= 1 << (n & 7); }
+static FORCE_INLINE void bitmap_clear(uint8_t *const ptr, int const n) { ptr[n >> 3] &= ~(1 << (n & 7)); }
+static FORCE_INLINE CONSTEXPR char bitmap_test(uint8_t const *const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 
 /* Begin dependence on compat.o object. */
 
