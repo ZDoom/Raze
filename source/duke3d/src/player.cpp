@@ -5178,7 +5178,8 @@ void P_ProcessInput(int playerNum)
             }
         }
 
-        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->jumping_counter && pPlayer->pos.z < (ceilZ + PMINHEIGHT))
+        // this is == (ceilZ + PMINHEIGHT) because pos.z is explicitly set to this value elsewhere
+        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->jumping_counter && pPlayer->pos.z == (ceilZ + PMINHEIGHT))
         {
             pPlayer->jumping_counter = 0;
             if (pPlayer->vel.z < 0)
