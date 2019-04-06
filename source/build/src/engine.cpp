@@ -11021,7 +11021,7 @@ void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 
 void updatesectorbreadth(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
-    if ((unsigned)*sectnum >= (unsigned)numsectors)
+    if ((unsigned)*sectnum >= (unsigned)numsectors || inside_p(x, y, *sectnum))
         return;
 
     static int16_t sectlist[MAXSECTORS];
@@ -11081,12 +11081,12 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
 {
     if ((uint32_t)(*sectnum) < 2*MAXSECTORS)
     {
-        int32_t nofirstzcheck = 0;
+        bool nofirstzcheck = false;
 
         if (*sectnum >= MAXSECTORS)
         {
             *sectnum -= MAXSECTORS;
-            nofirstzcheck = 1;
+            nofirstzcheck = true;
         }
 
         // this block used to be outside the "if" and caused crashes in Polymost Mapster32
@@ -11130,9 +11130,85 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
         if (inside_z_p(x,y,z, i))
             SET_AND_RETURN(*sectnum, i);
 
+    // fall back to regular old updatesector() because that's still better than returning -1
     updatesector(x, y, sectnum);
 }
 
+void updatesectorbreadthz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
+{
+    bool nofirstzcheck = false;
+
+    if ((unsigned)*sectnum >= (unsigned)numsectors)
+    {
+		if ((unsigned)*sectnum < (unsigned)numsectors + MAXSECTORS)
+		{
+			*sectnum -= MAXSECTORS;
+			nofirstzcheck = true;
+		}
+		else
+        {
+			// we need to support passing in a sectnum of -1, unfortunately
+            for (int i = numsectors - 1; i >= 0; --i)
+                if (inside_z_p(x, y, z, i))
+                    SET_AND_RETURN(*sectnum, i);
+
+            for (int i = numsectors - 1; i >= 0; --i)
+                if (inside_p(x, y, i))
+                    SET_AND_RETURN(*sectnum, i);
+
+            SET_AND_RETURN(*sectnum, -1);
+        }
+    }
+
+    int32_t cz, fz;
+    getzsofslope(*sectnum, x, y, &cz, &fz);
+
+#ifdef YAX_ENABLE
+    if (z < cz)
+    {
+        int const next = yax_getneighborsect(x, y, *sectnum, YAX_CEILING);
+        if (next >= 0 && z >= getceilzofslope(next, x, y))
+            SET_AND_RETURN(*sectnum, next);
+    }
+
+    if (z > fz)
+    {
+        int const next = yax_getneighborsect(x, y, *sectnum, YAX_FLOOR);
+        if (next >= 0 && z <= getflorzofslope(next, x, y))
+            SET_AND_RETURN(*sectnum, next);
+    }
+#endif
+    if (nofirstzcheck || (z >= cz && z <= fz))
+        if (inside_p(x, y, *sectnum))
+            return;
+
+    static int16_t sectlist[MAXSECTORS];
+    static uint8_t sectbitmap[MAXSECTORS>>3];
+    int32_t nsecs;
+
+    bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
+
+    for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
+    {
+        if (inside_z_p(x, y, z, sectlist[sectcnt]))
+            SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
+
+        auto const sec       = &sector[sectlist[sectcnt]];
+        int const  startwall = sec->wallptr;
+        int const  endwall   = sec->wallptr + sec->wallnum;
+
+        for (int j=startwall; j<endwall; j++)
+            if (wall[j].nextsector >= 0)
+                bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
+    }
+
+    // fall back to searching without z... this is really a bullshit worst case scenario
+    for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
+        if (inside_p(x, y, sectlist[sectcnt]))
+            SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
+
+    *sectnum = -1;
+}
 
 //
 // rotatepoint

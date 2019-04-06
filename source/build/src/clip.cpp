@@ -1435,7 +1435,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                         } while (clipinsidebox((vec2_t *)vect, i, walldist-4) != 0);
                         bad = -1;
                         k--; if (k <= 0) return bad;
-                        updatesector(vect->x, vect->y, sectnum);
+                        updatesectorbreadth(vect->x, vect->y, sectnum);
                         if (*sectnum < 0) return -1;
                     }
                     else
