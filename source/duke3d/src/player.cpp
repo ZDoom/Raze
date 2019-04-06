@@ -4674,12 +4674,13 @@ void P_ProcessInput(int playerNum)
 
     int sectorLotag = sector[pPlayer->cursectnum].lotag;
     // sectorLotag can be set to 0 later on, but the same block sets spritebridge to 1
-    int stepHeight = (sectorLotag == ST_1_ABOVE_WATER || pPlayer->spritebridge == 1) ? pPlayer->autostep_sbw : pPlayer->autostep;
+    int stepHeight = (sectorLotag == ST_1_ABOVE_WATER && pPlayer->spritebridge != 1) ? pPlayer->autostep_sbw : pPlayer->autostep;
 
     int32_t floorZ, ceilZ, highZhit, lowZhit, dummy;
 
     if (pPlayer->pos.z < actor[pPlayer->i].ceilingz + PMINHEIGHT || pPlayer->pos.z > actor[pPlayer->i].floorz - PMINHEIGHT)
         stepHeight = 0;
+    else stepHeight -= (pPlayer->jumping_counter << 1);
 
 #if 0
     if (pPlayer->on_ground && (pPlayer->pos.z + stepHeight > actor[pPlayer->i].floorz - 128))
@@ -5177,7 +5178,7 @@ void P_ProcessInput(int playerNum)
             }
         }
 
-        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->jumping_counter && pPlayer->opos.z < (ceilZ + PMINHEIGHT))
+        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->jumping_counter && pPlayer->pos.z < (ceilZ + PMINHEIGHT))
         {
             pPlayer->jumping_counter = 0;
             if (pPlayer->vel.z < 0)
@@ -5430,7 +5431,7 @@ HORIZONLY:;
 
     if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
     {
-        int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->clipdist, (4L << 8), stepHeight, CLIPMASK0) < 0 &&
+        int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->clipdist - 16, (4L << 8), stepHeight, CLIPMASK0) < 0 &&
                                  A_GetFurthestAngle(pPlayer->i, 8) < 512);
 
         if (squishPlayer || klabs(actor[pPlayer->i].floorz-actor[pPlayer->i].ceilingz) < (48<<8))
