@@ -4643,6 +4643,16 @@ static void P_HandlePal(DukePlayer_t *const pPlayer)
 }
 
 
+static void P_ClampZ(DukePlayer_t* const pPlayer, int const sectorLotag, int32_t const ceilZ, int32_t const floorZ)
+{
+    if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->pos.z < ceilZ + PMINHEIGHT)
+        pPlayer->pos.z = ceilZ + PMINHEIGHT;
+
+    if (sectorLotag != ST_1_ABOVE_WATER && pPlayer->pos.z > floorZ - PMINHEIGHT)
+        pPlayer->pos.z = floorZ - PMINHEIGHT;
+}
+
+
 void P_ProcessInput(int playerNum)
 {
     if (g_player[playerNum].playerquitflag == 0)
@@ -4677,21 +4687,20 @@ void P_ProcessInput(int playerNum)
 
     int32_t floorZ, ceilZ, highZhit, lowZhit, dummy;
 
-    if (pPlayer->pos.z < actor[pPlayer->i].ceilingz + PMINHEIGHT || pPlayer->pos.z > actor[pPlayer->i].floorz - PMINHEIGHT)
-        stepHeight = 0;
-    else stepHeight -= (pPlayer->jumping_counter << 1);
-
-#if 0
-    if (pPlayer->on_ground && (pPlayer->pos.z + stepHeight > actor[pPlayer->i].floorz - 128))
-        stepHeight -= pPlayer->pos.z + stepHeight - actor[pPlayer->i].floorz + 128;
-#endif
+    if (sectorLotag != ST_2_UNDERWATER)
+    {
+        if (pPlayer->pos.z + stepHeight > actor[pPlayer->i].floorz - PMINHEIGHT)
+            stepHeight -= (pPlayer->pos.z + stepHeight) - (actor[pPlayer->i].floorz - PMINHEIGHT);
+        else
+            stepHeight -= (pPlayer->jumping_counter << 1);
+    }
 
     pPlayer->pos.z += stepHeight;
     getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - 16, CLIPMASK0);
     pPlayer->pos.z -= stepHeight;
 
     int32_t ceilZ2 = ceilZ;
-    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - 24, CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
+    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - 16, CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
 
     if ((highZhit & 49152) == 49152 && (sprite[highZhit & (MAXSPRITES - 1)].cstat & CSTAT_SPRITE_BLOCK) != CSTAT_SPRITE_BLOCK)
         ceilZ = ceilZ2;
@@ -5093,8 +5102,7 @@ void P_ProcessInput(int playerNum)
 
                 if (klabs(Zdiff) < 256)
                     Zdiff = 0;
-
-                pPlayer->pos.z += ((klabs(Zdiff) >= 256) ? (((floorZ - (floorZOffset << 8)) - pPlayer->pos.z) >> 1) : 0);
+                else  pPlayer->pos.z += (floorZ - (floorZOffset << 8) - pPlayer->pos.z) >> 1;
                 pPlayer->vel.z -= 768;
 
                 if (pPlayer->vel.z < 0)
@@ -5129,9 +5137,9 @@ void P_ProcessInput(int playerNum)
                 pPlayer->jumping_toggle--;
             else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle == 0)
             {
-                getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &dummy, &dummy, &dummy, pPlayer->clipdist - 24, CLIPMASK0);
+                getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &dummy, &dummy, &dummy, pPlayer->clipdist - 16, CLIPMASK0);
 
-                if ((floorZ-ceilZ) > (56<<8))
+                if ((floorZ-ceilZ) > (48<<8))
                 {
                     if (VM_OnEvent(EVENT_JUMP,pPlayer->i,playerNum) == 0)
                     {
@@ -5177,8 +5185,7 @@ void P_ProcessInput(int playerNum)
             }
         }
 
-        // this is == (ceilZ + PMINHEIGHT) because pos.z is explicitly set to this value elsewhere
-        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->jumping_counter && pPlayer->pos.z == (ceilZ + PMINHEIGHT))
+        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->jumping_counter && pPlayer->pos.z <= (ceilZ + PMINHEIGHT + 128))
         {
             pPlayer->jumping_counter = 0;
             if (pPlayer->vel.z < 0)
@@ -5359,9 +5366,12 @@ HORIZONLY:;
                 || (ceilingBunch >= 0 && !(sector[playerSectNum].ceilingstat & 512))))
         {
             pPlayer->cursectnum += MAXSECTORS;  // skip initial z check, restored by updatesectorz
-            updatesectorz(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z, &pPlayer->cursectnum);
+            updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
         }
 #endif
+
+        P_ClampZ(pPlayer, sectorLotag, ceilZ, floorZ);
+
         int const touchObject = IONMAIDEN ? clipmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
                                                    pPlayer->vel.y + (pPlayer->fric.y << 9), pPlayer->clipdist, (4L << 8), stepHeight, CLIPMASK0)
                                         : clipmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->vel.x, pPlayer->vel.y, pPlayer->clipdist,
@@ -5392,11 +5402,7 @@ HORIZONLY:;
             pPlayer->pos.z += pPlayer->vel.z;
     }
 
-    if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->pos.z < ceilZ + PMINHEIGHT)
-        pPlayer->pos.z = ceilZ + PMINHEIGHT;
-
-    if (sectorLotag != ST_1_ABOVE_WATER && pPlayer->pos.z > floorZ - PMINHEIGHT)
-        pPlayer->pos.z = floorZ - PMINHEIGHT;
+    P_ClampZ(pPlayer, sectorLotag, ceilZ, floorZ);
 
     if (pPlayer->cursectnum >= 0)
     {
@@ -5431,8 +5437,10 @@ HORIZONLY:;
 
     if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
     {
-        int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->clipdist - 16, (4L << 8), stepHeight, CLIPMASK0) < 0 &&
-                                 A_GetFurthestAngle(pPlayer->i, 8) < 512);
+        int const  pushResult    = pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L << 8), (4L << 8), CLIPMASK0);
+        int const  furthestAngle = A_GetFurthestAngle(pPlayer->i, 32);
+        int const  angleDelta    = G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), furthestAngle);
+        bool const squishPlayer  = pushResult < 0 && !angleDelta;
 
         if (squishPlayer || klabs(actor[pPlayer->i].floorz-actor[pPlayer->i].ceilingz) < (48<<8))
         {
