@@ -1091,7 +1091,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
                 }
 
             // We're not interested in any sector reached by portal traversal that we're "inside" of.
-            if (clipsectcnt != 1 && inside(pos->x, pos->y, dasect) == 1) break;
+            if (!curspr && clipsectcnt != 1 && inside(pos->x, pos->y, dasect) == 1) break;
             else if (clipyou)
             {
                 int16_t objtype = int16_t(!curspr ?
@@ -1112,7 +1112,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
             }
             else if (wal->nextsector>=0)
             {
-                if (inside(pos->x, pos->y, wal->nextsector) == 1) continue;
+                if (!curspr && inside(pos->x, pos->y, wal->nextsector) == 1) continue;
 
                 int i;
                 for (i=clipsectnum-1; i>=0; i--)
