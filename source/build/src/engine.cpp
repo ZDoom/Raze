@@ -10964,35 +10964,35 @@ void bfirst_search_try(int16_t * const list, uint8_t * const bitmap, int32_t * c
 /* Different "is inside" predicates.
  * NOTE: The redundant bound checks are expected to be optimized away in the
  * inlined code. */
-static inline int32_t inside_p(int32_t x, int32_t y, int16_t sectnum)
+static inline bool inside_p(int32_t const x, int32_t const y, int const sectnum)
 {
     return (sectnum>=0 && inside(x, y, sectnum) == 1);
 }
 
-static inline int32_t inside_exclude_p(int32_t x, int32_t y, int16_t i, const uint8_t *excludesectbitmap)
+static inline bool inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
 {
-    return (i>=0 && !(excludesectbitmap[i>>3]&(1<<(i&7))) && inside_p(x, y, i));
+    return (sectnum>=0 && !bitmap_test(excludesectbitmap, sectnum) && inside_p(x, y, sectnum));
 }
 
 /* NOTE: no bound check */
-static inline int32_t inside_z_p(int32_t x, int32_t y, int32_t z, int16_t i)
+static inline bool inside_z_p(int32_t const x, int32_t const y, int32_t const z, int const sectnum)
 {
     int32_t cz, fz;
-    getzsofslope(i, x, y, &cz, &fz);
-    return (z >= cz && z <= fz && inside_p(x, y, i));
+    getzsofslope(sectnum, x, y, &cz, &fz);
+    return (z >= cz && z <= fz && inside_p(x, y, sectnum));
 }
 
-#define SET_AND_RETURN(Lval, Rval) do \
-{ \
-    (Lval) = (Rval); \
-    return; \
-} while (0)
-
+#define SET_AND_RETURN(Lval, Rval) \
+    do                             \
+    {                              \
+        (Lval) = (Rval);           \
+        return;                    \
+    } while (0)
 
 //
 // updatesector[z]
 //
-void updatesector(int32_t x, int32_t y, int16_t *sectnum)
+void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
     if (inside_p(x,y,*sectnum))
         return;
@@ -11019,7 +11019,7 @@ void updatesector(int32_t x, int32_t y, int16_t *sectnum)
     *sectnum = -1;
 }
 
-void updatesectorbreadth(int32_t x, int32_t y, int16_t *sectnum)
+void updatesectorbreadth(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
     static int16_t sectlist[MAXSECTORS];
     static uint8_t sectbitmap[MAXSECTORS>>3];
@@ -11049,7 +11049,7 @@ void updatesectorbreadth(int32_t x, int32_t y, int16_t *sectnum)
     *sectnum = -1;
 }
 
-void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *excludesectbitmap)
+void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectnum, const uint8_t * const excludesectbitmap)
 {
     if (inside_exclude_p(x, y, *sectnum, excludesectbitmap))
         return;
@@ -11079,7 +11079,7 @@ void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *
 // new: if *sectnum >= MAXSECTORS, *sectnum-=MAXSECTORS is considered instead
 //      as starting sector and the 'initial' z check is skipped
 //      (not initial anymore because it follows the sector updating due to TROR)
-void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
+void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
 {
     if ((uint32_t)(*sectnum) < 2*MAXSECTORS)
     {

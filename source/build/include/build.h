@@ -1154,11 +1154,11 @@ void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange
                int32_t (*blacklist_sprite_func)(int32_t)) ATTRIBUTE((nonnull(6,7,8)));
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                  int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
-void   updatesector(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));
-void updatesectorbreadth(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));
-void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum,
-                         const uint8_t *excludesectbitmap) ATTRIBUTE((nonnull(3,4)));
-void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum) ATTRIBUTE((nonnull(4)));
+void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum) ATTRIBUTE((nonnull(3)));
+void updatesectorbreadth(int32_t const x, int32_t const y, int16_t * const sectnum) ATTRIBUTE((nonnull(3)));
+void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectnum,
+                         const uint8_t * const excludesectbitmap) ATTRIBUTE((nonnull(3,4)));
+void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum) ATTRIBUTE((nonnull(4)));
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
