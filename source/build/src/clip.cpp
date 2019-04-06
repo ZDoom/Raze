@@ -1094,9 +1094,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
             if (!curspr && clipsectcnt != 1 && inside(pos->x, pos->y, dasect) == 1) break;
             else if (clipyou)
             {
-                int16_t objtype = int16_t(!curspr ?
-                                          j + 32768 :
-                                          curspr - (uspritetype *)sprite) + 49152;
+                int16_t const objtype = curspr ? (int16_t)(curspr - (uspritetype *)sprite) + 49152 : j + 32768;
 
                 //Add 2 boxes at endpoints
                 int32_t bsz = walldist; if (diff.x < 0) bsz = -bsz;
