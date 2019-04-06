@@ -1285,7 +1285,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
 
                 if ((tempint1^tempint2) < 0)
                 {
-                    updatesectorbreadth(pos->x, pos->y, sectnum);
+                    updatesector(pos->x, pos->y, sectnum);
                     return clipReturn;
                 }
             }
@@ -1300,7 +1300,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
         }
 
         int const osectnum = *sectnum;
-        updatesectorbreadth(vec.x, vec.y, sectnum);
+        updatesector(vec.x, vec.y, sectnum);
 
         if (*sectnum == osectnum || editstatus || (*sectnum != -1 && !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec.x, vec.y)))
         {
@@ -1435,7 +1435,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                         } while (clipinsidebox((vec2_t *)vect, i, walldist-4) != 0);
                         bad = -1;
                         k--; if (k <= 0) return bad;
-                        updatesectorbreadth(vect->x, vect->y, sectnum);
+                        updatesector(vect->x, vect->y, sectnum);
                         if (*sectnum < 0) return -1;
                     }
                     else
