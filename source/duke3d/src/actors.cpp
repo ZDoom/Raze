@@ -517,7 +517,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
         if (newSectnum < 0 || ((actor[spriteNum].stayput >= 0 && actor[spriteNum].stayput != newSectnum)
 #ifndef EDUKE32_STANDALONE
                 || (pSprite->picnum == BOSS2 && pSprite->pal == 0 && sector[newSectnum].lotag != ST_3)
-                || ((pSprite->picnum == BOSS1 || pSprite->picnum == BOSS2) && sector[newSectnum].lotag == ST_1_ABOVE_WATER)
+                || ((pSprite->picnum == BOSS1 || pSprite->picnum == BOSS2 || g_tile[pSprite->picnum].flags & SFLAG_NOWATERSECTOR) && sector[newSectnum].lotag == ST_1_ABOVE_WATER)
                 || (sector[oldSectnum].lotag != ST_1_ABOVE_WATER && sector[newSectnum].lotag == ST_1_ABOVE_WATER
                     && (pSprite->picnum == LIZMAN || (pSprite->picnum == LIZTROOP && pSprite->zvel == 0)))
 #endif

@@ -393,6 +393,7 @@ enum sflags_t
     SFLAG_REALCLIPDIST     = 0x01000000,
     SFLAG_WAKEUPBADGUYS    = 0x02000000,
     SFLAG_DAMAGEEVENT      = 0x04000000,
+    SFLAG_NOWATERSECTOR    = 0x08000000,
 };
 
 // Custom projectiles "workslike" flags.

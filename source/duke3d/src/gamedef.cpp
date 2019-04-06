@@ -6018,6 +6018,7 @@ static void C_AddDefaultDefinitions(void)
         { "SFLAG_SMOOTHMOVE",     SFLAG_SMOOTHMOVE },
         { "SFLAG_USEACTIVATOR",   SFLAG_USEACTIVATOR },
         { "SFLAG_WAKEUPBADGUYS",  SFLAG_WAKEUPBADGUYS },
+        { "SFLAG_NOWATERSECTOR",  SFLAG_NOWATERSECTOR },
 
         { "STAT_ACTIVATOR",   STAT_ACTIVATOR },
         { "STAT_ACTOR",       STAT_ACTOR },
