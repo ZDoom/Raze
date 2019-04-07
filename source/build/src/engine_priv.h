@@ -236,7 +236,7 @@ extern int32_t searchx, searchy;
 extern int16_t searchsector, searchwall, searchstat;
 extern int16_t searchbottomwall, searchisbottom;
 
-extern char inpreparemirror;
+extern char inpreparemirror, mirrorrender;
 
 extern char picsiz[MAXTILES];
 extern int16_t sectorborder[256];

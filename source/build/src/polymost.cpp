@@ -5336,7 +5336,7 @@ void polymost_drawrooms()
         gctang = (gctang > 0.f) ? 1.f : -1.f;
     }
 
-    if (inpreparemirror)
+    if (mirrorrender)
         gstang = -gstang;
 
     //Generate viewport trapezoid (for handling screen up/down)
@@ -5354,6 +5354,11 @@ void polymost_drawrooms()
         //Up/down rotation (backwards)
         v = { o2.x, o2.y * gchang + o2.z * gshang, o2.z * gchang - o2.y * gshang };
     }
+
+#if !SOFTROTMAT
+    if (mirrorrender)
+        gstang = -gstang;
+#endif
 
     //Clip to SCISDIST plane
     int n = 0;
@@ -5429,9 +5434,11 @@ void polymost_drawrooms()
 
     grhalfxdown10x = grhalfxdown10;
 
+    if (mirrorrender)
+        grhalfxdown10x = -grhalfxdown10;
+
     if (inpreparemirror)
     {
-        grhalfxdown10x = -grhalfxdown10;
         inpreparemirror = 0;
 
         // see engine.c: INPREPAREMIRROR_NO_BUNCHES

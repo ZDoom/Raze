@@ -626,7 +626,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             int32_t j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
 
-            if (videoGetRenderMode() == REND_CLASSIC)
+            if (videoGetRenderMode() != REND_POLYMER)
             {
                 int32_t didmirror;
 

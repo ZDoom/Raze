@@ -1451,7 +1451,7 @@ int16_t searchsector, searchwall, searchstat;     //search output
 //  When aiming at a 2-sided wall, 1 if aiming at the bottom part, 0 else
 int16_t searchbottomwall, searchisbottom;
 
-char inpreparemirror = 0;
+char inpreparemirror = 0, mirrorrender = 0;
 static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
 
 static int32_t setviewcnt = 0; // interface layers use this now
@@ -11614,6 +11614,7 @@ void squarerotatetile(int16_t tilenume)
 void renderPrepareMirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
                          int32_t *tposx, int32_t *tposy, fix16_t *tang)
 {
+    mirrorrender = 1;
     const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
     const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
 
@@ -11636,6 +11637,7 @@ void renderPrepareMirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall
 //
 void renderCompleteMirror(void)
 {
+    mirrorrender = 0;
 #ifdef USE_OPENGL
     if (videoGetRenderMode() != REND_CLASSIC)
         return;
