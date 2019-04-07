@@ -3376,8 +3376,8 @@ skip: ;
             }
             else
             {
-                if ((yax_vsp[yaxbunch][i].tag == 1) || (n0.y >= yax_vsp[yaxbunch][i].cy[0]-DOMOST_OFFSET)) k++;
-                if ((yax_vsp[yaxbunch][ni].tag == 1) || (n1.y >= yax_vsp[yaxbunch][i].cy[1]-DOMOST_OFFSET)) k += 3;
+                if ((yax_vsp[yaxbunch][i].tag == 0) || (n0.y >= yax_vsp[yaxbunch][i].cy[0]-DOMOST_OFFSET)) k++;
+                if ((yax_vsp[yaxbunch][ni].tag == 0) || (n1.y >= yax_vsp[yaxbunch][i].cy[1]-DOMOST_OFFSET)) k += 3;
                 switch (k)
                 {
                 case 4:
@@ -3428,6 +3428,163 @@ skip: ;
     while (i);
 #endif
 }
+
+static int32_t should_clip_cfwall(float x0, float y0, float x1, float y1)
+{
+    int const dir = (x0 < x1);
+
+    if (dir && yax_globallev >= YAX_MAXDRAWS)
+        return 1;
+
+    if (!dir && yax_globallev <= YAX_MAXDRAWS)
+        return 1;
+
+    if (dir) //clip dmost (floor)
+    {
+        y0 -= DOMOST_OFFSET;
+        y1 -= DOMOST_OFFSET;
+    }
+    else //clip umost (ceiling)
+    {
+        if (x0 == x1) return 1;
+        swapfloat(&x0, &x1);
+        swapfloat(&y0, &y1);
+        y0 += DOMOST_OFFSET;
+        y1 += DOMOST_OFFSET; //necessary?
+    }
+
+    x0 -= DOMOST_OFFSET;
+    x1 += DOMOST_OFFSET;
+
+    // Test if span is outside screen bounds
+    if (x1 < xbl || x0 > xbr)
+        return 1;
+
+    vec2f_t dm0 = { x0, y0 };
+    vec2f_t dm1 = { x1, y1 };
+
+    float const slop = (dm1.y - dm0.y) / (dm1.x - dm0.x);
+
+    if (dm0.x < xbl)
+    {
+        dm0.y += slop*(xbl-dm0.x);
+        dm0.x = xbl;
+    }
+
+    if (dm1.x > xbr)
+    {
+        dm1.y += slop*(xbr-dm1.x);
+        dm1.x = xbr;
+    }
+
+    vec2f_t n0, n1;
+    float spx[6], spcy[6], spfy[6];
+    int32_t spt[6];
+
+    for (bssize_t newi, i=vsp[0].n; i; i=newi)
+    {
+        newi = vsp[i].n; n0.x = vsp[i].x; n1.x = vsp[newi].x;
+
+        if ((dm0.x >= n1.x) || (n0.x >= dm1.x) || (vsp[i].ctag <= 0)) continue;
+
+        float const dx = n1.x-n0.x;
+        float const cy[2] = { vsp[i].cy[0], vsp[i].fy[0] },
+                    cv[2] = { vsp[i].cy[1]-cy[0], vsp[i].fy[1]-cy[1] };
+
+        int scnt = 0;
+
+        spx[scnt] = n0.x; spt[scnt] = -1; scnt++;
+
+        //Test if left edge requires split (dm0.x,dm0.y) (nx0,cy(0)),<dx,cv(0)>
+        if ((dm0.x > n0.x) && (dm0.x < n1.x))
+        {
+            float const t = (dm0.x-n0.x)*cv[dir] - (dm0.y-cy[dir])*dx;
+            if (((!dir) && (t < 0.f)) || ((dir) && (t > 0.f)))
+                { spx[scnt] = dm0.x; spt[scnt] = -1; scnt++; }
+        }
+
+        //Test for intersection on umost (0) and dmost (1)
+
+        float const d[2] = { ((dm0.y - dm1.y) * dx) - ((dm0.x - dm1.x) * cv[0]),
+                             ((dm0.y - dm1.y) * dx) - ((dm0.x - dm1.x) * cv[1]) };
+
+        float const n[2] = { ((dm0.y - cy[0]) * dx) - ((dm0.x - n0.x) * cv[0]),
+                             ((dm0.y - cy[1]) * dx) - ((dm0.x - n0.x) * cv[1]) };
+
+        float const fnx[2] = { dm0.x + ((n[0] / d[0]) * (dm1.x - dm0.x)),
+                               dm0.x + ((n[1] / d[1]) * (dm1.x - dm0.x)) };
+
+        if ((Bfabsf(d[0]) > Bfabsf(n[0])) && (d[0] * n[0] >= 0.f) && (fnx[0] > n0.x) && (fnx[0] < n1.x))
+            spx[scnt] = fnx[0], spt[scnt++] = 0;
+
+        if ((Bfabsf(d[1]) > Bfabsf(n[1])) && (d[1] * n[1] >= 0.f) && (fnx[1] > n0.x) && (fnx[1] < n1.x))
+            spx[scnt] = fnx[1], spt[scnt++] = 1;
+
+        //Nice hack to avoid full sort later :)
+        if ((scnt >= 2) && (spx[scnt-1] < spx[scnt-2]))
+        {
+            swapfloat(&spx[scnt-1], &spx[scnt-2]);
+            swaplong(&spx[scnt-1], &spx[scnt-2]);
+        }
+
+        //Test if right edge requires split
+        if ((dm1.x > n0.x) && (dm1.x < n1.x))
+        {
+            float const t = (dm1.x-n0.x)*cv[dir] - (dm1.y-cy[dir])*dx;
+            if (((!dir) && (t < 0.f)) || ((dir) && (t > 0.f)))
+                { spx[scnt] = dm1.x; spt[scnt] = -1; scnt++; }
+        }
+
+        spx[scnt] = n1.x; spt[scnt] = -1; scnt++;
+
+        float const rdx = 1.f/dx;
+        for (bssize_t z=0; z<scnt; z++)
+        {
+            float const t = (spx[z]-n0.x)*rdx;
+            spcy[z] = t*cv[0]+cy[0];
+            spfy[z] = t*cv[1]+cy[1];
+        }
+
+        for (bssize_t z=0; z<scnt-1; z++)
+        {
+            float const dx0 = spx[z];
+            float const dx1 = spx[z+1];
+            n0.y = (dx0-dm0.x)*slop + dm0.y;
+            n1.y = (dx1-dm0.x)*slop + dm0.y;
+
+            //      dx0           dx1
+            //       ~             ~
+            //----------------------------
+            //     t0+=0         t1+=0
+            //   vsp[i].cy[0]  vsp[i].cy[1]
+            //============================
+            //     t0+=1         t1+=3
+            //============================
+            //   vsp[i].fy[0]    vsp[i].fy[1]
+            //     t0+=2         t1+=6
+            //
+            //     ny0 ?         ny1 ?
+
+            int k = 4;
+            if (dir)
+            {
+                if ((spt[z] == 0) || (n0.y <= spcy[z]+DOMOST_OFFSET)) k--;
+                if ((spt[z+1] == 0) || (n1.y <= spcy[z+1]+DOMOST_OFFSET)) k -= 3;
+                if (k != 0)
+                    return 1;
+            }
+            else
+            {
+                if ((spt[z] == 1) || (n0.y >= spfy[z]-DOMOST_OFFSET)) k++;
+                if ((spt[z+1] == 1) || (n1.y >= spfy[z+1]-DOMOST_OFFSET)) k += 3;
+                if (k != 8)
+                    return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 #endif
 
 #define POINT2(i) (wall[wall[i].point2])
@@ -4746,7 +4903,11 @@ static void polymost_drawalls(int32_t const bunch)
                 //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
                     calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
-                pow2xsplit = 1; polymost_domost(x1,ocy1,x0,ocy0,cy1,ocy1,cy0,ocy0);
+                pow2xsplit = 1;
+#ifdef YAX_ENABLE
+                if (should_clip_cfwall(x1,cy1,x0,cy0))
+#endif
+                polymost_domost(x1,ocy1,x0,ocy0,cy1,ocy1,cy0,ocy0);
                 if (wal->cstat&8) { xtex.u = ogux; ytex.u = oguy; otex.u = oguo; }
             }
             if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat)&1)))
@@ -4787,7 +4948,11 @@ static void polymost_drawalls(int32_t const bunch)
                 //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
                     calc_and_apply_fog(fogshade(nwal->shade, nwal->pal), sec->visibility, get_floor_fogpal(sec));
 
-                pow2xsplit = 1; polymost_domost(x0,ofy0,x1,ofy1,ofy0,fy0,ofy1,fy1);
+                pow2xsplit = 1;
+#ifdef YAX_ENABLE
+                if (should_clip_cfwall(x0,fy0,x1,fy1))
+#endif
+                polymost_domost(x0,ofy0,x1,ofy1,ofy0,fy0,ofy1,fy1);
                 if (wal->cstat&(2+8)) { otex.u = oguo; xtex.u = ogux; ytex.u = oguy; }
             }
         }
@@ -5233,14 +5398,14 @@ void polymost_drawrooms()
             newi = yax_vsp[yax_globalbunch*2][i].n;
             if (!newi)
                 break;
-            polymost_domost(yax_vsp[yax_globalbunch*2][newi].x, yax_vsp[yax_globalbunch*2][i].cy[1], yax_vsp[yax_globalbunch*2][i].x, yax_vsp[yax_globalbunch*2][i].cy[0]);
+            polymost_domost(yax_vsp[yax_globalbunch*2][newi].x, yax_vsp[yax_globalbunch*2][i].cy[1]-DOMOST_OFFSET, yax_vsp[yax_globalbunch*2][i].x, yax_vsp[yax_globalbunch*2][i].cy[0]-DOMOST_OFFSET);
         }
         for (i = yax_vsp[yax_globalbunch*2+1][0].n; i; i=newi)
         {
             newi = yax_vsp[yax_globalbunch*2+1][i].n;
             if (!newi)
                 break;
-            polymost_domost(yax_vsp[yax_globalbunch*2+1][i].x, yax_vsp[yax_globalbunch*2+1][i].cy[0], yax_vsp[yax_globalbunch*2+1][newi].x, yax_vsp[yax_globalbunch*2+1][i].cy[1]);
+            polymost_domost(yax_vsp[yax_globalbunch*2+1][i].x, yax_vsp[yax_globalbunch*2+1][i].cy[0]+DOMOST_OFFSET, yax_vsp[yax_globalbunch*2+1][newi].x, yax_vsp[yax_globalbunch*2+1][i].cy[1]+DOMOST_OFFSET);
         }
         g_nodraw = nodrawbak;
     }
