@@ -2255,8 +2255,8 @@ ExtGetSectorCaption(short sectnum)
     }
     else
     {
-        sprintf(tempbuf, "%d,%d", sector[sectnum].hitag,
-                sector[sectnum].lotag);
+        sprintf(tempbuf, "%d,%d", TrackerCast(sector[sectnum].hitag),
+                TrackerCast(sector[sectnum].lotag));
     }
     return tempbuf;
 }
@@ -2270,8 +2270,8 @@ ExtGetWallCaption(short wallnum)
     }
     else
     {
-        sprintf(tempbuf, "%d,%d", wall[wallnum].hitag,
-                wall[wallnum].lotag);
+        sprintf(tempbuf, "%d,%d", TrackerCast(wall[wallnum].hitag),
+                TrackerCast(wall[wallnum].lotag));
     }
     return tempbuf;
 }
@@ -2664,7 +2664,7 @@ ExtGetSpriteCaption(short spritenum)
             //tempbuf[0] = NULL;
             sprintf(tempbuf, "S:%d", data);
         else
-            sprintf(tempbuf, "S:%d,%d,%d", data, sprite[spritenum].hitag, sprite[spritenum].lotag);
+            sprintf(tempbuf, "S:%d,%d,%d", data, TrackerCast(sprite[spritenum].hitag), TrackerCast(sprite[spritenum].lotag));
         break;
 
 
@@ -2679,7 +2679,7 @@ ExtGetSpriteCaption(short spritenum)
             sprintf(tempbuf, "S:%d,%s%s", data, p, multi_str);
         else
             // name and numbers - name only prints if not null string
-            sprintf(tempbuf, "%s%s%d,%d", p, multi_str, sprite[spritenum].hitag, sprite[spritenum].lotag);
+            sprintf(tempbuf, "%s%s%d,%d", p, multi_str, TrackerCast(sprite[spritenum].hitag), TrackerCast(sprite[spritenum].lotag));
 
         break;
 
@@ -2971,10 +2971,10 @@ ExtEditSectorData(short sectnum)        // F7
     sprintf(tempbuf, "PicNum = %d", FindPicNum);
     printext16(8, ydim16+32 + 16, 11, -1, tempbuf, 0);
 
-    sprintf(tempbuf, "HiTag = %d", sp->hitag);
+    sprintf(tempbuf, "HiTag = %d", TrackerCast(sp->hitag));
     printext16(8, ydim16+32 + 24, 11, -1, tempbuf, 0);
 
-    sprintf(tempbuf, "LowTag = %d", sp->lotag);
+    sprintf(tempbuf, "LowTag = %d", TrackerCast(sp->lotag));
     printext16(8, ydim16+32 + 32, 11, -1, tempbuf, 0);
 
     FindNextSprite(FindPicNum);

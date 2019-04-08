@@ -402,8 +402,8 @@ JS_InitMirrors(void)
 
                     if (!Found_Cam)
                     {
-                        printf("Cound not find the camera view sprite for match %d\n",wall[i].hitag);
-                        printf("Map Coordinates: x = %d, y = %d\n",wall[i].x,wall[i].y);
+                        printf("Cound not find the camera view sprite for match %d\n",TrackerCast(wall[i].hitag));
+                        printf("Map Coordinates: x = %d, y = %d\n",TrackerCast(wall[i].x),TrackerCast(wall[i].y));
                         exit(0);
                     }
 
@@ -429,8 +429,8 @@ JS_InitMirrors(void)
                         if (!Found_Cam)
                         {
                             printf("Did not find drawtotile for camera number %d\n",mirrorcnt);
-                            printf("wall[%d].hitag == %d\n",i,wall[i].hitag);
-                            printf("Map Coordinates: x = %d, y = %d\n",wall[i].x,wall[i].y);
+                            printf("wall[%d].hitag == %d\n",i,TrackerCast(wall[i].hitag));
+                            printf("Map Coordinates: x = %d, y = %d\n", TrackerCast(wall[i].x), TrackerCast(wall[i].y));
                             exit(0);
                         }
                     }
@@ -1233,16 +1233,16 @@ JS_PlockError(short wall_num, short t)
     switch (t)
     {
     case 1:
-        printf("wall %d, x %d, y %d, pic %d\n", wall_num, wall[wall_num].x, wall[wall_num].y, wall[wall_num].picnum);
+        printf("wall %d, x %d, y %d, pic %d\n", wall_num, TrackerCast(wall[wall_num].x), TrackerCast(wall[wall_num].y), TrackerCast(wall[wall_num].picnum));
         break;
     case 2:
-        printf("wall %d, x %d, y %d, OVERpic %d\n", wall_num, wall[wall_num].x, wall[wall_num].y, wall[wall_num].overpicnum);
+        printf("wall %d, x %d, y %d, OVERpic %d\n", wall_num, TrackerCast(wall[wall_num].x), TrackerCast(wall[wall_num].y), TrackerCast(wall[wall_num].overpicnum));
         break;
     case 3:
-        printf("sector %d, ceiling %d\n", wall_num, sector[wall_num].ceilingpicnum);
+        printf("sector %d, ceiling %d\n", wall_num, TrackerCast(sector[wall_num].ceilingpicnum));
         break;
     case 4:
-        printf("sector %d, floor %d\n", wall_num, sector[wall_num].floorpicnum);
+        printf("sector %d, floor %d\n", wall_num, TrackerCast(sector[wall_num].floorpicnum));
         break;
     }
     exit(0);

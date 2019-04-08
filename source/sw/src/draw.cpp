@@ -1493,16 +1493,16 @@ void PrintSpriteInfo(PLAYERp pp)
         }
         if (SpriteInfo > 1)
         {
-            sprintf(buffer, "POSX:%d", sp->x);
+            sprintf(buffer, "POSX:%d", TrackerCast(sp->x));
             printext256(x, y, 1, -1, buffer, 1);
             y += Y_STEP;
-            sprintf(buffer, "POSY:%d", sp->y);
+            sprintf(buffer, "POSY:%d", TrackerCast(sp->y));
             printext256(x, y, 1, -1, buffer, 1);
             y += Y_STEP;
-            sprintf(buffer, "POSZ:%d", sp->z);
+            sprintf(buffer, "POSZ:%d", TrackerCast(sp->z));
             printext256(x, y, 1, -1, buffer, 1);
             y += Y_STEP;
-            sprintf(buffer, "ANG:%d", (int32_t) sp->ang);
+            sprintf(buffer, "ANG:%d", TrackerCast(sp->ang));
             printext256(x, y, 1, -1, buffer, 1);
             y += Y_STEP;
         }

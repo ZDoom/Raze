@@ -2006,7 +2006,7 @@ DumpSounds(void)
         if (vp->owner >= 0)
         {
             SPRITEp sp = &sprite[vp->owner];
-            sprintf(ds,"sp->picnum=%d, sp->hitag=%d, sp->lotag=%d, sp->owner=%d\n",sp->picnum,sp->hitag,sp->lotag,sp->owner);
+            sprintf(ds,"sp->picnum=%d, sp->hitag=%d, sp->lotag=%d, sp->owner=%d\n",TrackerCast(sp->picnum), TrackerCast(sp->hitag), TrackerCast(sp->lotag), TrackerCast(sp->owner));
             DebugWriteString(ds);
         }
         vp = vp->next;

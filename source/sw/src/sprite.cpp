@@ -2882,7 +2882,7 @@ SpriteSetup(void)
                         if (sprite[i].hitag == sp->hitag && sprite[i].lotag == sp->lotag)
                         {
                             TerminateGame();
-                            printf("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", sp->x, sp->y, sprite[i].x, sprite[i].y);
+                            printf("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", TrackerCast(sp->x), TrackerCast(sp->y), TrackerCast(sprite[i].x), TrackerCast(sprite[i].y));
                             exit(0);
                         }
                     }
