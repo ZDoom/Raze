@@ -58,7 +58,7 @@ typedef
                                ((LIST) nodep)->Next->Prev = ((LIST) nodep)->Prev)
 
 
-#define TRAVERSE(l, o, n)    ASSERT(((LIST)l)->Next && ((LIST)l)->Prev); for (o = (void*)(((LIST)l)->Next);      \
+#define TRAVERSE(l, o, n)    ASSERT(((LIST)l)->Next && ((LIST)l)->Prev); for (o = (decltype(o))(((LIST)l)->Next);      \
                                                                               n = o->Next, (LIST) o != (LIST) l; \
                                                                               o = n)
 
