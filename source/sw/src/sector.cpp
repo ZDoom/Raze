@@ -3414,7 +3414,7 @@ DoSector(void)
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
 
-        if (sop->xmid == MAXLONG || sop->xmid == MAXSO)
+        if (sop->xmid == MAXLONG /*|| sop->xmid == MAXSO*/)
             continue;
 
 

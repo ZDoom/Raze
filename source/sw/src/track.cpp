@@ -2070,7 +2070,7 @@ DetectSectorObject(SECTORp sectph)
     // move all points to nx,ny
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == MAXLONG || sop->xmid == MAXSO)
+        if (sop->xmid == MAXLONG /*|| sop->xmid == MAXSO*/)
             continue;
 
         for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
@@ -2098,7 +2098,7 @@ DetectSectorObjectByWall(WALLp wph)
     // move all points to nx,ny
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == MAXLONG || sop->xmid == MAXSO)
+        if (sop->xmid == MAXLONG /*|| sop->xmid == MAXSO*/)
             continue;
 
         for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
