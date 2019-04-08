@@ -36,25 +36,35 @@ class TRACKER_NAME_
             return this->TrackedValue--;
         }
 
-        inline TrackedType operator = (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator = (RightHandType);
 
-        inline TrackedType operator += (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator += (RightHandType);
 
-        inline TrackedType operator -= (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator -= (RightHandType);
 
-        inline TrackedType operator *= (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator *= (RightHandType);
 
-        inline TrackedType operator /= (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator /= (RightHandType);
 
-        inline TrackedType operator |= (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator |= (RightHandType);
 
-        inline TrackedType operator &= (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator &= (RightHandType);
 
-        inline TrackedType operator ^= (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator ^= (RightHandType);
 
-        inline TrackedType operator <<= (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator <<= (RightHandType);
 
-        inline TrackedType operator >>= (TrackedType);
+        template <typename RightHandType>
+        inline TrackedType operator >>= (RightHandType);
 
         inline operator TrackedType() const;
 
@@ -73,11 +83,7 @@ enum {
 
 #endif
 
-#define __TRACKER_RIGHTHAND_TYPE TrackedType rightHand
-#define __TRACKER_RIGHTHAND rightHand
 #include "tracker_operators.hpp"
-#undef __TRACKER_RIGHTHAND_TYPE
-#undef __TRACKER_RIGHTHAND
 
 template<typename TrackedType>
 inline TRACKER_NAME_<TrackedType>::operator TrackedType() const

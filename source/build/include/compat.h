@@ -233,6 +233,16 @@
 # define ASMSYM(x) x
 #endif
 
+#if defined __cplusplus
+# define STATIC_CAST_OP(t) static_cast<t>
+# define REINTERPRET_CAST_OP(t) reinterpret_cast<t>
+#else
+# define STATIC_CAST_OP(t) (t)
+# define REINTERPRET_CAST_OP(t) (t)
+#endif
+#define STATIC_CAST(t, v) (STATIC_CAST_OP(t)(v))
+#define REINTERPRET_CAST(t, v) (REINTERPRET_CAST_OP(t)(v))
+
 #if defined __cplusplus && (__cplusplus >= 201103L || __has_feature(cxx_constexpr) || EDUKE32_MSVC_PREREQ(1900))
 # define HAVE_CONSTEXPR
 # define CONSTEXPR constexpr
@@ -913,14 +923,13 @@ static FORCE_INLINE void *Baligned_alloc(const size_t alignment, const size_t si
 
 ////////// Data serialization //////////
 
-static FORCE_INLINE CONSTEXPR uint16_t B_SWAP16(uint16_t value)
+static FORCE_INLINE CONSTEXPR uint16_t B_SWAP16_impl(uint16_t value)
 {
     return
         ((value & 0xFF00u) >> 8u) |
         ((value & 0x00FFu) << 8u);
 }
-
-static FORCE_INLINE CONSTEXPR uint32_t B_SWAP32(uint32_t value)
+static FORCE_INLINE CONSTEXPR uint32_t B_SWAP32_impl(uint32_t value)
 {
     return
         ((value & 0xFF000000u) >> 24u) |
@@ -928,8 +937,7 @@ static FORCE_INLINE CONSTEXPR uint32_t B_SWAP32(uint32_t value)
         ((value & 0x0000FF00u) <<  8u) |
         ((value & 0x000000FFu) << 24u);
 }
-
-static FORCE_INLINE CONSTEXPR uint64_t B_SWAP64(uint64_t value)
+static FORCE_INLINE CONSTEXPR uint64_t B_SWAP64_impl(uint64_t value)
 {
     return
       ((value & 0xFF00000000000000ULL) >> 56ULL) |
@@ -942,10 +950,48 @@ static FORCE_INLINE CONSTEXPR uint64_t B_SWAP64(uint64_t value)
       ((value & 0x00000000000000FFULL) << 56ULL);
 }
 
-// The purpose of these functions, as opposed to macros, is to prevent them from being used as lvalues.
+/* The purpose of B_PASS* as functions, as opposed to macros, is to prevent them from being used as lvalues. */
+#if CXXSTD >= 2011
+template <typename T>
+static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int16_t, uint16_t> B_SWAP16(T x)
+{
+    return static_cast< conditional_t<is_signed<T>::value, int16_t, uint16_t> >(B_SWAP16_impl(static_cast<uint16_t>(x)));
+}
+template <typename T>
+static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int32_t, uint32_t> B_SWAP32(T x)
+{
+    return static_cast< conditional_t<is_signed<T>::value, int32_t, uint32_t> >(B_SWAP32_impl(static_cast<uint32_t>(x)));
+}
+template <typename T>
+static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int64_t, uint64_t> B_SWAP64(T x)
+{
+    return static_cast< conditional_t<is_signed<T>::value, int64_t, uint64_t> >(B_SWAP64_impl(static_cast<uint64_t>(x)));
+}
+
+template <typename T>
+static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int16_t, uint16_t> B_PASS16(T x)
+{
+    return static_cast< conditional_t<is_signed<T>::value, int16_t, uint16_t> >(x);
+}
+template <typename T>
+static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int32_t, uint32_t> B_PASS32(T x)
+{
+    return static_cast< conditional_t<is_signed<T>::value, int32_t, uint32_t> >(x);
+}
+template <typename T>
+static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int64_t, uint64_t> B_PASS64(T x)
+{
+    return static_cast< conditional_t<is_signed<T>::value, int64_t, uint64_t> >(x);
+}
+#else
+#define B_SWAP16(x) B_SWAP16_impl(x)
+#define B_SWAP32(x) B_SWAP32_impl(x)
+#define B_SWAP64(x) B_SWAP64_impl(x)
+
 static FORCE_INLINE CONSTEXPR uint16_t B_PASS16(uint16_t const x) { return x; }
 static FORCE_INLINE CONSTEXPR uint32_t B_PASS32(uint32_t const x) { return x; }
 static FORCE_INLINE CONSTEXPR uint64_t B_PASS64(uint64_t const x) { return x; }
+#endif
 
 #if B_LITTLE_ENDIAN == 1
 # define B_LITTLE64(x) B_PASS64(x)
