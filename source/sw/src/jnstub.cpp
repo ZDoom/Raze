@@ -39,6 +39,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "common.h"
 #include "common_game.h"
 
+#include "colormap.h"
+
 
 const char* AppProperName = "Wangulator";
 const char* AppTechnicalName = "wangulator";
@@ -623,7 +625,6 @@ ResetKeyRange(uint8_t* kb, uint8_t* ke)
 void
 ExtInit(void)
 {
-    void InitPalette(void);
     int i, fil;
 
     initgroupfile(G_GrpFile());
@@ -724,7 +725,6 @@ ExtInit(void)
 #endif
 
 
-    void InitPalette(void);
     int i, fil;
 
     // Store user log in time
@@ -779,7 +779,6 @@ ExtInit(void)
             initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
         }
     }
-    initgroupfile(G_GrpFile());
     /*
         if ((fil = open("setup.dat", O_BINARY | O_RDWR, S_IREAD)) != -1)
             {
@@ -795,17 +794,6 @@ ExtInit(void)
     Bmemcpy((void *)buildkeys,(void *)default_buildkeys,NUMBUILDKEYS);       //Trick to make build use setup.dat keys
     if (option[4] > 0)
         option[4] = 0;
-    if (engineInit())
-    {
-        wm_msgbox("Build Engine Initialisation Error",
-                  "There was a problem initialising the Build engine: %s", engineerrstr);
-        return -1;
-    }
-    initinput();
-    mouseInit();
-
-    InitPalette();
-    SW_InitMultiPsky();
 
     kensplayerheight = 58;
     zmode = 0;
@@ -819,6 +807,23 @@ else
 }
 #endif
     return rv;
+}
+
+int32_t ExtPostStartupWindow(void)
+{
+    initgroupfile(G_GrpFile());
+
+    if (engineInit())
+    {
+        wm_msgbox("Build Engine Initialisation Error",
+                  "There was a problem initialising the Build engine: %s", engineerrstr);
+        return -1;
+    }
+
+    InitPalette();
+    SW_InitMultiPsky();
+
+    return 0;
 }
 
 void ExtPostInit(void)
