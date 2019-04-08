@@ -26,15 +26,22 @@
 
 // List of internally-known GRP files
 #define numgrpfiles 3
-struct grpfile
+struct internalgrpfile
 {
     const char *name;
+    unsigned int crcval;
+    int size;
+};
+struct grpfile
+{
+    char *name;
     unsigned int crcval;
     int size;
     struct grpfile *next;
 };
 
-extern grpfile grpfiles[numgrpfiles], *foundgrps;
+extern internalgrpfile grpfiles[numgrpfiles];
+extern grpfile *foundgrps;
 
 int ScanGroups(void);
 void FreeGroups(void);

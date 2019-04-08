@@ -30,11 +30,11 @@
 
 #include "grpscan.h"
 
-grpfile grpfiles[numgrpfiles] =
+internalgrpfile grpfiles[numgrpfiles] =
 {
-    { "Registered Version",     0x7545319Fu, 47536148, NULL },
-    { "Shareware Version",      0x08A7FA1Fu, 26056769, NULL },
-    { "Wanton Destruction (Addon)", 0xA9AAA7B7u, 48698128, NULL },
+    { "Registered Version",     0x7545319Fu, 47536148 },
+    { "Shareware Version",      0x08A7FA1Fu, 26056769 },
+    { "Wanton Destruction (Addon)", 0xA9AAA7B7u, 48698128 },
 };
 grpfile *foundgrps = NULL;
 
@@ -204,7 +204,7 @@ void FreeGroups(void)
     while (foundgrps)
     {
         fg = foundgrps->next;
-        free((char *)foundgrps->name);
+        free(foundgrps->name);
         free(foundgrps);
         foundgrps = fg;
     }
