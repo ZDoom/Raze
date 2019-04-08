@@ -170,8 +170,8 @@ static SWBOOL ApplyModeSettings(void)
 
     if (lastx == newx && lasty == newy && lastbpp == newbpp && lastfs == newfs) return FALSE;
 
-    if (setgamemode(newfs, newx, newy, newbpp))
-        setgamemode(lastfs, lastx, lasty, lastbpp);
+    if (videoSetGameMode(newfs, newx, newy, newbpp, upscalefactor))
+        videoSetGameMode(lastfs, lastx, lasty, lastbpp, upscalefactor);
     else
     {
         extern int32_t ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP; // Because I'm too lazy to include config.h
@@ -741,8 +741,8 @@ MNU_ParentalCustom(void)
         // clear keyboard buffer
         while (KB_KeyWaiting())
         {
-            if (KB_Getch() == 0)
-                KB_Getch();
+            if (KB_GetCh() == 0)
+                KB_GetCh();
         }
 
         // toggle edit mode
@@ -925,14 +925,14 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             j = OPT_LINE(0)+(i-topitem)*8;
             MNU_DrawSmallString(OPT_XS, j, ds, (i==currentkey) ? 0 : 12, 16);
 
-            p = getkeyname(KeyboardKeys[i][0]);
+            p = keyGetName(KeyboardKeys[i][0]);
             if (!p || KeyboardKeys[i][0]==0xff) p = "  -";
             MNU_DrawSmallString(OPT_XSIDE, j, (char *)p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==0) ? 14 : 16);
 
             if (i == gamefunc_Show_Console) continue;
 
-            p = getkeyname(KeyboardKeys[i][1]);
+            p = keyGetName(KeyboardKeys[i][1]);
             if (!p || KeyboardKeys[i][1]==0xff) p = "  -";
             MNU_DrawSmallString(OPT_XSIDE + 4*14, j, (char *)p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==1) ? 14 : 16);
@@ -1274,13 +1274,13 @@ static SWBOOL MNU_JoystickButtonsInitialise(MenuItem_p mitem)
     joybuttonssetupgroup.items = joybuttons_i[0];
     item = &joybuttons_i[0][0];
 
-    for (button = 0; button < joynumbuttons * 2 + (joynumhats > 0) * 4; )
+    for (button = 0; button < joystick.numButtons * 2 + (joystick.numHats > 0) * 4; )
     {
-        if (button < joynumbuttons * 2)
+        if (button < joystick.numButtons * 2)
         {
             int dbutton = button / 2;
 
-            strcpy(JoystickButtonNames[dbutton], getjoyname(1, dbutton));
+            strcpy(JoystickButtonNames[dbutton], joyGetName(1, dbutton));
 
             templayer.text = JoystickButtonNames[dbutton];
             templayer.y = OPT_LINE(pageitem);
@@ -1297,7 +1297,7 @@ static SWBOOL MNU_JoystickButtonsInitialise(MenuItem_p mitem)
             pageitem++;
 
             strcpy(JoystickButtonNames[dbutton + MAXJOYBUTTONS], "Double ");
-            strcat(JoystickButtonNames[dbutton + MAXJOYBUTTONS], getjoyname(1, dbutton));
+            strcat(JoystickButtonNames[dbutton + MAXJOYBUTTONS], joyGetName(1, dbutton));
 
             templayer.text = JoystickButtonNames[dbutton + MAXJOYBUTTONS];
             templayer.y = OPT_LINE(pageitem);
@@ -1317,10 +1317,10 @@ static SWBOOL MNU_JoystickButtonsInitialise(MenuItem_p mitem)
         }
         else
         {
-            int dir = button - joynumbuttons * 2;
-            int dbutton = joynumbuttons + dir;
+            int dir = button - joystick.numButtons * 2;
+            int dbutton = joystick.numButtons + dir;
 
-            strcpy(JoystickButtonNames[dbutton], getjoyname(2, 0));
+            strcpy(JoystickButtonNames[dbutton], joyGetName(2, 0));
             strcat(JoystickButtonNames[dbutton], hatdirs[dir]);
 
             templayer.text = JoystickButtonNames[dbutton];
@@ -1339,11 +1339,11 @@ static SWBOOL MNU_JoystickButtonsInitialise(MenuItem_p mitem)
             button++;
         }
 
-        if (pageitem == JOYSTICKITEMSPERPAGE || button == joynumbuttons * 2 + (joynumhats > 0) * 4)
+        if (pageitem == JOYSTICKITEMSPERPAGE || button == joystick.numButtons * 2 + (joystick.numHats > 0) * 4)
         {
             // next page
             sprintf(JoystickButtonPageName[page], "Page %d / %d", page+1,
-                    ((joynumbuttons * 2 + (joynumhats > 0) * 4) / JOYSTICKITEMSPERPAGE) + 1);
+                    ((joystick.numButtons * 2 + (joystick.numHats > 0) * 4) / JOYSTICKITEMSPERPAGE) + 1);
 
             temppagename.text = JoystickButtonPageName[page];
             memcpy(item, &temppagename, sizeof(MenuItem));
@@ -1435,7 +1435,7 @@ static SWBOOL MNU_JoystickButtonSetupCustom(UserCall call, MenuItem *item)
 
 static SWBOOL MNU_JoystickButtonNextPage(void)
 {
-    JoystickButtonPage = (JoystickButtonPage + 1) % (((joynumbuttons * 2 + (joynumhats > 0) * 4) / JOYSTICKITEMSPERPAGE) + 1);
+    JoystickButtonPage = (JoystickButtonPage + 1) % (((joystick.numButtons * 2 + (joystick.numHats > 0) * 4) / JOYSTICKITEMSPERPAGE) + 1);
     joybuttonssetupgroup.items = &joybuttons_i[JoystickButtonPage][0];
     joybuttonssetupgroup.cursor = 0;
     MNU_ItemPreProcess(&joybuttonssetupgroup);
@@ -1484,13 +1484,13 @@ static SWBOOL MNU_JoystickAxesInitialise(MenuItem_p mitem)
     {
         return TRUE;
     }
-    if (JoystickAxisPage < 0 || JoystickAxisPage >= joynumaxes)
+    if (JoystickAxisPage < 0 || JoystickAxisPage >= joystick.numAxes)
     {
         JoystickAxisPage = 0;
     }
 
-    strcpy(JoystickAxisName, getjoyname(0, JoystickAxisPage));
-    sprintf(JoystickAxisPageName, "Page %d / %d", JoystickAxisPage+1, joynumaxes);
+    strcpy(JoystickAxisName, joyGetName(0, JoystickAxisPage));
+    sprintf(JoystickAxisPageName, "Page %d / %d", JoystickAxisPage+1, joystick.numAxes);
     slidersettings[sldr_joyaxisanalog] = MNU_ControlAxisOffset(JoystickAnalogAxes[JoystickAxisPage]);
     slidersettings[sldr_joyaxisscale] = JoystickAnalogScale[JoystickAxisPage] >> 13;
     slidersettings[sldr_joyaxisdead] = JoystickAnalogDead[JoystickAxisPage] >> 10;
@@ -2201,7 +2201,7 @@ MNU_InitMenus(void)
             if (validbpps[i] == bpp)
                 slidersettings[sldr_videobpp] = i;
 
-        i = checkvideomode(&newx, &newy, bpp, fullscreen, 1);
+        i = videoCheckMode(&newx, &newy, bpp, fullscreen, 1);
         if (i != 0x7fffffff && i >= 0)
             for (i=0; i<numvalidresolutions; i++)
                 if (validresolutions[i].xdim == newx && validresolutions[i].ydim == newy)
@@ -2551,12 +2551,12 @@ MNU_InputSmallString(char *name, short pix_width)
 
     while (KB_KeyWaiting())
     {
-        ch = KB_Getch();
+        ch = KB_GetCh();
 
         // skip any extended key
         if (ch == 0)
         {
-            ch = KB_Getch();
+            ch = KB_GetCh();
             if (ch == 104) // extended enter
                 ch = ascii_return;
             else
@@ -2644,7 +2644,7 @@ MNU_InputString(char *name, short pix_width)
 
     while (KB_KeyWaiting())
     {
-        ch = KB_Getch();
+        ch = KB_GetCh();
 
         ////DSPRINTF(ds, "%c %d", ch, ch);
         //MONO_PRINT(ds);
@@ -2652,7 +2652,7 @@ MNU_InputString(char *name, short pix_width)
         // skip most extended keys
         if (ch == 0)
         {
-            ch = KB_Getch();
+            ch = KB_GetCh();
 
             ////DSPRINTF(ds, "extended key %c %d", ch, ch);
             //MONO_PRINT(ds);
@@ -2698,12 +2698,12 @@ void LoadSaveMsg(const char *msg)
 {
     short w,h;
 
-    flushperms();
+    renderFlushPerms();
     DrawMenuLevelScreen();
     strcpy((char *)ds, (char *)msg);
     MNU_MeasureString(ds, &w, &h);
     MNU_DrawString(TEXT_XCENTER(w), 170, ds, 1, 16);
-    nextpage();
+    videoNextPage();
 }
 
 
@@ -2820,8 +2820,8 @@ MNU_GetSaveCustom(void)
         // clear keyboard buffer
         while (KB_KeyWaiting())
         {
-            if (KB_Getch() == 0)
-                KB_Getch();
+            if (KB_GetCh() == 0)
+                KB_GetCh();
         }
 
         // toggle edit mode
@@ -4884,7 +4884,7 @@ FadeIn(unsigned char startcolor, unsigned int clicks)
     RGB_color color;
     unsigned char temp_pal[768], *palette;
 
-    if (getrendermode() >= 3) return;
+    if (videoGetRenderMode() >= REND_POLYMOST) return;
 
     palette = &palette_data[0][0];
 
@@ -4942,7 +4942,7 @@ FadeOut(unsigned char targetcolor, unsigned int clicks)
     RGB_color color;
     unsigned char temp_pal[768];
 
-    if (getrendermode() >= 3) return;
+    if (videoGetRenderMode() >= REND_POLYMOST) return;
 
     color.red = palette_data[targetcolor][0];
     color.green = palette_data[targetcolor][1];
@@ -5057,10 +5057,10 @@ SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
     // Reset the palette
     if (pp == Player + screenpeek)
     {
-        if (getrendermode() < 3)
+        if (videoGetRenderMode() < REND_POLYMOST)
             COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
         else
-            setpalettefade(0,0,0,0);
+            videoFadePalette(0,0,0,0);
         if (pp->FadeAmt <= 0)
             GetPaletteFromVESA(&ppalette[screenpeek][0]);
     }
@@ -5150,8 +5150,8 @@ SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
     // Do initial palette set
     if (pp == Player + screenpeek)
     {
-        if (getrendermode() < 3) set_pal(pp->temp_pal);
-        else setpalettefade(color.red, color.green, color.blue, faderamp[min(31,max(0,32-abs(pp->FadeAmt)))]);
+        if (videoGetRenderMode() < REND_POLYMOST) set_pal(pp->temp_pal);
+        else videoFadePalette(color.red, color.green, color.blue, faderamp[min(31,max(0,32-abs(pp->FadeAmt)))]);
         if (damage < -1000)
             pp->FadeAmt = 1000;  // Don't call DoPaletteFlash for underwater stuff
     }
@@ -5174,10 +5174,10 @@ DoPaletteFlash(PLAYERp pp)
         pp->StartColor = 0;
         if (pp == Player + screenpeek)
         {
-            if (getrendermode() < 3)
+            if (videoGetRenderMode() < REND_POLYMOST)
                 COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
             else
-                setpalettefade(0,0,0,0);
+                videoFadePalette(0,0,0,0);
             memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
             DoPlayerDivePalette(pp);  // Check Dive again
             DoPlayerNightVisionPalette(pp);  // Check Night Vision again
@@ -5213,10 +5213,10 @@ DoPaletteFlash(PLAYERp pp)
         pp->StartColor = 0;
         if (pp == Player + screenpeek)
         {
-            if (getrendermode() < 3)
+            if (videoGetRenderMode() < REND_POLYMOST)
                 COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
             else
-                setpalettefade(0,0,0,0);
+                videoFadePalette(0,0,0,0);
             memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
             DoPlayerDivePalette(pp);  // Check Dive again
             DoPlayerNightVisionPalette(pp);  // Check Night Vision again
@@ -5249,10 +5249,10 @@ DoPaletteFlash(PLAYERp pp)
         // Only hard set the palette if this is currently the player's view
         if (pp == Player + screenpeek)
         {
-            if (getrendermode() < 3) set_pal(pp->temp_pal);
+            if (videoGetRenderMode() < REND_POLYMOST) set_pal(pp->temp_pal);
             else
             {
-                setpalettefade(
+                videoFadePalette(
                     palette_data[pp->StartColor][0],
                     palette_data[pp->StartColor][1],
                     palette_data[pp->StartColor][2],
@@ -5267,10 +5267,10 @@ DoPaletteFlash(PLAYERp pp)
 
 void ResetPalette(PLAYERp pp)
 {
-    if (getrendermode() < 3)
+    if (videoGetRenderMode() < REND_POLYMOST)
         COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
     else
-        setpalettefade(0,0,0,0);
+        videoFadePalette(0,0,0,0);
     memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
     //DoPlayerDivePalette(pp);  // Check Dive again
     //DoPlayerNightVisionPalette(pp);  // Check Night Vision again

@@ -488,21 +488,21 @@ void drawroomstotile(int daposx, int daposy, int daposz,
                      short daang, int dahoriz, short dacursectnum, short tilenume)
 {
     if (waloff[tilenume] == 0)
-        loadtile(tilenume);
+        tileLoad(tilenume);
 
     PRODUCTION_ASSERT(waloff[tilenume]);
 
-    setviewtotile(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
+    renderSetTarget(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
     drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
     analyzesprites(daposx, daposy, daposz, FALSE);
-    drawmasks();
+    renderDrawMasks();
 
-    setviewback();
+    renderRestoreTarget();
 
     squarerotatetile(tilenume);
 
-    invalidatetile(tilenume, -1, -1);
+    tileInvalidate(tilenume, -1, -1);
 }
 #else
 void
@@ -542,7 +542,7 @@ drawroomstotile(int daposx, int daposy, int daposz,
     // DRAWS TO TILE HERE
     drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum + MAXSECTORS);
     analyzesprites(daposx, daposy, daposz, FALSE);
-    drawmasks();
+    renderDrawMasks();
 
     setviewback();
 
@@ -647,7 +647,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
     int tposx, tposy, thoriz;
     int tcx, tcy, tcz;                 // Camera
     int tiltlock, *longptr;
-    short tang;
+    fix16_t tang;
     char ch, *ptr, *ptr2, *ptr3, *ptr4;
     char tvisibility, palok;
 
@@ -791,7 +791,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                             tilesiz[mirror[cnt].campic].x = tilesiz[mirror[cnt].campic].y = 0;
                         drawrooms(dx, dy, dz, tpang, tphoriz, sp->sectnum + MAXSECTORS);
                         analyzesprites(dx, dy, dz, FALSE);
-                        drawmasks();
+                        renderDrawMasks();
                     }
                     else
                     {
@@ -889,15 +889,15 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                     // Must call preparemirror before drawrooms and
                     // completemirror after drawrooms
 
-                    preparemirror(tx, ty, /*tz,*/ tpang, /*tphoriz,*/
+                    renderPrepareMirror(tx, ty, /*tz,*/ fix16_from_int(tpang), /*tphoriz,*/
                                   mirror[cnt].mirrorwall, /*mirror[cnt].mirrorsector,*/ &tposx, &tposy, &tang);
 
-                    drawrooms(tposx, tposy, tz, tang, tphoriz, mirror[cnt].mirrorsector + MAXSECTORS);
+                    drawrooms(tposx, tposy, tz, fix16_to_int(tang), tphoriz, mirror[cnt].mirrorsector + MAXSECTORS);
 
                     analyzesprites(tposx, tposy, tz, TRUE);
-                    drawmasks();
+                    renderDrawMasks();
 
-                    completemirror();   // Reverse screen x-wise in this
+                    renderCompleteMirror();   // Reverse screen x-wise in this
                     // function
                 }
 
@@ -1081,7 +1081,7 @@ JAnalyzeSprites(uspritetype * tspr)
     // Take care of autosizing
     DoAutoSize(tspr);
 
-    if (getrendermode() == 3 && md_tilehasmodel(tspr->picnum, 0) >= 0 && usemodels) return;
+    if (videoGetRenderMode() >= REND_POLYMOST && md_tilehasmodel(tspr->picnum, 0) >= 0 && usemodels) return;
 
     // Check for voxels
     //if (bVoxelsOn)

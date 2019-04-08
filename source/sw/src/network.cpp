@@ -951,7 +951,7 @@ faketimerhandler(void)
     }
 #endif
 
-    sampletimer();
+    timerUpdate();
     if ((totalclock < ototalclock + synctics))
         return;
 
@@ -1260,7 +1260,7 @@ getpackets(void)
     PLAYERp pp;
     SW_PACKET tempinput;
 
-    sampletimer();
+    timerUpdate();
 
     if (!CommEnabled)
         return;

@@ -630,7 +630,7 @@ void DoTheCache(void)
     {
         if ((TEST(gotpic[i>>3], 1<<(i&7))) && (!waloff[i]))
         {
-            loadtile(i);
+            tileLoad(i);
             cnt++;
             if (!(cnt&7))
             {

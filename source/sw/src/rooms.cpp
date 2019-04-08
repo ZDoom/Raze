@@ -1116,7 +1116,7 @@ DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
 
         analyzesprites(tx, ty, tz, FALSE);
         post_analyzesprites();
-        drawmasks();
+        renderDrawMasks();
 
     }
     else
@@ -1142,7 +1142,7 @@ DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
 
             analyzesprites(tx, ty, tz, FALSE);
             post_analyzesprites();
-            drawmasks();
+            renderDrawMasks();
 
         }
     }

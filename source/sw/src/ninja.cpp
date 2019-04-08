@@ -2332,10 +2332,10 @@ PlayerGameReset(PLAYERp pp)
 
     if (pp == Player+screenpeek)
     {
-        if (getrendermode() < 3)
+        if (videoGetRenderMode() < REND_POLYMOST)
             COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
         else
-            setpalettefade(0,0,0,0);
+            videoFadePalette(0,0,0,0);
         memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
     }
     pp->NightVision = FALSE;
@@ -2436,10 +2436,10 @@ InitPlayerSprite(PLAYERp pp)
 
     if (pp == Player+screenpeek)
     {
-        if (getrendermode() < 3)
+        if (videoGetRenderMode() < REND_POLYMOST)
             COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
         else
-            setpalettefade(0,0,0,0);
+            videoFadePalette(0,0,0,0);
         memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
     }
 

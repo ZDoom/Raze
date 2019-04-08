@@ -43,7 +43,7 @@ const char *G_DefFile(void)
 void SW_InitMultiPsky(void)
 {
     // default
-    psky_t * const defaultsky = E_DefinePsky(DEFAULTPSKY);
+    psky_t * const defaultsky = tileSetupSky(DEFAULTPSKY);
     defaultsky->lognumtiles = 1;
     defaultsky->horizfrac = 8192;
 }

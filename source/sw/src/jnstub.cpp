@@ -752,14 +752,14 @@ ExtInit(void)
     Bmemcpy((void *)buildkeys,(void *)default_buildkeys,NUMBUILDKEYS);       //Trick to make build use setup.dat keys
     if (option[4] > 0)
         option[4] = 0;
-    if (initengine())
+    if (engineInit())
     {
         wm_msgbox("Build Engine Initialisation Error",
                   "There was a problem initialising the Build engine: %s", engineerrstr);
         return -1;
     }
     initinput();
-    initmouse();
+    mouseInit();
 
     InitPalette();
     SW_InitMultiPsky();
@@ -2769,13 +2769,13 @@ DrawClipBox(short spritenum)
 
 #define BOX_COLOR 3
     // upper
-    drawline16(x - radius, y - radius, x + radius, y - radius, BOX_COLOR);
+    editorDraw2dLine(x - radius, y - radius, x + radius, y - radius, BOX_COLOR);
     // lower
-    drawline16(x - radius, y + radius, x + radius, y + radius, BOX_COLOR);
+    editorDraw2dLine(x - radius, y + radius, x + radius, y + radius, BOX_COLOR);
     // left
-    drawline16(x - radius, y - radius, x - radius, y + radius, BOX_COLOR);
+    editorDraw2dLine(x - radius, y - radius, x - radius, y + radius, BOX_COLOR);
     // right
-    drawline16(x + radius, y - radius, x + radius, y + radius, BOX_COLOR);
+    editorDraw2dLine(x + radius, y - radius, x + radius, y + radius, BOX_COLOR);
 }
 
 void
@@ -3017,7 +3017,7 @@ ExtEditSpriteData(short spritenum)      // F8
     printext16(8, ydim16+32 + 8, 11, -1, "(2)  Multi-Player Item Toggle", 0);
     printext16(8, ydim16+32 + 16, 11, -1, "(3)  Find Sprite", 0);
     printext16(8, ydim16+32 + 24, 11, -1, "(4)  Dbug Toggle (* Programming use only *) ", 0);
-    showframe(1);
+    videoShowFrame(1);
 
     while (KEY_PRESSED(KEYSC_F8)) handleevents();
 
@@ -3074,7 +3074,7 @@ DISPLAY:
                 printext16(8 + 240, ydim16+32 + 32, 11, -1, "TRUE", 0);
             else
                 printext16(8 + 240, ydim16+32 + 32, 11, -1, "FALSE", 0);
-            showframe(1);
+            videoShowFrame(1);
 
             // Disallow invalid settings
             if (!bFindPicNum && !bFindHiTag && !bFindLowTag)
@@ -3619,7 +3619,7 @@ ShadeMenu(void)                         // F8
 
 void faketimerhandler(void)
 {
-    sampletimer();
+    timerUpdate();
 }
 
 //Just thought you might want my getnumber16 code

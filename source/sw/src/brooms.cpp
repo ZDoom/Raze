@@ -694,7 +694,7 @@ DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
         }
 
         drawrooms(tx, ty, tz, tang, thoriz, tsectnum);
-        drawmasks();
+        renderDrawMasks();
 
         // reset Z's
         for (i = 0; i < save.zcount; i++)
@@ -719,7 +719,7 @@ DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
             }
 
             drawrooms(tx, ty, tz, tang, thoriz, tsectnum);
-            drawmasks();
+            renderDrawMasks();
 
             // reset Z's
             for (i = 0; i < save.zcount; i++)

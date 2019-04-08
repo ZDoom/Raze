@@ -301,7 +301,7 @@ void *RTS_GetSound(int32_t lump)
     if (lumpcache[lump] == (intptr_t)NULL)
     {
         lumplockbyte[lump] = CACHE_LOCK_START;
-        allocache(&lumpcache[lump],(int)RTS_SoundLength(lump-1),&lumplockbyte[lump]);
+        cacheAllocateBlock(&lumpcache[lump],(int)RTS_SoundLength(lump-1),&lumplockbyte[lump]);
         RTS_ReadLump(lump, lumpcache[lump]);
     }
     else

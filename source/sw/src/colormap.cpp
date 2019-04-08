@@ -278,32 +278,32 @@ InitPalette(void)
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
     // palette for underwater
-    makepalookup(PALETTE_DIVE, tempbuf, 0, 0, 60, TRUE);
+    paletteMakeLookupTable(PALETTE_DIVE, tempbuf, 0, 0, 60, TRUE);
 
 #define FOG_AMT 60
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
-    makepalookup(PALETTE_FOG, tempbuf, FOG_AMT, FOG_AMT, FOG_AMT, TRUE);
+    paletteMakeLookupTable(PALETTE_FOG, tempbuf, FOG_AMT, FOG_AMT, FOG_AMT, TRUE);
 
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
-    makepalookup(PALETTE_DIVE_LAVA, tempbuf, 44, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_DIVE_LAVA, tempbuf, 44, 0, 0, TRUE);
 
     //
     // 1 Range changes
     //
 
     MapColors(PALETTE_BROWN_RIPPER, BrownRipper, TRUE);
-    makepalookup(PALETTE_BROWN_RIPPER, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_BROWN_RIPPER, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_SKEL_GORE, SkelGore, TRUE);
-    makepalookup(PALETTE_SKEL_GORE, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_SKEL_GORE, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_ELECTRO_GORE, ElectroGore, TRUE);
-    makepalookup(PALETTE_ELECTRO_GORE, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_ELECTRO_GORE, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_MENU_HIGHLIGHT, MenuHighlight, TRUE);
-    makepalookup(PALETTE_MENU_HIGHLIGHT, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_MENU_HIGHLIGHT, tempbuf, 0, 0, 0, TRUE);
 
     //
     // Multiple range changes
@@ -312,44 +312,44 @@ InitPalette(void)
     MapColors(PALETTE_BASIC_NINJA, NinjaBasic[0], TRUE);
     for (i = 1; i < SIZ(NinjaBasic); i++)
         MapColors(PALETTE_BASIC_NINJA, NinjaBasic[i], FALSE);
-    makepalookup(PALETTE_BASIC_NINJA, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_BASIC_NINJA, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_RED_NINJA, NinjaRed[0], TRUE);
     for (i = 1; i < SIZ(NinjaRed); i++)
         MapColors(PALETTE_RED_NINJA, NinjaRed[i], FALSE);
-    makepalookup(PALETTE_RED_NINJA, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_RED_NINJA, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_GREEN_NINJA, NinjaGreen[0], TRUE);
     for (i = 1; i < SIZ(NinjaGreen); i++)
         MapColors(PALETTE_GREEN_NINJA, NinjaGreen[i], FALSE);
-    makepalookup(PALETTE_GREEN_NINJA, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_GREEN_NINJA, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_GREEN_LIGHTING, AllToGreen[0], TRUE);
     for (i = 1; i < SIZ(AllToGreen); i++)
         MapColors(PALETTE_GREEN_LIGHTING, AllToGreen[i], FALSE);
-    makepalookup(PALETTE_GREEN_LIGHTING, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_GREEN_LIGHTING, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_RED_LIGHTING, AllToRed[0], TRUE);
     for (i = 1; i < SIZ(AllToRed); i++)
         MapColors(PALETTE_RED_LIGHTING, AllToRed[i], FALSE);
-    makepalookup(PALETTE_RED_LIGHTING, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_RED_LIGHTING, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_BLUE_LIGHTING, AllToBlue[0], TRUE);
     for (i = 1; i < SIZ(AllToBlue); i++)
         MapColors(PALETTE_BLUE_LIGHTING, AllToBlue[i], FALSE);
-    makepalookup(PALETTE_BLUE_LIGHTING, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_BLUE_LIGHTING, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_ILLUMINATE, Illuminate[0], TRUE);
     for (i = 1; i < SIZ(Illuminate); i++)
         MapColors(PALETTE_ILLUMINATE, Illuminate[i], FALSE);
-    makepalookup(PALETTE_ILLUMINATE, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_ILLUMINATE, tempbuf, 0, 0, 0, TRUE);
 
     // PLAYER COLORS - ALSO USED FOR OTHER THINGS
     for (play = 0; play < PLAYER_COLOR_MAPS; play++)
     {
         MapColors(PALETTE_PLAYER0 + play, PlayerColorMap[play][0], TRUE);
         MapColors(PALETTE_PLAYER0 + play, PlayerColorMap[play][0], FALSE);
-        makepalookup(PALETTE_PLAYER0 + play, tempbuf, 0, 0, 0, TRUE);
+        paletteMakeLookupTable(PALETTE_PLAYER0 + play, tempbuf, 0, 0, 0, TRUE);
     }
 
     //
@@ -361,7 +361,7 @@ InitPalette(void)
     // invert the brown palette
     for (i = 0; i < 32; i++)
         tempbuf[LT_BROWN + i] = (LT_BROWN + 32) - i;
-    makepalookup(PALETTE_SLUDGE, tempbuf, 0, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_SLUDGE, tempbuf, 0, 0, 0, TRUE);
 
 }
 
@@ -431,7 +431,8 @@ void SetPaletteToVESA(unsigned char *pal)
 
     VBE_setPalette(0, 256, pal_buff);
     */
-    setbrightness(0,pal,4|2);
+    paletteSetColorTable(0, pal);
+    videoSetPalette(0,0,4|2);
     //  fprintf(stderr,"SetPaletteToVESA() called\n");
 }
 

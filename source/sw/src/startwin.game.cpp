@@ -80,14 +80,14 @@ static void PopulateForm(int pgs)
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
 
-        mode = checkvideomode(&settings.xdim, &settings.ydim, settings.bpp, settings.fullscreen, 1);
+        mode = videoCheckMode(&settings.xdim, &settings.ydim, settings.bpp, settings.fullscreen, 1);
         if (mode < 0)
         {
             int cd[] = { 32, 24, 16, 15, 8, 0 };
             for (i=0; cd[i]; ) { if (cd[i] >= settings.bpp) i++; else break; }
             for (; cd[i]; i++)
             {
-                mode = checkvideomode(&settings.xdim, &settings.ydim, cd[i], settings.fullscreen, 1);
+                mode = videoCheckMode(&settings.xdim, &settings.ydim, cd[i], settings.fullscreen, 1);
                 if (mode < 0) continue;
                 settings.bpp = cd[i];
                 break;

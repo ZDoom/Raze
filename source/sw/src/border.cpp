@@ -441,7 +441,7 @@ void BorderSetView(PLAYERp UNUSED(pp), int *Xdim, int *Ydim, int *ScreenSize)
     }
 
     // global windowxy1, windowxy2 coords set here
-    setview(x, y, x2, y2);
+    videoSetViewableArea(x, y, x2, y2);
     SetCrosshair();
 }
 

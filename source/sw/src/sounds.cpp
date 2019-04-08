@@ -770,7 +770,7 @@ SWBOOL CacheSound(int num, int type)
             */
             vp->lock = CACHE_UNLOCK_MAX;
 
-            allocache((intptr_t*)&vp->data, length, &vp->lock);
+            cacheAllocateBlock((intptr_t*)&vp->data, length, &vp->lock);
 
 #if 0
             // DEBUG

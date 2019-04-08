@@ -555,7 +555,7 @@ int32_t CONFIG_ReadSetup(void)
     CONTROL_ClearAssignments();
     CONFIG_SetDefaults();
 
-    if (SafeFileExists(setupfilename))
+    if (buildvfs_exists(setupfilename))
         scripthandle = SCRIPT_Load(setupfilename);
 
     if (scripthandle < 0) return -1;
