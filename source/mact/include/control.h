@@ -200,6 +200,9 @@ static inline int CONTROL_KeyIsBound(int const key)
 
 void CONTROL_ProcessBinds(void);
 
+#define CONTROL_GetUserInput(...)
+#define CONTROL_ClearUserInput(...)
+
 ////////////////////
 
 #define CONTROL_NUM_FLAGS   64

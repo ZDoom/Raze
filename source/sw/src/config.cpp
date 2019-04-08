@@ -241,7 +241,7 @@ void CONFIG_SetDefaults(void)
 
         MouseAnalogAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
     }
-    CONTROL_SetMouseSensitivity(gs.MouseSpeed);
+    CONTROL_MouseSensitivity = float(gs.MouseSpeed); // [JM] Temporary !CHECKME!
 
     memset(JoystickButtons, -1, sizeof(JoystickButtons));
     memset(JoystickButtonsClicked, -1, sizeof(JoystickButtonsClicked));
@@ -290,8 +290,10 @@ void SetDefaultKeyDefinitions(int style)
         if (f == -1) continue;
         k1 = KB_StringToScanCode(keydefaultset[3*i+1]);
         k2 = KB_StringToScanCode(keydefaultset[3*i+2]);
-
+// [JM] Needs to be rewritten, I think. !CHECKME!
+#if 0
         CONTROL_MapKey(i, k1, k2);
+#endif
 
         KeyboardKeys[f][0] = k1;
         KeyboardKeys[f][1] = k2;
@@ -386,8 +388,11 @@ void CONFIG_ReadKeys(int32_t scripthandle)
     {
         if (i == gamefunc_Show_Console)
             OSD_CaptureKey(KeyboardKeys[i][0]);
+#if 0
+        // [JM] Needs to be re-done. !CHECKME!
         else
             CONTROL_MapKey(i, KeyboardKeys[i][0], KeyboardKeys[i][1]);
+#endif
     }
 }
 
@@ -457,7 +462,7 @@ void CONFIG_SetupMouse(void)
         CONTROL_SetAnalogAxisScale(i, MouseAnalogScale[i], controldevice_mouse);
     }
 
-    CONTROL_SetMouseSensitivity(gs.MouseSpeed);
+    CONTROL_MouseSensitivity = float(gs.MouseSpeed); // [JM] Temporary !CHECKME!
 }
 
 /*
@@ -530,8 +535,9 @@ void CONFIG_SetupJoystick(void)
         CONTROL_MapDigitalAxis(i, JoystickDigitalAxes[i][0], 0, controldevice_joystick);
         CONTROL_MapDigitalAxis(i, JoystickDigitalAxes[i][1], 1, controldevice_joystick);
         CONTROL_SetAnalogAxisScale(i, JoystickAnalogScale[i], controldevice_joystick);
-        CONTROL_SetJoyAxisDead(i, JoystickAnalogDead[i]);
-        CONTROL_SetJoyAxisSaturate(i, JoystickAnalogSaturate[i]);
+        //CONTROL_SetJoyAxisDead(i, JoystickAnalogDead[i]);
+        //CONTROL_SetJoyAxisSaturate(i, JoystickAnalogSaturate[i]);
+        joySetDeadZone(i, JoystickAnalogDead[i], JoystickAnalogSaturate[i]); // [JM] !CHECKME!
     }
 }
 

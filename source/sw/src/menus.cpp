@@ -803,9 +803,11 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             KeyboardKeys[currentkey][currentcol] = KB_GetLastScanCode();
             if (currentkey != gamefunc_Show_Console)
             {
+#if 0 // [JM] Re-do this shit !CHECKME!
                 CONTROL_MapKey(currentkey,
                                KeyboardKeys[currentkey][0],
                                KeyboardKeys[currentkey][1]);
+#endif
             }
             else
             {
@@ -855,9 +857,11 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             if (currentkey != gamefunc_Show_Console)
             {
                 KeyboardKeys[currentkey][currentcol] = 0xff;
+#if 0 // [JM] Re-do this shit !CHECKME!
                 CONTROL_MapKey(currentkey,
                                KeyboardKeys[currentkey][0],
                                KeyboardKeys[currentkey][1]);
+#endif
             }
         }
         else if (KB_KeyPressed(sc_Home))
@@ -3642,7 +3646,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         slidersettings[sldr_mouse] = offset;
 
         gs.MouseSpeed = offset * (MOUSE_SENS_MAX_VALUE/SLDR_MOUSESENSEMAX);
-        CONTROL_SetMouseSensitivity(gs.MouseSpeed);
+        CONTROL_MouseSensitivity = float(gs.MouseSpeed); // [JM] Will need to verify this. !CHECKME!
         break;
 
     case sldr_sndfxvolume:
@@ -3992,13 +3996,15 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
             if (item->slider == sldr_joyaxisdead)
             {
                 JoystickAnalogDead[JoystickAxisPage] = min((offset<<10), 32767);
-                CONTROL_SetJoyAxisDead(JoystickAxisPage, JoystickAnalogDead[JoystickAxisPage]);
+                //CONTROL_SetJoyAxisDead(JoystickAxisPage, JoystickAnalogDead[JoystickAxisPage]);
             }
             else
             {
                 JoystickAnalogSaturate[JoystickAxisPage] = min((offset<<10), 32767);
-                CONTROL_SetJoyAxisSaturate(JoystickAxisPage, JoystickAnalogSaturate[JoystickAxisPage]);
+                //CONTROL_SetJoyAxisSaturate(JoystickAxisPage, JoystickAnalogSaturate[JoystickAxisPage]);
             }
+
+            joySetDeadZone(JoystickAxisPage, JoystickAnalogDead[JoystickAxisPage], JoystickAnalogSaturate[JoystickAxisPage]); // [JM] !CHECKME!
         }
 
         sprintf(tmp_text, "%.2f%%", (float)(slidersettings[item->slider]<<10) / 32767.f);
