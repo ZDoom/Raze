@@ -1,12 +1,13 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifndef compat_h_
 #include "compat.h"
 #endif
 
 #include "vfs.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct
 {
