@@ -272,12 +272,11 @@ DoShadowFindGroundPoint(uspritetype * sp)
             loz = DoShadowFindGroundPoint(sp);
             hsp->cstat = bak_cstat;
         }
+        break;
     }
 
     case HIT_SECTOR:
-    {
-        return loz;
-    }
+        break;
 
     default:
         ASSERT(TRUE == FALSE);
@@ -285,7 +284,6 @@ DoShadowFindGroundPoint(uspritetype * sp)
     }
 
     return loz;
-
 }
 
 #if 0

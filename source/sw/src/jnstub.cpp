@@ -1125,6 +1125,7 @@ Keys3D(void)
                         sector[currsector].ceilingpicnum = temppicnum;
                 }
             }
+            break;
         case 2:
             searchpicnum = sector[searchsector].floorpicnum;
             if (highlightsectorcnt <= 0)
