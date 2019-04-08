@@ -469,7 +469,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
                 for (i = 0; i < ARRAY_SIZE(tracktypes); ++i)
                 {
                     waveformtrack[tracknamebaselen] = '\0';
-                    Bstrncat(waveformtrack, tracktypes[i], MAXWAVEFORMTRACKLENGTH);
+                    Bstrncat(waveformtrack, tracktypes[i], MAXWAVEFORMTRACKLENGTH - 1);
 
                     if (LoadSong(waveformtrack))
                     {
