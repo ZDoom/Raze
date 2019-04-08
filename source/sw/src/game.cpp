@@ -5943,6 +5943,22 @@ StdRandomRange(int range)
     return value;
 }
 
+// [JM] Probably will need some doing over. !CHECKME!
+void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); }
+void G_Polymer_UnInit(void) { }
+void app_crashhandler(void) { }
+
+int osdcmd_restartvid(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+
+    videoResetMode();
+    if (videoSetGameMode(fullscreen, xdim, ydim, bpp, upscalefactor))
+        buildputs("restartvid: Reset failed...\n");
+
+    return OSDCMD_OK;
+}
+
 #include "saveable.h"
 
 static saveable_data saveable_build_data[] =
