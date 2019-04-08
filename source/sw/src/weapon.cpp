@@ -4647,7 +4647,7 @@ WeaponMoveHit(short SpriteNum)
 
     case HIT_WALL:
     {
-        hitdata_t hitinfo = { { 0, 0, 0 }, -2, NORM_WALL(u->ret), -2 };
+        hitdata_t hitinfo = { { 0, 0, 0 }, -2, (int16_t)NORM_WALL(u->ret), -2 };
         WALLp wph = &wall[hitinfo.wall];
         SECTOR_OBJECTp sop;
 
