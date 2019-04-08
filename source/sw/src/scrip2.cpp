@@ -604,7 +604,8 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_MAP:
         {
             char *mapnumptr;
-            if (scriptfile_getnumber(script, &curmap)) break; mapnumptr = script->ltextptr;
+            if (scriptfile_getnumber(script, &curmap)) break;
+            mapnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
             // first map file in LevelInfo[] is bogus, last map file is NULL
@@ -696,7 +697,8 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_EPISODE:
         {
             char *epnumptr;
-            if (scriptfile_getnumber(script, &curmap)) break; epnumptr = script->ltextptr;
+            if (scriptfile_getnumber(script, &curmap)) break;
+            epnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
             // first map file in LevelInfo[] is bogus, last map file is NULL
@@ -746,7 +748,8 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_SKILL:
         {
             char *epnumptr;
-            if (scriptfile_getnumber(script, &curmap)) break; epnumptr = script->ltextptr;
+            if (scriptfile_getnumber(script, &curmap)) break;
+            epnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
             // first map file in LevelInfo[] is bogus, last map file is NULL
@@ -848,7 +851,8 @@ void LoadCustomInfoFromScript(const char *filename)
             char *name = NULL;
             int amt = -1;
 
-            if (scriptfile_getsymbol(script, &in)) break; invnumptr = script->ltextptr;
+            if (scriptfile_getsymbol(script, &in)) break;
+            invnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
             if ((unsigned)--in >= (unsigned)InvDecl_TOTAL)
@@ -899,7 +903,8 @@ void LoadCustomInfoFromScript(const char *filename)
             int maxammo = -1, damagemin = -1, damagemax = -1, pickup = -1, wpickup = -1;
             int in,id;
 
-            if (scriptfile_getsymbol(script, &in)) break; wpnnumptr = script->ltextptr;
+            if (scriptfile_getsymbol(script, &in)) break;
+            wpnnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
             if ((unsigned)--in >= (unsigned)SIZ(weaponmap))
