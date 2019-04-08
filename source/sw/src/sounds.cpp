@@ -88,17 +88,17 @@ SWBOOL LoadSong(const char *track);
 
 #define NUM_SAMPLES 10
 
-char *BitNames[2] =
+const char *BitNames[2] =
 {
     "8-bit", "16-bit"
 };
 
-char *ChannelNames[2] =
+const char *ChannelNames[2] =
 {
     "Mono", "Stereo"
 };
 
-char *VoiceNames[8] =
+const char *VoiceNames[8] =
 {
     "1", "2", "3", "4", "5", "6", "7", "8"
 };
@@ -662,7 +662,7 @@ SoundAngle(int x, int y)
     return delta_angle >> 6;
 }
 
-int _PlayerSound(char *file, int line, int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp)
+int _PlayerSound(const char *file, int line, int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp)
 //PlayerSound(int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp)
 {
     int handle;

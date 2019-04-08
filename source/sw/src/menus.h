@@ -252,7 +252,7 @@ typedef struct MENU_ITEM
     SLDRType slider;                    // Slider type, if any
     BTNType button;                     // Button state, if any
     unsigned char hotkey;               // First letter of item
-    char *text;                         // Text appearing in item, if any.
+    const char *text;                   // Text appearing in item, if any.
     void *child;                        // Should be menugroup, used to spawn
     // sub-groups from items.
     int x, y;                          // x,y position on screen.
@@ -268,7 +268,7 @@ typedef struct MENU_ITEM
 typedef struct
 {
     int x, y;                          // Menu x,y position on screen.
-    char *text;
+    const char *text;
     MenuItem_p items;                   // Array of menu items for this menu.
     short titlepic;                   // Used to draw title on menu with.
     short cursorpic;                  // Pic used for menu cursor, 1st in

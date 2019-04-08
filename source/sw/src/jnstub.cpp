@@ -84,7 +84,7 @@ short FindSpriteNum = 0;
 
 // My Function Prototypes
 void ContextHelp(short spritenum);
-void LoadKVXFromScript(char *filename);
+void LoadKVXFromScript(const char *filename);
 
 //void LogUserTime( SWBOOL bIsLoggingIn );
 
@@ -112,7 +112,7 @@ typedef struct
 
 STAG_INFO StagInfo[MAX_STAG_INFO];
 
-void PrintStatus(char *string, int num, char x, char y, char color);
+void PrintStatus(const char *string, int num, char x, char y, char color);
 
 #define NUMOPTIONS 8
 char option[NUMOPTIONS] = {0, 0, 0, 0, 0, 0, 1, 0};
@@ -159,7 +159,7 @@ void SectorMoveFloorZ(int);
 void SectorMoveCeilingZ(int);
 
 void BuildStagTable(void);
-void Message(char *string, char color);
+void Message(const char *string, char color);
 void ShowMessage(void);
 void ShadeMenu(void);
 void FindNextTag(void);
@@ -647,7 +647,7 @@ ExtInit(void)
 
 #endif
 
-char *startwin_labeltext = "Starting Build Editor for Shadow Warrior...";
+const char *startwin_labeltext = "Starting Build Editor for Shadow Warrior...";
 
 int
 ExtInit(void)
@@ -1360,7 +1360,7 @@ Keys3D(void)
 
 // Used to help print out the item status list
 void
-PrintStatus(char *string, int num, char x, char y, char color)
+PrintStatus(const char *string, int num, char x, char y, char color)
 {
     sprintf(tempbuf, "%s %d", string, num);
     printext16(x * 8, ydim16+y * 8, color, -1, tempbuf, 0);
@@ -2280,7 +2280,7 @@ const char *
 ExtGetSpriteCaption(short spritenum)
 {
     SPRITEp sp = &sprite[spritenum];
-    char *p = "";
+    const char *p = "";
     char name[64];
     char tp[30];
     char multi_str[30] = "";
@@ -3668,7 +3668,7 @@ static unsigned short messagedelay = 0;
 static char messagebuf[1024];
 
 void
-Message(char *string, char color)
+Message(const char *string, char color)
 {
     sprintf(messagebuf, string, 0);
     messagedelay = 512;
@@ -3728,7 +3728,7 @@ dsprintf(char *str, char *format, ...)
 }
 
 void
-dsprintf_null(char *str, char *format, ...)
+dsprintf_null(char *str, const char *format, ...)
 {
     va_list arglist;
 }

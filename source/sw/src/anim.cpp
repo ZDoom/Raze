@@ -54,7 +54,7 @@ unsigned char ANIMpal[3*256];
 unsigned char ANIMnum = 0;
 short SoundState;
 
-char *ANIMname[] =
+const char *ANIMname[] =
 {
     "sw.anm",
     "swend.anm",

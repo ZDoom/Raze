@@ -1163,7 +1163,7 @@ void CON_LoadSetup(void)
     CON_ConMessage("JonoF: Maybe later");
 }
 
-char *damagename[] =
+const char *damagename[] =
 {
     "WPN_STAR","WPN_UZI",
     "WPN_SHOTGUN","WPN_MICRO",

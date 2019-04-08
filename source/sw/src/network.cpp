@@ -434,7 +434,7 @@ ResumeAction(void)
 }
 
 void
-SW_SendMessage(short pnum, char *text)
+SW_SendMessage(short pnum, const char *text)
 {
     if (!CommEnabled)
         return;

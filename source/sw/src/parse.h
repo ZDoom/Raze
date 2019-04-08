@@ -35,7 +35,7 @@ extern  int     scriptline;
 extern  SWBOOL    endofscript;
 
 
-SWBOOL LoadScriptFile(char *filename);
+SWBOOL LoadScriptFile(const char *filename);
 void GetToken(SWBOOL crossline);
 void UnGetToken(void);
 SWBOOL TokenAvailable(void);

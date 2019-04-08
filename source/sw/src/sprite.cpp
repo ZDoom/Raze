@@ -5495,7 +5495,7 @@ void ChoosePlayerGetSound(PLAYERp pp)
 
 //#define MAX_FORTUNES 16
 // With PLOCK on, max = 11
-char *ReadFortune[MAX_FORTUNES] =
+const char *ReadFortune[MAX_FORTUNES] =
 {
     "You never going to score.",
     "26-31-43-82-16-29",
@@ -5551,7 +5551,7 @@ SWBOOL CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
     return TRUE;
 }
 
-char *KeyMsg[MAX_KEYS] =
+const char *KeyMsg[MAX_KEYS] =
 {
     "Got the RED key!",
     "Got the BLUE key!",

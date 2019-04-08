@@ -46,7 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define PANEL_SM_FONT_Y 3613
 #define PANEL_SM_FONT_R 3625
 
-char *KeyDoorMessage[MAX_KEYS] =
+const char *KeyDoorMessage[MAX_KEYS] =
 {
     "You need a RED key for this door.",
     "You need a BLUE key for this door.",

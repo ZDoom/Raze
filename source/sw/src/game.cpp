@@ -691,7 +691,7 @@ TerminateGame(void)
 }
 
 void
-LoadLevel(char *filename)
+LoadLevel(const char *filename)
 {
     int pos;
 
@@ -712,7 +712,7 @@ LoadLevel(char *filename)
 }
 
 void
-LoadImages(char *filename)
+LoadImages(const char *filename)
 {
     short ndx;
     FILE *fin;
@@ -2905,7 +2905,7 @@ Control(int32_t argc, char const * const * argv)
 
 
 void
-_Assert(char *expr, char *strFile, unsigned uLine)
+_Assert(const char *expr, const char *strFile, unsigned uLine)
 {
     sprintf(ds, "Assertion failed: %s %s, line %u", expr, strFile, uLine);
     MONO_PRINT(ds);
@@ -2920,7 +2920,7 @@ _Assert(char *expr, char *strFile, unsigned uLine)
 
 
 void
-_ErrMsg(char *strFile, unsigned uLine, char *format, ...)
+_ErrMsg(const char *strFile, unsigned uLine, const char *format, ...)
 {
     va_list arglist;
 
@@ -2960,7 +2960,7 @@ dsprintf(char *str, char *format, ...)
 }
 
 void
-dsprintf_null(char *str, char *format, ...)
+dsprintf_null(char *str, const char *format, ...)
 {
     va_list arglist;
 }
@@ -3262,10 +3262,10 @@ void AlphaMessage(void)
 typedef struct
 {
     char    notshareware;
-    char    *arg_switch;
+    const char    *arg_switch;
     short   arg_match_len;
-    char    *arg_fmt;
-    char    *arg_descr;
+    const char    *arg_fmt;
+    const char    *arg_descr;
 } CLI_ARG;
 
 #if DEBUG

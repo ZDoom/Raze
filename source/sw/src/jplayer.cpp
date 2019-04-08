@@ -122,10 +122,11 @@ int gametext(int x,int y,char *t,char s,short dabits)
     return x;
 }
 
-int minigametext(int x,int y,char *t,char s,short dabits)
+int minigametext(int x,int y,const char *t,char s,short dabits)
 {
     short ac,newx;
-    char centre, *oldt;
+    char centre;
+    const char *oldt;
 
     centre = (x == (320>>1));
     newx = 0;
@@ -215,7 +216,7 @@ int quotebot, quotebotgoal;
 short user_quote_time[MAXUSERQUOTES];
 char user_quote[MAXUSERQUOTES][256];
 
-void adduserquote(char *daquote)
+void adduserquote(const char *daquote)
 {
     int i;
 

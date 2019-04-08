@@ -38,7 +38,7 @@ enum InventoryNames
 
 typedef struct
 {
-    char *Name;
+    const char *Name;
     void (*Init)(PLAYERp);
     void (*Stop)(PLAYERp, short);
     PANEL_STATEp State;

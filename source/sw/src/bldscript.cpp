@@ -48,7 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 =============================================================================
 */
-void Error(char *error, ...)
+void Error(const char *error, ...)
 {
     va_list argptr;
 
@@ -84,7 +84,7 @@ SWBOOL    tokenready;                     // only TRUE if UnGetToken was just ca
 ==============
 */
 
-SWBOOL LoadScriptFile(char *filename)
+SWBOOL LoadScriptFile(const char *filename)
 {
     int size, readsize;
     int fp;
@@ -396,7 +396,7 @@ extern int nextvoxid;
 //			    1804 1 shotgun.kvx
 //				etc....
 
-void LoadKVXFromScript(char *filename)
+void LoadKVXFromScript(const char *filename)
 {
     int lNumber=0,lTile=0;  // lNumber is the voxel no. and lTile is the editart tile being
     // replaced.

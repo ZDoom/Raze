@@ -7444,7 +7444,7 @@ DoDamage(short SpriteNum, short Weapon)
 
 #if 1
 // Select death text based on ID
-char *DeathString(short SpriteNum)
+const char *DeathString(short SpriteNum)
 {
     USERp ku = User[SpriteNum];
 

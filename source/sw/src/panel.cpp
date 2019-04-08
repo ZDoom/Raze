@@ -486,8 +486,8 @@ PlayerUpdateWeaponSummary(PLAYERp pp, short UpdateWeaponNum)
 #define WSUM_YOFF 6
 
     static short wsum_xoff[3] = {0,36,66};
-    static char *wsum_fmt1[3] = {"%d:", "%d:", "%d:"};
-    static char *wsum_fmt2[3] = {"%3d/%-3d", "%2d/%-2d", "%2d/%-2d"};
+    static const char *wsum_fmt1[3] = {"%d:", "%d:", "%d:"};
+    static const char *wsum_fmt2[3] = {"%3d/%-3d", "%2d/%-2d", "%2d/%-2d"};
     static short wsum_back_pic[3] = {2405, 2406, 2406};
 
     if (Prediction)

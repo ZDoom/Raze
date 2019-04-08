@@ -539,7 +539,7 @@ MenuGroup   *menuarray[MaxLayers], *currentmenu;
 SWBOOL UsingMenus = FALSE;
 
 #define MAXDIALOG       2       // Maximum number of dialog strings allowed
-char *dialog[MAXDIALOG];
+const char *dialog[MAXDIALOG];
 
 // Global menu setting values ////////////////////////////////////////////////////////////////////
 // Mouse slider vars
@@ -564,7 +564,7 @@ MenuItem_p cust_callback_item;
 
 static void MNU_ClearDialog(void);
 static SWBOOL MNU_Dialog(void);
-void LoadSaveMsg(char *msg);
+void LoadSaveMsg(const char *msg);
 static void MNU_ItemPreProcess(MenuGroup *group);
 static void MNU_SelectItem(MenuGroup *group, short index, SWBOOL draw);
 static void MNU_PushItem(MenuItem *item, SWBOOL draw);
@@ -611,7 +611,7 @@ MNU_DoParentalPassword(UserCall call, MenuItem_p item)
     signed char MNU_InputString(char *, short);
     static SWBOOL cur_show;
     char TempString[80];
-    char *extra_text;
+    const char *extra_text;
 
 
     extra_text = "This mode should remove most of the";
@@ -776,7 +776,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 
     {
         short w, h = 0;
-        char *s = "Keys Setup";
+        const char *s = "Keys Setup";
         rotatesprite(10 << 16, (5-3) << 16, MZ, 0, 2427,
                      m_defshade, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
         MNU_MeasureStringLarge(s, &w, &h);
@@ -786,8 +786,8 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
     if (currentmode)
     {
         // customising a key
-        char *strs[] = { "Press the key to assign to", "\"%s\" %s", "or ESCAPE to cancel." };
-        char *col[2] = { "(primary)", "(secondary)" };
+        const char *strs[] = { "Press the key to assign to", "\"%s\" %s", "or ESCAPE to cancel." };
+        const char *col[2] = { "(primary)", "(secondary)" };
         short w, h = 8;
         int i, j, y;
 
@@ -836,7 +836,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 #define PGSIZ 14
         int topitem = 0, botitem = NUMGAMEFUNCTIONS;
         int i,j;
-        char *morestr = "More...";
+        const char *morestr = "More...";
         const char *p;
 
         UserInput inpt = {FALSE,FALSE,dir_None};
@@ -1764,8 +1764,8 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
     {
         // Jonathon's credits page hack :-)
 
-        static char *jtitle = "^Port Credits";
-        static char *jtext[] =
+        static const char *jtitle = "^Port Credits";
+        static const char *jtext[] =
         {
             "*GAME AND ENGINE PORT",
             " Jonathon \"JonoF\" Fowler",
@@ -1777,7 +1777,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
             " Visit http://www.jonof.id.au/jfsw for the",
             " source code, latest news, and updates of this port."
         };
-        static char *scroller[] =
+        static const char *scroller[] =
         {
             "This program is free software; you can redistribute it",
             "and/or modify it under the terms of the GNU General",
@@ -2695,7 +2695,7 @@ MNU_InputString(char *name, short pix_width)
 #define SS_YSTART SD_YSTART
 #define SS_BORDER_SIZE 5L
 
-void LoadSaveMsg(char *msg)
+void LoadSaveMsg(const char *msg)
 {
     short w,h;
 
@@ -3058,7 +3058,7 @@ MNU_CheckUserMap(MenuItem *item)
 SWBOOL
 MNU_ShareWareMessage(MenuItem *item)
 {
-    char *extra_text;
+    const char *extra_text;
     short w,h;
 
     if (SW_SHAREWARE)
@@ -3340,7 +3340,7 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
     int last_value;
     short shade = MENU_SHADE_DEFAULT;
     extern char LevelSong[];
-    char *extra_text = NULL;
+    const char *extra_text = NULL;
     PLAYERp pp = &Player[myconnectindex];
     int button_x,zero=0;
     int handle=0;
@@ -3606,9 +3606,9 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
 }
 
 //char *gametype[] = {"War [Respawn]","Cooperative","War [No Respawn]"};
-char *gametype[] = {"WangBang (spawn)","WangBang (no spawn)","Cooperative"};
-char *playercolors[] = {"Brown","Gray","Purple","Red","Yellow","Olive","Green","Blue"};
-char *monsterskills[] = {"No Monsters","Easy","Normal","Hard","Insane!"};
+const char *gametype[] = {"WangBang (spawn)","WangBang (no spawn)","Cooperative"};
+const char *playercolors[] = {"Brown","Gray","Purple","Red","Yellow","Olive","Green","Blue"};
+const char *monsterskills[] = {"No Monsters","Easy","Normal","Hard","Insane!"};
 
 void
 MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
@@ -3616,7 +3616,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
     short offset, i, barwidth;
     int x, y, knobx;
     short shade = MENU_SHADE_DEFAULT;
-    char *extra_text=NULL;
+    const char *extra_text=NULL;
     char tmp_text[256];
 
     memset(tmp_text,0,256);

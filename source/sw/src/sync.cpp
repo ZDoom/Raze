@@ -277,7 +277,7 @@ RandomSync(void)
 #define STAT_SKIP4_END      8
 */
 
-char *SyncNames[] =
+const char *SyncNames[] =
 {
     "RandomSync",
     "PlayerSync",

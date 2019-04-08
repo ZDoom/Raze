@@ -34,7 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #ifndef function_private_
 #define function_private_
-char *gamefunctions[] =
+const char *gamefunctions[] =
 {
     "Move_Forward",
     "Move_Backward",
@@ -91,7 +91,7 @@ char *gamefunctions[] =
 
 #define NUMKEYENTRIES 50
 
-static char *keydefaults[] =
+static const char *keydefaults[] =
 {
     "Move_Forward", "Up", "Kpad8",
     "Move_Backward", "Down", "Kpad2",
@@ -145,7 +145,7 @@ static char *keydefaults[] =
     "Show_Console", "NumLck", "",
 };
 
-static char *keydefaults_modern[] =
+static const char *keydefaults_modern[] =
 {
     "Move_Forward", "W", "",
     "Move_Backward", "S", "",
@@ -200,7 +200,7 @@ static char *keydefaults_modern[] =
 };
 
 
-static char *mousedefaults[] =
+static const char *mousedefaults[] =
 {
     "Fire",
     "Strafe",
@@ -209,7 +209,7 @@ static char *mousedefaults[] =
     ""
 };
 
-static char *mousedefaults_modern[] =
+static const char *mousedefaults_modern[] =
 {
     "Fire",
     "Open",
@@ -220,7 +220,7 @@ static char *mousedefaults_modern[] =
 };
 
 
-static char *mouseclickeddefaults[] =
+static const char *mouseclickeddefaults[] =
 {
     "",
     "Open",
@@ -229,7 +229,7 @@ static char *mouseclickeddefaults[] =
     ""
 };
 
-static char *mouseclickeddefaults_modern[] =
+static const char *mouseclickeddefaults_modern[] =
 {
     "",
     "",
@@ -240,7 +240,7 @@ static char *mouseclickeddefaults_modern[] =
 };
 
 
-static char *joystickdefaults[] =
+static const char *joystickdefaults[] =
 {
     "Fire",
     "Strafe",
@@ -281,7 +281,7 @@ static char *joystickdefaults[] =
 };
 
 
-static char *joystickclickeddefaults[] =
+static const char *joystickclickeddefaults[] =
 {
     "",
     "Inventory",
@@ -322,14 +322,14 @@ static char *joystickclickeddefaults[] =
 };
 
 
-static char *mouseanalogdefaults[] =
+static const char *mouseanalogdefaults[] =
 {
     "analog_turning",
     "analog_moving",
 };
 
 
-static char *mousedigitaldefaults[] =
+static const char *mousedigitaldefaults[] =
 {
     "",
     "",
@@ -339,7 +339,7 @@ static char *mousedigitaldefaults[] =
 
 
 #if 0
-static char *gamepaddigitaldefaults[] =
+static const char *gamepaddigitaldefaults[] =
 {
     "Turn_Left",
     "Turn_Right",
@@ -349,7 +349,7 @@ static char *gamepaddigitaldefaults[] =
 #endif
 
 
-static char *joystickanalogdefaults[] =
+static const char *joystickanalogdefaults[] =
 {
     "analog_turning",
     "analog_moving",
@@ -362,7 +362,7 @@ static char *joystickanalogdefaults[] =
 };
 
 
-static char *joystickdigitaldefaults[] =
+static const char *joystickdigitaldefaults[] =
 {
     "",
     "",

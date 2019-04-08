@@ -6374,7 +6374,7 @@ DoPlayerDeathFall(PLAYERp pp)
 }
 
 #define MAX_SUICIDE 11
-char *SuicideNote[MAX_SUICIDE] =
+const char *SuicideNote[MAX_SUICIDE] =
 {
     "decided to do the graveyard tour.",
     "had enough and checked out.",

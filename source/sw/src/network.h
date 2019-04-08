@@ -200,7 +200,7 @@ SWBOOL MenuCommPlayerQuit(short quit_player);
 void SendVersion(int version);
 void InitNetPlayerOptions(void);
 void CheckVersion(int GameVersion);
-void SW_SendMessage(short pnum,char *text);
+void SW_SendMessage(short pnum,const char *text);
 void PauseGame(void);
 void ResumeGame(void);
 

@@ -56,7 +56,7 @@ extern char isShareware, useDarts;
 void HeapCheck(char *, int);
 #define HEAP_CHECK() HeapCheck(__FILE__, __LINE__)
 
-void _Assert(char *, char *, unsigned);
+void _Assert(const char *expr, const char *strFile, unsigned uLine);
 #define ASSERT(f) \
     if (f)        \
         do { } while(0);         \
@@ -74,7 +74,7 @@ void PokeStringMono(uint8_t Attr, uint8_t* String);
 extern int DispMono;
 #define MONO_PRINT(str) if (DispMono) PokeStringMono(/*MDA_NORMAL*/ 0, str)
 #else
-void adduserquote(char *daquote);
+void adduserquote(const char *daquote);
 extern int DispMono;
 #define MONO_PRINT(str) if (DispMono) CON_ConMessage(str); // Put it in my userquote stuff!
 //#define MONO_PRINT(str) if (DispMono) printf(str);
@@ -85,14 +85,14 @@ extern int DispMono;
 #define ASSERT(f) do { } while(0)
 #define MONO_PRINT(str)
 
-void _Assert(char *, char *, unsigned);
+void _Assert(const char *expr, const char *strFile, unsigned uLine);
 #define PRODUCTION_ASSERT(f) \
     if (f)        \
         do { } while(0);         \
     else          \
         _Assert(#f,ERR_STD_ARG);
 
-void dsprintf_null(char *, char *, ...);
+void dsprintf_null(char *str, const char *format, ...);
 #define DSPRINTF dsprintf_null
 //#define DSPRINTF()
 
@@ -855,7 +855,7 @@ extern char con_quote[MAXCONQUOTES][256];
 int minitext(int x,int y,char *t,char p,char sb);
 int minitextshade(int x,int y,char *t,char s,char p,char sb);
 void operatefta(void);
-void adduserquote(char *daquote);
+void adduserquote(const char *daquote);
 void operateconfta(void);
 void addconquote(char *daquote);
 
@@ -898,8 +898,8 @@ typedef struct
     int16_t max_ammo;
     int16_t min_ammo;
     int16_t with_weapon;
-    char *weapon_name;
-    char *ammo_name;
+    const char *weapon_name;
+    const char *ammo_name;
     int16_t weapon_pickup;
     int16_t ammo_pickup;
 } DAMAGE_DATA, *DAMAGE_DATAp;
@@ -958,11 +958,11 @@ typedef struct
 
 typedef struct
 {
-    char *LevelName;
-    char *SongName;
-    char *Description;
-    char *BestTime;
-    char *ParTime;
+    const char *LevelName;
+    const char *SongName;
+    const char *Description;
+    const char *BestTime;
+    const char *ParTime;
 } LEVEL_INFO, *LEVEL_INFOp, * *LEVEL_INFOpp;
 
 extern LEVEL_INFO LevelInfo[MAX_LEVELS_REG+2];
@@ -977,11 +977,11 @@ extern char EpisodeSubtitles[2][MAX_EPISODE_SUBTITLE_LEN+1];
 extern char SkillNames[4][MAX_SKILL_NAME_LEN+2];
 
 #define MAX_FORTUNES 16
-extern char *ReadFortune[MAX_FORTUNES];
+extern const char *ReadFortune[MAX_FORTUNES];
 
 #define MAX_KEYS 8
-extern char *KeyMsg[MAX_KEYS];
-extern char *KeyDoorMessage[MAX_KEYS];
+extern const char *KeyMsg[MAX_KEYS];
+extern const char *KeyDoorMessage[MAX_KEYS];
 
 typedef struct
 {
@@ -2275,7 +2275,7 @@ extern unsigned char palette_data[256][3];
 extern SWBOOL NightVision;
 #endif
 
-int _PlayerSound(char *file, int line, int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp);
+int _PlayerSound(const char *file, int line, int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp);
 #define PlayerSound(num, x, y, z, flags, pp) _PlayerSound(__FILE__, __LINE__, (num), (x), (y), (z), (flags), (pp))
 
 #define MAXSO (MAXLONG)
@@ -2321,7 +2321,7 @@ void post_analyzesprites(void); // draw.c
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp);    // draw.c
 void ScreenCaptureKeys(void);   // draw.c
 
-int minigametext(int x,int y,char *t,char s,short dabits);  // jplayer.c
+int minigametext(int x,int y,const char *t,char s,short dabits);  // jplayer.c
 void computergetinput(int snum,SW_PACKET *syn); // jplayer.c
 
 void DrawOverlapRoom(int tx,int ty,int tz,short tang,int thoriz,short tsectnum);    // rooms.c
@@ -2333,9 +2333,9 @@ void TermSetup(void);   // swconfig.c
 
 void InitSetup(void);   // setup.c
 
-void LoadKVXFromScript(char *filename); // scrip2.c
-void LoadPLockFromScript(char *filename);   // scrip2.c
-void LoadCustomInfoFromScript(char *filename);  // scrip2.c
+void LoadKVXFromScript(const char *filename); // scrip2.c
+void LoadPLockFromScript(const char *filename);   // scrip2.c
+void LoadCustomInfoFromScript(const char *filename);  // scrip2.c
 
 void EveryCheatToggle(PLAYERp pp,char *cheat_string);   // cheats.c
 

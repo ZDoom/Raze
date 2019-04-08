@@ -70,7 +70,7 @@ SWBOOL    tokenready;                     // only TRUE if UnGetToken was just ca
 ==============
 */
 
-SWBOOL LoadScriptFile(char *filename)
+SWBOOL LoadScriptFile(const char *filename)
 {
     int size, readsize;
     int fp;
@@ -261,7 +261,7 @@ SWBOOL TokenAvailable(void)
 //              1804 1 shotgun.kvx
 //              etc....
 
-void LoadKVXFromScript(char *filename)
+void LoadKVXFromScript(const char *filename)
 {
     int lNumber=0,lTile=0; // lNumber is the voxel no. and lTile is the editart tile being
     // replaced.
@@ -328,7 +328,7 @@ void LoadKVXFromScript(char *filename)
 //          Ex. 1803 -1       -1 = No tile replacement
 //              1804 2000
 //              etc....
-void LoadPLockFromScript(char *filename)
+void LoadPLockFromScript(const char *filename)
 {
     int lNumber=0,lTile=0; // lNumber is the voxel no. and lTile is the editart tile being
     // replaced.
@@ -405,7 +405,7 @@ enum
 
 static const struct _tokset
 {
-    char *str;
+    const char *str;
     int tokn;
 } cm_tokens[] =
 {
@@ -546,7 +546,7 @@ static char *customweaponname[2][MAX_WEAPONS];  // weapon, ammo
 #define WM_AMMO   4
 static struct
 {
-    char *sym;
+    const char *sym;
     int dmgid;
     int editable;
 } weaponmap[] =
@@ -568,7 +568,7 @@ static struct
 };
 
 // FIXME: yes, we are leaking memory here at the end of the program by not freeing anything
-void LoadCustomInfoFromScript(char *filename)
+void LoadCustomInfoFromScript(const char *filename)
 {
     scriptfile *script;
     char *token;

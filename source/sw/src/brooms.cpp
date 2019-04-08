@@ -39,11 +39,11 @@ extern int qsetmode;
 SWBOOL FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum);
 SWBOOL FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum);
 short ViewSectorInScene(short cursectnum, short type, short level);
-void Message(char *string, char color);
+void Message(const char *string, char color);
 
 
 void
-_Assert(char *expr, char *strFile, unsigned uLine)
+_Assert(const char *expr, const char *strFile, unsigned uLine)
 {
     printf(ds, "Assertion failed: %s %s, line %u\n", expr, strFile, uLine);
     //DSPRINTF(ds, "Assertion failed: %s %s, line %u", expr, strFile, uLine);

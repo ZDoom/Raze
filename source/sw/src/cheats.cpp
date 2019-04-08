@@ -261,10 +261,10 @@ void BlackburnFunc(PLAYERp pp, char *UNUSED(cheat_string))
     PlayerSound(DIGI_TAUNTAI3,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_doppler|v3df_follow,pp);
 }
 
-int cheatcmp(char *str1, char *str2, int len)
+int cheatcmp(const char *str1, const char *str2, int len)
 {
-    char *cp1 = str1;
-    char *cp2 = str2;
+    const char *cp1 = str1;
+    const char *cp2 = str2;
 
     do
     {
@@ -288,7 +288,7 @@ int cheatcmp(char *str1, char *str2, int len)
 
 typedef struct
 {
-    char *CheatInputCode;
+    const char *CheatInputCode;
     void (*CheatInputFunc)(PLAYERp, char *);
     char flags;
 } CHEAT_INFO, *CHEAT_INFOp;

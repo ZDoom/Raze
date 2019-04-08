@@ -46,7 +46,7 @@ static char tempbuf[256];
 
 // Prototypes
 
-void Message(char *string, char color);
+void Message(const char *string, char color);
 long GetAToken(char *name, char *tc, long length);
 uint8_t* BKeyPressed(void);
 void ResetKeys(void);
@@ -54,7 +54,7 @@ void ResetKeys(void);
 
 // Functions
 
-void Msg(char *string, char color)
+void Msg(const char *string, char color)
 {
     clearmidstatbar16();
 

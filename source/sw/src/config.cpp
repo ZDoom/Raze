@@ -269,7 +269,7 @@ void CONFIG_SetDefaults(void)
 void SetDefaultKeyDefinitions(int style)
 {
     int numkeydefaults;
-    char **keydefaultset;
+    const char **keydefaultset;
     int i, f, k1, k2;
 
     if (style)
@@ -301,7 +301,7 @@ void SetDefaultKeyDefinitions(int style)
 void SetMouseDefaults(int style)
 {
     int nummousedefaults;
-    char **mousedefaultset, **mouseclickeddefaultset;
+    const char **mousedefaultset, **mouseclickeddefaultset;
     int i;
 
     if (style)
