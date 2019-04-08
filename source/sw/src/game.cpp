@@ -214,7 +214,7 @@ const GAME_SET gs_defaults =
     0, // Time Limit
     0, // Color
     0, // Parental Lock
-    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // Password
+    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // Password
     TRUE, // nuke
     TRUE, // voxels
     FALSE, // stats
