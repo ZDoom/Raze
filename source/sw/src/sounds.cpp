@@ -47,6 +47,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "text.h"
 #include "rts.h"
 #include "menus.h"
+#include "config.h"
 
 #ifdef _WIN32
 #include "winlayer.h"

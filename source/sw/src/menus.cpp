@@ -51,6 +51,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "text.h"
 
 #include "colormap.h"
+#include "config.h"
 
 //#define PLOCK_VERSION TRUE
 

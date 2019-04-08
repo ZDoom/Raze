@@ -53,6 +53,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "menus.h"
 #include "interp.h"
 #include "sector.h"
+#include "config.h"
 
 static int OverlapDraw = FALSE;
 extern SWBOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo, PauseKeySet;
