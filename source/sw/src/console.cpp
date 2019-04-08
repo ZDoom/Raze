@@ -1129,7 +1129,6 @@ void CON_LoadSetup(void)
 {
     /*
     char base[80],command[80];
-    extern char setupfilename[64];
 
     // Format: showuser [SpriteNum]
     if (sscanf(MessageInputString,"%s %s",base,command) < 2)

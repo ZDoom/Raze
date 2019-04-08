@@ -39,6 +39,26 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "common.h"
 #include "common_game.h"
 
+
+const char* AppProperName = "Wangulator";
+const char* AppTechnicalName = "wangulator";
+
+#if defined(_WIN32)
+#define DEFAULT_GAME_EXEC "voidsw.exe"
+#define DEFAULT_GAME_LOCAL_EXEC "voidsw.exe"
+#else
+#define DEFAULT_GAME_EXEC "voidsw"
+#define DEFAULT_GAME_LOCAL_EXEC "./voidsw"
+#endif
+
+const char *DefaultGameExec = DEFAULT_GAME_EXEC;
+const char *DefaultGameLocalExec = DEFAULT_GAME_LOCAL_EXEC;
+
+#define SETUPFILENAME "wangulator.cfg"
+const char *defaultsetupfilename = SETUPFILENAME;
+char setupfilename[BMAX_PATH] = SETUPFILENAME;
+
+
 #define M_RED 102
 #define M_BLUE 198
 
@@ -648,6 +668,24 @@ ExtInit(void)
 #endif
 
 const char *startwin_labeltext = "Starting Build Editor for Shadow Warrior...";
+
+const char *ExtGetVer(void)
+{
+    return s_buildRev;
+}
+
+int32_t ExtPreInit(int32_t argc,char const * const * argv)
+{
+    UNREFERENCED_PARAMETER(argc);
+    UNREFERENCED_PARAMETER(argv);
+
+    OSD_SetLogFile("wangulator.log");
+    OSD_SetVersion(AppProperName,0,2);
+    initprintf("%s %s\n", AppProperName, s_buildRev);
+    PrintBuildInfo();
+
+    return 0;
+}
 
 int
 ExtInit(void)

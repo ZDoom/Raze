@@ -19,9 +19,9 @@
 #include "common_game.h"
 
 const char *AppProperName = "KenBuild";
-const char *AppTechnicalName = "testgame";
+const char *AppTechnicalName = "ekenbuild";
 
-#define SETUPFILENAME "testgame.cfg"
+#define SETUPFILENAME "ekenbuild.cfg"
 char setupfilename[BMAX_PATH] = SETUPFILENAME;
 
 #define TIMERINTSPERSECOND 140 //280
@@ -457,6 +457,8 @@ int32_t app_main(int32_t argc, char const * const * argv)
     int i, j, k /*, l, fil, waitplayers, x1, y1, x2, y2*/;
     int /*other, packleng,*/ netparm;
 
+    OSD_SetLogFile("ekenbuild.log");
+
     OSD_SetFunctions(
         NULL, NULL, NULL, NULL, NULL,
         COMMON_clearbackground,
@@ -466,7 +468,6 @@ int32_t app_main(int32_t argc, char const * const * argv)
 
     OSD_SetParameters(0,2, 0,0, 4,0, 0, 0, 0); // TODO: Add error and red palookup IDs.
 
-    OSD_SetLogFile("testgame.log");
     initprintf("%s %s\n", AppProperName, s_buildRev);
     PrintBuildInfo();
 

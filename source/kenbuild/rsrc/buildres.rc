@@ -57,7 +57,7 @@ BEGIN
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "Mapster32"
             VALUE "LegalCopyright", "Copyright © 2015 EDuke32 Developers, 2000, 2003 Ken Silverman"
-            VALUE "OriginalFilename", "testeditor.exe"
+            VALUE "OriginalFilename", "ekenbuild-editor.exe"
             VALUE "ProductName", "Mapster32"
             VALUE "ProductVersion", STRPRODUCTVER
         END

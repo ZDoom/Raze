@@ -19,20 +19,20 @@
 #include "common_game.h"
 
 const char *AppProperName = "KenBuild Editor";
-const char *AppTechnicalName = "testeditor";
+const char *AppTechnicalName = "ekenbuild-editor";
 
 #if defined(_WIN32)
-#define DEFAULT_GAME_EXEC "testgame.exe"
-#define DEFAULT_GAME_LOCAL_EXEC "testgame.exe"
+#define DEFAULT_GAME_EXEC "ekenbuild.exe"
+#define DEFAULT_GAME_LOCAL_EXEC "ekenbuild.exe"
 #else
-#define DEFAULT_GAME_EXEC "eduke32"
-#define DEFAULT_GAME_LOCAL_EXEC "./eduke32"
+#define DEFAULT_GAME_EXEC "ekenbuild"
+#define DEFAULT_GAME_LOCAL_EXEC "./ekenbuild"
 #endif
 
 const char *DefaultGameExec = DEFAULT_GAME_EXEC;
 const char *DefaultGameLocalExec = DEFAULT_GAME_LOCAL_EXEC;
 
-#define SETUPFILENAME "testeditor.cfg"
+#define SETUPFILENAME "ekenbuild-editor.cfg"
 const char *defaultsetupfilename = SETUPFILENAME;
 char setupfilename[BMAX_PATH] = SETUPFILENAME;
 
@@ -91,7 +91,7 @@ int32_t ExtPreInit(int32_t argc,char const * const * argv)
     UNREFERENCED_PARAMETER(argc);
     UNREFERENCED_PARAMETER(argv);
 
-    OSD_SetLogFile("testeditor.log");
+    OSD_SetLogFile("ekenbuild-editor.log");
     OSD_SetVersion(AppProperName,0,2);
     initprintf("%s %s\n", AppProperName, s_buildRev);
     PrintBuildInfo();

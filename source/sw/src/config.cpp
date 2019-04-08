@@ -93,8 +93,6 @@ int32_t ForceSetup = 1;
 
 extern char WangBangMacro[10][64];
 char  RTSName[MAXRTSNAMELENGTH];
-//static char setupfilename[64]={SETUPFILENAME};
-char setupfilename[64]= {SETUPFILENAME};
 static int32_t scripthandle = -1;
 
 

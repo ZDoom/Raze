@@ -94,6 +94,12 @@ Things required to make savegames work:
 
 #include "crc32.h"
 
+const char* AppProperName = "VoidSW";
+const char* AppTechnicalName = "voidsw";
+
+#define SETUPFILENAME "voidsw.cfg"
+char setupfilename[BMAX_PATH] = SETUPFILENAME;
+
 #if DEBUG
 #define BETA 0
 #endif

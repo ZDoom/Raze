@@ -26,13 +26,16 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #ifndef config_public_
 #define config_public_
-#ifdef __cplusplus
-extern "C" {
-#endif
+
+#include "compat.h"
 
 #include "function.h"
 #include "keyboard.h"
 #include "control.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SETUPNAMEPARM "SETUPFILE"
 
@@ -108,7 +111,7 @@ extern int32_t EnableRudder;
 extern int32_t MouseDigitalAxes[MAXMOUSEAXES][2];
 extern int32_t JoystickDigitalAxes[MAXJOYAXES][2];
 
-extern char setupfilename[64];
+extern char setupfilename[BMAX_PATH];
 extern char ExternalControlFilename[64];
 
 //style=0: classic

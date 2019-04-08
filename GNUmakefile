@@ -716,10 +716,10 @@ sw_game_deps := duke3d_common_midi audiolib mact
 sw_editor_deps := audiolib
 
 sw_game := voidsw
-sw_editor := voidsw-editor
+sw_editor := wangulator
 
 sw_game_proper := VoidSW
-sw_editor_proper := VoidSW Editor
+sw_editor_proper := Wangulator
 
 sw_game_objs := \
     actor.cpp \

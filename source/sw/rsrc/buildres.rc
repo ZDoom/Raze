@@ -53,13 +53,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "Mapster32 for VoidSW"
+            VALUE "FileDescription", "Wangulator for VoidSW"
             VALUE "FileVersion", STRFILEVER
-            VALUE "InternalName", "Mapster32"
+            VALUE "InternalName", "Wangulator"
             VALUE "LegalCopyright", "Copyright © 2015 EDuke32 Developers, 1997, 2005 3D Realms Entertainment"
             VALUE "LegalTrademarks", "Shadow Warrior® is a Registered Trademark of GHI Media LLC."
-            VALUE "OriginalFilename", "voidsw-editor.exe"
-            VALUE "ProductName", "Mapster32"
+            VALUE "OriginalFilename", "wangulator.exe"
+            VALUE "ProductName", "Wangulator"
             VALUE "ProductVersion", STRPRODUCTVER
         END
     END

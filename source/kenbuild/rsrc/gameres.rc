@@ -55,7 +55,7 @@ BEGIN
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "KenBuild"
             VALUE "LegalCopyright", "Copyright © 2015 EDuke32 Developers, 2000, 2003 Ken Silverman"
-            VALUE "OriginalFilename", "testgame.exe"
+            VALUE "OriginalFilename", "ekenbuild.exe"
             VALUE "ProductName", "KenBuild"
             VALUE "ProductVersion", STRPRODUCTVER
         END
