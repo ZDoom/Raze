@@ -221,14 +221,15 @@ typedef enum
     btn_max
 } BTNType;
 
-typedef enum
+enum
 {
     mf_normal = BIT(0),
     mf_pushed = BIT(1),
     mf_selected = BIT(2),
     mf_disabled = BIT(3),
     mf_separated = BIT(4)
-} MenuFlags;
+};
+typedef int MenuFlags;
 
 #define MenuSelectFlags (mf_pushed | mf_selected | mf_disabled)
 #define MenuDrawFlags (ROTATE_SPRITE_SCREEN_CLIP)
@@ -327,7 +328,7 @@ SWBOOL MNU_LoadClassicDefaults(void);
 #define DefLayer(key,text,child)    mt_layer,mf_normal,sldr_none,btn_none,key,text,child
 
 #define DefDisabled(key,text,child)    mt_layer,mf_disabled,sldr_none,btn_none,key,text,child
-#define DefNone mt_none,0,0,0,0,NULL,NULL,0,0,0,0,0,NULL,NULL,NULL
+#define DefNone mt_none,(MenuFlags)0,(SLDRType)0,(BTNType)0,0,NULL,NULL,0,0,0,0,0,NULL,NULL,NULL
 
 #define OPT_XS 30
 #define OPT_YS 30

@@ -114,7 +114,7 @@ void InitSetup(void)
     //CONFIG_GetSetupFilename();
     //InitializeKeyDefList();
     //CONFIG_ReadSetup();
-    if (CONTROL_Startup(1, &GetTime, /*120*/ 140)) exit(1);
+    if (CONTROL_Startup(controltype_keyboardandmouse, &GetTime, /*120*/ 140)) exit(1);
     SetupGameButtons();
     CONFIG_SetupMouse();
     CONFIG_SetupJoystick();
