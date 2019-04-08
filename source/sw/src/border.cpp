@@ -173,7 +173,7 @@ void ClearStartMost(void)
     for (i = 0; i < xdim; i++)
         startdmost[i] = ydim;
 
-    memset(startumost, 0, sizeof(startumost));
+    memset(startumost, 0, xdim * sizeof(int16_t));
 }
 
 void
