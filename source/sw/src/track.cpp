@@ -634,7 +634,7 @@ TrackSetup(void)
         if (t->NumPoints == 0)
         {
             int i, nexti;
-            SPRITEp sp = &sprite[headspritestat[STAT_TRACK+ndx]];
+            auto const sp = (uspritetype const *)&sprite[headspritestat[STAT_TRACK+ndx]];
             buildprintf("WARNING: Did not find first point of Track Number %d, x %d, y %d", ndx, sp->x, sp->y);
             for (i=headspritestat[STAT_TRACK+ndx]; i>=0; i=nexti)
             {

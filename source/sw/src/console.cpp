@@ -1045,7 +1045,6 @@ void CON_SpriteDetail(void)
 {
     char base[80];
     int16_t op1=0;
-    SPRITEp sp;
     short i;
 
     // Format: showsprite [SpriteNum]
@@ -1057,7 +1056,7 @@ void CON_SpriteDetail(void)
     }
 
     if (!CheckValidSprite(op1)) return;
-    sp = &sprite[op1];
+    auto const sp = (uspritetype const *)&sprite[op1];
 
     CON_ConMessage("x = %d, y = %d, z = %d",sp->x,sp->y,sp->z);
     CON_ConMessage("cstat = %d, picnum = %d",sp->cstat,sp->picnum);

@@ -1043,7 +1043,7 @@ ActorTestSpawn(SPRITEp sp)
             default: c = "?"; break;
             }
             buildprintf("WARNING: skill-masked %s at %d,%d,%d not being killed because it "
-                        "activates something\n", c,sp->x,sp->y,sp->z);
+                        "activates something\n", c, TrackerCast(sp->x), TrackerCast(sp->y), TrackerCast(sp->z));
             return TRUE;
         }
 

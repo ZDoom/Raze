@@ -2688,12 +2688,12 @@ ExtGetSpriteCaption(short spritenum)
             sprintf(tempbuf, "%s%s", p, multi_str);
         else
             sprintf(tempbuf, "%s%s%d,%d,%d,%d,%d,%d", p, multi_str,
-                    SPRITE_TAG1(spritenum),
-                    SPRITE_TAG2(spritenum),
-                    SPRITE_TAG3(spritenum),
-                    SPRITE_TAG4(spritenum),
-                    SPRITE_TAG5(spritenum),
-                    SPRITE_TAG6(spritenum));
+                    TrackerCast(SPRITE_TAG1(spritenum)),
+                    TrackerCast(SPRITE_TAG2(spritenum)),
+                    TrackerCast(SPRITE_TAG3(spritenum)),
+                    TrackerCast(SPRITE_TAG4(spritenum)),
+                    TrackerCast(SPRITE_TAG5(spritenum)),
+                    TrackerCast(SPRITE_TAG6(spritenum)));
         break;
 
     case CAPTION_ALL:
@@ -2704,12 +2704,12 @@ ExtGetSpriteCaption(short spritenum)
             sprintf(tempbuf, "%s%s", p, multi_str);
         else
             sprintf(tempbuf, "%s%s%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", p, multi_str,
-                    SPRITE_TAG1(spritenum),
-                    SPRITE_TAG2(spritenum),
-                    SPRITE_TAG3(spritenum),
-                    SPRITE_TAG4(spritenum),
-                    SPRITE_TAG5(spritenum),
-                    SPRITE_TAG6(spritenum),
+                    TrackerCast(SPRITE_TAG1(spritenum)),
+                    TrackerCast(SPRITE_TAG2(spritenum)),
+                    TrackerCast(SPRITE_TAG3(spritenum)),
+                    TrackerCast(SPRITE_TAG4(spritenum)),
+                    TrackerCast(SPRITE_TAG5(spritenum)),
+                    TrackerCast(SPRITE_TAG6(spritenum)),
                     SPRITE_TAG7(spritenum),
                     SPRITE_TAG8(spritenum),
                     SPRITE_TAG9(spritenum),
