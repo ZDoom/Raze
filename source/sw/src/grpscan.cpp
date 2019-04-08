@@ -67,7 +67,7 @@ static int LoadGroupsCache(void)
         if (scriptfile_getnumber(script, &fmtime)) break;   // modification time
         if (scriptfile_getnumber(script, &fcrcval)) break;  // crc checksum
 
-        fg = calloc(1, sizeof(struct grpcache));
+        fg = (struct grpcache*)calloc(1, sizeof(struct grpcache));
         fg->next = grpcache;
         grpcache = fg;
 

@@ -1151,7 +1151,7 @@ InitOrgTile(OrgTileListP thelist)
     OrgTileP tp;
 
 
-    tp = CallocMem(sizeof(OrgTile), 1);
+    tp = (OrgTileP)CallocMem(sizeof(OrgTile), 1);
 
     ASSERT(tp);
 

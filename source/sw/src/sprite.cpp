@@ -2384,15 +2384,15 @@ SpriteSetup(void)
                     for (w = startwall, wallcount = 0; w <= endwall; w++)
                         wallcount++;
 
-                    u->rotator = CallocMem(sizeof(ROTATOR), 1);
+                    u->rotator = (ROTATORp)CallocMem(sizeof(ROTATOR), 1);
                     u->rotator->num_walls = wallcount;
                     u->rotator->open_dest = SP_TAG5(sp);
                     u->rotator->speed = SP_TAG7(sp);
                     u->rotator->vel = SP_TAG8(sp);
                     u->rotator->pos = 0; // closed
                     u->rotator->tgt = u->rotator->open_dest; // closed
-                    u->rotator->origx = CallocMem(sizeof(u->rotator->origx) * wallcount, 1);
-                    u->rotator->origy = CallocMem(sizeof(u->rotator->origy) * wallcount, 1);
+                    u->rotator->origx = (int*)CallocMem(sizeof(u->rotator->origx) * wallcount, 1);
+                    u->rotator->origy = (int*)CallocMem(sizeof(u->rotator->origy) * wallcount, 1);
 
                     u->rotator->orig_speed = u->rotator->speed;
 
@@ -2444,7 +2444,7 @@ SpriteSetup(void)
                     u->WaitTics = time*15; // 1/8 of a sec
                     u->Tics = 0;
 
-                    u->rotator = CallocMem(sizeof(ROTATOR), 1);
+                    u->rotator = (ROTATORp)CallocMem(sizeof(ROTATOR), 1);
                     u->rotator->open_dest = SP_TAG5(sp);
                     u->rotator->speed = SP_TAG7(sp);
                     u->rotator->vel = SP_TAG8(sp);
@@ -2598,7 +2598,7 @@ SpriteSetup(void)
 
                     User[SpriteNum] = u = SpawnUser(SpriteNum, 0, NULL);
                     u->WallCount = wallcount;
-                    wall_shade = u->WallShade = CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
+                    wall_shade = u->WallShade = (int8_t*)CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
 
                     // save off original wall shades
                     for (w = startwall, wallcount = 0; w <= endwall; w++)
@@ -2654,7 +2654,7 @@ SpriteSetup(void)
                     // make an wall_shade array and put it in User
                     User[SpriteNum] = u = SpawnUser(SpriteNum, 0, NULL);
                     u->WallCount = wallcount;
-                    wall_shade = u->WallShade = CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
+                    wall_shade = u->WallShade = (int8_t*)CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
 
                     // save off original wall shades
                     for (w = startwall, wallcount = 0; w <= endwall; w++)

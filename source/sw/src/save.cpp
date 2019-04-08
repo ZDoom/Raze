@@ -849,7 +849,7 @@ int LoadGame(short save_num)
             if (ndx == -1)
                 break;
 
-            psp = CallocMem(sizeof(PANEL_SPRITE), 1);
+            psp = (PANEL_SPRITEp)CallocMem(sizeof(PANEL_SPRITE), 1);
             ASSERT(psp);
 
             MREAD(psp, sizeof(PANEL_SPRITE),1,fil);
@@ -918,23 +918,23 @@ int LoadGame(short save_num)
 
         if (u->WallShade)
         {
-            u->WallShade = CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
+            u->WallShade = (int8_t*)CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
             MREAD(u->WallShade,sizeof(*u->WallShade)*u->WallCount,1,fil);
         }
 
         if (u->rotator)
         {
-            u->rotator = CallocMem(sizeof(*u->rotator), 1);
+            u->rotator = (ROTATORp)CallocMem(sizeof(*u->rotator), 1);
             MREAD(u->rotator,sizeof(*u->rotator),1,fil);
 
             if (u->rotator->origx)
             {
-                u->rotator->origx = CallocMem(u->rotator->num_walls * sizeof(*u->rotator->origx), 1);
+                u->rotator->origx = (int*)CallocMem(u->rotator->num_walls * sizeof(*u->rotator->origx), 1);
                 MREAD(u->rotator->origx,sizeof(*u->rotator->origx)*u->rotator->num_walls,1,fil);
             }
             if (u->rotator->origy)
             {
-                u->rotator->origy = CallocMem(u->rotator->num_walls * sizeof(*u->rotator->origy), 1);
+                u->rotator->origy = (int*)CallocMem(u->rotator->num_walls * sizeof(*u->rotator->origy), 1);
                 MREAD(u->rotator->origy,sizeof(*u->rotator->origy)*u->rotator->num_walls,1,fil);
             }
         }
@@ -1117,7 +1117,7 @@ int LoadGame(short save_num)
             if (ndx == -1)
                 break;
 
-            otp = CallocMem(sizeof(*otp), 1);
+            otp = (OrgTileP)CallocMem(sizeof(*otp), 1);
             ASSERT(otp);
 
             MREAD(otp, sizeof(*otp),1,fil);

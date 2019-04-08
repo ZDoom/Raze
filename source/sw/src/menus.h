@@ -244,6 +244,8 @@ typedef enum
     uc_setup, uc_draw, uc_touchup, uc_hit
 } UserCall;
 
+struct MenuGroup;
+
 typedef struct MENU_ITEM
 {
     MenuTag type;                       // What kind of item is this on the
@@ -253,7 +255,7 @@ typedef struct MENU_ITEM
     BTNType button;                     // Button state, if any
     unsigned char hotkey;               // First letter of item
     const char *text;                   // Text appearing in item, if any.
-    void *child;                        // Should be menugroup, used to spawn
+    MenuGroup *child;                        // Should be menugroup, used to spawn
     // sub-groups from items.
     int x, y;                          // x,y position on screen.
     short pic;                        // Startpic to use
@@ -265,7 +267,7 @@ typedef struct MENU_ITEM
     SWBOOL (*postprocess)(struct MENU_ITEM *); // Can do things on items select
 } MenuItem, *MenuItem_p;
 
-typedef struct
+typedef struct MenuGroup
 {
     int x, y;                          // Menu x,y position on screen.
     const char *text;

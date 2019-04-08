@@ -7206,7 +7206,7 @@ pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, int x, int y)
 
     ASSERT(pp);
 
-    psp = CallocMem(sizeof(PANEL_SPRITE), 1);
+    psp = (PANEL_SPRITEp)CallocMem(sizeof(PANEL_SPRITE), 1);
 
     PRODUCTION_ASSERT(psp);
 

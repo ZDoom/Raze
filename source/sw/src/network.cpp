@@ -1463,7 +1463,7 @@ getpackets(void)
         {
             PACKET_RTSp p;
 
-            p = (void *)&packbuf[0];
+            p = (PACKET_RTSp)packbuf;
 
             PlaySoundRTS(p->RTSnum);
 
@@ -1483,7 +1483,7 @@ getpackets(void)
             //level_number //volume_number //player_skill //monsters_off //respawn_monsters
             //respawn_items //respawn_inventory //coop //marker //friendlyfire //boardname
 
-            p = (void *)&packbuf[0];
+            p = (PACKET_NEW_GAMEp)packbuf;
 
             ready2send = 0;
 
@@ -1544,7 +1544,7 @@ getpackets(void)
             PACKET_VERSIONp p;
 
             pp = Player + otherconnectindex;
-            p = (void *)&packbuf[0];
+            p = (PACKET_VERSIONp)packbuf;
 
             //tenDbLprintf(gTenLog, 3, "rcv pid %d version %lx", (int) otherconnectindex, (int) p->Version);
             pp->PlayerVersion = p->Version;
@@ -1556,7 +1556,7 @@ getpackets(void)
             PACKET_OPTIONSp p;
 
             pp = Player + otherconnectindex;
-            p = (void *)&packbuf[0];
+            p = (PACKET_OPTIONSp)packbuf;
 
             // auto run
             if (p->AutoRun)
@@ -1579,7 +1579,7 @@ getpackets(void)
         {
             PACKET_NAME_CHANGEp p;
             pp = Player + otherconnectindex;
-            p = (void *)&packbuf[0];
+            p = (PACKET_NAME_CHANGEp)packbuf;
 
             // someone else has changed their name
 

@@ -106,7 +106,7 @@ int32_t RTS_AddFile(char *filename)
     header.numlumps = B_LITTLE32(header.numlumps);
     header.infotableofs = B_LITTLE32(header.infotableofs);
     length = header.numlumps*sizeof(filelump_t);
-    fileinfo = fileinfoo = malloc(length);
+    fileinfo = fileinfoo = (filelump_t*)malloc(length);
     if (!fileinfo)
     {
         buildprintf("RTS file could not allocate header info\n");
@@ -119,7 +119,7 @@ int32_t RTS_AddFile(char *filename)
 //
 // Fill in lumpinfo
 //
-    lump_p = realloc(lumpinfo, (numlumps + header.numlumps)*sizeof(lumpinfo_t));
+    lump_p = (lumpinfo_t*)realloc(lumpinfo, (numlumps + header.numlumps)*sizeof(lumpinfo_t));
     if (!lump_p)
     {
         kclose(handle);
@@ -173,7 +173,7 @@ void RTS_Init(char *filename)
     // set up caching
     //
     length = (numlumps) * sizeof(*lumpcache);
-    lumpcache = Xmalloc(length);
+    lumpcache = (intptr_t*)Xmalloc(length);
     memset(lumpcache,0,length);
 }
 

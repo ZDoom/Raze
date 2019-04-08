@@ -200,7 +200,7 @@ PutStringTimer(PLAYERp pp, short x, short y, const char *string, short seconds)
         if (c > asc_Space && c < 127)
         {
             nsp = pSpawnFullViewSprite(pp, ac, PRI_FRONT_MAX, offset, y);
-            nsp->PanelSpriteFunc = func;
+            nsp->PanelSpriteFunc = (PANEL_SPRITE_FUNCp)func;
             nsp->kill_tics = kill_tics;
             nsp->ID = id;
             offset += tilesiz[ac].x;
