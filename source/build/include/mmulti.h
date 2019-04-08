@@ -19,6 +19,25 @@ extern unsigned char syncstate;
 int initmultiplayersparms(int argc, char const * const * argv);
 int initmultiplayerscycle(void);
 void initmultiplayers(int argc, char const * const * argv, unsigned char damultioption, unsigned char dacomrateoption, unsigned char dapriority);
+#else
+static inline int initmultiplayersparms(int argc, char const * const * argv)
+{
+    UNREFERENCED_PARAMETER(argc);
+    UNREFERENCED_PARAMETER(argv);
+    return 0;
+}
+static inline int initmultiplayerscycle(void)
+{
+    return 0;
+}
+static inline void initmultiplayers(int argc, char const * const * argv, unsigned char damultioption, unsigned char dacomrateoption, unsigned char dapriority)
+{
+    UNREFERENCED_PARAMETER(argc);
+    UNREFERENCED_PARAMETER(argv);
+    UNREFERENCED_PARAMETER(damultioption);
+    UNREFERENCED_PARAMETER(dacomrateoption);
+    UNREFERENCED_PARAMETER(dapriority);
+}
 #endif
 
 void setpackettimeout(int datimeoutcount, int daresendagaincount);
