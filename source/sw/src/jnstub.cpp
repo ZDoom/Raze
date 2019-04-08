@@ -674,6 +674,11 @@ const char *ExtGetVer(void)
     return s_buildRev;
 }
 
+void ExtSetupMapFilename(const char *mapname)
+{
+    UNREFERENCED_PARAMETER(mapname);
+}
+
 int32_t ExtPreInit(int32_t argc,char const * const * argv)
 {
     UNREFERENCED_PARAMETER(argc);
@@ -3780,3 +3785,82 @@ BuildStagTable(void)
 #include "stag.h"
 #undef  MAKE_STAG_TABLE
 }
+
+#include "m32script.h"
+
+void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); }
+void G_Polymer_UnInit(void) { }
+void SetGamePalette(int32_t j) { UNREFERENCED_PARAMETER(j); }
+
+int32_t AmbienceToggle, MixRate, ParentalLock;
+
+int32_t taglab_linktags(int32_t spritep, int32_t num)
+{
+    int32_t link = 0;
+
+    g_iReturnVar = link;
+    VM_OnEvent(EVENT_LINKTAGS, spritep ? num : -1);
+    link = g_iReturnVar;
+
+    return link;
+}
+
+int32_t taglab_getnextfreetag(int32_t *duetoptr)
+{
+    int32_t i, nextfreetag=1;
+    int32_t obj = -1;
+
+    for (i=0; i<MAXSPRITES; i++)
+    {
+        int32_t tag;
+
+        if (sprite[i].statnum == MAXSTATUS)
+            continue;
+
+        tag = select_sprite_tag(i);
+
+        if (tag != INT32_MIN && nextfreetag <= tag)
+        {
+            nextfreetag = tag+1;
+            obj = 32768 + i;
+        }
+    }
+
+    for (i=0; i<numwalls; i++)
+    {
+        int32_t lt = taglab_linktags(0, i);
+
+        if ((lt&1) && nextfreetag <= wall[i].lotag)
+            nextfreetag = wall[i].lotag+1, obj = i;
+        if ((lt&2) && nextfreetag <= wall[i].hitag)
+            nextfreetag = wall[i].hitag+1, obj = i;
+    }
+
+    if (duetoptr != NULL)
+        *duetoptr = obj;
+
+    if (nextfreetag < 32768)
+        return nextfreetag;
+
+    return 0;
+}
+
+int32_t S_InvalidSound(int32_t num) {
+    UNREFERENCED_PARAMETER(num); return 1;
+};
+int32_t S_CheckSoundPlaying(int32_t i, int32_t num) {
+    UNREFERENCED_PARAMETER(i); UNREFERENCED_PARAMETER(num); return 0;
+};
+int32_t S_SoundsPlaying(int32_t i) {
+    UNREFERENCED_PARAMETER(i); return -1;
+}
+int32_t S_SoundFlags(int32_t num) {
+    UNREFERENCED_PARAMETER(num); return 0;
+};
+int32_t A_PlaySound(uint32_t num, int32_t i) {
+    UNREFERENCED_PARAMETER(num); UNREFERENCED_PARAMETER(i); return 0;
+};
+void S_StopSound(int32_t num) {
+    UNREFERENCED_PARAMETER(num);
+};
+void S_StopAllSounds(void) { }
