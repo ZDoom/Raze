@@ -30,13 +30,13 @@
 
 #include "grpscan.h"
 
-struct grpfile grpfiles[numgrpfiles] =
+grpfile grpfiles[numgrpfiles] =
 {
     { "Registered Version",     0x7545319F, 47536148, NULL },
     { "Shareware Version",      0x08A7FA1F, 26056769, NULL },
     { "Wanton Destruction (Addon)", 0xA9AAA7B7, 48698128, NULL },
 };
-struct grpfile *foundgrps = NULL;
+grpfile *foundgrps = NULL;
 
 #define GRPCACHEFILE "grpfiles.cache"
 static struct grpcache
