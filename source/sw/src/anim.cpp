@@ -283,6 +283,12 @@ playanm(short anim_num)
     if (!animbuf)
         return;
 
+    // [JM] Temporary, needed to get the file's length for ANIM_LoadAnim. !CHECKME!
+    handle = kopen4load(ANIMname[ANIMnum], 0);
+    if (handle == -1) return;
+    length = kfilelength(handle);
+    kclose(handle);
+
     DSPRINTF(ds,"PlayAnm - Palette Stuff");
     MONO_PRINT(ds);
 
@@ -290,7 +296,7 @@ playanm(short anim_num)
         tempbuf[i] = i;
     palookup[0] = tempbuf;
 
-    ANIM_LoadAnim(animbuf);
+    ANIM_LoadAnim(animbuf, length);
     ANIMnumframes = ANIM_NumFrames();
     numframes = ANIMnumframes;
 
