@@ -1,0 +1,383 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{B50E2B28-C3E0-453F-B652-657E7D957E51}</ProjectGuid>
+    <RootNamespace>voidsw</RootNamespace>
+    <Keyword>MakeFileProj</Keyword>
+    <PlatformToolset>v141</PlatformToolset>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="props\build_x64.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="props\build_x64.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="props\build_x86.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="props\build_x86.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <ConfigurationType>Application</ConfigurationType>
+    <OutDir>$(SolutionDir)..\..\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
+    <NMakeIncludeSearchPath>$(NMakeIncludeSearchPath);..\..\source\build\include;..\..\source\mact\include;..\..\source\audiolib\include;..\..\source\enet\include;..\..\platform\windows\include</NMakeIncludeSearchPath>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">USE_OPENGL;POLYMER;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak veryclean all WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak veryclean WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">USE_OPENGL;POLYMER;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">USE_OPENGL;POLYMER;NOASM;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak veryclean all WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">USE_OPENGL;POLYMER;NOASM;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <EmbedManifest>false</EmbedManifest>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <EmbedManifest>false</EmbedManifest>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Link>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <WarningLevel>Level1</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <Optimization>Disabled</Optimization>
+      <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Link>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WarningLevel>Level1</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <OmitFramePointers>false</OmitFramePointers>
+      <WarningLevel>Level1</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <Optimization>Disabled</Optimization>
+      <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WarningLevel>Level1</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\source\duke3d\src\midi.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\mpu401.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\music.cpp" />
+    <ClCompile Include="..\..\source\sw\rsrc\game_icon.c" />
+    <ClCompile Include="..\..\source\sw\src\actor.cpp" />
+    <ClCompile Include="..\..\source\sw\src\ai.cpp" />
+    <ClCompile Include="..\..\source\sw\src\anim.cpp" />
+    <ClCompile Include="..\..\source\sw\src\bldscript.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\sw\src\border.cpp" />
+    <ClCompile Include="..\..\source\sw\src\break.cpp" />
+    <ClCompile Include="..\..\source\sw\src\brooms.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\sw\src\bunny.cpp" />
+    <ClCompile Include="..\..\source\sw\src\cache.cpp" />
+    <ClCompile Include="..\..\source\sw\src\cheats.cpp" />
+    <ClCompile Include="..\..\source\sw\src\colormap.cpp" />
+    <ClCompile Include="..\..\source\sw\src\common.cpp" />
+    <ClCompile Include="..\..\source\sw\src\config.cpp" />
+    <ClCompile Include="..\..\source\sw\src\console.cpp" />
+    <ClCompile Include="..\..\source\sw\src\coolg.cpp" />
+    <ClCompile Include="..\..\source\sw\src\coolie.cpp" />
+    <ClCompile Include="..\..\source\sw\src\copysect.cpp" />
+    <ClCompile Include="..\..\source\sw\src\demo.cpp" />
+    <ClCompile Include="..\..\source\sw\src\draw.cpp" />
+    <ClCompile Include="..\..\source\sw\src\eel.cpp" />
+    <ClCompile Include="..\..\source\sw\src\game.cpp" />
+    <ClCompile Include="..\..\source\sw\src\girlninj.cpp" />
+    <ClCompile Include="..\..\source\sw\src\goro.cpp" />
+    <ClCompile Include="..\..\source\sw\src\grpscan.cpp" />
+    <ClCompile Include="..\..\source\sw\src\hornet.cpp" />
+    <ClCompile Include="..\..\source\sw\src\interp.cpp" />
+    <ClCompile Include="..\..\source\sw\src\interpsh.cpp" />
+    <ClCompile Include="..\..\source\sw\src\inv.cpp" />
+    <ClCompile Include="..\..\source\sw\src\jbhlp.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\sw\src\jnstub.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\sw\src\jplayer.cpp" />
+    <ClCompile Include="..\..\source\sw\src\jsector.cpp" />
+    <ClCompile Include="..\..\source\sw\src\jweapon.cpp" />
+    <ClCompile Include="..\..\source\sw\src\lava.cpp" />
+    <ClCompile Include="..\..\source\sw\src\light.cpp" />
+    <ClCompile Include="..\..\source\sw\src\mclip.cpp" />
+    <ClCompile Include="..\..\source\sw\src\mdastr.cpp" />
+    <ClCompile Include="..\..\source\sw\src\menus.cpp" />
+    <ClCompile Include="..\..\source\sw\src\miscactr.cpp" />
+    <ClCompile Include="..\..\source\sw\src\morph.cpp" />
+    <ClCompile Include="..\..\source\sw\src\net.cpp" />
+    <ClCompile Include="..\..\source\sw\src\ninja.cpp" />
+    <ClCompile Include="..\..\source\sw\src\panel.cpp" />
+    <ClCompile Include="..\..\source\sw\src\player.cpp" />
+    <ClCompile Include="..\..\source\sw\src\predict.cpp" />
+    <ClCompile Include="..\..\source\sw\src\quake.cpp" />
+    <ClCompile Include="..\..\source\sw\src\ripper.cpp" />
+    <ClCompile Include="..\..\source\sw\src\ripper2.cpp" />
+    <ClCompile Include="..\..\source\sw\src\rooms.cpp" />
+    <ClCompile Include="..\..\source\sw\src\rotator.cpp" />
+    <ClCompile Include="..\..\source\sw\src\rts.cpp" />
+    <ClCompile Include="..\..\source\sw\src\save.cpp" />
+    <ClCompile Include="..\..\source\sw\src\saveable.cpp" />
+    <ClCompile Include="..\..\source\sw\src\scrip2.cpp" />
+    <ClCompile Include="..\..\source\sw\src\sector.cpp" />
+    <ClCompile Include="..\..\source\sw\src\serp.cpp" />
+    <ClCompile Include="..\..\source\sw\src\setup.cpp" />
+    <ClCompile Include="..\..\source\sw\src\skel.cpp" />
+    <ClCompile Include="..\..\source\sw\src\skull.cpp" />
+    <ClCompile Include="..\..\source\sw\src\slidor.cpp" />
+    <ClCompile Include="..\..\source\sw\src\sounds.cpp" />
+    <ClCompile Include="..\..\source\sw\src\spike.cpp" />
+    <ClCompile Include="..\..\source\sw\src\sprite.cpp" />
+    <ClCompile Include="..\..\source\sw\src\startgtk.game.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\sw\src\startwin.game.cpp" />
+    <ClCompile Include="..\..\source\sw\src\sumo.cpp" />
+    <ClCompile Include="..\..\source\sw\src\swconfig.cpp" />
+    <ClCompile Include="..\..\source\sw\src\sync.cpp" />
+    <ClCompile Include="..\..\source\sw\src\text.cpp" />
+    <ClCompile Include="..\..\source\sw\src\track.cpp" />
+    <ClCompile Include="..\..\source\sw\src\vator.cpp" />
+    <ClCompile Include="..\..\source\sw\src\vis.cpp" />
+    <ClCompile Include="..\..\source\sw\src\wallmove.cpp" />
+    <ClCompile Include="..\..\source\sw\src\warp.cpp" />
+    <ClCompile Include="..\..\source\sw\src\weapon.cpp" />
+    <ClCompile Include="..\..\source\sw\src\zilla.cpp" />
+    <ClCompile Include="..\..\source\sw\src\zombie.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="audiolib.vcxproj">
+      <Project>{0029c61b-b63d-4e61-99f2-f4e49aabfc47}</Project>
+    </ProjectReference>
+    <ProjectReference Include="build.vcxproj">
+      <Project>{dbecb851-5624-4fa8-9a9d-7169d0f12ff1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="enet.vcxproj">
+      <Project>{a68cc5e4-567a-44c8-94fe-c1de09aeeb40}</Project>
+    </ProjectReference>
+    <ProjectReference Include="glad.vcxproj">
+      <Project>{6ac1d997-8dae-4343-8dd8-da2a1ca63212}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libxmp-lite.vcxproj">
+      <Project>{32d4cf70-a3d6-4cea-81d7-64c743980276}</Project>
+    </ProjectReference>
+    <ProjectReference Include="mact.vcxproj">
+      <Project>{bcde1852-e2c6-4abb-84fb-5cd431764a9a}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\source\sw\rsrc\gameres.rc">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions);POLYMER=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions);POLYMER=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions);POLYMER=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions);POLYMER=1</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="voidsw.exe.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\source\audiolib\include\music.h" />
+    <ClInclude Include="..\..\source\duke3d\src\midi.h" />
+    <ClInclude Include="..\..\source\duke3d\src\mpu401.h" />
+    <ClInclude Include="..\..\source\sw\src\actor.h" />
+    <ClInclude Include="..\..\source\sw\src\ai.h" />
+    <ClInclude Include="..\..\source\sw\src\ambient.h" />
+    <ClInclude Include="..\..\source\sw\src\anim.h" />
+    <ClInclude Include="..\..\source\sw\src\bots.h" />
+    <ClInclude Include="..\..\source\sw\src\break.h" />
+    <ClInclude Include="..\..\source\sw\src\cache.h" />
+    <ClInclude Include="..\..\source\sw\src\colormap.h" />
+    <ClInclude Include="..\..\source\sw\src\common_game.h" />
+    <ClInclude Include="..\..\source\sw\src\config.h" />
+    <ClInclude Include="..\..\source\sw\src\conpic.h" />
+    <ClInclude Include="..\..\source\sw\src\damage.h" />
+    <ClInclude Include="..\..\source\sw\src\demo.h" />
+    <ClInclude Include="..\..\source\sw\src\digi.h" />
+    <ClInclude Include="..\..\source\sw\src\function.h" />
+    <ClInclude Include="..\..\source\sw\src\game.h" />
+    <ClInclude Include="..\..\source\sw\src\gamedefs.h" />
+    <ClInclude Include="..\..\source\sw\src\GameListSource.game.h" />
+    <ClInclude Include="..\..\source\sw\src\GrpFile.game.h" />
+    <ClInclude Include="..\..\source\sw\src\grpscan.h" />
+    <ClInclude Include="..\..\source\sw\src\interp.h" />
+    <ClInclude Include="..\..\source\sw\src\inv.h" />
+    <ClInclude Include="..\..\source\sw\src\jnames.h" />
+    <ClInclude Include="..\..\source\sw\src\jsector.h" />
+    <ClInclude Include="..\..\source\sw\src\jtags.h" />
+    <ClInclude Include="..\..\source\sw\src\keys.h" />
+    <ClInclude Include="..\..\source\sw\src\light.h" />
+    <ClInclude Include="..\..\source\sw\src\lists.h" />
+    <ClInclude Include="..\..\source\sw\src\mclip.h" />
+    <ClInclude Include="..\..\source\sw\src\menus.h" />
+    <ClInclude Include="..\..\source\sw\src\mfile.h" />
+    <ClInclude Include="..\..\source\sw\src\mytypes.h" />
+    <ClInclude Include="..\..\source\sw\src\names.h" />
+    <ClInclude Include="..\..\source\sw\src\names2.h" />
+    <ClInclude Include="..\..\source\sw\src\net.h" />
+    <ClInclude Include="..\..\source\sw\src\ninja.h" />
+    <ClInclude Include="..\..\source\sw\src\pal.h" />
+    <ClInclude Include="..\..\source\sw\src\panel.h" />
+    <ClInclude Include="..\..\source\sw\src\parent.h" />
+    <ClInclude Include="..\..\source\sw\src\parse.h" />
+    <ClInclude Include="..\..\source\sw\src\player.h" />
+    <ClInclude Include="..\..\source\sw\src\quake.h" />
+    <ClInclude Include="..\..\source\sw\src\reserve.h" />
+    <ClInclude Include="..\..\source\sw\src\rts.h" />
+    <ClInclude Include="..\..\source\sw\src\saveable.h" />
+    <ClInclude Include="..\..\source\sw\src\savedef.h" />
+    <ClInclude Include="..\..\source\sw\src\sector.h" />
+    <ClInclude Include="..\..\source\sw\src\settings.h" />
+    <ClInclude Include="..\..\source\sw\src\slidor.h" />
+    <ClInclude Include="..\..\source\sw\src\sounds.h" />
+    <ClInclude Include="..\..\source\sw\src\sprite.h" />
+    <ClInclude Include="..\..\source\sw\src\stag.h" />
+    <ClInclude Include="..\..\source\sw\src\startwin.game.h" />
+    <ClInclude Include="..\..\source\sw\src\sw_strs.h" />
+    <ClInclude Include="..\..\source\sw\src\tags.h" />
+    <ClInclude Include="..\..\source\sw\src\text.h" />
+    <ClInclude Include="..\..\source\sw\src\track.h" />
+    <ClInclude Include="..\..\source\sw\src\trigger.h" />
+    <ClInclude Include="..\..\source\sw\src\vis.h" />
+    <ClInclude Include="..\..\source\sw\src\warp.h" />
+    <ClInclude Include="..\..\source\sw\src\weapon.h" />
+    <ClInclude Include="..\..\source\sw\src\_config.h" />
+    <ClInclude Include="..\..\source\sw\src\_functio.h" />
+    <ClInclude Include="..\..\source\sw\src\_rts.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
