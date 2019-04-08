@@ -171,7 +171,7 @@ int SaveSymDataInfo(MFILE_WRITE fil, void *ptr)
 
     return 0;
 }
-int SaveSymCodeInfo(MFILE_WRITE fil, void *ptr)
+static int SaveSymCodeInfo_raw(MFILE_WRITE fil, void *ptr)
 {
     savedcodesym sym;
 
@@ -191,6 +191,11 @@ int SaveSymCodeInfo(MFILE_WRITE fil, void *ptr)
     MWRITE(&sym, sizeof(sym), 1, fil);
 
     return 0;
+}
+template <typename T>
+static int SaveSymCodeInfo(MFILE_WRITE fil, T * ptr)
+{
+    return SaveSymCodeInfo_raw(fil, (void *)ptr);
 }
 
 int LoadSymDataInfo(MFILE_READ fil, void **ptr)
