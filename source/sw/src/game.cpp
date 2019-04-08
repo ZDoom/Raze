@@ -3475,7 +3475,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
     OSD_SetLogFile(APPBASENAME ".log");
 
     {
-        char *supportdir = Bgetsupportdir(TRUE);
+        //char *supportdir = Bgetsupportdir(TRUE);
         char *appdir = Bgetappdir();
         char dirpath[BMAX_PATH+1];
 
@@ -3487,19 +3487,23 @@ int32_t app_main(int32_t argc, char const * const * argv)
         }
 
         // the global support files directory
+#if 0 // [JM] ifdef'd out for now. !CHECKME!
         if (supportdir)
         {
             Bsnprintf(dirpath, sizeof(dirpath), "%s/JFShadowWarrior", supportdir);
             addsearchpath(dirpath);
             free(supportdir);
         }
+#endif
     }
 
     // default behaviour is to write to the user profile directory, but
     // creating a 'user_profiles_disabled' file in the current working
     // directory where the game was launched makes the installation
     // "portable" by writing into the working directory
+#if 0 // [JM] ifdef'd out for now. !CHECKME!
     if (access("user_profiles_disabled", F_OK) == 0)
+#endif
     {
         char cwd[BMAX_PATH+1];
         if (getcwd(cwd, sizeof(cwd)))
@@ -3507,6 +3511,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
             addsearchpath(cwd);
         }
     }
+#if 0 // [JM] ifdef'd out for now. !CHECKME!
     else
     {
         char *supportdir;
@@ -3541,6 +3546,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
             free(supportdir);
         }
     }
+#endif
 
     OSD_SetLogFile("sw.log");
 
