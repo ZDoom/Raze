@@ -955,7 +955,6 @@ int AutoBreakSprite(short BreakSprite, short type)
     SPRITEp bp = &sprite[BreakSprite];
     BREAK_INFOp break_info;
     extern void DoWallBreakMatch(short match);
-    int SpawnBreakFlames(int16_t SpriteNum);
 
     break_info = FindSpriteBreakInfo(bp->picnum);
 

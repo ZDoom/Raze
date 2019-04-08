@@ -10948,12 +10948,10 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
 
 int
-SpawnBreakFlames(int16_t SpriteNum, int16_t enemy)
+SpawnBreakFlames(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    SPRITEp ep = &sprite[enemy];
-    USERp eu = User[enemy];
     SPRITEp np;
     USERp nu;
     short New;

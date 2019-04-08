@@ -138,7 +138,6 @@ char PlayerGravity = PLAYER_JUMP_GRAV;
 #endif
 
 int vel, svel, angvel;
-extern char tempbuf[];
 extern SWBOOL DebugOperate;
 
 //unsigned char synctics, lastsynctics;
@@ -5058,8 +5057,6 @@ DoPlayerWarpToSurface(PLAYERp pp)
 void
 DoPlayerDivePalette(PLAYERp pp)
 {
-    extern char DefaultPalette[];
-
     if (pp != Player + screenpeek) return;
 
     if ((pp->DeathType == PLAYER_DEATH_DROWN || TEST((Player+screenpeek)->Flags, PF_DIVING)) && !TEST(pp->Flags, PF_DIVING_IN_LAVA))
@@ -5220,7 +5217,6 @@ DoPlayerStopDive(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     SPRITEp sp = &sprite[pp->PlayerSprite];
-    extern char DefaultPalette[];
 
     if (Prediction)
         return;
@@ -6398,8 +6394,6 @@ char *KilledPlayerMessage(PLAYERp pp, PLAYERp killer)
     short rnd = STD_RANDOM_RANGE(MAX_KILL_NOTES);
     char *p1 = pp->PlayerName;
     char *p2 = killer->PlayerName;
-
-    extern char *DeathString(short SpriteNum);
 
     if (pp->HitBy == killer->PlayerSprite)
     {

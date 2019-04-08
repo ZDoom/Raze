@@ -80,7 +80,6 @@ void ResetMenuInput(void);
     )
 
 extern SWBOOL BorderAdjust;
-extern int FXDevice,MusicDevice;
 extern SWBOOL MultiPlayQuitFlag;
 
 // Make memcpy an intrinsic function for an easy frame rate boost

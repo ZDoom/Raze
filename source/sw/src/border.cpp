@@ -417,7 +417,6 @@ void DrawPanelBorderSides(PLAYERp pp, short x, short y, short x2, short y2, shor
 static
 void BorderSetView(PLAYERp UNUSED(pp), int *Xdim, int *Ydim, int *ScreenSize)
 {
-    void setview(int scrx1, int scry1, int scrx2, int scry2);
     int x, x2, y, y2;
     BORDER_INFO *b;
 

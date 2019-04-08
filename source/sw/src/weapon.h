@@ -82,6 +82,8 @@ int DoShrapVelocity(int16_t SpriteNum);
 int ShrapKillSprite(short SpriteNum);
 SWBOOL MissileSetPos(short Weapon,ANIMATORp DoWeapon,int dist);
 int ActorPain(short SpriteNum);
+int SpawnBreakFlames(int16_t SpriteNum);
+const char *DeathString(short SpriteNum);
 
 //
 // Damage Amounts defined in damage.h

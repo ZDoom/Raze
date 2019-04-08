@@ -57,7 +57,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 static int OverlapDraw = FALSE;
 extern SWBOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo, PauseKeySet;
 extern SWBOOL Voxel;
-extern char tempbuf[];
 extern char buffer[];
 SWBOOL DrawScreen;
 extern short f_c;
@@ -1388,8 +1387,8 @@ void PrintLocationInfo(PLAYERp pp)
         i = totalclock;
         if (i != frameval[framecnt])
         {
-            sprintf(tempbuf, "FPS: %d", ((120 * AVERAGEFRAMES) / (i - frameval[framecnt])) + f_c);
-            printext256(x, y, 1, -1, tempbuf, 1);
+            sprintf(buffer, "FPS: %d", ((120 * AVERAGEFRAMES) / (i - frameval[framecnt])) + f_c);
+            printext256(x, y, 1, -1, buffer, 1);
             frameval[framecnt] = i;
         }
 
@@ -1541,9 +1540,6 @@ void SpriteSortList2D(int tx, int ty)
 
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp)
 {
-    extern int ScreenHeight, ScreenWidth, ScreenMode, ScreenBPP;
-
-
     ScreenHeight = ydim;
     ScreenWidth  = xdim;
     ScreenMode   = mode;

@@ -62,7 +62,7 @@ SYNC BUG NOTES:
 
 //#undef MAXSYNCBYTES
 //#define MAXSYNCBYTES 16
-uint8_t tempbuf[576], packbuf[576];
+static uint8_t tempbuf[576], packbuf[576];
 int PlayClock;
 extern SWBOOL PauseKeySet;
 extern char CommPlayerName[32];

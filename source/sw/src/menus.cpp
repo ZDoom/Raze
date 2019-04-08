@@ -122,7 +122,6 @@ short buttonsettings[btn_max];
 // EXTERNS ////////////////////////////
 #define XDIM    320
 #define YDIM    200
-extern char DefaultPalette[];
 extern SWBOOL QuitFlag;
 
 void TerminateGame(void);

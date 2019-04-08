@@ -3155,7 +3155,6 @@ void initlava(void)
 #if 0
     int x, y, z, r;
     int i;
-    extern char tempbuf[];
 
 //char lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2)], lavainc[LAVASIZ];
 //int lavanumdrops, lavanumframes;

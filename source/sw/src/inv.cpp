@@ -563,7 +563,6 @@ static char sectorfloorpals[MAXSECTORS], sectorceilingpals[MAXSECTORS], wallpals
 void
 DoPlayerNightVisionPalette(PLAYERp pp)
 {
-    extern char DefaultPalette[];
     short i;
 
     if (pp->InventoryActive[INVENTORY_NIGHT_VISION] && (pp - Player == screenpeek))
@@ -611,8 +610,6 @@ DoPlayerNightVisionPalette(PLAYERp pp)
 void
 DoPlayerNightVisionPalette(PLAYERp pp)
 {
-    extern char DefaultPalette[];
-
     if (pp != Player + screenpeek) return;
 
     if (pp->InventoryActive[INVENTORY_NIGHT_VISION])
