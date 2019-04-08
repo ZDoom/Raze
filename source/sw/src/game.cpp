@@ -3812,8 +3812,8 @@ int32_t app_main(int32_t argc, char const * const * argv)
             if (strlen(arg) > 1)
                 Skill = atoi(&arg[1])-1;
 
-            Skill = max(Skill,0);
-            Skill = min(Skill,3);
+            Skill = max(Skill,short(0));
+            Skill = min(Skill,short(3));
         }
         else if (Bstrncasecmp(arg, "commbat", 7) == 0)
         {

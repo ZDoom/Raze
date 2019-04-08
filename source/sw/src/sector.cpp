@@ -162,10 +162,10 @@ WallSetup(void)
             wall[i].picnum = FAF_MIRROR_PIC+1;
 
         // get map min and max coordinates
-        x_min_bound = min(wp->x, x_min_bound);
-        y_min_bound = min(wp->y, y_min_bound);
-        x_max_bound = max(wp->x, x_max_bound);
-        y_max_bound = max(wp->y, y_max_bound);
+        x_min_bound = min(TrackerCast(wp->x), x_min_bound);
+        y_min_bound = min(TrackerCast(wp->y), y_min_bound);
+        x_max_bound = max(TrackerCast(wp->x), x_max_bound);
+        y_max_bound = max(TrackerCast(wp->y), y_max_bound);
 
         // this overwrites the lotag so it needs to be called LAST - its down there
         // SetupWallForBreak(wp);

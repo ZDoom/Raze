@@ -7278,7 +7278,7 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
 
     bobvel = FindDistance2D(pp->xvect, pp->yvect) >> 15;
     bobvel = bobvel + DIV4(bobvel);
-    bobvel = min(bobvel, 128);
+    bobvel = min(bobvel, short(128));
 
     if (condition)
     {

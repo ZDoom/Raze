@@ -3636,8 +3636,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_MOUSESENSEMAX-1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_MOUSESENSEMAX-1));
 
         slidersettings[sldr_mouse] = offset;
 
@@ -3652,8 +3652,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_SNDFXVOLMAX-1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_SNDFXVOLMAX-1));
 
         slidersettings[sldr_sndfxvolume] = offset;
         gs.SoundVolume = FX_MIN + (offset * VOL_MUL);
@@ -3666,8 +3666,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_MUSICVOLMAX-1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_MUSICVOLMAX-1));
 
         slidersettings[sldr_musicvolume] = offset;
         gs.MusicVolume = MUSIC_MIN + (offset * VOL_MUL);
@@ -3689,8 +3689,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         ////DSPRINTF(ds,"BorderNum %d",gs.BorderNum);
         //MONO_PRINT(ds);
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_SCRSIZEMAX - 1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_SCRSIZEMAX - 1));
 
         bnum = offset;
 
@@ -3712,8 +3712,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_BRIGHTNESSMAX - 1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_BRIGHTNESSMAX - 1));
         slidersettings[sldr_brightness] = offset;
 
         if (gs.Brightness != offset)
@@ -3730,8 +3730,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_BORDERTILEMAX - 1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_BORDERTILEMAX - 1));
         slidersettings[sldr_bordertile] = offset;
 
         if (gs.BorderTile != offset)
@@ -3749,8 +3749,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_GAMETYPEMAX - 1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_GAMETYPEMAX - 1));
         slidersettings[sldr_gametype] = offset;
 
         extra_text = gametype[offset];
@@ -3767,8 +3767,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_NETLEVELMAX - 1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_NETLEVELMAX - 1));
         slidersettings[sldr_netlevel] = offset;
 
         // Show the currently selected level on next line
@@ -3786,8 +3786,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_MONSTERSMAX - 1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_MONSTERSMAX - 1));
         slidersettings[sldr_monsters] = offset;
 
         extra_text = monsterskills[offset];
@@ -3802,8 +3802,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_KILLLIMITMAX - 1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_KILLLIMITMAX - 1));
         slidersettings[sldr_killlimit] = offset;
 
         if (offset == 0)
@@ -3826,8 +3826,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_TIMELIMITMAX - 1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_TIMELIMITMAX - 1));
         slidersettings[sldr_timelimit] = offset;
 
         if (offset == 0)
@@ -3850,8 +3850,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, SLDR_PLAYERCOLORMAX - 1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(SLDR_PLAYERCOLORMAX - 1));
         slidersettings[sldr_playercolor] = offset;
 
         extra_text = playercolors[offset];
@@ -3913,8 +3913,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, barwidth-1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(barwidth-1));
 
         if (slidersettings[item->slider] != offset)
         {
@@ -3934,8 +3934,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, barwidth-1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(barwidth-1));
 
         if (slidersettings[item->slider] != offset)
         {
@@ -3958,8 +3958,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, barwidth-1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(barwidth-1));
 
         if (slidersettings[item->slider] != offset)
         {
@@ -3983,8 +3983,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (TEST(item->flags, mf_disabled))
             break;
 
-        offset = max(offset, 0);
-        offset = min(offset, barwidth-1);
+        offset = max(offset, short(0));
+        offset = min(offset, short(barwidth-1));
 
         if (slidersettings[item->slider] != offset)
         {
@@ -4024,7 +4024,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
     knobx = x;
 
     // Draw the in between sections
-    for (i = 0; i < min(barwidth,MAX_SLDR_WIDTH); i++)
+    for (i = 0; i < min(barwidth, short(MAX_SLDR_WIDTH)); i++)
     {
         rotatesprite(x << 16, y << 16, MZ, 0, pic_slidebar, shade, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
         x += tilesiz[pic_slidebar].x;

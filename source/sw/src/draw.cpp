@@ -448,8 +448,8 @@ DoShadows(uspritetype * tsp, int viewz)
 
     xrepeat = max(xrepeat - ground_dist - view_dist, 4);
     yrepeat = max(yrepeat - ground_dist - view_dist, 4);
-    xrepeat = min(xrepeat, 255);
-    yrepeat = min(yrepeat, 255);
+    xrepeat = min(xrepeat, short(255));
+    yrepeat = min(yrepeat, short(255));
 
     New->xrepeat = xrepeat;
     New->yrepeat = yrepeat;
