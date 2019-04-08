@@ -141,7 +141,7 @@ int ScanGroups(void)
 
         {
             int b, fh;
-            unsigned int crcval;
+            unsigned int crcval = 0;
             unsigned char buf[16*512];
 
             fh = openfrompath(sidx->name, BO_RDONLY|BO_BINARY, BS_IREAD);
@@ -149,14 +149,12 @@ int ScanGroups(void)
             if (fstat(fh, &st)) continue;
 
             buildprintf(" Checksumming %s...", sidx->name);
-            crc32init(&crcval);
             do
             {
                 b = read(fh, buf, sizeof(buf));
-                if (b > 0) crc32block(&crcval, buf, b);
+                if (b > 0) crcval = Bcrc32(buf, b, crcval);
             }
             while (b == sizeof(buf));
-            crc32finish(&crcval);
             close(fh);
             buildputs(" Done\n");
 
