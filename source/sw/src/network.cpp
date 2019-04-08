@@ -111,7 +111,7 @@ SW_AVERAGE_PACKET AveragePacket;
 uint8_t syncstat[MAXSYNCBYTES];
 //int syncvalhead[MAX_SW_PLAYERS];
 int syncvaltail, syncvaltottail;
-void GetSyncInfoFromPacket(uint8_t* packbuf, int packbufleng, int *j, int otherconnectindex);
+void GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int otherconnectindex);
 
 // when you set totalclock to 0 also set this one
 int ototalclock;
