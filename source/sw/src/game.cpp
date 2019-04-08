@@ -3472,6 +3472,8 @@ int32_t app_main(int32_t argc, char const * const * argv)
     }
 #endif
 
+    OSD_SetLogFile(APPBASENAME ".log");
+
     {
         char *supportdir = Bgetsupportdir(TRUE);
         char *appdir = Bgetappdir();

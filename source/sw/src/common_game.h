@@ -44,6 +44,10 @@ extern "C" {
 //
 //****************************************************************************
 
+#ifndef APPBASENAME
+#define APPBASENAME         "voidsw"
+#endif
+
 //
 // Color Defines
 //
