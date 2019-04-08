@@ -1166,8 +1166,11 @@ GetDeltaAngle(short ang1, short ang2)
 TARGET_SORT TargetSort[MAX_TARGET_SORT];
 unsigned TargetSortCount;
 
-int CompareTarget(TARGET_SORTp tgt1, TARGET_SORTp tgt2)
+static int CompareTarget(void const * a, void const * b)
 {
+    auto tgt1 = (TARGET_SORT const *)a;
+    auto tgt2 = (TARGET_SORT const *)b;
+
     // will return a number less than 0 if tgt1 < tgt2
     return tgt2->weight - tgt1->weight;
 }
@@ -1294,7 +1297,7 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets)
     }
 
     if (TargetSortCount > 1)
-        qsort(&TargetSort,TargetSortCount,sizeof(TARGET_SORT),(int(*)(const void *,const void *))CompareTarget);
+        qsort(&TargetSort, TargetSortCount, sizeof(TARGET_SORT), CompareTarget);
 
     return TargetSort[0].sprite_num;
 }

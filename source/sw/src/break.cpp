@@ -432,26 +432,23 @@ BREAK_INFO SpriteBreakInfo[] =
 // SORT & SEARCH SUPPORT
 //////////////////////////////////////////////
 
-int CompareBreakInfo(BREAK_INFOp break_info1, BREAK_INFOp break_info2)
+static int CompareBreakInfo(void const * a, void const * b)
 {
+    auto break_info1 = (BREAK_INFO const *)a;
+    auto break_info2 = (BREAK_INFO const *)b;
+
     // will return a number less than 0 if break_info1 < break_info2
     return break_info1->picnum - break_info2->picnum;
 }
 
-int CompareSearchBreakInfo(short *picnum, BREAK_INFOp break_info)
-{
-    // will return a number less than 0 if picnum < break_info->picnum
-    return *picnum - break_info->picnum;
-}
-
 BREAK_INFOp FindWallBreakInfo(short picnum)
 {
-    return bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), (int(*)(const void *,const void *))CompareSearchBreakInfo);
+    return (BREAK_INFOp)bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
 }
 
 BREAK_INFOp FindSpriteBreakInfo(short picnum)
 {
-    return bsearch(&picnum, &SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), (int(*)(const void *,const void *))CompareSearchBreakInfo);
+    return (BREAK_INFOp)bsearch(&picnum, &SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
 }
 
 //////////////////////////////////////////////
@@ -460,8 +457,8 @@ BREAK_INFOp FindSpriteBreakInfo(short picnum)
 
 void SortBreakInfo(void)
 {
-    qsort(&SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), (int(*)(const void *,const void *))CompareBreakInfo);
-    qsort(&WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), (int(*)(const void *,const void *))CompareBreakInfo);
+    qsort(&SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
+    qsort(&WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
 }
 
 BREAK_INFOp SetupWallForBreak(WALLp wallp)
