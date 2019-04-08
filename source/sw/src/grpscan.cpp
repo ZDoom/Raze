@@ -32,9 +32,9 @@
 
 grpfile grpfiles[numgrpfiles] =
 {
-    { "Registered Version",     0x7545319F, 47536148, NULL },
-    { "Shareware Version",      0x08A7FA1F, 26056769, NULL },
-    { "Wanton Destruction (Addon)", 0xA9AAA7B7, 48698128, NULL },
+    { "Registered Version",     0x7545319Fu, 47536148, NULL },
+    { "Shareware Version",      0x08A7FA1Fu, 26056769, NULL },
+    { "Wanton Destruction (Addon)", 0xA9AAA7B7u, 48698128, NULL },
 };
 grpfile *foundgrps = NULL;
 

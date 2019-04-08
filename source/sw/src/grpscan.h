@@ -29,7 +29,7 @@
 struct grpfile
 {
     const char *name;
-    int crcval;
+    unsigned int crcval;
     int size;
     struct grpfile *next;
 };
