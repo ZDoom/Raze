@@ -474,7 +474,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
                     if (LoadSong(waveformtrack))
                     {
                         SongVoice = FX_Play(SongPtr, SongLength, 0, 0, 0,
-                                                      255, 255, 255, FX_MUSIC_PRIORITY, MUSIC_ID);
+                                                      255, 255, 255, FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
                         if (SongVoice > FX_Ok)
                         {
                             SongType = SongTypeWave;
@@ -510,7 +510,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
     else
     {
         SongVoice = FX_Play(SongPtr, SongLength, 0, 0, 0,
-                                      255, 255, 255, FX_MUSIC_PRIORITY, MUSIC_ID);
+                                      255, 255, 255, FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
         if (SongVoice > FX_Ok)
         {
             SongType = SongTypeWave;
@@ -1022,7 +1022,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
         if (sound_dist < 255 || (flags & v3df_init))
         {
             voice = FX_Play((char *)vp->data, vp->datalen, 0, 0,
-                                      pitch, loopvol, loopvol, loopvol, priority, num);
+                                      pitch, loopvol, loopvol, loopvol, priority, 1.f, num); // [JM] Should probably utilize floating point volume. !CHECKME!
         }
         else
             voice = -1;
@@ -1032,13 +1032,13 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     //if(!flags & v3df_init)  // If not initing sound, play it
     if (tx==0 && ty==0 && tz==0)     // It's a non-inlevel sound
     {
-        voice = FX_Play((char *)vp->data, vp->datalen, -1, -1, pitch, 255, 255, 255, priority, num);
+        voice = FX_Play((char *)vp->data, vp->datalen, -1, -1, pitch, 255, 255, 255, priority, 1.f, num); // [JM] And here !CHECKME!
     }
     else     // It's a 3d sound
     {
         if (sound_dist < 255)
         {
-            voice = FX_Play3D((char *)vp->data, vp->datalen, FX_ONESHOT, pitch, angle, sound_dist, priority, num);
+            voice = FX_Play3D((char *)vp->data, vp->datalen, FX_ONESHOT, pitch, angle, sound_dist, priority, 1.f, num); // [JM] And here !CHECKME!
         }
         else
             voice = -1;
@@ -1077,7 +1077,7 @@ void PlaySoundRTS(int rts_num)
 
     ASSERT(rtsptr);
 
-    voice = FX_Play3D(rtsptr, RTS_SoundLength(rts_num - 1), FX_ONESHOT, 0, 0, 0, 255, -rts_num);
+    voice = FX_Play3D(rtsptr, RTS_SoundLength(rts_num - 1), FX_ONESHOT, 0, 0, 0, 255, 1.f, -rts_num); // [JM] Float volume here too I bet. !CHECKME!
 
     if (voice <= FX_Ok)
     {
