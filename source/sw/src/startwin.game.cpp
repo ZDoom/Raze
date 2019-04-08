@@ -236,8 +236,12 @@ static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         {
             int i;
             i = ListBox_GetCurSel((HWND)lParam);
-            if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
-            if (i != CB_ERR) strcpy(settings.selectedgrp, ((struct grpfile *)i)->name);
+            if (i != CB_ERR)
+            {
+                LRESULT j = ListBox_GetItemData((HWND)lParam, i);
+                if (j != CB_ERR)
+                    strcpy(settings.selectedgrp, ((struct grpfile const *)j)->name);
+            }
             return TRUE;
         }
         default: break;
