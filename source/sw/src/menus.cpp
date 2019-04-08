@@ -932,14 +932,14 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 
             p = keyGetName(KeyboardKeys[i][0]);
             if (!p || KeyboardKeys[i][0]==0xff) p = "  -";
-            MNU_DrawSmallString(OPT_XSIDE, j, (char *)p, (i==currentkey) ? -5 : 12,
+            MNU_DrawSmallString(OPT_XSIDE, j, p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==0) ? 14 : 16);
 
             if (i == gamefunc_Show_Console) continue;
 
             p = keyGetName(KeyboardKeys[i][1]);
             if (!p || KeyboardKeys[i][1]==0xff) p = "  -";
-            MNU_DrawSmallString(OPT_XSIDE + 4*14, j, (char *)p, (i==currentkey) ? -5 : 12,
+            MNU_DrawSmallString(OPT_XSIDE + 4*14, j, p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==1) ? 14 : 16);
         }
 
@@ -2705,7 +2705,7 @@ void LoadSaveMsg(const char *msg)
 
     renderFlushPerms();
     DrawMenuLevelScreen();
-    strcpy((char *)ds, (char *)msg);
+    strcpy(ds, msg);
     MNU_MeasureString(ds, &w, &h);
     MNU_DrawString(TEXT_XCENTER(w), 170, ds, 1, 16);
     videoNextPage();
