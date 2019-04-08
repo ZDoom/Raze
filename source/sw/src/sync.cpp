@@ -419,7 +419,7 @@ SyncStatMessage(void)
 
 
 void
-GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconnectindex)
+GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int otherconnectindex)
 {
     int sb, i;
     extern int syncvaltail, syncvaltottail;

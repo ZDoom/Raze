@@ -248,7 +248,7 @@ int PlayerYellVocs[] =
     DIGI_PLAYERYELL3
 };
 
-extern unsigned char lumplockbyte[];
+extern char lumplockbyte[];
 
 #if 0
 // DEBUG
