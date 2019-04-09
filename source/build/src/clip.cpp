@@ -921,6 +921,41 @@ int sectoradjacent(int sect1, int sect2)
     return 0;
 }
 
+static void clipupdatesector(int32_t const x, int32_t const y, int16_t *const sectnum)
+{
+    if (inside_p(x, y, *sectnum))
+        return;
+
+    static int16_t sectlist[MAXCLIPSECTORS];
+    static uint8_t sectbitmap[MAXCLIPSECTORS >> 3];
+    int32_t        nsecs;
+
+    bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
+
+    for (int sectcnt = 0; sectcnt < nsecs; sectcnt++)
+    {
+        if (inside_p(x, y, sectlist[sectcnt]))
+            SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
+
+        auto const sec       = &sector[sectlist[sectcnt]];
+        int const  startwall = sec->wallptr;
+        int const  endwall   = sec->wallptr + sec->wallnum;
+
+        for (int j = startwall; j < endwall; j++)
+            if (wall[j].nextsector >= 0)
+            {
+                for (int k = 0; k < clipsectnum; k++)
+                    if (clipsectorlist[k] == wall[j].nextsector)
+                    {
+                        bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
+                        break;
+                    }
+            }
+    }
+
+    *sectnum = -1;
+}
+
 //
 // clipmove
 //
@@ -1283,7 +1318,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
 
                 if ((tempint1^tempint2) < 0)
                 {
-                    updatesector(pos->x, pos->y, sectnum);
+                    clipupdatesector(pos->x, pos->y, sectnum);
                     return clipReturn;
                 }
             }
@@ -1298,7 +1333,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
         }
 
         int const osectnum = *sectnum;
-        updatesector(vec.x, vec.y, sectnum);
+        clipupdatesector(vec.x, vec.y, sectnum);
 
         if (*sectnum == osectnum || editstatus || (*sectnum != -1 && !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec.x, vec.y)))
         {
@@ -1433,7 +1468,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                         } while (clipinsidebox((vec2_t *)vect, i, walldist-4) != 0);
                         bad = -1;
                         k--; if (k <= 0) return bad;
-                        updatesector(vect->x, vect->y, sectnum);
+                        clipupdatesector(vect->x, vect->y, sectnum);
                         if (*sectnum < 0) return -1;
                     }
                     else

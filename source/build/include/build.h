@@ -1473,6 +1473,15 @@ extern const int32_t engine_v8;
 int32_t Mulscale(int32_t a, int32_t b, int32_t sh);
 #endif
 
+static inline bool inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
+
+#define SET_AND_RETURN(Lval, Rval) \
+    do                             \
+    {                              \
+        (Lval) = (Rval);           \
+        return;                    \
+    } while (0)
+
 static inline int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
                    int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2,3,4)));
 

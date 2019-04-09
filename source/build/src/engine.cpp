@@ -10964,10 +10964,6 @@ void bfirst_search_try(int16_t * const list, uint8_t * const bitmap, int32_t * c
 /* Different "is inside" predicates.
  * NOTE: The redundant bound checks are expected to be optimized away in the
  * inlined code. */
-static inline bool inside_p(int32_t const x, int32_t const y, int const sectnum)
-{
-    return (sectnum>=0 && inside(x, y, sectnum) == 1);
-}
 
 static inline bool inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
 {
@@ -10981,13 +10977,6 @@ static inline bool inside_z_p(int32_t const x, int32_t const y, int32_t const z,
     getzsofslope(sectnum, x, y, &cz, &fz);
     return (z >= cz && z <= fz && inside_p(x, y, sectnum));
 }
-
-#define SET_AND_RETURN(Lval, Rval) \
-    do                             \
-    {                              \
-        (Lval) = (Rval);           \
-        return;                    \
-    } while (0)
 
 //
 // updatesector[z]
