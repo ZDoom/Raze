@@ -5366,7 +5366,7 @@ HORIZONLY:;
                 || (ceilingBunch >= 0 && !(sector[playerSectNum].ceilingstat & 512))))
         {
             pPlayer->cursectnum += MAXSECTORS;  // skip initial z check, restored by updatesectorz
-            updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
+            updatesectorz(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z, &pPlayer->cursectnum);
         }
 #endif
 
