@@ -1855,7 +1855,7 @@ static void SoundDisplay(void)
             if (PRESSED_KEYSC(G))    // goto specified sound#
             {
                 _printmessage16("                                                    ");
-                j = getnumber16("Goto sound#: ", 0, g_numsounds-1, 0);
+                j = getnumber16("Goto sound#: ", 0, MAXSOUNDS-1, 0);
                 for (i=0; i<g_numsounds; i++)
                     if (g_sndnum[i]==j)
                         break;
