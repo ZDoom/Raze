@@ -705,7 +705,7 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
 
         for (int i=0; i<NUMGAMEFUNCTIONS; ++i)
         {
-            if (ud.config.KeyboardKeys[i][0] == 0xff || !ud.config.KeyboardKeys[i][0])
+            if (CONFIG_FunctionNumToName(i) && (ud.config.KeyboardKeys[i][0] == 0xff || !ud.config.KeyboardKeys[i][0]))
             {
                 buildvfs_fputstr(fp, "unbound ");
                 buildvfs_fputstrptr(fp, CONFIG_FunctionNumToName(i));
