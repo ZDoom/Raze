@@ -11068,14 +11068,14 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
 
     if ((unsigned)*sectnum >= (unsigned)numsectors)
     {
-		if ((unsigned)*sectnum < (unsigned)numsectors + MAXSECTORS)
-		{
-			*sectnum -= MAXSECTORS;
-			nofirstzcheck = true;
-		}
-		else
+        if ((unsigned)*sectnum < (unsigned)numsectors + MAXSECTORS)
         {
-			// we need to support passing in a sectnum of -1, unfortunately
+            *sectnum -= MAXSECTORS;
+            nofirstzcheck = true;
+        }
+        else
+        {
+            // we need to support passing in a sectnum of -1, unfortunately
             for (int i = numsectors - 1; i >= 0; --i)
                 if (inside_z_p(x, y, z, i))
                     SET_AND_RETURN(*sectnum, i);
