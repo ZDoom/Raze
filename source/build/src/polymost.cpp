@@ -898,7 +898,7 @@ void polymost_glinit()
              float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, shade)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
              vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
-             float fullbright = u_usePalette*palettedColor.a;\n\
+             float fullbright = mix(u_usePalette*palettedColor.a, c_zero, u_useColorOnly);\n\
              palettedColor.a = c_one-floor(color.r);\n\
              color = mix(color, palettedColor, u_usePalette);\n\
              \n\
@@ -988,7 +988,7 @@ void polymost_glinit()
              float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, shade)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
              vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
-             float fullbright = u_usePalette*palettedColor.a;\n\
+             float fullbright = mix(u_usePalette*palettedColor.a, c_zero, u_useColorOnly);\n\
              palettedColor.a = c_one-floor(color.r);\n\
              color = mix(color, palettedColor, u_usePalette);\n\
              \n\
