@@ -11057,7 +11057,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
 
     if ((unsigned)*sectnum >= (unsigned)numsectors)
     {
-        if ((unsigned)*sectnum < (unsigned)numsectors + MAXSECTORS)
+        if (*sectnum >= MAXSECTORS && (unsigned)*sectnum < (unsigned)numsectors + MAXSECTORS)
         {
             *sectnum -= MAXSECTORS;
             nofirstzcheck = true;
