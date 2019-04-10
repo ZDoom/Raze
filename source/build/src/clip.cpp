@@ -790,8 +790,8 @@ static int32_t check_floor_curb(int32_t dasect, int32_t nextsect, int32_t flordi
 
 int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
                   int32_t xvect, int32_t yvect,
-                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
-                  uint8_t noslidep)
+                  int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype,
+                  uint8_t const noslidep)
 {
     const int32_t oboxtracenum = clipmoveboxtracenum;
 
@@ -921,7 +921,7 @@ int sectoradjacent(int sect1, int sect2)
     return 0;
 }
 
-static void clipupdatesector(int32_t const x, int32_t const y, int16_t *const sectnum)
+static void clipupdatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
     if (inside_p(x, y, *sectnum))
         return;
@@ -959,8 +959,8 @@ static void clipupdatesector(int32_t const x, int32_t const y, int16_t *const se
 //
 // clipmove
 //
-int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
-                 int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
+int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int32_t yvect,
+                 int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype)
 {
     if ((xvect|yvect) == 0 || *sectnum < 0)
         return 0;
@@ -1352,8 +1352,8 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
 //
 // pushmove
 //
-int32_t pushmove(vec3_t *vect, int16_t *sectnum,
-    int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
+int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
+    int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype)
 {
     int32_t i, j, k, t, dx, dy, dax, day, daz;
     int32_t dir, bad, bad2;

@@ -92,12 +92,12 @@ int sectoradjacent(int sect1, int sect2);
 
 extern int32_t clipmoveboxtracenum;
 
-int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist,
-    int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1, 2)));
-int32_t clipmovex(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist,
-    int32_t flordist, uint32_t cliptype, uint8_t noslidep) ATTRIBUTE((nonnull(1, 2)));
-int32_t pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist,
-    uint32_t cliptype) ATTRIBUTE((nonnull(1, 2)));
+int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
+    int32_t const flordist, uint32_t const cliptype) ATTRIBUTE((nonnull(1, 2)));
+int32_t clipmovex(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
+    int32_t const flordist, uint32_t const cliptype, uint8_t const noslidep) ATTRIBUTE((nonnull(1, 2)));
+int32_t pushmove(vec3_t * const vect, int16_t * const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
+    uint32_t const cliptype) ATTRIBUTE((nonnull(1, 2)));
 
 #ifdef __cplusplus
 }
