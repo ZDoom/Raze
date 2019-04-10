@@ -748,6 +748,11 @@ template <typename T>
 using make_unsigned_t = typename std::make_unsigned<T>::type;
 # endif
 
+# ifdef HAVE_CXX11_HEADERS
+template <typename type, typename other_type_with_sign>
+using take_sign_t = conditional_t< is_signed<other_type_with_sign>::value, make_signed_t<type>, make_unsigned_t<type> >;
+# endif
+
 template <size_t size>
 struct integers_of_size { };
 template <>
@@ -955,35 +960,35 @@ static FORCE_INLINE CONSTEXPR uint64_t B_SWAP64_impl(uint64_t value)
 /* The purpose of B_PASS* as functions, as opposed to macros, is to prevent them from being used as lvalues. */
 #if CXXSTD >= 2011
 template <typename T>
-static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int16_t, uint16_t> B_SWAP16(T x)
+static FORCE_INLINE CONSTEXPR take_sign_t<int16_t, T> B_SWAP16(T x)
 {
-    return static_cast< conditional_t<is_signed<T>::value, int16_t, uint16_t> >(B_SWAP16_impl(static_cast<uint16_t>(x)));
+    return static_cast< take_sign_t<int16_t, T> >(B_SWAP16_impl(static_cast<uint16_t>(x)));
 }
 template <typename T>
-static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int32_t, uint32_t> B_SWAP32(T x)
+static FORCE_INLINE CONSTEXPR take_sign_t<int32_t, T> B_SWAP32(T x)
 {
-    return static_cast< conditional_t<is_signed<T>::value, int32_t, uint32_t> >(B_SWAP32_impl(static_cast<uint32_t>(x)));
+    return static_cast< take_sign_t<int32_t, T> >(B_SWAP32_impl(static_cast<uint32_t>(x)));
 }
 template <typename T>
-static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int64_t, uint64_t> B_SWAP64(T x)
+static FORCE_INLINE CONSTEXPR take_sign_t<int64_t, T> B_SWAP64(T x)
 {
-    return static_cast< conditional_t<is_signed<T>::value, int64_t, uint64_t> >(B_SWAP64_impl(static_cast<uint64_t>(x)));
+    return static_cast< take_sign_t<int64_t, T> >(B_SWAP64_impl(static_cast<uint64_t>(x)));
 }
 
 template <typename T>
-static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int16_t, uint16_t> B_PASS16(T x)
+static FORCE_INLINE CONSTEXPR take_sign_t<int16_t, T> B_PASS16(T x)
 {
-    return static_cast< conditional_t<is_signed<T>::value, int16_t, uint16_t> >(x);
+    return static_cast< take_sign_t<int16_t, T> >(x);
 }
 template <typename T>
-static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int32_t, uint32_t> B_PASS32(T x)
+static FORCE_INLINE CONSTEXPR take_sign_t<int32_t, T> B_PASS32(T x)
 {
-    return static_cast< conditional_t<is_signed<T>::value, int32_t, uint32_t> >(x);
+    return static_cast< take_sign_t<int32_t, T> >(x);
 }
 template <typename T>
-static FORCE_INLINE CONSTEXPR conditional_t<is_signed<T>::value, int64_t, uint64_t> B_PASS64(T x)
+static FORCE_INLINE CONSTEXPR take_sign_t<int64_t, T> B_PASS64(T x)
 {
-    return static_cast< conditional_t<is_signed<T>::value, int64_t, uint64_t> >(x);
+    return static_cast< take_sign_t<int64_t, T> >(x);
 }
 #else
 #define B_SWAP16(x) B_SWAP16_impl(x)
