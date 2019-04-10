@@ -10950,9 +10950,7 @@ void bfirst_search_init(int16_t * const list, uint8_t * const bitmap, int32_t * 
 
 void bfirst_search_try(int16_t * const list, uint8_t * const bitmap, int32_t * const eltnumptr, int const elt)
 {
-    if (elt < 0)
-        return;
-    else if (bitmap_test(bitmap, elt)==0)
+    if (elt >= 0 && bitmap_test(bitmap, elt)==0)
     {
         bitmap_set(bitmap, elt);
         list[(*eltnumptr)++] = elt;
