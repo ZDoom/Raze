@@ -10920,7 +10920,7 @@ int32_t lastwall(int16_t point)
     if (point > 0 && wall[point-1].point2 == point)
         return point-1;
 
-    int i = point, cnt = MAXWALLS;
+    int i = point, cnt = numwalls;
     do
     {
         int const j = wall[i].point2;
