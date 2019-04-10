@@ -261,7 +261,7 @@ extern int bufferjitter;
 
 SWBOOL CameraTestMode = FALSE;
 
-char ds[256];                           // debug string
+char ds[512];                           // debug string
 
 extern short NormalVisibility;
 

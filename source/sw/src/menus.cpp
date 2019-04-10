@@ -59,7 +59,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 short TimeLimitTable[9] = {0,3,5,10,15,20,30,45,60};
 
 short QuickLoadNum = -1;
-char QuickLoadDescrDialog[32];
+char QuickLoadDescrDialog[128];
 SWBOOL QuickSaveMode = FALSE;
 SWBOOL SavePrompt = FALSE;
 extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop, LoadGameFromDemo;
@@ -2989,7 +2989,7 @@ MNU_LoadSaveDraw(UserCall call, MenuItem_p item)
         if (i == game_num && MenuInputMode && !SavePrompt)
         {
             static SWBOOL cur_show;
-            char tmp[sizeof(SaveGameDescr[0])];
+            char tmp[sizeof(SaveGameDescr[0])*2];
 
             //cur_show ^= 1;
             cur_show = (totalclock & 32);
