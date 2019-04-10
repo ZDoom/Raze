@@ -4,7 +4,7 @@
 #ifndef print_h_
 #define print_h_
 
-#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
+#ifdef HAVE_CXX11_HEADERS
 
 template <typename T>
 struct binwrap

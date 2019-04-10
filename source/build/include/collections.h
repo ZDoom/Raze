@@ -6,7 +6,7 @@
 
 #include "compat.h"
 
-#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
+#ifdef HAVE_CXX11_HEADERS
 
 // GrowArray - heap-allocated storage that can expand at runtime
 // requirements: type must work properly with realloc -- otherwise, use std::vector

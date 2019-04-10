@@ -435,6 +435,8 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #  include <algorithm>
 #  include <functional>
 #  include <type_traits>
+// we need this because MSVC does not properly identify C++11 support
+#  define HAVE_CXX11_HEADERS
 # endif
 #endif
 
@@ -716,7 +718,7 @@ void eduke32_exit_return(int) ATTRIBUTE((noreturn));
 
 #ifdef __cplusplus
 
-# if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
+# ifdef HAVE_CXX11_HEADERS
 using std::is_integral;
 template <typename T>
 struct is_signed
@@ -735,7 +737,7 @@ using std::enable_if_t;
 using std::conditional_t;
 using std::make_signed_t;
 using std::make_unsigned_t;
-# elif CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
+# elif defined HAVE_CXX11_HEADERS
 template <bool B, class T = void>
 using enable_if_t = typename std::enable_if<B, T>::type;
 template<bool B, class T, class F>
@@ -796,7 +798,7 @@ typedef size_t reg_t;
 typedef ssize_t sreg_t;
 #endif
 
-#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
+#ifdef HAVE_CXX11_HEADERS
 using  native_t = typename integers_of_size<sizeof(reg_t)>::i;
 using unative_t = typename integers_of_size<sizeof(reg_t)>::u;
 #else
@@ -1099,7 +1101,7 @@ ABSTRACT_DECL float fclamp2(float in, float min, float max) { return in >= max ?
 ////////// Mathematical operations //////////
 
 #ifdef __cplusplus
-#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
+#ifdef HAVE_CXX11_HEADERS
 template <typename T>
 struct DivResult
 {
