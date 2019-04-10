@@ -11,6 +11,33 @@
 #endif
 #include "baselayer.h"
 
+#if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
+# include "sdl_inc.h"
+#endif
+
+static void Ken_SetDefaults()
+{
+#if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
+    uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
+    if (inited == 0)
+        SDL_Init(SDL_INIT_VIDEO);
+    else if (!(inited & SDL_INIT_VIDEO))
+        SDL_InitSubSystem(SDL_INIT_VIDEO);
+
+    SDL_DisplayMode dm;
+    if (SDL_GetDesktopDisplayMode(0, &dm) == 0)
+    {
+        xdimgame = xdim2d = dm.w;
+        ydimgame = ydim2d = dm.h;
+    }
+    else
+#endif
+    {
+        xdimgame = xdim2d = 1024;
+        ydimgame = ydim2d = 768;
+    }
+}
+
 static int vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,400},
                              {360,400},{640,350},{640,400},{640,480},{800,600},
                              {1024,768},{1280,1024},{1600,1200}};
@@ -100,6 +127,8 @@ double msens;
 
 int Ken_loadsetup(const char *fn)
 {
+    Ken_SetDefaults();
+
     BFILE *fp;
 #define VL 32
     char val[VL];

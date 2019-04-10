@@ -45,6 +45,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "_functio.h"
 #include "_config.h"
 
+#if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
+# include "sdl_inc.h"
+#endif
+
 extern void ReadGameSetup(int32_t scripthandle);
 extern void WriteGameSetup(int32_t scripthandle);
 
@@ -201,9 +205,28 @@ void CONFIG_SetDefaults(void)
     uint8_t k1,k2;
 
     ScreenMode = 1;
-    ScreenWidth = 640;
-    ScreenHeight = 480;
-    ScreenBPP = 8;
+
+#if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
+    uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
+    if (inited == 0)
+        SDL_Init(SDL_INIT_VIDEO);
+    else if (!(inited & SDL_INIT_VIDEO))
+        SDL_InitSubSystem(SDL_INIT_VIDEO);
+
+    SDL_DisplayMode dm;
+    if (SDL_GetDesktopDisplayMode(0, &dm) == 0)
+    {
+        ScreenWidth = dm.w;
+        ScreenHeight = dm.h;
+    }
+    else
+#endif
+    {
+        ScreenWidth = 1024;
+        ScreenHeight = 768;
+    }
+
+    ScreenBPP = 32;
     FXDevice = 0;
     MusicDevice = 0;
     NumVoices = 32;
