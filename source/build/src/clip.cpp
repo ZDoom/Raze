@@ -18,6 +18,7 @@ static int32_t clipsectnum, origclipsectnum, clipspritenum;
 int16_t clipsectorlist[MAXCLIPSECTORS];
 static int16_t origclipsectorlist[MAXCLIPSECTORS];
 static uint8_t clipsectormap[MAXCLIPSECTORS >> 3];
+static uint8_t origclipsectormap[MAXCLIPSECTORS >> 3];
 #ifdef HAVE_CLIPSHAPE_FEATURE
 static int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
 #endif
@@ -658,7 +659,10 @@ static int32_t clipmove_warned;
 static inline void addclipsect(int const sectnum)
 {
     if (EDUKE32_PREDICT_TRUE(clipsectnum < MAXCLIPSECTORS))
+    {
+        bitmap_set(clipsectormap, sectnum);
         clipsectorlist[clipsectnum++] = sectnum;
+    }
     else clipmove_warned |= 1;
 }
 
@@ -937,15 +941,8 @@ static void clipupdatesector(int32_t const x, int32_t const y, int16_t * const s
         int const  endwall   = sec->wallptr + sec->wallnum;
 
         for (int j = startwall; j < endwall; j++)
-            if (wall[j].nextsector >= 0)
-            {
-                for (int k = 0; k < clipsectnum; k++)
-                    if (clipsectorlist[k] == wall[j].nextsector)
-                    {
-                        bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
-                        break;
-                    }
-            }
+            if (wall[j].nextsector >= 0 && bitmap_test(clipsectormap, wall[j].nextsector))
+                bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
     }
 
     bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
@@ -1009,6 +1006,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
     clipmove_warned = 0;
 
+    Bmemset(clipsectormap, 0, (numsectors+7)>>3);
+
     do
     {
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -1023,6 +1022,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 // init sector-like sprites for clipping
                 origclipsectnum = clipsectnum;
                 Bmemcpy(origclipsectorlist, clipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
+                Bmemcpy(origclipsectormap, clipsectormap, (numsectors+7)>>3);
 
                 // replace sector and wall with clip map
                 engineSetClipMap(&origmapinfo, &clipmapinfo);
@@ -1163,11 +1163,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             else if (wal->nextsector>=0)
             {
                 if (!curspr && inside(pos->x, pos->y, wal->nextsector) == 1) continue;
-
-                int i;
-                for (i=clipsectnum-1; i>=0; i--)
-                    if (wal->nextsector == clipsectorlist[i]) break;
-                if (i < 0) addclipsect(wal->nextsector);
+                if (bitmap_test(clipsectormap, wal->nextsector) == 0)
+                    addclipsect(wal->nextsector);
             }
         }
 
@@ -1306,6 +1303,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
         clipsectnum = origclipsectnum;
         Bmemcpy(clipsectorlist, origclipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
+        Bmemcpy(clipsectormap, origclipsectormap, (numsectors+7)>>3);
     }
 #endif
 
@@ -1396,7 +1394,11 @@ int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
         bad = 0;
 
         clipsectorlist[0] = *sectnum;
-        clipsectcnt = 0; clipsectnum = 1;
+        clipsectcnt = 0;
+        clipsectnum = 1;
+
+        Bmemset(clipsectormap, 0, (numsectors+7)>>3);
+
         do
         {
             const uwalltype *wal;
@@ -1494,12 +1496,8 @@ int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
                         clipupdatesector(vect->x, vect->y, sectnum);
                         if (*sectnum < 0) return -1;
                     }
-                    else
-                    {
-                        for (j=clipsectnum-1; j>=0; j--)
-                            if (wal->nextsector == clipsectorlist[j]) break;
-                        if (j < 0) addclipsect(wal->nextsector);
-                    }
+                    else if (bitmap_test(clipsectormap, wal->nextsector) == 0)
+                        addclipsect(wal->nextsector);
                 }
 
             clipsectcnt++;
@@ -1552,6 +1550,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     clipsectorlist[0] = sectnum;
     clipsectnum = 1;
     clipspritenum = 0;
+    Bmemset(clipsectormap, 0, (numsectors+7)>>3);
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
     if (0)
@@ -1658,11 +1657,8 @@ restart_grand:
                     if (((sec->floorstat&1) == 0) && (pos->z >= sec->floorz-(3<<8))) continue;
                 }
 
-                int i;
-                for (i=clipsectnum-1; i>=0; --i)
-                    if (clipsectorlist[i] == k) break;
-
-                if (i < 0) addclipsect(k);
+                if (bitmap_test(clipsectormap, k) == 0)
+                    addclipsect(k);
 
                 if (((v1.x < xmin + MAXCLIPDIST) && (v2.x < xmin + MAXCLIPDIST)) ||
                     ((v1.x > xmax - MAXCLIPDIST) && (v2.x > xmax - MAXCLIPDIST)) ||
@@ -2101,8 +2097,10 @@ restart_grand:
     *(vec2_t *)&hit->pos = hitscangoal;
 
     clipsectorlist[0] = sectnum;
-    tempshortcnt = 0; tempshortnum = 1;
+    tempshortcnt  = 0;
+    tempshortnum  = 1;
     clipspritecnt = clipspritenum = 0;
+
     do
     {
         int32_t dasector, z, startwall, endwall;
@@ -2164,8 +2162,6 @@ restart_grand:
 
             if (curspr && nextsector<0) continue;
 
-            int32_t daz2, zz;
-
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
 
             if ((coord_t)(x1-sv->x)*(y2-sv->y) < (coord_t)(x2-sv->x)*(y1-sv->y)) continue;
@@ -2182,6 +2178,7 @@ restart_grand:
                     continue;
                 }
 
+                int32_t daz2;
                 getzsofslope(nextsector,intx,inty,&daz,&daz2);
                 if (intz <= daz || intz >= daz2)
                 {
@@ -2192,14 +2189,13 @@ restart_grand:
 #ifdef HAVE_CLIPSHAPE_FEATURE
             else
             {
-                int32_t cz,fz;
-
                 if (wal->cstat&dawalclipmask)
                 {
                     hit_set(hit, curspr->sectnum, -1, curspr-(uspritetype *)sprite, intx, inty, intz);
                     continue;
                 }
 
+                int32_t cz, fz, daz2;
                 getzsofslope(nextsector,intx,inty,&daz,&daz2);
                 getzsofslope(sectq[clipinfo[curidx].qend],intx,inty,&cz,&fz);
                 // ceil   cz daz daz2 fz   floor
@@ -2210,7 +2206,8 @@ restart_grand:
                 }
             }
 #endif
-            for (zz=tempshortnum-1; zz>=0; zz--)
+            int zz;
+            for (zz = tempshortnum - 1; zz >= 0; zz--)
                 if (clipsectorlist[zz] == nextsector) break;
             if (zz < 0) clipsectorlist[tempshortnum++] = nextsector;
         }
