@@ -394,8 +394,10 @@ ExternalSoundMod(void)
 
         for (vp = voc; vp < &voc[SIZ(voc)]; vp++)
         {
+#if 0
             if (!vp->name)
                 continue;
+#endif
 
             if (!Bstrcasecmp(name, vp->name))
             {
