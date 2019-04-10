@@ -461,7 +461,7 @@ void PutStringInfo(PLAYERp pp, const char *string)
     if (!gs.Messages)
         return;
 
-    CON_ConMessage(string); // Put it in the console too
+    CON_ConMessage("%s", string); // Put it in the console too
     PutStringInfoLine(pp, string);
 }
 

@@ -2921,7 +2921,7 @@ _Assert(const char *expr, const char *strFile, unsigned uLine)
     MONO_PRINT(ds);
     TerminateGame();
 #if 1 //def RENDERTYPEWIN
-    wm_msgbox(apptitle, ds);
+    wm_msgbox(apptitle, "%s", ds);
 #else
     printf("Assertion failed: %s\n %s, line %u\n", expr, strFile, uLine);
 #endif
@@ -2946,7 +2946,7 @@ _ErrMsg(const char *strFile, unsigned uLine, const char *format, ...)
         va_start(arglist, format);
         Bvsnprintf(msg, sizeof(msg) - (p-msg), format, arglist);
         va_end(arglist);
-        wm_msgbox(apptitle, msg);
+        wm_msgbox(apptitle, "%s", msg);
     }
 #else
     printf("Error: %s, line %u\n", strFile, uLine);
@@ -4903,7 +4903,7 @@ void GetConInput(PLAYERp pp)
                 KB_ClearKeysDown();
                 KB_FlushKeyboardQueue();
                 CONTROL_ClearButton(gamefunc_Inventory);
-                CON_ConMessage(MessageInputString);
+                CON_ConMessage("%s", MessageInputString);
                 CON_ProcessUserCommand();     // Check to see if it's a cheat or command
 
                 conbot += 6;

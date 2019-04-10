@@ -1431,7 +1431,7 @@ static void sw_printmessage256(const char *text)
 static void sw_printmessage16(const char *text)
 {
     lastpm16time = totalclock;
-    _printmessage16(text);
+    _printmessage16("%s", text);
 }
 
 void
@@ -3582,10 +3582,7 @@ ShowNextTag(void)
         return;
 
     printmessage16(" ");
-
-    sprintf(tempbuf, "Next tag = %d", siNextEndTag);
-    printmessage16(tempbuf);
-
+    printmessage16("Next tag = %d", siNextEndTag);
 }
 
 void
