@@ -644,7 +644,7 @@ int32_t clipsprite_try(uspritetype const * const spr, int32_t xmin, int32_t ymin
             (spr->x > xmax + maxcorrection) || (spr->y > ymax + maxcorrection))
             return 1;
 
-        if (clipspritenum < MAXCLIPNUM)
+        if (EDUKE32_PREDICT_TRUE(clipspritenum < MAXCLIPNUM))
             clipspritelist[clipspritenum++] = spr-(uspritetype *)sprite;
         //initprintf("%d: clip sprite[%d]\n",clipspritenum,j);
         return 1;
@@ -655,15 +655,11 @@ int32_t clipsprite_try(uspritetype const * const spr, int32_t xmin, int32_t ymin
 
 static int32_t clipmove_warned;
 
-static void addclipsect(int const sectnum)
+static inline void addclipsect(int const sectnum)
 {
     if (EDUKE32_PREDICT_TRUE(clipsectnum < MAXCLIPSECTORS))
         clipsectorlist[clipsectnum++] = sectnum;
-    else if (!clipmove_warned)
-    {
-        OSD_Printf("!!clipsectnum\n");
-        clipmove_warned = 1;
-    }
+    else clipmove_warned |= 1;
 }
 
 // return: -1 if curspr has x-flip xor y-flip (in the horizontal map plane!), 1 else
@@ -753,18 +749,14 @@ int32_t clipsprite_initindex(int32_t curidx, uspritetype const * const curspr, i
 
 static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int32_t daoval)
 {
-    if (clipnum < MAXCLIPNUM)
+    if (EDUKE32_PREDICT_TRUE(clipnum < MAXCLIPNUM))
     {
         clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1;
         clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
         clipobjectval[clipnum] = daoval;
         clipnum++;
     }
-    else if (!clipmove_warned)
-    {
-        initprintf("!!clipnum\n");
-        clipmove_warned = 2;
-    }
+    else clipmove_warned |= 2;
 }
 
 static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
@@ -1156,6 +1148,12 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 if (i < 0) addclipsect(wal->nextsector);
             }
         }
+
+        if (EDUKE32_PREDICT_FALSE(clipmove_warned & 1))
+            OSD_Printf("clipsectnum >= MAXCLIPSECTORS!\n");
+
+        if (EDUKE32_PREDICT_FALSE(clipmove_warned & 2))
+            OSD_Printf("clipnum >= MAXCLIPNUM!\n");
 
         ////////// Sprites //////////
 
