@@ -2587,8 +2587,12 @@ MNU_InputSmallString(char *name, short pix_width)
         MNU_MeasureSmallString(name, &w, &h);
         if (w < pix_width)
         {
-            if (strlen(name) < 256) // Dont let it go too far!
-                sprintf(name, "%s%c", name, ch);
+            size_t const namelen = strlen(name);
+            if (namelen < 256) // Dont let it go too far!
+            {
+                name[namelen] = ch;
+                name[namelen+1] = '\0';
+            }
         }
     }
 
@@ -2687,7 +2691,9 @@ MNU_InputString(char *name, short pix_width)
         MNU_MeasureString(name, &w, &h);
         if (w < pix_width)
         {
-            sprintf(name, "%s%c", name, ch);
+            size_t const namelen = strlen(name);
+            name[namelen] = ch;
+            name[namelen+1] = '\0';
         }
     }
 
