@@ -921,8 +921,8 @@ static void clipupdatesector(int32_t const x, int32_t const y, int16_t * const s
     if (inside_p(x, y, *sectnum))
         return;
 
-    static int16_t sectlist[MAXCLIPSECTORS];
-    static uint8_t sectbitmap[MAXCLIPSECTORS >> 3];
+    static int16_t sectlist[MAXSECTORS];
+    static uint8_t sectbitmap[MAXSECTORS >> 3];
     int32_t        nsecs;
 
     bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
@@ -946,6 +946,28 @@ static void clipupdatesector(int32_t const x, int32_t const y, int16_t * const s
                         break;
                     }
             }
+    }
+
+    bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
+
+    for (int sectcnt = 0; sectcnt < nsecs; sectcnt++)
+    {
+        if (inside_p(x, y, sectlist[sectcnt]))
+        {
+            // add sector to clipping list so the next call to clipdatesector()
+            // finishes in the loop above this one
+            addclipsect(sectlist[sectcnt]);
+            SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
+        }
+
+        auto const sec       = &sector[sectlist[sectcnt]];
+        int const  startwall = sec->wallptr;
+        int const  endwall   = sec->wallptr + sec->wallnum;
+
+        // check floor curbs here?
+        for (int j = startwall; j < endwall; j++)
+            if (wall[j].nextsector >= 0)
+                bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
     }
 
     *sectnum = -1;
