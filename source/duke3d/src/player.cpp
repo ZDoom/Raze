@@ -276,9 +276,9 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                         continue;
 
 #ifndef EDUKE32_STANDALONE
-                    if (!IONMAIDEN && (isShrinker && sprite[spriteNum].xrepeat < 30
+                    if (!IONMAIDEN && ((isShrinker && sprite[spriteNum].xrepeat < 30
                         && (PN(spriteNum) == SHARK || !(PN(spriteNum) >= GREENSLIME && PN(spriteNum) <= GREENSLIME + 7)))
-                        || (isFreezer && sprite[spriteNum].pal == 1))
+                        || (isFreezer && sprite[spriteNum].pal == 1)))
                         continue;
 #endif
                 }
