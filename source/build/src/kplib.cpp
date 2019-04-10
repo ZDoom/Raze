@@ -1261,7 +1261,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
     kfileptr = (uint8_t const *)kfilebuf;
     kfileend = &kfileptr[kfilength];
 
-    if (B_UNBUF16(kfileptr) == B_LITTLE16(0xd8ff)) kfileptr += 2;
+    if (B_UNBUF16(kfileptr) == B_LITTLE16(0xD8FFu)) kfileptr += 2;
     else return -1; //"%s is not a JPEG file\n",filename
 
     restartinterval = 0;
@@ -2228,7 +2228,7 @@ void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
             lptr = (int32_t *)((intptr_t)lptr + B_BIG32(lptr[0]) + 12);
         }
     }
-    else if (B_UNBUF16(&ubuf[0]) == B_LITTLE16(0xd8ff)) //.JPG
+    else if (B_UNBUF16(&ubuf[0]) == B_LITTLE16(0xD8FFu)) //.JPG
     {
         cptr = (uint8_t const *)&buf[2];
         while (((uintptr_t)cptr-(uintptr_t)buf) < (uintptr_t)(leng-8))
@@ -2302,7 +2302,7 @@ int32_t kprender(const char *buf, int32_t leng, intptr_t frameptr, int32_t bpl,
 
     if (B_UNBUF16(&ubuf[0]) == B_LITTLE16(0x5089)) //.PNG
         return kpngrend(buf,leng,frameptr,bpl,xdim,ydim);
-    else if (B_UNBUF16(&ubuf[0]) == B_LITTLE16(0xd8ff)) //.JPG
+    else if (B_UNBUF16(&ubuf[0]) == B_LITTLE16(0xD8FFu)) //.JPG
         return kpegrend(buf,leng,frameptr,bpl,xdim,ydim);
     else
     {
