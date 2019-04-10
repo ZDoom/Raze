@@ -1264,7 +1264,9 @@ void Ripper2Hatch(short Weapon)
     short rip_ang[MAX_RIPPER2S];
 
     rip_ang[0] = RANDOM_P2(2048);
+#if MAX_RIPPER2S > 1
     rip_ang[1] = NORM_ANGLE(rip_ang[0] + 1024 + (RANDOM_P2(512) - 256));
+#endif
 
     for (i = 0; i < MAX_RIPPER2S; i++)
     {
