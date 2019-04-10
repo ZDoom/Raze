@@ -9,14 +9,17 @@
 #include "a.h"
 #include "build.h"
 #include "baselayer.h"
+#include "clip.h"
 #include "engine_priv.h"
 
-int16_t clipnum;
-linetype clipit[MAXCLIPNUM];
-int32_t clipsectnum, origclipsectnum, clipspritenum;
-int16_t clipsectorlist[MAXCLIPSECTORS], origclipsectorlist[MAXCLIPSECTORS];
+static int16_t clipnum;
+static linetype clipit[MAXCLIPNUM];
+static int32_t clipsectnum, origclipsectnum, clipspritenum;
+int16_t clipsectorlist[MAXCLIPSECTORS];
+static int16_t origclipsectorlist[MAXCLIPSECTORS];
+static uint8_t clipsectormap[MAXCLIPSECTORS >> 3];
 #ifdef HAVE_CLIPSHAPE_FEATURE
-int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
+static int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
 #endif
 static int16_t clipobjectval[MAXCLIPNUM];
 
@@ -41,16 +44,16 @@ void engineSetClipMap(mapinfo_t *bak, mapinfo_t *newmap)
     }
 }
 
-mapinfo_t origmapinfo, clipmapinfo;
+static mapinfo_t origmapinfo, clipmapinfo;
 int32_t quickloadboard=0;
 
-clipinfo_t clipinfo[CM_MAX];
+static clipinfo_t clipinfo[CM_MAX];
 static int32_t numclipmaps;
 
 static int32_t numclipsects;  // number in sectq[]
 static int16_t *sectoidx;
-int16_t *sectq;  // [numsectors]
-int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
+static int16_t *sectq;  // [numsectors]
+static int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
 static int16_t *tempictoidx;
 
 static usectortype *loadsector;
