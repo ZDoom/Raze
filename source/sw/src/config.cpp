@@ -250,7 +250,7 @@ void CONFIG_SetDefaults(void)
     }
 
     memset(JoystickDigitalAxes, -1, sizeof(JoystickDigitalAxes));
-    for (i=0; i < (int32_t)(sizeof(joystickanalogdefaults)/sizeof(char *)); i++)
+    for (i=0; i < MAXJOYAXES; i++)
     {
         JoystickAnalogScale[i] = 65536;
         JoystickAnalogDead[i] = 1024;

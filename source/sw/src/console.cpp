@@ -816,11 +816,8 @@ int TileRangeMem(int start)
 
 void CON_Cache(void)
 {
-    char incache[8192]; // 8192 so it can index maxwalls as well
+    char incache[MAXTILES]{};
     int i,j,tottiles,totsprites,totactors;
-
-
-    memset(incache,0,8192);
 
     // Calculate all level tiles, non-actor stuff
     for (i=0; i<numsectors; i++)
@@ -837,13 +834,13 @@ void CON_Cache(void)
     }
 
     tottiles = 0;
-    for (i=0; i<8192; i++)
+    for (i=0; i<MAXTILES; i++)
         if (incache[i] > 0)
             tottiles += tilesiz[i].x*tilesiz[i].y;
 
     //////////////////////////////////////////////
 
-    memset(incache,0,8192);
+    memset(incache, 0, sizeof(incache));
 
     // Sprites on the stat list get counted as cached, others don't
     for (i=0; i<MAXSPRITES; i++)
@@ -853,7 +850,7 @@ void CON_Cache(void)
     totsprites = 0;
     totactors = 0;
 
-    for (i=0; i<MAXSPRITES; i++)
+    for (i=0; i<MAXTILES; i++)
     {
         if (incache[i] > 0)
         {
