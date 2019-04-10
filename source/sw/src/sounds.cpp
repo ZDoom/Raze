@@ -621,7 +621,7 @@ SoundDist(int x, int y, int z, int basedist)
         for (i=0; i<decay; i++)
             decayshift *= 2;
 
-        if (labs(basedist/decayshift) >= retval)
+        if (fabs(double(basedist)/decayshift) >= retval)
             retval = 0;
         else
             retval *= decay;
