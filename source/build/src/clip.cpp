@@ -723,7 +723,7 @@ int32_t clipsprite_initindex(int32_t curidx, uspritetype const * const curspr, i
 
         for (int w=startwall; w<endwall; w++)
         {
-            auto wal=(uwalltype *)&wall[startwall];
+            auto wal = (uwalltype *)(wall + w);
             wal->x = mulscale22(scalex, CM_WALL_X(w));
             wal->y = mulscale22(scaley, CM_WALL_Y(w));
 
