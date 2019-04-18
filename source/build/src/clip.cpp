@@ -1088,7 +1088,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             {
                 if (wal->nextsector>=0)
                 {
-                    const usectortype *sec2 = (usectortype *)&sector[wal->nextsector];
+                    auto const sec2 = (usectortype *)&sector[wal->nextsector];
 
                     clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
 
@@ -1141,7 +1141,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                     if (clipyou == 0)
                     {
-                        const usectortype *sec2 = (usectortype *)&sector[wal->nextsector];
+                        auto const sec2 = (usectortype *)&sector[wal->nextsector];
                         int32_t daz2 = getceilzofslope(wal->nextsector, v.x, v.y);
 
                         clipyou = ((sec2->ceilingstat&1) == 0 &&
@@ -1460,7 +1460,7 @@ int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
                     if (wal->cstat&dawalclipmask) j = 1;
                     if (j == 0)
                     {
-                        const usectortype *const sec2 = (usectortype *)&sector[wal->nextsector];
+                        auto const sec2 = (usectortype *)&sector[wal->nextsector];
                         int32_t daz2;
 
                         //Find closest point on wall (dax, day) to (vect->x, vect->y)
@@ -1622,7 +1622,7 @@ restart_grand:
 #endif
         ////////// Walls //////////
 
-        const sectortype *const startsec = &sector[clipsectorlist[clipsectcnt]];
+        auto const startsec = (usectortype *)&sector[clipsectorlist[clipsectcnt]];
         const int startwall = startsec->wallptr;
         const int endwall = startwall + startsec->wallnum;
 
@@ -1649,7 +1649,7 @@ restart_grand:
                     continue;
 
                 if (wall[j].cstat&dawalclipmask) continue;  // XXX?
-                const sectortype *const sec = &sector[k];
+                auto const sec = (usectortype *)&sector[k];
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
                 if (curspr)
@@ -2141,7 +2141,7 @@ restart_grand:
         }
 #endif
         dasector = clipsectorlist[tempshortcnt];
-        auto const * sec = (usectortype *)&sector[dasector];
+        auto const sec = (usectortype *)&sector[dasector];
 
         i = 1;
 #ifdef HAVE_CLIPSHAPE_FEATURE
