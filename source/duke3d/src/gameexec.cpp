@@ -4913,7 +4913,10 @@ badindex:
                     Gv_FillWithVars(vect);
 
                     int const returnVar = *insptr++;
-                    int16_t   sectNum   = sprite[vm.spriteNum].sectnum;
+                    int16_t   sectNum   = Gv_GetVarX(returnVar);
+
+                    if ((unsigned)sectNum >= MAXSECTORS)
+                        sectNum = sprite[vm.spriteNum].sectnum;
 
                     updatesector(vect.x, vect.y, &sectNum);
                     Gv_SetVarX(returnVar, sectNum);
@@ -4927,7 +4930,10 @@ badindex:
                     Gv_FillWithVars(vect);
 
                     int const returnVar = *insptr++;
-                    int16_t   sectNum   = sprite[vm.spriteNum].sectnum;
+                    int16_t   sectNum   = Gv_GetVarX(returnVar);
+
+                    if ((unsigned)sectNum >= MAXSECTORS)
+                        sectNum = sprite[vm.spriteNum].sectnum;
 
                     updatesectorz(vect.x, vect.y, vect.z, &sectNum);
                     Gv_SetVarX(returnVar, sectNum);
