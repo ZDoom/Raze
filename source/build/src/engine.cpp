@@ -8289,24 +8289,16 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 // returns equation of a line given two points
 static inline _equation equation(float const x1, float const y1, float const x2, float const y2)
 {
-    _equation   ret;
     const float f = x2-x1;
 
     // vertical
     if (f == 0.f)
+       return { 1, 0, -x1 };
+    else
     {
-        ret.a = 1;
-        ret.b = 0;
-        ret.c = -x1;
-
-        return ret;
+        float const ff = (y2 - y1) / f;
+        return { ff, -1, (y1 - (ff * x1)) };
     }
-
-    ret.a = (float) (y2 - y1)/f;
-    ret.b = -1;
-    ret.c = (y1 - (ret.a * x1));
-
-    return ret;
 }
 
 int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum)
