@@ -137,8 +137,6 @@ static FORCE_INLINE int32_t roundscale(int32_t eax, int32_t edx, int32_t ecx)
     return scaleadd(eax, edx, ecx / 2, ecx);
 }
 
-static FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
-
 #if defined(__GNUC__) && defined(GEKKO)
 
 // GCC Inline Assembler version (PowerPC)
