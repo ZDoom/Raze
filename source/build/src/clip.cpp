@@ -920,9 +920,16 @@ int sectoradjacent(int sect1, int sect2)
     return 0;
 }
 
-static void clipupdatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
+static inline int32_t clipwalldist(vec2_t const &p, int const w)
 {
-    if (inside_p(x, y, *sectnum))
+    int32_t closestx, closesty;
+    yax_getclosestpointonwall(w, &closestx, &closesty);
+    return klabs(closestx - p.x) + klabs(closesty - p.y);
+}
+
+static void clipupdatesector(vec2_t const &p, int16_t * const sectnum, int const walldist)
+{
+    if (inside_p(p.x, p.y, *sectnum))
         return;
 
     static int16_t sectlist[MAXSECTORS];
@@ -933,7 +940,7 @@ static void clipupdatesector(int32_t const x, int32_t const y, int16_t * const s
 
     for (int sectcnt = 0; sectcnt < nsecs; sectcnt++)
     {
-        if (inside_p(x, y, sectlist[sectcnt]))
+        if (inside_p(p.x, p.y, sectlist[sectcnt]))
             SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
 
         auto const sec       = &sector[sectlist[sectcnt]];
@@ -949,9 +956,9 @@ static void clipupdatesector(int32_t const x, int32_t const y, int16_t * const s
 
     for (int sectcnt = 0; sectcnt < nsecs; sectcnt++)
     {
-        if (inside_p(x, y, sectlist[sectcnt]))
+        if (inside_p(p.x, p.y, sectlist[sectcnt]))
         {
-            // add sector to clipping list so the next call to clipdatesector()
+            // add sector to clipping list so the next call to clipupdatesector()
             // finishes in the loop above this one
             addclipsect(sectlist[sectcnt]);
             SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
@@ -963,7 +970,7 @@ static void clipupdatesector(int32_t const x, int32_t const y, int16_t * const s
 
         // check floor curbs here?
         for (int j = startwall; j < endwall; j++)
-            if (wall[j].nextsector >= 0)
+            if (wall[j].nextsector >= 0 && clipwalldist(p, j) <= walldist)
                 bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
     }
 
@@ -1339,7 +1346,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                 if ((tempint1^tempint2) < 0)
                 {
-                    clipupdatesector(pos->x, pos->y, sectnum);
+                    clipupdatesector(*(vec2_t *)pos, sectnum, rad);
                     return clipReturn;
                 }
             }
@@ -1354,7 +1361,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         }
 
         int const osectnum = *sectnum;
-        clipupdatesector(vec.x, vec.y, sectnum);
+        clipupdatesector(vec, sectnum, rad);
 
         if (*sectnum == osectnum || editstatus || (*sectnum != -1 && !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec.x, vec.y)))
         {
@@ -1493,7 +1500,7 @@ int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
                         } while (clipinsidebox((vec2_t *)vect, i, walldist-4) != 0);
                         bad = -1;
                         k--; if (k <= 0) return bad;
-                        clipupdatesector(vect->x, vect->y, sectnum);
+                        clipupdatesector(*(vec2_t *)vect, sectnum, walldist);
                         if (*sectnum < 0) return -1;
                     }
                     else if (bitmap_test(clipsectormap, wal->nextsector) == 0)
