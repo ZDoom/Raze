@@ -84,7 +84,7 @@ int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 static int32_t get_mapversion(void);
 
 // Handle nonpow2-ysize walls the old way?
-static inline int32_t oldnonpow2(void)
+static FORCE_INLINE int32_t oldnonpow2(void)
 {
 #if !defined CLASSIC_NONPOW2_YSIZE_WALLS
     return 1;
@@ -1549,14 +1549,10 @@ int32_t renderAddTsprite(int16_t z, int16_t sectnum)
     return 0;
 }
 
-static inline vec2_t get_rel_coords(int32_t const x, int32_t const y)
+static FORCE_INLINE vec2_t get_rel_coords(int32_t const x, int32_t const y)
 {
-    vec2_t const p = {
-        dmulscale6(y,cosglobalang, -x,singlobalang),
-        dmulscale6(x,cosviewingrangeglobalang, y,sinviewingrangeglobalang)
-    };
-
-    return p;
+    return { dmulscale6(y, cosglobalang, -x, singlobalang),
+             dmulscale6(x, cosviewingrangeglobalang, y, sinviewingrangeglobalang) };
 }
 
 // Note: the returned y coordinates are not actually screen coordinates, but
@@ -1632,12 +1628,13 @@ static int get_screen_coords(const vec2_t &p1, const vec2_t &p2,
     return 1;
 }
 
-int lastUnusedTile = MAXUSERTILES-1;
 
 static inline int findUnusedTile(void)
 {
+    static int lastUnusedTile = MAXUSERTILES-1;
+
     for (; lastUnusedTile >= 0; --lastUnusedTile)
-        if (tilesiz[lastUnusedTile].x * tilesiz[lastUnusedTile].y == 0)
+        if ((tilesiz[lastUnusedTile].x|tilesiz[lastUnusedTile].y) == 0)
             return lastUnusedTile;
 
     return -1;

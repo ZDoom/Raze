@@ -65,14 +65,20 @@ int __fastcall G_GetAngleDelta(int currAngle, int newAngle);
 void G_RestoreMapState();
 void G_SaveMapState();
 
-#if !defined LUNATIC
-void VM_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
-void VM_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p);
-void VM_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p);
-void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
-#else
 void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
     int32_t shade, int32_t orientation, int32_t p);
+
+#if !defined LUNATIC
+void VM_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
+static inline void VM_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
+{
+    VM_DrawTileGeneric(x, y, 65536, tilenum, shade, orientation, p);
+}
+static inline void VM_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
+{
+    VM_DrawTileGeneric(x, y, 32768, tilenum, shade, orientation, p);
+}
+void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
 #endif
 
 int32_t VM_OnEvent__(int nEventID, int spriteNum, int playerNum);

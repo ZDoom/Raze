@@ -151,29 +151,25 @@ int SetAnimation(int sectNum,int32_t *animPtr,int goalVal,int animVel);
 #define FORCEFIELD_CSTAT (64+16+4+1)
 
 // Returns W_FORCEFIELD if wall has a forcefield overpicnum, its overpicnum else.
-static inline int G_GetForcefieldPicnum(int wallNum)
+static FORCE_INLINE int G_GetForcefieldPicnum(int const wallNum)
 {
-    int tileNum = wall[wallNum].overpicnum;
-    if (tileNum == W_FORCEFIELD + 1)
-        tileNum = W_FORCEFIELD;
-    return tileNum;
+    int const tileNum = wall[wallNum].overpicnum;
+    return tileNum == W_FORCEFIELD + 1 ? W_FORCEFIELD : tileNum;
 }
 
 // Returns the interpolated position of the camera that the player is looking
 // through (using a viewscreen). <i> should be the player's ->newowner member.
-static inline vec3_t G_GetCameraPosition(int32_t i, int32_t smoothratio)
+static inline vec3_t G_GetCameraPosition(int32_t const i, int32_t const smoothratio)
 {
-    const spritetype *const cs = &sprite[i];
+    auto const cs = (uspriteptr_t)&sprite[i];
     const actor_t *const ca = &actor[i];
 
-    vec3_t cam = { ca->bpos.x + mulscale16(cs->x - ca->bpos.x, smoothratio),
-                   ca->bpos.y + mulscale16(cs->y - ca->bpos.y, smoothratio),
-                   ca->bpos.z + mulscale16(cs->z - ca->bpos.z, smoothratio)
-                 };
-    return cam;
+    return { ca->bpos.x + mulscale16(cs->x - ca->bpos.x, smoothratio),
+             ca->bpos.y + mulscale16(cs->y - ca->bpos.y, smoothratio),
+             ca->bpos.z + mulscale16(cs->z - ca->bpos.z, smoothratio) };
 }
 
-EXTERN_INLINE_HEADER int32_t G_CheckPlayerInSector(int32_t sect);
+EXTERN_INLINE_HEADER int32_t G_CheckPlayerInSector(int32_t const sect);
 
 #ifdef __cplusplus
 }
@@ -181,10 +177,9 @@ EXTERN_INLINE_HEADER int32_t G_CheckPlayerInSector(int32_t sect);
 
 #if defined sector_c_ || !defined DISABLE_INLINING
 
-EXTERN_INLINE int32_t G_CheckPlayerInSector(int32_t sect)
+EXTERN_INLINE int32_t G_CheckPlayerInSector(int32_t const sect)
 {
-    int32_t i;
-    for (TRAVERSE_CONNECT(i))
+    for (int TRAVERSE_CONNECT(i))
         if ((unsigned)g_player[i].ps->i < MAXSPRITES && sprite[g_player[i].ps->i].sectnum == sect)
             return i;
     return -1;

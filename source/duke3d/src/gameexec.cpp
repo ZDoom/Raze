@@ -6973,7 +6973,7 @@ int32_t VM_CheckSquished2(int32_t i, int32_t snum)
 #endif
 
 // MYOS* CON commands.
-LUNATIC_EXTERN void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
+void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
     orientation &= (ROTATESPRITE_MAX-1);
 
@@ -6997,11 +6997,6 @@ void VM_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t o
     VM_DrawTileGeneric(x, y, 65536, tilenum, shade, orientation, tilePal);
 }
 
-void VM_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
-{
-    VM_DrawTileGeneric(x, y, 65536, tilenum, shade, orientation, p);
-}
-
 void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
 {
     DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
@@ -7010,8 +7005,4 @@ void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int3
     VM_DrawTileGeneric(x, y, 32768, tilenum, shade, orientation, tilePal);
 }
 
-void VM_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
-{
-    VM_DrawTileGeneric(x, y, 32768, tilenum, shade, orientation, p);
-}
 #endif
