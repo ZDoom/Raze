@@ -575,7 +575,7 @@ static uint64_t libdivide_128_div_64_to_64(uint64_t u1, uint64_t u0, uint64_t v,
     uint64_t q1, q0; // Quotient digits
     uint64_t un64, un21, un10; // Dividend digit pairs
     uint64_t rhat; // A remainder
-    int s; // Shift amount for norm
+    int32_t s; // Shift amount for norm
 
     // If overflow, set rem. to an impossible value,
     // and return the largest possible quotient
@@ -1268,8 +1268,8 @@ LIBDIVIDE_API struct libdivide_s32_branchfree_t libdivide_s32_branchfree_gen(int
 
 int32_t libdivide_s32_do(int32_t numer, const struct libdivide_s32_t *denom) {
     uint8_t more = denom->more;
-    uint32_t sign = (int8_t)more >> 7;
     if (more & LIBDIVIDE_S32_SHIFT_PATH) {
+        uint32_t sign = (int8_t)more >> 7;
         uint8_t shifter = more & LIBDIVIDE_32_SHIFT_MASK;
         uint32_t uq = (uint32_t)(numer + ((numer >> 31) & ((1U << shifter) - 1)));
         int32_t q = (int32_t)uq;
