@@ -405,12 +405,8 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 # define _USE_MATH_DEFINES
 #endif
 
-#if !defined _MSC_VER || defined __cplusplus
-# include <inttypes.h>
-# include <stdint.h>
-#else
-# include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
-#endif
+#include <inttypes.h>
+#include <stdint.h>
 
 #include <limits.h>
 #include <stdarg.h>
