@@ -10218,7 +10218,7 @@ void vox_undefine(int32_t const tile)
 // "Inside details" for the idea behind the algorithm.
 int32_t inside(int32_t x, int32_t y, int16_t sectnum)
 {
-    if (sectnum >= 0 && sectnum < numsectors)
+    if ((unsigned)sectnum < (unsigned)numsectors)
     {
         uint32_t cnt1 = 0, cnt2 = 0;
         uwalltype const * wal = (uwalltype *) &wall[sector[sectnum].wallptr];
@@ -10229,7 +10229,8 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
             // Get the x and y components of the [tested point]-->[wall
             // point{1,2}] vectors.
             vec2_t v1 = { wal->x - x, wal->y - y };
-            vec2_t v2 = { wall[wal->point2].x - x, wall[wal->point2].y - y };
+            auto const &wal2 = *(uwalltype *)&wall[wal->point2];
+            vec2_t v2 = { wal2.x - x, wal2.y - y };
 
             // First, test if the point is EXACTLY_ON_WALL_POINT.
             if ((v1.x|v1.y) == 0 || (v2.x|v2.y)==0)
