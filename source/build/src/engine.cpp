@@ -189,6 +189,33 @@ static void draw_rainbow_background(void);
 int16_t editstatus = 0;
 static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 
+// adapted from build.c
+static void getclosestpointonwall_internal(vec2_t const &p, int32_t const dawall, vec2_t *const closest)
+{
+    vec2_t const w  = *(vec2_t *)&wall[dawall];
+    vec2_t const w2 = *(vec2_t *)&wall[wall[dawall].point2];
+    vec2_t const d  = { w2.x - w.x, w2.y - w.y };
+
+    int64_t i = d.x * ((int64_t)p.x - w.x) + d.y * ((int64_t)p.y - w.y);
+
+    if (i <= 0)
+    {
+        *closest = w;
+        return;
+    }
+
+    int64_t const j = (int64_t)d.x * d.x + (int64_t)d.y * d.y;
+
+    if (i >= j)
+    {
+        *closest = w2;
+        return;
+    }
+
+    i = tabledivide64((i << 15), j) << 15;
+
+    *closest = { (int32_t)(w.x + ((d.x * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
+}
 
 ////////// YAX //////////
 
@@ -607,35 +634,11 @@ static int32_t ymostallocsize = 0;  // numyaxbunches*xdimen (no sizeof(int16_t) 
 static int16_t *yumost=NULL, *ydmost=NULL;  // used as if [numyaxbunches][xdimen]
 uint8_t haveymost[YAX_MAXBUNCHES>>3];
 
-// adapted from build.c
-void yax_getclosestpointonwall(int32_t dawall, int32_t *closestx, int32_t *closesty)
-{
-    int64_t i, j, wx,wy, wx2,wy2, dx, dy;
-
-    wx = wall[dawall].x;
-    wy = wall[dawall].y;
-    wx2 = wall[wall[dawall].point2].x;
-    wy2 = wall[wall[dawall].point2].y;
-
-    dx = wx2 - wx;
-    dy = wy2 - wy;
-    i = dx*(globalposx-wx) + dy*(globalposy-wy);
-    if (i <= 0) { *closestx = wx; *closesty = wy; return; }
-    j = dx*dx + dy*dy;
-    if (i >= j) { *closestx = wx2; *closesty = wy2; return; }
-    i=((i<<15)/j)<<15;
-    *closestx = wx + ((dx*i)>>30);
-    *closesty = wy + ((dy*i)>>30);
-}
-
 static inline int32_t yax_walldist(int32_t w)
 {
-    int32_t closestx, closesty;
-
-    yax_getclosestpointonwall(w, &closestx, &closesty);
-    return klabs(closestx-globalposx) + klabs(closesty-globalposy);
-
-//    return klabs(wall[w].x-globalposx) + klabs(wall[w].y-globalposy);
+    vec2_t closest;
+    getclosestpointonwall_internal({ globalposx, globalposy }, w, &closest);
+    return klabs(closest.x-globalposx) + klabs(closest.y-globalposy);
 }
 
 // calculate distances to bunches and best start-drawing sectors
@@ -10974,6 +10977,34 @@ static inline bool inside_z_p(int32_t const x, int32_t const y, int32_t const z,
     return (z >= cz && z <= fz && inside_p(x, y, sectnum));
 }
 
+int32_t getwalldist(vec2_t const &p, int const wallnum)
+{
+    vec2_t closest;
+    getclosestpointonwall_internal(p, wallnum, &closest);
+    return klabs(closest.x - p.x) + klabs(closest.y - p.y);
+}
+
+int32_t getsectordist(vec2_t const &p, int const sectnum)
+{
+    if (inside_p(p.x, p.y, sectnum))
+        return 0;
+
+    int32_t distance = INT32_MAX;
+
+    auto const sec       = (usectortype *)&sector[sectnum];
+    int const  startwall = sec->wallptr;
+    int const  endwall   = sec->wallptr + sec->wallnum;
+    auto       uwal      = (uwalltype *)&wall[startwall];
+
+    for (int j = startwall; j < endwall; j++, uwal++)
+    {
+        int32_t const walldist = getwalldist(p, j);
+        distance = min(walldist, distance);
+    }
+
+    return distance;
+}
+
 bool sectoradjacent(int sect1, int sect2)
 {
     if (sector[sect1].wallnum > sector[sect2].wallnum)
@@ -10986,12 +11017,6 @@ bool sectoradjacent(int sect1, int sect2)
     return 0;
 }
 
-int32_t getwalldist(vec2_t const &p, int const w)
-{
-    int32_t closestx, closesty;
-    yax_getclosestpointonwall(w, &closestx, &closesty);
-    return klabs(closestx - p.x) + klabs(closesty - p.y);
-}
 
 //
 // updatesector[z]
