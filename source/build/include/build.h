@@ -1169,7 +1169,7 @@ int32_t try_facespr_intersect(uspritetype const * const spr, const vec3_t *refpo
                                      vec3_t *intp, int32_t strictly_smaller_than_p);
 
 bool sectoradjacent(int sect1, int sect2);
-int32_t getwalldist(vec2_t const &p, int const wallnum);
+int32_t getwalldist(vec2_t const &p, int const wallnum, vec2_t * const output = nullptr);
 int32_t getsectordist(vec2_t const &p, int const sectnum);
 extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);

@@ -10971,10 +10971,11 @@ static inline bool inside_z_p(int32_t const x, int32_t const y, int32_t const z,
     return (z >= cz && z <= fz && inside_p(x, y, sectnum));
 }
 
-int32_t getwalldist(vec2_t const &p, int const wallnum)
+int32_t getwalldist(vec2_t const &p, int const wallnum, vec2_t * const output)
 {
     vec2_t closest;
     getclosestpointonwall_internal(p, wallnum, &closest);
+    if (output) *output = closest;
     return klabs(closest.x - p.x) + klabs(closest.y - p.y);
 }
 
