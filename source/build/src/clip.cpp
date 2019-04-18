@@ -611,6 +611,18 @@ int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist
     return (x2 >= y2) << 1;
 }
 
+static int32_t clipmove_warned;
+
+static inline void addclipsect(int const sectnum)
+{
+    if (EDUKE32_PREDICT_TRUE(clipsectnum < MAXCLIPSECTORS))
+    {
+        bitmap_set(clipsectormap, sectnum);
+        clipsectorlist[clipsectnum++] = sectnum;
+    }
+    else
+        clipmove_warned |= 1;
+}
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 int32_t clipsprite_try(uspritetype const * const spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
@@ -652,18 +664,6 @@ int32_t clipsprite_try(uspritetype const * const spr, int32_t xmin, int32_t ymin
     }
 
     return 0;
-}
-
-static int32_t clipmove_warned;
-
-static inline void addclipsect(int const sectnum)
-{
-    if (EDUKE32_PREDICT_TRUE(clipsectnum < MAXCLIPSECTORS))
-    {
-        bitmap_set(clipsectormap, sectnum);
-        clipsectorlist[clipsectnum++] = sectnum;
-    }
-    else clipmove_warned |= 1;
 }
 
 // return: -1 if curspr has x-flip xor y-flip (in the horizontal map plane!), 1 else
