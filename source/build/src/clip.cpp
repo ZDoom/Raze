@@ -1014,6 +1014,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
     clipmove_warned = 0;
 
     Bmemset(clipsectormap, 0, (numsectors+7)>>3);
+    bitmap_set(clipsectormap, *sectnum);
 
     do
     {
@@ -1405,6 +1406,7 @@ int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
         clipsectnum = 1;
 
         Bmemset(clipsectormap, 0, (numsectors+7)>>3);
+        bitmap_set(clipsectormap, *sectnum);
 
         do
         {
@@ -1558,6 +1560,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     clipsectnum = 1;
     clipspritenum = 0;
     Bmemset(clipsectormap, 0, (numsectors+7)>>3);
+    bitmap_set(clipsectormap, sectnum);
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
     if (0)
