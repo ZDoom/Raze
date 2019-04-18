@@ -75,8 +75,6 @@ extern int16_t clipsectorlist[MAXCLIPSECTORS];
 int clipinsidebox(vec2_t *vect, int wallnum, int walldist);
 int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist);
 
-int sectoradjacent(int sect1, int sect2);
-
 extern int32_t clipmoveboxtracenum;
 
 int32_t clipmove(vec3_t *const pos, int16_t *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,

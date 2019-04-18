@@ -10977,6 +10977,25 @@ static inline bool inside_z_p(int32_t const x, int32_t const y, int32_t const z,
     return (z >= cz && z <= fz && inside_p(x, y, sectnum));
 }
 
+bool sectoradjacent(int sect1, int sect2)
+{
+    if (sector[sect1].wallnum > sector[sect2].wallnum)
+        swaplong(&sect1, &sect2);
+
+    for (int i = 0; i < sector[sect1].wallnum; i++)
+        if (wall[sector[sect1].wallptr + i].nextsector == sect2)
+            return 1;
+
+    return 0;
+}
+
+int32_t getwalldist(vec2_t const &p, int const w)
+{
+    int32_t closestx, closesty;
+    yax_getclosestpointonwall(w, &closestx, &closesty);
+    return klabs(closestx - p.x) + klabs(closesty - p.y);
+}
+
 //
 // updatesector[z]
 //

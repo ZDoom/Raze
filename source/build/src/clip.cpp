@@ -908,25 +908,6 @@ static int32_t get_floorspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t 
     return clipyou;
 }
 
-int sectoradjacent(int sect1, int sect2)
-{
-    if (sector[sect1].wallnum > sector[sect2].wallnum)
-        swaplong(&sect1, &sect2);
-
-    for (int i = 0; i < sector[sect1].wallnum; i++)
-        if (wall[sector[sect1].wallptr+i].nextsector == sect2)
-            return 1;
-
-    return 0;
-}
-
-static inline int32_t clipwalldist(vec2_t const &p, int const w)
-{
-    int32_t closestx, closesty;
-    yax_getclosestpointonwall(w, &closestx, &closesty);
-    return klabs(closestx - p.x) + klabs(closesty - p.y);
-}
-
 static void clipupdatesector(vec2_t const &p, int16_t * const sectnum, int const walldist)
 {
     if (inside_p(p.x, p.y, *sectnum))
@@ -970,7 +951,7 @@ static void clipupdatesector(vec2_t const &p, int16_t * const sectnum, int const
 
         // check floor curbs here?
         for (int j = startwall; j < endwall; j++)
-            if (wall[j].nextsector >= 0 && clipwalldist(p, j) <= walldist)
+            if (wall[j].nextsector >= 0 && getwalldist(p, j) <= walldist)
                 bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
     }
 
