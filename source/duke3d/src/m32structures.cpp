@@ -309,9 +309,7 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t la
         case SPRITE_X: sprite[i].x=lValue; break;
         case SPRITE_Y: sprite[i].y=lValue; break;
         case SPRITE_Z: sprite[i].z=lValue; break;
-        case SPRITE_CSTAT:
-            sprite[i].cstat = lValue&0xe3ff;
-            break;
+        case SPRITE_CSTAT: sprite[i].cstat = lValue; break;
         case SPRITE_PICNUM: sprite[i].picnum=lValue; break;
         case SPRITE_SHADE: sprite[i].shade=lValue; break;
         case SPRITE_PAL: sprite[i].pal=lValue; break;
@@ -457,9 +455,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
         case SPRITE_X: datspr->x=lValue; break;
         case SPRITE_Y: datspr->y=lValue; break;
         case SPRITE_Z: datspr->z=lValue; break;
-        case SPRITE_CSTAT:
-            datspr->cstat = lValue&0xe3ff;
-            break;
+        case SPRITE_CSTAT: datspr->cstat = lValue; break;
         case SPRITE_PICNUM: datspr->picnum=lValue; break;
         case SPRITE_SHADE: datspr->shade=lValue; break;
         case SPRITE_PAL: datspr->pal=lValue; break;
