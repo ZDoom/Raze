@@ -211,8 +211,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\engine.cpp" />
-    <ClCompile Include="..\..\source\build\src\fix16.c" />
-    <ClCompile Include="..\..\source\build\src\fix16_str.c" />
+    <ClCompile Include="..\..\source\build\src\fix16.cpp" />
+    <ClCompile Include="..\..\source\build\src\fix16_str.cpp" />
     <ClCompile Include="..\..\source\build\src\glbuild.cpp" />
     <ClCompile Include="..\..\source\build\src\glsurface.cpp" />
     <ClCompile Include="..\..\source\build\src\gtkbits.cpp">

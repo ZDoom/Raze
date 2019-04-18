@@ -79,7 +79,7 @@ fix16_t fix16_from_str(const char *buf)
     
     if (count == 0 || count > 5
         || intpart > 32768 || (!negative && intpart > 32767))
-        return fix16_overflow;
+        return FIX16_OVERFLOW;
     
     fix16_t value = intpart << 16;
     
@@ -104,7 +104,7 @@ fix16_t fix16_from_str(const char *buf)
     while (*buf != '\0')
     {
         if (!isdigit(*buf) && !isspace(*buf))
-            return fix16_overflow;
+            return FIX16_OVERFLOW;
         
         buf++;
     }

@@ -241,8 +241,8 @@ engine_objs := \
     miniz.c \
     miniz_tinfl.c \
     miniz_tdef.c \
-    fix16.c \
-    fix16_str.c \
+    fix16.cpp \
+    fix16_str.cpp \
 
 engine_editor_objs := \
     build.cpp \

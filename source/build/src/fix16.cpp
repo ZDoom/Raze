@@ -15,7 +15,7 @@ fix16_t fix16_add(fix16_t a, fix16_t b)
 	// Overflow can only happen if sign of a == sign of b, and then
 	// it causes sign of sum != sign of a.
 	if (!((_a ^ _b) & 0x80000000) && ((_a ^ sum) & 0x80000000))
-		return fix16_overflow;
+		return FIX16_OVERFLOW;
 
 	return sum;
 }
@@ -28,7 +28,7 @@ fix16_t fix16_sub(fix16_t a, fix16_t b)
 	// Overflow can only happen if sign of a != sign of b, and then
 	// it causes sign of diff != sign of a.
 	if (((_a ^ _b) & 0x80000000) && ((_a ^ diff) & 0x80000000))
-		return fix16_overflow;
+		return FIX16_OVERFLOW;
 
 	return diff;
 }
@@ -38,8 +38,8 @@ fix16_t fix16_sadd(fix16_t a, fix16_t b)
 {
 	fix16_t result = fix16_add(a, b);
 
-	if (result == fix16_overflow)
-		return (a >= 0) ? fix16_maximum : fix16_minimum;
+	if (result == FIX16_OVERFLOW)
+		return (a >= 0) ? FIX16_MAX : FIX16_MIN;
 
 	return result;
 }
@@ -48,8 +48,8 @@ fix16_t fix16_ssub(fix16_t a, fix16_t b)
 {
 	fix16_t result = fix16_sub(a, b);
 
-	if (result == fix16_overflow)
-		return (a >= 0) ? fix16_maximum : fix16_minimum;
+	if (result == FIX16_OVERFLOW)
+		return (a >= 0) ? FIX16_MAX : FIX16_MIN;
 
 	return result;
 }
@@ -76,7 +76,7 @@ fix16_t fix16_mul(fix16_t inArg0, fix16_t inArg1)
 	{
 		#ifndef FIXMATH_NO_OVERFLOW
 		if (~upper)
-				return fix16_overflow;
+				return FIX16_OVERFLOW;
 		#endif
 
 		#ifndef FIXMATH_NO_ROUNDING
@@ -88,7 +88,7 @@ fix16_t fix16_mul(fix16_t inArg0, fix16_t inArg1)
 	{
 		#ifndef FIXMATH_NO_OVERFLOW
 		if (upper)
-				return fix16_overflow;
+				return FIX16_OVERFLOW;
 		#endif
 	}
 
@@ -108,12 +108,12 @@ fix16_t fix16_smul(fix16_t inArg0, fix16_t inArg1)
 {
 	fix16_t result = fix16_mul(inArg0, inArg1);
 
-	if (result == fix16_overflow)
+	if (result == FIX16_OVERFLOW)
 	{
 		if ((inArg0 >= 0) == (inArg1 >= 0))
-			return fix16_maximum;
+			return FIX16_MAX;
 		else
-			return fix16_minimum;
+			return FIX16_MIN;
 	}
 
 	return result;
@@ -144,7 +144,7 @@ fix16_t fix16_div(fix16_t a, fix16_t b)
 	// computed all the bits in (a<<17)/b. Usually this takes 1-3 iterations.
 
 	if (b == 0)
-			return fix16_minimum;
+			return FIX16_MIN;
 
 	uint32_t remainder = (a >= 0) ? a : (-a);
 	uint32_t divider = (b >= 0) ? b : (-b);
@@ -182,7 +182,7 @@ fix16_t fix16_div(fix16_t a, fix16_t b)
 
 		#ifndef FIXMATH_NO_OVERFLOW
 		if (div & ~(0xFFFFFFFF >> bit_pos))
-				return fix16_overflow;
+				return FIX16_OVERFLOW;
 		#endif
 
 		remainder <<= 1;
@@ -200,8 +200,8 @@ fix16_t fix16_div(fix16_t a, fix16_t b)
 	if ((a ^ b) & 0x80000000)
 	{
 		#ifndef FIXMATH_NO_OVERFLOW
-		if (result == fix16_minimum)
-				return fix16_overflow;
+		if (result == FIX16_MIN)
+				return FIX16_OVERFLOW;
 		#endif
 
 		result = -result;
@@ -216,19 +216,17 @@ fix16_t fix16_sdiv(fix16_t inArg0, fix16_t inArg1)
 {
 	fix16_t result = fix16_div(inArg0, inArg1);
 
-	if (result == fix16_overflow)
+	if (result == FIX16_OVERFLOW)
 	{
 		if ((inArg0 >= 0) == (inArg1 >= 0))
-			return fix16_maximum;
+			return FIX16_MAX;
 		else
-			return fix16_minimum;
+			return FIX16_MIN;
 	}
 
 	return result;
 }
 #endif
-
-fix16_t fix16_mod(fix16_t x, fix16_t y) { return x %= y; }
 
 
 #ifndef FIXMATH_NO_64BIT
