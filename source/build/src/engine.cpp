@@ -10621,37 +10621,32 @@ void get_floorspr_points(uspritetype const * const spr, int32_t px, int32_t py,
                                 int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
 {
     const int32_t tilenum = spr->picnum;
-    // &2047 in sinang:
-    // DNE 1.3D lights camera action (1st level), spr->ang==2306
-    // (probably from CON)
     const int32_t cosang = sintable[(spr->ang+512)&2047];
     const int32_t sinang = sintable[spr->ang&2047];
 
-    const int32_t xspan=tilesiz[tilenum].x, xrepeat=spr->xrepeat;
-    const int32_t yspan=tilesiz[tilenum].y, yrepeat=spr->yrepeat;
+    vec2_t const span = { tilesiz[tilenum].x, tilesiz[tilenum].y};
+    vec2_t const repeat = { spr->xrepeat, spr->yrepeat };
 
-    int32_t xoff = picanm[tilenum].xofs + spr->xoffset;
-    int32_t yoff = picanm[tilenum].yofs + spr->yoffset;
-    int32_t k, l, dax, day;
+    vec2_t adjofs = { picanm[tilenum].xofs + spr->xoffset, picanm[tilenum].yofs + spr->yoffset };
 
-    if (spr->cstat&4)
-        xoff = -xoff;
-    if (spr->cstat&8)
-        yoff = -yoff;
+    if (spr->cstat & 4)
+        adjofs.x = -adjofs.x;
 
-    dax = ((xspan>>1)+xoff)*xrepeat;
-    day = ((yspan>>1)+yoff)*yrepeat;
+    if (spr->cstat & 8)
+        adjofs.y = -adjofs.y;
 
-    *x1 += dmulscale16(sinang,dax, cosang,day) - px;
-    *y1 += dmulscale16(sinang,day, -cosang,dax) - py;
+    vec2_t const center = { ((span.x >> 1) + adjofs.x) * repeat.x, ((span.y >> 1) + adjofs.y) * repeat.y };
+    vec2_t const rspan  = { span.x * repeat.x, span.y * repeat.y };
+    vec2_t const ofs    = { -mulscale16(cosang, rspan.y), -mulscale16(sinang, rspan.y) };
 
-    l = xspan*xrepeat;
-    *x2 = *x1 - mulscale16(sinang,l);
-    *y2 = *y1 + mulscale16(cosang,l);
+    *x1 += dmulscale16(sinang, center.x, cosang, center.y) - px;
+    *y1 += dmulscale16(sinang, center.y, -cosang, center.x) - py;
 
-    l = yspan*yrepeat;
-    k = -mulscale16(cosang,l); *x3 = *x2+k; *x4 = *x1+k;
-    k = -mulscale16(sinang,l); *y3 = *y2+k; *y4 = *y1+k;
+    *x2 = *x1 - mulscale16(sinang, rspan.x);
+    *y2 = *y1 + mulscale16(cosang, rspan.x);
+
+    *x3 = *x2 + ofs.x, *x4 = *x1 + ofs.x;
+    *y3 = *y2 + ofs.y, *y4 = *y1 + ofs.y;
 }
 
 //
@@ -10971,17 +10966,17 @@ static inline bool inside_z_p(int32_t const x, int32_t const y, int32_t const z,
     return (z >= cz && z <= fz && inside_p(x, y, sectnum));
 }
 
-int32_t getwalldist(vec2_t const &p, int const wallnum, vec2_t * const output)
+int32_t getwalldist(vec2_t const &pos, int const wallnum, vec2_t * const output)
 {
     vec2_t closest;
-    getclosestpointonwall_internal(p, wallnum, &closest);
+    getclosestpointonwall_internal(pos, wallnum, &closest);
     if (output) *output = closest;
-    return klabs(closest.x - p.x) + klabs(closest.y - p.y);
+    return klabs(closest.x - pos.x) + klabs(closest.y - pos.y);
 }
 
-int32_t getsectordist(vec2_t const &p, int const sectnum)
+int32_t getsectordist(vec2_t const &pos, int const sectnum)
 {
-    if (inside_p(p.x, p.y, sectnum))
+    if (inside_p(pos.x, pos.y, sectnum))
         return 0;
 
     int32_t distance = INT32_MAX;
@@ -10993,7 +10988,7 @@ int32_t getsectordist(vec2_t const &p, int const sectnum)
 
     for (int j = startwall; j < endwall; j++, uwal++)
     {
-        int32_t const walldist = getwalldist(p, j);
+        int32_t const walldist = getwalldist(pos, j);
         distance = min(walldist, distance);
     }
 
@@ -11012,45 +11007,50 @@ bool sectoradjacent(int sect1, int sect2)
     return 0;
 }
 
+#define MAXUPDATESECTORDIST 1536
+#define INITIALUPDATESECTORDIST 256
 
 //
 // updatesector[z]
 //
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
-    if (inside_p(x, y, *sectnum))
-        return;
+    int const initialsectnum = *sectnum;
 
-    if ((unsigned)*sectnum >= (unsigned)numsectors)
+    if ((unsigned)initialsectnum < (unsigned)numsectors && getsectordist({x, y}, initialsectnum) < INITIALUPDATESECTORDIST)
     {
-        // we need to support passing in a sectnum of -1, unfortunately
+        if (inside_p(x, y, initialsectnum))
+            return;
 
-        for (int i = numsectors - 1; i >= 0; --i)
-            if (inside_p(x, y, i))
-                SET_AND_RETURN(*sectnum, i);
+        static int16_t sectlist[MAXSECTORS];
+        static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
+        int32_t nsecs;
 
-        SET_AND_RETURN(*sectnum, -1);
+        bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, initialsectnum);
+
+        for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
+        {
+            int const listsectnum = sectlist[sectcnt];
+
+            if (inside_p(x, y, listsectnum))
+                SET_AND_RETURN(*sectnum, listsectnum);
+
+            auto const sec       = &sector[listsectnum];
+            int const  startwall = sec->wallptr;
+            int const  endwall   = sec->wallptr + sec->wallnum;
+            auto       uwal      = (uwalltype *)&wall[startwall];
+
+            for (int j=startwall; j<endwall; j++, uwal++)
+                if (uwal->nextsector >= 0 && getsectordist({x, y}, uwal->nextsector) < MAXUPDATESECTORDIST)
+                    bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
+        }
     }
 
-    static int16_t sectlist[MAXSECTORS];
-    static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-    int32_t nsecs;
+    // we need to support passing in a sectnum of -1, unfortunately
 
-    bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
-
-    for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
-    {
-        if (inside_p(x, y, sectlist[sectcnt]))
-            SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
-
-        auto const sec       = &sector[sectlist[sectcnt]];
-        int const  startwall = sec->wallptr;
-        int const  endwall   = sec->wallptr + sec->wallnum;
-
-        for (int j=startwall; j<endwall; j++)
-            if (wall[j].nextsector >= 0)
-                bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
-    }
+    for (int i = numsectors - 1; i >= 0; --i)
+        if (inside_p(x, y, i))
+            SET_AND_RETURN(*sectnum, i);
 
     *sectnum = -1;
 }
@@ -11090,74 +11090,68 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
 {
     bool nofirstzcheck = false;
 
-    if ((unsigned)*sectnum >= (unsigned)numsectors)
+    if (*sectnum >= MAXSECTORS && (unsigned)*sectnum < (unsigned)numsectors + MAXSECTORS)
     {
-        if (*sectnum >= MAXSECTORS && (unsigned)*sectnum < (unsigned)numsectors + MAXSECTORS)
-        {
-            *sectnum -= MAXSECTORS;
-            nofirstzcheck = true;
-        }
-        else
-        {
-            // we need to support passing in a sectnum of -1, unfortunately
-            for (int i = numsectors - 1; i >= 0; --i)
-                if (inside_z_p(x, y, z, i))
-                    SET_AND_RETURN(*sectnum, i);
-
-            for (int i = numsectors - 1; i >= 0; --i)
-                if (inside_p(x, y, i))
-                    SET_AND_RETURN(*sectnum, i);
-
-            SET_AND_RETURN(*sectnum, -1);
-        }
+        *sectnum -= MAXSECTORS;
+        nofirstzcheck = true;
     }
 
-    int32_t cz, fz;
-    getzsofslope(*sectnum, x, y, &cz, &fz);
+    int const correctedsectnum = *sectnum;
 
-#ifdef YAX_ENABLE
-    if (z < cz)
+    if ((unsigned)correctedsectnum < (unsigned)numsectors && getsectordist({x, y}, correctedsectnum) < INITIALUPDATESECTORDIST)
     {
-        int const next = yax_getneighborsect(x, y, *sectnum, YAX_CEILING);
-        if (next >= 0 && z >= getceilzofslope(next, x, y))
-            SET_AND_RETURN(*sectnum, next);
-    }
-
-    if (z > fz)
-    {
-        int const next = yax_getneighborsect(x, y, *sectnum, YAX_FLOOR);
-        if (next >= 0 && z <= getflorzofslope(next, x, y))
-            SET_AND_RETURN(*sectnum, next);
-    }
-#endif
-    if (nofirstzcheck || (z >= cz && z <= fz))
-        if (inside_p(x, y, *sectnum))
+        if (nofirstzcheck && inside_p(x, y, correctedsectnum))
             return;
 
-    static int16_t sectlist[MAXSECTORS];
-    static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-    int32_t nsecs;
+        int32_t cz, fz;
+        getzsofslope(correctedsectnum, x, y, &cz, &fz);
 
-    bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
+#ifdef YAX_ENABLE
+        if (z < cz)
+        {
+            int const next = yax_getneighborsect(x, y, correctedsectnum, YAX_CEILING);
+            if (next >= 0 && z >= getceilzofslope(next, x, y))
+                SET_AND_RETURN(*sectnum, next);
+        }
 
-    for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
-    {
-        if (inside_z_p(x, y, z, sectlist[sectcnt]))
-            SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
+        if (z > fz)
+        {
+            int const next = yax_getneighborsect(x, y, correctedsectnum, YAX_FLOOR);
+            if (next >= 0 && z <= getflorzofslope(next, x, y))
+                SET_AND_RETURN(*sectnum, next);
+        }
+#endif
+        if (z >= cz && z <= fz && inside_p(x, y, correctedsectnum))
+            return;
 
-        auto const sec       = &sector[sectlist[sectcnt]];
-        int const  startwall = sec->wallptr;
-        int const  endwall   = sec->wallptr + sec->wallnum;
+        static int16_t sectlist[MAXSECTORS];
+        static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
+        int32_t nsecs;
 
-        for (int j=startwall; j<endwall; j++)
-            if (wall[j].nextsector >= 0)
-                bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
+        bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, correctedsectnum);
+
+        for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
+        {
+            int const listsectnum = sectlist[sectcnt];
+
+            if (inside_z_p(x, y, z, listsectnum))
+                SET_AND_RETURN(*sectnum, listsectnum);
+
+            auto const sec       = &sector[listsectnum];
+            int const  startwall = sec->wallptr;
+            int const  endwall   = sec->wallptr + sec->wallnum;
+            auto       uwal      = (uwalltype *)&wall[startwall];
+
+            for (int j=startwall; j<endwall; j++, uwal++)
+                if (uwal->nextsector >= 0 && getsectordist({x, y}, uwal->nextsector) < MAXUPDATESECTORDIST)
+                    bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
+        }
     }
 
-    // fall back to searching without z... this is really a bullshit worst case scenario
-    for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
-        if (inside_p(x, y, sectlist[sectcnt]))
-            SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
+    // we need to support passing in a sectnum of -1, unfortunately
+    for (int i = numsectors - 1; i >= 0; --i)
+        if (inside_z_p(x, y, z, i))
+            SET_AND_RETURN(*sectnum, i);
 
     *sectnum = -1;
 }
