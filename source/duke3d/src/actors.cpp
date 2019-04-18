@@ -675,10 +675,13 @@ void A_AddToDeleteQueue(int spriteNum)
         return;
     }
 
-    if (SpriteDeletionQueue[g_spriteDeleteQueuePos] >= 0)
-        A_DeleteSprite(SpriteDeletionQueue[g_spriteDeleteQueuePos]);
+    auto &deleteSpriteNum = SpriteDeletionQueue[g_spriteDeleteQueuePos];
 
-    SpriteDeletionQueue[g_spriteDeleteQueuePos] = spriteNum;
+    if (deleteSpriteNum >= 0 && actor[deleteSpriteNum].flags & SFLAG_QUEUEDFORDELETE)
+        A_DeleteSprite(deleteSpriteNum);
+
+    deleteSpriteNum = spriteNum;
+    actor[spriteNum].flags |= SFLAG_QUEUEDFORDELETE;
     g_spriteDeleteQueuePos = (g_spriteDeleteQueuePos+1)%g_deleteQueueSize;
 }
 
