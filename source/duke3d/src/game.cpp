@@ -6180,10 +6180,6 @@ int app_main(int argc, char const * const * argv)
 #endif
 #endif
 
-#ifdef EDUKE32_STANDALONE
-    G_DeleteOldSaves();
-#endif
-
     G_ExtPreInit(argc, argv);
 
 #ifdef __APPLE__
@@ -6225,6 +6221,10 @@ int app_main(int argc, char const * const * argv)
     // This needs to happen before G_CheckCommandLine() because G_GameExit()
     // accesses g_player[0].
     G_MaybeAllocPlayer(0);
+
+#ifdef EDUKE32_STANDALONE
+    G_DeleteOldSaves();
+#endif
 
     G_CheckCommandLine(argc,argv);
 
