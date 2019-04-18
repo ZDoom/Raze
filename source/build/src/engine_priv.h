@@ -208,7 +208,7 @@ extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[409
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
-extern uspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
+extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern intptr_t frameoffset;
@@ -258,9 +258,9 @@ void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal);
 void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float factor);
 #endif
 
-extern void get_wallspr_points(uspritetype const * spr, int32_t *x1, int32_t *x2,
+extern void get_wallspr_points(uspriteptr_t spr, int32_t *x1, int32_t *x2,
     int32_t *y1, int32_t *y2);
-extern void get_floorspr_points(uspritetype const * spr, int32_t px, int32_t py,
+extern void get_floorspr_points(uspriteptr_t spr, int32_t px, int32_t py,
     int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
     int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
 
@@ -276,7 +276,7 @@ int32_t animateoffs(int tilenum);
         if ((((Fakevar) & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && rottile[Picnum].newtile != -1) Picnum = rottile[Picnum].newtile; \
     } while (0)
 
-static FORCE_INLINE int32_t bad_tspr(const uspritetype *tspr)
+static FORCE_INLINE int32_t bad_tspr(tspriteptr_t tspr)
 {
     // NOTE: tspr->owner >= MAXSPRITES (could be model) has to be handled by
     // caller.

@@ -1327,7 +1327,7 @@ skip_check:
                 const int32_t parm2 = how<=ITER_DRAWNSPRITES ? 0 : Gv_GetVarX(*insptr++);
                 instype *const end = insptr + *insptr, *const beg = ++insptr;
                 const int32_t vm_i_bak = vm.spriteNum;
-                uspritetype *const vm_sp_bak = vm.pUSprite;
+                auto const vm_sp_bak = vm.pUSprite;
 
                 if (vm.flags&VMFLAG_ERROR)
                     continue;
@@ -1416,7 +1416,7 @@ skip_check:
                 case ITER_DRAWNSPRITES:
                 {
                     uspritetype lastSpriteBackup;
-                    uspritetype *const lastSpritePtr = (uspritetype *)&sprite[MAXSPRITES-1];
+                    auto const lastSpritePtr = (uspritetype *)&sprite[MAXSPRITES-1];
 
                     // Back up sprite MAXSPRITES-1.
                     Bmemcpy(&lastSpriteBackup, lastSpritePtr, sizeof(uspritetype));

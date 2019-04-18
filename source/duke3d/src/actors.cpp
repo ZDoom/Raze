@@ -94,7 +94,7 @@ void G_ClearCameraView(DukePlayer_t *ps)
 }
 
 // Manhattan distance between wall-point and sprite.
-static FORCE_INLINE int32_t G_WallSpriteDist(uwalltype const * const wal, uspritetype const * const spr)
+static FORCE_INLINE int32_t G_WallSpriteDist(uwallptr_t const wal, uspriteptr_t const spr)
 {
     return klabs(wal->x - spr->x) + klabs(wal->y - spr->y);
 }
@@ -107,7 +107,7 @@ void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3
     ud.returnvar[3] = dmg3;
     ud.returnvar[4] = dmg4;
 
-    uspritetype const *const pSprite = (uspritetype *)&sprite[spriteNum];
+    auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
 
     int32_t sectorCount = 0;
     int32_t numSectors = 1;
@@ -127,8 +127,8 @@ void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3
 
         // Check if "hit" 1st or 3rd wall-point. This mainly makes sense
         // for rectangular "ceiling light"-style sectors.
-        if (G_WallSpriteDist((uwalltype *)&wall[startWall], pSprite) < blastRadius ||
-                G_WallSpriteDist((uwalltype *)&wall[wall[w2].point2], pSprite) < blastRadius)
+        if (G_WallSpriteDist((uwallptr_t)&wall[startWall], pSprite) < blastRadius ||
+                G_WallSpriteDist((uwallptr_t)&wall[wall[w2].point2], pSprite) < blastRadius)
         {
             if (((sector[sectorNum].ceilingz-pSprite->z)>>8) < blastRadius)
                 Sect_DamageCeiling_Internal(spriteNum, sectorNum);
@@ -138,7 +138,7 @@ void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3
 
         native_t w = startWall;
 
-        for (uwalltype const *pWall = (uwalltype *)&wall[startWall]; w < endWall; w++, pWall++)
+        for (auto pWall = (uwallptr_t)&wall[startWall]; w < endWall; w++, pWall++)
         {
             if (G_WallSpriteDist(pWall, pSprite) >= blastRadius)
                 continue;
@@ -324,14 +324,15 @@ next_sprite:
 // <spritenum>: the projectile
 // <i>: the SE7
 // <fromunderp>: below->above change?
-static int32_t Proj_MaybeDoTransport(int32_t spriteNum, const uspritetype * const pSEffector, int32_t fromunderp, int32_t daz)
+static int32_t Proj_MaybeDoTransport(int32_t spriteNum, uspriteptr_t const pSEffector, int32_t fromunderp, int32_t daz)
 {
     if ((totalclock & UINT8_MAX) == actor[spriteNum].lasttransport)
         return 0;
 
-    spritetype *const        pSprite = &sprite[spriteNum];
-    const uspritetype *const otherse = (uspritetype *)&sprite[pSEffector->owner];
-    actor[spriteNum].lasttransport   = (totalclock & UINT8_MAX);
+    auto const pSprite = &sprite[spriteNum];
+    auto const otherse = (uspriteptr_t)&sprite[pSEffector->owner];
+
+    actor[spriteNum].lasttransport = (totalclock & UINT8_MAX);
 
     pSprite->x += (otherse->x - pSEffector->x);
     pSprite->y += (otherse->y - pSEffector->y);
@@ -349,7 +350,7 @@ static int32_t Proj_MaybeDoTransport(int32_t spriteNum, const uspritetype * cons
 
 // Check whether sprite <s> is on/in a non-SE7 water sector.
 // <othersectptr>: if not NULL, the sector on the other side.
-int A_CheckNoSE7Water(uspritetype const * const pSprite, int sectNum, int sectLotag, int32_t *pOther)
+int A_CheckNoSE7Water(uspriteptr_t const pSprite, int sectNum, int sectLotag, int32_t *pOther)
 {
     if (sectLotag == ST_1_ABOVE_WATER || sectLotag == ST_2_UNDERWATER)
     {
@@ -383,8 +384,8 @@ static int32_t A_CheckNeedZUpdate(int32_t spriteNum, int32_t zChange, int32_t *p
     if (zChange == 0)
         return 0;
 
-    uspritetype const *const pSprite = (uspritetype *)&sprite[spriteNum];
-    int const                newZ    = pSprite->z + (zChange >> 1);
+    auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
+    int const  newZ    = pSprite->z + (zChange >> 1);
 
     *pZcoord = newZ;
 
@@ -598,11 +599,11 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
                     int const sectLotag = sector[newSectnum].lotag;
 
                     if (sectLotag == ST_1_ABOVE_WATER && newZ >= actor[spriteNum].floorz)
-                        if (Proj_MaybeDoTransport(spriteNum, (uspritetype *)&sprite[otherSpriteNum], 0, newZ))
+                        if (Proj_MaybeDoTransport(spriteNum, (uspriteptr_t)&sprite[otherSpriteNum], 0, newZ))
                             return 0;
 
                     if (sectLotag == ST_2_UNDERWATER && newZ <= actor[spriteNum].ceilingz)
-                        if (Proj_MaybeDoTransport(spriteNum, (uspritetype *)&sprite[otherSpriteNum], 1, newZ))
+                        if (Proj_MaybeDoTransport(spriteNum, (uspriteptr_t)&sprite[otherSpriteNum], 1, newZ))
                             return 0;
                 }
             }
@@ -697,8 +698,8 @@ void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt)
 #ifndef EDUKE32_STANDALONE
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt)
 {
-    uspritetype const *const pSprite = (uspritetype *)&sprite[spriteNum];
-    vec2_t                   repeat  = { 32, 32 };
+    auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
+    vec2_t     repeat  = { 32, 32 };
 
     if (A_CheckEnemySprite(pSprite) && pSprite->xrepeat < 16)
         repeat.x = repeat.y = 8;
@@ -730,8 +731,8 @@ void A_DoGuts(int spriteNum, int tileNum, int spawnCnt)
 
 void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt)
 {
-    uspritetype const * const s = (uspritetype *)&sprite[spriteNum];
-    vec2_t repeat = { 32, 32 };
+    auto const s      = (uspriteptr_t)&sprite[spriteNum];
+    vec2_t     repeat = { 32, 32 };
 
     if (A_CheckEnemySprite(s) && s->xrepeat < 16)
         repeat.x = repeat.y = 8;
@@ -917,7 +918,7 @@ ACTOR_STATIC void A_MaybeAwakenBadGuys(int const spriteNum)
 
     if (A_CheckSpriteFlags(spriteNum, SFLAG_WAKEUPBADGUYS))
     {
-        uspritetype *const pSprite = (uspritetype *)&sprite[spriteNum];
+        auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
 
         for (bssize_t nextSprite, SPRITES_OF_STAT_SAFE(STAT_ZOMBIEACTOR, spriteNum, nextSprite))
         {
@@ -1274,7 +1275,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                 int const sectorLotag   = sector[playerSectnum].lotag;
                 int32_t   otherSector;
 
-                if (A_CheckNoSE7Water((uspritetype const *)pSprite, playerSectnum, sectorLotag, &otherSector))
+                if (A_CheckNoSE7Water((uspriteptr_t)pSprite, playerSectnum, sectorLotag, &otherSector))
                 {
                     // NOTE: Compare with G_MoveTransports().
                     pPlayer->on_warping_sector = 1;
@@ -2775,7 +2776,7 @@ static void Proj_BounceOffWall(spritetype *s, int j)
 // NOTE: Compare with Proj_MaybeDamageCF2() in sector.c
 static int Proj_MaybeDamageCF(int spriteNum)
 {
-    uspritetype const * const s = (uspritetype const *)&sprite[spriteNum];
+    auto const s = (uspriteptr_t)&sprite[spriteNum];
 
     if (s->zvel < 0)
     {
@@ -7886,7 +7887,7 @@ next_sprite:
 
         if (s->lotag == SE_29_WAVES)
         {
-            usectortype const *const sc = (usectortype *)&sector[s->sectnum];
+            auto const sc = (usectorptr_t)&sector[s->sectnum];
 
             if (sc->wallnum == 4)
             {

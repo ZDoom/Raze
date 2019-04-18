@@ -112,11 +112,11 @@ static inline float getshadefactor(int32_t const shade)
 
 #define POLYMOST_CHOOSE_FOG_PAL(fogpal, pal) \
     ((fogpal) ? (fogpal) : (pal))
-static FORCE_INLINE int32_t get_floor_fogpal(usectortype const * const sec)
+static FORCE_INLINE int32_t get_floor_fogpal(usectorptr_t const sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->floorpal);
 }
-static FORCE_INLINE int32_t get_ceiling_fogpal(usectortype const * const sec)
+static FORCE_INLINE int32_t get_ceiling_fogpal(usectorptr_t const sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->ceilingpal);
 }

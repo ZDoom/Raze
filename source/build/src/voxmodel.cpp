@@ -897,7 +897,7 @@ voxmodel_t *voxload(const char *filnam)
 
 //Draw voxel model as perfect cubes
 // Note: This is a hopeless mess that totally forfeits any chance of using a vertex buffer with its messy coordinate adjustments. :(
-int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
+int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 {
     // float clut[6] = {1.02,1.02,0.94,1.06,0.98,0.98};
     float f, g, k0;

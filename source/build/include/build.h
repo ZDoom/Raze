@@ -592,7 +592,7 @@ EXTERN wallext_t *wallext;
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
-EXTERN uspritetype *tsprite;
+EXTERN tspriteptr_t tsprite;
 #else
 EXTERN spriteext_t spriteext[MAXSPRITES+MAXUNIQHUDID];
 EXTERN spritesmooth_t spritesmooth[MAXSPRITES+MAXUNIQHUDID];
@@ -673,7 +673,7 @@ static FORCE_INLINE void sprite_tracker_hook(uintptr_t const address)
 
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];
-EXTERN uspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
+EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t wx1, wy1, wx2, wy2;
 EXTERN int32_t xdim, ydim, numpages, upscalefactor;
@@ -1170,7 +1170,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
-int32_t try_facespr_intersect(uspritetype const * const spr, const vec3_t *refpos,
+int32_t try_facespr_intersect(uspriteptr_t const spr, const vec3_t *refpos,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t *intp, int32_t strictly_smaller_than_p);
 
@@ -1210,29 +1210,29 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * con
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
 
-int32_t   getceilzofslopeptr(const usectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
-int32_t   getflorzofslopeptr(const usectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
-void   getzsofslopeptr(const usectortype *sec, int32_t dax, int32_t day,
+int32_t   getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
+int32_t   getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
+void   getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day,
                        int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(1,4,5)));
 
 static FORCE_INLINE int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
-    return getceilzofslopeptr((usectortype *)&sector[sectnum], dax, day);
+    return getceilzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
 }
 
 static FORCE_INLINE int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
-    return getflorzofslopeptr((usectortype *)&sector[sectnum], dax, day);
+    return getflorzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
 }
 
 static FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
-    getzsofslopeptr((usectortype *)&sector[sectnum], dax, day, ceilz, florz);
+    getzsofslopeptr((usectorptr_t)&sector[sectnum], dax, day, ceilz, florz);
 }
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
-static FORCE_INLINE CONSTEXPR int32_t redwallp(const uwalltype *wal)
+static FORCE_INLINE CONSTEXPR int32_t redwallp(uwallptr_t wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }
@@ -1242,7 +1242,7 @@ static FORCE_INLINE CONSTEXPR int32_t E_SpriteIsValid(const int32_t i)
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
 
-int clipshape_idx_for_sprite(uspritetype const * curspr, int curidx);
+int clipshape_idx_for_sprite(uspriteptr_t curspr, int curidx);
 
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
@@ -1273,10 +1273,10 @@ int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
 int32_t   setsprite(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
-int32_t spriteheightofsptr(const uspritetype *spr, int32_t *height, int32_t alsotileyofs);
+int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyofs);
 static FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
 {
-    return spriteheightofsptr((uspritetype *)&sprite[i], height, alsotileyofs);
+    return spriteheightofsptr((uspriteptr_t)&sprite[i], height, alsotileyofs);
 }
 
 int videoCaptureScreen(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));

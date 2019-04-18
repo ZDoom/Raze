@@ -3414,7 +3414,7 @@ SPAWN_END:
     return newSprite;
 }
 
-static int G_MaybeTakeOnFloorPal(uspritetype *pSprite, int sectNum)
+static int G_MaybeTakeOnFloorPal(tspriteptr_t pSprite, int sectNum)
 {
     int const floorPal = sector[sectNum].floorpal;
 
@@ -3555,7 +3555,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 #endif
     for (j=spritesortcnt-1; j>=0; j--)
     {
-        uspritetype *const t = &tsprite[j];
+        auto const t = &tsprite[j];
         const int32_t i = t->owner;
         const spritetype *const s = &sprite[i];
 
@@ -3584,9 +3584,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
     for (j=spritesortcnt-1; j>=0; j--)
     {
-        uspritetype *const t = &tsprite[j];
+        auto const t = &tsprite[j];
         const int32_t i = t->owner;
-        const spritetype *const s = &sprite[i];
+        auto const s = (uspriteptr_t)&sprite[i];
 
         if (t->picnum < GREENSLIME || t->picnum > GREENSLIME+7)
             switch (DYNAMICTILEMAP(t->picnum))
@@ -3675,11 +3675,11 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         int32_t startframe, viewtype;
 #endif
         //is the perfect time to animate sprites
-        uspritetype *const t = &tsprite[j];
+        auto const t = &tsprite[j];
         const int32_t i = t->owner;
         // XXX: what's up with the (i < 0) check?
         // NOTE: not const spritetype because set at SET_SPRITE_NOT_TSPRITE (see below).
-        uspritetype *const pSprite = (i < 0) ? &tsprite[j] : (uspritetype *)&sprite[i];
+        auto const pSprite = (i < 0) ? (uspriteptr_t)&tsprite[j] : (uspriteptr_t)&sprite[i];
 
 #ifndef EDUKE32_STANDALONE
         if (ud.lockout && G_CheckAdultTile(DYNAMICTILEMAP(pSprite->picnum)))
@@ -3921,8 +3921,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 if (ud.showweapons && sprite[g_player[playerNum].ps->i].extra > 0 && g_player[playerNum].ps->curr_weapon > 0
                         && spritesortcnt < maxspritesonscreen)
                 {
-                    uspritetype *const newTspr       = &tsprite[spritesortcnt];
-                    int const          currentWeapon = g_player[playerNum].ps->curr_weapon;
+                    auto const newTspr       = &tsprite[spritesortcnt];
+                    int const  currentWeapon = g_player[playerNum].ps->curr_weapon;
 
                     *newTspr         = *t;
                     newTspr->statnum = TSPR_TEMP;
@@ -3938,7 +3938,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
                 if (g_player[playerNum].inputBits->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < maxspritesonscreen)
                 {
-                    uspritetype *const playerTyping = t;
+                    auto const playerTyping = t;
 
                     playerTyping->statnum = TSPR_TEMP;
                     playerTyping->cstat   = 0;
@@ -3978,8 +3978,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 l = pSprite->z-actor[g_player[playerNum].ps->i].floorz+(3<<8);
                 // SET_SPRITE_NOT_TSPRITE
                 if (l > 1024 && pSprite->yrepeat > 32 && pSprite->extra > 0)
-                    pSprite->yoffset = (int8_t)tabledivide32_noinline(l, pSprite->yrepeat<<2);
-                else pSprite->yoffset=0;
+                    t->yoffset = (int8_t)tabledivide32_noinline(l, pSprite->yrepeat<<2);
+                else t->yoffset=0;
             }
 
             if (g_player[playerNum].ps->newowner > -1)
@@ -4216,7 +4216,7 @@ skip:
 
                     if ((pSprite->z-shadowZ) < ZOFFSET3 && g_player[screenpeek].ps->pos.z < shadowZ)
                     {
-                        uspritetype *const tsprShadow = &tsprite[spritesortcnt];
+                        tspriteptr_t tsprShadow = &tsprite[spritesortcnt];
 
                         *tsprShadow         = *t;
                         tsprShadow->statnum = TSPR_TEMP;

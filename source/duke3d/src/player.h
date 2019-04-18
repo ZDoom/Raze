@@ -397,10 +397,10 @@ static inline int P_GetP(const void *pSprite)
     // NOTE: In the no-netcode build, there's no point to pass player indices
     // at all since there is ever only one player. However, merely returning 0
     // would mean making this build less strict than the normal one.
-    Bassert(((const uspritetype *)pSprite)->yvel == 0);
+    Bassert(((uspriteptr_t)pSprite)->yvel == 0);
     return 0;
 #else
-    int playerNum = ((const uspritetype *)pSprite)->yvel;
+    int playerNum = ((uspriteptr_t)pSprite)->yvel;
     // [JM] Check against MAXPLAYERS as opposed to g_mostConcurrentPlayers
     //      to prevent CON for disconnected/fake players from executing as playernum 0.
     if ((unsigned)playerNum >= MAXPLAYERS)
@@ -410,7 +410,7 @@ static inline int P_GetP(const void *pSprite)
 }
 
 // Get the player index given an APLAYER sprite index.
-static inline int P_Get(int32_t spriteNum) { return P_GetP((const uspritetype *)&sprite[spriteNum]); }
+static inline int P_Get(int32_t spriteNum) { return P_GetP((uspriteptr_t)&sprite[spriteNum]); }
 
 #ifdef __cplusplus
 }

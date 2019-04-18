@@ -373,8 +373,8 @@ static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdju
 
     if (returnSprite >= 0)
     {
-        const uspritetype *const pSprite = (uspritetype *)&sprite[returnSprite];
-        int                      zCenter = 2 * (pSprite->yrepeat * tilesiz[pSprite->picnum].y) + zAdjust;
+        auto const pSprite = (uspriteptr_t)&sprite[returnSprite];
+        int        zCenter = 2 * (pSprite->yrepeat * tilesiz[pSprite->picnum].y) + zAdjust;
 
 #ifndef EDUKE32_STANDALONE
         if (!IONMAIDEN && aimFlags &&
@@ -590,7 +590,7 @@ static int SectorContainsSE13(int const sectNum)
 // (in that case walltype *hitwal may be stale)
 static inline void HandleHitWall(hitdata_t *hitData)
 {
-    uwalltype const * const hitWall = (uwalltype *)&wall[hitData->wall];
+    auto const hitWall = (uwallptr_t)&wall[hitData->wall];
 
     if ((hitWall->cstat & 2) && redwallp(hitWall) && (hitData->pos.z >= sector[hitWall->nextsector].floorz))
         hitData->wall = hitWall->nextwall;
@@ -684,7 +684,7 @@ static int P_PostFireHitscan(int playerNum, int const spriteNum, hitdata_t *cons
     }
     else if (hitData->wall >= 0)
     {
-        uwalltype const * const hitWall = (uwalltype *)&wall[hitData->wall];
+        auto const hitWall = (uwallptr_t)&wall[hitData->wall];
 
         Proj_MaybeSpawn(spriteNum, spawnTile, hitData);
 
@@ -790,7 +790,7 @@ static int Proj_CheckBlood(vec3_t const *const srcVect, hitdata_t const *const h
     if (hitData->wall < 0 || hitData->sect < 0)
         return 0;
 
-    uwalltype const *const hitWall = (uwalltype *)&wall[hitData->wall];
+    auto const hitWall = (uwallptr_t)&wall[hitData->wall];
 
     if ((FindDistance2D(srcVect->x - hitData->pos.x, srcVect->y - hitData->pos.y) < bloodRange)
         && (hitWall->overpicnum != BIGFORCE && (hitWall->cstat & 16) == 0)
@@ -1042,7 +1042,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
 
         if (Proj_CheckBlood(startPos, &hitData, pProj->range, mulscale3(pProj->yrepeat, tilesiz[pProj->decal].y) << 8))
         {
-            const uwalltype *const hitWall = (uwalltype *)&wall[hitData.wall];
+            uwallptr_t const hitWall = (uwallptr_t)&wall[hitData.wall];
 
             if (FindDistance2D(hitWall->x - wall[hitWall->point2].x, hitWall->y - wall[hitWall->point2].y) >
                 (mulscale3(pProj->xrepeat + 8, tilesiz[pProj->decal].x)))
@@ -1139,7 +1139,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
             {
                 if (Proj_CheckBlood(&startPos, &hitData, 1024, 16 << 8))
                 {
-                    const uwalltype *const hitwal = (uwalltype *)&wall[hitData.wall];
+                    uwallptr_t const hitwal = (uwallptr_t)&wall[hitData.wall];
 
                     if (SectorContainsSE13(hitwal->nextsector))
                         return -1;
@@ -4771,7 +4771,7 @@ void P_ProcessInput(int playerNum)
         int spriteNum = lowZhit&(MAXSPRITES-1);
 
         if ((sprite[spriteNum].cstat&33) == 33 || (sprite[spriteNum].cstat&17) == 17 ||
-                clipshape_idx_for_sprite((uspritetype *)&sprite[spriteNum], -1) >= 0)
+                clipshape_idx_for_sprite((uspriteptr_t)&sprite[spriteNum], -1) >= 0)
         {
             // EDuke32 extension: xvel of 1 makes a sprite be never regarded as a bridge.
 
@@ -5416,7 +5416,7 @@ HORIZONLY:;
     // ST_2_UNDERWATER
     if (pPlayer->cursectnum >= 0 && sectorLotag < 3)
     {
-        usectortype const *pSector = (usectortype *)&sector[pPlayer->cursectnum];
+        auto const pSector = (usectorptr_t)&sector[pPlayer->cursectnum];
 
         // TRAIN_SECTOR_TO_SE_INDEX
         if ((!ud.noclip && pSector->lotag == ST_31_TWO_WAY_TRAIN) &&

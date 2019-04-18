@@ -104,7 +104,7 @@ int32_t __fastcall VM_GetSector(int const sectNum, int32_t labelNum)
         return -1;
     }
 
-    auto const &s = *(usectortype *)&sector[sectNum];
+    auto const &s = *(usectorptr_t)&sector[sectNum];
 
     switch (labelNum)
     {

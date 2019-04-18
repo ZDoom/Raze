@@ -436,7 +436,7 @@ extern int32_t      ticrandomseed;
 extern projectile_t SpriteProjectile[MAXSPRITES];
 
 
-int  A_CheckNoSE7Water(uspritetype const *pSprite, int sectNum, int sectLotag, int32_t *pOther);
+int  A_CheckNoSE7Water(uspriteptr_t pSprite, int sectNum, int sectLotag, int32_t *pOther);
 int  A_CheckSwitchTile(int spriteNum);
 int A_IncurDamage(int spriteNum);
 void A_AddToDeleteQueue(int spriteNum);
@@ -536,7 +536,7 @@ EXTERN_INLINE int G_CheckForSpaceFloor(int const sectnum)
 
 EXTERN_INLINE int A_CheckEnemySprite(void const * const pSprite)
 {
-    return A_CheckEnemyTile(((uspritetype const *) pSprite)->picnum);
+    return A_CheckEnemyTile(((uspriteptr_t) pSprite)->picnum);
 }
 
 #endif

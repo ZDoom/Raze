@@ -113,7 +113,7 @@ typedef struct {
     int32_t g_st;
     union {
         spritetype * pSprite;
-        uspritetype *pUSprite;
+        uspritetype const * pUSprite;
     };
     uint32_t flags;  // g_errorFlag, g_returnFlag;
 

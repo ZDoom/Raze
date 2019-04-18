@@ -56,8 +56,8 @@ typedef struct
 typedef struct
 {
     int16_t numsectors, numwalls;
-    usectortype *sector;
-    uwalltype *wall;
+    usectorptr_t sector;
+    uwallptr_t wall;
 } mapinfo_t;
 
 extern int32_t quickloadboard;

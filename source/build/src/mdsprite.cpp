@@ -913,7 +913,7 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
-void updateanimation(md2model_t *m, const uspritetype *tspr, uint8_t lpal)
+void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
 {
     if (m->numframes < 2)
     {
@@ -1845,7 +1845,7 @@ int      md3postload_polymer(md3model_t *m)
 }
 
 
-void md3_vox_calcmat_common(const uspritetype *tspr, const vec3f_t *a0, float f, float mat[16])
+void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16])
 {
     float g;
     float k0, k1, k2, k3, k4, k5, k6, k7;
@@ -1899,7 +1899,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
 #endif
 }
 
-static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
+static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 {
     vec3f_t m0, m1, a0;
     md3xyzn_t *v0, *v1;
@@ -2364,7 +2364,7 @@ mdmodel_t *mdload(const char *filnam)
 }
 
 
-int32_t polymost_mddraw(const uspritetype *tspr)
+int32_t polymost_mddraw(tspriteptr_t tspr)
 {
     if (maxmodelverts > allocmodelverts)
     {

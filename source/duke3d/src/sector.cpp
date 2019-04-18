@@ -427,7 +427,7 @@ void G_AnimateCamSprite(int smoothRatio)
 
         if (OW(spriteNum) >= 0 && dist(&sprite[pPlayer->i], &sprite[spriteNum]) < VIEWSCREEN_ACTIVE_DISTANCE)
         {
-            int const viewscrShift = G_GetViewscreenSizeShift((const uspritetype *)&sprite[spriteNum]);
+            int const viewscrShift = G_GetViewscreenSizeShift((uspriteptr_t)&sprite[spriteNum]);
             int const viewscrTile  = TILE_VIEWSCR - viewscrShift;
 
             if (waloff[viewscrTile] == 0)

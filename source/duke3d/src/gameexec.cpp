@@ -230,7 +230,7 @@ int32_t VM_OnEvent__(int const nEventID, int const spriteNum, int const playerNu
 
 static bool VM_CheckSquished(void)
 {
-    auto const pSector = (usectortype *)&sector[vm.pSprite->sectnum];
+    auto const pSector = (usectorptr_t)&sector[vm.pSprite->sectnum];
 
     if (pSector->lotag == ST_23_SWINGING_DOOR || (vm.pSprite->picnum == APLAYER && ud.noclip) ||
         (pSector->lotag == ST_1_ABOVE_WATER && !A_CheckNoSE7Water(vm.pUSprite, vm.pSprite->sectnum, pSector->lotag, NULL)))
@@ -316,7 +316,7 @@ bool A_Dodge(spritetype * const pSprite)
 
 int A_GetFurthestAngle(int spriteNum, int angDiv)
 {
-    auto const pSprite = (uspritetype *)&sprite[spriteNum];
+    auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
 
     if (pSprite->picnum != APLAYER && (AC_COUNT(actor[spriteNum].t_data)&63) > 2)
         return pSprite->ang + 1024;
@@ -328,9 +328,9 @@ int A_GetFurthestAngle(int spriteNum, int angDiv)
 
     for (native_t j = pSprite->ang; j < (2048 + pSprite->ang); j += angIncs)
     {
-        pSprite->z -= ZOFFSET3;
-        hitscan((const vec3_t *)pSprite, pSprite->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 0, &hit, CLIPMASK1);
-        pSprite->z += ZOFFSET3;
+        vec3_t origin = *(const vec3_t *)pSprite;
+        origin.z -= ZOFFSET3;
+        hitscan(&origin, pSprite->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 0, &hit, CLIPMASK1);
 
         int const hitDist = klabs(hit.pos.x-pSprite->x) + klabs(hit.pos.y-pSprite->y);
 
@@ -344,12 +344,12 @@ int A_GetFurthestAngle(int spriteNum, int angDiv)
     return furthestAngle & 2047;
 }
 
-int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, vec2_t * const vect)
+int A_FurthestVisiblePoint(int const spriteNum, uspriteptr_t const ts, vec2_t * const vect)
 {
     if (AC_COUNT(actor[spriteNum].t_data)&63)
         return -1;
 
-    const uspritetype *const pnSprite = (uspritetype *)&sprite[spriteNum];
+    auto const pnSprite = (uspriteptr_t)&sprite[spriteNum];
 
     hitdata_t hit;
     int const angincs = 128;
@@ -357,9 +357,9 @@ int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, vec2_t *
 
     for (native_t j = ts->ang; j < (2048 + ts->ang); j += (angincs /*-(krand()&511)*/))
     {
-        ts->z -= ZOFFSET2;
-        hitscan((const vec3_t *)ts, ts->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 16384 - (krand() & 32767), &hit, CLIPMASK1);
-        ts->z += ZOFFSET2;
+        vec3_t origin = *(const vec3_t *)ts;
+        origin.z -= ZOFFSET2;
+        hitscan(&origin, ts->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 16384 - (krand() & 32767), &hit, CLIPMASK1);
 
         if (hit.sect < 0)
             continue;
@@ -383,7 +383,7 @@ int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, vec2_t *
 
 static void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist)
 {
-    uspritetype *const pSprite = (uspritetype *)&sprite[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
     int const          ocstat  = pSprite->cstat;
 
     pSprite->cstat = 0;
@@ -406,7 +406,7 @@ void A_GetZLimits(int const spriteNum)
 
     if ((florhit&49152) == 49152 && (sprite[florhit&(MAXSPRITES-1)].cstat&48) == 0)
     {
-        auto const hitspr = (uspritetype *)&sprite[florhit&(MAXSPRITES-1)];
+        auto const hitspr = (uspriteptr_t)&sprite[florhit&(MAXSPRITES-1)];
 
         florhit &= (MAXSPRITES-1);
 
@@ -968,7 +968,7 @@ static int A_GetVerticalVel(actor_t const * const pActor)
 
 static int32_t A_GetWaterZOffset(int const spriteNum)
 {
-    auto const pSprite = (uspritetype *)&sprite[spriteNum];
+    auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
     auto const pActor  = &actor[spriteNum];
 
     if (sector[pSprite->sectnum].lotag == ST_1_ABOVE_WATER)
@@ -3063,7 +3063,7 @@ badindex:
 
             vInstruction(CON_IFCANSEE):
             {
-                auto pSprite = (uspritetype *)&sprite[vm.pPlayer->i];
+                auto pSprite = (uspriteptr_t)&sprite[vm.pPlayer->i];
 
 // select sprite for monster to target
 // if holoduke is on, let them target holoduke first.
@@ -3071,7 +3071,7 @@ badindex:
 #ifndef EDUKE32_STANDALONE
                 if (vm.pPlayer->holoduke_on >= 0)
                 {
-                    pSprite = (uspritetype *)&sprite[vm.pPlayer->holoduke_on];
+                    pSprite = (uspriteptr_t)&sprite[vm.pPlayer->holoduke_on];
                     tw = cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - (krand() & (ZOFFSET5 - 1)), vm.pSprite->sectnum, pSprite->x, pSprite->y,
                                 pSprite->z, pSprite->sectnum);
 
@@ -3079,7 +3079,7 @@ badindex:
                     {
                         // they can't see player's holoduke
                         // check for player...
-                        pSprite = (uspritetype *)&sprite[vm.pPlayer->i];
+                        pSprite = (uspriteptr_t)&sprite[vm.pPlayer->i];
                     }
                 }
 #endif

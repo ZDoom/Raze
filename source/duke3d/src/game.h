@@ -549,14 +549,14 @@ static inline int G_GetMusicIdx(const char *str)
     return (ep * MAXLEVELS) + lev;
 }
 
-static inline int G_GetViewscreenSizeShift(const uspritetype *tspr)
+static inline int G_GetViewscreenSizeShift(uspriteptr_t const spr)
 {
 #if VIEWSCREENFACTOR == 0
-    UNREFERENCED_PARAMETER(tspr);
+    UNREFERENCED_PARAMETER(spr);
     return VIEWSCREENFACTOR;
 #else
     static const int mask = (1<<VIEWSCREENFACTOR)-1;
-    const int rem = (tspr->xrepeat & mask) | (tspr->yrepeat & mask);
+    const int rem = (spr->xrepeat & mask) | (spr->yrepeat & mask);
 
     for (int i=0; i < VIEWSCREENFACTOR; i++)
         if (rem & (1<<i))
