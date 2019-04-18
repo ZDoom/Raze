@@ -23,6 +23,8 @@ apps/
 *.cache
 *.cfg
 textures
+texturecache
+*.index
 
 *.manifest
 /*.map
@@ -32,6 +34,9 @@ textures
 *.VC.db
 *.VC.opendb
 *.sym
+/*.grp
+/*.rts
+/*.art
 /*.con
 /platform/Windows/*.con
 *.memmap
