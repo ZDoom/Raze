@@ -1457,10 +1457,12 @@ int16_t searchbottomwall, searchisbottom;
 char inpreparemirror = 0, mirrorrender = 0;
 static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
 
+#define MAXSETVIEW 4
+
 static int32_t setviewcnt = 0; // interface layers use this now
-static intptr_t bakframeplace[4];
-static int32_t bakxsiz[4], bakysiz[4];
-static vec2_t bakwindowxy1[4], bakwindowxy2[4];
+static intptr_t bakframeplace[MAXSETVIEW];
+static int32_t bakxsiz[MAXSETVIEW], bakysiz[MAXSETVIEW];
+static vec2_t bakwindowxy1[MAXSETVIEW], bakwindowxy2[MAXSETVIEW];
 #ifdef USE_OPENGL
 static int32_t bakrendmode;
 #endif
@@ -11532,6 +11534,9 @@ void videoClearScreen(int32_t dacol)
 //
 void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
+    if (setviewcnt >= MAXSETVIEW-1)
+        return;
+
     //DRAWROOMS TO TILE BACKUP&SET CODE
     tilesiz[tilenume].x = xsiz; tilesiz[tilenume].y = ysiz;
     bakxsiz[setviewcnt] = xsiz; bakysiz[setviewcnt] = ysiz;
