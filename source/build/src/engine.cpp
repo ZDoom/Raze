@@ -11722,11 +11722,11 @@ int32_t getceilzofslopeptr(const usectortype *sec, int32_t dax, int32_t day)
     if (!(sec->ceilingstat&2))
         return sec->ceilingz;
 
-    uwalltype const *wal = (uwalltype *)&wall[sec->wallptr];
+    uwalltype const *wal  = (uwalltype *)&wall[sec->wallptr];
+    uwalltype const *wal2 = (uwalltype *)&wall[wal->point2];
 
-    // floor(sqrt(2**31-1)) == 46340
     vec2_t const w = *(vec2_t const *)wal;
-    vec2_t const d = { wall[wal->point2].x-w.x , wall[wal->point2].y-w.y };
+    vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
 
     int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->ceilingz;
@@ -11740,10 +11740,11 @@ int32_t getflorzofslopeptr(const usectortype *sec, int32_t dax, int32_t day)
     if (!(sec->floorstat&2))
         return sec->floorz;
 
-    uwalltype const *wal = (uwalltype *) &wall[sec->wallptr];
+    uwalltype const *wal  = (uwalltype *)&wall[sec->wallptr];
+    uwalltype const *wal2 = (uwalltype *)&wall[wal->point2];
 
     vec2_t const w = *(vec2_t const *)wal;
-    vec2_t const d = { wall[wal->point2].x-w.x , wall[wal->point2].y-w.y };
+    vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
 
     int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->floorz;
@@ -11759,9 +11760,10 @@ void getzsofslopeptr(const usectortype *sec, int32_t dax, int32_t day, int32_t *
     if (((sec->ceilingstat|sec->floorstat)&2) != 2)
         return;
 
-    uwalltype const *wal = (uwalltype *) &wall[sec->wallptr];
-    uwalltype const *wal2 = (uwalltype *) &wall[wal->point2];
-    vec2_t const d = { wal2->x-wal->x, wal2->y-wal->y };
+    uwalltype const *wal  = (uwalltype *)&wall[sec->wallptr];
+    uwalltype const *wal2 = (uwalltype *)&wall[wal->point2];
+
+    vec2_t const d = { wal2->x - wal->x, wal2->y - wal->y };
 
     int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
     if (i == 0) return;
