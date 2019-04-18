@@ -341,21 +341,27 @@ enum {
 #include "buildtypes.h"
 
 #if !defined NEW_MAP_FORMAT
-typedef sectortypev7 sectortype;
-typedef usectortypev7 usectortype;
+using sectortype  = sectortypev7;
+using usectortype = usectortypev7;
 
-typedef walltypev7 walltype;
-typedef uwalltypev7 uwalltype;
+using walltype  = walltypev7;
+using uwalltype = uwalltypev7;
 #else
-typedef sectortypevx sectortype;
-typedef usectortypevx usectortype;
+using sectortype  = sectortypevx;
+using usectortype = usectortypevx;
 
-typedef walltypevx walltype;
-typedef uwalltypevx uwalltype;
+using walltype  = walltypevx;
+using uwalltype = uwalltypevx;
 #endif
 
-typedef spritetypev7 spritetype;
-typedef uspritetypev7 uspritetype;
+using spritetype  = spritetypev7;
+using uspritetype = uspritetypev7;
+using tspritetype = uspritetypev7;
+
+using uspriteptr_t = uspritetype const *;
+using uwallptr_t   = uwalltype const *;
+using usectorptr_t = usectortype const *;
+using tspriteptr_t = tspritetype *;
 
 // this is probably never going to be necessary
 EDUKE32_STATIC_ASSERT(sizeof(sectortype) == sizeof(usectortype));
