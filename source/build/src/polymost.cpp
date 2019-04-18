@@ -3587,7 +3587,6 @@ static int32_t should_clip_cfwall(float x0, float y0, float x1, float y1)
 
 #endif
 
-#define POINT2(i) (wall[wall[i].point2])
 
 void polymost_editorfunc(void)
 {

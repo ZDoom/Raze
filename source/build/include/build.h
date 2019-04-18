@@ -231,6 +231,9 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
 
+#define NEXTWALL(i) (wall[wall[i].nextwall])
+#define POINT2(i) (wall[wall[i].point2])
+
 // max x/y val (= max editorgridextent in Mapster32)
 #define BXY_MAX 524288
 
