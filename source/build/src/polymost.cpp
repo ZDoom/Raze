@@ -4064,9 +4064,10 @@ static void polymost_drawalls(int32_t const bunch)
     {
         int32_t const wallnum = thewall[z];
 
-        uwalltype * const wal = (uwalltype *)&wall[wallnum], *wal2 = (uwalltype *)&wall[wal->point2];
+        auto const wal = (uwalltype *)&wall[wallnum];
+        auto const wal2 = (uwalltype *)&wall[wal->point2];
         int32_t const nextsectnum = wal->nextsector;
-        usectortype * const nextsec = nextsectnum>=0 ? (usectortype *)&sector[nextsectnum] : NULL;
+        auto const nextsec = nextsectnum>=0 ? (usectortype *)&sector[nextsectnum] : NULL;
 
         //Offset&Rotate 3D coordinates to screen 3D space
         vec2f_t walpos = { (float)(wal->x-globalposx), (float)(wal->y-globalposy) };
@@ -5488,15 +5489,16 @@ void polymost_drawrooms()
 void polymost_drawmaskwall(int32_t damaskwallcnt)
 {
     int const z = maskwall[damaskwallcnt];
-    uwalltype const * const wal = (uwalltype *)&wall[thewall[z]], *wal2 = (uwalltype *)&wall[wal->point2];
+    auto const wal = (uwalltype *)&wall[thewall[z]];
+    auto const wal2 = (uwalltype *)&wall[wal->point2];
     int32_t const sectnum = thesector[z];
-    usectortype const * const sec = (usectortype *)&sector[sectnum];
+    auto const sec = (usectortype *)&sector[sectnum];
 
 //    if (wal->nextsector < 0) return;
     // Without MASKWALL_BAD_ACCESS fix:
     // wal->nextsector is -1, WGR2 SVN Lochwood Hollow (Til' Death L1)  (or trueror1.map)
 
-    usectortype const * const nsec = (usectortype *)&sector[wal->nextsector];
+    auto const nsec = (usectortype *)&sector[wal->nextsector];
 
     globalpicnum = wal->overpicnum;
     if ((uint32_t)globalpicnum >= MAXTILES)

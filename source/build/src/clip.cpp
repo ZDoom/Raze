@@ -1039,10 +1039,10 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         auto const sec       = (usectortype *)&sector[dasect];
         int const  startwall = sec->wallptr;
         int const  endwall   = startwall + sec->wallnum;
+        auto       wal       = (uwalltype *)&wall[startwall];
 
-        for (native_t j=startwall; j<endwall; j++)
+        for (native_t j=startwall; j<endwall; j++, wal++)
         {
-            auto const wal  = (uwalltype *)&wall[j];
             auto const wal2 = (uwalltype *)&wall[wal->point2];
 
             if ((wal->x < clipMin.x && wal2->x < clipMin.x) || (wal->x > clipMax.x && wal2->x > clipMax.x) ||
@@ -1174,7 +1174,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 #endif
         for (int j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
         {
-            const uspritetype *const spr = (uspritetype *)&sprite[j];
+            auto const spr = (uspritetype *)&sprite[j];
             const int32_t cstat = spr->cstat;
 
             if ((cstat&dasprclipmask) == 0)
@@ -2030,7 +2030,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const usectortype *sec, hitda
         else
         {
             const int32_t curidx=(int32_t)tmp[0];
-            const uspritetype *const curspr=(uspritetype *)tmp[1];
+            auto const curspr=(uspritetype *)tmp[1];
             const int32_t thislastsec = tmp[2];
 
             if (!thislastsec)
@@ -2214,7 +2214,7 @@ restart_grand:
 #endif
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
-            const uspritetype *const spr = (uspritetype *)&sprite[z];
+            auto const spr = (uspritetype *)&sprite[z];
             const int32_t cstat = spr->cstat;
 #ifdef USE_OPENGL
             if (!hitallsprites)

@@ -210,7 +210,7 @@ void yax_update(int32_t resetstat);
 int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf);
 void yax_getclosestpointonwall(int32_t dawall, int32_t *closestx, int32_t *closesty);
 
-static FORCE_INLINE int32_t yax_waltosecmask(int32_t walclipmask)
+static FORCE_INLINE CONSTEXPR int32_t yax_waltosecmask(int32_t const walclipmask)
 {
     // blocking: walstat&1 --> secstat&512
     // hitscan: walstat&64 --> secstat&2048
@@ -1186,18 +1186,18 @@ int32_t    krand(void);
 int32_t   ksqrt(uint32_t num);
 int32_t   LUNATIC_FASTCALL getangle(int32_t xvect, int32_t yvect);
 
-static FORCE_INLINE uint32_t uhypsq(int32_t dx, int32_t dy)
+static FORCE_INLINE CONSTEXPR uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-static FORCE_INLINE int32_t logapproach(int32_t val, int32_t targetval)
+static FORCE_INLINE int32_t logapproach(int32_t const val, int32_t const targetval)
 {
-    int32_t dif = targetval - val;
+    int32_t const dif = targetval - val;
     return (dif>>1) ? val + (dif>>1) : targetval;
 }
 
-void      rotatepoint(vec2_t pivot, vec2_t p, int16_t daang, vec2_t *p2) ATTRIBUTE((nonnull(4)));
+void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2) ATTRIBUTE((nonnull(4)));
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
 
@@ -1223,12 +1223,12 @@ static FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day,
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
-static FORCE_INLINE int32_t redwallp(const uwalltype *wal)
+static FORCE_INLINE CONSTEXPR int32_t redwallp(const uwalltype *wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }
 
-static FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
+static FORCE_INLINE CONSTEXPR int32_t E_SpriteIsValid(const int32_t i)
 {
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
@@ -1280,10 +1280,12 @@ struct OutputFileCounter {
 };
 
 // PLAG: line utility functions
-typedef struct  s_equation {
-    float       a, b, c;
-}               _equation;
-int32_t             wallvisible(int32_t x, int32_t y, int16_t wallnum);
+typedef struct s_equation
+{
+    float a, b, c;
+} _equation;
+
+int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum);
 
 #define STATUS2DSIZ 144
 #define STATUS2DSIZ2 26
@@ -1410,7 +1412,7 @@ typedef struct
 EXTERN int32_t mdinited;
 EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
 
-static FORCE_INLINE int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
+static FORCE_INLINE int32_t md_tilehasmodel(int32_t const tilenume, int32_t const pal)
 {
     return mdinited ? tile2model[Ptile2tile(tilenume,pal)].modelid : -1;
 }
@@ -1476,7 +1478,7 @@ extern const int32_t engine_v8;
 int32_t Mulscale(int32_t a, int32_t b, int32_t sh);
 #endif
 
-static inline bool inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
+static FORCE_INLINE CONSTEXPR bool inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
 
 #define SET_AND_RETURN(Lval, Rval) \
     do                             \

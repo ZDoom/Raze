@@ -1473,7 +1473,7 @@ char apptitle[256] = "Build Engine";
 //          1=break out of sprite collecting;
 int32_t renderAddTsprite(int16_t z, int16_t sectnum)
 {
-    uspritetype *spr = (uspritetype *)&sprite[z];
+    auto const spr = (uspritetype *)&sprite[z];
 #ifdef YAX_ENABLE
     if (g_nodraw==0)
     {
@@ -1658,7 +1658,7 @@ static void classicScanSector(int16_t startsectnum)
 #endif
         for (bssize_t i=headspritesect[sectnum]; i>=0; i=nextspritesect[i])
         {
-            const uspritetype *const spr = (uspritetype *)&sprite[i];
+            auto const spr = (uspritetype *)&sprite[i];
 
             if (((spr->cstat & 0x8000) && !showinvisibility) || spr->xrepeat == 0 || spr->yrepeat == 0)
                 continue;
@@ -1684,9 +1684,9 @@ static void classicScanSector(int16_t startsectnum)
 
         for (bssize_t w=startwall; w<endwall; w++)
         {
-            const uwalltype *const wal = (uwalltype *)&wall[w];
+            auto const wal = (uwalltype *)&wall[w];
             const int32_t nextsectnum = wal->nextsector;
-            const uwalltype *const wal2 = (uwalltype *)&wall[wal->point2];
+            auto const wal2 = (uwalltype *)&wall[wal->point2];
 
             const int32_t x1 = wal->x-globalposx, y1 = wal->y-globalposy;
             const int32_t x2 = wal2->x-globalposx, y2 = wal2->y-globalposy;
@@ -2074,8 +2074,8 @@ int32_t wallfront(int32_t l1, int32_t l2)
 //
 static inline int32_t spritewallfront(const uspritetype *s, int32_t w)
 {
-    const uwalltype *const wal = (uwalltype *)&wall[w];
-    const uwalltype *wal2 = (uwalltype *)&wall[wal->point2];
+    auto const wal = (uwalltype *)&wall[w];
+    auto const wal2 = (uwalltype *)&wall[wal->point2];
     const vec2_t v = { wal->x, wal->y };
 
     return dmulscale32(wal2->x - v.x, s->y - v.y, -(s->x - v.x), wal2->y - v.y) >= 0;
@@ -2482,7 +2482,7 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
     if (wi == sector[sectnum].wallptr)
         return owallmost(mostbuf,w,z);
 
-    const uwalltype *const wal = (uwalltype *)&wall[wi];
+    auto const wal = (uwalltype *)&wall[wi];
     const int32_t x1 = wal->x, x2 = wall[wal->point2].x-x1;
     const int32_t y1 = wal->y, y2 = wall[wal->point2].y-y1;
 
@@ -2704,7 +2704,7 @@ static int32_t setup_globals_cf1(const usectortype *sec, int32_t pal, int32_t zd
 static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
 {
     int32_t x, y1, y2;
-    const usectortype *const sec = (usectortype *)&sector[sectnum];
+    auto const sec = (usectortype *)&sector[sectnum];
 
     if (setup_globals_cf1(sec, sec->ceilingpal, sec->ceilingz-globalposz,
                           sec->ceilingpicnum, sec->ceilingshade, sec->ceilingstat,
@@ -2802,7 +2802,7 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
 static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
 {
      int32_t x, y1, y2;
-     const usectortype *const sec = (usectortype *)&sector[sectnum];
+     auto const sec = (usectortype *)&sector[sectnum];
 
      if (setup_globals_cf1(sec, sec->floorpal, globalposz-sec->floorz,
                            sec->floorpicnum, sec->floorshade, sec->floorstat,
@@ -3424,7 +3424,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     // Er, yes, they're not global anymore:
     int32_t globalx, globaly, globalz, globalzx;
 
-    const usectortype *const sec = (usectortype *)&sector[sectnum];
+    auto const sec = (usectortype *)&sector[sectnum];
     const uwalltype *wal;
 
     if (dastat == 0)
@@ -3603,13 +3603,13 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 //
 static void parascan(char dastat, int32_t bunch)
 {
-    usectortype *sec;
     int32_t j, k, l, m, n, x, z, wallnum, nextsectnum, globalhorizbak;
     int16_t *topptr, *botptr;
 
     int32_t logtilesizy, tsizy;
 
-    int32_t sectnum = thesector[bunchfirst[bunch]]; sec = (usectortype *)&sector[sectnum];
+    int32_t sectnum = thesector[bunchfirst[bunch]];
+    auto const sec = (usectortype *)&sector[sectnum];
 
     globalhorizbak = globalhoriz;
     globvis = globalpisibility;
@@ -3908,7 +3908,7 @@ static void classicDrawBunches(int32_t bunch)
     int32_t z = bunchfirst[bunch];
 
     const int32_t sectnum = thesector[z];
-    const usectortype *const sec = (usectortype *)&sector[sectnum];
+    auto const sec = (usectortype *)&sector[sectnum];
 
     uint8_t andwstat1 = 0xff, andwstat2 = 0xff;
 
@@ -4035,10 +4035,10 @@ static void classicDrawBunches(int32_t bunch)
         }
 
         const int32_t wallnum = thewall[z];
-        const uwalltype *const wal = (uwalltype *)&wall[wallnum];
+        auto const wal = (uwalltype *)&wall[wallnum];
 
         const int32_t nextsectnum = wal->nextsector;
-        const usectortype *const nextsec = nextsectnum>=0 ? (usectortype *)&sector[nextsectnum] : NULL;
+        auto const nextsec = nextsectnum>=0 ? (usectortype *)&sector[nextsectnum] : NULL;
 
         int32_t gotswall = 0;
 
@@ -4209,7 +4209,7 @@ static void classicDrawBunches(int32_t bunch)
                             searchstat = 0; searchit = 1;
                         }
 
-                    const uwalltype *twal = (wal->cstat&2) ? (uwalltype *)&wall[wal->nextwall] : wal;
+                    auto const twal = (wal->cstat&2) ? (uwalltype *)&wall[wal->nextwall] : wal;
                     setup_globals_wall1(twal, twal->picnum);
 
                     setup_globals_wall2(wal, sec->visibility, nextsec->floorz, sec->ceilingz);
@@ -4784,7 +4784,7 @@ static FORCE_INLINE int32_t mulscale_triple30(int32_t a, int32_t b, int32_t c)
 
 static void classicDrawSprite(int32_t snum)
 {
-    uspritetype *const tspr = tspriteptr[snum];
+    auto const tspr = tspriteptr[snum];
     const int32_t sectnum = tspr->sectnum;
 
     if (sectnum < 0 || bad_tspr(tspr))
@@ -4803,7 +4803,7 @@ static void classicDrawSprite(int32_t snum)
     const int32_t spritenum = tspr->owner;
     const float alpha = spriteext[spritenum].alpha;
 
-    const usectortype *const sec = (usectortype *)&sector[sectnum];
+    auto const sec = (usectortype *)&sector[sectnum];
 
     int32_t cstat=tspr->cstat, tilenum;
 
@@ -5875,10 +5875,10 @@ static void renderDrawMaskedWall(int16_t damaskwallcnt)
     //============================================================================= //POLYMOST ENDS
 
     int32_t z = maskwall[damaskwallcnt];
-    uwalltype *wal = (uwalltype *)&wall[thewall[z]];
+    auto wal = (uwalltype *)&wall[thewall[z]];
     int32_t sectnum = thesector[z];
-    usectortype *sec = (usectortype *)&sector[sectnum];
-    usectortype *nsec = (usectortype *)&sector[wal->nextsector];
+    auto sec = (usectortype *)&sector[sectnum];
+    auto nsec = (usectortype *)&sector[wal->nextsector];
     int32_t z1 = max(nsec->ceilingz,sec->ceilingz);
     int32_t z2 = min(nsec->floorz,sec->floorz);
 
@@ -7966,7 +7966,7 @@ void initspritelists(void)
 }
 
 
-void set_globalang(fix16_t ang)
+void set_globalang(fix16_t const ang)
 {
     globalang = fix16_to_int(ang)&2047;
     qglobalang = ang & 0x7FFFFFF;
@@ -8284,7 +8284,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 // _maskleaf               maskleaves[MAXWALLSB];
 
 // returns equation of a line given two points
-static inline _equation       equation(float x1, float y1, float x2, float y2)
+static inline _equation equation(float const x1, float const y1, float const x2, float const y2)
 {
     _equation   ret;
     const float f = x2-x1;
@@ -8306,17 +8306,14 @@ static inline _equation       equation(float x1, float y1, float x2, float y2)
     return ret;
 }
 
-int32_t                 wallvisible(int32_t x, int32_t y, int16_t wallnum)
+int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum)
 {
     // 1 if wall is in front of player 0 otherwise
-    uwalltype *w1 = (uwalltype *)&wall[wallnum];
-    uwalltype *w2 = (uwalltype *)&wall[w1->point2];
+    auto w1 = (uwalltype *)&wall[wallnum];
+    auto w2 = (uwalltype *)&wall[w1->point2];
 
-    int32_t a1 = getangle(w1->x - x, w1->y - y);
-    int32_t a2 = getangle(w2->x - x, w2->y - y);
-
-    //if ((wallnum == 23) || (wallnum == 9))
-    //    OSD_Printf("Wall %d : %d - sector %d - x %d - y %d.\n", wallnum, (a2 + (2048 - a1)) & 2047, globalcursectnum, globalposx, globalposy);
+    int32_t const a1 = getangle(w1->x - x, w1->y - y);
+    int32_t const a2 = getangle(w2->x - x, w2->y - y);
 
     return (((a2 + (2048 - a1)) & 2047) <= 1024);
 }
@@ -8497,7 +8494,7 @@ killsprite:
         {
             for (bssize_t k=i; k<j; k++)
             {
-                const uspritetype *const s = tspriteptr[k];
+                auto const s = tspriteptr[k];
 
                 spritesxyz[k].z = s->z;
                 if ((s->cstat&48) != 32)
@@ -8597,7 +8594,7 @@ killsprite:
                )
             {
                 vec2f_t spr;
-                const uspritetype *tspr = tspriteptr[i];
+                auto const tspr = tspriteptr[i];
 
                 spr.x = (float)tspr->x;
                 spr.y = (float)tspr->y;
@@ -8936,7 +8933,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     for (s=sortnum-1; s>=0; s--)
     {
-        uspritetype * const spr = (uspritetype * )&sprite[tsprite[s].owner];
+        auto const spr = (uspritetype * )&sprite[tsprite[s].owner];
         if ((spr->cstat&48) == 32)
         {
             const int32_t xspan = tilesiz[spr->picnum].x;
@@ -9835,8 +9832,8 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 
         if (numsprites > 0)
         {
-            uspritetype *const tspri = (uspritetype *)Xmalloc(sizeof(spritetype) * numsprites);
-            uspritetype *spri = tspri;
+            auto const tspri = (uspritetype *)Xmalloc(sizeof(spritetype) * numsprites);
+            auto spri = tspri;
 
             for (j=0; j<MAXSPRITES; j++)
             {
@@ -10221,7 +10218,7 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
     if ((unsigned)sectnum < (unsigned)numsectors)
     {
         uint32_t cnt1 = 0, cnt2 = 0;
-        uwalltype const * wal = (uwalltype *) &wall[sector[sectnum].wallptr];
+        auto wal = (uwalltype *) &wall[sector[sectnum].wallptr];
         int wallsleft = sector[sectnum].wallnum;
 
         do
@@ -10378,7 +10375,7 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, in
     int32_t nextz = (direction==1) ? INT32_MAX : INT32_MIN;
     int32_t sectortouse = -1;
 
-    const uwalltype *wal = (uwalltype *)&wall[sector[sectnum].wallptr];
+    auto wal = (uwalltype *)&wall[sector[sectnum].wallptr];
     int32_t i = sector[sectnum].wallnum;
 
     do
@@ -10447,7 +10444,7 @@ restart_grand:
     for (dacnt=0; dacnt<danum; dacnt++)
     {
         const int32_t dasectnum = clipsectorlist[dacnt];
-        const usectortype *const sec = (usectortype *)&sector[dasectnum];
+        auto const sec = (usectortype *)&sector[dasectnum];
         const uwalltype *wal;
         bssize_t cnt;
 #ifdef YAX_ENABLE
@@ -10460,7 +10457,7 @@ restart_grand:
 #endif
         for (cnt=sec->wallnum,wal=(uwalltype *)&wall[sec->wallptr]; cnt>0; cnt--,wal++)
         {
-            const uwalltype *const wal2 = (uwalltype *)&wall[wal->point2];
+            auto const wal2 = (uwalltype *)&wall[wal->point2];
             const int32_t x31 = wal->x-x1, x34 = wal->x-wal2->x;
             const int32_t y31 = wal->y-y1, y34 = wal->y-wal2->y;
 
@@ -10695,7 +10692,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 
         for (z=startwall,wal=(uwalltype *)&wall[startwall]; z<=endwall; z++,wal++)
         {
-            const uwalltype *const wal2 = (uwalltype *)&wall[wal->point2];
+            auto const wal2 = (uwalltype *)&wall[wal->point2];
             const int32_t nextsector = wal->nextsector;
 
             const int32_t x1=wal->x, y1=wal->y, x2=wal2->x, y2=wal2->y;
@@ -10740,7 +10737,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
-            const uspritetype *const spr = (uspritetype *)&sprite[z];
+            auto const spr = (uspritetype *)&sprite[z];
 
             if (blacklist_sprite_func && blacklist_sprite_func(z))
                 continue;
@@ -10964,7 +10961,7 @@ void bfirst_search_try(int16_t * const list, uint8_t * const bitmap, int32_t * c
  * NOTE: The redundant bound checks are expected to be optimized away in the
  * inlined code. */
 
-static inline bool inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
+static FORCE_INLINE CONSTEXPR bool inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
 {
     return (sectnum>=0 && !bitmap_test(excludesectbitmap, sectnum) && inside_p(x, y, sectnum));
 }
@@ -11045,7 +11042,7 @@ void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectn
 
     if (*sectnum >= 0 && *sectnum < numsectors)
     {
-        const uwalltype *wal = (uwalltype *)&wall[sector[*sectnum].wallptr];
+        auto wal = (uwalltype *)&wall[sector[*sectnum].wallptr];
         int wallsleft = sector[*sectnum].wallnum;
 
         do
@@ -11148,7 +11145,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
 //
 // rotatepoint
 //
-void rotatepoint(vec2_t const pivot, vec2_t p, int16_t daang, vec2_t *p2)
+void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2)
 {
     int const dacos = sintable[(daang+2560)&2047];
     int const dasin = sintable[(daang+2048)&2047];
@@ -11741,8 +11738,8 @@ int32_t getceilzofslopeptr(const usectortype *sec, int32_t dax, int32_t day)
     if (!(sec->ceilingstat&2))
         return sec->ceilingz;
 
-    uwalltype const *wal  = (uwalltype *)&wall[sec->wallptr];
-    uwalltype const *wal2 = (uwalltype *)&wall[wal->point2];
+    auto const wal  = (uwalltype *)&wall[sec->wallptr];
+    auto const wal2 = (uwalltype *)&wall[wal->point2];
 
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
@@ -11759,8 +11756,8 @@ int32_t getflorzofslopeptr(const usectortype *sec, int32_t dax, int32_t day)
     if (!(sec->floorstat&2))
         return sec->floorz;
 
-    uwalltype const *wal  = (uwalltype *)&wall[sec->wallptr];
-    uwalltype const *wal2 = (uwalltype *)&wall[wal->point2];
+    auto const wal  = (uwalltype *)&wall[sec->wallptr];
+    auto const wal2 = (uwalltype *)&wall[wal->point2];
 
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
@@ -11779,8 +11776,8 @@ void getzsofslopeptr(const usectortype *sec, int32_t dax, int32_t day, int32_t *
     if (((sec->ceilingstat|sec->floorstat)&2) != 2)
         return;
 
-    uwalltype const *wal  = (uwalltype *)&wall[sec->wallptr];
-    uwalltype const *wal2 = (uwalltype *)&wall[wal->point2];
+    auto const wal  = (uwalltype *)&wall[sec->wallptr];
+    auto const wal2 = (uwalltype *)&wall[wal->point2];
 
     vec2_t const d = { wal2->x - wal->x, wal2->y - wal->y };
 
@@ -11800,7 +11797,7 @@ void getzsofslopeptr(const usectortype *sec, int32_t dax, int32_t day, int32_t *
 //
 void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
-    const uwalltype *const wal = (uwalltype *)&wall[sector[dasect].wallptr];
+    auto const wal = (uwalltype *)&wall[sector[dasect].wallptr];
     const int32_t dax = wall[wal->point2].x-wal->x;
     const int32_t day = wall[wal->point2].y-wal->y;
 
@@ -11821,7 +11818,7 @@ void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 //
 void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
-    const uwalltype *const wal = (uwalltype *)&wall[sector[dasect].wallptr];
+    auto const wal = (uwalltype *)&wall[sector[dasect].wallptr];
     const int32_t dax = wall[wal->point2].x-wal->x;
     const int32_t day = wall[wal->point2].y-wal->y;
 
