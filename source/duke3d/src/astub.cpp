@@ -191,7 +191,7 @@ static char spriteshades[MAXSPRITES];
 static char wallpals[MAXWALLS];
 static char sectorpals[MAXSECTORS][2];
 static char spritepals[MAXSPRITES];
-static uint8_t wallflag[MAXWALLS>>3];
+static uint8_t wallflag[(MAXWALLS+7)>>3];
 
 #ifdef YAX_ENABLE
 static uint8_t havebunch[YAX_MAXBUNCHES];
@@ -2007,7 +2007,7 @@ static void SoundDisplay(void)
 int32_t AmbienceToggle = 1;
 int32_t ParentalLock = 0;
 
-uint8_t g_ambiencePlaying[MAXSPRITES>>3];
+uint8_t g_ambiencePlaying[(MAXSPRITES+7)>>3];
 
 #define testbit(bitarray, i) (bitarray[(i)>>3] & (1<<((i)&7)))
 #define setbit(bitarray, i) bitarray[(i)>>3] |= (1<<((i)&7))
@@ -6717,7 +6717,7 @@ static void Keys3d(void)
             static const char *addnstr[4] = {"", "+stat+panning", "+stat", "+stat + panning (some)"};
 
             static int16_t sectlist[MAXSECTORS];
-            static uint8_t sectbitmap[MAXSECTORS>>3];
+            static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
             int32_t sectcnt, sectnum;
 
             i = searchsector;

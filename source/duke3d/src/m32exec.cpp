@@ -1242,7 +1242,7 @@ skip_check:
                 int32_t *const sectlist32 = (int32_t *)sectlist;
 
                 int32_t j, startwall, endwall, ns;
-                static uint8_t sectbitmap[MAXSECTORS>>3];
+                static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
 
                 X_ERROR_INVALIDSECT(startsectnum);
                 if (arsize < numsectors)

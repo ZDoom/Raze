@@ -1258,7 +1258,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_spriteDeleteQueuePos, sizeof(g_spriteDeleteQueuePos), 1 },
     { DS_NOCHK, &g_deleteQueueSize, sizeof(g_deleteQueueSize), 1 },
     { DS_CNT(g_deleteQueueSize), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&g_deleteQueueSize },
-    { 0, &show2dsector[0], sizeof(uint8_t), MAXSECTORS>>3 },
+    { 0, &show2dsector[0], sizeof(uint8_t), (MAXSECTORS+7)>>3 },
     { DS_NOCHK, &g_cloudCnt, sizeof(g_cloudCnt), 1 },
     { 0, &g_cloudSect[0], sizeof(g_cloudSect), 1 },
     { 0, &g_cloudX, sizeof(g_cloudX), 1 },

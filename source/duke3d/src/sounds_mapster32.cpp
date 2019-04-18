@@ -459,7 +459,7 @@ void S_Callback(uint32_t num)
 
                 if (sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
                 {
-                    extern uint8_t g_ambiencePlaying[MAXSPRITES>>3];
+                    extern uint8_t g_ambiencePlaying[(MAXSPRITES+7)>>3];
 
                     g_ambiencePlaying[i>>3] &= ~(1<<(i&7));
 

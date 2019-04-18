@@ -220,8 +220,8 @@ static void getclosestpointonwall_internal(vec2_t const &p, int32_t const dawall
 ////////// YAX //////////
 
 int32_t numgraysects = 0;
-uint8_t graysectbitmap[MAXSECTORS>>3];
-uint8_t graywallbitmap[MAXWALLS>>3];
+uint8_t graysectbitmap[(MAXSECTORS+7)>>3];
+uint8_t graywallbitmap[(MAXWALLS+7)>>3];
 int32_t autogray = 0, showinnergray = 1;
 
 //#define YAX_DEBUG_YMOSTS
@@ -323,7 +323,7 @@ static uint16_t yax_tsprite[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
 static uint8_t yax_tsprfrombunch[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
 
 // drawn sectors
-uint8_t yax_gotsector[MAXSECTORS>>3];  // engine internal
+uint8_t yax_gotsector[(MAXSECTORS+7)>>3];  // engine internal
 
 # if !defined NEW_MAP_FORMAT
 // Game-time YAX data structures, V7-V9 map formats.
@@ -860,7 +860,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     int32_t bbeg, numhere;
 
     // original (1st-draw) and accumulated ('per-level') gotsector bitmaps
-    static uint8_t ogotsector[MAXSECTORS>>3], lgotsector[MAXSECTORS>>3];
+    static uint8_t ogotsector[(MAXSECTORS+7)>>3], lgotsector[(MAXSECTORS+7)>>3];
 #ifdef YAX_DEBUG
     uint64_t t;
 #endif
@@ -10412,7 +10412,7 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     int32_t dacnt, danum;
     const int32_t x21 = x2-x1, y21 = y2-y1, z21 = z2-z1;
 
-    static uint8_t sectbitmap[MAXSECTORS>>3];
+    static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
 #ifdef YAX_ENABLE
     int16_t pendingsectnum;
     vec3_t pendingvec;
@@ -11032,7 +11032,7 @@ void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
     }
 
     static int16_t sectlist[MAXSECTORS];
-    static uint8_t sectbitmap[MAXSECTORS>>3];
+    static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
     int32_t nsecs;
 
     bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
@@ -11134,7 +11134,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
             return;
 
     static int16_t sectlist[MAXSECTORS];
-    static uint8_t sectbitmap[MAXSECTORS>>3];
+    static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
     int32_t nsecs;
 
     bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);

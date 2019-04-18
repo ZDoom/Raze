@@ -742,7 +742,7 @@ static int32_t csc_s, csc_i;
 static int32_t check_spritelist_consistency()
 {
     int32_t ournumsprites=0;
-    static uint8_t havesprite[MAXSPRITES>>3];
+    static uint8_t havesprite[(MAXSPRITES+7)>>3];
 
     csc_s = csc_i = -1;
 

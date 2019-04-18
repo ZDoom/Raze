@@ -119,8 +119,8 @@ extern int32_t showheightindicators;
 extern int32_t showambiencesounds;
 
 extern int32_t numgraysects;
-extern uint8_t graysectbitmap[MAXSECTORS>>3];
-extern uint8_t graywallbitmap[MAXWALLS>>3];
+extern uint8_t graysectbitmap[(MAXSECTORS+7)>>3];
+extern uint8_t graywallbitmap[(MAXWALLS+7)>>3];
 extern int32_t autogray, showinnergray;
 
 extern void drawgradient(void);
@@ -355,7 +355,7 @@ void inflineintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 
 void ovhscrcoords(int32_t x, int32_t y, int32_t *scrx, int32_t *scry);
 
-extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
+extern uint8_t hlsectorbitmap[(MAXSECTORS+7)>>3];
 
 void test_map(int32_t mode);
 

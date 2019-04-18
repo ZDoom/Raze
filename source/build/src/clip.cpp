@@ -17,8 +17,8 @@ static linetype clipit[MAXCLIPNUM];
 static int32_t clipsectnum, origclipsectnum, clipspritenum;
 int16_t clipsectorlist[MAXCLIPSECTORS];
 static int16_t origclipsectorlist[MAXCLIPSECTORS];
-static uint8_t clipsectormap[MAXCLIPSECTORS >> 3];
-static uint8_t origclipsectormap[MAXCLIPSECTORS >> 3];
+static uint8_t clipsectormap[(MAXSECTORS+7)>>3];
+static uint8_t origclipsectormap[(MAXSECTORS+7)>>3];
 #ifdef HAVE_CLIPSHAPE_FEATURE
 static int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
 #endif
@@ -914,7 +914,7 @@ static void clipupdatesector(vec2_t const &p, int16_t * const sectnum, int const
         return;
 
     static int16_t sectlist[MAXSECTORS];
-    static uint8_t sectbitmap[MAXSECTORS >> 3];
+    static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
     int32_t        nsecs;
 
     bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
