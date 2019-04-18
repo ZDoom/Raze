@@ -608,7 +608,7 @@ static int16_t *yumost=NULL, *ydmost=NULL;  // used as if [numyaxbunches][xdimen
 uint8_t haveymost[YAX_MAXBUNCHES>>3];
 
 // adapted from build.c
-static void yax_getclosestpointonwall(int32_t dawall, int32_t *closestx, int32_t *closesty)
+void yax_getclosestpointonwall(int32_t dawall, int32_t *closestx, int32_t *closesty)
 {
     int64_t i, j, wx,wy, wx2,wy2, dx, dy;
 
