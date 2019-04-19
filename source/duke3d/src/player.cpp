@@ -527,7 +527,8 @@ notarget:
         Proj_MaybeAddSpread(doSpread, zvel, shootAng, zRange, angRange);
     }
 
-    srcVect->z -= (2<<8);
+    // ZOFFSET6 is added to this position at the same time as the player's pyoff in A_ShootWithZvel()
+    srcVect->z -= ZOFFSET6;
 }
 
 // Hitscan weapon fired from actor (sprite s);
@@ -719,19 +720,24 @@ static int P_PostFireHitscan(int playerNum, int const spriteNum, hitdata_t *cons
             {
                 decalSprite = A_Spawn(spriteNum, decalTile);
 
+                auto const decal = &sprite[decalSprite];
+
                 A_SetHitData(decalSprite, hitData);
 
                 if (!A_CheckSpriteFlags(decalSprite, SFLAG_DECAL))
                     actor[decalSprite].flags |= SFLAG_DECAL;
 
-                sprite[decalSprite].ang
-                = (getangle(hitWall->x - wall[hitWall->point2].x, hitWall->y - wall[hitWall->point2].y) + 1536) & 2047;
+                int32_t diffZ;
+                spriteheightofs(decalSprite, &diffZ, 0);
+
+                decal->z += diffZ >> 1;
+                decal->ang = (getangle(hitWall->x - wall[hitWall->point2].x, hitWall->y - wall[hitWall->point2].y) + 1536) & 2047;
 
                 if (decalFlags & 1)
                     Proj_DoRandDecalSize(decalSprite, projecTile);
 
                 if (decalFlags & 2)
-                    sprite[decalSprite].cstat = 16 + (krand() & (8 + 4));
+                    decal->cstat = 16 + (krand() & (8 + 4));
 
                 A_SetSprite(decalSprite, CLIPMASK0);
 
