@@ -778,15 +778,31 @@ static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32
 }
 
 // Returns: should clip?
-static int32_t check_floor_curb(int32_t dasect, int32_t nextsect, int32_t flordist, int32_t posz,
-                                int32_t dax, int32_t day)
+static bool check_floor_curb(int const dasect, int const nextsect, int32_t const flordist, int32_t const posz, vec2_t const &pos)
 {
-    auto const    sec2 = (usectorptr_t)&sector[nextsect];
-    int32_t const daz2 = getflorzofslope(nextsect, dax, day);
+    auto const sec = (usectorptr_t)&sector[dasect];
+    vec2_t closest = { pos.x, pos.y };
+    int32_t daz = sec->floorz;
+
+    if (sec->floorstat & 2)
+    {
+        getsectordist(closest, dasect, &closest);
+        daz = getflorzofslope(dasect, closest.x, closest.y);
+    }
+
+    auto const sec2 = (usectorptr_t)&sector[nextsect];
+    vec2_t closest2 = { pos.x, pos.y };
+    int32_t daz2 = sec2->floorz;
+
+    if (sec2->floorstat & 2)
+    {
+        getsectordist(closest2, nextsect, &closest2);
+        daz2 = getflorzofslope(nextsect, closest2.x, closest2.y);
+    }
 
     return ((sec2->floorstat&1) == 0 &&  // parallaxed floor curbs don't clip
         posz >= daz2-(flordist-1) &&  // also account for desired z distance tolerance
-        daz2 < getflorzofslope(dasect, dax, day)-(1<<8));  // curbs less tall than 256 z units don't clip
+        daz2 < daz-(1<<8));  // curbs less tall than 256 z units don't clip
 }
 
 int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
@@ -1121,7 +1137,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                         if (ynw >= 0 && wall[ynw].nextsector >= 0 && (wall[ynw].cstat & dawalclipmask) == 0)
                         {
                             clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
-                            clipyou = check_floor_curb(dasect, wall[ynw].nextsector, flordist, pos->z, v.x, v.y);
+                            clipyou = check_floor_curb(dasect, wall[ynw].nextsector, flordist, pos->z, v);
                         }
                     }
 #endif
@@ -1129,7 +1145,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 else if (editstatus == 0)
                 {
                     clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
-                    clipyou = check_floor_curb(dasect, wal->nextsector, flordist, pos->z, v.x, v.y);
+                    clipyou = check_floor_curb(dasect, wal->nextsector, flordist, pos->z, v);
 
                     if (clipyou == 0)
                     {
@@ -1355,7 +1371,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         int const osectnum = *sectnum;
         clipupdatesector(vec, sectnum, rad);
 
-        if (*sectnum == osectnum || editstatus || (*sectnum != -1 && !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec.x, vec.y)))
+        if (*sectnum == osectnum || editstatus || (*sectnum != -1 && !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec)))
         {
             pos->x = vec.x;
             pos->y = vec.y;
