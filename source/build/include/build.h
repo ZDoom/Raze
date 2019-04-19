@@ -1174,7 +1174,8 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, const vec3_t *refpos,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t *intp, int32_t strictly_smaller_than_p);
 
-bool sectoradjacent(int sect1, int sect2);
+int findwallbetweensectors(int sect1, int sect2);
+static FORCE_INLINE bool sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
 int32_t getwalldist(vec2_t const &p, int const wallnum, vec2_t * const output = nullptr);
 int32_t getsectordist(vec2_t const &p, int const sectnum);
 extern const int16_t *chsecptr_onextwall;

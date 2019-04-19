@@ -10993,16 +10993,19 @@ int32_t getsectordist(vec2_t const &pos, int const sectnum)
     return distance;
 }
 
-bool sectoradjacent(int sect1, int sect2)
+int findwallbetweensectors(int sect1, int sect2)
 {
     if (sector[sect1].wallnum > sector[sect2].wallnum)
         swaplong(&sect1, &sect2);
 
-    for (int i = 0; i < sector[sect1].wallnum; i++)
-        if (wall[sector[sect1].wallptr + i].nextsector == sect2)
-            return 1;
+    auto const sec  = (usectorptr_t)&sector[sect1];
+    int const  last = sec->wallptr + sec->wallnum;
 
-    return 0;
+    for (int i = sec->wallptr; i < last; i++)
+        if (wall[i].nextsector == sect2)
+            return i;
+
+    return -1;
 }
 
 #define MAXUPDATESECTORDIST 1536
