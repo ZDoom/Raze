@@ -1531,7 +1531,7 @@ static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp *pth, in
     pth->palnum = 0;
     pth->shade = 0;
     pth->effects = 0;
-    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | PTH_HASALPHA | (npoty*PTH_NPOTWALL) | PTH_INDEXED;
+    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | (PTH_HASALPHA|PTH_ONEBITALPHA) | (npoty*PTH_NPOTWALL) | PTH_INDEXED;
     pth->hicr = NULL;
 }
 
@@ -1721,7 +1721,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
     pth->palnum = dapal;
     pth->shade = dashade;
     pth->effects = 0;
-    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | (hasalpha*PTH_HASALPHA) | (npoty*PTH_NPOTWALL);
+    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | (hasalpha*(PTH_HASALPHA|PTH_ONEBITALPHA)) | (npoty*PTH_NPOTWALL);
     pth->hicr = NULL;
 
     if (hasfullbright && !fullbrightloadingpass)
@@ -1775,6 +1775,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     int32_t startticks = timerGetTicks(), willprint = 0;
 
+    char onebitalpha = 1;
     char hasalpha;
     vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
 
@@ -1886,7 +1887,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         int32_t b = (glinfo.bgra) ? tint.b : tint.r;
 
         char al = 255;
-        char onebitalpha = 1;
 
         for (bssize_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
         {
@@ -1945,6 +1945,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         }
 
         hasalpha = (al != 255);
+        onebitalpha &= hasalpha;
 
         if ((!(dameth & DAMETH_CLAMPED)) || facen) //Duplicate texture pixels (wrapping tricks for non power of 2 texture sizes)
         {
@@ -2005,6 +2006,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     pth->effects = effect;
     pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) |
                  PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) |
+                 (onebitalpha ? PTH_ONEBITALPHA : 0) |
                  (hasalpha ? PTH_HASALPHA : 0) |
                  ((hicr->flags & HICR_FORCEFILTER) ? PTH_FORCEFILTER : 0);
     pth->skyface = facen;
@@ -2051,6 +2053,49 @@ static inline pthtyp *our_texcache_fetch(int32_t dameth)
         return texcache_fetch(globalpicnum, globalpal, getpalookup(!(globalflags & GLOBAL_NO_GL_TILESHADES), globalshade), dameth);
 
     return texcache_fetch(globalpicnum, globalpal, getpalookup(!(globalflags & GLOBAL_NO_GL_TILESHADES) ? globvis>>3 : 0, globalshade), dameth);
+}
+
+int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
+{
+    if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
+        return true;
+
+    //POGO: only hightiles may have translucency in their texture
+    if (!usehightile)
+        return false;
+
+    int method = DAMETH_MASK | DAMETH_WALL;
+    if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
+        method = DAMETH_WALL | (((wall->cstat & CSTAT_WALL_TRANS_FLIP)) ? DAMETH_TRANS2 : DAMETH_TRANS1);
+
+    uint8_t pal = wall->pal;
+    if (palookup[pal] == NULL)
+        pal = 0;
+
+    pthtyp* pth = texcache_fetch(wall->picnum, pal, 0, method);
+    return pth && (pth->flags & PTH_HASALPHA) && !(pth->flags & PTH_ONEBITALPHA);
+}
+
+int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
+{
+    if ((tspr->cstat & (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_RESERVED1)) ||
+        spriteext[tspr->owner].alpha)
+        return true;
+
+    //POGO: only hightiles may have translucency in their texture
+    if (!usehightile)
+        return false;
+
+    int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
+    if (tspr->cstat & CSTAT_SPRITE_TRANSLUCENT)
+        method = DAMETH_CLAMPED | ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1);
+
+    uint8_t pal = tspr->shade;
+    if (palookup[pal] == NULL)
+        pal = 0;
+
+    pthtyp* pth = texcache_fetch(tspr->picnum, pal, 0, method);
+    return pth && (pth->flags & PTH_HASALPHA) && !(pth->flags & PTH_ONEBITALPHA);
 }
 
 

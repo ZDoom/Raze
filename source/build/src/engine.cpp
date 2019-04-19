@@ -8418,12 +8418,34 @@ void renderDrawMasks(void)
 #else
 # define debugmask_add(dispidx, idx) do {} while (0)
 #endif
-    int32_t i;
+    int32_t i = spritesortcnt-1;
+    int32_t numSprites = spritesortcnt;
 
-    for (i=spritesortcnt-1; i>=0; i--)
-        tspriteptr[i] = &tsprite[i];
+    if (videoGetRenderMode() == REND_POLYMOST)
+    {
+        spritesortcnt = 0;
+        int32_t back = i;
+        for (; i >= 0; --i)
+        {
+            if (polymost_spriteHasTranslucency(&tsprite[i]))
+            {
+                tspriteptr[spritesortcnt] = &tsprite[i];
+                ++spritesortcnt;
+            } else
+            {
+                tspriteptr[back] = &tsprite[i];
+                --back;
+            }
+        }
+    } else
+    {
+        for (; i >= 0; --i)
+        {
+            tspriteptr[i] = &tsprite[i];
+        }
+    }
 
-    for (i=spritesortcnt-1; i>=0; i--)
+    for (i=spritesortcnt-1; i>=0; --i)
     {
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
@@ -8447,8 +8469,10 @@ killsprite:
             if (!modelp)
 #endif
             {
-                spritesortcnt--;  //Delete face sprite if on wrong side!
-                if (i != spritesortcnt)
+                //Delete face sprite if on wrong side!
+                --numSprites;
+                --spritesortcnt;
+                if (i != numSprites)
                 {
                     tspriteptr[i] = tspriteptr[spritesortcnt];
                     spritesxyz[i].x = spritesxyz[spritesortcnt].x;
@@ -8473,13 +8497,11 @@ killsprite:
                 swaplong(&spritesxyz[l].y,&spritesxyz[l+gap].y);
             }
 
-    if (spritesortcnt > 0)
-        spritesxyz[spritesortcnt].y = (spritesxyz[spritesortcnt-1].y^1);
-
     ys = spritesxyz[0].y; i = 0;
     for (bssize_t j=1; j<=spritesortcnt; j++)
     {
-        if (spritesxyz[j].y == ys)
+        if (j == spritesortcnt ||
+            spritesxyz[j].y == ys)
             continue;
 
         ys = spritesxyz[j].y;
@@ -8532,26 +8554,56 @@ killsprite:
     }
 
     videoBeginDrawing(); //{{{
-#if 0
-    for (i=spritesortcnt-1; i>=0; i--)
+
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() == REND_POLYMOST)
     {
-        double xs = tspriteptr[i]->x-globalposx;
-        double ys = tspriteptr[i]->y-globalposy;
-        int32_t zs = tspriteptr[i]->z-globalposz;
-
-        int32_t xp = ys*cosglobalang-xs*singlobalang;
-        int32_t yp = (zs<<1);
-        int32_t zp = xs*cosglobalang+ys*singlobalang;
-
-        xs = ((double)xp*(halfxdimen<<12)/zp)+((halfxdimen+windowxy1.x)<<12);
-        ys = ((double)yp*(xdimenscale<<12)/zp)+((globalhoriz+windowxy1.y)<<12);
-
-        if (xs >= INT32_MIN && xs <= INT32_MAX && ys >= INT32_MIN && ys <= INT32_MAX)
+        for (i = spritesortcnt; i < numSprites; ++i)
         {
-            drawline256(xs-65536,ys-65536,xs+65536,ys+65536,31);
-            drawline256(xs+65536,ys-65536,xs-65536,ys+65536,31);
+            if (tspriteptr[i] != NULL)
+            {
+                debugmask_add(i | 32768, tspriteptr[i]->owner);
+                renderDrawSprite(i);
+
+                tspriteptr[i] = NULL;
+            }
+        }
+
+        for (i = 0; i < maskwallcnt;)
+        {
+            if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwallcnt-1]]))
+            {
+                int16_t maskSwap = maskwall[i];
+                maskwall[i] = maskwall[maskwallcnt-1];
+                maskwall[maskwallcnt-1] = maskSwap;
+                ++i;
+            }
+            else
+                renderDrawMaskedWall(--maskwallcnt);
         }
     }
+#endif
+
+#if 0
+        for (i=spritesortcnt-1; i>=0; i--)
+        {
+            double xs = tspriteptr[i]->x-globalposx;
+            double ys = tspriteptr[i]->y-globalposy;
+            int32_t zs = tspriteptr[i]->z-globalposz;
+
+            int32_t xp = ys*cosglobalang-xs*singlobalang;
+            int32_t yp = (zs<<1);
+            int32_t zp = xs*cosglobalang+ys*singlobalang;
+
+            xs = ((double)xp*(halfxdimen<<12)/zp)+((halfxdimen+windowxy1.x)<<12);
+            ys = ((double)yp*(xdimenscale<<12)/zp)+((globalhoriz+windowxy1.y)<<12);
+
+            if (xs >= INT32_MIN && xs <= INT32_MAX && ys >= INT32_MIN && ys <= INT32_MAX)
+            {
+                drawline256(xs-65536,ys-65536,xs+65536,ys+65536,31);
+                drawline256(xs+65536,ys-65536,xs-65536,ys+65536,31);
+            }
+        }
 #endif
 
     vec2f_t pos;
@@ -8581,11 +8633,7 @@ killsprite:
         while (i)
         {
             i--;
-            if (tspriteptr[i] != NULL
-#ifdef USE_OPENGL
-                && (!(tspriteptr[i]->cstat & 1024) || videoGetRenderMode() != REND_POLYMOST)
-#endif
-               )
+            if (tspriteptr[i] != NULL)
             {
                 vec2f_t spr;
                 auto const tspr = tspriteptr[i];
@@ -8668,44 +8716,24 @@ killsprite:
         renderDrawMaskedWall(maskwallcnt);
     }
 
-    i = spritesortcnt;
-
-    while (i)
-    {
-        i--;
-        if (tspriteptr[i] != NULL
-#ifdef USE_OPENGL
-            && (!(tspriteptr[i]->cstat & 1024) || videoGetRenderMode() != REND_POLYMOST)
-#endif
-           )
-        {
-            debugmask_add(i | 32768, tspriteptr[i]->owner);
-            renderDrawSprite(i);
-
-            tspriteptr[i] = NULL;
-        }
-    }
-
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
-    {
         glDepthMask(GL_FALSE);
-
-        while (spritesortcnt)
-        {
-            spritesortcnt--;
-            if (tspriteptr[spritesortcnt] != NULL)
-            {
-                Bassert(tspriteptr[spritesortcnt]->cstat & 1024);
-                renderDrawSprite(spritesortcnt);
-                tspriteptr[spritesortcnt] = NULL;
-            }
-        }
-
-        glDepthMask(GL_TRUE);
-    }
 #endif
-    spritesortcnt = 0;
+    while (spritesortcnt)
+    {
+        --spritesortcnt;
+        if (tspriteptr[spritesortcnt] != NULL)
+        {
+            debugmask_add(i | 32768, tspriteptr[i]->owner);
+            renderDrawSprite(spritesortcnt);
+            tspriteptr[spritesortcnt] = NULL;
+        }
+    }
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() == REND_POLYMOST)
+        glDepthMask(GL_TRUE);
+#endif
 
 #ifdef POLYMER
     if (videoGetRenderMode() == REND_POLYMER)

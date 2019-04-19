@@ -48,6 +48,9 @@ void polymost_fillpolygon(int32_t npoints);
 void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);
 
+int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall);
+int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr);
+
 void polymost_resetVertexPointers(void);
 void polymost_disableProgram(void);
 void polymost_resetProgram(void);
@@ -233,6 +236,7 @@ enum pthtyp_flags {
     PTH_NOTRANSFIX = 256, // fixtransparency() bypassed
 
     PTH_INDEXED = 512,
+    PTH_ONEBITALPHA = 1024,
 };
 
 typedef struct pthtyp_t
