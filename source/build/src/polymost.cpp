@@ -921,7 +921,7 @@ void polymost_glinit()
              \n\
              color.rgb = pow(color.rgb, vec3(u_brightness));\n\
              \n\
-             gl_FragColor = color;\n\
+             gl_FragData[0] = color;\n\
          }\n";
     const char* const POLYMOST1_EXTENDED_FRAGMENT_SHADER_CODE =
         "#version 110\n\
@@ -1018,7 +1018,7 @@ void polymost_glinit()
              \n\
              color.rgb = pow(color.rgb, vec3(u_brightness));\n\
              \n\
-             gl_FragColor = color;\n\
+             gl_FragData[0] = color;\n\
          }\n";
 
     polymost1BasicShaderProgramID = glCreateProgram();
