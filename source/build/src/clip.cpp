@@ -978,6 +978,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
     uspriteptr_t curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
 
+    int const initialsectnum = *sectnum;
+
     int32_t const dawalclipmask = (cliptype & 65535);  // CLIPMASK0 = 0x00010001
     int32_t const dasprclipmask = (cliptype >> 16);    // CLIPMASK1 = 0x01000040
 
@@ -1141,7 +1143,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 }
 
             // We're not interested in any sector reached by portal traversal that we're "inside" of.
-            if (!curspr && clipsectcnt != 1 && inside(pos->x, pos->y, dasect) == 1) break;
+            if (!curspr && dasect != initialsectnum && inside(pos->x, pos->y, dasect) == 1) break;
             else if (clipyou)
             {
                 int16_t const objtype = curspr ? (int16_t)(curspr - (uspritetype *)sprite) + 49152 : j + 32768;
@@ -1160,7 +1162,6 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             }
             else if (wal->nextsector>=0)
             {
-                if (!curspr && inside(pos->x, pos->y, wal->nextsector) == 1) continue;
                 if (bitmap_test(clipsectormap, wal->nextsector) == 0)
                     addclipsect(wal->nextsector);
             }
