@@ -10964,18 +10964,23 @@ static inline bool inside_z_p(int32_t const x, int32_t const y, int32_t const z,
     return (z >= cz && z <= fz && inside_p(x, y, sectnum));
 }
 
-int32_t getwalldist(vec2_t const &pos, int const wallnum, vec2_t * const output)
+int32_t getwalldist(vec2_t const &in, int const wallnum, vec2_t * const out /*= nullptr*/)
 {
     vec2_t closest;
-    getclosestpointonwall_internal(pos, wallnum, &closest);
-    if (output) *output = closest;
-    return klabs(closest.x - pos.x) + klabs(closest.y - pos.y);
+    getclosestpointonwall_internal(in, wallnum, &closest);
+    if (out)
+        *out = closest;
+    return klabs(closest.x - in.x) + klabs(closest.y - in.y);
 }
 
-int32_t getsectordist(vec2_t const &pos, int const sectnum)
+int32_t getsectordist(vec2_t const &in, int const sectnum, vec2_t * const out /*= nullptr*/)
 {
-    if (inside_p(pos.x, pos.y, sectnum))
+    if (inside_p(in.x, in.y, sectnum))
+    {
+        if (out)
+            *out = in;
         return 0;
+    }
 
     int32_t distance = INT32_MAX;
 
@@ -10983,12 +10988,22 @@ int32_t getsectordist(vec2_t const &pos, int const sectnum)
     int const  startwall = sec->wallptr;
     int const  endwall   = sec->wallptr + sec->wallnum;
     auto       uwal      = (uwallptr_t)&wall[startwall];
+    vec2_t     closest = {};
 
     for (int j = startwall; j < endwall; j++, uwal++)
     {
-        int32_t const walldist = getwalldist(pos, j);
-        distance = min(walldist, distance);
+        vec2_t p;
+        int32_t const walldist = getwalldist(in, j, &p);
+
+        if (walldist < distance)
+        {
+            distance = walldist;
+            closest = p;
+        }
     }
+
+    if (out)
+        *out = closest;
 
     return distance;
 }
