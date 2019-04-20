@@ -8571,7 +8571,7 @@ killsprite:
 
         for (i = 0; i < maskwallcnt;)
         {
-            if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwallcnt-1]]))
+            if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[maskwallcnt-1]]]))
             {
                 int16_t maskSwap = maskwall[i];
                 maskwall[i] = maskwall[maskwallcnt-1];

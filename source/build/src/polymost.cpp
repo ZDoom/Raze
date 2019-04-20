@@ -2064,15 +2064,11 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     if (!usehightile)
         return false;
 
-    int method = DAMETH_MASK | DAMETH_WALL;
-    if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
-        method = DAMETH_WALL | (((wall->cstat & CSTAT_WALL_TRANS_FLIP)) ? DAMETH_TRANS2 : DAMETH_TRANS1);
-
     uint8_t pal = wall->pal;
     if (palookup[pal] == NULL)
         pal = 0;
 
-    pthtyp* pth = texcache_fetch(wall->picnum, pal, 0, method);
+    pthtyp* pth = texcache_fetch(wall->picnum, pal, 0, DAMETH_MASK | DAMETH_WALL);
     return pth && (pth->flags & PTH_HASALPHA) && !(pth->flags & PTH_ONEBITALPHA);
 }
 
@@ -2086,15 +2082,11 @@ int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
     if (!usehightile)
         return false;
 
-    int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
-    if (tspr->cstat & CSTAT_SPRITE_TRANSLUCENT)
-        method = DAMETH_CLAMPED | ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1);
-
     uint8_t pal = tspr->shade;
     if (palookup[pal] == NULL)
         pal = 0;
 
-    pthtyp* pth = texcache_fetch(tspr->picnum, pal, 0, method);
+    pthtyp* pth = texcache_fetch(tspr->picnum, pal, 0, DAMETH_MASK | DAMETH_CLAMPED);
     return pth && (pth->flags & PTH_HASALPHA) && !(pth->flags & PTH_ONEBITALPHA);
 }
 
