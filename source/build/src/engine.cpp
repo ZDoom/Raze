@@ -11134,19 +11134,16 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
 {
     bool nofirstzcheck = false;
 
-    if (*sectnum >= MAXSECTORS && (unsigned)*sectnum < (unsigned)numsectors + MAXSECTORS)
+    if (*sectnum >= MAXSECTORS && *sectnum - MAXSECTORS < numsectors)
     {
         *sectnum -= MAXSECTORS;
         nofirstzcheck = true;
     }
 
-    int const correctedsectnum = *sectnum;
+    uint32_t const correctedsectnum = (unsigned)*sectnum;
 
-    if ((unsigned)correctedsectnum < (unsigned)numsectors && getsectordist({x, y}, correctedsectnum) < INITIALUPDATESECTORDIST)
+    if (correctedsectnum < (unsigned)numsectors && getsectordist({x, y}, correctedsectnum) < INITIALUPDATESECTORDIST)
     {
-        if (nofirstzcheck && inside_p(x, y, correctedsectnum))
-            return;
-
         int32_t cz, fz;
         getzsofslope(correctedsectnum, x, y, &cz, &fz);
 
@@ -11165,7 +11162,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
                 SET_AND_RETURN(*sectnum, next);
         }
 #endif
-        if (z >= cz && z <= fz && inside_p(x, y, correctedsectnum))
+        if ((nofirstzcheck || (z >= cz && z <= fz)) && inside_p(x, y, *sectnum))
             return;
 
         static int16_t sectlist[MAXSECTORS];
