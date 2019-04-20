@@ -155,9 +155,9 @@ static inline float polymost_invsqrt_approximation(float x)
 {
 #ifdef B_LITTLE_ENDIAN
     float const haf = x * .5f;
-    struct conv { union { uint32_t i; float f; } ; } * const n = (struct conv *)&x;
-    n->i = 0x5f375a86 - (n->i >> 1);
-    return n->f * (1.5f - haf * (n->f * n->f));
+    union { float f; uint32_t i; } n = { x };
+    n.i = 0x5f375a86 - (n.i >> 1);
+    return n.f * (1.5f - haf * (n.f * n.f));
 #else
     // this is the comment
     return 1.f / Bsqrtf(x);
