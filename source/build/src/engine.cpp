@@ -8474,6 +8474,9 @@ killsprite:
                     tspriteptr[i] = tspriteptr[spritesortcnt];
                     spritesxyz[i].x = spritesxyz[spritesortcnt].x;
                     spritesxyz[i].y = spritesxyz[spritesortcnt].y;
+                    tspriteptr[spritesortcnt] = tspriteptr[numSprites];
+                    spritesxyz[spritesortcnt].x = spritesxyz[numSprites].x;
+                    spritesxyz[spritesortcnt].y = spritesxyz[numSprites].y;
                 }
                 continue;
             }
