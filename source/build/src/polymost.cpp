@@ -6847,8 +6847,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     glLoadIdentity();
 
     glDisable(GL_DEPTH_TEST);
-    glEnable(GL_ALPHA_TEST);
-    glEnable(GL_BLEND);
 
 #if defined(POLYMER)
 # ifdef USE_GLEXT
@@ -6861,10 +6859,18 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     if (!(dastat & RS_NOMASK))
     {
+        glEnable(GL_ALPHA_TEST);
+        glEnable(GL_BLEND);
+
         if (dastat & RS_TRANS1)
             method |= (dastat & RS_TRANS2) ? DAMETH_TRANS2 : DAMETH_TRANS1;
         else
             method |= DAMETH_MASK;
+    }
+    else
+    {
+        glDisable(GL_ALPHA_TEST);
+        glDisable(GL_BLEND);
     }
 
     handle_blend(!!(dastat & RS_TRANS1), dablend, !!(dastat & RS_TRANS2));
