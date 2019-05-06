@@ -8533,7 +8533,7 @@ killsprite:
         spritesxyz[i].y = yp;
     }
 
-    int32_t gap, ys;
+    int32_t gap, y, ys;
 
     gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
     for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
@@ -8549,11 +8549,11 @@ killsprite:
     ys = spritesxyz[0].y; i = 0;
     for (bssize_t j=1; j<=spritesortcnt; j++)
     {
-        if (j == spritesortcnt ||
-            spritesxyz[j].y == ys)
+        y = spritesxyz[j].y^(j == spritesortcnt);
+        if (y == ys)
             continue;
 
-        ys = spritesxyz[j].y;
+        ys = y;
 
         if (j > i+1)
         {
