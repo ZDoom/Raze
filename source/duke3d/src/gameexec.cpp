@@ -6523,27 +6523,27 @@ void VM_UpdateAnim(int spriteNum, int32_t *pData)
 }
 
 // NORECURSE
-void A_Execute(int spriteNum, int playerNum, int playerDist)
+void A_Execute(int const spriteNum, int const playerNum, int const playerDist)
 {
     // for some reason this is faster than using the C++ syntax; e.g vm = vmstate_t{ ... }
     vmstate_t const tempvm
     = { spriteNum, playerNum, playerDist, 0, &sprite[spriteNum], &actor[spriteNum].t_data[0], g_player[playerNum].ps, &actor[spriteNum] };
     vm = tempvm;
 
-#ifdef LUNATIC
-    int32_t killit=0;
-#endif
-
-/*
-    if (g_netClient && A_CheckSpriteFlags(spriteNum, SFLAG_NULL))
+#ifndef NETCODE_DISABLE
+    if (g_netClient)
     {
-        A_DeleteSprite(spriteNum);
-        return;
-    }
-*/
-
-    if (g_netClient) // [75] The server should not overwrite its own randomseed
+#if 0
+        if (A_CheckSpriteFlags(spriteNum, SFLAG_NULL))
+        {
+            A_DeleteSprite(spriteNum);
+            return;
+        }
+#endif
+        // [75] The server should not overwrite its own randomseed
         randomseed = ticrandomseed;
+    }
+#endif
 
     if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= MAXSECTORS))
     {
@@ -6576,21 +6576,39 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
     g_actorCalls[picnum]++;
 
 #ifdef LUNATIC
-    if (killit)
+    if (!killit)
 #else
-    if (vm.flags & VM_KILL)
+    if ((vm.flags & VM_KILL) == 0)
 #endif
     {
-        VM_DeleteSprite(spriteNum, playerNum);
-        return;
-    }
+        VM_Move();
 
-    VM_Move();
+        if (vm.pSprite->statnum == STAT_ACTOR)
+        {
+            if (A_CheckEnemySprite(vm.pSprite))
+            {
+                if (vm.pSprite->xrepeat > 60 || (ud.respawn_monsters == 1 && vm.pSprite->extra <= 0))
+                    return;
+            }
+            else if (EDUKE32_PREDICT_FALSE(ud.respawn_items == 1 && (vm.pSprite->cstat & 32768)))
+                return;
 
-    if (vm.pSprite->statnum != STAT_ACTOR)
-    {
+            if (A_CheckSpriteFlags(vm.spriteNum, SFLAG_USEACTIVATOR) && sector[vm.pSprite->sectnum].lotag & 16384)
+                changespritestat(vm.spriteNum, STAT_ZOMBIEACTOR);
+            else if (vm.pActor->timetosleep > 1)
+                vm.pActor->timetosleep--;
+            else if (vm.pActor->timetosleep == 1)
+            {
+                // hack for 1.3D fire sprites
 #ifndef EDUKE32_STANDALONE
-        if (vm.pSprite->statnum == STAT_STANDABLE)
+                if (!IONMAIDEN && EDUKE32_PREDICT_FALSE(g_scriptVersion == 13 && (vm.pSprite->picnum == FIRE || vm.pSprite->picnum == FIRE2)))
+                    return;
+#endif
+                changespritestat(vm.spriteNum, STAT_ZOMBIEACTOR);
+            }
+        }
+#ifndef EDUKE32_STANDALONE
+        else if (!IONMAIDEN && vm.pSprite->statnum == STAT_STANDABLE)
         {
             switch (DYNAMICTILEMAP(vm.pSprite->picnum))
             {
@@ -6609,34 +6627,13 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
                         vm.pActor->timetosleep--;
                     else if (vm.pActor->timetosleep == 1)
                         changespritestat(vm.spriteNum, STAT_ZOMBIEACTOR);
-                default: break;
+                default:
+                    break;
             }
         }
 #endif
-        return;
     }
-
-    if (A_CheckEnemySprite(vm.pSprite))
-    {
-        if (vm.pSprite->xrepeat > 60 || (ud.respawn_monsters == 1 && vm.pSprite->extra <= 0))
-            return;
-    }
-    else if (EDUKE32_PREDICT_FALSE(ud.respawn_items == 1 && (vm.pSprite->cstat & 32768)))
-        return;
-
-    if (A_CheckSpriteFlags(vm.spriteNum, SFLAG_USEACTIVATOR) && sector[vm.pSprite->sectnum].lotag & 16384)
-        changespritestat(vm.spriteNum, STAT_ZOMBIEACTOR);
-    else if (vm.pActor->timetosleep > 1)
-        vm.pActor->timetosleep--;
-    else if (vm.pActor->timetosleep == 1)
-    {
-        // hack for 1.3D fire sprites
-#ifndef EDUKE32_STANDALONE
-        if (EDUKE32_PREDICT_FALSE(g_scriptVersion == 13 && (vm.pSprite->picnum == FIRE || vm.pSprite->picnum == FIRE2)))
-            return;
-#endif
-        changespritestat(vm.spriteNum, STAT_ZOMBIEACTOR);
-    }
+    else VM_DeleteSprite(spriteNum, playerNum);
 }
 
 void G_SaveMapState(void)
