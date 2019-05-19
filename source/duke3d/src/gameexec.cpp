@@ -143,12 +143,11 @@ static FORCE_INLINE int32_t VM_EventCommon__(int const &eventNum, int const &spr
     return returnValue;
 }
 #else
-// do not inline
-static void VM_DummySprite(void)
-{
-    static uspritetype dummy_sprite;
-    static actor_t     dummy_actor;
+static uspritetype dummy_sprite;
+static actor_t     dummy_actor;
 
+static inline void VM_DummySprite(void)
+{
     vm.pUSprite = &dummy_sprite;
     vm.pActor   = &dummy_actor;
     vm.pData    = &dummy_actor.t_data[0];
