@@ -157,30 +157,29 @@ static inline void VM_DummySprite(void)
 static FORCE_INLINE int32_t VM_EventInlineInternal__(int const &eventNum, int const &spriteNum, int const &playerNum,
                                                        int const playerDist = -1, int32_t returnValue = 0)
 {
-    vmstate_t const tempvm = { spriteNum, playerNum, playerDist, 0, &sprite[spriteNum], &actor[spriteNum].t_data[0], g_player[playerNum].ps, &actor[spriteNum] };
+    vmstate_t const newVMstate = { spriteNum, playerNum, playerDist, 0, &sprite[spriteNum],
+                                   &actor[spriteNum].t_data[0], g_player[playerNum].ps, &actor[spriteNum] };
+    auto &globalReturn = aGameVars[g_returnVarID].global;
 
-    typedef struct
+    struct
     {
         vmstate_t vm;
-        intptr_t returnVar;
-        int currentEvent;
+        intptr_t globalReturn;
+        int eventNum;
         intptr_t const *insptr;
-    } eventbackup_t;
+    } const saved = { vm, globalReturn, g_currentEvent, insptr };
 
-    auto &returnVar = aGameVars[g_returnVarID].global;
-    eventbackup_t const backup = { vm, returnVar, eventNum, insptr };
+    vm = newVMstate;
     g_currentEvent = eventNum;
+    insptr = apScript + apScriptEvents[eventNum];
+    globalReturn = returnValue;
 
     double const t = timerGetHiTicks();
 
-    vm = tempvm;
-    returnVar = returnValue;
-    insptr = apScript + apScriptEvents[eventNum];
-
-    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+    if ((unsigned)spriteNum >= MAXSPRITES)
         VM_DummySprite();
 
-    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
+    if ((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers)
         vm.pPlayer = g_player[0].ps;
 
     VM_Execute(true);
@@ -188,18 +187,16 @@ static FORCE_INLINE int32_t VM_EventInlineInternal__(int const &eventNum, int co
     if (vm.flags & VM_KILL)
         VM_DeleteSprite(vm.spriteNum, vm.playerNum);
 
-    // this needs to happen after VM_DeleteSprite() because VM_DeleteSprite()
-    // can trigger additional events
-
-    returnValue    = returnVar;
-
-    vm             = backup.vm;
-    returnVar      = backup.returnVar;
-    g_currentEvent = backup.currentEvent;
-    insptr         = backup.insptr;
-
     g_eventTotalMs[eventNum] += timerGetHiTicks()-t;
     g_eventCalls[eventNum]++;
+
+    // restoring these needs to happen after VM_DeleteSprite() due to event recursion
+    returnValue = globalReturn;
+
+    vm             = saved.vm;
+    globalReturn   = saved.globalReturn;
+    g_currentEvent = saved.eventNum;
+    insptr         = saved.insptr;
 
     return returnValue;
 }
@@ -227,6 +224,7 @@ int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int co
 {
     return VM_EventInlineInternal__(nEventID, spriteNum, playerNum, -1, nReturn);
 }
+
 
 static bool VM_CheckSquished(void)
 {
