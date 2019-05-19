@@ -167,7 +167,7 @@
 # define EXTERN_INLINE_HEADER extern __fastcall
 #endif
 
-#if defined __GNUC__ || __has_builtin(__builtin_expect)
+#if defined(__OPTIMIZE__) && (defined __GNUC__ || __has_builtin(__builtin_expect))
 #define EDUKE32_PREDICT_TRUE(x)       __builtin_expect(!!(x),1)
 #define EDUKE32_PREDICT_FALSE(x)     __builtin_expect(!!(x),0)
 #else
