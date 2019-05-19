@@ -5293,7 +5293,7 @@ badindex:
                                 break;
                         } while (findStatnum--);
                         Gv_SetVarX(returnVar, foundSprite);
-                        continue;
+                        dispatch();
                     }
 
                     do
