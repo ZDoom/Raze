@@ -542,6 +542,7 @@ const memberlabel_t PlayerLabels[]=
     { "frags",                 PLAYER_FRAGS,                 LABEL_HASPARM2, MAXPLAYERS, -1 },
     { "deaths",                PLAYER_DEATHS,                0, 0, -1 },
     { "last_used_weapon",      PLAYER_LAST_USED_WEAPON,      0, 0, -1 },
+    { "bsubweapon",            PLAYER_BSUBWEAPON,            LABEL_HASPARM2, MAX_WEAPONS, -1 },
 };
 
 int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const lParm2)
@@ -728,6 +729,8 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
         case PLAYER_FRAGS:
             labelNum = (playerNum == lParm2) ? ps.fraggedself : g_player[playerNum].frags[lParm2]; break;
         case PLAYER_DEATHS: labelNum = g_player[playerNum].frags[playerNum]; break;
+
+        case PLAYER_BSUBWEAPON: labelNum = (ps.subweapon & (1<<lParm2)) != 0; break;
 
         default: EDUKE32_UNREACHABLE_SECTION(labelNum = -1; break);
     }
@@ -941,6 +944,13 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
             break;
 
         case PLAYER_DEATHS: g_player[playerNum].frags[playerNum] = newValue; break;
+
+        case PLAYER_BSUBWEAPON:
+            if (newValue)
+                ps.subweapon |= (1 << lParm2);
+            else
+                ps.subweapon &= ~(1 << lParm2);
+            break;
     }
 }
 
