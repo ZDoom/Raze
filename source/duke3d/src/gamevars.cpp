@@ -1263,8 +1263,6 @@ static void Gv_AddSystemVars(void)
 #else
     Gv_NewVar("ANGRANGE",              18,                                      GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
     Gv_NewVar("AUTOAIMANGLE",          0,                                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
-    Gv_NewVar("CLIPMASK0",             CLIPMASK0,                               GAMEVAR_SYSTEM | GAMEVAR_READONLY);
-    Gv_NewVar("CLIPMASK1",             CLIPMASK1,                               GAMEVAR_SYSTEM | GAMEVAR_READONLY);
     Gv_NewVar("COOP",                  (intptr_t)&ud.coop,                      GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("FFIRE",                 (intptr_t)&ud.ffire,                     GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("GRENADE_LIFETIME",      NAM_GRENADE_LIFETIME,                    GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);

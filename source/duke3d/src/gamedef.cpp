@@ -5947,6 +5947,9 @@ static void C_AddDefaultDefinitions(void)
 
     static tokenmap_t predefined[] =
     {
+        { "CLIPMASK0",         CLIPMASK0 },
+        { "CLIPMASK1",         CLIPMASK1 },
+
         { "GAMEARRAY_BOOLEAN", GAMEARRAY_BITMAP },
         { "GAMEARRAY_INT16",   GAMEARRAY_INT16 },
         { "GAMEARRAY_INT8",    GAMEARRAY_INT8 },
