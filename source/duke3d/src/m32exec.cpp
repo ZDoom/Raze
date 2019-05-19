@@ -1235,7 +1235,7 @@ skip_check:
 
                 const int32_t o_g_st=vm.g_st, arsize = gar->size;
                 instype *const end=insptr;
-                int32_t sectcnt, numsects=0;
+                int16_t sectcnt, numsects=0;
 
                 // XXX: relies on -fno-strict-aliasing
                 int16_t *const sectlist = (int16_t *)gar->vals;  // actually an int32_t array

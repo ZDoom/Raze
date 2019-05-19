@@ -6718,7 +6718,7 @@ static void Keys3d(void)
 
             static int16_t sectlist[MAXSECTORS];
             static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-            int32_t sectcnt, sectnum;
+            int16_t sectcnt, sectnum;
 
             i = searchsector;
             if (CEILINGFLOOR(i, stat)&1)

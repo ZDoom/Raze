@@ -1138,8 +1138,34 @@ CONSTEXPR size_t logbasenegative(T n)
 
 #endif
 
+////////// Bitfield manipulation //////////
+
+static FORCE_INLINE void bitmap_set(uint8_t *const ptr, int const n) { ptr[n >> 3] |= 1 << (n & 7); }
+static FORCE_INLINE void bitmap_clear(uint8_t *const ptr, int const n) { ptr[n >> 3] &= ~(1 << (n & 7)); }
+static FORCE_INLINE CONSTEXPR char bitmap_test(uint8_t const *const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 
 ////////// Utility functions //////////
+
+// breadth-first search helpers
+template <typename T>
+void bfirst_search_init(T *const list, uint8_t *const bitmap, T *const eltnumptr, int const maxelts, int const firstelt)
+{
+    Bmemset(bitmap, 0, (maxelts+7)>>3);
+
+    list[0] = firstelt;
+    bitmap_set(bitmap, firstelt);
+    *eltnumptr = 1;
+}
+
+template <typename T>
+void bfirst_search_try(T *const list, uint8_t *const bitmap, T *const eltnumptr, int const elt)
+{
+    if (!bitmap_test(bitmap, elt))
+    {
+        bitmap_set(bitmap, elt);
+        list[(*eltnumptr)++] = elt;
+    }
+}
 
 #if RAND_MAX == 32767
 static FORCE_INLINE uint16_t system_15bit_rand(void) { return (uint16_t)rand(); }
@@ -1167,12 +1193,6 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
     else
         Bstrcpy(p, ext);
 }
-
-////////// Bitfield manipulation //////////
-
-static FORCE_INLINE void bitmap_set(uint8_t *const ptr, int const n) { ptr[n >> 3] |= 1 << (n & 7); }
-static FORCE_INLINE void bitmap_clear(uint8_t *const ptr, int const n) { ptr[n >> 3] &= ~(1 << (n & 7)); }
-static FORCE_INLINE CONSTEXPR char bitmap_test(uint8_t const *const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 
 /* Begin dependence on compat.o object. */
 
