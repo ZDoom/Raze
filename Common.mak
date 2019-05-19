@@ -715,12 +715,28 @@ W_GCC_4_1 := -Wno-attributes
 W_GCC_4_2 := $(W_STRICT_OVERFLOW)
 W_GCC_4_4 := -Wno-unused-result
 W_GCC_4_5 := -Wlogical-op -Wcast-qual
+W_GCC_6 := -Wduplicated-cond -Wnull-dereference
+W_GCC_7 := -Wduplicated-branches
+W_GCC_8 := -Wmultistatement-macros -Warray-bounds=2
 W_CLANG := -Wno-unused-value -Wno-parentheses -Wno-unknown-warning-option
 
 ifeq (0,$(CLANG))
     W_CLANG :=
 
+    ifneq (,$(filter 4 5 6 7,$(GCC_MAJOR)))
+        W_GCC_8 :=
+        ifneq (,$(filter 4 5 6,$(GCC_MAJOR)))
+            W_GCC_7 :=
+            ifneq (,$(filter 4 5,$(GCC_MAJOR)))
+                W_GCC_6 :=
+            endif
+    	endif
+    endif
+
     ifeq (0,$(GCC_PREREQ_4))
+        W_GCC_8 :=
+        W_GCC_7 :=
+        W_GCC_6 :=
         W_GCC_4_5 :=
         W_GCC_4_4 :=
         ifeq (0,$(OPTLEVEL))
@@ -762,6 +778,9 @@ CWARNS := -W -Wall \
     $(W_GCC_4_2) \
     $(W_GCC_4_4) \
     $(W_GCC_4_5) \
+    $(W_GCC_6) \
+    $(W_GCC_7) \
+    $(W_GCC_8) \
     $(W_CLANG) \
     #-Wstrict-prototypes \
     #-Waggregate-return \
