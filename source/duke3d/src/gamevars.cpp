@@ -308,8 +308,6 @@ void Gv_DumpValues(void)
             buildprint(*(int32_t *)aGameVars[i].global);
         else if (aGameVars[i].flags & (GAMEVAR_INT16PTR))
             buildprint(*(int16_t *)aGameVars[i].global);
-        else if (aGameVars[i].flags & (GAMEVAR_UINT8PTR))
-            buildprint(*(int8_t *)aGameVars[i].global);
         else
             buildprint(aGameVars[i].global);
 
@@ -778,7 +776,6 @@ static FORCE_INLINE int __fastcall Gv_GetVar__(int &gameVar, int &spriteNum, int
         {
             case GAMEVAR_INT32PTR: returnValue = *(int32_t *)var.global; break;
             case GAMEVAR_INT16PTR: returnValue = *(int16_t *)var.global; break;
-            case GAMEVAR_UINT8PTR: returnValue = *(char *)var.global; break;
             case GAMEVAR_Q16PTR:
                 returnValue = (var.flags & GAMEVAR_SPECIAL) ? *(int32_t *)var.global : fix16_to_int(*(fix16_t *)var.global);
                 break;
@@ -827,7 +824,6 @@ static FORCE_INLINE void __fastcall Gv_SetVar__(int const &gameVar, int const &n
     {
         case GAMEVAR_INT32PTR: *((int32_t *)var.global) = (int32_t)newValue; break;
         case GAMEVAR_INT16PTR: *((int16_t *)var.global) = (int16_t)newValue; break;
-        case GAMEVAR_UINT8PTR: *((uint8_t *)var.global) = (uint8_t)newValue; break;
         case GAMEVAR_Q16PTR: *(fix16_t *)var.global = (var.flags & GAMEVAR_SPECIAL) ? (int32_t)newValue : fix16_from_int((int16_t)newValue);
             break;
     }
@@ -1309,7 +1305,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("cameraz",               (intptr_t)&ud.camerapos.z,               GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("current_menu",          (intptr_t)&g_currentMenu,                GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
     Gv_NewVar("currentweapon",         (intptr_t)&hudweap.cur,                  GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("display_mirror",        (intptr_t)&display_mirror,               GAMEVAR_SYSTEM | GAMEVAR_UINT8PTR);
+    Gv_NewVar("display_mirror",        (intptr_t)&display_mirror,               GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("framerate",             (intptr_t)&g_frameRate,                  GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
     Gv_NewVar("gametype_flags",        (intptr_t)&g_gametypeFlags[ud.coop],     GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("gravitationalconstant", (intptr_t)&g_spriteGravity,              GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);

@@ -49,12 +49,11 @@ enum GamevarFlags_t
     GAMEVAR_READONLY  = 0x00001000,  // values are read-only (no setvar allowed)
     GAMEVAR_INT32PTR  = 0x00002000,  // plValues is a pointer to an int32_t
     GAMEVAR_INT16PTR  = 0x00008000,  // plValues is a pointer to a short
-    GAMEVAR_UINT8PTR  = 0x00010000,  // plValues is a pointer to a char
     GAMEVAR_NORESET   = 0x00020000,  // var values are not reset when restoring map state
     GAMEVAR_SPECIAL   = 0x00040000,  // flag for structure member shortcut vars
     GAMEVAR_NOMULTI   = 0x00080000,  // don't attach to multiplayer packets
     GAMEVAR_Q16PTR    = 0x00100000,  // plValues is a pointer to a q16.16
-    GAMEVAR_PTR_MASK  = (GAMEVAR_INT32PTR | GAMEVAR_INT16PTR | GAMEVAR_UINT8PTR | GAMEVAR_Q16PTR),
+    GAMEVAR_PTR_MASK  = (GAMEVAR_INT32PTR | GAMEVAR_INT16PTR | GAMEVAR_Q16PTR),
 };
 
 #if !defined LUNATIC
@@ -223,7 +222,6 @@ static FORCE_INLINE void __fastcall VM_SetStruct(uint32_t const flags, intptr_t 
                 break;                                                                       \
             case GAMEVAR_INT32PTR: *(int32_t *)var.pValues operator(int32_t) operand; break; \
             case GAMEVAR_INT16PTR: *(int16_t *)var.pValues operator(int16_t) operand; break; \
-            case GAMEVAR_UINT8PTR: *(uint8_t *)var.pValues operator(uint8_t) operand; break; \
             case GAMEVAR_Q16PTR:                                                             \
             {                                                                                \
                 Fix16 *pfix = (Fix16 *)var.global;                                           \
@@ -270,12 +268,6 @@ skip:
         {
             int16_t &value = *(int16_t *)var.pValues;
             value = (int16_t)libdivide_s32_do(value, dptr);
-            return;
-        }
-        case GAMEVAR_UINT8PTR:
-        {
-            uint8_t &value = *(uint8_t *)var.pValues;
-            value = (uint8_t)libdivide_s32_do(value, dptr);
             return;
         }
         case GAMEVAR_Q16PTR:

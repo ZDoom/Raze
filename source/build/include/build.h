@@ -715,7 +715,7 @@ EXTERN int16_t headsectbunch[2][YAX_MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
 
 EXTERN int32_t Numsprites;
 EXTERN int16_t numsectors, numwalls;
-EXTERN char display_mirror;
+EXTERN int32_t display_mirror;
 // totalclocklock: the totalclock value that is backed up once on each
 // drawrooms() and is used for animateoffs().
 EXTERN int32_t totalclock, totalclocklock;
