@@ -679,11 +679,13 @@ void polymost_npotEmulation(char npotEmulation, float factor, float xOffset)
 
 void polymost_shadeInterpolate(int32_t shadeInterpolate)
 {
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID || shadeInterpolate == polymost1ShadeInterpolate)
-        return;
-    polymost1ShadeInterpolate = shadeInterpolate;
-    glUniform1f(polymost1ShadeInterpolateLoc, polymost1ShadeInterpolate);
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        polymost1ShadeInterpolate = shadeInterpolate;
+        glUniform1f(polymost1ShadeInterpolateLoc, polymost1ShadeInterpolate);
+    }
 }
+
 void polymost_setBrightness(int brightness){
     if (currentShaderProgramID == polymost1CurrentShaderProgramID)
     {
@@ -5423,6 +5425,8 @@ void polymost_drawrooms()
     ghorizcorrect = fix16_to_float((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
 
     gvisibility = ((float)globalvisibility)*FOGSCALE;
+
+    polymost_shadeInterpolate(r_shadeinterpolate);
 
     //global cos/sin height angle
     if (r_yshearing)
