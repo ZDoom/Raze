@@ -774,11 +774,10 @@ static FORCE_INLINE int __fastcall Gv_GetVar__(int &gameVar, int &spriteNum, int
         }
         else switch (varFlags & GAMEVAR_PTR_MASK)
         {
+            case GAMEVAR_RAWQ16PTR:
             case GAMEVAR_INT32PTR: returnValue = *(int32_t *)var.global; break;
             case GAMEVAR_INT16PTR: returnValue = *(int16_t *)var.global; break;
-            case GAMEVAR_Q16PTR:
-                returnValue = (var.flags & GAMEVAR_SPECIAL) ? *(int32_t *)var.global : fix16_to_int(*(fix16_t *)var.global);
-                break;
+            case GAMEVAR_Q16PTR: returnValue = fix16_to_int(*(fix16_t *)var.global); break;
         }
 
         return (returnValue ^ -invertResult) + invertResult;
@@ -822,9 +821,10 @@ static FORCE_INLINE void __fastcall Gv_SetVar__(int const &gameVar, int const &n
     }
     else switch (varFlags & GAMEVAR_PTR_MASK)
     {
+        case GAMEVAR_RAWQ16PTR:
         case GAMEVAR_INT32PTR: *((int32_t *)var.global) = (int32_t)newValue; break;
         case GAMEVAR_INT16PTR: *((int16_t *)var.global) = (int16_t)newValue; break;
-        case GAMEVAR_Q16PTR: *(fix16_t *)var.global = (var.flags & GAMEVAR_SPECIAL) ? (int32_t)newValue : fix16_from_int((int16_t)newValue);
+        case GAMEVAR_Q16PTR: *(fix16_t *)var.global = fix16_from_int((int16_t)newValue);
             break;
     }
     return;
@@ -1295,8 +1295,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("cameraclock",           (intptr_t)&g_cameraClock,                GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("cameradist",            (intptr_t)&g_cameraDistance,             GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("camerahoriz",           (intptr_t)&ud.cameraq16horiz,            GAMEVAR_SYSTEM | GAMEVAR_Q16PTR);
-    Gv_NewVar("cameraq16ang",          (intptr_t)&ud.cameraq16ang,              GAMEVAR_SYSTEM | GAMEVAR_Q16PTR | GAMEVAR_SPECIAL);
-    Gv_NewVar("cameraq16horiz",        (intptr_t)&ud.cameraq16horiz,            GAMEVAR_SYSTEM | GAMEVAR_Q16PTR | GAMEVAR_SPECIAL);
+    Gv_NewVar("cameraq16ang",          (intptr_t)&ud.cameraq16ang,              GAMEVAR_SYSTEM | GAMEVAR_RAWQ16PTR);
+    Gv_NewVar("cameraq16horiz",        (intptr_t)&ud.cameraq16horiz,            GAMEVAR_SYSTEM | GAMEVAR_RAWQ16PTR);
     Gv_NewVar("camerasect",            (intptr_t)&ud.camerasect,                GAMEVAR_SYSTEM | GAMEVAR_INT16PTR);
     Gv_NewVar("camerax",               (intptr_t)&ud.camerapos.x,               GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("cameray",               (intptr_t)&ud.camerapos.y,               GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
