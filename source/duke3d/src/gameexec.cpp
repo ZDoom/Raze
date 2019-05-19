@@ -6665,7 +6665,7 @@ void G_SaveMapState(void)
 
     // If we're in EVENT_ANIMATESPRITES, we'll be saving pointer values to disk :-/
 #if !defined LUNATIC
-    if (g_currentEvent == EVENT_ANIMATESPRITES)
+    if (EDUKE32_PREDICT_FALSE(g_currentEvent == EVENT_ANIMATESPRITES))
         initprintf("Line %d: savemapstate called from EVENT_ANIMATESPRITES. WHY?\n", g_errorLineNum);
 #endif
     Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
@@ -6804,7 +6804,7 @@ void G_RestoreMapState(void)
         // If we're restoring from EVENT_ANIMATESPRITES, all spriteext[].tspr
         // will be overwritten, so NULL them.
 #if !defined LUNATIC
-        if (g_currentEvent == EVENT_ANIMATESPRITES)
+        if (EDUKE32_PREDICT_FALSE(g_currentEvent == EVENT_ANIMATESPRITES))
         {
             initprintf("Line %d: loadmapstate called from EVENT_ANIMATESPRITES. WHY?\n",g_errorLineNum);
             for (native_t i=0; i<MAXSPRITES; i++)
