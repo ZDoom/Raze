@@ -6735,11 +6735,10 @@ MAIN_LOOP_RESTART:
         if (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU|MODE_DEMO)) == 0) && totalclock >= ototalclock+TICSPERFRAME)
         {
             if (g_networkMode != NET_DEDICATED_SERVER)
+            {
                 P_GetInput(myconnectindex);
-
-            Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
-
-            S_Update();
+                inputfifo[0][myconnectindex] = localInput;
+            }
 
             do
             {
@@ -6780,6 +6779,8 @@ MAIN_LOOP_RESTART:
             if (g_gameUpdateAvgTime < 0.f)
                 g_gameUpdateAvgTime = g_gameUpdateTime;
             g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
+
+            S_Update();
         }
 
         G_DoCheats();
