@@ -1257,16 +1257,6 @@ void Screen_Play(void)
 }
 
 #if !defined LUNATIC
-// be careful when changing this--the assignment used as a condition doubles as a null pointer check
-#define VM_CONDITIONAL(xxx)                                                                       \
-    {                                                                                             \
-        if ((xxx) || ((insptr = (intptr_t *)insptr[1]) && ((*insptr & VM_INSTMASK) == CON_ELSE))) \
-        {                                                                                         \
-            insptr += 2;                                                                          \
-            VM_Execute();                                                                         \
-        }                                                                                         \
-    }
-
 #if defined __GNUC__ || defined __clang__
 # define CON_USE_COMPUTED_GOTO
 #endif
@@ -1298,6 +1288,17 @@ void Screen_Play(void)
             CON_ERRPRINTF(__VA_ARGS__);          \
             abort_after_error();                 \
         }                                        \
+    } while (0)
+
+// be careful when changing this--the assignment used as a condition doubles as a null pointer check
+#define VM_CONDITIONAL(xxx)                                                                       \
+    do                                                                                            \
+    {                                                                                             \
+        if ((xxx) || ((insptr = (intptr_t *)insptr[1]) && ((*insptr & VM_INSTMASK) == CON_ELSE))) \
+        {                                                                                         \
+            insptr += 2;                                                                          \
+            VM_Execute();                                                                         \
+        }                                                                                         \
     } while (0)
 
 GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
@@ -2997,11 +2998,11 @@ badindex:
 
             vInstruction(CON_IFRESPAWN):
                 if (A_CheckEnemySprite(vm.pSprite))
-                    VM_CONDITIONAL(ud.respawn_monsters)
+                    VM_CONDITIONAL(ud.respawn_monsters);
                 else if (A_CheckInventorySprite(vm.pSprite))
-                    VM_CONDITIONAL(ud.respawn_inventory)
+                    VM_CONDITIONAL(ud.respawn_inventory);
                 else
-                    VM_CONDITIONAL(ud.respawn_items)
+                    VM_CONDITIONAL(ud.respawn_items);
                 dispatch();
 
             vInstruction(CON_IFINOUTERSPACE):
