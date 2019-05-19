@@ -1898,7 +1898,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     if ((aGameVars[tw].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
                         aGameVars[tw].global = nValue;
                     else
-                        Gv_SetVarX(tw, nValue);
+                        Gv_SetVar(tw, nValue);
                 }
                 dispatch();
 
@@ -2177,7 +2177,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 
             vInstruction(CON_SETVAR):
                 insptr++;
-                Gv_SetVarX(*insptr, insptr[1]);
+                Gv_SetVar(*insptr, insptr[1]);
                 insptr += 2;
                 dispatch();
 
@@ -2256,7 +2256,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 
             vInstruction(CON_RANDVAR):
                 insptr++;
-                Gv_SetVarX(*insptr, mulscale16(krand(), insptr[1] + 1));
+                Gv_SetVar(*insptr, mulscale16(krand(), insptr[1] + 1));
                 insptr += 2;
                 dispatch();
 
@@ -2283,7 +2283,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
             vInstruction(CON_RANDVARVAR):
                 insptr++;
                 tw = *insptr++;
-                Gv_SetVarX(tw, mulscale16(krand(), Gv_GetVar(*insptr++) + 1));
+                Gv_SetVar(tw, mulscale16(krand(), Gv_GetVar(*insptr++) + 1));
                 dispatch();
 
             vInstruction(CON_SETPLAYER):
@@ -2304,7 +2304,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const labelNum  = *insptr++;
                     int const lParm2    = (PlayerLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVar(*insptr++) : 0;
 
-                    Gv_SetVarX(*insptr++, VM_GetPlayer(playerNum, labelNum, lParm2));
+                    Gv_SetVar(*insptr++, VM_GetPlayer(playerNum, labelNum, lParm2));
                     dispatch();
                 }
             vInstruction(CON_SETWALL):
@@ -2337,7 +2337,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const labelNum = *insptr++;
                     auto const &wallLabel = WallLabels[labelNum];
 
-                    Gv_SetVarX(*insptr++,
+                    Gv_SetVar(*insptr++,
                                (wallLabel.offset != -1 && (wallLabel.flags & LABEL_READFUNC) != LABEL_READFUNC)
                                ? VM_GetStruct(wallLabel.flags, (intptr_t *)((char *)&wall[wallNum] + wallLabel.offset))
                                : VM_GetWall(wallNum, labelNum));
@@ -2358,7 +2358,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     if (tw == CON_SETACTORVAR)
                         Gv_SetVar(lVar1, Gv_GetVar(lVar2), lSprite, vm.playerNum);
                     else
-                        Gv_SetVarX(lVar2, Gv_GetVar(lVar1, lSprite, vm.playerNum));
+                        Gv_SetVar(lVar2, Gv_GetVar(lVar1, lSprite, vm.playerNum));
 
                     dispatch();
                 }
@@ -2376,7 +2376,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     if (tw == CON_SETPLAYERVAR)
                         Gv_SetVar(lVar1, Gv_GetVar(lVar2), vm.spriteNum, playerNum);
                     else
-                        Gv_SetVarX(lVar2, Gv_GetVar(lVar1, vm.spriteNum, playerNum));
+                        Gv_SetVar(lVar2, Gv_GetVar(lVar1, vm.spriteNum, playerNum));
 
                     dispatch();
                 }
@@ -2415,7 +2415,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                         abort_after_error();
                     }
 
-                    Gv_SetVarX(*insptr++, VM_GetSprite(spriteNum, labelNum, lParm2));
+                    Gv_SetVar(*insptr++, VM_GetSprite(spriteNum, labelNum, lParm2));
                     dispatch();
                 }
 
@@ -2441,7 +2441,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 
                     VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
-                    Gv_SetVarX(*insptr++, VM_GetStruct(actorLabel.flags, (intptr_t *)((char *)&actor[spriteNum] + actorLabel.offset)));
+                    Gv_SetVar(*insptr++, VM_GetStruct(actorLabel.flags, (intptr_t *)((char *)&actor[spriteNum] + actorLabel.offset)));
                     dispatch();
                 }
 
@@ -2467,7 +2467,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 
                     VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
-                    Gv_SetVarX(*insptr++, VM_GetStruct(spriteLabel.flags, (intptr_t *)((char *)&sprite[spriteNum] + spriteLabel.offset)));
+                    Gv_SetVar(*insptr++, VM_GetStruct(spriteLabel.flags, (intptr_t *)((char *)&sprite[spriteNum] + spriteLabel.offset)));
                     dispatch();
                 }
             vInstruction(CON_SETSPRITEEXT):
@@ -2492,7 +2492,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 
                     VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
-                    Gv_SetVarX(*insptr++, VM_GetStruct(spriteExtLabel.flags, (intptr_t *)((char *)&spriteext[spriteNum] + spriteExtLabel.offset)));
+                    Gv_SetVar(*insptr++, VM_GetStruct(spriteExtLabel.flags, (intptr_t *)((char *)&spriteext[spriteNum] + spriteExtLabel.offset)));
                     dispatch();
                 }
 
@@ -2514,7 +2514,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const labelNum  = *insptr++;
                     auto const &tsprLabel = TsprLabels[labelNum];
 
-                    Gv_SetVarX(*insptr++, VM_GetStruct(tsprLabel.flags, (intptr_t *)((char *)spriteext[spriteNum].tspr + tsprLabel.offset)));
+                    Gv_SetVar(*insptr++, VM_GetStruct(tsprLabel.flags, (intptr_t *)((char *)spriteext[spriteNum].tspr + tsprLabel.offset)));
                     dispatch();
                 }
 
@@ -2543,7 +2543,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const   labelNum  = *insptr++;
                     auto const &sectLabel = SectorLabels[labelNum];
 
-                    Gv_SetVarX(*insptr++,
+                    Gv_SetVar(*insptr++,
                                (sectLabel.offset != -1 && (sectLabel.flags & LABEL_READFUNC) != LABEL_READFUNC)
                                ? VM_GetStruct(sectLabel.flags, (intptr_t *)((char *)&sector[sectNum] + sectLabel.offset))
                                : VM_GetSector(sectNum, labelNum));
@@ -2638,7 +2638,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                                 if (sprite[jj].statnum == MAXSTATUS)
                                     continue;
 
-                                Gv_SetVarX(returnVar, jj);
+                                Gv_SetVar(returnVar, jj);
                                 insptr = pNext;
                                 VM_Execute();
                             }
@@ -2649,7 +2649,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                                 for (native_t jj = headspritestat[statNum]; jj >= 0;)
                                 {
                                     int const kk = nextspritestat[jj];
-                                    Gv_SetVarX(returnVar, jj);
+                                    Gv_SetVar(returnVar, jj);
                                     insptr = pNext;
                                     VM_Execute();
                                     jj = kk;
@@ -2662,7 +2662,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                                 for (native_t jj = headspritesect[sectNum]; jj >= 0;)
                                 {
                                     int const kk = nextspritesect[jj];
-                                    Gv_SetVarX(returnVar, jj);
+                                    Gv_SetVar(returnVar, jj);
                                     insptr = pNext;
                                     VM_Execute();
                                     jj = kk;
@@ -2672,7 +2672,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                         case ITER_ALLSECTORS:
                             for (native_t jj = 0; jj < numsectors; ++jj)
                             {
-                                Gv_SetVarX(returnVar, jj);
+                                Gv_SetVar(returnVar, jj);
                                 insptr = pNext;
                                 VM_Execute();
                             }
@@ -2680,7 +2680,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                         case ITER_ALLWALLS:
                             for (native_t jj = 0; jj < numwalls; ++jj)
                             {
-                                Gv_SetVarX(returnVar, jj);
+                                Gv_SetVar(returnVar, jj);
                                 insptr = pNext;
                                 VM_Execute();
                             }
@@ -2692,7 +2692,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                                 if (!prlights[jj].flags.active)
                                     continue;
 
-                                Gv_SetVarX(returnVar, jj);
+                                Gv_SetVar(returnVar, jj);
                                 insptr = pNext;
                                 VM_Execute();
                             }
@@ -2703,7 +2703,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                         {
                             for (native_t ii = 0; ii < spritesortcnt; ii++)
                             {
-                                Gv_SetVarX(returnVar, ii);
+                                Gv_SetVar(returnVar, ii);
                                 insptr = pNext;
                                 VM_Execute();
                             }
@@ -2716,7 +2716,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                             for (native_t jj = headspritesect[nIndex]; jj >= 0;)
                             {
                                 int const kk = nextspritesect[jj];
-                                Gv_SetVarX(returnVar, jj);
+                                Gv_SetVar(returnVar, jj);
                                 insptr = pNext;
                                 VM_Execute();
                                 jj = kk;
@@ -2728,7 +2728,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                             for (native_t jj = headspritestat[nIndex]; jj >= 0;)
                             {
                                 int const kk = nextspritestat[jj];
-                                Gv_SetVarX(returnVar, jj);
+                                Gv_SetVar(returnVar, jj);
                                 insptr = pNext;
                                 VM_Execute();
                                 jj = kk;
@@ -2739,7 +2739,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                                 goto badindex;
                             for (native_t jj = sector[nIndex].wallptr, endwall = jj + sector[nIndex].wallnum - 1; jj <= endwall; jj++)
                             {
-                                Gv_SetVarX(returnVar, jj);
+                                Gv_SetVar(returnVar, jj);
                                 insptr = pNext;
                                 VM_Execute();
                             }
@@ -2751,7 +2751,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                                 int jj = nIndex;
                                 do
                                 {
-                                    Gv_SetVarX(returnVar, jj);
+                                    Gv_SetVar(returnVar, jj);
                                     insptr = pNext;
                                     VM_Execute();
                                     jj = wall[jj].point2;
@@ -2761,7 +2761,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                         case ITER_RANGE:
                             for (native_t jj = 0; jj < nIndex; jj++)
                             {
-                                Gv_SetVarX(returnVar, jj);
+                                Gv_SetVar(returnVar, jj);
                                 insptr = pNext;
                                 VM_Execute();
                             }
@@ -2792,7 +2792,7 @@ badindex:
                     int const spriteNum = (tw != g_thisActorVarID) ? Gv_GetVar(tw) : vm.spriteNum;
                     int const labelNum  = *insptr++;
 
-                    Gv_SetVarX(*insptr++, VM_GetActiveProjectile(spriteNum, labelNum));
+                    Gv_SetVar(*insptr++, VM_GetActiveProjectile(spriteNum, labelNum));
                     dispatch();
                 }
 
@@ -3517,7 +3517,7 @@ badindex:
                     int const nResult = cansee(sprite[nSprite1].x, sprite[nSprite1].y, sprite[nSprite1].z, sprite[nSprite1].sectnum,
                                                sprite[nSprite2].x, sprite[nSprite2].y, sprite[nSprite2].z, sprite[nSprite2].sectnum);
 
-                    Gv_SetVarX(*insptr++, nResult);
+                    Gv_SetVar(*insptr++, nResult);
                     dispatch();
                 }
 
@@ -3549,7 +3549,7 @@ badindex:
 
                     VM_ASSERT((unsigned)quoteNum < MAXQUOTES && apStrings[quoteNum], "invalid quote %d\n", quoteNum);
 
-                    Gv_SetVarX(gameVar, Bstrlen(apStrings[quoteNum]));
+                    Gv_SetVar(gameVar, Bstrlen(apStrings[quoteNum]));
                     dispatch();
                 }
 
@@ -3580,8 +3580,8 @@ badindex:
                                                       v.offset.x, v.offset.y, v.between.x, v.between.y, v.f, v.bound[0].x, v.bound[0].y, v.bound[1].x,
                                                       v.bound[1].y);
 
-                        Gv_SetVarX(widthVar, dim.x);
-                        Gv_SetVarX(heightVar, dim.y);
+                        Gv_SetVar(widthVar, dim.x);
+                        Gv_SetVar(heightVar, dim.y);
                     }
                     dispatch();
                 }
@@ -3598,7 +3598,7 @@ badindex:
                         abort_after_error();
                     }
 
-                    Gv_SetVarX(gameVar, headspritestat[statNum]);
+                    Gv_SetVar(gameVar, headspritestat[statNum]);
                     dispatch();
                 }
 
@@ -3610,7 +3610,7 @@ badindex:
 
                     VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
-                    Gv_SetVarX(gameVar, prevspritestat[spriteNum]);
+                    Gv_SetVar(gameVar, prevspritestat[spriteNum]);
                     dispatch();
                 }
 
@@ -3622,7 +3622,7 @@ badindex:
 
                     VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
-                    Gv_SetVarX(gameVar, nextspritestat[spriteNum]);
+                    Gv_SetVar(gameVar, nextspritestat[spriteNum]);
                     dispatch();
                 }
 
@@ -3634,7 +3634,7 @@ badindex:
 
                     VM_ASSERT((unsigned)sectNum < MAXSECTORS, "invalid sector %d\n", sectNum);
 
-                    Gv_SetVarX(gameVar, headspritesect[sectNum]);
+                    Gv_SetVar(gameVar, headspritesect[sectNum]);
                     dispatch();
                 }
 
@@ -3646,7 +3646,7 @@ badindex:
 
                     VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
-                    Gv_SetVarX(gameVar, prevspritesect[spriteNum]);
+                    Gv_SetVar(gameVar, prevspritesect[spriteNum]);
                     dispatch();
                 }
 
@@ -3658,7 +3658,7 @@ badindex:
 
                     VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
-                    Gv_SetVarX(gameVar, nextspritesect[spriteNum]);
+                    Gv_SetVar(gameVar, nextspritesect[spriteNum]);
                     dispatch();
                 }
 
@@ -3745,7 +3745,7 @@ badindex:
                         abort_after_error();
                     }
 
-                    Gv_SetVarX(gameVar, strcmp(apStrings[quote1], apStrings[quote2]));
+                    Gv_SetVar(gameVar, strcmp(apStrings[quote1], apStrings[quote2]));
                     dispatch();
                 }
 
@@ -3971,7 +3971,7 @@ badindex:
 
             vInstruction(CON_DISPLAYRAND):
                 insptr++;
-                Gv_SetVarX(*insptr++, system_15bit_rand());
+                Gv_SetVar(*insptr++, system_15bit_rand());
                 dispatch();
 
             vInstruction(CON_DRAGPOINT):
@@ -4005,7 +4005,7 @@ badindex:
                         abort_after_error();
                     }
 
-                    Gv_SetVarX(out, (tw == CON_LDIST ? ldist : dist)(&sprite[in.x], &sprite[in.y]));
+                    Gv_SetVar(out, (tw == CON_LDIST ? ldist : dist)(&sprite[in.x], &sprite[in.y]));
                     dispatch();
                 }
 
@@ -4016,7 +4016,7 @@ badindex:
                     int const out = *insptr++;
                     vec2_t    in;
                     Gv_FillWithVars(in);
-                    Gv_SetVarX(out, (tw == CON_GETANGLE ? getangle : G_GetAngleDelta)(in.x, in.y));
+                    Gv_SetVar(out, (tw == CON_GETANGLE ? getangle : G_GetAngleDelta)(in.x, in.y));
                     dispatch();
                 }
 
@@ -4029,9 +4029,9 @@ badindex:
                     Gv_FillWithVars(in);
 
                     if (tw == CON_MULSCALE)
-                        Gv_SetVarX(out, mulscale(in.x, in.y, in.z));
+                        Gv_SetVar(out, mulscale(in.x, in.y, in.z));
                     else
-                        Gv_SetVarX(out, divscale(in.x, in.y, in.z));
+                        Gv_SetVar(out, divscale(in.x, in.y, in.z));
 
                     dispatch();
                 }
@@ -4042,7 +4042,7 @@ badindex:
                     int const out = *insptr++;
                     vec3_t    in;
                     Gv_FillWithVars(in);
-                    Gv_SetVarX(out, scale(in.x, in.y, in.z));
+                    Gv_SetVar(out, scale(in.x, in.y, in.z));
                     dispatch();
                 }
 
@@ -4219,7 +4219,7 @@ badindex:
                         break;
                     case CON_READGAMEVAR:
                         SCRIPT_GetNumber(ud.config.scripthandle, "Gamevars", aGameVars[*insptr].szLabel, &nValue);
-                        Gv_SetVarX(*insptr++, nValue);
+                        Gv_SetVar(*insptr++, nValue);
                         break;
                 }
                 dispatch();
@@ -4422,10 +4422,10 @@ badindex:
                     int32_t ceilz, ceilhit, florz, florhit;
 
                     getzrange(&v.vect, v.sectNum, &ceilz, &ceilhit, &florz, &florhit, v2.walldist, v2.clipmask);
-                    Gv_SetVarX(ceilzvar, ceilz);
-                    Gv_SetVarX(ceilhitvar, ceilhit);
-                    Gv_SetVarX(florzvar, florz);
-                    Gv_SetVarX(florhitvar, florhit);
+                    Gv_SetVar(ceilzvar, ceilz);
+                    Gv_SetVar(ceilhitvar, ceilhit);
+                    Gv_SetVar(florzvar, florz);
+                    Gv_SetVar(florhitvar, florhit);
 
                     dispatch();
                 }
@@ -4454,7 +4454,7 @@ badindex:
                     Gv_FillWithVars(da);
                     int64_t const hypsq = (int64_t)da.x * da.x + (int64_t)da.y * da.y;
 
-                    Gv_SetVarX(returnVar, (hypsq > (int64_t)INT32_MAX) ? (int32_t)sqrt((double)hypsq) : ksqrt((uint32_t)hypsq));
+                    Gv_SetVar(returnVar, (hypsq > (int64_t)INT32_MAX) ? (int32_t)sqrt((double)hypsq) : ksqrt((uint32_t)hypsq));
                     dispatch();
                 }
 
@@ -4479,13 +4479,13 @@ badindex:
                                                                                       v.vec[1].z, v.vec2[0].x, v.vec2[0].y, v.vec2[1].x, v.vec2[1].y,
                                                                                       &in.x, &in.y, &in.z);
 
-                    Gv_SetVarX(retvar, ret);
+                    Gv_SetVar(retvar, ret);
 
                     if (ret)
                     {
-                        Gv_SetVarX(intxvar, in.x);
-                        Gv_SetVarX(intyvar, in.y);
-                        Gv_SetVarX(intzvar, in.z);
+                        Gv_SetVar(intxvar, in.x);
+                        Gv_SetVar(intyvar, in.y);
+                        Gv_SetVar(intzvar, in.z);
                     }
 
                     dispatch();
@@ -4523,12 +4523,12 @@ badindex:
 
                     VM_ASSERT((unsigned)sectNum < MAXSECTORS, "invalid sector %d\n", sectNum);
 
-                    Gv_SetVarX(
+                    Gv_SetVar(
                     returnVar,
                     clipmovex(&v.vec3, &sectNum, v.vec2.x, v.vec2.y, v.dist.w, v.dist.f, v.dist.c, v.clipMask, (tw == CON_CLIPMOVENOSLIDE)));
-                    Gv_SetVarX(sectReturn, v.sectNum32);
-                    Gv_SetVarX(xReturn, v.vec3.x);
-                    Gv_SetVarX(yReturn, v.vec3.y);
+                    Gv_SetVar(sectReturn, v.sectNum32);
+                    Gv_SetVar(xReturn, v.vec3.x);
+                    Gv_SetVar(yReturn, v.vec3.y);
 
                     dispatch();
                 }
@@ -4557,12 +4557,12 @@ badindex:
                     hitdata_t hit;
                     hitscan(&v.origin, v.sectnum, v.vect.x, v.vect.y, v.vect.z, &hit, clipType);
 
-                    Gv_SetVarX(sectReturn, hit.sect);
-                    Gv_SetVarX(wallReturn, hit.wall);
-                    Gv_SetVarX(spriteReturn, hit.sprite);
-                    Gv_SetVarX(xReturn, hit.pos.x);
-                    Gv_SetVarX(yReturn, hit.pos.y);
-                    Gv_SetVarX(zReturn, hit.pos.z);
+                    Gv_SetVar(sectReturn, hit.sect);
+                    Gv_SetVar(wallReturn, hit.wall);
+                    Gv_SetVar(spriteReturn, hit.sprite);
+                    Gv_SetVar(xReturn, hit.pos.x);
+                    Gv_SetVar(yReturn, hit.pos.y);
+                    Gv_SetVar(zReturn, hit.pos.z);
                     dispatch();
                 }
 
@@ -4586,7 +4586,7 @@ badindex:
                         abort_after_error();
                     }
 
-                    Gv_SetVarX(returnVar, cansee(v.vec1.x, v.vec1.y, v.vec1.z, v.firstSector, v.vec2.x, v.vec2.y, v.vec2.z, v.secondSector));
+                    Gv_SetVar(returnVar, cansee(v.vec1.x, v.vec1.y, v.vec1.z, v.firstSector, v.vec2.x, v.vec2.y, v.vec2.z, v.secondSector));
                     dispatch();
                 }
 
@@ -4606,8 +4606,8 @@ badindex:
 
                     rotatepoint(v.point[0], v.point[1], v.angle, &result);
 
-                    Gv_SetVarX(xReturn, result.x);
-                    Gv_SetVarX(yReturn, result.y);
+                    Gv_SetVar(xReturn, result.x);
+                    Gv_SetVar(yReturn, result.y);
                     dispatch();
                 }
 
@@ -4648,10 +4648,10 @@ badindex:
                     neartag(v.point.x, v.point.y, v.point.z, v.sectNum, v.nAngle, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist,
                             v2.tagRange, v2.tagSearch, NULL);
 
-                    Gv_SetVarX(sectReturn, neartagsector);
-                    Gv_SetVarX(wallReturn, neartagwall);
-                    Gv_SetVarX(spriteReturn, neartagsprite);
-                    Gv_SetVarX(distReturn, neartaghitdist);
+                    Gv_SetVar(sectReturn, neartagsector);
+                    Gv_SetVar(wallReturn, neartagwall);
+                    Gv_SetVar(spriteReturn, neartagsprite);
+                    Gv_SetVar(distReturn, neartaghitdist);
                     dispatch();
                 }
 
@@ -4662,7 +4662,7 @@ badindex:
                     G_GetTimeDate(values);
 
                     for (int value : values)
-                        Gv_SetVarX(*insptr++, value);
+                        Gv_SetVar(*insptr++, value);
 
                     dispatch();
                 }
@@ -4680,7 +4680,7 @@ badindex:
 
                     VM_ASSERT((unsigned)v.spriteNum < MAXSPRITES, "invalid sprite %d\n", v.spriteNum);
 
-                    Gv_SetVarX(*insptr++, A_MoveSprite(v.spriteNum, &v.vect, v.clipType));
+                    Gv_SetVar(*insptr++, A_MoveSprite(v.spriteNum, &v.vect, v.clipType));
                     dispatch();
                 }
 
@@ -4713,7 +4713,7 @@ badindex:
 
                     VM_ASSERT((unsigned)v.sectNum < MAXSECTORS, "invalid sector %d\n", v.sectNum);
 
-                    Gv_SetVarX(*insptr++, (tw == CON_GETFLORZOFSLOPE ? getflorzofslope : getceilzofslope)(v.sectNum, v.vect.x, v.vect.y));
+                    Gv_SetVar(*insptr++, (tw == CON_GETFLORZOFSLOPE ? getflorzofslope : getceilzofslope)(v.sectNum, v.vect.x, v.vect.y));
                     dispatch();
                 }
 
@@ -4730,7 +4730,7 @@ badindex:
                         sectNum = vm.pSprite->sectnum;
 
                     updatesector(vect.x, vect.y, &sectNum);
-                    Gv_SetVarX(returnVar, sectNum);
+                    Gv_SetVar(returnVar, sectNum);
                     dispatch();
                 }
 
@@ -4747,7 +4747,7 @@ badindex:
                         sectNum = vm.pSprite->sectnum;
 
                     updatesectorz(vect.x, vect.y, vect.z, &sectNum);
-                    Gv_SetVarX(returnVar, sectNum);
+                    Gv_SetVar(returnVar, sectNum);
                     dispatch();
                 }
 
@@ -5032,7 +5032,7 @@ badindex:
             vInstruction(CON_SECTOROFWALL):
                 insptr++;
                 tw = *insptr++;
-                Gv_SetVarX(tw, sectorofwall(Gv_GetVar(*insptr++)));
+                Gv_SetVar(tw, sectorofwall(Gv_GetVar(*insptr++)));
                 dispatch();
 
             vInstruction(CON_QSPRINTF):
@@ -5227,7 +5227,7 @@ badindex:
                 {
                     // syntax sqrt <invar> <outvar>
                     int const sqrtval = ksqrt((uint32_t)Gv_GetVar(*insptr++));
-                    Gv_SetVarX(*insptr++, sqrtval);
+                    Gv_SetVar(*insptr++, sqrtval);
                     dispatch();
                 }
 
@@ -5277,7 +5277,7 @@ badindex:
                     }
                     while (findStatnum--);
 
-                    Gv_SetVarX(returnVar, foundSprite);
+                    Gv_SetVar(returnVar, foundSprite);
                     dispatch();
                 }
 
@@ -5325,7 +5325,7 @@ badindex:
                     }
                     while (findStatnum--);
 
-                    Gv_SetVarX(returnVar, foundSprite);
+                    Gv_SetVar(returnVar, foundSprite);
                     dispatch();
                 }
 
@@ -5334,7 +5334,7 @@ badindex:
                 int32_t tw;
                 insptr++;
                 aGameVars[g_returnVarID].global = A_FindPlayer(vm.pSprite, &tw);
-                Gv_SetVarX(*insptr++, tw);
+                Gv_SetVar(*insptr++, tw);
                 dispatch();
             }
 
@@ -5343,7 +5343,7 @@ badindex:
                 int32_t tw;
                 insptr++;
                 aGameVars[g_returnVarID].global = P_FindOtherPlayer(vm.playerNum, &tw);
-                Gv_SetVarX(*insptr++, tw);
+                Gv_SetVar(*insptr++, tw);
                 dispatch();
             }
 
@@ -5354,7 +5354,7 @@ badindex:
                     int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVar(insptr[-1]) : vm.playerNum;
                     int const labelNum  = *insptr++;
 
-                    Gv_SetVarX(*insptr++, VM_GetPlayerInput(playerNum, labelNum));
+                    Gv_SetVar(*insptr++, VM_GetPlayerInput(playerNum, labelNum));
                     dispatch();
                 }
 
@@ -5374,7 +5374,7 @@ badindex:
                     int const labelNum = *insptr++;
                     int const lParm2   = (UserdefsLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVar(*insptr++) : 0;
 
-                    Gv_SetVarX(*insptr++, VM_GetUserdef(labelNum, lParm2));
+                    Gv_SetVar(*insptr++, VM_GetUserdef(labelNum, lParm2));
                     dispatch();
                 }
 
@@ -5384,7 +5384,7 @@ badindex:
                     int const tileNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVar(insptr[-1]) : vm.pSprite->picnum;
                     int const labelNum = *insptr++;
 
-                    Gv_SetVarX(*insptr++, VM_GetTileData(tileNum, labelNum));
+                    Gv_SetVar(*insptr++, VM_GetTileData(tileNum, labelNum));
                     dispatch();
                 }
 
@@ -5413,7 +5413,7 @@ badindex:
                 {
                     tw = Gv_GetVar(*insptr++);
                     int const labelNum = *insptr++;
-                    Gv_SetVarX(*insptr++, VM_GetProjectile(tw, labelNum));
+                    Gv_SetVar(*insptr++, VM_GetProjectile(tw, labelNum));
                     dispatch();
                 }
 
@@ -5429,7 +5429,7 @@ badindex:
             vInstruction(CON_GETANGLETOTARGET):
                 insptr++;
                 // vm.pActor->lastvx and lastvy are last known location of target.
-                Gv_SetVarX(*insptr++, getangle(vm.pActor->lastv.x - vm.pSprite->x, vm.pActor->lastv.y - vm.pSprite->y));
+                Gv_SetVar(*insptr++, getangle(vm.pActor->lastv.x - vm.pSprite->x, vm.pActor->lastv.y - vm.pSprite->y));
                 dispatch();
 
             vInstruction(CON_ANGOFF):
@@ -5460,12 +5460,12 @@ badindex:
 
             vInstruction(CON_GETPLAYERANGLE):
                 insptr++;
-                Gv_SetVarX(*insptr++, fix16_to_int(vm.pPlayer->q16ang));
+                Gv_SetVar(*insptr++, fix16_to_int(vm.pPlayer->q16ang));
                 dispatch();
 
             vInstruction(CON_GETACTORANGLE):
                 insptr++;
-                Gv_SetVarX(*insptr++, vm.pSprite->ang);
+                Gv_SetVar(*insptr++, vm.pSprite->ang);
                 dispatch();
 
             vInstruction(CON_SETPLAYERANGLE):
@@ -5482,7 +5482,7 @@ badindex:
                 if ((aGameVars[insptr[1]].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
                     aGameVars[insptr[1]].global = klabs(aGameVars[insptr[1]].global);
                 else
-                    Gv_SetVarX(insptr[1], klabs(Gv_GetVar(insptr[1])));
+                    Gv_SetVar(insptr[1], klabs(Gv_GetVar(insptr[1])));
                 insptr += 2;
                 dispatch();
 
@@ -5651,7 +5651,7 @@ badindex:
             vInstruction(CON_GETARRAYSIZE):
                 insptr++;
                 tw = *insptr++;
-                Gv_SetVarX(*insptr++, (aGameArrays[tw].flags & GAMEARRAY_VARSIZE) ? Gv_GetVar(aGameArrays[tw].size) : aGameArrays[tw].size);
+                Gv_SetVar(*insptr++, (aGameArrays[tw].flags & GAMEARRAY_VARSIZE) ? Gv_GetVar(aGameArrays[tw].size) : aGameArrays[tw].size);
                 dispatch();
 
             vInstruction(CON_RESIZEARRAY):
@@ -5802,7 +5802,7 @@ badindex:
 
             vInstruction(CON_DISPLAYRANDVAR):
                 insptr++;
-                Gv_SetVarX(*insptr, mulscale15(system_15bit_rand(), insptr[1] + 1));
+                Gv_SetVar(*insptr, mulscale15(system_15bit_rand(), insptr[1] + 1));
                 insptr += 2;
                 dispatch();
 
@@ -5811,7 +5811,7 @@ badindex:
                 {
                     tw = *insptr++;
                     int const min = Gv_GetVar(*insptr++);
-                    Gv_SetVarX(tw, clamp2(Gv_GetVar(tw), min, Gv_GetVar(*insptr++)));
+                    Gv_SetVar(tw, clamp2(Gv_GetVar(tw), min, Gv_GetVar(*insptr++)));
                 }
                 dispatch();
 
@@ -5820,7 +5820,7 @@ badindex:
                 {
                     tw = *insptr++;
                     int32_t const rgb = Gv_GetVar(*insptr++);
-                    Gv_SetVarX(tw, getclosestcol_lim(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVar(*insptr++)));
+                    Gv_SetVar(tw, getclosestcol_lim(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVar(*insptr++)));
                 }
                 dispatch();
 
@@ -5861,14 +5861,14 @@ badindex:
                 if ((aGameVars[insptr[1]].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
                     aGameVars[insptr[1]].global = -aGameVars[insptr[1]].global;
                 else
-                    Gv_SetVarX(insptr[1], -Gv_GetVar(insptr[1]));
+                    Gv_SetVar(insptr[1], -Gv_GetVar(insptr[1]));
                 insptr += 2;
                 dispatch();
 
             vInstruction(CON_DISPLAYRANDVARVAR):
                 insptr++;
                 tw = *insptr++;
-                Gv_SetVarX(tw, mulscale15(system_15bit_rand(), Gv_GetVar(*insptr++) + 1));
+                Gv_SetVar(tw, mulscale15(system_15bit_rand(), Gv_GetVar(*insptr++) + 1));
                 dispatch();
 
             vInstruction(CON_GMAXAMMO):
@@ -5879,7 +5879,7 @@ badindex:
                     CON_ERRPRINTF("invalid weapon %d\n", (int)tw);
                     abort_after_error();
                 }
-                Gv_SetVarX(*insptr++, vm.pPlayer->max_ammo_amount[tw]);
+                Gv_SetVar(*insptr++, vm.pPlayer->max_ammo_amount[tw]);
                 dispatch();
 
             vInstruction(CON_SMAXAMMO):
@@ -5908,7 +5908,7 @@ badindex:
                         abort_after_error();
                     }
 
-                    Gv_SetVarX(tw, tabledivide32((dividend + ksgn(dividend) * klabs(divisor / 2)), divisor));
+                    Gv_SetVar(tw, tabledivide32((dividend + ksgn(dividend) * klabs(divisor / 2)), divisor));
                     dispatch();
                 }
 
@@ -5926,20 +5926,20 @@ badindex:
                         abort_after_error();
                     }
 
-                    Gv_SetVarX(tw, tabledivide32((dividend + ksgn(dividend) * klabs(divisor) + 1), divisor));
+                    Gv_SetVar(tw, tabledivide32((dividend + ksgn(dividend) * klabs(divisor) + 1), divisor));
                     dispatch();
                 }
 
             vInstruction(CON_SIN):
                 insptr++;
                 tw = *insptr++;
-                Gv_SetVarX(tw, sintable[Gv_GetVar(*insptr++) & 2047]);
+                Gv_SetVar(tw, sintable[Gv_GetVar(*insptr++) & 2047]);
                 dispatch();
 
             vInstruction(CON_COS):
                 insptr++;
                 tw = *insptr++;
-                Gv_SetVarX(tw, sintable[(Gv_GetVar(*insptr++) + 512) & 2047]);
+                Gv_SetVar(tw, sintable[(Gv_GetVar(*insptr++) + 512) & 2047]);
                 dispatch();
 
 
@@ -6195,13 +6195,13 @@ badindex:
 
             vInstruction(CON_GETTICKS):
                 insptr++;
-                Gv_SetVarX(*insptr++, timerGetTicks());
+                Gv_SetVar(*insptr++, timerGetTicks());
                 dispatch();
 
             vInstruction(CON_GETCURRADDRESS):
                 insptr++;
                 tw = *insptr++;
-                Gv_SetVarX(tw, (intptr_t)(insptr - apScript));
+                Gv_SetVar(tw, (intptr_t)(insptr - apScript));
                 dispatch();
 
             vmErrorCase: // you're not supposed to be here

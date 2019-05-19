@@ -125,7 +125,7 @@ int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum);
 void __fastcall Gv_SetVar(int const gameVar, int const newValue, int const spriteNum, int const playerNum);
 int __fastcall Gv_GetVar(int gameVar);
 void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf);
-void __fastcall Gv_SetVarX(int const gameVar, int const newValue);
+void __fastcall Gv_SetVar(int const gameVar, int const newValue);
 
 template <typename T>
 static FORCE_INLINE void Gv_FillWithVars(T & rv)

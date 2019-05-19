@@ -838,7 +838,7 @@ badindex:
                   (var.flags & GAMEVAR_PERACTOR) ? spriteNum : playerNum, vm.spriteNum, vm.playerNum);
 }
 
-void __fastcall Gv_SetVarX(int const gameVar, int const newValue) { Gv_SetVar__(gameVar, newValue, vm.spriteNum, vm.playerNum); }
+void __fastcall Gv_SetVar(int const gameVar, int const newValue) { Gv_SetVar__(gameVar, newValue, vm.spriteNum, vm.playerNum); }
 void __fastcall Gv_SetVar(int const gameVar, int const newValue, int const spriteNum, int const playerNum)
 {
     Gv_SetVar__(gameVar, newValue, spriteNum, playerNum);

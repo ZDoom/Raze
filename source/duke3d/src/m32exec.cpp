@@ -455,7 +455,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, insptr-apScript);
+                Gv_SetVar(j, insptr-apScript);
             }
             continue;
 
@@ -512,7 +512,7 @@ skip_check:
                 if (CheckArray(j))
                     continue;
 
-                Gv_SetVarX(*insptr++, Gv_GetArraySize(j));
+                Gv_SetVar(*insptr++, Gv_GetArraySize(j));
             }
             continue;
 
@@ -605,19 +605,19 @@ skip_check:
 // *** var & varvar ops
         case CON_RANDVAR:
             insptr++;
-            Gv_SetVarX(*insptr, mulscale16(krand(), *(insptr+1)+1));
+            Gv_SetVar(*insptr, mulscale16(krand(), *(insptr+1)+1));
             insptr += 2;
             continue;
 
         case CON_DISPLAYRANDVAR:
             insptr++;
-            Gv_SetVarX(*insptr, mulscale15(system_15bit_rand(), *(insptr+1)+1));
+            Gv_SetVar(*insptr, mulscale15(system_15bit_rand(), *(insptr+1)+1));
             insptr += 2;
             continue;
 
         case CON_SETVAR:
             insptr++;
-            Gv_SetVarX(*insptr, *(insptr+1));
+            Gv_SetVar(*insptr, *(insptr+1));
             insptr += 2;
             continue;
 
@@ -625,13 +625,13 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVar(*insptr++));
+                Gv_SetVar(j, Gv_GetVar(*insptr++));
             }
             continue;
 
         case CON_MULVAR:
             insptr++;
-            Gv_SetVarX(*insptr, Gv_GetVar(*insptr) * *(insptr+1));
+            Gv_SetVar(*insptr, Gv_GetVar(*insptr) * *(insptr+1));
             insptr += 2;
             continue;
 
@@ -643,7 +643,7 @@ skip_check:
                 insptr += 2;
                 continue;
             }
-            Gv_SetVarX(*insptr, Gv_GetVar(*insptr) / *(insptr+1));
+            Gv_SetVar(*insptr, Gv_GetVar(*insptr) / *(insptr+1));
             insptr += 2;
             continue;
 
@@ -655,25 +655,25 @@ skip_check:
                 insptr += 2;
                 continue;
             }
-            Gv_SetVarX(*insptr,Gv_GetVar(*insptr)%*(insptr+1));
+            Gv_SetVar(*insptr,Gv_GetVar(*insptr)%*(insptr+1));
             insptr += 2;
             continue;
 
         case CON_ANDVAR:
             insptr++;
-            Gv_SetVarX(*insptr,Gv_GetVar(*insptr) & *(insptr+1));
+            Gv_SetVar(*insptr,Gv_GetVar(*insptr) & *(insptr+1));
             insptr += 2;
             continue;
 
         case CON_ORVAR:
             insptr++;
-            Gv_SetVarX(*insptr,Gv_GetVar(*insptr) | *(insptr+1));
+            Gv_SetVar(*insptr,Gv_GetVar(*insptr) | *(insptr+1));
             insptr += 2;
             continue;
 
         case CON_XORVAR:
             insptr++;
-            Gv_SetVarX(*insptr,Gv_GetVar(*insptr) ^ *(insptr+1));
+            Gv_SetVar(*insptr,Gv_GetVar(*insptr) ^ *(insptr+1));
             insptr += 2;
             continue;
 
@@ -681,7 +681,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j,mulscale16(krand(), Gv_GetVar(*insptr++)+1));
+                Gv_SetVar(j,mulscale16(krand(), Gv_GetVar(*insptr++)+1));
             }
             continue;
 
@@ -689,7 +689,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j,mulscale15(system_15bit_rand(), Gv_GetVar(*insptr++)+1));
+                Gv_SetVar(j,mulscale15(system_15bit_rand(), Gv_GetVar(*insptr++)+1));
             }
             continue;
 
@@ -697,7 +697,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVar(j)*Gv_GetVar(*insptr++));
+                Gv_SetVar(j, Gv_GetVar(j)*Gv_GetVar(*insptr++));
             }
             continue;
 
@@ -712,7 +712,7 @@ skip_check:
                     M32_ERROR("Divide by zero.");
                     continue;
                 }
-                Gv_SetVarX(j, Gv_GetVar(j)/l2);
+                Gv_SetVar(j, Gv_GetVar(j)/l2);
                 continue;
             }
 
@@ -728,7 +728,7 @@ skip_check:
                     continue;
                 }
 
-                Gv_SetVarX(j, Gv_GetVar(j) % l2);
+                Gv_SetVar(j, Gv_GetVar(j) % l2);
                 continue;
             }
 
@@ -736,7 +736,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVar(j) & Gv_GetVar(*insptr++));
+                Gv_SetVar(j, Gv_GetVar(j) & Gv_GetVar(*insptr++));
             }
             continue;
 
@@ -744,7 +744,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVar(j) ^ Gv_GetVar(*insptr++));
+                Gv_SetVar(j, Gv_GetVar(j) ^ Gv_GetVar(*insptr++));
             }
             continue;
 
@@ -752,13 +752,13 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVar(j) | Gv_GetVar(*insptr++));
+                Gv_SetVar(j, Gv_GetVar(j) | Gv_GetVar(*insptr++));
             }
             continue;
 
         case CON_SUBVAR:
             insptr++;
-            Gv_SetVarX(*insptr, Gv_GetVar(*insptr) - *(insptr+1));
+            Gv_SetVar(*insptr, Gv_GetVar(*insptr) - *(insptr+1));
             insptr += 2;
             continue;
 
@@ -766,13 +766,13 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVar(j) - Gv_GetVar(*insptr++));
+                Gv_SetVar(j, Gv_GetVar(j) - Gv_GetVar(*insptr++));
             }
             continue;
 
         case CON_ADDVAR:
             insptr++;
-            Gv_SetVarX(*insptr, Gv_GetVar(*insptr) + *(insptr+1));
+            Gv_SetVar(*insptr, Gv_GetVar(*insptr) + *(insptr+1));
             insptr += 2;
             continue;
 
@@ -780,13 +780,13 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVar(j) + Gv_GetVar(*insptr++));
+                Gv_SetVar(j, Gv_GetVar(j) + Gv_GetVar(*insptr++));
             }
             continue;
 
         case CON_SHIFTVARL:
             insptr++;
-            Gv_SetVarX(*insptr, Gv_GetVar(*insptr) << *(insptr+1));
+            Gv_SetVar(*insptr, Gv_GetVar(*insptr) << *(insptr+1));
             insptr += 2;
             continue;
 
@@ -794,13 +794,13 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVar(j) << Gv_GetVar(*insptr++));
+                Gv_SetVar(j, Gv_GetVar(j) << Gv_GetVar(*insptr++));
             }
             continue;
 
         case CON_SHIFTVARR:
             insptr++;
-            Gv_SetVarX(*insptr, Gv_GetVar(*insptr) >> *(insptr+1));
+            Gv_SetVar(*insptr, Gv_GetVar(*insptr) >> *(insptr+1));
             insptr += 2;
             continue;
 
@@ -808,25 +808,25 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVar(j) >> Gv_GetVar(*insptr++));
+                Gv_SetVar(j, Gv_GetVar(j) >> Gv_GetVar(*insptr++));
             }
             continue;
 
         case CON_SIN:
             insptr++;
-            Gv_SetVarX(*insptr, sintable[Gv_GetVar(*(insptr+1))&2047]);
+            Gv_SetVar(*insptr, sintable[Gv_GetVar(*(insptr+1))&2047]);
             insptr += 2;
             continue;
 
         case CON_COS:
             insptr++;
-            Gv_SetVarX(*insptr, sintable[(Gv_GetVar(*(insptr+1))+512)&2047]);
+            Gv_SetVar(*insptr, sintable[(Gv_GetVar(*(insptr+1))+512)&2047]);
             insptr += 2;
             continue;
 
         case CON_DISPLAYRAND:
             insptr++;
-            Gv_SetVarX(*insptr++, system_15bit_rand());
+            Gv_SetVar(*insptr++, system_15bit_rand());
             continue;
 
 // *** other math
@@ -839,7 +839,7 @@ skip_check:
                 int32_t const scale=*(insptr+1);
 // rounding must absolutely be!
 //OSD_Printf("ftoi: bits:%8x, scale=%d, fval=%f, (int32_t)(fval*scale)=%d\n", bits, scale, fval, (int32_t)(fval*scale));
-                Gv_SetVarX(*insptr, (int32_t)Blrintf(fval * scale));
+                Gv_SetVar(*insptr, (int32_t)Blrintf(fval * scale));
             }
             insptr += 2;
             continue;
@@ -852,7 +852,7 @@ skip_check:
                 ival=Gv_GetVar(*insptr);
                 int32_t const scale=*(insptr+1);
                 fval = (float)ival/(float)scale;
-                Gv_SetVarX(*insptr, ival);
+                Gv_SetVar(*insptr, ival);
             }
             insptr += 2;
             continue;
@@ -863,13 +863,13 @@ skip_check:
                 int32_t var=*insptr++, min=Gv_GetVar(*insptr++), max=Gv_GetVar(*insptr++);
                 int32_t val=Gv_GetVar(var);
 
-                if (val<min) Gv_SetVarX(var, min);
-                else if (val>max) Gv_SetVarX(var, max);
+                if (val<min) Gv_SetVar(var, min);
+                else if (val>max) Gv_SetVar(var, max);
             }
             continue;
 
         case CON_INV:
-            Gv_SetVarX(*(insptr+1), -Gv_GetVar(*(insptr+1)));
+            Gv_SetVar(*(insptr+1), -Gv_GetVar(*(insptr+1)));
             insptr += 2;
             continue;
 
@@ -879,7 +879,7 @@ skip_check:
                 // syntax sqrt <invar> <outvar>
                 int32_t lInVarID=*insptr++, lOutVarID=*insptr++;
 
-                Gv_SetVarX(lOutVarID, ksqrt((uint32_t)Gv_GetVar(lInVarID)));
+                Gv_SetVar(lOutVarID, ksqrt((uint32_t)Gv_GetVar(lInVarID)));
                 continue;
             }
 
@@ -900,9 +900,9 @@ skip_check:
                 if (vm.flags&VMFLAG_ERROR) continue;
 
                 if (tw==CON_DIST)
-                    Gv_SetVarX(distvar, dist(&sprite[xvar],&sprite[yvar]));
+                    Gv_SetVar(distvar, dist(&sprite[xvar],&sprite[yvar]));
                 else
-                    Gv_SetVarX(distvar, ldist(&sprite[xvar],&sprite[yvar]));
+                    Gv_SetVar(distvar, ldist(&sprite[xvar],&sprite[yvar]));
                 continue;
             }
 
@@ -913,7 +913,7 @@ skip_check:
                 int32_t xvar = Gv_GetVar(*insptr++);
                 int32_t yvar = Gv_GetVar(*insptr++);
 
-                Gv_SetVarX(angvar, getangle(xvar,yvar));
+                Gv_SetVar(angvar, getangle(xvar,yvar));
                 continue;
             }
 
@@ -924,7 +924,7 @@ skip_check:
                 int32_t xvar = Gv_GetVar(*insptr++);
                 int32_t yvar = Gv_GetVar(*insptr++);
 
-                Gv_SetVarX(angvar, G_GetAngleDelta(xvar,yvar));
+                Gv_SetVar(angvar, G_GetAngleDelta(xvar,yvar));
                 continue;
             }
 
@@ -953,11 +953,11 @@ skip_check:
                         z = divscale14(-horiz, veclen);
                     }
 
-                    Gv_SetVarX(zvar, z);
+                    Gv_SetVar(zvar, z);
                 }
 
-                Gv_SetVarX(xvar, x);
-                Gv_SetVarX(yvar, y);
+                Gv_SetVar(xvar, x);
+                Gv_SetVar(yvar, y);
 
                 continue;
             }
@@ -968,7 +968,7 @@ skip_check:
                 int32_t var1 = *insptr++, var2 = Gv_GetVar(*insptr++);
                 int32_t var3 = Gv_GetVar(*insptr++), var4 = Gv_GetVar(*insptr++);
 
-                Gv_SetVarX(var1, mulscale(var2, var3, var4));
+                Gv_SetVar(var1, mulscale(var2, var3, var4));
                 continue;
             }
         case CON_DIVSCALE:
@@ -977,7 +977,7 @@ skip_check:
                 int32_t var1 = *insptr++, var2 = Gv_GetVar(*insptr++);
                 int32_t var3 = Gv_GetVar(*insptr++), var4 = Gv_GetVar(*insptr++);
 
-                Gv_SetVarX(var1, divscale(var2, var3, var4));
+                Gv_SetVar(var1, divscale(var2, var3, var4));
                 continue;
             }
         case CON_SCALEVAR:
@@ -986,7 +986,7 @@ skip_check:
                 int32_t var1 = *insptr++, var2 = Gv_GetVar(*insptr++);
                 int32_t var3 = Gv_GetVar(*insptr++), var4 = Gv_GetVar(*insptr++);
 
-                Gv_SetVarX(var1, scale(var2, var3, var4));
+                Gv_SetVar(var1, scale(var2, var3, var4));
                 continue;
             }
 
@@ -1273,7 +1273,7 @@ skip_check:
                 for (j=numsects-1; j>=0; j--)
                     sectlist32[j] = sectlist[j];
 
-                Gv_SetVarX(numsectsVar, numsects);
+                Gv_SetVar(numsectsVar, numsects);
                 g_iReturnVar = 0;
 
                 // restore some VM state
@@ -1339,7 +1339,7 @@ skip_check:
                     {
                         if (sprite[jj].statnum == MAXSTATUS)
                             continue;
-                        Gv_SetVarX(var, jj);
+                        Gv_SetVar(var, jj);
                         vm.spriteNum = jj;
                         vm.pSprite = &sprite[jj];
                         insptr = beg;
@@ -1349,7 +1349,7 @@ skip_check:
                 case ITER_ALLSECTORS:
                     for (bssize_t jj=0; jj<numsectors && !vm.flags; jj++)
                     {
-                        Gv_SetVarX(var, jj);
+                        Gv_SetVar(var, jj);
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1357,7 +1357,7 @@ skip_check:
                 case ITER_ALLWALLS:
                     for (bssize_t jj=0; jj<numwalls && !vm.flags; jj++)
                     {
-                        Gv_SetVarX(var, jj);
+                        Gv_SetVar(var, jj);
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1369,7 +1369,7 @@ skip_check:
                         if (!prlights[jj].flags.active)
                             continue;
 
-                        Gv_SetVarX(var, jj);
+                        Gv_SetVar(var, jj);
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1385,7 +1385,7 @@ skip_check:
                         if (jj&0xc000)
                         {
                             jj &= (MAXSPRITES-1);
-                            Gv_SetVarX(var, jj);
+                            Gv_SetVar(var, jj);
                             vm.spriteNum = jj;
                             vm.pSprite = &sprite[jj];
                             insptr = beg;
@@ -1397,7 +1397,7 @@ skip_check:
                     for (bssize_t ii=0; ii<highlightsectorcnt && !vm.flags; ii++)
                     {
                         int jj=highlightsector[ii];
-                        Gv_SetVarX(var, jj);
+                        Gv_SetVar(var, jj);
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1408,7 +1408,7 @@ skip_check:
                         int jj=highlight[ii];
                         if (jj&0xc000)
                             continue;
-                        Gv_SetVarX(var, jj);
+                        Gv_SetVar(var, jj);
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1426,7 +1426,7 @@ skip_check:
                         vm.pUSprite = lastSpritePtr;
                         Bmemcpy(lastSpritePtr, &tsprite[ii], sizeof(uspritetype));
 
-                        Gv_SetVarX(var, ii);
+                        Gv_SetVar(var, ii);
                         insptr = beg;
                         VM_Execute(1);
 
@@ -1443,7 +1443,7 @@ skip_check:
                         goto badindex;
                     for (bssize_t jj=headspritesect[parm2]; jj>=0 && !vm.flags; jj=nextspritesect[jj])
                     {
-                        Gv_SetVarX(var, jj);
+                        Gv_SetVar(var, jj);
                         vm.spriteNum = jj;
                         vm.pSprite = &sprite[jj];
                         insptr = beg;
@@ -1456,7 +1456,7 @@ skip_check:
                     for (bssize_t jj=sector[parm2].wallptr, endwall=jj+sector[parm2].wallnum-1;
                             jj<=endwall && !vm.flags; jj++)
                     {
-                        Gv_SetVarX(var, jj);
+                        Gv_SetVar(var, jj);
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1468,7 +1468,7 @@ skip_check:
                         int jj = parm2;
                         do
                         {
-                            Gv_SetVarX(var, jj);
+                            Gv_SetVar(var, jj);
                             insptr = beg;
                             VM_Execute(1);
                             jj = wall[jj].point2;
@@ -1479,7 +1479,7 @@ skip_check:
                 case ITER_RANGE:
                     for (bssize_t jj=0; jj<parm2 && !vm.flags; jj++)
                     {
-                        Gv_SetVarX(var, jj);
+                        Gv_SetVar(var, jj);
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1854,7 +1854,7 @@ badindex:
                 int32_t spritenum=Gv_GetVar(*insptr++), resvar = *insptr++;
 
                 X_ERROR_INVALIDSPRI(spritenum);
-                Gv_SetVarX(resvar, taglab_linktags(1, spritenum));
+                Gv_SetVar(resvar, taglab_linktags(1, spritenum));
             }
             continue;
 
@@ -1869,7 +1869,7 @@ badindex:
                     continue;
                 }
 
-                Gv_SetVarX(resvar, lastwall(dapoint));
+                Gv_SetVar(resvar, lastwall(dapoint));
             }
             continue;
 
@@ -1890,10 +1890,10 @@ badindex:
 
                     X_ERROR_INVALIDSECT(sectnum);
                     getzrange(&vect, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
-                    Gv_SetVarX(ceilzvar, ceilz);
-                    Gv_SetVarX(ceilhitvar, ceilhit);
-                    Gv_SetVarX(florzvar, florz);
-                    Gv_SetVarX(florhitvar, florhit);
+                    Gv_SetVar(ceilzvar, ceilz);
+                    Gv_SetVar(ceilhitvar, ceilhit);
+                    Gv_SetVar(florzvar, florz);
+                    Gv_SetVar(florhitvar, florhit);
                 }
                 continue;
             }
@@ -1906,9 +1906,9 @@ badindex:
                 int64_t hypsq = dax*dax + day*day;
 
                 if (hypsq > (int64_t)INT32_MAX)
-                    Gv_SetVarX(retvar, (int32_t)sqrt((double)hypsq));
+                    Gv_SetVar(retvar, (int32_t)sqrt((double)hypsq));
                 else
-                    Gv_SetVarX(retvar, ksqrt((uint32_t)hypsq));
+                    Gv_SetVar(retvar, ksqrt((uint32_t)hypsq));
 
                 continue;
             }
@@ -1928,12 +1928,12 @@ badindex:
                 else
                     ret = rayintersect(x1, y1, z1, x2, y2, z2, x3, y3, x4, y4, &intx, &inty, &intz);
 
-                Gv_SetVarX(retvar, ret);
+                Gv_SetVar(retvar, ret);
                 if (ret)
                 {
-                    Gv_SetVarX(intxvar, intx);
-                    Gv_SetVarX(intyvar, inty);
-                    Gv_SetVarX(intzvar, intz);
+                    Gv_SetVar(intxvar, intx);
+                    Gv_SetVar(intyvar, inty);
+                    Gv_SetVar(intzvar, intz);
                 }
 
                 continue;
@@ -1956,10 +1956,10 @@ badindex:
 
                 X_ERROR_INVALIDSECT(sectnum);
 
-                Gv_SetVarX(retvar, clipmove(&vect, &sectnum, xvect, yvect, walldist, floordist, ceildist, clipmask));
-                Gv_SetVarX(sectnumvar, sectnum);
-                Gv_SetVarX(xvar, vect.x);
-                Gv_SetVarX(yvar, vect.y);
+                Gv_SetVar(retvar, clipmove(&vect, &sectnum, xvect, yvect, walldist, floordist, ceildist, clipmask));
+                Gv_SetVar(sectnumvar, sectnum);
+                Gv_SetVar(xvar, vect.x);
+                Gv_SetVar(yvar, vect.y);
 
                 continue;
             }
@@ -1982,12 +1982,12 @@ badindex:
 
                     X_ERROR_INVALIDSECT(sectnum);
                     hitscan((const vec3_t *)&vect, sectnum, vx, vy, vz, &hit, cliptype);
-                    Gv_SetVarX(hitsectvar, hit.sect);
-                    Gv_SetVarX(hitwallvar, hit.wall);
-                    Gv_SetVarX(hitspritevar, hit.sprite);
-                    Gv_SetVarX(hitxvar, hit.pos.x);
-                    Gv_SetVarX(hityvar, hit.pos.y);
-                    Gv_SetVarX(hitzvar, hit.pos.z);
+                    Gv_SetVar(hitsectvar, hit.sect);
+                    Gv_SetVar(hitwallvar, hit.wall);
+                    Gv_SetVar(hitspritevar, hit.sprite);
+                    Gv_SetVar(hitxvar, hit.pos.x);
+                    Gv_SetVar(hityvar, hit.pos.y);
+                    Gv_SetVar(hitzvar, hit.pos.z);
                 }
                 continue;
             }
@@ -2003,7 +2003,7 @@ badindex:
                 X_ERROR_INVALIDSECT(sect1);
                 X_ERROR_INVALIDSECT(sect2);
 
-                Gv_SetVarX(rvar, cansee(x1,y1,z1,sect1,x2,y2,z2,sect2));
+                Gv_SetVar(rvar, cansee(x1,y1,z1,sect1,x2,y2,z2,sect2));
                 continue;
             }
 
@@ -2018,8 +2018,8 @@ badindex:
                 vec2_t p2;
 
                 rotatepoint(pivot,p,daang,&p2);
-                Gv_SetVarX(x2var, p2.x);
-                Gv_SetVarX(y2var, p2.y);
+                Gv_SetVar(x2var, p2.x);
+                Gv_SetVar(y2var, p2.y);
                 continue;
             }
 
@@ -2046,10 +2046,10 @@ badindex:
                 neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite,
                         &neartaghitdist, neartagrange, tagsearch, NULL);
 
-                Gv_SetVarX(neartagsectorvar, neartagsector);
-                Gv_SetVarX(neartagwallvar, neartagwall);
-                Gv_SetVarX(neartagspritevar, neartagsprite);
-                Gv_SetVarX(neartaghitdistvar, neartaghitdist);
+                Gv_SetVar(neartagsectorvar, neartagsector);
+                Gv_SetVar(neartagwallvar, neartagwall);
+                Gv_SetVar(neartagspritevar, neartagsprite);
+                Gv_SetVar(neartaghitdistvar, neartaghitdist);
                 continue;
             }
 
@@ -2077,9 +2077,9 @@ badindex:
 
                 X_ERROR_INVALIDSECT(sectnum);
                 if (tw == CON_GETFLORZOFSLOPE)
-                    Gv_SetVarX(var, getflorzofslope(sectnum,x,y));
+                    Gv_SetVar(var, getflorzofslope(sectnum,x,y));
                 else
-                    Gv_SetVarX(var, getceilzofslope(sectnum,x,y));
+                    Gv_SetVar(var, getceilzofslope(sectnum,x,y));
                 continue;
             }
 
@@ -2129,7 +2129,7 @@ badindex:
                 if (tw==CON_UPDATESECTOR) updatesector(x,y,&w);
                 else updatesectorz(x,y,z,&w);
 
-                Gv_SetVarX(var, w);
+                Gv_SetVar(var, w);
                 continue;
             }
 
@@ -2143,7 +2143,7 @@ badindex:
                     M32_ERROR("invalid status list %d", j);
                     continue;
                 }
-                Gv_SetVarX(i,headspritestat[j]);
+                Gv_SetVar(i,headspritestat[j]);
                 continue;
             }
 
@@ -2154,7 +2154,7 @@ badindex:
                 int32_t j=Gv_GetVar(*insptr++);
 
                 X_ERROR_INVALIDSPRI(j);
-                Gv_SetVarX(i,prevspritestat[j]);
+                Gv_SetVar(i,prevspritestat[j]);
                 continue;
             }
 
@@ -2165,7 +2165,7 @@ badindex:
                 int32_t j=Gv_GetVar(*insptr++);
 
                 X_ERROR_INVALIDSPRI(j);
-                Gv_SetVarX(i,nextspritestat[j]);
+                Gv_SetVar(i,nextspritestat[j]);
                 continue;
             }
 
@@ -2176,7 +2176,7 @@ badindex:
                 int32_t j=Gv_GetVar(*insptr++);
 
                 X_ERROR_INVALIDSECT(j);
-                Gv_SetVarX(i,headspritesect[j]);
+                Gv_SetVar(i,headspritesect[j]);
                 continue;
             }
 
@@ -2187,7 +2187,7 @@ badindex:
                 int32_t j=Gv_GetVar(*insptr++);
 
                 X_ERROR_INVALIDSPRI(j);
-                Gv_SetVarX(i,prevspritesect[j]);
+                Gv_SetVar(i,prevspritesect[j]);
                 continue;
             }
 
@@ -2198,7 +2198,7 @@ badindex:
                 int32_t j=Gv_GetVar(*insptr++);
 
                 X_ERROR_INVALIDSPRI(j);
-                Gv_SetVarX(i,nextspritesect[j]);
+                Gv_SetVar(i,nextspritesect[j]);
                 continue;
             }
 
@@ -2220,7 +2220,7 @@ badindex:
                 else res=cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
                                     sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum);
 
-                Gv_SetVarX(*insptr++, res);
+                Gv_SetVar(*insptr++, res);
                 continue;
             }
 
@@ -2269,7 +2269,7 @@ badindex:
             insptr++;
             {
                 int32_t j = *insptr++;
-                Gv_SetVarX(j, sectorofwall(Gv_GetVar(*insptr++)));
+                Gv_SetVar(j, sectorofwall(Gv_GetVar(*insptr++)));
             }
             continue;
 
@@ -2282,7 +2282,7 @@ badindex:
             insptr++;
             {
                 int32_t r = Gv_GetVar(*insptr++), g = Gv_GetVar(*insptr++), b = Gv_GetVar(*insptr++);
-                Gv_SetVarX(*insptr++, paletteGetClosestColor(r, g, b));
+                Gv_SetVar(*insptr++, paletteGetClosestColor(r, g, b));
                 continue;
             }
 
@@ -2375,14 +2375,14 @@ badindex:
                 ti = localtime(&rawtime);
                 // initprintf("Time&date: %s\n",asctime (ti));
 
-                Gv_SetVarX(v1, ti->tm_sec);
-                Gv_SetVarX(v2, ti->tm_min);
-                Gv_SetVarX(v3, ti->tm_hour);
-                Gv_SetVarX(v4, ti->tm_mday);
-                Gv_SetVarX(v5, ti->tm_mon);
-                Gv_SetVarX(v6, ti->tm_year+1900);
-                Gv_SetVarX(v7, ti->tm_wday);
-                Gv_SetVarX(v8, ti->tm_yday);
+                Gv_SetVar(v1, ti->tm_sec);
+                Gv_SetVar(v2, ti->tm_min);
+                Gv_SetVar(v3, ti->tm_hour);
+                Gv_SetVar(v4, ti->tm_mday);
+                Gv_SetVar(v5, ti->tm_mon);
+                Gv_SetVar(v6, ti->tm_year+1900);
+                Gv_SetVar(v7, ti->tm_wday);
+                Gv_SetVar(v8, ti->tm_yday);
                 continue;
             }
 
@@ -2520,14 +2520,14 @@ badindex:
 //OSD_Printf("max:%d, sign:%d\n", max, sign);
                     if (tw==CON_GETNUMBERFROMUSER)
                     {
-                        Gv_SetVarX(var, in3dmode() ?
+                        Gv_SetVar(var, in3dmode() ?
                                    getnumber256(quotetext, Gv_GetVar(var), max, sign) :
                                    getnumber16(quotetext, Gv_GetVar(var), max, sign));
                     }
                     else if (tw==CON_GETNUMBER16)
-                        Gv_SetVarX(var, getnumber16(quotetext, Gv_GetVar(var), max, sign));
+                        Gv_SetVar(var, getnumber16(quotetext, Gv_GetVar(var), max, sign));
                     else
-                        Gv_SetVarX(var, getnumber256(quotetext, Gv_GetVar(var), max, sign));
+                        Gv_SetVar(var, getnumber256(quotetext, Gv_GetVar(var), max, sign));
                 }
             }
             continue;
@@ -2618,7 +2618,7 @@ badindex:
                 if (vm.flags&VMFLAG_ERROR)
                     continue;
 
-                Gv_SetVarX(i, Bstrlen(quotetext));
+                Gv_SetVar(i, Bstrlen(quotetext));
                 continue;
             }
 
@@ -2837,7 +2837,7 @@ dodefault:
                         break;
                 }
                 while (k--);
-                Gv_SetVarX(lVarID, lFound);
+                Gv_SetVar(lVarID, lFound);
                 continue;
             }
 
@@ -2884,7 +2884,7 @@ dodefault:
                         break;
                 }
                 while (k--);
-                Gv_SetVarX(lVarID, lFound);
+                Gv_SetVar(lVarID, lFound);
 
                 continue;
             }
@@ -2894,7 +2894,7 @@ dodefault:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, timerGetTicks());
+                Gv_SetVar(j, timerGetTicks());
             }
             continue;
 
@@ -2981,37 +2981,37 @@ dodefault:
         case CON_SPGETLOTAG:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_LOTAG_VAR_ID, vm.pSprite->lotag);
+            Gv_SetVar(M32_LOTAG_VAR_ID, vm.pSprite->lotag);
             continue;
 
         case CON_SPGETHITAG:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_HITAG_VAR_ID, vm.pSprite->hitag);
+            Gv_SetVar(M32_HITAG_VAR_ID, vm.pSprite->hitag);
             continue;
 
         case CON_SECTGETLOTAG:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_LOTAG_VAR_ID, sector[vm.pSprite->sectnum].lotag);
+            Gv_SetVar(M32_LOTAG_VAR_ID, sector[vm.pSprite->sectnum].lotag);
             continue;
 
         case CON_SECTGETHITAG:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_HITAG_VAR_ID, sector[vm.pSprite->sectnum].hitag);
+            Gv_SetVar(M32_HITAG_VAR_ID, sector[vm.pSprite->sectnum].hitag);
             continue;
 
         case CON_GETTEXTUREFLOOR:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_TEXTURE_VAR_ID, sector[vm.pSprite->sectnum].floorpicnum);
+            Gv_SetVar(M32_TEXTURE_VAR_ID, sector[vm.pSprite->sectnum].floorpicnum);
             continue;
 
         case CON_GETTEXTURECEILING:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_TEXTURE_VAR_ID, sector[vm.pSprite->sectnum].ceilingpicnum);
+            Gv_SetVar(M32_TEXTURE_VAR_ID, sector[vm.pSprite->sectnum].ceilingpicnum);
             continue;
 // ^^^
         case CON_DRAWLINE16:
@@ -3152,7 +3152,7 @@ dodefault:
                     continue;
                 }
 
-                Gv_SetVarX(var, S_SoundFlags(j));
+                Gv_SetVar(var, S_SoundFlags(j));
             }
             continue;
 

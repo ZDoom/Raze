@@ -133,7 +133,7 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t labe
         }
 
         if (how&ACCESS_USEVARS)
-            Gv_SetVarX(lVar2, lValue);
+            Gv_SetVar(lVar2, lValue);
 
         return lValue;
     }
@@ -262,7 +262,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t la
         }
 
         if (how&ACCESS_USEVARS)
-            Gv_SetVarX(lVar2, lValue);
+            Gv_SetVar(lVar2, lValue);
 
         return lValue;
     }
@@ -369,7 +369,7 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t la
         }
 
         if (how&ACCESS_USEVARS)
-            Gv_SetVarX(lVar2, lValue);
+            Gv_SetVar(lVar2, lValue);
 
         return lValue;
     }
@@ -556,7 +556,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
         }
 
         if (how&ACCESS_USEVARS)
-            Gv_SetVarX(lVar2, lValue);
+            Gv_SetVar(lVar2, lValue);
 
         return lValue;
     }
