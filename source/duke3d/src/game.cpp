@@ -4260,7 +4260,7 @@ skip:
 #ifdef LUNATIC
         bool const haveAction = false; // FIXME!
 #else
-        bool const haveAction = scrofs_action != 0 && (unsigned)scrofs_action + ACTION_PARAM_COUNT > (unsigned)g_scriptSize;
+        bool const haveAction = scrofs_action != 0 && (unsigned)scrofs_action + ACTION_PARAM_COUNT <= (unsigned)g_scriptSize;
 #endif
 
         switch (DYNAMICTILEMAP(pSprite->picnum))
