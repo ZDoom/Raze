@@ -318,7 +318,7 @@ int A_GetFurthestAngle(int const spriteNum, int const angDiv)
     auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
 
     if (pSprite->picnum != APLAYER && (AC_COUNT(actor[spriteNum].t_data)&63) > 2)
-        return pSprite->ang + 1024;
+        return (pSprite->ang + 1024) & 2047;
 
     int       furthestAngle = 0;
     int const angIncs       = tabledivide32_noinline(2048, angDiv);
