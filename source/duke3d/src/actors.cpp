@@ -647,7 +647,7 @@ void A_DeleteSprite(int spriteNum)
         int32_t playerDist;
         int playerNum = A_FindPlayer(&sprite[spriteNum], &playerDist);
 
-        if (VM_OnEventWithDist__(EVENT_KILLIT, spriteNum, playerNum, playerDist))
+        if (VM_ExecuteEvent(EVENT_KILLIT, spriteNum, playerNum, playerDist))
             return;
     }
 
@@ -811,7 +811,7 @@ void A_MoveSector(int spriteNum)
     int32_t           playerDist;
     spritetype *const pSprite     = &sprite[spriteNum];
     int const         playerNum   = A_FindPlayer(pSprite, &playerDist);
-    int const         rotateAngle = VM_OnEventWithBoth(EVENT_MOVESECTOR, spriteNum, playerNum, playerDist, T3(spriteNum));
+    int const         rotateAngle = VM_OnEvent(EVENT_MOVESECTOR, spriteNum, playerNum, playerDist, T3(spriteNum));
     int               originIdx   = T2(spriteNum);
 
     pSprite->x += (pSprite->xvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14;
@@ -5772,7 +5772,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         int                 playerNum = A_FindPlayer(pSprite, &playerDist);
         DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
 
-        if (VM_OnEventWithBoth(EVENT_MOVEEFFECTORS, spriteNum, playerNum, playerDist, 0))
+        if (VM_OnEvent(EVENT_MOVEEFFECTORS, spriteNum, playerNum, playerDist, 0))
         {
             spriteNum = nextSprite;
             continue;
@@ -8426,7 +8426,7 @@ static void G_DoEventGame(int const nEventID)
 
                 int32_t   playerDist;
                 int const playerNum = A_FindPlayer(&sprite[spriteNum], &playerDist);
-                VM_OnEventWithDist__(nEventID, spriteNum, playerNum, playerDist);
+                VM_ExecuteEvent(nEventID, spriteNum, playerNum, playerDist);
 
                 spriteNum = nextSprite;
             }

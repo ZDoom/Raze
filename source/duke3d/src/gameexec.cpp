@@ -127,7 +127,7 @@ intptr_t apScriptEvents[MAXEVENTS];
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
 #ifdef LUNATIC
-static FORCE_INLINE int32_t VM_EventCommon__(int const &eventNum, int const &spriteNum, int const &playerNum, int const &playerDist, int32_t returnValue)
+static FORCE_INLINE int32_t VM_EventInlineInternal__(int const &eventNum, int const &spriteNum, int const &playerNum, int const &playerDist, int32_t returnValue)
 {
     const double t = timerGetHiTicks();
     int32_t ret = El_CallEvent(&g_ElState, eventNum, spriteNum, playerNum, playerDist, &returnValue);
@@ -153,7 +153,9 @@ static inline void VM_DummySprite(void)
     vm.pData    = &dummy_actor.t_data[0];
 }
 
-static FORCE_INLINE int32_t VM_EventCommon__(int const &eventNum, int const &spriteNum, int const &playerNum, int const &playerDist, int32_t returnValue)
+// verification that the event actually exists happens elsewhere
+static FORCE_INLINE int32_t VM_EventInlineInternal__(int const &eventNum, int const &spriteNum, int const &playerNum,
+                                                       int const playerDist = -1, int32_t returnValue = 0)
 {
     vmstate_t const tempvm = { spriteNum, playerNum, playerDist, 0, &sprite[spriteNum], &actor[spriteNum].t_data[0], g_player[playerNum].ps, &actor[spriteNum] };
 
@@ -203,28 +205,27 @@ static FORCE_INLINE int32_t VM_EventCommon__(int const &eventNum, int const &spr
 }
 #endif
 
-// the idea here is that the compiler inlines the call to VM_EventCommon_() and gives us a set of full functions
-// which are not only optimized further based on lDist or iReturn (or both) having values known at compile time,
-// but are called faster due to having less parameters
+// the idea here is that the compiler inlines the call to VM_OnEvent_Internal__() and gives us a set of
+// functions which are optimized further based on distance/return having values known at compile time
 
-int32_t VM_OnEventWithBoth__(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn)
+int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn)
 {
-    return VM_EventCommon__(nEventID, spriteNum, playerNum, nDist, nReturn);
+    return VM_EventInlineInternal__(nEventID, spriteNum, playerNum, nDist, nReturn);
 }
 
-int32_t VM_OnEventWithReturn__(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn)
+int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist)
 {
-    return VM_EventCommon__(nEventID, spriteNum, playerNum, -1, nReturn);
+    return VM_EventInlineInternal__(nEventID, spriteNum, playerNum, nDist);
 }
 
-int32_t VM_OnEventWithDist__(int const nEventID, int const spriteNum, int const playerNum, int const nDist)
+int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum)
 {
-    return VM_EventCommon__(nEventID, spriteNum, playerNum, nDist, 0);
+    return VM_EventInlineInternal__(nEventID, spriteNum, playerNum);
 }
 
-int32_t VM_OnEvent__(int const nEventID, int const spriteNum, int const playerNum)
+int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn)
 {
-    return VM_EventCommon__(nEventID, spriteNum, playerNum, -1, 0);
+    return VM_EventInlineInternal__(nEventID, spriteNum, playerNum, -1, nReturn);
 }
 
 static bool VM_CheckSquished(void)

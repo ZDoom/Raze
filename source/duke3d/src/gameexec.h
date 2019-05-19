@@ -32,15 +32,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "lunatic_game.h"
 #endif
 
+int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn);
+int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist);
+int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum);
+int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn);
+
+static FORCE_INLINE bool VM_HaveEvent(int const nEventID)
+{
+#ifdef LUNATIC
+    return L_IsInitialized(&g_ElState) && El_HaveEvent(nEventID);
+#else
+    return !!apScriptEvents[nEventID];
+#endif
+}
+
+static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn)
+{
+    return VM_HaveEvent(nEventID) ? VM_ExecuteEvent(nEventID, spriteNum, playerNum, nDist, nReturn) : nReturn;
+}
+
+static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum, int nDist)
+{
+    return VM_HaveEvent(nEventID) ? VM_ExecuteEvent(nEventID, spriteNum, playerNum, nDist) : 0;
+}
+
+static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum)
+{
+    return VM_HaveEvent(nEventID) ? VM_ExecuteEvent(nEventID, spriteNum, playerNum) : 0;
+}
+
+static FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int spriteNum, int playerNum, int32_t nReturn)
+{
+    return VM_HaveEvent(nEventID) ? VM_ExecuteEventWithValue(nEventID, spriteNum, playerNum, nReturn) : nReturn;
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 enum vmflags_t
 {
-    VM_RETURN       = 0x00000001,
-    VM_KILL         = 0x00000002,
-    VM_NOEXECUTE    = 0x00000004,
+    VM_RETURN    = 0x00000001,
+    VM_KILL      = 0x00000002,
+    VM_NOEXECUTE = 0x00000004,
 };
 
 extern int32_t ticrandomseed;
@@ -80,40 +114,6 @@ static inline void VM_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, in
 }
 void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
 #endif
-
-int32_t VM_OnEvent__(int nEventID, int spriteNum, int playerNum);
-int32_t VM_OnEventWithBoth__(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn);
-int32_t VM_OnEventWithDist__(int nEventID, int spriteNum, int playerNum, int nDist);
-int32_t VM_OnEventWithReturn__(int nEventID, int spriteNum, int playerNum, int32_t nReturn);
-
-static FORCE_INLINE bool VM_HaveEvent(int const nEventID)
-{
-#ifdef LUNATIC
-    return L_IsInitialized(&g_ElState) && El_HaveEvent(nEventID);
-#else
-    return !!apScriptEvents[nEventID];
-#endif
-}
-
-static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum)
-{
-    return VM_HaveEvent(nEventID) ? VM_OnEvent__(nEventID, spriteNum, playerNum) : 0;
-}
-
-static FORCE_INLINE int32_t VM_OnEventWithBoth(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn)
-{
-    return VM_HaveEvent(nEventID) ? VM_OnEventWithBoth__(nEventID, spriteNum, playerNum, nDist, nReturn) : nReturn;
-}
-
-static FORCE_INLINE int32_t VM_OnEventWithDist(int nEventID, int spriteNum, int playerNum, int nDist)
-{
-    return VM_HaveEvent(nEventID) ? VM_OnEventWithDist__(nEventID, spriteNum, playerNum, nDist) : 0;
-}
-
-static FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int spriteNum, int playerNum, int nReturn)
-{
-    return VM_HaveEvent(nEventID) ? VM_OnEventWithReturn__(nEventID, spriteNum, playerNum, nReturn) : nReturn;
-}
 
 #define CON_ERRPRINTF(Text, ...) do { \
     vm.flags |= VM_RETURN; \

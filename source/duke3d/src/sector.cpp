@@ -1806,7 +1806,7 @@ void Sect_DamageFloor_Internal(int const spriteNum, int const sectNum)
 
     // NOTE: pass RETURN in the dist argument, too.
     int const     RETURN_in = 131072 + sectNum;
-    /* int32_t const returnValue = */ VM_OnEventWithBoth(EVENT_DAMAGEHPLANE, -1, -1, RETURN_in, RETURN_in);
+    /* int32_t const returnValue = */ VM_OnEvent(EVENT_DAMAGEHPLANE, -1, -1, RETURN_in, RETURN_in);
 
 #if 0
     // No hard-coded floor damage effects.
@@ -1832,7 +1832,7 @@ void Sect_DamageCeiling_Internal(int const spriteNum, int const sectNum)
 
     // NOTE: pass RETURN in the dist argument, too.
     int const     RETURN_in = 65536 + sectNum;
-    int32_t const returnValue = VM_OnEventWithBoth(EVENT_DAMAGEHPLANE, -1, -1, RETURN_in, RETURN_in);
+    int32_t const returnValue = VM_OnEvent(EVENT_DAMAGEHPLANE, -1, -1, RETURN_in, RETURN_in);
 
     if (returnValue < 0)
         return;
