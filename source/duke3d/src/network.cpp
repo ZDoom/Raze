@@ -86,7 +86,7 @@ void Net_GetPackets(void)
 {
     timerUpdate();
     MUSIC_Update();
-    S_Cleanup();
+    S_Update();
 
     G_HandleSpecialKeys();
 

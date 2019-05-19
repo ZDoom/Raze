@@ -6779,8 +6779,6 @@ MAIN_LOOP_RESTART:
             if (g_gameUpdateAvgTime < 0.f)
                 g_gameUpdateAvgTime = g_gameUpdateTime;
             g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
-
-            S_Update();
         }
 
         G_DoCheats();
