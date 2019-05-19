@@ -500,7 +500,6 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
     int const elapsedTics = (AC_COUNT(vm.pData))&31;
 
 #if !defined LUNATIC
-    const intptr_t *moveptr;
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
 
     {
@@ -509,16 +508,17 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
         return;
     }
 
-    moveptr = apScript + AC_MOVE_ID(vm.pData);
-
-    vm.pSprite->xvel += (moveptr[0] - vm.pSprite->xvel)/5;
-    if (vm.pSprite->zvel < 648)
-        vm.pSprite->zvel += ((moveptr[1]<<4) - vm.pSprite->zvel)/5;
+    auto const moveptr = apScript + AC_MOVE_ID(vm.pData);
+    auto &hvel    = moveptr[0];
+    auto &vvel    = moveptr[1];
 #else
-    vm.pSprite->xvel += (vm.pActor->mv.hvel - vm.pSprite->xvel)/5;
-    if (vm.pSprite->zvel < 648)
-        vm.pSprite->zvel += ((vm.pActor->mv.vvel<<4) - vm.pSprite->zvel)/5;
+    auto &hvel = vm.pActor->mv.hvel;
+    auto &vvel = vm.pActor->mv.vvel;
 #endif
+
+    vm.pSprite->xvel += (hvel - vm.pSprite->xvel)/5;
+    if (vm.pSprite->zvel < 648)
+        vm.pSprite->zvel += ((vvel<<4) - vm.pSprite->zvel)/5;
 
     if (A_CheckEnemySprite(vm.pSprite) && vm.pSprite->extra <= 0) // hack
         return;
@@ -691,17 +691,18 @@ dead:
     }
 
     auto const moveptr = apScript + AC_MOVE_ID(vm.pData);
+    auto &hvel = moveptr[0];
+    auto &vvel = moveptr[1];
+#else
+    auto &hvel = vm.pActor->mv.hvel;
+    auto &vvel = vm.pActor->mv.vvel;
+#endif
 
     if (movflags & geth)
-        vm.pSprite->xvel += ((moveptr[0]) - vm.pSprite->xvel) >> 1;
+        vm.pSprite->xvel += (hvel - vm.pSprite->xvel) >> 1;
+
     if (movflags & getv)
-        vm.pSprite->zvel += ((moveptr[1] << 4) - vm.pSprite->zvel) >> 1;
-#else
-    if (movflags & geth)
-        vm.pSprite->xvel += (vm.pActor->mv.hvel - vm.pSprite->xvel) >> 1;
-    if (movflags & getv)
-        vm.pSprite->zvel += (16 * vm.pActor->mv.vvel - vm.pSprite->zvel) >> 1;
-#endif
+        vm.pSprite->zvel += (16 * vvel - vm.pSprite->zvel) >> 1;
 
     if (movflags&dodgebullet && !deadflag)
         A_Dodge(vm.pSprite);
@@ -6498,9 +6499,7 @@ void VM_UpdateAnim(int spriteNum, int32_t *pData)
     auto const actionptr = (actionofs != 0 && actionofs + (ACTION_PARAM_COUNT-1) < (unsigned) g_scriptSize) ? &apScript[actionofs] : NULL;
 
     if (actionptr != NULL)
-#endif
     {
-#if !defined LUNATIC
         int const action_frames = actionptr[ACTION_NUMFRAMES];
         int const action_incval = actionptr[ACTION_INCVAL];
         int const action_delay  = actionptr[ACTION_DELAY];
@@ -6557,15 +6556,15 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
     }
 
     VM_UpdateAnim(vm.spriteNum, vm.pData);
-
-    double t = timerGetHiTicks();
-#ifdef LUNATIC
     int const picnum = vm.pSprite->picnum;
 
+    double t = timerGetHiTicks();
+
+#ifdef LUNATIC
+    int32_t killit=0;
     if (L_IsInitialized(&g_ElState) && El_HaveActor(picnum))
         killit = (El_CallActor(&g_ElState, picnum, spriteNum, playerNum, playerDist)==1);
 #else
-    int const picnum = vm.pSprite->picnum;
     insptr = 4 + (g_tile[vm.pSprite->picnum].execPtr);
     VM_Execute(true);
     insptr = NULL;
