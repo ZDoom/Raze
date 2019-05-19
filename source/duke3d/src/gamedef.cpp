@@ -75,7 +75,7 @@ static intptr_t g_scriptEventOffset;
 // First entry is 'default' code.
 static intptr_t *g_caseTablePtr;
 
-static bool C_ParseCommand(bool loop);
+static bool C_ParseCommand(bool loop = false);
 static void C_SetScriptSize(int32_t newsize);
 #endif
 
@@ -1870,7 +1870,7 @@ static int C_CountCaseStatements()
 
     g_numCases = 0;
     g_caseTablePtr = NULL;
-    C_ParseCommand(1);
+    C_ParseCommand(true);
 
     // since we processed the endswitch, we need to re-increment g_checkingSwitch
     g_checkingSwitch++;
@@ -1926,7 +1926,7 @@ static void C_Include(const char *confile)
     textptr = mptr;
 
     C_SkipComments();
-    C_ParseCommand(1);
+    C_ParseCommand(true);
 
     Bstrcpy(g_scriptFileName, parentScriptFileName);
 
@@ -2472,7 +2472,7 @@ static void scriptUpdateOpcodeForVariableType(intptr_t *ins)
     }
 }
 
-static bool C_ParseCommand(bool loop)
+static bool C_ParseCommand(bool loop /*= false*/)
 {
     int32_t i, j=0, k=0, tw;
 
@@ -3313,9 +3313,9 @@ DO_DEFSTATE:
                         C_GetNextKeyword();
                         g_numBraces++;
 
-                        C_ParseCommand(1);
+                        C_ParseCommand(true);
                     }
-                    else C_ParseCommand(0);
+                    else C_ParseCommand();
 
                     g_scriptPtr = tempscrptr;
 
@@ -3334,7 +3334,7 @@ DO_DEFSTATE:
 
                 g_scriptPtr++; //Leave a spot for the fail location
 
-                C_ParseCommand(0);
+                C_ParseCommand();
 
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
@@ -4368,7 +4368,7 @@ setvarvar:
                 auto const offset = g_scriptPtr - apScript;
                 g_scriptPtr++; // Leave a spot for the fail location
 
-                C_ParseCommand(0);
+                C_ParseCommand();
 
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
@@ -4421,7 +4421,7 @@ ifvar:
                 auto const offset = g_scriptPtr - apScript;
                 g_scriptPtr++; //Leave a spot for the fail location
 
-                C_ParseCommand(0);
+                C_ParseCommand();
 
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
@@ -4461,7 +4461,7 @@ ifvar:
             intptr_t const offset = g_scriptPtr-apScript;
             g_scriptPtr++; //Leave a spot for the location to jump to after completion
 
-            C_ParseCommand(0);
+            C_ParseCommand();
 
             // write relative offset
             auto const tscrptr = (intptr_t *) apScript+offset;
@@ -4677,7 +4677,7 @@ ifvar:
                 }
 
                 g_numCases=0;
-                C_ParseCommand(1);
+                C_ParseCommand(true);
                 tempscrptr = (intptr_t *)(apScript+tempoffset);
 
                 //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr);
@@ -4803,7 +4803,7 @@ repeatcase:
 
                 tempoffset = (unsigned)(tempscrptr-apScript);
 
-                while (C_ParseCommand(0) == 0)
+                while (C_ParseCommand() == 0)
                 {
                     j = C_GetKeyword();
 
@@ -4931,7 +4931,7 @@ repeatcase:
 
                 g_scriptPtr++; //Leave a spot for the fail location
 
-                C_ParseCommand(0);
+                C_ParseCommand();
 
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
@@ -4981,7 +4981,7 @@ repeatcase:
 
                 g_scriptPtr++; //Leave a spot for the fail location
 
-                C_ParseCommand(0);
+                C_ParseCommand();
 
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
@@ -5005,7 +5005,7 @@ repeatcase:
             }
             g_numBraces++;
 
-            C_ParseCommand(1);
+            C_ParseCommand(true);
             continue;
 
         case CON_RIGHTBRACE:
@@ -6247,7 +6247,7 @@ void C_Compile(const char *fileName)
     Bstrcpy(g_scriptFileName, fileName);
 
     C_AddDefaultDefinitions();
-    C_ParseCommand(1);
+    C_ParseCommand(true);
 
     for (char * m : g_scriptModules)
     {
