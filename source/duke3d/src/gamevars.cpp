@@ -720,7 +720,7 @@ static int __fastcall Gv_GetArrayOrStruct(int gameVar, int spriteNum, int const 
                 break;
 
             case STRUCT_USERDEF:
-                arrayIndexVar = (EDUKE32_PREDICT_FALSE(UserdefsLabels[labelNum].flags & LABEL_HASPARM2)) ? Gv_GetVarX(*insptr++) : 0;
+                arrayIndexVar = (EDUKE32_PREDICT_FALSE(UserdefsLabels[labelNum].flags & LABEL_HASPARM2)) ? Gv_GetVar(*insptr++) : 0;
                 returnValue   = VM_GetUserdef(labelNum, arrayIndexVar);
                 break;
         }
@@ -796,7 +796,7 @@ static FORCE_INLINE int __fastcall Gv_GetVar__(int &gameVar, int &spriteNum, int
 #undef CHECK_INDEX
 
 int __fastcall Gv_GetVar(int gameVar, int spriteNum, int const playerNum) { return Gv_GetVar__(gameVar, spriteNum, playerNum); }
-int __fastcall Gv_GetVarX(int gameVar) { return Gv_GetVar__(gameVar, vm.spriteNum, vm.playerNum); }
+int __fastcall Gv_GetVar(int gameVar) { return Gv_GetVar__(gameVar, vm.spriteNum, vm.playerNum); }
 
 void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
 {

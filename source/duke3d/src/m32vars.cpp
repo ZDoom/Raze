@@ -249,7 +249,7 @@ int32_t __fastcall Gv_GetVarN(int32_t id)  // 'N' for "no side-effects"... vars 
     }
 }
 
-int32_t __fastcall Gv_GetVarX(int32_t id)
+int32_t __fastcall Gv_GetVar(int32_t id)
 {
     int32_t negateResult = !!(id&M32_FLAG_NEGATE);
 

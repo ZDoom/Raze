@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t labelNum, int32_t lVar2)
 {
     int32_t lValue;
-    int32_t i = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar1) : lVar1;
+    int32_t i = (how&ACCESS_USEVARS) ? Gv_GetVar(lVar1) : lVar1;
 
     if (!m32_script_expertmode && (i<0 || i >= numwalls))
         goto badwall;
@@ -51,7 +51,7 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t labe
         if (!m32_script_expertmode && (WallLabels[labelNum].flags & 1))
             goto readonly;
 
-        lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
+        lValue = (how&ACCESS_USEVARS) ? Gv_GetVar(lVar2) : lVar2;
 
         asksave = 1;
 
@@ -159,7 +159,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t la
     int32_t i = (how&ACCESS_USEVARS) ? sprite[vm.spriteNum].sectnum : lVar1;
 
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
-        i = Gv_GetVarX(lVar1);
+        i = Gv_GetVar(lVar1);
 
     if (!m32_script_expertmode && (i<0 || i >= numsectors))
         goto badsector;
@@ -169,7 +169,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t la
         if (!m32_script_expertmode && (SectorLabels[labelNum].flags & 1))
             goto readonly;
 
-        lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
+        lValue = (how&ACCESS_USEVARS) ? Gv_GetVar(lVar2) : lVar2;
 
         asksave = 1;
 
@@ -282,7 +282,7 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t la
     int32_t i = (how&ACCESS_USEVARS) ? vm.spriteNum : lVar1;
 
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
-        i = Gv_GetVarX(lVar1);
+        i = Gv_GetVar(lVar1);
 
     if ((unsigned)i >= MAXSPRITES)
         goto badsprite;
@@ -292,7 +292,7 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t la
         if (!m32_script_expertmode && (SpriteLabels[labelNum].flags & 1))
             goto readonly;
 
-        lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
+        lValue = (how&ACCESS_USEVARS) ? Gv_GetVar(lVar2) : lVar2;
 
         asksave = 1;
 
@@ -390,7 +390,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
     const memberlabel_t *dalabel = lightp ? &LightLabels[labelNum-LIGHT_X] : &SpriteLabels[labelNum];
 
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
-        i = Gv_GetVarX(lVar1);
+        i = Gv_GetVar(lVar1);
 
     if (!lightp)
     {
@@ -437,7 +437,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
         if (!m32_script_expertmode && (dalabel->flags & 1))
             goto readonly;
 
-        lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
+        lValue = (how&ACCESS_USEVARS) ? Gv_GetVar(lVar2) : lVar2;
 
         damin = dalabel->min;
         damax = dalabel->max;

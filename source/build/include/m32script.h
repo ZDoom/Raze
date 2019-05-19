@@ -49,8 +49,8 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags);
 void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags);
 extern void Gv_Init(void);
 
-extern int32_t __fastcall Gv_GetVarX(int32_t id);
-extern void __fastcall Gv_SetVarX(int32_t id, int32_t lValue);
+extern int32_t __fastcall Gv_GetVar(int32_t id);
+extern void __fastcall Gv_SetVar(int32_t id, int32_t lValue);
 extern int32_t __fastcall Gv_GetVarN(int32_t id);  // 'N' for "no side-effects"... vars and locals only!
 
 extern void SetGamePalette(int32_t);
