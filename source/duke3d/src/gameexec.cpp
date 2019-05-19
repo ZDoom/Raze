@@ -1264,7 +1264,7 @@ void Screen_Play(void)
 #ifdef CON_USE_COMPUTED_GOTO
 # define vInstruction(KEYWORDID) VINST_ ## KEYWORDID
 # define vmErrorCase VINST_CON_OPCODE_END
-# define eval(INSTRUCTION) { if ((unsigned)INSTRUCTION < CON_OPCODE_END) goto *jumpTable[INSTRUCTION]; else goto vmErrorCase; }
+# define eval(INSTRUCTION) { goto *jumpTable[min<uint16_t>((unsigned)INSTRUCTION, CON_OPCODE_END)]; }
 # define dispatch_unconditionally(...) { tw = *insptr; g_errorLineNum = tw >> 12; g_tw = tw &= VM_INSTMASK; eval(tw) }
 # define dispatch(...) { if (vm_execution_depth && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0) dispatch_unconditionally(__VA_ARGS__); return; }
 # define abort_after_error(...) return
