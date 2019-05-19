@@ -8101,6 +8101,7 @@ static void A_DoLight(int spriteNum)
         if (pr_lighting != 1)
             return;
 
+#ifndef EDUKE32_STANDALONE
         for (bsize_t ii=0; ii<2; ii++)
         {
             if (pSprite->picnum <= 0)  // oob safety
@@ -8292,6 +8293,7 @@ static void A_DoLight(int spriteNum)
             }
             break;
         }
+#endif
     }
 }
 #endif // POLYMER
@@ -8340,6 +8342,9 @@ void A_PlayAlertSound(int spriteNum)
 
 int A_CheckSwitchTile(int spriteNum)
 {
+    UNREFERENCED_PARAMETER(spriteNum);
+
+#ifndef EDUKE32_STANDALONE
     // picnum 0 would oob in the switch below,
 
     if (PN(spriteNum) <= 0)
@@ -8378,7 +8383,7 @@ int A_CheckSwitchTile(int spriteNum)
             return 1;
         }
     }
-
+#endif
     return 0;
 }
 

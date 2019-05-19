@@ -954,7 +954,7 @@ static weapondata_t weapondefaults[MAX_WEAPONS] = {
         Shoots, SpawnTime, Spawn, ShotsPerBurst, InitialSound, FireSound, Sound2Time, Sound2Sound,
         ReloadSound1, ReloadSound2, SelectSound, FlashColor
     */
-
+#ifndef EDUKE32_STANDALONE
     {
         KNEE_WEAPON, 0, 0, 7, 14, 0,
         WEAPON_NOVISIBLE | WEAPON_RANDOMRESTART | WEAPON_AUTOMATIC,
@@ -1038,6 +1038,7 @@ static weapondata_t weapondefaults[MAX_WEAPONS] = {
         GROWSPARK__STATIC, 0, 0, 0, 0, EXPANDERSHOOT__STATIC, 0, 0,
         EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SELECT_WEAPON__STATIC, 216+(52<<8)+(20<<16)
     },
+#endif
 };
 
 // KEEPINSYNC with what is contained above
@@ -1046,6 +1047,7 @@ static int32_t G_StaticToDynamicTile(int32_t const tile)
 {
     switch (tile)
     {
+#ifndef EDUKE32_STANDALONE
     case CHAINGUN__STATIC: return CHAINGUN;
     case FREEZEBLAST__STATIC: return FREEZEBLAST;
     case GROWSPARK__STATIC: return GROWSPARK;
@@ -1058,6 +1060,7 @@ static int32_t G_StaticToDynamicTile(int32_t const tile)
     case SHOTGUN__STATIC: return SHOTGUN;
     case SHOTSPARK1__STATIC: return SHOTSPARK1;
     case SHRINKER__STATIC: return SHRINKER;
+#endif
     default: return tile;
     }
 }
@@ -1066,6 +1069,7 @@ static int32_t G_StaticToDynamicSound(int32_t const sound)
 {
     switch (sound)
     {
+#ifndef EDUKE32_STANDALONE
     case CAT_FIRE__STATIC: return CAT_FIRE;
     case CHAINGUN_FIRE__STATIC: return CHAINGUN_FIRE;
     case EJECT_CLIP__STATIC: return EJECT_CLIP;
@@ -1076,6 +1080,7 @@ static int32_t G_StaticToDynamicSound(int32_t const sound)
     case SHOTGUN_FIRE__STATIC: return SHOTGUN_FIRE;
     case SHOTGUN_COCK__STATIC: return SHOTGUN_COCK;
     case SHRINKER_FIRE__STATIC: return SHRINKER_FIRE;
+#endif
     default: return sound;
     }
 }
@@ -1172,6 +1177,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("paldata",        -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
 #endif
 
+#ifndef EDUKE32_STANDALONE
     if (NAM_WW2GI)
     {
         weapondefaults[PISTOL_WEAPON].Clip   = 20;
@@ -1221,6 +1227,7 @@ static void Gv_AddSystemVars(void)
             weapondefaults[GROW_WEAPON].InitialSound = EXPANDERSHOOT;
         }
     }
+#endif
 
     char aszBuf[64];
 
@@ -1261,12 +1268,20 @@ static void Gv_AddSystemVars(void)
         ps->tripbombLifetimeVar = NAM_GRENADE_LIFETIME_VAR;
     }
 #else
+
+#ifndef EDUKE32_STANDALONE
+    Gv_NewVar("GRENADE_LIFETIME",      NAM_GRENADE_LIFETIME,                    GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("GRENADE_LIFETIME_VAR",  NAM_GRENADE_LIFETIME_VAR,                GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("PIPEBOMB_CONTROL", NAM_WW2GI ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE, GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("STICKYBOMB_LIFETIME",   NAM_GRENADE_LIFETIME,                    GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR,              GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+    Gv_NewVar("TRIPBOMB_CONTROL",      TRIPBOMB_TRIPWIRE,                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
+#endif
+
     Gv_NewVar("ANGRANGE",              18,                                      GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
     Gv_NewVar("AUTOAIMANGLE",          0,                                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
     Gv_NewVar("COOP",                  (intptr_t)&ud.coop,                      GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("FFIRE",                 (intptr_t)&ud.ffire,                     GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("GRENADE_LIFETIME",      NAM_GRENADE_LIFETIME,                    GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
-    Gv_NewVar("GRENADE_LIFETIME_VAR",  NAM_GRENADE_LIFETIME_VAR,                GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
     Gv_NewVar("HITAG",                 0,                                       GAMEVAR_SYSTEM);
     Gv_NewVar("LEVEL",                 (intptr_t)&ud.level_number,              GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
     Gv_NewVar("LOTAG",                 0,                                       GAMEVAR_SYSTEM);
@@ -1276,16 +1291,12 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("NUMSECTORS",            (intptr_t)&numsectors,                   GAMEVAR_SYSTEM | GAMEVAR_INT16PTR | GAMEVAR_READONLY);
     Gv_NewVar("NUMWALLS",              (intptr_t)&numwalls,                     GAMEVAR_SYSTEM | GAMEVAR_INT16PTR | GAMEVAR_READONLY);
     Gv_NewVar("Numsprites",            (intptr_t)&Numsprites,                   GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
-    Gv_NewVar("PIPEBOMB_CONTROL", NAM_WW2GI ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE, GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
     Gv_NewVar("RESPAWN_INVENTORY",     (intptr_t)&ud.respawn_inventory,         GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("RESPAWN_ITEMS",         (intptr_t)&ud.respawn_items,             GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("RESPAWN_MONSTERS",      (intptr_t)&ud.respawn_monsters,          GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("RETURN",                0,                                       GAMEVAR_SYSTEM);
-    Gv_NewVar("STICKYBOMB_LIFETIME",   NAM_GRENADE_LIFETIME,                    GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
-    Gv_NewVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR,              GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
     Gv_NewVar("TEXTURE",               0,                                       GAMEVAR_SYSTEM);
     Gv_NewVar("THISACTOR",             0,                                       GAMEVAR_SYSTEM | GAMEVAR_READONLY);
-    Gv_NewVar("TRIPBOMB_CONTROL",      TRIPBOMB_TRIPWIRE,                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
     Gv_NewVar("VOLUME",                (intptr_t)&ud.volume_number,             GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
     Gv_NewVar("WEAPON",                0,                                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER | GAMEVAR_READONLY);
     Gv_NewVar("WORKSLIKE",             0,                                       GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER | GAMEVAR_READONLY);
