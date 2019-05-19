@@ -4380,7 +4380,7 @@ setvarvar:
                 {
                     j = C_GetKeyword();
 
-                    if (j == CON_ELSE || j == CON_LEFTBRACE)
+                    if (j == CON_ELSE)
                         g_checkingIfElse++;
                 }
                 continue;
@@ -4433,7 +4433,7 @@ ifvar:
                 {
                     j = C_GetKeyword();
 
-                    if (j == CON_ELSE || j == CON_LEFTBRACE)
+                    if (j == CON_ELSE)
                         g_checkingIfElse++;
                 }
 
@@ -4941,7 +4941,7 @@ repeatcase:
 
                 j = C_GetKeyword();
 
-                if (j == CON_ELSE || j == CON_LEFTBRACE)
+                if (j == CON_ELSE)
                     g_checkingIfElse++;
 
                 continue;
@@ -4991,7 +4991,7 @@ repeatcase:
 
                 j = C_GetKeyword();
 
-                if (j == CON_ELSE || j == CON_LEFTBRACE)
+                if (j == CON_ELSE)
                     g_checkingIfElse++;
 
                 continue;
