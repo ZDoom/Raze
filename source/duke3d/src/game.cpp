@@ -4089,7 +4089,7 @@ PALONLY:
         if (G_HaveActor(pSprite->picnum))
         {
 #if !defined LUNATIC
-            if ((unsigned)scrofs_action + ACTION_VIEWTYPE >= (unsigned)g_scriptSize)
+            if ((unsigned)scrofs_action + ACTION_PARAM_COUNT > (unsigned)g_scriptSize)
                 goto skip;
 
             l = apScript[scrofs_action + ACTION_VIEWTYPE];
@@ -4257,6 +4257,12 @@ skip:
                 }
             }
 
+#ifdef LUNATIC
+        bool const haveAction = false; // FIXME!
+#else
+        bool const haveAction = scrofs_action != 0 && (unsigned)scrofs_action + ACTION_PARAM_COUNT > (unsigned)g_scriptSize;
+#endif
+
         switch (DYNAMICTILEMAP(pSprite->picnum))
         {
 #ifndef EDUKE32_STANDALONE
@@ -4306,6 +4312,9 @@ skip:
             t->picnum += (pSprite->shade>>1);
             break;
         case PLAYERONWATER__STATIC:
+            t->shade = sprite[pSprite->owner].shade;
+            if (haveAction)
+                break;
 #ifdef USE_OPENGL
             if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
@@ -4317,8 +4326,6 @@ skip:
                 frameOffset = getofs_viewtype_mirrored<5>(t->cstat, t->ang - oura);
 
             t->picnum = pSprite->picnum+frameOffset+((T1(i)<4)*5);
-            t->shade = sprite[pSprite->owner].shade;
-
             break;
 
         case WATERSPLASH2__STATIC:
@@ -4365,6 +4372,8 @@ skip:
 
         case CAMERA1__STATIC:
         case RAT__STATIC:
+            if (haveAction)
+                break;
 #ifdef USE_OPENGL
             if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
