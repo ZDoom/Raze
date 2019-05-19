@@ -2540,7 +2540,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
             vInstruction(CON_SETSECTOR):
                 insptr++;
                 {
-                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : sprite[vm.spriteNum].sectnum;
+                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.pSprite->sectnum;
                     int const   labelNum  = *insptr++;
                     auto const &sectLabel = SectorLabels[labelNum];
                     int const   newValue  = Gv_GetVarX(*insptr++);
@@ -2558,7 +2558,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
             vInstruction(CON_GETSECTOR):
                 insptr++;
                 {
-                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : sprite[vm.spriteNum].sectnum;
+                    int const   sectNum   = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.pSprite->sectnum;
                     int const   labelNum  = *insptr++;
                     auto const &sectLabel = SectorLabels[labelNum];
 
@@ -4746,7 +4746,7 @@ badindex:
                     int16_t   sectNum   = Gv_GetVarX(returnVar);
 
                     if ((unsigned)sectNum >= MAXSECTORS)
-                        sectNum = sprite[vm.spriteNum].sectnum;
+                        sectNum = vm.pSprite->sectnum;
 
                     updatesector(vect.x, vect.y, &sectNum);
                     Gv_SetVarX(returnVar, sectNum);
@@ -4763,7 +4763,7 @@ badindex:
                     int16_t   sectNum   = Gv_GetVarX(returnVar);
 
                     if ((unsigned)sectNum >= MAXSECTORS)
-                        sectNum = sprite[vm.spriteNum].sectnum;
+                        sectNum = vm.pSprite->sectnum;
 
                     updatesectorz(vect.x, vect.y, vect.z, &sectNum);
                     Gv_SetVarX(returnVar, sectNum);
@@ -4951,8 +4951,8 @@ badindex:
 
             vInstruction(CON_FLASH):
                 insptr++;
-                sprite[vm.spriteNum].shade = -127;
-                vm.pPlayer->visibility        = -127;
+                vm.pSprite->shade      = -127;
+                vm.pPlayer->visibility = -127;
                 dispatch();
 
             vInstruction(CON_SAVEMAPSTATE):
@@ -5281,7 +5281,7 @@ badindex:
                             while (spriteNum >= 0)
                             {
                                 if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum
-                                    && dist(&sprite[vm.spriteNum], &sprite[spriteNum]) < maxDist)
+                                    && dist(vm.pSprite, &sprite[spriteNum]) < maxDist)
                                 {
                                     foundSprite = spriteNum;
                                     spriteNum   = MAXSPRITES;
@@ -5303,7 +5303,7 @@ badindex:
                         while (spriteNum >= 0)
                         {
                             if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum
-                                && ldist(&sprite[vm.spriteNum], &sprite[spriteNum]) < maxDist)
+                                && ldist(vm.pSprite, &sprite[spriteNum]) < maxDist)
                             {
                                 foundSprite = spriteNum;
                                 spriteNum   = MAXSPRITES;
@@ -5346,9 +5346,9 @@ badindex:
                         {
                             if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum)
                             {
-                                if (ldist(&sprite[vm.spriteNum], &sprite[spriteNum]) < maxDist)
+                                if (ldist(vm.pSprite, &sprite[spriteNum]) < maxDist)
                                 {
-                                    if (klabs(sprite[vm.spriteNum].z - sprite[spriteNum].z) < maxZDist)
+                                    if (klabs(vm.pSprite->z - sprite[spriteNum].z) < maxZDist)
                                     {
                                         foundSprite = spriteNum;
                                         spriteNum   = MAXSPRITES;
@@ -5371,7 +5371,7 @@ badindex:
             {
                 int32_t tw;
                 insptr++;
-                aGameVars[g_returnVarID].global = A_FindPlayer(&sprite[vm.spriteNum], &tw);
+                aGameVars[g_returnVarID].global = A_FindPlayer(vm.pSprite, &tw);
                 Gv_SetVarX(*insptr++, tw);
                 dispatch();
             }
@@ -5536,7 +5536,7 @@ badindex:
                     {
                         OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array %d or index out of bounds from "
                                              "sprite %d (%d), player %d\n",
-                                   (int)tw, vm.spriteNum, TrackerCast(sprite[vm.spriteNum].picnum), vm.playerNum);
+                                   (int)tw, vm.spriteNum, vm.pUSprite->picnum, vm.playerNum);
                         vm.flags |= VM_RETURN;
                         dispatch();
                     }
