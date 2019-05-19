@@ -1284,6 +1284,7 @@ void Screen_Play(void)
 #else
 # define vInstruction(KEYWORDID) case KEYWORDID
 # define vmErrorCase default
+# define dispatch_unconditionally(...) continue
 # define dispatch(...) continue
 # define eval(INSTRUCTION) switch(INSTRUCTION)
 # define abort_after_error(...) continue // non-threaded dispatch handles this in the loop condition in VM_Execute()
@@ -1303,38 +1304,18 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 {
     native_t loopcnt = loop;
 
+#ifndef CON_DIRECT_THREADING_DISPATCH
     do
     {
-#ifndef CON_DIRECT_THREADING_DISPATCH
-    next_instruction:
+#else
+        static void* jumpTable[] = JUMP_TABLE_ARRAY_LITERAL;
 #endif
         native_t tw = *insptr;
         g_errorLineNum = tw >> 12;
         g_tw = tw &= VM_INSTMASK;
 
-#ifdef CON_DIRECT_THREADING_DISPATCH
-        static void* jumpTable[] = JUMP_TABLE_ARRAY_LITERAL;
-#else
-        if (tw == CON_ELSE)
-        {
-            insptr = (intptr_t *)insptr[1];
-            goto next_instruction;
-        }
-        else if (tw == CON_LEFTBRACE)
-        {
-            insptr++, loopcnt++;
-            goto next_instruction;
-        }
-        else if (tw == CON_RIGHTBRACE)
-        {
-            insptr++, loopcnt--;
-            continue;
-        }
-        else
-#endif
         eval(tw)
         {
-#ifdef CON_DIRECT_THREADING_DISPATCH
             vInstruction(CON_LEFTBRACE):
             {
                 insptr++, loopcnt++;
@@ -1352,15 +1333,15 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                 insptr = (intptr_t *)insptr[1];
                 dispatch_unconditionally();
             }
-#endif
+
             vInstruction(CON_STATE):
-                {
-                    auto tempscrptr = &insptr[2];
-                    insptr = (intptr_t *)insptr[1];
-                    VM_Execute(true);
-                    insptr = tempscrptr;
-                }
-                dispatch();
+            {
+                auto tempscrptr = &insptr[2];
+                insptr = (intptr_t *)insptr[1];
+                VM_Execute(true);
+                insptr = tempscrptr;
+            }
+            dispatch();
 
 #ifdef CON_DISCRETE_VAR_ACCESS
             vInstruction(CON_IFVARE_GLOBAL):
@@ -6232,11 +6213,14 @@ badindex:
                            "If you are a developer, please attach all of your script files\n"
                            "along with instructions on how to reproduce this error.\n\n"
                            "Thank you!");
-#if !defined CON_DIRECT_THREADING_DISPATCH
+#ifndef CON_DIRECT_THREADING_DISPATCH
                 break;
 #endif
         }
-    } while (loopcnt && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0);
+#ifndef CON_DIRECT_THREADING_DISPATCH
+    }
+    while (loopcnt && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0);
+#endif
 }
 
 // NORECURSE
