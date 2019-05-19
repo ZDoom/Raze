@@ -1289,6 +1289,16 @@ void Screen_Play(void)
 # define abort_after_error(...) continue // non-threaded dispatch handles this in the loop condition in VM_Execute()
 #endif
 
+#define VM_ASSERT(condition, ...)                \
+    do                                           \
+    {                                            \
+        if (EDUKE32_PREDICT_FALSE(!(condition))) \
+        {                                        \
+            CON_ERRPRINTF(__VA_ARGS__);          \
+            abort_after_error();                 \
+        }                                        \
+    } while (0)
+
 GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 {
     native_t loopcnt = loop;
@@ -1994,11 +2004,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 
                     int const nValue = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE(!nValue))
-                    {
-                        CON_CRITICALERRPRINTF("divide by zero!\n");
-                        abort_after_error();
-                    }
+                    VM_ASSERT(nValue, "divide by zero!\n");
 
                     Gv_DivVar(tw, nValue);
                     dispatch();
@@ -2261,11 +2267,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 
                     int const nValue = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE(!nValue))
-                    {
-                        CON_CRITICALERRPRINTF("mod by zero!\n");
-                        abort_after_error();
-                    }
+                    VM_ASSERT(nValue, "mod by zero!\n");
 
                     Gv_ModVar(tw, nValue);
                     dispatch();
@@ -2370,11 +2372,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const lVar1   = *insptr++;
                     int const lVar2   = *insptr++;
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)lSprite >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", lSprite);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)lSprite < MAXSPRITES, "invalid sprite %d\n", lSprite);
 
                     if (tw == CON_SETACTORVAR)
                         Gv_SetVar(lVar1, Gv_GetVarX(lVar2), lSprite, vm.playerNum);
@@ -2392,11 +2390,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const lVar1     = *insptr++;
                     int const lVar2     = *insptr++;
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
-                    {
-                        CON_ERRPRINTF("invalid player %d\n", playerNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)playerNum < (unsigned)g_mostConcurrentPlayers, "invalid player %d\n", playerNum);
 
                     if (tw == CON_SETPLAYERVAR)
                         Gv_SetVar(lVar1, Gv_GetVarX(lVar2), vm.spriteNum, playerNum);
@@ -2451,11 +2445,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const labelNum  = *insptr++;
                     auto const &actorLabel = ActorLabels[labelNum];
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     VM_SetStruct(actorLabel.flags, (intptr_t *)((char *)&actor[spriteNum] + actorLabel.offset), Gv_GetVarX(*insptr++));
                     dispatch();
@@ -2468,11 +2458,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const labelNum  = *insptr++;
                     auto const &actorLabel = ActorLabels[labelNum];
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     Gv_SetVarX(*insptr++, VM_GetStruct(actorLabel.flags, (intptr_t *)((char *)&actor[spriteNum] + actorLabel.offset)));
                     dispatch();
@@ -2485,11 +2471,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const labelNum  = *insptr++;
                     auto const &spriteLabel = ActorLabels[labelNum];
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     VM_SetStruct(spriteLabel.flags, (intptr_t *)((char *)&sprite[spriteNum] + spriteLabel.offset), Gv_GetVarX(*insptr++));
                     dispatch();
@@ -2502,11 +2484,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const labelNum  = *insptr++;
                     auto const &spriteLabel = ActorLabels[labelNum];
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     Gv_SetVarX(*insptr++, VM_GetStruct(spriteLabel.flags, (intptr_t *)((char *)&sprite[spriteNum] + spriteLabel.offset)));
                     dispatch();
@@ -2518,11 +2496,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const labelNum  = *insptr++;
                     auto const &spriteExtLabel = ActorLabels[labelNum];
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     VM_SetStruct(spriteExtLabel.flags, (intptr_t *)((char *)&spriteext[spriteNum] + spriteExtLabel.offset), Gv_GetVarX(*insptr++));
                     dispatch();
@@ -2535,11 +2509,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
                     int const labelNum  = *insptr++;
                     auto const &spriteExtLabel = ActorLabels[labelNum];
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     Gv_SetVarX(*insptr++, VM_GetStruct(spriteExtLabel.flags, (intptr_t *)((char *)&spriteext[spriteNum] + spriteExtLabel.offset)));
                     dispatch();
@@ -2856,8 +2826,23 @@ badindex:
                     dispatch();
                 }
 
+
             vInstruction(CON_IFCANSHOOTTARGET):
             {
+#define CHECK(x)                                                            \
+    if ((unsigned)x < MAXSPRITES && sprite[x].picnum == vm.pSprite->picnum) \
+    {                                                                       \
+        VM_CONDITIONAL(0);                                                  \
+        dispatch();                                                         \
+    }
+
+#define CHECK2(x)                                      \
+    do                                                 \
+    {                                                  \
+        vm.pSprite->ang += x;                          \
+        tw = A_CheckHitSprite(vm.spriteNum, &temphit); \
+        vm.pSprite->ang -= x;                          \
+    } while (0)
                 if (vm.playerDist > 1024)
                 {
                     int16_t temphit;
@@ -2877,19 +2862,6 @@ badindex:
                         angDiff = 48;
                     }
 
-#define CHECK(x)                                          \
-    if (x >= 0 && sprite[x].picnum == vm.pSprite->picnum) \
-    {                                                     \
-        VM_CONDITIONAL(0);                                \
-        dispatch();                                         \
-    }
-#define CHECK2(x)                                      \
-    do                                                 \
-    {                                                  \
-        vm.pSprite->ang += x;                          \
-        tw = A_CheckHitSprite(vm.spriteNum, &temphit); \
-        vm.pSprite->ang -= x;                          \
-    } while (0)
 
                     if (tw > dist)
                     {
@@ -2911,11 +2883,10 @@ badindex:
                     }
                 }
                 VM_CONDITIONAL(1);
-            }
-                dispatch();
-
 #undef CHECK
 #undef CHECK2
+            }
+                dispatch();
 
             vInstruction(CON_IFCANSEETARGET):
                 tw = cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - ((krand() & 41) << 8), vm.pSprite->sectnum, vm.pPlayer->pos.x, vm.pPlayer->pos.y,
@@ -3243,11 +3214,7 @@ badindex:
                     int const spriteNum = Gv_GetVarX(*insptr++);
                     int const soundNum  = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)soundNum >= MAXSOUNDS))
-                    {
-                        CON_ERRPRINTF("invalid sound %d\n", soundNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)soundNum < MAXSOUNDS, "invalid sound %d\n", soundNum);
 
                     insptr--;
                     VM_CONDITIONAL(A_CheckSoundPlaying(spriteNum, soundNum));
@@ -3270,11 +3237,7 @@ badindex:
                     int const spriteNum = Gv_GetVarX(*insptr++);
                     int const soundNum  = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)soundNum >= MAXSOUNDS))
-                    {
-                        CON_ERRPRINTF("invalid sound %d\n", soundNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)soundNum < MAXSOUNDS, "invalid sound %d\n", soundNum);
 
                     if (A_CheckSoundPlaying(spriteNum, soundNum))
                         S_StopEnvSound(soundNum, spriteNum);
@@ -3288,11 +3251,7 @@ badindex:
                     int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(insptr[-1]) : vm.spriteNum;
                     int const soundNum  = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)soundNum >= MAXSOUNDS))
-                    {
-                        CON_ERRPRINTF("invalid sound %d\n", soundNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)soundNum < MAXSOUNDS, "invalid sound %d\n", soundNum);
 
                     A_PlaySound(soundNum, spriteNum);
 
@@ -3306,11 +3265,7 @@ badindex:
                     int const soundNum  = Gv_GetVarX(*insptr++);
                     int const newPitch  = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)soundNum >= MAXSOUNDS))
-                    {
-                        CON_ERRPRINTF("invalid sound %d\n", soundNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)soundNum < MAXSOUNDS, "invalid sound %d\n", soundNum);
 
                     S_ChangeSoundPitch(soundNum, spriteNum, newPitch);
 
@@ -3523,11 +3478,8 @@ badindex:
                     int const spriteNum = Gv_GetVarX(*insptr++);
                     int const clipType  = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
+
                     A_SetSprite(spriteNum, clipType);
                     dispatch();
                 }
@@ -3538,11 +3490,8 @@ badindex:
                     int const sectNum   = Gv_GetVarX(*insptr++);
                     int const spriteNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", sectNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)sectNum < MAXSECTORS, "invalid sector %d\n", sectNum);
+
                     G_ActivateBySector(sectNum, spriteNum);
                     dispatch();
                 }
@@ -3553,11 +3502,8 @@ badindex:
                     int const sectNum   = Gv_GetVarX(*insptr++);
                     int const spriteNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", sectNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)sectNum < MAXSECTORS, "invalid sector %d\n", sectNum);
+
                     G_OperateSectors(sectNum, spriteNum);
                     dispatch();
                 }
@@ -3568,11 +3514,8 @@ badindex:
                     int const nTag      = Gv_GetVarX(*insptr++);
                     int const playerNum = (*insptr++ == g_thisActorVarID) ? vm.playerNum : Gv_GetVarX(insptr[-1]);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
-                    {
-                        CON_ERRPRINTF("invalid player %d\n", playerNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)playerNum < (unsigned)g_mostConcurrentPlayers, "invalid player %d\n", playerNum);
+
                     G_OperateActivators(nTag, playerNum);
                     dispatch();
                 }
@@ -3623,11 +3566,7 @@ badindex:
                     int const gameVar  = *insptr++;
                     int const quoteNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE(apStrings[quoteNum] == NULL))
-                    {
-                        CON_ERRPRINTF("null quote %d\n", quoteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)quoteNum < MAXQUOTES && apStrings[quoteNum], "invalid quote %d\n", quoteNum);
 
                     Gv_SetVarX(gameVar, Bstrlen(apStrings[quoteNum]));
                     dispatch();
@@ -3688,11 +3627,7 @@ badindex:
                     int const gameVar   = *insptr++;
                     int const spriteNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     Gv_SetVarX(gameVar, prevspritestat[spriteNum]);
                     dispatch();
@@ -3704,11 +3639,7 @@ badindex:
                     int const gameVar   = *insptr++;
                     int const spriteNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     Gv_SetVarX(gameVar, nextspritestat[spriteNum]);
                     dispatch();
@@ -3720,11 +3651,7 @@ badindex:
                     int const gameVar = *insptr++;
                     int const sectNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", sectNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)sectNum < MAXSECTORS, "invalid sector %d\n", sectNum);
 
                     Gv_SetVarX(gameVar, headspritesect[sectNum]);
                     dispatch();
@@ -3736,11 +3663,7 @@ badindex:
                     int const gameVar   = *insptr++;
                     int const spriteNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     Gv_SetVarX(gameVar, prevspritesect[spriteNum]);
                     dispatch();
@@ -3752,11 +3675,7 @@ badindex:
                     int const gameVar   = *insptr++;
                     int const spriteNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES, "invalid sprite %d\n", spriteNum);
 
                     Gv_SetVarX(gameVar, nextspritesect[spriteNum]);
                     dispatch();
@@ -3769,27 +3688,17 @@ badindex:
                     int const gameFunc   = Gv_GetVarX(*insptr++);
                     int const funcPos    = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)quoteIndex >= MAXQUOTES || apStrings[quoteIndex] == NULL))
-                    {
-                        CON_ERRPRINTF("invalid quote %d\n", quoteIndex);
-                        abort_after_error();
-                    }
-                    else if (EDUKE32_PREDICT_FALSE((unsigned)gameFunc >= NUMGAMEFUNCTIONS))
-                    {
-                        CON_ERRPRINTF("invalid function %d\n", gameFunc);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)quoteIndex < MAXQUOTES && apStrings[quoteIndex], "invalid quote %d\n", quoteIndex);
+                    VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
+
+                    if (funcPos < 2)
+                        Bstrcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][funcPos]));
                     else
                     {
-                        if (funcPos < 2)
-                            Bstrcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][funcPos]));
-                        else
-                        {
-                            Bstrcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][0]));
+                        Bstrcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][0]));
 
-                            if (!*tempbuf)
-                                Bstrcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][1]));
-                        }
+                        if (!*tempbuf)
+                            Bstrcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][1]));
                     }
 
                     if (*tempbuf)
@@ -3879,22 +3788,14 @@ badindex:
                     switch (tw)
                     {
                         case CON_GETPNAME:
-                            if (EDUKE32_PREDICT_FALSE((unsigned)q >= MAXQUOTES || apStrings[q] == NULL))
-                            {
-                                CON_ERRPRINTF("invalid quote %d\n", q);
-                                abort_after_error();
-                            }
+                            VM_ASSERT((unsigned)q < MAXQUOTES && apStrings[q], "invalid quote %d\n", q);
                             if (g_player[j].user_name[0])
                                 Bstrcpy(apStrings[q], g_player[j].user_name);
                             else
                                 Bsprintf(apStrings[q], "%d", j);
                             break;
                         case CON_QGETSYSSTR:
-                            if (EDUKE32_PREDICT_FALSE((unsigned)q >= MAXQUOTES || apStrings[q] == NULL))
-                            {
-                                CON_ERRPRINTF("invalid quote %d\n", q);
-                                abort_after_error();
-                            }
+                            VM_ASSERT((unsigned)q < MAXQUOTES && apStrings[q], "invalid quote %d\n", q);
                             switch (j)
                             {
                                 case STR_MAPNAME:
@@ -3922,11 +3823,7 @@ badindex:
                                     break;
                                 }
                                 case STR_PLAYERNAME:
-                                    if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= (unsigned)g_mostConcurrentPlayers))
-                                    {
-                                        CON_ERRPRINTF("invalid player %d\n", vm.playerNum);
-                                        abort_after_error();
-                                    }
+                                    VM_ASSERT((unsigned)vm.playerNum < (unsigned)g_mostConcurrentPlayers, "invalid player %d\n", vm.playerNum);
                                     Bstrcpy(apStrings[q], g_player[vm.playerNum].user_name);
                                     break;
                                 case STR_VERSION:
@@ -4196,11 +4093,7 @@ badindex:
                 {
                     int const tileNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", vm.pUSprite->sectnum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)vm.pSprite->sectnum < MAXSECTORS, "invalid sector %d\n", vm.pUSprite->sectnum);
 
                     int const spriteNum = A_Spawn(vm.spriteNum, tileNum);
 
@@ -4225,11 +4118,7 @@ badindex:
                 {
                     int j = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", vm.pUSprite->sectnum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)vm.pSprite->sectnum < MAXSECTORS, "invalid sector %d\n", vm.pUSprite->sectnum);
 
                     j = A_Shoot(vm.spriteNum, j);
 
@@ -4246,11 +4135,7 @@ badindex:
                     int const zvel = (int16_t)Gv_GetVarX(*insptr++);
                     int       j    = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", vm.pUSprite->sectnum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)vm.pSprite->sectnum < MAXSECTORS, "invalid sector %d\n", vm.pUSprite->sectnum);
 
                     j = A_ShootWithZvel(vm.spriteNum, j, zvel);
 
@@ -4274,11 +4159,7 @@ badindex:
                 {
                     int const soundNum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)soundNum >= MAXSOUNDS))
-                    {
-                        CON_ERRPRINTF("invalid sound %d\n", soundNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)soundNum < MAXSOUNDS, "invalid sound %d\n", soundNum);
 
                     switch (tw)
                     {
@@ -4305,11 +4186,7 @@ badindex:
                 {
                     int const nQuote = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)nQuote >= MAXQUOTES || apStrings[nQuote] == NULL))
-                    {
-                        CON_ERRPRINTF("invalid quote %d for anim!\n", nQuote);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)nQuote < MAXQUOTES && apStrings[nQuote], "invalid quote %d\n", nQuote);
 
                     if (tw == CON_IFCUTSCENE)
                     {
@@ -4387,11 +4264,7 @@ badindex:
                         abort_after_error();
                     }
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.params[2] >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", v.params[2]);
-                        dispatch();
-                    }
+                    VM_ASSERT((unsigned)v.params[2] < MAXSECTORS, "invalid sector %d\n", v.params[2]);
 
                     if (tw != CON_SHOWVIEWQ16 && tw != CON_SHOWVIEWQ16UNBIASED)
                     {
@@ -4464,11 +4337,7 @@ badindex:
                         abort_after_error();
                     }
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.nQuote >= MAXQUOTES || apStrings[v.nQuote] == NULL))
-                    {
-                        CON_ERRPRINTF("invalid quote %d\n", v.nQuote);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.nQuote < MAXQUOTES && apStrings[v.nQuote], "invalid quote %d\n", v.nQuote);
 
                     G_PrintGameText(v.tilenum, v.pos.x >> 1, v.pos.y, apStrings[v.nQuote], v.shade, v.pal, v.orientation & (ROTATESPRITE_MAX - 1),
                                     v.bound[0].x, v.bound[0].y, v.bound[1].x, v.bound[1].y, z, 0);
@@ -4512,11 +4381,7 @@ badindex:
                     } v;
                     Gv_FillWithVars(v);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.nQuote >= MAXQUOTES || apStrings[v.nQuote] == NULL))
-                    {
-                        CON_ERRPRINTF("invalid quote %d\n", v.nQuote);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.nQuote < MAXQUOTES && apStrings[v.nQuote], "invalid quote %d\n", v.nQuote);
 
                     minitextshade(v.pos.x, v.pos.y, apStrings[v.nQuote], v.shade, v.pal, 2 + 8 + 16);
                     dispatch();
@@ -4542,11 +4407,7 @@ badindex:
                         abort_after_error();
                     }
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.nQuote >= MAXQUOTES || apStrings[v.nQuote] == NULL))
-                    {
-                        CON_ERRPRINTF("invalid quote %d\n", v.nQuote);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.nQuote < MAXQUOTES && apStrings[v.nQuote], "invalid quote %d\n", v.nQuote);
 
                     G_ScreenText(v.tilenum, v.v.x, v.v.y, v.v.z, v.blockangle, v.charangle, apStrings[v.nQuote], v.shade, v.pal,
                                  2 | (v.orientation & (ROTATESPRITE_MAX - 1)), v.alpha, v.spacing.x, v.spacing.y, v.between.x, v.between.y, v.nFlags,
@@ -4575,11 +4436,7 @@ badindex:
                     } v2;
                     Gv_FillWithVars(v2);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.sectNum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", v.sectNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.sectNum < MAXSECTORS, "invalid sector %d\n", v.sectNum);
 
                     int32_t ceilz, ceilhit, florz, florhit;
 
@@ -4598,11 +4455,7 @@ badindex:
                 {
                     int const sectnum = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)sectnum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", sectnum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)sectnum < MAXSECTORS, "invalid sector %d\n", sectnum);
 
                     if (tw == CON_SECTSETINTERPOLATION)
                         Sect_SetInterpolation(sectnum);
@@ -4687,11 +4540,7 @@ badindex:
                     Gv_FillWithVars(v);
                     int16_t sectNum = v.sectNum32;
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", sectNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)sectNum < MAXSECTORS, "invalid sector %d\n", sectNum);
 
                     Gv_SetVarX(
                     returnVar,
@@ -4722,11 +4571,7 @@ badindex:
                     int const zReturn      = *insptr++;
                     int const clipType     = Gv_GetVarX(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.sectnum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", v.sectnum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.sectnum < MAXSECTORS, "invalid sector %d\n", v.sectnum);
 
                     hitdata_t hit;
                     hitscan(&v.origin, v.sectnum, v.vect.x, v.vect.y, v.vect.z, &hit, clipType);
@@ -4814,11 +4659,7 @@ badindex:
                     } v2;
                     Gv_FillWithVars(v2);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.sectNum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("Invalid sector %d\n", v.sectNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.sectNum < MAXSECTORS, "invalid sector %d\n", v.sectNum);
 
                     int16_t neartagsector, neartagwall, neartagsprite;
                     int32_t neartaghitdist;
@@ -4856,11 +4697,7 @@ badindex:
                     } v;
                     Gv_FillWithVars(v);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", v.spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.spriteNum < MAXSPRITES, "invalid sprite %d\n", v.spriteNum);
 
                     Gv_SetVarX(*insptr++, A_MoveSprite(v.spriteNum, &v.vect, v.clipType));
                     dispatch();
@@ -4876,11 +4713,8 @@ badindex:
                     } v;
                     Gv_FillWithVars(v);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.spriteNum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", v.spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.spriteNum < MAXSPRITES, "invalid sprite %d\n", v.spriteNum);
+
                     setsprite(v.spriteNum, &v.vect);
                     dispatch();
                 }
@@ -4896,11 +4730,8 @@ badindex:
                     } v;
                     Gv_FillWithVars(v);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.sectNum >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", v.sectNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.sectNum < MAXSECTORS, "invalid sector %d\n", v.sectNum);
+
                     Gv_SetVarX(*insptr++, (tw == CON_GETFLORZOFSLOPE ? getflorzofslope : getceilzofslope)(v.sectNum, v.vect.x, v.vect.y));
                     dispatch();
                 }
@@ -4941,11 +4772,9 @@ badindex:
 
             vInstruction(CON_SPAWN):
                 insptr++;
-                if ((unsigned)vm.pSprite->sectnum >= MAXSECTORS)
-                {
-                    CON_ERRPRINTF("invalid sector %d\n", vm.pUSprite->sectnum);
-                    abort_after_error();
-                }
+
+                VM_ASSERT((unsigned)vm.pSprite->sectnum < MAXSECTORS, "invalid sector %d\n", vm.pUSprite->sectnum);
+
                 A_Spawn(vm.spriteNum, *insptr++);
                 dispatch();
 
@@ -5202,12 +5031,7 @@ badindex:
 
             vInstruction(CON_PALFROM):
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= (unsigned)g_mostConcurrentPlayers))
-                {
-                    CON_ERRPRINTF("invalid player %d\n", vm.playerNum);
-                    abort_after_error();
-                }
-                else
+                VM_ASSERT((unsigned)vm.playerNum < (unsigned)g_mostConcurrentPlayers, "invalid player %d\n", vm.playerNum);
                 {
                     palette_t const pal = { uint8_t(insptr[1]), uint8_t(insptr[2]), uint8_t(insptr[3]), uint8_t(insptr[0]) };
                     insptr += 4;
@@ -5662,11 +5486,7 @@ badindex:
                 insptr++;
                 int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*insptr) : vm.playerNum;
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
-                {
-                    CON_ERRPRINTF("invalid player %d\n", (int)playerNum);
-                    abort_after_error();
-                }
+                VM_ASSERT((unsigned)playerNum < (unsigned)g_mostConcurrentPlayers, "invalid player %d\n", playerNum);
 
                 if (tw == CON_CHECKAVAILWEAPON)
                     P_CheckWeapon(g_player[playerNum].ps);
@@ -5755,11 +5575,7 @@ badindex:
                     int const arrayNum      = *insptr++;
                     int const quoteFilename = *insptr++;
 
-                    if (EDUKE32_PREDICT_FALSE(apStrings[quoteFilename] == NULL))
-                    {
-                        CON_ERRPRINTF("null quote %d\n", quoteFilename);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)quoteFilename < MAXQUOTES && apStrings[quoteFilename], "invalid quote %d\n", quoteFilename);
 
                     buildvfs_kfd kFile = kopen4loadfrommod(apStrings[quoteFilename], 0);
 
@@ -5828,11 +5644,7 @@ badindex:
                     int const arrayNum      = *insptr++;
                     int const quoteFilename = *insptr++;
 
-                    if (EDUKE32_PREDICT_FALSE(apStrings[quoteFilename] == NULL))
-                    {
-                        CON_ERRPRINTF("null quote %d\n", quoteFilename);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)quoteFilename < MAXQUOTES && apStrings[quoteFilename], "invalid quote %d\n", quoteFilename);
 
                     char temp[BMAX_PATH];
 
@@ -6349,11 +6161,7 @@ badindex:
             vInstruction(CON_QUOTE):
                 insptr++;
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= MAXPLAYERS))
-                {
-                    CON_ERRPRINTF("invalid player %d\n", vm.playerNum);
-                    abort_after_error();
-                }
+                VM_ASSERT((unsigned)vm.playerNum < (unsigned)g_mostConcurrentPlayers, "invalid player %d\n", vm.playerNum);
 
                 P_DoQuote(*(insptr++) | MAXQUOTES, vm.pPlayer);
                 dispatch();
@@ -6362,11 +6170,7 @@ badindex:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAXQUOTES || apStrings[tw] == NULL))
-                {
-                    CON_ERRPRINTF("invalid quote %d\n", (int)tw);
-                    abort_after_error();
-                }
+                VM_ASSERT((unsigned)tw < MAXQUOTES && apStrings[tw], "invalid quote %d\n", (int)tw);
 
                 G_AddUserQuote(apStrings[tw]);
                 dispatch();
@@ -6375,11 +6179,7 @@ badindex:
                 insptr++;
                 tw = Gv_GetVarX(*insptr++);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAXQUOTES || apStrings[tw] == NULL))
-                {
-                    CON_ERRPRINTF("invalid quote %d\n", (int)tw);
-                    abort_after_error();
-                }
+                VM_ASSERT((unsigned)tw < MAXQUOTES && apStrings[tw], "invalid quote %d\n", (int)tw);
 
                 OSD_Printf("%s\n", apStrings[tw]);
                 dispatch();
