@@ -2799,20 +2799,18 @@ badindex:
 
             vInstruction(CON_IFCANSHOOTTARGET):
             {
-#define CHECK(x)                                                            \
+#define CHECK_PICNUM(x)                                                     \
     if ((unsigned)x < MAXSPRITES && sprite[x].picnum == vm.pSprite->picnum) \
     {                                                                       \
         VM_CONDITIONAL(0);                                                  \
         dispatch();                                                         \
     }
 
-#define CHECK2(x)                                      \
-    do                                                 \
-    {                                                  \
-        vm.pSprite->ang += x;                          \
-        tw = A_CheckHitSprite(vm.spriteNum, &temphit); \
-        vm.pSprite->ang -= x;                          \
-    } while (0)
+#define CHECK_HIT_SPRITE(x)                        \
+    vm.pSprite->ang += x;                          \
+    tw = A_CheckHitSprite(vm.spriteNum, &temphit); \
+    vm.pSprite->ang -= x;
+
                 if (vm.playerDist > 1024)
                 {
                     int16_t temphit;
@@ -2832,20 +2830,19 @@ badindex:
                         angDiff = 48;
                     }
 
-
                     if (tw > dist)
                     {
-                        CHECK(temphit);
-                        CHECK2(angDiff);
+                        CHECK_PICNUM(temphit);
+                        CHECK_HIT_SPRITE(angDiff);
 
                         if (tw > dist)
                         {
-                            CHECK(temphit);
-                            CHECK2(-angDiff);
+                            CHECK_PICNUM(temphit);
+                            CHECK_HIT_SPRITE(-angDiff);
 
                             if (tw > 768)
                             {
-                                CHECK(temphit);
+                                CHECK_PICNUM(temphit);
                                 VM_CONDITIONAL(1);
                                 dispatch();
                             }
@@ -2853,8 +2850,8 @@ badindex:
                     }
                 }
                 VM_CONDITIONAL(1);
-#undef CHECK
-#undef CHECK2
+#undef CHECK_PICNUM
+#undef CHECK_HIT_SPRITE
             }
                 dispatch();
 
