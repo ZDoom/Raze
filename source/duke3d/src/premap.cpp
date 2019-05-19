@@ -1678,8 +1678,8 @@ void G_ResetTimers(bool saveMoveCnt)
 
 void G_ClearFIFO(void)
 {
-    clearbufbyte(&localInput, sizeof(input_t), 0L);
-    clearbufbyte(&inputfifo, sizeof(input_t) * MOVEFIFOSIZ * MAXPLAYERS, 0L);
+    localInput = {};
+    Bmemset(&inputfifo, 0, sizeof(input_t) * MOVEFIFOSIZ * MAXPLAYERS);
 
     for (int p = 0; p < MAXPLAYERS; ++p)
     {
