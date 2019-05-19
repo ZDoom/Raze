@@ -77,7 +77,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop = false);
 #endif
 
 #if !defined LUNATIC
-void VM_ScriptInfo(intptr_t const *ptr, int range)
+void VM_ScriptInfo(intptr_t const * const ptr, int const range)
 {
     if (!apScript || !ptr || g_currentEvent == -1)
         return;
@@ -202,7 +202,7 @@ static FORCE_INLINE int32_t VM_EventInlineInternal__(int const &eventNum, int co
 }
 #endif
 
-// the idea here is that the compiler inlines the call to VM_OnEvent_Internal__() and gives us a set of
+// the idea here is that the compiler inlines the call to VM_EventInlineInternal__() and gives us a set of
 // functions which are optimized further based on distance/return having values known at compile time
 
 int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn)
@@ -312,7 +312,7 @@ bool A_Dodge(spritetype * const pSprite)
     return 0;
 }
 
-int A_GetFurthestAngle(int spriteNum, int angDiv)
+int A_GetFurthestAngle(int const spriteNum, int const angDiv)
 {
     auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
 
@@ -6221,7 +6221,7 @@ badindex:
 }
 
 // NORECURSE
-void A_LoadActor(int32_t spriteNum)
+void A_LoadActor(int const spriteNum)
 {
     vm.spriteNum = spriteNum;           // Sprite ID
     vm.pSprite   = &sprite[spriteNum];  // Pointer to sprite structure
@@ -6252,7 +6252,7 @@ void A_LoadActor(int32_t spriteNum)
 }
 #endif
 
-void VM_UpdateAnim(int spriteNum, int32_t *pData)
+void VM_UpdateAnim(int const spriteNum, int32_t * const pData)
 {
 #if !defined LUNATIC
     size_t const actionofs = AC_ACTION_ID(pData);

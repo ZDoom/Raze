@@ -85,7 +85,7 @@ extern int32_t g_tw;
 extern int32_t g_errorLineNum;
 extern int32_t g_currentEvent;
 
-void A_LoadActor(int32_t spriteNum);
+void A_LoadActor(int const spriteNum);
 #endif
 
 extern uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
@@ -93,7 +93,7 @@ extern double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[
 
 void A_Execute(int spriteNum, int playerNum, int playerDist);
 void A_Fall(int spriteNum);
-int A_GetFurthestAngle(int spriteNum, int angDiv);
+int A_GetFurthestAngle(int const spriteNum, int const angDiv);
 void A_GetZLimits(int spriteNum);
 int __fastcall G_GetAngleDelta(int currAngle, int newAngle);
 void G_RestoreMapState();
@@ -137,7 +137,7 @@ int32_t VM_ResetPlayer2(int32_t snum, int32_t flags);
 int32_t VM_CheckSquished2(int32_t i, int32_t snum);
 #endif
 
-void VM_UpdateAnim(int spriteNum, int32_t *pData);
+void VM_UpdateAnim(int const spriteNum, int32_t * const pData);
 
 #ifdef __cplusplus
 }
