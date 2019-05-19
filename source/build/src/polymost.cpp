@@ -1368,7 +1368,7 @@ static void resizeglcheck(void)
         m[0][0] = 1.f;
         m[1][1] = fxdimen / (fydimen * ratio);
         m[2][0] = 2.f * ghoriz2 * gstang / fxdimen;
-        m[2][1] = 2.f * (ghoriz2 * gctang + ghorizcorrect) / (fydimen * ratio);
+        m[2][1] = 2.f * (ghoriz2 * gctang + ghorizcorrect) / fydimen;
         m[2][2] = (farclip + nearclip) / (farclip - nearclip);
         m[2][3] = 1.f;
         m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
