@@ -117,14 +117,14 @@ extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t     g_gameVarCount;
 extern int32_t     g_gameArrayCount;
 
-unsigned __fastcall Gv_GetArrayElementSize(int const arrayIdx);
 size_t __fastcall Gv_GetArrayAllocSizeForCount(int const arrayIdx, size_t const count);
-size_t __fastcall Gv_GetArrayAllocSize(int const arrayIdx);
 size_t __fastcall Gv_GetArrayCountForAllocSize(int const arrayIdx, size_t const filelength);
+static FORCE_INLINE size_t Gv_GetArrayAllocSize(int const arrayIdx) { return Gv_GetArrayAllocSizeForCount(arrayIdx, aGameArrays[arrayIdx].size); }
+unsigned __fastcall Gv_GetArrayElementSize(int const arrayIdx);
 int __fastcall Gv_GetArrayValue(int const id, int index);
-int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum);
+int __fastcall Gv_GetVar(int const gameVar, int const spriteNum, int const playerNum);
 void __fastcall Gv_SetVar(int const gameVar, int const newValue, int const spriteNum, int const playerNum);
-int __fastcall Gv_GetVar(int gameVar);
+int __fastcall Gv_GetVar(int const gameVar);
 void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf);
 void __fastcall Gv_SetVar(int const gameVar, int const newValue);
 

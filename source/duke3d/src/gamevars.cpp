@@ -538,9 +538,9 @@ static int Gv_GetVarIndex(const char *szGameLabel)
 {
     int const gameVar = hash_find(&h_gamevars,szGameLabel);
 
-    if (EDUKE32_PREDICT_FALSE(gameVar == -1))
+    if (EDUKE32_PREDICT_FALSE((unsigned)gameVar >= MAXGAMEVARS))
     {
-        OSD_Printf(OSD_ERROR "Gv_GetVarIndex(): INTERNAL ERROR: couldn't find gamevar %s!\n",szGameLabel);
+        OSD_Printf(OSD_ERROR "Gv_GetVarIndex(): INTERNAL ERROR: couldn't find gamevar %s!\n", szGameLabel);
         return 0;
     }
 
@@ -551,7 +551,7 @@ static int Gv_GetArrayIndex(const char *szArrayLabel)
 {
     int const arrayIdx = hash_find(&h_arrays, szArrayLabel);
 
-    if (EDUKE32_PREDICT_FALSE(arrayIdx == -1))
+    if (EDUKE32_PREDICT_FALSE((unsigned)arrayIdx >= MAXGAMEARRAYS))
     {
         OSD_Printf(OSD_ERROR "Gv_GetArrayIndex(): INTERNAL ERROR: couldn't find array %s!\n", szArrayLabel);
         return 0;
@@ -566,11 +566,6 @@ size_t __fastcall Gv_GetArrayAllocSizeForCount(int const arrayIdx, size_t const 
         return (count + 7) >> 3;
 
     return count * Gv_GetArrayElementSize(arrayIdx);
-}
-
-size_t __fastcall Gv_GetArrayAllocSize(int const arrayIdx)
-{
-    return Gv_GetArrayAllocSizeForCount(arrayIdx, aGameArrays[arrayIdx].size);
 }
 
 size_t __fastcall Gv_GetArrayCountForAllocSize(int const arrayIdx, size_t const filelength)
@@ -612,13 +607,14 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
 #define CHECK_INDEX(range)                                              \
     if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= (unsigned)range)) \
     {                                                                   \
-        spriteNum = arrayIndex;                                         \
+        returnValue = arrayIndex;                                       \
         goto badindex;                                                  \
     }
 
-static int __fastcall Gv_GetArrayOrStruct(int gameVar, int spriteNum, int const playerNum)
+static int __fastcall Gv_GetArrayOrStruct(int const gameVar, int const spriteNum, int const playerNum)
 {
-    int returnValue = gameVar;
+    int const gv = gameVar & (MAXGAMEVARS-1);
+    int returnValue = 0;
 
     if (gameVar & GV_FLAG_STRUCT)  // struct shortcut vars
     {
@@ -626,35 +622,21 @@ static int __fastcall Gv_GetArrayOrStruct(int gameVar, int spriteNum, int const 
         int       arrayIndex    = Gv_GetVar(arrayIndexVar, spriteNum, playerNum);
         int const labelNum      = *insptr++;
 
-        gameVar &= (MAXGAMEVARS-1);
-
-        switch (gameVar - g_structVarIDs)
+        switch (gv - g_structVarIDs)
         {
-            case STRUCT_SPRITE:
-                CHECK_INDEX(MAXSPRITES);
-                arrayIndexVar = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
-                returnValue = VM_GetSprite(arrayIndex, labelNum, arrayIndexVar);
-                break;
-
             case STRUCT_SPRITE_INTERNAL__:
                 CHECK_INDEX(MAXSPRITES);
-                returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((char *)&sprite[arrayIndex] + ActorLabels[labelNum].offset));
+                returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((intptr_t)&sprite[arrayIndex] + ActorLabels[labelNum].offset));
                 break;
 
             case STRUCT_ACTOR_INTERNAL__:
                 CHECK_INDEX(MAXSPRITES);
-                returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((char *)&actor[arrayIndex] + ActorLabels[labelNum].offset));
+                returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((intptr_t)&actor[arrayIndex] + ActorLabels[labelNum].offset));
                 break;
 
-            case STRUCT_SPRITEEXT_INTERNAL__:
-                CHECK_INDEX(MAXSPRITES);
-                returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((char *)&spriteext[arrayIndex] + ActorLabels[labelNum].offset));
-                break;
-
-            case STRUCT_TSPR:
-                CHECK_INDEX(MAXSPRITES);
-                returnValue = VM_GetStruct(TsprLabels[labelNum].flags, (intptr_t *)((char *)(spriteext[arrayIndex].tspr) + TsprLabels[labelNum].offset));
-                break;
+            // no THISACTOR check here because we convert those cases to setvarvar
+            case STRUCT_ACTORVAR: returnValue = Gv_GetVar(labelNum, arrayIndex, vm.playerNum); break;
+            case STRUCT_PLAYERVAR: returnValue = Gv_GetVar(labelNum, vm.spriteNum, arrayIndex); break;
 
             case STRUCT_SECTOR:
                 if (arrayIndexVar == g_thisActorVarID)
@@ -663,15 +645,31 @@ static int __fastcall Gv_GetArrayOrStruct(int gameVar, int spriteNum, int const 
                 CHECK_INDEX(MAXSECTORS);
 
                 returnValue = (SectorLabels[labelNum].offset != -1 && (SectorLabels[labelNum].flags & LABEL_READFUNC) == 0)
-                              ? VM_GetStruct(SectorLabels[labelNum].flags, (intptr_t *)((char *)&sector[arrayIndex] + SectorLabels[labelNum].offset))
+                              ? VM_GetStruct(SectorLabels[labelNum].flags, (intptr_t *)((intptr_t)&sector[arrayIndex] + SectorLabels[labelNum].offset))
                               : VM_GetSector(arrayIndex, labelNum);
                 break;
 
             case STRUCT_WALL:
                 CHECK_INDEX(MAXWALLS);
                 returnValue = (WallLabels[labelNum].offset != -1 && (WallLabels[labelNum].flags & LABEL_READFUNC) == 0)
-                              ? VM_GetStruct(WallLabels[labelNum].flags, (intptr_t *)((char *)&wall[arrayIndex] + WallLabels[labelNum].offset))
+                              ? VM_GetStruct(WallLabels[labelNum].flags, (intptr_t *)((intptr_t)&wall[arrayIndex] + WallLabels[labelNum].offset))
                               : VM_GetWall(arrayIndex, labelNum);
+                break;
+
+            case STRUCT_SPRITE:
+                CHECK_INDEX(MAXSPRITES);
+                arrayIndexVar = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
+                returnValue = VM_GetSprite(arrayIndex, labelNum, arrayIndexVar);
+                break;
+
+            case STRUCT_SPRITEEXT_INTERNAL__:
+                CHECK_INDEX(MAXSPRITES);
+                returnValue = VM_GetStruct(ActorLabels[labelNum].flags, (intptr_t *)((intptr_t)&spriteext[arrayIndex] + ActorLabels[labelNum].offset));
+                break;
+
+            case STRUCT_TSPR:
+                CHECK_INDEX(MAXSPRITES);
+                returnValue = VM_GetStruct(TsprLabels[labelNum].flags, (intptr_t *)((intptr_t)(spriteext[arrayIndex].tspr) + TsprLabels[labelNum].offset));
                 break;
 
             case STRUCT_PLAYER:
@@ -681,10 +679,6 @@ static int __fastcall Gv_GetArrayOrStruct(int gameVar, int spriteNum, int const 
                 arrayIndexVar = (EDUKE32_PREDICT_FALSE(PlayerLabels[labelNum].flags & LABEL_HASPARM2)) ? Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
                 returnValue = VM_GetPlayer(arrayIndex, labelNum, arrayIndexVar);
                 break;
-
-            // no THISACTOR check here because we convert those cases to setvarvar
-            case STRUCT_ACTORVAR: returnValue = Gv_GetVar(labelNum, arrayIndex, vm.playerNum); break;
-            case STRUCT_PLAYERVAR: returnValue = Gv_GetVar(labelNum, vm.spriteNum, arrayIndex); break;
 
             case STRUCT_THISPROJECTILE:
                 CHECK_INDEX(MAXSPRITES);
@@ -723,144 +717,109 @@ static int __fastcall Gv_GetArrayOrStruct(int gameVar, int spriteNum, int const 
                 break;
         }
     }
-    else if (gameVar & GV_FLAG_ARRAY)
+    else // if (gameVar & GV_FLAG_ARRAY)
     {
-        gameVar &= (MAXGAMEVARS-1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
-
         int const arrayIndex = Gv_GetVar(*insptr++, spriteNum, playerNum);
-        CHECK_INDEX(aGameArrays[gameVar].size);
-        returnValue = Gv_GetArrayValue(gameVar, arrayIndex);
+
+        CHECK_INDEX(aGameArrays[gv].size);
+        returnValue = Gv_GetArrayValue(gv, arrayIndex);
     }
 
     return returnValue;
 
 badindex:
-    CON_ERRPRINTF("Gv_GetArrayOrStruct(): invalid index %d for \"%s\"\n", spriteNum,
-                  (returnValue & GV_FLAG_ARRAY) ? aGameArrays[gameVar].szLabel : aGameVars[gameVar].szLabel);
+    CON_ERRPRINTF("Gv_GetArrayOrStruct(): invalid index %d for \"%s\"\n", returnValue,
+                  (gameVar & GV_FLAG_ARRAY) ? aGameArrays[gv].szLabel : aGameVars[gv].szLabel);
     return -1;
 }
 
-static FORCE_INLINE int __fastcall Gv_GetVar__(int &gameVar, int &spriteNum, int const &playerNum)
+static FORCE_INLINE int __fastcall getvar__(int const gameVar, int const spriteNum, int const playerNum)
 {
-    int returnValue = 0;
-
-    if (gameVar == g_thisActorVarID)
-        returnValue = spriteNum;
+    if (gameVar & (GV_FLAG_STRUCT|GV_FLAG_ARRAY))
+        return Gv_GetArrayOrStruct(gameVar, spriteNum, playerNum);
+    else if (gameVar == g_thisActorVarID)
+        return spriteNum;
     else if (gameVar == GV_FLAG_CONSTANT)
-        returnValue = *insptr++;
-    else if ((gameVar & ~GV_FLAG_NEGATIVE) >= g_gameVarCount)
-        returnValue = Gv_GetArrayOrStruct(gameVar, spriteNum, playerNum);
+        return *insptr++;
     else
     {
-        int const invertResult = !!(gameVar & GV_FLAG_NEGATIVE);
-        gamevar_t const &var = aGameVars[gameVar &= (MAXGAMEVARS-1)];
-        int const varFlags = var.flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK);
+        auto const &var = aGameVars[gameVar & (MAXGAMEVARS-1)];
 
-        if (varFlags == GAMEVAR_PERACTOR)
-        {
-            if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
-                goto badindex;
-            returnValue = var.pValues[spriteNum];
-        }
-        else if (!varFlags) returnValue = var.global;
+        int       returnValue  = 0;
+        int const varFlags     = var.flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
+        int const invertResult = !!(gameVar & GV_FLAG_NEGATIVE);
+
+        if (!varFlags) returnValue = var.global;
+        else if (varFlags == GAMEVAR_PERACTOR)
+            returnValue = var.pValues[spriteNum & (MAXSPRITES-1)];
         else if (varFlags == GAMEVAR_PERPLAYER)
-        {
-            if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= MAXPLAYERS))
-            {
-                spriteNum = playerNum;
-                goto badindex;
-            }
-            returnValue = var.pValues[playerNum];
-        }
+            returnValue = var.pValues[playerNum & (MAXPLAYERS-1)];
         else switch (varFlags & GAMEVAR_PTR_MASK)
         {
             case GAMEVAR_RAWQ16PTR:
             case GAMEVAR_INT32PTR: returnValue = *(int32_t *)var.global; break;
             case GAMEVAR_INT16PTR: returnValue = *(int16_t *)var.global; break;
-            case GAMEVAR_Q16PTR: returnValue = fix16_to_int(*(fix16_t *)var.global); break;
+            case GAMEVAR_Q16PTR:   returnValue = fix16_to_int(*(fix16_t *)var.global); break;
         }
 
         return (returnValue ^ -invertResult) + invertResult;
-
-    badindex:
-        CON_ERRPRINTF("Gv_GetVar(): invalid index %d for \"%s\"\n", spriteNum, var.szLabel);
     }
-
-    return returnValue;
 }
 
 #undef CHECK_INDEX
 
-int __fastcall Gv_GetVar(int gameVar, int spriteNum, int const playerNum) { return Gv_GetVar__(gameVar, spriteNum, playerNum); }
-int __fastcall Gv_GetVar(int gameVar) { return Gv_GetVar__(gameVar, vm.spriteNum, vm.playerNum); }
+int __fastcall Gv_GetVar(int const gameVar, int const spriteNum, int const playerNum) { return getvar__(gameVar, spriteNum, playerNum); }
+int __fastcall Gv_GetVar(int const gameVar) { return getvar__(gameVar, vm.spriteNum, vm.playerNum); }
 
 void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
 {
     for (native_t j = 0; j < numVars; ++j)
-    {
-        int gameVar = *insptr++;
-        outBuf[j] = Gv_GetVar__(gameVar, vm.spriteNum, vm.playerNum);
-    }
+        outBuf[j] = getvar__(*insptr++, vm.spriteNum, vm.playerNum);
 }
 
-static FORCE_INLINE void __fastcall Gv_SetVar__(int const &gameVar, int const &newValue, int const &spriteNum, int const &playerNum)
+static FORCE_INLINE void __fastcall setvar__(int const gameVar, int const newValue, int const spriteNum, int const playerNum)
 {
     gamevar_t &var = aGameVars[gameVar];
     int const varFlags = var.flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
 
     if (!varFlags) var.global=newValue;
     else if (varFlags == GAMEVAR_PERACTOR)
-    {
-        if (EDUKE32_PREDICT_FALSE((unsigned) spriteNum > MAXSPRITES-1)) goto badindex;
-        var.pValues[spriteNum] = newValue;
-    }
+        var.pValues[spriteNum & (MAXSPRITES-1)] = newValue;
     else if (varFlags == GAMEVAR_PERPLAYER)
-    {
-        if (EDUKE32_PREDICT_FALSE((unsigned) playerNum > MAXPLAYERS-1)) goto badindex;
-        var.pValues[playerNum] = newValue;
-    }
+        var.pValues[playerNum & (MAXPLAYERS-1)] = newValue;
     else switch (varFlags & GAMEVAR_PTR_MASK)
     {
         case GAMEVAR_RAWQ16PTR:
         case GAMEVAR_INT32PTR: *((int32_t *)var.global) = (int32_t)newValue; break;
         case GAMEVAR_INT16PTR: *((int16_t *)var.global) = (int16_t)newValue; break;
-        case GAMEVAR_Q16PTR: *(fix16_t *)var.global = fix16_from_int((int16_t)newValue);
-            break;
+        case GAMEVAR_Q16PTR:    *(fix16_t *)var.global  = fix16_from_int((int16_t)newValue); break;
     }
     return;
-
-badindex:
-    CON_ERRPRINTF("Gv_SetVar(): invalid index %s[%d] from sprite %d or player %d\n", var.szLabel,
-                  (var.flags & GAMEVAR_PERACTOR) ? spriteNum : playerNum, vm.spriteNum, vm.playerNum);
 }
 
-void __fastcall Gv_SetVar(int const gameVar, int const newValue) { Gv_SetVar__(gameVar, newValue, vm.spriteNum, vm.playerNum); }
+void __fastcall Gv_SetVar(int const gameVar, int const newValue) { setvar__(gameVar, newValue, vm.spriteNum, vm.playerNum); }
 void __fastcall Gv_SetVar(int const gameVar, int const newValue, int const spriteNum, int const playerNum)
 {
-    Gv_SetVar__(gameVar, newValue, spriteNum, playerNum);
+    setvar__(gameVar, newValue, spriteNum, playerNum);
 }
 
 int Gv_GetVarByLabel(const char *szGameLabel, int const defaultValue, int const spriteNum, int const playerNum)
 {
     int const gameVar = hash_find(&h_gamevars, szGameLabel);
-    return EDUKE32_PREDICT_FALSE(gameVar < 0) ? defaultValue : Gv_GetVar(gameVar, spriteNum, playerNum);
+    return EDUKE32_PREDICT_TRUE(gameVar >= 0) ? Gv_GetVar(gameVar, spriteNum, playerNum) : defaultValue;
 }
 
 static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 {
     int const gameVar = hash_find(&h_gamevars, szGameLabel);
 
-    if (EDUKE32_PREDICT_FALSE(gameVar < 0))
+    if (EDUKE32_PREDICT_FALSE((unsigned)gameVar >= MAXGAMEVARS))
         return NULL;
 
     gamevar_t &var = aGameVars[gameVar];
 
-    if (var.flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-    {
-        if (EDUKE32_PREDICT_FALSE(!var.pValues))
-            CON_ERRPRINTF("Gv_GetVarDataPtr(): INTERNAL ERROR: NULL array !!!\n");
+    if (var.flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))
         return var.pValues;
-    }
 
     return &(var.global);
 }
