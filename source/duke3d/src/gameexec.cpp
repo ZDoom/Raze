@@ -1268,15 +1268,15 @@ void Screen_Play(void)
     }
 
 #if defined __GNUC__ || defined __clang__
-# define CON_DIRECT_THREADING_DISPATCH
+# define CON_USE_COMPUTED_GOTO
 #endif
 
-#ifdef CON_DIRECT_THREADING_DISPATCH
+#ifdef CON_USE_COMPUTED_GOTO
 # define vInstruction(KEYWORDID) VINST_ ## KEYWORDID
 # define vmErrorCase VINST_CON_OPCODE_END
 # define eval(INSTRUCTION) { if ((unsigned)INSTRUCTION < CON_OPCODE_END) goto *jumpTable[INSTRUCTION]; else goto vmErrorCase; }
 # define dispatch_unconditionally(...) { tw = *insptr; g_errorLineNum = tw >> 12; g_tw = tw &= VM_INSTMASK; eval(tw) }
-# define dispatch(...) { if (loopcnt && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0) dispatch_unconditionally(__VA_ARGS__); return; }
+# define dispatch(...) { if (vm_execution_depth && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0) dispatch_unconditionally(__VA_ARGS__); return; }
 # define abort_after_error(...) return
 # define vInstructionPointer(KEYWORDID) &&VINST_ ## KEYWORDID
 # define COMMA ,
@@ -1302,9 +1302,9 @@ void Screen_Play(void)
 
 GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 {
-    native_t loopcnt = loop;
+    native_t vm_execution_depth = loop;
 
-#ifndef CON_DIRECT_THREADING_DISPATCH
+#ifndef CON_USE_COMPUTED_GOTO
     do
     {
 #else
@@ -1318,13 +1318,13 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
         {
             vInstruction(CON_LEFTBRACE):
             {
-                insptr++, loopcnt++;
+                insptr++, vm_execution_depth++;
                 dispatch_unconditionally();
             }
 
             vInstruction(CON_RIGHTBRACE):
             {
-                insptr++, loopcnt--;
+                insptr++, vm_execution_depth--;
                 dispatch();
             }
 
@@ -2552,7 +2552,7 @@ GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 
             vInstruction(CON_RETURN):
                 vm.flags |= VM_RETURN;
-#if !defined CON_DIRECT_THREADING_DISPATCH
+#if !defined CON_USE_COMPUTED_GOTO
                 fallthrough__;
 #endif
             vInstruction(CON_ENDSWITCH):
@@ -6213,13 +6213,10 @@ badindex:
                            "If you are a developer, please attach all of your script files\n"
                            "along with instructions on how to reproduce this error.\n\n"
                            "Thank you!");
-#ifndef CON_DIRECT_THREADING_DISPATCH
-                break;
-#endif
         }
-#ifndef CON_DIRECT_THREADING_DISPATCH
+#ifndef CON_USE_COMPUTED_GOTO
     }
-    while (loopcnt && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0);
+    while (vm_execution_depth && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0);
 #endif
 }
 
