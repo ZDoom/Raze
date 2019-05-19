@@ -5545,7 +5545,7 @@ badindex:
                         dispatch();
 
                     size_t const filelength  = kfilelength(kFile);
-                    size_t const numElements = Gv_GetArrayCountFromFile(arrayNum, filelength);
+                    size_t const numElements = Gv_GetArrayCountForAllocSize(arrayNum, filelength);
 
                     if (numElements > 0)
                     {

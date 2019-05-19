@@ -575,7 +575,7 @@ size_t __fastcall Gv_GetArrayAllocSize(int const arrayIdx)
     return Gv_GetArrayAllocSizeForCount(arrayIdx, aGameArrays[arrayIdx].size);
 }
 
-size_t __fastcall Gv_GetArrayCountFromFile(int const arrayIdx, size_t const filelength)
+size_t __fastcall Gv_GetArrayCountForAllocSize(int const arrayIdx, size_t const filelength)
 {
     if (aGameArrays[arrayIdx].flags & GAMEARRAY_BITMAP)
         return filelength << 3;
