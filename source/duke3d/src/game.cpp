@@ -7047,7 +7047,7 @@ void A_SpawnWallGlass(int spriteNum, int wallNum, int glassCnt)
 
     int16_t sect = -1;
 
-    for (bsize_t j = glassCnt; j > 0; --j)
+    for (int j = glassCnt; j > 0; --j)
     {
         v1.x += v.x;
         v1.y += v.y;
@@ -7088,7 +7088,7 @@ void A_SpawnCeilingGlass(int spriteNum, int sectNum, int glassCnt)
         vec2_t v  = { tabledivide32_noinline(wall[wallNum + 1].x - v1.x, glassCnt + 1),
                      tabledivide32_noinline(wall[wallNum + 1].y - v1.y, glassCnt + 1) };
 
-        for (bsize_t j = glassCnt; j > 0; j--)
+        for (int j = glassCnt; j > 0; j--)
         {
             v1.x += v.x;
             v1.y += v.y;
@@ -7117,7 +7117,7 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
                  tabledivide32_noinline(wall[wall[wallNum].point2].y - wall[wallNum].y, glassCnt + 1) };
     int16_t sectNum = sprite[spriteNum].sectnum;
 
-    for (bsize_t j = glassCnt; j > 0; j--)
+    for (int j = glassCnt; j > 0; j--)
     {
         v1.x += v.x;
         v1.y += v.y;

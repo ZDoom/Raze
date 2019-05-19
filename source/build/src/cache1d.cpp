@@ -817,7 +817,7 @@ int initgroupfile(const char *filename)
         }
 
         temp2 = 0;
-        for (uint8_t i=0;i<3;i++)
+        for (int i=0;i<3;i++)
         {
             // get the string length
             kread_grp(numgroupfiles, &temp, 1);
@@ -1430,7 +1430,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
             if ((name[0] == '.' && name[1] == 0) ||
                     (name[0] == '.' && name[1] == '.' && name[2] == 0))
                 continue;
-                
+
             bool const isdir = buildvfs_isdir(name);
             if ((type & CACHE1D_FIND_DIR) && !isdir) continue;
             if ((type & CACHE1D_FIND_FILE) && isdir) continue;
@@ -1657,7 +1657,7 @@ static void dfwrite_func(intptr_t fp, const void *inbuf, int32_t length)
 }
 
 
-int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_kfd fil)
+int32_t kdfread(void *buffer, int dasizeof, int count, buildvfs_kfd fil)
 {
     return klzw_read_compressed(buffer, dasizeof, count, (intptr_t)fil, kdfread_func);
 }
@@ -1669,7 +1669,7 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_kfd fil)
 static char compressedDataStackBuf[131072];
 int32_t lz4CompressionLevel = LZ4_COMPRESSION_ACCELERATION_VALUE;
 
-int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_kfd fil)
+int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil)
 {
     int32_t leng;
 
@@ -1696,21 +1696,21 @@ int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_kfd 
 }
 
 
-void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_FILE fil)
+void dfwrite(const void *buffer, int dasizeof, int count, buildvfs_FILE fil)
 {
     klzw_write_compressed(buffer, dasizeof, count, (intptr_t)fil, dfwrite_func);
 }
 
-void dfwrite_LZ4(const void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_FILE fil)
+void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil)
 {
-    char *        pCompressedData   = compressedDataStackBuf;
-    int32_t const maxCompressedSize = LZ4_compressBound(dasizeof * count);
+    char *    pCompressedData   = compressedDataStackBuf;
+    int const maxCompressedSize = LZ4_compressBound(dasizeof * count);
 
     if (maxCompressedSize > ARRAY_SSIZE(compressedDataStackBuf))
         pCompressedData = (char *)Xaligned_alloc(16, maxCompressedSize);
 
-    int32_t const leng = LZ4_compress_fast((const char*) buffer, pCompressedData, dasizeof*count, maxCompressedSize, lz4CompressionLevel);
-    int32_t const swleng = B_LITTLE32(leng);
+    int const leng = LZ4_compress_fast((const char*) buffer, pCompressedData, dasizeof*count, maxCompressedSize, lz4CompressionLevel);
+    int const swleng = B_LITTLE32(leng);
 
     buildvfs_fwrite(&swleng, sizeof(swleng), 1, fil);
     buildvfs_fwrite(pCompressedData, leng, 1, fil);

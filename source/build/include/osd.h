@@ -176,7 +176,7 @@ typedef struct
 
     uint32_t   flags;  // controls initialization, etc
     osdcvar_t *cvars;
-    uint32_t   numcvars;
+    int32_t    numcvars;
 
     osdsymbol_t *symbols;
     osdsymbol_t *symbptrs[OSDMAXSYMBOLS];

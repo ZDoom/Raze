@@ -1039,7 +1039,7 @@ void G_OperateActivators(int lotag, int playerNum)
             sector[pCycler[0]].ceilingshade = pCycler[3];
             walltype *pWall                 = &wall[sector[pCycler[0]].wallptr];
 
-            for (bsize_t j = sector[pCycler[0]].wallnum; j > 0; j--, pWall++)
+            for (int j = sector[pCycler[0]].wallnum; j > 0; j--, pWall++)
                 pWall->shade = pCycler[3];
         }
     }

@@ -213,10 +213,10 @@ struct decompress_info
 {
     klzw_readfunc readfunc;
     intptr_t f;
-    uint32_t kgoal;
+    int32_t kgoal;
 };
 
-static uint32_t decompress_part(struct decompress_info * x)
+static int decompress_part(struct decompress_info * x)
 {
     intptr_t const f = x->f;
     auto readfunc = x->readfunc;
@@ -236,7 +236,7 @@ static uint32_t decompress_part(struct decompress_info * x)
 }
 
 // Read from 'f' into 'buffer'.
-int32_t klzw_read_compressed(void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f, klzw_readfunc readfunc)
+int32_t klzw_read_compressed(void *buffer, int dasizeof, int count, intptr_t const f, klzw_readfunc readfunc)
 {
     char *ptr = (char *)buffer;
 
@@ -255,9 +255,7 @@ int32_t klzw_read_compressed(void *buffer, bsize_t dasizeof, bsize_t count, intp
 
     Bmemcpy(ptr, lzwrawbuf, (int32_t)dasizeof);
 
-    uint32_t k = (int32_t)dasizeof;
-
-    for (uint32_t i=1; i<count; i++)
+    for (int i=1, k=dasizeof; i<count; i++)
     {
         if (k >= x.kgoal)
         {
@@ -265,7 +263,7 @@ int32_t klzw_read_compressed(void *buffer, bsize_t dasizeof, bsize_t count, intp
             if (k) return -1;
         }
 
-        uint32_t j = 0;
+        int j = 0;
 
         if (dasizeof >= 4)
         {
@@ -295,7 +293,7 @@ struct compress_info
 {
     klzw_writefunc writefunc;
     intptr_t f;
-    uint32_t k;
+    int32_t k;
 };
 
 static void compress_part(struct compress_info * x)
@@ -313,7 +311,7 @@ static void compress_part(struct compress_info * x)
 }
 
 // Write from 'buffer' to 'f'.
-void klzw_write_compressed(const void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f, klzw_writefunc writefunc)
+void klzw_write_compressed(const void * const buffer, int dasizeof, int count, intptr_t const f, klzw_writefunc writefunc)
 {
     char const *ptr = (char const *)buffer;
 
@@ -332,9 +330,9 @@ void klzw_write_compressed(const void *buffer, bsize_t dasizeof, bsize_t count, 
     if ((x.k = dasizeof) > LZWSIZE-dasizeof)
         compress_part(&x);
 
-    for (uint32_t i=1; i<count; i++)
+    for (int i=1; i<count; i++)
     {
-        uint32_t j = 0;
+        int j = 0;
 
         if (dasizeof >= 4)
         {

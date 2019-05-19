@@ -3,7 +3,7 @@
 #include "compat.h"
 #include "crc32.h"
 
-uint32_t Bcrc32(const void* data, size_t length, uint32_t crc)
+uint32_t Bcrc32(const void* data, int length, uint32_t crc)
 {
     const uint32_t* current = (const uint32_t*) data;
     uint8_t const * currentChar;

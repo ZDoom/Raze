@@ -547,21 +547,21 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
                                 const size_t field = value - entry;
                                 value += 1;
 
-                                for (size_t t = 0; t < loopStartTagCount && vc_loopstart == NULL; ++t)
+                                for (int t = 0; t < loopStartTagCount && vc_loopstart == NULL; ++t)
                                 {
                                     char const * const tag = loopStartTags[t];
                                     if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                                         vc_loopstart = Xstrdup(value);
                                 }
 
-                                for (size_t t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
+                                for (int t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
                                 {
                                     char const * const tag = loopEndTags[t];
                                     if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                                         vc_loopend = Xstrdup(value);
                                 }
 
-                                for (size_t t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
+                                for (int t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
                                 {
                                     char const * const tag = loopLengthTags[t];
                                     if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)

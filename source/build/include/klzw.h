@@ -20,8 +20,8 @@ extern "C" {
 typedef int32_t (*klzw_readfunc)(intptr_t, void *, int32_t);
 typedef void (*klzw_writefunc)(intptr_t, void const *, int32_t);
 
-int32_t klzw_read_compressed(void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f, klzw_readfunc readfunc);
-void klzw_write_compressed(const void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f, klzw_writefunc writefunc);
+int32_t klzw_read_compressed(void *buffer, int dasizeof, int count, intptr_t const f, klzw_readfunc readfunc);
+void klzw_write_compressed(const void * const buffer, int dasizeof, int count, intptr_t const f, klzw_writefunc writefunc);
 
 #ifdef __cplusplus
 }

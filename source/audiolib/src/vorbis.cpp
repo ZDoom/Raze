@@ -78,21 +78,21 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
             const size_t field = value - entry;
             value += 1;
 
-            for (size_t t = 0; t < loopStartTagCount && vc_loopstart == NULL; ++t)
+            for (int t = 0; t < loopStartTagCount && vc_loopstart == NULL; ++t)
             {
                 auto tag = loopStartTags[t];
                 if (field == Bstrlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                     vc_loopstart = value;
             }
 
-            for (size_t t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
+            for (int t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
             {
                 auto tag = loopEndTags[t];
                 if (field == Bstrlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                     vc_loopend = value;
             }
 
-            for (size_t t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
+            for (int t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
             {
                 auto tag = loopLengthTags[t];
                 if (field == Bstrlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
@@ -141,14 +141,14 @@ static size_t read_vorbis(void *ptr, size_t size, size_t nmemb, void *datasource
     if (vorb->length == vorb->pos)
         return 0;
 
-    size_t nread = 0;
+    int32_t nread = 0;
 
     for (; nmemb > 0; nmemb--, nread++)
     {
-        size_t bytes = vorb->length - vorb->pos;
+        int32_t bytes = vorb->length - vorb->pos;
 
-        if (size < bytes)
-            bytes = size;
+        if ((signed)size < bytes)
+            bytes = (int32_t)size;
 
         memcpy(ptr, (uint8_t *)vorb->ptr + vorb->pos, bytes);
         vorb->pos += bytes;

@@ -1112,7 +1112,7 @@ void G_PrintGameQuotes(int32_t snum)
     if (k > 1 && !reserved_quote)
         y += k <= 8 ? (height * (k-1))>>3 : height;
 
-    for (size_t i = MAXUSERQUOTES-1; i < MAXUSERQUOTES; --i)
+    for (int i = 0; i < MAXUSERQUOTES; i++)
     {
         k = user_quote_time[i];
 

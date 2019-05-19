@@ -149,17 +149,13 @@ typedef struct _CACHE1D_FIND_REC {
 } CACHE1D_FIND_REC;
 int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, int32_t source);
 void klistfree(CACHE1D_FIND_REC *rec);
-CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int32_t type);
+CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
 
 extern int32_t lz4CompressionLevel;
-int32_t	kdfread(void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_kfd fil);
-int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_kfd fil);
-#if 0
-int32_t	dfread(void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_FILE fil);
-void	kdfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_kfd fil);
-#endif
-void	dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_FILE fil);
-void    dfwrite_LZ4(const void *buffer, bsize_t dasizeof, bsize_t count, buildvfs_FILE fil);
+int32_t     kdfread(void *buffer, int dasizeof, int count, buildvfs_kfd fil);
+int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil);
+void     dfwrite(const void *buffer, int dasizeof, int count, buildvfs_FILE fil);
+void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil);
 
 #ifdef __cplusplus
 }

@@ -207,8 +207,8 @@ void Anim_Init(void)
         if (anm.numsounds)
         {
             anim->sounds = (animsound_t *)Xmalloc(anm.numsounds * sizeof(animsound_t));
-            size_t const numsounds = anm.numsounds;
-            for (size_t i = 0; i < numsounds; ++i)
+            int const numsounds = anm.numsounds;
+            for (int i = 0; i < numsounds; ++i)
             {
                 defaultanmsound const & src = anm.sounds[i];
                 animsound_t & dst = anim->sounds[i];

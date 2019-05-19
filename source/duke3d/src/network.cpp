@@ -2281,7 +2281,7 @@ static void Net_ReceiveServerUpdate(ENetEvent *event)
 
     ticrandomseed = serverupdate.seed;
 
-    for (uint32_t playerIndex = 0; playerIndex < serverupdate.numplayers; ++playerIndex)
+    for (int playerIndex = 0; playerIndex < serverupdate.numplayers; ++playerIndex)
     {
         Bmemcpy(&playerupdate, updatebuf, sizeof(serverplayerupdate_t));
         updatebuf += sizeof(serverplayerupdate_t);

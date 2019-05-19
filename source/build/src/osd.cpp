@@ -528,7 +528,7 @@ static int osdfunc_listsymbols(osdcmdptr_t parm)
 
             int const var = hash_find(&h_cvars, symb->name);
 
-            if ((unsigned)var < osd->numcvars && OSD_CvarModified(&osd->cvars[var]))
+            if ((unsigned)var < OSDMAXSYMBOLS && OSD_CvarModified(&osd->cvars[var]))
             {
                 OSD_Printf("%s*", osd->draw.highlight);
                 OSD_Printf("%-*s", maxwidth-1, symb->name);
@@ -2203,7 +2203,7 @@ void OSD_WriteCvars(buildvfs_FILE fp)
 
     char buf[64];
 
-    for (unsigned i = 0; i < osd->numcvars; i++)
+    for (int i = 0; i < osd->numcvars; i++)
     {
         osdcvardata_t const &pData = *osd->cvars[i].pData;
 

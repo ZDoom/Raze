@@ -77,7 +77,7 @@ int videoCaptureScreen(const char *filename, char inverseit)
 
         if (inverseit)
         {
-            for (bsize_t i=0, j = ydim * bytesPerLine; i<j; i+=3)
+            for (int i=0, j = ydim * bytesPerLine; i<j; i+=3)
                 swapchar(&imgBuf[i], &imgBuf[i+2]);
         }
 

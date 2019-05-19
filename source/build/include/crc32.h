@@ -15,7 +15,7 @@ extern uint32_t crc32table[8][256];
 extern uint32_t crc32table[4][256];
 #endif
 
-extern uint32_t Bcrc32(const void* data, size_t length, uint32_t crc);
+extern uint32_t Bcrc32(const void* data, int length, uint32_t crc);
 extern void initcrc32table(void);
 
 #ifdef __cplusplus

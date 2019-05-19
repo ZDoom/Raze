@@ -1632,7 +1632,7 @@ ACTOR_STATIC void G_MoveFallers(void)
                 if ((sector[sectNum].floorz-pSprite->z) < ZOFFSET2)
                 {
 #ifndef EDUKE32_STANDALONE
-                    for (size_t x = 0, x_end = 1+(krand()&7); x < x_end; ++x)
+                    for (int x = 0, x_end = 1+(krand()&7); x < x_end; ++x)
                         RANDOMSCRAP(pSprite, spriteNum);
 #endif
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
@@ -2136,7 +2136,7 @@ crack_default:
             if (A_IncurDamage(spriteNum) < 0)
                 goto next_sprite;
 
-            for (bsize_t k=0; k<16; k++)
+            for (int k=0; k<16; k++)
             {
                 j = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (krand() % (48 << 8)),
                                    SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64,
@@ -2265,7 +2265,7 @@ DETONATE:
 
 #ifndef EDUKE32_STANDALONE
                     if (pSprite->xrepeat)
-                        for (bsize_t x=0; x<8; x++)
+                        for (int x=0; x<8; x++)
                             RANDOMSCRAP(pSprite, spriteNum);
 #endif
 
@@ -5240,7 +5240,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     pSprite->yrepeat   = forceRepeat;
                     pSprite->shade     = (forceRepeat >> 1) - 48;
 
-                    for (bsize_t j = pData[0]; j > 0; j--)
+                    for (int j = pData[0]; j > 0; j--)
                         A_SetSprite(spriteNum, CLIPMASK0);
                     goto next_sprite;
                 }
@@ -6602,7 +6602,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         walltype *pWall = &wall[sector[sectNum].wallptr];
 
-                        for (bsize_t l=sector[sectNum].wallnum; l>0; l--, pWall++)
+                        for (int l=sector[sectNum].wallnum; l>0; l--, pWall++)
                         {
                             if (pWall->hitag == 1)
                                 continue;
@@ -8109,7 +8109,7 @@ static void A_DoLight(int spriteNum)
             return;
 
 #ifndef EDUKE32_STANDALONE
-        for (bsize_t ii=0; ii<2; ii++)
+        for (int ii=0; ii<2; ii++)
         {
             if (pSprite->picnum <= 0)  // oob safety
                 break;

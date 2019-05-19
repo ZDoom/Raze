@@ -99,11 +99,11 @@ enable_if_t<is_integral<T>::value, size_t> buildprintpiece(binwrap<T> x)
 {
     make_unsigned_t<T> const data = x.data;
 
-    size_t constexpr numChars = sizeof(x)*CHAR_BIT;
+    int constexpr numChars = sizeof(x)*CHAR_BIT;
     char str[numChars+1];
     str[numChars] = '\0';
 
-    for (size_t p = 0; p < numChars; ++p)
+    for (int p = 0; p < numChars; ++p)
         str[numChars - 1 - p] = '0' + (char)((data >> p) & 1);
 
     initputs(str);
@@ -115,11 +115,11 @@ enable_if_t<is_integral<T>::value, size_t> buildprintpiece(octwrap<T> x)
 {
     make_unsigned_t<T> const data = x.data;
 
-    size_t constexpr numChars = (sizeof(x)*CHAR_BIT + 2) / 3;
+    int constexpr numChars = (sizeof(x)*CHAR_BIT + 2) / 3;
     char str[numChars+1];
     str[numChars] = '\0';
 
-    for (size_t p = 0; p < numChars; ++p)
+    for (int p = 0; p < numChars; ++p)
         str[numChars - 1 - p] = '0' + (char)((data >> (p*3)) & 7);
 
     initputs(str);
@@ -133,12 +133,12 @@ enable_if_t<is_integral<T>::value, size_t> buildprintpiece(hexwrap<T> x)
 
     make_unsigned_t<T> const data = x.data;
 
-    size_t constexpr numChars = (sizeof(x)*CHAR_BIT + 3) / 4;
+    int constexpr numChars = (sizeof(x)*CHAR_BIT + 3) >> 2;
     char str[numChars+1];
     str[numChars] = '\0';
 
-    for (size_t p = 0; p < numChars; ++p)
-        str[numChars - 1 - p] = hexletters[(size_t)((data >> (p*4)) & 0xF)];
+    for (int p = 0; p < numChars; ++p)
+        str[numChars - 1 - p] = hexletters[(int)((data >> (p<<2)) & 0xF)];
 
     initputs(str);
     return numChars;
@@ -151,12 +151,12 @@ enable_if_t<is_integral<T>::value, size_t> buildprintpiece(HEXwrap<T> x)
 
     make_unsigned_t<T> const data = x.data;
 
-    size_t constexpr numChars = (sizeof(x)*CHAR_BIT + 3) / 4;
+    int constexpr numChars = (sizeof(x)*CHAR_BIT + 3) >> 2;
     char str[numChars+1];
     str[numChars] = '\0';
 
-    for (size_t p = 0; p < numChars; ++p)
-        str[numChars - 1 - p] = HEXletters[(size_t)((data >> (p*4)) & 0xF)];
+    for (int p = 0; p < numChars; ++p)
+        str[numChars - 1 - p] = HEXletters[(int)((data >> (p<<2)) & 0xF)];
 
     initputs(str);
     return numChars;
