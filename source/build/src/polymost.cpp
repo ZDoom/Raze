@@ -1368,7 +1368,7 @@ static void resizeglcheck(void)
         m[0][0] = 1.f;
         m[1][1] = fxdimen / (fydimen * ratio);
         m[2][0] = 2.f * ghoriz2 * gstang / fxdimen;
-        m[2][1] = 2.f * (ghoriz2 * gctang + ghorizcorrect) / fydimen;
+        m[2][1] = 2.f * (ghoriz2 * gctang + ghorizcorrect) / (fydimen * ratio);
         m[2][2] = (farclip + nearclip) / (farclip - nearclip);
         m[2][3] = 1.f;
         m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
@@ -5431,15 +5431,18 @@ void polymost_drawrooms()
     //global cos/sin height angle
     if (r_yshearing)
     {
-        gshang = 0.f;
-        gchang = 1.f;
-        ghoriz2 = (float)(ydimen>>1)-ghoriz-ghorizcorrect;
+        gshang  = 0.f;
+        gchang  = 1.f;
+        ghoriz2 = (float)(ydimen >> 1) - ghoriz - ghorizcorrect;
     }
     else
     {
-        float r = (float)(ydimen>>1) - (ghoriz + ghorizcorrect);
-    gshang = r/Bsqrtf(r*r+ghalfx*ghalfx);
-    gchang = Bsqrtf(1.f-gshang*gshang);
+        float r = (float)(ydimen >> 1) - ghoriz - ghorizcorrect;
+        gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx);
+        gchang  = Bsqrtf(1.f - gshang * gshang);
+        ghoriz2 = 0.f;
+    }
+
         ghoriz2 = 0.f;
     }
     ghoriz = (float)(ydimen>>1);
