@@ -82,7 +82,6 @@ extern int32_t ticrandomseed;
 extern vmstate_t vm;
 #if !defined LUNATIC
 extern int32_t g_tw;
-extern int32_t g_errorLineNum;
 extern int32_t g_currentEvent;
 
 void A_LoadActor(int const spriteNum);
@@ -117,13 +116,13 @@ void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int3
 
 #define CON_ERRPRINTF(Text, ...) do { \
     vm.flags |= VM_RETURN; \
-    OSD_Printf("Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
+    OSD_Printf("Line %d, %s: " Text, VM_DECODE_LINE_NUMBER(g_tw), VM_GetKeywordForID(VM_DECODE_INST(g_tw)), ## __VA_ARGS__); \
 } while (0)
 
 #define CON_CRITICALERRPRINTF(Text, ...) do { \
     vm.flags |= VM_RETURN; \
-    OSD_Printf("Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
-    wm_msgbox(APPNAME, "Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
+    OSD_Printf("Line %d, %s: " Text, VM_DECODE_LINE_NUMBER(g_tw), VM_GetKeywordForID(VM_DECODE_INST(g_tw)), ## __VA_ARGS__); \
+    wm_msgbox(APPNAME, "Line %d, %s: " Text, VM_DECODE_LINE_NUMBER(g_tw), VM_GetKeywordForID(VM_DECODE_INST(g_tw)), ## __VA_ARGS__); \
 } while (0)
 
 void G_GetTimeDate(int32_t * pValues);

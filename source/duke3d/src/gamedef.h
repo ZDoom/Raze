@@ -57,8 +57,11 @@ enum
 #define LABEL_READFUNC 64
 #define LABEL_WRITEFUNC 128
 
+// "magic" number for { and }, overrides line number in compiled code for later detection
+#define VM_IFELSE_MAGIC 31337
 #define VM_INSTMASK 0xfff
-
+#define VM_DECODE_INST(xxx) ((int)((xxx) & VM_INSTMASK))
+#define VM_DECODE_LINE_NUMBER(xxx) ((int)((xxx) >> 12))
 #define C_CUSTOMERROR(Text, ...)                                                               \
     do                                                                                         \
     {                                                                                          \

@@ -165,7 +165,7 @@ void G_OpenDemoWrite(void)
         for (i=1; i<g_scriptSize-2; i++)
         {
             intptr_t w=apScript[i];
-            if ((w&0x0fff)==CON_RESIZEARRAY && (w>>12) && apScript[i+1]>=0 && apScript[i+1]<g_gameArrayCount)
+            if (VM_DECODE_INST(w)==CON_RESIZEARRAY && VM_DECODE_LINE_NUMBER(w) && apScript[i+1]>=0 && apScript[i+1]<g_gameArrayCount)
             {
                 OSD_Printf("\nThe CON code possibly contains a RESIZEARRAY command.\n");
                 OSD_Printf("Gamearrays that change their size during the game are unsupported by\n");

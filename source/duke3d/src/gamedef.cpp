@@ -999,9 +999,6 @@ hashtable_t h_arrays   = { MAXGAMEARRAYS >> 1, NULL };
 hashtable_t h_gamevars = { MAXGAMEVARS >> 1, NULL };
 hashtable_t h_labels   = { 11264 >> 1, NULL };
 
-// "magic" number for { and }, overrides line number in compiled code for later detection
-#define IFELSE_MAGIC 31337
-
 static void C_SetScriptSize(int32_t newsize)
 {
     for (int i = 0; i < g_scriptSize - 1; ++i)
@@ -1270,7 +1267,7 @@ static int C_GetNextKeyword(void) //Returns its code #
     if (EDUKE32_PREDICT_TRUE((i = hash_find(&h_keywords,tempbuf)) >= 0))
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
-            scriptWriteValue(i | (IFELSE_MAGIC<<12));
+            scriptWriteValue(i | (VM_IFELSE_MAGIC<<12));
         else scriptWriteValue(i | LINE_NUMBER);
 
         textptr += l;
@@ -1843,7 +1840,7 @@ static bool C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
         return false;
     }
 
-    if ((*(g_scriptPtr) & VM_INSTMASK) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
+    if ((*(g_scriptPtr) & VM_INSTMASK) != CON_NULLOP || *(g_scriptPtr)>>12 != VM_IFELSE_MAGIC)
         g_skipBranch = false;
 
     if (EDUKE32_PREDICT_FALSE(g_skipBranch))
@@ -1853,7 +1850,7 @@ static bool C_CheckEmptyBranch(int tw, intptr_t lastScriptPtr)
         g_scriptPtr = lastScriptPtr + apScript;
         initprintf("%s:%d: warning: empty `%s' branch\n",g_scriptFileName,g_lineNumber,
                    VM_GetKeywordForID(*(g_scriptPtr) & VM_INSTMASK));
-        scriptWriteAtOffset(CON_NULLOP | (IFELSE_MAGIC<<12), g_scriptPtr);
+        scriptWriteAtOffset(CON_NULLOP | (VM_IFELSE_MAGIC<<12), g_scriptPtr);
         return true;
     }
 
@@ -5011,11 +5008,11 @@ repeatcase:
         case CON_RIGHTBRACE:
             g_numBraces--;
 
-            if ((g_scriptPtr[-2]>>12) == (IFELSE_MAGIC) &&
+            if ((g_scriptPtr[-2]>>12) == (VM_IFELSE_MAGIC) &&
                 ((g_scriptPtr[-2] & VM_INSTMASK) == CON_LEFTBRACE)) // rewrite "{ }" into "nullop"
             {
                 //            initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop' from right\n",g_szScriptFileName,g_lineNumber);
-                g_scriptPtr[-2] = CON_NULLOP | (IFELSE_MAGIC<<12);
+                g_scriptPtr[-2] = CON_NULLOP | (VM_IFELSE_MAGIC<<12);
                 g_scriptPtr -= 2;
 
                 if (C_GetKeyword() != CON_ELSE && (g_scriptPtr[-2] & VM_INSTMASK) != CON_ELSE)
