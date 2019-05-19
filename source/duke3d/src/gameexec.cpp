@@ -5261,60 +5261,41 @@ badindex:
                     // that is of <type> into <getvar>
                     // -1 for none found
                     // <type> <maxdistvarid> <varid>
-                    int const findPicnum = *insptr++;
-                    int const maxDist    = Gv_GetVarX(*insptr++);
-                    int const returnVar  = *insptr++;
+                    bool const actorsOnly   = (tw == CON_FINDNEARACTOR || tw == CON_FINDNEARACTOR3D);
+                    auto const dist_funcptr = (tw == CON_FINDNEARACTOR || tw == CON_FINDNEARSPRITE) ? &ldist : &dist;
 
+                    int const findTile  = *insptr++;
+                    int       maxDist   = Gv_GetVarX(*insptr++);
+                    int const returnVar = *insptr++;
+
+                    int findStatnum = actorsOnly ? STAT_ACTOR : MAXSTATUS - 1;
                     int foundSprite = -1;
-                    int findStatnum = STAT_ACTOR;
-                    int spriteNum;
-
-                    if (tw == CON_FINDNEARSPRITE || tw == CON_FINDNEARSPRITE3D)
-                        findStatnum = MAXSTATUS - 1;
-
-                    if (tw == CON_FINDNEARACTOR3D || tw == CON_FINDNEARSPRITE3D)
-                    {
-                        do
-                        {
-                            spriteNum = headspritestat[findStatnum];  // all sprites
-
-                            while (spriteNum >= 0)
-                            {
-                                if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum
-                                    && dist(vm.pSprite, &sprite[spriteNum]) < maxDist)
-                                {
-                                    foundSprite = spriteNum;
-                                    spriteNum   = MAXSPRITES;
-                                    break;
-                                }
-                                spriteNum = nextspritestat[spriteNum];
-                            }
-                            if (spriteNum == MAXSPRITES || tw == CON_FINDNEARACTOR3D)
-                                break;
-                        } while (findStatnum--);
-                        Gv_SetVarX(returnVar, foundSprite);
-                        dispatch();
-                    }
 
                     do
                     {
-                        spriteNum = headspritestat[findStatnum];  // all sprites
+                        int spriteNum = headspritestat[findStatnum];  // all sprites
 
-                        while (spriteNum >= 0)
+                        while ((unsigned)spriteNum < MAXSPRITES)
                         {
-                            if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum
-                                && ldist(vm.pSprite, &sprite[spriteNum]) < maxDist)
+                            if (sprite[spriteNum].picnum == findTile && spriteNum != vm.spriteNum)
                             {
-                                foundSprite = spriteNum;
-                                spriteNum   = MAXSPRITES;
-                                break;
+                                int const foundDist = dist_funcptr(vm.pSprite, &sprite[spriteNum]);
+
+                                if (foundDist < maxDist)
+                                {
+                                    maxDist     = foundDist;
+                                    foundSprite = spriteNum;
+                                }
                             }
+
                             spriteNum = nextspritestat[spriteNum];
                         }
 
-                        if (spriteNum == MAXSPRITES || tw == CON_FINDNEARACTOR)
+                        if (actorsOnly)
                             break;
-                    } while (findStatnum--);
+                    }
+                    while (findStatnum--);
+
                     Gv_SetVarX(returnVar, foundSprite);
                     dispatch();
                 }
@@ -5328,42 +5309,42 @@ badindex:
                     // that is of <type> into <getvar>
                     // -1 for none found
                     // <type> <maxdistvarid> <varid>
-                    int const findPicnum = *insptr++;
-                    int const maxDist    = Gv_GetVarX(*insptr++);
-                    int const maxZDist   = Gv_GetVarX(*insptr++);
-                    int const returnVar  = *insptr++;
+                    bool const actorsOnly = (tw == CON_FINDNEARACTORZ);
 
+                    int const findTile  = *insptr++;
+                    int       maxDist   = Gv_GetVarX(*insptr++);
+                    int const maxZDist  = Gv_GetVarX(*insptr++);
+                    int const returnVar = *insptr++;
+
+                    int findStatnum = actorsOnly ? STAT_ACTOR : MAXSTATUS - 1;
                     int foundSprite = -1;
-                    int findStatnum = MAXSTATUS - 1;
 
                     do
                     {
-                        int spriteNum = headspritestat[tw == CON_FINDNEARACTORZ ? STAT_ACTOR : findStatnum];  // all sprites
+                        int spriteNum = headspritestat[findStatnum];  // all sprites
 
-                        if (spriteNum == -1)
-                            continue;
-                        do
+                        while ((unsigned)spriteNum < MAXSPRITES)
                         {
-                            if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum)
+                            if (sprite[spriteNum].picnum == findTile && spriteNum != vm.spriteNum)
                             {
-                                if (ldist(vm.pSprite, &sprite[spriteNum]) < maxDist)
+                                int const foundDist = ldist(vm.pSprite, &sprite[spriteNum]);
+
+                                if (foundDist < maxDist && klabs(vm.pSprite->z - sprite[spriteNum].z) < maxZDist)
                                 {
-                                    if (klabs(vm.pSprite->z - sprite[spriteNum].z) < maxZDist)
-                                    {
-                                        foundSprite = spriteNum;
-                                        spriteNum   = MAXSPRITES;
-                                        break;
-                                    }
+                                    maxDist     = foundDist;
+                                    foundSprite = spriteNum;
                                 }
                             }
+
                             spriteNum = nextspritestat[spriteNum];
-                        } while (spriteNum >= 0);
+                        }
 
-                        if (tw == CON_FINDNEARACTORZ || spriteNum == MAXSPRITES)
+                        if (actorsOnly)
                             break;
-                    } while (findStatnum--);
-                    Gv_SetVarX(returnVar, foundSprite);
+                    }
+                    while (findStatnum--);
 
+                    Gv_SetVarX(returnVar, foundSprite);
                     dispatch();
                 }
 
