@@ -1307,19 +1307,16 @@ static FORCE_INLINE void *xaligned_alloc(const bsize_t alignment, const bsize_t 
 #endif
 
 #ifdef DEBUGGINGAIDS
-# define EDUKE32_PRE_XALLLOC xalloc_set_location(__LINE__, __FILE__, EDUKE32_FUNCTION)
-# define Xstrdup(s) (EDUKE32_PRE_XALLLOC, xstrdup(s))
-# define Xmalloc(size) (EDUKE32_PRE_XALLLOC, xmalloc(size))
-# define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLLOC, xcalloc(nmemb, size))
-# define Xrealloc(ptr, size) (EDUKE32_PRE_XALLLOC, xrealloc(ptr, size))
-# define Xaligned_alloc(alignment, size) (EDUKE32_PRE_XALLLOC, xaligned_alloc(alignment, size))
+# define EDUKE32_PRE_XALLOC xalloc_set_location(__LINE__, __FILE__, EDUKE32_FUNCTION),
 #else
-# define Xstrdup xstrdup
-# define Xmalloc xmalloc
-# define Xcalloc xcalloc
-# define Xrealloc xrealloc
-# define Xaligned_alloc xaligned_alloc
+# define EDUKE32_PRE_XALLOC
 #endif
+
+#define Xstrdup(s)    (EDUKE32_PRE_XALLOC xstrdup(s))
+#define Xmalloc(size) (EDUKE32_PRE_XALLOC xmalloc(size))
+#define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLOC xcalloc(nmemb, size))
+#define Xrealloc(ptr, size)  (EDUKE32_PRE_XALLOC xrealloc(ptr, size))
+#define Xaligned_alloc(alignment, size) (EDUKE32_PRE_XALLOC xaligned_alloc(alignment, size))
 
 #ifdef __cplusplus
 }
