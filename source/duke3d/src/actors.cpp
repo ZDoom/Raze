@@ -389,7 +389,10 @@ static int32_t A_CheckNeedZUpdate(int32_t spriteNum, int32_t zChange, int32_t *p
 
     *pZcoord = newZ;
 
-    A_GetZLimits(spriteNum);
+    int32_t    ceilhit, florhit;
+    int const clipDist = A_GetClipdist(spriteNum, -1);
+
+    VM_GetZRange(spriteNum, &ceilhit, &florhit, pSprite->statnum == STAT_PROJECTILE ? clipDist << 3 : clipDist);
 
     if (newZ > actor[spriteNum].ceilingz && newZ <= actor[spriteNum].floorz)
         return 1;
@@ -2857,6 +2860,8 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
             if (pProj->workslike & PROJECTILE_SPIT && pSprite->zvel < 6144)
                 pSprite->zvel += g_spriteGravity - 112;
 
+            A_GetZLimits(spriteNum);
+
             if (pProj->trail >= 0)
             {
                 for (bssize_t cnt = 0; cnt <= pProj->tnum; cnt++)
@@ -3130,6 +3135,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 }
 
                 vec3_t davect = *(vec3_t *) pSprite;
+
+                A_GetZLimits(spriteNum);
 
                 if (pSprite->picnum == RPG && actor[spriteNum].picnum != BOSS2 && pSprite->xrepeat >= 10
                     && sector[pSprite->sectnum].lotag != ST_2_UNDERWATER

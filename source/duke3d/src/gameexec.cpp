@@ -380,7 +380,7 @@ int A_FurthestVisiblePoint(int const spriteNum, uspriteptr_t const ts, vec2_t * 
     return -1;
 }
 
-static void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist)
+void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist)
 {
     auto const pSprite = &sprite[spriteNum];
     int const          ocstat  = pSprite->cstat;
@@ -415,7 +415,7 @@ void A_GetZLimits(int const spriteNum)
         {
             actor[spriteNum].flags |= SFLAG_NOFLOORSHADOW;  // No shadows on actors
             pSprite->xvel = -256;  // SLIDE_ABOVE_ENEMY
-            A_SetSpriteNoZ(spriteNum, CLIPMASK0);
+            A_SetSprite(spriteNum, CLIPMASK0);
         }
         else if (pSprite->statnum == STAT_PROJECTILE && hitspr->picnum == APLAYER && pSprite->owner==florhit)
         {

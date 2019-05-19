@@ -137,6 +137,7 @@ int32_t VM_CheckSquished2(int32_t i, int32_t snum);
 #endif
 
 void VM_UpdateAnim(int const spriteNum, int32_t * const pData);
+void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist);
 
 #ifdef __cplusplus
 }
