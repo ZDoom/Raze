@@ -71,7 +71,7 @@ int32_t g_structVarIDs   = -1;
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
 double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
 
-GAMEEXEC_STATIC void VM_Execute(native_t loop);
+GAMEEXEC_STATIC void VM_Execute(bool const loop = false);
 
 # include "gamestructures.cpp"
 #endif
@@ -182,7 +182,7 @@ static FORCE_INLINE int32_t VM_EventCommon__(int const &eventNum, int const &spr
     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
         vm.pPlayer = g_player[0].ps;
 
-    VM_Execute(1);
+    VM_Execute(true);
 
     if (vm.flags & VM_KILL)
         VM_DeleteSprite(vm.spriteNum, vm.playerNum);
@@ -1264,7 +1264,7 @@ void Screen_Play(void)
         if ((xxx) || ((insptr = (intptr_t *)insptr[1]) && ((*insptr & VM_INSTMASK) == CON_ELSE))) \
         {                                                                                         \
             insptr += 2;                                                                          \
-            VM_Execute(0);                                                                        \
+            VM_Execute();                                                                         \
         }                                                                                         \
     }
 
@@ -1274,25 +1274,25 @@ void Screen_Play(void)
 
 #ifdef CON_DIRECT_THREADING_DISPATCH
 # define vInstruction(KEYWORDID) VINST_ ## KEYWORDID
-# define eval(INSTRUCTION) {if ((unsigned)INSTRUCTION <= CON_OPCODE_END) {goto *jumpTable[INSTRUCTION];} goto VINST_CON_OPCODE_END;}
+# define vmErrorCase VINST_CON_OPCODE_END
+# define eval(INSTRUCTION) { if ((unsigned)INSTRUCTION < CON_OPCODE_END) goto *jumpTable[INSTRUCTION]; else goto vmErrorCase; }
 # define dispatch_unconditionally(...) { tw = *insptr; g_errorLineNum = tw >> 12; g_tw = tw &= VM_INSTMASK; eval(tw) }
-# define dispatch(...) { if (loop && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0) dispatch_unconditionally(...); return; }
+# define dispatch(...) { if (loopcnt && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0) dispatch_unconditionally(__VA_ARGS__); return; }
 # define abort_after_error(...) return
 # define vInstructionPointer(KEYWORDID) &&VINST_ ## KEYWORDID
 # define COMMA ,
 # define JUMP_TABLE_ARRAY_LITERAL { TRANSFORM_SCRIPT_KEYWORDS_LIST(vInstructionPointer, COMMA) }
-# define vmErrorCase VINST_CON_OPCODE_END
 #else
 # define vInstruction(KEYWORDID) case KEYWORDID
+# define vmErrorCase default
 # define dispatch(...) continue
 # define eval(INSTRUCTION) switch(INSTRUCTION)
 # define abort_after_error(...) continue // non-threaded dispatch handles this in the loop condition in VM_Execute()
-# define vmErrorCase default
 #endif
 
-GAMEEXEC_STATIC void VM_Execute(native_t const poop)
+GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
 {
-    native_t loop = poop;
+    native_t loopcnt = loop;
 
     do
     {
@@ -1313,12 +1313,12 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
         }
         else if (tw == CON_LEFTBRACE)
         {
-            insptr++, loop++;
+            insptr++, loopcnt++;
             goto next_instruction;
         }
         else if (tw == CON_RIGHTBRACE)
         {
-            insptr++, loop--;
+            insptr++, loopcnt--;
             continue;
         }
         else
@@ -1328,13 +1328,13 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
 #ifdef CON_DIRECT_THREADING_DISPATCH
             vInstruction(CON_LEFTBRACE):
             {
-                insptr++, loop++;
+                insptr++, loopcnt++;
                 dispatch_unconditionally();
             }
 
             vInstruction(CON_RIGHTBRACE):
             {
-                insptr++, loop--;
+                insptr++, loopcnt--;
                 dispatch();
             }
 
@@ -1348,7 +1348,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                 {
                     auto tempscrptr = &insptr[2];
                     insptr = (intptr_t *)insptr[1];
-                    VM_Execute(1);
+                    VM_Execute(true);
                     insptr = tempscrptr;
                 }
                 dispatch();
@@ -2650,7 +2650,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                         {
                             // fake a 2-d Array
                             insptr = (intptr_t *)(lpCases[(lCheckCase << 1) + 1] + &apScript[0]);
-                            VM_Execute(1);
+                            VM_Execute(true);
                             goto matched;
                         }
 
@@ -2661,7 +2661,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                     if (*lpDefault)
                     {
                         insptr = (intptr_t *)(*lpDefault + &apScript[0]);
-                        VM_Execute(1);
+                        VM_Execute(true);
                     }
 
                 matched:
@@ -2690,7 +2690,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
 
                                 Gv_SetVarX(returnVar, jj);
                                 insptr = pNext;
-                                VM_Execute(0);
+                                VM_Execute();
                             }
                             break;
                         case ITER_ALLSPRITESBYSTAT:
@@ -2701,7 +2701,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                                     int const kk = nextspritestat[jj];
                                     Gv_SetVarX(returnVar, jj);
                                     insptr = pNext;
-                                    VM_Execute(0);
+                                    VM_Execute();
                                     jj = kk;
                                 }
                             }
@@ -2714,7 +2714,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                                     int const kk = nextspritesect[jj];
                                     Gv_SetVarX(returnVar, jj);
                                     insptr = pNext;
-                                    VM_Execute(0);
+                                    VM_Execute();
                                     jj = kk;
                                 }
                             }
@@ -2724,7 +2724,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                             {
                                 Gv_SetVarX(returnVar, jj);
                                 insptr = pNext;
-                                VM_Execute(0);
+                                VM_Execute();
                             }
                             break;
                         case ITER_ALLWALLS:
@@ -2732,7 +2732,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                             {
                                 Gv_SetVarX(returnVar, jj);
                                 insptr = pNext;
-                                VM_Execute(0);
+                                VM_Execute();
                             }
                             break;
                         case ITER_ACTIVELIGHTS:
@@ -2744,7 +2744,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
 
                                 Gv_SetVarX(returnVar, jj);
                                 insptr = pNext;
-                                VM_Execute(0);
+                                VM_Execute();
                             }
 #endif
                             break;
@@ -2755,7 +2755,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                             {
                                 Gv_SetVarX(returnVar, ii);
                                 insptr = pNext;
-                                VM_Execute(0);
+                                VM_Execute();
                             }
                             break;
                         }
@@ -2768,7 +2768,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                                 int const kk = nextspritesect[jj];
                                 Gv_SetVarX(returnVar, jj);
                                 insptr = pNext;
-                                VM_Execute(0);
+                                VM_Execute();
                                 jj = kk;
                             }
                             break;
@@ -2780,7 +2780,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                                 int const kk = nextspritestat[jj];
                                 Gv_SetVarX(returnVar, jj);
                                 insptr = pNext;
-                                VM_Execute(0);
+                                VM_Execute();
                                 jj = kk;
                             }
                             break;
@@ -2791,7 +2791,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                             {
                                 Gv_SetVarX(returnVar, jj);
                                 insptr = pNext;
-                                VM_Execute(0);
+                                VM_Execute();
                             }
                             break;
                         case ITER_LOOPOFWALL:
@@ -2803,7 +2803,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                                 {
                                     Gv_SetVarX(returnVar, jj);
                                     insptr = pNext;
-                                    VM_Execute(0);
+                                    VM_Execute();
                                     jj = wall[jj].point2;
                                 } while (jj != nIndex);
                             }
@@ -2813,7 +2813,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t const poop)
                             {
                                 Gv_SetVarX(returnVar, jj);
                                 insptr = pNext;
-                                VM_Execute(0);
+                                VM_Execute();
                             }
                             break;
 badindex:
@@ -6456,7 +6456,7 @@ badindex:
                 break;
 #endif
         }
-    } while (loop && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0);
+    } while (loopcnt && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0);
 }
 
 // NORECURSE
@@ -6483,7 +6483,7 @@ void A_LoadActor(int32_t spriteNum)
     }
 
     insptr = g_tile[vm.pSprite->picnum].loadPtr;
-    VM_Execute(1);
+    VM_Execute(true);
     insptr = NULL;
 
     if (vm.flags & VM_KILL)
@@ -6567,7 +6567,7 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
 #else
     int const picnum = vm.pSprite->picnum;
     insptr = 4 + (g_tile[vm.pSprite->picnum].execPtr);
-    VM_Execute(1);
+    VM_Execute(true);
     insptr = NULL;
 #endif
 
