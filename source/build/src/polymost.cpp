@@ -2264,12 +2264,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (!waloff[globalpicnum])
     {
         tileLoad(globalpicnum);
-
-        if (!waloff[globalpicnum])
-        {
-            tsiz.x = tsiz.y = 1;
-            method = DAMETH_MASK; //Hack to update Z-buffer for invalid mirror textures
-        }
     }
 
     Bassert(n <= MAX_DRAWPOLY_VERTS);
@@ -2333,6 +2327,12 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             polymost_printext256(8,8, editorcolors[15],editorcolors[5], ptempbuf, 0);
         }
         return;
+    }
+
+    if (!waloff[globalpicnum])
+    {
+        tsiz.x = tsiz.y = 1;
+        glColorMask(false, false, false, false); //Hack to update Z-buffer for invalid mirror textures
     }
 
     static int32_t fullbright_pass = 0;
@@ -2692,7 +2692,12 @@ do                                                                              
     }
 
     if (videoGetRenderMode() != REND_POLYMOST)
+    {
+        if (!waloff[globalpicnum])
+            glColorMask(true, true, true, true);
+
         return;
+    }
 
     if (!(pth->flags & PTH_INDEXED))
     {
@@ -2732,6 +2737,9 @@ do                                                                              
         xtex = bxtex, ytex = bytex, otex = botex;
         skyzbufferhack_pass--;
     }
+
+    if (!waloff[globalpicnum])
+        glColorMask(true, true, true, true);
 }
 
 
@@ -5442,6 +5450,7 @@ void polymost_drawrooms()
     glClear(GL_DEPTH_BUFFER_BIT);
 
     glDisable(GL_BLEND);
+    glDisable(GL_ALPHA_TEST);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_ALWAYS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
@@ -5670,12 +5679,6 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     if ((uint32_t)globalpicnum >= MAXTILES)
         globalpicnum = 0;
 
-    if (!waloff[globalpicnum])
-    {
-        glEnable(GL_BLEND);
-        glDisable(GL_ALPHA_TEST);
-    }
-
     globalorientation = (int32_t)wal->cstat;
     DO_TILE_ANIM(globalpicnum, (int16_t)thewall[z]+16384);
 
@@ -5866,19 +5869,6 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     polymost_updaterotmat();
     polymost_drawpoly(dpxy, n, method);
     polymost_identityrotmat();
-
-    if (!waloff[globalpicnum])
-    {
-        // restore this to normal
-        if (polymost_maskWallHasTranslucency(wal))
-        {
-            glEnable(GL_ALPHA_TEST);
-        } else
-        {
-            glDisable(GL_BLEND);
-            glEnable(GL_ALPHA_TEST);
-        }
-    }
 }
 
 typedef struct
