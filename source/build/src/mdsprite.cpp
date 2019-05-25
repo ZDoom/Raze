@@ -1913,6 +1913,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
     const int32_t sizyrep = tilesiz[tspr->picnum].y*tspr->yrepeat;
 
+    polymost_outputGLDebugMessage(3, "polymost_md3draw(m:%p, tspr:%p)", m, tspr);
     //    if ((tspr->cstat&48) == 32) return 0;
 
     updateanimation((md2model_t *)m, tspr, lpal);

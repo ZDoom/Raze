@@ -1021,6 +1021,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     if ((tspr->cstat&48)==32)
         return 0;
 
+    polymost_outputGLDebugMessage(3, "polymost_voxdraw(m:%p, tspr:%p)", m, tspr);
+
     //updateanimation((md2model *)m,tspr);
 
     vec3f_t m0 = { m->scale, m->scale, m->scale };
