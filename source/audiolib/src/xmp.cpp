@@ -196,6 +196,8 @@ void MV_ReleaseXMPVoice(VoiceNode * voice)
         return;
 
     voice->rawdataptr = 0;
+    voice->length = 0;
+    voice->sound = nullptr;
 
     xmp_end_player(xmpd->context);
     xmp_release_module(xmpd->context);

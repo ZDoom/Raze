@@ -651,15 +651,20 @@ void MV_ReleaseFLACVoice(VoiceNode *voice)
         return;
     }
 
+    voice->rawdataptr = 0;
     if (fd->stream != NULL)
     {
-        FLAC__stream_decoder_finish(fd->stream);
-        FLAC__stream_decoder_delete(fd->stream);
+	auto stream = fd->stream;
+	fd->stream = nullptr;
+        FLAC__stream_decoder_finish(stream);
+        FLAC__stream_decoder_delete(stream);
     }
-    free(fd->block);
+    auto block = fd->block;
+    voice->length = 0;
+    voice->sound = nullptr;
+    fd->block = nullptr;
+    free(block);
     free(fd);
-
-    voice->rawdataptr = 0;
 }
 #else
 #include "_multivc.h"

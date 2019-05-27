@@ -460,10 +460,11 @@ void MV_ReleaseVorbisVoice( VoiceNode * voice )
 
     auto vd = (vorbis_data *)voice->rawdataptr;
 
+    voice->rawdataptr = 0;
+    voice->length = 0;
+    voice->sound = nullptr;
     ov_clear(&vd->vf);
     free(vd);
-
-    voice->rawdataptr = 0;
 }
 #else
 #include "_multivc.h"
