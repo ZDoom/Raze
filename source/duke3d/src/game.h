@@ -543,7 +543,13 @@ static inline int G_GetMusicIdx(const char *str)
     if (numMatches != 4 || Btoupper(b1) != 'E' || Btoupper(b2) != 'L')
         return -1;
 
-    if ((unsigned)--lev >= MAXLEVELS || (unsigned)--ep >= MAXVOLUMES)
+    if ((unsigned)--lev >= MAXLEVELS)
+        return -2;
+
+    if (ep == 0)
+        return (MAXVOLUMES * MAXLEVELS) + lev;
+
+    if ((unsigned)--ep >= MAXVOLUMES)
         return -2;
 
     return (ep * MAXLEVELS) + lev;
