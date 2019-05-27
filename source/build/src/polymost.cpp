@@ -2144,7 +2144,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
 int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
 {
     if ((tspr->cstat & (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_RESERVED1)) ||
-        spriteext[tspr->owner].alpha)
+        ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
         return true;
 
     //POGO: only hightiles may have translucency in their texture
