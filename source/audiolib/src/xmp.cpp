@@ -51,9 +51,11 @@ static playbackstatus MV_GetNextXMPBlock(VoiceNode *voice)
 
     xmpd->time = mi.time;
 
+    uint32_t const samples = mi.buffer_size / (2 * (16/8)); // since 2-channel, 16-bit is hardcoded
+    // uint32_t const samples = mi.buffer_size / (voice->channels * (voice->bits / 8));
+
     voice->sound        = (char const *)mi.buffer;
-    voice->length       = mi.buffer_size << 14; // since 2-channel, 16-bit is hardcoded
-    // voice->length       = (mi.buffer_size << 16) / (voice->channels * (voice->bits >> 3));
+    voice->length       = samples << 16;
     voice->position     = 0;
     voice->BlockLength  = 0;
 

@@ -17,6 +17,10 @@
 #define kNumOfSGs       18
 #define TTYWidth        80
 
+#define kBufSize (kNumOfSGs*kNumOfSamples*(16/8))
+#define kSamplesMono (kNumOfSGs*kNumOfSamples)
+#define kSamplesStereo (kNumOfSGs*kNumOfSamples/2)
+
 /* ADPCM */
 #define XA_DATA_START   (0x44-48)
 
@@ -41,8 +45,7 @@ typedef struct {
    double t1_x, t2_x;
 #endif
 
-   int8_t *block;
-   size_t blocksize;
+   int8_t block[kBufSize];
 
    VoiceNode *owner;
 } xa_data;
@@ -153,7 +156,7 @@ static void decodeSoundSectMono(XASector *ssct, xa_data * xad)
 #else
     double tmp2, tmp3, tmp4, tmp5;
 #endif
-    int8_t decodeBuf[kNumOfSGs*kNumOfSamples*2];
+    int8_t decodeBuf[kBufSize];
 
     for (sndgrp = 0; sndgrp < kNumOfSGs; sndgrp++)
     {
@@ -187,11 +190,7 @@ static void decodeSoundSectMono(XASector *ssct, xa_data * xad)
         }
     }
 
-    if (count > xad->blocksize)
-        xad->block = (int8_t *)Xrealloc(xad->block, count);
-
-    memcpy(xad->block, decodeBuf, count);
-    xad->blocksize = count;
+    memcpy(xad->block, decodeBuf, kBufSize);
 }
 
 static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
@@ -207,7 +206,7 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
 #else
     double tmp2, tmp3, tmp4, tmp5;
 #endif
-    int8_t decodeBuf[kNumOfSGs*kNumOfSamples*2];
+    int8_t decodeBuf[kBufSize];
 
     for (sndgrp = 0; sndgrp < kNumOfSGs; sndgrp++)
     {
@@ -267,11 +266,7 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
         }
     }
 
-    if (count > xad->blocksize)
-        xad->block = (int8_t *)Xrealloc(xad->block, count);
-
-    memcpy(xad->block, decodeBuf, count);
-    xad->blocksize = count;
+    memcpy(xad->block, decodeBuf, kBufSize);
 }
 
 int32_t MV_GetXAPosition(VoiceNode *voice)
@@ -333,13 +328,21 @@ static playbackstatus MV_GetNextXABlock
     voice->FixedPointBufferSize = ( voice->RateScale * MV_MIXBUFFERSIZE ) - voice->RateScale;
     MV_SetVoiceMixMode( voice );
 
+    uint32_t samples;
+
     if (voice->channels == 2)
+    {
         decodeSoundSectStereo(&ssct, xad);
+        samples = kSamplesStereo;
+    }
     else
+    {
         decodeSoundSectMono(&ssct, xad);
+        samples = kSamplesMono;
+    }
 
     voice->sound        = (char *)xad->block;
-    voice->length       = (((xad->blocksize * (voice->bits/8))/2)<<voice->bits) / 4;
+    voice->length       = samples << 16;
     voice->position     = 0;
     voice->BlockLength  = 0;
 
@@ -431,10 +434,7 @@ int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend
    xad->ptr = ptr;
    xad->pos = XA_DATA_START;
    xad->t1 = xad->t2 = xad->t1_x = xad->t2_x = 0;
-   xad->blocksize = 0;
    xad->length = length;
-
-   xad->block = NULL;
 
    // Request a voice from the voice pool
    voice = MV_AllocVoice( priority );
@@ -483,7 +483,6 @@ void MV_ReleaseXAVoice( VoiceNode * voice )
         return;
     }
 
-    free(xad->block);
     free(xad);
 
     voice->rawdataptr = 0;

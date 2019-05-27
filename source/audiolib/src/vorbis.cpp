@@ -301,12 +301,12 @@ static playbackstatus MV_GetNextVorbisBlock(VoiceNode *voice)
         vd->lastbitstream = bitstream;
     }
 
-    bytesread /= 2 * voice->channels;
+    uint32_t const samples = bytesread / ((voice->bits/8) * voice->channels);
 
     voice->position = 0;
     voice->sound = vd->block;
     voice->BlockLength = 0;
-    voice->length = bytesread << 16;  // ???: Should the literal 16 be voice->bits?
+    voice->length = samples << 16;
 
 #ifdef GEKKO
     // If libtremor had the three additional ov_read() parameters that libvorbis has,

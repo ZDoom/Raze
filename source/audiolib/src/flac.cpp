@@ -233,7 +233,8 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
                       (FLAC__uint64)(uintptr_t)voice->LoopStart, (FLAC__uint64)(uintptr_t)voice->LoopEnd);
     }
 
-    voice->length = ((samples * (voice->bits / 8)) / 2) << voice->bits;
+    size_t const size = samples * voice->channels * (voice->bits / 8);
+
     voice->position = 0;
     voice->BlockLength = 0;
     // CODEDUP multivoc.c MV_SetVoicePitch
@@ -241,22 +242,18 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
     voice->FixedPointBufferSize = (voice->RateScale * MV_MIXBUFFERSIZE) - voice->RateScale;
     MV_SetVoiceMixMode(voice);
 
+    char * block = fd->block;
+
+    if (size > fd->blocksize)
     {
-        const size_t size = samples * voice->channels * (voice->bits / 8);
-        if (size > fd->blocksize)
-        {
-            fd->blocksize = size;
-            fd->block = (char *)realloc(fd->block, sizeof(char) * size);
-        }
+        block = (char *)malloc(size);
+
+        if (block == nullptr)
+            return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
 
-    if (!fd->block)
-        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
-
-    voice->sound = fd->block;
-
     {
-        char *obuffer = fd->block;
+        char *obuffer = block;
         FLAC__uint64 sample;
         uint8_t channel;
 
@@ -272,6 +269,17 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
                     val = -(1 << (voice->bits - 1));
                 for (byte = 0; byte < voice->bits; byte += 8) *obuffer++ = ((val >> byte) & 0x000000FF);
             }
+    }
+
+    voice->sound = block;
+    voice->length = samples << 16;
+
+    if (block != fd->block)
+    {
+        char * oldblock = fd->block;
+        fd->block = block;
+        fd->blocksize = size;
+        free(oldblock);
     }
 
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
