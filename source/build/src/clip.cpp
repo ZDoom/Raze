@@ -1348,8 +1348,9 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
             int32_t const tempint1 = dmulscale6(clipr.x, move.x, clipr.y, move.y);
 
-            for (int i=cnt+1, j=hitwalls[i]; i<=clipmoveboxtracenum; j=hitwalls[++i])
+            for (int i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
             {
+                j = hitwalls[i];
                 int32_t const tempint2 = dmulscale6(clipit[j].x2 - clipit[j].x1, move.x, clipit[j].y2 - clipit[j].y1, move.y);
 
                 if ((tempint1^tempint2) < 0)
