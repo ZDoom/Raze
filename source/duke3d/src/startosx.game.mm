@@ -29,6 +29,13 @@
 # define NSControlSizeSmall NSSmallControlSize
 #endif
 
+#ifndef MAC_OS_X_VERSION_10_14
+# define NSButtonTypeSwitch NSSwitchButton
+# define NSBezelStyleRounded NSRoundedBezelStyle
+# define NSControlStateValueOn NSOnState
+# define NSControlStateValueOff NSOffState
+#endif
+
 static NSRect NSRectChangeXY(NSRect const rect, CGFloat const x, CGFloat const y)
 {
     return NSMakeRect(x, y, rect.size.width, rect.size.height);
@@ -55,11 +62,7 @@ static void setFontToSmall(id control)
 
 static void setControlToSmall(id control)
 {
-#ifdef MAC_OS_X_VERSION_10_12
     [control setControlSize:NSControlSizeSmall];
-#else
-    [control setControlSize:NSControlSizeSmall];
-#endif
 }
 
 static NSTextField * makeLabel(NSString * labelText)
@@ -82,7 +85,7 @@ static NSButton * makeCheckbox(NSString * labelText)
     setFontToSmall(checkbox);
     setControlToSmall([checkbox cell]);
     [checkbox setTitle:labelText];
-    [checkbox setButtonType:NSSwitchButton];
+    [checkbox setButtonType:NSButtonTypeSwitch];
     [checkbox sizeToFit];
     return checkbox;
 }
@@ -93,7 +96,7 @@ static NSPopUpButton * makeComboBox(void)
     [comboBox setPullsDown:NO];
     setFontToSmall(comboBox);
     setControlToSmall([comboBox cell]);
-    [comboBox setBezelStyle:NSRoundedBezelStyle];
+    [comboBox setBezelStyle:NSBezelStyleRounded];
     [comboBox setPreferredEdge:NSMaxYEdge];
     [[comboBox cell] setArrowPosition:NSPopUpArrowAtCenter];
     [comboBox sizeToFit];
@@ -258,7 +261,7 @@ static struct {
         [startButton setTitle:@"Start"];
         [startButton setTarget:self];
         [startButton setAction:@selector(start:)];
-        [startButton setBezelStyle:NSRoundedBezelStyle];
+        [startButton setBezelStyle:NSBezelStyleRounded];
         [startButton setKeyEquivalent:@"\r"];
         [startButton setAutoresizingMask:NSViewMinXMargin | NSViewMaxYMargin];
 
@@ -268,7 +271,7 @@ static struct {
         [cancelButton setTitle:@"Cancel"];
         [cancelButton setTarget:self];
         [cancelButton setAction:@selector(cancel:)];
-        [cancelButton setBezelStyle:NSRoundedBezelStyle];
+        [cancelButton setBezelStyle:NSBezelStyleRounded];
         [cancelButton setAutoresizingMask:NSViewMinXMargin | NSViewMaxYMargin];
 
 
@@ -425,7 +428,7 @@ static struct {
 
 - (void)populateVideoModes:(BOOL)firstTime
 {
-    int i, mode3d, fullscreen = ([fullscreenButton state] == NSOnState);
+    int i, mode3d, fullscreen = ([fullscreenButton state] == NSControlStateValueOn);
     int idx3d = -1;
     int xdim = 0, ydim = 0, bpp = 0;
 
@@ -501,7 +504,7 @@ static struct {
         settings.grp = [[gamelistsrc grpAtIndex:row] entryptr];
     }
 
-    settings.forcesetup = [alwaysShowButton state] == NSOnState;
+    settings.forcesetup = [alwaysShowButton state] == NSControlStateValueOn;
 
     retval = 1;
 }
@@ -510,8 +513,8 @@ static struct {
 {
     videoGetModes();
 
-    [fullscreenButton setState: (settings.fullscreen ? NSOnState : NSOffState)];
-    [alwaysShowButton setState: (settings.forcesetup ? NSOnState : NSOffState)];
+    [fullscreenButton setState: (settings.fullscreen ? NSControlStateValueOn : NSControlStateValueOff)];
+    [alwaysShowButton setState: (settings.forcesetup ? NSControlStateValueOn : NSControlStateValueOff)];
     [self populateVideoModes:YES];
 
     // enable all the controls on the Configuration page

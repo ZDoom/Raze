@@ -53,6 +53,7 @@ project.xcworkspace/
 *.dSYM/
 
 .DS_Store
+._*
 Platform/Windows/Build
 Platform/Windows/Win32
 Platform/Windows/x64
