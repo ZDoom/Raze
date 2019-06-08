@@ -1330,7 +1330,7 @@ growspark_rr:
 
             if (playerNum >= 0)
             {
-                if (GetAutoAimAng(spriteNum, playerNum, projecTile, ZOFFSET6, 0, &startPos, 768, &Zvel, &shootAng) < 0)
+                if (NAM || GetAutoAimAng(spriteNum, playerNum, projecTile, ZOFFSET6, 0, &startPos, 768, &Zvel, &shootAng) < 0)
                     Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 98;
             }
             else if (pSprite->statnum != STAT_EFFECTOR)
@@ -2584,21 +2584,21 @@ void P_DisplayWeapon(void)
                                             weaponShade, weaponBits, weaponPal);
                 }
 
-                else if ((*weaponFrame) < 23)
+                else if ((*weaponFrame) < (NAM ? 38 : 23))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 184 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
                                             FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 210 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
-                else if ((*weaponFrame) < 25)
+                else if ((*weaponFrame) < (NAM ? 44 : 25))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 164 - (pPlayer->look_ang >> 1), weaponY + 245 - weaponYOffset,
                                             FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
-                else if ((*weaponFrame) < 27)
+                else if ((*weaponFrame) < (NAM ? 50 : 27))
                     G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
 
@@ -4624,7 +4624,22 @@ static void P_ProcessWeapon(int playerNum)
             }
         }
     }
-
+#define WEAPON2_CLIP 20
+    if (NAM && TEST_SYNC_KEY(playerBits, SK_HOLSTER))
+    {
+        if (pPlayer->curr_weapon == PISTOL_WEAPON)
+        {
+            if (pPlayer->ammo_amount[PISTOL_WEAPON] > WEAPON2_CLIP)
+            {
+                // throw away the remaining clip
+                pPlayer->ammo_amount[PISTOL_WEAPON] -= pPlayer->ammo_amount[PISTOL_WEAPON] % WEAPON2_CLIP;
+                (*weaponFrame) = 3;
+                playerBits &= ~BIT(SK_FIRE);
+            }
+            return;
+        }
+    }
+#undef WEAPON2_CLIP
     if (pPlayer->curr_weapon == SHRINKER_WEAPON || pPlayer->curr_weapon == GROW_WEAPON
         || (RR && (pPlayer->curr_weapon == TRIPBOMB_WEAPON || pPlayer->curr_weapon == BOWLINGBALL_WEAPON))
         || (RRRA && (pPlayer->curr_weapon == KNEE_WEAPON || pPlayer->curr_weapon == SLINGBLADE_WEAPON)))
@@ -5461,6 +5476,9 @@ static void P_ProcessWeapon(int playerNum)
                                            pPlayer->pos.y+(sintable[fix16_to_int(pPlayer->q16ang)&2047]>>6),
                                            pPlayer->pos.z,HEAVYHBOMB,-16,9,9,
                                            fix16_to_int(pPlayer->q16ang),(pipeBombFwdVel+(pPlayer->hbomb_hold_delay<<5)),pipeBombZvel,pPlayer->i,1);
+                        
+                        if (NAM)
+                            sprite[pipeSpriteNum].extra = mulscale(krand2(), 30, 14)+90;
 
                         if (pipeBombFwdVel == 15)
                         {
@@ -5483,9 +5501,17 @@ static void P_ProcessWeapon(int playerNum)
                 else if ((*weaponFrame) > 19)
                 {
                     (*weaponFrame) = 0;
-                    pPlayer->weapon_pos = WEAPON_POS_RAISE;
-                    pPlayer->curr_weapon = HANDREMOTE_WEAPON;
-                    pPlayer->last_weapon = -1;
+                    if (NAM)
+                    {
+                        // don't change to remote when in NAM: grenades are timed
+                        P_CheckWeapon(pPlayer);
+                    }
+                    else
+                    {
+                        pPlayer->weapon_pos = WEAPON_POS_RAISE;
+                        pPlayer->curr_weapon = HANDREMOTE_WEAPON;
+                        pPlayer->last_weapon = -1;
+                    }
                 }
                 break;
 
@@ -5498,9 +5524,11 @@ static void P_ProcessWeapon(int playerNum)
                 if ((*weaponFrame) == 10)
                 {
                     (*weaponFrame) = 0;
-                    if (pPlayer->ammo_amount[HANDBOMB_WEAPON] > 0)
+                    /// WHAT THE HELL DOES THIS DO....?????????????
+                    int weapon = NAM ? TRIPBOMB_WEAPON : HANDBOMB_WEAPON;
+                    if (pPlayer->ammo_amount[weapon] > 0)
                     {
-                        P_AddWeapon(pPlayer, HANDBOMB_WEAPON);
+                        P_AddWeapon(pPlayer, weapon);
                     }
                     else
                     {
@@ -5525,7 +5553,7 @@ static void P_ProcessWeapon(int playerNum)
 
                 if (++(*weaponFrame) >= 5)
                 {
-                    if (pPlayer->ammo_amount[PISTOL_WEAPON] <= 0 || (pPlayer->ammo_amount[PISTOL_WEAPON]%12))
+                    if (pPlayer->ammo_amount[PISTOL_WEAPON] <= 0 || (pPlayer->ammo_amount[PISTOL_WEAPON]%(NAM ? 20 : 12)))
                     {
                         (*weaponFrame) = 0;
                         P_CheckWeapon(pPlayer);
@@ -5544,7 +5572,7 @@ static void P_ProcessWeapon(int playerNum)
                     }
                 }
 
-                if ((*weaponFrame) == 27)
+                if ((*weaponFrame) == (NAM ? 50 : 27))
                 {
                     (*weaponFrame) = 0;
                     P_CheckWeapon(pPlayer);
@@ -5643,9 +5671,16 @@ static void P_ProcessWeapon(int playerNum)
                 break;
 
             case GROW_WEAPON__STATIC:
-                if ((*weaponFrame) > 3)
+                if ((!NAM && (*weaponFrame) > 3) || (NAM && ++(*weaponFrame) == 3))
                 {
-                    (*weaponFrame) = 0;
+                    if (NAM)
+                    {
+                        (*weaponFrame)++;
+                        if (pPlayer->ammo_amount[GROW_WEAPON] <= 1)
+                            (*weaponFrame) = 0;
+                    }
+                    else
+                        (*weaponFrame) = 0;
                     if (screenpeek == playerNum)
                     {
                         pus = 1;
@@ -5660,21 +5695,49 @@ static void P_ProcessWeapon(int playerNum)
                     lastvisinc = (int32_t)totalclock + 32;
                     P_CheckWeapon(pPlayer);
                 }
-                else
+                else if (!NAM)
                 {
                     (*weaponFrame)++;
+                }
+                if (NAM && (*weaponFrame) > 30)
+                {
+                    // reload now...
+                    (*weaponFrame) = 0;
+
+                    pPlayer->visibility = 0;
+                    flashColor = 216+(52<<8)+(20<<16);
+                    lastvisinc = totalclock + 32;
+                    P_CheckWeapon(pPlayer);
+                    P_CheckWeapon(pPlayer);
                 }
                 break;
 
             case SHRINKER_WEAPON__STATIC:
-                if ((*weaponFrame) > 10)
+                if ((!NAM && (*weaponFrame) > 10) || (NAM && (*weaponFrame) == 10))
                 {
-                    (*weaponFrame) = 0;
+                    if (NAM)
+                    {
+                        // fire now, but wait for reload...
+                        (*weaponFrame)++;
+                    }
+                    else
+                        (*weaponFrame) = 0;
 
                     pPlayer->ammo_amount[SHRINKER_WEAPON]--;
 
                     A_Shoot(pPlayer->i, SHRINKER);
 
+                    if (!NAM)
+                    {
+                        pPlayer->visibility = 0;
+                        flashColor = 176+(252<<8)+(120<<16);
+                        lastvisinc = totalclock + 32;
+                        P_CheckWeapon(pPlayer);
+                    }
+                }
+                else if (NAM && (*weaponFrame) > 30)
+                {
+                    (*weaponFrame) = 0;
                     pPlayer->visibility = 0;
                     flashColor = 176+(252<<8)+(120<<16);
                     lastvisinc = (int32_t)totalclock + 32;

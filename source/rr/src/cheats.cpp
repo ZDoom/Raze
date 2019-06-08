@@ -139,6 +139,9 @@ const uint8_t CheatFunctionIDs[NUMCHEATS] =
     CHEAT_COORDS,
     CHEAT_DEBUG,
 };
+
+char const * const g_NAMMattCheatQuote = "Matt Saettler.  matts@seanet.com";
+
 void G_SetupCheats(void)
 {
     if (RR)
@@ -175,6 +178,38 @@ void G_SetupCheats(void)
             Bstrcpy(CheatStrings[38], "kfc");
             Bstrcpy(CheatStrings[39], "van");
         }
+    }
+    else if (NAM)
+    {
+        CheatKeys[0] = sc_N;
+        CheatKeys[1] = sc_V;
+
+        Bstrcpy(CheatStrings[0], "acaleb");
+        Bstrcpy(CheatStrings[1], "ablood");
+        Bstrcpy(CheatStrings[2], "alevel###");
+        Bstrcpy(CheatStrings[3], "acoords");
+        Bstrcpy(CheatStrings[4], "aview");
+        Bstrcpy(CheatStrings[5], "<RESERVED>");
+        Bstrcpy(CheatStrings[7], "<RESERVED>");
+        Bstrcpy(CheatStrings[8], "<RESERVED>");
+        Bstrcpy(CheatStrings[9], "arate");
+        Bstrcpy(CheatStrings[10], "askill");
+        Bstrcpy(CheatStrings[11], "<RESERVED>");
+        Bstrcpy(CheatStrings[12], "ahyper");
+        Bstrcpy(CheatStrings[13], "<RESERVED>");
+        Bstrcpy(CheatStrings[16], "amatt");
+        Bstrcpy(CheatStrings[17], "ashowmap");
+        Bstrcpy(CheatStrings[18], "agod");
+        Bstrcpy(CheatStrings[19], "<RESERVED>");
+        Bstrcpy(CheatStrings[20], "aclip");
+        Bstrcpy(CheatStrings[21], "aweapons");
+        Bstrcpy(CheatStrings[22], "ainventory");
+        Bstrcpy(CheatStrings[23], "<RESERVED>");
+        Bstrcpy(CheatStrings[24], "adebug");
+        Bstrcpy(CheatStrings[26], "acgs");
+
+        Bstrcpy(g_gametypeNames[0], "GruntMatch (Spawn)");
+        Bstrcpy(g_gametypeNames[2], "GruntMatch (No Spawn)");
     }
 }
 
@@ -624,7 +659,15 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_TODD:
-                    P_DoQuote(QUOTE_CHEAT_TODD, pPlayer);
+                    if (NAM)
+                    {
+                        Bstrcpy(apStrings[QUOTE_RESERVED4], g_NAMMattCheatQuote);
+                        P_DoQuote(QUOTE_RESERVED4, pPlayer);
+                    }
+                    else
+                    {
+                        P_DoQuote(QUOTE_CHEAT_TODD, pPlayer);
+                    }
 
                     end_cheat(pPlayer);
                     return;

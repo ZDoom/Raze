@@ -25,13 +25,13 @@ extern int g_useCwd;
 #endif
 
 #define GAMEFLAG_DUKE       0x00000001
-#define GAMEFLAG_RR         0x00000002
-#define GAMEFLAG_RRRA       0x00000004
-//#define GAMEFLAG_NAM        0x00000002
-//#define GAMEFLAG_NAPALM     0x00000004
+#define GAMEFLAG_NAM        0x00000002
+#define GAMEFLAG_NAPALM     0x00000004
 //#define GAMEFLAG_WW2GI      0x00000008
 #define GAMEFLAG_ADDON      0x00000010
 #define GAMEFLAG_SHAREWARE  0x00000020
+#define GAMEFLAG_RR         0x00000040
+#define GAMEFLAG_RRRA       0x00000080
 //#define GAMEFLAG_DUKEBETA   0x00000060 // includes 0x20 since it's a shareware beta
 //#define GAMEFLAG_IONMAIDEN  0x00000080
 //#define GAMEFLAG_STANDALONE 0x00000100
@@ -45,8 +45,8 @@ extern int     g_addonNum;
 #define DUKE                (g_gameType & GAMEFLAG_DUKE)
 #define RR                  (g_gameType & GAMEFLAG_RR)
 #define RRRA                (g_gameType & GAMEFLAG_RRRA)
-//#define NAM                 (g_gameType & GAMEFLAG_NAM)
-//#define NAPALM              (g_gameType & GAMEFLAG_NAPALM)
+#define NAM                 (g_gameType & GAMEFLAG_NAM)
+#define NAPALM              (g_gameType & GAMEFLAG_NAPALM)
 //#define WW2GI               (g_gameType & GAMEFLAG_WW2GI)
 //#define NAM_WW2GI           (g_gameType & (GAMEFLAG_NAM|GAMEFLAG_WW2GI))
 #define SHAREWARE           (g_gameType & GAMEFLAG_SHAREWARE)
@@ -57,8 +57,8 @@ enum Games_t {
     GAME_DUKE = 0,
     GAME_RR,
     GAME_RRRA,
-    //GAME_NAM,
-    //GAME_NAPALM,
+    GAME_NAM,
+    GAME_NAPALM,
     //GAME_WW2GI,
     GAMECOUNT
 };
@@ -78,8 +78,9 @@ enum instpath_t {
 
 enum searchpathtypes_t {
     SEARCHPATH_REMOVE = 1<<0,
-    SEARCHPATH_RR     = 1<<1,
-    SEARCHPATH_RRRA   = 1<<2,
+    SEARCHPATH_NAM    = 1<<1,
+    SEARCHPATH_RR     = 1<<2,
+    SEARCHPATH_RRRA   = 1<<3,
 };
 
 typedef enum basepal_ {

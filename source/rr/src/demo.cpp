@@ -169,7 +169,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
             Bstrncpy(g_player[i].user_name, demoHeader.user_name[i], 32);
         }
 
-        if (DUKE && demoHeader.version == 117)
+        if (!RR && demoHeader.version == 117)
         {
             int32_t autoRun;
             kread(g_demo_recFilePtr, &autoRun, sizeof(int32_t));

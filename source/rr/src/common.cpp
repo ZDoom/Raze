@@ -38,9 +38,9 @@ const char *g_gameNamePtr = NULL;
 // grp/con handling
 
 static const char *defaultconfilename                = "GAME.CON";
-static const char *defaultgamegrp[GAMECOUNT]         = { "DUKE3D.GRP", "REDNECK.GRP", "REDNECK.GRP" };
-static const char *defaultdeffilename[GAMECOUNT]     = { "duke3d.def", "rr.def", "rrra.def" };
-//static const char *defaultgameconfilename[GAMECOUNT] = { "GAME.CON", "GAME.CON", "GAME.CON" };
+static const char *defaultgamegrp[GAMECOUNT]         = { "DUKE3D.GRP", "REDNECK.GRP", "REDNECK.GRP", "NAM.GRP", "NAPALM.GRP" };
+static const char *defaultdeffilename[GAMECOUNT]     = { "duke3d.def", "rr.def", "rrra.def", "nam.def", "napalm.grp" };
+static const char *defaultgameconfilename[GAMECOUNT] = { "GAME.CON", "GAME.CON", "GAME.CON", "NAM.CON", "NAPALM.CON" };
 
 // g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
 char *g_grpNamePtr = NULL;
@@ -83,12 +83,11 @@ const char *G_DefaultDefFile(void)
 }
 const char *G_DefaultConFile(void)
 {
-#if 0
-    if (DUKE && testkopen(defaultgameconfilename[GAME_DUKE],0))
+    /*if (DUKE && testkopen(defaultgameconfilename[GAME_DUKE],0))
         return defaultgameconfilename[GAME_DUKE];
     else if (WW2GI && testkopen(defaultgameconfilename[GAME_WW2GI],0))
         return defaultgameconfilename[GAME_WW2GI];
-    else if (NAPALM)
+    else */if (NAPALM)
     {
         if (!testkopen(defaultgameconfilename[GAME_NAPALM],0))
         {
@@ -108,7 +107,6 @@ const char *G_DefaultConFile(void)
         else
             return defaultgameconfilename[GAME_NAM];
     }
-#endif
     return defaultconfilename;
 }
 
@@ -539,7 +537,6 @@ static void G_AddSteamPaths(const char *basepath)
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
 #endif
 
-#if 0
     // NAM (Steam)
 #if defined EDUKE32_OSX
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
@@ -548,6 +545,7 @@ static void G_AddSteamPaths(const char *basepath)
 #endif
     addsearchpath_user(buf, SEARCHPATH_NAM);
 
+#if 0
     // WWII GI (Steam)
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/World War II GI/WW2GI", basepath);
     addsearchpath_user(buf, SEARCHPATH_WW2GI);
@@ -856,7 +854,6 @@ void G_AddSearchPaths(void)
         addsearchpath_user(buf, SEARCHPATH_RRRA);
     }
 
-#if 0
     // NAM (Steam)
     bufsize = sizeof(buf);
     if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 329650)", "InstallLocation", buf, &bufsize))
@@ -868,6 +865,7 @@ void G_AddSearchPaths(void)
         addsearchpath_user(buf, SEARCHPATH_NAM);
     }
 
+#if 0
     // WWII GI (Steam)
     bufsize = sizeof(buf);
     if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 376750)", "InstallLocation", buf, &bufsize))
@@ -886,6 +884,9 @@ void G_AddSearchPaths(void)
 void G_CleanupSearchPaths(void)
 {
     removesearchpaths_withuser(SEARCHPATH_REMOVE);
+
+    if (!NAM)
+        removesearchpaths_withuser(SEARCHPATH_NAM);
 
     if (!RRRA)
         removesearchpaths_withuser(SEARCHPATH_RRRA);

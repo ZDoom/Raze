@@ -1882,6 +1882,14 @@ void Menu_Init(void)
         //MF_Minifont.emptychar.y <<= 1;
         ME_SOUND_DUKETALK.name = "Leonard Talk:";
     }
+    else if (NAPALM)
+    {
+        ME_SOUND_DUKETALK.name = "NAPALM Talk:";
+    }
+    else if (NAM)
+    {
+        ME_SOUND_DUKETALK.name = "NAM Talk:";
+    }
 
     // prepare shareware
     if (VOLUMEONE)

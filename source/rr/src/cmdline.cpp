@@ -269,6 +269,18 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1, "nam"))
+                {
+                    g_gameType = GAMEFLAG_NAM;
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1, "napalm"))
+                {
+                    g_gameType = GAMEFLAG_NAM|GAMEFLAG_NAPALM;
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1, "setup"))
                 {
                     g_commandSetup = TRUE;

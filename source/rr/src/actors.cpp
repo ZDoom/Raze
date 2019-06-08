@@ -3913,6 +3913,8 @@ ACTOR_STATIC void G_MoveActors(void)
     if (g_mineCartCnt)
         G_MoveMineCart();
 
+    int bBoom = 0;
+
     if (RRRA)
     {
         int spriteNum = headspritestat[117];
@@ -5793,7 +5795,18 @@ ACTOR_STATIC void G_MoveActors(void)
             }
 
 DETONATEB:
+            if (!NAM)
+                bBoom = 0;
             if ((detonatePlayer >= 0 && g_player[detonatePlayer].ps->hbomb_on == 0) || pData[3] == 1)
+                bBoom = 1;
+            if (NAM && pSprite->picnum == HEAVYHBOMB)
+            {
+                pSprite->extra--;
+                if (pSprite->extra <= 0)
+                    bBoom = 1;
+            }
+            
+            if (bBoom)
             {
                 pData[4]++;
 

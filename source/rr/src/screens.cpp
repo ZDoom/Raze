@@ -2464,9 +2464,9 @@ void G_BonusScreen(int32_t bonusonly)
                         if (g_mapInfo[G_LastMapInfoIndex()].designertime)
                         {
                             // EDuke 2.0 / NAM source suggests "Green Beret's Time:"
-                            if (!RR)
+                            if (DUKE)
                                 gametext(10, yy+9, "3D Realms' Time:");
-                            else
+                            else if (RR)
                                 menutext(30, yy, "Xatrix Time:");
                             yy+=yystep;
                         }
@@ -2529,9 +2529,9 @@ void G_BonusScreen(int32_t bonusonly)
                             if (g_mapInfo[G_LastMapInfoIndex()].designertime)
                             {
                                 G_PrintDesignerTime();
-                                if (!RR)
+                                if (DUKE)
                                     gametext_number((320>>2)+71, yy+9, tempbuf);
-                                else
+                                else if (RR)
                                     menutext(191, yy, tempbuf);
                                 yy+=yystep;
                             }
