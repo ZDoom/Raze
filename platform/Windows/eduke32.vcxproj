@@ -184,7 +184,6 @@
     <ClInclude Include="..\..\source\duke3d\src\input.h" />
     <ClInclude Include="..\..\source\duke3d\src\inv.h" />
     <ClInclude Include="..\..\source\duke3d\src\menus.h" />
-    <ClInclude Include="..\..\source\duke3d\src\mpu401.h" />
     <ClInclude Include="..\..\source\duke3d\src\network.h" />
     <ClInclude Include="..\..\source\duke3d\src\player.h" />
     <ClInclude Include="..\..\source\duke3d\src\premap.h" />
@@ -195,7 +194,6 @@
     <ClInclude Include="..\..\source\duke3d\src\screentext.h" />
     <ClInclude Include="..\..\source\duke3d\src\sector.h" />
     <ClInclude Include="..\..\source\duke3d\src\_functio.h" />
-    <ClInclude Include="..\..\source\duke3d\src\_midi.h" />
     <ClInclude Include="..\..\source\duke3d\src\_rts.h" />
     <ClInclude Include="..\..\source\duke3d\src\config.h" />
     <ClInclude Include="..\..\source\duke3d\src\duke3d.h" />
@@ -240,9 +238,6 @@
     <ClCompile Include="..\..\source\duke3d\src\input.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\mdump.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\menus.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\midi.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\mpu401.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\music.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\namesdyn.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\network.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\osdcmds.cpp" />
@@ -254,12 +249,6 @@
     <ClCompile Include="..\..\source\duke3d\src\sbar.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\screens.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\screentext.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\sdlmusic.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\sector.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\sounds.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\soundsdyn.cpp" />

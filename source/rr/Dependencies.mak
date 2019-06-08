@@ -88,7 +88,3 @@ $(mact_obj)/control.$o: $(mact_src)/control.cpp $(mact_inc)/control.h $(mact_inc
 $(mact_obj)/keyboard.$o: $(mact_src)/keyboard.cpp $(mact_inc)/keyboard.h $(engine_inc)/compat.h $(engine_inc)/baselayer.h
 $(mact_obj)/joystick.$o: $(mact_src)/joystick.cpp $(mact_inc)/joystick.h $(engine_inc)/baselayer.h
 $(mact_obj)/scriplib.$o: $(mact_src)/scriplib.cpp $(mact_inc)/scriplib.h $(mact_src)/_scrplib.h $(engine_inc)/compat.h
-
-$(rr_obj)/midi.$o: $(rr_src)/midi.cpp $(rr_src)/_midi.h $(rr_src)/midi.h $(audiolib_inc)/music.h
-$(rr_obj)/mpu401.$o: $(rr_src)/mpu401.cpp $(rr_src)/mpu401.h $(audiolib_inc)/music.h
-$(rr_obj)/music.$o: $(rr_src)/music.cpp $(rr_src)/midi.h $(rr_src)/mpu401.h $(audiolib_inc)/music.h

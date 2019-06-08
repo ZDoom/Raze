@@ -132,12 +132,6 @@
     <ClInclude Include="..\..\source\duke3d\src\android.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\duke3d\src\mpu401.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\duke3d\src\_midi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\duke3d\src\cheats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -194,15 +188,6 @@
     <ClCompile Include="..\..\source\duke3d\src\menus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\duke3d\src\midi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\duke3d\src\mpu401.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\duke3d\src\music.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\namesdyn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -222,9 +207,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\savegame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\duke3d\src\sdlmusic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\sector.cpp">

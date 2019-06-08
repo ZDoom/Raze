@@ -132,12 +132,6 @@
     <ClInclude Include="..\..\source\rr\src\android.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\rr\src\mpu401.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\rr\src\_midi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\rr\src\cheats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -194,15 +188,6 @@
     <ClCompile Include="..\..\source\rr\src\menus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\rr\src\midi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\rr\src\mpu401.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\rr\src\music.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\rr\src\namesdyn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -222,9 +207,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\rr\src\savegame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\rr\src\sdlmusic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\rr\src\sector.cpp">

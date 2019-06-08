@@ -41,8 +41,7 @@ common_h=\
     $(blood_src)/common_game.h \
     $(blood_src)/blood.h \
     $(blood_src)/actor.h \
-	$(blood_src)/ai.h \
-    $(blood_src)/al_midi.h \
+    $(blood_src)/ai.h \
     $(blood_src)/asound.h \
     $(blood_src)/callback.h \
     $(blood_src)/choke.h \
@@ -69,12 +68,9 @@ common_h=\
     $(blood_src)/map2d.h \
     $(blood_src)/menu.h \
     $(blood_src)/messages.h \
-    $(blood_src)/midi.h \
     $(blood_src)/mirrors.h \
     $(blood_src)/misc.h \
-    $(blood_src)/mpu401.h \
     $(blood_src)/network.h \
-    $(blood_src)/opl3.h \
     $(blood_src)/osdcmds.h \
     $(blood_src)/player.h \
     $(blood_src)/pqueue.h \
@@ -181,11 +177,3 @@ $(mact_obj)/control.$o: $(mact_src)/control.cpp $(mact_inc)/control.h $(mact_inc
 $(mact_obj)/keyboard.$o: $(mact_src)/keyboard.cpp $(mact_inc)/keyboard.h $(engine_inc)/compat.h $(engine_inc)/baselayer.h
 $(mact_obj)/joystick.$o: $(mact_src)/joystick.cpp $(mact_inc)/joystick.h $(engine_inc)/baselayer.h
 $(mact_obj)/scriplib.$o: $(mact_src)/scriplib.cpp $(mact_inc)/scriplib.h $(mact_src)/_scrplib.h $(engine_inc)/compat.h
-
-$(blood_obj)/al_midi.$o: $(blood_src)/al_midi.cpp $(engine_inc)/compat.h $(blood_src)/al_midi.h $(blood_src)/_al_midi.h $(blood_src)/opl3.h
-$(blood_obj)/gmtimbre.$o: $(blood_src)/gmtimbre.cpp
-$(blood_obj)/opl3.$o: $(blood_src)/opl3.cpp
-$(blood_obj)/midi.$o: $(blood_src)/midi.cpp $(blood_src)/_midi.h $(blood_src)/midi.h $(blood_src)/al_midi.h $(audiolib_inc)/music.h
-$(blood_obj)/oplmidi.$o: $(blood_src)/oplmidi.cpp $(blood_src)/_oplmidi.h $(blood_src)/oplmidi.h $(blood_src)/al_midi.h $(audiolib_inc)/music.h
-$(blood_obj)/mpu401.$o: $(blood_src)/mpu401.cpp $(blood_src)/mpu401.h $(audiolib_inc)/music.h
-$(blood_obj)/music.$o: $(blood_src)/music.cpp $(blood_src)/midi.h $(blood_src)/mpu401.h $(blood_src)/al_midi.h $(audiolib_inc)/music.h

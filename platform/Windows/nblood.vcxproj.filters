@@ -93,15 +93,6 @@
     <ClCompile Include="..\..\source\blood\src\sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\blood\src\mpu401.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\blood\src\music.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\blood\src\midi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\blood\src\gameutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -234,9 +225,6 @@
     <ClCompile Include="..\..\source\blood\src\loadsave.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\blood\src\gmtimbre.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\blood\src\common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -335,15 +323,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\blood\src\sound.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\blood\src\midi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\blood\src\mpu401.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\blood\src\_midi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\blood\src\loadsave.h">

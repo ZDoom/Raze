@@ -184,7 +184,6 @@
     <ClInclude Include="..\..\source\rr\src\input.h" />
     <ClInclude Include="..\..\source\rr\src\inv.h" />
     <ClInclude Include="..\..\source\rr\src\menus.h" />
-    <ClInclude Include="..\..\source\rr\src\mpu401.h" />
     <ClInclude Include="..\..\source\rr\src\net.h" />
     <ClInclude Include="..\..\source\rr\src\player.h" />
     <ClInclude Include="..\..\source\rr\src\premap.h" />
@@ -195,7 +194,6 @@
     <ClInclude Include="..\..\source\rr\src\screentext.h" />
     <ClInclude Include="..\..\source\rr\src\sector.h" />
     <ClInclude Include="..\..\source\rr\src\_functio.h" />
-    <ClInclude Include="..\..\source\rr\src\_midi.h" />
     <ClInclude Include="..\..\source\rr\src\_rts.h" />
     <ClInclude Include="..\..\source\rr\src\config.h" />
     <ClInclude Include="..\..\source\rr\src\duke3d.h" />
@@ -240,9 +238,6 @@
     <ClCompile Include="..\..\source\rr\src\input.cpp" />
     <ClCompile Include="..\..\source\rr\src\mdump.cpp" />
     <ClCompile Include="..\..\source\rr\src\menus.cpp" />
-    <ClCompile Include="..\..\source\rr\src\midi.cpp" />
-    <ClCompile Include="..\..\source\rr\src\mpu401.cpp" />
-    <ClCompile Include="..\..\source\rr\src\music.cpp" />
     <ClCompile Include="..\..\source\rr\src\namesdyn.cpp" />
     <ClCompile Include="..\..\source\rr\src\net.cpp" />
     <ClCompile Include="..\..\source\rr\src\osdcmds.cpp" />
@@ -254,12 +249,6 @@
     <ClCompile Include="..\..\source\rr\src\sbar.cpp" />
     <ClCompile Include="..\..\source\rr\src\screens.cpp" />
     <ClCompile Include="..\..\source\rr\src\screentext.cpp" />
-    <ClCompile Include="..\..\source\rr\src\sdlmusic.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\source\rr\src\sector.cpp" />
     <ClCompile Include="..\..\source\rr\src\sounds.cpp" />
     <ClCompile Include="..\..\source\rr\src\soundsdyn.cpp" />
