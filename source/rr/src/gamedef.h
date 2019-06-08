@@ -105,7 +105,6 @@ enum QuickStructureAccess_t
 
 extern int32_t g_structVarIDs;
 
-extern char CheatStrings[][MAXCHEATLEN];
 extern char g_scriptFileName[BMAX_PATH];
 
 extern const uint32_t CheatFunctionFlags[];
