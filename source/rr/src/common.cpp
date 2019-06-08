@@ -211,8 +211,6 @@ void G_SetupGlobalPsky(void)
 //////////
 
 static char g_rootDir[BMAX_PATH];
-//char g_modDir[BMAX_PATH] = "/";
-
 int g_useCwd;
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;

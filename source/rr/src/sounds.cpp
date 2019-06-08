@@ -920,7 +920,7 @@ void S_Callback(intptr_t num)
     if (num == MUSIC_ID)
         return;
 
-    dq[dnum & (DQSIZE - 1)] = num;
+    dq[dnum & (DQSIZE - 1)] = (uint32_t)num;
     dnum++;
 }
 

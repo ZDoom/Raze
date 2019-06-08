@@ -108,7 +108,8 @@ int32_t hud_showmapname = 1;
 int32_t g_levelTextTime = 0;
 
 int32_t r_maxfps = 60;
-uint64_t g_frameDelay = 17;
+int32_t r_maxfpsoffset = 0;
+double g_frameDelay = 0.0;
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
@@ -171,13 +172,13 @@ void G_HandleSpecialKeys(void)
 
     if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
-        if (videoSetGameMode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail))
+        if (videoSetGameMode(!ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail))
         {
             OSD_Printf(OSD_ERROR "Failed setting fullscreen video mode.\n");
-            if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP, ud.detail))
+            if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail))
                 G_GameExit("Failed to recover from failure to set fullscreen video mode.\n");
         }
-        else ud.config.ScreenMode = !ud.config.ScreenMode;
+        else ud.setup.fullscreen = !ud.setup.fullscreen;
         KB_ClearKeyDown(sc_Enter);
         g_restorePalette = 1;
         G_UpdateScreenArea();
@@ -374,7 +375,7 @@ void G_GameExit(const char *msg)
         if (g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
-            videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail);
+            videoSetGameMode(ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail);
         }
 
         // shareware and TEN screens
@@ -1013,13 +1014,14 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
                                                                   )));
 
+        viewingRange = Blrintf(float(vr) * tanf(ud.fov * (PI/360.f)));
+
         if (!RRRA || !pPlayer->drug_mode)
         {
             if (!r_usenewaspect)
-                renderSetAspect(vr, yxaspect);
+                renderSetAspect(viewingRange, yxaspect);
             else
             {
-                viewingRange = vr;
                 yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
 
                 renderSetAspect(mulscale16(viewingRange,viewingrange), yxaspect);
@@ -1141,10 +1143,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 if (pPlayer->drug_stat[0] == 0)
                 {
                     pPlayer->drug_stat[1]++;
-                    aspect = vr + pPlayer->drug_stat[1] * 5000;
-                    if (vr * 3 < aspect)
+                    aspect = viewingRange + pPlayer->drug_stat[1] * 5000;
+                    if (viewingRange * 3 < aspect)
                     {
-                        pPlayer->drug_aspect = vr * 3;
+                        pPlayer->drug_aspect = viewingRange * 3;
                         pPlayer->drug_stat[0] = 2;
                     }
                     else
@@ -1156,14 +1158,14 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 else if (pPlayer->drug_stat[0] == 3)
                 {
                     pPlayer->drug_stat[1]--;
-                    aspect = vr + pPlayer->drug_stat[1] * 5000;
-                    if (aspect < vr)
+                    aspect = viewingRange + pPlayer->drug_stat[1] * 5000;
+                    if (aspect < viewingRange)
                     {
                         pPlayer->drug_mode = 0;
                         pPlayer->drug_stat[0] = 0;
                         pPlayer->drug_stat[2] = 0;
                         pPlayer->drug_stat[1] = 0;
-                        pPlayer->drug_aspect = vr;
+                        pPlayer->drug_aspect = viewingRange;
                     }
                     else
                     {
@@ -1180,7 +1182,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                     else
                     {
                         pPlayer->drug_stat[2]++;
-                        aspect = pPlayer->drug_stat[2] * 500 + vr * 3;
+                        aspect = pPlayer->drug_stat[2] * 500 + viewingRange * 3;
                         pPlayer->drug_aspect = aspect;
                         P_UpdateScreenPal(pPlayer);
                     }
@@ -1197,7 +1199,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                     else
                     {
                         pPlayer->drug_stat[2]--;
-                        aspect = pPlayer->drug_stat[2] * 500 + vr * 3;
+                        aspect = pPlayer->drug_stat[2] * 500 + viewingRange * 3;
                         pPlayer->drug_aspect = aspect;
                         P_UpdateScreenPal(pPlayer);
                     }
@@ -6813,7 +6815,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 else
                 {
                     initprintf("Using file \"%s\" as game data.\n", fileName);
-                    if (!g_noAutoLoad && !ud.config.NoAutoLoad)
+                    if (!g_noAutoLoad && !ud.setup.noautoload)
                         G_DoAutoload(fileName);
                 }
             }
@@ -7526,10 +7528,10 @@ static void G_Startup(void)
         if (g_modDir[0] != '/' && (cwd = getcwd(NULL, 0)))
         {
             Bchdir(g_modDir);
-            if (artLoadFiles("tiles%03d.art",MAXCACHE1DSIZE) < 0)
+            if (artLoadFiles("tiles%03i.art",MAXCACHE1DSIZE) < 0)
             {
                 Bchdir(cwd);
-                if (artLoadFiles("tiles%03d.art",MAXCACHE1DSIZE) < 0)
+                if (artLoadFiles("tiles%03i.art",MAXCACHE1DSIZE) < 0)
                     G_GameExit("Failed loading art.");
             }
             Bchdir(cwd);
@@ -7538,7 +7540,7 @@ static void G_Startup(void)
 #endif
 
         }
-        else if (artLoadFiles("tiles%03d.art",MAXCACHE1DSIZE) < 0)
+        else if (artLoadFiles("tiles%03i.art",MAXCACHE1DSIZE) < 0)
             G_GameExit("Failed loading art.");
     }
 
@@ -7872,7 +7874,7 @@ int app_main(int argc, char const * const * argv)
     G_ScanGroups();
 
 #ifdef STARTUP_SETUP_WINDOW
-    if (readSetup < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.config.ForceSetup)) || g_commandSetup)
+    if (readSetup < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.setup.forcesetup)) || g_commandSetup)
     {
         if (quitevent || !startwin_run())
         {
@@ -7883,7 +7885,7 @@ int app_main(int argc, char const * const * argv)
 #endif
 
     g_logFlushWindow = 0;
-    G_LoadGroups(!g_noAutoLoad && !ud.config.NoAutoLoad);
+    G_LoadGroups(!g_noAutoLoad && !ud.setup.noautoload);
 //    flushlogwindow = 1;
 
     if (!g_useCwd)
@@ -8045,8 +8047,8 @@ int app_main(int argc, char const * const * argv)
         CONFIG_SetupMouse();
         CONFIG_SetupJoystick();
 
-        CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-        CONTROL_MouseEnabled    = (ud.config.UseMouse && CONTROL_MousePresent);
+        CONTROL_JoystickEnabled = (ud.setup.usejoystick && CONTROL_JoyPresent);
+        CONTROL_MouseEnabled    = (ud.setup.usemouse && CONTROL_MousePresent);
 
         // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
         for (bssize_t i=0; i<joystick.numAxes; i++)
@@ -8076,48 +8078,53 @@ int app_main(int argc, char const * const * argv)
     OSD_Exec(tempbuf);
     OSD_Exec("autoexec.cfg");
 
+    CONFIG_SetDefaultKeys(keydefaults, true);
+
     system_getcvars();
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail) < 0)
+        if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail) < 0)
         {
-            vec2_t const res[] = {
-                { ud.config.ScreenWidth, ud.config.ScreenHeight }, { 800, 600 }, { 640, 480 }, { 320, 240 },
-            };
-
-#ifdef USE_OPENGL
-            int const bpp[] = { 32, 16, 8 };
-#else
-            int const bpp[] = { 8 };
-#endif
-
-            initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n", ud.config.ScreenWidth, ud.config.ScreenHeight,
-                       ud.config.ScreenBPP, ud.config.ScreenMode ? "fullscreen" : "windowed");
+            initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", ud.setup.xdim, ud.setup.ydim,
+                       ud.setup.bpp, ud.setup.fullscreen ? "fullscreen" : "windowed");
 
             int resIdx = 0;
-            int bppIdx = 0;
 
-            while (videoSetGameMode(0, res[resIdx].x, res[resIdx].y, bpp[bppIdx], ud.detail) < 0)
+            for (int i=0; i < validmodecnt; i++)
             {
-                initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n", res[resIdx].x, res[resIdx].y,
-                           bpp[bppIdx]);
-
-                if (++bppIdx == ARRAY_SIZE(bpp))
+                if (validmode[i].xdim == ud.setup.xdim && validmode[i].ydim == ud.setup.ydim)
                 {
-                    if (++resIdx == ARRAY_SIZE(res))
-                        G_GameExit("Unable to set failsafe video mode!");
-                    bppIdx = 0;
+                    resIdx = i;
+                    break;
                 }
             }
 
-            ud.config.ScreenWidth  = res[resIdx].x;
-            ud.config.ScreenHeight = res[resIdx].y;
-            ud.config.ScreenBPP    = bpp[bppIdx];
+            int const savedIdx = resIdx;
+            int bpp = ud.setup.bpp;
+
+            while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, ud.detail) < 0)
+            {
+                initprintf("Failure setting video mode %dx%dx%d windowed! Trying next mode...\n",
+                           validmode[resIdx].xdim, validmode[resIdx].ydim, bpp);
+
+                if (++resIdx == validmodecnt)
+                {
+                    if (bpp == 8)
+                        G_GameExit("Fatal error: unable to set any video mode!");
+
+                    resIdx = savedIdx;
+                    bpp = 8;
+                }
+            }
+
+            ud.setup.xdim = validmode[resIdx].xdim;
+            ud.setup.ydim = validmode[resIdx].ydim;
+            ud.setup.bpp  = bpp;
         }
 
-        videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-
+        g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
+        videoSetPalette(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
         S_MusicStartup();
         S_SoundStartup();
     }
@@ -8284,7 +8291,7 @@ MAIN_LOOP_RESTART:
         OSD_DispatchQueued();
 
         char gameUpdate = false;
-        uint32_t gameUpdateStartTime = timerGetTicks();
+        double const gameUpdateStartTime = timerGetHiTicks();
         if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
         {
             if (g_networkMode != NET_DEDICATED_SERVER)
@@ -8336,7 +8343,7 @@ MAIN_LOOP_RESTART:
             while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
 
             gameUpdate = true;
-            g_gameUpdateTime = timerGetTicks()-gameUpdateStartTime;
+            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
             if (g_gameUpdateAvgTime < 0.f)
                 g_gameUpdateAvgTime = g_gameUpdateTime;
             g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
@@ -8374,7 +8381,7 @@ MAIN_LOOP_RESTART:
 
             if (gameUpdate)
             {
-                g_gameUpdateAndDrawTime = timerGetTicks()-gameUpdateStartTime;
+                g_gameUpdateAndDrawTime = timerGetHiTicks()-gameUpdateStartTime;
             }
         }
 

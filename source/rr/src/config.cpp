@@ -116,24 +116,52 @@ const char *CONFIG_AnalogNumToName(int32_t func)
 }
 
 
-void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
+void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy/*=false*/)
 {
-    Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
+    static char const s_gamefunc_[] = "gamefunc_";
+    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
 
-    CONTROL_ClearAllBinds();
+    if (!lazy)
+    {
+        Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
+        CONTROL_ClearAllBinds();
+    }
 
-    for (size_t i=0; i < ARRAY_SIZE(gamefunctions); ++i)
+    for (int i=0; i < ARRAY_SSIZE(gamefunctions); ++i)
     {
         if (gamefunctions[i][0] == '\0')
             continue;
 
-        ud.config.KeyboardKeys[i][0] = KB_StringToScanCode(keyptr[i<<1]);
-        ud.config.KeyboardKeys[i][1] = KB_StringToScanCode(keyptr[(i<<1)+1]);
+        auto &key = ud.config.KeyboardKeys[i];
+
+        int const default0 = KB_StringToScanCode(keyptr[i<<1]);
+        int const default1 = KB_StringToScanCode(keyptr[(i<<1)+1]);
+
+        // skip the function if the default key is already used
+        // or the function is assigned to another key
+        if (lazy && (key[0] != 0xff || (CONTROL_KeyIsBound(default0) && Bstrlen(CONTROL_KeyBinds[default0].cmdstr) > strlen_gamefunc_
+                        && CONFIG_FunctionNameToNum(CONTROL_KeyBinds[default0].cmdstr + strlen_gamefunc_) >= 0)))
+        {
+#if 0 // defined(DEBUGGINGAIDS)
+            if (key[0] != 0xff)
+                initprintf("Skipping %s bound to %s\n", keyptr[i<<1], CONTROL_KeyBinds[default0].cmdstr);
+#endif
+            continue;
+        }
+
+        key[0] = default0;
+        key[1] = default1;
+
+        if (key[0])
+            CONTROL_FreeKeyBind(key[0]);
+
+        if (key[1])
+            CONTROL_FreeKeyBind(key[1]);
 
         if (i == gamefunc_Show_Console)
-            OSD_CaptureKey(ud.config.KeyboardKeys[i][0]);
+            OSD_CaptureKey(key[0]);
         else
-            CONFIG_MapKey(i, ud.config.KeyboardKeys[i][0], 0, ud.config.KeyboardKeys[i][1], 0);
+            CONFIG_MapKey(i, key[0], 0, key[1], 0);
     }
 }
 
@@ -154,8 +182,8 @@ void CONFIG_SetDefaults(void)
     droidinput.toggleCrouch = 1;
     droidinput.quickSelectWeapon = 1;
 
-    ud.config.ScreenWidth = droidinfo.screen_width;
-    ud.config.ScreenHeight = droidinfo.screen_height;
+    ud.setup.xdim = droidinfo.screen_width;
+    ud.setup.ydim = droidinfo.screen_height;
 #else
 # if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
     uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
@@ -167,27 +195,23 @@ void CONFIG_SetDefaults(void)
     SDL_DisplayMode dm;
     if (SDL_GetDesktopDisplayMode(0, &dm) == 0)
     {
-        ud.config.ScreenWidth = dm.w;
-        ud.config.ScreenHeight = dm.h;
+        ud.setup.xdim = dm.w;
+        ud.setup.ydim = dm.h;
     }
     else
 # endif
     {
-        ud.config.ScreenWidth = 1024;
-        ud.config.ScreenHeight = 768;
+        ud.setup.xdim = 1024;
+        ud.setup.ydim = 768;
     }
 #endif
 
-    ud.config.ScreenMode = 1;
-
 #ifdef USE_OPENGL
-    ud.config.ScreenBPP = 32;
+    ud.setup.bpp = 32;
 #else
-    ud.config.ScreenBPP = 8;
+    ud.setup.bpp = 8;
 #endif
     ud.config.useprecache = 1;
-    ud.config.ForceSetup = 1;
-    ud.config.NoAutoLoad = 1;
     ud.config.AmbienceToggle = 1;
     ud.config.AutoAim = 1;
     ud.config.FXVolume = 255;
@@ -261,11 +285,16 @@ void CONFIG_SetDefaults(void)
     ud.weaponswitch = 3;	// new+empty
     ud.angleinterpolation = 0;
 #ifdef GEKKO
-    ud.config.UseJoystick = 1;
+    ud.setup.usejoystick = 1;
 #else
-    ud.config.UseJoystick = 0;
+    ud.setup.usejoystick = 0;
 #endif
-    ud.config.UseMouse = 1;
+
+    ud.setup.forcesetup = 1;
+    ud.setup.noautoload = 1;
+    ud.setup.fullscreen = 1;
+    ud.setup.usemouse = 1;
+
     ud.config.VoiceToggle = 5; // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
     ud.display_bonus_screen = 1;
     ud.show_level_text = 1;
@@ -284,6 +313,7 @@ void CONFIG_SetDefaults(void)
     ud.autosave = 1;
     ud.autosavedeletion = 1;
     ud.maxautosaves = 5;
+    ud.fov = 90;
 
     ud.config.CheckForUpdates = 1;
 
@@ -395,47 +425,48 @@ void CONFIG_SetDefaults(void)
 
 
 // wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
-void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
+void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
 {
-    int32_t i, j, k;
-    int32_t ii[] = { key1, key2, oldkey1, oldkey2 };
+    int const keys[] = { key1, key2, oldkey1, oldkey2 };
     char buf[2*MAXGAMEFUNCLEN];
-
-    UNREFERENCED_PARAMETER(which);
-//    CONTROL_MapKey(which, key1, key2);
 
     if (which == gamefunc_Show_Console)
         OSD_CaptureKey(key1);
 
-    for (k = 0; (unsigned)k < ARRAY_SIZE(ii); k++)
+    for (int k = 0; (unsigned)k < ARRAY_SIZE(keys); k++)
     {
-        if (ii[k] == 0xff || !ii[k])
+        if (keys[k] == 0xff || !keys[k])
             continue;
 
-        for (j=0; ConsoleKeys[j].name; j++)
-            if (ii[k] == ConsoleKeys[j].id)
+        int match = 0;
+
+        for (; sctokeylut[match].key; match++)
+        {
+            if (keys[k] == sctokeylut[match].sc)
                 break;
+        }
 
         tempbuf[0] = 0;
 
-        for (i=NUMGAMEFUNCTIONS-1; i>=0; i--)
+        for (int i=NUMGAMEFUNCTIONS-1; i>=0; i--)
         {
-            if (ud.config.KeyboardKeys[i][0] == ii[k] || ud.config.KeyboardKeys[i][1] == ii[k])
+            if (ud.config.KeyboardKeys[i][0] == keys[k] || ud.config.KeyboardKeys[i][1] == keys[k])
             {
-                Bsprintf(buf,"gamefunc_%s; ",CONFIG_FunctionNumToName(i));
+                Bsprintf(buf, "gamefunc_%s; ", CONFIG_FunctionNumToName(i));
                 Bstrcat(tempbuf,buf);
             }
         }
 
-        i = Bstrlen(tempbuf);
-        if (i >= 2)
+        int const len = Bstrlen(tempbuf);
+
+        if (len >= 2)
         {
-            tempbuf[i-2] = 0;  // cut off the trailing "; "
-            CONTROL_BindKey(ii[k], tempbuf, 1, ConsoleKeys[j].name ? ConsoleKeys[j].name : "<?>");
+            tempbuf[len-2] = 0;  // cut off the trailing "; "
+            CONTROL_BindKey(keys[k], tempbuf, 1, sctokeylut[match].key ? sctokeylut[match].key : "<?>");
         }
         else
         {
-            CONTROL_FreeKeyBind(ii[k]);
+            CONTROL_FreeKeyBind(keys[k]);
         }
     }
 }
@@ -638,8 +669,8 @@ int32_t CONFIG_ReadSetup(void)
     SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ConfigVersion", &ud.configversion);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.config.ForceSetup);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.config.NoAutoLoad);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.setup.forcesetup);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.setup.noautoload);
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "CacheSize", &dummy);
 
     if (dummy > MAXCACHE1DSIZE)
@@ -669,10 +700,10 @@ int32_t CONFIG_ReadSetup(void)
 
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Out",&ud.lockout);
     SCRIPT_GetString(ud.config.scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
-
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight",&ud.config.ScreenHeight);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",&ud.config.ScreenMode);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",&ud.config.ScreenWidth);
+    
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight", &ud.setup.ydim);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode", &ud.setup.fullscreen);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth", &ud.setup.xdim);
 
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", (int32_t *)&windowpos);
 
@@ -682,14 +713,14 @@ int32_t CONFIG_ReadSetup(void)
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32_t *)&windowy);
 
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t *)&maxrefreshfreq);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);
-
-    if (ud.config.ScreenBPP < 8) ud.config.ScreenBPP = 32;
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.setup.bpp);
+    
+    if (ud.setup.bpp < 8) ud.setup.bpp = 32;
 
 #ifdef POLYMER
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &dummy);
-    if (dummy > 0 && ud.config.ScreenBPP >= 16) glrendmode = REND_POLYMER;
-    else glrendmode = REND_POLYMOST;
+    int32_t rendmode = 0;
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &rendmode);
+    glrendmode = (rendmode > 0) ? REND_POLYMER : REND_POLYMOST;
 #endif
 
     SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
@@ -763,18 +794,18 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions",ud.executions,FALSE,FALSE);
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_EDUKE32,FALSE,FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup",ud.config.ForceSetup,FALSE,FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad",ud.config.NoAutoLoad,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup", ud.setup.forcesetup, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", ud.setup.noautoload, FALSE, FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "CacheSize", MAXCACHE1DSIZE, FALSE, FALSE);
 
 #ifdef POLYMER
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer",glrendmode == REND_POLYMER,FALSE,FALSE);
 #endif
-
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP",ud.config.ScreenBPP,FALSE,FALSE);  // JBF 20040523
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight",ud.config.ScreenHeight,FALSE,FALSE);    // JBF 20031206
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",ud.config.ScreenMode,FALSE,FALSE);    // JBF 20031206
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",ud.config.ScreenWidth,FALSE,FALSE);  // JBF 20031206
+    
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", ud.setup.bpp, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight", ud.setup.ydim, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode", ud.setup.fullscreen, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth", ud.setup.xdim, FALSE, FALSE);
 
     if (g_grpNamePtr && !g_addonNum)
         SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",g_grpNamePtr);
@@ -804,7 +835,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", ud.config.LastUpdateCheck, FALSE, FALSE);
 #endif
 
-    if (ud.config.UseMouse)
+    if (ud.setup.usemouse)
     {
         for (dummy=0; dummy<MAXMOUSEBUTTONS; dummy++)
         {
@@ -851,7 +882,7 @@ void CONFIG_WriteSetup(uint32_t flags)
         }
     }
 
-    if (ud.config.UseJoystick)
+    if (ud.setup.usejoystick)
     {
         for (dummy=0; dummy<MAXJOYBUTTONSANDHATS; dummy++)
         {

@@ -45,7 +45,6 @@ typedef struct {
     int32_t id;
 } keydef_t;
 
-extern const keydef_t ConsoleKeys[];
 extern const char *const ConsoleButtons[];
 
 extern uint32_t cl_cheatmask;

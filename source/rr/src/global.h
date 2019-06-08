@@ -23,6 +23,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef global_h_
 #define global_h_
 
+#include "build.h"
+#include "compat.h"
+#include "duke3d.h"
+#include "mmulti.h"
+#include "quotes.h"
+#include "sector.h"
+#include "sounds.h"
+
 #define MAXMINECARTS 16
 #define MAXJAILDOORS 32
 #define MAXLIGHTNINSECTORS 64
@@ -41,9 +49,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // duke3d global soup :(
 
-// XXX: we don't #include everything we need.
-#include "compat.h"
-#include "build.h"
 
 G_EXTERN int32_t g_interpolationCnt;
 G_EXTERN int32_t g_interpolationLock;
@@ -51,11 +56,6 @@ G_EXTERN int32_t oldipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t *curipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t bakipos[MAXINTERPOLATIONS];
 
-#include "mmulti.h"
-
-#include "duke3d.h"
-#include "sector.h"
-#include "quotes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -230,8 +230,8 @@ G_EXTERN int32_t g_screenCapture;
 G_EXTERN sound_t g_sounds[MAXSOUNDS];
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;
-G_EXTERN uint32_t g_gameUpdateTime;
-G_EXTERN uint32_t g_gameUpdateAndDrawTime;
+G_EXTERN double g_gameUpdateTime;
+G_EXTERN double g_gameUpdateAndDrawTime;
 #define GAMEUPDATEAVGTIMENUMSAMPLES 100
 extern float g_gameUpdateAvgTime;
 

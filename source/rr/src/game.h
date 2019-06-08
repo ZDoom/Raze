@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #include "fix16.h"
+#include "gamedefs.h"
+#include "gamedef.h"
+#include "net.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -136,6 +139,18 @@ void A_DeleteSprite(int spriteNum);
 #define MAX_RETURN_VALUES 6
 
 // KEEPINSYNC lunatic/_defs_game.lua
+
+typedef struct {
+    int32_t usejoystick;
+    int32_t usemouse;
+    int32_t fullscreen;
+    int32_t xdim;
+    int32_t ydim;
+    int32_t bpp;
+    int32_t forcesetup;
+    int32_t noautoload;
+} ud_setup_t;
+
 typedef struct {
     vec3_t camerapos;
     int32_t const_visibility,uw_framerate;
@@ -163,7 +178,7 @@ typedef struct {
 
     int32_t playerbest;
 
-    int32_t configversion, bgstretch;
+    int32_t configversion, bgstretch, frameperiod;
 
     int32_t default_volume, default_skill;
 
@@ -174,6 +189,8 @@ typedef struct {
 
     uint32_t userbytever;
 
+    int32_t fov;
+
     fix16_t cameraq16ang, cameraq16horiz;
     int16_t camerasect;
     int16_t pause_on,from_bonus;
@@ -183,8 +200,6 @@ typedef struct {
     int8_t menutitle_pal, slidebar_palselected, slidebar_paldisabled;
 
     struct {
-        int32_t UseJoystick;
-        int32_t UseMouse;
         int32_t AutoAim;
         int32_t ShowOpponentWeapons;
         int32_t MouseDeadZone,MouseBias;
@@ -221,18 +236,6 @@ typedef struct {
 
         int32_t ReverseStereo;
 
-        //
-        // Screen variables
-        //
-
-        int32_t ScreenMode;
-
-        int32_t ScreenWidth;
-        int32_t ScreenHeight;
-        int32_t ScreenBPP;
-
-        int32_t ForceSetup;
-        int32_t NoAutoLoad;
 
         int32_t scripthandle;
         int32_t setupread;
@@ -241,6 +244,8 @@ typedef struct {
         int32_t LastUpdateCheck;
         int32_t useprecache;
     } config;
+
+    ud_setup_t setup;
 
     char overhead_on,last_overhead,showweapons;
     char god,warp_on,cashman,eog,showallmap;
@@ -290,7 +295,6 @@ extern int32_t g_cameraClock;
 extern int32_t g_cameraDistance;
 extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
-extern int32_t g_forceWeaponChoice;
 extern int32_t g_fakeMultiMode;
 extern int32_t g_levelTextTime;
 extern int32_t g_quitDeadline;
@@ -298,6 +302,7 @@ extern int32_t g_restorePalette;
 extern int32_t hud_glowingquotes;
 extern int32_t hud_showmapname;
 extern int32_t r_maxfps;
+extern int32_t r_maxfpsoffset;
 extern int32_t tempwallptr;
 extern int32_t ticrandomseed;
 extern int32_t vote_map;
@@ -311,7 +316,8 @@ extern int32_t MAXCACHE1DSIZE;
 extern palette_t CrosshairColors;
 extern palette_t DefaultCrosshairColors;
 
-extern uint64_t g_frameDelay;
+extern double g_frameDelay;
+static inline double calcFrameDelay(int maxFPS) { return maxFPS ? ((double)timerGetFreqU64() / (double)(maxFPS)) : 0.0; }
 
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,

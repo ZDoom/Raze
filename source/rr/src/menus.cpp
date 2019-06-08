@@ -380,7 +380,7 @@ static MenuEntry_t ME_GAMESETUP_SAVESETUP = MAKE_MENUENTRY( "Save setup", &MF_Re
 #endif
 
 #if defined STARTUP_SETUP_WINDOW && !defined EDUKE32_SIMPLE_MENU
-static MenuOption_t MEO_GAMESETUP_STARTWIN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.config.ForceSetup );
+static MenuOption_t MEO_GAMESETUP_STARTWIN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.setup.forcesetup );
 static MenuEntry_t ME_GAMESETUP_STARTWIN = MAKE_MENUENTRY( "Startup window:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_STARTWIN, Option );
 #endif
 
@@ -519,12 +519,14 @@ static MenuOptionSet_t MEOS_VIDEOSETUP_VSYNC = MAKE_MENUOPTIONSET(MEOSN_VIDEOSET
 static MenuOption_t MEO_VIDEOSETUP_VSYNC = MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_VSYNC, &newvsync);
 static MenuEntry_t ME_VIDEOSETUP_VSYNC = MAKE_MENUENTRY("VSync:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_VSYNC, Option);
 
-static char const *MEOSN_VIDEOSETUP_FRAMELIMIT [] = { "None", "30 fps", "60 fps", "120 fps", };
-static int32_t MEOSV_VIDEOSETUP_FRAMELIMIT [] = { 0, 30, 60, 120 };
-static MenuOptionSet_t MEOS_VIDEOSETUP_FRAMELIMIT = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_FRAMELIMIT, MEOSV_VIDEOSETUP_FRAMELIMIT, 0x2);
+static char const *MEOSN_VIDEOSETUP_FRAMELIMIT [] = { "30 fps", "60 fps", "75 fps", "100 fps", "120 fps", "144 fps", "165 fps", "240 fps" };
+static int32_t MEOSV_VIDEOSETUP_FRAMELIMIT [] = { 30, 60, 75, 100, 120, 144, 165, 240 };
+static MenuOptionSet_t MEOS_VIDEOSETUP_FRAMELIMIT = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_FRAMELIMIT, MEOSV_VIDEOSETUP_FRAMELIMIT, 0x0);
 static MenuOption_t MEO_VIDEOSETUP_FRAMELIMIT= MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_FRAMELIMIT, &r_maxfps);
 static MenuEntry_t ME_VIDEOSETUP_FRAMELIMIT = MAKE_MENUENTRY("Framerate limit:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FRAMELIMIT, Option);
 
+static MenuRangeInt32_t MEO_VIDEOSETUP_FRAMELIMITOFFSET = MAKE_MENURANGE( &r_maxfpsoffset, &MF_Redfont, -10, 10, 0, 21, 1 );
+static MenuEntry_t ME_VIDEOSETUP_FRAMELIMITOFFSET = MAKE_MENUENTRY( "FPS offset:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FRAMELIMITOFFSET, RangeInt32 );
 
 static MenuEntry_t ME_VIDEOSETUP_APPLY = MAKE_MENUENTRY( "Apply Changes", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_NULL, Link );
 
@@ -544,6 +546,10 @@ static MenuEntry_t ME_DISPLAYSETUP_UPSCALING = MAKE_MENUENTRY( "Upscaling:", &MF
 static MenuOption_t MEO_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &r_usenewaspect);
 static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUENTRY( "Widescreen:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ASPECTRATIO, Option );
 #endif
+
+
+static MenuRangeInt32_t MEO_DISPLAYSETUP_FOV = MAKE_MENURANGE( &ud.fov, &MF_Redfont, 75, 120, 0, 10, 0 );
+static MenuEntry_t ME_DISPLAYSETUP_FOV = MAKE_MENUENTRY( "FOV:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_FOV, RangeInt32 );
 
 
 #ifdef USE_OPENGL
@@ -709,6 +715,7 @@ static MenuEntry_t *MEL_DISPLAYSETUP[] = {
 #ifndef EDUKE32_ANDROID_MENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
     &ME_DISPLAYSETUP_ASPECTRATIO,
+    &ME_DISPLAYSETUP_FOV,
 #endif
     &ME_DISPLAYSETUP_UPSCALING,
 };
@@ -720,6 +727,7 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
 #ifndef EDUKE32_ANDROID_MENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
     &ME_DISPLAYSETUP_ASPECTRATIO,
+    &ME_DISPLAYSETUP_FOV,
 #endif
     &ME_DISPLAYSETUP_TEXFILTER,
 #ifdef EDUKE32_ANDROID_MENU
@@ -741,6 +749,7 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL_POLYMER[] = {
     &ME_DISPLAYSETUP_COLORCORR,
 #ifndef EDUKE32_ANDROID_MENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
+    &ME_DISPLAYSETUP_FOV,
 #endif
     &ME_DISPLAYSETUP_TEXFILTER,
     &ME_DISPLAYSETUP_ANISOTROPY,
@@ -2030,6 +2039,8 @@ static void Menu_Pre(MenuID_t cm)
               && vsync == newvsync
              )
              || (newrendermode != REND_CLASSIC && resolution[nr].bppmax <= 8));
+
+        MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_FRAMELIMITOFFSET, !r_maxfps);
         break;
     }
 
@@ -2079,7 +2090,7 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_OPTIONS:
         MenuEntry_DisableOnCondition(&ME_OPTIONS_PLAYERSETUP, ud.recstat == 1);
-        MenuEntry_HideOnCondition(&ME_OPTIONS_JOYSTICKSETUP, !ud.config.UseJoystick || CONTROL_JoyPresent == 0);
+        MenuEntry_HideOnCondition(&ME_OPTIONS_JOYSTICKSETUP, !ud.setup.usejoystick || CONTROL_JoyPresent == 0);
         break;
 
     case MENU_COLCORR:
@@ -3601,10 +3612,10 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         G_UpdateScreenArea();
         videoSetRenderMode(nrend);
         vsync = videoSetVsync(nvsync);
-        ud.config.ScreenMode = fullscreen;
-        ud.config.ScreenWidth = xres;
-        ud.config.ScreenHeight = yres;
-        ud.config.ScreenBPP = bpp;
+        ud.setup.fullscreen = fullscreen;
+        ud.setup.xdim = xres;
+        ud.setup.ydim = yres;
+        ud.setup.bpp = bpp;
     }
     else if (entry == &ME_SOUND_RESTART)
     {
@@ -3766,9 +3777,7 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         }
     }
     else if (entry == &ME_VIDEOSETUP_FRAMELIMIT)
-    {
-        g_frameDelay = newOption ? (timerGetFreqU64()/newOption) : 0;
-    }
+        g_frameDelay = calcFrameDelay(newOption + r_maxfpsoffset);
 
     switch (g_currentMenu)
     {
@@ -3831,7 +3840,7 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
         videoResetMode();
         if (videoSetGameMode(fullscreen, xres, yres, bpp, upscalefactor))
             OSD_Printf("restartvid: Reset failed...\n");
-        onvideomodechange(ud.config.ScreenBPP>8);
+        onvideomodechange(ud.setup.bpp>8);
         G_RefreshLights();
     }
 #endif
@@ -3866,6 +3875,8 @@ static int32_t Menu_EntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
         joySetDeadZone(M_JOYSTICKAXES.currentEntry, newValue, *MEO_JOYSTICKAXIS_SATU.variable);
     else if (entry == &ME_JOYSTICKAXIS_SATU)
         joySetDeadZone(M_JOYSTICKAXES.currentEntry, *MEO_JOYSTICKAXIS_DEAD.variable, newValue);
+    else if (entry == &ME_VIDEOSETUP_FRAMELIMITOFFSET)
+        g_frameDelay = calcFrameDelay(r_maxfps + newValue);
 
     return 0;
 }

@@ -23,7 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef gamedef_h_
 #define gamedef_h_
 
+#include "actors.h"
 #include "build.h"  // hashtable_t
+#include "cheats.h"
 #include "common.h"  // tokenlist
 #include "player.h"  // projectile_t
 
@@ -45,9 +47,6 @@ enum
 
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
-
-#define MAXCHEATLEN             20
-#define NUMCHEATCODES           (int32_t)ARRAY_SIZE(CheatStrings)
 
 #define VM_INSTMASK 0xfff
 

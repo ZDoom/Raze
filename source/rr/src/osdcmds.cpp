@@ -20,14 +20,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "duke3d.h"
-#include "osdcmds.h"
-#include "menus.h"
-#include "osdfuncs.h"
-#include "demo.h"  // g_firstDemoFile[]
 #include "cheats.h"
-#include "sbar.h"
+#include "cmdline.h"
+#include "demo.h"  // g_firstDemoFile[]
+#include "duke3d.h"
+#include "menus.h"
+#include "osdcmds.h"
+#include "osdfuncs.h"
 #include "savegame.h"
+#include "sbar.h"
+
+#ifdef LUNATIC
+# include "lunatic_game.h"
+#endif
 
 #ifdef EDUKE32_TOUCH_DEVICES
 #include "in_android.h"
@@ -38,7 +43,7 @@ float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 
 uint32_t cl_cheatmask;
 
-static inline int32_t osdcmd_quit(osdfuncparm_t const * const UNUSED(parm))
+static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     OSD_ShowDisplay(0);
@@ -46,7 +51,7 @@ static inline int32_t osdcmd_quit(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_changelevel(osdfuncparm_t const * const parm)
+static int osdcmd_changelevel(osdcmdptr_t parm)
 {
     int32_t volume=0,level;
     char *p;
@@ -155,7 +160,7 @@ static int32_t osdcmd_changelevel(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_map(osdfuncparm_t const * const parm)
+static int osdcmd_map(osdcmdptr_t parm)
 {
     int32_t i;
     char filename[BMAX_PATH];
@@ -274,7 +279,12 @@ static int32_t osdcmd_map(osdfuncparm_t const * const parm)
 
     ud.multimode = 1;
 
-    G_NewGame_EnterLevel();
+    if (g_player[myconnectindex].ps->gm & MODE_GAME)
+    {
+        G_NewGame(ud.m_volume_number, ud.m_level_number, ud.m_player_skill);
+        g_player[myconnectindex].ps->gm = MODE_RESTART;
+    }
+    else G_NewGame_EnterLevel();
 
     return OSDCMD_OK;
 }
@@ -296,7 +306,7 @@ static int32_t osdcmd_map(osdfuncparm_t const * const parm)
 //    the variance of the run times MUST be taken into account (that is, the
 //    replaying must be performed multiple times for the old and new versions,
 //    etc.)
-static int32_t osdcmd_demo(osdfuncparm_t const * const parm)
+static int osdcmd_demo(osdcmdptr_t parm)
 {
     if (numplayers > 1)
     {
@@ -323,7 +333,7 @@ static int32_t osdcmd_demo(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_activatecheat(osdfuncparm_t const * const parm)
+static int osdcmd_activatecheat(osdcmdptr_t parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -336,7 +346,7 @@ static int32_t osdcmd_activatecheat(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_god(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_god(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
@@ -347,7 +357,7 @@ static int32_t osdcmd_god(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_noclip(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -363,7 +373,7 @@ static int32_t osdcmd_noclip(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_restartsound(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     S_SoundShutdown();
@@ -381,7 +391,7 @@ static int32_t osdcmd_restartsound(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_music(osdfuncparm_t const * const parm)
+static int osdcmd_music(osdcmdptr_t parm)
 {
     if (parm->numparms == 1)
     {
@@ -411,19 +421,19 @@ static int32_t osdcmd_music(osdfuncparm_t const * const parm)
     return OSDCMD_SHOWHELP;
 }
 
-int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
+int osdcmd_restartvid(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     videoResetMode();
-    if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail))
+    if (videoSetGameMode(ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail))
         G_GameExit("restartvid: Reset failed...\n");
-    onvideomodechange(ud.config.ScreenBPP>8);
+    onvideomodechange(ud.setup.bpp>8);
     G_UpdateScreenArea();
 
     return OSDCMD_OK;
 }
 
-int32_t osdcmd_restartmap(osdfuncparm_t const * const UNUSED(parm))
+int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -433,10 +443,10 @@ int32_t osdcmd_restartmap(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
+static int osdcmd_vidmode(osdcmdptr_t parm)
 {
-    int32_t newbpp = ud.config.ScreenBPP, newwidth = ud.config.ScreenWidth,
-            newheight = ud.config.ScreenHeight, newfs = ud.config.ScreenMode;
+    int32_t newbpp = ud.setup.bpp, newwidth = ud.setup.xdim,
+            newheight = ud.setup.ydim, newfs = ud.setup.fullscreen;
     int32_t tmp;
 
     if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
@@ -469,19 +479,19 @@ static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
     if (videoSetGameMode(newfs,newwidth,newheight,newbpp,upscalefactor))
     {
         initprintf("vidmode: Mode change failed!\n");
-        if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP, upscalefactor))
+        if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, upscalefactor))
             G_GameExit("vidmode: Reset failed!\n");
     }
-    ud.config.ScreenBPP = newbpp;
-    ud.config.ScreenWidth = newwidth;
-    ud.config.ScreenHeight = newheight;
-    ud.config.ScreenMode = newfs;
-    onvideomodechange(ud.config.ScreenBPP>8);
+    ud.setup.bpp = newbpp;
+    ud.setup.xdim = newwidth;
+    ud.setup.ydim = newheight;
+    ud.setup.fullscreen = newfs;
+    onvideomodechange(ud.setup.bpp>8);
     G_UpdateScreenArea();
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_spawn(osdfuncparm_t const * const parm)
+static int osdcmd_spawn(osdcmdptr_t parm)
 {
     int32_t picnum = 0;
     uint16_t cstat=0;
@@ -575,40 +585,41 @@ static int32_t osdcmd_spawn(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_addpath(osdfuncparm_t const * const parm)
+static int osdcmd_addpath(osdcmdptr_t parm)
 {
-    char pathname[BMAX_PATH];
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    addsearchpath(parm->parms[0]);
 
-    strcpy(pathname,parm->parms[0]);
-    addsearchpath(pathname);
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_initgroupfile(osdfuncparm_t const * const parm)
+static int osdcmd_initgroupfile(osdcmdptr_t parm)
 {
-    char file[BMAX_PATH];
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    initgroupfile(parm->parms[0]);
 
-    strcpy(file,parm->parms[0]);
-    initgroupfile(file);
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_cmenu(osdfuncparm_t const * const parm)
+static int osdcmd_cmenu(osdcmdptr_t parm)
 {
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
     if (numplayers > 1)
     {
-        OSD_Printf("cmenu: disallowed in multiplayer\n");
+        OSD_Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
-    else
-    {
+
+    if ((g_player[myconnectindex].ps->gm & MODE_MENU) != MODE_MENU)
+        Menu_Open(myconnectindex);
+
         Menu_Change(Batol(parm->parms[0]));
-    }
 
     return OSDCMD_OK;
 }
@@ -616,18 +627,18 @@ static int32_t osdcmd_cmenu(osdfuncparm_t const * const parm)
 
 
 
-static int32_t osdcmd_crosshaircolor(osdfuncparm_t const * const parm)
+static int osdcmd_crosshaircolor(osdcmdptr_t parm)
 {
-    int32_t r, g, b;
-
     if (parm->numparms != 3)
     {
         OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",CrosshairColors.r,CrosshairColors.g,CrosshairColors.b);
         return OSDCMD_SHOWHELP;
     }
-    r = Batol(parm->parms[0]);
-    g = Batol(parm->parms[1]);
-    b = Batol(parm->parms[2]);
+
+    uint8_t const r = Batol(parm->parms[0]);
+    uint8_t const g = Batol(parm->parms[1]);
+    uint8_t const b = Batol(parm->parms[2]);
+
     G_SetCrosshairColor(r,g,b);
 
     if (!OSD_ParsingScript())
@@ -636,7 +647,7 @@ static int32_t osdcmd_crosshaircolor(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_give(osdfuncparm_t const * const parm)
+static int osdcmd_give(osdcmdptr_t parm)
 {
     int32_t i;
 
@@ -722,7 +733,7 @@ void onvideomodechange(int32_t newmode)
 }
 
 #if !defined NETCODE_DISABLE
-static int32_t osdcmd_name(osdfuncparm_t const * const parm)
+static int osdcmd_name(osdcmdptr_t parm)
 {
     char namebuf[32];
 
@@ -748,125 +759,18 @@ static int32_t osdcmd_name(osdfuncparm_t const * const parm)
 }
 #endif
 
-static int32_t osdcmd_button(osdfuncparm_t const * const parm)
+static int osdcmd_button(osdcmdptr_t parm)
 {
-	static char const s_gamefunc_[] = "gamefunc_";
-	int constexpr strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
+    static char const s_gamefunc_[] = "gamefunc_";
+    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
 
-	char const* p = parm->name + strlen_gamefunc_;
+    char const *p = parm->name + strlen_gamefunc_;
 
-	//    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
-	CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
+//    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
+    CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
 
 	return OSDCMD_OK;
 }
-
-const keydef_t ConsoleKeys[]=
-{
-    { "Escape", 0x1 },
-    { "1", 0x2 },
-    { "2", 0x3 },
-    { "3", 0x4 },
-    { "4", 0x5 },
-    { "5", 0x6 },
-    { "6", 0x7 },
-    { "7", 0x8 },
-    { "8", 0x9 },
-    { "9", 0xa },
-    { "0", 0xb },
-    { "-", 0xc },
-    { "=", 0xd },
-    { "BakSpc", 0xe },
-    { "Tab", 0xf },
-    { "Q", 0x10 },
-    { "W", 0x11 },
-    { "E", 0x12 },
-    { "R", 0x13 },
-    { "T", 0x14 },
-    { "Y", 0x15 },
-    { "U", 0x16 },
-    { "I", 0x17 },
-    { "O", 0x18 },
-    { "P", 0x19 },
-    { "[", 0x1a },
-    { "]", 0x1b },
-    { "Enter", 0x1c },
-    { "LCtrl", 0x1d },
-    { "A", 0x1e },
-    { "S", 0x1f },
-    { "D", 0x20 },
-    { "F", 0x21 },
-    { "G", 0x22 },
-    { "H", 0x23 },
-    { "J", 0x24 },
-    { "K", 0x25 },
-    { "L", 0x26 },
-    { "SemiColon", 0x27 },
-    { "'", 0x28 },
-    { "Tilde", 0x29 },
-    { "LShift", 0x2a },
-    { "Backslash", 0x2b },
-    { "Z", 0x2c },
-    { "X", 0x2d },
-    { "C", 0x2e },
-    { "V", 0x2f },
-    { "B", 0x30 },
-    { "N", 0x31 },
-    { "M", 0x32 },
-    { ",", 0x33 },
-    { ".", 0x34 },
-    { "/", 0x35 },
-    { "RShift", 0x36 },
-    { "Kpad*", 0x37 },
-    { "LAlt", 0x38 },
-    { "Space", 0x39 },
-    { "CapLck", 0x3a },
-    { "F1", 0x3b },
-    { "F2", 0x3c },
-    { "F3", 0x3d },
-    { "F4", 0x3e },
-    { "F5", 0x3f },
-    { "F6", 0x40 },
-    { "F7", 0x41 },
-    { "F8", 0x42 },
-    { "F9", 0x43 },
-    { "F10", 0x44 },
-    { "NumLck", 0x45 },
-    { "ScrLck", 0x46 },
-    { "Kpad7", 0x47 },
-    { "Kpad8", 0x48 },
-    { "Kpad9", 0x49 },
-    { "Kpad-", 0x4a },
-    { "Kpad4", 0x4b },
-    { "Kpad5", 0x4c },
-    { "Kpad6", 0x4d },
-    { "Kpad+", 0x4e },
-    { "Kpad1", 0x4f },
-    { "Kpad2", 0x50 },
-    { "Kpad3", 0x51 },
-    { "Kpad0", 0x52 },
-    { "Kpad.", 0x53 },
-    { "F11", 0x57 },
-    { "F12", 0x58 },
-    { "KpdEnt", 0x9c },
-    { "RCtrl", 0x9d },
-    { "Kpad/", 0xb5 },
-    { "RAlt", 0xb8 },
-    { "PrtScn", 0xb7 },
-    { "Pause", 0xc5 },
-    { "Home", 0xc7 },
-    { "Up", 0xc8 },
-    { "PgUp", 0xc9 },
-    { "Left", 0xcb },
-    { "Right", 0xcd },
-    { "End", 0xcf },
-    { "Down", 0xd0 },
-    { "PgDn", 0xd1 },
-    { "Insert", 0xd2 },
-    { "Delete", 0xd3 },
-
-    {0,0}
-};
 
 const char *const ConsoleButtons[] =
 {
@@ -874,26 +778,24 @@ const char *const ConsoleButtons[] =
     "mwheeldn", "mouse5", "mouse6", "mouse7", "mouse8"
 };
 
-static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
+static int osdcmd_bind(osdcmdptr_t parm)
 {
-    int32_t i, j, repeat;
-
     if (parm->numparms==1 && !Bstrcasecmp(parm->parms[0],"showkeys"))
     {
-        for (i=0; ConsoleKeys[i].name; i++)
-            OSD_Printf("%s\n",ConsoleKeys[i].name);
-        for (i=0; i<MAXMOUSEBUTTONS; i++)
-            OSD_Printf("%s\n",ConsoleButtons[i]);
+        for (int i=0; sctokeylut[i].key; i++)
+            OSD_Printf("%s\n",sctokeylut[i].key);
+        for (auto ConsoleButton : ConsoleButtons)
+            OSD_Printf("%s\n",ConsoleButton);
         return OSDCMD_OK;
     }
 
     if (parm->numparms==0)
     {
-        int32_t j=0;
+        int j=0;
 
         OSD_Printf("Current key bindings:\n");
 
-        for (i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
+        for (int i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
             if (CONTROL_KeyIsBound(i))
             {
                 j++;
@@ -907,15 +809,21 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
         return OSDCMD_OK;
     }
 
-    for (i=0; ConsoleKeys[i].name; i++)
-        if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
-            break;
+    int i, j, repeat;
 
-    if (!ConsoleKeys[i].name)
+    for (i=0; i < ARRAY_SSIZE(sctokeylut); i++)
+    {
+        if (!Bstrcasecmp(parm->parms[0], sctokeylut[i].key))
+            break;
+    }
+
+    // didn't find the key
+    if (i == ARRAY_SSIZE(sctokeylut))
     {
         for (i=0; i<MAXMOUSEBUTTONS; i++)
             if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
                 break;
+
         if (i >= MAXMOUSEBUTTONS)
             return OSDCMD_SHOWHELP;
 
@@ -953,10 +861,10 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
 
     if (parm->numparms < 2)
     {
-        if (CONTROL_KeyIsBound(ConsoleKeys[i].id))
-            OSD_Printf("%-9s %s\"%s\"\n", ConsoleKeys[i].name, CONTROL_KeyBinds[ConsoleKeys[i].id].repeat?"":"norepeat ",
-                       CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr);
-        else OSD_Printf("%s is unbound\n", ConsoleKeys[i].name);
+        if (CONTROL_KeyIsBound(sctokeylut[i].sc))
+            OSD_Printf("%-9s %s\"%s\"\n", sctokeylut[i].key, CONTROL_KeyBinds[sctokeylut[i].sc].repeat?"":"norepeat ",
+                       CONTROL_KeyBinds[sctokeylut[i].sc].cmdstr);
+        else OSD_Printf("%s is unbound\n", sctokeylut[i].key);
 
         return OSDCMD_OK;
     }
@@ -977,20 +885,21 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
         Bstrcat(tempbuf,parm->parms[j++]);
     }
 
-    CONTROL_BindKey(ConsoleKeys[i].id, tempbuf, repeat, ConsoleKeys[i].name);
+    CONTROL_BindKey(sctokeylut[i].sc, tempbuf, repeat, sctokeylut[i].key);
 
-    {
         char *cp = tempbuf;
 
         // Populate the keyboard config menu based on the bind.
         // Take care of processing one-to-many bindings properly, too.
-        while ((cp = Bstrstr(cp, "gamefunc_")))
+    static char const s_gamefunc_[] = "gamefunc_";
+    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
+
+    while ((cp = Bstrstr(cp, s_gamefunc_)))
         {
-            char *semi;
+        cp += strlen_gamefunc_;
 
-            cp += 9;  // skip the "gamefunc_"
+        char *semi = Bstrchr(cp, ';');
 
-            semi = Bstrchr(cp, ';');
             if (semi)
                 *semi = 0;
 
@@ -1002,14 +911,13 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
             if (j != -1)
             {
                 ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
-                ud.config.KeyboardKeys[j][0] = ConsoleKeys[i].id;
-//            CONTROL_MapKey(j, ConsoleKeys[i].id, ud.config.KeyboardKeys[j][0]);
+            ud.config.KeyboardKeys[j][0] = sctokeylut[i].sc;
+//            CONTROL_MapKey(j, sctokeylut[i].sc, ud.config.KeyboardKeys[j][0]);
 
                 if (j == gamefunc_Show_Console)
-                    OSD_CaptureKey(ConsoleKeys[i].id);
+                OSD_CaptureKey(sctokeylut[i].sc);
             }
         }
-    }
 
     if (!OSD_ParsingScript())
         OSD_Printf("%s\n",parm->raw);
@@ -1017,23 +925,18 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_unbindall(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_unbindall(osdcmdptr_t UNUSED(parm))
 {
-    int32_t i;
-
     UNREFERENCED_CONST_PARAMETER(parm);
 
-    for (i=0; i<MAXBOUNDKEYS; i++)
+    for (int i = 0; i < MAXBOUNDKEYS; ++i)
         CONTROL_FreeKeyBind(i);
 
-    for (i=0; i<MAXMOUSEBUTTONS; i++)
+    for (int i = 0; i < MAXMOUSEBUTTONS; ++i)
         CONTROL_FreeMouseBind(i);
 
-    for (i=0; i<NUMGAMEFUNCTIONS; i++)
-    {
-        ud.config.KeyboardKeys[i][0] = ud.config.KeyboardKeys[i][1] = 0xff;
-//        CONTROL_MapKey(i, ud.config.KeyboardKeys[i][0], ud.config.KeyboardKeys[i][1]);
-    }
+    for (auto &KeyboardKey : ud.config.KeyboardKeys)
+        KeyboardKey[0] = KeyboardKey[1] = 0xff;
 
     if (!OSD_ParsingScript())
         OSD_Printf("unbound all controls\n");
@@ -1041,40 +944,35 @@ static int32_t osdcmd_unbindall(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_unbind(osdfuncparm_t const * const parm)
+static int osdcmd_unbind(osdcmdptr_t parm)
 {
-    int32_t i;
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
 
-    if (parm->numparms < 1) return OSDCMD_SHOWHELP;
-
-    for (i=0; ConsoleKeys[i].name; i++)
-        if (!Bstrcasecmp(parm->parms[0],ConsoleKeys[i].name))
-            break;
-
-    if (!ConsoleKeys[i].name)
+    for (auto ConsoleKey : sctokeylut)
     {
-        for (i=0; i<MAXMOUSEBUTTONS; i++)
-            if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
-                break;
-
-        if (i >= MAXMOUSEBUTTONS)
-            return OSDCMD_SHOWHELP;
-
-        CONTROL_FreeMouseBind(i);
-
-        OSD_Printf("unbound %s\n",ConsoleButtons[i]);
-
-        return OSDCMD_OK;
+        if (ConsoleKey.key && !Bstrcasecmp(parm->parms[0], ConsoleKey.key))
+        {
+            CONTROL_FreeKeyBind(ConsoleKey.sc);
+            OSD_Printf("unbound key %s\n", ConsoleKey.key);
+            return OSDCMD_OK;
+        }
     }
 
-    CONTROL_FreeKeyBind(ConsoleKeys[i].id);
+    for (int i = 0; i < MAXMOUSEBUTTONS; i++)
+    {
+        if (!Bstrcasecmp(parm->parms[0], ConsoleButtons[i]))
+        {
+        CONTROL_FreeMouseBind(i);
+            OSD_Printf("unbound %s\n", ConsoleButtons[i]);
+        return OSDCMD_OK;
+    }
+    }
 
-    OSD_Printf("unbound key %s\n",ConsoleKeys[i].name);
-
-    return OSDCMD_OK;
+    return OSDCMD_SHOWHELP;
 }
 
-static int32_t osdcmd_quicksave(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_quicksave(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
@@ -1083,7 +981,7 @@ static int32_t osdcmd_quicksave(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_quickload(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
@@ -1092,7 +990,7 @@ static int32_t osdcmd_quickload(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_screenshot(osdfuncparm_t const * const parm)
+static int osdcmd_screenshot(osdcmdptr_t parm)
 {
 //    KB_ClearKeysDown();
     static const char *fn = "duke0000.png";
@@ -1105,14 +1003,14 @@ static int32_t osdcmd_screenshot(osdfuncparm_t const * const parm)
 }
 
 #if 0
-static int32_t osdcmd_savestate(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_savestate(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_PARAMETER(parm);
     G_SaveMapState();
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_restorestate(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_restorestate(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_PARAMETER(parm);
     G_RestoreMapState();
@@ -1121,7 +1019,7 @@ static int32_t osdcmd_restorestate(osdfuncparm_t const * const UNUSED(parm))
 #endif
 
 #ifdef DEBUGGINGAIDS
-static int32_t osdcmd_inittimer(osdfuncparm_t const * const parm)
+static int osdcmd_inittimer(osdcmdptr_t parm)
 {
     if (parm->numparms != 1)
     {
@@ -1137,14 +1035,14 @@ static int32_t osdcmd_inittimer(osdfuncparm_t const * const parm)
 #endif
 
 #if !defined NETCODE_DISABLE
-static int32_t osdcmd_disconnect(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_disconnect(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     g_netDisconnect = 1;
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_connect(osdfuncparm_t const * const parm)
+static int osdcmd_connect(osdcmdptr_t parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -1154,7 +1052,7 @@ static int32_t osdcmd_connect(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_password(osdfuncparm_t const * const parm)
+static int osdcmd_password(osdcmdptr_t parm)
 {
     if (parm->numparms < 1)
     {
@@ -1166,7 +1064,7 @@ static int32_t osdcmd_password(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_listplayers(osdfuncparm_t const * const parm)
+static int osdcmd_listplayers(osdcmdptr_t parm)
 {
     ENetPeer *currentPeer;
     char ipaddr[32];
@@ -1197,7 +1095,7 @@ static int32_t osdcmd_listplayers(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_kick(osdfuncparm_t const * const parm)
+static int osdcmd_kick(osdcmdptr_t parm)
 {
     ENetPeer *currentPeer;
     uint32_t hexaddr;
@@ -1235,7 +1133,7 @@ static int32_t osdcmd_kick(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_kickban(osdfuncparm_t const * const parm)
+static int osdcmd_kickban(osdcmdptr_t parm)
 {
     ENetPeer *currentPeer;
     uint32_t hexaddr;
@@ -1280,18 +1178,19 @@ static int32_t osdcmd_kickban(osdfuncparm_t const * const parm)
 }
 #endif
 
-static int32_t osdcmd_purgesaves(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_purgesaves(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     G_DeleteOldSaves();
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
     char buf[32];
+    int32_t maxlen = 0;
     int32_t haveac=0;
 
     for (int i=0; i<MAXTILES; i++)
@@ -1326,9 +1225,9 @@ static int32_t osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
+static int osdcmd_cvar_set_game(osdcmdptr_t parm)
 {
-    int32_t r = osdcmd_cvar_set(parm);
+    int const r = osdcmd_cvar_set(parm);
 
     if (r != OSDCMD_OK) return r;
 
@@ -1344,10 +1243,10 @@ static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
         ud.statusbarmode = (ud.screen_size < 8);
         G_UpdateScreenArea();
     }
-    else if (!Bstrcasecmp(parm->name, "r_maxfps"))
+    else if (!Bstrcasecmp(parm->name, "r_maxfps") || !Bstrcasecmp(parm->name, "r_maxfpsoffset"))
     {
         if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);
-        g_frameDelay = r_maxfps ? (timerGetFreqU64()/r_maxfps) : 0;
+        g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
     }
     else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
     {
@@ -1357,11 +1256,11 @@ static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
     }
     else if (!Bstrcasecmp(parm->name, "in_mouse"))
     {
-        CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+        CONTROL_MouseEnabled = (ud.setup.usemouse && CONTROL_MousePresent);
     }
     else if (!Bstrcasecmp(parm->name, "in_joystick"))
     {
-        CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
+        CONTROL_JoystickEnabled = (ud.setup.usejoystick && CONTROL_JoyPresent);
     }
     else if (!Bstrcasecmp(parm->name, "vid_gamma"))
     {
@@ -1450,9 +1349,9 @@ static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
     return r;
 }
 
-static int32_t osdcmd_cvar_set_multi(osdfuncparm_t const * const parm)
+static int osdcmd_cvar_set_multi(osdcmdptr_t parm)
 {
-    int32_t r = osdcmd_cvar_set_game(parm);
+    int const r = osdcmd_cvar_set_game(parm);
 
     if (r != OSDCMD_OK) return r;
 
@@ -1463,8 +1362,6 @@ static int32_t osdcmd_cvar_set_multi(osdfuncparm_t const * const parm)
 
 int32_t registerosdcommands(void)
 {
-    uint32_t i;
-
     static osdcvardata_t cvars_game[] =
     {
         { "crosshair", "enable/disable crosshair", (void *)&ud.crosshair, CVAR_BOOL, 0, 1 },
@@ -1517,6 +1414,8 @@ int32_t registerosdcommands(void)
         { "demoplay_diffs","enable/disable application of diffs in demo playback",(void *)&demoplay_diffs, CVAR_BOOL, 0, 1 },
         { "demoplay_showsync","enable/disable display of sync status",(void *)&demoplay_showsync, CVAR_BOOL, 0, 1 },
 
+        { "fov", "change the field of view", (void *)&ud.fov, CVAR_INT|CVAR_FUNCPTR, 75, 120 },
+
         { "hud_althud", "enable/disable alternate mini-hud", (void *)&ud.althud, CVAR_BOOL, 0, 1 },
         { "hud_custom", "change the custom hud", (void *)&ud.statusbarcustom, CVAR_INT, 0, ud.statusbarrange },
         { "hud_position", "aligns the status bar to the bottom/top", (void *)&ud.hudontop, CVAR_BOOL, 0, 1 },
@@ -1538,8 +1437,8 @@ int32_t registerosdcommands(void)
         { "hud_hidestick", "hide the touch input stick", (void *)&droidinput.hideStick, CVAR_BOOL, 0, 1 },
 #endif
 
-        { "in_joystick","enables input from the joystick if it is present",(void *)&ud.config.UseJoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "in_mouse","enables input from the mouse if it is present",(void *)&ud.config.UseMouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "in_joystick","enables input from the joystick if it is present",(void *)&ud.setup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "in_mouse","enables input from the mouse if it is present",(void *)&ud.setup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
         { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
         {
@@ -1560,6 +1459,7 @@ int32_t registerosdcommands(void)
         { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "show the frame rate counter", (void *)&ud.showfps, CVAR_INT, 0, 3 },
+        { "r_showfpsperiod", "time in seconds before averaging min and max stats for r_showfps 2+", (void *)&ud.frameperiod, CVAR_INT, 0, 5 },
         { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
         { "r_size", "change size of viewable area", (void *)&ud.screen_size, CVAR_INT|CVAR_FUNCPTR, 0, 64 },
         { "r_rotatespritenowidescreen", "pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
@@ -1568,6 +1468,7 @@ int32_t registerosdcommands(void)
 
         { "r_ambientlight", "sets the global map light level",(void *)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
         { "r_maxfps", "limit the frame rate",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
+        { "r_maxfpsoffset", "menu-controlled offset for r_maxfps",(void *)&r_maxfpsoffset, CVAR_INT|CVAR_FUNCPTR, -10, 10 },
 
         { "sensitivity","changes the mouse sensitivity", (void *)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
 
@@ -1600,17 +1501,17 @@ int32_t registerosdcommands(void)
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;
 
-    for (i=0; i<ARRAY_SIZE(cvars_game); i++)
+    for (auto & cv : cvars_game)
     {
-        switch (cvars_game[i].flags & (CVAR_FUNCPTR|CVAR_MULTI))
+        switch (cv.flags & (CVAR_FUNCPTR|CVAR_MULTI))
         {
         case CVAR_FUNCPTR:
-            OSD_RegisterCvar(&cvars_game[i], osdcmd_cvar_set_game); break;
+                OSD_RegisterCvar(&cv, osdcmd_cvar_set_game); break;
         case CVAR_MULTI:
         case CVAR_FUNCPTR|CVAR_MULTI:
-            OSD_RegisterCvar(&cvars_game[i], osdcmd_cvar_set_multi); break;
+                OSD_RegisterCvar(&cv, osdcmd_cvar_set_multi); break;
         default:
-            OSD_RegisterCvar(&cvars_game[i], osdcmd_cvar_set); break;
+                OSD_RegisterCvar(&cv, osdcmd_cvar_set); break;
         }
     }
 
@@ -1633,21 +1534,19 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
 #endif
 
-    for (i=0; i<NUMGAMEFUNCTIONS; i++)
+    for (auto & func : gamefunctions)
     {
-        char *t;
-        int32_t j;
-
-        if (gamefunctions[i][0] == '\0')
+        if (func[0] == '\0')
             continue;
 
 //        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
 
-        Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
-        t = Xstrdup(tempbuf);
-        for (j=Bstrlen(t); j>=0; j--)
-            t[j] = Btolower(t[j]);
-        Bstrcat(tempbuf,": game button");
+        Bsprintf(tempbuf, "gamefunc_%s", func);
+
+        char *const t = Bstrtolower(Xstrdup(tempbuf));
+
+        Bstrcat(tempbuf, ": game button");
+
         OSD_RegisterFunction(t, Xstrdup(tempbuf), osdcmd_button);
     }
 

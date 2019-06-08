@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef config_public_h_
 #define config_public_h_
 
+#include "function.h"
+
 #define SETUPNAMEPARM "SETUPFILE"
 
 int32_t CONFIG_ReadSetup( void );
@@ -30,7 +32,7 @@ void CONFIG_GetSetupFilename( void );
 void CONFIG_WriteSetup(uint32_t flags);
 void CONFIG_SetupMouse( void );
 void CONFIG_SetupJoystick( void );
-void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN]);
+void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy=false);
 
 int32_t CONFIG_GetMapBestTime(char const * mapname, uint8_t const * mapmd4);
 int32_t CONFIG_SetMapBestTime(uint8_t const * mapmd4, int32_t tm);
