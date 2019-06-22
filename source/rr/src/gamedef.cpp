@@ -371,8 +371,11 @@ static inline void C_SkipSpace(void)
         textptr++;
 }
 
+static int32_t g_gotComment = 0;
+
 static int32_t C_SkipComments(void)
 {
+    g_gotComment = 0;
     do
     {
         switch (*textptr)
@@ -393,6 +396,7 @@ static int32_t C_SkipComments(void)
                 if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
                     initprintf("%s:%d: debug: got comment.\n",g_scriptFileName,g_lineNumber);
                 C_NextLine();
+                g_gotComment = 1;
                 continue;
             case '*': // beginning of a C style comment
                 if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
@@ -420,6 +424,7 @@ static int32_t C_SkipComments(void)
                     initprintf("%s:%d: debug: got end of comment block.\n",g_scriptFileName,g_lineNumber);
 
                 textptr+=2;
+                g_gotComment = 1;
                 continue;
             default:
                 C_ReportError(-1);
@@ -1654,7 +1659,8 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 g_scriptPtr++; //Leave a spot for the fail location
 
-                C_ParseCommand(0);
+                if (!g_gotComment)
+                    C_ParseCommand(0);
 
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
