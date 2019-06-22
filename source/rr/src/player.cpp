@@ -7485,40 +7485,43 @@ check_enemy_sprite:
             }
         }
 
-        if ((trueFloorDist < PHEIGHT + ZOFFSET3) && (checkWalkSound == 1 || checkWalkSound == 3))
+        if ((trueFloorDist < PHEIGHT + ZOFFSET3))
         {
-            if (pPlayer->spritebridge == 0 && pPlayer->walking_snd_toggle == 0 && pPlayer->on_ground)
+            if (checkWalkSound == 1 || checkWalkSound == 3)
             {
-                switch (sectorLotag)
+                if (pPlayer->spritebridge == 0 && pPlayer->walking_snd_toggle == 0 && pPlayer->on_ground)
                 {
-                    case 0:
+                    switch (sectorLotag)
                     {
-                        int const walkPicnum = (lowZhit >= 0 && (lowZhit & 49152) == 49152)
-                                               ? TrackerCast(sprite[lowZhit & (MAXSPRITES - 1)].picnum)
-                                               : TrackerCast(sector[pPlayer->cursectnum].floorpicnum);
+                        case 0:
+                        {
+                            int const walkPicnum = (lowZhit >= 0 && (lowZhit & 49152) == 49152)
+                                                   ? TrackerCast(sprite[lowZhit & (MAXSPRITES - 1)].picnum)
+                                                   : TrackerCast(sector[pPlayer->cursectnum].floorpicnum);
 
-                        if (!RR)
-                            switch (DYNAMICTILEMAP(walkPicnum))
-                            {
-                                case PANNEL1__STATIC:
-                                case PANNEL2__STATIC:
-                                    A_PlaySound(DUKE_WALKINDUCTS, pPlayer->i);
-                                    pPlayer->walking_snd_toggle = 1;
-                                    break;
-                            }
-                    }
-                    break;
-
-                    case ST_1_ABOVE_WATER:
-                        if ((krand2() & 1) == 0 && (!RRRA || (!pPlayer->on_boat && !pPlayer->on_motorcycle && sector[pPlayer->cursectnum].lotag != 321)))
-                            A_PlaySound(DUKE_ONWATER, pPlayer->i);
-                        pPlayer->walking_snd_toggle = 1;
+                            if (!RR)
+                                switch (DYNAMICTILEMAP(walkPicnum))
+                                {
+                                    case PANNEL1__STATIC:
+                                    case PANNEL2__STATIC:
+                                        A_PlaySound(DUKE_WALKINDUCTS, pPlayer->i);
+                                        pPlayer->walking_snd_toggle = 1;
+                                        break;
+                                }
+                        }
                         break;
+
+                        case ST_1_ABOVE_WATER:
+                            if ((krand2() & 1) == 0 && (!RRRA || (!pPlayer->on_boat && !pPlayer->on_motorcycle && sector[pPlayer->cursectnum].lotag != 321)))
+                                A_PlaySound(DUKE_ONWATER, pPlayer->i);
+                            pPlayer->walking_snd_toggle = 1;
+                            break;
+                    }
                 }
             }
+            else if (pPlayer->walking_snd_toggle > 0)
+                pPlayer->walking_snd_toggle--;
         }
-        else if (pPlayer->walking_snd_toggle > 0)
-            pPlayer->walking_snd_toggle--;
 
         if (pPlayer->jetpack_on == 0 && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
             velocityModifier <<= 1;
