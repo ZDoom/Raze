@@ -1303,7 +1303,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 // select sprite for monster to target
 // if holoduke is on, let them target holoduke first.
 //
-                if (DUKE && pPlayer->holoduke_on >= 0)
+                if (!RR && pPlayer->holoduke_on >= 0)
                 {
                     pSprite = (uspritetype *)&sprite[pPlayer->holoduke_on];
                     tw = cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - (krand2() & (ZOFFSET5 - 1)), vm.pSprite->sectnum, pSprite->x, pSprite->y,
