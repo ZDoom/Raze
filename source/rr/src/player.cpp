@@ -7531,7 +7531,7 @@ check_enemy_sprite:
 
         int playerSpeedReduction = 0;
         
-        if (!RRRA && ((pPlayer->on_ground && (TEST_SYNC_KEY(playerBits, SK_CROUCH)))
+        if (!RRRA && pPlayer->on_ground && (TEST_SYNC_KEY(playerBits, SK_CROUCH)
                   || (*weaponFrame > 10 && pPlayer->curr_weapon == KNEE_WEAPON)))
             playerSpeedReduction = 0x2000;
         else if (sectorLotag == ST_2_UNDERWATER)
