@@ -325,18 +325,6 @@ static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdju
     return returnSprite;
 }
 
-int Proj_GetDamage(projectile_t const *pProj)
-{
-    Bassert(pProj);
-
-    int damage = pProj->extra;
-
-    if (pProj->extra_rand > 0)
-        damage += (krand2() % pProj->extra_rand);
-
-    return damage;
-}
-
 static void Proj_MaybeAddSpread(int doSpread, int32_t *zvel, int *shootAng, int zRange, int angRange)
 {
     if (doSpread)

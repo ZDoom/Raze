@@ -175,8 +175,6 @@ typedef struct
 {
     intptr_t *execPtr;  // pointer to CON script for this tile, formerly actorscrptr
     intptr_t *loadPtr;  // pointer to load time CON script, formerly actorLoadEventScrPtr or something
-    projectile_t *proj;
-    projectile_t *defproj;
     uint32_t      flags;       // formerly SpriteFlags, ActorType
     int32_t       cacherange;  // formerly SpriteCache
 } tiledata_t;

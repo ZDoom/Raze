@@ -38,7 +38,6 @@ extern int32_t ticrandomseed;
 extern vmstate_t vm;
 extern int32_t g_tw;
 extern int32_t g_errorLineNum;
-extern int32_t g_currentEventExec;
 
 void A_LoadActor(int32_t spriteNum);
 

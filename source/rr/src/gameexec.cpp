@@ -54,21 +54,8 @@ enum vmflags_t
 
 int32_t g_tw;
 int32_t g_errorLineNum;
-int32_t g_currentEventExec = -1;
 
 intptr_t const *insptr;
-
-int32_t g_returnVarID    = -1;  // var ID of "RETURN"
-int32_t g_weaponVarID    = -1;  // var ID of "WEAPON"
-int32_t g_worksLikeVarID = -1;  // var ID of "WORKSLIKE"
-int32_t g_zRangeVarID    = -1;  // var ID of "ZRANGE"
-int32_t g_angRangeVarID  = -1;  // var ID of "ANGRANGE"
-int32_t g_aimAngleVarID  = -1;  // var ID of "AUTOAIMANGLE"
-int32_t g_lotagVarID     = -1;  // var ID of "LOTAG"
-int32_t g_hitagVarID     = -1;  // var ID of "HITAG"
-int32_t g_textureVarID   = -1;  // var ID of "TEXTURE"
-int32_t g_thisActorVarID = -1;  // var ID of "THISACTOR"
-int32_t g_structVarIDs   = -1;
 
 // for timing events and actors
 uint32_t g_actorCalls[MAXTILES];
@@ -89,7 +76,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop);
 
 void VM_ScriptInfo(intptr_t const *ptr, int range)
 {
-    if (!apScript || (!vm.pSprite && !vm.pPlayer && g_currentEventExec == -1))
+    if (!apScript || (!vm.pSprite && !vm.pPlayer))
         return;
 
     if (ptr)
