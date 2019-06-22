@@ -1845,17 +1845,14 @@ ACTOR_STATIC void G_MoveStandables(void)
                 pSprite->ang = oldAng;
             }
 
-            switch (T1(spriteNum))
-            {
-            default:
+            if (T1(spriteNum) < 32)
             {
                 int32_t playerDist;
                 A_FindPlayer(pSprite, &playerDist);
                 if (playerDist > 768 || T1(spriteNum) > 16) T1(spriteNum)++;
-                break;
             }
 
-            case 32:
+            if (T1(spriteNum) == 32)
             {
                 int16_t hitSprite;
                 int const oldAng = pSprite->ang;
@@ -1896,10 +1893,10 @@ ACTOR_STATIC void G_MoveStandables(void)
                     }
                     hitDist -= 1024;
 
-                    cursectnum = pSprite->sectnum;
-                    updatesector(pSprite->x, pSprite->y, &cursectnum);
-                    if (cursectnum < 0)
-                        break;
+                    //cursectnum = pSprite->sectnum;
+                    //updatesector(pSprite->x, pSprite->y, &cursectnum);
+                    //if (cursectnum < 0)
+                    //    break;
                 }
 
                 T1(spriteNum)++;
@@ -1916,10 +1913,9 @@ ACTOR_STATIC void G_MoveStandables(void)
                     T3(spriteNum) = 13;
                     A_PlaySound(LASERTRIP_ARMING,spriteNum);
                 }
-                break;
             }
-
-            case 33:
+            
+            if (T1(spriteNum) == 33)
             {
                 T2(spriteNum)++;
 
@@ -1945,8 +1941,6 @@ ACTOR_STATIC void G_MoveStandables(void)
                     T3(spriteNum) = 13;
                     A_PlaySound(LASERTRIP_ARMING, spriteNum);
                 }
-                break;
-            }
             }
 
             goto next_sprite;
