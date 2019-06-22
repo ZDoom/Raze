@@ -1112,7 +1112,7 @@ growspark_rr:
                 else if (PN(spriteNum) == BOSS2)
                 {
                     vel += 128;
-                    startPos.z += 4 << 8;
+                    startPos.z += 24<<8;
                 }
 
                 Zvel = tabledivide32_noinline((g_player[otherSprite].ps->opos.z - startPos.z) * vel, safeldist(g_player[otherSprite].ps->i, pSprite));
