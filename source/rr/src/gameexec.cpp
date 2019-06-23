@@ -358,7 +358,10 @@ void A_Fall(int const spriteNum)
     {
         if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER && pSprite->zvel > 3122)
             pSprite->zvel = 3144;
-        pSprite->z += pSprite->zvel = min(6144, pSprite->zvel+spriteGravity);
+        if (pSprite->zvel < 6144)
+            pSprite->zvel += spriteGravity;
+        else pSprite->zvel = 6144;
+        pSprite->z += pSprite->zvel;
     }
 
 #ifdef YAX_ENABLE

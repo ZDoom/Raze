@@ -326,9 +326,6 @@ int A_CheckNoSE7Water(uspritetype const * const pSprite, int sectNum, int sectLo
 //       other-side sector number.
 static int32_t A_CheckNeedZUpdate(int32_t spriteNum, int32_t zChange, int32_t *pZcoord)
 {
-    if (zChange == 0)
-        return 0;
-
     uspritetype const *const pSprite = (uspritetype *)&sprite[spriteNum];
     int const                newZ    = pSprite->z + (zChange >> 1);
 
@@ -457,7 +454,7 @@ int32_t A_MoveSprite(int32_t spriteNum, vec3_t const * const change, uint32_t cl
 
     Bassert(newSectnum == pSprite->sectnum);
 
-    int const doZUpdate = change->z ? A_CheckNeedZUpdate(spriteNum, change->z, &newZ) : 0;
+    int const doZUpdate = A_CheckNeedZUpdate(spriteNum, change->z, &newZ);
 
     // Update sprite's z positions and (for TROR) maybe the sector number.
     if (doZUpdate)
@@ -485,7 +482,7 @@ int32_t A_MoveSprite(int32_t spriteNum, vec3_t const * const change, uint32_t cl
         }
 #endif
     }
-    else if (change->z != 0 && returnValue == 0)
+    else if (returnValue == 0)
         returnValue = 16384+newSectnum;
 
     return returnValue;
@@ -5197,7 +5194,7 @@ ACTOR_STATIC void G_MoveActors(void)
         {
             A_GetZLimits(spriteNum);
 
-            int const yrepeat = max((actor[spriteNum].floorz - actor[spriteNum].ceilingz) >> 9, 255);
+            int const yrepeat = min((actor[spriteNum].floorz - actor[spriteNum].ceilingz) >> 9, 255);
             int const xrepeat = clamp(25 - (yrepeat >> 1), 8, 48);
 
             pSprite->yrepeat = yrepeat;
@@ -5536,6 +5533,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 }
                 else
                 {
+                    if (pSprite->xvel < 32) pSprite->xvel += 4;
                     pSprite->xvel = 64 - (sintable[(pData[1]+512)&2047]>>9);
 
                     pSprite->ang += G_GetAngleDelta(pSprite->ang,
