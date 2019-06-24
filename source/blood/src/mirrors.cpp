@@ -179,7 +179,7 @@ void InitMirrors(void)
         wall[mirrorwall[i]].cstat = 0;
         wall[mirrorwall[i]].nextsector = -1;
         wall[mirrorwall[i]].nextwall = -1;
-        wall[mirrorwall[i]].point2 = numwalls;
+        wall[mirrorwall[i]].point2 = numwalls+i+1;
     }
     wall[mirrorwall[3]].point2 = mirrorwall[0];
     sector[mirrorsector].ceilingpicnum = 504;
