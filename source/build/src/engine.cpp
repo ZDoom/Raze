@@ -2191,11 +2191,11 @@ static inline void hline(int32_t xr, int32_t yp)
     int32_t const xl = lastx[yp];
     if (xl > xr) return;
     int32_t const r = horizlookup2[yp-globalhoriz+horizycent];
-    asm1 = (inthi_t)globalx1*r;
-    asm2 = (inthi_t)globaly2*r;
-    int32_t const s = getpalookupsh(mulscale16(r,globvis));
+    asm1 = (inthi_t)mulscale6(globalx1, r);
+    asm2 = (inthi_t)mulscale6(globaly2, r);
+    int32_t const s = getpalookupsh(mulscale22(r,globvis));
 
-    hlineasm4(xr-xl,0,s,(uint32_t)globalx2*r+globalypanning,(uint32_t)globaly1*r+globalxpanning,
+    hlineasm4(xr-xl,0,s,(uint32_t)mulscale6(globalx2,r)+globalypanning,(uint32_t)mulscale6(globaly1,r)+globalxpanning,
               ylookup[yp]+xr+frameoffset);
 }
 
@@ -2207,18 +2207,18 @@ static inline void slowhline(int32_t xr, int32_t yp)
 {
     int32_t const xl = lastx[yp]; if (xl > xr) return;
     int32_t const r = horizlookup2[yp-globalhoriz+horizycent];
-    asm1 = (inthi_t)globalx1*r;
-    asm2 = (inthi_t)globaly2*r;
+    asm1 = (inthi_t)mulscale6(globalx1, r);
+    asm2 = (inthi_t)mulscale6(globaly2, r);
 
-    asm3 = (intptr_t)globalpalwritten + getpalookupsh(mulscale16(r,globvis));
+    asm3 = (intptr_t)globalpalwritten + getpalookupsh(mulscale22(r,globvis));
     if (!(globalorientation&256))
     {
-        mhline(globalbufplc,(uint32_t)globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
-               (uint32_t)globalx2*r+globalypanning-asm2*(xr-xl),ylookup[yp]+xl+frameoffset);
+        mhline(globalbufplc,(uint32_t)mulscale6(globaly1,r)+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
+               (uint32_t)mulscale6(globalx2,r)+globalypanning-asm2*(xr-xl),ylookup[yp]+xl+frameoffset);
         return;
     }
-    thline(globalbufplc,(uint32_t)globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
-           (uint32_t)globalx2*r+globalypanning-asm2*(xr-xl),ylookup[yp]+xl+frameoffset);
+    thline(globalbufplc,(uint32_t)mulscale6(globaly1,r)+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
+           (uint32_t)mulscale6(globalx2,r)+globalypanning-asm2*(xr-xl),ylookup[yp]+xl+frameoffset);
 }
 
 
@@ -7128,18 +7128,18 @@ static void dosetaspect(void)
     {
         oxyaspect = xyaspect;
         j = xyaspect*320;
-        horizlookup2[horizycent-1] = divscale26(131072,j);
+        horizlookup2[horizycent-1] = divscale32(131072,j);
 
         for (i=0; i < horizycent-1; i++)
         {
             horizlookup[i] = divscale28(1, i-(horizycent-1));
-            horizlookup2[i] = divscale14(klabs(horizlookup[i]), j);
+            horizlookup2[i] = divscale20(klabs(horizlookup[i]), j);
         }
 
         for (i=horizycent; i < ydim*4-1; i++)
         {
             horizlookup[i] = divscale28(1, i-(horizycent-1));
-            horizlookup2[i] = divscale14(klabs(horizlookup[i]), j);
+            horizlookup2[i] = divscale20(klabs(horizlookup[i]), j);
         }
     }
 
