@@ -1853,7 +1853,14 @@ void videoBeginDrawing(void)
 
     if (offscreenrendering) return;
 
-    frameplace = fullscreen ? (intptr_t)lpOffscreen : (intptr_t)lpPixels;
+    if (inpreparemirror)
+    {
+        frameplace = (intptr_t)mirrorBuffer;
+    }
+    else
+    {
+        frameplace = fullscreen ? (intptr_t)lpOffscreen : (intptr_t)lpPixels;
+    }
 
     if (!modechange) return;
 
