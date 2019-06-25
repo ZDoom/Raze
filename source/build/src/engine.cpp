@@ -168,7 +168,8 @@ int32_t sloptable[16384];
 static intptr_t slopalookup[16384];    // was 2048
 
 static int32_t no_radarang2 = 0;
-static int16_t radarang[1280], *radarang2;
+static int16_t radarang[1280];
+static int32_t qradarang[10240], *radarang2;
 const char ATTRIBUTE((used)) pow2char_[8] = {1,2,4,8,16,32,64,128};
 
 uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
@@ -3705,7 +3706,7 @@ static void parascan(char dastat, int32_t bunch)
     if (dapyscale != 65536)
         globalhoriz = mulscale16(globalhoriz-(ydimen>>1),dapyscale) + (ydimen>>1);
 
-    k = 11 - (picsiz[globalpicnum]&15) - dapskybits;
+    k = 27 - (picsiz[globalpicnum]&15) - dapskybits;
 
     // WGR2 SVN: select new episode after playing wgmicky1 with Polymer
     //  (maybe switched to classic earlier).
@@ -3735,19 +3736,19 @@ static void parascan(char dastat, int32_t bunch)
             {
                 n = mulscale16(xdimenrecip,viewingrange);
                 for (j=xb1[z]; j<=xb2[z]; j++)
-                    lplc[j] = ((mulscale23(j-halfxdimen,n)+globalang)&2047)>>k;
+                    lplc[j] = ((mulscale7(j-halfxdimen,n)+qglobalang)&0x7FFFFFF)>>k;
             }
             else
             {
                 for (j=xb1[z]; j<=xb2[z]; j++)
-                    lplc[j] = ((radarang2[j]+globalang)&2047)>>k;
+                    lplc[j] = ((radarang2[j]+qglobalang)&0x7FFFFFF)>>k;
             }
 
             if (parallaxtype == 2 && !no_radarang2)
             {
                 n = mulscale16(xdimscale,viewingrange);
                 for (j=xb1[z]; j<=xb2[z]; j++)
-                    swplc[j] = mulscale14(sintable[(radarang2[j]+512)&2047],n);
+                    swplc[j] = mulscale14(sintable[((radarang2[j]>>16)+512)&2047],n);
             }
             else
                 clearbuf(&swplc[xb1[z]],xb2[z]-xb1[z]+1,mulscale16(xdimscale,viewingrange));
@@ -4423,8 +4424,8 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
 {
     int32_t i, j, k, x, y;
 
-    int32_t cosang = sintable[(globalang+512)&2047];
-    int32_t sinang = sintable[globalang&2047];
+    int32_t cosang = cosglobalang;
+    int32_t sinang = singlobalang;
     int32_t sprcosang = sintable[(dasprang+512)&2047];
     int32_t sprsinang = sintable[dasprang&2047];
 
@@ -5369,9 +5370,8 @@ draw_as_face_sprite:
         rxi[0] = dmulscale10(cosglobalang,day,-singlobalang,dax);
 
         //Get top-left corner
-        i = ((tspr->ang+2048-globalang)&2047);
-        int32_t cosang = sintable[(i+512)&2047];
-        int32_t sinang = sintable[i];
+        int32_t cosang = dmulscale14(sintable[(tspr->ang+512)&2047], cosglobalang, sintable[tspr->ang&2047], singlobalang);
+        int32_t sinang = dmulscale14(sintable[(tspr->ang+512)&2047], -singlobalang, sintable[tspr->ang&2047], cosglobalang);
         dax = ((xspan>>1)+off.x)*tspr->xrepeat;
         day = ((yspan>>1)+off.y)*tspr->yrepeat;
         rzi[0] += dmulscale12(sinang,dax,cosang,day);
@@ -7150,14 +7150,14 @@ static void dosetaspect(void)
         no_radarang2 = 0;
         oviewingrange = viewingrange;
 
-        xinc = mulscale32(viewingrange*320,xdimenrecip);
-        x = (640<<16)-mulscale1(xinc,xdimen);
+        xinc = mulscale32(viewingrange*2560,xdimenrecip);
+        x = (5120<<16)-mulscale1(xinc,xdimen);
 
         for (i=0; i<xdimen; i++)
         {
             j = (x&65535); k = (x>>16); x += xinc;
 
-            if (k < 0 || k >= (int32_t)ARRAY_SIZE(radarang)-1)
+            if (k < 0 || k >= (int32_t)ARRAY_SIZE(qradarang)-1)
             {
                 no_radarang2 = 1;
 #ifdef DEBUGGINGAIDS
@@ -7168,8 +7168,8 @@ static void dosetaspect(void)
             }
 
             if (j != 0)
-                j = mulscale16(radarang[k+1]-radarang[k], j);
-            radarang2[i] = (int16_t)((radarang[k]+j)>>6);
+                j = mulscale16(qradarang[k+1]-qradarang[k], j);
+            radarang2[i] = ((qradarang[k]+j)>>6);
         }
 
         if (xdimen != oxdimen && (playing_blood || voxoff[0][0]))
@@ -7243,6 +7243,11 @@ static int32_t engineLoadTables(void)
             radarang[i] = (int16_t)(atanf(((float)(640-i)-0.5f) * (1.f/160.f)) * (-64.f * (1.f/BANG2RAD)));
         for (i=0; i<640; i++)
             radarang[1279-i] = -radarang[i];
+
+        for (i=0; i<5120; i++)
+            qradarang[i] = fix16_from_float(atanf(((float)(5120-i)-0.5f) * (1.f/1024.f)) * (-64.f * (1.f/BANG2RAD)));
+        for (i=0; i<5120; i++)
+            qradarang[10239-i] = -qradarang[i];
 
 #ifdef B_LITTLE_ENDIAN
         i = 0;
@@ -7953,16 +7958,19 @@ void set_globalang(fix16_t const ang)
     globalang = fix16_to_int(ang)&2047;
     qglobalang = ang & 0x7FFFFFF;
 
-    cosglobalang = sintable[(globalang+512)&2047];
-    singlobalang = sintable[globalang&2047];
-
-#ifdef USE_OPENGL
     float const f_ang = fix16_to_float(ang);
     float const f_ang_radians = f_ang * M_PI * (1.f/1024.f);
 
-    fcosglobalang = cosf(f_ang_radians) * 16384.f;
-    fsinglobalang = sinf(f_ang_radians) * 16384.f;
+    float const fcosang = cosf(f_ang_radians) * 16384.f;
+    float const fsinang = sinf(f_ang_radians) * 16384.f;
+
+#ifdef USE_OPENGL
+    fcosglobalang = fcosang;
+    fsinglobalang = fsinang;
 #endif
+    
+    cosglobalang = (int)fcosang;
+    singlobalang = (int)fsinang;
 
     cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
     sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
@@ -7988,8 +7996,8 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     // xdimenscale is scale(xdimen,yxaspect,320);
     // normalization by viewingrange so that center-of-aim doesn't depend on it
-    globalhoriz = mulscale16(fix16_to_int(dahoriz)-100,divscale16(xdimenscale,viewingrange))+(ydimen>>1);
     qglobalhoriz = mulscale16(dahoriz-F16(100), divscale16(xdimenscale, viewingrange))+fix16_from_int(ydimen>>1);
+    globalhoriz = fix16_to_int(qglobalhoriz);
 
     globaluclip = (0-globalhoriz)*xdimscale;
     globaldclip = (ydimen-globalhoriz)*xdimscale;
@@ -9910,7 +9918,7 @@ static void videoAllocateBuffers(void)
           { (void **)&lplc, xdim * sizeof(int32_t) },
           { (void **)&swall, xdim * sizeof(int32_t) },
           { (void **)&lwall, (xdim + 4) * sizeof(int32_t) },
-          { (void **)&radarang2, xdim * sizeof(int16_t) },
+          { (void **)&radarang2, xdim * sizeof(int32_t) },
           { (void **)&dotp1, clamped_ydim * sizeof(intptr_t) },
           { (void **)&dotp2, clamped_ydim * sizeof(intptr_t) },
           { (void **)&lastx, clamped_ydim * sizeof(int32_t) },
