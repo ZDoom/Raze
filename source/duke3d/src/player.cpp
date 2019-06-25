@@ -300,9 +300,9 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                         }
 
 #ifndef EDUKE32_STANDALONE
-                        int const zOffset = IONMAIDEN ? 0 : (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN) ? 0 : ZOFFSET5;
+                        int const zOffset = (!IONMAIDEN && (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN)) ? 0 : ZOFFSET5;
 #else
-                        int const zOffset = 0;
+                        int const zOffset = ZOFFSET5;
 #endif
                         int const canSee = cansee(SX(spriteNum), SY(spriteNum), SZ(spriteNum) - zOffset, SECT(spriteNum),
                                                   pSprite->x, pSprite->y, pSprite->z - ZOFFSET5, pSprite->sectnum);
