@@ -47,7 +47,7 @@ int32_t __fastcall VM_GetPalData(int const palNum, int32_t labelNum);
 #define LABEL_SETUP_UNMATCHED(struct, memb, name, idx)                                                              \
     {                                                                                                               \
         name, idx, sizeof(struct[0].memb) | (is_unsigned<decltype(struct[0].memb)>::value ? LABEL_UNSIGNED : 0), 0, \
-        offsetof(std::remove_pointer<decltype(&struct[0])>::type, memb)                                             \
+        offsetof(remove_pointer_t<decltype(&struct[0])>, memb)                                                      \
     }
 
 #define LABEL_SETUP(struct, memb, idx) LABEL_SETUP_UNMATCHED(struct, memb, #memb, idx)

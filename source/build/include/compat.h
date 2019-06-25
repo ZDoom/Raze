@@ -733,6 +733,7 @@ using std::enable_if_t;
 using std::conditional_t;
 using std::make_signed_t;
 using std::make_unsigned_t;
+using std::remove_pointer_t;
 # elif defined HAVE_CXX11_HEADERS
 template <bool B, class T = void>
 using enable_if_t = typename std::enable_if<B, T>::type;
@@ -742,6 +743,8 @@ template <typename T>
 using make_signed_t = typename std::make_signed<T>::type;
 template <typename T>
 using make_unsigned_t = typename std::make_unsigned<T>::type;
+template <class T>
+using remove_pointer_t = typename std::remove_pointer<T>::type;
 # endif
 
 # ifdef HAVE_CXX11_HEADERS

@@ -640,7 +640,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     auto const movflagsptr = &AC_MOVFLAGS(vm.pSprite, &actor[vm.spriteNum]);
     // NOTE: test against -1 commented out and later revived in source history
     // XXX: Does its presence/absence break anything? Where are movflags with all bits set created?
-    int const movflags = (*movflagsptr == (std::remove_pointer<decltype(movflagsptr)>::type)-1) ? 0 : *movflagsptr;
+    int const movflags = (*movflagsptr == (remove_pointer_t<decltype(movflagsptr)>)-1) ? 0 : *movflagsptr;
     int const deadflag = (A_CheckEnemySprite(vm.pSprite) && vm.pSprite->extra <= 0);
 
     AC_COUNT(vm.pData)++;
