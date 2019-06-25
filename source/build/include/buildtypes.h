@@ -71,7 +71,13 @@ typedef struct
 //32 bytes
 typedef struct
 {
-    StructTracker(Wall, int32_t) x, y;
+    union {
+        struct
+        {
+            StructTracker(Wall, int32_t) x, y;
+        };
+        vec2_t p;
+    };
     StructTracker(Wall, int16_t) point2, nextwall, nextsector;
     StructTracker(Wall, uint16_t) cstat;
     StructTracker(Wall, int16_t) picnum, overpicnum;
@@ -157,7 +163,14 @@ enum
 //44 bytes
 typedef struct
 {
-    StructTracker(Sprite, int32_t) x, y, z;
+    union {
+        struct
+        {
+            StructTracker(Sprite, int32_t) x, y, z;
+        };
+        vec3_t v;
+        vec2_t p;
+    };
     StructTracker(Sprite, uint16_t) cstat;
     StructTracker(Sprite, int16_t) picnum;
     StructTracker(Sprite, int8_t) shade;
@@ -167,15 +180,13 @@ typedef struct
     StructTracker(Sprite, int16_t) sectnum, statnum;
     StructTracker(Sprite, int16_t) ang, owner;
     union {
-        StructTracker(Sprite, int16_t) xvel;
-        StructTracker(Sprite, int16_t) index;
+        struct
+        {
+            StructTracker(Sprite, int16_t) xvel /*index*/, yvel, zvel;
+        };
+        vec3_16_t vel;
     };
-    StructTracker(Sprite, int16_t) yvel, zvel;
-    union {
-        StructTracker(Sprite, int16_t) lotag;
-        StructTracker(Sprite, int16_t) type;
-    };
-    StructTracker(Sprite, int16_t) hitag;
+    StructTracker(Sprite, int16_t) lotag /*type*/, hitag;
     StructTracker(Sprite, int16_t) extra;
 } StructName(spritetypev7);
 
@@ -208,7 +219,13 @@ typedef struct
 // 38 bytes
 typedef struct
 {
-    StructTracker(Wall, int32_t) x, y;
+    union {
+        struct
+        {
+            StructTracker(Wall, int32_t) x, y;
+        };
+        vec2_t const p;
+    };
     StructTracker(Wall, int16_t) point2, nextwall, nextsector;
     StructTracker(Wall, int16_t) upwall, dnwall;
     StructTracker(Wall, uint16_t) cstat;
