@@ -280,25 +280,25 @@ enum {
 #ifdef STRUCT_TRACKERS_ENABLED
 
 extern "C" {
-static FORCE_INLINE void sector_tracker_hook(uintptr_t address);
-static FORCE_INLINE void wall_tracker_hook(uintptr_t address);
-static FORCE_INLINE void sprite_tracker_hook(uintptr_t address);
+static FORCE_INLINE void sector_tracker_hook__(intptr_t address);
+static FORCE_INLINE void wall_tracker_hook__(intptr_t address);
+static FORCE_INLINE void sprite_tracker_hook__(intptr_t address);
 }
 
 #define TRACKER_NAME__ SectorTracker
-#define TRACKER_HOOK_ sector_tracker_hook
+#define TRACKER_HOOK_ sector_tracker_hook__
 #include "tracker.hpp"
 #undef TRACKER_NAME__
 #undef TRACKER_HOOK_
 
 #define TRACKER_NAME__ WallTracker
-#define TRACKER_HOOK_ wall_tracker_hook
+#define TRACKER_HOOK_ wall_tracker_hook__
 #include "tracker.hpp"
 #undef TRACKER_NAME__
 #undef TRACKER_HOOK_
 
 #define TRACKER_NAME__ SpriteTracker
-#define TRACKER_HOOK_ sprite_tracker_hook
+#define TRACKER_HOOK_ sprite_tracker_hook__
 #include "tracker.hpp"
 #undef TRACKER_NAME__
 #undef TRACKER_HOOK_
@@ -638,37 +638,37 @@ static FORCE_INLINE void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenex
 #endif
 
 #ifdef STRUCT_TRACKERS_ENABLED
-static FORCE_INLINE void sector_tracker_hook(uintptr_t const address)
+static FORCE_INLINE void sector_tracker_hook__(intptr_t const address)
 {
-    uintptr_t const usector = address - (uintptr_t)sector;
+    intptr_t const sectnum = (address - (intptr_t)sector) / sizeof(sectortype);
 
 #if DEBUGGINGAIDS
-    Bassert(usector < ((MAXSECTORS + M32_FIXME_SECTORS) * sizeof(sectortype)));
+    Bassert((unsigned)sectnum < ((MAXSECTORS + M32_FIXME_SECTORS)));
 #endif
 
-    ++sectorchanged[usector / sizeof(sectortype)];
+    ++sectorchanged[sectnum];
 }
 
-static FORCE_INLINE void wall_tracker_hook(uintptr_t const address)
+static FORCE_INLINE void wall_tracker_hook__(intptr_t const address)
 {
-    uintptr_t const uwall = address - (uintptr_t)wall;
+    intptr_t const wallnum = (address - (intptr_t)wall) / sizeof(walltype);
 
 #if DEBUGGINGAIDS
-    Bassert(uwall < ((MAXWALLS + M32_FIXME_WALLS) * sizeof(walltype)));
+    Bassert((unsigned)wallnum < ((MAXWALLS + M32_FIXME_WALLS)));
 #endif
 
-    ++wallchanged[uwall / sizeof(walltype)];
+    ++wallchanged[wallnum];
 }
 
-static FORCE_INLINE void sprite_tracker_hook(uintptr_t const address)
+static FORCE_INLINE void sprite_tracker_hook__(intptr_t const address)
 {
-    uintptr_t const usprite = address - (uintptr_t)sprite;
+    intptr_t const spritenum = (address - (intptr_t)sprite) / sizeof(spritetype);
 
 #if DEBUGGINGAIDS
-    Bassert(usprite < (MAXSPRITES * sizeof(spritetype)));
+    Bassert((unsigned)spritenum < MAXSPRITES));
 #endif
 
-    ++spritechanged[usprite / sizeof(spritetype)];
+    ++spritechanged[spritenum];
 }
 #endif
 
