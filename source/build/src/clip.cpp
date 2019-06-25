@@ -1372,7 +1372,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         int const osectnum = *sectnum;
         clipupdatesector(vec, sectnum, rad);
 
-        if (*sectnum == osectnum || editstatus || (*sectnum != -1 && !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec)))
+        if (*sectnum != -1 && (*sectnum == osectnum || editstatus || !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec)))
         {
             pos->x = vec.x;
             pos->y = vec.y;
