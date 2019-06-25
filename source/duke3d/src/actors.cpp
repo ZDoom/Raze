@@ -5138,19 +5138,21 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     }
                     goto next_sprite;
 
-                case BURNING__STATIC:
-                case BURNING2__STATIC:
-                case FECES__STATIC:
-                case WATERBUBBLE__STATIC:
-                case SMALLSMOKE__STATIC:
                 case EXPLOSION2__STATIC:
-                case SHRINKEREXPLOSION__STATIC:
                 case EXPLOSION2BOT__STATIC:
-                case BLOOD__STATIC:
-                case LASERSITE__STATIC:
                 case FORCERIPPLE__STATIC:
                 case TRANSPORTERSTAR__STATIC:
                 case TRANSPORTERBEAM__STATIC:
+                case SMALLSMOKE__STATIC:
+#ifndef EDUKE32_STANDALONE
+                case WATERBUBBLE__STATIC:
+                case BURNING__STATIC:
+                case BURNING2__STATIC:
+                case FECES__STATIC:
+                case SHRINKEREXPLOSION__STATIC:
+                case BLOOD__STATIC:
+                case LASERSITE__STATIC:
+#endif
                 {
                     if (!G_HaveActor(sprite[spriteNum].picnum))
                         goto next_sprite;
@@ -5762,6 +5764,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
     int32_t q = 0, j, k, l, m, x;
     int spriteNum = headspritestat[STAT_EFFECTOR];
 
+#ifndef EDUKE32_STANDALONE
     if (!IONMAIDEN)
     {
         for (native_t TRAVERSE_CONNECT(playerNum))
@@ -5770,7 +5773,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             fric.x = fric.y = 0;
         }
     }
-
+#endif
     while (spriteNum >= 0)
     {
         int const         nextSprite = nextspritestat[spriteNum];
