@@ -68,14 +68,15 @@ const memberlabel_t SectorLabels[] = {
     LABEL_SETUP(sector, floorstat,       SECTOR_FLOORSTAT),
 
     LABEL_SETUP(sector, ceilingpicnum,   SECTOR_CEILINGPICNUM),
-    { "ceilingslope",                    SECTOR_CEILINGSLOPE, sizeof(sector[0].ceilingheinum), 0, offsetof(usectortype, ceilingheinum) },
+    LABEL_SETUP_UNMATCHED(sector, ceilingheinum, "ceilingslope", SECTOR_CEILINGSLOPE),
+
     LABEL_SETUP(sector, ceilingshade,    SECTOR_CEILINGSHADE),
     LABEL_SETUP(sector, ceilingpal,      SECTOR_CEILINGPAL),
     LABEL_SETUP(sector, ceilingxpanning, SECTOR_CEILINGXPANNING),
     LABEL_SETUP(sector, ceilingypanning, SECTOR_CEILINGYPANNING),
 
     LABEL_SETUP(sector, floorpicnum,     SECTOR_FLOORPICNUM),
-    { "floorslope",                      SECTOR_FLOORSLOPE, sizeof(sector[0].floorheinum), 0, offsetof(usectortype, floorheinum) },
+    LABEL_SETUP_UNMATCHED(sector, floorheinum,   "floorslope",   SECTOR_FLOORSLOPE),
     LABEL_SETUP(sector, floorshade,      SECTOR_FLOORSHADE),
     LABEL_SETUP(sector, floorpal,        SECTOR_FLOORPAL),
     LABEL_SETUP(sector, floorxpanning,   SECTOR_FLOORXPANNING),
