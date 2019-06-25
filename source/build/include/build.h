@@ -642,7 +642,7 @@ static FORCE_INLINE void sector_tracker_hook__(intptr_t const address)
 {
     intptr_t const sectnum = (address - (intptr_t)sector) / sizeof(sectortype);
 
-#if DEBUGGINGAIDS
+#if DEBUGGINGAIDS>=2
     Bassert((unsigned)sectnum < ((MAXSECTORS + M32_FIXME_SECTORS)));
 #endif
 
@@ -653,7 +653,7 @@ static FORCE_INLINE void wall_tracker_hook__(intptr_t const address)
 {
     intptr_t const wallnum = (address - (intptr_t)wall) / sizeof(walltype);
 
-#if DEBUGGINGAIDS
+#if DEBUGGINGAIDS>=2
     Bassert((unsigned)wallnum < ((MAXWALLS + M32_FIXME_WALLS)));
 #endif
 
@@ -664,7 +664,7 @@ static FORCE_INLINE void sprite_tracker_hook__(intptr_t const address)
 {
     intptr_t const spritenum = (address - (intptr_t)sprite) / sizeof(spritetype);
 
-#if DEBUGGINGAIDS
+#if DEBUGGINGAIDS>=2
     Bassert((unsigned)spritenum < MAXSPRITES);
 #endif
 
