@@ -7560,51 +7560,127 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case SE_27_DEMO_CAM:
         {
-            if (ud.recstat == 0 || !ud.democams) break;
+            if (pSprite->extra < 1 && (ud.recstat == 0 || !ud.democams)) break;
 
-            actor[spriteNum].tempang = pSprite->ang;
-
-            int const p = A_FindPlayer(pSprite,&x);
-            DukePlayer_t * const ps = g_player[p].ps;
-
-            if (sprite[ps->i].extra > 0 && myconnectindex == screenpeek)
+            if (pSprite->extra == 1)
             {
-                if (pData[0] < 0)
+                actor[spriteNum].tempang = pSprite->ang;
+                if (ud.camerasprite != spriteNum)
                 {
+                    //level the camera out by default (yvel stores the up/down angle)
+                    pSprite->yvel = 100;
                     ud.camerasprite = spriteNum;
-                    pData[0]++;
                 }
-                else if (ud.recstat == 2 && ps->newowner == -1)
+
+            findCameraDestination:
+                if (pSprite->owner == spriteNum)
                 {
-                    if (cansee(pSprite->x,pSprite->y,pSprite->z,SECT(spriteNum),ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
+                    pSprite->owner = A_FindLocator(pSprite->hitag, -1);
+                    
+                    //reset our elapsed time since reaching a locator
+                    pData[1] = 0;
+                    //store our starting point
+                    pData[2] = pSprite->x;
+                    pData[3] = pSprite->y;
+                    pData[4] = pSprite->z;
+                    pData[5] = pSprite->ang;
+                    pData[6] = pSprite->yvel;
+                    if (pSprite->owner != -1)
                     {
-                        if (x < (int32_t)((unsigned)spriteHitag))
+                        spritetype* const destLocator = &sprite[pSprite->owner];
+                        int32_t subjectLocatorIndex = A_FindLocator(destLocator->hitag, -1);
+                        if (subjectLocatorIndex == -1)
                         {
-                            ud.camerasprite = spriteNum;
-                            pData[0] = 999;
-                            pSprite->ang += G_GetAngleDelta(pSprite->ang,getangle(ps->pos.x-pSprite->x,ps->pos.y-pSprite->y))>>3;
-                            SP(spriteNum) = 100+((pSprite->z-ps->pos.z)/257);
-
+                            pData[7] = pSprite->ang;
+                            //level the camera out by default (pData[8] stores our destination up/down angle)
+                            pData[8] = 100;
                         }
-                        else if (pData[0] == 999)
+                        else
                         {
-                            if (ud.camerasprite == spriteNum)
-                                pData[0] = 0;
-                            else pData[0] = -10;
-                            ud.camerasprite = spriteNum;
-
+                            spritetype* const subjectLocator = &sprite[subjectLocatorIndex];
+                            const vec3_t cameraDirection = {subjectLocator->x - destLocator->x,
+                                                            subjectLocator->y - destLocator->y,
+                                                            subjectLocator->z - destLocator->z};
+                            pData[7] = G_GetAngleDelta(pData[5], getangle(cameraDirection.x,
+                                                                          cameraDirection.y));
+                            pData[8] = (((int32_t) getangle(-ksqrt(cameraDirection.x*cameraDirection.x+cameraDirection.y*cameraDirection.y), cameraDirection.z)*(400.f/1024.f)))-300;
                         }
                     }
-                    else
-                    {
-                        pSprite->ang = getangle(ps->pos.x-pSprite->x,ps->pos.y-pSprite->y);
+                }
+                if (pSprite->owner == -1)
+                {
+                    break;
+                }
 
-                        if (pData[0] == 999)
+                spritetype* const destLocator = &sprite[pSprite->owner]; 
+                if (pData[1] == destLocator->extra)
+                {
+                    pSprite->owner = spriteNum;
+                    ++pSprite->hitag;
+                    goto findCameraDestination;
+                }
+
+                //smoothstep to the new location and camera direction over the duration (in ticks) stored in the destLocator's extra value
+                const vec3_t heading = {destLocator->x-pData[2],
+                                        destLocator->y-pData[3],
+                                        destLocator->z-pData[4]};
+                float interpolation = (pData[1]/(float) destLocator->extra);
+                interpolation = interpolation*interpolation*(3-2*interpolation);
+                pSprite->x = pData[2]+interpolation*heading.x;
+                pSprite->y = pData[3]+interpolation*heading.y;
+                pSprite->z = pData[4]+interpolation*heading.z;
+                pSprite->ang = pData[5]+interpolation*pData[7];
+                pSprite->yvel = (pData[6]+((int32_t) interpolation*pData[8])+100)%400-100;
+                
+                //increment elapsed time
+                ++pData[1];
+            }
+            else
+            {
+                actor[spriteNum].tempang = pSprite->ang;
+
+                int const p = A_FindPlayer(pSprite,&x);
+                DukePlayer_t * const ps = g_player[p].ps;
+
+                if (sprite[ps->i].extra > 0 && myconnectindex == screenpeek)
+                {
+                    if (pData[0] < 0)
+                    {
+                        ud.camerasprite = spriteNum;
+                        pData[0]++;
+                    }
+                    else if (ud.recstat == 2 && ps->newowner == -1)
+                    {
+                        if (cansee(pSprite->x,pSprite->y,pSprite->z,SECT(spriteNum),ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
                         {
-                            if (ud.camerasprite == spriteNum)
-                                pData[0] = 0;
-                            else pData[0] = -20;
-                            ud.camerasprite = spriteNum;
+                            if (x < (int32_t)((unsigned)spriteHitag))
+                            {
+                                ud.camerasprite = spriteNum;
+                                pData[0] = 999;
+                                pSprite->ang += G_GetAngleDelta(pSprite->ang,getangle(ps->pos.x-pSprite->x,ps->pos.y-pSprite->y))>>3;
+                                SP(spriteNum) = 100+((pSprite->z-ps->pos.z)/257);
+
+                            }
+                            else if (pData[0] == 999)
+                            {
+                                if (ud.camerasprite == spriteNum)
+                                    pData[0] = 0;
+                                else pData[0] = -10;
+                                ud.camerasprite = spriteNum;
+
+                            }
+                        }
+                        else
+                        {
+                            pSprite->ang = getangle(ps->pos.x-pSprite->x,ps->pos.y-pSprite->y);
+
+                            if (pData[0] == 999)
+                            {
+                                if (ud.camerasprite == spriteNum)
+                                    pData[0] = 0;
+                                else pData[0] = -20;
+                                ud.camerasprite = spriteNum;
+                            }
                         }
                     }
                 }
