@@ -2297,7 +2297,7 @@ restart_grand:
                 {
                     if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
                     {
-                        DO_TILE_ANIM(tilenum, 0);
+                        tileUpdatePicnum(&tilenum, 0);
 
                         if (!waloff[tilenum])
                             tileLoad(tilenum);

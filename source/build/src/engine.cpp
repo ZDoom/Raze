@@ -2653,7 +2653,7 @@ static int32_t setup_globals_cf1(usectorptr_t sec, int32_t pal, int32_t zd,
 
     globalpicnum = picnum;
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
-    DO_TILE_ANIM(globalpicnum, 0);
+    tileUpdatePicnum(&globalpicnum, 0);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return 1;
     if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
@@ -3476,7 +3476,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         daz = sec->floorz;
     }
 
-    DO_TILE_ANIM(globalpicnum, sectnum);
+    tileUpdatePicnum(&globalpicnum, sectnum);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return;
     if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
@@ -3665,7 +3665,7 @@ static void parascan(char dastat, int32_t bunch)
     }
 
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
-    DO_TILE_ANIM(globalpicnum, sectnum);
+    tileUpdatePicnum(&globalpicnum, sectnum);
     setgotpic(globalpicnum);
 
     logtilesizy = (picsiz[globalpicnum]>>4);
@@ -3820,7 +3820,7 @@ static void setup_globals_wall1(uwallptr_t wal, int32_t dapicnum)
 
     globalpicnum = dapicnum;
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
-    DO_TILE_ANIM(globalpicnum, 16384);
+    tileUpdatePicnum(&globalpicnum, 16384);
 
     globalxpanning = wal->xpanning;
     globalypanning = wal->ypanning;
@@ -4833,7 +4833,7 @@ static void classicDrawSprite(int32_t snum)
 
     int32_t cstat=tspr->cstat, tilenum;
 
-    DO_TILE_ANIM(tspr->picnum, spritenum+32768);
+    tileUpdatePicnum(&tspr->picnum, spritenum+32768);
 
     if (!(cstat&2) && alpha > 0.0f)
     {
@@ -8879,7 +8879,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
             globalpicnum = sec->floorpicnum;
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-            DO_TILE_ANIM(globalpicnum, s);
+            tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
             if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
@@ -9004,7 +9004,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             globalpicnum = spr->picnum;
             globalpal = spr->pal; // GL needs this, software doesn't
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-            DO_TILE_ANIM(globalpicnum, s);
+            tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
             if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
@@ -11388,7 +11388,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 
     if ((cx1 > cx2) || (cy1 > cy2)) return;
     if (z <= 16) return;
-    DO_TILE_ANIM(picnum, (int16_t)0xc000);
+    tileUpdatePicnum(&picnum, (int16_t)0xc000);
     if ((tilesiz[picnum].x <= 0) || (tilesiz[picnum].y <= 0)) return;
 
     // Experimental / development bits. ONLY FOR INTERNAL USE!
