@@ -750,9 +750,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     {
         spritetype *const pSprite = &sprite[ud.camerasprite];
 
-        // XXX: what?
-        if (pSprite->yvel < 0) pSprite->yvel = -100;
-        else if (pSprite->yvel > 199) pSprite->yvel = 300;
+        pSprite->yvel = clamp(TrackerCast(pSprite->yvel), -100, 300);
 
         CAMERA(q16ang) = fix16_from_int(actor[ud.camerasprite].tempang
                                       + mulscale16(((pSprite->ang + 1024 - actor[ud.camerasprite].tempang) & 2047) - 1024, smoothRatio));

@@ -7562,7 +7562,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         {
             if (pSprite->extra < 1 && (ud.recstat == 0 || !ud.democams)) break;
 
-            if (pSprite->extra == 1)
+            if (klabs(pSprite->extra) == 2)
             {
                 actor[spriteNum].tempang = pSprite->ang;
                 if (ud.camerasprite != spriteNum)
