@@ -7687,11 +7687,7 @@ int32_t engineFatalError(char const * const msg)
 //
 static int32_t preinitcalled = 0;
 
-// #define DYNALLOC_ARRAYS
-
-#ifdef DYNALLOC_ARRAYS
-void *blockptr = NULL;
-#elif !defined DEBUG_MAIN_ARRAYS
+#if !defined DEBUG_MAIN_ARRAYS
 static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
 static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
 static sectortype sector_s[MAXSECTORS + M32_FIXME_SECTORS];
@@ -7710,60 +7706,7 @@ int32_t enginePreInit(void)
     if (initsystem()) Bexit(9);
     makeasmwriteable();
 
-#ifdef DYNALLOC_ARRAYS
-    {
-        size_t i, size = 0;
-
-        // allocate everything at once...  why not?  entries can just be added to this table
-        // to allocate future arrays without further intervention
-        struct
-        {
-            void **ptr;
-            size_t size;
-        }
-        dynarray[] =
-        {
-            { (void **) &sector,           sizeof(sectortype)      *MAXSECTORS                },
-            { (void **) &wall,             sizeof(walltype)        *MAXWALLS }, // +512: editor quirks. FIXME!
-# ifndef NEW_MAP_FORMAT
-            { (void **) &wallext,          sizeof(wallext_t)       *MAXWALLS                  },
-# endif
-            { (void **) &sprite,           sizeof(spritetype)      *MAXSPRITES                },
-            { (void **) &tsprite,          sizeof(spritetype)      *MAXSPRITESONSCREEN        },
-            { (void **) &spriteext,        sizeof(spriteext_t)     *(MAXSPRITES+MAXUNIQHUDID) },
-            { (void **) &spritesmooth,     sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID) },
-        };
-
-        if (editstatus)
-        {
-            dynarray[0].size += M32_FIXME_SECTORS*sizeof(sectortype);  // join sectors needs a temp. sector
-            dynarray[1].size += M32_FIXME_WALLS*sizeof(walltype);
-//            Bprintf("FIXME: Allocating additional space beyond wall[] for editor bugs.\n");
-        }
-
-#if 0
-        for (i=0; i<(signed)ARRAY_SIZE(dynarray); i++)
-            size += dynarray[i].size;
-
-        blockptr = Xcalloc(1, size);
-
-        size = 0;
-
-        for (i=0; i<(signed)ARRAY_SIZE(dynarray); i++)
-        {
-            *dynarray[i].ptr = (int8_t *)blockptr + size;
-            size += dynarray[i].size;
-        }
-#else
-        for (i = 0; i < (signed) ARRAY_SIZE(dynarray); i++)
-        {
-            Xaligned_free(*dynarray[i].ptr);
-            *dynarray[i].ptr = Xaligned_alloc(16, dynarray[i].size);
-        }
-#endif
-    }
-
-#elif !defined DEBUG_MAIN_ARRAYS
+#if !defined DEBUG_MAIN_ARRAYS
     sector = sector_s;
     wall = wall_s;
 # ifndef NEW_MAP_FORMAT
@@ -7929,9 +7872,6 @@ void engineUnInit(void)
     Bmemset(basepaltable, 0, sizeof(basepaltable));
     basepaltable[0] = palette;
 
-#ifdef DYNALLOC_ARRAYS
-    DO_FREE_AND_NULL(blockptr);
-#endif
     DO_FREE_AND_NULL(kpzbuf);
     kpzbufsiz = 0;
 
