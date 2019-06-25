@@ -918,7 +918,7 @@ static FORCE_INLINE void *Baligned_alloc(const size_t alignment, const size_t si
 #if defined _WIN32 && !defined NO_ALIGNED_MALLOC
 # define Baligned_free _aligned_free
 #else
-# define Baligned_free xfree()
+# define Baligned_free Bfree
 #endif
 
 
