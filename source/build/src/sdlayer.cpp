@@ -1650,21 +1650,22 @@ void videoBeginDrawing(void)
 
     if (offscreenrendering) return;
 
+    if (inpreparemirror)
+    {
+        frameplace = (intptr_t)mirrorBuffer;
+    }
+    else
 #ifdef USE_OPENGL
     if (!nogl)
     {
         frameplace = (intptr_t)glsurface_getBuffer();
-        if (modechange)
-        {
-            bytesperline = xdim;
-            calc_ylookup(bytesperline, ydim);
-            modechange=0;
-        }
-        return;
     }
+    else
 #endif
+    {
+        frameplace = (intptr_t)softsurface_getBuffer();
+    }
 
-    frameplace = (intptr_t)softsurface_getBuffer();
     if (modechange)
     {
         bytesperline = xdim;

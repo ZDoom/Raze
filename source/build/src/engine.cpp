@@ -1368,6 +1368,8 @@ static int32_t *swplc, *lplc, *swall, *lwall;
 static float *swallf;
 #endif
 
+uint8_t* mirrorBuffer;
+
 static int32_t smostcnt;
 static int32_t smoststart[MAXWALLSB];
 static char smostwalltype[MAXWALLSB];
@@ -1467,7 +1469,7 @@ int16_t searchsector, searchwall, searchstat;     //search output
 //  When aiming at a 2-sided wall, 1 if aiming at the bottom part, 0 else
 int16_t searchbottomwall, searchisbottom;
 
-char inpreparemirror = 0, mirrorrender = 0;
+char inpreparemirror = 0;
 static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
 
 #define MAXSETVIEW 4
@@ -8025,8 +8027,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     int32_t i, j, /*cz, fz,*/ closest;
     int16_t *shortptr1, *shortptr2;
 
-    int32_t didmirror = 0;
-
     beforedrawrooms = 0;
 
     set_globalpos(daposx, daposy, daposz);
@@ -8183,7 +8183,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     polymost_drawrooms();
 
     if (videoGetRenderMode() != REND_CLASSIC)
-        return 0;
+        return inpreparemirror;
     //============================================================================= //POLYMOST ENDS
 #endif
 
@@ -8236,15 +8236,13 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
         // INPREPAREMIRROR_NO_BUNCHES
         // numbunches==0 can happen if the mirror is far away... the game code decides
         // to draw it, but scansector gets zero bunches.  Result: big screwup!
-        // Leave inpreparemirror as is, it's restored by completemirror.
+        // Set inpreparemirror to 0 to indicate that we were unable to render the mirror
         if (numbunches==0)
         {
+            inpreparemirror = 0;
             videoEndDrawing();  //!!!
             return 0;
         }
-
-        inpreparemirror = 0;
-        didmirror = 1;
 
         mirrorsx1 = xdimen-1; mirrorsx2 = 0;
         for (i=numscans-1; i>=0; i--)
@@ -8301,7 +8299,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     videoEndDrawing();   //}}}
 
-    return didmirror;
+    return inpreparemirror;
 }
 
 // UTILITY TYPES AND FUNCTIONS FOR DRAWMASKS OCCLUSION TREE
@@ -9962,6 +9960,7 @@ static void videoAllocateBuffers(void)
           { (void **)&dotp1, clamped_ydim * sizeof(intptr_t) },
           { (void **)&dotp2, clamped_ydim * sizeof(intptr_t) },
           { (void **)&lastx, clamped_ydim * sizeof(int32_t) },
+          { (void **)&mirrorBuffer, (size_t) (xdim * ydim)},
       };
 
     for (i = 0; i < (signed)ARRAY_SIZE(dynarray); i++)
@@ -11701,7 +11700,6 @@ void squarerotatetile(int16_t tilenume)
 void renderPrepareMirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
                          int32_t *tposx, int32_t *tposy, fix16_t *tang)
 {
-    mirrorrender = 1;
     const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
     const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
 
@@ -11764,14 +11762,14 @@ void renderPrepareMirrorOld(int32_t dax, int32_t day, int32_t daz, fix16_t daang
 //
 void renderCompleteMirror(void)
 {
-    mirrorrender = 0;
+    // Don't try to complete a mirror if we haven't drawn the reflection for one
+    if (!inpreparemirror) { return; }
+    inpreparemirror = 0;
+
 #ifdef USE_OPENGL
     if (videoGetRenderMode() != REND_CLASSIC)
         return;
 #endif
-
-    // Can't reverse when the world has not yet been drawn from the other side.
-    if (inpreparemirror) { inpreparemirror = 0; return; }
 
     // The mirroring code maps the rightmost pixel to the right neighbor of the
     // leftmost one (see copybufreverse() call below). Thus, the leftmost would
@@ -11795,22 +11793,21 @@ void renderCompleteMirror(void)
     int const height = mirrorsy2-mirrorsy1;
 
     // Address of the mirror wall's top left corner in the source scene:
-    intptr_t p = frameplace + ylookup[windowxy1.y+mirrorsy1] + windowxy1.x+mirrorsx1;
+    intptr_t s = (intptr_t) mirrorBuffer + ylookup[windowxy1.y+mirrorsy1] + windowxy1.x+mirrorsx1;
 
-    // Offset (wrt p) of a mirror line's left corner in the destination:
-    // p+destof == frameplace + ylookup[...] + windowxy2.x-mirrorsx2
-    int const destofs = windowxy2.x-mirrorsx2-windowxy1.x-mirrorsx1;
+    // Pointer to the mirror line's left corner in the destination:
+    intptr_t d = (intptr_t) frameplace + ylookup[windowxy1.y+mirrorsy1] + windowxy2.x-mirrorsx2;
 
     for (bssize_t y=0; y<height; y++)
     {
 #if 0
-        if ((p-frameplace) + width-1 >= bytesperline*ydim)
+        if ((p-mirrorBuffer) + width-1 >= bytesperline*ydim)
             printf("oob read: mirrorsx1=%d, mirrorsx2=%d\n", mirrorsx1, mirrorsx2);
 #endif
-        copybufbyte((void *)p, tempbuf, width);
-        copybufreverse(&tempbuf[width-1], (void *)(p+destofs+1), width);
+        copybufreverse((void *)(s+width-1), (void *)(d+1), width);
 
-        p += ylookup[1];
+        s += ylookup[1];
+        d += ylookup[1];
         faketimerhandler();
     }
 

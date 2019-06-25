@@ -1175,6 +1175,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
     if (g_screenCapture)
         return;
 
+    //POGOTODO: check if this has anything to do with cameras not rendering the skybox properly
     if (offscreenrendering)
     {
         videoClearViewableArea(0);
@@ -1215,7 +1216,8 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
     renderSetAspect(viewingRange, yxAspect);
     int const smoothratio = calc_smoothratio(totalclock, ototalclock);
     G_DoInterpolations(smoothratio);
-    G_HandleMirror(vec.x, vec.y, vec.z, a, horiz, smoothratio);
+    if (!display_mirror)
+        G_HandleMirror(vec.x, vec.y, vec.z, a, horiz, smoothratio);
 #ifdef POLYMER
     if (videoGetRenderMode() == REND_POLYMER)
         polymer_setanimatesprites(G_DoSpriteAnimations, vec.x, vec.y, fix16_to_int(a), smoothratio);

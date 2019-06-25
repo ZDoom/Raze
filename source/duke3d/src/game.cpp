@@ -623,10 +623,36 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             int32_t tposx, tposy;
             fix16_t tang;
 
+            //prepare to render any scripted EVENT_DISPLAYROOMS extras as mirrored
             renderPrepareMirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
 
             int32_t j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
+
+            //backup original camera position
+            int32_t origCamX = CAMERA(pos.x);
+            int32_t origCamY = CAMERA(pos.y);
+            int32_t origCamZ = CAMERA(pos.z);
+            fix16_t origCamq16ang = CAMERA(q16ang);
+            fix16_t origCamq16horiz = CAMERA(q16horiz);
+            //set the camera inside the mirror facing out
+            CAMERA(pos.x) = tposx;
+            CAMERA(pos.y) = tposy;
+            CAMERA(pos.z) = z;
+            CAMERA(q16ang) = tang;
+            CAMERA(q16horiz) = q16horiz;
+            display_mirror = 1;
+            VM_OnEventWithReturn(EVENT_DISPLAYROOMS, g_player[0].ps->i, 0, 0);
+            display_mirror = 0;
+            //reset the camera position
+            CAMERA(pos.x) = origCamX;
+            CAMERA(pos.y) = origCamY;
+            CAMERA(pos.z) = origCamZ;
+            CAMERA(q16ang) = origCamq16ang;
+            CAMERA(q16horiz) = origCamq16horiz;
+
+            //prepare to render the mirror
+            renderPrepareMirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
 
             if (videoGetRenderMode() != REND_POLYMER)
             {
@@ -634,6 +660,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
 
                 yax_preparedrawrooms();
                 didmirror = renderDrawRoomsQ16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
+                //POGO: if didmirror == 0, we may simply wish to abort instead of rendering with yax_drawrooms (which may require cleaning yax state)
                 yax_drawrooms(G_DoSpriteAnimations, g_mirrorSector[i], didmirror, smoothratio);
             }
 #ifdef USE_OPENGL
@@ -649,19 +676,22 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             renderCompleteMirror();   //Reverse screen x-wise in this function
             g_visibility = j;
         }
+    }
+}
 
+static void G_ClearGotMirror()
+{
 #ifdef SPLITSCREEN_MOD_HACKS
-        if (!g_fakeMultiMode)
+    if (!g_fakeMultiMode)
 #endif
-        {
-            // HACK for splitscreen mod: this is so that mirrors will be drawn
-            // from showview commands. Ugly, because we'll attempt do draw mirrors
-            // each frame then. But it's better than not drawing them, I guess.
-            // XXX: fix the sequence of setting/clearing this bit. Right now,
-            // we always draw one frame without drawing the mirror, after which
-            // the bit gets set and drawn subsequently.
-            gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
-        }
+    {
+        // HACK for splitscreen mod: this is so that mirrors will be drawn
+        // from showview commands. Ugly, because we'll attempt do draw mirrors
+        // each frame then. But it's better than not drawing them, I guess.
+        // XXX: fix the sequence of setting/clearing this bit. Right now,
+        // we always draw one frame without drawing the mirror, after which
+        // the bit gets set and drawn subsequently.
+        gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
     }
 }
 
@@ -1029,6 +1059,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
 
             G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
+            G_ClearGotMirror();
 #ifdef LEGACY_ROR
             G_SE40(smoothRatio);
 #endif
