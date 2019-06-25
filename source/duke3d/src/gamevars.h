@@ -233,7 +233,6 @@ static FORCE_INLINE void __fastcall VM_SetStruct(uint32_t const flags, intptr_t 
         }                                                                                    \
     }
 
-#if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
 static FORCE_INLINE void __fastcall Gv_DivVar(int const id, int32_t const operand)
 {
     auto &var = aGameVars[id];
@@ -282,9 +281,6 @@ skip:
 
     *iptr = libdivide_s32_do(*iptr, dptr);
 }
-#else
-VM_GAMEVAR_OPERATOR(Gv_DivVar, /= )
-#endif
 
 VM_GAMEVAR_OPERATOR(Gv_AddVar, +=)
 VM_GAMEVAR_OPERATOR(Gv_SubVar, -=)
