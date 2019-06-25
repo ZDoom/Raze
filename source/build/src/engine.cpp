@@ -12435,7 +12435,11 @@ int32_t videoSetRenderMode(int32_t renderer)
 
 #ifdef USE_OPENGL
     if (bpp == 8)
+    {
+        glDisable(GL_BLEND);
+        glDisable(GL_ALPHA_TEST);
         renderer = REND_CLASSIC;
+    }
 # ifdef POLYMER
     else
         renderer = clamp(renderer, REND_POLYMOST, REND_POLYMER);
