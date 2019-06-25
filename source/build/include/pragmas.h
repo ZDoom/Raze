@@ -41,49 +41,49 @@ extern int32_t reciptable[2048], fpuasm;
 
 #define DIVTABLESIZE 16384
 
-extern libdivide_s64_t divtable64[DIVTABLESIZE];
-extern libdivide_s32_t divtable32[DIVTABLESIZE];
+extern libdivide::libdivide_s64_t divtable64[DIVTABLESIZE];
+extern libdivide::libdivide_s32_t divtable32[DIVTABLESIZE];
 extern void initdivtables(void);
 
 static inline uint32_t divideu32(uint32_t const n, uint32_t const d)
 {
-    static libdivide_u32_t udiv;
+    static libdivide::libdivide_u32_t udiv;
     static uint32_t lastd;
 
     if (d == lastd)
         goto skip;
 
-    udiv = libdivide_u32_gen((lastd = d));
+    udiv = libdivide::libdivide_u32_gen((lastd = d));
 skip:
-    return libdivide_u32_do(n, &udiv);
+    return libdivide::libdivide_u32_do(n, &udiv);
 }
 
 static inline int64_t tabledivide64(int64_t const n, int32_t const d)
 {
-    static libdivide_s64_t sdiv;
+    static libdivide::libdivide_s64_t sdiv;
     static int32_t lastd;
     auto const dptr = ((unsigned)d < DIVTABLESIZE) ? &divtable64[d] : &sdiv;
 
     if (d == lastd || dptr != &sdiv)
         goto skip;
 
-    sdiv = libdivide_s64_gen((lastd = d));
+    sdiv = libdivide::libdivide_s64_gen((lastd = d));
 skip:
-    return libdivide_s64_do(n, dptr);
+    return libdivide::libdivide_s64_do(n, dptr);
 }
 
 static inline int32_t tabledivide32(int32_t const n, int32_t const d)
 {
-    static libdivide_s32_t sdiv;
+    static libdivide::libdivide_s32_t sdiv;
     static int32_t lastd;
     auto const dptr = ((unsigned)d < DIVTABLESIZE) ? &divtable32[d] : &sdiv;
 
     if (d == lastd || dptr != &sdiv)
         goto skip;
 
-    sdiv = libdivide_s32_gen((lastd = d));
+    sdiv = libdivide::libdivide_s32_gen((lastd = d));
 skip:
-    return libdivide_s32_do(n, dptr);
+    return libdivide::libdivide_s32_do(n, dptr);
 }
 
 extern uint32_t divideu32_noinline(uint32_t n, uint32_t d);

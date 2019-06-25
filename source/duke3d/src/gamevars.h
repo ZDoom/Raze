@@ -242,15 +242,15 @@ static FORCE_INLINE void __fastcall Gv_DivVar(int const id, int32_t const operan
         return;
 
     bool const foundInTable = (unsigned) operand < DIVTABLESIZE;
-    static libdivide_s32_t sdiv;
+    static libdivide::libdivide_s32_t sdiv;
     intptr_t *iptr = &var.global;
     static int32_t lastValue;
-    auto dptr = foundInTable ? (libdivide_s32_t *) &divtable32[operand] : &sdiv;
+    auto dptr = foundInTable ? (libdivide::libdivide_s32_t *) &divtable32[operand] : &sdiv;
 
     if (operand == lastValue || foundInTable)
         goto skip;
 
-    sdiv = libdivide_s32_gen((lastValue = operand));
+    sdiv = libdivide::libdivide_s32_gen((lastValue = operand));
 
 skip:
     switch (var.flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))
@@ -262,13 +262,13 @@ skip:
         case GAMEVAR_INT32PTR:
         {
             int32_t &value = *(int32_t *)var.pValues;
-            value = (int32_t)libdivide_s32_do(value, dptr);
+            value = (int32_t)libdivide::libdivide_s32_do(value, dptr);
             return;
         }
         case GAMEVAR_INT16PTR:
         {
             int16_t &value = *(int16_t *)var.pValues;
-            value = (int16_t)libdivide_s32_do(value, dptr);
+            value = (int16_t)libdivide::libdivide_s32_do(value, dptr);
             return;
         }
         case GAMEVAR_Q16PTR:

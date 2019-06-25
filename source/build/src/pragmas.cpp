@@ -10,15 +10,15 @@
 #include "compat.h"
 #include "pragmas.h"
 
-libdivide_s64_t divtable64[DIVTABLESIZE];
-libdivide_s32_t divtable32[DIVTABLESIZE];
+libdivide::libdivide_s64_t divtable64[DIVTABLESIZE];
+libdivide::libdivide_s32_t divtable32[DIVTABLESIZE];
 
 void initdivtables(void)
 {
     for (int i = 1; i < DIVTABLESIZE; ++i)
     {
-        divtable64[i] = libdivide_s64_gen(i);
-        divtable32[i] = libdivide_s32_gen(i);
+        divtable64[i] = libdivide::libdivide_s64_gen(i);
+        divtable32[i] = libdivide::libdivide_s32_gen(i);
     }
 }
 
