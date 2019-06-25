@@ -4402,7 +4402,7 @@ skip:
     }
 
 #ifdef LUNATIC
-    VM_OnEvent(EVENT_ANIMATEALLSPRITES, -1, -1);
+    VM_OnEvent(EVENT_ANIMATEALLSPRITES);
 #endif
 #ifdef DEBUGGINGAIDS
     g_spriteStat.numonscreen = spritesortcnt;
@@ -5695,7 +5695,7 @@ static void G_CompileScripts(void)
     Bmemset(sector, 0, MAXSECTORS*sizeof(sectortype));
     Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
 
-    VM_OnEvent(EVENT_INIT, -1, -1);
+    VM_OnEvent(EVENT_INIT);
     pathsearchmode = psm;
 #endif
 }
@@ -5871,7 +5871,7 @@ static void G_Startup(void)
 #ifdef LUNATIC
     // NOTE: This is only effective for CON-defined EVENT_INIT. See EVENT_INIT
     // not in _defs_game.lua.
-    VM_OnEvent(EVENT_INIT, -1, -1);
+    VM_OnEvent(EVENT_INIT);
 #endif
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 

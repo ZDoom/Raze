@@ -1282,7 +1282,7 @@ static void prelevel(int g)
     P_PrepForNewLevel(0, g);
     G_SetupGlobalPsky();
 
-    VM_OnEvent(EVENT_PRELEVEL, -1, -1);
+    VM_OnEvent(EVENT_PRELEVEL);
 
     int missedCloudSectors = 0;
 
@@ -1334,7 +1334,7 @@ static void prelevel(int g)
 #if !defined LUNATIC
         A_LoadActor(i);
 #endif
-        VM_OnEvent(EVENT_LOADACTOR, i, -1);
+        VM_OnEvent(EVENT_LOADACTOR, i);
 
         A_MaybeProcessEffector(i);
     }

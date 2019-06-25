@@ -8455,7 +8455,7 @@ void G_MoveWorld(void)
     extern double g_moveActorsTime, g_moveWorldTime;
     const double worldTime = timerGetHiTicks();
 
-    VM_OnEvent(EVENT_PREWORLD, -1, -1);
+    VM_OnEvent(EVENT_PREWORLD);
 
     G_DoEventGame(EVENT_PREGAME);
 
@@ -8480,7 +8480,7 @@ void G_MoveWorld(void)
     G_MoveStandables();       //ST 6
 
 
-    VM_OnEvent(EVENT_WORLD, -1, -1);
+    VM_OnEvent(EVENT_WORLD);
 
     G_DoEventGame(EVENT_GAME);
 
