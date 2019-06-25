@@ -1555,7 +1555,7 @@ int32_t sv_loadheader(buildvfs_kfd fil, int32_t spot, savehead_t *h)
 #ifndef DEBUGGINGAIDS
         if (havedemo)
 #endif
-            OSD_Printf("Incompatible file version. Expected %d.%d.%d.%d.%0x, found %d.%d.%d.%d.%0x\n", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
+            OSD_Printf("Incompatible savegame. Expected version %d.%d.%d.%d.%0x, found %d.%d.%d.%d.%0x\n", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                        ud.userbytever, g_scriptcrc, h->majorver, h->minorver, h->bytever, h->userbytever, h->scriptcrc);
 
         if (h->majorver == SV_MAJOR_VER && h->minorver == SV_MINOR_VER)
