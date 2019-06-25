@@ -16,6 +16,11 @@
 # define CLASSIC_NONPOW2_YSIZE_WALLS
 #endif
 
+#define SLOPTABLESIZ 32768
+#define HALFSLOPTABLESIZ (SLOPTABLESIZ>>1)
+
+extern int32_t sloptable[SLOPTABLESIZ];
+
 /** Definitions of high-precision integer types. **/
 // Should be used for values that represent coordinates with which calculations
 // like dot product are carried out. Substituting 32-bit ints for these will
