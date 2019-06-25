@@ -164,7 +164,7 @@ int32_t globalx1, globaly2, globalx3, globaly3;
 }
 #endif
 
-int32_t sloptable[16384];
+int32_t sloptable[32768];
 static intptr_t slopalookup[16384];    // was 2048
 
 static int32_t no_radarang2 = 0;
@@ -3393,7 +3393,7 @@ static void tslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int3
 
     do
     {
-        int const i = (sloptable[(bz>>6)+8192]); bz += bzinc;
+        int const i = (sloptable[(bz>>6)+16384]); bz += bzinc;
         uint32_t u = bx + xtou*i;
         uint32_t v = by + ytov*i;
         uint8_t ch = buf[((u>>(32-logx))<<logy)+(v>>(32-logy))];
@@ -3423,7 +3423,7 @@ static void mslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int3
 
     do
     {
-        int const i = (sloptable[(bz>>6)+8192]); bz += bzinc;
+        int const i = (sloptable[(bz>>6)+16384]); bz += bzinc;
         uint32_t u = bx + xtou*i;
         uint32_t v = by + ytov*i;
         uint8_t ch = buf[((u>>(32-logx))<<logy)+(v>>(32-logy))];
@@ -7229,8 +7229,8 @@ static int32_t engineLoadTables(void)
         for (i=0; i<2048; i++)
             reciptable[i] = divscale30(2048, i+2048);
 
-        for (i=0; i<16384; i++)
-            sloptable[i] = krecipasm(i-8192);
+        for (i=0; i<32768; i++)
+            sloptable[i] = krecipasm(i-16384);
 
         for (i=0; i<=512; i++)
             sintable[i] = (int16_t)(16384.f * sinf((float)i * BANG2RAD));

@@ -107,7 +107,7 @@ void hlineasm4(bssize_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by,
 
 
 ///// Sloped ceiling/floor vertical line functions /////
-extern int32_t sloptable[16384];
+extern int32_t sloptable[32768];
 
 void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, bssize_t cnt, int32_t bx, int32_t by)
 {
@@ -119,7 +119,7 @@ void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, bssize_t cnt, int32_t
     slopalptr = (intptr_t *)slopaloffs;
     for (; cnt>0; cnt--)
     {
-        i = (sloptable[(bz>>6)+8192]); bz += bzinc;
+        i = (sloptable[(bz>>6)+16384]); bz += bzinc;
         u = bx+(inthi_t)globalx3*i;
         v = by+(inthi_t)globaly3*i;
         (*(char *)p) = *(char *)(((intptr_t)slopalptr[0])+gbuf[((u>>(32-glogx))<<glogy)+(v>>(32-glogy))]);
