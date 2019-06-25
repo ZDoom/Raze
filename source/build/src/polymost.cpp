@@ -69,7 +69,9 @@ static vec3d_t xtex, ytex, otex, xtex2, ytex2, otex2;
 
 float fcosglobalang, fsinglobalang;
 float fxdim, fydim, fydimen, fviewingrange;
-static int32_t preview_mouseaim=1;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
+
+float fsearchx, fsearchy, fsearchz;
+int psectnum, pwallnum, pbottomwall, pisbottomwall, psearchstat;
 
 static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 #define MAX_DRAWPOLY_VERTS 8
@@ -3131,6 +3133,12 @@ skip: ;
                     case 5:
                     case 7:
                     {
+                        vec2f_t dpxy[8] = {
+                            { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, n1.y }, { dx0, n0.y }
+                        };
+
+                        int n = 4;
+                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 #ifdef YAX_ENABLE
                         if (g_nodraw)
                         {
@@ -3139,15 +3147,7 @@ skip: ;
                         }
                         else
 #endif
-                        {
-                            vec2f_t dpxy[8] = {
-                                { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, n1.y }, { dx0, n0.y }
-                            };
-
-                            int n = 4;
-                            polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
                             polymost_drawpoly(dpxy, n, domostpolymethod);
-                        }
 
                         vsp[i].cy[0] = n0.y;
                         vsp[i].cy[1] = n1.y;
@@ -3157,21 +3157,22 @@ skip: ;
                     case 1:
                     case 2:
                     {
+                        vec2f_t dpxy[8] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx0, n0.y } };
+
+                        int n = 3;
+                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 #ifdef YAX_ENABLE
                         if (g_nodraw)
                         {
                             if (yax_drawcf != -1)
                                 yax_holecf[yax_drawcf][yax_holencf[yax_drawcf]++] = { dx0, dx1, vsp[i].cy[0], vsp[i].cy[1], n0.y, vsp[i].cy[1] };
+
+                            if (editstatus && doeditorcheck)
+                                polymost_polyeditorfunc(dpxy, n);
                         }
                         else
 #endif
-                        {
-                            vec2f_t dpxy[8] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx0, n0.y } };
-
-                            int n = 3;
-                            polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
                             polymost_drawpoly(dpxy, n, domostpolymethod);
-                        }
 
                         vsp[i].cy[0] = n0.y;
                         vsp[i].ctag = gtag;
@@ -3180,6 +3181,10 @@ skip: ;
                     case 3:
                     case 6:
                     {
+                        vec2f_t dpxy[8] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, n1.y } };
+
+                        int n = 3;
+                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 #ifdef YAX_ENABLE
                         if (g_nodraw)
                         {
@@ -3188,13 +3193,7 @@ skip: ;
                         }
                         else
 #endif
-                        {
-                            vec2f_t dpxy[8] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, n1.y } };
-
-                            int n = 3;
-                            polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
                             polymost_drawpoly(dpxy, n, domostpolymethod);
-                        }
 
                         vsp[i].cy[1] = n1.y;
                         vsp[i].ctag = gtag;
@@ -3202,6 +3201,12 @@ skip: ;
                     break;
                     case 8:
                     {
+                        vec2f_t dpxy[8] = {
+                            { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] }
+                        };
+
+                        int n = 4;
+                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 #ifdef YAX_ENABLE
                         if (g_nodraw)
                         {
@@ -3210,15 +3215,7 @@ skip: ;
                         }
                         else
 #endif
-                        {
-                            vec2f_t dpxy[8] = {
-                                { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] }
-                            };
-
-                            int n = 4;
-                            polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
                             polymost_drawpoly(dpxy, n, domostpolymethod);
-                        }
 
                         vsp[i].ctag = vsp[i].ftag = -1;
                     }
@@ -3233,6 +3230,12 @@ skip: ;
                 case 3:
                 case 1:
                 {
+                    vec2f_t dpxy[8] = {
+                        { dx0, n0.y }, { dx1, n1.y }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] }
+                    };
+
+                    int n = 4;
+                    polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 #ifdef YAX_ENABLE
                     if (g_nodraw)
                     {
@@ -3241,15 +3244,7 @@ skip: ;
                     }
                     else
 #endif
-                    {
-                        vec2f_t dpxy[8] = {
-                            { dx0, n0.y }, { dx1, n1.y }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] }
-                        };
-
-                        int n = 4;
-                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
                         polymost_drawpoly(dpxy, n, domostpolymethod);
-                    }
 
                     vsp[i].fy[0] = n0.y;
                     vsp[i].fy[1] = n1.y;
@@ -3259,6 +3254,10 @@ skip: ;
                 case 7:
                 case 6:
                 {
+                    vec2f_t dpxy[8] = { { dx0, n0.y }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
+
+                    int n = 3;
+                    polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 #ifdef YAX_ENABLE
                     if (g_nodraw)
                     {
@@ -3267,13 +3266,7 @@ skip: ;
                     }
                     else
 #endif
-                    {
-                        vec2f_t dpxy[8] = { { dx0, n0.y }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
-
-                        int n = 3;
-                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
                         polymost_drawpoly(dpxy, n, domostpolymethod);
-                    }
 
                     vsp[i].fy[0] = n0.y;
                     vsp[i].ftag = gtag;
@@ -3282,6 +3275,10 @@ skip: ;
                 case 5:
                 case 2:
                 {
+                    vec2f_t dpxy[8] = { { dx0, vsp[i].fy[0] }, { dx1, n1.y }, { dx1, vsp[i].fy[1] } };
+
+                    int n = 3;
+                    polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 #ifdef YAX_ENABLE
                     if (g_nodraw)
                     {
@@ -3290,13 +3287,7 @@ skip: ;
                     }
                     else
 #endif
-                    {
-                        vec2f_t dpxy[8] = { { dx0, vsp[i].fy[0] }, { dx1, n1.y }, { dx1, vsp[i].fy[1] } };
-
-                        int n = 3;
-                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
                         polymost_drawpoly(dpxy, n, domostpolymethod);
-                    }
 
                     vsp[i].fy[1] = n1.y;
                     vsp[i].ftag = gtag;
@@ -3304,6 +3295,10 @@ skip: ;
                     break;
                 case 0:
                 {
+                    vec2f_t dpxy[8] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
+
+                    int n = 4;
+                    polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
 #ifdef YAX_ENABLE
                     if (g_nodraw)
                     {
@@ -3312,13 +3307,7 @@ skip: ;
                     }
                     else
 #endif
-                    {
-                        vec2f_t dpxy[8] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
-
-                        int n = 4;
-                        polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
                         polymost_drawpoly(dpxy, n, domostpolymethod);
-                    }
 
                     vsp[i].ctag = vsp[i].ftag = -1;
                 }
@@ -3759,193 +3748,6 @@ static int32_t should_clip_cfwall(float x0, float y0, float x1, float y1)
 }
 
 #endif
-
-
-void polymost_editorfunc(void)
-{
-    const float ratio = (r_usenewaspect ? (fxdim / fydim) / (320.f / 240.f) : 1.f)  * (1.f / get_projhack_ratio());
-
-    vec3f_t tvect = { (searchx - ghalfx) * ratio,
-                      (searchy - ghoriz) * ratio,
-                      ghalfx };
-
-    //Tilt rotation
-    vec3f_t o = { tvect.x * gctang + tvect.y * gstang, tvect.y * gctang - tvect.x * gstang, tvect.z };
-
-    //Up/down rotation
-    tvect = { o.z * gchang - o.y * gshang,
-              o.x,
-              o.y * gchang + o.z * gshang };
-
-    //Standard Left/right rotation
-    vec3_t v = { Blrintf(tvect.x * fcosglobalang - tvect.y * fsinglobalang),
-                 Blrintf(tvect.x * fsinglobalang + tvect.y * fcosglobalang), Blrintf(tvect.z * 16384.f) };
-
-    vec3_t vect = { globalposx, globalposy, globalposz };
-
-    hitdata_t *hit = &polymost_hitdata;
-
-    hitallsprites = 1;
-
-    hitscan((const vec3_t *) &vect, globalcursectnum, //Start position
-        v.x>>10, v.y>>10, v.z>>6, hit, 0xffff0030);
-
-    if (hit->sect != -1) // if hitsect is -1, hitscan overflowed somewhere
-    {
-        int32_t cz, fz;
-        getzsofslope(hit->sect, hit->pos.x, hit->pos.y, &cz, &fz);
-        hitallsprites = 0;
-
-        searchsector = hit->sect;
-        if (hit->pos.z<cz) searchstat = 1;
-        else if (hit->pos.z>fz) searchstat = 2;
-        else if (hit->wall >= 0)
-        {
-            searchbottomwall = searchwall = hit->wall; searchstat = 0;
-            if (wall[hit->wall].nextwall >= 0)
-            {
-                getzsofslope(wall[hit->wall].nextsector, hit->pos.x, hit->pos.y, &cz, &fz);
-                if (hit->pos.z > fz)
-                {
-                    searchisbottom = 1;
-                    if (wall[hit->wall].cstat&2) //'2' bottoms of walls
-                        searchbottomwall = wall[hit->wall].nextwall;
-                }
-                else
-                {
-                    searchisbottom = 0;
-                    if ((hit->pos.z > cz) && (wall[hit->wall].cstat&(16+32))) //masking or 1-way
-                        searchstat = 4;
-                }
-            }
-        }
-        else if (hit->sprite >= 0) { searchwall = hit->sprite; searchstat = 3; }
-        else
-        {
-            getzsofslope(hit->sect, hit->pos.x, hit->pos.y, &cz, &fz);
-            if ((hit->pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
-            //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
-        }
-
-        if (preview_mouseaim)
-        {
-            if (spritesortcnt == maxspritesonscreen)
-                spritesortcnt--;
-
-            uspritetype *tsp = &tsprite[spritesortcnt];
-            double dadist, x, y, z;
-            Bmemcpy(tsp, &hit->pos, sizeof(vec3_t));
-            x = tsp->x-globalposx; y=tsp->y-globalposy; z=(tsp->z-globalposz)/16.0;
-            dadist = Bsqrt(x*x + y*y + z*z);
-            tsp->sectnum = hit->sect;
-            tsp->picnum = 2523;  // CROSSHAIR
-            tsp->cstat = 128;
-
-            if (hit->wall != -1)
-            {
-                tsp->cstat |= 16;
-                int const ang = getangle(wall[hit->wall].x - POINT2(hit->wall).x, wall[hit->wall].y - POINT2(hit->wall).y);
-                tsp->ang = ang + 512;
-
-                vec2_t const offs = { sintable[(ang + 1024) & 2047] >> 11,
-                    sintable[(ang + 512) & 2047] >> 11};
-
-                tsp->x -= offs.x;
-                tsp->y -= offs.y;
-
-            }
-            else if (hit->sprite == -1 && (hit->pos.z == sector[hit->sect].floorz || hit->pos.z == sector[hit->sect].ceilingz))
-            {
-                tsp->cstat = 32;
-                tsp->ang = getangle(hit->pos.x - globalposx, hit->pos.y - globalposy);
-            }
-            else if (hit->sprite >= 0)
-            {
-                if (sprite[hit->sprite].cstat & 16)
-                {
-                    tsp->cstat |= 16;
-                    tsp->ang = sprite[hit->sprite].ang;
-                }
-
-                else tsp->ang = (globalang + 1024) & 2047;
-
-                vec2_t const offs = { sintable[(tsp->ang + 1536) & 2047] >> 11,
-                                      sintable[(tsp->ang + 1024) & 2047] >> 11 };
-
-                tsp->x -= offs.x;
-                tsp->y -= offs.y;
-            }
-            static int lastupdate = 0;
-            static int shd = 30;
-            static int shdinc = 1;
-
-            if (totalclock > lastupdate)
-            {
-                shd += shdinc;
-                if (shd >= 30 || shd <= 0)
-                {
-                    shdinc = -shdinc;
-                    shd += shdinc;
-                }
-                lastupdate = totalclock + 3;
-            }
-
-            tsp->shade = 30-shd;
-            tsp->owner = MAXSPRITES-1;
-            tsp->xrepeat = tsp->yrepeat = min(max(1, (int32_t) (dadist*((double)(shd*3)/3200.0))), 255);
-            tsp->extra = 0;
-            sprite[tsp->owner].xoffset = sprite[tsp->owner].yoffset = 0;
-            tspriteptr[spritesortcnt++] = tsp;
-        }
-
-        if ((searchstat == 1 || searchstat == 2) && searchsector >= 0)
-        {
-            vec2_t const scrv = { (v.x >> 12), (v.y >> 12) };
-            vec2_t const scrv_r = { scrv.y, -scrv.x };
-            walltype const * const wal = &wall[sector[searchsector].wallptr];
-            uint64_t bestwdistsq = 0x7fffffff;
-            int32_t bestk = -1;
-
-            for (bssize_t k = 0; k < sector[searchsector].wallnum; k++)
-            {
-                vec2_t const w1 = { wal[k].x, wal[k].y };
-                vec2_t const w2 = { wall[wal[k].point2].x, wall[wal[k].point2].y };
-                vec2_t const w21 = { w1.x - w2.x, w1.y - w2.y };
-                vec2_t const pw1 = { w1.x - hit->pos.x, w1.y - hit->pos.y };
-                vec2_t const pw2 = { w2.x - hit->pos.x, w2.y - hit->pos.y };
-                float w1d = (float)(scrv_r.x * pw1.x + scrv_r.y * pw1.y);
-                float w2d = (float)-(scrv_r.x * pw2.x + scrv_r.y * pw2.y);
-
-                if ((w1d == 0 && w2d == 0) || (w1d < 0 || w2d < 0))
-                    continue;
-
-                vec2_t const ptonline = { (int32_t)(w2.x + (w2d / (w1d + w2d)) * w21.x),
-                                          (int32_t)(w2.y + (w2d / (w1d + w2d)) * w21.y) };
-
-                vec2_t const scrp = { ptonline.x - vect.x, ptonline.y - vect.y };
-
-                if (scrv.x * scrp.x + scrv.y * scrp.y <= 0)
-                    continue;
-
-                int64_t const t1 = scrp.x;
-                int64_t const t2 = scrp.y;
-
-                uint64_t const wdistsq = t1 * t1 + t2 * t2;
-
-                if (wdistsq < bestwdistsq)
-                {
-                    bestk = k;
-                    bestwdistsq = wdistsq;
-                }
-            }
-
-            if (bestk >= 0)
-                searchwall = sector[searchsector].wallptr + bestk;
-        }
-    }
-    searchit = 0;
-}
-
 
 
 // variables that are set to ceiling- or floor-members, depending
@@ -5655,9 +5457,6 @@ void polymost_drawrooms()
     }
     //else if (!g_nodraw) { videoEndDrawing(); return; }
 #endif
-
-    if (searchit == 2)
-        polymost_editorfunc();
 
     polymost_updaterotmat();
 
