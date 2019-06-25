@@ -899,6 +899,7 @@ nextdemo_nomenu:
             if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))
             {
                 Demo_FinishProfile();
+                videoNextPage();
                 goto RECHECK;
             }
 
@@ -957,6 +958,8 @@ nextdemo_nomenu:
                 if (ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
                     rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, BETAVERSION, 0, 0, 2+8+16+128);
             }
+
+            videoNextPage();
         }
 
         // NOTE: We must prevent handleevents() and Net_GetPackets() from

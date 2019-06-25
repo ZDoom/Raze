@@ -1253,6 +1253,7 @@ void Screen_Play(void)
         if (VM_OnEventWithReturn(EVENT_SCREEN, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
             running = false;
 
+        videoNextPage();
         I_ClearAllInput();
     } while (running);
 }

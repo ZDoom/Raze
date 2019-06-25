@@ -6138,13 +6138,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
 int G_FPSLimit(void)
 {
     static auto nextPageTicks = (double)timerGetTicksU64();
-    static unsigned frameWaiting  = 0;
-
-    if (frameWaiting)
-    {
-        frameWaiting--;
-        videoNextPage();
-    }
+    int frameWaiting = 0;
 
     auto const frameTicks = (double)timerGetTicksU64();
 
@@ -6154,7 +6148,7 @@ int G_FPSLimit(void)
             nextPageTicks = frameTicks;
 
         nextPageTicks += g_frameDelay;
-        frameWaiting++;
+        ++frameWaiting;
     }
 
     return frameWaiting;
@@ -6819,6 +6813,7 @@ MAIN_LOOP_RESTART:
             if (videoGetRenderMode() >= REND_POLYMOST)
                 G_DrawBackground();
             G_DisplayRest(smoothRatio);
+            videoNextPage();
 
             if (gameUpdate)
             {

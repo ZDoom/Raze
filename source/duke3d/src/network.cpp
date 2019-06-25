@@ -4709,6 +4709,7 @@ void Net_WaitForServer(void)
         {
             display_betascreen();
             gametext_center_shade(170, "Waiting for server", 14);
+            videoNextPage();
         }
 
         // XXX: this looks like something that should be rate limited...

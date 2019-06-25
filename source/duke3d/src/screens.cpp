@@ -1572,6 +1572,7 @@ void gameDisplay3DRScreen()
                         P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
                         g_restorePalette = 0;
                     }
+                    videoNextPage();
                 }
             }
 
@@ -1676,6 +1677,9 @@ void gameDisplayTitleScreen(void)
                 P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
                 g_restorePalette = 0;
             }
+
+            videoNextPage();
+
 #ifdef LUNATIC
             if (g_elEventError)
                 break;
@@ -1882,6 +1886,7 @@ static void G_BonusCutscenes(void)
                                 rotatesprite_fs(breathe[t+3]<<16, breathe[t+4]<<16, 65536L, 0, breathe[t+2], 0, 0, 2+8+16+64+128+BGSTRETCH);
                             }
                     }
+                    videoNextPage();
                 }
 
                 G_HandleAsync();
@@ -2306,6 +2311,7 @@ void G_BonusScreen(int32_t bonusonly)
             {
                 videoClearScreen(0);
                 G_DisplayMPResultsScreen();
+                videoNextPage();
             }
 
             if (I_CheckAllInput())
@@ -2578,6 +2584,7 @@ void G_BonusScreen(int32_t bonusonly)
                 break;
 
             VM_OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek);
+            videoNextPage();
         }
     } while (1);
 }
