@@ -13,14 +13,14 @@
 extern "C" {
 #endif
 
-#define EDUKE32_GENERATE_PRAGMAS                                                                                       \
-    EDUKE32_SCALER_PRAGMA(1) EDUKE32_SCALER_PRAGMA(2) EDUKE32_SCALER_PRAGMA(3) EDUKE32_SCALER_PRAGMA(4)                \
-    EDUKE32_SCALER_PRAGMA(5) EDUKE32_SCALER_PRAGMA(6) EDUKE32_SCALER_PRAGMA(7) EDUKE32_SCALER_PRAGMA(8)                \
-    EDUKE32_SCALER_PRAGMA(9) EDUKE32_SCALER_PRAGMA(10) EDUKE32_SCALER_PRAGMA(11) EDUKE32_SCALER_PRAGMA(12)             \
-    EDUKE32_SCALER_PRAGMA(13) EDUKE32_SCALER_PRAGMA(14) EDUKE32_SCALER_PRAGMA(15) EDUKE32_SCALER_PRAGMA(16)            \
-    EDUKE32_SCALER_PRAGMA(17) EDUKE32_SCALER_PRAGMA(18) EDUKE32_SCALER_PRAGMA(19) EDUKE32_SCALER_PRAGMA(20)            \
-    EDUKE32_SCALER_PRAGMA(21) EDUKE32_SCALER_PRAGMA(22) EDUKE32_SCALER_PRAGMA(23) EDUKE32_SCALER_PRAGMA(24)            \
-    EDUKE32_SCALER_PRAGMA(25) EDUKE32_SCALER_PRAGMA(26) EDUKE32_SCALER_PRAGMA(27) EDUKE32_SCALER_PRAGMA(28)            \
+#define EDUKE32_GENERATE_PRAGMAS                                                                            \
+    EDUKE32_SCALER_PRAGMA(1)  EDUKE32_SCALER_PRAGMA(2)  EDUKE32_SCALER_PRAGMA(3)  EDUKE32_SCALER_PRAGMA(4)  \
+    EDUKE32_SCALER_PRAGMA(5)  EDUKE32_SCALER_PRAGMA(6)  EDUKE32_SCALER_PRAGMA(7)  EDUKE32_SCALER_PRAGMA(8)  \
+    EDUKE32_SCALER_PRAGMA(9)  EDUKE32_SCALER_PRAGMA(10) EDUKE32_SCALER_PRAGMA(11) EDUKE32_SCALER_PRAGMA(12) \
+    EDUKE32_SCALER_PRAGMA(13) EDUKE32_SCALER_PRAGMA(14) EDUKE32_SCALER_PRAGMA(15) EDUKE32_SCALER_PRAGMA(16) \
+    EDUKE32_SCALER_PRAGMA(17) EDUKE32_SCALER_PRAGMA(18) EDUKE32_SCALER_PRAGMA(19) EDUKE32_SCALER_PRAGMA(20) \
+    EDUKE32_SCALER_PRAGMA(21) EDUKE32_SCALER_PRAGMA(22) EDUKE32_SCALER_PRAGMA(23) EDUKE32_SCALER_PRAGMA(24) \
+    EDUKE32_SCALER_PRAGMA(25) EDUKE32_SCALER_PRAGMA(26) EDUKE32_SCALER_PRAGMA(27) EDUKE32_SCALER_PRAGMA(28) \
     EDUKE32_SCALER_PRAGMA(29) EDUKE32_SCALER_PRAGMA(30) EDUKE32_SCALER_PRAGMA(31)
 
 #if !defined(NOASM) && defined __cplusplus
@@ -39,14 +39,12 @@ extern int32_t reciptable[2048], fpuasm;
 #define wo(x) ((int16_t)(x))  // word cast
 #define by(x) ((uint8_t)(x))  // byte cast
 
-#define LIBDIVIDE_ALWAYS
 #define DIVTABLESIZE 16384
 
 extern libdivide_s64_t divtable64[DIVTABLESIZE];
 extern libdivide_s32_t divtable32[DIVTABLESIZE];
 extern void initdivtables(void);
 
-#if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
 static inline uint32_t divideu32(uint32_t const n, uint32_t const d)
 {
     static libdivide_u32_t udiv;
@@ -87,19 +85,6 @@ static inline int32_t tabledivide32(int32_t const n, int32_t const d)
 skip:
     return libdivide_s32_do(n, dptr);
 }
-#else
-static FORCE_INLINE CONSTEXPR uint32_t divideu32(uint32_t const n, uint32_t const d) { return n / d; }
-
-static inline int64_t tabledivide64(int64_t const n, int32_t const d)
-{
-    return ((unsigned)d < DIVTABLESIZE) ? libdivide_s64_do(n, &divtable64[d]) : n / d;
-}
-
-static inline int32_t tabledivide32(int32_t const n, int32_t const d)
-{
-    return ((unsigned)d < DIVTABLESIZE) ? libdivide_s32_do(n, &divtable32[d]) : n / d;
-}
-#endif
 
 extern uint32_t divideu32_noinline(uint32_t n, uint32_t d);
 extern int32_t tabledivide32_noinline(int32_t n, int32_t d);
@@ -108,11 +93,7 @@ extern int64_t tabledivide64_noinline(int64_t n, int32_t d);
 #ifdef GEKKO
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return tabledivide64(ldexp(eax, ecx), ebx); }
 #else
-static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx)
-{
-    const int64_t numer = qw(eax) << by(ecx);
-    return dw(tabledivide64(numer, ebx));
-}
+static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return dw(tabledivide64(qw(eax) << by(ecx), ebx)); }
 #endif
 
 #define EDUKE32_SCALER_PRAGMA(a) \
@@ -122,17 +103,15 @@ EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 
 static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 {
-    const int64_t numer = qw(eax) * edx;
-    return dw(tabledivide64(numer, ecx));
+    return dw(tabledivide64(qw(eax) * edx, ecx));
 }
 
-static inline int32_t scaleadd(int32_t eax, int32_t edx, int32_t addend, int32_t ecx)
+static FORCE_INLINE int32_t scaleadd(int32_t eax, int32_t edx, int32_t addend, int32_t ecx)
 {
-    const int64_t numer = qw(eax) * edx + addend;
-    return dw(tabledivide64(numer, ecx));
+    return dw(tabledivide64(qw(eax) * edx + addend, ecx));
 }
 
-static FORCE_INLINE int32_t roundscale(int32_t eax, int32_t edx, int32_t ecx)
+static inline int32_t roundscale(int32_t eax, int32_t edx, int32_t ecx)
 {
     return scaleadd(eax, edx, ecx / 2, ecx);
 }
