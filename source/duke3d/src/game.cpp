@@ -757,6 +757,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         CAMERA(q16ang) = fix16_from_int(actor[ud.camerasprite].tempang
                                       + mulscale16(((pSprite->ang + 1024 - actor[ud.camerasprite].tempang) & 2047) - 1024, smoothRatio));
 
+        renderSetRollAngle(0);
+
         int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERA, ud.camerasprite, playerNum, 0);
 
         if (noDraw != 1)  // event return values other than 0 and 1 are reserved
@@ -892,16 +894,23 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 renderSetAspect(mulscale16(oviewingrange, vRange >> 1), yxaspect);
             }
         }
-        else if (videoGetRenderMode() >= REND_POLYMOST && (ud.screen_tilting
+        else if (videoGetRenderMode() >= REND_POLYMOST)
+        {
+            if (ud.screen_tilting
 #ifdef SPLITSCREEN_MOD_HACKS
         && !g_fakeMultiMode
 #endif
-        ))
-        {
+            )
+            {
 #ifdef USE_OPENGL
-            renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
+                renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
 #endif
-            pPlayer->orotscrnang = pPlayer->rotscrnang;
+                pPlayer->orotscrnang = pPlayer->rotscrnang;
+            }
+            else
+            {
+                renderSetRollAngle(0);
+            }
         }
 
         if (pPlayer->newowner < 0)
