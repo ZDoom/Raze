@@ -4294,6 +4294,7 @@ void Menu_Close(uint8_t playerID)
 
         walock[TILE_SAVESHOT] = 199;
         G_UpdateScreenArea();
+        S_PauseSounds(false);
     }
 }
 
