@@ -116,6 +116,12 @@ enum {
     STATUSBAR_NOMODERN  = 0x00000040,
 };
 
+enum {
+    BENCHMARKMODE_OFF = 0x0,
+    BENCHMARKMODE_PERFORMANCE = 0x1,
+    BENCHMARKMODE_GENERATE_REFERENCE = 0x2,
+};
+
 void A_DeleteSprite(int spriteNum);
 
 static inline int32_t G_GetLogoFlags(void)
@@ -312,6 +318,7 @@ extern char ror_protectedsectors[MAXSECTORS];
 
 extern float r_ambientlight;
 
+extern int32_t g_BenchmarkMode;
 extern int32_t g_Debug;
 extern int32_t g_Shareware;
 #if !defined LUNATIC

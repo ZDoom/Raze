@@ -7560,7 +7560,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case SE_27_DEMO_CAM:
         {
-            if (pSprite->extra < 1 && (ud.recstat == 0 || !ud.democams)) break;
+            if (pSprite->extra < 1 && (ud.recstat == 0 || !ud.democams) && g_BenchmarkMode == BENCHMARKMODE_OFF) break;
 
             if (klabs(pSprite->extra) == 2)
             {
@@ -7606,6 +7606,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             pData[8] = (((int32_t) getangle(-ksqrt(cameraDirection.x*cameraDirection.x+cameraDirection.y*cameraDirection.y), cameraDirection.z)*(400.f/1024.f)))-300;
                         }
                     }
+
+                    //if we are benchmarking, take a screenshot at each waypoint (camera start point/locator)
+                    benchmarkScreenshot = g_BenchmarkMode == BENCHMARKMODE_GENERATE_REFERENCE;
                 }
                 if (pSprite->owner == -1)
                 {

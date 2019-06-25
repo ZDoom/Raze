@@ -130,6 +130,8 @@ static uint32_t *distrecip;
 static int32_t *lookups = NULL;
 static int32_t beforedrawrooms = 1;
 
+int32_t benchmarkScreenshot = 0;
+
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
 // r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
@@ -10157,6 +10159,12 @@ void videoNextPage(void)
                                per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
         }
         videoEndDrawing();   //}}}
+
+        if (benchmarkScreenshot)
+        {
+            videoCaptureScreen("reference0000.png", 0);
+            benchmarkScreenshot = 0;
+        }
 
         OSD_Draw();
         videoShowFrame(0);

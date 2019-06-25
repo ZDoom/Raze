@@ -1369,6 +1369,8 @@ extern int32_t gltexmaxsize;
 void gltexapplyprops (void);
 void texcache_invalidate(void);
 
+extern int32_t benchmarkScreenshot;
+
 # ifdef USE_GLEXT
 extern int32_t r_detailmapping;
 extern int32_t r_glowmapping;
