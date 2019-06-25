@@ -2942,6 +2942,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 sector[sectNum].ceilingz = pSprite->z;
                 break;
             case SE_27_DEMO_CAM:
+                T1(newSprite) = 0;
                 if (ud.recstat == 1)
                 {
                     pSprite->xrepeat=pSprite->yrepeat=64;

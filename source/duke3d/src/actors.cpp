@@ -3763,6 +3763,17 @@ static int A_FindLocator(int const tag, int const sectNum)
     return -1;
 }
 
+static int A_FindLocatorWithHiLoTags(int const hitag, int const tag, int const sectNum)
+{
+    for (bssize_t SPRITES_OF(STAT_LOCATOR, spriteNum))
+    {
+        if ((sectNum == -1 || sectNum == SECT(spriteNum)) && tag == SLT(spriteNum) && hitag == SHT(spriteNum))
+            return spriteNum;
+    }
+
+    return -1;
+}
+
 ACTOR_STATIC void G_MoveActors(void)
 {
     int spriteNum = headspritestat[STAT_ACTOR];
@@ -7575,7 +7586,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             findCameraDestination:
                 if (pSprite->owner == spriteNum)
                 {
-                    pSprite->owner = A_FindLocator(pSprite->hitag, -1);
+                    pSprite->owner = A_FindLocatorWithHiLoTags(pSprite->hitag, pData[0], -1);
                     
                     //reset our elapsed time since reaching a locator
                     pData[1] = 0;
@@ -7588,14 +7599,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     if (pSprite->owner != -1)
                     {
                         spritetype* const destLocator = &sprite[pSprite->owner];
-                        int32_t subjectLocatorIndex = A_FindLocator(destLocator->hitag, -1);
-                        if (subjectLocatorIndex == -1)
-                        {
-                            pData[7] = pSprite->ang;
-                            //level the camera out by default (pData[8] stores our destination up/down angle)
-                            pData[8] = 100;
-                        }
-                        else
+                        int32_t subjectLocatorIndex = A_FindLocatorWithHiLoTags(pSprite->hitag, destLocator->owner, -1);
+                        pData[7] = G_GetAngleDelta(pData[5], destLocator->ang);
+                        //level the camera out by default (pData[8] stores our destination up/down angle)
+                        pData[8] = 100;
+                        if (subjectLocatorIndex != -1)
                         {
                             spritetype* const subjectLocator = &sprite[subjectLocatorIndex];
                             const vec3_t cameraDirection = {subjectLocator->x - destLocator->x,
@@ -7615,11 +7623,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     break;
                 }
 
-                spritetype* const destLocator = &sprite[pSprite->owner]; 
+                spritetype* const destLocator = &sprite[pSprite->owner];
                 if (pData[1] == destLocator->extra)
                 {
                     pSprite->owner = spriteNum;
-                    ++pSprite->hitag;
+                    ++pData[0];
                     goto findCameraDestination;
                 }
 
@@ -7634,7 +7642,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 pSprite->z = pData[4]+interpolation*heading.z;
                 pSprite->ang = pData[5]+interpolation*pData[7];
                 pSprite->yvel = (pData[6]+((int32_t) interpolation*pData[8])+100)%400-100;
-                
+
                 //increment elapsed time
                 ++pData[1];
             }
