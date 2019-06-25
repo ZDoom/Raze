@@ -1842,7 +1842,7 @@ void printbunches(void)
 
 #define WSHELPER_DECL inline //ATTRIBUTE((always_inline))
 
-static WSHELPER_DECL void tweak_tsizes(vec2s_t *tsiz)
+static WSHELPER_DECL void tweak_tsizes(vec2_16_t *tsiz)
 {
     if (pow2long[picsiz[globalpicnum]&15] == tsiz->x)
         tsiz->x--;
@@ -1855,7 +1855,7 @@ static WSHELPER_DECL void tweak_tsizes(vec2s_t *tsiz)
         tsiz->y = -tsiz->y;
 }
 
-static WSHELPER_DECL void calc_bufplc(intptr_t *bufplc, int32_t lw, vec2s_t tsiz)
+static WSHELPER_DECL void calc_bufplc(intptr_t *bufplc, int32_t lw, vec2_16_t tsiz)
 {
     // CAUTION: lw can be negative!
     int32_t i = lw + globalxpanning;
@@ -1928,7 +1928,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     if ((uwall[x1] > ydimen) && (uwall[x2] > ydimen)) return;
     if ((dwall[x1] < 0) && (dwall[x2] < 0)) return;
 
-    vec2s_t tsiz = tilesiz[globalpicnum];
+    vec2_16_t tsiz = tilesiz[globalpicnum];
     if ((tsiz.x <= 0) || (tsiz.y <= 0)) return;
 
     setgotpic(globalpicnum);
@@ -2929,7 +2929,7 @@ static void wallscan(int32_t x1, int32_t x2,
     int32_t x;
     intptr_t fpalookup;
     int32_t y1ve[4], y2ve[4];
-    vec2s_t tsiz;
+    vec2_16_t tsiz;
 #ifdef MULTI_COLUMN_VLINE
     char bad;
     int32_t u4, d4, z;
@@ -3080,7 +3080,7 @@ static void transmaskvline(int32_t x)
 
     intptr_t palookupoffs = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale16(swall[x],globvis));
 
-    vec2s_t const ntsiz = { (int16_t)-tilesiz[globalpicnum].x, (int16_t)-tilesiz[globalpicnum].y };
+    vec2_16_t const ntsiz = { (int16_t)-tilesiz[globalpicnum].x, (int16_t)-tilesiz[globalpicnum].y };
     intptr_t bufplc;
     calc_bufplc(&bufplc, lwall[x], ntsiz);
     uint32_t vplc;
@@ -3122,7 +3122,7 @@ static void transmaskvline2(int32_t x)
 
     setuptvlineasm2(globalshiftval,palookupoffse[0],palookupoffse[1]);
 
-    vec2s_t const ntsiz = { (int16_t)-tilesiz[globalpicnum].x, (int16_t)-tilesiz[globalpicnum].y };
+    vec2_16_t const ntsiz = { (int16_t)-tilesiz[globalpicnum].x, (int16_t)-tilesiz[globalpicnum].y };
 
     calc_bufplc(&bufplce[0], lwall[x], ntsiz);
     calc_bufplc(&bufplce[1], lwall[x2], ntsiz);
@@ -4899,7 +4899,7 @@ draw_as_face_sprite:
 
         int const isiz = divscale19(xdimenscale,yp);
         int const xv = mulscale16(((int32_t)tspr->xrepeat)<<16,xyaspect);
-        vec2s_t const span = tilesiz[tilenum];
+        vec2_16_t const span = tilesiz[tilenum];
         vec2_t const siz = { mulscale30(isiz, xv * span.x), mulscale14(isiz, tspr->yrepeat * span.y) };
 
         if (EDUKE32_PREDICT_FALSE((span.x>>11) >= siz.x || span.y >= (siz.y>>1)))

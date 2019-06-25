@@ -805,7 +805,7 @@ EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
-EXTERN vec2s_t tilesiz[MAXTILES];
+EXTERN vec2_16_t tilesiz[MAXTILES];
 
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];

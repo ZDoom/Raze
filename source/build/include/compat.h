@@ -816,7 +816,7 @@ typedef struct MAY_ALIAS {
     int16_t x, y;
 } vec2_16_t;
 
-using vec2s_t = vec2_16_t;
+using vec2_16_t = vec2_16_t;
 
 typedef struct {
     uint32_t x, y;
@@ -837,8 +837,6 @@ typedef struct MAY_ALIAS {
 typedef struct MAY_ALIAS {
     int16_t x, y, z;
 } vec3_16_t;
-
-using vec3s_t = vec3_16_t;
 
 typedef struct {
     union { float x; float d; };

@@ -152,14 +152,14 @@ static void Menu_DrawCursorRight(int32_t x, int32_t y, int32_t z)
     if (IONMAIDEN) return;
     Menu_DrawCursorCommon(x, y, z, VM_OnEventWithReturn(EVENT_MENUCURSORRIGHT, -1, myconnectindex, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7)));
 }
-static void Menu_DrawCursorTextTile(int32_t x, int32_t y, int32_t h, int32_t picnum, vec2s_t const & siz, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
+static void Menu_DrawCursorTextTile(int32_t x, int32_t y, int32_t h, int32_t picnum, vec2_16_t const & siz, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
 {
     vec2_t const adjsiz = { (siz.x>>1)<<16, siz.y<<16 };
     Menu_DrawCursorCommon(x + scale(adjsiz.x, h, adjsiz.y), y, divscale16(h, adjsiz.y), picnum, ydim_upper, ydim_lower);
 }
 static void Menu_DrawCursorText(int32_t x, int32_t y, int32_t h, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
 {
-    vec2s_t const & siz = tilesiz[SPINNINGNUKEICON];
+    vec2_16_t const & siz = tilesiz[SPINNINGNUKEICON];
 
     if (IONMAIDEN || siz.x == 0)
     {

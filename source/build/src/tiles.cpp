@@ -30,7 +30,7 @@ static int32_t tilefileoffs[MAXTILES];
 // necessary (have per-map ART files).
 static uint8_t *g_bakTileFileNum;
 static int32_t *g_bakTileFileOffs;
-static vec2s_t *g_bakTileSiz;
+static vec2_16_t *g_bakTileSiz;
 static picanm_t *g_bakPicAnm;
 static char * g_bakFakeTile;
 static char ** g_bakFakeTileData;
@@ -563,7 +563,7 @@ int32_t artLoadFiles(const char *filename, int32_t askedsize)
 {
     Bstrncpyz(artfilenameformat, filename, sizeof(artfilenameformat));
 
-    Bmemset(&tilesiz[0], 0, sizeof(vec2s_t) * MAXTILES);
+    Bmemset(&tilesiz[0], 0, sizeof(vec2_16_t) * MAXTILES);
     Bmemset(picanm, 0, sizeof(picanm));
 
     for (auto &rot : rottile)
