@@ -182,7 +182,7 @@ typedef struct
 //////////////////// END Version 7 map format ////////////////
 
 //////////////////// Lunatic new-generation map format ////////////////////
-
+#if defined NEW_MAP_FORMAT
 // 44 bytes
 typedef struct
 {
@@ -219,7 +219,7 @@ typedef struct
     StructTracker(Wall, int16_t) extra;
     StructTracker(Wall, uint8_t) blend, filler_;
 } StructName(walltypevx);
-
+#endif
 // NOTE: spritetype is currently the same for V7/8/9 and VX in-memory map formats.
 
 //////////////////// END Lunatic new-generation map format ////////////////
