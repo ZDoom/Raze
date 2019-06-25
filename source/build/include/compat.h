@@ -960,7 +960,7 @@ static FORCE_INLINE CONSTEXPR uint64_t B_SWAP64_impl(uint64_t value)
 }
 
 /* The purpose of B_PASS* as functions, as opposed to macros, is to prevent them from being used as lvalues. */
-#if CXXSTD >= 2011
+#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1900)
 template <typename T>
 static FORCE_INLINE CONSTEXPR take_sign_t<int16_t, T> B_SWAP16(T x)
 {
