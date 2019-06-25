@@ -28,7 +28,7 @@ int32_t usehightile=1;
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 2048 //<- careful!
 static vsptyp vsp[VSPMAX];
-static int32_t gtag;
+static int32_t gtag, viewportNodeCount;
 static float xbl, xbr, xbt, xbb;
 int32_t domost_rejectcount;
 #ifdef YAX_ENABLE
@@ -639,7 +639,11 @@ static void polymost_setVisibility(float visibility)
     if (currentShaderProgramID != polymost1CurrentShaderProgramID)
         return;
 
-    polymost1VisFactor = visibility * fviewingrange * (1.f / (64.f * 65536.f));
+    float visFactor = visibility * fviewingrange * (1.f / (64.f * 65536.f));
+    if (visFactor == polymost1VisFactor)
+        return;
+
+    polymost1VisFactor = visFactor;
     glUniform1f(polymost1VisFactorLoc, polymost1VisFactor);
 }
 
@@ -2244,7 +2248,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         if ((dpxy[0].x-dpxy[1].x) * (dpxy[2].y-dpxy[1].y) >=
             (dpxy[2].x-dpxy[1].x) * (dpxy[0].y-dpxy[1].y)) return; //for triangle
     }
-    else
+    else if (n > 3)
     {
         float f = 0; //f is area of polygon / 2
 
@@ -3087,6 +3091,38 @@ skip: ;
             if ((vsp[ni].tag == 0) || (n1.y <= vsp[i].cy[1]+DOMOST_OFFSET)) k -= 3;
             if ((vsp[ni].tag == 1) || (n1.y >= vsp[i].fy[1]-DOMOST_OFFSET)) k += 3;
 
+#if 0
+            //POGO: This GL1 debug code draws a green line that represents the new line, and the current VSP floor & ceil as red and blue respectively.
+            //      To enable this, ensure that in polymost_drawrooms() that you are clearing the stencil buffer and color buffer.
+            //      Additionally, disable any calls to glColor4f in polymost_drawpoly and disable culling triangles with area==0/removing duplicate points
+            //      If you don't want any lines showing up from mirrors/skyboxes, be sure to disable them as well.
+            glEnable(GL_STENCIL_TEST);
+            glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glDisable(GL_DEPTH_TEST);
+            polymost_useColorOnly(true);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+
+            glColor4f(0.f, 1.f, 0.f, 1.f);
+            vec2f_t nline[3] = {{dx0, n0.y}, {dx1, n1.y}, {dx0, n0.y}};
+            polymost_drawpoly(nline, 3, domostpolymethod);
+
+            glColor4f(1.f, 0.f, 0.f, 1.f);
+            vec2f_t floor[3] = {{vsp[i].x, vsp[i].fy[0]}, {vsp[ni].x, vsp[i].fy[1]}, {vsp[i].x, vsp[i].fy[0]}};
+            polymost_drawpoly(floor, 3, domostpolymethod);
+
+            glColor4f(0.f, 0.f, 1.f, 1.f);
+            vec2f_t ceil[3] = {{vsp[i].x, vsp[i].cy[0]}, {vsp[ni].x, vsp[i].cy[1]}, {vsp[i].x, vsp[i].cy[0]}};
+            polymost_drawpoly(ceil, 3, domostpolymethod);
+
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+            polymost_useColorOnly(false);
+            glEnable(GL_DEPTH_TEST);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            glStencilFunc(GL_EQUAL, 0, 0xFF);
+            glColor4f(1.f, 1.f, 1.f, 1.f);
+#endif
+
             if (!dir)
             {
                 switch (k)
@@ -3307,11 +3343,41 @@ skip: ;
 
         int const ni = vsp[i].n;
 
-        if ((vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag))
+        //POGO: specially treat the viewport nodes so that we will never end up in a situation where we accidentally access the sentinel node
+        if (ni >= viewportNodeCount &&
+            (vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag))
         {
             vsp[i].cy[1] = vsp[ni].cy[1];
             vsp[i].fy[1] = vsp[ni].fy[1];
             vsdel(ni);
+
+#if 0
+            //POGO: This GL1 debug code draws the resulting merged VSP segment with floor and ceiling bounds lines as yellow and cyan respectively
+            //      To enable this, ensure that in polymost_drawrooms() that you are clearing the stencil buffer and color buffer.
+            //      Additionally, disable any calls to glColor4f in polymost_drawpoly and disable culling triangles with area==0
+            //      If you don't want any lines showing up from mirrors/skyboxes, be sure to disable them as well.
+            glEnable(GL_STENCIL_TEST);
+            glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glDisable(GL_DEPTH_TEST);
+            polymost_useColorOnly(true);
+            glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+
+            glColor4f(1.f, 1.f, 0.f, 1.f);
+            vec2f_t dfloor[3] = {{vsp[i].x, vsp[i].fy[0]}, {vsp[vsp[i].n].x, vsp[i].fy[1]}, {vsp[i].x, vsp[i].fy[0]}};
+            polymost_drawpoly(dfloor, 3, domostpolymethod);
+
+            glColor4f(0.f, 1.f, 1.f, 1.f);
+            vec2f_t dceil[3] = {{vsp[i].x, vsp[i].cy[0]}, {vsp[vsp[i].n].x, vsp[i].cy[1]}, {vsp[i].x, vsp[i].cy[0]}};
+            polymost_drawpoly(dceil, 3, domostpolymethod);
+
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+            polymost_useColorOnly(false);
+            glEnable(GL_DEPTH_TEST);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            glStencilFunc(GL_EQUAL, 0, 0xFF);
+            glColor4f(1.f, 1.f, 1.f, 1.f);
+#endif
         }
         else i = ni;
     }
@@ -3902,6 +3968,9 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
             //(                  0*(sx-ghalfx) + 1*(sy-ghoriz) + (                             0)*ghalfx)*d + globalposz/16 = (sec->floorz/16)
 
     float ft[4] = { fglobalposx, fglobalposy, fcosglobalang, fsinglobalang };
+
+    polymost_outputGLDebugMessage(3, "polymost_internal_nonparallaxed(n0:{x:%f, y:%f}, n1:{x:%f, y:%f}, ryp0:%f, ryp1:%f, x0:%f, x1:%f, y0:%f, y1:%f, sectnum:%d)",
+                                  n0.x, n0.y, n1.x, n1.y, ryp0, ryp1, x0, x1, y0, y1, sectnum);
 
     if (globalorientation & 64)
     {
@@ -5428,6 +5497,7 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
     }
 
     gtag = vcnt;
+    viewportNodeCount = vcnt;
 }
 
 void polymost_drawrooms()
