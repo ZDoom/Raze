@@ -523,8 +523,12 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_nex
                     const mz_uint8 *pSrc_end = pSrc + (counter & ~7);
                     do
                     {
+#ifdef MINIZ_UNALIGNED_USE_MEMCPY
+                        memcpy(pOut_buf_cur, pSrc, sizeof(mz_uint32)*2);
+#else
                         ((mz_uint32 *)pOut_buf_cur)[0] = ((const mz_uint32 *)pSrc)[0];
                         ((mz_uint32 *)pOut_buf_cur)[1] = ((const mz_uint32 *)pSrc)[1];
+#endif
                         pOut_buf_cur += 8;
                     } while ((pSrc += 8) < pSrc_end);
                     if ((counter &= 7) < 3)
@@ -716,6 +720,7 @@ int tinfl_decompress_mem_to_callback(const void *pIn_buf, size_t *pIn_buf_size, 
     return result;
 }
 
+#ifndef MINIZ_NO_MALLOC
 tinfl_decompressor *tinfl_decompressor_alloc()
 {
     tinfl_decompressor *pDecomp = (tinfl_decompressor *)MZ_MALLOC(sizeof(tinfl_decompressor));
@@ -728,6 +733,7 @@ void tinfl_decompressor_free(tinfl_decompressor *pDecomp)
 {
     MZ_FREE(pDecomp);
 }
+#endif
 
 #ifdef __cplusplus
 }

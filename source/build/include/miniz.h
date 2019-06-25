@@ -1,4 +1,4 @@
-/* miniz.c 2.0.8 - public domain deflate/inflate, zlib-subset, ZIP reading/writing/appending, PNG writing
+/* miniz.c 2.1.0 - public domain deflate/inflate, zlib-subset, ZIP reading/writing/appending, PNG writing
    See "unlicense" statement at the end of this file.
    Rich Geldreich <richgel99@gmail.com>, last updated Oct. 13, 2013
    Implements RFC 1950: http://www.ietf.org/rfc/rfc1950.txt and RFC 1951: http://www.ietf.org/rfc/rfc1951.txt
@@ -24,7 +24,7 @@
      zlib replacement in many apps:
         The z_stream struct, optional memory allocation callbacks
         deflateInit/deflateInit2/deflate/deflateReset/deflateEnd/deflateBound
-        inflateInit/inflateInit2/inflate/inflateEnd
+        inflateInit/inflateInit2/inflate/inflateReset/inflateEnd
         compress, compress2, compressBound, uncompress
         CRC-32, Adler-32 - Using modern, minimal code size, CPU cache friendly routines.
         Supports raw deflate streams or standard zlib streams with adler-32 checking.
@@ -170,11 +170,15 @@
 #define MINIZ_LITTLE_ENDIAN 0
 #endif
 
+/* Set MINIZ_USE_UNALIGNED_LOADS_AND_STORES only if not set */
+#if !defined(MINIZ_USE_UNALIGNED_LOADS_AND_STORES)
 #if MINIZ_X86_OR_X64_CPU
 /* Set MINIZ_USE_UNALIGNED_LOADS_AND_STORES to 1 on CPU's that permit efficient integer loads and stores from unaligned addresses. */
 #define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 1
+#define MINIZ_UNALIGNED_USE_MEMCPY
 #else
 #define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 0
+#endif
 #endif
 
 #if defined(_M_X64) || defined(_WIN64) || defined(__MINGW64__) || defined(_LP64) || defined(__LP64__) || defined(__ia64__) || defined(__x86_64__)
@@ -234,11 +238,11 @@ enum
     MZ_DEFAULT_COMPRESSION = -1
 };
 
-#define MZ_VERSION "10.0.3"
-#define MZ_VERNUM 0xA030
+#define MZ_VERSION "10.1.0"
+#define MZ_VERNUM 0xA100
 #define MZ_VER_MAJOR 10
-#define MZ_VER_MINOR 0
-#define MZ_VER_REVISION 3
+#define MZ_VER_MINOR 1
+#define MZ_VER_REVISION 0
 #define MZ_VER_SUBREVISION 0
 
 #ifndef MINIZ_NO_ZLIB_APIS
@@ -361,6 +365,9 @@ int mz_inflateInit(mz_streamp pStream);
 /* window_bits must be MZ_DEFAULT_WINDOW_BITS (to parse zlib header/footer) or -MZ_DEFAULT_WINDOW_BITS (raw deflate). */
 int mz_inflateInit2(mz_streamp pStream, int window_bits);
 
+/* Quickly resets a compressor without having to reallocate anything. Same as calling mz_inflateEnd() followed by mz_inflateInit()/mz_inflateInit2(). */
+int mz_inflateReset(mz_streamp pStream);
+
 /* Decompresses the input stream to the output, consuming only as much of the input as needed, and writing as much to the output as possible. */
 /* Parameters: */
 /*   pStream is the stream to read from and write to. You must initialize/update the next_in, avail_in, next_out, and avail_out members. */
@@ -444,6 +451,7 @@ typedef void *const voidpc;
 #define compressBound mz_compressBound
 #define inflateInit mz_inflateInit
 #define inflateInit2 mz_inflateInit2
+#define inflateReset mz_inflateReset
 #define inflate mz_inflate
 #define inflateEnd mz_inflateEnd
 #define uncompress mz_uncompress
