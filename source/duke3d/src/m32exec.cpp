@@ -2928,7 +2928,7 @@ dodefault:
             X_ERROR_INVALIDSP();
             vm.pSprite->xrepeat = (uint8_t) Gv_GetVar(*(insptr-2));
             vm.pSprite->yrepeat = (uint8_t) Gv_GetVar(*(insptr-1));
-#ifdef STRUCT_TRACKERS_ENABLED
+#ifdef USE_STRUCT_TRACKERS
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
 #endif
             continue;
@@ -2937,7 +2937,7 @@ dodefault:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->cstat = (int16_t) *(insptr-1);
-#ifdef STRUCT_TRACKERS_ENABLED
+#ifdef USE_STRUCT_TRACKERS
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
 #endif
             continue;
@@ -2946,7 +2946,7 @@ dodefault:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->cstat |= (int16_t) Gv_GetVar(*(insptr-1));
-#ifdef STRUCT_TRACKERS_ENABLED
+#ifdef USE_STRUCT_TRACKERS
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
 #endif
             continue;
@@ -2955,7 +2955,7 @@ dodefault:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->clipdist = (uint8_t) Gv_GetVar(*(insptr-1));
-#ifdef STRUCT_TRACKERS_ENABLED
+#ifdef USE_STRUCT_TRACKERS
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
 #endif
             continue;
@@ -2964,7 +2964,7 @@ dodefault:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->pal = Gv_GetVar(*(insptr-1));
-#ifdef STRUCT_TRACKERS_ENABLED
+#ifdef USE_STRUCT_TRACKERS
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
 #endif
             continue;
@@ -2973,7 +2973,7 @@ dodefault:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->picnum = Gv_GetVar(*(insptr-1));
-#ifdef STRUCT_TRACKERS_ENABLED
+#ifdef USE_STRUCT_TRACKERS
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
 #endif
             continue;

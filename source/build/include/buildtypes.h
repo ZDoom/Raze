@@ -5,7 +5,7 @@
 #undef SECTORTYPE
 #undef SPRITETYPE
 
-#ifdef UNTRACKED_STRUCTS
+#ifdef UNTRACKED_STRUCTS__
 
 #define StructTracker(tracker, type) type
 #define StructName(name) u ## name

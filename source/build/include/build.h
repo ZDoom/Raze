@@ -274,10 +274,10 @@ enum {
 #endif
 
 #if defined __cplusplus && (defined USE_OPENGL || defined POLYMER)
-# define STRUCT_TRACKERS_ENABLED
+# define USE_STRUCT_TRACKERS
 #endif
 
-#ifdef STRUCT_TRACKERS_ENABLED
+#ifdef USE_STRUCT_TRACKERS
 
 extern "C" {
 static FORCE_INLINE void sector_tracker_hook__(intptr_t address);
@@ -336,9 +336,9 @@ enum {
     SPR_ALIGN_MASK = 32+16,
 };
 
-#define UNTRACKED_STRUCTS
+#define UNTRACKED_STRUCTS__
 #include "buildtypes.h"
-#undef UNTRACKED_STRUCTS
+#undef UNTRACKED_STRUCTS__
 #undef buildtypes_h__
 #include "buildtypes.h"
 
@@ -608,7 +608,7 @@ EXTERN spritetype sprite[MAXSPRITES];
 EXTERN uspritetype tsprite[MAXSPRITESONSCREEN];
 #endif
 
-#ifdef STRUCT_TRACKERS_ENABLED
+#ifdef USE_STRUCT_TRACKERS
 EXTERN uint32_t sectorchanged[MAXSECTORS + M32_FIXME_SECTORS];
 EXTERN uint32_t wallchanged[MAXWALLS + M32_FIXME_WALLS];
 EXTERN uint32_t spritechanged[MAXSPRITES];
@@ -637,7 +637,7 @@ static FORCE_INLINE void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenex
 }
 #endif
 
-#ifdef STRUCT_TRACKERS_ENABLED
+#ifdef USE_STRUCT_TRACKERS
 static FORCE_INLINE void sector_tracker_hook__(intptr_t const address)
 {
     intptr_t const sectnum = (address - (intptr_t)sector) / sizeof(sectortype);
@@ -665,7 +665,7 @@ static FORCE_INLINE void sprite_tracker_hook__(intptr_t const address)
     intptr_t const spritenum = (address - (intptr_t)sprite) / sizeof(spritetype);
 
 #if DEBUGGINGAIDS
-    Bassert((unsigned)spritenum < MAXSPRITES));
+    Bassert((unsigned)spritenum < MAXSPRITES);
 #endif
 
     ++spritechanged[spritenum];
