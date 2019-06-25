@@ -410,7 +410,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     win_close();
 
-    Bfree(argvbuf);
+    Xfree(argvbuf);
 
     return r;
 }
@@ -1074,17 +1074,17 @@ static void UninitDirectInput(void)
 
     if (axisdefs)
     {
-        for (i=joystick.numAxes-1; i>=0; i--) Bfree(axisdefs[i].name);
+        for (i=joystick.numAxes-1; i>=0; i--) Xfree(axisdefs[i].name);
         DO_FREE_AND_NULL(axisdefs);
     }
     if (buttondefs)
     {
-        for (i=joystick.numButtons-1; i>=0; i--) Bfree(buttondefs[i].name);
+        for (i=joystick.numButtons-1; i>=0; i--) Xfree(buttondefs[i].name);
         DO_FREE_AND_NULL(buttondefs);
     }
     if (hatdefs)
     {
-        for (i=joystick.numHats-1; i>=0; i--) Bfree(hatdefs[i].name);
+        for (i=joystick.numHats-1; i>=0; i--) Xfree(hatdefs[i].name);
         DO_FREE_AND_NULL(hatdefs);
     }
 
@@ -2039,7 +2039,7 @@ int32_t videoUpdatePalette(int32_t start, int32_t num)
         }
 
         SetDIBColorTable(hDCSection, start, num, rgb);
-        Bfree(rgb);
+        Xfree(rgb);
     }
 
     return 0;
@@ -2923,7 +2923,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 glinfo.sync = 1;
             }
         }
-        Bfree(p);
+        Xfree(p);
     }
     numpages = 2;	// KJS 20031225: tell rotatesprite that it's double buffered!
 

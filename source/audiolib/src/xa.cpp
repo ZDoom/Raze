@@ -441,7 +441,7 @@ int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend
    if ( voice == NULL )
    {
 
-      free(xad);
+      Xfree(xad);
       MV_SetErrorCode( MV_NoVoices );
       return MV_Error;
    }
@@ -486,5 +486,5 @@ void MV_ReleaseXAVoice( VoiceNode * voice )
     voice->rawdataptr = 0;
     voice->length = 0;
     voice->sound = nullptr;
-    free(xad);
+    Xfree(xad);
 }

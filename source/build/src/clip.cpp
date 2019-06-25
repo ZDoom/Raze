@@ -168,8 +168,8 @@ int32_t engineLoadClipMaps(void)
     {
         engineInitClipMaps();
 
-        Bfree(fisec);
-        Bfree(fispr);
+        Xfree(fisec);
+        Xfree(fispr);
 
         return -1;
     }
@@ -254,8 +254,8 @@ int32_t engineLoadClipMaps(void)
                         clipinfo[sectoidx[k]].picnum);
                     engineInitClipMaps();
 
-                    Bfree(fisec);
-                    Bfree(fispr);
+                    Xfree(fisec);
+                    Xfree(fispr);
 
                     return 2;
                 }
@@ -318,8 +318,8 @@ int32_t engineLoadClipMaps(void)
                                     " for sprite %d.\n", g_clipMapFiles[fi], outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
                                 engineInitClipMaps();
 
-                                Bfree(fisec);
-                                Bfree(fispr);
+                                Xfree(fisec);
+                                Xfree(fispr);
 
                                 return 3;
                             }
@@ -337,8 +337,8 @@ int32_t engineLoadClipMaps(void)
                                 g_clipMapFiles[fi], ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
                             engineInitClipMaps();
 
-                            Bfree(fisec);
-                            Bfree(fispr);
+                            Xfree(fisec);
+                            Xfree(fispr);
 
                             return 4;
                         }
@@ -351,8 +351,8 @@ int32_t engineLoadClipMaps(void)
                 initprintf("clip map: INTERNAL ERROR: outersect==-1!\n");
                 engineInitClipMaps();
 
-                Bfree(fisec);
-                Bfree(fispr);
+                Xfree(fisec);
+                Xfree(fispr);
 
                 return 5;
             }
@@ -517,8 +517,8 @@ int32_t engineLoadClipMaps(void)
     if (lwcp > 0)
         initprintf("Loaded clip map%s.\n", lwcp==1 ? "" : "s");
 
-    Bfree(fisec);
-    Bfree(fispr);
+    Xfree(fisec);
+    Xfree(fispr);
 
     return 0;
 }

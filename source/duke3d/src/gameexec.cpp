@@ -5544,7 +5544,7 @@ badindex:
 
                         if (newBytes != oldBytes)
                         {
-                            Baligned_free(pValues);
+                            Xaligned_free(pValues);
                             pValues = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, newBytes);
                         }
 
@@ -5572,7 +5572,7 @@ badindex:
                                         pValues[i]   = ((int32_t *)pArray)[i];
                                 }
 
-                                Bfree(pArray);
+                                Xfree(pArray);
                                 break;
                             }
 #endif
@@ -5624,7 +5624,7 @@ badindex:
                                 pArray[k]    = Gv_GetArrayValue(arrayNum, k);
 
                             buildvfs_fwrite(pArray, 1, numDiskBytes, fil);
-                            Bfree(pArray);
+                            Xfree(pArray);
                             break;
                         }
 #endif
@@ -5659,7 +5659,7 @@ badindex:
 #endif
                     if (newSize == 0)
                     {
-                        Baligned_free(arr.pValues);
+                        Xaligned_free(arr.pValues);
                         arr.pValues = nullptr;
                         arr.size = 0;
                         dispatch();
@@ -5680,7 +5680,7 @@ badindex:
                     arr.pValues = newArray;
                     arr.size = newSize;
 
-                    Baligned_free(oldArray);
+                    Xaligned_free(oldArray);
 
                     dispatch();
                 }
@@ -6496,7 +6496,7 @@ void G_SaveMapState(void)
             continue;
 
         save->arraysiz[i] = aGameArrays[i].size;
-        Baligned_free(save->arrays[i]);
+        Xaligned_free(save->arrays[i]);
         save->arrays[i] = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, Gv_GetArrayAllocSize(i));
         Bmemcpy(&save->arrays[i][0], aGameArrays[i].pValues, Gv_GetArrayAllocSize(i));
     }
@@ -6511,7 +6511,7 @@ void G_SaveMapState(void)
     else
     {
         char *savecode = Xstrdup(svcode);
-        Bfree(save->savecode);
+        Xfree(save->savecode);
         save->savecode = savecode;
     }
 #endif
@@ -6629,7 +6629,7 @@ void G_RestoreMapState(void)
                 continue;
 
             aGameArrays[i].size = pSavedState->arraysiz[i];
-            Baligned_free(aGameArrays[i].pValues);
+            Xaligned_free(aGameArrays[i].pValues);
             aGameArrays[i].pValues = (intptr_t *) Xaligned_alloc(ARRAY_ALIGNMENT, Gv_GetArrayAllocSize(i));
 
             Bmemcpy(aGameArrays[i].pValues, pSavedState->arrays[i], Gv_GetArrayAllocSize(i));

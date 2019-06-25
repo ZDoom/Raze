@@ -77,15 +77,15 @@ void SCRIPT_Delete(int32_t scripthandle)
         {
             s = SCRIPT(scripthandle,apScript)->nextsection;
             SCRIPT_FreeSection(SCRIPT(scripthandle,apScript));
-            Bfree(SCRIPT(scripthandle,apScript));
+            Xfree(SCRIPT(scripthandle,apScript));
             SCRIPT(scripthandle,apScript) = s;
         }
 
         SCRIPT_FreeSection(SCRIPT(scripthandle, apScript));
-        Bfree(SCRIPT(scripthandle,apScript));
+        Xfree(SCRIPT(scripthandle,apScript));
     }
 
-    Bfree(SC(scripthandle));
+    Xfree(SC(scripthandle));
     SC(scripthandle) = 0;
 }
 
@@ -100,16 +100,16 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
     {
         e = section->entries->nextentry;
 
-        Bfree(section->entries->name);
-        Bfree(section->entries->value);
-        Bfree(section->entries);
+        Xfree(section->entries->name);
+        Xfree(section->entries->value);
+        Xfree(section->entries);
         section->entries = e;
     }
 
-    Bfree(section->entries->name);
-    Bfree(section->entries->value);
-    Bfree(section->entries);
-    Bfree(section->name);
+    Xfree(section->entries->name);
+    Xfree(section->entries->value);
+    Xfree(section->entries);
+    Xfree(section->name);
 }
 
 #define AllocSection(s) \
@@ -220,7 +220,7 @@ void SCRIPT_AddEntry(int32_t scripthandle, const char * sectionname, const char 
         }
     }
 
-    Bfree(e->value);
+    Xfree(e->value);
     e->value = Xstrdup(entryvalue);
 }
 
@@ -460,13 +460,13 @@ int32_t SCRIPT_Load(char const * filename)
     s = SCRIPT_Init(filename);
     if (s<0)
     {
-        Bfree(b);
+        Xfree(b);
         return -1;
     }
 
     SCRIPT_ParseBuffer(s,b,l);
 
-    Bfree(b);
+    Xfree(b);
 
     return s;
 }
@@ -811,7 +811,7 @@ void SCRIPT_PutString(int32_t scripthandle, char const *sectionname, char const 
     *p=0;
 
     SCRIPT_AddEntry(scripthandle, sectionname, entryname, raw);
-    Bfree(raw);
+    Xfree(raw);
 }
 
 void SCRIPT_PutDoubleString
@@ -864,7 +864,7 @@ void SCRIPT_PutDoubleString
     *p=0;
 
     SCRIPT_AddEntry(scripthandle, sectionname, entryname, raw);
-    Bfree(raw);
+    Xfree(raw);
 }
 
 void SCRIPT_PutNumber

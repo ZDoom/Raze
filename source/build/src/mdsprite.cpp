@@ -480,7 +480,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
         if (!skl) m->skinmap = sk;
         else skl->next = sk;
     }
-    else Bfree(sk->fn);
+    else Xfree(sk->fn);
 
     sk->palette = (uint8_t)palnum;
     sk->flags = (uint8_t)flags;
@@ -732,7 +732,7 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
             {
                 if (kprender(kpzbuf,picfillen,(intptr_t)pic,bytesperline,siz.x,siz.y))
                 {
-                    Bfree(pic);
+                    Xfree(pic);
                     return mdloadskin_failed(skinfile, fn);
                 }
             }
@@ -750,7 +750,7 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
                 }
                 else if (lastsize < siz.x*siz.y)
                 {
-                    Bfree(lastpic);
+                    Xfree(lastpic);
                     lastpic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
                 }
                 if (lastpic)
@@ -859,7 +859,7 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
                       (onebitalpha ? DAMETH_ONEBITALPHA : 0) |
                       (hasalpha ? DAMETH_HASALPHA : 0));
 
-        Bfree(pic);
+        Xfree(pic);
     }
 
     if (!m->skinloaded)
@@ -1107,7 +1107,7 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
     head.ofseof = B_LITTLE32(head.ofseof);
 #endif
 
-    if ((head.id != IDP2_MAGIC) || (head.vers != 8)) { Bfree(m); return 0; } //"IDP2"
+    if ((head.id != IDP2_MAGIC) || (head.vers != 8)) { Xfree(m); return 0; } //"IDP2"
 
     ournumskins = head.numskins ? head.numskins : 1;
     ournumglcmds = head.numglcmds ? head.numglcmds : 1;
@@ -1125,22 +1125,22 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
 
     klseek(fil,head.ofsframes,SEEK_SET);
     if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
-        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
+        { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
 
     if (m->numglcmds > 0)
     {
         klseek(fil,head.ofsglcmds,SEEK_SET);
         if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(int32_t)) != (int32_t)(m->numglcmds*sizeof(int32_t)))
-            { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
+            { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
     }
 
     klseek(fil,head.ofstris,SEEK_SET);
     if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int32_t)(head.numtris*sizeof(md2tri_t)))
-        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
+        { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
 
     klseek(fil,head.ofsuv,SEEK_SET);
     if (kread(fil,(char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int32_t)(head.numuv*sizeof(md2uv_t)))
-        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
+        { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
 
 #if B_BIG_ENDIAN != 0
     {
@@ -1190,7 +1190,7 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
     {
         klseek(fil,head.ofsskins,SEEK_SET);
         if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
-            { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
+            { Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
     }
 
     m->texid = (FHardwareTexture **)Xcalloc(ournumskins, sizeof(FHardwareTexture*) * HICTINT_MEMORY_COMBINATIONS);
@@ -1317,7 +1317,7 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
     m3->maxdepths = (float *)Xmalloc(sizeof(float) * s->numtris);
 
     // die MD2 ! DIE !
-    Bfree(m->texid); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m);
+    Xfree(m->texid); Xfree(m->skinfn); Xfree(m->basepath); Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m);
 
     return ((md2model_t *)m3);
 }
@@ -1385,7 +1385,7 @@ static md3model_t *md3load(buildvfs_kfd fil)
     m->head.eof = B_LITTLE32(m->head.eof);
 #endif
 
-    if ((m->head.id != IDP3_MAGIC) && (m->head.vers != 15)) { Bfree(m); return 0; } //"IDP3"
+    if ((m->head.id != IDP3_MAGIC) && (m->head.vers != 15)) { Xfree(m); return 0; } //"IDP3"
 
     m->numskins = m->head.numskins; //<- dead code?
     m->numframes = m->head.numframes;
@@ -2281,13 +2281,13 @@ static void md3free(md3model_t *m)
     for (anim=m->animations; anim; anim=nanim)
     {
         nanim = anim->next;
-        Bfree(anim);
+        Xfree(anim);
     }
     for (sk=m->skinmap; sk; sk=nsk)
     {
         nsk = sk->next;
-        Bfree(sk->fn);
-        Bfree(sk);
+        Xfree(sk->fn);
+        Xfree(sk);
     }
 
     if (m->head.surfs)
@@ -2295,23 +2295,23 @@ static void md3free(md3model_t *m)
         for (bssize_t surfi=m->head.numsurfs-1; surfi>=0; surfi--)
         {
             md3surf_t *s = &m->head.surfs[surfi];
-            Bfree(s->tris);
-            Bfree(s->geometry);  // FREE_SURFS_GEOMETRY
+            Xfree(s->tris);
+            Xfree(s->geometry);  // FREE_SURFS_GEOMETRY
         }
-        Bfree(m->head.surfs);
+        Xfree(m->head.surfs);
     }
-    Bfree(m->head.tags);
-    Bfree(m->head.frames);
+    Xfree(m->head.tags);
+    Xfree(m->head.frames);
 
-    Bfree(m->texid);
+    Xfree(m->texid);
 
-    Bfree(m->muladdframes);
+    Xfree(m->muladdframes);
 
-    Bfree(m->indexes);
-    Bfree(m->vindexes);
-    Bfree(m->maxdepths);
+    Xfree(m->indexes);
+    Xfree(m->vindexes);
+    Xfree(m->maxdepths);
 
-    Bfree(m);
+    Xfree(m);
 }
 
 //---------------------------------------- MD3 LIBRARY ENDS ----------------------------------------

@@ -1369,9 +1369,9 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
             kfileptr += leng;
             break;
         case 0xda:
-                if ((xdim <= 0) || (ydim <= 0)) { Bfree(dctbuf); return -1; }
+                if ((xdim <= 0) || (ydim <= 0)) { Xfree(dctbuf); return -1; }
 
-            lnumcomponents = (int32_t)(*kfileptr++); if (!lnumcomponents) { Bfree(dctbuf); return -1; }
+            lnumcomponents = (int32_t)(*kfileptr++); if (!lnumcomponents) { Xfree(dctbuf); return -1; }
             if (lnumcomponents > 1) kcoltype = 2;
             for (z=0; z<lnumcomponents; z++)
             {
@@ -1607,7 +1607,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
             kplib_yrbrend_func(x,y,&dct[0][0]);
         }
 
-    Bfree(dctbuf); return 0;
+    Xfree(dctbuf); return 0;
 }
 
 //==============================  KPEGILIB ends ==============================
@@ -3049,7 +3049,7 @@ void kpzdecode(int32_t const leng, intptr_t * const pic, int32_t * const xsiz, i
 
     if (kprender(kpzbuf, leng, *pic, ((*xsiz)<<2), *xsiz, *ysiz) < 0)
     {
-        Bfree((void *) *pic);
+        Xfree((void *) *pic);
         *pic = (intptr_t)NULL;
     }
 }

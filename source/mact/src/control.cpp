@@ -75,7 +75,7 @@ bool CONTROL_BindsEnabled = 0;
 bool CONTROL_SmoothMouse  = 0;
 
 #define CONTROL_CheckRange(which) ((unsigned)which >= (unsigned)CONTROL_NUM_FLAGS)
-#define BIND(x, s, r, k) do { Bfree(x.cmdstr); x.cmdstr = s; x.repeat = r; x.key = k; } while (0)
+#define BIND(x, s, r, k) do { Xfree(x.cmdstr); x.cmdstr = s; x.repeat = r; x.key = k; } while (0)
 
 void CONTROL_ClearAllBinds(void)
 {

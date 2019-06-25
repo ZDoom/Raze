@@ -66,7 +66,7 @@ char *g_defNamePtr = NULL;
 
 void clearDefNamePtr(void)
 {
-    Bfree(g_defNamePtr);
+    Xfree(g_defNamePtr);
     // g_defNamePtr assumed to be assigned to right after
 }
 
@@ -160,7 +160,7 @@ int32_t check_file_exist(const char *fn)
             return 1;
         }
     }
-    else Bfree(tfn);
+    else Xfree(tfn);
     pathsearchmode = opsm;
 
     return 0;

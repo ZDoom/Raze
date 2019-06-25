@@ -1667,7 +1667,7 @@ static int32_t C_GetNextValue(int32_t type)
             {
                 char *gl = C_GetLabelType(labeltype[i]);
                 initprintf("%s:%d: debug: %s label `%s'.\n",g_scriptFileName,g_lineNumber,gl,label+(i<<6));
-                Bfree(gl);
+                Xfree(gl);
             }
 
             scriptWriteValue(labelcode[i]);
@@ -1683,8 +1683,8 @@ static int32_t C_GetNextValue(int32_t type)
         C_ReportError(-1);
         initprintf("%s:%d: warning: expected %s, found %s.\n",g_scriptFileName,g_lineNumber,el,gl);
         g_warningCnt++;
-        Bfree(el);
-        Bfree(gl);
+        Xfree(el);
+        Xfree(gl);
         return -1;  // valid label name, but wrong type
     }
 
@@ -1933,7 +1933,7 @@ static void C_Include(const char *confile)
 
     textptr = origtptr;
 
-    Bfree(mptr);
+    Xfree(mptr);
 }
 #endif  // !defined LUNATIC
 
@@ -2016,7 +2016,7 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName)
 
     map_t *const pMapInfo = &g_mapInfo[(MAXLEVELS*volumeNum)+levelNum];
 
-    Bfree(pMapInfo->musicfn);
+    Xfree(pMapInfo->musicfn);
     pMapInfo->musicfn = dup_filename(fileName);
     check_filename_case(pMapInfo->musicfn);
 }
@@ -2029,7 +2029,7 @@ void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
     {
         sound_t *const snd = &g_sounds[sndidx];
 
-        Bfree(snd->filename);
+        Xfree(snd->filename);
         snd->filename = dup_filename(fn);
         check_filename_case(snd->filename);
 
@@ -2076,11 +2076,11 @@ void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
     {
         map_t *const map = &g_mapInfo[(MAXLEVELS*vol)+lev];
 
-        Bfree(map->filename);
+        Xfree(map->filename);
         map->filename = dup_filename(fn);
 
         // TODO: truncate to 32 chars?
-        Bfree(map->name);
+        Xfree(map->name);
         map->name = Xstrdup(levelname);
 
         map->partime = REALGAMETICSPERSEC * partime;
@@ -2549,7 +2549,7 @@ DO_DEFSTATE:
                 C_ReportError(-1);
                 initprintf("%s:%d: warning: expected state, found %s.\n", g_scriptFileName, g_lineNumber, gl);
                 g_warningCnt++;
-                Bfree(gl);
+                Xfree(gl);
                 scriptWriteAtOffset(CON_NULLOP, &g_scriptPtr[-1]); // get rid of the state, leaving a nullop to satisfy if conditions
                 continue;  // valid label name, but wrong type
             }
@@ -6232,7 +6232,7 @@ void C_Compile(const char *fileName)
     g_scriptcrc = Bcrc32(NULL, 0, 0L);
     g_scriptcrc = Bcrc32(textptr, kFileLen, g_scriptcrc);
 
-    Bfree(apScript);
+    Xfree(apScript);
 
     apScript = (intptr_t *)Xcalloc(1, g_scriptSize * sizeof(intptr_t));
     bitptr   = (uint8_t *)Xcalloc(1, (((g_scriptSize + 7) >> 3) + 1) * sizeof(uint8_t));

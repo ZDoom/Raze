@@ -221,7 +221,7 @@ int32_t Bcorrectfilename(char *filename, int32_t removefn)
     if (trailslash) *(first++) = '/';
     *(first++) = 0;
 
-    Bfree(fn);
+    Xfree(fn);
     return 0;
 }
 
@@ -365,17 +365,17 @@ BDIR *Bopendir(const char *name)
     *(++tt) = 0;
 
     dirr->dir = _findfirst(t, &dirr->fid);
-    Bfree(t);
+    Xfree(t);
     if (dirr->dir == -1)
     {
-        Bfree(dirr);
+        Xfree(dirr);
         return NULL;
     }
 #else
     dirr->dir = opendir(name);
     if (dirr->dir == NULL)
     {
-        Bfree(dirr);
+        Xfree(dirr);
         return NULL;
     }
 #endif
@@ -441,7 +441,7 @@ struct Bdirent *Breaddir(BDIR *dir)
     }
 #endif
 
-    Bfree(fn);
+    Xfree(fn);
 
     return &dirr->info;
 }
@@ -455,7 +455,7 @@ int32_t Bclosedir(BDIR *dir)
 #else
     closedir(dirr->dir);
 #endif
-    Bfree(dirr);
+    Xfree(dirr);
 
     return 0;
 }

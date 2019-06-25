@@ -76,7 +76,7 @@ FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, in
 	tex->CreateTexture(xsiz, ysiz, false, false);
 	tex->LoadTexture((uint8_t*)pic2); // RGBA
 	tex->SetSampler(SamplerNoFilter);
-    Bfree(pic2);
+    Xfree(pic2);
 
     return tex;
 }
@@ -534,7 +534,7 @@ skindidntfit:
                     i--;
                     if (i < 0) //Time-out! Very slow if this happens... but at least it still works :P
                     {
-                        Bfree(zbit);
+                        Xfree(zbit);
 
                         //Re-generate shp[].x/y (box sizes) from shcnt (now head indices) for next pass :/
                         j = 0;
@@ -578,7 +578,7 @@ skindidntfit:
         }
     }
 
-    Bfree(shp); Bfree(zbit); Bfree(bx0);
+    Xfree(shp); Xfree(zbit); Xfree(bx0);
 
     return gvox;
 }
@@ -681,7 +681,7 @@ static int32_t loadvox(const char *filnam)
             }
         }
 
-    Bfree(tbuf);
+    Xfree(tbuf);
     kclose(fil);
 
     return 0;
@@ -766,8 +766,8 @@ static int32_t loadkvx(const char *filnam)
             }
         }
 
-    Bfree(tbuf);
-    Bfree(xyoffs);
+    Xfree(tbuf);
+    Xfree(xyoffs);
 
     return 0;
 }
@@ -840,7 +840,7 @@ static int32_t loadkv6(const char *filnam)
             }
         }
 
-    Bfree(ylen);
+    Xfree(ylen);
     kclose(fil);
 
     return 0;
@@ -855,7 +855,7 @@ void voxfree(voxmodel_t *m)
     DO_FREE_AND_NULL(m->quad);
     DO_FREE_AND_NULL(m->texid);
 
-    Bfree(m);
+    Xfree(m);
 }
 
 voxmodel_t *voxload(const char *filnam)

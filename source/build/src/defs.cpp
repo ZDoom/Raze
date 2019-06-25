@@ -305,7 +305,7 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
 
     tile_from_truecolpic(tile, picptr, alphacut);
 
-    Bfree(picptr);
+    Xfree(picptr);
 
 #ifdef USE_OPENGL
     if (istexture)
@@ -2054,7 +2054,7 @@ static int32_t defsparser(scriptfile *script)
 
                 klseek(fd, 0, SEEK_SET);
                 if (kread(fd, filebuf, filesize)!=filesize)
-                    { kclose(fd); Bfree(highpaldata); initprintf("Error: didn't read all of \"%s\".\n", fn); break; }
+                    { kclose(fd); Xfree(highpaldata); initprintf("Error: didn't read all of \"%s\".\n", fn); break; }
 
                 kclose(fd);
                 kpgetdim(filebuf, filesize, &xsiz, &ysiz);
@@ -2063,19 +2063,19 @@ static int32_t defsparser(scriptfile *script)
                 {
                     initprintf("Error: image dimensions of \"%s\" must be %dx%d.\n",
                                fn, PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM, PR_HIGHPALOOKUP_DIM);
-                    Bfree(filebuf); Bfree(highpaldata);
+                    Xfree(filebuf); Xfree(highpaldata);
                     break;
                 }
 
                 i = kprender(filebuf, filesize, (intptr_t)highpaldata, xsiz*sizeof(coltype), xsiz, ysiz);
-                Bfree(filebuf);
+                Xfree(filebuf);
                 if (EDUKE32_PREDICT_FALSE(i))
-                    { Bfree(highpaldata); initprintf("Error: failed rendering \"%s\".\n", fn); break; }
+                    { Xfree(highpaldata); initprintf("Error: failed rendering \"%s\".\n", fn); break; }
             }
 
             polymer_definehighpalookup(basepal, pal, highpaldata);
 
-            Bfree(highpaldata);
+            Xfree(highpaldata);
 #endif
         }
         break;
@@ -2884,7 +2884,7 @@ static int32_t defsparser(scriptfile *script)
                     {
                         initprintf("Error: basepalette: Read failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        Bfree(palbuf);
+                        Xfree(palbuf);
                         kclose(fil);
                         break;
                     }
@@ -2898,7 +2898,7 @@ static int32_t defsparser(scriptfile *script)
                     paletteSetColorTable(id, palbuf);
                     didLoadPal = 1;
 
-                    Bfree(palbuf);
+                    Xfree(palbuf);
                     kclose(fil);
                     break;
                 }
@@ -3065,7 +3065,7 @@ static int32_t defsparser(scriptfile *script)
                     {
                         initprintf("Error: palookup: Read failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        Bfree(palookupbuf);
+                        Xfree(palookupbuf);
                         kclose(fil);
                         break;
                     }
@@ -3088,7 +3088,7 @@ static int32_t defsparser(scriptfile *script)
                         paletteMakeLookupTable(id, palookupbuf, 0,0,0, g_noFloorPal[id]);
                     }
 
-                    Bfree(palookupbuf);
+                    Xfree(palookupbuf);
                     kclose(fil);
                     break;
                 }
@@ -3364,7 +3364,7 @@ static int32_t defsparser(scriptfile *script)
                     {
                         initprintf("Error: blendtable: Read failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        Bfree(blendbuf);
+                        Xfree(blendbuf);
                         kclose(fil);
                         break;
                     }
@@ -3372,7 +3372,7 @@ static int32_t defsparser(scriptfile *script)
                     paletteSetBlendTable(id, blendbuf);
                     didLoadTransluc = 1;
 
-                    Bfree(blendbuf);
+                    Xfree(blendbuf);
                     kclose(fil);
                     break;
                 }

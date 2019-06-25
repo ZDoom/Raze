@@ -246,7 +246,7 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
 
     if (size > fd->blocksize)
     {
-        block = (char *)malloc(size);
+        block = (char *)Xmalloc(size);
 
         if (block == nullptr)
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
@@ -279,7 +279,7 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
         char * oldblock = fd->block;
         fd->block = block;
         fd->blocksize = size;
-        free(oldblock);
+        Xfree(oldblock);
     }
 
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
@@ -436,7 +436,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
         return MV_Error;
     }
 
-    fd = (flac_data *)calloc(1, sizeof(flac_data));
+    fd = (flac_data *)Xcalloc(1, sizeof(flac_data));
     if (!fd)
     {
         MV_SetErrorCode(MV_InvalidFile);
@@ -460,7 +460,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
                                          /*metadata_flac_stream*/ NULL, error_flac_stream,
                                          (void *)fd) != FLAC__STREAM_DECODER_INIT_STATUS_OK)
     {
-        free(fd);
+        Xfree(fd);
         MV_Printf("MV_PlayFLAC: %s\n", FLAC__stream_decoder_get_resolved_state_string(fd->stream));
         MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
@@ -472,7 +472,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
     {
         FLAC__stream_decoder_finish(fd->stream);
         FLAC__stream_decoder_delete(fd->stream);
-        free(fd);
+        Xfree(fd);
         MV_SetErrorCode(MV_NoVoices);
         return MV_Error;
     }
@@ -532,7 +532,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
                             // FLAC__metadata_chain_delete(metadata_chain);
                             FLAC__stream_decoder_finish(fd->stream);
                             FLAC__stream_decoder_delete(fd->stream);
-                            free(fd);
+                            Xfree(fd);
                             MV_SetErrorCode(MV_InvalidFile);
                             return MV_Error;
                         }
@@ -654,8 +654,8 @@ void MV_ReleaseFLACVoice(VoiceNode *voice)
     voice->rawdataptr = 0;
     if (fd->stream != NULL)
     {
-	auto stream = fd->stream;
-	fd->stream = nullptr;
+    auto stream = fd->stream;
+    fd->stream = nullptr;
         FLAC__stream_decoder_finish(stream);
         FLAC__stream_decoder_delete(stream);
     }
@@ -663,8 +663,8 @@ void MV_ReleaseFLACVoice(VoiceNode *voice)
     voice->length = 0;
     voice->sound = nullptr;
     fd->block = nullptr;
-    free(block);
-    free(fd);
+    Xfree(block);
+    Xfree(fd);
 }
 #else
 #include "_multivc.h"

@@ -699,7 +699,7 @@ static void G_ReadGLFrame(void)
         }
     }
 
-    Bfree(frame);
+    Xfree(frame);
 }
 #endif
 
@@ -5145,7 +5145,7 @@ static void parsedefinitions_game_include(const char *fileName, scriptfile *pScr
 
 static void parsedefinitions_game_animsounds(scriptfile *pScript, const char * blockEnd, char const * fileName, dukeanim_t * animPtr)
 {
-    Bfree(animPtr->sounds);
+    Xfree(animPtr->sounds);
 
     size_t numPairs = 0, allocSize = 4;
 
@@ -5563,7 +5563,7 @@ void G_UpdateAppTitle(void)
 
 static void G_FreeHashAnim(const char * /*string*/, intptr_t key)
 {
-    Bfree((void *)key);
+    Xfree((void *)key);
 }
 
 static void G_Cleanup(void)
@@ -5574,36 +5574,36 @@ static void G_Cleanup(void)
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
     {
-        Bfree(g_mapInfo[i].name);
-        Bfree(g_mapInfo[i].filename);
-        Bfree(g_mapInfo[i].musicfn);
+        Xfree(g_mapInfo[i].name);
+        Xfree(g_mapInfo[i].filename);
+        Xfree(g_mapInfo[i].musicfn);
 
         G_FreeMapState(i);
     }
 
     for (i=MAXQUOTES-1; i>=0; i--)
     {
-        Bfree(apStrings[i]);
-        Bfree(apXStrings[i]);
+        Xfree(apStrings[i]);
+        Xfree(apXStrings[i]);
     }
 
     for (i=MAXPLAYERS-1; i>=0; i--)
     {
-        Bfree(g_player[i].ps);
-        Bfree(g_player[i].inputBits);
+        Xfree(g_player[i].ps);
+        Xfree(g_player[i].inputBits);
     }
 
     for (i=MAXSOUNDS-1; i>=0; i--)
     {
-        Bfree(g_sounds[i].filename);
+        Xfree(g_sounds[i].filename);
     }
 #if !defined LUNATIC
-    if (label != (char *)&sprite[0]) Bfree(label);
-    if (labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
-    Bfree(apScript);
-    Bfree(bitptr);
+    if (label != (char *)&sprite[0]) Xfree(label);
+    if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
+    Xfree(apScript);
+    Xfree(bitptr);
 
-//    Bfree(MusicPtr);
+//    Xfree(MusicPtr);
 
     Gv_Clear();
 
@@ -5954,7 +5954,7 @@ static void G_Startup(void)
         }
         buildvfs_chdir(cwd);
 #ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
-        Bfree(cwd);
+        Xfree(cwd);
 #endif
     }
     else if (artLoadFiles("tiles%03d.art",MAXCACHE1DSIZE) < 0)
@@ -6201,7 +6201,7 @@ int app_main(int argc, char const * const * argv)
         else
             Bstrcpy(cwd, APPBASENAME ".log");
         OSD_SetLogFile(cwd);
-        Bfree(homedir);
+        Xfree(homedir);
     }
     else
 #endif
@@ -6511,7 +6511,7 @@ int app_main(int argc, char const * const * argv)
     else
         Bsprintf(tempbuf, "%s_settings.cfg", p);
 
-    Bfree(setupFileName);
+    Xfree(setupFileName);
 
     OSD_Exec(tempbuf);
     OSD_Exec("autoexec.cfg");

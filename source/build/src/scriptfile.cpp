@@ -341,10 +341,10 @@ scriptfile *scriptfile_fromstring(const char *string)
 void scriptfile_close(scriptfile *sf)
 {
     if (!sf) return;
-    Bfree(sf->lineoffs);
-    Bfree(sf->textbuf);
-    Bfree(sf->filename);
-    Bfree(sf);
+    Xfree(sf->lineoffs);
+    Xfree(sf->textbuf);
+    Xfree(sf->filename);
+    Xfree(sf);
 }
 
 int scriptfile_eof(scriptfile *sf)

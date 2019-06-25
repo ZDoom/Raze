@@ -14,7 +14,7 @@
 
 
 #define CLEAR_GL_ERRORS() while(glGetError() != GL_NO_ERROR) { }
-#define TEXCACHE_FREEBUFS() { Bfree(pic), Bfree(packbuf), Bfree(midbuf); }
+#define TEXCACHE_FREEBUFS() { Xfree(pic), Xfree(packbuf), Xfree(midbuf); }
 
 globaltexcache texcache;
 
@@ -193,7 +193,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     if (tilestat == -2)  // bad filename
         hicclearsubst(dapicnum, dapalnum);
 
-    Bfree(pth);
+    Xfree(pth);
 
     return (drawingskybox || hicprecaching) ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
 }

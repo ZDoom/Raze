@@ -382,13 +382,13 @@ int32_t addsearchpath_user(const char *p, int32_t user)
 
     if (Bstat(path, &st) < 0)
     {
-        Bfree(path);
+        Xfree(path);
         if (errno == ENOENT) return -2;
         return -1;
     }
     if (!(st.st_mode & BS_IFDIR))
     {
-        Bfree(path);
+        Xfree(path);
         return -1;
     }
 
@@ -415,7 +415,7 @@ int32_t addsearchpath_user(const char *p, int32_t user)
 
     initprintf("Using %s for game data\n", srch->path);
 
-    Bfree(path);
+    Xfree(path);
     return 0;
 }
 
@@ -461,13 +461,13 @@ int32_t removesearchpath(const char *p)
                 }
             }
 
-            Bfree(srch->path);
-            Bfree(srch);
+            Xfree(srch->path);
+            Xfree(srch);
             break;
         }
     }
 
-    Bfree(path);
+    Xfree(path);
     return 0;
 }
 
@@ -498,8 +498,8 @@ void removesearchpaths_withuser(int32_t usermask)
                 }
             }
 
-            Bfree(srch->path);
-            Bfree(srch);
+            Xfree(srch->path);
+            Xfree(srch);
         }
     }
 }
@@ -536,7 +536,7 @@ int32_t findfrompath(const char *fn, char **where)
                 return 0;
             }
 
-            Bfree(tfn);
+            Xfree(tfn);
         }
 #endif
     }
@@ -559,7 +559,7 @@ int32_t findfrompath(const char *fn, char **where)
     if (buildvfs_exists(pfn))
     {
         *where = pfn;
-        Bfree(ffn);
+        Xfree(ffn);
         return 0;
     }
 
@@ -573,8 +573,8 @@ int32_t findfrompath(const char *fn, char **where)
         if (buildvfs_exists(pfn))
         {
             *where = pfn;
-            Bfree(ffn);
-            Bfree(tfn);
+            Xfree(ffn);
+            Xfree(tfn);
             return 0;
         }
 
@@ -586,8 +586,8 @@ int32_t findfrompath(const char *fn, char **where)
         if (buildvfs_exists(pfn))
         {
             *where = pfn;
-            Bfree(ffn);
-            Bfree(tfn);
+            Xfree(ffn);
+            Xfree(tfn);
             return 0;
         }
 
@@ -598,15 +598,15 @@ int32_t findfrompath(const char *fn, char **where)
         if (buildvfs_exists(pfn))
         {
             *where = pfn;
-            Bfree(ffn);
-            Bfree(tfn);
+            Xfree(ffn);
+            Xfree(tfn);
             return 0;
         }
 #endif
-        Bfree(tfn);
+        Xfree(tfn);
     }
 
-    Bfree(pfn); Bfree(ffn);
+    Xfree(pfn); Xfree(ffn);
     return -1;
 }
 
@@ -628,7 +628,7 @@ buildvfs_kfd openfrompath(const char *fn, int32_t flags, int32_t mode)
 
     buildvfs_kfd h = openfrompath_internal(fn, &pfn, flags, mode);
 
-    Bfree(pfn);
+    Xfree(pfn);
 
     return h;
 }
@@ -737,15 +737,15 @@ int initgroupfile(const char *filename)
             kclose_grp(numgroupfiles);
 
             kzaddstack(zfn);
-            Bfree(zfn);
+            Xfree(zfn);
             return MAXGROUPFILES;
         }
         klseek_grp(numgroupfiles,0,BSEEK_SET);
 
-        Bfree(zfn);
+        Xfree(zfn);
     }
 #else
-    Bfree(zfn);
+    Xfree(zfn);
 #endif
 
     // check if GRP
@@ -932,7 +932,7 @@ static int32_t check_filename_mismatch(const char * const filename, int ofs)
 
     if (!Bstrncmp(fnbuf+ofs, tfn, len))
     {
-        Bfree(tfn);
+        Xfree(tfn);
         return 0;
     }
 
@@ -940,11 +940,11 @@ static int32_t check_filename_mismatch(const char * const filename, int ofs)
 
     if (!Bstrncmp(fnbuf+ofs, tfn, len))
     {
-        Bfree(tfn);
+        Xfree(tfn);
         return 0;
     }
 
-    Bfree(tfn);
+    Xfree(tfn);
 
     return 1;
 }
@@ -1087,7 +1087,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
 
     int32_t h = kopen_internal(filename, &lastpfn, searchfirst, 1, 1, newhandle, filegrp, filehan, filepos);
 
-    Bfree(lastpfn);
+    Xfree(lastpfn);
 
     return h;
 }
@@ -1378,7 +1378,7 @@ void klistfree(CACHE1D_FIND_REC *rec)
     while (rec)
     {
         n = rec->next;
-        Bfree(rec);
+        Xfree(rec);
         rec = n;
     }
 }
@@ -1407,7 +1407,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
     {
         if (klistaddentry(&rec, "..", CACHE1D_FIND_DIR, CACHE1D_SOURCE_CURDIR) < 0)
         {
-            Bfree(path);
+            Xfree(path);
             klistfree(rec);
             return NULL;
         }
@@ -1627,20 +1627,20 @@ next:
             {
                 if (klistaddentry(&rec, drp, CACHE1D_FIND_DRIVE, CACHE1D_SOURCE_DRIVE) < 0)
                 {
-                    Bfree(drives);
+                    Xfree(drives);
                     goto failure;
                 }
             }
-            Bfree(drives);
+            Xfree(drives);
         }
     }
 
-    Bfree(path);
+    Xfree(path);
     // XXX: may be NULL if no file was listed, and thus indistinguishable from
     // an error condition.
     return rec;
 failure:
-    Bfree(path);
+    Xfree(path);
     klistfree(rec);
     return NULL;
 }
@@ -1690,7 +1690,7 @@ int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil)
     int32_t decompressedLength = LZ4_decompress_safe(pCompressedData, (char*) buffer, leng, dasizeof*count);
 
     if (pCompressedData != compressedDataStackBuf)
-        Baligned_free(pCompressedData);
+        Xaligned_free(pCompressedData);
 
     return decompressedLength/dasizeof;
 }
@@ -1716,5 +1716,5 @@ void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil)
     buildvfs_fwrite(pCompressedData, leng, 1, fil);
 
     if (pCompressedData != compressedDataStackBuf)
-        Baligned_free(pCompressedData);
+        Xaligned_free(pCompressedData);
 }

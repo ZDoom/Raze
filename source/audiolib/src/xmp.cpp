@@ -124,14 +124,14 @@ int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
 
     if ((xmpd->context = xmp_create_context()) == NULL)
     {
-        free(xmpd);
+        Xfree(xmpd);
         MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
     }
 
     if ((retval = xmp_load_module_from_memory(xmpd->context, ptr, length)) != 0)
     {
-        free(xmpd);
+        Xfree(xmpd);
         MV_Printf("MV_PlayXMP: xmp_load_module_from_memory failed (%i)\n", retval);
         MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
@@ -143,7 +143,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
     {
         xmp_release_module(xmpd->context);
         xmp_free_context(xmpd->context);
-        free(xmpd);
+        Xfree(xmpd);
         MV_SetErrorCode(MV_NoVoices);
         return MV_Error;
     }
@@ -202,7 +202,7 @@ void MV_ReleaseXMPVoice(VoiceNode * voice)
     xmp_end_player(xmpd->context);
     xmp_release_module(xmpd->context);
     xmp_free_context(xmpd->context);
-    free(xmpd);
+    Xfree(xmpd);
 }
 
 #else

@@ -184,7 +184,7 @@ int OSD_Exec(const char *szScript)
         if (handle != buildvfs_kfd_invalid)
             kclose(handle);
 
-        Bfree(buf);
+        Xfree(buf);
         return 1;
     }
 
@@ -201,7 +201,7 @@ int OSD_Exec(const char *szScript)
     }
     --osd->execdepth;
 
-    Bfree(buf);
+    Xfree(buf);
     return 0;
 }
 
@@ -313,7 +313,7 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
     uint32_t const xxhash = XXH32_digest(&xxh);
     xxhtime = timerGetTicks() - xxhtime;
 
-    Bfree(buf);
+    Xfree(buf);
 
     OSD_Printf("fileinfo: %s\n"
                "  File size: %d\n"
@@ -1430,10 +1430,10 @@ void OSD_ResizeDisplay(int w, int h)
         Bmemcpy(newfmt  + newcols * i, t.fmt + d.cols * i, copycols);
     }
 
-    Bfree(t.buf);
+    Xfree(t.buf);
     t.buf = newtext;
 
-    Bfree(t.fmt);
+    Xfree(t.fmt);
     t.fmt = newfmt;
 
     t.maxlines = newmaxlines;
@@ -1649,7 +1649,7 @@ void OSD_Puts(const char *tmpstr)
         char *chp2 = Xstrdup(tmpstr);
         buildvfs_fputs(OSD_StripColors(chp2, tmpstr), osdlog);
         Bprintf("%s", chp2);
-        Bfree(chp2);
+        Xfree(chp2);
     }
     else if (log.lines == log.cutoff)
     {
@@ -1860,7 +1860,7 @@ void OSD_Dispatch(const char *cmd)
         // cheap hack for comments in cfgs
         if (token[0] == '/' && token[1] == '/')
         {
-            Bfree(workbuf);
+            Xfree(workbuf);
             return;
         }
 
@@ -1877,7 +1877,7 @@ void OSD_Dispatch(const char *cmd)
             else if (m32_osd_tryscript)
                 M32RunScript(cmd);
 
-            Bfree(workbuf);
+            Xfree(workbuf);
             return;
         }
 
@@ -1909,7 +1909,7 @@ void OSD_Dispatch(const char *cmd)
     }
     while (wtp && restart);
 
-    Bfree(workbuf);
+    Xfree(workbuf);
 }
 
 
@@ -1992,7 +1992,7 @@ static osdsymbol_t *osd_addsymbol(const char *pszName)
 
     hash_add(&h_osd, pszName, osd->numsymbols, 1);
     hash_add(&h_osd, lowercase, osd->numsymbols, 1);
-    Bfree(lowercase);
+    Xfree(lowercase);
 
     osd->symbptrs[osd->numsymbols++] = newsymb;
 
@@ -2036,7 +2036,7 @@ static osdsymbol_t * osd_findexactsymbol(const char *pszName)
         char *const lname = Xstrdup(pszName);
         Bstrtolower(lname);
         symbolNum = hash_find(&h_osd, lname);
-        Bfree(lname);
+        Xfree(lname);
     }
 
     return (symbolNum >= 0) ? osd->symbptrs[symbolNum] : NULL;

@@ -44,7 +44,7 @@ static void screencapture_end(char *fn, buildvfs_FILE * filptr)
 {
     buildvfs_fclose(*filptr);
     OSD_Printf("Saved screenshot to %s\n", fn);
-    Bfree(fn);
+    Xfree(fn);
     capturecounter.count++;
 }
 
@@ -61,7 +61,7 @@ int videoCaptureScreen(const char *filename, char inverseit)
 
     if (fp == nullptr)
     {
-        Bfree(fn);
+        Xfree(fn);
         return -1;
     }
 
@@ -91,7 +91,7 @@ int videoCaptureScreen(const char *filename, char inverseit)
             Bmemcpy(imgBuf + (ydim - i - 1) * bytesPerLine, rowBuf, bytesPerLine);
         }
 
-        Bfree(rowBuf);
+        Xfree(rowBuf);
     }
     else
 #endif
@@ -125,7 +125,7 @@ int videoCaptureScreen(const char *filename, char inverseit)
 
     png_set_text("Software", osd->version.buf);
     png_write(fp, xdim, ydim, HICOLOR ? PNG_TRUECOLOR : PNG_INDEXED, imgBuf);
-    Bfree(imgBuf);
+    Xfree(imgBuf);
     screencapture_end(fn, &fp);
 
     return 0;
@@ -141,7 +141,7 @@ int videoCaptureScreenTGA(const char *filename, char inverseit)
     buildvfs_FILE fil = capturecounter.opennextfile_withext(fn, "tga");
     if (fil == nullptr)
     {
-        Bfree(fn);
+        Xfree(fn);
         return -1;
     }
 
@@ -206,7 +206,7 @@ int videoCaptureScreenTGA(const char *filename, char inverseit)
             swapchar(&inversebuf[i], &inversebuf[i + 2]);
 
         buildvfs_fwrite(inversebuf, xdim*ydim, 3, fil);
-        Bfree(inversebuf);
+        Xfree(inversebuf);
     }
     else
 # endif

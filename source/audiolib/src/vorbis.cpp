@@ -368,7 +368,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loo
         return MV_Error;
     }
 
-    auto vd = (vorbis_data *)calloc(1, sizeof(vorbis_data));
+    auto vd = (vorbis_data *)Xcalloc(1, sizeof(vorbis_data));
 
     if (!vd)
     {
@@ -386,7 +386,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loo
 
     if (status < 0)
     {
-        free(vd);
+        Xfree(vd);
         MV_Printf("MV_PlayVorbis: err %d\n", status);
         MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
@@ -397,7 +397,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loo
     if (!vi)
     {
         ov_clear(&vd->vf);
-        free(vd);
+        Xfree(vd);
         MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
     }
@@ -405,7 +405,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loo
     if (vi->channels != 1 && vi->channels != 2)
     {
         ov_clear(&vd->vf);
-        free(vd);
+        Xfree(vd);
         MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
     }
@@ -416,7 +416,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loo
     if (voice == NULL)
     {
         ov_clear(&vd->vf);
-        free(vd);
+        Xfree(vd);
         MV_SetErrorCode(MV_NoVoices);
         return MV_Error;
     }
@@ -464,7 +464,7 @@ void MV_ReleaseVorbisVoice( VoiceNode * voice )
     voice->length = 0;
     voice->sound = nullptr;
     ov_clear(&vd->vf);
-    free(vd);
+    Xfree(vd);
 }
 #else
 #include "_multivc.h"

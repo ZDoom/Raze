@@ -96,7 +96,7 @@ static int32_t RTS_AddFile(const char *filename)
         Bstrncpy(lump->name, fileinfo->name, 8);
     }
 
-    Bfree(fileinfoo);
+    Xfree(fileinfoo);
 
     return 0;
 }

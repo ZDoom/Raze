@@ -1909,7 +1909,7 @@ static void sv_quoteredefload()
 }
 static void sv_postquoteredef()
 {
-    Bfree(savegame_quoteredefs), savegame_quoteredefs=NULL;
+    Xfree(savegame_quoteredefs), savegame_quoteredefs=NULL;
 }
 static void sv_restsave()
 {
@@ -2055,7 +2055,7 @@ static int32_t El_ReadSaveCode(buildvfs_kfd fil)
         if (kdfread_LZ4(svcode, 1, slen, fil) != slen)  // cnt and sz swapped
         {
             OSD_Printf("doloadplayer2: failed reading Lunatic gamevar restoration code.\n");
-            Bfree(svcode);
+            Xfree(svcode);
             return -104;
         }
 
@@ -2069,7 +2069,7 @@ static int32_t El_ReadSaveCode(buildvfs_kfd fil)
 void El_FreeSaveCode(void)
 {
     // Free Lunatic gamevar savegame restoration Lua code.
-    Bfree(g_elSavecode);
+    Xfree(g_elSavecode);
     g_elSavecode = NULL;
 }
 #endif

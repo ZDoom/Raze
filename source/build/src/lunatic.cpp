@@ -87,7 +87,7 @@ static int32_t read_whole_file(const char *fn, char **retbufptr)
 
     if (i != flen)
     {
-        Bfree(buf);
+        Xfree(buf);
         return 2;
     }
 
@@ -247,6 +247,6 @@ int L_RunOnce(L_State *estate, const char *fn)
         return i;
 
     int const retval = L_RunString(estate, buf, -1, fn);
-    Bfree(buf);
+    Xfree(buf);
     return retval;
 }

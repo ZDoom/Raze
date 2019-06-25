@@ -2067,7 +2067,7 @@ void G_FreeMapState(int levelNum)
             ALIGNED_FREE_AND_NULL(board.savedstate->arrays[j]);
     }
 #else
-    Bfree(board.savedstate->savecode);
+    Xfree(board.savedstate->savecode);
 #endif
 
     ALIGNED_FREE_AND_NULL(board.savedstate);

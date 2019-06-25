@@ -34,7 +34,7 @@ static void png_write_chunk(uint32_t const size, char const *const type,
     crc = Bcrc32(chunk, chunk_size + 4, crc);
     png_write_uint32(crc);
 
-    Bfree(chunk);
+    Xfree(chunk);
 }
 
 void png_set_pal(uint8_t const * const data, int numentries)
@@ -93,5 +93,5 @@ void png_write(buildvfs_FILE const file, int const width, int const height,
     png_write_chunk(linesiz, "IDAT", lines, CHUNK_COMPRESSED);
     png_write_chunk(0,       "IEND", NULL,  0);
 
-    Bfree(lines);
+    Xfree(lines);
 }

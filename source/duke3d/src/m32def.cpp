@@ -1470,7 +1470,7 @@ static int32_t C_GetNextValue(int32_t type)
 //            {
 //                gl = (char *)C_GetLabelType(labeltype[i]);
 //                initprintf("%s:%d: debug: accepted %s label `%s'.\n",g_szScriptFileName,g_lineNumber,gl,label+(i*MAXLABELLEN));
-//                Bfree(gl);
+//                Xfree(gl);
 //            }
 
             *(g_scriptPtr++) = thesign*labelval[i];
@@ -1486,8 +1486,8 @@ static int32_t C_GetNextValue(int32_t type)
         gl = C_GetLabelType(labeltype[i]);
         C_CUSTOMERROR("expected %s, found %s.", el, gl);
 //        initprintf("i=%d, %s!!! lt:%d t:%d\n", i, label+(i*MAXLABELLEN), labeltype[i], type);
-        Bfree(el);
-        Bfree(gl);
+        Xfree(el);
+        Xfree(gl);
 
         return -1;  // valid label name, but wrong type
     }
@@ -1779,7 +1779,7 @@ static int32_t C_ParseCommand(void)
 
             textptr = origtptr;
 
-            Bfree(mptr);
+            Xfree(mptr);
         }
         return 0;
 
@@ -3721,7 +3721,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
             if (fp == buildvfs_kfd_invalid)
             {
                 initprintf("M32 file `%s' not found.\n", mptr);
-                Bfree(mptr);
+                Xfree(mptr);
                 //g_loadFromGroupOnly = 1;
                 return;
             }
@@ -3731,7 +3731,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         initprintf(" \n");
         initprintf("--- Compiling: %s (%d bytes)\n",mptr,fs);
         Bstrcpy(g_szScriptFileName, mptr);   // JBF 20031130: Store currently compiling file name
-        Bfree(mptr);
+        Xfree(mptr);
     }
     else
     {
@@ -3779,7 +3779,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
     //*script = g_scriptPtr-script;
 
-    Bfree(mptr);
+    Xfree(mptr);
 
     if (g_stateCount > ostateCount)
     {
@@ -4011,6 +4011,6 @@ void C_PrintErrorPosition()
 
         initprintf("%s\n", buf);
 
-        Bfree(buf);
+        Xfree(buf);
     }
 }

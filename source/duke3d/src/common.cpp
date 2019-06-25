@@ -55,13 +55,13 @@ char *g_rtsNamePtr = NULL;
 
 void clearGrpNamePtr(void)
 {
-    Bfree(g_grpNamePtr);
+    Xfree(g_grpNamePtr);
     // g_grpNamePtr assumed to be assigned to right after
 }
 
 void clearScriptNamePtr(void)
 {
-    Bfree(g_scriptNamePtr);
+    Xfree(g_scriptNamePtr);
     // g_scriptNamePtr assumed to be assigned to right after
 }
 
@@ -267,7 +267,7 @@ void G_ExtInit(void)
 #ifdef EDUKE32_OSX
     char *appdir = Bgetappdir();
     addsearchpath(appdir);
-    Bfree(appdir);
+    Xfree(appdir);
 #endif
 
 #ifdef USE_PHYSFS
@@ -292,8 +292,8 @@ void G_ExtInit(void)
                            i==-1 ? "not a directory" : "no such directory");
             }
 
-            Bfree(CommandPaths->str);
-            Bfree(CommandPaths);
+            Xfree(CommandPaths->str);
+            Xfree(CommandPaths);
             CommandPaths = s;
         }
     }
@@ -326,7 +326,7 @@ void G_ExtInit(void)
             }
             if (asperr == 0)
                 buildvfs_chdir(cwd);
-            Bfree(homedir);
+            Xfree(homedir);
         }
     }
 
@@ -499,8 +499,8 @@ void G_LoadGroups(int32_t autoload)
                 G_DoAutoload(CommandGrps->str);
         }
 
-        Bfree(CommandGrps->str);
-        Bfree(CommandGrps);
+        Xfree(CommandGrps->str);
+        Xfree(CommandGrps);
         CommandGrps = s;
     }
     pathsearchmode = bakpathsearchmode;
@@ -759,7 +759,7 @@ static void G_ParseSteamKeyValuesForPaths(const char *vdf)
             G_AddSteamPaths(result);
     }
 
-    Bfree(vdfbufstart);
+    Xfree(vdfbufstart);
 }
 #endif
 #endif
@@ -779,7 +779,7 @@ void G_AddSearchPaths(void)
     Bsnprintf(buf, sizeof(buf), "%s/.steam/steam/steamapps/libraryfolders.vdf", homepath);
     G_ParseSteamKeyValuesForPaths(buf);
 
-    Bfree(homepath);
+    Xfree(homepath);
 
     addsearchpath("/usr/share/games/jfduke3d");
     addsearchpath("/usr/local/share/games/jfduke3d");
@@ -814,8 +814,8 @@ void G_AddSearchPaths(void)
 
     for (i = 0; i < 2; i++)
     {
-        Bfree(applications[i]);
-        Bfree(support[i]);
+        Xfree(applications[i]);
+        Xfree(support[i]);
     }
 #elif defined (_WIN32)
     char buf[BMAX_PATH] = {0};
@@ -1151,11 +1151,11 @@ buildvfs_kfd S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic
         goto success;
 #endif
 
-    Bfree(testfn);
+    Xfree(testfn);
     return origfp;
 
 success:
-    Bfree(testfn);
+    Xfree(testfn);
     kclose(origfp);
     return fp;
 }

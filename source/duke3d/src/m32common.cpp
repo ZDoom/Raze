@@ -219,7 +219,7 @@ nextline:
     }
 
     // ----
-    Bfree(filebuf);
+    Xfree(filebuf);
 
     return 0;
 }
@@ -399,11 +399,11 @@ static void free_self_and_successors(mapundo_t *mapst)
             {
                 (*refcnt)--;
                 if (*refcnt == 0)
-                    Bfree(refcnt);  // free the block!
+                    Xfree(refcnt);  // free the block!
             }
         }
 
-        Bfree(cur);
+        Xfree(cur);
 
         if (!prev)
             break;
@@ -492,7 +492,7 @@ void create_map_snapshot(void)
                     }
 
                 create_compressed_block(2, tspri, Numsprites*sizeof(spritetype), temphash);
-                Bfree(tspri);
+                Xfree(tspri);
             }
         }
 #undef XXH__
@@ -1411,8 +1411,8 @@ too_many_errors:
 
     if (seen_nextwalls)
     {
-        Bfree(seen_nextwalls);
-        Bfree(lastnextwallsource);
+        Xfree(seen_nextwalls);
+        Xfree(lastnextwallsource);
     }
 
     corruptlevel = errlevel;
@@ -1741,7 +1741,7 @@ static void FuncMenu_Process(const StatusBarMenu *m, int32_t col, int32_t row)
         tmpscript[1+5+1+snlen] = 0;
 
         M32RunScript(tmpscript);
-        Bfree(tmpscript);
+        Xfree(tmpscript);
 
         if (vm.flags&VMFLAG_ERROR)
             printmessage16("There were errors while executing the menu function");

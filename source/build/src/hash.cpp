@@ -35,8 +35,8 @@ void hash_free(hashtable_t *t)
             hashitem_t * const tmp = cur;
             cur = cur->next;
 
-            Bfree(tmp->string);
-            Bfree(tmp);
+            Xfree(tmp->string);
+            Xfree(tmp);
         }
     } while (--remaining >= 0);
 
@@ -112,14 +112,14 @@ void hash_delete(hashtable_t *t, const char *s)
     {
         if (Bstrcmp(s, cur->string) == 0)
         {
-            Bfree(cur->string);
+            Xfree(cur->string);
 
             if (!prev)
                 t->items[code] = cur->next;
             else
                 prev->next = cur->next;
 
-            Bfree(cur);
+            Xfree(cur);
 
             break;
         }

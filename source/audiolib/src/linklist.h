@@ -94,7 +94,7 @@ extern "C" {
 
 #define LL_Empty(list, next, prev) (((list)->next == (list)) && ((list)->prev == (list)))
 
-#define LL_Free(list) Bfree(list)
+#define LL_Free(list) Xfree(list)
 #define LL_Reset(list, next, prev) (list)->next = (list)->prev = (list)
 
 

@@ -331,7 +331,7 @@ void paletteLoadFromDisk(void)
             if (kread_and_test(fil, &blendnum, 1))
             {
                 initprintf("Warning: failed reading additional blending table index\n");
-                Bfree(tab);
+                Xfree(tab);
                 return kclose(fil);
             }
 
@@ -341,13 +341,13 @@ void paletteLoadFromDisk(void)
             if (kread_and_test(fil, tab, 256*256))
             {
                 initprintf("Warning: failed reading additional blending table\n");
-                Bfree(tab);
+                Xfree(tab);
                 return kclose(fil);
             }
 
             paletteSetBlendTable(blendnum, tab);
         }
-        Bfree(tab);
+        Xfree(tab);
 
         // Read log2 of count of alpha blending tables.
         uint8_t lognumalphatabs;

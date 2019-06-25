@@ -915,18 +915,18 @@ static FORCE_INLINE void *Baligned_alloc(const size_t alignment, const size_t si
 #if defined _WIN32 && !defined NO_ALIGNED_MALLOC
 # define Baligned_free _aligned_free
 #else
-# define Baligned_free Bfree
+# define Baligned_free Xfree
 #endif
 
 
 ////////// Pointer management //////////
 
 #define DO_FREE_AND_NULL(var) do { \
-    Bfree(var); (var) = NULL; \
+    Xfree(var); (var) = NULL; \
 } while (0)
 
 #define ALIGNED_FREE_AND_NULL(var) do { \
-    Baligned_free(var); (var) = NULL; \
+    Xaligned_free(var); (var) = NULL; \
 } while (0)
 
 
@@ -1302,6 +1302,10 @@ static FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
     return (EDUKE32_PREDICT_TRUE(newptr != NULL || size == 0)) ? newptr: handle_memerr(ptr);
 }
 
+static FORCE_INLINE void xfree(void *const ptr) { Bfree(ptr); }
+
+static FORCE_INLINE void xaligned_free(void *const ptr) { Baligned_free(ptr); }
+
 #if !defined NO_ALIGNED_MALLOC
 static FORCE_INLINE void *xaligned_alloc(const bsize_t alignment, const bsize_t size)
 {
@@ -1323,7 +1327,8 @@ static FORCE_INLINE void *xaligned_alloc(const bsize_t alignment, const bsize_t 
 #define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLOC xcalloc(nmemb, size))
 #define Xrealloc(ptr, size)  (EDUKE32_PRE_XALLOC xrealloc(ptr, size))
 #define Xaligned_alloc(alignment, size) (EDUKE32_PRE_XALLOC xaligned_alloc(alignment, size))
-
+#define Xfree(ptr) (EDUKE32_PRE_XALLOC xfree(ptr))
+#define Xaligned_free(ptr) (EDUKE32_PRE_XALLOC xaligned_free(ptr))
 #ifdef __cplusplus
 }
 #endif

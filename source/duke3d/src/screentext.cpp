@@ -55,7 +55,7 @@ int32_t G_GetStringNumLines(const char *text, const char *end, const int32_t ite
 }
 // Note: Neither of these care about TEXT_LINEWRAP. This is intended.
 
-// This function requires you to Bfree() the returned char*.
+// This function requires you to Xfree() the returned char*.
 char* G_GetSubString(const char *text, const char *end, const int32_t iter, const int32_t length)
 {
     char *line = (char*) Xmalloc((length+1) * sizeof(char));
@@ -536,7 +536,7 @@ vec2_t G_ScreenText(const int32_t font,
 
                 linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace_orig, yline_orig, (f & TEXT_XJUSTIFY) ? 0 : xbetween_orig, (f & TEXT_YJUSTIFY) ? 0 : ybetween_orig, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
 
-                Bfree(line);
+                Xfree(line);
             }
 
             if (f & TEXT_XJUSTIFY)
@@ -728,7 +728,7 @@ vec2_t G_ScreenText(const int32_t font,
 
                 int32_t linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace_orig, yline_orig, (f & TEXT_XJUSTIFY) ? 0 : xbetween_orig, (f & TEXT_YJUSTIFY) ? 0 : ybetween_orig, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
 
-                Bfree(line);
+                Xfree(line);
 
                 if (f & TEXT_XJUSTIFY)
                 {

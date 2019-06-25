@@ -760,12 +760,12 @@ int32_t tileCRC(int16_t tileNum)
     if (dasiz <= 0)
         return 0;
 
-    data = (char *)Bmalloc(dasiz);
+    data = (char *)Xmalloc(dasiz);
     tileLoadData(tileNum, dasiz, data);
 
     int32_t crc = Bcrc32((unsigned char *)data, (unsigned int)dasiz, 0);
 
-    Bfree(data);
+    Xfree(data);
 
     return crc;
 }

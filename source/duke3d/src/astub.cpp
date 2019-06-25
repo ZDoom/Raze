@@ -1746,7 +1746,7 @@ static int32_t sort_sounds(int32_t how)
     {
     case 'g':  // restore original order
         Bmemcpy(g_sndnum, g_definedsndnum, sizeof(int16_t)*n);
-        Bfree(dst);
+        Xfree(dst);
         return 0;
     case 's':
         compare_sounds = compare_sounds_s;
@@ -1773,7 +1773,7 @@ static int32_t sort_sounds(int32_t how)
         compare_sounds = compare_sounds_5;
         break;
     default:
-        Bfree(dst);
+        Xfree(dst);
         return -2;
     }
 
@@ -1815,7 +1815,7 @@ static int32_t sort_sounds(int32_t how)
     if (src != source)
         Bmemcpy(source, src, sizeof(int16_t) * n);
 
-    Bfree(dest);
+    Xfree(dest);
     return 0;
 }
 
@@ -4166,7 +4166,7 @@ ERROR_TOOMANYSPRITES:
     if (cursor < 0) message("Too many sprites in map!");
     else deletesprite(cursor);
 
-    Bfree(spritenums);
+    Xfree(spritenums);
 
     clearkeys();
 
@@ -8482,7 +8482,7 @@ static void G_CheckCommandLine(int32_t argc, char const * const * argv)
         i++;
     }
 
-    Bfree(lengths);
+    Xfree(lengths);
 
     if (j > 0)
     {
@@ -8998,7 +8998,7 @@ static void SaveInHistory(const char *commandstr)
 
     if (dosave)
     {
-        Bfree(scripthist[scripthistend]);
+        Xfree(scripthist[scripthistend]);
         scripthist[scripthistend] = Xstrdup(commandstr);
         scripthistend++;
         scripthistend %= SCRIPTHISTSIZ;
@@ -9109,7 +9109,7 @@ static int osdcmd_do(osdcmdptr_t parm)
     if (g_numCompilerErrors)
     {
 //        g_scriptPtr = script + oscrofs;  // handled in C_Compile()
-        Bfree(tp);
+        Xfree(tp);
         return OSDCMD_OK;
     }
 
@@ -9720,8 +9720,8 @@ static int32_t loadtilegroups(const char *fn)
 
     for (i=0; i<tile_groups; i++)
     {
-        Bfree(s_TileGroups[i].pIds);
-        Bfree(s_TileGroups[i].szText);
+        Xfree(s_TileGroups[i].pIds);
+        Xfree(s_TileGroups[i].szText);
         Bmemcpy(&s_TileGroups[i], &blank, sizeof(blank));
     }
     tile_groups = 0;
@@ -9872,14 +9872,14 @@ static int32_t parseconsounds(scriptfile *script)
             {
                 initprintf("Warning: invalid sound definition %s (sound number < 0 or >= MAXSOUNDS) on line %s:%d\n",
                            definedname, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                Bfree(definedname);
+                Xfree(definedname);
                 num_invalidsounds++;
                 break;
             }
 
             if (scriptfile_getstring(script, &filename))
             {
-                Bfree(definedname);
+                Xfree(definedname);
                 num_invalidsounds++;
                 break;
             }
@@ -9889,7 +9889,7 @@ static int32_t parseconsounds(scriptfile *script)
             {
                 initprintf("Warning: invalid sound definition %s (filename too long) on line %s:%d\n",
                            definedname, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                Bfree(definedname);
+                Xfree(definedname);
                 num_invalidsounds++;
                 break;
             }
@@ -9897,7 +9897,7 @@ static int32_t parseconsounds(scriptfile *script)
             if (g_sounds[sndnum].filename)
             {
                 duplicate = 1;
-                Bfree(g_sounds[sndnum].filename);
+                Xfree(g_sounds[sndnum].filename);
             }
             g_sounds[sndnum].filename = (char *)Xcalloc(slen+1,sizeof(uint8_t));
             // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
@@ -9913,7 +9913,7 @@ static int32_t parseconsounds(scriptfile *script)
             if (0)
             {
 BAD:
-                Bfree(definedname);
+                Xfree(definedname);
                 DO_FREE_AND_NULL(g_sounds[sndnum].filename);
                 num_invalidsounds++;
                 break;
@@ -9922,7 +9922,7 @@ BAD:
             if (g_sounds[sndnum].definedname)
             {
                 duplicate = 1;
-                Bfree(g_sounds[sndnum].definedname);
+                Xfree(g_sounds[sndnum].definedname);
             }
             if (duplicate)
                 initprintf("warning: duplicate sound #%d, overwriting\n", sndnum);
@@ -10055,7 +10055,7 @@ int32_t ExtInit(void)
             Bsprintf(tempbuf, "m32_settings.cfg");
         else Bsprintf(tempbuf,"%s_m32_settings.cfg",p);
         OSD_Exec(tempbuf);
-        Bfree(ptr);
+        Xfree(ptr);
     }
 
     // backup pathsearchmode so that a later open
@@ -10138,11 +10138,11 @@ void ExtUnInit(void)
 #if 0
     for (i = MAX_TILE_GROUPS-1; i >= 0; i--)
     {
-        Bfree(s_TileGroups[i].pIds);
-        Bfree(s_TileGroups[i].szText);
+        Xfree(s_TileGroups[i].pIds);
+        Xfree(s_TileGroups[i].szText);
     }
-    for (i = numhelppages-1; i >= 0; i--) Bfree(helppage[i]);
-    Bfree(helppage);
+    for (i = numhelppages-1; i >= 0; i--) Xfree(helppage[i]);
+    Xfree(helppage);
 #endif
 
     Duke_CommonCleanup();
@@ -10684,7 +10684,7 @@ static void Keys2d3d(void)
     {
         //        map_revision = 0;
         create_map_snapshot(); // initial map state
-        //        Bfree(mapstate->next);
+        //        Xfree(mapstate->next);
         //        mapstate = mapstate->prev;
     }
 #endif

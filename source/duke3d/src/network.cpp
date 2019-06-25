@@ -4778,7 +4778,7 @@ void Net_Connect(const char *srvaddr)
         if (enet_host_service(g_netClient, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
         {
             initprintf("Connection to %s:%d succeeded.\n", oursrvaddr, address.port);
-            Bfree(oursrvaddr);
+            Xfree(oursrvaddr);
             return;
         }
         else
@@ -4793,7 +4793,7 @@ void Net_Connect(const char *srvaddr)
     }
 
     // [75] note: it only gets here if there was an error
-    Bfree(oursrvaddr);
+    Xfree(oursrvaddr);
     Net_Disconnect();
 }
 

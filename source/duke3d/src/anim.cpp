@@ -60,7 +60,7 @@ dukeanim_t *Anim_Find(const char *s)
             ptr = hash_findcase(&h_dukeanim, str);
         }
 
-        Bfree(str);
+        Xfree(str);
     }
 
     return (dukeanim_t *)(ptr == -1 ? NULL : (dukeanim_t *)ptr);
