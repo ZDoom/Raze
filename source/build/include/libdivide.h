@@ -60,7 +60,6 @@
         #define HAS_INT128_DIV
     #endif
 #endif
-#endif
 
 #if defined(__i386__)
     #define LIBDIVIDE_i386
