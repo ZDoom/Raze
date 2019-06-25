@@ -2623,8 +2623,8 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         0,                             //Shift Bit Ignored
         0,                             //No Accumulation Buffer
         0,0,0,0,                       //Accumulation Bits Ignored
-        32,                            //16/24/32 Z-Buffer depth
-        1,                             //No Stencil Buffer
+        24,                            //16/24/32 Z-Buffer depth
+        8,                             //8-bit Stencil Buffer
         0,                             //No Auxiliary Buffer
         PFD_MAIN_PLANE,                //Main Drawing Layer
         0,                             //Reserved

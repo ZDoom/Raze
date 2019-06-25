@@ -628,7 +628,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             fix16_t tang;
 
             //prepare to render any scripted EVENT_DISPLAYROOMS extras as mirrored
-            renderPrepareMirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
+            renderPrepareMirror(x, y, z, a, q16horiz, g_mirrorWall[i], &tposx, &tposy, &tang);
 
             int32_t j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
@@ -660,7 +660,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             VM_OnEvent(EVENT_RESETGOTPICS, -1, -1);
 
             //prepare to render the mirror
-            renderPrepareMirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
+            renderPrepareMirror(x, y, z, a, q16horiz, g_mirrorWall[i], &tposx, &tposy, &tang);
 
             if (videoGetRenderMode() != REND_POLYMER)
             {

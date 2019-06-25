@@ -5659,12 +5659,11 @@ void polymost_drawrooms()
     videoEndDrawing();
 }
 
-void polymost_drawmaskwall(int32_t damaskwallcnt)
+static void polymost_drawmaskwallinternal(int32_t wallIndex)
 {
-    int const z = maskwall[damaskwallcnt];
-    auto const wal = (uwalltype *)&wall[thewall[z]];
-    auto const wal2 = (uwalltype *)&wall[wal->point2];
-    int32_t const sectnum = thesector[z];
+    auto const wal = (uwallptr_t)&wall[wallIndex];
+    auto const wal2 = (uwallptr_t)&wall[wal->point2];
+    int32_t const sectnum = wall[wal->nextwall].nextsector;
     auto const sec = (usectortype *)&sector[sectnum];
 
 //    if (wal->nextsector < 0) return;
@@ -5673,14 +5672,14 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
 
     auto const nsec = (usectortype *)&sector[wal->nextsector];
 
-    polymost_outputGLDebugMessage(3, "polymost_drawmaskwall(damaskwallcnt:%d)", damaskwallcnt);
+    polymost_outputGLDebugMessage(3, "polymost_drawmaskwallinternal(wallIndex:%d)", wallIndex);
 
     globalpicnum = wal->overpicnum;
     if ((uint32_t)globalpicnum >= MAXTILES)
         globalpicnum = 0;
 
     globalorientation = (int32_t)wal->cstat;
-    tileUpdatePicnum(&globalpicnum, (int16_t)thewall[z]+16384);
+    tileUpdatePicnum(&globalpicnum, (int16_t)wallIndex+16384);
 
     globvis = globalvisibility;
     globvis = (sector[sectnum].visibility != 0) ? mulscale4(globvis, (uint8_t)(sector[sectnum].visibility + 16)) : globalvisibility;
@@ -5772,7 +5771,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
 #ifdef NEW_MAP_FORMAT
     uint8_t const blend = wal->blend;
 #else
-    uint8_t const blend = wallext[thewall[z]].blend;
+    uint8_t const blend = wallext[wallIndex].blend;
 #endif
     handle_blend(!!(wal->cstat & 128), blend, !!(wal->cstat & 512));
 
@@ -5869,6 +5868,79 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     polymost_updaterotmat();
     polymost_drawpoly(dpxy, n, method);
     polymost_identityrotmat();
+}
+
+void polymost_drawmaskwall(int32_t damaskwallcnt)
+{
+    int const z = maskwall[damaskwallcnt];
+    polymost_drawmaskwallinternal(thewall[z]);
+}
+
+void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz, int16_t mirrorWall)
+{
+    polymost_outputGLDebugMessage(3, "polymost_prepareMirror(%u)", mirrorWall);
+
+    //POGO: prepare necessary globals for drawing, as we intend to call this outside of drawrooms
+    set_globalpos(dax, day, daz);
+    set_globalang(daang);
+    globalhoriz = mulscale16(fix16_to_int(dahoriz)-100,divscale16(xdimenscale,viewingrange))+(ydimen>>1);
+    qglobalhoriz = mulscale16(dahoriz-F16(100), divscale16(xdimenscale, viewingrange))+fix16_from_int(ydimen>>1);
+    gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
+    gxyaspect = ((double)xyaspect*fviewingrange)*(5.0/(65536.0*262144.0));
+    gviewxrange = fviewingrange * fxdimen * (1.f/(32768.f*1024.f));
+    gcosang = fcosglobalang*(1.0f/262144.f);
+    gsinang = fsinglobalang*(1.0f/262144.f);
+    gcosang2 = gcosang * (fviewingrange * (1.0f/65536.f));
+    gsinang2 = gsinang * (fviewingrange * (1.0f/65536.f));
+    ghalfx = (float)(xdimen>>1);
+    ghalfy = (float)(ydimen>>1);
+    grhalfxdown10 = 1.f/(ghalfx*1024.f);
+    ghoriz = fix16_to_float(qglobalhoriz);
+    gvisibility = ((float)globalvisibility)*FOGSCALE;
+    resizeglcheck();
+    if (r_yshearing)
+    {
+        gshang  = 0.f;
+        gchang  = 1.f;
+        ghoriz2 = (float)(ydimen >> 1) - ghoriz;
+    }
+    else
+    {
+        float r = (float)(ydimen >> 1) - ghoriz;
+        gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx);
+        gchang  = Bsqrtf(1.f - gshang * gshang);
+        ghoriz2 = 0.f;
+    }
+    ghoriz = (float)(ydimen>>1);
+    gctang = cosf(gtang);
+    gstang = sinf(gtang);
+    if (Bfabsf(gstang) < .001f)
+    {
+        gstang = 0.f;
+        gctang = (gctang > 0.f) ? 1.f : -1.f;
+    }
+    grhalfxdown10x = grhalfxdown10;
+
+    //POGO: write the mirror region to the stencil buffer to allow showing mirrors & skyboxes at the same time
+    glEnable(GL_STENCIL_TEST);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_DEPTH_TEST);
+    polymost_drawmaskwallinternal(mirrorWall);
+    glEnable(GL_ALPHA_TEST);
+    glEnable(GL_DEPTH_TEST);
+
+    //POGO: render only to the mirror region
+    glStencilFunc(GL_EQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+}
+
+void polymost_completeMirror()
+{
+    polymost_outputGLDebugMessage(3, "polymost_completeMirror()");
+    glDisable(GL_STENCIL_TEST);
 }
 
 typedef struct
