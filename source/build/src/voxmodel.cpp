@@ -1026,20 +1026,19 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     //updateanimation((md2model *)m,tspr);
 
     vec3f_t m0 = { m->scale, m->scale, m->scale };
-    vec3f_t a0 = { 0, 0, ((globalorientation&8) ? -m->zadd : m->zadd)*m->scale };
-
-    //if (globalorientation&8) //y-flipping
-    //{
-    //   m0.z = -m0.z; a0.z = -a0.z;
-    //      //Add height of 1st frame (use same frame to prevent animation bounce)
-    //   a0.z += m->zsiz*m->scale;
-    //}
-    //if (globalorientation&4) { m0.y = -m0.y; a0.y = -a0.y; } //x-flipping
+    vec3f_t a0 = { 0, 0, m->zadd*m->scale };
 
     k0 = m->bscale / 64.f;
     f = (float) tspr->xrepeat * (256.f/320.f) * k0;
     if ((sprite[tspr->owner].cstat&48)==16)
+    {
         f *= 1.25f;
+        a0.y -= tspr->xoffset*sintable[(spriteext[tspr->owner].angoff+512)&2047]*(1.f/(64.f*16384.f));
+        a0.x += tspr->xoffset*sintable[spriteext[tspr->owner].angoff&2047]*(1.f/(64.f*16384.f));
+    }
+
+    if (globalorientation&8) { m0.z = -m0.z; a0.z = -a0.z; } //y-flipping
+    if (globalorientation&4) { m0.x = -m0.x; a0.x = -a0.x; a0.y = -a0.y; } //x-flipping
 
     m0.x *= f; a0.x *= f; f = -f;
     m0.y *= f; a0.y *= f;
@@ -1047,9 +1046,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     m0.z *= f; a0.z *= f;
 
     k0 = (float) tspr->z;
-    k0 -= ((tspr->yoffset * tspr->yrepeat) << 2) * m->bscale;
-    if (!(tspr->cstat & 128))
-        k0 -= (tspr->yrepeat << 2) * m->piv.z * m->bscale;
+    f = (globalorientation&8) ? -4.f : 4.f;
+    k0 -= (tspr->yoffset*tspr->yrepeat)*f*m->bscale;
+    if (!(tspr->cstat&128)) k0 -= (m->piv.z*tspr->yrepeat)*f*m->scale;
 
     f = (65536.f*512.f) / ((float)xdimen*viewingrange);
     g = 32.f / ((float)xdimen*gxyaspect);
@@ -1078,7 +1077,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
 //    glPushAttrib(GL_POLYGON_BIT);
 
-    if ((grhalfxdown10x >= 0) /*^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0)*/)
+    if ((grhalfxdown10x >= 0) ^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0))
         glFrontFace(GL_CW);
     else
         glFrontFace(GL_CCW);

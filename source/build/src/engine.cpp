@@ -4420,7 +4420,8 @@ typedef zint_t voxint_t;
 //
 static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasprang,
                              int32_t daxscale, int32_t dayscale, int32_t daindex,
-                             int8_t dashade, char dapal, const int32_t *daumost, const int32_t *dadmost)
+                             int8_t dashade, char dapal, const int32_t *daumost, const int32_t *dadmost,
+                             const int8_t cstat)
 {
     int32_t i, j, k, x, y;
 
@@ -4469,7 +4470,8 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
 
     int32_t *longptr = (int32_t *)davoxptr;
     const int32_t daxsiz = B_LITTLE32(longptr[0]), daysiz = B_LITTLE32(longptr[1]), dazsiz = B_LITTLE32(longptr[2]);
-    const int32_t daxpivot = B_LITTLE32(longptr[3]), daypivot = B_LITTLE32(longptr[4]);// dazpivot = B_LITTLE32(longptr[5]);
+    int32_t daxpivot = B_LITTLE32(longptr[3]), daypivot = B_LITTLE32(longptr[4]);// dazpivot = B_LITTLE32(longptr[5]);
+    if (cstat & 4) daxpivot = (daxsiz<<8)-daxpivot;
     davoxptr += (6<<2);
 
     x = mulscale16(globalposx-dasprx, daxscalerecip);
@@ -4586,9 +4588,19 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
             x2 = gxinc+gyinc; y2 = gyinc-gxinc; break;
         }
 
-        const char oand = pow2char[(xs<backx)+0] + pow2char[(ys<backy)+2];
-        const char oand16 = oand+16;
-        const char oand32 = oand+32;
+        char oand = pow2char[(xs<backx)+0] + pow2char[(ys<backy)+2];
+
+        if (cstat&4)
+            oand ^= 3;
+
+        char oand16 = oand+16;
+        char oand32 = oand+32;
+
+        if (cstat&8)
+        {
+            oand16 = oand+32;
+            oand32 = oand+16;
+        }
 
         int32_t dagxinc, dagyinc;
 
@@ -4604,8 +4616,9 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
 
         for (x=xs; x!=xe; x+=xi)
         {
-            const intptr_t slabxoffs = (intptr_t)&davoxptr[B_LITTLE32(longptr[x])];
-            int16_t *const shortptr = (int16_t *)&davoxptr[((x*(daysiz+1))<<1) + xyvoxoffs];
+            const int32_t xf = (cstat & 4) ? daxsiz-1-x : x;
+            const intptr_t slabxoffs = (intptr_t)&davoxptr[B_LITTLE32(longptr[xf])];
+            int16_t *const shortptr = (int16_t *)&davoxptr[((xf*(daysiz+1))<<1) + xyvoxoffs];
 
             voxint_t nx = mulscale16z(ggxstart+ggxinc[x], viewingrangerecip) + x1;
             voxint_t ny = ggystart + ggyinc[x];
@@ -4646,7 +4659,11 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
 
                 for (; voxptr<voxend; voxptr+=voxptr[1]+3)
                 {
-                    j = (voxptr[0]<<15)-syoff;
+                    if (cstat&8)
+                        j = dazsiz-voxptr[0]-voxptr[1];
+                    else
+                        j = voxptr[0];
+                    j = (j<<15)-syoff;
 
                     if (j < 0)
                     {
@@ -4687,6 +4704,11 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
 
                         if (z1 < daumost[lx]) { yplc = yinc*(daumost[lx]-z1); z1 = daumost[lx]; }
                         else yplc = 0;
+                        
+                        if (cstat & 8)
+                            yinc = -yinc;
+                        if (cstat & 8)
+                            yplc = ((voxptr[1])<<16) - yplc + yinc;
                     }
 
                     if (z2 > dadmost[lx])
@@ -5785,9 +5807,27 @@ draw_as_face_sprite:
             nyrepeat = ((int32_t)tspr->yrepeat)*voxscale[vtilenum];
         }
 
-        if (!(cstat&128)) tspr->z -= mulscale22(B_LITTLE32(longptr[5]),nyrepeat);
+        if (!(cstat&128))
+        {
+            if (cstat&8)
+                tspr->z += mulscale22(B_LITTLE32(longptr[5]),nyrepeat);
+            else
+                tspr->z -= mulscale22(B_LITTLE32(longptr[5]),nyrepeat);
+        }
+        off.x = tspr->xoffset;
         off.y = /*picanm[sprite[tspr->owner].picnum].yofs +*/ tspr->yoffset;
-        tspr->z -= mulscale14(off.y,nyrepeat);
+        if (cstat & 4) off.x = -off.x;
+        if (cstat & 8) off.y = -off.y;
+        tspr->z -= off.y * tspr->yrepeat << 2;
+
+        if ((sprite[spritenum].cstat&CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_WALL)
+        {
+            const int32_t xv = tspr->xrepeat*sintable[(tspr->ang+2560+1536)&2047];
+            const int32_t yv = tspr->xrepeat*sintable[(tspr->ang+2048+1536)&2047];
+
+            tspr->x -= mulscale16(xv, off.x);
+            tspr->y -= mulscale16(yv, off.x);
+        }
 
         globvis = globalvisibility;
         if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
@@ -5847,7 +5887,7 @@ draw_as_face_sprite:
 
         i = (int32_t)tspr->ang+1536;
         i += spriteext[spritenum].angoff;
-        classicDrawVoxel(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
+        classicDrawVoxel(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall,cstat);
     }
 }
 
@@ -7213,8 +7253,6 @@ static inline void calcbritable(void)
             britable[i][j] = (uint8_t) (powf((float)j, a) * b);
     }
 }
-
-#define BANG2RAD (fPI * (1.f/1024.f))
 
 static int32_t engineLoadTables(void)
 {

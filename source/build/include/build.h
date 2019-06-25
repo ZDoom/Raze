@@ -42,6 +42,8 @@ enum rendmode_t {
 #define PI 3.14159265358979323846
 #define fPI 3.14159265358979323846f
 
+#define BANG2RAD (fPI * (1.f/1024.f))
+
 #define MAXSECTORSV8 4096
 #define MAXWALLSV8 16384
 #define MAXSPRITESV8 16384
