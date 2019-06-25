@@ -285,23 +285,23 @@ static FORCE_INLINE void wall_tracker_hook(uintptr_t address);
 static FORCE_INLINE void sprite_tracker_hook(uintptr_t address);
 }
 
-#define TRACKER_NAME_ SectorTracker
-#define TRACKER_GLOBAL_HOOK_ sector_tracker_hook
+#define TRACKER_NAME__ SectorTracker
+#define TRACKER_HOOK_ sector_tracker_hook
 #include "tracker.hpp"
-#undef TRACKER_NAME_
-#undef TRACKER_GLOBAL_HOOK_
+#undef TRACKER_NAME__
+#undef TRACKER_HOOK_
 
-#define TRACKER_NAME_ WallTracker
-#define TRACKER_GLOBAL_HOOK_ wall_tracker_hook
+#define TRACKER_NAME__ WallTracker
+#define TRACKER_HOOK_ wall_tracker_hook
 #include "tracker.hpp"
-#undef TRACKER_NAME_
-#undef TRACKER_GLOBAL_HOOK_
+#undef TRACKER_NAME__
+#undef TRACKER_HOOK_
 
-#define TRACKER_NAME_ SpriteTracker
-#define TRACKER_GLOBAL_HOOK_ sprite_tracker_hook
+#define TRACKER_NAME__ SpriteTracker
+#define TRACKER_HOOK_ sprite_tracker_hook
 #include "tracker.hpp"
-#undef TRACKER_NAME_
-#undef TRACKER_GLOBAL_HOOK_
+#undef TRACKER_NAME__
+#undef TRACKER_HOOK_
 
 #define Tracker(Container, Type) Container##Tracker<Type>
 #define TrackerCast(x) x.cast()

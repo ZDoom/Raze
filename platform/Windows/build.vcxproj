@@ -368,8 +368,6 @@
     <ClInclude Include="..\..\source\build\include\softsurface.h" />
     <ClInclude Include="..\..\source\build\include\texcache.h" />
     <ClInclude Include="..\..\source\build\include\tracker.hpp" />
-    <ClInclude Include="..\..\source\build\include\tracker_operator.hpp" />
-    <ClInclude Include="..\..\source\build\include\tracker_operators.hpp" />
     <ClInclude Include="..\..\source\build\include\vfs.h" />
     <ClInclude Include="..\..\source\build\include\winbits.h" />
     <ClInclude Include="..\..\source\build\include\winlayer.h" />

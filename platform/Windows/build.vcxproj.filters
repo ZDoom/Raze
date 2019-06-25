@@ -370,12 +370,6 @@
     <ClInclude Include="..\..\source\build\include\tracker.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\build\include\tracker_operator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\build\include\tracker_operators.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\build\include\winbits.h">
       <Filter>Header Files</Filter>
     </ClInclude>
