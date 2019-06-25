@@ -34,61 +34,61 @@ class TRACKER_NAME__
             return this->value--;
         }
 
-        template <typename Tt> inline T operator=(Tt operand)
+        template <typename U> inline T operator=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value = (T)operand;
         }
 
-        template <typename Tt> inline T operator+=(Tt operand)
+        template <typename U> inline T operator+=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value += (T)operand;
         }
 
-        template <typename Tt> inline T operator-=(Tt operand)
+        template <typename U> inline T operator-=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value -= (T)operand;
         }
 
-        template <typename Tt> inline T operator*=(Tt operand)
+        template <typename U> inline T operator*=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value *= (T)operand;
         }
 
-        template <typename Tt> inline T operator/=(Tt operand)
+        template <typename U> inline T operator/=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value /= (T)operand;
         }
 
-        template <typename Tt> inline T operator|=(Tt operand)
+        template <typename U> inline T operator|=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value |= (T)operand;
         }
 
-        template <typename Tt> inline T operator&=(Tt operand)
+        template <typename U> inline T operator&=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value &= (T)operand;
         }
 
-        template <typename Tt> inline T operator^=(Tt operand)
+        template <typename U> inline T operator^=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value ^= (T)operand;
         }
 
-        template <typename Tt> inline T operator<<=(Tt operand)
+        template <typename U> inline T operator<<=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value <<= (T)operand;
         }
 
-        template <typename Tt> inline T operator>>=(Tt operand)
+        template <typename U> inline T operator>>=(U operand)
         {
             TRACKER_HOOK_((intptr_t) & this->value);
             return this->value >>= (T)operand;
@@ -97,13 +97,13 @@ class TRACKER_NAME__
         inline operator T() const { return this->value; }
 
         inline T cast() const { return this->value; }
+};
 
-        struct is_signed
-        {
-            static constexpr bool value = std::is_signed<T>::value;
-        };
-        struct is_unsigned
-        {
-            static constexpr bool value = std::is_unsigned<T>::value;
-        };
+template <typename T> struct is_signed<TRACKER_NAME__<T>>
+{
+    static constexpr bool value = std::is_signed<T>::value;
+};
+template <typename T> struct is_unsigned<TRACKER_NAME__<T>>
+{
+    static constexpr bool value = std::is_unsigned<T>::value;
 };
