@@ -947,7 +947,7 @@ void polymost_glinit()
              texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
              vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
              \n\
-             float shade = clamp((u_shade+u_visFactor*v_distance), c_zero, u_numShades-c_one);\n\
+             float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);\n\
              float shadeFrac = mod(shade, c_one);\n\
              float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, floor(shade)/u_numShades)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
@@ -1043,7 +1043,7 @@ void polymost_glinit()
              texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
              vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
              \n\
-             float shade = clamp((u_shade+u_visFactor*v_distance), c_zero, u_numShades-c_one);\n\
+             float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);\n\
              float shadeFrac = mod(shade, c_one);\n\
              float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, floor(shade)/u_numShades)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
@@ -1211,21 +1211,21 @@ void polymost2_calc_fog(int32_t shade, int32_t vis, int32_t pal)
 {
     if (nofog) return;
 
-    fogresult = 0.f;
     fogcol = fogtable[pal];
 
     if (((uint8_t)(vis + 16)) > 0 && g_visibility > 0)
     {
         constexpr GLfloat glfogconstant = 262144.f;
         GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
-        GLfloat normalizedshade = shade / frealmaxshade;
-        GLfloat fogshade = normalizedshade * fogrange;
 
-        // fogresult = -fogshade; // uncomment this to incorporate shades in the fog
-        fogresult2 = fogrange - fogshade;
+        fogresult = 0.f - (((min(shade, 0) - 0.5f) / frealmaxshade) * fogrange); // min() = subtract shades from fog
+        fogresult2 = fogrange - (((shade - 0.5f) / frealmaxshade) * fogrange);
     }
     else
+    {
+        fogresult = 0.f;
         fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
+    }
 }
 
 void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal)
@@ -1241,14 +1241,15 @@ void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal)
         {
             constexpr GLfloat glfogconstant = 262144.f;
             GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
-            GLfloat normalizedshade = shade / frealmaxshade;
-            GLfloat fogshade = normalizedshade * fogrange;
 
-            // fogresult = -fogshade; // uncomment this to incorporate shades in the fog
-            fogresult2 = fogrange - fogshade;
+            fogresult = 0.f - (((min(shade, 0) - 0.5f) / frealmaxshade) * fogrange); // min() = subtract shades from fog
+            fogresult2 = fogrange - (((shade - 0.5f) / frealmaxshade) * fogrange);
         }
         else
+        {
+            fogresult = 0.f;
             fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
+        }
 
         glFogf(GL_FOG_START, fogresult);
         glFogf(GL_FOG_END, fogresult2);
@@ -1279,11 +1280,11 @@ void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float fa
 
         if (((uint8_t)(vis + 16)) > 0 && ((((uint8_t)(vis + 16)) / 8.f) + shade) > 0)
         {
-            GLfloat normalizedshade = shade / frealmaxshade;
+            GLfloat normalizedshade = (shade - 0.5f) / frealmaxshade;
             GLfloat fogrange = (((uint8_t)(vis + 16)) / (8.f * frealmaxshade)) + normalizedshade;
 
             // subtract shades from fog
-            if (shade > 0 && shade < realmaxshade)
+            if (normalizedshade > 0.f && normalizedshade < 1.f)
                 fogrange = (fogrange - normalizedshade) / (1.f - normalizedshade);
 
             fogresult = -(GL_FOG_MAX * fogrange);
