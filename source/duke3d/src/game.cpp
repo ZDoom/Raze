@@ -582,6 +582,10 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             // NOTE: We can have g_mirrorCount==0 but gotpic'd MIRROR,
             // for example in LNGA2.
             gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+
+            //give scripts the chance to reset gotpics for effects that run in EVENT_DISPLAYROOMS
+            //EVENT_RESETGOTPICS must be called after the last call to EVENT_DISPLAYROOMS in a frame, but before any engine-side renderDrawRoomsQ16
+            VM_OnEvent(EVENT_RESETGOTPICS, -1, -1);
             return;
         }
 
@@ -650,6 +654,10 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             CAMERA(pos.z) = origCamZ;
             CAMERA(q16ang) = origCamq16ang;
             CAMERA(q16horiz) = origCamq16horiz;
+
+            //give scripts the chance to reset gotpics for effects that run in EVENT_DISPLAYROOMS
+            //EVENT_RESETGOTPICS must be called after the last call to EVENT_DISPLAYROOMS in a frame, but before any engine-side renderDrawRoomsQ16
+            VM_OnEvent(EVENT_RESETGOTPICS, -1, -1);
 
             //prepare to render the mirror
             renderPrepareMirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
