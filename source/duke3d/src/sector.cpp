@@ -1214,7 +1214,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
 
         lotag         = sprite[wallOrSprite].lotag;
         hitag         = sprite[wallOrSprite].hitag;
-        davector      = *(vec3_t *)&sprite[wallOrSprite];
+        davector      = sprite[wallOrSprite].pos;
         nSwitchPicnum = sprite[wallOrSprite].picnum;
         nSwitchPal    = sprite[wallOrSprite].pal;
     }
@@ -1225,8 +1225,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
 
         lotag         = wall[wallOrSprite].lotag;
         hitag         = wall[wallOrSprite].hitag;
-        davector      = *(vec3_t *)&wall[wallOrSprite];
-        davector.z    = g_player[playerNum].ps->pos.z;
+        davector      = { wall[wallOrSprite].x, wall[wallOrSprite].y, g_player[playerNum].ps->pos.z };
         nSwitchPicnum = wall[wallOrSprite].picnum;
         nSwitchPal    = wall[wallOrSprite].pal;
     }
@@ -2345,7 +2344,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
                             SA(spriteNum)          = (sprite[dmgSrc].ang + 1024) & 2047;
                         sprite[spriteNum].xvel  = -(sprite[dmgSrc].extra << 2);
                         int16_t sectNum = SECT(spriteNum);
-                        pushmove((vec3_t *)&sprite[spriteNum], &sectNum, 128L, (4L << 8), (4L << 8), CLIPMASK0);
+                        pushmove(&sprite[spriteNum].pos, &sectNum, 128L, (4L << 8), (4L << 8), CLIPMASK0);
                         if (sectNum != SECT(spriteNum) && (unsigned)sectNum < MAXSECTORS)
                             changespritesect(spriteNum, sectNum);
                     }

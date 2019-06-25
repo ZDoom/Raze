@@ -342,7 +342,7 @@ static int32_t Proj_MaybeDoTransport(int32_t spriteNum, uspriteptr_t const pSEff
                                : sector[otherse->sectnum].floorz - daz + sector[pSEffector->sectnum].ceilingz;
     // below->above
 
-    actor[spriteNum].bpos = *(vec3_t *)&sprite[spriteNum];
+    actor[spriteNum].bpos = sprite[spriteNum].pos;
     changespritesect(spriteNum, otherse->sectnum);
 
     return 1;
@@ -460,7 +460,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 {
     spritetype *const pSprite = &sprite[spriteNum];
     int const         isEnemy = A_CheckEnemySprite(pSprite);
-    vec2_t const      oldPos  = *(vec2_t *)pSprite;
+    vec2_t const      oldPos  = pSprite->pos_as_vec2;
 
     // check to make sure the netcode didn't leave a deleted sprite in the sprite lists.
     Bassert(pSprite->sectnum < MAXSECTORS);
@@ -473,13 +473,13 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
         pSprite->z += change->z;
 
         if (isEnemy)
-            setsprite(spriteNum, (vec3_t *)pSprite);
+            setsprite(spriteNum, &pSprite->pos);
 
         return 0;
     }
 #endif
 
-    setsprite(spriteNum, (vec3_t *)pSprite);
+    setsprite(spriteNum, &pSprite->pos);
 
     clipDist = A_GetClipdist(spriteNum, clipDist);
 
@@ -500,13 +500,13 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     {
         default:
         {
-            returnValue = clipmove((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, ZOFFSET6, ZOFFSET6, clipType);
+            returnValue = clipmove(&pSprite->pos, &newSectnum, change->x << 13, change->y << 13, clipDist, ZOFFSET6, ZOFFSET6, clipType);
             break;
         }
 
         case STAT_PROJECTILE:
         {
-            returnValue = clipmovex((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, diffZ >> 1, diffZ >> 1, clipType, 1);
+            returnValue = clipmovex(&pSprite->pos, &newSectnum, change->x << 13, change->y << 13, clipDist, diffZ >> 1, diffZ >> 1, clipType, 1);
             break;
         }
     }
@@ -527,11 +527,11 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 #endif
                 ))
         {
-            *(vec2_t *) pSprite = oldPos;
+            pSprite->pos_as_vec2 = oldPos;
 
             // NOTE: in Duke3D, LIZMAN on water takes on random angle here.
 
-            setsprite(spriteNum, (vec3_t *)pSprite);
+            setsprite(spriteNum, &pSprite->pos);
 
             if (newSectnum < 0)
                 newSectnum = 0;
@@ -582,7 +582,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
         if (yax_getbunch(newSectnum, (change->z>0))>=0
                 && (SECTORFLD(newSectnum,stat, (change->z>0))&yax_waltosecmask(clipType))==0)
         {
-            setspritez(spriteNum, (vec3_t *)pSprite);
+            setspritez(spriteNum, &pSprite->pos);
         }
 #endif
     }
@@ -798,7 +798,7 @@ static int32_t move_rotfixed_sprite(int32_t spriteNum, int32_t pivotSpriteNum, i
           A_CheckSpriteFlags(spriteNum, SFLAG_ROTFIXED))) &&
         actor[spriteNum].t_data[7] == (ROTFIXSPR_MAGIC | pivotSpriteNum))
     {
-        rotatepoint(zerovec, *(vec2_t *)&actor[spriteNum].t_data[8], pivotAngle & 2047, (vec2_t *)&sprite[spriteNum].x);
+        rotatepoint(zerovec, *(vec2_t *)&actor[spriteNum].t_data[8], pivotAngle & 2047, &sprite[spriteNum].pos_as_vec2);
         sprite[spriteNum].x += sprite[pivotSpriteNum].x;
         sprite[spriteNum].y += sprite[pivotSpriteNum].y;
         return 0;
@@ -1270,7 +1270,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                 actor[spriteNum].bpos.z = pSprite->z;
                 pSprite->ang            = fix16_to_int(pPlayer->oq16ang);
 
-                setsprite(spriteNum, (vec3_t *)pSprite);
+                setsprite(spriteNum, &pSprite->pos);
             }
             else
             {
@@ -1399,7 +1399,7 @@ ACTOR_STATIC void G_MovePlayers(void)
             else
             {
                 pSprite->ang = 2047-fix16_to_int(pPlayer->q16ang);
-                setsprite(spriteNum,(vec3_t *)pSprite);
+                setsprite(spriteNum,&pSprite->pos);
             }
         }
 
@@ -1830,7 +1830,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
                 if (pSprite->owner >= 0)
                 {
-                    setsprite(pSprite->owner,(vec3_t *)pSprite);
+                    setsprite(pSprite->owner,&pSprite->pos);
 
                     Bmemcpy(&actor[pSprite->owner].bpos, pSprite, sizeof(vec3_t));
 
@@ -2003,7 +2003,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 pSprite->y += sintable[(T6(spriteNum))&2047]>>9;
                 pSprite->z -= (3<<8);
 
-                setsprite(spriteNum,(vec3_t *)pSprite);
+                setsprite(spriteNum,&pSprite->pos);
 
                 int hitDist = A_CheckHitSprite(spriteNum, &hitSprite);
 
@@ -2046,7 +2046,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 pSprite->y = T5(spriteNum);
                 pSprite->z += (3<<8);
 
-                setsprite(spriteNum,(vec3_t *)pSprite);
+                setsprite(spriteNum,&pSprite->pos);
                 T4(spriteNum) = T3(spriteNum) = 0;
 
                 if (hitSprite >= 0 && actor[spriteNum].t_data[6] != 1)
@@ -2069,14 +2069,14 @@ ACTOR_STATIC void G_MoveStandables(void)
                 pSprite->y += sintable[(T6(spriteNum))&2047]>>9;
                 pSprite->z -= (3<<8);
 
-                setsprite(spriteNum, (vec3_t *) pSprite);
+                setsprite(spriteNum, &pSprite->pos);
 
                 int hitDist = A_CheckHitSprite(spriteNum, NULL);
 
                 pSprite->x = T4(spriteNum);
                 pSprite->y = T5(spriteNum);
                 pSprite->z += (3<<8);
-                setsprite(spriteNum, (vec3_t *) pSprite);
+                setsprite(spriteNum, &pSprite->pos);
 
                 //                if( Actor[i].lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
                 if (actor[spriteNum].lastv.x != hitDist && actor[spriteNum].t_data[6] != 1)
@@ -2833,7 +2833,7 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
         default:
         case PROJECTILE_RPG:
         {
-            davect = *(vec3_t *) pSprite;
+            davect = pSprite->pos;
 
             VM_UpdateAnim(spriteNum, &actor[spriteNum].t_data[0]);
 
@@ -3009,7 +3009,7 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
                         else
                         {
                             setsprite(spriteNum, &davect);
-                            A_DamageWall(spriteNum, otherSprite, (vec3_t *)pSprite, pSprite->picnum);
+                            A_DamageWall(spriteNum, otherSprite, &pSprite->pos, pSprite->picnum);
 
                             if (pProj->workslike & PROJECTILE_BOUNCESOFFWALLS)
                             {
@@ -3077,7 +3077,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
         if (pSprite->sectnum < 0)
             DELETE_SPRITE_AND_CONTINUE(spriteNum);
 
-        actor[spriteNum].bpos = *(vec3_t *)pSprite;
+        actor[spriteNum].bpos = pSprite->pos;
 
         /* Custom projectiles */
         if (A_CheckSpriteFlags(spriteNum, SFLAG_PROJECTILE))
@@ -3134,7 +3134,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     spriteZvel >>= 1;
                 }
 
-                vec3_t davect = *(vec3_t *) pSprite;
+                vec3_t davect = pSprite->pos;
 
                 A_GetZLimits(spriteNum);
 
@@ -3233,7 +3233,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             else
                             {
                                 setsprite(spriteNum, &davect);
-                                A_DamageWall(spriteNum, moveSprite, (vec3_t *)pSprite, pSprite->picnum);
+                                A_DamageWall(spriteNum, moveSprite, &pSprite->pos, pSprite->picnum);
 
                                 if (pSprite->picnum == FREEZEBLAST)
                                 {
@@ -3525,10 +3525,10 @@ ACTOR_STATIC void G_MoveTransports(void)
                                     pPlayer->transporter_hold      = 13;
                                 }
 
-                                pPlayer->pos    = *(vec3_t *)&sprite[OW(spriteNum)];
+                                pPlayer->pos    = sprite[OW(spriteNum)].pos;
                                 pPlayer->pos.z -= PHEIGHT;
                                 pPlayer->opos   = pPlayer->pos;
-                                pPlayer->bobpos = *(vec2_t *)&pPlayer->pos;
+                                pPlayer->bobpos = pPlayer->pos_as_vec2;
 
                                 changespritesect(sectSprite, sprite[OW(spriteNum)].sectnum);
                                 pPlayer->cursectnum = sprite[sectSprite].sectnum;
@@ -3556,7 +3556,7 @@ ACTOR_STATIC void G_MoveTransports(void)
 
                                     actor[pPlayer->i].bpos = pPlayer->pos;
                                     pPlayer->opos          = pPlayer->pos;
-                                    pPlayer->bobpos        = *(vec2_t *)&pPlayer->pos;
+                                    pPlayer->bobpos        = pPlayer->pos_as_vec2;
 
                                     changespritesect(sectSprite, sprite[OW(spriteNum)].sectnum);
                                     pPlayer->cursectnum = sprite[OW(spriteNum)].sectnum;
@@ -3684,7 +3684,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                         sprite[sectSprite].y += sprite[OW(spriteNum)].y - SY(spriteNum);
                                         sprite[sectSprite].z = (sectLotag == ST_1_ABOVE_WATER) ? sector[osect].ceilingz : sector[osect].floorz;
 
-                                        actor[sectSprite].bpos = *(vec3_t *)&sprite[sectSprite];
+                                        actor[sectSprite].bpos = sprite[sectSprite].pos;
 
                                         changespritesect(sectSprite, sprite[OW(spriteNum)].sectnum);
                                     }
@@ -3703,7 +3703,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                                 sprite[sectSprite].z -= SZ(spriteNum) - sector[sprite[OW(spriteNum)].sectnum].floorz;
 
                                                 sprite[sectSprite].ang = sprite[OW(spriteNum)].ang;
-                                                actor[sectSprite].bpos = *(vec3_t *)&sprite[sectSprite];
+                                                actor[sectSprite].bpos = sprite[sectSprite].pos;
 #ifndef EDUKE32_STANDALONE
                                                 if (sprite[spriteNum].pal == 0)
                                                 {
@@ -3729,7 +3729,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                             sprite[sectSprite].y += (sprite[OW(spriteNum)].y - SY(spriteNum));
                                             sprite[sectSprite].z = sprite[OW(spriteNum)].z + 4096;
 
-                                            actor[sectSprite].bpos = *(vec3_t *)&sprite[sectSprite];
+                                            actor[sectSprite].bpos = sprite[sectSprite].pos;
 
                                             changespritesect(sectSprite, sprite[OW(spriteNum)].sectnum);
                                         }
@@ -3910,7 +3910,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     if (sprite[hitObject].picnum == POCKET && ldist(&sprite[hitObject],pSprite) < 52)
                         DELETE_SPRITE_AND_CONTINUE(spriteNum);
 
-                int hitObject = clipmove((vec3_t *)pSprite, &pSprite->sectnum,
+                int hitObject = clipmove(&pSprite->pos, &pSprite->sectnum,
                                          (((pSprite->xvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14) * TICSPERFRAME) << 11,
                                          (((pSprite->xvel * (sintable[pSprite->ang & 2047])) >> 14) * TICSPERFRAME) << 11, 24L, ZOFFSET6,
                                          ZOFFSET6, CLIPMASK1);
@@ -4352,7 +4352,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     goto next_sprite;
                 }
 
-                setsprite(spriteNum,(vec3_t *)pSprite);
+                setsprite(spriteNum,&pSprite->pos);
 
                 pSprite->ang = fix16_to_int(pPlayer->q16ang);
 
@@ -4771,7 +4771,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
             if ((moveSprite&49152) == 32768)
             {
-                vec3_t davect = *(vec3_t *)pSprite;
+                vec3_t davect = pSprite->pos;
                 moveSprite &= (MAXWALLS - 1);
                 A_DamageWall(spriteNum, moveSprite, &davect, pSprite->picnum);
                 Proj_BounceOffWall(pSprite, moveSprite);
@@ -5234,13 +5234,13 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                         forceRepeat -= 3;
                     }
 
-                    *(vec3_t *)pSprite = *(vec3_t *)&sprite[pSprite->owner];
-                    pSprite->ang      += actor[pSprite->owner].t_data[0];
+                    pSprite->pos = sprite[pSprite->owner].pos;
+                    pSprite->ang += actor[pSprite->owner].t_data[0];
 
-                    forceRepeat        = clamp2(forceRepeat, 1, 64);
-                    pSprite->xrepeat   = forceRepeat;
-                    pSprite->yrepeat   = forceRepeat;
-                    pSprite->shade     = (forceRepeat >> 1) - 48;
+                    forceRepeat      = clamp2(forceRepeat, 1, 64);
+                    pSprite->xrepeat = forceRepeat;
+                    pSprite->yrepeat = forceRepeat;
+                    pSprite->shade   = (forceRepeat >> 1) - 48;
 
                     for (int j = pData[0]; j > 0; j--)
                         A_SetSprite(spriteNum, CLIPMASK0);
@@ -5312,7 +5312,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 A_SetSprite(spriteNum, CLIPMASK0);
 
                 if ((krand()&3) == 0)
-                    setsprite(spriteNum, (vec3_t *) pSprite);
+                    setsprite(spriteNum, &pSprite->pos);
 
                 if (pSprite->sectnum == -1)
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
@@ -5361,7 +5361,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 
                 if (pSprite->zvel > 1024 && pSprite->zvel < 1280)
                 {
-                    setsprite(spriteNum, (vec3_t *) pSprite);
+                    setsprite(spriteNum, &pSprite->pos);
                     sectNum = pSprite->sectnum;
                 }
 
@@ -5576,7 +5576,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     pSprite->xrepeat >>= 1;
                     pSprite->yrepeat >>= 1;
                     if (rnd(96))
-                        setsprite(spriteNum,(vec3_t *)pSprite);
+                        setsprite(spriteNum,&pSprite->pos);
                     pData[0]++;//Number of bounces
                 }
                 else if (pData[0] == 3)
@@ -5604,7 +5604,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 
             if (pSprite->zvel > 1024 && pSprite->zvel < 1280)
             {
-                setsprite(spriteNum,(vec3_t *)pSprite);
+                setsprite(spriteNum,&pSprite->pos);
                 sectNum = pSprite->sectnum;
             }
 
@@ -5632,7 +5632,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 {
                     int32_t j = A_Spawn(spriteNum, pSprite->yvel);
 
-                    setsprite(j,(vec3_t *)pSprite);
+                    setsprite(j,&pSprite->pos);
                     A_GetZLimits(j);
                     sprite[j].hitag = sprite[j].lotag = 0;
                 }
@@ -5717,10 +5717,10 @@ static void MaybeTrainKillPlayer(const spritetype *pSprite, int const setOPos)
 
             if (pPlayer->cursectnum != pSprite->sectnum && (playerSectnum == -1 || playerSectnum == pSprite->sectnum))
             {
-                *(vec2_t *)pPlayer = *(vec2_t const *)pSprite;
+                pPlayer->pos_as_vec2 = pSprite->pos_as_vec2;
 
                 if (setOPos)
-                    *(vec2_t *)&pPlayer->opos = *(vec2_t *)pPlayer;
+                    pPlayer->opos_as_vec2 = pPlayer->pos_as_vec2;
 
                 pPlayer->cursectnum = pSprite->sectnum;
 
@@ -5897,15 +5897,15 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         pPlayer->pos.z += zchange;
 
                         vec2_t r;
-                        rotatepoint(*(vec2_t *)&sprite[j],*(vec2_t *)&pPlayer->pos,(q*l),&r);
+                        rotatepoint(sprite[j].pos_as_vec2,pPlayer->pos_as_vec2,(q*l),&r);
 
                         pPlayer->bobpos.x += r.x-pPlayer->pos.x;
                         pPlayer->bobpos.y += r.y-pPlayer->pos.y;
 
-                        *(vec2_t *)&pPlayer->pos = r;
+                        pPlayer->pos_as_vec2 = r;
 
                         if (sprite[pPlayer->i].extra <= 0)
-                            *(vec2_t *)&sprite[pPlayer->i] = r;
+                            sprite[pPlayer->i].pos_as_vec2 = r;
                     }
                 }
 
@@ -5928,7 +5928,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             actor[p].bpos.y = sprite[p].y;
 
                             if (move_rotfixed_sprite(p, j, pData[2]))
-                                rotatepoint(*(vec2_t *)&sprite[j], *(vec2_t *)&sprite[p], (q * l), (vec2_t *)&sprite[p].x);
+                                rotatepoint(sprite[j].pos_as_vec2, sprite[p].pos_as_vec2, (q * l), &sprite[p].pos_as_vec2);
                         }
                 }
 
@@ -6104,7 +6104,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 #endif
                             )
                         {
-                            rotatepoint(*(vec2_t *)pSprite, *(vec2_t *)&pPlayer->pos, q, (vec2_t *)&pPlayer->pos);
+                            rotatepoint(pSprite->pos_as_vec2, pPlayer->pos_as_vec2, q, &pPlayer->pos_as_vec2);
 
                             pPlayer->pos.x += m;
                             pPlayer->pos.y += x;
@@ -6147,7 +6147,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         }
 
                         if (move_rotfixed_sprite(j, pSprite-sprite, pData[2]))
-                            rotatepoint(*(vec2_t *)pSprite,*(vec2_t *)&sprite[j],q,(vec2_t *)&sprite[j].x);
+                            rotatepoint(pSprite->pos_as_vec2, sprite[j].pos_as_vec2, q, &sprite[j].pos_as_vec2);
 
                         sprite[j].x+= m;
                         sprite[j].y+= x;
@@ -6174,7 +6174,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 A_MoveSector(spriteNum);
-                setsprite(spriteNum,(vec3_t *)pSprite);
+                setsprite(spriteNum,&pSprite->pos);
 
                 if ((pSector->floorz-pSector->ceilingz) < (108<<8))
                 {
@@ -6313,7 +6313,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 A_MoveSector(spriteNum);
-                setsprite(spriteNum,(vec3_t *)pSprite);
+                setsprite(spriteNum,&pSprite->pos);
 
                 if (pSector->floorz-pSector->ceilingz < (108<<8))
                 {
@@ -6388,7 +6388,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 A_MoveSector(spriteNum);
-                setsprite(spriteNum,(vec3_t *)pSprite);
+                setsprite(spriteNum,&pSprite->pos);
             }
             break;
 
@@ -6568,7 +6568,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             sector[pData[0]].ceilingz += pSprite->zvel;
 
             A_MoveSector(spriteNum);
-            setsprite(spriteNum, (vec3_t *)pSprite);
+            setsprite(spriteNum, &pSprite->pos);
             break;
         }
 
@@ -6694,7 +6694,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             (pSprite->sectnum == sprite[k].sectnum ||
                              sectoradjacent(pSprite->sectnum, sprite[k].sectnum)) &&
                             A_CheckEnemySprite(&sprite[k]) &&
-                            clipinsidebox((vec2_t *)&sprite[k], j, 256) == 1)
+                            clipinsidebox(&sprite[k].pos_as_vec2, j, 256) == 1)
                             goto next_sprite;
                     }
                 }
@@ -6703,19 +6703,19 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 pData[2] += l;
                 pData[4] += l;
                 A_MoveSector(spriteNum);
-                setsprite(spriteNum, (vec3_t *)pSprite);
+                setsprite(spriteNum, &pSprite->pos);
 
                 for (j=pSector->wallptr; j<endWall; j++)
                 {
                     for (SPRITES_OF(STAT_PLAYER, k))
                     {
-                        if (sprite[k].owner >= 0 && clipinsidebox((vec2_t *)&sprite[k], j, pPlayer->clipdist))
+                        if (sprite[k].owner >= 0 && clipinsidebox(&sprite[k].pos_as_vec2, j, pPlayer->clipdist))
                         {
                             pData[5] = 8;  // Delay
                             pData[2] -= l;
                             pData[4] -= l;
                             A_MoveSector(spriteNum);
-                            setsprite(spriteNum, (vec3_t *)pSprite);
+                            setsprite(spriteNum, &pSprite->pos);
                             goto next_sprite;
                         }
                     }
@@ -6726,7 +6726,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     pData[4] = 0;
                     pData[2] &= 0xffffff00;
                     A_MoveSector(spriteNum);
-                    setsprite(spriteNum, (vec3_t *) pSprite);
+                    setsprite(spriteNum, &pSprite->pos);
                     break;
                 }
             }
@@ -6913,7 +6913,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 A_MoveSector(spriteNum);
-                setsprite(spriteNum,(vec3_t *)pSprite);
+                setsprite(spriteNum,&pSprite->pos);
             }
             break;
 
@@ -6947,7 +6947,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                                 : pSector->ceilingz - 512;
 
             A_MoveSector(spriteNum);
-            setsprite(spriteNum,(vec3_t *)pSprite);
+            setsprite(spriteNum,&pSprite->pos);
 
             break;
 
@@ -7030,13 +7030,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         pPlayer->pos.z = sector[sprite[j].sectnum].floorz - (pSector->floorz - pPlayer->pos.z);
                         pPlayer->opos.z += pPlayer->pos.z;
 
-                        actor[k].floorz             = sector[sprite[j].sectnum].floorz;
-                        actor[k].ceilingz           = sector[sprite[j].sectnum].ceilingz;
-                        *(vec2_t *)&pPlayer->opos   = *(vec2_t *)pPlayer;
-                        *(vec2_t *)&pPlayer->bobpos = *(vec2_t *)pPlayer;
-                        pPlayer->truefz             = actor[k].floorz;
-                        pPlayer->truecz             = actor[k].ceilingz;
-                        pPlayer->bobcounter         = 0;
+                        actor[k].floorz     = sector[sprite[j].sectnum].floorz;
+                        actor[k].ceilingz   = sector[sprite[j].sectnum].ceilingz;
+                        pPlayer->opos_as_vec2         = pPlayer->pos_as_vec2;
+                        pPlayer->bobpos     = pPlayer->pos_as_vec2;
+                        pPlayer->truefz     = actor[k].floorz;
+                        pPlayer->truecz     = actor[k].ceilingz;
+                        pPlayer->bobcounter = 0;
 
                         changespritesect(k, sprite[j].sectnum);
                         pPlayer->cursectnum = sprite[j].sectnum;
@@ -7553,7 +7553,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
 
             A_MoveSector(spriteNum);
-            setsprite(spriteNum,(vec3_t *)pSprite);
+            setsprite(spriteNum,&pSprite->pos);
 
             break;
         }

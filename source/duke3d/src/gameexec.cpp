@@ -388,7 +388,7 @@ void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const 
     pSprite->cstat = 0;
     pSprite->z -= ZOFFSET;
 
-    getzrange((vec3_t *)pSprite, pSprite->sectnum, &actor[spriteNum].ceilingz, ceilhit, &actor[spriteNum].floorz, florhit, wallDist, CLIPMASK0);
+    getzrange(&pSprite->pos, pSprite->sectnum, &actor[spriteNum].ceilingz, ceilhit, &actor[spriteNum].floorz, florhit, wallDist, CLIPMASK0);
 
     pSprite->z += ZOFFSET;
     pSprite->cstat = ocstat;
@@ -464,7 +464,7 @@ void A_Fall(int const spriteNum)
 
 #ifdef YAX_ENABLE
     if (fbunch >= 0)
-        setspritez(spriteNum, (vec3_t *)pSprite);
+        setspritez(spriteNum, &pSprite->pos);
     else
 #endif
         if (pSprite->z >= actor[spriteNum].floorz-ZOFFSET)
@@ -599,7 +599,7 @@ static inline void VM_FacePlayer(int const shift)
 
 static int32_t VM_GetCeilZOfSlope(void)
 {
-    vec2_t const vect     = *(vec2_t *)vm.pSprite;
+    vec2_t const vect     = vm.pSprite->pos_as_vec2;
     int const    sectnum  = vm.pSprite->sectnum;
 
 #ifdef YAX_ENABLE
@@ -616,7 +616,7 @@ static int32_t VM_GetCeilZOfSlope(void)
 #ifndef EDUKE32_STANDALONE
 static int32_t VM_GetFlorZOfSlope(void)
 {
-    vec2_t const vect    = *(vec2_t *)vm.pSprite;
+    vec2_t const vect    = vm.pSprite->pos_as_vec2;
     int const    sectnum = vm.pSprite->sectnum;
 
 #ifdef YAX_ENABLE
@@ -1011,7 +1011,7 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
 
 #ifdef YAX_ENABLE
         if (yax_getbunch(pSprite->sectnum, YAX_FLOOR) >= 0 && (sector[pSprite->sectnum].floorstat & 512) == 0)
-            setspritez(spriteNum, (vec3_t *)pSprite);
+            setspritez(spriteNum, &pSprite->pos);
         else
 #endif
             if (newZ > actor[spriteNum].floorz - ZOFFSET)
@@ -1046,7 +1046,7 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
         {
             int16_t newsect = pSprite->sectnum;
 
-            pushmove((vec3_t *)pSprite, &newsect, 128, 4<<8, 4<<8, CLIPMASK0);
+            pushmove(&pSprite->pos, &newsect, 128, 4<<8, 4<<8, CLIPMASK0);
             if ((unsigned)newsect < MAXSECTORS)
                 changespritesect(spriteNum, newsect);
 

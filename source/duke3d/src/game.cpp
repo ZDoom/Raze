@@ -1673,7 +1673,7 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->xvel = 128;
             changespritestat(newSprite, STAT_MISC);
             A_SetSprite(newSprite,CLIPMASK0);
-            setsprite(newSprite,(vec3_t *)pSprite);
+            setsprite(newSprite,&pSprite->pos);
             break;
         case FEMMAG1__STATIC:
         case FEMMAG2__STATIC:
@@ -1880,7 +1880,7 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->z = sector[sectNum].ceilingz+(48<<8);
             T5(newSprite) = tempwallptr;
 
-            g_origins[tempwallptr] = *(vec2_t *) pSprite;
+            g_origins[tempwallptr] = pSprite->pos_as_vec2;
             g_origins[tempwallptr+2].x = pSprite->z;
 
 
@@ -1899,9 +1899,9 @@ int A_Spawn(int spriteNum, int tileNum)
                         sprite[findSprite].xrepeat = 48;
                         sprite[findSprite].yrepeat = 128;
 
-                        g_origins[tempwallptr + 1]     = *(vec2_t *) &sprite[findSprite];
-                        *(vec3_t *) &sprite[findSprite] = *(vec3_t *) pSprite;
-                        sprite[findSprite].shade       = pSprite->shade;
+                        g_origins[tempwallptr + 1] = sprite[findSprite].pos_as_vec2;
+                        sprite[findSprite].pos     = pSprite->pos;
+                        sprite[findSprite].shade   = pSprite->shade;
 
                         setsprite(findSprite, (vec3_t *) &sprite[findSprite]);
                         break;
@@ -6893,7 +6893,7 @@ int G_DoMoveThings(void)
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
-        hitscan((vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047],
+        hitscan(&pPlayer->pos, pPlayer->cursectnum, sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047],
                 sintable[fix16_to_int(pPlayer->q16ang) & 2047], fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) << 11, &hitData,
                 0xffff0030);
 

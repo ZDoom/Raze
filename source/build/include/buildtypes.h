@@ -76,7 +76,7 @@ typedef struct
         {
             StructTracker(Wall, int32_t) x, y;
         };
-        vec2_t p;
+        vec2_t pos;
     };
     StructTracker(Wall, int16_t) point2, nextwall, nextsector;
     StructTracker(Wall, uint16_t) cstat;
@@ -168,8 +168,8 @@ typedef struct
         {
             StructTracker(Sprite, int32_t) x, y, z;
         };
-        vec3_t v;
-        vec2_t p;
+        vec3_t pos;
+        vec2_t pos_as_vec2;
     };
     StructTracker(Sprite, uint16_t) cstat;
     StructTracker(Sprite, int16_t) picnum;
@@ -231,7 +231,7 @@ typedef struct
         {
             StructTracker(Wall, int32_t) x, y;
         };
-        vec2_t const p;
+        vec2_t pos;
     };
     StructTracker(Wall, int16_t) point2, nextwall, nextsector;
     StructTracker(Wall, int16_t) upwall, dnwall;

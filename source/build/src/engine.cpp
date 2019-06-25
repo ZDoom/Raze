@@ -198,8 +198,8 @@ int32_t bloodhack = 0;
 // adapted from build.c
 static void getclosestpointonwall_internal(vec2_t const &p, int32_t const dawall, vec2_t *const closest)
 {
-    vec2_t const w  = *(vec2_t *)&wall[dawall];
-    vec2_t const w2 = *(vec2_t *)&wall[wall[dawall].point2];
+    vec2_t const w  = wall[dawall].pos;
+    vec2_t const w2 = wall[wall[dawall].point2].pos;
     vec2_t const d  = { w2.x - w.x, w2.y - w.y };
 
     int64_t i = d.x * ((int64_t)p.x - w.x) + d.y * ((int64_t)p.y - w.y);
@@ -2059,10 +2059,10 @@ do_mvlineasm1:
 //
 int32_t wallfront(int32_t l1, int32_t l2)
 {
-    vec2_t const l1vect   = *(vec2_t *)&wall[thewall[l1]];
-    vec2_t const l1p2vect = *(vec2_t *)&wall[wall[thewall[l1]].point2];
-    vec2_t const l2vect   = *(vec2_t *)&wall[thewall[l2]];
-    vec2_t const l2p2vect = *(vec2_t *)&wall[wall[thewall[l2]].point2];
+    vec2_t const l1vect   = wall[thewall[l1]].pos;
+    vec2_t const l1p2vect = wall[wall[thewall[l1]].point2].pos;
+    vec2_t const l2vect   = wall[thewall[l2]].pos;
+    vec2_t const l2p2vect = wall[wall[thewall[l2]].point2].pos;
     vec2_t d = { l1p2vect.x - l1vect.x, l1p2vect.y - l1vect.y };
     int32_t t1 = dmulscale2(l2vect.x-l1vect.x, d.y, -d.x, l2vect.y-l1vect.y); //p1(l2) vs. l1
     int32_t t2 = dmulscale2(l2p2vect.x-l1vect.x, d.y, -d.x, l2p2vect.y-l1vect.y); //p2(l2) vs. l1

@@ -1588,15 +1588,16 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
 
     if (pPlayer != NULL)
     {
-        startPos            = *(vec3_t *)pPlayer;
-        startPos.z          += pPlayer->pyoff + ZOFFSET6;
-        shootAng          = fix16_to_int(pPlayer->q16ang);
+        startPos = pPlayer->pos;
+        startPos.z += pPlayer->pyoff + ZOFFSET6;
+        shootAng = fix16_to_int(pPlayer->q16ang);
+
         pPlayer->crack_time = PCRACKTIME;
     }
     else
     {
         shootAng = pSprite->ang;
-        startPos   = *(vec3_t *)pSprite;
+        startPos = pSprite->pos;
         startPos.z -= (((pSprite->yrepeat * tilesiz[pSprite->picnum].y)<<1) - ZOFFSET6);
 
         if (pSprite->picnum != ROTATEGUN)
@@ -4447,8 +4448,8 @@ static void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *
 void P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer)
 {
     int const newOwner      = pPlayer->newowner;
-    pPlayer->pos            = *(vec3_t *)&sprite[newOwner];
-    pPlayer->q16ang           = fix16_from_int(SA(newOwner));
+    pPlayer->pos            = sprite[newOwner].pos;
+    pPlayer->q16ang         = fix16_from_int(SA(newOwner));
     pPlayer->vel.x          = 0;
     pPlayer->vel.y          = 0;
     sprite[pPlayer->i].xvel = 0;
@@ -4597,7 +4598,7 @@ static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ,
             pSprite->zvel = -348;
         }
 
-        clipmove((vec3_t *) pPlayer, &pPlayer->cursectnum,
+        clipmove(&pPlayer->pos, &pPlayer->cursectnum,
             0, 0, pPlayer->clipdist, (4L<<8), (4L<<8), CLIPMASK0);
         //                        p->bobcounter += 32;
     }
@@ -4611,7 +4612,7 @@ static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ,
 
     updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
 
-    pushmove((vec3_t *) pPlayer, &pPlayer->cursectnum, 128L, (4L<<8), (20L<<8), CLIPMASK0);
+    pushmove(&pPlayer->pos, &pPlayer->cursectnum, 128L, (4L<<8), (20L<<8), CLIPMASK0);
 
     if (floorZ > ceilZ + ZOFFSET2 && pSprite->pal != 1)
         pPlayer->rotscrnang = (pPlayer->dead_flag + ((floorZ+pPlayer->pos.z)>>7))&2047;
@@ -4702,11 +4703,11 @@ void P_ProcessInput(int playerNum)
     }
 
     pPlayer->pos.z += stepHeight;
-    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - 16, CLIPMASK0);
+    getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - 16, CLIPMASK0);
     pPlayer->pos.z -= stepHeight;
 
     int32_t ceilZ2 = ceilZ;
-    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - 16, CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
+    getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - 16, CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
 
     if ((highZhit & 49152) == 49152 && (sprite[highZhit & (MAXSPRITES - 1)].cstat & CSTAT_SPRITE_BLOCK) != CSTAT_SPRITE_BLOCK)
         ceilZ = ceilZ2;
@@ -5143,7 +5144,7 @@ void P_ProcessInput(int playerNum)
                 pPlayer->jumping_toggle--;
             else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle == 0)
             {
-                getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &dummy, &dummy, &dummy, pPlayer->clipdist - 16, CLIPMASK0);
+                getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &dummy, &dummy, &dummy, pPlayer->clipdist - 16, CLIPMASK0);
 
                 if ((floorZ-ceilZ) > (48<<8))
                 {
@@ -5378,9 +5379,9 @@ HORIZONLY:;
 
         P_ClampZ(pPlayer, sectorLotag, ceilZ, floorZ);
 
-        int const touchObject = IONMAIDEN ? clipmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
+        int const touchObject = IONMAIDEN ? clipmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
                                                    pPlayer->vel.y + (pPlayer->fric.y << 9), pPlayer->clipdist, (4L << 8), stepHeight, CLIPMASK0)
-                                        : clipmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->vel.x, pPlayer->vel.y, pPlayer->clipdist,
+                                        : clipmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->vel.x, pPlayer->vel.y, pPlayer->clipdist,
                                                    (4L << 8), stepHeight, CLIPMASK0);
 
         if (touchObject)
@@ -5443,7 +5444,7 @@ HORIZONLY:;
 
     if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
     {
-        int const  pushResult    = pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L << 8), (4L << 8), CLIPMASK0);
+        int const  pushResult    = pushmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L << 8), (4L << 8), CLIPMASK0);
         int const  furthestAngle = A_GetFurthestAngle(pPlayer->i, 32);
         int const  angleDelta    = G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), furthestAngle);
         bool const squishPlayer  = pushResult < 0 && !angleDelta;

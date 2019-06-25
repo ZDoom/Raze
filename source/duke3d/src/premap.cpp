@@ -646,7 +646,7 @@ void P_MoveToRandomSpawnPoint(int playerNum)
 
     p.opos = p.pos = g_playerSpawnPoints[i].pos;
 
-    p.bobpos     = *(vec2_t *)&p.pos;
+    p.bobpos     = p.pos_as_vec2;
     p.cursectnum = g_playerSpawnPoints[i].sect;
     p.q16ang     = fix16_from_int(g_playerSpawnPoints[i].ang);
 
@@ -677,7 +677,7 @@ void P_ResetMultiPlayer(int playerNum)
     P_MoveToRandomSpawnPoint(playerNum);
 
     a.bpos = p.opos = p.pos;
-    p.bobpos = *(vec2_t *)&p.pos;
+    p.bobpos = p.pos_as_vec2;
 
     *(vec3_t *)&s = p.pos;
 
@@ -1480,7 +1480,7 @@ static void G_CollectSpawnPoints(int gameMode)
         auto &s     = sprite[i];
         auto &spawn = g_playerSpawnPoints[g_playerSpawnCnt];
 
-        spawn.pos  = *(vec3_t *)&s.x;
+        spawn.pos  = s.pos;
         spawn.ang  = s.ang;
         spawn.sect = s.sectnum;
 
@@ -1555,8 +1555,8 @@ static void G_CollectSpawnPoints(int gameMode)
         p.frag_ps = pindex;
 
         actor[i].owner = p.i = i;
-        actor[i].bpos = p.opos = p.pos = *(vec3_t *)&s.x;
-        p.bobpos                       = *(vec2_t *)&s.x;
+        actor[i].bpos = p.opos = p.pos = s.pos;
+        p.bobpos = s.pos_as_vec2;
 
         p.oq16ang = p.q16ang = fix16_from_int(s.ang);
 

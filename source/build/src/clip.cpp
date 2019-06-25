@@ -733,7 +733,7 @@ int32_t clipsprite_initindex(int32_t curidx, uspriteptr_t const curspr, int32_t 
             {
                 wal->x *= flipx;
                 wal->y *= flipy;
-                rotatepoint(zerovec, *(vec2_t *) wal, rotang, (vec2_t *) wal);
+                rotatepoint(zerovec, wal->pos, rotang, &wal->pos);
             }
 
             wal->x += curspr->x;
@@ -1640,8 +1640,8 @@ restart_grand:
 
             if (k >= 0)
             {
-                vec2_t const v1 = *(vec2_t *)&wall[j];
-                vec2_t const v2 = *(vec2_t *)&wall[wall[j].point2];
+                vec2_t const v1 = wall[j].pos;
+                vec2_t const v2 = wall[wall[j].point2].pos;
 
                 if ((v1.x < xmin && (v2.x < xmin)) || (v1.x > xmax && v2.x > xmax) ||
                     (v1.y < ymin && (v2.y < ymin)) || (v1.y > ymax && v2.y > ymax))
@@ -1764,7 +1764,7 @@ restart_grand:
                 if (clipsprite_try((uspriteptr_t)&sprite[j], xmin,ymin, xmax,ymax))
                     continue;
 #endif
-                vec2_t v1 = *(vec2_t *)&sprite[j];
+                vec2_t v1 = sprite[j].pos_as_vec2;
 
                 switch (cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
