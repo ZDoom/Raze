@@ -25,6 +25,14 @@
     #include <stdio.h>
 #endif
 
+#if defined(__x86_64__) || defined(_M_X64)
+    #define LIBDIVIDE_X86_64
+#endif
+
+#if defined LIBDIVIDE_X86_64 || defined __SSE2__ || (defined _M_IX86_FP && _M_IX86_FP == 2)
+    #define LIBDIVIDE_SSE2 1
+#endif
+
 #if defined(LIBDIVIDE_AVX512)
     #include <immintrin.h>
 #elif defined(LIBDIVIDE_AVX2)
@@ -54,10 +62,6 @@
 #endif
 #endif
 
-#if defined(__x86_64__) || defined(_M_X64)
-    #define LIBDIVIDE_X86_64
-#endif
-
 #if defined(__i386__)
     #define LIBDIVIDE_i386
 #endif
@@ -72,12 +76,16 @@
     #define LIBDIVIDE_FUNCTION __func__
 #endif
 
-#define LIBDIVIDE_ERROR(msg) \
-    do { \
-        fprintf(stderr, "libdivide.h:%d: %s(): Error: %s\n", \
-            __LINE__, LIBDIVIDE_FUNCTION, msg); \
-        exit(-1); \
-    } while (0)
+#if 0
+    #define LIBDIVIDE_ERROR(msg) \
+        do { \
+            fprintf(stderr, "libdivide.h:%d: %s(): Error: %s\n", \
+                __LINE__, LIBDIVIDE_FUNCTION, msg); \
+            exit(-1); \
+        } while (0)
+#else
+    #define LIBDIVIDE_ERROR(msg)
+#endif
 
 #if defined(LIBDIVIDE_ASSERTIONS_ON)
     #define LIBDIVIDE_ASSERT(x) \
@@ -372,7 +380,7 @@ static uint64_t libdivide_128_div_64_to_64(uint64_t u1, uint64_t u0, uint64_t v,
 
     // If overflow, set rem. to an impossible value,
     // and return the largest possible quotient
-    if (u1 >= v) {
+    if (EDUKE32_PREDICT_FALSE(u1 >= v)) {
         *r = (uint64_t) -1;
         return (uint64_t) -1;
     }
