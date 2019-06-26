@@ -6527,7 +6527,8 @@ bool actCanSplatWall(int nWall)
         return 0;
     if (pWall->cstat & 32768)
         return 0;
-    if (pWall->lotag >= 500 && pWall->lotag < 512)
+    int nType = GetWallType(nWall);
+    if (nType >= 500 && nType < 512)
         return 0;
     if (pWall->nextsector != -1)
     {

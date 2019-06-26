@@ -99,7 +99,7 @@ void InitMirrors(void)
         int nTile = 4080+mirrorcnt;
         if (wall[i].overpicnum == 504)
         {
-            if (wall[i].extra > 0 && wall[i].lotag == 501)
+            if (wall[i].extra > 0 && GetWallType(i) == 501)
             {
                 wall[i].overpicnum = nTile;
                 mirror[mirrorcnt].at14 = i;
@@ -111,7 +111,7 @@ void InitMirrors(void)
                 {
                     if (j == i)
                         continue;
-                    if (wall[j].extra > 0 && wall[j].lotag == 501)
+                    if (wall[j].extra > 0 && GetWallType(i) == 501)
                     {
                         if (tmp != xwall[wall[j].extra].data)
                             continue;
@@ -374,7 +374,7 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz)
                 sector[mirrorsector].floorz = sector[nSector].floorz;
                 sector[mirrorsector].ceilingz = sector[nSector].ceilingz;
                 int cx, cy, ca;
-                if (pWall->lotag == 501)
+                if (GetWallType(nWall) == 501)
                 {
                      cx = x - (wall[pWall->hitag].x-wall[pWall->point2].x);
                      cy = y - (wall[pWall->hitag].y-wall[pWall->point2].y);
@@ -387,7 +387,7 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz)
                 renderDrawRoomsQ16(cx, cy, z, ca,horiz,mirrorsector|MAXSECTORS);
                 viewProcessSprites(cx,cy,z);
                 renderDrawMasks();
-                if (pWall->lotag != 501)
+                if (GetWallType(nWall) != 501)
                     renderCompleteMirror();
                 if (wall[nWall].pal != 0 || wall[nWall].shade != 0)
                     TranslateMirrorColors(wall[nWall].shade, wall[nWall].pal);

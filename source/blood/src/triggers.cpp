@@ -1191,7 +1191,7 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT a3)
         pXWall->locked ^= 1;
         return;
     }
-    if (pWall->lotag == 511)
+    if (GetWallType(nWall) == 511)
     {
         char bStatus;
         switch (a3.cmd)
