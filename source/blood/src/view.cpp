@@ -598,7 +598,7 @@ void fakeMoveDude(spritetype *pSprite)
         {
             short bakCstat = pSprite->cstat;
             pSprite->cstat &= ~257;
-            predict.at75.hit = ClipMove(&predict.at50, &predict.at54, &predict.at58, &nSector, predict.at5c >> 12, predict.at60 >> 12, wd, tz, bz, 0x13001);
+            predict.at75.hit = ClipMove(&predict.at50, &predict.at54, &predict.at58, &nSector, predict.at5c >> 12, predict.at60 >> 12, wd, tz, bz, CLIPMASK0);
             if (nSector == -1)
                 nSector = predict.at68;
                     
@@ -708,7 +708,7 @@ void fakeMoveDude(spritetype *pSprite)
     {
         int floorZ2 = floorZ;
         int floorHit2 = floorHit;
-        GetZRange(pTempSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, 0x13001);
+        GetZRange(pTempSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0);
         if (bottom <= floorZ && predict.at58-floorZ2 < bz)
         {
             floorZ = floorZ2;

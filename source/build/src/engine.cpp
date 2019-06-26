@@ -359,8 +359,6 @@ static FORCE_INLINE int32_t yax_islockededge(int32_t line, int32_t cf)
 //// bunch getters/setters
 int16_t yax_getbunch(int16_t i, int16_t cf)
 {
-    if (bloodhack)
-        return -1;
     if (editstatus==0)
         return yax_bunchnum[i][cf];
 
@@ -437,8 +435,6 @@ void yax_setbunches(int16_t i, int16_t cb, int16_t fb)
 //// nextwall getters/setters
 int16_t yax_getnextwall(int16_t wal, int16_t cf)
 {
-    if (bloodhack)
-        return -1;
     if (editstatus==0)
         return yax_nextwall[wal][cf];
 
@@ -8464,28 +8460,25 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
         dmost[0] = shortptr2[0]-windowxy1.y;
     }
 
-    if (!bloodhack)
+    for (int i = 0; i < numwalls; ++i)
     {
-        for (int i = 0; i < numwalls; ++i)
+        if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
         {
-            if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
+            auto &w    = wall[i];
+            auto &tile = rottile[w.picnum+animateoffs(w.picnum,16384)];
+
+            if (tile.newtile == -1 && tile.owner == -1)
             {
-                auto &w    = wall[i];
-                auto &tile = rottile[w.picnum+animateoffs(w.picnum,16384)];
+                tile.newtile = findUnusedTile();
+                Bassert(tile.newtile != -1);
 
-                if (tile.newtile == -1 && tile.owner == -1)
-                {
-                    tile.newtile = findUnusedTile();
-                    Bassert(tile.newtile != -1);
+                rottile[tile.newtile].owner = w.picnum+animateoffs(w.picnum,16384);
 
-                    rottile[tile.newtile].owner = w.picnum+animateoffs(w.picnum,16384);
+                auto &siz  = tilesiz[w.picnum+animateoffs(w.picnum,16384)];
+                tileSetSize(tile.newtile, siz.x, siz.y);
 
-                    auto &siz  = tilesiz[w.picnum+animateoffs(w.picnum,16384)];
-                    tileSetSize(tile.newtile, siz.x, siz.y);
-
-                    tileLoad(tile.newtile);
-                    // Bassert(waloff[tile.newtile]);
-                }
+                tileLoad(tile.newtile);
+                // Bassert(waloff[tile.newtile]);
             }
         }
     }

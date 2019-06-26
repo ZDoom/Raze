@@ -4654,7 +4654,7 @@ void MoveDude(spritetype *pSprite)
         {
             short bakCstat = pSprite->cstat;
             pSprite->cstat &= ~257;
-            gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite]>>12, yvel[nSprite]>>12, wd, tz, bz, 0x13001);
+            gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite]>>12, yvel[nSprite]>>12, wd, tz, bz, CLIPMASK0);
             if (nSector == -1)
             {
                 nSector = pSprite->sectnum;
@@ -4776,7 +4776,7 @@ void MoveDude(spritetype *pSprite)
     if (zvel[nSprite])
         pSprite->z += zvel[nSprite]>>8;
     int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, 0x13001);
+    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0);
     GetSpriteExtents(pSprite, &top, &bottom);
     if (pSprite->hitag & 2)
     {
@@ -4819,7 +4819,7 @@ void MoveDude(spritetype *pSprite)
     int nLink = CheckLink(pSprite);
     if (nLink)
     {
-        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, 0x13001);
+        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0);
         if (pPlayer)
             playerResetInertia(pPlayer);
         switch (nLink)
@@ -5027,7 +5027,7 @@ void MoveDude(spritetype *pSprite)
     {
         int floorZ2 = floorZ;
         int floorHit2 = floorHit;
-        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, 0x13001);
+        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0);
         if (bottom <= floorZ && pSprite->z - floorZ2 < bz)
         {
             floorZ = floorZ2;
