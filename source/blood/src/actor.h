@@ -165,10 +165,6 @@ struct VECTORDATA {
     int fireSound[2]; // By NoOne: predefined fire sounds. used by kGDXCustomDude, but can be used for something else.
 };
 
-struct SPRITEHIT {
-    int hit, ceilhit, florhit;
-};
-
 extern AMMOITEMDATA gAmmoItemData[];
 extern WEAPONITEMDATA gWeaponItemData[];
 extern ITEMDATA gItemData[];
@@ -176,8 +172,6 @@ extern MissileType missileInfo[];
 extern EXPLOSION explodeInfo[];
 extern THINGINFO thingInfo[];
 extern VECTORDATA gVectorData[];
-
-extern SPRITEHIT gSpriteHit[];
 
 extern int gDudeDrag;
 extern short gAffectedSectors[kMaxSectors];

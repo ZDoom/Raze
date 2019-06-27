@@ -50,6 +50,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
 char *g_grpNamePtr = NULL;
 
+void clearGrpNamePtr(void)
+{
+    Bfree(g_grpNamePtr);
+    // g_grpNamePtr assumed to be assigned to right after
+}
+
 const char *G_DefaultGrpFile(void)
 {
     return "nblood.pk3";
@@ -68,6 +74,25 @@ const char *G_GrpFile(void)
 const char *G_DefFile(void)
 {
     return (g_defNamePtr == NULL) ? G_DefaultDefFile() : g_defNamePtr;
+}
+
+void G_SetupGlobalPsky(void)
+{
+    int skyIdx = 0;
+
+    // NOTE: Loop must be running backwards for the same behavior as the game
+    // (greatest sector index with matching parallaxed sky takes precedence).
+    for (bssize_t i = numsectors - 1; i >= 0; i--)
+    {
+        if (sector[i].ceilingstat & 1)
+        {
+            skyIdx = getpskyidx(sector[i].ceilingpicnum);
+            if (skyIdx > 0)
+                break;
+        }
+    }
+
+    g_pskyidx = skyIdx;
 }
 
 static char g_rootDir[BMAX_PATH];

@@ -81,11 +81,8 @@ const char* AppTechnicalName = APPBASENAME;
 
 char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
 
-ud_setup_t gSetup;
 char SetupFilename[BMAX_PATH] = SETUPFILENAME;
 int32_t gNoSetup = 0, gCommandSetup = 0;
-
-Resource gSysRes, gGuiRes;
 
 INPUT_MODE gInputMode;
 
@@ -96,8 +93,6 @@ char bAddUserMap = false;
 bool bNoDemo = false;
 bool bQuickStart = true;
 bool bNoAutoLoad = false;
-
-bool bVanilla = false;
 
 int gMusicPrevLoadedEpisode = -1;
 int gMusicPrevLoadedLevel = -1;
@@ -117,6 +112,13 @@ int gChokeCounter = 0;
 
 double g_gameUpdateTime, g_gameUpdateAndDrawTime;
 double g_gameUpdateAvgTime = 0.001;
+
+int gSaveGameNum;
+bool gQuitGame;
+int gQuitRequest;
+bool gPaused;
+bool gSaveGameActive;
+int gCacheMiss;
 
 enum gametokens
 {

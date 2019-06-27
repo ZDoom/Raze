@@ -23,24 +23,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 
 #include "compat.h"
-#include "blood.h"
+#include "common_game.h"
+#include "globals.h"
+#include "resource.h"
 
+
+ud_setup_t gSetup;
+bool bVanilla = false;
 int gFrameClock;
 int gFrameTicks;
 int gFrame;
 int volatile gGameClock;
 int gFrameRate;
 int gGamma;
-int gSaveGameNum;
-
-bool gQuitGame;
-int gQuitRequest;
-bool gPaused;
-bool gSaveGameActive;
-int gCacheMiss;
 
 char *gVersionString;
 char gVersionStringBuf[16];
+
+Resource gSysRes;
 
 const char *GetVersionString(void)
 {

@@ -246,6 +246,10 @@ struct MAPHEADER2 {
     char pad[52];
 };
 
+struct SPRITEHIT {
+    int hit, ceilhit, florhit;
+};
+
 #pragma pack(pop)
 
 extern unsigned short gStatCount[kMaxStatus + 1];;
@@ -256,6 +260,8 @@ extern MAPHEADER2 byte_19AE44;
 extern XSPRITE xsprite[kMaxXSprites];
 extern XSECTOR xsector[kMaxXSectors];
 extern XWALL xwall[kMaxXWalls];
+
+extern SPRITEHIT gSpriteHit[kMaxXSprites];
 
 extern int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 

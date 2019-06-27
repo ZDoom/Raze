@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fx.h"
 #include "gameutil.h"
 #include "gib.h"
+#include "globals.h"
 #include "levels.h"
 #include "loadsave.h"
 #include "player.h"

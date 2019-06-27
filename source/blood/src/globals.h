@@ -21,21 +21,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
+#include "resource.h"
 
+typedef struct {
+    int32_t usejoystick;
+    int32_t usemouse;
+    int32_t fullscreen;
+    int32_t xdim;
+    int32_t ydim;
+    int32_t bpp;
+    int32_t forcesetup;
+    int32_t noautoload;
+} ud_setup_t;
+
+extern ud_setup_t gSetup;
 extern int gFrameClock;
 extern int gFrameTicks;
 extern int gFrame;
 extern int volatile gGameClock;
 extern int gFrameRate;
 extern int gGamma;
-extern int gSaveGameNum;
+extern bool bVanilla;
 
-
-extern bool gPaused;
-extern bool gSaveGameActive;
-extern bool gSavingGame;
-extern bool gQuitGame;
-extern int gQuitRequest;
-extern int gCacheMiss;
-
+extern Resource gSysRes;
 const char *GetVersionString(void);

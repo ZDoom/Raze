@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "fx_man.h"
 #include "common_game.h"
-#include "blood.h"
+//#include "blood.h"
 #include "config.h"
 #include "db.h"
 #include "player.h"

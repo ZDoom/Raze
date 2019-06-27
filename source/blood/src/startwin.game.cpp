@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //#include "grpscan.h"
 //#include "inv.h"
 #include "blood.h"
+#include "globals.h"
 #include "keyboard.h"
 #include "startwin.game.h"
 #include "windows_inc.h"

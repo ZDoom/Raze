@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "crc32.h"
 
-#include "actor.h"
-#include "blood.h"
+//#include "actor.h"
+#include "globals.h"
 #include "db.h"
 #include "iob.h"
 
@@ -38,6 +38,8 @@ unsigned short gStatCount[kMaxStatus + 1];
 XSPRITE xsprite[kMaxXSprites];
 XSECTOR xsector[kMaxXSectors];
 XWALL xwall[kMaxXWalls];
+
+SPRITEHIT gSpriteHit[kMaxXSprites];
 
 int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 
