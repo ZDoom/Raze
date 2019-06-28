@@ -79,3 +79,5 @@ void LoadExtraArts(void);
 bool DemoRecordStatus(void);
 bool VanillaMode(void);
 bool fileExistsRFF(int id, const char* ext);
+int sndTryPlaySpecialMusic(int nMusic);
+void sndPlaySpecialMusicOrNothing(int nMusic);

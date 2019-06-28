@@ -40,10 +40,21 @@ struct SFX
     char rawName[9];
 };
 
+extern int32_t SoundToggle;
+extern int32_t MusicToggle;
+extern int32_t CDAudioToggle;
+extern int32_t FXVolume;
+extern int32_t MusicVolume;
+extern int32_t CDVolume;
+extern int32_t NumVoices;
+extern int32_t NumChannels;
+extern int32_t NumBits;
+extern int32_t MixRate;
+extern int32_t ReverseStereo;
+extern int32_t MusicDevice;
+
 int sndGetRate(int format);
 int sndPlaySong(const char *songName, bool bLoop);
-int sndTryPlaySpecialMusic(int nMusic);
-void sndPlaySpecialMusicOrNothing(int nMusic);
 bool sndIsSongPlaying(void);
 void sndFadeSong(int nTime);
 void sndSetMusicVolume(int nVolume);

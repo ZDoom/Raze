@@ -82,6 +82,8 @@ short voxelIndex[kMaxTiles];
 
 const char *pzBaseFileName = "TILES%03i.ART"; //"TILES%03i.ART";
 
+int32_t MAXCACHE1DSIZE = (96*1024*1024);
+
 int tileInit(char a1, const char *a2)
 {
     UNREFERENCED_PARAMETER(a1);
@@ -208,8 +210,8 @@ void tilePreloadTile(int nTile)
     }
 }
 
-extern int nPrecacheCount;
-extern char precachehightile[2][(MAXTILES+7)>>3];
+int nPrecacheCount;
+char precachehightile[2][(MAXTILES+7)>>3];
 
 void tilePrecacheTile(int nTile, int nType)
 {

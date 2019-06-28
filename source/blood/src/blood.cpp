@@ -199,8 +199,6 @@ void QuitGame(void)
     exit(0);
 }
 
-int nPrecacheCount;
-
 void PrecacheDude(spritetype *pSprite)
 {
     DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
@@ -379,7 +377,6 @@ void PreloadTiles(void)
     G_HandleAsync();
 }
 
-char precachehightile[2][(MAXTILES+7)>>3];
 #ifdef USE_OPENGL
 void PrecacheExtraTextureMaps(int nTile)
 {
@@ -2398,4 +2395,27 @@ bool VanillaMode() {
 
 bool fileExistsRFF(int id, const char *ext) {
     return gSysRes.Lookup(id, ext);
+}
+
+int sndTryPlaySpecialMusic(int nMusic)
+{
+    int nEpisode = nMusic/kMaxLevels;
+    int nLevel = nMusic%kMaxLevels;
+    if (!sndPlaySong(gEpisodeInfo[nEpisode].at28[nLevel].atd0, true))
+    {
+        strncpy(gGameOptions.zLevelSong, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
+        return 0;
+    }
+    return 1;
+}
+
+void sndPlaySpecialMusicOrNothing(int nMusic)
+{
+    int nEpisode = nMusic/kMaxLevels;
+    int nLevel = nMusic%kMaxLevels;
+    if (sndTryPlaySpecialMusic(nMusic))
+    {
+        sndStopSong();
+        strncpy(gGameOptions.zLevelSong, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
+    }
 }

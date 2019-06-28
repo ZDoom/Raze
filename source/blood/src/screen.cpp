@@ -69,6 +69,7 @@ static int curPalette;
 static int curGamma;
 int gGammaLevels;
 bool gFogMode = false;
+int32_t gBrightness;
 
 void scrResetPalette(void)
 {
