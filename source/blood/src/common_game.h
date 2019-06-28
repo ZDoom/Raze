@@ -45,6 +45,7 @@ extern int g_useCwd;
 void _SetErrorLoc(const char *pzFile, int nLine);
 void _ThrowError(const char *pzFormat, ...);
 void __dassert(const char *pzExpr, const char *pzFile, int nLine);
+void QuitGame(void);
 
 #define ThrowError(...) \
 	{ \
@@ -54,9 +55,9 @@ void __dassert(const char *pzExpr, const char *pzFile, int nLine);
 
 #define dassert(x) if (!(x)) __dassert(#x,__FILE__,__LINE__)
 
-#define kMaxSectors 1024
-#define kMaxWalls 8192
-#define kMaxSprites 4096
+#define kMaxSectors MAXSECTORS
+#define kMaxWalls MAXWALLS
+#define kMaxSprites MAXSPRITES
 
 #define kMaxTiles MAXTILES
 #define kMaxStatus MAXSTATUS
@@ -357,8 +358,6 @@ struct Aim {
 };
 
 #pragma pack(pop)
-
-extern char qsprite_filler[], qsector_filler[];
 
 inline int ksgnf(float f)
 {

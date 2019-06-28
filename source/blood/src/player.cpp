@@ -1775,7 +1775,7 @@ void ProcessInput(PLAYER *pPlayer)
         pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));
     }
     int nSector = pSprite->sectnum;
-    int florhit = gSpriteHit[pSprite->extra].florhit & 0xe000;
+    int florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
     char va;
     if (pXSprite->height < 16 && (florhit == 0x4000 || florhit == 0))
         va = 1;

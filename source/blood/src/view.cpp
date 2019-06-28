@@ -447,7 +447,7 @@ void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     predict.at24 = fix16_from_float(100.f*tanf(fix16_to_float(predict.at20)*fPI/1024.f));
 
     int nSector = predict.at68;
-    int florhit = predict.at75.florhit & 0xe000;
+    int florhit = predict.at75.florhit & 0xc000;
     char va;
     if (predict.at6a < 16 && (florhit == 0x4000 || florhit == 0))
         va = 1;
@@ -614,11 +614,11 @@ void fakeMoveDude(spritetype *pSprite)
 
             pSprite->cstat = bakCstat;
         }
-        switch (predict.at75.hit&0xe000)
+        switch (predict.at75.hit&0xc000)
         {
         case 0x8000:
         {
-            int nHitWall = predict.at75.hit&0x1fff;
+            int nHitWall = predict.at75.hit&0x3fff;
             walltype *pHitWall = &wall[nHitWall];
             if (pHitWall->nextsector != -1)
             {
@@ -756,9 +756,9 @@ void fakeMoveDude(spritetype *pSprite)
     predict.at6a = ClipLow(floorZ-bottom, 0)>>8;
     if (predict.at5c || predict.at60)
     {
-        if ((floorHit & 0xe000) == 0xc000)
+        if ((floorHit & 0xc000) == 0xc000)
         {
-            int nHitSprite = floorHit & 0x1fff;
+            int nHitSprite = floorHit & 0x3fff;
             if ((sprite[nHitSprite].cstat & 0x30) == 0)
             {
                 predict.at5c += mulscale(4, predict.at50 - sprite[nHitSprite].x, 2);
@@ -3327,7 +3327,7 @@ RORHACK:
         GetZRange(gView->pSprite, &vf4, &vf0, &vec, &ve8, nClipDist, 0);
 #if 0
         int tmpSect = nSectnum;
-        if ((vf0 & 0xe000) == 0x4000)
+        if ((vf0 & 0xc000) == 0x4000)
         {
             tmpSect = vf0 & (kMaxWalls-1);
         }

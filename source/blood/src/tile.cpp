@@ -263,8 +263,8 @@ void tilePrecacheTile(int nTile, int nType)
 
 char tileGetSurfType(int hit)
 {
-    int n = hit &0x1fff;
-    switch (hit&0xe000)
+    int n = hit & 0x3fff;
+    switch (hit&0xc000)
     {
     case 0x4000:
         return surfType[sector[n].floorpicnum];

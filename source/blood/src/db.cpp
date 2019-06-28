@@ -43,6 +43,8 @@ SPRITEHIT gSpriteHit[kMaxXSprites];
 
 int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 
+char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
+
 int gVisibility;
 
 const char *gItemText[] = {
@@ -246,7 +248,8 @@ void qinitspritelists(void) // Replace
     {
         headspritestat[i] = -1;
     }
-    for (short i = 0; i < kMaxSprites; i++)
+    int const nMaxSprites = bVanilla ? 4096 : kMaxSprites;
+    for (short i = 0; i < nMaxSprites; i++)
     {
         sprite[i].sectnum = -1;
         sprite[i].index = -1;

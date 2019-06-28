@@ -682,9 +682,9 @@ void GetZRange(spritetype *pSprite, int *ceilZ, int *ceilHit, int *floorZ, int *
     int32_t nTemp1, nTemp2;
     pSprite->cstat &= ~257;
     getzrange_old(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, (int32_t*)ceilZ, (int32_t*)ceilHit, (int32_t*)floorZ, (int32_t*)floorHit, nDist, nMask);
-    if (((*floorHit) & 0xe000) == 0x4000)
+    if (((*floorHit) & 0xc000) == 0x4000)
     {
-        int nSector = (*floorHit) & 0x1fff;
+        int nSector = (*floorHit) & 0x3fff;
         if ((nMask & 0x2000) == 0 && (sector[nSector].floorstat & 1))
             *floorZ = 0x7fffffff;
         if (sector[nSector].extra > 0)
@@ -702,9 +702,9 @@ void GetZRange(spritetype *pSprite, int *ceilZ, int *ceilHit, int *floorZ, int *
             *floorZ -= sprite[nLink].z - sprite[nSprite].z;
         }
     }
-    if (((*ceilHit) & 0xe000) == 0x4000)
+    if (((*ceilHit) & 0xc000) == 0x4000)
     {
-        int nSector = (*ceilHit) & 0x1fff;
+        int nSector = (*ceilHit) & 0x3fff;
         if ((nMask & 0x1000) == 0 && (sector[nSector].ceilingstat & 1))
             *ceilZ = 0x80000000;
         if (gLowerLink[nSector] >= 0)
@@ -724,9 +724,9 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, int *ceilHit, 
 {
     int32_t nTemp1, nTemp2;
     getzrange_old(x, y, z, nSector, (int32_t*)ceilZ, (int32_t*)ceilHit, (int32_t*)floorZ, (int32_t*)floorHit, nDist, nMask);
-    if (((*floorHit) & 0xe000) == 0x4000)
+    if (((*floorHit) & 0xc000) == 0x4000)
     {
-        int nSector = (*floorHit) & 0x1fff;
+        int nSector = (*floorHit) & 0x3fff;
         if ((nMask & 0x2000) == 0 && (sector[nSector].floorstat & 1))
             *floorZ = 0x7fffffff;
         if (sector[nSector].extra > 0)
@@ -744,9 +744,9 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, int *ceilHit, 
             *floorZ -= sprite[nLink].z - sprite[nSprite].z;
         }
     }
-    if (((*ceilHit) & 0xe000) == 0x4000)
+    if (((*ceilHit) & 0xc000) == 0x4000)
     {
-        int nSector = (*ceilHit) & 0x1fff;
+        int nSector = (*ceilHit) & 0x3fff;
         if ((nMask & 0x1000) == 0 && (sector[nSector].ceilingstat & 1))
             *ceilZ = 0x80000000;
         if (gLowerLink[nSector] >= 0)

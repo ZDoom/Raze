@@ -4123,8 +4123,8 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
     PLAYER *pPlayer = NULL;
     if (IsPlayerSprite(pSprite))
         pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
-    int nHitSprite = pSpriteHit->ceilhit & 0x1fff;
-    switch (pSpriteHit->ceilhit&0xe000)
+    int nHitSprite = pSpriteHit->ceilhit & 0x3fff;
+    switch (pSpriteHit->ceilhit&0xc000)
     {
     case 0x8000:
         break;
@@ -4214,8 +4214,8 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
         }
         break;
     }
-    nHitSprite = pSpriteHit->hit & 0x1fff;
-    switch (pSpriteHit->hit&0xe000)
+    nHitSprite = pSpriteHit->hit & 0x3fff;
+    switch (pSpriteHit->hit&0xc000)
     {
     case 0x8000:
         break;
@@ -4287,8 +4287,8 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
         }
         break;
     }
-    nHitSprite = pSpriteHit->florhit & 0x1fff;
-    switch (pSpriteHit->florhit&0xe000)
+    nHitSprite = pSpriteHit->florhit & 0x3fff;
+    switch (pSpriteHit->florhit&0xc000)
     {
     case 0x8000:
         break;
@@ -4468,9 +4468,9 @@ int MoveThing(spritetype *pSprite)
             dassert(nSector >= 0 && nSector < kMaxSectors);
             ChangeSpriteSect(nSprite, nSector);
         }
-        if ((gSpriteHit[nXSprite].hit&0xe000) == 0x8000)
+        if ((gSpriteHit[nXSprite].hit&0xc000) == 0x8000)
         {
-            int nHitWall = gSpriteHit[nXSprite].hit&0x1fff;
+            int nHitWall = gSpriteHit[nXSprite].hit&0x3fff;
             actWallBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], nHitWall, pThingInfo->at7);
             switch (pSprite->type)
             {
@@ -4600,9 +4600,9 @@ int MoveThing(spritetype *pSprite)
     {
         int nVel = approxDist(xvel[nSprite], yvel[nSprite]);
         int nVelClipped = ClipHigh(nVel, 0x11111);
-        if ((floorHit & 0xe000) == 0xc000)
+        if ((floorHit & 0xc000) == 0xc000)
         {
-            int nHitSprite = floorHit & 0x1fff;
+            int nHitSprite = floorHit & 0x3fff;
             if ((sprite[nHitSprite].cstat & 0x30) == 0)
             {
                 xvel[nSprite] += mulscale(4, pSprite->x - sprite[nHitSprite].x, 2);
@@ -4670,11 +4670,11 @@ void MoveDude(spritetype *pSprite)
             dassert(nSector >= 0);
             pSprite->cstat = bakCstat;
         }
-        switch (gSpriteHit[nXSprite].hit&0xe000)
+        switch (gSpriteHit[nXSprite].hit&0xc000)
         {
         case 0xc000:
         {
-            int nHitSprite = gSpriteHit[nXSprite].hit&0x1fff;
+            int nHitSprite = gSpriteHit[nXSprite].hit&0x3fff;
             spritetype *pHitSprite = &sprite[nHitSprite];
             XSPRITE *pHitXSprite = NULL;
             // Should be pHitSprite here
@@ -4698,7 +4698,7 @@ void MoveDude(spritetype *pSprite)
         }
         case 0x8000:
         {
-            int nHitWall = gSpriteHit[nXSprite].hit&0x1fff;
+            int nHitWall = gSpriteHit[nXSprite].hit&0x3fff;
             walltype *pHitWall = &wall[nHitWall];
             XWALL *pHitXWall = NULL;
             if (pHitWall->extra > 0)
@@ -5108,9 +5108,9 @@ void MoveDude(spritetype *pSprite)
     pXSprite->height = ClipLow(floorZ-bottom, 0)>>8;
     if (xvel[nSprite] || yvel[nSprite])
     {
-        if ((floorHit & 0xe000) == 0xc000)
+        if ((floorHit & 0xc000) == 0xc000)
         {
-            int nHitSprite = floorHit & 0x1fff;
+            int nHitSprite = floorHit & 0x3fff;
             if ((sprite[nHitSprite].cstat & 0x30) == 0)
             {
                 xvel[nSprite] += mulscale(4, pSprite->x - sprite[nHitSprite].x, 2);
@@ -5210,13 +5210,13 @@ int MoveMissile(spritetype *pSprite)
         }
         if (vdx)
         {
-            int nHitSprite = vdx & 0x1fff;
-            if ((vdx&0xe000) == 0xc000)
+            int nHitSprite = vdx & 0x3fff;
+            if ((vdx&0xc000) == 0xc000)
             {
                 gHitInfo.hitsprite = nHitSprite;
                 vdi = 3;
             }
-            else if ((vdx & 0xe000) == 0x8000)
+            else if ((vdx & 0xc000) == 0x8000)
             {
                 gHitInfo.hitwall = nHitSprite;
                 if (wall[nHitSprite].nextsector == -1)
@@ -5615,7 +5615,7 @@ void actProcessSprites(void)
                 }
             }
             actAirDrag(pSprite, 128);
-            if ((pSprite->index>>8) == (gFrame&15) && (pSprite->hitag&2))
+            if (((pSprite->index>>8)&15) == (gFrame&15) && (pSprite->hitag&2))
                 pSprite->hitag |= 4;
             if ((pSprite->hitag&4) || xvel[nSprite] || yvel[nSprite] || zvel[nSprite] ||
                 velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
@@ -5637,11 +5637,11 @@ void actProcessSprites(void)
                             break;
                         case kGDXThingThrowableRock:
                             seqSpawn(24, 3, nXSprite, -1);
-                            if ((hit & 0xe000) == 0xc000)
+                            if ((hit & 0xc000) == 0xc000)
                             {
                                 pSprite->xrepeat = 32;
                                 pSprite->yrepeat = 32;
-                                int nObject = hit & 0x1fff;
+                                int nObject = hit & 0x3fff;
                                 dassert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype * pObject = &sprite[nObject];
                                 actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, pXSprite->data1);
@@ -5649,24 +5649,24 @@ void actProcessSprites(void)
                             break;
                         case 421:
                             seqSpawn(24, 3, nXSprite, -1);
-                            if ((hit&0xe000) == 0xc000)
+                            if ((hit&0xc000) == 0xc000)
                             {
-                                int nObject = hit & 0x1fff;
+                                int nObject = hit & 0x3fff;
                                 dassert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype *pObject = &sprite[nObject];
                                 actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, 12);
                             }
                             break;
                         case 430:
-                            if ((hit&0xe000) == 0x4000)
+                            if ((hit&0xc000) == 0x4000)
                             {
                                 sub_2A620(actSpriteOwnerToSpriteId(pSprite), pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, DAMAGE_TYPE_3, 6, 0, 0, 0);
                                 evPost(pSprite->index, 3, 0, CALLBACK_ID_19);
                             }
                             else
                             {
-                                int nObject = hit & 0x1fff;
-                                if ((hit&0xe000) != 0xc000 && (nObject < 0 || nObject >= 4096))
+                                int nObject = hit & 0x3fff;
+                                if ((hit&0xc000) != 0xc000 && (nObject < 0 || nObject >= 4096))
                                     break;
                                 dassert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype *pObject = &sprite[nObject];
@@ -5676,8 +5676,8 @@ void actProcessSprites(void)
                             break;
                         case 429:
                         {
-                            int nObject = hit & 0x1fff;
-                            if ((hit&0xe000) != 0xc000 && (nObject < 0 || nObject >= 4096))
+                            int nObject = hit & 0x3fff;
+                            if ((hit&0xc000) != 0xc000 && (nObject < 0 || nObject >= 4096))
                                 break;
                             dassert(nObject >= 0 && nObject < kMaxSprites);
                             int UNUSED(nOwner) = actSpriteOwnerToSpriteId(pSprite);

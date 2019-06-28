@@ -79,8 +79,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 const char* AppProperName = APPNAME;
 const char* AppTechnicalName = APPBASENAME;
 
-char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
-
 char SetupFilename[BMAX_PATH] = SETUPFILENAME;
 int32_t gNoSetup = 0, gCommandSetup = 0;
 
@@ -168,43 +166,6 @@ void G_Polymer_UnInit(void)
 void M32RunScript(const char *s)
 {
     UNREFERENCED_PARAMETER(s);
-}
-
-static const char *_module;
-static int _line;
-
-void _SetErrorLoc(const char *pzFile, int nLine)
-{
-    _module = pzFile;
-    _line = nLine;
-}
-
-void _ThrowError(const char *pzFormat, ...)
-{
-    char buffer[256];
-    va_list args;
-    va_start(args, pzFormat);
-    vsprintf(buffer, pzFormat, args);
-    initprintf("%s(%i): %s\n", _module, _line, buffer);
-
-    char titlebuf[256];
-    Bsprintf(titlebuf, APPNAME " %s", s_buildRev);
-    wm_msgbox(titlebuf, "%s(%i): %s\n", _module, _line, buffer);
-
-    Bfflush(NULL);
-    QuitGame();
-}
-
-void __dassert(const char * pzExpr, const char * pzFile, int nLine)
-{
-    initprintf("Assertion failed: %s in file %s at line %i\n", pzExpr, pzFile, nLine);
-
-    char titlebuf[256];
-    Bsprintf(titlebuf, APPNAME " %s", s_buildRev);
-    wm_msgbox(titlebuf, "Assertion failed: %s in file %s at line %i\n", pzExpr, pzFile, nLine);
-
-    Bfflush(NULL);
-    exit(0);
 }
 
 void ShutDown(void)
