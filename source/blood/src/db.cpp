@@ -699,7 +699,7 @@ unsigned int dbReadMapCRC(const char *pPath)
 int gMapRev, gSongId, gSkyCount;
 //char byte_19AE44[128];
 
-void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC)
+int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC)
 {
     int16_t tpskyoff[256];
     memset(show2dsector, 0, sizeof(show2dsector));
@@ -721,7 +721,15 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     DICTNODE *pNode = gSysRes.Lookup(pPath, "MAP");
     if (!pNode)
     {
-        ThrowError("Error opening map file %s", pPath);
+        char name2[BMAX_PATH];
+        Bstrncpy(name2, pPath, BMAX_PATH);
+        ChangeExtension(name2, "");
+        pNode = gSysRes.Lookup(name2, "MAP");
+    }
+    if (!pNode)
+    {
+        initprintf("Error opening map file %s", pPath);
+        return -1;
     }
     char *pData = (char*)gSysRes.Lock(pNode);
     int nSize = pNode->size;
@@ -733,7 +741,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 #endif
     if (memcmp(header.signature, "BLM\x1a", 4))
     {
-        ThrowError("Map file corrupted");
+        initprintf("Map file corrupted");
+        gSysRes.Unlock(pNode);
+        return -1;
     }
     byte_1A76C8 = 0;
     if ((header.version & 0xff00) == 0x600)
@@ -745,7 +755,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     }
     else
     {
-        ThrowError("Map file is wrong version");
+        initprintf("Map file is wrong version");
+        gSysRes.Unlock(pNode);
+        return -1;
     }
     MAPHEADER mapHeader;
     IOBuffer1.Read(&mapHeader,37/* sizeof(mapHeader)*/);
@@ -792,12 +804,16 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         }
         else
         {
-            ThrowError("Corrupted Map file");
+            initprintf("Corrupted Map file");
+            gSysRes.Unlock(pNode);
+            return -1;
         }
     }
     else if (mapHeader.at16)
     {
-        ThrowError("Corrupted Map file");
+        initprintf("Corrupted Map file");
+        gSysRes.Unlock(pNode);
+        return -1;
     }
     parallaxtype = mapHeader.at1a;
     gMapRev = mapHeader.at1b;
@@ -1165,9 +1181,12 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 #endif
     if (Bcrc32(pData, nSize-4, 0) != nCRC)
     {
-        ThrowError("Map File does not match CRC");
+        initprintf("Map File does not match CRC");
+        gSysRes.Unlock(pNode);
+        return -1;
     }
-    *pCRC = nCRC;
+    if (pCRC)
+        *pCRC = nCRC;
     gSysRes.Unlock(pNode);
     PropagateMarkerReferences();
     if (byte_1A76C8)
@@ -1182,12 +1201,16 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         }
         else
         {
-            ThrowError("Corrupted Map file");
+            initprintf("Corrupted Map file");
+            gSysRes.Unlock(pNode);
+            return -1;
         }
     }
     else if (gSongId != 0)
     {
-        ThrowError("Corrupted Shareware Map file");
+        initprintf("Corrupted Map file");
+        gSysRes.Unlock(pNode);
+        return -1;
     }
 
 #ifdef POLYMER
@@ -1246,4 +1269,14 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 #ifdef YAX_ENABLE
     yax_update(numyaxbunches > 0 ? 2 : 1);
 #endif
+
+    g_loadedMapVersion = 7;
+
+    return 0;
+}
+
+int32_t qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum)
+{
+    // NUKE-TODO: implement flags
+    return dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, (short*)daang, (short*)dacursectnum, NULL);
 }

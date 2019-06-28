@@ -539,7 +539,11 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     memset(xsprite,0,sizeof(xsprite));
     memset(sprite,0,kMaxSprites*sizeof(spritetype));
     drawLoadingScreen();
-    dbLoadMap(gameOptions->zLevelName,(int*)&startpos.x,(int*)&startpos.y,(int*)&startpos.z,&startang,&startsectnum,(unsigned int*)&gameOptions->uMapCRC);
+    if (dbLoadMap(gameOptions->zLevelName,(int*)&startpos.x,(int*)&startpos.y,(int*)&startpos.z,&startang,&startsectnum,(unsigned int*)&gameOptions->uMapCRC))
+    {
+        gQuitGame = true;
+        return;
+    }
     wsrand(gameOptions->uMapCRC);
     gKillMgr.Clear();
     gSecretMgr.Clear();
@@ -1478,24 +1482,7 @@ int app_main(int argc, char const * const * argv)
     gGuiRes.Init("GUI.RFF");
     gSoundRes.Init(pUserSoundRFF ? pUserSoundRFF : "SOUNDS.RFF");
 
-
-    { // Replace
-        void qinitspritelists();
-        int32_t qinsertsprite(int16_t nSector, int16_t nStat);
-        int32_t qdeletesprite(int16_t nSprite);
-        int32_t qchangespritesect(int16_t nSprite, int16_t nSector);
-        int32_t qchangespritestat(int16_t nSprite, int16_t nStatus);
-        animateoffs_replace = qanimateoffs;
-        paletteLoadFromDisk_replace = qloadpalette;
-        getpalookup_replace = qgetpalookup;
-        initspritelists_replace = qinitspritelists;
-        insertsprite_replace = qinsertsprite;
-        deletesprite_replace = qdeletesprite;
-        changespritesect_replace = qchangespritesect;
-        changespritestat_replace = qchangespritestat;
-        loadvoxel_replace = qloadvoxel;
-        bloodhack = true;
-    }
+    HookReplaceFunctions();
 
     initprintf("Initializing Build 3D engine\n");
     scrInit();

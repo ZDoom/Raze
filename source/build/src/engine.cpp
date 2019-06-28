@@ -9665,6 +9665,8 @@ LUNATIC_CB int32_t (*loadboard_maptext)(buildvfs_kfd fil, vec3_t *dapos, int16_t
 
 #include "md4.h"
 
+int32_t(*loadboard_replace)(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum) = NULL;
+
 // flags: 1, 2: former parameter "fromwhere"
 //           4: don't call polymer_loadboard
 //           8: don't autoexec <mapname>.cfg
@@ -9675,7 +9677,9 @@ LUNATIC_CB int32_t (*loadboard_maptext)(buildvfs_kfd fil, vec3_t *dapos, int16_t
 //       <= -4: map-text error
 int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
-    int32_t i;
+    if (loadboard_replace)
+        return loadboard_replace(filename, flags, dapos, daang, dacursectnum);
+    int32_t fil, i;
     int16_t numsprites;
     const char myflags = flags&(~3);
 
