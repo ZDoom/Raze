@@ -256,6 +256,7 @@ void qinitspritelists(void) // Replace
         InsertSpriteStat(i, kMaxStatus);
     }
     memset(gStatCount, 0, sizeof(gStatCount));
+    Numsprites = 0;
 }
 
 int InsertSprite(int nSector, int nStat)
@@ -279,6 +280,8 @@ int InsertSprite(int nSector, int nStat)
     pSprite->index = nSprite;
     xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
 
+    Numsprites++;
+
     return nSprite;
 }
 
@@ -298,6 +301,8 @@ int DeleteSprite(int nSprite)
     dassert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
     RemoveSpriteSect(nSprite);
     InsertSpriteStat(nSprite, kMaxStatus);
+
+    Numsprites--;
 
     return nSprite;
 }
@@ -1079,6 +1084,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
         InsertSpriteSect(i, sprite[i].sectnum);
         InsertSpriteStat(i, sprite[i].statnum);
+        Numsprites++;
         sprite[i].index = i;
         qsprite_filler[i] = pSprite->blend;
         pSprite->blend = 0;

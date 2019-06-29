@@ -128,6 +128,8 @@ glblend_t const bloodglblend =
 
 void scrLoadPalette(void)
 {
+    initfastcolorlookup_scale(30, 59, 11);
+    initfastcolorlookup_gridvectors();
     paletteloaded = 0;
     initprintf("Loading palettes\n");
     for (int i = 0; i < 5; i++)
