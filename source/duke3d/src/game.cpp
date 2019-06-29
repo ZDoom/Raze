@@ -1445,10 +1445,10 @@ int A_Spawn(int spriteNum, int tileNum)
         if (s.picnum == SECTOREFFECTOR && s.lotag == 50)
             a.picnum = s.owner;
 
-        if (s.owner == -1)
-            s.owner = a.owner = newSprite;
-        else
+        if (s.picnum == LOCATORS && s.owner != -1)
             a.owner = s.owner;
+        else
+            s.owner = a.owner = newSprite;
 
         a.floorz   = sector[s.sectnum].floorz;
         a.ceilingz = sector[s.sectnum].ceilingz;
