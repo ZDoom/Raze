@@ -1298,7 +1298,7 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
     {
         nSize += sizeof(MAPHEADER2);
     }
-    for (int i = 0; i < nSpriteNum; i++)
+    for (int i = 0; i < gSkyCount; i++)
         tpskyoff[i] = pSky->tileofs[i];
     nSize += gSkyCount*sizeof(tpskyoff[0]);
     nSize += sizeof(sectortype)*numsectors;
