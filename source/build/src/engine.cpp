@@ -766,7 +766,7 @@ void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
                 if (editstatus && showinvisibility)
                     SECTORFLD(i,picnum, cf) = MAXTILES-1;
                 else //if ((dastat&(128+256))==0)
-                    SECTORFLD(i,picnum, cf) = 13; //FOF;
+                    SECTORFLD(i,picnum, cf) = bloodhack ? MAXTILES-2 : 13; //FOF;
             }
             else
             {
