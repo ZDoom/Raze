@@ -3287,12 +3287,11 @@ RORHACK:
             goto RORHACK;
         }
 #endif
-        if (videoGetRenderMode() == REND_CLASSIC)
-        {
-            sub_5571C(1);
-            renderDrawMasks();
-            sub_5571C(0);
-        }
+        sub_5571C(1);
+        int nSpriteSortCnt = spritesortcnt;
+        renderDrawMasks();
+        spritesortcnt = nSpriteSortCnt;
+        sub_5571C(0);
         sub_557C4(cX, cY, gInterpolate);
         renderDrawMasks();
         gView->pSprite->cstat = bakCstat;
