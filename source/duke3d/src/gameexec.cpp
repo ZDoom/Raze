@@ -1203,14 +1203,14 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
         G_HandleMirror(vec.x, vec.y, vec.z, a, horiz, smoothratio);
 #ifdef POLYMER
     if (videoGetRenderMode() == REND_POLYMER)
-        polymer_setanimatesprites(G_DoSpriteAnimations, vec.x, vec.y, fix16_to_int(a), smoothratio);
+        polymer_setanimatesprites(G_DoSpriteAnimations, vec.x, vec.y, vec.z, fix16_to_int(a), smoothratio);
 #endif
     yax_preparedrawrooms();
     renderDrawRoomsQ16(vec.x, vec.y, vec.z, a, horiz, sect);
     yax_drawrooms(G_DoSpriteAnimations, sect, 0, smoothratio);
 
     display_mirror = 2;
-    G_DoSpriteAnimations(vec.x, vec.y, fix16_to_int(a), smoothratio);
+    G_DoSpriteAnimations(vec.x, vec.y, vec.z, fix16_to_int(a), smoothratio);
     display_mirror = 0;
     renderDrawMasks();
     G_RestoreInterpolations();

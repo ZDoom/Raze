@@ -138,7 +138,7 @@ void UpdateFrame(void);
 void viewDrawInterface(int arg);
 uspritetype *viewInsertTSprite(int nSector, int nStatnum, uspritetype *pSprite);
 uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect);
-void viewProcessSprites(int cX, int cY, int cZ);
+void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);
 void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, int zm);
 void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, int zm);
 void viewSetMessage(const char *pMessage);

@@ -543,7 +543,7 @@ static void G_SE40(int32_t smoothratio)
 
 #ifdef POLYMER
             if (videoGetRenderMode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), fix16_to_int(CAMERA(q16ang)), smoothratio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), fix16_to_int(CAMERA(q16ang)), smoothratio);
 #endif
             renderDrawRoomsQ16(sprite[sprite2].x + x, sprite[sprite2].y + y,
                       z + renderz, CAMERA(q16ang), CAMERA(q16horiz), sect);
@@ -552,7 +552,7 @@ static void G_SE40(int32_t smoothratio)
             if (drawing_ror == 2) // viewing from top
                 G_OROR_DupeSprites(sp);
 
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothratio);
+            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothratio);
             renderDrawMasks();
 
             if (level)
@@ -685,7 +685,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             // XXX: Sprites don't get drawn with TROR/Polymost
 #endif
             display_mirror = 1;
-            G_DoSpriteAnimations(tposx,tposy,fix16_to_int(tang),smoothratio);
+            G_DoSpriteAnimations(tposx,tposy,z,fix16_to_int(tang),smoothratio);
             display_mirror = 0;
 
             renderDrawMasks();
@@ -820,12 +820,12 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
 #ifdef POLYMER
             if (videoGetRenderMode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, pSprite->z, fix16_to_int(CAMERA(q16ang)), smoothRatio);
 #endif
             yax_preparedrawrooms();
             renderDrawRoomsQ16(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), fix16_from_int(pSprite->yvel), pSprite->sectnum);
             yax_drawrooms(G_DoSpriteAnimations, pSprite->sectnum, 0, smoothRatio);
-            G_DoSpriteAnimations(pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
+            G_DoSpriteAnimations(pSprite->x, pSprite->y, pSprite->z, fix16_to_int(CAMERA(q16ang)), smoothRatio);
             renderDrawMasks();
         }
     }
@@ -1083,7 +1083,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
 #ifdef POLYMER
             if (videoGetRenderMode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothRatio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothRatio);
 #endif
             // for G_PrintCoords
             dr_viewingrange = viewingrange;
@@ -1098,7 +1098,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             if ((unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom
                 G_OROR_DupeSprites(&sprite[ror_sprite]);
 #endif
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothRatio);
+            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothRatio);
 #ifdef LEGACY_ROR
             drawing_ror = 0;
 #endif
@@ -3604,8 +3604,9 @@ static inline void G_DoEventAnimSprites(int tspriteNum)
     spriteext[tsprOwner].tspr = NULL;
 }
 
-void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio)
+void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura, int32_t smoothratio)
 {
+    UNREFERENCED_PARAMETER(ourz);
     int32_t j, frameOffset, playerNum;
     intptr_t l;
 

@@ -2225,7 +2225,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
     }
 
     drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
-    ExtAnalyzeSprites(0,0,0,0);
+    ExtAnalyzeSprites(0,0,0,0,0);
     renderDrawMasks();
     M32_ResetFakeRORTiles();
 
@@ -2251,7 +2251,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
 
         // Now re-draw
         drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
-        ExtAnalyzeSprites(0,0,0,0);
+        ExtAnalyzeSprites(0,0,0,0,0);
         renderDrawMasks();
         M32_ResetFakeRORTiles();
     }
@@ -10500,7 +10500,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
     videoEndDrawing();  //}}}
 }
 
-void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr)
+void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura, int32_t smoothr)
 {
     int32_t i, k;
     uspritetype *tspr;

@@ -2019,8 +2019,10 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
 
 LOCATION gPrevSpriteLoc[kMaxSprites];
 
-void viewProcessSprites(int cX, int cY, int cZ)
+void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth)
 {
+    UNREFERENCED_PARAMETER(cA);
+    UNREFERENCED_PARAMETER(smooth);
     dassert(spritesortcnt <= kMaxViewSprites);
     int nViewSprites = spritesortcnt;
     for (int nTSprite = nViewSprites-1; nTSprite >= 0; nTSprite--)
@@ -3169,21 +3171,27 @@ void viewDrawScreen(void)
                 vd0 = vc8+(8<<4);
             }
             v54 = ClipRange(v54, -200, 200);
+#if 0
 RORHACKOTHER:
             int ror_status[16];
             for (int i = 0; i < 16; i++)
                 ror_status[i] = TestBitString(gotpic, 4080 + i);
-            DrawMirrors(vd8, vd4, vd0, fix16_from_int(v50), fix16_from_int(v54 + defaultHoriz));
+#endif
+            yax_preparedrawrooms();
+            DrawMirrors(vd8, vd4, vd0, fix16_from_int(v50), fix16_from_int(v54 + defaultHoriz), gInterpolate);
             drawrooms(vd8, vd4, vd0, v50, v54 + defaultHoriz, vcc);
+            yax_drawrooms(viewProcessSprites, vcc, 0, gInterpolate);
+#if 0
             bool do_ror_hack = false;
             for (int i = 0; i < 16; i++)
                 if (!ror_status[i] && TestBitString(gotpic, 4080 + i))
                     do_ror_hack = true;
             if (do_ror_hack)
                 goto RORHACKOTHER;
+#endif
             memcpy(otherMirrorGotpic, gotpic+510, 2);
             memcpy(gotpic+510, bakMirrorGotpic, 2);
-            viewProcessSprites(vd8, vd4, vd0);
+            viewProcessSprites(vd8, vd4, vd0, v50, gInterpolate);
             renderDrawMasks();
             renderRestoreTarget();
         }
@@ -3243,12 +3251,14 @@ RORHACKOTHER:
             cZ = vfc+(8<<8);
         }
         q16horiz = ClipRange(q16horiz, F16(-200), F16(200));
+#if 0
 RORHACK:
         int ror_status[16];
         for (int i = 0; i < 16; i++)
             ror_status[i] = TestBitString(gotpic, 4080+i);
+#endif
         fix16_t deliriumPitchI = interpolate(fix16_from_int(deliriumPitchO), fix16_from_int(deliriumPitch), gInterpolate);
-        DrawMirrors(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI);
+        DrawMirrors(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, gInterpolate);
         int bakCstat = gView->pSprite->cstat;
         if (gViewPos == 0)
         {
@@ -3258,7 +3268,15 @@ RORHACK:
         {
             gView->pSprite->cstat |= 514;
         }
+#ifdef POLYMER
+        if (videoGetRenderMode() == REND_POLYMER)
+            polymer_setanimatesprites(viewProcessSprites, cX, cY, cZ, fix16_to_int(cA), gInterpolate);
+#endif
+        yax_preparedrawrooms();
         renderDrawRoomsQ16(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, nSectnum);
+        yax_drawrooms(viewProcessSprites, nSectnum, 0, gInterpolate);
+        viewProcessSprites(cX, cY, cZ, fix16_to_int(cA), gInterpolate);
+#if 0
         bool do_ror_hack = false;
         for (int i = 0; i < 16; i++)
             if (!ror_status[i] && TestBitString(gotpic, 4080+i))
@@ -3268,11 +3286,13 @@ RORHACK:
             gView->pSprite->cstat = bakCstat;
             goto RORHACK;
         }
-
-        viewProcessSprites(cX, cY, cZ);
-        sub_5571C(1);
-        renderDrawMasks();
-        sub_5571C(0);
+#endif
+        if (videoGetRenderMode() == REND_CLASSIC)
+        {
+            sub_5571C(1);
+            renderDrawMasks();
+            sub_5571C(0);
+        }
         sub_557C4(cX, cY, gInterpolate);
         renderDrawMasks();
         gView->pSprite->cstat = bakCstat;

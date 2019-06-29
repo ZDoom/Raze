@@ -220,7 +220,7 @@ static FORCE_INLINE CONSTEXPR int32_t yax_waltosecmask(int32_t const walclipmask
     return ((walclipmask&1)<<9) | ((walclipmask&64)<<5);
 }
 void yax_preparedrawrooms(void);
-void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
+void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_t),
                    int16_t sectnum, int32_t didmirror, int32_t smoothr);
 # define YAX_SKIPSECTOR(i) if (graysectbitmap[(i)>>3]&pow2char[(i)&7]) continue
 # define YAX_SKIPWALL(i) if (graywallbitmap[(i)>>3]&pow2char[(i)&7]) continue

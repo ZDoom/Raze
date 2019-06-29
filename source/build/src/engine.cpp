@@ -864,7 +864,7 @@ void yax_preparedrawrooms(void)
     }
 }
 
-void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
+void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_t),
                    int16_t sectnum, int32_t didmirror, int32_t smoothr)
 {
     static uint8_t havebunch[(YAX_MAXBUNCHES+7)>>3];
@@ -1085,7 +1085,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                          yax_globallev-YAX_MAXDRAWS, j, k, spritesortcnt,
                          (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
 
-                SpriteAnimFunc(globalposx, globalposy, globalang, smoothr);
+                SpriteAnimFunc(globalposx, globalposy, globalposz, globalang, smoothr);
                 renderDrawMasks();
             }
 

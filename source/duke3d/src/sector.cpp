@@ -399,7 +399,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
 
     display_mirror = 3;
-    G_DoSpriteAnimations(camera.x, camera.y, SA(spriteNum), smoothRatio);
+    G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
     display_mirror = saveMirror;
     renderDrawMasks();
 
