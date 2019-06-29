@@ -703,6 +703,9 @@ unsigned int dbReadMapCRC(const char *pPath)
 
 int gMapRev, gSongId, gSkyCount;
 //char byte_19AE44[128];
+const int nXSectorSize = 60;
+const int nXSpriteSize = 56;
+const int nXWallSize = 24;
 
 int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC)
 {
@@ -876,7 +879,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         pSector->fogpal = 0;
         if (sector[i].extra > 0)
         {
-            const int nXSectorSize = 60;
             char pBuffer[nXSectorSize];
             int nXSector = dbInsertXSector(i);
             XSECTOR *pXSector = &xsector[nXSector];
@@ -997,7 +999,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 #endif
         if (wall[i].extra > 0)
         {
-            const int nXWallSize = 24;
             char pBuffer[nXWallSize];
             int nXWall = dbInsertXWall(i);
             XWALL *pXWall = &xwall[nXWall];
@@ -1090,7 +1091,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         pSprite->blend = 0;
         if (sprite[i].extra > 0)
         {
-            const int nXSpriteSize = 56;
             char pBuffer[nXSpriteSize];
             int nXSprite = dbInsertXSprite(i);
             XSPRITE *pXSprite = &xsprite[nXSprite];
@@ -1281,8 +1281,383 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     return 0;
 }
 
+int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSector)
+{
+    char sMapExt[_MAX_PATH];
+    char sBakExt[_MAX_PATH];
+    int16_t tpskyoff[256];
+    int nSpriteNum;
+    psky_t *pSky = tileSetupSky(0);
+    gSkyCount = 1<<pSky->lognumtiles;
+    gMapRev++;
+    nSpriteNum = 0;
+    strcpy(sMapExt, pPath);
+    ChangeExtension(sMapExt, ".MAP");
+    int nSize = sizeof(MAPSIGNATURE)+sizeof(MAPHEADER);
+    if (byte_1A76C8)
+    {
+        nSize += sizeof(MAPHEADER2);
+    }
+    for (int i = 0; i < nSpriteNum; i++)
+        tpskyoff[i] = pSky->tileofs[i];
+    nSize += gSkyCount*sizeof(tpskyoff[0]);
+    nSize += sizeof(sectortype)*numsectors;
+    for (int i = 0; i < numsectors; i++)
+    {
+        if (sector[i].extra > 0)
+        {
+            nSize += nXSectorSize;
+        }
+    }
+    nSize += sizeof(walltype)*numwalls;
+    for (int i = 0; i < numwalls; i++)
+    {
+        if (wall[i].extra > 0)
+        {
+            nSize += nXWallSize;
+        }
+    }
+    for (int i = 0; i < kMaxSprites; i++)
+    {
+        if (sprite[i].statnum < kMaxStatus)
+        {
+            nSpriteNum++;
+            if (sprite[i].extra > 0)
+            {
+                nSize += nXSpriteSize;
+            }
+        }
+    }
+    nSize += sizeof(spritetype)*nSpriteNum;
+    nSize += 4;
+    char *pData = (char*)Xmalloc(nSize);
+    IOBuffer IOBuffer1 = IOBuffer(nSize, pData);
+    MAPSIGNATURE header;
+    memcpy(&header, "BLM\x1a", 4);
+    if (byte_1A76C8)
+    {
+        header.version = 0x700;
+        byte_1A76C7 = 1;
+    }
+    else
+    {
+        header.version = 0x603;
+        byte_1A76C7 = 0;
+    }
+    IOBuffer1.Write(&header, sizeof(header));
+    MAPHEADER mapheader;
+    mapheader.at0 = B_LITTLE32(nX);
+    mapheader.at4 = B_LITTLE32(nY);
+    mapheader.at8 = B_LITTLE32(nZ);
+    mapheader.atc = B_LITTLE16(nAngle);
+    mapheader.ate = B_LITTLE16(nSector);
+    mapheader.at10 = B_LITTLE16(pSky->lognumtiles);
+    mapheader.at12 = B_LITTLE32(gVisibility);
+    if (byte_1A76C6)
+    {
+        gSongId = 0x7474614d;
+    }
+    else
+    {
+        gSongId = 0;
+    }
+    mapheader.at16 = B_LITTLE32(gSongId);
+    mapheader.at1a = parallaxtype;
+    mapheader.at1b = gMapRev;
+    mapheader.at1f = B_LITTLE16(numsectors);
+    mapheader.at21 = B_LITTLE16(numwalls);
+    mapheader.at23 = B_LITTLE16(nSpriteNum);
+    if (byte_1A76C7)
+    {
+        dbCrypt((char*)&mapheader, sizeof(MAPHEADER), 'ttaM');
+    }
+    IOBuffer1.Write(&mapheader, sizeof(MAPHEADER));
+    if (byte_1A76C8)
+    {
+        Bstrcpy(byte_19AE44.at0, AppProperName);
+        byte_19AE44.at48 = nXSectorSize;
+        byte_19AE44.at44 = nXWallSize;
+        byte_19AE44.at40 = nXSpriteSize;
+        dbCrypt((char*)&byte_19AE44, sizeof(MAPHEADER2), numwalls);
+        IOBuffer1.Write(&byte_19AE44, sizeof(MAPHEADER2));
+        dbCrypt((char*)&byte_19AE44, sizeof(MAPHEADER2), numwalls);
+    }
+    if (byte_1A76C8)
+    {
+        dbCrypt((char*)tpskyoff, gSkyCount*sizeof(tpskyoff[0]), gSkyCount*sizeof(tpskyoff[0]));
+    }
+    IOBuffer1.Write(tpskyoff, gSkyCount*sizeof(tpskyoff[0]));
+    if (byte_1A76C8)
+    {
+        dbCrypt((char*)tpskyoff, gSkyCount*sizeof(tpskyoff[0]), gSkyCount*sizeof(tpskyoff[0]));
+    }
+    for (int i = 0; i < numsectors; i++)
+    {
+        if (byte_1A76C8)
+        {
+            dbCrypt((char*)&sector[i], sizeof(sectortype), gMapRev*sizeof(sectortype));
+        }
+        IOBuffer1.Write(&sector[i], sizeof(sectortype));
+        if (byte_1A76C8)
+        {
+            dbCrypt((char*)&sector[i], sizeof(sectortype), gMapRev*sizeof(sectortype));
+        }
+        if (sector[i].extra > 0)
+        {
+            char pBuffer[nXSectorSize];
+            BitWriter bitWriter(pBuffer, nXSectorSize);
+            XSECTOR* pXSector = &xsector[sector[i].extra];
+            bitWriter.write(pXSector->reference, 14);
+            bitWriter.write(pXSector->state, 1);
+            bitWriter.write(pXSector->busy, 17);
+            bitWriter.write(pXSector->data, 16);
+            bitWriter.write(pXSector->txID, 10);
+            bitWriter.write(pXSector->at7_2, 3);
+            bitWriter.write(pXSector->at7_5, 3);
+            bitWriter.write(pXSector->rxID, 10);
+            bitWriter.write(pXSector->command, 8);
+            bitWriter.write(pXSector->triggerOn, 1);
+            bitWriter.write(pXSector->triggerOff, 1);
+            bitWriter.write(pXSector->busyTimeA, 12);
+            bitWriter.write(pXSector->waitTimeA, 12);
+            bitWriter.write(pXSector->atd_4, 1);
+            bitWriter.write(pXSector->interruptable, 1);
+            bitWriter.write(pXSector->amplitude, 8);
+            bitWriter.write(pXSector->freq, 8);
+            bitWriter.write(pXSector->atf_6, 1);
+            bitWriter.write(pXSector->atf_7, 1);
+            bitWriter.write(pXSector->phase, 8);
+            bitWriter.write(pXSector->wave, 4);
+            bitWriter.write(pXSector->shadeAlways, 1);
+            bitWriter.write(pXSector->shadeFloor, 1);
+            bitWriter.write(pXSector->shadeCeiling, 1);
+            bitWriter.write(pXSector->shadeWalls, 1);
+            bitWriter.write(pXSector->shade, 8);
+            bitWriter.write(pXSector->panAlways, 1);
+            bitWriter.write(pXSector->panFloor, 1);
+            bitWriter.write(pXSector->panCeiling, 1);
+            bitWriter.write(pXSector->Drag, 1);
+            bitWriter.write(pXSector->Underwater, 1);
+            bitWriter.write(pXSector->Depth, 3);
+            bitWriter.write(pXSector->panVel, 8);
+            bitWriter.write(pXSector->panAngle, 11);
+            bitWriter.write(pXSector->at16_3, 1);
+            bitWriter.write(pXSector->decoupled, 1);
+            bitWriter.write(pXSector->triggerOnce, 1);
+            bitWriter.write(pXSector->at16_6, 1);
+            bitWriter.write(pXSector->Key, 3);
+            bitWriter.write(pXSector->Push, 1);
+            bitWriter.write(pXSector->Vector, 1);
+            bitWriter.write(pXSector->Reserved, 1);
+            bitWriter.write(pXSector->Enter, 1);
+            bitWriter.write(pXSector->Exit, 1);
+            bitWriter.write(pXSector->Wallpush, 1);
+            bitWriter.write(pXSector->color, 1);
+            bitWriter.write(pXSector->at18_1, 1);
+            bitWriter.write(pXSector->busyTimeB, 12);
+            bitWriter.write(pXSector->waitTimeB, 12);
+            bitWriter.write(pXSector->at1b_2, 1);
+            bitWriter.write(pXSector->at1b_3, 1);
+            bitWriter.write(pXSector->ceilpal, 4);
+            bitWriter.write(pXSector->at1c_0, 32);
+            bitWriter.write(pXSector->at20_0, 32);
+            bitWriter.write(pXSector->at24_0, 32);
+            bitWriter.write(pXSector->at28_0, 32);
+            bitWriter.write(pXSector->at2c_0, 16);
+            bitWriter.write(pXSector->at2e_0, 16);
+            bitWriter.write(pXSector->Crush, 1);
+            bitWriter.write(pXSector->at30_1, 8);
+            bitWriter.write(pXSector->at31_1, 8);
+            bitWriter.write(pXSector->at32_1, 8);
+            bitWriter.write(pXSector->damageType, 3);
+            bitWriter.write(pXSector->floorpal, 4);
+            bitWriter.write(pXSector->at34_0, 8);
+            bitWriter.write(pXSector->locked, 1);
+            bitWriter.write(pXSector->windVel, 10);
+            bitWriter.write(pXSector->windAng, 11);
+            bitWriter.write(pXSector->windAlways, 1);
+            bitWriter.write(pXSector->at37_7, 1);
+            bitWriter.write(pXSector->bobTheta, 11);
+            bitWriter.write(pXSector->bobZRange, 5);
+            bitWriter.write(pXSector->bobSpeed, 12);
+            bitWriter.write(pXSector->bobAlways, 1);
+            bitWriter.write(pXSector->bobFloor, 1);
+            bitWriter.write(pXSector->bobCeiling, 1);
+            bitWriter.write(pXSector->bobRotate, 1);
+            IOBuffer1.Write(pBuffer, nXSectorSize);
+        }
+    }
+    for (int i = 0; i < numwalls; i++)
+    {
+        if (byte_1A76C8)
+        {
+            dbCrypt((char*)&wall[i], sizeof(walltype), gMapRev*sizeof(sectortype) | 0x7474614d);
+        }
+        IOBuffer1.Write(&wall[i], sizeof(walltype));
+        if (byte_1A76C8)
+        {
+            dbCrypt((char*)&wall[i], sizeof(walltype), gMapRev*sizeof(sectortype) | 0x7474614d);
+        }
+        if (wall[i].extra > 0)
+        {
+            char pBuffer[nXWallSize];
+            BitWriter bitWriter(pBuffer, nXWallSize);
+            XWALL* pXWall = &xwall[wall[i].extra];
+            bitWriter.write(pXWall->reference, 14);
+            bitWriter.write(pXWall->state, 1);
+            bitWriter.write(pXWall->busy, 17);
+            bitWriter.write(pXWall->data, 16);
+            bitWriter.write(pXWall->txID, 10);
+            bitWriter.write(pXWall->at7_2, 6);
+            bitWriter.write(pXWall->rxID, 10);
+            bitWriter.write(pXWall->command, 8);
+            bitWriter.write(pXWall->triggerOn, 1);
+            bitWriter.write(pXWall->triggerOff, 1);
+            bitWriter.write(pXWall->busyTime, 12);
+            bitWriter.write(pXWall->waitTime, 12);
+            bitWriter.write(pXWall->restState, 1);
+            bitWriter.write(pXWall->interruptable, 1);
+            bitWriter.write(pXWall->panAlways, 1);
+            bitWriter.write(pXWall->panXVel, 8);
+            bitWriter.write(pXWall->panYVel, 8);
+            bitWriter.write(pXWall->decoupled, 1);
+            bitWriter.write(pXWall->triggerOnce, 1);
+            bitWriter.write(pXWall->isTriggered, 1);
+            bitWriter.write(pXWall->key, 3);
+            bitWriter.write(pXWall->triggerPush, 1);
+            bitWriter.write(pXWall->triggerVector, 1);
+            bitWriter.write(pXWall->triggerReserved, 1);
+            bitWriter.write(pXWall->at11_0, 2);
+            bitWriter.write(pXWall->xpanFrac, 8);
+            bitWriter.write(pXWall->ypanFrac, 8);
+            bitWriter.write(pXWall->locked, 1);
+            bitWriter.write(pXWall->dudeLockout, 1);
+            bitWriter.write(pXWall->at13_4, 4);
+            bitWriter.write(pXWall->at14_0, 32);
+            IOBuffer1.Write(pBuffer, nXWallSize);
+        }
+    }
+    for (int i = 0; i < kMaxSprites; i++)
+    {
+        if (sprite[i].statnum < kMaxStatus)
+        {
+            if (byte_1A76C8)
+            {
+                dbCrypt((char*)&sprite[i], sizeof(spritetype), gMapRev*sizeof(spritetype) | 'ttaM');
+            }
+            IOBuffer1.Write(&sprite[i], sizeof(spritetype));
+            if (byte_1A76C8)
+            {
+                dbCrypt((char*)&sprite[i], sizeof(spritetype), gMapRev*sizeof(spritetype) | 'ttaM');
+            }
+            if (sprite[i].extra > 0)
+            {
+                char pBuffer[nXSpriteSize];
+                BitWriter bitWriter(pBuffer, nXSpriteSize);
+                XSPRITE* pXSprite = &xsprite[sprite[i].extra];
+                bitWriter.write(pXSprite->reference, 14);
+                bitWriter.write(pXSprite->state, 1);
+                bitWriter.write(pXSprite->busy, 17);
+                bitWriter.write(pXSprite->txID, 10);
+                bitWriter.write(pXSprite->rxID, 10);
+                bitWriter.write(pXSprite->command, 8);
+                bitWriter.write(pXSprite->triggerOn, 1);
+                bitWriter.write(pXSprite->triggerOff, 1);
+                bitWriter.write(pXSprite->wave, 2);
+                bitWriter.write(pXSprite->busyTime, 12);
+                bitWriter.write(pXSprite->waitTime, 12);
+                bitWriter.write(pXSprite->restState, 1);
+                bitWriter.write(pXSprite->Interrutable, 1);
+                bitWriter.write(pXSprite->atb_2, 2);
+                bitWriter.write(pXSprite->respawnPending, 2);
+                bitWriter.write(pXSprite->atb_6, 1);
+                bitWriter.write(pXSprite->lT, 1);
+                bitWriter.write(pXSprite->dropMsg, 8);
+                bitWriter.write(pXSprite->Decoupled, 1);
+                bitWriter.write(pXSprite->triggerOnce, 1);
+                bitWriter.write(pXSprite->isTriggered, 1);
+                bitWriter.write(pXSprite->key, 3);
+                bitWriter.write(pXSprite->Push, 1);
+                bitWriter.write(pXSprite->Vector, 1);
+                bitWriter.write(pXSprite->Impact, 1);
+                bitWriter.write(pXSprite->Pickup, 1);
+                bitWriter.write(pXSprite->Touch, 1);
+                bitWriter.write(pXSprite->Sight, 1);
+                bitWriter.write(pXSprite->Proximity, 1);
+                bitWriter.write(pXSprite->ate_5, 2);
+                bitWriter.write(pXSprite->lSkill, 5);
+                bitWriter.write(pXSprite->lS, 1);
+                bitWriter.write(pXSprite->lB, 1);
+                bitWriter.write(pXSprite->lC, 1);
+                bitWriter.write(pXSprite->DudeLockout, 1);
+                bitWriter.write(pXSprite->data1, 16);
+                bitWriter.write(pXSprite->data2, 16);
+                bitWriter.write(pXSprite->data3, 16);
+                bitWriter.write(pXSprite->goalAng, 11);
+                bitWriter.write(pXSprite->dodgeDir, 2);
+                bitWriter.write(pXSprite->locked, 1);
+                bitWriter.write(pXSprite->medium, 2);
+                bitWriter.write(pXSprite->respawn, 2);
+                bitWriter.write(pXSprite->data4, 16);
+                bitWriter.write(pXSprite->at1a_2, 6);
+                bitWriter.write(pXSprite->lockMsg, 8);
+                bitWriter.write(pXSprite->health, 12);
+                bitWriter.write(pXSprite->dudeDeaf, 1);
+                bitWriter.write(pXSprite->dudeAmbush, 1);
+                bitWriter.write(pXSprite->dudeGuard, 1);
+                bitWriter.write(pXSprite->dudeFlag4, 1);
+                bitWriter.write(pXSprite->target, 16);
+                bitWriter.write(pXSprite->targetX, 32);
+                bitWriter.write(pXSprite->targetY, 32);
+                bitWriter.write(pXSprite->targetZ, 32);
+                bitWriter.write(pXSprite->burnTime, 16);
+                bitWriter.write(pXSprite->burnSource, 16);
+                bitWriter.write(pXSprite->height, 16);
+                bitWriter.write(pXSprite->stateTimer, 16);
+                IOBuffer1.Write(pBuffer, nXSpriteSize);
+            }
+        }
+    }
+    unsigned long nCRC = Bcrc32(pData, nSize-4, 0);
+    IOBuffer1.Write(&nCRC, 4);
+    int nHandle = Bopen(sMapExt, BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY, BS_IREAD|BS_IWRITE);
+    if (nHandle == -1)
+    {
+        initprintf("Couldn't open \"%s\" for writing: %s\n", sMapExt, strerror(errno));
+        Bfree(pData);
+        return -1;
+    }
+    if (Bwrite(nHandle, pData, nSize) != nSize)
+    {
+        initprintf("Couldn't write to \"%s\": %s\n", sMapExt, strerror(errno));
+        Bclose(nHandle);
+        Bfree(pData);
+        return -1;
+    }
+    Bclose(nHandle);
+    Bfree(pData);
+    return 0;
+#if 0
+    char *pExt = strchr(sMapExt, '.');
+    if (pExt)
+    {
+        *pExt = 0;
+    }
+    gSysRes.AddExternalResource(sMapExt, "MAP", nSize);
+    DICTNODE *hMap = gSysRes.Lookup(sMapExt, "MAP");
+    dassert(hMap != NULL);
+#endif
+}
+
 int32_t qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum)
 {
-    // NUKE-TODO: implement flags
+    // NUKE-TODO: implement flags, see mapedit.cpp
     return dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, (short*)daang, (short*)dacursectnum, NULL);
+}
+
+int32_t qsaveboard(const char* filename, const vec3_t* dapos, int16_t daang, int16_t dacursectnum)
+{
+    // NUKE-TODO: see mapedit.cpp
+    byte_1A76C6 = byte_1A76C8 = byte_1A76C7 = 1;
+    return dbSaveMap(filename, dapos->x, dapos->y, dapos->z, daang, dacursectnum);
 }

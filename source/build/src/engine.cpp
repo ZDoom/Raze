@@ -10118,8 +10118,12 @@ static int32_t get_mapversion(void)
 //
 // saveboard
 //
+int32_t(*saveboard_replace)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum) = NULL;
 int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum)
 {
+    if (saveboard_replace)
+        return saveboard_replace(filename, dapos, daang, dacursectnum);
+
     int16_t numsprites, ts;
     int32_t i, j, tl;
 
