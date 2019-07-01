@@ -293,6 +293,18 @@ static inline int GetWallType(int nWall)
     return wall[nWall].lotag;
 }
 
+inline void GetSpriteExtents(spritetype *pSprite, int *top, int *bottom)
+{
+    *top = *bottom = pSprite->z;
+    if ((pSprite->cstat & 0x30) != 0x20)
+    {
+        int height = tilesiz[pSprite->picnum].y;
+        int center = height / 2 + picanm[pSprite->picnum].yofs;
+        *top -= (pSprite->yrepeat << 2)*center;
+        *bottom += (pSprite->yrepeat << 2)*(height - center);
+    }
+}
+
 void InsertSpriteSect(int nSprite, int nSector);
 void RemoveSpriteSect(int nSprite);
 void InsertSpriteStat(int nSprite, int nStat);
