@@ -270,6 +270,9 @@ void    P_DisplayWeapon(void);
 void P_DropWeapon(int playerNum);
 int     P_FindOtherPlayer(int playerNum, int32_t *pDist);
 void    P_FragPlayer(int playerNum);
+#ifdef YAX_ENABLE
+void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *pCeilZ, int32_t *pFloorZ);
+#endif
 void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
 void    P_ProcessInput(int playerNum);
 void    P_QuickKill(DukePlayer_t *pPlayer);

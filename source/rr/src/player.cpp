@@ -5923,7 +5923,7 @@ static int P_DoFist(DukePlayer_t *pPlayer)
 }
 
 #ifdef YAX_ENABLE
-static void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *pCeilZ, int32_t *pFloorZ)
+void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *pCeilZ, int32_t *pFloorZ)
 {
     int didCeiling = 0;
 
@@ -7959,26 +7959,22 @@ HORIZONLY:;
         pPlayer->q16horiz += fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         centerHoriz++;
     }
-
-    if (TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
+    else if (TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {
         pPlayer->return_to_center = 9;
         pPlayer->q16horiz -= fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         centerHoriz++;
     }
-
-    if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && (!RRRA || !pPlayer->on_motorcycle))
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && (!RRRA || !pPlayer->on_motorcycle))
     {
         pPlayer->q16horiz += fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         centerHoriz++;
     }
-
-    if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && (!RRRA || !pPlayer->on_motorcycle))
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && (!RRRA || !pPlayer->on_motorcycle))
     {
         pPlayer->q16horiz -= fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         centerHoriz++;
     }
-
     if (RR && pPlayer->recoil && *weaponFrame == 0)
     {
         int delta = pPlayer->recoil >> 1;
@@ -8002,7 +7998,7 @@ HORIZONLY:;
         pPlayer->q16horiz -= fix16_from_int(pPlayer->hard_landing<<4);
     }
 
-    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + g_player[playerNum].inputBits->q16horz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + (ud.recstat == 2 && g_demo_legacy && !pPlayer->aim_mode) ? 0 : g_player[playerNum].inputBits->q16horz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
     if (ud.recstat == 2 && g_demo_legacy) centerHoriz = !pPlayer->aim_mode;
 

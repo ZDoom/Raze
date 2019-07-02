@@ -45,6 +45,26 @@ int32_t g_networkMode = NET_CLIENT;
 int32_t g_netIndex = 2;
 newgame_t pendingnewgame;
 
+uint8_t syncstat, syncval[MAXPLAYERS][MOVEFIFOSIZ];
+int32_t syncvalhead[MAXPLAYERS], syncvaltail, syncvaltottail;
+
+input_t dsync[MAXPLAYERS], loc;
+int32_t avgfvel, avgsvel, avgavel, avghorz, avgbits;
+
+int32_t movefifosendplc;
+
+int32_t movefifoend[MAXPLAYERS];
+
+vec3_t mypos, omypos, myvel;
+fix16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff, myang, omyang;
+int16_t mycursectnum, myjumpingcounter;
+uint8_t myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
+
+int32_t fakemovefifoplc, movefifoplc;
+vec3_t myposbak[MOVEFIFOSIZ];
+fix16_t myhorizbak[MOVEFIFOSIZ], myangbak[MOVEFIFOSIZ];
+int32_t myminlag[MAXPLAYERS], mymaxlag, otherminlag, bufferjitter = 1;
+
 #ifdef NETCODE_DISABLE
 void faketimerhandler(void) {}
 #else
@@ -246,6 +266,503 @@ void Net_WaitForServer(void)
 
 void Net_ResetPrediction(void)
 {
+    mypos = omypos = g_player[myconnectindex].ps->pos;
+    myvel = { 0, 0, 0 };
+    myang = omyang = g_player[myconnectindex].ps->q16ang;
+    myhoriz = omyhoriz = g_player[myconnectindex].ps->q16horiz;
+    myhorizoff = omyhorizoff = g_player[myconnectindex].ps->q16horizoff;
+    mycursectnum = g_player[myconnectindex].ps->cursectnum;
+    myjumpingcounter = g_player[myconnectindex].ps->jumping_counter;
+    myjumpingtoggle = g_player[myconnectindex].ps->jumping_toggle;
+    myonground = g_player[myconnectindex].ps->on_ground;
+    myhardlanding = g_player[myconnectindex].ps->hard_landing;
+    myreturntocenter = g_player[myconnectindex].ps->return_to_center;
+}
+
+void Net_Predict(void)
+{
+    // NUKE-TODO: Add RR code
+    DukePlayer_t *const pPlayer = g_player[myconnectindex].ps;
+    spritetype *const   pSprite = &sprite[pPlayer->i];
+
+    input_t  *const pInput = &inputfifo[fakemovefifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
+
+    int16_t backcstat = pSprite->cstat;
+    pSprite->cstat &= ~257;
+
+    uint32_t playerBits = pInput->bits;
+
+    int sectorLotag = sector[mycursectnum].lotag;
+    uint8_t spritebridge = 0;
+
+    int stepHeight, centerHoriz;
+    int16_t   ceilingBunch, floorBunch;
+
+    if (ud.noclip == 0 && (mycursectnum < 0 || mycursectnum >= MAXSECTORS || sector[mycursectnum].floorpicnum == MIRROR))
+    {
+        mypos.x = omypos.x;
+        mypos.y = omypos.y;
+    }
+    else
+    {
+        omypos.x = mypos.x;
+        omypos.y = mypos.y;
+    }
+
+    omyhoriz = myhoriz;
+    omyhorizoff = myhorizoff;
+    omypos.z = mypos.z;
+    omyang = myang;
+
+    int32_t floorZ, ceilZ, highZhit, lowZhit;
+    getzrange(&mypos, mycursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, 163, CLIPMASK0);
+    
+    int truecz, truefz;
+#ifdef YAX_ENABLE
+    getzsofslope_player(mycursectnum, mypos.x, mypos.y, &truecz, &truefz);
+#else
+    getzsofslope(psect, mypos.x, mypos.y, &truecz, &truefz);
+#endif
+    int const trueFloorZ    = truefz;
+    int const trueFloorDist = klabs(mypos.z - trueFloorZ);
+
+    if ((lowZhit & 49152) == 16384 && sectorLotag == 1 && trueFloorDist > PHEIGHT + ZOFFSET2)
+        sectorLotag = 0;
+    
+    // calculates automatic view angle for playing without a mouse
+    if (pPlayer->aim_mode == 0 && myonground && sectorLotag != ST_2_UNDERWATER
+        && (sector[mycursectnum].floorstat & 2))
+    {
+        vec2_t const adjustedPlayer = { mypos.x + (sintable[(fix16_to_int(myang) + 512) & 2047] >> 5),
+                                        mypos.y + (sintable[fix16_to_int(myang) & 2047] >> 5) };
+        int16_t curSectNum = mycursectnum;
+
+        updatesector(adjustedPlayer.x, adjustedPlayer.y, &curSectNum);
+
+        if (curSectNum >= 0)
+        {
+            int const slopeZ = getflorzofslope(mycursectnum, adjustedPlayer.x, adjustedPlayer.y);
+            if ((mycursectnum == curSectNum) ||
+                (klabs(getflorzofslope(curSectNum, adjustedPlayer.x, adjustedPlayer.y) - slopeZ) <= ZOFFSET6))
+                myhorizoff += fix16_from_int(mulscale16(trueFloorZ - slopeZ, 160));
+        }
+    }
+    if (myhorizoff > 0)
+    {
+        myhorizoff -= ((myhorizoff >> 3) + fix16_one);
+        myhorizoff = max(myhorizoff, 0);
+    }
+    else if (myhorizoff < 0)
+    {
+        myhorizoff += (((-myhorizoff) >> 3) + fix16_one);
+        myhorizoff = min(myhorizoff, 0);
+    }
+
+    if (highZhit >= 0 && (highZhit&49152) == 49152)
+    {
+        highZhit &= (MAXSPRITES-1);
+
+        if (sprite[highZhit].statnum == STAT_ACTOR && sprite[highZhit].extra >= 0)
+        {
+            highZhit = 0;
+            ceilZ    = truecz;
+        }
+    }
+
+    if (lowZhit >= 0 && (lowZhit&49152) == 49152)
+    {
+        int spriteNum = lowZhit&(MAXSPRITES-1);
+
+        if ((sprite[spriteNum].cstat&33) == 33)
+        {
+            sectorLotag             = 0;
+            spritebridge            = 1;
+            //pPlayer->sbs            = spriteNum;
+        }
+        else if (A_CheckEnemySprite(&sprite[spriteNum]) && sprite[spriteNum].xrepeat > 24
+                     && klabs(pSprite->z - sprite[spriteNum].z) < (84 << 8))
+        {
+            // TX: I think this is what makes the player slide off enemies... might
+            // be a good sprite flag to add later.
+            // Helix: there's also SLIDE_ABOVE_ENEMY.
+            int spriteAng = getangle(sprite[spriteNum].x - mypos.x,
+                                        sprite[spriteNum].y - mypos.y);
+            myvel.x -= sintable[(spriteAng + 512) & 2047] << 4;
+            myvel.y -= sintable[spriteAng & 2047] << 4;
+        }
+    }
+    
+    int       velocityModifier = TICSPERFRAME;
+    int       floorZOffset     = 40;
+    int const playerShrunk     = (pSprite->yrepeat < 32);
+
+    if (pSprite->extra <= 0)
+    {
+        if (sectorLotag == ST_2_UNDERWATER)
+        {
+            if (pPlayer->on_warping_sector == 0)
+            {
+                if (klabs(mypos.z - floorZ) >(PHEIGHT>>1))
+                    mypos.z += 348;
+            }
+            clipmove(&mypos, &mycursectnum,
+                0, 0, 164, (4L<<8), (4L<<8), CLIPMASK0);
+        }
+
+        updatesector(mypos.x, mypos.y, &mycursectnum);
+        pushmove(&mypos, &mycursectnum, 128L, (4L<<8), (20L<<8), CLIPMASK0);
+
+        myhoriz = F16(100);
+        myhorizoff = 0;
+
+        goto ENDFAKEPROCESSINPUT;
+    }
+
+    if (pPlayer->on_crane >= 0)
+        goto FAKEHORIZONLY;
+
+    if (pPlayer->one_eighty_count < 0)
+        myang += F16(128);
+
+    if (sectorLotag == ST_2_UNDERWATER)
+    {
+        myjumpingcounter = 0;
+
+        if (TEST_SYNC_KEY(playerBits, SK_JUMP))
+        {
+            myvel.z = max(min(-348, myvel.z - 348), -(256 * 6));
+        }
+        else if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
+        {
+            myvel.z = min(max(348, myvel.z + 348), (256 * 6));
+        }
+        else
+        {
+            // normal view
+            if (myvel.z < 0)
+                myvel.z = min(0, myvel.z + 256);
+
+            if (myvel.z > 0)
+                myvel.z = max(0, myvel.z - 256);
+        }
+
+        if (myvel.z > 2048)
+            myvel.z >>= 1;
+
+        mypos.z += myvel.z;
+
+        if (mypos.z > (floorZ-(15<<8)))
+            mypos.z += ((floorZ-(15<<8))-mypos.z)>>1;
+
+        if (mypos.z < ceilZ+ZOFFSET6)
+        {
+            mypos.z = ceilZ+ZOFFSET6;
+            myvel.z = 0;
+        }
+    }
+    else if (pPlayer->jetpack_on)
+    {
+        myonground = 0;
+        myjumpingcounter = 0;
+        myhardlanding = 0;
+
+        if (pPlayer->jetpack_on < 11)
+            mypos.z -= (pPlayer->jetpack_on<<7); //Goin up
+
+        int const zAdjust = playerShrunk ? 512 : 2048;
+
+        if (TEST_SYNC_KEY(playerBits, SK_JUMP))  // jumping, flying up
+        {
+            mypos.z -= zAdjust;
+        }
+
+        if (TEST_SYNC_KEY(playerBits, SK_CROUCH))  // crouching, flying down
+        {
+            mypos.z += zAdjust;
+        }
+        
+        int const Zdiff = (playerShrunk == 0 && (sectorLotag == 0 || sectorLotag == ST_2_UNDERWATER)) ? 32 : 16;
+
+        if (mypos.z > (floorZ - (Zdiff << 8)))
+            mypos.z += ((floorZ - (Zdiff << 8)) - mypos.z) >> 1;
+
+        if (mypos.z < (ceilZ + (18 << 8)))
+            mypos.z = ceilZ + (18 << 8);
+    }
+    else
+    {
+        if (sectorLotag == ST_1_ABOVE_WATER && spritebridge == 0)
+        {
+            floorZOffset = playerShrunk ? 12 : 34;
+        }
+        if (mypos.z < (floorZ-(floorZOffset<<8)))  //falling
+        {
+            if ((!TEST_SYNC_KEY(playerBits, SK_JUMP) && !TEST_SYNC_KEY(playerBits, SK_CROUCH)) && myonground &&
+                (sector[mycursectnum].floorstat & 2) && mypos.z >= (floorZ - (floorZOffset << 8) - ZOFFSET2))
+                mypos.z = floorZ - (floorZOffset << 8);
+            else
+            {
+                myonground = 0;
+
+                myvel.z += (g_spriteGravity + 80);
+
+                if (myvel.z >= (4096 + 2048))
+                    myvel.z = (4096 + 2048);
+            }
+        }
+
+        else
+        {
+            if ((sectorLotag != ST_1_ABOVE_WATER && sectorLotag != ST_2_UNDERWATER) &&
+                (myonground == 0 && myvel.z > (6144 >> 1)))
+                myhardlanding = myvel.z>>10;
+            myonground = 1;
+
+            if (floorZOffset == 40)
+            {
+                //Smooth on the ground
+                int Zdiff = ((floorZ - (floorZOffset << 8)) - mypos.z) >> 1;
+
+                if (klabs(Zdiff) < 256)
+                    Zdiff = 0;
+                
+                mypos.z += ((klabs(Zdiff) >= 256) ? (((floorZ - (floorZOffset << 8)) - mypos.z) >> 1) : 0);
+                //myz += k; // ((fz-(i<<8))-myz)>>1;
+                myvel.z -= 768; // 412;
+                if (myvel.z < 0)
+                    myvel.z = 0;
+            }
+            else if (myjumpingcounter == 0)
+            {
+                mypos.z += ((floorZ - (floorZOffset << 7)) - mypos.z) >> 1;  // Smooth on the water
+
+                if (pPlayer->on_warping_sector == 0 && mypos.z > floorZ - ZOFFSET2)
+                {
+                    mypos.z = floorZ - ZOFFSET2;
+                    myvel.z >>= 1;
+                }
+            }
+
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
+                mypos.z += (2048+768);
+
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && myjumpingtoggle == 1)
+                myjumpingtoggle = 0;
+            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && myjumpingtoggle == 0)
+            {
+                if (myjumpingcounter == 0)
+                    if ((floorZ-ceilZ) > (56<<8))
+                    {
+                        myjumpingcounter = 1;
+                        myjumpingtoggle = 1;
+                    }
+            }
+            if (myjumpingcounter && !TEST_SYNC_KEY(playerBits, SK_JUMP))
+                myjumpingcounter = 0;
+        }
+
+        if (myjumpingcounter)
+        {
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) == 0 && myjumpingtoggle == 1)
+                myjumpingtoggle = 0;
+
+            if (myjumpingcounter < (1024+256))
+            {
+                if (sectorLotag == ST_1_ABOVE_WATER && myjumpingcounter > 768)
+                {
+                    myjumpingcounter = 0;
+                    myvel.z = -512;
+                }
+                else
+                {
+                    myvel.z -= (sintable[(2048-128+myjumpingcounter)&2047])/12;
+                    myjumpingcounter += 180;
+                    myonground = 0;
+                }
+            }
+            else
+            {
+                myjumpingcounter = 0;
+                myvel.z = 0;
+            }
+        }
+
+        mypos.z += myvel.z;
+
+        if (mypos.z < (ceilZ+ZOFFSET6))
+        {
+            myjumpingcounter = 0;
+            if (myvel.z < 0)
+                myvel.x = myvel.y = 0;
+            myvel.z = 128;
+            mypos.z = ceilZ+ZOFFSET6;
+        }
+
+    }
+
+    if (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || myhardlanding || pPlayer->access_incs > 0 ||
+        pPlayer->knee_incs > 0 || (pPlayer->curr_weapon == TRIPBOMB_WEAPON &&
+                                   pPlayer->kickback_pic > 1 && pPlayer->kickback_pic < 4))
+    {
+        velocityModifier = 0;
+        myvel.x   = 0;
+        myvel.y   = 0;
+    }
+    else if (pInput->q16avel)          //p->ang += syncangvel * constant
+    {
+        fix16_t const inputAng  = pInput->q16avel;
+
+        myang += (sectorLotag == ST_2_UNDERWATER) ? fix16_mul(inputAng - (inputAng >> 3), fix16_from_int(ksgn(velocityModifier)))
+                                                            : fix16_mul(inputAng, fix16_from_int(ksgn(velocityModifier)));
+        
+        myang &= 0x7FFFFFF;
+    }
+
+    if (myvel.x || myvel.y || pInput->fvel || pInput->svel)
+    {
+        if (pPlayer->jetpack_on == 0 && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
+            velocityModifier <<= 1;
+
+        myvel.x += ((pInput->fvel * velocityModifier) << 6);
+        myvel.y += ((pInput->svel * velocityModifier) << 6);
+
+        int playerSpeedReduction = 0;
+        
+        if (myonground && (TEST_SYNC_KEY(playerBits, SK_CROUCH)
+         || (pPlayer->kickback_pic > 10 && pPlayer->curr_weapon == KNEE_WEAPON)))
+            playerSpeedReduction = 0x2000;
+        else if (sectorLotag == ST_2_UNDERWATER)
+            playerSpeedReduction = 0x1400;
+
+        myvel.x = mulscale16(myvel.x, pPlayer->runspeed - playerSpeedReduction);
+        myvel.y = mulscale16(myvel.y, pPlayer->runspeed - playerSpeedReduction);
+
+        if (klabs(myvel.x) < 2048 && klabs(myvel.y) < 2048)
+            myvel.x = myvel.y = 0;
+
+        if (playerShrunk)
+        {
+            myvel.x = mulscale16(myvel.x, pPlayer->runspeed - (pPlayer->runspeed >> 1) + (pPlayer->runspeed >> 2));
+            myvel.y = mulscale16(myvel.y, pPlayer->runspeed - (pPlayer->runspeed >> 1) + (pPlayer->runspeed >> 2));
+        }
+    }
+
+FAKEHORIZONLY:;
+    stepHeight = (sectorLotag == ST_1_ABOVE_WATER || spritebridge == 1) ? pPlayer->autostep_sbw : pPlayer->autostep;
+    
+#ifdef YAX_ENABLE
+    if (mycursectnum >= 0)
+        yax_getbunches(mycursectnum, &ceilingBunch, &floorBunch);
+
+    // This updatesectorz conflicts with Duke3D's way of teleporting through water,
+    // so make it a bit conditional... OTOH, this way we have an ugly z jump when
+    // changing from above water to underwater
+
+    if ((mycursectnum >= 0 && !(sector[mycursectnum].lotag == ST_1_ABOVE_WATER && myonground && floorBunch >= 0))
+        && ((floorBunch >= 0 && !(sector[mycursectnum].floorstat & 512))
+            || (ceilingBunch >= 0 && !(sector[mycursectnum].ceilingstat & 512))))
+    {
+        mycursectnum += MAXSECTORS;  // skip initial z check, restored by updatesectorz
+        updatesectorz(mypos.x, mypos.y, mypos.z, &mycursectnum);
+    }
+#endif
+    clipmove(&mypos, &mycursectnum, myvel.x, myvel.y, 164, (4L << 8), stepHeight, CLIPMASK0);
+    pushmove(&mypos, &mycursectnum, 164, (4L << 8), (4L << 8), CLIPMASK0);
+
+    // This makes the player view lower when shrunk.  NOTE that it can get the
+    // view below the sector floor (and does, when on the ground).
+    if (pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER && playerShrunk)
+        mypos.z += ZOFFSET5;
+
+    centerHoriz = 0;
+    if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || myhardlanding)
+        myreturntocenter = 9;
+
+    if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
+    {
+        myreturntocenter = 9;
+        myhoriz += fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        centerHoriz++;
+    }
+    else if (TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
+    {
+        myreturntocenter = 9;
+        myhoriz -= fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        centerHoriz++;
+    }
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP))
+    {
+        myhoriz += fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        centerHoriz++;
+    }
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN))
+    {
+        myhoriz -= fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        centerHoriz++;
+    }
+
+    if (myreturntocenter > 0 && !TEST_SYNC_KEY(playerBits, SK_LOOK_UP) && !TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
+    {
+        myreturntocenter--;
+        myhoriz += F16(33)-fix16_div(myhoriz, F16(3));
+        centerHoriz++;
+    }
+    if (myhardlanding > 0)
+    {
+        myhardlanding--;
+        myhoriz -= fix16_from_int(myhardlanding<<4);
+    }
+
+    myhoriz = fix16_clamp(myhoriz + pInput->q16horz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+
+    if (centerHoriz)
+    {
+        if (myhoriz > F16(95) && myhoriz < F16(105)) myhoriz = F16(100);
+        if (myhorizoff > F16(-5) && myhorizoff < F16(5)) myhorizoff = 0;
+    }
+
+    if (pPlayer->knee_incs > 0)
+    {
+        myhoriz -= F16(48);
+        myreturntocenter = 9;
+    }
+
+
+ENDFAKEPROCESSINPUT:
+
+    myposbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = mypos;
+    myangbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myang;
+    myhorizbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myhoriz;
+    fakemovefifoplc++;
+
+    pSprite->cstat = backcstat;
+}
+
+void Net_PredictionCorrect(void)
+{
+    if (numplayers < 2)
+        return;
+
+    int i = ((movefifoplc-1)&(MOVEFIFOSIZ-1));
+    DukePlayer_t *p = g_player[myconnectindex].ps;
+
+    if (!Bmemcmp(&p->pos, &myposbak[i], sizeof(vec3_t))
+        && p->q16horiz == myhorizbak[i] && p->q16ang == myangbak[i]) return;
+
+    mypos = p->pos; omypos = p->opos, myvel = p->vel;
+    myang = p->q16ang; omyang = p->oq16ang;
+    mycursectnum = p->cursectnum;
+    myhoriz = p->q16horiz; omyhoriz = p->oq16horiz;
+    myhorizoff = p->q16horizoff; omyhorizoff = p->oq16horizoff;
+    myjumpingcounter = p->jumping_counter;
+    myjumpingtoggle = p->jumping_toggle;
+    myonground = p->on_ground;
+    myhardlanding = p->hard_landing;
+    myreturntocenter = p->return_to_center;
+
+    fakemovefifoplc = movefifoplc;
+    while (fakemovefifoplc < movefifoend[myconnectindex])
+        Net_Predict();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
