@@ -212,15 +212,14 @@ typedef struct {
     DukePlayer_t *ps;
     input_t *inputBits;
 
-    int32_t netsynctime;
-    int16_t ping, filler;
+    int32_t movefifoend, syncvalhead, myminlag;
     int32_t pcolor, pteam;
     // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
     uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
-    char vote, gotvote, pingcnt, playerquitflag, ready;
+    char vote, gotvote, playerreadyflag, playerquitflag, connected;
     char user_name[32];
-    uint32_t revision;
+    char syncval[MAXPLAYERS][MOVEFIFOSIZ];
 } playerdata_t;
 #pragma pack(pop)
 

@@ -65,6 +65,38 @@ enum netchan_t
 
 enum DukePacket_t
 {
+    PACKET_TYPE_MASTER_TO_SLAVE,
+    PACKET_TYPE_SLAVE_TO_MASTER,
+    PACKET_TYPE_BROADCAST,
+    SERVER_GENERATED_BROADCAST,
+    PACKET_TYPE_VERSION,
+
+    /* don't change anything above this line */
+
+    PACKET_TYPE_MESSAGE,
+
+    PACKET_TYPE_NEW_GAME,
+    PACKET_TYPE_RTS,
+    PACKET_TYPE_MENU_LEVEL_QUIT,
+    PACKET_TYPE_WEAPON_CHOICE,
+    PACKET_TYPE_PLAYER_OPTIONS,
+    PACKET_TYPE_PLAYER_NAME,
+    PACKET_TYPE_INIT_SETTINGS,
+
+    PACKET_TYPE_USER_MAP,
+
+    PACKET_TYPE_MAP_VOTE,
+    PACKET_TYPE_MAP_VOTE_INITIATE,
+    PACKET_TYPE_MAP_VOTE_CANCEL,
+
+    PACKET_TYPE_LOAD_GAME,
+    PACKET_TYPE_NULL_PACKET,
+    PACKET_TYPE_PLAYER_READY,
+    PACKET_TYPE_FRAGLIMIT_CHANGED,
+    PACKET_TYPE_EOL,
+    PACKET_TYPE_QUIT = 255, // should match mmulti I think
+
+
     PACKET_MASTER_TO_SLAVE,
     PACKET_SLAVE_TO_MASTER,
 
@@ -115,6 +147,23 @@ enum netmode_t
     NET_DEDICATED_CLIENT, // client on dedicated server
     NET_DEDICATED_SERVER
 };
+
+#define MAXSYNCBYTES 16
+#define SYNCFIFOSIZ 1024
+
+// TENSW: on really bad network connections, the sync FIFO queue can overflow if it is the
+// same size as the move fifo.
+#if MOVEFIFOSIZ >= SYNCFIFOSIZ
+#error "MOVEFIFOSIZ is greater than or equal to SYNCFIFOSIZ!"
+#endif
+
+extern char syncstat[MAXSYNCBYTES];
+extern char g_szfirstSyncMsg[MAXSYNCBYTES][60];
+
+extern int g_numSyncBytes;
+extern int g_foundSyncError;
+extern int syncvaltail, syncvaltottail;
+
 
 #define NETMAXACTORS 1024
 
@@ -181,6 +230,20 @@ extern newgame_t pendingnewgame;
 
 #ifndef NETCODE_DISABLE
 
+// Sync
+void initsynccrc(void);
+char Net_PlayerSync(void);
+char Net_PlayerSync2(void);
+char Net_ActorSync(void);
+char Net_WeaponSync(void);
+char Net_MapSync(void);
+char Net_RandomSync(void);
+void Net_GetSyncStat(void);
+void Net_DisplaySyncMsg(void);
+void Net_AddSyncInfoToPacket(int* j);
+void Net_GetSyncInfoFromPacket(char* packbuf, int packbufleng, int* j, int otherconnectindex);
+
+
 // Connect/Disconnect
 void    Net_Connect(const char *srvaddr);
 void    Net_Disconnect(void);
@@ -190,6 +253,7 @@ void    Net_ReceiveDisconnect(ENetEvent *event);
 #endif
 void    Net_GetPackets(void);
 #ifndef NETCODE_DISABLE
+void    Net_SendPacket(int32_t dest, uint8_t* pbuf, int32_t packbufleng);
 void    Net_HandleServerPackets(void);
 void    Net_HandleClientPackets(void);
 void    Net_ParseClientPacket(ENetEvent *event);
@@ -264,9 +328,12 @@ void    Net_ReceiveMapVoteCancel(uint8_t *pbuf);
 //////////
 
 void    Net_ResetPrediction(void);
+void    Net_DoPrediction(void);
+void    Net_CorrectPrediction(void);
 void    Net_SpawnPlayer(int32_t player);
 void    Net_SyncPlayer(ENetEvent *event);
-void    Net_WaitForServer(void);
+void    Net_WaitForEverybody(void);
+void    Net_Update(void);
 void    faketimerhandler(void);
 
 #else
@@ -341,6 +408,8 @@ void    faketimerhandler(void);
 //////////
 
 #define Net_ResetPrediction(...) ((void)0)
+#define Net_DoPrediction(...) ((void)0)
+#define Net_CorrectPrediction(...) ((void)0)
 #define Net_RestoreMapState(...) ((void)0)
 #define Net_SyncPlayer(...) ((void)0)
 #define Net_WaitForServer(...) ((void)0)

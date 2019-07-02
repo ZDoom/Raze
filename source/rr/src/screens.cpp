@@ -1316,6 +1316,8 @@ void G_DisplayRest(int32_t smoothratio)
     if (g_Debug)
         G_ShowCacheLocks();
 
+    Net_DisplaySyncMsg();
+
 #ifndef EDUKE32_TOUCH_DEVICES
     if (VOLUMEONE)
     {

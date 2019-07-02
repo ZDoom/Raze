@@ -7798,6 +7798,10 @@ int app_main(int argc, char const * const * argv)
     g_skillCnt = 4;
     ud.multimode = 1;
 
+    g_movesPerPacket = 1;
+    bufferjitter = 1;
+    initsynccrc();
+
     // This needs to happen before G_CheckCommandLine() because G_GameExit()
     // accesses g_player[0].
     G_MaybeAllocPlayer(0);
@@ -8427,9 +8431,26 @@ MAIN_LOOP_RESTART:
 
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
 {
+    int i;
+
+    if (numplayers > 1)
+        while (predictfifoplc < g_player[myconnectindex].movefifoend) Net_DoPrediction();
+
     Net_GetPackets();
 
-    return G_DoMoveThings();
+    if (numplayers < 2) bufferjitter = 0;
+    while (g_player[myconnectindex].movefifoend-movefifoplc > bufferjitter)
+    {
+        for(TRAVERSE_CONNECT(i))
+        {
+            if (movefifoplc == g_player[i].movefifoend) break;
+        }
+        if (i >= 0) break;
+        if (G_DoMoveThings()) return 1;
+    }
+
+
+    return 0;
 }
 
 int G_DoMoveThings(void)
@@ -8508,11 +8529,13 @@ int G_DoMoveThings(void)
     // Moved lower so it is restored correctly by diffs:
 //    everyothertime++;
 
-    if (g_netClient) // [75] The server should not overwrite its own randomseed
-        randomseed = ticrandomseed;
+    //if (g_netClient) // [75] The server should not overwrite its own randomseed
+    //    randomseed = ticrandomseed;
 
     for (bssize_t TRAVERSE_CONNECT(i))
-        Bmemcpy(g_player[i].inputBits, &inputfifo[(g_netServer && myconnectindex == i)][i], sizeof(input_t));
+        Bmemcpy(g_player[i].inputBits, &inputfifo[movefifoplc&(MOVEFIFOSIZ-1)][i], sizeof(input_t));
+
+    movefifoplc++;
 
     G_UpdateInterpolations();
 
@@ -8531,6 +8554,8 @@ int G_DoMoveThings(void)
             g_player[i].playerquitflag = 0;
         }
     */
+
+    Net_GetSyncStat();
 
     g_moveThingsCount++;
 
@@ -8574,24 +8599,24 @@ int G_DoMoveThings(void)
     if (ud.pause_on == 0)
         G_MoveWorld();
 
-//    Net_CorrectPrediction();
+    Net_CorrectPrediction();
 
-    if (g_netServer)
-        Net_SendServerUpdates();
+    //if (g_netServer)
+    //    Net_SendServerUpdates();
 
     if ((everyothertime&1) == 0)
     {
         G_AnimateWalls();
         A_MoveCyclers();
 
-        if (g_netServer && (everyothertime % 10) == 0)
-        {
-            Net_SendMapUpdate();
-        }
+        //if (g_netServer && (everyothertime % 10) == 0)
+        //{
+        //    Net_SendMapUpdate();
+        //}
     }
 
-    if (g_netClient)   //Slave
-        Net_SendClientUpdate();
+    //if (g_netClient)   //Slave
+    //    Net_SendClientUpdate();
 
     if (RR && ud.recstat == 0 && ud.multimode < 2 && g_torchCnt)
         G_DoTorch();

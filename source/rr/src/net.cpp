@@ -32,9 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "lz4.h"
 #include "crc32.h"
 
+#define TIMERUPDATESIZ 32
+
 ENetHost *g_netServer = NULL;
 ENetHost *g_netClient = NULL;
 ENetPeer *g_netClientPeer = NULL;
+ENetPeer* g_netPlayerPeer[MAXPLAYERS];
 enet_uint16 g_netPort = 23513;
 int32_t g_netDisconnect = 0;
 char g_netPassword[32];
@@ -44,26 +47,6 @@ int32_t g_networkMode = NET_CLIENT;
 #endif
 int32_t g_netIndex = 2;
 newgame_t pendingnewgame;
-
-uint8_t syncstat, syncval[MAXPLAYERS][MOVEFIFOSIZ];
-int32_t syncvalhead[MAXPLAYERS], syncvaltail, syncvaltottail;
-
-input_t dsync[MAXPLAYERS], loc;
-int32_t avgfvel, avgsvel, avgavel, avghorz, avgbits;
-
-int32_t movefifosendplc;
-
-int32_t movefifoend[MAXPLAYERS];
-
-vec3_t mypos, omypos, myvel;
-fix16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff, myang, omyang;
-int16_t mycursectnum, myjumpingcounter;
-uint8_t myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
-
-int32_t fakemovefifoplc, movefifoplc;
-vec3_t myposbak[MOVEFIFOSIZ];
-fix16_t myhorizbak[MOVEFIFOSIZ], myangbak[MOVEFIFOSIZ];
-int32_t myminlag[MAXPLAYERS], mymaxlag, otherminlag, bufferjitter = 1;
 
 #ifdef NETCODE_DISABLE
 void faketimerhandler(void) {}
@@ -98,6 +81,7 @@ netmapdiff_t tempMapDiff;
 #pragma pack(pop)
 #define tempnetbufsize sizeof(tempnetbuf)
 
+#if 0
 static void P_RemovePlayer(int32_t p)
 {
     // server obviously can't leave the game, and index 0 shows up for disconnect events from
@@ -139,7 +123,9 @@ static void P_RemovePlayer(int32_t p)
         g_player[myconnectindex].ps->fta = 180;
     }
 }
+#endif
 
+#if 0
 // sync a connecting player up with the current game state
 void Net_SyncPlayer(ENetEvent *event)
 {
@@ -208,6 +194,7 @@ void Net_SpawnPlayer(int32_t player)
 
     enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
 }
+#endif
 
 static void display_betascreen(void)
 {
@@ -225,19 +212,30 @@ void faketimerhandler(void)
         return;
 
     enet_host_service(g_netServer ? g_netServer : g_netClient, NULL, 0);
+
+    Net_Update();
 }
 
-void Net_WaitForServer(void)
+void Net_WaitForEverybody(void)
 {
-    int32_t server_ready = g_player[0].pingcnt;
+    if (numplayers < 2) return;
 
-    if (numplayers < 2 || g_netServer) return;
+    g_player[myconnectindex].playerreadyflag++;
+
+    // if we're a peer or slave, not a master
+    if ((g_networkBroadcastMode == 1) || (!g_networkBroadcastMode && (myconnectindex != connecthead)))
+        for (int TRAVERSE_CONNECT(i))
+    {
+        if (i != myconnectindex) Net_SendPacket(i, packbuf, 1);
+        if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+    }
+
 
     P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);
 
     do
     {
-        if (quitevent || keystatus[sc_Escape]) G_GameExit("");
+        //if (quitevent || keystatus[sc_Escape]) G_GameExit("");
 
         if (G_FPSLimit())
         {
@@ -246,17 +244,30 @@ void Net_WaitForServer(void)
 			videoNextPage();
         }
 
-        // XXX: this looks like something that should be rate limited...
-        packbuf[0] = PACKET_PLAYER_PING;
-        packbuf[1] = myconnectindex;
-
-        if (g_netClientPeer)
-            enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
-
         G_HandleAsync();
+        Net_GetPackets();
 
-        if (g_player[0].pingcnt > server_ready)
+        int i;
+        for (TRAVERSE_CONNECT(i))
         {
+            if (g_player[i].playerreadyflag < g_player[myconnectindex].playerreadyflag) break;
+            if ((!g_networkBroadcastMode) && (myconnectindex != connecthead))
+            {
+                // we're a slave
+                i = -1; break;
+            }
+            //slaves in M/S mode only wait for master
+        }
+        if (i < 0)
+        {
+            // master sends ready packet once it hears from all slaves
+            if (!g_networkBroadcastMode && myconnectindex == connecthead)
+                for (int TRAVERSE_CONNECT(i))
+            {
+                packbuf[0] = PACKET_TYPE_PLAYER_READY;
+                if (i != myconnectindex) Net_SendPacket(i, packbuf, 1);
+            }
+
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);
             return;
         }
@@ -279,13 +290,13 @@ void Net_ResetPrediction(void)
     myreturntocenter = g_player[myconnectindex].ps->return_to_center;
 }
 
-void Net_Predict(void)
+void Net_DoPrediction(void)
 {
     // NUKE-TODO: Add RR code
     DukePlayer_t *const pPlayer = g_player[myconnectindex].ps;
     spritetype *const   pSprite = &sprite[pPlayer->i];
 
-    input_t  *const pInput = &inputfifo[fakemovefifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
+    input_t  *const pInput = &inputfifo[predictfifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
 
     int16_t backcstat = pSprite->cstat;
     pSprite->cstat &= ~257;
@@ -730,15 +741,15 @@ FAKEHORIZONLY:;
 
 ENDFAKEPROCESSINPUT:
 
-    myposbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = mypos;
-    myangbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myang;
-    myhorizbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myhoriz;
-    fakemovefifoplc++;
+    myposbak[predictfifoplc&(MOVEFIFOSIZ-1)] = mypos;
+    myangbak[predictfifoplc&(MOVEFIFOSIZ-1)] = myang;
+    myhorizbak[predictfifoplc&(MOVEFIFOSIZ-1)] = myhoriz;
+    predictfifoplc++;
 
     pSprite->cstat = backcstat;
 }
 
-void Net_PredictionCorrect(void)
+void Net_CorrectPrediction(void)
 {
     if (numplayers < 2)
         return;
@@ -760,9 +771,880 @@ void Net_PredictionCorrect(void)
     myhardlanding = p->hard_landing;
     myreturntocenter = p->return_to_center;
 
-    fakemovefifoplc = movefifoplc;
-    while (fakemovefifoplc < movefifoend[myconnectindex])
-        Net_Predict();
+    predictfifoplc = movefifoplc;
+    while (predictfifoplc < g_player[myconnectindex].movefifoend)
+        Net_DoPrediction();
+}
+
+int g_numSyncBytes = 1;
+char g_szfirstSyncMsg[MAXSYNCBYTES][60];
+int g_foundSyncError = 0;
+
+char syncstat[MAXSYNCBYTES];
+int syncvaltail, syncvaltottail;
+
+static int crctable[256];
+#define updatecrc(dcrc,xz) (dcrc = (crctable[((dcrc)>>8)^((xz)&255)]^((dcrc)<<8)))
+
+void initsynccrc(void)
+{
+    int i, j, k, a;
+
+    for (j=0;j<256;j++)     //Calculate CRC table
+    {
+        k = (j<<8); a = 0;
+        for (i=7;i>=0;i--)
+        {
+            if (((k^a)&0x8000) > 0)
+                a = ((a<<1)&65535) ^ 0x1021;   //0x1021 = genpoly
+            else
+                a = ((a<<1)&65535);
+            k = ((k<<1)&65535);
+        }
+        crctable[j] = (a&65535);
+    }
+}
+
+char Net_PlayerSync(void)
+{
+    uint16_t crc = 0;
+    DukePlayer_t *pp;
+
+    for(int TRAVERSE_CONNECT(i))
+    {
+        pp = g_player[i].ps;
+        updatecrc(crc, pp->pos.x & 255);
+        updatecrc(crc, pp->pos.y & 255);
+        updatecrc(crc, pp->pos.z & 255);
+        updatecrc(crc, pp->q16ang & 255);
+    }
+
+    return ((char) crc & 255);
+}
+
+char Net_PlayerSync2(void)
+{
+    int j, nextj;
+    uint16_t crc = 0;
+    DukePlayer_t *pp;
+    spritetype *spr;
+
+    for (int TRAVERSE_CONNECT(i))
+    {
+        pp = g_player[i].ps;
+
+        updatecrc(crc, pp->q16horiz & 255);
+        updatecrc(crc, sprite[pp->i].extra & 255);
+        updatecrc(crc, pp->bobcounter & 255);
+    }
+
+    for (int TRAVERSE_SPRITE_STAT(headspritestat[STAT_PLAYER], j, nextj))
+    {
+        spr = &sprite[j];
+        updatecrc(crc, (spr->x) & 255);
+        updatecrc(crc, (spr->y) & 255);
+        updatecrc(crc, (spr->z) & 255);
+        updatecrc(crc, (spr->ang) & 255);
+    }
+
+    return ((char) crc & 255);
+}
+
+char Net_ActorSync(void)
+{
+    uint16_t crc = 0;
+    int nextj;
+    spritetype *spr;
+
+    for (int TRAVERSE_SPRITE_STAT(headspritestat[STAT_ACTOR], j, nextj))
+    {
+        spr = &sprite[j];
+        updatecrc(crc, (spr->x) & 255);
+        updatecrc(crc, (spr->y) & 255);
+        updatecrc(crc, (spr->z) & 255);
+        updatecrc(crc, (spr->lotag) & 255);
+        updatecrc(crc, (spr->hitag) & 255);
+        updatecrc(crc, (spr->ang) & 255);
+    }
+
+    for (int TRAVERSE_SPRITE_STAT(headspritestat[STAT_ZOMBIEACTOR], j, nextj))
+    {
+        spr = &sprite[j];
+        updatecrc(crc, (spr->x) & 255);
+        updatecrc(crc, (spr->y) & 255);
+        updatecrc(crc, (spr->z) & 255);
+        updatecrc(crc, (spr->lotag) & 255);
+        updatecrc(crc, (spr->hitag) & 255);
+        updatecrc(crc, (spr->ang) & 255);
+    }
+
+    return ((char) crc & 255);
+}
+
+char Net_WeaponSync(void)
+{
+    uint16_t crc = 0;
+    int nextj;
+    spritetype *spr;
+
+    for (int TRAVERSE_SPRITE_STAT(headspritestat[STAT_PROJECTILE], j, nextj))
+    {
+        spr = &sprite[j];
+        updatecrc(crc, (spr->x) & 255);
+        updatecrc(crc, (spr->y) & 255);
+        updatecrc(crc, (spr->z) & 255);
+        updatecrc(crc, (spr->ang) & 255);
+    }
+
+    return ((char) crc & 255);
+}
+
+char Net_MapSync(void)
+{
+    uint16_t crc = 0;
+    int nextj;
+    spritetype *spr;
+    walltype *wal;
+    sectortype *sect;
+
+    for (int TRAVERSE_SPRITE_STAT(headspritestat[STAT_EFFECTOR], j, nextj))
+    {
+        spr = &sprite[j];
+        updatecrc(crc, (spr->x) & 255);
+        updatecrc(crc, (spr->y) & 255);
+        updatecrc(crc, (spr->z) & 255);
+        updatecrc(crc, (spr->ang) & 255);
+        updatecrc(crc, (spr->lotag) & 255);
+        updatecrc(crc, (spr->hitag) & 255);
+    }
+
+    for (int j=numwalls;j>=0;j--)
+    {
+        wal = &wall[j];
+        updatecrc(crc, (wal->x) & 255);
+        updatecrc(crc, (wal->y) & 255);
+    }
+
+    for (int j=numsectors;j>=0;j--)
+    {
+        sect = &sector[j];
+        updatecrc(crc, (sect->floorz) & 255);
+        updatecrc(crc, (sect->ceilingz) & 255);
+    }
+
+    return ((char) crc & 255);
+}
+
+char Net_RandomSync(void)
+{
+    unsigned short crc = 0;
+
+    updatecrc(crc, randomseed & 255);
+    updatecrc(crc, (randomseed >> 8) & 255);
+    updatecrc(crc, g_globalRandom & 255);
+    updatecrc(crc, (g_globalRandom >> 8) & 255);
+
+    if (g_numSyncBytes == 1)
+    {
+        updatecrc(crc,Net_PlayerSync() & 255);
+        updatecrc(crc,Net_PlayerSync2() & 255);
+        updatecrc(crc,Net_WeaponSync() & 255);
+        updatecrc(crc,Net_ActorSync() & 255);
+        updatecrc(crc,Net_MapSync() & 255);
+    }
+
+    return ((char) crc & 255);
+}
+
+const char *SyncNames[] =
+{
+    "Net_CheckRandomSync",
+    "Net_CheckPlayerSync",
+    "Net_CheckPlayerSync2",
+    "Net_CheckWeaponSync",
+    "Net_CheckActorSync",
+    "Net_CheckMapSync",
+    NULL
+};
+
+static char(*SyncFunc[MAXSYNCBYTES + 1])(void) =
+{
+    Net_RandomSync,
+    Net_PlayerSync,
+    Net_PlayerSync2,
+    Net_WeaponSync,
+    Net_ActorSync,
+    Net_MapSync,
+    NULL
+};
+
+void Net_GetSyncStat(void)
+{
+    int i;
+    playerdata_t *pp = &g_player[myconnectindex];
+    unsigned int val;
+    static unsigned int count;
+
+    if (numplayers < 2)
+        return;
+
+    for (i = 0; SyncFunc[i]; i++)
+    {
+        pp->syncval[pp->syncvalhead & (SYNCFIFOSIZ - 1)][i] = (*SyncFunc[i])();
+    }
+
+    val = pp->syncval[pp->syncvalhead & (SYNCFIFOSIZ - 1)][0];
+    count += val;
+
+    pp->syncvalhead++;
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Sync Message print
+//
+////////////////////////////////////////////////////////////////////////
+
+
+void Net_DisplaySyncMsg(void)
+{
+    int i, j;
+    static unsigned int moveCount = 0;
+    extern unsigned int g_moveThingsCount;
+
+//    if (!SyncPrintMode)
+//        return;
+
+    if (numplayers < 2)
+        return;
+
+    for (i = 0; i < g_numSyncBytes; i++)
+    {
+        // syncstat is NON 0 - out of sync
+        if (syncstat[i] != 0)
+        {
+            if (g_numSyncBytes > 1)
+            {
+                Bsprintf(tempbuf, "Out Of Sync - %s", SyncNames[i]);
+                printext256(4L, 100L + (i * 8), 31, 1, tempbuf, 0);
+            }
+
+            if (!g_foundSyncError && g_szfirstSyncMsg[i][0] == '\0')
+            {
+                // g_foundSyncError one so test all of them and then never test again
+                g_foundSyncError = 1;
+
+                // save off loop count
+                moveCount = g_moveThingsCount;
+
+                for (j = 0; j < g_numSyncBytes; j++)
+                {
+                    if (syncstat[j] != 0 && g_szfirstSyncMsg[j][0] == '\0')
+                    {
+                        Bsprintf(tempbuf, "Out Of Sync (%s) - Please restart game", SyncNames[j]);
+                        Bstrcpy(g_szfirstSyncMsg[j], tempbuf);
+                    }
+                }
+            }
+        }
+    }
+
+    // print out the g_szfirstSyncMsg message you got
+    for (i = 0; i < g_numSyncBytes; i++)
+    {
+        if (g_szfirstSyncMsg[i][0] != '\0')
+        {
+            if (g_numSyncBytes > 1)
+            {
+                Bsprintf(tempbuf, "FIRST %s", g_szfirstSyncMsg[i]);
+                printext256(4L, 44L + (i * 8), 31, 1, tempbuf, 0);
+                Bsprintf(tempbuf, "moveCount %d",moveCount);
+                printext256(4L, 52L + (i * 8), 31, 1, tempbuf, 0);
+            }
+            else
+            {
+                printext256(4L,100L,31,0,g_szfirstSyncMsg[i],0);
+            }
+        }
+    }
+
+//    if (syncstate != 0)
+//        printext256(68L, 92L, 1, 31, "Missed Network packet!", 0);
+}
+
+
+void  Net_AddSyncInfoToPacket(int *j)
+{
+    int sb;
+    int count = 0;
+
+    // sync testing
+    while (g_player[myconnectindex].syncvalhead != syncvaltail && count++ < 4)
+    {
+        for (sb = 0; sb < g_numSyncBytes; sb++)
+            packbuf[(*j)++] = g_player[myconnectindex].syncval[syncvaltail & (SYNCFIFOSIZ - 1)][sb];
+
+        syncvaltail++;
+    }
+}
+
+void Net_GetSyncInfoFromPacket(char *packbuf, int packbufleng, int *j, int otherconnectindex)
+{
+    int sb, i;
+    extern int syncvaltail, syncvaltottail;
+    playerdata_t *ppo = &g_player[otherconnectindex];
+    char found = 0;
+
+    // have had problems with this routine crashing when players quit
+    // games.
+
+    // if ready2send is not set then don't try to get sync info
+
+    if (!ready2send)
+        return;
+
+    // Suspect that its trying to traverse the connect list
+    // for a player that does not exist.  This tries to take care of that
+
+    for (int TRAVERSE_CONNECT(i))
+    {
+        if (otherconnectindex == i)
+            found = 1;
+    }
+
+    if (!found)
+        return;
+
+    // sync testing
+    //while ((*j) != packbufleng) // changed this on Kens suggestion
+    while ((*j) < packbufleng)
+    {
+        for (sb = 0; sb < g_numSyncBytes; sb++)
+        {
+            ppo->syncval[ppo->syncvalhead & (SYNCFIFOSIZ - 1)][sb] = packbuf[(*j)++];
+        }
+        ppo->syncvalhead++;
+    }
+
+    // update syncstat
+    // if any of the syncstat vars is non-0 then there is a problem
+    for (int TRAVERSE_CONNECT(i))
+    {
+        if (g_player[i].syncvalhead == syncvaltottail)
+            return;
+    }
+
+    //for (sb = 0; sb < g_numSyncBytes; sb++)
+    //    syncstat[sb] = 0;
+
+    while (1)
+    {
+        for (int i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i])
+        {
+            for (sb = 0; sb < g_numSyncBytes; sb++)
+            {
+                if (g_player[i].connected && (g_player[i].syncval[syncvaltottail & (SYNCFIFOSIZ - 1)][sb] != g_player[connecthead].syncval[syncvaltottail & (SYNCFIFOSIZ - 1)][sb]))
+                {
+                    syncstat[sb] = 1;
+                }
+            }
+        }
+
+        syncvaltottail++;
+
+        for (int TRAVERSE_CONNECT(i))
+        {
+            if (g_player[i].syncvalhead == syncvaltottail)
+                return;
+        }
+    }
+}
+
+
+
+void Net_GetInput(void)
+{
+    input_t* osyn, * nsyn;
+
+    if (numplayers > 1)
+        Net_GetPackets();
+
+    if (g_player[myconnectindex].movefifoend - movefifoplc >= 100)
+        return;
+
+    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+        P_GetInputMotorcycle(myconnectindex);
+    else if (RRRA && g_player[myconnectindex].ps->on_boat)
+        P_GetInputBoat(myconnectindex);
+    else
+        P_GetInput(myconnectindex);
+
+    avgfvel += localInput.fvel;
+    avgsvel += localInput.svel;
+    avgavel += localInput.q16avel;
+    avghorz += localInput.q16horz;
+    avgbits |= localInput.bits;
+    avgextbits |= localInput.extbits;
+    
+    if (g_player[myconnectindex].movefifoend&(g_movesPerPacket-1))
+    {
+        copybufbyte(&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex],
+                    &inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex],sizeof(input_t));
+        g_player[myconnectindex].movefifoend++;
+        return;
+    }
+    nsyn = &inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
+    nsyn[0].fvel = avgfvel/g_movesPerPacket;
+    nsyn[0].svel = avgsvel/g_movesPerPacket;
+    nsyn[0].q16avel = avgavel/g_movesPerPacket;
+    nsyn[0].q16horz = avghorz/g_movesPerPacket;
+    nsyn[0].bits = avgbits;
+    nsyn[0].extbits = avgextbits;
+    avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
+    g_player[myconnectindex].movefifoend++;
+
+#if 0
+    if (numplayers < 2)
+    {
+        if (ud.multimode > 1)
+        {
+            for (int TRAVERSE_CONNECT(i))
+            {
+                if (i != myconnectindex)
+                {
+                    //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
+                    if (ud.playerai)
+                    {
+                        computergetinput(i, &inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ - 1)][i]);
+                        inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ - 1)][i].svel++;
+                        inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ - 1)][i].fvel++;
+                    }
+                    g_player[i].movefifoend++;
+                }
+            }
+        }
+        return;
+    }
+#endif
+
+    for (int TRAVERSE_CONNECT(i))
+    if (i != myconnectindex)
+    {
+        int k = (g_player[myconnectindex].movefifoend-1)-g_player[i].movefifoend;
+        g_player[i].myminlag = min(g_player[i].myminlag,k);
+        mymaxlag = max(mymaxlag,k);
+    }
+#if 0
+    if (((g_player[myconnectindex].movefifoend - 1) & (TIMERUPDATESIZ - 1)) == 0)
+    {
+        i = mymaxlag - bufferjitter;
+        mymaxlag = 0;
+        if (i > 0)
+            bufferjitter += ((2 + i) >> 2);
+        else if (i < 0)
+            bufferjitter -= ((2 - i) >> 2);
+    }
+#else
+    if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
+    {
+        int i = mymaxlag-bufferjitter; mymaxlag = 0;
+        if (i > 0) bufferjitter += ((3+i)>>2);
+        else if (i < 0) bufferjitter -= ((1-i)>>2);
+    }
+#endif
+
+    if (g_networkBroadcastMode == 1)
+    {
+        packbuf[0] = SERVER_GENERATED_BROADCAST;
+        if ((g_player[myconnectindex].movefifoend-1) == 0) packbuf[0] = PACKET_TYPE_BROADCAST;
+        int j = 1;
+
+        //Fix timers and buffer/jitter value
+        if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
+        {
+            if (myconnectindex != connecthead)
+            {
+                int i = g_player[connecthead].myminlag-otherminlag;
+                if (klabs(i) > 8) i >>= 1;
+                else if (klabs(i) > 2) i = ksgn(i);
+                else i = 0;
+
+                totalclock -= TICSPERFRAME*i;
+                g_player[connecthead].myminlag -= i; otherminlag += i;
+            }
+
+            if (myconnectindex == connecthead)
+                for(int i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
+
+            for(int i=connecthead;i>=0;i=connectpoint2[i])
+                g_player[i].myminlag = 0x7fffffff;
+        }
+
+        osyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
+        nsyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
+
+        int k = j;
+        packbuf[j++] = 0;
+        packbuf[j++] = 0;
+
+        if (nsyn[0].fvel != osyn[0].fvel)
+        {
+            packbuf[j++] = (char)nsyn[0].fvel;
+            packbuf[j++] = (char)(nsyn[0].fvel>>8);
+            packbuf[k] |= 1;
+        }
+        if (nsyn[0].svel != osyn[0].svel)
+        {
+            packbuf[j++] = (char)nsyn[0].svel;
+            packbuf[j++] = (char)(nsyn[0].svel>>8);
+            packbuf[k] |= 2;
+        }
+        if (nsyn[0].q16avel != osyn[0].q16avel)
+        {
+            packbuf[j++] = (char)((nsyn[0].q16avel) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16avel >> 8) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16avel >> 16) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16avel >> 24) & 255);
+            packbuf[k] |= 4;
+        }
+
+        if ((nsyn[0].bits^osyn[0].bits)&0x000000ff) packbuf[j++] = (nsyn[0].bits&255), packbuf[k] |= 8;
+        if ((nsyn[0].bits^osyn[0].bits)&0x0000ff00) packbuf[j++] = ((nsyn[0].bits>>8)&255), packbuf[k] |= 16;
+        if ((nsyn[0].bits^osyn[0].bits)&0x00ff0000) packbuf[j++] = ((nsyn[0].bits>>16)&255), packbuf[k] |= 32;
+        if ((nsyn[0].bits^osyn[0].bits)&0xff000000) packbuf[j++] = ((nsyn[0].bits>>24)&255), packbuf[k] |= 64;
+
+        if (nsyn[0].q16horz != osyn[0].q16horz)
+        {
+            packbuf[j++] = (char)((nsyn[0].q16horz) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16horz >> 8) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16horz >> 16) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16horz >> 24) & 255);
+            packbuf[k] |= 128;
+        }
+//        k++;
+        packbuf[++k] = 0;
+        if (nsyn[0].extbits != osyn[0].extbits) packbuf[j++] = nsyn[0].extbits, packbuf[k] |= 1;
+        /*        if ((nsyn[0].extbits^osyn[0].extbits)&0x000000ff) packbuf[j++] = (nsyn[0].extbits&255), packbuf[k] |= 1;
+                if ((nsyn[0].extbits^osyn[0].extbits)&0x0000ff00) packbuf[j++] = ((nsyn[0].extbits>>8)&255), packbuf[k] |= 2;
+                if ((nsyn[0].extbits^osyn[0].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[0].extbits>>16)&255), packbuf[k] |= 4;
+                if ((nsyn[0].extbits^osyn[0].extbits)&0xff000000) packbuf[j++] = ((nsyn[0].extbits>>24)&255), packbuf[k] |= 8; */
+
+        /*        while (g_player[myconnectindex].syncvalhead != syncvaltail)
+                {
+                    packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
+                    syncvaltail++;
+                } */
+
+        Net_AddSyncInfoToPacket(&j);
+
+        for (int TRAVERSE_CONNECT(i))
+        if (i != myconnectindex)
+            Net_SendPacket(i,packbuf,j);
+
+        return;
+    }
+    if (myconnectindex != connecthead)   //Slave
+    {
+        //Fix timers and buffer/jitter value
+        if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
+        {
+            int i = g_player[connecthead].myminlag - otherminlag;
+            if (klabs(i) > 2)
+            {
+                if (klabs(i) > 8)
+                {
+                    if (i < 0)
+                        i++;
+                    i >>= 1;
+                }
+                else
+                {
+                    if (i < 0)
+                        i = -1;
+                    if (i > 0)
+                        i = 1;
+                }
+                totalclock -= TICSPERFRAME * i;
+                otherminlag += i;
+            }
+
+            for (int TRAVERSE_CONNECT(i))
+            {
+                g_player[i].myminlag = 0x7fffffff;
+            }
+        }
+
+        packbuf[0] = PACKET_TYPE_SLAVE_TO_MASTER;
+        packbuf[1] = 0;
+        packbuf[2] = 0;
+        int j = 3;
+
+        osyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
+        nsyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
+
+        if (nsyn[0].fvel != osyn[0].fvel)
+        {
+            packbuf[j++] = (char)nsyn[0].fvel;
+            packbuf[j++] = (char)(nsyn[0].fvel>>8);
+            packbuf[1] |= 1;
+        }
+        if (nsyn[0].svel != osyn[0].svel)
+        {
+            packbuf[j++] = (char)nsyn[0].svel;
+            packbuf[j++] = (char)(nsyn[0].svel>>8);
+            packbuf[1] |= 2;
+        }
+        if (nsyn[0].q16avel != osyn[0].q16avel)
+        {
+            packbuf[j++] = (char)((nsyn[0].q16avel) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16avel >> 8) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16avel >> 16) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16avel >> 24) & 255);
+            packbuf[1] |= 4;
+        }
+
+        if ((nsyn[0].bits^osyn[0].bits)&0x000000ff) packbuf[j++] = (nsyn[0].bits&255), packbuf[1] |= 8;
+        if ((nsyn[0].bits^osyn[0].bits)&0x0000ff00) packbuf[j++] = ((nsyn[0].bits>>8)&255), packbuf[1] |= 16;
+        if ((nsyn[0].bits^osyn[0].bits)&0x00ff0000) packbuf[j++] = ((nsyn[0].bits>>16)&255), packbuf[1] |= 32;
+        if ((nsyn[0].bits^osyn[0].bits)&0xff000000) packbuf[j++] = ((nsyn[0].bits>>24)&255), packbuf[1] |= 64;
+
+        if (nsyn[0].q16horz != osyn[0].q16horz)
+        {
+            packbuf[j++] = (char)((nsyn[0].q16horz) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16horz >> 8) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16horz >> 16) & 255);
+            packbuf[j++] = (char)((nsyn[0].q16horz >> 24) & 255);
+            packbuf[1] |= 128;
+        }
+        packbuf[2] = 0;
+        if (nsyn[0].extbits != osyn[0].extbits) packbuf[j++] = nsyn[0].extbits, packbuf[2] |= 1;
+        /*        if ((nsyn[0].extbits^osyn[0].extbits)&0x000000ff) packbuf[j++] = (nsyn[0].extbits&255), packbuf[2] |= 1;
+                if ((nsyn[0].extbits^osyn[0].extbits)&0x0000ff00) packbuf[j++] = ((nsyn[0].extbits>>8)&255), packbuf[2] |= 2;
+                if ((nsyn[0].extbits^osyn[0].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[0].extbits>>16)&255), packbuf[2] |= 4;
+                if ((nsyn[0].extbits^osyn[0].extbits)&0xff000000) packbuf[j++] = ((nsyn[0].extbits>>24)&255), packbuf[2] |= 8; */
+
+        /*        while (g_player[myconnectindex].syncvalhead != syncvaltail)
+                {
+                    packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
+                    syncvaltail++;
+                } */
+        Net_AddSyncInfoToPacket(&j);
+
+        Net_SendPacket(connecthead,packbuf,j);
+        return;
+    }
+
+    //This allows allow packet resends
+    for (int TRAVERSE_CONNECT(i))
+    if (g_player[i].movefifoend <= movefifosendplc)
+    {
+        packbuf[0] = PACKET_TYPE_NULL_PACKET;
+        for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+            Net_SendPacket(i,packbuf,1);
+        return;
+    }
+
+    while (1)  //Master
+    {
+        for (int TRAVERSE_CONNECT(i))
+        if (g_player[i].playerquitflag && (g_player[i].movefifoend <= movefifosendplc)) return;
+
+        osyn = (input_t *)&inputfifo[(movefifosendplc-1)&(MOVEFIFOSIZ-1)][0];
+        nsyn = (input_t *)&inputfifo[(movefifosendplc)&(MOVEFIFOSIZ-1)][0];
+
+        //MASTER -> SLAVE packet
+        packbuf[0] = PACKET_TYPE_MASTER_TO_SLAVE;
+        int j = 1;
+
+        //Fix timers and buffer/jitter value
+        if ((movefifosendplc&(TIMERUPDATESIZ-1)) == 0)
+        {
+            for (int i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                if (g_player[i].playerquitflag)
+                    packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
+
+            for (int TRAVERSE_CONNECT(i))
+            g_player[i].myminlag = 0x7fffffff;
+        }
+
+        int k = j;
+        for (int TRAVERSE_CONNECT(i))
+        j += g_player[i].playerquitflag + g_player[i].playerquitflag;
+        for (int TRAVERSE_CONNECT(i))
+        {
+            if (g_player[i].playerquitflag == 0) continue;
+
+            packbuf[k] = 0;
+            if (nsyn[i].fvel != osyn[i].fvel)
+            {
+                packbuf[j++] = (char)nsyn[i].fvel;
+                packbuf[j++] = (char)(nsyn[i].fvel>>8);
+                packbuf[k] |= 1;
+            }
+            if (nsyn[i].svel != osyn[i].svel)
+            {
+                packbuf[j++] = (char)nsyn[i].svel;
+                packbuf[j++] = (char)(nsyn[i].svel>>8);
+                packbuf[k] |= 2;
+            }
+            if (nsyn[i].q16avel != osyn[i].q16avel)
+            {
+                packbuf[j++] = (char)((nsyn[i].q16avel) & 255);
+                packbuf[j++] = (char)((nsyn[i].q16avel >> 8) & 255);
+                packbuf[j++] = (char)((nsyn[i].q16avel >> 16) & 255);
+                packbuf[j++] = (char)((nsyn[i].q16avel >> 24) & 255);
+                packbuf[k] |= 4;
+            }
+
+            if ((nsyn[i].bits^osyn[i].bits)&0x000000ff) packbuf[j++] = (nsyn[i].bits&255), packbuf[k] |= 8;
+            if ((nsyn[i].bits^osyn[i].bits)&0x0000ff00) packbuf[j++] = ((nsyn[i].bits>>8)&255), packbuf[k] |= 16;
+            if ((nsyn[i].bits^osyn[i].bits)&0x00ff0000) packbuf[j++] = ((nsyn[i].bits>>16)&255), packbuf[k] |= 32;
+            if ((nsyn[i].bits^osyn[i].bits)&0xff000000) packbuf[j++] = ((nsyn[i].bits>>24)&255), packbuf[k] |= 64;
+
+            if (nsyn[i].q16horz != osyn[i].q16horz)
+            {
+                packbuf[j++] = (char)((nsyn[i].q16horz) & 255);
+                packbuf[j++] = (char)((nsyn[i].q16horz >> 8) & 255);
+                packbuf[j++] = (char)((nsyn[i].q16horz >> 16) & 255);
+                packbuf[j++] = (char)((nsyn[i].q16horz >> 24) & 255);
+                packbuf[k] |= 128;
+            }
+            k++;
+            packbuf[k] = 0;
+            if (nsyn[i].extbits != osyn[i].extbits) packbuf[j++] = nsyn[i].extbits, packbuf[k] |= 1;
+            /*
+            if ((nsyn[i].extbits^osyn[i].extbits)&0x000000ff) packbuf[j++] = (nsyn[i].extbits&255), packbuf[k] |= 1;
+            if ((nsyn[i].extbits^osyn[i].extbits)&0x0000ff00) packbuf[j++] = ((nsyn[i].extbits>>8)&255), packbuf[k] |= 2;
+            if ((nsyn[i].extbits^osyn[i].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[i].extbits>>16)&255), packbuf[k] |= 4;
+            if ((nsyn[i].extbits^osyn[i].extbits)&0xff000000) packbuf[j++] = ((nsyn[i].extbits>>24)&255), packbuf[k] |= 8; */
+            k++;
+        }
+
+        /*        while (g_player[myconnectindex].syncvalhead != syncvaltail)
+                {
+                    packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
+                    syncvaltail++;
+                } */
+        Net_AddSyncInfoToPacket(&j);
+
+        for (int i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+            if (g_player[i].playerquitflag)
+            {
+                Net_SendPacket(i,packbuf,j);
+                if (TEST_SYNC_KEY(nsyn[i].bits,SK_GAMEQUIT))
+                    g_player[i].playerquitflag = 0;
+            }
+
+        movefifosendplc += g_movesPerPacket;
+    }
+
+}
+
+
+void Net_Update(void)
+{
+    ENetEvent event;
+    if (g_netServer)
+    {
+        enet_host_service(g_netServer, NULL, 0);
+        while (enet_host_check_events(g_netServer, &event) > 0)
+        {
+            switch (event.type)
+            {
+            case ENET_EVENT_TYPE_DISCONNECT:
+            {
+                int p;
+                for (p = connectpoint2[connecthead]; p >= 0; p = connectpoint2[p])
+                    if (g_netPlayerPeer[p] == event.peer)
+                        break;
+
+                for (int TRAVERSE_CONNECT(i))
+                    if (g_netPlayerPeer[i] == event.peer)
+                        g_netPlayerPeer[i] = NULL;
+                if (p >= 0)
+                {
+                    //NUKE-TODO:
+#if 0
+                    // TODO: Game most likely will go out of sync here...
+                    uint8_t *pPacket = packbuf;
+                    
+                    PutPacketByte(pPacket, 249);
+                    PutPacketDWord(pPacket, nPlayer);
+                    netSendPacketAll(packet, pPacket - packet);
+                    netPlayerQuit(nPlayer);
+                    Net_WaitForEverybody();
+#endif
+                }
+                break;
+            }
+            case ENET_EVENT_TYPE_RECEIVE:
+                switch (event.channelID)
+                {
+                case BLOOD_ENET_SERVICE:
+                {
+                    char *pPacket = (char*)event.packet->data;
+                    if (GetPacketByte(pPacket) != BLOOD_SERVICE_SENDTOID)
+                        ThrowError("Packet error\n");
+                    int nDest = GetPacketByte(pPacket);
+                    int nSource = GetPacketByte(pPacket);
+                    int nSize = event.packet->dataLength-3;
+                    if (gNetPlayerPeer[nDest] != NULL)
+                    {
+                        ENetPacket *pNetPacket = enet_packet_create(NULL, nSize + 1, ENET_PACKET_FLAG_RELIABLE);
+                        char *pPBuffer = (char*)pNetPacket->data;
+                        PutPacketByte(pPBuffer, nSource);
+                        PutPacketBuffer(pPBuffer, pPacket, nSize);
+                        enet_peer_send(gNetPlayerPeer[nDest], BLOOD_ENET_GAME, pNetPacket);
+                        enet_host_service(gNetENetServer, NULL, 0);
+                    }
+                    enet_packet_destroy(event.packet);
+                    break;
+                }
+                case BLOOD_ENET_GAME:
+                    netPostEPacket(event.packet);
+                    break;
+                }
+            default:
+                break;
+            }
+            enet_host_service(gNetENetServer, NULL, 0);
+        }
+        enet_host_service(gNetENetServer, NULL, 0);
+    }
+    else if (gNetENetClient)
+    {
+        enet_host_service(gNetENetClient, NULL, 0);
+        while (enet_host_check_events(gNetENetClient, &event) > 0)
+        {
+            switch (event.type)
+            {
+            case ENET_EVENT_TYPE_DISCONNECT:
+                initprintf("Lost connection to server\n");
+                netDeinitialize();
+                netResetToSinglePlayer();
+                gQuitGame = gRestartGame = true;
+                return;
+            case ENET_EVENT_TYPE_RECEIVE:
+                switch (event.channelID)
+                {
+                case BLOOD_ENET_SERVICE:
+                {
+                    ThrowError("Packet error\n");
+                    break;
+                }
+                case BLOOD_ENET_GAME:
+                    netPostEPacket(event.packet);
+                    break;
+                }
+            default:
+                break;
+            }
+            enet_host_service(gNetENetClient, NULL, 0);
+        }
+        enet_host_service(gNetENetClient, NULL, 0);
+    }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
