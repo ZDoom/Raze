@@ -2190,6 +2190,8 @@ void G_ResetTimers(uint8_t keepgtics)
 
 void G_ClearFIFO(void)
 {
+    Net_ClearFIFO();
+
     g_emuJumpTics = 0;
 
     clearbufbyte(&localInput, sizeof(input_t), 0L);

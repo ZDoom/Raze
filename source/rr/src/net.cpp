@@ -1089,8 +1089,28 @@ void Net_GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int ot
     }
 }
 
+void Net_ClearFIFO(void)
+{
+    int i = 0;
 
-int quittimer = 0;
+    syncvaltail = 0L;
+    syncvaltottail = 0L;
+    memset(&syncstat, 0, sizeof(syncstat));
+    memset(&g_szfirstSyncMsg, 0, sizeof(g_szfirstSyncMsg));
+    g_foundSyncError = 0;
+
+    bufferjitter = 1;
+    mymaxlag = otherminlag = 0;
+    movefifoplc = movefifosendplc = predictfifoplc = 0;
+    avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
+
+    for (; i < MAXPLAYERS; i++)
+    {
+        Bmemset(&g_player[i].movefifoend, 0, sizeof(g_player[i].movefifoend));
+        Bmemset(&g_player[i].syncvalhead, 0, sizeof(g_player[i].syncvalhead));
+        Bmemset(&g_player[i].myminlag, 0, sizeof(g_player[i].myminlag));
+    }
+}
 
 void Net_GetInput(void)
 {

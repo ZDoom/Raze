@@ -7998,7 +7998,7 @@ HORIZONLY:;
         pPlayer->q16horiz -= fix16_from_int(pPlayer->hard_landing<<4);
     }
 
-    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + (ud.recstat == 2 && g_demo_legacy && !pPlayer->aim_mode) ? 0 : g_player[playerNum].inputBits->q16horz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + ((ud.recstat == 2 && g_demo_legacy && !pPlayer->aim_mode) ? 0 : g_player[playerNum].inputBits->q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
 
     if (ud.recstat == 2 && g_demo_legacy) centerHoriz = !pPlayer->aim_mode;
 

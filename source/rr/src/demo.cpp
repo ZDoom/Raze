@@ -875,7 +875,7 @@ nextdemo_nomenu:
 
                 for (TRAVERSE_CONNECT(j))
                 {
-                    Bmemcpy(&inputfifo[0][j], &recsync[bigi], sizeof(input_t));
+                    Bmemcpy(&inputfifo[movefifoplc&(MOVEFIFOSIZ-1)][j], &recsync[bigi], sizeof(input_t));
                     bigi++;
                     ud.reccnt--;
                 }

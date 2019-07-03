@@ -216,6 +216,7 @@ void    Net_ReceiveDisconnect(ENetEvent *event);
 
 // Packet Handlers
 #endif
+void    Net_ClearFIFO(void);
 void    Net_GetInput(void);
 void    Net_GetPackets(void);
 #ifndef NETCODE_DISABLE
