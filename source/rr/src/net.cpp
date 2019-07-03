@@ -108,7 +108,7 @@ void Net_SyncPlayer(ENetEvent *event)
     Net_SendPlayerIndex(i, event->peer);
     Net_SendClientInfo();
     Net_SendUserMapName();
-    Net_SendNewGame(0, event->peer);
+   // Net_SendNewGame(0, event->peer);
 }
 
 //void Net_SpawnPlayer(int32_t player)
@@ -149,6 +149,7 @@ void Net_WaitForEverybody(void)
 {
     if (numplayers < 2) return;
 
+    packbuf[0] = PACKET_TYPE_PLAYER_READY;
     g_player[myconnectindex].playerreadyflag++;
 
     // if we're a peer or slave, not a master
@@ -2561,7 +2562,7 @@ void Net_SendPacket(int dest, uint8_t *pbuf, int32_t packbufleng)
             uint8_t* buffer = packet->data;
             *buffer++ = myconnectindex;
             Bmemcpy(buffer, pbuf, packbufleng);
-            enet_peer_send(g_netPlayerPeer[dest], CHAN_GAME, packet);
+            enet_peer_send(g_netClientPeer, CHAN_GAME, packet);
         }
         else
         {
@@ -2570,7 +2571,7 @@ void Net_SendPacket(int dest, uint8_t *pbuf, int32_t packbufleng)
             *buffer++ = dest;
             *buffer++ = myconnectindex;
             Bmemcpy(buffer, pbuf, packbufleng);
-            enet_peer_send(g_netPlayerPeer[dest], CHAN_REROUTE, packet);
+            enet_peer_send(g_netClientPeer, CHAN_REROUTE, packet);
         }
         enet_host_service(g_netClient, NULL, 0);
     }

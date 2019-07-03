@@ -60,7 +60,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define NUMPAGES            1
 
 #define RECSYNCBUFSIZ       2520   //2520 is the (LCM of 1-8)*3
-#define MOVEFIFOSIZ         2
+#define MOVEFIFOSIZ         256
 
 // KEEPINSYNC lunatic/con_lang.lua
 #define MAXVOLUMES          7

@@ -3666,8 +3666,8 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         if (g_netServer)
         {
             Net_FillNewGame(&pendingnewgame, 1);
-            Net_StartNewGame();
             Net_SendNewGame(1, NULL);
+            Net_StartNewGame();
         }
         else if (voting == -1)
         {

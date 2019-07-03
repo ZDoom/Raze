@@ -1121,8 +1121,8 @@ growspark_rr:
                     shootAng = pSprite->ang + (krand2() & 31) - 16;
             }
 
-            if (numplayers > 1 && g_netClient)
-                return -1;
+            //if (numplayers > 1 && g_netClient)
+            //    return -1;
 
             if (RRRA && projecTile == RRTILE1790)
             {
@@ -4478,8 +4478,8 @@ void P_FragPlayer(int playerNum)
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
     spritetype *const   pSprite = &sprite[pPlayer->i];
 
-    if (g_netClient) // [75] The server should not overwrite its own randomseed
-        randomseed = ticrandomseed;
+    //if (g_netClient) // [75] The server should not overwrite its own randomseed
+    //    randomseed = ticrandomseed;
 
     if (pSprite->pal != 1)
     {
@@ -4880,7 +4880,7 @@ static void P_ProcessWeapon(int playerNum)
                     if (pPlayer->ammo_amount[RPG_WEAPON])
                         pPlayer->ammo_amount[RPG_WEAPON]--;
 
-                    if (numplayers < 2 || g_netServer)
+                    //if (numplayers < 2 || g_netServer)
                     {
                         int pipeBombZvel;
                         int pipeBombFwdVel;
@@ -5443,7 +5443,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     pPlayer->ammo_amount[pPlayer->curr_weapon]--;
 
-                    if (numplayers < 2 || g_netServer)
+                    //if (numplayers < 2 || g_netServer)
                     {
                         int pipeBombZvel;
                         int pipeBombFwdVel;
@@ -6091,7 +6091,7 @@ static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ,
     if (ud.recstat == 1 && (!g_netServer && ud.multimode < 2))
         G_CloseDemoWrite();
 
-    if ((numplayers < 2 || g_netServer) && pPlayer->dead_flag == 0)
+    if (/*(numplayers < 2 || g_netServer) && */pPlayer->dead_flag == 0)
         P_FragPlayer(playerNum);
 
     if (sectorLotag == ST_2_UNDERWATER)

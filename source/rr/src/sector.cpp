@@ -2380,8 +2380,8 @@ void Sect_DamageCeiling(int const sectNum)
 // hard coded props... :(
 void A_DamageObject(int spriteNum, int const dmgSrc)
 {
-    if (g_netClient)
-        return;
+    //if (g_netClient)
+    //    return;
 
     spriteNum &= (MAXSPRITES-1);
 

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "inv.h"
 #include "namesdyn.h"
 #include "fix16.h"
+#include "net.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +34,7 @@ extern "C" {
 
 extern int32_t g_mostConcurrentPlayers;
 
-#define MOVEFIFOSIZ                 2
+#define MOVEFIFOSIZ                 256
 
 #define NAM_GRENADE_LIFETIME        120
 #define NAM_GRENADE_LIFETIME_VAR    30
@@ -219,7 +220,7 @@ typedef struct {
 
     char vote, gotvote, playerreadyflag, playerquitflag, connected;
     char user_name[32];
-    char syncval[MAXPLAYERS][MOVEFIFOSIZ];
+    char syncval[SYNCFIFOSIZ][MAXSYNCBYTES];
 } playerdata_t;
 #pragma pack(pop)
 
