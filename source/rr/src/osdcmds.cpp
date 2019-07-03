@@ -1038,7 +1038,9 @@ static int osdcmd_inittimer(osdcmdptr_t parm)
 static int osdcmd_disconnect(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
-    g_netDisconnect = 1;
+    // NUKE-TODO:
+    if (g_player[myconnectindex].ps->gm&MODE_MENU)
+        g_netDisconnect = 1;
     return OSDCMD_OK;
 }
 

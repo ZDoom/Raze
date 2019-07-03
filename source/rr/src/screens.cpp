@@ -202,8 +202,8 @@ static void G_ShowScores(void)
             Bsprintf(tempbuf, "%-4d", g_player[i].frags[i] + g_player[i].ps->fraggedself);
             minitext(200, SCORESHEETOFFSET+90+t, tempbuf, 2, 2+8+16+ROTATESPRITE_MAX);
 
-            Bsprintf(tempbuf, "%-4d", g_player[i].ping);
-            minitext(235, SCORESHEETOFFSET+90+t, tempbuf, 2, 2+8+16+ROTATESPRITE_MAX);
+            //Bsprintf(tempbuf, "%-4d", g_player[i].ping);
+            //minitext(235, SCORESHEETOFFSET+90+t, tempbuf, 2, 2+8+16+ROTATESPRITE_MAX);
 
             t += 7;
         }
@@ -2229,8 +2229,8 @@ void G_BonusScreen(int32_t bonusonly)
     int32_t clockpad = 2;
     const char *lastmapname;
 
-    if (g_networkMode == NET_DEDICATED_SERVER)
-        return;
+    //if (g_networkMode == NET_DEDICATED_SERVER)
+    //    return;
 
     G_UpdateAppTitle();
 
@@ -2811,8 +2811,8 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     int32_t showMap = 0;
     const char *lastmapname;
 
-    if (g_networkMode == NET_DEDICATED_SERVER)
-        return;
+    //if (g_networkMode == NET_DEDICATED_SERVER)
+    //    return;
 
     G_UpdateAppTitle();
 

@@ -2340,7 +2340,7 @@ int G_EnterLevel(int gameMode)
     if ((gameMode & MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
 
-    if (g_networkMode != NET_DEDICATED_SERVER)
+    //if (g_networkMode != NET_DEDICATED_SERVER)
     {
         S_PauseSounds(false);
         FX_StopAllSounds();
@@ -2599,7 +2599,7 @@ int G_EnterLevel(int gameMode)
     G_DrawBackground();
     G_DrawRooms(myconnectindex,65536);
 
-    Net_WaitForServer();
+    Net_WaitForEverybody();
     return 0;
 }
 

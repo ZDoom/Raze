@@ -184,7 +184,7 @@ void G_HandleSpecialKeys(void)
 
 //    CONTROL_ProcessBinds();
 
-    if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
+    if (/*g_networkMode != NET_DEDICATED_SERVER && */ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
         if (videoSetGameMode(!ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail))
         {
@@ -228,11 +228,12 @@ void G_GameQuit(void)
     {
         g_gameQuit = 1;
         g_quitDeadline  = (int32_t)totalclock + 120;
-        g_netDisconnect = 1;
+        //g_netDisconnect = 1;
     }
 
     if ((totalclock > g_quitDeadline) && (g_gameQuit == 1))
-        G_GameExit("Timed out.");
+        g_netDisconnect = 1;
+        //G_GameExit("Timed out.");
 }
 
 
@@ -953,7 +954,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     int yxAspect     = yxaspect;
     int viewingRange = viewingrange;
 
-    if (g_networkMode == NET_DEDICATED_SERVER) return;
+    //if (g_networkMode == NET_DEDICATED_SERVER) return;
 
     totalclocklock = totalclock;
 
@@ -1618,7 +1619,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
     if (RR && s_ow < 0)
         return 0;
 
-    int32_t i = Net_IsRelevantStat(s_ss) ? Net_InsertSprite(whatsect, s_ss) : insertsprite(whatsect, s_ss);
+    int32_t i = /*Net_IsRelevantStat(s_ss) ? Net_InsertSprite(whatsect, s_ss) : */insertsprite(whatsect, s_ss);
 
     if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXSPRITES))
     {
@@ -7523,7 +7524,7 @@ static void G_Startup(void)
     }
 
     for (i=0; i<MAXPLAYERS; i++)
-        g_player[i].pingcnt = 0;
+        g_player[i].playerreadyflag = 0;
 
     if (quitevent)
     {
@@ -7679,7 +7680,7 @@ static int G_EndOfLevel(void)
         return 2;
     }
 
-    Net_WaitForServer();
+    Net_WaitForEverybody();
     return 1;
 }
 
@@ -7939,7 +7940,7 @@ int app_main(int argc, char const * const * argv)
         initprintf("CON debugging activated (level %d).\n",g_scriptDebug);
 
 #ifndef NETCODE_DISABLE
-    if (g_networkMode == NET_SERVER || g_networkMode == NET_DEDICATED_SERVER)
+    if (g_networkMode == NET_SERVER/* || g_networkMode == NET_DEDICATED_SERVER*/)
     {
         ENetAddress address = { ENET_HOST_ANY, g_netPort };
         g_netServer = enet_host_create(&address, MAXPLAYERS, CHAN_MAX, 0, 0);
@@ -8052,7 +8053,7 @@ int app_main(int argc, char const * const * argv)
     OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, gamefunctions[gamefunc_Show_Console][0] == '\0' ? OSD_PROTECTED : 0);
     registerosdcommands();
 
-    if (g_networkMode != NET_DEDICATED_SERVER)
+    //if (g_networkMode != NET_DEDICATED_SERVER)
     {
         if (CONTROL_Startup(controltype_keyboardandmouse, &BGetTime, TICRATE))
         {
@@ -8100,7 +8101,7 @@ int app_main(int argc, char const * const * argv)
 
     system_getcvars();
 
-    if (g_networkMode != NET_DEDICATED_SERVER)
+    //if (g_networkMode != NET_DEDICATED_SERVER)
     {
         if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail) < 0)
         {
@@ -8154,7 +8155,7 @@ int app_main(int argc, char const * const * argv)
     for (bssize_t i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
         minitext_lowercase &= (int)tileLoad(i);
 
-    if (g_networkMode != NET_DEDICATED_SERVER)
+    //if (g_networkMode != NET_DEDICATED_SERVER)
     {
         Menu_Init();
     }
@@ -8195,7 +8196,7 @@ MAIN_LOOP_RESTART:
 
     Menu_Change(MENU_MAIN);
 
-    if (g_networkMode != NET_DEDICATED_SERVER)
+    //if (g_networkMode != NET_DEDICATED_SERVER)
     {
         G_GetCrosshairColor();
         G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
@@ -8226,12 +8227,12 @@ MAIN_LOOP_RESTART:
 
             G_NewGame_EnterLevel();
 
-            Net_WaitForServer();
+            Net_WaitForEverybody();
         }
-        else if (g_networkMode != NET_DEDICATED_SERVER)
+        else// if (g_networkMode != NET_DEDICATED_SERVER)
             G_DisplayLogo();
 
-        if (g_networkMode != NET_DEDICATED_SERVER)
+        //if (g_networkMode != NET_DEDICATED_SERVER)
         {
             if (G_PlaybackDemo())
             {
@@ -8312,17 +8313,18 @@ MAIN_LOOP_RESTART:
         double const gameUpdateStartTime = timerGetHiTicks();
         if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
         {
-            if (g_networkMode != NET_DEDICATED_SERVER)
-            {
-                if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
-                    P_GetInputMotorcycle(myconnectindex);
-                else if (RRRA && g_player[myconnectindex].ps->on_boat)
-                    P_GetInputBoat(myconnectindex);
-                else
-                    P_GetInput(myconnectindex);
-            }
+            Net_GetInput();
+            //if (g_networkMode != NET_DEDICATED_SERVER)
+            //{
+            //    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+            //        P_GetInputMotorcycle(myconnectindex);
+            //    else if (RRRA && g_player[myconnectindex].ps->on_boat)
+            //        P_GetInputBoat(myconnectindex);
+            //    else
+            //        P_GetInput(myconnectindex);
+            //}
 
-            Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
+            //Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
 
             S_Update();
 
@@ -8378,11 +8380,11 @@ MAIN_LOOP_RESTART:
             }
         }
 
-        if (g_networkMode == NET_DEDICATED_SERVER)
+        /*if (g_networkMode == NET_DEDICATED_SERVER)
         {
             idle();
         }
-        else if (G_FPSLimit() || g_saveRequested)
+        else */if (G_FPSLimit() || g_saveRequested)
         {
             int const smoothRatio
             = ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm & MODE_MENU))

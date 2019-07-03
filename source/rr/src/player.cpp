@@ -4495,17 +4495,17 @@ void P_FragPlayer(int playerNum)
             pPlayer->dead_flag++;
 
 #ifndef NETCODE_DISABLE
-        if (g_netServer)
-        {
-            packbuf[0] = PACKET_FRAG;
-            packbuf[1] = playerNum;
-            packbuf[2] = pPlayer->frag_ps;
-            packbuf[3] = actor[pPlayer->i].picnum;
-            B_BUF32(&packbuf[4], ticrandomseed);
-            packbuf[8] = myconnectindex;
-
-            enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 9, ENET_PACKET_FLAG_RELIABLE));
-        }
+        //if (g_netServer)
+        //{
+        //    packbuf[0] = PACKET_FRAG;
+        //    packbuf[1] = playerNum;
+        //    packbuf[2] = pPlayer->frag_ps;
+        //    packbuf[3] = actor[pPlayer->i].picnum;
+        //    B_BUF32(&packbuf[4], ticrandomseed);
+        //    packbuf[8] = myconnectindex;
+        //
+        //    enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 9, ENET_PACKET_FLAG_RELIABLE));
+        //}
 #endif
     }
 

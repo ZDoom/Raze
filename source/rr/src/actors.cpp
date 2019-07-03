@@ -527,11 +527,11 @@ void A_DeleteSprite(int spriteNum)
         S_StopEnvSound(sprite[spriteNum].lotag, spriteNum);
 
     // NetAlloc
-    if (Net_IsRelevantSprite(spriteNum))
-    {
-        Net_DeleteSprite(spriteNum);
-        return;
-    }
+    //if (Net_IsRelevantSprite(spriteNum))
+    //{
+    //    Net_DeleteSprite(spriteNum);
+    //    return;
+    //}
 
     deletesprite(spriteNum);
 }

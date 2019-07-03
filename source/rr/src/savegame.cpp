@@ -363,7 +363,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         videoNextPage();
     }
 
-    Net_WaitForServer();
+    Net_WaitForEverybody();
 
     FX_StopAllSounds();
     S_ClearSoundLocks();
@@ -519,7 +519,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
     G_SaveTimers();
 
-    Net_WaitForServer();
+    Net_WaitForEverybody();
     ready2send = 0;
 
     char temp[BMAX_PATH];
@@ -579,7 +579,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     }
 
     ready2send = 1;
-    Net_WaitForServer();
+    Net_WaitForEverybody();
 
     G_RestoreTimers();
     ototalclock = totalclock;
@@ -588,7 +588,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
 saveproblem:
     ready2send = 1;
-    Net_WaitForServer();
+    Net_WaitForEverybody();
 
     G_RestoreTimers();
     ototalclock = totalclock;
@@ -1993,7 +1993,7 @@ static void postloadplayer(int32_t savegamep)
     {
         ready2send = 1;
         G_ClearFIFO();
-        Net_WaitForServer();
+        Net_WaitForEverybody();
     }
 
     //8

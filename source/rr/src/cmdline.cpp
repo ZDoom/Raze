@@ -339,13 +339,13 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1, "dedicated"))
-                {
-                    g_networkMode = NET_DEDICATED_SERVER;
-                    g_noSetup = g_noLogo = TRUE;
-                    i++;
-                    continue;
-                }
+                //if (!Bstrcasecmp(c+1, "dedicated"))
+                //{
+                //    g_networkMode = NET_DEDICATED_SERVER;
+                //    g_noSetup = g_noLogo = TRUE;
+                //    i++;
+                //    continue;
+                //}
                 if (!Bstrcasecmp(c+1, "connect"))
                 {
                     if (argc > i+1)
