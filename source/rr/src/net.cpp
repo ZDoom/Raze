@@ -218,6 +218,17 @@ void Net_ResetPrediction(void)
     myonground = g_player[myconnectindex].ps->on_ground;
     myhardlanding = g_player[myconnectindex].ps->hard_landing;
     myreturntocenter = g_player[myconnectindex].ps->return_to_center;
+    my_moto_speed = g_player[myconnectindex].ps->moto_speed;
+    my_not_on_water = g_player[myconnectindex].ps->not_on_water;
+    my_moto_on_ground = g_player[myconnectindex].ps->moto_on_ground;
+    my_moto_do_bump = g_player[myconnectindex].ps->moto_do_bump;
+    my_moto_bump_fast = g_player[myconnectindex].ps->moto_bump_fast;
+    my_moto_on_oil = g_player[myconnectindex].ps->moto_on_oil;
+    my_moto_on_mud = g_player[myconnectindex].ps->moto_on_mud;
+    my_moto_bump = g_player[myconnectindex].ps->moto_do_bump;
+    my_moto_bump_target = g_player[myconnectindex].ps->moto_bump_target;
+    my_moto_turb = g_player[myconnectindex].ps->moto_turb;
+    my_stairs = g_player[myconnectindex].ps->stairs;
 }
 
 void Net_DoPrediction(void)
@@ -233,7 +244,427 @@ void Net_DoPrediction(void)
 
     uint32_t playerBits = pInput->bits;
 
+    if (RRRA)
+    {
+        if (pPlayer->on_motorcycle && pSprite->extra > 0)
+        {
+            int var64, var68, var6c, var74, var7c;
+            int16_t var84;
+            if (my_moto_speed < 0)
+                my_moto_speed = 0;
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
+            {
+                var64 = 1;
+                playerBits &= ~(1<<SK_CROUCH);
+            }
+            else
+                var64 = 0;
+
+            if (TEST_SYNC_KEY(playerBits, SK_JUMP))
+            {
+                var68 = 1;
+                playerBits &= ~(1<< SK_JUMP);
+            }
+            else
+            {
+                var68 = 0;
+            }
+            if (TEST_SYNC_KEY(playerBits, SK_AIM_UP))
+            {
+                var6c = 1;
+                playerBits &= ~(1<<SK_AIM_UP);
+            }
+            else
+                var6c = 0;
+            if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN))
+            {
+                var74 = 1;
+                playerBits &= ~(1<<SK_AIM_DOWN);
+            }
+            else
+            {
+                var74 = 0;
+            }
+            if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT))
+            {
+                var7c = 1;
+                playerBits &= ~(1<<SK_LOOK_LEFT);
+            }
+            else
+            {
+                var7c = 0;
+            }
+            if (myonground == 1)
+            {
+                if (var64 && my_moto_speed > 0)
+                {
+                    if (my_moto_on_oil)
+                        my_moto_speed -= 2;
+                    else
+                        my_moto_speed -= 4;
+                    if (my_moto_speed < 0)
+                        my_moto_speed = 0;
+                    my_moto_bump_target = -30;
+                    my_moto_do_bump = 1;
+                }
+                else if (var68 && !var64)
+                {
+                    if (my_moto_speed < 40)
+                    {
+                        my_moto_bump_target = 70;
+                        my_moto_bump_fast = 1;
+                    }
+                    my_moto_speed += 2;
+                    if (my_moto_speed > 120)
+                        my_moto_speed = 120;
+                    if (!my_not_on_water)
+                        if (my_moto_speed > 80)
+                            my_moto_speed = 80;
+                }
+                else if (my_moto_speed > 0)
+                    my_moto_speed--;
+                if (my_moto_do_bump && (!var64 || my_moto_speed == 0))
+                {
+                    my_moto_bump_target = 0;
+                    my_moto_do_bump = 0;
+                }
+                if (var6c && my_moto_speed <= 0 && !var64)
+                {
+                    int var88;
+                    my_moto_speed = -15;
+                    var88 = var7c;
+                    var7c = var74;
+                    var74 = var88;
+                }
+            }
+            if (my_moto_speed != 0 && myonground == 1)
+            {
+                if (!my_moto_bump)
+                    if ((g_globalRandom&3) == 2)
+                        my_moto_bump_target = (my_moto_speed>>4)*((randomseed&7)-4);
+            }
+            if (my_moto_turb)
+            {
+                if (my_moto_turb <= 1)
+                {
+                    myhoriz = F16(100);
+                    my_moto_turb = 0;
+                    my_moto_bump = 0;
+                }
+                else
+                {
+                    myhoriz = F16(100+(g_globalRandom&15)-7);
+                    my_moto_turb--;
+                }
+            }
+            else if (my_moto_bump_target > my_moto_bump)
+            {
+                if (my_moto_bump_fast)
+                    my_moto_bump += 6;
+                else
+                    my_moto_bump++;
+                if (my_moto_bump_target < my_moto_bump)
+                    my_moto_bump = my_moto_bump_target;
+                myhoriz = F16(100+my_moto_bump/3);
+            }
+            else if (my_moto_bump_target < my_moto_bump)
+            {
+                if (my_moto_bump_fast)
+                    my_moto_bump -= 6;
+                else
+                    my_moto_bump--;
+                if (my_moto_bump_target > my_moto_bump)
+                    my_moto_bump = my_moto_bump_target;
+                myhoriz = F16(100+my_moto_bump/3);
+            }
+            else
+            {
+                my_moto_bump_fast = 0;
+            }
+            if (my_moto_speed >= 20 && myonground == 1 && (var74 || var7c))
+            {
+                short var8c, var90, var94, var98;
+                var8c = my_moto_speed;
+                var90 = fix16_to_int(myang);
+                if (var74)
+                    var94 = -10;
+                else
+                    var94 = 10;
+                if (var94 < 0)
+                    var98 = 350;
+                else
+                    var98 = -350;
+                if (my_moto_on_mud || my_moto_on_oil || !my_not_on_water)
+                {
+                    if (my_moto_on_oil)
+                        var8c <<= 3;
+                    else
+                        var8c <<= 2;
+                    if (my_moto_do_bump)
+                    {
+                        myvel.x += (var8c>>5)*(sintable[(var94*-51+var90+512)&2047]<<4);
+                        myvel.y += (var8c>>5)*(sintable[(var94*-51+var90)&2047]<<4);
+                        myang = F16((var90-(var98>>2))&2047);
+                    }
+                    else
+                    {
+                        myvel.x += (var8c>>7)*(sintable[(var94*-51+var90+512)&2047]<<4);
+                        myvel.y += (var8c>>7)*(sintable[(var94*-51+var90)&2047]<<4);
+                        myang = F16((var90-(var98>>6))&2047);
+                    }
+                    my_moto_on_mud = 0;
+                    my_moto_on_oil = 0;
+                }
+                else
+                {
+                    if (my_moto_do_bump)
+                    {
+                        myvel.x += (var8c >> 5)*(sintable[(var94*-51 + var90 + 512) & 2047] << 4);
+                        myvel.y += (var8c>>5)*(sintable[(var94*-51+var90)&2047]<<4);
+                        myang = F16((var90-(var98>>4))&2047);
+                    }
+                    else
+                    {
+                        myvel.x += (var8c >> 7)*(sintable[(var94*-51 + var90 + 512) & 2047] << 4);
+                        myvel.y += (var8c>>7)*(sintable[(var94*-51+var90)&2047]<<4);
+                        myang = F16((var90-(var98>>7))&2047);
+                    }
+                }
+            }
+            else if (my_moto_speed >= 20 && myonground == 1 && (my_moto_on_mud || my_moto_on_oil))
+            {
+                short var9c, vara0, vara4;
+                var9c = my_moto_speed;
+                vara0 = fix16_to_int(myang);
+                if (my_moto_on_oil)
+                    var9c *= 10;
+                else
+                    var9c *= 5;
+                myvel.x += (var9c>>7)*(sintable[(vara0+512)&2047]<<4);
+                myvel.y += (var9c>>7)*(sintable[(vara0)&2047]<<4);
+            }
+            my_moto_on_mud = 0;
+            my_moto_on_oil = 0;
+        }
+        else if (pPlayer->on_boat && pSprite->extra > 0)
+        {
+            int vara8, varac, varb0, varb4, varbc, varc4;
+            int16_t varcc;
+            if (my_moto_speed < 0)
+                my_moto_speed = 0;
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && TEST_SYNC_KEY(playerBits, SK_JUMP))
+            {
+                vara8 = 1;
+                varac = 0;
+                playerBits &= ~(1<<SK_JUMP);
+                varb0 = 0;
+                playerBits &= ~(1<<SK_CROUCH);
+            }
+            else
+                vara8 = 0;
+            if (TEST_SYNC_KEY(playerBits, SK_JUMP))
+            {
+                varac = 1;
+                playerBits &= ~(1<<SK_JUMP);
+            }
+            else
+            {
+                varac = 0;
+            }
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
+            {
+                varb0 = 1;
+                playerBits &= ~(1<<SK_CROUCH);
+            }
+            else
+                varb0 = 0;
+            if (TEST_SYNC_KEY(playerBits, SK_AIM_UP))
+            {
+                varb4 = 1;
+                playerBits &= ~(1<<SK_AIM_UP);
+            }
+            else varb4 = 0;
+            if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN))
+            {
+                varbc = 1;
+                playerBits &= ~(1<<SK_AIM_DOWN);
+            }
+            else
+            {
+                varbc = 0;
+            }
+            if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT))
+            {
+                varc4 = 1;
+                playerBits &= ~(1<< SK_LOOK_LEFT);
+            }
+            else
+            {
+                varc4 = 0;
+            }
+            if (myonground == 1)
+            {
+                if (vara8)
+                {
+                    if (my_moto_speed <= 25)
+                    {
+                        my_moto_speed++;
+                    }
+                    else
+                    {
+                        my_moto_speed -= 2;
+                        if (my_moto_speed < 0)
+                            my_moto_speed = 0;
+                        my_moto_bump_target = 30;
+                        my_moto_do_bump = 1;
+                    }
+                }
+                else if (varb0 && my_moto_speed > 0)
+                {
+                    my_moto_speed -= 2;
+                    if (my_moto_speed < 0)
+                        my_moto_speed = 0;
+                    my_moto_bump_target = 30;
+                    my_moto_do_bump = 1;
+                }
+                else if (varac)
+                {
+                    if (my_moto_speed < 40)
+                        if (!my_not_on_water)
+                        {
+                            my_moto_bump_target = -30;
+                            my_moto_bump_fast = 1;
+                        }
+                    my_moto_speed++;
+                    if (my_moto_speed > 120)
+                        my_moto_speed = 120;
+                }
+                else if (my_moto_speed > 0)
+                    my_moto_speed--;
+                if (my_moto_do_bump && (!varb0 || my_moto_speed == 0))
+                {
+                    my_moto_bump_target = 0;
+                    my_moto_do_bump = 0;
+                }
+                if (varb4 && my_moto_speed == 0 && !varb0)
+                {
+                    int vard0;
+                    if (!my_not_on_water)
+                        my_moto_speed = -25;
+                    else
+                        my_moto_speed = -20;
+                    vard0 = varc4;
+                    varc4 = varbc;
+                    varbc = vard0;
+                }
+            }
+            if (my_moto_speed != 0 && myonground == 1)
+            {
+                if (!my_moto_bump)
+                    if ((g_globalRandom & 15) == 14)
+                        my_moto_bump_target = (my_moto_speed>>4)*((randomseed&3)-2);
+            }
+            if (my_moto_turb)
+            {
+                if (my_moto_turb <= 1)
+                {
+                    myhoriz = F16(100);
+                    my_moto_turb = 0;
+                    my_moto_bump_target = 0;
+                    my_moto_bump = 0;
+                }
+                else
+                {
+                    myhoriz = F16(100+((g_globalRandom&15)-7));
+                    my_moto_turb--;
+                }
+            }
+            else if (my_moto_bump_target > my_moto_bump)
+            {
+                if (my_moto_bump_fast)
+                    my_moto_bump += 6;
+                else
+                    my_moto_bump++;
+                if (my_moto_bump_target < my_moto_bump)
+                    my_moto_bump = my_moto_bump_target;
+                myhoriz = F16(100+my_moto_bump/3);
+            }
+            else if (my_moto_bump_target < my_moto_bump)
+            {
+                if (my_moto_bump_fast)
+                    my_moto_bump -= 6;
+                else
+                    my_moto_bump--;
+                if (my_moto_bump_target > my_moto_bump)
+                    my_moto_bump = my_moto_bump_target;
+                myhoriz = F16(100+my_moto_bump/3);
+            }
+            else
+            {
+                my_moto_bump_target = 0;
+                my_moto_bump_fast = 0;
+            }
+            if (my_moto_speed > 0 && myonground == 1 && (varbc || varc4))
+            {
+                short vard4, vard8, vardc, vare0;
+                vard4 = my_moto_speed;
+                vard8 = fix16_to_int(myang);
+                if (varbc)
+                    vardc = -10;
+                else
+                    vardc = 10;
+                if (vardc < 0)
+                    vare0 = 350;
+                else
+                    vare0 = -350;
+                vard4 <<= 2;
+                if (my_moto_do_bump)
+                {
+                    myvel.x += (vard4>>6)*(sintable[(vardc*-51+vard8+512)&2047]<<4);
+                    myvel.y += (vard4>>6)*(sintable[(vardc*-51+vard8)&2047]<<4);
+                    myang = F16((vard8-(vare0>>5))&2047);
+                }
+                else
+                {
+                    myvel.x += (vard4>>7)*(sintable[(vardc*-51+vard8+512)&2047]<<4);
+                    myvel.y += (vard4>>7)*(sintable[(vardc*-51+vard8)&2047]<<4);
+                    myang = F16((vard8-(vare0>>6))&2047);
+                }
+            }
+            if (my_not_on_water)
+                if (my_moto_speed > 50)
+                    my_moto_speed -= (my_moto_speed>>1);
+        }
+    }
+
     int sectorLotag = sector[mycursectnum].lotag;
+    int myclipdist = 64;
+    int spriteNum = 0;
+
+    if (RR)
+    {
+        if (sectorLotag == 867)
+        {
+            int spriteNum = headspritesect[mycursectnum];
+            while (spriteNum >= 0)
+            {
+                int const nextSprite = nextspritesect[spriteNum];
+                if (sprite[spriteNum].picnum == RRTILE380)
+                    if (sprite[spriteNum].z - ZOFFSET3 < mypos.z)
+                        sectorLotag = 2;
+                spriteNum = nextSprite;
+            }
+        }
+
+        if (sectorLotag == 848 && sector[mycursectnum].floorpicnum == WATERTILE2)
+            sectorLotag = 1;
+
+        if (sectorLotag == 857)
+            myclipdist = 1;
+        else
+            myclipdist = 64;
+    }
+
     uint8_t spritebridge = 0;
 
     int stepHeight, centerHoriz;
@@ -256,7 +687,10 @@ void Net_DoPrediction(void)
     omyang = myang;
 
     int32_t floorZ, ceilZ, highZhit, lowZhit;
-    getzrange(&mypos, mycursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, 163, CLIPMASK0);
+    if (!RR || myclipdist == 64)
+        getzrange(&mypos, mycursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, 163, CLIPMASK0);
+    else
+        getzrange(&mypos, mycursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, 1, CLIPMASK0);
     
     int truecz, truefz;
 #ifdef YAX_ENABLE
@@ -308,6 +742,23 @@ void Net_DoPrediction(void)
             highZhit = 0;
             ceilZ    = truecz;
         }
+        if (RR)
+        {
+            if (sprite[highZhit].picnum == RRTILE3587)
+            {
+                if (!my_stairs)
+                {
+                    my_stairs = 10;
+                    if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle))
+                    {
+                        highZhit = 0;
+                        ceilZ = pPlayer->truecz;
+                    }
+                }
+                else
+                    my_stairs--;
+            }
+        }
     }
 
     if (lowZhit >= 0 && (lowZhit&49152) == 49152)
@@ -320,22 +771,64 @@ void Net_DoPrediction(void)
             spritebridge            = 1;
             //pPlayer->sbs            = spriteNum;
         }
-        else if (A_CheckEnemySprite(&sprite[spriteNum]) && sprite[spriteNum].xrepeat > 24
-                     && klabs(pSprite->z - sprite[spriteNum].z) < (84 << 8))
+        else if (!RRRA)
+            goto check_enemy_sprite;
+
+        if (RRRA)
         {
-            // TX: I think this is what makes the player slide off enemies... might
-            // be a good sprite flag to add later.
-            // Helix: there's also SLIDE_ABOVE_ENEMY.
-            int spriteAng = getangle(sprite[spriteNum].x - mypos.x,
-                                        sprite[spriteNum].y - mypos.y);
-            myvel.x -= sintable[(spriteAng + 512) & 2047] << 4;
-            myvel.y -= sintable[spriteAng & 2047] << 4;
+            if (pPlayer->on_motorcycle)
+            {
+                if (A_CheckEnemySprite(&sprite[spriteNum]))
+                {
+                    my_moto_speed -= my_moto_speed >> 4;
+                }
+            }
+            if (pPlayer->on_boat)
+            {
+                if (A_CheckEnemySprite(&sprite[spriteNum]))
+                {
+                    my_moto_speed -= my_moto_speed >> 4;
+                }
+            }
+            else
+            {
+check_enemy_sprite:
+                if (A_CheckEnemySprite(&sprite[spriteNum]) && sprite[spriteNum].xrepeat > 24
+                     && klabs(pSprite->z - sprite[spriteNum].z) < (84 << 8))
+                {
+                    // TX: I think this is what makes the player slide off enemies... might
+                    // be a good sprite flag to add later.
+                    // Helix: there's also SLIDE_ABOVE_ENEMY.
+                    int spriteAng = getangle(sprite[spriteNum].x - mypos.x,
+                                                sprite[spriteNum].y - mypos.y);
+                    myvel.x -= sintable[(spriteAng + 512) & 2047] << 4;
+                    myvel.y -= sintable[spriteAng & 2047] << 4;
+                }
+            }
+        }
+        if (RR)
+        {
+            if (sprite[spriteNum].picnum == RRTILE3587)
+            {
+                if (!my_stairs)
+                {
+                    my_stairs = 10;
+                    if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
+                    {
+                        ceilZ = sprite[spriteNum].z;
+                        highZhit = 0;
+                        floorZ = sprite[spriteNum].z + ZOFFSET6;
+                    }
+                }
+                else
+                    my_stairs--;
+            }
         }
     }
     
     int       velocityModifier = TICSPERFRAME;
     int       floorZOffset     = 40;
-    int const playerShrunk     = (pSprite->yrepeat < 32);
+    int const playerShrunk     = (pSprite->yrepeat < (RR ? 8 : 32));
 
     if (pSprite->extra <= 0)
     {
@@ -401,7 +894,7 @@ void Net_DoPrediction(void)
             myvel.z = 0;
         }
     }
-    else if (pPlayer->jetpack_on)
+    else if (!RR && pPlayer->jetpack_on)
     {
         myonground = 0;
         myjumpingcounter = 0;
@@ -444,11 +937,35 @@ void Net_DoPrediction(void)
             else
             {
                 myonground = 0;
-
-                myvel.z += (g_spriteGravity + 80);
+                
+                if (RRRA && (pPlayer->on_motorcycle || pPlayer->on_boat) && floorZ - (floorZOffset << 9) > mypos.z)
+                {
+                    if (my_moto_on_ground)
+                    {
+                        my_moto_bump_target = 80;
+                        my_moto_bump_fast = 1;
+                        myvel.z -= g_spriteGravity*(my_moto_speed>>4);
+                        my_moto_on_ground = 0;
+                    }
+                    else
+                    {
+                        myvel.z += g_spriteGravity-80+(120-my_moto_speed);
+                    }
+                }
+                else
+                    myvel.z += (g_spriteGravity + 80);
 
                 if (myvel.z >= (4096 + 2048))
                     myvel.z = (4096 + 2048);
+
+                if ((mypos.z + myvel.z) >= (floorZ - (floorZOffset << 8)) && mycursectnum >= 0)  // hit the ground
+                {
+                    if (sector[mycursectnum].lotag != ST_1_ABOVE_WATER)
+                    {
+                        if (RRRA)
+                            my_moto_on_ground = 1;
+                    }
+                }
             }
         }
 
@@ -484,12 +1001,12 @@ void Net_DoPrediction(void)
                 }
             }
 
-            if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
                 mypos.z += (2048+768);
 
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && myjumpingtoggle == 1)
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle) && myjumpingtoggle == 1)
                 myjumpingtoggle = 0;
-            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && myjumpingtoggle == 0)
+            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle) && myjumpingtoggle == 0)
             {
                 if (myjumpingcounter == 0)
                     if ((floorZ-ceilZ) > (56<<8))
@@ -498,16 +1015,16 @@ void Net_DoPrediction(void)
                         myjumpingtoggle = 1;
                     }
             }
-            if (myjumpingcounter && !TEST_SYNC_KEY(playerBits, SK_JUMP))
+            if (!RR && myjumpingcounter && !TEST_SYNC_KEY(playerBits, SK_JUMP))
                 myjumpingcounter = 0;
         }
 
         if (myjumpingcounter)
         {
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) == 0 && myjumpingtoggle == 1)
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle) && myjumpingtoggle == 1)
                 myjumpingtoggle = 0;
 
-            if (myjumpingcounter < (1024+256))
+            if (myjumpingcounter < (RR ? 768 : (1024+256)))
             {
                 if (sectorLotag == ST_1_ABOVE_WATER && myjumpingcounter > 768)
                 {
@@ -542,7 +1059,7 @@ void Net_DoPrediction(void)
     }
 
     if (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || myhardlanding || pPlayer->access_incs > 0 ||
-        pPlayer->knee_incs > 0 || (pPlayer->curr_weapon == TRIPBOMB_WEAPON &&
+        pPlayer->knee_incs > 0 || (!RR && pPlayer->curr_weapon == TRIPBOMB_WEAPON &&
                                    pPlayer->kickback_pic > 1 && pPlayer->kickback_pic < 4))
     {
         velocityModifier = 0;
@@ -561,6 +1078,23 @@ void Net_DoPrediction(void)
 
     if (myvel.x || myvel.y || pInput->fvel || pInput->svel)
     {
+        if (RRRA)
+        {
+            if (spritebridge == 0 && myonground)
+            {
+                if (sectorLotag == ST_1_ABOVE_WATER)
+                    my_not_on_water = 0;
+                else if (pPlayer->on_boat)
+                {
+                    if (sectorLotag == 1234)
+                        my_not_on_water = 0;
+                    else
+                        my_not_on_water = 1;
+                }
+                else
+                    my_not_on_water = 1;
+            }
+        }
         if (pPlayer->jetpack_on == 0 && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
             velocityModifier <<= 1;
 
@@ -569,7 +1103,7 @@ void Net_DoPrediction(void)
 
         int playerSpeedReduction = 0;
         
-        if (myonground && (TEST_SYNC_KEY(playerBits, SK_CROUCH)
+        if (!RRRA && myonground && (TEST_SYNC_KEY(playerBits, SK_CROUCH)
          || (pPlayer->kickback_pic > 10 && pPlayer->curr_weapon == KNEE_WEAPON)))
             playerSpeedReduction = 0x2000;
         else if (sectorLotag == ST_2_UNDERWATER)
@@ -577,6 +1111,47 @@ void Net_DoPrediction(void)
 
         myvel.x = mulscale16(myvel.x, pPlayer->runspeed - playerSpeedReduction);
         myvel.y = mulscale16(myvel.y, pPlayer->runspeed - playerSpeedReduction);
+
+        if (RR)
+        {
+            if (RRRA)
+            {
+                if (sector[mycursectnum].floorpicnum == RRTILE7888)
+                {
+                    if (pPlayer->on_motorcycle && myonground)
+                        my_moto_on_oil = 1;
+                }
+                else if (sector[mycursectnum].floorpicnum == RRTILE7889)
+                {
+                    if (pPlayer->on_motorcycle)
+                    {
+                        if (myonground)
+                            my_moto_on_mud = 1;
+                    }
+                    else if (pPlayer->inv_amount[GET_BOOTS] <= 0)
+                    {
+                        myvel.x = mulscale16(myvel.x, pPlayer->runspeed);
+                        myvel.y = mulscale16(myvel.y, pPlayer->runspeed);
+                    }
+                }
+            }
+            if (sector[mycursectnum].floorpicnum == RRTILE3073 || sector[mycursectnum].floorpicnum == RRTILE2702)
+            {
+                if (RRRA && pPlayer->on_motorcycle)
+                {
+                    if (myonground)
+                    {
+                        myvel.x = mulscale16(myvel.x, pPlayer->runspeed-0x1800);
+                        myvel.y = mulscale16(myvel.y, pPlayer->runspeed-0x1800);
+                    }
+                }
+                else if (pPlayer->inv_amount[GET_BOOTS] <= 0)
+                {
+                    myvel.x = mulscale16(myvel.x, pPlayer->runspeed-0x1800);
+                    myvel.y = mulscale16(myvel.y, pPlayer->runspeed-0x1800);
+                }
+            }
+        }
 
         if (klabs(myvel.x) < 2048 && klabs(myvel.y) < 2048)
             myvel.x = myvel.y = 0;
@@ -615,6 +1190,79 @@ FAKEHORIZONLY:;
     if (pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER && playerShrunk)
         mypos.z += ZOFFSET5;
 
+    if (RR)
+    {
+        if ((spriteNum & 49152) == 32768)
+        {
+            int const wallNum = spriteNum&(MAXWALLS-1);
+            if (RRRA && pPlayer->on_motorcycle)
+            {
+                int16_t var108, var10c;
+                var108 = getangle(wall[wall[wallNum].point2].x-wall[wallNum].x,wall[wall[wallNum].point2].y-wall[wallNum].y);
+                var10c = klabs(fix16_to_int(myang)-var108);
+                if (var10c >= 441 && var10c <= 581)
+                {
+                    my_moto_speed = 0;
+                }
+                else if (var10c >= 311 && var10c <= 711)
+                {
+                    my_moto_speed -= (my_moto_speed>>1)+(my_moto_speed>>2);
+                }
+                else if (var10c >= 111 && var10c <= 911)
+                {
+                    my_moto_speed -= (my_moto_speed>>1);
+                }
+                else
+                {
+                    my_moto_speed -= (my_moto_speed>>3);
+                }
+            }
+            else if (RRRA && pPlayer->on_boat)
+            {
+                short var114, var118;
+                var114 = getangle(wall[wall[wallNum].point2].x-wall[wallNum].x,wall[wall[wallNum].point2].y-wall[wallNum].y);
+                var118 = klabs(fix16_to_int(myang)-var114);
+                if (var118 >= 441 && var118 <= 581)
+                {
+                    my_moto_speed = ((my_moto_speed>>1)+(my_moto_speed>>2))>>2;
+                }
+                else if (var118 >= 311 && var118 <= 711)
+                {
+                    my_moto_speed -= ((my_moto_speed>>1)+(my_moto_speed>>2))>>3;
+                }
+                else if (var118 >= 111 && var118 <= 911)
+                {
+                    my_moto_speed -= (my_moto_speed>>4);
+                }
+                else
+                {
+                    my_moto_speed -= (my_moto_speed>>6);
+                }
+            }
+        }
+        else if ((spriteNum & 49152) == 49152)
+        {
+            spriteNum &= (MAXSPRITES-1);
+                
+            if (RRRA && pPlayer->on_motorcycle)
+            {
+                if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == APLAYER)
+                {
+                    my_moto_speed -= my_moto_speed>>2;
+                    my_moto_turb = 6;
+                }
+            }
+            else if (RRRA && pPlayer->on_boat)
+            {
+                if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == APLAYER)
+                {
+                    my_moto_speed -= my_moto_speed>>2;
+                    my_moto_turb = 6;
+                }
+            }
+        }
+    }
+
     centerHoriz = 0;
     if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || myhardlanding)
         myreturntocenter = 9;
@@ -642,6 +1290,12 @@ FAKEHORIZONLY:;
         centerHoriz++;
     }
 
+    if (RR && pPlayer->recoil && pPlayer->kickback_pic == 0)
+    {
+        int delta = pPlayer->recoil >> 1;
+        if (!delta) delta++;
+        myhoriz -= F16(delta);
+    }
     if (myreturntocenter > 0 && !TEST_SYNC_KEY(playerBits, SK_LOOK_UP) && !TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {
         myreturntocenter--;
@@ -700,6 +1354,17 @@ void Net_CorrectPrediction(void)
     myonground = p->on_ground;
     myhardlanding = p->hard_landing;
     myreturntocenter = p->return_to_center;
+    my_moto_speed = p->moto_speed;
+    my_not_on_water = p->not_on_water;
+    my_moto_on_ground = p->moto_on_ground;
+    my_moto_do_bump = p->moto_do_bump;
+    my_moto_bump_fast = p->moto_bump_fast;
+    my_moto_on_oil = p->moto_on_oil;
+    my_moto_on_mud = p->moto_on_mud;
+    my_moto_bump = p->moto_do_bump;
+    my_moto_bump_target = p->moto_bump_target;
+    my_moto_turb = p->moto_turb;
+    my_stairs = p->stairs;
 
     predictfifoplc = movefifoplc;
     while (predictfifoplc < g_player[myconnectindex].movefifoend)
