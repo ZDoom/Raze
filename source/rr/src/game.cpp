@@ -1236,7 +1236,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         if (pPlayer->newowner < 0)
         {
-            if (playerNum == myconnectindex && numplayers > 0)
+            if (playerNum == myconnectindex && numplayers > 1)
             {
                 vec3_t const camVect = { omypos.x + mulscale16(mypos.x - omypos.x, smoothRatio),
                                          omypos.y + mulscale16(mypos.y - omypos.y, smoothRatio),
