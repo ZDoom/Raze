@@ -8339,7 +8339,6 @@ MAIN_LOOP_RESTART:
         double const gameUpdateStartTime = timerGetHiTicks();
         if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
         {
-            Net_GetInput();
             //if (g_networkMode != NET_DEDICATED_SERVER)
             //{
             //    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
@@ -8359,6 +8358,7 @@ MAIN_LOOP_RESTART:
                 timerUpdate();
 
                 if (ready2send == 0) break;
+                Net_GetInput();
 
                 ototalclock += TICSPERFRAME;
 

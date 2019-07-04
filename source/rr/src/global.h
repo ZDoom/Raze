@@ -109,7 +109,7 @@ G_EXTERN fix16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff, myang, omyang;
 G_EXTERN int16_t mycursectnum, myjumpingcounter;
 G_EXTERN uint8_t myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
 G_EXTERN int16_t my_moto_speed;
-G_EXTERN uint8_t my_moto_underwater, my_not_on_water, my_moto_on_ground;
+G_EXTERN uint8_t my_not_on_water, my_moto_on_ground;
 G_EXTERN uint8_t my_moto_do_bump, my_moto_bump_fast, my_moto_on_oil, my_moto_on_mud;
 G_EXTERN int16_t my_moto_bump, my_moto_bump_target, my_moto_turb;
 G_EXTERN int32_t my_stairs;
