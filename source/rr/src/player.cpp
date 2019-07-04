@@ -8073,9 +8073,9 @@ HORIZONLY:;
                         break;
                     case APLAYER__STATIC:
                     {
-                        int playerNum = P_Get(pPlayer->actorsqu);
-                        P_QuickKill(g_player[playerNum].ps);
-                        g_player[playerNum].ps->frag_ps = playerNum;
+                        int playerSquished = P_Get(pPlayer->actorsqu);
+                        P_QuickKill(g_player[playerSquished].ps);
+                        g_player[playerSquished].ps->frag_ps = playerNum;
                         break;
                     }
                     default:
