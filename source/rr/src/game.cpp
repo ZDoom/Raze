@@ -1236,16 +1236,33 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         if (pPlayer->newowner < 0)
         {
-            vec3_t const camVect = { pPlayer->opos.x + mulscale16(pPlayer->pos.x - pPlayer->opos.x, smoothRatio),
-                                     pPlayer->opos.y + mulscale16(pPlayer->pos.y - pPlayer->opos.y, smoothRatio),
-                                     pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
+            if (playerNum == myconnectindex && numplayers > 0)
+            {
+                vec3_t const camVect = { omypos.x + mulscale16(mypos.x - omypos.x, smoothRatio),
+                                         omypos.y + mulscale16(mypos.y - omypos.y, smoothRatio),
+                                         omypos.z + mulscale16(mypos.z - omypos.z, smoothRatio) };
 
-            CAMERA(pos)      = camVect;
-            CAMERA(q16ang)   = pPlayer->oq16ang
-                             + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio)
-                             + fix16_from_int(pPlayer->look_ang);
-            CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
-                             + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
+                CAMERA(pos)      = camVect;
+                CAMERA(q16ang)   = omyang
+                                 + mulscale16(((myang + F16(1024) - omyang) & 0x7FFFFFF) - F16(1024), smoothRatio)
+                                 + fix16_from_int(pPlayer->look_ang);
+                CAMERA(q16horiz) = omyhoriz + omyhorizoff
+                                 + mulscale16((myhoriz + myhorizoff - omyhoriz - omyhorizoff), smoothRatio);
+                CAMERA(sect)     = mycursectnum;
+            }
+            else
+            {
+                vec3_t const camVect = { pPlayer->opos.x + mulscale16(pPlayer->pos.x - pPlayer->opos.x, smoothRatio),
+                                         pPlayer->opos.y + mulscale16(pPlayer->pos.y - pPlayer->opos.y, smoothRatio),
+                                         pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
+
+                CAMERA(pos)      = camVect;
+                CAMERA(q16ang)   = pPlayer->oq16ang
+                                 + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio)
+                                 + fix16_from_int(pPlayer->look_ang);
+                CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
+                                 + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
+            }
 
             if (ud.viewbob)
             {
@@ -5226,6 +5243,15 @@ default_case1:
                 else
 #endif
                     t->cstat |= 2;
+                if (screenpeek == myconnectindex && numplayers >= 2)
+                {
+                    t->x = omypos.x+mulscale16(mypos.x-omypos.x,smoothratio);
+                    t->y = omypos.y+mulscale16(mypos.y-omypos.y,smoothratio);
+                    t->z = omypos.z+mulscale16(mypos.z-omypos.z,smoothratio)+(40<<8);
+                    t->ang = fix16_to_int(omyang+mulscale16((fix16_to_int(myang+F16(1024)-omyang)&2047)-1024,smoothratio));
+                    t->sectnum = mycursectnum;
+                }
+
             }
 
             if ((g_netServer || ud.multimode > 1) && (display_mirror || screenpeek != playerNum || pSprite->owner == -1))

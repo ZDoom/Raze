@@ -1069,9 +1069,18 @@ void G_DisplayRest(int32_t smoothratio)
             {
                 if (pp->newowner == -1 && !ud.pause_on)
                 {
-                    cposx = pp->opos.x + mulscale16(pp->pos.x-pp->opos.x, smoothratio);
-                    cposy = pp->opos.y + mulscale16(pp->pos.y-pp->opos.y, smoothratio);
-                    cang = fix16_to_int(pp->oq16ang) + mulscale16((fix16_to_int(pp->q16ang+F16(1024)-pp->oq16ang)&2047)-1024, smoothratio);
+                    if (screenpeek == myconnectindex && numplayers > 1)
+                    {
+                        cposx = omypos.x + mulscale16(mypos.x-omypos.x, smoothratio);
+                        cposy = omypos.y + mulscale16(mypos.y-omypos.y, smoothratio);
+                        cang = fix16_to_int(omyang) + mulscale16((fix16_to_int(myang+F16(1024)-omyang)&2047)-1024, smoothratio);
+                    }
+                    else
+                    {
+                        cposx = pp->opos.x + mulscale16(pp->pos.x-pp->opos.x, smoothratio);
+                        cposy = pp->opos.y + mulscale16(pp->pos.y-pp->opos.y, smoothratio);
+                        cang = fix16_to_int(pp->oq16ang) + mulscale16((fix16_to_int(pp->q16ang+F16(1024)-pp->oq16ang)&2047)-1024, smoothratio);
+                    }
                 }
                 else
                 {
