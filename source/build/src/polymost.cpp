@@ -42,7 +42,9 @@ static int32_t yax_drawcf = -1;
 
 static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 
-#define SCISDIST 1.0f  //1.0: Close plane clipping distance
+//POGOTODO: the SCISDIST could be set to 0 now to allow close objects to render properly,
+//          but there's a nasty rendering bug that needs to be dug into when setting SCISDIST lower than 1
+#define SCISDIST 1.f  //close plane clipping distance
 
 #define SOFTROTMAT 0
 
@@ -759,6 +761,9 @@ void polymost_glinit()
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+    if (glinfo.depthclamp)
+        glEnable(GL_DEPTH_CLAMP);
+
     //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //glEnable(GL_LINE_SMOOTH);
 
@@ -1393,7 +1398,7 @@ static void resizeglcheck(void)
         float m[4][4];
         Bmemset(m,0,sizeof(m));
 
-        float const nearclip = SCISDIST / (gxyaspect * gyxscale * 1024.f);
+        float const nearclip = 4.0f / (gxyaspect * gyxscale * 1024.f);
         float const farclip = 64.f;
 
         gloxyaspect = gxyaspect;
