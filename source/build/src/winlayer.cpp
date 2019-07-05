@@ -2929,6 +2929,14 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             {
                 glinfo.sync = 1;
             }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_depth_clamp"))
+            {
+                glinfo.depthclamp = 1;
+            }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_clipcontrol"))
+            {
+                glinfo.clipcontrol = 1;
+            }
         }
         Xfree(p);
     }

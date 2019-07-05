@@ -285,6 +285,8 @@ struct glinfo_t glinfo =
     0,          // Debug Output
     0,          // Buffer storage
     0,          // Sync
+    0,          // Depth Clamp
+    0,          // Clip Control
     0,          // GL info dumped
 };
 
