@@ -73,6 +73,7 @@ void QuitGame(void);
 #define TILTBUFFER 4078
 
 #define kExplodeMax 8
+
 #define kDudeBase 200
 #define kDudePlayer1 231
 #define kDudePlayer8 238
@@ -98,6 +99,7 @@ void QuitGame(void);
 // -------------------------------
 #define kMaxPAL 5
 
+#define kItemBase 100
 #define kWeaponItemBase 40
 #define kItemMax 149
 
@@ -166,6 +168,17 @@ void QuitGame(void);
 #define kSecDamage 618
 #define kSecCounter 619
 #define kSecMax 620
+
+// sector cstat
+#define kSecCParallax 0x01
+#define kSecCSloped 0x02
+#define kSecCSwapXY 0x04
+#define kSecCExpand 0x08
+#define kSecCFlipX 0x10
+#define kSecCFlipY 0x20
+#define kSecCFlipMask 0x34
+#define kSecCRelAlign 0x40
+#define kSecCFloorShade 0x8000
 
 // switch types
 #define kSwitchBase 20
