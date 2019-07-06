@@ -46,7 +46,7 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Fire",
    "Open",
    "Run",
-   "AutoRun",
+   "Alt_Fire",
    "Jump",
    "Crouch",
    "Look_Up",
@@ -110,7 +110,7 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
 #endif
    "Dpad_Select",
    "Dpad_Aiming",
-   "Alt_Fire",
+   "AutoRun",
    "Last_Used_Weapon",
    "Quick_Save",
    "Quick_Load",
