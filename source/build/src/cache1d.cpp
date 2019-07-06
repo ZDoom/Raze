@@ -100,7 +100,7 @@ int32_t kpzbufload(char const * const filnam)
 //           After calling uninitcache, it is still ok to call allocache
 //           without first calling initcache.
 
-#define MAXCACHEOBJECTS 9216
+#define MAXCACHEOBJECTS 16384
 
 #if !defined DEBUG_ALLOCACHE_AS_MALLOC
 static int32_t cachesize = 0;
