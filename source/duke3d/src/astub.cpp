@@ -10635,9 +10635,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
             }
             //                else tspr->cstat&=32767;
 
-#ifdef USE_OPENGL
-            if (!usemodels || md_tilehasmodel(tspr->picnum,tspr->pal) < 0)
-#endif
+            if (!tilehasmodelorvoxel(tspr->picnum,tspr->pal))
             {
                 if (frames!=0)
                 {

@@ -1444,6 +1444,15 @@ static FORCE_INLINE int32_t md_tilehasmodel(int32_t const tilenume, int32_t cons
 }
 #endif  // defined USE_OPENGL
 
+static FORCE_INLINE bool tilehasmodelorvoxel(int const tilenume, int const pal)
+{
+    return
+#ifdef USE_OPENGL
+    (videoGetRenderMode() >= REND_POLYMOST && mdinited && usemodels && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
+#endif
+    (videoGetRenderMode() <= REND_POLYMOST && usevoxels && tiletovox[tilenume] != -1);
+}
+
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
                        int32_t skinnum, float smoothduration, int32_t pal);
 int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *frameend,

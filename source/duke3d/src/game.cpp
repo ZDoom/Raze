@@ -3658,13 +3658,11 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     t->xrepeat = t->yrepeat = 0;
                 continue;
             case CHAIR3__STATIC:
-#ifdef USE_OPENGL
-                if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (tilehasmodelorvoxel(t->picnum,t->pal) && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     t->cstat &= ~4;
                     break;
                 }
-#endif
                 frameOffset = getofs_viewtype_mirrored<5>(t->cstat, t->ang - oura);
                 t->picnum = s->picnum+frameOffset;
                 break;
@@ -3897,9 +3895,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             t->picnum = GROWSPARK+((totalclock>>4)&3);
             break;
         case RPG__STATIC:
-#ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
-                    !(spriteext[i].flags & SPREXT_NOTMD))
+            if (tilehasmodelorvoxel(t->picnum,t->pal) && !(spriteext[i].flags & SPREXT_NOTMD))
             {
                 int32_t v = getangle(t->xvel, t->zvel>>4);
 
@@ -3907,19 +3903,16 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->cstat &= ~4;
                 break;
             }
-#endif
             frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - getangle(pSprite->x-ourx, pSprite->y-oury));
             t->picnum = RPG+frameOffset;
             break;
 
         case RECON__STATIC:
-#ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (tilehasmodelorvoxel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
             }
-#endif
             frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - getangle(pSprite->x-ourx, pSprite->y-oury));
 
             // RECON_T4
@@ -3940,8 +3933,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->ang = fix16_to_int(
                 g_player[playerNum].ps->q16ang
                 + mulscale16((((g_player[playerNum].ps->q16ang + 1024 - g_player[playerNum].ps->oq16ang) & 2047) - 1024), smoothratio));
-#ifdef USE_OPENGL
-                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
+                if (tilehasmodelorvoxel(t->picnum, t->pal) >= 0)
                 {
                     static int32_t targetang = 0;
 
@@ -3964,7 +3956,6 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     t->ang += targetang;
                 }
                 else
-#endif
                     t->cstat |= 2;
             }
 
@@ -4006,14 +3997,12 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
             if (pSprite->owner == -1)
             {
-#ifdef USE_OPENGL
-                if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (tilehasmodelorvoxel(pSprite->picnum,t->pal) && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     frameOffset = 0;
                     t->cstat &= ~4;
                 }
                 else
-#endif
                     frameOffset = getofs_viewtype_mirrored<5>(t->cstat, pSprite->ang - oura);
 
                 if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER) frameOffset += 1795-1405;
@@ -4063,14 +4052,12 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                             continue;
                         }
 
-#ifdef USE_OPENGL
-                        if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                        if (tilehasmodelorvoxel(pSprite->picnum, t->pal) && !(spriteext[i].flags&SPREXT_NOTMD))
                         {
                             frameOffset = 0;
                             t->cstat &= ~4;
                         }
                         else
-#endif
                             frameOffset = getofs_viewtype_mirrored<5>(t->cstat, pSprite->ang - oura);
 
                         if (sector[t->sectnum].lotag == ST_2_UNDERWATER) frameOffset += 1795-1405;
@@ -4155,14 +4142,12 @@ PALONLY:
             int const invertp = l < 0;
             l = klabs(l);
 
-#ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (tilehasmodelorvoxel(pSprite->picnum,t->pal) && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 frameOffset = 0;
                 t->cstat &= ~4;
             }
             else
-#endif
             {
                 int const viewAng = ((l > 4 && l != 8) || action_flags & AF_VIEWPOINT) ? getangle(pSprite->x-ourx, pSprite->y-oury) : oura;
                 int const angDiff = invertp ? viewAng - pSprite->ang : pSprite->ang - viewAng;
@@ -4287,7 +4272,7 @@ skip:
 #ifdef USE_OPENGL
                         if (videoGetRenderMode() >= REND_POLYMOST)
                         {
-                            if (usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
+                            if (tilehasmodelorvoxel(t->picnum,t->pal))
                             {
                                 tsprShadow->yrepeat = 0;
                                 // 512:trans reverse
@@ -4369,7 +4354,7 @@ skip:
             if (haveAction)
                 break;
 #ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (tilehasmodelorvoxel(pSprite->picnum,pSprite->pal) && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 frameOffset = 0;
                 t->cstat &= ~4;
@@ -4427,13 +4412,11 @@ skip:
         case RAT__STATIC:
             if (haveAction)
                 break;
-#ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (tilehasmodelorvoxel(pSprite->picnum,pSprite->pal) && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
             }
-#endif
             frameOffset = getofs_viewtype_mirrored<5>(t->cstat, t->ang - oura);
             t->picnum = pSprite->picnum+frameOffset;
             break;
