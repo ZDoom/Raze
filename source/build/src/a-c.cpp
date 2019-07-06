@@ -690,21 +690,22 @@ void tspritevline(int32_t bx, int32_t by, bssize_t cnt, intptr_t bufplc, intptr_
 }
 
 void setupdrawslab(int32_t dabpl, intptr_t pal)
-{ bpl = dabpl; gpal = (char *)pal; }
+{
+    bpl  = dabpl;
+    gpal = (char *)pal;
+}
 
 void drawslab(int32_t dx, int32_t v, int32_t dy, int32_t vi, intptr_t vptr, intptr_t p)
 {
-    int32_t x;
-
-    while (dy > 0)
+    do
     {
-        char c = gpal[(int32_t)(*(char *)((v>>16)+vptr))];
-        for (x=0; x < dx; x++)
+        char const c = gpal[(int32_t)(*(char *)((v>>16)+vptr))];
+        for (int x=0; x < dx; x++)
             ((char*)p)[x] = c;
         p += bpl;
         v += vi;
-        dy--;
     }
+    while (--dy);
 }
 
 #if 0
