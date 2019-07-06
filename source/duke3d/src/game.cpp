@@ -7239,4 +7239,5 @@ static void G_SetupGameButtons(void)
     CONTROL_DefineFlag(gamefunc_Last_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Quick_Save, FALSE);
     CONTROL_DefineFlag(gamefunc_Quick_Load, FALSE);
+    CONTROL_DefineFlag(gamefunc_Alt_Weapon,FALSE);
 }

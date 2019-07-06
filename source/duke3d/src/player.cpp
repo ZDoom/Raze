@@ -3030,7 +3030,10 @@ void P_GetInput(int const playerNum)
         }
     }
 
+
     if (BUTTON(gamefunc_Last_Weapon))
+        weaponSelection = 14;
+    else if (BUTTON(gamefunc_Alt_Weapon))
         weaponSelection = 13;
     else if (BUTTON(gamefunc_Next_Weapon) || (BUTTON(gamefunc_Dpad_Select) && input.fvel > 0))
         weaponSelection = 12;
