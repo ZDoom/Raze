@@ -876,9 +876,19 @@ void S_Update(void)
 
     if (ud.camerasprite == -1)
     {
-        c = &CAMERA(pos);
-        cs = CAMERA(sect);
-        ca = fix16_to_int(CAMERA(q16ang));
+        if (ud.overhead_on != 2)
+        {
+            c = &CAMERA(pos);
+            cs = CAMERA(sect);
+            ca = fix16_to_int(CAMERA(q16ang));
+        }
+        else
+        {
+            auto pPlayer = g_player[screenpeek].ps;
+            c = &pPlayer->pos;
+            cs = pPlayer->cursectnum;
+            ca = fix16_to_int(pPlayer->q16ang);
+        }
     }
     else
     {
