@@ -126,7 +126,7 @@ typedef struct {
     uint32_t bits;
     int16_t fvel, svel;
     fix16_t q16avel, q16horz;
-    int8_t extbits;
+    uint8_t extbits;
 } input_t;
 
 #pragma pack(push,1)

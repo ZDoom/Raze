@@ -7032,15 +7032,13 @@ int G_DoMoveThings(void)
 
     for (bssize_t TRAVERSE_CONNECT(i))
     {
-        if (g_player[i].inputBits->extbits&(1<<6))
+        if (g_player[i].ps->team != g_player[i].pteam && g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
         {
             g_player[i].ps->team = g_player[i].pteam;
-            if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
-            {
-                actor[g_player[i].ps->i].picnum = APLAYERTOP;
-                P_QuickKill(g_player[i].ps);
-            }
+            actor[g_player[i].ps->i].picnum = APLAYERTOP;
+            P_QuickKill(g_player[i].ps);
         }
+
         if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
             g_player[i].ps->palookup = g_player[i].pcolor = G_GetTeamPalette(g_player[i].ps->team);
 
@@ -7256,7 +7254,7 @@ static void G_SetupGameButtons(void)
     CONTROL_DefineFlag(gamefunc_Quick_Kick,FALSE);
     CONTROL_DefineFlag(gamefunc_Next_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Previous_Weapon,FALSE);
-    CONTROL_DefineFlag(gamefunc_Alt_Weapon,FALSE);
+    CONTROL_DefineFlag(gamefunc_Alt_Fire,FALSE);
     CONTROL_DefineFlag(gamefunc_Last_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Quick_Save, FALSE);
     CONTROL_DefineFlag(gamefunc_Quick_Load, FALSE);

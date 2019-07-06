@@ -110,7 +110,7 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
 #endif
    "Dpad_Select",
    "Dpad_Aiming",
-   "Alternate_Weapon",
+   "Alt_Fire",
    "Last_Used_Weapon",
    "Quick_Save",
    "Quick_Load",
@@ -249,7 +249,7 @@ const char oldkeydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
 static const char * mousedefaults[MAXMOUSEBUTTONS] =
    {
    "Fire",
-   "MedKit",
+   "Alt_Fire",
    "Jetpack",
    "",
    "Previous_Weapon",

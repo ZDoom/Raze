@@ -2655,9 +2655,6 @@ CHECKINV1:
             weaponNum = VM_OnEventWithReturn(EVENT_NEXTWEAPON,pPlayer->i,playerNum, weaponNum);
             break;
         case 12:
-            weaponNum = VM_OnEventWithReturn(EVENT_ALTWEAPON,pPlayer->i,playerNum, weaponNum);
-            break;
-        case 13:
             weaponNum = VM_OnEventWithReturn(EVENT_LASTWEAPON,pPlayer->i,playerNum, weaponNum);
             break;
         }

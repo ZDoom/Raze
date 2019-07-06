@@ -2895,8 +2895,7 @@ void P_GetInput(int const playerNum)
         Bmemset(&localInput, 0, sizeof(input_t));
 
         localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
-        localInput.extbits = (g_player[playerNum].pteam != pPlayer->team) << 6;
-        localInput.extbits |= (1 << 7);
+        localInput.extbits |= (1<<7);
 
         return;
     }
@@ -3032,8 +3031,6 @@ void P_GetInput(int const playerNum)
     }
 
     if (BUTTON(gamefunc_Last_Weapon))
-        weaponSelection = 14;
-    else if (BUTTON(gamefunc_Alt_Weapon))
         weaponSelection = 13;
     else if (BUTTON(gamefunc_Next_Weapon) || (BUTTON(gamefunc_Dpad_Select) && input.fvel > 0))
         weaponSelection = 12;
@@ -3090,15 +3087,9 @@ void P_GetInput(int const playerNum)
     localInput.extbits |= (BUTTON(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
     localInput.extbits |= (BUTTON(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
     localInput.extbits |= (BUTTON(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
-
-    if (VM_HaveEvent(EVENT_PROCESSINPUT) || VM_HaveEvent(EVENT_TURNLEFT))
-        localInput.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
-
-    if (VM_HaveEvent(EVENT_PROCESSINPUT) || VM_HaveEvent(EVENT_TURNRIGHT))
-        localInput.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
-
-    // used for changing team
-    localInput.extbits |= (g_player[playerNum].pteam != pPlayer->team)<<6;
+    localInput.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
+    localInput.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
+    localInput.extbits |= BUTTON(gamefunc_Alt_Fire)<<6;
 
     if (ud.scrollmode && ud.overhead_on)
     {
@@ -3945,9 +3936,11 @@ static void P_ProcessWeapon(int playerNum)
         pPlayer->rapid_fire_hold = 0;
     }
 
+    int const doAltFire = g_player[playerNum].inputBits->extbits & (1<<6);
+
     if (playerShrunk || pPlayer->tipincs || pPlayer->access_incs)
         playerBits &= ~BIT(SK_FIRE);
-    else if ((playerBits & (1 << 2)) && (*weaponFrame) == 0 && pPlayer->fist_incs == 0 &&
+    else if ((playerBits & BIT(SK_FIRE) || doAltFire) && (*weaponFrame) == 0 && pPlayer->fist_incs == 0 &&
              pPlayer->last_weapon == -1 && (pPlayer->weapon_pos == 0 || pPlayer->holster_weapon == 1))
     {
         pPlayer->crack_time = PCRACKTIME;
@@ -3965,7 +3958,10 @@ static void P_ProcessWeapon(int playerNum)
         {
             P_SetWeaponGamevars(playerNum, pPlayer);
 
-            if (VM_OnEvent(EVENT_FIRE, pPlayer->i, playerNum) == 0)
+            if (doAltFire)
+                VM_OnEvent(EVENT_ALTFIRE, pPlayer->i, playerNum);
+
+            if (playerBits & BIT(SK_FIRE) && VM_OnEvent(EVENT_FIRE, pPlayer->i, playerNum) == 0)
             {
                 // this event is deprecated
                 VM_OnEvent(EVENT_FIREWEAPON, pPlayer->i, playerNum);

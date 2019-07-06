@@ -99,7 +99,7 @@ enum GameFunction_t
    gamefunc_Show_DukeMatch_Scores,
    gamefunc_Dpad_Select,
    gamefunc_Dpad_Aiming,
-   gamefunc_Alt_Weapon,
+   gamefunc_Alt_Fire,
    gamefunc_Last_Weapon,
    gamefunc_Quick_Save,
    gamefunc_Quick_Load,
