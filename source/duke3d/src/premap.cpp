@@ -469,7 +469,6 @@ void G_CacheMapData(void)
 
     uint32_t const cacheStartTime = timerGetTicks();
 
-    cacheAllSounds();
     cacheFlaggedTiles();
 
     for (int i=0; i<numwalls; i++)
