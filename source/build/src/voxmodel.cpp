@@ -1053,9 +1053,11 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     f = (65536.f*512.f) / ((float)xdimen*viewingrange);
     g = 32.f / ((float)xdimen*gxyaspect);
 
+    int const shadowHack = !!(tspr->extra&TSPR_EXTRA_MDHACK);
+
     m0.y *= f; a0.y = (((float)(tspr->x-globalposx)) * (1.f/1024.f) + a0.y) * f;
     m0.x *=-f; a0.x = (((float)(tspr->y-globalposy)) * -(1.f/1024.f) + a0.x) * -f;
-    m0.z *= g; a0.z = (((float)(k0     -globalposz)) * -(1.f/16384.f) + a0.z) * g;
+    m0.z *= g; a0.z = (((float)(k0     -globalposz - shadowHack)) * -(1.f/16384.f) + a0.z) * g;
 
     float mat[16];
     md3_vox_calcmat_common(tspr, &a0, f, mat);
@@ -1069,7 +1071,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
         mat[12] = -mat[12];
     }
 
-    if (tspr->extra&TSPR_EXTRA_MDHACK)
+    if (shadowHack)
     {
         glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        glDepthRange(0.0, 0.9999);
@@ -1090,13 +1092,17 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
     hictinting_apply(pc, globalpal);
 
-    pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
-    pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
+    if (!shadowHack)
+    {
+        pc[3] = (tspr->cstat & 2) ? glblend[tspr->blend].def[!!(tspr->cstat & 512)].alpha : 1.0f;
+        pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
 
-    handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+        handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
-    if ((tspr->cstat&2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f)
-        glEnable(GL_BLEND); //else glDisable(GL_BLEND);
+        if (!(tspr->cstat & 2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f)
+            glEnable(GL_BLEND);  // else glDisable(GL_BLEND);
+    }
+    else pc[3] = 1.f;
     //------------
 
     //transform to Build coords
@@ -1178,7 +1184,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     //------------
     glDisable(GL_CULL_FACE);
 //    glPopAttrib();
-    if (tspr->extra&TSPR_EXTRA_MDHACK)
+    if (shadowHack)
     {
         glDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        glDepthRange(0.0, 0.99999);
