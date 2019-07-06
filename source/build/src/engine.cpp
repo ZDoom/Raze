@@ -138,6 +138,8 @@ static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 int32_t r_usenewaspect = 1, newaspect_enable=0;
 uint32_t r_screenxy = 0;
 
+int32_t r_fpgrouscan = 1;
+
 int32_t globalflags;
 
 float g_videoGamma = DEFAULT_GAMMA;
@@ -3444,8 +3446,297 @@ static void mslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int3
 // grouscan (internal)
 //
 #define BITSOFPRECISION 3  //Don't forget to change this in A.ASM also!
+static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
+{
+    int32_t i, j, l, globalx1, globaly1, y1, y2, daslope, daz;
+    float fi, wx, wy, dasqr;
+    float globalx, globaly, globalx2, globaly2, globalx3, globaly3, globalz, globalzd, globalzx;
+    int32_t shoffs, m1, m2;
+    intptr_t *mptr1, *mptr2;
+
+    const usectortype *const sec = (usectortype *)&sector[sectnum];
+    const uwalltype *wal;
+
+    if (dastat == 0)
+    {
+        if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy))
+            return;  //Back-face culling
+        globalorientation = sec->ceilingstat;
+        globalpicnum = sec->ceilingpicnum;
+        globalshade = sec->ceilingshade;
+        globalpal = sec->ceilingpal;
+        daslope = sec->ceilingheinum;
+        daz = sec->ceilingz;
+    }
+    else
+    {
+        if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy))
+            return;  //Back-face culling
+        globalorientation = sec->floorstat;
+        globalpicnum = sec->floorpicnum;
+        globalshade = sec->floorshade;
+        globalpal = sec->floorpal;
+        daslope = sec->floorheinum;
+        daz = sec->floorz;
+    }
+
+    tileUpdatePicnum(&globalpicnum, sectnum);
+    setgotpic(globalpicnum);
+    if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return;
+    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
+
+    wal = (uwalltype *)&wall[sec->wallptr];
+    wx = wall[wal->point2].x - wal->x;
+    wy = wall[wal->point2].y - wal->y;
+    dasqr = 1073741824.f/Bsqrtf(wx*wx+wy*wy);
+    fi = daslope*dasqr*(1.f/2097152.f);
+    wx *= fi; wy *= fi;
+
+    globalx = -float(singlobalang)*float(xdimenrecip)*(1.f/524288.f);
+    globaly = float(cosglobalang)*float(xdimenrecip)*(1.f/524288.f);
+    globalx1 = globalposx<<8;
+    globaly1 = -globalposy<<8;
+    fi = (dax1-halfxdimen)*xdimenrecip;
+    globalx2 = float(cosglobalang)*float(viewingrangerecip)*(1.f/4096.f) - float(singlobalang)*fi*(1.f/134217728.f);
+    globaly2 = float(singlobalang)*float(viewingrangerecip)*(1.f/4096.f) + float(cosglobalang)*fi*(1.f/134217728.f);
+    globalzd = xdimscale*512.f;
+    globalzx = -(wx*globaly2-wy*globalx2)*(1.f/131072.f) + (1-globalhoriz)*globalzd*(1.f/1024.f);
+    globalz = -(wx*globaly-wy*globalx)*(1.f/33554432.f);
+
+    if (globalorientation&64)  //Relative alignment
+    {
+        float dx, dy, x, y;
+        dx = (wall[wal->point2].x-wal->x)*dasqr*(1.f/16384.f);
+        dy = (wall[wal->point2].y-wal->y)*dasqr*(1.f/16384.f);
+
+        fi = Bsqrtf(daslope*daslope+16777216.f);
+
+        x = globalx; y = globaly;
+        globalx = (x*dx+y*dy)*(1.f/65536.f);
+        globaly = (-y*dx+x*dy)*fi*(1.f/268435456.f);
+
+        x = (wal->x-globalposx)*256.f; y = (wal->y-globalposy)*256.f;
+        globalx1 = Blrintf((-x*dx-y*dy)*(1.f/65536.f));
+        globaly1 = Blrintf((-y*dx+x*dy)*fi*(1.f/268435456.f));
+
+        x = globalx2; y = globaly2;
+        globalx2 = (x*dx+y*dy)*(1.f/65536.f);
+        globaly2 = (-y*dx+x*dy)*fi*(1.f/268435456.f);
+    }
+    if (globalorientation&0x4)
+    {
+        fi = globalx; globalx = -globaly; globaly = -fi;
+        i = globalx1; globalx1 = globaly1; globaly1 = i;
+        fi = globalx2; globalx2 = -globaly2; globaly2 = -fi;
+    }
+    if (globalorientation&0x10) { globalx1 = -globalx1, globalx2 = -globalx2, globalx = -globalx; }
+    if (globalorientation&0x20) { globaly1 = -globaly1, globaly2 = -globaly2, globaly = -globaly; }
+
+    float fdaz = (wx*(globalposy-wal->y)-wy*(globalposx-wal->x))*(1.f/512.f) + (daz-globalposz)*256.f;
+    globalx2 = (globalx2*fdaz)*(1.f/1048576.f); globalx = (globalx*fdaz)*(1.f/268435456.f);
+    globaly2 = (globaly2*-fdaz)*(1.f/1048576.f); globaly = (globaly*-fdaz)*(1.f/268435456.f);
+
+    i = 8-(picsiz[globalpicnum]&15); j = 8-(picsiz[globalpicnum]>>4);
+    if (globalorientation&8) { i++; j++; }
+    globalx1 <<= (i+12); globalx2 *= 1<<i; globalx *= 1<<i;
+    globaly1 <<= (j+12); globaly2 *= 1<<j; globaly *= 1<<j;
+
+    if (dastat == 0)
+    {
+        globalx1 += (uint32_t)sec->ceilingxpanning<<24;
+        globaly1 += (uint32_t)sec->ceilingypanning<<24;
+    }
+    else
+    {
+        globalx1 += (uint32_t)sec->floorxpanning<<24;
+        globaly1 += (uint32_t)sec->floorypanning<<24;
+    }
+
+    globalx1 >>= 16;
+    globaly1 >>= 16;
+
+    //asm1 = -(globalzd>>(16-BITSOFPRECISION));
+    float bzinc = -globalzd*(1.f/65536.f);
+
+    {
+        int32_t vis = globalvisibility;
+        int64_t lvis;
+
+        if (sec->visibility != 0) vis = mulscale4(vis, (uint8_t)(sec->visibility+16));
+        lvis = ((uint64_t)(vis*fdaz)) >> 13;  // NOTE: lvis can be negative now!
+        lvis = (lvis * xdimscale) >> 16;
+        globvis = lvis;
+    }
+
+    intptr_t fj = FP_OFF(palookup[globalpal]);
+
+    setupslopevlin_alsotrans((picsiz[globalpicnum]&15) + ((picsiz[globalpicnum]>>4)<<8),
+                             waloff[globalpicnum],-ylookup[1]);
+
+    l = Blrintf((globalzd)*(1.f/65536.f));
+
+    int32_t const shinc = Blrintf(globalz*xdimenscale*(1.f/65536.f));
+
+    shoffs = (shinc > 0) ? (4 << 15) : ((16380 - ydimen) << 15);  // JBF: was 2044
+    y1     = (dastat == 0) ? umost[dax1] : max(umost[dax1], dplc[dax1]);
+
+    m1 = Blrintf((y1*globalzd)*(1.f/65536.f) + globalzx*(1.f/64.f));
+    //Avoid visibility overflow by crossing horizon
+    m1 += klabs(l);
+    m2 = m1+l;
+    mptr1 = (intptr_t *)&slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
+
+    for (int x=dax1; x<=dax2; x++)
+    {
+        if (dastat == 0) { y1 = umost[x]; y2 = min(dmost[x],uplc[x])-1; }
+        else { y1 = max(umost[x],dplc[x]); y2 = dmost[x]-1; }
+        if (y1 <= y2)
+        {
+            intptr_t *nptr1 = &slopalookup[y1+(shoffs>>15)];
+            intptr_t *nptr2 = &slopalookup[y2+(shoffs>>15)];
+
+            while (nptr1 <= mptr1)
+            {
+                *mptr1-- = fj + getpalookupsh(mulscale24(krecipasm(m1),globvis));
+                m1 -= l;
+            }
+            while (nptr2 >= mptr2)
+            {
+                *mptr2++ = fj + getpalookupsh(mulscale24(krecipasm(m2),globvis));
+                m2 += l;
+            }
+
+            globalx3 = globalx2*(1.f/1024.f);
+            globaly3 = globaly2*(1.f/1024.f);
+            float bz = (y2*globalzd)*(1.f/65536.f) + globalzx*(1.f/64.f);
+            uint8_t *p = (uint8_t*)(ylookup[y2]+x+frameoffset);
+            intptr_t* A_C_RESTRICT slopalptr = (intptr_t*)nptr2;
+            const char* const A_C_RESTRICT trans = paletteGetBlendTable(0);
+            uint32_t u, v;
+            int cnt = y2-y1+1;
+#define LINTERPSIZ 4
+            int u0 = Blrintf(1048576.f*globalx3/bz);
+            int v0 = Blrintf(1048576.f*globaly3/bz);
+            switch (globalorientation&0x180)
+            {
+            case 0:
+                while (cnt > 0)
+                {
+                    bz += bzinc*(1<<LINTERPSIZ);
+                    int u1 = Blrintf(1048576.f*globalx3/bz);
+                    int v1 = Blrintf(1048576.f*globaly3/bz);
+                    u1 = (u1-u0)>>LINTERPSIZ;
+                    v1 = (v1-v0)>>LINTERPSIZ;
+                    int cnt2 = min(cnt, 1<<LINTERPSIZ);
+                    for (; cnt2>0; cnt2--)
+                    {
+                        u = (globalx1+u0)&0xffff;
+                        v = (globaly1+v0)&0xffff;
+                        *p = *(uint8_t *)(((intptr_t)slopalptr[0])+ggbuf[((u>>(16-gglogx))<<gglogy)+(v>>(16-gglogy))]);
+                        slopalptr--;
+                        p += ggpinc;
+                        u0 += u1;
+                        v0 += v1;
+                    }
+                    cnt -= 1<<LINTERPSIZ;
+                }
+                break;
+            case 128:
+                while (cnt > 0)
+                {
+                    bz += bzinc*(1<<LINTERPSIZ);
+                    int u1 = Blrintf(1048576.f*globalx3/bz);
+                    int v1 = Blrintf(1048576.f*globaly3/bz);
+                    u1 = (u1-u0)>>LINTERPSIZ;
+                    v1 = (v1-v0)>>LINTERPSIZ;
+                    int cnt2 = min(cnt, 1<<LINTERPSIZ);
+                    for (; cnt2>0; cnt2--)
+                    {
+                        u = (globalx1+u0)&0xffff;
+                        v = (globaly1+v0)&0xffff;
+                        uint8_t ch = ggbuf[((u>>(16-gglogx))<<gglogy)+(v>>(16-gglogy))];
+                        if (ch != 255)
+                            *p = *(uint8_t *)(((intptr_t)slopalptr[0])+ch);
+                        slopalptr--;
+                        p += ggpinc;
+                        u0 += u1;
+                        v0 += v1;
+                    }
+                    cnt -= 1<<LINTERPSIZ;
+                }
+                break;
+            case 256:
+                while (cnt > 0)
+                {
+                    bz += bzinc*(1<<LINTERPSIZ);
+                    int u1 = Blrintf(1048576.f*globalx3/bz);
+                    int v1 = Blrintf(1048576.f*globaly3/bz);
+                    u1 = (u1-u0)>>LINTERPSIZ;
+                    v1 = (v1-v0)>>LINTERPSIZ;
+                    int cnt2 = min(cnt, 1<<LINTERPSIZ);
+                    for (; cnt2>0; cnt2--)
+                    {
+                        u = (globalx1+u0)&0xffff;
+                        v = (globaly1+v0)&0xffff;
+                        uint8_t ch = ggbuf[((u>>(16-gglogx))<<gglogy)+(v>>(16-gglogy))];
+                        if (ch != 255)
+                        {
+                            ch = *(uint8_t *)(((intptr_t)slopalptr[0])+ch);
+                            *p = trans[(*p<<8)|ch];
+                        }
+                        slopalptr--;
+                        p += ggpinc;
+                        u0 += u1;
+                        v0 += v1;
+                    }
+                    cnt -= 1<<LINTERPSIZ;
+                }
+                break;
+            case 384:
+                while (cnt > 0)
+                {
+                    bz += bzinc*(1<<LINTERPSIZ);
+                    int u1 = Blrintf(1048576.f*globalx3/bz);
+                    int v1 = Blrintf(1048576.f*globaly3/bz);
+                    u1 = (u1-u0)>>LINTERPSIZ;
+                    v1 = (v1-v0)>>LINTERPSIZ;
+                    int cnt2 = min(cnt, 1<<LINTERPSIZ);
+                    for (; cnt2>0; cnt2--)
+                    {
+                        u = (globalx1+u0)&0xffff;
+                        v = (globaly1+v0)&0xffff;
+                        uint8_t ch = ggbuf[((u>>(16-gglogx))<<gglogy)+(v>>(16-gglogy))];
+                        if (ch != 255)
+                        {
+                            ch = *(uint8_t *)(((intptr_t)slopalptr[0])+ch);
+                            *p = trans[ch<<8|*p];
+                        }
+                        slopalptr--;
+                        p += ggpinc;
+                        u0 += u1;
+                        v0 += v1;
+                    }
+                    cnt -= 1<<LINTERPSIZ;
+                }
+                break;
+            }
+#undef LINTERPSIZ
+            if ((x&15) == 0) faketimerhandler();
+        }
+        globalx2 += globalx;
+        globaly2 += globaly;
+        globalzx += globalz;
+        shoffs += shinc;
+    }
+}
+
 static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 {
+    if (r_fpgrouscan)
+    {
+        fgrouscan(dax1, dax2, sectnum, dastat);
+        return;
+    }
     int32_t i, l, x, y, dx, dy, wx, wy, y1, y2, daz;
     int32_t daslope, dasqr;
     int32_t shoffs, m1, m2;
