@@ -3908,7 +3908,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             break;
 
         case RECON__STATIC:
-            if (tilehasmodelorvoxel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (tilehasmodelorvoxel(t->picnum,t->pal) && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -4353,14 +4353,12 @@ skip:
             t->shade = sprite[pSprite->owner].shade;
             if (haveAction)
                 break;
-#ifdef USE_OPENGL
             if (tilehasmodelorvoxel(pSprite->picnum,pSprite->pal) && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 frameOffset = 0;
                 t->cstat &= ~4;
             }
             else
-#endif
                 frameOffset = getofs_viewtype_mirrored<5>(t->cstat, t->ang - oura);
 
             t->picnum = pSprite->picnum+frameOffset+((T1(i)<4)*5);
