@@ -3562,6 +3562,11 @@ DO_DEFSTATE:
                 C_GetNextVarType((tw == CON_GETTSPR) ? GAMEVAR_READONLY : 0);
                 continue;
             }
+        case CON_ADDLOGVAR:
+            g_labelsOnly = 1;
+            C_GetNextVar();
+            g_labelsOnly = 0;
+            continue;
 
         case CON_COS:
         case CON_DIVR:
@@ -3578,7 +3583,6 @@ DO_DEFSTATE:
             C_GetNextVarType(GAMEVAR_READONLY);
             fallthrough__;
         case CON_ACTIVATECHEAT:
-        case CON_ADDLOGVAR:
         case CON_ANGOFF:
         case CON_CHECKACTIVATORMOTION:
         case CON_CHECKAVAILINVEN:
