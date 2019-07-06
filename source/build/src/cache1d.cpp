@@ -289,21 +289,23 @@ void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 void cacheAgeEntries(void)
 {
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC
-    static int32_t agecount;
+    static int agecount;
 
     if (agecount >= cacnum)
         agecount = cacnum-1;
 
-    native_t cnt = (cacnum>>4);
+    int cnt = min(MAXCACHEOBJECTS >> 5, cacnum-1);
 
-    if (agecount < 0 || !cnt)
-        return;
-
-    for (; cnt>=0; cnt--)
+    while(cnt--)
     {
         // If we have pointer to lock char and it's in [2 .. 199], decrease.
-        if (cac[agecount].lock && (((*cac[agecount].lock)-2)&255) < 198)
-            (*cac[agecount].lock)--;
+        if (cac[agecount].lock)
+        {
+             if ((((*cac[agecount].lock)-2)&255) < 198)
+                (*cac[agecount].lock)--;
+             else if (*cac[agecount].lock >= 200)
+                 cnt++;
+        }
 
         if (--agecount < 0)
             agecount = cacnum-1;
