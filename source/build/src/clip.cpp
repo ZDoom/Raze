@@ -976,7 +976,7 @@ static void clipupdatesector(vec2_t const &pos, int16_t * const sectnum, int con
         // check floor curbs here?
 
         for (int j = startwall; j < endwall; j++, uwal++)
-            if (uwal->nextsector >= 0 && getwalldist(pos, j) <= walldist)
+            if (uwal->nextsector >= 0 && getwalldist(pos, j) <= (walldist << 1))
                 bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
     }
 
