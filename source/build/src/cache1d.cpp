@@ -174,29 +174,15 @@ static inline void inc_and_check_cacnum(void)
         reportandexit("Too many objects in cache! (cacnum > MAXCACHEOBJECTS)");
 }
 
-void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
+int32_t cacheFindBlock(int32_t newbytes, int32_t *besto, int32_t *bestz)
 {
-    if (EDUKE32_PREDICT_FALSE(*newlockptr == 0))
-        reportandexit("ALLOCACHE CALLED WITH LOCK OF 0!");
-
-    // Make all requests a multiple of 16 bytes
-    newbytes = (newbytes + 15) & ~0xf;
-
-    if (EDUKE32_PREDICT_FALSE((unsigned)newbytes > (unsigned)cachesize))
-    {
-        initprintf("Cachesize: %d\n",cachesize);
-        initprintf("*Newhandle: 0x%" PRIxPTR ", Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
-        reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
-    }
-
-    int32_t bestz   = 0;
-    int32_t besto   = 0;
     int32_t bestval = 0x7fffffff;
 
     for (native_t z=cacnum-1, o1=cachesize; z>=0; z--)
     {
         o1 -= cac[z].leng;
-        int32_t o2 = o1 + newbytes;
+
+        int32_t const o2 = o1 + newbytes;
 
         if (o2 > cachesize)
             continue;
@@ -207,8 +193,7 @@ void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
         {
             if (*cac[zz].lock == 0)
                 continue;
-
-            if (*cac[zz].lock >= 200)
+            else if (*cac[zz].lock >= 200)
             {
                 daval = 0x7fffffff;
                 break;
@@ -226,18 +211,47 @@ void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
         if (daval < bestval)
         {
             bestval = daval;
-            besto   = o1;
-            bestz   = z;
+            *besto  = o1;
+            *bestz  = z;
 
             if (bestval == 0)
                 break;
         }
     }
 
-    //printf("%d %d %d\n",besto,newbytes,*newlockptr);
+    return bestval;
+}
 
-    if (EDUKE32_PREDICT_FALSE(bestval == 0x7fffffff))
-        reportandexit("CACHE SPACE ALL LOCKED UP!");
+void cacheAllocateBlock(intptr_t* newhandle, int32_t newbytes, char* newlockptr)
+{
+    // Make all requests a multiple of 16 bytes
+    newbytes = (newbytes + 15) & ~0xf;
+
+#ifdef DEBUGGINGAIDS
+    if (EDUKE32_PREDICT_FALSE(!newlockptr || *newlockptr == 0))
+        reportandexit("ALLOCACHE CALLED WITH LOCK OF 0!");
+#endif
+
+    if (EDUKE32_PREDICT_FALSE((unsigned)newbytes > (unsigned)cachesize))
+    {
+        initprintf("Cachesize: %d\n",cachesize);
+        initprintf("*Newhandle: 0x%" PRIxPTR ", Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
+        reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
+    }
+
+    int32_t bestz = 0;
+    int32_t besto = 0;
+    int cnt = cacnum-1;
+
+    // if we can't find a block, try to age the cache until we can
+    // it's better than the alternative of aborting the entire program
+    while (cacheFindBlock(newbytes, &besto, &bestz) == 0x7fffffff)
+    {
+        cacheAgeEntries();
+        if (!cnt--) reportandexit("CACHE SPACE ALL LOCKED UP!");
+    }
+
+    //printf("%d %d %d\n",besto,newbytes,*newlockptr);
 
     //Suck things out
     int32_t sucklen = -newbytes;
