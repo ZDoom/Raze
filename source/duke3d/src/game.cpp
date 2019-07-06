@@ -3933,7 +3933,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->ang = fix16_to_int(
                 g_player[playerNum].ps->q16ang
                 + mulscale16((((g_player[playerNum].ps->q16ang + 1024 - g_player[playerNum].ps->oq16ang) & 2047) - 1024), smoothratio));
-                if (tilehasmodelorvoxel(t->picnum, t->pal) >= 0)
+                if (tilehasmodelorvoxel(t->picnum, t->pal))
                 {
                     static int32_t targetang = 0;
 
