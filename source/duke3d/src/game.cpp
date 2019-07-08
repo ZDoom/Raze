@@ -230,7 +230,7 @@ void G_HandleSpecialKeys(void)
     if ((myplayer.gm & MODE_GAME) != MODE_GAME)
         OSD_DispatchQueued();
 
-    if (g_quickExit == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && (KB_KeyPressed(sc_Delete)||KB_KeyPressed(sc_End)))
+    if (g_quickExit == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_End))
     {
         g_quickExit = 1;
         G_GameExit("Quick Exit.");
