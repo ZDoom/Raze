@@ -349,7 +349,7 @@ static void M32_drawdebug(void)
 
 static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int16_t ang, int16_t horiz)
 {
-    spritetype *sp = &sprite[pp->i];
+    auto const sp = &sprite[pp->i];
     int32_t i, hx, hy;
     int32_t bakcstat = sp->cstat;
     hitdata_t hit;
@@ -419,11 +419,11 @@ char ror_protectedsectors[MAXSECTORS];
 static int32_t drawing_ror = 0;
 static int32_t ror_sprite = -1;
 
-static void G_OROR_DupeSprites(const spritetype *sp)
+static void G_OROR_DupeSprites(spritetype const *sp)
 {
     // dupe the sprites touching the portal to the other sector
     int32_t k;
-    const spritetype *refsp;
+    spritetype const *refsp;
 
     if ((unsigned)sp->yvel >= (unsigned)g_mostConcurrentPlayers)
         return;
@@ -462,7 +462,7 @@ static void G_SE40(int32_t smoothratio)
         int32_t x, y, z;
         int16_t sect;
         int32_t level = 0;
-        const spritetype *const sp = &sprite[ror_sprite];
+        auto const sp = &sprite[ror_sprite];
         const int32_t sprite2 = sp->yvel;
 
         if ((unsigned)sprite2 >= MAXSPRITES)
@@ -745,7 +745,7 @@ static void G_ReadGLFrame(void)
 
 void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
 
     int const viewingRange = viewingrange;
 
@@ -788,7 +788,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     if (ud.camerasprite >= 0)
     {
-        spritetype *const pSprite = &sprite[ud.camerasprite];
+        auto const pSprite = &sprite[ud.camerasprite];
 
         pSprite->yvel = clamp(TrackerCast(pSprite->yvel), -100, 300);
 
@@ -1869,8 +1869,8 @@ int A_Spawn(int spriteNum, int tileNum)
 
                 if (sprite[spriteNum].picnum == APLAYER)
                 {
-                    int const                 playerNum = P_Get(spriteNum);
-                    const DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
+                    int const  playerNum = P_Get(spriteNum);
+                    auto const pPlayer   = g_player[playerNum].ps;
 
                     shellAng = fix16_to_int(pPlayer->q16ang) - (krand() & 63) + 8;  // Fine tune
 
@@ -3609,7 +3609,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
     {
         auto const t = &tsprite[j];
         const int32_t i = t->owner;
-        const spritetype *const s = &sprite[i];
+        auto const s = &sprite[i];
 
         switch (DYNAMICTILEMAP(s->picnum))
         {
@@ -3749,7 +3749,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
         Bassert(i >= 0);
 
-        const DukePlayer_t *const ps = (pSprite->statnum != STAT_ACTOR && pSprite->picnum == APLAYER && pSprite->owner >= 0) ? g_player[P_GetP(pSprite)].ps : NULL;
+        auto const ps = (pSprite->statnum != STAT_ACTOR && pSprite->picnum == APLAYER && pSprite->owner >= 0) ? g_player[P_GetP(pSprite)].ps : NULL;
         if (ps && ps->newowner == -1)
         {
             t->x -= mulscale16(65536-smoothratio,ps->pos.x-ps->opos.x);
@@ -3821,7 +3821,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 int16_t const sqb = getangle(sprite[pSprite->owner].x - t->x, sprite[pSprite->owner].y - t->y);
 
                 if (klabs(G_GetAngleDelta(sqa,sqb)) > 512)
-                    if (ldist(&sprite[pSprite->owner],(const spritetype *)t) < ldist(&sprite[g_player[screenpeek].ps->i],&sprite[pSprite->owner]))
+                    if (ldist(&sprite[pSprite->owner],(spritetype const *)t) < ldist(&sprite[g_player[screenpeek].ps->i],&sprite[pSprite->owner]))
                         t->xrepeat = t->yrepeat = 0;
             }
             continue;
@@ -3868,7 +3868,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 #if 0
                 if (spritesortcnt < maxspritesonscreen)
                 {
-                    spritetype *const newt = &tsprite[spritesortcnt++];
+                    auto const newt = &tsprite[spritesortcnt++];
 
                     Bmemcpy(newt, t, sizeof(spritetype));
 
@@ -6010,7 +6010,7 @@ static void G_Startup(void)
 
 static void P_SetupMiscInputSettings(void)
 {
-    DukePlayer_t *ps = g_player[myconnectindex].ps;
+    auto ps = g_player[myconnectindex].ps;
 
     ps->aim_mode = ud.mouseaiming;
     ps->auto_aim = ud.config.AutoAim;
@@ -6927,7 +6927,7 @@ int G_DoMoveThings(void)
         )
     {
         hitdata_t hitData;
-        DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
+        auto const pPlayer = g_player[screenpeek].ps;
 
         for (bssize_t TRAVERSE_CONNECT(i))
             if (g_player[i].ps->holoduke_on != -1)

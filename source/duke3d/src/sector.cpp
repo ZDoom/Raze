@@ -108,7 +108,7 @@ int G_CheckActivatorMotion(int lotag)
     {
         if (sprite[spriteNum].lotag == lotag)
         {
-            spritetype *const pSprite = &sprite[spriteNum];
+            auto const pSprite = &sprite[spriteNum];
 
             for (bssize_t j = g_animateCnt - 1; j >= 0; j--)
                 if (pSprite->sectnum == g_animateSect[j])
@@ -229,7 +229,7 @@ int __fastcall A_FindPlayer(const spritetype *pSprite, int32_t *dist)
 {
     if (!g_netServer && ud.multimode < 2)
     {
-        DukePlayer_t *const pPlayer = g_player[myconnectindex].ps;
+        auto const pPlayer = g_player[myconnectindex].ps;
 
         if (dist)
             *dist = A_FP_ManhattanDist(pPlayer, pSprite);
@@ -242,7 +242,7 @@ int __fastcall A_FindPlayer(const spritetype *pSprite, int32_t *dist)
 
     for (bssize_t TRAVERSE_CONNECT(j))
     {
-        DukePlayer_t *const pPlayer    = g_player[j].ps;
+        auto const pPlayer    = g_player[j].ps;
         int32_t             playerDist = A_FP_ManhattanDist(pPlayer, pSprite);
 
         if (playerDist < closestPlayerDist && sprite[pPlayer->i].extra > 0)
@@ -420,7 +420,7 @@ void G_AnimateCamSprite(int smoothRatio)
 
     if (totalclock >= T1(spriteNum) + ud.camera_time)
     {
-        DukePlayer_t const *const pPlayer = g_player[screenpeek].ps;
+        auto const pPlayer = g_player[screenpeek].ps;
 
         if (pPlayer->newowner >= 0)
             OW(spriteNum) = pPlayer->newowner;
@@ -1010,7 +1010,7 @@ void G_OperateRespawns(int lotag)
 {
     for (bssize_t nextSprite, SPRITES_OF_STAT_SAFE(STAT_FX, spriteNum, nextSprite))
     {
-        spritetype * const pSprite = &sprite[spriteNum];
+        auto const pSprite = &sprite[spriteNum];
 
         if (pSprite->lotag == lotag && pSprite->picnum == RESPAWN)
         {
@@ -1940,7 +1940,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
 
         for (bssize_t j=16; j>0; j--)
         {
-            spritetype * const pSprite = &sprite[spriteNum];
+            auto const pSprite = &sprite[spriteNum];
             RANDOMSCRAP(pSprite, spriteNum);
         }
 #endif
@@ -2288,7 +2288,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         for (bssize_t j=16; j>0; j--)
         {
-            spritetype * const pSprite = &sprite[spriteNum];
+            auto const pSprite = &sprite[spriteNum];
             RANDOMSCRAP(pSprite, spriteNum);
         }
         A_DeleteSprite(spriteNum);
@@ -2377,7 +2377,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
 
             if (sprite[spriteNum].statnum == STAT_PLAYER)
             {
-                DukePlayer_t *ps = g_player[P_Get(spriteNum)].ps;
+                auto ps = g_player[P_Get(spriteNum)].ps;
 
                 if (ps->newowner >= 0)
                     G_ClearCameraView(ps);
@@ -2440,7 +2440,7 @@ static int P_CheckDetonatorSpecialCase(DukePlayer_t *const pPlayer, int weaponNu
 
 void P_HandleSharedKeys(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
 
     if (pPlayer->cheat_phase == 1) return;
 
@@ -3003,7 +3003,7 @@ static void G_ClearCameras(DukePlayer_t *p)
 
 void P_CheckSectors(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
 
     if (pPlayer->cursectnum > -1)
     {

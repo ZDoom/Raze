@@ -190,8 +190,8 @@ SKIPWALLCHECK:
 
         while (otherSprite >= 0)
         {
-            int const         nextOther = nextspritestat[otherSprite];
-            spritetype *const pOther    = &sprite[otherSprite];
+            int const  nextOther = nextspritestat[otherSprite];
+            auto const pOther    = &sprite[otherSprite];
 
             // DEFAULT, ZOMBIEACTOR, MISC
             if (stati == STAT_DEFAULT || stati == STAT_ZOMBIEACTOR || stati == STAT_MISC || AFLAMABLE(pOther->picnum))
@@ -305,7 +305,7 @@ SKIPWALLCHECK:
                 {
                     if (pOther->picnum == APLAYER)
                     {
-                        DukePlayer_t *pPlayer = g_player[P_GetP((uspritetype *)pOther)].ps;
+                        auto pPlayer = g_player[P_GetP((uspritetype *)pOther)].ps;
 
                         if (pPlayer->newowner >= 0)
                             G_ClearCameraView(pPlayer);
@@ -426,7 +426,7 @@ int A_GetClipdist(int spriteNum, int clipDist)
 {
     if (clipDist < 0)
     {
-        spritetype *const pSprite = &sprite[spriteNum];
+        auto const pSprite = &sprite[spriteNum];
         int const         isEnemy = A_CheckEnemySprite(pSprite);
 
         if (A_CheckSpriteFlags(spriteNum, SFLAG_REALCLIPDIST))
@@ -458,7 +458,7 @@ int A_GetClipdist(int spriteNum, int clipDist)
 
 int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uint32_t clipType, int32_t clipDist)
 {
-    spritetype *const pSprite = &sprite[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
     int const         isEnemy = A_CheckEnemySprite(pSprite);
     vec2_t const      oldPos  = pSprite->pos_as_vec2;
 
@@ -690,7 +690,7 @@ void A_AddToDeleteQueue(int spriteNum)
 
 void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt)
 {
-    spritetype *pSprite = &sprite[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
 
     for (; spawnCnt>0; spawnCnt--)
     {
@@ -811,11 +811,11 @@ void A_MoveSector(int spriteNum)
 {
     // T1,T2 and T3 are used for all the sector moving stuff!!!
 
-    int32_t           playerDist;
-    spritetype *const pSprite     = &sprite[spriteNum];
-    int const         playerNum   = A_FindPlayer(pSprite, &playerDist);
-    int const         rotateAngle = VM_OnEvent(EVENT_MOVESECTOR, spriteNum, playerNum, playerDist, T3(spriteNum));
-    int               originIdx   = T2(spriteNum);
+    int32_t    playerDist;
+    auto const pSprite     = &sprite[spriteNum];
+    int const  playerNum   = A_FindPlayer(pSprite, &playerDist);
+    int const  rotateAngle = VM_OnEvent(EVENT_MOVESECTOR, spriteNum, playerNum, playerDist, T3(spriteNum));
+    int        originIdx   = T2(spriteNum);
 
     pSprite->x += (pSprite->xvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14;
     pSprite->y += (pSprite->xvel * (sintable[pSprite->ang & 2047])) >> 14;
@@ -849,7 +849,7 @@ void A_MoveSector(int spriteNum)
 void G_AddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange, int lightColor, int lightPrio)
 {
 #ifdef POLYMER
-    spritetype *s = &sprite[spriteNum];
+    auto const s = &sprite[spriteNum];
 
     if (videoGetRenderMode() != REND_POLYMER || pr_lighting != 1)
         return;
@@ -955,11 +955,11 @@ ACTOR_STATIC void G_MoveZombieActors(void)
 
     while (spriteNum >= 0)
     {
-        int const           nextSprite = nextspritestat[spriteNum];
-        int32_t             playerDist;
-        spritetype *const   pSprite   = &sprite[spriteNum];
-        int const           playerNum = A_FindPlayer(pSprite, &playerDist);
-        DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
+        int const  nextSprite = nextspritestat[spriteNum];
+        int32_t    playerDist;
+        auto const pSprite   = &sprite[spriteNum];
+        int const  playerNum = A_FindPlayer(pSprite, &playerDist);
+        auto const pPlayer   = g_player[playerNum].ps;
 
         if (sprite[pPlayer->i].extra > 0)
         {
@@ -1083,8 +1083,8 @@ static FORCE_INLINE void P_Nudge(int playerNum, int spriteNum, int shiftLeft)
 
 int A_IncurDamage(int const spriteNum)
 {
-    spritetype *const pSprite = &sprite[spriteNum];
-    actor_t *const    pActor  = &actor[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
+    auto const pActor  = &actor[spriteNum];
 
     // dmg->picnum check: safety, since it might have been set to <0 from CON.
     if (pActor->extra < 0 || pSprite->extra < 0 || pActor->picnum < 0)
@@ -1208,10 +1208,10 @@ void A_MoveDummyPlayers(void)
 
     while (spriteNum >= 0)
     {
-        int const           playerNum     = P_Get(OW(spriteNum));
-        DukePlayer_t *const pPlayer       = g_player[playerNum].ps;
-        int const           nextSprite    = nextspritestat[spriteNum];
-        int const           playerSectnum = pPlayer->cursectnum;
+        int const  playerNum     = P_Get(OW(spriteNum));
+        auto const pPlayer       = g_player[playerNum].ps;
+        int const  nextSprite    = nextspritestat[spriteNum];
+        int const  playerSectnum = pPlayer->cursectnum;
 
         if (pPlayer->on_crane >= 0 || (playerSectnum >= 0 && sector[playerSectnum].lotag != ST_1_ABOVE_WATER) || sprite[pPlayer->i].extra <= 0)
         {
@@ -1256,9 +1256,9 @@ ACTOR_STATIC void G_MovePlayers(void)
 
     while (spriteNum >= 0)
     {
-        int const           nextSprite = nextspritestat[spriteNum];
-        spritetype *const   pSprite    = &sprite[spriteNum];
-        DukePlayer_t *const pPlayer    = g_player[P_GetP(pSprite)].ps;
+        int const  nextSprite = nextspritestat[spriteNum];
+        auto const pSprite    = &sprite[spriteNum];
+        auto const pPlayer    = g_player[P_GetP(pSprite)].ps;
 
         if (pSprite->owner >= 0)
         {
@@ -1418,8 +1418,8 @@ ACTOR_STATIC void G_MoveFX(void)
 
     while (spriteNum >= 0)
     {
-        spritetype *const pSprite    = &sprite[spriteNum];
-        int const         nextSprite = nextspritestat[spriteNum];
+        auto const pSprite    = &sprite[spriteNum];
+        int const  nextSprite = nextspritestat[spriteNum];
 
         switch (DYNAMICTILEMAP(pSprite->picnum))
         {
@@ -1436,8 +1436,8 @@ ACTOR_STATIC void G_MoveFX(void)
 
         case MUSICANDSFX__STATIC:
         {
-            int32_t const       spriteHitag = (uint16_t)pSprite->hitag;
-            DukePlayer_t *const pPlayer     = g_player[screenpeek].ps;
+            int32_t const spriteHitag = (uint16_t)pSprite->hitag;
+            auto const    pPlayer     = g_player[screenpeek].ps;
 
             if (T2(spriteNum) != ud.config.SoundToggle)
             {
@@ -1554,9 +1554,9 @@ ACTOR_STATIC void G_MoveFallers(void)
 
     while (spriteNum >= 0)
     {
-        int const         nextSprite = nextspritestat[spriteNum];
-        spritetype *const pSprite    = &sprite[spriteNum];
-        int const         sectNum    = pSprite->sectnum;
+        int const  nextSprite = nextspritestat[spriteNum];
+        auto const pSprite    = &sprite[spriteNum];
+        int const  sectNum    = pSprite->sectnum;
 
         if (T1(spriteNum) == 0)
         {
@@ -1651,10 +1651,10 @@ ACTOR_STATIC void G_MoveStandables(void)
 
     while (spriteNum >= 0)
     {
-        const int         nextSprite = nextspritestat[spriteNum];
-        int32_t *const    pData      = &actor[spriteNum].t_data[0];
-        spritetype *const pSprite    = &sprite[spriteNum];
-        const int         sectNum    = pSprite->sectnum;
+        int const  nextSprite = nextspritestat[spriteNum];
+        auto const pData      = &actor[spriteNum].t_data[0];
+        auto const pSprite    = &sprite[spriteNum];
+        int const  sectNum    = pSprite->sectnum;
 
         if (sectNum < 0)
             DELETE_SPRITE_AND_CONTINUE(spriteNum);
@@ -1838,7 +1838,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 }
                 else if (pSprite->owner == -2)
                 {
-                    DukePlayer_t *const ps = g_player[p].ps;
+                    auto const ps = g_player[p].ps;
 
                     ps->opos.x = ps->pos.x = pSprite->x-(sintable[(fix16_to_int(ps->q16ang)+512)&2047]>>6);
                     ps->opos.y = ps->pos.y = pSprite->y-(sintable[fix16_to_int(ps->q16ang)&2047]>>6);
@@ -2424,9 +2424,9 @@ DETONATE:
                         DELETE_SPRITE_AND_CONTINUE(spriteNum);
 
                     {
-                        int32_t   playerDist;
-                        int const p = A_FindPlayer(pSprite, &playerDist);
-                        const DukePlayer_t *const ps = g_player[p].ps;
+                        int32_t    playerDist;
+                        int const  p  = A_FindPlayer(pSprite, &playerDist);
+                        auto const ps = g_player[p].ps;
 
                         if (dist(&sprite[ps->i], pSprite) < VIEWSCREEN_ACTIVE_DISTANCE)
                         {
@@ -2665,7 +2665,7 @@ DETONATE:
 
 ACTOR_STATIC void A_DoProjectileBounce(int const spriteNum)
 {
-    spritetype * const pSprite = &sprite[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
     int32_t const hitSectnum = pSprite->sectnum;
     int const firstWall  = sector[hitSectnum].wallptr;
     int const secondWall = wall[firstWall].point2;
@@ -2718,7 +2718,7 @@ ACTOR_STATIC void P_HandleBeingSpitOn(DukePlayer_t * const ps)
 
 static void A_DoProjectileEffects(int spriteNum, const vec3_t *davect, int radiusDamage)
 {
-    projectile_t const * const pProj = &SpriteProjectile[spriteNum];
+    auto const pProj = &SpriteProjectile[spriteNum];
 
     if (pProj->spawns >= 0)
     {
@@ -2739,7 +2739,7 @@ static void A_DoProjectileEffects(int spriteNum, const vec3_t *davect, int radiu
     if (!radiusDamage)
         return;
 
-    spritetype *const pSprite = &sprite[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
     pSprite->extra = Proj_GetDamage(pProj);
     int const dmg = pSprite->extra;
     A_RadiusDamage(spriteNum, pProj->hitradius, dmg >> 2, dmg >> 1, dmg - (dmg >> 2), dmg);
@@ -2810,10 +2810,11 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
 {
     int projectileMoved = SpriteProjectile[spriteNum].workslike & PROJECTILE_MOVED;
     SpriteProjectile[spriteNum].workslike |= PROJECTILE_MOVED;
-    const projectile_t *const pProj   = &SpriteProjectile[spriteNum];
-    spritetype *const         pSprite = &sprite[spriteNum];
-    vec3_t                    davect;
-    int                       otherSprite = 0;
+
+    auto const pProj   = &SpriteProjectile[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
+    vec3_t     davect;
+    int        otherSprite = 0;
 
     switch (pProj->workslike & PROJECTILE_TYPE_MASK)
     {
@@ -3071,8 +3072,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
     while (spriteNum >= 0)
     {
-        int const         nextSprite = nextspritestat[spriteNum];
-        spritetype *const pSprite    = &sprite[spriteNum];
+        int const  nextSprite = nextspritestat[spriteNum];
+        auto const pSprite    = &sprite[spriteNum];
 
         if (pSprite->sectnum < 0)
             DELETE_SPRITE_AND_CONTINUE(spriteNum);
@@ -3491,8 +3492,8 @@ ACTOR_STATIC void G_MoveTransports(void)
                 case STAT_PLAYER:
                     if (sprite[sectSprite].owner != -1)
                     {
-                        int const           playerNum = P_Get(sectSprite);
-                        DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
+                        int const  playerNum = P_Get(sectSprite);
+                        auto const pPlayer   = g_player[playerNum].ps;
 
                         pPlayer->on_warping_sector = 1;
 
@@ -3780,10 +3781,10 @@ ACTOR_STATIC void G_MoveActors(void)
 
     while (spriteNum >= 0)
     {
-        int const         nextSprite = nextspritestat[spriteNum];
-        spritetype *const pSprite    = &sprite[spriteNum];
-        int const         sectNum    = pSprite->sectnum;
-        int32_t *const    pData      = actor[spriteNum].t_data;
+        int const  nextSprite = nextspritestat[spriteNum];
+        auto const pSprite    = &sprite[spriteNum];
+        int const  sectNum    = pSprite->sectnum;
+        auto const pData      = actor[spriteNum].t_data;
 
         int switchPic;
 
@@ -3951,9 +3952,9 @@ ACTOR_STATIC void G_MoveActors(void)
             }
             else
             {
-                int32_t playerDist;
-                int const playerNum = A_FindPlayer(pSprite,&playerDist);
-                DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+                int32_t    playerDist;
+                int const  playerNum = A_FindPlayer(pSprite, &playerDist);
+                auto const pPlayer   = g_player[playerNum].ps;
 
                 // I'm 50/50 on this being either a typo or a stupid hack
                 if (playerDist < 1596)
@@ -4294,7 +4295,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
             int32_t             playerDist;
             int const           playerNum = A_FindPlayer(pSprite, &playerDist);
-            DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
+            auto const pPlayer   = g_player[playerNum].ps;
 
             if (playerDist > 20480)
             {
@@ -4950,9 +4951,9 @@ DETONATEB:
                 goto next_sprite;
             }
 
-            int32_t             playerDist;
-            int                 playerNum = A_FindPlayer(pSprite, &playerDist);
-            DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
+            int32_t    playerDist;
+            int        playerNum = A_FindPlayer(pSprite, &playerDist);
+            auto const pPlayer   = g_player[playerNum].ps;
 
             if (++pData[2] == 4)
                 pData[2] = 0;
@@ -5096,12 +5097,12 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 
     while (spriteNum >= 0)
     {
-        int const         nextSprite = nextspritestat[spriteNum];
-        int32_t           playerDist;
-        int32_t *const    pData   = actor[spriteNum].t_data;
-        spritetype *const pSprite = &sprite[spriteNum];
-        int           sectNum = pSprite->sectnum;  // XXX: not const
-        int           switchPic;
+        int const  nextSprite = nextspritestat[spriteNum];
+        int32_t    playerDist;
+        auto const pData   = actor[spriteNum].t_data;
+        auto const pSprite = &sprite[spriteNum];
+        int        sectNum = pSprite->sectnum;  // XXX: not const
+        int        switchPic;
 
         if (sectNum < 0 || pSprite->xrepeat == 0)
             DELETE_SPRITE_AND_CONTINUE(spriteNum);
@@ -5468,9 +5469,10 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 
                 int32_t   playerDist;
                 int const playerNum = A_FindPlayer(pSprite, &playerDist);
-                pSprite->z          = actor[spriteNum].floorz - 1;
 
-                DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+                pSprite->z = actor[spriteNum].floorz - 1;
+
+                auto const pPlayer = g_player[playerNum].ps;
 
                 if (pData[2] < 32)
                 {
@@ -5663,9 +5665,9 @@ next_sprite:
 // i: SE spritenum
 static void HandleSE31(int spriteNum, int setFloorZ, int spriteZ, int SEdir, int zDifference)
 {
-    const spritetype *pSprite = &sprite[spriteNum];
-    sectortype *const pSector = &sector[sprite[spriteNum].sectnum];
-    int32_t *const    pData   = actor[spriteNum].t_data;
+    auto const pSprite = &sprite[spriteNum];
+    auto const pSector = &sector[sprite[spriteNum].sectnum];
+    auto const pData   = actor[spriteNum].t_data;
 
     if (klabs(pSector->floorz - spriteZ) < SP(spriteNum))
     {
@@ -5718,7 +5720,7 @@ static void MaybeTrainKillPlayer(const spritetype *pSprite, int const setOPos)
 {
     for (bssize_t TRAVERSE_CONNECT(playerNum))
     {
-        DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+        auto const pPlayer = g_player[playerNum].ps;
 
         if (sprite[pPlayer->i].extra > 0)
         {
@@ -5787,11 +5789,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 #endif
     while (spriteNum >= 0)
     {
-        int const         nextSprite = nextspritestat[spriteNum];
-        spritetype *const   pSprite    = &sprite[spriteNum];
-        int32_t             playerDist;
-        int                 playerNum = A_FindPlayer(pSprite, &playerDist);
-        DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
+        int const  nextSprite = nextspritestat[spriteNum];
+        auto const pSprite    = &sprite[spriteNum];
+        int32_t    playerDist;
+        int        playerNum = A_FindPlayer(pSprite, &playerDist);
+        auto const pPlayer   = g_player[playerNum].ps;
 
         if (VM_OnEvent(EVENT_MOVEEFFECTORS, spriteNum, playerNum, playerDist, 0))
         {
@@ -5898,7 +5900,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             {
                 for (TRAVERSE_CONNECT(playerNum))
                 {
-                    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+                    auto const pPlayer = g_player[playerNum].ps;
 
                     if (pPlayer->cursectnum == pSprite->sectnum && pPlayer->on_ground == 1)
                     {
@@ -6095,7 +6097,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 for (TRAVERSE_CONNECT(playerNum))
                 {
-                    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+                    auto const pPlayer = g_player[playerNum].ps;
 
                     // might happen when squished into void space
                     if (pPlayer->cursectnum < 0)
@@ -6276,7 +6278,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 for (int TRAVERSE_CONNECT(playerNum))
                 {
-                    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+                    auto const pPlayer = g_player[playerNum].ps;
 
                     if (sprite[pPlayer->i].sectnum == pSprite->sectnum)
                     {
@@ -6376,7 +6378,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 for (TRAVERSE_CONNECT(playerNum))
                 {
-                    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+                    auto const pPlayer = g_player[playerNum].ps;
 
                     if (pPlayer->cursectnum == pSprite->sectnum && pPlayer->on_ground)
                     {
@@ -6973,8 +6975,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             {
                 if (sprite[j].statnum == STAT_PLAYER && sprite[j].owner >= 0)
                 {
-                    int const           warpPlayer = P_Get(j);
-                    DukePlayer_t *const pPlayer    = g_player[warpPlayer].ps;
+                    int const  warpPlayer = P_Get(j);
+                    auto const pPlayer    = g_player[warpPlayer].ps;
 
                     if (numplayers < 2 && !g_netServer)
                         pPlayer->opos.z = pPlayer->pos.z;
@@ -7032,8 +7034,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if (sprite[k].statnum == STAT_PLAYER && sprite[k].owner >= 0)
                     {
-                        int const           warpPlayer = P_Get(k);
-                        DukePlayer_t *const pPlayer    = g_player[warpPlayer].ps;
+                        int const  warpPlayer = P_Get(k);
+                        auto const pPlayer    = g_player[warpPlayer].ps;
 
                         pPlayer->pos.x += sprite[j].x - pSprite->x;
                         pPlayer->pos.y += sprite[j].y - pSprite->y;
@@ -7289,7 +7291,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 for (bssize_t TRAVERSE_CONNECT(playerNum))
                 {
-                    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+                    auto const pPlayer = g_player[playerNum].ps;
 
                     if (pPlayer->cursectnum == pSprite->sectnum && pPlayer->on_ground)
                     {
@@ -7425,7 +7427,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             for (bssize_t TRAVERSE_CONNECT(playerNum))
             {
-                DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+                auto const pPlayer = g_player[playerNum].ps;
 
                 if (pPlayer->cursectnum == pSprite->sectnum && pPlayer->on_ground)
                 {
@@ -7535,7 +7537,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             for (TRAVERSE_CONNECT(p))
             {
-                DukePlayer_t *const pPlayer = g_player[p].ps;
+                auto const pPlayer = g_player[p].ps;
 
                 if (pSprite->sectnum == sprite[pPlayer->i].sectnum && pPlayer->on_ground)
                 {
@@ -7650,8 +7652,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             {
                 actor[spriteNum].tempang = pSprite->ang;
 
-                int const p = A_FindPlayer(pSprite,&x);
-                DukePlayer_t * const ps = g_player[p].ps;
+                int const  p  = A_FindPlayer(pSprite, &x);
+                auto const ps = g_player[p].ps;
 
                 if (sprite[ps->i].extra > 0 && myconnectindex == screenpeek)
                 {
@@ -7983,7 +7985,7 @@ next_sprite:
     //Sloped sin-wave floors!
     for (SPRITES_OF(STAT_EFFECTOR, spriteNum))
     {
-        const spritetype *s = &sprite[spriteNum];
+        auto const s = &sprite[spriteNum];
 
         if (s->lotag == SE_29_WAVES)
         {
@@ -7991,7 +7993,7 @@ next_sprite:
 
             if (sc->wallnum == 4)
             {
-                walltype *const pWall = &wall[sc->wallptr+2];
+                auto const pWall = &wall[sc->wallptr+2];
                 if (pWall->nextsector >= 0)
                     alignflorslope(s->sectnum, pWall->x,pWall->y, sector[pWall->nextsector].floorz);
             }
@@ -8177,7 +8179,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
 #ifdef POLYMER
 static void A_DoLight(int spriteNum)
 {
-    spritetype *const pSprite = &sprite[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
     int savedFires = 0;
 
     if (((sector[pSprite->sectnum].floorz - sector[pSprite->sectnum].ceilingz) < 16) || pSprite->z > sector[pSprite->sectnum].floorz || pSprite->z > actor[spriteNum].floorz ||

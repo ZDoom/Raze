@@ -1843,7 +1843,7 @@ They are separate for purposes of organization.
 static void Menu_Pre(MenuID_t cm)
 {
     int32_t i;
-    DukePlayer_t *ps = g_player[myconnectindex].ps;
+    auto ps = g_player[myconnectindex].ps;
 
     switch (cm)
     {
@@ -3072,7 +3072,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
 {
     int32_t x;
-    DukePlayer_t *ps = g_player[myconnectindex].ps;
+    auto ps = g_player[myconnectindex].ps;
 
     if (entry == &ME_GAMESETUP_DEMOREC)
     {

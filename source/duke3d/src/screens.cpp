@@ -571,7 +571,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     {
         if (ud.scrollmode && p == screenpeek) continue;
 
-        DukePlayer_t const * const pPlayer = g_player[p].ps;
+        auto const pPlayer = g_player[p].ps;
         auto const pSprite = (uspriteptr_t)&sprite[pPlayer->i];
 
         ox = pSprite->x - cposx;
@@ -624,7 +624,7 @@ static void G_PrintCoords(int32_t snum)
     const int32_t x = g_Debug ? 288 : 0;
     int32_t y = 0;
 
-    const DukePlayer_t *ps = g_player[snum].ps;
+    auto const ps = g_player[snum].ps;
     const int32_t sectnum = ps->cursectnum;
 
     if ((g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
@@ -898,9 +898,9 @@ void G_DisplayRest(int32_t smoothratio)
     int32_t i, j;
     palaccum_t tint = PALACCUM_INITIALIZER;
 
-    DukePlayer_t *const pp = g_player[screenpeek].ps;
+    auto const pp = g_player[screenpeek].ps;
 #ifdef SPLITSCREEN_MOD_HACKS
-    DukePlayer_t *const pp2 = g_fakeMultiMode==2 ? g_player[1].ps : NULL;
+    auto const pp2 = g_fakeMultiMode==2 ? g_player[1].ps : NULL;
 #endif
     int32_t cposx, cposy, cang;
 
@@ -1294,7 +1294,7 @@ void G_DisplayRest(int32_t smoothratio)
     // JBF 20040124: display level stats in screen corner
     if (ud.overhead_on != 2 && ud.levelstats && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)
     {
-        DukePlayer_t const * const myps = g_player[myconnectindex].ps;
+        auto const myps = g_player[myconnectindex].ps;
 
         i = 198<<16;
 

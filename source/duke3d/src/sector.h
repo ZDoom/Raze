@@ -123,7 +123,7 @@ void A_DamageObject_Internal(int spriteNum, int dmgSrc);
 void A_DamageObject(int spriteNum,int dmgSrc);
 void A_DamageWall_Internal(int spr, int dawallnum, const vec3_t *pos, int weaponNum);
 void A_DamageWall(int spr,int dawallnum,const vec3_t *pos,int weaponNum);
-int __fastcall A_FindPlayer(const spritetype *pSprite,int32_t *dist);
+int __fastcall A_FindPlayer(spritetype const *pSprite,int32_t *dist);
 void G_AlignWarpElevators(void);
 int CheckDoorTile(int tileNum);
 void G_AnimateCamSprite(int smoothRatio);

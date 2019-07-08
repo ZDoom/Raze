@@ -1216,7 +1216,7 @@ static void Gv_AddSystemVars(void)
 #ifdef LUNATIC
     for (int i=0; i<MAXPLAYERS; i++)
     {
-        DukePlayer_t *ps = g_player[i].ps;
+        auto ps = g_player[i].ps;
 
         ps->pipebombControl = NAM_WW2GI ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE;
         ps->pipebombLifetime = NAM_GRENADE_LIFETIME;

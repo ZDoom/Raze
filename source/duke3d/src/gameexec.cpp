@@ -6737,16 +6737,16 @@ void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum, int
 #if !defined LUNATIC
 void VM_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
 {
-    DukePlayer_t *pPlayer = g_player[screenpeek].ps;
-    int32_t       tilePal = pPlayer->cursectnum >= 0 ? sector[pPlayer->cursectnum].floorpal : 0;
+    auto const pPlayer = g_player[screenpeek].ps;
+    int32_t    tilePal = pPlayer->cursectnum >= 0 ? sector[pPlayer->cursectnum].floorpal : 0;
 
     VM_DrawTileGeneric(x, y, 65536, tilenum, shade, orientation, tilePal);
 }
 
 void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
 {
-    DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
-    int32_t             tilePal = pPlayer->cursectnum >= 0 ? sector[pPlayer->cursectnum].floorpal : 0;
+    auto const pPlayer = g_player[screenpeek].ps;
+    int32_t    tilePal = pPlayer->cursectnum >= 0 ? sector[pPlayer->cursectnum].floorpal : 0;
 
     VM_DrawTileGeneric(x, y, 32768, tilenum, shade, orientation, tilePal);
 }

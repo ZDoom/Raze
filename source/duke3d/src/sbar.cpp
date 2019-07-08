@@ -480,7 +480,7 @@ void G_DrawFrags(void)
 
     for (TRAVERSE_CONNECT(i))
     {
-        const DukePlayer_t *ps = g_player[i].ps;
+        auto const ps = g_player[i].ps;
         minitext(21+(73*(i&3)), 2+((i&28)<<1), g_player[i].user_name, ps->palookup, 2+8+16);
         Bsprintf(tempbuf, "%d", ps->frag-ps->fraggedself);
         minitext(17+50+(73*(i&3)), 2+((i&28)<<1), tempbuf, ps->palookup, 2+8+16);
@@ -552,7 +552,7 @@ static inline void rotatesprite_althudr(int32_t sx, int32_t sy, int32_t z, int16
 
 void G_DrawStatusBar(int32_t snum)
 {
-    const DukePlayer_t *const p = g_player[snum].ps;
+    auto const p = g_player[snum].ps;
     int32_t i, j, o, u;
     int32_t permbit = 0;
 

@@ -4177,7 +4177,7 @@ static void mouseaction_movesprites(int32_t *sumxvect, int32_t *sumyvect, int32_
 {
     int32_t xvect,yvect, daxvect,dayvect, ii, spi;
     int32_t units, gridlock = (eitherCTRL && grid > 0 && grid < 9);
-    spritetype *sp = &sprite[searchwall];
+    auto const sp = &sprite[searchwall];
     int16_t tsect = sp->sectnum;
     vec3_t tvec = { sp->x, sp->y, sp->z };
 
@@ -7060,7 +7060,7 @@ paste_ceiling_or_floor:
 // returns: whether sprite is out of grid
 static int32_t jump_to_sprite(int32_t spritenum)
 {
-    const spritetype *spr = &sprite[spritenum];
+    auto const spr = &sprite[spritenum];
 
     if (pos.x >= -editorgridextent && pos.x <= editorgridextent &&
             pos.y >= -editorgridextent && pos.y <= editorgridextent)

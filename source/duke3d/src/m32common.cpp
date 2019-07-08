@@ -481,8 +481,8 @@ void create_map_snapshot(void)
             if (!try_match_with_prev(2, Numsprites, temphash))
             {
                 int32_t i = 0;
-                spritetype *const tspri = (spritetype *)Xmalloc(Numsprites*sizeof(spritetype) + 4);
-                spritetype *spri = tspri;
+                auto const tspri = (spritetype *)Xmalloc(Numsprites*sizeof(spritetype) + 4);
+                auto spri = tspri;
 
                 for (bssize_t j=0; j<MAXSPRITES && i < Numsprites; j++)
                     if (sprite[j].statnum != MAXSTATUS)

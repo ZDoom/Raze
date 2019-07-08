@@ -1049,7 +1049,7 @@ static FORCE_INLINE int32_t text_ypos(void)
 // both are passed on to gametext
 void G_PrintGameQuotes(int32_t snum)
 {
-    const DukePlayer_t *const ps = g_player[snum].ps;
+    auto const ps = g_player[snum].ps;
     const int32_t reserved_quote = (ps->ftq >= QUOTE_RESERVED && ps->ftq <= QUOTE_RESERVED3);
     // NOTE: QUOTE_RESERVED4 is not included.
 

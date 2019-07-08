@@ -224,7 +224,7 @@ static int8_t cheatbuf[MAXCHEATLEN];
 
 void G_DoCheats(void)
 {
-    DukePlayer_t * const pPlayer = g_player[myconnectindex].ps;
+    auto const pPlayer = g_player[myconnectindex].ps;
     int consoleCheat = 0;
     int cheatNum;
 

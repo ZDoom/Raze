@@ -295,7 +295,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
 
                         if (pSprite->picnum == APLAYER)
                         {
-                            const DukePlayer_t *const ps = g_player[P_GetP(pSprite)].ps;
+                            auto const ps = g_player[P_GetP(pSprite)].ps;
                             onScreen = (klabs(scale(SZ(spriteNum)-pSprite->z,10,spriteDist)-fix16_to_int(ps->q16horiz+ps->q16horizoff-F16(100))) < 100);
                         }
 
@@ -472,7 +472,7 @@ static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_
     int zRange    = 256;
     int aimSprite = GetAutoAimAng(spriteNum, playerNum, projecTile, 5 << 8, 0 + 1, srcVect, 256, zvel, shootAng);
 
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
 
 #ifdef LUNATIC
     pPlayer->angrange = angRange;
@@ -534,9 +534,9 @@ notarget:
 // Hitscan weapon fired from actor (sprite s);
 static void A_PreFireHitscan(const spritetype *pSprite, vec3_t * const srcVect, int32_t * const zvel, int * const shootAng, int const doSpread)
 {
-    int const           playerNum  = A_FindPlayer(pSprite, NULL);
-    const DukePlayer_t *pPlayer    = g_player[playerNum].ps;
-    int const           playerDist = safeldist(pPlayer->i, pSprite);
+    int const  playerNum  = A_FindPlayer(pSprite, NULL);
+    auto const pPlayer    = g_player[playerNum].ps;
+    int const  playerDist = safeldist(pPlayer->i, pSprite);
 
     *zvel = tabledivide32_noinline((pPlayer->pos.z - srcVect->z) << 8, playerDist);
 
@@ -550,7 +550,7 @@ static void A_PreFireHitscan(const spritetype *pSprite, vec3_t * const srcVect, 
 
 static int Proj_DoHitscan(int spriteNum, int32_t const cstatmask, const vec3_t * const srcVect, int zvel, int const shootAng, hitdata_t * const hitData)
 {
-    spritetype *const pSprite = &sprite[spriteNum];
+    auto const pSprite = &sprite[spriteNum];
 
     pSprite->cstat &= ~cstatmask;
     zvel = A_GetShootZvel(zvel);
@@ -563,7 +563,7 @@ static int Proj_DoHitscan(int spriteNum, int32_t const cstatmask, const vec3_t *
 static void Proj_DoRandDecalSize(int const spriteNum, int const projecTile)
 {
     const projectile_t *const proj    = Proj_GetProjectile(projecTile);
-    spritetype *const         pSprite = &sprite[spriteNum];
+    auto const         pSprite = &sprite[spriteNum];
 
     if (proj->workslike & PROJECTILE_RANDDECALSIZE)
         pSprite->xrepeat = pSprite->yrepeat = clamp((krand() & proj->xrepeat), pSprite->yrepeat, pSprite->xrepeat);
@@ -812,7 +812,7 @@ static void Proj_HandleKnee(hitdata_t *const hitData, int const spriteNum, int c
                             const projectile_t *const proj, int const inserttile, int const randomDamage, int const spawnTile,
                             int const soundNum)
 {
-    const DukePlayer_t *const pPlayer = playerNum >= 0 ? g_player[playerNum].ps : NULL;
+    auto const pPlayer = playerNum >= 0 ? g_player[playerNum].ps : NULL;
 
     int kneeSprite = A_InsertSprite(hitData->sect,hitData->pos.x,hitData->pos.y,hitData->pos.z,
                                     inserttile,-15,0,0,shootAng,32,0,spriteNum,4);
@@ -869,9 +869,9 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
     /* Custom projectiles */
     hitdata_t           hitData;
     projectile_t *const pProj     = Proj_GetProjectile(projecTile);
-    spritetype *const   pSprite   = &sprite[spriteNum];
+    auto const   pSprite   = &sprite[spriteNum];
     int const           playerNum = (pSprite->picnum == APLAYER) ? P_GetP(pSprite) : -1;
-    DukePlayer_t *const pPlayer   = playerNum >= 0 ? g_player[playerNum].ps : NULL;
+    auto const pPlayer   = playerNum >= 0 ? g_player[playerNum].ps : NULL;
 
 #ifdef POLYMER
     if (videoGetRenderMode() == REND_POLYMER && pProj->flashcolor)
@@ -1365,7 +1365,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
             int const returnSprite = A_InsertSprite(spriteSectnum, startPos.x + (sintable[(348 + shootAng + 512) & 2047] / 448),
                                                     startPos.y + (sintable[(shootAng + 348) & 2047] / 448), startPos.z - (1 << 8),
                                                     projecTile, 0, 14, 14, shootAng, vel, Zvel, spriteNum, 4);
-            spritetype *const pReturn = &sprite[returnSprite];
+            auto const pReturn = &sprite[returnSprite];
 
             pReturn->extra += (krand() & 7);
             if (projecTile != FREEZEBLAST)
@@ -1571,9 +1571,9 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
 {
     Bassert(projecTile >= 0);
 
-    spritetype *const   pSprite   = &sprite[spriteNum];
+    auto const   pSprite   = &sprite[spriteNum];
     int const           playerNum = (pSprite->picnum == APLAYER) ? P_GetP(pSprite) : -1;
-    DukePlayer_t *const pPlayer   = playerNum >= 0 ? g_player[playerNum].ps : NULL;
+    auto const pPlayer   = playerNum >= 0 ? g_player[playerNum].ps : NULL;
 
     if (forceZvel != SHOOT_HARDCODED_ZVEL)
     {
@@ -1653,7 +1653,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
 
 static void P_DisplaySpit(void)
 {
-    DukePlayer_t *const pPlayer     = g_player[screenpeek].ps;
+    auto const pPlayer     = g_player[screenpeek].ps;
     int const           loogCounter = pPlayer->loogcnt;
 
     if (loogCounter == 0)
@@ -1867,7 +1867,7 @@ static inline void G_DrawWeaponTileUnfadedWithID(int uniqueID, int weaponX, int 
 static int P_DisplayKnee(int kneeShade)
 {
     static int8_t const       knee_y[] = { 0, -8, -16, -32, -64, -84, -108, -108, -108, -72, -32, -8 };
-    const DukePlayer_t *const ps = g_player[screenpeek].ps;
+    auto const ps = g_player[screenpeek].ps;
 
     if (ps->knee_incs == 0)
         return 0;
@@ -1895,7 +1895,7 @@ static int P_DisplayKnuckles(int knuckleShade)
     if (WW2GI)
         return 0;
 
-    const DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
+    auto const pPlayer = g_player[screenpeek].ps;
 
     if (pPlayer->knuckle_incs == 0)
         return 0;
@@ -1935,7 +1935,7 @@ void P_SetWeaponGamevars(int playerNum, const DukePlayer_t * const pPlayer)
 
 static void P_FireWeapon(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
 
     if (VM_OnEvent(EVENT_DOFIRE, pPlayer->i, playerNum) || pPlayer->weapon_pos != 0)
         return;
@@ -2002,7 +2002,7 @@ static void P_FireWeapon(int playerNum)
 
 static void P_DoWeaponSpawn(int playerNum)
 {
-    const DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
 
     // NOTE: For the 'Spawn' member, 0 means 'none', too (originally so,
     // i.e. legacy). The check for <0 was added to the check because mod
@@ -2028,7 +2028,7 @@ void P_DisplayScuba(void)
 {
     if (g_player[screenpeek].ps->scuba_on)
     {
-        const DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
+        auto const pPlayer = g_player[screenpeek].ps;
 
         if (VM_OnEvent(EVENT_DISPLAYSCUBA, pPlayer->i, screenpeek) != 0)
             return;
@@ -2061,7 +2061,7 @@ static int8_t const access_tip_y [] = {
 
 static int P_DisplayTip(int tipShade)
 {
-    const DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
+    auto const pPlayer = g_player[screenpeek].ps;
 
     if (pPlayer->tipincs == 0)
         return 0;
@@ -2094,7 +2094,7 @@ static int P_DisplayTip(int tipShade)
 
 static int P_DisplayAccess(int accessShade)
 {
-    const DukePlayer_t *const pSprite = g_player[screenpeek].ps;
+    auto const pSprite = g_player[screenpeek].ps;
 
     if (pSprite->access_incs == 0)
         return 0;
@@ -2134,8 +2134,8 @@ static int P_DisplayAccess(int accessShade)
 
 void P_DisplayWeapon(void)
 {
-    DukePlayer_t *const  pPlayer     = g_player[screenpeek].ps;
-    const uint8_t *const weaponFrame = &pPlayer->kickback_pic;
+    auto const pPlayer     = g_player[screenpeek].ps;
+    auto const weaponFrame = &pPlayer->kickback_pic;
 
     int currentWeapon;
 
@@ -2884,7 +2884,7 @@ int32_t mouseyaxismode = -1;
 
 void P_GetInput(int const playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !KB_KeyPressed(sc_Pause)))
@@ -3124,7 +3124,7 @@ void P_GetInput(int const playerNum)
 
 static int32_t P_DoCounters(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
 
 #ifndef EDUKE32_STANDALONE
     if (IONMAIDEN)
@@ -3326,7 +3326,7 @@ int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATI
 // this is used for player deaths
 void P_DropWeapon(int const playerNum)
 {
-    const DukePlayer_t *const pPlayer       = g_player[playerNum].ps;
+    auto const pPlayer       = g_player[playerNum].ps;
     int const                 currentWeapon = PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike);
 
     if ((unsigned)currentWeapon >= MAX_WEAPONS)
@@ -3589,7 +3589,7 @@ static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
 
 static int P_CheckFloorDamage(DukePlayer_t *pPlayer, int floorTexture)
 {
-    spritetype * const pSprite = &sprite[pPlayer->i];
+    auto const pSprite = &sprite[pPlayer->i];
 
     if ((unsigned)(floorTexture = VM_OnEventWithReturn(EVENT_CHECKFLOORDAMAGE, pPlayer->i, P_Get(pPlayer->i), floorTexture)) >= MAXTILES)
         return 0;
@@ -3695,8 +3695,8 @@ int P_FindOtherPlayer(int playerNum, int32_t *pDist)
 
 void P_FragPlayer(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-    spritetype *const   pSprite = &sprite[pPlayer->i];
+    auto const pPlayer = g_player[playerNum].ps;
+    auto const pSprite = &sprite[pPlayer->i];
 
     if (g_netClient) // [75] The server should not overwrite its own randomseed
         randomseed = ticrandomseed;
@@ -3818,10 +3818,10 @@ void P_FragPlayer(int playerNum)
 
 static void P_ProcessWeapon(int playerNum)
 {
-    DukePlayer_t *const pPlayer      = g_player[playerNum].ps;
-    uint8_t *const      weaponFrame  = &pPlayer->kickback_pic;
-    int const           playerShrunk = (sprite[pPlayer->i].yrepeat < 32);
-    uint32_t            playerBits   = g_player[playerNum].input->bits;
+    auto const     pPlayer      = g_player[playerNum].ps;
+    uint8_t *const weaponFrame  = &pPlayer->kickback_pic;
+    int const      playerShrunk = (sprite[pPlayer->i].yrepeat < 32);
+    uint32_t       playerBits   = g_player[playerNum].input->bits;
 
     switch (pPlayer->weapon_pos)
     {
@@ -3891,7 +3891,7 @@ static void P_ProcessWeapon(int playerNum)
 #ifdef POLYMER
         if (pPlayer->kickback_pic == 0)
         {
-            spritetype *const pSprite     = &sprite[pPlayer->i];
+            auto const pSprite     = &sprite[pPlayer->i];
             int const         glowXOffset = ((sintable[(pSprite->ang + 512) & 2047]) >> 7);
             int const         glowYOffset = ((sintable[(pSprite->ang) & 2047]) >> 7);
             int const         glowRange   = 1024 + (sintable[pPlayer->random_club_frame & 2047] >> 3);
@@ -4462,7 +4462,7 @@ void P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer)
 
 static void P_DoWater(int const playerNum, int const playerBits, int const floorZ, int const ceilZ)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
 
     // under water
     pPlayer->pycount        += 32;
@@ -4527,7 +4527,7 @@ static void P_DoWater(int const playerNum, int const playerBits, int const floor
 }
 static void P_DoJetpack(int const playerNum, int const playerBits, int const playerShrunk, int const sectorLotag, int const floorZ)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = g_player[playerNum].ps;
 
     pPlayer->on_ground       = 0;
     pPlayer->jumping_counter = 0;
@@ -4579,8 +4579,8 @@ static void P_DoJetpack(int const playerNum, int const playerBits, int const pla
 
 static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ, int const ceilZ)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-    spritetype *const   pSprite = &sprite[pPlayer->i];
+    auto const pPlayer = g_player[playerNum].ps;
+    auto const   pSprite = &sprite[pPlayer->i];
 
     if (ud.recstat == 1 && (!g_netServer && ud.multimode < 2))
         G_CloseDemoWrite();
@@ -4668,8 +4668,8 @@ void P_ProcessInput(int playerNum)
     if (g_player[playerNum].playerquitflag == 0)
         return;
 
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-    spritetype *const   pSprite = &sprite[pPlayer->i];
+    auto const pPlayer = g_player[playerNum].ps;
+    auto const pSprite = &sprite[pPlayer->i];
 
     ++pPlayer->player_par;
 

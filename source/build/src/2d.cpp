@@ -1032,7 +1032,7 @@ static void editorDraw2dSprite(int32_t j, int32_t posxe, int32_t posye, int32_t 
     int32_t x1, y1, x2, y2;
     int col;
 
-    const spritetype *const spr = &sprite[j];
+    auto const spr = &sprite[j];
     int16_t const blocking = (spr->cstat&1), hitblocking = (spr->cstat&256);
     int16_t const flooraligned = (spr->cstat&32), wallaligned = (spr->cstat&16);
 
