@@ -3368,7 +3368,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
 static int P_Submerge(int const playerNum, DukePlayer_t * const pPlayer, int const sectNum, int const otherSect)
 {
     if (pPlayer->on_ground && pPlayer->pos.z >= sector[sectNum].floorz
-        && (TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_CROUCH) || pPlayer->vel.z > 2048))
+        && (TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_CROUCH) || pPlayer->vel.z > 2048))
     //        if( onfloorz && sectlotag == 1 && ps->pos.z > (sector[sect].floorz-(6<<8)) )
     {
         if (screenpeek == playerNum)
@@ -3384,7 +3384,7 @@ static int P_Submerge(int const playerNum, DukePlayer_t * const pPlayer, int con
 
         pPlayer->opos.z = pPlayer->pos.z = sector[otherSect].ceilingz;
 
-        if (TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_CROUCH))
+        if (TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_CROUCH))
             pPlayer->vel.z += 512;
 
         return 1;
@@ -3544,12 +3544,12 @@ ACTOR_STATIC void G_MoveTransports(void)
                             }
 
                             if (onFloor == 0 && klabs(SZ(spriteNum) - pPlayer->pos.z) < 6144)
-                                if (!pPlayer->jetpack_on || TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_JUMP)
-                                    || TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_CROUCH))
+                                if (!pPlayer->jetpack_on || TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_JUMP)
+                                    || TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_CROUCH))
                                 {
                                     pPlayer->pos.x += sprite[OW(spriteNum)].x - SX(spriteNum);
                                     pPlayer->pos.y += sprite[OW(spriteNum)].y - SY(spriteNum);
-                                    pPlayer->pos.z = (pPlayer->jetpack_on && (TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_JUMP)
+                                    pPlayer->pos.z = (pPlayer->jetpack_on && (TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_JUMP)
                                                                               || pPlayer->jetpack_on < 11))
                                                      ? sprite[OW(spriteNum)].z - 6144
                                                      : sprite[OW(spriteNum)].z + 6144;
@@ -3960,7 +3960,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 {
                     int const angDiff = G_GetAngleDelta(fix16_to_int(pPlayer->q16ang),getangle(pSprite->x-pPlayer->pos.x,pSprite->y-pPlayer->pos.y));
 
-                    if (angDiff > -64 && angDiff < 64 && TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_OPEN)
+                    if (angDiff > -64 && angDiff < 64 && TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_OPEN)
                         && pPlayer->toggle_key_flag == 1)
                     {
                         int ballSprite;
@@ -4367,7 +4367,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
                 pSprite->ang = fix16_to_int(pPlayer->q16ang);
 
-                if ((TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_FIRE) || (pPlayer->quick_kick > 0)) && sprite[pPlayer->i].extra > 0)
+                if ((TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_FIRE) || (pPlayer->quick_kick > 0)) && sprite[pPlayer->i].extra > 0)
                     if (pPlayer->quick_kick > 0 ||
                         (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) != HANDREMOTE_WEAPON && PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) != HANDBOMB_WEAPON &&
                         PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) != TRIPBOMB_WEAPON && pPlayer->ammo_amount[pPlayer->curr_weapon] >= 0))

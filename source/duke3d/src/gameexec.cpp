@@ -2915,7 +2915,7 @@ badindex:
                 dispatch();
 
             vInstruction(CON_IFHITSPACE):
-                VM_CONDITIONAL(TEST_SYNC_KEY(g_player[vm.playerNum].inputBits->bits, SK_OPEN));
+                VM_CONDITIONAL(TEST_SYNC_KEY(g_player[vm.playerNum].input->bits, SK_OPEN));
                 dispatch();
 
             vInstruction(CON_IFHITWEAPON):
@@ -4872,7 +4872,7 @@ badindex:
                 int const moveFlags  = *(++insptr);
                 int       nResult    = 0;
                 int const playerXVel = sprite[vm.pPlayer->i].xvel;
-                int const syncBits   = g_player[vm.playerNum].inputBits->bits;
+                int const syncBits   = g_player[vm.playerNum].input->bits;
 
                 if (((moveFlags & pducking) && vm.pPlayer->on_ground && TEST_SYNC_KEY(syncBits, SK_CROUCH))
                     || ((moveFlags & pfalling) && vm.pPlayer->jumping_counter == 0 && !vm.pPlayer->on_ground && vm.pPlayer->vel.z > 2048)

@@ -1682,8 +1682,8 @@ void G_ClearFIFO(void)
 
     for (int p = 0; p < MAXPLAYERS; ++p)
     {
-        if (g_player[p].inputBits != NULL)
-            Bmemset(g_player[p].inputBits, 0, sizeof(input_t));
+        if (g_player[p].input != NULL)
+            Bmemset(g_player[p].input, 0, sizeof(input_t));
         g_player[p].vote = g_player[p].gotvote = 0;
     }
 }

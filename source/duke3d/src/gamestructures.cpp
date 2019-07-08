@@ -1773,7 +1773,7 @@ int32_t __fastcall VM_GetPlayerInput(int const playerNum, int32_t labelNum)
         return -1;
     }
 
-    auto const &i = g_player[playerNum].inputBits;
+    auto const &i = g_player[playerNum].input;
 
     switch (labelNum)
     {
@@ -1804,7 +1804,7 @@ void __fastcall VM_SetPlayerInput(int const playerNum, int const labelNum, int32
         return;
     }
 
-    auto &i = g_player[playerNum].inputBits;
+    auto &i = g_player[playerNum].input;
 
     switch (labelNum)
     {

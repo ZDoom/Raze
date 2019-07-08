@@ -3937,17 +3937,17 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 {
                     static int32_t targetang = 0;
 
-                    if (g_player[playerNum].inputBits->extbits&(1<<1))
+                    if (g_player[playerNum].input->extbits&(1<<1))
                     {
-                        if (g_player[playerNum].inputBits->extbits&(1<<2))targetang += 16;
-                        else if (g_player[playerNum].inputBits->extbits&(1<<3)) targetang -= 16;
+                        if (g_player[playerNum].input->extbits&(1<<2))targetang += 16;
+                        else if (g_player[playerNum].input->extbits&(1<<3)) targetang -= 16;
                         else if (targetang > 0) targetang -= targetang>>2;
                         else if (targetang < 0) targetang += (-targetang)>>2;
                     }
                     else
                     {
-                        if (g_player[playerNum].inputBits->extbits&(1<<2))targetang -= 16;
-                        else if (g_player[playerNum].inputBits->extbits&(1<<3)) targetang += 16;
+                        if (g_player[playerNum].input->extbits&(1<<2))targetang -= 16;
+                        else if (g_player[playerNum].input->extbits&(1<<3)) targetang += 16;
                         else if (targetang > 0) targetang -= targetang>>2;
                         else if (targetang < 0) targetang += (-targetang)>>2;
                     }
@@ -3979,7 +3979,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     spritesortcnt++;
                 }
 
-                if (g_player[playerNum].inputBits->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < maxspritesonscreen)
+                if (g_player[playerNum].input->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < maxspritesonscreen)
                 {
                     auto const playerTyping = t;
 
@@ -5624,7 +5624,7 @@ static void G_Cleanup(void)
     for (i=MAXPLAYERS-1; i>=0; i--)
     {
         Xfree(g_player[i].ps);
-        Xfree(g_player[i].inputBits);
+        Xfree(g_player[i].input);
     }
 
     for (i=MAXSOUNDS-1; i>=0; i--)
@@ -6160,8 +6160,8 @@ void G_MaybeAllocPlayer(int32_t pnum)
 {
     if (g_player[pnum].ps == NULL)
         g_player[pnum].ps = (DukePlayer_t *)Xcalloc(1, sizeof(DukePlayer_t));
-    if (g_player[pnum].inputBits == NULL)
-        g_player[pnum].inputBits = (input_t *)Xcalloc(1, sizeof(input_t));
+    if (g_player[pnum].input == NULL)
+        g_player[pnum].input = (input_t *)Xcalloc(1, sizeof(input_t));
 
 #ifdef LUNATIC
     g_player_ps[pnum] = g_player[pnum].ps;
@@ -6978,7 +6978,7 @@ int G_DoMoveThings(void)
         randomseed = ticrandomseed;
 
     for (bssize_t TRAVERSE_CONNECT(i))
-        Bmemcpy(g_player[i].inputBits, &inputfifo[(g_netServer && myconnectindex == i)][i], sizeof(input_t));
+        Bmemcpy(g_player[i].input, &inputfifo[(g_netServer && myconnectindex == i)][i], sizeof(input_t));
 
     G_UpdateInterpolations();
 

@@ -1668,7 +1668,7 @@ static void P_DisplaySpit(void)
     {
         int const rotAng = klabs(sintable[((loogCounter + i) << 5) & 2047]) >> 5;
         int const rotZoom  = 4096 + ((loogCounter + i) << 9);
-        int const rotX     = (-fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 1) + (sintable[((loogCounter + i) << 6) & 2047] >> 10);
+        int const rotX     = (-fix16_to_int(g_player[screenpeek].input->q16avel) >> 1) + (sintable[((loogCounter + i) << 6) & 2047] >> 10);
 
         rotatesprite_fs((pPlayer->loogiex[i] + rotX) << 16, (200 + pPlayer->loogiey[i] - rotY) << 16, rotZoom - (i << 8),
                         256 - rotAng, LOOGIE, 0, 0, 2);
@@ -1734,7 +1734,7 @@ static int P_DisplayFist(int const fistShade)
         wx[(g_snum==0)] = (wx[0]+wx[1])/2+1;
 #endif
 
-    rotatesprite((-fistInc + 222 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5)) << 16, (fistY + fistYOffset) << 16,
+    rotatesprite((-fistInc + 222 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5)) << 16, (fistY + fistYOffset) << 16,
                  fistZoom, 0, FIST, fistShade, fistPal, 2, wx[0], windowxy1.y, wx[1], windowxy2.y);
 
     return 1;
@@ -1884,7 +1884,7 @@ static int P_DisplayKnee(int kneeShade)
     int const kneeY   = knee_y[ps->knee_incs] + (klabs(ps->look_ang) / 9) - (ps->hard_landing << 3);
     int const kneePal = P_GetKneePal(ps);
 
-    G_DrawTileScaled(105+(fix16_to_int(g_player[screenpeek].inputBits->q16avel)>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
+    G_DrawTileScaled(105+(fix16_to_int(g_player[screenpeek].input->q16avel)>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
                      kneeY+280-(fix16_to_int(ps->q16horiz-ps->q16horizoff)>>4),KNEE,kneeShade,4+DRAWEAP_CENTER,kneePal);
 
     return 1;
@@ -1914,7 +1914,7 @@ static int P_DisplayKnuckles(int knuckleShade)
     int const knuckleY   = (klabs(pPlayer->look_ang) / 9) - (pPlayer->hard_landing << 3);
     int const knucklePal = P_GetHudPal(pPlayer);
 
-    G_DrawTileScaled(160 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5) - (pPlayer->look_ang >> 1),
+    G_DrawTileScaled(160 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pPlayer->look_ang >> 1),
                      knuckleY + 180 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
                      CRACKKNUCKLES + knuckleFrames[pPlayer->knuckle_incs >> 1], knuckleShade, 4 + DRAWEAP_CENTER,
                      knucklePal);
@@ -2083,7 +2083,7 @@ static int P_DisplayTip(int tipShade)
 
     guniqhudid = 201;
 
-    G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5) - (pPlayer->look_ang >> 1),
+    G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pPlayer->look_ang >> 1),
                      tipYOffset + tipY + 240 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
                      TIP + ((26 - pPlayer->tipincs) >> 4), tipShade, DRAWEAP_CENTER, tipPal);
 
@@ -2116,13 +2116,13 @@ static int P_DisplayAccess(int accessShade)
 
     if ((pSprite->access_incs - 3) > 0 && (pSprite->access_incs - 3) >> 3)
     {
-        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
+        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
                          accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4),
                          HANDHOLDINGLASER + (pSprite->access_incs >> 3), accessShade, DRAWEAP_CENTER, accessPal);
     }
     else
     {
-        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
+        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
                          accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4), HANDHOLDINGACCESS, accessShade,
                          4 + DRAWEAP_CENTER, accessPal);
     }
@@ -3309,7 +3309,7 @@ access_incs:
                 A_PlaySound(DUKE_CRACK_FIRST,pPlayer->i);
             }
         }
-        else if (pPlayer->knuckle_incs == 22 || TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_FIRE))
+        else if (pPlayer->knuckle_incs == 22 || TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_FIRE))
             pPlayer->knuckle_incs=0;
 
         return 1;
@@ -3821,7 +3821,7 @@ static void P_ProcessWeapon(int playerNum)
     DukePlayer_t *const pPlayer      = g_player[playerNum].ps;
     uint8_t *const      weaponFrame  = &pPlayer->kickback_pic;
     int const           playerShrunk = (sprite[pPlayer->i].yrepeat < 32);
-    uint32_t            playerBits   = g_player[playerNum].inputBits->bits;
+    uint32_t            playerBits   = g_player[playerNum].input->bits;
 
     switch (pPlayer->weapon_pos)
     {
@@ -3940,7 +3940,7 @@ static void P_ProcessWeapon(int playerNum)
     }
 
     bool const doFire    = (playerBits & BIT(SK_FIRE) && (*weaponFrame) == 0);
-    bool const doAltFire = g_player[playerNum].inputBits->extbits & (1 << 6);
+    bool const doAltFire = g_player[playerNum].input->extbits & (1 << 6);
 
     if (doAltFire)
     {
@@ -4675,7 +4675,7 @@ void P_ProcessInput(int playerNum)
 
     VM_OnEvent(EVENT_PROCESSINPUT, pPlayer->i, playerNum);
 
-    uint32_t playerBits = g_player[playerNum].inputBits->bits;
+    uint32_t playerBits = g_player[playerNum].input->bits;
 
     if (pPlayer->cheat_phase > 0)
         playerBits = 0;
@@ -5212,9 +5212,9 @@ void P_ProcessInput(int playerNum)
         pPlayer->vel.x   = 0;
         pPlayer->vel.y   = 0;
     }
-    else if (g_player[playerNum].inputBits->q16avel)            //p->ang += syncangvel * constant
+    else if (g_player[playerNum].input->q16avel)            //p->ang += syncangvel * constant
     {
-        fix16_t const inputAng  = g_player[playerNum].inputBits->q16avel;
+        fix16_t const inputAng  = g_player[playerNum].input->q16avel;
 
         pPlayer->q16angvel     = (sectorLotag == ST_2_UNDERWATER) ? fix16_mul(inputAng - (inputAng >> 3), fix16_from_int(ksgn(velocityModifier)))
                                                                : fix16_mul(inputAng, fix16_from_int(ksgn(velocityModifier)));
@@ -5258,18 +5258,18 @@ void P_ProcessInput(int playerNum)
         }
     }
 
-    if (g_player[playerNum].inputBits->extbits & (1))      VM_OnEvent(EVENT_MOVEFORWARD,  pPlayer->i, playerNum);
-    if (g_player[playerNum].inputBits->extbits & (1 << 1)) VM_OnEvent(EVENT_MOVEBACKWARD, pPlayer->i, playerNum);
-    if (g_player[playerNum].inputBits->extbits & (1 << 2)) VM_OnEvent(EVENT_STRAFELEFT,   pPlayer->i, playerNum);
-    if (g_player[playerNum].inputBits->extbits & (1 << 3)) VM_OnEvent(EVENT_STRAFERIGHT,  pPlayer->i, playerNum);
+    if (g_player[playerNum].input->extbits & (1))      VM_OnEvent(EVENT_MOVEFORWARD,  pPlayer->i, playerNum);
+    if (g_player[playerNum].input->extbits & (1 << 1)) VM_OnEvent(EVENT_MOVEBACKWARD, pPlayer->i, playerNum);
+    if (g_player[playerNum].input->extbits & (1 << 2)) VM_OnEvent(EVENT_STRAFELEFT,   pPlayer->i, playerNum);
+    if (g_player[playerNum].input->extbits & (1 << 3)) VM_OnEvent(EVENT_STRAFERIGHT,  pPlayer->i, playerNum);
 
-    if (g_player[playerNum].inputBits->extbits & (1 << 4) || g_player[playerNum].inputBits->q16avel < 0)
+    if (g_player[playerNum].input->extbits & (1 << 4) || g_player[playerNum].input->q16avel < 0)
         VM_OnEvent(EVENT_TURNLEFT, pPlayer->i, playerNum);
 
-    if (g_player[playerNum].inputBits->extbits & (1 << 5) || g_player[playerNum].inputBits->q16avel > 0)
+    if (g_player[playerNum].input->extbits & (1 << 5) || g_player[playerNum].input->q16avel > 0)
         VM_OnEvent(EVENT_TURNRIGHT, pPlayer->i, playerNum);
 
-    if (pPlayer->vel.x || pPlayer->vel.y || g_player[playerNum].inputBits->fvel || g_player[playerNum].inputBits->svel)
+    if (pPlayer->vel.x || pPlayer->vel.y || g_player[playerNum].input->fvel || g_player[playerNum].input->svel)
     {
         pPlayer->crack_time = PCRACKTIME;
 
@@ -5323,8 +5323,8 @@ void P_ProcessInput(int playerNum)
         }
 #endif
 
-        pPlayer->vel.x += (((g_player[playerNum].inputBits->fvel) * velocityModifier) << 6);
-        pPlayer->vel.y += (((g_player[playerNum].inputBits->svel) * velocityModifier) << 6);
+        pPlayer->vel.x += (((g_player[playerNum].input->fvel) * velocityModifier) << 6);
+        pPlayer->vel.y += (((g_player[playerNum].input->svel) * velocityModifier) << 6);
 
         int playerSpeedReduction = 0;
 
@@ -5480,7 +5480,7 @@ HORIZONLY:;
     // A horiz diff of 128 equal 45 degrees,
     // so we convert horiz to 1024 angle units
 
-    float horizAngle = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + fix16_to_float(g_player[playerNum].inputBits->q16horz);
+    float horizAngle = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + fix16_to_float(g_player[playerNum].input->q16horz);
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {

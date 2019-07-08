@@ -230,7 +230,7 @@ typedef struct {
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     DukePlayer_t *ps;
-    input_t *inputBits;
+    input_t *input;
 
     int32_t netsynctime;
     int16_t ping, filler;
