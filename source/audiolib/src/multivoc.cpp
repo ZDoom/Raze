@@ -45,15 +45,10 @@ static void MV_ServiceVoc(void);
 
 static VoiceNode *MV_GetVoice(int32_t handle);
 
-static const int16_t *MV_GetVolumeTable(int32_t vol);
-
-#define IS_QUIET(ptr) ((void const *)(ptr) == (void *)&MV_VolumeTable[0])
-
 static int32_t MV_ReverbLevel;
 static int32_t MV_ReverbDelay;
-static int16_t *MV_ReverbTable = NULL;
+static float MV_ReverbVolume;
 
-static int16_t MV_VolumeTable[MV_MAXVOLUME + 1][256];
 Pan MV_PanTable[MV_NUMPANPOSITIONS][MV_MAXVOLUME + 1];
 
 int32_t MV_Installed = FALSE;
@@ -85,14 +80,13 @@ void (*MV_Printf)(const char *fmt, ...) = NULL;
 static void (*MV_CallBackFunc)(intptr_t) = NULL;
 
 char *MV_MixDestination;
-const int16_t *MV_LeftVolume;
-const int16_t *MV_RightVolume;
 int32_t MV_SampleSize = 1;
 int32_t MV_RightChannelOffset;
 
 int32_t MV_ErrorCode = MV_NotInstalled;
 
 float MV_GlobalVolume = 1.f;
+float MV_VolumeSmooth = 1.f;
 
 static int32_t lockdepth = 0;
 
@@ -146,14 +140,6 @@ static bool MV_Mix(VoiceNode *voice, int const buffer)
     uint32_t FixedPointBufferSize = voice->FixedPointBufferSize;
 
     MV_MixDestination = MV_MixBuffer[buffer];
-    MV_LeftVolume = voice->LeftVolume;
-    MV_RightVolume = voice->RightVolume;
-
-    if ((MV_Channels == 2) && (IS_QUIET(MV_LeftVolume)))
-    {
-        MV_LeftVolume = MV_RightVolume;
-        MV_MixDestination += MV_RightChannelOffset;
-    }
 
     // Add this voice to the mix
     do
@@ -209,6 +195,8 @@ void MV_PlayVoice(VoiceNode *voice)
 {
     DisableInterrupts();
     LL::SortedInsert(&VoiceList, voice, &VoiceNode::priority);
+    voice->LeftVolume = voice->LeftVolumeDest;
+    voice->RightVolume = voice->RightVolumeDest;
     RestoreInterrupts();
 }
 
@@ -285,7 +273,7 @@ static void MV_ServiceVoc(void)
         {
             int const count = (source + length > end) ? (end - source) : length;
 
-            MV_16BitReverb(source, dest, MV_ReverbTable, count / 2);
+            MV_16BitReverb(source, dest, MV_ReverbVolume, count / 2);
 
             // if we go through the loop again, it means that we've wrapped around the buffer
             source  = MV_MixBuffer[ 0 ];
@@ -553,8 +541,6 @@ int32_t MV_SetFrequency(int32_t handle, int32_t frequency)
     return MV_Ok;
 }
 
-static inline const int16_t *MV_GetVolumeTable(int32_t vol) { return MV_VolumeTable[MIX_VOLUME(vol)]; }
-
 /*---------------------------------------------------------------------
    Function: MV_SetVoiceMixMode
 
@@ -581,36 +567,18 @@ void MV_SetVoiceMixMode(VoiceNode *voice)
 
     if (MV_Channels == 1)
         type |= T_MONO;
-    else
-    {
-        if (IS_QUIET(voice->RightVolume))
-            type |= T_RIGHTQUIET;
-        else if (IS_QUIET(voice->LeftVolume))
-            type |= T_LEFTQUIET;
-    }
 
     if (voice->bits == 16)
         type |= T_16BITSOURCE;
 
     if (voice->channels == 2)
-    {
         type |= T_STEREOSOURCE;
-        type &= ~(T_RIGHTQUIET | T_LEFTQUIET);
-    }
 
     switch (type)
     {
-        case T_16BITSOURCE | T_LEFTQUIET:
-            MV_LeftVolume = MV_RightVolume;
-            fallthrough__;
-        case T_16BITSOURCE | T_MONO:
-        case T_16BITSOURCE | T_RIGHTQUIET: voice->mix = MV_Mix16BitMono16; break;
+        case T_16BITSOURCE | T_MONO: voice->mix = MV_Mix16BitMono16; break;
 
-        case T_LEFTQUIET:
-            MV_LeftVolume = MV_RightVolume;
-            fallthrough__;
-        case T_MONO:
-        case T_RIGHTQUIET: voice->mix = MV_Mix16BitMono; break;
+        case T_MONO: voice->mix = MV_Mix16BitMono; break;
 
         case T_16BITSOURCE: voice->mix = MV_Mix16BitStereo16; break;
 
@@ -633,17 +601,11 @@ void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t righ
     if (MV_Channels == 1)
         left = right = vol;
 
-    voice->LeftVolume = MV_GetVolumeTable(left);
+    voice->LeftVolumeDest = float(left)*(1.f/MV_MAXTOTALVOLUME);
+    voice->RightVolumeDest = float(right)*(1.f/MV_MAXTOTALVOLUME);
 
-    if (left == right)
-        voice->RightVolume = voice->LeftVolume;
-    else
-    {
-        voice->RightVolume = MV_GetVolumeTable(right);
-
-        if (MV_ReverseStereo)
-            swapptr(&voice->LeftVolume, &voice->RightVolume);
-    }
+    if (MV_ReverseStereo)
+        swapfloat(&voice->LeftVolumeDest, &voice->RightVolumeDest);
 
     voice->volume = volume;
 
@@ -765,7 +727,7 @@ int32_t MV_Pan3D(int32_t handle, int32_t angle, int32_t distance)
 void MV_SetReverb(int32_t reverb)
 {
     MV_ReverbLevel = MIX_VOLUME(reverb);
-    MV_ReverbTable = &MV_VolumeTable[MV_ReverbLevel][0];
+    MV_ReverbVolume = float(MV_ReverbLevel)*(1.f/MV_MAXVOLUME);
 }
 
 int32_t MV_GetMaxReverbDelay(void) { return MV_MIXBUFFERSIZE * MV_NumberOfBuffers; }
@@ -827,20 +789,6 @@ static void MV_StopPlayback(void)
     }
 
     RestoreInterrupts();
-}
-
-static void MV_CalcVolume(int32_t MaxVolume)
-{
-    // For each volume level, create a translation table with the
-    // appropriate volume calculated.
-
-    for (int volume = 0; volume <= MV_MAXVOLUME; volume++)
-    {
-        int const level = (volume * MaxVolume) / MV_MAXTOTALVOLUME;
-
-        for (int i = 0; i < 65536; i += 256)
-            MV_VolumeTable[volume][i / 256] = ((i - 0x8000) * level) / MV_MAXVOLUME;
-    }
 }
 
 static void MV_CalcPanTable(void)
@@ -936,7 +884,7 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
     MV_Installed    = TRUE;
     MV_CallBackFunc = NULL;
     MV_ReverbLevel  = 0;
-    MV_ReverbTable  = NULL;
+    MV_ReverbVolume = 0.f;
 
     // Set the sampling rate
     MV_MixRate = MixRate;
@@ -955,7 +903,8 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
 
     // Calculate pan table
     MV_CalcPanTable();
-    MV_CalcVolume(MV_MAXTOTALVOLUME);
+
+    MV_VolumeSmooth = 1.f-powf(0.1f, 30.f/MixRate);
 
     // Start the playback engine
     if (MV_StartPlayback() != MV_Ok)
