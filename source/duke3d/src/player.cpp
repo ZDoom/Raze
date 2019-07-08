@@ -3939,11 +3939,18 @@ static void P_ProcessWeapon(int playerNum)
         pPlayer->rapid_fire_hold = 0;
     }
 
-    int const doAltFire = g_player[playerNum].inputBits->extbits & (1<<6);
+    bool const doFire    = (playerBits & BIT(SK_FIRE) && (*weaponFrame) == 0);
+    bool const doAltFire = g_player[playerNum].inputBits->extbits & (1 << 6);
+
+    if (doAltFire)
+    {
+        P_SetWeaponGamevars(playerNum, pPlayer);
+        VM_OnEvent(EVENT_ALTFIRE, pPlayer->i, playerNum);
+    }
 
     if (playerShrunk || pPlayer->tipincs || pPlayer->access_incs)
         playerBits &= ~BIT(SK_FIRE);
-    else if ((playerBits & BIT(SK_FIRE) || doAltFire) && (*weaponFrame) == 0 && pPlayer->fist_incs == 0 &&
+    else if (doFire && pPlayer->fist_incs == 0 &&
              pPlayer->last_weapon == -1 && (pPlayer->weapon_pos == 0 || pPlayer->holster_weapon == 1))
     {
         pPlayer->crack_time = PCRACKTIME;
@@ -3961,10 +3968,7 @@ static void P_ProcessWeapon(int playerNum)
         {
             P_SetWeaponGamevars(playerNum, pPlayer);
 
-            if (doAltFire)
-                VM_OnEvent(EVENT_ALTFIRE, pPlayer->i, playerNum);
-
-            if (playerBits & BIT(SK_FIRE) && VM_OnEvent(EVENT_FIRE, pPlayer->i, playerNum) == 0)
+            if (doFire && VM_OnEvent(EVENT_FIRE, pPlayer->i, playerNum) == 0)
             {
                 // this event is deprecated
                 VM_OnEvent(EVENT_FIREWEAPON, pPlayer->i, playerNum);
