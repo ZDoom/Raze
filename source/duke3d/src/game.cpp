@@ -6878,8 +6878,6 @@ MAIN_LOOP_RESTART:
             G_SavePlayerMaybeMulti(g_lastautosave, true);
             g_quickload = &g_lastautosave;
 
-            OSD_Printf("Saved: %s\n", g_lastautosave.path);
-
             g_saveRequested = false;
         }
 

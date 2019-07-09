@@ -501,40 +501,40 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     Net_WaitForServer();
     ready2send = 0;
 
-    char temp[BMAX_PATH];
+    char fn[BMAX_PATH];
 
     errno = 0;
     buildvfs_FILE fil;
 
     if (sv.isValid())
     {
-        if (G_ModDirSnprintf(temp, sizeof(temp), "%s", sv.path))
+        if (G_ModDirSnprintf(fn, sizeof(fn), "%s", sv.path))
         {
             OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
             goto saveproblem;
         }
-        fil = buildvfs_fopen_write(temp);
+        fil = buildvfs_fopen_write(fn);
     }
     else
     {
         static char const SaveName[] = "save0000.esv";
-        int const len = G_ModDirSnprintfLite(temp, ARRAY_SIZE(temp), SaveName);
-        if (len >= ARRAY_SSIZE(temp)-1)
+        int const len = G_ModDirSnprintfLite(fn, ARRAY_SIZE(fn), SaveName);
+        if (len >= ARRAY_SSIZE(fn)-1)
         {
             OSD_Printf("G_SavePlayer: could not form automatic save path\n");
             goto saveproblem;
         }
-        char * zeros = temp + (len-8);
-        fil = savecounter.opennextfile(temp, zeros);
+        char * zeros = fn + (len-8);
+        fil = savecounter.opennextfile(fn, zeros);
         savecounter.count++;
         // don't copy the mod dir into sv.path
-        Bstrcpy(sv.path, temp + (len-(ARRAY_SIZE(SaveName)-1)));
+        Bstrcpy(sv.path, fn + (len-(ARRAY_SIZE(SaveName)-1)));
     }
 
     if (!fil)
     {
         OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
-                   temp, strerror(errno));
+                   fn, strerror(errno));
         goto saveproblem;
     }
 
@@ -555,6 +555,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
     if (!g_netServer && ud.multimode < 2)
     {
+        OSD_Printf("Saved: %s\n", fn);
 #ifdef LUNATIC
         if (!g_savedOK)
             Bstrcpy(apStrings[QUOTE_RESERVED4], "^10Failed Saving Game");
