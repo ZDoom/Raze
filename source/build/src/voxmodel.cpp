@@ -1046,9 +1046,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     m0.z *= f; a0.z *= f;
 
     k0 = (float) tspr->z;
-    f = (globalorientation&8) ? -4.f : 4.f;
+    f = ((globalorientation&8) && (sprite[tspr->owner].cstat&48)!=0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset*tspr->yrepeat)*f*m->bscale;
-    if (!(tspr->cstat&128)) k0 -= (m->piv.z*tspr->yrepeat)*f*m->scale;
+    if (!(tspr->cstat&128)) k0 -= (m->piv.z*tspr->yrepeat)*4.f*m->scale;
 
     f = (65536.f*512.f) / ((float)xdimen*viewingrange);
     g = 32.f / ((float)xdimen*gxyaspect);
