@@ -5913,7 +5913,8 @@ void polymost_drawsprite(int32_t snum)
 
     polymost_outputGLDebugMessage(3, "polymost_drawsprite(snum:%d)", snum);
 
-    tileUpdatePicnum(&tspr->picnum, spritenum + 32768);
+    if ((tspr->cstat&48) != 48)
+        tileUpdatePicnum(&tspr->picnum, spritenum + 32768);
 
     globalpicnum = tspr->picnum;
     globalshade = tspr->shade;

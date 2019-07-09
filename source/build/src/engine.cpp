@@ -5150,7 +5150,8 @@ static void classicDrawSprite(int32_t snum)
 
     int32_t cstat=tspr->cstat, tilenum;
 
-    tileUpdatePicnum(&tspr->picnum, spritenum+32768);
+    if ((cstat&48) != 48)
+        tileUpdatePicnum(&tspr->picnum, spritenum+32768);
 
     if (!(cstat&2) && alpha > 0.0f)
     {
