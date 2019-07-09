@@ -124,7 +124,7 @@ uint32_t MV_Mix16BitStereo16(struct VoiceNode * const voice, uint32_t length)
 
     uint32_t       position = voice->position;
     uint32_t const rate     = voice->RateScale;
-    float const    volume   = voice->volume;
+    float const    volume   = voice->volume*MV_GlobalVolume;
 
     do
     {
