@@ -233,7 +233,6 @@ void Net_ResetPrediction(void)
 
 void Net_DoPrediction(void)
 {
-    // NUKE-TODO: Add RR code
     DukePlayer_t *const pPlayer = g_player[myconnectindex].ps;
     spritetype *const   pSprite = &sprite[pPlayer->i];
 
