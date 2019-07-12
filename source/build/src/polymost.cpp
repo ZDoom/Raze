@@ -904,6 +904,7 @@ void polymost_glinit()
          }\n";
     const char* const POLYMOST1_BASIC_FRAGMENT_SHADER_CODE =
         "#version 110\n\
+         #extension ARB_shader_texture_lod : enable\n\
          \n\
          //s_texture points to an indexed color texture\n\
          uniform sampler2D s_texture;\n\
@@ -951,12 +952,17 @@ void polymost_glinit()
              coordX += u_npotEmulationXOffset*floor(mod(coordY,u_npotEmulationFactor));\n\
              coordY = period+mod(coordY,u_npotEmulationFactor);\n\
              vec2 newCoord = mix(gl_TexCoord[0].xy,mix(vec2(coordX,coordY),vec2(coordY,coordX),u_usePalette),u_npotEmulation);\n\
-             //GLSL 130+ could alternatively use texture2DGrad()\n\
-             vec2 transitionBlend = fwidth(floor(newCoord.xy));\n\
-             transitionBlend = fwidth(transitionBlend)+transitionBlend;\n\
-             vec2 texCoord = mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend);\n\
-             texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
-             vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
+             #ifdef GL_ARB_shader_texture_lod\n\
+                 vec2 texCoord = fract(newCoord.xy);\n\
+                 texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
+                 vec4 color = texture2DGradARB(s_texture, u_texturePosSize.xy+texCoord, dFdx(texCoord), dFdy(texCoord));\n\
+             #else\n\
+                 vec2 transitionBlend = fwidth(floor(newCoord.xy));\n\
+                 transitionBlend = fwidth(transitionBlend)+transitionBlend;\n\
+                 vec2 texCoord = mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend);\n\
+                 texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
+                 vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
+             #endif\n\
              \n\
              float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);\n\
              float shadeFrac = mod(shade, c_one);\n\
@@ -994,6 +1000,7 @@ void polymost_glinit()
          }\n";
     const char* const POLYMOST1_EXTENDED_FRAGMENT_SHADER_CODE =
         "#version 110\n\
+         #extension ARB_shader_texture_lod : enable\n\
          \n\
          //s_texture points to an indexed color texture\n\
          uniform sampler2D s_texture;\n\
@@ -1047,12 +1054,17 @@ void polymost_glinit()
              coordX += u_npotEmulationXOffset*floor(mod(coordY,u_npotEmulationFactor));\n\
              coordY = period+mod(coordY,u_npotEmulationFactor);\n\
              vec2 newCoord = mix(gl_TexCoord[0].xy,mix(vec2(coordX,coordY),vec2(coordY,coordX),u_usePalette),u_npotEmulation);\n\
-             //GLSL 130+ could alternatively use texture2DGrad()\n\
-             vec2 transitionBlend = fwidth(floor(newCoord.xy));\n\
-             transitionBlend = fwidth(transitionBlend)+transitionBlend;\n\
-             vec2 texCoord = mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend);\n\
-             texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
-             vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
+             #ifdef GL_ARB_shader_texture_lod\n\
+                 vec2 texCoord = fract(newCoord.xy);\n\
+                 texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
+                 vec4 color = texture2DGradARB(s_texture, u_texturePosSize.xy+texCoord, dFdx(texCoord), dFdy(texCoord));\n\
+             #else\n\
+                 vec2 transitionBlend = fwidth(floor(newCoord.xy));\n\
+                 transitionBlend = fwidth(transitionBlend)+transitionBlend;\n\
+                 vec2 texCoord = mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend);\n\
+                 texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
+                 vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
+             #endif\n\
              \n\
              float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);\n\
              float shadeFrac = mod(shade, c_one);\n\
