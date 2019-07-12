@@ -1131,6 +1131,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 #endif
     const float phack[2] = { 0, 1.f/256.f };
 
+    char prevClamp = polymost_getClamp();
+    polymost_setClamp(false);
     if (!m->texid[globalpal])
         m->texid[globalpal] = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, globalpal);
 
@@ -1180,7 +1182,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     }
 
 	GLInterface.Draw(DT_QUADS, qstart, qdone * 4);
-
+    polymost_setClamp(prevClamp);
     //------------
     glDisable(GL_CULL_FACE);
 //    glPopAttrib();

@@ -2083,6 +2083,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     float const xpanning = (float)sext->xpanning * (1.f/256.f);
     float const ypanning = (float)sext->ypanning * (1.f/256.f);
 
+    char prevClamp = polymost_getClamp();
+    polymost_setClamp(false);
     polymost_usePaletteIndexing(false);
     polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });
 
@@ -2264,6 +2266,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    polymost_setClamp(prevClamp);
     polymost_usePaletteIndexing(true);
     polymost_resetVertexPointers();
 

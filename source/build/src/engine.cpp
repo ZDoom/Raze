@@ -8897,6 +8897,7 @@ killsprite:
     {
         glDisable(GL_BLEND);
         glEnable(GL_ALPHA_TEST);
+        polymost_setClamp(true);
 
         for (i = spritesortcnt; i < numSprites; ++i)
         {
@@ -8909,6 +8910,7 @@ killsprite:
             }
         }
 
+        polymost_setClamp(false);
         for (i = 0; i < maskwallcnt;)
         {
             if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[maskwallcnt-1]]]))
@@ -8972,6 +8974,11 @@ killsprite:
         _equation maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
         _equation p1eq   = equation(pos.x, pos.y, dot.x, dot.y);
         _equation p2eq   = equation(pos.x, pos.y, dot2.x, dot2.y);
+
+#ifdef USE_OPENGL
+        if (videoGetRenderMode() == REND_POLYMOST)
+            polymost_setClamp(true);
+#endif
 
         i = spritesortcnt;
         while (i)
@@ -9057,9 +9064,17 @@ killsprite:
         }
 
         debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
+#ifdef USE_OPENGL
+        if (videoGetRenderMode() == REND_POLYMOST)
+            polymost_setClamp(false);
+#endif
         renderDrawMaskedWall(maskwallcnt);
     }
 
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() == REND_POLYMOST)
+        polymost_setClamp(true);
+#endif
     while (spritesortcnt)
     {
         --spritesortcnt;
@@ -9072,7 +9087,10 @@ killsprite:
     }
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
+    {
         glDepthMask(GL_TRUE);
+        polymost_setClamp(false);
+    }
 #endif
 
 #ifdef POLYMER

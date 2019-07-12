@@ -21,6 +21,8 @@ uniform vec2 u_halfTexelSize;
 uniform vec2 u_palswapPos;
 uniform vec2 u_palswapSize;
 
+uniform float u_clamp;
+
 uniform float u_shade;
 uniform float u_numShades;
 uniform float u_visFactor;
@@ -61,7 +63,7 @@ void main()
     vec2 newCoord = mix(gl_TexCoord[0].xy,mix(vec2(coordX,coordY),vec2(coordY,coordX),u_usePalette),u_npotEmulation);
     vec2 transitionBlend = fwidth(floor(newCoord.xy));
     transitionBlend = fwidth(transitionBlend)+transitionBlend;
-    vec2 texCoord = mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend);
+    vec2 texCoord = mix(mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend), clamp(newCoord.xy, c_zero, c_one), u_clamp);
     texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);
     vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);
 
