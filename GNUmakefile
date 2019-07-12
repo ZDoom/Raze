@@ -218,6 +218,8 @@ engine_objs := \
     2d.cpp \
     hash.cpp \
     palette.cpp \
+    polymost1Frag.glsl \
+    polymost1Vert.glsl \
     polymost.cpp \
     texcache.cpp \
     dxtfilter.cpp \
@@ -1009,6 +1011,13 @@ $$($1_obj)/%.$$o: $$($1_src)/%.mm | $$($1_obj)
 $$($1_obj)/%.$$o: $$($1_obj)/%.c
 	$$(COMPILE_STATUS)
 	$$(RECIPE_IF) $$(COMPILER_C) $$($1_cflags) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
+$$($1_obj)/%.$$o: $$($1_src)/%.glsl | $$($1_src)/generated
+	echo "Creating header from "$$<
+	echo "char const *$$(basename $$(<F)) = R\"shader(" > $$(<D)/generated/$$(<F).h
+	$$(CAT) $$< >> $$(<D)/generated/$$(<F).h
+	echo ")shader\";" >> $$(<D)/generated/$$(<F).h
+	echo " " | $$(COMPILER_CXX) $$($1_cflags) -x c++ -c - -o $$@
 
 ## Cosmetic stuff
 

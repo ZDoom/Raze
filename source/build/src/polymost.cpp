@@ -385,7 +385,7 @@ static void calcmat(vec3f_t a0, const vec2f_t *offset, float f, float mat[16], i
     mat[14] = (mat[14] + a0.y*mat[2]) + (a0.z*mat[6] + a0.x*mat[10]);
 }
 
-static GLuint polymost2_compileShader(GLenum shaderType, const char* const source)
+static GLuint polymost2_compileShader(GLenum shaderType, const char* const source, int length)
 {
     GLuint shaderID = glCreateShader(shaderType);
     if (shaderID == 0)
@@ -393,11 +393,10 @@ static GLuint polymost2_compileShader(GLenum shaderType, const char* const sourc
         return 0;
     }
 
-    const char* const sources[1] = {source};
     glShaderSource(shaderID,
                    1,
-                   sources,
-                   NULL);
+                   &source,
+                   &length);
     glCompileShader(shaderID);
 
     GLint compileStatus;
@@ -848,8 +847,8 @@ void polymost_glinit()
          }\n";
 
     polymost2BasicShaderProgramID = glCreateProgram();
-    GLuint polymost2BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, POLYMOST2_BASIC_VERTEX_SHADER_CODE);
-    GLuint polymost2BasicFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, POLYMOST2_BASIC_FRAGMENT_SHADER_CODE);
+    GLuint polymost2BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, POLYMOST2_BASIC_VERTEX_SHADER_CODE, 0);
+    GLuint polymost2BasicFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, POLYMOST2_BASIC_FRAGMENT_SHADER_CODE, 0);
     glBindAttribLocation(polymost2BasicShaderProgramID, 0, "i_vertPos");
     glBindAttribLocation(polymost2BasicShaderProgramID, 1, "i_texCoord");
     glAttachShader(polymost2BasicShaderProgramID, polymost2BasicVertexShaderID);
@@ -868,258 +867,33 @@ void polymost_glinit()
     fogRangeLoc = glGetUniformLocation(polymost2BasicShaderProgramID, "u_fogRange");
     fogColorLoc = glGetUniformLocation(polymost2BasicShaderProgramID, "u_fogColor");
 
-    const char* const POLYMOST1_BASIC_VERTEX_SHADER_CODE =
-        "#version 110\n\
-         \n\
-         varying vec4 v_color;\n\
-         varying float v_distance;\n\
-         \n\
-         //u_texturePosSize is the texture position & size packaged into a single vec4 as {pos.x, pos.y, size.x, size.y}\n\
-         uniform vec4 u_texturePosSize;\n\
-         uniform float u_usePalette;\n\
-         uniform mat4 u_rotMatrix;\n\
-         \n\
-         const float c_zero = 0.0;\n\
-         const float c_one  = 1.0;\n\
-         \n\
-         void main()\n\
-         {\n\
-            vec4 vertex = u_rotMatrix * gl_Vertex;\n\
-            vec4 eyeCoordPosition = gl_ModelViewMatrix * vertex;\n\
-            gl_Position = gl_ModelViewProjectionMatrix * vertex;\n\
-            \n\
-            eyeCoordPosition.xyz /= eyeCoordPosition.w;\n\
-            \n\
-            gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n\
-            gl_TexCoord[0] = mix(gl_TexCoord[0].xyzw, gl_TexCoord[0].yxzw, u_usePalette);\n\
-            \n\
-            gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;\n\
-            gl_TexCoord[4] = gl_TextureMatrix[4] * gl_MultiTexCoord4;\n\
-            \n\
-            gl_FogFragCoord = abs(eyeCoordPosition.z);\n\
-            //gl_FogFragCoord = clamp((gl_Fog.end-abs(eyeCoordPosition.z))*gl_Fog.scale, c_zero, c_one);\n\
-            \n\
-            v_color = gl_Color;\n\
-            v_distance = gl_Vertex.z;\n\
-         }\n";
-    const char* const POLYMOST1_BASIC_FRAGMENT_SHADER_CODE =
-        "#version 110\n\
-         #extension ARB_shader_texture_lod : enable\n\
-         \n\
-         //s_texture points to an indexed color texture\n\
-         uniform sampler2D s_texture;\n\
-         //s_palswap is the palette swap texture where u is the color index and v is the shade\n\
-         uniform sampler2D s_palswap;\n\
-         //s_palette is the base palette texture where u is the color index\n\
-         uniform sampler2D s_palette;\n\
-         \n\
-         //u_texturePosSize is the texture position & size packaged into a single vec4 as {pos.x, pos.y, size.x, size.y}\n\
-         uniform vec4 u_texturePosSize;\n\
-         uniform vec2 u_halfTexelSize;\n\
-         uniform vec2 u_palswapPos;\n\
-         uniform vec2 u_palswapSize;\n\
-         \n\
-         uniform float u_shade;\n\
-         uniform float u_numShades;\n\
-         uniform float u_visFactor;\n\
-         uniform float u_fogEnabled;\n\
-         \n\
-         uniform float u_useColorOnly;\n\
-         uniform float u_usePalette;\n\
-         uniform float u_npotEmulation;\n\
-         uniform float u_npotEmulationFactor;\n\
-         uniform float u_npotEmulationXOffset;\n\
-         uniform float u_brightness;\n\
-         uniform float u_shadeInterpolate;\n\
-         \n\
-         varying vec4 v_color;\n\
-         varying float v_distance;\n\
-         \n\
-         const float c_basepalScale = 255.0/256.0;\n\
-         const float c_basepalOffset = 0.5/256.0;\n\
-         \n\
-         const float c_zero = 0.0;\n\
-         const float c_one = 1.0;\n\
-         const float c_two = 2.0;\n\
-         const vec4 c_vec4_one = vec4(c_one);\n\
-         const float c_wrapThreshold = 0.9;\n\
-         \n\
-         void main()\n\
-         {\n\
-             float coordY = mix(gl_TexCoord[0].y,gl_TexCoord[0].x,u_usePalette);\n\
-             float coordX = mix(gl_TexCoord[0].x,gl_TexCoord[0].y,u_usePalette);\n\
-             float period = floor(coordY/u_npotEmulationFactor);\n\
-             coordX += u_npotEmulationXOffset*floor(mod(coordY,u_npotEmulationFactor));\n\
-             coordY = period+mod(coordY,u_npotEmulationFactor);\n\
-             vec2 newCoord = mix(gl_TexCoord[0].xy,mix(vec2(coordX,coordY),vec2(coordY,coordX),u_usePalette),u_npotEmulation);\n\
-             #ifdef GL_ARB_shader_texture_lod\n\
-                 vec2 texCoord = fract(newCoord.xy);\n\
-                 texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
-                 vec4 color = texture2DGradARB(s_texture, u_texturePosSize.xy+texCoord, dFdx(texCoord), dFdy(texCoord));\n\
-             #else\n\
-                 vec2 transitionBlend = fwidth(floor(newCoord.xy));\n\
-                 transitionBlend = fwidth(transitionBlend)+transitionBlend;\n\
-                 vec2 texCoord = mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend);\n\
-                 texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
-                 vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
-             #endif\n\
-             \n\
-             float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);\n\
-             float shadeFrac = mod(shade, c_one);\n\
-             float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, floor(shade)/u_numShades)).r;\n\
-             colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
-             vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
-             colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, (floor(shade)+c_one)/u_numShades)).r;\n\
-             colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
-             vec4 palettedColorNext = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
-             palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac*u_shadeInterpolate);\n\
-             float fullbright = mix(u_usePalette*palettedColor.a, c_zero, u_useColorOnly);\n\
-             palettedColor.a = c_one-floor(color.r);\n\
-             color = mix(color, palettedColor, u_usePalette);\n\
-             \n\
-             color = mix(color, c_vec4_one, u_useColorOnly);\n\
-             \n\
-             // DEBUG \n\
-             //color = texture2D(s_palswap, gl_TexCoord[0].xy);\n\
-             //color = texture2D(s_palette, gl_TexCoord[0].xy);\n\
-             //color = texture2D(s_texture, gl_TexCoord[0].yx);\n\
-             \n\
-             color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);\n\
-             \n\
-             float fogEnabled = mix(u_fogEnabled, c_zero, u_usePalette);\n\
-             fullbright = max(c_one-fogEnabled, fullbright);\n\
-             float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, fullbright, c_one);\n\
-             //float fogFactor = clamp(gl_FogFragCoord, fullbright, c_one);\n\
-             color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
-             \n\
-             color.a *= v_color.a;\n\
-             \n\
-             color.rgb = pow(color.rgb, vec3(u_brightness));\n\
-             \n\
-             gl_FragData[0] = color;\n\
-         }\n";
-    const char* const POLYMOST1_EXTENDED_FRAGMENT_SHADER_CODE =
-        "#version 110\n\
-         #extension ARB_shader_texture_lod : enable\n\
-         \n\
-         //s_texture points to an indexed color texture\n\
-         uniform sampler2D s_texture;\n\
-         //s_palswap is the palette swap texture where u is the color index and v is the shade\n\
-         uniform sampler2D s_palswap;\n\
-         //s_palette is the base palette texture where u is the color index\n\
-         uniform sampler2D s_palette;\n\
-         \n\
-         uniform sampler2D s_detail;\n\
-         uniform sampler2D s_glow;\n\
-         \n\
-         //u_texturePosSize is the texture position & size packaged into a single vec4 as {pos.x, pos.y, size.x, size.y}\n\
-         uniform vec4 u_texturePosSize;\n\
-         uniform vec2 u_halfTexelSize;\n\
-         uniform vec2 u_palswapPos;\n\
-         uniform vec2 u_palswapSize;\n\
-         \n\
-         uniform float u_shade;\n\
-         uniform float u_numShades;\n\
-         uniform float u_visFactor;\n\
-         uniform float u_fogEnabled;\n\
-         \n\
-         uniform float u_useColorOnly;\n\
-         uniform float u_usePalette;\n\
-         uniform float u_npotEmulation;\n\
-         uniform float u_npotEmulationFactor;\n\
-         uniform float u_npotEmulationXOffset;\n\
-         uniform float u_brightness;\n\
-         uniform float u_shadeInterpolate;\n\
-         \n\
-         uniform float u_useDetailMapping;\n\
-         uniform float u_useGlowMapping;\n\
-         \n\
-         varying vec4 v_color;\n\
-         varying float v_distance;\n\
-         \n\
-         const float c_basepalScale = 255.0/256.0;\n\
-         const float c_basepalOffset = 0.5/256.0;\n\
-         \n\
-         const float c_zero = 0.0;\n\
-         const float c_one = 1.0;\n\
-         const float c_two = 2.0;\n\
-         const vec4 c_vec4_one = vec4(c_one);\n\
-         const float c_wrapThreshold = 0.9;\n\
-         \n\
-         void main()\n\
-         {\n\
-             float coordY = mix(gl_TexCoord[0].y,gl_TexCoord[0].x,u_usePalette);\n\
-             float coordX = mix(gl_TexCoord[0].x,gl_TexCoord[0].y,u_usePalette);\n\
-             float period = floor(coordY/u_npotEmulationFactor);\n\
-             coordX += u_npotEmulationXOffset*floor(mod(coordY,u_npotEmulationFactor));\n\
-             coordY = period+mod(coordY,u_npotEmulationFactor);\n\
-             vec2 newCoord = mix(gl_TexCoord[0].xy,mix(vec2(coordX,coordY),vec2(coordY,coordX),u_usePalette),u_npotEmulation);\n\
-             #ifdef GL_ARB_shader_texture_lod\n\
-                 vec2 texCoord = fract(newCoord.xy);\n\
-                 texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
-                 vec4 color = texture2DGradARB(s_texture, u_texturePosSize.xy+texCoord, dFdx(texCoord), dFdy(texCoord));\n\
-             #else\n\
-                 vec2 transitionBlend = fwidth(floor(newCoord.xy));\n\
-                 transitionBlend = fwidth(transitionBlend)+transitionBlend;\n\
-                 vec2 texCoord = mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend);\n\
-                 texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
-                 vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
-             #endif\n\
-             \n\
-             float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);\n\
-             float shadeFrac = mod(shade, c_one);\n\
-             float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, floor(shade)/u_numShades)).r;\n\
-             colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
-             vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
-             colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, (floor(shade)+c_one)/u_numShades)).r;\n\
-             colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
-             vec4 palettedColorNext = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
-             palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac*u_shadeInterpolate);\n\
-             float fullbright = mix(u_usePalette*palettedColor.a, c_zero, u_useColorOnly);\n\
-             palettedColor.a = c_one-floor(color.r);\n\
-             color = mix(color, palettedColor, u_usePalette);\n\
-             \n\
-             vec4 detailColor = texture2D(s_detail, newCoord);\n\
-             detailColor = mix(c_vec4_one, 2.0*detailColor, u_useDetailMapping*detailColor.a);\n\
-             color.rgb *= detailColor.rgb;\n\
-             \n\
-             color = mix(color, c_vec4_one, u_useColorOnly);\n\
-             \n\
-             // DEBUG \n\
-             //color = texture2D(s_palswap, gl_TexCoord[0].xy);\n\
-             //color = texture2D(s_palette, gl_TexCoord[0].xy);\n\
-             //color = texture2D(s_texture, gl_TexCoord[0].yx);\n\
-             \n\
-             color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);\n\
-             \n\
-             float fogEnabled = mix(u_fogEnabled, c_zero, u_usePalette);\n\
-             fullbright = max(c_one-fogEnabled, fullbright);\n\
-             float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, fullbright, c_one);\n\
-             //float fogFactor = clamp(gl_FogFragCoord, fullbright, c_one);\n\
-             color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
-             \n\
-             vec4 glowColor = texture2D(s_glow, newCoord);\n\
-             color.rgb = mix(color.rgb, glowColor.rgb, u_useGlowMapping*glowColor.a*(c_one-u_useColorOnly));\n\
-             \n\
-             color.a *= v_color.a;\n\
-             \n\
-             color.rgb = pow(color.rgb, vec3(u_brightness));\n\
-             \n\
-             gl_FragData[0] = color;\n\
-         }\n";
-
-    polymost1BasicShaderProgramID = glCreateProgram();
-    GLuint polymost1BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, POLYMOST1_BASIC_VERTEX_SHADER_CODE);
-    GLuint polymost1BasicFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, POLYMOST1_BASIC_FRAGMENT_SHADER_CODE);
-    glAttachShader(polymost1BasicShaderProgramID, polymost1BasicVertexShaderID);
-    glAttachShader(polymost1BasicShaderProgramID, polymost1BasicFragmentShaderID);
-    glLinkProgram(polymost1BasicShaderProgramID);
+#include "generated/polymost1Vert.glsl.h"
+#include "generated/polymost1Frag.glsl.h"
 
     polymost1ExtendedShaderProgramID = glCreateProgram();
-    GLuint polymost1ExtendedFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, POLYMOST1_EXTENDED_FRAGMENT_SHADER_CODE);
+    GLuint polymost1BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, polymost1Vert, 0);
+    GLuint polymost1ExtendedFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, polymost1Frag, 0);
     glAttachShader(polymost1ExtendedShaderProgramID, polymost1BasicVertexShaderID);
     glAttachShader(polymost1ExtendedShaderProgramID, polymost1ExtendedFragmentShaderID);
     glLinkProgram(polymost1ExtendedShaderProgramID);
+
+    int polymost1BasicFragLen = strlen(polymost1Frag);
+    char* polymost1BasicFrag = (char*) malloc(polymost1BasicFragLen);
+    memcpy(polymost1BasicFrag, polymost1Frag, polymost1BasicFragLen);
+    char* extDefineSubstr = strstr(polymost1BasicFrag, " #define POLYMOST1_EXTENDED");
+    if (extDefineSubstr)
+    {
+        //Disable extensions for basic fragment shader
+        extDefineSubstr[0] = '/';
+        extDefineSubstr[1] = '/';
+    }
+    polymost1BasicShaderProgramID = glCreateProgram();
+    GLuint polymost1BasicFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, polymost1BasicFrag, polymost1BasicFragLen);
+    glAttachShader(polymost1BasicShaderProgramID, polymost1BasicVertexShaderID);
+    glAttachShader(polymost1BasicShaderProgramID, polymost1BasicFragmentShaderID);
+    glLinkProgram(polymost1BasicShaderProgramID);
+    free(polymost1BasicFrag);
+    polymost1BasicFrag = 0;
 
     // set defaults
     polymost_setCurrentShaderProgram(polymost1ExtendedShaderProgramID);

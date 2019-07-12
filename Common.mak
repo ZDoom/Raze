@@ -126,6 +126,9 @@ endef
 define RMDIR
     rm -rf $(filter-out / *,$1)
 endef
+define CAT
+    cat $1
+endef
 
 ifeq (0,$(HAVE_SH))
     DONT_FAIL := & rem
@@ -141,6 +144,9 @@ ifeq (0,$(HAVE_SH))
     endef
     define RMDIR
         rmdir /s /q $(subst /,\,$(filter-out / *,$1)) $(DONT_PRINT_STDERR) $(DONT_FAIL)
+    endef
+    define CAT
+        type $1
     endef
 
     # if, printf, exit, and ; are unavailable without sh
