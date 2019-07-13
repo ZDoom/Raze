@@ -1175,7 +1175,7 @@ static MenuEntry_t *MEL_ADVSOUND[] = {
 
 
 static MenuOption_t MEO_SAVESETUP_AUTOSAVE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.autosave );
-static MenuEntry_t ME_SAVESETUP_AUTOSAVE = MAKE_MENUENTRY( "Autosaves:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SAVESETUP_AUTOSAVE, Option );
+static MenuEntry_t ME_SAVESETUP_AUTOSAVE = MAKE_MENUENTRY( "Checkpoints:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SAVESETUP_AUTOSAVE, Option );
 
 static MenuOption_t MEO_SAVESETUP_AUTOSAVEDELETION = MAKE_MENUOPTION( &MF_Redfont, &MEOS_NoYes, &ud.autosavedeletion );
 static MenuEntry_t ME_SAVESETUP_AUTOSAVEDELETION = MAKE_MENUENTRY( "Auto-Delete:", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SAVESETUP_AUTOSAVEDELETION, Option );
