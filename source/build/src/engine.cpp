@@ -4761,11 +4761,10 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
     dayscale = scale(dayscale, mulscale16(xdimenscale,viewingrangerecip), xdimen<<8);
 
     const int32_t daxscalerecip = divideu32_noinline(1<<30, daxscale);
-    const int32_t dayscalerecip = divideu32_noinline(1<<30, dayscale);
 
     int32_t *longptr = (int32_t *)davoxptr;
     const int32_t daxsiz = B_LITTLE32(longptr[0]), daysiz = B_LITTLE32(longptr[1]), dazsiz = B_LITTLE32(longptr[2]);
-    int32_t daxpivot = B_LITTLE32(longptr[3]), daypivot = B_LITTLE32(longptr[4]);// dazpivot = B_LITTLE32(longptr[5]);
+    int32_t daxpivot = B_LITTLE32(longptr[3]), daypivot = B_LITTLE32(longptr[4]), dazpivot = B_LITTLE32(longptr[5]);
     if (cstat & 4) daxpivot = (daxsiz<<8)-daxpivot;
     davoxptr += (6<<2);
 
@@ -4782,8 +4781,8 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
     x = (dasprx-globalposx) - dmulscale18(daxpivot,sprcosang, daypivot,-sprsinang);
     y = (daspry-globalposy) - dmulscale18(daypivot,sprcosang, daxpivot,sprsinang);
 
-    cosang = mulscale16(cosang, dayscalerecip);
-    sinang = mulscale16(sinang, dayscalerecip);
+    cosang <<= 2;
+    sinang <<= 2;
 
     const voxint_t gxstart = (voxint_t)y*cosang - (voxint_t)x*sinang;
     const voxint_t gystart = (voxint_t)x*cosang + (voxint_t)y*sinang;
@@ -4800,9 +4799,18 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
     if ((klabs(globalposz-dasprz)>>10) >= klabs(odayscale))
         return;
 
-    const int32_t syoff = divscale21(globalposz-dasprz,odayscale) + (dazsiz<<14);
-    floorz = min(floorz, dasprz+mulscale7(dazsiz,odayscale));
-    ceilingz = max(ceilingz, dasprz-mulscale7(dazsiz, odayscale));
+    int32_t zoff = dazsiz<<14;
+    if (!(cstat & 128))
+        zoff += dazpivot<<7;
+    else if ((cstat&48) != 48)
+    {
+        zoff += dazpivot<<7;
+        zoff -= dazsiz<<14;
+    }
+
+    const int32_t syoff = divscale21(globalposz-dasprz,odayscale)+zoff;
+    floorz = min(floorz, dasprz+mulscale21(-zoff+(dazsiz<<15),odayscale));
+    ceilingz = max(ceilingz, dasprz+mulscale21(-zoff, odayscale));
     const int32_t flooroff = divscale21(floorz-globalposz,odayscale);
     const int32_t ceilingoff = divscale21(ceilingz-globalposz,odayscale);
     int32_t yoff = (klabs(gxinc)+klabs(gyinc))>>1;
@@ -4951,10 +4959,10 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
 
                 rx -= lx;
 
-                const int32_t l1 = distrecip[clamp((ny-yoff)>>14, 1, DISTRECIPSIZ-1)];
+                const int32_t l1 = mulscale12(distrecip[clamp((ny-yoff)>>14, 1, DISTRECIPSIZ-1)], dayscale);
                 // FIXME! AMCTC RC2/beta shotgun voxel
                 // (e.g. training map right after M16 shooting):
-                const int32_t l2 = distrecip[clamp((ny+yoff)>>14, 1, DISTRECIPSIZ-1)];
+                const int32_t l2 = mulscale12(distrecip[clamp((ny+yoff)>>14, 1, DISTRECIPSIZ-1)], dayscale);
                 int32_t cz1 = 0, cz2 = INT32_MAX;
 
                 if (clipcf)
@@ -6116,8 +6124,6 @@ draw_as_face_sprite:
             nyrepeat = ((int32_t)tspr->yrepeat)*voxscale[vtilenum];
         }
 
-        if (!(cstat&128))
-            tspr->z -= mulscale22(B_LITTLE32(longptr[5]),nyrepeat);
         off.x = tspr->xoffset;
         off.y = /*picanm[sprite[tspr->owner].picnum].yofs +*/ tspr->yoffset;
         if (cstat & 4) off.x = -off.x;
@@ -6158,6 +6164,9 @@ draw_as_face_sprite:
                 if ((cstat&4) == 0) x1 -= i; else x1 += i;
 
                 y1 = mulscale16(tspr->z-globalposz,xdsiz);
+
+                if (!(cstat & 128))
+                    y1 -= mulscale16(mulscale22(B_LITTLE32(longptr[5]), nyrepeat), xdsiz);
                 //y1 -= mulscale30(xdsiz,nyrepeat*yoff);
                 y1 += (globalhoriz<<8)-siz.y;
                 //if (cstat&128)  //Already fixed up above
@@ -6196,7 +6205,7 @@ draw_as_face_sprite:
         const int32_t floorz = (sec->floorstat&3) == 0 ? sec->floorz : INT32_MAX;
 
         classicDrawVoxel(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,
-            tspr->shade,tspr->pal,lwall,swall,cstat,(tspr->cstat&48)!=48,floorz,ceilingz);
+            tspr->shade,tspr->pal,lwall,swall,tspr->cstat,(tspr->cstat&48)!=48,floorz,ceilingz);
     }
 }
 
