@@ -1008,16 +1008,16 @@ $$($1_obj)/%.$$o: $$($1_src)/%.mm | $$($1_obj)
 	$$(COMPILE_STATUS)
 	$$(RECIPE_IF) $$(COMPILER_OBJCXX) $$($1_cflags) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
 
-$$($1_obj)/%.$$o: $$($1_obj)/%.c
+$$($1_obj)/%.$$o: $$($1_obj)/%.c | $$($1_obj)
 	$$(COMPILE_STATUS)
 	$$(RECIPE_IF) $$(COMPILER_C) $$($1_cflags) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
 
-$$($1_obj)/%.$$o: $$($1_src)/%.glsl | $$($1_src)/generated
-	echo "Creating header from "$$<
-	echo "char const *$$(basename $$(<F)) = R\"shader(" > $$(<D)/generated/$$(<F).h
-	$$(CAT) $$< >> $$(<D)/generated/$$(<F).h
-	echo ")shader\";" >> $$(<D)/generated/$$(<F).h
-	echo " " | $$(COMPILER_CXX) $$($1_cflags) -x c++ -c - -o $$@
+$$($1_obj)/%.$$o: $$($1_src)/%.glsl | $$($1_obj) $$($1_src)/generated
+	@echo Creating $$(<D)/generated/$$(<F).h from $$<
+	@$$(call RAW_ECHO,char const *$$(basename $$(<F)) = R"shader$$(paren_open)) > $$(<D)/generated/$$(<F).h
+	@$$(call CAT,$$<) >> $$(<D)/generated/$$(<F).h
+	@$$(call RAW_ECHO,$$(paren_close)shader";) >> $$(<D)/generated/$$(<F).h
+	@$$(COMPILER_CXX) $$($1_cflags) -x c++ -c $$($1_src)/empty.cpp -o $$@
 
 ## Cosmetic stuff
 
@@ -1052,7 +1052,7 @@ $(engine_obj)/rev.$o: $(engine_src)/rev.cpp | $(engine_obj)
 
 ### Directories
 
-$(foreach i,$(components),$($i_obj)):
+$(foreach i,$(components),$($i_obj)) $(foreach i,$(components),$($i_src)/generated):
 	-$(call MKDIR,$@)
 
 ### Phonies

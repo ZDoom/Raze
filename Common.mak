@@ -11,6 +11,8 @@ SYNTHESIS := 0
 override empty :=
 override space := $(empty) $(empty)
 override comma := ,
+override paren_open := (
+override paren_close := )
 
 
 ##### Detect platform
@@ -107,6 +109,7 @@ endif
 DONT_PRINT := > $(NULLSTREAM) 2>&1
 DONT_PRINT_STDERR := 2> $(NULLSTREAM)
 DONT_FAIL := ; exit 0
+ESCAPE=\\
 
 HAVE_SH := 1
 # when no sh.exe is found in PATH on Windows, no path is prepended to it
@@ -129,9 +132,13 @@ endef
 define CAT
     cat $1
 endef
+define RAW_ECHO
+    echo '$1'
+endef
 
 ifeq (0,$(HAVE_SH))
     DONT_FAIL := & rem
+    ESCAPE=^
 
     define LL
         dir $(subst /,\,$1)
@@ -146,7 +153,10 @@ ifeq (0,$(HAVE_SH))
         rmdir /s /q $(subst /,\,$(filter-out / *,$1)) $(DONT_PRINT_STDERR) $(DONT_FAIL)
     endef
     define CAT
-        type $1
+        type $(subst /,\,$1)
+    endef
+    define RAW_ECHO
+        echo $(subst ",$(ESCAPE)",$(subst $(paren_open),$(ESCAPE)$(paren_open),$(subst $(paren_close),$(ESCAPE)$(paren_close),$1)))
     endef
 
     # if, printf, exit, and ; are unavailable without sh
