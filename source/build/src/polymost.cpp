@@ -387,7 +387,7 @@ static void calcmat(vec3f_t a0, const vec2f_t *offset, float f, float mat[16], i
     mat[14] = (mat[14] + a0.y*mat[2]) + (a0.z*mat[6] + a0.x*mat[10]);
 }
 
-static GLuint polymost2_compileShader(GLenum shaderType, const char* const source, int length)
+static GLuint polymost2_compileShader(GLenum shaderType, const char* const source, int * pLength = nullptr)
 {
     GLuint shaderID = glCreateShader(shaderType);
     if (shaderID == 0)
@@ -398,7 +398,7 @@ static GLuint polymost2_compileShader(GLenum shaderType, const char* const sourc
     glShaderSource(shaderID,
                    1,
                    &source,
-                   &length);
+                   pLength);
     glCompileShader(shaderID);
 
     GLint compileStatus;
@@ -418,6 +418,11 @@ static GLuint polymost2_compileShader(GLenum shaderType, const char* const sourc
     }
 
     return shaderID;
+}
+
+static GLuint polymost2_compileShader(GLenum shaderType, const char* const source, int length)
+{
+    return polymost2_compileShader(shaderType, source, &length);
 }
 
 void polymost_glreset()
@@ -866,8 +871,8 @@ void polymost_glinit()
          }\n";
 
     polymost2BasicShaderProgramID = glCreateProgram();
-    GLuint polymost2BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, POLYMOST2_BASIC_VERTEX_SHADER_CODE, 0);
-    GLuint polymost2BasicFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, POLYMOST2_BASIC_FRAGMENT_SHADER_CODE, 0);
+    GLuint polymost2BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, POLYMOST2_BASIC_VERTEX_SHADER_CODE);
+    GLuint polymost2BasicFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, POLYMOST2_BASIC_FRAGMENT_SHADER_CODE);
     glBindAttribLocation(polymost2BasicShaderProgramID, 0, "i_vertPos");
     glBindAttribLocation(polymost2BasicShaderProgramID, 1, "i_texCoord");
     glAttachShader(polymost2BasicShaderProgramID, polymost2BasicVertexShaderID);
@@ -890,8 +895,8 @@ void polymost_glinit()
 #include "generated/polymost1Frag.glsl.h"
 
     polymost1ExtendedShaderProgramID = glCreateProgram();
-    GLuint polymost1BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, polymost1Vert, 0);
-    GLuint polymost1ExtendedFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, polymost1Frag, 0);
+    GLuint polymost1BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, polymost1Vert);
+    GLuint polymost1ExtendedFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, polymost1Frag);
     glAttachShader(polymost1ExtendedShaderProgramID, polymost1BasicVertexShaderID);
     glAttachShader(polymost1ExtendedShaderProgramID, polymost1ExtendedFragmentShaderID);
     glLinkProgram(polymost1ExtendedShaderProgramID);
