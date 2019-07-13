@@ -37,7 +37,7 @@ struct XSPRITE {
     unsigned int ate_5 : 2; // unused	// fields in the future? must be signed also
     unsigned int at1a_2 : 6; // unused	//
 
-    signed   int reference : 14; // at0_0
+    signed   int reference : 15; // at0_0
     unsigned int state : 1;  // State 0
     unsigned int busy : 17;
     unsigned int txID : 10; // TX ID
@@ -184,7 +184,7 @@ struct XSECTOR {
 }; // 60(0x3c) bytes
 
 struct XWALL {
-    signed int reference : 14;
+    signed int reference : 15;
     unsigned int state : 1; // State
     unsigned int busy : 17;
     signed int data : 16; // Data
