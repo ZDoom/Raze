@@ -4268,7 +4268,6 @@ skip:
                         tsprShadow->z       = shadowZ;
                         tsprShadow->pal     = ud.shadow_pal;
 
-
 #ifdef USE_OPENGL
                         if (videoGetRenderMode() >= REND_POLYMOST)
                         {
@@ -4282,11 +4281,11 @@ skip:
                             }
                             else
                             {
-                                int const ii
-                                = getangle(tsprShadow->x - g_player[screenpeek].ps->pos.x, tsprShadow->y - g_player[screenpeek].ps->pos.y);
+                                int const camang = display_mirror ? ((2048 - fix16_to_int(CAMERA(q16ang))) & 2047) : fix16_to_int(CAMERA(q16ang));
+                                vec2_t const ofs = { sintable[(camang+512)&2047]>>11, sintable[(camang)&2047]>>11};
 
-                                tsprShadow->x += sintable[(ii+2560)&2047]>>9;
-                                tsprShadow->y += sintable[(ii+2048)&2047]>>9;
+                                tsprShadow->x += ofs.x;
+                                tsprShadow->y += ofs.y;
                             }
                         }
 #endif
