@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class EventQueue
 {
 public:
-    PriorityQueue* PQueue;
+    PriorityQueue<EVENT>* PQueue;
     EventQueue()
     {
         PQueue = NULL;
@@ -48,8 +48,7 @@ public:
     }
     EVENT ERemove(void)
     {
-        unsigned int node = PQueue->Remove();
-        return *(EVENT*)&node;
+        return PQueue->Remove();
     }
     void Kill(int, int);
     void Kill(int, int, CALLBACK_ID);
@@ -58,19 +57,13 @@ public:
 EventQueue eventQ;
 void EventQueue::Kill(int a1, int a2)
 {
-    EVENT evn = { (unsigned int)a1, (unsigned int)a2, 0, 0 };
-    //evn.at0_0 = a1;
-    //evn.at1_5 = a2;
-
-    short vs = *(short*)&evn;
-    PQueue->Kill([=](unsigned int nItem)->bool {return !memcmp(&nItem, &vs, 2); });
+    PQueue->Kill([=](EVENT nItem)->bool {return nItem.index == a1 && nItem.type == a2; });
 }
 
 void EventQueue::Kill(int a1, int a2, CALLBACK_ID a3)
 {
     EVENT evn = { (unsigned int)a1, (unsigned int)a2, kCommandCallback, (unsigned int)a3 };
-    unsigned int vc = *(unsigned int*)&evn;
-    PQueue->Kill([=](unsigned int nItem)->bool {return nItem == vc; });
+    PQueue->Kill([=](EVENT nItem)->bool {return !memcmp(&nItem, &evn, sizeof(EVENT)); });
 }
 
 //struct RXBUCKET
@@ -276,9 +269,9 @@ void evInit(void)
     if (eventQ.PQueue)
         delete eventQ.PQueue;
     if (VanillaMode())
-        eventQ.PQueue = new VanillaPriorityQueue();
+        eventQ.PQueue = new VanillaPriorityQueue<EVENT>();
     else
-        eventQ.PQueue = new StdPriorityQueue();
+        eventQ.PQueue = new StdPriorityQueue<EVENT>();
     eventQ.PQueue->Clear();
     int nCount = 0;
     for (int i = 0; i < numsectors; i++)
@@ -481,22 +474,22 @@ void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
         command = evGetSourceState(nType, nIndex) ? COMMAND_ID_1 : COMMAND_ID_0;
     else if (command == COMMAND_ID_4)
         command = evGetSourceState(nType, nIndex) ? COMMAND_ID_0 : COMMAND_ID_1;
-    EVENT evn;
+    EVENT evn = {};
     evn.index = nIndex;
     evn.type = nType;
     evn.cmd = command;
     // Inlined?
-    eventQ.PQueue->Insert(gFrameClock+nDelta, *(unsigned int*)&evn);
+    eventQ.PQueue->Insert(gFrameClock+nDelta, evn);
 }
 
 void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID a4)
 {
-    EVENT evn;
+    EVENT evn = {};
     evn.index = nIndex;
     evn.type = nType;
     evn.cmd = kCommandCallback;
     evn.funcID = a4;
-    eventQ.PQueue->Insert(gFrameClock+nDelta, *(unsigned int*)&evn);
+    eventQ.PQueue->Insert(gFrameClock+nDelta, evn);
 }
 
 void evProcess(unsigned int nTime)
@@ -563,18 +556,18 @@ void EventQLoadSave::Load()
         delete eventQ.PQueue;
     Read(&eventQ, sizeof(eventQ));
     if (VanillaMode())
-        eventQ.PQueue = new VanillaPriorityQueue();
+        eventQ.PQueue = new VanillaPriorityQueue<EVENT>();
     else
-        eventQ.PQueue = new StdPriorityQueue();
+        eventQ.PQueue = new StdPriorityQueue<EVENT>();
     int nEvents;
     Read(&nEvents, sizeof(nEvents));
     for (int i = 0; i < nEvents; i++)
     {
-        EVENT event;
+        EVENT event = {};
         unsigned int eventtime;
         Read(&eventtime, sizeof(eventtime));
         Read(&event, sizeof(event));
-        eventQ.PQueue->Insert(eventtime, *(unsigned int*)&event);
+        eventQ.PQueue->Insert(eventtime, event);
     }
     Read(rxBucket, sizeof(rxBucket));
     Read(bucketHead, sizeof(bucketHead));
@@ -597,7 +590,7 @@ void EventQLoadSave::Save()
     dassert(eventQ.PQueue->Size() == 0);
     for (int i = 0; i < nEvents; i++)
     {
-        eventQ.PQueue->Insert(eventstime[i], *(unsigned int*)&events[i]);
+        eventQ.PQueue->Insert(eventstime[i], events[i]);
     }
     Write(rxBucket, sizeof(rxBucket));
     Write(bucketHead, sizeof(bucketHead));

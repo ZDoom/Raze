@@ -23,12 +23,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include <set>
 #include <functional>
+#include "common_game.h"
 #define kPQueueSize 1024
 
-struct queueItem
+template <typename T> struct queueItem
 {
-    unsigned int at0; // priority
-    unsigned int at4; // data
+    uint32_t at0; // priority
+    T at4; // data
     bool operator>(const queueItem& other) const
     {
         return at0 > other.at0;
@@ -55,44 +56,131 @@ struct queueItem
     }
 };
 
-class PriorityQueue
+template<typename T> class PriorityQueue
 {
 public:
-    virtual ~PriorityQueue() = 0;
-    virtual unsigned int Size(void) = 0;
+    virtual ~PriorityQueue() {}
+    virtual uint32_t Size(void) = 0;
     virtual void Clear(void) = 0;
-    virtual void Insert(unsigned int, unsigned int) = 0;
-    virtual unsigned int Remove(void) = 0;
-    virtual unsigned int LowestPriority(void) = 0;
-    virtual void Kill(std::function<bool(unsigned int)> pMatch) = 0;
+    virtual void Insert(uint32_t, T) = 0;
+    virtual T Remove(void) = 0;
+    virtual uint32_t LowestPriority(void) = 0;
+    virtual void Kill(std::function<bool(T)> pMatch) = 0;
 };
 
-class VanillaPriorityQueue : public PriorityQueue
+template<typename T> class VanillaPriorityQueue : public PriorityQueue<T>
 {
 public:
-    queueItem queueItems[kPQueueSize + 1];
-    unsigned int fNodeCount; // at2008
-    ~VanillaPriorityQueue();
-    unsigned int Size(void) { return fNodeCount; };
-    void Clear(void);
-    void Upheap(void);
-    void Downheap(unsigned int);
-    void Delete(unsigned int);
-    void Insert(unsigned int, unsigned int);
-    unsigned int Remove(void);
-    unsigned int LowestPriority(void);
-    void Kill(std::function<bool(unsigned int)> pMatch);
+    queueItem<T> queueItems[kPQueueSize + 1];
+    uint32_t fNodeCount; // at2008
+    ~VanillaPriorityQueue() {}
+    uint32_t Size(void) { return fNodeCount; };
+    void Clear(void)
+    {
+        fNodeCount = 0;
+        memset(queueItems, 0, sizeof(queueItems));
+    }
+    void Upheap(void)
+    {
+        queueItem<T> item = queueItems[fNodeCount];
+        queueItems[0].at0 = 0;
+        uint32_t x = fNodeCount;
+        while (queueItems[x>>1] > item)
+        {
+            queueItems[x] = queueItems[x>>1];
+            x >>= 1;
+        }
+        queueItems[x] = item;
+    }
+    void Downheap(uint32_t n)
+    {
+        queueItem<T> item = queueItems[n];
+        while (fNodeCount/2 >= n)
+        {
+            uint32_t t = n*2;
+            if (t < fNodeCount && queueItems[t] > queueItems[t+1])
+                t++;
+            if (item <= queueItems[t])
+                break;
+            queueItems[n] = queueItems[t];
+            n = t;
+        }
+        queueItems[n] = item;
+    }
+    void Delete(uint32_t k)
+    {
+        dassert(k <= fNodeCount);
+        queueItems[k] = queueItems[fNodeCount--];
+        Downheap(k);
+    }
+    void Insert(uint32_t a1, T a2)
+    {
+        dassert(fNodeCount < kPQueueSize);
+        fNodeCount++;
+        queueItems[fNodeCount].at0 = a1;
+        queueItems[fNodeCount].at4 = a2;
+        Upheap();
+    }
+    T Remove(void)
+    {
+        T data = queueItems[1].at4;
+        queueItems[1] = queueItems[fNodeCount--];
+        Downheap(1);
+        return data;
+    }
+    uint32_t LowestPriority(void)
+    {
+        dassert(fNodeCount > 0);
+        return queueItems[1].at0;
+    }
+    void Kill(std::function<bool(T)> pMatch)
+    {
+        for (unsigned int i = 1; i <= fNodeCount;)
+        {
+            if (pMatch(queueItems[i].at4))
+                Delete(i);
+            else
+                i++;
+        }
+    }
 };
 
-class StdPriorityQueue : public PriorityQueue
+template<typename T> class StdPriorityQueue : public PriorityQueue<T>
 {
 public:
-    std::multiset<queueItem> stdQueue;
-    ~StdPriorityQueue();
-    unsigned int Size(void) { return stdQueue.size(); };
-    void Clear(void);
-    void Insert(unsigned int, unsigned int);
-    unsigned int Remove(void);
-    unsigned int LowestPriority(void);
-    void Kill(std::function<bool(unsigned int)> pMatch);
+    std::multiset<queueItem<T>> stdQueue;
+    ~StdPriorityQueue()
+    {
+        stdQueue.clear();
+    }
+    uint32_t Size(void) { return stdQueue.size(); };
+    void Clear(void)
+    {
+        stdQueue.clear();
+    }
+    void Insert(uint32_t nPriority, T data)
+    {
+        stdQueue.insert({ nPriority, data });
+    }
+    T Remove(void)
+    {
+        dassert(stdQueue.size() > 0);
+        T data = stdQueue.begin()->at4;
+        stdQueue.erase(stdQueue.begin());
+        return data;
+    }
+    uint32_t LowestPriority(void)
+    {
+        return stdQueue.begin()->at0;
+    }
+    void Kill(std::function<bool(T)> pMatch)
+    {
+        for (auto i = stdQueue.begin(); i != stdQueue.end();)
+        {
+            if (pMatch(i->at4))
+                i = stdQueue.erase(i);
+            else
+                i++;
+        }
+    }
 };

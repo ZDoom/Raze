@@ -52,11 +52,11 @@ enum COMMAND_ID {
 };
 
 struct EVENT {
-    unsigned int index : 13; // index
+    unsigned int index : 14; // index
     unsigned int type : 3; // type
     unsigned int cmd : 8; // cmd
     unsigned int funcID : 8; // callback
-}; // <= 4 bytes
+};
 
 void evInit(void);
 char evGetSourceState(int nType, int nIndex);
