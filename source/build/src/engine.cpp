@@ -8920,17 +8920,17 @@ killsprite:
         }
 
         polymost_setClamp(false);
-        for (i = 0; i < maskwallcnt;)
+        int32_t numMaskWalls = maskwallcnt;
+        maskwallcnt = 0;
+        for (i = 0; i < numMaskWalls; i++)
         {
-            if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[maskwallcnt-1]]]))
+            if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
             {
-                int16_t maskSwap = maskwall[i];
-                maskwall[i] = maskwall[maskwallcnt-1];
-                maskwall[maskwallcnt-1] = maskSwap;
-                ++i;
+                maskwall[maskwallcnt] = maskwall[i];
+                maskwallcnt++;
             }
             else
-                renderDrawMaskedWall(--maskwallcnt);
+                renderDrawMaskedWall(i);
         }
 
         glEnable(GL_BLEND);
