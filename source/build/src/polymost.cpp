@@ -154,6 +154,8 @@ static vec2f_t tilesheetHalfTexelSize = { 0.f, 0.f };
 static int32_t lastbasepal = -1;
 static FHardwareTexture *paletteTextureIDs[MAXBASEPALS];
 static FHardwareTexture *palswapTextureID = nullptr;
+extern char const *polymost1Frag;
+extern char const *polymost1Vert;
 static GLuint polymost1CurrentShaderProgramID = 0;
 static GLuint polymost1BasicShaderProgramID = 0;
 static GLuint polymost1ExtendedShaderProgramID = 0;
@@ -890,9 +892,6 @@ void polymost_glinit()
     alphaLoc = glGetUniformLocation(polymost2BasicShaderProgramID, "u_alpha");
     fogRangeLoc = glGetUniformLocation(polymost2BasicShaderProgramID, "u_fogRange");
     fogColorLoc = glGetUniformLocation(polymost2BasicShaderProgramID, "u_fogColor");
-
-#include "generated/polymost1Vert.glsl.h"
-#include "generated/polymost1Frag.glsl.h"
 
     polymost1ExtendedShaderProgramID = glCreateProgram();
     GLuint polymost1BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, polymost1Vert);

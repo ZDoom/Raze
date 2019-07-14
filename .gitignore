@@ -55,7 +55,6 @@ project.xcworkspace/
 .DS_Store
 ._*
 
-/source/build/src/generated/
 Platform/Windows/Build
 Platform/Windows/Win32
 Platform/Windows/x64
