@@ -1111,7 +1111,7 @@ void removeLeech(spritetype* pLeech, bool delSprite) {
     if (pLeech != NULL) {
         spritetype* pEffect = gFX.fxSpawn((FX_ID)52,pLeech->sectnum,pLeech->x,pLeech->y,pLeech->z,pLeech->ang);
         if (pEffect != NULL) {
-            pEffect->cstat = kSprFace;
+            pEffect->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
             pEffect->pal = 6;
             int repeat = 64 + Random(50);
             pEffect->xrepeat = repeat;
@@ -1259,7 +1259,7 @@ bool doExplosion(spritetype* pSprite, int nType) {
     pExplosion->yrepeat = pExpl->at0;
     pExplosion->xrepeat = pExpl->at0;
     pExplosion->lotag = nType;
-    pExplosion->cstat |= kSprInvisible | kSprOriginAlign;
+    pExplosion->cstat |= CSTAT_SPRITE_INVISIBLE | CSTAT_SPRITE_YCENTER;
     pExplosion->owner = pSprite->xvel;
 
     if (pExplosion->extra >= 0) {

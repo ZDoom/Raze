@@ -120,28 +120,6 @@ void QuitGame(void);
 #define kMarkerLowGoo 14
 #define kMarkerPath 15
 
-// sprite cstat
-#define kSprBlock 0x0001
-#define kSprTrans 0x0002
-#define kSprFlipX 0x0004
-#define kSprFlipY 0x0008
-#define kSprFace 0x0000
-#define kSprWall 0x0010
-#define kSprFloor 0x0020
-#define kSprSpin 0x0030
-#define kSprRMask 0x0030
-#define kSprOneSided 0x0040
-#define kSprOriginAlign 0x0080
-#define kSprHitscan 0x0100
-#define kSprTransR 0x0200
-#define kSprPushable 0x1000
-#define kSprMoveMask 0x6000
-#define kSprMoveNone 0x0000
-#define kSprMoveForward 0x2000
-#define kSprMoveFloor 0x2000
-#define kSprMoveReverse 0x4000
-#define kSprMoveCeiling 0x4000
-#define kSprInvisible 0x8000
 
 // sprite attributes
 #define kHitagMovePhys 0x0001 // affected by movement physics

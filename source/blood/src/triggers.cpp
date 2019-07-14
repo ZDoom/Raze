@@ -2979,7 +2979,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
 
                     sprite[nDest].xrepeat = 4;
                     sprite[nDest].yrepeat = 4;
-                    sprite[nDest].cstat |= kSprInvisible;
+                    sprite[nDest].cstat |= CSTAT_SPRITE_INVISIBLE;
 
                 }
                 else {
@@ -3139,7 +3139,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
                 sprite[nDest].hitag = pXSource->data3;
 
             if (valueIsBetween(pXSource->data4, -1, 65535)) {
-                pXSource->data4 |= kSprOriginAlign;
+                pXSource->data4 |= CSTAT_SPRITE_YCENTER;
                 sprite[nDest].cstat = pXSource->data4;
             }
             break;
@@ -3850,8 +3850,8 @@ void InitGenerator(int nSprite)
     {
     // By NoOne: intialize GDX generators
     case kGDXDudeTargetChanger:
-        pSprite->cstat &= ~kSprBlock;
-        pSprite->cstat |= kSprInvisible;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+        pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
         if (pXSprite->busyTime <= 0) pXSprite->busyTime = 5;
         if (pXSprite->state != pXSprite->restState)
             evPost(nSprite, 3, 0, COMMAND_ID_21);
@@ -3859,14 +3859,14 @@ void InitGenerator(int nSprite)
     case kGDXObjDataAccumulator:
     case kGDXSeqSpawner:
     case kGDXEffectSpawner:
-        pSprite->cstat &= ~kSprBlock;
-        pSprite->cstat |= kSprInvisible;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+        pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
         if (pXSprite->state != pXSprite->restState)
             evPost(nSprite, 3, 0, COMMAND_ID_21);
         return;
     case 700:
-        pSprite->cstat &= ~kSprBlock;
-        pSprite->cstat |= kSprInvisible;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+        pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
         break;
     }
     if (pXSprite->state != pXSprite->restState && pXSprite->busyTime > 0)

@@ -2542,8 +2542,8 @@ void actInit(void)
         case 80: // Random ammo
 
             // Make sprites invisible and non-blocking
-            pSprite->cstat &= ~kSprBlock;
-            pSprite->cstat |= kSprInvisible;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+            pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
 
             if (pSprite->extra > 0 && xsprite[pSprite->extra].state == 1)
                 trTriggerSprite(nSprite, &xsprite[pSprite->extra], COMMAND_ID_0);
@@ -3073,7 +3073,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
                 sfxPlayGDXGenDudeSound(pSprite, 10, pXSprite->data3);
                 spritetype* pEffect = gFX.fxSpawn((FX_ID)52, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, pSprite->ang);
                 if (pEffect != NULL) {
-                    pEffect->cstat = kSprFace;
+                    pEffect->cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
                     pEffect->pal = 6;
                     pEffect->xrepeat = pSprite->xrepeat;
                     pEffect->yrepeat = pSprite->yrepeat;
