@@ -226,7 +226,6 @@
     <ClCompile Include="..\..\source\blood\src\network.cpp" />
     <ClCompile Include="..\..\source\blood\src\osdcmd.cpp" />
     <ClCompile Include="..\..\source\blood\src\player.cpp" />
-    <ClCompile Include="..\..\source\blood\src\pqueue.cpp" />
     <ClCompile Include="..\..\source\blood\src\qav.cpp" />
     <ClCompile Include="..\..\source\blood\src\qheap.cpp" />
     <ClCompile Include="..\..\source\blood\src\replace.cpp" />

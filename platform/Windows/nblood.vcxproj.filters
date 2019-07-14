@@ -96,9 +96,6 @@
     <ClCompile Include="..\..\source\blood\src\gameutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\blood\src\pqueue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\blood\src\eventq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
