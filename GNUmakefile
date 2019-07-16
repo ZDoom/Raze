@@ -1014,7 +1014,8 @@ $$($1_obj)/%.$$o: $$($1_obj)/%.c | $$($1_obj)
 
 $$($1_obj)/%.$$o: $$($1_src)/%.glsl | $$($1_obj)
 	@echo Creating $$($1_obj)/$$(<F).cpp from $$<
-	@$$(call RAW_ECHO,char const *$$(basename $$(<F)) = R"shader$$(paren_open)) > $$($1_obj)/$$(<F).cpp
+	@$$(call RAW_ECHO,extern char const *$$(basename $$(<F));) > $$($1_obj)/$$(<F).cpp
+	@$$(call RAW_ECHO,char const *$$(basename $$(<F)) = R"shader$$(paren_open)) >> $$($1_obj)/$$(<F).cpp
 	@$$(call CAT,$$<) >> $$($1_obj)/$$(<F).cpp
 	@$$(call RAW_ECHO,$$(paren_close)shader";) >> $$($1_obj)/$$(<F).cpp
 	$$(COMPILE_STATUS)
