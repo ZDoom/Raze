@@ -5,14 +5,14 @@
 
 namespace LL
 {
-template <typename T> FORCE_INLINE CONSTEXPR void Reset(T const node) { node->next = node->prev = node; }
-template <typename T> FORCE_INLINE CONSTEXPR void Unlink(T const node)
+template <typename T> FORCE_INLINE CONSTEXPR_CXX14 void Reset(T const node) { node->next = node->prev = node; }
+template <typename T> FORCE_INLINE CONSTEXPR_CXX14 void Unlink(T const node)
 {
     node->prev->next = node->next;
     node->next->prev = node->prev;
 }
 
-template <typename T> FORCE_INLINE CONSTEXPR void Insert(T const root, T const node)
+template <typename T> FORCE_INLINE CONSTEXPR_CXX14 void Insert(T const root, T const node)
 {
     node->next       = root;
     node->prev       = root->prev;
@@ -20,19 +20,19 @@ template <typename T> FORCE_INLINE CONSTEXPR void Insert(T const root, T const n
     root->prev       = node;
 }
 
-template <typename T> FORCE_INLINE CONSTEXPR void Remove(T const node)
+template <typename T> FORCE_INLINE CONSTEXPR_CXX14 void Remove(T const node)
 {
     Unlink(node);
     Reset(node);
 }
 
-template <typename T> FORCE_INLINE CONSTEXPR void Move(T const node, T const root)
+template <typename T> FORCE_INLINE CONSTEXPR_CXX14 void Move(T const node, T const root)
 {
     Unlink(node);
     Insert(root, node);
 }
 
-template <typename T, typename Tt> FORCE_INLINE CONSTEXPR void SortedInsert(T const root, T const node, Tt remove_pointer_t<T>::*m)
+template <typename T, typename Tt> FORCE_INLINE CONSTEXPR_CXX14 void SortedInsert(T const root, T const node, Tt remove_pointer_t<T>::*m)
 {
     T best = root->next;
     while ((best != root) && (node->*m > best->*m))
