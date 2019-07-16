@@ -1017,7 +1017,8 @@ $$($1_obj)/%.$$o: $$($1_src)/%.glsl | $$($1_obj)
 	@$$(call RAW_ECHO,char const *$$(basename $$(<F)) = R"shader$$(paren_open)) > $$($1_obj)/$$(<F).cpp
 	@$$(call CAT,$$<) >> $$($1_obj)/$$(<F).cpp
 	@$$(call RAW_ECHO,$$(paren_close)shader";) >> $$($1_obj)/$$(<F).cpp
-	@$$(RECIPE_IF) $$(COMPILER_CXX) $$($1_cflags) -c $$($1_obj)/$$(<F).cpp -o $$@ $$(RECIPE_RESULT_COMPILE)
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(COMPILER_CXX) $$($1_cflags) -c $$($1_obj)/$$(<F).cpp -o $$@ $$(RECIPE_RESULT_COMPILE)
 
 ## Cosmetic stuff
 
