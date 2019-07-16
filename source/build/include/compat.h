@@ -417,7 +417,9 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #include <stdlib.h>
 #include <string.h>
 
+#if !(defined _WIN32 && defined __clang__)
 #include <float.h>
+#endif
 #include <math.h>
 
 #include <ctype.h>
@@ -427,6 +429,7 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #include <assert.h>
 
 #ifdef __cplusplus
+# include <limits>
 # if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
 #  include <algorithm>
 #  include <functional>

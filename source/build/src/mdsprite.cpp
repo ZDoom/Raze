@@ -2004,10 +2004,10 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     if (tspr->extra&TSPR_EXTRA_MDHACK)
     {
 #ifdef __arm__ // GL ES has a glDepthRangef and the loss of precision is OK there
-        float f = (float) (tspr->owner + 1) * (FLT_EPSILON * 8.0);
+        float f = (float) (tspr->owner + 1) * (std::numeric_limits<float>::epsilon() * 8.0);
         if (f != 0.0) f *= 1.f/(float) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
 #else
-        double f = (double) (tspr->owner + 1) * (FLT_EPSILON * 8.0);
+        double f = (double) (tspr->owner + 1) * (std::numeric_limits<double>::epsilon() * 8.0);
         if (f != 0.0) f *= 1.0/(double) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
 //        glBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
 #endif
