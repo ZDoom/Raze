@@ -379,7 +379,8 @@ int A_CheckNoSE7Water(uspriteptr_t const pSprite, int sectNum, int sectLotag, in
 //  1 if yes, but stayed inside [actor[].ceilingz+1, actor[].floorz].
 // <0 if yes, but passed a TROR no-SE7 water boundary. -returnvalue-1 is the
 //       other-side sector number.
-static int32_t A_CheckNeedZUpdate(int32_t spriteNum, int32_t zChange, int32_t *pZcoord)
+static int32_t A_CheckNeedZUpdate(int32_t spriteNum, int32_t zChange, int32_t *pZcoord,
+    int32_t *ceilhit, int32_t *florhit)
 {
     if (zChange == 0)
         return 0;
@@ -389,10 +390,9 @@ static int32_t A_CheckNeedZUpdate(int32_t spriteNum, int32_t zChange, int32_t *p
 
     *pZcoord = newZ;
 
-    int32_t    ceilhit, florhit;
     int const clipDist = A_GetClipdist(spriteNum, -1);
 
-    VM_GetZRange(spriteNum, &ceilhit, &florhit, pSprite->statnum == STAT_PROJECTILE ? clipDist << 3 : clipDist);
+    VM_GetZRange(spriteNum, ceilhit, florhit, pSprite->statnum == STAT_PROJECTILE ? clipDist << 3 : clipDist);
 
     if (newZ > actor[spriteNum].ceilingz && newZ <= actor[spriteNum].floorz)
         return 1;
@@ -419,7 +419,7 @@ static int32_t A_CheckNeedZUpdate(int32_t spriteNum, int32_t zChange, int32_t *p
     }
 #endif
 
-    return 0;
+    return 2;
 }
 
 int A_GetClipdist(int spriteNum, int clipDist)
@@ -558,10 +558,13 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 
     Bassert(newSectnum == pSprite->sectnum);
 
-    int const doZUpdate = change->z ? A_CheckNeedZUpdate(spriteNum, change->z, &newZ) : 0;
+    int32_t ceilhit, florhit;
+    int const doZUpdate = change->z ? A_CheckNeedZUpdate(spriteNum, change->z, &newZ, &ceilhit, &florhit) : 0;
 
     // Update sprite's z positions and (for TROR) maybe the sector number.
-    if (doZUpdate)
+    if (doZUpdate == 2)
+        returnValue = change->z < 0 ? ceilhit : florhit;
+    else if (doZUpdate)
     {
         pSprite->z = newZ;
 #ifdef YAX_ENABLE
