@@ -563,7 +563,10 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 
     // Update sprite's z positions and (for TROR) maybe the sector number.
     if (doZUpdate == 2)
-        returnValue = change->z < 0 ? ceilhit : florhit;
+    {
+        if (returnValue == 0)
+            returnValue = change->z < 0 ? ceilhit : florhit;
+    }
     else if (doZUpdate)
     {
         pSprite->z = newZ;
