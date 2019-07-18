@@ -2016,6 +2016,9 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName)
     Bassert((unsigned)volumeNum < MAXVOLUMES+1);
     Bassert((unsigned)levelNum < MAXLEVELS);
 
+    if (strcmp(fileName, "/.") == 0)
+        return;
+
     map_t *const pMapInfo = &g_mapInfo[(MAXLEVELS*volumeNum)+levelNum];
 
     Xfree(pMapInfo->musicfn);
