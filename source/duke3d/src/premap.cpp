@@ -1802,7 +1802,9 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
         }
     }
 
-    realloc_copy(&g_mapInfo[levelNum].musicfn, "dethtoll.mid");
+    char const * usermapMusic = g_mapInfo[MUS_USERMAP].musicfn;
+    if (usermapMusic != nullptr)
+        realloc_copy(&g_mapInfo[levelNum].musicfn, usermapMusic);
 }
 
 int G_EnterLevel(int gameMode)

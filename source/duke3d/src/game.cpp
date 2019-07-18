@@ -5139,6 +5139,10 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
     {
         sel += 2;
     }
+    else if (!Bstrcmp(ID,"usermap"))
+    {
+        sel += 3;
+    }
     else
     {
         sel = G_GetMusicIdx(ID);
