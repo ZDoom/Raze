@@ -2060,6 +2060,14 @@ static void Menu_Pre(MenuID_t cm)
         break;
     }
 
+    case MENU_EPISODE:
+        ud.m_volume_number = M_EPISODE.currentEntry < g_volumeCnt ? M_EPISODE.currentEntry : -1;
+        break;
+
+    case MENU_SKILL:
+        ud.m_player_skill = M_SKILL.currentEntry+1;
+        break;
+
     default:
         break;
     }
