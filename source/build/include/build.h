@@ -1169,20 +1169,21 @@ void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange
                int32_t (*blacklist_sprite_func)(int32_t)) ATTRIBUTE((nonnull(6,7,8)));
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                  int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
-void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum) ATTRIBUTE((nonnull(3)));
-inline void updatesectorbreadth(int32_t const x, int32_t const y, int16_t *sectnum) ATTRIBUTE((nonnull(3)))
-{
-	updatesector(x, y, sectnum);
-}
-void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectnum,
-                         const uint8_t * const excludesectbitmap) ATTRIBUTE((nonnull(3,4)));
-void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum) ATTRIBUTE((nonnull(4)));
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
 int32_t try_facespr_intersect(uspriteptr_t const spr, const vec3_t *refpos,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t *intp, int32_t strictly_smaller_than_p);
+
+#define MAXUPDATESECTORDIST 1536
+#define INITIALUPDATESECTORDIST 256
+void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum) ATTRIBUTE((nonnull(3)));
+void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectnum,
+                         const uint8_t * const excludesectbitmap) ATTRIBUTE((nonnull(3,4)));
+void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum) ATTRIBUTE((nonnull(4)));
+void updatesectorneighbour(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
+void updatesectorneighbourz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
 
 int findwallbetweensectors(int sect1, int sect2);
 static FORCE_INLINE bool sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }

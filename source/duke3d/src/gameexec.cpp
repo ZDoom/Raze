@@ -4740,6 +4740,40 @@ badindex:
                     dispatch();
                 }
 
+            vInstruction(CON_UPDATESECTORNEIGHBOUR):
+                insptr++;
+                {
+                    vec2_t vect = { 0, 0 };
+                    Gv_FillWithVars(vect);
+
+                    int const returnVar = *insptr++;
+                    int16_t   sectNum   = Gv_GetVar(returnVar);
+
+                    if ((unsigned)sectNum >= MAXSECTORS)
+                        sectNum = vm.pSprite->sectnum;
+
+                    updatesectorneighbour(vect.x, vect.y, &sectNum, getsectordist(vect, sectNum));
+                    Gv_SetVar(returnVar, sectNum);
+                    dispatch();
+                }
+
+            vInstruction(CON_UPDATESECTORNEIGHBOURZ):
+                insptr++;
+                {
+                    vec3_t vect = { 0, 0, 0 };
+                    Gv_FillWithVars(vect);
+
+                    int const returnVar = *insptr++;
+                    int16_t   sectNum   = Gv_GetVar(returnVar);
+
+                    if ((unsigned)sectNum >= MAXSECTORS)
+                        sectNum = vm.pSprite->sectnum;
+
+                    updatesectorneighbourz(vect.x, vect.y, vect.z, &sectNum, getsectordist({vect.x, vect.y}, sectNum));
+                    Gv_SetVar(returnVar, sectNum);
+                    dispatch();
+                }
+
             vInstruction(CON_SPAWN):
                 insptr++;
 

@@ -341,6 +341,8 @@ const char *keyw[] =
     "updatecursectnum",
     "updatesector",
     "updatesectorz",
+    "updatesectorneighbour",
+    "updatesectorneighbourz",
     "getzrange",
     "clipmove",
     "lineintersect",
@@ -3063,8 +3065,10 @@ repeatcase:
 
     case CON_UPDATESECTOR:
     case CON_UPDATESECTORZ:
+    case CON_UPDATESECTORNEIGHBOUR:
+    case CON_UPDATESECTORNEIGHBOURZ:
         C_GetManyVars(2);
-        if (tw==CON_UPDATESECTORZ)
+        if (tw==CON_UPDATESECTORZ || tw==CON_UPDATESECTORNEIGHBOURZ)
             C_GetNextVar();
         C_GetNextVarType(GV_WRITABLE);
         break;

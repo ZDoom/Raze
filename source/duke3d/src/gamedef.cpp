@@ -546,6 +546,8 @@ static tokenmap_t const vm_keywords[] =
     { "undefinevolume",         CON_UNDEFINEVOLUME },
     { "updatesector",           CON_UPDATESECTOR },
     { "updatesectorz",          CON_UPDATESECTORZ },
+    { "updatesectorneighbour",  CON_UPDATESECTORNEIGHBOUR },
+    { "updatesectorneighbourz", CON_UPDATESECTORNEIGHBOURZ },
     { "useractor",              CON_USERACTOR },
     { "userquote",              CON_USERQUOTE },
     { "wackplayer",             CON_WACKPLAYER },
@@ -4130,6 +4132,7 @@ setvarvar:
         case CON_GETFLORZOFSLOPE:
         case CON_GETCEILZOFSLOPE:
         case CON_UPDATESECTORZ:
+        case CON_UPDATESECTORNEIGHBOURZ:
             C_GetManyVars(3);
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
@@ -4548,6 +4551,7 @@ ifvar:
 
         case CON_CANSEESPR:
         case CON_UPDATESECTOR:
+        case CON_UPDATESECTORNEIGHBOUR:
         case CON_QSTRCMP:
             C_GetManyVars(2);
             C_GetNextVarType(GAMEVAR_READONLY);

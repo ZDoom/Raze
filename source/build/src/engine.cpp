@@ -11407,44 +11407,15 @@ int findwallbetweensectors(int sect1, int sect2)
     return -1;
 }
 
-#define MAXUPDATESECTORDIST 1536
-#define INITIALUPDATESECTORDIST 256
-
 //
 // updatesector[z]
 //
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
-    int const initialsectnum = *sectnum;
-
-    if ((unsigned)initialsectnum < (unsigned)numsectors && getsectordist({x, y}, initialsectnum) < INITIALUPDATESECTORDIST)
-    {
-        if (inside_p(x, y, initialsectnum))
-            return;
-
-        static int16_t sectlist[MAXSECTORS];
-        static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-        int16_t nsecs;
-
-        bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, initialsectnum);
-
-        for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
-        {
-            int const listsectnum = sectlist[sectcnt];
-
-            if (inside_p(x, y, listsectnum))
-                SET_AND_RETURN(*sectnum, listsectnum);
-
-            auto const sec       = &sector[listsectnum];
-            int const  startwall = sec->wallptr;
-            int const  endwall   = sec->wallptr + sec->wallnum;
-            auto       uwal      = (uwallptr_t)&wall[startwall];
-
-            for (int j=startwall; j<endwall; j++, uwal++)
-                if (uwal->nextsector >= 0 && getsectordist({x, y}, uwal->nextsector) < MAXUPDATESECTORDIST)
-                    bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
-        }
-    }
+    int16_t sect = *sectnum;
+    updatesectorneighbour(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
+    if (sect != -1)
+        SET_AND_RETURN(*sectnum, sect);
 
     // we need to support passing in a sectnum of -1, unfortunately
 
@@ -11488,6 +11459,57 @@ void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectn
 
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
 {
+    int16_t sect = *sectnum;
+    updatesectorneighbourz(x, y, z, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
+    if (sect != -1)
+        SET_AND_RETURN(*sectnum, sect);
+
+    // we need to support passing in a sectnum of -1, unfortunately
+    for (int i = numsectors - 1; i >= 0; --i)
+        if (inside_z_p(x, y, z, i))
+            SET_AND_RETURN(*sectnum, i);
+
+    *sectnum = -1;
+}
+
+void updatesectorneighbour(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance /*= INITIALUPDATESECTORDIST*/, int32_t maxDistance /*= MAXUPDATESECTORDIST*/)
+{
+    int const initialsectnum = *sectnum;
+
+    if ((unsigned)initialsectnum < (unsigned)numsectors && getsectordist({x, y}, initialsectnum) <= initialMaxDistance)
+    {
+        if (inside_p(x, y, initialsectnum))
+            return;
+
+        static int16_t sectlist[MAXSECTORS];
+        static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
+        int16_t nsecs;
+
+        bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, initialsectnum);
+
+        for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
+        {
+            int const listsectnum = sectlist[sectcnt];
+
+            if (inside_p(x, y, listsectnum))
+                SET_AND_RETURN(*sectnum, listsectnum);
+
+            auto const sec       = &sector[listsectnum];
+            int const  startwall = sec->wallptr;
+            int const  endwall   = sec->wallptr + sec->wallnum;
+            auto       uwal      = (uwallptr_t)&wall[startwall];
+
+            for (int j=startwall; j<endwall; j++, uwal++)
+                if (uwal->nextsector >= 0 && getsectordist({x, y}, uwal->nextsector) <= maxDistance)
+                    bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
+        }
+    }
+
+    *sectnum = -1;
+}
+
+void updatesectorneighbourz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance /*= 0*/, int32_t maxDistance /*= 0*/)
+{
     bool nofirstzcheck = false;
 
     if (*sectnum >= MAXSECTORS && *sectnum - MAXSECTORS < numsectors)
@@ -11498,7 +11520,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
 
     uint32_t const correctedsectnum = (unsigned)*sectnum;
 
-    if (correctedsectnum < (unsigned)numsectors && getsectordist({x, y}, correctedsectnum) < INITIALUPDATESECTORDIST)
+    if (correctedsectnum < (unsigned)numsectors && getsectordist({x, y}, correctedsectnum) <= initialMaxDistance)
     {
         int32_t cz, fz;
         getzsofslope(correctedsectnum, x, y, &cz, &fz);
@@ -11540,15 +11562,10 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
             auto       uwal      = (uwallptr_t)&wall[startwall];
 
             for (int j=startwall; j<endwall; j++, uwal++)
-                if (uwal->nextsector >= 0 && getsectordist({x, y}, uwal->nextsector) < MAXUPDATESECTORDIST)
+                if (uwal->nextsector >= 0 && getsectordist({x, y}, uwal->nextsector) <= maxDistance)
                     bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
         }
     }
-
-    // we need to support passing in a sectnum of -1, unfortunately
-    for (int i = numsectors - 1; i >= 0; --i)
-        if (inside_z_p(x, y, z, i))
-            SET_AND_RETURN(*sectnum, i);
 
     *sectnum = -1;
 }

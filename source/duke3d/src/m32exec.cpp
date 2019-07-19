@@ -2116,18 +2116,33 @@ badindex:
 
         case CON_UPDATESECTOR:
         case CON_UPDATESECTORZ:
+        case CON_UPDATESECTORNEIGHBOUR:
+        case CON_UPDATESECTORNEIGHBOURZ:
             insptr++;
             {
                 int32_t x=Gv_GetVar(*insptr++), y=Gv_GetVar(*insptr++);
-                int32_t z=(tw==CON_UPDATESECTORZ)?Gv_GetVar(*insptr++):0;
+                int32_t z=(tw==CON_UPDATESECTORZ || tw==CON_UPDATESECTORNEIGHBOURZ)?Gv_GetVar(*insptr++):0;
                 int32_t var=*insptr++;
                 int16_t w;
 
                 X_ERROR_INVALIDCI();
                 w=sprite[vm.spriteNum].sectnum;
 
-                if (tw==CON_UPDATESECTOR) updatesector(x,y,&w);
-                else updatesectorz(x,y,z,&w);
+                switch (tw)
+                {
+                case CON_UPDATESECTORNEIGHBOURZ:
+                    updatesectorneighbourz(x,y,z,&w,getsectordist({x, y}, w));
+                    continue;
+                case CON_UPDATESECTORZ:
+                    updatesectorz(x,y,z,&w);
+                    continue;
+                case CON_UPDATESECTORNEIGHBOUR:
+                    updatesectorneighbour(x,y,&w,getsectordist({x, y}, w));
+                    continue;
+                default:
+                    updatesector(x,y,&w);
+                    continue;
+                }
 
                 Gv_SetVar(var, w);
                 continue;
