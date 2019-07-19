@@ -5646,6 +5646,12 @@ repeatcase:
                 g_errorCnt++;
                 k = MAXSOUNDS-1;
             }
+            else if (EDUKE32_PREDICT_FALSE(g_sounds[k].filename != NULL))
+            {
+                initprintf("%s:%d: warning: sound %d already defined (%s)\n",g_scriptFileName,g_lineNumber,k,g_sounds[k].filename);
+                g_warningCnt++;
+            }
+
             g_scriptPtr--;
             i = 0;
             C_SkipComments();
