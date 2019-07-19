@@ -324,9 +324,9 @@ bool sjson_check(const sjson_node* node, char errmsg[256]);
 #ifndef sjson_malloc
 #	include <stdlib.h>
 #	include <string.h>
-#	define sjson_malloc(user, size)		  malloc(size)
-#	define sjson_free(user, ptr)		  free(ptr)
-#	define sjson_realloc(user, ptr, size) realloc(ptr, size)
+#	define sjson_malloc(user, size)		  (UNREFERENCED_PARAMETER(user), malloc(size))
+#	define sjson_free(user, ptr)		  (UNREFERENCED_PARAMETER(user), free(ptr))
+#	define sjson_realloc(user, ptr, size) (UNREFERENCED_PARAMETER(user), realloc(ptr, size))
 #endif
 
 #ifndef sjson_assert
@@ -453,6 +453,8 @@ static inline void sjson__sb_grow(sjson_context* ctx, sjson__sb* sb, int need)
     }
     sb->cur = sb->start + length;
     sb->end = sb->start + alloc - 1;
+
+    UNREFERENCED_PARAMETER(ctx);
 }
 
 static inline void sjson__sb_put(sjson_context* ctx, sjson__sb* sb, const char *bytes, int count)
@@ -476,7 +478,7 @@ static inline void sjson__sb_puts(sjson_context* ctx, sjson__sb* sb, const char 
 static inline char* sjson__sb_finish(sjson__sb* sb)
 {
     *sb->cur = 0;
-    sjson_assert(sb->start <= sb->cur && sjson_strlen(sb->start) == (int)(intptr_t)(sb->cur - sb->start));
+    sjson_assert(sb->start <= sb->cur && sjson_strlen(sb->start) == (size_t)(sb->cur - sb->start));
     return sb->start;
 }
 
@@ -2314,8 +2316,10 @@ bool sjson_check(const sjson_node* node, char errmsg[256])
         problem("tag is invalid (%u)", node->tag);
     
     if (node->tag == SJSON_BOOL) {
+#if 0
         if (node->bool_ != false && node->bool_ != true)
             problem("bool_ is neither false (%d) nor true (%d)", (int)false, (int)true);
+#endif
     } else if (node->tag == SJSON_STRING) {
         if (node->string_ == NULL)
             problem("string_ is NULL");
