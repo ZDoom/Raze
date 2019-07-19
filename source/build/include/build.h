@@ -1182,8 +1182,8 @@ void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum) ATT
 void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectnum,
                          const uint8_t * const excludesectbitmap) ATTRIBUTE((nonnull(3,4)));
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum) ATTRIBUTE((nonnull(4)));
-void updatesectorneighbour(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
-void updatesectorneighbourz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
+void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
+void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
 
 int findwallbetweensectors(int sect1, int sect2);
 static FORCE_INLINE bool sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }

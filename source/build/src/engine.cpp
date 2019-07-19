@@ -11413,7 +11413,7 @@ int findwallbetweensectors(int sect1, int sect2)
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
     int16_t sect = *sectnum;
-    updatesectorneighbour(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
+    updatesectorneighbor(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
     if (sect != -1)
         SET_AND_RETURN(*sectnum, sect);
 
@@ -11460,7 +11460,7 @@ void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectn
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
 {
     int16_t sect = *sectnum;
-    updatesectorneighbourz(x, y, z, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
+    updatesectorneighborz(x, y, z, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
     if (sect != -1)
         SET_AND_RETURN(*sectnum, sect);
 
@@ -11472,7 +11472,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
     *sectnum = -1;
 }
 
-void updatesectorneighbour(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance /*= INITIALUPDATESECTORDIST*/, int32_t maxDistance /*= MAXUPDATESECTORDIST*/)
+void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance /*= INITIALUPDATESECTORDIST*/, int32_t maxDistance /*= MAXUPDATESECTORDIST*/)
 {
     int const initialsectnum = *sectnum;
 
@@ -11508,7 +11508,7 @@ void updatesectorneighbour(int32_t const x, int32_t const y, int16_t * const sec
     *sectnum = -1;
 }
 
-void updatesectorneighbourz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance /*= 0*/, int32_t maxDistance /*= 0*/)
+void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance /*= 0*/, int32_t maxDistance /*= 0*/)
 {
     bool nofirstzcheck = false;
 

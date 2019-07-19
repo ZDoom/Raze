@@ -2116,12 +2116,12 @@ badindex:
 
         case CON_UPDATESECTOR:
         case CON_UPDATESECTORZ:
-        case CON_UPDATESECTORNEIGHBOUR:
-        case CON_UPDATESECTORNEIGHBOURZ:
+        case CON_UPDATESECTORNEIGHBOR:
+        case CON_UPDATESECTORNEIGHBORZ:
             insptr++;
             {
                 int32_t x=Gv_GetVar(*insptr++), y=Gv_GetVar(*insptr++);
-                int32_t z=(tw==CON_UPDATESECTORZ || tw==CON_UPDATESECTORNEIGHBOURZ)?Gv_GetVar(*insptr++):0;
+                int32_t z=(tw==CON_UPDATESECTORZ || tw==CON_UPDATESECTORNEIGHBORZ)?Gv_GetVar(*insptr++):0;
                 int32_t var=*insptr++;
                 int16_t w;
 
@@ -2130,14 +2130,14 @@ badindex:
 
                 switch (tw)
                 {
-                case CON_UPDATESECTORNEIGHBOURZ:
-                    updatesectorneighbourz(x,y,z,&w,getsectordist({x, y}, w));
+                case CON_UPDATESECTORNEIGHBORZ:
+                    updatesectorneighborz(x,y,z,&w,getsectordist({x, y}, w));
                     continue;
                 case CON_UPDATESECTORZ:
                     updatesectorz(x,y,z,&w);
                     continue;
-                case CON_UPDATESECTORNEIGHBOUR:
-                    updatesectorneighbour(x,y,&w,getsectordist({x, y}, w));
+                case CON_UPDATESECTORNEIGHBOR:
+                    updatesectorneighbor(x,y,&w,getsectordist({x, y}, w));
                     continue;
                 default:
                     updatesector(x,y,&w);

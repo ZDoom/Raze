@@ -4740,7 +4740,7 @@ badindex:
                     dispatch();
                 }
 
-            vInstruction(CON_UPDATESECTORNEIGHBOUR):
+            vInstruction(CON_UPDATESECTORNEIGHBOR):
                 insptr++;
                 {
                     vec2_t vect = { 0, 0 };
@@ -4752,12 +4752,12 @@ badindex:
                     if ((unsigned)sectNum >= MAXSECTORS)
                         sectNum = vm.pSprite->sectnum;
 
-                    updatesectorneighbour(vect.x, vect.y, &sectNum, getsectordist(vect, sectNum));
+                    updatesectorneighbor(vect.x, vect.y, &sectNum, getsectordist(vect, sectNum));
                     Gv_SetVar(returnVar, sectNum);
                     dispatch();
                 }
 
-            vInstruction(CON_UPDATESECTORNEIGHBOURZ):
+            vInstruction(CON_UPDATESECTORNEIGHBORZ):
                 insptr++;
                 {
                     vec3_t vect = { 0, 0, 0 };
@@ -4769,7 +4769,7 @@ badindex:
                     if ((unsigned)sectNum >= MAXSECTORS)
                         sectNum = vm.pSprite->sectnum;
 
-                    updatesectorneighbourz(vect.x, vect.y, vect.z, &sectNum, getsectordist({vect.x, vect.y}, sectNum));
+                    updatesectorneighborz(vect.x, vect.y, vect.z, &sectNum, getsectordist({vect.x, vect.y}, sectNum));
                     Gv_SetVar(returnVar, sectNum);
                     dispatch();
                 }
