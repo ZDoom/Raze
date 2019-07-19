@@ -4025,7 +4025,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             }
 
 #ifndef EDUKE32_STANDALONE
-            if (!IONMAIDEN && g_player[playerNum].ps->newowner > -1)
+            if (!FURY && g_player[playerNum].ps->newowner > -1)
             {
                 // Display APLAYER sprites with action PSTAND when viewed through
                 // a camera.  Not implemented for Lunatic.

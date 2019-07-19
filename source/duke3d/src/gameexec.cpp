@@ -6386,14 +6386,14 @@ void A_Execute(int const spriteNum, int const playerNum, int const playerDist)
             {
                 // hack for 1.3D fire sprites
 #ifndef EDUKE32_STANDALONE
-                if (!IONMAIDEN && EDUKE32_PREDICT_FALSE(g_scriptVersion == 13 && (vm.pSprite->picnum == FIRE || vm.pSprite->picnum == FIRE2)))
+                if (!FURY && EDUKE32_PREDICT_FALSE(g_scriptVersion == 13 && (vm.pSprite->picnum == FIRE || vm.pSprite->picnum == FIRE2)))
                     return;
 #endif
                 changespritestat(vm.spriteNum, STAT_ZOMBIEACTOR);
             }
         }
 #ifndef EDUKE32_STANDALONE
-        else if (!IONMAIDEN && vm.pSprite->statnum == STAT_STANDABLE)
+        else if (!FURY && vm.pSprite->statnum == STAT_STANDABLE)
         {
             switch (DYNAMICTILEMAP(vm.pSprite->picnum))
             {

@@ -5784,7 +5784,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
     int spriteNum = headspritestat[STAT_EFFECTOR];
 
 #ifndef EDUKE32_STANDALONE
-    if (!IONMAIDEN)
+    if (!FURY)
     {
         for (native_t TRAVERSE_CONNECT(playerNum))
         {

@@ -94,7 +94,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set)
 
 void G_GetCrosshairColor(void)
 {
-    if (IONMAIDEN)
+    if (FURY)
         return;
 
     if (DefaultCrosshairColors.f)
@@ -130,7 +130,7 @@ void G_GetCrosshairColor(void)
 
 void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 {
-    if (IONMAIDEN)
+    if (FURY)
         return;
 
     if (g_crosshairSum == r+(g<<8)+(b<<16))
@@ -1205,7 +1205,7 @@ void G_DisplayRest(int32_t smoothratio)
             uint32_t crosshair_scale = divscale16(ud.crosshairscale, 100);
 
             auto const oyxaspect = yxaspect;
-            if (IONMAIDEN)
+            if (FURY)
             {
                 crosshairpos.x = scale(crosshairpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
                 crosshairpos.y = scale(crosshairpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
@@ -1217,7 +1217,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, crosshair_pal, crosshair_o);
 
-            if (IONMAIDEN)
+            if (FURY)
                 renderSetAspect(viewingrange, oyxaspect);
         }
     }
@@ -1236,7 +1236,7 @@ void G_DisplayRest(int32_t smoothratio)
             uint32_t pointer_scale = 65536;
 
             auto const oyxaspect = yxaspect;
-            if (IONMAIDEN)
+            if (FURY)
             {
                 pointerpos.x = scale(pointerpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
                 pointerpos.y = scale(pointerpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
@@ -1248,7 +1248,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             rotatesprite_win(pointerpos.x, pointerpos.y, pointer_scale, 0, a, 0, pointer_pal, pointer_o);
 
-            if (IONMAIDEN)
+            if (FURY)
                 renderSetAspect(viewingrange, oyxaspect);
         }
     }

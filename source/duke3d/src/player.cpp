@@ -114,7 +114,7 @@ void P_QuickKill(DukePlayer_t * const pPlayer)
     sprite[pPlayer->i].cstat |= 32768;
 
 #ifndef EDUKE32_STANDALONE
-    if (!IONMAIDEN && ud.god == 0)
+    if (!FURY && ud.god == 0)
         A_DoGuts(pPlayer->i,JIBS6,8);
 #endif
 }
@@ -222,7 +222,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                 return -1;
 
 #ifndef EDUKE32_STANDALONE
-            if (!IONMAIDEN)
+            if (!FURY)
             {
                 switch (DYNAMICTILEMAP(projecTile))
                 {
@@ -276,7 +276,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                         continue;
 
 #ifndef EDUKE32_STANDALONE
-                    if (!IONMAIDEN && ((isShrinker && sprite[spriteNum].xrepeat < 30
+                    if (!FURY && ((isShrinker && sprite[spriteNum].xrepeat < 30
                         && (PN(spriteNum) == SHARK || !(PN(spriteNum) >= GREENSLIME && PN(spriteNum) <= GREENSLIME + 7)))
                         || (isFreezer && sprite[spriteNum].pal == 1)))
                         continue;
@@ -300,7 +300,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                         }
 
 #ifndef EDUKE32_STANDALONE
-                        int const zOffset = (!IONMAIDEN && (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN)) ? 0 : ZOFFSET5;
+                        int const zOffset = (!FURY && (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN)) ? 0 : ZOFFSET5;
 #else
                         int const zOffset = ZOFFSET5;
 #endif
@@ -331,7 +331,7 @@ static void A_SetHitData(int spriteNum, const hitdata_t *hitData)
 #ifndef EDUKE32_STANDALONE
 static int CheckShootSwitchTile(int tileNum)
 {
-    if (IONMAIDEN)
+    if (FURY)
         return 0;
 
     return tileNum == DIPSWITCH || tileNum == DIPSWITCH + 1 || tileNum == DIPSWITCH2 || tileNum == DIPSWITCH2 + 1 ||
@@ -377,7 +377,7 @@ static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdju
         int        zCenter = 2 * (pSprite->yrepeat * tilesiz[pSprite->picnum].y) + zAdjust;
 
 #ifndef EDUKE32_STANDALONE
-        if (!IONMAIDEN && aimFlags &&
+        if (!FURY && aimFlags &&
             ((pSprite->picnum >= GREENSLIME && pSprite->picnum <= GREENSLIME + 7) || pSprite->picnum == ROTATEGUN || pSprite->cstat & CSTAT_SPRITE_YCENTER))
 #else
         if (aimFlags && pSprite->cstat & CSTAT_SPRITE_YCENTER)
@@ -657,7 +657,7 @@ static int P_PostFireHitscan(int playerNum, int const spriteNum, hitdata_t *cons
     {
         A_DamageObject(hitData->sprite, spriteNum);
 
-        if (!IONMAIDEN && sprite[hitData->sprite].picnum == APLAYER &&
+        if (!FURY && sprite[hitData->sprite].picnum == APLAYER &&
             (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
                                g_player[P_Get(hitData->sprite)].ps->team != g_player[P_Get(spriteOwner)].ps->team)))
         {
@@ -676,7 +676,7 @@ static int P_PostFireHitscan(int playerNum, int const spriteNum, hitdata_t *cons
             Proj_MaybeSpawn(spriteNum, spawnTile, hitData);
         }
 #ifndef EDUKE32_STANDALONE
-        if (!IONMAIDEN && playerNum >= 0 && CheckShootSwitchTile(sprite[hitData->sprite].picnum))
+        if (!FURY && playerNum >= 0 && CheckShootSwitchTile(sprite[hitData->sprite].picnum))
         {
             P_ActivateSwitch(playerNum, hitData->sprite, 1);
             return -1;
@@ -693,7 +693,7 @@ static int P_PostFireHitscan(int playerNum, int const spriteNum, hitdata_t *cons
             goto SKIPBULLETHOLE;
 
 #ifndef EDUKE32_STANDALONE
-        if (!IONMAIDEN && playerNum >= 0 && CheckShootSwitchTile(hitWall->picnum))
+        if (!FURY && playerNum >= 0 && CheckShootSwitchTile(hitWall->picnum))
         {
             P_ActivateSwitch(playerNum, hitData->wall, 0);
             return -1;
@@ -1644,7 +1644,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
 #else
     return A_CheckSpriteTileFlags(projecTile, SFLAG_PROJECTILE)
            ? A_ShootCustom(spriteNum, projecTile, shootAng, &startPos)
-           : !IONMAIDEN ? A_ShootHardcoded(spriteNum, projecTile, shootAng, startPos, pSprite, playerNum, pPlayer) : -1;
+           : !FURY ? A_ShootHardcoded(spriteNum, projecTile, shootAng, startPos, pSprite, playerNum, pPlayer) : -1;
 #endif
 }
 
@@ -2185,7 +2185,7 @@ void P_DisplayWeapon(void)
 #ifndef EDUKE32_STANDALONE
         int const quickKickFrame = 14 - pPlayer->quick_kick;
 
-        if (!IONMAIDEN && (quickKickFrame != 14 || pPlayer->last_quick_kick) && ud.drawweapon == 1)
+        if (!FURY && (quickKickFrame != 14 || pPlayer->last_quick_kick) && ud.drawweapon == 1)
         {
             int const weaponPal = P_GetKneePal(pPlayer);
 
@@ -2200,7 +2200,7 @@ void P_DisplayWeapon(void)
             guniqhudid = 0;
         }
 
-        if (!IONMAIDEN && sprite[pPlayer->i].xrepeat < 40)
+        if (!FURY && sprite[pPlayer->i].xrepeat < 40)
         {
             static int32_t fistPos;
 
@@ -2229,7 +2229,7 @@ void P_DisplayWeapon(void)
                 case 1: break;
 #ifndef EDUKE32_STANDALONE
                 case 2:
-                    if (!IONMAIDEN && (unsigned)hudweap.cur < MAX_WEAPONS && hudweap.cur != KNEE_WEAPON)
+                    if (!FURY && (unsigned)hudweap.cur < MAX_WEAPONS && hudweap.cur != KNEE_WEAPON)
                         rotatesprite_win(160 << 16, (180 + (pPlayer->weapon_pos * pPlayer->weapon_pos)) << 16, divscale16(ud.statusbarscale, 100), 0,
                                          hudweap.cur == GROW_WEAPON ? GROWSPRITEICON : WeaponPickupSprites[hudweap.cur], 0,
                                          0, 2);
@@ -2246,7 +2246,7 @@ void P_DisplayWeapon(void)
 
             int const weaponPal = P_GetHudPal(pPlayer);
 
-            if (!IONMAIDEN)
+            if (!FURY)
             switch (currentWeapon)
             {
             case KNEE_WEAPON:
@@ -3112,11 +3112,11 @@ void P_GetInput(int const playerNum)
 
     localInput.fvel = mulscale9(input.fvel, sintable[(q16ang + 2560) & 2047]) +
                       mulscale9(input.svel, sintable[(q16ang + 2048) & 2047]) +
-                      (IONMAIDEN ? 0 : pPlayer->fric.x);
+                      (FURY ? 0 : pPlayer->fric.x);
 
     localInput.svel = mulscale9(input.fvel, sintable[(q16ang + 2048) & 2047]) +
                       mulscale9(input.svel, sintable[(q16ang + 1536) & 2047]) +
-                      (IONMAIDEN ? 0 : pPlayer->fric.y);
+                      (FURY ? 0 : pPlayer->fric.y);
 
     localInput.q16avel = input.q16avel;
     localInput.q16horz = input.q16horz;
@@ -3127,7 +3127,7 @@ static int32_t P_DoCounters(int playerNum)
     auto const pPlayer = g_player[playerNum].ps;
 
 #ifndef EDUKE32_STANDALONE
-    if (IONMAIDEN)
+    if (FURY)
         goto access_incs; // I'm sorry
 
     if (pPlayer->invdisptime > 0)
@@ -3292,7 +3292,7 @@ access_incs:
     }
 
 #ifndef EDUKE32_STANDALONE
-    if (!IONMAIDEN && pPlayer->knuckle_incs)
+    if (!FURY && pPlayer->knuckle_incs)
     {
         if (++pPlayer->knuckle_incs == 10)
         {
@@ -3335,7 +3335,7 @@ void P_DropWeapon(int const playerNum)
     if (krand() & 1)
         A_Spawn(pPlayer->i, WeaponPickupSprites[currentWeapon]);
 #ifndef EDUKE32_STANDALONE
-    else if (!IONMAIDEN)
+    else if (!FURY)
         switch (PWEAPON(playerNum, currentWeapon, WorksLike))
         {
             case RPG_WEAPON:
@@ -3361,7 +3361,7 @@ static void P_AddWeaponNoSwitch(DukePlayer_t * const p, int const weaponNum)
         p->gotweapon |= (1<<weaponNum);
 
 #ifndef EDUKE32_STANDALONE
-        if (!IONMAIDEN && weaponNum == SHRINKER_WEAPON)
+        if (!FURY && weaponNum == SHRINKER_WEAPON)
             p->gotweapon |= (1<<GROW_WEAPON);
 #endif
     }
@@ -3535,7 +3535,7 @@ static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
 #ifndef EDUKE32_STANDALONE
         int const touchSprite = touchObject & (MAXSPRITES - 1);
 
-        if (!IONMAIDEN && sprite[touchSprite].picnum == CACTUS)
+        if (!FURY && sprite[touchSprite].picnum == CACTUS)
         {
             if (pPlayer->hurt_delay < 8)
             {
@@ -3573,7 +3573,7 @@ static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
             pPlayer->vel.y = -(sintable[(fix16_to_int(pPlayer->q16ang))&2047]<<8);
 
 #ifndef EDUKE32_STANDALONE
-            if (!IONMAIDEN)
+            if (!FURY)
                 A_PlaySound(DUKE_LONGTERM_PAIN,pPlayer->i);
 #endif
             DoWallTouchDamage(pPlayer, touchWall);
@@ -3604,7 +3604,7 @@ static int P_CheckFloorDamage(DukePlayer_t *pPlayer, int floorTexture)
                 else
                 {
 #ifndef EDUKE32_STANDALONE
-                    if (!IONMAIDEN)
+                    if (!FURY)
                     {
                         if (!A_CheckSoundPlaying(pPlayer->i, DUKE_LONGTERM_PAIN))
                             A_PlaySound(DUKE_LONGTERM_PAIN, pPlayer->i);
@@ -3630,7 +3630,7 @@ static int P_CheckFloorDamage(DukePlayer_t *pPlayer, int floorTexture)
                 else
                 {
 #ifndef EDUKE32_STANDALONE
-                    if (!IONMAIDEN && !A_CheckSoundPlaying(pPlayer->i, DUKE_LONGTERM_PAIN))
+                    if (!FURY && !A_CheckSoundPlaying(pPlayer->i, DUKE_LONGTERM_PAIN))
                         A_PlaySound(DUKE_LONGTERM_PAIN, pPlayer->i);
 #endif
 
@@ -3644,7 +3644,7 @@ static int P_CheckFloorDamage(DukePlayer_t *pPlayer, int floorTexture)
 
 #ifndef EDUKE32_STANDALONE
         case FLOORPLASMA__STATIC:
-            if (!IONMAIDEN && rnd(32))
+            if (!FURY && rnd(32))
             {
                 if (pPlayer->inv_amount[GET_BOOTS] > 0)
                     return 1;
@@ -3730,7 +3730,7 @@ void P_FragPlayer(int playerNum)
     }
 
 #ifndef EDUKE32_STANDALONE
-    if (!IONMAIDEN)
+    if (!FURY)
     {
         pPlayer->jetpack_on  = 0;
         pPlayer->holoduke_on = -1;
@@ -4365,7 +4365,7 @@ static int P_DoFist(DukePlayer_t *pPlayer)
     // the fist punching NUKEBUTTON
 
 #ifndef EDUKE32_STANDALONE
-    if (IONMAIDEN)
+    if (FURY)
         return 0;
 
     if (++(pPlayer->fist_incs) == 28)
@@ -5067,7 +5067,7 @@ void P_ProcessInput(int playerNum)
                             pSprite->extra -= pPlayer->falling_counter - (krand() & 3);
 
 #ifndef EDUKE32_STANDALONE
-                            if (!IONMAIDEN)
+                            if (!FURY)
                             {
                                 if (pSprite->extra <= 0)
                                     A_PlaySound(SQUISHED, pPlayer->i);
@@ -5081,7 +5081,7 @@ void P_ProcessInput(int playerNum)
                             P_PalFrom(pPlayer, 32, 16, 0, 0);
                         }
 #ifndef EDUKE32_STANDALONE
-                        else if (!IONMAIDEN && pPlayer->vel.z > 2048)
+                        else if (!FURY && pPlayer->vel.z > 2048)
                             A_PlaySound(DUKE_LAND, pPlayer->i);
 #endif
                     }
@@ -5228,7 +5228,7 @@ void P_ProcessInput(int playerNum)
         int const floorPicnum = sector[pSprite->sectnum].floorpicnum;
 
 #ifndef EDUKE32_STANDALONE
-        if (!IONMAIDEN && (floorPicnum == PURPLELAVA || sector[pSprite->sectnum].ceilingpicnum == PURPLELAVA))
+        if (!FURY && (floorPicnum == PURPLELAVA || sector[pSprite->sectnum].ceilingpicnum == PURPLELAVA))
         {
             if (pPlayer->inv_amount[GET_BOOTS] > 0)
             {
@@ -5274,7 +5274,7 @@ void P_ProcessInput(int playerNum)
         pPlayer->crack_time = PCRACKTIME;
 
 #ifndef EDUKE32_STANDALONE
-        if (!IONMAIDEN)
+        if (!FURY)
         {
             int const checkWalkSound = sintable[pPlayer->bobcounter & 2047] >> 12;
 
@@ -5341,7 +5341,7 @@ void P_ProcessInput(int playerNum)
             pPlayer->vel.x = pPlayer->vel.y = 0;
 
 #ifndef EDUKE32_STANDALONE
-        if (!IONMAIDEN && playerShrunk)
+        if (!FURY && playerShrunk)
         {
             pPlayer->vel.x = mulscale16(pPlayer->vel.x, pPlayer->runspeed - (pPlayer->runspeed >> 1) + (pPlayer->runspeed >> 2));
             pPlayer->vel.y = mulscale16(pPlayer->vel.y, pPlayer->runspeed - (pPlayer->runspeed >> 1) + (pPlayer->runspeed >> 2));
@@ -5350,7 +5350,7 @@ void P_ProcessInput(int playerNum)
     }
 
     // This makes the player view lower when shrunk. This needs to happen before clipmove().
-    if (!IONMAIDEN && pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER && playerShrunk)
+    if (!FURY && pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER && playerShrunk)
         pPlayer->pos.z += ZOFFSET5 - (sprite[pPlayer->i].yrepeat<<8);
 
 HORIZONLY:;
@@ -5385,7 +5385,7 @@ HORIZONLY:;
 
         P_ClampZ(pPlayer, sectorLotag, ceilZ, floorZ);
 
-        int const touchObject = IONMAIDEN ? clipmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
+        int const touchObject = FURY ? clipmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
                                                    pPlayer->vel.y + (pPlayer->fric.y << 9), pPlayer->clipdist, (4L << 8), stepHeight, CLIPMASK0)
                                         : clipmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->vel.x, pPlayer->vel.y, pPlayer->clipdist,
                                                    (4L << 8), stepHeight, CLIPMASK0);
@@ -5393,7 +5393,7 @@ HORIZONLY:;
         if (touchObject)
             P_CheckTouchDamage(pPlayer, touchObject);
 
-        if (IONMAIDEN)
+        if (FURY)
             pPlayer->fric.x = pPlayer->fric.y = 0;
     }
 
@@ -5441,7 +5441,7 @@ HORIZONLY:;
     }
 
 #ifndef EDUKE32_STANDALONE
-    if (!IONMAIDEN && (pPlayer->cursectnum >= 0 && trueFloorDist < PHEIGHT && pPlayer->on_ground && sectorLotag != ST_1_ABOVE_WATER &&
+    if (!FURY && (pPlayer->cursectnum >= 0 && trueFloorDist < PHEIGHT && pPlayer->on_ground && sectorLotag != ST_1_ABOVE_WATER &&
          playerShrunk == 0 && sector[pPlayer->cursectnum].lotag == ST_1_ABOVE_WATER) && (!A_CheckSoundPlaying(pPlayer->i, DUKE_ONWATER)))
             A_PlaySound(DUKE_ONWATER, pPlayer->i);
 #endif
@@ -5552,7 +5552,7 @@ HORIZONLY:;
         if (pPlayer->show_empty_weapon == 0 && (pPlayer->weaponswitch & 2) && pPlayer->ammo_amount[pPlayer->curr_weapon] <= 0)
         {
 #ifndef EDUKE32_STANDALONE
-            if (!IONMAIDEN)
+            if (!FURY)
             {
                 if (pPlayer->last_full_weapon == GROW_WEAPON)
                     pPlayer->subweapon |= (1 << GROW_WEAPON);
@@ -5566,7 +5566,7 @@ HORIZONLY:;
     }
 
 #ifndef EDUKE32_STANDALONE
-    if (!IONMAIDEN && pPlayer->knee_incs > 0)
+    if (!FURY && pPlayer->knee_incs > 0)
     {
         pPlayer->q16horiz -= F16(48);
         pPlayer->return_to_center = 9;
