@@ -516,10 +516,10 @@ void yax_update(int32_t resetstat)
     {
         // make bunchnums consecutive
         uint8_t *const havebunch = (uint8_t *)tempbuf;
-        uint8_t *const bunchmap = havebunch + (YAX_MAXBUNCHES>>3);
+        uint8_t *const bunchmap = havebunch + ((YAX_MAXBUNCHES+7)>>3);
         int32_t dasub = 0;
 
-        Bmemset(havebunch, 0, YAX_MAXBUNCHES>>3);
+        Bmemset(havebunch, 0, (YAX_MAXBUNCHES+7)>>3);
         for (i=0; i<numsectors; i++)
         {
             yax_getbunches(i, &cb, &fb);
@@ -647,7 +647,7 @@ static int16_t bunchsec[YAX_MAXBUNCHES], bunchdist[YAX_MAXBUNCHES];
 
 static int32_t ymostallocsize = 0;  // numyaxbunches*xdimen (no sizeof(int16_t) here!)
 static int16_t *yumost=NULL, *ydmost=NULL;  // used as if [numyaxbunches][xdimen]
-uint8_t haveymost[YAX_MAXBUNCHES>>3];
+uint8_t haveymost[(YAX_MAXBUNCHES+7)>>3];
 
 static inline int32_t yax_walldist(int32_t w)
 {
@@ -864,7 +864,7 @@ void yax_preparedrawrooms(void)
 void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                    int16_t sectnum, int32_t didmirror, int32_t smoothr)
 {
-    static uint8_t havebunch[YAX_MAXBUNCHES>>3];
+    static uint8_t havebunch[(YAX_MAXBUNCHES+7)>>3];
 
     const fix16_t horiz = global100horiz;
 

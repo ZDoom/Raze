@@ -1356,7 +1356,7 @@ static int32_t defsparser(scriptfile *script)
             char *modelend, *modelfn;
             double scale=1.0, mzadd=0.0, myoffset=0.0;
             int32_t shadeoffs=0, pal=0, flags=0;
-            uint8_t usedframebitmap[1024>>3];
+            uint8_t usedframebitmap[(1024+7)>>3];
 
             int32_t model_ok = 1;
 

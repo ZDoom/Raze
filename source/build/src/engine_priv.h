@@ -305,7 +305,7 @@ int32_t renderAddTsprite(int16_t z, int16_t sectnum);
 extern int32_t g_nodraw, scansector_retfast, scansector_collectsprites;
 extern int32_t yax_globallev, yax_globalbunch;
 extern int32_t yax_globalcf, yax_nomaskpass, yax_nomaskdidit;
-extern uint8_t haveymost[YAX_MAXBUNCHES>>3];
+extern uint8_t haveymost[(YAX_MAXBUNCHES+7)>>3];
 extern uint8_t yax_gotsector[(MAXSECTORS+7)>>3];
 extern int32_t yax_polymostclearzbuffer;
 
