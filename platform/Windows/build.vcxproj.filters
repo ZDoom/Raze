@@ -361,6 +361,9 @@
     <ClInclude Include="..\..\source\build\include\sdlayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\build\include\sjson.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\source\build\include\softsurface.h">
       <Filter>Header Files</Filter>
     </ClInclude>

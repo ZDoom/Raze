@@ -365,6 +365,7 @@
     <ClInclude Include="..\..\source\build\include\scriptfile.h" />
     <ClInclude Include="..\..\source\build\include\sdlayer.h" />
     <ClInclude Include="..\..\source\build\include\sdl_inc.h" />
+    <ClInclude Include="..\..\source\build\include\sjson.h" />
     <ClInclude Include="..\..\source\build\include\softsurface.h" />
     <ClInclude Include="..\..\source\build\include\texcache.h" />
     <ClInclude Include="..\..\source\build\include\tracker.hpp" />
