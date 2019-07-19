@@ -5631,3 +5631,91 @@ HORIZONLY:;
 
     P_ProcessWeapon(playerNum);
 }
+
+
+#define SJSON_IMPLEMENT
+#include "sjson.h"
+
+int portableBackupSave(const char *path)
+{
+    if (!FURY)
+        return 0;
+
+    char fn[BMAX_PATH];
+
+    if (G_ModDirSnprintf(fn, sizeof(fn), "%s.ext", path))
+    {
+        return 1;
+    }
+
+    sjson_context* ctx = sjson_create_context(0, 0, NULL);
+    if (!ctx)
+    {
+        buildprint("Could not create sjson_context\n");
+        return 1;
+    }
+
+    sjson_node* root = sjson_mkobject(ctx);
+
+    sjson_node * players = sjson_mkarray(ctx);
+
+    // sjson_put_string(ctx, root, "map", currentboardfilename);
+    sjson_put_int(ctx, root, "volume", ud.last_stateless_volume);
+    sjson_put_int(ctx, root, "level", ud.last_stateless_level);
+    sjson_put_int(ctx, root, "skill", ud.player_skill);
+
+    for (int TRAVERSE_CONNECT(p))
+    {
+        playerdata_t const * playerData = &g_player[p];
+        DukePlayer_t const * ps = playerData->ps;
+        auto pSprite = (uspritetype const *)&sprite[ps->i];
+
+        sjson_node * player = sjson_mkobject(ctx);
+        sjson_append_element(players, player);
+        sjson_put_int(ctx, player, "extra", pSprite->extra);
+
+        sjson_node * gotweapon = sjson_put_array(ctx, player, "gotweapon");
+        for (int w = 0; w < MAX_WEAPONS; ++w)
+            sjson_append_element(gotweapon, sjson_mkbool(ctx, !!(ps->gotweapon & (1<<w))));
+
+        int ammo_amount[MAX_WEAPONS];
+        for (int w = 0; w < MAX_WEAPONS; ++w)
+            ammo_amount[w] = ps->ammo_amount[w];
+        sjson_put_ints(ctx, player, "ammo_amount", ammo_amount, MAX_WEAPONS);
+
+        int inv_amount[GET_MAX];
+        for (int i = 0; i < GET_MAX; ++i)
+            inv_amount[i] = ps->inv_amount[i];
+        sjson_put_ints(ctx, player, "inv_amount", inv_amount, GET_MAX);
+
+        sjson_put_int(ctx, player, "curr_weapon", ps->curr_weapon);
+        sjson_put_int(ctx, player, "subweapon", ps->subweapon);
+        sjson_put_int(ctx, player, "inven_icon", ps->inven_icon);
+    }
+
+    sjson_append_member(ctx, root, "players", players);
+
+    char errmsg[256];
+    if (!sjson_check(root, errmsg))
+    {
+        buildprint(errmsg, "\n");
+        sjson_destroy_context(ctx);
+        return 1;
+    }
+
+    char* encoded = sjson_stringify(ctx, root, "  ");
+
+    buildvfs_FILE fil = buildvfs_fopen_write(fn);
+    if (!fil)
+    {
+        sjson_destroy_context(ctx);
+        return 1;
+    }
+
+    buildvfs_fwrite(encoded, strlen(encoded), 1, fil);
+    buildvfs_fclose(fil);
+
+    sjson_destroy_context(ctx);
+
+    return 0;
+}

@@ -1807,6 +1807,23 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
         realloc_copy(&g_mapInfo[levelNum].musicfn, usermapMusic);
 }
 
+static void G_CheckIfStateless()
+{
+    for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
+    {
+        map_t *const pMapInfo = &g_mapInfo[i];
+        if (pMapInfo->savedstate != nullptr)
+        {
+            // buildprint("G_CheckIfStateless: no ", ud.volume_number, " ", ud.level_number, "\n");
+            return;
+        }
+    }
+
+    // buildprint("G_CheckIfStateless: yes ", ud.volume_number, " ", ud.level_number, "\n");
+    ud.last_stateless_volume = ud.volume_number;
+    ud.last_stateless_level = ud.level_number;
+}
+
 int G_EnterLevel(int gameMode)
 {
     vote_map = vote_episode = voting = -1;
@@ -2016,6 +2033,8 @@ int G_EnterLevel(int gameMode)
     G_ResetTimers(0);  // Here we go
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
+
+    G_CheckIfStateless();
 
     for (int TRAVERSE_CONNECT(i))
     {

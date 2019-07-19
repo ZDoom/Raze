@@ -228,6 +228,8 @@ typedef struct {
 
     int8_t menutitle_pal, slidebar_palselected, slidebar_paldisabled;
 
+    int32_t last_stateless_level, last_stateless_volume; // strictly internal
+
     struct {
         int32_t AutoAim;
         int32_t ShowWeapons;
