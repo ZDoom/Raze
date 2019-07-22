@@ -53,6 +53,7 @@ enum GamevarFlags_t
     GAMEVAR_SPECIAL   = 0x00040000,  // flag for structure member shortcut vars
     GAMEVAR_NOMULTI   = 0x00080000,  // don't attach to multiplayer packets
     GAMEVAR_Q16PTR    = 0x00100000,  // plValues is a pointer to a q16.16
+    GAMEVAR_SERIALIZE = 0x00200000,  // write into permasaves
 
     GAMEVAR_RAWQ16PTR = GAMEVAR_Q16PTR | GAMEVAR_SPECIAL,  // plValues is a pointer to a q16.16 but we don't want conversion
     GAMEVAR_PTR_MASK  = GAMEVAR_INT32PTR | GAMEVAR_INT16PTR | GAMEVAR_Q16PTR | GAMEVAR_RAWQ16PTR,

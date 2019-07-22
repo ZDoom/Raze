@@ -5981,6 +5981,7 @@ static void C_AddDefaultDefinitions(void)
         { "GAMEVAR_NORESET",   GAMEVAR_NORESET },
         { "GAMEVAR_PERACTOR",  GAMEVAR_PERACTOR },
         { "GAMEVAR_PERPLAYER", GAMEVAR_PERPLAYER },
+        { "GAMEVAR_SERIALIZE", GAMEVAR_SERIALIZE },
 
         { "MAX_WEAPONS",        MAX_WEAPONS },
         { "MAXSPRITES",         MAXSPRITES },
