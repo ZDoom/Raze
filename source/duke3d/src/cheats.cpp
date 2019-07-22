@@ -232,7 +232,7 @@ void G_DoCheats(void)
     {
         cheatNum = osdcmd_cheatsinfo_stat.cheatnum;
 
-        if (ud.player_skill == 4)
+        if (!FURY && ud.player_skill == 4)
         {
             switch (cheatNum)
             {
@@ -702,7 +702,7 @@ void G_DoCheats(void)
         {
             if (pPlayer->cheat_phase == -1)
             {
-                if (ud.player_skill == 4)
+                if (!FURY && ud.player_skill == 4)
                 {
                     P_DoQuote(QUOTE_CHEATS_DISABLED, pPlayer);
                     pPlayer->cheat_phase = 0;
