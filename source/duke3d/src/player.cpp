@@ -5657,43 +5657,87 @@ int portableBackupSave(const char *path)
 
     sjson_node* root = sjson_mkobject(ctx);
 
-    sjson_node * players = sjson_mkarray(ctx);
-
     // sjson_put_string(ctx, root, "map", currentboardfilename);
     sjson_put_int(ctx, root, "volume", ud.last_stateless_volume);
     sjson_put_int(ctx, root, "level", ud.last_stateless_level);
     sjson_put_int(ctx, root, "skill", ud.player_skill);
 
-    for (int TRAVERSE_CONNECT(p))
     {
-        playerdata_t const * playerData = &g_player[p];
-        DukePlayer_t const * ps = playerData->ps;
-        auto pSprite = (uspritetype const *)&sprite[ps->i];
+        sjson_node * players = sjson_mkarray(ctx);
+        sjson_append_member(ctx, root, "players", players);
 
-        sjson_node * player = sjson_mkobject(ctx);
-        sjson_append_element(players, player);
-        sjson_put_int(ctx, player, "extra", pSprite->extra);
+        for (int TRAVERSE_CONNECT(p))
+        {
+            playerdata_t const * playerData = &g_player[p];
+            DukePlayer_t const * ps = playerData->ps;
+            auto pSprite = (uspritetype const *)&sprite[ps->i];
 
-        sjson_node * gotweapon = sjson_put_array(ctx, player, "gotweapon");
-        for (int w = 0; w < MAX_WEAPONS; ++w)
-            sjson_append_element(gotweapon, sjson_mkbool(ctx, !!(ps->gotweapon & (1<<w))));
+            sjson_node * player = sjson_mkobject(ctx);
+            sjson_append_element(players, player);
 
-        int ammo_amount[MAX_WEAPONS];
-        for (int w = 0; w < MAX_WEAPONS; ++w)
-            ammo_amount[w] = ps->ammo_amount[w];
-        sjson_put_ints(ctx, player, "ammo_amount", ammo_amount, MAX_WEAPONS);
+            sjson_put_int(ctx, player, "extra", pSprite->extra);
+            sjson_put_int(ctx, player, "max_player_health", ps->max_player_health);
 
-        int inv_amount[GET_MAX];
-        for (int i = 0; i < GET_MAX; ++i)
-            inv_amount[i] = ps->inv_amount[i];
-        sjson_put_ints(ctx, player, "inv_amount", inv_amount, GET_MAX);
+            sjson_node * gotweapon = sjson_put_array(ctx, player, "gotweapon");
+            for (int w = 0; w < MAX_WEAPONS; ++w)
+                sjson_append_element(gotweapon, sjson_mkbool(ctx, !!(ps->gotweapon & (1<<w))));
 
-        sjson_put_int(ctx, player, "curr_weapon", ps->curr_weapon);
-        sjson_put_int(ctx, player, "subweapon", ps->subweapon);
-        sjson_put_int(ctx, player, "inven_icon", ps->inven_icon);
+            int ammo_amount[MAX_WEAPONS];
+            for (int w = 0; w < MAX_WEAPONS; ++w)
+                ammo_amount[w] = ps->ammo_amount[w];
+            sjson_put_ints(ctx, player, "ammo_amount", ammo_amount, MAX_WEAPONS);
+
+            int max_ammo_amount[MAX_WEAPONS];
+            for (int w = 0; w < MAX_WEAPONS; ++w)
+                max_ammo_amount[w] = ps->max_ammo_amount[w];
+            sjson_put_ints(ctx, player, "max_ammo_amount", max_ammo_amount, MAX_WEAPONS);
+
+            int inv_amount[GET_MAX];
+            for (int i = 0; i < GET_MAX; ++i)
+                inv_amount[i] = ps->inv_amount[i];
+            sjson_put_ints(ctx, player, "inv_amount", inv_amount, GET_MAX);
+
+            sjson_put_int(ctx, player, "max_shield_amount", ps->max_shield_amount);
+
+            sjson_put_int(ctx, player, "curr_weapon", ps->curr_weapon);
+            sjson_put_int(ctx, player, "subweapon", ps->subweapon);
+            sjson_put_int(ctx, player, "inven_icon", ps->inven_icon);
+
+            sjson_node* vars = sjson_mkobject(ctx);
+            sjson_append_member(ctx, player, "vars", vars);
+
+            for (int j=0; j<g_gameVarCount; j++)
+            {
+                gamevar_t & var = aGameVars[j];
+
+                if (!(var.flags & GAMEVAR_SERIALIZE))
+                    continue;
+
+                if ((var.flags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR)) != GAMEVAR_PERPLAYER)
+                    continue;
+
+                sjson_put_int(ctx, vars, var.szLabel, Gv_GetVar(j, ps->i, p));
+            }
+        }
     }
 
-    sjson_append_member(ctx, root, "players", players);
+    {
+        sjson_node * vars = sjson_mkobject(ctx);
+        sjson_append_member(ctx, root, "vars", vars);
+
+        for (int j=0; j<g_gameVarCount; j++)
+        {
+            gamevar_t & var = aGameVars[j];
+
+            if (!(var.flags & GAMEVAR_SERIALIZE))
+                continue;
+
+            if (var.flags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
+                continue;
+
+            sjson_put_int(ctx, vars, var.szLabel, Gv_GetVar(j));
+        }
+    }
 
     char errmsg[256];
     if (!sjson_check(root, errmsg))
