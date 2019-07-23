@@ -231,13 +231,14 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
         if (floorZ - bottom > 0x2000)
             return false;
         break;
-    case 203:
-    case 210:
-    case 217:
     case kGDXDudeUniversalCultist:
     case kGDXGenDudeBurning:
         if ((Crusher && !dudeIsImmune(pSprite, pXSector->damageType)) || xsprite[pSprite->extra].dudeGuard) return false;
         return true;
+        fallthrough__;
+    case 203:
+    case 210:
+    case 217:
     default:
         if (Crusher)
             return false;
