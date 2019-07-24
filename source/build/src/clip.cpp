@@ -1336,9 +1336,12 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
     {
         for (native_t i=clipnum-1;i>=0;--i)
         {
-            if (clipinsideboxline(pos->x, pos->y, clipit[i].x1, clipit[i].y1, clipit[i].x2, clipit[i].y2, walldist))
+            if ((clipobjectval[i] & 49152) != 49152 && clipinsidebox(&pos->vec2, clipobjectval[i] & (MAXWALLS-1), walldist))
             {
+                vec2_t const vec = pos->vec2;
                 keepaway(&pos->x, &pos->y, i);
+                if (inside(pos->x,pos->y, *sectnum) != 1)
+                    pos->vec2 = vec;
                 break;
             }
         }
