@@ -1242,6 +1242,27 @@ static FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day,
     getzsofslopeptr((usectorptr_t)&sector[sectnum], dax, day, ceilz, florz);
 }
 
+static FORCE_INLINE void getcorrectzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+{
+    vec2_t closest = { dax, day };
+    getsectordist(closest, sectnum, &closest);
+    getzsofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y, ceilz, florz);
+}
+
+static FORCE_INLINE int32_t getcorrectceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+{
+    vec2_t closest = { dax, day };
+    getsectordist(closest, sectnum, &closest);
+    return getceilzofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y);
+}
+
+static FORCE_INLINE int32_t getcorrectflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+{
+    vec2_t closest = { dax, day };
+    getsectordist(closest, sectnum, &closest);
+    return getflorzofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y);
+}
+
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
 static FORCE_INLINE CONSTEXPR int32_t redwallp(uwallptr_t wal)
