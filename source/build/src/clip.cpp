@@ -1148,9 +1148,18 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                     clipyou = cliptestsector(dasect, wal->nextsector, flordist, ceildist, v, pos->z);
                 }
 
-            // We're not interested in any sector reached by portal traversal that we're "inside" of.
-            if (!curspr && dasect != initialsectnum && inside(pos->x, pos->y, dasect) == 1) break;
-            else if (clipyou)
+           // We're not interested in any sector reached by portal traversal that we're "inside" of.
+            if (!curspr && dasect != initialsectnum && inside(pos->x, pos->y, dasect) == 1)
+            {
+                int k;
+                for (k=startwall; k<endwall; k++)
+                    if (wall[k].nextsector == initialsectnum)
+                        break;
+                if (k == endwall)
+                    break;
+            }
+
+            if (clipyou)
             {
                 int16_t const objtype = curspr ? (int16_t)(curspr - (uspritetype *)sprite) + 49152 : j + 32768;
 
