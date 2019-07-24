@@ -1485,14 +1485,16 @@ int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
                         dax = wal->x + mulscale30(dax, t);
                         day = wal->y + mulscale30(day, t);
 
+                        vec2_t closest = { dax, day };
 
-                        daz = getflorzofslope(clipsectorlist[clipsectcnt], dax, day);
-                        daz2 = getflorzofslope(wal->nextsector, dax, day);
+                        getsectordist(closest, clipsectorlist[clipsectcnt], &closest);
+                        daz = getflorzofslope(clipsectorlist[clipsectcnt], closest.x, closest.y);
+                        daz2 = getflorzofslope(wal->nextsector, closest.x, closest.y);
                         if ((daz2 < daz-(1<<8)) && ((sec2->floorstat&1) == 0))
                             if (vect->z >= daz2-(flordist-1)) j = 1;
 
-                        daz = getceilzofslope(clipsectorlist[clipsectcnt], dax, day);
-                        daz2 = getceilzofslope(wal->nextsector, dax, day);
+                        daz = getceilzofslope(clipsectorlist[clipsectcnt], closest.x, closest.y);
+                        daz2 = getceilzofslope(wal->nextsector, closest.x, closest.y);
                         if ((daz2 > daz+(1<<8)) && ((sec2->ceilingstat&1) == 0))
                             if (vect->z <= daz2+(ceildist-1)) j = 1;
                     }
@@ -1557,7 +1559,9 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     const int32_t dawalclipmask = (cliptype&65535);
     const int32_t dasprclipmask = (cliptype>>16);
 
-    getzsofslope(sectnum,pos->x,pos->y,ceilz,florz);
+    vec2_t closest = { pos->x, pos->y };
+    getsectordist(closest, sectnum, &closest);
+    getzsofslope(sectnum,closest.x,closest.y,ceilz,florz);
     *ceilhit = sectnum+16384; *florhit = sectnum+16384;
 
 #ifdef YAX_ENABLE
@@ -1610,9 +1614,15 @@ restart_grand:
                     continue;
 
                 int32_t daz, daz2;
-                getzsofslope(k,pos->x,pos->y,&daz,&daz2);
+                closest = { pos->x, pos->y };
+                getsectordist(closest, k, &closest);
+                getzsofslope(k,closest.x,closest.y,&daz,&daz2);
+
                 int32_t fz, cz;
-                getzsofslope(sectq[clipinfo[curidx].qend],pos->x,pos->y,&cz,&fz);
+                closest = { pos->x, pos->y };
+                getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
+                getzsofslope(sectq[clipinfo[curidx].qend],closest.x,closest.y,&cz,&fz);
+
                 const int hitwhat = (curspr-(uspritetype *)sprite)+49152;
 
                 if ((sector[k].ceilingstat&1)==0)
@@ -1694,13 +1704,18 @@ restart_grand:
 #endif
                 //It actually got here, through all the continue's!!!
                 int32_t daz, daz2;
-                getzsofslope(k, pos->x,pos->y, &daz,&daz2);
+                closest = { pos->x, pos->y };
+                getsectordist(closest, k, &closest);
+                getzsofslope(k, closest.x,closest.y, &daz,&daz2);
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
                 if (curspr)
                 {
                     int32_t fz,cz, hitwhat=(curspr-(uspritetype *)sprite)+49152;
-                    getzsofslope(sectq[clipinfo[curidx].qend],pos->x,pos->y,&cz,&fz);
+
+                    closest = { pos->x, pos->y };
+                    getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
+                    getzsofslope(sectq[clipinfo[curidx].qend],closest.x,closest.y,&cz,&fz);
 
                     if ((sec->ceilingstat&1)==0)
                     {
@@ -1883,7 +1898,11 @@ restart_grand:
                         if (inside(pos->x,pos->y, j)==1)
                         {
                             addclipsect(j);
-                            int const daz = getceilzofslope(j, pos->x,pos->y);
+
+                            closest = { pos->x, pos->y };
+                            getsectordist(closest, j, &closest);
+                            int const daz = getceilzofslope(j, closest.x, closest.y);
+
                             if (!didchange || daz > *ceilz)
                                 didchange=1, *ceilhit = j+16384, *ceilz = daz;
                         }
@@ -1919,7 +1938,11 @@ restart_grand:
                         if (inside(pos->x,pos->y, j)==1)
                         {
                             addclipsect(j);
-                            int const daz = getflorzofslope(j, pos->x,pos->y);
+
+                            closest = { pos->x, pos->y };
+                            getsectordist(closest, j, &closest);
+                            int const daz = getflorzofslope(j, closest.x,closest.y);
+
                             if (!didchange || daz < *florz)
                                 didchange=1, *florhit = j+16384, *florz = daz;
                         }
