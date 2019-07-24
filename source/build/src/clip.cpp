@@ -1175,6 +1175,10 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                 v.x = walldist; if (d.y > 0) v.x = -v.x;
                 v.y = walldist; if (d.x < 0) v.y = -v.y;
+
+                if (d.x * (pos->y-p1.y-v.y) < (pos->x-p1.x-v.x) * d.y)
+                    v.x >>= 1, v.y >>= 1;
+
                 addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.x, p2.y+v.y, objtype);
             }
             else if (wal->nextsector>=0)
