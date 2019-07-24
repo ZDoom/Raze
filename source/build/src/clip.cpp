@@ -22,7 +22,8 @@ static uint8_t origclipsectormap[(MAXSECTORS+7)>>3];
 #ifdef HAVE_CLIPSHAPE_FEATURE
 static int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
 #endif
-static int16_t clipobjectval[MAXCLIPNUM];
+static uint16_t clipobjectval[MAXCLIPNUM];
+static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
 
 ////// sector-like clipping for sprites //////
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -755,14 +756,21 @@ int32_t clipsprite_initindex(int32_t curidx, uspriteptr_t const curspr, int32_t 
 
 static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int32_t daoval)
 {
-    if (EDUKE32_PREDICT_TRUE(clipnum < MAXCLIPNUM))
+    if (EDUKE32_PREDICT_FALSE(clipnum >= MAXCLIPNUM))
     {
-        clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1;
-        clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
-        clipobjectval[clipnum] = daoval;
-        clipnum++;
+        clipmove_warned |= 2;
+        return;
     }
-    else clipmove_warned |= 2;
+
+    clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1;
+    clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
+    clipobjectval[clipnum] = daoval & (UINT16_MAX-1);
+
+    uint32_t const mask = (1 << (clipnum & 7));
+    uint8_t &value = clipignore[clipnum >> 3];
+    value = (value & ~mask) | (-!!(daoval & 65536) & mask);
+
+    clipnum++;
 }
 
 static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
@@ -1163,7 +1171,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
             if (clipyou)
             {
-                int16_t const objtype = curspr ? (int16_t)(curspr - (uspritetype *)sprite) + 49152 : j + 32768;
+                int16_t const objtype = curspr ? (int16_t)(curspr - (uspritetype *)sprite) + 49152 : (int16_t)j + 32768;
 
                 //Add 2 boxes at endpoints
                 int32_t bsz = walldist; if (diff.x < 0) bsz = -bsz;
@@ -1262,9 +1270,9 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                         //Side blocker
                         if ((p2.x-p1.x) * (pos->x-p1.x)+(p2.y-p1.y) * (pos->y-p1.y) < 0)
-                            addclipline(p1.x-v.y, p1.y+v.x, p1.x+v.x, p1.y+v.y, (int16_t)j+49152);
+                            addclipline(p1.x-v.y, p1.y+v.x, p1.x+v.x, p1.y+v.y, j+49152+65536);
                         else if ((p1.x-p2.x) * (pos->x-p2.x)+(p1.y-p2.y) * (pos->y-p2.y) < 0)
-                            addclipline(p2.x+v.y, p2.y-v.x, p2.x-v.x, p2.y-v.y, (int16_t)j+49152);
+                            addclipline(p2.x+v.y, p2.y-v.x, p2.x-v.x, p2.y-v.y, j+49152+65536);
                     }
                 }
                 break;
@@ -1336,7 +1344,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
     {
         for (native_t i=clipnum-1;i>=0;--i)
         {
-            if ((clipobjectval[i] & 49152) != 49152 && clipinsidebox(&pos->vec2, clipobjectval[i] & (MAXWALLS-1), walldist))
+            if (!bitmap_test(clipignore, i) && clipinsideboxline(pos->x, pos->y, clipit[i].x1, clipit[i].x2, clipit[i].y1, clipit[i].y2, walldist))
             {
                 vec2_t const vec = pos->vec2;
                 keepaway(&pos->x, &pos->y, i);
