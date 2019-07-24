@@ -837,17 +837,28 @@ typedef struct {
 } vec2d_t;
 
 typedef struct MAY_ALIAS {
-    int32_t x, y, z;
+    union {
+        struct { int32_t x, y, z; };
+        vec2_t  vec2;
+    };
 } vec3_t;
 
 typedef struct MAY_ALIAS {
-    int16_t x, y, z;
+    union {
+        struct { int16_t x, y, z; };
+        vec2_16_t vec2;
+    };
 } vec3_16_t;
 
 typedef struct {
-    union { float x; float d; };
-    union { float y; float u; };
-    union { float z; float v; };
+    union {
+        struct {
+            union { float x, d; };
+            union { float y, u; };
+            union { float z, v; };
+        };
+        vec2f_t vec2;
+    };
 } vec3f_t;
 
 EDUKE32_STATIC_ASSERT(sizeof(vec3f_t) == sizeof(float) * 3);
