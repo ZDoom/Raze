@@ -100,8 +100,8 @@ uint32_t MV_Mix16BitMono16Stereo(struct VoiceNode * const voice, uint32_t length
 
     do
     {
-        int32_t const isample0 = B_LITTLE16(source[(position >> 16) << 1]);
-        int32_t const isample1 = B_LITTLE16(source[((position >> 16) << 1) + 1]);
+        int32_t const isample0 = (int16_t)B_LITTLE16(source[(position >> 16) << 1]);
+        int32_t const isample1 = (int16_t)B_LITTLE16(source[((position >> 16) << 1) + 1]);
 
         position += rate;
 
@@ -131,8 +131,8 @@ uint32_t MV_Mix16BitStereo16Stereo(struct VoiceNode * const voice, uint32_t leng
 
     do
     {
-        int32_t const isample0 = B_LITTLE16(source[(position >> 16) << 1]);
-        int32_t const isample1 = B_LITTLE16(source[((position >> 16) << 1) + 1]);
+        int32_t const isample0 = (int16_t)B_LITTLE16(source[(position >> 16) << 1]);
+        int32_t const isample1 = (int16_t)B_LITTLE16(source[((position >> 16) << 1) + 1]);
 
         position += rate;
 
