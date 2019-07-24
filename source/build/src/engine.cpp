@@ -7946,12 +7946,12 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     else if (bot < 0 && (topt > 0 || topu > 0 || topu <= bot))
         return -1;
 
-    int64_t t = (topt<<16)/bot;
+    int64_t t = tabledivide64_noinline(topt<<16, bot);
     *intx = x1 + ((vx*t)>>16);
     *inty = y1 + ((vy*t)>>16);
     *intz = z1 + ((vz*t)>>16);
 
-    t = (topu<<16)/bot;
+    t = tabledivide64_noinline(topu<<16, bot);
 
     Bassert((unsigned)t < 65536);
 

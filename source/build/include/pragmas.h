@@ -58,7 +58,7 @@ skip:
     return libdivide::libdivide_u32_do(n, &udiv);
 }
 
-static inline int64_t tabledivide64(int64_t const n, int32_t const d)
+static inline int64_t tabledivide64(int64_t const n, int64_t const d)
 {
     static libdivide::libdivide_s64_t sdiv;
     static int32_t lastd;
@@ -88,7 +88,7 @@ skip:
 
 extern uint32_t divideu32_noinline(uint32_t n, uint32_t d);
 extern int32_t tabledivide32_noinline(int32_t n, int32_t d);
-extern int64_t tabledivide64_noinline(int64_t n, int32_t d);
+extern int64_t tabledivide64_noinline(int64_t n, int64_t d);
 
 #ifdef GEKKO
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return tabledivide64(ldexp(eax, ecx), ebx); }
