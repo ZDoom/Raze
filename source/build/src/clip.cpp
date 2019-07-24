@@ -1379,11 +1379,10 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 //
 // pushmove
 //
-int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
-    int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype)
+int pushmove(vec3_t *const vect, int16_t *const sectnum,
+    int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, bool clear /*= true*/)
 {
-    int32_t i, j, k, t, dx, dy, dax, day, daz;
-    int32_t dir, bad, bad2;
+    int bad;
 
     const int32_t dawalclipmask = (cliptype&65535);
     //    const int32_t dasprclipmask = (cliptype>>16);
@@ -1391,25 +1390,27 @@ int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
     if (*sectnum < 0)
         return -1;
 
-    k = 32;
-    dir = 1;
+    int32_t k = 32;
+
+    int dir = 1;
     do
     {
-        int32_t clipsectcnt;
+        int32_t clipsectcnt = 0;
 
         bad = 0;
 
-        clipsectorlist[0] = *sectnum;
-        clipsectcnt = 0;
-        clipsectnum = 1;
+        if (clear)
+        {
+            clipsectorlist[0] = *sectnum;
+            clipsectnum = 1;
 
-        Bmemset(clipsectormap, 0, (numsectors+7)>>3);
-        bitmap_set(clipsectormap, *sectnum);
+            Bmemset(clipsectormap, 0, (numsectors + 7) >> 3);
+            bitmap_set(clipsectormap, *sectnum);
+        }
 
         do
         {
             uwallptr_t wal;
-            usectorptr_t sec;
             int32_t startwall, endwall;
 #if 0
             // Push FACE sprites
@@ -1444,27 +1445,28 @@ int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
                 }
             }
 #endif
-            sec = (usectorptr_t)&sector[clipsectorlist[clipsectcnt]];
+            auto sec = (usectorptr_t)&sector[clipsectorlist[clipsectcnt]];
             if (dir > 0)
                 startwall = sec->wallptr, endwall = startwall + sec->wallnum;
             else
                 endwall = sec->wallptr, startwall = endwall + sec->wallnum;
 
+            int i;
+
             for (i=startwall, wal=(uwallptr_t)&wall[startwall]; i!=endwall; i+=dir, wal+=dir)
                 if (clipinsidebox((vec2_t *)vect, i, walldist-4) == 1)
                 {
-                    j = 0;
-                    if (wal->nextsector < 0) j = 1;
-                    if (wal->cstat&dawalclipmask) j = 1;
-                    if (j == 0)
+                    int j = 0;
+                    if (wal->nextsector < 0 || wal->cstat&dawalclipmask) j = 1;
+                    else
                     {
-                        auto const sec2 = (usectorptr_t)&sector[wal->nextsector];
                         int32_t daz2;
 
                         //Find closest point on wall (dax, day) to (vect->x, vect->y)
-                        dax = wall[wal->point2].x-wal->x;
-                        day = wall[wal->point2].y-wal->y;
-                        daz = dax*((vect->x)-wal->x) + day*((vect->y)-wal->y);
+                        int32_t dax = wall[wal->point2].x-wal->x;
+                        int32_t day = wall[wal->point2].y-wal->y;
+                        int32_t daz = dax*((vect->x)-wal->x) + day*((vect->y)-wal->y);
+                        int32_t t;
                         if (daz <= 0)
                             t = 0;
                         else
@@ -1476,25 +1478,16 @@ int32_t pushmove(vec3_t * const vect, int16_t * const sectnum,
                         day = wal->y + mulscale30(day, t);
 
                         vec2_t closest = { dax, day };
-
-                        getsectordist(closest, clipsectorlist[clipsectcnt], &closest);
-                        daz = getflorzofslope(clipsectorlist[clipsectcnt], closest.x, closest.y);
-                        daz2 = getflorzofslope(wal->nextsector, closest.x, closest.y);
-                        if ((daz2 < daz-(1<<8)) && ((sec2->floorstat&1) == 0))
-                            if (vect->z >= daz2-(flordist-1)) j = 1;
-
-                        daz = getceilzofslope(clipsectorlist[clipsectcnt], closest.x, closest.y);
-                        daz2 = getceilzofslope(wal->nextsector, closest.x, closest.y);
-                        if ((daz2 > daz+(1<<8)) && ((sec2->ceilingstat&1) == 0))
-                            if (vect->z <= daz2+(ceildist-1)) j = 1;
+                       
+                        j = cliptestsector(clipsectorlist[clipsectcnt], wal->nextsector, flordist, ceildist, closest, vect->z);
                     }
 
                     if (j != 0)
                     {
                         j = getangle(wall[wal->point2].x-wal->x, wall[wal->point2].y-wal->y);
-                        dx = (sintable[(j+1024)&2047]>>11);
-                        dy = (sintable[(j+512)&2047]>>11);
-                        bad2 = 16;
+                        int32_t dx = (sintable[(j+1024)&2047]>>11);
+                        int32_t dy = (sintable[(j+512)&2047]>>11);
+                        int bad2 = 16;
                         do
                         {
                             vect->x = (vect->x) + dx; vect->y = (vect->y) + dy;
