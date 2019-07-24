@@ -824,48 +824,50 @@ int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
 //
 // raytrace (internal)
 //
-static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
+static inline int32_t cliptrace(vec2_t const &pos, vec2_t * const goal)
 {
     int32_t hitwall = -1;
 
-    for (bssize_t z=clipnum-1; z>=0; z--)
+    for (native_t z=clipnum-1; z>=0; z--)
     {
-        const int32_t x1 = clipit[z].x1, x2 = clipit[z].x2, x21 = x2-x1;
-        const int32_t y1 = clipit[z].y1, y2 = clipit[z].y2, y21 = y2-y1;
+        vec2_t const p1   = { clipit[z].x1, clipit[z].y1 };
+        vec2_t const p2   = { clipit[z].x2, clipit[z].y2 };
+        vec2_t const area = { p2.x-p1.x, p2.y-p1.y };
 
-        int32_t topu = x21*(y3-y1) - (x3-x1)*y21;
-        if (topu <= 0)
+        int32_t topu = area.x*(pos.y-p1.y) - (pos.x-p1.x)*area.y;
+
+        if (topu <= 0 || area.x*(goal->y-p1.y) > (goal->x-p1.x)*area.y)
             continue;
 
-        if (x21*(*y4-y1) > (*x4-x1)*y21)
+        vec2_t const diff = { goal->x-pos.x, goal->y-pos.y };
+
+        if (diff.x*(p1.y-pos.y) > (p1.x-pos.x)*diff.y || diff.x*(p2.y-pos.y) <= (p2.x-pos.x)*diff.y)
             continue;
 
-        const int32_t x43 = *x4-x3;
-        const int32_t y43 = *y4-y3;
+        int32_t const bot = diff.x*area.y - area.x*diff.y;
+        native_t cnt = 256;
 
-        if (x43*(y1-y3) > (x1-x3)*y43)
+        if (!bot)
             continue;
 
-        if (x43*(y2-y3) <= (x2-x3)*y43)
-            continue;
-
-        const int32_t bot = x43*y21 - x21*y43;
-        if (bot == 0)
-            continue;
-
-        bssize_t cnt = 256, nintx, ninty;
+        vec2_t n;
 
         do
         {
-            cnt--; if (cnt < 0) { *x4 = x3; *y4 = y3; return z; }
-            nintx = x3 + scale(x43, topu, bot);
-            ninty = y3 + scale(y43, topu, bot);
-            topu--;
-        } while (x21*(ninty-y1) <= (nintx-x1)*y21);
+            if (--cnt < 0)
+            {
+                *goal = pos;
+                return z;
+            }
 
-        if (klabs(x3-nintx)+klabs(y3-ninty) < klabs(x3-*x4)+klabs(y3-*y4))
+            n = { pos.x+scale(diff.x, topu, bot), pos.y+scale(diff.y, topu, bot) };
+            topu--;
+        } while (area.x*(n.y-p1.y) <= (n.x-p1.x)*area.y);
+
+        if (klabs(pos.x-n.x)+klabs(pos.y-n.y) < klabs(pos.x-goal->x)+klabs(pos.y-goal->y))
         {
-            *x4 = nintx; *y4 = ninty; hitwall = z;
+            *goal = n;
+            hitwall = z;
         }
     }
 
@@ -1076,8 +1078,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 (wal->y < clipMin.y && wal2->y < clipMin.y) || (wal->y > clipMax.y && wal2->y > clipMax.y))
                 continue;
 
-            vec2_t p1 = { wal->x, wal->y };
-            vec2_t p2 = { wal2->x, wal2->y } ;
+            vec2_t p1 = wal->pos;
+            vec2_t p2 = wal2->pos;
             vec2_t d  = { p2.x-p1.x, p2.y-p1.y };
 
             if (d.x * (pos->y-p1.y) < (pos->x-p1.x) * d.y)
@@ -1339,7 +1341,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
         vec2_t vec = goal;
 
-        if ((hitwall = raytrace(pos->x, pos->y, &vec.x, &vec.y)) >= 0)
+        if ((hitwall = cliptrace(pos->vec2, &vec)) >= 0)
         {
             vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
             int64_t const templl = (int64_t)clipr.x * clipr.x + (int64_t)clipr.y * clipr.y;
