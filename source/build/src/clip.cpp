@@ -1197,7 +1197,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         if (curspr)
             continue;  // next sector of this index
 #endif
-        for (int j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
+        for (native_t j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
         {
             auto const spr = (uspriteptr_t)&sprite[j];
             const int32_t cstat = spr->cstat;
@@ -1321,7 +1321,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
     }
 #endif
 
-    int32_t hitwalls[4] = {}, hitwall;
+    int32_t hitwalls[4], hitwall;
     int32_t clipReturn = 0;
 
     native_t cnt = clipmoveboxtracenum;
@@ -1347,7 +1347,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
             int32_t const tempint1 = dmulscale6(clipr.x, move.x, clipr.y, move.y);
 
-            for (int i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
+            for (native_t i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
             {
                 j = hitwalls[i];
                 int32_t const tempint2 = dmulscale6(clipit[j].x2 - clipit[j].x1, move.x, clipit[j].y2 - clipit[j].y1, move.y);
