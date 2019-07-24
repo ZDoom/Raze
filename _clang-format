@@ -24,6 +24,7 @@ ContinuationIndentWidth: 0
 Cpp11BracedListStyle: false
 DerivePointerBinding: false
 ExperimentalAutoDetectBinPacking: true
+IncludeBlocks: Regroup
 IndentCaseLabels: true
 IndentFunctionDeclarationAfterType: true
 IndentWidth: 4
@@ -33,7 +34,9 @@ MaxEmptyLinesToKeep: 2
 NamespaceIndentation: None
 PointerAlignment: Right
 PointerBindsToType: false
+ReflowComments: false
 SpaceAfterCStyleCast: false
+SpaceBeforeCpp11BracedList: true
 SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
