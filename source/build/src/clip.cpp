@@ -787,7 +787,7 @@ static bool cliptestsector(int const dasect, int const nextsect, int32_t const f
     if (sec2->floorstat & 2)
         getcorrectzsofslope(nextsect, pos.x, pos.y, &dacz2, &daz2);
 
-    if (daz2-dacz2 < flordist+ceildist)
+    if (daz2 <= dacz2)
         return 1;
 
     auto const sec = (usectorptr_t)&sector[dasect];
