@@ -126,7 +126,7 @@ const char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "Left", "Kpad4",
    "Right", "KPad6",
    "LAlt", "RAlt",
-   "", "RCtrl",
+   "RCtrl", "",
    "E", "",
    "LShift", "RShift",
    "", "",
