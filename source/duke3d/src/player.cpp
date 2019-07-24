@@ -4662,6 +4662,7 @@ static void P_ClampZ(DukePlayer_t* const pPlayer, int const sectorLotag, int32_t
         pPlayer->pos.z = floorZ - PMINHEIGHT;
 }
 
+#define GETZRANGECLIPDISTOFFSET 8
 
 void P_ProcessInput(int playerNum)
 {
@@ -4702,15 +4703,17 @@ void P_ProcessInput(int playerNum)
         if (pPlayer->pos.z + stepHeight > actor[pPlayer->i].floorz - PMINHEIGHT)
             stepHeight -= (pPlayer->pos.z + stepHeight) - (actor[pPlayer->i].floorz - PMINHEIGHT);
         else
-            stepHeight -= (pPlayer->jumping_counter << 1);
+            stepHeight -= (pPlayer->jumping_counter << 1) + (pPlayer->jumping_counter >> 1);
+
+        stepHeight = max(stepHeight, 0);
     }
 
     pPlayer->pos.z += stepHeight;
-    getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - 16, CLIPMASK0);
+    getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - GETZRANGECLIPDISTOFFSET, CLIPMASK0);
     pPlayer->pos.z -= stepHeight;
 
     int32_t ceilZ2 = ceilZ;
-    getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - 16, CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
+    getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - GETZRANGECLIPDISTOFFSET, CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
 
     if ((highZhit & 49152) == 49152 && (sprite[highZhit & (MAXSPRITES - 1)].cstat & CSTAT_SPRITE_BLOCK) != CSTAT_SPRITE_BLOCK)
         ceilZ = ceilZ2;
@@ -5148,7 +5151,7 @@ void P_ProcessInput(int playerNum)
             else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle == 0)
             {
                 int32_t floorZ2, ceilZ2;
-                getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ2, &dummy, &floorZ2, &dummy, pPlayer->clipdist - 16, CLIPMASK0);
+                getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ2, &dummy, &floorZ2, &dummy, pPlayer->clipdist - GETZRANGECLIPDISTOFFSET, CLIPMASK0);
 
                 if ((floorZ2-ceilZ2) > (48<<8))
                 {
