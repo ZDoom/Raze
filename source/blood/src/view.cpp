@@ -117,11 +117,13 @@ VIEW predictFifo[256];
 
 int gInterpolate;
 int nInterpolations;
-char gInterpolateSprite[512];
-char gInterpolateWall[1024];
-char gInterpolateSector[128];
+char gInterpolateSprite[(kMaxSprites+7)>>3];
+char gInterpolateWall[(kMaxWalls+7)>>3];
+char gInterpolateSector[(kMaxSectors+7)>>3];
 
-INTERPOLATE gInterpolation[4096];
+#define kMaxInterpolations 16384
+
+INTERPOLATE gInterpolation[kMaxInterpolations];
 
 int gViewXCenter, gViewYCenter;
 int gViewX0, gViewY0, gViewX1, gViewY1;
@@ -903,7 +905,7 @@ void viewClearInterpolations(void)
 
 void viewAddInterpolation(void *data, INTERPOLATE_TYPE type)
 {
-    if (nInterpolations == 4096)
+    if (nInterpolations == kMaxInterpolations)
         ThrowError("Too many interpolations");
     INTERPOLATE *pInterpolate = &gInterpolation[nInterpolations++];
     pInterpolate->pointer = data;
