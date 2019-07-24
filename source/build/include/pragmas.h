@@ -91,10 +91,12 @@ extern int32_t tabledivide32_noinline(int32_t n, int32_t d);
 extern int64_t tabledivide64_noinline(int64_t n, int64_t d);
 
 #ifdef GEKKO
-static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return tabledivide64(ldexp(eax, ecx), ebx); }
+static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return dw(tabledivide64(ldexp(eax, ecx), ebx)); }
 #else
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return dw(tabledivide64(qw(eax) << by(ecx), ebx)); }
 #endif
+
+static inline int64_t divscale64(int64_t eax, int64_t ebx, int64_t ecx) { return tabledivide64(eax << ecx, ebx); }
 
 #define EDUKE32_SCALER_PRAGMA(a) \
     static FORCE_INLINE int32_t divscale##a(int32_t eax, int32_t ebx) { return divscale(eax, ebx, a); }
