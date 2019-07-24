@@ -461,6 +461,8 @@ void G_DeleteSave(savebrief_t const & sv)
     }
 
     buildvfs_unlink(temp);
+    Bstrcat(temp, ".ext");
+    buildvfs_unlink(temp);
 }
 
 void G_DeleteOldSaves(void)
