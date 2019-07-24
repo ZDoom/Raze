@@ -1328,35 +1328,38 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
     do
     {
+        for (native_t i=clipnum-1;i>=0;--i)
+        {
+            if (clipinsideboxline(pos->x, pos->y, clipit[i].x1, clipit[i].y1, clipit[i].x2, clipit[i].y2, walldist))
+            {
+                keepaway(&pos->x, &pos->y, i);
+                break;
+            }
+        }
+
         vec2_t vec = goal;
 
-        hitwall = raytrace(pos->x, pos->y, &vec.x, &vec.y);
-        if (hitwall >= 0)
+        if ((hitwall = raytrace(pos->x, pos->y, &vec.x, &vec.y)) >= 0)
         {
-            vec2_t const   clipr   = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
-            uint64_t const tempull = (int64_t)clipr.x * (int64_t)clipr.x + (int64_t)clipr.y * (int64_t)clipr.y;
+            vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
+            int64_t const templl = (int64_t)clipr.x * clipr.x + (int64_t)clipr.y * clipr.y;
 
-            if (tempull > 0 && tempull < INT32_MAX)
+            if (templl > 0)
             {
-                int32_t const tempint2 = (int32_t) tempull;
-                int32_t const tempint1 = (goal.x-vec.x)*clipr.x+(goal.y-vec.y)*clipr.y;
-                int32_t const i = ((klabs(tempint1)>>11) < tempint2) ? divscale20(tempint1, tempint2) : 0;
+                int64_t const templl2 = (int64_t)(goal.x-vec.x)*clipr.x + (int64_t)(goal.y-vec.y)*clipr.y;
+                int32_t const i = ((llabs(templl2)>>11) < templl) ? divscale64(templl2, templl, 20) : 0;
 
                 goal = { mulscale20(clipr.x, i)+vec.x, mulscale20(clipr.y, i)+vec.y };
             }
 
-            int32_t const tempint1 = dmulscale6(clipr.x, move.x, clipr.y, move.y);
+            int32_t const tempint = dmulscale6(clipr.x, move.x, clipr.y, move.y);
 
             for (native_t i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
             {
                 j = hitwalls[i];
-                int32_t const tempint2 = dmulscale6(clipit[j].x2 - clipit[j].x1, move.x, clipit[j].y2 - clipit[j].y1, move.y);
 
-                if ((tempint1^tempint2) < 0)
-                {
-                    clipupdatesector(*(vec2_t *)pos, sectnum, rad);
+                if ((tempint ^ dmulscale6(clipit[j].x2-clipit[j].x1, move.x, clipit[j].y2-clipit[j].y1, move.y)) < 0)
                     return clipReturn;
-                }
             }
 
             keepaway(&goal.x, &goal.y, hitwall);
@@ -1368,17 +1371,11 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             hitwalls[cnt] = hitwall;
         }
 
-        int const osectnum = *sectnum;
         clipupdatesector(vec, sectnum, rad);
 
-        if (*sectnum != -1 && (*sectnum == osectnum || editstatus || !check_floor_curb(osectnum, *sectnum, flordist, pos->z, vec)))
-        {
-            pos->x = vec.x;
-            pos->y = vec.y;
-            cnt--;
-        }
-        else
-            *sectnum = osectnum;
+        pos->x = vec.x;
+        pos->y = vec.y;
+        cnt--;
     } while ((xvect|yvect) != 0 && hitwall >= 0 && cnt > 0);
 
     return clipReturn;
