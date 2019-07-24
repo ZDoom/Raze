@@ -724,12 +724,7 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
         return -1;
     }
 
-    // XXX: why is 'right' 0?
-    // Ambient MUSICANDSFX always start playing using the 3D routines!
-    int const ambsfxp = S_IsAmbientSFX(spriteNum);
-    int const voice = (repeatp && !ambsfxp) ? FX_Play(snd.ptr, snd.siz, 0, -1, pitch, sndist >> 6, sndist >> 6, 0, snd.pr,
-                                                      snd.volume, (sndNum * MAXSOUNDINSTANCES) + sndSlot)
-                                            : FX_Play3D(snd.ptr, snd.siz, repeatp ? FX_LOOP : FX_ONESHOT, pitch, sndang >> 4, sndist >> 6,
+    int const voice = FX_Play3D(snd.ptr, snd.siz, repeatp ? FX_LOOP : FX_ONESHOT, pitch, sndang >> 4, sndist >> 6,
                                                         snd.pr, snd.volume, (sndNum * MAXSOUNDINSTANCES) + sndSlot);
 
     if (voice <= FX_Ok)
