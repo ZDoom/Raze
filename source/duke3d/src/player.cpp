@@ -5147,9 +5147,10 @@ void P_ProcessInput(int playerNum)
                 pPlayer->jumping_toggle--;
             else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle == 0)
             {
-                getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &dummy, &dummy, &dummy, pPlayer->clipdist - 16, CLIPMASK0);
+                int32_t floorZ2, ceilZ2;
+                getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ2, &dummy, &floorZ2, &dummy, pPlayer->clipdist - 16, CLIPMASK0);
 
-                if ((floorZ-ceilZ) > (48<<8))
+                if ((floorZ2-ceilZ2) > (48<<8))
                 {
                     if (VM_OnEvent(EVENT_JUMP,pPlayer->i,playerNum) == 0)
                     {
