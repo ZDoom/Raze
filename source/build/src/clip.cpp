@@ -778,31 +778,31 @@ static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32
 }
 
 // Returns: should clip?
-static bool check_floor_curb(int const dasect, int const nextsect, int32_t const flordist, int32_t const posz, vec2_t const &pos)
+static bool cliptestsector(int const dasect, int const nextsect, int32_t const flordist, int32_t const ceildist, vec2_t const &pos, int32_t const posz)
 {
-    auto const sec = (usectorptr_t)&sector[dasect];
-    vec2_t closest = { pos.x, pos.y };
-    int32_t daz = sec->floorz;
-
-    if (sec->floorstat & 2)
-    {
-        getsectordist(closest, dasect, &closest);
-        daz = getflorzofslope(dasect, closest.x, closest.y);
-    }
-
     auto const sec2 = (usectorptr_t)&sector[nextsect];
-    vec2_t closest2 = { pos.x, pos.y };
     int32_t daz2 = sec2->floorz;
+    int32_t dacz2 = sec2->ceilingz;
 
     if (sec2->floorstat & 2)
-    {
-        getsectordist(closest2, nextsect, &closest2);
-        daz2 = getflorzofslope(nextsect, closest2.x, closest2.y);
-    }
+        getcorrectzsofslope(nextsect, pos.x, pos.y, &dacz2, &daz2);
 
-    return ((sec2->floorstat&1) == 0 &&  // parallaxed floor curbs don't clip
+    if (daz2-dacz2 < flordist+ceildist)
+        return 1;
+
+    auto const sec = (usectorptr_t)&sector[dasect];
+    int32_t daz = sec->floorz;
+    int32_t dacz = sec->ceilingz;
+
+    if (sec->floorstat & 2)
+        getcorrectzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
+
+    return (((sec2->floorstat&1) == 0 &&  // parallaxed floor curbs don't clip
         posz >= daz2-(flordist-1) &&  // also account for desired z distance tolerance
-        daz2 < daz-(1<<8));  // curbs less tall than 256 z units don't clip
+        daz2 < daz-(1<<8)) ||  // curbs less tall than 256 z units don't clip
+        ((sec2->ceilingstat&1) == 0 &&
+        posz <= dacz2+(ceildist-1) &&
+        dacz2 > dacz+(1<<8)));
 }
 
 int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
@@ -1100,8 +1100,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                     clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
 
-#define CLIPMV_SPR_F_DAZ2 getflorzofslope(wal->nextsector, v.x, v.y)
-#define CLIPMV_SPR_F_BASEZ getflorzofslope(sectq[clipinfo[clipshapeidx].qend], v.x, v.y)
+#define CLIPMV_SPR_F_DAZ2 getcorrectflorzofslope(wal->nextsector, v.x, v.y)
+#define CLIPMV_SPR_F_BASEZ getcorrectflorzofslope(sectq[clipinfo[clipshapeidx].qend], v.x, v.y)
 
                     if ((sec2->floorstat&1) == 0)
                     {
@@ -1111,8 +1111,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                     if (clipyou == 0)
                     {
-#define CLIPMV_SPR_C_DAZ2 getceilzofslope(wal->nextsector, v.x, v.y)
-#define CLIPMV_SPR_C_BASEZ getceilzofslope(sectq[clipinfo[clipshapeidx].qend], v.x, v.y)
+#define CLIPMV_SPR_C_DAZ2 getcorrectceilzofslope(wal->nextsector, v.x, v.y)
+#define CLIPMV_SPR_C_BASEZ getcorrectceilzofslope(sectq[clipinfo[clipshapeidx].qend], v.x, v.y)
 
                         if ((sec2->ceilingstat & 1) == 0)
                         {
@@ -1137,7 +1137,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                         if (ynw >= 0 && wall[ynw].nextsector >= 0 && (wall[ynw].cstat & dawalclipmask) == 0)
                         {
                             clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
-                            clipyou = check_floor_curb(dasect, wall[ynw].nextsector, flordist, pos->z, v);
+                            clipyou = cliptestsector(dasect, wall[ynw].nextsector, flordist, ceildist, v, pos->z);
                         }
                     }
 #endif
@@ -1145,17 +1145,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 else if (editstatus == 0)
                 {
                     clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
-                    clipyou = check_floor_curb(dasect, wal->nextsector, flordist, pos->z, v);
-
-                    if (clipyou == 0)
-                    {
-                        auto const sec2 = (usectorptr_t)&sector[wal->nextsector];
-                        int32_t daz2 = getceilzofslope(wal->nextsector, v.x, v.y);
-
-                        clipyou = ((sec2->ceilingstat&1) == 0 &&
-                                    pos->z <= daz2+(ceildist-1) &&
-                                    daz2 > getceilzofslope(dasect, v.x, v.y)+(1<<8));
-                    }
+                    clipyou = cliptestsector(dasect, wal->nextsector, flordist, ceildist, v, pos->z);
                 }
 
             // We're not interested in any sector reached by portal traversal that we're "inside" of.
