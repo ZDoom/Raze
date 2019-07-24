@@ -828,7 +828,7 @@ endif
 
 #### Final setup
 
-COMPILERFLAGS += -I$(engine_inc) -I$(mact_inc) -I$(audiolib_inc) -I$(enet_inc) -I$(glad_inc)
+COMPILERFLAGS += -I$(engine_inc) -I$(mact_inc) -I$(audiolib_inc) -I$(enet_inc) -I$(glad_inc) -MP -MMD
 ifneq (0,$(USE_PHYSFS))
     COMPILERFLAGS += -I$(physfs_inc) -DUSE_PHYSFS
 endif
@@ -930,12 +930,6 @@ endef
 $(foreach i,$(games),$(foreach j,$(roles),$(eval $(call BUILDRULE,$i,$j))))
 
 
-include $(lpeg_root)/Dependencies.mak
-include $(engine_root)/Dependencies.mak
-include $(duke3d_root)/Dependencies.mak
-include $(sw_root)/Dependencies.mak
-
-
 #### Rules
 
 $(ebacktrace_dll): platform/Windows/src/backtrace.c
@@ -983,6 +977,8 @@ $(duke3d_obj)/lunatic_%.def: $(lunatic_src)/%.lds | $(duke3d_obj)
 ### Main Rules
 
 define OBJECTRULES
+
+include $(wildcard $($1_obj)/*.d)
 
 $$($1_obj)/%.$$o: $$($1_src)/%.nasm | $$($1_obj)
 	$$(COMPILE_STATUS)
