@@ -3147,7 +3147,7 @@ skip: ;
 
     do
     {
-        if ((vsp[i].cy[0] >= vsp[i].fy[0]) && (vsp[i].cy[1] >= vsp[i].fy[1]))
+        if ((vsp[i].cy[0]+DOMOST_OFFSET*2 >= vsp[i].fy[0]) && (vsp[i].cy[1]+DOMOST_OFFSET*2 >= vsp[i].fy[1]))
             vsp[i].ctag = vsp[i].ftag = -1;
 
         int const ni = vsp[i].n;
@@ -5338,6 +5338,36 @@ void polymost_drawrooms()
             polymost_domost(yax_vsp[yax_globalbunch*2+1][i].x, yax_vsp[yax_globalbunch*2+1][i].cy[0]+DOMOST_OFFSET, yax_vsp[yax_globalbunch*2+1][newi].x, yax_vsp[yax_globalbunch*2+1][i].cy[1]+DOMOST_OFFSET);
         }
         g_nodraw = nodrawbak;
+
+#ifdef COMBINE_STRIPS
+        i = vsp[0].n;
+
+        do
+        {
+            int const ni = vsp[i].n;
+
+            //POGO: specially treat the viewport nodes so that we will never end up in a situation where we accidentally access the sentinel node
+            if (ni >= viewportNodeCount)
+            {
+                if (Bfabsf(vsp[i].cy[1]-vsp[ni].cy[0]) < 0.1f && Bfabsf(vsp[i].fy[1]-vsp[ni].fy[0]) < 0.1f)
+                {
+                    float const dx = 1.f/(vsp[ni].x-vsp[i].x);
+                    float const dx2 = 1.f/(vsp[vsp[ni].n].x-vsp[i].x);
+                    float const cslop[2] = { vsp[i].cy[1]-vsp[i].cy[0], vsp[ni].cy[1]-vsp[i].cy[0] };
+                    float const fslop[2] = { vsp[i].fy[1]-vsp[i].fy[0], vsp[ni].fy[1]-vsp[i].fy[0] };
+
+                    if (Bfabsf(cslop[0]*dx-cslop[1]*dx2) < 0.001f && Bfabsf(fslop[0]*dx-fslop[1]*dx2) < 0.001f)
+                    {
+                        MERGE_NODES(i, ni);
+                        continue;
+                    }
+                }
+            }
+            i = ni;
+        }
+        while (i);
+#undef MERGE_NODES
+#endif
     }
     //else if (!g_nodraw) { videoEndDrawing(); return; }
 #endif
