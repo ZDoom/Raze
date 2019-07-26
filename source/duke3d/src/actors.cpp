@@ -3403,7 +3403,7 @@ static int P_Submerge(int const playerNum, DukePlayer_t * const pPlayer, int con
 static int P_Emerge(int const playerNum, DukePlayer_t * const pPlayer, int const sectNum, int const otherSect)
 {
     // r1449-:
-    if (pPlayer->pos.z < (sector[sectNum].ceilingz+1080) && pPlayer->vel.z == 0)
+    if (pPlayer->pos.z < (sector[sectNum].ceilingz+1080) && pPlayer->vel.z <= 0)
         // r1450+, breaks submergible slime in bobsp2:
 //        if (onfloorz && sectlotag == 2 && ps->pos.z <= sector[sect].ceilingz /*&& ps->vel.z == 0*/)
     {
