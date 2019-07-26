@@ -5038,6 +5038,15 @@ void polymost_scansector(int32_t sectnum)
                 dxb1[numscans] = (p1.y >= SCISDIST) ? float(p1.x*ghalfx/p1.y + ghalfx) : -1e32f;
                 dxb2[numscans] = (p2.y >= SCISDIST) ? float(p2.x*ghalfx/p2.y + ghalfx) : 1e32f;
 
+                if (dxb1[numscans] < xbl)
+                    dxb1[numscans] = xbl;
+                else if (dxb1[numscans] > xbr)
+                    dxb1[numscans] = xbr;
+                if (dxb2[numscans] < xbl)
+                    dxb2[numscans] = xbl;
+                else if (dxb2[numscans] > xbr)
+                    dxb2[numscans] = xbr;
+
                 if (nexttowardf(dxb1[numscans], dxb2[numscans]) < dxb2[numscans])
                 {
                     thesector[numscans] = sectnum;
