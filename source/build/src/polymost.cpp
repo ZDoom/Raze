@@ -2600,6 +2600,15 @@ static inline void yax_vsp_finalize_init(int32_t const yaxbunch, int32_t const v
 #define COMBINE_STRIPS
 
 #ifdef COMBINE_STRIPS
+
+#define MERGE_NODES(i, ni)            \
+    do                                \
+    {                                 \
+        vsp[i].cy[1] = vsp[ni].cy[1]; \
+        vsp[i].fy[1] = vsp[ni].fy[1]; \
+        vsdel(ni);                    \
+    } while (0);
+
 static inline void vsdel(int32_t const i)
 {
     //Delete i
@@ -3147,10 +3156,7 @@ skip: ;
         if (ni >= viewportNodeCount &&
             (vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag))
         {
-            vsp[i].cy[1] = vsp[ni].cy[1];
-            vsp[i].fy[1] = vsp[ni].fy[1];
-            vsdel(ni);
-
+            MERGE_NODES(i, ni);
 #if 0
             //POGO: This GL1 debug code draws the resulting merged VSP segment with floor and ceiling bounds lines as yellow and cyan respectively
             //      To enable this, ensure that in polymost_drawrooms() that you are clearing the stencil buffer and color buffer.
