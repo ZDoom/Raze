@@ -22,7 +22,7 @@ static uint8_t origclipsectormap[(MAXSECTORS+7)>>3];
 #ifdef HAVE_CLIPSHAPE_FEATURE
 static int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
 #endif
-static uint16_t clipobjectval[MAXCLIPNUM];
+static int16_t clipobjectval[MAXCLIPNUM];
 static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
 
 ////// sector-like clipping for sprites //////
@@ -754,7 +754,7 @@ int32_t clipsprite_initindex(int32_t curidx, uspriteptr_t const curspr, int32_t 
 
 #endif
 
-static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int32_t daoval)
+static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int16_t daoval, bool nofix)
 {
     if (EDUKE32_PREDICT_FALSE(clipnum >= MAXCLIPNUM))
     {
@@ -764,11 +764,11 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
 
     clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1;
     clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
-    clipobjectval[clipnum] = daoval & (UINT16_MAX-1);
+    clipobjectval[clipnum] = daoval;
 
     uint32_t const mask = (1 << (clipnum & 7));
     uint8_t &value = clipignore[clipnum >> 3];
-    value = (value & ~mask) | (-!!(daoval & 65536) & mask);
+    value = (value & ~mask) | (-nofix & mask);
 
     clipnum++;
 }
@@ -1175,11 +1175,11 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                 //Add 2 boxes at endpoints
                 int32_t bsz = walldist; if (diff.x < 0) bsz = -bsz;
-                addclipline(p1.x-bsz, p1.y-bsz, p1.x-bsz, p1.y+bsz, objtype);
-                addclipline(p2.x-bsz, p2.y-bsz, p2.x-bsz, p2.y+bsz, objtype);
+                addclipline(p1.x-bsz, p1.y-bsz, p1.x-bsz, p1.y+bsz, objtype, false);
+                addclipline(p2.x-bsz, p2.y-bsz, p2.x-bsz, p2.y+bsz, objtype, false);
                 bsz = walldist; if (diff.y < 0) bsz = -bsz;
-                addclipline(p1.x+bsz, p1.y-bsz, p1.x-bsz, p1.y-bsz, objtype);
-                addclipline(p2.x+bsz, p2.y-bsz, p2.x-bsz, p2.y-bsz, objtype);
+                addclipline(p1.x+bsz, p1.y-bsz, p1.x-bsz, p1.y-bsz, objtype, false);
+                addclipline(p2.x+bsz, p2.y-bsz, p2.x-bsz, p2.y-bsz, objtype, false);
 
                 v.x = walldist; if (d.y > 0) v.x = -v.x;
                 v.y = walldist; if (d.x < 0) v.y = -v.y;
@@ -1187,7 +1187,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 if (d.x * (pos->y-p1.y-v.y) < (pos->x-p1.x-v.x) * d.y)
                     v.x >>= 1, v.y >>= 1;
 
-                addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.x, p2.y+v.y, objtype);
+                addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.x, p2.y+v.y, objtype, false);
             }
             else if (wal->nextsector>=0)
             {
@@ -1236,10 +1236,10 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                     {
                         int32_t bsz = (spr->clipdist << 2)+walldist;
                         if (diff.x < 0) bsz = -bsz;
-                        addclipline(p1.x-bsz, p1.y-bsz, p1.x-bsz, p1.y+bsz, (int16_t)j+49152);
+                        addclipline(p1.x-bsz, p1.y-bsz, p1.x-bsz, p1.y+bsz, (int16_t)j+49152, false);
                         bsz = (spr->clipdist << 2)+walldist;
                         if (diff.y < 0) bsz = -bsz;
-                        addclipline(p1.x+bsz, p1.y-bsz, p1.x-bsz, p1.y-bsz, (int16_t)j+49152);
+                        addclipline(p1.x+bsz, p1.y-bsz, p1.x-bsz, p1.y-bsz, (int16_t)j+49152, false);
                     }
                 }
                 break;
@@ -1260,19 +1260,19 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                                      mulscale14(sintable[(spr->ang+256) & 2047], walldist) };
 
                         if ((p1.x-pos->x) * (p2.y-pos->y) >= (p2.x-pos->x) * (p1.y-pos->y))  // Front
-                            addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.y, p2.y-v.x, (int16_t)j+49152);
+                            addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.y, p2.y-v.x, (int16_t)j+49152, false);
                         else
                         {
                             if ((cstat & 64) != 0)
                                 continue;
-                            addclipline(p2.x-v.x, p2.y-v.y, p1.x-v.y, p1.y+v.x, (int16_t)j+49152);
+                            addclipline(p2.x-v.x, p2.y-v.y, p1.x-v.y, p1.y+v.x, (int16_t)j+49152, false);
                         }
 
                         //Side blocker
                         if ((p2.x-p1.x) * (pos->x-p1.x)+(p2.y-p1.y) * (pos->y-p1.y) < 0)
-                            addclipline(p1.x-v.y, p1.y+v.x, p1.x+v.x, p1.y+v.y, j+49152+65536);
+                            addclipline(p1.x-v.y, p1.y+v.x, p1.x+v.x, p1.y+v.y, (int16_t)j+49152, true);
                         else if ((p1.x-p2.x) * (pos->x-p2.x)+(p1.y-p2.y) * (pos->y-p2.y) < 0)
-                            addclipline(p2.x+v.y, p2.y-v.x, p2.x-v.x, p2.y-v.y, j+49152+65536);
+                            addclipline(p2.x+v.y, p2.y-v.x, p2.x-v.x, p2.y-v.y, (int16_t)j+49152, true);
                     }
                 }
                 break;
@@ -1298,23 +1298,23 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                     if ((rxi[0]-pos->x) * (ryi[1]-pos->y) < (rxi[1]-pos->x) * (ryi[0]-pos->y))
                     {
                         if (clipinsideboxline(cent.x, cent.y, rxi[1], ryi[1], rxi[0], ryi[0], rad) != 0)
-                            addclipline(rxi[1]-v.y, ryi[1]+v.x, rxi[0]+v.x, ryi[0]+v.y, (int16_t)j+49152);
+                            addclipline(rxi[1]-v.y, ryi[1]+v.x, rxi[0]+v.x, ryi[0]+v.y, (int16_t)j+49152, false);
                     }
                     else if ((rxi[2]-pos->x) * (ryi[3]-pos->y) < (rxi[3]-pos->x) * (ryi[2]-pos->y))
                     {
                         if (clipinsideboxline(cent.x, cent.y, rxi[3], ryi[3], rxi[2], ryi[2], rad) != 0)
-                            addclipline(rxi[3]+v.y, ryi[3]-v.x, rxi[2]-v.x, ryi[2]-v.y, (int16_t)j+49152);
+                            addclipline(rxi[3]+v.y, ryi[3]-v.x, rxi[2]-v.x, ryi[2]-v.y, (int16_t)j+49152, false);
                     }
 
                     if ((rxi[1]-pos->x) * (ryi[2]-pos->y) < (rxi[2]-pos->x) * (ryi[1]-pos->y))
                     {
                         if (clipinsideboxline(cent.x, cent.y, rxi[2], ryi[2], rxi[1], ryi[1], rad) != 0)
-                            addclipline(rxi[2]-v.x, ryi[2]-v.y, rxi[1]-v.y, ryi[1]+v.x, (int16_t)j+49152);
+                            addclipline(rxi[2]-v.x, ryi[2]-v.y, rxi[1]-v.y, ryi[1]+v.x, (int16_t)j+49152, false);
                     }
                     else if ((rxi[3]-pos->x) * (ryi[0]-pos->y) < (rxi[0]-pos->x) * (ryi[3]-pos->y))
                     {
                         if (clipinsideboxline(cent.x, cent.y, rxi[0], ryi[0], rxi[3], ryi[3], rad) != 0)
-                            addclipline(rxi[0]+v.x, ryi[0]+v.y, rxi[3]+v.y, ryi[3]-v.x, (int16_t)j+49152);
+                            addclipline(rxi[0]+v.x, ryi[0]+v.y, rxi[3]+v.y, ryi[3]-v.x, (int16_t)j+49152, false);
                     }
                 }
                 break;
