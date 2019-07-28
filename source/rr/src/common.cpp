@@ -696,16 +696,16 @@ static char* KeyValues_FindKeyValue(char **vdfbuf, char * const vdfbufend, const
 
 static void G_ParseSteamKeyValuesForPaths(const char *vdf)
 {
-    int32_t fd = Bopen(vdf, BO_RDONLY);
-    int32_t size = Bfilelength(fd);
+    buildvfs_fd fd = buildvfs_open_read(vdf);
+    int32_t size = buildvfs_length(fd);
     char *vdfbufstart, *vdfbuf, *vdfbufend;
 
     if (size <= 0)
         return;
 
     vdfbufstart = vdfbuf = (char*)Xmalloc(size);
-    size = (int32_t)Bread(fd, vdfbuf, size);
-    Bclose(fd);
+    size = (int32_t)buildvfs_read(fd, vdfbuf, size);
+    buildvfs_close(fd);
     vdfbufend = vdfbuf + size;
 
     if (KeyValues_FindParentKey(&vdfbuf, vdfbufend, "LibraryFolders"))
@@ -716,7 +716,7 @@ static void G_ParseSteamKeyValuesForPaths(const char *vdf)
             G_AddSteamPaths(result);
     }
 
-    Bfree(vdfbufstart);
+    Xfree(vdfbufstart);
 }
 #endif
 #endif
