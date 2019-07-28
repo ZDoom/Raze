@@ -7542,7 +7542,7 @@ static void dosetaspect(void)
             radarang2[i] = ((qradarang[k]+j)>>6);
         }
 
-        if (xdimen != oxdimen && (playing_blood || voxoff[0][0]))
+        if (xdimen != oxdimen && (voxoff[0][0] || bloodhack))
         {
             distrecip = NULL;
             for (i = 0; i < DISTRECIPCACHESIZE; i++)
