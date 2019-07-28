@@ -1632,7 +1632,7 @@ void G_DisplayLogo(void)
                             P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
                             g_restorePalette = 0;
                         }
-						videoNextPage();
+                        videoNextPage();
                     }
                 }
 
@@ -1723,7 +1723,8 @@ void G_DisplayLogo(void)
                     P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
                     g_restorePalette = 0;
                 }
-				videoNextPage();
+
+                videoNextPage();
             }
 
             G_HandleAsync();
@@ -1911,7 +1912,8 @@ static void G_BonusCutscenes(void)
                                 rotatesprite_fs(breathe[t+3]<<16, breathe[t+4]<<16, 65536L, 0, breathe[t+2], 0, 0, 2+8+16+64+128+BGSTRETCH);
                             }
                     }
-					videoNextPage();
+
+                    videoNextPage();
                 }
 
                 G_HandleAsync();
@@ -2311,7 +2313,7 @@ void G_BonusScreen(int32_t bonusonly)
             {
                 videoClearScreen(0);
                 G_DisplayMPResultsScreen();
-				videoNextPage();
+                videoNextPage();
             }
 
             if (I_CheckAllInput())
@@ -2679,7 +2681,7 @@ void G_BonusScreen(int32_t bonusonly)
             else
                 break;
 
-			videoNextPage();
+            videoNextPage();
         }
     } while (1);
     if (g_turdLevel)
@@ -2905,7 +2907,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
             {
                 videoClearScreen(0);
                 G_DisplayMPResultsScreen();
-				videoNextPage();
+                videoNextPage();
             }
 
             if (I_CheckAllInput())
@@ -3190,8 +3192,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
             }
             else
                 break;
-
-			videoNextPage();
+            videoNextPage();
         }
     } while (1);
     if (ud.eog)

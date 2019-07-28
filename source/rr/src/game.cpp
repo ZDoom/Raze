@@ -8424,7 +8424,7 @@ MAIN_LOOP_RESTART:
             if (videoGetRenderMode() >= REND_POLYMOST)
                 G_DrawBackground();
             G_DisplayRest(smoothRatio);
-			videoNextPage();
+            videoNextPage();
 
             if (gameUpdate)
             {

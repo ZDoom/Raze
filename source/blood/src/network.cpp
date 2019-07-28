@@ -996,6 +996,7 @@ void netInitialize(bool bConsole)
             char buffer[128];
             sprintf(buffer, "Waiting for players (%i\\%i)", numplayers, gNetPlayers);
             viewLoadingScreen(2518, "Network Game", NULL, buffer);
+            videoNextPage();
         }
         while (numplayers < gNetPlayers)
         {
@@ -1037,6 +1038,7 @@ void netInitialize(bool bConsole)
                         char buffer[128];
                         sprintf(buffer, "Waiting for players (%i\\%i)", numplayers, gNetPlayers);
                         viewLoadingScreen(2518, "Network Game", NULL, buffer);
+                        videoNextPage();
                     }
                     break;
                 }
@@ -1068,6 +1070,7 @@ void netInitialize(bool bConsole)
                         char buffer[128];
                         sprintf(buffer, "Waiting for players (%i\\%i)", numplayers, gNetPlayers);
                         viewLoadingScreen(2518, "Network Game", NULL, buffer);
+                        videoNextPage();
                     }
                     break;
                 }
@@ -1129,6 +1132,7 @@ void netInitialize(bool bConsole)
         if (!bConsole)
         {
             viewLoadingScreen(2518, "Network Game", NULL, buffer);
+            videoNextPage();
         }
         gNetENetClient = enet_host_create(NULL, 1, BLOOD_ENET_CHANNEL_MAX, 0, 0);
         enet_address_set_host(&gNetENetAddress, gNetAddress);
@@ -1153,6 +1157,7 @@ void netInitialize(bool bConsole)
         if (!bConsole)
         {
             viewLoadingScreen(2518, "Network Game", NULL, "Waiting for server response");
+            videoNextPage();
         }
         while (bWaitServer)
         {

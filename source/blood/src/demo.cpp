@@ -411,6 +411,7 @@ _DEMOPLAYBACK:
             viewDrawScreen();
             if (gInputMode == INPUT_MODE_1 && CGameMenuMgr::m_bActive)
                 gGameMenuMgr.Draw();
+            videoNextPage();
         }
         if (TestBitString(gotpic, 2342))
         {

@@ -170,9 +170,9 @@ void Net_WaitForEverybody(void)
         if (G_FPSLimit())
         {
             display_betascreen();
-            gametext_center_shade(170, "Waiting for server", 14);
-			videoNextPage();
-        }
+            gametext_center_shade(170, "Waiting for players", 14);
+            videoNextPage();
+        };
 
         G_HandleAsync();
         Net_GetPackets();
