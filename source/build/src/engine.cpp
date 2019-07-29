@@ -7864,11 +7864,51 @@ int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
 //
 // lintersect (internal)
 //
+int32_t lintersect_old(const int32_t originX, const int32_t originY, const int32_t originZ,
+                   const int32_t destX, const int32_t destY, const int32_t destZ,
+                   const int32_t lineStartX, const int32_t lineStartY, const int32_t lineEndX, const int32_t lineEndY,
+                   int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ)
+{
+    const vec2_t ray = { destX-originX,
+                         destY-originY };
+    const vec2_t lineVec = { lineEndX-lineStartX,
+                             lineEndY-lineStartY };
+    const vec2_t originDiff = { lineStartX-originX,
+                                lineStartY-originY };
+
+    const int32_t rayCrossLineVec = ray.x*lineVec.y - ray.y*lineVec.x;
+
+    if (rayCrossLineVec == 0)
+        return 0;
+    
+    const int32_t originDiffCrossLineVec = originDiff.x*lineVec.y - originDiff.y*lineVec.x;
+    const int32_t originDiffCrossRay = originDiff.x*ray.y - originDiff.y*ray.x;
+
+    if ((rayCrossLineVec > 0 && (originDiffCrossLineVec < 0 || originDiffCrossLineVec >= rayCrossLineVec
+        || originDiffCrossRay < 0 || originDiffCrossRay >= rayCrossLineVec))
+     || (rayCrossLineVec < 0 && (originDiffCrossLineVec > 0 || originDiffCrossLineVec <= rayCrossLineVec
+        || originDiffCrossRay > 0 || originDiffCrossRay <= rayCrossLineVec)))
+        return 0;
+
+    const int32_t t = divscale24(originDiffCrossLineVec, rayCrossLineVec);
+
+    *intersectionX = originX + mulscale24(ray.x, t);
+    *intersectionY = originY + mulscale24(ray.y, t);
+    *intersectionZ = originZ + mulscale24(destZ - originZ, t);
+
+    return 1;
+}
+
 int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t originZ,
                    const int32_t destX, const int32_t destY, const int32_t destZ,
                    const int32_t lineStartX, const int32_t lineStartY, const int32_t lineEndX, const int32_t lineEndY,
                    int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ)
 {
+    if (blooddemohack)
+    {
+        return lintersect_old(originX, originY, originZ, destX, destY, destZ, lineStartX, lineStartY, lineEndX, lineEndY,
+            intersectionX, intersectionY, intersectionZ);
+    }
     const vec2_t ray = { destX-originX,
                          destY-originY };
     const vec2_t lineVec = { lineEndX-lineStartX,
