@@ -11513,10 +11513,33 @@ int findwallbetweensectors(int sect1, int sect2)
 //
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
-    int16_t sect = *sectnum;
-    updatesectorneighbor(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
-    if (sect != -1)
-        SET_AND_RETURN(*sectnum, sect);
+    if (blooddemohack)
+    {
+        if (inside_p(x, y, *sectnum))
+            return;
+
+        if ((unsigned)*sectnum < (unsigned)numsectors)
+        {
+            const uwalltype *wal = (uwalltype *)&wall[sector[*sectnum].wallptr];
+            int wallsleft = sector[*sectnum].wallnum;
+
+            do
+            {
+                int const next = wal->nextsector;
+                if (inside_p(x, y, next))
+                    SET_AND_RETURN(*sectnum, next);
+                wal++;
+            }
+            while (--wallsleft);
+        }
+    }
+    else
+    {
+        int16_t sect = *sectnum;
+        updatesectorneighbor(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
+        if (sect != -1)
+            SET_AND_RETURN(*sectnum, sect);
+    }
 
     // we need to support passing in a sectnum of -1, unfortunately
 
@@ -11560,10 +11583,62 @@ void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectn
 
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
 {
-    int16_t sect = *sectnum;
-    updatesectorneighborz(x, y, z, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
-    if (sect != -1)
-        SET_AND_RETURN(*sectnum, sect);
+    if (blooddemohack)
+    {
+        if ((uint32_t)(*sectnum) < 2*MAXSECTORS)
+        {
+            int32_t nofirstzcheck = 0;
+
+            if (*sectnum >= MAXSECTORS)
+            {
+                *sectnum -= MAXSECTORS;
+                nofirstzcheck = 1;
+            }
+
+            // this block used to be outside the "if" and caused crashes in Polymost Mapster32
+            int32_t cz, fz;
+            getzsofslope(*sectnum, x, y, &cz, &fz);
+
+#ifdef YAX_ENABLE
+            if (z < cz)
+            {
+                int const next = yax_getneighborsect(x, y, *sectnum, YAX_CEILING);
+                if (next >= 0 && z >= getceilzofslope(next, x, y))
+                    SET_AND_RETURN(*sectnum, next);
+            }
+
+            if (z > fz)
+            {
+                int const next = yax_getneighborsect(x, y, *sectnum, YAX_FLOOR);
+                if (next >= 0 && z <= getflorzofslope(next, x, y))
+                    SET_AND_RETURN(*sectnum, next);
+            }
+#endif
+            if (nofirstzcheck || (z >= cz && z <= fz))
+                if (inside_p(x, y, *sectnum))
+                    return;
+
+            uwalltype const * wal = (uwalltype *)&wall[sector[*sectnum].wallptr];
+            int wallsleft = sector[*sectnum].wallnum;
+            do
+            {
+                // YAX: TODO: check neighboring sectors here too?
+                int const next = wal->nextsector;
+                if (next>=0 && inside_z_p(x,y,z, next))
+                    SET_AND_RETURN(*sectnum, next);
+
+                wal++;
+            }
+            while (--wallsleft);
+        }
+    }
+    else
+    {
+        int16_t sect = *sectnum;
+        updatesectorneighborz(x, y, z, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
+        if (sect != -1)
+            SET_AND_RETURN(*sectnum, sect);
+    }
 
     // we need to support passing in a sectnum of -1, unfortunately
     for (int i = numsectors - 1; i >= 0; --i)

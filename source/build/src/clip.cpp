@@ -1663,7 +1663,8 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     const int32_t dasprclipmask = (cliptype>>16);
 
     vec2_t closest = { pos->x, pos->y };
-    getsectordist(closest, sectnum, &closest);
+    if (!blooddemohack)
+        getsectordist(closest, sectnum, &closest);
     getzsofslope(sectnum,closest.x,closest.y,ceilz,florz);
     *ceilhit = sectnum+16384; *florhit = sectnum+16384;
 
@@ -2007,7 +2008,8 @@ restart_grand:
                             addclipsect(j);
 
                             closest = { pos->x, pos->y };
-                            getsectordist(closest, j, &closest);
+                            if (!blooddemohack)
+                                getsectordist(closest, j, &closest);
                             int const daz = getceilzofslope(j, closest.x, closest.y);
 
                             if (!didchange || daz > *ceilz)
@@ -2047,7 +2049,8 @@ restart_grand:
                             addclipsect(j);
 
                             closest = { pos->x, pos->y };
-                            getsectordist(closest, j, &closest);
+                            if (!blooddemohack)
+                                getsectordist(closest, j, &closest);
                             int const daz = getflorzofslope(j, closest.x,closest.y);
 
                             if (!didchange || daz < *florz)
