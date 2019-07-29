@@ -1045,7 +1045,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
     //Extra walldist for sprites on sector lines
     vec2_t const  diff    = { goal.x - (pos->x), goal.y - (pos->y) };
-    int32_t const rad     = nsqrtasm(uhypsq(diff.x, diff.y)) + MAXCLIPDIST + walldist + 8;
+    int32_t const rad     = nsqrtasm(maybe_truncate_to_int32(uhypsq(diff.x, diff.y))) + MAXCLIPDIST + walldist + 8;
     vec2_t const  clipMin = { cent.x - rad, cent.y - rad };
     vec2_t const  clipMax = { cent.x + rad, cent.y + rad };
 
@@ -1390,29 +1390,14 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         if ((hitwall = cliptrace(pos->vec2, &vec)) >= 0)
         {
             vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
-            if (blooddemohack)
-            {
-                int32_t const templl = clipr.x * clipr.x + clipr.y * clipr.y;
+            int64_t const templl = maybe_truncate_to_int32((int64_t)clipr.x * clipr.x + (int64_t)clipr.y * clipr.y);
 
                 if (templl > 0)
                 {
-                    int32_t const templl2 = (goal.x-vec.x)*clipr.x + (goal.y-vec.y)*clipr.y;
-                    int32_t const i = ((klabs(templl2)>>11) < templl) ? divscale20(templl2, templl) : 0;
-
-                    goal = { mulscale20(clipr.x, i)+vec.x, mulscale20(clipr.y, i)+vec.y };
-                }
-            }
-            else
-            {
-            int64_t const templl = (int64_t)clipr.x * clipr.x + (int64_t)clipr.y * clipr.y;
-
-            if (templl > 0)
-            {
-                int64_t const templl2 = (int64_t)(goal.x-vec.x)*clipr.x + (int64_t)(goal.y-vec.y)*clipr.y;
+                int64_t const templl2 = maybe_truncate_to_int32((int64_t)(goal.x-vec.x)*clipr.x + (int64_t)(goal.y-vec.y)*clipr.y);
                 int32_t const i = ((llabs(templl2)>>11) < templl) ? divscale64(templl2, templl, 20) : 0;
 
                 goal = { mulscale20(clipr.x, i)+vec.x, mulscale20(clipr.y, i)+vec.y };
-            }
             }
 
             int32_t const tempint = dmulscale6(clipr.x, move.x, clipr.y, move.y);
@@ -2141,7 +2126,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         auto const wal2 = (uwallptr_t)&wall[wal->point2];
         int32_t j, dax=wal2->x-wal->x, day=wal2->y-wal->y;
 
-        i = nsqrtasm(uhypsq(dax,day)); if (i == 0) return 1; //continue;
+        i = nsqrtasm(maybe_truncate_to_int32(uhypsq(dax,day))); if (i == 0) return 1; //continue;
         i = divscale15(heinum,i);
         dax *= i; day *= i;
 
@@ -2307,7 +2292,7 @@ restart_grand:
 
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
 
-            if ((coord_t)(x1-sv->x)*(y2-sv->y) < (coord_t)(x2-sv->x)*(y1-sv->y)) continue;
+            if (maybe_truncate_to_int32((coord_t)(x1-sv->x)*(y2-sv->y)) < maybe_truncate_to_int32((coord_t)(x2-sv->x)*(y1-sv->y))) continue;
             if (rintersect(sv->x,sv->y,sv->z, vx,vy,vz, x1,y1, x2,y2, &intx,&inty,&intz) == -1) continue;
 
             if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
@@ -2409,7 +2394,7 @@ restart_grand:
                 get_wallspr_points(spr, &x1, &x2, &y1, &y2);
 
                 if ((cstat&64) != 0)   //back side of 1-way sprite
-                    if ((coord_t)(x1-sv->x)*(y2-sv->y) < (coord_t)(x2-sv->x)*(y1-sv->y)) continue;
+                    if (maybe_truncate_to_int32((coord_t)(x1-sv->x)*(y2-sv->y)) < maybe_truncate_to_int32((coord_t)(x2-sv->x)*(y1-sv->y))) continue;
 
                 ucoefup16 = rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz);
                 if (ucoefup16 == -1) continue;
@@ -2454,7 +2439,8 @@ restart_grand:
 
                 if ((cstat&64) != 0)
                     if ((sv->z > intz) == ((cstat&8)==0)) continue;
-#if 1
+                if (!blooddemohack)
+                {
                 // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
                 // PK: the reason for the crash is not the overflowing (even if it IS a problem;
                 // signed overflow is undefined behavior in C), but rather the idiv trap when
@@ -2463,10 +2449,13 @@ restart_grand:
                 intx = sv->x+scale(zz,1,vz);
                 zz = (uint32_t)(intz-sv->z) * vy;
                 inty = sv->y+scale(zz,1,vz);
-#else
+                }
+                else
+                {
                 intx = sv->x+scale(intz-sv->z,vx,vz);
                 inty = sv->y+scale(intz-sv->z,vy,vz);
-#endif
+                }
+
                 if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
                     continue;
 
