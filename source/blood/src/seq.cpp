@@ -287,11 +287,19 @@ void SEQINST::Update(ACTIVE *pActive)
     {
 
         UpdateSprite(pActive->xindex, &pSequence->frames[frameIndex]);
-        if (pSequence->frames[frameIndex].at6_1)
-            sfxPlay3DSound(&sprite[xsprite[pActive->xindex].reference], pSequence->ata + Random(pSequence->frames[frameIndex].soundRange), -1, 0);
+        if (pSequence->frames[frameIndex].at6_1) {
+            
+            int sound = pSequence->ata;
+            
+            // by NoOne: add random sound range feature
+            if (!VanillaMode() && pSequence->frames[frameIndex].soundRange > 0)
+                sound += Random(((pSequence->frames[frameIndex].soundRange == 1) ? 2 : pSequence->frames[frameIndex].soundRange));
+            
+            sfxPlay3DSound(&sprite[xsprite[pActive->xindex].reference], sound, -1, 0);
+        }
 
         spritetype* pSprite = &sprite[xsprite[pActive->xindex].reference];
-        if (pSequence->frames[frameIndex].surfaceSound && zvel[pSprite->xvel] == 0 && xvel[pSprite->xvel] != 0) {
+        if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && zvel[pSprite->xvel] == 0 && xvel[pSprite->xvel] != 0) {
 
             // by NoOne: add surfaceSound trigger feature
             if (gUpperLink[pSprite->sectnum] >= 0) break; // don't play surface sound for stacked sectors

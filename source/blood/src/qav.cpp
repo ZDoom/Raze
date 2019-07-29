@@ -94,7 +94,7 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
             SOUNDINFO *pSound = &pFrame->sound;
             
             // by NoOne: handle Sound kill flags
-            if (pSound->sndFlags > 0 && pSound->sndFlags <= kFlagSoundKillAll) {
+            if (!VanillaMode() && pSound->sndFlags > 0 && pSound->sndFlags <= kFlagSoundKillAll) {
                 for (int i = 0; i < nFrames; i++) {
                     FRAMEINFO* pFrame2 = &frames[i];
                     SOUNDINFO* pSound2 = &pFrame2->sound;
@@ -112,9 +112,14 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
             }
 
             if (pSound->sound > 0) {
-                int sndRange = pSound->sndRange;
-                if (nSprite == -1) PlaySound(pSound->sound + Random((sndRange == 1) ? 2 : sndRange));
-                else PlaySound3D(&sprite[nSprite], pSound->sound + Random((sndRange == 1) ? 2 : sndRange), 16+pSound->priority, 6);
+                int sound = pSound->sound;
+                
+                // by NoOne: add random rage sound feature
+                if (pSound->sndRange > 0 && !VanillaMode()) 
+                    sound += Random((pSound->sndRange == 1) ? 2 : pSound->sndRange);
+                
+                if (nSprite == -1) PlaySound(sound);
+                else PlaySound3D(&sprite[nSprite], sound, 16+pSound->priority, 6);
             }
             
             if (pFrame->nCallbackId > 0 && nCallback != -1) {
