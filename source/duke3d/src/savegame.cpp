@@ -160,11 +160,27 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
 
         menusave_t & msv = g_internalsaves[g_numinternalsaves];
 
+        msv.brief.isExt = 0;
+
         int32_t k = sv_loadheader(fil, 0, &h);
         if (k)
         {
             if (k < 0)
                 msv.isUnreadable = 1;
+            else
+            {
+                if (FURY)
+                {
+                    char extfn[BMAX_PATH];
+                    snprintf(extfn, ARRAY_SIZE(extfn), "%s.ext", fn);
+                    buildvfs_kfd fil = kopen4loadfrommod(extfn, 0);
+                    if (fil != buildvfs_kfd_invalid)
+                    {
+                        msv.brief.isExt = 1;
+                        kclose(fil);
+                    }
+                }
+            }
             msv.isOldVer = 1;
         }
         else
@@ -330,9 +346,223 @@ static void sv_postudload();
 // hack
 static int different_user_map;
 
+#include "sjson.h"
+
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(savebrief_t & sv)
 {
+    if (sv.isExt)
+    {
+        char extfn[BMAX_PATH];
+        snprintf(extfn, ARRAY_SIZE(extfn), "%s.ext", sv.path);
+        buildvfs_kfd fil = kopen4loadfrommod(extfn, 0);
+        if (fil == buildvfs_kfd_invalid)
+        {
+            return -1;
+        }
+
+        int32_t len = kfilelength(fil);
+        auto text = (char *)Xmalloc(len+1);
+        text[len] = '\0';
+
+        if (kread_and_test(fil, text, len))
+        {
+            kclose(fil);
+            Xfree(text);
+            return -1;
+        }
+
+        kclose(fil);
+
+
+        sjson_context * ctx = sjson_create_context(0, 0, NULL);
+        sjson_node * root = sjson_decode(ctx, text);
+
+        Xfree(text);
+
+        int volume = sjson_get_int(root, "volume", -1);
+        int level = sjson_get_int(root, "level", -1);
+        int skill = sjson_get_int(root, "skill", -1);
+
+        if (volume == -1 || level == -1 || skill == -1)
+        {
+            sjson_destroy_context(ctx);
+            return -1;
+        }
+
+        sjson_node * players = sjson_find_member(root, "players");
+
+        int numplayers = sjson_child_count(players);
+
+        if (numplayers != ud.multimode)
+        {
+            P_DoQuote(QUOTE_SAVE_BAD_PLAYERS, g_player[myconnectindex].ps);
+
+            sjson_destroy_context(ctx);
+            return 1;
+        }
+
+        {
+            // CODEDUP from non-isExt branch, with simplifying assumptions
+
+            VM_OnEvent(EVENT_PRELOADGAME, g_player[screenpeek].ps->i, screenpeek);
+
+            ud.multimode = numplayers;
+
+            Net_WaitForServer();
+
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+
+            ud.m_volume_number = volume;
+            ud.m_level_number = level;
+            ud.m_player_skill = skill;
+
+            boardfilename[0] = '\0';
+
+            int const mapIdx = volume*MAXLEVELS + level;
+
+            if (boardfilename[0])
+                Bstrcpy(currentboardfilename, boardfilename);
+            else if (g_mapInfo[mapIdx].filename)
+                Bstrcpy(currentboardfilename, g_mapInfo[mapIdx].filename);
+
+            if (currentboardfilename[0])
+            {
+                artSetupMapArt(currentboardfilename);
+                append_ext_UNSAFE(currentboardfilename, ".mhk");
+                engineLoadMHK(currentboardfilename);
+            }
+
+            currentboardfilename[0] = '\0';
+
+            // G_NewGame_EnterLevel();
+        }
+
+        {
+            // CODEDUP from G_NewGame
+
+            auto & p0 = *g_player[0].ps;
+
+            ready2send = 0;
+
+            ud.from_bonus    = 0;
+            ud.last_level    = -1;
+            ud.level_number  = level;
+            ud.player_skill  = skill;
+            ud.secretlevel   = 0;
+            ud.skill_voice   = -1;
+            ud.volume_number = volume;
+
+            g_lastAutoSaveArbitraryID = -1;
+
+#ifdef EDUKE32_TOUCH_DEVICES
+            p0.zoom = 360;
+#else
+            p0.zoom = 768;
+#endif
+            p0.gm = 0;
+
+            Menu_Close(0);
+
+#if !defined LUNATIC
+            Gv_ResetVars();
+            Gv_InitWeaponPointers();
+            Gv_RefreshPointers();
+#endif
+            Gv_ResetSystemDefaults();
+
+            for (int i=0; i < (MAXVOLUMES*MAXLEVELS); i++)
+                G_FreeMapState(i);
+
+            if (ud.m_coop != 1)
+                p0.last_weapon = -1;
+
+            display_mirror = 0;
+        }
+
+        int p = 0;
+        for (sjson_node * player = sjson_first_child(players); player != nullptr; player = player->next)
+        {
+            playerdata_t * playerData = &g_player[p];
+            DukePlayer_t * ps = playerData->ps;
+            auto pSprite = &sprite[ps->i];
+
+            pSprite->extra = sjson_get_int(player, "extra", -1);
+            ps->max_player_health = sjson_get_int(player, "max_player_health", -1);
+
+            sjson_node * gotweapon = sjson_find_member(player, "gotweapon");
+            int w_end = min<int>(MAX_WEAPONS, sjson_child_count(gotweapon));
+            ps->gotweapon = 0;
+            for (int w = 0; w < w_end; ++w)
+            {
+                sjson_node * ele = sjson_find_element(gotweapon, w);
+                if (ele->tag == SJSON_BOOL && ele->bool_)
+                    ps->gotweapon |= 1<<w;
+            }
+
+            /* bool flag_ammo_amount = */ sjson_get_int16s(ps->ammo_amount, MAX_WEAPONS, player, "ammo_amount");
+            /* bool flag_max_ammo_amount = */ sjson_get_int16s(ps->max_ammo_amount, MAX_WEAPONS, player, "max_ammo_amount");
+            /* bool flag_inv_amount = */ sjson_get_int16s(ps->inv_amount, GET_MAX, player, "inv_amount");
+
+            ps->max_shield_amount = sjson_get_int(player, "max_shield_amount", -1);
+
+            ps->curr_weapon = sjson_get_int(player, "curr_weapon", -1);
+            ps->subweapon = sjson_get_int(player, "subweapon", -1);
+            ps->inven_icon = sjson_get_int(player, "inven_icon", -1);
+
+            sjson_node * vars = sjson_find_member(player, "vars");
+
+            for (int j=0; j<g_gameVarCount; j++)
+            {
+                gamevar_t & var = aGameVars[j];
+
+                if (!(var.flags & GAMEVAR_SERIALIZE))
+                    continue;
+
+                if ((var.flags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR)) != GAMEVAR_PERPLAYER)
+                    continue;
+
+                Gv_SetVar(j, sjson_get_int(vars, var.szLabel, var.defaultValue), ps->i, p);
+            }
+
+            ++p;
+        }
+
+        {
+            sjson_node * vars = sjson_find_member(root, "vars");
+
+            for (int j=0; j<g_gameVarCount; j++)
+            {
+                gamevar_t & var = aGameVars[j];
+
+                if (!(var.flags & GAMEVAR_SERIALIZE))
+                    continue;
+
+                if (var.flags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
+                    continue;
+
+                Gv_SetVar(j, sjson_get_int(vars, var.szLabel, var.defaultValue));
+            }
+        }
+
+        sjson_destroy_context(ctx);
+
+
+        if (G_EnterLevel(MODE_GAME|MODE_EOL))
+            G_BackToMenu();
+
+
+        // postloadplayer(1);
+
+        // sv_postudload();
+
+
+        VM_OnEvent(EVENT_LOADGAME, g_player[screenpeek].ps->i, screenpeek);
+
+        return 0;
+    }
+
     buildvfs_kfd const fil = kopen4loadfrommod(sv.path, 0);
 
     if (fil == buildvfs_kfd_invalid)
@@ -540,6 +770,8 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
         goto saveproblem;
     }
 
+    sv.isExt = 0;
+
     // temporary hack
     ud.user_map = G_HaveUserMap();
 
@@ -550,7 +782,6 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
     VM_OnEvent(EVENT_SAVEGAME, g_player[screenpeek].ps->i, screenpeek);
 
-    extern int portableBackupSave(const char *);
     portableBackupSave(sv.path);
 
     // SAVE!

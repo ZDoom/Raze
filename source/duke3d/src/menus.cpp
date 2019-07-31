@@ -2348,14 +2348,27 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     {
         videoFadeToBlack(1);
         menusave_t & msv = g_menusaves[M_LOAD.currentEntry];
-        if (msv.isOldVer)
+        if (msv.isOldVer && msv.brief.isExt)
         {
+            Bsprintf(tempbuf, "Resume game from sequence point:\n\"%s\""
+#ifndef EDUKE32_ANDROID_MENU
+                              "\n(Y/N)"
+#endif
+            , msv.brief.name);
+            mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
+        }
+        else if (msv.isOldVer)
+        {
+#if 1
+            mgametextcenter(origin.x, origin.y + (90<<16), "You're not supposed to be here.");
+#else
             Bsprintf(tempbuf, "Start new game:\n%s / %s"
 #ifndef EDUKE32_ANDROID_MENU
                               "\n(Y/N)"
 #endif
             , g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, g_skillNames[ud.player_skill-1]);
             mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
+#endif
         }
         else
         {
@@ -2691,7 +2704,11 @@ static void Menu_LoadReadHeaders()
     Menu_ReadSaveGameHeaders();
 
     for (int i = 0; i < g_nummenusaves; ++i)
-        MenuEntry_DisableOnCondition(&ME_LOAD[i], g_menusaves[i].isOldVer);
+    {
+        menusave_t const & msv = g_menusaves[i];
+        // MenuEntry_LookDisabledOnCondition(&ME_LOAD[i], msv.isOldVer && msv.brief.isExt);
+        MenuEntry_DisableOnCondition(&ME_LOAD[i], msv.isOldVer && !msv.brief.isExt);
+    }
 }
 
 static void Menu_SaveReadHeaders()
@@ -2699,7 +2716,10 @@ static void Menu_SaveReadHeaders()
     Menu_ReadSaveGameHeaders();
 
     for (int i = 0; i < g_nummenusaves; ++i)
-        MenuEntry_LookDisabledOnCondition(&ME_SAVE[i], g_menusaves[i].isOldVer);
+    {
+        menusave_t const & msv = g_menusaves[i];
+        MenuEntry_LookDisabledOnCondition(&ME_SAVE[i], msv.isOldVer && !msv.brief.isExt);
+    }
 }
 
 static void Menu_PreInput(MenuEntry_t *entry)
@@ -3472,7 +3492,8 @@ static void Menu_Verify(int32_t input)
     case MENU_LOADVERIFY:
         if (input)
         {
-            savebrief_t & sv = g_menusaves[M_LOAD.currentEntry].brief;
+            menusave_t & msv = g_menusaves[M_LOAD.currentEntry];
+            savebrief_t & sv = msv.brief;
 
             if (strcmp(sv.path, g_lastusersave.path) != 0)
             {
@@ -3489,9 +3510,10 @@ static void Menu_Verify(int32_t input)
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
 
-            Menu_Change(MENU_CLOSE);
-
-            G_LoadPlayerMaybeMulti(sv);
+            if (G_LoadPlayerMaybeMulti(sv))
+                Menu_Change(MENU_PREVIOUS);
+            else
+                Menu_Change(MENU_CLOSE);
         }
         break;
 

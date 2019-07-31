@@ -83,11 +83,13 @@ struct savebrief_t
 
     char name[MAXSAVEGAMENAMESTRUCT];
     char path[BMAX_PATH];
+    uint8_t isExt = 0;
 
     void reset()
     {
         name[0] = '\0';
         path[0] = '\0';
+        isExt = 0;
     }
     bool isValid() const
     {
@@ -103,10 +105,10 @@ struct menusave_t
     uint8_t isAutoSave = 0;
     void clear()
     {
-      brief.reset();
-      isOldVer = 0;
-      isUnreadable = 0;
-      isAutoSave = 0;
+        brief.reset();
+        isOldVer = 0;
+        isUnreadable = 0;
+        isAutoSave = 0;
     }
 };
 

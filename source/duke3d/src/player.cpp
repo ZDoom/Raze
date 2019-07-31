@@ -5640,7 +5640,7 @@ HORIZONLY:;
 #define SJSON_IMPLEMENT
 #include "sjson.h"
 
-int portableBackupSave(const char *path)
+int portableBackupSave(const char * path)
 {
     if (!FURY)
         return 0;
@@ -5652,14 +5652,14 @@ int portableBackupSave(const char *path)
         return 1;
     }
 
-    sjson_context* ctx = sjson_create_context(0, 0, NULL);
+    sjson_context * ctx = sjson_create_context(0, 0, NULL);
     if (!ctx)
     {
         buildprint("Could not create sjson_context\n");
         return 1;
     }
 
-    sjson_node* root = sjson_mkobject(ctx);
+    sjson_node * root = sjson_mkobject(ctx);
 
     // sjson_put_string(ctx, root, "map", currentboardfilename);
     sjson_put_int(ctx, root, "volume", ud.last_stateless_volume);
@@ -5686,20 +5686,9 @@ int portableBackupSave(const char *path)
             for (int w = 0; w < MAX_WEAPONS; ++w)
                 sjson_append_element(gotweapon, sjson_mkbool(ctx, !!(ps->gotweapon & (1<<w))));
 
-            int ammo_amount[MAX_WEAPONS];
-            for (int w = 0; w < MAX_WEAPONS; ++w)
-                ammo_amount[w] = ps->ammo_amount[w];
-            sjson_put_ints(ctx, player, "ammo_amount", ammo_amount, MAX_WEAPONS);
-
-            int max_ammo_amount[MAX_WEAPONS];
-            for (int w = 0; w < MAX_WEAPONS; ++w)
-                max_ammo_amount[w] = ps->max_ammo_amount[w];
-            sjson_put_ints(ctx, player, "max_ammo_amount", max_ammo_amount, MAX_WEAPONS);
-
-            int inv_amount[GET_MAX];
-            for (int i = 0; i < GET_MAX; ++i)
-                inv_amount[i] = ps->inv_amount[i];
-            sjson_put_ints(ctx, player, "inv_amount", inv_amount, GET_MAX);
+            sjson_put_int16s(ctx, player, "ammo_amount", ps->ammo_amount, MAX_WEAPONS);
+            sjson_put_int16s(ctx, player, "max_ammo_amount", ps->max_ammo_amount, MAX_WEAPONS);
+            sjson_put_int16s(ctx, player, "inv_amount", ps->inv_amount, GET_MAX);
 
             sjson_put_int(ctx, player, "max_shield_amount", ps->max_shield_amount);
 
@@ -5751,7 +5740,7 @@ int portableBackupSave(const char *path)
         return 1;
     }
 
-    char* encoded = sjson_stringify(ctx, root, "  ");
+    char * encoded = sjson_stringify(ctx, root, "  ");
 
     buildvfs_FILE fil = buildvfs_fopen_write(fn);
     if (!fil)
@@ -5763,6 +5752,7 @@ int portableBackupSave(const char *path)
     buildvfs_fwrite(encoded, strlen(encoded), 1, fil);
     buildvfs_fclose(fil);
 
+    sjson_free_string(ctx, encoded);
     sjson_destroy_context(ctx);
 
     return 0;
