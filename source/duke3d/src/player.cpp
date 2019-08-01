@@ -4702,7 +4702,7 @@ void P_ProcessInput(int playerNum)
     {
         if (pPlayer->pos.z + stepHeight > actor[pPlayer->i].floorz - PMINHEIGHT)
             stepHeight -= (pPlayer->pos.z + stepHeight) - (actor[pPlayer->i].floorz - PMINHEIGHT);
-        else
+        else if (!pPlayer->on_ground)
             stepHeight -= (pPlayer->jumping_counter << 1) + (pPlayer->jumping_counter >> 1);
 
         stepHeight = max(stepHeight, 0);
