@@ -754,7 +754,7 @@ int32_t clipsprite_initindex(int32_t curidx, uspriteptr_t const curspr, int32_t 
 
 #endif
 
-static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int16_t daoval, bool nofix)
+static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int16_t daoval, int nofix)
 {
     if (EDUKE32_PREDICT_FALSE(clipnum >= MAXCLIPNUM))
     {
