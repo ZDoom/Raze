@@ -929,8 +929,8 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                     }
 
                     if ((SECTORFLD(i,stat, cf)&2) ||
-                            (cf==0 && globalposz > sector[i].ceilingz) ||
-                            (cf==1 && globalposz < sector[i].floorz))
+                            (cf==0 && globalposz >= sector[i].ceilingz) ||
+                            (cf==1 && globalposz <= sector[i].floorz))
                     {
                         havebunch[j>>3] |= (1<<(j&7));
                         bunches[cf][bnchnum[cf]++] = j;
