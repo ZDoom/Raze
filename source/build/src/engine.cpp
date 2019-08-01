@@ -9828,9 +9828,9 @@ skip_reading_mapbin:
     kclose(fil);
     // Done reading file.
 
-    for (i=numsprites-1; i>=0; i--)
+    if (!have_maptext())
     {
-        if (!have_maptext())
+        for (i=numsprites-1; i>=0; i--)
         {
             sprite[i].x       = B_LITTLE32(sprite[i].x);
             sprite[i].y       = B_LITTLE32(sprite[i].y);
@@ -9847,9 +9847,14 @@ skip_reading_mapbin:
             sprite[i].lotag   = B_LITTLE16(sprite[i].lotag);
             sprite[i].hitag   = B_LITTLE16(sprite[i].hitag);
             sprite[i].extra   = B_LITTLE16(sprite[i].extra);
-        }
 
-        check_sprite(i);
+            check_sprite(i);
+        }
+    }
+    else
+    {
+        for (i=numsprites-1; i>=0; i--)
+            check_sprite(i);
     }
 
     // Back up the map version of the *loaded* map. Must be before yax_update().
