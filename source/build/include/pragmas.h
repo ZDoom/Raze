@@ -241,11 +241,15 @@ static FORCE_INLINE CONSTEXPR char readpixel(void *s) { return *(char *)s; }
 static FORCE_INLINE void drawpixel(void *s, char a) { *(char *)s = a; }
 
 #ifndef pragmas_have_klabs
-static FORCE_INLINE int32_t klabs(int32_t a)
+#if 0
+static FORCE_INLINE int32_t klabs(int32_t const a)
 {
-    const uint32_t m = a >> (sizeof(uint32_t) * CHAR_BIT - 1);
+    uint32_t const m = a >> (sizeof(uint32_t) * CHAR_BIT - 1);
     return (a ^ m) - m;
 }
+#else
+#define klabs(x) abs(x)
+#endif
 #endif
 #ifndef pragmas_have_ksgn
 static FORCE_INLINE CONSTEXPR int32_t ksgn(int32_t a) { return (a > 0) - (a < 0); }
