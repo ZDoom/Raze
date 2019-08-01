@@ -4725,7 +4725,7 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
                              int8_t dashade, char dapal, const int32_t *daumost, const int32_t *dadmost,
                              const int8_t cstat, const int32_t clipcf, int32_t floorz, int32_t ceilingz)
 {
-    int32_t i, j, k, x, y;
+    int32_t i, j, k, x, y, mip;
 
     int32_t cosang = cosglobalang;
     int32_t sinang = singlobalang;
@@ -4737,7 +4737,7 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
     setupdrawslab(ylookup[1], FP_OFF(palookup[dapal])+j);
 
     j = 1310720;
-    j *= min(daxscale,dayscale); j >>= 6;  //New hacks (for sized-down voxels)
+    //j *= min(daxscale,dayscale); j >>= 6;  //New hacks (for sized-down voxels)
     for (k=0; k<MAXVOXMIPS; k++)
     {
         if (i < j) { i = k; break; }
@@ -4746,11 +4746,16 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
     if (k >= MAXVOXMIPS)
         i = MAXVOXMIPS-1;
 
+    mip = 0;
+
     if (novoxmips)
+    {
+        mip = i;
         i = 0;
+    }
 
     char *davoxptr = (char *)voxoff[daindex][i];
-    if (!davoxptr && i > 0) { davoxptr = (char *)voxoff[daindex][0]; i = 0; }
+    if (!davoxptr && i > 0) { davoxptr = (char *)voxoff[daindex][0]; mip = i; i = 0;}
     if (!davoxptr)
         return;
 
@@ -4790,6 +4795,9 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
 
     cosang <<= 2;
     sinang <<= 2;
+
+    cosang >>= mip;
+    sinang >>= mip;
 
     const voxint_t gxstart = (voxint_t)y*cosang - (voxint_t)x*sinang;
     const voxint_t gystart = (voxint_t)x*cosang + (voxint_t)y*sinang;
@@ -4966,10 +4974,10 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
 
                 rx -= lx;
 
-                const int32_t l1 = mulscale12(distrecip[clamp((ny-yoff)>>14, 1, DISTRECIPSIZ-1)], dayscale);
+                const int32_t l1 = mulscale(distrecip[clamp((ny-yoff)>>14, 1, DISTRECIPSIZ-1)], dayscale, 12+mip);
                 // FIXME! AMCTC RC2/beta shotgun voxel
                 // (e.g. training map right after M16 shooting):
-                const int32_t l2 = mulscale12(distrecip[clamp((ny+yoff)>>14, 1, DISTRECIPSIZ-1)], dayscale);
+                const int32_t l2 = mulscale(distrecip[clamp((ny+yoff)>>14, 1, DISTRECIPSIZ-1)], dayscale, 12+mip);
                 int32_t cz1 = 0, cz2 = INT32_MAX;
 
                 if (clipcf)
