@@ -805,12 +805,18 @@ static bool cliptestsector(int const dasect, int const nextsect, int32_t const f
     if (sec->floorstat & 2)
         getcorrectzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
 
-    return (((sec2->floorstat&1) == 0 &&  // parallaxed floor curbs don't clip
-        posz >= daz2-(flordist-1) &&  // also account for desired z distance tolerance
-        daz2 < daz-(1<<8)) ||  // curbs less tall than 256 z units don't clip
-        ((sec2->ceilingstat&1) == 0 &&
-        posz <= dacz2+(ceildist-1) &&
-        dacz2 > dacz+(1<<8)));
+    int32_t const sec2height = daz2-dacz2;
+
+    return ((daz-dacz > sec2height &&       // clip if the current sector is taller and the next is too small
+            sec2height < (flordist+ceildist-(CLIPCURBHEIGHT<<1))) ||
+
+            ((sec2->floorstat&1) == 0 &&    // parallaxed floor curbs don't clip
+            posz >= daz2-(flordist-1) &&    // also account for desired z distance tolerance
+            daz2 < daz-CLIPCURBHEIGHT) ||   // curbs less tall than 256 z units don't clip
+
+            ((sec2->ceilingstat&1) == 0 && 
+            posz <= dacz2+(ceildist-1) &&
+            dacz2 > dacz+CLIPCURBHEIGHT));  // ceilings check the same conditions ^^^^^
 }
 
 int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
@@ -1248,7 +1254,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             {
                 int32_t height, daz = spr->z+spriteheightofs(j, &height, 1);
 
-                if (pos->z > daz-height-flordist && pos->z < spr->z+ceildist)
+                if (pos->z > daz-height-flordist && pos->z < daz+ceildist)
                 {
                     vec2_t p2;
 

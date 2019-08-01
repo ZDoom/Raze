@@ -17,7 +17,7 @@ extern "C" {
 
 #define MAXCLIPSECTORS 512
 #define MAXCLIPNUM 2048
-
+#define CLIPCURBHEIGHT (1<<8)
 #ifdef HAVE_CLIPSHAPE_FEATURE
 
 #define CM_MAX 256  // must be a power of 2
