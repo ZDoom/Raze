@@ -126,6 +126,13 @@ static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
 static int32_t lowrecip[1024], nytooclose;
 static const int32_t nytoofar = DISTRECIPSIZ*16384ull - 1048576;
 static uint32_t *distrecip;
+#define DISTRECIPCACHESIZE 3
+static struct {
+    uint32_t *distrecip;
+    int32_t xdimen;
+    int32_t age;
+} distrecipcache[DISTRECIPCACHESIZE];
+static int32_t distrecipagecnt = 0;
 
 static int32_t *lookups = NULL;
 static int32_t beforedrawrooms = 1;
@@ -7532,18 +7539,38 @@ static void dosetaspect(void)
 
         if (xdimen != oxdimen && (playing_blood || voxoff[0][0]))
         {
-            if (distrecip == NULL)
-                distrecip = (uint32_t *)Xaligned_alloc(16, DISTRECIPSIZ * sizeof(uint32_t));
-
-            if (xdimen < 1 << 11)
+            distrecip = NULL;
+            for (i = 0; i < DISTRECIPCACHESIZE; i++)
             {
-                for (i = 1; i < DISTRECIPSIZ; i++)
-                    distrecip[i] = tabledivide32(xdimen << 20, i);
+                if (distrecipcache[i].xdimen == xdimen)
+                    distrecip = distrecipcache[i].distrecip;
             }
-            else
+            if (distrecip == NULL)
             {
-                for (i = 1; i < DISTRECIPSIZ; i++)
-                    distrecip[i] = tabledivide64((uint64_t)xdimen << 20, i);
+                int32_t minAge = 0;
+                for (i = 1; i < DISTRECIPCACHESIZE; i++)
+                {
+                    if (distrecipcache[i].age < distrecipcache[minAge].age)
+                        minAge = i;
+                }
+                if (distrecipcache[minAge].distrecip == NULL)
+                    distrecipcache[minAge].distrecip = (uint32_t *)Xaligned_alloc(16, DISTRECIPSIZ * sizeof(uint32_t));
+
+                distrecipcache[minAge].age = ++distrecipagecnt;
+                distrecipcache[minAge].xdimen = xdimen;
+
+                distrecip = distrecipcache[minAge].distrecip;
+
+                if (xdimen < 1 << 11)
+                {
+                    for (i = 1; i < DISTRECIPSIZ; i++)
+                        distrecip[i] = tabledivide32(xdimen << 20, i);
+                }
+                else
+                {
+                    for (i = 1; i < DISTRECIPSIZ; i++)
+                        distrecip[i] = tabledivide64((uint64_t)xdimen << 20, i);
+                }
             }
 
             nytooclose = xdimen*2100;
@@ -8212,7 +8239,9 @@ void engineUnInit(void)
     Buninitart();
 
     DO_FREE_AND_NULL(lookups);
-    ALIGNED_FREE_AND_NULL(distrecip);
+    for (bssize_t i=0; i<DISTRECIPCACHESIZE; i++)
+        ALIGNED_FREE_AND_NULL(distrecipcache[i].distrecip);
+    Bmemset(distrecipcache, 0, sizeof(distrecipcache));
 
     paletteloaded = 0;
 
