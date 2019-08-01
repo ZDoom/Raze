@@ -72,7 +72,9 @@ void S_SoundStartup(void)
             voice.clock     = 0;
         }
 
+#ifdef CACHING_DOESNT_SUCK
         g_soundlocks[i] = 199;
+#endif
     }
 
     cacheAllSounds();
@@ -448,7 +450,7 @@ int32_t S_LoadSound(int num)
     }
 
     int32_t l = kfilelength(fp);
-    g_soundlocks[num] = 200;
+    g_soundlocks[num] = 255;
     snd.siz = l;
     cacheAllocateBlock((intptr_t *)&snd.ptr, l, (char *)&g_soundlocks[num]);
     l = kread(fp, snd.ptr, l);
@@ -705,14 +707,18 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
     if (snd.num > 0 && PN(spriteNum) != MUSICANDSFX)
         S_StopEnvSound(sndNum, spriteNum);
 
+#ifdef CACHING_DOESNT_SUCK
     if (++g_soundlocks[sndNum] < 200)
         g_soundlocks[sndNum] = 200;
+#endif
 
     int const sndSlot = S_GetSlot(sndNum);
 
     if (sndSlot >= MAXSOUNDINSTANCES)
     {
+#ifdef CACHING_DOESNT_SUCK
         g_soundlocks[sndNum]--;
+#endif
         return -1;
     }
 
@@ -720,7 +726,9 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 
     if (repeatp && (snd.m & SF_ONEINST_INTERNAL) && snd.num > 0)
     {
+#ifdef CACHING_DOESNT_SUCK
         g_soundlocks[sndNum]--;
+#endif
         return -1;
     }
 
@@ -729,7 +737,9 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 
     if (voice <= FX_Ok)
     {
+#ifdef CACHING_DOESNT_SUCK
         g_soundlocks[sndNum]--;
+#endif
         return -1;
     }
 
@@ -764,14 +774,18 @@ int S_PlaySound(int num)
 
     int const pitch = S_GetPitch(num);
 
+#ifdef CACHING_DOESNT_SUCK
     if (++g_soundlocks[num] < 200)
         g_soundlocks[num] = 200;
+#endif
 
     sndnum = S_GetSlot(num);
 
     if (sndnum >= MAXSOUNDINSTANCES)
     {
+#ifdef CACHING_DOESNT_SUCK
         g_soundlocks[num]--;
+#endif
         return -1;
     }
 
@@ -782,7 +796,9 @@ int S_PlaySound(int num)
 
     if (voice <= FX_Ok)
     {
+#ifdef CACHING_DOESNT_SUCK
         g_soundlocks[num]--;
+#endif
         return -1;
     }
 
