@@ -2516,6 +2516,16 @@ static void postloadplayer(int32_t savegamep)
     G_ResetTimers(0);
 #endif
 
+#ifdef USE_STRUCT_TRACKERS
+    Bmemset(sectorchanged, 0, sizeof(sectorchanged));
+    Bmemset(spritechanged, 0, sizeof(spritechanged));
+    Bmemset(wallchanged, 0, sizeof(wallchanged));
+#endif
+
+#ifdef USE_OPENGL
+    Polymost_prepare_loadboard();
+#endif
+
 #ifdef POLYMER
     //9
     if (videoGetRenderMode() == REND_POLYMER)
