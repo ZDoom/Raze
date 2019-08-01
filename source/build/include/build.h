@@ -869,6 +869,7 @@ EXTERN int32_t windowpos, windowx, windowy;
     //   spritenum = 54;
     //   show2dsprite[spritenum>>3] &= ~(1<<(spritenum&7));
 
+EXTERN int automapping;
 EXTERN char show2dsector[(MAXSECTORS+7)>>3];
 EXTERN char show2dwall[(MAXWALLS+7)>>3];
 EXTERN char show2dsprite[(MAXSPRITES+7)>>3];

@@ -4974,7 +4974,8 @@ void polymost_scansector(int32_t sectnum)
 {
     if (sectnum < 0) return;
 
-	if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum&7];
+    if (automapping)
+        show2dsector[sectnum>>3] |= pow2char[sectnum&7];
 
     sectorborder[0] = sectnum;
     int sectorbordercnt = 1;
@@ -5453,8 +5454,8 @@ void polymost_drawrooms()
 
         if (automapping)
         {
-            for (int z = bunchfirst[closest]; z >= 0; z = bunchp2[z])
-                show2dwall[thewall[z] >> 3] |= pow2char[thewall[z] & 7];
+            for (int z=bunchfirst[closest]; z>=0; z=bunchp2[z])
+                show2dwall[thewall[z]>>3] |= pow2char[thewall[z]&7];
         }
 
         numbunches--;
@@ -6457,6 +6458,10 @@ void polymost_drawsprite(int32_t snum)
         case 3:  // Voxel sprite
             break;
     }
+
+    if (automapping == 1 && (unsigned)spritenum < MAXSPRITES)
+        show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
+
 _drawsprite_return:
     polymost_identityrotmat();
     tilesiz[globalpicnum] = oldsiz;
