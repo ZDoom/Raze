@@ -167,7 +167,7 @@ static inline int32_t klabs(int32_t a)
 
 #define pragmas_have_ksgn
 
-static inline int32_t ksgn(int32_t a)
+static inline int ksgn(int32_t a)
 {
     int32_t s, t;
     __asm__(

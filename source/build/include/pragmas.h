@@ -252,7 +252,7 @@ static FORCE_INLINE int32_t klabs(int32_t const a)
 #endif
 #endif
 #ifndef pragmas_have_ksgn
-static FORCE_INLINE CONSTEXPR int32_t ksgn(int32_t a) { return (a > 0) - (a < 0); }
+static FORCE_INLINE CONSTEXPR int ksgn(int32_t a) { return (a > 0) - (a < 0); }
 #endif
 
 #ifndef pragmas_have_mulscale

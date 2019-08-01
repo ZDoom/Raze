@@ -354,7 +354,7 @@ static __inline int32_t klabs(int32_t a)
 
 #define pragmas_have_ksgn
 
-static __inline int32_t ksgn(int32_t b)
+static __inline int ksgn(int32_t b)
 {
     _asm {
         mov ebx, b
