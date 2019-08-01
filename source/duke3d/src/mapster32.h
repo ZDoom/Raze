@@ -33,9 +33,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 char default_buildkeys[NUMBUILDKEYS] =
 {
-	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
-	0x1e,0x2c,0xd1,0xc9,0x47,0x49,
-	0x9c,0x1c,0xd,0xc,0xf,0x29
+    0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
+    0x1e,0x2c,0xd1,0xc9,0x47,0x49,
+    0x9c,0x1c,0xd,0xc,0xf,0x29
 };
 
 extern char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
@@ -87,7 +87,7 @@ static int32_t updownunits=1024;
 #define FUCKING_GOOD_EYESIGHT 16
 static const int32_t ZoomToThumbSize[] =
 {
-	FUCKING_GOOD_EYESIGHT, 32, 64, 128, 192, 256, 384, 512
+    FUCKING_GOOD_EYESIGHT, 32, 64, 128, 192, 256, 384, 512
 };
 
 #define NUM_ZOOMS ARRAY_SIZE(ZoomToThumbSize)
@@ -95,11 +95,11 @@ static const int32_t ZoomToThumbSize[] =
 
 typedef struct
 {
-	int32_t *pIds;  // ptr to list of tile Ids
-	int32_t  nIds;  // num of tile ids
-	char *szText;   // description to present to user.
-	char  key1;     // key1 and key2 are two alternative keypresses used to
-	char  key2;     //    select tile set. Bodge to do eary upper/lower case handling
+    int32_t *pIds;  // ptr to list of tile Ids
+    int32_t  nIds;  // num of tile ids
+    char *szText;   // description to present to user.
+    char  key1;     // key1 and key2 are two alternative keypresses used to
+    char  key2;     //    select tile set. Bodge to do eary upper/lower case handling
     char  color1;   // 2d sprite color 1
     char  color2;   // 2d sprite color 2
 } TileGroup;

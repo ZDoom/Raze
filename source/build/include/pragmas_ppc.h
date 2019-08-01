@@ -9,34 +9,34 @@
 #define EDUKE32_SCALER_PRAGMA(x) \
 static inline int32_t mulscale##x(int32_t a, int32_t d) \
 { \
-	int32_t mullo, mulhi; \
-	__asm__ ( \
-		" mullw  %0, %2, %3\n" \
-		" mulhw  %1, %2, %3\n" \
-		" srwi   %0, %0, %4\n" \
-		" insrwi %0, %1, %4, 0\n" \
-		: "=&r"(mullo), "=r"(mulhi) \
-		: "r"(a), "r"(d), "i"(x) \
-	); \
-	return mullo; \
+    int32_t mullo, mulhi; \
+    __asm__ ( \
+        " mullw  %0, %2, %3\n" \
+        " mulhw  %1, %2, %3\n" \
+        " srwi   %0, %0, %4\n" \
+        " insrwi %0, %1, %4, 0\n" \
+        : "=&r"(mullo), "=r"(mulhi) \
+        : "r"(a), "r"(d), "i"(x) \
+    ); \
+    return mullo; \
 } \
 static inline int32_t dmulscale##x(int32_t a, int32_t d, int32_t S, int32_t D) \
 { \
-	int32_t mulhi, mullo, sumhi, sumlo; \
-	__asm__ ( \
-		" mullw  %0, %4, %5\n" \
-		" mulhw  %1, %4, %5\n" \
-		" mullw  %2, %6, %7\n" \
-		" mulhw  %3, %6, %7\n" \
-		" addc   %0, %0, %2\n" \
-		" adde   %1, %1, %3\n" \
-		" srwi   %0, %0, %8\n" \
-		" insrwi %0, %1, %8, 0\n" \
-		: "=&r"(sumlo), "=&r"(sumhi), "=&r"(mullo), "=r"(mulhi) \
-		: "r"(a), "r"(d), "r"(S), "r"(D), "i"(x) \
-		: "xer" \
-	); \
-	return sumlo; \
+    int32_t mulhi, mullo, sumhi, sumlo; \
+    __asm__ ( \
+        " mullw  %0, %4, %5\n" \
+        " mulhw  %1, %4, %5\n" \
+        " mullw  %2, %6, %7\n" \
+        " mulhw  %3, %6, %7\n" \
+        " addc   %0, %0, %2\n" \
+        " adde   %1, %1, %3\n" \
+        " srwi   %0, %0, %8\n" \
+        " insrwi %0, %1, %8, 0\n" \
+        : "=&r"(sumlo), "=&r"(sumhi), "=&r"(mullo), "=r"(mulhi) \
+        : "r"(a), "r"(d), "r"(S), "r"(D), "i"(x) \
+        : "xer" \
+    ); \
+    return sumlo; \
 } \
 static inline int32_t tmulscale##x(int32_t a, int32_t d, int32_t b, int32_t c, int32_t S, int32_t D) \
 { \

@@ -23,38 +23,38 @@ static __inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
 #define EDUKE32_SCALER_PRAGMA(x) \
 static __inline int32_t mulscale##x (int32_t a, int32_t d) \
 { \
-	_asm mov eax, a \
-	_asm imul d \
-	_asm shrd eax, edx, x \
+    _asm mov eax, a \
+    _asm imul d \
+    _asm shrd eax, edx, x \
 } \
 static __inline int32_t dmulscale##x (int32_t a, int32_t d, int32_t S, int32_t D) \
 { \
-	_asm mov eax, a \
-	_asm imul d \
-	_asm mov ebx, eax \
-	_asm mov eax, S \
-	_asm mov esi, edx \
-	_asm imul D \
-	_asm add eax, ebx \
-	_asm adc edx, esi \
-	_asm shrd eax, edx, x \
+    _asm mov eax, a \
+    _asm imul d \
+    _asm mov ebx, eax \
+    _asm mov eax, S \
+    _asm mov esi, edx \
+    _asm imul D \
+    _asm add eax, ebx \
+    _asm adc edx, esi \
+    _asm shrd eax, edx, x \
 } \
 static __inline int32_t tmulscale##x (int32_t a, int32_t d, int32_t b, int32_t c, int32_t S, int32_t D) \
 { \
-	_asm mov eax, a \
-	_asm mov ebx, b \
-	_asm imul d \
-	_asm xchg eax, ebx \
-	_asm mov ecx, c \
-	_asm xchg edx, ecx \
-	_asm imul edx \
-	_asm add ebx, eax \
-	_asm adc ecx, edx \
-	_asm mov eax, S \
-	_asm imul D \
-	_asm add eax, ebx \
-	_asm adc edx, ecx \
-	_asm shrd eax, edx, x \
+    _asm mov eax, a \
+    _asm mov ebx, b \
+    _asm imul d \
+    _asm xchg eax, ebx \
+    _asm mov ecx, c \
+    _asm xchg edx, ecx \
+    _asm imul edx \
+    _asm add ebx, eax \
+    _asm adc ecx, edx \
+    _asm mov eax, S \
+    _asm imul D \
+    _asm add eax, ebx \
+    _asm adc edx, ecx \
+    _asm shrd eax, edx, x \
 } \
 
 EDUKE32_GENERATE_PRAGMAS
