@@ -722,11 +722,11 @@ const char *ExtGetWallCaption(int16_t wallnum)
     static char tempbuf[64];
 
     Bmemset(tempbuf,0,sizeof(tempbuf));
-
-    if (wall[wallnum].cstat & (1<<14))
+    
+    if (editwall[wallnum>>3]&(1<<(wallnum&7)))
     {
         Bsprintf(tempbuf,"%d", wallength(wallnum));
-        wall[wallnum].cstat &= ~(1<<14);
+        editwall[wallnum>>3] &= ~(1<<(wallnum&7));
         return tempbuf;
     }
 
