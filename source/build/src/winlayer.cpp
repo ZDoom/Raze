@@ -1851,11 +1851,37 @@ void videoBeginDrawing(void)
     if (lockcount++ > 0)
         return;		// already locked
 
-    if (offscreenrendering) return;
+    static intptr_t backupFrameplace = 0;
 
     if (inpreparemirror)
     {
+        //POGO: if we are offscreenrendering and we need to render a mirror
+        //      or we are rendering a mirror and we start offscreenrendering,
+        //      backup our offscreen target so we can restore it later
+        //      (but only allow one level deep,
+        //       i.e. no viewscreen showing a camera showing a mirror that reflects the same viewscreen and recursing)
+        if (offscreenrendering)
+        {
+            if (!backupFrameplace)
+                backupFrameplace = frameplace;
+            else if (frameplace != (intptr_t)mirrorBuffer &&
+                     frameplace != backupFrameplace)
+                return;
+        }
+
         frameplace = (intptr_t)mirrorBuffer;
+
+        if (offscreenrendering)
+            return;
+    }
+    else if (offscreenrendering)
+    {
+        if (backupFrameplace)
+        {
+            frameplace = backupFrameplace;
+            backupFrameplace = 0;
+        }
+        return;
     }
     else
     {
