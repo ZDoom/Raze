@@ -56,6 +56,7 @@ void I_ClearAllInput(void)
 int32_t I_AdvanceTrigger(void)
 {
     return (
+            KB_KeyPressed(sc_Space) ||
             KB_KeyPressed(sc_kpad_Enter) ||
             KB_KeyPressed(sc_Enter) ||
 #if !defined EDUKE32_TOUCH_DEVICES
@@ -77,6 +78,7 @@ int32_t I_AdvanceTrigger(void)
 void I_AdvanceTriggerClear(void)
 {
     KB_FlushKeyboardQueue();
+    KB_ClearKeyDown(sc_Space);
     KB_ClearKeyDown(sc_kpad_Enter);
     KB_ClearKeyDown(sc_Enter);
     MOUSE_ClearButton(LEFT_MOUSE);
