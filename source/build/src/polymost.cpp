@@ -2783,9 +2783,6 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
         y1 += DOMOST_OFFSET; //necessary?
     }
 
-    x0 -= DOMOST_OFFSET;
-    x1 += DOMOST_OFFSET;
-
     // Test if span is outside screen bounds
     if (x1 < xbl || x0 > xbr)
     {
@@ -2793,8 +2790,8 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
         return;
     }
 
-    vec2f_t dm0 = { x0, y0 };
-    vec2f_t dm1 = { x1, y1 };
+    vec2f_t dm0 = { x0 - DOMOST_OFFSET, y0 };
+    vec2f_t dm1 = { x1 + DOMOST_OFFSET, y1 };
 
     float const slop = (dm1.y - dm0.y) / (dm1.x - dm0.x);
 
@@ -3166,39 +3163,52 @@ skip: ;
         int const ni = vsp[i].n;
 
         //POGO: specially treat the viewport nodes so that we will never end up in a situation where we accidentally access the sentinel node
-        if (ni >= viewportNodeCount &&
-            (vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag))
+        if (ni >= viewportNodeCount)
         {
-            MERGE_NODES(i, ni);
+            if ((vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag))
+            {
+                MERGE_NODES(i, ni);
 #if 0
-            //POGO: This GL1 debug code draws the resulting merged VSP segment with floor and ceiling bounds lines as yellow and cyan respectively
-            //      To enable this, ensure that in polymost_drawrooms() that you are clearing the stencil buffer and color buffer.
-            //      Additionally, disable any calls to glColor4f in polymost_drawpoly and disable culling triangles with area==0
-            //      If you don't want any lines showing up from mirrors/skyboxes, be sure to disable them as well.
-            glEnable(GL_STENCIL_TEST);
-            glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-            glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            glDisable(GL_DEPTH_TEST);
-            polymost_useColorOnly(true);
-            glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+                //POGO: This GL1 debug code draws the resulting merged VSP segment with floor and ceiling bounds lines as yellow and cyan respectively
+                //      To enable this, ensure that in polymost_drawrooms() that you are clearing the stencil buffer and color buffer.
+                //      Additionally, disable any calls to glColor4f in polymost_drawpoly and disable culling triangles with area==0
+                //      If you don't want any lines showing up from mirrors/skyboxes, be sure to disable them as well.
+                glEnable(GL_STENCIL_TEST);
+                glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+                glStencilFunc(GL_ALWAYS, 1, 0xFF);
+                glDisable(GL_DEPTH_TEST);
+                polymost_useColorOnly(true);
+                glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
-            glColor4f(1.f, 1.f, 0.f, 1.f);
-            vec2f_t dfloor[3] = {{vsp[i].x, vsp[i].fy[0]}, {vsp[vsp[i].n].x, vsp[i].fy[1]}, {vsp[i].x, vsp[i].fy[0]}};
-            polymost_drawpoly(dfloor, 3, domostpolymethod);
+                glColor4f(1.f, 1.f, 0.f, 1.f);
+                vec2f_t dfloor[3] = {{vsp[i].x, vsp[i].fy[0]}, {vsp[vsp[i].n].x, vsp[i].fy[1]}, {vsp[i].x, vsp[i].fy[0]}};
+                polymost_drawpoly(dfloor, 3, domostpolymethod);
 
-            glColor4f(0.f, 1.f, 1.f, 1.f);
-            vec2f_t dceil[3] = {{vsp[i].x, vsp[i].cy[0]}, {vsp[vsp[i].n].x, vsp[i].cy[1]}, {vsp[i].x, vsp[i].cy[0]}};
-            polymost_drawpoly(dceil, 3, domostpolymethod);
+                glColor4f(0.f, 1.f, 1.f, 1.f);
+                vec2f_t dceil[3] = {{vsp[i].x, vsp[i].cy[0]}, {vsp[vsp[i].n].x, vsp[i].cy[1]}, {vsp[i].x, vsp[i].cy[0]}};
+                polymost_drawpoly(dceil, 3, domostpolymethod);
 
-            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-            polymost_useColorOnly(false);
-            glEnable(GL_DEPTH_TEST);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            glStencilFunc(GL_EQUAL, 0, 0xFF);
-            glColor4f(1.f, 1.f, 1.f, 1.f);
+                glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+                polymost_useColorOnly(false);
+                glEnable(GL_DEPTH_TEST);
+                glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+                glStencilFunc(GL_EQUAL, 0, 0xFF);
+                glColor4f(1.f, 1.f, 1.f, 1.f);
 #endif
+                continue;
+            }
+            if (vsp[ni].x - vsp[i].x < DOMOST_OFFSET)
+            {
+                vsp[i].x = vsp[ni].x;
+                vsp[i].cy[0] = vsp[ni].cy[0];
+                vsp[i].fy[0] = vsp[ni].fy[0];
+                vsp[i].ctag = vsp[ni].ctag;
+                vsp[i].ftag = vsp[ni].ftag;
+                MERGE_NODES(i, ni);
+                continue;
+            }
         }
-        else i = ni;
+        i = ni;
     }
     while (i);
 #endif
