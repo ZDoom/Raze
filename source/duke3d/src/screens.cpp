@@ -1405,6 +1405,7 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
 {
     if (ud.screenfade == 0)
       return;
+
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
         G_FadePalette(r, g, b, end);
@@ -1414,15 +1415,14 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
     // (end-start)/step + 1 iterations
     do
     {
-        if (KB_KeyPressed(sc_Space))
+        if (I_CheckAllInput())
         {
-            KB_ClearKeyDown(sc_Space);
+            I_ClearAllInput();
             videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
 
         G_FadePalette(r, g, b, start);
-
         start += step;
     } while (start != end+step);
 }
@@ -1432,6 +1432,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
 {
     if (ud.screenfade == 0)
       return;
+
     // STEP must evenly divide END-START
     Bassert(klabs(end-start)%step == 0);
 
@@ -1440,18 +1441,15 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     // (end-start)/step + 1 iterations
     do
     {
-#ifdef __ANDROID__ //Needed for N7 2013 to stop corruption while fading video
-        videoClearViewableArea(0);
-#endif
-        if (KB_KeyPressed(sc_Space))
+        if (I_CheckAllInput())
         {
-            KB_ClearKeyDown(sc_Space);
+            I_ClearAllInput();
             videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
+
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, tile, 0, 0, 2+8+64+BGSTRETCH);
         G_FadePalette(r, g, b, start);
-
         start += step;
     } while (start != end+step);
 }
