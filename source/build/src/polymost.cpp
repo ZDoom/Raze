@@ -2816,12 +2816,22 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
     vec2f_t n0, n1;
     float spx[4];
     int32_t  spt[4];
+    int firstnode = vsp[0].n;
 
     for (bssize_t newi, i=vsp[0].n; i; i=newi)
     {
         newi = vsp[i].n; n0.x = vsp[i].x; n1.x = vsp[newi].x;
 
-        if ((dm0.x >= n1.x) || (n0.x >= dm1.x) || (vsp[i].ctag <= 0)) continue;
+        if (dm0.x >= n1.x)
+        {
+            firstnode = i;
+            continue;
+        }
+        
+        if (n0.x >= dm1.x)
+            break;
+
+        if (vsp[i].ctag <= 0) continue;
 
         float const dx = n1.x-n0.x;
         float const cy[2] = { vsp[i].cy[0], vsp[i].fy[0] },
@@ -3143,10 +3153,13 @@ skip: ;
     //Combine neighboring vertical strips with matching collinear top&bottom edges
     //This prevents x-splits from propagating through the entire scan
 #ifdef COMBINE_STRIPS
-    int i = vsp[0].n;
+    int i = firstnode;
 
     do
     {
+        if (vsp[i].x >= dm1.x)
+            break;
+
         if ((vsp[i].cy[0]+DOMOST_OFFSET*2 >= vsp[i].fy[0]) && (vsp[i].cy[1]+DOMOST_OFFSET*2 >= vsp[i].fy[1]))
             vsp[i].ctag = vsp[i].ftag = -1;
 
