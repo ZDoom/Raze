@@ -11948,7 +11948,7 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 
     //DRAWROOMS TO TILE BACKUP&SET CODE
     tilesiz[tilenume].x = xsiz; tilesiz[tilenume].y = ysiz;
-    bakxsiz[setviewcnt] = xsiz; bakysiz[setviewcnt] = ysiz;
+    bakxsiz[setviewcnt] = xdim; bakysiz[setviewcnt] = ydim;
     bakframeplace[setviewcnt] = frameplace; frameplace = waloff[tilenume];
     bakwindowxy1[setviewcnt] = windowxy1;
     bakwindowxy2[setviewcnt] = windowxy2;
@@ -11970,6 +11970,8 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     setviewcnt++;
 
     offscreenrendering = 1;
+    xdim = ysiz;
+    ydim = xsiz;
     videoSetViewableArea(0,0,ysiz-1,xsiz-1);
     renderSetAspect(65536,65536);
 
@@ -11994,14 +11996,16 @@ void renderRestoreTarget(void)
     }
 #endif
 
+    xdim = bakxsiz[setviewcnt];
+    ydim = bakysiz[setviewcnt];
     videoSetViewableArea(bakwindowxy1[setviewcnt].x,bakwindowxy1[setviewcnt].y,
             bakwindowxy2[setviewcnt].x,bakwindowxy2[setviewcnt].y);
     copybufbyte(&bakumost[windowxy1.x],&startumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startumost[0]));
     copybufbyte(&bakdmost[windowxy1.x],&startdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startdmost[0]));
     frameplace = bakframeplace[setviewcnt];
 
-    calc_ylookup(bytesperline,
-                 (setviewcnt == 0) ? bakxsiz[0] : max(bakxsiz[setviewcnt - 1], bakxsiz[setviewcnt]));
+    calc_ylookup((setviewcnt == 0) ? bytesperline : bakxsiz[setviewcnt],
+                 bakysiz[setviewcnt]);
 
     modechange=1;
 }

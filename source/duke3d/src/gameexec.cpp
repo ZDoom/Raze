@@ -1175,13 +1175,6 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
     if (g_screenCapture)
         return;
 
-    //POGOTODO: check if this has anything to do with cameras not rendering the skybox properly
-    if (offscreenrendering)
-    {
-        videoClearViewableArea(0);
-        return;
-    }
-
     int x1 = min(ix1, ix2);
     int x2 = max(ix1, ix2);
     int y1 = min(iy1, iy2);
