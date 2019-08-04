@@ -395,7 +395,7 @@ int32_t Anim_Play(const char *fn)
             {
                 G_HandleAsync();
 
-                if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
+                if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_AdvanceTrigger()))
                 {
                     running = 0;
                     break;
@@ -500,7 +500,7 @@ int32_t Anim_Play(const char *fn)
         tileSetSize(TILE_ANIM, 200, 320);
         tileInvalidate(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
-        if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
+        if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_AdvanceTrigger()))
         {
             running = 0;
             goto end_anim_restore_gl;
