@@ -4322,7 +4322,7 @@ void Menu_Close(uint8_t playerID)
                 actor[g_curViewscreen].t_data[0] = totalclock;
         }
 
-        walock[TILE_SAVESHOT] = 199;
+        walock[TILE_SAVESHOT] = 1;
         G_UpdateScreenArea();
         S_PauseSounds(false);
     }

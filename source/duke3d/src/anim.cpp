@@ -432,14 +432,10 @@ int32_t Anim_Play(const char *fn)
         goto end_anim;
     }
 
-    walock[TILE_ANIM] = 219;
-    anim->animlock = 1;
+    anim->animlock = 255;
 
     if (!anim->animbuf)
         cacheAllocateBlock((intptr_t *)&anim->animbuf, length + 1, &anim->animlock);
-
-    tilesiz[TILE_ANIM].x = 200;
-    tilesiz[TILE_ANIM].y = 320;
 
     kread(handle, anim->animbuf, length);
     kclose(handle);
@@ -499,7 +495,9 @@ int32_t Anim_Play(const char *fn)
 
         i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
 
+        walock[TILE_ANIM] = 255;
         waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
+        tileSetSize(TILE_ANIM, 200, 320);
         tileInvalidate(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
         if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
@@ -572,8 +570,13 @@ end_anim_restore_gl:
 end_anim:
     I_ClearAllInput();
     ANIM_FreeAnim();
-    walock[TILE_ANIM] = 1;
-    anim->animlock = 0;
+
+    tileSetSize(TILE_ANIM, 0, 0);
+    walock[TILE_ANIM] = 0;
+    waloff[TILE_ANIM] = 0;
+
+    // this is the lock for anim->animbuf
+    anim->animlock = 1;
 
     return !running;
 }

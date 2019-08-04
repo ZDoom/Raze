@@ -1154,7 +1154,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 tiltZoom >>= tiltcs;  // JBF 20030807
 
                 rotatesprite_win(160 << 16, 100 << 16, tiltZoom, tang + 512, TILE_TILT, 0, 0, 4 + 2 + 64 + 1024);
-                walock[TILE_TILT] = 199;
+                walock[TILE_TILT] = 1;
             }
         }
     }
@@ -3863,7 +3863,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->xrepeat += 10;
                 t->yrepeat += 9;
             }
-            else if (g_curViewscreen == i && display_mirror != 3 && waloff[viewscrTile] && walock[viewscrTile] > 200)
+            else if (g_curViewscreen == i && display_mirror != 3 && waloff[viewscrTile])
             {
                 // this exposes a sprite sorting issue which needs to be debugged further...
 #if 0
