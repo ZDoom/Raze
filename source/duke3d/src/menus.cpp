@@ -2222,7 +2222,8 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         if (msv.brief.isValid())
         {
-            rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
+            if (waloff[TILE_LOADSHOT])
+                rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
 
             if (msv.isOldVer)
             {
@@ -2282,7 +2283,8 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         {
             if (g_menusaves[M_SAVE.currentEntry-1].brief.isValid())
             {
-                rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
+                if (waloff[TILE_LOADSHOT])
+                    rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
 
                 if (g_menusaves[M_SAVE.currentEntry-1].isOldVer)
                 {
