@@ -155,7 +155,7 @@ void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3
 
                 if (otherSector == numSectors)
                 {
-                    if (numSectors == ARRAY_SIZE(sectorList))
+                    if (numSectors == ARRAY_SSIZE(sectorList))
                         goto SKIPWALLCHECK;  // prevent oob access of 'sectorlist'
 
                     sectorList[numSectors++] = nextSector;
