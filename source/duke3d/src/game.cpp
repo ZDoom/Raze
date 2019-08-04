@@ -765,7 +765,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     VM_OnEvent(EVENT_DISPLAYSTART, pPlayer->i, playerNum);
 
-    if (ud.overhead_on == 2 || ud.show_help || (pPlayer->cursectnum == -1 && videoGetRenderMode() != REND_CLASSIC))
+    if ((ud.overhead_on == 2 && !automapping) || ud.show_help || (pPlayer->cursectnum == -1 && videoGetRenderMode() != REND_CLASSIC))
         return;
 
     if (r_usenewaspect)
