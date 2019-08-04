@@ -602,59 +602,74 @@ static int osdcmd_spawn(osdcmdptr_t parm)
 #if !defined LUNATIC
 static int osdcmd_setvar(osdcmdptr_t parm)
 {
-    if (parm->numparms != 2)
-        return OSDCMD_SHOWHELP;
-
     if (numplayers > 1)
     {
         OSD_Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
 
+    if (parm->numparms != 2)
+        return OSDCMD_SHOWHELP;
+    
     int i = hash_find(&h_gamevars, parm->parms[1]);
     int const newValue = (i == -1) ? Batol(parm->parms[1]) : Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex);
 
     if ((i = hash_find(&h_gamevars, parm->parms[0])) >= 0)
+    {
         Gv_SetVar(i, newValue, g_player[myconnectindex].ps->i, myconnectindex);
 
-    OSD_Printf("Script variable \"%s\" set to %d (input: %d)\n", aGameVars[i].szLabel, Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex), newValue);
+        OSD_Printf("Variable \"%s\" now has value %d (input: %d)\n", aGameVars[i].szLabel,
+                   Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex), newValue);
+    }
+    else
+    {
+        OSD_Printf("setvar: \"%s\" is not a game variable!\n", parm->parms[0]);
+        return OSDCMD_SHOWHELP;
+    }
+
     return OSDCMD_OK;
 }
 
 static int osdcmd_addlogvar(osdcmdptr_t parm)
 {
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
     if (numplayers > 1)
     {
         OSD_Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
 
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
     int const i = hash_find(&h_gamevars, parm->parms[0]);
 
     if (i >= 0)
         OSD_Printf("Variable \"%s\" has value %d, default %d\n", parm->parms[0], Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek), (int)aGameVars[i].defaultValue);
+    else
+    {
+        OSD_Printf("addlogvar: %s is not a game variable!\n", parm->parms[0]);
+        return OSDCMD_SHOWHELP;
+    }
 
     return OSDCMD_OK;
 }
 
 static int osdcmd_setactorvar(osdcmdptr_t parm)
 {
-    if (parm->numparms != 3) return OSDCMD_SHOWHELP;
-
     if (numplayers > 1)
     {
         OSD_Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
 
+    if (parm->numparms != 3)
+        return OSDCMD_SHOWHELP;
+
     int16_t const spriteNum = Batol(parm->parms[0]);
 
     if ((unsigned)spriteNum >= MAXSPRITES)
     {
-        OSD_Printf("Invalid sprite ID\n");
+        OSD_Printf("setactorvar: Invalid sprite number!\n");
         return OSDCMD_OK;
     }
 
@@ -663,9 +678,18 @@ static int osdcmd_setactorvar(osdcmdptr_t parm)
     int const newValue = (i >= 0) ? Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex) : Batol(parm->parms[2]);
 
     if ((i = hash_find(&h_gamevars, parm->parms[1])) >= 0)
+    {
         Gv_SetVar(i, newValue, spriteNum, myconnectindex);
 
-    OSD_Printf("Script variable \"%s\" set to %d (input: %d)\n", aGameVars[i].szLabel, Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex), newValue);
+        OSD_Printf("Variable \"%s\" for sprite %d value is now %d (input: %d)\n", aGameVars[i].szLabel, spriteNum,
+                   Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex), newValue);
+    }
+    else
+    {
+        OSD_Printf("setactorvar: %s is not a game variable!\n", parm->parms[1]);
+        return OSDCMD_SHOWHELP;
+    }
+
     return OSDCMD_OK;
 }
 #else
