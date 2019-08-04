@@ -2121,6 +2121,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         py[j] = dpxy[i].y;
 
         dd[j] = (dpxy[i].x * xtex.d + dpxy[i].y * ytex.d + otex.d);
+        if (dd[j] <= 0.f) // invalid polygon
+            return;
         uu[j] = (dpxy[i].x * xtex.u + dpxy[i].y * ytex.u + otex.u);
         vv[j] = (dpxy[i].x * xtex.v + dpxy[i].y * ytex.v + otex.v);
         j++;
