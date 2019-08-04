@@ -191,7 +191,7 @@ int32_t cacheFindBlock(int32_t newbytes, int32_t *besto, int32_t *bestz)
 
         for (native_t i=o1, zz=z; i<o2; i+=cac[zz++].leng)
         {
-            if (*cac[zz].lock == 0 || *cac[zz].lock == 255)
+            if (*cac[zz].lock == 0)
                 continue;
             else if (*cac[zz].lock >= 200)
             {
