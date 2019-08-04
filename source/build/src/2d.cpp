@@ -1223,10 +1223,10 @@ void editorDraw2dScreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int
         for (i=0; i<numwalls; i++)
         {
             int32_t j = wall[i].nextwall;
-            if ((graywallbitmap[i>>3]&(1<<(i&7))) && (j < 0 || (graywallbitmap[j>>3]&(1<<(j&7)))))
-                graybitmap[i>>3] |= (1<<(i&7));
+            if ((graywallbitmap[i>>3]&pow2char[i&7]) && (j < 0 || (graywallbitmap[j>>3]&pow2char[j&7])))
+                graybitmap[i>>3] |= pow2char[i&7];
             else
-                graybitmap[i>>3] &= ~(1<<(i&7));
+                graybitmap[i>>3] &= ~pow2char[i&7];
         }
     }
 
@@ -1238,11 +1238,11 @@ void editorDraw2dScreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int
 #else
         if (alwaysshowgray)
             for (i=numwalls-1; i>=0; i--)
-                if (graybitmap[i>>3]&(1<<(i&7)))
+                if (graybitmap[i>>3]&pow2char[i&7])
                     editorDraw2dWall(i, posxe, posye, posze, zoome, 1+2);
 
         for (i=numwalls-1; i>=0; i--)
-            if ((graybitmap[i>>3]&(1<<(i&7)))==0)
+            if ((graybitmap[i>>3]&pow2char[i&7])==0)
                 editorDraw2dWall(i, posxe, posye, posze, zoome, 2);
 #endif
     }
@@ -1301,8 +1301,8 @@ void editorDraw2dScreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int
             int32_t j = m32_wallsprite[i];
             if (j<MAXWALLS)
             {
-                if (alwaysshowgray || !(graybitmap[j>>3]&(1<<(j&7))))
-                    editorDraw2dWall(j, posxe, posye, posze, zoome, !!(graybitmap[j>>3]&(1<<(j&7))));
+                if (alwaysshowgray || !(graybitmap[j>>3]&pow2char[j&7]))
+                    editorDraw2dWall(j, posxe, posye, posze, zoome, !!(graybitmap[j>>3]&pow2char[j&7]));
             }
             else
             {

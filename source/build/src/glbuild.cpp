@@ -324,7 +324,7 @@ void texdbg_bglGenTextures(GLsizei n, GLuint *textures, const char *srcfn)
     uint32_t hash = srcfn ? texdbg_getcode(srcfn) : 0;
 
     for (i=0; i<n; i++)
-        if (textures[i] < texnameallocsize && (texnameused[textures[i]>>3]&(1<<(textures[i]&7))))
+        if (textures[i] < texnameallocsize && (texnameused[textures[i]>>3]&pow2char[textures[i]&7]))
             initprintf("texdebug %x Gen: overwriting used tex name %u from %x\n", hash, textures[i], texnamefromwhere[textures[i]]);
 
     bglGenTextures(n, textures);
@@ -339,7 +339,7 @@ void texdbg_bglGenTextures(GLsizei n, GLuint *textures, const char *srcfn)
 
         for (i=0; i<n; i++)
         {
-            texnameused[textures[i]>>3] |= (1<<(textures[i]&7));
+            texnameused[textures[i]>>3] |= pow2char[textures[i]&7];
             texnamefromwhere[textures[i]] = hash;
         }
     }
@@ -354,9 +354,9 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
     for (i=0; i<n; i++)
         if (textures[i] < texnameallocsize)
         {
-            if ((texnameused[textures[i]>>3]&(1<<(textures[i]&7)))==0)
+            if ((texnameused[textures[i]>>3]&pow2char[textures[i]&7])==0)
                 initprintf("texdebug %x Del: deleting unused tex name %u\n", hash, textures[i]);
-            else if ((texnameused[textures[i]>>3]&(1<<(textures[i]&7))) &&
+            else if ((texnameused[textures[i]>>3]&pow2char[textures[i]&7]) &&
                          texnamefromwhere[textures[i]] != hash)
                 initprintf("texdebug %x Del: deleting foreign tex name %u from %x\n", hash,
                            textures[i], texnamefromwhere[textures[i]]);
@@ -367,7 +367,7 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
     if (texnameallocsize)
         for (i=0; i<n; i++)
         {
-            texnameused[textures[i]>>3] &= ~(1<<(textures[i]&7));
+            texnameused[textures[i]>>3] &= ~pow2char[textures[i]&7];
             texnamefromwhere[textures[i]] = 0;
         }
 }

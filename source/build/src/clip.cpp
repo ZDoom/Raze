@@ -766,8 +766,8 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
     clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
     clipobjectval[clipnum] = daoval;
 
-    uint32_t const mask = (1 << (clipnum & 7));
-    uint8_t &value = clipignore[clipnum >> 3];
+    uint32_t const mask = pow2char[clipnum&7];
+    uint8_t &value = clipignore[clipnum>>3];
     value = (value & ~mask) | (-nofix & mask);
 
     clipnum++;

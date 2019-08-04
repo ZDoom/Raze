@@ -1492,7 +1492,7 @@ static int32_t defsparser(scriptfile *script)
                             break;
                         default:
                             if (framei >= 0 && framei<1024)
-                                usedframebitmap[framei>>3] |= (1<<(framei&7));
+                                usedframebitmap[framei>>3] |= pow2char[framei&7];
                         }
 
                         model_ok &= happy;

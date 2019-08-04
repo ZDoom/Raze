@@ -1044,7 +1044,7 @@ static void G_SetupLightSwitches()
     {
         uint16_t const tag = sprite[j].hitag;
 
-        if (sprite[j].lotag == SE_12_LIGHT_SWITCH && tagbitmap[tag >> 3] & (1 << (tag & 7)))
+        if (sprite[j].lotag == SE_12_LIGHT_SWITCH && tagbitmap[tag>>3] & pow2char[tag&7])
             actor[j].t_data[0] = 1;
     }
 

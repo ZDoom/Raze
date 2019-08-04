@@ -1217,7 +1217,7 @@ static int32_t applydiff(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **di
         if (cnt < 0) return 1;
 
         eltnum++;
-        if (((*diffvar+slen)[eltnum>>3] & (1<<(eltnum&7))) == 0)
+        if (((*diffvar+slen)[eltnum>>3] & pow2char[eltnum&7]) == 0)
         {
             dump += spec->size * cnt;
             continue;
@@ -2061,7 +2061,7 @@ static void sv_quotesave()
 static void sv_quoteload()
 {
     for (int i = 0; i < MAXQUOTES; i++)
-        if (savegame_quotedef[i>>3] & (1<<(i&7)))
+        if (savegame_quotedef[i>>3] & pow2char[i&7])
         {
             C_AllocQuote(i);
             Bmemcpy(apStrings[i], savegame_quotes[i], MAXQUOTELEN);
@@ -2101,7 +2101,7 @@ static void sv_preprojectileload()
 
     for (int i = 0; i < MAXTILES; i++)
     {
-        if (savegame_projectiles[i>>3] & (1<<(i&7)))
+        if (savegame_projectiles[i>>3] & pow2char[i&7])
             savegame_projectilecnt++;
     }
 
@@ -2113,7 +2113,7 @@ static void sv_postprojectileload()
 {
     for (int i = 0, cnt = 0; i < MAXTILES; i++)
     {
-        if (savegame_projectiles[i>>3] & (1<<(i&7)))
+        if (savegame_projectiles[i>>3] & pow2char[i&7])
         {
             C_AllocProjectile(i);
             Bmemcpy(g_tile[i].proj, &savegame_projectiledata[cnt++], sizeof(projectile_t));

@@ -1259,7 +1259,7 @@ skip_check:
                     for (WALLS_OF_SECTOR(sectlist[sectcnt], j))
                         if ((ns=wall[j].nextsector) >= 0 && wall[j].nextsector<numsectors)
                         {
-                            if (sectbitmap[ns>>3]&(1<<(ns&7)))
+                            if (sectbitmap[ns>>3]&pow2char[ns&7])
                                 continue;
                             vm.g_st = 1+MAXEVENTS+state;
                             insptr = apScript + statesinfo[state].ofs;
@@ -1667,9 +1667,9 @@ badindex:
                 }
 
                 if (id==M32_SPRITE_VAR_ID)
-                    VM_DoConditional(show2dsprite[index>>3]&(1<<(index&7)));
+                    VM_DoConditional(show2dsprite[index>>3]&pow2char[index&7]);
                 else
-                    VM_DoConditional(show2dwall[index>>3]&(1<<(index&7)));
+                    VM_DoConditional(show2dwall[index>>3]&pow2char[index&7]);
             }
             continue;
 
@@ -2333,9 +2333,9 @@ badindex:
                     }
 
                     if (doset)
-                        show2dsprite[index>>3] |= (1<<(index&7));
+                        show2dsprite[index>>3] |= pow2char[index&7];
                     else
-                        show2dsprite[index>>3] &= ~(1<<(index&7));
+                        show2dsprite[index>>3] &= ~pow2char[index&7];
                 }
                 else
                 {
@@ -2346,9 +2346,9 @@ badindex:
                     }
 
                     if (doset)
-                        show2dwall[index>>3] |= (1<<(index&7));
+                        show2dwall[index>>3] |= pow2char[index&7];
                     else
-                        show2dwall[index>>3] &= ~(1<<(index&7));
+                        show2dwall[index>>3] &= ~pow2char[index&7];
                 }
 
                 vm.miscflags |= VMFLAG_MISC_UPDATEHL;
@@ -2370,9 +2370,9 @@ badindex:
                 X_ERROR_INVALIDSECT(index);
 
                 if (doset)
-                    hlsectorbitmap[index>>3] |= (1<<(index&7));
+                    hlsectorbitmap[index>>3] |= pow2char[index&7];
                 else
-                    hlsectorbitmap[index>>3] &= ~(1<<(index&7));
+                    hlsectorbitmap[index>>3] &= ~pow2char[index&7];
 
                 vm.miscflags |= VMFLAG_MISC_UPDATEHLSECT;
 

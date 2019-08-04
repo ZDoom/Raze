@@ -461,7 +461,7 @@ void S_Callback(uint32_t num)
                 {
                     extern uint8_t g_ambiencePlaying[(MAXSPRITES+7)>>3];
 
-                    g_ambiencePlaying[i>>3] &= ~(1<<(i&7));
+                    g_ambiencePlaying[i>>3] &= ~pow2char[i&7];
 
                     if (j < k-1)
                     {

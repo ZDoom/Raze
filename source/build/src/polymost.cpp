@@ -4718,7 +4718,7 @@ static void polymost_drawalls(int32_t const bunch)
             int16_t bn[2];
 # if 0
             int32_t obunchchk = (1 && yax_globalbunch>=0 &&
-                                 haveymost[yax_globalbunch>>3]&(1<<(yax_globalbunch&7)));
+                                 haveymost[yax_globalbunch>>3]&pow2char[yax_globalbunch&7]);
 
             // if (obunchchk)
             const int32_t x2 = yax_globalbunch*xdimen;
@@ -4733,10 +4733,10 @@ static void polymost_drawalls(int32_t const bunch)
             for (i=0; i<2; i++)
                 if (checkcf&(1<<i))
                 {
-                    if ((haveymost[bn[i]>>3]&(1<<(bn[i]&7)))==0)
+                    if ((haveymost[bn[i]>>3]&pow2char[bn[i]&7])==0)
                     {
                         // init yax *most arrays for that bunch
-                        haveymost[bn[i]>>3] |= (1<<(bn[i]&7));
+                        haveymost[bn[i]>>3] |= pow2char[bn[i]&7];
                         yax_vsp[bn[i]*2][1].x = xbl;
                         yax_vsp[bn[i]*2][2].x = xbr;
                         yax_vsp[bn[i]*2][1].cy[0] = xbb;

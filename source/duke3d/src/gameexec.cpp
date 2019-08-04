@@ -5538,8 +5538,8 @@ badindex:
                         case GAMEARRAY_UINT8: ((int8_t *)arr.pValues)[arrayIndex]    = newValue; break;
                         case GAMEARRAY_BITMAP:
                         {
-                            uint32_t const mask  = (1 << (arrayIndex & 7));
-                            uint8_t &value = ((uint8_t *)arr.pValues)[arrayIndex >> 3];
+                            uint32_t const mask  = pow2char[arrayIndex&7];
+                            uint8_t &value = ((uint8_t *)arr.pValues)[arrayIndex>>3];
                             value = (value & ~mask) | (-!!newValue & mask);
                             break;
                         }

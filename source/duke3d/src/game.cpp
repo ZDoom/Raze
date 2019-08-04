@@ -571,7 +571,7 @@ static void G_SE40(int32_t smoothratio)
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz, int32_t smoothratio)
 {
-    if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
+    if ((gotpic[MIRROR>>3]&pow2char[MIRROR&7])
 #ifdef POLYMER
         && (videoGetRenderMode() != REND_POLYMER)
 #endif
@@ -581,7 +581,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
         {
             // NOTE: We can have g_mirrorCount==0 but gotpic'd MIRROR,
             // for example in LNGA2.
-            gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+            gotpic[MIRROR>>3] &= ~pow2char[MIRROR&7];
 
             //give scripts the chance to reset gotpics for effects that run in EVENT_DISPLAYROOMS
             //EVENT_RESETGOTPICS must be called after the last call to EVENT_DISPLAYROOMS in a frame, but before any engine-side renderDrawRoomsQ16
@@ -700,7 +700,7 @@ static void G_ClearGotMirror()
         // XXX: fix the sequence of setting/clearing this bit. Right now,
         // we always draw one frame without drawing the mirror, after which
         // the bit gets set and drawn subsequently.
-        gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+        gotpic[MIRROR>>3] &= ~pow2char[MIRROR&7];
     }
 }
 
@@ -1080,7 +1080,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             dr_viewingrange = viewingrange;
             dr_yxaspect = yxaspect;
 #ifdef DEBUG_MIRRORS_ONLY
-            gotpic[MIRROR>>3] |= (1<<(MIRROR&7));
+            gotpic[MIRROR>>3] |= pow2char[MIRROR&7];
 #else
             yax_preparedrawrooms();
             renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
