@@ -6457,8 +6457,6 @@ int app_main(int argc, char const * const * argv)
         i = 1-i;
     }
 
-    if (quitevent) return 4;
-
     Anim_Init();
 
     const char *defsfile = G_DefFile();
@@ -6566,6 +6564,8 @@ int app_main(int argc, char const * const * argv)
     CONFIG_SetDefaultKeys(keydefaults, true);
 
     system_getcvars();
+
+    if (quitevent) return 4;
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
