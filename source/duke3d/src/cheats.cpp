@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdcmds.h"
 #include "cheats.h"
 
-// KEEPINSYNC game.h: enum cheatindex_t
 char CheatStrings [NUMCHEATS][MAXCHEATLEN] =
 {
 #ifndef EDUKE32_STANDALONE
@@ -58,6 +57,37 @@ char CheatStrings [NUMCHEATS][MAXCHEATLEN] =
 #endif
 };
 
+char CheatDescriptions[NUMCHEATS][MAXCHEATDESC] =
+{
+    "Toggle God Mode",
+    "Give Everything",
+    "Level Warp",
+    "Toggle Coordinate Display",
+    "Toggle 3rd-Person View",
+    "", // time
+    "Toggle All Locks",
+    "Toggle Cashman",
+    "Give All Items",
+    "Toggle Framerate Display",
+    "Change Skill",
+    "", // beta
+    "Toggle Hyper",
+    "Toggle Monsters",
+    "", // <RESERVED>
+    "", // <RESERVED>
+    "Matt Saettler.  matts@saettler.com", // todd
+    "Toggle Show All Map",
+    "", // kroz
+    "", // allen
+    "Toggle Clipping",
+    "Give Weapons",
+    "Give Inventory",
+    "Give Keys",
+    "Toggle Debug Data Dump",
+    "", // <RESERVED>
+    "", // cgs
+};
+
 const uint32_t CheatFunctionFlags [NUMCHEATS] =
 {
     1 << CHEATFUNC_GOD,
@@ -89,8 +119,8 @@ const uint32_t CheatFunctionFlags [NUMCHEATS] =
     (1 << CHEATFUNC_GOD) | (1 << CHEATFUNC_GIVEEVERYTHING),
 };
 
-// KEEPINSYNC game.h: enum CheatCodeFunctions
-// KEEPINSYNC menus.c: MenuEntry_t ME_CheatCodes[]
+// KEEPINSYNC cheats.h: enum CheatCodeFunctions
+// KEEPINSYNC menus.cpp: MenuEntry_t ME_CheatCodes[]
 const uint8_t CheatFunctionIDs[NUMCHEATS] =
 {
     CHEAT_CASHMAN,
@@ -115,8 +145,6 @@ const uint8_t CheatFunctionIDs[NUMCHEATS] =
     CHEAT_COORDS,
     CHEAT_DEBUG,
 };
-
-char const * const g_NAMMattCheatQuote = "Matt Saettler.  matts@saettler.com";
 
 #ifndef EDUKE32_STANDALONE
 void G_SetupCheats(void)
@@ -626,7 +654,7 @@ void G_DoCheats(void)
                 case CHEAT_TODD:
                     if (NAM)
                     {
-                        Bstrcpy(apStrings[QUOTE_RESERVED4], g_NAMMattCheatQuote);
+                        Bstrcpy(apStrings[QUOTE_RESERVED4], CheatDescriptions[CHEAT_TODD]);
                         P_DoQuote(QUOTE_RESERVED4, pPlayer);
                     }
                     else

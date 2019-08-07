@@ -643,31 +643,31 @@ static MenuEntry_t ME_ENTERCHEAT = MAKE_MENUENTRY( "Enter Cheat Code", &MF_Redfo
 
 static MenuLink_t MEO_CHEAT_WARP = { MENU_CHEAT_WARP, MA_None, };
 static MenuLink_t MEO_CHEAT_SKILL = { MENU_CHEAT_SKILL, MA_None, };
-// KEEPINSYNC game.h: enum CheatCodeFunctions
-// KEEPINSYNC game.c: uint8_t CheatFunctionIDs[]
+// KEEPINSYNC cheats.h: enum CheatCodeFunctions
+// KEEPINSYNC cheats.cpp: uint8_t CheatFunctionIDs[]
 #define MAKE_MENUCHEAT( Name ) MAKE_MENUENTRY( Name, &MF_Bluefont, &MEF_Cheats, &MEO_NULL, Link )
 static MenuEntry_t ME_CheatCodes[] = {
-    MAKE_MENUCHEAT( "Toggle Cashman" ),
-    MAKE_MENUCHEAT( "Toggle God Mode" ),
-    MAKE_MENUCHEAT( "Give Everything" ),
-    MAKE_MENUCHEAT( "Give Weapons" ),
-    MAKE_MENUCHEAT( "Give All Items" ),
-    MAKE_MENUCHEAT( "Give Inventory" ),
-    MAKE_MENUCHEAT( "Give Keys" ),
-    MAKE_MENUCHEAT( "Toggle Hyper" ),
-    MAKE_MENUCHEAT( "Toggle 3rd-Person View" ),
-    MAKE_MENUCHEAT( "Toggle Show All Map" ),
-    MAKE_MENUCHEAT( "Toggle All Locks" ),
-    MAKE_MENUCHEAT( "Toggle Clipping" ),
-    MAKE_MENUENTRY( "Level Warp", &MF_Bluefont, &MEF_Cheats, &MEO_CHEAT_WARP, Link ),
-    MAKE_MENUENTRY( "Change Skill", &MF_Bluefont, &MEF_Cheats, &MEO_CHEAT_SKILL, Link ),
-    MAKE_MENUCHEAT( "Toggle Monsters" ),
-    MAKE_MENUCHEAT( "Toggle Framerate Display" ),
-    MAKE_MENUCHEAT( NULL ),
-    MAKE_MENUCHEAT( NULL ),
-    MAKE_MENUCHEAT( NULL ),
-    MAKE_MENUCHEAT( "Toggle Coordinate Display" ),
-    MAKE_MENUCHEAT( "Toggle Debug Data Dump" ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_CASHMAN] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_CORNHOLIO] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_STUFF] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_WEAPONS] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_ITEMS] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_INVENTORY] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_KEYS] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_HYPER] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_VIEW] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_SHOWMAP] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_UNLOCK] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_CLIP] ),
+    MAKE_MENUENTRY( CheatDescriptions[CHEAT_SCOTTY], &MF_Bluefont, &MEF_Cheats, &MEO_CHEAT_WARP, Link ),
+    MAKE_MENUENTRY( CheatDescriptions[CHEAT_SKILL], &MF_Bluefont, &MEF_Cheats, &MEO_CHEAT_SKILL, Link ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_MONSTERS] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_RATE] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_BETA] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_TODD] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_ALLEN] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_COORDS] ),
+    MAKE_MENUCHEAT( CheatDescriptions[CHEAT_DEBUG] ),
 };
 
 static MenuEntry_t *MEL_OPTIONS[] = {
@@ -2013,7 +2013,8 @@ static void Menu_Pre(MenuID_t cm)
         if (!DUKEBETA)
         {
             ME_CheatCodes[CHEATFUNC_QUOTEBETA].name = apStrings[QUOTE_CHEAT_BETA];
-            ME_CheatCodes[CHEATFUNC_QUOTETODD].name = NAM ? g_NAMMattCheatQuote : apStrings[QUOTE_CHEAT_TODD];
+            if (!NAM)
+                ME_CheatCodes[CHEATFUNC_QUOTETODD].name = apStrings[QUOTE_CHEAT_TODD];
             ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = apStrings[QUOTE_CHEAT_ALLEN];
         }
 
