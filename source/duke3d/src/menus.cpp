@@ -77,9 +77,13 @@ static void mgametext(int32_t x, int32_t y, char const * t)
     G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags, 0, 0, xdim-1, ydim-1);
 }
 
+static vec2_t mgametextcenterat(int32_t x, int32_t y, char const * t, int32_t f = 0)
+{
+    return G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f|TEXT_XCENTER, 0, 0, xdim-1, ydim-1);
+}
 static vec2_t mgametextcenter(int32_t x, int32_t y, char const * t, int32_t f = 0)
 {
-    return G_ScreenText(MF_Bluefont.tilenum, (MENU_MARGIN_CENTER<<16) + x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f|TEXT_XCENTER, 0, 0, xdim-1, ydim-1);
+    return mgametextcenterat((MENU_MARGIN_CENTER<<16) + x, y, t, f);
 }
 
 #define mminitext(x,y,t,p) minitext_(x, y, t, 0, p, 2|8|16|ROTATESPRITE_FULL16)
@@ -2224,22 +2228,24 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         if (msv.brief.isValid())
         {
             if (waloff[TILE_LOADSHOT])
-                rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
+                rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT, msv.isOldVer?16:-32, 0,4+10+64);
 
             if (msv.isOldVer)
             {
-                menutext_centeralign(origin.x + (101<<16), origin.y + (97<<16), "Previous\nVersion");
+                mgametextcenterat(origin.x + (101<<16), origin.y + (50<<16),
+                    msv.brief.isExt ? "Previous Version,\nSequence Point Available" : "Previous Version,\nUnable to Load");
 
 #ifndef EDUKE32_SIMPLE_MENU
                 Bsprintf(tempbuf,"Saved: %d.%d.%d.%u %d-bit", savehead.majorver, savehead.minorver,
                          savehead.bytever, savehead.userbytever, 8*savehead.getPtrSize());
-                mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
+                mgametext(origin.x + (25<<16), origin.y + (124<<16), tempbuf);
                 Bsprintf(tempbuf,"Our: %d.%d.%d.%u %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                          ud.userbytever, (int32_t)(8*sizeof(intptr_t)));
-                mgametext(origin.x + ((31+16)<<16), origin.y + (114<<16), tempbuf);
+                mgametext(origin.x + ((25+16)<<16), origin.y + (134<<16), tempbuf);
 #endif
 
-                break;
+                if (msv.isUnreadable)
+                    break;
             }
 
             if (savehead.numplayers > 1)
@@ -2282,25 +2288,26 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536L>>1,512,TILE_SAVESHOT,-32,0,4+10+64);
         else if (0 < M_SAVE.currentEntry && M_SAVE.currentEntry <= (int32_t)g_nummenusaves)
         {
-            if (g_menusaves[M_SAVE.currentEntry-1].brief.isValid())
+            menusave_t & msv = g_menusaves[M_SAVE.currentEntry-1];
+
+            if (msv.brief.isValid())
             {
                 if (waloff[TILE_LOADSHOT])
-                    rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
+                    rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT, msv.isOldVer?16:-32, 0,4+10+64);
 
-                if (g_menusaves[M_SAVE.currentEntry-1].isOldVer)
+                if (msv.isOldVer)
                 {
-                    menutext_centeralign(origin.x + (101<<16), origin.y + (97<<16), "Previous\nVersion");
+                    mgametextcenterat(origin.x + (101<<16), origin.y + (50<<16),
+                        msv.brief.isExt ? "Previous Version,\nSequence Point Available" : "Previous Version,\nUnable to Load");
 
 #ifndef EDUKE32_SIMPLE_MENU
                     Bsprintf(tempbuf,"Saved: %d.%d.%d.%u %d-bit", savehead.majorver, savehead.minorver,
                              savehead.bytever, savehead.userbytever, 8*savehead.getPtrSize());
-                    mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
+                    mgametext(origin.x + (25<<16), origin.y + (124<<16), tempbuf);
                     Bsprintf(tempbuf,"Our: %d.%d.%d.%u %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                              ud.userbytever, (int32_t)(8*sizeof(intptr_t)));
-                    mgametext(origin.x + ((31+16)<<16), origin.y + (114<<16), tempbuf);
+                    mgametext(origin.x + ((25+16)<<16), origin.y + (134<<16), tempbuf);
 #endif
-
-                    break;
                 }
             }
         }

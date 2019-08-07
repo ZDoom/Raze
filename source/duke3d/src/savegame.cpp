@@ -173,11 +173,11 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
                 {
                     char extfn[BMAX_PATH];
                     snprintf(extfn, ARRAY_SIZE(extfn), "%s.ext", fn);
-                    buildvfs_kfd fil = kopen4loadfrommod(extfn, 0);
-                    if (fil != buildvfs_kfd_invalid)
+                    buildvfs_kfd extfil = kopen4loadfrommod(extfn, 0);
+                    if (extfil != buildvfs_kfd_invalid)
                     {
                         msv.brief.isExt = 1;
-                        kclose(fil);
+                        kclose(extfil);
                     }
                 }
             }
@@ -325,6 +325,17 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
             OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
             goto corrupt;
         }
+
+#if 0
+        // debug code to dump the screenshot
+        char scrbuf[BMAX_PATH];
+        if (G_ModDirSnprintf(scrbuf, sizeof(scrbuf), "%s.raw", fn) == 0)
+        {
+            buildvfs_FILE scrfil = buildvfs_fopen_write(scrbuf);
+            buildvfs_fwrite((char *)waloff[TILE_LOADSHOT], 320, 200, scrfil);
+            buildvfs_fclose(scrfil);
+        }
+#endif
     }
     else
     {
@@ -353,26 +364,46 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 {
     if (sv.isExt)
     {
+        int volume = -1;
+        int level = -1;
+        int skill = -1;
+
+        buildvfs_kfd const fil = kopen4loadfrommod(sv.path, 0);
+
+        if (fil != buildvfs_kfd_invalid)
+        {
+            savehead_t h;
+            int status = sv_loadheader(fil, 0, &h);
+            if (status >= 0)
+            {
+                volume = h.volnum;
+                level = h.levnum;
+                skill = h.skill;
+            }
+
+            kclose(fil);
+        }
+
         char extfn[BMAX_PATH];
         snprintf(extfn, ARRAY_SIZE(extfn), "%s.ext", sv.path);
-        buildvfs_kfd fil = kopen4loadfrommod(extfn, 0);
-        if (fil == buildvfs_kfd_invalid)
+        buildvfs_kfd extfil = kopen4loadfrommod(extfn, 0);
+        if (extfil == buildvfs_kfd_invalid)
         {
             return -1;
         }
 
-        int32_t len = kfilelength(fil);
+        int32_t len = kfilelength(extfil);
         auto text = (char *)Xmalloc(len+1);
         text[len] = '\0';
 
-        if (kread_and_test(fil, text, len))
+        if (kread_and_test(extfil, text, len))
         {
-            kclose(fil);
+            kclose(extfil);
             Xfree(text);
             return -1;
         }
 
-        kclose(fil);
+        kclose(extfil);
 
 
         sjson_context * ctx = sjson_create_context(0, 0, NULL);
@@ -380,9 +411,12 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
         Xfree(text);
 
-        int volume = sjson_get_int(root, "volume", -1);
-        int level = sjson_get_int(root, "level", -1);
-        int skill = sjson_get_int(root, "skill", -1);
+        if (volume == -1)
+            volume = sjson_get_int(root, "volume", volume);
+        if (level == -1)
+            level = sjson_get_int(root, "level", level);
+        if (skill == -1)
+            skill = sjson_get_int(root, "skill", skill);
 
         if (volume == -1 || level == -1 || skill == -1)
         {
@@ -401,6 +435,12 @@ int32_t G_LoadPlayer(savebrief_t & sv)
             sjson_destroy_context(ctx);
             return 1;
         }
+
+
+        ud.returnvar[0] = level;
+        volume = VM_OnEventWithReturn(EVENT_VALIDATESTART, g_player[myconnectindex].ps->i, myconnectindex, volume);
+        level = ud.returnvar[0];
+
 
         {
             // CODEDUP from non-isExt branch, with simplifying assumptions
@@ -782,7 +822,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
     VM_OnEvent(EVENT_SAVEGAME, g_player[screenpeek].ps->i, screenpeek);
 
-    portableBackupSave(sv.path);
+    portableBackupSave(sv.path, ud.last_stateless_volume, ud.last_stateless_level);
 
     // SAVE!
     sv_saveandmakesnapshot(fil, sv.name, 0, 0, 0, 0, isAutoSave);

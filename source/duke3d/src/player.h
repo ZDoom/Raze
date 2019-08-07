@@ -426,6 +426,6 @@ static inline int P_Get(int32_t spriteNum) { return P_GetP((uspriteptr_t)&sprite
 }
 #endif
 
-extern int portableBackupSave(const char *);
+extern int portableBackupSave(const char *, int, int);
 
 #endif
