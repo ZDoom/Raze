@@ -66,6 +66,7 @@ float gyxscale, ghalfx, grhalfxdown10, grhalfxdown10x, ghalfy;
 float gcosang, gsinang, gcosang2, gsinang2;
 float gchang, gshang, gctang, gstang, gvisibility;
 float gtang = 0.f;
+float gvrcorrection = 1.f;
 
 static vec3d_t xtex, ytex, otex, xtex2, ytex2, otex2;
 
@@ -102,7 +103,7 @@ int32_t r_glowmapping = 1;
 
 int32_t gltexmaxsize = 0;      // 0 means autodetection on first run
 int32_t gltexmiplevel = 0;		// discards this many mipmap levels
-int32_t glprojectionhacks = 1;
+int32_t glprojectionhacks = 2;
 static FHardwareTexture *polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
 int32_t r_shadeinterpolate = 1;
@@ -329,7 +330,7 @@ float glox1, gloy1, glox2, gloy2, gloyxscale, gloxyaspect, glohoriz2, glohorizco
 static int32_t gltexcacnum = -1;
 
 //in-place multiply m0=m0*m1
-static float* multiplyMatrix4f(float m0[4*4], const float m1[4*4])
+float* multiplyMatrix4f(float m0[4*4], const float m1[4*4])
 {
     float mR[4*4];
 
@@ -1141,20 +1142,18 @@ void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float fa
 
 static float get_projhack_ratio(void)
 {
-    if (glprojectionhacks && !r_yshearing)
+    if ((glprojectionhacks == 1) && !r_yshearing)
     {
-        float const projhack_zoom = 1.4f *
-        // adjust for the FOV, increasing the FOV reduces the zenith glitch
-        // don't apply if the zenith is cut from the viewing area
-        (65536.f / fviewingrange) *
-        (float)(windowxy2.y-windowxy1.y+1) /
-        (float)(windowxy2.x-windowxy1.x+1) *
-        (float)(xdim)/(float)(ydim);
-        if (projhack_zoom < 1.f)
+        // calculates the extend of the zenith glitch
+        float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
+        float verticalfov = atanf(verticalfovtan) * (2.f / fPI);
+        static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
+        float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
+        if (zenglitch <= 0.f)
             return 1.f;
-        static constexpr float const maxcoshoriz = 0.540971179375801f; // 128/sqrt(128^2+199^2) = cos of an horiz diff of 199
-        float const factor = (projhack_zoom - 1.f) * (1.f / maxcoshoriz);
-        return 1.f + (factor * (1.f - Bfabsf(gchang)));
+        float const zenglitchtan = tanf((verticalfov - zenglitch) * (fPI / 2.f));
+        static constexpr float const maxcoshoriz = 0.54097117f; // 128/sqrt(128^2+199^2) = cos of an horiz diff of 199
+        return 1.f + (((verticalfovtan / zenglitchtan) - 1.f) * ((1.f - Bfabsf(gchang)) / maxcoshoriz ));
     }
 
     // No projection hacks (legacy or new-aspect)
@@ -2054,8 +2053,8 @@ static void polymost_updaterotmat(void)
         //Up/down rotation
         float udmatrix[16] = {
             1.f, 0.f, 0.f, 0.f,
-            0.f, gchang, -gshang, 0.f,
-            0.f, gshang, gchang, 0.f,
+            0.f, gchang, -gshang*gvrcorrection, 0.f,
+            0.f, gshang/gvrcorrection, gchang, 0.f,
             0.f, 0.f, 0.f, 1.f,
         };
         // Tilt rotation
@@ -2132,8 +2131,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     int j = 0;
     float px[8], py[8], dd[8], uu[8], vv[8];
 #if SOFTROTMAT
-    float const ozgs = ghalfx * gshang,
-                ozgc = ghalfx * gchang;
+    float const ozgs = (ghalfx / gvrcorrection) * gshang,
+                ozgc = (ghalfx / gvrcorrection) * gchang;
 #endif
 
     for (bssize_t i=0; i<n; ++i)
@@ -2145,12 +2144,14 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
                               (dpxy[i].y - ghoriz) * gshang + ozgc };
 
         // Tilt rotation
-        float const r = ghalfx / orot.z;
+        float const r = (ghalfx / gvrcorrection) / orot.z;
 
         px[j] = ghalfx + (((orot.x * gctang) - (orot.y * gstang)) * r);
         py[j] = ghoriz + (((orot.x * gstang) + (orot.y * gctang)) * r);
 
         dd[j] = (dpxy[i].x * xtex.d + dpxy[i].y * ytex.d + otex.d) * r;
+        if (dd[j] <= 0.f) // invalid polygon
+            return;
         uu[j] = (dpxy[i].x * xtex.u + dpxy[i].y * ytex.u + otex.u) * r;
         vv[j] = (dpxy[i].x * xtex.v + dpxy[i].y * ytex.v + otex.v) * r;
 
@@ -5284,6 +5285,18 @@ void polymost_drawrooms()
 
     polymost_setBrightness(r_brightnesshack);
 
+    gvrcorrection = viewingrange*(1.f/65536.f);
+    if (glprojectionhacks == 2)
+    {
+        // calculates the extend of the zenith glitch
+        float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
+        float verticalfov = atanf(verticalfovtan) * (2.f / fPI);
+        static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
+        float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
+        if (zenglitch > 0.f)
+            gvrcorrection /= (zenglitch * 2.5f) + 1.f;
+    }
+
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
@@ -5313,13 +5326,14 @@ void polymost_drawrooms()
     else
     {
         float r = (float)(ydimen >> 1) - ghoriz - ghorizcorrect;
-        gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx);
+        gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx / (gvrcorrection * gvrcorrection));
         gchang  = Bsqrtf(1.f - gshang * gshang);
         ghoriz2 = 0.f;
     }
     ghoriz = (float)(ydimen>>1);
 
     resizeglcheck();
+    float const ratio = 1.f/get_projhack_ratio();
 
     //global cos/sin tilt angle
     gctang = cosf(gtang);
@@ -5343,8 +5357,8 @@ void polymost_drawrooms()
     for (auto & v : p)
     {
         //Tilt rotation (backwards)
-        vec2f_t const o = { v.x-ghalfx, v.y-ghoriz };
-        vec3f_t const o2 = { o.x*gctang + o.y*gstang, o.y*gctang - o.x*gstang + ghoriz2, ghalfx };
+        vec2f_t const o = { (v.x-ghalfx)*ratio, (v.y-ghoriz)*ratio };
+        vec3f_t const o2 = { o.x*gctang + o.y*gstang, o.y*gctang - o.x*gstang + ghoriz2, ghalfx / gvrcorrection };
 
         //Up/down rotation (backwards)
         v = { o2.x, o2.y * gchang + o2.z * gshang, o2.z * gchang - o2.y * gshang };
@@ -5380,7 +5394,7 @@ void polymost_drawrooms()
 
     for (bssize_t i = 0; i < n; i++)
     {
-        float const r = ghalfx / p2[i].z;
+        float const r = (ghalfx / gvrcorrection) / p2[i].z;
         sx[i] = p2[i].x * r + ghalfx;
         sy[i] = p2[i].y * r + ghoriz;
     }
@@ -5734,6 +5748,18 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
     polymost_outputGLDebugMessage(3, "polymost_prepareMirror(%u)", mirrorWall);
 
     //POGO: prepare necessary globals for drawing, as we intend to call this outside of drawrooms
+    gvrcorrection = viewingrange*(1.f/65536.f);
+    if (glprojectionhacks == 2)
+    {
+        // calculates the extend of the zenith glitch
+        float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
+        float verticalfov = atanf(verticalfovtan) * (2.f / fPI);
+        static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
+        float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
+        if (zenglitch > 0.f)
+            gvrcorrection /= (zenglitch * 2.5f) + 1.f;
+    }
+
     set_globalpos(dax, day, daz);
     set_globalang(daang);
     globalhoriz = mulscale16(fix16_to_int(dahoriz)-100,divscale16(xdimenscale,viewingrange))+(ydimen>>1);
@@ -5760,7 +5786,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
     else
     {
         float r = (float)(ydimen >> 1) - ghoriz;
-        gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx);
+        gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx / (gvrcorrection * gvrcorrection));
         gchang  = Bsqrtf(1.f - gshang * gshang);
         ghoriz2 = 0.f;
     }
@@ -6557,6 +6583,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     double const ogxyaspect = gxyaspect; gxyaspect = 1.f;
     int const oldviewingrange = viewingrange; viewingrange = 65536;
     float const oldfviewingrange = fviewingrange; fviewingrange = 65536.f;
+    float const ogvrcorrection = gvrcorrection; gvrcorrection = 1.f;
 
     polymost_updaterotmat();
 
@@ -6748,6 +6775,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 # endif
     if (!nofog) polymost_setFogEnabled(true);
 
+    gvrcorrection = ogvrcorrection;
     viewingrange = oldviewingrange;
     fviewingrange = oldfviewingrange;
     gxyaspect = ogxyaspect;
@@ -6808,6 +6836,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     gctang = 1.f;
     float const  ogstang = gstang;
     gstang = 0.f;
+    float const  ogvrcorrection = gvrcorrection;
+    gvrcorrection = 1.f;
 
     polymost_updaterotmat();
 
@@ -7023,6 +7053,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     gshang = ogshang;
     gctang = ogctang;
     gstang = ogstang;
+    gvrcorrection = ogvrcorrection;
 
     polymost_identityrotmat();
 }

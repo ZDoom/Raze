@@ -26,6 +26,7 @@ extern double gxyaspect;
 extern float grhalfxdown10x;
 extern float gcosang, gsinang, gcosang2, gsinang2;
 extern float gchang, gshang, gctang, gstang, gvisibility;
+extern float gvrcorrection;
 
 struct glfiltermodes {
     const char *name;
@@ -69,6 +70,8 @@ void polymost_usePaletteIndexing(char usePaletteIndexing);
 void polymost_useDetailMapping(char useDetailMapping);
 void polymost_useGlowMapping(char useGlowMapping);
 void useShaderProgram(uint32_t shaderID);
+
+float* multiplyMatrix4f(float m0[4*4], const float m1[4*4]);
 
 void polymost_glinit(void);
 void polymost_glreset(void);
