@@ -400,7 +400,9 @@ void S_Cleanup(void)
         // for which there was no open slot to keep track of the voice
         if (num >= (MAXSOUNDS*MAXSOUNDINSTANCES))
         {
+#ifdef CACHING_DOESNT_SUCK
             --g_soundlocks[num-(MAXSOUNDS*MAXSOUNDINSTANCES)];
+#endif
             continue;
         }
 
@@ -429,7 +431,9 @@ void S_Cleanup(void)
         voice.dist  = UINT16_MAX;
         voice.clock = 0;
 
+#ifdef CACHING_DOESNT_SUCK
         --g_soundlocks[num];
+#endif
     }
 }
 
