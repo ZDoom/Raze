@@ -2044,6 +2044,8 @@ int G_EnterLevel(int gameMode)
 
     if (G_HaveUserMap())
         OSD_Printf(OSDTEXT_YELLOW "User Map: %s\n", boardfilename);
+    else if (FURY)
+        OSD_Printf(OSDTEXT_YELLOW "Entering: %s\n", m.name);
     else
         OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number + 1, ud.level_number + 1, m.name);
 
