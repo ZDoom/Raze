@@ -42,6 +42,14 @@ std::atomic<uint32_t> dnum;
 uint32_t dq[DQSIZE];
 static mutex_t m_callback;
 
+static inline void S_SetProperties(assvoice_t *snd, int const owner, int const voice, int const dist, int const clock)
+{
+    snd->owner = owner;
+    snd->id    = voice;
+    snd->dist  = dist;
+    snd->clock = clock;
+}
+
 void S_SoundStartup(void)
 {
 #ifdef MIXERTYPEWIN
@@ -66,10 +74,7 @@ void S_SoundStartup(void)
         for (auto & voice : g_sounds[i].voices)
         {
             g_sounds[i].num = 0;
-            voice.id        = 0;
-            voice.owner     = -1;
-            voice.dist      = UINT16_MAX;
-            voice.clock     = 0;
+            S_SetProperties(&voice, -1, 0, UINT16_MAX, 0);
         }
 
 #ifdef CACHING_DOESNT_SUCK
@@ -426,10 +431,7 @@ void S_Cleanup(void)
         if (spriteNum != -1 && S_IsAmbientSFX(spriteNum) && sector[SECT(spriteNum)].lotag < 3)  // ST_2_UNDERWATER
             actor[spriteNum].t_data[0] = 0;
 
-        voice.owner = -1;
-        voice.id    = 0;
-        voice.dist  = UINT16_MAX;
-        voice.clock = 0;
+        S_SetProperties(&voice, -1, 0, UINT16_MAX, 0);
 
 #ifdef CACHING_DOESNT_SUCK
         --g_soundlocks[num];
@@ -751,10 +753,8 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
     }
 
     snd.num++;
-    snd.voices[sndSlot].owner = spriteNum;
-    snd.voices[sndSlot].id    = voice;
-    snd.voices[sndSlot].dist  = sndist >> 6;
-    snd.voices[sndSlot].clock = 0;
+
+    S_SetProperties(&snd.voices[sndSlot], spriteNum, voice, sndist >> 6, 0);
 
     return voice;
 }
