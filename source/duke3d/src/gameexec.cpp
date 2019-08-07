@@ -719,9 +719,9 @@ dead:
         int angDiff    = vm.pSprite->ang;
 
 #ifndef EDUKE32_STANDALONE
-        if (badguyp && vm.pSprite->picnum != ROTATEGUN)
+        if (badguyp && (FURY || vm.pSprite->picnum != ROTATEGUN))
         {
-            if ((vm.pSprite->picnum == DRONE || vm.pSprite->picnum == COMMANDER) && vm.pSprite->extra > 0)
+            if (!FURY && (vm.pSprite->picnum == DRONE || vm.pSprite->picnum == COMMANDER) && vm.pSprite->extra > 0)
             {
                 if (vm.pSprite->picnum == COMMANDER)
                 {
@@ -763,7 +763,7 @@ dead:
                     }
                 }
             }
-            else if (vm.pSprite->picnum != ORGANTIC)
+            else if ((FURY && badguyp) || vm.pSprite->picnum != ORGANTIC)
 #else
         if (badguyp)
         {
@@ -807,7 +807,7 @@ dead:
             }
             else
 #ifndef EDUKE32_STANDALONE
-                if (vm.pSprite->picnum != DRONE && vm.pSprite->picnum != SHARK && vm.pSprite->picnum != COMMANDER)
+                if (FURY || (vm.pSprite->picnum != DRONE && vm.pSprite->picnum != SHARK && vm.pSprite->picnum != COMMANDER))
 #endif
             {
                 if (vm.pPlayer->actorsqu == vm.spriteNum)
@@ -1030,7 +1030,7 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
             // I'm guessing this DRONE check is from a beta version of the game
             // where they crashed into the ground when killed
 #ifndef EDUKE32_STANDALONE
-            if (!(pSprite->picnum == APLAYER && pSprite->extra > 0) && pSprite->pal != 1 && pSprite->picnum != DRONE)
+            if (!FURY && !(pSprite->picnum == APLAYER && pSprite->extra > 0) && pSprite->pal != 1 && pSprite->picnum != DRONE)
             {
                 A_DoGuts(spriteNum,JIBS6,15);
                 A_PlaySound(SQUISHED,spriteNum);
@@ -2998,7 +2998,7 @@ badindex:
 // if holoduke is on, let them target holoduke first.
 //
 #ifndef EDUKE32_STANDALONE
-                if (vm.pPlayer->holoduke_on >= 0)
+                if (!FURY && vm.pPlayer->holoduke_on >= 0)
                 {
                     pSprite = (uspriteptr_t)&sprite[vm.pPlayer->holoduke_on];
                     tw = cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - (krand() & (ZOFFSET5 - 1)), vm.pSprite->sectnum, pSprite->x, pSprite->y,
@@ -3283,7 +3283,8 @@ badindex:
             vInstruction(CON_LOTSOFGLASS):
                 insptr++;
 #ifndef EDUKE32_STANDALONE
-                A_SpawnGlass(vm.spriteNum, *insptr++);
+                if (!FURY)
+                    A_SpawnGlass(vm.spriteNum, *insptr++);
 #else
                 insptr++;
 #endif
@@ -3293,9 +3294,12 @@ badindex:
                 insptr++;
                 {
 #ifndef EDUKE32_STANDALONE
-                    int const wallNum   = Gv_GetVar(*insptr++);
-                    int const numShards = Gv_GetVar(*insptr++);
-                    A_SpawnWallGlass(vm.spriteNum, wallNum, numShards);
+                    if (!FURY)
+                    {
+                        int const wallNum   = Gv_GetVar(*insptr++);
+                        int const numShards = Gv_GetVar(*insptr++);
+                        A_SpawnWallGlass(vm.spriteNum, wallNum, numShards);
+                    }
 #else
                     Gv_GetVar(*insptr++);
                     Gv_GetVar(*insptr++);
@@ -3307,9 +3311,12 @@ badindex:
                 insptr++;
                 {
 #ifndef EDUKE32_STANDALONE
-                    int const wallNum   = Gv_GetVar(*insptr++);
-                    int const numShards = Gv_GetVar(*insptr++);
-                    A_SpawnRandomGlass(vm.spriteNum, wallNum, numShards);
+                    if (!FURY)
+                    {
+                        int const wallNum   = Gv_GetVar(*insptr++);
+                        int const numShards = Gv_GetVar(*insptr++);
+                        A_SpawnRandomGlass(vm.spriteNum, wallNum, numShards);
+                    }
 #else
                     Gv_GetVar(*insptr++);
                     Gv_GetVar(*insptr++);
@@ -3321,9 +3328,12 @@ badindex:
                 insptr++;
                 {
 #ifndef EDUKE32_STANDALONE
-                    int const sectNum   = Gv_GetVar(*insptr++);
-                    int const numShards = Gv_GetVar(*insptr++);
-                    A_SpawnCeilingGlass(vm.spriteNum, sectNum, numShards);
+                    if (!FURY)
+                    {
+                        int const sectNum   = Gv_GetVar(*insptr++);
+                        int const numShards = Gv_GetVar(*insptr++);
+                        A_SpawnCeilingGlass(vm.spriteNum, sectNum, numShards);
+                    }
 #else
                     Gv_GetVar(*insptr++);
                     Gv_GetVar(*insptr++);
@@ -3359,7 +3369,7 @@ badindex:
                     int newHealth = sprite[vm.pPlayer->i].extra;
 
 #ifndef EDUKE32_STANDALONE
-                    if (vm.pSprite->picnum == ATOMICHEALTH)
+                    if (!FURY && vm.pSprite->picnum == ATOMICHEALTH)
                     {
                         if (newHealth > 0)
                             newHealth += *insptr;
@@ -3391,7 +3401,7 @@ badindex:
                         if (*insptr > 0)
                         {
 #ifndef EDUKE32_STANDALONE
-                            if ((newHealth - *insptr) < (vm.pPlayer->max_player_health >> 2) && newHealth >= (vm.pPlayer->max_player_health >> 2))
+                            if (!FURY && (newHealth - *insptr) < (vm.pPlayer->max_player_health >> 2) && newHealth >= (vm.pPlayer->max_player_health >> 2))
                                 A_PlaySound(DUKE_GOTHEALTHATLOW, vm.pPlayer->i);
 #endif
                             vm.pPlayer->last_extra = newHealth;
@@ -4780,21 +4790,24 @@ badindex:
                 insptr++;
                 {
 #ifndef EDUKE32_STANDALONE
-                    int debrisTile = *insptr++;
+                    if (!FURY)
+                    {
+                        int debrisTile = *insptr++;
 
-                    if ((unsigned)vm.pSprite->sectnum < MAXSECTORS)
-                        for (native_t cnt = (*insptr) - 1; cnt >= 0; cnt--)
-                        {
-                            int const tileOffset = (vm.pSprite->picnum == BLIMP && debrisTile == SCRAP1) ? 0 : (krand() % 3);
+                        if ((unsigned)vm.pSprite->sectnum < MAXSECTORS)
+                            for (native_t cnt = (*insptr) - 1; cnt >= 0; cnt--)
+                            {
+                                int const tileOffset = (vm.pSprite->picnum == BLIMP && debrisTile == SCRAP1) ? 0 : (krand() % 3);
 
-                            int const spriteNum = A_InsertSprite(vm.pSprite->sectnum, vm.pSprite->x + (krand() & 255) - 128,
-                                                                 vm.pSprite->y + (krand() & 255) - 128, vm.pSprite->z - (8 << 8) - (krand() & 8191),
-                                                                 debrisTile + tileOffset, vm.pSprite->shade, 32 + (krand() & 15), 32 + (krand() & 15),
-                                                                 krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), vm.spriteNum, 5);
+                                int const spriteNum = A_InsertSprite(
+                                vm.pSprite->sectnum, vm.pSprite->x + (krand() & 255) - 128, vm.pSprite->y + (krand() & 255) - 128,
+                                vm.pSprite->z - (8 << 8) - (krand() & 8191), debrisTile + tileOffset, vm.pSprite->shade, 32 + (krand() & 15),
+                                32 + (krand() & 15), krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), vm.spriteNum, 5);
 
-                            sprite[spriteNum].yvel = (vm.pSprite->picnum == BLIMP && debrisTile == SCRAP1) ? g_blimpSpawnItems[cnt % 14] : -1;
-                            sprite[spriteNum].pal  = vm.pSprite->pal;
-                        }
+                                sprite[spriteNum].yvel = (vm.pSprite->picnum == BLIMP && debrisTile == SCRAP1) ? g_blimpSpawnItems[cnt % 14] : -1;
+                                sprite[spriteNum].pal  = vm.pSprite->pal;
+                            }
+                    }
 #else
                     insptr++;
 #endif
@@ -4932,7 +4945,8 @@ badindex:
 
             vInstruction(CON_GUTS):
 #ifndef EDUKE32_STANDALONE
-                A_DoGuts(vm.spriteNum, insptr[1], insptr[2]);
+                if (!FURY)
+                    A_DoGuts(vm.spriteNum, insptr[1], insptr[2]);
 #endif
                 insptr += 3;
                 dispatch();
@@ -6177,9 +6191,12 @@ badindex:
                     case PODFEM1__STATIC:
                     case NAKED1__STATIC:
                     case STATUE__STATIC:
-                        if (vm.pSprite->yvel)
-                            G_OperateRespawns(vm.pSprite->yvel);
-                        break;
+                        if (!FURY)
+                        {
+                            if (vm.pSprite->yvel)
+                                G_OperateRespawns(vm.pSprite->yvel);
+                            break;
+                        }
 #endif
                     default:
                         if (vm.pSprite->hitag >= 0)

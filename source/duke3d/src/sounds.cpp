@@ -185,7 +185,7 @@ void S_MenuSound(void)
         PISTOL_RICOCHET,   PISTOL_BODYHIT,   PISTOL_FIRE,      SHOTGUN_FIRE,  BOS1_WALK,     RPG_EXPLODE,
         PIPEBOMB_BOUNCE,   PIPEBOMB_EXPLODE, NITEVISION_ONOFF, RPG_SHOOT,     SELECT_WEAPON,
     };
-    int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
+    int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, FURY ? -1 : menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
 #else
     int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, -1);
 #endif
@@ -593,15 +593,18 @@ sound_further_processing:
         sndist += sndist>>5;
 
 #ifndef EDUKE32_STANDALONE
-    switch (DYNAMICSOUNDMAP(soundNum))
+    if (!FURY)
     {
-        case PIPEBOMB_EXPLODE__STATIC:
-        case LASERTRIP_EXPLODE__STATIC:
-        case RPG_EXPLODE__STATIC:
-            explosion = true;
-            if (sndist > 6144)
-                sndist = 6144;
-            break;
+        switch (DYNAMICSOUNDMAP(soundNum))
+        {
+            case PIPEBOMB_EXPLODE__STATIC:
+            case LASERTRIP_EXPLODE__STATIC:
+            case RPG_EXPLODE__STATIC:
+                explosion = true;
+                if (sndist > 6144)
+                    sndist = 6144;
+                break;
+        }
     }
 #endif
 
