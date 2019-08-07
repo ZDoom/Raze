@@ -574,26 +574,12 @@ void MV_SetVoiceMixMode(VoiceNode *voice)
     if (voice->channels == 2)
         type |= T_STEREOSOURCE;
 
-    switch (type)
-    {
-        case T_16BITSOURCE | T_MONO: voice->mix = MV_Mix16BitMono16; break;
+    // stereo look-up table
+    static constexpr decltype(voice->mix) mixslut[]
+    = { MV_Mix16BitStereo,        MV_Mix16BitMono,        MV_Mix16BitStereo16,       MV_Mix16BitMono16,
+        MV_Mix16BitStereo8Stereo, MV_Mix16BitMono8Stereo, MV_Mix16BitStereo16Stereo, MV_Mix16BitMono16Stereo };
 
-        case T_MONO: voice->mix = MV_Mix16BitMono; break;
-
-        case T_16BITSOURCE: voice->mix = MV_Mix16BitStereo16; break;
-
-        case T_SIXTEENBIT_STEREO: voice->mix = MV_Mix16BitStereo; break;
-
-        case T_16BITSOURCE | T_STEREOSOURCE: voice->mix = MV_Mix16BitStereo16Stereo; break;
-
-        case T_16BITSOURCE | T_STEREOSOURCE | T_MONO: voice->mix = MV_Mix16BitMono16Stereo; break;
-
-        case T_STEREOSOURCE: voice->mix = MV_Mix16BitStereo8Stereo; break;
-
-        case T_STEREOSOURCE | T_MONO: voice->mix = MV_Mix16BitMono8Stereo; break;
-
-        default: voice->mix = NULL; break;
-    }
+    voice->mix = mixslut[type];
 }
 
 void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t right, float volume)

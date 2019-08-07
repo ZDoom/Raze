@@ -37,9 +37,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define VOC_16BIT           0x4
 
 #define T_SIXTEENBIT_STEREO 0
-#define T_MONO         2
-#define T_16BITSOURCE  4
-#define T_STEREOSOURCE 8
+#define T_MONO         1
+#define T_16BITSOURCE  2
+#define T_STEREOSOURCE 4
 #define T_DEFAULT      T_SIXTEENBIT_STEREO
 
 #define MV_MAXPANPOSITION  127  /* formerly 31 */
