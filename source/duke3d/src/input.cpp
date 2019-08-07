@@ -114,6 +114,17 @@ void I_ReturnTriggerClear(void)
 #endif
 }
 
+int32_t I_GeneralTrigger(void)
+{
+    return I_AdvanceTrigger() || I_ReturnTrigger();
+}
+
+void I_GeneralTriggerClear(void)
+{
+    I_AdvanceTriggerClear();
+    I_ReturnTriggerClear();
+}
+
 
 int32_t I_EscapeTrigger(void)
 {

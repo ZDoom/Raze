@@ -54,7 +54,7 @@ static void G_HandleEventsWhileNoInput(void)
 {
     I_ClearAllInput();
 
-    while (!I_AdvanceTrigger())
+    while (!I_GeneralTrigger())
         G_HandleAsync();
 
     I_ClearAllInput();
@@ -67,7 +67,7 @@ static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
     while (S_CheckSoundPlaying(soundnum))
     {
         G_HandleAsync();
-        if (I_AdvanceTrigger())
+        if (I_GeneralTrigger())
         {
             I_ClearAllInput();
             return 1;
@@ -1415,7 +1415,7 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
     // (end-start)/step + 1 iterations
     do
     {
-        if (I_AdvanceTrigger())
+        if (I_GeneralTrigger())
         {
             I_ClearAllInput();
             videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
@@ -1441,7 +1441,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     // (end-start)/step + 1 iterations
     do
     {
-        if (I_AdvanceTrigger())
+        if (I_GeneralTrigger())
         {
             I_ClearAllInput();
             videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
@@ -1476,7 +1476,7 @@ void gameDisplayTENScreen()
     totalclock = 0;
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, TENSCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     fadepaltile(0, 0, 0, 252, 0, -28, TENSCREEN);
-    while (!I_AdvanceTrigger() && totalclock < 2400)
+    while (!I_GeneralTrigger() && totalclock < 2400)
         G_HandleAsync();
 
     fadepaltile(0, 0, 0, 0, 252, 28, TENSCREEN);
@@ -1499,14 +1499,14 @@ void gameDisplaySharewareScreens()
     I_ClearAllInput();
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 3291, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     fadepaltile(0, 0, 0, 252, 0, -28, 3291);
-    while (!I_AdvanceTrigger())
+    while (!I_GeneralTrigger())
         G_HandleAsync();
 
     fadepaltile(0, 0, 0, 0, 252, 28, 3291);
     I_ClearAllInput();
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 3290, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     fadepaltile(0, 0, 0, 252, 0, -28, 3290);
-    while (!I_AdvanceTrigger())
+    while (!I_GeneralTrigger())
         G_HandleAsync();
 
 #ifdef __ANDROID__
@@ -1528,7 +1528,7 @@ void G_DisplayExtraScreens(void)
 
 void gameDisplay3DRScreen()
 {
-    if (!I_CheckAllInput() && g_noLogoAnim == 0)
+    if (!I_GeneralTrigger() && g_noLogoAnim == 0)
     {
         buildvfs_kfd i;
         Net_GetPackets();
@@ -1557,7 +1557,7 @@ void gameDisplay3DRScreen()
             fadepaltile(0, 0, 0, 252, 0, -28, DREALMS);
             totalclock = 0;
 
-            while (totalclock < (120 * 7) && !I_CheckAllInput())
+            while (totalclock < (120 * 7) && !I_GeneralTrigger())
             {
                 if (G_FPSLimit())
                 {
@@ -1598,7 +1598,7 @@ void gameDisplayTitleScreen(void)
 #ifndef EDUKE32_SIMPLE_MENU
     totalclock < (860 + 120) &&
 #endif
-    !I_AdvanceTrigger())
+    !I_GeneralTrigger())
     {
         if (G_FPSLimit())
         {
@@ -1719,7 +1719,7 @@ void G_DisplayLogo(void)
 #endif
             (logoflags & LOGO_PLAYANIM))
         {
-            if (!I_AdvanceTrigger() && g_noLogoAnim == 0)
+            if (!I_GeneralTrigger() && g_noLogoAnim == 0)
             {
                 Net_GetPackets();
                 Anim_Play("logo.anm");
@@ -1889,7 +1889,7 @@ static void G_BonusCutscenes(void)
 
                 G_HandleAsync();
 
-                if (I_AdvanceTrigger()) break;
+                if (I_GeneralTrigger()) break;
             } while (1);
 
             fadepal(0, 0, 0, 0, 252, 4);
@@ -2057,7 +2057,7 @@ static void G_BonusCutscenes(void)
 
         Anim_Play("RADLOGO.ANM");
 
-        if (ud.lockout == 0 && !I_AdvanceTrigger())
+        if (ud.lockout == 0 && !I_GeneralTrigger())
         {
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND5)) goto ENDANM;
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND6)) goto ENDANM;
@@ -2071,7 +2071,7 @@ static void G_BonusCutscenes(void)
         totalclock = 0;
         if (PLUTOPAK || (G_GetLogoFlags() & LOGO_NODUKETEAMPIC))
         {
-            while (totalclock < 120 && !I_AdvanceTrigger())
+            while (totalclock < 120 && !I_GeneralTrigger())
                 G_HandleAsync();
 
             I_ClearAllInput();
