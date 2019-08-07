@@ -582,7 +582,7 @@ static bool S_CalcDistAndAng(int32_t spriteNum, int32_t soundNum, int32_t sectNu
     }
 #endif
 
-    if ((g_sounds[soundNum].m & SF_GLOBAL) == 0 && S_IsAmbientSFX(spriteNum) && (sector[SECT(spriteNum)].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
+    if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) != SF_GLOBAL && S_IsAmbientSFX(spriteNum) && (sector[SECT(spriteNum)].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
         sndist = divscale14(sndist, SHT(spriteNum)+1);
 
 sound_further_processing:
@@ -594,6 +594,14 @@ sound_further_processing:
         && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (24 << 8), SECT(spriteNum)))
         sndist += sndist>>5;
 
+    if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) == (SF_GLOBAL|SF_DTAG))
+    {
+boost:
+        explosion = true;
+        if (sndist > 6144)
+            sndist = 6144;
+    }
+    else 
 #ifndef EDUKE32_STANDALONE
     if (!FURY)
     {
@@ -602,15 +610,12 @@ sound_further_processing:
             case PIPEBOMB_EXPLODE__STATIC:
             case LASERTRIP_EXPLODE__STATIC:
             case RPG_EXPLODE__STATIC:
-                explosion = true;
-                if (sndist > 6144)
-                    sndist = 6144;
-                break;
+                goto boost;
         }
     }
 #endif
 
-    if ((g_sounds[soundNum].m & SF_GLOBAL) || sndist < ((255-LOUDESTVOLUME) << 6))
+    if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) == SF_GLOBAL || sndist < ((255-LOUDESTVOLUME) << 6))
         sndist = ((255-LOUDESTVOLUME) << 6);
 
     *distPtr = sndist;
@@ -657,7 +662,7 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
             if ((g_sounds[j].m & SF_TALK) && g_sounds[j].num > 0)
                 return -1;
     }
-    else if (snd.m & SF_DTAG)  // Duke-Tag sound
+    else if ((snd.m & (SF_DTAG|SF_GLOBAL)) == SF_DTAG)  // Duke-Tag sound
     {
         int const voice = S_PlaySound(sndNum);
 

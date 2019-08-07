@@ -66,7 +66,7 @@ int A_CallSound(int sectNum, int spriteNum)
 
         if (T1(SFXsprite) == 0)
         {
-            if ((g_sounds[soundNum].m & SF_GLOBAL) == 0)
+            if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) != SF_GLOBAL)
             {
                 if (soundNum)
                 {

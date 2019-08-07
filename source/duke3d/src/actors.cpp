@@ -1529,7 +1529,7 @@ ACTOR_STATIC void G_MoveFX(void)
                     }
                 }
 
-                if (g_sounds[pSprite->lotag].m & SF_GLOBAL)
+                if ((g_sounds[pSprite->lotag].m & (SF_GLOBAL|SF_DTAG)) == SF_GLOBAL)
                 {
                     // Randomly playing global sounds (flyby of planes, screams, ...)
 
