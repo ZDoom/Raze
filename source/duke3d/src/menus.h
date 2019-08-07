@@ -486,7 +486,7 @@ extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 # define CURSORALPHA (MOUSEUSEALPHA ? clamp((totalclock - m_mouselastactivity - 90)*2 + (255/3), (255/3), 255) : 255/3)
 # define MOUSEACTIVECONDITION (totalclock - m_mouselastactivity < M_MOUSETIMEOUT)
 # define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
-# define MOUSEINACTIVECONDITIONAL(condition) (!MOUSEACTIVECONDITION && (condition))
+# define MOUSEINACTIVECONDITIONAL(condition) ((!(g_player[myconnectindex].ps->gm & MODE_MENU) || !MOUSEACTIVECONDITION) && (condition))
 # define MOUSEWATCHPOINTCONDITIONAL(condition) ((condition) || m_mousewake_watchpoint || m_menuchange_watchpoint == 3)
 #endif
 
