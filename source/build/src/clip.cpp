@@ -792,7 +792,7 @@ static bool cliptestsector(int const dasect, int const nextsect, int32_t const f
     int32_t daz2 = sec2->floorz;
     int32_t dacz2 = sec2->ceilingz;
 
-    if (sec2->floorstat & 2)
+    if ((sec2->floorstat|sec2->ceilingstat) & 2)
         getcorrectzsofslope(nextsect, pos.x, pos.y, &dacz2, &daz2);
 
     if (daz2 <= dacz2)
@@ -802,7 +802,7 @@ static bool cliptestsector(int const dasect, int const nextsect, int32_t const f
     int32_t daz = sec->floorz;
     int32_t dacz = sec->ceilingz;
 
-    if (sec->floorstat & 2)
+    if ((sec->floorstat|sec->ceilingstat) & 2)
         getcorrectzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
 
     int32_t const sec2height = daz2-dacz2;
