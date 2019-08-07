@@ -38,7 +38,6 @@ enum
     DSErr_Play,
     DSErr_PlaySecondary,
     DSErr_CreateThread,
-    DSErr_CreateMutex
 };
 
 int32_t DirectSoundDrv_GetError(void);
