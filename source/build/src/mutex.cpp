@@ -13,30 +13,25 @@ int32_t mutex_init(mutex_t *mutex)
     *mutex = CreateMutex(0, FALSE, 0);
     return (*mutex == 0);
 #else
-    if (mutex)
-    {
-        *mutex = SDL_CreateMutex();
-        if (*mutex != NULL)
-            return 0;
-    }
-    return -1;
+    *mutex = 0;
+    return 0;
 #endif
 }
 
-int32_t mutex_lock(mutex_t *mutex)
+void mutex_lock(mutex_t *mutex)
 {
 #ifdef RENDERTYPEWIN
-    return (WaitForSingleObject(*mutex, INFINITE) == WAIT_FAILED);
+    return WaitForSingleObject(*mutex, INFINITE);
 #else
-    return SDL_LockMutex(*mutex);
+    return SDL_AtomicLock(mutex);
 #endif
 }
 
-int32_t mutex_unlock(mutex_t *mutex)
+void mutex_unlock(mutex_t *mutex)
 {
 #ifdef RENDERTYPEWIN
-    return (ReleaseMutex(*mutex) == 0);
+    ReleaseMutex(*mutex);
 #else
-    return SDL_UnlockMutex(*mutex);
+    SDL_AtomicUnlock(mutex);
 #endif
 }

@@ -19,12 +19,12 @@ typedef HANDLE mutex_t;
 #else
 /* PK: I don't like pointer typedefs, but SDL_CreateMutex() _returns_ one,
  *     so we're out of luck with our interface. */
-typedef SDL_mutex* mutex_t;
+typedef SDL_SpinLock mutex_t;
 #endif
 
 extern int32_t mutex_init(mutex_t *mutex);
-extern int32_t mutex_lock(mutex_t *mutex);
-extern int32_t mutex_unlock(mutex_t *mutex);
+extern void mutex_lock(mutex_t *mutex);
+extern void mutex_unlock(mutex_t *mutex);
 
 
 #ifdef __cplusplus
