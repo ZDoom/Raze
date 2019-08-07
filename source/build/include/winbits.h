@@ -2,7 +2,11 @@
 
 #include "compat.h"
 
-#define WindowClass "buildapp"
+#ifdef APPNAME
+# define WindowClass APPNAME
+#else
+# define WindowClass "buildapp"
+#endif
 
 extern int32_t backgroundidle;	// set to 1 to tell winlayer to go to idle priority when inactive
 

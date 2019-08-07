@@ -6219,12 +6219,18 @@ int app_main(int argc, char const * const * argv)
 #endif
 
 #ifdef _WIN32
+#ifndef DEBUGGINGAIDS
     if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && win_checkinstance())
     {
+#ifdef EDUKE32_STANDALONE
+        if (!wm_ynbox(APPNAME, APPNAME " is already running. "
+#else
         if (!wm_ynbox(APPNAME, "Another Build game is currently running. "
-                      "Do you wish to continue starting this copy?"))
+#endif
+                      "Are you sure you want to start another copy?"))
             return 3;
     }
+#endif
 
     backgroundidle = 0;
 

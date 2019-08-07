@@ -101,7 +101,7 @@ static void win_printversion(void)
     int l;
 
     if (pwinever)
-        l = Bsprintf(str, "Wine %s identifying as Windows %s", (char *)pwinever(), ver);
+        l = Bsprintf(str, "Wine %s, identifying as Windows %s", (char *)pwinever(), ver);
     else
         l = Bsprintf(str, "Windows %s", ver);
 
