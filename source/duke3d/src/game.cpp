@@ -94,7 +94,9 @@ int32_t g_BenchmarkMode = BENCHMARKMODE_OFF;
 
 int32_t g_Debug = 0;
 
-const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "NAM.RTS", "NAPALM.RTS", "WW2GI.RTS" };
+#ifndef EDUKE32_STANDALONE
+static const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "NAM.RTS", "NAPALM.RTS", "WW2GI.RTS" };
+#endif
 
 int32_t g_Shareware = 0;
 
@@ -131,6 +133,7 @@ void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); };  // needed for 
 
 const char *G_DefaultRtsFile(void)
 {
+#ifndef EDUKE32_STANDALONE
     if (DUKE)
         return defaultrtsfilename[GAME_DUKE];
     else if (WW2GI)
@@ -149,8 +152,9 @@ const char *G_DefaultRtsFile(void)
         else
             return defaultrtsfilename[GAME_NAM];
     }
+#endif
 
-    return defaultrtsfilename[0];
+    return "";
 }
 
 enum gametokens
