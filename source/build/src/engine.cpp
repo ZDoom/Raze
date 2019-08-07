@@ -12004,6 +12004,9 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
     if (setviewcnt >= MAXSETVIEW-1)
         return;
+    if (xsiz <= 0 ||
+        ysiz <= 0)
+        return;
 
     //DRAWROOMS TO TILE BACKUP&SET CODE
     tilesiz[tilenume].x = xsiz; tilesiz[tilenume].y = ysiz;
