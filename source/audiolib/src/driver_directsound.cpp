@@ -25,9 +25,11 @@
 #define NEED_MMSYSTEM_H
 #define NEED_DSOUND_H
 
-#include "compat.h"
 #include "driver_directsound.h"
+
+#include "compat.h"
 #include "multivoc.h"
+#include "mutex.h"
 #include "windows_inc.h"
 
 #define MIXBUFFERPOSITIONS 8
@@ -49,7 +51,7 @@ static LPDIRECTSOUNDBUFFER lpdsbprimary = NULL, lpdsbsec = NULL;
 static LPDIRECTSOUNDNOTIFY lpdsnotify = NULL;
 
 static HANDLE mixThread = NULL;
-static HANDLE mutex     = NULL;
+static mutex_t mutex;
 
 static DSBPOSITIONNOTIFY notifyPositions[MIXBUFFERPOSITIONS + 1] = {};
 
@@ -142,15 +144,9 @@ static DWORD WINAPI fillDataThread(LPVOID lpParameter)
 
         if (waitret >= WAIT_OBJECT_0 && waitret < WAIT_OBJECT_0+MIXBUFFERPOSITIONS)
         {
-            DWORD const waitret2 = WaitForSingleObject(mutex, INFINITE);
-
-            if (waitret2 == WAIT_OBJECT_0)
-            {
-                FillBuffer((waitret + MIXBUFFERPOSITIONS - 1 - WAIT_OBJECT_0) % MIXBUFFERPOSITIONS);
-                ReleaseMutex(mutex);
-            }
-            else if (MV_Printf)
-                MV_Printf("DirectSound fillDataThread: wfso err %d\n", (int32_t)waitret2);
+            mutex_lock(&mutex);
+            FillBuffer((waitret + MIXBUFFERPOSITIONS - 1 - WAIT_OBJECT_0) % MIXBUFFERPOSITIONS);
+            mutex_unlock(&mutex);
         }
         else
         {
@@ -190,8 +186,10 @@ static void TeardownDSound(HRESULT err)
         notifyPositions[i].hEventNotify = 0;
     }
 
+#ifdef RENDERTYPEWIN
     if (mutex)
         CloseHandle(mutex), mutex = NULL;
+#endif
 
     if (lpdsbsec)
         IDirectSoundBuffer_Release(lpdsbsec), lpdsbsec = NULL;
@@ -270,8 +268,7 @@ int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * i
     if (FAILED(err = IDirectSoundBuffer_Play(lpdsbprimary, 0, 0, DSBPLAY_LOOPING)))
         DIRECTSOUND_ERROR(err, DSErr_Play);
 
-    if ((mutex = CreateMutex(0, FALSE, 0)) == NULL)
-        DIRECTSOUND_ERROR(DS_OK, DSErr_CreateMutex);
+    mutex_init(&mutex);
 
     Initialised = 1;
 
@@ -345,18 +342,12 @@ void DirectSoundDrv_PCM_StopPlayback(void)
 
 void DirectSoundDrv_PCM_Lock(void)
 {
-    DWORD const err = WaitForSingleObject(mutex, INFINITE);
-
-    if (err != WAIT_OBJECT_0)
-    {
-        if (MV_Printf)
-            MV_Printf("DirectSound lock: wfso %d\n", (int32_t)err);
-    }
+    mutex_lock(&mutex);
 }
 
 void DirectSoundDrv_PCM_Unlock(void)
 {
-    ReleaseMutex(mutex);
+    mutex_unlock(&mutex);
 }
 
 int32_t DirectSoundDrv_GetError(void)
@@ -429,10 +420,6 @@ const char *DirectSoundDrv_ErrorString(int32_t ErrorNumber)
 
         case DSErr_CreateThread:
             ErrorString = "DirectSound error: failed creating mix thread.";
-            break;
-
-        case DSErr_CreateMutex:
-            ErrorString = "DirectSound error: failed creating mix mutex.";
             break;
 
         default:
