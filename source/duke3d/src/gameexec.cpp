@@ -1172,9 +1172,6 @@ int G_StartTrack(int const levelNum) { return G_StartTrackSlot(ud.volume_number,
 
 LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, int ix1, int iy1, int ix2, int iy2, bool unbiasedp)
 {
-    if (g_screenCapture)
-        return;
-
     int x1 = min(ix1, ix2);
     int x2 = max(ix1, ix2);
     int y1 = min(iy1, iy2);
