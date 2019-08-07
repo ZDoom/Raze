@@ -155,6 +155,7 @@ void CONTROL_ClearAssignments( void );
 // void CONTROL_GetFunctionInput( void );
 void CONTROL_GetInput( ControlInfo *info );
 void CONTROL_ClearButton( int whichbutton );
+void CONTROL_ClearAllButtons( void );
 extern float CONTROL_MouseSensitivity;
 bool CONTROL_Startup(controltype which, int32_t ( *TimeFunction )( void ), int32_t ticspersecond);
 void CONTROL_Shutdown( void );

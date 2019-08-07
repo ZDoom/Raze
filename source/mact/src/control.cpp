@@ -735,6 +735,15 @@ void CONTROL_ClearButton(int whichbutton)
     CONTROL_Flags[whichbutton].cleared = TRUE;
 }
 
+void CONTROL_ClearAllButtons(void)
+{
+    CONTROL_ButtonHeldState = 0;
+    CONTROL_ButtonState = 0;
+
+    for (auto & c : CONTROL_Flags)
+        c.cleared = TRUE;
+}
+
 void CONTROL_ProcessBinds(void)
 {
     if (!CONTROL_BindsEnabled)

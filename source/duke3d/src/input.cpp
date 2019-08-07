@@ -50,6 +50,7 @@ void I_ClearAllInput(void)
     KB_ClearKeysDown();
     MOUSE_ClearAllButtons();
     JOYSTICK_ClearAllButtons();
+    CONTROL_ClearAllButtons();
 }
 
 
