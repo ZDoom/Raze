@@ -34,23 +34,23 @@
 
 #define MIXBUFFERPOSITIONS 8
 
-static int32_t ErrorCode = DSErr_Ok;
+static int32_t ErrorCode;
 static int32_t Initialised;
 static int32_t Playing;
 
-static char *  MixBuffer = NULL;
+static char *  MixBuffer;
 static int32_t MixBufferSize;
 static int32_t MixBufferCount;
 static int32_t MixBufferCurrent;
 static int32_t MixBufferUsed;
 
-static void (*MixCallBack)(void) = NULL;
+static void (*MixCallBack)(void);
 
-static LPDIRECTSOUND lpds = NULL;
-static LPDIRECTSOUNDBUFFER lpdsbprimary = NULL, lpdsbsec = NULL;
-static LPDIRECTSOUNDNOTIFY lpdsnotify = NULL;
+static LPDIRECTSOUND lpds;
+static LPDIRECTSOUNDBUFFER lpdsbprimary, lpdsbsec;
+static LPDIRECTSOUNDNOTIFY lpdsnotify;
 
-static HANDLE mixThread = NULL;
+static HANDLE mixThread;
 static mutex_t mutex;
 
 static DSBPOSITIONNOTIFY notifyPositions[MIXBUFFERPOSITIONS + 1] = {};
