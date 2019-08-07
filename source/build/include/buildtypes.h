@@ -169,7 +169,6 @@ typedef struct
             StructTracker(Sprite, int32_t) x, y, z;
         };
         vec3_t pos;
-        vec2_t pos_as_vec2;
     };
     StructTracker(Sprite, uint16_t) cstat;
     StructTracker(Sprite, int16_t) picnum;

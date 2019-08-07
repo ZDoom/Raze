@@ -599,7 +599,7 @@ static inline void VM_FacePlayer(int const shift)
 
 static int32_t VM_GetCeilZOfSlope(void)
 {
-    vec2_t const vect     = vm.pSprite->pos_as_vec2;
+    vec2_t const vect     = vm.pSprite->pos.vec2;
     int const    sectnum  = vm.pSprite->sectnum;
 
 #ifdef YAX_ENABLE
@@ -616,7 +616,7 @@ static int32_t VM_GetCeilZOfSlope(void)
 #ifndef EDUKE32_STANDALONE
 static int32_t VM_GetFlorZOfSlope(void)
 {
-    vec2_t const vect    = vm.pSprite->pos_as_vec2;
+    vec2_t const vect    = vm.pSprite->pos.vec2;
     int const    sectnum = vm.pSprite->sectnum;
 
 #ifdef YAX_ENABLE
@@ -649,8 +649,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     {
         if (deadflag || (vm.pActor->bpos.x != vm.pSprite->x) || (vm.pActor->bpos.y != vm.pSprite->y))
         {
-            vm.pActor->bpos.x = vm.pSprite->x;
-            vm.pActor->bpos.y = vm.pSprite->y;
+            vm.pActor->bpos.vec2 = vm.pSprite->pos.vec2;
             setsprite(vm.spriteNum, (vec3_t *)vm.pSprite);
         }
         return;

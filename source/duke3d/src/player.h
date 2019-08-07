@@ -138,16 +138,7 @@ typedef struct {
 // TODO: rearrange this if the opportunity arises!
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
-    union {
-        vec3_t pos;
-        vec2_t pos_as_vec2;
-    };
-
-    union {
-        vec3_t opos;
-        vec2_t opos_as_vec2;
-    };
-
+    vec3_t pos, opos;
     vec3_t vel, npos;
     vec2_t bobpos, fric;
 

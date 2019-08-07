@@ -1936,7 +1936,7 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->z = sector[sectNum].ceilingz+(48<<8);
             T5(newSprite) = tempwallptr;
 
-            g_origins[tempwallptr] = pSprite->pos_as_vec2;
+            g_origins[tempwallptr] = pSprite->pos.vec2;
             g_origins[tempwallptr+2].x = pSprite->z;
 
 
@@ -1955,7 +1955,7 @@ int A_Spawn(int spriteNum, int tileNum)
                         sprite[findSprite].xrepeat = 48;
                         sprite[findSprite].yrepeat = 128;
 
-                        g_origins[tempwallptr + 1] = sprite[findSprite].pos_as_vec2;
+                        g_origins[tempwallptr + 1] = sprite[findSprite].pos.vec2;
                         sprite[findSprite].pos     = pSprite->pos;
                         sprite[findSprite].shade   = pSprite->shade;
 

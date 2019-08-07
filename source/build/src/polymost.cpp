@@ -5961,7 +5961,7 @@ void polymost_drawsprite(int32_t snum)
         break;
     }
 
-    vec2_t pos = tspr->pos_as_vec2;
+    vec2_t pos = tspr->pos.vec2;
 
     if (spriteext[spritenum].flags & SPREXT_AWAY1)
     {

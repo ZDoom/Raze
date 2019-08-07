@@ -1791,7 +1791,7 @@ restart_grand:
                 if (clipsprite_try((uspriteptr_t)&sprite[j], xmin,ymin, xmax,ymax))
                     continue;
 #endif
-                vec2_t v1 = sprite[j].pos_as_vec2;
+                vec2_t v1 = sprite[j].pos.vec2;
 
                 switch (cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
