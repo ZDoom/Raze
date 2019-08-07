@@ -31,6 +31,9 @@ static int32_t tilefileoffs[MAXTILES];
 static uint8_t *g_bakTileFileNum;
 static int32_t *g_bakTileFileOffs;
 static vec2_16_t *g_bakTileSiz;
+static char *g_bakPicSiz;
+static char *g_bakWalock;
+static intptr_t *g_bakWaloff;
 static picanm_t *g_bakPicAnm;
 static char * g_bakFakeTile;
 static char ** g_bakFakeTileData;
@@ -109,6 +112,9 @@ void artClearMapArt(void)
     RESTORE_MAPART_ARRAY(tilefilenum, g_bakTileFileNum);
     RESTORE_MAPART_ARRAY(tilefileoffs, g_bakTileFileOffs);
     RESTORE_MAPART_ARRAY(tilesiz, g_bakTileSiz);
+    RESTORE_MAPART_ARRAY(picsiz, g_bakPicSiz);
+    RESTORE_MAPART_ARRAY(walock, g_bakWalock);
+    RESTORE_MAPART_ARRAY(waloff, g_bakWaloff);
     RESTORE_MAPART_ARRAY(picanm, g_bakPicAnm);
     RESTORE_MAPART_ARRAY(faketile, g_bakFakeTile);
 
@@ -159,6 +165,9 @@ void artSetupMapArt(const char *filename)
     ALLOC_MAPART_ARRAY(tilefilenum, g_bakTileFileNum);
     ALLOC_MAPART_ARRAY(tilefileoffs, g_bakTileFileOffs);
     ALLOC_MAPART_ARRAY(tilesiz, g_bakTileSiz);
+    ALLOC_MAPART_ARRAY(picsiz, g_bakPicSiz);
+    ALLOC_MAPART_ARRAY(walock, g_bakWalock);
+    ALLOC_MAPART_ARRAY(waloff, g_bakWaloff);
     ALLOC_MAPART_ARRAY(picanm, g_bakPicAnm);
     ALLOC_MAPART_ARRAY(faketile, g_bakFakeTile);
     ALLOC_MAPART_ARRAY(faketiledata, g_bakFakeTileData);
