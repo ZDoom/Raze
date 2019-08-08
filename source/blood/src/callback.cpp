@@ -146,7 +146,7 @@ void FlareBurst(int nSprite) // 2
         xvel[pSpawn->index] += dx;
         yvel[pSpawn->index] += dy;
         zvel[pSpawn->index] += dz;
-        evPost(pSpawn->index, 3, 960, CALLBACK_ID_3);
+        evPost(pSpawn->index, 3, 960, CALLBACK_ID_1);
     }
     evPost(nSprite, 3, 0, CALLBACK_ID_1);
 }
