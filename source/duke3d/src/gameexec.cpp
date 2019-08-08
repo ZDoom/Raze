@@ -6197,6 +6197,7 @@ badindex:
                                 G_OperateRespawns(vm.pSprite->yvel);
                             break;
                         }
+                        fallthrough__;
 #endif
                     default:
                         if (vm.pSprite->hitag >= 0)
