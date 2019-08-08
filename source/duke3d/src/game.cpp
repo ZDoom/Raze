@@ -5875,10 +5875,10 @@ static void G_HandleMemErr(int32_t lineNum, const char *fileName, const char *fu
 
 static void G_FatalEngineError(void)
 {
-    wm_msgbox("Build Engine Initialization Error",
-              "There was a problem initializing the Build engine: %s", engineerrstr);
+    wm_msgbox("Fatal Engine Initialization Error",
+              "There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
     G_Cleanup();
-    ERRprintf("G_Startup: There was a problem initializing the Build engine: %s\n", engineerrstr);
+    ERRprintf("G_Startup: There was a problem initializing the engine: %s\n", engineerrstr);
     exit(6);
 }
 
@@ -6223,9 +6223,9 @@ int app_main(int argc, char const * const * argv)
     if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && win_checkinstance())
     {
 #ifdef EDUKE32_STANDALONE
-        if (!wm_ynbox(APPNAME, APPNAME " is already running. "
+        if (!wm_ynbox(APPNAME, "It looks like " APPNAME " is already running.\n\n"
 #else
-        if (!wm_ynbox(APPNAME, "Another Build game is currently running. "
+        if (!wm_ynbox(APPNAME, "It looks like the game is already running.\n\n"
 #endif
                       "Are you sure you want to start another copy?"))
             return 3;
