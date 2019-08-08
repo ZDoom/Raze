@@ -822,7 +822,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
     VM_OnEvent(EVENT_SAVEGAME, g_player[screenpeek].ps->i, screenpeek);
 
-    portableBackupSave(sv.path, ud.last_stateless_volume, ud.last_stateless_level);
+    portableBackupSave(sv.path, sv.name, ud.last_stateless_volume, ud.last_stateless_level);
 
     // SAVE!
     sv_saveandmakesnapshot(fil, sv.name, 0, 0, 0, 0, isAutoSave);

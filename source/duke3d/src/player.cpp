@@ -5640,7 +5640,7 @@ HORIZONLY:;
 #define SJSON_IMPLEMENT
 #include "sjson.h"
 
-int portableBackupSave(const char * path, int volume, int level)
+int portableBackupSave(const char * path, const char * name, int volume, int level)
 {
     if (!FURY)
         return 0;
@@ -5661,6 +5661,7 @@ int portableBackupSave(const char * path, int volume, int level)
 
     sjson_node * root = sjson_mkobject(ctx);
 
+    sjson_put_string(ctx, root, "name", name);
     // sjson_put_string(ctx, root, "map", currentboardfilename);
     sjson_put_int(ctx, root, "volume", volume);
     sjson_put_int(ctx, root, "level", level);
