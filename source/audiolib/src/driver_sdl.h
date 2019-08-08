@@ -18,6 +18,7 @@
 
  */
 
+#include "compat.h"
 
 int32_t SDLDrv_GetError(void);
 const char *SDLDrv_ErrorString( int32_t ErrorNumber );
