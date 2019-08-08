@@ -1067,7 +1067,7 @@ void G_PrintGameQuotes(int32_t snum)
 
         if (EDUKE32_PREDICT_FALSE(apStrings[ps->ftq] == NULL))
         {
-            OSD_Printf(OSD_ERROR "%s %d null quote %d\n", __FILE__, __LINE__, ps->ftq);
+            OSD_Printf(OSD_ERROR "%s %d null quote %d\n", "screentext:", __LINE__, ps->ftq);
             break;
         }
 
@@ -1141,7 +1141,7 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
 
     if (EDUKE32_PREDICT_FALSE(apStrings[q] == NULL))
     {
-        OSD_Printf(OSD_ERROR "%s %d null quote %d\n", __FILE__, __LINE__, q);
+        OSD_Printf(OSD_ERROR "%s %d null quote %d\n", "screentext:", __LINE__, q);
         return;
     }
 
