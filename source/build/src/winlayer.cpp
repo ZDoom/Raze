@@ -1750,8 +1750,8 @@ static int sortmodes(const void *a_, const void *b_)
 {
     int32_t x;
 
-    const struct validmode_t *a = (const struct validmode_t *)a_;
-    const struct validmode_t *b = (const struct validmode_t *)b_;
+    const struct validmode_t *a = (const struct validmode_t *)b_;
+    const struct validmode_t *b = (const struct validmode_t *)a_;
 
     if ((x = a->fs   - b->fs)   != 0) return x;
     if ((x = a->bpp  - b->bpp)  != 0) return x;

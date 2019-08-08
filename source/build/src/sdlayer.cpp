@@ -1149,8 +1149,8 @@ void(*timerSetCallback(void(*callback)(void)))(void)
 static int sortmodes(const void *a_, const void *b_)
 {
 
-    auto a = (const struct validmode_t *)a_;
-    auto b = (const struct validmode_t *)b_;
+    auto a = (const struct validmode_t *)b_;
+    auto b = (const struct validmode_t *)a_;
 
     int x;
 
