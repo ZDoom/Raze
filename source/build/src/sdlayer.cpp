@@ -726,11 +726,10 @@ void initputs(const char *buf)
     OSD_Puts(buf);
 //    Bprintf("%s", buf);
 
+    mutex_lock(&m_initprintf);
     if (Bstrlen(dabuf) + Bstrlen(buf) > 1022)
     {
-        mutex_lock(&m_initprintf);
         startwin_puts(dabuf);
-        mutex_unlock(&m_initprintf);
         Bmemset(dabuf, 0, sizeof(dabuf));
     }
 
@@ -738,9 +737,7 @@ void initputs(const char *buf)
 
     if (g_logFlushWindow || Bstrlen(dabuf) > 768)
     {
-        mutex_lock(&m_initprintf);
         startwin_puts(dabuf);
-        mutex_unlock(&m_initprintf);
 #ifndef _WIN32
         startwin_idle(NULL);
 #else
@@ -748,6 +745,7 @@ void initputs(const char *buf)
 #endif
         Bmemset(dabuf, 0, sizeof(dabuf));
     }
+    mutex_unlock(&m_initprintf);
 }
 
 //
