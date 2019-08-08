@@ -23,10 +23,12 @@
  */
 
 #define NEED_SDL_MIXER
-#include "compat.h"
-#include "sdl_inc.h"
 #include "driver_sdl.h"
+
+#include "compat.h"
 #include "multivoc.h"
+#include "mutex.h"
+#include "sdl_inc.h"
 
 #ifdef __ANDROID__
 #include "duke3d.h"
@@ -57,7 +59,7 @@ static void ( *MixCallBack )( void ) = 0;
 static Mix_Chunk *DummyChunk = NULL;
 static uint8_t *DummyBuffer = NULL;
 static int32_t InterruptsDisabled = 0;
-static SDL_mutex *EffectFence;
+static mutex_t EffectFence;
 
 static void fillData(int chan, void *ptr, int remaining, void *udata)
 {
@@ -70,7 +72,7 @@ static void fillData(int chan, void *ptr, int remaining, void *udata)
     if (!MixBuffer || !MixCallBack)
       return;
 
-    SDL_LockMutex(EffectFence);
+    mutex_lock(&EffectFence);
 
     while (remaining > 0) {
         if (MixBufferUsed == MixBufferSize) {
@@ -99,7 +101,7 @@ static void fillData(int chan, void *ptr, int remaining, void *udata)
         }
     }
 
-    SDL_UnlockMutex(EffectFence);
+    mutex_unlock(&EffectFence);
 }
 
 
@@ -203,7 +205,7 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata)
 
     //Mix_SetPostMix(fillData, NULL);
 
-    EffectFence = SDL_CreateMutex();
+    mutex_init(&EffectFence);
 
     // channel 0 and 1 are actual sounds
     // dummy channel 2 runs our fillData() callback as an effect
@@ -235,8 +237,6 @@ void SDLDrv_PCM_Shutdown(void)
     DO_FREE_AND_NULL(DummyBuffer);
 
     Mix_CloseAudio();
-
-    SDL_DestroyMutex(EffectFence);
 
     if (StartedSDL > 0) {
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
@@ -293,7 +293,7 @@ void SDLDrv_PCM_Lock(void)
     if (InterruptsDisabled++)
         return;
 
-    SDL_LockMutex(EffectFence);
+    mutex_lock(&EffectFence);
 }
 
 void SDLDrv_PCM_Unlock(void)
@@ -301,5 +301,5 @@ void SDLDrv_PCM_Unlock(void)
     if (--InterruptsDisabled)
         return;
 
-    SDL_UnlockMutex(EffectFence);
+    mutex_unlock(&EffectFence);
 }
