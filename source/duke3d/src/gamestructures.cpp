@@ -1358,6 +1358,8 @@ const memberlabel_t UserdefsLabels[]=
     { "draw_y",                 USERDEFS_DRAW_Y,                 0, 0, -1 },
     { "draw_yxaspect",          USERDEFS_DRAW_YXASPECT,          0, 0, -1 },
     { "fov",                    USERDEFS_FOV,                    0, 0, -1 },
+    { "newgamecustomopen",      USERDEFS_NEWGAMECUSTOMOPEN,      0, 0, -1 },
+    { "newgamecustomsubopen",   USERDEFS_NEWGAMECUSTOMSUBOPEN,   LABEL_HASPARM2, MAXMENUGAMEPLAYENTRIES, -1 },
 };
 
 int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
@@ -1750,6 +1752,16 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_DRAW_Y:                       rotatesprite_y_offset            = iSet; break;
         case USERDEFS_DRAW_YXASPECT:                rotatesprite_yxaspect            = iSet; break;
         case USERDEFS_FOV:                          ud.fov                           = iSet; break;
+        case USERDEFS_NEWGAMECUSTOMOPEN:
+            for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
+                if (iSet & (1u<<b))
+                    ME_NEWGAMECUSTOMENTRIES[b].flags = 0;
+            break;
+        case USERDEFS_NEWGAMECUSTOMSUBOPEN:
+            for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
+                if (iSet & (1u<<b))
+                    ME_NEWGAMECUSTOMSUBENTRIES[lParm2][b].flags = 0;
+            break;
     }
 }
 

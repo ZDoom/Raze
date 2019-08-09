@@ -187,6 +187,11 @@ enum gametokens
     T_FORCEFILTER,
     T_FORCENOFILTER,
     T_TEXTUREFILTER,
+    T_NEWGAMECHOICES,
+    T_CHOICE,
+    T_NAME,
+    T_LOCKED,
+    T_HIDDEN,
 };
 
 void G_HandleSpecialKeys(void)
@@ -5291,6 +5296,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         { "animsounds",      T_ANIMSOUNDS       },
         { "renamefile",      T_RENAMEFILE       },
         { "globalgameflags", T_GLOBALGAMEFLAGS  },
+        { "newgamechoices",  T_NEWGAMECHOICES   },
     };
 
     static const tokenlist soundTokens[] =
@@ -5313,6 +5319,24 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         { "forcefilter",   T_FORCEFILTER },
         { "forcenofilter", T_FORCENOFILTER },
         { "texturefilter", T_TEXTUREFILTER },
+    };
+
+    static const tokenlist newGameTokens[] =
+    {
+        { "choice",        T_CHOICE },
+    };
+    static const tokenlist newGameChoiceTokens[] =
+    {
+        { "name",          T_NAME },
+        { "locked",        T_LOCKED },
+        { "hidden",        T_HIDDEN },
+        { "choice",        T_CHOICE },
+    };
+    static const tokenlist newGameSubchoiceTokens[] =
+    {
+        { "name",          T_NAME },
+        { "locked",        T_LOCKED },
+        { "hidden",        T_HIDDEN },
     };
 
     do
@@ -5557,6 +5581,125 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         }
         break;
         case T_GLOBALGAMEFLAGS: scriptfile_getnumber(pScript, &duke3d_globalflags); break;
+        case T_NEWGAMECHOICES:
+        {
+            char * newGameChoicesEnd;
+            if (scriptfile_getbraces(pScript,&newGameChoicesEnd))
+                break;
+            if (firstPass)
+            {
+                pScript->textptr = newGameChoicesEnd;
+                break;
+            }
+
+            while (pScript->textptr < newGameChoicesEnd)
+            {
+                switch (getatoken(pScript, newGameTokens, ARRAY_SIZE(newGameTokens)))
+                {
+                    case T_CHOICE:
+                    {
+                        char * choicePtr = pScript->ltextptr;
+                        char * choiceEnd;
+                        int32_t choiceID;
+                        if (scriptfile_getsymbol(pScript,&choiceID))
+                            break;
+                        if (scriptfile_getbraces(pScript,&choiceEnd))
+                            break;
+
+                        if ((unsigned)choiceID >= MAXMENUGAMEPLAYENTRIES)
+                        {
+                            initprintf("Error: Maximum choices exceeded near line %s:%d\n",
+                                pScript->filename, scriptfile_getlinum(pScript, choicePtr));
+                            pScript->textptr = choiceEnd;
+                        }
+
+                        MenuGameplayStemEntry & stem = g_MenuGameplayEntries[choiceID];
+                        stem = MenuGameplayStemEntry{};
+                        MenuGameplayEntry & entry = stem.entry;
+
+                        while (pScript->textptr < choiceEnd)
+                        {
+                            switch (getatoken(pScript, newGameChoiceTokens, ARRAY_SIZE(newGameChoiceTokens)))
+                            {
+                                case T_CHOICE:
+                                {
+                                    char * subChoicePtr = pScript->ltextptr;
+                                    char * subChoiceEnd;
+                                    int32_t subChoiceID;
+                                    if (scriptfile_getsymbol(pScript,&subChoiceID))
+                                        break;
+                                    if (scriptfile_getbraces(pScript,&subChoiceEnd))
+                                        break;
+
+                                    if ((unsigned)subChoiceID >= MAXMENUGAMEPLAYENTRIES)
+                                    {
+                                        initprintf("Error: Maximum subchoices exceeded near line %s:%d\n",
+                                            pScript->filename, scriptfile_getlinum(pScript, subChoicePtr));
+                                        pScript->textptr = subChoiceEnd;
+                                    }
+
+                                    MenuGameplayEntry & subentry = stem.subentries[subChoiceID];
+                                    subentry = MenuGameplayEntry{};
+
+                                    while (pScript->textptr < subChoiceEnd)
+                                    {
+                                        switch (getatoken(pScript, newGameSubchoiceTokens, ARRAY_SIZE(newGameSubchoiceTokens)))
+                                        {
+                                            case T_NAME:
+                                            {
+                                                char *name = NULL;
+                                                if (scriptfile_getstring(pScript, &name))
+                                                    break;
+
+                                                memset(subentry.name, 0, ARRAY_SIZE(subentry.name));
+                                                strncpy(subentry.name, name, ARRAY_SIZE(subentry.name)-1);
+                                                break;
+                                            }
+                                            case T_LOCKED:
+                                            {
+                                                subentry.flags |= MGE_Locked;
+                                                break;
+                                            }
+                                            case T_HIDDEN:
+                                            {
+                                                subentry.flags |= MGE_Hidden;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    break;
+                                }
+                                case T_NAME:
+                                {
+                                    char *name = NULL;
+                                    if (scriptfile_getstring(pScript, &name))
+                                        break;
+
+                                    memset(entry.name, 0, ARRAY_SIZE(entry.name));
+                                    strncpy(entry.name, name, ARRAY_SIZE(entry.name)-1);
+                                    break;
+                                }
+                                case T_LOCKED:
+                                {
+                                    entry.flags |= MGE_Locked;
+                                    break;
+                                }
+                                case T_HIDDEN:
+                                {
+                                    entry.flags |= MGE_Hidden;
+                                    break;
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            break;
+        }
         case T_EOF: return 0;
         default: break;
         }

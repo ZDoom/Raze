@@ -185,12 +185,15 @@ All MAKE_* macros are generally for the purpose of keeping state initialization
 separate from actual data. Alternatively, they can serve to factor out repetitive
 stuff and keep the important bits from getting lost to our eyes.
 
-They serve as a stand-in for C++ default value constructors, since we're using C89.
+They serve as a stand-in for C++ default value constructors, since this was written
+when the codebase still used C89.
 
 Note that I prefer to include a space on the inside of the macro parentheses, since
 they effectively stand in for curly braces as struct initializers.
 */
 
+
+MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
 
 // common font types
 // tilenums are set after namesdyn runs
@@ -210,6 +213,8 @@ MenuFont_t MF_Minifont =              { { 4<<16, 5<<16 },   { 1<<16, 1<<16 },   
 
 static MenuMenuFormat_t MMF_Top_Main =             { {  MENU_MARGIN_CENTER<<16, 55<<16, }, -(170<<16) };
 static MenuMenuFormat_t MMF_Top_Episode =          { {  MENU_MARGIN_CENTER<<16, 48<<16, }, -(190<<16) };
+static MenuMenuFormat_t MMF_Top_NewGameCustom =    { {  MENU_MARGIN_CENTER<<16, 48<<16, }, -(190<<16) };
+static MenuMenuFormat_t MMF_Top_NewGameCustomSub = { {  MENU_MARGIN_CENTER<<16, 48<<16, }, -(190<<16) };
 static MenuMenuFormat_t MMF_Top_Skill =            { {  MENU_MARGIN_CENTER<<16, 58<<16, }, -(190<<16) };
 static MenuMenuFormat_t MMF_Top_Options =          { {  MENU_MARGIN_CENTER<<16, 38<<16, }, -(190<<16) };
 static MenuMenuFormat_t MMF_Top_Joystick_Network = { {  MENU_MARGIN_CENTER<<16, 70<<16, }, -(190<<16) };
@@ -376,6 +381,15 @@ static MenuEntry_t ME_EPISODE[MAXVOLUMES];
 static MenuLink_t MEO_EPISODE_USERMAP = { MENU_USERMAP, MA_Advance, };
 static MenuEntry_t ME_EPISODE_USERMAP = MAKE_MENUENTRY( "User Map", &MF_Redfont, &MEF_CenterMenu, &MEO_EPISODE_USERMAP, Link );
 static MenuEntry_t *MEL_EPISODE[MAXVOLUMES+2]; // +2 for spacer and User Map
+
+static MenuLink_t MEO_NEWGAMECUSTOM_TEMPLATE = { MENU_NEWGAMECUSTOMSUB, MA_Advance, };
+static MenuLink_t MEO_NEWGAMECUSTOM[MAXMENUGAMEPLAYENTRIES];
+static MenuLink_t MEO_NEWGAMECUSTOMSUB_TEMPLATE = { MENU_SKILL, MA_Advance, };
+static MenuLink_t MEO_NEWGAMECUSTOMSUB[MAXMENUGAMEPLAYENTRIES][MAXMENUGAMEPLAYENTRIES];
+MenuEntry_t ME_NEWGAMECUSTOMENTRIES[MAXMENUGAMEPLAYENTRIES];
+MenuEntry_t ME_NEWGAMECUSTOMSUBENTRIES[MAXMENUGAMEPLAYENTRIES][MAXMENUGAMEPLAYENTRIES];
+static MenuEntry_t *MEL_NEWGAMECUSTOM[MAXMENUGAMEPLAYENTRIES];
+static MenuEntry_t *MEL_NEWGAMECUSTOMSUB[MAXMENUGAMEPLAYENTRIES];
 
 static MenuEntry_t ME_SKILL_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_CenterMenu, &MEO_NULL, Link );
 static MenuEntry_t ME_SKILL[MAXSKILLS];
@@ -1319,6 +1333,8 @@ static MenuMenu_t M_MAIN = MAKE_MENUMENU( NoTitle, &MMF_Top_Main, MEL_MAIN );
 static MenuMenu_t M_MAIN_INGAME = MAKE_MENUMENU( NoTitle, &MMF_Top_Main, MEL_MAIN_INGAME );
 static MenuMenu_t M_EPISODE = MAKE_MENUMENU( "Select An Episode", &MMF_Top_Episode, MEL_EPISODE );
 static MenuMenu_t M_SKILL = MAKE_MENUMENU( "Select Skill", &MMF_Top_Skill, MEL_SKILL );
+static MenuMenu_t M_NEWGAMECUSTOM = MAKE_MENUMENU( s_NewGame, &MMF_Top_NewGameCustom, MEL_NEWGAMECUSTOM );
+static MenuMenu_t M_NEWGAMECUSTOMSUB = MAKE_MENUMENU( s_NewGame, &MMF_Top_NewGameCustomSub, MEL_NEWGAMECUSTOMSUB );
 #ifndef EDUKE32_SIMPLE_MENU
 static MenuMenu_t M_GAMESETUP = MAKE_MENUMENU( "Game Setup", &MMF_BigOptions, MEL_GAMESETUP );
 #endif
@@ -1406,8 +1422,10 @@ static Menu_t Menus[] = {
     { &M_MAIN, MENU_MAIN, MENU_CLOSE, MA_None, Menu },
     { &M_MAIN_INGAME, MENU_MAIN_INGAME, MENU_CLOSE, MA_None, Menu },
     { &M_EPISODE, MENU_EPISODE, MENU_MAIN, MA_Return, Menu },
-    { &M_USERMAP, MENU_USERMAP, MENU_EPISODE, MA_Return, FileSelect },
-    { &M_SKILL, MENU_SKILL, MENU_EPISODE, MA_Return, Menu },
+    { &M_USERMAP, MENU_USERMAP, MENU_PREVIOUS, MA_Return, FileSelect },
+    { &M_NEWGAMECUSTOM, MENU_NEWGAMECUSTOM, MENU_MAIN, MA_Return, Menu },
+    { &M_NEWGAMECUSTOMSUB, MENU_NEWGAMECUSTOMSUB, MENU_NEWGAMECUSTOM, MA_Return, Menu },
+    { &M_SKILL, MENU_SKILL, MENU_PREVIOUS, MA_Return, Menu },
 #ifndef EDUKE32_SIMPLE_MENU
     { &M_GAMESETUP, MENU_GAMESETUP, MENU_OPTIONS, MA_Return, Menu },
 #endif
@@ -1545,6 +1563,51 @@ static MenuEntry_t *Menu_AdjustForCurrentEntryAssignmentBlind(MenuMenu_t *menu)
 
 static int32_t SELECTDIR_z = 65536;
 
+void Menu_PopulateNewGameCustom(void)
+{
+    M_NEWGAMECUSTOM.title = s_NewGame;
+
+    int e = 0;
+    for (MenuGameplayStemEntry const & stem : g_MenuGameplayEntries)
+    {
+        MenuGameplayEntry const & entry = stem.entry;
+        if (!entry.isValid())
+            break;
+
+        MEL_NEWGAMECUSTOM[e] = &ME_NEWGAMECUSTOMENTRIES[e];
+
+        ++e;
+    }
+    M_NEWGAMECUSTOM.numEntries = e;
+    MMF_Top_NewGameCustom.pos.y = (58 + (3-e)*6)<<16;
+}
+
+void Menu_PopulateNewGameCustomSub(int e)
+{
+    if ((unsigned)e >= MAXMENUGAMEPLAYENTRIES)
+        return;
+
+    MenuGameplayStemEntry const & stem = g_MenuGameplayEntries[e];
+    MenuGameplayEntry const & entry = stem.entry;
+    if (!entry.isValid())
+        return;
+
+    M_NEWGAMECUSTOMSUB.title = entry.name;
+
+    int s = 0;
+    for (MenuGameplayEntry const & subentry : stem.subentries)
+    {
+        if (!subentry.isValid())
+            break;
+
+        MEL_NEWGAMECUSTOMSUB[s] = &ME_NEWGAMECUSTOMSUBENTRIES[e][s];
+
+        ++s;
+    }
+    M_NEWGAMECUSTOMSUB.numEntries = s;
+    MMF_Top_NewGameCustomSub.pos.y = (58 + (3-s)*6)<<16;
+}
+
 /*
 This function prepares data after ART and CON have been processed.
 It also initializes some data in loops rather than statically at compile time.
@@ -1638,6 +1701,60 @@ void Menu_Init(void)
     if (g_skillCnt == 0)
         MEO_EPISODE.linkID = MENU_NULL;
     M_EPISODE.currentEntry = ud.default_volume;
+
+    // prepare new game custom :O
+    if (g_MenuGameplayEntries[0].entry.isValid())
+    {
+        MEO_MAIN_NEWGAME.linkID = M_NEWVERIFY.linkID = MENU_NEWGAMECUSTOM;
+
+        int e = 0;
+        for (MenuGameplayStemEntry const & stem : g_MenuGameplayEntries)
+        {
+            MenuGameplayEntry const & entry = stem.entry;
+            if (!entry.isValid())
+                break;
+
+            MenuEntry_t & e_me = ME_NEWGAMECUSTOMENTRIES[e];
+            e_me = ME_EPISODE_TEMPLATE;
+            MenuLink_t & e_meo = MEO_NEWGAMECUSTOM[e];
+            e_meo = MEO_NEWGAMECUSTOM_TEMPLATE;
+            e_me.entry = &e_meo;
+
+            e_me.name = entry.name;
+            if (entry.flags & MGE_Locked)
+                e_me.flags |= MEF_Disabled;
+            if (entry.flags & MGE_Hidden)
+                e_me.flags |= MEF_Hidden;
+
+            int s = 0;
+            for (MenuGameplayEntry const & subentry : stem.subentries)
+            {
+                if (!subentry.isValid())
+                    break;
+
+                MenuEntry_t & s_me = ME_NEWGAMECUSTOMSUBENTRIES[e][s];
+                s_me = ME_EPISODE_TEMPLATE;
+                MenuLink_t & s_meo = MEO_NEWGAMECUSTOMSUB[e][s];
+                s_meo = MEO_NEWGAMECUSTOMSUB_TEMPLATE;
+                s_me.entry = &s_meo;
+
+                s_me.name = subentry.name;
+                if (subentry.flags & MGE_Locked)
+                    s_me.flags |= MEF_Disabled;
+                if (subentry.flags & MGE_Hidden)
+                    s_me.flags |= MEF_Hidden;
+
+                ++s;
+            }
+
+            if (s == 0)
+                e_meo.linkID = MENU_SKILL;
+
+            ++e;
+        }
+
+        Menu_PopulateNewGameCustom();
+    }
 
     // prepare skills
     k = -1;
@@ -2951,6 +3068,17 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         }
         break;
 
+    case MENU_NEWGAMECUSTOM:
+        ud.returnvar[0] = -1;
+        VM_OnEventWithReturn(EVENT_NEWGAMECUSTOM, -1, myconnectindex, M_NEWGAMECUSTOM.currentEntry);
+        break;
+
+    case MENU_NEWGAMECUSTOMSUB:
+        ud.returnvar[0] = M_NEWGAMECUSTOMSUB.currentEntry;
+        ud.returnvar[1] = -1;
+        VM_OnEventWithReturn(EVENT_NEWGAMECUSTOM, -1, myconnectindex, M_NEWGAMECUSTOM.currentEntry);
+        break;
+
     case MENU_SKILL:
     {
         int32_t skillsound = PISTOL_BODYHIT;
@@ -3985,6 +4113,10 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
     case MENU_MAIN_INGAME:
         if (FURY)
             ME_MAIN_LOADGAME.name = s_LoadGame;
+        break;
+
+    case MENU_NEWGAMECUSTOMSUB:
+        Menu_PopulateNewGameCustomSub(M_NEWGAMECUSTOM.currentEntry);
         break;
 
     case MENU_LOAD:
@@ -6828,6 +6960,12 @@ void M_DisplayMenus(void)
     {
         ud.returnvar[0] = origin.x;
         ud.returnvar[1] = origin.y;
+        if (m_parentMenu->type == Menu)
+        {
+            ud.returnvar[2] = ((MenuMenu_t *)m_parentMenu->object)->currentEntry;
+            if (m_parentMenu->menuID == MENU_NEWGAMECUSTOMSUB)
+                ud.returnvar[3] = M_NEWGAMECUSTOM.currentEntry;
+        }
         VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENU, g_player[screenpeek].ps->i, screenpeek, m_parentMenu->menuID);
         origin.x = ud.returnvar[0];
         origin.y = ud.returnvar[1];
@@ -6843,6 +6981,12 @@ void M_DisplayMenus(void)
 
         ud.returnvar[0] = previousOrigin.x;
         ud.returnvar[1] = previousOrigin.y;
+        if (m_animation.previous->type == Menu)
+        {
+            ud.returnvar[2] = ((MenuMenu_t *)m_animation.previous->object)->currentEntry;
+            if (m_animation.previous->menuID == MENU_NEWGAMECUSTOMSUB)
+                ud.returnvar[3] = M_NEWGAMECUSTOM.currentEntry;
+        }
         VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENU, g_player[screenpeek].ps->i, screenpeek, m_animation.previous->menuID);
         previousOrigin.x = ud.returnvar[0];
         previousOrigin.y = ud.returnvar[1];
@@ -6850,6 +6994,12 @@ void M_DisplayMenus(void)
 
     ud.returnvar[0] = origin.x;
     ud.returnvar[1] = origin.y;
+    if (m_currentMenu->type == Menu)
+    {
+        ud.returnvar[2] = ((MenuMenu_t *)m_currentMenu->object)->currentEntry;
+        if (g_currentMenu == MENU_NEWGAMECUSTOMSUB)
+            ud.returnvar[3] = M_NEWGAMECUSTOM.currentEntry;
+    }
     VM_OnEventWithReturn(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
     origin.x = ud.returnvar[0];
     origin.y = ud.returnvar[1];
@@ -6881,6 +7031,12 @@ void M_DisplayMenus(void)
     {
         ud.returnvar[0] = origin.x;
         ud.returnvar[1] = origin.y;
+        if (m_parentMenu->type == Menu)
+        {
+            ud.returnvar[2] = ((MenuMenu_t *)m_parentMenu->object)->currentEntry;
+            if (m_parentMenu->menuID == MENU_NEWGAMECUSTOMSUB)
+                ud.returnvar[3] = M_NEWGAMECUSTOM.currentEntry;
+        }
         VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENUREST, g_player[screenpeek].ps->i, screenpeek, m_parentMenu->menuID);
     }
 
@@ -6888,11 +7044,23 @@ void M_DisplayMenus(void)
     {
         ud.returnvar[0] = previousOrigin.x;
         ud.returnvar[1] = previousOrigin.y;
+        if (m_animation.previous->type == Menu)
+        {
+            ud.returnvar[2] = ((MenuMenu_t *)m_animation.previous->object)->currentEntry;
+            if (m_animation.previous->menuID == MENU_NEWGAMECUSTOMSUB)
+                ud.returnvar[3] = M_NEWGAMECUSTOM.currentEntry;
+        }
         VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENUREST, g_player[screenpeek].ps->i, screenpeek, m_animation.previous->menuID);
     }
 
     ud.returnvar[0] = origin.x;
     ud.returnvar[1] = origin.y;
+    if (m_currentMenu->type == Menu)
+    {
+        ud.returnvar[2] = ((MenuMenu_t *)m_currentMenu->object)->currentEntry;
+        if (g_currentMenu == MENU_NEWGAMECUSTOMSUB)
+            ud.returnvar[3] = M_NEWGAMECUSTOM.currentEntry;
+    }
     VM_OnEventWithReturn(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
 
 #if !defined EDUKE32_TOUCH_DEVICES
