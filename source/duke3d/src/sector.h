@@ -49,7 +49,7 @@ typedef struct {
     // see savegame.c
     int32_t g_animateGoal[MAXANIMATES], g_animateVel[MAXANIMATES], g_animateCnt;
     intptr_t g_animatePtr[MAXANIMATES];
-    int32_t lockclock;
+    int32_t filler;
     vec2_t origins[MAXANIMPOINTS];
     int32_t randomseed, g_globalRandom;
     int32_t pskyidx;

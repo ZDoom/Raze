@@ -6509,7 +6509,6 @@ void G_SaveMapState(void)
 
     save->g_playerSpawnCnt = g_playerSpawnCnt;
     save->g_earthquakeTime = g_earthquakeTime;
-    save->lockclock        = lockclock;
     save->randomseed       = randomseed;
     save->g_globalRandom   = g_globalRandom;
 
@@ -6642,7 +6641,6 @@ void G_RestoreMapState(void)
 
         g_playerSpawnCnt = pSavedState->g_playerSpawnCnt;
         g_earthquakeTime = pSavedState->g_earthquakeTime;
-        lockclock = pSavedState->lockclock;
         randomseed = pSavedState->randomseed;
         g_globalRandom = pSavedState->g_globalRandom;
 
