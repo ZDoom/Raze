@@ -1177,9 +1177,9 @@ int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
-int32_t try_facespr_intersect(uspriteptr_t const spr, const vec3_t *refpos,
+int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
-                                     vec3_t *intp, int32_t strictly_smaller_than_p);
+                                     vec3_t * const intp, int32_t strictly_smaller_than_p);
 
 #define MAXUPDATESECTORDIST 1536
 #define INITIALUPDATESECTORDIST 256

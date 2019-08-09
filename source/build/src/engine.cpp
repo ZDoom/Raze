@@ -11191,7 +11191,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 
             if (((tagsearch&1) && spr->lotag) || ((tagsearch&2) && spr->hitag))
             {
-                if (try_facespr_intersect(spr, &sv, vx, vy, 0, &hitv, 1))
+                if (try_facespr_intersect(spr, sv, vx, vy, 0, &hitv, 1))
                 {
                     *neartagsprite = z;
                     *neartaghitdist = dmulscale14(hitv.x-xs, sintable[(ange+2560)&2047],

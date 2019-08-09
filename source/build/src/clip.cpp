@@ -1976,51 +1976,43 @@ restart_grand:
 
 
 // intp: point of currently best (closest) intersection
-int32_t try_facespr_intersect(uspriteptr_t const spr, const vec3_t *refpos,
-                                     int32_t vx, int32_t vy, int32_t vz,
-                                     vec3_t *intp, int32_t strictly_smaller_than_p)
+int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
+                              int32_t vx, int32_t vy, int32_t vz,
+                              vec3_t * const intp, int32_t strictly_smaller_than_p)
 {
-    const int32_t x1=spr->x, y1=spr->y;
-    const int32_t xs=refpos->x, ys=refpos->y;
+    vec3_t const sprpos = spr->pos;
 
-    const int32_t topt = vx*(x1-xs) + vy*(y1-ys);
-    if (topt > 0)
-    {
-        const int32_t bot = vx*vx + vy*vy;
-        if (bot != 0)
-        {
-            int32_t i;
-            const int32_t intz = refpos->z + scale(vz,topt,bot);
-            const int32_t z1 = spr->z + spriteheightofsptr(spr, &i, 1);
+    int32_t const topt = vx * (sprpos.x - in.x) + vy * (sprpos.y - in.y);
 
-            if (intz >= z1-i && intz <= z1)
-            {
-                const int32_t topu = vx*(y1-ys) - vy*(x1-xs);
+    if (topt <= 0) return 0;
 
-                const int32_t offx = scale(vx,topu,bot);
-                const int32_t offy = scale(vy,topu,bot);
-                const int32_t dist = offx*offx + offy*offy;
+    int32_t const bot = vx * vx + vy * vy;
 
-                i = tilesiz[spr->picnum].x*spr->xrepeat;
-                if (dist <= mulscale7(i,i))
-                {
-                    const int32_t intx = xs + scale(vx,topt,bot);
-                    const int32_t inty = ys + scale(vy,topt,bot);
+    if (!bot) return 0;
 
-                    if (klabs(intx-xs)+klabs(inty-ys) + strictly_smaller_than_p
-                            <= klabs(intp->x-xs)+klabs(intp->y-ys))
-                    {
-                        intp->x = intx;
-                        intp->y = inty;
-                        intp->z = intz;
-                        return 1;
-                    }
-                }
-            }
-        }
-    }
+    vec3_t        newpos = { 0, 0, in.z + scale(vz, topt, bot) };
+    int32_t       siz;
+    int32_t const z1 = sprpos.z + spriteheightofsptr(spr, &siz, 1);
 
-    return 0;
+    if (newpos.z < z1 - siz || newpos.z > z1)
+        return 0;
+
+    int32_t const topu = vx * (sprpos.y - in.y) - vy * (sprpos.x - in.x);
+    vec2_t  const off  = { scale(vx, topu, bot), scale(vy, topu, bot) };
+    int32_t const dist = off.x * off.x + off.y * off.y;
+
+    siz = tilesiz[spr->picnum].x * spr->xrepeat;
+
+    if (dist > mulscale7(siz, siz)) return 0;
+
+    newpos.vec2 = { in.x + scale(vx, topt, bot), in.y + scale(vy, topt, bot) };
+
+    if (klabs(newpos.x - in.x) + klabs(newpos.y - in.y) + strictly_smaller_than_p >
+        klabs(intp->x - in.x) + klabs(intp->y - in.y))
+        return 0;
+
+    *intp = newpos;
+    return 1;
 }
 
 static inline void hit_set(hitdata_t *hit, int32_t sectnum, int32_t wallnum, int32_t spritenum,
@@ -2277,7 +2269,7 @@ restart_grand:
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
             auto const spr = (uspriteptr_t)&sprite[z];
-            const int32_t cstat = spr->cstat;
+            uint32_t const cstat = spr->cstat;
 #ifdef USE_OPENGL
             if (!hitallsprites)
 #endif
@@ -2288,7 +2280,7 @@ restart_grand:
             // try and see whether this sprite's picnum has sector-like clipping data
             i = pictoidx[spr->picnum];
             // handle sector-like floor sprites separately
-            while (i>=0 && (spr->cstat&32) != (clipmapinfo.sector[sectq[clipinfo[i].qbeg]].CM_CSTAT&32))
+            while (i>=0 && (cstat&32) != (clipmapinfo.sector[sectq[clipinfo[i].qbeg]].CM_CSTAT&32))
                 i = clipinfo[i].next;
             if (i>=0 && clipspritenum<MAXCLIPNUM)
             {
@@ -2301,7 +2293,7 @@ restart_grand:
             {
             case 0:
             {
-                if (try_facespr_intersect(spr, sv, vx, vy, vz, &hit->pos, 0))
+                if (try_facespr_intersect(spr, *sv, vx, vy, vz, &hit->pos, 0))
                 {
                     hit->sect = dasector;
                     hit->wall = -1;
