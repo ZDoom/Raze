@@ -820,7 +820,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
         polymer_resetlights();
 #endif
 
-    VM_OnEvent(EVENT_SAVEGAME, g_player[screenpeek].ps->i, screenpeek);
+    VM_OnEvent(EVENT_SAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
 
     portableBackupSave(sv.path, sv.name, ud.last_stateless_volume, ud.last_stateless_level);
 
@@ -847,7 +847,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     G_RestoreTimers();
     ototalclock = totalclock;
 
-    VM_OnEvent(EVENT_POSTSAVEGAME, g_player[screenpeek].ps->i, screenpeek);
+    VM_OnEvent(EVENT_POSTSAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
 
     return 0;
 
