@@ -431,6 +431,8 @@ int A_GetClipdist(int spriteNum, int clipDist)
 
         if (A_CheckSpriteFlags(spriteNum, SFLAG_REALCLIPDIST))
             clipDist = pSprite->clipdist << 2;
+        else if ((pSprite->cstat & 48) == 16)
+            clipDist = 0;
         else if (isEnemy)
         {
             if (pSprite->xrepeat > 60)
