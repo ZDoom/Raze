@@ -6323,24 +6323,27 @@ void G_MaybeAllocPlayer(int32_t pnum)
 
 int G_FPSLimit(void)
 {
+    if (!r_maxfps)
+        return 1;
+
     static double nextPageDelay = g_frameDelay;
-    static uint64_t lastFrameTicks = timerGetTicksU64() - (uint64_t) g_frameDelay;
-    int frameWaiting = 0;
+    uint64_t const delay = llrint(nextPageDelay);
 
     uint64_t const frameTicks = timerGetTicksU64();
+    uint64_t const frameDelay = (uint64_t)llrint(g_frameDelay);
+
+    static uint64_t lastFrameTicks = frameTicks - frameDelay;
     uint64_t elapsedTime = frameTicks-lastFrameTicks;
 
-    if (!r_maxfps || elapsedTime >= (uint64_t) nextPageDelay)
+    int frameWaiting = 0;
+
+    if (elapsedTime >= delay)
     {
-        if (elapsedTime >= (uint64_t) (nextPageDelay + g_frameDelay))
-        {
-            //If we missed a frame, reset any cumulated remainder from rendering frames early
+        //If we missed a frame, reset any cumulated remainder from rendering frames early
+        if (elapsedTime > frameDelay)
             nextPageDelay = g_frameDelay;
-        }
         else
-        {
-            nextPageDelay += g_frameDelay - elapsedTime;
-        }
+            nextPageDelay += double(frameDelay-elapsedTime);
 
         lastFrameTicks = frameTicks;
         ++frameWaiting;
