@@ -40,8 +40,8 @@ static int32_t MusicVoice = -1;
 static bool MusicPaused;
 static bool SoundPaused;
 
-std::atomic<uint32_t> dnum, dq[DQSIZE];
-// static mutex_t m_callback;
+static std::atomic<uint32_t> dnum, dq[DQSIZE];
+static mutex_t m_callback;
 
 static inline void S_SetProperties(assvoice_t *snd, int const owner, int const voice, int const dist, int const clock)
 {
@@ -89,9 +89,9 @@ void S_SoundStartup(void)
     S_MusicVolume(ud.config.MusicVolume);
 
     FX_SetReverseStereo(ud.config.ReverseStereo);
-    // mutex_init(&m_callback);
     FX_SetCallBack(S_Callback);
     FX_SetPrintf(OSD_Printf);
+    mutex_init(&m_callback);
 }
 
 void S_SoundShutdown(void)
@@ -523,7 +523,12 @@ static int S_TakeSlot(int soundNum)
     if (FX_SoundActive(snd.voices[bestslot].id))
         FX_StopSound(snd.voices[bestslot].id);
 
-    dq[dnum++ & (DQSIZE-1)] = (soundNum * MAXSOUNDINSTANCES) + bestslot;
+    mutex_lock(&m_callback);
+    unative_t const ldnum = dnum;
+    dq[ldnum & (DQSIZE-1)] = (soundNum * MAXSOUNDINSTANCES) + bestslot;
+    dnum++;
+    mutex_unlock(&m_callback);
+
     S_Cleanup();
 
     return bestslot;
@@ -966,9 +971,11 @@ void S_Callback(intptr_t num)
     if (num == MUSIC_ID)
         return;
 
-//    mutex_lock(&m_callback);
-    dq[dnum++ & (DQSIZE - 1)] = num;
-//    mutex_unlock(&m_callback);
+    mutex_lock(&m_callback);
+    unative_t const ldnum = dnum;
+    dq[ldnum & (DQSIZE - 1)] = num;
+    dnum++;
+    mutex_unlock(&m_callback);
 }
 
 void S_ClearSoundLocks(void)
