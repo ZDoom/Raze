@@ -5494,7 +5494,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 }
             }
             else
-                pScript->textptr = animEnd;
+                pScript->textptr = animEnd+1;
         }
         break;
         case T_ANIMSOUNDS:
@@ -5513,7 +5513,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
             if (firstPass)
             {
-                pScript->textptr = animSoundsEnd;
+                pScript->textptr = animSoundsEnd+1;
                 break;
             }
 
@@ -5588,7 +5588,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 break;
             if (firstPass)
             {
-                pScript->textptr = newGameChoicesEnd;
+                pScript->textptr = newGameChoicesEnd+1;
                 break;
             }
 
@@ -5610,7 +5610,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                         {
                             initprintf("Error: Maximum choices exceeded near line %s:%d\n",
                                 pScript->filename, scriptfile_getlinum(pScript, choicePtr));
-                            pScript->textptr = choiceEnd;
+                            pScript->textptr = choiceEnd+1;
                         }
 
                         MenuGameplayStemEntry & stem = g_MenuGameplayEntries[choiceID];
@@ -5635,7 +5635,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                                     {
                                         initprintf("Error: Maximum subchoices exceeded near line %s:%d\n",
                                             pScript->filename, scriptfile_getlinum(pScript, subChoicePtr));
-                                        pScript->textptr = subChoiceEnd;
+                                        pScript->textptr = subChoiceEnd+1;
                                     }
 
                                     MenuGameplayEntry & subentry = stem.subentries[subChoiceID];
