@@ -614,7 +614,7 @@ boost:
         if (sndist > 6144)
             sndist = 6144;
     }
-    else 
+
 #ifndef EDUKE32_STANDALONE
     if (!FURY)
     {
