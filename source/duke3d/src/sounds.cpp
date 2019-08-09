@@ -842,37 +842,38 @@ int A_PlaySound(int soundNum, int spriteNum)
         S_PlaySound3D(soundNum, spriteNum, (vec3_t *)&sprite[spriteNum]);
 }
 
-void S_StopEnvSound(int32_t num, int32_t i)
+void S_StopEnvSound(int sndNum, int sprNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)num > (unsigned)g_highestSoundIdx)
-        || g_sounds[num].num <= 0)
+    if (EDUKE32_PREDICT_FALSE((unsigned)sndNum > (unsigned)g_highestSoundIdx) || g_sounds[sndNum].num <= 0)
         return;
 
-    S_Cleanup();
+    int j;
 
-    for (int j=0; j<MAXSOUNDINSTANCES; ++j)
+    do
     {
-        auto &voice = g_sounds[num].voices[j];
-
-        if ((i == -1 && voice.id > FX_Ok) || (i != -1 && voice.owner == i))
+        for (j=0; j<MAXSOUNDINSTANCES; ++j)
         {
-#ifdef DEBUGGINGAIDS
-            if (EDUKE32_PREDICT_FALSE(i >= 0 && voice.id <= FX_Ok))
-                initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", voice.id, num, j);
-            else
-#endif
-            if (voice.id > FX_Ok)
+            S_Cleanup();
+
+            auto &voice = g_sounds[sndNum].voices[j];
+
+            if ((sprNum == -1 && voice.id > FX_Ok) || (sprNum != -1 && voice.owner == sprNum))
             {
-                if (FX_SoundActive(voice.id))
+#ifdef DEBUGGINGAIDS
+                if (EDUKE32_PREDICT_FALSE(sprNum >= 0 && voice.id <= FX_Ok))
+                    initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", voice.id, sndNum, j);
+                else
+#endif
+                if (voice.id > FX_Ok)
                 {
-                    FX_StopSound(voice.id);
-                    S_Cleanup();
+                    if (FX_SoundActive(voice.id))
+                        FX_StopSound(voice.id);
+                    break;
                 }
-                j = 0;
-                continue;
             }
         }
     }
+    while (j < MAXSOUNDINSTANCES);
 }
 
 // Do not remove this or make it inline.
