@@ -1511,6 +1511,10 @@ int app_main(int argc, char const * const * argv)
     LoadExtraArts();
 
     levelLoadDefaults();
+
+    loaddefinitionsfile(BLOODWIDESCREENDEF);
+    loaddefinitions_game(BLOODWIDESCREENDEF, FALSE);
+
     const char *defsfile = G_DefFile();
     uint32_t stime = timerGetTicks();
     if (!loaddefinitionsfile(defsfile))
@@ -2134,31 +2138,34 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 }
             }
 
-            if (EDUKE32_PREDICT_FALSE((unsigned)tile >= MAXUSERTILES))
+            if (!firstPass)
             {
-                initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
-                           pScript->filename, scriptfile_getlinum(pScript,texturetokptr));
-                break;
-            }
-
-            if (tilecrc)
-            {
-                origcrc = tileCRC(tile);
-                if (origcrc != tilecrc)
+                if (EDUKE32_PREDICT_FALSE((unsigned)tile >= MAXUSERTILES))
                 {
-                    //initprintf("CRC of tile %d doesn't match! CRC: %d, Expected: %d\n", tile, origcrc, tilecrc);
+                    initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
+                               pScript->filename, scriptfile_getlinum(pScript,texturetokptr));
                     break;
                 }
-            }
 
-            if (havesurface)
-                surfType[tile] = surface;
-            if (havevox)
-                voxelIndex[tile] = vox;
-            if (haveshade)
-                tileShade[tile] = shade;
-            if (haveview)
-                picanm[tile].extra = view&7;
+                if (tilecrc)
+                {
+                    origcrc = tileCRC(tile);
+                    if (origcrc != tilecrc)
+                    {
+                        //initprintf("CRC of tile %d doesn't match! CRC: %d, Expected: %d\n", tile, origcrc, tilecrc);
+                        break;
+                    }
+                }
+
+                if (havesurface)
+                    surfType[tile] = surface;
+                if (havevox)
+                    voxelIndex[tile] = vox;
+                if (haveshade)
+                    tileShade[tile] = shade;
+                if (haveview)
+                    picanm[tile].extra = view&7;
+            }
         }
         break;
 

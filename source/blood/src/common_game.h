@@ -39,6 +39,8 @@ extern int g_useCwd;
 #define APPBASENAME "nblood"
 #endif
 
+#define BLOODWIDESCREENDEF "blood_widescreen.def"
+
 #define BYTEVERSION 102
 #define EXEVERSION 101
 
