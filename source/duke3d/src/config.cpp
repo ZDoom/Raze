@@ -206,11 +206,9 @@ void CONFIG_SetDefaults(void)
     ud.camera_time    = 4;
 #endif
 
-#ifdef GEKKO
+    // currently settings.cfg is only read after the startup window launches the game,
+    // and rereading binds might be fickle so just enable this
     ud.setup.usejoystick = 1;
-#else
-    ud.setup.usejoystick = 0;
-#endif
 
     g_myAimMode = 1;
     g_player[0].ps->aim_mode = 1;
