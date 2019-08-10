@@ -2926,6 +2926,9 @@ void P_GetInput(int const playerNum)
 
     CONTROL_GetInput(&info);
 
+#if 0
+    // these don't seem to have an on switch
+
     if (ud.config.MouseDeadZone)
     {
         if (info.dpitch > 0)
@@ -2945,6 +2948,7 @@ void P_GetInput(int const playerNum)
             info.dpitch = tabledivide32_noinline(info.dpitch, ud.config.MouseBias);
         else info.dyaw = tabledivide32_noinline(info.dyaw, ud.config.MouseBias);
     }
+#endif
 
     // JBF: Run key behaviour is selectable
     int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
@@ -2965,11 +2969,11 @@ void P_GetInput(int const playerNum)
 
     if (ud.mouseflip) input.q16horz = -input.q16horz;
 
-    input.svel -= info.dx;
-    input.fvel = -info.dz >> 6;
-
     int const turnAmount = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
     int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
+
+    input.svel -= (info.dx * keyMove / 10000);
+    input.fvel = -(info.dz * keyMove / 10000);
 
     if (BUTTON(gamefunc_Strafe))
     {
