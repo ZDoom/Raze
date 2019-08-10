@@ -334,71 +334,21 @@ static const char * joystickdigitaldefaults[MAXJOYDIGITAL] =
 #else
 static const char * joystickdefaults[MAXJOYBUTTONSANDHATS] =
    {
-   "Fire",
-   "Strafe",
-   "Run",
-   "Open",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "Aim_Down",
-   "Look_Right",
-   "Aim_Up",
-   "Look_Left",
    };
 
 
 static const char * joystickclickeddefaults[MAXJOYBUTTONSANDHATS] =
    {
-   "",
-   "Inventory",
-   "Jump",
-   "Crouch",
    };
 
 
 static const char * joystickanalogdefaults[MAXJOYAXES] =
    {
-   "analog_turning",
-   "analog_moving",
-   "analog_strafing",
    };
 
 
 static const char * joystickdigitaldefaults[MAXJOYDIGITAL] =
    {
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "Run",
    };
 #endif
 
