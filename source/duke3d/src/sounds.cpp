@@ -616,7 +616,7 @@ boost:
     }
 
 #ifndef EDUKE32_STANDALONE
-    if (!FURY)
+    else if (!FURY)
     {
         switch (DYNAMICSOUNDMAP(soundNum))
         {
