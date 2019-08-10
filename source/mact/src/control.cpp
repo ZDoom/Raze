@@ -292,7 +292,7 @@ void CONTROL_MapAnalogAxis(int whichaxis, int whichanalog, controldevice device)
 {
     controlaxismaptype *set;
 
-    if ((unsigned)whichanalog >= (unsigned)analog_maxtype)
+    if ((unsigned)whichanalog >= (unsigned)analog_maxtype && whichanalog != -1)
     {
         //Error("CONTROL_MapAnalogAxis: analog function %d out of valid range for %d analog functions.",
         //		whichanalog, analog_maxtype);

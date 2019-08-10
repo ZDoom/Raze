@@ -53,10 +53,10 @@ int32_t CONFIG_FunctionNameToNum(const char *func)
 }
 
 
-char *CONFIG_FunctionNumToName(int32_t func)
+static char const * CONFIG_FunctionNumToName(int32_t func)
 {
     if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
-        return NULL;
+        return "";
     return gamefunctions[func];
 }
 
@@ -78,7 +78,7 @@ int32_t CONFIG_AnalogNameToNum(const char *func)
 }
 
 
-const char *CONFIG_AnalogNumToName(int32_t func)
+static char const * CONFIG_AnalogNumToName(int32_t func)
 {
     switch (func)
     {
@@ -92,7 +92,7 @@ const char *CONFIG_AnalogNumToName(int32_t func)
         return "analog_lookingupanddown";
     }
 
-    return NULL;
+    return "";
 }
 
 
@@ -441,20 +441,17 @@ void CONFIG_SetupMouse(void)
         Bsprintf(str,"MouseAnalogAxes%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            if (CONFIG_AnalogNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
+            ud.config.MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
         Bsprintf(str,"MouseDigitalAxes%d_0",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            if (CONFIG_FunctionNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
+            ud.config.MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseDigitalAxes%d_1",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            if (CONFIG_FunctionNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+            ud.config.MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseAnalogScale%d",i);
         int32_t scale = ud.config.MouseAnalogueScale[i];
@@ -505,20 +502,17 @@ void CONFIG_SetupJoystick(void)
         Bsprintf(str,"JoystickAnalogAxes%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            if (CONFIG_AnalogNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
+            ud.config.JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
         Bsprintf(str,"JoystickDigitalAxes%d_0",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            if (CONFIG_FunctionNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
+            ud.config.JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickDigitalAxes%d_1",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            if (CONFIG_FunctionNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+            ud.config.JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickAnalogScale%d",i);
         scale = ud.config.JoystickAnalogueScale[i];
@@ -703,10 +697,11 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
 
         for (int i=0; i<NUMGAMEFUNCTIONS; ++i)
         {
-            if (CONFIG_FunctionNumToName(i) && (ud.config.KeyboardKeys[i][0] == 0xff || !ud.config.KeyboardKeys[i][0]))
+            char const * name = CONFIG_FunctionNumToName(i);
+            if (name && name[0] != '\0' && (ud.config.KeyboardKeys[i][0] == 0xff || !ud.config.KeyboardKeys[i][0]))
             {
                 buildvfs_fputstr(fp, "unbound ");
-                buildvfs_fputstrptr(fp, CONFIG_FunctionNumToName(i));
+                buildvfs_fputstrptr(fp, name);
                 buildvfs_fputstr(fp, "\n");
             }
         }
