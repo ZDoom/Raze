@@ -105,7 +105,7 @@ void CONTROL_FreeMouseBind(int i)
     BIND(CONTROL_KeyBinds[MAXBOUNDKEYS + i], NULL, 0, NULL);
 }
 
-static void CONTROL_GetMouseDelta(void)
+static void CONTROL_GetMouseDelta(ControlInfo * info)
 {
     vec2_t input;
     mouseReadPos(&input.x, &input.y);
@@ -119,8 +119,8 @@ static void CONTROL_GetMouseDelta(void)
         last = input;
     }
 
-    CONTROL_MouseAxes[0].analog = Blrintf(finput.x * 4.f * CONTROL_MouseSensitivity);
-    CONTROL_MouseAxes[1].analog = Blrintf(finput.y * 4.f * CONTROL_MouseSensitivity);
+    info->mousex = Blrintf(finput.x * 4.f * CONTROL_MouseSensitivity);
+    info->mousey = Blrintf(finput.y * 4.f * CONTROL_MouseSensitivity);
 }
 
 static int32_t CONTROL_GetTime(void)
@@ -618,7 +618,7 @@ static void CONTROL_PollDevices(ControlInfo *info)
         Bmemcpy(CONTROL_LastMouseAxes, CONTROL_MouseAxes, sizeof(CONTROL_MouseAxes));
         memset(CONTROL_MouseAxes, 0, sizeof(CONTROL_MouseAxes));
 
-        CONTROL_GetMouseDelta();
+        CONTROL_GetMouseDelta(info);
         for (int i=MAXMOUSEAXES-1; i>=0; i--)
         {
             CONTROL_DigitizeAxis(i, controldevice_mouse);

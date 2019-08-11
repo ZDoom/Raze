@@ -267,7 +267,7 @@ static const char * mouseclickeddefaults[MAXMOUSEBUTTONS] =
 
 static const char * mouseanalogdefaults[MAXMOUSEAXES] =
    {
-   "analog_turning",
+   "analog_strafing",
    "analog_moving",
    };
 

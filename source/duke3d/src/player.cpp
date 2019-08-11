@@ -2916,14 +2916,6 @@ void P_GetInput(int const playerNum)
         }
     }
 
-    int32_t const aimMode = (g_myAimMode) ? (int32_t)analog_lookingupanddown : ud.config.MouseAnalogueAxes[1];
-
-    if (aimMode != mouseyaxismode)
-    {
-        CONTROL_MapAnalogAxis(1, aimMode, controldevice_mouse);
-        mouseyaxismode = aimMode;
-    }
-
     CONTROL_GetInput(&info);
 
 #if 0
@@ -2952,6 +2944,9 @@ void P_GetInput(int const playerNum)
 
     // JBF: Run key behaviour is selectable
     int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
+    int const turnAmount = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
+    int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
+    constexpr int const analogExtent = 10000; // KEEPINSYNC sdlayer.cpp
 
     input_t input {};
 
@@ -2959,21 +2954,27 @@ void P_GetInput(int const playerNum)
     {
         static int strafeyaw;
 
-        input.svel = -(info.dyaw + strafeyaw) >> 3;
-        strafeyaw  = (info.dyaw + strafeyaw) % 8;
+        input.svel = -(info.mousex + strafeyaw) >> 3;
+        strafeyaw  = (info.mousex + strafeyaw) % 8;
+
+        input.svel -= info.dyaw * keyMove / analogExtent;
     }
     else
-        input.q16avel = fix16_div(fix16_from_int(info.dyaw), F16(32));
+    {
+        input.q16avel = fix16_div(fix16_from_int(info.mousex), F16(32));
+        input.q16avel += fix16_from_int(info.dyaw * turnAmount / analogExtent);
+    }
 
-    input.q16horz = fix16_div(fix16_from_int(info.dpitch), F16(64));
+    if (g_myAimMode)
+        input.q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
+    else
+        input.fvel = -(info.mousey >> 6);
 
     if (ud.mouseflip) input.q16horz = -input.q16horz;
 
-    int const turnAmount = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
-    int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
-
-    input.svel -= (info.dx * keyMove / 10000);
-    input.fvel = -(info.dz * keyMove / 10000);
+    input.q16horz -= fix16_from_int(info.dpitch * turnAmount / analogExtent);
+    input.svel -= info.dx * keyMove / analogExtent;
+    input.fvel -= info.dz * keyMove / analogExtent;
 
     if (BUTTON(gamefunc_Strafe))
     {

@@ -108,6 +108,8 @@ typedef struct
    int32_t     dyaw;
    int32_t     dpitch;
    int32_t     droll;
+   int32_t     mousex;
+   int32_t     mousey;
    } ControlInfo;
 
 typedef enum
