@@ -1245,7 +1245,7 @@ void Screen_Play(void)
 
         videoClearScreen(0);
 
-        if (VM_OnEventWithReturn(EVENT_SCREEN, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
+        if (VM_OnEventWithReturn(EVENT_SCREEN, -1, myconnectindex, I_CheckAllInput()))
             running = false;
 
         videoNextPage();
