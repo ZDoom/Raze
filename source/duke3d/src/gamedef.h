@@ -233,7 +233,6 @@ void C_SetCfgName(const char *cfgname);
 void C_ReportError(int error);
 void C_Compile(const char *filenam);
 
-extern int32_t g_errorLineNum;
 extern int32_t g_tw;
 
 typedef struct {
