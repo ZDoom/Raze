@@ -3365,7 +3365,7 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     {
         for (int i = 0; i < ARRAY_SSIZE(MEL_INTERNAL_JOYSTICKAXIS_DIGITAL); i++)
             if (entry == MEL_INTERNAL_JOYSTICKAXIS_DIGITAL[i])
-                CONTROL_MapDigitalAxis(i>>1, newOption, i&1, controldevice_joystick);
+                CONTROL_MapDigitalAxis(M_JOYSTICKAXES.currentEntry, newOption, i&1, controldevice_joystick);
     }
         break;
     }
