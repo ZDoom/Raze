@@ -349,7 +349,7 @@ extern palette_t CrosshairColors;
 extern palette_t DefaultCrosshairColors;
 
 extern double g_frameDelay;
-static inline double calcFrameDelay(int maxFPS) { return maxFPS > 0 ? ((double)timerGetFreqU64() / (double)(maxFPS)) : 0.0; }
+static inline double calcFrameDelay(int const maxFPS) { return maxFPS > 0 ? nearbyint((double)timerGetFreqU64()/maxFPS) : 0.0; }
 
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,

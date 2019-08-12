@@ -6326,30 +6326,23 @@ int G_FPSLimit(void)
     if (!r_maxfps)
         return 1;
 
-    static double nextPageDelay = g_frameDelay;
-    uint64_t const delay = llrint(nextPageDelay);
+    static double   nextPageDelay;
+    static uint64_t lastFrameTicks;
 
-    uint64_t const frameTicks = timerGetTicksU64();
-    uint64_t const frameDelay = (uint64_t)llrint(g_frameDelay);
+    uint64_t const frameTicks  = timerGetTicksU64();
+    int64_t const  elapsedTime = frameTicks - lastFrameTicks;
 
-    static uint64_t lastFrameTicks = frameTicks - frameDelay;
-    uint64_t elapsedTime = frameTicks-lastFrameTicks;
-
-    int frameWaiting = 0;
-
-    if (elapsedTime >= delay)
+    if (elapsedTime >= lrint(floor(nextPageDelay)))
     {
-        //If we missed a frame, reset any cumulated remainder from rendering frames early
-        if (elapsedTime > frameDelay)
-            nextPageDelay = g_frameDelay;
-        else
-            nextPageDelay += double(frameDelay-elapsedTime);
+        if (elapsedTime <= lrint(floor(nextPageDelay + g_frameDelay)))
+            nextPageDelay = nearbyint(nextPageDelay + g_frameDelay - (double)elapsedTime);
 
         lastFrameTicks = frameTicks;
-        ++frameWaiting;
+
+        return 1;
     }
 
-    return frameWaiting;
+    return 0;
 }
 
 // TODO: reorder (net)actor_t to eliminate slop and update assertion
