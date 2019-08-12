@@ -158,8 +158,12 @@ static inline void VM_DummySprite(void)
 static FORCE_INLINE int32_t VM_EventInlineInternal__(int const &eventNum, int const &spriteNum, int const &playerNum,
                                                        int const playerDist = -1, int32_t returnValue = 0)
 {
-    vmstate_t const newVMstate = { spriteNum, playerNum, playerDist, 0, &sprite[spriteNum],
-                                   &actor[spriteNum].t_data[0], g_player[playerNum].ps, &actor[spriteNum] };
+    vmstate_t const newVMstate = { spriteNum, playerNum, playerDist, 0,
+                                   &sprite[spriteNum&(MAXSPRITES-1)],
+                                   &actor[spriteNum&(MAXSPRITES-1)].t_data[0],
+                                   g_player[playerNum&(MAXPLAYERS-1)].ps,
+                                   &actor[spriteNum&(MAXSPRITES-1)] };
+
     auto &globalReturn = aGameVars[g_returnVarID].global;
 
     struct
