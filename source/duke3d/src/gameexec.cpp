@@ -439,17 +439,8 @@ void A_Fall(int const spriteNum)
     else if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER || EDUKE32_PREDICT_FALSE(G_CheckForSpaceCeiling(pSprite->sectnum)))
         spriteGravity = g_spriteGravity/6;
 
-    if (pSprite->statnum == STAT_ACTOR || pSprite->statnum == STAT_PLAYER || pSprite->statnum == STAT_ZOMBIEACTOR
-        || pSprite->statnum == STAT_STANDABLE)
-    {
-        int32_t ceilhit, florhit;
-        VM_GetZRange(spriteNum, &ceilhit, &florhit, 127);
-    }
-    else
-    {
-        actor[spriteNum].ceilingz = sector[pSprite->sectnum].ceilingz;
-        actor[spriteNum].floorz   = sector[pSprite->sectnum].floorz;
-    }
+    int32_t ceilhit, florhit;
+    VM_GetZRange(spriteNum, &ceilhit, &florhit, A_GetClipdist(spriteNum, -1));
 
 #ifdef YAX_ENABLE
     int fbunch = (sector[pSprite->sectnum].floorstat&512) ? -1 : yax_getbunch(pSprite->sectnum, YAX_FLOOR);
@@ -1001,10 +992,9 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
         spriteGravity = 0;
 
     if (!actor[spriteNum].cgg-- || (sector[pSprite->sectnum].floorstat&2))
-    {
-        A_GetZLimits(spriteNum);
         actor[spriteNum].cgg = 3;
-    }
+
+    A_GetZLimits(spriteNum);
 
     if (pSprite->z < actor[spriteNum].floorz-ZOFFSET)
     {
@@ -1057,7 +1047,7 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
         }
     }
 
-    if (sector[pSprite->sectnum].lotag == ST_1_ABOVE_WATER)
+    if (sector[pSprite->sectnum].lotag == ST_1_ABOVE_WATER && actor[spriteNum].floorz == getcorrectflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y))
     {
         pSprite->z = newZ + A_GetWaterZOffset(spriteNum);
         return;
