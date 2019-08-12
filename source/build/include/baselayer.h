@@ -196,6 +196,7 @@ typedef struct
     int32_t  numAxes;
     int32_t  numButtons;
     int32_t  numHats;
+    int32_t  isGameController;
 } controllerinput_t;
 
 extern controllerinput_t joystick;

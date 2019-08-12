@@ -777,6 +777,56 @@ void debugprintf(const char *f, ...)
 
 // static int32_t joyblast=0;
 static SDL_Joystick *joydev = NULL;
+#if SDL_MAJOR_VERSION >= 2
+static SDL_GameController *controller = NULL;
+
+static void LoadSDLControllerDB()
+{
+    buildvfs_kfd fh = kopen4load("gamecontrollerdb.txt", 0);
+    if (fh == buildvfs_kfd_invalid)
+        return;
+
+    int flen = kfilelength(fh);
+    if (flen <= 0)
+    {
+        kclose(fh);
+        return;
+    }
+
+    char * dbuf = (char *)malloc(flen + 1);
+    if (!dbuf)
+    {
+        kclose(fh);
+        return;
+    }
+
+    if (kread_and_test(fh, dbuf, flen))
+    {
+        free(dbuf);
+        kclose(fh);
+        return;
+    }
+
+    dbuf[flen] = '\0';
+    kclose(fh);
+
+    SDL_RWops * rwops = SDL_RWFromConstMem(dbuf, flen);
+    if (!rwops)
+    {
+        free(dbuf);
+        return;
+    }
+
+    int i = SDL_GameControllerAddMappingsFromRW(rwops, 0);
+    if (i == -1)
+        buildprintf("Failed loading game controller database: %s\n", SDL_GetError());
+    else
+        buildputs("Loaded game controller database\n");
+
+    SDL_free(rwops);
+    free(dbuf);
+}
+#endif
 
 //
 // initinput() -- init input system
@@ -821,36 +871,91 @@ int32_t initinput(void)
         Bstrncpyz(g_keyNameTable[keytranslation[i]], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(g_keyNameTable[0]));
     }
 
+#if SDL_MAJOR_VERSION >= 2
+    if (!SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER))
+#else
     if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK))
+#endif
     {
-        i = SDL_NumJoysticks();
-        initprintf("%d joystick(s) found\n", i);
+#if SDL_MAJOR_VERSION >= 2
+        LoadSDLControllerDB();
+#endif
 
-        for (int32_t j = 0; j < i; j++)
-            initprintf("  %d. %s\n", j + 1, SDL_JoystickNameForIndex(j));
-
-        joydev = SDL_JoystickOpen(0);
-
-        if (joydev)
+        int numjoysticks = SDL_NumJoysticks();
+        if (numjoysticks < 1)
         {
-            SDL_JoystickEventState(SDL_ENABLE);
-            inputdevices |= 4;
+            buildputs("No game controllers found\n");
+        }
+        else
+        {
+            buildputs("Game controllers:\n");
+            for (i = 0; i < numjoysticks; i++)
+            {
+                const char * name;
+#if SDL_MAJOR_VERSION >= 2
+                if (SDL_IsGameController(i))
+                    name = SDL_GameControllerNameForIndex(i);
+                else
+#endif
+                    name = SDL_JoystickNameForIndex(i);
 
-            // KEEPINSYNC duke3d/src/gamedefs.h, mact/include/_control.h
-            joystick.numAxes = min(9, SDL_JoystickNumAxes(joydev));
-            joystick.numButtons = min(32, SDL_JoystickNumButtons(joydev));
-            joystick.numHats = min((36-joystick.numButtons)/4,SDL_JoystickNumHats(joydev));
-            initprintf("Joystick 1 has %d axes, %d buttons, and %d hat(s).\n", joystick.numAxes, joystick.numButtons, joystick.numHats);
+                buildprintf("  %d. %s\n", i+1, name);
+            }
 
-            joystick.pAxis = (int32_t *)Xcalloc(joystick.numAxes, sizeof(int32_t));
+#if SDL_MAJOR_VERSION >= 2
+            for (i = 0; i < numjoysticks; i++)
+            {
+                if ((controller = SDL_GameControllerOpen(i)))
+                {
+                    buildprintf("Using controller %s\n", SDL_GameControllerName(controller));
 
-            if (joystick.numHats)
-                joystick.pHat = (int32_t *)Xcalloc(joystick.numHats, sizeof(int32_t));
+                    inputdevices |= 4;
 
-            for (i = 0; i < joystick.numHats; i++) joystick.pHat[i] = -1;  // centre
+                    joystick.numAxes    = SDL_CONTROLLER_AXIS_MAX;
+                    joystick.numButtons = SDL_CONTROLLER_BUTTON_MAX;
+                    joystick.numHats    = 0;
+                    joystick.isGameController = 1;
 
-            joydead = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
-            joysatur = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
+                    joystick.pAxis = (int32_t *)Xcalloc(joystick.numAxes, sizeof(int32_t));
+
+                    joydead = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
+                    joysatur = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
+
+                    return 0;
+                }
+            }
+#endif
+
+            for (i = 0; i < numjoysticks; i++)
+            {
+                if ((joydev = SDL_JoystickOpen(i)))
+                {
+                    buildprintf("Using joystick %s\n", SDL_JoystickName(joydev));
+
+                    SDL_JoystickEventState(SDL_ENABLE);
+                    inputdevices |= 4;
+
+                    // KEEPINSYNC duke3d/src/gamedefs.h, mact/include/_control.h
+                    joystick.numAxes = min(9, SDL_JoystickNumAxes(joydev));
+                    joystick.numButtons = min(32, SDL_JoystickNumButtons(joydev));
+                    joystick.numHats = min((36-joystick.numButtons)/4,SDL_JoystickNumHats(joydev));
+                    initprintf("Joystick %d has %d axes, %d buttons, and %d hat(s).\n", i+1, joystick.numAxes, joystick.numButtons, joystick.numHats);
+
+                    joystick.pAxis = (int32_t *)Xcalloc(joystick.numAxes, sizeof(int32_t));
+
+                    if (joystick.numHats)
+                        joystick.pHat = (int32_t *)Xcalloc(joystick.numHats, sizeof(int32_t));
+
+                    for (i = 0; i < joystick.numHats; i++) joystick.pHat[i] = -1;  // centre
+
+                    joydead = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
+                    joysatur = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
+
+                    return 0;
+                }
+            }
+
+            buildputs("No controllers are usable\n");
         }
     }
 
@@ -866,6 +971,14 @@ void uninitinput(void)
     Win_SetKeyboardLayoutUS(0);
 #endif
     mouseUninit();
+
+#if SDL_MAJOR_VERSION >= 2
+    if (controller)
+    {
+        SDL_GameControllerClose(controller);
+        controller = NULL;
+    }
+#endif
 
     if (joydev)
     {
@@ -884,12 +997,67 @@ const char *joyGetName(int32_t what, int32_t num)
         case 0:  // axis
             if ((unsigned)num > (unsigned)joystick.numAxes)
                 return NULL;
+
+#if SDL_MAJOR_VERSION >= 2
+            if (controller)
+            {
+# if 0
+                // Use this if SDL's provided strings ever become user-friendly.
+                return SDL_GameControllerGetStringForAxis((SDL_GameControllerAxis)num);
+# else
+                static char const * axisStrings[] =
+                {
+                    "Left Stick X-Axis",
+                    "Left Stick Y-Axis",
+                    "Right Stick X-Axis",
+                    "Right Stick Y-Axis",
+                    "Left Trigger",
+                    "Right Trigger",
+                    NULL
+                };
+                return axisStrings[num];
+# endif
+            }
+#endif
+
             Bsprintf(tmp, "Axis %d", num);
             return (char *)tmp;
 
         case 1:  // button
             if ((unsigned)num > (unsigned)joystick.numButtons)
                 return NULL;
+
+#if SDL_MAJOR_VERSION >= 2
+            if (controller)
+            {
+# if 0
+                // See above.
+                return SDL_GameControllerGetStringForButton((SDL_GameControllerButton)num);
+# else
+                static char const * buttonStrings[] =
+                {
+                    "A",
+                    "B",
+                    "X",
+                    "Y",
+                    "Back",
+                    "Guide",
+                    "Start",
+                    "Left Stick",
+                    "Right Stick",
+                    "Left Shoulder",
+                    "Right Shoulder",
+                    "D-Pad Up",
+                    "D-Pad Down",
+                    "D-Pad Left",
+                    "D-Pad Right",
+                    NULL
+                };
+                return buttonStrings[num];
+# endif
+            }
+#endif
+
             Bsprintf(tmp, "Button %d", num);
             return (char *)tmp;
 
@@ -2039,6 +2207,12 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
 #endif
 
         case SDL_JOYAXISMOTION:
+#if SDL_MAJOR_VERSION >= 2
+            if (joystick.isGameController)
+                break;
+            fallthrough__;
+        case SDL_CONTROLLERAXISMOTION:
+#endif
             if (appactive && ev->jaxis.axis < joystick.numAxes)
             {
                 joystick.pAxis[ev->jaxis.axis] = ev->jaxis.value;
@@ -2082,6 +2256,13 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
 
         case SDL_JOYBUTTONDOWN:
         case SDL_JOYBUTTONUP:
+#if SDL_MAJOR_VERSION >= 2
+            if (joystick.isGameController)
+                break;
+            fallthrough__;
+        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_CONTROLLERBUTTONUP:
+#endif
             if (appactive && ev->jbutton.button < joystick.numButtons)
             {
                 if (ev->jbutton.state == SDL_PRESSED)
