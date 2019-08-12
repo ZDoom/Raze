@@ -85,7 +85,7 @@ static int32_t getvox(int32_t x, int32_t y, int32_t z)
 {
     z += x*yzsiz + y*voxsiz.z;
 
-    for (x=vcolhashead[(z*214013)&vcolhashsizm1]; x>=0; x=vcol[x].n)
+    for (x=vcolhashead[(z*214013LL)&vcolhashsizm1]; x>=0; x=vcol[x].n)
         if (vcol[x].p == z)
             return vcol[x].c;
 
@@ -102,7 +102,7 @@ static void putvox(int32_t x, int32_t y, int32_t z, int32_t col)
 
     z += x*yzsiz + y*voxsiz.z;
 
-    vcol[vnum].p = z; z = (z*214013)&vcolhashsizm1;
+    vcol[vnum].p = z; z = (z*214013LL)&vcolhashsizm1;
     vcol[vnum].c = col;
     vcol[vnum].n = vcolhashead[z]; vcolhashead[z] = vnum++;
 }
