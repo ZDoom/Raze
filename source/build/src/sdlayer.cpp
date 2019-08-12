@@ -2041,14 +2041,15 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
         case SDL_JOYAXISMOTION:
             if (appactive && ev->jaxis.axis < joystick.numAxes)
             {
-                joystick.pAxis[ev->jaxis.axis] = ev->jaxis.value * 10000 / 32767;
-                if ((joystick.pAxis[ev->jaxis.axis] < joydead[ev->jaxis.axis]) &&
-                    (joystick.pAxis[ev->jaxis.axis] > -joydead[ev->jaxis.axis]))
+                joystick.pAxis[ev->jaxis.axis] = ev->jaxis.value;
+                int32_t const scaledValue = ev->jaxis.value * 10000 / 32767;
+                if ((scaledValue < joydead[ev->jaxis.axis]) &&
+                    (scaledValue > -joydead[ev->jaxis.axis]))
                     joystick.pAxis[ev->jaxis.axis] = 0;
-                else if (joystick.pAxis[ev->jaxis.axis] >= joysatur[ev->jaxis.axis])
-                    joystick.pAxis[ev->jaxis.axis] = 10000;
-                else if (joystick.pAxis[ev->jaxis.axis] <= -joysatur[ev->jaxis.axis])
-                    joystick.pAxis[ev->jaxis.axis] = -10000;
+                else if (scaledValue >= joysatur[ev->jaxis.axis])
+                    joystick.pAxis[ev->jaxis.axis] = 32767;
+                else if (scaledValue <= -joysatur[ev->jaxis.axis])
+                    joystick.pAxis[ev->jaxis.axis] = -32767;
                 else
                     joystick.pAxis[ev->jaxis.axis] = joystick.pAxis[ev->jaxis.axis] * 10000 / joysatur[ev->jaxis.axis];
             }

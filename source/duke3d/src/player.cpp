@@ -2946,7 +2946,7 @@ void P_GetInput(int const playerNum)
     int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
     int const turnAmount = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
     int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
-    constexpr int const analogExtent = 10000; // KEEPINSYNC sdlayer.cpp
+    constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
 
     input_t input {};
 
