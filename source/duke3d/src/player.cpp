@@ -4712,6 +4712,7 @@ void P_ProcessInput(int playerNum)
 
         stepHeight = max(stepHeight, 0);
     }
+    else stepHeight = 0;
 
     pPlayer->pos.z += stepHeight;
     getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - GETZRANGECLIPDISTOFFSET, CLIPMASK0);
@@ -4793,7 +4794,7 @@ void P_ProcessInput(int playerNum)
         {
             // EDuke32 extension: xvel of 1 makes a sprite be never regarded as a bridge.
 
-            if ((sprite[spriteNum].xvel & 1) == 0)
+            if (sectorLotag != ST_2_UNDERWATER && (sprite[spriteNum].xvel & 1) == 0)
             {
                 sectorLotag             = 0;
                 pPlayer->footprintcount = 0;
