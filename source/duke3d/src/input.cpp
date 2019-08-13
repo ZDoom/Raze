@@ -169,6 +169,7 @@ int32_t I_MenuUp(void)
         || BUTTON(gamefunc_Move_Forward)
         || (JOYSTICK_GetHat(0)&HAT_UP)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_UP))
+        || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY)
         ;
 }
 
@@ -180,6 +181,7 @@ void I_MenuUpClear(void)
     CONTROL_ClearButton(gamefunc_Move_Forward);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_UP);
+    CONTROL_ClearGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY);
 }
 
 
@@ -192,6 +194,7 @@ int32_t I_MenuDown(void)
         || BUTTON(gamefunc_Move_Backward)
         || (JOYSTICK_GetHat(0)&HAT_DOWN)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_DOWN))
+        || CONTROL_GetGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY)
         ;
 }
 
@@ -204,6 +207,7 @@ void I_MenuDownClear(void)
     CONTROL_ClearButton(gamefunc_Move_Backward);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_DOWN);
+    CONTROL_ClearGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY);
 }
 
 
@@ -217,6 +221,7 @@ int32_t I_MenuLeft(void)
         || BUTTON(gamefunc_Strafe_Left)
         || (JOYSTICK_GetHat(0)&HAT_LEFT)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_LEFT))
+        || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX)
         ;
 }
 
@@ -229,6 +234,7 @@ void I_MenuLeftClear(void)
     CONTROL_ClearButton(gamefunc_Strafe_Left);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_LEFT);
+    CONTROL_ClearGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX);
 }
 
 
@@ -243,6 +249,7 @@ int32_t I_MenuRight(void)
         || (MOUSE_GetButtons()&MIDDLE_MOUSE)
         || (JOYSTICK_GetHat(0)&HAT_RIGHT)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_RIGHT))
+        || CONTROL_GetGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTX)
         ;
 }
 
@@ -256,6 +263,7 @@ void I_MenuRightClear(void)
     MOUSE_ClearButton(MIDDLE_MOUSE);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_RIGHT);
+    CONTROL_ClearGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTX);
 }
 
 

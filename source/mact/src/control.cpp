@@ -538,15 +538,31 @@ static void CONTROL_DigitizeAxis(int axis, controldevice device)
     default: return;
     }
 
+    set[axis].digitalClearedN = lastset[axis].digitalClearedN;
+    set[axis].digitalClearedP = lastset[axis].digitalClearedP;
+
     if (set[axis].analog > 0)
     {
+        set[axis].digitalClearedN = 0;
+
         if (set[axis].analog > THRESHOLD || (set[axis].analog > MINTHRESHOLD && lastset[axis].digital == 1))
             set[axis].digital = 1;
+        else
+            set[axis].digitalClearedP = 0;
+    }
+    else if (set[axis].analog < 0)
+    {
+        set[axis].digitalClearedP = 0;
+
+        if (set[axis].analog < -THRESHOLD || (set[axis].analog < -MINTHRESHOLD && lastset[axis].digital == -1))
+            set[axis].digital = -1;
+        else
+            set[axis].digitalClearedN = 0;
     }
     else
     {
-        if (set[axis].analog < -THRESHOLD || (set[axis].analog < -MINTHRESHOLD && lastset[axis].digital == -1))
-            set[axis].digital = -1;
+        set[axis].digitalClearedN = 0;
+        set[axis].digitalClearedP = 0;
     }
 }
 
@@ -742,6 +758,36 @@ void CONTROL_ClearAllButtons(void)
 
     for (auto & c : CONTROL_Flags)
         c.cleared = TRUE;
+}
+
+int32_t CONTROL_GetGameControllerDigitalAxisPos(int32_t axis)
+{
+    if (!joystick.isGameController)
+        return 0;
+
+    return CONTROL_JoyAxes[axis].digital > 0 && !CONTROL_JoyAxes[axis].digitalClearedP;
+}
+int32_t CONTROL_GetGameControllerDigitalAxisNeg(int32_t axis)
+{
+    if (!joystick.isGameController)
+        return 0;
+
+    return CONTROL_JoyAxes[axis].digital < 0 && !CONTROL_JoyAxes[axis].digitalClearedN;
+}
+
+void CONTROL_ClearGameControllerDigitalAxisPos(int32_t axis)
+{
+    if (!joystick.isGameController)
+        return;
+
+    CONTROL_JoyAxes[axis].digitalClearedP = 1;
+}
+void CONTROL_ClearGameControllerDigitalAxisNeg(int32_t axis)
+{
+    if (!joystick.isGameController)
+        return;
+
+    CONTROL_JoyAxes[axis].digitalClearedN = 1;
 }
 
 void CONTROL_ProcessBinds(void)

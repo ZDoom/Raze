@@ -172,6 +172,7 @@ typedef struct
 {
     int32_t analog;
     int32_t digital;
+    int16_t digitalClearedN, digitalClearedP;
 } controlaxistype;
 
 

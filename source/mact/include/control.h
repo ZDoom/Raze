@@ -198,6 +198,11 @@ void CONTROL_MapAnalogAxis(int whichaxis, int whichanalog, controldevice device)
 void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t direction, controldevice device);
 void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldevice device);
 
+int32_t CONTROL_GetGameControllerDigitalAxisPos(int32_t axis);
+int32_t CONTROL_GetGameControllerDigitalAxisNeg(int32_t axis);
+void CONTROL_ClearGameControllerDigitalAxisPos(int32_t axis);
+void CONTROL_ClearGameControllerDigitalAxisNeg(int32_t axis);
+
 //void CONTROL_PrintKeyMap(void);
 //void CONTROL_PrintControlFlag(int32_t which);
 //void CONTROL_PrintAxes( void );
