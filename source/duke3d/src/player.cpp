@@ -1158,10 +1158,10 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                         int const spawnedSprite = A_Spawn(spriteNum, projecTile);
                         sprite[spawnedSprite].ang
                         = (getangle(hitwal->x - wall[hitwal->point2].x, hitwal->y - wall[hitwal->point2].y) + 1536) & 2047;
-                        *(vec3_t *)&sprite[spawnedSprite] = hitData.pos;
+                        sprite[spawnedSprite].pos = hitData.pos;
                         sprite[spawnedSprite].cstat |= (krand() & 4);
                         A_SetSprite(spawnedSprite, CLIPMASK0);
-                        setsprite(spawnedSprite, (vec3_t *)&sprite[spawnedSprite]);
+                        setsprite(spawnedSprite, &sprite[spawnedSprite].pos);
                         if (PN(spriteNum) == OOZFILTER || PN(spriteNum) == NEWBEAST)
                             sprite[spawnedSprite].pal = 6;
                     }
@@ -5430,7 +5430,7 @@ HORIZONLY:;
     if (pPlayer->cursectnum >= 0)
     {
         pPlayer->pos.z += PHEIGHT;
-        *(vec3_t *)&sprite[pPlayer->i] = pPlayer->pos;
+        sprite[pPlayer->i].pos = pPlayer->pos;
         pPlayer->pos.z -= PHEIGHT;
 
         changespritesect(pPlayer->i, pPlayer->cursectnum);

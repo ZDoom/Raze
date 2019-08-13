@@ -678,7 +678,7 @@ void P_ResetMultiPlayer(int playerNum)
     a.bpos = p.opos = p.pos;
     p.bobpos = p.pos.vec2;
 
-    *(vec3_t *)&s = p.pos;
+    s.pos = p.pos;
 
     updatesector(p.pos.x, p.pos.y, &p.cursectnum);
     setsprite(p.i, &tmpvect);

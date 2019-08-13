@@ -343,7 +343,7 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
         return 0;
     }
 
-    return S_PlaySound3D(num,i, (vec3_t *)&sprite[i]);
+    return S_PlaySound3D(num,i, &sprite[i].pos);
 }
 
 void S_StopSound(int32_t num)

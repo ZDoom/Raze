@@ -645,7 +645,7 @@ GAMEEXEC_STATIC void VM_Move(void)
         if (deadflag || (vm.pActor->bpos.x != vm.pSprite->x) || (vm.pActor->bpos.y != vm.pSprite->y))
         {
             vm.pActor->bpos.vec2 = vm.pSprite->pos.vec2;
-            setsprite(vm.spriteNum, (vec3_t *)vm.pSprite);
+            setsprite(vm.spriteNum, &vm.pSprite->pos);
         }
         return;
     }

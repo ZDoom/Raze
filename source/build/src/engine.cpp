@@ -10789,7 +10789,7 @@ int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
     int16_t tempsectnum = sprite[spritenum].sectnum;
 
     if ((void const *) newpos != (void *) &sprite[spritenum])
-        *(vec3_t *) &sprite[spritenum] = *newpos;
+        sprite[spritenum].pos = *newpos;
 
     updatesector(newpos->x,newpos->y,&tempsectnum);
 
@@ -10806,7 +10806,7 @@ int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
     int16_t tempsectnum = sprite[spritenum].sectnum;
 
     if ((void const *)newpos != (void *)&sprite[spritenum])
-        *(vec3_t *) &sprite[spritenum] = *newpos;
+        sprite[spritenum].pos = *newpos;
 
     updatesectorz(newpos->x,newpos->y,newpos->z,&tempsectnum);
 

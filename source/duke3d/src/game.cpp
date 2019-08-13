@@ -1640,7 +1640,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case WATERSPLASH2__STATIC:
             if (spriteNum >= 0)
             {
-                setsprite(newSprite, (vec3_t *)&sprite[spriteNum]);
+                setsprite(newSprite, &sprite[spriteNum].pos);
                 pSprite->xrepeat = pSprite->yrepeat = 8+(krand()&7);
             }
             else pSprite->xrepeat = pSprite->yrepeat = 16+(krand()&15);
@@ -1964,7 +1964,7 @@ int A_Spawn(int spriteNum, int tileNum)
                         sprite[findSprite].pos     = pSprite->pos;
                         sprite[findSprite].shade   = pSprite->shade;
 
-                        setsprite(findSprite, (vec3_t *) &sprite[findSprite]);
+                        setsprite(findSprite, &sprite[findSprite].pos);
                         break;
                     }
                     findSprite = nextspritestat[findSprite];

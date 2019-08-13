@@ -1246,7 +1246,7 @@ void A_MoveDummyPlayers(void)
 
         SX(spriteNum) += (pPlayer->pos.x-pPlayer->opos.x);
         SY(spriteNum) += (pPlayer->pos.y-pPlayer->opos.y);
-        setsprite(spriteNum, (vec3_t *)&sprite[spriteNum]);
+        setsprite(spriteNum, &sprite[spriteNum].pos);
 
 next_sprite:
         spriteNum = nextSprite;
@@ -1852,7 +1852,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                     ps->opos.y = ps->pos.y = pSprite->y-(sintable[fix16_to_int(ps->q16ang)&2047]>>6);
                     ps->opos.z = ps->pos.z = pSprite->z+(2<<8);
 
-                    setsprite(ps->i, (vec3_t *)ps);
+                    setsprite(ps->i, &ps->pos);
                     ps->cursectnum = sprite[ps->i].sectnum;
                 }
             }
@@ -2027,7 +2027,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                     while (hitDist > 0)
                     {
                         j = A_Spawn(spriteNum,LASERLINE);
-                        setsprite(j,(vec3_t *)&sprite[j]);
+                        setsprite(j,&sprite[j].pos);
                         sprite[j].hitag = pSprite->hitag;
                         actor[j].t_data[1] = sprite[j].z;
 
@@ -6384,7 +6384,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     {
                         sprite[sectSprite].x+=vect.x;
                         sprite[sectSprite].y+=vect.y;
-                        setsprite(sectSprite,(vec3_t *)&sprite[sectSprite]);
+                        setsprite(sectSprite,&sprite[sectSprite].pos);
                     }
                 }
 
@@ -7054,7 +7054,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         actor[k].bpos.z += sprite[k].z;
 
                         changespritesect(k,sprite[j].sectnum);
-                        setsprite(k,(vec3_t *)&sprite[k]);
+                        setsprite(k,&sprite[k].pos);
 
                         actor[k].floorz   = sector[sprite[j].sectnum].floorz;
                         actor[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
@@ -7267,7 +7267,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         sprite[sectSprite].x += vect.x;
                         sprite[sectSprite].y += vect.y;
 
-                        setsprite(sectSprite, (vec3_t *)&sprite[sectSprite]);
+                        setsprite(sectSprite, &sprite[sectSprite].pos);
 
                         if (sector[sprite[sectSprite].sectnum].floorstat & 2 && sprite[sectSprite].statnum == STAT_ZOMBIEACTOR)
                             A_Fall(sectSprite);
@@ -7290,7 +7290,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         pPlayer->opos.y = pPlayer->pos.y;
 
                         pPlayer->pos.z += PHEIGHT;
-                        setsprite(pPlayer->i, (vec3_t *)pPlayer);
+                        setsprite(pPlayer->i, &pPlayer->pos);
                         pPlayer->pos.z -= PHEIGHT;
                     }
                 }
@@ -7401,7 +7401,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                                 sprite[sectSprite].x += vect.x >> 2;
                                 sprite[sectSprite].y += vect.y >> 2;
 
-                                setsprite(sectSprite, (vec3_t *)&sprite[sectSprite]);
+                                setsprite(sectSprite, &sprite[sectSprite].pos);
 
                                 if (sector[sprite[sectSprite].sectnum].floorstat & 2)
                                     if (sprite[sectSprite].statnum == STAT_ZOMBIEACTOR)
@@ -7439,7 +7439,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     k = A_Spawn(spriteNum, SMALLSMOKE);
                     sprite[k].xvel = 96+(krand()&127);
                     A_SetSprite(k, CLIPMASK0);
-                    setsprite(k, (vec3_t *) &sprite[k]);
+                    setsprite(k, &sprite[k].pos);
                     if (rnd(16))
                         A_Spawn(spriteNum, EXPLOSION2);
                 }
@@ -7517,7 +7517,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     sprite[j].y += x;
                     sprite[j].z += pSprite->zvel;
 
-                    setsprite(j, (vec3_t *)&sprite[j]);
+                    setsprite(j, &sprite[j].pos);
                 }
             }
 

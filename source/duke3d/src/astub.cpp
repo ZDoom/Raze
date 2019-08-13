@@ -5473,7 +5473,7 @@ static void Keys3d(void)
                             int16_t cb, fb;
                             yax_getbunches(sprite[sp].sectnum, &cb, &fb);
                             if (cb >= 0 || fb >= 0)
-                                setspritez(sp, (vec3_t *)&sprite[sp]);
+                                setspritez(sp, &sprite[sp].pos);
                         }
 #endif
                         if (k==0)
