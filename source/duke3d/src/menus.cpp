@@ -484,7 +484,7 @@ MAKE_MENU_TOP_ENTRYLINK( "Control Setup", MEF_OptionsMenu, OPTIONS_CONTROLS, MEN
 MAKE_MENU_TOP_ENTRYLINK( "Keyboard Setup", MEF_BigOptionsRtSections, OPTIONS_KEYBOARDSETUP, MENU_KEYBOARDSETUP );
 MAKE_MENU_TOP_ENTRYLINK( "Mouse Setup", MEF_BigOptionsRtSections, OPTIONS_MOUSESETUP, MENU_MOUSESETUP );
 #endif
-MAKE_MENU_TOP_ENTRYLINK( "Joystick Setup", MEF_BigOptionsRtSections, OPTIONS_JOYSTICKSETUP, MENU_JOYSTICKSETUP );
+MAKE_MENU_TOP_ENTRYLINK( "Gamepad Setup", MEF_BigOptionsRtSections, OPTIONS_JOYSTICKSETUP, MENU_JOYSTICKSETUP );
 #ifdef EDUKE32_ANDROID_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_BigOptionsRtSections, OPTIONS_TOUCHSETUP, MENU_TOUCHSETUP );
 #endif
@@ -1368,9 +1368,9 @@ static MenuMenu_t M_TOUCHSETUP = MAKE_MENUMENU( "Touch Setup", &MMF_Top_Options,
 static MenuMenu_t M_TOUCHSENS = MAKE_MENUMENU( "Sensitivity", &MMF_BigOptions, MEL_TOUCHSENS);
 static MenuPanel_t M_TOUCHBUTTONS = { "Button Setup", MENU_TOUCHSETUP, MA_Return, MENU_TOUCHSETUP, MA_Advance, };
 #endif
-static MenuMenu_t M_JOYSTICKSETUP = MAKE_MENUMENU( "Joystick Setup", &MMF_BigOptions, MEL_JOYSTICKSETUP );
-static MenuMenu_t M_JOYSTICKBTNS = MAKE_MENUMENU( "Joystick Buttons", &MMF_MouseJoySetupBtns, MEL_JOYSTICKBTNS );
-static MenuMenu_t M_JOYSTICKAXES = MAKE_MENUMENU( "Joystick Axes", &MMF_BigSliders, MEL_JOYSTICKAXES );
+static MenuMenu_t M_JOYSTICKSETUP = MAKE_MENUMENU( "Gamepad Setup", &MMF_BigOptions, MEL_JOYSTICKSETUP );
+static MenuMenu_t M_JOYSTICKBTNS = MAKE_MENUMENU( "Gamepad Buttons", &MMF_MouseJoySetupBtns, MEL_JOYSTICKBTNS );
+static MenuMenu_t M_JOYSTICKAXES = MAKE_MENUMENU( "Gamepad Axes", &MMF_BigSliders, MEL_JOYSTICKAXES );
 static MenuMenu_t M_KEYBOARDKEYS = MAKE_MENUMENU( "Key Configuration", &MMF_KeyboardSetupFuncs, MEL_KEYBOARDSETUPFUNCS );
 static MenuMenu_t M_MOUSEBTNS = MAKE_MENUMENU( "Mouse Buttons", &MMF_MouseJoySetupBtns, MEL_MOUSESETUPBTNS );
 static MenuMenu_t M_MOUSEADVANCED = MAKE_MENUMENU( "Advanced Mouse", &MMF_BigSliders, MEL_MOUSEADVANCED );
@@ -2605,7 +2605,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
     case MENU_JOYSTANDARDVERIFY:
         videoFadeToBlack(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "Reset joystick to standard layout?"
+        mgametextcenter(origin.x, origin.y + (90<<16), "Reset gamepad to standard layout?"
 #ifndef EDUKE32_ANDROID_MENU
                                                        "\n(Y/N)"
 #endif
@@ -2613,7 +2613,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
     case MENU_JOYPROVERIFY:
         videoFadeToBlack(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "Reset joystick to pro layout?"
+        mgametextcenter(origin.x, origin.y + (90<<16), "Reset gamepad to pro layout?"
 #ifndef EDUKE32_ANDROID_MENU
                                                        "\n(Y/N)"
 #endif
@@ -2621,7 +2621,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
     case MENU_JOYCLEARVERIFY:
         videoFadeToBlack(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "Clear all joystick settings?"
+        mgametextcenter(origin.x, origin.y + (90<<16), "Clear all gamepad settings?"
 #ifndef EDUKE32_ANDROID_MENU
                                                        "\n(Y/N)"
 #endif
