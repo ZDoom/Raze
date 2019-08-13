@@ -4959,9 +4959,9 @@ FAKE_F3:
             }
         }
 
-        if (KB_UnBoundKeyPressed(sc_F7))
+        if (BUTTON(gamefunc_Third_Person_View))
         {
-            KB_ClearKeyDown(sc_F7);
+            CONTROL_ClearButton(gamefunc_Third_Person_View);
 
             myplayer.over_shoulder_on = !myplayer.over_shoulder_on;
 
@@ -7391,4 +7391,5 @@ static void G_SetupGameButtons(void)
     CONTROL_DefineFlag(gamefunc_Quick_Save, FALSE);
     CONTROL_DefineFlag(gamefunc_Quick_Load, FALSE);
     CONTROL_DefineFlag(gamefunc_Alt_Weapon,FALSE);
+    CONTROL_DefineFlag(gamefunc_Third_Person_View, FALSE);
 }
