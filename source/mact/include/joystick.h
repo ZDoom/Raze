@@ -39,7 +39,9 @@ extern "C" {
 #define HAT_LEFTDOWN    (HAT_LEFT|HAT_DOWN)
 
 int32_t	JOYSTICK_GetButtons( void );
+int32_t	JOYSTICK_GetGameControllerButtons( void );
 int32_t	JOYSTICK_ClearButton( int32_t b );
+void	JOYSTICK_ClearGameControllerButton( int32_t b );
 void	JOYSTICK_ClearAllButtons( void );
 
 int32_t	JOYSTICK_GetHat( int32_t h );

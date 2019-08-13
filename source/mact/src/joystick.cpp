@@ -55,9 +55,25 @@ int32_t JOYSTICK_GetButtons(void)
 
     return buttons;
 }
+int32_t JOYSTICK_GetGameControllerButtons(void)
+{
+    if (!joystick.isGameController)
+        return 0;
+
+    int32_t buttons;
+    joyReadButtons(&buttons);
+    return buttons;
+}
 int32_t JOYSTICK_ClearButton(int32_t b)
 {
     return (joystick.bits &= ~b);
+}
+void JOYSTICK_ClearGameControllerButton(int32_t b)
+{
+    if (!joystick.isGameController)
+        return;
+
+    joystick.bits &= ~b;
 }
 void JOYSTICK_ClearAllButtons(void)
 {

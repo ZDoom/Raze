@@ -238,6 +238,7 @@ static MenuEntryFormat_t MEF_OptionsMenu =      { 7<<16,      0,          0 };
 static MenuEntryFormat_t MEF_CenterMenu =       { 7<<16,      0,          0 };
 static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16, -(260<<16) };
 static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0, -(260<<16) };
+static MenuEntryFormat_t MEF_BigOptionsRtSections = { 3<<16,      0, -(260<<16) };
 #if defined USE_OPENGL || !defined EDUKE32_ANDROID_MENU
 static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0, -(260<<16) };
 #endif
@@ -480,12 +481,12 @@ MAKE_MENU_TOP_ENTRYLINK( "Player Setup", MEF_OptionsMenu, OPTIONS_PLAYERSETUP, M
 #ifndef EDUKE32_ANDROID_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Control Setup", MEF_OptionsMenu, OPTIONS_CONTROLS, MENU_CONTROLS );
 
-MAKE_MENU_TOP_ENTRYLINK( "Keyboard Setup", MEF_BigOptionsRt, OPTIONS_KEYBOARDSETUP, MENU_KEYBOARDSETUP );
-MAKE_MENU_TOP_ENTRYLINK( "Mouse Setup", MEF_BigOptionsRt, OPTIONS_MOUSESETUP, MENU_MOUSESETUP );
+MAKE_MENU_TOP_ENTRYLINK( "Keyboard Setup", MEF_BigOptionsRtSections, OPTIONS_KEYBOARDSETUP, MENU_KEYBOARDSETUP );
+MAKE_MENU_TOP_ENTRYLINK( "Mouse Setup", MEF_BigOptionsRtSections, OPTIONS_MOUSESETUP, MENU_MOUSESETUP );
 #endif
-MAKE_MENU_TOP_ENTRYLINK( "Joystick Setup", MEF_BigOptionsRt, OPTIONS_JOYSTICKSETUP, MENU_JOYSTICKSETUP );
+MAKE_MENU_TOP_ENTRYLINK( "Joystick Setup", MEF_BigOptionsRtSections, OPTIONS_JOYSTICKSETUP, MENU_JOYSTICKSETUP );
 #ifdef EDUKE32_ANDROID_MENU
-MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_BigOptionsRt, OPTIONS_TOUCHSETUP, MENU_TOUCHSETUP );
+MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_BigOptionsRtSections, OPTIONS_TOUCHSETUP, MENU_TOUCHSETUP );
 #endif
 #ifdef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK("Cheats", MEF_OptionsMenu, OPTIONS_CHEATS, MENU_CHEATS);
@@ -716,9 +717,9 @@ static MenuEntry_t *MEL_CONTROLS[] = {
     &ME_OPTIONS_MOUSESETUP,
     &ME_OPTIONS_JOYSTICKSETUP,
 #else
-    &ME_OPTIONS_TOUCHSETUP
+    &ME_OPTIONS_TOUCHSETUP,
 #endif
-    &ME_Space2_Redfont,
+    &ME_Space6_Redfont,
     &ME_GAMESETUP_AIM_AUTO,
 };
 
@@ -945,12 +946,20 @@ static MenuEntry_t *MEL_TOUCHSENS [] = {
 };
 #endif
 
-MAKE_MENU_TOP_ENTRYLINK( "Edit Buttons", MEF_CenterMenu, JOYSTICK_EDITBUTTONS, MENU_JOYSTICKBTNS );
-MAKE_MENU_TOP_ENTRYLINK( "Edit Axes", MEF_CenterMenu, JOYSTICK_EDITAXES, MENU_JOYSTICKAXES );
+MAKE_MENU_TOP_ENTRYLINK( "Edit Buttons", MEF_BigOptionsRtSections, JOYSTICK_EDITBUTTONS, MENU_JOYSTICKBTNS );
+MAKE_MENU_TOP_ENTRYLINK( "Edit Axes", MEF_BigOptionsRtSections, JOYSTICK_EDITAXES, MENU_JOYSTICKAXES );
+
+static MenuEntry_t ME_JOYSTICK_DEFAULTS_STANDARD = MAKE_MENUENTRY( "Use Standard Layout", &MF_Redfont, &MEF_BigOptionsRtSections, &MEO_NULL, Link );
+static MenuEntry_t ME_JOYSTICK_DEFAULTS_PRO = MAKE_MENUENTRY( "Use Pro Layout", &MF_Redfont, &MEF_BigOptionsRtSections, &MEO_NULL, Link );
+static MenuEntry_t ME_JOYSTICK_DEFAULTS_CLEAR = MAKE_MENUENTRY( "Clear All Settings", &MF_Redfont, &MEF_BigOptionsRtSections, &MEO_NULL, Link );
 
 static MenuEntry_t *MEL_JOYSTICKSETUP[] = {
     &ME_JOYSTICK_EDITBUTTONS,
     &ME_JOYSTICK_EDITAXES,
+    &ME_Space6_Redfont,
+    &ME_JOYSTICK_DEFAULTS_STANDARD,
+    &ME_JOYSTICK_DEFAULTS_PRO,
+    &ME_JOYSTICK_DEFAULTS_CLEAR,
 };
 
 #define MAXJOYBUTTONSTRINGLENGTH 32
@@ -1353,7 +1362,7 @@ static MenuMenu_t M_TOUCHSETUP = MAKE_MENUMENU( "Touch Setup", &MMF_Top_Options,
 static MenuMenu_t M_TOUCHSENS = MAKE_MENUMENU( "Sensitivity", &MMF_BigOptions, MEL_TOUCHSENS);
 static MenuPanel_t M_TOUCHBUTTONS = { "Button Setup", MENU_TOUCHSETUP, MA_Return, MENU_TOUCHSETUP, MA_Advance, };
 #endif
-static MenuMenu_t M_JOYSTICKSETUP = MAKE_MENUMENU( "Joystick Setup", &MMF_Top_Joystick_Network, MEL_JOYSTICKSETUP );
+static MenuMenu_t M_JOYSTICKSETUP = MAKE_MENUMENU( "Joystick Setup", &MMF_BigOptions, MEL_JOYSTICKSETUP );
 static MenuMenu_t M_JOYSTICKBTNS = MAKE_MENUMENU( "Joystick Buttons", &MMF_MouseJoySetupBtns, MEL_JOYSTICKBTNS );
 static MenuMenu_t M_JOYSTICKAXES = MAKE_MENUMENU( "Joystick Axes", &MMF_BigSliders, MEL_JOYSTICKAXES );
 static MenuMenu_t M_KEYBOARDKEYS = MAKE_MENUMENU( "Key Configuration", &MMF_KeyboardSetupFuncs, MEL_KEYBOARDSETUPFUNCS );
@@ -2089,6 +2098,11 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_SAVESETUP:
         MenuEntry_DisableOnCondition(&ME_SAVESETUP_MAXAUTOSAVES, !ud.autosavedeletion);
+        break;
+
+    case MENU_JOYSTICKSETUP:
+        MenuEntry_DisableOnCondition(&ME_JOYSTICK_DEFAULTS_STANDARD, !joystick.isGameController);
+        MenuEntry_DisableOnCondition(&ME_JOYSTICK_DEFAULTS_PRO, !joystick.isGameController);
         break;
 
 #ifndef EDUKE32_SIMPLE_MENU
@@ -3121,6 +3135,15 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         G_NewGame_EnterLevel();
         break;
     }
+
+    case MENU_JOYSTICKSETUP:
+        if (entry == &ME_JOYSTICK_DEFAULTS_STANDARD)
+            CONFIG_SetGameControllerDefaultsStandard();
+        else if (entry == &ME_JOYSTICK_DEFAULTS_PRO)
+            CONFIG_SetGameControllerDefaultsPro();
+        else if (entry == &ME_JOYSTICK_DEFAULTS_CLEAR)
+            CONFIG_SetGameControllerDefaultsClear();
+        break;
 
     case MENU_JOYSTICKAXES:
         M_JOYSTICKAXIS.title = joyGetName(0, M_JOYSTICKAXES.currentEntry);

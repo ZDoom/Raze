@@ -111,7 +111,7 @@ static SDL_Surface *loadappicon(void);
 static mutex_t m_initprintf;
 
 // Joystick dead and saturation zones
-uint16_t *joydead, *joysatur;
+uint16_t joydead[9], joysatur[9];
 
 #ifdef _WIN32
 # if SDL_MAJOR_VERSION != 1
@@ -918,9 +918,6 @@ int32_t initinput(void)
 
                     joystick.pAxis = (int32_t *)Xcalloc(joystick.numAxes, sizeof(int32_t));
 
-                    joydead = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
-                    joysatur = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
-
                     return 0;
                 }
             }
@@ -947,9 +944,6 @@ int32_t initinput(void)
                         joystick.pHat = (int32_t *)Xcalloc(joystick.numHats, sizeof(int32_t));
 
                     for (i = 0; i < joystick.numHats; i++) joystick.pHat[i] = -1;  // centre
-
-                    joydead = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
-                    joysatur = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
 
                     return 0;
                 }

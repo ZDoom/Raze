@@ -96,6 +96,34 @@ static char const * CONFIG_AnalogNumToName(int32_t func)
 }
 
 
+static void CONFIG_SetJoystickButtonFunction(int i, int j, int function)
+{
+    ud.config.JoystickFunctions[i][j] = function;
+    CONTROL_MapButton(function, i, j, controldevice_joystick);
+}
+static void CONFIG_SetJoystickAnalogAxisScale(int i, int scale)
+{
+    ud.config.JoystickAnalogueScale[i] = scale;
+    CONTROL_SetAnalogAxisScale(i, scale, controldevice_joystick);
+}
+static void CONFIG_SetJoystickAnalogAxisDeadSaturate(int i, int dead, int saturate)
+{
+    ud.config.JoystickAnalogueDead[i] = dead;
+    ud.config.JoystickAnalogueSaturate[i] = saturate;
+    joySetDeadZone(i, dead, saturate);
+}
+static void CONFIG_SetJoystickDigitalAxisFunction(int i, int j, int function)
+{
+    ud.config.JoystickDigitalFunctions[i][j] = function;
+    CONTROL_MapDigitalAxis(i, function, j, controldevice_joystick);
+}
+static void CONFIG_SetJoystickAnalogAxisFunction(int i, int function)
+{
+    ud.config.JoystickAnalogueAxes[i] = function;
+    CONTROL_MapAnalogAxis(i, function, controldevice_joystick);
+}
+
+
 void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy/*=false*/)
 {
     static char const s_gamefunc_[] = "gamefunc_";
@@ -338,6 +366,9 @@ void CONFIG_SetDefaults(void)
         CONTROL_MapAnalogAxis(i, ud.config.MouseAnalogueAxes[i], controldevice_mouse);
     }
 
+#if !defined GEKKO
+    CONFIG_SetGameControllerDefaultsStandard();
+#else
     for (int i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
         ud.config.JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdefaults[i]);
@@ -361,6 +392,7 @@ void CONFIG_SetDefaults(void)
         ud.config.JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(joystickanalogdefaults[i]);
         CONTROL_MapAnalogAxis(i, ud.config.JoystickAnalogueAxes[i], controldevice_joystick);
     }
+#endif
 
     VM_OnEvent(EVENT_SETDEFAULTS, g_player[myconnectindex].ps->i, myconnectindex);
 }
@@ -544,6 +576,187 @@ void CONFIG_SetupJoystick(void)
     }
 }
 
+struct GameControllerButtonSetting
+{
+    GameControllerButton button;
+    int function;
+
+    void apply() const
+    {
+        CONFIG_SetJoystickButtonFunction(button, 0, function);
+    }
+};
+struct GameControllerAnalogAxisSetting
+{
+    GameControllerAxis axis;
+    int function;
+
+    void apply() const
+    {
+        CONFIG_SetJoystickAnalogAxisFunction(axis, function);
+    }
+};
+struct GameControllerDigitalAxisSetting
+{
+    GameControllerAxis axis;
+    int polarity;
+    int function;
+
+    void apply() const
+    {
+        CONFIG_SetJoystickDigitalAxisFunction(axis, polarity, function);
+    }
+};
+
+static void CONFIG_SetGameControllerAxesModern()
+{
+    static GameControllerAnalogAxisSetting const analogAxes[] =
+    {
+        { GAMECONTROLLER_AXIS_LEFTX, analog_strafing },
+        { GAMECONTROLLER_AXIS_LEFTY, analog_moving },
+        { GAMECONTROLLER_AXIS_RIGHTX, analog_turning },
+        { GAMECONTROLLER_AXIS_RIGHTY, analog_lookingupanddown },
+    };
+
+    for (auto const & analogAxis : analogAxes)
+        analogAxis.apply();
+}
+
+void CONFIG_SetGameControllerDefaultsStandard()
+{
+    CONFIG_SetGameControllerDefaultsClear();
+    CONFIG_SetGameControllerAxesModern();
+
+    static GameControllerButtonSetting const buttons[] =
+    {
+        { GAMECONTROLLER_BUTTON_A, gamefunc_Jump },
+        { GAMECONTROLLER_BUTTON_X, gamefunc_Open },
+        { GAMECONTROLLER_BUTTON_Y, gamefunc_Quick_Kick },
+        { GAMECONTROLLER_BUTTON_BACK, gamefunc_Map },
+        { GAMECONTROLLER_BUTTON_LEFTSTICK, gamefunc_Run },
+        { GAMECONTROLLER_BUTTON_RIGHTSTICK, gamefunc_Crouch },
+        { GAMECONTROLLER_BUTTON_LEFTSHOULDER, gamefunc_Crouch },
+        { GAMECONTROLLER_BUTTON_RIGHTSHOULDER, gamefunc_Jump },
+        { GAMECONTROLLER_BUTTON_DPAD_UP, gamefunc_Previous_Weapon },
+        { GAMECONTROLLER_BUTTON_DPAD_DOWN, gamefunc_Next_Weapon },
+    };
+
+    static GameControllerButtonSetting const dukebuttons[] =
+    {
+        { GAMECONTROLLER_BUTTON_B, gamefunc_Inventory },
+        { GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_Inventory_Left },
+        { GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_Inventory_Right },
+    };
+
+    static GameControllerButtonSetting const furybuttons[] =
+    {
+        { GAMECONTROLLER_BUTTON_B, gamefunc_Steroids },
+        { GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_MedKit },
+        { GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_NightVision },
+    };
+
+    for (auto const & button : buttons)
+        button.apply();
+
+    if (FURY)
+    {
+        for (auto const & button : furybuttons)
+            button.apply();
+    }
+    else
+    {
+        for (auto const & button : dukebuttons)
+            button.apply();
+    }
+
+    static GameControllerDigitalAxisSetting const digitalAxes[] =
+    {
+        { GAMECONTROLLER_AXIS_TRIGGERLEFT, 1, gamefunc_Alt_Fire },
+        { GAMECONTROLLER_AXIS_TRIGGERRIGHT, 1, gamefunc_Fire },
+    };
+
+    for (auto const & digitalAxis : digitalAxes)
+        digitalAxis.apply();
+}
+
+void CONFIG_SetGameControllerDefaultsPro()
+{
+    CONFIG_SetGameControllerDefaultsClear();
+    CONFIG_SetGameControllerAxesModern();
+
+    static GameControllerButtonSetting const buttons[] =
+    {
+        { GAMECONTROLLER_BUTTON_A, gamefunc_Open },
+        { GAMECONTROLLER_BUTTON_B, gamefunc_Quick_Kick },
+        { GAMECONTROLLER_BUTTON_Y, gamefunc_Third_Person_View },
+        { GAMECONTROLLER_BUTTON_BACK, gamefunc_Map },
+        { GAMECONTROLLER_BUTTON_LEFTSTICK, gamefunc_Run },
+        { GAMECONTROLLER_BUTTON_RIGHTSTICK, gamefunc_Crouch },
+        { GAMECONTROLLER_BUTTON_DPAD_UP, gamefunc_Previous_Weapon },
+        { GAMECONTROLLER_BUTTON_DPAD_DOWN, gamefunc_Next_Weapon },
+    };
+
+    static GameControllerButtonSetting const dukebuttons[] =
+    {
+        { GAMECONTROLLER_BUTTON_X, gamefunc_Inventory },
+        { GAMECONTROLLER_BUTTON_LEFTSHOULDER, gamefunc_Previous_Weapon },
+        { GAMECONTROLLER_BUTTON_RIGHTSHOULDER, gamefunc_Next_Weapon },
+        { GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_Inventory_Left },
+        { GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_Inventory_Right },
+    };
+
+    static GameControllerButtonSetting const furybuttons[] =
+    {
+        { GAMECONTROLLER_BUTTON_X, gamefunc_Steroids },
+        { GAMECONTROLLER_BUTTON_LEFTSHOULDER, gamefunc_Crouch },
+        { GAMECONTROLLER_BUTTON_RIGHTSHOULDER, gamefunc_Alt_Fire },
+        { GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_MedKit },
+        { GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_NightVision },
+    };
+
+    for (auto const & button : buttons)
+        button.apply();
+
+    if (FURY)
+    {
+        for (auto const & button : furybuttons)
+            button.apply();
+    }
+    else
+    {
+        for (auto const & button : dukebuttons)
+            button.apply();
+    }
+
+    static GameControllerDigitalAxisSetting const digitalAxes[] =
+    {
+        { GAMECONTROLLER_AXIS_TRIGGERLEFT, 1, gamefunc_Jump },
+        { GAMECONTROLLER_AXIS_TRIGGERRIGHT, 1, gamefunc_Fire },
+    };
+
+    for (auto const & digitalAxis : digitalAxes)
+        digitalAxis.apply();
+}
+
+void CONFIG_SetGameControllerDefaultsClear()
+{
+    for (int i=0; i<MAXJOYBUTTONSANDHATS; i++)
+    {
+        CONFIG_SetJoystickButtonFunction(i, 0, -1);
+        CONFIG_SetJoystickButtonFunction(i, 1, -1);
+    }
+
+    for (int i=0; i<MAXJOYAXES; i++)
+    {
+        CONFIG_SetJoystickAnalogAxisScale(i, DEFAULTJOYSTICKANALOGUESCALE);
+        CONFIG_SetJoystickAnalogAxisDeadSaturate(i, DEFAULTJOYSTICKANALOGUEDEAD, DEFAULTJOYSTICKANALOGUESATURATE);
+
+        CONFIG_SetJoystickDigitalAxisFunction(i, 0, -1);
+        CONFIG_SetJoystickDigitalAxisFunction(i, 1, -1);
+
+        CONFIG_SetJoystickAnalogAxisFunction(i, -1);
+    }
+}
 
 int CONFIG_ReadSetup(void)
 {

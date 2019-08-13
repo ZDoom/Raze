@@ -279,7 +279,7 @@ static const char * mousedigitaldefaults[MAXMOUSEDIGITAL] =
    {
    };
 
-#if defined(GEKKO)
+#if defined GEKKO
 static const char * joystickdefaults[MAXJOYBUTTONSANDHATS] =
    {
    "Open", // A
@@ -328,25 +328,6 @@ static const char * joystickanalogdefaults[MAXJOYAXES] =
    "analog_moving",
    "analog_turning",
    "analog_lookingupanddown",
-   };
-
-
-static const char * joystickdigitaldefaults[MAXJOYDIGITAL] =
-   {
-   };
-#else
-static const char * joystickdefaults[MAXJOYBUTTONSANDHATS] =
-   {
-   };
-
-
-static const char * joystickclickeddefaults[MAXJOYBUTTONSANDHATS] =
-   {
-   };
-
-
-static const char * joystickanalogdefaults[MAXJOYAXES] =
-   {
    };
 
 
