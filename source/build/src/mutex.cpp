@@ -21,9 +21,9 @@ int32_t mutex_init(mutex_t *mutex)
 void mutex_lock(mutex_t *mutex)
 {
 #ifdef RENDERTYPEWIN
-    return WaitForSingleObject(*mutex, INFINITE);
+    WaitForSingleObject(*mutex, INFINITE);
 #else
-    return SDL_AtomicLock(mutex);
+    SDL_AtomicLock(mutex);
 #endif
 }
 
