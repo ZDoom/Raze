@@ -2843,7 +2843,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             };
             static const char *body[] =
             {
-                "Alexey Khokholov",  // Nuke.YKT - Polymost fixes
+                "Alexey Skrybykin",  // Nuke.YKT - Polymost fixes
                 "Bioman",            // GTK work, APT repository and package upkeep
                 "Brandon Bergren",   // "Bdragon" - tiles.cfg
                 "Charlie Honig",     // "CONAN" - showview command
