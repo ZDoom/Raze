@@ -115,7 +115,7 @@ ENET_CFLAGS=/I$(ENET_INC) /I$(ENET_SRC)
 LIBXMPLITE_CFLAGS=/I$(LIBXMPLITE_INC) /I$(LIBXMPLITE_INC)/libxmp-lite /I$(LIBXMPLITE_SRC) -DHAVE_ROUND -DLIBXMP_CORE_PLAYER -DBUILDING_STATIC
 AUDIOLIB_CFLAGS=/I$(AUDIOLIB_INC) /I$(AUDIOLIB_SRC)
 
-LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.lib oleaut32.lib ole32.lib imm32.lib version.lib \
+LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.lib oleaut32.lib ole32.lib imm32.lib SetupAPI.Lib version.lib \
      libogg.a libvorbis.a libvorbisfile.a libxmp-lite.a libvpx.a dxguid.lib dsound.lib advapi32.lib libcompat-to-msvc.a
 
 !if ("$(RENDERTYPE)"=="SDL")
