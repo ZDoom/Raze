@@ -234,6 +234,7 @@ engine_objs := \
     softsurface.cpp \
     mmulti_null.cpp \
     mutex.cpp \
+    timer.cpp \
     xxhash.c \
     md4.cpp \
     colmatch.cpp \

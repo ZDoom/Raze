@@ -18,8 +18,6 @@
 
 int32_t backgroundidle = 1;
 
-int64_t win_timerfreq = 0;
-
 char silentvideomodeswitch = 0;
 
 static char taskswitching = 1;
@@ -146,38 +144,6 @@ int32_t win_checkinstance(void)
     if (!instanceflag) return 0;
     return (WaitForSingleObject(instanceflag,0) == WAIT_TIMEOUT);
 }
-
-//
-// high-resolution timers for profiling
-//
-#if defined(RENDERTYPEWIN) || SDL_MAJOR_VERSION==1
-int32_t win_inittimer(void)
-{
-    int64_t t;
-
-    if (win_timerfreq) return 0;	// already installed
-
-    // OpenWatcom seems to want us to query the value into a local variable
-    // instead of the global 'win_timerfreq' or else it gets pissed with an
-    // access violation
-    if (!QueryPerformanceFrequency((LARGE_INTEGER *)&t))
-    {
-        ShowErrorBox("Failed fetching timer frequency");
-        return -1;
-    }
-    win_timerfreq = t;
-
-    return 0;
-}
-
-uint64_t win_getu64ticks(void)
-{
-    uint64_t i;
-    if (win_timerfreq == 0) return 0;
-    QueryPerformanceCounter((LARGE_INTEGER *)&i);
-    return i;
-}
-#endif
 
 
 static void ToggleDesktopComposition(BOOL compEnable)

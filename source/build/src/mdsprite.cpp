@@ -92,8 +92,6 @@ static mdmodel_t *mdload(const char *);
 static void mdfree(mdmodel_t *);
 int32_t globalnoeffect=0;
 
-extern int32_t timerticspersec;
-
 void freeallmodels()
 {
     int32_t i;
@@ -1010,7 +1008,7 @@ void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
     fps = smooth->mdsmooth ? Blrintf((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f)
                                    : anim ? anim->fpssc : 1;
 
-    i = (mdtims - sprext->mdanimtims) * ((fps * timerticspersec) / 120);
+    i = (mdtims - sprext->mdanimtims) * ((fps * timerGetRate()) / 120);
 
     j = (smooth->mdsmooth || !anim) ? 65536 : ((anim->endframe + 1 - anim->startframe) << 16);
 
@@ -1018,7 +1016,7 @@ void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
     if (i < 0) { i = 0; sprext->mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
     if (anim && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
-        sprext->mdanimtims += j/((fps*timerticspersec)/120);
+        sprext->mdanimtims += j/((fps*timerGetRate())/120);
 
     k = i;
 

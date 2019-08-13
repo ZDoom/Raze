@@ -320,8 +320,8 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
                "  CRC-32:    %08X (%g sec)\n"
                "  xxHash:    %08X (%g sec)\n",
                parm->parms[0], kfilelength(h),
-               crcval, (double)crctime/timerGetFreq(),
-               xxhash, (double)xxhtime/timerGetFreq());
+               crcval, (double)crctime/timerGetRate(),
+               xxhash, (double)xxhtime/timerGetRate());
 
     kclose(h);
 

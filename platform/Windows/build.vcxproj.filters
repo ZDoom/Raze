@@ -191,6 +191,8 @@
     <ClCompile Include="..\..\source\glbackend\glbackend.cpp">
       <Filter>GL Interface</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\build\src\timer.cpp">
+      <Filter>Source Files</Filter>
     <ClCompile Include="..\..\source\glbackend\gl_samplers.cpp">
       <Filter>GL Interface</Filter>
     </ClCompile>
@@ -394,7 +396,9 @@
     <ClInclude Include="..\..\source\build\include\vfs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\glbackend\glbackend.h">
+    <ClInclude Include="..\..\source\build\include\timer.h">
+      <Filter>Header Files</Filter>
+
       <Filter>GL Interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\glbackend\gl_samplers.h">

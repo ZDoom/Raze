@@ -293,6 +293,7 @@
     <ClCompile Include="..\..\source\build\src\texcache.cpp" />
     <ClCompile Include="..\..\source\build\src\textfont.cpp" />
     <ClCompile Include="..\..\source\build\src\tiles.cpp" />
+    <ClCompile Include="..\..\source\build\src\timer.cpp" />
     <ClCompile Include="..\..\source\build\src\voxmodel.cpp" />
     <ClCompile Include="..\..\source\build\src\wiibits.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -372,6 +373,7 @@
     <ClInclude Include="..\..\source\build\include\sjson.h" />
     <ClInclude Include="..\..\source\build\include\softsurface.h" />
     <ClInclude Include="..\..\source\build\include\texcache.h" />
+    <ClInclude Include="..\..\source\build\include\timer.h" />
     <ClInclude Include="..\..\source\build\include\tracker.hpp" />
     <ClInclude Include="..\..\source\build\include\vfs.h" />
     <ClInclude Include="..\..\source\build\include\winbits.h" />
