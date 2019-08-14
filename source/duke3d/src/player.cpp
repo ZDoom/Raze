@@ -3051,7 +3051,7 @@ void P_GetInput(int const playerNum)
 
     localInput.bits |= (BUTTON(gamefunc_Open) << SK_OPEN);
 
-    localInput.bits |= (BUTTON(gamefunc_Jump) << SK_JUMP) | ((BUTTON(gamefunc_Crouch)|pPlayer->crouch_toggle) << SK_CROUCH);
+    localInput.bits |= (BUTTON(gamefunc_Jump) << SK_JUMP) | (BUTTON(gamefunc_Crouch) << SK_CROUCH);
 
     localInput.bits |= (BUTTON(gamefunc_Aim_Up) || (BUTTON(gamefunc_Dpad_Aiming) && input.fvel > 0)) << SK_AIM_UP;
     localInput.bits |= (BUTTON(gamefunc_Aim_Down) || (BUTTON(gamefunc_Dpad_Aiming) && input.fvel < 0)) << SK_AIM_DOWN;
@@ -4100,7 +4100,7 @@ static void P_ProcessWeapon(int playerNum)
                     int pipeBombZvel;
                     int pipeBombFwdVel;
 
-                    if (pPlayer->on_ground && TEST_SYNC_KEY(playerBits, SK_CROUCH))
+                    if (pPlayer->on_ground && (TEST_SYNC_KEY(playerBits, SK_CROUCH) ^ pPlayer->crouch_toggle))
                     {
                         pipeBombFwdVel = 15;
                         pipeBombZvel   = (fix16_to_int(pPlayer->q16horiz + pPlayer->q16horizoff - F16(100)) * 20);
@@ -5042,7 +5042,7 @@ void P_ProcessInput(int playerNum)
         if (pPlayer->pos.z < (floorZ-(floorZOffset<<8)))  //falling
         {
             // not jumping or crouching
-            if ((!TEST_SYNC_KEY(playerBits, SK_JUMP) && !TEST_SYNC_KEY(playerBits, SK_CROUCH)) && pPlayer->on_ground &&
+            if ((!TEST_SYNC_KEY(playerBits, SK_JUMP) && !(TEST_SYNC_KEY(playerBits, SK_CROUCH) ^ pPlayer->crouch_toggle)) && pPlayer->on_ground &&
                 (sector[pPlayer->cursectnum].floorstat & 2) && pPlayer->pos.z >= (floorZ - (floorZOffset << 8) - ZOFFSET2))
                 pPlayer->pos.z = floorZ - (floorZOffset << 8);
             else
@@ -5138,7 +5138,7 @@ void P_ProcessInput(int playerNum)
                 }
             }
 
-            if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) ^ pPlayer->crouch_toggle)
             {
                 // crouching
                 if (VM_OnEvent(EVENT_CROUCH,pPlayer->i,playerNum) == 0)
@@ -5340,7 +5340,7 @@ void P_ProcessInput(int playerNum)
 
         if (sectorLotag == ST_2_UNDERWATER)
             playerSpeedReduction = 0x1400;
-        else if (((pPlayer->on_ground && (TEST_SYNC_KEY(playerBits, SK_CROUCH)))
+        else if (((pPlayer->on_ground && (TEST_SYNC_KEY(playerBits, SK_CROUCH) ^ pPlayer->crouch_toggle))
                   || (*weaponFrame > 10 && PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == KNEE_WEAPON)))
             playerSpeedReduction = 0x2000;
 

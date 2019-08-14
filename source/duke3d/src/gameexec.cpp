@@ -4904,7 +4904,7 @@ badindex:
                 int const playerXVel = sprite[vm.pPlayer->i].xvel;
                 int const syncBits   = g_player[vm.playerNum].input->bits;
 
-                if (((moveFlags & pducking) && vm.pPlayer->on_ground && TEST_SYNC_KEY(syncBits, SK_CROUCH))
+                if (((moveFlags & pducking) && vm.pPlayer->on_ground && (TEST_SYNC_KEY(syncBits, SK_CROUCH) ^ vm.pPlayer->crouch_toggle))
                     || ((moveFlags & pfalling) && vm.pPlayer->jumping_counter == 0 && !vm.pPlayer->on_ground && vm.pPlayer->vel.z > 2048)
                     || ((moveFlags & pjumping) && vm.pPlayer->jumping_counter > 348)
                     || ((moveFlags & pstanding) && playerXVel >= 0 && playerXVel < 8)
