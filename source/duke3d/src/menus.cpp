@@ -4538,10 +4538,14 @@ void Menu_Open(uint8_t playerID)
 
 void Menu_Close(uint8_t playerID)
 {
-    if (g_player[playerID].ps->gm & MODE_GAME)
+    auto & gm = g_player[playerID].ps->gm;
+    if (gm & MODE_GAME)
     {
+        if (gm & MODE_MENU)
+            I_ClearAllInput();
+
         // The following lines are here so that you cannot close the menu when no game is running.
-        g_player[playerID].ps->gm &= ~MODE_MENU;
+        gm &= ~MODE_MENU;
         mouseLockToWindow(1);
 
         if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
@@ -4562,8 +4566,6 @@ void Menu_Close(uint8_t playerID)
         walock[TILE_SAVESHOT] = 1;
         G_UpdateScreenArea();
         S_PauseSounds(false);
-
-        I_ClearAllInput();
     }
 }
 
