@@ -2945,6 +2945,7 @@ void P_GetInput(int const playerNum)
     // JBF: Run key behaviour is selectable
     int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
     int const turnAmount = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
+    constexpr int const analogTurnAmount = (NORMALTURN << 1);
     int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
     constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
 
@@ -2962,7 +2963,7 @@ void P_GetInput(int const playerNum)
     else
     {
         input.q16avel = fix16_div(fix16_from_int(info.mousex), F16(32));
-        input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (turnAmount << 1);
+        input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
     }
 
     if (g_myAimMode)
@@ -2972,7 +2973,7 @@ void P_GetInput(int const playerNum)
 
     if (ud.mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * turnAmount;
+    input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
