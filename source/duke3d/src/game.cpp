@@ -1461,8 +1461,7 @@ int A_Spawn(int spriteNum, int tileNum)
         else
             s.owner = a.owner = newSprite;
 
-        a.floorz   = sector[s.sectnum].floorz;
-        a.ceilingz = sector[s.sectnum].ceilingz;
+        A_GetZLimits(newSprite);
 
         a.stayput = a.extra = -1;
 
