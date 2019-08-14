@@ -10060,9 +10060,12 @@ int32_t ExtInit(void)
 
     // backup pathsearchmode so that a later open
     // will hopefully be the same file
-    pathsearchmode_oninit = pathsearchmode;
+    pathsearchmode_oninit = pathsearchmode = 0;
 
     G_ScanGroups();
+
+    // reset search mode to full file system
+    pathsearchmode = 1;
 
     signal(SIGINT, m32script_interrupt_handler);
 
