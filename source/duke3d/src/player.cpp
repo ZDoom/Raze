@@ -2962,7 +2962,7 @@ void P_GetInput(int const playerNum)
     else
     {
         input.q16avel = fix16_div(fix16_from_int(info.mousex), F16(32));
-        input.q16avel += fix16_from_int(info.dyaw * (turnAmount << 1) / analogExtent);
+        input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (turnAmount << 1);
     }
 
     if (g_myAimMode)
@@ -2972,7 +2972,7 @@ void P_GetInput(int const playerNum)
 
     if (ud.mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz -= fix16_from_int(info.dpitch * turnAmount / analogExtent);
+    input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * turnAmount;
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
