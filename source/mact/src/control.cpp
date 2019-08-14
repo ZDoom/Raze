@@ -955,7 +955,7 @@ bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ti
     if (CONTROL_DoubleClickSpeed <= 0)
         CONTROL_DoubleClickSpeed = 1;
 
-    if (initinput(CONTROL_ScanForControllers))
+    if (initinput())
         return true;
 
     KB_Startup();

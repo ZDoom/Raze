@@ -683,7 +683,7 @@ int32_t handleevents(void)
 //
 // initinput() -- init input system
 //
-int32_t initinput(void(*hotplugCallback)(void) /*= NULL*/)
+int32_t initinput(void)
 {
     Win_GetOriginalLayoutName();
     Win_SetKeyboardLayoutUS(1);

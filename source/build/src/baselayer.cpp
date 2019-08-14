@@ -102,8 +102,6 @@ bool g_mouseLockedToWindow = 1;
 void (*g_mouseCallback)(int32_t, int32_t);
 void mouseSetCallback(void(*callback)(int32_t, int32_t)) { g_mouseCallback = callback; }
 
-void (*g_controllerHotplugCallback)(void);
-
 int32_t mouseAdvanceClickState(void)
 {
     switch (g_mouseClickState)
