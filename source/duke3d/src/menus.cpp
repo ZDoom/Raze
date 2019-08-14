@@ -3380,7 +3380,11 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     else if (entry == &ME_MOUSESETUP_SMOOTH)
         CONTROL_SmoothMouse = ud.config.SmoothInput;
     else if (entry == &ME_JOYSTICK_ENABLE)
+    {
+        if (newOption)
+            CONTROL_ScanForControllers();
         CONTROL_JoystickEnabled = (newOption && CONTROL_JoyPresent);
+    }
     else if (entry == &ME_JOYSTICKAXIS_ANALOG)
         CONTROL_MapAnalogAxis(M_JOYSTICKAXES.currentEntry, newOption, controldevice_joystick);
     else if (entry == &ME_NETOPTIONS_EPISODE)

@@ -1150,6 +1150,10 @@ const char *joyGetName(int32_t what, int32_t num)
     }
 }
 
+void joyScanDevices()
+{
+}
+
 //
 // AcquireInputDevices() -- (un)acquires the input devices
 //

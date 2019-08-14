@@ -842,6 +842,19 @@ void CONTROL_GetInput(ControlInfo *info)
     inputchecked = 1;
 }
 
+static void CONTROL_ResetJoystickValues()
+{
+    CONTROL_NumJoyAxes      = min(MAXJOYAXES, joystick.numAxes);
+    CONTROL_NumJoyButtons   = min(MAXJOYBUTTONS, joystick.numButtons + 4 * (joystick.numHats > 0));
+    CONTROL_JoystickEnabled = CONTROL_JoyPresent = !!((inputdevices & 4) >> 2);
+}
+
+void CONTROL_ScanForControllers()
+{
+    joyScanDevices();
+    CONTROL_ResetJoystickValues();
+}
+
 bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)
 {
     UNREFERENCED_PARAMETER(which);
@@ -866,9 +879,7 @@ bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ti
     CONTROL_MousePresent    = Mouse_Init();
     CONTROL_MouseEnabled    = CONTROL_MousePresent;
 
-    CONTROL_NumJoyAxes      = min(MAXJOYAXES, joystick.numAxes);
-    CONTROL_NumJoyButtons   = min(MAXJOYBUTTONS, joystick.numButtons + 4 * (joystick.numHats > 0));
-    CONTROL_JoystickEnabled = CONTROL_JoyPresent = !!((inputdevices & 4) >> 2);
+    CONTROL_ResetJoystickValues();
 
 #ifdef GEKKO
     if (CONTROL_MousePresent)
