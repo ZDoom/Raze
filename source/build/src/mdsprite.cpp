@@ -1845,14 +1845,13 @@ int      md3postload_polymer(md3model_t *m)
 
 void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16])
 {
+    float g;
     float k0, k1, k2, k3, k4, k5, k6, k7;
 
-    /*
-    float g;
     k0 = ((float)(tspr->x-globalposx))*f*(1.f/1024.f);
     k1 = ((float)(tspr->y-globalposy))*f*(1.f/1024.f);
-    f = gcosang2*gshang;
-    g = gsinang2*gshang;
+    f = gcosang2*gshang/gvrcorrection;
+    g = gsinang2*gshang/gvrcorrection;
     k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] * (1.f/16384.f);
     k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] * (1.f/16384.f);
     k2 = k0*(1-k4)+k1*k5;
@@ -1862,36 +1861,7 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float
     k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
     mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
     k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-    mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
-    */
-    
-    k0 = ((float)(tspr->x-globalposx))*f*(1.f/1024.f);
-    k1 = ((float)(tspr->y-globalposy))*f*(1.f/1024.f);
-    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] * (1.f/16384.f);
-    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] * (1.f/16384.f);
-    k2 = k0*(1-k4)+k1*k5;
-    k3 = k1*(1-k4)-k0*k5;
-    k6 = -gsinang; k7 = gcosang;
-    mat[0] = k4*k6 + k5*k7; mat[4] = 0.f; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-    mat[1] = 0.f;           mat[5] = 1.f; mat[ 9] = 0.f;           mat[13] = 0.f;
-    k6 = gcosang2; k7 = gsinang2;
-    mat[2] = k4*k6 + k5*k7; mat[6] = 0.f; mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
-    //Up/down rotation
-    float udmatrix[16] = {
-        1.f, 0.f, 0.f, 0.f,
-        0.f, gchang, -gshang*gvrcorrection, 0.f,
-        0.f, gshang/gvrcorrection, gchang, 0.f,
-        0.f, 0.f, 0.f, 1.f,
-    };
-    // Tilt rotation
-    float tiltmatrix[16] = {
-        gctang, -gstang, 0.f, 0.f,
-        gstang, gctang, 0.f, 0.f,
-        0.f, 0.f, 1.f, 0.f,
-        0.f, 0.f, 0.f, 1.f,
-    };
-    multiplyMatrix4f(mat, udmatrix);
-    multiplyMatrix4f(mat, tiltmatrix);
+    mat[2] = k4*k6 + k5*k7; mat[6] =-gshang*gvrcorrection; mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
 
     mat[12] = (mat[12] + a0->y*mat[0]) + (a0->z*mat[4] + a0->x*mat[ 8]);
     mat[13] = (mat[13] + a0->y*mat[1]) + (a0->z*mat[5] + a0->x*mat[ 9]);
