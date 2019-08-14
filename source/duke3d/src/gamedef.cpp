@@ -259,6 +259,7 @@ static tokenmap_t const vm_keywords[] =
     { "getclosestcol",          CON_GETCLOSESTCOL },
     { "getcurraddress",         CON_GETCURRADDRESS },
     { "getflorzofslope",        CON_GETFLORZOFSLOPE },
+    { "getgamefuncbind",        CON_GETGAMEFUNCBIND },
     { "getincangle",            CON_GETINCANGLE },
     { "getinput",               CON_GETINPUT },
     { "getkeyname",             CON_GETKEYNAME },
@@ -3673,6 +3674,7 @@ DO_DEFSTATE:
         case CON_STOPACTORSOUND:
         case CON_SWAPTRACKSLOT:
         case CON_ZSHOOT:
+        case CON_GETGAMEFUNCBIND:
             C_GetManyVars(2);
             continue;
 

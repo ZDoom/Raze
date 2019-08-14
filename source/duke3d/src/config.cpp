@@ -1129,6 +1129,41 @@ void CONFIG_WriteSetup(uint32_t flags)
     Bfflush(NULL);
 }
 
+char const * CONFIG_GetGameFuncOnKeyboard(int gameFunc)
+{
+    return KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][0]);
+}
+
+char const * CONFIG_GetGameFuncOnMouse(int gameFunc)
+{
+    for (int j = 0; j < 2; ++j)
+        for (int i = 0; i < joystick.numButtons; ++i)
+            if (ud.config.JoystickFunctions[i][j] == gameFunc)
+                return joyGetName(1, i);
+
+    for (int i = 0; i < joystick.numAxes; ++i)
+        for (int j = 0; j < 2; ++j)
+            if (ud.config.JoystickDigitalFunctions[i][j] == gameFunc)
+                return joyGetName(0, i);
+
+    return "";
+}
+
+char const * CONFIG_GetGameFuncOnJoystick(int gameFunc)
+{
+    for (int j = 0; j < 2; ++j)
+        for (int i = 0; i < joystick.numButtons; ++i)
+            if (ud.config.JoystickFunctions[i][j] == gameFunc)
+                return joyGetName(1, i);
+
+    for (int i = 0; i < joystick.numAxes; ++i)
+        for (int j = 0; j < 2; ++j)
+            if (ud.config.JoystickDigitalFunctions[i][j] == gameFunc)
+                return joyGetName(0, i);
+
+    return "";
+}
+
 static const char *CONFIG_GetMapEntryName(char m[], char const * const mapname)
 {
     strcpy(m, mapname);

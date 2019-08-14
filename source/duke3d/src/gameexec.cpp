@@ -3670,6 +3670,59 @@ badindex:
                     dispatch();
                 }
 
+            vInstruction(CON_GETGAMEFUNCBIND):
+                insptr++;
+                {
+                    int const quoteIndex = Gv_GetVar(*insptr++);
+                    int const gameFunc   = Gv_GetVar(*insptr++);
+
+                    VM_ASSERT((unsigned)quoteIndex < MAXQUOTES && apStrings[quoteIndex], "invalid quote %d\n", quoteIndex);
+                    VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
+
+                    static char const s_KeyboardFormat[] = "[%s]";
+                    static char const s_JoystickFormat[] = "(%s)";
+                    static char const s_Unbound[] = "UNBOUND";
+
+                    if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
+                    {
+                        char const * joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
+                        if (joyname != nullptr && joyname[0] != '\0')
+                        {
+                            snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_JoystickFormat, joyname);
+                            dispatch();
+                        }
+
+                        char const * keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
+                        if (keyname != nullptr && keyname[0] != '\0')
+                        {
+                            snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_KeyboardFormat, keyname);
+                            dispatch();
+                        }
+
+                        snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_JoystickFormat, s_Unbound);
+                    }
+                    else
+                    {
+                        char const * keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
+                        if (keyname != nullptr && keyname[0] != '\0')
+                        {
+                            snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_KeyboardFormat, keyname);
+                            dispatch();
+                        }
+
+                        char const * joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
+                        if (joyname != nullptr && joyname[0] != '\0')
+                        {
+                            snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_JoystickFormat, joyname);
+                            dispatch();
+                        }
+
+                        snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_KeyboardFormat, s_Unbound);
+                    }
+
+                    dispatch();
+                }
+
             vInstruction(CON_QSUBSTR):
                 insptr++;
                 {

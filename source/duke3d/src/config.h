@@ -45,4 +45,7 @@ int32_t     CONFIG_AnalogNameToNum(const char *func);
 
 void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 
+const char * CONFIG_GetGameFuncOnKeyboard(int gameFunc);
+const char * CONFIG_GetGameFuncOnJoystick(int gameFunc);
+
 #endif
