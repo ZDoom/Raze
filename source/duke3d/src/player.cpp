@@ -2962,7 +2962,7 @@ void P_GetInput(int const playerNum)
     else
     {
         input.q16avel = fix16_div(fix16_from_int(info.mousex), F16(32));
-        input.q16avel += fix16_from_int(info.dyaw * turnAmount / analogExtent);
+        input.q16avel += fix16_from_int(info.dyaw * (turnAmount << 1) / analogExtent);
     }
 
     if (g_myAimMode)
