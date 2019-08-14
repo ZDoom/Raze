@@ -948,6 +948,9 @@ static MenuEntry_t *MEL_TOUCHSENS [] = {
 };
 #endif
 
+static MenuOption_t MEO_JOYSTICK_ENABLE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.setup.usejoystick );
+static MenuEntry_t ME_JOYSTICK_ENABLE = MAKE_MENUENTRY( "Enable Gamepad:", &MF_Redfont, &MEF_BigOptionsRtSections, &MEO_JOYSTICK_ENABLE, Option );
+
 MAKE_MENU_TOP_ENTRYLINK( "Edit Buttons", MEF_BigOptionsRtSections, JOYSTICK_EDITBUTTONS, MENU_JOYSTICKBTNS );
 MAKE_MENU_TOP_ENTRYLINK( "Edit Axes", MEF_BigOptionsRtSections, JOYSTICK_EDITAXES, MENU_JOYSTICKAXES );
 
@@ -959,6 +962,8 @@ static MenuLink_t MEO_JOYSTICK_DEFAULTS_CLEAR = { MENU_JOYCLEARVERIFY, MA_None, 
 static MenuEntry_t ME_JOYSTICK_DEFAULTS_CLEAR = MAKE_MENUENTRY( "Clear All Settings", &MF_Redfont, &MEF_BigOptionsRtSections, &MEO_JOYSTICK_DEFAULTS_CLEAR, Link );
 
 static MenuEntry_t *MEL_JOYSTICKSETUP[] = {
+    &ME_JOYSTICK_ENABLE,
+    &ME_Space6_Redfont,
     &ME_JOYSTICK_EDITBUTTONS,
     &ME_JOYSTICK_EDITAXES,
     &ME_Space6_Redfont,
@@ -2152,7 +2157,6 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_OPTIONS:
         MenuEntry_DisableOnCondition(&ME_OPTIONS_PLAYERSETUP, ud.recstat == 1);
-        MenuEntry_HideOnCondition(&ME_OPTIONS_JOYSTICKSETUP, !ud.setup.usejoystick || CONTROL_JoyPresent == 0);
         break;
 
     case MENU_COLCORR:
@@ -3362,6 +3366,8 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         ud.config.VoiceToggle = (ud.config.VoiceToggle&~1) | newOption;
     else if (entry == &ME_MOUSESETUP_SMOOTH)
         CONTROL_SmoothMouse = ud.config.SmoothInput;
+    else if (entry == &ME_JOYSTICK_ENABLE)
+        CONTROL_JoystickEnabled = (newOption && CONTROL_JoyPresent);
     else if (entry == &ME_JOYSTICKAXIS_ANALOG)
         CONTROL_MapAnalogAxis(M_JOYSTICKAXES.currentEntry, newOption, controldevice_joystick);
     else if (entry == &ME_NETOPTIONS_EPISODE)
