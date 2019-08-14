@@ -1131,7 +1131,8 @@ void CONFIG_WriteSetup(uint32_t flags)
 
 char const * CONFIG_GetGameFuncOnKeyboard(int gameFunc)
 {
-    return KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][0]);
+    const char * string0 = KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][0]);
+    return string0[0] == '\0' ? KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][1]) : string0;
 }
 
 char const * CONFIG_GetGameFuncOnMouse(int gameFunc)
