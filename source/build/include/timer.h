@@ -5,14 +5,17 @@
 
 #include "compat.h"
 
-int32_t  timerInit(int32_t);
-void     timerUninit(void);
+// for compatibility
+#define timerUninit()
+
+int      timerInit(int const tickspersecond);
 void     timerUpdate(void);
-int32_t  timerGetRate(void);
+int      timerGetRate(void);
 uint64_t timerGetTicksU64(void);
 uint64_t timerGetFreqU64(void);
 double   timerGetHiTicks(void);
 uint32_t timerGetTicks(void);
+
 void (*timerSetCallback(void (*callback)(void)))(void);
 
 #endif // timer_h__
