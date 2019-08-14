@@ -301,6 +301,22 @@ int32_t artReadHeader(buildvfs_kfd const fil, char const * const fn, artheader_t
 {
     int32_t artversion;
     kread(fil, &artversion, 4); artversion = B_LITTLE32(artversion);
+
+    if (artversion == B_LITTLE32(0x4c495542))
+    {
+        kread(fil, &artversion, 4); artversion = B_LITTLE32(artversion);
+        if (artversion == B_LITTLE32(0x54524144))
+        {
+            kread(fil, &artversion, 4); artversion = B_LITTLE32(artversion);
+        }
+        else
+        {
+            initprintf("loadpics: Invalid art file, %s\n", fn);
+            kclose(fil);
+            return 1;
+        }
+    }
+
     if (artversion != 1)
     {
         initprintf("loadpics: Invalid art file version in %s\n", fn);
