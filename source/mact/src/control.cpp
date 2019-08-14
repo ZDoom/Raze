@@ -29,6 +29,8 @@ bool CONTROL_JoystickEnabled = false;
 uint64_t CONTROL_ButtonState     = 0;
 uint64_t CONTROL_ButtonHeldState = 0;
 
+LastSeenInput CONTROL_LastSeenInput;
+
 float          CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 static int32_t CONTROL_NumMouseButtons  = 0;
 static int32_t CONTROL_NumMouseAxes     = 0;
@@ -476,7 +478,7 @@ void CONTROL_ClearAssignments(void)
         i = NORMALAXISSCALE;
 }
 
-static void DoGetDeviceButtons(
+static int DoGetDeviceButtons(
     int32_t buttons, int32_t tm,
     int32_t NumButtons,
     int32_t *DeviceButtonState,
@@ -487,6 +489,7 @@ static void DoGetDeviceButtons(
 )
 {
     int32_t i=NumButtons-1;
+    int retval = 0;
 
     for (; i>=0; i--)
     {
@@ -497,6 +500,8 @@ static void DoGetDeviceButtons(
 
         if (bs)
         {
+            retval = 1;
+
             if (ButtonClicked[i] == FALSE)
             {
                 ButtonClicked[i] = TRUE;
@@ -526,6 +531,8 @@ static void DoGetDeviceButtons(
 
         ButtonClicked[i] = FALSE;
     }
+
+    return retval;
 }
 
 static void CONTROL_GetDeviceButtons(void)
@@ -547,7 +554,7 @@ static void CONTROL_GetDeviceButtons(void)
 
     if (CONTROL_JoystickEnabled)
     {
-        DoGetDeviceButtons(
+        int retval = DoGetDeviceButtons(
             JOYSTICK_GetButtons(), t,
             CONTROL_NumJoyButtons,
             CONTROL_JoyButtonState,
@@ -556,10 +563,12 @@ static void CONTROL_GetDeviceButtons(void)
             CONTROL_JoyButtonClicked,
             CONTROL_JoyButtonClickedCount
         );
+        if (retval)
+            CONTROL_LastSeenInput = LastSeenInput::Joystick;
     }
 }
 
-static void CONTROL_DigitizeAxis(int axis, controldevice device)
+static int CONTROL_DigitizeAxis(int axis, controldevice device)
 {
     controlaxistype *set, *lastset;
 
@@ -575,7 +584,7 @@ static void CONTROL_DigitizeAxis(int axis, controldevice device)
         lastset = CONTROL_LastJoyAxes;
         break;
 
-    default: return;
+    default: return 0;
     }
 
     set[axis].digitalClearedN = lastset[axis].digitalClearedN;
@@ -589,6 +598,8 @@ static void CONTROL_DigitizeAxis(int axis, controldevice device)
             set[axis].digital = 1;
         else
             set[axis].digitalClearedP = 0;
+
+        return 1;
     }
     else if (set[axis].analog < 0)
     {
@@ -598,12 +609,16 @@ static void CONTROL_DigitizeAxis(int axis, controldevice device)
             set[axis].digital = -1;
         else
             set[axis].digitalClearedN = 0;
+
+        return 1;
     }
     else
     {
         set[axis].digitalClearedN = 0;
         set[axis].digitalClearedP = 0;
     }
+
+    return 0;
 }
 
 static void CONTROL_ScaleAxis(int axis, controldevice device)
@@ -697,7 +712,8 @@ static void CONTROL_PollDevices(ControlInfo *info)
         {
             CONTROL_JoyAxes[i].analog = joystick.pAxis[i];
 
-            CONTROL_DigitizeAxis(i, controldevice_joystick);
+            if (CONTROL_DigitizeAxis(i, controldevice_joystick))
+                CONTROL_LastSeenInput = LastSeenInput::Joystick;
             CONTROL_ScaleAxis(i, controldevice_joystick);
             LIMITCONTROL(&CONTROL_JoyAxes[i].analog);
             CONTROL_ApplyAxis(i, info, controldevice_joystick);
@@ -707,9 +723,10 @@ static void CONTROL_PollDevices(ControlInfo *info)
     CONTROL_GetDeviceButtons();
 }
 
-static void CONTROL_HandleAxisFunction(int32_t *p1, controlaxistype *axes, controlaxismaptype *axismap, int numAxes)
+static int CONTROL_HandleAxisFunction(int32_t *p1, controlaxistype *axes, controlaxismaptype *axismap, int numAxes)
 {
     int axis = numAxes - 1;
+    int retval = 0;
 
     do
     {
@@ -719,9 +736,14 @@ static void CONTROL_HandleAxisFunction(int32_t *p1, controlaxistype *axes, contr
         int const j = (axes[axis].digital < 0) ? axismap[axis].minmap : axismap[axis].maxmap;
 
         if (j != AXISUNDEFINED)
+        {
             p1[j] = 1;
+            retval = 1;
+        }
     }
     while (axis--);
+
+    return retval;
 }
 
 static void CONTROL_AxisFunctionState(int32_t *p1)
@@ -730,7 +752,10 @@ static void CONTROL_AxisFunctionState(int32_t *p1)
         CONTROL_HandleAxisFunction(p1, CONTROL_MouseAxes, CONTROL_MouseAxesMap, CONTROL_NumMouseAxes);
 
     if (CONTROL_NumJoyAxes)
-        CONTROL_HandleAxisFunction(p1, CONTROL_JoyAxes, CONTROL_JoyAxesMap, CONTROL_NumJoyAxes);
+    {
+        if (CONTROL_HandleAxisFunction(p1, CONTROL_JoyAxes, CONTROL_JoyAxesMap, CONTROL_NumJoyAxes))
+            CONTROL_LastSeenInput = LastSeenInput::Joystick;
+    }
 }
 
 static void CONTROL_ButtonFunctionState(int32_t *p1)
@@ -768,18 +793,30 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
     if (CONTROL_NumJoyButtons)
     {
         int i=CONTROL_NumJoyButtons-1, j;
+        int retval = 0;
 
         do
         {
             j = CONTROL_JoyButtonMapping[i].doubleclicked;
             if (j != KEYUNDEFINED)
-                p1[j] |= CONTROL_JoyButtonClickedState[i];
+            {
+                auto const state = CONTROL_JoyButtonClickedState[i];
+                p1[j] |= state;
+                retval |= state;
+            }
 
             j = CONTROL_JoyButtonMapping[i].singleclicked;
             if (j != KEYUNDEFINED)
-                p1[j] |= CONTROL_JoyButtonState[i];
+            {
+                auto const state = CONTROL_JoyButtonState[i];
+                p1[j] |= state;
+                retval |= state;
+            }
         }
         while (i--);
+
+        if (retval)
+            CONTROL_LastSeenInput = LastSeenInput::Joystick;
     }
 }
 
@@ -845,10 +882,15 @@ void CONTROL_ProcessBinds(void)
     {
         if (CONTROL_KeyBinds[i].cmdstr)
         {
-            if (KB_KeyPressed(i) && (CONTROL_KeyBinds[i].repeat || (CONTROL_KeyBinds[i].laststate == 0)))
-                OSD_Dispatch(CONTROL_KeyBinds[i].cmdstr);
+            auto const keyPressed = KB_KeyPressed(i);
 
-            CONTROL_KeyBinds[i].laststate = KB_KeyPressed(i);
+            if (keyPressed && (CONTROL_KeyBinds[i].repeat || (CONTROL_KeyBinds[i].laststate == 0)))
+            {
+                CONTROL_LastSeenInput = LastSeenInput::Keyboard;
+                OSD_Dispatch(CONTROL_KeyBinds[i].cmdstr);
+            }
+
+            CONTROL_KeyBinds[i].laststate = keyPressed;
         }
     }
     while (i--);

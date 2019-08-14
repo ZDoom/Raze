@@ -159,6 +159,12 @@ enum GameControllerAxis : int
     GAMECONTROLLER_AXIS_MAX
 };
 
+enum class LastSeenInput : unsigned char
+{
+    Keyboard,
+    Joystick,
+};
+
 //***************************************************************************
 //
 // GLOBALS
@@ -173,6 +179,8 @@ extern bool CONTROL_JoystickEnabled;
 
 extern uint64_t CONTROL_ButtonState;
 extern uint64_t CONTROL_ButtonHeldState;
+
+extern LastSeenInput CONTROL_LastSeenInput;
 
 
 //***************************************************************************
