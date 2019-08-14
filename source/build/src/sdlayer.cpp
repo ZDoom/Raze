@@ -825,6 +825,8 @@ static void LoadSDLControllerDB()
 }
 #endif
 
+static int numjoysticks;
+
 void joyScanDevices()
 {
     inputdevices &= ~4;
@@ -840,7 +842,8 @@ void joyScanDevices()
         joydev = nullptr;
     }
 
-    int numjoysticks = SDL_NumJoysticks();
+    numjoysticks = SDL_NumJoysticks();
+
     if (numjoysticks < 1)
     {
         buildputs("No game controllers found\n");
@@ -925,9 +928,19 @@ void joyScanDevices()
 //
 // initinput() -- init input system
 //
-int32_t initinput(void)
+int32_t initinput(void(*hotplugCallback)(void) /*= NULL*/)
 {
     int32_t i;
+
+#if SDL_MAJOR_VERSION >= 2
+    if (hotplugCallback)
+    {
+        g_controllerHotplugCallback = hotplugCallback;
+        SDL_JoystickEventState(SDL_ENABLE);
+    }
+#else
+    UNREFERENCED_PARAMETER(hotplugCallback);
+#endif
 
 #ifdef _WIN32
     Win_GetOriginalLayoutName();
@@ -974,7 +987,6 @@ int32_t initinput(void)
 #if SDL_MAJOR_VERSION >= 2
         LoadSDLControllerDB();
 #endif
-
         joyScanDevices();
     }
 
@@ -2099,7 +2111,13 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             break;
 # endif
 #endif
-
+#if SDL_MAJOR_VERSION >= 2
+        case SDL_CONTROLLERDEVICEADDED:
+        case SDL_CONTROLLERDEVICEREMOVED:
+            if (g_controllerHotplugCallback && SDL_NumJoysticks() != numjoysticks)
+                g_controllerHotplugCallback();
+            break;
+#endif
         case SDL_JOYAXISMOTION:
 #if SDL_MAJOR_VERSION >= 2
             if (joystick.isGameController)
@@ -2186,6 +2204,9 @@ int32_t handleevents_pollsdl(void)
 {
     int32_t code, rv=0, j;
     SDL_Event ev;
+
+    if (g_controllerHotplugCallback && SDL_NumJoysticks() != numjoysticks)
+        g_controllerHotplugCallback();
 
     while (SDL_PollEvent(&ev))
     {

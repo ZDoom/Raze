@@ -222,8 +222,9 @@ int32_t handleevents_peekkeys(void);
 
 extern void (*keypresscallback)(int32_t,int32_t);
 extern void (*g_mouseCallback)(int32_t,int32_t);
+extern void (*g_controllerHotplugCallback)(void);
 
-int32_t initinput(void);
+int32_t initinput(void(*hotplugCallback)(void) = NULL);
 void uninitinput(void);
 void keySetCallback(void (*callback)(int32_t,int32_t));
 void mouseSetCallback(void (*callback)(int32_t,int32_t));
