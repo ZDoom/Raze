@@ -4603,6 +4603,8 @@ void Menu_Close(uint8_t playerID)
         walock[TILE_SAVESHOT] = 1;
         G_UpdateScreenArea();
         S_PauseSounds(false);
+
+        I_ClearAllInput();
     }
 }
 

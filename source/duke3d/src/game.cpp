@@ -199,7 +199,7 @@ void G_HandleSpecialKeys(void)
     auto &myplayer = *g_player[myconnectindex].ps;
 
     // we need CONTROL_GetInput in order to pick up joystick button presses
-    if (CONTROL_Started && !(myplayer.gm & MODE_GAME))
+    if (CONTROL_Started && (!(myplayer.gm & MODE_GAME) || (myplayer.gm & MODE_MENU)))
     {
         ControlInfo noshareinfo;
         CONTROL_GetInput(&noshareinfo);
