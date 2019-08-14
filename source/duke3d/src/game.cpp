@@ -192,6 +192,7 @@ enum gametokens
     T_NAME,
     T_LOCKED,
     T_HIDDEN,
+    T_USERCONTENT,
 };
 
 void G_HandleSpecialKeys(void)
@@ -5337,6 +5338,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         { "locked",        T_LOCKED },
         { "hidden",        T_HIDDEN },
         { "choice",        T_CHOICE },
+        { "usercontent",   T_USERCONTENT },
     };
     static const tokenlist newGameSubchoiceTokens[] =
     {
@@ -5694,6 +5696,11 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                                 case T_HIDDEN:
                                 {
                                     entry.flags |= MGE_Hidden;
+                                    break;
+                                }
+                                case T_USERCONTENT:
+                                {
+                                    entry.flags |= MGE_UserContent;
                                     break;
                                 }
                             }

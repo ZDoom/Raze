@@ -1788,7 +1788,9 @@ void Menu_Init(void)
                 ++s;
             }
 
-            if (s == 0)
+            if (entry.flags & MGE_UserContent)
+                e_meo.linkID = MENU_USERMAP;
+            else if (s == 0)
                 e_meo.linkID = MENU_SKILL;
 
             ++e;

@@ -504,6 +504,7 @@ enum MenuGameplayEntryFlags
 {
     MGE_Locked = 1u<<0u,
     MGE_Hidden = 1u<<1u,
+    MGE_UserContent = 1u<<2u,
 };
 
 typedef struct MenuGameplayEntry
