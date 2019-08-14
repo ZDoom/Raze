@@ -63,7 +63,7 @@ int32_t I_AdvanceTrigger(void)
 #if !defined EDUKE32_TOUCH_DEVICES
         || MOUSEINACTIVECONDITIONAL(MOUSE_GetButtons()&LEFT_MOUSE)
 #endif
-        || (JOYSTICK_GetGameControllerButtons()&(1<<SDL_CONTROLLER_BUTTON_A))
+        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_A))
 #if defined(GEKKO)
         || MOUSEINACTIVECONDITIONAL(JOYSTICK_GetButtons()&WII_A)
 #endif
@@ -77,7 +77,7 @@ void I_AdvanceTriggerClear(void)
     KB_ClearKeyDown(sc_kpad_Enter);
     KB_ClearKeyDown(sc_Enter);
     MOUSE_ClearButton(LEFT_MOUSE);
-    JOYSTICK_ClearGameControllerButton(1<<SDL_CONTROLLER_BUTTON_A);
+    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_A);
 #if defined(GEKKO)
     JOYSTICK_ClearButton(WII_A);
 #endif
@@ -88,7 +88,7 @@ int32_t I_ReturnTrigger(void)
     return
         KB_KeyPressed(sc_Escape)
         || (MOUSE_GetButtons()&RIGHT_MOUSE)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<SDL_CONTROLLER_BUTTON_B))
+        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_B))
 #if defined(GEKKO)
         || (JOYSTICK_GetButtons()&(WII_B|WII_HOME))
 #endif
@@ -100,7 +100,7 @@ void I_ReturnTriggerClear(void)
     KB_FlushKeyboardQueue();
     KB_ClearKeyDown(sc_Escape);
     MOUSE_ClearButton(RIGHT_MOUSE);
-    JOYSTICK_ClearGameControllerButton(1<<SDL_CONTROLLER_BUTTON_B);
+    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_B);
 #if defined(GEKKO)
     JOYSTICK_ClearButton(WII_B);
     JOYSTICK_ClearButton(WII_HOME);
