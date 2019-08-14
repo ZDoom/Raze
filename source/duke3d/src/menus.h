@@ -421,6 +421,7 @@ typedef struct MenuFileSelect_t
     MenuFont_t *font[2];
 
     // traits
+    const char * startdir;
     const char *pattern;
     char *destination;
 
