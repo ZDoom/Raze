@@ -378,7 +378,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
     //Draw sprites
     k = g_player[screenpeek].ps->i;
-    for (i=numsectors-1; i>=0; i--)
+    if (!FURY) for (i=numsectors-1; i>=0; i--)
     {
         if (!(show2dsector[i>>3]&pow2char[i&7])) continue;
         for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
