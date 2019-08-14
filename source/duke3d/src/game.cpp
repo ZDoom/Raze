@@ -1461,9 +1461,9 @@ int A_Spawn(int spriteNum, int tileNum)
         else
             s.owner = a.owner = newSprite;
 
-        A_GetZLimits(newSprite);
-
-        a.stayput = a.extra = -1;
+        a.floorz   = sector[s.sectnum].floorz;
+        a.ceilingz = sector[s.sectnum].ceilingz;
+        a.stayput  = a.extra = -1;
 
 #ifdef POLYMER
         a.lightId = -1;
@@ -1515,6 +1515,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
         if (!G_InitActor(newSprite, s.picnum, 0))
             T2(newSprite) = T5(newSprite) = 0;  // AC_MOVE_ID, AC_ACTION_ID
+        else A_GetZLimits(newSprite);
     }
 
     pSprite = &sprite[newSprite];
