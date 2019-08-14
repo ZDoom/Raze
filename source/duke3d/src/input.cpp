@@ -377,8 +377,11 @@ int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
         }
     }
 
-    // All gamefuncs (and *only* _gamefuncs_) in I_ReturnTriggerClear() should be replicated here.
-    CONTROL_ClearButton(gamefunc_Crouch);
+    if (I_AdvanceTrigger())
+    {
+        I_AdvanceTriggerClear();
+        return 1;
+    }
     if (I_ReturnTrigger())
     {
         I_ReturnTriggerClear();
