@@ -5060,6 +5060,12 @@ FAKE_F3:
         P_DoQuote(QUOTE_RUN_MODE_OFF + ud.auto_run, &myplayer);
     }
 
+    if (BUTTON(gamefunc_Crouch_Toggle))
+    {
+        CONTROL_ClearButton(gamefunc_Crouch_Toggle);
+        myplayer.crouch_toggle = !myplayer.crouch_toggle;
+    }
+
     if (BUTTON(gamefunc_Map))
     {
         CONTROL_ClearButton(gamefunc_Map);
@@ -7392,4 +7398,5 @@ static void G_SetupGameButtons(void)
     CONTROL_DefineFlag(gamefunc_Quick_Load, FALSE);
     CONTROL_DefineFlag(gamefunc_Alt_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Third_Person_View, FALSE);
+    CONTROL_DefineFlag(gamefunc_Crouch_Toggle, FALSE);
 }

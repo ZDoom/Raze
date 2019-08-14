@@ -3051,7 +3051,7 @@ void P_GetInput(int const playerNum)
 
     localInput.bits |= (BUTTON(gamefunc_Open) << SK_OPEN);
 
-    localInput.bits |= (BUTTON(gamefunc_Jump) << SK_JUMP) | (BUTTON(gamefunc_Crouch) << SK_CROUCH);
+    localInput.bits |= (BUTTON(gamefunc_Jump) << SK_JUMP) | ((BUTTON(gamefunc_Crouch)|pPlayer->crouch_toggle) << SK_CROUCH);
 
     localInput.bits |= (BUTTON(gamefunc_Aim_Up) || (BUTTON(gamefunc_Dpad_Aiming) && input.fvel > 0)) << SK_AIM_UP;
     localInput.bits |= (BUTTON(gamefunc_Aim_Down) || (BUTTON(gamefunc_Dpad_Aiming) && input.fvel < 0)) << SK_AIM_DOWN;

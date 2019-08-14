@@ -544,6 +544,7 @@ const memberlabel_t PlayerLabels[]=
     { "deaths",                PLAYER_DEATHS,                0, 0, -1 },
     { "last_used_weapon",      PLAYER_LAST_USED_WEAPON,      0, 0, -1 },
     { "bsubweapon",            PLAYER_BSUBWEAPON,            LABEL_HASPARM2, MAX_WEAPONS, -1 },
+    { "crouch_toggle",         PLAYER_CROUCH_TOGGLE,         0, 0, -1 },
 };
 
 int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const lParm2)
@@ -592,6 +593,7 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
         case PLAYER_CHEAT_PHASE:        labelNum = ps.cheat_phase;        break;
         case PLAYER_CLIPDIST:           labelNum = ps.clipdist;           break;
         case PLAYER_CRACK_TIME:         labelNum = ps.crack_time;         break;
+        case PLAYER_CROUCH_TOGGLE:      labelNum = ps.crouch_toggle;      break;
         case PLAYER_CURR_WEAPON:        labelNum = ps.curr_weapon;        break;
         case PLAYER_CURSECTNUM:         labelNum = ps.cursectnum;         break;
         case PLAYER_CUSTOMEXITSOUND:    labelNum = ps.customexitsound;    break;
@@ -785,6 +787,7 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
         case PLAYER_CHEAT_PHASE:        ps.cheat_phase        = newValue; break;
         case PLAYER_CLIPDIST:           ps.clipdist           = newValue; break;
         case PLAYER_CRACK_TIME:         ps.crack_time         = newValue; break;
+        case PLAYER_CROUCH_TOGGLE:      ps.crouch_toggle      = newValue; break;
         case PLAYER_CURR_WEAPON:        ps.curr_weapon        = newValue; break;
         case PLAYER_CURSECTNUM:         ps.cursectnum         = newValue; break;
         case PLAYER_CUSTOMEXITSOUND:    ps.customexitsound    = newValue; break;

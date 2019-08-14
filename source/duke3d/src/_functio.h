@@ -116,6 +116,7 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Quick_Load",
    "Alt_Weapon",
    "Third_Person_View",
+   "Crouch_Toggle",
    };
 
 #ifdef __SETUP__
@@ -184,6 +185,7 @@ const char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "F9", "",
    "", "",
    "F7", "",
+   "", "",
    };
 
 const char oldkeydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
@@ -250,6 +252,7 @@ const char oldkeydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "F9", "",
    "", "",
    "F7", "",
+   "", "",
    };
 
 static const char * mousedefaults[MAXMOUSEBUTTONS] =
