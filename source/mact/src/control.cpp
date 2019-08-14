@@ -43,11 +43,13 @@ static controlaxismaptype CONTROL_MouseAxesMap[MAXMOUSEAXES];  // maps physical 
 static controlaxistype    CONTROL_MouseAxes[MAXMOUSEAXES];     // physical axes
 static controlaxistype    CONTROL_LastMouseAxes[MAXMOUSEAXES];
 static int32_t            CONTROL_MouseAxesScale[MAXMOUSEAXES];
+static int8_t             CONTROL_MouseAxesInvert[MAXMOUSEAXES];
 
 static controlaxismaptype CONTROL_JoyAxesMap[MAXJOYAXES];
 static controlaxistype    CONTROL_JoyAxes[MAXJOYAXES];
 static controlaxistype    CONTROL_LastJoyAxes[MAXJOYAXES];
 static int32_t            CONTROL_JoyAxesScale[MAXJOYAXES];
+static int8_t             CONTROL_JoyAxesInvert[MAXJOYAXES];
 
 static controlbuttontype CONTROL_MouseButtonMapping[MAXMOUSEBUTTONS];
 
@@ -367,6 +369,42 @@ void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldev
     set[whichaxis] = axisscale;
 }
 
+void CONTROL_SetAnalogAxisInvert(int32_t whichaxis, int32_t invert, controldevice device)
+{
+    int8_t * set;
+
+    switch (device)
+    {
+    case controldevice_mouse:
+        if ((unsigned) whichaxis >= (unsigned) MAXMOUSEAXES)
+        {
+            //Error("CONTROL_SetAnalogAxisInvert: axis %d out of valid range for %d mouse axes.",
+            //		whichaxis, MAXMOUSEAXES);
+            return;
+        }
+
+        set = CONTROL_MouseAxesInvert;
+        break;
+
+    case controldevice_joystick:
+        if ((unsigned) whichaxis >= (unsigned) MAXJOYAXES)
+        {
+            //Error("CONTROL_SetAnalogAxisInvert: axis %d out of valid range for %d joystick axes.",
+            //		whichaxis, MAXJOYAXES);
+            return;
+        }
+
+        set = CONTROL_JoyAxesInvert;
+        break;
+
+    default:
+        //Error("CONTROL_SetAnalogAxisInvert: invalid controller device type");
+        return;
+    }
+
+    set[whichaxis] = invert;
+}
+
 void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t direction, controldevice device)
 {
     controlaxismaptype *set;
@@ -420,12 +458,14 @@ void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t di
 void CONTROL_ClearAssignments(void)
 {
     memset(CONTROL_JoyAxes,             0,               sizeof(CONTROL_JoyAxes));
+    memset(CONTROL_JoyAxesInvert,       0,               sizeof(CONTROL_JoyAxesInvert));
     memset(CONTROL_JoyAxesMap,          AXISUNDEFINED,   sizeof(CONTROL_JoyAxesMap));
     memset(CONTROL_JoyButtonMapping,    BUTTONUNDEFINED, sizeof(CONTROL_JoyButtonMapping));
 //    memset(CONTROL_KeyMapping,          KEYUNDEFINED,    sizeof(CONTROL_KeyMapping));
     memset(CONTROL_LastJoyAxes,         0,               sizeof(CONTROL_LastJoyAxes));
     memset(CONTROL_LastMouseAxes,       0,               sizeof(CONTROL_LastMouseAxes));
     memset(CONTROL_MouseAxes,           0,               sizeof(CONTROL_MouseAxes));
+    memset(CONTROL_MouseAxesInvert,     0,               sizeof(CONTROL_MouseAxesInvert));
     memset(CONTROL_MouseAxesMap,        AXISUNDEFINED,   sizeof(CONTROL_MouseAxesMap));
     memset(CONTROL_MouseButtonMapping,  BUTTONUNDEFINED, sizeof(CONTROL_MouseButtonMapping));
 
@@ -570,23 +610,27 @@ static void CONTROL_ScaleAxis(int axis, controldevice device)
 {
     controlaxistype *set;
     int32_t *scale;
+    int8_t * invert;
 
     switch (device)
     {
     case controldevice_mouse:
         set = CONTROL_MouseAxes;
         scale = CONTROL_MouseAxesScale;
+        invert = CONTROL_MouseAxesInvert;
         break;
 
     case controldevice_joystick:
         set = CONTROL_JoyAxes;
         scale = CONTROL_JoyAxesScale;
+        invert = CONTROL_JoyAxesInvert;
         break;
 
     default: return;
     }
 
-    set[axis].analog = mulscale16(set[axis].analog, scale[axis]);
+    int const invertResult = !!invert[axis];
+    set[axis].analog = (mulscale16(set[axis].analog, scale[axis]) ^ -invertResult) + invertResult;
 }
 
 static void CONTROL_ApplyAxis(int axis, ControlInfo *info, controldevice device)

@@ -106,6 +106,11 @@ static void CONFIG_SetJoystickAnalogAxisScale(int i, int scale)
     ud.config.JoystickAnalogueScale[i] = scale;
     CONTROL_SetAnalogAxisScale(i, scale, controldevice_joystick);
 }
+static void CONFIG_SetJoystickAnalogAxisInvert(int i, int invert)
+{
+    ud.config.JoystickAnalogueInvert[i] = invert;
+    CONTROL_SetAnalogAxisInvert(i, invert, controldevice_joystick);
+}
 static void CONFIG_SetJoystickAnalogAxisDeadSaturate(int i, int dead, int saturate)
 {
     ud.config.JoystickAnalogueDead[i] = dead;
@@ -380,9 +385,11 @@ void CONFIG_SetDefaults(void)
     for (int i=0; i<MAXJOYAXES; i++)
     {
         ud.config.JoystickAnalogueScale[i] = DEFAULTJOYSTICKANALOGUESCALE;
+        ud.config.JoystickAnalogueInvert[i] = 0;
         ud.config.JoystickAnalogueDead[i] = DEFAULTJOYSTICKANALOGUEDEAD;
         ud.config.JoystickAnalogueSaturate[i] = DEFAULTJOYSTICKANALOGUESATURATE;
         CONTROL_SetAnalogAxisScale(i, ud.config.JoystickAnalogueScale[i], controldevice_joystick);
+        CONTROL_SetAnalogAxisInvert(i, 0, controldevice_joystick);
 
         ud.config.JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdigitaldefaults[i*2]);
         ud.config.JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(joystickdigitaldefaults[i*2+1]);
@@ -551,6 +558,11 @@ void CONFIG_SetupJoystick(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
         ud.config.JoystickAnalogueScale[i] = scale;
 
+        Bsprintf(str,"ControllerAnalogInvert%d",i);
+        scale = ud.config.JoystickAnalogueInvert[i];
+        SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
+        ud.config.JoystickAnalogueInvert[i] = scale;
+
         Bsprintf(str,"ControllerAnalogDead%d",i);
         scale = ud.config.JoystickAnalogueDead[i];
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
@@ -573,6 +585,7 @@ void CONFIG_SetupJoystick(void)
         CONTROL_MapDigitalAxis(i, ud.config.JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
         CONTROL_MapDigitalAxis(i, ud.config.JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
         CONTROL_SetAnalogAxisScale(i, ud.config.JoystickAnalogueScale[i], controldevice_joystick);
+        CONTROL_SetAnalogAxisInvert(i, ud.config.JoystickAnalogueInvert[i], controldevice_joystick);
     }
 }
 
@@ -753,6 +766,7 @@ void CONFIG_SetGameControllerDefaultsClear()
     for (int i=0; i<MAXJOYAXES; i++)
     {
         CONFIG_SetJoystickAnalogAxisScale(i, DEFAULTJOYSTICKANALOGUESCALE);
+        CONFIG_SetJoystickAnalogAxisInvert(i, 0);
         CONFIG_SetJoystickAnalogAxisDeadSaturate(i, DEFAULTJOYSTICKANALOGUEDEAD, DEFAULTJOYSTICKANALOGUESATURATE);
 
         CONFIG_SetJoystickDigitalAxisFunction(i, 0, -1);
@@ -1081,6 +1095,9 @@ void CONFIG_WriteSetup(uint32_t flags)
 
             Bsprintf(buf, "ControllerAnalogScale%d", dummy);
             SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueScale[dummy], FALSE, FALSE);
+
+            Bsprintf(buf, "ControllerAnalogInvert%d", dummy);
+            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueInvert[dummy], FALSE, FALSE);
 
             Bsprintf(buf, "ControllerAnalogDead%d", dummy);
             SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueDead[dummy], FALSE, FALSE);

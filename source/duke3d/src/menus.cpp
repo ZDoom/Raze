@@ -1023,6 +1023,8 @@ static MenuOption_t MEO_JOYSTICKAXIS_ANALOG = MAKE_MENUOPTION( &MF_Bluefont, &ME
 static MenuEntry_t ME_JOYSTICKAXIS_ANALOG = MAKE_MENUENTRY( "Analog", &MF_Redfont, &MEF_BigSliders, &MEO_JOYSTICKAXIS_ANALOG, Option );
 static MenuRangeInt32_t MEO_JOYSTICKAXIS_SCALE = MAKE_MENURANGE( NULL, &MF_Bluefont, -262144, 262144, 65536, 161, 3 );
 static MenuEntry_t ME_JOYSTICKAXIS_SCALE = MAKE_MENUENTRY( "Scale", &MF_Redfont, &MEF_BigSliders, &MEO_JOYSTICKAXIS_SCALE, RangeInt32 );
+static MenuOption_t MEO_JOYSTICKAXIS_INVERT = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, NULL );
+static MenuEntry_t ME_JOYSTICKAXIS_INVERT = MAKE_MENUENTRY( "Invert", &MF_Redfont, &MEF_BigSliders, &MEO_JOYSTICKAXIS_INVERT, Option );
 static MenuRangeInt32_t MEO_JOYSTICKAXIS_DEAD = MAKE_MENURANGE( NULL, &MF_Bluefont, 0, 10000, 0, 101, 2 );
 static MenuEntry_t ME_JOYSTICKAXIS_DEAD = MAKE_MENUENTRY( "Dead Zone", &MF_Redfont, &MEF_BigSliders, &MEO_JOYSTICKAXIS_DEAD, RangeInt32 );
 static MenuRangeInt32_t MEO_JOYSTICKAXIS_SATU = MAKE_MENURANGE( NULL, &MF_Bluefont, 0, 10000, 0, 101, 2 );
@@ -1036,6 +1038,7 @@ static MenuEntry_t ME_JOYSTICKAXIS_DIGITALPOSITIVE = MAKE_MENUENTRY( "Digital +"
 static MenuEntry_t *MEL_JOYSTICKAXIS[] = {
     &ME_JOYSTICKAXIS_ANALOG,
     &ME_JOYSTICKAXIS_SCALE,
+    &ME_JOYSTICKAXIS_INVERT,
     &ME_JOYSTICKAXIS_DEAD,
     &ME_JOYSTICKAXIS_SATU,
     &ME_Space8_Redfont,
@@ -3223,6 +3226,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         M_JOYSTICKAXIS.title = joyGetName(0, M_JOYSTICKAXES.currentEntry);
         MEO_JOYSTICKAXIS_ANALOG.data = &ud.config.JoystickAnalogueAxes[M_JOYSTICKAXES.currentEntry];
         MEO_JOYSTICKAXIS_SCALE.variable = &ud.config.JoystickAnalogueScale[M_JOYSTICKAXES.currentEntry];
+        MEO_JOYSTICKAXIS_INVERT.data = &ud.config.JoystickAnalogueInvert[M_JOYSTICKAXES.currentEntry];
         MEO_JOYSTICKAXIS_DEAD.variable = &ud.config.JoystickAnalogueDead[M_JOYSTICKAXES.currentEntry];
         MEO_JOYSTICKAXIS_SATU.variable = &ud.config.JoystickAnalogueSaturate[M_JOYSTICKAXES.currentEntry];
         MEO_JOYSTICKAXIS_DIGITALNEGATIVE.data = &ud.config.JoystickDigitalFunctions[M_JOYSTICKAXES.currentEntry][0];
@@ -3387,6 +3391,8 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     }
     else if (entry == &ME_JOYSTICKAXIS_ANALOG)
         CONTROL_MapAnalogAxis(M_JOYSTICKAXES.currentEntry, newOption, controldevice_joystick);
+    else if (entry == &ME_JOYSTICKAXIS_INVERT)
+        CONTROL_SetAnalogAxisInvert(M_JOYSTICKAXES.currentEntry, newOption, controldevice_joystick);
     else if (entry == &ME_NETOPTIONS_EPISODE)
     {
         if (newOption < g_volumeCnt)

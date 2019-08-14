@@ -171,8 +171,8 @@ typedef struct
 typedef struct
 {
     int32_t analog;
-    int32_t digital;
-    int16_t digitalClearedN, digitalClearedP;
+    int8_t digital;
+    int8_t digitalClearedN, digitalClearedP;
 } controlaxistype;
 
 

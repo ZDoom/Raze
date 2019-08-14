@@ -197,6 +197,7 @@ void CONTROL_Shutdown( void );
 void CONTROL_MapAnalogAxis(int whichaxis, int whichanalog, controldevice device);
 void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t direction, controldevice device);
 void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldevice device);
+void CONTROL_SetAnalogAxisInvert(int32_t whichaxis, int32_t invert, controldevice device);
 
 void CONTROL_ScanForControllers(void);
 
