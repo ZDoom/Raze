@@ -6248,7 +6248,7 @@ static int G_EndOfLevel(void)
         // Clear potentially loaded per-map ART only after the bonus screens.
         artClearMapArt();
 
-        if (ud.eog)
+        if (ud.eog || G_HaveUserMap())
         {
             ud.eog = 0;
             if ((!g_netServer && ud.multimode < 2))
