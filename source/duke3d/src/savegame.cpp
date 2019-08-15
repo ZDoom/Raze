@@ -2454,10 +2454,10 @@ static void postloadplayer(int32_t savegamep)
         S_ClearSoundLocks();
         G_CacheMapData();
 
-        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 && ud.music_level == 7 && ud.music_episode == 0)
+        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 && ud.music_level == USERMAPMUSICFAKELEVEL && ud.music_episode == USERMAPMUSICFAKEVOLUME)
         {
             char levname[BMAX_PATH];
-            G_SetupFilenameBasedMusic(levname, boardfilename, ud.level_number);
+            G_SetupFilenameBasedMusic(levname, boardfilename);
         }
 
         if (g_mapInfo[musicIdx].musicfn != NULL && (musicIdx != g_musicIndex || different_user_map))

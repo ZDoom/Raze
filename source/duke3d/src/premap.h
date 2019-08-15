@@ -30,7 +30,7 @@ extern "C" {
 extern int32_t g_levelTextTime;
 extern int32_t voting,vote_map,vote_episode;
 extern palette_t CrosshairColors;
-void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum);
+void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName);
 int G_EnterLevel(int gameMode);
 int G_FindLevelByFile(const char *fileName);
 void G_CacheMapData(void);

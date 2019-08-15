@@ -3817,6 +3817,12 @@ badindex:
                                 case STR_MAPNAME:
                                 case STR_MAPFILENAME:
                                 {
+                                    if (G_HaveUserMap())
+                                    {
+                                        snprintf(apStrings[q], MAXQUOTELEN, "%s", boardfilename);
+                                        break;
+                                    }
+
                                     int const levelNum = ud.volume_number * MAXLEVELS + ud.level_number;
                                     const char *pName;
 
@@ -3848,6 +3854,12 @@ badindex:
                                     break;
                                 case STR_GAMETYPE: Bstrcpy(apStrings[q], g_gametypeNames[ud.coop]); break;
                                 case STR_VOLUMENAME:
+                                    if (G_HaveUserMap())
+                                    {
+                                        apStrings[q][0] = '\0';
+                                        break;
+                                    }
+
                                     if (EDUKE32_PREDICT_FALSE((unsigned)ud.volume_number >= MAXVOLUMES))
                                     {
                                         CON_ERRPRINTF("invalid volume %d\n", ud.volume_number);
@@ -3859,7 +3871,7 @@ badindex:
                                 case STR_PARTIME:         Bstrcpy(apStrings[q], G_PrintParTime());      break;
                                 case STR_DESIGNERTIME:    Bstrcpy(apStrings[q], G_PrintDesignerTime()); break;
                                 case STR_BESTTIME:        Bstrcpy(apStrings[q], G_PrintBestTime());     break;
-                                case STR_USERMAPFILENAME: Bstrcpy(apStrings[q], boardfilename);         break;
+                                case STR_USERMAPFILENAME: snprintf(apStrings[q], MAXQUOTELEN, "%s", boardfilename); break;
                                 default: CON_ERRPRINTF("invalid string index %d or %d\n", q, j); abort_after_error();
                             }
                             break;
