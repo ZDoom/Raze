@@ -1586,7 +1586,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
     SDL_DisplayMode desktopmode;
     SDL_GetDesktopDisplayMode(0, &desktopmode);
 
-    int const windowedMode = (desktopmode.w == x && desktopmode.h == y) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
+    int const windowedMode = (desktopmode.w == x && desktopmode.h == y) ? SDL_WINDOW_BORDERLESS : 0;
 
 #ifdef USE_OPENGL
     if (c > 8 || !nogl)
@@ -1649,7 +1649,8 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 return -1;
             }
 
-            SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : windowedMode));
+            // this is using the windowedMode variable to determine whether to pass SDL_WINDOW_FULLSCREEN or SDL_WINDOW_FULLSCREEN_DESKTOP
+            SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? windowedMode ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN : windowedMode));
             SDL_GL_SetSwapInterval(vsync_renderlayer);
 
             setrefreshrate();
