@@ -2292,14 +2292,14 @@ static void Menu_PreDrawBackground(MenuID_t cm, const vec2_t origin)
 }
 
 
-static void Menu_DrawVerifyPrompt(int32_t x, int32_t y, const char * text)
+static void Menu_DrawVerifyPrompt(int32_t x, int32_t y, const char * text, int numlines = 1)
 {
     mgametextcenter(x, y + (90<<16), text);
 #ifndef EDUKE32_ANDROID_MENU
     char const * inputs = CONTROL_LastSeenInput == LastSeenInput::Joystick
         ? "Press (A) to accept, (B) to return."
         : "(Y/N)";
-    mgametextcenter(x, y + (90<<16) + MF_Bluefont.get_yline(), inputs);
+    mgametextcenter(x, y + (90<<16) + MF_Bluefont.get_yline() * numlines, inputs);
 #endif
 }
 
@@ -2387,7 +2387,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_RESETPLAYER:
         videoFadeToBlack(1);
         Bsprintf(tempbuf, "Load last game:\n\"%s\"", g_quickload->name);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf);
+        Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
         break;
 
     case MENU_LOAD:
@@ -2529,7 +2529,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         if (g_oldSaveCnt)
         {
             Bsprintf(tempbuf, "Delete %d obsolete saves?\nThis action cannot be undone.", g_oldSaveCnt);
-            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf);
+            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
         }
         else
             mgametextcenter(origin.x, origin.y + (90<<16), "No obsolete saves found!");
@@ -2543,7 +2543,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         if (msv.isOldVer && msv.brief.isExt)
         {
             Bsprintf(tempbuf, "Resume game from sequence point:\n\"%s\"", msv.brief.name);
-            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf);
+            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
         }
         else if (msv.isOldVer)
         {
@@ -2552,13 +2552,13 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #else
             Bsprintf(tempbuf, "Start new game:\n%s / %s"
             , g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, g_skillNames[ud.player_skill-1]);
-            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf);
+            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
 #endif
         }
         else
         {
             Bsprintf(tempbuf, "Load game:\n\"%s\"", msv.brief.name);
-            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf);
+            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
         }
         break;
     }
@@ -2574,7 +2574,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         videoFadeToBlack(1);
         menusave_t & msv = cm == MENU_LOADDELVERIFY ? g_menusaves[M_LOAD.currentEntry] : g_menusaves[M_SAVE.currentEntry-1];
         Bsprintf(tempbuf, "Delete saved game:\n\"%s\"?", msv.brief.name);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf);
+        Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
         break;
     }
 
