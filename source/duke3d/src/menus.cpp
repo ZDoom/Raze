@@ -1166,11 +1166,13 @@ static MenuEntry_t ME_SOUND = MAKE_MENUENTRY( "Sound:", &MF_Redfont, &MEF_BigOpt
 static MenuOption_t MEO_SOUND_MUSIC = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.config.MusicToggle );
 static MenuEntry_t ME_SOUND_MUSIC = MAKE_MENUENTRY( "Music:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_MUSIC, Option );
 
+static char const s_Volume[] = "Volume:";
+
 static MenuRangeInt32_t MEO_SOUND_VOLUME_FX = MAKE_MENURANGE( &ud.config.FXVolume, &MF_Redfont, 0, 255, 0, 33, 2 );
-static MenuEntry_t ME_SOUND_VOLUME_FX = MAKE_MENUENTRY( "Sound Volume:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_VOLUME_FX, RangeInt32 );
+static MenuEntry_t ME_SOUND_VOLUME_FX = MAKE_MENUENTRY( s_Volume, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SOUND_VOLUME_FX, RangeInt32 );
 
 static MenuRangeInt32_t MEO_SOUND_VOLUME_MUSIC = MAKE_MENURANGE( &ud.config.MusicVolume, &MF_Redfont, 0, 255, 0, 33, 2 );
-static MenuEntry_t ME_SOUND_VOLUME_MUSIC = MAKE_MENUENTRY( "Music Volume:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_VOLUME_MUSIC, RangeInt32 );
+static MenuEntry_t ME_SOUND_VOLUME_MUSIC = MAKE_MENUENTRY( s_Volume, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SOUND_VOLUME_MUSIC, RangeInt32 );
 
 #ifndef EDUKE32_STANDALONE
 static MenuOption_t MEO_SOUND_DUKETALK = MAKE_MENUOPTION(&MF_Redfont, &MEOS_NoYes, NULL);
@@ -1200,8 +1202,8 @@ static MenuEntry_t ME_SOUND_ADVSOUND = MAKE_MENUENTRY( "Advanced", &MF_Redfont, 
 
 static MenuEntry_t *MEL_SOUND[] = {
     &ME_SOUND,
-    &ME_SOUND_MUSIC,
     &ME_SOUND_VOLUME_FX,
+    &ME_SOUND_MUSIC,
     &ME_SOUND_VOLUME_MUSIC,
     &ME_SOUND_DUKETALK,
 #ifndef EDUKE32_SIMPLE_MENU
