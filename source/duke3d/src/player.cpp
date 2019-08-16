@@ -4586,7 +4586,7 @@ static void P_DoJetpack(int const playerNum, int const playerBits, int const pla
 static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ, int const ceilZ)
 {
     auto const pPlayer = g_player[playerNum].ps;
-    auto const   pSprite = &sprite[pPlayer->i];
+    auto const pSprite = &sprite[pPlayer->i];
 
     if (ud.recstat == 1 && (!g_netServer && ud.multimode < 2))
         G_CloseDemoWrite();
@@ -4691,6 +4691,7 @@ void P_ProcessInput(int playerNum)
     {
         if (pSprite->extra > 0 && ud.noclip == 0)
         {
+            OSD_Printf(OSD_ERROR "%s: player killed by cursectnum == -1!\n", EDUKE32_FUNCTION);
             P_QuickKill(pPlayer);
             A_PlaySound(SQUISHED, pPlayer->i);
         }
@@ -5474,6 +5475,7 @@ HORIZONLY:;
 
             if (squishPlayer)
             {
+                OSD_Printf(OSD_ERROR "%s: player killed by pushmove()!\n", EDUKE32_FUNCTION);
                 P_QuickKill(pPlayer);
                 return;
             }

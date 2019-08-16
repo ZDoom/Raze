@@ -1344,11 +1344,19 @@ ACTOR_STATIC void G_MovePlayers(void)
 
                 if (pSprite->extra > 0)
                 {
-                    actor[spriteNum].owner = spriteNum;
+#ifndef EDUKE32_STANDALONE
+                    if (!FURY)
+                    {
+                        actor[spriteNum].owner = spriteNum;
 
-                    if (ud.god == 0)
-                        if (G_CheckForSpaceCeiling(pSprite->sectnum) || G_CheckForSpaceFloor(pSprite->sectnum))
-                            P_QuickKill(pPlayer);
+                        if (ud.god == 0)
+                            if (G_CheckForSpaceCeiling(pSprite->sectnum) || G_CheckForSpaceFloor(pSprite->sectnum))
+                            {
+                                OSD_Printf(OSD_ERROR "%s: player killed by space sector!\n", EDUKE32_FUNCTION);
+                                P_QuickKill(pPlayer);
+                            }
+                    }
+#endif
                 }
                 else
                 {
