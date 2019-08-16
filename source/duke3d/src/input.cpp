@@ -54,12 +54,11 @@ void I_ClearAllInput(void)
 }
 
 
-int32_t I_AdvanceTrigger(void)
+int32_t I_TextSubmit(void)
 {
     return
         KB_KeyPressed(sc_Enter)
         || KB_KeyPressed(sc_kpad_Enter)
-        || KB_KeyPressed(sc_Space)
 #if !defined EDUKE32_TOUCH_DEVICES
         || MOUSEINACTIVECONDITIONAL(MOUSE_GetButtons()&LEFT_MOUSE)
 #endif
@@ -70,10 +69,9 @@ int32_t I_AdvanceTrigger(void)
         ;
 }
 
-void I_AdvanceTriggerClear(void)
+void I_TextSubmitClear(void)
 {
     KB_FlushKeyboardQueue();
-    KB_ClearKeyDown(sc_Space);
     KB_ClearKeyDown(sc_kpad_Enter);
     KB_ClearKeyDown(sc_Enter);
     MOUSE_ClearButton(LEFT_MOUSE);
@@ -81,6 +79,19 @@ void I_AdvanceTriggerClear(void)
 #if defined(GEKKO)
     JOYSTICK_ClearButton(WII_A);
 #endif
+}
+
+int32_t I_AdvanceTrigger(void)
+{
+    return
+        I_TextSubmit()
+        || KB_KeyPressed(sc_Space);
+}
+
+void I_AdvanceTriggerClear(void)
+{
+    I_TextSubmitClear();
+    KB_ClearKeyDown(sc_Space);
 }
 
 int32_t I_ReturnTrigger(void)
@@ -377,9 +388,9 @@ int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
         }
     }
 
-    if (I_AdvanceTrigger())
+    if (I_TextSubmit())
     {
-        I_AdvanceTriggerClear();
+        I_TextSubmitClear();
         return 1;
     }
     if (I_ReturnTrigger())
