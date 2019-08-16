@@ -1018,9 +1018,13 @@ void G_OperateRespawns(int lotag)
         {
             if (!ud.monsters_off || !A_CheckEnemyTile(pSprite->hitag))
             {
-                int const j = A_Spawn(spriteNum, TRANSPORTERSTAR);
-                sprite[j].z -= ZOFFSET5;
-
+#ifndef EDUKE32_STANDALONE
+                if (!FURY)
+                {
+                    int const j = A_Spawn(spriteNum, TRANSPORTERSTAR);
+                    sprite[j].z -= ZOFFSET5;
+                }
+#endif
                 // Just a way to killit (see G_MoveFX(): RESPAWN__STATIC)
                 pSprite->extra = 66-12;
             }

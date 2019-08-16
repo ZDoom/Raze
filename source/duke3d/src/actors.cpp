@@ -2985,7 +2985,8 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
                             int playerNum = P_Get(otherSprite);
 
 #ifndef EDUKE32_STANDALONE
-                            A_PlaySound(PISTOL_BODYHIT, otherSprite);
+                            if (!FURY)
+                                A_PlaySound(PISTOL_BODYHIT, otherSprite);
 #endif
                             if (pProj->workslike & PROJECTILE_SPIT)
                                 P_HandleBeingSpitOn(g_player[playerNum].ps);
@@ -3020,7 +3021,10 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
                         {
                             Proj_BounceOffWall(pSprite, otherSprite);
                             pSprite->owner = spriteNum;
-                            A_Spawn(spriteNum, TRANSPORTERSTAR);
+#ifndef EDUKE32_STANDALONE
+                            if (!FURY)
+                                A_Spawn(spriteNum, TRANSPORTERSTAR);
+#endif
                             return;
                         }
                         else
@@ -3102,6 +3106,9 @@ ACTOR_STATIC void G_MoveWeapons(void)
             Proj_MoveCustom(spriteNum);
             goto next_sprite;
         }
+
+        if (FURY)
+            goto next_sprite;
 
         // hard coded projectiles
         switch (DYNAMICTILEMAP(pSprite->picnum))
