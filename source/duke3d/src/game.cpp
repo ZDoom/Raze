@@ -644,25 +644,22 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             g_visibility = (j>>1) + (j>>2);
 
             //backup original camera position
-            int32_t origCamX = CAMERA(pos.x);
-            int32_t origCamY = CAMERA(pos.y);
-            int32_t origCamZ = CAMERA(pos.z);
-            fix16_t origCamq16ang = CAMERA(q16ang);
+            auto origCam = CAMERA(pos);
+            fix16_t origCamq16ang   = CAMERA(q16ang);
             fix16_t origCamq16horiz = CAMERA(q16horiz);
+
             //set the camera inside the mirror facing out
-            CAMERA(pos.x) = tposx;
-            CAMERA(pos.y) = tposy;
-            CAMERA(pos.z) = z;
-            CAMERA(q16ang) = tang;
+            CAMERA(pos)      = { tposx, tposy, z };
+            CAMERA(q16ang)   = tang;
             CAMERA(q16horiz) = q16horiz;
+
             display_mirror = 1;
             VM_OnEventWithReturn(EVENT_DISPLAYROOMS, g_player[0].ps->i, 0, 0);
             display_mirror = 0;
+
             //reset the camera position
-            CAMERA(pos.x) = origCamX;
-            CAMERA(pos.y) = origCamY;
-            CAMERA(pos.z) = origCamZ;
-            CAMERA(q16ang) = origCamq16ang;
+            CAMERA(pos)      = origCam;
+            CAMERA(q16ang)   = origCamq16ang;
             CAMERA(q16horiz) = origCamq16horiz;
 
             //give scripts the chance to reset gotpics for effects that run in EVENT_DISPLAYROOMS
