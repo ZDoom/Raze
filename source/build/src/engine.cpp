@@ -9276,12 +9276,17 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             //Collect floor sprites to draw
             for (i=headspritesect[s]; i>=0; i=nextspritesect[i])
-                if ((sprite[i].cstat&48) == 32)
+            {
+                if (sprite[i].cstat & 32768)
+                    continue;
+
+                if ((sprite[i].cstat & 48) == 32)
                 {
-                    if ((sprite[i].cstat&(64+8)) == (64+8)) continue;
+                    if ((sprite[i].cstat & (64 + 8)) == (64 + 8))
+                        continue;
                     tsprite[sortnum++].owner = i;
                 }
-
+            }
             gotsector[s>>3] |= pow2char[s&7];
 
             globalorientation = (int32_t)sec->floorstat;
