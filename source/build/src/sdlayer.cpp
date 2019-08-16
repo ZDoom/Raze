@@ -1615,7 +1615,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
               { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
               { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
 #endif
-              { SDL_GL_STENCIL_SIZE, 8 },
+              { SDL_GL_STENCIL_SIZE, 1 },
               { SDL_GL_ACCELERATED_VISUAL, 1 },
           };
 
