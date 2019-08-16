@@ -7739,23 +7739,23 @@ int G_FPSLimit(void)
 	if (!r_maxfps)
 		return 1;
 
-	static double nextPageDelay;
-	static double lastFrameTicks;
+    static double nextPageDelay;
+    static double lastFrameTicks;
 
-	double const frameTicks = timerGetTicksU64();
-	double const elapsedTime = frameTicks - lastFrameTicks;
+    double const frameTicks  = timerGetTicksU64();
+    double const elapsedTime = frameTicks-lastFrameTicks;
 
-	if (elapsedTime >= nextPageDelay)
-	{
-		if (elapsedTime <= nextPageDelay + g_frameDelay)
-			nextPageDelay += g_frameDelay - elapsedTime;
+    if (elapsedTime >= nextPageDelay)
+    {
+        if (elapsedTime <= nextPageDelay+g_frameDelay)
+            nextPageDelay += g_frameDelay-elapsedTime;
 
-		lastFrameTicks = frameTicks;
+        lastFrameTicks = frameTicks;
 
-		return 1;
-	}
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 

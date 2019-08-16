@@ -2921,30 +2921,23 @@ int viewFPSLimit(void)
     if (!r_maxfps)
         return 1;
 
-    static double nextPageDelay = g_frameDelay;
-    uint64_t const delay = llrint(nextPageDelay);
+    static double nextPageDelay;
+    static double lastFrameTicks;
 
-    uint64_t const frameTicks = timerGetTicksU64();
-    uint64_t const frameDelay = (uint64_t)llrint(g_frameDelay);
+    double const frameTicks  = timerGetTicksU64();
+    double const elapsedTime = frameTicks-lastFrameTicks;
 
-    static uint64_t lastFrameTicks = frameTicks - frameDelay;
-    uint64_t elapsedTime = frameTicks-lastFrameTicks;
-
-    int frameWaiting = 0;
-
-    if (elapsedTime >= delay)
+    if (elapsedTime >= nextPageDelay)
     {
-        //If we missed a frame, reset any cumulated remainder from rendering frames early
-        if (elapsedTime > frameDelay)
-            nextPageDelay = g_frameDelay;
-        else
-            nextPageDelay += double(frameDelay-elapsedTime);
+        if (elapsedTime <= nextPageDelay+g_frameDelay)
+            nextPageDelay += g_frameDelay-elapsedTime;
 
         lastFrameTicks = frameTicks;
-        ++frameWaiting;
+
+        return 1;
     }
 
-    return frameWaiting;
+    return 0;
 }
 
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
