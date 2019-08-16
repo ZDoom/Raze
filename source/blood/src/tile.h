@@ -26,21 +26,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 
 enum SurfaceType {
-    kSurf0 = 0,
-    kSurf1,
-    kSurf2,
-    kSurf3,
-    kSurf4,
-    kSurf5,
-    kSurf6,
-    kSurf7,
-    kSurf8,
-    kSurf9,
-    kSurf10,
-    kSurf11,
-    kSurf12,
-    kSurf13,
-    kSurf14,
+    kSurfNone = 0,
+    kSurfStone,
+    kSurfMetal,
+    kSurfWood,
+    kSurfFlesh,
+    kSurfWater,
+    kSurfDirt,
+    kSurfClay,
+    kSurfSnow,
+    kSurfIce,
+    kSurfLeaves,
+    kSurfCloth,
+    kSurfPlant,
+    kSurfGoo,
+    kSurfLava,
     kSurfMax
 };
 

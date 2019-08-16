@@ -3922,7 +3922,7 @@ void actImpactMissile(spritetype *pMissile, int a2)
                     int nDamage = (20+Random(10))<<4;
                     actDamageSprite(nOwner, pSpriteHit, DAMAGE_TYPE_2, nDamage);
                 }
-                if (surfType[pSpriteHit->picnum] == 4)
+                if (surfType[pSpriteHit->picnum] == kSurfFlesh)
                 {
                     pMissile->picnum = 2123;
                     pXMissile->target = nSpriteHit;
@@ -4108,7 +4108,7 @@ void actTouchFloor(spritetype *pSprite, int nSector)
             nDamage = 1000;
         actDamageSprite(pSprite->index, pSprite, nDamageType, scale(4, nDamage, 120) << 4);
     }
-    if (tileGetSurfType(nSector + 0x4000) == 14)
+    if (tileGetSurfType(nSector + 0x4000) == kSurfLava)
     {
         actDamageSprite(pSprite->index, pSprite, DAMAGE_TYPE_1, 16);
         sfxPlay3DSound(pSprite, 352, 5, 2);
@@ -5062,10 +5062,10 @@ void MoveDude(spritetype *pSprite)
                 pSprite->hitag |= 4;
             switch (tileGetSurfType(floorHit))
             {
-            case 5:
+            case kSurfWater:
                 gFX.fxSpawn(FX_9, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
                 break;
-            case 14:
+            case kSurfLava:
             {
                 spritetype *pFX = gFX.fxSpawn(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
                 if (pFX)
@@ -6565,7 +6565,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
     int y = gHitInfo.hity-mulscale(a5, 16, 14);
     int z = gHitInfo.hitz-mulscale(a6, 256, 14);
     short nSector = gHitInfo.hitsect;
-    char nSurf = 0;
+    char nSurf = kSurfNone;
     if (nRange == 0 || approxDist(gHitInfo.hitx-pShooter->x, gHitInfo.hity-pShooter->y) < nRange)
     {
         switch (hit)
@@ -6574,7 +6574,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         {
             int nSector = gHitInfo.hitsect;
             if (sector[nSector].ceilingstat&1)
-                nSurf = 0;
+                nSurf = kSurfNone;
             else
                 nSurf = surfType[sector[nSector].ceilingpicnum];
             break;
@@ -6583,7 +6583,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         {
             int nSector = gHitInfo.hitsect;
             if (sector[nSector].floorstat&1)
-                nSurf = 0;
+                nSurf = kSurfNone;
             else
                 nSurf = surfType[sector[nSector].floorpicnum];
             break;
@@ -6910,7 +6910,7 @@ void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite)
     switch (pSprite->type)
     {
     case 423:
-        if (nSurface == 5)
+        if (nSurface == kSurfWater)
         {
             seqSpawn(6, 3, nXSprite, -1);
             sfxPlay3DSound(pSprite, 356, -1, 0);
