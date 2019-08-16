@@ -185,16 +185,10 @@ void ctrlGetInput(void)
     else if (gMouseAiming)
         gInput.keyFlags.lookCenter = 1;
 
-    int32_t const aimMode = (gMouseAim) ? (int32_t)analog_lookingupanddown : MouseAnalogueAxes[1];
-
-    if (aimMode != mouseyaxismode)
-    {
-        CONTROL_MapAnalogAxis(1, aimMode, controldevice_mouse);
-        mouseyaxismode = aimMode;
-    }
-
     CONTROL_GetInput(&info);
 
+#if 0
+    // these don't seem to have an on switch
 	if (MouseDeadZone)
 	{
 		if (info.mousey > 0)
@@ -215,6 +209,7 @@ void ctrlGetInput(void)
 		else
 			info.mousex = tabledivide32_noinline(info.mousex, MouseBias);
 	}
+#endif
 
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;
@@ -466,10 +461,12 @@ void ctrlGetInput(void)
     else
         gInput.mlook = ClipRange(info.dz>>7, -127, 127);
 #endif
-    gInput.q16mlook = fix16_clamp(fix16_div(fix16_from_int(info.mousey*2), F16(256)), F16(-127)>>2, F16(127)>>2);
+    if (gMouseAim)
+        gInput.q16mlook = fix16_clamp(fix16_div(fix16_from_int(info.mousey), F16(128)), F16(-127)>>2, F16(127)>>2);
+    else
+        forward = ClipRange(forward - info.mousey, -2048, 2048);
     if (!gMouseAimingFlipped)
         gInput.q16mlook = -gInput.q16mlook;
-    forward = ClipRange(forward - info.dz, -2048, 2048);
 
     if (KB_KeyPressed(sc_Pause)) // 0xc5 in disassembly
     {
