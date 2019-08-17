@@ -2918,29 +2918,26 @@ void P_GetInput(int const playerNum)
 
     CONTROL_GetInput(&info);
 
-#if 0
-    // these don't seem to have an on switch
-
     if (ud.config.MouseDeadZone)
     {
-        if (info.dpitch > 0)
-            info.dpitch = max(info.dpitch - ud.config.MouseDeadZone, 0);
-        else if (info.dpitch < 0)
-            info.dpitch = min(info.dpitch + ud.config.MouseDeadZone, 0);
+        if (info.mousey > 0)
+            info.mousey = max(info.mousey - ud.config.MouseDeadZone, 0);
+        else if (info.mousey < 0)
+            info.mousey = min(info.mousey + ud.config.MouseDeadZone, 0);
 
-        if (info.dyaw > 0)
-            info.dyaw = max(info.dyaw - ud.config.MouseDeadZone, 0);
-        else if (info.dyaw < 0)
-            info.dyaw = min(info.dyaw + ud.config.MouseDeadZone, 0);
+        if (info.mousex > 0)
+            info.mousex = max(info.mousex - ud.config.MouseDeadZone, 0);
+        else if (info.mousex < 0)
+            info.mousex = min(info.mousex + ud.config.MouseDeadZone, 0);
     }
 
     if (ud.config.MouseBias)
     {
-        if (klabs(info.dyaw) > klabs(info.dpitch))
-            info.dpitch = tabledivide32_noinline(info.dpitch, ud.config.MouseBias);
-        else info.dyaw = tabledivide32_noinline(info.dyaw, ud.config.MouseBias);
+        if (klabs(info.mousex) > klabs(info.mousey))
+            info.mousey = tabledivide32_noinline(info.mousey, ud.config.MouseBias);
+        else
+            info.mousex = tabledivide32_noinline(info.mousex, ud.config.MouseBias);
     }
-#endif
 
     // JBF: Run key behaviour is selectable
     int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
