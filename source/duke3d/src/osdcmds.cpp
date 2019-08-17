@@ -1655,13 +1655,11 @@ int32_t registerosdcommands(void)
         { "in_mouse","enables input from the mouse if it is present",(void *)&ud.setup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
         { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
-#if 0
         {
             "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
             (void *)&ud.config.MouseBias, CVAR_INT, 0, 32
         },
         { "in_mousedeadzone", "amount of mouse movement to filter out", (void *)&ud.config.MouseDeadZone, CVAR_INT, 0, 512 },
-#endif
         { "in_mouseflip", "invert vertical mouse movement", (void *)&ud.mouseflip, CVAR_BOOL, 0, 1 },
         { "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
