@@ -431,13 +431,13 @@ bool isShrinked(spritetype* pSprite) {
 }
 
 bool shrinkPlayerSize(PLAYER* pPlayer, int divider) {
-    pPlayer->pXSprite->scale = -divider;
+    pPlayer->pXSprite->scale = 256/divider;
     playerSetRace(pPlayer, kModeHumanShrink);
     return true;
 }
 
 bool growPlayerSize(PLAYER* pPlayer, int multiplier) {
-    pPlayer->pXSprite->scale = multiplier;
+    pPlayer->pXSprite->scale = 256*multiplier;
     playerSetRace(pPlayer, kModeHumanGrown);
     return true;
 }
