@@ -3107,9 +3107,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
             goto next_sprite;
         }
 
-        if (FURY)
-            goto next_sprite;
-
         // hard coded projectiles
         switch (DYNAMICTILEMAP(pSprite->picnum))
         {
