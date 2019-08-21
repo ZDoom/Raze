@@ -421,7 +421,7 @@ void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode
 
         int match = 0;
 
-        for (; sctokeylut[match].key; match++)
+        for (; match < ARRAY_SSIZE(sctokeylut); ++match)
         {
             if (keys[k] == sctokeylut[match].sc)
                 break;
