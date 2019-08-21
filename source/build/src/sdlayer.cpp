@@ -2060,13 +2060,14 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                     break;
 #endif
                 /* Thumb buttons. */
-#if SDL_MAJOR_VERSION==1 || !defined _WIN32
+#if SDL_MAJOR_VERSION==1
                 // NOTE: SDL1 does have SDL_BUTTON_X1, but that's not what is
-                // generated. Neither with SDL2 on Linux. (Other OSs: not tested.)
+                // generated. (Only tested on Linux and Windows.)
                 case 8: j = 3; break;
                 case 9: j = 6; break;
 #else
-                // On SDL2/Windows, everything is as it should be.
+                // On SDL2/Windows and SDL >= 2.0.?/Linux, everything is as it should be.
+                // If anyone cares about old versions of SDL2 on Linux, patches welcome.
                 case SDL_BUTTON_X1: j = 3; break;
                 case SDL_BUTTON_X2: j = 6; break;
 #endif
