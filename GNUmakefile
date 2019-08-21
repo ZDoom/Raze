@@ -2,6 +2,18 @@
 # EDuke32 Makefile for GNU Make
 #
 
+### Global Profiles
+ifeq ($(FURY),1)
+    APPNAME := Ion Fury
+    APPBASENAME := fury
+    STANDALONE := 1
+    POLYMER := 0
+    USE_LIBVPX := 0
+    NETCODE := 0
+    SIMPLE_MENU := 1
+endif
+
+### Platform and Toolchain Configuration
 include Common.mak
 
 ### File Extensions
@@ -493,6 +505,13 @@ duke3d_root := $(source)/$(duke3d)
 duke3d_src := $(duke3d_root)/src
 duke3d_rsrc := $(duke3d_root)/rsrc
 duke3d_obj := $(obj)/$(duke3d)
+
+ifeq ($(FURY),1)
+    ifeq ($(PLATFORM),WINDOWS)
+        duke3d_rsrc := $(duke3d_root)/rsrc/fury
+    endif
+    duke3d_obj := $(obj)/fury
+endif
 
 duke3d_cflags := -I$(duke3d_src)
 

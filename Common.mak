@@ -326,8 +326,8 @@ endif
 #  LTO - 1 := enable link-time optimization
 
 # Optional overrides for text
-APPNAME :=
-APPBASENAME :=
+APPNAME ?=
+APPBASENAME ?=
 
 # Build toggles
 RELEASE := 1
@@ -338,18 +338,18 @@ MEMMAP := 0
 CPLUSPLUS := 1
 
 # Feature toggles
-STANDALONE := 0
-NETCODE := 1
-STARTUP_WINDOW := 1
-SIMPLE_MENU := 0
-POLYMER := 1
+STANDALONE ?= 0
+NETCODE ?= 1
+STARTUP_WINDOW ?= 1
+SIMPLE_MENU ?= 0
+POLYMER ?= 1
 USE_OPENGL := 1
 LUNATIC := 0
 USE_LUAJIT_2_1 := 0
 
 # Library toggles
 HAVE_GTK2 := 1
-USE_LIBVPX := 1
+USE_LIBVPX ?= 1
 HAVE_VORBIS := 1
 HAVE_FLAC := 1
 HAVE_XMP := 1
@@ -534,6 +534,7 @@ ifeq ($(PLATFORM),WINDOWS)
         LINKERFLAGS += -Wl,--large-address-aware
     endif
     LINKERFLAGS += -Wl,--enable-auto-import
+    LINKERFLAGS += -Wl,--dynamicbase,--nxcompat,--high-entropy-va
 
     LUAJIT_BCOPTS := -o windows
     ifeq (32,$(BITS))
@@ -807,10 +808,10 @@ CWARNS := -W -Wall \
 ##### Features
 
 ifneq (,$(APPNAME))
-    COMPILERFLAGS += -DAPPNAME=\"$(APPNAME)\"
+    COMPILERFLAGS += "-DAPPNAME=\"$(APPNAME)\""
 endif
 ifneq (,$(APPBASENAME))
-    COMPILERFLAGS += -DAPPBASENAME=\"$(APPBASENAME)\"
+    COMPILERFLAGS += "-DAPPBASENAME=\"$(APPBASENAME)\""
 endif
 
 ifneq (0,$(NOASM))
