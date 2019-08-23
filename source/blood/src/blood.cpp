@@ -1742,6 +1742,7 @@ RESTART:
             {
                 videoClearScreen(0);
                 gGameMenuMgr.Draw();
+                videoNextPage();
             }
         }
         if (gGameOptions.nGameType != 0)

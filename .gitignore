@@ -54,6 +54,10 @@ project.xcworkspace/
 
 .DS_Store
 ._*
+/movie
+/blud*.png
+/*.DEM
+/game*.sav
 
 Platform/Windows/Build
 Platform/Windows/Win32
