@@ -1,0 +1,72 @@
+#define NEED_COMMCTRL_H
+#include "../../build/include/windows_inc.h"
+#include "../../build/include/startwin.editor.h"
+
+RSRC_ICON ICON "build_icon.ico"
+RSRC_BMP BITMAP "build.bmp"
+
+WIN_STARTWIN DIALOGEX DISCARDABLE  20, 40, 260, 200
+STYLE DS_MODALFRAME | DS_CENTER | DS_SETFONT | DS_FIXEDSYS | WS_OVERLAPPED | WS_CAPTION | WS_VISIBLE | WS_SYSMENU
+CAPTION "Startup"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	CONTROL "", WIN_STARTWIN_BITMAP, "STATIC", SS_BITMAP | SS_CENTERIMAGE | WS_CHILD | WS_VISIBLE, 0, 0, 66, 172
+	CONTROL "", WIN_STARTWIN_TABCTL, WC_TABCONTROL, WS_CLIPSIBLINGS | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 5, 5, 250, 170
+	CONTROL "&Start", WIN_STARTWIN_START, "BUTTON", BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 154, 180, 48, 14
+	CONTROL "&Cancel", WIN_STARTWIN_CANCEL, "BUTTON", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 207, 180, 48, 14
+
+	CONTROL "", WIN_STARTWIN_MESSAGES, "EDIT", ES_MULTILINE | ES_READONLY | WS_CHILD | WS_VSCROLL, 0, 0, 32, 32
+END
+
+WIN_STARTWINPAGE_CONFIG DIALOGEX DISCARDABLE  20, 40, 279, 168
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	CONTROL "&2D Video mode:",   -1, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 5, 8, 50, 8
+	CONTROL "",            IDC2DVMODE, "COMBOBOX", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 60, 6, 80, 56
+	CONTROL "&Fullscreen", IDCFULLSCREEN, "BUTTON", BS_CHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 148, 8, 49, 10
+	CONTROL "&3D Video mode:",   -1, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 5, 24, 50, 8
+	CONTROL "",            IDC3DVMODE, "COMBOBOX", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 60, 22, 80, 56
+	CONTROL "&Always show this window at startup", IDCALWAYSSHOW, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 118, 116, 140, 8
+END
+
+#define FILEVER        1,9,9,9
+#define PRODUCTVER     1,9,9,9
+#define STRFILEVER     "2.0.0devel\0"
+#define STRPRODUCTVER  "2.0.0devel\0"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION FILEVER
+ PRODUCTVERSION PRODUCTVER
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x3L
+#else
+ FILEFLAGS 0x2L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "Mapster32 for EDuke32"
+            VALUE "FileVersion", STRFILEVER
+            VALUE "InternalName", "Mapster32"
+            VALUE "LegalCopyright", "Copyright © 2018 EDuke32 Developers, 1996, 2003 3D Realms Entertainment"
+            VALUE "LegalTrademarks", "Duke Nukem® is a Registered Trademark of Gearbox Software, LLC."
+            VALUE "OriginalFilename", "mapster32.exe"
+            VALUE "ProductName", "Mapster32"
+            VALUE "ProductVersion", STRPRODUCTVER
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+1 24 "manifest.build.xml"
