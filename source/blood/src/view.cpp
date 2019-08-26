@@ -2174,7 +2174,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         sectortype *pSector = &sector[pTSprite->sectnum];
         XSECTOR *pXSector;
         int nShade = pTSprite->shade;
-        if (pSector->extra)
+        if (pSector->extra > 0)
         {
             pXSector = &xsector[pSector->extra];
         }

@@ -6059,7 +6059,7 @@ void actProcessSprites(void)
             GibSprite(pSprite, GIBTYPE_17, NULL, NULL);
             actPostSprite(pSprite->index, 1024);
         }
-        if (pTarget->extra && xsprite[pTarget->extra].health > 0)
+        if (pTarget->extra > 0 && xsprite[pTarget->extra].health > 0)
         {
             int x = pTarget->x+mulscale30r(Cos(pXSprite->goalAng+pTarget->ang), pTarget->clipdist*2);
             int y = pTarget->y+mulscale30r(Sin(pXSprite->goalAng+pTarget->ang), pTarget->clipdist*2);
