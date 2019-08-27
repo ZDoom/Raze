@@ -525,8 +525,8 @@ static inline void inplace_vx_tweak_wall(walltypevx *vxwal, int32_t yaxp)
 
 #include "clip.h"
 
-int32_t getwalldist(vec2_t const &in, int const wallnum);
-int32_t getwalldist(vec2_t const &in, int const wallnum, vec2_t * const out);
+int32_t getwalldist(vec2_t const in, int const wallnum);
+int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out);
 
 #ifdef __cplusplus
 extern "C" {
@@ -1190,7 +1190,7 @@ void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, in
 
 int findwallbetweensectors(int sect1, int sect2);
 static FORCE_INLINE bool sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
-int32_t getsectordist(vec2_t const &in, int const sectnum, vec2_t * const out = nullptr);
+int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
 

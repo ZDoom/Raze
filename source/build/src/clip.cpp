@@ -786,10 +786,13 @@ static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32
 }
 
 // Returns: should clip?
-static bool cliptestsector(int const dasect, int const nextsect, int32_t const flordist, int32_t const ceildist, vec2_t const &pos, int32_t const posz)
+static int cliptestsector(int const dasect, int const nextsect, int32_t const flordist, int32_t const ceildist, vec2_t const pos, int32_t const posz)
 {
+    Bassert((unsigned)dasect < numsectors && (unsigned)nextsect < numsectors);
+
     auto const sec2 = (usectorptr_t)&sector[nextsect];
-    int32_t daz2 = sec2->floorz;
+
+    int32_t daz2  = sec2->floorz;
     int32_t dacz2 = sec2->ceilingz;
 
     if ((sec2->floorstat|sec2->ceilingstat) & 2)
@@ -799,7 +802,8 @@ static bool cliptestsector(int const dasect, int const nextsect, int32_t const f
         return 1;
 
     auto const sec = (usectorptr_t)&sector[dasect];
-    int32_t daz = sec->floorz;
+
+    int32_t daz  = sec->floorz;
     int32_t dacz = sec->ceilingz;
 
     if ((sec->floorstat|sec->ceilingstat) & 2)
@@ -838,7 +842,7 @@ int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
 //
 // raytrace (internal)
 //
-static inline int32_t cliptrace(vec2_t const &pos, vec2_t * const goal)
+static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
 {
     int32_t hitwall = -1;
 
@@ -913,36 +917,35 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
     while (1);
 }
 
-static int32_t get_floorspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t x4,
-                                   int32_t y1, int32_t y2, int32_t y3, int32_t y4)
+static int get_floorspr_clipyou(vec2_t const v1, vec2_t const v2, vec2_t const v3, vec2_t const v4)
 {
-    int32_t clipyou = 0;
+    int clipyou = 0;
 
-    if ((y1^y2) < 0)
+    if ((v1.y^v2.y) < 0)
     {
-        if ((x1^x2) < 0) clipyou ^= (x1*y2 < x2*y1)^(y1<y2);
-        else if (x1 >= 0) clipyou ^= 1;
+        if ((v1.x^v2.x) < 0) clipyou ^= (v1.x*v2.y < v2.x*v1.y)^(v1.y<v2.y);
+        else if (v1.x >= 0) clipyou ^= 1;
     }
-    if ((y2^y3) < 0)
+    if ((v2.y^v3.y) < 0)
     {
-        if ((x2^x3) < 0) clipyou ^= (x2*y3 < x3*y2)^(y2<y3);
-        else if (x2 >= 0) clipyou ^= 1;
+        if ((v2.x^v3.x) < 0) clipyou ^= (v2.x*v3.y < v3.x*v2.y)^(v2.y<v3.y);
+        else if (v2.x >= 0) clipyou ^= 1;
     }
-    if ((y3^y4) < 0)
+    if ((v3.y^v4.y) < 0)
     {
-        if ((x3^x4) < 0) clipyou ^= (x3*y4 < x4*y3)^(y3<y4);
-        else if (x3 >= 0) clipyou ^= 1;
+        if ((v3.x^v4.x) < 0) clipyou ^= (v3.x*v4.y < v4.x*v3.y)^(v3.y<v4.y);
+        else if (v3.x >= 0) clipyou ^= 1;
     }
-    if ((y4^y1) < 0)
+    if ((v4.y^v1.y) < 0)
     {
-        if ((x4^x1) < 0) clipyou ^= (x4*y1 < x1*y4)^(y4<y1);
-        else if (x4 >= 0) clipyou ^= 1;
+        if ((v4.x^v1.x) < 0) clipyou ^= (v4.x*v1.y < v1.x*v4.y)^(v4.y<v1.y);
+        else if (v4.x >= 0) clipyou ^= 1;
     }
 
     return clipyou;
 }
 
-static void clipupdatesector(vec2_t const &pos, int16_t * const sectnum, int const walldist)
+static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int const walldist)
 {
     if (inside_p(pos.x, pos.y, *sectnum))
         return;
@@ -1839,7 +1842,7 @@ restart_grand:
                         v1.x += da.x; v2.x -= da.y; v3.x -= da.x; v4.x += da.y;
                         v1.y += da.y; v2.y += da.x; v3.y -= da.y; v4.y -= da.x;
 
-                        clipyou = get_floorspr_clipyou(v1.x, v2.x, v3.x, v4.x, v1.y, v2.y, v3.y, v4.y);
+                        clipyou = get_floorspr_clipyou(v1, v2, v3, v4);
                         break;
                     }
                 }
@@ -2350,10 +2353,10 @@ restart_grand:
             case CSTAT_SPRITE_ALIGNMENT_FLOOR:
             {
                 int32_t x3, y3, x4, y4, zz;
-
-                if (vz == 0) continue;
                 intz = z1;
-                if (((intz-sv->z)^vz) < 0) continue;
+
+                if (vz == 0 || ((intz-sv->z)^vz) < 0) continue;
+
                 if ((cstat&64) != 0)
                     if ((sv->z > intz) == ((cstat&8)==0)) continue;
 #if 1
@@ -2375,10 +2378,8 @@ restart_grand:
                 get_floorspr_points((uspriteptr_t)spr, intx, inty, &x1, &x2, &x3, &x4,
                                     &y1, &y2, &y3, &y4);
 
-                if (get_floorspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4))
-                {
+                if (get_floorspr_clipyou({x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}))
                     hit_set(hit, dasector, -1, z, intx, inty, intz);
-                }
 
                 break;
             }
