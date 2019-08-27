@@ -32,5 +32,8 @@ inline long Sin(int angle)
 
 int movesprite(short spritenum, long dx, long dy, long dz, long ceildist, long flordist, unsigned long clipmask);
 void overwritesprite(long thex, long they, short tilenum, signed char shade, char stat, char dapalnum);
+void precache();
+void resettiming();
+void printext(long x, long y, const char* buffer, short tilenum, char invisiblecol);
 
 #endif

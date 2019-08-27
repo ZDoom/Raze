@@ -368,7 +368,7 @@ void InitItems()
 
 void StartRegenerate(short nSprite)
 {
-	SPRITE *pSprite = &sprite[nSprite];
+	spritetype *pSprite = &sprite[nSprite];
 
 	int edi = -1;
 

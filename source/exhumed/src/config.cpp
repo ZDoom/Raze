@@ -15,36 +15,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#define kMaxGameFunctions	40
-#define kMaxGameFuncLen     64
-
-// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
-#define MAXJOYBUTTONS 32
-#define MAXJOYBUTTONSANDHATS (MAXJOYBUTTONS+4)
-
-// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
-#define MAXMOUSEAXES 2
-#define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
-
-// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
-#define MAXJOYAXES 9
-#define MAXJOYDIGITAL (MAXJOYAXES*2)
-
-// default mouse scale
-#define DEFAULTMOUSEANALOGUESCALE           65536
-
-// default joystick settings
-
-#if defined(GEKKO)
-#define DEFAULTJOYSTICKANALOGUESCALE        16384
-#define DEFAULTJOYSTICKANALOGUEDEAD         1000
-#define DEFAULTJOYSTICKANALOGUESATURATE     9500
-#else
-#define DEFAULTJOYSTICKANALOGUESCALE        65536
-#define DEFAULTJOYSTICKANALOGUEDEAD         2000
-#define DEFAULTJOYSTICKANALOGUESATURATE     9500
-#endif
-
 static const char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen] =
 {
   "Move_Forward",
@@ -182,6 +152,7 @@ int32_t ControllerType;
 
 int32_t scripthandle;
 int32_t setupread;
+// TODO: implement precaching toggle
 int32_t useprecache;
 int32_t MouseDeadZone, MouseBias;
 int32_t SmoothInput;
@@ -206,45 +177,45 @@ int32_t MAXCACHE1DSIZE = (96*1024*1024);
 
 void SetupGameButtons()
 {
-	CONTROL_DefineFlag(gamefunc_Move_Forward,			FALSE);
-	CONTROL_DefineFlag(gamefunc_Move_Backward,			FALSE);
-	CONTROL_DefineFlag(gamefunc_Turn_Left,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Turn_Right,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Strafe,					FALSE);
-	CONTROL_DefineFlag(gamefunc_Strafe_Left,			FALSE);
-	CONTROL_DefineFlag(gamefunc_Strafe_Right,			FALSE);
-	CONTROL_DefineFlag(gamefunc_Jump,					FALSE);
-	CONTROL_DefineFlag(gamefunc_Crouch,					FALSE);
-	CONTROL_DefineFlag(gamefunc_Fire,					FALSE);
-	CONTROL_DefineFlag(gamefunc_Open,					FALSE);
-	CONTROL_DefineFlag(gamefunc_Aim_Up,					FALSE);
-	CONTROL_DefineFlag(gamefunc_Aim_Down,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Look_Up,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Look_Down,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Look_Straight,			FALSE);
-	CONTROL_DefineFlag(gamefunc_Run,					FALSE);
-	CONTROL_DefineFlag(gamefunc_SendMessage,			FALSE);
-	CONTROL_DefineFlag(gamefunc_Weapon_1,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Weapon_2,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Weapon_3,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Weapon_4,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Weapon_5,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Weapon_6,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Weapon_7,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Pause,					FALSE);
-	CONTROL_DefineFlag(gamefunc_Map,					FALSE);
-	CONTROL_DefineFlag(gamefunc_Gamma_Correction,		FALSE);
-	CONTROL_DefineFlag(gamefunc_Escape,					FALSE);
-	CONTROL_DefineFlag(gamefunc_Shrink_Screen,			FALSE);
-	CONTROL_DefineFlag(gamefunc_Enlarge_Screen,			FALSE);
-	CONTROL_DefineFlag(gamefunc_Zoom_In,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Zoom_Out,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Inventory_Left,			FALSE);
-	CONTROL_DefineFlag(gamefunc_Inventory_Right,		FALSE);
-	CONTROL_DefineFlag(gamefunc_Mouseview,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Inventory,				FALSE);
-	CONTROL_DefineFlag(gamefunc_Mouse_Sensitivity_Up,	FALSE);
-	CONTROL_DefineFlag(gamefunc_Mouse_Sensitivity_Down,	FALSE);
+    CONTROL_DefineFlag(gamefunc_Move_Forward,			FALSE);
+    CONTROL_DefineFlag(gamefunc_Move_Backward,			FALSE);
+    CONTROL_DefineFlag(gamefunc_Turn_Left,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Turn_Right,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Strafe,					FALSE);
+    CONTROL_DefineFlag(gamefunc_Strafe_Left,			FALSE);
+    CONTROL_DefineFlag(gamefunc_Strafe_Right,			FALSE);
+    CONTROL_DefineFlag(gamefunc_Jump,					FALSE);
+    CONTROL_DefineFlag(gamefunc_Crouch,					FALSE);
+    CONTROL_DefineFlag(gamefunc_Fire,					FALSE);
+    CONTROL_DefineFlag(gamefunc_Open,					FALSE);
+    CONTROL_DefineFlag(gamefunc_Aim_Up,					FALSE);
+    CONTROL_DefineFlag(gamefunc_Aim_Down,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Look_Up,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Look_Down,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Look_Straight,			FALSE);
+    CONTROL_DefineFlag(gamefunc_Run,					FALSE);
+    CONTROL_DefineFlag(gamefunc_SendMessage,			FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_1,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_2,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_3,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_4,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_5,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_6,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Weapon_7,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Pause,					FALSE);
+    CONTROL_DefineFlag(gamefunc_Map,					FALSE);
+    CONTROL_DefineFlag(gamefunc_Gamma_Correction,		FALSE);
+    CONTROL_DefineFlag(gamefunc_Escape,					FALSE);
+    CONTROL_DefineFlag(gamefunc_Shrink_Screen,			FALSE);
+    CONTROL_DefineFlag(gamefunc_Enlarge_Screen,			FALSE);
+    CONTROL_DefineFlag(gamefunc_Zoom_In,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Zoom_Out,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Inventory_Left,			FALSE);
+    CONTROL_DefineFlag(gamefunc_Inventory_Right,		FALSE);
+    CONTROL_DefineFlag(gamefunc_Mouseview,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Inventory,				FALSE);
+    CONTROL_DefineFlag(gamefunc_Mouse_Sensitivity_Up,	FALSE);
+    CONTROL_DefineFlag(gamefunc_Mouse_Sensitivity_Down,	FALSE);
 }
 
 hashtable_t h_gamefuncs    = { kMaxGameFunctions<<1, NULL };
@@ -385,11 +356,11 @@ void CONFIG_SetDefaultKeys(const char (*keyptr)[kMaxGameFunctions], bool lazy/*=
 
 void CONFIG_SetDefaults()
 {
-	FXVolume       = 128;
-	MusicVolume    = 128;
-	ReverseStereo  = 0;
-	ControllerType = controltype_keyboardandmouse;
-	lMouseSens     = 8;
+    FXVolume       = 128;
+    MusicVolume    = 128;
+    ReverseStereo  = 0;
+    ControllerType = controltype_keyboardandmouse;
+    lMouseSens     = 8;
 }
 
 int CONFIG_ReadSetup()
@@ -397,7 +368,7 @@ int CONFIG_ReadSetup()
     char tempbuf[1024];
 
     CONTROL_ClearAssignments();
-	CONFIG_SetDefaults();
+    CONFIG_SetDefaults();
 
     setupread = 1;
     pathsearchmode = 1;
@@ -502,22 +473,22 @@ void CONFIG_SetupMouse(void)
             MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseAnalogScale%d",i);
-        int32_t scale = ud.config.MouseAnalogueScale[i];
-        SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str, &scale);
-        ud.config.MouseAnalogueScale[i] = scale;
+        int32_t scale = MouseAnalogueScale[i];
+        SCRIPT_GetNumber(scripthandle, "Controls", str, &scale);
+        MouseAnalogueScale[i] = scale;
     }
 
     for (int i=0; i<MAXMOUSEBUTTONS; i++)
     {
-        CONTROL_MapButton(ud.config.MouseFunctions[i][0], i, 0, controldevice_mouse);
-        CONTROL_MapButton(ud.config.MouseFunctions[i][1], i, 1,  controldevice_mouse);
+        CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
+        CONTROL_MapButton(MouseFunctions[i][1], i, 1,  controldevice_mouse);
     }
     for (int i=0; i<MAXMOUSEAXES; i++)
     {
-        CONTROL_MapAnalogAxis(i, ud.config.MouseAnalogueAxes[i], controldevice_mouse);
-        CONTROL_MapDigitalAxis(i, ud.config.MouseDigitalFunctions[i][0], 0,controldevice_mouse);
-        CONTROL_MapDigitalAxis(i, ud.config.MouseDigitalFunctions[i][1], 1,controldevice_mouse);
-        CONTROL_SetAnalogAxisScale(i, ud.config.MouseAnalogueScale[i], controldevice_mouse);
+        CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0,controldevice_mouse);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1,controldevice_mouse);
+        CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
     }
 }
 
@@ -536,12 +507,12 @@ void CONFIG_SetupJoystick(void)
         Bsprintf(str,"ControllerButton%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
-            ud.config.JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
+            JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"ControllerButtonClicked%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
-            ud.config.JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+            JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
 
     // map over the axes
@@ -560,41 +531,41 @@ void CONFIG_SetupJoystick(void)
         Bsprintf(str,"ControllerDigitalAxes%d_1",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            ud.config.JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+            JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"ControllerAnalogScale%d",i);
-        scale = ud.config.JoystickAnalogueScale[i];
-        SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
-        ud.config.JoystickAnalogueScale[i] = scale;
+        scale = JoystickAnalogueScale[i];
+        SCRIPT_GetNumber(scripthandle, "Controls", str,&scale);
+        JoystickAnalogueScale[i] = scale;
 
         Bsprintf(str,"ControllerAnalogInvert%d",i);
-        scale = ud.config.JoystickAnalogueInvert[i];
-        SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
-        ud.config.JoystickAnalogueInvert[i] = scale;
+        scale = JoystickAnalogueInvert[i];
+        SCRIPT_GetNumber(scripthandle, "Controls", str,&scale);
+        JoystickAnalogueInvert[i] = scale;
 
         Bsprintf(str,"ControllerAnalogDead%d",i);
-        scale = ud.config.JoystickAnalogueDead[i];
-        SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
-        ud.config.JoystickAnalogueDead[i] = scale;
+        scale = JoystickAnalogueDead[i];
+        SCRIPT_GetNumber(scripthandle, "Controls", str,&scale);
+        JoystickAnalogueDead[i] = scale;
 
         Bsprintf(str,"ControllerAnalogSaturate%d",i);
-        scale = ud.config.JoystickAnalogueSaturate[i];
-        SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
-        ud.config.JoystickAnalogueSaturate[i] = scale;
+        scale = JoystickAnalogueSaturate[i];
+        SCRIPT_GetNumber(scripthandle, "Controls", str,&scale);
+        JoystickAnalogueSaturate[i] = scale;
     }
 
     for (i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
-        CONTROL_MapButton(ud.config.JoystickFunctions[i][0], i, 0, controldevice_joystick);
-        CONTROL_MapButton(ud.config.JoystickFunctions[i][1], i, 1,  controldevice_joystick);
+        CONTROL_MapButton(JoystickFunctions[i][0], i, 0, controldevice_joystick);
+        CONTROL_MapButton(JoystickFunctions[i][1], i, 1,  controldevice_joystick);
     }
     for (i=0; i<MAXJOYAXES; i++)
     {
-        CONTROL_MapAnalogAxis(i, ud.config.JoystickAnalogueAxes[i], controldevice_joystick);
-        CONTROL_MapDigitalAxis(i, ud.config.JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
-        CONTROL_MapDigitalAxis(i, ud.config.JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
-        CONTROL_SetAnalogAxisScale(i, ud.config.JoystickAnalogueScale[i], controldevice_joystick);
-        CONTROL_SetAnalogAxisInvert(i, ud.config.JoystickAnalogueInvert[i], controldevice_joystick);
+        CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
+        CONTROL_SetAnalogAxisScale(i, JoystickAnalogueScale[i], controldevice_joystick);
+        CONTROL_SetAnalogAxisInvert(i, JoystickAnalogueInvert[i], controldevice_joystick);
     }
 }
 
@@ -606,7 +577,7 @@ void SetupInput()
         engineUnInit();
         Bexit(5);
     }
-	SetupGameButtons();
+    SetupGameButtons();
     CONFIG_SetupMouse();
     CONFIG_SetupJoystick();
 
@@ -620,13 +591,13 @@ void SetupInput()
 
 void LoadConfig()
 {
-	CONFIG_ReadSetup();
-	/*
-	Joy_x = 0;
-	Joy_y = 0;
-	Joy_xs = 1;
-	Joy_ys = 1;
-	Joy_xb = 2;
-	Joy_yb = 2;
-	*/
+    CONFIG_ReadSetup();
+    /*
+    Joy_x = 0;
+    Joy_y = 0;
+    Joy_xs = 1;
+    Joy_ys = 1;
+    Joy_xb = 2;
+    Joy_yb = 2;
+    */
 }

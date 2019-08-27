@@ -2,6 +2,33 @@
 #ifndef __config_h__
 #define __config_h__
 
+#define kMaxGameFunctions	40
+#define kMaxGameFuncLen     64
+
+// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
+#define MAXJOYBUTTONS 32
+#define MAXJOYBUTTONSANDHATS (MAXJOYBUTTONS+4)
+
+// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
+#define MAXMOUSEAXES 2
+#define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
+
+// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
+#define MAXJOYAXES 9
+#define MAXJOYDIGITAL (MAXJOYAXES*2)
+
+// default mouse scale
+#define DEFAULTMOUSEANALOGUESCALE           65536
+
+// default joystick settings
+#define DEFAULTJOYSTICKANALOGUESCALE        65536
+#define DEFAULTJOYSTICKANALOGUEDEAD         2000
+#define DEFAULTJOYSTICKANALOGUESATURATE     9500
+
+extern char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen];
+extern const char keydefaults[kMaxGameFunctions*2][kMaxGameFuncLen];
+extern const char oldkeydefaults[kMaxGameFunctions*2][kMaxGameFuncLen];
+
 enum {
 	gamefunc_Move_Forward,  // 0
 	gamefunc_Move_Backward, // 1
@@ -64,8 +91,30 @@ int CONFIG_ReadSetup();
 extern int lMouseSens;
 
 extern ud_setup_t gSetup;
+extern int32_t scripthandle;
+extern int32_t setupread;
+extern int32_t useprecache;
+extern int32_t MouseDeadZone, MouseBias;
+extern int32_t SmoothInput;
+
+// JBF 20031211: Store the input settings because
+// (currently) mact can't regurgitate them
+extern int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
+extern int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
+extern int32_t MouseAnalogueAxes[MAXMOUSEAXES];
+extern int32_t MouseAnalogueScale[MAXMOUSEAXES];
+extern int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
+extern int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
+extern int32_t JoystickAnalogueAxes[MAXJOYAXES];
+extern int32_t JoystickAnalogueScale[MAXJOYAXES];
+extern int32_t JoystickAnalogueInvert[MAXJOYAXES];
+extern int32_t JoystickAnalogueDead[MAXJOYAXES];
+extern int32_t JoystickAnalogueSaturate[MAXJOYAXES];
+extern uint8_t KeyboardKeys[kMaxGameFunctions][2];
+
 extern int32_t MAXCACHE1DSIZE;
 
 void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
+int32_t CONFIG_FunctionNameToNum(const char* func);
 
 #endif

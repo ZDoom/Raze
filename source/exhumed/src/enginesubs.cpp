@@ -56,7 +56,7 @@ void kensetpalette(unsigned char *vgapal)
 #endif
 }
 
-void printext(long x, long y, char *buffer, short tilenum, char invisiblecol)
+void printext(long x, long y, const char *buffer, short tilenum, char invisiblecol)
 {
 	int i;
 	unsigned char ch;

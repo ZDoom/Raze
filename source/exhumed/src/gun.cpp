@@ -282,8 +282,16 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 
 	int xVect = Sin(sprite[nSprite].ang + 512);
 	int yVect = Sin(sprite[nSprite].ang);
-
-	hitscan(*x, *y, *z, *nSector, xVect, yVect, 0, &hitSect, &hitWall, &hitSprite, &hitX, &hitY, &hitZ, CLIPMASK1);
+    
+    vec3_t startPos = { *x, *y, *z };
+    hitdata_t hitData = { { hitX, hitY, hitZ }, hitSprite, hitSect, hitWall };
+    hitscan(&startPos, *nSector, xVect, yVect, 0, &hitData, CLIPMASK1);
+    hitX = hitData.pos.x;
+    hitY = hitData.pos.y;
+    hitZ = hitData.pos.z;
+    hitSprite = hitData.sprite;
+    hitSect = hitData.sect;
+    hitWall = hitData.wall;
 
 	int ecx = sintable[150] >> 3;
 

@@ -271,7 +271,7 @@ void InitFX()
 	if (!dig)
 	{
 		DebugOut("Error initializing sound card!\n");
-		printf("Error initializing sound card!\n");
+        initprintf("Error initializing sound card!\n");
 		DebugOut("ERROR: %s\n", AIL_error);
 		return;
 	}

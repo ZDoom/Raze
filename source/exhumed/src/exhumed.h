@@ -7,6 +7,15 @@
 void handleevents();
 #endif
 
+#ifndef APPNAME
+#define APPNAME             "Exhumed"
+#endif
+
+#ifndef APPBASENAME
+#define APPBASENAME         "exhumed"
+#endif
+
+void ShutDown(void);
 void DebugOut(const char *fmt, ...);
 void bail2dos(const char *fmt, ...);
 int ExhumedMain(int argc, char *argv[]);
@@ -60,6 +69,8 @@ void StatusMessage(int messageTime, const char *fmt, ...);
 
 int DoSpiritHead();
 
+void UpdateScreenSize();
+
 extern buildvfs_kfd kopen4loadfrommod(const char* filename, char searchfirst);
 
 extern short nCDTrackLength;
@@ -107,8 +118,8 @@ extern short nBodyTotal;
 extern short bSnakeCam;
 
 extern short levelnum;
-extern short nScreenWidth;
-extern short nScreenHeight;
+//extern short nScreenWidth;
+//extern short nScreenHeight;
 
 extern short bMapMode;
 
@@ -152,18 +163,18 @@ extern const char *gString[];
 
 extern char g_modDir[BMAX_PATH];
 enum {
-	kPalNormal = 0,
-	kPalNoDim,
-	kPalTorch,
-	kPalNoTorch,
-	kPalBrite,
-	kPalRedBrite,
-	kPalGreenBrite,
-	kPalNormal2,
-	kPalNoDim2,
-	kPalTorch2,
-	kPalNoTorch2,
-	kPalBrite2
+    kPalNormal = 0,
+    kPalNoDim,
+    kPalTorch,
+    kPalNoTorch,
+    kPalBrite,
+    kPalRedBrite,
+    kPalGreenBrite,
+    kPalNormal2,
+    kPalNoDim2,
+    kPalTorch2,
+    kPalNoTorch2,
+    kPalBrite2
 };
 
 #endif

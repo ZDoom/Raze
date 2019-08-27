@@ -188,7 +188,7 @@ void PlayMovie(const char *fileName)
 				}
 			}
 
-			rotatesprite(160 << 16, 100 << 16, z, angle, kMovieTile, 0, 1, 2, 0, 0, nScreenHeight - 1, nScreenWidth - 1);
+			rotatesprite(160 << 16, 100 << 16, z, angle, kMovieTile, 0, 1, 2, 0, 0, xdim - 1, ydim - 1);
 
 			if (bDoFade) {
 				bDoFade = DoFadeIn();

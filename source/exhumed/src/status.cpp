@@ -162,7 +162,7 @@ void InitStatus()
 	nMagicFrame   = 0;
 	nHealthLevel  = 0;
 	nMagicLevel   = 0;
-	nMeterRange   = tilesizy[nPicNum];
+	nMeterRange   = tilesiz[nPicNum].y;
 	magicperline  = 1000 / nMeterRange;
 	healthperline = 800 / nMeterRange;
 	nAirFrames = SeqSize[nStatusSeqOffset + 133];
@@ -184,10 +184,10 @@ void InitStatus()
 	nFirstAnim = -1;
 	nItemSeq   = -1;
 	nAnimsFree = kMaxStatusAnims;
-	statusx    = nScreenWidth - 320;
+	statusx    = xdim - 320;
 	textpages  = 0;
 	message_timer = 0;
-	statusy = nScreenHeight - 200;
+	statusy = ydim - 200;
 }
 
 void MoveStatusAnims()
@@ -494,7 +494,7 @@ void MoveStatus()
 		message_timer -= 4;
 		if (message_timer <= 0)
 		{
-			if (screensize < nScreenWidth) {
+			if (screensize < xdim) {
 				textpages = numpages;
 			}
 
@@ -590,14 +590,14 @@ void MoveStatus()
 
 void UnMaskStatus()
 {
-	for (int i = 0; i < nScreenWidth; i++) {
-		startdmost[i] = nScreenHeight;
+	for (int i = 0; i < xdim; i++) {
+		startdmost[i] = ydim;
 	}
 }
 
 void MaskStatus()
 {
-	for (int i = 0; i < nScreenWidth; i++)
+	for (int i = 0; i < xdim; i++)
 	{
 		short bx = startdmost[i];
 		short cx = statusmask[i];
@@ -616,11 +616,11 @@ void LoadStatus()
 	short buffer[1024];
 //	memset(buffer, 0, sizeof(buffer)); // bjd - added by me
 
-	for (i = 0; i < nScreenWidth; i++) {
-		statusmask[i] = nScreenHeight;
+	for (i = 0; i < xdim; i++) {
+		statusmask[i] = ydim;
 	}
 
-	nMaskY = nScreenHeight;
+	nMaskY = ydim;
 
 	int hStatus = kopen4load("status.msk", 1);
 	if (!hStatus) {
@@ -640,15 +640,15 @@ void LoadStatus()
 
 	for (i = 0; i < nCount; i++)
 	{
-		int v8 = nScreenHeight - ((nScreenHeight * buffer[i]) / 200);
-		*pStatusMask++ = nScreenHeight - v8;
+		int v8 = ydim - ((ydim * buffer[i]) / 200);
+		*pStatusMask++ = ydim - v8;
 
 		if (bHiRes) {
-			*pStatusMask++ = nScreenHeight - v8;
+			*pStatusMask++ = ydim - v8;
 		}
 
-		if (nScreenHeight - v8 < nMaskY) {
-			nMaskY = nScreenHeight - v8;
+		if (ydim - v8 < nMaskY) {
+			nMaskY = ydim - v8;
 		}
 	}
 }
@@ -662,7 +662,7 @@ void StatusMessage(int messageTime, const char *fmt, ...)
 
 	vsprintf(message_text, fmt, args);
 
-	if (screensize < nScreenWidth) {
+	if (screensize < xdim) {
 		textpages = numpages;
 	}
 }
@@ -725,7 +725,7 @@ void DrawStatus()
 		if (bCoordinates)
 		{
 			char *cFPS = itoa(lastfps, numberBuf, 10);
-			printext(nScreenWidth - 20, nViewTop, cFPS, kTile159, -1);
+			printext(xdim - 20, nViewTop, cFPS, kTile159, -1);
 		}
 
 		if (ammopages)

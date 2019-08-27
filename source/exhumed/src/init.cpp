@@ -190,6 +190,7 @@ BOOL LoadLevel(int nMap)
 		return kFalse;
 	}
 
+#if 0
 	{
 		// going to load the map without loadboard() - to take care of version 6 to 7 map conversion
 		//int hFile = kopen4load(fileName_1, 1);
@@ -355,6 +356,12 @@ BOOL LoadLevel(int nMap)
 		hFile = -1;
 	}
 	// loadboard has finished
+#endif
+    vec3_t startPos;
+    engineLoadBoard(fileName_1, 0, &startPos, &inita, &initsect);
+    initx = startPos.x;
+    inity = startPos.y;
+    initz = startPos.z;
 
 	int i;
 
@@ -363,15 +370,17 @@ BOOL LoadLevel(int nMap)
 		PlayerList[i].nSprite = -1;
 	}
 
-	pskyoff[0] = 0;
-	pskyoff[1] = 0;
-	pskyoff[2] = 0;
-	pskyoff[3] = 0;
+    psky_t* pSky = tileSetupSky(0);
+
+	pSky->tileofs[0] = 0;
+	pSky->tileofs[1] = 0;
+	pSky->tileofs[2] = 0;
+	pSky->tileofs[3] = 0;
 	parallaxtype = 0;
-	visibility = 2048;
-	parallaxyoffs = 256;
+	g_visibility = 2048;
+    pSky->yoffs = 256;
 	flash = 0;
-	pskybits = 2;
+    pSky->lognumtiles = 2;
 	precache();
 
 	LoadObjects();
@@ -416,24 +425,77 @@ void InstallEngine()
 
 	// TEMP
 
-	nScreenWidth *= 2;
-	nScreenHeight *= 2;
+	//nScreenWidth *= 2;
+	//nScreenHeight *= 2;
 	bHiRes = kTrue;
 	// TEMP
 
-	initengine();
+    if (engineInit())
+    {
+        wm_msgbox("Fatal Engine Initialization Error",
+                  "There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
+        //TODO:
+        //G_Cleanup();
+        ERRprintf("G_Startup: There was a problem initializing the engine: %s\n", engineerrstr);
+        exit(6);
+    }
+    if (videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, 0) < 0)
+    {
+        initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", gSetup.xdim, gSetup.ydim,
+                    gSetup.bpp, gSetup.fullscreen ? "fullscreen" : "windowed");
 
-#ifdef __WATCOMC__
-	setgamemode(2, nScreenWidth, nScreenHeight);
-#else
-	setgamemode(0, nScreenWidth, nScreenHeight, 8);
-#endif
+        int resIdx = 0;
 
-#ifdef __WATCOMC__
-	loadpics("tiles000.art");
-#else
-	loadpics("tiles000.art", 32 * 1048576);
+        for (int i=0; i < validmodecnt; i++)
+        {
+            if (validmode[i].xdim == gSetup.xdim && validmode[i].ydim == gSetup.ydim)
+            {
+                resIdx = i;
+                break;
+            }
+        }
+
+        int const savedIdx = resIdx;
+        int bpp = gSetup.bpp;
+
+        while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, 0) < 0)
+        {
+            initprintf("Failure setting video mode %dx%dx%d windowed! Trying next mode...\n",
+                        validmode[resIdx].xdim, validmode[resIdx].ydim, bpp);
+
+            if (++resIdx == validmodecnt)
+            {
+                if (bpp == 8)
+                    bail2dos("Fatal error: unable to set any video mode!");
+
+                resIdx = savedIdx;
+                bpp = 8;
+            }
+        }
+
+        gSetup.xdim = validmode[resIdx].xdim;
+        gSetup.ydim = validmode[resIdx].ydim;
+        gSetup.bpp  = bpp;
+    }
+
+    char *cwd;
+
+    if (g_modDir[0] != '/' && (cwd = buildvfs_getcwd(NULL, 0)))
+    {
+        buildvfs_chdir(g_modDir);
+        if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
+        {
+            buildvfs_chdir(cwd);
+            if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
+                bail2dos("Failed loading art.");
+        }
+        buildvfs_chdir(cwd);
+#ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
+        Xfree(cwd);
 #endif
+    }
+    else if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
+        bail2dos("Failed loading art.");
 
 	LoadPaletteLookups();
 	MyLoadPalette();
@@ -441,7 +503,7 @@ void InstallEngine()
 
 void RemoveEngine()
 {
-	uninitengine();
+	engineUnInit();
 	uninitgroupfile();
 }
 
@@ -529,7 +591,7 @@ void SnapSectors(short nSectorA, short nSectorB, short b)
 			nCount2++;
 		}
 
-		dragpoint(var_14, wall[var_14].x + esi, wall[var_14].y + edi);
+		dragpoint(var_14, wall[var_14].x + esi, wall[var_14].y + edi, 0);
 
 		nCount++;
 		nWallA++;
@@ -1165,8 +1227,8 @@ int myloadconfig()
 		screensize *= 2;
 	}
 
-	if (screensize > nScreenWidth || screensize < xdim >> 2) {
-		screensize = nScreenWidth;
+	if (screensize > xdim || screensize < xdim >> 2) {
+		screensize = xdim;
 	}
 
 	fclose(fp);

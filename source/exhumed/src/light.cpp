@@ -65,7 +65,7 @@ void MyLoadPalette()
 	int hFile = kopen4load("PALETTE.DAT", 1);
 	if (hFile == -1)
 	{
-		printf("Error reading palette 'PALETTE.DAT'\n");
+        initprintf("Error reading palette 'PALETTE.DAT'\n");
 		return;
 	}
 
@@ -80,14 +80,14 @@ int LoadPaletteLookups()
 	free(palookup[0]);
 
 	palookup[0] = NULL;
-	numpalookups = 64;
+    numshades = 64;
 
 	for (int i = 0; i < kMaxGrads; i++)
 	{
 		int hFile = kopen4load(GradList[i], 1);
 		if (hFile == -1)
 		{
-			printf("Error reading palette lookup '%s'\n", GradList[i]);
+            initprintf("Error reading palette lookup '%s'\n", GradList[i]);
 			return 0;
 		}
 

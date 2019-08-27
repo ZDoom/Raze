@@ -5,7 +5,6 @@
 #include "player.h"
 #include "serial.h"
 #include "network.h"
-#include "types.h"
 #include "keyboard.h"
 #include "control.h"
 #include "config.h"
@@ -65,18 +64,20 @@ void GetLocalInput()
 	int edx = -8;
 	uchar cl;
 
-	uint32 esi;
+    // TODO: clean up
+
+	uint32_t esi;
 
 	while (ebx >= 0)
 	{
 		if (eax <= 31)
 		{
-			esi = CONTROL_ButtonState1;
+			esi = CONTROL_ButtonState;
 			cl = eax;
 		}
 		else
 		{
-			esi = CONTROL_ButtonState2;
+			esi = CONTROL_ButtonState>>32;
 			cl = edx;
 		}
 

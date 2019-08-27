@@ -1,4 +1,6 @@
 
+#include "compat.h"
+#include "baselayer.h"
 #include "cd.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +19,7 @@ int initcdaudio()
 		word_9AC30 = 1;
 
 		// return to text video mode
-		printf("No MSCDEX driver installed!\n");
+		initprintf("No MSCDEX driver installed!\n");
 		exit(0);
 	}
 	

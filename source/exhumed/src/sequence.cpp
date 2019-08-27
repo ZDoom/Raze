@@ -149,7 +149,7 @@ int seq_ReadSequence(char *seqName)
 	int hFile = kopen4load(buffer, 1);
 	if (hFile == -1) 
 	{
-		printf("Unable to open '%s'!\n", buffer);
+        initprintf("Unable to open '%s'!\n", buffer);
 		kclose(hFile);
 		return 0;
 	}
@@ -158,7 +158,7 @@ int seq_ReadSequence(char *seqName)
 	kread(hFile, &tag, sizeof(tag));
 	if (tag < 'HI' || tag > 'HI' && tag != 'SD')
 	{
-		printf("Unsupported sequence version!\n");
+        initprintf("Unsupported sequence version!\n");
 		kclose(hFile);
 		return 0;
 	}
@@ -173,7 +173,7 @@ int seq_ReadSequence(char *seqName)
 	{
 		if (nSeqs < 0) 
 		{
-			printf("Invalid sequence count!\n");
+            initprintf("Invalid sequence count!\n");
 			kclose(hFile);
 			return 0;
 		}
@@ -198,7 +198,7 @@ int seq_ReadSequence(char *seqName)
 	{
 		if (nFrames < 0 )
 		{
-			printf("Invalid frame count!\n");
+            initprintf("Invalid frame count!\n");
 			kclose(hFile);
 			return 0;
 		}
@@ -224,7 +224,7 @@ int seq_ReadSequence(char *seqName)
 	{
 		if (nChunks < 0 )
 		{
-			printf("Invalid chunk count!\n");
+            initprintf("Invalid chunk count!\n");
 			kclose(hFile);
 			return 0;
 		}
@@ -299,7 +299,7 @@ void seq_LoadSequences()
 		SeqOffsets[i] = sequences;
 
 		if (seq_ReadSequence(SeqNames[i]) == 0) {
-			printf("Error loading '%s'\n", SeqNames[i]);
+            initprintf("Error loading '%s'\n", SeqNames[i]);
 		}
 	}
 
