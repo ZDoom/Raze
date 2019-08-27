@@ -951,7 +951,7 @@ static void clipupdatesector(vec2_t const &pos, int16_t * const sectnum, int con
     static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
     int16_t        nsecs;
 
-    bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXCLIPSECTORS, *sectnum);
+    bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, *sectnum);
 
     for (int sectcnt = 0; sectcnt < nsecs; sectcnt++)
     {
