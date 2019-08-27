@@ -2352,6 +2352,8 @@ void tagcode(void)
     }
 }
 
+static FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
+
 void statuslistcode(void)
 {
     short p, target, hitobject, daang, osectnum, movestat;
