@@ -618,7 +618,7 @@ static int32_t clipmove_warned;
 
 static inline void addclipsect(int const sectnum)
 {
-    if (EDUKE32_PREDICT_TRUE(clipsectnum < MAXCLIPSECTORS))
+    if (clipsectnum < MAXCLIPSECTORS)
     {
         bitmap_set(clipsectormap, sectnum);
         clipsectorlist[clipsectnum++] = sectnum;
@@ -660,7 +660,7 @@ int32_t clipsprite_try(uspriteptr_t const spr, int32_t xmin, int32_t ymin, int32
             (spr->x > xmax + maxcorrection) || (spr->y > ymax + maxcorrection))
             return 1;
 
-        if (EDUKE32_PREDICT_TRUE(clipspritenum < MAXCLIPNUM))
+        if (clipspritenum < MAXCLIPNUM)
             clipspritelist[clipspritenum++] = spr-(uspritetype *)sprite;
         //initprintf("%d: clip sprite[%d]\n",clipspritenum,j);
         return 1;
@@ -756,7 +756,7 @@ int32_t clipsprite_initindex(int32_t curidx, uspriteptr_t const curspr, int32_t 
 
 static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int16_t daoval, int nofix)
 {
-    if (EDUKE32_PREDICT_FALSE(clipnum >= MAXCLIPNUM))
+    if (clipnum >= MAXCLIPNUM)
     {
         clipmove_warned |= 2;
         return;
@@ -1202,10 +1202,10 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             }
         }
 
-        if (EDUKE32_PREDICT_FALSE(clipmove_warned & 1))
+        if (clipmove_warned & 1)
             OSD_Printf("clipsectnum >= MAXCLIPSECTORS!\n");
 
-        if (EDUKE32_PREDICT_FALSE(clipmove_warned & 2))
+        if (clipmove_warned & 2)
             OSD_Printf("clipnum >= MAXCLIPNUM!\n");
 
         ////////// Sprites //////////
