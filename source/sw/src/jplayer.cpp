@@ -622,7 +622,7 @@ void computergetinput(int snum, SW_PACKET *syn)
         //Strafe attack
         if (fightdist)
         {
-            j = totalclock+snum*13468;
+            j = (int32_t) totalclock+snum*13468;
             i = sintable[(j<<6)&2047];
             i += sintable[((j+4245)<<5)&2047];
             i += sintable[((j+6745)<<4)&2047];
@@ -843,7 +843,7 @@ void computergetinput(int snum, SW_PACKET *syn)
         daang = getangle(x2-x1,y2-y1);
         if ((i&0xc000) == 32768)
             daang = getangle(wall[wall[i&(MAXWALLS-1)].point2].x-wall[i&(MAXWALLS-1)].x,wall[wall[i&(MAXWALLS-1)].point2].y-wall[i&(MAXWALLS-1)].y);
-        j = totalclock+snum*13468;
+        j = (int32_t) totalclock+snum*13468;
         i = sintable[(j<<6)&2047];
         i += sintable[((j+4245)<<5)&2047];
         i += sintable[((j+6745)<<4)&2047];

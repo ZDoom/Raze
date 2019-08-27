@@ -657,7 +657,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
     MirrorMoveSkip16 = (MirrorMoveSkip16 + 1) & 15;
 
-    camloopcnt += (totalclock - ototalclock);
+    camloopcnt += (int32_t) (totalclock - ototalclock);
     if (camloopcnt > (60 * 5))          // 5 seconds per player view
     {
         camloopcnt = 0;

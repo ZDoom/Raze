@@ -76,7 +76,7 @@ static SDL_Window *sdl_window=NULL;
 static SDL_GLContext sdl_context=NULL;
 #endif
 
-int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline;
+int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, refreshfreq=-1;
 intptr_t frameplace=0;
 int32_t lockcount=0;
 char modechange=1;
@@ -1554,14 +1554,18 @@ void setrefreshrate(void)
     SDL_DisplayMode newmode;
     SDL_GetClosestDisplayMode(0, &dispmode, &newmode);
 
+    char error = 0;
+
     if (dispmode.refresh_rate != newmode.refresh_rate)
     {
         initprintf("Refresh rate: %dHz\n", newmode.refresh_rate);
-        SDL_SetWindowDisplayMode(sdl_window, &newmode);
+        error = SDL_SetWindowDisplayMode(sdl_window, &newmode);
     }
 
     if (!newmode.refresh_rate)
         newmode.refresh_rate = 60;
+
+    refreshfreq = error ? -1 : newmode.refresh_rate;
 }
 
 int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)

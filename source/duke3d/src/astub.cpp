@@ -1549,7 +1549,7 @@ static void IntegratedHelp(void)
 
                                 highlighthp = i;
                                 highlightline = j;
-                                lasthighlighttime = totalclock;
+                                lasthighlighttime = (int32_t) totalclock;
                                 goto ENDFOR1;
                             }
                         }
@@ -2763,7 +2763,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         }
 
         // These two lines are so obvious I don't need to comment them ...;-)
-        synctics = totalclock-lockclock;
+        synctics = (int32_t) totalclock-lockclock;
         lockclock += synctics;
 
         // Zoom in / out using numeric key pad's / and * keys
@@ -3837,7 +3837,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
         ExtCheckKeys();
 
         Bsprintf(buffer,"%s%d",namestart,danum);
-        if (totalclock & 32) Bstrcat(buffer,"_ ");
+        if ((int32_t) totalclock & 32) Bstrcat(buffer,"_ ");
         printmessage256(0, 0, buffer);
         if (func != NULL)
         {
@@ -3874,7 +3874,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
 
     clearkeys();
 
-    lockclock = totalclock;  //Reset timing
+    lockclock = (int32_t) totalclock;  //Reset timing
 
     switch (bytes)
     {
@@ -4170,7 +4170,7 @@ ERROR_TOOMANYSPRITES:
 
     clearkeys();
 
-    lockclock = totalclock;  //Reset timing
+    lockclock = (int32_t) totalclock;  //Reset timing
 }
 
 static void mouseaction_movesprites(int32_t *sumxvect, int32_t *sumyvect, int32_t yangofs, int32_t mousexory)
@@ -8915,7 +8915,7 @@ static int osdcmd_vars_pk(osdcmdptr_t parm)
             if (isdigit(parm->parms[0][0]))
             {
                 autocorruptcheck = clamp(atoi_safe(parm->parms[0]), 0, 3600);
-                corruptchecktimer = totalclock + 120*autocorruptcheck;
+                corruptchecktimer = (int32_t) totalclock + 120*autocorruptcheck;
             }
 
             return OSDCMD_OK;
@@ -10045,7 +10045,7 @@ int32_t ExtInit(void)
     getmessagetimeoff = 0;
 
     Bsprintf(apptitle, "Mapster32 %s", s_buildRev);
-    autosavetimer = totalclock+120*autosave;
+    autosavetimer = (int32_t) totalclock+120*autosave;
 
     registerosdcommands();
 
@@ -10424,9 +10424,9 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
                 if (graphicsmode == 2)
                 {
-                    if (frames==2) picnum+=((((4-(totalclock>>5)))&1)*5);
-                    if (frames==4) picnum+=((((4-(totalclock>>5)))&3)*5);
-                    if (frames==5) picnum+=(((totalclock>>5)%5))*5;
+                    if (frames==2) picnum+=((((4-((int32_t) totalclock>>5)))&1)*5);
+                    if (frames==4) picnum+=((((4-((int32_t) totalclock>>5)))&3)*5);
+                    if (frames==5) picnum+=((((int32_t) totalclock>>5)%5))*5;
                 }
 
                 if (tilesiz[picnum].x == 0)
@@ -10658,9 +10658,9 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
                     }
                 }
 
-                if (frames==2) tspr->picnum += (((4-(totalclock>>5)))&1)*5;
-                if (frames==4) tspr->picnum += (((4-(totalclock>>5)))&3)*5;
-                if (frames==5) tspr->picnum += ((totalclock>>5)%5)*5;
+                if (frames==2) tspr->picnum += (((4-((int32_t) totalclock>>5)))&1)*5;
+                if (frames==4) tspr->picnum += (((4-((int32_t) totalclock>>5)))&3)*5;
+                if (frames==5) tspr->picnum += (((int32_t) totalclock>>5)%5)*5;
 
                 if (tilesiz[tspr->picnum].x == 0)
                     tspr->picnum -= 5;       //Hack, for actors
@@ -10798,7 +10798,7 @@ static void Keys2d3d(void)
                         {
                             message("Board saved to %s", levelname);
                             asksave = 0;
-                            lastsave=totalclock;
+                            lastsave=(int32_t) totalclock;
                         }
                     }
                 }
@@ -10813,7 +10813,7 @@ static void Keys2d3d(void)
                 int32_t sposx=pos.x,sposy=pos.y,sposz=pos.z,sang=ang;
                 const char *f = GetSaveBoardFilename(levelname);
 
-                lastsave=totalclock;
+                lastsave=(int32_t) totalclock;
                 //  			  sectorhighlightstat = -1;
                 //  			  newnumwalls = -1;
                 //  			  joinsector[0] = -1;
@@ -10951,7 +10951,7 @@ void ExtCheckKeys(void)
         {
             if (CheckMapCorruption(3, 0)>=3)
                 printmessage16("Corruption detected. See OSD for details.");
-            corruptchecktimer = totalclock + 120*autocorruptcheck;
+            corruptchecktimer = (int32_t) totalclock + 120*autocorruptcheck;
         }
     }
 
@@ -10999,7 +10999,7 @@ void ExtCheckKeys(void)
 
             asksave++;
         }
-        autosavetimer = totalclock+120*autosave;
+        autosavetimer = (int32_t) totalclock+120*autosave;
     }
 
     if (PRESSED_KEYSC(F12))   //F12

@@ -714,12 +714,12 @@ MNU_DoParentalPassword(UserCall call, MenuItem_p item)
         if (cur_show)
         {
             MNU_DrawString(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,1,16);
-            rotatesprite((TEXT_XCENTER(w)+w+7)<<16,(MESSAGE_LINE+3)<<16,64<<9,0,COINCURSOR+((totalclock>>3)%7),0,0,MenuDrawFlags,0,0,xdim-1,ydim-1);
+            rotatesprite((TEXT_XCENTER(w)+w+7)<<16,(MESSAGE_LINE+3)<<16,64<<9,0,COINCURSOR+(((int32_t) totalclock>>3)%7),0,0,MenuDrawFlags,0,0,xdim-1,ydim-1);
         }
         else
         {
             MNU_DrawString(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,1,16);
-            rotatesprite((TEXT_XCENTER(w)+w+7)<<16,(MESSAGE_LINE+3)<<16,64<<9,0,COINCURSOR+((totalclock>>3)%7),0,0,MenuDrawFlags,0,0,xdim-1,ydim-1);
+            rotatesprite((TEXT_XCENTER(w)+w+7)<<16,(MESSAGE_LINE+3)<<16,64<<9,0,COINCURSOR+(((int32_t) totalclock>>3)%7),0,0,MenuDrawFlags,0,0,xdim-1,ydim-1);
         }
 
     }
@@ -1695,7 +1695,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         }
         else
         {
-            if (labs(totalclock - limitmove) > 7)
+            if (labs((int32_t) totalclock - limitmove) > 7)
             {
                 order_input.button0 = order_input_buffered.button0;
                 order_input.button1 = order_input_buffered.button1;
@@ -1705,7 +1705,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
                 order_input_buffered.button1 = tst_input.button1;
                 order_input_buffered.dir = tst_input.dir;
 
-                limitmove = totalclock;
+                limitmove = (int32_t) totalclock;
             }
         }
     }
@@ -1847,7 +1847,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         }
 
         int m,i;
-        for (m=0, i=(totalclock/104)%numscrollerlines; m<4; m++,i++)
+        for (m=0, i=((int32_t) totalclock/104)%numscrollerlines; m<4; m++,i++)
         {
             if (i == numscrollerlines)
                 i=0;
@@ -2998,7 +2998,7 @@ MNU_LoadSaveDraw(UserCall call, MenuItem_p item)
             char tmp[sizeof(SaveGameDescr[0])*2];
 
             //cur_show ^= 1;
-            cur_show = (totalclock & 32);
+            cur_show = ((int32_t) totalclock & 32);
             if (cur_show)
             {
                 // add a cursor to the end
@@ -4610,7 +4610,7 @@ void MNU_DoMenu(CTLType type, PLAYERp pp)
     mnu_input.dir = dir_None;
 
     // should not get input if you are editing a save game slot
-    if (totalclock < limitmove) limitmove = totalclock;
+    if (totalclock < limitmove) limitmove = (int32_t) totalclock;
     if (!MenuInputMode)
     {
         UserInput tst_input;
@@ -4658,7 +4658,7 @@ void MNU_DoMenu(CTLType type, PLAYERp pp)
                 if (!FX_SoundActive(handle2))
                     handle2 = PlaySound(DIGI_STAR,&zero,&zero,&zero,v3df_dontpan);
 
-            limitmove = totalclock;
+            limitmove = (int32_t) totalclock;
             mnu_input_buffered.dir = dir_None;
         }
     }
@@ -4885,9 +4885,9 @@ Fade_Timer(int clicks)
 //        unsigned int now;
     int now;
 
-    now = totalclock;
+    now = (int32_t) totalclock;
 
-    while (abs(totalclock - now) < clicks) handleevents();
+    while (abs((int32_t) totalclock - now) < clicks) handleevents();
 }
 
 void

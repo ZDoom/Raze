@@ -699,10 +699,10 @@ static struct {
 
 static void G_SaveTimers(void)
 {
-    g_timers.totalclock     = totalclock;
-    g_timers.totalclocklock = totalclocklock;
-    g_timers.ototalclock    = ototalclock;
-    g_timers.lockclock      = lockclock;
+    g_timers.totalclock     = (int32_t) totalclock;
+    g_timers.totalclocklock = (int32_t) totalclocklock;
+    g_timers.ototalclock    = (int32_t) ototalclock;
+    g_timers.lockclock      = (int32_t) lockclock;
 }
 
 static void G_RestoreTimers(void)

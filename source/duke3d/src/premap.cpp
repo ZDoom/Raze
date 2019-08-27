@@ -491,7 +491,7 @@ void G_CacheMapData(void)
         }
     }
 
-    int clock = totalclock;
+    int clock = (int) totalclock;
     int cnt = 0;
     int percentDisplayed = -1;
 
@@ -530,12 +530,12 @@ void G_CacheMapData(void)
 
                 if (totalclock - clock >= 1)
                 {
-                    clock = totalclock;
+                    clock = (int) totalclock;
                     percentDisplayed++;
                 }
             }
 
-            clock = totalclock;
+            clock = (int) totalclock;
         }
     }
 

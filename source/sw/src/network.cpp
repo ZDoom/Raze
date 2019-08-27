@@ -423,7 +423,7 @@ void
 PauseAction(void)
 {
     ready2send = 0;
-    save_totalclock = totalclock;
+    save_totalclock = (int32_t) totalclock;
 }
 
 void
@@ -842,7 +842,7 @@ void ErrorCorrectionQuit(void)
     {
         for (j = 0; j < MAX_SW_PLAYERS; j++)
         {
-            oldtotalclock = totalclock;
+            oldtotalclock = (int32_t) totalclock;
             while (totalclock < oldtotalclock + synctics)
             {
                 handleevents();

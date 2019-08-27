@@ -282,12 +282,12 @@ static void G_DrawCameraText(int16_t i)
         rotatesprite_win(22<<16, 163<<16, 65536L, 512, CAMCORNER+1, 0, 0, 2+4);
         rotatesprite_win((310-10)<<16, 163<<16, 65536L, 512, CAMCORNER+1, 0, 0, 2);
 
-        if (totalclock&16)
+        if ((int32_t) totalclock&16)
             rotatesprite_win(46<<16, 32<<16, 65536L, 0, CAMLIGHT, 0, 0, 2);
     }
     else
     {
-        int32_t flipbits = (totalclock<<1)&48;
+        int32_t flipbits = ((int32_t) totalclock<<1)&48;
 
         for (bssize_t x=-64; x<394; x+=64)
             for (bssize_t y=0; y<200; y+=64)
@@ -589,7 +589,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         if (p == screenpeek || GTFLAGS(GAMETYPE_OTHERPLAYERSINMAP))
         {
             if (pSprite->xvel > 16 && pPlayer->on_ground)
-                i = APLAYERTOP+((totalclock>>4)&3);
+                i = APLAYERTOP+(((int32_t) totalclock>>4)&3);
             else
                 i = APLAYERTOP;
 
@@ -660,7 +660,7 @@ static void G_PrintCoords(int32_t snum)
     y += 7;
     Bsprintf(tempbuf, "THOLD= %d", ps->transporter_hold);
     printext256(x, y+54, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "GAMETIC= %u, TOTALCLOCK=%d", g_moveThingsCount, totalclock);
+    Bsprintf(tempbuf, "GAMETIC= %u, TOTALCLOCK=%d", g_moveThingsCount, (int32_t) totalclock);
     printext256(x, y+63, COLOR_WHITE, -1, tempbuf, 0);
 #ifdef DEBUGGINGAIDS
     Bsprintf(tempbuf, "NUMSPRITES= %d", Numsprites);
@@ -1397,7 +1397,7 @@ void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e)
     videoFadePalette(r, g, b, e);
     videoNextPage();
 
-    int32_t tc = totalclock;
+    int32_t tc = (int32_t) totalclock;
     while (totalclock < tc + 4)
         G_HandleAsync();
 }
@@ -1616,7 +1616,7 @@ void gameDisplayTitleScreen(void)
                         titlesound++;
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
-                    rotatesprite_fs(160 << 16, 104 << 16, (totalclock - 120) << 10, 0, DUKENUKEM, 0, 0, 2 + 8);
+                    rotatesprite_fs(160 << 16, 104 << 16, ((int32_t) totalclock - 120) << 10, 0, DUKENUKEM, 0, 0, 2 + 8);
                 }
                 else if (totalclock >= (120 + 60))
                     rotatesprite_fs(160 << 16, (104) << 16, 60 << 10, 0, DUKENUKEM, 0, 0, 2 + 8);
@@ -1635,7 +1635,7 @@ void gameDisplayTitleScreen(void)
                     }
 
                     rotatesprite_fs(160 << 16, (104) << 16, 60 << 10, 0, DUKENUKEM, 0, 0, 2 + 8);
-                    rotatesprite_fs(160 << 16, (129) << 16, (totalclock - 220) << 11, 0, THREEDEE, 0, 0, 2 + 8);
+                    rotatesprite_fs(160 << 16, (129) << 16, ((int32_t) totalclock - 220) << 11, 0, THREEDEE, 0, 0, 2 + 8);
                 }
                 else if (totalclock >= (220 + 30))
                     rotatesprite_fs(160 << 16, (129) << 16, 30 << 11, 0, THREEDEE, 0, 0, 2 + 8);
@@ -1648,8 +1648,8 @@ void gameDisplayTitleScreen(void)
                 // JBF 20030804
                 if (totalclock >= 280 && totalclock < 395)
                 {
-                    rotatesprite_fs(160 << 16, (151) << 16, (410 - totalclock) << 12, 0, PLUTOPAKSPRITE + 1,
-                                    (sintable[(totalclock << 4) & 2047] >> 11), 0, 2 + 8);
+                    rotatesprite_fs(160 << 16, (151) << 16, (410 - (int32_t) totalclock) << 12, 0, PLUTOPAKSPRITE + 1,
+                                    (sintable[((int32_t) totalclock << 4) & 2047] >> 11), 0, 2 + 8);
                     if (titlesound == 2)
                     {
                         titlesound++;
@@ -1663,7 +1663,7 @@ void gameDisplayTitleScreen(void)
                         titlesound++;
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
-                    rotatesprite_fs(160 << 16, (151) << 16, 30 << 11, 0, PLUTOPAKSPRITE + 1, (sintable[(totalclock << 4) & 2047] >> 11), 0,
+                    rotatesprite_fs(160 << 16, (151) << 16, 30 << 11, 0, PLUTOPAKSPRITE + 1, (sintable[((int32_t) totalclock << 4) & 2047] >> 11), 0,
                                     2 + 8);
                 }
             }
@@ -2361,7 +2361,7 @@ void G_BonusScreen(int32_t bonusonly)
 
                 if (totalclock >= 1000000000 && totalclock < 1000000320)
                 {
-                    switch ((totalclock>>4)%15)
+                    switch (((int32_t) totalclock>>4)%15)
                     {
                     case 0:
                         if (bonuscnt == 6)
@@ -2399,7 +2399,7 @@ void G_BonusScreen(int32_t bonusonly)
                 else if (totalclock > (10240+120L)) break;
                 else
                 {
-                    switch ((totalclock>>5)&3)
+                    switch (((int32_t) totalclock>>5)&3)
                     {
                     case 1:
                     case 3:

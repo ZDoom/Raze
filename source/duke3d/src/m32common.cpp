@@ -79,7 +79,7 @@ static void message_common1(const char *tmpstr)
     Bstrncpyz(getmessage, tmpstr, sizeof(getmessage));
 
     getmessageleng = Bstrlen(getmessage);
-    getmessagetimeoff = totalclock + 120*2 + getmessageleng*(120/30);
+    getmessagetimeoff = (int32_t) totalclock + 120*2 + getmessageleng*(120/30);
 //    lastmessagetime = totalclock;
 }
 

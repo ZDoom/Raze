@@ -316,7 +316,7 @@ const char* getstring_simple(const char *querystr, const char *defaultstr, int32
 //int32_t snfillprintf(char *outbuf, size_t bufsiz, int32_t fill, const char *fmt, ...);
 void _printmessage16(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 
-#define printmessage16(fmt, ...) lastpm16time = totalclock, _printmessage16(fmt, ## __VA_ARGS__)
+#define printmessage16(fmt, ...) lastpm16time = (int32_t) totalclock, _printmessage16(fmt, ## __VA_ARGS__)
 
 extern char lastpm16buf[156];
 
@@ -464,7 +464,7 @@ static FORCE_INLINE void inpclamp(int32_t *x, int32_t mi, int32_t ma)
 
 // Timed offset for Mapster32 color index cycling.
 // Range: 0 .. 16
-#define M32_THROB klabs(sintable[((totalclock << 4) & 2047)] >> 10)
+#define M32_THROB klabs(sintable[(((int32_t) totalclock << 4) & 2047)] >> 10)
 
 #ifdef __cplusplus
 }

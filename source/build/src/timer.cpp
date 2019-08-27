@@ -38,7 +38,10 @@ ATTRIBUTE((flatten)) void timerUpdate(void)
 {
     auto time = steady_clock::now();
     auto elapsedTime = time - timerlastsample;
-    int n = (elapsedTime.count() * (uint64_t) timerticspersec * steady_clock::period::num) / timerGetFreqU64();
+
+    uint64_t numerator = (elapsedTime.count() * (uint64_t) timerticspersec * steady_clock::period::num);
+    int n = numerator / timerGetFreqU64();
+    totalclock.setFraction(((numerator - n*timerGetFreqU64()) * 65536) / timerGetFreqU64());
 
     if (n <= 0) return;
 

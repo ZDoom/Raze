@@ -551,7 +551,7 @@ RECHECK:
         lastsyncofs = ktell(g_demo_recFilePtr);
         initsyncofs = lastsyncofs;
         lastsynctic = g_demo_cnt;
-        lastsyncclock = totalclock;
+        lastsyncclock = (int32_t) totalclock;
         outofsync = 0;
 #if KRANDDEBUG
         krd_enable(2);
@@ -678,7 +678,7 @@ RECHECK:
                         {
                             lastsyncofs = ktell(g_demo_recFilePtr);
                             lastsynctic = g_demo_cnt;
-                            lastsyncclock = totalclock;
+                            lastsyncclock = (int32_t) totalclock;
 
                             if (kread(g_demo_recFilePtr, tmpbuf, 4) != 4)
                                 CORRUPT(7);
@@ -844,7 +844,7 @@ nextdemo_nomenu:
                 }
                 else
                 {
-                    j = calc_smoothratio(totalclock, ototalclock);
+                    j = calc_smoothratio_demo(totalclock, ototalclock);
                     if (g_demo_paused && g_demo_rewind)
                         j = 65536-j;
 

@@ -2345,7 +2345,7 @@ int32_t animateoffs(int const tilenum, int fakevar)
     if (animnum <= 0)
         return 0;
 
-    int const i = totalclocklock >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
+    int const i = (int) totalclocklock >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
     int offs = 0;
 
     switch (picanm[tilenum].sf & PICANM_ANIMTYPE_MASK)

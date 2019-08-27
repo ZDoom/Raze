@@ -596,7 +596,7 @@ void G_DoCheats(void)
                 case CHEAT_VIEW:
                     pPlayer->over_shoulder_on ^= 1;
                     CAMERADIST = 0;
-                    CAMERACLOCK = totalclock;
+                    CAMERACLOCK = (int32_t) totalclock;
                     //                    P_DoQuote(QUOTE_CHEATS_DISABLED,pPlayer);
                     end_cheat(pPlayer);
                     return;

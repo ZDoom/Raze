@@ -448,9 +448,29 @@ static inline void G_HandleAsync(void)
     Net_GetPackets();
 }
 
-static inline int32_t calc_smoothratio(int32_t totalclk, int32_t ototalclk)
+static inline int32_t calc_smoothratio_demo(ClockTicks totalclk, ClockTicks ototalclk)
 {
-    return clamp((totalclk-ototalclk)*(65536/TICSPERFRAME), 0, 65536);
+    int32_t rfreq = (refreshfreq != -1 ? refreshfreq : 60);
+    uint64_t elapsedFrames = tabledivide64(((uint64_t) (totalclk - ototalclk).toScale16()) * rfreq, 65536*TICRATE);
+#if 0
+    //POGO: additional debug info for testing purposes
+    OSD_Printf("Elapsed frames: %" PRIu64 ", smoothratio: %" PRIu64 "\n", elapsedFrames, tabledivide64(65536*elapsedFrames*REALGAMETICSPERSEC, rfreq));
+#endif
+    return clamp(tabledivide64(65536*elapsedFrames*REALGAMETICSPERSEC, rfreq), 0, 65536);
+}
+
+extern int myconnectindex;
+static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
+{
+    if (!((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && ((g_player[myconnectindex].ps->gm & MODE_MENU) == 0)) ||
+          (g_netServer || ud.multimode > 1) ||
+          ud.recstat == 2) ||
+        ud.pause_on)
+    {
+        return 65536;
+    }
+
+    return calc_smoothratio_demo(totalclk, ototalclk);
 }
 
 // sector effector lotags

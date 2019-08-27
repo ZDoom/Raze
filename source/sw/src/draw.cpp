@@ -1383,7 +1383,7 @@ void PrintLocationInfo(PLAYERp pp)
     if (LocationInfo)
     {
 
-        i = totalclock;
+        i = (int32_t) totalclock;
         if (i != frameval[framecnt])
         {
             sprintf(buffer, "FPS: %d", ((120 * AVERAGEFRAMES) / (i - frameval[framecnt])) + f_c);
@@ -1744,7 +1744,7 @@ void DrawMessageInput(PLAYERp pp)
     short c;
 
     // Used to make cursor fade in and out
-    c = 4-(sintable[(totalclock<<4)&2047]>>11);
+    c = 4-(sintable[((int32_t) totalclock<<4)&2047]>>11);
 
     if (MessageInputMode)
     {
@@ -1754,12 +1754,12 @@ void DrawMessageInput(PLAYERp pp)
         if (cur_show)
         {
             minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,0,ROTATE_SPRITE_SCREEN_CLIP);
-            rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+((totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
+            rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+(((int32_t) totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
         }
         else
         {
             minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,0,ROTATE_SPRITE_SCREEN_CLIP);
-            rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+((totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
+            rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+(((int32_t) totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
         }
     }
 }
@@ -1774,7 +1774,7 @@ void DrawConInput(PLAYERp pp)
     short c;
 
     // Used to make cursor fade in and out
-    c = 4-(sintable[(totalclock<<4)&2047]>>11);
+    c = 4-(sintable[((int32_t) totalclock<<4)&2047]>>11);
 
     if (ConInputMode)
     {
@@ -2309,7 +2309,7 @@ drawscreen(PLAYERp pp)
     PreUpdatePanel();
 
 
-    smoothratio = min(max((totalclock - ototalclock) * (65536 / synctics),0),65536);
+    smoothratio = min(max(((int32_t) totalclock - ototalclock) * (65536 / synctics),0),65536);
 
     if (!ScreenSavePic)
     {

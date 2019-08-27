@@ -1543,7 +1543,7 @@ void OSD_Draw(void)
     }
 
     int       offset = ((osd->flags & (OSD_CAPS | OSD_SHIFT)) == (OSD_CAPS | OSD_SHIFT) && osd->draw.head > 0);
-    int const shade  = osd->draw.promptshade ? osd->draw.promptshade : (sintable[(totalclock<<4)&2047]>>11);
+    int const shade  = osd->draw.promptshade ? osd->draw.promptshade : (sintable[((int32_t) totalclock<<4)&2047]>>11);
 
     if (osd->draw.head == osd->text.lines-1)
         drawosdchar(0, osdrowscur, '~', shade, osd->draw.promptpal);
@@ -1569,7 +1569,7 @@ void OSD_Draw(void)
 
     if (osd->version.buf)
         drawosdstr(osd->draw.cols - osd->version.len, osdrowscur - (offset >= osd->draw.cols - osd->version.len),
-                    osd->version.buf, osd->version.len, (sintable[(totalclock<<4)&2047]>>11), osd->version.pal);
+                    osd->version.buf, osd->version.len, (sintable[((int32_t) totalclock<<4)&2047]>>11), osd->version.pal);
 
     videoEndDrawing();
 }

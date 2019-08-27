@@ -1098,7 +1098,7 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
         if (playerNum == myconnectindex)
         {
             CAMERADIST = 0;
-            CAMERACLOCK = totalclock;
+            CAMERACLOCK = (int32_t) totalclock;
         }
 
         if (g_fakeMultiMode)

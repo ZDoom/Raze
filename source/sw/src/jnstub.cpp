@@ -1430,7 +1430,7 @@ static void sw_printmessage256(const char *text)
 }
 static void sw_printmessage16(const char *text)
 {
-    lastpm16time = totalclock;
+    lastpm16time = (int32_t) totalclock;
     _printmessage16("%s", text);
 }
 
@@ -2166,7 +2166,7 @@ ExtCheckKeys(void)
         static int frameval[AVERAGEFRAMES], framecnt = 0;
         int i;
 
-        i = totalclock;
+        i = (int32_t) totalclock;
         if (i != frameval[framecnt])
         {
             sprintf(tempbuf, "%d", ((120 * AVERAGEFRAMES) / (i - frameval[framecnt])) + f_c);

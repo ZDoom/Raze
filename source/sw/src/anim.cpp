@@ -319,7 +319,7 @@ playanm(short anim_num)
 
     SoundState = 0;
     //ototalclock = totalclock + 120*2;
-    ototalclock = totalclock;
+    ototalclock = (int32_t) totalclock;
 
     for (i = 1; i < numframes; i++)
     {

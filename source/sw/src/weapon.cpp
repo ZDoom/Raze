@@ -17900,14 +17900,14 @@ InitUzi(PLAYERp pp)
 
     if (uziclock > totalclock)
     {
-        uziclock = totalclock;
+        uziclock = (int32_t) totalclock;
         FireSnd = TRUE;
     }
 
-    clockdiff = totalclock - uziclock;
+    clockdiff = (int32_t) totalclock - uziclock;
     if (clockdiff > UZIFIRE_WAIT)
     {
-        uziclock = totalclock;
+        uziclock = (int32_t) totalclock;
         FireSnd = TRUE;
     }
 

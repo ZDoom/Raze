@@ -100,7 +100,7 @@ static int32_t timert;
 
 int32_t GetTime(void)
 {
-    return totalclock;
+    return (int32_t) totalclock;
     //return timert++;
 }
 

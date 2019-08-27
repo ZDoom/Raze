@@ -2986,9 +2986,9 @@ void P_GetInput(int const playerNum)
     {
         static int32_t turnHeldTime   = 0;
         static int32_t lastInputClock = 0;  // MED
-        int32_t const  elapsedTics    = totalclock - lastInputClock;
+        int32_t const  elapsedTics    = (int32_t) totalclock - lastInputClock;
 
-        lastInputClock = totalclock;
+        lastInputClock = (int32_t) totalclock;
 
         if (BUTTON(gamefunc_Turn_Left))
         {
@@ -4175,7 +4175,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     if (!(PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_NOVISIBLE))
                     {
-                        lastvisinc = totalclock+32;
+                        lastvisinc = (int32_t) totalclock+32;
                         pPlayer->visibility = 0;
                     }
 

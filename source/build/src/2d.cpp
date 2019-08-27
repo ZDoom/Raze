@@ -966,7 +966,7 @@ static void editorDraw2dWall(int32_t i, int32_t posxe, int32_t posye, int32_t po
             {
                 col = editorcolors[15] - (M32_THROB>>1);
 
-                if (totalclock & 16)
+                if ((int32_t) totalclock & 16)
                     pointsize++;
             }
 
