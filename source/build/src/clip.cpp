@@ -816,7 +816,7 @@ static bool cliptestsector(int const dasect, int const nextsect, int32_t const f
 
             ((sec2->ceilingstat&1) == 0 && 
             posz <= dacz2+(ceildist-1) &&
-            dacz2 > dacz+CLIPCURBHEIGHT));  // ceilings check the same conditions ^^^^^
+            dacz2 > dacz /*+CLIPCURBHEIGHT*/));  // ceilings check the same conditions ^^^^^
 }
 
 int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
