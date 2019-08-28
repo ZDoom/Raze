@@ -534,7 +534,7 @@ ifeq ($(PLATFORM),WINDOWS)
         LINKERFLAGS += -Wl,--large-address-aware
     endif
     LINKERFLAGS += -Wl,--enable-auto-import
-    LINKERFLAGS += -Wl,--dynamicbase,--nxcompat,--high-entropy-va
+    LINKERFLAGS += -Wl,--dynamicbase,--nxcompat
 
     LUAJIT_BCOPTS := -o windows
     ifeq (32,$(BITS))
