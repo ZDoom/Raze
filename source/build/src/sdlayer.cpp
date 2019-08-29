@@ -1590,8 +1590,8 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
     SDL_DisplayMode desktopmode;
     SDL_GetDesktopDisplayMode(0, &desktopmode);
 
-    int const windowedMode = (desktopmode.w == x && desktopmode.h == y) ? SDL_WINDOW_BORDERLESS : 0;
-
+    int const matchedResolution = (desktopmode.w == x && desktopmode.h == y);
+    int const borderless = (g_borderless == 1 || (g_borderless == 2 && matchedResolution)) ? SDL_WINDOW_BORDERLESS : 0;
 #ifdef USE_OPENGL
     if (c > 8 || !nogl)
     {
@@ -1630,9 +1630,11 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
             /* HACK: changing SDL GL attribs only works before surface creation,
                so we have to create a new surface in a different format first
                to force the surface we WANT to be recreated instead of reused. */
+
+
             sdl_window = SDL_CreateWindow("", windowpos ? windowx : (int)SDL_WINDOWPOS_CENTERED,
                                           windowpos ? windowy : (int)SDL_WINDOWPOS_CENTERED, x, y,
-                                          SDL_WINDOW_OPENGL);
+                                          SDL_WINDOW_OPENGL | borderless);
 
             if (sdl_window)
                 sdl_context = SDL_GL_CreateContext(sdl_window);
@@ -1640,6 +1642,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
             if (!sdl_window || !sdl_context)
             {
                 initprintf("Unable to set video mode: %s failed: %s\n", sdl_window ? "SDL_GL_CreateContext" : "SDL_GL_CreateWindow",  SDL_GetError());
+                nogl = 1;
                 destroy_window_resources();
                 return -1;
             }
@@ -1653,8 +1656,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 return -1;
             }
 
-            // this is using the windowedMode variable to determine whether to pass SDL_WINDOW_FULLSCREEN or SDL_WINDOW_FULLSCREEN_DESKTOP
-            SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? windowedMode ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN : windowedMode));
+            SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? (matchedResolution ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN) : 0));
             SDL_GL_SetSwapInterval(vsync_renderlayer);
 
             setrefreshrate();
@@ -1666,7 +1668,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
         // init
         sdl_window = SDL_CreateWindow("", windowpos ? windowx : (int)SDL_WINDOWPOS_CENTERED,
                                       windowpos ? windowy : (int)SDL_WINDOWPOS_CENTERED, x, y,
-                                      0);
+                                      borderless);
         if (!sdl_window)
             SDL2_VIDEO_ERR("SDL_CreateWindow");
 
@@ -1679,7 +1681,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 SDL2_VIDEO_ERR("SDL_GetWindowSurface");
         }
 
-        SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : windowedMode));
+        SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? (matchedResolution ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN) : 0));
     }
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "1");
