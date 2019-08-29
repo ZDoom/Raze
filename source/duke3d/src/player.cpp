@@ -3048,7 +3048,7 @@ void P_GetInput(int const playerNum)
     localInput.bits |= (BUTTON(gamefunc_Open) << SK_OPEN);
 
     int const sectorLotag = pPlayer->cursectnum != -1 ? sector[pPlayer->cursectnum].lotag : 0;
-    int const crouchable = pPlayer->on_ground && sectorLotag != 2 && (sectorLotag != 1 || pPlayer->spritebridge);
+    int const crouchable = sectorLotag != 2 && (sectorLotag != 1 || pPlayer->spritebridge);
 
     if (BUTTON(gamefunc_Toggle_Crouch))
     {
@@ -3058,7 +3058,7 @@ void P_GetInput(int const playerNum)
             CONTROL_ClearButton(gamefunc_Toggle_Crouch);
     }
 
-    if (BUTTON(gamefunc_Crouch) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
+    if (BUTTON(gamefunc_Crouch) || BUTTON(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
         pPlayer->crouch_toggle = 0;
 
     int const crouching = BUTTON(gamefunc_Crouch) || BUTTON(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle;
