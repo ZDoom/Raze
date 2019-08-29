@@ -530,11 +530,12 @@ ifeq ($(PLATFORM),WINDOWS)
     ASFORMAT := win$(BITS)
     ASFLAGS += -DUNDERSCORES
 
+    LINKERFLAGS += -Wl,--enable-auto-import,--dynamicbase,--nxcompat
     ifneq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
         LINKERFLAGS += -Wl,--large-address-aware
+    else
+        LINKERFLAGS += -Wl,--high-entropy-va
     endif
-    LINKERFLAGS += -Wl,--enable-auto-import
-    LINKERFLAGS += -Wl,--dynamicbase,--nxcompat
 
     LUAJIT_BCOPTS := -o windows
     ifeq (32,$(BITS))
