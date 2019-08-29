@@ -10,9 +10,7 @@
 #ifndef CLOCKTICKS_HPP_
 #define CLOCKTICKS_HPP_
 
-#include <chrono>
-
-int timerGetRate(void);
+#include "timer.h"
 
 //POGO: BUILD/EDuke32 uses right shifts on signed variables expecting arithmetic shifts.
 //      This was already non-portable, and we carry that assumption forth here
