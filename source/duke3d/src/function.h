@@ -105,7 +105,7 @@ enum GameFunction_t
    gamefunc_Quick_Load,
    gamefunc_Alt_Weapon,
    gamefunc_Third_Person_View,
-   gamefunc_Crouch_Toggle,
+   gamefunc_Toggle_Crouch,
    };
 #ifdef __cplusplus
 }

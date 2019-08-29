@@ -646,7 +646,7 @@ void CONFIG_SetGameControllerDefaultsStandard()
     static GameControllerButtonSetting const buttons[] =
     {
         { GAMECONTROLLER_BUTTON_A, gamefunc_Jump },
-        { GAMECONTROLLER_BUTTON_B, gamefunc_Crouch_Toggle },
+        { GAMECONTROLLER_BUTTON_B, gamefunc_Toggle_Crouch },
         { GAMECONTROLLER_BUTTON_BACK, gamefunc_Map },
         { GAMECONTROLLER_BUTTON_LEFTSTICK, gamefunc_Run },
         { GAMECONTROLLER_BUTTON_RIGHTSTICK, gamefunc_Quick_Kick },
