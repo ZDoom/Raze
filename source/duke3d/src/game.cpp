@@ -5061,12 +5061,6 @@ FAKE_F3:
         P_DoQuote(QUOTE_RUN_MODE_OFF + ud.auto_run, &myplayer);
     }
 
-    if (BUTTON(gamefunc_Crouch_Toggle))
-    {
-        CONTROL_ClearButton(gamefunc_Crouch_Toggle);
-        myplayer.crouch_toggle = !myplayer.crouch_toggle;
-    }
-
     if (BUTTON(gamefunc_Map))
     {
         CONTROL_ClearButton(gamefunc_Map);
