@@ -1919,34 +1919,6 @@ void Menu_Init(void)
     }
     M_JOYSTICKAXES.numEntries = joystick.numAxes;
 
-    // prepare video setup
-    for (i = 0; i < validmodecnt; ++i)
-    {
-        for (j = 0; j < MEOS_VIDEOSETUP_RESOLUTION.numOptions; ++j)
-        {
-            if (validmode[i].xdim == resolution[j].xdim && validmode[i].ydim == resolution[j].ydim)
-            {
-                resolution[j].flags |= validmode[i].fs ? RES_FS : RES_WIN;
-                Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, (resolution[j].flags & RES_FS) ? "" : "Win");
-                MEOSN_VIDEOSETUP_RESOLUTION[j] = resolution[j].name;
-                if (validmode[i].bpp > resolution[j].bppmax)
-                    resolution[j].bppmax = validmode[i].bpp;
-                break;
-            }
-        }
-
-        if (j == MEOS_VIDEOSETUP_RESOLUTION.numOptions) // no match found
-        {
-            resolution[j].xdim = validmode[i].xdim;
-            resolution[j].ydim = validmode[i].ydim;
-            resolution[j].bppmax = validmode[i].bpp;
-            resolution[j].flags = validmode[i].fs ? RES_FS : RES_WIN;
-            Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, (resolution[j].flags & RES_FS) ? "" : "Win");
-            MEOSN_VIDEOSETUP_RESOLUTION[j] = resolution[j].name;
-            ++MEOS_VIDEOSETUP_RESOLUTION.numOptions;
-        }
-    }
-
     // prepare sound setup
 #ifndef EDUKE32_STANDALONE
     if (WW2GI)
@@ -2120,6 +2092,39 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_VIDEOSETUP:
     {
+        Bmemset(resolution, 0, sizeof(resolution));
+        MEOS_VIDEOSETUP_RESOLUTION.numOptions = 0;
+
+        // prepare video setup
+        for (int i = 0; i < validmodecnt; ++i)
+        {
+            int j;
+
+            for (j = 0; j < MEOS_VIDEOSETUP_RESOLUTION.numOptions; ++j)
+            {
+                if (validmode[i].xdim == resolution[j].xdim && validmode[i].ydim == resolution[j].ydim)
+                {
+                    resolution[j].flags |= validmode[i].fs ? RES_FS : RES_WIN;
+                    Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, (resolution[j].flags & RES_FS) ? "" : "Win");
+                    MEOSN_VIDEOSETUP_RESOLUTION[j] = resolution[j].name;
+                    if (validmode[i].bpp > resolution[j].bppmax)
+                        resolution[j].bppmax = validmode[i].bpp;
+                    break;
+                }
+            }
+
+            if (j == MEOS_VIDEOSETUP_RESOLUTION.numOptions) // no match found
+            {
+                resolution[j].xdim = validmode[i].xdim;
+                resolution[j].ydim = validmode[i].ydim;
+                resolution[j].bppmax = validmode[i].bpp;
+                resolution[j].flags = validmode[i].fs ? RES_FS : RES_WIN;
+                Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, (resolution[j].flags & RES_FS) ? "" : "Win");
+                MEOSN_VIDEOSETUP_RESOLUTION[j] = resolution[j].name;
+                ++MEOS_VIDEOSETUP_RESOLUTION.numOptions;
+            }
+        }
+
         const int32_t nr = newresolution;
 
         // don't allow setting fullscreen mode if it's not supported by the resolution

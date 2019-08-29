@@ -28,7 +28,8 @@ extern char quitevent, appactive;
 extern char modechange;
 
 extern int32_t vsync;
-extern int32_t g_borderless;
+extern int32_t r_borderless;
+extern int32_t r_displayindex;
 
 extern void app_crashhandler(void);
 
