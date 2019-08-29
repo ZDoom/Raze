@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fix16.h"
 #include "gamedefs.h"
 #include "gamevars.h"
+#include "mmulti.h"
 #include "network.h"
 
 #ifdef __cplusplus
@@ -459,7 +460,6 @@ static inline int32_t calc_smoothratio_demo(ClockTicks totalclk, ClockTicks otot
     return clamp(tabledivide64(65536*elapsedFrames*REALGAMETICSPERSEC, rfreq), 0, 65536);
 }
 
-extern int myconnectindex;
 static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
     if (!((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && ((g_player[myconnectindex].ps->gm & MODE_MENU) == 0)) ||
