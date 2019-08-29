@@ -1510,7 +1510,11 @@ int A_Spawn(int spriteNum, int tileNum)
 
         if (!G_InitActor(newSprite, s.picnum, 0))
             T2(newSprite) = T5(newSprite) = 0;  // AC_MOVE_ID, AC_ACTION_ID
-        else A_GetZLimits(newSprite);
+        else
+        {
+            A_GetZLimits(newSprite);
+            actor[newSprite].bpos = sprite[newSprite].pos;
+        }
     }
 
     pSprite = &sprite[newSprite];
