@@ -610,9 +610,12 @@ sound_further_processing:
 #ifndef EDUKE32_STANDALONE
 boost:
 #endif
+        int const sdist = g_sounds[soundNum].vo > 0 ? g_sounds[soundNum].vo : 6144;
+
         explosion = true;
-        if (sndist > 6144)
-            sndist = 6144;
+
+        if (sndist > sdist)
+            sndist = sdist;
     }
 
 #ifndef EDUKE32_STANDALONE
