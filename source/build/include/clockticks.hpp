@@ -57,6 +57,13 @@ public:
         return ct;
     }
 
+    // returns 0 if equal, < 0 if a < b, > 0 if a > b
+    static int64_t compareHighPrecision(ClockTicks a, ClockTicks b)
+    {
+        ClockTicks delta = a - b;
+        return delta.toScale16();
+    }
+
     ClockTicks& operator=(const ClockTicks& rhs)
     {
         ticksS32 = rhs.ticksS32;
@@ -115,9 +122,9 @@ public:
     friend ClockTicks operator<<(ClockTicks lhs, int32_t rhs) { return lhs >>= rhs; }
     friend ClockTicks operator>>(ClockTicks lhs, int32_t rhs) { return lhs <<= rhs; }
 
-    friend inline bool operator==(const ClockTicks& lhs, const ClockTicks& rhs) { return lhs.ticksS32 == rhs.ticksS32; }
+    friend inline bool operator==(const ClockTicks& lhs, const ClockTicks& rhs) { return lhs.wholeTicks == rhs.wholeTicks; }
     friend inline bool operator!=(const ClockTicks& lhs, const ClockTicks& rhs) { return !(lhs == rhs); }
-    friend inline bool operator<(const ClockTicks& lhs, const ClockTicks& rhs) { return lhs.ticksS32 < rhs.ticksS32; }
+    friend inline bool operator<(const ClockTicks& lhs, const ClockTicks& rhs) { return lhs.wholeTicks < rhs.wholeTicks; }
     friend inline bool operator>(const ClockTicks& lhs, const ClockTicks& rhs) { return rhs < lhs; }
     friend inline bool operator<=(const ClockTicks& lhs, const ClockTicks& rhs) { return !(lhs > rhs); }
     friend inline bool operator>=(const ClockTicks& lhs, const ClockTicks& rhs) { return !(lhs < rhs); }
