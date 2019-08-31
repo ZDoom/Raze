@@ -196,7 +196,7 @@ void WaitNoKey(int nSecs, void (*pFunc) (void))
     while (nTotalTime > totalclock)
     {
 #ifdef _MSC_VER
-        handleevents();
+        HandleAsync();
 #endif
         if (pFunc) {
             pFunc();
@@ -211,7 +211,7 @@ int WaitAnyKey(int nSecs)
     while (1)
     {
 #ifdef _MSC_VER
-        handleevents();
+        HandleAsync();
 #endif
         if (nTotalTime <= totalclock || nSecs == -1) {
             return -1;

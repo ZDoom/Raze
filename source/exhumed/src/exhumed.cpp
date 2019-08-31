@@ -730,6 +730,13 @@ void timerhandler()
     }
 }
 
+void HandleAsync()
+{
+    handleevents();
+    if (!bInMove)
+        OSD_DispatchQueued();
+}
+
 int MyGetStringWidth(const char *str)
 {
     int nLen = strlen(str);
@@ -2022,9 +2029,6 @@ LOOP2:
 LOOP3:
     while (levelnew != -1)
     {
-        // CHECKME - this should be here?
-        handleevents();
-
         // BLUE
         if (CDplaying()) {
             fadecdaudio();
@@ -2032,6 +2036,7 @@ LOOP3:
 
         CheckCD();
 
+#if 0
         if (!bNoCDCheck)
         {
             while (!checkcdrom())
@@ -2044,6 +2049,7 @@ LOOP3:
                 }
             }
         }
+#endif
 
         if (levelnew == kMap20)
         {
@@ -2100,12 +2106,18 @@ LOOP3:
     mysetbrightness((uint8_t)nGamma);
     //int edi = totalclock;
     tclocks2 = totalclock;
+    CONTROL_BindsEnabled = 1;
     // Game Loop
     while (1)
     {
         if (levelnew >= 0)
+        {
+            CONTROL_BindsEnabled = 0;
             goto LOOP1;
-        CONTROL_BindsEnabled = 1;
+        }
+
+        HandleAsync();
+        OSD_DispatchQueued();
         // Section B
         if (!nCDTrackLength && !nFreeze && !nNetPlayerCount)
         {
@@ -2150,9 +2162,6 @@ LOOP3:
 
         videoNextPage();
 
-        // TEST - trying to fix player unable to restart when dead...
-        handleevents();
-
 // TODO		CONTROL_GetButtonInput();
         CheckKeys();
         UpdateSounds();
@@ -2182,6 +2191,7 @@ LOOP3:
                     fclose(vcrfp);
                 }
 
+                CONTROL_BindsEnabled = 0;
                 goto MENU;
             }
         }
@@ -2307,7 +2317,7 @@ LOOP3:
         // loc_12149:
         if (bInDemo)
         {
-            while (tclocks > totalclock) { handleevents(); }
+            while (tclocks > totalclock) { HandleAsync(); }
             tclocks = totalclock;
         }
 
@@ -2319,6 +2329,7 @@ LOOP3:
             {
                 CONTROL_ClearButton(gamefunc_Escape);
 MENU2:
+                CONTROL_BindsEnabled = 0;
                 nMenu = menu_Menu(1);
 
                 switch (nMenu)
@@ -2343,6 +2354,7 @@ MENU2:
                         }
                         break;
                 }
+                CONTROL_BindsEnabled = 1;
                 RefreshStatus();
             }
             else if (KB_KeyDown[sc_PrintScreen])
@@ -2391,8 +2403,6 @@ MENU2:
                     ldMapZoom += 2;
                 }
             }
-
-            handleevents();
 
             if (PlayerList[nLocalPlayer].nHealth > 0)
             {
@@ -2596,7 +2606,7 @@ void DoTitle()
 
     while (LocalSoundPlaying())
     {
-        handleevents();
+        HandleAsync();
 
         menu_DoPlasma();
         overwritesprite(160, 100, nTile, 0, 3, kPalNormal);
@@ -2826,7 +2836,7 @@ int Query(short nLines, short nKeys, ...)
 
         while (1)
         {
-            handleevents();
+            HandleAsync();
 
             char key = toupper(KB_GetCh());
 

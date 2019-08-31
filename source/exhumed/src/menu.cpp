@@ -443,13 +443,8 @@ void menu_DoPlasma()
     for (int j = 0; j < 5; j++)
     {
         int pB = plasma_B[j];
-
-        if ((plasma_C[j]>>16) <= nSmokeLeft)
-            plasma_C[j] = nSmokeLeft<<16;
-        else if ((plasma_C[j]>>16) >= nSmokeRight)
-            plasma_C[j] = nSmokeRight<<16;
-
         int pC = plasma_C[j];
+        int badOffset =  (pC>>16) < nSmokeLeft || (pC>>16) >= nSmokeRight;
 
         uint8_t *ptr3 = (uint8_t*)(waloff[kExhumedLogo] + ((pC >> 16) - nSmokeLeft) * tilesiz[kExhumedLogo].y);
 
@@ -461,6 +456,9 @@ void menu_DoPlasma()
             plasma_B[j] = -plasma_B[j];
             plasma_A[j] = esi == 0;
         }
+
+        if (badOffset)
+            continue;
         
         unsigned int nSmokeOffset = 0;
 
@@ -501,6 +499,8 @@ void menu_DoPlasma()
         v28[nSmokeOffset] = 175;
     }
 
+    tileInvalidate(nPlasmaTile,-1,-1);
+
     overwritesprite(0,   0,  nPlasmaTile,  0, 2, kPalNormal);
     overwritesprite(160, 40, kExhumedLogo, 0, 3, kPalNormal);
     
@@ -521,7 +521,7 @@ void menu_DoPlasma()
     // TEMP
     int time = totalclock + 4;
     while (totalclock < time) {
-        handleevents(); 
+        HandleAsync();
     }
 }
 
@@ -666,7 +666,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
     while (var_38 < 12)
     {
-        handleevents();
+        HandleAsync();
 
         if ((totalclock - startTime) / kTimerTicks)
         {
@@ -688,8 +688,6 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         // for each level - drawing the 'level completed' on-fire smoke markers
         for (i = 0; i < kMap20; i++)
         {
-            handleevents();
-
             int screenY = (i >> 1) * -200;
 
             if (nLevelBest >= i) // check if the player has finished this level
@@ -837,7 +835,7 @@ void menu_AdjustVolume()
 
     while (1)
     {
-        handleevents();
+        HandleAsync();
 
         menu_DoPlasma();
 
@@ -1027,7 +1025,7 @@ int menu_NewGameMenu()
 
         while (1)
         {
-            handleevents();
+            HandleAsync();
             menu_DoPlasma();
 
             int y = (tilesiz[kMenuBlankTitleTile].y - (tilesiz[kMenuBlankTitleTile].y / 2) / 2) + 65;
@@ -1139,7 +1137,7 @@ int menu_NewGameMenu()
 
     while (1)
     {
-        handleevents();
+        HandleAsync();
 
         overwritesprite(x, y, kMenuCursorTile, 0, 2, kPalNormal);
         overwritesprite(233, y, kMenuCursorTile, 0, 10, kPalNormal);
@@ -1149,7 +1147,7 @@ int menu_NewGameMenu()
 
         while (KB_KeyWaiting())
         {
-            handleevents();
+            HandleAsync();
 
             ch = KB_GetCh();
             if (!ch) {
@@ -1290,7 +1288,7 @@ int menu_LoadGameMenu()
     {
         menu_DoPlasma();
 
-        handleevents();
+        HandleAsync();
 
         overwritesprite(80, 65, kMenuLoadGameTile, 0, 2, kPalNormal);
 
@@ -1486,7 +1484,7 @@ int menu_Menu(int nVal)
 
     while (1)
     {
-        handleevents();
+        HandleAsync();
 
         // skip any disabled menu items so we're selecting the first active one
         while (!ptr[nMenu])
@@ -1566,7 +1564,7 @@ int menu_Menu(int nVal)
         // loc_3A0A7
         while (KB_KeyDown[sc_Escape])
         {
-            handleevents();
+            HandleAsync();
 
             PlayLocalSound(StaticSound[kSound33], 0);
             KB_KeyDown[sc_Escape] = 0;
@@ -1892,7 +1890,7 @@ uint8_t AdvanceCinemaText()
 
         while (1)
         {
-            handleevents();
+            HandleAsync();
 
             if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Return] || KB_KeyDown[sc_Space]) {
                 break;
@@ -2229,7 +2227,7 @@ void DoLastLevelCinema()
 
     while (nEndTime > totalclock)
     {
-        handleevents();
+        HandleAsync();
 
         if (var_24 >= 116)
         {
@@ -2252,7 +2250,7 @@ void DoLastLevelCinema()
 
     do
     {
-        handleevents();
+        HandleAsync();
 LABEL_11:
         if (strlen(gString[nString]) == 0)
             break;
@@ -2274,7 +2272,7 @@ LABEL_11:
         // loc_3ADD7
         while (1)
         {
-            handleevents();
+            HandleAsync();
 
             if (strlen(gString[nString]) == 0)
                 break;
@@ -2287,7 +2285,7 @@ LABEL_11:
 
             while (*nChar)
             {
-                handleevents();
+                HandleAsync();
 
                 if (*nChar != ' ') {
                     PlayLocalSound(StaticSound[kSound71], 0);
@@ -2316,7 +2314,7 @@ LABEL_11:
 
         do
         {
-            handleevents();
+            HandleAsync();
 
             if (v11 <= totalclock)
                 goto LABEL_11;
@@ -2329,7 +2327,7 @@ LABEL_28:
 
     while (1)
     {
-        handleevents();
+        HandleAsync();
 
         DoStatic(var_28, var_24);
 

@@ -8,25 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __WATCOMC__
-#include <dos.h>
-#include <conio.h>
-#include <i86.h>
-
-void handleevents()
-{
-}
-#else
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-int handleevents(void);
-#ifdef __cplusplus
-}
-#endif
-#endif
-
 #define kMaxGrads	12
 
 const char *GradList[kMaxGrads] = {
@@ -212,7 +193,7 @@ void WaitTicks(int nTicks)
     if (htimer)
     {
         nTicks += totalclock;
-        while (nTicks > totalclock) { handleevents(); }
+        while (nTicks > totalclock) { HandleAsync(); }
     }
     else
     {
