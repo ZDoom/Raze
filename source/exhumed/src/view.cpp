@@ -44,7 +44,6 @@ short nChunkTotal = 0;
 short nCameraa;
 short nCamerapan;
 short nViewTop;
-short bgpages = 0;
 short bClip = kFalse;
 short nViewBottom;
 short nViewRight;
@@ -215,15 +214,10 @@ void ResetView()
     MySetPalette(kenpal);
 
     LoadStatus();
-
-    screenpage = (short)numpages;
 }
 
 void SetView1()
 {
-    if (screenpage > 0) {
-        screenpage--;
-    }
 }
 
 void FlushMessageLine()
@@ -284,8 +278,6 @@ void MySetView(int x1, int y1, int x2, int y2)
     videoSetViewableArea(x1, y1, x2, y2);
 
     nViewy = y1;
-    barpages = (short)numpages;
-    bgpages = (short)numpages;
 }
 
 // unused function
@@ -302,6 +294,7 @@ void DrawView()
     int nAngle;
     short pan;
 
+#if 0
     if (bgpages <= 0)
     {
         if (textpages > 0)
@@ -315,6 +308,10 @@ void DrawView()
         RefreshBackground();
         bgpages--;
     }
+#else
+    FlushMessageLine();
+    RefreshBackground();
+#endif
 
     if (!bFullScreen) {
         MaskStatus();

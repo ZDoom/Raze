@@ -610,11 +610,7 @@ short nGamma = 0;
 
 short word_CB326;
 
-short screenpage;
-
 short screensize;
-
-short barpages;
 
 short bSnakeCam = kFalse;
 short bRecord = kFalse;
@@ -762,8 +758,6 @@ void UpdateScreenSize()
         y1,
         (xdim >> 1) - (screensize >> 1) + screensize - 1,
         (y1 + v0 - 1));
-
-    screenpage = (short)numpages;
 
     RefreshStatus();
 }
@@ -2148,6 +2142,7 @@ LOOP3:
 
         if (bMapMode)
         {
+#if 0
             if (bHiRes && nViewBottom > nMaskY)
             {
                 videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nMaskY);
@@ -2158,6 +2153,10 @@ LOOP3:
             {
                 DrawMap();
             }
+#else
+            // TODO: Map should not be drawn on top of status bar. Redraw status bar?
+            DrawMap();
+#endif
         }
 
         videoNextPage();
@@ -2750,11 +2749,14 @@ void EraseScreen(int nVal)
         nVal = overscanindex;
     }
 
+    videoClearScreen(nVal);
+#if 0
     for (int i = 0; i < numpages; i++)
     {
         videoClearScreen(nVal);
         videoNextPage();
     }
+#endif
 }
 
 int Query(short nLines, short nKeys, ...)
@@ -2846,7 +2848,6 @@ int Query(short nLines, short nKeys, ...)
                 {
                     RefreshStatus();
                     ClearAllKeys();
-                    bgpages = numpages;
                     return i;
                 }
             }
@@ -2855,7 +2856,6 @@ int Query(short nLines, short nKeys, ...)
 
     RefreshStatus();
     ClearAllKeys();
-    bgpages = numpages;
 
     return i;
 }

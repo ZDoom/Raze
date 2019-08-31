@@ -4,7 +4,6 @@
 
 extern short bSubTitles;
 extern short nViewTop;
-extern short bgpages;
 extern short bClip;
 extern short nViewBottom;
 extern short nViewRight;

@@ -19,7 +19,7 @@
 short nMaskY;
 static short nAnimsFree = 0;
 
-short statusmask[1600];
+short statusmask[MAXXDIM];
 
 short message_timer = 0;
 char message_text[80];
@@ -60,7 +60,6 @@ short nItemAltSeq;
 short airpages = 0;
 
 short ammodelay = 3;
-short ammopages = 4;
 
 short nCounterBullet = -1;
 
@@ -143,8 +142,6 @@ void RefreshStatus()
         nKeys >>= 1;
         val += 2;
     }
-
-    barpages = numpages;
 
     SetPlayerItem(nLocalPlayer, nPlayerItem[nLocalPlayer]);
     SetHealthFrame(0);
@@ -365,7 +362,6 @@ void SetCounterDigits()
     nDigit[2] = 3 * (nCounter / 100 % 10);
     nDigit[1] = 3 * (nCounter / 10 % 10);
     nDigit[0] = 3 * (nCounter % 10);
-    ammopages = numpages;
 }
 
 void SetItemSeq()
@@ -507,7 +503,6 @@ void MoveStatus()
     if (nCounter == nCounterDest)
     {
         nCounter = nCounterDest;
-        ammopages = numpages;
         ammodelay = 3;
         return;
     }
@@ -518,8 +513,6 @@ void MoveStatus()
             return;
         }
     }
-
-    ammopages = numpages;
 
     int eax = nCounterDest - nCounter;
 
@@ -590,13 +583,16 @@ void MoveStatus()
 
 void UnMaskStatus()
 {
+#if 0
     for (int i = 0; i < xdim; i++) {
         startdmost[i] = ydim;
     }
+#endif
 }
 
 void MaskStatus()
 {
+#if 0
     for (int i = 0; i < xdim; i++)
     {
         short bx = startdmost[i];
@@ -606,10 +602,12 @@ void MaskStatus()
             startdmost[i] = cx;
         }
     }
+#endif
 }
 
 void LoadStatus()
 {
+#if 0
     int i;
     short nSize;
     short tmp;
@@ -651,6 +649,7 @@ void LoadStatus()
             nMaskY = ydim - v8;
         }
     }
+#endif
 }
 
 void StatusMessage(int messageTime, const char *fmt, ...)
@@ -680,12 +679,8 @@ void DrawStatus()
             NoClip();
 //		}
 
-        if (barpages > 0)
-        {
-            // draw the main bar itself
-            seq_DrawStatusSequence(nStatusSeqOffset, 0, 0);
-            barpages--;
-        }
+        // draw the main bar itself
+        seq_DrawStatusSequence(nStatusSeqOffset, 0, 0);
 
         seq_DrawStatusSequence(nStatusSeqOffset + 128, 0, 0);
         seq_DrawStatusSequence(nStatusSeqOffset + 127, 0, 0);
@@ -728,13 +723,9 @@ void DrawStatus()
             printext(xdim - 20, nViewTop, cFPS, kTile159, -1);
         }
 
-        if (ammopages)
-        {
-            ammopages--;
-            seq_DrawStatusSequence(nStatusSeqOffset + 44, nDigit[2], 0);
-            seq_DrawStatusSequence(nStatusSeqOffset + 45, nDigit[1], 0);
-            seq_DrawStatusSequence(nStatusSeqOffset + 46, nDigit[0], 0);
-        }
+        seq_DrawStatusSequence(nStatusSeqOffset + 44, nDigit[2], 0);
+        seq_DrawStatusSequence(nStatusSeqOffset + 45, nDigit[1], 0);
+        seq_DrawStatusSequence(nStatusSeqOffset + 46, nDigit[0], 0);
 
         // bjd - commenting out this check seems to fix the black status bar at 320x200 resolution
 //		if (bHiRes) {
@@ -837,7 +828,7 @@ void DrawStatus()
         sprintf(coordBuf, "X %d", (int)sprite[nSprite].x);
         printext(x, nViewTop + 1, coordBuf, kTile159, 255);
 
-        sprintf(coordBuf, "Y %d", (int)sprite[nSprite].y);
+        sprintf(coordBuf, "Y %d", sprite[nSprite].y);
         printext(x, nViewTop + 10, coordBuf, kTile159, 255);
     }
 

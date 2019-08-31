@@ -106,7 +106,6 @@ extern int nNetPlayerCount;
 extern int htimer;
 
 extern int nNetTime;
-extern short barpages;
 
 extern short nTotalPlayers;
 
@@ -169,8 +168,6 @@ extern short screensize;
 extern int totalmoves;
 
 extern short nGamma;
-
-extern short screenpage;
 
 extern int lCountDown;
 

@@ -986,7 +986,7 @@ int menu_NewGameMenu()
 
     int nNameOffset = 0; // char index into slot name string
 
-    int nPages = numpages;
+    //int nPages = numpages;
 
     int arg_3E = tilesiz[kMenuBlankTitleTile].x - 10;
 
@@ -1058,10 +1058,10 @@ int menu_NewGameMenu()
             overwritesprite(233, edi + 78, kMenuCursorTile, 0, 10, kPalNormal);
             videoNextPage();
 
-            nPages--;
-            if (nPages > 0) {
-                continue;
-            }
+            //nPages--;
+            //if (nPages > 0) {
+            //    continue;
+            //}
 
             if (KB_KeyDown[sc_Escape])
             {
