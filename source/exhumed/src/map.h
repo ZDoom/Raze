@@ -5,8 +5,8 @@
 #include "typedefs.h"
 
 extern short bShowTowers;
-extern long ldMapZoom;
-extern long lMapZoom;
+extern int ldMapZoom;
+extern int lMapZoom;
 
 void InitMap();
 void GrabMap();

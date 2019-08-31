@@ -8,24 +8,24 @@
 
 enum
 {
-	kWeaponSword = 0,
-	kWeaponPistol,
-	kWeaponM60,
-	kWeaponFlamer,
-	kWeaponGrenade,
-	kWeaponStaff,
-	kWeaponRing,
-	kWeaponMummified
+    kWeaponSword = 0,
+    kWeaponPistol,
+    kWeaponM60,
+    kWeaponFlamer,
+    kWeaponGrenade,
+    kWeaponStaff,
+    kWeaponRing,
+    kWeaponMummified
 };
 
 struct Weapon
 {
-	short nSeq;
-	short b[12]; // seq offsets?
-	short nAmmoType;
-	short c;
-	short d; // default or min ammo? or ammo used per 'shot' ?
-	short bFireUnderwater;
+    short nSeq;
+    short b[12]; // seq offsets?
+    short nAmmoType;
+    short c;
+    short d; // default or min ammo? or ammo used per 'shot' ?
+    short bFireUnderwater;
 //	short pad[15];
 };
 

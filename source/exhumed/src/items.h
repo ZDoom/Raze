@@ -4,12 +4,12 @@
 
 enum
 {
-	kItemHeart = 0,
-	kItemInvincibility,
-	kItemTorch,
-	kItemDoubleDamage,
-	kItemInvisibility,
-	kItemMask,
+    kItemHeart = 0,
+    kItemInvincibility,
+    kItemTorch,
+    kItemDoubleDamage,
+    kItemInvisibility,
+    kItemMask,
 };
 
 extern short nItemMagic[];

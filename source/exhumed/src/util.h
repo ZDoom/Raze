@@ -4,18 +4,18 @@
 
 inline int Min(int a, int b)
 {
-	if (a < b)
-		return a;
-	else
-		return b;
+    if (a < b)
+        return a;
+    else
+        return b;
 }
 
 inline int Max(int a, int b)
 {
-	if (a < b)
-		return b;
-	else
-		return a;
+    if (a < b)
+        return b;
+    else
+        return a;
 }
 
 #endif

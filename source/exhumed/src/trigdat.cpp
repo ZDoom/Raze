@@ -11,141 +11,141 @@ short AngTable[] = {0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,4,4,4,4,4,4,5,
 
 int GetMyAngle(int x, int y)
 {
-	int ebx = -x;
-	int esi = y << 11;
-	int ecx = y;
-	int edx = y;
+    int ebx = -x;
+    int esi = y << 11;
+    int ecx = y;
+    int edx = y;
 
-	if (ebx >= 0)
-	{
-		// left path
+    if (ebx >= 0)
+    {
+        // left path
 
-		edx = ebx << 11;
+        edx = ebx << 11;
 
-		if (y >= 0)
-		{
-			if (ebx == y) {
-				return 768;
-			}
-			else // loc_2F318:
-			{
-				if (y > ebx)
-				{
-					return (AngTable[(edx / y) & kAngleMask] + 512) & kAngleMask;
-				}
-				else
-				{
-					// loc_2F33C:
-					return ((512 - AngTable[(esi / ebx) & kAngleMask]) + 512) & kAngleMask;
-				}
-			}
-		}
-		else
-		{
-			// loc_2F35D:
-			ecx = -y;
+        if (y >= 0)
+        {
+            if (ebx == y) {
+                return 768;
+            }
+            else // loc_2F318:
+            {
+                if (y > ebx)
+                {
+                    return (AngTable[(edx / y) & kAngleMask] + 512) & kAngleMask;
+                }
+                else
+                {
+                    // loc_2F33C:
+                    return ((512 - AngTable[(esi / ebx) & kAngleMask]) + 512) & kAngleMask;
+                }
+            }
+        }
+        else
+        {
+            // loc_2F35D:
+            ecx = -y;
 
-			if (ebx == ecx) {
-				return 1280;
-			}
-			else if (ebx <= ecx)
-			{
-				return ((1024 - AngTable[(edx / ecx) & kAngleMask]) + 512) & kAngleMask;
-			}
-			else
-			{
-				edx = ecx << 11;
-				return (AngTable[(edx / ebx) & kAngleMask] + 1024) & kAngleMask;
-			}
-		}
-	}
-	else
-	{
-		if (edx >= 0)
-		{
-			ebx = -ebx;
+            if (ebx == ecx) {
+                return 1280;
+            }
+            else if (ebx <= ecx)
+            {
+                return ((1024 - AngTable[(edx / ecx) & kAngleMask]) + 512) & kAngleMask;
+            }
+            else
+            {
+                edx = ecx << 11;
+                return (AngTable[(edx / ebx) & kAngleMask] + 1024) & kAngleMask;
+            }
+        }
+    }
+    else
+    {
+        if (edx >= 0)
+        {
+            ebx = -ebx;
 
-			if (ebx == edx) {
-				return 256;
-			}
-			else if (ebx > edx)
-			{
-				return (AngTable[(esi / ebx) & kAngleMask] + 2048) & kAngleMask;
-			}
-			else
-			{
-				edx = ebx << 11;
-				return ((2048 - AngTable[(edx / ecx) & kAngleMask]) + 512) & kAngleMask;
-			}
-		}
-		else
-		{
-			ebx = -ebx;
-			ecx = -ecx;
+            if (ebx == edx) {
+                return 256;
+            }
+            else if (ebx > edx)
+            {
+                return (AngTable[(esi / ebx) & kAngleMask] + 2048) & kAngleMask;
+            }
+            else
+            {
+                edx = ebx << 11;
+                return ((2048 - AngTable[(edx / ecx) & kAngleMask]) + 512) & kAngleMask;
+            }
+        }
+        else
+        {
+            ebx = -ebx;
+            ecx = -ecx;
 
-			if (ebx == ecx) {
-				return 1792;
-			}
-			else if (ebx >= ecx)
-			{
-				edx = ecx << 11;
-				return ((1536 - AngTable[(edx / ebx) & kAngleMask]) + 512) & kAngleMask;
-			}
-			else
-			{
-				edx = ebx << 11;
-				return (AngTable[(edx / ecx) & kAngleMask] + 1536) & kAngleMask;
-			}
-		}
-	}
+            if (ebx == ecx) {
+                return 1792;
+            }
+            else if (ebx >= ecx)
+            {
+                edx = ecx << 11;
+                return ((1536 - AngTable[(edx / ebx) & kAngleMask]) + 512) & kAngleMask;
+            }
+            else
+            {
+                edx = ebx << 11;
+                return (AngTable[(edx / ecx) & kAngleMask] + 1536) & kAngleMask;
+            }
+        }
+    }
 }
 
 // 100% done
 int AngleDiff(short a, short b)
 {
-	int diff = (b - a) & kAngleMask;
+    int diff = (b - a) & kAngleMask;
 
-	if (diff > 1024) {
-		diff = 2048 - diff;
-	}
-	return diff;
+    if (diff > 1024) {
+        diff = 2048 - diff;
+    }
+    return diff;
 }
 
 // unused
 int AnglePick(short a, short b)
 {
-	int nRet = b;
+    int nRet = b;
 
-	if (AngleDiff(a, b) > 512)
-	{
-		nRet ^= 0x400;
-	}
+    if (AngleDiff(a, b) > 512)
+    {
+        nRet ^= 0x400;
+    }
 
-	return nRet;
+    return nRet;
 }
 
 int AngleDelta(int a, int b, int c)
 {
-	int diff = b - a;
+    int diff = b - a;
 
-	if (diff >= 0)
-	{
-		if (diff > 1024) {
-			diff = -(2048 - diff);
-		}
-	}
-	else if (diff < -1024)
-	{
-		diff += 2048;
-	}
+    if (diff >= 0)
+    {
+        if (diff > 1024) {
+            diff = -(2048 - diff);
+        }
+    }
+    else if (diff < -1024)
+    {
+        diff += 2048;
+    }
 
-	if (abs(diff) > c)
-	{
-		if (diff < 0) {
-			return -diff;
-		}
+    if (abs(diff) > c)
+    {
+        if (diff < 0) {
+            return -diff;
+        }
 
-		diff = c;
-	}
-	return diff;
+        diff = c;
+    }
+    return diff;
 }

@@ -5,29 +5,29 @@
 #include "typedefs.h"
 
 enum {
-	kButtonJump = 0x1,
-	kButtonOpen = 0x4,
-	kButtonFire = 0x8,
-	kButtonCrouch = 0x10,
-	kButtonCheatGuns = 0x20,
-	kButtonCheatGodMode = 0x40,
-	kButtonCheatKeys = 0x80,
-	kButtonCheatItems = 0x100,
+    kButtonJump = 0x1,
+    kButtonOpen = 0x4,
+    kButtonFire = 0x8,
+    kButtonCrouch = 0x10,
+    kButtonCheatGuns = 0x20,
+    kButtonCheatGodMode = 0x40,
+    kButtonCheatKeys = 0x80,
+    kButtonCheatItems = 0x100,
 };
 
 // 32 bytes
 struct PlayerInput
 {
-	int xVel;
-	int yVel;
-	short nAngle;
-	ushort buttons;
-	short nTarget;
-	schar horizon;
-	schar nItem;
-	int h;
-	char i;
-	char field_15[11];
+    int xVel;
+    int yVel;
+    short nAngle;
+    ushort buttons;
+    short nTarget;
+    int8_t horizon;
+    int8_t nItem;
+    int h;
+    char i;
+    char field_15[11];
 };
 
 void InitInput();

@@ -443,7 +443,7 @@ int g_useCwd;
 
 short cPupData[300];
 //int worktile[97 * 106] = { 0 };
-uchar worktile[(97*2) * (106*2)] = { 0 };
+uint8_t worktile[(97*2) * (106*2)] = { 0 };
 int lHeadStartClock;
 short *pPupData;
 int lNextStateChange;
@@ -451,13 +451,13 @@ int nPixels;
 int nHeadTimeStart;
 short curx[97 * 106];
 short cury[97 * 106];
-schar destvelx[97 * 106];
-schar destvely[97 * 106];
-uchar pixelval[97 * 106];
-schar origy[97 * 106];
-schar origx[97 * 106];
-schar velx[97 * 106];
-schar vely[97 * 106];
+int8_t destvelx[97 * 106];
+int8_t destvely[97 * 106];
+uint8_t pixelval[97 * 106];
+int8_t origy[97 * 106];
+int8_t origx[97 * 106];
+int8_t velx[97 * 106];
+int8_t vely[97 * 106];
 short nMouthTile;
 
 short nPupData = 0;
@@ -677,22 +677,17 @@ void bail2dos(const char *fmt, ...)
     exit(0);
 }
 
-#ifdef __WATCOMC__
-void __interrupt __far timerhandler()
-#else
-void timerhandler()
-#endif
+void faketimerhandler()
 {
-#ifdef __WATCOMC__
-    totalclock++;
-#endif
-
     if (!(totalclock & 3) && !bInMove && moveframes < 4) {
         moveframes++;
     }
 
     PlayerInterruptKeys();
+}
 
+void timerhandler()
+{
     scan_char++;
     if (scan_char == kTimerTicks)
     {
@@ -922,7 +917,7 @@ void CheckKeys()
         if (nGamma > 4)
             nGamma = 0;
 
-        mysetbrightness((uchar)nGamma);
+        mysetbrightness((uint8_t)nGamma);
         CONTROL_ClearButton(gamefunc_Gamma_Correction);
     }
 
@@ -1318,7 +1313,7 @@ void WritePlaybackInputs()
     fwrite(&sPlayerInput[nLocalPlayer], sizeof(PlayerInput), 1, vcrfp);
 }
 
-BOOL ReadPlaybackInputs()
+uint8_t ReadPlaybackInputs()
 {
     assert(sizeof(PlayerInput) == 32);
 
@@ -1336,7 +1331,7 @@ BOOL ReadPlaybackInputs()
             short buttons;
             short nTarget;
             char horizon;
-            schar nItem;
+            int8_t nItem;
             int h;
             char i;
             char field_15[11];
@@ -1625,7 +1620,7 @@ int ExhumedMain(int argc, char *argv[])
 
             while (1)
             {
-                uchar v27 = gString_Enc[i + k];
+                uint8_t v27 = gString_Enc[i + k];
                 if (v27)
                 {
                     gString_Enc[i + k] = v27 ^ 0xFF;
@@ -1963,7 +1958,7 @@ main_loc_C:
             ClearSerialInbuf();
         }
 
-        mysetbrightness((uchar)nGamma);
+        mysetbrightness((uint8_t)nGamma);
         //int edi = totalclock;
         edi = totalclock;
 
@@ -2698,15 +2693,15 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 {
     int nOffs = tilesiz[nDestTile].y * xPos;
 
-    BYTE *pDest = (BYTE*)waloff[nDestTile] + nOffs + yPos;
-    BYTE *pDestB = pDest;
+    uint8_t *pDest = (uint8_t*)waloff[nDestTile] + nOffs + yPos;
+    uint8_t *pDestB = pDest;
 
     tileLoad(nSrcTile);
 
     int destYSize = tilesiz[nDestTile].y;
     int srcYSize = tilesiz[nSrcTile].y;
     
-    BYTE *pSrc = (BYTE*)waloff[nSrcTile];
+    uint8_t *pSrc = (uint8_t*)waloff[nSrcTile];
     
     for (int x = 0; x < tilesiz[nSrcTile].x; x++)
     {
@@ -2714,7 +2709,7 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 
         for (int y = 0; y < srcYSize; y++)
         {
-            uchar val = *pSrc;
+            uint8_t val = *pSrc;
             if (val != 0xFF) {
                 *pDestB = val;
             }
@@ -2895,7 +2890,7 @@ void InitSpiritHead()
         }
     }
 
-    BYTE *pTile = (BYTE*)waloff[kTileRamsesNormal];
+    uint8_t *pTile = (uint8_t*)waloff[kTileRamsesNormal];
 
     for (int x = 0; x < 97; x++)
     {
@@ -2903,7 +2898,7 @@ void InitSpiritHead()
         {
             if (*pTile != 255)
             {
-                pixelval[nPixels] = *(BYTE*)(waloff[kTileRamsesGold] + x * 106 + y);
+                pixelval[nPixels] = *(uint8_t*)(waloff[kTileRamsesGold] + x * 106 + y);
                 origx[nPixels] = x - 48;
                 origy[nPixels] = y - 53;
                 curx[nPixels] = 0;
@@ -3007,8 +3002,8 @@ void CopyHeadToWorkTile(short nTile)
 {
     tileLoad(nTile);
 
-    BYTE *pSrc = (BYTE*)waloff[nTile];
-    BYTE *pDest = (BYTE*)&worktile[212 * 49 + 53];
+    uint8_t *pSrc = (uint8_t*)waloff[nTile];
+    uint8_t *pDest = (uint8_t*)&worktile[212 * 49 + 53];
 
     for (int i = 0; i < 97; i++)
     {
@@ -3149,7 +3144,7 @@ int DoSpiritHead()
 
                     esi += (ebx + 97) * 212;
 
-//					BYTE *pVal = (BYTE*)worktile;
+//					uint8_t *pVal = (uint8_t*)worktile;
 
                     worktile[106 + esi] = pixelval[i];
                     //pVal += (106 + esi);
@@ -3165,7 +3160,7 @@ int DoSpiritHead()
                     return 1;
                 }
 
-                uchar nXRepeat = sprite[nSpiritSprite].xrepeat;
+                uint8_t nXRepeat = sprite[nSpiritSprite].xrepeat;
                 if (nXRepeat > nSpiritRepeatX)
                 {
                     sprite[nSpiritSprite].xrepeat -= 2;
@@ -3177,7 +3172,7 @@ int DoSpiritHead()
                     }
                 }
 
-                uchar nYRepeat = sprite[nSpiritSprite].yrepeat;
+                uint8_t nYRepeat = sprite[nSpiritSprite].yrepeat;
                 if (nYRepeat > nSpiritRepeatY)
                 {
                     sprite[nSpiritSprite].yrepeat -= 2;
@@ -3258,7 +3253,7 @@ int DoSpiritHead()
 
 //					edx++;
 
-//					BYTE *pVal = (BYTE*)worktile;
+//					uint8_t *pVal = (uint8_t*)worktile;
 
                     worktile[106 + ecx] = pixelval[i];
 
@@ -3359,8 +3354,8 @@ int DoSpiritHead()
         tileLoad(ebx);
 
         // TODO - fixme. How big is worktile?
-        BYTE *pDest = (BYTE*)&worktile[10441];
-        BYTE *pSrc = (BYTE*)waloff[ebx];
+        uint8_t *pDest = (uint8_t*)&worktile[10441];
+        uint8_t *pSrc = (uint8_t*)waloff[ebx];
 
         for (int i = 0; i < 97; i++)
         {
@@ -3389,11 +3384,11 @@ int DoSpiritHead()
             short nTileSizeY = tilesiz[nMouthTile + 598].y;
 
             // TODO - checkme. near loc_133AA
-//			BYTE *pDest = (BYTE*)worktile;
+//			uint8_t *pDest = (uint8_t*)worktile;
 //			pDest += (212 * (97 - nTileSizeX / 2)) + (159 - nTileSizeY);
 
-            BYTE *pDest = (BYTE*)&worktile[212 * (97 - nTileSizeX / 2)] + (159 - nTileSizeY);
-            BYTE *pSrc = (BYTE*)waloff[nMouthTile + 598];
+            uint8_t *pDest = (uint8_t*)&worktile[212 * (97 - nTileSizeX / 2)] + (159 - nTileSizeY);
+            uint8_t *pSrc = (uint8_t*)waloff[nMouthTile + 598];
 
             while (nTileSizeX > 0)
             {
@@ -3479,8 +3474,8 @@ int DoSpiritHead()
         loadtile(ebx);
 
         // TODO - fixme. How big is worktile?
-        BYTE *pDest = (BYTE*)&worktile[10441];
-        BYTE *pSrc = waloff[ebx];
+        uint8_t *pDest = (uint8_t*)&worktile[10441];
+        uint8_t *pSrc = waloff[ebx];
 
         for (int i = 0; i < 97; i++)
         {
@@ -3509,11 +3504,11 @@ int DoSpiritHead()
             short nTileSizeY = tilesizy[nMouthTile + 598];
 
             // TODO - checkme. near loc_133AA
-            //          BYTE *pDest = (BYTE*)worktile;
+            //          uint8_t *pDest = (uint8_t*)worktile;
             //          pDest += (212 * (97 - nTileSizeX / 2)) + (159 - nTileSizeY);
 
-            BYTE *pDest = (BYTE*)&worktile[212 * (97 - nTileSizeX / 2)] + (159 - nTileSizeY);
-            BYTE *pSrc = waloff[nMouthTile + 598];
+            uint8_t *pDest = (uint8_t*)&worktile[212 * (97 - nTileSizeX / 2)] + (159 - nTileSizeY);
+            uint8_t *pSrc = waloff[nMouthTile + 598];
 
             while (nTileSizeX > 0)
             {
@@ -3635,7 +3630,7 @@ int DoSpiritHead()
                 //ecx += 2;
                 //                  ecx++;
 
-                //                  BYTE *pVal = (BYTE*)worktile;
+                //                  uint8_t *pVal = (uint8_t*)worktile;
 
                 worktile[106 + esi + (ebx + 97) * 212] = pixelval[i];
                 //pVal += (106 + esi);
@@ -3644,7 +3639,7 @@ int DoSpiritHead()
         }
         else if (nHeadStage == 1)
         {
-            uchar nXRepeat = sprite[nSpiritSprite].xrepeat;
+            uint8_t nXRepeat = sprite[nSpiritSprite].xrepeat;
             if (nXRepeat > nSpiritRepeatX)
             {
                 sprite[nSpiritSprite].xrepeat -= 2;
@@ -3656,7 +3651,7 @@ int DoSpiritHead()
                 }
             }
 
-            uchar nYRepeat = sprite[nSpiritSprite].yrepeat;
+            uint8_t nYRepeat = sprite[nSpiritSprite].yrepeat;
             if (nYRepeat > nSpiritRepeatY)
             {
                 sprite[nSpiritSprite].yrepeat -= 2;
@@ -3712,7 +3707,7 @@ int DoSpiritHead()
 
                 //                  edx++;
 
-                //                  BYTE *pVal = (BYTE*)worktile;
+                //                  uint8_t *pVal = (uint8_t*)worktile;
 
                 worktile[106 + (((curx[i] >> 8) + 97) * 212) + (cury[i] >> 8)] = pixelval[i];
 

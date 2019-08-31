@@ -8,15 +8,15 @@
 
 enum kStatus
 {
-	kStatDestructibleSprite = 97,
-	kStat98,
-	kStatExplodeTrigger = 141,
-	kStatExplodeTarget = 152
+    kStatDestructibleSprite = 97,
+    kStat98,
+    kStatExplodeTrigger = 141,
+    kStatExplodeTarget = 152
 };
 
 extern short nSmokeSparks;
 extern short nDronePitch;
-extern long lFinaleStart;
+extern int lFinaleStart;
 extern short nFinaleSpr;
 
 void InitObjects();

@@ -3,22 +3,22 @@
 #define __scorp_h__
 
 /* 
-	Selkis Boss AI code
+    Selkis Boss AI code
 */
 
 #define kMaxScorpions	5
 
 struct Scorpion
 {
-	short nHealth;
-	short nFrame;
-	short nAction;
-	short nSprite;
-	short nTarget;
-	short f;
-	short g;
-	schar h;
-	schar i;
+    short nHealth;
+    short nFrame;
+    short nAction;
+    short nSprite;
+    short nTarget;
+    short f;
+    short g;
+    int8_t h;
+    int8_t i;
 };
 
 void InitScorp();

@@ -27,13 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
-struct osdcmd_cheatsinfo {
-	int32_t cheatnum;	// -1 = none, else = see DoCheats()
-	int32_t volume,level;
-};
-
-extern struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
-
 int32_t registerosdcommands(void);
 void onvideomodechange(int32_t newmode);
 

@@ -5,14 +5,14 @@
 // 16 bytes
 struct BlockInfo
 {
-	int x;
-	int y;
-	int field_8;
-	short nSprite;
+    int x;
+    int y;
+    int field_8;
+    short nSprite;
 };
 extern BlockInfo sBlockInfo[];
 
-extern long hihit;
+extern int hihit;
 extern short nChunkSprite[];
 
 signed int lsqrt(int a1);
@@ -44,7 +44,7 @@ int BelowNear(short nSprite);
 
 int PlotCourseToSprite(int nSprite1, int nSprite2);
 
-void CheckSectorFloor(short nSector, int z, long *a, long *b);
+void CheckSectorFloor(short nSector, int z, int *a, int *b);
 
 int GetAngleToSprite(int nSprite1, int nSprite2);
 

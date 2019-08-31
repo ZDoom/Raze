@@ -249,7 +249,7 @@ void SetWeaponStatus(short nPlayer)
 	}
 }
 
-BOOL WeaponCanFire(short nPlayer)
+uint8_t WeaponCanFire(short nPlayer)
 {
 	short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
 	short nSector = nPlayerViewSect[nPlayer];
@@ -284,7 +284,7 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 	int yVect = Sin(sprite[nSprite].ang);
     
     vec3_t startPos = { *x, *y, *z };
-    hitdata_t hitData = { { hitX, hitY, hitZ }, hitSprite, hitSect, hitWall };
+    hitdata_t hitData;
     hitscan(&startPos, *nSector, xVect, yVect, 0, &hitData, CLIPMASK1);
     hitX = hitData.pos.x;
     hitY = hitData.pos.y;
@@ -928,7 +928,7 @@ void DrawWeapons()
 
 	short var_28 = var_30 + WeaponInfo[nWeapon].b[var_34];
 
-	schar nShade = sector[initsect].ceilingshade;
+	int8_t nShade = sector[initsect].ceilingshade;
 
 	int nDouble = nPlayerDouble[nLocalPlayer];
 	int nPal = 0;

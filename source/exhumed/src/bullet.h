@@ -5,16 +5,16 @@
 // 32 bytes
 struct bulletInfo
 {
-	short nDamage; // 0
-	short field_2; // 2
-	int field_4;   // 4
-	short field_8; // 8
-	short nSeq; // 10
-	short field_C; // 12
-	short nFlags;
-	short field_10; // damage radius?
-	short xyRepeat;
-	char pad[12];
+    short nDamage; // 0
+    short field_2; // 2
+    int field_4;   // 4
+    short field_8; // 8
+    short nSeq; // 10
+    short field_C; // 12
+    short nFlags;
+    short field_10; // damage radius?
+    short xyRepeat;
+    char pad[12];
 };
 
 extern bulletInfo BulletInfo[];

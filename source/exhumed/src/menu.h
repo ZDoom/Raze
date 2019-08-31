@@ -10,15 +10,15 @@
 // should be 75 bytes
 struct GameStat
 {
-	uchar nMap;
-	short nWeapons;
-	short nCurrentWeapon;
-	short clip;
-	short items;
+    uint8_t nMap;
+    short nWeapons;
+    short nCurrentWeapon;
+    short clip;
+    short items;
 
-	Player player;
+    Player player;
 
-	short nLives;
+    short nLives;
 };
 #pragma pack()
 
@@ -48,7 +48,7 @@ int LoadCinemaPalette(int nPal);
 void CinemaFadeIn();
 
 void ReadyCinemaText(ushort nVal);
-BOOL AdvanceCinemaText();
+uint8_t AdvanceCinemaText();
 
 void DoFailedFinalScene();
 

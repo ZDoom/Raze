@@ -9,26 +9,26 @@
 
 struct RunStruct
 {
-	union
-	{
-		int nMoves;
-		struct
-		{
-			short nVal;
-			short nRef;
-		};
-	};
+    union
+    {
+        int nMoves;
+        struct
+        {
+            short nVal;
+            short nRef;
+        };
+    };
 
-	short _4;
-	short _6;
+    short _4;
+    short _6;
 };
 
 struct RunChannel
 {
-	short a;
-	short b;
-	short c;
-	short d;
+    short a;
+    short b;
+    short c;
+    short d;
 };
 
 typedef void(*AiFunc)(int, int, int nRun);

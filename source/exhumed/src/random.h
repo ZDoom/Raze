@@ -6,7 +6,7 @@ void InitRandom();
 int RandomBit();
 char RandomByte();
 short RandomWord();
-long RandomLong();
+int RandomLong();
 int RandomSize(int nSize);
 
 #endif

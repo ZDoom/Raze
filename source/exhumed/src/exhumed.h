@@ -1,6 +1,9 @@
 #ifndef __exhumed_h__
 #define __exhumed_h__
 
+#include "compat.h"
+#include "cache1d.h"
+
 #define kTimerTicks		120
 
 #ifdef __WATCOMC__

@@ -11,8 +11,8 @@ short nNetMoveFrames = 0;
 
 void SendGoodbye()
 {
-	bSendBye = kTrue;
-	UpdateInputs();
+    bSendBye = kTrue;
+    UpdateInputs();
 }
 
 void UpdateNetInputs()
@@ -22,12 +22,12 @@ void UpdateNetInputs()
 
 int InitNet(short nSocket, int nPlayers)
 {
-	return 0;
+    return 0;
 }
 
 int InitSerial()
 {
-	return 1;
+    return 1;
 }
 
 void AbortNetworkPlay()

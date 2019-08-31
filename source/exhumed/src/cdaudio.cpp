@@ -4,19 +4,19 @@
 int fadecdaudio()
 {
 /* TODO
-	StartfadeCDaudio();
+    StartfadeCDaudio();
 
-	while (1)
-	{
-		if (!StepFadeCDaudio()) {
-			return 1;
-		}
-		else {
-			WaitTicks(1);
-		}
-	}
+    while (1)
+    {
+        if (!StepFadeCDaudio()) {
+            return 1;
+        }
+        else {
+            WaitTicks(1);
+        }
+    }
 */
-	return 1;
+    return 1;
 }
 
 void CheckCD()

@@ -7,8 +7,8 @@
 #define kMap20	20
 
 enum {
-	kSectUnderwater = 0x2000,
-	kSectLava = 0x4000,
+    kSectUnderwater = 0x2000,
+    kSectLava = 0x4000,
 };
 
 extern int ototalclock;
@@ -36,7 +36,7 @@ extern int SectDepth[];
 extern short SectSoundSect[];
 extern int SectAbove[];
 
-BOOL LoadLevel(int nMap);
+uint8_t LoadLevel(int nMap);
 void InstallEngine();
 void ResetEngine();
 void RemoveEngine();

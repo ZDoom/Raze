@@ -26,7 +26,7 @@ short nLocalEyeSect;
 short nElevSound;
 short nCreepyTimer;
 
-char *soundFiles[kMaxSoundFiles] =
+const char *soundFiles[kMaxSoundFiles] =
 {
   "spl_big",
   "spl_smal",
@@ -142,45 +142,45 @@ short nDistTable[256];
 struct ActiveSound
 {
 /*
-	short _0
-	short _2
-	short _4
-	short _6
-	byte _7
+    short _0
+    short _2
+    short _4
+    short _6
+    byte _7
 
-	short _10
-	short _12
-	int _14
-	int _18
-	int _22;
-	int _26
+    short _10
+    short _12
+    int _14
+    int _18
+    int _22;
+    int _26
 
-	int _30; // x val
-	int _34; // y val
-	int _38; // z val
-	short _42
-	short _44
+    int _30; // x val
+    int _34; // y val
+    int _38; // z val
+    short _42
+    short _44
 */
 };
 
 
 void CreateDistTable()
 {
-	int eax = 260;
+    int eax = 260;
 
-	for (int i = 0; i < 256; i++)
-	{
-		if (eax <= 65280)
-		{
-			nDistTable[i] = eax >> 8;
+    for (int i = 0; i < 256; i++)
+    {
+        if (eax <= 65280)
+        {
+            nDistTable[i] = eax >> 8;
 
-			eax = (eax * eax) >> 8;
-		}
-		else
-		{
-			nDistTable[i] = 255;
-		}
-	}
+            eax = (eax * eax) >> 8;
+        }
+        else
+        {
+            nDistTable[i] = 255;
+        }
+    }
 }
 
 void InitSoundInfo()
@@ -190,118 +190,118 @@ void InitSoundInfo()
 
 int UpdateSounds()
 {
-	return 1;
+    return 1;
 }
 
 int LocalSoundPlaying()
 {
-	return 0;
+    return 0;
 }
 
 // for ASS only
-void testcallback(unsigned long num)
+void testcallback(unsigned int num)
 {
 #if 0
-	short tempi, tempj, tempk;
+    short tempi, tempj, tempk;
 
-	if ((long)num < 0)
-	{
-		if (lumplockbyte[-num] >= 200)
-			lumplockbyte[-num]--;
-		return;
-	}
+    if ((int)num < 0)
+    {
+        if (lumplockbyte[-num] >= 200)
+            lumplockbyte[-num]--;
+        return;
+    }
 
-	tempk = Sound[num].num;
+    tempk = Sound[num].num;
 
-	if (tempk > 0)
-	{
-		if ((soundm[num] & 16) == 0)
-			for (tempj = 0; tempj<tempk; tempj++)
-			{
-				tempi = SoundOwner[num][tempj].i;
-				if (sprite[tempi].picnum == MUSICANDSFX && sector[sprite[tempi].sectnum].lotag < 3 && sprite[tempi].lotag < 999)
-				{
-					hittype[tempi].temp_data[0] = 0;
-					if ((tempj + 1) < tempk)
-					{
-						SoundOwner[num][tempj].voice = SoundOwner[num][tempk - 1].voice;
-						SoundOwner[num][tempj].i = SoundOwner[num][tempk - 1].i;
-					}
-					break;
-				}
-			}
+    if (tempk > 0)
+    {
+        if ((soundm[num] & 16) == 0)
+            for (tempj = 0; tempj<tempk; tempj++)
+            {
+                tempi = SoundOwner[num][tempj].i;
+                if (sprite[tempi].picnum == MUSICANDSFX && sector[sprite[tempi].sectnum].lotag < 3 && sprite[tempi].lotag < 999)
+                {
+                    hittype[tempi].temp_data[0] = 0;
+                    if ((tempj + 1) < tempk)
+                    {
+                        SoundOwner[num][tempj].voice = SoundOwner[num][tempk - 1].voice;
+                        SoundOwner[num][tempj].i = SoundOwner[num][tempk - 1].i;
+                    }
+                    break;
+                }
+            }
 
-		Sound[num].num--;
-		SoundOwner[num][tempk - 1].i = -1;
-	}
+        Sound[num].num--;
+        SoundOwner[num][tempk - 1].i = -1;
+    }
 
-	Sound[num].lock--;
+    Sound[num].lock--;
 #endif
 }
 
-int USRHOOKS_GetMem(void **ptr, unsigned long size)
+int USRHOOKS_GetMem(void **ptr, unsigned int size)
 {
 //	return(USRHOOKS_Ok);
-	return 0;
+    return 0;
 }
 
 int USRHOOKS_FreeMem(void *ptr)
 {
 //	return(USRHOOKS_Ok);
-	return 0;
+    return 0;
 }
 
 void InitFX()
 {
 #if 0
-	AIL_startup();
+    AIL_startup();
 
-	if (bNoSound)
-	{
-		dig = 0;
-	}
+    if (bNoSound)
+    {
+        dig = 0;
+    }
 
-	CreateDistTable();
+    CreateDistTable();
 
-	AIL_set_preference(1, 1);
-	AIL_set_preference(8, 0);
-	AIL_set_preference(7, 1);
+    AIL_set_preference(1, 1);
+    AIL_set_preference(8, 0);
+    AIL_set_preference(7, 1);
 
-	dig = AIL_install_DIG_INI();
-	if (!dig)
-	{
-		DebugOut("Error initializing sound card!\n");
+    dig = AIL_install_DIG_INI();
+    if (!dig)
+    {
+        DebugOut("Error initializing sound card!\n");
         initprintf("Error initializing sound card!\n");
-		DebugOut("ERROR: %s\n", AIL_error);
-		return;
-	}
+        DebugOut("ERROR: %s\n", AIL_error);
+        return;
+    }
 #endif
-	InitSoundInfo();
+    InitSoundInfo();
 
-	nTotalSoundBytes = 0;
-	nSoundCount = 0;
-	nCreepyTimer = 450;
+    nTotalSoundBytes = 0;
+    nSoundCount = 0;
+    nCreepyTimer = 450;
 
 #if 0
-	int status = FX_Init(FXDevice, NumVoices, NumChannels, NumBits, MixRate);
-	if (status == FX_Ok)
-	{
-		FX_SetVolume(FXVolume);
+    int status = FX_Init(FXDevice, NumVoices, NumChannels, NumBits, MixRate);
+    if (status == FX_Ok)
+    {
+        FX_SetVolume(FXVolume);
 
-		if (ReverseStereo == 1) {
-			FX_SetReverseStereo(!FX_GetReverseStereo());
-		}
-	}
+        if (ReverseStereo == 1) {
+            FX_SetReverseStereo(!FX_GetReverseStereo());
+        }
+    }
 
-	if (status != FX_Ok) {
+    if (status != FX_Ok) {
 //		Error("Sound startup error: %s", FX_ErrorString(FX_Error));
-	}
+    }
 
-	status = FX_SetCallBack(testcallback);
+    status = FX_SetCallBack(testcallback);
 
-	if (status != FX_Ok) {
+    if (status != FX_Ok) {
 //		Error("Sound startup error: %s", FX_ErrorString(FX_Error));
-	}
+    }
 #endif
 }
 
@@ -317,24 +317,24 @@ void BendAmbientSound()
 
 void CheckAmbience(short nSector)
 {
-	if (SectSound[nSector] == -1)
-	{
-		if (nAmbientChannel == -1) {
-			return;
-		}
+    if (SectSound[nSector] == -1)
+    {
+        if (nAmbientChannel == -1) {
+            return;
+        }
 
 
-	}
-	else
-	{
+    }
+    else
+    {
 
-	}
+    }
 }
 
 int sound_load_file(char *fileName)
 {
 
-	return 0;
+    return 0;
 }
 
 
@@ -362,7 +362,7 @@ void SetLocalChan(int nChannel)
 
 int GetLocalSound()
 {
-	return 0; // TODO
+    return 0; // TODO
 }
 
 void UpdateLocalSound()
@@ -397,17 +397,17 @@ void StartSwirly(int nActiveSound)
 
 void StartSwirlies()
 {
-	StopAllSounds();
+    StopAllSounds();
 
-	nNextFreq = 19000;
-	nSwirlyFrames = 0;
+    nNextFreq = 19000;
+    nSwirlyFrames = 0;
 
-	int i = 1;
+    int i = 1;
 
-	do {
-		StartSwirly(i);
-		i++;
-	} while (i <= 4);
+    do {
+        StartSwirly(i);
+        i++;
+    } while (i <= 4);
 }
 
 void UpdateSwirlies()

@@ -6,14 +6,14 @@
 
 struct Anim
 {
-	short nSeq;
-	short field_2;
-	short field_4;
-	short nSprite;
+    short nSeq;
+    short field_2;
+    short field_4;
+    short nSprite;
 };
 
 extern Anim AnimList[];
-extern uchar AnimFlags[];
+extern uint8_t AnimFlags[];
 
 void InitAnims();
 void DestroyAnim(int nAnim);

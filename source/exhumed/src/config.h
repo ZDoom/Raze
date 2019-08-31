@@ -25,7 +25,7 @@
 #define DEFAULTJOYSTICKANALOGUEDEAD         2000
 #define DEFAULTJOYSTICKANALOGUESATURATE     9500
 
-extern char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen];
+extern const char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen];
 extern const char keydefaults[kMaxGameFunctions*2][kMaxGameFuncLen];
 extern const char oldkeydefaults[kMaxGameFunctions*2][kMaxGameFuncLen];
 

@@ -25,15 +25,16 @@ enum
 #define kMaxStatus   1024
 #define MAXPSKYTILES 256
 
-inline long Sin(int angle)
+inline int Sin(int angle)
 {
     return sintable[angle & 0x7FF];
 }
 
-int movesprite(short spritenum, long dx, long dy, long dz, long ceildist, long flordist, unsigned long clipmask);
-void overwritesprite(long thex, long they, short tilenum, signed char shade, char stat, char dapalnum);
+int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
+void overwritesprite(int thex, int they, short tilenum, signed char shade, char stat, char dapalnum);
 void precache();
 void resettiming();
-void printext(long x, long y, const char* buffer, short tilenum, char invisiblecol);
+void printext(int x, int y, const char* buffer, short tilenum, char invisiblecol);
+void kensetpalette(unsigned char *vgapal);
 
 #endif

@@ -29,29 +29,29 @@ extern int nPlayerDAng;
 
 struct Player
 {
-	short nHealth;
-	short field_2;
-	short nAction;
-	short nSprite;
-	short bIsMummified;
-	short someNetVal;
-	short invincibility;
-	short nAir;
-	short nSeq;
-	short nMaskAmount;
-	ushort keys;
-	short nMagic;
-	char items[8];
-	short nAmmo[7]; // TODO - kMaxWeapons?
-	short pad[2];
+    short nHealth;
+    short field_2;
+    short nAction;
+    short nSprite;
+    short bIsMummified;
+    short someNetVal;
+    short invincibility;
+    short nAir;
+    short nSeq;
+    short nMaskAmount;
+    ushort keys;
+    short nMagic;
+    char items[8];
+    short nAmmo[7]; // TODO - kMaxWeapons?
+    short pad[2];
 
-	short nCurrentWeapon;
-	short field_34;
-	short bIsFiring;
-	short field_38;
-	short field_3A;
-	short field_3C;
-	short nRun;
+    short nCurrentWeapon;
+    short field_34;
+    short bIsFiring;
+    short field_38;
+    short field_3A;
+    short field_3C;
+    short nRun;
 };
 
 extern short PlayerCount;

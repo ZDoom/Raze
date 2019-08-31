@@ -39,8 +39,8 @@ struct Bullet
 	short field_C;
 	short field_E;
 	short field_10;
-	uchar field_12;
-	uchar field_13;
+	uint8_t field_12;
+	uint8_t field_13;
 	int x;
 	int y;
 	int z;
@@ -125,7 +125,7 @@ void IgniteSprite(int nSprite)
 	if (yRepeat < 1)
 		yRepeat = 1;
 
-	sprite[nAnimSprite].yrepeat = (uchar)yRepeat;
+	sprite[nAnimSprite].yrepeat = (uint8_t)yRepeat;
 }
 
 void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, int x, int y, int z, int nSector)
@@ -429,7 +429,7 @@ loc_2A25F:
 		else
 		{
             vec3_t startPos = { x, y, z };
-            hitdata_t hitData = { { x2, y2, z2 }, hitsprite, hitsect, hitwall };
+            hitdata_t hitData;
 			hitscan(&startPos, sprite[nSprite].sectnum, Sin(sprite[nSprite].ang + 512), Sin(sprite[nSprite].ang), (-Sin(BulletList[nBullet].field_C)) << 3, &hitData, CLIPMASK1);
             x2 = hitData.pos.x;
             y2 = hitData.pos.y;

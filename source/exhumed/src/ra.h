@@ -4,14 +4,14 @@
 
 struct RA
 {
-	short field_0;
-	short field_2;
-	short field_4;
-	short nSprite;
-	short nTarget;
-	short field_A;
-	short field_C;
-	short field_E;
+    short field_0;
+    short field_2;
+    short field_4;
+    short nSprite;
+    short nTarget;
+    short field_A;
+    short field_C;
+    short field_E;
 };
 
 extern RA Ra[];
