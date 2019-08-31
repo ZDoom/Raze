@@ -140,6 +140,9 @@ fixed     droll;
 void PlayerInterruptKeys()
 {
     ControlInfo info;
+    CONTROL_ProcessBinds();
+    memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
+    CONTROL_GetInput(&info);
 
     if (PlayerList[nLocalPlayer].nHealth == 0)
     {
@@ -148,10 +151,6 @@ void PlayerInterruptKeys()
         nPlayerDAng = 0;
         return;
     }
-
-    memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
-    CONTROL_ProcessBinds();
-    CONTROL_GetInput(&info);
 
     info.dyaw *= (lMouseSens >> 1) + 1;
 

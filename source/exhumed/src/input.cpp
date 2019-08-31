@@ -111,10 +111,6 @@ void GetLocalInput()
 
     lLocalButtons |= BUTTON(gamefunc_Open) << 2;
 
-    if (BUTTON(gamefunc_Open)) {
-        int breakme = 123;
-    }
-
 // TODO	ExecRecord(&sPlayerInput[nLocalPlayer], sizeof(PlayerInput));
 }
 
