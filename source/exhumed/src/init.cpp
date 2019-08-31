@@ -360,10 +360,16 @@ uint8_t LoadLevel(int nMap)
     // loadboard has finished
 #endif
     vec3_t startPos;
-    engineLoadBoard(fileName_1, 0, &startPos, &inita, &initsect);
+    int status = engineLoadBoard(fileName_1, 0, &startPos, &inita, &initsect);
+    if (status == -2)
+        status = engineLoadBoardV5V6(fileName_1, 0, &startPos, &inita, &initsect);
     initx = startPos.x;
     inity = startPos.y;
     initz = startPos.z;
+
+#ifdef YAX_ENABLE
+    yax_update(1);
+#endif
 
     int i;
 
