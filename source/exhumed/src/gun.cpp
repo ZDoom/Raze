@@ -193,9 +193,9 @@ void SetNewWeaponIfBetter(short nPlayer, short nWeapon)
 void SelectNewWeapon(short nPlayer)
 {
 	int nWeapon = 6;
-	ushort di = nPlayerWeapons[nPlayer];
+	uint16_t di = nPlayerWeapons[nPlayer];
 
-	ushort dx = 0x40; // bit 7 turned on
+	uint16_t dx = 0x40; // bit 7 turned on
 
 	while (dx)
 	{

@@ -1,11 +1,14 @@
 
 #include "compat.h"
 #include "baselayer.h"
+#include "renderlayer.h"
+#include "typedefs.h"
+#include "common.h"
 #include "keyboard.h"
 #include "control.h"
-#include "typedefs.h"
 #include "engine.h"
 #include "exhumed.h"
+#include "osdcmds.h"
 #include "map.h"
 #include "sequence.h"
 #include "movie.h"
@@ -56,6 +59,10 @@
 #include <time.h>
 #include <assert.h>
 
+#ifdef _WIN32
+# include "winbits.h"
+#endif /* _WIN32 */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -64,6 +71,9 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+const char* AppProperName = APPNAME;
+const char* AppTechnicalName = APPBASENAME;
 
 void FinishLevel();
 
@@ -436,7 +446,23 @@ buildvfs_kfd kopen4loadfrommod(const char *fileName, char searchfirst)
     return (kFile == buildvfs_kfd_invalid) ? kopen4load(fileName, searchfirst) : kFile;
 }
 
+int32_t g_commandSetup = 0;
+int32_t g_noSetup = 0;
 int g_useCwd;
+
+void G_ExtPreInit(int32_t argc,char const * const * argv)
+{
+    g_useCwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
+
+#ifdef _WIN32
+    GetModuleFileName(NULL,g_rootDir,BMAX_PATH);
+    Bcorrectfilename(g_rootDir,1);
+    //buildvfs_chdir(g_rootDir);
+#else
+    buildvfs_getcwd(g_rootDir,BMAX_PATH);
+    strcat(g_rootDir,"/");
+#endif
+}
 
 #define kSpiritX = 106;
 #define kSpiritY = 97;
@@ -1438,9 +1464,61 @@ void DrawClock()
     DoEnergyTile();
 }
 
-int ExhumedMain(int argc, char *argv[])
+void M32RunScript(const char* s) { UNREFERENCED_PARAMETER(s); }
+void app_crashhandler(void)
 {
+    ShutDown();
+}
+
+void G_Polymer_UnInit(void) { }
+
+int app_main(int argc, char const* const* argv)
+{
+    char tempbuf[256];
+#ifdef _WIN32
+#ifndef DEBUGGINGAIDS
+    if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && win_checkinstance())
+    {
+#ifdef EDUKE32_STANDALONE
+        if (!wm_ynbox(APPNAME, "It looks like " APPNAME " is already running.\n\n"
+#else
+        if (!wm_ynbox(APPNAME, "It looks like the game is already running.\n\n"
+#endif
+                      "Are you sure you want to start another copy?"))
+            return 3;
+    }
+#endif
+
+    backgroundidle = 0;
+
+#ifndef USE_PHYSFS
+#ifdef DEBUGGINGAIDS
+    extern int32_t (*check_filename_casing_fn)(void);
+    check_filename_casing_fn = check_filename_casing;
+#endif
+#endif
+#endif
+
+    G_ExtPreInit(argc, argv);
+
+    OSD_SetLogFile(APPBASENAME ".log");
+
+    OSD_SetFunctions(NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     GAME_clearbackground,
+                     BGetTime,
+                     GAME_onshowosd);
+
+    wm_setapptitle(APPNAME);
+
+    initprintf("Exhumed %s\n", s_buildRev);
+    PrintBuildInfo();
+
     int i;
+
 
     int esi = 1;
     int edi = esi;
@@ -1456,20 +1534,20 @@ int ExhumedMain(int argc, char *argv[])
     // Check for any command line arguments
     for (i = 1; i < argc; i++)
     {
-        char *pChar = argv[i];
+        const char *pChar = argv[i];
 
         if (*pChar == '/')
         {
             pChar++;
-            strlwr(pChar);
+            //strlwr(pChar);
 
-            if (strcmp(pChar, "nocreatures") == 0) {
+            if (Bstrcasecmp(pChar, "nocreatures") == 0) {
                 bNoCreatures = kTrue;
             }
-            else if (strcmp(pChar, "nosound") == 0) {
+            else if (Bstrcasecmp(pChar, "nosound") == 0) {
                 bNoSound = kTrue;
             }
-            else if (strcmp(pChar, "record") == 0)
+            else if (Bstrcasecmp(pChar, "record") == 0)
             {
                 if (!bPlayback)
                 {
@@ -1482,7 +1560,7 @@ int ExhumedMain(int argc, char *argv[])
                     }
                 }
             }
-            else if (strcmp(pChar, "playback") == 0)
+            else if (Bstrcasecmp(pChar, "playback") == 0)
             {
                 if (!bRecord)
                 {
@@ -1496,7 +1574,7 @@ int ExhumedMain(int argc, char *argv[])
                     }
                 }
             }
-            else if (strncmp(pChar, "null", 4) == 0)
+            else if (Bstrncasecmp(pChar, "null", 4) == 0)
             {
                 pChar += 4;
 
@@ -1526,7 +1604,7 @@ int ExhumedMain(int argc, char *argv[])
                     forcelevel = levelnew;
                 }
             }
-            else if (strcmp(pChar, "modem") == 0)
+            else if (Bstrcasecmp(pChar, "modem") == 0)
             {
                 bModemPlay = kTrue;
                 bSerialPlay = kTrue;
@@ -1539,7 +1617,7 @@ int ExhumedMain(int argc, char *argv[])
                     forcelevel = levelnew;
                 }
             }
-            else if (strcmp(pChar, "network") == 0)
+            else if (Bstrcasecmp(pChar, "network") == 0)
             {
                 nNetPlayerCount = -1;
                 forcelevel = levelnew;
@@ -1547,6 +1625,13 @@ int ExhumedMain(int argc, char *argv[])
                 bSerialPlay = kFalse;
 
                 esi = 0;
+            }
+            else if (Bstrcasecmp(pChar, "setup") == 0) {
+                g_commandSetup = 1;
+            }
+            else if (Bstrcasecmp(pChar, "nosetup") == 0) {
+                g_noSetup = 1;
+                g_commandSetup = 0;
             }
             else
             {
@@ -1597,6 +1682,54 @@ int ExhumedMain(int argc, char *argv[])
     if (nNetPlayerCount && forcelevel == -1) {
         forcelevel = 1;
     }
+
+    // This needs to happen afterwards, as G_CheckCommandLine() is where we set
+    // up the command-line-provided search paths (duh).
+    // TODO:
+    //G_ExtInit();
+
+#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
+    if (forcegl) initprintf("GL driver blacklist disabled.\n");
+#endif
+
+    // used with binds for fast function lookup
+    hash_init(&h_gamefuncs);
+    for (bssize_t i=kMaxGameFunctions-1; i>=0; i--)
+    {
+        if (gamefunctions[i][0] == '\0')
+            continue;
+
+        hash_add(&h_gamefuncs,gamefunctions[i],i,0);
+    }
+
+#ifdef STARTUP_SETUP_WINDOW
+    int const readSetup =
+#endif
+    CONFIG_ReadSetup();
+
+    if (enginePreInit())
+    {
+        wm_msgbox("Build Engine Initialization Error",
+                  "There was a problem initializing the Build engine: %s", engineerrstr);
+        ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+        Bexit(2);
+    }
+
+    if (Bstrcmp(setupfilename, kSetupFilename))
+        initprintf("Using config file \"%s\".\n",setupfilename);
+
+    //G_ScanGroups();
+
+#ifdef STARTUP_SETUP_WINDOW
+    if (readSetup < 0 || (!g_noSetup && gSetup.forcesetup) || g_commandSetup)
+    {
+        if (quitevent || !startwin_run())
+        {
+            engineUnInit();
+            Bexit(0);
+        }
+    }
+#endif
 
     // Decrypt strings code would normally be here
 #if 0
@@ -1675,7 +1808,15 @@ int ExhumedMain(int argc, char *argv[])
 
     GetCurPal(NULL);
 
-    LoadConfig();
+    CONFIG_WriteSetup(1);
+    CONFIG_ReadSetup();
+
+    initprintf("Initializing OSD...\n");
+
+    Bsprintf(tempbuf, "Exhumed %s", s_buildRev);
+    OSD_SetVersion(tempbuf, 10,0);
+    OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, gamefunctions[gamefunc_Show_Console][0] == '\0' ? OSD_PROTECTED : 0);
+    registerosdcommands();
 
     if (nNetPlayerCount == -1)
     {

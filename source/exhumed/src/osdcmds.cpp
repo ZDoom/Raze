@@ -22,8 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "build.h"
-#include "control.h"
+#include "common.h"
 #include "keyboard.h"
+#include "control.h"
 #include "exhumed.h"
 #include "config.h"
 #include "osdcmds.h"
@@ -656,7 +657,7 @@ int32_t registerosdcommands(void)
         //{ "wchoice","sets weapon autoselection order", (void *)ud.wchoice, CVAR_STRING|CVAR_FUNCPTR, 0, MAX_WEAPONS },
     };
 
-    osdcmd_cheatsinfo_stat.cheatnum = -1;
+    //osdcmd_cheatsinfo_stat.cheatnum = -1;
 
     for (auto & cv : cvars_game)
     {
@@ -741,5 +742,23 @@ int32_t registerosdcommands(void)
 #endif
 
     return 0;
+}
+
+void GAME_onshowosd(int shown)
+{
+    // G_UpdateScreenArea();
+
+    mouseLockToWindow((!shown) + 2);
+
+    //osdshown = shown;
+
+    // XXX: it's weird to fake a keypress like this.
+//    if (numplayers == 1 && ((shown && !ud.pause_on) || (!shown && ud.pause_on)))
+//        KB_KeyDown[sc_Pause] = 1;
+}
+
+void GAME_clearbackground(int numcols, int numrows)
+{
+    COMMON_clearbackground(numcols, numrows);
 }
 

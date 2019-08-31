@@ -18,6 +18,17 @@ void handleevents();
 #define APPBASENAME         "exhumed"
 #endif
 
+// TODO:
+#define OSDTEXT_DEFAULT   "^00"
+#define OSDTEXT_DARKRED   "^00"
+#define OSDTEXT_GREEN     "^00"
+#define OSDTEXT_RED       "^00"
+#define OSDTEXT_YELLOW    "^00"
+
+#define OSDTEXT_BRIGHT    "^S0"
+
+#define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
+
 void ShutDown(void);
 void DebugOut(const char *fmt, ...);
 void bail2dos(const char *fmt, ...);
@@ -75,6 +86,8 @@ int DoSpiritHead();
 void UpdateScreenSize();
 
 extern buildvfs_kfd kopen4loadfrommod(const char* filename, char searchfirst);
+extern int32_t g_commandSetup;
+extern int32_t g_noSetup;
 
 extern short nCDTrackLength;
 

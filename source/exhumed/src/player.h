@@ -2,7 +2,7 @@
 #ifndef __player_h__
 #define __player_h__
 
-#include "typedefs.h"
+#include "compat.h"
 
 void PlayerInterruptKeys();
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle);
@@ -39,7 +39,7 @@ struct Player
     short nAir;
     short nSeq;
     short nMaskAmount;
-    ushort keys;
+    uint16_t keys;
     short nMagic;
     char items[8];
     short nAmmo[7]; // TODO - kMaxWeapons?
@@ -70,7 +70,7 @@ extern short nTauntTimer[];
 
 extern short nDoppleSprite[];
 
-extern ushort nPlayerWeapons[];
+extern uint16_t nPlayerWeapons[];
 
 extern short nPlayerOldWeapon[];
 extern short nPlayerGrenade[kMaxPlayers];

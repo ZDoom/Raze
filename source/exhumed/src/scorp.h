@@ -2,6 +2,8 @@
 #ifndef __scorp_h__
 #define __scorp_h__
 
+#include "compat.h"
+
 /* 
     Selkis Boss AI code
 */

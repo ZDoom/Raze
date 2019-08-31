@@ -23,7 +23,7 @@ enum
 
 #define kMaxPalookups 256
 #define kMaxStatus   1024
-#define MAXPSKYTILES 256
+//#define MAXPSKYTILES 256
 
 inline int Sin(int angle)
 {

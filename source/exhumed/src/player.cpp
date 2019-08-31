@@ -67,10 +67,10 @@ short nActionEyeLevel[] = {
     -14080, -14080, -14080, -14080, -14080, -14080, -14080
 };
 
-ushort nGunLotag[] = { 52, 53, 54, 55, 56, 57 };
-ushort nGunPicnum[] = { 57, 488, 490, 491, 878, 899, 3455 };
+uint16_t nGunLotag[] = { 52, 53, 54, 55, 56, 57 };
+uint16_t nGunPicnum[] = { 57, 488, 490, 491, 878, 899, 3455 };
 
-sshort nItemText[] = {
+int16_t nItemText[] = {
     -1, -1, -1, -1, -1, -1, 18, 20, 19, 13, -1, 10, 1, 0, 2, -1, 3,
     -1, 4, 5, 9, 6, 7, 8, -1, 11, -1, 13, 12, 14, 15, -1, 16, 17,
     -1, -1, -1, 21, 22, -1, -1, -1, -1, -1, -1, 23, 24, 25, 26, 27,
@@ -99,7 +99,7 @@ short nPlayerClip[kMaxPlayers];
 short nPlayerPushSound[kMaxPlayers];
 short nTauntTimer[kMaxPlayers];
 short nPlayerTorch[kMaxPlayers];
-ushort nPlayerWeapons[kMaxPlayers]; // each set bit represents a weapon the player has
+uint16_t nPlayerWeapons[kMaxPlayers]; // each set bit represents a weapon the player has
 short nPlayerLives[kMaxPlayers];
 short nPlayerItem[kMaxPlayers];
 Player PlayerList[kMaxPlayers];
@@ -109,7 +109,7 @@ short nPlayerViewSect[kMaxPlayers];
 short nPlayerFloorSprite[kMaxPlayers];
 PlayerSave sPlayerSave[kMaxPlayers];
 int totalvel[kMaxPlayers] = { 0 };
-sshort eyelevel[kMaxPlayers];
+int16_t eyelevel[kMaxPlayers];
 short nNetStartSprite[kMaxPlayers] = { 0 };
 
 short nStandHeight;
@@ -1439,7 +1439,7 @@ loc_1AB8E:
 
             int var_5C = SectFlag[nViewSect] & kSectUnderwater;
 
-            ushort buttons = sPlayerInput[nPlayer].buttons;
+            uint16_t buttons = sPlayerInput[nPlayer].buttons;
 
             if (buttons & 0x40)
             {

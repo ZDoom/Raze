@@ -1,6 +1,3 @@
-
-#define _USE_32BIT_TIME_T	1
-
 #include "compat.h"
 #include "build.h"
 #include "exhumed.h"
@@ -24,7 +21,6 @@
 #include "cd.h"
 #include "cdaudio.h"
 #include <string>
-#include <time.h>
 
 #include <assert.h>
 
@@ -306,11 +302,9 @@ void menu_DoPlasma()
         nSmokeTop    = 40 - tilesiz[kExhumedLogo].y / 2;
         nSmokeBottom = 40 - tilesiz[kExhumedLogo].y / 2 + tilesiz[kExhumedLogo].y - 1;
 
-        ulong t = time(0) << 16;
-        ulong t2 = time(0) | t;
-
-        // t2 is 64bits on visual studio, but would have been 32bit on WATCOM... just going to cast here
-        nRandom = t2;
+        //uint32_t t = time(0) << 16;
+        //uint32_t t2 = time(0) | t;
+        nRandom = totalclock;
 
         for (int i = 0; i < 5; i++)
         {
@@ -626,7 +620,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     int var_38 = 0;
     int bFadeDone = kFalse;
 
-    slong startTime = totalclock;
+    int startTime = totalclock;
 
     ClearAllKeys();
     UnMaskStatus();
@@ -1843,7 +1837,7 @@ void ComputeCinemaText(int nLine)
     ClearAllKeys();
 }
 
-void ReadyCinemaText(ushort nVal)
+void ReadyCinemaText(uint16_t nVal)
 {
     line = FindGString("CINEMAS");
     if (line < 0) {

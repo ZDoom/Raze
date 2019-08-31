@@ -191,7 +191,7 @@ int seq_ReadSequence(const char *seqName)
         SeqBase[sequences + i] += frames;
     }
 
-    sshort nFrames;
+    int16_t nFrames;
     kread(hFile, &nFrames, sizeof(nFrames));
 
     if (nFrames <= 0 || frames + nFrames >= kMaxSEQFrames)
@@ -217,7 +217,7 @@ int seq_ReadSequence(const char *seqName)
         FrameBase[frames + i] += chunks;
     }
 
-    sshort nChunks;
+    int16_t nChunks;
     kread(hFile, &nChunks, sizeof(nChunks));
 
     if (nChunks < 0 || chunks + nChunks >= kMaxSEQChunks)
@@ -325,12 +325,12 @@ void seq_LoadSequences()
     }
 }
 
-void seq_DrawStatusSequence(short nSequence, ushort edx, short ebx)
+void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx)
 {
     edx += SeqBase[nSequence];
 
     short nFrameBase = FrameBase[edx];
-    sshort nFrameSize = FrameSize[edx];
+    int16_t nFrameSize = FrameSize[edx];
 
     while (1)
     {

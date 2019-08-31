@@ -1646,7 +1646,7 @@ int runlist_CheckRadialDamage(short nSprite)
 
     if (nDist < nDamageRadius)
     {
-        ushort nCStat = sprite[nSprite].cstat;
+        uint16_t nCStat = sprite[nSprite].cstat;
         sprite[nSprite].cstat = 0x101;
 
         if (((kStatExplodeTarget - sprite[nSprite].statnum) <= 1) ||

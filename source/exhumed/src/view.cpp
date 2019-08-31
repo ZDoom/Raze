@@ -1,4 +1,6 @@
 #include "compat.h"
+#include "keyboard.h"
+#include "control.h"
 #include "engine.h"
 #include "config.h"
 #include "names.h"

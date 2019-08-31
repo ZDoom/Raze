@@ -1,4 +1,6 @@
-
+#include "compat.h"
+#include "keyboard.h"
+#include "control.h"
 #include "init.h"
 #include "runlist.h"
 #include "switch.h"
@@ -61,7 +63,7 @@ uint8_t bIsVersion6 = kTrue;
 // 37 bytes
 struct Sector_6
 {
-    ushort wallptr, wallnum;
+    uint16_t wallptr, wallnum;
     short ceilingpicnum, floorpicnum;
     short ceilingheinum, floorheinum;
     int ceilingz, floorz;
@@ -423,6 +425,25 @@ void InstallEngine()
 {
     initgroupfile("stuff.dat");
 
+    char *cwd;
+
+    if (g_modDir[0] != '/' && (cwd = buildvfs_getcwd(NULL, 0)))
+    {
+        buildvfs_chdir(g_modDir);
+        if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
+        {
+            buildvfs_chdir(cwd);
+            if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
+                bail2dos("Failed loading art.");
+        }
+        buildvfs_chdir(cwd);
+#ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
+        Xfree(cwd);
+#endif
+    }
+    else if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
+        bail2dos("Failed loading art.");
+
     // TEMP
 
     //nScreenWidth *= 2;
@@ -477,25 +498,6 @@ void InstallEngine()
         gSetup.ydim = validmode[resIdx].ydim;
         gSetup.bpp  = bpp;
     }
-
-    char *cwd;
-
-    if (g_modDir[0] != '/' && (cwd = buildvfs_getcwd(NULL, 0)))
-    {
-        buildvfs_chdir(g_modDir);
-        if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
-        {
-            buildvfs_chdir(cwd);
-            if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
-                bail2dos("Failed loading art.");
-        }
-        buildvfs_chdir(cwd);
-#ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
-        Xfree(cwd);
-#endif
-    }
-    else if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
-        bail2dos("Failed loading art.");
 
     LoadPaletteLookups();
     MyLoadPalette();

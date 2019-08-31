@@ -303,7 +303,7 @@ int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
     int edi = nSector;
 
     // backup cstat
-    ushort cstat = sprite[nSprite].cstat;
+    uint16_t cstat = sprite[nSprite].cstat;
 
     sprite[nSprite].cstat &= 0xFFFE;
 
@@ -395,7 +395,7 @@ int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
                             IgniteSprite(nSprite);
                             sprite[nSprite].hitag = 20;
                         }
-#if 1
+#if 0
                         short dx = nSectDamage;
                         dx >>= 2;
                         int eax = dx;
@@ -418,10 +418,10 @@ int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
                             mov		outval, edx
                         }
 #endif
-
-                        short nDamageVal = (nSectDamage / 4) - (nSectDamage / 8);
-                        if (nDamageVal) {
-                            runlist_DamageEnemy(nSprite, -1, nDamageVal);
+                        nSectDamage >>= 2;
+                        nSectDamage = nSectDamage - (nSectDamage>>2);
+                        if (nSectDamage) {
+                            runlist_DamageEnemy(nSprite, -1, nSectDamage);
                         }
                     }
 

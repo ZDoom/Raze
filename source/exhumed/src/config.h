@@ -2,6 +2,8 @@
 #ifndef __config_h__
 #define __config_h__
 
+#include "compat.h"
+
 #define kMaxGameFunctions	40
 #define kMaxGameFuncLen     64
 
@@ -83,10 +85,16 @@ typedef struct {
     int32_t noautoload;
 } ud_setup_t;
 
+#define kSetupFilename		"SETUP.CFG"
+extern char setupfilename[];
+
+extern hashtable_t h_gamefuncs;
+
 void SetupInput();
 
 void LoadConfig();
 int CONFIG_ReadSetup();
+void CONFIG_WriteSetup(uint32_t flags);
 
 extern int lMouseSens;
 
@@ -114,6 +122,7 @@ extern uint8_t KeyboardKeys[kMaxGameFunctions][2];
 
 extern int32_t MAXCACHE1DSIZE;
 
+void CONFIG_SetDefaultKeys(const char(*keyptr)[kMaxGameFuncLen], bool lazy=false);
 void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 int32_t CONFIG_FunctionNameToNum(const char* func);
 

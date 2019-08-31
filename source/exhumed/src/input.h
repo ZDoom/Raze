@@ -2,7 +2,7 @@
 #ifndef __input_h__
 #define __input_h__
 
-#include "typedefs.h"
+#include "compat.h"
 
 enum {
     kButtonJump = 0x1,
@@ -21,7 +21,7 @@ struct PlayerInput
     int xVel;
     int yVel;
     short nAngle;
-    ushort buttons;
+    uint16_t buttons;
     short nTarget;
     int8_t horizon;
     int8_t nItem;

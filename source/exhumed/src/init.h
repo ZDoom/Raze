@@ -2,7 +2,7 @@
 #ifndef __init_h__
 #define __init_h__
 
-#include "typedefs.h"
+#include "compat.h"
 
 #define kMap20	20
 

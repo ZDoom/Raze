@@ -2,7 +2,7 @@
 #ifndef __sequence_h__
 #define __sequence_h__
 
-#include "typedefs.h"
+#include "compat.h"
 
 enum {
     kSeqRothands = 0,
@@ -114,7 +114,7 @@ void seq_LoadSequences();
 void seq_MoveSequence(short nSprite, short nSeq, short bx);
 int seq_GetSeqPicnum2(short nSeq, short nFrame);
 int seq_GetSeqPicnum(short nSeq, short edx, short ebx);
-void seq_DrawStatusSequence(short nSequence, ushort edx, short ebx);
+void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx);
 
 int seq_DrawGunSequence(int nSeqOffset, short dx, int xOffs, int yOffs, int nShade, int nPal);
 short seq_GetFrameFlag(short val, short nFrame);

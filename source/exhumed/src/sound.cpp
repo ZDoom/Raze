@@ -116,21 +116,21 @@ short StaticSound[kMaxSoundFiles];
 //
 // Sound variables
 //
-int FXDevice;
-int MusicDevice;
-int FXVolume;
-int MusicVolume;
-int SoundToggle;
-int MusicToggle;
-int VoiceToggle;
-int AmbienceToggle;
+//int FXDevice;
+//int MusicDevice;
+//int FXVolume;
+//int MusicVolume;
+//int SoundToggle;
+//int MusicToggle;
+//int VoiceToggle;
+//int AmbienceToggle;
 //fx_blaster_config BlasterConfig;
-int NumVoices;
-int NumChannels;
-int NumBits;
-int MixRate;
+//int NumVoices;
+//int NumChannels;
+//int NumBits;
+//int MixRate;
 //int32 MidiPort;
-int ReverseStereo;
+//int ReverseStereo;
 
 int nNextFreq;
 int nTotalSoundBytes;

@@ -2,7 +2,7 @@
 #ifndef __map_h__
 #define __map_h__
 
-#include "typedefs.h"
+#include "compat.h"
 
 extern short bShowTowers;
 extern int ldMapZoom;

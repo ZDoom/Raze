@@ -57,9 +57,9 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     int yvect2 = mulscale(yvect, yxaspect, 16);
 
     // draw player position arrow
-    drawline256(xdim << 11, (ydim << 11) - 20480, xdim << 11, (ydim << 11) + 20480, 24);
-    drawline256((xdim << 11) - 20480, ydim << 11, xdim << 11, (ydim << 11) - 20480, 24);
-    drawline256((xdim << 11) + 20480, ydim << 11, xdim << 11, (ydim << 11) - 20480, 24);
+    renderDrawLine(xdim << 11, (ydim << 11) - 20480, xdim << 11, (ydim << 11) + 20480, 24);
+    renderDrawLine((xdim << 11) - 20480, ydim << 11, xdim << 11, (ydim << 11) - 20480, 24);
+    renderDrawLine((xdim << 11) + 20480, ydim << 11, xdim << 11, (ydim << 11) - 20480, 24);
 
     short nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
 
@@ -114,7 +114,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
                             int x2 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
                             int y2 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
 
-                            drawline256(x1 + (xdim << 11), y1 + (ydim << 11), x2 + (xdim << 11), y2 + (ydim << 11), var_10);
+                            renderDrawLine(x1 + (xdim << 11), y1 + (ydim << 11), x2 + (xdim << 11), y2 + (ydim << 11), var_10);
 
                             /*
                             drawline256(
@@ -167,7 +167,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
                 {
                     if (show2dwall[nWall >> 3] & (1 << (nWall & 7)))
                     {
-                        if (tilesizx[wall[nWall].picnum] && tilesizy[wall[nWall].picnum])
+                        if (tilesiz[wall[nWall].picnum].x && tilesiz[wall[nWall].picnum].y)
                         {
                             int ox = wall[nWall].x - cposx;
                             int oy = wall[nWall].y - cposy;
@@ -180,7 +180,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
                             int x2 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
                             int y2 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
 
-                            drawline256(x1 + (xdim << 11), y1 + (ydim << 11), x2 + (xdim << 11), y2 + (ydim << 11), 24);
+                            renderDrawLine(x1 + (xdim << 11), y1 + (ydim << 11), x2 + (xdim << 11), y2 + (ydim << 11), 24);
 
 /*
 
@@ -237,21 +237,21 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
                     // v27 is y1 + 2048
                     // v28 is y1 + 2048 + (ydim << 1);
 
-                    drawline256(
+                    renderDrawLine(
                         x1 - 2048 + (xdim << 11),
                         y1 - 2048 + (ydim << 11),
                         x1 - 2048 + (xdim << 11),
                         y1 + 2048 + (ydim << 1),
                         170);
 
-                    drawline256(
+                    renderDrawLine(
                         x1 + (xdim << 11),
                         y1 + (ydim << 11),
                         x1 + (xdim << 11),
                         y1 + 2048 + (ydim << 11),
                         170);
 
-                    drawline256(
+                    renderDrawLine(
                         x1 + 2048 + (xdim << 11),
                         y1 + (ydim << 11),
                         x1 + 2048 + (xdim << 11),

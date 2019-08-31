@@ -2,6 +2,7 @@
 #ifndef __aistuff_h__
 #define __aistuff_h__
 
+#include "compat.h"
 #include "anubis.h"
 #include "bubbles.h"
 #include "mummy.h"

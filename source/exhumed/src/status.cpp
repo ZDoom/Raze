@@ -36,7 +36,7 @@ short nItemFrames;
 int laststatusx;
 int laststatusy;
 
-sshort nItemSeq;
+int16_t nItemSeq;
 short nDigit[3];
 
 short nMagicFrames;
@@ -53,8 +53,8 @@ short nHealthFrames;
 
 short airframe;
 
-sshort nFirstAnim;
-sshort nLastAnim;
+int16_t nFirstAnim;
+int16_t nLastAnim;
 short nItemAltSeq;
 
 short airpages = 0;
@@ -70,7 +70,7 @@ struct statusAnim
 {
     short s1;
     short s2;	
-    sshort nPage;
+    int16_t nPage;
     int8_t c1;
     int8_t c2;
 };
@@ -130,7 +130,7 @@ void RefreshStatus()
     // draws the red dots that indicate the lives amount
     BuildStatusAnim(2 * nLives + 145, 0);
 
-    ushort nKeys = PlayerList[nLocalPlayer].keys;
+    uint16_t nKeys = PlayerList[nLocalPlayer].keys;
 
     int val = 37;
 
@@ -192,7 +192,7 @@ void InitStatus()
 
 void MoveStatusAnims()
 {
-//	sshort nAnim = nFirstAnim;
+//	int16_t nAnim = nFirstAnim;
 
     for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].c1)
     {
@@ -262,7 +262,7 @@ void DestroyStatusAnim(short nAnim)
 
 void DrawStatusAnims()
 {
-    sshort nAnim = nFirstAnim;
+    int16_t nAnim = nFirstAnim;
 
     while (nAnim != -1)
     {

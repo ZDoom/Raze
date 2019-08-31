@@ -2,7 +2,7 @@
 #ifndef __anims_h__
 #define __anims_h__
 
-#include "typedefs.h"
+#include "compat.h"
 
 struct Anim
 {

@@ -38,7 +38,7 @@ void kensetpalette(unsigned char *vgapal)
     //setbrightness(0, (char*)vgapal, 4 | 2);
     // TODO
     Bmemcpy(palette, vgapal, 768);
-    videoSetPalette(0, 0, 4 | 2);
+    videoSetPalette(0, 0, /*4 | */2);
 #if 0
     char vesapal[1024];
 

@@ -2,6 +2,7 @@
 #ifndef __gun_h__
 #define __gun_h__
 
+#include "compat.h"
 #include "sequence.h"
 
 #define kMaxWeapons		7

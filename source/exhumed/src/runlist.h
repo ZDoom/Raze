@@ -2,7 +2,7 @@
 #ifndef __runlist_h__
 #define __runlist_h__
 
-#include "typedefs.h"
+#include "compat.h"
 
 #define kMaxRuns		25600
 #define kMaxChannels	4096

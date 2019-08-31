@@ -14,8 +14,8 @@
 
 #define kMaxRoach	100
 
-sshort RoachSprite = -1;
-sshort RoachCount = -1;
+int16_t RoachSprite = -1;
+int16_t RoachCount = -1;
 
 static actionSeq ActionSeq[] = {{ 24, 0 }, { 0, 0 }, { 0, 0 }, { 16, 0 }, { 8, 0 }, { 32, 1 }, { 42, 1 }};
 

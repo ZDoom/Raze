@@ -43,7 +43,7 @@ int ReadFrame(FILE *fp)
     uint8_t nType;
     uint8_t var_1C;
     int nSize;
-    ushort yOffset;
+    uint16_t yOffset;
     uint8_t xOffset;
     uint8_t nPixels;
     uint8_t palette[768];

@@ -1,4 +1,5 @@
 
+#include "compat.h"
 #include "record.h"
 #include "typedefs.h"
 #include "save.h"
