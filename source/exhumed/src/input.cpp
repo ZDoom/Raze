@@ -59,50 +59,18 @@ void ClearSpaceBar(short nPlayer)
 
 void GetLocalInput()
 {
-    int ebx = 6;
-    int eax = 24;
-    int edx = -8;
-    uint8_t cl;
-
-    // TODO: clean up
-
-    uint32_t esi;
-
-    while (ebx >= 0)
+    int i;
+    for (i = 6; i >= 0; i--)
     {
-        if (eax <= 31)
-        {
-            esi = CONTROL_ButtonState;
-            cl = eax;
-        }
-        else
-        {
-            esi = CONTROL_ButtonState>>32;
-            cl = edx;
-        }
-
-        if ((esi >> cl) & 1)
+        if (BUTTON(gamefunc_Weapon_1+i))
             break;
-
-        eax--;
-        edx--;
-        ebx--;
     }
-
-    ebx++;
+    i++;
 
     if (PlayerList[nLocalPlayer].nHealth)
     {
-        eax = (BUTTON(gamefunc_Crouch) << 4) | (BUTTON(gamefunc_Fire) << 3);
-
-        edx = BUTTON(gamefunc_Jump);
-
-        ebx <<= 13;
-
-        eax |= edx;
-        eax |= ebx;
-
-        lLocalButtons = eax;
+        lLocalButtons = (BUTTON(gamefunc_Crouch) << 4) | (BUTTON(gamefunc_Fire) << 3)
+                      | (BUTTON(gamefunc_Jump)<<0) | (i<<13);
     }
     else
     {
