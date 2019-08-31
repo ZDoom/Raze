@@ -384,11 +384,13 @@ uint8_t LoadLevel(int nMap)
     pSky->tileofs[1] = 0;
     pSky->tileofs[2] = 0;
     pSky->tileofs[3] = 0;
-    parallaxtype = 0;
-    g_visibility = 2048;
     pSky->yoffs = 256;
-    flash = 0;
     pSky->lognumtiles = 2;
+    pSky->horizfrac = 65536;
+    pSky->yscale = 65536;
+    parallaxtype = 2;
+    g_visibility = 2048;
+    flash = 0;
     precache();
 
     LoadObjects();
