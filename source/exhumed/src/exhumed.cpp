@@ -705,9 +705,9 @@ void bail2dos(const char *fmt, ...)
 
 void faketimerhandler()
 {
-    if ((totalclock < ototalclock + 4) || bInMove)
+    if ((totalclock < ototalclock + 1) || bInMove)
         return;
-    ototalclock += 4;
+    ototalclock += 1;
 
     if (moveframes < 4)
         moveframes++;
@@ -1523,14 +1523,17 @@ int app_main(int argc, char const* const* argv)
     int i;
 
 
-    int esi = 1;
-    int edi = esi;
+    //int esi = 1;
+    //int edi = esi;
+    int doTitle = kTrue;
+    int stopTitle = kFalse;
+    int tclocks, tclocks2;
+    levelnew = 1;
 
     // REVERT - change back to kTrue
 //	short bDoTitle = kFalse;
 
     wConsoleNode = 0;
-    int var_1C = 0;
 
     int nMenu; // TEMP
 
@@ -1570,7 +1573,7 @@ int app_main(int argc, char const* const* argv)
                     vcrfp = fopen("data.vcr", "rb");
                     if (vcrfp != NULL) {
                         bPlayback = kTrue;
-                        esi = 0;
+                        doTitle = kFalse;
                     }
                     else {
                         DebugOut("Can't open data file 'data.vcr' for reading\n");
@@ -1585,7 +1588,7 @@ int app_main(int argc, char const* const* argv)
                 nNetPlayerCount = 1;
                 nTotalPlayers = 2;
 
-                esi = 0;
+                doTitle = kFalse;
 
                 char ch = *pChar;
 
@@ -1614,7 +1617,7 @@ int app_main(int argc, char const* const* argv)
                 nNetPlayerCount = 1;
                 nTotalPlayers = 2;
 
-                esi = 0;
+                doTitle = kFalse;
 
                 if (forcelevel < 0) {
                     forcelevel = levelnew;
@@ -1627,7 +1630,7 @@ int app_main(int argc, char const* const* argv)
                 bModemPlay = kFalse;
                 bSerialPlay = kFalse;
 
-                esi = 0;
+                doTitle = kFalse;
             }
             else if (Bstrcasecmp(pChar, "setup") == 0) {
                 g_commandSetup = 1;
@@ -1671,7 +1674,7 @@ int app_main(int argc, char const* const* argv)
                             levelnew = atoi(pChar);
                             forcelevel = levelnew;
 
-                            esi = 0;
+                            doTitle = kFalse;
 
                             initprintf("Jumping to level %d...\n", levelnew);
                         }
@@ -1785,25 +1788,8 @@ int app_main(int argc, char const* const* argv)
     nFirstPassInfo = FindGString("PASSINFO");
 
     // count the number of passwords available
-    for (nPasswordCount = 0; ; nPasswordCount++)
+    for (nPasswordCount = 0; strlen(gString[nFirstPassword+nPasswordCount]) != 0; nPasswordCount++)
     {
-#if 0
-        char *pStr = gString[nFirstPassword + nPasswordCount];
-        int nLen = strlen(pStr);
-
-        if (!nLen) {
-            break;
-        }
-#else
-        /* note - can't make sense of what the code is doing but i've added the below breakout code which seems sensible.. */
-
-        //		int v32 = (int)&v31[v33];
-        //		if (c == 1)
-        //			break;
-        if (nFirstPassword + nPasswordCount >= nFirstPassInfo - 1) {
-            break;
-        }
-#endif
     }
 
     ResetPassword();
@@ -1864,6 +1850,9 @@ int app_main(int argc, char const* const* argv)
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
 
+    if (enginePostInit())
+        ShutDown();
+
     // loc_11745:
     FadeOut(0);
 //	InstallEngine();
@@ -1896,48 +1885,64 @@ int app_main(int argc, char const* const* argv)
         bail2dos("Unable to connect");
     }
 
-    if (esi)
+    if (doTitle)
     {
-        while (!var_1C)
+        while (!stopTitle)
         {
             DoTitle();
-            var_1C = 1;
+            stopTitle = kTrue;
         }
     }
-
     // loc_11811:
     if (forcelevel > -1)
     {
         levelnew = forcelevel;
+        goto STARTGAME1;
     }
-    else
+    // no forcelevel specified...
+    if (!bPlayback)
     {
-        // no forcelevel specified...
-        if (!bPlayback)
-        {
-            goto main_loc_I;
-        }
+        goto STARTGAME1;
     }
+MENU:
+    SavePosition = -1;
+    nMenu = menu_Menu(0);
+    switch (nMenu)
+    {
+    case -1:
+        goto MENU;
+    case 0:
+        goto EXITGAME;
+    case 3:
+        forcelevel = 0;
+        goto STARTGAME2;
+    case 9:
+        vcrfp = fopen("demo.vcr", "rb");
+        if (vcrfp == NULL) {
+            goto MENU;
+        }
 
-    // multiple points return to here
-main_loc_A:
+        InitRandom();
+        bInDemo = kTrue;
+        bPlayback = kTrue;
+
+        KB_FlushKeyboardQueue();
+        KB_ClearKeysDown();
+        break;
+    }
+STARTGAME1:
     levelnew = 1;
     levelnum = 1;
-
     if (!nNetPlayerCount) {
         FadeOut(0);
     }
-
-main_loc_B:
-
-    esi = 0;
+STARTGAME2:
 
     bCamera = kFalse;
     ClearCinemaSeen();
     PlayerCount = 0;
     lastlevel = -1;
 
-    // Start main_Loop_1
     for (i = 0; i < nTotalPlayers; i++)
     {
         int nPlayer = GrabPlayer();
@@ -1954,9 +1959,6 @@ main_loc_B:
             PlayerList[nPlayer].someNetVal = -4;
         }
     }
-    // End main_Loop_1
-
-    esi = 0;
 
     nNetMoves = 0;
 
@@ -1968,48 +1970,56 @@ main_loc_B:
         forcelevel = GameStats.nMap;
     }
 
-    // Here, we either go into a loop of branch off
-
-    if (forcelevel <= -1) // main_loc_F
+    if (forcelevel > -1)
     {
-        // PINK SECTION
+        // YELLOW SECTION
+        levelnew = forcelevel;
         UpdateInputs();
-        nNetMoves = 1;
-
-        if (nMenu == 2)
-        {
-            esi = 1;
-
-            levelnew = 1;
-            levelnum = 1;
-            levelnew = menu_GameLoad(SavePosition);
-            lastlevel = -1;
-        }
+        forcelevel = -1;
 
         if (bRecord && !bInDemo) {
             menu_GameSave2(vcrfp);
         }
-
-        nBestLevel = levelnew - 1;
-
-        // WE now need to go to main_loc_G:
-        goto main_loc_G;
+        goto LOOP3;
     }
 
-    // YELLOW SECTION
-    levelnew = forcelevel;
+    // PINK SECTION
     UpdateInputs();
-    forcelevel = -1;
+    nNetMoves = 1;
 
-    esi = bRecord;
+    if (nMenu == 2)
+    {
+        levelnew = 1;
+        levelnum = 1;
+        levelnew = menu_GameLoad(SavePosition);
+        lastlevel = -1;
+    }
 
     if (bRecord && !bInDemo) {
         menu_GameSave2(vcrfp);
     }
 
-main_loc_C:
+    nBestLevel = levelnew - 1;
+LOOP1:
 
-//	if (levelnew != -1)
+    if (nPlayerLives[nLocalPlayer] <= 0) {
+        goto MENU;
+    }
+    if (levelnew > 99) {
+        goto EXITGAME;
+    }
+    if (!bInDemo && levelnew > nBestLevel && levelnew != 0 && levelnew <= kMap20 && SavePosition > -1) {
+        menu_GameSave(SavePosition);
+    }
+LOOP2:
+    if (!nNetPlayerCount && !bPlayback && levelnew > 0 && levelnew <= kMap20) {
+        levelnew = showmap(levelnum, levelnew, nBestLevel);
+    }
+
+    if (levelnew > nBestLevel) {
+        nBestLevel = levelnew;
+    }
+LOOP3:
     while (levelnew != -1)
     {
         // CHECKME - this should be here?
@@ -2038,8 +2048,6 @@ main_loc_C:
         if (levelnew == kMap20)
         {
             lCountDown = 81000;
-            esi = 30;
-            edi = 0;
             nAlarmTicks = 30;
             nRedTicks = 0;
             nClockVal = 0;
@@ -2048,372 +2056,345 @@ main_loc_C:
 
         if (!LoadLevel(levelnew)) {
             // TODO "Can't load level %d...\n", nMap;
-            goto main_Exit;
+            goto EXITGAME;
         }
-        else {
-            levelnew = -1;
-//			goto main_loc_C;
-        }
-        // End BLUE
+        levelnew = -1;
     }
-//	else // nMap == -1
+    if (nNetPlayerCount == 0 && lastlevel == levelnum)
     {
-        if (nNetPlayerCount == 0 && lastlevel == levelnum)
-        {
-            RestoreSavePoint(nLocalPlayer, &initx, &inity, &initz, &initsect, &inita);
-        }
+        RestoreSavePoint(nLocalPlayer, &initx, &inity, &initz, &initsect, &inita);
+    }
 
-        lastlevel = levelnum;
+    lastlevel = levelnum;
 
-        edi = 0;
+    for (i = 0; i < nTotalPlayers; i++)
+    {
+        SetSavePoint(i, initx, inity, initz, initsect, inita);
+        RestartPlayer(i);
+        InitPlayerKeys(i);
+    }
 
-        for (i = 0; i < nTotalPlayers; i++)
-        {
-            SetSavePoint(i, initx, inity, initz, initsect, inita);
-            RestartPlayer(i);
-            InitPlayerKeys(i);
-        }
+    UpdateScreenSize();
+    fps = 0;
+    lastfps = 0;
+    InitStatus();
+    ResetView();
+    ResetEngine();
+    totalmoves = 0;
+    GrabPalette();
+    ResetMoveFifo();
+    moveframes = 0;
+    bInMove = kFalse;
+    tclocks = totalclock;
+    nPlayerDAng = 0;
+    lPlayerXVel = 0;
+    lPlayerYVel = 0;
+    movefifopos = movefifoend;
+    nCDTrackLength = 0;
+    RefreshStatus();
 
-        UpdateScreenSize();
-        fps = 0;
-        lastfps = 0;
-        InitStatus();
-        ResetView();
-        ResetEngine();
-        totalmoves = 0;
-        GrabPalette();
-        ResetMoveFifo();
-        moveframes = 0;
-        bInMove = kFalse;
+    if (bSerialPlay) {
+        ClearSerialInbuf();
+    }
 
-        edi = 0;
-
-//		int esi = totalclock;
-        esi = totalclock;
-
-        nPlayerDAng = 0;
-        lPlayerXVel = 0;
-        lPlayerYVel = 0;
-        movefifopos = movefifoend;
-        nCDTrackLength = 0;
-        RefreshStatus();
-
-        if (bSerialPlay) {
-            ClearSerialInbuf();
-        }
-
-        mysetbrightness((uint8_t)nGamma);
-        //int edi = totalclock;
-        edi = totalclock;
-
-main_loc_D:
-        // ORANGE
+    mysetbrightness((uint8_t)nGamma);
+    //int edi = totalclock;
+    tclocks2 = totalclock;
+    // Game Loop
+    while (1)
+    {
         if (levelnew >= 0)
+            goto LOOP1;
+        CONTROL_BindsEnabled = 1;
+        // Section B
+        if (!nCDTrackLength && !nFreeze && !nNetPlayerCount)
         {
-            goto main_loc_G;
+            int nTrack = levelnum;
+            if (nTrack != 0) {
+                nTrack--;
+            }
+
+            nCDTrackLength = playCDtrack((nTrack % 8) + 11);
+
+            if (!nCDTrackLength) {
+                nCDTrackLength = -1;
+            }
+        }
+        // End Section B
+
+        SetView1();
+
+        if (levelnum == kMap20)
+        {
+            LockEnergyTiles();
+            DoEnergyTile();
+            DrawClock();
+        }
+
+        DrawView();
+        UpdateMap();
+
+        if (bMapMode)
+        {
+            if (bHiRes && nViewBottom > nMaskY)
+            {
+                videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nMaskY);
+                DrawMap();
+                videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
+            }
+            else
+            {
+                DrawMap();
+            }
+        }
+
+        videoNextPage();
+
+        // TEST - trying to fix player unable to restart when dead...
+        handleevents();
+
+// TODO		CONTROL_GetButtonInput();
+        CheckKeys();
+        UpdateSounds();
+
+        bInMove = kTrue;
+
+        moveframes = (totalclock - tclocks2) / 4;
+
+        if (moveframes > 4)
+            moveframes = 4;
+
+        if (moveframes != 0)
+            tclocks2 = totalclock;
+
+        if (bPlayback)
+        {
+            // YELLOW
+            if ((bInDemo && KB_KeyWaiting() || !ReadPlaybackInputs()) && KB_GetCh())
+            {
+                KB_FlushKeyboardQueue();
+                KB_ClearKeysDown();
+
+                bPlayback = kFalse;
+                bInDemo = kFalse;
+
+                if (vcrfp) {
+                    fclose(vcrfp);
+                }
+
+                goto MENU;
+            }
+        }
+        else if (bRecord || moveframes)
+        {
+            GetLocalInput();
+
+            sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
+            sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+            sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
+            sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
+            sPlayerInput[nLocalPlayer].nTarget = besttarget;
+
+            Ra[nLocalPlayer].nTarget = besttarget;
+
+            lLocalCodes = 0;
+
+            sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
+        }
+
+        // loc_11F72:
+        if (bRecord && !bInDemo) {
+            WritePlaybackInputs();
+        }
+
+        if (nNetPlayerCount)
+        {
+            if (moveframes)
+            {
+                UpdateInputs();
+                moveframes = nNetMoveFrames;
+            }
         }
         else
         {
-            CONTROL_BindsEnabled = 1;
-            // Section B
-            if (!nCDTrackLength && !nFreeze && !nNetPlayerCount)
+            // loc_11FBC:
+            while (bPause)
             {
-                int nTrack = levelnum;
-                if (nTrack != 0) {
-                    nTrack--;
-                }
-
-                nCDTrackLength = playCDtrack((nTrack % 8) + 11);
-
-                if (!nCDTrackLength) {
-                    nCDTrackLength = -1;
+                ClearAllKeys();
+                if (WaitAnyKey(-1) != sc_Pause)
+                {
+                    bPause = kFalse;
                 }
             }
-            // End Section B
+        }
 
-            SetView1();
+        // loc_11FEE:
+        tclocks += moveframes * 4;
+        while (moveframes&& levelnew < 0)
+        {
+            FixPalette();
 
             if (levelnum == kMap20)
             {
-                LockEnergyTiles();
-                DoEnergyTile();
+                if (lCountDown <= 0)
+                {
+                    for (int i = 0; i < nTotalPlayers; i++) {
+                        nPlayerLives[i] = 0;
+                    }
+
+                    DoFailedFinalScene();
+                    levelnew = 100;
+
+                    break;
+                }
+                // Pink section
+                lCountDown--;
                 DrawClock();
-            }
 
-            DrawView();
-            UpdateMap();
-
-            if (bMapMode)
-            {
-                if (bHiRes && nViewBottom > nMaskY)
+                if (nRedTicks)
                 {
-                    videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nMaskY);
-                    DrawMap();
-                    videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
-                }
-                else
-                {
-                    DrawMap();
-                }
-            }
+                    nRedTicks--;
 
-            videoNextPage();
-
-            // TEST - trying to fix player unable to restart when dead...
-            handleevents();
-
-// TODO		CONTROL_GetButtonInput();
-            CheckKeys();
-            UpdateSounds();
-
-            bInMove = kTrue;
-
-            moveframes = (totalclock - edi) / 4;
-
-            if (moveframes > 4)
-                moveframes = 4;
-
-            if (moveframes != 0)
-                edi = totalclock;
-
-            if (bPlayback)
-            {
-                // YELLOW
-                if ((bInDemo && KB_KeyWaiting() || !ReadPlaybackInputs()) && KB_GetCh())
-                {
-                    KB_FlushKeyboardQueue();
-                    KB_ClearKeysDown();
-
-                    bPlayback = kFalse;
-                    bInDemo = kFalse;
-
-                    if (vcrfp) {
-                        fclose(vcrfp);
+                    if (nRedTicks <= 0) {
+                        DoRedAlert(0);
                     }
 
-                    // now we go to main_loc_I:
-                    goto main_loc_I;
+                    nAlarmTicks--;
+                    nButtonColor--;
+
+                    if (nAlarmTicks <= 0) {
+                        DoRedAlert(1);
+                    }
                 }
+            }
+
+            // YELLOW SECTION
+            MoveThings();
+
+            if (totalvel[nLocalPlayer] == 0)
+            {
+                bobangle = 0;
             }
             else
             {
-                // loc_11EE0
-                if (bRecord || moveframes)
-                {
-                    GetLocalInput();
+                bobangle += 56;
+                bobangle &= kAngleMask;
+            }
 
-                    sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
-                    sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
-                    sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
-                    sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
-                    sPlayerInput[nLocalPlayer].nTarget = besttarget;
+            // loc_120E9:
+            totalmoves++;
+            moveframes--;
 
-                    Ra[nLocalPlayer].nTarget = besttarget;
+            if (nNetTime > 0)
+            {
+                nNetTime--;
 
-                    lLocalCodes = 0;
-
-                    sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
+                if (!nNetTime) {
+                    nFreeze = 3;
                 }
             }
-
-            // loc_11F72:
-            if (bRecord && !bInDemo) {
-                WritePlaybackInputs();
-            }
-
-            if (nNetPlayerCount)
+            else if (nNetTime == 0)
             {
-                if (moveframes)
+                if (BUTTON(gamefunc_Open))
                 {
-                    UpdateInputs();
-                    moveframes = nNetMoveFrames;
+                    CONTROL_ClearButton(gamefunc_Open);
+                    goto MENU2;
                 }
             }
-            else
+        }
+        // END YELLOW SECTION
+
+        // loc_12149:
+        if (bInDemo)
+        {
+            while (tclocks > totalclock) { handleevents(); }
+            tclocks = totalclock;
+        }
+
+        bInMove = kFalse;
+
+        if (!bInDemo)
+        {
+            if (BUTTON(gamefunc_Escape))
             {
-                // loc_11FBC:
-                while (bPause)
+                CONTROL_ClearButton(gamefunc_Escape);
+MENU2:
+                nMenu = menu_Menu(1);
+
+                switch (nMenu)
                 {
-                    ClearAllKeys();
-                    if (WaitAnyKey(-1) != sc_Pause)
-                    {
-                        bPause = kFalse;
-                    }
-                }
-            }
+                    case 0:
+                        goto EXITGAME;
 
-            // loc_11FEE:
-            esi += moveframes * 4;
+                    case 1:
+                        goto STARTGAME1;
 
-main_loc_J:
+                    case 2:
+                        levelnum = levelnew = menu_GameLoad(SavePosition);
+                        lastlevel = -1;
+                        nBestLevel = levelnew - 1;
+                        goto LOOP2;
 
-            handleevents();
-
-            if (moveframes && levelnew < 0)
-            {
-                FixPalette();
-
-                if (levelnum == kMap20)
-                {
-                    if (lCountDown <= 0)
-                    {
-                        for (int i = 0; i < nTotalPlayers; i++) {
-                            nPlayerLives[i] = 0;
-                        }
-
-                        DoFailedFinalScene();
-                        levelnew = 100;
-
-                        goto main_loc_O;
-                    }
-                    else
-                    {
-                        // Pink section
-                        lCountDown--;
-                        DrawClock();
-
-                        if (nRedTicks)
+                    case 3: // When selecting 'Training' from ingame menu when already playing a level
+                        if (levelnum == 0 || !Query(2, 4, "Quit current game?", "Y/N", 'Y', 13, 'N', 27))
                         {
-                            nRedTicks--;
-
-                            if (nRedTicks <= 0) {
-                                DoRedAlert(0);
-                            }
-
-                            nAlarmTicks--;
-                            nButtonColor--;
-
-                            if (nAlarmTicks <= 0) {
-                                DoRedAlert(1);
-                            }
+                            levelnew = 0;
+                            levelnum = 0;
                         }
-                    }
+                        break;
                 }
+                RefreshStatus();
+            }
+            else if (KB_KeyDown[sc_PrintScreen])
+            {
+                videoCaptureScreen("captxxxx.png", 0);
+                KB_KeyDown[sc_PrintScreen] = 0;
+            }
+            else if (BUTTON(gamefunc_Map)) // e.g. TAB (to show 2D map)
+            {
+                CONTROL_ClearButton(gamefunc_Map);
 
-                // YELLOW SECTION
-                MoveThings();
+                if (!nFreeze) {
+                    bMapMode = !bMapMode;
+                }
+            }
+            else if (BUTTON(gamefunc_Zoom_Out))
+            {
+                lMapZoom -= ldMapZoom;
 
-                if (totalvel[nLocalPlayer] == 0)
+                if (lMapZoom <= 32)
                 {
-                    bobangle = 0;
+                    lMapZoom = 32;
+                }
+                else if (ldMapZoom <= 16)
+                {
+                    ldMapZoom = 16;
                 }
                 else
                 {
-                    bobangle += 56;
-                    bobangle &= kAngleMask;
-                }
-
-                // loc_120E9:
-                totalmoves++;
-                moveframes--;
-
-                if (nNetTime > 0)
-                {
-                    nNetTime--;
-
-                    if (!nNetTime) {
-                        nFreeze = 3;
-                    }
-
-                    goto main_loc_J;
-                }
-                else if (nNetTime != 0)
-                {
-                    goto main_loc_J;
-                }
-                else // nNetTime == 0
-                {
-                    if (BUTTON(gamefunc_Open))
-                    {
-                        CONTROL_ClearButton(gamefunc_Open);
-                        goto main_loc_K;
-                    }
-                    else {
-                        goto main_loc_J;
-                    }
+                    ldMapZoom -= 2;
                 }
             }
-            // END YELLOW SECTION
-
-        main_loc_O:
-            // loc_12149:
-            if (bInDemo)
+            else if (BUTTON(gamefunc_Zoom_In))
             {
-                while (esi > totalclock) { handleevents(); }
-                esi = totalclock;
+                lMapZoom += ldMapZoom;
+                if (lMapZoom >= 1280)
+                {
+                    lMapZoom = 1280;
+                }
+                else if (ldMapZoom >= 128)
+                {
+                    ldMapZoom = 128;
+                }
+                else
+                {
+                    ldMapZoom += 2;
+                }
             }
-
-            bInMove = kFalse;
-
-            if (!bInDemo)
-            {
-                if (BUTTON(gamefunc_Escape))
-                {
-                    CONTROL_ClearButton(gamefunc_Escape);
-                    goto main_loc_K;
-                }
-                else if (KB_KeyDown[sc_PrintScreen])
-                {
-                    videoCaptureScreen("captxxxx.png", 0);
-                    KB_KeyDown[sc_PrintScreen] = 0;
-                }
-                else if (BUTTON(gamefunc_Map)) // e.g. TAB (to show 2D map)
-                {
-                    CONTROL_ClearButton(gamefunc_Map);
-
-                    if (!nFreeze) {
-                        bMapMode = bMapMode == 0;
-                    }
-                }
-                else if (BUTTON(gamefunc_Zoom_Out))
-                {
-                    lMapZoom -= ldMapZoom;
-
-                    if (lMapZoom <= 32)
-                    {
-                        lMapZoom = 32;
-                    }
-                    else if (ldMapZoom <= 16)
-                    {
-                        ldMapZoom = 16;
-                    }
-                    else
-                    {
-                        ldMapZoom -= 2;
-                    }
-                }
-                else if (BUTTON(gamefunc_Zoom_In))
-                {
-                    lMapZoom += ldMapZoom;
-                    if (lMapZoom >= 1280)
-                    {
-                        lMapZoom = 1280;
-                    }
-                    else if (ldMapZoom >= 128)
-                    {
-                        ldMapZoom = 128;
-                    }
-                    else
-                    {
-                        ldMapZoom += 2;
-                    }
-                }
-
-                goto main_loc_L;
-            }
-            else {
-                goto main_loc_N;
-            }
-
-        main_loc_L:
 
             handleevents();
 
-            if (PlayerList[nLocalPlayer].nHealth <= 0)
-            {
-                SetAirFrame();
-            }
-            else
+            if (PlayerList[nLocalPlayer].nHealth > 0)
             {
                 if (BUTTON(gamefunc_Inventory_Left))
                 {
@@ -2431,164 +2412,15 @@ main_loc_J:
                     CONTROL_ClearButton(gamefunc_Inventory);
                 }
             }
-
-            goto main_loc_N;
+            else
+                SetAirFrame();
         }
-    }
-
-main_loc_M:
-
-    if (!nNetPlayerCount)
-    {
-        if (!bPlayback)
-        {
-            if (levelnew > 0 && levelnew <= kMap20)
-            {
-                levelnew = showmap(levelnum, levelnew, nBestLevel);
-            }
-        }
-    }
-
-    if (levelnew > nBestLevel) {
-        nBestLevel = levelnew;
-    }
-
-    goto main_loc_C;
-
-main_loc_N:
-
-    if (record_mode == 3)
-    {
-        if (movefifopos == movefifoend)
+        if (record_mode == 3 && movefifopos == movefifoend) {
             levelnew = 0;
+        }
+        fps++;
     }
-
-    fps++;
-    goto main_loc_D;
-
-main_loc_G:
-
-    if (nPlayerLives[nLocalPlayer] <= 0) {
-        goto main_loc_I;
-    }
-    else
-    {
-        if (levelnew > 99)
-        {
-            goto main_Exit;
-        }
-        else
-        {
-            if (!bInDemo && levelnew > nBestLevel && levelnew != 0 && levelnew <= kMap20 && SavePosition > -1) {
-                menu_GameSave(SavePosition);
-            }
-
-            goto main_loc_M;
-        }
-    }
-
-main_loc_K:
-
-    nMenu = menu_Menu(1);
-
-    switch (nMenu)
-    {
-        default:
-        {
-            RefreshStatus();
-            goto main_loc_L;
-        }
-
-        case 0:
-        {
-            goto main_Exit;
-            break;
-        }
-
-        case 1:
-        {
-            goto main_loc_A;
-            break;
-        }
-
-        case 2:
-        {
-            levelnew = menu_GameLoad(SavePosition);
-            levelnum = levelnew;
-            lastlevel = -1;
-            nBestLevel = levelnew - 1;
-            goto main_loc_M;
-            break;
-        }
-
-        case 3: // When selecting 'Training' from ingame menu when already playing a level
-        {
-            if (levelnum)
-            {
-                if (Query(2, 4, "Quit current game?", "Y/N", 'Y', 13, 'N', 27))
-                {
-                    RefreshStatus();
-                    goto main_loc_L;
-                }
-            }
-
-            levelnew = 0;
-            levelnum = 0;
-            goto main_loc_B;
-        }
-    }
-
-main_loc_I:
-
-    SavePosition = -1;
-    nMenu = menu_Menu(0);
-
-    if (nMenu < 0) {
-        goto main_loc_I;
-    }
-
-    switch (nMenu)
-    {
-        case 0:
-        {
-            goto main_Exit;
-            break;
-        }
-
-        case 1:
-        case 2:
-        {
-            goto main_loc_A;
-            break;
-        }
-
-        case 3:
-        {
-            forcelevel = 0;
-            goto main_loc_B;
-            break;
-        }
-
-        case 9:
-        {
-            vcrfp = fopen("demo.vcr", "rb");
-            if (vcrfp == NULL) {
-                goto main_loc_I;
-            }
-
-            InitRandom();
-            bInDemo = kTrue;
-            bPlayback = kTrue;
-
-            KB_FlushKeyboardQueue();
-            KB_ClearKeysDown();
-
-            goto main_loc_A;
-            break;
-        }
-    }
-
-main_Exit:
+EXITGAME:
     if (bRecord) {
         fclose(vcrfp);
     }
@@ -2616,8 +2448,7 @@ main_Exit:
         }
     }
 
-    bail2dos("\n");
-
+    ShutDown();
     return 0;
 }
 
