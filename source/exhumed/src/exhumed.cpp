@@ -534,7 +534,7 @@ short nClockVal;
 short fps;
 short nRedTicks;
 short lastlevel;
-short bInMove;
+volatile short bInMove;
 short nAlarmTicks;
 short nButtonColor;
 short nEnergyChan;
@@ -705,9 +705,12 @@ void bail2dos(const char *fmt, ...)
 
 void faketimerhandler()
 {
-    if (!(totalclock & 3) && !bInMove && moveframes < 4) {
+    if ((totalclock < ototalclock + 4) || bInMove)
+        return;
+    ototalclock += 4;
+
+    if (moveframes < 4)
         moveframes++;
-    }
 
     PlayerInterruptKeys();
 }
@@ -2111,6 +2114,7 @@ main_loc_D:
         }
         else
         {
+            CONTROL_BindsEnabled = 1;
             // Section B
             if (!nCDTrackLength && !nFreeze && !nNetPlayerCount)
             {

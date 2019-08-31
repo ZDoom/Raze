@@ -300,7 +300,7 @@ void menu_DoPlasma()
         tilesiz[kTile4093].y = kPlasmaHeight;
 
         nSmokeTop    = 40 - tilesiz[kExhumedLogo].y / 2;
-        nSmokeBottom = 40 - tilesiz[kExhumedLogo].y / 2 + tilesiz[kExhumedLogo].y - 1;
+        nSmokeBottom = nSmokeTop + tilesiz[kExhumedLogo].y - 1;
 
         //uint32_t t = time(0) << 16;
         //uint32_t t2 = time(0) | t;
@@ -443,13 +443,19 @@ void menu_DoPlasma()
     for (int j = 0; j < 5; j++)
     {
         int pB = plasma_B[j];
+
+        if ((plasma_C[j]>>16) <= nSmokeLeft)
+            plasma_C[j] = nSmokeLeft<<16;
+        else if ((plasma_C[j]>>16) >= nSmokeRight)
+            plasma_C[j] = nSmokeRight<<16;
+
         int pC = plasma_C[j];
 
         uint8_t *ptr3 = (uint8_t*)(waloff[kExhumedLogo] + ((pC >> 16) - nSmokeLeft) * tilesiz[kExhumedLogo].y);
 
         plasma_C[j] += plasma_B[j];
 
-        if (pB > 0 && (plasma_C[j] >> 16) >= nSmokeRight || pB < 0 && (plasma_C[j] >> 16) <= nSmokeLeft)
+        if ((pB > 0 && (plasma_C[j] >> 16) >= nSmokeRight) || (pB < 0 && (plasma_C[j] >> 16) <= nSmokeLeft))
         {
             int esi = plasma_A[j];
             plasma_B[j] = -plasma_B[j];

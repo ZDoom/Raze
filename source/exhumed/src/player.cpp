@@ -150,6 +150,7 @@ void PlayerInterruptKeys()
     }
 
     memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
+    CONTROL_ProcessBinds();
     CONTROL_GetInput(&info);
 
     info.dyaw *= (lMouseSens >> 1) + 1;
