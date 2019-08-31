@@ -1860,12 +1860,13 @@ void ReadyCinemaText(uint16_t nVal)
 uint8_t AdvanceCinemaText()
 {
     int var_1C = nCDTrackLength;
+    int tmp = nHeight + nCrawlY > 0;
 
-    if (nHeight + nCrawlY > 0 || nCDTrackLength && nCDTrackLength > 0)
+    if (tmp || nCDTrackLength && nCDTrackLength > 0)
     {
         nextclock = totalclock + 14;
 
-        if ((nHeight + nCrawlY > 0) > 0)
+        if (tmp > 0)
         {
             short y = nCrawlY;
             int edi = 0;

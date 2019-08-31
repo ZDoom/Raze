@@ -59,10 +59,10 @@ void BuildDrip(int nSprite);
 
 int BuildEnergyBlock(short nSector);
 
-int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, int arg6, int nCount, int zList ...);
-int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, int zList ...);
+int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, int arg6, int nCount, ...);
+int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, ...);
 
-int BuildWallFace(short nChannel, short nWall, short nCount, int nPics ...);
+int BuildWallFace(short nChannel, short nWall, short nCount, ...);
 
 int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int arg3);
 

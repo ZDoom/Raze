@@ -834,10 +834,10 @@ void DrawStatus()
 
         int x = (nViewLeft + nViewRight) / 2;
 
-        sprintf(coordBuf, "X %d", sprite[nSprite].x);
+        sprintf(coordBuf, "X %d", (int)sprite[nSprite].x);
         printext(x, nViewTop + 1, coordBuf, kTile159, 255);
 
-        sprintf(coordBuf, "Y %d", sprite[nSprite].y);
+        sprintf(coordBuf, "Y %d", (int)sprite[nSprite].y);
         printext(x, nViewTop + 10, coordBuf, kTile159, 255);
     }
 

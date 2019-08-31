@@ -1358,7 +1358,7 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
             short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].floorz, sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, (int)sector[nSector].floorz, (int)sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev);
 
@@ -1375,7 +1375,7 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
 
         case 74:
         {
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].ceilingz, sector[nSector].floorz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, (int)sector[nSector].ceilingz, (int)sector[nSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev);
 

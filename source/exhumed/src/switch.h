@@ -17,7 +17,7 @@ void FuncSwPressWall(int, int, int);
 
 int BuildSwPause(int nChannel, int nLink, int ebx);
 int BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx);
-int BuildLink(int nCount, int argList ...);
+int BuildLink(int nCount, ...);
 int BuildSwPressSector(int nChannel, int nLink, int nSector, int ecx);
 int BuildSwStepOn(int nChannel, int nLink, int nSector);
 int BuildSwReady(int nChannel, short nLink);

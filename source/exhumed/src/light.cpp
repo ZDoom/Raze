@@ -90,6 +90,9 @@ int LoadPaletteLookups()
         }
 
         kread(hFile, buffer, 256*64);
+        // TODO: dumb hack
+        if (palookup[i])
+            ALIGNED_FREE_AND_NULL(palookup[i]);
         paletteSetLookupTable(i, buffer);
         kclose(hFile);
 

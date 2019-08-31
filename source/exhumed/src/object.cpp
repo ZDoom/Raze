@@ -343,7 +343,7 @@ short FindWallSprites(short nSector)
     return nSprite;
 }
 
-int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, int zList ...)
+int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, ...)
 {
     assert(ElevCount > 0);
 
@@ -368,8 +368,9 @@ int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5,
     }
 
     Elevator[ElevCount].nSprite = nWallSprite;
-
-    int *pZVals = (int*)&zList;
+    
+    va_list zlist;
+    va_start(zlist, nCount);
 
     while (1)
     {
@@ -381,14 +382,14 @@ int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5,
 
         Elevator[ElevCount].nCountZOffsets++;
 
-        Elevator[ElevCount].zOffsets[nVal] = *pZVals;
-        pZVals++;
+        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, int);
     }
+    va_end(zlist);
 
     return ElevCount;
 }
 
-int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, int arg6, int nCount, int zList ...)
+int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, int arg6, int nCount, ...)
 {
     int edi = arg5;
 
@@ -421,7 +422,8 @@ int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, i
 
     Elevator[ElevCount].nSprite = nWallSprite;
 
-    int *pZVals = (int*)&zList;
+    va_list zlist;
+    va_start(zlist, nCount);
 
     while (1)
     {
@@ -433,9 +435,9 @@ int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, i
 
         Elevator[ElevCount].nCountZOffsets++;
 
-        Elevator[ElevCount].zOffsets[nVal] = *pZVals;
-        pZVals++;
+        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, int);
     }
+    va_end(zlist);
 
     return ElevCount;
 }
@@ -775,7 +777,7 @@ void InitWallFace()
     WallFaceCount = kMaxWallFace;
 }
 
-int BuildWallFace(short nChannel, short nWall, short nCount, int nPics ...)
+int BuildWallFace(short nChannel, short nWall, short nCount, ...)
 {
     if (WallFaceCount <= 0) {
         bail2dos("Too many wall faces!\n");
@@ -791,16 +793,17 @@ int BuildWallFace(short nChannel, short nWall, short nCount, int nPics ...)
         nCount = 8;
     }
 
-    int *pPicNums = (int*)&nPics;
+    va_list piclist;
+    va_start(piclist, nCount);
 
     while (WallFace[WallFaceCount].field_4 < nCount)
     {
         int i = WallFace[WallFaceCount].field_4;
         WallFace[WallFaceCount].field_4++;
 
-        WallFace[WallFaceCount].field_6[i] = *pPicNums;
-        pPicNums++;
+        WallFace[WallFaceCount].field_6[i] = va_arg(piclist, short);
     }
+    va_end(piclist);
 
     return WallFaceCount | 0x70000;
 }

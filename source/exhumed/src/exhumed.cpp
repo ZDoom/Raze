@@ -3277,8 +3277,8 @@ int DoSpiritHead()
                     }
 
                     // loc_135F9
-                    curx[i] = ebx << 8;
-                    cury[i] = esi << 8;
+                    curx[i] = ebx * 256;
+                    cury[i] = esi * 256;
 
                     //ecx += 2;
 //					ecx++;

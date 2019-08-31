@@ -37,13 +37,14 @@ void InitLink()
     LinkCount = kMaxLinks;
 }
 
-int BuildLink(int nCount, int argList ...)
+int BuildLink(int nCount, ...)
 {
     if (LinkCount <= 0) {
         return -1;
     }
 
-    int *pList = &argList;
+    va_list list;
+    va_start(list, nCount);
 
     LinkCount--;
 
@@ -57,12 +58,12 @@ int BuildLink(int nCount, int argList ...)
         }
         else
         {
-            ebx = *pList;
-            pList++;
+            ebx = va_arg(list, int);
         }
 
         LinkMap[LinkCount][i] = (int8_t)ebx;
     }
+    va_end(list);
 
     return LinkCount;
 }
