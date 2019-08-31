@@ -513,7 +513,7 @@ void menu_DoPlasma()
     }
 
     // draw the fire urn/lamp thingies
-    int dword_9AB5F = ((totalclock - ((totalclock >> 31) + 16 * (totalclock >> 31))) >> 4) & 3;
+    int dword_9AB5F = (totalclock/16) & 3;
 
     overwritesprite(50,  150, kTile3512 + dword_9AB5F, 0, 3, kPalNormal);
     overwritesprite(270, 150, kTile3512 + ((dword_9AB5F + 2) & 3), 0, 3, kPalNormal);

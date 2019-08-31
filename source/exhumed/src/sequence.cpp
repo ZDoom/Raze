@@ -343,19 +343,6 @@ void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx)
         laststatusx = ChunkXpos[nFrameBase] + 160;
         laststatusy = ChunkYpos[nFrameBase] + 100 + ebx;
 
-        int thex = laststatusx;
-        int they = laststatusy;
-
-        if (laststatusx >= 155 && laststatusx <= 162) {
-            laststatusx = 159;
-        }
-
-        // TEMP
-        if (laststatusy == 188 && laststatusx == 159)
-            laststatusy = 189;
-
-
-
         short chunkFlag = ChunkFlag[nFrameBase];
 
         if (chunkFlag & 1) {

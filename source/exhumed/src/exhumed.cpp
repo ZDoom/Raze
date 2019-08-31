@@ -703,9 +703,9 @@ void faketimerhandler()
 {
     if ((totalclock < ototalclock + 1) || bInMove)
         return;
-    ototalclock += 1;
+    ototalclock++;
 
-    if (moveframes < 4)
+    if (!(ototalclock&3) && moveframes < 4)
         moveframes++;
 
     PlayerInterruptKeys();

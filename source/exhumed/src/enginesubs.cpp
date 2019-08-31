@@ -15,10 +15,29 @@ void overwritesprite(int thex, int they, short tilenum, signed char shade, char 
         (char)(((flags & 1 ^ 1) << 4) + (flags & 2) + ((flags & 4) >> 2) + ((flags & 16) >> 2) ^ ((flags & 8) >> 1)),
         windowx1, windowy1, windowx2, windowy2);
 #endif
-
+    // no animation
+    uint8_t animbak = picanm[tilenum].sf;
+    picanm[tilenum].sf = 0;
+    int offx = 0, offy = 0;
+    if (stat & 1)
+    {
+        offx -= tilesiz[tilenum].x>>1;
+        if (stat & 8)
+            offx += picanm[tilenum].xofs;
+        else
+            offx -= picanm[tilenum].xofs;
+        offy -= (tilesiz[tilenum].y>>1)+picanm[tilenum].yofs;
+    }
+    if (stat&8)
+        offx += tilesiz[tilenum].x;
+    if (stat&16)
+        offy += tilesiz[tilenum].y;
+    thex += offx;
+    they += offy;
     rotatesprite(thex << 16, they << 16, 65536L, (stat & 8) << 7, tilenum, shade, dapalnum,
-        (((stat & 1) ^ 1) << 4) + (stat & 2) + ((stat & 4) >> 2) + (((stat & 16) >> 2) ^ ((stat & 8) >> 1)),
+        16 + (stat & 2) + ((stat & 4) >> 2) + (((stat & 16) >> 2) ^ ((stat & 8) >> 1)),
         windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+    picanm[tilenum].sf = animbak;
 }
 
 void permanentwritesprite(int thex, int they, short tilenum, signed char shade, int cx1, int cy1, int cx2, int cy2, char dapalnum)
