@@ -6911,113 +6911,124 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     if (dastat & RS_YFLIP)
         ofs.y = siz.y - ofs.y;
 
-    int32_t ourxyaspect, temp;
-    dorotspr_handle_bit2(&sx, &sy, &z, dastat, cx1 + cx2, cy1 + cy2, &temp, &ourxyaspect);
+    int32_t ourxyaspect, ouryxaspect;
+    dorotspr_handle_bit2(&sx, &sy, &z, dastat, cx1 + cx2, cy1 + cy2, &ouryxaspect, &ourxyaspect);
 
-    float d = (float)z * (1.0f / (65536.f * 16384.f));
-    float const cosang = (float)sintable[(a + 512) & 2047] * d;
-    float cosang2 = cosang;
-    float const sinang = (float)sintable[a & 2047] * d;
-    float sinang2 = sinang;
+    int32_t cosang = mulscale14(sintable[(a + 512) & 2047], z);
+    int32_t cosang2 = cosang;
+    int32_t sinang = mulscale14(sintable[a & 2047], z);
+    int32_t sinang2 = sinang;
 
     if ((dastat & RS_AUTO) || (!(dastat & RS_NOCLIP)))  // Don't aspect unscaled perms
     {
-        d = (float)ourxyaspect * (1.0f / 65536.f);
-        cosang2 *= d;
-        sinang2 *= d;
+        cosang2 = mulscale16(cosang2,ourxyaspect);
+        sinang2 = mulscale16(sinang2,ourxyaspect);
     }
 
-    vec2f_t const fofs = { (float)ofs.x, (float)ofs.y };
-    float const cx = floorf((float)sx * (1.0f / 65536.f) - fofs.x * cosang2 + fofs.y * sinang2);
-    float const cy = floorf((float)sy * (1.0f / 65536.f) - fofs.x * sinang  - fofs.y * cosang);
+    int32_t const cx = sx - ofs.x * cosang2 + ofs.y * sinang2;
+    int32_t const cy = sy - ofs.x * sinang  - ofs.y * cosang;
 
-    vec2f_t pxy[8] = { { cx, cy },
-                       { cx + (float)siz.x * cosang2, cy + (float)siz.x * sinang },
-                       { 0, 0 },
-                       { cx - (float)siz.y * sinang2, cy + (float)siz.y * cosang } };
+    vec2_t pxy[8] = { { cx, cy },
+                      { cx + siz.x * cosang2, cy + siz.x * sinang },
+                      { 0, 0 },
+                      { cx - siz.y * sinang2, cy + siz.y * cosang } };
 
     pxy[2]= { pxy[1].x + pxy[3].x - pxy[0].x,
               pxy[1].y + pxy[3].y - pxy[0].y };
 
-    // Round after calculating pxy[2] so that it is calculated correctly
-    // Rounding pxy[0].x & pxy[0].y is unnecessary so long as pxy[0] can never have fractional values
-    //pxy[0].x = roundf(pxy[0].x); pxy[0].y = roundf(pxy[0].y);
-    pxy[1] = { roundf(pxy[1].x), roundf(pxy[1].y) };
-    pxy[2] = { roundf(pxy[2].x), roundf(pxy[2].y) };
-    pxy[3] = { roundf(pxy[3].x), roundf(pxy[3].y) };
+    vec2_t const gxy = pxy[0];
 
-    int32_t n = 4;
+    //Clippoly4
 
-    xtex.d = 0; ytex.d = 0; otex.d = 1.f;
-    //px[0]*gux + py[0]*guy + guo = 0
-    //px[1]*gux + py[1]*guy + guo = xsiz-.0001
-    //px[3]*gux + py[3]*guy + guo = 0
-    d = 1.f/(pxy[0].x*(pxy[1].y-pxy[3].y) + pxy[1].x*(pxy[3].y-pxy[0].y) + pxy[3].x*(pxy[0].y-pxy[1].y));
+    int32_t n = 4, nn = 0, nz = 0;
+    int32_t px2[8], py2[8];
 
-    float const sxd = ((float)siz.x-.0001f)*d;
+    cx2++;
+    cy2++;
 
-    xtex.u = (pxy[3].y-pxy[0].y)*sxd;
-    ytex.u = (pxy[0].x-pxy[3].x)*sxd;
-    otex.u = 0 - pxy[0].x*xtex.u - pxy[0].y*ytex.u;
-
-    float const syd = ((float)siz.y-.0001f)*d;
-
-    if (!(dastat & RS_YFLIP))
-    {
-        //px[0]*gvx + py[0]*gvy + gvo = 0
-        //px[1]*gvx + py[1]*gvy + gvo = 0
-        //px[3]*gvx + py[3]*gvy + gvo = ysiz-.0001
-        xtex.v = (pxy[0].y-pxy[1].y)*syd;
-        ytex.v = (pxy[1].x-pxy[0].x)*syd;
-        otex.v = 0 - pxy[0].x*xtex.v - pxy[0].y*ytex.v;
-    }
-    else
-    {
-        //px[0]*gvx + py[0]*gvy + gvo = ysiz-.0001
-        //px[1]*gvx + py[1]*gvy + gvo = ysiz-.0001
-        //px[3]*gvx + py[3]*gvy + gvo = 0
-        xtex.v = (pxy[1].y-pxy[0].y)*syd;
-        ytex.v = (pxy[0].x-pxy[1].x)*syd;
-        otex.v = (float)siz.y-.0001f - pxy[0].x*xtex.v - pxy[0].y*ytex.v;
-    }
-
-    cx2++; cy2++;
-    //Clippoly4 (converted from int32_t to double)
-
-    int32_t nn = z = 0;
-    float px2[8], py2[8];
+    cx1 <<= 16;
+    cy1 <<= 16;
+    cx2 <<= 16;
+    cy2 <<= 16;
 
     do
     {
-        int32_t zz = z+1; if (zz == n) zz = 0;
-        float const x1 = pxy[z].x, x2 = pxy[zz].x-x1;
-        if (((float)cx1 <= x1) && (x1 <= (float)cx2)) { px2[nn] = x1; py2[nn] = pxy[z].y; nn++; }
-        float fx = (float)(x2 <= 0 ? cx2 : cx1); d = fx-x1;
-        if ((d < x2) != (d < 0)) { px2[nn] = fx; py2[nn] = (pxy[zz].y-pxy[z].y)*d/x2 + pxy[z].y; nn++; }
-        fx = (float)(x2 <= 0 ? cx1 : cx2); d = fx-x1;
-        if ((d < x2) != (d < 0)) { px2[nn] = fx; py2[nn] = (pxy[zz].y-pxy[z].y)*d/x2 + pxy[z].y; nn++; }
-        z = zz;
+        int32_t zz = nz+1; if (zz == n) zz = 0;
+        int32_t const x1 = pxy[nz].x, x2 = pxy[zz].x-x1;
+        if ((cx1 <= x1) && (x1 <= cx2)) { px2[nn] = x1; py2[nn] = pxy[nz].y; nn++; }
+        int32_t fx = (x2 <= 0 ? cx2 : cx1), t = fx-x1;
+        if ((t < x2) != (t < 0)) { px2[nn] = fx; py2[nn] = scale(pxy[zz].y-pxy[nz].y,t,x2) + pxy[nz].y; nn++; }
+        fx = (x2 <= 0 ? cx1 : cx2); t = fx-x1;
+        if ((t < x2) != (t < 0)) { px2[nn] = fx; py2[nn] = scale(pxy[zz].y-pxy[nz].y,t,x2) + pxy[nz].y; nn++; }
+        nz = zz;
     }
-    while (z);
+    while (nz);
 
     if (nn >= 3)
     {
-        n = z = 0;
+        n = nz = 0;
         do
         {
-            int32_t zz = z+1; if (zz == nn) zz = 0;
-            float const y1 = py2[z], y2 = py2[zz]-y1;
-            if ((cy1 <= y1) && (y1 <= cy2)) { pxy[n].y = y1; pxy[n].x = px2[z]; n++; }
-            float fy = (float)(y2 <= 0 ? cy2 : cy1); d = fy - y1;
-            if ((d < y2) != (d < 0)) { pxy[n].y = fy; pxy[n].x = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
-            fy = (float)(y2 <= 0 ? cy1 : cy2); d = fy - y1;
-            if ((d < y2) != (d < 0)) { pxy[n].y = fy; pxy[n].x = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
-            z = zz;
+            int32_t zz = nz+1; if (zz == nn) zz = 0;
+            int32_t const y1 = py2[nz], y2 = py2[zz]-y1;
+            if ((cy1 <= y1) && (y1 <= cy2)) { pxy[n].y = y1; pxy[n].x = px2[nz]; n++; }
+            int32_t fy = (y2 <= 0 ? cy2 : cy1), t = fy - y1;
+            if ((t < y2) != (t < 0)) { pxy[n].y = fy; pxy[n].x = scale(px2[zz]-px2[nz],t,y2) + px2[nz]; n++; }
+            fy = (y2 <= 0 ? cy1 : cy2); t = fy - y1;
+            if ((t < y2) != (t < 0)) { pxy[n].y = fy; pxy[n].x = scale(px2[zz]-px2[nz],t,y2) + px2[nz]; n++; }
+            nz = zz;
         }
-        while (z);
+        while (nz);
+    }
+
+    if (n >= 3)
+    {
+        int32_t i = divscale32(1,z);
+        int32_t xv = mulscale14(sintable[a&2047],i);
+        int32_t yv = mulscale14(sintable[(a+512)&2047],i);
+        int32_t xv2, yv2;
+        if ((dastat&RS_AUTO) || (dastat&RS_NOCLIP)==0) //Don't aspect unscaled perms
+        {
+            yv2 = mulscale16(-xv,ouryxaspect);
+            xv2 = mulscale16(yv,ouryxaspect);
+        }
+        else
+        {
+            yv2 = -xv;
+            xv2 = yv;
+        }
+
+        int32_t lx = pxy[0].x;
+        for (int v=n-1; v>0; v--)
+            if (pxy[v].x < lx) lx = pxy[v].x;
+
+        vec2_t oxy = { (lx>>16), 0 };
+        int32_t x = (oxy.x<<16)-1-gxy.x;
+        int32_t y = (oxy.y<<16)+65535-gxy.y;
+        int32_t bx = dmulscale16(x,xv2,y,xv);
+        int32_t by = dmulscale16(x,yv2,y,yv);
+
+        if (dastat & RS_YFLIP)
+        {
+            yv = -yv;
+            yv2 = -yv2;
+            by = (siz.y<<16)-1-by;
+        }
+
+        vec2f_t fpxy[8];
+        for (int v=0; v<n; v++)
+            fpxy[v] = { float((pxy[v].x+8192)>>16), float((pxy[v].y+8192)>>16) };
+
+        xtex.d = 0; ytex.d = 0; otex.d = 1.0;
+        otex.u = (bx-(oxy.x-1+0.7)*xv2-(oxy.y+0.7)*xv)*(1.0/65536.0);
+        xtex.u = xv2*(1.0/65536.0);
+        ytex.u = xv*(1.0/65536.0);
+        otex.v = (by-(oxy.x-1+0.7)*yv2-(oxy.y+0.7)*yv)*(1.0/65536.0);
+        xtex.v = yv2*(1.0/65536.0);
+        ytex.v = yv*(1.0/65536.0);
 
         polymost_setFogEnabled(false);
-        pow2xsplit = 0; polymost_drawpoly(pxy, n,method);
+        pow2xsplit = 0; polymost_drawpoly(fpxy,n,method);
         if (!nofog) polymost_setFogEnabled(true);
     }
 
