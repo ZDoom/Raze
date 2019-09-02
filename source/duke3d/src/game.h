@@ -626,7 +626,7 @@ EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue
 
 EXTERN_INLINE void G_SetStatusBarScale(int32_t sc)
 {
-    ud.statusbarscale = clamp(sc, 36, 100);
+    ud.statusbarscale = clamp(sc, 50, 100);
     G_UpdateScreenArea();
 }
 

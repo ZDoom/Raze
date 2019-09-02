@@ -380,7 +380,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
 
 static int32_t invensc(int32_t maximum) // used to reposition the inventory icon selector as the HUD scales
 {
-    return scale(maximum << 16, ud.statusbarscale - 36, 100 - 36);
+    return scale(maximum << 16, ud.statusbarscale - 50, 100 - 50);
 }
 
 void G_DrawInventory(const DukePlayer_t *p)
