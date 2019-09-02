@@ -457,6 +457,8 @@ int32_t baselayer_init(void)
     static osdcvardata_t cvars_engine[] =
     {
         { "lz4compressionlevel","adjust LZ4 compression level used for savegames",(void *) &lz4CompressionLevel, CVAR_INT, 1, 32 },
+        { "r_borderless", "borderless windowed mode: 0: never  1: always  2: if resolution matches desktop", (void *) &r_borderless, CVAR_INT|CVAR_RESTARTVID, 0, 2 },
+        { "r_displayindex","index of output display",(void *)&r_displayindex, CVAR_INT|CVAR_RESTARTVID, 0, 10 },
         { "r_usenewaspect","enable/disable new screen aspect ratio determination code",(void *) &r_usenewaspect, CVAR_BOOL, 0, 1 },
         { "r_screenaspect","if using r_usenewaspect and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",
           (void *) &r_screenxy, SCREENASPECT_CVAR_TYPE, 0, 9999 },
