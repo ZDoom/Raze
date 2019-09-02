@@ -133,7 +133,7 @@ const char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "LShift", "RShift",
    "", "",
    "Space", "/",
-   "LCtrl", "C",
+   "LCtrl", "",
    "PgUp", "Kpad9",
    "PgDn", "Kpad3",
    "Insert", "Kpad0",
