@@ -259,7 +259,7 @@ static const char * mousedefaults[MAXMOUSEBUTTONS] =
    {
    "Fire",
    "Alt_Fire",
-   "Jetpack",
+   "MedKit",
    "",
    "Previous_Weapon",
    "Next_Weapon",
