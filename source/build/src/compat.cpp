@@ -577,6 +577,25 @@ char *Bstrupr(char *s)
 }
 #endif
 
+#define BMAXPAGESIZE 8192
+
+int Bgetpagesize(void)
+{
+    static int pageSize = -1;
+
+    if (pageSize == -1)
+    {
+#ifdef _WIN32
+        SYSTEM_INFO system_info;
+        GetSystemInfo(&system_info);
+        pageSize = system_info.dwPageSize;
+#else
+        pageSize = sysconf(_SC_PAGESIZE);
+#endif
+    }
+
+    return (unsigned)pageSize < BMAXPAGESIZE ? pageSize : BMAXPAGESIZE;
+}
 
 //
 // Bgetsysmemsize() -- gets the amount of system memory in the machine

@@ -603,7 +603,7 @@ int32_t artLoadFiles(const char *filename, int32_t askedsize)
 
     //cachesize = min((int32_t)((Bgetsysmemsize()/100)*60),max(artsize,askedsize));
     cachesize = (Bgetsysmemsize() <= (uint32_t)askedsize) ? (int32_t)((Bgetsysmemsize() / 100) * 60) : askedsize;
-    pic = Xaligned_alloc(16, cachesize);
+    pic = Xaligned_alloc(Bgetpagesize(), cachesize);
     cacheInitBuffer((intptr_t) pic, cachesize);
 
     artUpdateManifest();

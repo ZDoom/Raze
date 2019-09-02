@@ -224,8 +224,9 @@ int32_t cacheFindBlock(int32_t newbytes, int32_t *besto, int32_t *bestz)
 
 void cacheAllocateBlock(intptr_t* newhandle, int32_t newbytes, char* newlockptr)
 {
-    // Make all requests a multiple of 16 bytes
-    newbytes = (newbytes + 15) & ~0xf;
+    // Make all requests a multiple of the system page size
+    int const pageSize = Bgetpagesize();
+    newbytes = (newbytes + pageSize-1) & ~(pageSize-1);
 
 #ifdef DEBUGGINGAIDS
     if (EDUKE32_PREDICT_FALSE(!newlockptr || *newlockptr == 0))

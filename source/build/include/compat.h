@@ -1278,11 +1278,10 @@ char *Bstrlwr(char *);
 char *Bstrupr(char *);
 #endif
 
-
 ////////// Miscellaneous //////////
 
+int Bgetpagesize(void);
 uint32_t Bgetsysmemsize(void);
-
 
 ////////// PANICKING ALLOCATION WRAPPERS //////////
 
