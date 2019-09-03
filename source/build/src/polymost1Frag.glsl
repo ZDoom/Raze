@@ -21,7 +21,7 @@ uniform vec2 u_halfTexelSize;
 uniform vec2 u_palswapPos;
 uniform vec2 u_palswapSize;
 
-uniform float u_clamp;
+uniform vec2 u_clamp;
 
 uniform float u_shade;
 uniform float u_numShades;

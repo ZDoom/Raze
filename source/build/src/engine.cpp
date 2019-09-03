@@ -8955,7 +8955,7 @@ killsprite:
     {
         glDisable(GL_BLEND);
         glEnable(GL_ALPHA_TEST);
-        polymost_setClamp(true);
+        polymost_setClamp(1+2);
 
         for (i = spritesortcnt; i < numSprites; ++i)
         {
@@ -8968,7 +8968,7 @@ killsprite:
             }
         }
 
-        polymost_setClamp(false);
+        polymost_setClamp(0);
         int32_t numMaskWalls = maskwallcnt;
         maskwallcnt = 0;
         for (i = 0; i < numMaskWalls; i++)
@@ -9035,7 +9035,7 @@ killsprite:
 
 #ifdef USE_OPENGL
         if (videoGetRenderMode() == REND_POLYMOST)
-            polymost_setClamp(true);
+            polymost_setClamp(1+2);
 #endif
 
         i = spritesortcnt;
@@ -9124,14 +9124,14 @@ killsprite:
         debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
 #ifdef USE_OPENGL
         if (videoGetRenderMode() == REND_POLYMOST)
-            polymost_setClamp(false);
+            polymost_setClamp(0);
 #endif
         renderDrawMaskedWall(maskwallcnt);
     }
 
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
-        polymost_setClamp(true);
+        polymost_setClamp(1+2);
 #endif
     while (spritesortcnt)
     {
@@ -9147,7 +9147,7 @@ killsprite:
     if (videoGetRenderMode() == REND_POLYMOST)
     {
         glDepthMask(GL_TRUE);
-        polymost_setClamp(false);
+        polymost_setClamp(0);
     }
 #endif
 

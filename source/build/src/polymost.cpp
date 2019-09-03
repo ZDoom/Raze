@@ -126,6 +126,7 @@ int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
 
 int32_t r_yshearing = 0;
+int32_t r_flatsky = 1;
 
 // used for fogcalc
 static float fogresult, fogresult2;
@@ -175,7 +176,7 @@ static GLint polymost1PalswapSizeLoc = -1;
 static vec2f_t polymost1PalswapSize = { 0.f, 0.f };
 static vec2f_t polymost1PalswapInnerSize = { 0.f, 0.f };
 static GLint polymost1ClampLoc = -1;
-static float polymost1Clamp = 0.f;
+static vec2f_t polymost1Clamp = { 0.f, 0.f };
 static GLint polymost1ShadeLoc = -1;
 static float polymost1Shade = 0.f;
 static GLint polymost1NumShadesLoc = -1;
@@ -559,7 +560,7 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     glUniform2f(polymost1HalfTexelSizeLoc, polymost1HalfTexelSize.x, polymost1HalfTexelSize.y);
     glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
     glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
-    glUniform1f(polymost1ClampLoc, polymost1Clamp);
+    glUniform2f(polymost1ClampLoc, polymost1Clamp.x, polymost1Clamp.y);
     glUniform1f(polymost1ShadeLoc, polymost1Shade);
     glUniform1f(polymost1NumShadesLoc, polymost1NumShades);
     glUniform1f(polymost1VisFactorLoc, polymost1VisFactor);
@@ -625,17 +626,20 @@ static void polymost_setPalswapSize(uint32_t width, uint32_t height)
 
 char polymost_getClamp()
 {
-    return polymost1Clamp;
+    return polymost1Clamp.x + polymost1Clamp.y*2.0;
 }
 
 void polymost_setClamp(char clamp)
 {
+    char clampx = clamp&1;
+    char clampy = clamp>>1;
     if (currentShaderProgramID != polymost1CurrentShaderProgramID ||
-        clamp == polymost1Clamp)
+        (clampx == polymost1Clamp.x && clampy == polymost1Clamp.y))
         return;
 
-    polymost1Clamp = clamp;
-    glUniform1f(polymost1ClampLoc, polymost1Clamp);
+    polymost1Clamp.x = clampx;
+    polymost1Clamp.y = clampy;
+    glUniform2f(polymost1ClampLoc, polymost1Clamp.x, polymost1Clamp.y);
 }
 
 static void polymost_setShade(int32_t shade)
@@ -1972,7 +1976,7 @@ void polymost_setupglowtexture(const int32_t texunits, FHardwareTexture* tex)
 //    +4 means it's a sprite, so wraparound isn't needed
 
 // drawpoly's hack globals
-static int32_t pow2xsplit = 0, skyclamphack = 0, skyzbufferhack = 0;
+static int32_t pow2xsplit = 0, skyclamphack = 0, skyzbufferhack = 0, flatskyrender = 0;
 static float drawpoly_alpha = 0.f;
 static uint8_t drawpoly_blend = 0;
 
@@ -2087,6 +2091,8 @@ static void polymost_identityrotmat(void)
     }
 }
 
+static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method);
+
 static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method)
 {
     if (method == DAMETH_BACKFACECULL ||
@@ -2111,6 +2117,13 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             f += (dpxy[i].x-dpxy[k].x)*dpxy[j].y;
 
         if (f <= 0) return;
+    }
+
+    static int32_t skyzbufferhack_pass = 0;
+    if (flatskyrender && skyzbufferhack_pass == 0)
+    {
+        polymost_flatskyrender(dpxy, n, method);
+        return;
     }
 
     if (palookup[globalpal] == NULL)
@@ -2330,8 +2343,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         for (tsiz2.y = 1; tsiz2.y < tsiz.y; tsiz2.y += tsiz2.y)
             ; /* do nothing */
     }
-
-    static int32_t skyzbufferhack_pass = 0;
 
     if (method & DAMETH_MASKPROPS || fullbright_pass == 2)
     {
@@ -3977,6 +3988,188 @@ void fgetzsofslope(usectorptr_t sec, float dax, float day, float* ceilz, float *
         *florz += (sec->floorheinum*j)/i;
 }
 
+static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method)
+{
+    flatskyrender = 0;
+    vec2f_t xys[8];
+
+    polymost_setClamp(2);
+
+    // Transform polygon to sky coordinates
+    for (int i = 0; i < n; i++)
+    {
+        vec3f_t const o = { dpxy[i].x-ghalfx, dpxy[i].y-ghalfy, ghalfx / gvrcorrection };
+
+        //Up/down rotation
+        vec3d_t v = { o.x, o.y * gchang - o.z * gshang, o.z * gchang + o.y * gshang };
+        float const r = (ghalfx / gvrcorrection) / v.z;
+        xys[i].x = v.x * r + ghalfx;
+        xys[i].y = v.y * r + ghalfy;
+    }
+    
+    float const fglobalang = fix16_to_float(qglobalang);
+    int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
+    int8_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
+
+    ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyscale*(1.f/65536.f)+float(ydimen>>1);
+
+    float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
+    float vv[2];
+    float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
+    vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
+    vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+dapyoffs)) - vv[1]*ghoriz;
+    int ti = (1<<(picsiz[globalpicnum]>>4)); if (ti != tilesiz[globalpicnum].y) ti += ti;
+    vec3f_t o;
+
+    skyclamphack = 0;
+
+    xtex.d = xtex.v = 0;
+    ytex.d = ytex.u = 0;
+    otex.d = dd;
+    xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
+                        (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
+    ytex.v = vv[1];
+    otex.v = r_parallaxskypanning ? vv[0] + dd*(float)global_cf_ypanning*(float)ti*(1.f/256.f) : vv[0];
+
+    float x0 = xys[0].x, x1 = xys[0].x;
+
+    for (bssize_t i=n-1; i>=1; i--)
+    {
+        if (xys[i].x < x0) x0 = xys[i].x;
+        if (xys[i].x > x1) x1 = xys[i].x;
+    }
+
+    int picnumbak = globalpicnum;
+    ti = globalpicnum;
+    o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
+
+    int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
+    float fx = x0;
+
+    do
+    {
+        globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+ti;
+        otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?global_cf_xpanning:0)) - xtex.u*ghalfx;
+        y++;
+        o.x = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
+
+        if (fx > x1) { fx = x1; ti = -1; }
+
+        vec3d_t otexbak = otex, xtexbak = xtex, ytexbak = ytex;
+
+        // Transform texture mapping factors
+        vec2f_t fxy[3] = { { ghalfx * (1.f - 0.25f), ghalfy * (1.f - 0.25f) },
+                          { ghalfx, ghalfy * (1.f + 0.25f) },
+                          { ghalfx * (1.f + 0.25f), ghalfy * (1.f - 0.25f) } };
+
+        vec3d_t duv[3] = {
+            { (fxy[0].x * xtex.d + fxy[0].y * ytex.d + otex.d),
+              (fxy[0].x * xtex.u + fxy[0].y * ytex.u + otex.u),
+              (fxy[0].x * xtex.v + fxy[0].y * ytex.v + otex.v)
+            },
+            { (fxy[1].x * xtex.d + fxy[1].y * ytex.d + otex.d),
+              (fxy[1].x * xtex.u + fxy[1].y * ytex.u + otex.u),
+              (fxy[1].x * xtex.v + fxy[1].y * ytex.v + otex.v)
+            },
+            { (fxy[2].x * xtex.d + fxy[2].y * ytex.d + otex.d),
+              (fxy[2].x * xtex.u + fxy[2].y * ytex.u + otex.u),
+              (fxy[2].x * xtex.v + fxy[2].y * ytex.v + otex.v)
+            }
+        };
+        vec2f_t fxyt[3];
+        vec3d_t duvt[3];
+
+        for (int i = 0; i < 3; i++)
+        {
+            vec2f_t const o = { fxy[i].x-ghalfx, fxy[i].y-ghalfy };
+            vec3f_t const o2 = { o.x, o.y, ghalfx / gvrcorrection };
+
+            //Up/down rotation (backwards)
+            vec3d_t v = { o2.x, o2.y * gchang + o2.z * gshang, o2.z * gchang - o2.y * gshang };
+            float const r = (ghalfx / gvrcorrection) / v.z;
+            fxyt[i].x = v.x * r + ghalfx;
+            fxyt[i].y = v.y * r + ghalfy;
+            duvt[i].d = duv[i].d*r;
+            duvt[i].u = duv[i].u*r;
+            duvt[i].v = duv[i].v*r;
+        }
+
+        vec3f_t oxyz[2] = { { (float)(fxyt[1].y - fxyt[2].y), (float)(fxyt[2].y - fxyt[0].y), (float)(fxyt[0].y - fxyt[1].y) },
+                            { (float)(fxyt[2].x - fxyt[1].x), (float)(fxyt[0].x - fxyt[2].x), (float)(fxyt[1].x - fxyt[0].x) } };
+
+        float const rr = 1.f / (oxyz[0].x * fxyt[0].x + oxyz[0].y * fxyt[1].x + oxyz[0].z * fxyt[2].x);
+
+        xtex.d = (oxyz[0].x * duvt[0].d + oxyz[0].y * duvt[1].d + oxyz[0].z * duvt[2].d) * rr;
+        xtex.u = (oxyz[0].x * duvt[0].u + oxyz[0].y * duvt[1].u + oxyz[0].z * duvt[2].u) * rr;
+        xtex.v = (oxyz[0].x * duvt[0].v + oxyz[0].y * duvt[1].v + oxyz[0].z * duvt[2].v) * rr;
+
+        ytex.d = (oxyz[1].x * duvt[0].d + oxyz[1].y * duvt[1].d + oxyz[1].z * duvt[2].d) * rr;
+        ytex.u = (oxyz[1].x * duvt[0].u + oxyz[1].y * duvt[1].u + oxyz[1].z * duvt[2].u) * rr;
+        ytex.v = (oxyz[1].x * duvt[0].v + oxyz[1].y * duvt[1].v + oxyz[1].z * duvt[2].v) * rr;
+
+        otex.d = duvt[0].d - fxyt[0].x * xtex.d - fxyt[0].y * ytex.d;
+        otex.u = duvt[0].u - fxyt[0].x * xtex.u - fxyt[0].y * ytex.u;
+        otex.v = duvt[0].v - fxyt[0].x * xtex.v - fxyt[0].y * ytex.v;
+
+        vec2f_t cxy[8];
+        vec2f_t cxy2[8];
+        int n2 = 0, n3 = 0;
+
+        // Clip to o.x
+        for (bssize_t i=0; i<n; i++)
+        {
+            int const j = i < n-1 ? i + 1 : 0;
+
+            if (xys[i].x >= o.x)
+                cxy[n2++] = xys[i];
+
+            if ((xys[i].x >= o.x) != (xys[j].x >= o.x))
+            {
+                float const r = (o.x - xys[i].x) / (xys[j].x - xys[i].x);
+                cxy[n2++] = { o.x, (xys[j].y - xys[i].y) * r + xys[i].y };
+            }
+        }
+
+        // Clip to fx
+        for (bssize_t i=0; i<n2; i++)
+        {
+            int const j = i < n2-1 ? i + 1 : 0;
+
+            if (cxy[i].x <= fx)
+                cxy2[n3++] = cxy[i];
+
+            if ((cxy[i].x <= fx) != (cxy[j].x <= fx))
+            {
+                float const r = (fx - cxy[i].x) / (cxy[j].x - cxy[i].x);
+                cxy2[n3++] = { fx, (cxy[j].y - cxy[i].y) * r + cxy[i].y };
+            }
+        }
+
+        // Transform back to polymost coordinates
+        for (int i = 0; i < n3; i++)
+        {
+            vec3f_t const o = { cxy2[i].x-ghalfx, cxy2[i].y-ghalfy, ghalfx / gvrcorrection };
+
+            //Up/down rotation
+            vec3d_t v = { o.x, o.y * gchang + o.z * gshang, o.z * gchang - o.y * gshang };
+            float const r = (ghalfx / gvrcorrection) / v.z;
+            cxy[i].x = v.x * r + ghalfx;
+            cxy[i].y = v.y * r + ghalfy;
+        }
+
+        polymost_drawpoly(cxy, n3, method|DAMETH_WALL);
+
+        otex = otexbak, xtex = xtexbak, ytex = ytexbak;
+    }
+    while (ti >= 0);
+
+    globalpicnum = picnumbak;
+
+    polymost_setClamp(0);
+
+    flatskyrender = 1;
+}
+
 static void polymost_drawalls(int32_t const bunch)
 {
     drawpoly_alpha = 0.f;
@@ -4133,6 +4326,17 @@ static void polymost_drawalls(int32_t const bunch)
             if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
             {
                 float const ghorizbak = ghoriz;
+                if (r_flatsky && ! r_yshearing)
+                {
+                    pow2xsplit = 0;
+                    skyclamphack = 0;
+                    flatskyrender = 1;
+                    globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
+                    polymost_domost(x0,fy0,x1,fy1);
+                    flatskyrender = 0;
+                }
+                else
+                {
                 if (r_yshearing)
                     ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*(dapyscale-65536.f)*(1.f/65536.f)+float(ydimen>>1);
 
@@ -4183,8 +4387,7 @@ static void polymost_drawalls(int32_t const bunch)
                     else
                         polymost_domost(x0,fy0,x1,fy1);
 
-                }
-                else
+                            polymost_domost(x1,fy1,o.x,o.y);
                     skyclamphack = 0;
 
                 xtex.d = xtex.v = 0;
@@ -4207,7 +4410,8 @@ static void polymost_drawalls(int32_t const bunch)
                 {
                     globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
 					if (!npot)
-	                    otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
+	   
+                        otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
 					else
 					{
 	                    int32_t picbits = picsiz[globalpicnum]&15;
@@ -4221,7 +4425,7 @@ static void polymost_drawalls(int32_t const bunch)
                     pow2xsplit = 0; polymost_domost(o.x,(o.x-x0)*r+fy0,fx,(fx-x0)*r+fy0); //flor
                 }
                 while (i >= 0);
-
+                }
                 ghoriz = ghorizbak;
             }
             else  //NOTE: code copied from ceiling code... lots of duplicated stuff :/
@@ -4477,6 +4681,18 @@ static void polymost_drawalls(int32_t const bunch)
             if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
             {
                 float const ghorizbak = ghoriz;
+                if (r_flatsky && ! r_yshearing)
+                {
+                    pow2xsplit = 0;
+                    skyclamphack = 0;
+                    flatskyrender = 1;
+                    globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
+                    polymost_setVisibility(0.f);
+                    polymost_domost(x1,cy1,x0,cy0);
+                    flatskyrender = 0;
+                }
+                else
+                {
                 if (r_yshearing)
                     ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*(dapyscale-65536.f)*(1.f/65536.f)+float(ydimen>>1);
 
@@ -4488,7 +4704,7 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
                 vec3f_t o;
 
-                if (playing_rr || ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256))
+                if (playing_rr || ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256) && !r_yshearing)
                 {
 
 
@@ -4567,6 +4783,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 while (i >= 0);
 
+                }
                 ghoriz = ghorizbak;
             }
             else
@@ -6807,7 +7024,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     globvis = 0;
     globvis2 = 0;
-    polymost_setClamp(true);
+    polymost_setClamp(1+2);
     polymost_setVisibility(globvis2);
 
     int32_t const ogpicnum = globalpicnum;
@@ -7034,7 +7251,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     glDisable(GL_ALPHA_TEST);
     glDisable(GL_BLEND);
-    polymost_setClamp(false);
+    polymost_setClamp(0);
 
 #ifdef POLYMER
     if (videoGetRenderMode() == REND_POLYMER)

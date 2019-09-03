@@ -2082,7 +2082,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     float const ypanning = (float)sext->ypanning * (1.f/256.f);
 
     char prevClamp = polymost_getClamp();
-    polymost_setClamp(false);
+    polymost_setClamp(0);
     polymost_usePaletteIndexing(false);
     polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });
 
