@@ -2834,6 +2834,8 @@ badindex:
                             }
                         }
                     }
+                    VM_CONDITIONAL(0);
+                    dispatch();
                 }
                 VM_CONDITIONAL(1);
 #undef CHECK_PICNUM
