@@ -957,7 +957,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                 qsort(&bunches[cf][bbeg], numhere, sizeof(int16_t), &yax_cmpbunches);
 
                 if (numhere > 1 && lev != YAX_MAXDRAWS-1)
-                    Bmemset(lgotsector, 0, (numsectors+7)>>3);
+                    Bmemset(lgotsector, 0, sizeof(lgotsector));
 
                 for (bnchcnt=bbeg; bnchcnt < bbeg+numhere; bnchcnt++)
                 {
@@ -8448,7 +8448,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     if ((xyaspect != oxyaspect) || (xdimen != oxdimen) || (viewingrange != oviewingrange))
         dosetaspect();
 
-    Bmemset(gotsector, 0, ((numsectors+7)>>3));
+    Bmemset(gotsector, 0, sizeof(gotsector));
 
     if (videoGetRenderMode() != REND_CLASSIC
 #ifdef YAX_ENABLE
@@ -9204,7 +9204,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     beforedrawrooms = 0;
 
-    Bmemset(gotsector, 0, (numsectors+7)>>3);
+    Bmemset(gotsector, 0, sizeof(gotsector));
 
     vec2_t const c1 = { (windowxy1.x<<12), (windowxy1.y<<12) };
     vec2_t const c2 = { ((windowxy2.x+1)<<12)-1, ((windowxy2.y+1)<<12)-1 };
@@ -10887,7 +10887,7 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
 
     Bmemset(&pendingvec, 0, sizeof(vec3_t));  // compiler-happy
 #endif
-    Bmemset(sectbitmap, 0, (numsectors+7)>>3);
+    Bmemset(sectbitmap, 0, sizeof(sectbitmap));
 #ifdef YAX_ENABLE
 restart_grand:
 #endif
