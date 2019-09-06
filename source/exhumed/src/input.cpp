@@ -155,9 +155,9 @@ void ClearAllKeys()
 
 void WaitNoKey(int nSecs, void (*pFunc) (void))
 {
-    int nTotalTime = (kTimerTicks * nSecs) + totalclock;
+    int nTotalTime = (kTimerTicks * nSecs) + (int)totalclock;
 
-    while (nTotalTime > totalclock)
+    while (nTotalTime > (int)totalclock)
     {
 #ifdef _MSC_VER
         HandleAsync();
@@ -170,14 +170,14 @@ void WaitNoKey(int nSecs, void (*pFunc) (void))
 
 int WaitAnyKey(int nSecs)
 {
-    int nTotalTime = totalclock + (kTimerTicks * nSecs);
+    int nTotalTime = (int)totalclock + (kTimerTicks * nSecs);
 
     while (1)
     {
 #ifdef _MSC_VER
         HandleAsync();
 #endif
-        if (nTotalTime <= totalclock || nSecs == -1) {
+        if (nTotalTime <= (int)totalclock || nSecs == -1) {
             return -1;
         }
 

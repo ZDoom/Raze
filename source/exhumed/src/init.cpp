@@ -423,8 +423,8 @@ void ResetEngine()
     resettiming();
 
     totalclock  = 0;
-    ototalclock = totalclock;
-    localclock  = totalclock;
+    ototalclock = (int)totalclock;
+    localclock  = (int)totalclock;
 
     numframes = 0;
 }

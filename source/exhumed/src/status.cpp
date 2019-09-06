@@ -739,7 +739,7 @@ void DrawStatus()
 
         int shade;
 
-        if (totalclock / kTimerTicks & 1) {
+        if ((int)totalclock / kTimerTicks & 1) {
             shade = -100;
         }
         else {
@@ -756,14 +756,14 @@ void DrawStatus()
             if (word_9AD54[i] == nScore)
             {
                 int v9 = dword_9AD64[i];
-                if (v9 && v9 <= totalclock) {
+                if (v9 && v9 <= (int)totalclock) {
                     dword_9AD64[i] = 0;
                 }
             }
             else
             {
                 word_9AD54[i] = nScore;
-                dword_9AD64[i] = totalclock + 30;
+                dword_9AD64[i] = (int)totalclock + 30;
             }
 
             overwritesprite(x, 7, nTile, 0, 3, kPalNormal);

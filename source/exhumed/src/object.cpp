@@ -1519,20 +1519,20 @@ void DoFinale()
                 {
                     StopLocalSound();
                     PlayLocalSound(StaticSound[kSound76], 0);
-                    dword_1542FC = totalclock + 120;
+                    dword_1542FC = (int)totalclock + 120;
                     ++nFinaleStage;
                 }
             }
             else if (nFinaleStage <= 2)
             {
-                if (totalclock >= dword_1542FC)
+                if ((int)totalclock >= dword_1542FC)
                 {
                     PlayLocalSound(StaticSound[kSound77], 0);
                     nFinaleStage++;
-                    dword_1542FC = totalclock + 360;
+                    dword_1542FC = (int)totalclock + 360;
                 }
             }
-            else if (nFinaleStage == 3 && totalclock >= dword_1542FC)
+            else if (nFinaleStage == 3 && (int)totalclock >= dword_1542FC)
             {
                 FinishLevel();
             }
@@ -1703,7 +1703,7 @@ void ExplodeEnergyBlock(int nSprite)
     else
     {
         nFinaleSpr = nSprite;
-        lFinaleStart = totalclock;
+        lFinaleStart = (int)totalclock;
 
         if (!lFinaleStart) {
             lFinaleStart = lFinaleStart + 1;

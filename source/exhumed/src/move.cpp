@@ -173,7 +173,7 @@ void MoveThings()
 
 void ResetMoveFifo()
 {
-    localclock = totalclock;
+    localclock = (int)totalclock;
     movefifoend = 0;
     movefifopos = 0;
 }

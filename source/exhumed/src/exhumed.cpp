@@ -701,7 +701,7 @@ void bail2dos(const char *fmt, ...)
 
 void faketimerhandler()
 {
-    if ((totalclock < ototalclock + 1) || bInMove)
+    if (((int)totalclock < ototalclock + 1) || bInMove)
         return;
     ototalclock++;
 
@@ -1264,7 +1264,7 @@ void DoCredits()
         videoNextPage();
         FadeIn();
 
-        while (totalclock + 600 > totalclock)
+        while ((int)totalclock + 600 > (int)totalclock)
         {
             if (KB_KeyDown[sc_F12])
             {
@@ -2085,7 +2085,7 @@ LOOP3:
     ResetMoveFifo();
     moveframes = 0;
     bInMove = kFalse;
-    tclocks = totalclock;
+    tclocks = (int)totalclock;
     nPlayerDAng = 0;
     lPlayerXVel = 0;
     lPlayerYVel = 0;
@@ -2099,7 +2099,7 @@ LOOP3:
 
     mysetbrightness((uint8_t)nGamma);
     //int edi = totalclock;
-    tclocks2 = totalclock;
+    tclocks2 = (int)totalclock;
     CONTROL_BindsEnabled = 1;
     // Game Loop
     while (1)
@@ -2167,13 +2167,13 @@ LOOP3:
 
         bInMove = kTrue;
 
-        moveframes = (totalclock - tclocks2) / 4;
+        moveframes = ((int)totalclock - tclocks2) / 4;
 
         if (moveframes > 4)
             moveframes = 4;
 
         if (moveframes != 0)
-            tclocks2 = totalclock;
+            tclocks2 = (int)totalclock;
 
         if (bPlayback)
         {
@@ -2316,8 +2316,8 @@ LOOP3:
         // loc_12149:
         if (bInDemo)
         {
-            while (tclocks > totalclock) { HandleAsync(); }
-            tclocks = totalclock;
+            while (tclocks > (int)totalclock) { HandleAsync(); }
+            tclocks = (int)totalclock;
         }
 
         bInMove = kFalse;
@@ -2594,9 +2594,9 @@ void DoTitle()
         PlayLocalSound(StaticSound[61], 0);
     }
 
-    int nStartTime = totalclock;
+    int nStartTime = (int)totalclock;
     int nCount = 0;
-    int var_18 = totalclock;
+    int var_18 = (int)totalclock;
     int var_4 = 0;
 
     int esi = 130;
@@ -2620,7 +2620,7 @@ void DoTitle()
         y = ydim - 16;
         myprintext((xdim / 2 - nStringWidth / 2), y, b, 0);
 
-        if (totalclock > var_18)
+        if ((int)totalclock > var_18)
         {
             nCount++;
 
@@ -2925,7 +2925,7 @@ void InitSpiritHead()
 
     sprite[nSpiritSprite].cstat &= 0x7FFF;
 
-    nHeadTimeStart = totalclock;
+    nHeadTimeStart = (int)totalclock;
 
     memset(worktile, -1, sizeof(worktile));
 
@@ -2951,8 +2951,8 @@ void InitSpiritHead()
     StartSwirlies();
 
     sprintf(filename, "LEV%d.PUP", levelnum);
-    lNextStateChange = totalclock;
-    lHeadStartClock = totalclock;
+    lNextStateChange = (int)totalclock;
+    lHeadStartClock = (int)totalclock;
 
     headfd = kopen4load(filename, 512); // 512??
     nPupData = kread(headfd, cPupData, sizeof(cPupData));
@@ -3014,7 +3014,7 @@ int DoSpiritHead()
 
     if (nHeadStage < 2 || nHeadStage != 5)
     {
-        nPixelsToShow = (totalclock - nHeadTimeStart) * 15;
+        nPixelsToShow = ((int)totalclock - nHeadTimeStart) * 15;
 
         if (nPixelsToShow > nPixels) {
             nPixelsToShow = nPixels;
@@ -3037,10 +3037,10 @@ int DoSpiritHead()
 
             if (!nHeadStage)
             {
-                if ((totalclock - nHeadTimeStart) > 480)
+                if (((int)totalclock - nHeadTimeStart) > 480)
                 {
                     nHeadStage = 1;
-                    nHeadTimeStart = totalclock + 480;
+                    nHeadTimeStart = (int)totalclock + 480;
                 }
 
 //				int ecx = 0;
@@ -3247,7 +3247,7 @@ int DoSpiritHead()
                     //*pVal = pixelval[i];
                 }
 
-                if ((totalclock - lHeadStartClock) > 600) {
+                if (((int)totalclock - lHeadStartClock) > 600) {
                     CopyHeadToWorkTile(kTileRamsesGold);
                 }
 
@@ -3288,7 +3288,7 @@ int DoSpiritHead()
     }
     else
     {
-        if (lNextStateChange <= totalclock)
+        if (lNextStateChange <= (int)totalclock)
         {
             if (nPupData)
             {
@@ -3408,7 +3408,7 @@ int DoSpiritHead()
     }
     else if (nHeadStage == 5)
     {
-        if (lNextStateChange <= totalclock)
+        if (lNextStateChange <= (int)totalclock)
         {
             if (nPupData)
             {
@@ -3508,7 +3508,7 @@ int DoSpiritHead()
 
         return 1;
     }
-    nPixelsToShow = (totalclock - nHeadTimeStart) * 15;
+    nPixelsToShow = ((int)totalclock - nHeadTimeStart) * 15;
 
     if (nPixelsToShow > nPixels) {
         nPixelsToShow = nPixels;
@@ -3531,10 +3531,10 @@ int DoSpiritHead()
 
         if (!nHeadStage)
         {
-            if ((totalclock - nHeadTimeStart) > 480)
+            if (((int)totalclock - nHeadTimeStart) > 480)
             {
                 nHeadStage = 1;
-                nHeadTimeStart = totalclock + 480;
+                nHeadTimeStart = (int)totalclock + 480;
             }
 
             //              int ecx = 0;
@@ -3701,7 +3701,7 @@ int DoSpiritHead()
                 //*pVal = pixelval[i];
             }
 
-            if ((totalclock - lHeadStartClock) > 600) {
+            if (((int)totalclock - lHeadStartClock) > 600) {
                 CopyHeadToWorkTile(kTileRamsesGold);
             }
 

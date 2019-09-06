@@ -192,8 +192,8 @@ void WaitTicks(int nTicks)
 {
     if (htimer)
     {
-        nTicks += totalclock;
-        while (nTicks > totalclock) { HandleAsync(); }
+        nTicks += (int)totalclock;
+        while (nTicks > (int)totalclock) { HandleAsync(); }
     }
     else
     {

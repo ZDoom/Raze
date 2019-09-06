@@ -304,7 +304,7 @@ void menu_DoPlasma()
 
         //uint32_t t = time(0) << 16;
         //uint32_t t2 = time(0) | t;
-        nRandom = totalclock;
+        nRandom = (int)totalclock;
 
         for (int i = 0; i < 5; i++)
         {
@@ -513,14 +513,14 @@ void menu_DoPlasma()
     }
 
     // draw the fire urn/lamp thingies
-    int dword_9AB5F = (totalclock/16) & 3;
+    int dword_9AB5F = ((int)totalclock/16) & 3;
 
     overwritesprite(50,  150, kTile3512 + dword_9AB5F, 0, 3, kPalNormal);
     overwritesprite(270, 150, kTile3512 + ((dword_9AB5F + 2) & 3), 0, 3, kPalNormal);
 
     // TEMP
-    int time = totalclock + 4;
-    while (totalclock < time) {
+    int time = (int)totalclock + 4;
+    while ((int)totalclock < time) {
         HandleAsync();
     }
 }
@@ -626,7 +626,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     int var_38 = 0;
     int bFadeDone = kFalse;
 
-    int startTime = totalclock;
+    int startTime = (int)totalclock;
 
     ClearAllKeys();
     UnMaskStatus();
@@ -668,13 +668,13 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     {
         HandleAsync();
 
-        if ((totalclock - startTime) / kTimerTicks)
+        if (((int)totalclock - startTime) / kTimerTicks)
         {
             var_38++;
-            startTime = totalclock;
+            startTime = (int)totalclock;
         }
 
-        int var_3C = totalclock;
+        int var_3C = (int)totalclock;
 
         int tileY = y1;
 
@@ -694,7 +694,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
             {
                 for (int j = 0; j < MapLevelFires[i].nFires; j++)
                 {
-                    int nFireFrame = ((totalclock >> 4) & 3);
+                    int nFireFrame = (((int)totalclock >> 4) & 3);
                     assert(nFireFrame >= 0 && nFireFrame < 4);
 
                     int nFireType = MapLevelFires[i].fires[j].nFireType;
@@ -708,7 +708,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 }
             }
 
-            int t = (((totalclock & 16) >> 4));
+            int t = ((((int)totalclock & 16) >> 4));
 
             int nTile = mapNamePlaques[i].tiles[t].nTile;
 
@@ -722,7 +722,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
             if (nLevelNew == i)
             {
-                shade = (Sin(16 * totalclock) + 31) >> 8;
+                shade = (Sin(16 * (int)totalclock) + 31) >> 8;
             }
             else if (nLevelBest >= i)
             {
@@ -742,7 +742,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         {
             bFadeDone = kTrue;
             FadeIn();
-            var_3C = totalclock;
+            var_3C = (int)totalclock;
         }
 
         if (y1 == y2)
@@ -799,7 +799,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         }
         else
         {
-            y1 += var_2C * ((totalclock - var_3C) / 2);
+            y1 += var_2C * (((int)totalclock - var_3C) / 2);
 
             if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Space] || KB_KeyDown[sc_Return])
             {
@@ -839,7 +839,7 @@ void menu_AdjustVolume()
 
         menu_DoPlasma();
 
-        overwritesprite(80, 50, kMenuMusicTile, (Sin(totalclock << 4) >> 9) * (nOption == 0), 2, kPalNormal);
+        overwritesprite(80, 50, kMenuMusicTile, (Sin((int)totalclock << 4) >> 9) * (nOption == 0), 2, kPalNormal);
         overwritesprite(55, 75, kMenuBlankTitleTile, 0, 2, kPalNormal);
 
         seq_DrawGunSequence(
@@ -850,7 +850,7 @@ void menu_AdjustVolume()
             0,
             0);
 
-        overwritesprite(80, 110, kMenuSoundFxTile, (Sin(totalclock << 4) >> 9) * (nOption == 1), 2, kPalNormal);
+        overwritesprite(80, 110, kMenuSoundFxTile, (Sin((int)totalclock << 4) >> 9) * (nOption == 1), 2, kPalNormal);
         overwritesprite(55, 135, kMenuBlankTitleTile, 0, 2, kPalNormal);
 
         seq_DrawGunSequence(
@@ -899,11 +899,11 @@ void menu_AdjustVolume()
             KB_KeyDown[sc_DownArrow] = 0;
         }
 
-        if (totalclock <= var_8) {
+        if ((int)totalclock <= var_8) {
             continue;
         }
 
-        var_8 = totalclock + 5;
+        var_8 = (int)totalclock + 5;
 
         if (KB_KeyDown[sc_LeftArrow])
         {
@@ -1040,7 +1040,7 @@ int menu_NewGameMenu()
             for (int i = 0; i < 5; i++)
             {
                 // CHECKME
-                int8_t shade = ((Sin(totalclock << 4) >> 9) * (i == nSlot)) + ((i != nSlot) * 31);
+                int8_t shade = ((Sin((int)totalclock << 4) >> 9) * (i == nSlot)) + ((i != nSlot) * 31);
 
                 overwritesprite(55, arg_4A, kMenuBlankTitleTile, shade, 2, kPalNormal);
                 myprintext(63, arg_4E, nameList[i], 0);
@@ -1244,7 +1244,7 @@ int menu_NewGameMenu()
             // loc_399FD:
             menu_DoPlasma();
 
-            int arg_5E = (totalclock / 30) & 1;
+            int arg_5E = ((int)totalclock / 30) & 1;
 
             int y = 90;
             int arg_42 = 98;
@@ -1365,7 +1365,7 @@ int menu_LoadGameMenu()
 
 void menu_ResetKeyTimer()
 {
-    keytimer = totalclock + 2400;
+    keytimer = (int)totalclock + 2400;
 }
 
 void menu_GameLoad2(FILE *fp)
@@ -1505,7 +1505,7 @@ int menu_Menu(int nVal)
         }
 
         // menu idle timer
-        if (!nVal && totalclock > keytimer) {			
+        if (!nVal && (int)totalclock > keytimer) {
             return 9;
         }
 
@@ -1520,7 +1520,7 @@ int menu_Menu(int nVal)
             int8_t shade;
 
             if (nMenu == j) { // currently selected menu item
-                shade = Sin(totalclock << 4) >> 9;
+                shade = Sin((int)totalclock << 4) >> 9;
             }
             else if (ptr[j]) {
                 shade = 0;
@@ -1868,7 +1868,7 @@ uint8_t AdvanceCinemaText()
 
     if (tmp || nCDTrackLength && nCDTrackLength > 0)
     {
-        nextclock = totalclock + 14;
+        nextclock = (int)totalclock + 14;
 
         if (tmp > 0)
         {
@@ -1898,7 +1898,7 @@ uint8_t AdvanceCinemaText()
 
             if (var_1C || nCDTrackLength)
             {
-                if (nextclock <= totalclock) {
+                if (nextclock <= (int)totalclock) {
                     return kTrue;
                 }
             }
@@ -2219,13 +2219,13 @@ void DoLastLevelCinema()
     int var_24 = 16;
     int var_28 = 12;
 
-    int nEndTime = totalclock + 240;
+    int nEndTime = (int)totalclock + 240;
 
     while (KB_KeyWaiting()) {
         KB_GetCh();
     }
 
-    while (nEndTime > totalclock)
+    while (nEndTime > (int)totalclock)
     {
         HandleAsync();
 
@@ -2310,13 +2310,13 @@ LABEL_11:
         KB_FlushKeyboardQueue();
         KB_ClearKeysDown();
 
-        int v11 = kTimerTicks * (var_1C + 2) + totalclock;
+        int v11 = kTimerTicks * (var_1C + 2) + (int)totalclock;
 
         do
         {
             HandleAsync();
 
-            if (v11 <= totalclock)
+            if (v11 <= (int)totalclock)
                 goto LABEL_11;
         } while (!KB_KeyWaiting());
     } 
