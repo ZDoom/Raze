@@ -4009,7 +4009,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
     int8_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
 
-    ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyscale*(1.f/65536.f)+float(ydimen>>1);
+    ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyscale*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
 
     float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
     float vv[2];
