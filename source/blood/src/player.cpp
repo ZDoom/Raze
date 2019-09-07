@@ -814,6 +814,13 @@ void playerResetInertia(PLAYER *pPlayer)
     viewBackupView(pPlayer->at57);
 }
 
+void playerCorrectInertia(PLAYER* pPlayer, vec3_t const *oldpos)
+{
+    pPlayer->at67 += pPlayer->pSprite->z-oldpos->z;
+    pPlayer->at6f += pPlayer->pSprite->z-oldpos->z;
+    viewCorrectViewOffsets(pPlayer->at57, oldpos);
+}
+
 void playerResetPowerUps(PLAYER* pPlayer)
 {
     const int jumpBoots = 15;

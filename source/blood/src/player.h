@@ -222,6 +222,7 @@ char playerSeqPlaying(PLAYER * pPlayer, int nSeq);
 void playerSetRace(PLAYER *pPlayer, int nLifeMode);
 void playerSetGodMode(PLAYER *pPlayer, char bGodMode);
 void playerResetInertia(PLAYER *pPlayer);
+void playerCorrectInertia(PLAYER* pPlayer, vec3_t const *oldpos);
 void playerStart(int nPlayer);
 void playerReset(PLAYER *pPlayer);
 void playerInit(int nPlayer, unsigned int a2);

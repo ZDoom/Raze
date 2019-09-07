@@ -4814,12 +4814,18 @@ void MoveDude(spritetype *pSprite)
         pPlayer->at31b = 1;
         sfxPlay3DSound(pSprite, 719, 0, 0);
     }
+    vec3_t const oldpos = pSprite->pos;
     int nLink = CheckLink(pSprite);
     if (nLink)
     {
         GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
         if (pPlayer)
-            playerResetInertia(pPlayer);
+        {
+            if (bVanilla)
+                playerResetInertia(pPlayer);
+            else
+                playerCorrectInertia(pPlayer, &oldpos);
+        }
         switch (nLink)
         {
         case 12:

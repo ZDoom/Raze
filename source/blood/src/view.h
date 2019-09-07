@@ -119,6 +119,7 @@ void fakeActAirDrag(spritetype *pSprite, int num);
 void fakeActProcessSprites(void);
 void viewCorrectPrediction(void);
 void viewBackupView(int nPlayer);
+void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos);
 void viewClearInterpolations(void);
 void viewAddInterpolation(void *data, INTERPOLATE_TYPE type);
 void CalcInterpolations(void);

@@ -895,6 +895,15 @@ void viewBackupView(int nPlayer)
     pView->at1c = pPlayer->at53;
 }
 
+void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
+{
+    PLAYER *pPlayer = &gPlayer[nPlayer];
+    VIEW *pView = &gPrevView[nPlayer];
+    pView->at50 += pPlayer->pSprite->x-oldpos->x;
+    pView->at54 += pPlayer->pSprite->y-oldpos->y;
+    pView->at38 += pPlayer->pSprite->z-oldpos->z;
+}
+
 void viewClearInterpolations(void)
 {
     nInterpolations = 0;
@@ -2546,7 +2555,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 
 int othercameradist = 1280;
 int cameradist = -1;
-ClockTicks othercameraclock, cameraclock;
+int othercameraclock, cameraclock;
 
 void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fix16_t zm)
 {
@@ -2587,7 +2596,7 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     *pY += mulscale16(vY, othercameradist);
     *pZ += mulscale16(vZ, othercameradist);
     othercameradist = ClipHigh(othercameradist+(((int)(totalclock-othercameraclock))<<10), 65536);
-    othercameraclock = totalclock;
+    othercameraclock = (int)totalclock;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
@@ -2633,7 +2642,7 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
     *pY += mulscale16(vY, cameradist);
     *pZ += mulscale16(vZ, cameradist);
     cameradist = ClipHigh(cameradist+(((int)(totalclock-cameraclock))<<10), 65536);
-    cameraclock = totalclock;
+    cameraclock = (int)totalclock;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
@@ -3062,7 +3071,7 @@ void viewDrawScreen(void)
             }
             cZ += fix16_to_int(q16horiz*10);
             cameradist = -1;
-            cameraclock = totalclock;
+            cameraclock = (int)totalclock;
         }
         else
         {
@@ -3170,31 +3179,27 @@ void viewDrawScreen(void)
             getzsofslope(vcc, vd8, vd4, &vc8, &vc4);
             if (vd0 >= vc4)
             {
-                vd0 = vc4-(8<<4);
+                vd0 = vc4-(gUpperLink[vcc] >= 0 ? 0 : (8<<8));
             }
             if (vd0 <= vc8)
             {
-                vd0 = vc8+(8<<4);
+                vd0 = vc8+(gLowerLink[vcc] >= 0 ? 0 : (8<<8));
             }
             v54 = ClipRange(v54, -200, 200);
-#if 0
 RORHACKOTHER:
             int ror_status[16];
             for (int i = 0; i < 16; i++)
                 ror_status[i] = TestBitString(gotpic, 4080 + i);
-#endif
             yax_preparedrawrooms();
             DrawMirrors(vd8, vd4, vd0, fix16_from_int(v50), fix16_from_int(v54 + defaultHoriz), gInterpolate);
             drawrooms(vd8, vd4, vd0, v50, v54 + defaultHoriz, vcc);
             yax_drawrooms(viewProcessSprites, vcc, 0, gInterpolate);
-#if 0
             bool do_ror_hack = false;
             for (int i = 0; i < 16; i++)
-                if (!ror_status[i] && TestBitString(gotpic, 4080 + i))
+                if (ror_status[i] != TestBitString(gotpic, 4080 + i))
                     do_ror_hack = true;
             if (do_ror_hack)
                 goto RORHACKOTHER;
-#endif
             memcpy(otherMirrorGotpic, gotpic+510, 2);
             memcpy(gotpic+510, bakMirrorGotpic, 2);
             viewProcessSprites(vd8, vd4, vd0, v50, gInterpolate);
@@ -3203,7 +3208,7 @@ RORHACKOTHER:
         }
         else
         {
-            othercameraclock = totalclock;
+            othercameraclock = (int)totalclock;
         }
 
         if (!bDelirium)
@@ -3250,21 +3255,18 @@ RORHACKOTHER:
         getzsofslope(nSectnum, cX, cY, &vfc, &vf8);
         if (cZ >= vf8)
         {
-            cZ = vf8-(8<<8);
+            cZ = vf8-(gUpperLink[nSectnum] >= 0 ? 0 : (8<<8));
         }
         if (cZ <= vfc)
         {
-            cZ = vfc+(8<<8);
+            cZ = vfc+(gLowerLink[nSectnum] >= 0 ? 0 : (8<<8));
         }
         q16horiz = ClipRange(q16horiz, F16(-200), F16(200));
-#if 0
 RORHACK:
         int ror_status[16];
         for (int i = 0; i < 16; i++)
             ror_status[i] = TestBitString(gotpic, 4080+i);
-#endif
         fix16_t deliriumPitchI = interpolate(fix16_from_int(deliriumPitchO), fix16_from_int(deliriumPitch), gInterpolate);
-        DrawMirrors(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, gInterpolate);
         int bakCstat = gView->pSprite->cstat;
         if (gViewPos == 0)
         {
@@ -3274,6 +3276,7 @@ RORHACK:
         {
             gView->pSprite->cstat |= 514;
         }
+        DrawMirrors(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, gInterpolate);
 #ifdef POLYMER
         if (videoGetRenderMode() == REND_POLYMER)
             polymer_setanimatesprites(viewProcessSprites, cX, cY, cZ, fix16_to_int(cA), gInterpolate);
@@ -3282,17 +3285,15 @@ RORHACK:
         renderDrawRoomsQ16(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, nSectnum);
         yax_drawrooms(viewProcessSprites, nSectnum, 0, gInterpolate);
         viewProcessSprites(cX, cY, cZ, fix16_to_int(cA), gInterpolate);
-#if 0
         bool do_ror_hack = false;
         for (int i = 0; i < 16; i++)
-            if (!ror_status[i] && TestBitString(gotpic, 4080+i))
+            if (ror_status[i] != TestBitString(gotpic, 4080+i))
                 do_ror_hack = true;
         if (do_ror_hack)
         {
             gView->pSprite->cstat = bakCstat;
             goto RORHACK;
         }
-#endif
         sub_5571C(1);
         int nSpriteSortCnt = spritesortcnt;
         renderDrawMasks();
