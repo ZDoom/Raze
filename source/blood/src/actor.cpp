@@ -4774,7 +4774,7 @@ void MoveDude(spritetype *pSprite)
     if (zvel[nSprite])
         pSprite->z += zvel[nSprite]>>8;
     int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0);
+    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
     GetSpriteExtents(pSprite, &top, &bottom);
     if (pSprite->hitag & 2)
     {
@@ -4817,7 +4817,7 @@ void MoveDude(spritetype *pSprite)
     int nLink = CheckLink(pSprite);
     if (nLink)
     {
-        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0);
+        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
         if (pPlayer)
             playerResetInertia(pPlayer);
         switch (nLink)
@@ -5025,7 +5025,7 @@ void MoveDude(spritetype *pSprite)
     {
         int floorZ2 = floorZ;
         int floorHit2 = floorHit;
-        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0);
+        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
         if (bottom <= floorZ && pSprite->z - floorZ2 < bz)
         {
             floorZ = floorZ2;
@@ -5549,7 +5549,7 @@ void actProcessSprites(void)
                                     break;
                                 case 431:
                                     if (!Chance(0x4000) && nNextSprite >= 0) continue;
-                                    if (pSprite2->cstat & 0x10001) pXSprite->target = pSprite2->index;
+                                    if (pSprite2->cstat & CLIPMASK0) pXSprite->target = pSprite2->index;
                                     else continue;
                                     break;
                                 case kGDXThingCustomDudeLifeLeech:

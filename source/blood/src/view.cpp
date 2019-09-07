@@ -607,7 +607,7 @@ void fakeMoveDude(spritetype *pSprite)
             if (sector[nSector].lotag >= 612 && sector[nSector].lotag <= 617)
             {
                 short nSector2 = nSector;
-                pushmove_old((int32_t*)&predict.at50, (int32_t*)&predict.at54, (int32_t*)&predict.at58, &nSector2, wd, tz, bz, 0x10001);
+                pushmove_old((int32_t*)&predict.at50, (int32_t*)&predict.at54, (int32_t*)&predict.at58, &nSector2, wd, tz, bz, CLIPMASK0);
                 if (nSector2 != -1)
                     nSector = nSector2;
             }
@@ -670,7 +670,7 @@ void fakeMoveDude(spritetype *pSprite)
     pTempSprite->z = predict.at58;
     pTempSprite->sectnum = predict.at68;
     int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pTempSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, 0x10001);
+    GetZRange(pTempSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0);
     GetSpriteExtents(pTempSprite, &top, &bottom);
     if (predict.at73 & 2)
     {
@@ -710,7 +710,7 @@ void fakeMoveDude(spritetype *pSprite)
     {
         int floorZ2 = floorZ;
         int floorHit2 = floorHit;
-        GetZRange(pTempSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0);
+        GetZRange(pTempSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
         if (bottom <= floorZ && predict.at58-floorZ2 < bz)
         {
             floorZ = floorZ2;

@@ -150,7 +150,7 @@ void sub_2541C(int x, int y, int z, short a)
             {
                 int nTile = pSprite->picnum;
                 int ceilZ, ceilHit, floorZ, floorHit;
-                GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist<<2)+16, CLIPMASK0);
+                GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist<<2)+16, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
                 int nTop, nBottom;
                 GetSpriteExtents(pSprite, &nTop, &nBottom);
                 int nScale = mulscale((pSprite->yrepeat+((floorZ-nBottom)>>8))*z, yxaspect, 16);
