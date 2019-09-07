@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
+#include "compat.h"
+#include "build.h"
 #include "fix16.h"
 #include "common_game.h"
 #include "actor.h"
@@ -197,7 +199,7 @@ extern PLAYER *gMe, *gView;
 extern PROFILE gProfile[kMaxPlayers];
 
 extern int dword_21EFB0[kMaxPlayers];
-extern int dword_21EFD0[kMaxPlayers];
+extern ClockTicks dword_21EFD0[kMaxPlayers];
 extern AMMOINFO gAmmoInfo[];
 extern POWERUPINFO gPowerUpInfo[kMaxPowerUps];
 

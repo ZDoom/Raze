@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
+#include "compat.h"
+#include "build.h"
 #include "resource.h"
 
 typedef struct {
@@ -35,10 +37,10 @@ typedef struct {
 } ud_setup_t;
 
 extern ud_setup_t gSetup;
-extern int gFrameClock;
-extern int gFrameTicks;
+extern ClockTicks gFrameClock;
+extern ClockTicks gFrameTicks;
 extern int gFrame;
-extern int volatile gGameClock;
+//extern ClockTicks gGameClock;
 extern int gFrameRate;
 extern int gGamma;
 extern bool bVanilla;

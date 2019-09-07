@@ -358,7 +358,7 @@ void CGameMessageMgr::Display(void)
         int v18 = at26;
         int vc = ClipHigh(v10*8, 48);
         int v14 = gViewMode == 3 ? gViewX0S : 0;
-        int v8 = (gViewMode == 3 ? at5 : 0) + at9;
+        int v8 = (gViewMode == 3 ? at5 : 0) + (int)at9;
         for (int i = 0; i < v10; i++)
         {
             messageStruct *pMessage = &at2e[(v18+i)%16];
@@ -379,7 +379,7 @@ void CGameMessageMgr::Display(void)
             v8 += at15;
             vc = ClipLow(vc-64/v10, -128);
         }
-        if (at9)
+        if (at9 != 0)
         {
             at9 = at15*at9/120;
             atd += gFrameTicks;
@@ -435,7 +435,7 @@ void CPlayerMsg::Draw(void)
 {
     char buffer[44];
     strcpy(buffer, at4);
-    if (gGameClock & 16)
+    if ((int)totalclock & 16)
         strcat(buffer, "_");
     int x = gViewMode == 3 ? gViewX0S : 0;
     int y = gViewMode == 3 ? gViewY0S : 0;

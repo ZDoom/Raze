@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
+#include "compat.h"
+#include "build.h"
 #include "controls.h"
 
 enum PACKETMODE {
@@ -41,7 +43,7 @@ enum NETWORKMODE {
 extern char packet[576];
 extern bool gStartNewGame;
 extern PACKETMODE gPacketMode;
-extern int gNetFifoClock;
+extern ClockTicks gNetFifoClock;
 extern int gNetFifoTail;
 extern int gNetFifoHead[8];
 extern int gPredictTail;

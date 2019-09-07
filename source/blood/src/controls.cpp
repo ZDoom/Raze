@@ -61,7 +61,7 @@ int iTurnCount = 0;
 
 int32_t GetTime(void)
 {
-    return gGameClock;
+    return (int32_t)totalclock;
 }
 
 void ctrlInit(void)

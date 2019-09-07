@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 
 #include "compat.h"
+#include "build.h"
 #include "common_game.h"
 #include "globals.h"
 #include "resource.h"
@@ -30,10 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 ud_setup_t gSetup;
 bool bVanilla = false;
-int gFrameClock;
-int gFrameTicks;
+ClockTicks gFrameClock;
+ClockTicks gFrameTicks;
 int gFrame;
-int volatile gGameClock;
+//int volatile gGameClock;
 int gFrameRate;
 int gGamma;
 

@@ -1217,7 +1217,7 @@ void viewDrawPowerUps(PLAYER* pPlayer)
         if (powerups[i].remainingDuration)
         {
             int remainingSeconds = powerups[i].remainingDuration / 100;
-            if (remainingSeconds > 5 || (gGameClock & 32))
+            if (remainingSeconds > 5 || ((int)totalclock & 32))
             {
                 DrawStatMaskedSprite(powerups[i].nTile, x, y + powerups[i].yOffset, 0, 0, 256, (int)(65536 * powerups[i].nScaleRatio));
             }
@@ -1308,7 +1308,7 @@ void DrawPackItemInStatusBar2(PLAYER *pPlayer, int x, int y, int x2, int y2, int
 
 char gTempStr[128];
 
-void UpdateStatusBar(int arg)
+void UpdateStatusBar(ClockTicks arg)
 {
     PLAYER *pPlayer = gView;
     XSPRITE *pXSprite = pPlayer->pXSprite;
@@ -1381,7 +1381,7 @@ void UpdateStatusBar(int arg)
     if (gViewSize == 2)
     {
         DrawStatSprite(2201, 34, 187, 16, nPalette, 256);
-        if (pXSprite->health >= 16 || (gGameClock&16) || pXSprite->health == 0)
+        if (pXSprite->health >= 16 || ((int)totalclock&16) || pXSprite->health == 0)
         {
             DrawStatNumber("%3d", pXSprite->health>>4, 2190, 8, 183, 0, 0, 256);
         }
@@ -1440,7 +1440,7 @@ void UpdateStatusBar(int arg)
         viewDrawPack(pPlayer, 160, 200-tilesiz[2200].y);
         DrawStatMaskedSprite(2200, 160, 172, 16, nPalette);
         DrawPackItemInStatusBar(pPlayer, 265, 186, 260, 172);
-        if (pXSprite->health >= 16 || (gGameClock&16) || pXSprite->health == 0)
+        if (pXSprite->health >= 16 || ((int)totalclock&16) || pXSprite->health == 0)
         {
             DrawStatNumber("%3d", pXSprite->health>>4, 2190, 86, 183, 0, 0);
         }
@@ -1531,18 +1531,22 @@ void UpdateStatusBar(int arg)
     if (gGameOptions.nGameType == 3)
     {
         int x = 1, y = 1;
-        if (dword_21EFD0[0] == 0 || (gGameClock & 8))
+        if (dword_21EFD0[0] == 0 || ((int)totalclock & 8))
         {
             viewDrawText(0, "BLUE", x, y, -128, 10, 0, 0, 256);
-            dword_21EFD0[0] = ClipLow(dword_21EFD0[0]-arg, 0);
+            dword_21EFD0[0] = dword_21EFD0[0]-arg;
+            if (dword_21EFD0[0] < 0)
+                dword_21EFD0[0] = 0;
             sprintf(gTempStr, "%-3d", dword_21EFB0[0]);
             viewDrawText(0, gTempStr, x, y+10, -128, 10, 0, 0, 256);
         }
         x = 319;
-        if (dword_21EFD0[1] == 0 || (gGameClock & 8))
+        if (dword_21EFD0[1] == 0 || ((int)totalclock & 8))
         {
             viewDrawText(0, "RED", x, y, -128, 7, 2, 0, 512);
-            dword_21EFD0[1] = ClipLow(dword_21EFD0[1]-arg, 0);
+            dword_21EFD0[1] = dword_21EFD0[1]-arg;
+            if (dword_21EFD0[1] < 0)
+                dword_21EFD0[1] = 0;
             sprintf(gTempStr, "%3d", dword_21EFB0[1]);
             viewDrawText(0, gTempStr, x, y+10, -128, 7, 2, 0, 512);
         }
@@ -1694,7 +1698,7 @@ void UpdateFrame(void)
     viewTileSprite(kBackTile, 10, 1, gViewX0-3, gViewY1+1, gViewX1+1, gViewY1+4);
 }
 
-void viewDrawInterface(int arg)
+void viewDrawInterface(ClockTicks arg)
 {
     if (gViewMode == 3/* && gViewSize >= 3*/ && (pcBackground != 0 || videoGetRenderMode() >= REND_POLYMOST))
     {
@@ -1750,7 +1754,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         for (int i = 0; i < 16; i++)
         {
             uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
-            int ang = (gFrameClock*2048)/120;
+            int ang = ((int)gFrameClock*2048)/120;
             int nRand1 = dword_172CE0[i][0];
             int nRand2 = dword_172CE0[i][1];
             int nRand3 = dword_172CE0[i][2];
@@ -2153,7 +2157,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                             qloadvoxel(pTSprite->picnum);
                         if ((picanm[nTile].extra&7) == 7)
                         {
-                            pTSprite->ang = (gGameClock<<3)&2047;
+                            pTSprite->ang = ((int)totalclock<<3)&2047;
                         }
                     }
                 }
@@ -2542,8 +2546,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 
 int othercameradist = 1280;
 int cameradist = -1;
-int othercameraclock;
-int cameraclock;
+ClockTicks othercameraclock, cameraclock;
 
 void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fix16_t zm)
 {
@@ -2583,8 +2586,8 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     *pX += mulscale16(vX, othercameradist);
     *pY += mulscale16(vY, othercameradist);
     *pZ += mulscale16(vZ, othercameradist);
-    othercameradist = ClipHigh(othercameradist+((gGameClock-othercameraclock)<<10), 65536);
-    othercameraclock = gGameClock;
+    othercameradist = ClipHigh(othercameradist+(((int)(totalclock-othercameraclock))<<10), 65536);
+    othercameraclock = totalclock;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
@@ -2629,8 +2632,8 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
     *pX += mulscale16(vX, cameradist);
     *pY += mulscale16(vY, cameradist);
     *pZ += mulscale16(vZ, cameradist);
-    cameradist = ClipHigh(cameradist+((gGameClock-cameraclock)<<10), 65536);
-    cameraclock = gGameClock;
+    cameradist = ClipHigh(cameradist+(((int)(totalclock-cameraclock))<<10), 65536);
+    cameraclock = totalclock;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
@@ -2845,7 +2848,7 @@ void viewUpdateDelirium(void)
 	if ((powerCount = powerupCheck(gView,28)) != 0)
 	{
 		int tilt1 = 170, tilt2 = 170, pitch = 20;
-        int timer = gFrameClock*4;
+        int timer = (int)gFrameClock*4;
 		if (powerCount < 512)
 		{
 			int powerScale = (powerCount<<16) / 512;
@@ -2949,7 +2952,7 @@ int32_t g_frameRate;
 void viewDrawScreen(void)
 {
     int nPalette = 0;
-    static int lastUpdate;
+    static ClockTicks lastUpdate;
     int defaultHoriz = gCenterHoriz ? 100 : 90;
 
 #ifdef USE_OPENGL
@@ -2957,11 +2960,13 @@ void viewDrawScreen(void)
 #endif
 
     timerUpdate();
-    int delta = ClipLow(gGameClock - lastUpdate, 0);
-    lastUpdate = gGameClock;
+    ClockTicks delta = totalclock - lastUpdate;
+    if (delta < 0)
+        delta = 0;
+    lastUpdate = totalclock;
     if (!gPaused && (!CGameMenuMgr::m_bActive || gGameOptions.nGameType != 0))
     {
-        gInterpolate = divscale16(gGameClock-gNetFifoClock+4, 4);
+        gInterpolate = ((totalclock-gNetFifoClock)+4).toScale16()/4;
     }
     if (gInterpolate < 0 || gInterpolate > 65536)
     {
@@ -3057,7 +3062,7 @@ void viewDrawScreen(void)
             }
             cZ += fix16_to_int(q16horiz*10);
             cameradist = -1;
-            cameraclock = gGameClock;
+            cameraclock = totalclock;
         }
         else
         {
@@ -3109,7 +3114,7 @@ void viewDrawScreen(void)
         }
         else if (v4 && gNetPlayers > 1)
         {
-            int tmp = (gGameClock/240)%(gNetPlayers-1);
+            int tmp = ((int)totalclock/240)%(gNetPlayers-1);
             int i = connecthead;
             while (1)
             {
@@ -3198,7 +3203,7 @@ RORHACKOTHER:
         }
         else
         {
-            othercameraclock = gGameClock;
+            othercameraclock = totalclock;
         }
 
         if (!bDelirium)

@@ -95,11 +95,11 @@ void FireInit(void)
 
 void FireProcess(void)
 {
-    static int lastUpdate;
-    if (gGameClock < lastUpdate || lastUpdate + 2 < gGameClock)
+    static ClockTicks lastUpdate;
+    if (totalclock < lastUpdate || lastUpdate + 2 < totalclock)
     {
         DoFireFrame();
-        lastUpdate = gGameClock;
+        lastUpdate = totalclock;
         tileInvalidate(2342, -1, -1);
     }
 }

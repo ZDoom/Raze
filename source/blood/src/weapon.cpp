@@ -232,14 +232,14 @@ void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5)
     QAV *pQAV = weaponQAV[pPlayer->at26];
     int v4;
     if (pPlayer->atbf == 0)
-        v4 = gGameClock%pQAV->at10;
+        v4 = (int)totalclock%pQAV->at10;
     else
         v4 = pQAV->at10-pPlayer->atbf;
     pQAV->x = a3;
     pQAV->y = a4;
     int flags = 2;
     int nInv = powerupCheck(pPlayer, 13);
-    if (nInv >= 120*8 || (nInv != 0 && (gGameClock&32)))
+    if (nInv >= 120*8 || (nInv != 0 && ((int)totalclock&32)))
     {
         a2 = -128;
         flags |= 1;
@@ -1727,12 +1727,12 @@ char sub_4F0E0(PLAYER *pPlayer)
         {
             pPlayer->atc3 = 7;
             pPlayer->at1b2 = 0;
-            pPlayer->at1b6 = gFrameClock;
+            pPlayer->at1b6 = (int)gFrameClock;
         }
         return 1;
     case 7:
     {
-        pPlayer->at1ba = ClipHigh(divscale16(gFrameClock-pPlayer->at1b6,240), 65536);
+        pPlayer->at1ba = ClipHigh(divscale16((int)gFrameClock-pPlayer->at1b6,240), 65536);
         if (!pPlayer->atc.buttonFlags.shoot)
         {
             if (!pPlayer->at1b2)
@@ -1765,12 +1765,12 @@ char sub_4F200(PLAYER *pPlayer)
         {
             pPlayer->atc3 = 6;
             pPlayer->at1b2 = 0;
-            pPlayer->at1b6 = gFrameClock;
+            pPlayer->at1b6 = (int)gFrameClock;
         }
         return 1;
     case 6:
     {
-        pPlayer->at1ba = ClipHigh(divscale16(gFrameClock-pPlayer->at1b6,240), 65536);
+        pPlayer->at1ba = ClipHigh(divscale16((int)gFrameClock-pPlayer->at1b6,240), 65536);
         if (!pPlayer->atc.buttonFlags.shoot)
         {
             if (!pPlayer->at1b2)
@@ -1789,7 +1789,7 @@ char sub_4F320(PLAYER *pPlayer)
     switch (pPlayer->atc3)
     {
     case 9:
-        pPlayer->at1ba = ClipHigh(divscale16(gFrameClock-pPlayer->at1b6,240), 65536);
+        pPlayer->at1ba = ClipHigh(divscale16((int)gFrameClock-pPlayer->at1b6,240), 65536);
         pPlayer->atbf = 0;
         if (!pPlayer->atc.buttonFlags.shoot)
         {
@@ -1806,7 +1806,7 @@ char sub_4F3A0(PLAYER *pPlayer)
     switch (pPlayer->atc3)
     {
     case 13:
-        pPlayer->at1ba = ClipHigh(divscale16(gFrameClock-pPlayer->at1b6,240), 65536);
+        pPlayer->at1ba = ClipHigh(divscale16((int)gFrameClock-pPlayer->at1b6,240), 65536);
         if (!pPlayer->atc.buttonFlags.shoot)
         {
             pPlayer->atc3 = 11;
@@ -2134,7 +2134,7 @@ void WeaponProcess(PLAYER *pPlayer)
             case 3:
                 pPlayer->atc3 = 6;
                 pPlayer->at1b2 = -1;
-                pPlayer->at1b6 = gFrameClock;
+                pPlayer->at1b6 = (int)gFrameClock;
                 StartQAV(pPlayer, 21, nClientExplodeBundle, 0);
                 return;
             }
@@ -2145,7 +2145,7 @@ void WeaponProcess(PLAYER *pPlayer)
             case 7:
                 pPlayer->at26 = 27;
                 pPlayer->atc3 = 9;
-                pPlayer->at1b6 = gFrameClock;
+                pPlayer->at1b6 = (int)gFrameClock;
                 return;
             }
             break;
@@ -2155,7 +2155,7 @@ void WeaponProcess(PLAYER *pPlayer)
             case 10:
                 pPlayer->at26 = 36;
                 pPlayer->atc3 = 13;
-                pPlayer->at1b6 = gFrameClock;
+                pPlayer->at1b6 = (int)gFrameClock;
                 return;
             case 11:
                 pPlayer->atc3 = 12;

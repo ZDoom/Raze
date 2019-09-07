@@ -175,7 +175,7 @@ void CGameMenuMgr::Draw(void)
         if (MOUSEACTIVECONDITIONAL(mouseAdvanceClickState()) || m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
         {
             m_prevmousepos = m_mousepos;
-            m_mouselastactivity = totalclock.Ticks();
+            m_mouselastactivity = (int)totalclock;
         }
         else
             m_mousewake_watchpoint = 0;
@@ -611,7 +611,7 @@ void CGameMenuItemZBool::Draw(void)
     int shade = bEnable ? 32 : 48;
     int pal = bEnable ? 0 : 5;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     if (m_pzText)
         gMenuTextMgr.DrawText(m_pzText, m_nFont, m_nX, m_nY, shade, pal, false);
     const char *value = at20 ? at21 : at25;
@@ -686,7 +686,7 @@ void CGameMenuItemChain::Draw(void)
     int shade = bEnable ? 32 : 48;
     int pal = bEnable ? 0 : 5;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     int width, height;
     int x = m_nX;
     int y = m_nY;
@@ -772,7 +772,7 @@ void CGameMenuItem7EA1C::Draw(void)
     int shade = bEnable ? 32 : 48;
     int pal = bEnable ? 0 : 5;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     int width;
     int x = m_nX;
     switch (at20)
@@ -887,7 +887,7 @@ void CGameMenuItem7EE34::Draw(void)
     int shade = bEnable ? 32 : 48;
     int pal = bEnable ? 0 : 5;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     int width;
     int x = m_nX;
     switch (at24)
@@ -1011,7 +1011,7 @@ void CGameMenuItemBitmap::Draw(void)
     int shade = bEnable ? 32 : 48;
     int pal = bEnable ? 0 : 5;
     if (bEnable && pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     int x = m_nX;
     int y = m_nY;
     if (m_pzText)
@@ -1051,7 +1051,7 @@ void CGameMenuItemBitmapLS::Draw(void)
     int shade = bEnable ? 32 : 48;
     int pal = bEnable ? 0 : 5;
     if (bEnable && pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     int x = m_nX;
     int y = m_nY;
     if (m_pzText)
@@ -1156,10 +1156,10 @@ void CGameMenuItemKeyList::Draw(void)
         {
             shade = 32;
             if (pMenu->IsFocusItem(this))
-                shade = 32-(totalclock.Ticks() &63);
+                shade = 32-((int)totalclock&63);
             viewDrawText(3, buffer, m_nX, y, shade, 0, 0, false);
             const char *sVal;
-            if (bScan && (gGameClock & 32))
+            if (bScan && ((int)totalclock & 32))
                 sVal = "____";
             else
                 sVal = buffer2;
@@ -1304,13 +1304,13 @@ bool CGameMenuItemKeyList::MouseEvent(CGameMenuEvent &event)
     event.at0 = kMenuEventNone;
     if (MOUSEACTIVECONDITIONAL(MOUSE_GetButtons()&WHEELUP_MOUSE))
     {
-        gGameMenuMgr.m_mouselastactivity = totalclock.Ticks();
+        gGameMenuMgr.m_mouselastactivity = (int)totalclock;
         MOUSE_ClearButton(WHEELUP_MOUSE);
         event.at0 = kMenuEventScrollUp;
     }
     else if (MOUSEACTIVECONDITIONAL(MOUSE_GetButtons()&WHEELDOWN_MOUSE))
     {
-        gGameMenuMgr.m_mouselastactivity = totalclock.Ticks();
+        gGameMenuMgr.m_mouselastactivity = (int)totalclock;
         MOUSE_ClearButton(WHEELDOWN_MOUSE);
         event.at0 = kMenuEventScrollDown;
     }
@@ -1389,7 +1389,7 @@ void CGameMenuItemSlider::Draw(void)
     int shade2 = bEnable ? 0 : 16;
     int pal = bEnable ? 0 : 5;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     if (m_pzText)
         gMenuTextMgr.DrawText(m_pzText, m_nFont, m_nX, m_nY, shade, pal, false);
     int sliderX = m_nX+m_nWidth-1-tilesiz[nSliderTile].x/2;
@@ -1621,7 +1621,7 @@ void CGameMenuItemSliderFloat::Draw(void)
     int shade2 = bEnable ? 0 : 16;
     int pal = bEnable ? 0 : 5;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     if (m_pzText)
         gMenuTextMgr.DrawText(m_pzText, m_nFont, m_nX, m_nY, shade, pal, false);
     int sliderX = m_nX+m_nWidth-1-tilesiz[nSliderTile].x/2;
@@ -1803,7 +1803,7 @@ void CGameMenuItemZEdit::Draw(void)
     int shade = bEnable ? 32 : 48;
     int pal = bEnable ? 0 : 5;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     if (at30)
         shade = -128;
     if (m_pzText)
@@ -1831,7 +1831,7 @@ void CGameMenuItemZEdit::Draw(void)
         gMenuTextMgr.DrawText(at20, m_nFont, x, m_nY, shade2, pal, false);
         x += width;
     }
-    if (at30 && (gGameClock & 32))
+    if (at30 && ((int)totalclock & 32))
         gMenuTextMgr.DrawText("_", m_nFont, x, m_nY, shade, 0, false);
 
     int mx = m_nX<<16;
@@ -1988,7 +1988,7 @@ void CGameMenuItemZEditBitmap::Draw(void)
     int shade = bEnable ? 32 : 48;
     int pal = bEnable ? 0 : 5;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     at2c->at24 = -1;
     if (at34)
         shade = -128;
@@ -2017,7 +2017,7 @@ void CGameMenuItemZEditBitmap::Draw(void)
         gMenuTextMgr.DrawText(at20, m_nFont, x, m_nY, shade2, 0, false);
         x += width;
     }
-    if (at34 && (gGameClock & 32))
+    if (at34 && ((int)totalclock & 32))
         gMenuTextMgr.DrawText("_", m_nFont, x, m_nY, shade, pal, false);
 
     int mx = m_nX<<16;
@@ -2148,10 +2148,10 @@ void CGameMenuItemQAV::Draw(void)
         videoClearScreen(0);
     if (at24)
     {
-        int backFC = gFrameClock;
-        gFrameClock = gGameClock;
-        int nTicks = totalclock.Ticks() - at30;
-        at30 = totalclock.Ticks();
+        ClockTicks backFC = gFrameClock;
+        gFrameClock = totalclock;
+        int nTicks = (int)totalclock - at30;
+        at30 = (int)totalclock;
         at2c -= nTicks;
         if (at2c <= 0 || at2c > at28->at10)
         {
@@ -2229,7 +2229,7 @@ bool CGameMenuItemQAV::Event(CGameMenuEvent &event)
                 at28->y = m_nY;
                 at28->Preload();
                 at2c = at28->at10;
-                at30 = totalclock.Ticks();
+                at30 = (int)totalclock;
                 return false;
             }
             gSysRes.Lock(at24);
@@ -2250,7 +2250,7 @@ bool CGameMenuItemQAV::Event(CGameMenuEvent &event)
 void CGameMenuItemQAV::Reset(void)
 {
     at2c = at28->at10;
-    at30 = totalclock.Ticks();
+    at30 = (int)totalclock;
 }
 
 CGameMenuItemZCycleSelect::CGameMenuItemZCycleSelect()
@@ -2298,7 +2298,7 @@ void CGameMenuItemZCycleSelect::Draw(void)
         {
             shade = 32;
             if (pMenu->IsFocusItem(this))
-                shade = 32-(totalclock.Ticks() &63);
+                shade = 32-((int)totalclock&63);
             viewDrawText(3, m_pzStrings[k], m_nX, y, shade, 0, 0, false);
         }
         else
@@ -2396,13 +2396,13 @@ bool CGameMenuItemZCycleSelect::MouseEvent(CGameMenuEvent &event)
     event.at0 = kMenuEventNone;
     if (MOUSEACTIVECONDITIONAL(MOUSE_GetButtons()&WHEELUP_MOUSE))
     {
-        gGameMenuMgr.m_mouselastactivity = totalclock.Ticks();
+        gGameMenuMgr.m_mouselastactivity = (int)totalclock;
         MOUSE_ClearButton(WHEELUP_MOUSE);
         event.at0 = kMenuEventScrollUp;
     }
     else if (MOUSEACTIVECONDITIONAL(MOUSE_GetButtons()&WHEELDOWN_MOUSE))
     {
-        gGameMenuMgr.m_mouselastactivity = totalclock.Ticks();
+        gGameMenuMgr.m_mouselastactivity = (int)totalclock;
         MOUSE_ClearButton(WHEELDOWN_MOUSE);
         event.at0 = kMenuEventScrollDown;
     }
@@ -2464,7 +2464,7 @@ void CGameMenuItemZCycle::Draw(void)
     int shade = bEnable ? 32 : 48;
     int pal = bEnable ? 0 : 5;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     int x = m_nX;
     int y = m_nY;
 
@@ -2666,7 +2666,7 @@ void CGameMenuItemYesNoQuit::Draw(void)
     if (!m_pzText) return;
     int shade = 32;
     if (pMenu->IsFocusItem(this))
-        shade = 32-(totalclock.Ticks() &63);
+        shade = 32-((int)totalclock&63);
     int width;
     int x = m_nX;
     switch (at20)
@@ -2859,7 +2859,7 @@ void CGameMenuItemPassword::Draw(void)
 {
     bool focus = pMenu->IsFocusItem(this);
     int shade = 32;
-    int shadef = 32-(totalclock.Ticks() &63);
+    int shadef = 32-((int)totalclock&63);
     int width;
     switch (at37)
     {
@@ -2886,7 +2886,7 @@ void CGameMenuItemPassword::Draw(void)
         shadef = 32;
         break;
     case 4:
-        if ((totalclock.Ticks() - at5b) & 32)
+        if (((int)totalclock - at5b) & 32)
         {
             gMenuTextMgr.GetFontInfo(m_nFont, kInvalidPasswordMsg, &width, NULL);
             gMenuTextMgr.DrawText(kInvalidPasswordMsg, m_nFont, m_nX - width / 2, m_nY + 20, shade, 0, false);
@@ -2934,7 +2934,7 @@ bool CGameMenuItemPassword::Event(CGameMenuEvent &event)
                     at37 = 4;
                 if (!at36)
                 {
-                    at5b = totalclock.Ticks();
+                    at5b = (int)totalclock;
                     pMenu->FocusPrevItem();
                 }
                 else
@@ -2962,7 +2962,7 @@ bool CGameMenuItemPassword::Event(CGameMenuEvent &event)
                     at37 = 0;
                 }
                 else
-                    at5b = totalclock.Ticks();
+                    at5b = (int)totalclock;
                 return false;
             case 3:
                 strcpy(at20, at29);

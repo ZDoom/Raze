@@ -479,7 +479,7 @@ void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
     evn.type = nType;
     evn.cmd = command;
     // Inlined?
-    eventQ.PQueue->Insert(gFrameClock+nDelta, evn);
+    eventQ.PQueue->Insert((int)gFrameClock+nDelta, evn);
 }
 
 void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID a4)
@@ -489,7 +489,7 @@ void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID a4)
     evn.type = nType;
     evn.cmd = kCommandCallback;
     evn.funcID = a4;
-    eventQ.PQueue->Insert(gFrameClock+nDelta, evn);
+    eventQ.PQueue->Insert((int)gFrameClock+nDelta, evn);
 }
 
 void evProcess(unsigned int nTime)

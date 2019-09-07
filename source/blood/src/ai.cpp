@@ -92,12 +92,12 @@ void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4)
     DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
     if (a3 == AI_SFX_PRIORITY_0)
         sfxPlay3DSound(pSprite, a2, a4, 2);
-    else if (a3 > pDudeExtra->at5 || pDudeExtra->at0 <= gFrameClock)
+    else if (a3 > pDudeExtra->at5 || pDudeExtra->at0 <= (int)gFrameClock)
     {
         sfxKill3DSound(pSprite, -1, -1);
         sfxPlay3DSound(pSprite, a2, a4, 0);
         pDudeExtra->at5 = a3;
-        pDudeExtra->at0 = gFrameClock+120;
+        pDudeExtra->at0 = (int)gFrameClock+120;
     }
 }
 
@@ -986,7 +986,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 aiNewState(pSprite, pXSprite, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
-                gDudeExtra[pSprite->extra].at0 = gFrameClock+360;
+                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock+360;
                 actHealDude(pXSprite, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
                 evKill(nSprite, 3, CALLBACK_ID_0);
             }
@@ -997,7 +997,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 pSprite->type = 239;
                 aiNewState(pSprite, pXSprite, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                gDudeExtra[pSprite->extra].at0 = gFrameClock+360;
+                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock+360;
                 actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
                 evKill(nSprite, 3, CALLBACK_ID_0);
             }
@@ -1006,7 +1006,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
             if (Chance(0x4000) && gDudeExtra[pSprite->extra].at0 < gFrameClock)
             {
                 aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
-                gDudeExtra[pSprite->extra].at0 = gFrameClock+360;
+                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock+360;
             }
             if (Chance(0x600) && (pXSprite->medium == 1 || pXSprite->medium == 2))
             {
@@ -1040,18 +1040,18 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
             {
                 pSprite->type = 239;
                 if (!VanillaMode())
-                    pXSprite->scale = -4; // need to change this to 64 later
+                    pXSprite->scale = 64;
                 aiNewState(pSprite, pXSprite, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                gDudeExtra[pSprite->extra].at0 = gFrameClock+360;
+                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock+360;
                 actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
                 evKill(nSprite, 3, CALLBACK_ID_0);
             }
             break;
         case kGDXGenDudeBurning:
-            if (Chance(0x2000) && gDudeExtra[pSprite->extra].at0 < gFrameClock) {
+            if (Chance(0x2000) && gDudeExtra[pSprite->extra].at0 < (int)gFrameClock) {
                 sfxPlayGDXGenDudeSound(pSprite, 3, pXSprite->data3);
-                gDudeExtra[pSprite->extra].at0 = gFrameClock + 360;
+                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
             }
             if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
             if (spriteIsUnderwater(pSprite, false)) {
@@ -1091,7 +1091,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
 
                             aiNewState(pSprite, pXSprite, &GDXGenDudeBurnGoto);
                             actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
-                            gDudeExtra[pSprite->extra].at0 = gFrameClock + 360;
+                            gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
                             evKill(nSprite, 3, CALLBACK_ID_0);
 
                         }

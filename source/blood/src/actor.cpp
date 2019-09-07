@@ -3055,7 +3055,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
                         aiNewState(pSprite, pXSprite, &GDXGenDudeBurnGoto);
                         actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
                         if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
-                        gDudeExtra[pSprite->extra].at0 = gFrameClock + 360;
+                        gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
                         return;
                     }
 
@@ -3675,7 +3675,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
                 if (a3 == 3 && pSourcePlayer && gFrameClock > pSourcePlayer->at312 && Chance(0x4000))
                 {
                     sfxPlay3DSound(pSourcePlayer->pSprite, gPlayerGibThingComments[Random(10)], 0, 2);
-                    pSourcePlayer->at312 = gFrameClock+3600;
+                    pSourcePlayer->at312 = (int)gFrameClock+3600;
                 }
                 break;
             case 413:
@@ -4348,7 +4348,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                 {
                     if (pPlayer->at30e > gFrameClock)
                         return;
-                    pPlayer->at30e = gFrameClock+60;
+                    pPlayer->at30e = (int)gFrameClock+60;
                 }
                 actKickObject(pSprite, pSprite2);
                 sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
@@ -4359,7 +4359,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                 {
                     if (pPlayer->at30e > gFrameClock)
                         return;
-                    pPlayer->at30e = gFrameClock+60;
+                    pPlayer->at30e = (int)gFrameClock+60;
                 }
                 actKickObject(pSprite, pSprite2);
                 sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
@@ -4503,9 +4503,9 @@ int MoveThing(spritetype *pSprite)
             spritetype *pFX = gFX.fxSpawn(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
             if (pFX)
             {
-                int v34 = (gFrameClock*3)&2047;
-                int v30 = (gFrameClock*5)&2047;
-                int vbx = (gFrameClock*11)&2047;
+                int v34 = ((int)gFrameClock*3)&2047;
+                int v30 = ((int)gFrameClock*5)&2047;
+                int vbx = ((int)gFrameClock*11)&2047;
                 int v2c = 0x44444;
                 int v28 = 0;
                 int v24 = 0;
@@ -6243,7 +6243,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pXThing->data2 = 0;
         pXThing->data3 = 0;
         pXThing->data4 = 318;
-        pXThing->targetX = gFrameClock+180.0;
+        pXThing->targetX = (int)gFrameClock+180.0;
         pXThing->locked = 1;
         pXThing->state = 1;
         pXThing->triggerOnce = 0;
@@ -6258,7 +6258,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pXThing->data2 = 0;
         pXThing->data3 = 0;
         pXThing->data4 = 318;
-        pXThing->targetX = gFrameClock+180.0;
+        pXThing->targetX = (int)gFrameClock+180.0;
         pXThing->locked = 1;
         pXThing->state = 1;
         pXThing->triggerOnce = 0;
@@ -6833,7 +6833,7 @@ void DudeToGibCallback1(int, int nXSprite)
     pXSprite->triggerOnce = 0;
     pXSprite->isTriggered = 0;
     pXSprite->locked = 0;
-    pXSprite->targetX = gFrameClock;
+    pXSprite->targetX = (int)gFrameClock;
     pXSprite->state = 1;
 }
 
@@ -6851,7 +6851,7 @@ void DudeToGibCallback2(int, int nXSprite)
     pXSprite->triggerOnce = 0;
     pXSprite->isTriggered = 0;
     pXSprite->locked = 0;
-    pXSprite->targetX = gFrameClock;
+    pXSprite->targetX = (int)gFrameClock;
     pXSprite->state = 1;
 }
 

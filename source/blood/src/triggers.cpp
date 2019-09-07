@@ -2837,7 +2837,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
                 return;
             }
             // lets try to look for target that fits better by distance
-            else if ((gFrameClock & 256) != 0 && (pXSprite->target < 0 || getTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
+            else if (((int)gFrameClock & 256) != 0 && (pXSprite->target < 0 || getTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
                 pTarget = getTargetInRange(pSprite, 0, mDist, pXSource->data1, pXSource->data2);
                 if (pTarget != NULL) {
                     pXTarget = &xsprite[pTarget->extra];
@@ -2866,7 +2866,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
             }
         }
 
-        if ((pXSprite->target < 0 || pPlayer != NULL) && (gFrameClock & 32) != 0) {
+        if ((pXSprite->target < 0 || pPlayer != NULL) && ((int)gFrameClock & 32) != 0) {
             // try find first target that dude can see
             for (int nSprite = headspritestat[6]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
                 pTarget = &sprite[nSprite]; pXTarget = &xsprite[pTarget->extra];
@@ -2909,7 +2909,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
         }
 
         // got no target - let's ask mates if they have targets
-        if ((pXSprite->target < 0 || pPlayer != NULL) && pXSource->data2 == 1 && (gFrameClock & 64) != 0) {
+        if ((pXSprite->target < 0 || pPlayer != NULL) && pXSource->data2 == 1 && ((int)gFrameClock & 64) != 0) {
             spritetype* pMateTarget = NULL;
             if ((pMateTarget = getMateTargets(pXSprite)) != NULL && pMateTarget->extra > 0) {
                 XSPRITE* pXMateTarget = &xsprite[pMateTarget->extra];

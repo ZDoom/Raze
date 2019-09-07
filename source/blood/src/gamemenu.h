@@ -39,9 +39,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // alpha increments of 3 --> 255 / 3 = 85 --> round up to power of 2 --> 128 --> divide by 2 --> 64 alphatabs required
 // use 16 anyway :P
 #define MOUSEUSEALPHA (videoGetRenderMode() != REND_CLASSIC || numalphatabs >= 15)
-#define MOUSEALPHA (MOUSEUSEALPHA ? clamp((totalclock.Ticks() - gGameMenuMgr.m_mouselastactivity - 90)*3, 0, 255) : 0)
-#define CURSORALPHA (MOUSEUSEALPHA ? clamp((totalclock.Ticks() - gGameMenuMgr.m_mouselastactivity - 90)*2 + (255/3), (255/3), 255) : 255/3)
-#define MOUSEACTIVECONDITION (totalclock - gGameMenuMgr.m_mouselastactivity < M_MOUSETIMEOUT)
+#define MOUSEALPHA (MOUSEUSEALPHA ? clamp(((int)totalclock - gGameMenuMgr.m_mouselastactivity - 90)*3, 0, 255) : 0)
+#define CURSORALPHA (MOUSEUSEALPHA ? clamp(((int)totalclock - gGameMenuMgr.m_mouselastactivity - 90)*2 + (255/3), (255/3), 255) : 255/3)
+#define MOUSEACTIVECONDITION ((int)totalclock - gGameMenuMgr.m_mouselastactivity < M_MOUSETIMEOUT)
 #define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
 #define MOUSEINACTIVECONDITIONAL(condition) (!MOUSEACTIVECONDITION && (condition))
 #define MOUSEWATCHPOINTCONDITIONAL(condition) ((condition) || gGameMenuMgr.m_mousewake_watchpoint || gGameMenuMgr.m_menuchange_watchpoint == 3)

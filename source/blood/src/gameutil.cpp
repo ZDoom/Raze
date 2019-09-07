@@ -145,8 +145,8 @@ void CalcFrameRate(void)
     static int index;
     if (ticks[index] != gFrameClock)
     {
-        gFrameRate = (120*64)/(gFrameClock-ticks[index]);
-        ticks[index] = gFrameClock;
+        gFrameRate = (120*64)/((int)gFrameClock-ticks[index]);
+        ticks[index] = (int)gFrameClock;
     }
     index = (index+1) & 63;
 }

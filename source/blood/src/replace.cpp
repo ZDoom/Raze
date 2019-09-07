@@ -36,11 +36,12 @@ int qanimateoffs(int a1, int a2)
         int frames = picanm[a1].num;
         if (frames > 0)
         {
+            int const frameClock = gFrameClock);
             int vd;
             if ((a2&0xc000) == 0x8000)
-                vd = (Bcrc32(&a2, 2, 0)+gFrameClock)>>(picanm[a1].sf&PICANM_ANIMSPEED_MASK);
+                vd = (Bcrc32(&a2, 2, 0)+frameClock)>>(picanm[a1].sf&PICANM_ANIMSPEED_MASK);
             else
-                vd = gFrameClock>>(picanm[a1].sf&PICANM_ANIMSPEED_MASK);
+                vd = frameClock>>(picanm[a1].sf&PICANM_ANIMSPEED_MASK);
             switch (picanm[a1].sf&PICANM_ANIMTYPE_MASK)
             {
             case PICANM_ANIMTYPE_OSC:

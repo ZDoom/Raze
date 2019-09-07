@@ -21,7 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
-
+#include "compat.h"
+#include "build.h"
 #include "palette.h"
 #include "common_game.h"
 #include "controls.h"
@@ -131,11 +132,11 @@ void DrawStatNumber(const char *pFormat, int nNumber, int nTile, int x, int y, i
 void TileHGauge(int nTile, int x, int y, int nMult, int nDiv, int nStat = 0, int nScale = 65536);
 void viewDrawPack(PLAYER *pPlayer, int x, int y);
 void DrawPackItemInStatusBar(PLAYER *pPlayer, int x, int y, int x2, int y2, int nStat = 0);
-void UpdateStatusBar(int arg);
+void UpdateStatusBar(ClockTicks arg);
 void viewInit(void);
 void viewResizeView(int size);
 void UpdateFrame(void);
-void viewDrawInterface(int arg);
+void viewDrawInterface(ClockTicks arg);
 uspritetype *viewInsertTSprite(int nSector, int nStatnum, uspritetype *pSprite);
 uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect);
 void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);

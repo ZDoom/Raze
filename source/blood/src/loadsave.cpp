@@ -159,7 +159,7 @@ void LoadSave::LoadGame(char *pzFile)
     gFrame = 0;
     gCacheMiss = 0;
     gFrameRate = 0;
-    gGameClock = 0;
+    totalclock = 0;
     gPaused = 0;
     gGameStarted = 1;
     bVanilla = false;
@@ -255,9 +255,9 @@ void MyLoadSave::Load(void)
     Read(&gFrameClock, sizeof(gFrameClock));
     Read(&gFrameTicks, sizeof(gFrameTicks));
     Read(&gFrame, sizeof(gFrame));
-    int nGameClock;
-    Read(&nGameClock, sizeof(nGameClock));
-    gGameClock = nGameClock;
+    ClockTicks nGameClock;
+    Read(&totalclock, sizeof(totalclock));
+    totalclock = nGameClock;
     Read(&gLevelTime, sizeof(gLevelTime));
     Read(&gPaused, sizeof(gPaused));
     Read(&gbAdultContent, sizeof(gbAdultContent));
@@ -363,7 +363,7 @@ void MyLoadSave::Save(void)
     Write(&gFrameClock, sizeof(gFrameClock));
     Write(&gFrameTicks, sizeof(gFrameTicks));
     Write(&gFrame, sizeof(gFrame));
-    int nGameClock = gGameClock;
+    ClockTicks nGameClock = totalclock;
     Write(&nGameClock, sizeof(nGameClock));
     Write(&gLevelTime, sizeof(gLevelTime));
     Write(&gPaused, sizeof(gPaused));

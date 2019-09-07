@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 char packet[576];
 bool gStartNewGame = 0;
 PACKETMODE gPacketMode = PACKETMODE_1;
-int gNetFifoClock = 0;
+ClockTicks gNetFifoClock = 0;
 int gNetFifoTail = 0;
 int gNetFifoHead[8];
 int gPredictTail = 0;
@@ -236,7 +236,7 @@ void netSendPacketAll(char *pBuffer, int nSize)
 
 void sub_79760(void)
 {
-    gNetFifoClock = gFrameClock = gGameClock = 0;
+    gNetFifoClock = gFrameClock = totalclock = 0;
     gNetFifoMasterTail = 0;
     gPredictTail = 0;
     gNetFifoTail = 0;
@@ -664,14 +664,14 @@ void sub_7AC28(const char *pzString)
 
 void netSendEmptyPackets(void)
 {
-    int nClock = gGameClock;
+    ClockTicks nClock = totalclock;
     char *pPacket = packet;
     PutPacketByte(pPacket, 254);
     for (int i = 0; i < 8; i++)
     {
-        if (nClock <= gGameClock)
+        if (nClock <= totalclock)
         {
-            nClock = gGameClock+4;
+            nClock = totalclock+4;
             netSendPacketAll(packet, pPacket-packet);
         }
     }
@@ -853,7 +853,7 @@ void netGetInput(void)
                     }
                     else
                         t = ksgn(t);
-                    gGameClock -= t<<2;
+                    totalclock -= t<<2;
                     otherMinLag += t;
                     myMinLag[connecthead] -= t;
                 }
@@ -935,7 +935,7 @@ void netGetInput(void)
                 }
                 else
                     t = ksgn(t);
-                gGameClock -= t<<2;
+                totalclock -= t<<2;
                 otherMinLag += t;
                 myMinLag[connecthead] -= t;
             }

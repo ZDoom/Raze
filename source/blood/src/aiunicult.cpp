@@ -470,11 +470,13 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite )
                 if ((gFrameClock & 64) == 0 && Chance(0x1000) && !spriteIsUnderwater(pSprite,false))
                     sfxPlayGDXGenDudeSound(pSprite,6,pXSprite->data3);
 
-                if (dist <= 1500) gDudeSlope[sprite[pXSprite->reference].extra] = divscale(pTarget->z - pSprite->z, dist, 13);
-                else if (dist <= 3000) gDudeSlope[sprite[pXSprite->reference].extra] = divscale(pTarget->z - pSprite->z, dist, 11);
-                else if (dist > 0) gDudeSlope[sprite[pXSprite->reference].extra] = divscale(pTarget->z - pSprite->z, dist, 10);
-                    
-                spritetype* pLeech = NULL;
+        if (pXSprite->target < 0) aiSetTarget(pXSprite, pXSprite->target);
+        if (((int)gFrameClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
+            sfxPlayGDXGenDudeSound(pSprite, 6);
+
+        gDudeSlope[sprite[pXSprite->reference].extra] = (int)divscale(pTarget->z - pSprite->z, dist, 10);
+
+        spritetype* pLeech = NULL;	VECTORDATA* meleeVector = &gVectorData[22];
                 if (pXSprite->data1 >= kThingBase && pXSprite->data1 < kThingMax) {
                     if (pXSprite->data1 == 431) pXSprite->data1 = kGDXThingCustomDudeLifeLeech;
                     if (klabs(losAngle) < kAng15) {
@@ -677,9 +679,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite )
                                     return;
                                 }
 
-                                vdist = 4200;
-                                if ((gFrameClock & 16) == 0)
-                                    vdist += Random(800);
+                    vdist = 4200; if (((int)gFrameClock & 16) == 0) vdist += Random(800);
                                 break;
                             }
                         }

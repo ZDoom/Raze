@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+#include "compat.h"
+#include "build.h"
 #include "player.h"
 
 class CGameMessageMgr
@@ -29,14 +31,14 @@ class CGameMessageMgr
 public:
     struct messageStruct
     {
-        int at0;
+        ClockTicks at0;
         char at4[81];
     };
     char at0;
     int at1;
     int at5;
-    int at9;
-    int atd;
+    ClockTicks at9;
+    ClockTicks atd;
     int at11;
     int at15;
     int at19;

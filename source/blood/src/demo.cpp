@@ -328,7 +328,7 @@ void CDemo::Playback(void)
         gGameMenuMgr.Push(&menuMain, -1);
         at2 = 1;
     }
-    gNetFifoClock = gGameClock;
+    gNetFifoClock = totalclock;
     gViewMode = 3;
 _DEMOPLAYBACK:
     while (at1 && !gQuitGame)
@@ -339,7 +339,7 @@ _DEMOPLAYBACK:
             quitevent = 0;
         }
         MUSIC_Update();
-        while (gGameClock >= gNetFifoClock && !gQuitGame)
+        while (totalclock >= gNetFifoClock && !gQuitGame)
         {
             if (!v4)
             {
@@ -390,7 +390,7 @@ _DEMOPLAYBACK:
                         v4 = 0;
                         Close();
                         NextDemo();
-                        gNetFifoClock = gGameClock;
+                        gNetFifoClock = totalclock;
                         goto _DEMOPLAYBACK;
                     }
                     else
