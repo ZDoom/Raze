@@ -492,7 +492,7 @@ MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_BigOptionsRtSections, OPTIONS_TOUCHS
 MAKE_MENU_TOP_ENTRYLINK("Cheats", MEF_OptionsMenu, OPTIONS_CHEATS, MENU_CHEATS);
 #endif
 
-static int32_t newresolution, newrendermode, newfullscreen, newvsync;
+static int32_t newresolution, newrendermode, newfullscreen, newvsync, newborderless;
 
 enum resflags_t {
     RES_FS  = 0x1,
@@ -530,15 +530,22 @@ static MenuOption_t MEO_VIDEOSETUP_RENDERER = MAKE_MENUOPTION( &MF_Redfont, &MEO
 static MenuEntry_t ME_VIDEOSETUP_RENDERER = MAKE_MENUENTRY( "Renderer:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_RENDERER, Option );
 #endif
 
-static MenuOption_t MEO_VIDEOSETUP_FULLSCREEN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_NoYes, &newfullscreen );
-static MenuEntry_t ME_VIDEOSETUP_FULLSCREEN = MAKE_MENUENTRY( "Fullscreen:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FULLSCREEN, Option );
+static MenuOption_t MEO_VIDEOSETUP_FULLSCREEN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_YesNo, &newfullscreen );
+static MenuEntry_t ME_VIDEOSETUP_FULLSCREEN = MAKE_MENUENTRY( "Windowed:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FULLSCREEN, Option );
 
+static char const *MEOSN_VIDEOSETUP_BORDERLESS [] = { "No", "Yes", "Auto", };
+static int32_t MEOSV_VIDEOSETUP_BORDERLESS [] = { 0, 1, 2, };
+static MenuOptionSet_t MEOS_VIDEOSETUP_BORDERLESS = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_BORDERLESS, MEOSV_VIDEOSETUP_BORDERLESS, 0x2);
+static MenuOption_t MEO_VIDEOSETUP_BORDERLESS = MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_BORDERLESS, &newborderless);
+static MenuEntry_t ME_VIDEOSETUP_BORDERLESS = MAKE_MENUENTRY("Borderless:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_BORDERLESS, Option);
 
 static char const *MEOSN_VIDEOSETUP_VSYNC [] = { "Adaptive", "Off", "On", };
 static int32_t MEOSV_VIDEOSETUP_VSYNC [] = { -1, 0, 1, };
 static MenuOptionSet_t MEOS_VIDEOSETUP_VSYNC = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_VSYNC, MEOSV_VIDEOSETUP_VSYNC, 0x2);
 static MenuOption_t MEO_VIDEOSETUP_VSYNC = MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_VSYNC, &newvsync);
 static MenuEntry_t ME_VIDEOSETUP_VSYNC = MAKE_MENUENTRY("VSync:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_VSYNC, Option);
+
+
 
 static char const *MEOSN_VIDEOSETUP_FRAMELIMIT [] = { "None", "30 fps", "60 fps", "75 fps", "100 fps", "120 fps", "144 fps", "165 fps", "240 fps" };
 static int32_t MEOSV_VIDEOSETUP_FRAMELIMIT [] = { 0, 30, 60, 75, 100, 120, 144, 165, 240 };
@@ -740,6 +747,7 @@ static MenuEntry_t *MEL_VIDEOSETUP[] = {
     &ME_VIDEOSETUP_RENDERER,
 #endif
     &ME_VIDEOSETUP_FULLSCREEN,
+    &ME_VIDEOSETUP_BORDERLESS,
     &ME_VIDEOSETUP_VSYNC,
     &ME_VIDEOSETUP_FRAMELIMIT,
     &ME_VIDEOSETUP_FRAMELIMITOFFSET,
@@ -2133,10 +2141,10 @@ static void Menu_Pre(MenuID_t cm)
         MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_APPLY,
              (xres == resolution[nr].xdim && yres == resolution[nr].ydim &&
               videoGetRenderMode() == newrendermode && fullscreen == newfullscreen
-              && vsync == newvsync
+              && vsync == newvsync && r_borderless == newborderless
              )
              || (newrendermode != REND_CLASSIC && resolution[nr].bppmax <= 8));
-
+        MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_BORDERLESS, newfullscreen);
         MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_FRAMELIMITOFFSET, !r_maxfps);
         break;
     }
@@ -3229,15 +3237,21 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         resolution_t p = { xres, yres, fullscreen, bpp, 0 };
         int32_t prend = videoGetRenderMode();
         int32_t pvsync = vsync;
+        int pborderless = r_borderless;
 
         resolution_t n = { resolution[newresolution].xdim, resolution[newresolution].ydim,
                            (resolution[newresolution].flags & RES_FS) ? newfullscreen : 0,
                            (newrendermode == REND_CLASSIC) ? 8 : resolution[newresolution].bppmax, 0 };
-        int32_t nrend = newrendermode;
-        int32_t nvsync = newvsync;
+
+        if (r_borderless != newborderless)
+            videoResetMode();
+
+        r_borderless = newborderless;
 
         if (videoSetGameMode(n.flags, n.xdim, n.ydim, n.bppmax, upscalefactor) < 0)
         {
+            r_borderless = pborderless;
+
             if (videoSetGameMode(p.flags, p.xdim, p.ydim, p.bppmax, upscalefactor) < 0)
             {
                 videoSetRenderMode(prend);
@@ -3249,12 +3263,15 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
                 vsync = videoSetVsync(pvsync);
             }
         }
-        else onvideomodechange(n.bppmax > 8);
+        else
+        {
+            videoSetRenderMode(newrendermode);
+            vsync = videoSetVsync(newvsync);
+            onvideomodechange(n.bppmax > 8);
+        }
 
         g_restorePalette = -1;
         G_UpdateScreenArea();
-        videoSetRenderMode(nrend);
-        vsync = videoSetVsync(nvsync);
         ud.setup.fullscreen = fullscreen;
         ud.setup.xdim = xres;
         ud.setup.ydim = yres;
