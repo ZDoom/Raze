@@ -71,8 +71,10 @@ static inline uint16_t findpage(uint16_t framenumber)
             i = 0, j = false;
             continue;
         }
+
+        break;
     }
-    while (0);
+    while (1);
 
     return (uint16_t)i;
 }
