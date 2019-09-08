@@ -93,229 +93,236 @@ void G_ClearCameraView(DukePlayer_t *ps)
             sprite[k].yvel = 0;
 }
 
-// Manhattan distance between wall-point and sprite.
-static FORCE_INLINE int32_t G_WallSpriteDist(uwallptr_t const wal, uspriteptr_t const spr)
+void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, int const blastRadius, int spriteDist,
+                                   int const zOffset, int const dmg1, int dmg2, int dmg3, int dmg4)
 {
-    return klabs(wal->x - spr->x) + klabs(wal->y - spr->y);
+    auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
+    auto const pOther  = &sprite[otherSprite];
+
+    // DEFAULT, ZOMBIEACTOR, MISC
+    if (pOther->statnum == STAT_DEFAULT || pOther->statnum == STAT_ZOMBIEACTOR || pOther->statnum == STAT_MISC || AFLAMABLE(pOther->picnum))
+    {
+#ifndef EDUKE32_STANDALONE
+        if (pSprite->picnum != SHRINKSPARK || (pOther->cstat&257))
+#endif
+        {
+            if (A_CheckEnemySprite(pOther) && !cansee(pOther->x, pOther->y, pOther->z+zOffset, pOther->sectnum, pSprite->x, pSprite->y, pSprite->z+zOffset, pSprite->sectnum))
+                return;
+
+            A_DamageObject_Internal(otherSprite, spriteNum);
+        }
+    }
+    else if (pOther->extra >= 0 && (uspriteptr_t)pOther != pSprite && ((pOther->cstat & 257) ||
+#ifndef EDUKE32_STANDALONE
+        pOther->picnum == TRIPBOMB || pOther->picnum == QUEBALL || pOther->picnum == STRIPEBALL || pOther->picnum == DUKELYINGDEAD ||
+#endif
+        A_CheckEnemySprite(pOther)))
+    {
+#ifndef EDUKE32_STANDALONE
+        if ((pSprite->picnum == SHRINKSPARK && pOther->picnum != SHARK && (otherSprite == pSprite->owner || pOther->xrepeat < 24))
+            || (pSprite->picnum == MORTER && otherSprite == pSprite->owner))
+            return;
+#endif
+        if (pOther->picnum == APLAYER)
+            spriteDist = FindDistance3D(pSprite->x - pOther->x, pSprite->y - pOther->y, pSprite->z - (pOther->z - PHEIGHT));
+
+        if (spriteDist >= blastRadius || !cansee(pOther->x, pOther->y, pOther->z - ZOFFSET3, pOther->sectnum,
+                                                 pSprite->x, pSprite->y, pSprite->z - ZOFFSET4, pSprite->sectnum))
+            return;
+
+        if (A_CheckSpriteFlags(otherSprite, SFLAG_DAMAGEEVENT))
+            if (VM_OnEventWithReturn(EVENT_DAMAGESPRITE, spriteNum, -1, otherSprite) < 0)
+                return;
+
+        auto &dmgActor = actor[otherSprite];
+
+        dmgActor.ang = getangle(pOther->x - pSprite->x, pOther->y - pSprite->y);
+
+        if ((pOther->extra > 0 && ((A_CheckSpriteFlags(spriteNum, SFLAG_PROJECTILE) && SpriteProjectile[spriteNum].workslike & PROJECTILE_RADIUS_PICNUM)
+#ifndef EDUKE32_STANDALONE
+            || pSprite->picnum == RPG
+#endif
+            ))
+#ifndef EDUKE32_STANDALONE
+            || (pSprite->picnum == SHRINKSPARK)
+#endif
+            )
+            dmgActor.picnum = pSprite->picnum;
+        else dmgActor.picnum = RADIUSEXPLOSION;
+
+#ifndef EDUKE32_STANDALONE
+        if (pSprite->picnum != SHRINKSPARK)
+#endif
+        {
+            // this is really weird
+            int const k = blastRadius/3;
+
+            if (spriteDist < k)
+            {
+                if (dmg4 == dmg3) dmg4++;
+                dmgActor.extra = dmg3 + (krand()%(dmg4-dmg3));
+            }
+            else if (spriteDist < k*2)
+            {
+                if (dmg3 == dmg2) dmg3++;
+                dmgActor.extra = dmg2 + (krand()%(dmg3-dmg2));
+            }
+            else if (spriteDist < blastRadius)
+            {
+                if (dmg2 == dmg1) dmg2++;
+                dmgActor.extra = dmg1 + (krand()%(dmg2-dmg1));
+            }
+
+            if (!A_CheckSpriteFlags(otherSprite, SFLAG_NODAMAGEPUSH))
+            {
+                if (pOther->xvel < 0) pOther->xvel = 0;
+                pOther->xvel += (pSprite->extra<<2);
+            }
+
+            if (A_CheckSpriteFlags(otherSprite, SFLAG_DAMAGEEVENT))
+                VM_OnEventWithReturn(EVENT_POSTDAMAGESPRITE, spriteNum, -1, otherSprite);
+
+#ifndef EDUKE32_STANDALONE
+            if (!FURY)
+            {
+                switch (DYNAMICTILEMAP(pOther->picnum))
+                {
+                    case PODFEM1__STATIC:
+                    case FEM1__STATIC:
+                    case FEM2__STATIC:
+                    case FEM3__STATIC:
+                    case FEM4__STATIC:
+                    case FEM5__STATIC:
+                    case FEM6__STATIC:
+                    case FEM7__STATIC:
+                    case FEM8__STATIC:
+                    case FEM9__STATIC:
+                    case FEM10__STATIC:
+                    case STATUE__STATIC:
+                    case STATUEFLASH__STATIC:
+                    case SPACEMARINE__STATIC:
+                    case QUEBALL__STATIC:
+                    case STRIPEBALL__STATIC:
+                        A_DamageObject_Internal(otherSprite, spriteNum);
+                        break;
+                }
+            }
+#endif
+        }
+#ifndef EDUKE32_STANDALONE
+        else if (!FURY && pSprite->extra == 0) dmgActor.extra = 0;
+#endif
+
+        if (pOther->picnum != RADIUSEXPLOSION &&
+            pSprite->owner >= 0 && sprite[pSprite->owner].statnum < MAXSTATUS)
+        {
+            if (pOther->picnum == APLAYER)
+            {
+                auto pPlayer = g_player[P_GetP(pOther)].ps;
+
+                if (pPlayer->newowner >= 0)
+                    G_ClearCameraView(pPlayer);
+            }
+
+            dmgActor.owner = pSprite->owner;
+        }
+    }
 }
 
-void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3, int dmg4)
+#define MAXDAMAGESECTORS 64
+
+void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, int const dmg2, int const dmg3, int const dmg4)
 {
-    ud.returnvar[0] = blastRadius; // Allow checking for radius damage in EVENT_DAMAGE(SPRITE/WALL/FLOOR/CEILING) events.
-    ud.returnvar[1] = dmg1;
-    ud.returnvar[2] = dmg2;
-    ud.returnvar[3] = dmg3;
-    ud.returnvar[4] = dmg4;
+    // Allow checking for radius damage in EVENT_DAMAGE(SPRITE/WALL/FLOOR/CEILING) events.
+    decltype(ud.returnvar) const parms = { blastRadius, dmg1, dmg2, dmg3, dmg4 };
+    Bmemcpy(ud.returnvar, parms, sizeof(parms));
 
     auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
 
-    int32_t sectorCount = 0;
-    int32_t numSectors = 1;
-    int16_t sectorList[64] = { pSprite->sectnum };
+    int16_t sectorList[MAXDAMAGESECTORS];
+    uint8_t sectorMap[(MAXSECTORS+7)>>3];
+    int16_t numSectors;
+
+    bfirst_search_init(sectorList, sectorMap, &numSectors, MAXSECTORS, pSprite->sectnum);
 
 #ifndef EDUKE32_STANDALONE
-    if ((pSprite->picnum == RPG && pSprite->xrepeat < 11) || pSprite->picnum == SHRINKSPARK)
+    if (!FURY && ((pSprite->picnum == RPG && pSprite->xrepeat < 11) || pSprite->picnum == SHRINKSPARK))
         goto SKIPWALLCHECK;
 #endif
 
-    do
+    for (int sectorCount=0; sectorCount < numSectors; ++sectorCount)
     {
         int const sectorNum = sectorList[sectorCount++];
+
+        if (getsectordist(pSprite->pos.vec2, sectorNum) >= blastRadius)
+            continue;
+
         int const startWall = sector[sectorNum].wallptr;
         int const endWall   = startWall + sector[sectorNum].wallnum;
-        int const w2        = wall[startWall].point2;
 
-        // Check if "hit" 1st or 3rd wall-point. This mainly makes sense
-        // for rectangular "ceiling light"-style sectors.
-        if (G_WallSpriteDist((uwallptr_t)&wall[startWall], pSprite) < blastRadius ||
-                G_WallSpriteDist((uwallptr_t)&wall[wall[w2].point2], pSprite) < blastRadius)
-        {
-            if (((sector[sectorNum].ceilingz-pSprite->z)>>8) < blastRadius)
-                Sect_DamageCeiling_Internal(spriteNum, sectorNum);
-            if (((pSprite->z-sector[sectorNum].floorz)>>8) < blastRadius)
-                Sect_DamageFloor_Internal(spriteNum, sectorNum);
-        }
+        if (((sector[sectorNum].ceilingz - pSprite->z) >> 8) < blastRadius)
+            Sect_DamageCeiling_Internal(spriteNum, sectorNum);
 
-        native_t w = startWall;
+        if (((pSprite->z - sector[sectorNum].floorz) >> 8) < blastRadius)
+            Sect_DamageFloor_Internal(spriteNum, sectorNum);
 
+        int w = startWall;
+        
         for (auto pWall = (uwallptr_t)&wall[startWall]; w < endWall; w++, pWall++)
         {
-            if (G_WallSpriteDist(pWall, pSprite) >= blastRadius)
+            vec2_t closest;
+
+            if (getwalldist(pSprite->pos.vec2, w, &closest) >= blastRadius)
                 continue;
 
-            int const nextSector = pWall->nextsector;
+            int const nextSector   = pWall->nextsector;
+            int       damageSector = sectorNum;
+
+            vec3_t const vect = { closest.x, closest.y, pSprite->z };
 
             if (nextSector >= 0)
             {
-                native_t otherSector = 0;
+                if (numSectors == MAXDAMAGESECTORS)
+                    goto SKIPWALLCHECK;
 
-                for (; otherSector < numSectors; ++otherSector)
-                    if (sectorList[otherSector] == nextSector)
-                        break;
-
-                if (otherSector == numSectors)
-                {
-                    if (numSectors == ARRAY_SSIZE(sectorList))
-                        goto SKIPWALLCHECK;  // prevent oob access of 'sectorlist'
-
-                    sectorList[numSectors++] = nextSector;
-                }
+                bfirst_search_try(sectorList, sectorMap, &numSectors, nextSector);
+                damageSector = wall[pWall->nextwall].nextsector;
             }
-
-            int16_t damageSector = (nextSector >= 0) ? wall[wall[w].nextwall].nextsector : sectorofwall(w);
-            vec3_t const vect    = { (((pWall->x + wall[pWall->point2].x) >> 1) + pSprite->x) >> 1,
-                                     (((pWall->y + wall[pWall->point2].y) >> 1) + pSprite->y) >> 1, pSprite->z };
-
-            updatesector(vect.x, vect.y, &damageSector);
-
-            if (damageSector >= 0 && cansee(vect.x, vect.y, pSprite->z, damageSector, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
+            
+            if (cansee(vect.x, vect.y, vect.z, damageSector, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
                 A_DamageWall_Internal(spriteNum, w, &vect, pSprite->picnum);
         }
     }
-    while (sectorCount < numSectors);
 
 SKIPWALLCHECK:
-
     // this is really weird
-    int32_t const zRand = -ZOFFSET2 + (krand()&(ZOFFSET5-1));
+    int const randomZOffset = -ZOFFSET2 + (krand()&(ZOFFSET5-1));
+    static int constexpr statnumList[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
-    static const uint8_t statnumList [] = {
-        STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE,
-        STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC
-    };
-
-    for (unsigned char stati : statnumList)
+    for (int sectorCount=0; sectorCount < numSectors; ++sectorCount)
     {
-        int32_t otherSprite = headspritestat[stati];
+        int damageSprite = headspritesect[sectorList[sectorCount]];
 
-        while (otherSprite >= 0)
+        while (damageSprite >= 0)
         {
-            int const  nextOther = nextspritestat[otherSprite];
-            auto const pOther    = &sprite[otherSprite];
+            int const nextSprite = nextspritesect[damageSprite];
 
-            // DEFAULT, ZOMBIEACTOR, MISC
-            if (stati == STAT_DEFAULT || stati == STAT_ZOMBIEACTOR || stati == STAT_MISC || AFLAMABLE(pOther->picnum))
+            auto pDamage = &sprite[damageSprite];
+            int  statIdx = 0;
+
+            for (; statIdx < ARRAY_SSIZE(statnumList); ++statIdx)
+                if (pDamage->statnum == statnumList[statIdx])
+                    break;
+
+            if (statIdx != ARRAY_SSIZE(statnumList))
             {
-#ifndef EDUKE32_STANDALONE
-                if (pSprite->picnum != SHRINKSPARK || (pOther->cstat&257))
-#endif
-                {
-                    if (dist(pSprite, pOther) < blastRadius)
-                    {
-                        if (A_CheckEnemySprite(pOther) && !cansee(pOther->x, pOther->y, pOther->z+zRand, pOther->sectnum, pSprite->x, pSprite->y, pSprite->z+zRand, pSprite->sectnum))
-                            goto next_sprite;
-                        A_DamageObject_Internal(otherSprite, spriteNum);
-                    }
-                }
+                int const spriteDist = dist(pSprite, pDamage);
+
+                if (spriteDist < blastRadius)
+                    A_RadiusDamageObject_Internal(spriteNum, damageSprite, blastRadius, spriteDist, randomZOffset, dmg1, dmg2, dmg3, dmg4);
             }
-            else if (pOther->extra >= 0 && (uspritetype *)pOther != pSprite && ((pOther->cstat & 257) ||
-#ifndef EDUKE32_STANDALONE
-                pOther->picnum == TRIPBOMB || pOther->picnum == QUEBALL || pOther->picnum == STRIPEBALL || pOther->picnum == DUKELYINGDEAD ||
-#endif
-                A_CheckEnemySprite(pOther)))
-            {
-#ifndef EDUKE32_STANDALONE
-                if ((pSprite->picnum == SHRINKSPARK && pOther->picnum != SHARK && (otherSprite == pSprite->owner || pOther->xrepeat < 24))
-                    || (pSprite->picnum == MORTER && otherSprite == pSprite->owner))
-                    goto next_sprite;
-#endif
-                int32_t const spriteDist = pOther->picnum == APLAYER
-                                     ? FindDistance3D(pSprite->x - pOther->x, pSprite->y - pOther->y, pSprite->z - (pOther->z - PHEIGHT))
-                                     : dist(pSprite, pOther);
 
-                if (spriteDist >= blastRadius || !cansee(pOther->x, pOther->y, pOther->z - ZOFFSET3, pOther->sectnum, pSprite->x,
-                                               pSprite->y, pSprite->z - ZOFFSET4, pSprite->sectnum))
-                    goto next_sprite;
-
-                if (A_CheckSpriteFlags(otherSprite, SFLAG_DAMAGEEVENT))
-                {
-                    if (VM_OnEventWithReturn(EVENT_DAMAGESPRITE, spriteNum, -1, otherSprite) < 0)
-                        goto next_sprite;
-                }
-
-                actor_t & dmgActor = actor[otherSprite];
-
-                dmgActor.ang = getangle(pOther->x - pSprite->x, pOther->y - pSprite->y);
-
-                if ((pOther->extra > 0 && ((A_CheckSpriteFlags(spriteNum, SFLAG_PROJECTILE) && SpriteProjectile[spriteNum].workslike & PROJECTILE_RADIUS_PICNUM) || pSprite->picnum == RPG))
-                    || (pSprite->picnum == SHRINKSPARK))
-                    dmgActor.picnum = pSprite->picnum;
-                else dmgActor.picnum = RADIUSEXPLOSION;
-
-#ifndef EDUKE32_STANDALONE
-                if (pSprite->picnum != SHRINKSPARK)
-#endif
-                {
-                    int32_t const k = blastRadius/3;
-
-                    if (spriteDist < k)
-                    {
-                        if (dmg4 == dmg3) dmg4++;
-                        dmgActor.extra = dmg3 + (krand()%(dmg4-dmg3));
-                    }
-                    else if (spriteDist < k*2)
-                    {
-                        if (dmg3 == dmg2) dmg3++;
-                        dmgActor.extra = dmg2 + (krand()%(dmg3-dmg2));
-                    }
-                    else if (spriteDist < blastRadius)
-                    {
-                        if (dmg2 == dmg1) dmg2++;
-                        dmgActor.extra = dmg1 + (krand()%(dmg2-dmg1));
-                    }
-
-                    if (!A_CheckSpriteFlags(otherSprite, SFLAG_NODAMAGEPUSH))
-                    {
-                        if (pOther->xvel < 0) pOther->xvel = 0;
-                        pOther->xvel += (pSprite->extra<<2);
-                    }
-
-                    if (A_CheckSpriteFlags(otherSprite, SFLAG_DAMAGEEVENT))
-                        VM_OnEventWithReturn(EVENT_POSTDAMAGESPRITE, spriteNum, -1, otherSprite);
-
-#ifndef EDUKE32_STANDALONE
-                    switch (DYNAMICTILEMAP(pOther->picnum))
-                    {
-                        case PODFEM1__STATIC:
-                        case FEM1__STATIC:
-                        case FEM2__STATIC:
-                        case FEM3__STATIC:
-                        case FEM4__STATIC:
-                        case FEM5__STATIC:
-                        case FEM6__STATIC:
-                        case FEM7__STATIC:
-                        case FEM8__STATIC:
-                        case FEM9__STATIC:
-                        case FEM10__STATIC:
-                        case STATUE__STATIC:
-                        case STATUEFLASH__STATIC:
-                        case SPACEMARINE__STATIC:
-                        case QUEBALL__STATIC:
-                        case STRIPEBALL__STATIC: A_DamageObject_Internal(otherSprite, spriteNum);
-                        default: break;
-                    }
-#endif
-                }
-#ifndef EDUKE32_STANDALONE
-                else if (pSprite->extra == 0) dmgActor.extra = 0;
-#endif
-
-                if (pOther->picnum != RADIUSEXPLOSION &&
-                        pSprite->owner >= 0 && sprite[pSprite->owner].statnum < MAXSTATUS)
-                {
-                    if (pOther->picnum == APLAYER)
-                    {
-                        auto pPlayer = g_player[P_GetP((uspritetype *)pOther)].ps;
-
-                        if (pPlayer->newowner >= 0)
-                            G_ClearCameraView(pPlayer);
-                    }
-
-                    dmgActor.owner = pSprite->owner;
-                }
-            }
-next_sprite:
-            otherSprite = nextOther;
+            damageSprite = nextSprite;
         }
     }
 }
