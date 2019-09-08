@@ -3191,7 +3191,7 @@ RORHACKOTHER:
             for (int i = 0; i < 16; i++)
                 ror_status[i] = TestBitString(gotpic, 4080 + i);
             yax_preparedrawrooms();
-            DrawMirrors(vd8, vd4, vd0, fix16_from_int(v50), fix16_from_int(v54 + defaultHoriz), gInterpolate);
+            DrawMirrors(vd8, vd4, vd0, fix16_from_int(v50), fix16_from_int(v54 + defaultHoriz), gInterpolate, -1);
             drawrooms(vd8, vd4, vd0, v50, v54 + defaultHoriz, vcc);
             yax_drawrooms(viewProcessSprites, vcc, 0, gInterpolate);
             bool do_ror_hack = false;
@@ -3267,6 +3267,7 @@ RORHACK:
         for (int i = 0; i < 16; i++)
             ror_status[i] = TestBitString(gotpic, 4080+i);
         fix16_t deliriumPitchI = interpolate(fix16_from_int(deliriumPitchO), fix16_from_int(deliriumPitch), gInterpolate);
+        DrawMirrors(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, gInterpolate, gViewIndex);
         int bakCstat = gView->pSprite->cstat;
         if (gViewPos == 0)
         {
@@ -3276,7 +3277,6 @@ RORHACK:
         {
             gView->pSprite->cstat |= 514;
         }
-        DrawMirrors(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, gInterpolate);
 #ifdef POLYMER
         if (videoGetRenderMode() == REND_POLYMER)
             polymer_setanimatesprites(viewProcessSprites, cX, cY, cZ, fix16_to_int(cA), gInterpolate);
