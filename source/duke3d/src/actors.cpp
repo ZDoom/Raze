@@ -299,10 +299,11 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
             {
                 A_DamageWall_Internal(spriteNum, w, vect, pSprite->picnum);
 
+                if (nextSector >= 0)
+                    bfirst_search_try(sectorList, sectorMap, &numSectors, nextSector);
+
                 if (numSectors == MAXDAMAGESECTORS)
                     goto SKIPWALLCHECK;
-
-                bfirst_search_try(sectorList, sectorMap, &numSectors, damageSector);
             }
         }
     }
