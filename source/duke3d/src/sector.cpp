@@ -2313,33 +2313,37 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
             if (A_CheckEnemySprite(&sprite[spriteNum]) == 1)
             {
 #ifndef EDUKE32_STANDALONE
-                if (sprite[dmgSrc].picnum == RPG)
-                    sprite[dmgSrc].extra <<= 1;
+                if (!FURY)
+                {
+                    if (sprite[dmgSrc].picnum == RPG)
+                        sprite[dmgSrc].extra <<= 1;
 
-                if ((PN(spriteNum) != DRONE) && (PN(spriteNum) != ROTATEGUN) && (PN(spriteNum) != COMMANDER) && (PN(spriteNum) < GREENSLIME || PN(spriteNum) > GREENSLIME+7))
-                    if (sprite[dmgSrc].picnum != FREEZEBLAST)
-                        if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
-                        {
-                            int const newSprite       = A_Spawn(dmgSrc, JIBS6);
-                            sprite[newSprite].z      += ZOFFSET6;
-                            if (sprite[dmgSrc].pal == 6)
-                                sprite[newSprite].pal = 6;
-                            sprite[newSprite].xvel    = 16;
-                            sprite[newSprite].xrepeat = sprite[newSprite].yrepeat = 24;
-                            sprite[newSprite].ang    += 32 - (krand() & 63);
-                        }
+                    if ((PN(spriteNum) != DRONE) && (PN(spriteNum) != ROTATEGUN) && (PN(spriteNum) != COMMANDER)
+                        && (PN(spriteNum) < GREENSLIME || PN(spriteNum) > GREENSLIME + 7))
+                        if (sprite[dmgSrc].picnum != FREEZEBLAST)
+                            if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
+                            {
+                                int const newSprite = A_Spawn(dmgSrc, JIBS6);
+                                sprite[newSprite].z += ZOFFSET6;
+                                if (sprite[dmgSrc].pal == 6)
+                                    sprite[newSprite].pal = 6;
+                                sprite[newSprite].xvel    = 16;
+                                sprite[newSprite].xrepeat = sprite[newSprite].yrepeat = 24;
+                                sprite[newSprite].ang += 32 - (krand() & 63);
+                            }
 
-                int const damageOwner = sprite[dmgSrc].owner;
+                    int const damageOwner = sprite[dmgSrc].owner;
 
-                if (damageOwner >= 0 && sprite[damageOwner].picnum == APLAYER && PN(spriteNum) != ROTATEGUN && PN(spriteNum) != DRONE)
-                    if (g_player[P_Get(damageOwner)].ps->curr_weapon == SHOTGUN_WEAPON)
-                        if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
-                        {
-                            A_Shoot(spriteNum, BLOODSPLAT3);
-                            A_Shoot(spriteNum, BLOODSPLAT1);
-                            A_Shoot(spriteNum, BLOODSPLAT2);
-                            A_Shoot(spriteNum, BLOODSPLAT4);
-                        }
+                    if (damageOwner >= 0 && sprite[damageOwner].picnum == APLAYER && PN(spriteNum) != ROTATEGUN && PN(spriteNum) != DRONE)
+                        if (g_player[P_Get(damageOwner)].ps->curr_weapon == SHOTGUN_WEAPON)
+                            if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
+                            {
+                                A_Shoot(spriteNum, BLOODSPLAT3);
+                                A_Shoot(spriteNum, BLOODSPLAT1);
+                                A_Shoot(spriteNum, BLOODSPLAT2);
+                                A_Shoot(spriteNum, BLOODSPLAT4);
+                            }
+                }
 #endif
 
                 if (!A_CheckSpriteFlags(spriteNum, SFLAG_NODAMAGEPUSH))
@@ -2361,15 +2365,16 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
                     changespritestat(spriteNum, STAT_ACTOR);
                     actor[spriteNum].timetosleep = SLEEPTIME;
                 }
-
-                if ((sprite[spriteNum].xrepeat < 24 || PN(spriteNum) == SHARK) && sprite[dmgSrc].picnum == SHRINKSPARK)
+#ifndef EDUKE32_STANDALONE
+                if (!FURY && (sprite[spriteNum].xrepeat < 24 || PN(spriteNum) == SHARK) && sprite[dmgSrc].picnum == SHRINKSPARK)
                     return;
+#endif
             }
 
             if (sprite[spriteNum].statnum != STAT_ZOMBIEACTOR)
             {
 #ifndef EDUKE32_STANDALONE
-                if (sprite[dmgSrc].picnum == FREEZEBLAST && ((PN(spriteNum) == APLAYER && sprite[spriteNum].pal == 1) || (g_freezerSelfDamage == 0 && sprite[dmgSrc].owner == spriteNum)))
+                if (!FURY && sprite[dmgSrc].picnum == FREEZEBLAST && ((PN(spriteNum) == APLAYER && sprite[spriteNum].pal == 1) || (g_freezerSelfDamage == 0 && sprite[dmgSrc].owner == spriteNum)))
                     return;
 #endif
                 actor[spriteNum].picnum = sprite[dmgSrc].picnum;
@@ -2388,9 +2393,10 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
                 if (ps->newowner >= 0)
                     G_ClearCameraView(ps);
 
-                if (sprite[spriteNum].xrepeat < 24 && sprite[dmgSrc].picnum == SHRINKSPARK)
+#ifndef EDUKE32_STANDALONE
+                if (!FURY && sprite[spriteNum].xrepeat < 24 && sprite[dmgSrc].picnum == SHRINKSPARK)
                     return;
-
+#endif
                 if (sprite[actor[spriteNum].owner].picnum != APLAYER)
                     if (ud.player_skill >= 3)
                         sprite[dmgSrc].extra += (sprite[dmgSrc].extra>>1);
