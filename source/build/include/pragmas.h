@@ -118,27 +118,6 @@ static inline int32_t roundscale(int32_t eax, int32_t edx, int32_t ecx)
     return scaleadd(eax, edx, ecx / 2, ecx);
 }
 
-#if defined(__GNUC__) && defined(GEKKO)
-
-// GCC Inline Assembler version (PowerPC)
-#include "pragmas_ppc.h"
-
-#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
-
-// GCC Inline Assembler version (x86)
-#include "pragmas_x86_gcc.h"
-
-#elif defined(_MSC_VER) && !defined(NOASM)  // __GNUC__
-
-// Microsoft C inline assembler
-#include "pragmas_x86_msvc.h"
-
-#elif defined(__arm__)  // _MSC_VER
-
-// GCC Inline Assembler version (ARM)
-#include "pragmas_arm.h"
-
-#endif
 
 //
 // Generic C
@@ -185,51 +164,13 @@ static FORCE_INLINE void swapptr(void *a, void *b)
 #endif
 
 #ifndef pragmas_have_swaps
-#ifdef __cplusplus
 #define swapchar swap
 #define swapshort swap
 #define swaplong swap
 #define swapfloat swap
 #define swapdouble swap
 #define swap64bit swap
-#else
-static FORCE_INLINE void swapchar(void *a, void *b)
-{
-    char const t = *(char *)b;
-    *(char *)b = *(char *)a;
-    *(char *)a = t;
-}
-static FORCE_INLINE void swapshort(void *a, void *b)
-{
-    int16_t const t = *(int16_t *)b;
-    *(int16_t *)b = *(int16_t *)a;
-    *(int16_t *)a = t;
-}
-static FORCE_INLINE void swaplong(void *a, void *b)
-{
-    int32_t const t = *(int32_t *)b;
-    *(int32_t *)b = *(int32_t *)a;
-    *(int32_t *)a = t;
-}
-static FORCE_INLINE void swapfloat(void *a, void *b)
-{
-    float const t = *(float *)b;
-    *(float *)b = *(float *)a;
-    *(float *)a = t;
-}
-static FORCE_INLINE void swapdouble(void *a, void *b)
-{
-    double const t = *(double *)b;
-    *(double *)b = *(double *)a;
-    *(double *)a = t;
-}
-static FORCE_INLINE void swap64bit(void *a, void *b)
-{
-    uint64_t const t = *(uint64_t *)b;
-    *(uint64_t *)b = *(uint64_t *)a;
-    *(uint64_t *)a = t;
-}
-#endif
+
 static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 {
     swapchar((char *)a, (char *)b);
