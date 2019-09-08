@@ -7637,7 +7637,7 @@ static int32_t engineLoadTables(void)
             radarang[1279-i] = -radarang[i];
 
         for (i=0; i<5120; i++)
-            qradarang[i] = fix16_from_float(atanf(((float)(5120-i)-0.5f) * (1.f/1024.f)) * (-64.f * (1.f/BANG2RAD)));
+            qradarang[i] = fix16_from_float(atanf(((float)(5120-i)-0.5f) * (1.f/1280.f)) * (-64.f * (1.f/BANG2RAD)));
         for (i=0; i<5120; i++)
             qradarang[10239-i] = -qradarang[i];
 
