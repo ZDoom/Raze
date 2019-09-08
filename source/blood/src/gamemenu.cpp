@@ -1176,7 +1176,7 @@ void CGameMenuItemKeyList::Draw(void)
         int my = y<<16;
         int mw = m_nWidth<<16;
         int mh = height<<16;
-        if (bEnable && MOUSEACTIVECONDITIONAL(!gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousepos, mx, my, mw, mh)))
+        if (!bScan && bEnable && MOUSEACTIVECONDITIONAL(!gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousepos, mx, my, mw, mh)))
         {
             if (MOUSEWATCHPOINTCONDITIONAL(!gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_prevmousepos, mx, my, mw, mh)))
             {
