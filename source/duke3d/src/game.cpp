@@ -801,7 +801,9 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         CAMERA(q16ang) = fix16_from_int(actor[ud.camerasprite].tempang
                                       + mulscale16(((pSprite->ang + 1024 - actor[ud.camerasprite].tempang) & 2047) - 1024, smoothRatio));
 
+#ifdef USE_OPENGL
         renderSetRollAngle(0);
+#endif
 
         int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERA, ud.camerasprite, playerNum, 0);
 
@@ -951,10 +953,12 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
                 pPlayer->orotscrnang = pPlayer->rotscrnang;
             }
+#ifdef USE_OPENGL
             else
             {
                 renderSetRollAngle(0);
             }
+#endif
         }
 
         if (pPlayer->newowner < 0)

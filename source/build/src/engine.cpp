@@ -8812,6 +8812,7 @@ void renderDrawMasks(void)
     int32_t i = spritesortcnt-1;
     int32_t numSprites = spritesortcnt;
 
+#ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
     {
         spritesortcnt = 0;
@@ -8829,6 +8830,7 @@ void renderDrawMasks(void)
             }
         }
     } else
+#endif
     {
         for (; i >= 0; --i)
         {
@@ -10368,7 +10370,6 @@ static void videoAllocateBuffers(void)
     if (videoGetRenderMode() == REND_CLASSIC)
     {
 # ifdef USE_OPENGL
-        extern char nogl;
         if (!nogl)
         {
             glsurface_initialize({ xdim, ydim });
@@ -10417,8 +10418,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     int32_t j;
 
 #ifdef USE_OPENGL
-    extern char nogl;
-
     if (nogl) dabpp = 8;
 #endif
     daupscaledxdim = max(320, daupscaledxdim);
