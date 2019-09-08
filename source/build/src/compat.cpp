@@ -577,7 +577,7 @@ char *Bstrupr(char *s)
 }
 #endif
 
-#define BMAXPAGESIZE 8192
+#define BMAXPAGESIZE 16384
 
 int Bgetpagesize(void)
 {
