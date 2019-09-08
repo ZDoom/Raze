@@ -290,7 +290,7 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
             }
             
             if (cansee(vect.x, vect.y, vect.z, damageSector, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
-                A_DamageWall_Internal(spriteNum, w, &vect, pSprite->picnum);
+                A_DamageWall_Internal(spriteNum, w, vect, pSprite->picnum);
         }
     }
 
@@ -3037,7 +3037,7 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
                         else
                         {
                             setsprite(spriteNum, &davect);
-                            A_DamageWall(spriteNum, otherSprite, &pSprite->pos, pSprite->picnum);
+                            A_DamageWall(spriteNum, otherSprite, pSprite->pos, pSprite->picnum);
 
                             if (pProj->workslike & PROJECTILE_BOUNCESOFFWALLS)
                             {
@@ -3261,7 +3261,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             else
                             {
                                 setsprite(spriteNum, &davect);
-                                A_DamageWall(spriteNum, moveSprite, &pSprite->pos, pSprite->picnum);
+                                A_DamageWall(spriteNum, moveSprite, pSprite->pos, pSprite->picnum);
 
                                 if (pSprite->picnum == FREEZEBLAST)
                                 {
@@ -4810,9 +4810,8 @@ ACTOR_STATIC void G_MoveActors(void)
 
             if ((moveSprite&49152) == 32768)
             {
-                vec3_t davect = pSprite->pos;
                 moveSprite &= (MAXWALLS - 1);
-                A_DamageWall(spriteNum, moveSprite, &davect, pSprite->picnum);
+                A_DamageWall(spriteNum, moveSprite, pSprite->pos, pSprite->picnum);
                 Proj_BounceOffWall(pSprite, moveSprite);
                 pSprite->xvel >>= 1;
             }

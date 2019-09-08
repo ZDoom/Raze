@@ -1502,7 +1502,7 @@ static void G_BreakWall(int tileNum, int spriteNum, int wallNum)
 #endif
 }
 
-void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
+void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t &vPos, int weaponNum)
 {
     int16_t sectNum = -1;
     walltype *pWall = &wall[wallNum];
@@ -1556,7 +1556,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
     }
 
     if ((((pWall->cstat & 16) || pWall->overpicnum == BIGFORCE) && pWall->nextsector >= 0) &&
-        (sector[pWall->nextsector].floorz > vPos->z) &&
+        (sector[pWall->nextsector].floorz > vPos.z) &&
         (sector[pWall->nextsector].floorz != sector[pWall->nextsector].ceilingz))
     {
         int const switchPic = G_GetForcefieldPicnum(wallNum);
@@ -1581,7 +1581,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
                 fallthrough__;
             case BIGFORCE__STATIC:
             {
-                updatesector(vPos->x, vPos->y, &sectNum);
+                updatesector(vPos.x, vPos.y, &sectNum);
                 if (sectNum < 0)
                     return;
 
@@ -1596,7 +1596,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
                     yRepeat = 16 + sprite[spriteNum].yrepeat;
                 }
 
-                int const i = A_InsertSprite(sectNum, vPos->x, vPos->y, vPos->z, FORCERIPPLE, -127, xRepeat, yRepeat, 0,
+                int const i = A_InsertSprite(sectNum, vPos.x, vPos.y, vPos.z, FORCERIPPLE, -127, xRepeat, yRepeat, 0,
                                    0, 0, spriteNum, 5);
 
                 CS(i) |= 18 + 128;
@@ -1607,7 +1607,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
                 return;
 
             case GLASS__STATIC:
-                updatesector(vPos->x, vPos->y, &sectNum);
+                updatesector(vPos.x, vPos.y, &sectNum);
                 if (sectNum < 0)
                     return;
                 pWall->overpicnum = GLASS2;
@@ -1618,7 +1618,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
                     wall[pWall->nextwall].cstat = 0;
 
                 {
-                    int const i = A_InsertSprite(sectNum, vPos->x, vPos->y, vPos->z, SECTOREFFECTOR, 0, 0, 0,
+                    int const i = A_InsertSprite(sectNum, vPos.x, vPos.y, vPos.z, SECTOREFFECTOR, 0, 0, 0,
                         fix16_to_int(g_player[0].ps->q16ang), 0, 0, spriteNum, 3);
                     SLT(i) = 128;
                     T2(i)  = 5;
@@ -1628,7 +1628,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
                 return;
 
             case STAINGLASS1__STATIC:
-                updatesector(vPos->x, vPos->y, &sectNum);
+                updatesector(vPos.x, vPos.y, &sectNum);
                 if (sectNum < 0)
                     return;
                 A_SpawnRandomGlass(spriteNum, wallNum, 80);
@@ -1794,7 +1794,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
     }
 }
 
-void A_DamageWall(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
+void A_DamageWall(int spriteNum, int wallNum, const vec3_t &vPos, int weaponNum)
 {
     ud.returnvar[0] = -1;
     A_DamageWall_Internal(spriteNum, wallNum, vPos, weaponNum);

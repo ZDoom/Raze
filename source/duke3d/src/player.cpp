@@ -750,7 +750,7 @@ static int P_PostFireHitscan(int playerNum, int const spriteNum, hitdata_t *cons
 
 SKIPBULLETHOLE:
         HandleHitWall(hitData);
-        A_DamageWall(spriteNum, hitData->wall, &hitData->pos, wallDamage);
+        A_DamageWall(spriteNum, hitData->wall, hitData->pos, wallDamage);
     }
 
     return 0;
@@ -773,7 +773,7 @@ static int A_PostFireHitscan(const hitdata_t *hitData, int const spriteNum, int 
     }
     else if (hitData->wall >= 0)
     {
-        A_DamageWall(returnSprite, hitData->wall, &hitData->pos, wallDamage);
+        A_DamageWall(returnSprite, hitData->wall, hitData->pos, wallDamage);
         Proj_MaybeSpawn(returnSprite, spawnTile, hitData);
     }
     else
@@ -855,7 +855,7 @@ static void Proj_HandleKnee(hitdata_t *const hitData, int const spriteNum, int c
 
         if (wall[hitData->wall].picnum != ACCESSSWITCH && wall[hitData->wall].picnum != ACCESSSWITCH2)
         {
-            A_DamageWall(kneeSprite, hitData->wall, &hitData->pos, projecTile);
+            A_DamageWall(kneeSprite, hitData->wall, hitData->pos, projecTile);
             if (playerNum >= 0)
                 P_ActivateSwitch(playerNum, hitData->wall,0);
         }
@@ -1242,7 +1242,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
             else if (hitData.sprite >= 0)
                 A_DamageObject(hitData.sprite, otherSprite);
             else if (hitData.wall >= 0 && wall[hitData.wall].picnum != ACCESSSWITCH && wall[hitData.wall].picnum != ACCESSSWITCH2)
-                A_DamageWall(otherSprite, hitData.wall, &hitData.pos, projecTile);
+                A_DamageWall(otherSprite, hitData.wall, hitData.pos, projecTile);
         }
         break;
 
@@ -3539,7 +3539,7 @@ static void DoWallTouchDamage(const DukePlayer_t *pPlayer, int32_t wallNum)
     vec3_t const davect = { pPlayer->pos.x + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 9),
                       pPlayer->pos.y + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 9), pPlayer->pos.z };
 
-    A_DamageWall(pPlayer->i, wallNum, &davect, -1);
+    A_DamageWall(pPlayer->i, wallNum, davect, -1);
 }
 
 static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
