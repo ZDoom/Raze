@@ -156,22 +156,19 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
         {
             // this is really weird
             int const k = blastRadius/3;
+            int dmgBase, dmgFuzz;
 
             if (spriteDist < k)
-            {
-                if (dmg4 == dmg3) dmg4++;
-                dmgActor.extra = dmg3 + (krand()%(dmg4-dmg3));
-            }
+                dmgBase = dmg3, dmgFuzz = dmg4;
             else if (spriteDist < k*2)
-            {
-                if (dmg3 == dmg2) dmg3++;
-                dmgActor.extra = dmg2 + (krand()%(dmg3-dmg2));
-            }
+                dmgBase = dmg2, dmgFuzz = dmg3;
             else if (spriteDist < blastRadius)
-            {
-                if (dmg2 == dmg1) dmg2++;
-                dmgActor.extra = dmg1 + (krand()%(dmg2-dmg1));
-            }
+                dmgBase = dmg1, dmgFuzz = dmg2;
+
+            if (dmgBase == dmgFuzz)
+                ++dmgFuzz;
+
+            dmgActor.extra = dmgBase + (krand()%(dmgFuzz-dmgBase));
 
             if (!A_CheckSpriteFlags(otherSprite, SFLAG_NODAMAGEPUSH))
             {
@@ -229,7 +226,7 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
     }
 }
 
-#define MAXDAMAGESECTORS 64
+#define MAXDAMAGESECTORS 256
 
 void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, int const dmg2, int const dmg3, int const dmg4)
 {
@@ -243,6 +240,18 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
     uint8_t sectorMap[(MAXSECTORS+7)>>3];
     int16_t numSectors;
 
+    // TODO: stick this somewhere where we can call Gv_NewArray() on it with GAMEARRAY_BITMAP so scripts can control which statnums are hit
+    static uint8_t statMap[(MAXSTATUS+7)>>3];
+    static int statInit;
+
+    if (!statInit)
+    {
+        static int constexpr statnumList[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_MISC, STAT_ZOMBIEACTOR, STAT_FALLER, STAT_PLAYER };
+        for (int i = 0; i < ARRAY_SSIZE(statnumList); ++i)
+            bitmap_set(statMap, statnumList[i]);
+        statInit = 1;
+    }
+
     bfirst_search_init(sectorList, sectorMap, &numSectors, MAXSECTORS, pSprite->sectnum);
 
 #ifndef EDUKE32_STANDALONE
@@ -252,23 +261,24 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
 
     for (int sectorCount=0; sectorCount < numSectors; ++sectorCount)
     {
-        int const sectorNum = sectorList[sectorCount++];
+        int const   sectorNum  = sectorList[sectorCount++];
+        auto const &listSector = sector[sectorNum];
 
         if (getsectordist(pSprite->pos.vec2, sectorNum) >= blastRadius)
             continue;
 
-        int const startWall = sector[sectorNum].wallptr;
-        int const endWall   = startWall + sector[sectorNum].wallnum;
+        int const startWall = listSector.wallptr;
+        int const endWall   = listSector.wallnum + startWall;
 
-        if (((sector[sectorNum].ceilingz - pSprite->z) >> 8) < blastRadius)
+        if (((listSector.ceilingz - pSprite->z) >> 8) < blastRadius)
             Sect_DamageCeiling_Internal(spriteNum, sectorNum);
 
-        if (((pSprite->z - sector[sectorNum].floorz) >> 8) < blastRadius)
+        if (((pSprite->z - listSector.floorz) >> 8) < blastRadius)
             Sect_DamageFloor_Internal(spriteNum, sectorNum);
 
         int w = startWall;
         
-        for (auto pWall = (uwallptr_t)&wall[startWall]; w < endWall; w++, pWall++)
+        for (auto pWall = (uwallptr_t)&wall[startWall]; w < endWall; ++w, ++pWall)
         {
             vec2_t closest;
 
@@ -276,28 +286,25 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
                 continue;
 
             int const nextSector   = pWall->nextsector;
-            int       damageSector = sectorNum;
+            int const damageSector = (nextSector >= 0) ? wall[pWall->nextwall].nextsector : sectorNum;
 
             vec3_t const vect = { closest.x, closest.y, pSprite->z };
 
-            if (nextSector >= 0)
+            if (cansee(vect.x, vect.y, vect.z, damageSector, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
             {
+                A_DamageWall_Internal(spriteNum, w, vect, pSprite->picnum);
+
                 if (numSectors == MAXDAMAGESECTORS)
                     goto SKIPWALLCHECK;
 
-                bfirst_search_try(sectorList, sectorMap, &numSectors, nextSector);
-                damageSector = wall[pWall->nextwall].nextsector;
+                bfirst_search_try(sectorList, sectorMap, &numSectors, damageSector);
             }
-            
-            if (cansee(vect.x, vect.y, vect.z, damageSector, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
-                A_DamageWall_Internal(spriteNum, w, vect, pSprite->picnum);
         }
     }
 
 SKIPWALLCHECK:
     // this is really weird
     int const randomZOffset = -ZOFFSET2 + (krand()&(ZOFFSET5-1));
-    static int constexpr statnumList[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
     for (int sectorCount=0; sectorCount < numSectors; ++sectorCount)
     {
@@ -306,15 +313,9 @@ SKIPWALLCHECK:
         while (damageSprite >= 0)
         {
             int const nextSprite = nextspritesect[damageSprite];
+            auto      pDamage    = &sprite[damageSprite];
 
-            auto pDamage = &sprite[damageSprite];
-            int  statIdx = 0;
-
-            for (; statIdx < ARRAY_SSIZE(statnumList); ++statIdx)
-                if (pDamage->statnum == statnumList[statIdx])
-                    break;
-
-            if (statIdx != ARRAY_SSIZE(statnumList))
+            if (bitmap_test(statMap, pDamage->statnum))
             {
                 int const spriteDist = dist(pSprite, pDamage);
 
