@@ -255,7 +255,7 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
     bfirst_search_init(sectorList, sectorMap, &numSectors, MAXSECTORS, pSprite->sectnum);
 
 #ifndef EDUKE32_STANDALONE
-    if (!FURY && ((pSprite->picnum == RPG && pSprite->xrepeat < 11) || pSprite->picnum == SHRINKSPARK))
+    if (!FURY && (pSprite->picnum == RPG && pSprite->xrepeat < 11))
         goto SKIPWALLCHECK;
 #endif
 
@@ -303,7 +303,6 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
     }
 
 SKIPWALLCHECK:
-    // this is really weird
     int const randomZOffset = -ZOFFSET2 + (krand()&(ZOFFSET5-1));
 
     for (int sectorCount=0; sectorCount < numSectors; ++sectorCount)
