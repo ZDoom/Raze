@@ -109,7 +109,12 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
             if (A_CheckEnemySprite(pOther) && !cansee(pOther->x, pOther->y, pOther->z+zOffset, pOther->sectnum, pSprite->x, pSprite->y, pSprite->z+zOffset, pSprite->sectnum))
                 return;
 
-            A_DamageObject_Internal(otherSprite, spriteNum);
+#ifndef EDUKE32_STANDALONE
+            if (!FURY)
+                A_DamageObject_Duke3D(otherSprite, spriteNum);
+            else
+#endif
+                A_DamageObject_Generic(otherSprite, spriteNum);
         }
     }
     else if (pOther->extra >= 0 && (uspriteptr_t)pOther != pSprite && ((pOther->cstat & 257) ||
@@ -200,7 +205,7 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
                     case SPACEMARINE__STATIC:
                     case QUEBALL__STATIC:
                     case STRIPEBALL__STATIC:
-                        A_DamageObject_Internal(otherSprite, spriteNum);
+                        A_DamageObject_Duke3D(otherSprite, spriteNum);
                         break;
                 }
             }

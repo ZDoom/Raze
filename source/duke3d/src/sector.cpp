@@ -542,7 +542,10 @@ int G_ActivateWarpElevators(int spriteNum, int warpDir)
     if (i == -1)
         return 1; // No find
 
-    A_PlaySound(warpDir ? ELEVATOR_ON : ELEVATOR_OFF, spriteNum);
+#ifndef EDUKE32_STANDALONE
+    if (!FURY)
+        A_PlaySound(warpDir ? ELEVATOR_ON : ELEVATOR_OFF, spriteNum);
+#endif
 
     for (SPRITES_OF(STAT_EFFECTOR, i))
         if (SLT(i) == SE_17_WARP_ELEVATOR && SHT(i) == sprite[spriteNum].hitag)
@@ -1905,7 +1908,8 @@ void Sect_DamageCeiling(int const spriteNum, int const sectNum)
 }
 
 // hard coded props... :(
-void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
+#ifndef EDUKE32_STANDALONE
+void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
 {
     if (g_netClient)
         return;
@@ -1916,16 +1920,13 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
             return;
     }
 
-
     spriteNum &= (MAXSPRITES-1);
 
-#ifndef EDUKE32_STANDALONE
     int radiusDamage = 0;
 
     if (A_CheckSpriteFlags(dmgSrc,SFLAG_PROJECTILE))
         if (SpriteProjectile[dmgSrc].workslike & PROJECTILE_RPG)
             radiusDamage = 1;
-#endif
 
     switch (DYNAMICTILEMAP(PN(spriteNum)))
     {
@@ -1938,10 +1939,10 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
     case FANSPRITE__STATIC:
         PN(spriteNum) = FANSPRITEBROKE;
         CS(spriteNum) &= (65535-257);
+
         if (sector[SECT(spriteNum)].floorpicnum == FANSHADOW)
             sector[SECT(spriteNum)].floorpicnum = FANSHADOWBROKE;
 
-#ifndef EDUKE32_STANDALONE
         A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
 
         for (bssize_t j=16; j>0; j--)
@@ -1949,10 +1950,8 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
             auto const pSprite = &sprite[spriteNum];
             RANDOMSCRAP(pSprite, spriteNum);
         }
-#endif
         break;
 
-#ifndef EDUKE32_STANDALONE
     case OCEANSPRITE1__STATIC:
     case OCEANSPRITE2__STATIC:
     case OCEANSPRITE3__STATIC:
@@ -2299,7 +2298,6 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
         }
         A_DeleteSprite(spriteNum);
         break;
-#endif // EDUKE32_STANDALONE
 
     case PLAYERONWATER__STATIC:
         spriteNum = OW(spriteNum);
@@ -2312,39 +2310,34 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
         {
             if (A_CheckEnemySprite(&sprite[spriteNum]) == 1)
             {
-#ifndef EDUKE32_STANDALONE
-                if (!FURY)
-                {
-                    if (sprite[dmgSrc].picnum == RPG)
-                        sprite[dmgSrc].extra <<= 1;
+                if (sprite[dmgSrc].picnum == RPG)
+                    sprite[dmgSrc].extra <<= 1;
 
-                    if ((PN(spriteNum) != DRONE) && (PN(spriteNum) != ROTATEGUN) && (PN(spriteNum) != COMMANDER)
-                        && (PN(spriteNum) < GREENSLIME || PN(spriteNum) > GREENSLIME + 7))
-                        if (sprite[dmgSrc].picnum != FREEZEBLAST)
-                            if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
-                            {
-                                int const newSprite = A_Spawn(dmgSrc, JIBS6);
-                                sprite[newSprite].z += ZOFFSET6;
-                                if (sprite[dmgSrc].pal == 6)
-                                    sprite[newSprite].pal = 6;
-                                sprite[newSprite].xvel    = 16;
-                                sprite[newSprite].xrepeat = sprite[newSprite].yrepeat = 24;
-                                sprite[newSprite].ang += 32 - (krand() & 63);
-                            }
+                if ((PN(spriteNum) != DRONE) && (PN(spriteNum) != ROTATEGUN) && (PN(spriteNum) != COMMANDER)
+                    && (PN(spriteNum) < GREENSLIME || PN(spriteNum) > GREENSLIME + 7))
+                    if (sprite[dmgSrc].picnum != FREEZEBLAST)
+                        if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
+                        {
+                            int const newSprite = A_Spawn(dmgSrc, JIBS6);
+                            sprite[newSprite].z += ZOFFSET6;
+                            if (sprite[dmgSrc].pal == 6)
+                                sprite[newSprite].pal = 6;
+                            sprite[newSprite].xvel    = 16;
+                            sprite[newSprite].xrepeat = sprite[newSprite].yrepeat = 24;
+                            sprite[newSprite].ang += 32 - (krand() & 63);
+                        }
 
-                    int const damageOwner = sprite[dmgSrc].owner;
+                int const damageOwner = sprite[dmgSrc].owner;
 
-                    if (damageOwner >= 0 && sprite[damageOwner].picnum == APLAYER && PN(spriteNum) != ROTATEGUN && PN(spriteNum) != DRONE)
-                        if (g_player[P_Get(damageOwner)].ps->curr_weapon == SHOTGUN_WEAPON)
-                            if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
-                            {
-                                A_Shoot(spriteNum, BLOODSPLAT3);
-                                A_Shoot(spriteNum, BLOODSPLAT1);
-                                A_Shoot(spriteNum, BLOODSPLAT2);
-                                A_Shoot(spriteNum, BLOODSPLAT4);
-                            }
-                }
-#endif
+                if (damageOwner >= 0 && sprite[damageOwner].picnum == APLAYER && PN(spriteNum) != ROTATEGUN && PN(spriteNum) != DRONE)
+                    if (g_player[P_Get(damageOwner)].ps->curr_weapon == SHOTGUN_WEAPON)
+                        if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
+                        {
+                            A_Shoot(spriteNum, BLOODSPLAT3);
+                            A_Shoot(spriteNum, BLOODSPLAT1);
+                            A_Shoot(spriteNum, BLOODSPLAT2);
+                            A_Shoot(spriteNum, BLOODSPLAT4);
+                        }
 
                 if (!A_CheckSpriteFlags(spriteNum, SFLAG_NODAMAGEPUSH))
                 {
@@ -2365,18 +2358,14 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
                     changespritestat(spriteNum, STAT_ACTOR);
                     actor[spriteNum].timetosleep = SLEEPTIME;
                 }
-#ifndef EDUKE32_STANDALONE
-                if (!FURY && (sprite[spriteNum].xrepeat < 24 || PN(spriteNum) == SHARK) && sprite[dmgSrc].picnum == SHRINKSPARK)
+                if ((sprite[spriteNum].xrepeat < 24 || PN(spriteNum) == SHARK) && sprite[dmgSrc].picnum == SHRINKSPARK)
                     return;
-#endif
             }
 
             if (sprite[spriteNum].statnum != STAT_ZOMBIEACTOR)
             {
-#ifndef EDUKE32_STANDALONE
-                if (!FURY && sprite[dmgSrc].picnum == FREEZEBLAST && ((PN(spriteNum) == APLAYER && sprite[spriteNum].pal == 1) || (g_freezerSelfDamage == 0 && sprite[dmgSrc].owner == spriteNum)))
+                if (sprite[dmgSrc].picnum == FREEZEBLAST && ((PN(spriteNum) == APLAYER && sprite[spriteNum].pal == 1) || (g_freezerSelfDamage == 0 && sprite[dmgSrc].owner == spriteNum)))
                     return;
-#endif
                 actor[spriteNum].picnum = sprite[dmgSrc].picnum;
                 actor[spriteNum].extra += sprite[dmgSrc].extra;
                 actor[spriteNum].ang    = sprite[dmgSrc].ang;
@@ -2393,10 +2382,95 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
                 if (ps->newowner >= 0)
                     G_ClearCameraView(ps);
 
-#ifndef EDUKE32_STANDALONE
-                if (!FURY && sprite[spriteNum].xrepeat < 24 && sprite[dmgSrc].picnum == SHRINKSPARK)
+                if (sprite[spriteNum].xrepeat < 24 && sprite[dmgSrc].picnum == SHRINKSPARK)
                     return;
+
+                if (sprite[actor[spriteNum].owner].picnum != APLAYER)
+                    if (ud.player_skill >= 3)
+                        sprite[dmgSrc].extra += (sprite[dmgSrc].extra>>1);
+            }
+        }
+
+        break;
+    }
+}
 #endif
+
+void A_DamageObject_Generic(int spriteNum, int const dmgSrc)
+{
+    if (g_netClient)
+        return;
+
+    if (A_CheckSpriteFlags(spriteNum, SFLAG_DAMAGEEVENT))
+    {
+        if (VM_OnEventWithReturn(EVENT_DAMAGESPRITE, dmgSrc, -1, spriteNum) < 0)
+            return;
+    }
+
+    spriteNum &= (MAXSPRITES-1);
+
+    switch (DYNAMICTILEMAP(PN(spriteNum)))
+    {
+    case GRATE1__STATIC:
+        PN(spriteNum) = BGRATE1;
+        CS(spriteNum) &= (65535-256-1);
+        break;
+
+    case FANSPRITE__STATIC:
+        PN(spriteNum) = FANSPRITEBROKE;
+        CS(spriteNum) &= (65535-257);
+        break;
+
+    case PLAYERONWATER__STATIC:
+        spriteNum = OW(spriteNum);
+        fallthrough__;
+    default:
+        if ((sprite[spriteNum].cstat&16) && SHT(spriteNum) == 0 && SLT(spriteNum) == 0 && sprite[spriteNum].statnum == STAT_DEFAULT)
+            break;
+
+        if (sprite[dmgSrc].owner != spriteNum && sprite[spriteNum].statnum != STAT_PROJECTILE)
+        {
+            if (A_CheckEnemySprite(&sprite[spriteNum]))
+            {
+                if (!A_CheckSpriteFlags(spriteNum, SFLAG_NODAMAGEPUSH))
+                {
+                    if (sprite[spriteNum].extra > 0)
+                    {
+                        if ((sprite[spriteNum].cstat & 48) == 0)
+                            SA(spriteNum) = (sprite[dmgSrc].ang + 1024) & 2047;
+                        sprite[spriteNum].xvel  = -(sprite[dmgSrc].extra << 2);
+                        int16_t sectNum = SECT(spriteNum);
+                        pushmove(&sprite[spriteNum].pos, &sectNum, 128L, (4L << 8), (4L << 8), CLIPMASK0);
+                        if (sectNum != SECT(spriteNum) && (unsigned)sectNum < MAXSECTORS)
+                            changespritesect(spriteNum, sectNum);
+                    }
+                }
+
+                if (sprite[spriteNum].statnum == STAT_ZOMBIEACTOR)
+                {
+                    changespritestat(spriteNum, STAT_ACTOR);
+                    actor[spriteNum].timetosleep = SLEEPTIME;
+                }
+            }
+
+            if (sprite[spriteNum].statnum != STAT_ZOMBIEACTOR)
+            {
+                actor[spriteNum].picnum = sprite[dmgSrc].picnum;
+                actor[spriteNum].extra += sprite[dmgSrc].extra;
+                actor[spriteNum].ang    = sprite[dmgSrc].ang;
+                actor[spriteNum].owner  = sprite[dmgSrc].owner;
+
+                if(A_CheckSpriteFlags(spriteNum, SFLAG_DAMAGEEVENT))
+                    VM_OnEventWithReturn(EVENT_POSTDAMAGESPRITE, dmgSrc, -1, spriteNum);
+            }
+
+            if (sprite[spriteNum].statnum == STAT_PLAYER)
+            {
+                auto ps = g_player[P_Get(spriteNum)].ps;
+
+                if (ps->newowner >= 0)
+                    G_ClearCameraView(ps);
+
                 if (sprite[actor[spriteNum].owner].picnum != APLAYER)
                     if (ud.player_skill >= 3)
                         sprite[dmgSrc].extra += (sprite[dmgSrc].extra>>1);
@@ -2410,7 +2484,13 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
 void A_DamageObject(int spriteNum, int const dmgSrc)
 {
     ud.returnvar[0] = -1;
-    A_DamageObject_Internal(spriteNum, dmgSrc);
+
+#ifndef EDUKE32_STANDALONE
+    if (!FURY)
+        A_DamageObject_Duke3D(spriteNum, dmgSrc);
+    else
+#endif
+        A_DamageObject_Generic(spriteNum, dmgSrc);
 }
 
 void G_AlignWarpElevators(void)
@@ -2563,7 +2643,9 @@ void P_HandleSharedKeys(int playerNum)
                 pPlayer->heat_on = !pPlayer->heat_on;
                 P_UpdateScreenPal(pPlayer);
                 pPlayer->inven_icon = ICON_HEATS;
+#ifndef EDUKE32_STANDALONE
                 A_PlaySound(NITEVISION_ONOFF,pPlayer->i);
+#endif
                 P_DoQuote(QUOTE_NVG_OFF-!!pPlayer->heat_on,pPlayer);
             }
         }
@@ -2575,7 +2657,9 @@ void P_HandleSharedKeys(int playerNum)
                 if (pPlayer->inv_amount[GET_STEROIDS] == 400)
                 {
                     pPlayer->inv_amount[GET_STEROIDS]--;
+#ifndef EDUKE32_STANDALONE
                     A_PlaySound(DUKE_TAKEPILLS,pPlayer->i);
+#endif
                     P_DoQuote(QUOTE_USED_STEROIDS,pPlayer);
                 }
                 if (pPlayer->inv_amount[GET_STEROIDS] > 0)
@@ -2878,7 +2962,10 @@ CHECKINV1:
                             sprite[i].yvel = playerNum;
                             sprite[i].extra = 0;
                             P_DoQuote(QUOTE_HOLODUKE_ON,pPlayer);
-                            A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
+#ifndef EDUKE32_STANDALONE
+                            if (!FURY)
+                                A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
+#endif
                         }
                     }
                     else P_DoQuote(QUOTE_HOLODUKE_NOT_FOUND,pPlayer);
@@ -2888,7 +2975,10 @@ CHECKINV1:
             {
                 if (VM_OnEvent(EVENT_HOLODUKEOFF,g_player[playerNum].ps->i,playerNum) == 0)
                 {
-                    A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
+#ifndef EDUKE32_STANDALONE
+                    if (!FURY)
+                        A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
+#endif
                     pPlayer->holoduke_on = -1;
                     P_DoQuote(QUOTE_HOLODUKE_OFF,pPlayer);
                 }
@@ -2915,7 +3005,10 @@ CHECKINV1:
                         pPlayer->inv_amount[GET_FIRSTAID] = 0;
                         P_SelectNextInvItem(pPlayer);
                     }
-                    A_PlaySound(DUKE_USEMEDKIT,pPlayer->i);
+#ifndef EDUKE32_STANDALONE
+                    if (!FURY)
+                        A_PlaySound(DUKE_USEMEDKIT,pPlayer->i);
+#endif
                 }
             }
         }
@@ -2935,18 +3028,24 @@ CHECKINV1:
                             FX_StopSound(pPlayer->scream_voice);
                             pPlayer->scream_voice = -1;
                         }
-
-                        A_PlaySound(DUKE_JETPACK_ON,pPlayer->i);
-
+#ifndef EDUKE32_STANDALONE
+                        if (!FURY)
+                            A_PlaySound(DUKE_JETPACK_ON,pPlayer->i);
+#endif
                         P_DoQuote(QUOTE_JETPACK_ON,pPlayer);
                     }
                     else
                     {
                         pPlayer->hard_landing = 0;
                         pPlayer->vel.z = 0;
-                        A_PlaySound(DUKE_JETPACK_OFF,pPlayer->i);
-                        S_StopEnvSound(DUKE_JETPACK_IDLE,pPlayer->i);
-                        S_StopEnvSound(DUKE_JETPACK_ON,pPlayer->i);
+#ifndef EDUKE32_STANDALONE
+                        if (!FURY)
+                        {
+                            A_PlaySound(DUKE_JETPACK_OFF, pPlayer->i);
+                            S_StopEnvSound(DUKE_JETPACK_IDLE, pPlayer->i);
+                            S_StopEnvSound(DUKE_JETPACK_ON, pPlayer->i);
+                        }
+#endif
                         P_DoQuote(QUOTE_JETPACK_OFF,pPlayer);
                     }
                 }
@@ -3300,7 +3399,10 @@ void P_CheckSectors(int playerNum)
         {
             if (klabs(A_GetHitscanRange(pPlayer->i)) < 512)
             {
-                A_PlaySound(((krand()&255) < 16) ? DUKE_SEARCH2 : DUKE_SEARCH, pPlayer->i);
+#ifndef EDUKE32_STANDALONE
+                if (!FURY)
+                    A_PlaySound(((krand()&255) < 16) ? DUKE_SEARCH2 : DUKE_SEARCH, pPlayer->i);
+#endif
                 return;
             }
         }
