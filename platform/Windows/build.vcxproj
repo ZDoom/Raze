@@ -324,8 +324,8 @@
     <ClInclude Include="..\..\source\build\include\dxdidf.h" />
     <ClInclude Include="..\..\source\build\include\dynamicgtk.h" />
     <ClInclude Include="..\..\source\build\include\editor.h" />
-    <ClInclude Include="..\..\source\build\include\fix16.h" />
-    <ClInclude Include="..\..\source\build\include\fix16.hpp" />
+    <ClInclude Include="..\..\source\thirdparty\include\fix16.h" />
+    <ClInclude Include="..\..\source\thirdparty\include\fix16.hpp" />
     <ClInclude Include="..\..\source\build\include\fix16_int64.h" />
     <ClInclude Include="..\..\source\build\include\glbuild.h" />
     <ClInclude Include="..\..\source\build\include\glsurface.h" />
@@ -352,10 +352,6 @@
     <ClInclude Include="..\..\source\build\include\polymer.h" />
     <ClInclude Include="..\..\source\build\include\polymost.h" />
     <ClInclude Include="..\..\source\build\include\pragmas.h" />
-    <ClInclude Include="..\..\source\build\include\pragmas_arm.h" />
-    <ClInclude Include="..\..\source\build\include\pragmas_ppc.h" />
-    <ClInclude Include="..\..\source\build\include\pragmas_x86_gcc.h" />
-    <ClInclude Include="..\..\source\build\include\pragmas_x86_msvc.h" />
     <ClInclude Include="..\..\source\build\include\print.h" />
     <ClInclude Include="..\..\source\build\include\prlights.h" />
     <ClInclude Include="..\..\source\build\include\rawinput.h" />
