@@ -296,13 +296,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\winbits.cpp" />
-    <ClCompile Include="..\..\source\build\src\winlayer.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\source\build\src\xxhash.c" />
+    <ClCompile Include="..\..\source\thirdparty\src\xxhash.c" />
     <ClCompile Include="..\..\source\glbackend\glbackend.cpp" />
     <ClCompile Include="..\..\source\glbackend\gl_hwtexture.cpp" />
     <ClCompile Include="..\..\source\glbackend\gl_samplers.cpp" />
@@ -319,32 +313,26 @@
     <ClInclude Include="..\..\source\build\include\colmatch.h" />
     <ClInclude Include="..\..\source\build\include\common.h" />
     <ClInclude Include="..\..\source\build\include\compat.h" />
-    <ClInclude Include="..\..\source\build\include\crc32.h" />
+    <ClInclude Include="..\..\source\thirdparty\include\crc32.h" />
     <ClInclude Include="..\..\source\build\include\debugbreak.h" />
     <ClInclude Include="..\..\source\build\include\dxdidf.h" />
     <ClInclude Include="..\..\source\build\include\dynamicgtk.h" />
-    <ClInclude Include="..\..\source\build\include\editor.h" />
     <ClInclude Include="..\..\source\thirdparty\include\fix16.h" />
     <ClInclude Include="..\..\source\thirdparty\include\fix16.hpp" />
-    <ClInclude Include="..\..\source\build\include\fix16_int64.h" />
+    <ClInclude Include="..\..\source\thirdparty\include\fix16_int64.h" />
     <ClInclude Include="..\..\source\build\include\glbuild.h" />
     <ClInclude Include="..\..\source\build\include\glsurface.h" />
     <ClInclude Include="..\..\source\build\include\gtkbits.h" />
     <ClInclude Include="..\..\source\build\include\hash.h" />
     <ClInclude Include="..\..\source\build\include\hightile.h" />
-    <ClInclude Include="..\..\source\build\include\jwzgles.h" />
-    <ClInclude Include="..\..\source\build\include\jwzglesI.h" />
     <ClInclude Include="..\..\source\build\include\klzw.h" />
     <ClInclude Include="..\..\source\build\include\kplib.h" />
-    <ClInclude Include="..\..\source\build\include\libdivide.h" />
-    <ClInclude Include="..\..\source\build\include\lz4.h" />
-    <ClInclude Include="..\..\source\build\include\md4.h" />
+    <ClInclude Include="..\..\source\thirdparty\include\libdivide.h" />
+    <ClInclude Include="..\..\source\thirdparty\include\lz4.h" />
+    <ClInclude Include="..\..\source\thirdparty\include\md4.h" />
     <ClInclude Include="..\..\source\build\include\mdsprite.h" />
-    <ClInclude Include="..\..\source\build\include\miniz.h" />
+    <ClInclude Include="..\..\source\thirdparty\include\miniz.h" />
     <ClInclude Include="..\..\source\build\include\mmulti.h" />
-    <ClInclude Include="..\..\source\build\include\msvc\inttypes.h" />
-    <ClInclude Include="..\..\source\build\include\msvc\stdint.h" />
-    <ClInclude Include="..\..\source\build\include\mutex.h" />
     <ClInclude Include="..\..\source\build\include\osd.h" />
     <ClInclude Include="..\..\source\build\include\osxbits.h" />
     <ClInclude Include="..\..\source\build\include\palette.h" />
@@ -360,7 +348,7 @@
     <ClInclude Include="..\..\source\build\include\scriptfile.h" />
     <ClInclude Include="..\..\source\build\include\sdlayer.h" />
     <ClInclude Include="..\..\source\build\include\sdl_inc.h" />
-    <ClInclude Include="..\..\source\build\include\sjson.h" />
+    <ClInclude Include="..\..\source\thirdparty\include\sjson.h" />
     <ClInclude Include="..\..\source\build\include\softsurface.h" />
     <ClInclude Include="..\..\source\build\include\texcache.h" />
     <ClInclude Include="..\..\source\build\include\timer.h" />
@@ -368,7 +356,7 @@
     <ClInclude Include="..\..\source\build\include\vfs.h" />
     <ClInclude Include="..\..\source\build\include\winbits.h" />
     <ClInclude Include="..\..\source\build\include\winlayer.h" />
-    <ClInclude Include="..\..\source\build\include\xxhash.h" />
+    <ClInclude Include="..\..\source\thirdparty\include\xxhash.h" />
     <ClInclude Include="..\..\source\build\src\engine_priv.h" />
     <ClInclude Include="..\..\source\glbackend\glbackend.h" />
     <ClInclude Include="..\..\source\glbackend\gl_hwtexture.h" />
