@@ -16,7 +16,6 @@
 #include "common.h"
 #include "compat.h"
 #include "crc32.h"
-#include "editor.h"
 #include "engine_priv.h"
 #include "lz4.h"
 #include "osd.h"

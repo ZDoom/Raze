@@ -7,7 +7,8 @@
 // by the EDuke32 team (development@voidpoint.com)
 
 #include "build.h"
-#include "editor.h"
+#include "compat.h"
+#include "baselayer.h"
 #include "../../glbackend/glbackend.h"
 
 

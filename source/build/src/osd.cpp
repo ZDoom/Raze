@@ -5,7 +5,8 @@
 #include "build.h"
 #include "cache1d.h"
 #include "crc32.h"
-#include "editor.h"
+#include "compat.h"
+#include "baselayer.h"
 #include "osd.h"
 #include "scancodes.h"
 

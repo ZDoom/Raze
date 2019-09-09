@@ -1,6 +1,6 @@
 #include "compat.h"
 #include "build.h"
-#include "editor.h"
+#include "baselayer.h"
 
 #include "pngwrite.h"
 
