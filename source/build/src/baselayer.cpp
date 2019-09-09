@@ -402,7 +402,6 @@ int osdcmd_glinfo(osdcmdptr_t UNUSED(parm))
     initprintf(" Clamp-to-edge:           %s\n", SUPPORTED(glinfo.clamptoedge));
     initprintf(" Multi-texturing:         %s\n", SUPPORTED(glinfo.multitex));
     initprintf(" Framebuffer objects:     %s\n", SUPPORTED(glinfo.fbos));
-#ifndef EDUKE32_GLES
     initprintf(" Texture compression:     %s\n", SUPPORTED(glinfo.texcompr));
     initprintf(" Multi-sampling:          %s\n", SUPPORTED(glinfo.multisample));
     initprintf(" NVIDIA multisample hint: %s\n", SUPPORTED(glinfo.nvmultisamplehint));
@@ -418,7 +417,6 @@ int osdcmd_glinfo(osdcmdptr_t UNUSED(parm))
     initprintf(" Debug output:            %s\n", SUPPORTED(glinfo.debugoutput));
     initprintf(" Buffer storage:          %s\n", SUPPORTED(glinfo.bufferstorage));
     initprintf(" Sync:                    %s\n", SUPPORTED(glinfo.sync));
-#endif
     initprintf(" Maximum anisotropy:      %.1f%s\n", glinfo.maxanisotropy, glinfo.maxanisotropy > 1.0 ? "" : " (no anisotropic filtering)");
 
 #undef SUPPORTED

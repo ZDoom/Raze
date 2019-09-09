@@ -77,9 +77,7 @@ char modechange=1;
 char offscreenrendering=0;
 char videomodereset = 0;
 int32_t nofog=0;
-#ifndef EDUKE32_GLES
 static uint16_t sysgamma[3][256];
-#endif
 #ifdef USE_OPENGL
 // OpenGL stuff
 char nogl=0;
@@ -1314,9 +1312,7 @@ void sdlayer_setvideomode_opengl(void)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Use FASTEST for ortho!
 //    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-#ifndef EDUKE32_GLES
     glDisable(GL_DITHER);
-#endif
 
     glinfo.vendor = (const char *) glGetString(GL_VENDOR);
     glinfo.renderer = (const char *) glGetString(GL_RENDERER);
@@ -1447,7 +1443,6 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
     videomodereset = 0;
 
     // save the current system gamma to determine if gamma is available
-#ifndef EDUKE32_GLES
     if (!gammabrightness)
     {
         //        float f = 1.0 + ((float)curbrightness / 10.0);
@@ -1458,7 +1453,6 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
         if (gammabrightness && videoSetGamma() < 0)
             gammabrightness = 0;  // nope
     }
-#endif
 
     videoFadePalette(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
@@ -1533,10 +1527,6 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
             int32_t value;
         } sdlayer_gl_attributes[] =
         {
-#ifdef EDUKE32_GLES
-              { SDL_GL_CONTEXT_MAJOR_VERSION, 1 },
-              { SDL_GL_CONTEXT_MINOR_VERSION, 1 },
-#endif
               { SDL_GL_DOUBLEBUFFER, 1 },
               { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
               { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
@@ -1836,10 +1826,6 @@ int32_t videoSetGamma(void)
         gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (uint16_t)max(0.f, min(65535.f, val * 256.f));
     }
 
-#if SDL_MAJOR_VERSION == 1
-    i = SDL_SetGammaRamp(&gammaTable[0], &gammaTable[256], &gammaTable[512]);
-    if (i != -1)
-#else
     i = INT32_MIN;
 
     if (sdl_window)
@@ -1847,28 +1833,14 @@ int32_t videoSetGamma(void)
 
     if (i < 0)
     {
-#ifndef __ANDROID__  // Don't do this check, it is really supported, TODO
-/*
-        if (i != INT32_MIN)
-            initprintf("Unable to set gamma: SDL_SetWindowGammaRamp failed: %s\n", SDL_GetError());
-*/
-#endif
-
         OSD_Printf("videoSetGamma(): %s\n", SDL_GetError());
 
-#ifndef EDUKE32_GLES
-#if SDL_MAJOR_VERSION == 1
-        SDL_SetGammaRamp(&sysgamma[0][0], &sysgamma[1][0], &sysgamma[2][0]);
-#else
 
         if (sdl_window)
             SDL_SetWindowGammaRamp(sdl_window, &sysgamma[0][0], &sysgamma[1][0], &sysgamma[2][0]);
-#endif
         gammabrightness = 0;
-#endif
     }
     else
-#endif
     {
         lastvidgcb[0] = gamma;
         lastvidgcb[1] = contrast;

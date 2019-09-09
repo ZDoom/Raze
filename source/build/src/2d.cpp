@@ -32,22 +32,6 @@ static void drawpixel_safe(void *s, char a)
     if ((intptr_t) s >= frameplace && (intptr_t) s < frameplace+bytesperline*ydim)
 #endif
         drawpixel(s, a);
-#ifdef DEBUGGINGAIDS
-    else
-    {
-        const char c = editorcolors[15];
-
-        drawpixel((intptr_t *) frameplace, c);
-        drawpixel((intptr_t *) frameplace+1, c);
-        drawpixel((intptr_t *) frameplace+2, c);
-        drawpixel((intptr_t *) frameplace+bytesperline, c);
-        drawpixel((intptr_t *) frameplace+bytesperline+1, c);
-        drawpixel((intptr_t *) frameplace+bytesperline+2, c);
-        drawpixel((intptr_t *) frameplace+2*bytesperline, c);
-        drawpixel((intptr_t *) frameplace+2*bytesperline+1, c);
-        drawpixel((intptr_t *) frameplace+2*bytesperline+2, c);
-    }
-#endif
 }
 
 
