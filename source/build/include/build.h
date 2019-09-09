@@ -1105,8 +1105,6 @@ void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   renderSetAspect(int32_t daxrange, int32_t daaspect);
 void   renderFlushPerms(void);
 
-void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int col) ATTRIBUTE((nonnull(1,2)));
-
 void   plotpixel(int32_t x, int32_t y, char col);
 void   renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   renderRestoreTarget(void);
@@ -1333,17 +1331,6 @@ int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum);
 
 #define STATUS2DSIZ 144
 #define STATUS2DSIZ2 26
-
-//void   qsetmode640350(void);
-//void   qsetmode640480(void);
-void   videoSet2dMode(int32_t,int32_t);
-void   clear2dscreen(void);
-void   editorDraw2dGrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
-                  int16_t ange, int32_t zoome, int16_t gride);
-void   editorDraw2dScreen(const vec3_t *pos, int16_t cursectnum,
-                    int16_t ange, int32_t zoome, int16_t gride) ATTRIBUTE((nonnull(1)));
-int32_t   editorDraw2dLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col);
-void   editorDraw2dCircle(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col);
 
 int32_t   videoSetRenderMode(int32_t renderer);
 

@@ -179,7 +179,7 @@ static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 #endif
 
 static FORCE_INLINE CONSTEXPR char readpixel(void *s) { return *(char *)s; }
-static FORCE_INLINE void drawpixel(void *s, char a) { *(char *)s = a; }
+
 
 #ifndef pragmas_have_klabs
 #if 0

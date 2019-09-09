@@ -98,7 +98,6 @@ extern int32_t showfirstwall;
 extern int32_t graphicsmode;
 
 extern int32_t grid, autogrid;
-extern int32_t editorgridextent;	// in engine.c
 
 extern char game_executable[BMAX_PATH];
 extern const char* DefaultGameExec;
@@ -158,25 +157,6 @@ typedef struct mapundo_
 extern mapundo_t *mapstate;
 
 extern void FuncMenu(void);
-#ifdef LUNATIC
-extern void LuaFuncMenu(void);
-#endif
-
-// editor side view
-extern int32_t m32_sideview;
-extern int32_t m32_sideelev;
-extern int16_t m32_sideang;
-extern int32_t m32_sidecos, m32_sidesin;
-extern int32_t m32_swcnt;
-extern int32_t m32_wallscreenxy[MAXWALLS][2];
-extern int16_t m32_wallsprite[MAXWALLS+MAXSPRITES];
-extern int8_t sideview_reversehrot;
-extern int32_t scalescreeny(int32_t sy);
-extern void editorGet2dScreenCoordinates(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome) ATTRIBUTE((nonnull));
-//extern void invscreencoords(int32_t *dx, int32_t *dy, int32_t sx, int32_t sy, int32_t zoome);
-extern int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz) ATTRIBUTE((nonnull));
-extern int32_t getscreenvdisp(int32_t bz, int32_t zoome);
-extern void editorSetup2dSideView(void);
 
 extern int8_t keeptexturestretch;
 extern int16_t pointhighlightdist, linehighlightdist;
@@ -399,8 +379,6 @@ static inline int32_t m32_is2d3dmode(void)
         searchy > m32_2d3d.y && searchy < (m32_2d3d.y + YSIZE_2D3D);
 }
 
-extern int32_t editorGet2dSpriteColor(int32_t spr);
-
 #define SPRITESEC(j) (sector[sprite[j].sectnum])
 
 #define SCRIPTHISTSIZ 32  // should be the same as OSD_HISTORYDEPTH for maximum win, should be a power of two
@@ -459,8 +437,6 @@ static FORCE_INLINE void inpclamp(int32_t *x, int32_t mi, int32_t ma)
     if (*x > ma) *x = ma;
     if (*x < mi) *x = mi;
 }
-
-#define drawtranspixel(p, col) drawpixel(p, blendtable[0][(readpixel(p) * 256) + col])
 
 // Timed offset for Mapster32 color index cycling.
 // Range: 0 .. 16
