@@ -381,171 +381,6 @@ static int32_t initpass()  //Interlaced images have 7 "passes", non-interlaced h
     return 0;
 }
 
-#if defined(_MSC_VER) && !defined(NOASM)
-
-static inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
-{
-    _asm
-    {
-        push ebx
-        push esi
-        push edi
-        mov eax, a
-        mov ebx, b
-        mov ecx, c
-        mov edx, ecx
-        sub edx, eax
-        sub edx, ebx
-        lea edx, abstab10[edx*4+2048]
-        mov esi, [ebx*4+edx]
-        mov edi, [ecx*4+edx]
-        cmp edi, esi
-        cmovge edi, esi
-        cmovge ecx, ebx
-        cmp edi, [eax*4+edx]
-        cmovl eax, ecx
-        pop edi
-        pop esi
-        pop ebx
-    }
-}
-
-static inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
-{
-    _asm
-    {
-        push ebx
-        push edi
-
-        mov ecx, c
-        mov edx, d
-        mov edi, t
-        mov ebx, b
-        sub ecx, edx
-        jle short endit
-        add edx, offset olinbuf
-        cmp dword ptr trnsrgb, 0
-        jz short begit2
-        begit:
-        mov eax, dword ptr [ecx+edx]
-        or eax, 0xff000000
-        cmp eax, dword ptr trnsrgb
-        jne short skipit
-        and eax, 0xffffff
-        skipit:
-        sub ecx, 3
-        mov [edi], eax
-        lea edi, [edi+ebx]
-        jnz short begit
-        jmp short endit
-        begit2:
-        mov eax, dword ptr [ecx+edx]
-        or eax, 0xff000000
-        sub ecx, 3
-        mov [edi], eax
-        lea edi, [edi+ebx]
-        jnz short begit2
-        endit:
-        pop edi
-        pop ebx
-    }
-}
-
-static inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
-{
-    _asm
-    {
-        mov ecx, c
-        mov edx, d
-        sub ecx, edx
-        jle short endit
-
-        push ebx
-        push edi
-        mov edi, t
-        mov ebx, b
-        add edx, offset olinbuf
-        begit:movzx eax, byte ptr [ecx+edx]
-        mov eax, dword ptr palcol[eax*4]
-        sub ecx, 1
-        mov [edi], eax
-        lea edi, [edi+ebx]
-        jnz short begit
-        pop edi
-        pop ebx
-        endit:
-    }
-}
-
-#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
-
-static inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
-{
-    __asm__ __volatile__(
-        "movl %%ecx, %%edx \n"
-        "subl %%eax, %%edx \n"
-        "subl %%ebx, %%edx \n"
-        "leal (abstab10+2048)(,%%edx,4), %%edx \n"
-        "movl (%%edx,%%ebx,4), %%esi \n"
-        "movl (%%edx,%%ecx,4), %%edi \n"
-        "cmpl %%esi, %%edi \n"
-        "cmovgel %%esi, %%edi \n"
-        "cmovgel %%ebx, %%ecx \n"
-        "cmpl (%%edx,%%eax,4), %%edi \n"
-        "cmovgel %%eax, %%ecx \n"
-        : "+c"(c) : "a"(a), "b"(b) : "edx","esi","edi","memory","cc"
-    );
-    return c;
-}
-
-//Note: "cmove eax,?" may be faster than "jne ?:and eax,?" but who cares
-static inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
-{
-    __asm__ __volatile__(
-        "subl %%edx, %%ecx \n"
-        "jle 3f \n"
-        "addl $olinbuf, %%edx \n"
-        "cmpl $0, trnsrgb(,1) \n"
-        "jz 2f \n"
-        "0: movl (%%ecx,%%edx,1), %%eax \n"
-        "orl $0xff000000, %%eax \n"
-        "cmpl trnsrgb(,1), %%eax \n"
-        "jne 1f \n"
-        "andl $0xffffff, %%eax \n"
-        "1: subl $3, %%ecx \n"
-        "movl %%eax, (%%edi) \n"
-        "leal (%%edi,%%ebx,1), %%edi \n"
-        "jnz 0b \n"
-        "jmp 3f \n"
-        "2: movl (%%ecx,%%edx,1), %%eax \n"
-        "orl $0xff000000, %%eax \n"
-        "subl $3, %%ecx \n"
-        "movl %%eax, (%%edi) \n"
-        "leal (%%edi,%%ebx,1), %%edi \n"
-        "jnz 2b \n"
-        "3: \n"
-        : "+c"(c), "+d"(d), "+D"(t) : "b"(b) : "eax","memory","cc"
-    );
-}
-
-static inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
-{
-    __asm__ __volatile__(
-        "subl %%edx, %%ecx \n"
-        "jle 1f \n"
-        "addl $olinbuf, %%edx \n"
-        "0: movzbl (%%ecx,%%edx,1), %%eax \n"
-        "movl palcol(,%%eax,4), %%eax \n"
-        "subl $1, %%ecx \n"
-        "movl %%eax, (%%edi) \n"
-        "leal (%%edi,%%ebx,1), %%edi \n"
-        "jnz 0b \n"
-        "1: \n"
-        : "+c"(c), "+d"(d), "+D"(t) : "b"(b) : "eax","memory","cc"
-    );
-}
-
-#else
 
 static inline int32_t Paeth686(int32_t const a, int32_t const b, int32_t c)
 {
@@ -576,7 +411,6 @@ static inline void pal8hlineasm(int32_t x, int32_t xr1, intptr_t p, int32_t ixst
     for (; x>xr1; p+=ixstp,x--) B_BUF32((void *) p, palcol[olinbuf[x]]);
 }
 
-#endif
 
 //Autodetect filter
 //    /f0: 0000000...
@@ -979,43 +813,6 @@ static int32_t lcomphvsamp0, lcomphsampshift0, lcompvsampshift0;
 static int32_t colclip[1024], colclipup8[1024], colclipup16[1024];
 /*static uint8_t pow2char[8] = {1,2,4,8,16,32,64,128};*/
 
-#if defined(_MSC_VER) && !defined(NOASM)
-
-static inline int32_t mulshr24(int32_t a, int32_t d)
-{
-    _asm
-    {
-        mov eax, a
-        imul d
-        shrd eax, edx, 24
-    }
-}
-
-static inline int32_t mulshr32(int32_t a, int32_t d)
-{
-    _asm
-    {
-        mov eax, a
-        imul d
-        mov eax, edx
-    }
-}
-
-#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
-
-#define mulshr24(a,d) \
-    ({ int32_t __a=(a), __d=(d); \
-        __asm__ __volatile__ ("imull %%edx; shrdl $24, %%edx, %%eax" \
-        : "+a" (__a), "+d" (__d) : : "cc"); \
-     __a; })
-
-#define mulshr32(a,d) \
-    ({ int32_t __a=(a), __d=(d); \
-        __asm__ __volatile__ ("imull %%edx" \
-        : "+a" (__a), "+d" (__d) : : "cc"); \
-     __d; })
-
-#else
 
 static inline int32_t mulshr24(int32_t a, int32_t b)
 {
@@ -1026,8 +823,6 @@ static inline int32_t mulshr32(int32_t a, int32_t b)
 {
     return (int32_t)((((int64_t)a)*((int64_t)b))>>32);
 }
-
-#endif
 
 static int32_t cosqr16[8] =    //cosqr16[i] = ((cos(PI*i/16)*sqrt(2))<<24);
 {23726566,23270667,21920489,19727919,16777216,13181774,9079764,4628823};
