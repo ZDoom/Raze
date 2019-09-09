@@ -288,8 +288,8 @@
     <ClInclude Include="..\..\source\build\include\kplib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\build\include\libdivide.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\source\thirdparty\include\libdivide.h">
+      <Filter>Third Party</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\thirdparty\include\lz4.h">
       <Filter>Header Files</Filter>
