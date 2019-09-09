@@ -2471,8 +2471,8 @@ int actSpriteOwnerToSpriteId(spritetype *pSprite)
     dassert(pSprite != NULL);
     if (pSprite->owner == -1)
         return -1;
-    int nSprite = pSprite->owner & 0xfff;
-    if (pSprite->owner & 0x1000)
+    int nSprite = pSprite->owner & (kMaxSprites-1);
+    if (pSprite->owner & kMaxSprites)
         nSprite = gPlayer[nSprite].pSprite->index;
     return nSprite;
 }
@@ -2481,7 +2481,7 @@ void actPropagateSpriteOwner(spritetype *pTarget, spritetype *pSource)
 {
     dassert(pTarget != NULL && pSource != NULL);
     if (IsPlayerSprite(pSource))
-        pTarget->owner = (pSource->type-kDudePlayer1) | 0x1000;
+        pTarget->owner = (pSource->type-kDudePlayer1) | kMaxSprites;
     else
         pTarget->owner = pSource->index;
 }
@@ -2493,7 +2493,7 @@ int actSpriteIdToOwnerId(int nSprite)
     dassert(nSprite >= 0 && nSprite < kMaxSprites);
     spritetype *pSprite = &sprite[nSprite];
     if (IsPlayerSprite(pSprite))
-        nSprite = (pSprite->type-kDudePlayer1) | 0x1000;
+        nSprite = (pSprite->type-kDudePlayer1) | kMaxSprites;
     return nSprite;
 }
 
@@ -2501,8 +2501,8 @@ int actOwnerIdToSpriteId(int nSprite)
 {
     if (nSprite == -1)
         return -1;
-    if (nSprite & 0x1000)
-        nSprite = gPlayer[nSprite&0xfff].pSprite->index;
+    if (nSprite & kMaxSprites)
+        nSprite = gPlayer[nSprite&(kMaxSprites-1)].pSprite->index;
     return nSprite;
 }
 
