@@ -788,7 +788,7 @@ static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32
 // Returns: should clip?
 static int cliptestsector(int const dasect, int const nextsect, int32_t const flordist, int32_t const ceildist, vec2_t const pos, int32_t const posz)
 {
-    Bassert((unsigned)dasect < numsectors && (unsigned)nextsect < numsectors);
+    Bassert((unsigned)dasect < (unsigned)numsectors && (unsigned)nextsect < (unsigned)numsectors);
 
     auto const sec2 = (usectorptr_t)&sector[nextsect];
 
