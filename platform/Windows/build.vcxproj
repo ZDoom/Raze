@@ -275,6 +275,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\source\build\src\sjson.cpp" />
     <ClCompile Include="..\..\source\build\src\smalltextfont.cpp" />
     <ClCompile Include="..\..\source\build\src\softsurface.cpp" />
     <ClCompile Include="..\..\source\build\src\texcache.cpp" />

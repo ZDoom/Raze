@@ -258,6 +258,7 @@ engine_objs := \
     miniz_tdef.c \
     fix16.cpp \
     fix16_str.cpp \
+    sjson.cpp \
 
 engine_editor_objs := \
     build.cpp \

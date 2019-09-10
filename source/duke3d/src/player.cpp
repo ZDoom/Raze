@@ -5657,7 +5657,6 @@ HORIZONLY:;
 }
 
 
-#define SJSON_IMPLEMENT
 #include "sjson.h"
 
 int portableBackupSave(const char * path, const char * name, int volume, int level)

@@ -146,6 +146,9 @@
     <ClCompile Include="..\..\source\build\src\sdlkeytrans.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\build\src\sjson.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\source\build\src\smalltextfont.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
