@@ -25,16 +25,10 @@
 # include "gtkbits.h"
 #endif
 
-#ifdef __ANDROID__
-# include <android/log.h>
-#elif defined __APPLE__
+#if defined __APPLE__
 # include "osxbits.h"
 # include <mach/mach.h>
 # include <mach/mach_time.h>
-#elif defined GEKKO
-# include "wiibits.h"
-# include <ogc/lwp.h>
-# include <ogc/lwp_watchdog.h>
 #elif defined _WIN32
 # include "winbits.h"
 #endif
@@ -948,15 +942,6 @@ int32_t initinput(void)
 
     memset(g_keyNameTable, 0, sizeof(g_keyNameTable));
 
-#if SDL_MAJOR_VERSION == 1
-#define SDL_SCANCODE_TO_KEYCODE(x) (SDLKey)(x)
-#define SDL_JoystickNameForIndex(x) SDL_JoystickName(x)
-#define SDL_NUM_SCANCODES SDLK_LAST
-    if (SDL_EnableKeyRepeat(250, 30))
-        initprintf("Error enabling keyboard repeat.\n");
-    SDL_EnableUNICODE(1);  // let's hope this doesn't hit us too hard
-#endif
-
     for (i = SDL_NUM_SCANCODES - 1; i >= 0; i--)
     {
         if (!keytranslation[i])
@@ -965,16 +950,9 @@ int32_t initinput(void)
         Bstrncpyz(g_keyNameTable[keytranslation[i]], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(g_keyNameTable[0]));
     }
 
-#if SDL_MAJOR_VERSION >= 2
     if (!SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER))
-#else
-    if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK))
-#endif
     {
-#if SDL_MAJOR_VERSION >= 2
         LoadSDLControllerDB();
-#endif
-
         joyScanDevices();
     }
 
@@ -986,18 +964,13 @@ int32_t initinput(void)
 //
 void uninitinput(void)
 {
-#ifdef _WIN32
-    Win_SetKeyboardLayoutUS(0);
-#endif
     mouseUninit();
 
-#if SDL_MAJOR_VERSION >= 2
     if (controller)
     {
         SDL_GameControllerClose(controller);
         controller = NULL;
     }
-#endif
 
     if (joydev)
     {
@@ -1006,7 +979,6 @@ void uninitinput(void)
     }
 }
 
-#ifndef GEKKO
 const char *joyGetName(int32_t what, int32_t num)
 {
     static char tmp[64];
@@ -1017,13 +989,8 @@ const char *joyGetName(int32_t what, int32_t num)
             if ((unsigned)num > (unsigned)joystick.numAxes)
                 return NULL;
 
-#if SDL_MAJOR_VERSION >= 2
             if (controller)
             {
-# if 0
-                // Use this if SDL's provided strings ever become user-friendly.
-                return SDL_GameControllerGetStringForAxis((SDL_GameControllerAxis)num);
-# else
                 static char const * axisStrings[] =
                 {
                     "Left Stick X-Axis",
@@ -1035,9 +1002,7 @@ const char *joyGetName(int32_t what, int32_t num)
                     NULL
                 };
                 return axisStrings[num];
-# endif
             }
-#endif
 
             Bsprintf(tmp, "Axis %d", num);
             return (char *)tmp;
@@ -1046,13 +1011,8 @@ const char *joyGetName(int32_t what, int32_t num)
             if ((unsigned)num > (unsigned)joystick.numButtons)
                 return NULL;
 
-#if SDL_MAJOR_VERSION >= 2
             if (controller)
             {
-# if 0
-                // See above.
-                return SDL_GameControllerGetStringForButton((SDL_GameControllerButton)num);
-# else
                 static char const * buttonStrings[] =
                 {
                     "A",
@@ -1073,9 +1033,7 @@ const char *joyGetName(int32_t what, int32_t num)
                     NULL
                 };
                 return buttonStrings[num];
-# endif
             }
-#endif
 
             Bsprintf(tmp, "Button %d", num);
             return (char *)tmp;
@@ -1089,7 +1047,6 @@ const char *joyGetName(int32_t what, int32_t num)
         default: return NULL;
     }
 }
-#endif
 
 
 //
@@ -1110,7 +1067,6 @@ void mouseUninit(void)
 }
 
 
-#if SDL_MAJOR_VERSION != 1
 //
 // grabmouse_low() -- show/hide mouse cursor, lower level (doesn't check state).
 //                    furthermore return 0 if successful.
@@ -1118,18 +1074,12 @@ void mouseUninit(void)
 
 static inline char grabmouse_low(char a)
 {
-#if !defined EDUKE32_TOUCH_DEVICES
     /* FIXME: Maybe it's better to make sure that grabmouse_low
        is called only when a window is ready?                */
     if (sdl_window)
         SDL_SetWindowGrab(sdl_window, a ? SDL_TRUE : SDL_FALSE);
     return SDL_SetRelativeMouseMode(a ? SDL_TRUE : SDL_FALSE);
-#else
-    UNREFERENCED_PARAMETER(a);
-    return 0;
-#endif
 }
-#endif
 
 //
 // grabmouse() -- show/hide mouse cursor
@@ -1138,9 +1088,7 @@ void mouseGrabInput(bool grab)
 {
     if (appactive && g_mouseEnabled)
     {
-#if !defined EDUKE32_TOUCH_DEVICES
         if ((grab != g_mouseGrabbed) && !grabmouse_low(grab))
-#endif
             g_mouseGrabbed = grab;
     }
     else
@@ -1184,20 +1132,6 @@ void joyGetDeadZone(int32_t axis, uint16_t *dead, uint16_t *satur)
     *dead = joydead[axis];
     *satur = joysatur[axis];
 }
-
-
-//
-//
-// ---------------------------------------
-//
-// All things Timer
-// Ken did this
-//
-// ---------------------------------------
-//
-//
-
-
 
 
 //
@@ -1459,11 +1393,6 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
     if (videoCheckMode(x, y, c, fs, 0) < 0)
         return -1;
 
-#ifdef GEKKO
-    if (!sdl_surface) // only run this the first time we set a video mode
-        wii_initgamevideo();
-#endif
-
     startwin_close();
 
     if (g_mouseGrabbed)
@@ -1474,7 +1403,6 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
 
     while (lockcount) videoEndDrawing();
 
-#ifdef USE_OPENGL
     if (sdl_surface)
     {
         if (bpp > 8)
@@ -1488,7 +1416,6 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
             return 0;
     }
     else
-#endif
     {
        softsurface_destroy();
     }
@@ -1524,11 +1451,7 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
     if (!gammabrightness)
     {
         //        float f = 1.0 + ((float)curbrightness / 10.0);
-#if SDL_MAJOR_VERSION != 1
         if (SDL_GetWindowGammaRamp(sdl_window, sysgamma[0], sysgamma[1], sysgamma[2]) == 0)
-#else
-        if (SDL_GetGammaRamp(sysgamma[0], sysgamma[1], sysgamma[2]) >= 0)
-#endif
             gammabrightness = 1;
 
         // see if gamma really is working by trying to set the brightness
@@ -1600,11 +1523,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
     if (c > 8 || !nogl)
     {
         int32_t i;
-#ifdef USE_GLEXT
         int32_t multisamplecheck = (glmultisample > 0);
-#else
-        int32_t multisamplecheck = 0;
-#endif
         if (nogl)
             return -1;
 
@@ -1619,10 +1538,8 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
               { SDL_GL_CONTEXT_MINOR_VERSION, 1 },
 #endif
               { SDL_GL_DOUBLEBUFFER, 1 },
-#ifdef USE_GLEXT
               { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
               { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
-#endif
               { SDL_GL_STENCIL_SIZE, 1 },
               { SDL_GL_ACCELERATED_VISUAL, 1 },
           };
@@ -1708,13 +1625,7 @@ void videoResetMode(void)
 // begindrawing() -- locks the framebuffer for drawing
 //
 
-#ifdef DEBUG_FRAME_LOCKING
-uint32_t begindrawing_line[BEGINDRAWING_SIZE];
-const char *begindrawing_file[BEGINDRAWING_SIZE];
-void begindrawing_real(void)
-#else
 void videoBeginDrawing(void)
-#endif
 {
     if (bpp > 8)
     {
@@ -1805,17 +1716,10 @@ void videoEndDrawing(void)
 //
 #if SDL_MAJOR_VERSION != 1
 
-#ifdef __ANDROID__
-extern "C" void AndroidDrawControls();
-#endif
-
 void videoShowFrame(int32_t w)
 {
     UNREFERENCED_PARAMETER(w);
 
-#ifdef __ANDROID__
-    if (mobile_halted) return;
-#endif
 
 #ifdef USE_OPENGL
     if (!nogl)
@@ -1827,9 +1731,6 @@ void videoShowFrame(int32_t w)
             if (playing_blood) 
 				fullscreen_tint_gl_blood();
 
-#ifdef __ANDROID__
-            AndroidDrawControls();
-#endif
         }
         else
         {
@@ -2003,11 +1904,7 @@ int32_t handleevents_peekkeys(void)
 {
     SDL_PumpEvents();
 
-#if SDL_MAJOR_VERSION==1
-    return SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, SDL_EVENTMASK(SDL_KEYDOWN));
-#else
     return SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, SDL_KEYDOWN, SDL_KEYDOWN);
-#endif
 }
 
 void handleevents_updatemousestate(uint8_t state)
@@ -2025,27 +1922,18 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
 {
     switch (ev->type)
     {
-#if !defined EDUKE32_IOS
         case SDL_MOUSEMOTION:
-#ifndef GEKKO
             g_mouseAbs.x = ev->motion.x;
             g_mouseAbs.y = ev->motion.y;
-#endif
             // SDL <VER> doesn't handle relative mouse movement correctly yet as the cursor still clips to the
             // screen edges
             // so, we call SDL_WarpMouse() to center the cursor and ignore the resulting motion event that occurs
             //  <VER> is 1.3 for PK, 1.2 for tueidj
             if (appactive && g_mouseGrabbed)
             {
-# if SDL_MAJOR_VERSION==1
-                if (ev->motion.x != xdim >> 1 || ev->motion.y != ydim >> 1)
-# endif
                 {
                     g_mousePos.x += ev->motion.xrel;
                     g_mousePos.y += ev->motion.yrel;
-# if SDL_MAJOR_VERSION==1
-                    SDL_WarpMouse(xdim>>1, ydim>>1);
-# endif
                 }
             }
             break;
@@ -2063,24 +1951,11 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                 case SDL_BUTTON_RIGHT: j = 1; break;
                 case SDL_BUTTON_MIDDLE: j = 2; break;
 
-#if SDL_MAJOR_VERSION == 1
-                case SDL_BUTTON_WHEELUP:    // 4
-                case SDL_BUTTON_WHEELDOWN:  // 5
-                    j = ev->button.button;
-                    break;
-#endif
                 /* Thumb buttons. */
-#if SDL_MAJOR_VERSION==1
-                // NOTE: SDL1 does have SDL_BUTTON_X1, but that's not what is
-                // generated. (Only tested on Linux and Windows.)
-                case 8: j = 3; break;
-                case 9: j = 6; break;
-#else
                 // On SDL2/Windows and SDL >= 2.0.?/Linux, everything is as it should be.
                 // If anyone cares about old versions of SDL2 on Linux, patches welcome.
                 case SDL_BUTTON_X1: j = 3; break;
                 case SDL_BUTTON_X2: j = 6; break;
-#endif
             }
 
             if (j < 0)
@@ -2089,28 +1964,12 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             if (ev->button.state == SDL_PRESSED)
                 g_mouseBits |= (1 << j);
             else
-#if SDL_MAJOR_VERSION==1
-                if (j != SDL_BUTTON_WHEELUP && j != SDL_BUTTON_WHEELDOWN)
-#endif
-                g_mouseBits &= ~(1 << j);
+            g_mouseBits &= ~(1 << j);
 
             if (g_mouseCallback)
                 g_mouseCallback(j+1, ev->button.state == SDL_PRESSED);
             break;
         }
-#else
-# if SDL_MAJOR_VERSION != 1
-        case SDL_FINGERUP:
-            g_mouseClickState = MOUSE_RELEASED;
-            break;
-        case SDL_FINGERDOWN:
-            g_mouseClickState = MOUSE_PRESSED;
-        case SDL_FINGERMOTION:
-            g_mouseAbs.x = Blrintf(ev->tfinger.x * xdim);
-            g_mouseAbs.y = Blrintf(ev->tfinger.y * ydim);
-            break;
-# endif
-#endif
 
         case SDL_JOYAXISMOTION:
 #if SDL_MAJOR_VERSION >= 2
@@ -2176,10 +2035,6 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                 else
                     joystick.bits &= ~(1 << ev->jbutton.button);
 
-#ifdef GEKKO
-                if (ev->jbutton.button == 0) // WII_A
-                    handleevents_updatemousestate(ev->jbutton.state);
-#endif
             }
             break;
 
@@ -2443,10 +2298,6 @@ int32_t handleevents_pollsdl(void)
 
 int32_t handleevents(void)
 {
-#ifdef __ANDROID__
-    if (mobile_halted) return 0;
-#endif
-
     int32_t rv;
 
     if (inputchecked && g_mouseEnabled)
@@ -2472,7 +2323,3 @@ int32_t handleevents(void)
 
     return rv;
 }
-
-#if SDL_MAJOR_VERSION == 1
-#include "sdlayer12.cpp"
-#endif
