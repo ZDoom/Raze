@@ -205,7 +205,8 @@ typedef struct {
     int32_t sea_sick;
     uint8_t hurt_delay2, nocheat;
 
-    int8_t padding_[4];
+    int8_t crouch_toggle;
+    int8_t padding_[3];
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua
@@ -241,7 +242,6 @@ extern int32_t          g_levelTextTime;
 extern int32_t          g_myAimMode;
 extern int32_t          g_numObituaries;
 extern int32_t          g_numSelfObituaries;
-extern int32_t          g_emuJumpTics;
 extern int32_t          mouseyaxismode;
 extern int32_t          ticrandomseed;
 

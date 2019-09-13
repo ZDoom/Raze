@@ -103,6 +103,7 @@ enum GameFunction_t
    gamefunc_Last_Weapon,
    gamefunc_Quick_Save,
    gamefunc_Quick_Load,
+   gamefunc_Toggle_Crouch, // TODO: Implement properly for mp
    };
 #ifdef __cplusplus
 }

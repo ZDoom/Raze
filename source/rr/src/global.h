@@ -155,7 +155,7 @@ G_EXTERN int32_t g_animateVel[MAXANIMATES];
 G_EXTERN int16_t g_cloudSect[256];
 G_EXTERN int16_t g_cloudX;
 G_EXTERN int16_t g_cloudY;
-G_EXTERN int32_t g_cloudClock;
+G_EXTERN ClockTicks g_cloudClock;
 
 G_EXTERN int16_t SpriteDeletionQueue[1024];
 G_EXTERN int16_t g_cyclers[MAXCYCLERS][6];
@@ -163,7 +163,7 @@ G_EXTERN int16_t g_mirrorSector[64];
 G_EXTERN int16_t g_mirrorWall[64];
 G_EXTERN int32_t *labelcode;
 G_EXTERN int32_t *labeltype;
-G_EXTERN int32_t lockclock;
+G_EXTERN ClockTicks lockclock;
 G_EXTERN ClockTicks ototalclock;
 
 G_EXTERN int32_t g_wupass;

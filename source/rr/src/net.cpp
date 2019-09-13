@@ -3701,7 +3701,7 @@ void Net_SendMessage(void)
         int32_t const text_x = fullwidth >= (320<<16) ? (320<<16) - fullwidth : mpgametext_x;
         mpgametext(text_x, y, typebuf, 1, 2|8|16|ROTATESPRITE_FULL16, 0, TEXT_YCENTER|TEXT_LITERALESCAPE);
         int32_t const cursor_x = text_x + width + textsc((tilesiz[SPINNINGNUKEICON].x<<14)+(1<<16));
-        rotatesprite_fs(cursor_x, y, textsc(32768), 0, SPINNINGNUKEICON+(((int32_t)totalclock>>3)%7), 4-(sintable[((int32_t)totalclock<<4)&2047]>>11), 0, 2|8);
+        rotatesprite_fs(cursor_x, y, textsc(32768), 0, SPINNINGNUKEICON+(((int32_t) totalclock>>3)%7), 4-(sintable[((int32_t) totalclock<<4)&2047]>>11), 0, 2|8);
 
         if (hitstate == 1)
         {

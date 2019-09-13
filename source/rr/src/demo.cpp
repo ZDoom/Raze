@@ -669,7 +669,7 @@ RECHECK:
         lastsyncofs = ktell(g_demo_recFilePtr);
         initsyncofs = lastsyncofs;
         lastsynctic = g_demo_cnt;
-        lastsyncclock = (int32_t)totalclock;
+        lastsyncclock = (int32_t) totalclock;
         outofsync = 0;
 #if KRANDDEBUG
         krd_enable(2);
@@ -822,7 +822,7 @@ RECHECK:
                             {
                                 lastsyncofs = ktell(g_demo_recFilePtr);
                                 lastsynctic = g_demo_cnt;
-                                lastsyncclock = (int32_t)totalclock;
+                                lastsyncclock = (int32_t) totalclock;
 
                                 if (kread(g_demo_recFilePtr, tmpbuf, 4) != 4)
                                     CORRUPT(7);

@@ -1090,7 +1090,7 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags)
         if (playerNum == myconnectindex)
         {
             CAMERADIST = 0;
-            CAMERACLOCK = (int32_t)totalclock;
+            CAMERACLOCK = (int32_t) totalclock;
         }
 
         //if (g_fakeMultiMode)
@@ -2231,7 +2231,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 int const playerXVel = sprite[pPlayer->i].xvel;
                 int const syncBits   = g_player[vm.playerNum].inputBits->bits;
 
-                if (((moveFlags & pducking) && pPlayer->on_ground && TEST_SYNC_KEY(syncBits, SK_CROUCH))
+                if (((moveFlags & pducking) && pPlayer->on_ground && (TEST_SYNC_KEY(syncBits, SK_CROUCH) ^ vm.pPlayer->crouch_toggle))
                     || ((moveFlags & pfalling) && pPlayer->jumping_counter == 0 && !pPlayer->on_ground && pPlayer->vel.z > 2048)
                     || ((moveFlags & pjumping) && pPlayer->jumping_counter > 348)
                     || ((moveFlags & pstanding) && playerXVel >= 0 && playerXVel < 8)

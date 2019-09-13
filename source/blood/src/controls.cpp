@@ -187,29 +187,26 @@ void ctrlGetInput(void)
 
     CONTROL_GetInput(&info);
 
-#if 0
-    // these don't seem to have an on switch
 	if (MouseDeadZone)
 	{
-		if (info.mousey > 0)
-			info.mousey = max(info.mousey - MouseDeadZone, 0);
-		else if (info.mousey < 0)
-			info.mousey = min(info.mousey + MouseDeadZone, 0);
+        if (info.mousey > 0)
+            info.mousey = max(info.mousey - MouseDeadZone, 0);
+        else if (info.mousey < 0)
+            info.mousey = min(info.mousey + MouseDeadZone, 0);
 
-		if (info.mousex > 0)
-			info.mousex = max(info.mousex - MouseDeadZone, 0);
-		else if (info.mousex < 0)
-			info.mousex = min(info.mousex + MouseDeadZone, 0);
+        if (info.mousex > 0)
+            info.mousex = max(info.mousex - MouseDeadZone, 0);
+        else if (info.mousex < 0)
+            info.mousex = min(info.mousex + MouseDeadZone, 0);
 	}
 
 	if (MouseBias)
 	{
-		if (klabs(info.mousex) > klabs(info.mousey))
-			info.mousey = tabledivide32_noinline(info.mousey, MouseBias);
-		else
-			info.mousex = tabledivide32_noinline(info.mousex, MouseBias);
+        if (klabs(info.mousex) > klabs(info.mousey))
+            info.mousey = tabledivide32_noinline(info.mousey, MouseBias);
+        else
+            info.mousex = tabledivide32_noinline(info.mousex, MouseBias);
 	}
-#endif
 
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;
