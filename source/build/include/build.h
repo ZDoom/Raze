@@ -97,7 +97,7 @@ enum rendmode_t {
 # define LUNATIC_FASTCALL __fastcall
 #endif
 
-#define MAXWALLSB ((MAXWALLS>>3)+(MAXWALLS>>4))
+#define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
 
 #define MAXTILES 30720
 #define MAXUSERTILES (MAXTILES-16)  // reserve 16 tiles at the end

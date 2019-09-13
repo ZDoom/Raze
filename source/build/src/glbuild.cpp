@@ -231,7 +231,7 @@ int32_t loadglulibrary(const char *driver)
     bgluProject = (bgluProjectProcPtr) GLUGETPROC("gluProject");
     bgluUnProject = (bgluUnProjectProcPtr) GLUGETPROC("gluUnProject");
 
-    if (err) unloadglulibrary();
+    //if (err) unloadglulibrary();
     return err;
 #else
     UNREFERENCED_PARAMETER(driver);

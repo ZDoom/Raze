@@ -7,6 +7,8 @@
 #include "glad/glad.h"
 #include "hightile.h"
 
+void Polymost_CacheHitList(uint8_t* hash);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,6 +32,8 @@ struct glfiltermodes {
 extern struct glfiltermodes glfiltermodes[NUMGLFILTERMODES];
 
 extern void Polymost_prepare_loadboard(void);
+
+void GetTextureHandle(GLuint *handle);
 
 //void phex(char v, char *s);
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
