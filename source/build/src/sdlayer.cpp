@@ -1763,14 +1763,26 @@ void videoShowFrame(int32_t w)
             glsurface_blitBuffer();
         }
 
+        static uint32_t lastSwapTime = 0;
+#ifdef  TIMING
+		cycle_t clock;
+		clock.Reset();
+		clock.Clock();
+#endif
+		glFinish();
+#ifdef TIMING
+		clock.Unclock();
+		OSD_Printf("glfinish time: %2.3f\n", clock.TimeMS());
+#endif
         SDL_GL_SwapWindow(sdl_window);
+		/*
         if (vsync)
         {
-            static uint32_t lastSwapTime = 0;
             // busy loop until we're ready to update again
             while (SDL_GetTicks()-lastSwapTime < currentVBlankInterval) {}
-            lastSwapTime = SDL_GetTicks();
         }
+		*/
+        lastSwapTime = SDL_GetTicks();
         return;
     }
 #endif

@@ -253,10 +253,11 @@ void win_close(void)
 }
 
 
-// Keyboard layout switching
+// Keyboard layout switching (disable because this is rude.)
 
 static void switchlayout(char const * layout)
 {
+    /*
     char layoutname[KL_NAMELENGTH];
 
     GetKeyboardLayoutName(layoutname);
@@ -266,17 +267,19 @@ static void switchlayout(char const * layout)
 
     initprintf("Switching keyboard layout from %s to %s\n", layoutname, layout);
     LoadKeyboardLayout(layout, KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
+	*/
 }
 
 static char OriginalLayoutName[KL_NAMELENGTH];
 
 void Win_GetOriginalLayoutName(void)
 {
-    GetKeyboardLayoutName(OriginalLayoutName);
+    //GetKeyboardLayoutName(OriginalLayoutName);
 }
 
 void Win_SetKeyboardLayoutUS(int const toggle)
 {
+    /*
     static int currentstate;
 
     if (toggle != currentstate)
@@ -293,6 +296,7 @@ void Win_SetKeyboardLayoutUS(int const toggle)
             currentstate = toggle;
         }
     }
+	*/
 }
 
 
@@ -409,6 +413,78 @@ int32_t win_buildargs(char **argvbuf)
 
     return buildargc;
 }
+
+
+//==========================================================================
+//
+// CalculateCPUSpeed
+//
+// Make a decent guess at how much time elapses between TSC steps. This can
+// vary over runtime depending on power management settings, so should not
+// be used anywhere that truely accurate timing actually matters.
+//
+//==========================================================================
+
+double PerfToSec, PerfToMillisec;
+#include "stats.h"
+
+static void CalculateCPUSpeed()
+{
+	LARGE_INTEGER freq;
+
+	QueryPerformanceFrequency(&freq);
+
+	if (freq.QuadPart != 0)
+	{
+		LARGE_INTEGER count1, count2;
+		cycle_t       ClockCalibration;
+		DWORD         min_diff;
+
+		ClockCalibration.Reset();
+
+		// Count cycles for at least 55 milliseconds.
+		// The performance counter may be very low resolution compared to CPU
+		// speeds today, so the longer we count, the more accurate our estimate.
+		// On the other hand, we don't want to count too long, because we don't
+		// want the user to notice us spend time here, since most users will
+		// probably never use the performance statistics.
+		min_diff = freq.LowPart * 11 / 200;
+
+		// Minimize the chance of task switching during the testing by going very
+		// high priority. This is another reason to avoid timing for too long.
+		SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
+		SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+
+		// Make sure we start timing on a counter boundary.
+		QueryPerformanceCounter(&count1);
+		do
+		{
+			QueryPerformanceCounter(&count2);
+		} while (count1.QuadPart == count2.QuadPart);
+
+		// Do the timing loop.
+		ClockCalibration.Clock();
+		do
+		{
+			QueryPerformanceCounter(&count1);
+		} while ((count1.QuadPart - count2.QuadPart) < min_diff);
+		ClockCalibration.Unclock();
+
+		SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
+		SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_NORMAL);
+
+		PerfToSec = double(count1.QuadPart - count2.QuadPart) / (double(ClockCalibration.GetRawCounter()) * freq.QuadPart);
+		PerfToMillisec = PerfToSec * 1000.0;
+	}
+}
+
+class Initer
+{
+public:
+	Initer() { CalculateCPUSpeed(); }
+};
+
+static Initer initer;
 
 
 // Workaround for a bug in mingwrt-4.0.0 and up where a function named main() in misc/src/libcrt/gdtoa/qnan.c takes precedence over the proper one in src/libcrt/crt/main.c.

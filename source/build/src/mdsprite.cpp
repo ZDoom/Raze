@@ -902,7 +902,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))
             m->usesalpha = hasalpha;
         if ((doalloc&3)==1)
-            glGenTextures(1, texidx);
+            GetTextureHandle(texidx);
 
         glBindTexture(GL_TEXTURE_2D, *texidx);
 

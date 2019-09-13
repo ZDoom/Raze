@@ -76,7 +76,17 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
 
     pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
 
-    gloadtile_art(dapicnum, searchpalnum, tintpalnum, dashade, dameth, pth, 1);
+#ifdef TIMING
+	cycle_t clock;
+	clock.Reset();
+	clock.Clock();
+#endif
+	gloadtile_art(dapicnum, searchpalnum, tintpalnum, dashade, dameth, pth, 1);
+	//thl.AddToCache(dapicnum, dapalnum, dameth);
+#ifdef TIMING
+	clock.Unclock();
+	OSD_Printf("Loaded texture %d, palnum %d, meth %d -> %2.3f\n", dapicnum, dapalnum, dameth, clock.TimeMS());
+#endif
 
     pth->palnum = dapalnum;
     pth->next = texcache.list[j];
@@ -181,9 +191,16 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     if (dapalnum == DETAILPAL && texcache_fetchmulti(pth, si, dapicnum, dameth))
         return pth;
 
-    int32_t tilestat =
-    gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (checktintpal > 0) ? 0 : tintflags);
-
+#ifdef TIMING
+	cycle_t clock;
+	clock.Reset();
+	clock.Clock();
+#endif
+    int32_t tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (checktintpal > 0) ? 0 : tintflags);
+#ifdef TIMING
+	clock.Unclock();
+	OSD_Printf("Loaded texture %d, palnum %d, meth %d -> %2.3f\n", dapicnum, dapalnum, dameth, clock.TimeMS());
+#endif
     if (!tilestat)
     {
         pth->next = texcache.list[j];
