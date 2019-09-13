@@ -1242,15 +1242,11 @@ void viewDrawMapTitle(void)
     if (!gShowMapTitle || gGameMenuMgr.m_bActive)
         return;
 
-    int seconds = (gLevelTime / kTicsPerSec);
-    int millisecs = (gLevelTime % kTicsPerSec) * 33;
-    if (seconds > 3)
+    int const fadeStartTic = int(1.f*kTicsPerSec);
+    int const fadeEndTic = int(1.25f*kTicsPerSec);
+    if (gLevelTime > fadeEndTic)
         return;
-
-    const int noAlphaForSecs = 1;
-    uint8_t alpha = videoGetRenderMode() != REND_CLASSIC || numalphatabs >= 15 ?
-        seconds < noAlphaForSecs ? 0 : clamp(((seconds-noAlphaForSecs)*1000+millisecs)/4, 0, 255)
-        : 0;
+    uint8_t const alpha = clamp((gLevelTime-fadeStartTic)*255/(fadeEndTic-fadeStartTic), 0, 255);
 
     if (alpha != 255)
     {
