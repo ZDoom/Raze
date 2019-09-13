@@ -571,6 +571,25 @@ static void Polymost_DetermineTextureFormatSupport(void);
 // reset vertex pointers to polymost default
 void polymost_resetVertexPointers()
 {
+    glBindBuffer(GL_ARRAY_BUFFER, drawpolyVertsID);
+
+    glVertexPointer(3, GL_FLOAT, 5*sizeof(float), 0);
+    glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
+
+#ifdef USE_GLEXT
+    if (r_detailmapping)
+    {
+        glClientActiveTexture(GL_TEXTURE3);
+        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
+    }
+    if (r_glowmapping)
+    {
+        glClientActiveTexture(GL_TEXTURE4);
+        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
+    }
+    glClientActiveTexture(GL_TEXTURE0);
+#endif
+
     polymost_resetProgram();
 }
 
@@ -900,11 +919,14 @@ void polymost_glinit()
     glBindBuffer(GL_ARRAY_BUFFER, drawpolyVertsID);
     if (persistentStreamBuffer)
     {
+        // reset the sync objects, as old ones we had from any last GL context are gone now
+        Bmemset(drawpolyVertsSync, 0, sizeof(drawpolyVertsSync));
+
         GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
         // we want to triple-buffer to avoid having to wait for the buffer to become available again,
         // so triple the buffer size we expect to use
-        glBufferStorage(GL_ARRAY_BUFFER, drawpolyVertsBufferLength*sizeof(float)*5, NULL, flags);
-        drawpolyVerts = (float*) glMapBufferRange(GL_ARRAY_BUFFER, 0, drawpolyVertsBufferLength*sizeof(float)*5, flags);
+        glBufferStorage(GL_ARRAY_BUFFER, 3*drawpolyVertsBufferLength*sizeof(float)*5, NULL, flags);
+        drawpolyVerts = (float*) glMapBufferRange(GL_ARRAY_BUFFER, 0, 3*drawpolyVertsBufferLength*sizeof(float)*5, flags);
     }
     else
     {
@@ -939,7 +961,7 @@ void polymost_glinit()
     }
     for (uint32_t i = 0; i < numTilesheets; ++i)
     {
-        GetTextureHandle(tilesheetTexIDs+i);
+        glGenTextures(1, tilesheetTexIDs+i);
         glBindTexture(GL_TEXTURE_2D, tilesheetTexIDs[i]);
         uploadtextureindexed(true, {0, 0}, maxTexDimensions, (intptr_t) NULL);
     }
@@ -1073,8 +1095,8 @@ void polymost_glinit()
             gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n\
             gl_TexCoord[0] = mix(gl_TexCoord[0].xyzw, gl_TexCoord[0].yxzw, u_usePalette);\n\
             \n\
-            gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord0;\n\
-            gl_TexCoord[4] = gl_TextureMatrix[4] * gl_MultiTexCoord0;\n\
+            gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;\n\
+            gl_TexCoord[4] = gl_TextureMatrix[4] * gl_MultiTexCoord4;\n\
             \n\
             gl_FogFragCoord = abs(eyeCoordPosition.z);\n\
             //gl_FogFragCoord = clamp((gl_Fog.end-abs(eyeCoordPosition.z))*gl_Fog.scale, c_zero, c_one);\n\
@@ -1664,25 +1686,140 @@ static void Polymost_SendTexToDriver(int32_t const doalloc,
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
                    coltype *pic, vec2_t tsiz, int32_t dameth)
 {
-	int32_t intexfmt = GL_RGBA8;
-#ifdef TIMING
-	cycle_t clock;
+    const int artimmunity = !!(dameth & DAMETH_ARTIMMUNITY);
+    const int hi = !!(dameth & DAMETH_HI);
+    const int nodownsize = !!(dameth & DAMETH_NODOWNSIZE) || artimmunity;
+    const int nomiptransfix  = !!(dameth & DAMETH_NOFIX);
+    const int texcompress_ok = !(dameth & DAMETH_NOTEXCOMPRESS) && (glusetexcompr == 2 || (glusetexcompr && !artimmunity));
 
-	clock.Reset();
-	clock.Clock();
+#if !defined EDUKE32_GLES
+    int32_t intexfmt;
+    if (texcompress_ok && glinfo.texcompr)
+        intexfmt = GL_COMPRESSED_RGBA;
+    else
+        intexfmt = GL_RGBA8;
+#else
+    const int hasalpha  = !!(dameth & (DAMETH_HASALPHA|DAMETH_ONEBITALPHA));
+    const int onebitalpha  = !!(dameth & DAMETH_ONEBITALPHA);
+
+    int32_t const intexfmt = hasalpha ? (onebitalpha ? texfmt_rgb_mask : texfmt_rgba) : texfmt_rgb;
+    int32_t const comprtexfmt = hasalpha ? (onebitalpha ? comprtexfmt_rgb_mask : comprtexfmt_rgba) : comprtexfmt_rgb;
 #endif
-	Polymost_SendTexToDriver(doalloc, siz, texfmt, pic,
-		intexfmt,
-		0);
 
-#ifdef TIMING
-	clock.Unclock();
+    dameth &= ~DAMETH_UPLOADTEXTURE_MASK;
 
-	static int ttt;
-	OSD_Printf("%d: texture upload %d x %d took %2.3f ms\n", ttt++, siz.x, siz.y, clock.TimeMS());
+    if (gltexmaxsize <= 0)
+    {
+        GLint i = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &i);
+        if (!i) gltexmaxsize = 6;   // 2^6 = 64 == default GL max texture size
+        else
+        {
+            gltexmaxsize = 0;
+            for (; i>1; i>>=1) gltexmaxsize++;
+#ifdef EDUKE32_GLES
+            while ((1<<(gltexmaxsize-1)) > xdim)
+                gltexmaxsize--;
 #endif
+        }
+    }
 
-	return;
+    gltexmiplevel = max(0, min(gltexmaxsize-1, gltexmiplevel));
+
+    int miplevel = gltexmiplevel;
+
+    while ((siz.x >> miplevel) > (1 << gltexmaxsize) || (siz.y >> miplevel) > (1 << gltexmaxsize))
+        miplevel++;
+
+    if (hi && !nodownsize && r_downsize > miplevel)
+        miplevel = r_downsize;
+
+    // don't use mipmaps if mipmapping is disabled
+    //POGO: until the texcacheheader can be updated, generate the mipmaps texcache expects if it's enabled
+    if (!glusetexcache &&
+        (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
+         glfiltermodes[gltexfiltermode].min == GL_LINEAR))
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    }
+
+    if (!miplevel)
+        Polymost_SendTexToDriver(doalloc, siz, texfmt, pic,
+                                 intexfmt,
+#if defined EDUKE32_GLES
+                                 comprtexfmt,
+                                 texcompress_ok,
+#endif
+                                 0);
+
+    // don't generate mipmaps if we're not going to use them
+    if (!glusetexcache &&
+        (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
+         glfiltermodes[gltexfiltermode].min == GL_LINEAR))
+    {
+        return;
+    }
+
+    vec2_t siz2 = siz;
+
+    for (bssize_t j=1; (siz2.x > 1) || (siz2.y > 1); j++)
+    {
+        vec2_t const siz3 = { max(1, siz2.x >> 1), max(1, siz2.y >> 1) };  // this came from the GL_ARB_texture_non_power_of_two spec
+        //x3 = ((x2+1)>>1); y3 = ((y2+1)>>1);
+
+        for (bssize_t y=0; y<siz3.y; y++)
+        {
+            coltype *wpptr = &pic[y*siz3.x];
+            coltype const *rpptr = &pic[(y<<1)*siz2.x];
+
+            for (bssize_t x=0; x<siz3.x; x++,wpptr++,rpptr+=2)
+            {
+                int32_t r=0, g=0, b=0, a=0, k=0;
+
+                if (rpptr[0].a)                  { r += rpptr[0].r; g += rpptr[0].g; b += rpptr[0].b; a += rpptr[0].a; k++; }
+                if ((x+x+1 < siz2.x) && (rpptr[1].a)) { r += rpptr[1].r; g += rpptr[1].g; b += rpptr[1].b; a += rpptr[1].a; k++; }
+                if (y+y+1 < siz2.y)
+                {
+                    if ((rpptr[siz2.x].a)) { r += rpptr[siz2.x  ].r; g += rpptr[siz2.x  ].g; b += rpptr[siz2.x  ].b; a += rpptr[siz2.x  ].a; k++; }
+                    if ((x+x+1 < siz2.x) && (rpptr[siz2.x+1].a)) { r += rpptr[siz2.x+1].r; g += rpptr[siz2.x+1].g; b += rpptr[siz2.x+1].b; a += rpptr[siz2.x+1].a; k++; }
+                }
+                switch (k)
+                {
+                case 0:
+                case 1:
+                    wpptr->r = r; wpptr->g = g; wpptr->b = b; wpptr->a = a; break;
+                case 2:
+                    wpptr->r = ((r+1)>>1); wpptr->g = ((g+1)>>1); wpptr->b = ((b+1)>>1); wpptr->a = ((a+1)>>1); break;
+                case 3:
+                    wpptr->r = ((r*85+128)>>8); wpptr->g = ((g*85+128)>>8); wpptr->b = ((b*85+128)>>8); wpptr->a = ((a*85+128)>>8); break;
+                case 4:
+                    wpptr->r = ((r+2)>>2); wpptr->g = ((g+2)>>2); wpptr->b = ((b+2)>>2); wpptr->a = ((a+2)>>2); break;
+                default:
+                    EDUKE32_UNREACHABLE_SECTION(break);
+                }
+                //if (wpptr->a) wpptr->a = 255;
+            }
+        }
+
+        if (!nomiptransfix)
+        {
+            vec2_t const tsizzle = { (tsiz.x + (1 << j)-1) >> j, (tsiz.y + (1 << j)-1) >> j };
+
+            fixtransparency(pic, tsizzle, siz3, dameth);
+        }
+
+        if (j >= miplevel)
+            Polymost_SendTexToDriver(doalloc, siz3, texfmt, pic,
+                                     intexfmt,
+#if defined EDUKE32_GLES
+                                     comprtexfmt,
+                                     texcompress_ok,
+#endif
+                                     j - miplevel);
+
+        siz2 = siz3;
+    }
 }
 
 void uploadtextureindexed(int32_t doalloc, vec2_t offset, vec2_t siz, intptr_t tile)
@@ -2472,6 +2609,9 @@ void polymost_setupdetailtexture(const int32_t texunits, const int32_t tex)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glClientActiveTexture(texunits);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
@@ -2483,6 +2623,9 @@ void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glClientActiveTexture(texunits);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 #endif
 
@@ -2506,6 +2649,171 @@ static inline pthtyp *our_texcache_fetch(int32_t dameth)
     return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)) ? globvis>>3 : 0, globalshade), dameth);
 }
 
+static void polymost2_drawVBO(GLenum mode,
+                              int32_t vertexBufferID,
+                              int32_t indexBufferID,
+                              const int32_t numElements,
+                              float projectionMatrix[4*4],
+                              float modelViewMatrix[4*4],
+                              int32_t dameth,
+                              float texScale[2],
+                              float texOffset[2],
+                              char cullFaces)
+{
+    if (dameth == DAMETH_BACKFACECULL ||
+    #ifdef YAX_ENABLE
+        g_nodraw ||
+    #endif
+        (uint32_t)globalpicnum >= MAXTILES)
+    {
+        return;
+    }
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    if (cullFaces)
+    {
+        glEnable(GL_CULL_FACE);
+    }
+    //POGOTODO: this is temporary, the permanent fix is to not allow the transform to affect the windings in the first place in polymost2_drawSprite()
+    if (cullFaces == 1)
+    {
+        glCullFace(GL_BACK);
+    }
+    else
+    {
+        glCullFace(GL_FRONT);
+    }
+
+    //POGOTODO: in the future, state changes like binding these buffers can be batched.  For now, just switch on every VBO rendered
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    if (palookup[globalpal] == NULL)
+    {
+        globalpal = 0;
+    }
+
+    //Load texture (globalpicnum)
+    setgotpic(globalpicnum);
+    if (!waloff[globalpicnum])
+    {
+        tileLoad(globalpicnum);
+    }
+
+    pthtyp *pth = our_texcache_fetch(dameth | (r_useindexedcolortextures ? PTH_INDEXED : 0));
+
+    if (!pth)
+    {
+        if (editstatus)
+        {
+            Bsprintf(ptempbuf, "pth==NULL! (bad pal?) pic=%d pal=%d", globalpicnum, globalpal);
+            polymost_printext256(8,8, editorcolors[15],editorcolors[5], ptempbuf, 0);
+        }
+        return;
+    }
+
+    glActiveTexture(GL_TEXTURE1);
+    //POGO: temporarily swapped out blankTextureID for 0 (as the blank texture has been moved into the dynamic tilesheets)
+    glBindTexture(GL_TEXTURE_2D, (pth && pth->flags & PTH_HASFULLBRIGHT && r_fullbrights) ? pth->ofb->glpic : 0);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
+    glActiveTexture(GL_TEXTURE0);
+    polymost_bindPth(pth);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
+    //POGOTODO: handle tinting & shading completely with fragment shader
+    //POGOTODO: handle fullbright & glow completely with fragment shader
+
+    //POGOTODO: glAlphaFunc is deprecated, move this into the fragment shader
+    float const al = waloff[globalpicnum] ? alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f):
+                             (pth && pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f) : 0.f;
+    glAlphaFunc(GL_GREATER, al);
+    //POGOTODO: batch this, only apply it to sprites that actually need blending
+    glEnable(GL_BLEND);
+    glEnable(GL_ALPHA_TEST);
+
+    handle_blend((dameth & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (dameth & DAMETH_MASKPROPS) == DAMETH_TRANS2);
+
+    useShaderProgram(polymost2BasicShaderProgramID);
+
+    //POGOTODO: batch uniform binding
+    float tint[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    polytint_t const & polytint = hictinting[globalpal];
+    //POGOTODO: full bright pass uses its own globalshade...
+    tint[0] = (1.f-(polytint.sr*(1.f/255.f)))*getshadefactor(globalshade)+(polytint.sr*(1.f/255.f));
+    tint[1] = (1.f-(polytint.sg*(1.f/255.f)))*getshadefactor(globalshade)+(polytint.sg*(1.f/255.f));
+    tint[2] = (1.f-(polytint.sb*(1.f/255.f)))*getshadefactor(globalshade)+(polytint.sb*(1.f/255.f));
+
+    // spriteext full alpha control
+    float alpha = float_trans(dameth & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
+
+    if (pth)
+    {
+        // tinting
+        polytintflags_t const tintflags = hictinting[globalpal].f;
+        if (!(tintflags & HICTINT_PRECOMPUTED))
+        {
+            if (pth->flags & PTH_HIGHTILE)
+            {
+                if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
+                    hictinting_apply(tint, globalpal);
+            }
+            else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
+                hictinting_apply(tint, globalpal);
+        }
+
+        // global tinting
+        if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
+            hictinting_apply(tint, MAXPALOOKUPS-1);
+    }
+
+    glUniformMatrix4fv(projMatrixLoc, 1, false, projectionMatrix);
+    glUniformMatrix4fv(mvMatrixLoc, 1, false, modelViewMatrix);
+    glUniform1i(texSamplerLoc, 0);
+    glUniform1i(fullBrightSamplerLoc, 1);
+    glUniform2fv(texOffsetLoc, 1, texOffset);
+    glUniform2fv(texScaleLoc, 1, texScale);
+    glUniform4fv(tintLoc, 1, tint);
+    glUniform1f(alphaLoc, alpha);
+    const float fogRange[2] = {fogresult, fogresult2};
+    glUniform2fv(fogRangeLoc, 1, fogRange);
+    glUniform4fv(fogColorLoc, 1, (GLfloat*) &fogcol);
+
+    if (indexBufferID == 0)
+    {
+        glDrawArrays(mode,
+                     0,
+                     numElements);
+    }
+    else
+    {
+        glDrawElements(mode,
+                       numElements,
+                       GL_UNSIGNED_SHORT,
+                       0);
+    }
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+
+    //POGOTODO: again, these state changes should be batched in the future, rather than on each VBO rendered
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glDisable(GL_CULL_FACE);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    //polymost_resetVertexPointers();
+}
 
 static void polymost_updatePalette()
 {
@@ -2522,6 +2830,54 @@ static void polymost_updatePalette()
         glBindTexture(GL_TEXTURE_2D, paletteTextureIDs[curbasepal]);
         lastbasepal = curbasepal;
         glActiveTexture(GL_TEXTURE0);
+    }
+}
+
+static void polymost_lockSubBuffer(uint32_t subBufferIndex)
+{
+    if (drawpolyVertsSync[subBufferIndex])
+    {
+        glDeleteSync(drawpolyVertsSync[subBufferIndex]);
+    }
+
+    drawpolyVertsSync[subBufferIndex] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+}
+
+static void polymost_waitForSubBuffer(uint32_t subBufferIndex)
+{
+    if (drawpolyVertsSync[subBufferIndex])
+    {
+        while (true)
+        {
+            // we only need to flush if there's a possibility that drawpolyVertsBufferLength is
+            // so small that we can eat through 3 times the buffer size in a single frame
+            GLenum waitResult = glClientWaitSync(drawpolyVertsSync[subBufferIndex], GL_SYNC_FLUSH_COMMANDS_BIT, 500000);
+            if (waitResult == GL_ALREADY_SIGNALED ||
+                waitResult == GL_CONDITION_SATISFIED)
+            {
+                return;
+            }
+            if (waitResult == GL_WAIT_FAILED)
+            {
+                OSD_Printf("polymost_waitForSubBuffer: Wait failed! Error 0x%X. Disabling r_persistentStreamBuffer.\n", glGetError());
+                r_persistentStreamBuffer = 0;
+                videoResetMode();
+                if (videoSetGameMode(fullscreen,xres,yres,bpp,upscalefactor))
+                {
+                    OSD_Printf("polymost_waitForSubBuffer: Video reset failed.  Please ensure r_persistentStreamBuffer = 0 and try restarting the game.\n");
+                    Bexit(1);
+                }
+                return;
+            }
+
+            static char loggedLongWait = false;
+            if (waitResult == GL_TIMEOUT_EXPIRED &&
+                !loggedLongWait)
+            {
+                OSD_Printf("polymost_waitForSubBuffer(): Had to wait for the drawpoly buffer to become available.  For performance, try increasing buffer size with r_drawpolyVertsBufferLength.\n");
+                loggedLongWait = true;
+            }
+        }
     }
 }
 
@@ -2979,8 +3335,27 @@ do                                                                              
 
             if (nn < 3) continue;
 
+            if (nn+drawpolyVertsOffset > (drawpolyVertsSubBufferIndex+1)*drawpolyVertsBufferLength)
+            {
+                if (persistentStreamBuffer)
+                {
+                    // lock this sub buffer
+                    polymost_lockSubBuffer(drawpolyVertsSubBufferIndex);
+                    drawpolyVertsSubBufferIndex = (drawpolyVertsSubBufferIndex+1)%3;
+                    drawpolyVertsOffset = drawpolyVertsSubBufferIndex*drawpolyVertsBufferLength;
+                    // wait for the next sub buffer to become available before writing to it
+                    // our buffer size should be long enough that no waiting is ever necessary
+                    polymost_waitForSubBuffer(drawpolyVertsSubBufferIndex);
+                }
+                else
+                {
+                    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*5*drawpolyVertsBufferLength, NULL, GL_STREAM_DRAW);
+                    drawpolyVertsOffset = 0;
+                }
+            }
+
             vec2f_t const invtsiz2 = { 1.f / tsiz2.x, 1.f / tsiz2.y };
-			glBegin(GL_TRIANGLE_FAN);
+            uint32_t off = persistentStreamBuffer ? drawpolyVertsOffset : 0;
             for (i = 0; i<nn; ++i)
             {
                 vec2f_t const o = { uu[i], vv[i] };
@@ -2989,45 +3364,88 @@ do                                                                              
                                     o.x * ngx.v + o.y * ngy.v + ngo.v };
                 float const r = 1.f/p.d;
 
-				//update texcoords
-				glTexCoord2f(
-					(p.u * r - du0 + uoffs) * invtsiz2.x,
-					p.v * r * invtsiz2.y);
-
                 //update verts
-				glVertex3f(
-					(o.x - ghalfx) * r * grhalfxdown10x,
-					(ghoriz - o.y) * r * grhalfxdown10,
-					r * (1.f / 1024.f));
+                drawpolyVerts[(off+i)*5] = (o.x - ghalfx) * r * grhalfxdown10x;
+                drawpolyVerts[(off+i)*5+1] = (ghoriz - o.y) * r * grhalfxdown10;
+                drawpolyVerts[(off+i)*5+2] = r * (1.f / 1024.f);
 
+                //update texcoords
+                drawpolyVerts[(off+i)*5+3] = (p.u * r - du0 + uoffs) * invtsiz2.x;
+                drawpolyVerts[(off+i)*5+4] = p.v * r * invtsiz2.y;
             }
-			glEnd();
+
+            if (!persistentStreamBuffer)
+            {
+                glBufferSubData(GL_ARRAY_BUFFER, drawpolyVertsOffset*sizeof(float)*5, nn*sizeof(float)*5, drawpolyVerts);
+            }
+            glDrawArrays(GL_TRIANGLE_FAN, drawpolyVertsOffset, nn);
+            drawpolyVertsOffset += nn;
         }
     }
     else
     {
+        if (npoints+drawpolyVertsOffset > (drawpolyVertsSubBufferIndex+1)*drawpolyVertsBufferLength)
+        {
+            if (persistentStreamBuffer)
+            {
+                // lock this sub buffer
+                polymost_lockSubBuffer(drawpolyVertsSubBufferIndex);
+                drawpolyVertsSubBufferIndex = (drawpolyVertsSubBufferIndex+1)%3;
+                drawpolyVertsOffset = drawpolyVertsSubBufferIndex*drawpolyVertsBufferLength;
+                // wait for the next sub buffer to become available before writing to it
+                // our buffer size should be long enough that no waiting is ever necessary
+                polymost_waitForSubBuffer(drawpolyVertsSubBufferIndex);
+            }
+            else
+            {
+                glBufferData(GL_ARRAY_BUFFER, sizeof(float)*5*drawpolyVertsBufferLength, NULL, GL_STREAM_DRAW);
+                drawpolyVertsOffset = 0;
+            }
+        }
+
         vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
-		glBegin(GL_TRIANGLE_FAN);
-		for (bssize_t i = 0; i < npoints; ++i)
+        uint32_t off = persistentStreamBuffer ? drawpolyVertsOffset : 0;
+        for (bssize_t i = 0; i < npoints; ++i)
         {
             float const r = 1.f / dd[i];
 
-			//update texcoords
-			glTexCoord2f(
-				uu[i] * r * scale.x,
-				vv[i] * r * scale.y);
-
             //update verts
-			glVertex3f(
-				(px[i] - ghalfx) * r * grhalfxdown10x,
-				(ghoriz - py[i]) * r * grhalfxdown10,
-				r * (1.f / 1024.f));
+            drawpolyVerts[(off+i)*5] = (px[i] - ghalfx) * r * grhalfxdown10x;
+            drawpolyVerts[(off+i)*5+1] = (ghoriz - py[i]) * r * grhalfxdown10;
+            drawpolyVerts[(off+i)*5+2] = r * (1.f / 1024.f);
 
+            //update texcoords
+            drawpolyVerts[(off+i)*5+3] = uu[i] * r * scale.x;
+            drawpolyVerts[(off+i)*5+4] = vv[i] * r * scale.y;
         }
-		glEnd();
-	}
+
+        if (!persistentStreamBuffer)
+        {
+            glBufferSubData(GL_ARRAY_BUFFER, drawpolyVertsOffset*sizeof(float)*5, npoints*sizeof(float)*5, drawpolyVerts);
+        }
+        glDrawArrays(GL_TRIANGLE_FAN, drawpolyVertsOffset, npoints);
+        drawpolyVertsOffset += npoints;
+    }
 
 #ifdef USE_GLEXT
+    if (videoGetRenderMode() != REND_POLYMOST)
+    {
+        while (texunits > GL_TEXTURE0)
+        {
+            glActiveTexture(texunits);
+            glMatrixMode(GL_TEXTURE);
+            glLoadIdentity();
+            glMatrixMode(GL_MODELVIEW);
+
+            glClientActiveTexture(texunits);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
+            glDisable(GL_TEXTURE_2D);
+
+            --texunits;
+        }
+    }
 
     polymost_useDetailMapping(false);
     polymost_useGlowMapping(false);
