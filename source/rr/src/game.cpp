@@ -6477,10 +6477,10 @@ FAKE_F3:
                 G_SavePlayerMaybeMulti(sv);
             }
         }
-
-        if (KB_UnBoundKeyPressed(sc_F7))
+        
+        if (BUTTON(gamefunc_Third_Person_View))
         {
-            KB_ClearKeyDown(sc_F7);
+            CONTROL_ClearButton(gamefunc_Third_Person_View);
 
             if (!RRRA || (!g_player[myconnectindex].ps->on_motorcycle && !g_player[myconnectindex].ps->on_boat))
             {
@@ -8873,4 +8873,6 @@ static void G_SetupGameButtons(void)
     CONTROL_DefineFlag(gamefunc_Last_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Quick_Save, FALSE);
     CONTROL_DefineFlag(gamefunc_Quick_Load, FALSE);
+    CONTROL_DefineFlag(gamefunc_Third_Person_View, FALSE);
+    CONTROL_DefineFlag(gamefunc_Toggle_Crouch, FALSE);
 }

@@ -98,6 +98,8 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Last_Used_Weapon",
    "Quick_Save",
    "Quick_Load",
+   "Third_Person_View",
+   "Toggle_Crouch",
    };
 
 #ifdef __SETUP__
@@ -109,7 +111,7 @@ char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "Left", "Kpad4",
    "Right", "KPad6",
    "LAlt", "RAlt",
-   "", "RCtrl",
+   "RCtrl", "",
    "E", "",
    "LShift", "RShift",
    "CapLck", "",
@@ -150,8 +152,8 @@ char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "Y", "",
    "F", "",
    "K", "",
-   "U", "",
-   "I", "",
+   "", "",
+   "", "",
    "R", "",
    "Q", "",
    "'", "",
@@ -161,9 +163,11 @@ char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "", "",
    "", "",
    "", "",
-   "", "",
+   "X", "",
    "F6", "",
    "F9", "",
+   "F7", "",
+   "", "",
    };
 
 char oldkeydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
@@ -228,13 +232,15 @@ char oldkeydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "", "",
    "F6", "",
    "F9", "",
+   "F7", "",
+   "", "",
    };
 
 static const char * mousedefaults[MAXMOUSEBUTTONS] =
    {
    "Fire",
-   "MedKit",
    "Jetpack",
+   "MedKit",
    "",
    "Previous_Weapon",
    "Next_Weapon",
