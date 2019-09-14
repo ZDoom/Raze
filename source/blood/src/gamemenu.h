@@ -462,7 +462,6 @@ class CGameMenuMgr
 public:
     static bool m_bInitialized;
     static bool m_bActive;
-    static bool m_bFirstPush;
     CGameMenu *pTempMenu;
     CGameMenu *pActiveMenu;
     CGameMenu *pMenuStack[8];

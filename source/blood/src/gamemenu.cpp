@@ -62,7 +62,6 @@ void CMenuTextMgr::GetFontInfo(int nFont, const char *pString, int *pXSize, int 
 
 bool CGameMenuMgr::m_bInitialized = false;
 bool CGameMenuMgr::m_bActive = false;
-bool CGameMenuMgr::m_bFirstPush = true;
 
 CGameMenuMgr::CGameMenuMgr()
 {
@@ -103,14 +102,11 @@ bool CGameMenuMgr::Push(CGameMenu *pMenu, int nItem)
 {
     if (nMenuPointer == 0)
     {
-        mouseReadAbs(&m_prevmousepos, &g_mouseAbs);
         m_mouselastactivity = -M_MOUSETIMEOUT;
         m_mousewake_watchpoint = 0;
         mouseLockToWindow(0);
-        if (m_bFirstPush)
-            m_bFirstPush = false;
-        else
-            mouseMoveToCenter();
+        mouseMoveToCenter();
+        mouseReadAbs(&m_prevmousepos, &g_mouseAbs);
     }
     dassert(pMenu != NULL);
     if (nMenuPointer == 8)
@@ -190,7 +186,7 @@ void CGameMenuMgr::Draw(void)
     }
 
     // Display the mouse cursor, except on touch devices.
-    if (MOUSEACTIVECONDITION && !m_bFirstPush)
+    if (MOUSEACTIVECONDITION)
     {
         vec2_t cursorpos = { m_mousepos.x + (7 << 16), m_mousepos.y + (6 << 16) };
 

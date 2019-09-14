@@ -1109,7 +1109,10 @@ void mouseLockToWindow(char a)
 void mouseMoveToCenter(void)
 {
     if (sdl_window)
-        SDL_WarpMouseInWindow(sdl_window, xdim / 2, ydim / 2);
+    {
+        g_mouseAbs = { xdim >> 1, ydim >> 1 };
+        SDL_WarpMouseInWindow(sdl_window, g_mouseAbs.x, g_mouseAbs.y);
+    }
 }
 
 //
