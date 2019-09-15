@@ -492,11 +492,13 @@ void sub_765B8(int nSprite) // 17
         case 147:
             trTriggerSprite(pOwner->index, pXOwner, 1);
             sndStartSample(8003, 255, 2, 0);
+            gBlueFlagDropped = false;
             viewSetMessage("Blue Flag returned to base.");
             break;
         case 148:
             trTriggerSprite(pOwner->index, pXOwner, 1);
             sndStartSample(8002, 255, 2, 0);
+            gRedFlagDropped = false;
             viewSetMessage("Red Flag returned to base.");
             break;
         }

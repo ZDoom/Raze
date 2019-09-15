@@ -196,6 +196,9 @@ extern POSTURE gPosture[4][3];
 extern PLAYER gPlayer[kMaxPlayers];
 extern PLAYER *gMe, *gView;
 
+extern bool gBlueFlagDropped;
+extern bool gRedFlagDropped;
+
 extern PROFILE gProfile[kMaxPlayers];
 
 extern int dword_21EFB0[kMaxPlayers];

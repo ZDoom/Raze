@@ -56,6 +56,9 @@ PROFILE gProfile[kMaxPlayers];
 PLAYER gPlayer[kMaxPlayers];
 PLAYER *gMe, *gView;
 
+bool gBlueFlagDropped = false;
+bool gRedFlagDropped = false;
+
 POWERUPINFO gPowerUpInfo[kMaxPowerUps] = {
     { -1, 1, 1, 1 },
     { -1, 1, 1, 1 },
@@ -1170,7 +1173,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem)
                         dword_21EFB0[pPlayer->at2ea] += 10;
                         dword_21EFD0[pPlayer->at2ea] += 240;
                         evSend(0, 0, 80, COMMAND_ID_1);
-                        sprintf(buffer, "%s captured Red Flag!", gProfile[pPlayer->at57].name);
+                        sprintf(buffer, "%s captured Blue Flag!", gProfile[pPlayer->at57].name);
                         sndStartSample(8000, 255, 2, 0);
                         viewSetMessage(buffer);
 #if 0
@@ -1191,6 +1194,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem)
         evKill(pItem->index, 3, CALLBACK_ID_17);
         pPlayer->at90 |= 1;
         pPlayer->at91[0] = pItem->index;
+        gBlueFlagDropped = false;
         break;
     case 148:
         if (gGameOptions.nGameType != 3)
@@ -1198,6 +1202,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem)
         evKill(pItem->index, 3, CALLBACK_ID_17);
         pPlayer->at90 |= 2;
         pPlayer->at91[1] = pItem->index;
+        gRedFlagDropped = false;
         break;
     case 140:
     case 141:
@@ -2113,6 +2118,7 @@ spritetype *sub_40A94(PLAYER *pPlayer, int a2)
         pSprite = actDropObject(pPlayer->pSprite, 147);
         if (pSprite)
             pSprite->owner = pPlayer->at91[0];
+        gBlueFlagDropped = true;
         sprintf(buffer, "%s dropped Blue Flag", gProfile[pPlayer->at57].name);
         sndStartSample(8005, 255, 2, 0);
         viewSetMessage(buffer);
@@ -2122,6 +2128,7 @@ spritetype *sub_40A94(PLAYER *pPlayer, int a2)
         pSprite = actDropObject(pPlayer->pSprite, 148);
         if (pSprite)
             pSprite->owner = pPlayer->at91[1];
+        gRedFlagDropped = true;
         sprintf(buffer, "%s dropped Red Flag", gProfile[pPlayer->at57].name);
         sndStartSample(8004, 255, 2, 0);
         viewSetMessage(buffer);

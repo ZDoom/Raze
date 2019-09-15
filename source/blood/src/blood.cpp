@@ -532,6 +532,9 @@ void StartLevel(GAMEOPTIONS *gameOptions)
             levelAddUserMap(gPacketStartGame.userMapName);
         else
             levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
+
+        gBlueFlagDropped = false;
+        gRedFlagDropped = false;
     }
     if (gameOptions->uGameFlags&1)
     {
@@ -676,6 +679,14 @@ void StartNetworkLevel(void)
         gGameOptions.nWeaponSettings = gPacketStartGame.weaponSettings;
         gGameOptions.nItemSettings = gPacketStartGame.itemSettings;
         gGameOptions.nRespawnSettings = gPacketStartGame.respawnSettings;
+        
+        ///////
+        gGameOptions.weaponsV10x = gPacketStartGame.weaponsV10x;
+        ///////
+
+        gBlueFlagDropped = false;
+        gRedFlagDropped = false;
+
         if (gPacketStartGame.userMap)
             levelAddUserMap(gPacketStartGame.userMapName);
         else

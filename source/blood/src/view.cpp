@@ -1312,7 +1312,128 @@ void DrawPackItemInStatusBar2(PLAYER *pPlayer, int x, int y, int x2, int y2, int
     DrawStatNumber("%3d", pPlayer->packInfo[pPlayer->at321].at1, kSBarNumberInv, x2, y2, 0, 0, nStat, nScale);
 }
 
+void viewDrawPlayerSlots(void)
+{
+    for (int nRows = (gNetPlayers - 1) / 4; nRows >= 0; nRows--)
+    {
+        for (int nCol = 0; nCol < 4; nCol++)
+        {
+            DrawStatSprite(2229, 40 + nCol * 80, 4 + nRows * 9, 16);
+        }
+    }
+}
+
 char gTempStr[128];
+
+void viewDrawPlayerFrags(void)
+{
+    viewDrawPlayerSlots();
+    for (int i = 0, p = connecthead; p >= 0; i++, p = connectpoint2[p])
+    {
+        int x = 80 * (i & 3);
+        int y = 9 * (i / 4);
+        int col = gPlayer[p].at2ea & 3;
+        char* name = gProfile[p].name;
+        if (gProfile[p].skill == 2)
+            sprintf(gTempStr, "%s", name);
+        else
+            sprintf(gTempStr, "%s [%d]", name, gProfile[p].skill);
+        Bstrupr(gTempStr);
+        viewDrawText(4, gTempStr, x + 4, y + 1, -128, 11 + col, 0, 0);
+        sprintf(gTempStr, "%2d", gPlayer[p].at2c6);
+        viewDrawText(4, gTempStr, x + 76, y + 1, -128, 11 + col, 2, 0);
+    }
+}
+
+void viewDrawPlayerFlags(void)
+{
+    viewDrawPlayerSlots();
+    for (int i = 0, p = connecthead; p >= 0; i++, p = connectpoint2[p])
+    {
+        int x = 80 * (i & 3);
+        int y = 9 * (i / 4);
+        int col = gPlayer[p].at2ea & 3;
+        char* name = gProfile[p].name;
+        if (gProfile[p].skill == 2)
+            sprintf(gTempStr, "%s", name);
+        else
+            sprintf(gTempStr, "%s [%d]", name, gProfile[p].skill);
+        Bstrupr(gTempStr);
+        viewDrawText(4, gTempStr, x + 4, y + 1, -128, 11 + col, 0, 0);
+
+        sprintf(gTempStr, "F");
+        x += 76;
+        if (gPlayer[p].at90 & 2)
+        {
+            viewDrawText(4, gTempStr, x, y + 1, -128, 12, 2, 0);
+            x -= 6;
+        }
+
+        if (gPlayer[p].at90 & 1)
+            viewDrawText(4, gTempStr, x, y + 1, -128, 11, 2, 0);
+    }
+}
+
+void viewDrawCtfHudVanilla(ClockTicks arg)
+{
+    int x = 1, y = 1;
+    if (dword_21EFD0[0] == 0 || ((int)totalclock & 8))
+    {
+        viewDrawText(0, "BLUE", x, y, -128, 10, 0, 0, 256);
+        dword_21EFD0[0] = dword_21EFD0[0] - arg;
+        if (dword_21EFD0[0] < 0)
+            dword_21EFD0[0] = 0;
+        sprintf(gTempStr, "%-3d", dword_21EFB0[0]);
+        viewDrawText(0, gTempStr, x, y + 10, -128, 10, 0, 0, 256);
+    }
+    x = 319;
+    if (dword_21EFD0[1] == 0 || ((int)totalclock & 8))
+    {
+        viewDrawText(0, "RED", x, y, -128, 7, 2, 0, 512);
+        dword_21EFD0[1] = dword_21EFD0[1] - arg;
+        if (dword_21EFD0[1] < 0)
+            dword_21EFD0[1] = 0;
+        sprintf(gTempStr, "%3d", dword_21EFB0[1]);
+        viewDrawText(0, gTempStr, x, y + 10, -128, 7, 2, 0, 512);
+    }
+}
+
+void viewDrawCtfHud(void)
+{
+    bool blueFlagTaken = false;
+    bool redFlagTaken = false;
+    int blueFlagCarrierColor = 0;
+    int redFlagCarrierColor = 0;
+    for (int i = 0, p = connecthead; p >= 0; i++, p = connectpoint2[p])
+    {
+        if ((gPlayer[p].at90 & 1) != 0)
+        {
+            blueFlagTaken = true;
+            blueFlagCarrierColor = gPlayer[p].at2ea & 3;
+        }
+        if ((gPlayer[p].at90 & 2) != 0)
+        {
+            redFlagTaken = true;
+            redFlagCarrierColor = gPlayer[p].at2ea & 3;
+        }
+    }
+
+    bool meHaveBlueFlag = gMe->at90 & 1;
+    DrawStatMaskedSprite(meHaveBlueFlag ? 3558 : 3559, 320, 75, 0, 10, 0, 65536 * 0.35);
+    if (gBlueFlagDropped)
+        DrawStatMaskedSprite(2332, 305, 83, 0, 10, 0, 65536);
+    else if (blueFlagTaken)
+        DrawStatMaskedSprite(4097, 307, 77, 0, blueFlagCarrierColor ? 2 : 10, 0, 65536);
+    DrawStatNumber("%d", dword_21EFB0[0], kSBarNumberInv, 290, 90, 0, 10, 0, 65536 * 0.75);
+
+    bool meHaveRedFlag = gMe->at90 & 2;
+    DrawStatMaskedSprite(meHaveRedFlag ? 3558 : 3559, 320, 110, 0, 2, 0, 65536 * 0.35);
+    if (gRedFlagDropped)
+        DrawStatMaskedSprite(2332, 305, 117, 0, 2, 0, 65536);
+    else if (redFlagTaken)
+        DrawStatMaskedSprite(4097, 307, 111, 0, redFlagCarrierColor ? 2 : 10, 0, 65536);
+    DrawStatNumber("%d", dword_21EFB0[1], kSBarNumberInv, 290, 125, 0, 2, 0, 65536 * 0.75);
+}
 
 void UpdateStatusBar(ClockTicks arg)
 {
@@ -1536,49 +1657,19 @@ void UpdateStatusBar(ClockTicks arg)
 
     if (gGameOptions.nGameType == 3)
     {
-        int x = 1, y = 1;
-        if (dword_21EFD0[0] == 0 || ((int)totalclock & 8))
+        if (VanillaMode())
         {
-            viewDrawText(0, "BLUE", x, y, -128, 10, 0, 0, 256);
-            dword_21EFD0[0] = dword_21EFD0[0]-arg;
-            if (dword_21EFD0[0] < 0)
-                dword_21EFD0[0] = 0;
-            sprintf(gTempStr, "%-3d", dword_21EFB0[0]);
-            viewDrawText(0, gTempStr, x, y+10, -128, 10, 0, 0, 256);
+            viewDrawCtfHudVanilla(arg);
         }
-        x = 319;
-        if (dword_21EFD0[1] == 0 || ((int)totalclock & 8))
-        {
-            viewDrawText(0, "RED", x, y, -128, 7, 2, 0, 512);
-            dword_21EFD0[1] = dword_21EFD0[1]-arg;
-            if (dword_21EFD0[1] < 0)
-                dword_21EFD0[1] = 0;
-            sprintf(gTempStr, "%3d", dword_21EFB0[1]);
-            viewDrawText(0, gTempStr, x, y+10, -128, 7, 2, 0, 512);
-        }
-        return;
-    }
-    for (int nRows = (gNetPlayers-1) / 4; nRows >= 0; nRows--)
-    {
-        for (int nCol = 0; nCol < 4; nCol++)
-        {
-            DrawStatSprite(2229, 40+nCol*80, 4+nRows*9, 16);
-        }
-    }
-    for (int i = 0, p = connecthead; p >= 0; i++, p = connectpoint2[p])
-    {
-        int x = 80*(i&3);
-        int y = 9*(i/4);
-        int col = gPlayer[p].at2ea&3;
-        char *name = gProfile[p].name;
-        if (gProfile[p].skill == 2)
-            sprintf(gTempStr, "%s", name);
         else
-            sprintf(gTempStr, "%s [%d]", name, gProfile[p].skill);
-        Bstrupr(gTempStr);
-        viewDrawText(4, gTempStr, x+4, y+1, -128, 11+col, 0, 0);
-        sprintf(gTempStr, "%2d", gPlayer[p].at2c6);
-        viewDrawText(4, gTempStr, x+76, y+1, -128, 11+col, 2, 0);
+        {
+            viewDrawCtfHud();
+            viewDrawPlayerFlags();
+        }
+    }
+    else
+    {
+        viewDrawPlayerFrags();
     }
 }
 
