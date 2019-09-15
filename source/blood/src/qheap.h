@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+#ifdef USE_QHEAP
+
 struct HEAPNODE
 {
     HEAPNODE *prev;
@@ -48,3 +50,5 @@ public:
     HEAPNODE freeHeap;
     int size;
 };
+
+#endif

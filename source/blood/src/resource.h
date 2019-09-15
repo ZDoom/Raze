@@ -67,12 +67,8 @@ struct CACHENODE
     int lockCount;
 };
 
-struct DICTNODE
+struct DICTNODE : CACHENODE
 {
-    void *ptr;
-    CACHENODE *prev;
-    CACHENODE *next;
-    int lockCount;
     unsigned int offset;
     unsigned int size;
     char flags;
@@ -112,6 +108,7 @@ public:
     int Size(DICTNODE*h) { return h->size; }
     void FNAddFiles(fnlist_t *fnlist, const char *pattern);
     void PrecacheSounds(void);
+    void PurgeCache(void);
     void RemoveNode(DICTNODE* pNode);
 
     DICTNODE *dict;
@@ -119,10 +116,11 @@ public:
     DICTNODE **indexId;
     unsigned int buffSize;
     unsigned int count;
-    //FILE *handle;
     int handle;
     bool crypt;
 
+#if USE_QHEAP
     static QHeap *heap;
+#endif
     static CACHENODE purgeHead;
 };

@@ -44,8 +44,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 CACHENODE Resource::purgeHead = { NULL, &purgeHead, &purgeHead, 0 };
 
+#ifdef USE_QHEAP
 QHeap *Resource::heap;
-
+#endif
 Resource::Resource(void)
 {
     dict = NULL;
@@ -82,7 +83,9 @@ Resource::~Resource(void)
 void Resource::Init(const char *filename)
 {
     RFFHeader header;
+#ifdef USE_QHEAP
     dassert(heap != NULL);
+#endif
 
     if (filename)
     {
@@ -228,11 +231,16 @@ void Resource::Flush(CACHENODE *h)
 {
     if (h->ptr)
     {
+#ifdef USE_QHEAP
         heap->Free(h->ptr);
+#else
+        delete h->ptr;
+#endif
+        
         h->ptr = NULL;
         if (h->lockCount == 0)
         {
-            RemoveMRU((CACHENODE*)h);
+            RemoveMRU(h);
             return;
         }
         h->lockCount = 0;
@@ -358,7 +366,10 @@ void Resource::AddExternalResource(const char *name, const char *type, int id)
 {
     char name2[BMAX_PATH], type2[BMAX_PATH], filename[BMAX_PATH*2];
     //if (strlen(name) > 8 || strlen(type) > 3) return;
-    sprintf(filename, "%s.%s", name, type);
+    if (Bstrlen(type) > 0)
+        Bsprintf(filename, "%s.%s", name, type);
+    else
+        Bsprintf(filename, "%s", name);
     int fhandle = kopen4loadfrommod(filename, 0);
     if (fhandle == -1)
         return;
@@ -384,9 +395,15 @@ void Resource::AddExternalResource(const char *name, const char *type, int id)
         index = Probe(name2, type2);
         *index = node;
         if (node->type)
+        {
             Free(node->type);
+            node->type = NULL;
+        }
         if (node->name)
+        {
             Free(node->name);
+            node->name = NULL;
+        }
         int nTypeLength = strlen(type2);
         int nNameLength = strlen(name2);
         node->type = (char*)Alloc(nTypeLength+1);
@@ -396,7 +413,7 @@ void Resource::AddExternalResource(const char *name, const char *type, int id)
     }
     node->size = size;
     node->flags |= DICT_EXTERNAL;
-    Flush((CACHENODE*)node);
+    Flush(node);
     if (id != -1)
     {
         index = Probe(id, type2);
@@ -413,9 +430,15 @@ void Resource::AddExternalResource(const char *name, const char *type, int id)
             *index = node;
         }
         if (node->type)
+        {
             Free(node->type);
+            node->type = NULL;
+        }
         if (node->name)
+        {
             Free(node->name);
+            node->name = NULL;
+        }
         int nTypeLength = strlen(type2);
         int nNameLength = strlen(name2);
         node->type = (char*)Alloc(nTypeLength+1);
@@ -425,12 +448,13 @@ void Resource::AddExternalResource(const char *name, const char *type, int id)
         node->id = id;
         node->size = size;
         node->flags |= DICT_EXTERNAL;
-        Flush((CACHENODE*)node);
+        Flush(node);
     }
 }
 
 void *Resource::Alloc(int nSize)
 {
+#ifdef USE_QHEAP
     dassert(heap != NULL);
     dassert(nSize != 0);
     void *p = heap->Alloc(nSize);
@@ -454,13 +478,39 @@ void *Resource::Alloc(int nSize)
     }
     ThrowError("Out of memory!");
     return NULL;
+#else
+    dassert(nSize != 0);
+    void* p = new char[nSize];
+    if (p)
+    {
+        return p;
+    }
+    for (CACHENODE *node = purgeHead.next; node != &purgeHead; node = node->next)
+    {
+        dassert(node->lockCount == 0);
+        dassert(node->ptr != NULL);
+        delete node->ptr;
+        node->ptr = NULL;
+        RemoveMRU(node);
+        p = new char[nSize];
+        if (p)
+            return p;
+    }
+    ThrowError("Out of memory!");
+    return NULL;
+#endif
 }
 
 void Resource::Free(void *p)
 {
+#ifdef USE_QHEAP
     dassert(heap != NULL);
     dassert(p != NULL);
     heap->Free(p);
+#else
+    dassert(p != NULL);
+    delete p;
+#endif
 }
 
 DICTNODE *Resource::Lookup(const char *name, const char *type)
@@ -615,12 +665,12 @@ void *Resource::Load(DICTNODE *h)
     {
         if (!h->lockCount)
         {
-            RemoveMRU((CACHENODE*)h);
+            RemoveMRU(h);
 
             h->prev = purgeHead.prev;
-            purgeHead.prev->next = (CACHENODE*)h;
+            purgeHead.prev->next = h;
             h->next = &purgeHead;
-            purgeHead.prev = (CACHENODE*)h;
+            purgeHead.prev = h;
         }
     }
     else
@@ -629,9 +679,9 @@ void *Resource::Load(DICTNODE *h)
         Read(h);
 
         h->prev = purgeHead.prev;
-        purgeHead.prev->next = (CACHENODE*)h;
+        purgeHead.prev->next = h;
         h->next = &purgeHead;
-        purgeHead.prev = (CACHENODE*)h;
+        purgeHead.prev = h;
     }
     return h->ptr;
 }
@@ -653,7 +703,7 @@ void *Resource::Lock(DICTNODE *h)
     {
         if (h->lockCount == 0)
         {
-            RemoveMRU((CACHENODE*)h);
+            RemoveMRU(h);
         }
     }
     else
@@ -676,9 +726,9 @@ void Resource::Unlock(DICTNODE *h)
         if (h->lockCount == 0)
         {
             h->prev = purgeHead.prev;
-            purgeHead.prev->next = (CACHENODE*)h;
+            purgeHead.prev->next = h;
             h->next = &purgeHead;
-            purgeHead.prev = (CACHENODE*)h;
+            purgeHead.prev = h;
         }
     }
 }
@@ -720,6 +770,16 @@ void Resource::FNAddFiles(fnlist_t * fnlist, const char *pattern)
     }
 }
 
+void Resource::PurgeCache(void)
+{
+#ifndef USE_QHEAP
+    for (CACHENODE *node = purgeHead.next; node != &purgeHead; node = node->next)
+    {
+        DICTNODE *pDict = (DICTNODE*)node;
+    }
+#endif
+}
+
 void Resource::PrecacheSounds(void)
 {
     for (unsigned int i = 0; i < count; i++)
@@ -735,6 +795,22 @@ void Resource::PrecacheSounds(void)
 
 void Resource::RemoveNode(DICTNODE* pNode)
 {
+    Flush(pNode);
+    if (pNode->name)
+    {
+        Free(pNode->name);
+        pNode->name = NULL;
+    }
+    if (pNode->type)
+    {
+        Free(pNode->type);
+        pNode->type = NULL;
+    }
     *pNode = dict[--count];
+    if (pNode->ptr)
+    {
+        pNode->prev->next = pNode;
+        pNode->next->prev = pNode;
+    }
     Reindex();
 }

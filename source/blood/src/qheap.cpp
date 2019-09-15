@@ -20,6 +20,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+#ifdef USE_QHEAP
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -215,3 +217,5 @@ int QHeap::Free(void *p)
     }
     return node->size - 0x40;
 }
+
+#endif

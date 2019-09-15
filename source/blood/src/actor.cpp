@@ -7221,10 +7221,16 @@ int getDudeMassBySpriteSize(spritetype* pSprite) {
         if (xrepeat > 64) x += ((xrepeat - 64) * 2);
         else if (xrepeat < 64) x -= ((64 - xrepeat) * 2);
 
-        int yrepeat = pSprite->yrepeat;
-        int y = tilesiz[picnum].y;
-        if (yrepeat > 64) y += ((yrepeat - 64) * 2);
-        else if (yrepeat < 64) y -= ((64 - yrepeat) * 2);
+    if (seqId >= 0) {
+        DICTNODE* hSeq = gSysRes.Lookup(seqId, "SEQ");
+        if (hSeq)
+        {
+            pSeq = (Seq*)gSysRes.Load(hSeq);
+            picnum = seqGetTile(&pSeq->frames[0]);
+        }
+        else
+            picnum = pSprite->picnum;
+    }
 
         mass = ((x + y) * clipDist) / 25;
         //if ((mass+=(x+y)) > 200) mass+=((mass - 200)*16);
