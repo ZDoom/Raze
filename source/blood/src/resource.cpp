@@ -147,8 +147,8 @@ void Resource::Init(const char *filename)
                     int nNameLength = strnlen(tdict[i].name, 8);
                     dict[i].type = (char*)Alloc(nTypeLength+1);
                     dict[i].name = (char*)Alloc(nNameLength+1);
-                    strncpy(dict[i].type, tdict[i].type, 3);
-                    strncpy(dict[i].name, tdict[i].name, 8);
+                    strncpy(dict[i].type, tdict[i].type, min(3, nTypeLength));
+                    strncpy(dict[i].name, tdict[i].name, min(8, nNameLength));
                     dict[i].type[nTypeLength] = 0;
                     dict[i].name[nNameLength] = 0;
                     dict[i].id = B_LITTLE32(tdict[i].id);
@@ -234,7 +234,7 @@ void Resource::Flush(CACHENODE *h)
 #ifdef USE_QHEAP
         heap->Free(h->ptr);
 #else
-        delete h->ptr;
+        delete[] (char*)h->ptr;
 #endif
         
         h->ptr = NULL;
@@ -489,7 +489,7 @@ void *Resource::Alloc(int nSize)
     {
         dassert(node->lockCount == 0);
         dassert(node->ptr != NULL);
-        delete node->ptr;
+        delete[] (char*)node->ptr;
         node->ptr = NULL;
         RemoveMRU(node);
         p = new char[nSize];
@@ -509,7 +509,7 @@ void Resource::Free(void *p)
     heap->Free(p);
 #else
     dassert(p != NULL);
-    delete p;
+    delete[] (char*)p;
 #endif
 }
 
@@ -807,7 +807,8 @@ void Resource::RemoveNode(DICTNODE* pNode)
         pNode->type = NULL;
     }
     *pNode = dict[--count];
-    if (pNode->ptr)
+    Bmemset(&dict[count], 0, sizeof(DICTNODE));
+    if (pNode->ptr && !pNode->lockCount)
     {
         pNode->prev->next = pNode;
         pNode->next->prev = pNode;
