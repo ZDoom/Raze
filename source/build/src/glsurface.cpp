@@ -65,7 +65,7 @@ bool glsurface_initialize(vec2_t bufferResolution)
     buffer    = Xaligned_alloc(16, bufferRes.x * bufferRes.y);
 
     glActiveTexture(GL_TEXTURE0);
-    glGenTextures(1, &bufferTexID);
+    GetTextureHandle(&bufferTexID);
     glBindTexture(GL_TEXTURE_2D, bufferTexID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
@@ -172,7 +172,7 @@ void glsurface_setPalette(void* pPalette)
     }
     else
     {
-        glGenTextures(1, &paletteTexID);
+        GetTextureHandle(&paletteTexID);
         glBindTexture(GL_TEXTURE_2D, paletteTexID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);

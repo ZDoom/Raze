@@ -74,7 +74,7 @@ uint32_t gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8
 
     uint32_t rtexid;
 
-    glGenTextures(1, (GLuint *) &rtexid);
+    GetTextureHandle((GLuint *) &rtexid);
     glBindTexture(GL_TEXTURE_2D, rtexid);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

@@ -2109,9 +2109,6 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
 
     if (m->usesalpha) //Sprites with alpha in texture
     {
-        //      glEnable(GL_BLEND);// glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        //      glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.32);
-        //      float al = 0.32;
         // PLAG : default cutoff removed
         float al = 0.0;
         if (alphahackarray[globalpicnum] != 0)

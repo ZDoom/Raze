@@ -889,7 +889,7 @@ void polymost_glinit()
     }
     for (uint32_t i = 0; i < numTilesheets; ++i)
     {
-        glGenTextures(1, tilesheetTexIDs+i);
+        GetTextureHandle(tilesheetTexIDs+i);
         glBindTexture(GL_TEXTURE_2D, tilesheetTexIDs[i]);
         uploadtextureindexed(true, {0, 0}, maxTexDimensions, (intptr_t) NULL);
     }
@@ -1228,9 +1228,6 @@ void polymost_glinit()
     {
         uploadpalswap(palookupnum);
     }
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
     polymost_resetVertexPointers();
 
