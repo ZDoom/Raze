@@ -1681,145 +1681,32 @@ static void Polymost_SendTexToDriver(int32_t const doalloc,
         glTexImage2D(GL_TEXTURE_2D, level, intexfmt, siz.x,siz.y, 0, texfmt, type, pic);
     else
         glTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, texfmt, type, pic);
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
+
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
-                   coltype *pic, vec2_t tsiz, int32_t dameth)
+	coltype* pic, vec2_t tsiz, int32_t dameth)
 {
-    const int artimmunity = !!(dameth & DAMETH_ARTIMMUNITY);
-    const int hi = !!(dameth & DAMETH_HI);
-    const int nodownsize = !!(dameth & DAMETH_NODOWNSIZE) || artimmunity;
-    const int nomiptransfix  = !!(dameth & DAMETH_NOFIX);
-    const int texcompress_ok = !(dameth & DAMETH_NOTEXCOMPRESS) && (glusetexcompr == 2 || (glusetexcompr && !artimmunity));
+	int32_t intexfmt = GL_RGBA8;
+#ifdef TIMING
+	cycle_t clock;
 
-#if !defined EDUKE32_GLES
-    int32_t intexfmt;
-    if (texcompress_ok && glinfo.texcompr)
-        intexfmt = GL_COMPRESSED_RGBA;
-    else
-        intexfmt = GL_RGBA8;
-#else
-    const int hasalpha  = !!(dameth & (DAMETH_HASALPHA|DAMETH_ONEBITALPHA));
-    const int onebitalpha  = !!(dameth & DAMETH_ONEBITALPHA);
+	clock.Reset();
+	clock.Clock();
+#endif
+	Polymost_SendTexToDriver(doalloc, siz, texfmt, pic,
+		intexfmt,
+		0);
 
-    int32_t const intexfmt = hasalpha ? (onebitalpha ? texfmt_rgb_mask : texfmt_rgba) : texfmt_rgb;
-    int32_t const comprtexfmt = hasalpha ? (onebitalpha ? comprtexfmt_rgb_mask : comprtexfmt_rgba) : comprtexfmt_rgb;
+#ifdef TIMING
+	clock.Unclock();
+
+	static int ttt;
+	OSD_Printf("%d: texture upload %d x %d took %2.3f ms\n", ttt++, siz.x, siz.y, clock.TimeMS());
 #endif
 
-    dameth &= ~DAMETH_UPLOADTEXTURE_MASK;
-
-    if (gltexmaxsize <= 0)
-    {
-        GLint i = 0;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &i);
-        if (!i) gltexmaxsize = 6;   // 2^6 = 64 == default GL max texture size
-        else
-        {
-            gltexmaxsize = 0;
-            for (; i>1; i>>=1) gltexmaxsize++;
-#ifdef EDUKE32_GLES
-            while ((1<<(gltexmaxsize-1)) > xdim)
-                gltexmaxsize--;
-#endif
-        }
-    }
-
-    gltexmiplevel = max(0, min(gltexmaxsize-1, gltexmiplevel));
-
-    int miplevel = gltexmiplevel;
-
-    while ((siz.x >> miplevel) > (1 << gltexmaxsize) || (siz.y >> miplevel) > (1 << gltexmaxsize))
-        miplevel++;
-
-    if (hi && !nodownsize && r_downsize > miplevel)
-        miplevel = r_downsize;
-
-    // don't use mipmaps if mipmapping is disabled
-    //POGO: until the texcacheheader can be updated, generate the mipmaps texcache expects if it's enabled
-    if (!glusetexcache &&
-        (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
-         glfiltermodes[gltexfiltermode].min == GL_LINEAR))
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    }
-
-    if (!miplevel)
-        Polymost_SendTexToDriver(doalloc, siz, texfmt, pic,
-                                 intexfmt,
-#if defined EDUKE32_GLES
-                                 comprtexfmt,
-                                 texcompress_ok,
-#endif
-                                 0);
-
-    // don't generate mipmaps if we're not going to use them
-    if (!glusetexcache &&
-        (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
-         glfiltermodes[gltexfiltermode].min == GL_LINEAR))
-    {
-        return;
-    }
-
-    vec2_t siz2 = siz;
-
-    for (bssize_t j=1; (siz2.x > 1) || (siz2.y > 1); j++)
-    {
-        vec2_t const siz3 = { max(1, siz2.x >> 1), max(1, siz2.y >> 1) };  // this came from the GL_ARB_texture_non_power_of_two spec
-        //x3 = ((x2+1)>>1); y3 = ((y2+1)>>1);
-
-        for (bssize_t y=0; y<siz3.y; y++)
-        {
-            coltype *wpptr = &pic[y*siz3.x];
-            coltype const *rpptr = &pic[(y<<1)*siz2.x];
-
-            for (bssize_t x=0; x<siz3.x; x++,wpptr++,rpptr+=2)
-            {
-                int32_t r=0, g=0, b=0, a=0, k=0;
-
-                if (rpptr[0].a)                  { r += rpptr[0].r; g += rpptr[0].g; b += rpptr[0].b; a += rpptr[0].a; k++; }
-                if ((x+x+1 < siz2.x) && (rpptr[1].a)) { r += rpptr[1].r; g += rpptr[1].g; b += rpptr[1].b; a += rpptr[1].a; k++; }
-                if (y+y+1 < siz2.y)
-                {
-                    if ((rpptr[siz2.x].a)) { r += rpptr[siz2.x  ].r; g += rpptr[siz2.x  ].g; b += rpptr[siz2.x  ].b; a += rpptr[siz2.x  ].a; k++; }
-                    if ((x+x+1 < siz2.x) && (rpptr[siz2.x+1].a)) { r += rpptr[siz2.x+1].r; g += rpptr[siz2.x+1].g; b += rpptr[siz2.x+1].b; a += rpptr[siz2.x+1].a; k++; }
-                }
-                switch (k)
-                {
-                case 0:
-                case 1:
-                    wpptr->r = r; wpptr->g = g; wpptr->b = b; wpptr->a = a; break;
-                case 2:
-                    wpptr->r = ((r+1)>>1); wpptr->g = ((g+1)>>1); wpptr->b = ((b+1)>>1); wpptr->a = ((a+1)>>1); break;
-                case 3:
-                    wpptr->r = ((r*85+128)>>8); wpptr->g = ((g*85+128)>>8); wpptr->b = ((b*85+128)>>8); wpptr->a = ((a*85+128)>>8); break;
-                case 4:
-                    wpptr->r = ((r+2)>>2); wpptr->g = ((g+2)>>2); wpptr->b = ((b+2)>>2); wpptr->a = ((a+2)>>2); break;
-                default:
-                    EDUKE32_UNREACHABLE_SECTION(break);
-                }
-                //if (wpptr->a) wpptr->a = 255;
-            }
-        }
-
-        if (!nomiptransfix)
-        {
-            vec2_t const tsizzle = { (tsiz.x + (1 << j)-1) >> j, (tsiz.y + (1 << j)-1) >> j };
-
-            fixtransparency(pic, tsizzle, siz3, dameth);
-        }
-
-        if (j >= miplevel)
-            Polymost_SendTexToDriver(doalloc, siz3, texfmt, pic,
-                                     intexfmt,
-#if defined EDUKE32_GLES
-                                     comprtexfmt,
-                                     texcompress_ok,
-#endif
-                                     j - miplevel);
-
-        siz2 = siz3;
-    }
+	return;
 }
 
 void uploadtextureindexed(int32_t doalloc, vec2_t offset, vec2_t siz, intptr_t tile)
