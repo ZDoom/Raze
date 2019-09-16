@@ -81,19 +81,6 @@ static int32_t preview_mouseaim=1;  // when 1, displays a CROSSHAIR tsprite at t
 
 static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 #define MAX_DRAWPOLY_VERTS 8
-#define BUFFER_OFFSET(bytes) (GLintptr) ((GLubyte*) NULL + (bytes))
-// these cvars are never used directly in rendering -- only when glinit() is called/renderer reset
-// We do this because we don't want to accidentally overshoot our existing buffer's bounds
-uint32_t r_persistentStreamBuffer = 1;
-uint32_t persistentStreamBuffer = r_persistentStreamBuffer;
-int32_t r_drawpolyVertsBufferLength = 30000;
-int32_t drawpolyVertsBufferLength = r_drawpolyVertsBufferLength;
-static GLuint drawpolyVertsID = 0;
-static GLint drawpolyVertsOffset = 0;
-static int32_t drawpolyVertsSubBufferIndex = 0;
-static GLsync drawpolyVertsSync[3] = { 0 };
-static float defaultDrawpolyVertsArray[MAX_DRAWPOLY_VERTS*5];
-static float* drawpolyVerts = defaultDrawpolyVertsArray;
 
 struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 {
@@ -133,10 +120,8 @@ int32_t glrendmode = REND_POLYMOST;
 // fullbright tiles.  Also see 'fullbrightloadingpass'.
 
 int32_t r_fullbrights = 1;
-int32_t r_vertexarrays = 1;
 #ifdef USE_GLEXT
 //POGOTODO: we no longer support rendering without VBOs -- update any outdated pre-GL2 code that renders without VBOs
-int32_t r_vbos = 1;
 int32_t r_vbocount = 64;
 #endif
 int32_t r_animsmoothing = 1;
@@ -550,10 +535,6 @@ void polymost_glreset()
         glDeleteTextures(1,&polymosttext);
     polymosttext=0;
 
-#ifdef USE_GLEXT
-    md_freevbos();
-#endif
-
     Bmemset(texcache.list,0,sizeof(texcache.list));
     glox1 = -1;
 
@@ -572,25 +553,6 @@ static void Polymost_DetermineTextureFormatSupport(void);
 // reset vertex pointers to polymost default
 void polymost_resetVertexPointers()
 {
-    glBindBuffer(GL_ARRAY_BUFFER, drawpolyVertsID);
-
-    glVertexPointer(3, GL_FLOAT, 5*sizeof(float), 0);
-    glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
-
-#ifdef USE_GLEXT
-    if (r_detailmapping)
-    {
-        glClientActiveTexture(GL_TEXTURE3);
-        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
-    }
-    if (r_glowmapping)
-    {
-        glClientActiveTexture(GL_TEXTURE4);
-        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
-    }
-    glClientActiveTexture(GL_TEXTURE0);
-#endif
-
     polymost_resetProgram();
 }
 
@@ -899,42 +861,7 @@ void polymost_glinit()
         glEnable(GL_MULTISAMPLE);
     }
 
-    if (r_persistentStreamBuffer && ((!glinfo.bufferstorage) || (!glinfo.sync)))
-    {
-        OSD_Printf("Your OpenGL implementation doesn't support the required extensions for persistent stream buffers. Disabling...\n");
-        r_persistentStreamBuffer = 0;
-    }
 #endif
-
-    //POGOTODO: require a max texture size >= 2048
-
-    persistentStreamBuffer = r_persistentStreamBuffer;
-    drawpolyVertsBufferLength = r_drawpolyVertsBufferLength;
-
-    drawpolyVertsOffset = 0;
-    drawpolyVertsSubBufferIndex = 0;
-
-    GLuint ids[2];
-    glGenBuffers(2, ids);
-    drawpolyVertsID = ids[0];
-    glBindBuffer(GL_ARRAY_BUFFER, drawpolyVertsID);
-    if (persistentStreamBuffer)
-    {
-        // reset the sync objects, as old ones we had from any last GL context are gone now
-        Bmemset(drawpolyVertsSync, 0, sizeof(drawpolyVertsSync));
-
-        GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-        // we want to triple-buffer to avoid having to wait for the buffer to become available again,
-        // so triple the buffer size we expect to use
-        glBufferStorage(GL_ARRAY_BUFFER, 3*drawpolyVertsBufferLength*sizeof(float)*5, NULL, flags);
-        drawpolyVerts = (float*) glMapBufferRange(GL_ARRAY_BUFFER, 0, 3*drawpolyVertsBufferLength*sizeof(float)*5, flags);
-    }
-    else
-    {
-        drawpolyVerts = defaultDrawpolyVertsArray;
-        glBufferData(GL_ARRAY_BUFFER, drawpolyVertsBufferLength*sizeof(float)*5, NULL, GL_STREAM_DRAW);
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     currentTextureID = 0;
 
@@ -973,24 +900,6 @@ void polymost_glinit()
     tilepacker_getTile(0, &blankTile);
     glBindTexture(GL_TEXTURE_2D, tilesheetTexIDs[blankTile.tilesheetID]);
     uploadtextureindexed(false, {(int32_t) blankTile.rect.u, (int32_t) blankTile.rect.v}, {2, 2}, (intptr_t) blankTex);
-
-    quadVertsID = ids[1];
-    glBindBuffer(GL_ARRAY_BUFFER, quadVertsID);
-    const float quadVerts[] =
-        {
-            -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, //top-left
-            -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, //bottom-left
-             0.5f, 1.0f, 0.0f, 1.0f, 1.0f, //top-right
-             0.5f, 0.0f, 0.0f, 1.0f, 0.0f  //bottom-right
-        };
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
-
-    //specify format/arrangement for vertex positions:
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(float) * 5, 0);
-    //specify format/arrangement for vertex texture coords:
-    glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(float) * 5, (const void*) (sizeof(float) * 3));
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     const char* const POLYMOST2_BASIC_VERTEX_SHADER_CODE =
         "#version 110\n\
@@ -2552,53 +2461,6 @@ static void polymost_updatePalette()
     }
 }
 
-static void polymost_lockSubBuffer(uint32_t subBufferIndex)
-{
-    if (drawpolyVertsSync[subBufferIndex])
-    {
-        glDeleteSync(drawpolyVertsSync[subBufferIndex]);
-    }
-
-    drawpolyVertsSync[subBufferIndex] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-}
-
-static void polymost_waitForSubBuffer(uint32_t subBufferIndex)
-{
-    if (drawpolyVertsSync[subBufferIndex])
-    {
-        while (true)
-        {
-            // we only need to flush if there's a possibility that drawpolyVertsBufferLength is
-            // so small that we can eat through 3 times the buffer size in a single frame
-            GLenum waitResult = glClientWaitSync(drawpolyVertsSync[subBufferIndex], GL_SYNC_FLUSH_COMMANDS_BIT, 500000);
-            if (waitResult == GL_ALREADY_SIGNALED ||
-                waitResult == GL_CONDITION_SATISFIED)
-            {
-                return;
-            }
-            if (waitResult == GL_WAIT_FAILED)
-            {
-                OSD_Printf("polymost_waitForSubBuffer: Wait failed! Error 0x%X. Disabling r_persistentStreamBuffer.\n", glGetError());
-                r_persistentStreamBuffer = 0;
-                videoResetMode();
-                if (videoSetGameMode(fullscreen,xres,yres,bpp,upscalefactor))
-                {
-                    OSD_Printf("polymost_waitForSubBuffer: Video reset failed.  Please ensure r_persistentStreamBuffer = 0 and try restarting the game.\n");
-                    Bexit(1);
-                }
-                return;
-            }
-
-            static char loggedLongWait = false;
-            if (waitResult == GL_TIMEOUT_EXPIRED &&
-                !loggedLongWait)
-            {
-                OSD_Printf("polymost_waitForSubBuffer(): Had to wait for the drawpoly buffer to become available.  For performance, try increasing buffer size with r_drawpolyVertsBufferLength.\n");
-                loggedLongWait = true;
-            }
-        }
-    }
-}
 
 static void polymost_updaterotmat(void)
 {
@@ -7228,15 +7090,16 @@ static void drawtrap(float x0, float x1, float y0, float x2, float x3, float y1)
     else if (x2 == x3) { px[1] = x1; py[1] = y0; px[2] = x3; }
     else               { px[1] = x1; py[1] = y0; px[2] = x3; px[3] = x2; py[3] = y1; n = 4; }
 
-    glBegin(GL_TRIANGLE_FAN);
-    for (bssize_t i=0; i<n; i++)
+	auto data = GLInterface.AllocVertices(n);
+	auto vt = data.second;
+    for (bssize_t i=0; i<n; i++, vt++)
     {
         px[i] = min(max(px[i],trapextx[0]),trapextx[1]);
-        glTexCoord2f(px[i]*xtex.u + py[i]*ytex.u + otex.u,
+        vt->SetTexCoord(px[i]*xtex.u + py[i]*ytex.u + otex.u,
                       px[i]*xtex.v + py[i]*ytex.v + otex.v);
-        glVertex2f(px[i],py[i]);
+        vt->SetVertex(px[i],py[i]);
     }
-    glEnd();
+	GLInterface.Draw(DT_TRIANGLE_FAN, data.first, n);
 }
 
 static void tessectrap(const float *px, const float *py, const int32_t *point2, int32_t numpoints)
@@ -7280,15 +7143,17 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
     }
     if (z != 3) //Simple polygon... early out
     {
-        glBegin(GL_TRIANGLE_FAN);
-        for (i=0; i<npoints; i++)
+		auto data = GLInterface.AllocVertices(npoints);
+		auto vt = data.second;
+
+        for (i=0; i<npoints; i++, vt++)
         {
             j = slist[i];
-            glTexCoord2f(px[j]*xtex.u + py[j]*ytex.u + otex.u,
+            vt->SetTexCoord(px[j]*xtex.u + py[j]*ytex.u + otex.u,
                           px[j]*xtex.v + py[j]*ytex.v + otex.v);
-            glVertex2f(px[j],py[j]);
+            vt->SetVertex(px[j],py[j]);
         }
-        glEnd();
+		GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
         return;
     }
 
@@ -7436,88 +7301,6 @@ void polymost_fillpolygon(int32_t npoints)
     }
 }
 
-int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen, int32_t tilezoom,
-                                int32_t usehitile, uint8_t *loadedhitile)
-{
-    float xdime, ydime, xdimepad, ydimepad, scx, scy, ratio = 1.f;
-    int32_t i;
-    pthtyp *pth;
-
-    if (videoGetRenderMode() < REND_POLYMOST || !in3dmode())
-        return -1;
-
-    if (!glinfo.texnpot)
-    {
-        i = (1<<(picsiz[wallnum]&15)); if (i < tilesiz[wallnum].x) i += i; xdimepad = (float)i;
-        i = (1<<(picsiz[wallnum]>>4)); if (i < tilesiz[wallnum].y) i += i; ydimepad = (float)i;
-    }
-    else
-    {
-        xdimepad = (float)tilesiz[wallnum].x;
-        ydimepad = (float)tilesiz[wallnum].y;
-    }
-    xdime = (float)tilesiz[wallnum].x; xdimepad = xdime/xdimepad;
-    ydime = (float)tilesiz[wallnum].y; ydimepad = ydime/ydimepad;
-
-    if ((xdime <= dimen) && (ydime <= dimen))
-    {
-        scx = xdime;
-        scy = ydime;
-    }
-    else
-    {
-        scx = (float)dimen;
-        scy = (float)dimen;
-        if (xdime < ydime)
-            scx *= xdime/ydime;
-        else
-            scy *= ydime/xdime;
-    }
-
-    int32_t const ousehightile = usehightile;
-    usehightile = usehitile && usehightile;
-    pth = texcache_fetch(wallnum, 0, 0, DAMETH_CLAMPED | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
-    if (usehightile)
-        loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
-    usehightile = ousehightile;
-
-    if (pth)
-    {
-        polymost_bindPth(pth);
-
-        if (!(pth->flags & PTH_INDEXED))
-            polymost_usePaletteIndexing(false);
-    }
-
-    polymost_updatePalette();
-
-    glDisable(GL_ALPHA_TEST);
-
-    if (tilezoom)
-    {
-        if (scx > scy) ratio = dimen/scx;
-        else ratio = dimen/scy;
-    }
-
-    glColor3f(1,1,1);
-    glEnable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
-    glBegin(GL_TRIANGLE_FAN);
-    glTexCoord2f(0,              0); glVertex2f((float)tilex            ,(float)tiley);
-    glTexCoord2f(xdimepad,       0); glVertex2f((float)tilex+(scx*ratio),(float)tiley);
-    glTexCoord2f(xdimepad,ydimepad); glVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
-    glTexCoord2f(0,       ydimepad); glVertex2f((float)tilex            ,(float)tiley+(scy*ratio));
-    glEnd();
-
-    if (pth && !(pth->flags & PTH_INDEXED))
-    {
-        // restore palette usage if we were just rendering a non-indexed color texture
-        polymost_usePaletteIndexing(true);
-    }
-
-    return 0;
-}
-
 static int32_t gen_font_glyph_tex(void)
 {
     // construct a 256x128 texture for the font glyph matrix
@@ -7613,14 +7396,15 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
         glColor4ub(b.r,b.g,b.b,255);
 
-        glBegin(GL_QUADS);
+		auto data = GLInterface.AllocVertices(4);
+		auto vt = data.second;
 
-        glVertex2i(xpos,ypos);
-        glVertex2i(xpos,ypos+(fontsize?6:8));
-        glVertex2i(xpos+(c<<(3-fontsize)), ypos+(fontsize ? 6 : 8));
-        glVertex2i(xpos+(c<<(3-fontsize)), ypos);
+		vt->SetTexCoord(); vt->SetVertex(xpos, ypos); vt++;
+		vt->SetTexCoord(); vt->SetVertex(xpos, ypos + (fontsize ? 6 : 8)); vt++;
+		vt->SetTexCoord(); vt->SetVertex(xpos + (c << (3 - fontsize)), ypos + (fontsize ? 6 : 8)); vt++;
+		vt->SetTexCoord(); vt->SetVertex(xpos+(c<<(3-fontsize)), ypos);
 
-        glEnd();
+		GLInterface.Draw(DT_TRIANGLE_FAN, data.first, 4);
     }
 
     glEnable(GL_TEXTURE_2D);
@@ -7630,7 +7414,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     vec2f_t const tc = { fontsize ? (4.f / 256.f) : (8.f / 256.f),
                          fontsize ? (6.f / 128.f) : (8.f / 128.f) };
 
-    glBegin(GL_QUADS);
 
     for (bssize_t c=0; name[c]; ++c)
     {
@@ -7665,22 +7448,30 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         vec2f_t const t = { (float)(name[c] % 32) * (1.0f / 32.f),
                             (float)((name[c] / 32) + (fontsize * 8)) * (1.0f / 16.f) };
 
-        glTexCoord2f(t.x, t.y);
-        glVertex2i(xpos, ypos);
+		auto data = GLInterface.AllocVertices(4);
+		auto vt = data.second;
 
-        glTexCoord2f(t.x + tc.x, t.y);
-        glVertex2i(xpos + (8 >> fontsize), ypos);
+        vt->SetTexCoord(t.x, t.y);
+        vt->SetVertex(xpos, ypos);
+		vt++;
 
-        glTexCoord2f(t.x + tc.x, t.y + tc.y);
-        glVertex2i(xpos + (8 >> fontsize), ypos + (fontsize ? 6 : 8));
+		vt->SetTexCoord(t.x + tc.x, t.y);
+		vt->SetVertex(xpos + (8 >> fontsize), ypos);
+		vt++;
 
-        glTexCoord2f(t.x, t.y + tc.y);
-        glVertex2i(xpos, ypos + (fontsize ? 6 : 8));
+		vt->SetTexCoord(t.x + tc.x, t.y + tc.y);
+		vt->SetVertex(xpos + (8 >> fontsize), ypos + (fontsize ? 6 : 8));
+		vt++;
+
+		vt->SetTexCoord(t.x, t.y + tc.y);
+		vt->SetVertex(xpos, ypos + (fontsize ? 6 : 8));
+		vt++;
+
+		GLInterface.Draw(DT_TRIANGLE_FAN, data.first, 4);
 
         xpos += (8>>fontsize);
     }
 
-    glEnd();
 
     glDepthMask(GL_TRUE);	// re-enable writing to the z-buffer
 
@@ -7836,53 +7627,8 @@ void polymost_initosdfuncs(void)
         },
 
         { "r_usetileshades", "enable/disable Polymost tile shade textures", (void *) &r_usetileshades, CVAR_INT | CVAR_INVALIDATEART, 0, 2 },
-#ifdef USE_GLEXT
-        { "r_vbocount","sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
-        { "r_persistentStreamBuffer","enable/disable persistent stream buffering (requires renderer restart)",(void *) &r_persistentStreamBuffer, CVAR_BOOL, 0, 1 },
-        { "r_drawpolyVertsBufferLength","sets the size of the vertex buffer for polymost's streaming VBO rendering (requires renderer restart)",(void *) &r_drawpolyVertsBufferLength, CVAR_INT, MAX_DRAWPOLY_VERTS, 1000000 },
-#endif
-        { "r_vertexarrays","enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },
         { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 1 },
 
-#ifdef POLYMER
-        // polymer cvars
-        { "r_pr_lighting", "enable/disable dynamic lights - restarts renderer", (void *) &pr_lighting, CVAR_INT | CVAR_RESTARTVID, 0, 2 },
-        { "r_pr_normalmapping", "enable/disable virtual displacement mapping", (void *) &pr_normalmapping, CVAR_BOOL, 0, 1 },
-        { "r_pr_specularmapping", "enable/disable specular mapping", (void *) &pr_specularmapping, CVAR_BOOL, 0, 1 },
-        { "r_pr_shadows", "enable/disable dynamic shadows", (void *) &pr_shadows, CVAR_BOOL, 0, 1 },
-        { "r_pr_shadowcount", "maximal amount of shadow emitting lights on screen - you need to restart the renderer for it to take effect", (void *) &pr_shadowcount, CVAR_INT, 0, 64 },
-        { "r_pr_shadowdetail", "sets the shadow map resolution - you need to restart the renderer for it to take effect", (void *) &pr_shadowdetail, CVAR_INT, 0, 5 },
-        { "r_pr_shadowfiltering", "enable/disable shadow edges filtering - you need to restart the renderer for it to take effect", (void *) &pr_shadowfiltering, CVAR_BOOL, 0, 1 },
-        { "r_pr_maxlightpasses", "the maximal amount of lights a single object can by affected by", (void *) &r_pr_maxlightpasses, CVAR_INT|CVAR_FUNCPTR, 0, PR_MAXLIGHTS },
-        { "r_pr_maxlightpriority", "lowering that value removes less meaningful lights from the scene", (void *) &pr_maxlightpriority, CVAR_INT, 0, PR_MAXLIGHTPRIORITY },
-        { "r_pr_customaspect", "if non-zero, forces the 3D view aspect ratio", (void *) &pr_customaspect, CVAR_DOUBLE, 0, 3 },
-        { "r_pr_billboardingmode", "face sprite display method. 0: classic mode; 1: polymost mode", (void *) &pr_billboardingmode, CVAR_INT, 0, 1 },
-        { "r_pr_verbosity", "verbosity level of the polymer renderer", (void *) &pr_verbosity, CVAR_INT, 0, 3 },
-        { "r_pr_wireframe", "toggles wireframe mode", (void *) &pr_wireframe, CVAR_INT | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_vbos", "contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void *) &pr_vbos, CVAR_INT | CVAR_RESTARTVID, 0, 2 },
-        { "r_pr_buckets", "controls batching of primitives. 0: no batching. 1: buckets of materials.", (void *)&pr_buckets, CVAR_BOOL | CVAR_NOSAVE | CVAR_RESTARTVID, 0, 1 },
-        { "r_pr_gpusmoothing", "toggles model animation interpolation", (void *)&pr_gpusmoothing, CVAR_INT, 0, 1 },
-        { "r_pr_overrideparallax", "overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens",
-          (void *) &pr_overrideparallax, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_parallaxscale", "overriden parallax mapping offset scale", (void *) &pr_parallaxscale, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
-        { "r_pr_parallaxbias", "overriden parallax mapping offset bias", (void *) &pr_parallaxbias, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
-        { "r_pr_overridespecular", "overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens",
-          (void *) &pr_overridespecular, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_specularpower", "overriden specular material power", (void *) &pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
-        { "r_pr_specularfactor", "overriden specular material factor", (void *) &pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
-        { "r_pr_highpalookups", "enable/disable highpalookups", (void *) &pr_highpalookups, CVAR_BOOL, 0, 1 },
-        { "r_pr_artmapping", "enable/disable art mapping", (void *) &pr_artmapping, CVAR_BOOL | CVAR_INVALIDATEART, 0, 1 },
-        { "r_pr_overridehud", "overrides hud model parameters with values from the pr_hud* cvars; use it to fine-tune DEF tokens", (void *) &pr_overridehud, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_hudxadd", "overriden HUD xadd; see r_pr_overridehud", (void *) &pr_hudxadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
-        { "r_pr_hudyadd", "overriden HUD yadd; see r_pr_overridehud", (void *) &pr_hudyadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
-        { "r_pr_hudzadd", "overriden HUD zadd; see r_pr_overridehud", (void *) &pr_hudzadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
-        { "r_pr_hudangadd", "overriden HUD angadd; see r_pr_overridehud", (void *) &pr_hudangadd, CVAR_INT | CVAR_NOSAVE, -1024, 1024 },
-        { "r_pr_hudfov", "overriden HUD fov; see r_pr_overridehud", (void *) &pr_hudfov, CVAR_INT | CVAR_NOSAVE, 0, 1023 },
-        { "r_pr_overridemodelscale", "overrides model scale if non-zero; use it to fine-tune DEF tokens", (void *) &pr_overridemodelscale, CVAR_FLOAT | CVAR_NOSAVE, 0, 500 },
-        { "r_pr_ati_fboworkaround", "enable this to workaround an ATI driver bug that causes sprite shadows to be square - you need to restart the renderer for it to take effect", (void *) &pr_ati_fboworkaround, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_ati_nodepthoffset", "enable this to workaround an ATI driver bug that causes sprite drawing to freeze the game on Radeon X1x00 hardware - you need to restart the renderer for it to take effect", (void *) &pr_ati_nodepthoffset, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_nullrender", "disable all draws when enabled, 2: disables updates too", (void *)&pr_nullrender, CVAR_INT | CVAR_NOSAVE, 0, 3 },
-#endif
 
 #ifdef __ANDROID__
         { "r_models","enable/disable model rendering",(void *) &usemodels, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
@@ -7930,17 +7676,6 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
 #include "compat.h"
 
-int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen,
-                                int32_t usehitile, uint8_t *loadedhitile)
-{
-    UNREFERENCED_PARAMETER(tilex);
-    UNREFERENCED_PARAMETER(tiley);
-    UNREFERENCED_PARAMETER(wallnum);
-    UNREFERENCED_PARAMETER(dimen);
-    UNREFERENCED_PARAMETER(usehitile);
-    UNREFERENCED_PARAMETER(loadedhitile);
-    return -1;
-}
 
 #endif
 

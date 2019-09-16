@@ -19,6 +19,15 @@ struct BaseVertex
 		u = _u;
 		v = _v;
 	}
+
+	void Set(float _x, float _y, float _z = 0, float _u = 0, float _v = 0)
+	{
+		x = _x;
+		y = _y;
+		z = _z;
+		u = _u;
+		v = _v;
+	}
 };
 
 enum EDrawType

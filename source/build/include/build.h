@@ -1316,8 +1316,6 @@ void tileInvalidate(int16_t tilenume, int32_t pal, int32_t how);
 
 void polymostSet2dView(void);   // sets up GL for 2D drawing
 
-int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen, int32_t tilezoom,
-                                int32_t usehitile, uint8_t *loadedhitile);
 void polymost_glreset(void);
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 
@@ -1352,9 +1350,7 @@ extern int32_t r_detailmapping;
 extern int32_t r_glowmapping;
 # endif
 
-extern int32_t r_vertexarrays;
 # ifdef USE_GLEXT
-extern int32_t r_vbos;
 extern int32_t r_vbocount;
 # endif
 extern int32_t r_animsmoothing;

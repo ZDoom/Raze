@@ -15,6 +15,7 @@
 #include "palette.h"
 #include "a.h"
 #include "xxhash.h"
+#include "../../glbackend/glbackend.h"
 
 #include "vfs.h"
 
@@ -66,11 +67,13 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
     glColor4ub(r, g, b, f);
 
     polymost_useColorOnly(true);
-    glBegin(GL_TRIANGLES);
-    glVertex2f(-2.5f, 1.f);
-    glVertex2f(2.5f, 1.f);
-    glVertex2f(.0f, -2.5f);
-    glEnd();
+
+	auto data = GLInterface.AllocVertices(3);
+	auto vt = data.second;
+    vt[0].Set(-2.5f, 1.f);
+	vt[1].Set(2.5f, 1.f);
+	vt[2].Set(.0f, -2.5f);
+	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
     polymost_useColorOnly(false);
 
     glPopMatrix();

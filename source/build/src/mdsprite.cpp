@@ -16,6 +16,7 @@
 #include "kplib.h"
 #include "common.h"
 #include "palette.h"
+#include "../../glbackend/glbackend.h"
 
 #include "vfs.h"
 
@@ -93,32 +94,6 @@ int32_t globalnoeffect=0;
 
 extern int32_t timerticspersec;
 
-#ifdef USE_GLEXT
-void md_freevbos()
-{
-    int32_t i;
-
-    for (i=0; i<nextmodelid; i++)
-        if (models[i]->mdnum == 3)
-        {
-            md3model_t *m = (md3model_t *)models[i];
-            if (m->vbos)
-            {
-                //            OSD_Printf("freeing model %d vbo\n",i);
-                glDeleteBuffers(m->head.numsurfs, m->vbos);
-                DO_FREE_AND_NULL(m->vbos);
-            }
-        }
-
-    if (allocvbos)
-    {
-        glDeleteBuffers(allocvbos, indexvbos);
-        glDeleteBuffers(allocvbos, vertvbos);
-        allocvbos = 0;
-    }
-}
-#endif
-
 void freeallmodels()
 {
     int32_t i;
@@ -144,9 +119,6 @@ void freeallmodels()
         allocmodeltris = maxmodeltris = 0;
     }
 
-#ifdef USE_GLEXT
-    md_freevbos();
-#endif
 #ifdef POLYMER
     DO_FREE_AND_NULL(tribuf);
 #endif
@@ -1173,26 +1145,6 @@ prep_return:
         m->nframe = 0;
 }
 
-#ifdef USE_GLEXT
-// VBO generation and allocation
-static void mdloadvbos(md3model_t *m)
-{
-    int32_t     i;
-
-    m->vbos = (GLuint *)Xmalloc(m->head.numsurfs * sizeof(GLuint));
-    glGenBuffers(m->head.numsurfs, m->vbos);
-
-    i = 0;
-    while (i < m->head.numsurfs)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, m->vbos[i]);
-        glBufferData(GL_ARRAY_BUFFER, m->head.surfs[i].numverts * sizeof(md3uv_t), m->head.surfs[i].uv, GL_STATIC_DRAW);
-        i++;
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-#endif
-
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
 static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
 {
@@ -1431,8 +1383,6 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
     m3->vindexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * s->numtris * 3);
     m3->maxdepths = (float *)Xmalloc(sizeof(float) * s->numtris);
 
-    m3->vbos = NULL;
-
     // die MD2 ! DIE !
     Bfree(m->texid); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m);
 
@@ -1622,53 +1572,8 @@ static md3model_t *md3load(buildvfs_kfd fil)
     m->vindexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * maxtrispersurf * 3);
     m->maxdepths = (float *)Xmalloc(sizeof(float) * maxtrispersurf);
 
-    m->vbos = NULL;
-
     return m;
 }
-
-#ifdef POLYMER
-static inline void  invertmatrix(const float *m, float *out)
-{
-    float det;
-
-    det  = (m[0] * (m[4]*m[8] - m[5] * m[7]))
-         - (m[1] * (m[3]*m[8] - m[5] * m[6]))
-         + (m[2] * (m[3]*m[7] - m[4] * m[6]));
-
-    if (det == 0.0f)
-    {
-        Bmemset(out, 0, sizeof(float) * 9);
-        out[8] = out[4] = out[0] = 1.f;
-        return;
-    }
-
-    det = 1.0f / det;
-
-    out[0] = det * (m[4] * m[8] - m[5] * m[7]);
-    out[1] = det * (m[2] * m[7] - m[1] * m[8]);
-    out[2] = det * (m[1] * m[5] - m[2] * m[4]);
-    out[3] = det * (m[5] * m[6] - m[3] * m[8]);
-    out[4] = det * (m[0] * m[8] - m[2] * m[6]);
-    out[5] = det * (m[2] * m[3] - m[0] * m[5]);
-    out[6] = det * (m[3] * m[7] - m[1] * m[6]);
-    out[7] = det * (m[1] * m[6] - m[0] * m[7]);
-    out[8] = det * (m[0] * m[4] - m[1] * m[3]);
-}
-
-static inline void  normalize(float *vec)
-{
-    float norm;
-
-    if ((norm = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]) == 0.f)
-        return;
-
-    norm = polymost_invsqrt_approximation(norm);
-    vec[0] *= norm;
-    vec[1] *= norm;
-    vec[2] *= norm;
-}
-#endif
 
 static void      md3postload_common(md3model_t *m)
 {
@@ -2037,58 +1942,24 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
 {
     int32_t i;
 
-    if (r_vertexarrays)
-    {
-        int32_t k = 0;
 
-        if (M == NULL)
-        {
-            for (i=s->numtris-1; i>=0; i--, k+=3)
-            {
-                indexhandle[k]   = s->tris[i].i[0];
-                indexhandle[k+1] = s->tris[i].i[1];
-                indexhandle[k+2] = s->tris[i].i[2];
-            }
-            return;
-        }
-
-
-        for (i=s->numtris-1; i>=0; i--, k+=3)
-        {
-            uint16_t tri = M->indexes[i];
-
-            indexhandle[k]   = s->tris[tri].i[0];
-            indexhandle[k+1] = s->tris[tri].i[1];
-            indexhandle[k+2] = s->tris[tri].i[2];
-        }
-        return;
-    }
-
-    glBegin(GL_TRIANGLES);
+	auto data = GLInterface.AllocVertices(s->numtris * 3);
+	auto vt = data.second;
     for (i=s->numtris-1; i>=0; i--)
     {
         uint16_t tri = M ? M->indexes[i] : i;
         int32_t j;
 
-        for (j=0; j<3; j++)
+        for (j=0; j<3; j++, vt++)
         {
             int32_t k = s->tris[tri].i[j];
 
-#ifdef USE_GLEXT
-            if (texunits > GL_TEXTURE0)
-            {
-                int32_t l = GL_TEXTURE0;
-                while (l <= texunits)
-                    glMultiTexCoord2f(l++, s->uv[k].u, s->uv[k].v);
-            }
-            else
-#endif
-                glTexCoord2f(s->uv[k].u, s->uv[k].v);
+            vt->SetTexCoord(s->uv[k].u, s->uv[k].v);
 
-            glVertex3fv((float *) &vertlist[k]);
+            vt->SetVertex(vertlist[k].x, vertlist[k].y);
         }
     }
-    glEnd();
+	GLInterface.Draw(DT_TRIANGLES, data.first, s->numtris *3);
 
 #ifndef USE_GLEXT
     UNREFERENCED_PARAMETER(texunits);
@@ -2108,11 +1979,6 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? owner : MAXSPRITES+MAXUNIQHUDID-1];
     const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
     const int32_t sizyrep = tilesiz[tspr->picnum].y*tspr->yrepeat;
-
-#ifdef USE_GLEXT
-    if (r_vbos && (m->vbos == NULL))
-        mdloadvbos(m);
-#endif
 
     //    if ((tspr->cstat&48) == 32) return 0;
 
@@ -2294,10 +2160,6 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
         //PLAG : sorting stuff
-#ifdef USE_GLEXT
-        void               *vbotemp;
-        vec3f_t            *vertexhandle = NULL;
-#endif
         uint16_t           *indexhandle;
         vec3f_t fp;
 
@@ -2305,18 +2167,6 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
 
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
-
-#ifdef USE_GLEXT
-        if (r_vertexarrays && r_vbos)
-        {
-            if (++curvbo >= r_vbocount)
-                curvbo = 0;
-
-            glBindBuffer(GL_ARRAY_BUFFER, vertvbos[curvbo]);
-            vbotemp = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-            vertexhandle = (vec3f_t *)vbotemp;
-        }
-#endif
 
         if (sext->pitch || sext->roll)
         {
@@ -2343,11 +2193,6 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
                 fp.x = (fp1.x - a0.y)*m0.y + (fp2.x - a0.y)*m1.y;
                 fp.y = (fp1.y - a0.z)*m0.z + (fp2.y - a0.z)*m1.z;
 
-#ifdef USE_GLEXT
-                if (r_vertexarrays && r_vbos)
-                    vertexhandle[i] = fp;
-#endif
-
                 vertlist[i] = fp;
             }
         }
@@ -2359,22 +2204,9 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
                 fp.y = v0[i].z*m0.z + v1[i].z*m1.z;
                 fp.x = v0[i].y*m0.y + v1[i].y*m1.y;
 
-#ifdef USE_GLEXT
-                if (r_vertexarrays && r_vbos)
-                    vertexhandle[i] = fp;
-#endif
-
                 vertlist[i] = fp;
             }
         }
-
-#ifdef USE_GLEXT
-        if (r_vertexarrays && r_vbos)
-        {
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        }
-#endif
 
         glMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; glLoadMatrixf(mat);
@@ -2430,13 +2262,6 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
                 glMatrixMode(GL_MODELVIEW);
             }
 
-            if (r_vertexarrays && r_vbos)
-            {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexvbos[curvbo]);
-                vbotemp = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
-                indexhandle = (uint16_t *) vbotemp;
-            }
-            else
 #endif
                 indexhandle = m->vindexes;
 
@@ -2484,85 +2309,12 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         }
         else
         {
-#ifdef USE_GLEXT
-            if (r_vertexarrays && r_vbos)
-            {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexvbos[curvbo]);
-                vbotemp = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
-                indexhandle = (uint16_t *) vbotemp;
-            }
-            else
-#endif
-                indexhandle = m->vindexes;
+            indexhandle = m->vindexes;
 
             md3draw_handle_triangles(s, indexhandle, texunits, NULL);
         }
 
-        if (r_vertexarrays)
-        {
 #ifdef USE_GLEXT
-            int32_t l;
-
-            if (r_vbos)
-            {
-                glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                glBindBuffer(GL_ARRAY_BUFFER, m->vbos[surfi]);
-
-                l = GL_TEXTURE0;
-                do
-                {
-                    glClientActiveTexture(l++);
-                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glTexCoordPointer(2, GL_FLOAT, 0, 0);
-                } while (l <= texunits);
-
-                glBindBuffer(GL_ARRAY_BUFFER, vertvbos[curvbo]);
-                glVertexPointer(3, GL_FLOAT, 0, 0);
-
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexvbos[curvbo]);
-                glDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, 0);
-
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-            }
-            else // r_vbos
-            {
-                l = GL_TEXTURE0;
-                do
-                {
-                    glClientActiveTexture(l++);
-                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
-                } while (l <= texunits);
-
-                glVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
-
-                glDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
-            } // r_vbos
-
-            while (texunits > GL_TEXTURE0)
-            {
-                glMatrixMode(GL_TEXTURE);
-                glLoadIdentity();
-                glMatrixMode(GL_MODELVIEW);
-                glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
-                glDisable(GL_TEXTURE_2D);
-                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                glClientActiveTexture(texunits - 1);
-                glActiveTexture(--texunits);
-            }
-#else
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
-
-            glVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
-
-            glDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
-#endif
-        }
-#ifdef USE_GLEXT
-        else // r_vertexarrays
         {
             while (texunits > GL_TEXTURE0)
             {
@@ -2571,7 +2323,6 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
                 glMatrixMode(GL_MODELVIEW);
                 glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
                 glDisable(GL_TEXTURE_2D);
-                glActiveTexture(--texunits);
             }
         } // r_vertexarrays
 
@@ -2638,14 +2389,6 @@ static void md3free(md3model_t *m)
     Bfree(m->vindexes);
     Bfree(m->maxdepths);
 
-#ifdef USE_GLEXT
-    if (m->vbos)
-    {
-        glDeleteBuffers(m->head.numsurfs, m->vbos);
-        DO_FREE_AND_NULL(m->vbos);
-    }
-#endif
-
     Bfree(m);
 }
 
@@ -2694,57 +2437,14 @@ mdmodel_t *mdload(const char *filnam)
 
         md3postload_common(vm3);
 
-#ifdef POLYMER
-        if (glrendmode != REND_POLYMER)
-            if (md3postload_polymer_check(vm3))
-            {
-                mdfree(vm);
-                vm = NULL;
-            }
-#endif
     }
 
     return vm;
 }
 
-#ifdef USE_GLEXT
-void md_allocvbos(void)
-{
-    int32_t i;
-
-    indexvbos = (GLuint *) Xrealloc(indexvbos, sizeof(GLuint) * r_vbocount);
-    vertvbos = (GLuint *) Xrealloc(vertvbos, sizeof(GLuint) * r_vbocount);
-
-    if (r_vbocount != allocvbos)
-    {
-        glGenBuffers(r_vbocount - allocvbos, &(indexvbos[allocvbos]));
-        glGenBuffers(r_vbocount - allocvbos, &(vertvbos[allocvbos]));
-
-        i = allocvbos;
-        while (i < r_vbocount)
-        {
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexvbos[i]);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxmodeltris * 3 * sizeof(uint16_t), NULL, GL_STREAM_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, vertvbos[i]);
-            glBufferData(GL_ARRAY_BUFFER, maxmodelverts * sizeof(vec3f_t), NULL, GL_STREAM_DRAW);
-            i++;
-        }
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        allocvbos = r_vbocount;
-    }
-}
-#endif
 
 int32_t polymost_mddraw(const uspritetype *tspr)
 {
-#ifdef USE_GLEXT
-    if (r_vbos && (r_vbocount > allocvbos))
-        md_allocvbos();
-#endif
-
     if (maxmodelverts > allocmodelverts)
     {
         vertlist = (vec3f_t *) Xrealloc(vertlist, sizeof(vec3f_t)*maxmodelverts);

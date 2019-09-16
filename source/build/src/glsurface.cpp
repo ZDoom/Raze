@@ -10,14 +10,13 @@
 
 #include "baselayer.h"
 #include "build.h"
+#include "../../glbackend/glbackend.h"
 
 static void* buffer;
 static GLuint bufferTexID;
 static vec2_t bufferRes;
 
 static GLuint paletteTexID;
-
-static GLuint quadVertsID = 0;
 
 static GLuint shaderProgramID = 0;
 static GLint texSamplerLoc = -1;
@@ -64,25 +63,6 @@ bool glsurface_initialize(vec2_t bufferResolution)
 
     bufferRes = bufferResolution;
     buffer    = Xaligned_alloc(16, bufferRes.x * bufferRes.y);
-
-    glGenBuffers(1, &quadVertsID);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVertsID);
-    const float quadVerts[] =
-        {
-            -1.0f,  1.0f, 0.0f, 0.0f, 0.0f, //top-left
-            -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, //bottom-left
-             1.0f,  1.0f, 0.0f, 1.0f, 0.0f, //top-right
-             1.0f, -1.0f, 0.0f, 1.0f, 1.0f  //bottom-right
-        };
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
-
-    //specify format/arrangement for vertex positions:
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(float) * 5, 0);
-    //specify format/arrangement for vertex texture coords:
-    glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(float) * 5, (const void*) (sizeof(float) * 3));
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
 
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &bufferTexID);
@@ -167,12 +147,6 @@ void glsurface_destroy()
 
     ALIGNED_FREE_AND_NULL(buffer);
 
-    glDeleteBuffers(1, &quadVertsID);
-    quadVertsID = 0;
-
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-
     glDeleteTextures(1, &bufferTexID);
     bufferTexID = 0;
     glDeleteTextures(1, &paletteTexID);
@@ -229,7 +203,12 @@ void glsurface_blitBuffer()
     glActiveTexture(GL_TEXTURE0);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, bufferRes.x, bufferRes.y, GL_RED, GL_UNSIGNED_BYTE, (void*) buffer);
 
-    glDrawArrays(GL_TRIANGLE_STRIP,
-                 0,
-                 4);
+	auto data = GLInterface.AllocVertices(4);
+	auto vt = data.second;
+
+	vt[0].Set(-1.0f, 1.0f, 0.0f, 0.0f, 0.0f); //top-left
+	vt[1].Set(-1.0f, -1.0f, 0.0f, 0.0f, 1.0f); //bottom-left
+	vt[2].Set(1.0f, 1.0f, 0.0f, 1.0f, 0.0f); //top-right
+	vt[3].Set(1.0f, -1.0f, 0.0f, 1.0f, 1.0f);  //bottom-right
+	GLInterface.Draw(DT_TRIANGLE_STRIP, data.first, 4);
 }

@@ -8,6 +8,7 @@
 
 #include "build.h"
 #include "editor.h"
+#include "../../glbackend/glbackend.h"
 
 int32_t editorgridextent = 131072;
 
@@ -106,14 +107,14 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
     glEnable(GL_BLEND);	// When using line antialiasing, this is needed
 
     polymost_useColorOnly(true);
-    glBegin(GL_LINES);
     glColor4ub(p.r, p.g, p.b, 255);
 
-    glVertex2f((float) x1 * (1.f/4096.f), (float) y1 * (1.f/4096.f));
-    glVertex2f((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
+	auto data = GLInterface.AllocVertices(2);
+	data.second[0].Set((float) x1 * (1.f/4096.f), (float) y1 * (1.f/4096.f));
+	data.second[1].Set((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
+	GLInterface.Draw(DT_LINES, data.first, 2);
 
-    glEnd();
-    polymost_useColorOnly(false);
+	polymost_useColorOnly(false);
 }
 #endif
 

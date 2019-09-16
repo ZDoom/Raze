@@ -15,6 +15,7 @@
 #include "cache1d.h"
 #include "kplib.h"
 #include "palette.h"
+#include "../../glbackend/glbackend.h"
 
 #include "vfs.h"
 
@@ -897,7 +898,9 @@ voxmodel_t *voxload(const char *filnam)
     return vm;
 }
 
+
 //Draw voxel model as perfect cubes
+// Note: This is a hopeless mess that totally forfeits any chance of using a vertex buffer with its messy coordinate adjustments. :(
 int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
 {
     // float clut[6] = {1.02,1.02,0.94,1.06,0.98,0.98};
@@ -1022,13 +1025,22 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
     polymost_usePaletteIndexing(false);
     polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });
 
-    glBegin(GL_QUADS);  // {{{
+	auto data = GLInterface.AllocVertices(m->qcnt * 4);
+	auto vt = data.second;
 
+	int qstart = 0;
+	int qdone = 0;
     for (bssize_t i=0, fi=0; i<m->qcnt; i++)
     {
         if (i == m->qfacind[fi])
         {
             f = 1 /*clut[fi++]*/;
+			if (qdone > 0)
+			{
+				GLInterface.Draw(DT_QUADS, qstart, qdone * 4);
+				qstart += qdone * 4;
+				qdone = 0;
+			}
             glColor4f(pc[0]*f, pc[1]*f, pc[2]*f, pc[3]*f);
         }
 
@@ -1038,26 +1050,22 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
         const int32_t yy = vptr[0].y + vptr[2].y;
         const int32_t zz = vptr[0].z + vptr[2].z;
 
-        for (bssize_t j=0; j<4; j++)
+        for (bssize_t j=0; j<4; j++, vt++)
         {
-            vec3f_t fp;
 #if (VOXBORDWIDTH == 0)
-            glTexCoord2f(((float)vptr[j].u)*ru + uhack[vptr[j].u!=vptr[0].u],
+			vt->SetTexCoord(((float)vptr[j].u)*ru + uhack[vptr[j].u!=vptr[0].u],
                           ((float)vptr[j].v)*rv + vhack[vptr[j].v!=vptr[0].v]);
 #else
-            glTexCoord2f(((float)vptr[j].u)*ru, ((float)vptr[j].v)*rv);
+            vt->SetTexCoord(((float)vptr[j].u)*ru, ((float)vptr[j].v)*rv);
 #endif
-            fp.x = ((float)vptr[j].x) - phack[xx>vptr[j].x*2] + phack[xx<vptr[j].x*2];
-            fp.y = ((float)vptr[j].y) - phack[yy>vptr[j].y*2] + phack[yy<vptr[j].y*2];
-            fp.z = ((float)vptr[j].z) - phack[zz>vptr[j].z*2] + phack[zz<vptr[j].z*2];
-
-            glVertex3fv((float *)&fp);
+            vt->x = ((float)vptr[j].x) - phack[xx>vptr[j].x*2] + phack[xx<vptr[j].x*2];
+            vt->y = ((float)vptr[j].y) - phack[yy>vptr[j].y*2] + phack[yy<vptr[j].y*2];
+            vt->z = ((float)vptr[j].z) - phack[zz>vptr[j].z*2] + phack[zz<vptr[j].z*2];
+			qdone++;
         }
     }
 
-    glEnd();  // }}}
-
-    polymost_usePaletteIndexing(true);
+	GLInterface.Draw(DT_QUADS, qstart, qdone * 4);
 
     //------------
     glDisable(GL_CULL_FACE);

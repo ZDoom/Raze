@@ -9,6 +9,7 @@
 #include "build.h"
 #include "glad/glad.h"
 #include "cache1d.h"
+#include "../../glbackend/glbackend.h"
 
 #undef UNUSED
 #define VPX_CODEC_DISABLE_COMPAT 1
@@ -550,21 +551,22 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
     if (!glinfo.glsl)
         glColor3f(1.0, 1.0, 1.0);
 
-	glBegin(GL_QUADS);
+	auto data = GLInterface.AllocVertices(4);
+	auto vt = data.second;
 	
-	glTexCoord2f(0.0,1.0);
-    glVertex3f(-x, -y, 0.0);
+	vt[0].SetTexCoord(0.0,1.0);
+    vt[0].SetVertex(-x, -y, 0.0);
 
-    glTexCoord2f(0.0,0.0);
-    glVertex3f(-x, y, 0.0);
+	vt[1].SetTexCoord(0.0,0.0);
+	vt[1].SetVertex(-x, y, 0.0);
 
-    glTexCoord2f(1.0,0.0);
-    glVertex3f(x, y, 0.0);
+	vt[2].SetTexCoord(1.0,0.0);
+	vt[2].SetVertex(x, y, 0.0);
 
-    glTexCoord2f(1.0,1.0);
-    glVertex3f(x, -y, 0.0);
+	vt[3].SetTexCoord(1.0,1.0);
+	vt[3].SetVertex(x, -y, 0.0);
 
-    glEnd();
+	GLInterface.Draw(DT_TRIANGLE_FAN, data.first, 4);
 
     t = timerGetTicks()-t;
     codec->sumtimes[2] += t;
