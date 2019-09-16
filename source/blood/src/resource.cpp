@@ -776,6 +776,14 @@ void Resource::PurgeCache(void)
     for (CACHENODE *node = purgeHead.next; node != &purgeHead; node = node->next)
     {
         DICTNODE *pDict = (DICTNODE*)node;
+        if (!(pDict->flags & DICT_LOAD))
+        {
+            dassert(pDict->lockCount == 0);
+            dassert(pDict->ptr != NULL);
+            Free(pDict->ptr);
+            pDict->ptr = NULL;
+            RemoveMRU(pDict);
+        }
     }
 #endif
 }
