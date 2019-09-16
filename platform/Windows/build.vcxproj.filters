@@ -197,6 +197,9 @@
     <ClCompile Include="..\..\source\glbackend\glbackend.cpp">
       <Filter>GL Interface</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\glbackend\gl_samplers.cpp">
+      <Filter>GL Interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\build\include\msvc\inttypes.h">
@@ -404,6 +407,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\glbackend\glbackend.h">
+      <Filter>GL Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\glbackend\gl_samplers.h">
       <Filter>GL Interface</Filter>
     </ClInclude>
   </ItemGroup>

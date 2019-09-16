@@ -1,6 +1,9 @@
 #pragma once
 #include <stdlib.h>
 #include <algorithm>
+#include <vector>
+
+class FSamplerManager;
 
 struct BaseVertex
 {
@@ -41,11 +44,18 @@ enum EDrawType
 
 class GLInstance
 {
+	std::vector<BaseVertex> Buffer;	// cheap-ass implementation. The primary purpose is to get the GL accesses out of polymost.cpp, not writing something performant right away.
 	
 public:
+	FSamplerManager *mSamplers;
+	
+	void Init();
+	void Deinit();
 
 	std::pair<size_t, BaseVertex *> AllocVertices(size_t num);
 	void Draw(EDrawType type, size_t start, size_t count);
+	
+	void BindTexture(int texunit, int texid, int sampler);
 	
 };
 

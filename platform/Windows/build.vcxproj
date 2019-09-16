@@ -308,6 +308,7 @@
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\xxhash.c" />
     <ClCompile Include="..\..\source\glbackend\glbackend.cpp" />
+    <ClCompile Include="..\..\source\glbackend\gl_samplers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\build\include\a.h" />
@@ -379,6 +380,7 @@
     <ClInclude Include="..\..\source\build\include\xxhash.h" />
     <ClInclude Include="..\..\source\build\src\engine_priv.h" />
     <ClInclude Include="..\..\source\glbackend\glbackend.h" />
+    <ClInclude Include="..\..\source\glbackend\gl_samplers.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\..\source\build\src\a.masm">

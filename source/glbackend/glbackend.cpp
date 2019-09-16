@@ -1,10 +1,18 @@
 #include "glbackend.h"
 #include "glad/glad.h"
-#include <vector>
+#include "gl_samplers.h"
 
 GLInstance GLInterface;
 
-static std::vector<BaseVertex> Buffer;	// cheap-ass implementation. The primary purpose is to get the GL accesses out of polymost.cpp, not writing something performant right away.
+void GLInstance::Init()
+{
+	mSamplers = new FSamplerManager;
+}
+
+void GLInstance::Deinit()
+{
+	if (mSamplers) delete mSamplers;
+}
 	
 std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
 {
@@ -31,4 +39,13 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 		glVertex3f(p->x, p->y, p->z);
 	}
 	glEnd();
+}
+
+
+void GLInstance::BindTexture(int texunit, int tex, int sampler)
+{
+	glActiveTexture(GL_TEXTURE0 + texunit);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	mSamplers->Bind(texunit, sampler, 0);
+	glActiveTexture(GL_TEXTURE0);
 }
