@@ -3053,27 +3053,8 @@ do                                                                              
 
             if (nn < 3) continue;
 
-            if (nn+drawpolyVertsOffset > (drawpolyVertsSubBufferIndex+1)*drawpolyVertsBufferLength)
-            {
-                if (persistentStreamBuffer)
-                {
-                    // lock this sub buffer
-                    polymost_lockSubBuffer(drawpolyVertsSubBufferIndex);
-                    drawpolyVertsSubBufferIndex = (drawpolyVertsSubBufferIndex+1)%3;
-                    drawpolyVertsOffset = drawpolyVertsSubBufferIndex*drawpolyVertsBufferLength;
-                    // wait for the next sub buffer to become available before writing to it
-                    // our buffer size should be long enough that no waiting is ever necessary
-                    polymost_waitForSubBuffer(drawpolyVertsSubBufferIndex);
-                }
-                else
-                {
-                    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*5*drawpolyVertsBufferLength, NULL, GL_STREAM_DRAW);
-                    drawpolyVertsOffset = 0;
-                }
-            }
-
             vec2f_t const invtsiz2 = { 1.f / tsiz2.x, 1.f / tsiz2.y };
-            uint32_t off = persistentStreamBuffer ? drawpolyVertsOffset : 0;
+			glBegin(GL_TRIANGLE_FAN);
             for (i = 0; i<nn; ++i)
             {
                 vec2f_t const o = { uu[i], vv[i] };
@@ -3082,68 +3063,43 @@ do                                                                              
                                     o.x * ngx.v + o.y * ngy.v + ngo.v };
                 float const r = 1.f/p.d;
 
+				//update texcoords
+				glTexCoord2f(
+					(p.u * r - du0 + uoffs) * invtsiz2.x,
+					p.v * r * invtsiz2.y);
+
                 //update verts
-                drawpolyVerts[(off+i)*5] = (o.x - ghalfx) * r * grhalfxdown10x;
-                drawpolyVerts[(off+i)*5+1] = (ghoriz - o.y) * r * grhalfxdown10;
-                drawpolyVerts[(off+i)*5+2] = r * (1.f / 1024.f);
+				glVertex3f(
+					(o.x - ghalfx) * r * grhalfxdown10x,
+					(ghoriz - o.y) * r * grhalfxdown10,
+					r * (1.f / 1024.f));
 
-                //update texcoords
-                drawpolyVerts[(off+i)*5+3] = (p.u * r - du0 + uoffs) * invtsiz2.x;
-                drawpolyVerts[(off+i)*5+4] = p.v * r * invtsiz2.y;
             }
-
-            if (!persistentStreamBuffer)
-            {
-                glBufferSubData(GL_ARRAY_BUFFER, drawpolyVertsOffset*sizeof(float)*5, nn*sizeof(float)*5, drawpolyVerts);
-            }
-            glDrawArrays(GL_TRIANGLE_FAN, drawpolyVertsOffset, nn);
-            drawpolyVertsOffset += nn;
+			glEnd();
         }
     }
     else
     {
-        if (npoints+drawpolyVertsOffset > (drawpolyVertsSubBufferIndex+1)*drawpolyVertsBufferLength)
-        {
-            if (persistentStreamBuffer)
-            {
-                // lock this sub buffer
-                polymost_lockSubBuffer(drawpolyVertsSubBufferIndex);
-                drawpolyVertsSubBufferIndex = (drawpolyVertsSubBufferIndex+1)%3;
-                drawpolyVertsOffset = drawpolyVertsSubBufferIndex*drawpolyVertsBufferLength;
-                // wait for the next sub buffer to become available before writing to it
-                // our buffer size should be long enough that no waiting is ever necessary
-                polymost_waitForSubBuffer(drawpolyVertsSubBufferIndex);
-            }
-            else
-            {
-                glBufferData(GL_ARRAY_BUFFER, sizeof(float)*5*drawpolyVertsBufferLength, NULL, GL_STREAM_DRAW);
-                drawpolyVertsOffset = 0;
-            }
-        }
-
         vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
-        uint32_t off = persistentStreamBuffer ? drawpolyVertsOffset : 0;
-        for (bssize_t i = 0; i < npoints; ++i)
+		glBegin(GL_TRIANGLE_FAN);
+		for (bssize_t i = 0; i < npoints; ++i)
         {
             float const r = 1.f / dd[i];
 
+			//update texcoords
+			glTexCoord2f(
+				uu[i] * r * scale.x,
+				vv[i] * r * scale.y);
+
             //update verts
-            drawpolyVerts[(off+i)*5] = (px[i] - ghalfx) * r * grhalfxdown10x;
-            drawpolyVerts[(off+i)*5+1] = (ghoriz - py[i]) * r * grhalfxdown10;
-            drawpolyVerts[(off+i)*5+2] = r * (1.f / 1024.f);
+			glVertex3f(
+				(px[i] - ghalfx) * r * grhalfxdown10x,
+				(ghoriz - py[i]) * r * grhalfxdown10,
+				r * (1.f / 1024.f));
 
-            //update texcoords
-            drawpolyVerts[(off+i)*5+3] = uu[i] * r * scale.x;
-            drawpolyVerts[(off+i)*5+4] = vv[i] * r * scale.y;
         }
-
-        if (!persistentStreamBuffer)
-        {
-            glBufferSubData(GL_ARRAY_BUFFER, drawpolyVertsOffset*sizeof(float)*5, npoints*sizeof(float)*5, drawpolyVerts);
-        }
-        glDrawArrays(GL_TRIANGLE_FAN, drawpolyVertsOffset, npoints);
-        drawpolyVertsOffset += npoints;
-    }
+		glEnd();
+	}
 
 #ifdef USE_GLEXT
 
