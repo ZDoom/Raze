@@ -2496,9 +2496,6 @@ void polymost_setupdetailtexture(const int32_t texunits, const int32_t tex)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glClientActiveTexture(texunits);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
@@ -2510,9 +2507,6 @@ void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glClientActiveTexture(texunits);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 #endif
 
@@ -2536,176 +2530,13 @@ static inline pthtyp *our_texcache_fetch(int32_t dameth)
     return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)) ? globvis>>3 : 0, globalshade), dameth);
 }
 
-static void polymost2_drawVBO(GLenum mode,
-                              int32_t vertexBufferID,
-                              int32_t indexBufferID,
-                              const int32_t numElements,
-                              float projectionMatrix[4*4],
-                              float modelViewMatrix[4*4],
-                              int32_t dameth,
-                              float texScale[2],
-                              float texOffset[2],
-                              char cullFaces)
-{
-    if (dameth == DAMETH_BACKFACECULL ||
-    #ifdef YAX_ENABLE
-        g_nodraw ||
-    #endif
-        (uint32_t)globalpicnum >= MAXTILES)
-    {
-        return;
-    }
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    if (cullFaces)
-    {
-        glEnable(GL_CULL_FACE);
-    }
-    //POGOTODO: this is temporary, the permanent fix is to not allow the transform to affect the windings in the first place in polymost2_drawSprite()
-    if (cullFaces == 1)
-    {
-        glCullFace(GL_BACK);
-    }
-    else
-    {
-        glCullFace(GL_FRONT);
-    }
-
-    //POGOTODO: in the future, state changes like binding these buffers can be batched.  For now, just switch on every VBO rendered
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    if (palookup[globalpal] == NULL)
-    {
-        globalpal = 0;
-    }
-
-    //Load texture (globalpicnum)
-    setgotpic(globalpicnum);
-    if (!waloff[globalpicnum])
-    {
-        tileLoad(globalpicnum);
-    }
-
-    pthtyp *pth = our_texcache_fetch(dameth | (r_useindexedcolortextures ? PTH_INDEXED : 0));
-
-    if (!pth)
-    {
-        if (editstatus)
-        {
-            Bsprintf(ptempbuf, "pth==NULL! (bad pal?) pic=%d pal=%d", globalpicnum, globalpal);
-            polymost_printext256(8,8, editorcolors[15],editorcolors[5], ptempbuf, 0);
-        }
-        return;
-    }
-
-    glActiveTexture(GL_TEXTURE1);
-    //POGO: temporarily swapped out blankTextureID for 0 (as the blank texture has been moved into the dynamic tilesheets)
-    glBindTexture(GL_TEXTURE_2D, (pth && pth->flags & PTH_HASFULLBRIGHT && r_fullbrights) ? pth->ofb->glpic : 0);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-
-    glActiveTexture(GL_TEXTURE0);
-    polymost_bindPth(pth);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-
-    //POGOTODO: handle tinting & shading completely with fragment shader
-    //POGOTODO: handle fullbright & glow completely with fragment shader
-
-    //POGOTODO: glAlphaFunc is deprecated, move this into the fragment shader
-    float const al = waloff[globalpicnum] ? alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f):
-                             (pth && pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f) : 0.f;
-    glAlphaFunc(GL_GREATER, al);
-    //POGOTODO: batch this, only apply it to sprites that actually need blending
-    glEnable(GL_BLEND);
-    glEnable(GL_ALPHA_TEST);
-
-    handle_blend((dameth & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (dameth & DAMETH_MASKPROPS) == DAMETH_TRANS2);
-
-    useShaderProgram(polymost2BasicShaderProgramID);
-
-    //POGOTODO: batch uniform binding
-    float tint[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    polytint_t const & polytint = hictinting[globalpal];
-    //POGOTODO: full bright pass uses its own globalshade...
-    tint[0] = (1.f-(polytint.sr*(1.f/255.f)))*getshadefactor(globalshade)+(polytint.sr*(1.f/255.f));
-    tint[1] = (1.f-(polytint.sg*(1.f/255.f)))*getshadefactor(globalshade)+(polytint.sg*(1.f/255.f));
-    tint[2] = (1.f-(polytint.sb*(1.f/255.f)))*getshadefactor(globalshade)+(polytint.sb*(1.f/255.f));
-
-    // spriteext full alpha control
-    float alpha = float_trans(dameth & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
-
-    if (pth)
-    {
-        // tinting
-        polytintflags_t const tintflags = hictinting[globalpal].f;
-        if (!(tintflags & HICTINT_PRECOMPUTED))
-        {
-            if (pth->flags & PTH_HIGHTILE)
-            {
-                if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
-                    hictinting_apply(tint, globalpal);
-            }
-            else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
-                hictinting_apply(tint, globalpal);
-        }
-
-        // global tinting
-        if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
-            hictinting_apply(tint, MAXPALOOKUPS-1);
-    }
-
-    glUniformMatrix4fv(projMatrixLoc, 1, false, projectionMatrix);
-    glUniformMatrix4fv(mvMatrixLoc, 1, false, modelViewMatrix);
-    glUniform1i(texSamplerLoc, 0);
-    glUniform1i(fullBrightSamplerLoc, 1);
-    glUniform2fv(texOffsetLoc, 1, texOffset);
-    glUniform2fv(texScaleLoc, 1, texScale);
-    glUniform4fv(tintLoc, 1, tint);
-    glUniform1f(alphaLoc, alpha);
-    const float fogRange[2] = {fogresult, fogresult2};
-    glUniform2fv(fogRangeLoc, 1, fogRange);
-    glUniform4fv(fogColorLoc, 1, (GLfloat*) &fogcol);
-
-    if (indexBufferID == 0)
-    {
-        glDrawArrays(mode,
-                     0,
-                     numElements);
-    }
-    else
-    {
-        glDrawElements(mode,
-                       numElements,
-                       GL_UNSIGNED_SHORT,
-                       0);
-    }
-
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-
-    //POGOTODO: again, these state changes should be batched in the future, rather than on each VBO rendered
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    glDisable(GL_CULL_FACE);
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    //polymost_resetVertexPointers();
-}
 
 static void polymost_updatePalette()
 {
     if (videoGetRenderMode() != REND_POLYMOST)
+    {
         return;
+    }
 
     polymost_setPalswap(globalpal);
     polymost_setShade(globalshade);
@@ -3315,24 +3146,6 @@ do                                                                              
     }
 
 #ifdef USE_GLEXT
-    if (videoGetRenderMode() != REND_POLYMOST)
-    {
-        while (texunits > GL_TEXTURE0)
-        {
-            glActiveTexture(texunits);
-            glMatrixMode(GL_TEXTURE);
-            glLoadIdentity();
-            glMatrixMode(GL_MODELVIEW);
-
-            glClientActiveTexture(texunits);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
-            glDisable(GL_TEXTURE_2D);
-
-            --texunits;
-        }
-    }
 
     polymost_useDetailMapping(false);
     polymost_useGlowMapping(false);
@@ -4828,39 +4641,6 @@ static void polymost_drawalls(int32_t const bunch)
                     else
                         polymost_domost(x0,fy0,x1,fy1);
 
-#if 0
-                    //Hack to draw color rectangle above sky when looking up...
-                    xtex.d = xtex.u = xtex.v = 0;
-
-                    ytex.d = gxyaspect * (1.f / -262144.f);
-                    ytex.u = 0;
-                    ytex.v = 0;
-
-                    otex.d = -ghoriz * ytex.d;
-                    otex.u = 0;
-                    otex.v = 0;
-
-                    o.y = -vv[0]/vv[1];
-
-                    if ((o.y < fy0) && (o.y < fy1))
-                        polymost_domost(x1,o.y,x0,o.y);
-                    else if ((o.y < fy0) != (o.y < fy1))
-                    {
-                        o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
-                        if (o.y < fy0)
-                        {
-                            polymost_domost(o.x,o.y,x0,o.y);
-                            polymost_domost(x1,fy1,o.x,o.y);
-                        }
-                        else
-                        {
-                            polymost_domost(o.x,o.y,x0,fy0);
-                            polymost_domost(x1,o.y,o.x,o.y);
-                        }
-                    }
-                    else
-                        polymost_domost(x1,fy1,x0,fy0);
-#endif
                 }
                 else
                     skyclamphack = 0;
@@ -5140,39 +4920,7 @@ static void polymost_drawalls(int32_t const bunch)
 
                 if ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256)
                 {
-#if 0
-                    //Hack to draw black rectangle below sky when looking down...
-                    xtex.d = xtex.u = xtex.v = 0;
 
-                    ytex.d = gxyaspect * (1.f / 262144.f);
-                    ytex.u = 0;
-                    ytex.v = (float)(tilesiz[globalpicnum].y - 1) * ytex.d;
-
-                    otex.d = -ghoriz * ytex.d;
-                    otex.u = 0;
-                    otex.v = (float)(tilesiz[globalpicnum].y - 1) * otex.d;
-
-                    o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
-
-                    if ((o.y > cy0) && (o.y > cy1))
-                        polymost_domost(x0,o.y,x1,o.y);
-                    else if ((o.y > cy0) != (o.y > cy1))
-                    {
-                        o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
-                        if (o.y > cy0)
-                        {
-                            polymost_domost(x0,o.y,o.x,o.y);
-                            polymost_domost(o.x,o.y,x1,cy1);
-                        }
-                        else
-                        {
-                            polymost_domost(x0,cy0,o.x,o.y);
-                            polymost_domost(o.x,o.y,x1,o.y);
-                        }
-                    }
-                    else
-                        polymost_domost(x0,cy0,x1,cy1);
-#endif
 
                     //Hack to draw color rectangle above sky when looking up...
                     xtex.d = xtex.u = xtex.v = 0;
@@ -7834,7 +7582,7 @@ static int32_t gen_font_glyph_tex(void)
 {
     // construct a 256x128 texture for the font glyph matrix
 
-    glGenTextures(1,&polymosttext);
+    GetTextureHandle(&polymosttext);
 
     if (!polymosttext) return -1;
 
