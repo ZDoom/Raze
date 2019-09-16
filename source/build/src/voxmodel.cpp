@@ -1061,8 +1061,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
             vt->x = ((float)vptr[j].x) - phack[xx>vptr[j].x*2] + phack[xx<vptr[j].x*2];
             vt->y = ((float)vptr[j].y) - phack[yy>vptr[j].y*2] + phack[yy<vptr[j].y*2];
             vt->z = ((float)vptr[j].z) - phack[zz>vptr[j].z*2] + phack[zz<vptr[j].z*2];
-			qdone++;
         }
+		qdone++;
     }
 
 	GLInterface.Draw(DT_QUADS, qstart, qdone * 4);
