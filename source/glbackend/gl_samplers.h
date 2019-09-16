@@ -5,6 +5,7 @@
 
 enum ESampler
 {
+	NoSampler = -1,
 	SamplerRepeat,
 	SamplerClampX,
 	SamplerClampY,
@@ -12,6 +13,7 @@ enum ESampler
 	Sampler2D,
 	SamplerNoFilter,
 	Sampler2DFiltered,
+	Sampler2DNoFilter,
 	NumSamplers
 };
 

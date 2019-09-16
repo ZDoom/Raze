@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <vector>
+#include "gl_samplers.h"
 
 class FSamplerManager;
 
@@ -55,7 +56,7 @@ public:
 	std::pair<size_t, BaseVertex *> AllocVertices(size_t num);
 	void Draw(EDrawType type, size_t start, size_t count);
 	
-	void BindTexture(int texunit, int texid, int sampler);
+	void BindTexture(int texunit, int texid, int sampler = NoSampler);
 	
 };
 

@@ -46,6 +46,7 @@ void GLInstance::BindTexture(int texunit, int tex, int sampler)
 {
 	glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, tex);
-	mSamplers->Bind(texunit, sampler, 0);
+	if (sampler != NoSampler) mSamplers->Bind(texunit, sampler, 0);
+	else glBindSampler(texunit, 0);
 	glActiveTexture(GL_TEXTURE0);
 }

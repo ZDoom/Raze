@@ -52,6 +52,9 @@ FSamplerManager::FSamplerManager()
 	glSamplerParameterf(mSamplers[6], GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.f);
 	glSamplerParameteri(mSamplers[6], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glSamplerParameteri(mSamplers[6], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameterf(mSamplers[7], GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.f);
+	glSamplerParameteri(mSamplers[7], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(mSamplers[7], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glSamplerParameteri(mSamplers[1], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(mSamplers[2], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -61,6 +64,8 @@ FSamplerManager::FSamplerManager()
 	glSamplerParameteri(mSamplers[4], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(mSamplers[6], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(mSamplers[6], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(mSamplers[7], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(mSamplers[7], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 FSamplerManager::~FSamplerManager()
