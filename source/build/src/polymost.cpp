@@ -25,6 +25,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "common.h"
 #include "palette.h"
 #include "tilepacker.h"
+#include "../../glbackend/glbackend.h"
 
 #include "vfs.h"
 
@@ -3054,8 +3055,9 @@ do                                                                              
             if (nn < 3) continue;
 
             vec2f_t const invtsiz2 = { 1.f / tsiz2.x, 1.f / tsiz2.y };
-			glBegin(GL_TRIANGLE_FAN);
-            for (i = 0; i<nn; ++i)
+			auto data = GLInterface.AllocVertices(nn);
+			auto vt = data.second;
+            for (i = 0; i<nn; ++i, vt++)
             {
                 vec2f_t const o = { uu[i], vv[i] };
                 vec3f_t const p = { o.x * ngx.d + o.y * ngy.d + ngo.d,
@@ -3064,41 +3066,42 @@ do                                                                              
                 float const r = 1.f/p.d;
 
 				//update texcoords
-				glTexCoord2f(
+				vt->SetTexCoord(
 					(p.u * r - du0 + uoffs) * invtsiz2.x,
 					p.v * r * invtsiz2.y);
 
                 //update verts
-				glVertex3f(
+				vt->SetVertex(
 					(o.x - ghalfx) * r * grhalfxdown10x,
 					(ghoriz - o.y) * r * grhalfxdown10,
 					r * (1.f / 1024.f));
 
             }
-			glEnd();
+			GLInterface.Draw(DT_TRIANGLE_FAN, data.first, nn);
         }
     }
     else
     {
         vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
-		glBegin(GL_TRIANGLE_FAN);
-		for (bssize_t i = 0; i < npoints; ++i)
+		auto data = GLInterface.AllocVertices(npoints);
+		auto vt = data.second;
+		for (bssize_t i = 0; i < npoints; ++i, vt++)
         {
             float const r = 1.f / dd[i];
 
 			//update texcoords
-			glTexCoord2f(
+			vt->SetTexCoord(
 				uu[i] * r * scale.x,
 				vv[i] * r * scale.y);
 
             //update verts
-			glVertex3f(
+			vt->SetVertex(
 				(px[i] - ghalfx) * r * grhalfxdown10x,
 				(ghoriz - py[i]) * r * grhalfxdown10,
 				r * (1.f / 1024.f));
 
         }
-		glEnd();
+		GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
 	}
 
 #ifdef USE_GLEXT
@@ -7496,28 +7499,9 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
         else ratio = dimen/scy;
     }
 
-    if (!pth || (pth->flags & PTH_HASALPHA))
-    {
-        glDisable(GL_TEXTURE_2D);
-        glBegin(GL_TRIANGLE_FAN);
-        if (gammabrightness)
-            glColor3f((float)curpalette[255].r*(1.0f/255.f),
-                       (float)curpalette[255].g*(1.0f/255.f),
-                       (float)curpalette[255].b*(1.0f/255.f));
-        else
-            glColor3f((float)britable[curbrightness][ curpalette[255].r ] * (1.0f/255.f),
-                       (float)britable[curbrightness][ curpalette[255].g ] * (1.0f/255.f),
-                       (float)britable[curbrightness][ curpalette[255].b ] * (1.0f/255.f));
-        glVertex2f((float)tilex            ,(float)tiley);
-        glVertex2f((float)tilex+(scx*ratio),(float)tiley);
-        glVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
-        glVertex2f((float)tilex            ,(float)tiley+(scy*ratio));
-        glEnd();
-    }
-
     glColor3f(1,1,1);
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
+    glDisable(GL_BLEND);
     glBegin(GL_TRIANGLE_FAN);
     glTexCoord2f(0,              0); glVertex2f((float)tilex            ,(float)tiley);
     glTexCoord2f(xdimepad,       0); glVertex2f((float)tilex+(scx*ratio),(float)tiley);

@@ -224,7 +224,6 @@
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\hash.cpp" />
     <ClCompile Include="..\..\source\build\src\hightile.cpp" />
-    <ClCompile Include="..\..\source\build\src\jwzgles.c" />
     <ClCompile Include="..\..\source\build\src\klzw.cpp" />
     <ClCompile Include="..\..\source\build\src\kplib.cpp" />
     <ClCompile Include="..\..\source\build\src\lunatic.cpp">
@@ -308,6 +307,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\xxhash.c" />
+    <ClCompile Include="..\..\source\glbackend\glbackend.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\build\include\a.h" />
@@ -378,6 +378,7 @@
     <ClInclude Include="..\..\source\build\include\winlayer.h" />
     <ClInclude Include="..\..\source\build\include\xxhash.h" />
     <ClInclude Include="..\..\source\build\src\engine_priv.h" />
+    <ClInclude Include="..\..\source\glbackend\glbackend.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\..\source\build\src\a.masm">

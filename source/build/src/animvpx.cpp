@@ -546,12 +546,13 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
             y = scr_wbyh/vid_wbyh;
     }
 #endif
-    glBegin(GL_QUADS);
 
     if (!glinfo.glsl)
         glColor3f(1.0, 1.0, 1.0);
 
-    glTexCoord2f(0.0,1.0);
+	glBegin(GL_QUADS);
+	
+	glTexCoord2f(0.0,1.0);
     glVertex3f(-x, -y, 0.0);
 
     glTexCoord2f(0.0,0.0);

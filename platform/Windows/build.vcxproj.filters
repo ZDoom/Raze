@@ -12,6 +12,9 @@
     <Filter Include="Header Files\MSVC">
       <UniqueIdentifier>{4afb83fc-a68c-4ed0-9ff2-7def56e98cb6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GL Interface">
+      <UniqueIdentifier>{0f5687fd-82dc-4f52-89ef-0264c994211c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\build\src\2d.cpp">
@@ -72,9 +75,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\hightile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\build\src\jwzgles.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\klzw.cpp">
@@ -193,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\vfs.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\glbackend\glbackend.cpp">
+      <Filter>GL Interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -399,6 +402,9 @@
     </ClInclude>
     <ClInclude Include="..\..\source\build\include\vfs.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\glbackend\glbackend.h">
+      <Filter>GL Interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

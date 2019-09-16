@@ -51,64 +51,6 @@ static void drawpixel_safe(void *s, char a)
 
 
 
-//
-// plotpixel
-//
-void plotpixel(int32_t x, int32_t y, char col)
-{
-    // XXX: if we ever want the editor to work under GL ES, find a replacement for the raster functions
-#if defined USE_OPENGL && !defined EDUKE32_GLES
-    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
-    {
-        palette_t p = paletteGetColor(col);
-
-        glRasterPos4i(x, y, 0, 1);
-        glDrawPixels(1, 1, GL_RGB, GL_UNSIGNED_BYTE, &p);
-        glRasterPos4i(0, 0, 0, 1);
-        return;
-    }
-#endif
-
-    videoBeginDrawing(); //{{{
-    drawpixel_safe((void *) (ylookup[y]+x+frameplace), col);
-    videoEndDrawing();   //}}}
-}
-
-void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int col)
-{
-    int32_t i;
-
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
-    {
-        palette_t p = paletteGetColor(col);
-
-        polymost_useColorOnly(true);
-        glBegin(GL_LINE_STRIP);
-
-        glColor4ub(p.r, p.g, p.b, 1);
-
-        for (i=0; i<numpoints; i++)
-            glVertex2i(xx[i], yy[i]);
-
-        glEnd();
-        polymost_useColorOnly(false);
-        return;
-    }
-#endif
-    {
-        int32_t odrawlinepat = drawlinepat;
-        drawlinepat = 0xffffffff;
-
-        videoBeginDrawing();
-        for (i=0; i<numpoints-1; i++)
-            editorDraw2dLine(xx[i], yy[i], xx[i+1], yy[i+1], col);
-        videoEndDrawing();
-
-        drawlinepat = odrawlinepat;
-    }
-}
-
 
 //
 // drawline256
