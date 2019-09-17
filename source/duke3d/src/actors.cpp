@@ -268,25 +268,27 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
     {
         int const   sectorNum  = sectorList[sectorCount++];
         auto const &listSector = sector[sectorNum];
+        vec2_t closest;
 
-        if (getsectordist(pSprite->pos.vec2, sectorNum) >= blastRadius)
+        if (getsectordist(pSprite->pos.vec2, sectorNum, &closest) >= blastRadius)
             continue;
 
         int const startWall = listSector.wallptr;
         int const endWall   = listSector.wallnum + startWall;
 
-        if (((listSector.ceilingz - pSprite->z) >> 8) < blastRadius)
+        int32_t floorZ, ceilZ;
+        getzsofslope(sectorNum, closest.x, closest.y, &ceilZ, &floorZ);
+
+        if (((ceilZ - pSprite->z) >> 8) < blastRadius)
             Sect_DamageCeiling_Internal(spriteNum, sectorNum);
 
-        if (((pSprite->z - listSector.floorz) >> 8) < blastRadius)
+        if (((pSprite->z - floorZ) >> 8) < blastRadius)
             Sect_DamageFloor_Internal(spriteNum, sectorNum);
 
         int w = startWall;
         
         for (auto pWall = (uwallptr_t)&wall[startWall]; w < endWall; ++w, ++pWall)
         {
-            vec2_t closest;
-
             if (getwalldist(pSprite->pos.vec2, w, &closest) >= blastRadius)
                 continue;
 
