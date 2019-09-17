@@ -4669,32 +4669,28 @@ void P_ProcessInput(int playerNum)
         pPlayer->cursectnum = 0;
     }
 
-    int sectorLotag = sector[pPlayer->cursectnum].lotag;
     // sectorLotag can be set to 0 later on, but the same block sets spritebridge to 1
-    int stepHeight = (sectorLotag == ST_1_ABOVE_WATER && pPlayer->spritebridge != 1) ? pPlayer->autostep_sbw : pPlayer->autostep;
+    int       sectorLotag     = sector[pPlayer->cursectnum].lotag;
+    int       getZRangeOffset = ((TEST_SYNC_KEY(playerBits, SK_CROUCH) || (sectorLotag == ST_1_ABOVE_WATER && pPlayer->spritebridge != 1))) ? pPlayer->autostep_sbw : pPlayer->autostep;
+    int const stepHeight      = getZRangeOffset;
+
+    // we want to take these into account for getzrange() but not for the clipmove() call below
+    if (!pPlayer->on_ground)
+        getZRangeOffset = pPlayer->autostep_sbw;
 
     int32_t floorZ, ceilZ, highZhit, lowZhit, dummy;
 
     if (sectorLotag != ST_2_UNDERWATER)
     {
-        if (pPlayer->pos.z + stepHeight > actor[pPlayer->i].floorz - PMINHEIGHT)
-            stepHeight -= (pPlayer->pos.z + stepHeight) - (actor[pPlayer->i].floorz - PMINHEIGHT);
-        else if (!pPlayer->on_ground)
-            stepHeight -= (pPlayer->jumping_counter << 1) + (pPlayer->jumping_counter >> 1);
-
-        stepHeight = max(stepHeight, 0);
+        if (pPlayer->pos.z + getZRangeOffset > actor[pPlayer->i].floorz - PMINHEIGHT)
+            getZRangeOffset -= klabs((pPlayer->pos.z + getZRangeOffset) - (actor[pPlayer->i].floorz - PMINHEIGHT));
+        else if (pPlayer->pos.z + getZRangeOffset < actor[pPlayer->i].ceilingz + PMINHEIGHT)
+            getZRangeOffset += klabs((actor[pPlayer->i].ceilingz + PMINHEIGHT) - (pPlayer->pos.z + getZRangeOffset));
     }
-    else stepHeight = 0;
 
-    pPlayer->pos.z += stepHeight;
+    pPlayer->pos.z += getZRangeOffset;
     getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - GETZRANGECLIPDISTOFFSET, CLIPMASK0);
-    pPlayer->pos.z -= stepHeight;
-
-    int32_t ceilZ2 = ceilZ;
-    getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &dummy, &dummy, pPlayer->clipdist - GETZRANGECLIPDISTOFFSET, CSTAT_SPRITE_ALIGNMENT_FLOOR << 16);
-
-    if ((highZhit & 49152) == 49152 && (sprite[highZhit & (MAXSPRITES - 1)].cstat & CSTAT_SPRITE_BLOCK) != CSTAT_SPRITE_BLOCK)
-        ceilZ = ceilZ2;
+    pPlayer->pos.z -= getZRangeOffset;
 
     pPlayer->spritebridge = 0;
     pPlayer->sbs          = 0;
