@@ -1571,8 +1571,8 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
 {
     Bassert(projecTile >= 0);
 
-    auto const   pSprite   = &sprite[spriteNum];
-    int const           playerNum = (pSprite->picnum == APLAYER) ? P_GetP(pSprite) : -1;
+    auto const pSprite   = &sprite[spriteNum];
+    int const  playerNum = (pSprite->picnum == APLAYER) ? P_GetP(pSprite) : -1;
     auto const pPlayer   = playerNum >= 0 ? g_player[playerNum].ps : NULL;
 
     if (forceZvel != SHOOT_HARDCODED_ZVEL)
@@ -1654,7 +1654,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
 static void P_DisplaySpit(void)
 {
     auto const pPlayer     = g_player[screenpeek].ps;
-    int const           loogCounter = pPlayer->loogcnt;
+    int const  loogCounter = pPlayer->loogcnt;
 
     if (loogCounter == 0)
         return;

@@ -431,7 +431,7 @@ int A_GetClipdist(int spriteNum, int clipDist)
     if (clipDist < 0)
     {
         auto const pSprite = &sprite[spriteNum];
-        int const         isEnemy = A_CheckEnemySprite(pSprite);
+        int const  isEnemy = A_CheckEnemySprite(pSprite);
 
         if (A_CheckSpriteFlags(spriteNum, SFLAG_REALCLIPDIST))
             clipDist = pSprite->clipdist << 2;
@@ -464,9 +464,9 @@ int A_GetClipdist(int spriteNum, int clipDist)
 
 int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uint32_t clipType, int32_t clipDist)
 {
-    auto const pSprite = &sprite[spriteNum];
-    int const         isEnemy = A_CheckEnemySprite(pSprite);
-    vec2_t const      oldPos  = pSprite->pos.vec2;
+    auto const   pSprite = &sprite[spriteNum];
+    int const    isEnemy = A_CheckEnemySprite(pSprite);
+    vec2_t const oldPos  = pSprite->pos.vec2;
 
     // check to make sure the netcode didn't leave a deleted sprite in the sprite lists.
     Bassert(pSprite->sectnum < MAXSECTORS);
