@@ -95,7 +95,6 @@ struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 int32_t glanisotropy = 0;            // 0 = maximum supported by card
 int32_t gltexfiltermode = TEXFILTER_OFF;
 
-int32_t glusememcache = 1;
 int32_t r_polygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 static int32_t lastglpolygonmode = 0; //FUK
 
@@ -623,7 +622,7 @@ void polymost_setTexturePosSize(vec4f_t const &texturePosSize)
 
 static inline void polymost_setHalfTexelSize(vec2f_t const &halfTexelSize)
 {
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID || (halfTexelSize.x == polymost1HalfTexelSize.x && halfTexelSize.y == polymost1HalfTexelSize.y))
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
         return;
 
     polymost1HalfTexelSize = halfTexelSize;
@@ -634,7 +633,7 @@ static void polymost_setPalswap(uint32_t index)
 {
     static uint32_t lastPalswapIndex;
 
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID || index == lastPalswapIndex)
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
         return;
 
     lastPalswapIndex = index;
@@ -698,7 +697,7 @@ static void polymost_setVisibility(float visibility)
 
 void polymost_setFogEnabled(char fogEnabled)
 {
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID || fogEnabled == polymost1FogEnabled)
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
         return;
 
     polymost1FogEnabled = fogEnabled;
@@ -707,7 +706,7 @@ void polymost_setFogEnabled(char fogEnabled)
 
 void polymost_useColorOnly(char useColorOnly)
 {
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID || useColorOnly == polymost1UseColorOnly)
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
         return;
 
     polymost1UseColorOnly = useColorOnly;
@@ -716,7 +715,7 @@ void polymost_useColorOnly(char useColorOnly)
 
 void polymost_usePaletteIndexing(char usePaletteIndexing)
 {
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID || usePaletteIndexing == polymost1UsePalette)
+    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
         return;
 
     polymost1UsePalette = usePaletteIndexing;
@@ -7450,10 +7449,8 @@ static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
 
             r_downsizevar = r_downsize;
         }
-		else if (!Bstrcasecmp(parm->name, "r_anisotropy"))
-		{
-			gltexapplyprops();
-		}
+        else if (!Bstrcasecmp(parm->name, "r_anisotropy"))
+            gltexapplyprops();
         else if (!Bstrcasecmp(parm->name, "r_texfilter"))
             gltexturemode(parm);
         else if (!Bstrcasecmp(parm->name, "r_usenewshading"))
