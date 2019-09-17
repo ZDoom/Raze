@@ -117,8 +117,6 @@ int32_t novoxmips = 1;
 #else
 # define DISTRECIPSIZ 131072
 #endif
-int8_t voxreserve[(MAXVOXELS+7)>>3];
-intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
 static char voxlock[MAXVOXELS][MAXVOXMIPS];
 int32_t voxscale[MAXVOXELS];
 
@@ -6210,6 +6208,9 @@ draw_as_face_sprite:
         i = (int32_t)tspr->ang+1536;
         i += spriteext[spritenum].angoff;
 
+        if (voxrotate[vtilenum>>3]&pow2char[vtilenum&7])
+            i += (int)totalclocklock<<3;
+
         const int32_t ceilingz = (sec->ceilingstat&3) == 0 ? sec->ceilingz : INT32_MIN;
         const int32_t floorz = (sec->floorstat&3) == 0 ? sec->floorz : INT32_MAX;
 
@@ -8213,6 +8214,7 @@ int32_t engineInit(void)
     for (i=0; i<MAXTILES; i++)
         tiletovox[i] = -1;
     clearbuf(voxscale, sizeof(voxscale)>>2, 65536);
+    clearbufbyte(voxrotate, sizeof(voxrotate), 0);
 
     paletteloaded = 0;
 
@@ -10435,6 +10437,7 @@ static void PolymostProcessVoxels(void)
         {
             voxmodels[i] = voxload(voxfilenames[i]);
             voxmodels[i]->scale = voxscale[i]*(1.f/65536.f);
+            voxmodels[i]->rotate = (voxrotate[i>>3]>>(i&7))&1;
             DO_FREE_AND_NULL(voxfilenames[i]);
         }
     }
@@ -10692,6 +10695,7 @@ void vox_undefine(int32_t const tile)
         voxoff[voxindex][j] = 0;
     }
     voxscale[voxindex] = 65536;
+    voxrotate[voxindex>>3] &= ~pow2char[voxindex&7];
     tiletovox[tile] = -1;
 
     // TODO: nextvoxid

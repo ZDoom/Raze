@@ -121,10 +121,11 @@ enum scripttoken_t
     T_DST_COLOR, T_ONE_MINUS_DST_COLOR,
     T_SHADERED, T_SHADEGREEN, T_SHADEBLUE,
     T_SHADEFACTOR,
-    T_RFFDEFINEID,
     T_IFCRC,
-    T_EXTRA,
     T_NEWGAMECHOICES,
+    T_RFFDEFINEID,
+    T_EXTRA,
+    T_ROTATE,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -1854,6 +1855,7 @@ static int32_t defsparser(scriptfile *script)
                 { "tile0",  T_TILE0  },
                 { "tile1",  T_TILE1  },
                 { "scale",  T_SCALE  },
+                { "rotate", T_ROTATE },
             };
 
             if (EDUKE32_PREDICT_FALSE(scriptfile_getstring(script,&fn)))
@@ -1916,6 +1918,14 @@ static int32_t defsparser(scriptfile *script)
 #endif
                     break;
                 }
+
+                case T_ROTATE:
+                    voxrotate[lastvoxid>>3] |= pow2char[lastvoxid&7];
+#ifdef USE_OPENGL
+                    if (voxmodels[lastvoxid])
+                        voxmodels[lastvoxid]->rotate = 1;
+#endif
+                    break;
                 }
             }
             lastvoxid = -1;
