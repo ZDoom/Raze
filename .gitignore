@@ -57,6 +57,7 @@ project.xcworkspace/
 
 .DS_Store
 ._*
+/autoload
 /movie
 /blud*.png
 /*.DEM

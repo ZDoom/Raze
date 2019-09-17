@@ -2033,6 +2033,10 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
             if (gGameOptions.nGameType > 0 && nSound >= 0)
                 sndStartSample(nSound, 255, 2, 0);
         }
+        else
+        {
+            sprintf(buffer, gSuicide[nMessage].at0, gProfile[nVictim].name);
+        }
     }
     else
     {
