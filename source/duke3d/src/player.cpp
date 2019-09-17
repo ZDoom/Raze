@@ -554,7 +554,9 @@ static int Proj_DoHitscan(int spriteNum, int32_t const cstatmask, const vec3_t *
 
     pSprite->cstat &= ~cstatmask;
     zvel = A_GetShootZvel(zvel);
-    hitscan(srcVect, pSprite->sectnum, sintable[(shootAng + 512) & 2047], sintable[shootAng & 2047], zvel << 6, hitData, CLIPMASK1);
+    int16_t sectnum = pSprite->sectnum;
+    updatesector(srcVect->x, srcVect->y, &sectnum);
+    hitscan(srcVect, sectnum, sintable[(shootAng + 512) & 2047], sintable[shootAng & 2047], zvel << 6, hitData, CLIPMASK1);
     pSprite->cstat |= cstatmask;
 
     return (hitData->sect < 0);
