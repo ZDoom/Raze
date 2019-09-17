@@ -290,14 +290,13 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
             if (getwalldist(pSprite->pos.vec2, w, &closest) >= blastRadius)
                 continue;
 
-            int const nextSector   = pWall->nextsector;
-            int const damageSector = (nextSector >= 0) ? wall[pWall->nextwall].nextsector : sectorNum;
-
             vec3_t const vect = { closest.x, closest.y, pSprite->z };
 
-            if (cansee(vect.x, vect.y, vect.z, damageSector, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
+            if (cansee(vect.x, vect.y, vect.z, sectorNum, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
             {
                 A_DamageWall_Internal(spriteNum, w, vect, pSprite->picnum);
+
+                int const nextSector = pWall->nextsector;
 
                 if (nextSector >= 0)
                     bfirst_search_try(sectorList, sectorMap, &numSectors, nextSector);
