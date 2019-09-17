@@ -28,8 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trig.h"
 #include "view.h"
 
-char byte_27AACB;
-
 void sub_2541C(int x, int y, int z, short a)
 {
     int tmpydim = (xdim * 5) / 8;
@@ -40,7 +38,7 @@ void sub_2541C(int x, int y, int z, short a)
     int nSin2 = mulscale16(nSin, yxaspect);
     for (int i = 0; i < numsectors; i++)
     {
-        if (byte_27AACB || (show2dsector[i>>3]&(1<<(i&7))))
+        if (gFullMap || (show2dsector[i>>3]&(1<<(i&7))))
         {
             int nStartWall = sector[i].wallptr;
             int nEndWall = nStartWall+sector[i].wallnum;
@@ -55,7 +53,7 @@ void sub_2541C(int x, int y, int z, short a)
                 if (sector[pWall->nextsector].ceilingz == nZCeil && sector[pWall->nextsector].floorz == nZFloor
                     && ((wall[nNextWall].cstat | pWall->cstat) & 0x30) == 0)
                     continue;
-                if (byte_27AACB)
+                if (gFullMap)
                     continue;
                 if (show2dsector[pWall->nextsector>>3]&(1<<(pWall->nextsector&7)))
                     continue;
@@ -77,7 +75,7 @@ void sub_2541C(int x, int y, int z, short a)
     int nPSprite = gView->pSprite->index;
     for (int i = 0; i < numsectors; i++)
     {
-        if (byte_27AACB || (show2dsector[i>>3]&(1<<(i&7))))
+        if (gFullMap || (show2dsector[i>>3]&(1<<(i&7))))
         {
             for (int nSprite = headspritesect[i]; nSprite >= 0; nSprite = nextspritesect[nSprite])
             {
@@ -91,7 +89,7 @@ void sub_2541C(int x, int y, int z, short a)
     }
     for (int i = 0; i < numsectors; i++)
     {
-        if (byte_27AACB || (show2dsector[i>>3]&(1<<(i&7))))
+        if (gFullMap || (show2dsector[i>>3]&(1<<(i&7))))
         {
             int nStartWall = sector[i].wallptr;
             int nEndWall = nStartWall+sector[i].wallnum;
