@@ -5172,7 +5172,7 @@ void P_ProcessInput(int playerNum)
                 int32_t floorZ2, ceilZ2;
                 getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ2, &dummy, &floorZ2, &dummy, pPlayer->clipdist - GETZRANGECLIPDISTOFFSET, CLIPMASK0);
 
-                if ((floorZ2-ceilZ2) > (48<<8))
+                if (klabs(floorZ2-ceilZ2) > (48<<8))
                 {
                     if (VM_OnEvent(EVENT_JUMP,pPlayer->i,playerNum) == 0)
                     {
