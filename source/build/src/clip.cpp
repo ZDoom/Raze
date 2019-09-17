@@ -809,10 +809,10 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     if ((sec->floorstat|sec->ceilingstat) & 2)
         getcorrectzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
 
-    int32_t const sec2height = daz2-dacz2;
+    int32_t const sec2height = klabs(daz2-dacz2);
 
-    return ((daz-dacz > sec2height &&       // clip if the current sector is taller and the next is too small
-            sec2height < (flordist+ceildist-(CLIPCURBHEIGHT<<1))) ||
+    return ((klabs(daz-dacz) > sec2height &&       // clip if the current sector is taller and the next is too small
+            sec2height < (ceildist+(CLIPCURBHEIGHT<<1))) ||
 
             ((sec2->floorstat&1) == 0 &&    // parallaxed floor curbs don't clip
             posz >= daz2-(flordist-1) &&    // also account for desired z distance tolerance
