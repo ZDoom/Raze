@@ -5333,9 +5333,10 @@ void P_ProcessInput(int playerNum)
     }
 
     // This makes the player view lower when shrunk. This needs to happen before clipmove().
+#ifndef EDUKE32_STANDALONE
     if (!FURY && pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER && playerShrunk)
         pPlayer->pos.z += ZOFFSET5 - (sprite[pPlayer->i].yrepeat<<8);
-
+#endif
 HORIZONLY:;
     if (ud.noclip)
     {
