@@ -7,6 +7,7 @@ GLInstance GLInterface;
 void GLInstance::Init()
 {
 	mSamplers = new FSamplerManager;
+	memset(LastBoundTextures, 0, sizeof(LastBoundTextures));
 }
 
 void GLInstance::Deinit()
@@ -41,12 +42,44 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	glEnd();
 }
 
+int GLInstance::GetTextureID()
+{
+	// Generating large numbers of texture IDs piece by piece does not work well on modern NVidia drivers.
+
+	if (currentindex == THCACHESIZE)
+	{
+		currentindex = 0;
+		glGenTextures(THCACHESIZE, TextureHandleCache);
+	}
+	else currentindex++;
+	return TextureHandleCache[currentindex];
+}
 
 void GLInstance::BindTexture(int texunit, int tex, int sampler)
 {
-	glActiveTexture(GL_TEXTURE0 + texunit);
+	if (texunit != 0) glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, tex);
 	if (sampler != NoSampler) mSamplers->Bind(texunit, sampler, 0);
 	else glBindSampler(texunit, 0);
-	glActiveTexture(GL_TEXTURE0);
+	if (texunit != 0) glActiveTexture(GL_TEXTURE0);
+	LastBoundTextures[texunit] = tex;
+}
+
+void GLInstance::UnbindTexture(int texunit)
+{
+	if (LastBoundTextures[texunit] != 0)
+	{
+		if (texunit != 0) glActiveTexture(GL_TEXTURE0+texunit);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		if (texunit != 0) glActiveTexture(GL_TEXTURE0);
+		LastBoundTextures[texunit] = 0;
+	}
+}
+
+void GLInstance::UnbindAllTextures()
+{
+	for(int texunit = 0; texunit < MAX_TEXTURES; texunit++)
+	{
+		UnbindTexture(texunit);
+	}
 }

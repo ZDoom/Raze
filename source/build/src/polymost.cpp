@@ -222,21 +222,10 @@ int32_t r_parallaxskypanning = 1;
 
 #define MIN_CACHETIME_PRINT 10
 
-static const int THCACHESIZE = 200;
-static GLuint TextureHandleCache[THCACHESIZE];
-static int currentindex = THCACHESIZE;
 
 void GetTextureHandle(GLuint *handle)
 {
-	// Generating large numbers of texture IDs piece by piece does not work well on modern NVidia drivers.
-
-	if (currentindex == THCACHESIZE)
-	{
-		currentindex = 0;
-		glGenTextures(THCACHESIZE, TextureHandleCache);
-	}
-	else currentindex++;
-	*handle = TextureHandleCache[currentindex];
+	*handle = GLInstance.GetTextureID();
 }
 
 
@@ -786,16 +775,11 @@ void polymost_activeTexture(GLenum texture)
 //POGOTODO: replace this and polymost_activeTexture with proper draw call organization
 void polymost_bindTexture(GLenum target, uint32_t textureID)
 {
-    if (currentTextureID != textureID ||
-        textureID == 0 ||
-        currentActiveTexture != GL_TEXTURE0 ||
-        videoGetRenderMode() != REND_POLYMOST)
+	glBindSampler(currentActiveTexture - GL_TEXTURE0, 0);
+    glad_glBindTexture(target, textureID);
+    if (currentActiveTexture == GL_TEXTURE0)
     {
-        glad_glBindTexture(target, textureID);
-        if (currentActiveTexture == GL_TEXTURE0)
-        {
-            currentTextureID = textureID;
-        }
+        currentTextureID = textureID;
     }
 }
 
@@ -847,11 +831,9 @@ void polymost_glinit()
     //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //glEnable(GL_LINE_SMOOTH);
 
-    if (r_useindexedcolortextures == -1)
-    {
-        //POGO: r_useindexedcolortextures has never been set, so force it to be enabled
-        gltexfiltermode = 0;
-    }
+	GLInterface.Init();
+	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
+
 
 #ifdef USE_GLEXT
     if (glmultisample > 0 && glinfo.multisample)
@@ -7517,6 +7499,7 @@ static int32_t gltexturemode(osdcmdptr_t parm)
 
     gltexfiltermode = m;
     gltexapplyprops();
+	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
 
     OSD_Printf("Texture filtering mode changed to %s\n", glfiltermodes[gltexfiltermode].name);
 
@@ -7559,22 +7542,15 @@ static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
 
             r_downsizevar = r_downsize;
         }
-        else if (!Bstrcasecmp(parm->name, "r_anisotropy"))
-            gltexapplyprops();
+		else if (!Bstrcasecmp(parm->name, "r_anisotropy"))
+		{
+			GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
+			gltexapplyprops();
+		}
         else if (!Bstrcasecmp(parm->name, "r_texfilter"))
             gltexturemode(parm);
         else if (!Bstrcasecmp(parm->name, "r_usenewshading"))
             glFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
-#ifdef POLYMER
-        else if (!Bstrcasecmp(parm->name, "r_pr_maxlightpasses"))
-        {
-            if (pr_maxlightpasses != r_pr_maxlightpasses)
-            {
-                polymer_invalidatelights();
-                pr_maxlightpasses = r_pr_maxlightpasses;
-            }
-        }
-#endif
     }
 
     return r;
