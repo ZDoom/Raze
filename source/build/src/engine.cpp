@@ -12300,6 +12300,45 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
         *florz += scale(sec->floorheinum,j>>1,i)<<1;
 }
 
+#ifdef YAX_ENABLE
+void yax_getzsofslope(int sectNum, int playerX, int playerY, int32_t *pCeilZ, int32_t *pFloorZ)
+{
+    int didCeiling = 0;
+    int didFloor   = 0;
+    int testSector = 0;
+
+    if ((sector[sectNum].ceilingstat & 512) == 0)
+    {
+        testSector = yax_getneighborsect(playerX, playerY, sectNum, YAX_CEILING);
+
+        if (testSector >= 0)
+        {
+ceiling:
+            *pCeilZ    = getcorrectceilzofslope(testSector, playerX, playerY);
+            didCeiling = 1;
+        }
+    }
+
+    if ((sector[sectNum].floorstat & 512) == 0)
+    {
+        testSector = yax_getneighborsect(playerX, playerY, sectNum, YAX_FLOOR);
+
+        if (testSector >= 0)
+        {
+floor:
+            *pFloorZ = getcorrectflorzofslope(testSector, playerX, playerY);
+            didFloor = 1;
+        }
+    }
+
+    testSector = sectNum;
+
+    if (!didCeiling)
+        goto ceiling;
+    else if (!didFloor)
+        goto floor;
+}
+#endif
 
 //
 // alignceilslope
