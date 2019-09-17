@@ -7183,9 +7183,11 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     }
     while (nz);
 
+    n = 0;
+
     if (nn >= 3)
     {
-        n = nz = 0;
+        nz = 0;
         do
         {
             int32_t zz = nz+1; if (zz == nn) zz = 0;
