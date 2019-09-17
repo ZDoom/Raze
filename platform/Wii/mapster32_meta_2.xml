@@ -1,6 +1,0 @@
-    <short_description>BUILD Editor</short_description>
-    <long_description>Mapster32 is the level editor for EDuke32 and the BUILD Engine, featuring additional editing capabilities and scripting extensions for homebrew developers and mod creators. Mapster32 is completely free, open source software. Mapster32 is licensed under the GNU GPL and the BUILD license. http://eduke32.com/</long_description>
-    <arguments>
-        <arg></arg>
-    </arguments>
-</app>

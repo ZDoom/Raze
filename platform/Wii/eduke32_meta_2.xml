@@ -1,6 +1,0 @@
-    <short_description>Duke Nukem 3D</short_description>
-    <long_description>EDuke32 is an awesome, free homebrew game engine and source port of the classic PC first person shooter Duke Nukem 3D--Duke3D for short. We've added thousands of cool and useful features and upgrades for regular players and additional editing capabilities and scripting extensions for homebrew developers and mod creators. EDuke32 is completely free, open source software. EDuke32 is licensed under the GNU GPL and the BUILD license. http://eduke32.com/</long_description>
-    <arguments>
-        <arg></arg>
-    </arguments>
-</app>

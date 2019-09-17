@@ -413,7 +413,4 @@
       <Filter>GL Interface</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <MASM Include="..\..\source\build\src\a.masm" />
-  </ItemGroup>
 </Project>

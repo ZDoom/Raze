@@ -382,16 +382,6 @@
     <ClInclude Include="..\..\source\glbackend\gl_hwtexture.h" />
     <ClInclude Include="..\..\source\glbackend\gl_samplers.h" />
   </ItemGroup>
-  <ItemGroup>
-    <MASM Include="..\..\source\build\src\a.masm">
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <TreatWarningsAsErrors Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningsAsErrors>
-    </MASM>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
