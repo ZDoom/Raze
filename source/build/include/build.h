@@ -1329,7 +1329,6 @@ enum cutsceneflags {
 
 #ifdef USE_OPENGL
 extern int32_t glanisotropy;
-extern int32_t glusetexcompr;
 extern int32_t gltexfiltermode;
 extern int32_t r_useindexedcolortextures;
 
@@ -1338,7 +1337,7 @@ enum {
     TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
 };
 
-extern int32_t glusetexcache, glusememcache;
+extern int32_t glusememcache;
 extern int32_t glmultisample, glnvmultisamplehint;
 extern int32_t glprojectionhacks;
 extern int32_t gltexmaxsize;

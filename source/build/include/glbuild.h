@@ -16,9 +16,6 @@
 #else
 # include <GL/glu.h>
 #endif
-#if defined EDUKE32_GLES
-# include "jwzgles.h"
-#endif
 
 # ifdef _WIN32
 #  define PR_CALLBACK __stdcall

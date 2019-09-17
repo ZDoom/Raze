@@ -44,7 +44,6 @@ TexFilter_s TexFilter[]={
 FSamplerManager::FSamplerManager()
 {
 	glGenSamplers(NumSamplers, mSamplers);
-	SetTextureFilterMode(0);
 	glSamplerParameteri(mSamplers[5], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glSamplerParameteri(mSamplers[5], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glSamplerParameterf(mSamplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.f);

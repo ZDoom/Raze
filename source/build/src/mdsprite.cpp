@@ -676,30 +676,14 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     int32_t startticks = timerGetTicks(), willprint = 0;
 
     char hasalpha;
-    texcacheheader cachead;
-    char texcacheid[BMAX_PATH];
-    texcache_calcid(texcacheid, fn, picfillen, pal<<8, hicfxmask(pal));
-    int32_t gotcache = texcache_readtexheader(texcacheid, &cachead, 1);
     vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
 
-    if (gotcache && !texcache_loadskin(&cachead, &doalloc, texidx, &siz))
-    {
-        tsiz.x = cachead.xdim;
-        tsiz.y = cachead.ydim;
-        hasalpha = !!(cachead.flags & CACHEAD_HASALPHA);
-
-        if (pal < (MAXPALOOKUPS - RESERVEDPALS))
-            m->usesalpha = hasalpha;
-    }
-    else
     {
         polytintflags_t const effect = hicfxmask(pal);
 
         // CODEDUP: gloadtile_hi
 
         int32_t isart = 0;
-
-        gotcache = 0;	// the compressed version will be saved to disk
 
         int32_t const length = kpzbufload(fn);
         if (length == 0)
@@ -939,35 +923,6 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 #endif
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-
-#if defined USE_GLEXT && !defined EDUKE32_GLES
-    if (!gotcache && glinfo.texcompr && glusetexcache && !(sk->flags & HICR_NOTEXCOMPRESS) &&
-        (glusetexcompr == 2 || (glusetexcompr && !(sk->flags & HICR_ARTIMMUNITY))))
-        {
-            const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
-
-            // save off the compressed version
-            cachead.quality = (sk->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY)) ? 0 : r_downsize;
-            cachead.xdim = tsiz.x>>cachead.quality;
-            cachead.ydim = tsiz.y>>cachead.quality;
-
-            cachead.flags = nonpow2*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0) |
-                            ((sk->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY)) ? CACHEAD_NODOWNSIZE : 0);
-
-///            OSD_Printf("Caching \"%s\"\n",fn);
-            texcache_writetex_fromdriver(texcacheid, &cachead);
-
-            if (willprint)
-            {
-                int32_t etime = timerGetTicks()-startticks;
-                if (etime>=MIN_CACHETIME_PRINT)
-                    OSD_Printf("Load skin: p%d-e%d \"%s\"... cached... %d ms\n", pal, hicfxmask(pal), fn, etime);
-                willprint = 0;
-            }
-            else
-                OSD_Printf("Cached skin \"%s\"\n", fn);
-        }
-#endif
 
     if (willprint)
     {

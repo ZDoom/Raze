@@ -204,7 +204,6 @@
     <ClCompile Include="..\..\source\build\src\compat.cpp" />
     <ClCompile Include="..\..\source\build\src\crc32.cpp" />
     <ClCompile Include="..\..\source\build\src\defs.cpp" />
-    <ClCompile Include="..\..\source\build\src\dxtfilter.cpp" />
     <ClCompile Include="..\..\source\build\src\dynamicgtk.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -326,7 +325,6 @@
     <ClInclude Include="..\..\source\build\include\crc32.h" />
     <ClInclude Include="..\..\source\build\include\debugbreak.h" />
     <ClInclude Include="..\..\source\build\include\dxdidf.h" />
-    <ClInclude Include="..\..\source\build\include\dxtfilter.h" />
     <ClInclude Include="..\..\source\build\include\dynamicgtk.h" />
     <ClInclude Include="..\..\source\build\include\editor.h" />
     <ClInclude Include="..\..\source\build\include\fix16.h" />

@@ -95,15 +95,10 @@ struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 int32_t glanisotropy = 0;            // 0 = maximum supported by card
 int32_t gltexfiltermode = TEXFILTER_OFF;
 
-#ifdef EDUKE32_GLES
-int32_t glusetexcompr = 2;
-int32_t glusetexcache = 0, glusememcache = 0;
-#else
-int32_t glusetexcompr = 1;
-int32_t glusetexcache = 2, glusememcache = 1;
+int32_t glusememcache = 1;
 int32_t r_polygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 static int32_t lastglpolygonmode = 0; //FUK
-#endif
+
 #ifdef USE_GLEXT
 int32_t glmultisample = 0, glnvmultisamplehint = 0;
 int32_t r_detailmapping = 1;
@@ -225,7 +220,7 @@ int32_t r_parallaxskypanning = 1;
 
 void GetTextureHandle(GLuint *handle)
 {
-	*handle = GLInstance.GetTextureID();
+	*handle = GLInterface.GetTextureID();
 }
 
 
@@ -321,6 +316,8 @@ void gltexapplyprops(void)
 {
     if (videoGetRenderMode() == REND_CLASSIC)
         return;
+
+	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
 
     if (glinfo.maxanisotropy > 1.f)
     {
@@ -526,9 +523,6 @@ void polymost_glreset()
 
     Bmemset(texcache.list,0,sizeof(texcache.list));
     glox1 = -1;
-
-    texcache_freeptrs();
-    texcache_syncmemcache();
 
 #ifdef DEBUGGINGAIDS
     OSD_Printf("polymost_glreset()\n");
@@ -1212,14 +1206,7 @@ void polymost_glinit()
     }
 
     polymost_resetVertexPointers();
-
-    texcache_init();
-    texcache_loadoffsets();
-    texcache_openfiles();
-
-    texcache_setupmemcache();
-    texcache_checkgarbage();
-
+   
 #if defined EDUKE32_GLES
     Polymost_DetermineTextureFormatSupport();
 #endif
@@ -1823,25 +1810,6 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
     char hasalpha = 0, hasfullbright = 0;
     char npoty = 0;
 
-    texcacheheader cachead;
-    char texcacheid[BMAX_PATH];
-    {
-        // Absolutely disgusting.
-        uint32_t firstint = 0;
-        if (waloff[dapic])
-            Bmemcpy(&firstint, (void *)waloff[dapic], min(4, picdim));
-        sprintf(texcacheid, "%08x", firstint);
-    }
-    texcache_calcid(texcacheid, texcacheid, picdim | ((unsigned)dapal<<24u), DAMETH_NARROW_MASKPROPS(dameth) | ((unsigned)dapic<<8u) | ((unsigned)dashade<<24u), tintpalnum);
-    int32_t gotcache = texcache_readtexheader(texcacheid, &cachead, 0);
-
-    if (gotcache && !texcache_loadtile(&cachead, &doalloc, pth))
-    {
-        hasalpha = !!(cachead.flags & CACHEAD_HASALPHA);
-        hasfullbright = !!(cachead.flags & CACHEAD_HASFULLBRIGHT);
-        npoty = !!(cachead.flags & CACHEAD_NPOTWALL);
-    }
-    else
     {
         if (!glinfo.texnpot)
         {
@@ -2014,21 +1982,6 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
     pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | (hasalpha*PTH_HASALPHA) | (npoty*PTH_NPOTWALL);
     pth->hicr = NULL;
 
-#if defined USE_GLEXT && !defined EDUKE32_GLES
-    if (!gotcache && glinfo.texcompr && glusetexcache && glusetexcompr == 2 && dapic < MAXUSERTILES)
-    {
-        cachead.quality = 0;
-        cachead.xdim = tsiz.x;
-        cachead.ydim = tsiz.y;
-
-        cachead.flags = (check_nonpow2(siz.x) || check_nonpow2(siz.y)) * CACHEAD_NONPOW2 |
-                        npoty * CACHEAD_NPOTWALL |
-                        hasalpha * CACHEAD_HASALPHA | hasfullbright * CACHEAD_HASFULLBRIGHT | CACHEAD_NODOWNSIZE;
-
-        texcache_writetex_fromdriver(texcacheid, &cachead);
-    }
-#endif
-
     if (hasfullbright && !fullbrightloadingpass)
     {
         // Load the ONLY texture that'll be assembled with the regular one to
@@ -2081,25 +2034,12 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     int32_t startticks = timerGetTicks(), willprint = 0;
 
     char hasalpha;
-    texcacheheader cachead;
-    char texcacheid[BMAX_PATH];
-    texcache_calcid(texcacheid, fn, picfillen+(dapalnum<<8), DAMETH_NARROW_MASKPROPS(dameth), effect & HICTINT_IN_MEMORY);
-    int32_t gotcache = texcache_readtexheader(texcacheid, &cachead, 0);
     vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
 
-    if (gotcache && !texcache_loadtile(&cachead, &doalloc, pth))
-    {
-        tsiz.x = cachead.xdim;
-        tsiz.y = cachead.ydim;
-        hasalpha = !!(cachead.flags & CACHEAD_HASALPHA);
-    }
-    else
     {
         // CODEDUP: mdloadskin
 
         int32_t isart = 0;
-
-        gotcache = 0;	// the compressed version will be saved to disk
 
         int32_t const length = kpzbufload(fn);
         if (length == 0)
@@ -2333,36 +2273,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     pth->skyface = facen;
     pth->hicr = hicr;
 
-#if defined USE_GLEXT && !defined EDUKE32_GLES
-    if (!gotcache && glinfo.texcompr && glusetexcache && !(hicr->flags & HICR_NOTEXCOMPRESS) &&
-        (glusetexcompr == 2 || (glusetexcompr && !(hicr->flags & HICR_ARTIMMUNITY))))
-    {
-        const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
-
-        // save off the compressed version
-        cachead.quality = (hicr->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY)) ? 0 : r_downsize;
-        cachead.xdim = tsiz.x >> cachead.quality;
-        cachead.ydim = tsiz.y >> cachead.quality;
-
-        // handle nodownsize:
-        cachead.flags = nonpow2 * CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0) |
-                        ((hicr->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY)) ? CACHEAD_NODOWNSIZE : 0);
-
-        ///            OSD_Printf("Caching \"%s\"\n", fn);
-        texcache_writetex_fromdriver(texcacheid, &cachead);
-
-        if (willprint)
-        {
-            int32_t etime = timerGetTicks() - startticks;
-            if (etime >= MIN_CACHETIME_PRINT)
-                OSD_Printf("Load tile %4d: p%d-m%d-e%d %s... cached... %d ms\n", dapic, dapalnum, dameth, effect,
-                           willprint == 2 ? fn : "", etime);
-            willprint = 0;
-        }
-        else
-            OSD_Printf("Cached \"%s\"\n", fn);
-    }
-#endif
 
     if (willprint)
     {
@@ -7499,7 +7409,6 @@ static int32_t gltexturemode(osdcmdptr_t parm)
 
     gltexfiltermode = m;
     gltexapplyprops();
-	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
 
     OSD_Printf("Texture filtering mode changed to %s\n", glfiltermodes[gltexfiltermode].name);
 
@@ -7534,7 +7443,6 @@ static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
 
             if (in3dmode() && r_downsize != r_downsizevar)
             {
-                texcache_invalidate();
                 videoResetMode();
                 if (videoSetGameMode(fullscreen,xres,yres,bpp,upscalefactor))
                     OSD_Printf("restartvid: Reset failed...\n");
@@ -7544,7 +7452,6 @@ static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
         }
 		else if (!Bstrcasecmp(parm->name, "r_anisotropy"))
 		{
-			GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
 			gltexapplyprops();
 		}
         else if (!Bstrcasecmp(parm->name, "r_texfilter"))
@@ -7576,10 +7483,7 @@ void polymost_initosdfuncs(void)
 #endif
 #ifndef EDUKE32_GLES
         { "r_polygonmode","debugging feature",(void *) &r_polygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
-        { "r_texcache","enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
-        { "r_memcache","enable/disable texture cache memory cache",(void *) &glusememcache, CVAR_BOOL, 0, 1 },
 #endif
-        { "r_texcompr","enable/disable OpenGL texture compression: 0: off  1: hightile only  2: ART and hightile",(void *) &glusetexcompr, CVAR_INT, 0, 2 },
 
         { "r_shadescale","multiplier for shading",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
         { "r_shadescale_unbounded","enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },

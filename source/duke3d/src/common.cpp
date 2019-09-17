@@ -430,10 +430,6 @@ void G_LoadGroups(int32_t autoload)
             }
         }
 
-#ifdef USE_OPENGL
-        Bsnprintf(path, sizeof(path), "%s/%s", g_modDir, TEXCACHEFILE);
-        Bstrcpy(TEXCACHEFILE, path);
-#endif
     }
 
     if (g_addonNum)

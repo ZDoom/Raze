@@ -1023,8 +1023,6 @@ static MenuEntry_t ME_RENDERERSETUP_PRECACHE = MAKE_MENUENTRY( "Pre-load map tex
 # ifndef EDUKE32_GLES
 static char const *MEOSN_RENDERERSETUP_TEXCACHE[] = { "Off", "On", "Compr.", };
 static MenuOptionSet_t MEOS_RENDERERSETUP_TEXCACHE = MAKE_MENUOPTIONSET( MEOSN_RENDERERSETUP_TEXCACHE, NULL, 0x2 );
-static MenuOption_t MEO_RENDERERSETUP_TEXCACHE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_RENDERERSETUP_TEXCACHE, &glusetexcache );
-static MenuEntry_t ME_RENDERERSETUP_TEXCACHE = MAKE_MENUENTRY( "On-disk texture cache:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_TEXCACHE, Option );
 # endif
 # ifdef USE_GLEXT
 static MenuOption_t MEO_RENDERERSETUP_DETAILTEX = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &r_detailmapping );
@@ -1038,34 +1036,12 @@ static MenuOption_t MEO_RENDERERSETUP_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Blu
 static MenuEntry_t ME_RENDERERSETUP_PALETTEEMULATION = MAKE_MENUENTRY("Palette emulation:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_PALETTEEMULATION, Option);
 #endif
 
-#ifdef POLYMER
-static char const *MEOSN_POLYMER_LIGHTS [] = { "Off", "Full", "Map only", };
-static MenuOptionSet_t MEOS_POLYMER_LIGHTS = MAKE_MENUOPTIONSET(MEOSN_POLYMER_LIGHTS, NULL, 0x2);
-static MenuOption_t MEO_POLYMER_LIGHTS = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_POLYMER_LIGHTS, &pr_lighting);
-static MenuEntry_t ME_POLYMER_LIGHTS = MAKE_MENUENTRY("Dynamic lights:", &MF_Bluefont, &MEF_SmallOptions, &MEO_POLYMER_LIGHTS, Option);
-
-static MenuRangeInt32_t MEO_POLYMER_LIGHTPASSES = MAKE_MENURANGE(&r_pr_maxlightpasses, &MF_Bluefont, 1, 10, 1, 10, 1);
-static MenuEntry_t ME_POLYMER_LIGHTPASSES = MAKE_MENUENTRY("Lights per surface:", &MF_Bluefont, &MEF_SmallOptions, &MEO_POLYMER_LIGHTPASSES, RangeInt32);
-
-static MenuOption_t MEO_POLYMER_SHADOWS = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_OffOn, &pr_shadows);
-static MenuEntry_t ME_POLYMER_SHADOWS = MAKE_MENUENTRY("Dynamic shadows:", &MF_Bluefont, &MEF_SmallOptions, &MEO_POLYMER_SHADOWS, Option);
-
-static MenuRangeInt32_t MEO_POLYMER_SHADOWCOUNT = MAKE_MENURANGE(&pr_shadowcount, &MF_Bluefont, 1, 10, 1, 10, 1);
-static MenuEntry_t ME_POLYMER_SHADOWCOUNT = MAKE_MENUENTRY("Shadows per surface:", &MF_Bluefont, &MEF_SmallOptions, &MEO_POLYMER_SHADOWCOUNT, RangeInt32);
-
-static MenuOption_t MEO_POLYMER_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_NoYes, &pr_artmapping);
-static MenuEntry_t ME_POLYMER_PALETTEEMULATION = MAKE_MENUENTRY("Palette emulation:", &MF_Bluefont, &MEF_SmallOptions, &MEO_POLYMER_PALETTEEMULATION, Option);
-
-#endif
 
 #ifdef USE_OPENGL
 static MenuEntry_t *MEL_RENDERERSETUP_POLYMOST[] = {
     &ME_RENDERERSETUP_HIGHTILE,
     &ME_RENDERERSETUP_TEXQUALITY,
     &ME_RENDERERSETUP_PRECACHE,
-# ifndef EDUKE32_GLES
-    &ME_RENDERERSETUP_TEXCACHE,
-# endif
 # ifdef USE_GLEXT
     &ME_RENDERERSETUP_DETAILTEX,
     &ME_RENDERERSETUP_GLOWTEX,
@@ -1075,28 +1051,6 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMOST[] = {
     &ME_RENDERERSETUP_PALETTEEMULATION,
 };
 
-#ifdef POLYMER
-static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] = {
-    &ME_RENDERERSETUP_HIGHTILE,
-    &ME_RENDERERSETUP_TEXQUALITY,
-    &ME_RENDERERSETUP_PRECACHE,
-# ifndef EDUKE32_GLES
-    &ME_RENDERERSETUP_TEXCACHE,
-# endif
-# ifdef USE_GLEXT
-    &ME_RENDERERSETUP_DETAILTEX,
-    &ME_RENDERERSETUP_GLOWTEX,
-    &ME_POLYMER_PALETTEEMULATION,
-# endif
-    &ME_Space4_Bluefont,
-    &ME_RENDERERSETUP_MODELS,
-    &ME_Space4_Bluefont,
-    &ME_POLYMER_LIGHTS,
-    &ME_POLYMER_LIGHTPASSES,
-    &ME_POLYMER_SHADOWS,
-    &ME_POLYMER_SHADOWCOUNT,
-};
-#endif
 #endif
 
 #ifdef EDUKE32_ANDROID_MENU
@@ -1974,9 +1928,6 @@ static void Menu_Pre(MenuID_t cm)
     case MENU_POLYMOST:
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXQUALITY, !usehightile);
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_PRECACHE, !usehightile);
-# ifndef EDUKE32_GLES
-        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXCACHE, !(glusetexcompr && usehightile));
-# endif
 # ifdef USE_GLEXT
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_DETAILTEX, !usehightile);
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_GLOWTEX, !usehightile);
@@ -3290,16 +3241,9 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
 #endif
     else if (entry == &ME_RENDERERSETUP_TEXQUALITY)
     {
-        texcache_invalidate();
         r_downsizevar = r_downsize;
         domodechange = 1;
     }
-#ifdef POLYMER
-    else if (entry == &ME_POLYMER_LIGHTS ||
-             entry == &ME_POLYMER_LIGHTPASSES ||
-             entry == &ME_POLYMER_SHADOWCOUNT)
-        domodechange = 1;
-#endif
 
     if (domodechange)
     {
