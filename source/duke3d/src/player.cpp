@@ -4933,6 +4933,7 @@ void P_ProcessInput(int playerNum)
     const uint8_t *const weaponFrame      = &pPlayer->kickback_pic;
     int                  floorZOffset     = 40;
     int const            playerShrunk     = (pSprite->yrepeat < 32);
+    vec3_t const         backupPos        = pPlayer->opos;
 
     if (pPlayer->on_crane >= 0)
         goto HORIZONLY;
@@ -5471,12 +5472,13 @@ HORIZONLY:;
 
     pPlayer->on_warping_sector = 0;
 
+    bool mashedPotato = 0;
+
     if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
     {
-        int const  pushResult    = pushmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L << 8), (4L << 8), CLIPMASK0);
-        int const  furthestAngle = A_GetFurthestAngle(pPlayer->i, 32);
-        int const  angleDelta    = G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), furthestAngle);
-        bool const squishPlayer  = pushResult < 0 && !angleDelta;
+RECHECK:
+        int const  pushResult = pushmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L<<8), (4L<<8), CLIPMASK0, !mashedPotato);
+        bool const squishPlayer = pushResult < 0;
 
         if (squishPlayer || klabs(actor[pPlayer->i].floorz-actor[pPlayer->i].ceilingz) < (48<<8))
         {
@@ -5486,9 +5488,16 @@ HORIZONLY:;
 
             if (squishPlayer)
             {
-                OSD_Printf(OSD_ERROR "%s: player killed by pushmove()!\n", EDUKE32_FUNCTION);
-                P_QuickKill(pPlayer);
-                return;
+                if (mashedPotato)
+                {
+                    OSD_Printf(OSD_ERROR "%s: player killed by pushmove()!\n", EDUKE32_FUNCTION);
+                    P_QuickKill(pPlayer);
+                    return;
+                }
+
+                mashedPotato = true;
+                pPlayer->pos = pPlayer->opos = backupPos;
+                goto RECHECK;
             }
         }
         else if (klabs(floorZ - ceilZ) < ZOFFSET5 && isanunderoperator(sector[pPlayer->cursectnum].lotag))
