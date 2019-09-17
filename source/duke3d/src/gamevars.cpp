@@ -897,6 +897,13 @@ void Gv_ResetSystemDefaults(void)
         if (tile.defproj)
             *tile.proj = *tile.defproj;
 
+    static int constexpr statnumList[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_MISC, STAT_ZOMBIEACTOR, STAT_FALLER, STAT_PLAYER };
+
+    Bmemset(g_radiusDmgStatnums, 0, sizeof(g_radiusDmgStatnums));
+
+    for (int i = 0; i < ARRAY_SSIZE(statnumList); ++i)
+        bitmap_set(g_radiusDmgStatnums, statnumList[i]);
+
     //AddLog("EOF:ResetWeaponDefaults");
 }
 
@@ -1308,10 +1315,11 @@ static void Gv_AddSystemVars(void)
 # endif
 
     // SYSTEM_GAMEARRAY
-    Gv_NewArray("gotpic",       (void *)&gotpic[0],       MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
-    Gv_NewArray("show2dsector", (void *)&show2dsector[0], MAXSECTORS, GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
-    Gv_NewArray("tilesizx",     (void *)&tilesiz[0].x,    MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_STRIDE2 | GAMEARRAY_READONLY | GAMEARRAY_INT16);
-    Gv_NewArray("tilesizy",     (void *)&tilesiz[0].y,    MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_STRIDE2 | GAMEARRAY_READONLY | GAMEARRAY_INT16);
+    Gv_NewArray("gotpic",            (void *)&gotpic[0],              MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
+    Gv_NewArray("radiusdmgstatnums", (void *)&g_radiusDmgStatnums[0], MAXSTATUS,  GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
+    Gv_NewArray("show2dsector",      (void *)&show2dsector[0],        MAXSECTORS, GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
+    Gv_NewArray("tilesizx",          (void *)&tilesiz[0].x,           MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_STRIDE2 | GAMEARRAY_READONLY | GAMEARRAY_INT16);
+    Gv_NewArray("tilesizy",          (void *)&tilesiz[0].y,           MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_STRIDE2 | GAMEARRAY_READONLY | GAMEARRAY_INT16);
 #endif
 }
 

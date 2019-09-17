@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # define ACTOR_STATIC static
 #endif
 
+uint8_t g_radiusDmgStatnums[(MAXSTATUS+7)>>3];
+
 #define DELETE_SPRITE_AND_CONTINUE(KX) do { A_DeleteSprite(KX); goto next_sprite; } while (0)
 
 int32_t otherp;
@@ -245,18 +247,6 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
     uint8_t sectorMap[(MAXSECTORS+7)>>3];
     int16_t numSectors;
 
-    // TODO: stick this somewhere where we can call Gv_NewArray() on it with GAMEARRAY_BITMAP so scripts can control which statnums are hit
-    static uint8_t statMap[(MAXSTATUS+7)>>3];
-    static int statInit;
-
-    if (!statInit)
-    {
-        static int constexpr statnumList[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_MISC, STAT_ZOMBIEACTOR, STAT_FALLER, STAT_PLAYER };
-        for (int i = 0; i < ARRAY_SSIZE(statnumList); ++i)
-            bitmap_set(statMap, statnumList[i]);
-        statInit = 1;
-    }
-
     bfirst_search_init(sectorList, sectorMap, &numSectors, MAXSECTORS, pSprite->sectnum);
 
 #ifndef EDUKE32_STANDALONE
@@ -321,7 +311,7 @@ SKIPWALLCHECK:
             int const nextSprite = nextspritesect[damageSprite];
             auto      pDamage    = &sprite[damageSprite];
 
-            if (bitmap_test(statMap, pDamage->statnum))
+            if (bitmap_test(g_radiusDmgStatnums, pDamage->statnum))
             {
                 int const spriteDist = dist(pSprite, pDamage);
 

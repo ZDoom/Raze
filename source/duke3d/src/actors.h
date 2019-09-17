@@ -435,7 +435,7 @@ extern int32_t      g_noEnemies;
 extern int32_t      otherp;
 extern int32_t      ticrandomseed;
 extern projectile_t SpriteProjectile[MAXSPRITES];
-
+extern uint8_t      g_radiusDmgStatnums[(MAXSTATUS+7)>>3];
 
 int  A_CheckNoSE7Water(uspriteptr_t pSprite, int sectNum, int sectLotag, int32_t *pOther);
 int  A_CheckSwitchTile(int spriteNum);
