@@ -4424,49 +4424,6 @@ static int P_DoFist(DukePlayer_t *pPlayer)
     return 0;
 }
 
-#ifdef YAX_ENABLE
-static void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *pCeilZ, int32_t *pFloorZ)
-{
-    int didCeiling = 0;
-
-    if ((sector[sectNum].ceilingstat & 512) == 0)
-    {
-        int const neighborSect = yax_getneighborsect(playerX, playerY, sectNum, YAX_CEILING);
-
-        if (neighborSect >= 0)
-        {
-            *pCeilZ    = getceilzofslope(neighborSect, playerX, playerY);
-            didCeiling = 1;
-        }
-    }
-
-    int didFloor   = 0;
-
-    if ((sector[sectNum].floorstat & 512) == 0)
-    {
-        int const neighborSect = yax_getneighborsect(playerX, playerY, sectNum, YAX_FLOOR);
-
-        if (neighborSect >= 0)
-        {
-            *pFloorZ = getflorzofslope(neighborSect, playerX, playerY);
-            didFloor = 1;
-        }
-    }
-
-    if (!didCeiling || !didFloor)
-    {
-        int32_t ceilingZ, floorZ;
-        getzsofslope(sectNum, playerX, playerY, &ceilingZ, &floorZ);
-
-        if (!didCeiling)
-            *pCeilZ = ceilingZ;
-
-        if (!didFloor)
-            *pFloorZ = floorZ;
-    }
-}
-#endif
-
 void P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer)
 {
     int const newOwner      = pPlayer->newowner;
@@ -4743,9 +4700,9 @@ void P_ProcessInput(int playerNum)
     pPlayer->sbs          = 0;
 
 #ifdef YAX_ENABLE
-    getzsofslope_player(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y, &pPlayer->truecz, &pPlayer->truefz);
+    yax_getzsofslope(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y, &pPlayer->truecz, &pPlayer->truefz);
 #else
-    getzsofslope(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y, &pPlayer->truecz, &pPlayer->truefz);
+    getcorrectzsofslope(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y, &pPlayer->truecz, &pPlayer->truefz);
 #endif
     int const trueFloorZ    = pPlayer->truefz;
     int const trueFloorDist = klabs(pPlayer->pos.z - trueFloorZ);
