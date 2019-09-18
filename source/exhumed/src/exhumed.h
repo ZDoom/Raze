@@ -176,6 +176,8 @@ extern short bSlipMode;
 extern short nItemTextIndex;
 extern const char *gString[];
 
+extern short bNoSound;
+
 extern char g_modDir[BMAX_PATH];
 enum {
     kPalNormal = 0,

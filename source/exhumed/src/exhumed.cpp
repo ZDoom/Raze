@@ -1861,7 +1861,7 @@ int app_main(int argc, char const* const* argv)
     SetupInput();
     InitView();
     myloadconfig();
-    LoadStaticSounds();
+    LoadFX();
     setCDaudiovolume(gMusicVolume);
     seq_LoadSequences();
     InitStatus();

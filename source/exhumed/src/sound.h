@@ -2,8 +2,10 @@
 #ifndef __sound_h__
 #define __sound_h__
 
-#define kMaxSoundFiles		80
-#define kMaxSounds			200
+#define kMaxSoundFiles      80
+#define kMaxSounds          200
+#define kMaxSoundNameLen    8
+#define kMaxActiveSounds    8
 
 enum {
     kSound0 = 0,
@@ -88,25 +90,26 @@ extern short nCreepyTimer;
 extern short StaticSound[];
 
 
-int UpdateSounds();
+void UpdateSounds();
 
 void InitFX();
 void UnInitFX();
 void FadeSong();
 int LocalSoundPlaying();
-int sound_load_file(char *fileName);
-void LoadStaticSounds();
+void LoadFX();
 void StopAllSounds();
 void SetLocalChan(int nChannel);
 int GetLocalSound();
 void UpdateLocalSound();
 void StopLocalSound();
-void PlayLocalSound(short nSound, int val);
+void PlayLocalSound(short nSound, short val);
 
 void BendAmbientSound();
 void CheckAmbience(short nSector);
 
-void D3PlayFX(int nSound, int nVal);
+short PlayFX2(unsigned short nSound, short nSprite);
+short PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector);
+short D3PlayFX(unsigned short nSound, short nVal);
 void StopSpriteSound(short nSprite);
 
 void StartSwirlies();
