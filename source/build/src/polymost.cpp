@@ -985,7 +985,7 @@ void polymost_glinit()
              palettedColor.a = c_one-floor(color.r);\n\
              color = mix(color, palettedColor, u_usePalette);\n\
              \n\
-             vec4 detailColor = texture2D(s_detail, gl_TexCoord[3].xy);\n\
+             vec4 detailColor = texture2D(s_detail, newCoord);\n\
              detailColor = mix(c_vec4_one, 2.0*detailColor, u_useDetailMapping*detailColor.a);\n\
              color.rgb *= detailColor.rgb;\n\
              \n\
@@ -1004,7 +1004,7 @@ void polymost_glinit()
              //float fogFactor = clamp(gl_FogFragCoord, fullbright, c_one);\n\
              color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
              \n\
-             vec4 glowColor = texture2D(s_glow, gl_TexCoord[4].xy);\n\
+             vec4 glowColor = texture2D(s_glow, newCoord);\n\
              color.rgb = mix(color.rgb, glowColor.rgb, u_useGlowMapping*glowColor.a*(c_one-u_useColorOnly));\n\
              \n\
              color.a *= v_color.a;\n\
