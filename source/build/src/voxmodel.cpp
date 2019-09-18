@@ -38,7 +38,7 @@ static voxmodel_t *gvox;
 
 
 //pitch must equal xsiz*4
-uint32_t gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
+FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
 {
     const char *const cptr = &britable[gammabrightness ? 0 : curbrightness][0];
 
@@ -72,17 +72,13 @@ uint32_t gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8
         }
     }
 
-    uint32_t rtexid;
-
-    GetTextureHandle((GLuint *) &rtexid);
-    glBindTexture(GL_TEXTURE_2D, rtexid);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 4, xsiz, ysiz, 0, GL_RGBA, GL_UNSIGNED_BYTE, (char *) pic2);
-
+	auto tex = GLInterface.NewTexture();
+	tex->CreateTexture(xsiz, ysiz, false, false);
+	tex->LoadTexture((uint8_t*)pic2); // RGBA
+	tex->SetSampler(SamplerNoFilter);
     Bfree(pic2);
 
-    return rtexid;
+    return tex;
 }
 
 static int32_t getvox(int32_t x, int32_t y, int32_t z)
@@ -886,7 +882,7 @@ voxmodel_t *voxload(const char *filnam)
         vm->piv.x = voxpiv.x; vm->piv.y = voxpiv.y; vm->piv.z = voxpiv.z;
         vm->is8bit = is8bit;
 
-        vm->texid = (uint32_t *)Xcalloc(MAXPALOOKUPS, sizeof(uint32_t));
+        vm->texid = (FHardwareTexture * *)Xcalloc(MAXPALOOKUPS, sizeof(FHardwareTexture*));
     }
 
     DO_FREE_AND_NULL(shcntmal);
@@ -975,8 +971,6 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    glEnable(GL_TEXTURE_2D);
-
     float pc[4];
 
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
@@ -1019,8 +1013,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
 
     if (!m->texid[globalpal])
         m->texid[globalpal] = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, globalpal);
-    else
-        glBindTexture(GL_TEXTURE_2D, m->texid[globalpal]);
+
+	GLInterface.BindTexture(0, m->texid[globalpal]);
 
     polymost_usePaletteIndexing(false);
     polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });

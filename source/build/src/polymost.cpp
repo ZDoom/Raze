@@ -24,7 +24,6 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "texcache.h"
 #include "common.h"
 #include "palette.h"
-#include "tilepacker.h"
 #include "../../glbackend/glbackend.h"
 
 #include "vfs.h"
@@ -107,7 +106,7 @@ int32_t r_glowmapping = 1;
 int32_t gltexmaxsize = 0;      // 0 means autodetection on first run
 int32_t gltexmiplevel = 0;		// discards this many mipmap levels
 int32_t glprojectionhacks = 1;
-static GLuint polymosttext = 0;
+static FHardwareTexture *polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
 
 // This variable, and 'shadeforfullbrightpass' control the drawing of
@@ -145,12 +144,11 @@ static GLint fogColorLoc = -1;
 
 #define PALSWAP_TEXTURE_SIZE 2048
 int32_t r_useindexedcolortextures = -1;
-static GLuint tilesheetTexIDs[MAXTILESHEETS];
 static GLint tilesheetSize = 0;
 static vec2f_t tilesheetHalfTexelSize = { 0.f, 0.f };
 static int32_t lastbasepal = -1;
-static GLuint paletteTextureIDs[MAXBASEPALS];
-static GLuint palswapTextureID = 0;
+static FHardwareTexture *paletteTextureIDs[MAXBASEPALS];
+static FHardwareTexture *palswapTextureID = nullptr;
 static GLuint polymost1CurrentShaderProgramID = 0;
 static GLuint polymost1BasicShaderProgramID = 0;
 static GLuint polymost1ExtendedShaderProgramID = 0;
@@ -217,22 +215,8 @@ int32_t r_parallaxskypanning = 1;
 #define MIN_CACHETIME_PRINT 10
 
 
-void GetTextureHandle(GLuint *handle)
-{
-	*handle = GLInterface.GetTextureID();
-}
 
-
-
-// this was faster in MSVC but slower with GCC... currently unknown on ARM where both
-// the FPU and possibly the optimization path in the compiler need improvement
-#if 0
-static inline int32_t __float_as_int(float f) { return *(int32_t *) &f; }
-static inline float __int_as_float(int32_t d) { return *(float *) &d; }
-static inline float Bfabsf(float f) { return __int_as_float(__float_as_int(f)&0x7fffffff); }
-#else
 #define Bfabsf fabsf
-#endif
 
 int32_t mdtims, omdtims;
 uint8_t alphahackarray[MAXTILES];
@@ -240,20 +224,6 @@ int32_t drawingskybox = 0;
 int32_t hicprecaching = 0;
 
 hitdata_t polymost_hitdata;
-
-#if 0
-static inline int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
-{
-    const int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
-    pthtyp *pth;
-
-    for (pth=texcache.list[j]; pth; pth=pth->next)
-        if (pth->picnum == dapicnum && pth->palnum == dapalnum)
-            return ((pth->flags&PTH_HASALPHA) != 0);
-
-    return 1;
-}
-#endif
 
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 {
@@ -297,77 +267,22 @@ void gltexinvalidatetype(int32_t type)
 #endif
 }
 
-static void bind_2d_texture(GLuint texture, int filter)
-{
-    if (filter == -1)
-        filter = gltexfiltermode;
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
-#ifdef USE_GLEXT
-    if (glinfo.maxanisotropy > 1.f)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
-#endif
-}
-
 void gltexapplyprops(void)
 {
     if (videoGetRenderMode() == REND_CLASSIC)
         return;
 
-	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
+	if (glinfo.maxanisotropy > 1.f)
+	{
+		if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy)
+			glanisotropy = (int32_t)glinfo.maxanisotropy;
+	}
 
-    if (glinfo.maxanisotropy > 1.f)
-    {
-        if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy)
-            glanisotropy = (int32_t)glinfo.maxanisotropy;
-    }
+
+	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
 
     gltexfiltermode = clamp(gltexfiltermode, 0, NUMGLFILTERMODES-1);
     r_useindexedcolortextures = !gltexfiltermode;
-
-    for (bssize_t i=0; i<=GLTEXCACHEADSIZ-1; i++)
-    {
-        for (pthtyp *pth=texcache.list[i]; pth; pth=pth->next)
-        {
-            if (pth->flags & PTH_INDEXED)
-            {
-                //POGO: indexed textures should not be filtered
-                continue;
-            }
-
-            int32_t const filter = (pth->flags & PTH_FORCEFILTER) ? TEXFILTER_ON : -1;
-
-            bind_2d_texture(pth->glpic, filter);
-
-            if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)
-                bind_2d_texture(pth->ofb->glpic, filter);
-        }
-    }
-
-    for (bssize_t i=0; i<nextmodelid; i++)
-    {
-        md2model_t *m = (md2model_t *)models[i];
-
-        if (m->mdnum < 2)
-            continue;
-
-        for (bssize_t j = 0; j < m->numskins * HICTINT_MEMORY_COMBINATIONS; j++)
-        {
-            if (!m->texid[j])
-                continue;
-            bind_2d_texture(m->texid[j], -1);
-        }
-
-        for (mdskinmap_t *sk = m->skinmap; sk; sk = sk->next)
-            for (bssize_t j = 0; j < HICTINT_MEMORY_COMBINATIONS; j++)
-            {
-                if (!sk->texid[j])
-                    continue;
-                bind_2d_texture(sk->texid[j], (sk->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
-            }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,11 +416,11 @@ void polymost_glreset()
 
                 if (pth->flags & PTH_HASFULLBRIGHT)
                 {
-                    glDeleteTextures(1, &pth->ofb->glpic);
+                    delete pth->ofb->glpic;
                     Bfree(pth->ofb);
                 }
 
-                glDeleteTextures(1, &pth->glpic);
+                delete pth->glpic;
                 Bfree(pth);
                 pth = next;
             }
@@ -516,9 +431,9 @@ void polymost_glreset()
         clearskins(INVALIDATE_ALL);
     }
 
-    if (polymosttext)
-        glDeleteTextures(1,&polymosttext);
-    polymosttext=0;
+	if (polymosttext)
+		delete polymosttext;
+    polymosttext=nullptr;
 
     Bmemset(texcache.list,0,sizeof(texcache.list));
     glox1 = -1;
@@ -557,11 +472,8 @@ void polymost_resetProgram()
         useShaderProgram(polymost1CurrentShaderProgramID);
 
     // ensure that palswapTexture and paletteTexture[curbasepal] is bound
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, palswapTextureID);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, paletteTextureIDs[curbasepal]);
-    glActiveTexture(GL_TEXTURE0);
+	GLInterface.BindTexture(1, palswapTextureID);
+	GLInterface.BindTexture(2, paletteTextureIDs[curbasepal]);
 }
 
 static void polymost_setCurrentShaderProgram(uint32_t programID)
@@ -759,50 +671,15 @@ void polymost_npotEmulation(char npotEmulation, float factor, float xOffset)
     glUniform1f(polymost1NPOTEmulationXOffsetLoc, polymost1NPOTEmulationXOffset);
 }
 
-void polymost_activeTexture(GLenum texture)
-{
-    currentActiveTexture = texture;
-    glad_glActiveTexture(texture);
-}
-
-//POGOTODO: replace this and polymost_activeTexture with proper draw call organization
-void polymost_bindTexture(GLenum target, uint32_t textureID)
-{
-	glBindSampler(currentActiveTexture - GL_TEXTURE0, 0);
-    glad_glBindTexture(target, textureID);
-    if (currentActiveTexture == GL_TEXTURE0)
-    {
-        currentTextureID = textureID;
-    }
-}
-
-static void polymost_bindPth(pthtyp const * const pPth)
+static void polymost_bindPth(pthtyp const * const pPth, int sampler)
 {
     Bassert(pPth);
 
     vec4f_t texturePosSize = { 0.f, 0.f, 1.f, 1.f };
     vec2f_t halfTexelSize = { 0.f, 0.f };
-    if ((pPth->flags & PTH_INDEXED) &&
-        !(pPth->flags & PTH_HIGHTILE))
-    {
-        Tile tile;
-        char tileIsPacked = tilepacker_getTile(waloff[pPth->picnum] ? pPth->picnum+1 : 0, &tile);
-        //POGO: check the width and height to ensure that the tile hasn't been changed for a user tile that has different dimensions
-        if (tileIsPacked &&
-            (!waloff[pPth->picnum] ||
-             (tile.rect.width == (uint32_t) tilesiz[pPth->picnum].y &&
-              tile.rect.height == (uint32_t) tilesiz[pPth->picnum].x)))
-        {
-            texturePosSize = { tile.rect.u/(float) tilesheetSize,
-                               tile.rect.v/(float) tilesheetSize,
-                               tile.rect.width/(float) tilesheetSize,
-                               tile.rect.height/(float) tilesheetSize };
-            halfTexelSize = tilesheetHalfTexelSize;
-        }
-    }
     polymost_setTexturePosSize(texturePosSize);
     polymost_setHalfTexelSize(halfTexelSize);
-    glBindTexture(GL_TEXTURE_2D, pPth->glpic);
+	GLInterface.BindTexture(0, pPth->glpic, sampler);
 }
 
 void useShaderProgram(uint32_t shaderID)
@@ -814,6 +691,7 @@ void useShaderProgram(uint32_t shaderID)
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
+	glEnable(GL_TEXTURE_2D);
     glHint(GL_FOG_HINT, GL_NICEST);
     glFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -844,37 +722,6 @@ void polymost_glinit()
     tilesheetHalfTexelSize = { 0.5f/tilesheetSize, 0.5f/tilesheetSize };
     vec2_t maxTexDimensions = { tilesheetSize, tilesheetSize };
     char allPacked = false;
-    static uint32_t numTilesheets = 0;
-    //POGO: only pack the tilesheets once
-    if (numTilesheets == 0)
-    {
-        // add a blank texture for tileUID 0
-        tilepacker_addTile(0, 2, 2);
-        for (int picnum = 0; picnum < MAXTILES; ++picnum)
-        {
-            tilepacker_addTile(picnum+1, (uint32_t) tilesiz[picnum].y, (uint32_t) tilesiz[picnum].x);
-        }
-
-        do
-        {
-            tilepacker_initTilesheet(numTilesheets, tilesheetSize, tilesheetSize);
-            allPacked = tilepacker_pack(numTilesheets);
-            ++numTilesheets;
-        } while (!allPacked && numTilesheets < MAXTILESHEETS);
-    }
-    for (uint32_t i = 0; i < numTilesheets; ++i)
-    {
-        GetTextureHandle(tilesheetTexIDs+i);
-        glBindTexture(GL_TEXTURE_2D, tilesheetTexIDs[i]);
-        uploadtextureindexed(true, {0, 0}, maxTexDimensions, (intptr_t) NULL);
-    }
-
-    const char blankTex[] = {255, 255,
-                             255, 255};
-    Tile blankTile;
-    tilepacker_getTile(0, &blankTile);
-    glBindTexture(GL_TEXTURE_2D, tilesheetTexIDs[blankTile.tilesheetID]);
-    uploadtextureindexed(false, {(int32_t) blankTile.rect.u, (int32_t) blankTile.rect.v}, {2, 2}, (intptr_t) blankTex);
 
     const char* const POLYMOST2_BASIC_VERTEX_SHADER_CODE =
         "#version 110\n\
@@ -1448,7 +1295,6 @@ static void resizeglcheck(void)
     {
         glClearColor(1.0,1.0,1.0,0.0);
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-        glDisable(GL_TEXTURE_2D);
     }
 #else
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
@@ -1484,8 +1330,6 @@ static void resizeglcheck(void)
         glLoadIdentity();
 
         if (!nofog) polymost_setFogEnabled(true);
-
-        //glEnable(GL_TEXTURE_2D);
     }
 }
 
@@ -1535,44 +1379,17 @@ static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t
 }
 
 
-static void Polymost_SendTexToDriver(int32_t const doalloc,
-                                     vec2_t const siz,
-                                     int32_t const texfmt,
-                                     coltype const * const pic,
-                                     int32_t const intexfmt,
-#if defined EDUKE32_GLES
-                                     int32_t const comprtexfmt,
-                                     int32_t const texcompress_ok,
-#endif
-                                     int32_t const level)
-{
-
-#if B_BIG_ENDIAN
-    GLenum type = GL_UNSIGNED_INT_8_8_8_8;
-#else
-    GLenum type = GL_UNSIGNED_INT_8_8_8_8_REV;
-#endif
-    if (doalloc & 1)
-        glTexImage2D(GL_TEXTURE_2D, level, intexfmt, siz.x,siz.y, 0, texfmt, type, pic);
-    else
-        glTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, texfmt, type, pic);
-	glGenerateMipmap(GL_TEXTURE_2D);
-}
-
-
-void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
+void uploadtexture(FHardwareTexture *tex, int32_t doalloc, vec2_t siz, int32_t texfmt,
 	coltype* pic, vec2_t tsiz, int32_t dameth)
 {
-	int32_t intexfmt = GL_RGBA8;
 #ifdef TIMING
 	cycle_t clock;
 
 	clock.Reset();
 	clock.Clock();
 #endif
-	Polymost_SendTexToDriver(doalloc, siz, texfmt, pic,
-		intexfmt,
-		0);
+
+	tex->LoadTexture((uint8_t *)pic);
 
 #ifdef TIMING
 	clock.Unclock();
@@ -1580,26 +1397,6 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
 	static int ttt;
 	OSD_Printf("%d: texture upload %d x %d took %2.3f ms\n", ttt++, siz.x, siz.y, clock.TimeMS());
 #endif
-
-	return;
-}
-
-void uploadtextureindexed(int32_t doalloc, vec2_t offset, vec2_t siz, intptr_t tile)
-{
-    if (doalloc & 1)
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, siz.y, siz.x, 0, GL_RED, GL_UNSIGNED_BYTE, (void*) tile);
-    }
-    else
-    {
-        glTexSubImage2D(GL_TEXTURE_2D, 0, offset.x, offset.y, siz.y, siz.x, GL_RED, GL_UNSIGNED_BYTE, (void*) tile);
-    }
 }
 
 void uploadbasepalette(int32_t basepalnum)
@@ -1624,27 +1421,14 @@ void uploadbasepalette(int32_t basepalnum)
         basepalWFullBrightInfo[i*4+3] = 0-(IsPaletteIndexFullbright(i) != 0);
     }
 
-    char allocateTexture = !paletteTextureIDs[basepalnum];
-    if (allocateTexture)
-    {
-        GetTextureHandle(&paletteTextureIDs[basepalnum]);
+    if (!paletteTextureIDs[basepalnum])
+	{
+		auto &p = paletteTextureIDs[basepalnum];
+		p = GLInterface.NewTexture();
+		p->CreateTexture(256, 1, false, false);
+		p->SetSampler(Sampler2DNoFilter);
     }
-    glBindTexture(GL_TEXTURE_2D, paletteTextureIDs[basepalnum]);
-    if (allocateTexture)
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, basepalWFullBrightInfo);
-    }
-    else
-    {
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, basepalWFullBrightInfo);
-    }
+	paletteTextureIDs[basepalnum]->LoadTexture(basepalWFullBrightInfo); // RGBA
 }
 
 void uploadpalswap(int32_t palookupnum)
@@ -1659,22 +1443,24 @@ void uploadpalswap(int32_t palookupnum)
         return;
     }
 
+	// No point porting this, it's too much work for a short lived solution.
+#if 0
     char allocateTexture = !palswapTextureID;
     if (allocateTexture)
     {
-        GetTextureHandle(&palswapTextureID);
+        G etTextureHandle(&palswapTextureID);
     }
-    glBindTexture(GL_TEXTURE_2D, palswapTextureID);
+    g lBindTexture(GL_TEXTURE_2D, palswapTextureID);
     if (allocateTexture)
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
+        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        g lTexImage2D(GL_TEXTURE_2D, 0, GL_RED, PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
     }
 
     int32_t column = palookupnum%(PALSWAP_TEXTURE_SIZE/256);
@@ -1685,55 +1471,22 @@ void uploadpalswap(int32_t palookupnum)
         OSD_Printf("Polymost: palswaps are too large for palswap tilesheet!\n");
         return;
     }
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 256*column, rowOffset, 256, numshades+1, GL_RED, GL_UNSIGNED_BYTE, palookup[palookupnum]);
+    g lTexSubImage2D(GL_TEXTURE_2D, 0, 256*column, rowOffset, 256, numshades+1, GL_RED, GL_UNSIGNED_BYTE, palookup[palookupnum]);
+#endif
 }
 
 
-#if 0
-// TODO: make configurable
-static int32_t tile_is_sky(int32_t tilenum)
+static void polymost_setuptexture(FHardwareTexture *tex, const int32_t dameth, int filter)
 {
-    return return (tilenum >= 78 /*CLOUDYOCEAN*/ && tilenum <= 99 /*REDSKY2*/);
-}
-# define clamp_if_tile_is_sky(x, y) (tile_is_sky(x) ? (y) : GL_REPEAT)
-#else
-# define clamp_if_tile_is_sky(x, y) (GL_REPEAT)
-#endif
-
-static void polymost_setuptexture(const int32_t dameth, int filter)
-{
-    const GLuint clamp_mode = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
-
-    gltexfiltermode = clamp(gltexfiltermode, 0, NUMGLFILTERMODES-1);
-
-    if (filter == -1)
-        filter = gltexfiltermode;
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
-
-#ifdef USE_GLEXT
-    if (glinfo.maxanisotropy > 1.f)
-    {
-        uint32_t i = (unsigned)Blrintf(glinfo.maxanisotropy);
-
-        if ((unsigned)glanisotropy > i)
-            glanisotropy = i;
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
-    }
-#endif
 
     if (!(dameth & DAMETH_CLAMPED))
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_if_tile_is_sky(dapic, clamp_mode));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		tex->SetSampler(SamplerRepeat);
     }
     else
     {
         // For sprite textures, clamping looks better than wrapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
+		tex->SetSampler(SamplerClampXY);
     }
 }
 
@@ -1747,44 +1500,21 @@ static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp *pth, in
     //POGOTODO: if !glinfo.texnpot, then we could allocate a texture of the pow2 size, and then populate the subportion using buffersubdata func
     //if (!glinfo.texnpot)
 
-    Tile tile = {};
     if (waloff[dapic])
     {
-        char tileIsPacked = tilepacker_getTile(dapic+1, &tile);
-        if (tileIsPacked &&
-            tile.rect.width == (uint32_t) tsizart.y &&
-            tile.rect.height == (uint32_t) tsizart.x)
-        {
-            pth->glpic = tilesheetTexIDs[tile.tilesheetID];
-            doalloc = false;
-        }
-        else if (doalloc)
-        {
-            GetTextureHandle((GLuint *)&pth->glpic);
-        }
-        glBindTexture(GL_TEXTURE_2D, pth->glpic);
-
         if (doalloc)
         {
-            const GLuint clamp_mode = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
-            if (!(dameth & DAMETH_CLAMPED))
-            {
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_if_tile_is_sky(dapic, clamp_mode));
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            }
-            else
-            {
-                // For sprite textures, clamping looks better than wrapping
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
-            }
+			assert(pth->glpic == nullptr);
+			pth->glpic = GLInterface.NewTexture();
+			pth->glpic->CreateTexture(siz.x, siz.y, true, false);
+			pth->glpic->SetSampler(SamplerNoFilter);
+			polymost_setuptexture(pth->glpic, dameth, 0);
         }
-        uploadtextureindexed(doalloc, {(int32_t) tile.rect.u, (int32_t) tile.rect.v}, siz, waloff[dapic]);
+		pth->glpic->LoadTexture((uint8_t*)waloff[dapic]); // Indexed
     }
     else
     {
-        tilepacker_getTile(0, &tile);
-        pth->glpic = tilesheetTexIDs[tile.tilesheetID];
+		assert(false);
     }
 
     pth->picnum = dapic;
@@ -1940,8 +1670,11 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
             }
         }
 
-        if (doalloc) GetTextureHandle((GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
-        glBindTexture(GL_TEXTURE_2D, pth->glpic);
+		if (doalloc)
+		{
+			pth->glpic = GLInterface.NewTexture();
+			pth->glpic->CreateTexture(siz.x, siz.y, false, true);
+		}
 
         fixtransparency(pic,tsiz,siz,dameth);
 
@@ -1962,7 +1695,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
             npoty = 1;
         }
 
-        uploadtexture(doalloc, siz, GL_BGRA, pic, tsiz,
+        uploadtexture(pth->glpic, doalloc, siz, GL_BGRA, pic, tsiz,
                       dameth | DAMETH_ARTIMMUNITY |
                       (dapic >= MAXUSERTILES ? (DAMETH_NOTEXCOMPRESS|DAMETH_NODOWNSIZE) : 0) | /* never process these short-lived tiles */
                       (hasfullbright ? DAMETH_HASFULLBRIGHT : 0) |
@@ -1972,7 +1705,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
         Bfree(pic);
     }
 
-    polymost_setuptexture(dameth, -1);
+    polymost_setuptexture(pth->glpic, dameth, -1);
 
     pth->picnum = dapic;
     pth->palnum = dapal;
@@ -2227,15 +1960,17 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
             hicr->flags |= HICR_ARTIMMUNITY;
 
-        if ((doalloc&3)==1)
-            GetTextureHandle(&pth->glpic); //# of textures (make OpenGL allocate structure)
-        glBindTexture(GL_TEXTURE_2D, pth->glpic);
+		if ((doalloc & 3) == 1)
+		{
+			pth->glpic = GLInterface.NewTexture();
+			pth->glpic->CreateTexture(siz.x, siz.y, false, true);
+		}
 
         fixtransparency(pic,tsiz,siz,dameth);
 
         int32_t const texfmt = glinfo.bgra ? GL_BGRA : GL_RGBA;
 
-        uploadtexture(doalloc,siz,texfmt,pic,tsiz,
+        uploadtexture(pth->glpic, doalloc,siz,texfmt,pic,tsiz,
                       dameth | DAMETH_HI | DAMETH_NOFIX |
                       TO_DAMETH_NODOWNSIZE(hicr->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(hicr->flags) |
@@ -2258,7 +1993,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         pth->scale.y = (float)tsiz.y / (float)tilesiz[dapic].y;
     }
 
-    polymost_setuptexture(dameth, (hicr->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
+    polymost_setuptexture(pth->glpic, dameth, (hicr->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
 
     if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
         hicr->flags |= HICR_ARTIMMUNITY;
@@ -2285,26 +2020,14 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 }
 
 #ifdef USE_GLEXT
-void polymost_setupdetailtexture(const int32_t texunits, const int32_t tex)
+void polymost_setupdetailtexture(const int32_t texunits, FHardwareTexture *tex)
 {
-    glActiveTexture(texunits);
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	GLInterface.BindTexture(texunits, tex, SamplerRepeat);
 }
 
-void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
+void polymost_setupglowtexture(const int32_t texunits, FHardwareTexture* tex)
 {
-    glActiveTexture(texunits);
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	GLInterface.BindTexture(texunits, tex, SamplerRepeat);
 }
 #endif
 
@@ -2342,10 +2065,8 @@ static void polymost_updatePalette()
     //POGO: only bind the base pal once when it's swapped
     if (curbasepal != lastbasepal)
     {
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, paletteTextureIDs[curbasepal]);
+		GLInterface.BindTexture(2, paletteTextureIDs[curbasepal], Sampler2DNoFilter);
         lastbasepal = curbasepal;
-        glActiveTexture(GL_TEXTURE0);
     }
 }
 
@@ -2521,16 +2242,23 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     // just submit the geometry and don't mess with textures.
     if (videoGetRenderMode() == REND_POLYMOST)
     {
-        polymost_bindPth(pth);
 
         //POGOTODO: I could move this into bindPth
         if (!(pth->flags & PTH_INDEXED))
             polymost_usePaletteIndexing(false);
 
-        if (drawpoly_srepeat)
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-        if (drawpoly_trepeat)
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+		// The entire logic here is just one lousy hack.
+		int mSampler = NoSampler;
+		if (pth->glpic->GetSampler() != SamplerRepeat)
+		{
+			if (drawpoly_srepeat && drawpoly_trepeat) mSampler = SamplerRepeat;
+			else if (drawpoly_srepeat) mSampler = SamplerClampY;
+			else if (drawpoly_trepeat) mSampler = SamplerClampX;
+			else mSampler = SamplerClampXY;
+		}
+
+		polymost_bindPth(pth, mSampler);
+
     }
 
     // texture scale by parkar request
@@ -2561,9 +2289,10 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
         {
             polymost_useDetailMapping(true);
-            polymost_setupdetailtexture(videoGetRenderMode() == REND_POLYMOST ? GL_TEXTURE3 : ++texunits, detailpth->glpic);
+            polymost_setupdetailtexture(3, detailpth->glpic);
 
-            glMatrixMode(GL_TEXTURE);
+			glActiveTexture(GL_TEXTURE3);
+			glMatrixMode(GL_TEXTURE);
             glLoadIdentity();
 
             if (pth->hicr && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
@@ -2587,8 +2316,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
         {
             polymost_useGlowMapping(true);
-            polymost_setupglowtexture(videoGetRenderMode() == REND_POLYMOST ? GL_TEXTURE4 : ++texunits, glowpth->glpic);
-            glActiveTexture(GL_TEXTURE0);
+            polymost_setupglowtexture(4, glowpth->glpic);
         }
     }
 
@@ -2877,15 +2605,6 @@ do                                                                              
         // restore palette usage if we were just rendering a non-indexed color texture
         polymost_usePaletteIndexing(true);
     }
-
-    int const clamp_mode = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
-
-    if (drawpoly_srepeat)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
-
-    if (drawpoly_trepeat)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
-
     if (fullbright_pass == 1)
     {
         int32_t const shade = globalshade;
@@ -5359,7 +5078,6 @@ void polymost_drawrooms()
     glClear(GL_DEPTH_BUFFER_BIT);
 
     glDisable(GL_BLEND);
-    glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_ALWAYS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
@@ -6775,7 +6493,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_ALPHA_TEST);
-    glEnable(GL_TEXTURE_2D);
 
 #if defined(POLYMER)
 # ifdef USE_GLEXT
@@ -7152,12 +6869,11 @@ void polymost_fillpolygon(int32_t npoints)
 
     if (gloy1 != -1) polymostSet2dView(); //disables blending, texturing, and depth testing
     glEnable(GL_ALPHA_TEST);
-    glEnable(GL_TEXTURE_2D);
     pthtyp const * const pth = our_texcache_fetch(DAMETH_NOMASK | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
 
     if (pth)
     {
-        polymost_bindPth(pth);
+        polymost_bindPth(pth, -1);
 
         if (!(pth->flags & PTH_INDEXED))
             polymost_usePaletteIndexing(false);
@@ -7193,8 +6909,7 @@ static int32_t gen_font_glyph_tex(void)
 {
     // construct a 256x128 texture for the font glyph matrix
 
-    GetTextureHandle(&polymosttext);
-
+	polymosttext = GLInterface.NewTexture();
     if (!polymosttext) return -1;
 
     char * const tbuf = (char *)Xmalloc(256*128*4);
@@ -7237,10 +6952,9 @@ static int32_t gen_font_glyph_tex(void)
         }
     }
 
-    glBindTexture(GL_TEXTURE_2D, polymosttext);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,256,128,0,GL_RGBA,GL_UNSIGNED_BYTE,(GLvoid *)tbuf);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	polymosttext->CreateTexture(256, 128, false, false);
+	polymosttext->LoadTexture((uint8_t*)tbuf); // RGBA
+	polymosttext->SetSampler(Sampler2DNoFilter);
     Bfree(tbuf);
 
     return 0;
@@ -7262,7 +6976,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     if (videoGetRenderMode() < REND_POLYMOST || !in3dmode() || (!polymosttext && gen_font_glyph_tex() < 0))
         return -1;
 
-    glBindTexture(GL_TEXTURE_2D, polymosttext);
+	GLInterface.BindTexture(0, polymosttext);
     polymost_setTexturePosSize({0, 0, 1, 1});
 
     polymost_usePaletteIndexing(false);
@@ -7295,7 +7009,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 		GLInterface.Draw(DT_TRIANGLE_FAN, data.first, 4);
     }
 
-    glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glColor4ub(p.r,p.g,p.b,255);
 

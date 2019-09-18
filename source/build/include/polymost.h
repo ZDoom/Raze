@@ -13,6 +13,7 @@ void Polymost_CacheHitList(uint8_t* hash);
 extern "C" {
 #endif
 
+	class FHardwareTexture;
 typedef struct { uint8_t r, g, b, a; } coltype;
 typedef struct { float r, g, b, a; } coltypef;
 
@@ -33,11 +34,9 @@ extern struct glfiltermodes glfiltermodes[NUMGLFILTERMODES];
 
 extern void Polymost_prepare_loadboard(void);
 
-void GetTextureHandle(GLuint *handle);
 
 //void phex(char v, char *s);
-void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
-void uploadtextureindexed(int32_t doalloc, vec2_t offset, vec2_t siz, intptr_t tile);
+void uploadtexture(FHardwareTexture *tex, int32_t doalloc, vec2_t siz, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
 void uploadbasepalette(int32_t basepalnum);
 void uploadpalswap(int32_t palookupnum);
 void polymost_drawsprite(int32_t snum);
@@ -57,15 +56,7 @@ void polymost_useColorOnly(char useColorOnly);
 void polymost_usePaletteIndexing(char usePaletteIndexing);
 void polymost_useDetailMapping(char useDetailMapping);
 void polymost_useGlowMapping(char useGlowMapping);
-void polymost_activeTexture(GLenum texture);
-void polymost_bindTexture(GLenum target, uint32_t textureID);
 void useShaderProgram(uint32_t shaderID);
-
-//POGOTODO: these wrappers won't be needed down the line -- remove them once proper draw call organization is finished
-#undef glActiveTexture
-#undef glBindTexture
-#define glActiveTexture polymost_activeTexture
-#define glBindTexture polymost_bindTexture
 
 void polymost_glinit(void);
 void polymost_glreset(void);
@@ -225,8 +216,7 @@ EDUKE32_STATIC_ASSERT(TO_DAMETH_ARTIMMUNITY(HICR_ARTIMMUNITY) == DAMETH_ARTIMMUN
 // Do we want a NPOT-y-as-classic texture for this <dameth> and <ysiz>?
 static FORCE_INLINE int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
 {
-    return videoGetRenderMode() != REND_POLYMER &&  // r_npotwallmode NYI in Polymer
-        polymost_is_npotmode() && (dameth&DAMETH_WALL) && check_nonpow2(ysiz);
+    return polymost_is_npotmode() && (dameth&DAMETH_WALL) && check_nonpow2(ysiz);
 }
 
 // pthtyp pth->flags bits
@@ -252,7 +242,7 @@ typedef struct pthtyp_t
     struct pthtyp_t *ofb; // fullbright pixels
     hicreplctyp     *hicr;
 
-    uint32_t        glpic;
+    FHardwareTexture * glpic;
     vec2f_t         scale;
     vec2_t          siz;
     int16_t         picnum;
@@ -274,7 +264,7 @@ EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_TRANS1) == 0);
 EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_MASKPROPS) == 0);
 
 extern void gloadtile_art(int32_t,int32_t,int32_t,int32_t,int32_t,pthtyp *,int32_t);
-extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,polytintflags_t);
+extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t, polytintflags_t);
 
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
@@ -288,8 +278,8 @@ extern hitdata_t polymost_hitdata;
 
 #include "texcache.h"
 
-extern void polymost_setupglowtexture(int32_t texunits, int32_t tex);
-extern void polymost_setupdetailtexture(int32_t texunits, int32_t tex);
+extern void polymost_setupglowtexture(int32_t texunits, FHardwareTexture *tex);
+extern void polymost_setupdetailtexture(int32_t texunits, FHardwareTexture* tex);
 
 #ifdef __cplusplus
 }

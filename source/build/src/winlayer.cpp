@@ -2745,7 +2745,6 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
 
     polymost_glreset();
 
-    glEnable(GL_TEXTURE_2D);
     glShadeModel(GL_SMOOTH); //GL_FLAT
     glClearColor(0,0,0,0.5); //Black Background
     glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST); //Use FASTEST for ortho!
@@ -2836,11 +2835,13 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 // supports GL_CLAMP_TO_EDGE or GL_CLAMP_TO_EDGE_SGIS
                 glinfo.clamptoedge = 1;
             }
+			/*
             else if (!Bstrcmp((char *)p2, "GL_EXT_bgra"))
             {
                 // support bgra textures
                 glinfo.bgra = 1;
             }
+			*/
             else if (!Bstrcmp((char *)p2, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
             {
                 // support texture compression

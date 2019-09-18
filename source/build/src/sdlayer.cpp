@@ -1298,7 +1298,6 @@ void sdlayer_setvideomode_opengl(void)
     glsurface_destroy();
     polymost_glreset();
 
-    glEnable(GL_TEXTURE_2D);
     glShadeModel(GL_SMOOTH);  // GL_FLAT
     glClearColor(0, 0, 0, 1.0);  // Black Background
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Use FASTEST for ortho!
@@ -1312,34 +1311,6 @@ void sdlayer_setvideomode_opengl(void)
     glinfo.renderer = (const char *) glGetString(GL_RENDERER);
     glinfo.version = (const char *) glGetString(GL_VERSION);
     glinfo.extensions = (const char *) glGetString(GL_EXTENSIONS);
-
-#ifdef POLYMER
-    if (!Bstrcmp(glinfo.vendor, "ATI Technologies Inc."))
-    {
-        pr_ati_fboworkaround = 1;
-        initprintf("Enabling ATI FBO color attachment workaround.\n");
-
-        if (Bstrstr(glinfo.renderer, "Radeon X1"))
-        {
-            pr_ati_nodepthoffset = 1;
-            initprintf("Enabling ATI R520 polygon offset workaround.\n");
-        }
-        else
-            pr_ati_nodepthoffset = 0;
-#ifdef __APPLE__
-        // See bug description at http://lists.apple.com/archives/mac-opengl/2005/Oct/msg00169.html
-        if (!Bstrncmp(glinfo.renderer, "ATI Radeon 9600", 15))
-        {
-            pr_ati_textureformat_one = 1;
-            initprintf("Enabling ATI Radeon 9600 texture format workaround.\n");
-        }
-        else
-            pr_ati_textureformat_one = 0;
-#endif
-    }
-    else
-        pr_ati_fboworkaround = 0;
-#endif  // defined POLYMER
 
     glinfo.maxanisotropy = 1.0;
     glinfo.bgra = 0;
@@ -1356,20 +1327,9 @@ void sdlayer_setvideomode_opengl(void)
     glinfo.shadow = !!Bstrstr(glinfo.extensions, "GL_ARB_shadow");
     glinfo.fbos = !!Bstrstr(glinfo.extensions, "GL_EXT_framebuffer_object") || !!Bstrstr(glinfo.extensions, "GL_OES_framebuffer_object");
 
-#if !defined EDUKE32_GLES
-    glinfo.texcompr = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor, "ATI Technologies Inc.");
-# ifdef DYNAMIC_GLEXT
-    if (glinfo.texcompr && (!glCompressedTexImage2D || !glGetCompressedTexImage))
-    {
-        // lacking the necessary extensions to do this
-        initprintf("Warning: the GL driver lacks necessary functions to use caching\n");
-        glinfo.texcompr = 0;
-    }
-# endif
-
-    glinfo.bgra = !!Bstrstr(glinfo.extensions, "GL_EXT_bgra");
-    glinfo.clamptoedge = !!Bstrstr(glinfo.extensions, "GL_EXT_texture_edge_clamp") ||
-                         !!Bstrstr(glinfo.extensions, "GL_SGIS_texture_edge_clamp");
+    glinfo.texcompr = 0;
+	glinfo.bgra = 0;// !!Bstrstr(glinfo.extensions, "GL_EXT_bgra");
+    glinfo.clamptoedge = true;
     glinfo.rect =
     !!Bstrstr(glinfo.extensions, "GL_NV_texture_rectangle") || !!Bstrstr(glinfo.extensions, "GL_EXT_texture_rectangle");
 
@@ -1393,10 +1353,6 @@ void sdlayer_setvideomode_opengl(void)
             initprintf("3dfx card detected: OpenGL fog disabled\n");
         warnonce |= 1;
     }
-#else
-    // don't bother checking because ETC2 et al. are not listed in extensions anyway
-    glinfo.texcompr = 1; // !!Bstrstr(glinfo.extensions, "GL_OES_compressed_ETC1_RGB8_texture");
-#endif
 
 //    if (Bstrstr(glinfo.extensions, "GL_EXT_texture_filter_anisotropic"))
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);

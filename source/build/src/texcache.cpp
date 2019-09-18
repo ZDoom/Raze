@@ -150,7 +150,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
             {
                 pth->flags &= ~PTH_INVALIDATED;
 
-                int32_t tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 0,
+				int32_t tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 0,
                                         (checktintpal > 0) ? 0 : tintflags);  // reload tile
 
                 if (!tilestat)

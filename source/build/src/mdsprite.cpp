@@ -126,7 +126,7 @@ void freeallmodels()
 
 
 // Skin texture names can be aliased! This is ugly, but at least correct.
-static void nullskintexids(GLuint texid)
+static void nullskintexids(FHardwareTexture *texid)
 {
     int32_t i, j;
 
@@ -141,12 +141,12 @@ static void nullskintexids(GLuint texid)
 
             for (j=0; j < m2->numskins * HICTINT_MEMORY_COMBINATIONS; j++)
                 if (m2->texid[j] == texid)
-                    m2->texid[j] = 0;
+                    m2->texid[j] = nullptr;
 
             for (sk=m2->skinmap; sk; sk=sk->next)
                 for (j=0; j < HICTINT_MEMORY_COMBINATIONS; j++)
                     if (sk->texid[j] == texid)
-                        sk->texid[j] = 0;
+                        sk->texid[j] = nullptr;
         }
     }
 }
@@ -166,8 +166,8 @@ void clearskins(int32_t type)
             for (j=0; j<MAXPALOOKUPS; j++)
                 if (v->texid[j])
                 {
-                    glDeleteTextures(1, &v->texid[j]);
-                    v->texid[j] = 0;
+					delete v->texid[j];
+                    v->texid[j] = nullptr;
                 }
         }
         else if ((m->mdnum == 2 || m->mdnum == 3) && type == INVALIDATE_ALL)
@@ -178,10 +178,10 @@ void clearskins(int32_t type)
             for (j=0; j < m2->numskins * HICTINT_MEMORY_COMBINATIONS; j++)
                 if (m2->texid[j])
                 {
-                    GLuint otexid = m2->texid[j];
+                    auto otexid = m2->texid[j];
 
-                    glDeleteTextures(1, &m2->texid[j]);
-                    m2->texid[j] = 0;
+                    delete m2->texid[j];
+                    m2->texid[j] = nullptr;
 
                     nullskintexids(otexid);
                 }
@@ -190,10 +190,10 @@ void clearskins(int32_t type)
                 for (j=0; j < HICTINT_MEMORY_COMBINATIONS; j++)
                     if (sk->texid[j])
                     {
-                        GLuint otexid = sk->texid[j];
+                        auto otexid = sk->texid[j];
 
-                        glDeleteTextures(1, &sk->texid[j]);
-                        sk->texid[j] = 0;
+                        delete sk->texid[j];
+                        sk->texid[j] = nullptr;
 
                         nullskintexids(otexid);
                     }
@@ -208,8 +208,8 @@ void clearskins(int32_t type)
         for (j=0; j<MAXPALOOKUPS; j++)
             if (v->texid[j])
             {
-                glDeleteTextures(1, &v->texid[j]);
-                v->texid[j] = 0;
+                delete v->texid[j];
+                v->texid[j] = nullptr;
             }
     }
 }
@@ -559,28 +559,28 @@ static inline int32_t hicfxid(size_t pal)
     return globalnoeffect ? 0 : ((hictinting[pal].f & (HICTINT_GRAYSCALE|HICTINT_INVERT|HICTINT_COLORIZE)) | ((hictinting[pal].f & HICTINT_BLENDMASK)<<3));
 }
 
-static int32_t mdloadskin_notfound(char * const skinfile, char const * const fn)
+static FHardwareTexture *mdloadskin_notfound(char * const skinfile, char const * const fn)
 {
     OSD_Printf("Skin \"%s\" not found.\n", fn);
 
     skinfile[0] = 0;
-    return 0;
+    return nullptr;
 }
 
-static int32_t mdloadskin_failed(char * const skinfile, char const * const fn)
+static FHardwareTexture *mdloadskin_failed(char * const skinfile, char const * const fn)
 {
     OSD_Printf("Failed loading skin file \"%s\".\n", fn);
 
     skinfile[0] = 0;
-    return 0;
+    return nullptr;
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
-int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
+FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
     int32_t i;
     char *skinfile = NULL, fn[BMAX_PATH];
-    GLuint *texidx = NULL;
+    FHardwareTexture **texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
     int32_t doalloc = 1;
 
@@ -624,21 +624,6 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         }
         else
             return 0;
-#if 0
-        {
-            // fall back to the model-defined texture
-            if ((unsigned)number >= (unsigned)m->numskins)
-                number = 0;
-
-            // m->skinfn is undefined when md3model_t is cast to md2model_t --> crash
-            skinfile = m->skinfn + number*64;
-            texidx = &m->texid[number * HICTINT_MEMORY_COMBINATIONS + hicfxid(pal)];
-            Bstrncpyz(fn, m->basepath, BMAX_PATH);
-            if ((Bstrlen(fn) + Bstrlen(skinfile)) < BMAX_PATH)
-                Bstrcat(fn,skinfile);
-            //OSD_Printf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
-        }
-#endif
     }
 
     if (skinfile == NULL || !skinfile[0])
@@ -857,16 +842,16 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))
             m->usesalpha = hasalpha;
-        if ((doalloc&3)==1)
-            GetTextureHandle(texidx);
-
-        glBindTexture(GL_TEXTURE_2D, *texidx);
+		if ((doalloc & 3) == 1)
+		{
+			*texidx = GLInterface.NewTexture();
+		}
 
         //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
 
         int32_t const texfmt = glinfo.bgra ? GL_BGRA : GL_RGBA;
 
-        uploadtexture((doalloc&1), siz, texfmt, pic, tsiz,
+        uploadtexture(*texidx, (doalloc&1), siz, texfmt, pic, tsiz,
                       DAMETH_HI | DAMETH_MASK |
                       TO_DAMETH_NODOWNSIZE(sk->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(sk->flags) |
@@ -913,17 +898,10 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         m->skinloaded = 1+number;
     }
 
-    int32_t const filter = (sk->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : gltexfiltermode;
-
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[filter].mag);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[filter].min);
-#ifdef USE_GLEXT
-    if (glinfo.maxanisotropy > 1.0)
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
-#endif
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-
+	if (*texidx)
+	{
+		(*texidx)->SetSampler(SamplerRepeat);
+	}
     if (willprint)
     {
         int32_t etime = timerGetTicks()-startticks;
@@ -1215,7 +1193,7 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
             { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
     }
 
-    m->texid = (GLuint *)Xcalloc(ournumskins, sizeof(GLuint) * HICTINT_MEMORY_COMBINATIONS);
+    m->texid = (FHardwareTexture **)Xcalloc(ournumskins, sizeof(FHardwareTexture*) * HICTINT_MEMORY_COMBINATIONS);
 
     maxmodelverts = max(maxmodelverts, m->numverts);
     maxmodeltris = max(maxmodeltris, head.numtris);
@@ -1225,7 +1203,7 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
     // the MD2 is now loaded internally - let's begin the MD3 conversion process
     //OSD_Printf("Beginning md3 conversion.\n");
     m3 = (md3model_t *)Xcalloc(1, sizeof(md3model_t));
-    m3->mdnum = 3; m3->texid = 0; m3->scale = m->scale;
+    m3->mdnum = 3; m3->texid = nullptr; m3->scale = m->scale;
     m3->head.id = IDP3_MAGIC; m3->head.vers = 15;
 
     m3->head.flags = 0;
@@ -2041,8 +2019,6 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    glEnable(GL_TEXTURE_2D);
-
     // tinting
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
     polytintflags_t const tintflags = hictinting[globalpal].f;
@@ -2164,11 +2140,11 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; glLoadMatrixf(mat);
         // PLAG: End
 
-        i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,globalpal,surfi);
-        if (!i)
+        auto tex = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,globalpal,surfi);
+        if (!tex)
             continue;
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
-        glBindTexture(GL_TEXTURE_2D, i);
+		GLInterface.BindTexture(0, tex);
 
         glMatrixMode(GL_TEXTURE);
         glLoadIdentity();
@@ -2181,38 +2157,42 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
             //POGOTODO: if we add support for palette indexing on model skins, the texture for the palswap could be setup here
             texunits += 4;
 
-            i = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi) : 0;
+            tex = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi) : nullptr;
 
-            if (i)
+            if (tex)
             {
                 mdskinmap_t *sk;
 
                 polymost_useDetailMapping(true);
-                polymost_setupdetailtexture(GL_TEXTURE3, i);
+                polymost_setupdetailtexture(3, tex);
 
                 for (sk = m->skinmap; sk; sk = sk->next)
                     if ((int32_t) sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum && sk->surfnum == surfi)
                         f = sk->param;
 
+				glActiveTexture(GL_TEXTURE3);
                 glMatrixMode(GL_TEXTURE);
                 glLoadIdentity();
                 glTranslatef(xpanning, ypanning, 1.0f);
                 glScalef(f, f, 1.0f);
                 glMatrixMode(GL_MODELVIEW);
-            }
+				glActiveTexture(GL_TEXTURE0);
+			}
 
-            i = r_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi) : 0;
+            tex = r_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi) : 0;
 
             if (i)
             {
                 polymost_useGlowMapping(true);
-                polymost_setupglowtexture(GL_TEXTURE4, i);
+                polymost_setupglowtexture(4, tex);
 
-                glMatrixMode(GL_TEXTURE);
+				glActiveTexture(GL_TEXTURE4);
+				glMatrixMode(GL_TEXTURE);
                 glLoadIdentity();
                 glTranslatef(xpanning, ypanning, 1.0f);
                 glMatrixMode(GL_MODELVIEW);
-            }
+				glActiveTexture(GL_TEXTURE0);
+			}
 
 #endif
                 indexhandle = m->vindexes;
@@ -2267,17 +2247,6 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         }
 
 #ifdef USE_GLEXT
-        {
-            while (texunits > GL_TEXTURE0)
-            {
-                glMatrixMode(GL_TEXTURE);
-                glLoadIdentity();
-                glMatrixMode(GL_MODELVIEW);
-                glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
-                glDisable(GL_TEXTURE_2D);
-            }
-        } // r_vertexarrays
-
         polymost_useDetailMapping(false);
         polymost_useGlowMapping(false);
 #endif

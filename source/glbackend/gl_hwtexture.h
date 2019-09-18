@@ -9,6 +9,7 @@ public:
 
 private:
 
+	int mSampler = 0;
 	unsigned int glTexID = 0;
 	int glTextureBytes = 4;
 	bool mipmapped = true;
@@ -18,12 +19,13 @@ public:
 
 	~FHardwareTexture();
 
-	unsigned int Bind(int texunit, bool needmipmap);
 	//bool BindOrCreate(FTexture *tex, int texunit, int clampmode, int translation, int flags);
 
 	unsigned int CreateTexture(int w, int h, bool eightbit, bool mipmapped);
 	unsigned int LoadTexture(unsigned char * buffer);
 	unsigned int GetTextureHandle();
+	int GetSampler() { return mSampler; }
+	void SetSampler(int sampler) { mSampler = sampler;  }
 };
 
 #endif

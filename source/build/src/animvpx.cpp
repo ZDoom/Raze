@@ -295,64 +295,36 @@ read_ivf_frame:
     const int32_t ustride = img->stride[VPX_PLANE_U];
     const int32_t vstride = img->stride[VPX_PLANE_V];
 
-    if (glinfo.glsl) /*** 3 planes --> packed conversion ***/
+     /*** 3 planes --> packed conversion ***/
+    vec2u_t const dim = { img->d_w, img->d_h };
+
+    for (unsigned int y = 0; y < dim.y; y += 2)
     {
-        vec2u_t const dim = { img->d_w, img->d_h };
+        unsigned int const y1 = y + 1;
+        unsigned int const wy = dim.x * y;
+        unsigned int const wy1 = dim.x * y1;
 
-        for (unsigned int y = 0; y < dim.y; y += 2)
+        for (unsigned int x = 0; x < dim.x; x += 2)
         {
-            unsigned int const y1 = y + 1;
-            unsigned int const wy = dim.x * y;
-            unsigned int const wy1 = dim.x * y1;
+            uint8_t u = uplane[ustride * (y >> 1) + (x >> 1)];
+            uint8_t v = vplane[vstride * (y >> 1) + (x >> 1)];
 
-            for (unsigned int x = 0; x < dim.x; x += 2)
-            {
-                uint8_t u = uplane[ustride * (y >> 1) + (x >> 1)];
-                uint8_t v = vplane[vstride * (y >> 1) + (x >> 1)];
+            dstpic[(wy + x) << 2] = yplane[ystride * y + x];
+            dstpic[(wy + x + 1) << 2] = yplane[ystride * y + x + 1];
+            dstpic[(wy1 + x) << 2] = yplane[ystride * y1 + x];
+            dstpic[(wy1 + x + 1) << 2] = yplane[ystride * y1 + x + 1];
 
-                dstpic[(wy + x) << 2] = yplane[ystride * y + x];
-                dstpic[(wy + x + 1) << 2] = yplane[ystride * y + x + 1];
-                dstpic[(wy1 + x) << 2] = yplane[ystride * y1 + x];
-                dstpic[(wy1 + x + 1) << 2] = yplane[ystride * y1 + x + 1];
+            dstpic[((wy + x) << 2) + 1] = u;
+            dstpic[((wy + x + 1) << 2) + 1] = u;
+            dstpic[((wy1 + x) << 2) + 1] = u;
+            dstpic[((wy1 + x + 1) << 2) + 1] = u;
 
-                dstpic[((wy + x) << 2) + 1] = u;
-                dstpic[((wy + x + 1) << 2) + 1] = u;
-                dstpic[((wy1 + x) << 2) + 1] = u;
-                dstpic[((wy1 + x + 1) << 2) + 1] = u;
-
-                dstpic[((wy + x) << 2) + 2] = v;
-                dstpic[((wy + x + 1) << 2) + 2] = v;
-                dstpic[((wy1 + x) << 2) + 2] = v;
-                dstpic[((wy1 + x + 1) << 2) + 2] = v;
-            }
+            dstpic[((wy + x) << 2) + 2] = v;
+            dstpic[((wy + x + 1) << 2) + 2] = v;
+            dstpic[((wy1 + x) << 2) + 2] = v;
+            dstpic[((wy1 + x + 1) << 2) + 2] = v;
         }
     }
-    else /*** 3 planes --> packed conversion (RGB) ***/
-    {
-        int i = 0;
-
-        for (unsigned int imgY = 0; imgY < img->d_h; imgY++)
-        {
-            for (unsigned int imgX = 0; imgX < img->d_w; imgX++)
-            {
-                uint8_t const y = yplane[imgY * ystride + imgX];
-                uint8_t const u = uplane[(imgY >> 1) * ustride + (imgX >> 1)];
-                uint8_t const v = vplane[(imgY >> 1) * vstride + (imgX >> 1)];
-
-                int const c = y - 16;
-                int const d = (u + -128);
-                int const e = (v + -128);
-                int const c298 = c * 298;
-
-                dstpic[i + 0] = (uint8_t)clamp((c298 + 409 * e - -128) >> 8, 0, 255);
-                dstpic[i + 1] = (uint8_t)clamp((c298 - 100 * d - 208 * e - -128) >> 8, 0, 255);
-                dstpic[i + 2] = (uint8_t)clamp((c298 + 516 * d - -128) >> 8, 0, 255);
-
-                i += 3;
-            }
-        }
-    }
-
     t[2] = timerGetTicks();
 
     codec->sumtimes[0] += t[1]-t[0];
@@ -367,7 +339,8 @@ read_ivf_frame:
 
 
 /////////////// DRAWING! ///////////////
-static GLuint texname = 0;
+static FHardwareTexture* texture;
+static int sampler;
 static int32_t texuploaded;
 
 #ifdef USE_GLEXT
@@ -458,26 +431,17 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     glDisable(GL_CULL_FACE);
-    glEnable(GL_TEXTURE_2D);
 
-#ifdef USE_GLEXT
-    glActiveTexture(GL_TEXTURE0);
-#endif
-    GetTextureHandle(&texname);
-    glBindTexture(GL_TEXTURE_2D, texname);
+	texture = GLInterface.NewTexture();
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
     if ((animvpx_flags & CUTSCENE_TEXTUREFILTER && gltexfiltermode == TEXFILTER_ON) || animvpx_flags & CUTSCENE_FORCEFILTER ||
     (!(animvpx_flags & CUTSCENE_TEXTUREFILTER) && !(animvpx_flags & CUTSCENE_FORCENOFILTER))) // if no flags, then use filter for IVFs
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		sampler = Sampler2DFiltered;
     }
     else
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		sampler = Sampler2DNoFilter;
     }
 
     texuploaded = 0;
@@ -499,8 +463,8 @@ void animvpx_restore_glstate(void)
 
 //    glPopAttrib();
 
-    glDeleteTextures(1, &texname);
-    texname = 0;
+	delete texture;
+	texture = nullptr;
     texuploaded = 0;
 }
 
@@ -514,21 +478,13 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
     if (codec->pic == NULL)
         return 2;  // shouldn't happen
 
-    int fmt = glinfo.glsl ? GL_RGBA : GL_RGB;
-
     if (!texuploaded)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, fmt, codec->width,codec->height,
-                     0, fmt, GL_UNSIGNED_BYTE, codec->pic);
-        if (glGetError() != GL_NO_ERROR) return 1;
+		texture->CreateTexture(codec->width, codec->height, false, false);
         texuploaded = 1;
     }
-    else
-    {
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, codec->width,codec->height,
-                        fmt, GL_UNSIGNED_BYTE, codec->pic);
-        if (glGetError() != GL_NO_ERROR) return 1;
-    }
+	texture->LoadTexture(codec->pic);
+	GLInterface.BindTexture(0, texture, sampler);
 
     float vid_wbyh = ((float)codec->width)/codec->height;
     if (animvpx_aspect > 0)

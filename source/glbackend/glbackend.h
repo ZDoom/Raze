@@ -74,7 +74,8 @@ public:
 	void Draw(EDrawType type, size_t start, size_t count);
 	
 	int GetTextureID();
-	void BindTexture(int texunit, int texid, int sampler = NoSampler);
+	FHardwareTexture* NewTexture();
+	void BindTexture(int texunit, FHardwareTexture *texid, int sampler = NoSampler);
 	void UnbindTexture(int texunit);
 	void UnbindAllTextures();
 	

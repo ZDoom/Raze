@@ -608,6 +608,7 @@ bool tileLoad(int16_t tileNum)
 
     tileLoadData(tileNum, dasiz, (char *) waloff[tileNum]);
 
+	/*
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST &&
         in3dmode())
@@ -620,6 +621,7 @@ bool tileLoad(int16_t tileNum)
         }
     }
 #endif
+*/
 
     tilePostLoad(tileNum);
 

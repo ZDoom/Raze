@@ -13,10 +13,10 @@
 #include "../../glbackend/glbackend.h"
 
 static void* buffer;
-static GLuint bufferTexID;
+static FHardwareTexture* bufferTexture;
 static vec2_t bufferRes;
 
-static GLuint paletteTexID;
+static FHardwareTexture* paletteTexture;
 
 static GLuint shaderProgramID = 0;
 static GLint texSamplerLoc = -1;
@@ -64,18 +64,10 @@ bool glsurface_initialize(vec2_t bufferResolution)
     bufferRes = bufferResolution;
     buffer    = Xaligned_alloc(16, bufferRes.x * bufferRes.y);
 
-    glActiveTexture(GL_TEXTURE0);
-    GetTextureHandle(&bufferTexID);
-    glBindTexture(GL_TEXTURE_2D, bufferTexID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bufferRes.x, bufferRes.y, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+	bufferTexture = GLInterface.NewTexture();
+	bufferTexture->CreateTexture(bufferRes.x, bufferRes.y, true, false);
 
+	GLInterface.Init();
     glsurface_setPalette(curpalettefaded);
 
     const char* const VERTEX_SHADER_CODE =
@@ -147,10 +139,10 @@ void glsurface_destroy()
 
     ALIGNED_FREE_AND_NULL(buffer);
 
-    glDeleteTextures(1, &bufferTexID);
-    bufferTexID = 0;
-    glDeleteTextures(1, &paletteTexID);
-    paletteTexID = 0;
+	delete bufferTexture;
+	bufferTexture = nullptr;
+	delete paletteTexture;
+	paletteTexture = nullptr;
 
     glUseProgram(0);
     glDeleteProgram(shaderProgramID);
@@ -164,25 +156,13 @@ void glsurface_setPalette(void* pPalette)
     if (!pPalette)
         return;
 
-    glActiveTexture(GL_TEXTURE1);
-    if (paletteTexID)
-    {
-        // assume the texture is already bound to GL_TEXTURE1
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, (void*) pPalette);
-    }
-    else
-    {
-        GetTextureHandle(&paletteTexID);
-        glBindTexture(GL_TEXTURE_2D, paletteTexID);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPalette);
-    }
+	if (!paletteTexture)
+	{
+		paletteTexture = GLInterface.NewTexture();
+		paletteTexture->CreateTexture(256, 1, false, false);
+	}
+	paletteTexture->LoadTexture(palette);
+	GLInterface.BindTexture(1, paletteTexture, Sampler2DNoFilter);
 }
 
 void* glsurface_getBuffer()
@@ -200,8 +180,8 @@ void glsurface_blitBuffer()
     if (!buffer)
         return;
 
-    glActiveTexture(GL_TEXTURE0);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, bufferRes.x, bufferRes.y, GL_RED, GL_UNSIGNED_BYTE, (void*) buffer);
+	bufferTexture->LoadTexture((uint8_t*)buffer);
+	GLInterface.BindTexture(0, bufferTexture, Sampler2DNoFilter);
 
 	auto data = GLInterface.AllocVertices(4);
 	auto vt = data.second;

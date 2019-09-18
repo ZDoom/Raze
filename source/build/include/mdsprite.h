@@ -12,7 +12,7 @@ extern "C" {
 
 #define SHARED_MODEL_DATA int32_t mdnum, shadeoff; \
                   float scale, bscale, zadd, yoffset; \
-                  GLuint *texid; \
+                  FHardwareTexture **texid; \
                   int32_t flags;
 
 #define IDMODEL_SHARED_DATA int32_t numframes, cframe, nframe, fpssc, usesalpha; \
@@ -23,6 +23,8 @@ extern "C" {
 
 #define IDP2_MAGIC 0x32504449
 #define IDP3_MAGIC 0x33504449
+
+class FHardwareTexture;
 
 typedef struct
 {
@@ -44,7 +46,7 @@ typedef struct _mdskinmap_t
     uint8_t palette, flags, filler[2]; // Build palette number, flags the same as hicreplctyp
     int32_t skinnum, surfnum;   // Skin identifier, surface number
     char *fn;   // Skin filename
-    GLuint texid[HICTINT_MEMORY_COMBINATIONS];   // OpenGL texture numbers for effect variations
+    FHardwareTexture *texid[HICTINT_MEMORY_COMBINATIONS];   // OpenGL texture numbers for effect variations
     struct _mdskinmap_t *next;
     float param, specpower, specfactor;
 } mdskinmap_t;
@@ -192,7 +194,7 @@ typedef struct
     int32_t mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
     int32_t shadeoff;
     float scale, bscale, zadd;
-    uint32_t *texid;    // skins for palettes
+    FHardwareTexture **texid;    // skins for palettes
     int32_t flags;
 
     //VOX specific stuff:
@@ -206,7 +208,7 @@ typedef struct
 EXTERN mdmodel_t **models;
 
 void updateanimation(md2model_t *m, const uspritetype *tspr, uint8_t lpal);
-int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf);
+FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf);
 void mdinit(void);
 void freeallmodels(void);
 void clearskins(int32_t type);

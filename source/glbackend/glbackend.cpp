@@ -6,8 +6,11 @@ GLInstance GLInterface;
 
 void GLInstance::Init()
 {
-	mSamplers = new FSamplerManager;
-	memset(LastBoundTextures, 0, sizeof(LastBoundTextures));
+	if (!mSamplers)
+	{
+		mSamplers = new FSamplerManager;
+		memset(LastBoundTextures, 0, sizeof(LastBoundTextures));
+	}
 }
 
 void GLInstance::Deinit()
@@ -55,14 +58,19 @@ int GLInstance::GetTextureID()
 	return TextureHandleCache[currentindex];
 }
 
-void GLInstance::BindTexture(int texunit, int tex, int sampler)
+FHardwareTexture* GLInstance::NewTexture()
 {
+	return new FHardwareTexture;
+}
+
+void GLInstance::BindTexture(int texunit, FHardwareTexture *tex, int sampler)
+{
+	if (!tex) return;
 	if (texunit != 0) glActiveTexture(GL_TEXTURE0 + texunit);
-	glBindTexture(GL_TEXTURE_2D, tex);
-	if (sampler != NoSampler) mSamplers->Bind(texunit, sampler, 0);
-	else glBindSampler(texunit, 0);
+	glBindTexture(GL_TEXTURE_2D, tex->GetTextureHandle());
+	mSamplers->Bind(texunit, sampler == NoSampler? tex->GetSampler() : sampler, 0);
 	if (texunit != 0) glActiveTexture(GL_TEXTURE0);
-	LastBoundTextures[texunit] = tex;
+	LastBoundTextures[texunit] = tex->GetTextureHandle();
 }
 
 void GLInstance::UnbindTexture(int texunit)

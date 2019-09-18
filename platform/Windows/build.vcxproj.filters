@@ -158,9 +158,6 @@
     <ClCompile Include="..\..\source\build\src\textfont.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\build\src\tilepacker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\build\src\tiles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -368,9 +365,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\build\include\texcache.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\build\include\tilepacker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\build\include\tracker.hpp">

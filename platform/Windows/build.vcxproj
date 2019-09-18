@@ -288,7 +288,6 @@
     <ClCompile Include="..\..\source\build\src\softsurface.cpp" />
     <ClCompile Include="..\..\source\build\src\texcache.cpp" />
     <ClCompile Include="..\..\source\build\src\textfont.cpp" />
-    <ClCompile Include="..\..\source\build\src\tilepacker.cpp" />
     <ClCompile Include="..\..\source\build\src\tiles.cpp" />
     <ClCompile Include="..\..\source\build\src\vfs.cpp" />
     <ClCompile Include="..\..\source\build\src\voxmodel.cpp" />
@@ -369,7 +368,6 @@
     <ClInclude Include="..\..\source\build\include\sdl_inc.h" />
     <ClInclude Include="..\..\source\build\include\softsurface.h" />
     <ClInclude Include="..\..\source\build\include\texcache.h" />
-    <ClInclude Include="..\..\source\build\include\tilepacker.h" />
     <ClInclude Include="..\..\source\build\include\tracker.hpp" />
     <ClInclude Include="..\..\source\build\include\tracker_operator.hpp" />
     <ClInclude Include="..\..\source\build\include\tracker_operators.hpp" />

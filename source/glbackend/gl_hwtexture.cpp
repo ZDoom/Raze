@@ -66,20 +66,21 @@ unsigned int FHardwareTexture::CreateTexture(int w, int h, bool eightbit, bool m
 unsigned int FHardwareTexture::LoadTexture(unsigned char * buffer)
 {
 	if (glTexID == 0) return 0;
-	
-	int srcformat = glTextureBytes == 1? GL_R8 : GL_RGBA8;// TexFormat[gl_texture_format];
-    GLenum srctype = glTextureBytes == 1 ? GL_UNSIGNED_BYTE : (B_BIG_ENDIAN? GL_UNSIGNED_INT_8_8_8_8 : GL_UNSIGNED_INT_8_8_8_8_REV);
+
+	int dstformat = glTextureBytes == 1? GL_R8 : GL_RGBA8;// TexFormat[gl_texture_format];
+	int srcformat = glTextureBytes == 1 ? GL_RED : GL_BGRA;// TexFormat[gl_texture_format];
 
 	glActiveTexture(GL_TEXTURE15);
 	glBindTexture(GL_TEXTURE_2D, glTexID);
 
 	if (glTextureBytes < 4) glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mWidth, mHeight, srcformat, srctype, buffer);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mWidth, mHeight, srcformat, GL_UNSIGNED_BYTE, buffer);
 	if (mipmapped) glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glActiveTexture(GL_TEXTURE0);
+	if (glTextureBytes < 4) glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	return glTexID;
 }
 
