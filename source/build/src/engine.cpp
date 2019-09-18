@@ -9068,7 +9068,11 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
         int32_t removeit = 0;
 
         if ((sprite[i].cstat & 48) == 48)
-            sprite[i].cstat &= ~48;
+		{
+			// If I understand this correctly, both of these essentially do the same thing...
+            if (!playing_rr) sprite[i].cstat &= ~48;
+            else sprite[i].cstat |= 32768;
+		}
 
         if (sprite[i].statnum == MAXSTATUS)
         {

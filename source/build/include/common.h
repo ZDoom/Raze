@@ -17,6 +17,8 @@
 extern "C" {
 #endif
 
+extern bool playing_rr;
+
 //// TYPES
 struct strllist
 {
@@ -107,6 +109,12 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
 static inline int32_t sepldist(const int32_t dx, const int32_t dy)
 {
     vec2_t d = { klabs(dx), klabs(dy) };
+
+	if (playing_rr)
+	{
+	    if (!d.y) return d.x;
+    	if (!d.x) return d.y;
+	}
 
     if (d.x < d.y)
         swaplong(&d.x, &d.y);

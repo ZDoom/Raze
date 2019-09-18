@@ -30,6 +30,8 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 
 extern char textfont[2048], smalltextfont[2048];
 
+bool playing_rr;
+
 int32_t rendmode=0;
 int32_t usemodels=1;
 int32_t usehightile=1;
@@ -120,6 +122,7 @@ int32_t r_vbocount = 64;
 int32_t r_animsmoothing = 1;
 int32_t r_downsize = 0;
 int32_t r_downsizevar = -1;
+int32_t r_brightnesshack = 0;
 
 // used for fogcalc
 static float fogresult, fogresult2;
@@ -188,6 +191,8 @@ static GLint polymost1NPOTEmulationFactorLoc = -1;
 static float polymost1NPOTEmulationFactor = 1.f;
 static GLint polymost1NPOTEmulationXOffsetLoc = -1;
 static float polymost1NPOTEmulationXOffset = 0.f;
+static GLint polymost1BrightnessLoc = -1;
+static float polymost1Brightness = 1.f;
 static GLint polymost1RotMatrixLoc = -1;
 static float polymost1RotMatrix[16] = { 1.f, 0.f, 0.f, 0.f,
                                         0.f, 1.f, 0.f, 0.f,
@@ -502,6 +507,7 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     polymost1NPOTEmulationLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_npotEmulation");
     polymost1NPOTEmulationFactorLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_npotEmulationFactor");
     polymost1NPOTEmulationXOffsetLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_npotEmulationXOffset");
+    polymost1BrightnessLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_brightness");
     polymost1RotMatrixLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_rotMatrix");
 
     //set the uniforms to the current values
@@ -520,6 +526,7 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     glUniform1f(polymost1NPOTEmulationLoc, polymost1NPOTEmulation);
     glUniform1f(polymost1NPOTEmulationFactorLoc, polymost1NPOTEmulationFactor);
     glUniform1f(polymost1NPOTEmulationXOffsetLoc, polymost1NPOTEmulationXOffset);
+    glUniform1f(polymost1BrightnessLoc, polymost1Brightness);
     glUniformMatrix4fv(polymost1RotMatrixLoc, 1, false, polymost1RotMatrix);
 }
 
@@ -670,6 +677,16 @@ void polymost_npotEmulation(char npotEmulation, float factor, float xOffset)
     polymost1NPOTEmulationXOffset = xOffset;
     glUniform1f(polymost1NPOTEmulationXOffsetLoc, polymost1NPOTEmulationXOffset);
 }
+
+void polymost_setBrightness(int brightness)
+{
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        polymost1Brightness = 8.f / (brightness+8.f);
+        glUniform1f(polymost1BrightnessLoc, polymost1Brightness);
+    }
+}
+
 
 static void polymost_bindPth(pthtyp const * const pPth, int sampler)
 {
@@ -862,6 +879,7 @@ void polymost_glinit()
          uniform float u_npotEmulation;\n\
          uniform float u_npotEmulationFactor;\n\
          uniform float u_npotEmulationXOffset;\n\
+         uniform float u_brightness;\n\
          \n\
          varying vec4 v_color;\n\
          varying float v_distance;\n\
@@ -915,6 +933,8 @@ void polymost_glinit()
              \n\
              color.a *= v_color.a;\n\
              \n\
+             color.rgb = pow(color.rgb, vec3(u_brightness));\n\
+             \n\
              gl_FragColor = color;\n\
          }\n";
     const char* const POLYMOST1_EXTENDED_FRAGMENT_SHADER_CODE =
@@ -946,6 +966,7 @@ void polymost_glinit()
          uniform float u_npotEmulation;\n\
          uniform float u_npotEmulationFactor;\n\
          uniform float u_npotEmulationXOffset;\n\
+         uniform float u_brightness;\n\
          \n\
          uniform float u_useDetailMapping;\n\
          uniform float u_useGlowMapping;\n\
@@ -1008,6 +1029,8 @@ void polymost_glinit()
              color.rgb = mix(color.rgb, glowColor.rgb, u_useGlowMapping*glowColor.a*(c_one-u_useColorOnly));\n\
              \n\
              color.a *= v_color.a;\n\
+             \n\
+             color.rgb = pow(color.rgb, vec3(u_brightness));\n\
              \n\
              gl_FragColor = color;\n\
          }\n";
@@ -4030,7 +4053,7 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
                 vec3f_t o;
 
-                if ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256)
+                if (playing_rr || ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256))
                 {
                     //Hack to draw black rectangle below sky when looking down...
                     xtex.d = xtex.u = xtex.v = 0;
@@ -4090,7 +4113,14 @@ static void polymost_drawalls(int32_t const bunch)
                 do
                 {
                     globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                    otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
+					if (!playing_rr)
+	                    otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
+					else
+					{
+	                    int32_t picbits = picsiz[globalpicnum]&15;
+    	                int32_t np2 = tilesiz[globalpicnum].x != (1<<picbits);
+        	            otex.u = otex.d*(t*((float)(fglobalang-(np2 ? 0 : (y<<(11-dapskybits))))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
+					}
                     y++;
                     o.x = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
@@ -4346,7 +4376,7 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
                 vec3f_t o;
 
-                if ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256)
+                if (playing_rr || ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256))
                 {
 
 
@@ -4407,7 +4437,14 @@ static void polymost_drawalls(int32_t const bunch)
                 do
                 {
                     globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                    otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - xtex.u*ghalfx;
+					if (!playing_rr)
+	                    otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - xtex.u*ghalfx;
+					else
+					{
+						int32_t picbits = picsiz[globalpicnum]&15;
+                    	int32_t np2 = tilesiz[globalpicnum].x != (1<<picbits);
+                    	otex.u = otex.d*(t*((float)(fglobalang-(np2 ? 0 : (y<<(11-dapskybits))))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - xtex.u*ghalfx;
+					}
                     y++;
                     o.x = fx; fx = (((float) (y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
@@ -4815,14 +4852,14 @@ static void polymost_drawalls(int32_t const bunch)
 static int32_t polymost_bunchfront(const int32_t b1, const int32_t b2)
 {
     int b1f = bunchfirst[b1];
-    const float x2b2 = dxb2[bunchlast[b2]];
-    const float x1b1 = dxb1[b1f];
+    const double x2b2 = dxb2[bunchlast[b2]];
+    const double x1b1 = dxb1[b1f];
 
     if (nexttowardf(x1b1, x2b2) >= x2b2)
         return -1;
 
     int b2f = bunchfirst[b2];
-    const float x1b2 = dxb1[b2f];
+    const double x1b2 = dxb1[b2f];
 
     if (nexttowardf(x1b2, dxb2[bunchlast[b1]]) >= dxb2[bunchlast[b1]])
         return -1;
@@ -5081,6 +5118,8 @@ void polymost_drawrooms()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_ALWAYS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
+
+    polymost_setBrightness(r_brightnesshack);
 
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
@@ -5404,7 +5443,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     //   |   /
     // fsy1/
 
-    vec2f_t dpxy[8] = { { x0, csy[1] }, { x1, csy[3] }, { x1, fsy[3] }, { x0, fsy[1] } };
+    vec2f_t dpxy[16] = { { x0, csy[1] }, { x1, csy[3] }, { x1, fsy[3] }, { x0, fsy[1] } };
 
     //Clip to (x0,csy[0])-(x1,csy[2])
 

@@ -17,6 +17,7 @@ extern "C" {
 typedef struct { uint8_t r, g, b, a; } coltype;
 typedef struct { float r, g, b, a; } coltypef;
 
+extern bool playing_rr;
 extern int32_t rendmode;
 extern float gtang;
 extern float glox1, gloy1;
@@ -83,6 +84,7 @@ extern uint8_t alphahackarray[MAXTILES];
 extern int32_t r_usenewshading;
 extern int32_t r_usetileshades;
 extern int32_t r_npotwallmode;
+extern int32_t r_brightnesshack;
 
 extern int16_t globalpicnum;
 
@@ -146,7 +148,7 @@ static FORCE_INLINE int polymost_is_npotmode(void)
 #ifdef NEW_MAP_FORMAT
         g_loadedMapVersion < 10 &&
 #endif
-        r_npotwallmode;
+        (playing_rr? r_npotwallmode == 1 : r_npotwallmode != 0);	// I have no idea which one is more correct...
 }
 
 static inline float polymost_invsqrt_approximation(float x)
