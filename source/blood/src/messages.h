@@ -33,6 +33,7 @@ public:
     {
         ClockTicks at0;
         char at4[81];
+        int pal;
     };
     char at0;
     int at1;
@@ -50,7 +51,7 @@ public:
     messageStruct at2e[16];
     CGameMessageMgr();
     void SetState(char state);
-    void Add(const char *, char);
+    void Add(const char *pText, char a2, const int pal = 0);
     void Display(void);
     void Clear();
     void SetMaxMessages(int nMessages);

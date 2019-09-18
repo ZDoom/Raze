@@ -502,7 +502,7 @@ void netGetPackets(void)
             if (*pPacket != '/' || (*pPacket == 0 && *(pPacket+1) == 0) || (*(pPacket+1) >= '1' && *(pPacket+1) <= '8' && *(pPacket+1)-'1' == myconnectindex))
             {
                 sprintf(buffer, "%s: %s", gProfile[nPlayer].name, pPacket);
-                viewSetMessage(buffer);
+                viewSetMessage(buffer, VanillaMode() ? 0 : 10); // 10: dark blue
                 sndStartSample("DMRADIO", 128, -1);
             }
             break;
