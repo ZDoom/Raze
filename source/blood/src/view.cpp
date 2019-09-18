@@ -1398,7 +1398,7 @@ void viewDrawCtfHudVanilla(ClockTicks arg)
     }
 }
 
-void viewDrawCtfHud(void)
+void viewDrawCtfHud(ClockTicks arg)
 {
     bool blueFlagTaken = false;
     bool redFlagTaken = false;
@@ -1419,20 +1419,32 @@ void viewDrawCtfHud(void)
     }
 
     bool meHaveBlueFlag = gMe->at90 & 1;
-    DrawStatMaskedSprite(meHaveBlueFlag ? 3558 : 3559, 320, 75, 0, 10, 0, 65536 * 0.35);
+    DrawStatMaskedSprite(meHaveBlueFlag ? 3558 : 3559, 320, 75, 0, 10, 512, 65536 * 0.35);
     if (gBlueFlagDropped)
-        DrawStatMaskedSprite(2332, 305, 83, 0, 10, 0, 65536);
+        DrawStatMaskedSprite(2332, 305, 83, 0, 10, 512, 65536);
     else if (blueFlagTaken)
-        DrawStatMaskedSprite(4097, 307, 77, 0, blueFlagCarrierColor ? 2 : 10, 0, 65536);
-    DrawStatNumber("%d", dword_21EFB0[0], kSBarNumberInv, 290, 90, 0, 10, 0, 65536 * 0.75);
+        DrawStatMaskedSprite(4097, 307, 77, 0, blueFlagCarrierColor ? 2 : 10, 512, 65536);
+    if (dword_21EFD0[0] == 0 || ((int)totalclock & 8))
+    {
+        dword_21EFD0[0] = dword_21EFD0[0] - arg;
+        if (dword_21EFD0[0] < 0)
+            dword_21EFD0[0] = 0;
+        DrawStatNumber("%d", dword_21EFB0[0], kSBarNumberInv, 290, 90, 0, 10, 512, 65536 * 0.75);
+    }
 
     bool meHaveRedFlag = gMe->at90 & 2;
-    DrawStatMaskedSprite(meHaveRedFlag ? 3558 : 3559, 320, 110, 0, 2, 0, 65536 * 0.35);
+    DrawStatMaskedSprite(meHaveRedFlag ? 3558 : 3559, 320, 110, 0, 2, 512, 65536 * 0.35);
     if (gRedFlagDropped)
-        DrawStatMaskedSprite(2332, 305, 117, 0, 2, 0, 65536);
+        DrawStatMaskedSprite(2332, 305, 117, 0, 2, 512, 65536);
     else if (redFlagTaken)
-        DrawStatMaskedSprite(4097, 307, 111, 0, redFlagCarrierColor ? 2 : 10, 0, 65536);
-    DrawStatNumber("%d", dword_21EFB0[1], kSBarNumberInv, 290, 125, 0, 2, 0, 65536 * 0.75);
+        DrawStatMaskedSprite(4097, 307, 111, 0, redFlagCarrierColor ? 2 : 10, 512, 65536);
+    if (dword_21EFD0[1] == 0 || ((int)totalclock & 8))
+    {
+        dword_21EFD0[1] = dword_21EFD0[1] - arg;
+        if (dword_21EFD0[1] < 0)
+            dword_21EFD0[1] = 0;
+        DrawStatNumber("%d", dword_21EFB0[1], kSBarNumberInv, 290, 125, 0, 2, 512, 65536 * 0.75);
+    }
 }
 
 void UpdateStatusBar(ClockTicks arg)
@@ -1663,7 +1675,7 @@ void UpdateStatusBar(ClockTicks arg)
         }
         else
         {
-            viewDrawCtfHud();
+            viewDrawCtfHud(arg);
             viewDrawPlayerFlags();
         }
     }
@@ -1744,7 +1756,7 @@ void viewResizeView(int size)
         gViewX1 = xdim-1;
         gViewY0 = 0;
         gViewY1 = ydim-1;
-        if (gGameOptions.nGameType > 0 && gGameOptions.nGameType < 3)
+        if (gGameOptions.nGameType > 0 && gGameOptions.nGameType <= 3)
         {
             gViewY0 = (tilesiz[2229].y*ydim*((gNetPlayers+3)/4))/200;
         }
@@ -1759,7 +1771,7 @@ void viewResizeView(int size)
         gViewY0 = 0;
         gViewX1 = xdim-1;
         gViewY1 = ydim-1-(25*ydim)/200;
-        if (gGameOptions.nGameType > 0 && gGameOptions.nGameType < 3)
+        if (gGameOptions.nGameType > 0 && gGameOptions.nGameType <= 3)
         {
             gViewY0 = (tilesiz[2229].y*ydim*((gNetPlayers+3)/4))/200;
         }
