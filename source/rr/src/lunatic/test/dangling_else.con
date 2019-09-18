@@ -1,0 +1,66 @@
+// In CON, the dangling else ambiguity is resolved in a very peculiar way:
+// A cascade "ifP1 ifP2 ifP3 Stmt1 ... else Stmt2" is considered as if the
+// predicates P1, P2, P3, ... are combined with a logical AND.
+// So effectively, there is no ambiguity at all, and one of Stmt1 and Stmt2
+// is guaranteed to be taken.
+
+define Q 114
+define GLOBAL 0
+
+gamevar x 0 GLOBAL
+// divisible by 2, 3, 5?
+gamevar xm2 0 GLOBAL
+gamevar xm3 0 GLOBAL
+gamevar xm5 0 GLOBAL
+
+state testelse
+    setvarvar xm2 x, modvar xm2 2
+    setvarvar xm3 x, modvar xm3 3
+    setvarvar xm5 x, modvar xm5 5
+
+    redefinequote Q ERROR: one path of if/else must be taken
+
+    ifvarn xm2 0
+    ifvarn xm3 0
+    ifvarn xm5 0
+        redefinequote Q x=%d is not divisible by either 2, 3 or 5
+    else
+        redefinequote Q x=%d is divisible by either 2, 3 or 5
+
+    qsprintf Q Q x
+    userquote Q
+ends
+
+onevent EVENT_ENTERLEVEL
+    setvar x 0
+    whilevarn x 31
+    {
+        state testelse
+        addvar x 1
+    }
+endevent
+
+// Test deferred code. This CON code doesn't make much sense, but check out
+// the generated Lua code...
+onevent EVENT_JUMP
+    ifpdistl 100 ifpdistg 0 ifcanseetarget
+    {
+        palfrom 32 32 32
+        ifcanseetarget
+            quote 29
+        ifcanseetarget
+            quote 30
+        setvar x 0
+        state testelse
+    }
+    else ifcanseetarget
+        quote 31
+    else ifvare 1 1
+    {
+        // Test empty brace-enclosed statement under if condition.
+    }
+    else
+    {
+        quote Q
+    }
+endevent

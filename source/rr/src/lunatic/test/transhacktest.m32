@@ -1,0 +1,5 @@
+
+onevent EVENT_DRAW3DSCREEN
+    rotatesprite  40  80 131072 0 2523 0 0 330 windowx1 windowy1 windowx2 windowy2
+    rotatesprite 280  80 131072 0 2523 0 0 522 windowx1 windowy1 windowx2 windowy2
+endevent

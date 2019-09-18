@@ -1,0 +1,73 @@
+diff --git a/lpcap.h b/lpcap.h
+index c0a0e38..1bfc109 100644
+--- a/lpcap.h
++++ b/lpcap.h
+@@ -18,7 +18,7 @@ typedef enum CapKind {
+ 
+ typedef struct Capture {
+   const char *s;  /* subject position */
+-  short idx;  /* extra info about capture (group name, arg index, etc.) */
++  int idx;  /* extra info about capture (group name, arg index, etc.) */
+   byte kind;  /* kind of capture */
+   byte siz;  /* size of full capture + 1 (0 = not a full capture) */
+ } Capture;
+diff --git a/makefile b/makefile
+index 57a18fb..88e8a60 100644
+--- a/makefile
++++ b/makefile
+@@ -1,5 +1,8 @@
+ LIBNAME = lpeg
+-LUADIR = ../lua/
++# Linux example:
++LUADIR = /usr/local/include/luajit-2.0
++# Windows example (from MSYS bash):
++#LUADIR = /f/g/mod/luajit-2.0/src
+ 
+ COPT = -O2
+ # COPT = -DLPEG_DEBUG -g
+@@ -19,10 +22,21 @@ CWARNS = -Wall -Wextra -pedantic \
+ 	-Wmissing-prototypes \
+ 	-Wnested-externs \
+ 	-Wstrict-prototypes \
++	-Werror-implicit-function-declaration \
+ # -Wunreachable-code \
+ 
++# Example:
++# --------
++# 1. Build shared lib (for LunaCON standalone)
++#  $ make linux
++# 2. Remove shared-lib *.o
++#  $ rm *.o
++# 3. Build static lib (for EDuke32/Lunatic)
++#  $ PIC='' make liblpeg.a
+ 
+-CFLAGS = $(CWARNS) $(COPT) -std=c99 -I$(LUADIR) -fPIC
++PIC ?= -fPIC
++
++CFLAGS = $(CWARNS) $(COPT) -std=c99 -I$(LUADIR) $(PIC)
+ CC = gcc
+ 
+ FILES = lpvm.o lpcap.o lptree.o lpcode.o lpprint.o
+@@ -38,13 +52,16 @@ macosx:
+ lpeg.so: $(FILES)
+ 	env $(CC) $(DLLFLAGS) $(FILES) -o lpeg.so
+ 
++liblpeg.a: $(FILES)
++	$(AR) rc $@ $^
++
+ $(FILES): makefile
+ 
+ test: test.lua re.lua lpeg.so
+ 	./test.lua
+ 
+ clean:
+-	rm -f $(FILES) lpeg.so
++	rm -f $(FILES) lpeg.so liblpeg.a
+ 
+ 
+ lpcap.o: lpcap.c lpcap.h lptypes.h
+@@ -52,4 +69,3 @@ lpcode.o: lpcode.c lptypes.h lpcode.h lptree.h lpvm.h lpcap.h
+ lpprint.o: lpprint.c lptypes.h lpprint.h lptree.h lpvm.h lpcap.h
+ lptree.o: lptree.c lptypes.h lpcap.h lpcode.h lptree.h lpvm.h lpprint.h
+ lpvm.o: lpvm.c lpcap.h lptypes.h lpvm.h lpprint.h lptree.h
+-

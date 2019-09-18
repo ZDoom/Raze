@@ -1,0 +1,109 @@
+gamevar tmp 0 0
+/*
+actor LIZTROOP
+    getactor[THISACTOR].mdflags tmp
+    orvar tmp 16
+    setactor[THISACTOR].mdflags tmp
+enda
+*/
+
+gamevar ceilz 0 0
+gamevar ceilhit 0 0
+gamevar florz 0 0
+gamevar florhit 0 0
+gamevar pi 0 0
+
+gamevar doxp 0 0
+gamevar xp 0 0
+
+define Q 500
+
+gamevar pdist 0 2
+
+onevent EVENT_GAME
+    ifactor LIZTROOP
+        findplayer pdist
+
+    // Test both view/wall/floor sprites for
+    // spriteext[].xpanning (Polymost only)
+    setvar doxp 0
+    ifactor 937  // --- vvv --- E2L1
+        setvar doxp 1
+    else ifactor FEMMAG1
+        setvar doxp 1
+    else ifactor PIGCOP
+        setvar doxp 1
+    else ifactor 849  // 64x24: in classic, better than nonpow2-x tile 937
+        setvar doxp 1
+
+    ifvarn doxp 0
+    {
+        getactor[THISACTOR].xpanning xp
+        addvar xp 1
+        setactor[THISACTOR].xpanning xp
+    }
+
+    getwall[0].blend xp  // test wall[].blend
+endevent
+
+onevent EVENT_ANIMATESPRITES
+    ifactor LIZTROOP
+    {
+        setvarvar tmp totalclock
+        andvar tmp 255
+        settspr[THISACTOR].tsprshade tmp
+    }
+endevent
+
+gamevar lizi 0 0
+
+onevent EVENT_DISPLAYREST
+    findnearactor LIZTROOP 4096 lizi
+    ifvarn lizi -1
+    {
+        redefinequote Q nearest LIZTROOP is %d units away (Manhattan dist.)
+        qsprintf Q Q /**/ actorvar[lizi].pdist
+        gametextz STARTALPHANUM 10 100 Q 2 0 16 /*bounds:*/ 0 0 xdim ydim 32768
+    }
+
+    getplayer[THISACTOR].i pi
+    // This blows up on C-CON:
+    getzrange sprite[pi].x sprite[pi].y sprite[pi].z player[THISACTOR].cursectnum
+     /*out:*/ ceilz ceilhit florz florhit
+      /*in:*/ 128 CLIPMASK0
+
+    redefinequote Q hit %d at %d, %d at %d
+    qsprintf Q Q /**/ ceilhit ceilz florhit florz
+    minitext 100 8 Q 0 0
+    gametext STARTALPHANUM 320 16 Q 0 0 16 /*bounds:*/ 0 0 xdim ydim
+    gametextz STARTALPHANUM 320 24 Q 0 0 16 /*bounds:*/ 0 0 xdim ydim 32768
+endevent
+
+
+// Following code by Fox, from
+// http://forums.duke4.net/topic/955-eduke32-scripting/page__view__findpost__p__153176
+
+gamevar SIN 0 0
+gamevar COS 0 0
+gamevar HORIZ 0 0
+gamevar HITSECT 0 0
+gamevar HITWALL 0 0
+gamevar HITSPRITE 0 0
+gamevar HITX 0 0
+gamevar HITY 0 0
+gamevar HITZ 0 0
+
+onevent EVENT_DISPLAYREST
+    sin SIN player[THISACTOR].ang
+    cos COS player[THISACTOR].ang
+    setvar HORIZ 100
+    subvarvar HORIZ player[THISACTOR].horiz
+    subvarvar HORIZ player[THISACTOR].horizoff
+    mulvar HORIZ 32
+    hitscan player[THISACTOR].posx player[THISACTOR].posy player[THISACTOR].posz player[THISACTOR].cursectnum
+            COS SIN HORIZ HITSECT HITWALL HITSPRITE HITX HITY HITZ CLIPMASK1
+
+    redefinequote Q hitscan: hit sector %d, wall %d, sprite %d
+    qsprintf Q Q /**/ HITSECT HITWALL HITSPRITE
+    minitext 100 80 Q 0 0
+endevent

@@ -1,0 +1,349 @@
+// ScreenText Test
+
+/*
+This is half a test and half a demonstration.
+For example, some of the spacing and offset stuff could be replaced with tests of other things, like the backwards bit, line wrapping, and space lengths.
+Also, if/when Lunatic adds support for \n characters.
+*/
+
+definequote 999
+
+definequote 1000 AbCdEfGhIjKlM
+definequote 1001 nOpQrStUvWxYz
+
+definequote 1010 X1234567890-.!?;:'\ / %
+
+definequote 1020 ^2R^8G^1B^7Y
+
+definequote 1337 1337
+
+definequote 2000 Left
+definequote 2001 Center
+definequote 2002 Right
+
+definequote 2003 Top
+definequote 2004 Center
+definequote 2005 Bottom
+
+definequote 3000 Spacing
+definequote 3001 X-Offset
+definequote 3002 %d: UiUiUiUiUi
+definequote 3003 Justification
+
+definequote 4000 Normal: aBcDeF
+definequote 4001 Upper: aBcDeF
+definequote 4002 Lower: aBcDeF
+definequote 4003 Inverted: aBcDeF
+
+definequote 5000 Rotate
+definequote 5001 Top, Left:
+definequote 5002 Center, Center:
+definequote 5003 Bottom, Right:
+
+gamevar font STARTALPHANUM 0
+gamevar x 0 0
+gamevar y 0 0
+gamevar z 65536 0
+gamevar blockangle 0 0
+gamevar charangle 0 0
+gamevar q 1000 0
+gamevar shade 0 0
+gamevar pal 0 0
+gamevar o 16 0
+gamevar alpha 0 0
+gamevar xspace 5 0
+gamevar yline 8 0
+gamevar xbetween 0 0
+gamevar ybetween 0 0
+gamevar f 0 0
+gamevar x1 0 0
+gamevar y1 0 0
+gamevar x2 0 0
+gamevar y2 0 0
+
+gamevar temp 0 0
+gamevar doaddtvblend 0 0
+
+state resetbounds
+    setvarvar x1 windowx1
+    setvarvar y1 windowy1
+    setvarvar x2 windowx2
+    setvarvar y2 windowy2
+ends
+
+onevent EVENT_ENTERLEVEL
+    state resetbounds
+endevent
+
+define TEXT_XRIGHT            0x00000001
+define TEXT_XCENTER           0x00000002
+define TEXT_YBOTTOM           0x00000004
+define TEXT_YCENTER           0x00000008
+define TEXT_INTERNALSPACE     0x00000010
+define TEXT_TILESPACE         0x00000020
+define TEXT_INTERNALLINE      0x00000040
+define TEXT_TILELINE          0x00000080
+define TEXT_XOFFSETZERO       0x00000100
+define TEXT_XJUSTIFY          0x00000200
+define TEXT_YOFFSETZERO       0x00000400
+define TEXT_YJUSTIFY          0x00000800
+define TEXT_LINEWRAP          0x00001000
+define TEXT_UPPERCASE         0x00002000
+define TEXT_INVERTCASE        0x00004000
+define TEXT_IGNOREESCAPE      0x00008000
+define TEXT_LITERALESCAPE     0x00010000
+define TEXT_BACKWARDS         0x00020000
+define TEXT_GAMETEXTNUMHACK   0x00040000
+define TEXT_DIGITALNUMBER     0x00080000
+define TEXT_BIGALPHANUM       0x00100000
+define TEXT_GRAYFONT          0x00200000
+
+state increment_line
+    ifvarg q 0
+        screentext font x y z blockangle charangle q shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar y 8
+ends
+
+state increment_line_test
+    ifvarg q 0
+    {
+        qsprintf 999 q temp
+        screentext font x y z blockangle charangle 999 shade pal o alpha xspace yline temp ybetween f x1 y1 x2 y2
+    }
+    addvar temp 1
+    addvar y 8
+ends
+
+onevent EVENT_DISPLAYREST
+    state resetbounds
+
+    // screentext font x y z blockangle charangle q shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+
+    // spacing
+    setvar f 0
+    setvar x 35
+    setvar y 3
+    setvar pal 0
+
+    setvar temp 0
+    setvar q 3000
+    state increment_line_test
+
+    setvar temp -3
+    setvar q 3002
+    state increment_line_test
+    state increment_line_test
+    state increment_line_test
+    state increment_line_test
+    state increment_line_test
+    state increment_line_test
+    state increment_line_test
+
+    // justification
+    setvar f 0
+    orvar f TEXT_XCENTER
+    orvar f TEXT_XJUSTIFY
+    screentext font 160 y z blockangle charangle 3003 shade 12 o alpha xspace yline 320 ybetween f x1 y1 x2 y2
+    addvar y 8
+    setvar f 0
+
+    // x-offset
+    setvar temp 0
+    setvar q 3001
+    state increment_line_test
+
+    orvar f TEXT_XOFFSETZERO
+    setvar temp 5
+    setvar q 3002
+    state increment_line_test
+    state increment_line_test
+    state increment_line_test
+    state increment_line_test
+    state increment_line_test
+    state increment_line_test
+
+    addvar y 4
+
+    // case
+    setvar f 0
+    setvar q 4000
+    setvar pal 23
+    state increment_line
+    setvar q 4001
+    orvar f TEXT_UPPERCASE
+    state increment_line
+    setvar q 4002
+    orvar f TEXT_INVERTCASE
+    state increment_line
+    setvar q 4003
+    xorvar f TEXT_UPPERCASE
+    state increment_line
+
+    // Calculate periodically cycling alpha value. PERIODIC_ALPHA.
+    setvarvar temp totalclock
+    shiftvarl temp 2
+
+    sin alpha temp   // alpha is now in [-2^14 .. 2^14]
+    shiftvarr alpha 7  // [-2^7 .. 2^7]
+    addvar alpha 128  // [0 .. 256]
+    ifvarg alpha 254 { setvar alpha 255 setvar doaddtvblend 1 }
+    else ifvarl alpha 2 { setvar doaddtvblend 0 }
+
+    ifvare doaddtvblend 1
+    {
+        shiftvarr alpha 2  // [0 63]
+
+        ifvarg alpha 31
+        {
+            setvar temp 63
+            subvarvar temp alpha
+            setvarvar alpha temp
+            orvar o 32  // RS_TRANS2
+        }
+        // alpha now in [0 .. 31]
+
+        addvar alpha 101  // additive translucency tables are assumed to be at [101 .. 132]
+        mulvar alpha -1
+    }
+
+    // divider line
+    rotatespritea 240 65 32768 512 WINDOWBORDER1 0 2 0 85 x1 y1 x2 y2
+
+    setvar pal 12
+
+    // x-alignment
+    setvar f 0
+    setvar x 220
+    screentext font x 127 z blockangle charangle 2000 shade pal o alpha xspace yline 0 ybetween f x1 y1 x2 y2
+    orvar f TEXT_XCENTER
+    screentext font x 137 z blockangle charangle 2001 shade pal o alpha xspace yline 0 ybetween f x1 y1 x2 y2
+    xorvar f TEXT_XCENTER
+    orvar f TEXT_XRIGHT
+    screentext font x 147 z blockangle charangle 2002 shade pal o alpha xspace yline 0 ybetween f x1 y1 x2 y2
+    rotatespritea x 132 32768 0 WINDOWBORDER2 127 0 0 85 x1 y1 x2 y2
+
+    // y-alignment
+    setvar f TEXT_UPPERCASE
+    screentext font 180 162 z blockangle charangle 2003 shade pal o alpha xspace yline 0 ybetween f x1 y1 x2 y2
+    orvar f TEXT_YCENTER
+    screentext font 208 162 z blockangle charangle 2004 shade pal o alpha xspace yline 0 ybetween f x1 y1 x2 y2
+    xorvar f TEXT_YCENTER
+    orvar f TEXT_YBOTTOM
+    screentext font 260 162 z blockangle charangle 2005 shade pal o alpha xspace yline 0 ybetween f x1 y1 x2 y2
+    rotatespritea 240 163 32768 512 WINDOWBORDER1 127 0 0 85 x1 y1 x2 y2
+
+    setvar pal 0
+
+    // bluefont vs. redfont XOFFSETZERO comparison
+    setvar f 0
+    orvar f TEXT_XOFFSETZERO
+    screentext font 0 175 65536 blockangle charangle 1010 shade pal o alpha xspace yline 13 ybetween f x1 y1 x2 y2
+    orvar f TEXT_BIGALPHANUM
+    orvar f TEXT_YBOTTOM
+    screentext BIGALPHANUM 0 200 z blockangle charangle 1010 shade pal o alpha xspace yline 13 ybetween f x1 y1 x2 y2
+
+    // block rotation
+    setvar y 2
+    screentext MINIFONT 170 y z blockangle charangle 5001 shade 10 o alpha 2 yline 1 ybetween 0 x1 y1 x2 y2
+    screentext MINIFONT 237 y z blockangle charangle 5002 shade 14 o alpha 2 yline 1 ybetween TEXT_XCENTER x1 y1 x2 y2
+    screentext MINIFONT 317 y z blockangle charangle 5003 shade 16 o alpha 2 yline 1 ybetween TEXT_XRIGHT x1 y1 x2 y2
+
+    setvar f 0
+    setvar x 175
+    setvar y 12
+    setvar pal 10
+    setvar blockangle 0
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+
+    setvar blockangle -256
+    setvar x 245
+    setvar y 40
+    setvar f 0
+    setvar pal 14
+    orvar f TEXT_XCENTER
+    orvar f TEXT_YCENTER
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+
+    setvar blockangle -512
+    setvar x 317
+    setvar y 19
+    setvar f 0
+    setvar pal 16
+    orvar f TEXT_XRIGHT
+    orvar f TEXT_YBOTTOM
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar blockangle 128
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+
+    setvar pal 15
+
+    // character rotation
+    setvar blockangle 0
+    setvar charangle 256
+    setvar f 0
+    setvar x 175
+    setvar y 78
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar charangle 256
+    addvar y 13
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar charangle 256
+    addvar y 13
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    addvar charangle 256
+    addvar y 13
+    screentext font x y z blockangle charangle 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    setvar charangle 0
+
+    setvar x 225
+    setvar y 78
+    screentext font x y z 128 -128 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    screentext font x y z 256 -256 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    screentext font x y z 384 -384 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    screentext font x y z 512 -512 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+
+    setvar x 312
+    setvar y 90
+    orvar f TEXT_XRIGHT
+    orvar f TEXT_YCENTER
+    screentext font x y z -128 128 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    screentext font x y z -256 256 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    screentext font x y z -384 384 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+    screentext font x y z -512 512 5000 shade pal o alpha xspace yline xbetween ybetween f x1 y1 x2 y2
+
+    // alpha, sideways, and escape colors
+    setvar pal 13
+    setvar blockangle 0
+    setvar f 0
+    orvar f TEXT_XCENTER
+    screentext font 0 100 z 1536 charangle 1020 shade pal o 0 xspace yline xbetween ybetween f x1 y1 x2 y2
+    orvar f TEXT_IGNOREESCAPE
+    screentext font 10 100 z 1536 charangle 1020 shade pal o 85 xspace yline xbetween ybetween f x1 y1 x2 y2
+    orvar f TEXT_LITERALESCAPE
+    screentext font 20 100 z 1536 charangle 1020 shade pal o 170 xspace yline xbetween ybetween f x1 y1 x2 y2
+
+    ifvarand o 32 xorvar o 32  // clear RS_TRANS2
+    setvar alpha 0  // Clear alpha so it's only active from PERIODIC_ALPHA to here.
+endevent

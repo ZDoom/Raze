@@ -1,0 +1,94 @@
+// From http://wiki.eduke32.com/wiki/How_to_make_a_clock (author: The Commander)
+// with modifications
+
+gamevar sec 0 0
+gamevar min 0 0
+gamevar hour 0 0
+gamevar mday 0 0
+gamevar mon 0 0
+gamevar year 0 0
+gamevar wday 0 0
+gamevar yday 0 0
+
+onevent EVENT_DISPLAYREST
+    gettimedate sec min hour mday mon year wday yday
+
+    ifvarl hour 20 ifvarg hour 9
+        digitalnumberz 2992 285 16 hour 0 0 0 0 0 xdim ydim 65536
+
+    ifvarg hour 19
+        digitalnumberz 2992 282 16 hour 0 0 0 0 0 xdim ydim 65536
+
+    ifvarl hour 10
+    {
+        digitalnumberz 2992 288 16 hour 0 0 0 0 0 xdim ydim 65536
+        rotatesprite 269 16 65536 0 2992 0 0 0 0 0 xdim ydim
+    }
+
+    ifvarg min 9
+        digitalnumberz 2992 308 16 min 0 0 0 0 0 xdim ydim 65536
+
+    ifvarl min 10
+    {
+        digitalnumberz 2992 315 16 min 0 0 0 0 0 xdim ydim 65536
+        rotatesprite 296 16 65536 0 2992 0 0 0 0 0 xdim ydim
+    }
+
+    gametextz STARTALPHANUM 20 20  1  0 0 0  0 0 xdim ydim 32768
+endevent
+
+
+// Following code by Hendricks266, from
+// http://forums.duke4.net/topic/1093-what-are-you-working-on-for-duke-right-now/page__view__findpost__p__152626
+
+gamevar zoom 0 0
+
+definequote 10000 abcdefghijklm
+definequote 10001 nopqrstuvwxyz
+
+onevent EVENT_DISPLAYREST
+    setvarvar zoom totalclock
+    modvar zoom 240
+    mulvar zoom 8192
+    divvar zoom 15
+
+    digitalnumberz DIGITALNUM 160 5 1234567890 0 0 16 windowx1 windowy1 windowx2 windowy2 zoom
+
+    gametextz STARTALPHANUM 320 30 10000 0 0 16 windowx1 windowy1 windowx2 windowy2 zoom
+
+    rotatesprite 160 70 zoom 0 SPINNINGNUKEICON 0 0 0 windowx1 windowy1 windowx2 windowy2
+endevent
+
+
+// Following code from the wiki 'showview' entry, with modifications
+gamevar x 0 0
+gamevar y 0 0
+gamevar z 0 0
+gamevar ang 0 0
+gamevar horiz 0 0
+gamevar temp 0 0
+gamevar sect 0 0
+
+onevent EVENT_DISPLAYREST
+    getplayer[THISACTOR].posx x
+    getplayer[THISACTOR].posy y
+    getplayer[THISACTOR].posz z
+    getplayer[THISACTOR].ang ang
+    getplayer[THISACTOR].horiz horiz
+    getplayer[THISACTOR].horizoff temp
+    addvarvar horiz temp
+
+    // Head cam.
+    subvar z 16384
+    updatesectorz x y z sect
+    // This upper view should be a bit wider.
+    ifvarg sect -1
+        showviewunbiased x y z ang horiz sect 16 8 156 39
+
+    // Groin cam.
+    addvar z 16384
+    addvar z 4096
+    updatesectorz x y z sect
+    ifvarg sect -1
+        showview x y z ang horiz sect 16 39 156 70
+endevent

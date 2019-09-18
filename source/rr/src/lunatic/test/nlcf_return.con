@@ -1,0 +1,22 @@
+definequote 125 SPAWNED HEAVYHBOMB
+definequote 126 RAN EVENT_EGS
+definequote 127 RAN TEST STATE
+
+state teststate1
+    return
+    quote 127
+ends
+
+onevent EVENT_EGS
+    ifactor HEAVYHBOMB
+    {
+        state teststate1  // after teststate1's return, return from EVENT_EGS!
+        quote 126
+    }
+endevent
+
+onevent EVENT_FIRE
+    // the concrete actor is irrelevant, only placeholder
+    spawn HEAVYHBOMB  // --> EVENT_EGS
+    quote 125
+endevent

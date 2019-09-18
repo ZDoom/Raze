@@ -1,0 +1,128 @@
+gamevar j 0 0
+gamevar k 0 0
+
+definequote 400 QWE
+
+definequote 500 ===
+
+onevent EVENT_ENTERLEVEL
+    switch j
+      case 0
+      case -1
+        userquote 29
+      break
+      case 1
+        userquote 30
+      break
+      default
+        userquote 31
+      break
+      case 0
+        redefinequote 400 ASD
+        userquote 400
+      break
+    endswitch
+
+    addvar j 1
+
+    switch j
+      case 0
+      case -2
+        userquote 29
+      break
+      case 3
+        userquote 30
+      break
+      default
+        userquote 31
+      break
+    endswitch
+
+    // test "-" codegen (must not generate comment!).
+    subvar j -3
+
+    // result:
+    // ASD  (from second case 0)
+    // BRIGHTNESS LEVEL: THREE  (from default)
+
+
+    ////////// test nested switch/while //////////
+
+    ifvare 0 1
+        break  // outer level: "do return end"
+
+    setvar j 0
+    whilevarn j 3
+    {
+        addvar j 1
+        userquote 500
+        break  // while is inner: "continue"
+        userquote 400
+    }  // 3x "===", no quote 400
+
+    setvar j 0
+    whilevarn j 1
+    {
+        switch j
+          case 0
+            addvar j 1
+            // switch is inner: "do return end" (likewise with following
+            // "break" commands):
+            break
+            addvar j 1
+          break
+          case 1
+            nullop
+          break
+          default
+            nullop
+          break
+        endswitch
+    }
+
+    // NOTE: this is syntactically invalid, though may be useful:
+    //  case X:
+    //  default:
+    //   <code...>
+
+    setvar j 0
+    switch j
+      case 0,
+        whilevarn j 1
+        {
+            addvar j 1
+            break  // while is inner: "continue"
+        }
+      break
+    endswitch
+/*
+    // LunaCON only: nested switches.
+    // Untested, but the generated code looks sane.
+    switch j
+      case 0,
+        switch k
+          default
+            userquote 29  // BRIGHTNESS LEVEL: ONE
+        endswitch
+      case 1,
+        userquote 30
+    endswitch
+*/
+
+    // nested whilevar*n
+    setvar j -1
+    setvar k -1
+    whilevarn j 0
+    {
+        whilevarn k 0
+        {
+            setvar k 0
+            break
+            setvar k 1
+        }
+
+        setvar j 0
+        break
+        setvar j -1
+    }
+endevent

@@ -1,0 +1,27 @@
+definegametype 0 46051 Cooperative, not Dukematch
+
+// NOTE: we need to define the rest anew too (or at least #4), because
+//  'definegametype' does "g_numGametypes = idx+1", as opposed to
+//  "g_numGametypes = max(g_numGametypes, idx+1)".
+definegametype 1 46051 Cooperative
+definegametype 2 16410 Dukematch (no spawn)
+definegametype 3 216088 Team Dukematch
+definegametype 4 213018 Team Dukematch (no spawn)
+
+gamevar temp 0 0
+
+// Original version by Fox, from
+// http://forums.duke4.net/topic/775-eduke32-20-and-polymer/page__view__findpost__p__183890
+onevent EVENT_DISPLAYREST
+    // Notes:
+    //  - index (THISACTOR) is never used.
+    //  - incorrect if screenpeek != myconnectindex, e.g. by pressing [K]:
+    //  - all three are equivalent:
+    getuserdef[THISACTOR].statusbarscale temp
+    getuserdef .statusbarscale temp
+    getuserdef[].statusbarscale temp
+
+    redefinequote 0 %ld
+    qsprintf 0 0 temp
+    gametext STARTALPHANUM 10 10 0 0 0 0 0 0 xdim ydim
+endevent

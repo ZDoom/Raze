@@ -1,0 +1,56 @@
+// Use as root file, not as additional CON module.
+
+// Test dynamic tile remapping.
+dynamicremap
+// Make MASKWALL2 (fence in E1L1 rooftop) execute the C side code of DUKECAR.
+// This must be before the original DUKECAR definition, because label
+// redefinitions are ignored in CON.
+// XXX: Does MASKWALL2's code get executed, too?
+define DUKECAR 913
+
+include GAME.CON
+// NOTE:
+// DEFS.CON 520:6: warning: label "DUKECAR" not redefined with new value 2491 (old: 913)
+
+gamevar LOGO_FLAGS 6399 0  // 255+2048+4096, test "no E4 intro", "no E1 bonus" bits
+
+useractor  4  58 1 NO NO 0
+    // usertype 4 is "rotation-fixed actor"
+    // tile 58 is the space suit
+
+    state killme
+enda
+
+// Test useractor type "enemy"
+define CYCLOIDHEAD 490
+// Will have a flat-sprite-on-floor shadow and be an autoaim target.
+useractor 1 CYCLOIDHEAD 10
+    ifpdistl 1024 tip
+    state killme
+enda
+
+onevent EVENT_JUMP
+    mail 2
+    money 5
+    paper 3
+endevent
+
+// Speed up sector effects a little 8-)
+gamevar ra_temp 0 0
+eventloadactor GPSPEED
+    getactor[THISACTOR].lotag ra_temp
+    mulvar ra_temp 4
+    setactor[THISACTOR].lotag ra_temp
+enda
+
+gamevar ii 0 0
+onevent EVENT_PROCESSINPUT
+    setvar ii 0
+    whilevarvarn ii MAXSPRITES
+    {
+        ifvare sprite[ii].picnum 58  // space suit
+            ssp ii CLIPMASK0
+
+        addvar ii 1
+    }
+endevent

@@ -1,0 +1,120 @@
+// Don't try in C-CON!
+
+gamevar slen 0 0
+gamevar n -12345678 0  // a number having length 9 in the decimal representation
+
+// overlong string at definition (should warn)
+definequote 400 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789=123456789-
+
+// alloc some quotes, test empty quote syntax
+definequote 401
+definequote 402
+definequote 403
+definequote 404
+definequote 405
+definequote 406
+
+onevent EVENT_ENTERLEVEL
+    redefinequote 114 QWE
+
+    redefinequote 115 012345678|
+    // qstrcat X Y, where X==Y: duplicates the quote
+    qstrcat 115 115
+    userquote 115  // "012345678|012345678|"
+
+    // simple qstrcpy test
+    qstrcpy 116 115
+    userquote 116  // "012345678|012345678|"
+
+    redefinequote 117 %s -- %d -- %s -- %d slen=%d
+    // test:
+    // - same destination quote as the format quote
+    // - multiple conversions
+    qstrlen slen 115  // -> 10
+    qsprintf 117 /*<-*/ 117 /*args:*/ 116 9999 114 5555 slen
+    userquote 117  // "012345678|012345678| -- 9999 -- QWE -- 5555 slen=10"
+
+    redefinequote 117 %s -- %d -- %s -- %d slen=%d
+    // test:
+    // - same destination quote as one of the source quotes under %s conversion
+    qsprintf 116 /*<-*/ 117 /*args:*/ 116 9999 116 5555 slen
+    userquote 116  // "012345678|012345678| -- 9999 -- 012345678|012345678| -- 5555 slen=10"
+
+    // aliased qstrcpy test (a no-op)
+    qstrcpy 115 115
+    userquote 115  // still "012345678|012345678|"
+
+    qstrcat 115 115  // len 40
+    qstrcat 115 115  // len 80
+    qstrcat 115 115
+    // result now: 12 x "012345678|" concantenated with "0123456" (= total length 127 = MAXQUOTELEN-1)
+    qstrcat 115 115  // this one is redundant, but must not overflow the quote buffer
+    userquote 115
+
+    ////////// qstrncat test
+    redefinequote 300 012345678|
+    qstrncat 300 300 2
+    userquote 300  // "012345678|01"
+    //////////
+
+    redefinequote 117 X%s
+    qsprintf 117 /*<-*/ 117 /*args:*/ 115
+    userquote 117  // result: "X" .. 12 x "012345678|" .. "012345" (= total length 127 = MAXQUOTELEN-1)
+
+    // 32 %d (or %ld) conversions
+    redefinequote 117 %ld|%d|%ld|%d|%ld|%ld|%d|%ld|%d|%ld/%ld|%d|%ld|%d|%ld|%ld|%d|%ld|%d|%ld/%ld|%d|%ld|%d|%ld|%ld|%d|%ld|%d|%ld/%d/%d
+    // string shorter than MAXQUOTELEN-1:
+    qsprintf 116 /*<-*/ 117 /*args:*/ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    // result: "0|1|2|3|4|5|6|7|8|9/0|1|2|3|4|5|6|7|8|9/0|1|2|3|4|5|6|7|8|9/0/1"
+    userquote 116
+
+    // string longer than MAXQUOTELEN-1:
+    qsprintf 116 /*<-*/ 117 /*args:*/ n n n n n n n n n n /**/ n n n n n n n n n n /**/ n n
+    userquote 116
+    // result: 10 x "-12345678" .. "/-12345678|-12345678|-123456" (= total length 127 = MAXQUOTELEN-1)
+
+    // overlong string at redefinition
+    redefinequote 117 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789=123456789-
+    userquote 117  // should end in "=1234567" (= total length 127 = MAXQUOTELEN-1)
+    userquote 400  // same thing
+
+    // test passing empty quote
+    userquote 401
+
+    // qgetsysstr test
+    qgetsysstr 401 STR_MAPNAME
+    qgetsysstr 402 STR_MAPFILENAME
+//    qgetsysstr 403 STR_PLAYERNAME
+    qgetsysstr 404 STR_VERSION
+    qgetsysstr 405 STR_GAMETYPE
+    qgetsysstr 406 STR_VOLUMENAME
+
+    redefinequote 400 %s | %s | %s | %s | %s | %s
+    qsprintf 400 /*<-*/ 400 /*args:*/ 401 402 403 404 405 406
+    userquote 400
+endevent
+
+// Test of 'getpname' command.
+onevent EVENT_JUMP
+    getpname 400 THISACTOR
+    userquote 400
+endevent
+
+
+// Following code by Hendricks266, from
+// http://forums.duke4.net/topic/1382-duke-64-mod-thread/page__view__findpost__p__150497
+gamevar temp 0 0
+gamevar x 0 0
+
+definequote 666 This quote sucks
+
+onevent EVENT_DISPLAYREST
+    qstrlen temp 666
+    setvarvar x tilesizx[STARTALPHANUM] // rough approximation
+    mulvarvar x temp
+    divvar x 2
+    addvar x 160 // put your centered position here
+    gametext STARTALPHANUM x 30 666 0 0 16 0 0 xdim ydim
+endevent
+
+//////////

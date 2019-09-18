@@ -1,0 +1,57 @@
+// NOTE: This file is misnamed, "break" is local control flow, of course.
+
+state teststate_break
+    ifvare 1 1
+    {
+        redefinequote 114 BEFORE
+        echo 114
+
+        break
+
+        redefinequote 114 AFTER
+        echo 114
+    }
+
+    redefinequote 114 STILL LIVE INNER
+    echo 114
+ends
+
+definequote 499 ===
+definequote 500 MAXSPRITES: %d
+definequote 501 MAXSTATUS: %d
+definequote 502 MAX_WEAPONS: %d
+
+// XXX: EVENT_INIT not reached with LunaCON
+onevent EVENT_ENTERLEVEL
+    state teststate_break
+
+    redefinequote 114 STILL LIVE OUTER
+    echo 114
+
+    qsprintf 499 /*<-*/ 500 MAXSPRITES
+    echo 499
+    qsprintf 499 /*<-*/ 501 MAXSTATUS
+    echo 499
+    qsprintf 499 /*<-*/ 502 MAX_WEAPONS
+    echo 499
+endevent
+
+// Test number parsing
+gamevar MINUS_ONE  -1 0
+gamevar INT32_MIN   0x80000000 0
+gamevar INT32_MIN_ -0x80000000 0
+gamevar INT32_MINh   0x80000000h 0
+gamevar INT32_MIN_h -0x80000000h 0
+
+gamevar INT32_MIN_P1 0x80000001 0
+gamevar INT32_MIN_P1h 0x80000001h 0
+//gamevar INT32_MAX_  -0x80000001 0  // error
+
+gamevar INT32_MAX   0x7fffffff 0
+gamevar INT32_MAXh   0x7fffffffh 0
+
+// 9 digits? truncate it, but only because there's an F there.
+gamevar SOMEHEX 0xFFEFC0001 0
+
+// This one throws an error:
+//gamevar BADHEX 0xBFEFC0001 0

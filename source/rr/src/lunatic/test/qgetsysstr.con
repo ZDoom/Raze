@@ -1,0 +1,75 @@
+
+gamevar vol 0 0
+gamevar lev 0 0
+
+// out-of-bounds volume/level numbers
+gamevar badvol_oob 99 0
+gamevar badlev_oob 999 0
+
+// volume/level numbers for which no level is defined
+gamevar badvol_nd 3 0
+gamevar badlev_nd 32 0
+
+define Q_tmp 255
+definequote Q_tmp <temp>
+define Q_tmp2 256
+definequote Q_tmp2 <temp>
+
+define Q_last_level 1000
+definequote Q_last_level Last level (1-based): %d
+define Q_dtime 1001
+definequote Q_dtime Designer time for last level: %s
+
+state print_designer_time
+    // This must not invoke an oob access on the C side if ud.last_level < 0!
+    qgetsysstr Q_tmp2 STR_DESIGNERTIME
+
+    qsprintf Q_tmp Q_dtime Q_tmp2
+    userquote Q_tmp
+ends
+
+onevent EVENT_NEWGAME
+    getuserdef .last_level lev
+    qsprintf Q_tmp Q_last_level lev
+    userquote Q_tmp
+
+    state print_designer_time
+endevent
+
+onevent EVENT_ENTERLEVEL
+    state print_designer_time
+
+    // must fail, since the current player is -1 in this event
+    qgetsysstr Q_tmp STR_PLAYERNAME
+endevent
+
+onevent EVENT_USESTEROIDS
+    getuserdef .volume_number vol
+    setuserdef .volume_number badvol_oob  // LunaCON errors here
+    qgetsysstr Q_tmp STR_VOLUMENAME  // C-CON errors here
+    setuserdef .volume_number vol
+endevent
+
+onevent EVENT_USEJETPACK
+    getuserdef .volume_number vol
+    getuserdef .level_number lev
+
+    setuserdef .volume_number badvol_oob  // LunaCON errors here
+    setuserdef .level_number badlev_oob
+    qgetsysstr Q_tmp STR_MAPNAME  // C-CON errors here
+
+    setuserdef .volume_number vol
+    setuserdef .level_number lev
+endevent
+
+onevent EVENT_JUMP
+    getuserdef .volume_number vol
+    getuserdef .level_number lev
+
+    setuserdef .volume_number badvol_nd
+    setuserdef .level_number badlev_nd
+    qgetsysstr Q_tmp STR_MAPFILENAME  // LunaCON, C-CON error here
+
+    setuserdef .volume_number vol
+    setuserdef .level_number lev
+endevent

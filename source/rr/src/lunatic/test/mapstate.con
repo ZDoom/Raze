@@ -1,0 +1,179 @@
+
+// Map state test.
+// To warp to a particular map, press the steroids key.
+// Volume: player angle / 512, displayed on screen.
+// Level: current weapon.
+// Clear mapstate: press [QuickKick]
+
+define Q_tmp 400
+definequote Q_tmp ====== TEMP =======
+
+definequote 401 WILL WARP TO VOLUME %d
+
+define SQ 402
+definequote SQ <source>
+definequote 403 <dest>
+definequote 404 <dest>
+definequote 405 <dest>
+definequote 406 <dest>
+definequote 407 <dest>
+definequote 408 <dest>
+definequote 409 <dest>
+definequote 410 <dest>
+definequote 411 <dest>
+definequote 412 <dest>
+definequote 413 <dest>
+definequote 414 <dest>
+
+define Q_cms 500
+definequote Q_cms Cleared mapstate for volume %d level %d
+
+// Test gamevar flags GAMEVAR_NODEFAULT and GAMEVAR_NORESET.
+// Global.
+define GV_NODEFAULT 1024
+define GV_NORESET 131072
+define GV_NODEFAULT_NORESET 132096
+// Per-player.
+define PV_NODEFAULT 1025
+define PV_NORESET 131073
+define PV_NODEFAULT_NORESET 132097
+// Per-actor (not very meaningful, as the APLAYER actor will in general have a
+// different sprite for different levels).
+define AV_NODEFAULT 1026
+define AV_NORESET 131074
+define AV_NODEFAULT_NORESET 132098
+
+// global
+gamevar numwarps 0 0
+gamevar numwarpsD 0 GV_NODEFAULT
+gamevar numwarpsR 0 GV_NORESET
+gamevar numwarpsDR 0 GV_NODEFAULT_NORESET
+// per-player
+gamevar Pnumwarps 0 1
+gamevar PnumwarpsD 0 PV_NODEFAULT
+gamevar PnumwarpsR 0 PV_NORESET
+gamevar PnumwarpsDR 0 PV_NODEFAULT_NORESET
+// per-actor
+gamevar Anumwarps 0 2
+gamevar AnumwarpsD 0 AV_NODEFAULT
+gamevar AnumwarpsR 0 AV_NORESET
+gamevar AnumwarpsDR 0 AV_NODEFAULT_NORESET
+
+gamevar pal 0 0
+gamevar dq 0 0
+gamevar y 0 0
+
+state calcvolume
+    getplayer[THISACTOR].ang gs
+    andvar gs 2047
+    divvar gs 512
+ends
+
+state dispnumwarps
+    gametextz STARTALPHANUM 20 y  dq  0 pal 0  0 0 xdim ydim 32768
+    addvar dq 1
+    addvar y 8
+ends
+
+onevent EVENT_DISPLAYREST
+    state calcvolume
+    qsprintf Q_tmp /*<-*/ 401 /**/ gs
+    gametext STARTALPHANUM 20 20  Q_tmp  0 0 0  0 0 xdim ydim
+
+    setvar y 40
+    setvar dq 403
+    setvar pal 0
+
+    // global
+    redefinequote SQ numwarps (no flags): %d
+    qsprintf dq SQ numwarps
+    state dispnumwarps
+    redefinequote SQ numwarps (NODEFAULT): %d
+    qsprintf dq SQ numwarpsD
+    state dispnumwarps
+    redefinequote SQ numwarps (NORESET): %d
+    qsprintf dq SQ numwarpsR
+    state dispnumwarps
+    redefinequote SQ numwarps (NODEFAULT, NORESET): %d
+    qsprintf dq SQ numwarpsDR
+    state dispnumwarps
+
+    // per-player
+    setvar pal 14
+    redefinequote SQ Pnumwarps (no flags): %d
+    qsprintf dq SQ Pnumwarps
+    state dispnumwarps
+    redefinequote SQ Pnumwarps (NODEFAULT): %d
+    qsprintf dq SQ PnumwarpsD
+    state dispnumwarps
+    redefinequote SQ Pnumwarps (NORESET): %d
+    qsprintf dq SQ PnumwarpsR
+    state dispnumwarps
+    redefinequote SQ Pnumwarps (NODEFAULT, NORESET): %d
+    qsprintf dq SQ PnumwarpsDR
+    state dispnumwarps
+
+    // per-actor
+    setvar pal 10
+    redefinequote SQ Anumwarps (no flags): %d
+    qsprintf dq SQ Anumwarps
+    state dispnumwarps
+    redefinequote SQ Anumwarps (NODEFAULT): %d
+    qsprintf dq SQ AnumwarpsD
+    state dispnumwarps
+    redefinequote SQ Anumwarps (NORESET): %d
+    qsprintf dq SQ AnumwarpsR
+    state dispnumwarps
+    redefinequote SQ Anumwarps (NODEFAULT, NORESET): %d
+    qsprintf dq SQ AnumwarpsDR
+    state dispnumwarps
+endevent
+
+onevent EVENT_USESTEROIDS
+    // global
+    addvar numwarps 1
+    addvar numwarpsD 1
+    addvar numwarpsR 1
+    addvar numwarpsDR 1
+    // per-player
+    addvar Pnumwarps 1
+    addvar PnumwarpsD 1
+    addvar PnumwarpsR 1
+    addvar PnumwarpsDR 1
+    // per-actor
+    addvar Anumwarps 1
+    addvar AnumwarpsD 1
+    addvar AnumwarpsR 1
+    addvar AnumwarpsDR 1
+
+    savemapstate
+
+    state calcvolume
+    startlevel gs currentweapon
+endevent
+
+onevent EVENT_QUICKKICK
+    state calcvolume
+
+    qsprintf Q_tmp Q_cms gs currentweapon
+    userquote Q_tmp
+
+    // Calc linear map index.
+    mulvar gs 64  // MAXLEVELS (XXX: should be exposed via CON)
+    addvarvar gs currentweapon
+
+    clearmapstate gs
+endevent
+
+onevent EVENT_ENTERLEVEL
+    loadmapstate
+endevent
+
+
+onevent EVENT_USEJETPACK
+    savegamevar numwarpsD
+endevent
+
+onevent EVENT_USENIGHTVISION
+    readgamevar numwarpsD
+endevent

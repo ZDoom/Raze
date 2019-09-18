@@ -1,0 +1,51 @@
+// This CON module provides 'state thisactor_getzrange', reimplementing
+// VM_GetZRange() from the C source. This routine obtains actor[].ceilingz and
+// actor[].floorz for the current actor (THISACTOR), using getzrange() with the
+// initial z position displaced by -256.
+//
+// Original author: Helixhorned.
+
+
+// In
+gamevar tagz_x 0 0
+gamevar tagz_y 0 0
+gamevar tagz_z 0 0
+gamevar tagz_sectnum 0 0
+
+// Temp
+gamevar tagz_cstat 0 0
+
+// Out
+gamevar tagz_ceilz 0 0
+gamevar tagz_ceilhit 0 0
+gamevar tagz_florz 0 0
+gamevar tagz_florhit 0 0
+
+// ZOFFSET in the EDuke32 source.
+define TAGZ_ZOFFSET 256
+// In the EDuke32 source, the <walldist> passed to VM_GetZRange().
+define TAGZ_WALLDIST 127
+
+// Updates the current actor's actor[].floorz and actor[].ceilngz members in
+// the same way A_GetZRange() does.
+state thisactor_getzrange
+    setvarvar tagz_x sprite[THISACTOR].x
+    setvarvar tagz_y sprite[THISACTOR].y
+    setvarvar tagz_z sprite[THISACTOR].z, subvar tagz_z TAGZ_ZOFFSET
+    setvarvar tagz_sectnum sprite[THISACTOR].sectnum
+
+    // Back up and clear cstat.
+    setvarvar tagz_cstat sprite[THISACTOR].cstat
+    setactor[THISACTOR].cstat 0
+
+    getzrange tagz_x tagz_y tagz_z tagz_sectnum
+     /*out:*/ tagz_ceilz tagz_ceilhit tagz_florz tagz_florhit
+      /*in:*/ TAGZ_WALLDIST CLIPMASK0
+
+    // Restore cstat.
+    setactor[THISACTOR].cstat tagz_cstat
+
+    // Set actor[] members for the current actor.
+    setactor[THISACTOR].htceilingz tagz_ceilz
+    setactor[THISACTOR].htfloorz tagz_florz
+ends

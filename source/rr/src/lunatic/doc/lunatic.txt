@@ -1,0 +1,2716 @@
+Lunatic User Manual
+===================
+Helixhorned <contact: Duke4.net forums>
+:max-width: 56em
+:numbered:
+:icons:
+:toc:
+:toclevels: 3
+
+:language: lua
+
+[red]*DRAFT DRAFT DRAFT*
+
+Lunatic is in preview stage. Modifications or TCs may be started, but must not
+be released. The interfaces (including constants, functions, methods *and
+structure members*) described in this document may be assumed to not change
+significantly until release, but *undocumented API may change without further
+notice*.
+
+[red]*DRAFT DRAFT DRAFT*
+
+Introduction
+------------
+
+Language
+--------
+:Lua51: http://www.lua.org/about.html
+:Lua51Ref: http://www.lua.org/manual/5.1/
+:PiL: http://www.lua.org/docs.html
+
+:LuaJIT: http://luajit.org
+:LuaJIText: http://luajit.org/extensions.html
+
+The base language for writing Lunatic user code is {Lua51}[Lua 5.1].  It is
+extensively documented in a {Lua51Ref}[Reference Manual], as well as described
+more broadly and accessibly in the {PiL}[Programming in Lua] books.
+// TODO: describe Lua a bit
+
+Because Lunatic is implemented using {LuaJIT}[LuaJIT], a just-in-time compiler
+for the Lua language, some {LuaJIText}[extensions] to the core language are
+automatically available. They may be used if no compatibility with Rio Lua 5.1
+is desired.footnote:[Not all extensions from LuaJIT are available, since some
+like the FFI are targeted at C programmers rather than scripting coders.]
+
+NOTE: The length operator (`#`) for table arguments should be taken to be
+defined by the http://www.lua.org/manual/5.2/manual.html#3.4.6[stricter wording
+of Lua 5.2].
+
+
+Environment and Usage
+---------------------
+
+Lunatic aims to provide a _safe_ scripting environment for EDuke32. Thus, not
+all of Lua's functionality is available in Lunatic, and some is slightly
+altered to play well with being embedded into a game, or to prevent commonly
+occurring mistakes.
+
+.Differences from default Lua environment
+- Creating new variables in the global environment is forbidden.
+- Referencing a non-existent variable (i.e. one that has value *nil*) is an
+  error.
+
+EDuke32 can load multiple Lunatic _modules_ when starting up. This is always
+done after translating CON code to Lua and loading it. Such modules must reside
+in files named `*.lua` (case-sensitive) and should be passed directly, without
+any option letters, at the command line. Directory separators must be forward
+slashes.
+
+The command-line option `-Lopts=strict` enables errors on certain conditions
+that may indicate problems in user Lua or CON code. Currently, strict mode
+checks for
+
+* Accesses to <<sprite,sprites>> not in the game world
+* Indexing the tables returned by <<require,`require("CON.DEFS")`>> and the like
+  with nonexistent keys. This may indicate a missing file from a bundle
+  belonging together.
+
+.Invocation example
+====================
+`eduke32 -nologo MYTC.CON -mx addition.con test.lua weapons/nuke.lua -v1 -l1`
+====================
+
+If the OS environment variable `LUNATIC_TIMING_BASEFN` is defined, EDuke32 will
+write out aggregate timing results for actors and events in a comma-separated
+value format, obtained by suffixing the base name with ```.actors.csv`'' and
+```.events.csv`''.
+
+
+Global Environment
+------------------
+
+When a Lua module is loaded, its global environment contains both selected
+functions from core Lua, as well as Lunatic's own pre-defined variables.
+These allow access and manipulation of EDuke32 engine and game data.
+
+[icon="din_w_explosive.png"]
+CAUTION: If an attempt is made to create a new variable in the global
+environment or to assign any value to an existing variable, the behavior is
+undefined.
+
+For convenience of debugging from the command line (using the `lua` OSD
+command), the global environment contains a table `d` which is initially
+empty. It should only be used to temporarily store values of interest in a
+debugging session and should never be referenced from actual script code.
+
+Lua functions
+~~~~~~~~~~~~~
+
+The following base Lua functions are available in Lunatic's global environment:
+
+`assert`, *`error`*, `ipairs`, `pairs`, `pcall`, *`print`*, *`module`*, `next`,
+*`require`*, `select`, `tostring`, `tonumber`, `type`, `unpack`, `xpcall`.
+
+The bold ones add functionality or behave slightly differently, described below.
+Additionally, `printf` is provided for convenience.
+
+[[error]] *`error(message [, level])`*::
+In Lunatic, errors also print to the on-screen display (OSD) and are written to
+the log (unless a maximum error count is exceeded). These also have a
+_backtrace_ added. Additionally, errors not caught by a `pcall` result a
+permanent message to appear on the screen, containing the source file name and
+line number.
+
+*`print(str)`*::
+Prints a single message to the OSD and the log. Color codes available in
+EDuke32 (e.g. `^10` for dark red) are interpreted. Overriding `tostring` has no
+effect on Lunatic's `print` as it uses the initial, built-in `tostring`
+function instead of looking it up in the global environment.
+
+*`printf(fmt, ...)`*::
+Calls `print` with the result of `string.format(fmt, ...)`.
+
+[[modules]]
+Writing and using modules
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In Lunatic, like in Lua, a _module_ is a conceptually a sort of package that
+unites related bits of functionality. Language-wise, it is simply a Lua
+table holding its contents, as described and motivated at length in
+_Programming in Lua_ (second edition).
+
+The ``creation'' and ``usage'' sides of the modularity concept are reflected in
+two functions known from Lua 5.1, `module` and `require`. The former is a
+convenient way of separating the _import_, potential _gamevar_, and main body
+sections when writing a package. It is not required to use `module`, but it is
+the only way to declare _game variables_, that is, variables that EDuke32
+stores within savegames, recreating their values when they are loaded.
+
+The other side of the coin, `require`, is also used like in Lua: ``including''
+a named module is requested by passing its name to `require`. This searches for
+a matching module, loading and running it if the request happens for the first
+time.
+
+[[require]]
+==== The function `require(modname, ...)`
+
+Attempts to find a Lua or Lunatic module named `modname`. The name can refer to
+a _built-in_ module, of which the following ones are allowed:
+
+* The http://bitop.luajit.org/[`bit`] module for bitwise operations
+* `math`, `string` and `table`, base modules from Lua
+* Lua's `os` module, containing a single function, `clock`. Like the
+  <<timing_funcs,timing functions>>, it should only be used to profile bits of
+  code.
+* Modules provided by Lunatic, which are described in <<ext_api,their own
+  section>>.
+
+If `modname` does not designate a built-in module, Lunatic first replaces every
+dot contained in it with a directory separator. Then, it looks for a file with
+that base name suffixed with `.lua` in the EDuke32 search path (virtual file
+system, GRP, ZIP). Using directory separators directly is not allowed.
+
+The loaded module is protected so that write accesses to its table yield
+errors. Unlike in Lua, our `require` does not return *true* when a module is
+requested that has not yet finished loading (that is, the inclusion chain
+contains a loop). Instead, an error is raised.
+
+Lunatic's `require` allows passing additional arguments to the module to load.
+On the module side, they can be obtained by examining the vararg expression
+``++\...++'' at file scope. Given a definition of `args` as `{...}`, its first
+element `args[1]` would contain `modname` and the following entries the values
+passed in addition to `require`. This feature is useful for parametrizing a
+module: for example, the module could provide a way alter the starting tile
+number of an actor it defines.
+
+Issuing `require` for some special names listed below has a predefined meaning
+that cannot be overridden by the user.
+
+* `CON.DEFS`: returns a table mapping labels ++define++d from CON to their
+values. Values pre-defined by the system are not included.
+
+* `CON.ACTION`: returns a table mapping labels of ++action++s defined from CON
+  to immutable <<con_action,`con.action`>> objects.
+
+* `CON.MOVE`: returns a table mapping labels of ++move++s defined from CON
+  to immutable <<con_move,`con.move`>> objects.
+
+* `CON.AI`: returns a table mapping labels of ++ai++s defined from CON
+  to immutable <<con_ai,`con.ai`>> objects.
+
+* `end_gamevars`: used to mark the end of a gamevar block, described
+  <<game_variables,below>>.
+
+
+==== The `module()` function
+
+Initiates a _module_ environment by creating a new empty table and setting it
+as the global environment of the chunk. Subsequently creating global variables
+will place them into this ``hidden'' table. Assuming no subsequent *`return`*
+is placed at file scope, this table will be the one obtained by a `require` for
+the module at the client side.
+
+[source]
+.Example file using using `module`
+----------
+-- Import section: cache everything the module needs into locals
+local print = print
+local gameactor = gameactor
+local MYDEFS = require("MyEnemyDefs", 1200)  -- see next example
+
+-- After this, the global environment will be swept clean!
+module(...)
+
+-- Our enemy at last
+gameactor{ MYDEFS.tilenum, strength=MYDEFS.strength,
+    function(aci)
+        print("My tilenum is "..sprite[aci].picnum.." and I "
+              ..(MYDEFS.canfly and "can" or "can't").." fly")
+    end
+}
+----------
+
+Unlike Lua 5.1, our `module` takes neither a name argument nor ``option''
+varargs. A Lunatic file may have at most one call to `module`, which (if there
+is one) *must* be called at file scope.
+
+If the Lua file doesn't need to register any game variables, it is also
+possible to return its table directly instead of using `module`. However, due
+to the way modules are loaded, a trailing *`return`* statement must be wrapped
+in a *`do`*...*`end`* block, like this:
+
+.Example module `MyEnemyDefs.lua` explicitly returning a table
+[source]
+----------
+local args = { ... }
+do return {
+   tilenum = args[1] or 1000,
+   strength = 100,
+   canfly = true,
+}
+end
+----------
+
+[[game_variables]]
+===== Game variables
+
+Lunatic has a special mechanism to mark variables that represent persistent
+state and whose values should be stored in savegames. If such variables are
+desired, they must be initialized between the `module` call in a Lua file and a
+closing `require("end_gamevars")`.footnote:[The reason that the initialization
+has to happen between the `module` and the `require('end_gamevars')` is that on
+savegame loading, gamevars are restored from the latter.] These variables may
+also be *`local`*.
+
+Game variables may take on only values of types that Lunatic knows how to
+serialize into savegames. These are the following:
+
+* Booleans, numbers, and strings, collectively called the _basic types_
+* Custom Lunatic types that are labeled _serializable_ in their documentation
+* Tables, but with the following restrictions on their contents:
+** A table key may only be of basic type.
+** A table value may be (a reference to) any serializable object, but tables
+    or Lunatic objects that are so referenced *must* have originated in the
+    gamevar section of the same module. Beyond that, there are no restrictions
+    on the table topology.
+
+[icon="din_w_collapse.png"]
+CAUTION: If a gamevar contains a value that is not serializable at any point
+in the execution, the behavior is undefined. Note that in particular, gamevars
+are not allowed to take on the value *nil*.
+
+// TODO: example?
+
+// TODO: the rest
+
+[[gv]]
+The `gv` variable
+~~~~~~~~~~~~~~~~~~~
+
+Some constants, global C variables, and miscellaneous functions and structures
+are accessible via the global `gv` variable.
+
+Constants
+^^^^^^^^^
+`gv.MAXSECTORS`, `gv.MAXWALLS`, `gv.MAXSPRITES`::
+The hard engine limits on the number of sectors, walls, and sprites. These
+constants *must* be used instead of any literal numeric values because they
+can change depending on how EDuke32 was configured and built.
+
+`gv.CEILING`, `gv.FLOOR`, `gv.BOTH_CF`::
+Constants permissible to the <<sectorsofbunch_1,`sectorsofbunch`>> iterator.
+
+//////////
+`gv.MAXSTATUS`, `gv.MAXTILES`, `gv.MAXSPRITESONSCREEN`::
+TODO
+
+`gv.MAXBUNCHES`::
+TODO
+//////////
+
+`gv.CLIPMASK0`::
+A clipping (collision detection) mask specifying to consider only _blocking_
+walls and sprites.
+
+`gv.CLIPMASK1`::
+A clipping (collision detection) mask specifying to consider only _hitscan
+sensitive_ walls and sprites. The set bits of `CLIPMASK1` and `CLIPMASK0` are
+disjoint.
+
+[[gv_REND]] `gv.REND`::
+A mapping of names to values representing rendering modes: `CLASSIC`,
+`POLYMOST`, `POLYMER`.
+
+// Game-side
+[[gv_GTICSPERSEC]] `gv.GTICSPERSEC`::
+The number of times in a second each actor executes its code and updates its
+position (``game tics'').
+
+[[gv_GET]] `gv.GET`::
+A mapping of names to inventory indices: `STEROIDS`, `SHIELD`, `SCUBA`,
+`HOLODUKE`, `JETPACK`, `DUMMY1`, `ACCESS`, `HEATS`, `DUMMY2`, `FIRSTAID`,
+`BOOTS`.
+
+`gv.GET_MAX`::
+The maximum permissible inventory index plus one.
+
+[[gv_WEAPON]] `gv.WEAPON`::
+A mapping of names to weapon indices: `KNEE`, `PISTOL`, `SHOTGUN`, `CHAINGUN`,
+`RPG`, `HANDBOMB`, `SHRINKER`, `DEVISTATOR`, `TRIPBOMB`, `FREEZE`,
+`HANDREMOTE`, `GROW`. Note that ```DEVISTATOR`'' is misspelled.
+
+`gv.MAX_WEAPONS`::
+The maximum permissible weapon index plus one.
+
+//////////
+`gv.MAXPLAYERS`::
+TODO
+//////////
+
+`gv.LUNATIC_CLIENT`::
+
+A constant indicating which program Lua is embedded into. It can be compared
+for (in)equality with:
++
+* `gv.LUNATIC_CLIENT_EDUKE32`
+* `gv.LUNATIC_CLIENT_MAPSTER32`
++
+(Mapster32 supports a subset of Lunatic that is not documented and subject to
+change at any time.)
+
+Variables
+^^^^^^^^^
+
+`gv.numsectors` (read-only)::
+The total number of sectors in the currently loaded map.
+
+`gv.numwalls` (read-only)::
+The total number of walls in the currently loaded map.
+
+[[totalclock]] `gv.totalclock` (read-only)::
+The current value of the engine timer that increments at a rate of 120 per
+second under default settings. (Thus, one game tic corresponds to four
+`totalclock` increments.) When staying within one ``mode'' such as in-menu or
+in-game, it is guaranteed to not decrease. However, going from one mode to
+another may produce discontinuities.
+
+`gv.gametic` (read-only)::
+The number of <<gv_GTICSPERSEC,game tics>> that have elapsed since starting the
+current level. This value is guaranteed to not decrease during a game, and is
+restored from savegames.
+
+`gv.screenpeek` (read-only)::
+The player index of the player from whose position the scene is being displayed.
+
+`gv.rendmode` (read-only)::
+The current rendering mode as a value that can be compared against those in
+<<gv_REND,`gv.REND`>>.
+
+`gv.hudweap`::
+A structure containing information about the currently displayed HUD weapon.
+Contains the following members, which are set from C before entering
+`EVENT_DISPLAYWEAPONS`: `cur`, `count`, `gunposx`, `gunposy`, `lookhalfang`,
+`lookhoriz`, `shade`.
+// TODO: describe
+
+`gv.cam`::
+A structure that, prior to entering `EVENT_DISPLAYROOMS`, is populated with the
+position and orientation of the ``camera'' from which the scene would be drawn.
+Contains the following members: `pos`, `dist`, `clock`, `ang`, `horiz`, `sect`.
+// TODO: describe
+
+// TODO: g_logoFlags?
+
+[[gv_RETURN]] `gv.RETURN`::
+A special variable that is used by the game to pass specific values to game
+events, or to examine values passed back from events and act upon them
+accordingly. Refer to <<Appendix_event_RETURN,Appendix B>> for a list of how the various
+events interpret this variable.
+
+Functions
+^^^^^^^^^
+
+`gv.getangle(x, y)`::
+Returns an approximation of the angle between the line segments (0,0)->(1,0)
+and (0,0)->(`x`,`y`) in BUILD angle units in the range [0 .. 2047].
+
+[[krand]] `gv.krand()`::
+Returns one value from the global engine-side pseudo-random number generator
+in the integer range [0{nbsp}..{nbsp}65535].
+
+[[timing_funcs]] `gv.getticks()`, `gv.gethiticks()`::
+Each of these functions return a number that increases at a rate of 1 per
+millisecond. Their only intended application is to profile bits of code; they
+should not be used to control the game world. The two functions differ in their
+precision: `getticks()` always returns integral values, while the result of
+`gethiticks()` also has an unspecified precision in the fractional part. (It
+can be expected to give a time precision of at least one microsecond.)
+
+`gv.doQuake(gametics [, snd])`::
+Requests from the game to perform the ``quake'' effect that shakes the screen
+etc. for the next `gametics` game tics. If a sound index `snd` is passed, also
+start playing that sound.
+// TODO: Play sound how? ("globalsound")
+
+`gv.currentEpisode()`::
+Returns the one-based number of the episode currently being played.
+
+`gv.currentLevel()`::
+Returns the one-based number of the level currently being played.
+
+[[Lunatic_structures]]
+Lunatic structures
+~~~~~~~~~~~~~~~~~~
+
+The primary means of effecting game state in Lunatic is via _composite
+variables_ defined in the global environment. These provide direct, but
+restricted, access to C _structure arrays_ of the EDuke32 engine or game.
+
+[icon="din_w_toxic.png"]
+CAUTION: If an attempt is made to access any composite variable outside of
+event or actor code, the behavior is undefined.
+
+Composite variables can be used in various ways. All of them allow indexing
+with an integer value from `0` to some maximum (sometimes the size of the array
+minus one, but occasionally less). For example, the code snippet
+[source]
+----------
+local sec = sector[0]
+----------
+gets a _reference_ to the first sector of the loaded map into the local `sec`.
+This reference can then be used to both read and write its members.
+
+Various structures also provide _methods_ in Lunatic to modify their state,
+usable with Lua's `v:func(args...)` syntax. Building on the previous example,
+[source]
+----------
+local cz = sec:ceilingzat(wall[sec.wallptr])
+----------
+would get into `cz` the ceiling z position at the first sector's first
+wall-point.
+
+Finally, some composite variables offer _static data_, which can contain
+functions or tables of constants. These are accessed using the dot notation on
+the composite variable, *not* its constituents. For instance, the following can
+be used to change the sector number of the sprite with index `i` manually:
+[source]
+----------
+sprite.changesect(i, sectnum)
+----------
+
+
+Type of structure members
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In the following, some structure members will be annotated with their _integer
+type_, for example _`i16`_ or _`u8`_. The letter _`i`_ denotes a _signed_
+integer whereas a _`u`_ designates an _unsigned_ one. The number following that
+letter indicates the _bit width_ of that integer.
+
+.Representable values
+* A member of signed integer type and bit width _B_ can contain any whole
+number from --2^_B_--1^ to 2^_B_--1^--1. +
+
+* A member of unsigned integer type and bit width _B_ can contain any whole
+number from 0 to 2^_B_^--1.
+
+[[int_assignment]]
+.Assignment
+1. If an assignment to a member having signed integer type is made, the
+   ``right-hand side'' value must be a number in the closed interval
+   [--2^31^ .. 2^31^--1].
+
+2. If an assignment to a member having unsigned integer type and bit width _B_
+   is made, the ``right-hand side'' value must be in the closed interval
+   [--2^31^ .. 2^31^--1] if _B_ is less than 32, or in [0 .. 2^32^--1] otherwise.
+
+3. If the appropriate requirements hold, an assignment from a Lua number to a
+   member having integer type begins by discarding the fractional part
+   (``truncation'').  Otherwise, the behavior is undefined. +
+
+4. If the truncated value is outside the range of representable values for the
+   corresponding integer type of bit width _B_, the final value is obtained by
+   successively adding or subtracting 2^_B_^, until the value falls inside that
+   range.
+
+//////////
+NOTE to self: this is stricter than C99 (which has first truncation, then range
+check). Also, it may be tempting to assign 0x80000000 to an int32_t to mean
+INT32_MIN, but this is wrong because it's out of range.
+Also see:
+http://lua-users.org/lists/lua-l/2011-09/msg00534.html
+//////////
+
+.Examples
+1. Assignments to _`u8`_ member `visibility`
+* `sec.visibility=3.94159` results the member to contain the integer `3`
+* `sec.visibility=1/0` is undefined (attempt to assign an infinity)
+* `sec.visibility=-1` results the member to contain the integer `255`
+
+2. Assignments to _`i16`_ member `lotag`
+* `sec.lotag=32768` results the member to contain `-32768`
+* `sec.lotag=2^32` is undefined
+
+[[bit_fields]]
+Bit fields
+^^^^^^^^^^
+
+Some structures contain members that represent a collection of _flags_, for
+example `sprite[].cstat` or `actor[].flags`. These flags can be toggled by
+setting or clearing their respective _bits_ (integer numbers that are powers of
+two).
+
+For convenience, Lunatic provides alternative names for some of these members,
+together with methods to examine or modify any number of bits of such a member
+in one expression.  Whenever there is such an alternative name available, it is
+declared as having type _`bitfield`_ in the listings of the structure members.
+
+===== methods of the _`bitfield`_ type
+
+`bf:set(bits)`::
+_Sets_ (toggles to an ``on'' state in a boolean sense) those bits of `bf`
+that are set in `bits`.
+
+`bf:clear(bits)`::
+_Clears_ (toggles to an ``off'' state in a boolean sense) those bits of `bf`
+that are set in `bits`.
+
+`bf:flip(bits)`::
+_Flips_ those bits of `bf` that are set in `bits`, that is, reverses their
+boolean state.
+
+`bf:test(bits)`::
+Returns a boolean that indicates whether `bf` has *any* of the bits set in
+`bits` set.
+
+`bf:mask(bits)`::
+Returns a number containing the bits of `bf` bitwise ANDed with those in
+`bits`.
+
+.Examples
+==========
+After the lines setting sprite `i` to 33% translucent and blocking,
+[source]
+----------
+local CS = sprite.CSTAT
+local spr = sprite[i]
+spr.cstat = CS.TRANS1 + CS.BLOCK
+----------
+one could proceed as follows for the sake of example:
+
+[source]
+----------
+spr.cstatbits:set(CS.TRANS2)  -- make the sprite 66% translucent now
+spr.cstatbits:flip(CS.BLOCK + CS.HITSCAN)  -- make it hitscan-sensitive and non-blocking
+local isflipped = spr.cstatbits:test(CS.FLIP_BITMASK)  -- is it x- or y-flipped? (no)
+----------
+==========
+
+Engine-side composites
+^^^^^^^^^^^^^^^^^^^^^^
+
+The composite variables described in this subsection provide access to
+engine-side structures. The first three, `sector`, `wall`, and `sprite`,
+are part of a BUILD map saved to disk. The other ones only exist when
+running the game.
+
+===== `sector`
+Accessible from `0` to `gv.numsectors-1`. Each element has the following
+members:
+
+`wallptr`, `wallnum` (read-only)::
+The index of the sector's first wall and the number of walls in the sector,
+respectively.
+
+_`u8`_ `visibility`::
+Determines the amount of distance fading. The sector `visibility` member is
+biased: linear visibility is determined from it by adding 16 and taking the
+result mod 16. This linear visibility's interpretation is that larger values
+correspond to a steeper ``darkening'' (or fogging) attenuation with
+distance. Linear visibility 0 -- corresponding to `sector[].visibility` of 240
+-- means no attenuation with distance.
+
+_`u8`_ `fogpal`::
+In the OpenGL modes that don't use per-pixel shade table lookups, setting
+`fogpal` to a non-zero value overrides the fog color of the sector to that of
+the corresponding pal number. These are either expected to have been defined
+using DEF tokens `fogpal` or `makepalookup`, or created by EDuke32 at startup.
+
+_`i16`_ `lotag`, `hitag`, `extra`::
+General-purpose ``tags'' provided for game programming. They may be used by
+various EDuke32 sector effects, so it is not recommended to use them in
+scripting code.
+
+In addition to the members described above, each sector has two sets of members
+for its ceiling and floor. A sector reference can be indexed with the strings
+`ceiling` or `floor` to get references to the respective ``parts'', or one can
+access the consituent members by prefixing `ceiling` or `floor` to the base
+member names given below.
+
+.Different ways of accessing the same member
+==========
+After the code lines
+[source]
+----------
+local sec = sector[0]
+local ceil = sec.ceiling
+----------
+the following expressions all denote the same location, both if read or written
+to: `sec.ceilingheinum`, `ceil.heinum`, `sector[0].ceiling.heinum`,
+`sector[0].ceilingheinum`.
+==========
+
+In the following, `cf` will stand for a ceiling or floor reference, while `sec`
+will label a sector reference.
+
+`cf.picnum` (read-only)::
+The tile number of the ceiling or floor.
+
+[[cf_stat]] _`u16`_ `cf.stat`, {nbsp} _`bitfield`_ `cf.statbits`::
+A bit field holding various flags about how the ceiling or floor should be
+displayed, how collision detection should be handled, etc.
+The <<sector_STAT,`sector.STAT`>>
+object should be used to obtain the values for applicable flags.
+
+_`i16`_ `cf.heinum`::
+If `cf.stat` has bit `sector.STAT.SLOPE` set, the tangent of the slope angle,
+multiplied by 4096.  Positive values make the ceiling or floor slope towards
+the floor, negative ones slope upward.
+
+[[cf_z]] _`i32`_ `cf.z`::
+The BUILD z coordinate (scaled by 16 compared to the x and y directions) of the
+pivoting line of the ceiling or floor.
+
+`cf.bunch` (read-only)::
+The ``bunch'' number of the ceiling or floor used for True Room over Room. One
+bunch comprises _N_ ceilings and _M_ floors (_N_ &ge; 1, _M_ &ge; 1) such that
+each set covers the same planar, connected area.
+
+_`i8`_ `cf.shade`::
+The shade of the ceiling or floor. Larger values mean a more darker appearance.
+
+_`u8`_ `cf.pal`::
+The ``palette swap'' index of the ceiling or floor.
+
+_`u8`_ `cf.xpanning`, `cf.ypanning`::
+The panning values of the ceiling or floor. One full cycle is covered by values
+from `0` to `255`.
+
+===== ceiling-or-floor methods
+
+`cf:set_picnum(tilenum)`::
+Set the tile number of the ceiling-or-floor `cf`.
+
+===== `sector` methods
+
+`sec:set_ceilingpicnum(tilenum)`, {nbsp} `sec:set_floorpicnum(tilenum)`::
+Set the tile number of the ceiling or the floor.
+
+[[sec_cfz_at]] `sec:ceilingzat(pos)`, {nbsp} `sec:floorzat(pos)`::
+Return the z coordinate of sector `sec`'s ceiling or floor at position `pos`,
+which can be anything indexable with the strings `x` and `y`.
+
+`sec:zrangeat(pos, walldist, clipmask)` -> `hit`::
+
+Given a starting point `pos` assumed to be contained in the sector, calculate
+the z coordinates of the objects that would be first hit by a quadratic,
+floor-aligned sprite pointing parallel to the grid and having side length
+`2*walldist`, when travelling in a straight line up- and downwards.
++
+The argument `clipmask` is a number specifying which objects should be checked
+for collision: its least significant 16 bits are bitwise-ANDed with
+`wall[].cstat` values, while the high 16 bits are ANDed with
+`sprite[].cstat`. Whenever the so masked values are non-zero, the objects are
+considered for collision.
++
+The method returns an immutable structure `hit`, containing the sub-structures
+`c` and `f` (for movement upwards and downwards, respectively) with the
+following members:
++
+* `spritep`: a boolean signifying whether a sprite was hit
+* `num`: if `spritep` is true, the index of the hit sprite, otherwise the index
+  of the hit ceiling/floor's sector
+* `z`: the z coordinate of where the sprite would end up on collision
+
+===== `sector` static data
+
+[[sector_STAT]] `sector.STAT`::
+Provides a mapping of symbolic names to values applicable to
+<<cf_stat,`cf.stat`>>.  These name single bits:
+`PARALLAX`, `SLOPE`, `SWAPXY`, `SMOOSH`, `FLIPX`, `FLIPY`, `RELATIVE`, `MASK`,
+`TRANS1`, `TRANS2`, `BLOCK`, `HITSCAN`, while the following denote _bit masks_:
+`FLIP_BITMASK`, `ORIENT_BITMASK`, `TRANS_BITMASK`.
+
+[[sector_UPDATE_FLAGS]] `sector.UPDATE_FLAGS`::
+Contains flags permissible to <<updatesector,`updatesector`>> and other sector
+updating functions. `BREADTH`, `Z`.
+
+'''
+[[wall]]
+===== `wall`
+Accessible from `0` to `gv.numwalls-1`. Each element has the following
+members:
+
+_`i32`_ `x`, `y`::
+The 2D coordinates or this wall point. Should not be set directly.
+
+`z` (read-only)::
+Always yields `0`. The primary purpose of this field is to make wall references
+permissible as arguments to <<vector_types,`xmath` vector>> operations.
+
+`point2` (read-only)::
+The index of the second wall point.
+
+[[nextwall]] `nextwall`, `nextsector` (read-only)::
+If the wall is ``white'', these members equal `-1`. For ``red'' walls, they
+contain the wall and sector indices (respectively) of the wall on the other side.
+
+`upwall`, `dnwall` (read-only)::
+For walls constrained by TROR extension, the upper and lower neighbor walls,
+respectively. Any of them may be `-1`, meaning that the wall is not attached to
+a neighbor in this direction.
+
+[[wall_cstat]] _`u16`_ `cstat`, {nbsp} _`bitfield`_ `cstatbits`::
+A bit field holding various flags about how the wall should be
+displayed, how collision detection should be handled, etc.
+The <<wall_CSTAT,`wall.CSTAT`>>
+object should be used to obtain the values for applicable flags.
+
+[[wall_picnum]]`picnum` (read-only)::
+The tile number of the non-masked portion of the wall. If
+`wall.CSTAT.BOTTOMSWAP` is set on this wall's `.cstat`, it is only displayed in
+the upper portion. (The lower portion takes it from this wall's `.nextwall`
+then; this will be labeled _use-other-bottom_ in the following.)
+
+`overpicnum` (read-only)::
+The tile number of the masked portion of the wall, i.e. that which is drawn if
+this wall's `.cstat` has bit `wall.CSTAT.MASK` or `wall.CSTAT.ONEWAY` set.
+
+_`i8`_ `shade` (<<wall_picnum,_use-other-bottom_>>)::
+The shade of the wall for both non-masked and masked portions. Larger values
+mean a more darker appearance.
+
+_`u8`_ `pal` (<<wall_picnum,_use-other-bottom_>>)::
+The ``palette swap'' index of the wall.
+
+_`u8`_ `xrepeat`, `yrepeat`::
+Values that are proportional to the number of times that the wall's texture
+repeats in each direction per given wall length/height. A value of `8` renders
+64 texels across a length of 1024 x/y map units or a height of 16384 z units.
+
+_`u8`_ `xpanning`, `ypanning` (<<wall_picnum,_use-other-bottom_>>)::
+The panning values of both masked and non-masked portions of the wall. One full
+cycle is covered by values from `0` to `255`.
+
+_`i16`_ `lotag`, `hitag`, `extra`::
+General-purpose ``tags'' provided for game programming. They may be used by
+various EDuke32 effects internally, so it is advised to do some research before
+claiming them for oneself.
+
+===== `wall` methods
+
+`wal:set_picnum(tilenum)`, `wal:set_overpicnum(tilenum)`::
+Set the tile number of the wall or its masked portion.
+
+// TODO: the predicates
+
+===== `wall` static functions
+
+`wall.dragto(i, pos)`::
+Set the position of the point of the wall with index `i` to `pos`, which can be
+anything indexable with `x` and `y`. This function is the preferred way of
+changing wall coordinates, since it takes care to reposition dependent wall
+points, too.
+
+===== `wall` static data
+
+[[wall_CSTAT]] `wall.CSTAT`::
+Provides a mapping of symbolic names to values applicable to
+<<wall_cstat,`wall[i].cstat`>>.  These name single bits:
+`BLOCK`, `BOTTOMSWAP`, `ALIGNBOTTOM`, `FLIPX`, `MASK`, `ONEWAY`, `HITSCAN`,
+`TRANS1`, `FLIPY`, `TRANS2`,
+while the following denote _bit masks_:
+`FLIP_BITMASK`, `TRANS_BITMASK`.
+
+'''
+[[sprite]]
+===== `sprite`
+
+The `sprite` composite is accessible with indices from `0` to
+`gv.MAXSPRITES-1`, but accesses to sprites that do not exist in the game world
+have no meaning. Each element has the following members:
+
+_`i32`_ `x`, `y`, `z`::
+The BUILD coordinates of the sprite. It is not advisable to set these directly.
+
+//////////
+_`i16`_ `ang`::
+TODO (make set_ang() out of that which always ANDs with 2047?)
+//////////
+
+[[sprite_cstat]] _`u16`_ `cstat`, {nbsp} _`bitfield`_ `cstatbits`::
+A bit field holding various flags about how the sprite should be
+displayed, how collision detection should be handled, etc.
+The <<sprite_CSTAT,`sprite.CSTAT`>>
+object should be used to obtain the values for applicable flags.
+
+`picnum` (read-only)::
+The tile number of the sprite, also used to determine which actor code is run
+if this sprite has a `statnum` of `actor.STAT.ACTOR`.
+
+_`i8`_ `shade`::
+The shade of the sprite. This may not be the shade that this sprite is
+ultimately drawn with, though.
+
+_`u8`_ `pal`::
+The ``palette swap'' index of the sprite. This may not be the palette swap that
+this sprite is ultimately drawn with, though.
+
+_`u8`_ `blend`::
+The blending table index of the sprite. See
+<<blending_table_interfaces,Blending table interfaces>> for more details.
+
+_`u8`_ `clipdist`::
+In the engine, this member is used in the `clipmove()` function: it controls
+the distance at which another moving object is considered to be in collision
+with this *view-aligned* and *stationary* sprite.footnote:[The `clipmove()`
+function is called for the moving object. The stationary one is a candidate for
+collision out of potentially many.] It does *not* control the inverse case: the
+distance at which the moving object is considered in collision with the
+stationary one is determined by the `walldist` argument to `clipmove()`. +
+More precisely, it designates half the side-length of the bounding square
+divided by 4. Thus, a value of `255` keeps moving objects away from this one at
+a max-norm distance footnote:[The max-norm distance between points
+_p_~1~=(x~1~, y~1~) and _p_~2~=(x~2~, y~2~) is defined as max(abs(x~2~ --
+x~1~), abs(y~2~ -- y~1~)).]  of at least 1020 BUILD x/y units.
++
+In the Duke3D game code, it is also used to determine said `walldist` argument
+for certain `clipmove()` calls, i.e. to control (1/8^th^ of) the base side
+length of the moving sprite's clipping cuboid: this is the case for
++
+* user actors declared as `actor.FLAGS.enemy` or `actor.FLAGS.enemystayput` in
+  the Lua `gameactor` call (or which were provided the corresponsing flags for
+  CON's `useractor`) having an `xrepeat` less than or equal to 60, or
+* non-enemies that are either not projectiles, or projectiles that have a
+  certain projectile bit set (*TODO*; these are not yet documented.)
+
+// ^ XXX: clipshapes? Also, clipdist is effective for moving sprites (A_MoveSprite()).
+
+_`u8`_ `xrepeat`, `yrepeat`::
+The size of the sprite in each dimension. For wall- and floor- aligned sprites,
+a value of `64` means a width of 16 x/y BUILD units or a height of 256 z BUILD
+units per texel.
+
+`sectnum` (read-only)::
+The index of the sector that this sprite is currently contained in.
+
+[[sprite_statnum]] `statnum` (read-only)::
+The current _status number_ of this sprite. Applicable values are contained in
+<<actor_STAT,`actor.STAT`>>.
+
+`owner` (read-only)::
+The index of the sprite from which this sprite was spawned. If this sprite is
+not a ``child'' of another one, then `owner` is the index of this sprite itself.
+//Occasionally, game effects may use this member for their particular purposes,
+//so research is recommended before claiming it for oneself.
+
+_`i16`_ `xvel`, `zvel`::
+For actors and other moving sprite kinds, the horizontal and vertical
+components of the current velocity. See the description of
+<<con_move,`con.move`>> for more details.
+
+_`i16`_ `yvel` (read-only)::
+A member used for different purposes by Duke3D. Setting it is only allowed
+through the `set_yvel` method.
+
+_`i16`_ `lotag`, `hitag`, `extra`::
+General-purpose ``tags'' provided for game programming. They may be used by
+hard-coded actors internally, so it is advised to do some research before
+claiming them for oneself.
+
+===== `sprite` methods
+
+`spr:set_picnum(tilenum)`::
+Sets the tile number of sprite `spr` to `tilenum`. It is disallowed to issue
+`set_picnum` on an `APLAYER` sprite or change the tile number of a sprite to
+`APLAYER`.
+
+`spr:set_yvel(yvel)`::
+Sets the `yvel` member of sprite `spr` to `yvel`. It is disallowed to issue
+`set_yvel` on an `APLAYER` sprite. Further restrictions are reserved.
+
+`spr:getheightofs()` -> `height`, `offset`::
+Returns the `height` and z `offset` of sprite `spr` in BUILD z units. Adding the
+`offset` to `spr.z` yields the z coordinate at the bottom of the
+sprite. Subtracting from that the `height` results the z coordinate at its
+top. However, the per-tile z offset is not taken into account.
+
+`spr:setpos(pos [, newsect])`::
+Unconditionally sets the position of `spr` to `pos`, which can be anything
+indexable with `x`, `y` and `z`. Thus, in effect a shorthand for
++
+[source]
+----------
+spr.x, spr.y, spr.z = pos.x, pos.y, pos.z
+----------
++
+If `newsect` is passed, additionally calls `spr:changesect(newsect)`. +
+Returns `spr`.
+
+`spr:changesect(sectnum)`::
+An alternative way to call
++<<sprite_changesect,sprite.changesect>>(_index_of_spr_, sectnum)+, where
+_`index_of_spr`_ is the sprite index corresponding to `spr`.  This method is
+provided for convenience, but may be slower than the static function
+`changesect`.
+
+`spr:updatesect([flags])`::
+An alternative way to call
++<<sprite_updatesect,sprite.updatesect>>(_index_of_spr_, flags)+, where
+_`index_of_spr`_ is the sprite index corresponding to `spr`.  This method is
+provided for convenience, but may be slower than the static function
+`updatesect`.
+
+`spr:isenemy()`::
+*TODO*
+
+===== `sprite` iterators
+
++*for* i *in* sprite.all()+::
+Iterates over all sprites currently in the game world.
+
+===== `sprite` static functions
+
+`sprite.changestat(i, statnum)`::
+Allows to manually change the status number of the sprite with index `i` to
+`statnum`. If `i` is an invalid sprite index or the index of a sprite not in
+the game world, or `statnum` is an invalid status number, an error is thrown.
+
+[[sprite_changesect]] `sprite.changesect(i, sectnum)`::
+Allows to manually change the sector number of the sprite with index `i` to
+`sectnum`. If `i` is an invalid sprite index or the index of a sprite not in
+the game world, or `sectnum` is an invalid sector index, an error is thrown.
+
+[[sprite_updatesect]] `sprite.updatesect(i [, flags])`::
+Updates the sector number of the sprite with index `i`, in effect setting
+`sprite[i]`'s sector number to the result of
++
+[source]
+----------
+updatesector(sprite[i].pos, sprite[i].sectnum, flags)
+----------
++
+If the <<updatesector,`updatesector`>> call returns `-1`, the sprite's sector
+number remains unchanged. +
+Returns the result of the `updatesector` call.
+
+===== `sprite` overridden operators
+
+[[sprite_power]] `spr^zofs`::
+Returns an <<vector_types,`xmath.ivec3`>> object that contains the position of
+this sprite, diminished by `zofs` in the z direction. Because in BUILD, z
+coordinates increase toward the floor, the `^` can be thought of as the
+position of the sprite ``raised by `zofs` units''.
+
+===== `sprite` static data
+
+[[sprite_CSTAT]] `sprite.CSTAT`::
+Provides a mapping of symbolic names to values applicable to
+<<sprite_cstat,`sprite[i].cstat`>>.  These name single bits:
+`BLOCK`, `TRANS1`, `XFLIP`, `YFLIP`, `ALIGNWALL`, `ALIGNFLOOR`, `ONESIDE`,
+`CENTER`, `HITSCAN`, `TRANS2`, `INVISIBLE`,
+while the following denote _bit masks_: `ALIGN_BITMASK`, `TRANS_BITMASK`.
+
+===== `spriteext`
+
+Accessible with the same indices and with the same restrictions as
+<<sprite,`sprite`>>.
+
+//`angoff`::
+//The BUILD angle that is added to that of a drawn voxel or model.
+
+// XXX: needs better wording to express this: tspr->ang + spriteext[tspr->owner].angoff
+
+
+Game-side composites
+^^^^^^^^^^^^^^^^^^^^
+
+[[actor]]
+===== `actor`
+
+The `actor` composite holds various run-time data about a sprite.  Like
+<<sprite,`sprite`>>, it is accessible with indices from `0` to
+`gv.MAXSPRITES-1`, but accesses to actors that do not exist in the game world
+have no meaning. Each element has the following members:
+
+_`u16`_ `movflags`, {nbsp} _`bitfield`_ `movflagsbits`::
+The actor's current <<actor_MOVFLAGS,movement flags>>.
+
+[[actor_methods]]
+===== `actor` methods
+
+The following methods query or set properties related to
+<<actions_moves_ais,actor behavior>>.
+
+`a:set_action(act)`::
+Sets the action of actor `a` to `act`, which may be either an object returned
+by <<con_action,`con.action`>> or a number 0 or 1. Resets the actor's _action
+count_ and current frame offset to 0.
+
+`a:has_action(act)`::
+Returns a boolean of whether the current action of actor `a` is `act`, which
+can be any value permissible to `a:set_action()`. For composite action objects,
+equality is established using its hidden ID, not the public members. Refer to
+<<actions_moves_ais,Actions&#44; moves and AIs>> for further details.
+
+`a:set_action_delay()`::
+Overrides the <<action_delay,`delay`>> of the current action of actor `a`
+without changing the action's ID.
+
+`a:set_count(count)`::
+Sets the actor's _execution count_ to `count`. The execution count of an actor
+increments after each time its <<gameactor,callback function>> has run once.
+
+`a:get_count()`::
+Returns the actor's execution count.
+
+`a:reset_acount()`::
+Resets the _action count_ of the actor to 0. The action count is incremented on
+each frame advance of the actor's current action. Also see the
+<<action_delay,`delay`>> argument to `con.action`.
+
+`a:get_acount()`::
+Returns the actor's action count.
+
+`a:set_move(mov [, movflags])`::
+Sets the move of actor `a` to `mov`, which may be either an object returned by
+<<con_move,`con.move`>> or a number 0 or 1. See the <<gameactor_move,`move`>>
+argument to `gameactor` for further details. If <<actor_MOVFLAGS,`movflags`>>
+is omitted, it defaults to 0.
++
+The `set_move` method resets the actor's execution count. Also, if `moveflags`
+has bit <<actor_MOVFLAGS,`actor.MOVFLAGS.randomangle`>> set and the actor is
+not an enemy or a live enemy, its `sprite[].ang` value is set to a ``random''
+value using <<krand,`gv.krand`>>.
+
+`a:has_move(mov)`::
+Returns a boolean of whether the current move of actor `a` is `mov`, which can
+be any value permissible to `a:set_move()`. Like with `a:has_action()`,
+equality is established using the move ID in case a composite one is passed.
+
+`a:set_hvel(hvel)`::
+Overrides the <<con_move,horizontal velocity>> of the actor's current move to
+`hvel` without changing its ID.
+
+`a:set_vvel(vvel)`::
+Overrides the <<con_move,vertical velocity>> of the actor's current move to
+`vvel` without changing its ID.
+
+`a:set_ai(ai)`::
+Sets the AI of actor `a` to `ai`, which must be an object returned by
+<<con_ai,`con.ai`>>. In addition to setting the current AI ID of the actor,
+`a:set_ai(ai)` is equivalent to the sequence
++
+[source]
+----------
+a:set_action(ai.act)
+a:set_move(ai.mov, ai.movflags)
+----------
+
+`a:has_ai(ai)`::
+Returns a boolean of whether the current AI of actor `a` is `ai`.
+
+Various methods query whether the last movement step of the actor made it
+collide with another object, or allow getting this object's index then.
+
+`a:checkhit()`::
+Returns a boolean of whether the actor hit any object in the world, including
+ceilings and floors.
+// TODO: This needs verification:
+// Staying motionless on the ground is considered as ``hitting'' it, too.
+
+`a:checkbump()`::
+Returns a boolean of whether the actor bumped into another actor or a wall.
+
+`a:hitwall()`::
+If the actor hit a wall with the last movement, returns that wall's
+index. Otherwise, returns *nil*.
+
+`a:hitsprite()`::
+If the actor hit a sprite with the last movement, returns that sprite's
+index. Otherwise, returns *nil*.
+
+// TODO: set_picnum, set_owner?
+
+[[actor_static_functions]]
+===== `actor` static functions
+
+`actor.fall(i)`::
+Causes the actor with index `i` to fall in a ``hard-coded'', not further
+specified fashion.
+
+`actor.move(i, vec, cliptype [, clipdist])`::
+*TODO*
+
+[[actor_static_data]]
+===== `actor` static data
+
+[[actor_STAT]]
+`actor.STAT`::
+Provides a mapping of symbolic names to values applicable as sprite
+<<sprite_statnum,status numbers>>. +
+`DEFAULT`, `ACTOR`, `ZOMBIEACTOR`, `EFFECTOR`, `PROJECTILE`, `MISC`,
+`STANDABLE`, `LOCATOR`, `ACTIVATOR`, `TRANSPORT`, `PLAYER`, `FX`, `FALLER`,
+`DUMMYPLAYER`, `LIGHT`.
+
+[[actor_FLAGS]] `actor.FLAGS`::
+Contains symbolic names of values applicable to <<gameactor,`gameactor`>>'s
+`flags` input argument, most of which are described there. +
+`SHADOW`, `NVG`, `NOSHADE`, `NOPAL`, `NOEVENTS`, `NOLIGHT`,
+`USEACTIVATOR`, `NOCLIP`, `SMOOTHMOVE`, `NOTELEPORT`, `NODAMAGEPUSH`.
+
+//`BADGUY`,
+
+[[actor_MOVFLAGS]] `actor.MOVFLAGS`::
+Contains symbolic names of values applicable <<gameactor,`gameactor`>>'s
+`movflags` input argument, `actor[]:set_move()`, and the like. +
+* `faceplayer`, `geth`, `getv`, `randomangle`, `faceplayerslow`, `spin`,
+  `faceplayersmart`, `fleeenemy`, `seekplayer`, `furthestdir`,
+  `dodgebullet`, all naming single bits
+* `jumptoplayer_bits`: the bitwise-OR of *two* bits, one of which is `faceplayer`
+* `jumptoplayer_only`: the same as `jumptoplayer_bits`, but without the `faceplayer` bit set
+* `jumptoplayer`: [red]*deprecated*
+
+'''
+[[player]]
+===== `player`
+
+Accessible with the index 0 and any nonnegative `pli` index passed to a
+<<gameactor,game actor>> or event callback function.
+
+.Arrays with named elements
+The structures obtained by indexing `player` contain arrays whose elements may
+be referred to either by index of by a particular name. Thus, the array can be
+thought to be overlaid with a structure containing as many members as the array
+has elements, all having the element's type.
+
+Currently, there are with two kinds of names: weapon names and inventory
+names. They will be marked using notation like this:
+
+==========
+_`i16`_ +ammo_amount[_weapon_]+
+
+means that the structure member `ammo_amount` is an array with named elements,
+themselves being of signed 16-bit integer type. The array can be indexed with
+valid weapon numbers, or weapon names. In the following (constructed) example,
+the first player's current pistol ammo count is set to that of the currently
+selected weapon:
+[source]
+----------
+local ps = player[0]
+ps.ammo_amount.PISTOL = ps.ammo_amount[ps.curr_weapon]
+----------
+==========
+
+The inventory names are the same as the keys of <<gv_GET,`gv.GET`>>, those for
+the weapons coincide with the keys of <<gv_WEAPON,`gv.WEAPON`>>.
+
+.Boolean members
+
+Player members marked _`bool`_ in the listing below yield Lua true or false on
+reading and expect one of these values when assigned to.
+
+
+[[player_members]]
+===== `player` members
+
+<<vector_types,_`xmath.ivec3`_>> `vel`::
+The vector of the player's current velocity, accounted each time a player's
+input is processed. The x and y components are in BUILD x/y units per game tic,
+scaled by 2^14^. The z component is given in BUILD z units per game
+tic. Processing a player's input and other EDuke32 game code may change `vel`
+``behind a user's back'' in a further unspecified fashion.
+
+_`i32`_ `runspeed`::
+The factor, scaled by 2^16^, with which the player's current horizontal
+velocity is multiplied before calculating its new position. On various
+occasions, the ultimate scaled factor is the difference of `runspeed` and at
+most 8192.
+
+`curr_weapon`::
+The index of the player's currently selected weapon.
+
+_`u16`_ `gotweapon`, {nbsp} _`bitfield`_ `gotweaponbits`::
+
+Indicates whether each weapon is in the possession of the player. If bit 2^`w`^
+is set for a <<gv_WEAPON,weapon index>> `w`, the player has got this
+weapon. The player methods `has_weapon`, `give_weapon` and `take_weapon` can be
+used to query or modify this member.
+
+_`i16`_ +ammo_amount[_weapon_]+::
+
+The current ammo amount for each weapon.
+
+_`i16`_ +max_ammo_amount[_weapon_]+::
+
+The maximum ammo amount for each weapon. Because `ammo_amount` amount and
+`max_ammo_amount` are writable without restriction, it is the user's
+responsibility to make sure that the former never exceeds the latter and that
+both are non-negative at all times. Otherwise, erratic behavior may ensue.
+
+_`bool`_ `jetpack_on`, {nbsp} `scuba_on`, {nbsp} `heat_on`::
+
+Whether the player currently has the jetpack, scuba gear, or night vision
+goggles activated, respectively.
+
+:wiki_predef_gamevars: http://wiki.eduke32.com/wiki/Category:Pre-defined_gamevars
+
+_`weapondata_t`_ +weapon[_weapon_]+::
+
+A struct containing information about the behavior each of weapon for this
+player. In CON, these are available as separate gamevars named
+{wiki_predef_gamevars}[`WEAPONx_*`] for weapon indices `x` and members `*`.
+
+[float]
+==== _`weapondata_t`_ members
+
+In Lunatic, some members of the _`weapondata_t`_ structure are checked when
+being assigned to and issue an error on attempting to set them to an invalid
+value. All these members assume *zero* to mean the neutral/no-op value (instead
+of --1, as would seem more logical), and consequently, Lunatic only allows
+values greater or equal zero to be assigned to them.
+
+// TODO: workslike + flags
+
+* `clip`
+* `reload`
+* `firedelay`
+* `totaltime`
+* `holddelay`
+* `flags`
+* `shoots` (checked)
+* `spawntime`
+* `spawn` (checked)
+* `shotsperburst`
+* `initialsound` (checked)
+* `firesound` (checked)
+* `sound2time`  [gray]#// This is a time number, not a sound number#
+* `sound2sound` (checked)
+* `reloadsound1` (checked)
+* `reloadsound2` (checked)
+* `selectsound` (checked)
+* `flashcolor`
+
+[[player_methods]]
+===== `player` methods
+
+`ps:has_weapon(widx)`::
+Returns a boolean of whether player `ps` has got the weapon with index `widx`.
+
+`ps:give_weapon(widx)`::
+Adds the weapon given by index `widx` to player `ps`'s possession without
+changing the currently held one.
+
+`ps:take_weapon(widx)`::
+Removes the weapon given by index `widx` from player `ps`'s possession. If an
+attempt is made to remove the currently selected weapon, the behavior is
+undefined.
+
+`ps:fadecol(fadefrac, r, g, b [, speed [, prio]])`::
+
+Initiates a tinting that linearly fades over time and is blended with the whole
+screen contents whenever player `ps`'s view is displayed.footnote:[The behavior
+is unspecified should more than one player's view be displayed at one time.]
+The first argument `fadefrac` specifies the starting blending coefficient; `r`,
+`g` and `b` specify the intensities of the red, green and blue color
+components, respectively.
++
+Both `fadefrac` and the component intensities are first clamped to the range
+[0.0 .. 1.0]. The resulting values are interpreted as a proportion, 0.0 meaning
+no blending/no color and 1.0 meaning full blending/full
+color.footnote:[Currently, for implementation reasons, a value of 1.0 results
+in only _almost_ full blending or presence of the specified color component.]
++
+The fourth, optional argument `speed` controls the rate at which the tinting
+diminishes. At a value of `1` (the default), a tint with a `fadefrac` of 0.5
+finishes in approximately one second.
++
+The last, optional argument `prio` must be an integer in the range [`-128`
+.. `127`], the default being `0`. When a `fadecol` is issued in the presence of
+another tint fading in progress, and the `prio` given by the arriving `fadecol`
+is greater or equal than the `prio` of the ongoing one, the latter is canceled
+and the arriving fading is initiated in its place. (There is no support for
+tint fades that overlap in time.)
++
+[icon="din_w_crushing.png"]
+CAUTION: If Lunatic code that uses `fadecol` is loaded together with CON code
+that writes to the player's `pals` members directly at any point, the behavior
+is undefined.
+
+[[player_iterators]]
+===== `player` iterators
+
++*for* i *in* player.all()+::
+Iterates over the indices of all active players.
+
+// ===== `projectile`
+
+===== `g_tile`
+
+An array of size `gv.MAXTILES`. Currently, access with numeric indices by the
+user is [red]#disallowed# for `g_tile` and its elements have [red]#no public
+members#.
+
+===== `g_tile` static data
+
+`g_tile.sizx`, {nbsp} `g_tile.sizy`::
+Arrays indexable with tile numbers [`0` .. `gv.MAXTILES-1`] that hold the
+horizontal and vertical texel sizes of each tile.
+
+
+Lunatic functions
+~~~~~~~~~~~~~~~~~
+
+[[engine_iterators]]
+Engine-side iterators
+^^^^^^^^^^^^^^^^^^^^^
+
++*for* w *in* wallsofsect(sectnum)+::
+Iterates over the indices of all walls of the sector with index `sectnum`.
+
++*for* s *in* spritesofstat(statnum [, maydelete])+::
+Iterates over the indices of all sprites with status number `statnum`. If
+`maydelete` is omitted or false, there must be no deletion of any sprite while
+the loop is active. If `maydelete` is true, deleting sprites inside the loop is
+allowed. Inserting sprites is always allowed.
+
++*for* s *in* spritesofsect(sectnum [, maydelete])+::
+Iterates over the indices of all sprites contained in the sector with index
+`sectnum` with the same meaning for `maydelete` as with `spritesofstat`.
+
+[[sectorsofbunch_1]] +*for* s *in* sectorsofbunch(bunchnum, cf)+::
+
+Iterates over the indices of the sectors whose ceiling's or floor's bunch
+equals `bunchnum`, selected by passing `gv.CEILING` or `gv.FLOOR`
+(respectively) to `cf`.
+
+[[sectorsofbunch_2]] +*for* s, what *in* sectorsofbunch(bunchnum, gv.BOTH_CF)+::
+Iterates over the indices of the sectors whose ceiling's and floor's bunch
+equals `bunchnum`.  On each iteration, `what` is one of the strings `'ceiling'`
+or `'floor'`, denoting whether it's the ceiling or floor of sector `s` that has
+the given bunch number.
+
+Sector containment functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`inside(pos, sectnum)`::
+Returns a boolean of whether the position `pos` (which can be anything
+indexable with `x` and `y`) is considered inside the sector with number
+`sectnum`, which must be valid. The `z` component is not taken into account.
+
+===== Sector updating
+
+A number of engine functions take a position `pos` and a starting sector number
+`sectnum` and try to find a sector that contains `pos`, assuming it started out
+in `sectnum`.footnote:[Note that this is different from CON's `updatesector`,
+which takes the starting sector to be the one of the _current sprite_.]
+
+If a valid sector numeric is passed for `sectnum`, these functions first check
+whether that sector already contains `pos` (i.e. the position stays in the same
+sector) and then attempt to search neighboring sectors. Unless breadth-first
+search is requested (see below), if the passed `sectnum` is `-1`, all sectors
+are searched in an unspecified order.
+
+On success, these functions return the sector number of the ``updated'' sector,
+otherwise `-1`.
+
+[[updatesector]]
+`updatesector(pos, sectnum [, flags])`::
+
+Searches for a sector containing `pos`, which can be anything indexable with
+`x` and `y`. Thus, the `z` component is not taken into account. If `sectnum` is
+a valid sector number, first all its neighboring walls
+(<<nextwall,`wall[].nextwall`>>, ``red wall links'') are searched, falling back
+to a linear search on failure.
++
+However, this strategy can be problematic if the position passes multiple thin
+sectors that overlap another, potentially unrelated sector (for example, in a
+TROR or sector-over-sector construction). If such a sector is passed without an
+`updatesector` call ever made when it contains the position, the next call may
+not find the real sector (as it is now two nextwall links away from the initial
+one), and wrongly suggest the overlapping one instead.
++
+For this reason, the optional argument `flags` accepts
+<<sector_UPDATE_FLAGS,`sector.UPDATE_FLAGS.BREADTH`>>, instructing
+`updatesector` to look for matching sectors in a _breadth-first_ search
+starting from `sectnum`, and following all nextwall links. With this strategy,
+there is *no* fallback to a linear search if no matching sector is found.
++
+Passing `sector.UPDATE_FLAGS.Z` to `flags` makes the sector updating behave as
+if `updatesectorz` was called. This is mainly useful if `updatesector` is
+called via the <<sprite_updatesect,sector updating functions>> of sprites.
+
+`updatesectorz(pos, sectnum)`::
+
+Searches for a sector containing `pos`, which can be any value indexable with
+`x`, `y` and `z`. Thus, it additionally takes the `z` component into account by
+checking against the bounds that would be returned using a sector's
+<<sec_cfz_at,`ceilingzat`/`floorzat`>> methods.
++
+The `updatesectorz` function first checks the initial sector for containment of
+`pos`, then it tries any TROR neighbors of `sectnum`. Finally, it proceeds like
+`updatesector` as far as the searching order is concerned.
+
+===== Collision detection and related functions
+
+[[hitscan]]
+`hitscan(pos, sectnum, ray, clipmask)`::
+
+Starting from the position `pos` (which is assumed to be contained in
+`sectnum`), the `hitscan` function determines the object that would be first
+hit by a ray emanating from `pos` into the direction given by `ray`. Both `pos`
+and `ray` may be any object indexable with `x`, `y` and `z`, but the components
+are <<int_assignment,converted>> to signed 32-bit integers prior to being
+passed to the actual engine function. Note that `ray` is interpreted in BUILD
+scaling: the z component has 16 times the precision for a given game-world
+length compared to x or y.
++
+The `clipmask` argument determines what objects are considered being hittable
+by the ray and is expected to be an integral number. It is interpreted as two
+separate bit masks: the low 16 bits for walls and the high 16 bits for
+sprites. Each time there is a potential collision, the respective mask is ANDed
+with the `cstat` member of the object, and if the result is non-zero, the ray
+is considered having hit the object.
++
+The `hitscan` function returns an object with information about the hit object
+(if any) as well as the position of its intersection with the ray. It contains
+the following members:
++
+* `sector`: The sector number of the hit object, or `-1` if no object was
+  hit. Thus, testing it for being greater or equal to zero is a quick way of
+  finding out whether any object (ceiling/floor, wall, or sprite) was hit at
+  all.footnote:[It is recommended to carry out this check for the sake of
+  cautiousness: while proper `hitscan` invocations should always hit something,
+  the function may come up empty in certain corner cases (such as a starting
+  position outside of the designated sector).]
+* `wall`: If a wall was hit, its index. Otherwise, `-1`.
+* `sprite`: If a sprite was hit, its index. Otherwise, `-1`.
+* `pos`: The position that is the intersection of the emanated ray with the hit
+   object, indexable with `x`, `y` and `z`. Undefined if no object was hit.
+
+//////////
+cansee
+hitscan
+neartag
+sectorsofbunch
+//////////
+
+Customizing the game
+^^^^^^^^^^^^^^^^^^^^
+
+In Lunatic, there are two main ways of customizing the game's behavior. Both
+involve the user providing functions that are _called back_ at certain points
+in the execution of EDuke32. Game _actors_ are simply sprites that run a
+particular piece of code based on their tile number each game tic, unless they
+are in a ``dormant'' state. Game _events_ are invoked at predetermined points
+in the program flow.
+
+To register custom actor and event code with the game (and define additional
+actor information), Lunatic provides two functions in the global environment,
+`gameactor` and `gameevent`. As their sole argument, they take a table
+containing the appropriate data.
+
+[[gameactor]]
+===== The function `gameactor{tilenum [, ...], func}`
+
+:Lua51_FunctionCalls: http://www.lua.org/manual/5.1/manual.html#2.5.8
+
+Registers custom code for the actor given by tile number `tilenum`. For each
+non-sleeping actor, the function `func` is called every game tic with three
+input arguments: `func(aci, pli, dist)`.
+
+* `aci`: the sprite number of the actor invoking `func`
+* `pli`: the index of the player that is nearest to this actor
+* `dist`: the 3D Manhattan distance
+  footnoteref:[mhdist_def,The Manhattan distance between points
+  _p_~1~=(x~1~&#44; y~1~&#44; z~1~) and _p_~2~=(x~2~&#44; y~2~&#44; z~2~) is
+  defined as abs(x~2~ -- x~1~) + abs(y~2~ -- y~1~) + abs(z~2~ -- z~1~).]
+  between actor `aci` and player `pli`
+
+// NOTE: &#44; is the comma; the footnote would be truncated at it otherwise.
+// For a related issue, see
+// http://www.methods.co.nz/asciidoc/faq.html#_why_am_i_having_trouble_getting_nested_macros_to_work
+
+Additionally, `gameactor` accepts optional input arguments. They can be
+specified positionally by following `tilenum`, or be given as values to string
+keys of the argument table. Each such input argument may be provided in at most
+one of these two forms. Furthermore, `func` may be provided as value to the
+key `'func'` as well.
+
+[[gameactor_flags]]
+`[2] flags`::
+A number that controls both certain aspects of the `gameactor` call as well as
+the run-time behavior of the actor itself. A couple of bits for the latter type
+are listed in <<actor_FLAGS,`actor.FLAGS`>>, abbreviated `AF` in the following.
++
+These values describe the ``type'' of the actor: `AF.enemy`, `AF.enemystayput`
+and `AF.rotfixed`. Except for `enemystayput`, they name single bits
+(`enemystayput` implies `enemy`).
++
+In Lunatic, game actors can be _chained_, that is, a callback function can be
+either appended to the end of an already registered one, or prefixed at its
+front. In this case, a previous `gameactor` call must have taken place for that
+actor (this may have happened from a CON `useractor` block, which gets
+translated to `gameactor`). Moreover, this mechanism allows to add run-time
+flags to the actor in question.
++
+Chaining two callback functions is achieved by creating a new one that calls
+the first one, followed by a {Lua51_FunctionCalls}[tail call] of the second
+one. This has certain implications if control is transferred non-locally, for
+example by using <<nlcf,`con.longjmp`>>.
++
+Several flags in `AF` are provided to control how a `gameactor` invocation
+handles chaining. In all cases, the actor tile flags are bitwise-ORed with the
+existing ones.
++
+* `AF.replace`: Replace the callback function. This is the way CON's
+  `useractor` behaves and is also the Lunatic default.
+* `AF.replace_soft`: deprecated alias for `AF.replace`
+* `AF.replace_hard`: [red]*deprecated*
+* `AF.chain_beg`: Prepend the provided `func` to the existing callback function.
+* `AF.chain_end`: Append the provided `func` to the existing callback function.
++
+The following members all default to 0 if omitted.
++
+`[3] strength`::
+The initial strength or health of the actor.
+
+`[4] action`::
+The initial action of the actor. May be either an object returned by
+<<con_action,`con.action`>>, or the numbers 0 or 1. Both represent actions with
+that ID, but all public members set to 0.
+
+[[gameactor_move]] `[5] move`::
+The initial move of the actor. May be either an object returned by
+<<con_move,`con.move`>>, or the numbers 0 or 1. Both represent moves with that
+ID, but all public members set to 0. A move of 0 disables the usual actor
+movement, even if its `hvel` or `vvel` subsequently get overridden (and the
+corresponding `movflags` set).
+
+`[6] movflags`::
+The actor's initial movement flags. Applicable bits are available in the
+<<actor_MOVFLAGS,`actor.MOVFLAGS`>> object.
+
+===== The function `gameevent{evtlabel [, flags], func}`
+
+:wiki: http://wiki.eduke32.com
+:wiki_eventlist: http://wiki.eduke32.com/wiki/EDuke32_event_list
+
+Registers custom code to be run at specific points in the program.  The first
+argument `evtlabel` should be a string naming the event. A complete
+{wiki_eventlist}[list of events] can be found at the {wiki}[EDuke32 wiki]. The
+label may be stripped of the leading ```EVENT_`'', so that e.g. `EVENT_JUMP`
+and simply `JUMP` denote the same event.
+
+The arguments `flags` and `func` can alternatively be passed as values to the
+same-named keys of the input argument table to `gameevent`. Like with
+`gameactor`, each may be provided in at most one of the two forms.
+
+The callback `func` is invoked with the same arguments and meaning as for
+<<gameactor,`gameactor`>>, but certain events are run in contexts where no
+meaningful `aci` and/or `pli` value can be assigned. In this case, `func`
+receives `-1` for the respective input arguments.
+
+Like with actors, game events may be chained or replaced by passing an
+appropriate `flags` value. However, it is not necessary for an event to be
+already defined when chaining is requested. In that case, it is simply
+registered initially.  Permissible values for these flags are provided in
+`actor.FLAGS` as well (abbreviated `AF` here):
+
+* `AF.replace`: Replace any previously defined event code with the given one.
+* `AF.chain_beg`: Prepend the provided `func` to the existing callback
+  function. This is the behavior of CON's `onevent`.
+* `AF.chain_end`: Append the provided `func` to the existing callback
+  function. This is the default.
+
+// TODO: RETURN handling...
+
+
+[[ext_api]]
+Extended API (Lunatic modules)
+------------------------------
+
+The `xmath` module
+~~~~~~~~~~~~~~~~~~
+
+Mathematical functions
+^^^^^^^^^^^^^^^^^^^^^^
+
+:BitOpUndefined: http://bitop.luajit.org/semantics.html#undefined
+
+Lunatic, being a Lua-based scripting system, provides the user with a single
+numeric data type that variables can contain on the Lua side --
+double-precision floating point.footnote:[In LuaJIT, variables additionally can
+take on ``boxed'' 64-bit integer numeric types, but these should not be used
+for numeric calculations.]  However, since BUILD, and in turn, EDuke32, almost
+exclusively use integer types to represent quantities such as angles or carry
+out e.g. trigonometrical calculations, there is a need for convenient
+interoperability between the two ``worlds''.
+
+Two pairs of functions calculate the trigonometric sine and cosine, both
+accepting a BUILD angle as input argument, but differing in the scaling of
+their result. Using these functions is recommended over Lua's `math.sin` or
+`math.cos` in cases where the argument is a BUILD angle in the first place, for
+example because it is read from an engine or game structure. The computation is
+both faster (because it is essentially only a bitwise-AND operation followed by
+a table lookup) and the results have the symmetry expected from the
+mathematical counterparts.
+
+`xmath.sinb(bang)`, {nbsp} `xmath.cosb(bang)`::
+Returns the sine/cosine of the given BUILD angle `bang`, which can be any whole
+number in [--2^31^{nbsp}..{nbsp}2^31^--1].footnote:[Passing fractional values
+is possible, but discouraged. See the relevant {BitOpUndefined}[subsection] of
+the BitOp documentation for more details.] In BUILD, one full cycle is covered
+by values from 0 to 2047; in other words, an angle of 2048 corresponds to 360
+degrees.
++
+The `sinb` and `cosb` functions return values in the range [--1 .. 1], just
+like their mathematical counterparts.
++
+The following guarantees are made for `sinb` whenever its argument expression
+is permissible:
++
+* `sinb(-a) == -sinb(a)` (point symmetry around the origin)
+* `sinb(a + i*2048) == sinb(a)`, where `i` is any whole number (periodicity)
+* `sinb(1024 - a) == sinb(a)` (mirror symmetry around `a`=512)
+* `sinb(a - 1024) == -sinb(a)` (point symmetry around `a`=1024)
+* The value for `cosb(a)` is derived as `sinb(a + 512)`.
+
+`xmath.ksin(bang)`, {nbsp} `xmath.kcos(bang)`::
+Returns the sine/cosine of the given BUILD angle `bang`, multiplied with 16384
+and rounded towards zero. The same guarantees as for the `sinb`/`cosb` pair
+apply.
+
+`xmath.angvec(ang)`::
+Returns a <<vector_types,`vec3`>> with the components `math.cos(ang)`,
+`math.sin(ang)` and 0 for x, y and z, respectively.
+
+`xmath.bangvec(bang)`::
+Returns a <<vector_types,`vec3`>> with the components `xmath.cosb(bang)`,
+`xmath.sinb(bang)` and 0 for x, y and z, respectively.
+
+`xmath.kangvec(bang [, z])`::
+Returns an <<vector_types,`ivec3`>> with the components `xmath.kcos(bang)`,
+`xmath.ksin(bang)` for x and y, respectively. The z component can be passed in
+the optional argument `z`, which defaults to 0 if omitted.
+
+`xmath.dist(pos1, pos2)`::
+Returns an approximation of the 3D Euclidean distance between points `pos1` and
+`pos2`, both of which can be any object indexable with `x`, `y` and `z`.
+<<cf_z,BUILD z units>> are assumed.
+
+`xmath.ldist(pos1, pos2)`::
+Returns an approximation of the 2D Euclidean distance between points `pos1` and
+`pos2`, both of which can be any object indexable with `x` and `y`.
+
+[[xmath_rotate]] `xmath.rotate(point, bang [, pivot])`::
+Returns as an <<vector_types,`xmath.vec3`>> the position of `point` rotated
+around the line parallel to the z axis going through `pivot` by `bang` BUILD
+angle units in the mathematically negative (clockwise) direction. The arguments
+`point` and `pivot` can be anything indexable with `x`, `y` and `z`. The z
+component of the result is the difference between that of `point` and
+`pivot`. If `pivot` is omitted, it defaults to the origin vector containing
+zeros for all components.
+
+[[vector_types]]
+The types `xmath.vec3` and `xmath.ivec3` [_serializable_]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Another purpose of the `xmath` module is to provide _vector_ types that allow
+writing concise and clear code involving geometrical calculations. There are
+two types, both containing three components (`x`, `y` and `z`), but differing
+in their numeric type. For the most part, `vec3` should be used, whose
+components are Lua numbers, i.e. floating point. The other type, `ivec3`, is
+part of some game structures, and consequently uses 32-bit integers for its
+components. With minor differences, the `vec3` and `ivec3` types share the same
+operations and methods.
+
+The constructors of the vector types can be called in several ways. In the
+following, they are only described for `vec3`. The conventions for `ivec3` are
+completely analogous, but since their creation involves a number type
+conversion, the rules about <<int_assignment,assignment to integer types>>
+apply.
+
+`v = xmath.vec3([x [, y [, z]]])`::
+Create a 3-element vector `v` by passing the `x`, `y` and `z` components
+separately. Trailing components can be omitted, in which case they are
+initialized to 0.
+
+`v = xmath.vec3(t)`::
+Create a 3-element vector `v` by passing `t`, which can be any variable
+indexable with the strings `x`, `y` and `z` (and yielding numbers for these
+lookups). For example, `t` can be another (`i`)`vec3`, a `sprite` or even
+<<wall,`wall`>> reference, as each of them can be indexed with these three
+keys.
+
+Since the vector types are compound objects, they are always passed around by
+reference. For example, consider executing
+[source]
+----------
+v = xmath.vec3(0, 10)
+w = v
+w.y = 20
+----------
+After this code, the expression `v.y` yields 20 instead of the initial value
+10.
+
+===== Operations for `vec3` and `ivec3`
+
+In the following, `v` denotes a `vec3` or `ivec3` object reference while `t`
+denotes any object indexable with `x`, `y` and `z`. Note that for binary
+operations, Lua looks for overridden operators in the left operand first and
+the right one next.  So, where `t` appears on the left hand side of an
+arithmetic expression, it is assumed that `t`'s type does not overload the
+corresponding operation or provides the same semantics. Arithmetic operations
+always return a (reference to a) new `vec3` object, even if any or both of the
+operands have `ivec3` type.
+
+`v + t`, {nbsp} `t + v`::
+Returns a new `vec3` object whose components are the sum of the respective
+components of `v` and `t`.
+
+`v - t`, {nbsp} `t - v`::
+Returns a new `vec3` object whose components are the difference of the
+respective components of `v` and `t` (in the first case) or `t` and `v` (in the
+second case).
+
+`-v`::
+Returns a new `vec3` object with the components of `v` negated.
+
+`a*v`, {nbsp} `v*a`::
+For a scalar number `a`, returns a new `vec3` object whose components are those
+of `v` multiplied with `a`.
+
+`v/a`::
+For a scalar number `a`, returns a new `vec3` object whose components are those
+of `v` divided by `a`.
+
+`v^zofs`::
+Returns an object of the same type as `v` and with the same components, except
+that `v.z` is diminished by `zofs`. Also see the <<sprite_power,power
+operation>> for `sprite` objects.
+
+`tostring(v)`::
+Returns a string representation of `v` for display purposes: ```vec3`'' or
+```ivec3`'', followed by the components of `v` in parentheses.
+
+===== Methods for `vec3` and `ivec3`
+
+`v:len()`::
+Returns the Euclidean length of `v` in three dimensions.
+
+`v:lensq()`::
+Returns the squared Euclidean length of `v` in three dimensions.
+
+`v:len2()`::
+Returns the Euclidean length of `v`, taking only the `x` and `y` components
+into account.
+
+`v:len2sq()`::
+Returns the squared Euclidean length of `v`, taking only the `x` and `y`
+components into account.
+
+`v:mhlen()`::
+Returns the length of `v` calculated using the Manhattan distance
+footnoteref:[mhdist_def] in three dimensions between the origin and the
+endpoint.
+
+`v:toivec3()`::
+Returns a new `ivec3` object with the same components as `v`, but converted
+<<int_assignment,to integers>>.
+
+`v:touniform()`::
+Returns a new vector of the same type as `v` which has the same `x` and `y`
+components as `v`, but the `z` element divided by 16 (if `v` is a `vec3`) or
+arithmetically right-shifted by 4 (if `v` is an
+`ivec3`).footnote:[Right-shifting by 4 can be seen as a division by 16 with
+subsequent rounding to an integer towards negative infinity.] Also see the
+description of the ceiling/floor <<cf_z,`z` member>>.
+
+`v:tobuild()`::
+Returns a new vector of the same type as `v` which has the same `x` and `y`
+components as `v`, but the `z` element multiplied with 16.
+
+`v:rotate(bang [, pivot])`::
+Equivalent to +<<xmath_rotate,xmath.rotate>>(v, bang [, pivot])+.
+
+
+The `con` module -- game control
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `con` module on one hand provides functionality to control certain aspects
+of the game, such as defining game-side animations for actors. On the other
+hand, it hosts various functions that are familiar from CON, although sometimes
+under a different name.
+
+[[actions_moves_ais]]
+Actions, moves and AIs -- customizing actor behavior
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In CON, three aspects of an actor can changed using a mechanism that is
+syntactically similar for each. _Actions_ carry information about a particular
+animation for an actor, such as how many frames it contains. _Moves_ define the
+potential motion characteristics of an actor. Finally, _AIs_ are aggregates of
+an action and a move, plus _movement flags_ that toggle certain movement
+aspects.
+
+At file scope, one first defines each of these composites using directives such
+as `action`, and inside code blocks to be executed at game time, one instructs
+the game to use a particular composite by passing the chosen label to the
+same-named command (i.e. `action` for our example).
+
+Lunatic provides a similar mechanism, but the main difference from CON is that
+the definition functions merely return the composite structures, without
+registering them under any particular name. Thus, it is up to the user to
+organize them, for example by storing those for each class in a separate table
+indexed by chosen names. Similar to CON, the creation functions may only be
+called when the game is not yet running.
+
+Actor behavior composites contain an additional ``hidden'' ID. Each invocation
+of a creation function such as `con.action` returns a composite with a unique
+ID per composite type. This ID is used to compare for equality in actor methods
+such as `actor[]:has_action()`. All returned composites are immutable.
+
+[[con_action]]
+===== The function `con.action{ ... }`
+
+:wiki_action: http://wiki.eduke32.com/wiki/Action
+:Lua51_TableConstructors: http://www.lua.org/manual/5.1/manual.html#2.5.7
+
+Returns a new _action_ composite created with the given values. The
+`con.action` function expects a single table as input argument, each of whose
+keys denote an action member. Each member may be provided by an index in the
+table or its name, but not both. Members may be omitted, in which case they
+default to either 0 or 1.
+
+Refer to the {Lua51_TableConstructors}[Table Constructors] subsection of the
+Lua 5.1 Reference Manual for the syntax and semantics of table initialization.
+
+`[1] startframe`::
+The offset of the starting frame of the animation, relative to the
+`sprite[].picnum` of an actor (i.e. the tile number, selecting which actor code
+is run).
+
+`[2] numframes` (default: 1)::
+The total number of frames in the animation.
+
+`[3] viewtype` (default: 1)::
+The number of consecutive tiles used to construct one frame of the animation,
+as viewed from different angles. Valid values are 1, 3, 5, 7 and 8. In
+addition, -5 and -7 are allowed, which behave like the corresponding positive
+++viewtype++s, but effectively mirror the actor around the vertical axis. This
+can be useful if tile data is available that has the opposite orientation of
+what EDuke32 uses.  See the {wiki_action}[Action entry] in the EDuke32 wiki for
+how the views are constructed for different `viewtype` values.
+
+`[4] incval` (default: 1)::
+The value to add the actor's _current frame_ on each frame advance. May be --1,
+0, or 1.
+// In the wild, sometimes other values, too.
+
+[[action_delay]] `[5] delay` (default: 0)::
+Roughly, the number of <<totalclock,`gv.totalclock`>> time units (120 per
+second) after which a frame is advanced, at a granularity of one game tic (30
+per second, corresponding to a `delay` difference of 4).footnote:[The reason
+for the granularity is due to the implementation: each execution of an actor's
+code increments its hidden ``action tics'' counter by four (= 120/30).]
+
+// TODO: the above can be more precise. State in terms of floor(delay/4).
+
+`[6] flags` (default: 0)::
+
+.Equivalent `action` definitions
+==========
+Each of the following calls return an action with the same public members:
+[source]
+----------
+con.action{0, 4, delay=20}
+con.action{0, 4, 1, 1, 20}
+con.action{startframe=0, numframes=4, viewtype=1, incval=1, delay=20}
+----------
+==========
+
+[[con_move]]
+===== The function `con.move{ ... }`
+
+Returns a new _move_ composite created with the given values, expecting a
+single table as input argument. The same conventions as with `con.action` apply
+for the following members:
+
+`[1] hvel`::
+The (most often) doubled horizontal velocity of the actor, in BUILD x/y units
+per game tic. An actor's `sprite[].xvel` will approach this value in an
+``exponential'' fashion, halving the difference between the current velocity
+and this goal velocity each movement update from the actor execution loop. For
+most objects, `sprite[].xvel` is then further halved to yield the ultimate
+velocity. Only effective when the actor's `movflags` has
+<<actor_MOVFLAGS,`actor.MOVFLAGS.geth`>> is set.
+
+`[2] vvel`::
+The (most often) doubled horizontal velocity of the actor, in BUILD x/y (*not*
+z) units per game tic. An actor's `sprite[].zvel` will approach 16 times this
+value in an ``exponential'' fashion. For most objects, `sprite[].zvel` is then
+further halved to yield the ultimate velocity.  Only effective when the actor's
+`movflags` has <<actor_MOVFLAGS,`actor.MOVFLAGS.getv`>> is set.
+
+[[con_ai]]
+===== The function `con.ai([action [, move [, movflags]]])`
+
+The `con.ai` function differs from `con.action` and `con.move` in that it is of
+``second order'', i.e. it accepts two composites as input arguments, returning
+an _AI_ object containing these. Also, it is called with three positional,
+optional arguments. Like for <<gameactor,`gameactor`>>, the numbers 0 and 1 are
+permissible for `action` and `move`. Applicable bits for `movflags` are
+available in the <<actor_MOVFLAGS,`actor.MOVFLAGS`>> object.
+
+[[nlcf]]
+Non-local control flow
+^^^^^^^^^^^^^^^^^^^^^^
+
+Two functions in the `con` module make the executed function abort early,
+jumping directly to the end of the innermost event or actor callback
+``block''. They are used to implement among others CON's `killit` and
+(confusingly named) `return` commands. If these functions are used when none of
+the mentioned callback functions are active, the behavior is undefined.
+
+`con.longjmp()`::
+Silently transfers control to the end of the innermost actor or event callback
+block, to the same point an `error()` call would do. Note that since callback
+<<gameactor_flags,chaining>> is achieved by creating a new function for each
+function pair, calling both unprotected, issuing a `con.longjmp()` inside any
+``part'' of a chain aborts the whole block -- functions in the chain that are
+called later will not be reached. In contrast, returning from one function
+transfers control to the beginning of the next in the chain if it exists.
++
+.`con.longjmp` with chained events
+==========
+The following two chained `EVENT_JUMP` definitions,
+[source]
+----------
+gameevent{"JUMP", function(_, pli)
+    print("jump:first")
+    if (player[pli].curr_weapon==gv.WEAPON.PISTOL) then
+        return
+    end
+    print("aborting")
+    con.longjmp()
+end}
+
+gameevent{"JUMP", function()  -- second function in EVENT_JUMP chain
+    print("jump:second")
+end}
+----------
+would print ```jump:first`'' and ```jump:second`'' when holding a
+pistol. Otherwise, ```jump:first`'' and ```aborting`'' would be printed and the
+second chained callback function would not be reached.
+==========
+
+`con.killit()`::
+Silently transfers control to the end of the active actor callback block,
+notifying the game to delete the executing actor's sprite. If `con.killit` is
+called while no execution of actor code is active, the behavior is undefined.
+
+Per-actor variables
+^^^^^^^^^^^^^^^^^^^
+
+// XXX: this text is too implementation-centric
+
+Since in EDuke32, sprites in general exist in the world only for a limited
+duration, it is wasteful to allocate an array of fixed size `gv.MAXSPRITES` for
+the purpose of a variable that holds a value for each actor sprite. On the Lua
+side, one could use a plain table, but for actors that are created and
+destroyed during the course of a game, this would accumulate ``garbage'' --
+values for sprites that have been deleted. Moreover, per-actor variables tend
+to be ``topical'', one such variable being potentially only used for a very
+specific actor tile. For this reason, per-actor variables are implemented in a
+``sparse'' fashion in Lunatic, but provide to the user the illusion of having a
+value for every sprite index. They are also ``cleaned'' at unspecified
+intervals.
+
+[[con_actorvar]]
+===== The type `con.actorvar(defaultval)` [_serializable_]
+
+Creates and returns a new per-actor variable with default value `defaultval`
+which can be indexed for reading or assignment in the range
+[0{nbsp}..{nbsp}`gv.MAXSPRITES-1`], but access to it is subject to the same
+restrictions as to <<sprite,`sprite`>> and other per-sprite structures.
+
+When a sprite is created using `con.insertsprite` or `con.spawn`, its value at
+the index of this new sprite is cleared (reset to `defaultval`). After a sprite
+has been deleted, the value of a per-actor variable is indeterminate -- it may
+be cleared by Lunatic at any point.
+
+Per-actor variables may contain values of any permitted type, which currently
+are boolean and number. Mixing values of different types is allowed: per-actor
+variables are heterogenous containers.
+
+Sprite insertion
+^^^^^^^^^^^^^^^^
+
+In Lunatic, there are two functions that insert a sprite into the game world.
+They mainly differ in how they are used, and to which extent they imply
+``hard-coded'' behavior.
+
+===== The function `con.insertsprite{tilenum, pos, sectnum [, statnum [, owner]] [key=val...]}`
+
+Inserts a new sprite into the game with the properties given as input
+arguments. If the world already contains the maximum number of sprites
+(<<gv,`gv.MAXSPRITES`>>), currently the game is aborted and EDuke32
+exits.footnote:[This is subject to change and must not be relied on.]
+Otherwise, relevant per-sprite data for the newly inserted sprite is
+cleared. No additional ``hard-wired'' C code is run.
+
+Returns the index of the inserted sprite.
+
+The function `con.insertsprite` can be used in one of two forms:
+
+* In the `table-call` form specified above, a single table is passed whose
+values are taken as the actual arguments. The first three, `tilenum`, `pos` and
+`sectnum`, are passed positionally. All other input arguments are passed as
+key-value pairs, but `owner` and `statnum` may be provided either positionally
+or as key/value pair.
+
+* Passing only the three to five positional arguments is also directly
+  possible. For example, all of the following calls are equivalent:
++
+[source]
+----------
+local i = con.insertsprite(tile, pos, sect, stat, ow)  -- direct-call
+local i = con.insertsprite{tile, pos, sect, stat, ow}  -- table-call
+local i = con.insertsprite{tile, pos, sect, statnum=stat, owner=ow}  -- table-call with 2 k/v args
+local i = con.insertsprite{tile, pos, sect, stat, owner=ow}  -- table-call with one k/v arg
+----------
+
+The five main arguments are as follows:
+
+`[1]` (`tilenum`)::
+The tile number of the sprite to insert.
+
+`[2]` (`pos`)::
+The position at which to insert the sprite (anything indexable with `x`, `y` and `z`).
+
+`[3]` (`sectnum`)::
+The index of the sector in which to insert the sprite.
+
+`[4] statnum` (default: `actor.STAT.DEFAULT`)::
+The initial status number of the inserted sprite.
+
+`[5] owner` (default: see below)::
+The index of the sprite that is in some sense the ``parent'' of the newly
+created one. If omitted, it is set to the index of the newly spawned sprite.
+
+These keys are permissible as optional input arguments in the table-call form,
+corresponding to the same-named <<sprite,`sprite`>> members:
+
+* `shade`, `ang`, `xvel`, `zvel` (default: 0)
+* `xrepeat` and `yrepeat` (default: 48)
+
+===== The function `con.spawn(tilenum, parentspritenum)`
+
+Spawns a new sprite with tile number `tilenum` from a given ``parent'' sprite
+with index `parentspritenum`, which must be valid. The sprite is spawned at the
+same position as its parent and its `owner` member is set to
+`parentspritenum`. Additional ``hard-wired'' code dependent on `tilenum` may be
+run afterwards, possibly modifying the sprite.
+
+Returns the index of the spawned sprite on success.
+
+===== The function `con.shoot(tilenum, parentspritenum [, zvel])`
+
+Attempts to shoot a projectile with tile number `tilenum` from the sprite with
+index `parentspritenum`. The z velocity can be overridden by passing `zvel`.
+
+// TODO: document how zvel is interpreted
+
+Returns the index of the spawned sprite on success, or --1 otherwise.
+
+
+The `engine` module
+~~~~~~~~~~~~~~~~~~~
+
+Base palette interfaces
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The 8-bit (``classic'') Build renderer operates in indexed-color mode: the
+pixels of the frame buffer do not contain red/green/blue values themselves, but
+only indexes into a color table with 256 entries, the _base palette_.
+**********
+latexmath:[$\mathrm{ColorComponent} := \mathbb{N}_{64}$] {nbsp}
+[gray]#// Build's base palettes have 6 bits of precision per color component# +
+latexmath:[$\mathrm{ColorIndex} := \mathbb{N}_{256}$] +
+latexmath:[$\mathrm{basepal}: \: \mathrm{ColorIndex} \rightarrow \mathrm{ColorComponent}^3$] +
+**********
+
+The following functions provide a bridge between color indices and their
+corresponding color components.
+
+`r, g, b = engine.getrgb(i)`::
+Returns the red, green and blue color components of the default base palette
+for color index `i`. The color components are in the range [0 .. 63].
++
+If `i` is 255, `r`, `g` and `b` are all returned as 0, even if the actual base
+palette may contain different values for that index.
+
+`i = engine.nearcolor(r, g, b [, lastokcol])`::
+
+Given the red, green and blue components `r`, `g` and `b` of a query color,
+returns the color index `i` whose color in the default base palette is closest
+to the query color. ``Closeness'' is established using an Euclidean distance
+with a weighting on the color components.
++
+The optional argument `lastokcol` can be used to restrict the range of color
+indices to search: the returned color index is guaranteed to be in the range
+[0{nbsp}..{nbsp}`lastokcol`]. It defaults 255, so that all colors are
+searched.footnote:[For example, it may be desirable to omit ``fullbright''
+colors from being returned. The shade table loaded from Duke3D's PALETTE.DAT
+makes color indices 240--254 fullbright, so passing 239 to `lastokcol` achieves
+the mentioned filtering.]
+
+[[shade_table_interfaces]]
+Shade table interfaces
+^^^^^^^^^^^^^^^^^^^^^^
+
+To implement shading and visibility attenuation, Build maintains tables mapping
+pairs of a color index and a shade level (Duke3D's table uses 32 such
+gradients) to a color index representing the darkness-faded color. Each such
+table is called shade or _palookup_ table.
+**********
+latexmath:[$\mathrm{ShadeLevel} := \mathbb{N}_{\mathrm{Numshades}}$] +
+latexmath:[$\mathrm{palookup}: \: \mathrm{ShadeLevel} \times
+  \mathrm{ColorIndex} \rightarrow \mathrm{ColorIndex}$]
+**********
+
+When a pixel is about to be drawn, a palookup table chosen depending on the
+object's `pal` is consulted to determine its ultimate color index (in the
+absence of blending with the translucency table or see-through texels). Given a
+texel's color index as latexmath:[$i_{\mathrm{in}}$], the resulting pixel's one
+latexmath:[$i_{\mathrm{out}}$] is computed as
+
+==========
+latexmath:[$s_1 = \mathrm{shade} + C \cdot \mathrm{visdist}$] +
+latexmath:[$s_2 = \mathrm{clamp}(s_1, \: 0, \: \mathrm{Numshades}-1)$] +
+latexmath:[$\mathrm{shade_index} = \mathrm{round}(s_2)$] +
+latexmath:[$i_{\mathrm{out}} = \mathrm{palookup}(\mathrm{shade_index}, i_{\mathrm{in}})$] {nbsp}
+[gray]#// This is only a table lookup, palookup[shade_index][latexmath:[$i_{\mathrm{in}}$]]# +
+==========
+
+Here, latexmath:[$C$] is a positive constant and
+latexmath:[$\mathrm{visdist}$] is the product of a. the distance of an object's
+sampled pixel to the view plane with b. the object's
+``visibility''.footnote:[Visibility would be more appropriately called
+``anti-visibility'' or ``co-visibility'': greater values make objects appear
+more faded for the same distance. Also, the visibility that is meant here has
+the origin at 0, unlike `sector[].visibility`.] Thus, shade and visibility are
+inherently confounded in the 8-bit mode and the ultimate shade_index is bounded
+below by (the minimum of latexmath:[$\mathrm{Numshades}-1$] and) the shade of
+the object.
+
+===== Examples of effects using shade tables
+
+While palookup tables are primarily used for shading and visibility
+attenuation, they can be set up in other ways to yield different effects with
+respect to how pixels of objects farther away are drawn. For example:
+
+* Distance fading with fog. For a fog color latexmath:[$\mathbf{c} = (c_r, c_g,
+  c_b)$], the table is set up so that for a source color index latexmath:[$i$]
+  and a shade level sh, palookup[sh][latexmath:[$i$]] contains a color index
+  whose color is close to that of latexmath:[$i$] blended with
+  latexmath:[$\mathbf{c}$], +
+  +
+  {nbsp} latexmath:[$\frac{\mathrm{sh} + 0.5}{\mathrm{Numshades}} \cdot
+  \mathrm{basepal}(i) +
+  \frac{\mathrm{Numshades}-\mathrm{sh}+0.5}{\mathrm{Numshades}} \cdot
+  \mathbf{c}$]. +
+  +
+  Note that distance fading to black can be seen as a special case of this
+  fogging effect. However, Duke3D's base shade table (i.e. the table for pal
+  0) is *not* constructed in this way.
+
+* Color index remapping. Given a mapping latexmath:[$m: \: \mathrm{ColorIndex}
+  \rightarrow \mathrm{ColorIndex}$], the table is set up so that for each shade
+  level sh, the 256 color indices are selected or reordered in the same way:
+  for all color indices latexmath:[$i$],
+  palookup[sh][latexmath:[$i$]]{nbsp}={nbsp}original_palookup[sh][latexmath:[$m(i)$]]. +
+  For example, pal 21 remaps the fifth and sixth blocks of consecutive
+  16-tuples of color indices (a ramp of blue colors) to the fourth and 14^th^
+  such blocks (red colors, the first one part of a 32-color ramp).
+
+* ``Fullbright'' colors -- those that aren't affected by distance -- with index
+  latexmath:[$i$] are achieved by setting palookup[sh][latexmath:[$i$]] to
+  palookup[0][latexmath:[$i$]] for each shade sh.
+
+===== Shade table functions
+
+`sht = engine.shadetab()`::
+
+Creates and returns a new shade table object `sht` with all entries initialized
+to zero. This object can be indexed once with a shade index from 0 to 31,
+yielding a reference to an array of 256 8-bit unsigned integers. Thus, shade
+table objects can be used just as indicated in the notation above: `sht[sh][i]`
+is the resulting color index for shade `sh` and input color index `i`.
+
+`sht = engine.getshadetab(palnum)`::
+
+Returns a new shade table object `sht` containing the values for the palookup
+table of pal `palnum`, provided it is not an alias for the default one (see
+below). Modifying the returned `sht` does not alter the actual engine-side
+shade table. An unspecified number of pal indices are reserved from the end of
+the hard limit 255; attempting to retrieve a shade table for a reserved pal
+raises as error.
++
+At engine initialization, the shade tables for all non-zero pal numbers are
+aliased to the default pal 0 one. Subsequently, custom palookup tables are
+either loaded from LOOKUP.DAT, created by appropriate DEF directives (`fogpal`
+or `makepalookup`), or assigned using `engine.setshadetab`. If the table for
+pal `palnum` is aliased to the default one when `getshadetab` is called, *nil*
+is returned.
+
+[[engine_setshadetab]] `engine.setshadetab(palnum, sht)`::
+
+Copies the shade table `sht` to the engine-side palookup table for pal
+`palnum`. An error is issued if an attempt is made to copy to a reserved
+`palnum`.
++
+When running in EDuke32, there are additional restrictions:
++
+* A `palnum` for which a shade table has already been registered (that is, one
+  which is *not* aliased to the default one) cannot be re-assigned to.
++
+* `setshadetab` may only be called at first initialization time, that is, when
+  the value of `LUNATIC_FIRST_TIME` is *true*. (`LUNATIC_FIRST_TIME` is a
+  variable in the global environment that indicates whether the Lua game state
+  is created for the very first time and the game is not yet running.)
+
+===== Shade table methods
+
+`newsht = sht:remap16(tab)`::
+
+Returns a new shade table with consecutive runs of 16 values of every 256-tuple
+of `sht` remapped as specified by `tab`. Specifically, `tab` must be a table
+whose keys in [0 .. 15] may be set to values in [0 .. 15]. For a shade index
+`sh` and a color index `i`, the returned shade table `newsht` then has
++
+==========
+`newsht[sh][i]` = `sht[sh][newi]`,
+==========
++
+where
++
+==========
+`newi` = `16*tab[math.floor(i/16)] + i%16` {nbsp} [gray]#// if `tab[math.floor(i/16)]` is non-*nil*# +
+`newi` = `i` {nbsp} [gray]#// otherwise#
+==========
++
+.Example
+[source]
+----------
+-- Creates a shade table with the same remapping as pal 21 (blue -> red) and
+-- registers it under pal 22, overwriting its previous contents.
+local newsht = engine.getshadetab(0):remap16({[4]=13, [5]=8})
+engine.setshadetab(22, newsht)
+----------
+
+[[blending_table_interfaces]]
+Blending table interfaces
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+EDuke32 supports installing multiple blending tables used by the 8-bit
+renderer. A blending (or translucency) table is used whenever an object with
+the ``translucent'' bit set is drawn, and maps pairs of color indices to a
+blended color index.
+**********
+latexmath:[$\mathrm{transluc}: \: \mathrm{ColorIndex} \times
+  \mathrm{ColorIndex} \rightarrow \mathrm{ColorIndex}$]
+**********
+
+Given a background color index `bi` and a color index of an incoming foreground
+fragment `fi` (usually obtained by looking up a shade table), when `fi` is
+different from 255, the resulting color index is
+==========
+`transluc[bi][fi]`
+==========
+if the ``reverse translucency'' bit is clear, and
+==========
+`transluc[fi][bi]`
+==========
+if reverse tranlucency is set. If the fragment sampled from the foreground
+object has color index 255, it is discarded: translucent rendering is always
+``masking''.
+
+Currently, only sprites support rendering with custom blending tables, by
+setting their `.blend` member to the number of a blending table.
+
+
+===== Blending table functions
+
+`tab = engine.blendtab()`::
+
+Creates and returns a new blending table object `tab` with all entries initialized
+to zero. This object can be indexed once with a color index from 0 to 255,
+yielding a reference to an array of 256 8-bit unsigned integers. Thus, blending
+table objects can be used just as indicated in the notation above: `tab[i][j]`
+is the blended color index for input color indices `i` and `j`.
+
+`tab = engine.getblendtab(blendnum)`::
+
+Returns a new blending table object `tab` containing the values for the
+engine-side translucency table numbered `blendnum`, or *nil* if no blending
+table with that number is registered. Modifying the returned `tab` does not
+alter the actual engine-side blending table.
+//+
+//At engine initialization, the default translucency table (with number 0) is
+//loaded from PALETTE.DAT.
+
+`engine.setblendtab(blendnum, tab)`::
+
+Copies the blending table `tab` to the engine-side translucency table with
+number `blendnum`.
++
+Similar to <<engine_setshadetab,`engine.setshadetab`>>, there are certain
+restrictions when running in EDuke32:
++
+* A `blendnum` for which a table has already been registered cannot be
+  re-assigned to.
++
+* `setblendtab` may only be called at first initialization time, that is, when
+  the value of `LUNATIC_FIRST_TIME` is *true*.
+
+Mapster32-only functions
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+===== `engine.savePaletteDat(filename [, palnum [, blendnum [, moreblends]]])` -> `ok, errmsg`
+
+Writes out a full PALETTE.DAT-formatted file named `filename` with the base
+shade table numbered `palnum` and the base translucency table numbered
+`blendnum`, both defaulting to 0.
+
+Passing `moreblends` allows to specify additional blending tables to store in
+EDuke32's extended PALETTE.DAT format. These must have previously been
+registered with `engine.setblendtab`. The `moreblends` argument must be a
+sequence table with each element being either
+
+* a blending table number in the range [1{nbsp}..{nbsp}255]
+* a table `t` containing a pair of such numbers, in which case it is taken to
+  mean the inclusive range [`t[1]`{nbsp}..{nbsp}`t[2]`]
+
+There must be no duplicate blending table numbers.
+
+The function returns a status `ok` which is *true* on success and *nil* on
+failure. In the latter case, `errmsg` is a diagnostic error message.
+
+===== `engine.saveLookupDat(filename, lookups)` -> `ok, errmsg`
+
+Writes out a LOOKUP.DAT-formatted file named `filename` with the lookup tables
+specified by `lookups` at the beginning and the five additional base palettes
+at the end.
+
+The `lookups` argument is interpreted analogously to the `moreblends` argument
+of `engine.savePaletteDat` (with the numbers being palookup numbers instead of
+blending table numbers) and the return values `ok` and `errmsg` have the same
+meaning as well.
+
+
+The `fs` module -- virtual file system facilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[float]
+==== `files = fs.listpath(path, mask)`
+
+Returns a sequence table `files` of file names that can be found in a directory
+constructed as concatenation of any directory in the search path with `path`,
+and matching the wildcard `mask`. Currently, neither ZIP nor GRP files
+registered as file containers with EDuke32 are searched.
+
+The `path` argument must separate directories by forward slashes (`/`). If no
+suffix is desired (i.e. the directories in the search path themselves are to be
+searched), `'/'` should be passed.
+
+The file name `mask` is applied case-insensitively for the 26 characters of the
+basic Latin alphabet. It may contain the following meta-characters which are
+interpreted in a special way:
+
+* a `*` matches any (potentially empty) sequence of characters
+* a `?` matches any single character
+
+While the match with `mask` proceeds case-insensitively, file names are
+returned named exactly like on the file system. However, names differing only
+in case appear exactly once in the output list.
+
+NOTE: For portability, it is crucial that `path` is specified with the same
+case as the actual directory on the file system.
+
+.Example
+
+Suppose the search path contains two directories `foo` and `bar` with the
+following file listing:
+----------
+foo/
+  myhouse1.MAP
+  myhouse2.map
+
+bar/
+  MYHOUSE1.map
+  MYHOUSE10.MAP
+  README.txt
+----------
+
+Then a query with
+[source]
+----------
+fs.listpath("/", "myhouse?.map")
+----------
+will return a table with
+these strings:
+
+* `myhouse1.MAP` or `MYHOUSE1.map`, but not both
+* `myhouse2.map`
+
+
+/////////////////
+APPENDICES FOLLOW
+/////////////////
+
+:numbered!:
+
+[appendix]
+[[Appendix_Howto_read_PIL]]
+How to read _Programming in Lua_
+--------------------------------
+
+:PiL50: http://www.lua.org/pil/contents.html
+
+On the Lua homepage, the first edition of _Programming in Lua_ is
+{PiL50}[available] online. While targeting Lua 5.0, it still remains applicable
+to Lua 5.1 to a large extent. This section gives hints for reading it when
+learning to code for Lunatic.
+
+[float]
+==== http://www.lua.org/pil/p1.html[Preface]
+
+May be interesting to get an idea of the philosophy behind Lua.
+http://www.lua.org/pil/p1.3.html[A Few Typographical Conventions] should be
+read to be familiar with them.
+
+[float]
+==== http://www.lua.org/pil/1.html[1 -- Getting Started]
+
+Mentions the stand-alone Lua interpreter. When none is available, a LuaJIT
+stand-alone binary can be used for experimentation as well.
+
+[float]
+==== http://www.lua.org/pil/1.1.html[1.1 -- Chunks]
+
+Introduces chunks as the basic ``blocks'' of Lua code and notes how whitespace
+is treated. Mentions `dofile`, which is not available in Lunatic
+(<<require,`require`>> is preferred).
+
+[float]
+==== http://www.lua.org/pil/1.2.html[1.2 -- Global Variables]
+
+Section may be read, but usage of *`local`* variables is strongly recommended
+whenever possible. Also, trying to read a non-existent global or to write any
+value to the global environment gives an error in Lunatic (except that global
+writes are allowed in in <<modules,module>> context, i.e. after `module(...)`).
+
+[float]
+==== http://www.lua.org/pil/1.3.html[_1.3 -- Some Lexical Conventions_]
+
+Must read.
+
+[float]
+==== http://www.lua.org/pil/2.html[_2 -- Types and Values_]
+
+Must read, also subsections. However, ``2.7 -- Userdata and Threads'' is
+not relevant.
+
+[float]
+==== http://www.lua.org/pil/3.html[_3 -- Expressions_]
+
+Must read, also all subsections.
+
+[float]
+==== http://www.lua.org/pil/4.html[_4 -- Statements_]
+
+Must read, also all subsections.
+
+[float]
+==== http://www.lua.org/pil/5.htmlhttp://www.lua.org/pil/5.html[_5 -- Functions_]
+
+Must read, also all subsections. Subsection 5.2 mentions `io.write`, which is
+not available in Lunatic.
+
+[float]
+==== http://www.lua.org/pil/6.html[6 -- More about Functions]
+
+May be read (subsections as well) for a more complete understanding of
+functions in Lua, as well as the utility of lexical scoping.
+
+[float]
+==== http://www.lua.org/pil/7.html[_7 -- Iterators and the Generic_ `for`]
+
+May be read (subsections as well), but for basic programming, the knowledge of
+how to merely use (as opposed to write) iterators such as
+<<engine_iterators,`spritesofsect`>> suffices.
+
+[float]
+==== http://www.lua.org/pil/8.3.html[8.3 -- Errors]
+
+May be read. Provides guidelines on how to write error handling (status code
+vs. error).
+
+[float]
+==== http://www.lua.org/pil/8.4.html[8.4 -- Error Handling and Exceptions]
+
+May be read. Discusses protected calls, which should be used sparingly.
+
+[float]
+==== http://www.lua.org/pil/11.html[_11 -- Data Structures_]
+
+May be read, also subsections. The most relevant subsections are
+http://www.lua.org/pil/11.1.html[11.1 -- Arrays],
+http://www.lua.org/pil/11.5.html[11.5 -- Sets and Bags] and to some extent,
+http://www.lua.org/pil/11.6.html[11.6 -- String Buffers]. The way ``11.2 --
+Matrices and Multi-Dimensional Arrays'' suggests to construct matrices is
+rather memory-intensive; also it and ``11.3 -- Linked Lists'' and ``11.4 --
+Queues and Double Queues'' are not relevant to simple Lunatic coding.
+
+[float]
+==== http://www.lua.org/pil/15.html[15 -- Packages]
+
+Lua package system received various additions in 5.1, so the PiL first
+edition's section is out-of-sync. For Lunatic, the <<modules,modules>> section
+of this manual should be consulted.
+ +
+ +
+(The rest of Part II deals with advanced concepts not needed for simple Lunatic
+coding.)
+
+[float]
+==== http://www.lua.org/pil/19.3.html[19.3 -- Sort]
+
+May be read if needed.
+
+[float]
+==== http://www.lua.org/pil/20.html[20 -- The String Library]
+
+May be skimmed (also subsections), though ultimately the Lua Reference should
+be consulted for the exact semantics.
+
+[appendix]
+[[Appendix_event_RETURN]]
+Game event `RETURN` usage
+-------------------------
+
+The following list notes how the special <<gv_RETURN,`gv.RETURN`>> variable
+(known simply as `RETURN` from CON) is treated for the various events. The game
+may either pass some value to a particular event as additional information, or
+it can examine `RETURN` after the event has finished, invoking some behavior
+conditional on its value. If an event is not listed here, its usage of `RETURN`
+is unspecified.
+
+[float]
+Receives zero, checks for non-zero
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These events get passed a value of 0 for `RETURN`, and after finishing, check
+it for being non-zero, in which case some hard-coded behavior is suppressed or
+additional behavior is enabled:
+
+`AIMDOWN`, `AIMUP`, `CROUCH`, `DISPLAYSBAR`, `DISPLAYWEAPON`, `DOFIRE`,
+`DRAWWEAPON`, `FIRE`, `HOLODUKEOFF`, `HOLODUKEON`, `HOLSTER`, `INCURDAMAGE`,
+`INVENTORY`, `JUMP`, `LOOKDOWN`, `LOOKLEFT`, `LOOKRIGHT`, `LOOKUP`,
+`QUICKKICK`, `RETURNTOCENTER`, `SOARDOWN`, `SOARUP`, `SWIMDOWN`, `SWIMUP`,
+`TURNAROUND`, `USEJETPACK`, `USEMEDKIT`, `USENIGHTVISION`, `USESTEROIDS`.
+
+`KILLIT` (deprecated from Lua)::
+    If non-zero, the pending sprite deletion is aborted.
+
+`DISPLAYROOMS`::
+    Don't draw scene if `RETURN` is 1. Values other than 0 and 1 are
+    reserved.
+
+`PRESSEDFIRE`, `USE`::
+    If non-zero, the ``fire'' or ``use'' shared key bits are cleared
+    (respectively).
+
+`ENTERLEVEL`::
+    If non-zero, run the event for the remaining players.
+
+[float]
+Game considers post-event `RETURN` an index
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For some events, the game examines `RETURN` after they have finished, and
+potentially uses its value as some kind of index.
+
+`CHANGEMENU` (deprecated from Lua)::
+    Receives and examines `RETURN` as a menu index to change to.
+
+`DISPLAYCROSSHAIR`::
+    Receives 0. If the post-event `RETURN` equals 1, no crosshair is drawn. If
+    it is greater than one, `RETURN` is the tile index of the crosshair to be
+    displayed. The value 0 makes it draw using the `CROSSHAIR` tile.
+
+`GETLOADTILE`::
+    Receives and examines `RETURN` as a background tile for the loading screen.
+    A negative value suppresses drawing it and running the subsequent
+    `EVENT_DISPLAYLOADINGSCREEN` entirely.
+
+`GETMENUTILE`::
+    Receives and examines `RETURN` as a background tile for the menu.
+
+`SOUND`::
+    Receives and examines `RETURN` as an index of a sound to start playing.
+
+[float]
+Cheat events
+~~~~~~~~~~~~
+The cheat events receive a hard-coded, item-dependent target amount in
+`RETURN`. It can be overridden to a different value to make the respective
+cheat give a different ``full'' amount. A negative value is ignored.
+
+`CHEATGETSTEROIDS`, `CHEATGETHEAT`, `CHEATGETBOOT`, `CHEATGETSHIELD`,
+`CHEATGETSCUBA`, `CHEATGETHOLODUKE`, `CHEATGETJETPACK`, `CHEATGETFIRSTAID`.
+
+[float]
+`EVENT_DAMAGEHPLANE`
+~~~~~~~~~~~~~~~~~~~~
+
+Triggered when a ceiling or a floor (collectively called ``hplane'') is
+determined as being damaged. The event receives `RETURN` in the variable
+`gv.RETURN` as well as the third, `dist` argument to the event
+<<gameactor,callback function>>.footnote:[Passing `RETURN` in the `dist`
+argument serves the possibility to create chained callbacks for
+`EVENT_DAMAGEHPLANE`. Otherwise, once `gv.RETURN` were assigned to, there would
+be no way to obtain its original value in subsequent chained callbacks.] This
+value can be decoded into two parts by passing it to
+`sector.damagehplane_whatsect`:
+
+[source]
+----------
+function(aci, pli, RETURN)
+   local what, sectnum = sector.damagehplane_whatsect(RETURN)
+   -- (...)
+----------
+Then,
+
+* `what` is one of the strings `'ceiling'` or `'floor'` and
+* `sectnum` is the sector whose hplane is considered to be damaged.
+
+When `EVENT_DAMAGEHPLANE` is left, `gv.RETURN` is examined to determine the
+further action. It may be one of three values given by `sector.DAMAGEHPLANE`
+(abbreviated `DHP` in the following):
+
+* `DHP.SUPPRESS`: the hard-wired code that would subsequently be run is
+  suppressed entirely
+
+* `DHP.DEFAULT`: The default code for hplane damaging is run. For floors, it
+  does nothing. For ceilings, it checks whether it has a tile number in a
+  hard-coded set of values depicting a breakable light. In that case, the tile
+  number is changed to the ``broken'' version and a ``glass breaking'' effect
+  consisting of playing a sound and spawning glass sprites is started. Also,
+  certain code related to SE3 and SE12 effects is run.
+
+* `DHP.GLASSBREAK`: The light-breaking effect described above is run
+  unconditionally, but *without* changing the hplane's tile number, which is
+  assumed to have been done by the event.
+
+If value last assigned to `RETURN` is not one in the above-mentioned set when
+`EVENT_DAMAGEHPLANE` is left, the behavior is undefined.
+
+
+[float]
+TODO
+~~~~
+`CHANGEWEAPON`, `CHECKFLOORDAMAGE`, `CHECKTOUCHDAMAGE`, `NEXTWEAPON`,
+`PREVIOUSWEAPON`, `SELECTWEAPON`, `WEAPKEY*`.

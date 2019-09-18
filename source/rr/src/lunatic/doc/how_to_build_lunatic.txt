@@ -1,0 +1,14 @@
+
+Lunatic depends on the following:
+
+* LuaJIT 2.0.3 or later [http://luajit.org]. It is recommended to get the
+  latest git HEAD of the 2.0 branch. As of time of writing, LuaJIT 2.1 is
+  in alpha, and has not been successfully tested with Lunatic.
+
+* LPeg 0.12 [http://www.inf.puc-rio.br/~roberto/lpeg].
+
+For Windows, static libraries and headers have been provided.
+
+See platform/Windows/lib/instructions.txt for information on building.
+
+Build EDuke32 with the GNU Make invocation "make LUNATIC=1".

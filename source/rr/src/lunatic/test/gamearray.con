@@ -1,0 +1,151 @@
+// Test for gamearrays / their persistence.
+
+define QWESZ 10
+define ASDSZ 12
+
+define MAXTILES 30720  // XXX
+
+gamearray qwe QWESZ
+gamearray asd ASDSZ
+
+define NEWQWESZ 9
+define NEWASDSZ 14
+
+gamearray qwe1 1  // should auto-resize when reading in
+gamearray asd1 NEWASDSZ
+
+gamevar qwesz 0 0
+gamevar asdsz 0 0
+
+// Test gamevars that are named like Lua keywords.
+gamevar local 0 0
+
+gamevar i 0 0
+gamevar tmp 0 0
+
+define Q_qwe_fn 400
+define Q_asd_fn 401
+definequote Q_qwe_fn LTEST_QWE_ARRAY.bin
+definequote Q_asd_fn LTEST_ASD_ARRAY.bin
+
+// Wouldn't run in C-CON otherwise; redefinequote/qsprintf errors out when
+// passed a non-allocated quote as destination.
+definequote 500 TEMP
+definequote 501 TEMP
+
+definequote 505 tile y sizes: 0:%d 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d 7:%d 8:%d
+definequote 506 1: 0x0a0a0d0d==168430861 ? %d
+definequote 507 2: 0x0a0a0d0d==168430861 ? %d
+
+gamevar MINUSONE -1 0
+
+state error
+    setactor[MINUSONE].cstat 0
+
+    // This doesn't work in C-CON:
+//    setactor[-1].cstat 0
+    // error: symbol `1' is not a game variable.
+ends
+
+onevent EVENT_ENTERLEVEL
+    setvar i 0
+    whilevarn i QWESZ
+    {
+        setarray qwe[i] i
+        addvar i 1
+    }
+
+    // Test nested array syntax:
+    setarray qwe[qwe[5]] 0
+
+    // qwe[] now:
+    // 0 1 2 3 4 0 6 7 8 9
+
+    setvar i 0
+    whilevarn i ASDSZ
+    {
+        setvarvar tmp i
+        addvar tmp 100
+        setarray asd[i] tmp
+        setvarvar local tmp
+        addvar i 1
+    }
+
+    copy qwe[4] /*->*/ asd[3] 3
+
+    setarray asd[4] 0x0a0a0d0d
+
+    // asd[] now:
+    // 100 101 102 4 0x0a0a0d0d 6 106 107 108 109 110 111
+
+    qsprintf 506 506 asd[4]
+    userquote 506
+
+    resizearray qwe NEWQWESZ  // shrink
+    resizearray asd NEWASDSZ  // grow
+
+    ifvarn qwe[4] 4 state error
+    ifvarn asd[4] 0x0a0a0d0d state error
+
+    writearraytofile qwe Q_qwe_fn
+    writearraytofile asd Q_asd_fn
+
+    readarrayfromfile qwe1 Q_qwe_fn
+    readarrayfromfile asd1 Q_asd_fn
+
+    qsprintf 507 507 asd[4]
+    userquote 507
+
+    ifvarn asd[4] 0x0a0a0d0d state error
+
+    // test array sizes
+    getarraysize qwe qwesz
+    getarraysize asd asdsz
+
+    ifvarn qwesz NEWQWESZ state error
+    ifvarn asdsz NEWASDSZ state error
+
+    // test array sizes with *1 arrays
+    getarraysize qwe1 qwesz
+    getarraysize asd1 asdsz
+
+    ifvarn qwesz NEWQWESZ state error
+    ifvarn asdsz NEWASDSZ state error
+
+    redefinequote 500 [%d]: qwe=%d, qwe1=%d, asd=%d, asd1=%d
+    redefinequote 501 Because C-CON can't qsprintf into an uninitialized one
+
+    setvar i 0
+    whilevarvarn i -1
+    {
+        ifvarl i NEWQWESZ
+            qsprintf 501 500 i qwe[i] qwe1[i] asd[i] asd1[i]
+        else
+            qsprintf 501 500 i -1 -1 asd[i] asd1[i]
+        userquote 501
+        addvar i 1
+
+        ifvare i NEWASDSZ
+            setvar i -1
+    }
+
+    redefinequote 500 MUST REACH
+    userquote 500
+
+    setvar i 120
+    modvar i 25
+    addlogvar i
+
+
+    //// Test system gamearrays
+
+    getarraysize tilesizx qwesz
+    ifvarn qwesz MAXTILES state error
+
+    copy tilesizy[0] /*->*/ qwe[0] 9
+    qsprintf 505 505 qwe[0] qwe[1] qwe[2] qwe[3] qwe[4] qwe[5] qwe[6] qwe[7] qwe[8]
+    userquote 505
+
+    // Must give a translation error:
+//    resizearray tilesizy 100
+endevent

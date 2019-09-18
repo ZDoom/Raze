@@ -1,0 +1,60 @@
+gamevar snd 351 0  // thunder sound
+gamevar tmp 0 0
+gamevar tmp2 0 0
+gamevar shoots 2605 2  // RPG
+
+gamevar WEAPON1_SHOOTS 2605 0
+
+define MORTER2 1653
+// NOTE: the custom MORTER2 doesn't spawn FRAMEEFFECT like the MORTER, which
+// has some hard-wired code running.
+defineprojectile MORTER2 PROJ_WORKSLIKE 6150
+defineprojectile MORTER2 PROJ_SPAWNS EXPLOSION2
+defineprojectile MORTER2 PROJ_SOUND RPG_SHOOT
+defineprojectile MORTER2 PROJ_VEL 600
+defineprojectile MORTER2 PROJ_EXTRA 165
+defineprojectile MORTER2 PROJ_EXTRA_RAND 10
+defineprojectile MORTER2 PROJ_DROP -200  // tested in test.elua
+defineprojectile MORTER2 PROJ_ISOUND PIPEBOMB_EXPLODE
+defineprojectile MORTER2 PROJ_HITRADIUS 2800
+defineprojectile MORTER2 PROJ_BOUNCES 4
+defineprojectile MORTER2 PROJ_OFFSET 128
+defineprojectile MORTER2 PROJ_CLIPDIST 24
+defineprojectile MORTER2 PROJ_TRAIL -1  // overridden in test.elua
+defineprojectile MORTER2 PROJ_TNUM 6
+defineprojectile MORTER2 PROJ_USERDATA 32  // test setting initial value
+
+onevent EVENT_GAME
+    setvarvar WEAPON1_FIRESOUND snd
+//    setvarvar WEAPON1_SHOOTS shoots
+endevent
+
+definequote 400 Failed setting projectile userdata
+
+useractor notenemy 909  // tree trunk
+    ifcount 120
+    {
+        zshoot -4096 BOUNCEMINE
+
+        // userdata: bitwise-OR in 64
+        getprojectile[MORTER2].userdata tmp
+        orvar tmp 64
+        setprojectile[MORTER2].userdata tmp
+
+        ezshoot -4096 MORTER2
+        getthisprojectile[RETURN].vel tmp
+        randvar tmp2 500
+        subvarvar tmp tmp2
+        setthisprojectile[RETURN].vel tmp
+        resetcount
+
+        // userdata: must be 32+64 now
+        getthisprojectile[RETURN].userdata tmp
+        ifvarn tmp 96
+            quote 400
+    }
+enda
+
+onevent EVENT_JUMP
+    tossweapon
+endevent
