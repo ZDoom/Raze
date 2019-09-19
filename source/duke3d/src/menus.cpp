@@ -1002,30 +1002,9 @@ static char MenuJoystickAxes[MAXJOYAXES][MAXJOYBUTTONSTRINGLENGTH];
 
 static MenuEntry_t *MEL_JOYSTICKAXES[MAXJOYAXES];
 
-static MenuOption_t MEO_MOUSEADVANCED_DAXES_UP = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_Gamefuncs, &ud.config.MouseDigitalFunctions[1][0] );
-static MenuEntry_t ME_MOUSEADVANCED_DAXES_UP = MAKE_MENUENTRY( "Digital Up", &MF_Redfont, &MEF_BigSliders, &MEO_MOUSEADVANCED_DAXES_UP, Option );
-static MenuOption_t MEO_MOUSEADVANCED_DAXES_DOWN = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_Gamefuncs, &ud.config.MouseDigitalFunctions[1][1] );
-static MenuEntry_t ME_MOUSEADVANCED_DAXES_DOWN = MAKE_MENUENTRY( "Digital Down", &MF_Redfont, &MEF_BigSliders, &MEO_MOUSEADVANCED_DAXES_DOWN, Option );
-static MenuOption_t MEO_MOUSEADVANCED_DAXES_LEFT = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_Gamefuncs, &ud.config.MouseDigitalFunctions[0][0] );
-static MenuEntry_t ME_MOUSEADVANCED_DAXES_LEFT = MAKE_MENUENTRY( "Digital Left", &MF_Redfont, &MEF_BigSliders, &MEO_MOUSEADVANCED_DAXES_LEFT, Option );
-static MenuOption_t MEO_MOUSEADVANCED_DAXES_RIGHT = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_Gamefuncs, &ud.config.MouseDigitalFunctions[0][1] );
-static MenuEntry_t ME_MOUSEADVANCED_DAXES_RIGHT = MAKE_MENUENTRY( "Digital Right", &MF_Redfont, &MEF_BigSliders, &MEO_MOUSEADVANCED_DAXES_RIGHT, Option );
-
 static MenuEntry_t *MEL_MOUSEADVANCED[] = {
     &ME_MOUSEADVANCED_SCALEX,
     &ME_MOUSEADVANCED_SCALEY,
-    &ME_Space8_Redfont,
-    &ME_MOUSEADVANCED_DAXES_UP,
-    &ME_MOUSEADVANCED_DAXES_DOWN,
-    &ME_MOUSEADVANCED_DAXES_LEFT,
-    &ME_MOUSEADVANCED_DAXES_RIGHT,
-};
-
-static MenuEntry_t *MEL_INTERNAL_MOUSEADVANCED_DAXES[] = {
-    &ME_MOUSEADVANCED_DAXES_UP,
-    &ME_MOUSEADVANCED_DAXES_DOWN,
-    &ME_MOUSEADVANCED_DAXES_LEFT,
-    &ME_MOUSEADVANCED_DAXES_RIGHT,
 };
 
 static const char *MenuJoystickHatDirections[] = { "Up", "Right", "Down", "Left", };
@@ -2398,17 +2377,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         }
         break;
 
-    case MENU_MOUSEADVANCED:
-    {
-        for (auto & i : MEL_INTERNAL_MOUSEADVANCED_DAXES)
-            if (entry == i)
-            {
-                mgametextcenter(origin.x, origin.y + (162<<16), "Digital axes are not for mouse look\n"
-                                                                "or for aiming up and down");
-            }
-    }
-        break;
-
     case MENU_RESETPLAYER:
         videoFadeToBlack(1);
         Bsprintf(tempbuf, "Load last game:\n\"%s\"", g_quickload->name);
@@ -3441,13 +3409,6 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     case MENU_MOUSEBTNS:
         CONTROL_MapButton(newOption, MenuMouseDataIndex[M_MOUSEBTNS.currentEntry][0], MenuMouseDataIndex[M_MOUSEBTNS.currentEntry][1], controldevice_mouse);
         CONTROL_FreeMouseBind(MenuMouseDataIndex[M_MOUSEBTNS.currentEntry][0]);
-        break;
-    case MENU_MOUSEADVANCED:
-    {
-        for (int i = 0; i < ARRAY_SSIZE(MEL_INTERNAL_MOUSEADVANCED_DAXES); i++)
-            if (entry == MEL_INTERNAL_MOUSEADVANCED_DAXES[i])
-                CONTROL_MapDigitalAxis(i>>1, newOption, i&1, controldevice_mouse);
-    }
         break;
     case MENU_JOYSTICKBTNS:
         CONTROL_MapButton(newOption, M_JOYSTICKBTNS.currentEntry>>1, M_JOYSTICKBTNS.currentEntry&1, controldevice_joystick);

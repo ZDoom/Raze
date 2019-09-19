@@ -33,7 +33,6 @@ LastSeenInput CONTROL_LastSeenInput;
 
 float          CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 static int32_t CONTROL_NumMouseButtons  = 0;
-static int32_t CONTROL_NumMouseAxes     = 0;
 static int32_t CONTROL_NumJoyButtons    = 0;
 static int32_t CONTROL_NumJoyAxes       = 0;
 
@@ -41,11 +40,7 @@ static controlflags      CONTROL_Flags[CONTROL_NUM_FLAGS];
 
 // static controlkeymaptype  CONTROL_KeyMapping[CONTROL_NUM_FLAGS];
 
-static controlaxismaptype CONTROL_MouseAxesMap[MAXMOUSEAXES];  // maps physical axes onto virtual ones
-static controlaxistype    CONTROL_MouseAxes[MAXMOUSEAXES];     // physical axes
-static controlaxistype    CONTROL_LastMouseAxes[MAXMOUSEAXES];
-static int32_t            CONTROL_MouseAxesScale[MAXMOUSEAXES];
-static int8_t             CONTROL_MouseAxesInvert[MAXMOUSEAXES];
+static int32_t            CONTROL_MouseAxesScale[2];
 
 static controlaxismaptype CONTROL_JoyAxesMap[MAXJOYAXES];
 static controlaxistype    CONTROL_JoyAxes[MAXJOYAXES];
@@ -235,14 +230,6 @@ void CONTROL_PrintAxes(void)
 {
     int32_t i;
 
-    initprintf("nummouseaxes=%d\n", CONTROL_NumMouseAxes);
-    for (i=0; i<CONTROL_NumMouseAxes; i++)
-    {
-        initprintf("axis=%d analog=%d digital1=%d digital2=%d\n",
-                   i, CONTROL_MouseAxesMap[i].analogmap,
-                   CONTROL_MouseAxesMap[i].minmap, CONTROL_MouseAxesMap[i].maxmap);
-    }
-
     initprintf("numjoyaxes=%d\n", CONTROL_NumJoyAxes);
     for (i=0; i<CONTROL_NumJoyAxes; i++)
     {
@@ -305,17 +292,6 @@ void CONTROL_MapAnalogAxis(int whichaxis, int whichanalog, controldevice device)
 
     switch (device)
     {
-    case controldevice_mouse:
-        if ((unsigned)whichaxis >= (unsigned)MAXMOUSEAXES)
-        {
-            //Error("CONTROL_MapAnalogAxis: axis %d out of valid range for %d mouse axes.",
-            //		whichaxis, MAXMOUSEAXES);
-            return;
-        }
-
-        set = CONTROL_MouseAxesMap;
-        break;
-
     case controldevice_joystick:
         if ((unsigned)whichaxis >= (unsigned)MAXJOYAXES)
         {
@@ -342,7 +318,7 @@ void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldev
     switch (device)
     {
     case controldevice_mouse:
-        if ((unsigned) whichaxis >= (unsigned) MAXMOUSEAXES)
+        if ((unsigned) whichaxis >= ARRAY_SIZE(CONTROL_MouseAxesScale))
         {
             //Error("CONTROL_SetAnalogAxisScale: axis %d out of valid range for %d mouse axes.",
             //		whichaxis, MAXMOUSEAXES);
@@ -377,17 +353,6 @@ void CONTROL_SetAnalogAxisInvert(int32_t whichaxis, int32_t invert, controldevic
 
     switch (device)
     {
-    case controldevice_mouse:
-        if ((unsigned) whichaxis >= (unsigned) MAXMOUSEAXES)
-        {
-            //Error("CONTROL_SetAnalogAxisInvert: axis %d out of valid range for %d mouse axes.",
-            //		whichaxis, MAXMOUSEAXES);
-            return;
-        }
-
-        set = CONTROL_MouseAxesInvert;
-        break;
-
     case controldevice_joystick:
         if ((unsigned) whichaxis >= (unsigned) MAXJOYAXES)
         {
@@ -415,17 +380,6 @@ void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t di
 
     switch (device)
     {
-    case controldevice_mouse:
-        if ((unsigned) whichaxis >= (unsigned) MAXMOUSEAXES)
-        {
-            //Error("CONTROL_MapDigitalAxis: axis %d out of valid range for %d mouse axes.",
-            //		whichaxis, MAXMOUSEAXES);
-            return;
-        }
-
-        set = CONTROL_MouseAxesMap;
-        break;
-
     case controldevice_joystick:
         if ((unsigned) whichaxis >= (unsigned) MAXJOYAXES)
         {
@@ -465,10 +419,6 @@ void CONTROL_ClearAssignments(void)
     memset(CONTROL_JoyButtonMapping,    BUTTONUNDEFINED, sizeof(CONTROL_JoyButtonMapping));
 //    memset(CONTROL_KeyMapping,          KEYUNDEFINED,    sizeof(CONTROL_KeyMapping));
     memset(CONTROL_LastJoyAxes,         0,               sizeof(CONTROL_LastJoyAxes));
-    memset(CONTROL_LastMouseAxes,       0,               sizeof(CONTROL_LastMouseAxes));
-    memset(CONTROL_MouseAxes,           0,               sizeof(CONTROL_MouseAxes));
-    memset(CONTROL_MouseAxesInvert,     0,               sizeof(CONTROL_MouseAxesInvert));
-    memset(CONTROL_MouseAxesMap,        AXISUNDEFINED,   sizeof(CONTROL_MouseAxesMap));
     memset(CONTROL_MouseButtonMapping,  BUTTONUNDEFINED, sizeof(CONTROL_MouseButtonMapping));
 
     for (int & i : CONTROL_MouseAxesScale)
@@ -574,11 +524,6 @@ static int CONTROL_DigitizeAxis(int axis, controldevice device)
 
     switch (device)
     {
-    case controldevice_mouse:
-        set = CONTROL_MouseAxes;
-        lastset = CONTROL_LastMouseAxes;
-        break;
-
     case controldevice_joystick:
         set = CONTROL_JoyAxes;
         lastset = CONTROL_LastJoyAxes;
@@ -629,12 +574,6 @@ static void CONTROL_ScaleAxis(int axis, controldevice device)
 
     switch (device)
     {
-    case controldevice_mouse:
-        set = CONTROL_MouseAxes;
-        scale = CONTROL_MouseAxesScale;
-        invert = CONTROL_MouseAxesInvert;
-        break;
-
     case controldevice_joystick:
         set = CONTROL_JoyAxes;
         scale = CONTROL_JoyAxesScale;
@@ -655,11 +594,6 @@ static void CONTROL_ApplyAxis(int axis, ControlInfo *info, controldevice device)
 
     switch (device)
     {
-    case controldevice_mouse:
-        set = CONTROL_MouseAxes;
-        map = CONTROL_MouseAxesMap;
-        break;
-
     case controldevice_joystick:
         set = CONTROL_JoyAxes;
         map = CONTROL_JoyAxesMap;
@@ -689,19 +623,7 @@ static void CONTROL_PollDevices(ControlInfo *info)
 #endif
 
     if (CONTROL_MouseEnabled)
-    {
-        Bmemcpy(CONTROL_LastMouseAxes, CONTROL_MouseAxes, sizeof(CONTROL_MouseAxes));
-        memset(CONTROL_MouseAxes, 0, sizeof(CONTROL_MouseAxes));
-
         CONTROL_GetMouseDelta(info);
-        for (int i=MAXMOUSEAXES-1; i>=0; i--)
-        {
-            CONTROL_DigitizeAxis(i, controldevice_mouse);
-            CONTROL_ScaleAxis(i, controldevice_mouse);
-            LIMITCONTROL(&CONTROL_MouseAxes[i].analog);
-            CONTROL_ApplyAxis(i, info, controldevice_mouse);
-        }
-    }
 
     if (CONTROL_JoystickEnabled)
     {
@@ -748,9 +670,6 @@ static int CONTROL_HandleAxisFunction(int32_t *p1, controlaxistype *axes, contro
 
 static void CONTROL_AxisFunctionState(int32_t *p1)
 {
-    if (CONTROL_NumMouseAxes)
-        CONTROL_HandleAxisFunction(p1, CONTROL_MouseAxes, CONTROL_MouseAxesMap, CONTROL_NumMouseAxes);
-
     if (CONTROL_NumJoyAxes)
     {
         if (CONTROL_HandleAxisFunction(p1, CONTROL_JoyAxes, CONTROL_JoyAxesMap, CONTROL_NumJoyAxes))
@@ -960,7 +879,6 @@ bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ti
 
     KB_Startup();
 
-    CONTROL_NumMouseAxes    = MAXMOUSEAXES;
     CONTROL_NumMouseButtons = MAXMOUSEBUTTONS;
     CONTROL_MousePresent    = Mouse_Init();
     CONTROL_MouseEnabled    = CONTROL_MousePresent;

@@ -69,11 +69,6 @@ extern "C" {
 
 //#define MAXMOUSEBUTTONS 10
 
-// Number of Mouse Axes
-// KEEPINSYNC duke3d/src/gamedefs.h, build/src/sdlayer.cpp
-#define MAXMOUSEAXES 2
-#define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
-
 // Number of JOY buttons
 // KEEPINSYNC duke3d/src/gamedefs.h, build/src/sdlayer.cpp
 #define MAXJOYBUTTONS 32
