@@ -4273,6 +4273,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
         newrendermode = videoGetRenderMode();
         newfullscreen = fullscreen;
         newvsync = vsync;
+        newborderless = r_borderless;
         break;
 
     case MENU_ADVSOUND:
