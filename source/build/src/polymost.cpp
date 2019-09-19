@@ -5296,7 +5296,7 @@ void polymost_drawrooms()
     videoEndDrawing();
 }
 
-void (int32_t damaskwallcnt)
+void polymost_drawmaskwall(int32_t damaskwallcnt)
 {
     int const z = maskwall[damaskwallcnt];
     uwalltype const * const wal = (uwalltype *)&wall[thewall[z]], *wal2 = (uwalltype *)&wall[wal->point2];
