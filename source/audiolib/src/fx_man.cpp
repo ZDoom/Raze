@@ -135,9 +135,9 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
 }
 
 int32_t FX_Play(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
-                          int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, uint32_t callbackval)
+                          int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
 {
-    static int32_t(*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, float, uint32_t) =
+    static int32_t(*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, float, intptr_t) =
     { NULL, NULL, MV_PlayVOC, MV_PlayWAV, MV_PlayVorbis, MV_PlayFLAC, MV_PlayXA, MV_PlayXMP };
 
     EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
@@ -157,9 +157,9 @@ int32_t FX_Play(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopen
 }
 
 int32_t FX_Play3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
-                      int32_t priority, float volume, uint32_t callbackval)
+                      int32_t priority, float volume, intptr_t callbackval)
 {
-    static int32_t (*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, float, uint32_t) =
+    static int32_t (*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, float, intptr_t) =
     { NULL, NULL, MV_PlayVOC3D, MV_PlayWAV3D, MV_PlayVorbis3D, MV_PlayFLAC3D, MV_PlayXA3D, MV_PlayXMP3D };
 
     EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
@@ -168,6 +168,34 @@ int32_t FX_Play3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitcho
 
     int handle =
     (func[fmt]) ? func[fmt](ptr, ptrlength, loophow, pitchoffset, angle, distance, priority, volume, callbackval) : -1;
+
+    if (handle <= MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
+
+    return handle;
+}
+
+int32_t FX_PlayRaw(char *ptr, uint32_t ptrlength, int32_t rate, int32_t pitchoffset, int32_t vol,
+    int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
+{
+    int handle = MV_PlayRAW(ptr, ptrlength, rate, NULL, NULL, pitchoffset, vol, left, right, priority, volume, callbackval);
+
+    if (handle <= MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
+
+    return handle;
+}
+
+int32_t FX_PlayLoopedRaw(char *ptr, uint32_t ptrlength, char *loopstart, char *loopend, int32_t rate,
+    int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
+{
+    int handle = MV_PlayRAW(ptr, ptrlength, rate, loopstart, loopend, pitchoffset, vol, left, right, priority, volume, callbackval);
 
     if (handle <= MV_Ok)
     {

@@ -372,7 +372,7 @@ Begin playback of sound data at specified angle and distance
 from listener.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayFLAC3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority, float volume, uint32_t callbackval)
+int32_t MV_PlayFLAC3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority, float volume, intptr_t callbackval)
 {
     int32_t left;
     int32_t right;
@@ -414,7 +414,7 @@ Begin playback of sound data with the given sound levels and
 priority.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, uint32_t callbackval)
+int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
 {
     VoiceNode *voice;
     flac_data *fd = 0;
@@ -657,7 +657,7 @@ void MV_ReleaseFLACVoice(VoiceNode *voice)
 #include "_multivc.h"
 
 int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
-    int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, uint32_t callbackval)
+    int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);
@@ -676,7 +676,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t lo
 }
 
 int32_t MV_PlayFLAC3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
-    int32_t distance, int32_t priority, float volume, uint32_t callbackval)
+    int32_t distance, int32_t priority, float volume, intptr_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);

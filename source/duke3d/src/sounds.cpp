@@ -921,9 +921,9 @@ void S_Update(void)
 
 // S_Callback() can be called from either the audio thread when a sound ends, or the main thread
 // when playing back a new sound needs an existing sound to be stopped first
-void S_Callback(uint32_t num)
+void S_Callback(intptr_t num)
 {
-    if ((int32_t)num == MUSIC_ID)
+    if (num == MUSIC_ID)
         return;
 
     mutex_lock(&m_callback);

@@ -82,7 +82,7 @@ static VoiceNode VoicePool;
 static int32_t MV_MixPage = 0;
 
 void (*MV_Printf)(const char *fmt, ...) = NULL;
-static void (*MV_CallBackFunc)(uint32_t) = NULL;
+static void (*MV_CallBackFunc)(intptr_t) = NULL;
 
 char *MV_MixDestination;
 const int16_t *MV_LeftVolume;
@@ -137,7 +137,9 @@ const char *MV_ErrorString(int32_t ErrorNumber)
 
 static bool MV_Mix(VoiceNode *voice, int const buffer)
 {
-    if (voice->length == 0 && voice->GetSound(voice) != KeepPlaying)
+    /* cheap fix for a crash under 64-bit linux */
+    /*                            v  v  v  v    */
+    if (voice->length == 0 && (voice->GetSound == NULL || voice->GetSound(voice) != KeepPlaying))
         return false;
 
     int32_t length = MV_MIXBUFFERSIZE;
@@ -881,7 +883,7 @@ void MV_SetVolume(int32_t volume)
 
 int32_t MV_GetVolume(void) { return MV_TotalVolume; }
 
-void MV_SetCallBack(void (*function)(uint32_t)) { MV_CallBackFunc = function; }
+void MV_SetCallBack(void (*function)(intptr_t)) { MV_CallBackFunc = function; }
 
 void MV_SetReverseStereo(int32_t setting) { MV_ReverseStereo = setting; }
 

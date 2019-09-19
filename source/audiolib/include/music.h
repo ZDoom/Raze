@@ -53,6 +53,13 @@ typedef struct
    uint32_t  tick;
    } songposition;
 
+enum MIDI_Device
+{
+    MIDIDEVICE_NONE = -1,
+    MIDIDEVICE_MPU = 0,
+    MIDIDEVICE_OPL
+};
+
 #define MUSIC_LoopSong ( 1 == 1 )
 #define MUSIC_PlayOnce ( !MUSIC_LoopSong )
 

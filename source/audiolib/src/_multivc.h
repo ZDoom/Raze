@@ -146,7 +146,7 @@ typedef struct VoiceNode
     int32_t handle;
     int32_t priority;
 
-    uint32_t callbackval;
+    intptr_t callbackval;
 } VoiceNode;
 
 typedef struct
