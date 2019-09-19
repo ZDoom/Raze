@@ -102,19 +102,21 @@ void fullscreen_tint_gl_blood(void)
 
     polymost_useColorOnly(true);
     glColor4ub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
-    glBegin(GL_TRIANGLES);
-    glVertex2f(-2.5f, 1.f);
-    glVertex2f(2.5f, 1.f);
-    glVertex2f(.0f, -2.5f);
-    glEnd();
-    glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
-    glColor4ub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
-    glBegin(GL_TRIANGLES);
-    glVertex2f(-2.5f, 1.f);
-    glVertex2f(2.5f, 1.f);
-    glVertex2f(.0f, -2.5f);
-    glEnd();
-    glBlendEquation(GL_FUNC_ADD);
+	auto data = GLInterface.AllocVertices(3);
+	auto vt = data.second;
+	vt[0].Set(-2.5f, 1.f);
+	vt[1].Set(2.5f, 1.f);
+	vt[2].Set(.0f, -2.5f);
+	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
+	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+	glColor4ub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
+	data = GLInterface.AllocVertices(3);
+	vt = data.second;
+	vt[0].Set(-2.5f, 1.f);
+	vt[1].Set(2.5f, 1.f);
+	vt[2].Set(.0f, -2.5f);
+	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
+	glBlendEquation(GL_FUNC_ADD);
     glColor4ub(0,0,0,0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     polymost_useColorOnly(false);
@@ -207,7 +209,8 @@ void paletteLoadFromDisk(void)
         return;
     }
 
-    if ((fil = kopen4load("palette.dat", 0)) == buildvfs_kfd_invalid)
+	auto fil = kopen4load("palette.dat", 0);
+    if (fil) == buildvfs_kfd_invalid)
         return;
 
 

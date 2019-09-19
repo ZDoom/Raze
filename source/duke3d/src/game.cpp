@@ -5937,10 +5937,10 @@ static void G_Startup(void)
     if (g_modDir[0] != '/' && (cwd = buildvfs_getcwd(NULL, 0)))
     {
         buildvfs_chdir(g_modDir);
-        if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
+        if (artLoadFiles("tiles%03d.art", MAXCACHE1DSIZE) < 0)
         {
             buildvfs_chdir(cwd);
-            if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
+            if (artLoadFiles("tiles%03d.art", MAXCACHE1DSIZE) < 0)
                 G_GameExit("Failed loading art.");
         }
         buildvfs_chdir(cwd);
@@ -5948,7 +5948,7 @@ static void G_Startup(void)
         Bfree(cwd);
 #endif
     }
-    else if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
+    else if (artLoadFiles("tiles%03d.art",MAXCACHE1DSIZE) < 0)
         G_GameExit("Failed loading art.");
 
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
