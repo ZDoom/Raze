@@ -1,35 +1,35 @@
-#include "compat.h"
-#include "build.h"
-#include "exhumed.h"
-#include "typedefs.h"
-#include "player.h"
-#include "sequence.h"
 #include "menu.h"
-#include "names.h"
-#include "engine.h"
-#include "keyboard.h"
-#include "status.h"
-#include "random.h"
-#include "sound.h"
-#include "names.h"
-#include "init.h"
-#include "input.h"
-#include "gun.h"
-#include "view.h"
-#include "object.h"
-#include "light.h"
+
+#include "build.h"
 #include "cd.h"
 #include "cdaudio.h"
-#include <string>
+#include "compat.h"
+#include "engine.h"
+#include "exhumed.h"
+#include "gun.h"
+#include "init.h"
+#include "input.h"
+#include "keyboard.h"
+#include "light.h"
+#include "names.h"
+#include "object.h"
+#include "player.h"
+#include "random.h"
+#include "sequence.h"
+#include "sound.h"
+#include "status.h"
+#include "typedefs.h"
+#include "view.h"
 
 #include <assert.h>
+#include <string>
 
 #ifdef __WATCOMC__
 #include <stdlib.h>
 #endif
 
-#define kMaxSaveSlots		5
-#define kMaxSaveSlotChars	25
+#define kMaxSaveSlots 5
+#define kMaxSaveSlotChars 25
 
 GameStat GameStats;
 
@@ -38,11 +38,11 @@ short nCinemaSeen[30];
 // this might be static within the DoPlasma function?
 uint8_t plasmaBuffer[25600];
 
-uint8_t energytile[4356] = {0};
+uint8_t energytile[4356] = { 0 };
 
 uint8_t cinemapal[768];
-short nLeft[50] = {0};
-int line;
+short   nLeft[50] = { 0 };
+int     line;
 
 short SavePosition = -1;
 
@@ -54,23 +54,26 @@ unsigned int nSmokeRight;
 unsigned int nSmokeTop;
 unsigned int nSmokeLeft;
 
-unsigned int nRandom = 0x41C6167E;
-int dword_9AB57 = 0x1F;
-short word_9AB5B = 0;
+unsigned int nRandom     = 0x41C6167E;
+int          dword_9AB57 = 0x1F;
+short        word_9AB5B  = 0;
 
 int keytimer = 0;
 
-int plasma_A[5] = {0};
-int plasma_B[5] = {0};
-int plasma_C[5] = {0};
+int plasma_A[5] = { 0 };
+int plasma_B[5] = { 0 };
+int plasma_C[5] = { 0 };
 
-short nMenuKeys[] = { sc_N, sc_L, sc_M, sc_V, sc_Q, sc_None }; // select a menu item using the keys. 'N' for New Gane, 'V' for voume etc. 'M' picks Training for some reason...
+short nMenuKeys[] = {
+    sc_N, sc_L, sc_M, sc_V, sc_Q, sc_None
+};  // select a menu item using the keys. 'N' for New Gane, 'V' for voume etc. 'M' picks Training for some reason...
 
 int zoomsize = 0;
 
 void menu_ResetKeyTimer();
 
-enum {
+enum
+{
     kMenuNewGame = 0,
     kMenuLoadGame,
     kMenuTraining,
@@ -80,16 +83,13 @@ enum {
 };
 
 
-void ClearCinemaSeen()
-{
-    memset(nCinemaSeen, 0, sizeof(nCinemaSeen));
-}
+void ClearCinemaSeen() { memset(nCinemaSeen, 0, sizeof(nCinemaSeen)); }
 
 unsigned int menu_RandomBit2()
 {
     unsigned int result = nRandom & 1;
 
-    if ( --dword_9AB57 > 0 )
+    if (--dword_9AB57 > 0)
     {
         nRandom = (result << 31) | (nRandom >> 1);
     }
@@ -115,10 +115,7 @@ int menu_RandomLong2()
     return randLong;
 }
 
-void InitEnergyTile()
-{
-    memset(energytile, 96, sizeof(energytile));
-}
+void InitEnergyTile() { memset(energytile, 96, sizeof(energytile)); }
 
 void DoEnergyTile()
 {
@@ -127,8 +124,8 @@ void DoEnergyTile()
 
     nButtonColor += nButtonColor < 0 ? 8 : 0;
 
-    uint8_t *ptr1 = (uint8_t*)(waloff[kEnergy1] + 1984);
-    uint8_t *ptr2 = (uint8_t*)(waloff[kEnergy1] + 2048);
+    uint8_t *ptr1 = (uint8_t *)(waloff[kEnergy1] + 1984);
+    uint8_t *ptr2 = (uint8_t *)(waloff[kEnergy1] + 2048);
 
     short nColor = nButtonColor + 161;
 
@@ -143,16 +140,17 @@ void DoEnergyTile()
         ptr2 += 64;
 
         nColor++;
-        
-        if (nColor >= 168) {
+
+        if (nColor >= 168)
+        {
             nColor = 160;
         }
     }
 
     if (nSmokeSparks)
     {
-        uint8_t *c = &energytile[67]; // TODO - checkme
-        uint8_t *ptrW = (uint8_t*)waloff[kEnergy2];
+        uint8_t *c    = &energytile[67];  // TODO - checkme
+        uint8_t *ptrW = (uint8_t *)waloff[kEnergy2];
 
         for (i = 0; i < 64; i++)
         {
@@ -160,17 +158,20 @@ void DoEnergyTile()
             {
                 if (*c != 96)
                 {
-                    if (*c <= 158) {
+                    if (*c <= 158)
+                    {
                         *ptrW = 96;
                     }
-                    else {
+                    else
+                    {
                         *ptrW = (*c) - 1;
                     }
                     //continue;
                 }
                 else
                 {
-                    if (menu_RandomBit2()) {
+                    if (menu_RandomBit2())
+                    {
                         *ptrW = *c;
                         c++;
                         ptrW++;
@@ -180,47 +181,55 @@ void DoEnergyTile()
                     char al = *(c + 1);
                     char ah = *(c - 1);
 
-                    if (al <= ah) {
+                    if (al <= ah)
+                    {
                         al = ah;
                     }
 
                     char cl = al;
-                    al = *(c - 66);
+                    al      = *(c - 66);
 
-                    if (cl <= al) {
+                    if (cl <= al)
+                    {
                         cl = al;
                     }
 
                     al = *(c + 66);
-                    if (cl <= al) {
+                    if (cl <= al)
+                    {
                         cl = al;
                     }
 
                     al = *(c + 66);
-                    if (cl <= al) {
+                    if (cl <= al)
+                    {
                         cl = al;
                     }
 
                     al = *(c + 66);
-                    if (cl <= al) {
+                    if (cl <= al)
+                    {
                         cl = al;
                     }
 
                     al = *(c - 65);
-                    if (cl <= al) {
+                    if (cl <= al)
+                    {
                         cl = al;
                     }
 
                     al = *(c - 67);
-                    if (cl > al) {
+                    if (cl > al)
+                    {
                         al = cl;
                     }
 
-                    if (al <= 159) {
+                    if (al <= 159)
+                    {
                         *ptrW = 96;
                         //continue;
                     }
-                    else 
+                    else
                     {
                         if (!menu_RandomBit2())
                         {
@@ -238,8 +247,8 @@ void DoEnergyTile()
             c += 2;
         }
 
-        c = &energytile[67]; // TODO - checkme
-        ptrW = (uint8_t*)waloff[kEnergy2];
+        c    = &energytile[67];  // TODO - checkme
+        ptrW = (uint8_t *)waloff[kEnergy2];
 
         for (i = 0; i < 64; i++)
         {
@@ -248,15 +257,16 @@ void DoEnergyTile()
             ptrW += 64;
         }
 
-        ptrW = (uint8_t*)waloff[kEnergy2];
-        
+        ptrW = (uint8_t *)waloff[kEnergy2];
+
         for (i = 0; i < 4096; i++)
         {
-            if (*ptrW == 96) {
-                *ptrW = 255; // -1?
+            if (*ptrW == 96)
+            {
+                *ptrW = 255;  // -1?
             }
-            
-            ptrW ++;
+
+            ptrW++;
         }
 
         word_9AB5B--;
@@ -271,7 +281,7 @@ void DoEnergyTile()
             val += randSize2;
 
             energytile[val] = 195;
-            word_9AB5B = 1;
+            word_9AB5B      = 1;
         }
     }
 }
@@ -279,8 +289,8 @@ void DoEnergyTile()
 //int TILE_4092 = kTile4092;
 int nPlasmaTile = kTile4092;
 
-#define kPlasmaWidth	320
-#define kPlasmaHeight	80
+#define kPlasmaWidth 320
+#define kPlasmaHeight 80
 
 void menu_DoPlasma()
 {
@@ -288,12 +298,12 @@ void menu_DoPlasma()
     {
         tileCreate(kTile4092, kPlasmaWidth, kPlasmaHeight);
 
-        memset((void*)waloff[kTile4092], 96, kPlasmaWidth*kPlasmaHeight);
+        memset((void *)waloff[kTile4092], 96, kPlasmaWidth * kPlasmaHeight);
 
         waloff[kTile4093] = (intptr_t)plasmaBuffer;
         memset(plasmaBuffer, 96, sizeof(plasmaBuffer));
 
-        nSmokeLeft = 160 - tilesiz[kExhumedLogo].x / 2;
+        nSmokeLeft  = 160 - tilesiz[kExhumedLogo].x / 2;
         nSmokeRight = nSmokeLeft + tilesiz[kExhumedLogo].x;
 
         tilesiz[kTile4093].x = kPlasmaWidth;
@@ -313,7 +323,7 @@ void menu_DoPlasma()
             plasma_C[i] = (nSmokeLeft + rand() % logoWidth) << 16;
             plasma_B[i] = (menu_RandomLong2() % 327680) + 0x10000;
 #else
-            int r = rand();
+            int r     = rand();
             int rand2 = menu_RandomLong2();
 
             __asm {
@@ -330,14 +340,16 @@ void menu_DoPlasma()
                 mov     plasma_C[ebx * 4], edx
                 xor     edx, edx
                 mov		eax, rand2
-//				call    menu_RandomLong2
+                    //				call    menu_RandomLong2
                 div     ecx
                 add     edx, 10000h
                 mov     plasma_B[ebx * 4], edx
-            };
+            }
+            ;
 #endif
 
-            if (menu_RandomBit2()) {
+            if (menu_RandomBit2())
+            {
                 plasma_B[i] = -plasma_B[i];
             }
 
@@ -347,29 +359,32 @@ void menu_DoPlasma()
 
     videoClearScreen(overscanindex);
 
-    uint8_t *r_ebx = (uint8_t*)waloff[nPlasmaTile] + 81;
-    uint8_t *r_edx = (uint8_t*)waloff[nPlasmaTile ^ 1] + 81; // flip between value of 4092 and 4093 with xor
+    uint8_t *r_ebx = (uint8_t *)waloff[nPlasmaTile] + 81;
+    uint8_t *r_edx = (uint8_t *)waloff[nPlasmaTile ^ 1] + 81;  // flip between value of 4092 and 4093 with xor
 
     for (int x = 0; x < kPlasmaWidth - 2; x++)
-//	for (int x = 1; x < 318; x++)
+    //	for (int x = 1; x < 318; x++)
     {
-//		for (int y = 1; y < 79; y++)
+        //		for (int y = 1; y < 79; y++)
         for (int y = 0; y < kPlasmaHeight - 2; y++)
         {
             uint8_t al = *r_edx;
 
             if (al != 96)
             {
-                if (al > 158) {
+                if (al > 158)
+                {
                     *r_ebx = al - 1;
                 }
-                else {
+                else
+                {
                     *r_ebx = 96;
                 }
             }
             else
             {
-                if (menu_RandomBit2()) {
+                if (menu_RandomBit2())
+                {
                     *r_ebx = *r_edx;
                 }
                 else
@@ -377,49 +392,58 @@ void menu_DoPlasma()
                     uint8_t al = *(r_edx + 1);
                     uint8_t cl = *(r_edx - 1);
 
-                    if (al <= cl) {
+                    if (al <= cl)
+                    {
                         al = cl;
                     }
 
                     cl = al;
                     al = *(r_edx - 80);
-                    if (cl <= al) {
+                    if (cl <= al)
+                    {
                         cl = al;
                     }
 
                     al = *(r_edx + 80);
-                    if (cl <= al) {
+                    if (cl <= al)
+                    {
                         cl = al;
                     }
 
                     al = *(r_edx + 80);
-                    if (cl <= al) {
+                    if (cl <= al)
+                    {
                         cl = al;
                     }
 
                     al = *(r_edx + 80);
-                    if (cl <= al) {
+                    if (cl <= al)
+                    {
                         cl = al;
                     }
 
                     al = *(r_edx - 79);
-                    if (cl > al) {
+                    if (cl > al)
+                    {
                         al = cl;
                     }
 
                     cl = *(r_edx - 81);
-                    if (al <= cl) {
+                    if (al <= cl)
+                    {
                         al = cl;
                     }
 
                     cl = al;
 
-                    if (al <= 159) {
+                    if (al <= 159)
+                    {
                         *r_ebx = 96;
                     }
                     else
                     {
-                        if (!menu_RandomBit2()) {
+                        if (!menu_RandomBit2())
+                        {
                             cl--;
                         }
 
@@ -442,24 +466,24 @@ void menu_DoPlasma()
 
     for (int j = 0; j < 5; j++)
     {
-        int pB = plasma_B[j];
-        int pC = plasma_C[j];
-        int badOffset =  (pC>>16) < nSmokeLeft || (pC>>16) >= nSmokeRight;
+        int pB        = plasma_B[j];
+        int pC        = plasma_C[j];
+        int badOffset = (pC >> 16) < nSmokeLeft || (pC >> 16) >= nSmokeRight;
 
-        uint8_t *ptr3 = (uint8_t*)(waloff[kExhumedLogo] + ((pC >> 16) - nSmokeLeft) * tilesiz[kExhumedLogo].y);
+        uint8_t *ptr3 = (uint8_t *)(waloff[kExhumedLogo] + ((pC >> 16) - nSmokeLeft) * tilesiz[kExhumedLogo].y);
 
         plasma_C[j] += plasma_B[j];
 
         if ((pB > 0 && (plasma_C[j] >> 16) >= nSmokeRight) || (pB < 0 && (plasma_C[j] >> 16) <= nSmokeLeft))
         {
-            int esi = plasma_A[j];
+            int esi     = plasma_A[j];
             plasma_B[j] = -plasma_B[j];
             plasma_A[j] = esi == 0;
         }
 
         if (badOffset)
             continue;
-        
+
         unsigned int nSmokeOffset = 0;
 
         if (plasma_A[j])
@@ -469,10 +493,11 @@ void menu_DoPlasma()
             while (nSmokeOffset < nSmokeBottom)
             {
                 uint8_t al = *ptr3;
-                if (al != 255 && al != 96) {
+                if (al != 255 && al != 96)
+                {
                     break;
                 }
-                
+
                 nSmokeOffset++;
                 ptr3++;
             }
@@ -486,7 +511,8 @@ void menu_DoPlasma()
             while (nSmokeOffset > nSmokeTop)
             {
                 uint8_t al = *ptr3;
-                if (al != 255 && al != 96) {
+                if (al != 255 && al != 96)
+                {
                     break;
                 }
 
@@ -495,32 +521,35 @@ void menu_DoPlasma()
             }
         }
 
-        uint8_t *v28 = (uint8_t*)(80 * (plasma_C[j] >> 16) + waloff[nPlasmaTile]);
+        uint8_t *v28      = (uint8_t *)(80 * (plasma_C[j] >> 16) + waloff[nPlasmaTile]);
         v28[nSmokeOffset] = 175;
     }
 
-    tileInvalidate(nPlasmaTile,-1,-1);
+    tileInvalidate(nPlasmaTile, -1, -1);
 
-    overwritesprite(0,   0,  nPlasmaTile,  0, 2, kPalNormal);
+    overwritesprite(0, 0, nPlasmaTile, 0, 2, kPalNormal);
     overwritesprite(160, 40, kExhumedLogo, 0, 3, kPalNormal);
-    
+
     // flip between tile 4092 and 4093
-    if (nPlasmaTile == kTile4092) {
+    if (nPlasmaTile == kTile4092)
+    {
         nPlasmaTile = kTile4093;
     }
-    else if (nPlasmaTile == kTile4093) {
+    else if (nPlasmaTile == kTile4093)
+    {
         nPlasmaTile = kTile4092;
     }
 
     // draw the fire urn/lamp thingies
-    int dword_9AB5F = ((int)totalclock/16) & 3;
+    int dword_9AB5F = ((int)totalclock / 16) & 3;
 
-    overwritesprite(50,  150, kTile3512 + dword_9AB5F, 0, 3, kPalNormal);
+    overwritesprite(50, 150, kTile3512 + dword_9AB5F, 0, 3, kPalNormal);
     overwritesprite(270, 150, kTile3512 + ((dword_9AB5F + 2) & 3), 0, 3, kPalNormal);
 
     // TEMP
     int time = (int)totalclock + 4;
-    while ((int)totalclock < time) {
+    while ((int)totalclock < time)
+    {
         HandleAsync();
     }
 }
@@ -538,41 +567,29 @@ struct TILEFRAMEDEF
 // 22 bytes
 struct MapNamePlaque
 {
-    short xPos;
-    short yPos;
+    short        xPos;
+    short        yPos;
     TILEFRAMEDEF tiles[2];
     TILEFRAMEDEF text;
 };
 
-MapNamePlaque mapNamePlaques[] = {
-    { 100, 170, 3376, 0, 0, 3377, 0, 0, 3411, 18, 6 },
-    { 230, 10,  3378, 0, 0, 3379, 0, 0, 3414, 18, 6 }, // DENDUR (level 2)
-    { 180, 125, 3380, 0, 0, 3381, 0, 0, 3417, 18, 6 }, // Kalabash
-    { 10,  95,  3382, 0, 0, 3383, 0, 0, 3420, 18, 6 },
-    { 210, 160, 3384, 0, 0, 3385, 0, 0, 3423, 18, 6 },
-    { 10,  110, 3371, 0, 0, 3386, 0, 0, 3426, 18, 6 },
-    { 10,  50,  3387, 0, 0, 3388, 0, 0, 3429, 18, 6 },
-    { 140, 0,   3389, 0, 0, 3390, 0, 0, 3432, 18, 6 },
-    { 30,  20,  3391, 0, 0, 3392, 0, 0, 3435, 18, 6 },
-    { 200, 150, 3409, 0, 0, 3410, 0, 0, 3418, 20, 4 },
-    { 145, 170, 3393, 0, 0, 3394, 0, 0, 3438, 18, 6 },
-    { 80,  80,  3395, 0, 0, 3396, 0, 0, 3441, 18, 6 },
-    { 15,  0,   3397, 0, 0, 3398, 0, 0, 3444, 18, 5 },
-    { 220, 35,  3399, 0, 0, 3400, 0, 0, 3447, 18, 6 },
-    { 190, 40,  3401, 0, 0, 3402, 0, 0, 3450, 18, 6 },
-    { 20,  130, 3403, 0, 0, 3404, 0, 0, 3453, 19, 6 },
-    { 220, 160, 3405, 0, 0, 3406, 0, 0, 3456, 18, 6 },
-    { 20,  10,  3407, 0, 0, 3408, 0, 0, 3459, 18, 6 },
-    { 200, 10,  3412, 0, 0, 3413, 0, 0, 3419, 18, 5 },
-    { 20,  10,  3415, 0, 0, 3416, 0, 0, 3421, 19, 4 }
-};
+MapNamePlaque mapNamePlaques[]
+= { { 100, 170, 3376, 0, 0, 3377, 0, 0, 3411, 18, 6 }, { 230, 10, 3378, 0, 0, 3379, 0, 0, 3414, 18, 6 },  // DENDUR (level 2)
+    { 180, 125, 3380, 0, 0, 3381, 0, 0, 3417, 18, 6 },                                                    // Kalabash
+    { 10, 95, 3382, 0, 0, 3383, 0, 0, 3420, 18, 6 },   { 210, 160, 3384, 0, 0, 3385, 0, 0, 3423, 18, 6 },
+    { 10, 110, 3371, 0, 0, 3386, 0, 0, 3426, 18, 6 },  { 10, 50, 3387, 0, 0, 3388, 0, 0, 3429, 18, 6 },
+    { 140, 0, 3389, 0, 0, 3390, 0, 0, 3432, 18, 6 },   { 30, 20, 3391, 0, 0, 3392, 0, 0, 3435, 18, 6 },
+    { 200, 150, 3409, 0, 0, 3410, 0, 0, 3418, 20, 4 }, { 145, 170, 3393, 0, 0, 3394, 0, 0, 3438, 18, 6 },
+    { 80, 80, 3395, 0, 0, 3396, 0, 0, 3441, 18, 6 },   { 15, 0, 3397, 0, 0, 3398, 0, 0, 3444, 18, 5 },
+    { 220, 35, 3399, 0, 0, 3400, 0, 0, 3447, 18, 6 },  { 190, 40, 3401, 0, 0, 3402, 0, 0, 3450, 18, 6 },
+    { 20, 130, 3403, 0, 0, 3404, 0, 0, 3453, 19, 6 },  { 220, 160, 3405, 0, 0, 3406, 0, 0, 3456, 18, 6 },
+    { 20, 10, 3407, 0, 0, 3408, 0, 0, 3459, 18, 6 },   { 200, 10, 3412, 0, 0, 3413, 0, 0, 3419, 18, 5 },
+    { 20, 10, 3415, 0, 0, 3416, 0, 0, 3421, 19, 4 } };
 
 // 3 different types of fire, each with 4 frames
-TILEFRAMEDEF FireTiles[3][4] = {
-    {{ 3484,0,3 },{ 3485,0,0 },{ 3486,0,3 },{ 3487,0,0 }},
-    {{ 3488,1,0 },{ 3489,1,0 },{ 3490,0,1 },{ 3491,1,1 }},
-    {{ 3492,1,2 },{ 3493,1,0 },{ 3494,1,2 },{ 3495,1,0 }}
-};
+TILEFRAMEDEF FireTiles[3][4] = { { { 3484, 0, 3 }, { 3485, 0, 0 }, { 3486, 0, 3 }, { 3487, 0, 0 } },
+                                 { { 3488, 1, 0 }, { 3489, 1, 0 }, { 3490, 0, 1 }, { 3491, 1, 1 } },
+                                 { { 3492, 1, 2 }, { 3493, 1, 0 }, { 3494, 1, 2 }, { 3495, 1, 0 } } };
 
 struct Fire
 {
@@ -585,7 +602,7 @@ struct Fire
 struct MapFire
 {
     short nFires;
-    Fire fires[3];
+    Fire  fires[3];
 };
 
 /*
@@ -595,35 +612,23 @@ struct MapFire
 
 */
 
-MapFire MapLevelFires[] = {
-    3, {{0, 107, 95}, {1, 58,  140}, {2, 28,   38}},
-    3, {{2, 240,  0}, {0, 237,  32}, {1, 200,  30}},
-    2, {{2, 250, 57}, {0, 250,  43}, {2, 200,  70}},
-    2, {{1, 82,  59}, {2, 84,   16}, {0, 10,   95}},
-    2, {{2, 237, 50}, {1, 215,  42}, {1, 210,  50}},
-    3, {{0, 40,   7}, {1, 75,    6}, {2, 100,  10}},
-    3, {{0, 58,  61}, {1, 85,   80}, {2, 111,  63}},
-    3, {{0, 260, 65}, {1, 228,   0}, {2, 259,  15}},
-    2, {{0, 81,  38}, {2, 58,   38}, {2, 30,   20}},
-    3, {{0, 259, 49}, {1, 248,  76}, {2, 290,  65}},
-    3, {{2, 227, 66}, {0, 224,  98}, {1, 277,  30}},
-    2, {{0, 100, 10}, {2, 48,   76}, {2, 80,   80}},
-    3, {{0, 17,   2}, {1, 29,   49}, {2, 53,   28}},
-    3, {{0, 266, 42}, {1, 283,  99}, {2, 243, 108}},
-    2, {{0, 238, 19}, {2, 240,  92}, {2, 190,  40}},
-    2, {{0, 27,   0}, {1, 70,   40}, {0, 20,  130}},
-    3, {{0, 275, 65}, {1, 235,   8}, {2, 274,   6}},
-    3, {{0, 75,  45}, {1, 152, 105}, {2, 24,   68}},
-    3, {{0, 290, 25}, {1, 225,  63}, {2, 260, 110}},
-    0, {{1, 20,  10}, {1, 20,   10}, {1, 20,   10}}
-};
+MapFire MapLevelFires[] = { 3, { { 0, 107, 95 }, { 1, 58, 140 }, { 2, 28, 38 } },   3, { { 2, 240, 0 }, { 0, 237, 32 }, { 1, 200, 30 } },
+                            2, { { 2, 250, 57 }, { 0, 250, 43 }, { 2, 200, 70 } },  2, { { 1, 82, 59 }, { 2, 84, 16 }, { 0, 10, 95 } },
+                            2, { { 2, 237, 50 }, { 1, 215, 42 }, { 1, 210, 50 } },  3, { { 0, 40, 7 }, { 1, 75, 6 }, { 2, 100, 10 } },
+                            3, { { 0, 58, 61 }, { 1, 85, 80 }, { 2, 111, 63 } },    3, { { 0, 260, 65 }, { 1, 228, 0 }, { 2, 259, 15 } },
+                            2, { { 0, 81, 38 }, { 2, 58, 38 }, { 2, 30, 20 } },     3, { { 0, 259, 49 }, { 1, 248, 76 }, { 2, 290, 65 } },
+                            3, { { 2, 227, 66 }, { 0, 224, 98 }, { 1, 277, 30 } },  2, { { 0, 100, 10 }, { 2, 48, 76 }, { 2, 80, 80 } },
+                            3, { { 0, 17, 2 }, { 1, 29, 49 }, { 2, 53, 28 } },      3, { { 0, 266, 42 }, { 1, 283, 99 }, { 2, 243, 108 } },
+                            2, { { 0, 238, 19 }, { 2, 240, 92 }, { 2, 190, 40 } },  2, { { 0, 27, 0 }, { 1, 70, 40 }, { 0, 20, 130 } },
+                            3, { { 0, 275, 65 }, { 1, 235, 8 }, { 2, 274, 6 } },    3, { { 0, 75, 45 }, { 1, 152, 105 }, { 2, 24, 68 } },
+                            3, { { 0, 290, 25 }, { 1, 225, 63 }, { 2, 260, 110 } }, 0, { { 1, 20, 10 }, { 1, 20, 10 }, { 1, 20, 10 } } };
 
 int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 {
     int i;
-    int x = 0;
-    int var_2C = 0;
-    int var_38 = 0;
+    int x         = 0;
+    int var_2C    = 0;
+    int var_38    = 0;
     int bFadeDone = kFalse;
 
     int startTime = (int)totalclock;
@@ -637,30 +642,36 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     nLevelNew--;
     nLevelBest--;
 
-    if (nLevel > kMap20) { // max levels
+    if (nLevel > kMap20)
+    {  // max levels
         return -1;
     }
 
-    if (nLevelNew > kMap20) {
+    if (nLevelNew > kMap20)
+    {
         return -1;
     }
 
-    if (nLevel < 0) {
+    if (nLevel < 0)
+    {
         nLevel = 0;
     }
 
-    if (nLevelNew < 0) {
+    if (nLevelNew < 0)
+    {
         nLevelNew = nLevel;
     }
 
     int y1 = MapDataArray_A[nLevel] + (200 * (nLevel / 2));
     int y2 = MapDataArray_A[nLevelNew] + (200 * (nLevelNew / 2));
 
-    if (y1 < y2) {
+    if (y1 < y2)
+    {
         var_2C = 2;
     }
 
-    if (y1 > y2) {
+    if (y1 > y2)
+    {
         var_2C = -2;
     }
 
@@ -690,7 +701,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         {
             int screenY = (i >> 1) * -200;
 
-            if (nLevelBest >= i) // check if the player has finished this level
+            if (nLevelBest >= i)  // check if the player has finished this level
             {
                 for (int j = 0; j < MapLevelFires[i].nFires; j++)
                 {
@@ -700,7 +711,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                     int nFireType = MapLevelFires[i].fires[j].nFireType;
                     assert(nFireType >= 0 && nFireType < 3);
 
-                    int nTile = FireTiles[nFireType][nFireFrame].nTile;
+                    int nTile  = FireTiles[nFireType][nFireFrame].nTile;
                     int smokeX = MapLevelFires[i].fires[j].xPos + FireTiles[nFireType][nFireFrame].xOffs;
                     int smokeY = MapLevelFires[i].fires[j].yPos + FireTiles[nFireType][nFireFrame].yOffs + y1 + screenY;
 
@@ -731,7 +742,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
             int textY = mapNamePlaques[i].yPos + mapNamePlaques[i].text.yOffs + y1 + screenY;
             int textX = mapNamePlaques[i].xPos + mapNamePlaques[i].text.xOffs;
-            nTile = mapNamePlaques[i].text.nTile;
+            nTile     = mapNamePlaques[i].text.nTile;
 
             // draw the text, alternating between red and black
             overwritesprite(textX, textY, nTile, shade, 2, kPalNormal);
@@ -757,14 +768,16 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
                     y2 = MapDataArray_A[nLevelNew] + (200 * (nLevelNew / 2));
 
-                    if (y1 <= y2) {
+                    if (y1 <= y2)
+                    {
                         var_2C = 2;
                     }
-                    else {
+                    else
+                    {
                         var_2C = -2;
                     }
 
-                    var_38 = 0;	
+                    var_38 = 0;
                 }
             }
 
@@ -778,10 +791,12 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
                     y2 = MapDataArray_A[nLevelNew] + (200 * (nLevelNew / 2));
 
-                    if (y1 <= y2) {
+                    if (y1 <= y2)
+                    {
                         var_2C = 2;
                     }
-                    else {
+                    else
+                    {
                         var_2C = -2;
                     }
 
@@ -803,7 +818,8 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
             if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Space] || KB_KeyDown[sc_Return])
             {
-                if (var_2C < 8) {
+                if (var_2C < 8)
+                {
                     var_2C *= 2;
                 }
 
@@ -812,11 +828,13 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 KB_KeyDown[sc_Space]  = 0;
             }
 
-            if (y1 > y2 && var_2C > 0) {
+            if (y1 > y2 && var_2C > 0)
+            {
                 y1 = y2;
             }
 
-            if (y1 < y2 && var_2C < 0) {
+            if (y1 < y2 && var_2C < 0)
+            {
                 y1 = y2;
             }
 
@@ -831,7 +849,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 void menu_AdjustVolume()
 {
     int nOption = 1;
-    int var_8 = 0;
+    int var_8   = 0;
 
     while (1)
     {
@@ -842,28 +860,21 @@ void menu_AdjustVolume()
         overwritesprite(80, 50, kMenuMusicTile, (Sin((int)totalclock << 4) >> 9) * (nOption == 0), 2, kPalNormal);
         overwritesprite(55, 75, kMenuBlankTitleTile, 0, 2, kPalNormal);
 
-        seq_DrawGunSequence(
-            SeqOffsets[kSeqSlider], // eax
-            gMusicVolume % 3, // pick one of 3 frames?
-            (gMusicVolume >> 1) - 93, // ebx. must be x???
-            -22,
-            0,
-            0);
+        seq_DrawGunSequence(SeqOffsets[kSeqSlider],    // eax
+                            gMusicVolume % 3,          // pick one of 3 frames?
+                            (gMusicVolume >> 1) - 93,  // ebx. must be x???
+                            -22,
+                            0,
+                            0);
 
         overwritesprite(80, 110, kMenuSoundFxTile, (Sin((int)totalclock << 4) >> 9) * (nOption == 1), 2, kPalNormal);
         overwritesprite(55, 135, kMenuBlankTitleTile, 0, 2, kPalNormal);
 
-        seq_DrawGunSequence(
-            SeqOffsets[kSeqSlider], 
-            gFXVolume % 3, 
-            (gFXVolume / 2) - 93,
-            38,
-            0,
-            0);
+        seq_DrawGunSequence(SeqOffsets[kSeqSlider], gFXVolume % 3, (gFXVolume / 2) - 93, 38, 0, 0);
 
         int y = (60 * nOption) + 38;
 
-        overwritesprite(60,  y, kMenuCursorTile, 0, 2, kPalNormal);
+        overwritesprite(60, y, kMenuCursorTile, 0, 2, kPalNormal);
         overwritesprite(206, y, kMenuCursorTile, 0, 10, kPalNormal);
 
         videoNextPage();
@@ -899,7 +910,8 @@ void menu_AdjustVolume()
             KB_KeyDown[sc_DownArrow] = 0;
         }
 
-        if ((int)totalclock <= var_8) {
+        if ((int)totalclock <= var_8)
+        {
             continue;
         }
 
@@ -911,25 +923,29 @@ void menu_AdjustVolume()
             {
                 case 0:
                 {
-                    if (gMusicVolume > 3) {
+                    if (gMusicVolume > 3)
+                    {
                         gMusicVolume -= 4;
                     }
 
-// TODO				SetMusicVolume();
-// TODO				setCDaudiovolume(gMusicVolume);
+                    // TODO				SetMusicVolume();
+                    // TODO				setCDaudiovolume(gMusicVolume);
                     continue;
                 }
 
                 case 1:
                 {
-                    if (gFXVolume > 3) {
+                    if (gFXVolume > 3)
+                    {
                         gFXVolume -= 4;
                     }
 
-                    if (LocalSoundPlaying()) {
+                    if (LocalSoundPlaying())
+                    {
                         UpdateLocalSound();
                     }
-                    else {
+                    else
+                    {
                         PlayLocalSound(StaticSound[kSound23], 0);
                     }
                     continue;
@@ -943,25 +959,29 @@ void menu_AdjustVolume()
             {
                 case 0:
                 {
-                    if (gMusicVolume < 252) {
+                    if (gMusicVolume < 252)
+                    {
                         gMusicVolume += 4;
                     }
 
-// TODO				SetMusicVolume();
-// TODO				setCDaudiovolume(gMusicVolume);
+                    // TODO				SetMusicVolume();
+                    // TODO				setCDaudiovolume(gMusicVolume);
                     continue;
                 }
 
                 case 1:
                 {
-                    if (gFXVolume < 252) {
+                    if (gFXVolume < 252)
+                    {
                         gFXVolume += 4;
                     }
 
-                    if (LocalSoundPlaying()) {
+                    if (LocalSoundPlaying())
+                    {
                         UpdateLocalSound();
                     }
-                    else {
+                    else
+                    {
                         PlayLocalSound(StaticSound[kSound23], 0);
                     }
                     continue;
@@ -969,10 +989,12 @@ void menu_AdjustVolume()
             }
         }
 
-        if (GetLocalSound() != 23) {
+        if (GetLocalSound() != 23)
+        {
             continue;
         }
-        else {
+        else
+        {
             StopLocalSound();
         }
     }
@@ -981,10 +1003,10 @@ void menu_AdjustVolume()
 int menu_NewGameMenu()
 {
     const char endMark = 0xF;
-    char nameList[5][25];
-    int nNameLen = sizeof(nameList);
+    char       nameList[5][25];
+    int        nNameLen = sizeof(nameList);
 
-    int nNameOffset = 0; // char index into slot name string
+    int nNameOffset = 0;  // char index into slot name string
 
     //int nPages = numpages;
 
@@ -1002,7 +1024,7 @@ int menu_NewGameMenu()
         if (fp != NULL)
         {
             fwrite(nameList, nNameLen, 1, fp);
-            fwrite(&GameStats, 75, 1, fp); //fwrite(&GameStats, 75, 5, fp); // CHECKME! the size
+            fwrite(&GameStats, 75, 1, fp);  //fwrite(&GameStats, 75, 5, fp); // CHECKME! the size
             fwrite(&endMark, sizeof(endMark), 1, fp);
 
             fclose(fp);
@@ -1073,10 +1095,12 @@ int menu_NewGameMenu()
             if (KB_KeyDown[sc_UpArrow])
             {
                 PlayLocalSound(StaticSound[kSound35], 0);
-                if (nSlot <= 0) {
+                if (nSlot <= 0)
+                {
                     nSlot = 4;
                 }
-                else {
+                else
+                {
                     nSlot--;
                 }
 
@@ -1088,10 +1112,12 @@ int menu_NewGameMenu()
             if (KB_KeyDown[sc_DownArrow])
             {
                 PlayLocalSound(StaticSound[kSound35], 0);
-                if (nSlot >= 4) {
+                if (nSlot >= 4)
+                {
                     nSlot = 0;
                 }
-                else {
+                else
+                {
                     nSlot++;
                 }
 
@@ -1108,12 +1134,13 @@ int menu_NewGameMenu()
     }
 
     PlayLocalSound(StaticSound[kSound33], 0);
-    if (KB_KeyDown[sc_Return]) {
+    if (KB_KeyDown[sc_Return])
+    {
         ClearAllKeys();
     }
 
-    char *pName = nameList[nSlot];
-    int nNameLength = strlen(pName);
+    char *pName       = nameList[nSlot];
+    int   nNameLength = strlen(pName);
 
     memset(pName, 0, nNameLength);
 
@@ -1145,124 +1172,127 @@ int menu_NewGameMenu()
 
         char ch = 0;
 
-        while (KB_KeyWaiting())
+check_keys:
+        if (KB_KeyWaiting())
         {
             HandleAsync();
-
             ch = KB_GetCh();
-            if (!ch) {
-                KB_GetCh();
-                continue;
-            }
-        }
-
-        if (ch == asc_Enter)
-        {
-            // loc_39ACA:
-
-            nameList[nSlot][nNameOffset] = 0;
-
-            PlayLocalSound(StaticSound[kSound33], 0);
-            KB_KeyDown[sc_Return] = 0;
-
-            if (nameList[nSlot][0] == 0) {
-                return -1;
-            }
-
-            if (nNameLength) // does the save slot already exist?
+            if (!ch)
             {
-                menu_DoPlasma();
-                if (Query(2, 4, "Overwrite existing game?", "Y/N", 'Y', 13, 'N', 27) >= 2) {
+                KB_GetCh();
+                goto check_keys;
+            }
+
+			// handle key input
+            if (ch == asc_Enter)
+            {
+                // loc_39ACA:
+
+                nameList[nSlot][nNameOffset] = 0;
+
+                PlayLocalSound(StaticSound[kSound33], 0);
+                KB_KeyDown[sc_Return] = 0;
+
+                if (nameList[nSlot][0] == 0)
+                {
                     return -1;
                 }
-            }
 
-            FILE *fp = fopen("savgamea.sav", "rb+");
-            if (fp == NULL) {
-                return -1;
-            }
-
-            memset(&GameStats, 0, sizeof(GameStat));
-            GameStats.nWeapons = 1;
-            GameStats.nMap = 1;
-
-            fwrite(nameList, sizeof(nameList), 1, fp);
-            fseek(fp, sizeof(nameList), SEEK_SET);
-            fseek(fp, nSlot * sizeof(GameStat), SEEK_CUR);
-            fwrite(&GameStats, sizeof(GameStat), 1, fp);
-            fclose(fp);
-            return nSlot;
-        }
-        else
-        {
-            // Enter wasn't pressed
-            PlayLocalSound(4, 0); // ??
-
-            if (ch == asc_BackSpace)
-            {
-                nameList[nSlot][nNameOffset] = 0;
-
-                if (nNameOffset > 0) {
-                    nNameOffset--;
+                if (nNameLength)  // does the save slot already exist?
+                {
+                    menu_DoPlasma();
+                    if (Query(2, 4, "Overwrite existing game?", "Y/N", 'Y', 13, 'N', 27) >= 2)
+                    {
+                        return -1;
+                    }
                 }
 
-                nameList[nSlot][nNameOffset] = 0;
-            }
-            else if (ch == asc_Escape)
-            {
-                PlayLocalSound(StaticSound[kSound33], 0);
-                KB_ClearKeysDown();
-                KB_FlushKeyboardQueue();
-                KB_KeyDown[sc_Escape] = 0;
-                return -1;
-            }
-            else 
-            {
-                // check if a slot name is being typed
-                if ((ch >= '0' && ch <= '9')
-                ||  (ch >= 'A' && ch <= 'Z')
-                ||  (ch >= 'a' && ch <= 'z')
-                ||  (ch == ' '))	
+                FILE *fp = fopen("savgamea.sav", "rb+");
+                if (fp == NULL)
                 {
-                    ch = toupper(ch);
-                    if (nNameOffset < 24) // n chars per slot name
-                    {
-                        nameList[nSlot][nNameOffset] = ch;
-                        nNameOffset++;
-                        nameList[nSlot][nNameOffset] = '\0'; // null terminate in the new offset
+                    return -1;
+                }
 
-                        int nLen = MyGetStringWidth(nameList[nSlot]);
-                        if (nLen > arg_3E)
+                memset(&GameStats, 0, sizeof(GameStat));
+                GameStats.nWeapons = 1;
+                GameStats.nMap     = 1;
+
+                fwrite(nameList, sizeof(nameList), 1, fp);
+                fseek(fp, sizeof(nameList), SEEK_SET);
+                fseek(fp, nSlot * sizeof(GameStat), SEEK_CUR);
+                fwrite(&GameStats, sizeof(GameStat), 1, fp);
+                fclose(fp);
+                return nSlot;
+            }
+            else
+            {
+                // Enter wasn't pressed
+                PlayLocalSound(4, 0);  // ??
+
+                if (ch == asc_BackSpace)
+                {
+                    nameList[nSlot][nNameOffset] = 0;
+
+                    if (nNameOffset > 0)
+                    {
+                        nNameOffset--;
+                    }
+
+                    nameList[nSlot][nNameOffset] = 0;
+                }
+                else if (ch == asc_Escape)
+                {
+                    PlayLocalSound(StaticSound[kSound33], 0);
+                    KB_ClearKeysDown();
+                    KB_FlushKeyboardQueue();
+                    KB_KeyDown[sc_Escape] = 0;
+                    return -1;
+                }
+                else
+                {
+                    // check if a slot name is being typed
+                    if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch == ' '))
+                    {
+                        ch = toupper(ch);
+                        if (nNameOffset < 24)  // n chars per slot name
                         {
-                            nNameOffset--;
-                            nameList[nSlot][nNameOffset] = '\0';
+                            nameList[nSlot][nNameOffset] = ch;
+                            nNameOffset++;
+                            nameList[nSlot][nNameOffset] = '\0';  // null terminate in the new offset
+
+                            int nLen = MyGetStringWidth(nameList[nSlot]);
+                            if (nLen > arg_3E)
+                            {
+                                nNameOffset--;
+                                nameList[nSlot][nNameOffset] = '\0';
+                            }
                         }
                     }
                 }
             }
+        }
 
-            // loc_399FD:
-            menu_DoPlasma();
+        // loc_399FD:
+        menu_DoPlasma();
 
-            int arg_5E = ((int)totalclock / 30) & 1;
+        int arg_5E = ((int)totalclock / 30) & 1;
 
-            int y = 90;
-            int arg_42 = 98;
+        int y      = 90;
+        int arg_42 = 98;
 
-            for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
+        {
+            overwritesprite(55, y, kMenuBlankTitleTile, (i != nSlot) * 31, 2, kPalNormal);
+            int nTextWidth = myprintext(63, arg_42, nameList[i], 0);
+
+            // flash a full-stop to show the current typing position
+            if (arg_5E != 0 && nSlot == i)
             {
-                overwritesprite(55, y, kMenuBlankTitleTile, (i != nSlot) * 31, 2, kPalNormal);
-                int nTextWidth = myprintext(63, arg_42, nameList[i], 0);
-
-                // flash a full-stop to show the current typing position
-                if (arg_5E != 0 && nSlot == i)
-                {
-                    myprintext(nTextWidth, arg_42, ".", 0);
-                }
-
-                arg_42 += 22;
-                y += 22;
+                myprintext(nTextWidth, arg_42, ".", 0);
             }
+
+            arg_42 += 22;
+            y += 22;
         }
     }
 }
@@ -1293,8 +1323,8 @@ int menu_LoadGameMenu()
         overwritesprite(80, 65, kMenuLoadGameTile, 0, 2, kPalNormal);
 
         int spriteY = 90;
-        int textY = 98;
-        
+        int textY   = 98;
+
         for (int i = 0; i < kMaxSaveSlots; i++)
         {
             // TODO - shade flashing
@@ -1307,7 +1337,7 @@ int menu_LoadGameMenu()
 
         int y = (nSlot * 22) + 78;
 
-        overwritesprite(35,  y, kMenuCursorTile, 0, 2, kPalNormal);
+        overwritesprite(35, y, kMenuCursorTile, 0, 2, kPalNormal);
         overwritesprite(233, y, kMenuCursorTile, 0, 10, kPalNormal);
         videoNextPage();
 
@@ -1321,30 +1351,35 @@ int menu_LoadGameMenu()
         if (KB_KeyDown[sc_UpArrow])
         {
             PlayLocalSound(StaticSound[kSound35], 0);
-            if (nSlot > 0) {
+            if (nSlot > 0)
+            {
                 nSlot--;
             }
-            else {
+            else
+            {
                 nSlot = kMaxSaveSlots - 1;
             }
 
             KB_KeyDown[sc_UpArrow] = 0;
         }
 
-        if (KB_KeyDown[sc_DownArrow]) // checkme - is 0x5b in disassembly
+        if (KB_KeyDown[sc_DownArrow])  // checkme - is 0x5b in disassembly
         {
             PlayLocalSound(StaticSound[kSound35], 0);
-            if (nSlot < kMaxSaveSlots - 1) {
+            if (nSlot < kMaxSaveSlots - 1)
+            {
                 nSlot++;
             }
-            else {
+            else
+            {
                 nSlot = 0;
             }
 
             KB_KeyDown[sc_DownArrow] = 0;
         }
 
-        if (!KB_KeyDown[sc_Return]) {
+        if (!KB_KeyDown[sc_Return])
+        {
             continue;
         }
 
@@ -1363,10 +1398,7 @@ int menu_LoadGameMenu()
     }
 }
 
-void menu_ResetKeyTimer()
-{
-    keytimer = (int)totalclock + 2400;
-}
+void menu_ResetKeyTimer() { keytimer = (int)totalclock + 2400; }
 
 void menu_GameLoad2(FILE *fp)
 {
@@ -1375,10 +1407,11 @@ void menu_GameLoad2(FILE *fp)
     nPlayerWeapons[nLocalPlayer] = GameStats.nWeapons;
 
     PlayerList[nLocalPlayer].nCurrentWeapon = GameStats.nCurrentWeapon;
-    nPlayerClip[nLocalPlayer] = GameStats.clip;
+    nPlayerClip[nLocalPlayer]               = GameStats.clip;
 
     int nPistolBullets = PlayerList[nLocalPlayer].nAmmo[kWeaponPistol];
-    if (nPistolBullets >= 6) {
+    if (nPistolBullets >= 6)
+    {
         nPistolBullets = 6;
     }
 
@@ -1396,9 +1429,10 @@ void menu_GameLoad2(FILE *fp)
 short menu_GameLoad(int nSlot)
 {
     memset(&GameStats, 0, sizeof(GameStats));
-    
+
     FILE *fp = fopen("savegamea.sav", "rb");
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
         return 0;
     }
 
@@ -1415,12 +1449,12 @@ void menu_GameSave2(FILE *fp)
 {
     memset(&GameStats, 0, sizeof(GameStats));
 
-    GameStats.nMap = (uint8_t)levelnew;
-    GameStats.nWeapons = nPlayerWeapons[nLocalPlayer];
+    GameStats.nMap           = (uint8_t)levelnew;
+    GameStats.nWeapons       = nPlayerWeapons[nLocalPlayer];
     GameStats.nCurrentWeapon = PlayerList[nLocalPlayer].nCurrentWeapon;
-    GameStats.clip   = nPlayerClip[nLocalPlayer];
-    GameStats.items  = nPlayerItem[nLocalPlayer];
-    GameStats.nLives = nPlayerLives[nLocalPlayer];
+    GameStats.clip           = nPlayerClip[nLocalPlayer];
+    GameStats.items          = nPlayerItem[nLocalPlayer];
+    GameStats.nLives         = nPlayerLives[nLocalPlayer];
 
     memcpy(&GameStats.player, &PlayerList[nLocalPlayer], sizeof(GameStats.player));
 
@@ -1429,14 +1463,15 @@ void menu_GameSave2(FILE *fp)
 
 void menu_GameSave(int nSaveSlot)
 {
-    if (nSaveSlot < 0) {
+    if (nSaveSlot < 0)
+    {
         return;
     }
 
     FILE *fp = fopen("savgamea.sav", "rb+");
     if (fp != NULL)
     {
-        fseek(fp, 125, SEEK_SET); // skip save slot names
+        fseek(fp, 125, SEEK_SET);  // skip save slot names
         fseek(fp, sizeof(GameStat) * nSaveSlot, SEEK_CUR);
         menu_GameSave2(fp);
         fclose(fp);
@@ -1490,7 +1525,8 @@ int menu_Menu(int nVal)
         while (!ptr[nMenu])
         {
             nMenu++;
-            if (nMenu == 5) {
+            if (nMenu == 5)
+            {
                 nMenu = 0;
             }
         }
@@ -1499,13 +1535,15 @@ int menu_Menu(int nVal)
         if (zoomsize < 0x10000)
         {
             zoomsize += 4096;
-            if (zoomsize >= 0x10000) {
+            if (zoomsize >= 0x10000)
+            {
                 zoomsize = 0x10000;
             }
         }
 
         // menu idle timer
-        if (!nVal && (int)totalclock > keytimer) {
+        if (!nVal && (int)totalclock > keytimer)
+        {
             return 9;
         }
 
@@ -1519,13 +1557,16 @@ int menu_Menu(int nVal)
         {
             int8_t shade;
 
-            if (nMenu == j) { // currently selected menu item
+            if (nMenu == j)
+            {  // currently selected menu item
                 shade = Sin((int)totalclock << 4) >> 9;
             }
-            else if (ptr[j]) {
+            else if (ptr[j])
+            {
                 shade = 0;
             }
-            else {
+            else
+            {
                 shade = 25;
             }
 
@@ -1540,24 +1581,25 @@ int menu_Menu(int nVal)
         // tilesizy is 33
 
         int markerY = (22 * nMenu) + 53;
-        overwritesprite(62,       markerY, kMenuCursorTile, 0, 2, kPalNormal);
+        overwritesprite(62, markerY, kMenuCursorTile, 0, 2, kPalNormal);
         overwritesprite(62 + 146, markerY, kMenuCursorTile, 0, 10, kPalNormal);
 
         videoNextPage();
 
-        int l = 0; // edi
+        int l = 0;  // edi
 
         // ORANGE loop
-        for (l = 0; ; l++)
+        for (l = 0;; l++)
         {
             int nKey = nMenuKeys[l];
-            if (!nKey) {
+            if (!nKey)
+            {
                 break;
             }
 
             if (KB_KeyDown[nKey])
             {
-                goto LABEL_21; // TEMP
+                goto LABEL_21;  // TEMP
             }
         }
 
@@ -1578,7 +1620,7 @@ int menu_Menu(int nVal)
             }
 
             l = 4;
-LABEL_21:
+        LABEL_21:
 
             menu_ResetKeyTimer();
 
@@ -1586,7 +1628,7 @@ LABEL_21:
             {
                 PlayLocalSound(StaticSound[kSound35], 0);
                 KB_KeyDown[nMenuKeys[l]] = 0;
-                nMenu = l;
+                nMenu                    = l;
             }
         }
 
@@ -1600,18 +1642,20 @@ LABEL_21:
 
             PlayLocalSound(StaticSound[kSound33], 0);
 
-            switch (nMenu) // TODO - change var name?
+            switch (nMenu)  // TODO - change var name?
             {
                 case kMenuNewGame:
                 {
-                    if (nTotalPlayers > 1) {
+                    if (nTotalPlayers > 1)
+                    {
                         menu_ResetZoom();
                         menu_ResetKeyTimer();
                         break;
                     }
 
                     SavePosition = menu_NewGameMenu();
-                    if (SavePosition == -1) {
+                    if (SavePosition == -1)
+                    {
                         menu_ResetZoom();
                         menu_ResetKeyTimer();
                         break;
@@ -1628,7 +1672,8 @@ LABEL_21:
 
                 case kMenuLoadGame:
                 {
-                    if (nTotalPlayers > 1) {
+                    if (nTotalPlayers > 1)
+                    {
                         menu_ResetZoom();
                         menu_ResetKeyTimer();
                         break;
@@ -1646,7 +1691,8 @@ LABEL_21:
 
                 case kMenuTraining:
                 {
-                    if (nTotalPlayers > 1) {
+                    if (nTotalPlayers > 1)
+                    {
                         menu_ResetZoom();
                         menu_ResetKeyTimer();
                         break;
@@ -1675,7 +1721,7 @@ LABEL_21:
                     return 0;
                 }
 
-                default: 
+                default:
                     menu_ResetZoom();
                     menu_ResetKeyTimer();
                     break;
@@ -1685,10 +1731,12 @@ LABEL_21:
         if (KB_KeyDown[sc_UpArrow])
         {
             PlayLocalSound(StaticSound[kSound35], 0);
-            if (nMenu <= 0) {
+            if (nMenu <= 0)
+            {
                 nMenu = 4;
             }
-            else {
+            else
+            {
                 nMenu--;
             }
 
@@ -1696,13 +1744,15 @@ LABEL_21:
             menu_ResetKeyTimer();
         }
 
-        if (KB_KeyDown[sc_DownArrow]) // FIXME - is this down arrow? value is '5B' in disassembly
+        if (KB_KeyDown[sc_DownArrow])  // FIXME - is this down arrow? value is '5B' in disassembly
         {
             PlayLocalSound(StaticSound[kSound35], 0);
-            if (nMenu >= 4) {
+            if (nMenu >= 4)
+            {
                 nMenu = 0;
             }
-            else {
+            else
+            {
                 nMenu++;
             }
 
@@ -1711,40 +1761,26 @@ LABEL_21:
         }
 
         // TODO - change to #defines
-        if (KB_KeyDown[0x5c]) {
+        if (KB_KeyDown[0x5c])
+        {
             KB_KeyDown[0x5c] = 0;
         }
 
-        if (KB_KeyDown[0x5d]) {
+        if (KB_KeyDown[0x5d])
+        {
             KB_KeyDown[0x5d] = 0;
         }
     }
 
-    return 0;// todo
+    return 0;  // todo
 }
 
-#define kMaxCinemaPals	16
-const char *cinpalfname[kMaxCinemaPals] = {
-    "3454.pal",
-    "3452.pal",
-    "3449.pal",
-    "3445.pal",
-    "set.pal",
-    "3448.pal",
-    "3446.pal",
-    "hsc1.pal",
-    "2972.pal",
-    "2973.pal",
-    "2974.pal",
-    "2975.pal",
-    "2976.pal",
-    "heli.pal",
-    "2978.pal",
-    "terror.pal"
-};
+#define kMaxCinemaPals 16
+const char *cinpalfname[kMaxCinemaPals] = { "3454.pal", "3452.pal", "3449.pal", "3445.pal", "set.pal",  "3448.pal", "3446.pal", "hsc1.pal",
+                                            "2972.pal", "2973.pal", "2974.pal", "2975.pal", "2976.pal", "heli.pal", "2978.pal", "terror.pal" };
 
-int linecount;
-int nextclock;
+int   linecount;
+int   nextclock;
 short nHeight;
 short nCrawlY;
 short cinematile;
@@ -1755,14 +1791,16 @@ int LoadCinemaPalette(int nPal)
 {
     nPal--;
 
-    if (nPal < 0 || nPal >= kMaxCinemaPals) {
+    if (nPal < 0 || nPal >= kMaxCinemaPals)
+    {
         return -2;
     }
 
     // original code strcpy'd into a buffer first...
 
     int hFile = kopen4load(cinpalfname[nPal], 1);
-    if (hFile < 0) {
+    if (hFile < 0)
+    {
         return -2;
     }
 
@@ -1775,7 +1813,7 @@ int LoadCinemaPalette(int nPal)
 int IncrementCinemaFadeIn()
 {
     dest = cinemapal;
-    cur = curpal;
+    cur  = curpal;
 
     int ebx = 0;
 
@@ -1813,7 +1851,8 @@ void CinemaFadeIn()
         int val = IncrementCinemaFadeIn();
         WaitTicks(2);
 
-        if (val <= 0) {
+        if (val <= 0)
+        {
             break;
         }
     }
@@ -1825,11 +1864,12 @@ void ComputeCinemaText(int nLine)
 
     while (1)
     {
-        if (!strcmp(gString[linecount + nLine], "END")) {
+        if (!strcmp(gString[linecount + nLine], "END"))
+        {
             break;
         }
 
-        int nWidth = MyGetStringWidth(gString[linecount + nLine]);
+        int nWidth       = MyGetStringWidth(gString[linecount + nLine]);
         nLeft[linecount] = 160 - nWidth / 2;
 
         linecount++;
@@ -1837,20 +1877,22 @@ void ComputeCinemaText(int nLine)
 
     nCrawlY = 199;
     nHeight = linecount * 10;
-    
+
     ClearAllKeys();
 }
 
 void ReadyCinemaText(uint16_t nVal)
 {
     line = FindGString("CINEMAS");
-    if (line < 0) {
+    if (line < 0)
+    {
         return;
     }
 
     while (nVal)
     {
-        while (strcmp(gString[line], "END")) {
+        while (strcmp(gString[line], "END"))
+        {
             line++;
         }
 
@@ -1864,7 +1906,7 @@ void ReadyCinemaText(uint16_t nVal)
 uint8_t AdvanceCinemaText()
 {
     int var_1C = nCDTrackLength;
-    int tmp = nHeight + nCrawlY > 0;
+    int tmp    = nHeight + nCrawlY > 0;
 
     if (tmp || nCDTrackLength && nCDTrackLength > 0)
     {
@@ -1872,12 +1914,13 @@ uint8_t AdvanceCinemaText()
 
         if (tmp > 0)
         {
-            short y = nCrawlY;
-            int edi = 0;
+            short y   = nCrawlY;
+            int   edi = 0;
 
             while (edi < linecount && y <= 199)
             {
-                if (y >= -10) {
+                if (y >= -10)
+                {
                     myprintext(nLeft[edi], y, gString[line + edi], 0);
                 }
 
@@ -1892,13 +1935,15 @@ uint8_t AdvanceCinemaText()
         {
             HandleAsync();
 
-            if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Return] || KB_KeyDown[sc_Space]) {
+            if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Return] || KB_KeyDown[sc_Space])
+            {
                 break;
             }
 
             if (var_1C || nCDTrackLength)
             {
-                if (nextclock <= (int)totalclock) {
+                if (nextclock <= (int)totalclock)
+                {
                     return kTrue;
                 }
             }
@@ -1925,7 +1970,8 @@ void DoCinemaText(short nVal)
         WaitVBL();
         videoNextPage();
 
-        if (!bContinue) {
+        if (!bContinue)
+        {
             return;
         }
     }
@@ -1997,7 +2043,7 @@ void GoToTheCinema(int nVal)
     overwritesprite(0, 0, 764, 100, 2, kPalNormal);
     videoNextPage();
 
-//	int386(16, (const union REGS *)&val, (union REGS *)&val)
+    //	int386(16, (const union REGS *)&val, (union REGS *)&val)
 
     overwritesprite(0, 0, cinematile, 0, 2, kPalNormal);
     videoNextPage();
@@ -2022,7 +2068,7 @@ void GoToTheCinema(int nVal)
         case 1:
             ebx = 0;
             break;
-        
+
         case 2:
             ebx = 2;
             edx = ebx;
@@ -2052,11 +2098,12 @@ void GoToTheCinema(int nVal)
     {
         if (edx != -1)
         {
-            if (CDplaying()) {
+            if (CDplaying())
+            {
                 fadecdaudio();
             }
 
-            playCDtrack(edx + 2); // , 1);
+            playCDtrack(edx + 2);  // , 1);
         }
 
         DoCinemaText(ebx);
@@ -2101,12 +2148,14 @@ int showmap(short nLevel, short nLevelNew, short nLevelBest)
     GrabPalette();
     BlackOut();
 
-    if (nLevelNew != 11) {
+    if (nLevelNew != 11)
+    {
         CheckBeforeScene(nLevelNew);
     }
 
     int selectedLevel = menu_DrawTheMap(nLevel, nLevelNew, nLevelBest);
-    if (selectedLevel == 11) {
+    if (selectedLevel == 11)
+    {
         CheckBeforeScene(selectedLevel);
     }
 
@@ -2117,7 +2166,8 @@ void DoAfterCinemaScene(int nLevel)
 {
     short word_9ABD5[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 7, 0, 0, 0, 0, 6 };
 
-    if (word_9ABD5[nLevel]) {
+    if (word_9ABD5[nLevel])
+    {
         GoToTheCinema(word_9ABD5[nLevel]);
     }
 }
@@ -2126,14 +2176,15 @@ void DoFailedFinalScene()
 {
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 
-    if (CDplaying()) {
+    if (CDplaying())
+    {
         fadecdaudio();
     }
 
     playCDtrack(9);
     FadeToWhite();
 
-// TODO	GoToTheCinema(word_9ABFF);
+    // TODO	GoToTheCinema(word_9ABFF);
 }
 
 int FindGString(const char *str)
@@ -2156,26 +2207,27 @@ int FindGString(const char *str)
 
 uint8_t CheckForEscape()
 {
-    if (!KB_KeyWaiting() || (KB_GetCh() != 27)) {
+    if (!KB_KeyWaiting() || (KB_GetCh() != 27))
+    {
         return kFalse;
     }
-    
+
     return kTrue;
 }
 
 void DoStatic(int a, int b)
 {
-    RandomLong(); // nothing done with the result of this?
+    RandomLong();  // nothing done with the result of this?
 
     tileLoad(kTileLoboLaptop);
 
     int v2 = 160 - a / 2;
-    int v4 = 81  - b / 2;
+    int v4 = 81 - b / 2;
 
     int var_18 = v2 + a;
-    int v5 = v4 + b;
+    int v5     = v4 + b;
 
-    uint8_t *pTile = (uint8_t*)(waloff[kTileLoboLaptop] + (200 * v2)) + v4;
+    uint8_t *pTile = (uint8_t *)(waloff[kTileLoboLaptop] + (200 * v2)) + v4;
 
     while (v2 < var_18)
     {
@@ -2187,7 +2239,7 @@ void DoStatic(int a, int b)
         while (v7 < v5)
         {
             *pStart = RandomBit() * 16;
-        
+
             v7++;
             pStart++;
         }
@@ -2214,14 +2266,15 @@ void DoLastLevelCinema()
 
     tileLoad(kTileLoboLaptop);
 
-    memcpy((void*)waloff[kTileLoboLaptop], (void*)waloff[kTileLoboLaptop], tilesiz[kTileLoboLaptop].x * tilesiz[kTileLoboLaptop].y);
+    memcpy((void *)waloff[kTileLoboLaptop], (void *)waloff[kTileLoboLaptop], tilesiz[kTileLoboLaptop].x * tilesiz[kTileLoboLaptop].y);
 
     int var_24 = 16;
     int var_28 = 12;
 
     int nEndTime = (int)totalclock + 240;
 
-    while (KB_KeyWaiting()) {
+    while (KB_KeyWaiting())
+    {
         KB_GetCh();
     }
 
@@ -2242,16 +2295,16 @@ void DoLastLevelCinema()
         DoStatic(var_28, var_24);
     }
 
-//	loadtilelockmode = 1;
+    //	loadtilelockmode = 1;
     tileLoad(kTileLoboLaptop);
-//	loadtilelockmode = 0;
+    //	loadtilelockmode = 0;
 
     // loc_3AD75
 
     do
     {
         HandleAsync();
-LABEL_11:
+    LABEL_11:
         if (strlen(gString[nString]) == 0)
             break;
 
@@ -2278,7 +2331,7 @@ LABEL_11:
                 break;
 
             int xPos = 70;
-            
+
             const char *nChar = gString[nString];
 
             nString++;
@@ -2287,7 +2340,8 @@ LABEL_11:
             {
                 HandleAsync();
 
-                if (*nChar != ' ') {
+                if (*nChar != ' ')
+                {
                     PlayLocalSound(StaticSound[kSound71], 0);
                 }
 
@@ -2319,8 +2373,7 @@ LABEL_11:
             if (v11 <= (int)totalclock)
                 goto LABEL_11;
         } while (!KB_KeyWaiting());
-    } 
-    while (KB_GetCh() != 27);
+    } while (KB_GetCh() != 27);
 
 LABEL_28:
     PlayLocalSound(StaticSound[kSound75], 0);
@@ -2331,12 +2384,14 @@ LABEL_28:
 
         DoStatic(var_28, var_24);
 
-        if (var_28 > 20) {
+        if (var_28 > 20)
+        {
             var_28 -= 20;
             continue;
         }
 
-        if (var_24 > 20) {
+        if (var_24 > 20)
+        {
             var_24 -= 20;
             continue;
         }
