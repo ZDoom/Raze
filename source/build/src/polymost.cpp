@@ -714,6 +714,7 @@ void polymost_glinit()
     //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //glEnable(GL_LINE_SMOOTH);
 
+	globalflags |= GLOBAL_NO_GL_TILESHADES; // This re-enables the old fading logic without re-adding the r_usetileshades variable. The entire thing will have to be done on a more abstract level anyway.
 	GLInterface.Init();
 	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
 
@@ -5295,7 +5296,7 @@ void polymost_drawrooms()
     videoEndDrawing();
 }
 
-void polymost_drawmaskwall(int32_t damaskwallcnt)
+void (int32_t damaskwallcnt)
 {
     int const z = maskwall[damaskwallcnt];
     uwalltype const * const wal = (uwalltype *)&wall[thewall[z]], *wal2 = (uwalltype *)&wall[wal->point2];

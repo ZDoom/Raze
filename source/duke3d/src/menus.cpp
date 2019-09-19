@@ -556,6 +556,7 @@ static MenuEntry_t ME_DISPLAYSETUP_FOV = MAKE_MENUENTRY( "FOV:", &MF_Redfont, &M
 
 #ifdef USE_OPENGL
 # if !(defined EDUKE32_STANDALONE) || defined POLYMER
+#define TEXFILTER_MENU_OPTIONS
 //POGOTODO: allow filtering again in standalone once indexed colour textures support filtering
 #ifdef TEXFILTER_MENU_OPTIONS
 static char const *MEOSN_DISPLAYSETUP_TEXFILTER[] = { "Classic", "Filtered" };
