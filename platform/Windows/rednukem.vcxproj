@@ -225,7 +225,6 @@
     <ClCompile Include="..\..\source\rr\src\config.cpp" />
     <ClCompile Include="..\..\source\rr\src\common.cpp" />
     <ClCompile Include="..\..\source\rr\src\demo.cpp" />
-    <ClCompile Include="..\..\source\rr\src\file_lib.cpp" />
     <ClCompile Include="..\..\source\rr\src\game.cpp" />
     <ClCompile Include="..\..\source\rr\src\gamedef.cpp" />
     <ClCompile Include="..\..\source\rr\src\gameexec.cpp" />

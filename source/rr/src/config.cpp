@@ -599,8 +599,20 @@ int32_t CONFIG_ReadSetup(void)
 
     if (ud.config.scripthandle < 0)
     {
-            ud.config.scripthandle = SCRIPT_Load(g_setupFileName);
-    }
+		if (buildvfs_exists(g_setupFileName))  // JBF 20031211
+			ud.config.scripthandle = SCRIPT_Load(g_setupFileName);
+#if !defined(EDUKE32_TOUCH_DEVICES) && !defined(EDUKE32_STANDALONE)
+		else if (buildvfs_exists(SETUPFILENAME))
+		{
+			int const i = wm_ynbox("Import Configuration Settings",
+				"The configuration file \"%s\" was not found. "
+				"Import configuration data from \"%s\"?",
+				g_setupFileName, SETUPFILENAME);
+			if (i)
+				ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
+		}
+#endif
+	}
 
     pathsearchmode = 0;
 

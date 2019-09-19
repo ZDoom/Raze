@@ -49,7 +49,6 @@ static buildvfs_kfd artfil;
 ////////// Per-map ART file loading //////////
 
 // Some forward declarations.
-static void tileUpdatePicSiz(int32_t picnum);
 static const char *artGetIndexedFileName(int32_t tilefilei);
 static int32_t artReadIndexedFile(int32_t tilefilei);
 
@@ -267,7 +266,7 @@ void tileDelete(int32_t const tile)
 #endif
 }
 
-static void tileUpdatePicSiz(int32_t picnum)
+void tileUpdatePicSiz(int32_t picnum)
 {
     int j = 15;
 

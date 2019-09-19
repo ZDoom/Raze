@@ -61,7 +61,7 @@ static usectortype *loadsector;
 static uwalltype *loadwall, *loadwallinv;
 static uspritetype *loadsprite;
 
-static vec2_t const hitscangoal = { (1<<29)-1, (1<<29)-1 };
+vec2_t hitscangoal = { (1<<29)-1, (1<<29)-1 };
 #ifdef USE_OPENGL
 int32_t hitallsprites = 0;
 #endif

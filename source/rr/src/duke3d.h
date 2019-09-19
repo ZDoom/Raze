@@ -39,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cache1d.h"
 #include "pragmas.h"
 #include "baselayer.h"
-#include "file_lib.h"
 #include "keyboard.h"
 #include "fx_man.h"
 

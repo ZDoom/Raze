@@ -272,9 +272,6 @@
     <ClCompile Include="..\..\source\rr\rsrc\eduke32_icon.c">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\rr\src\file_lib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\source\rr\rsrc\gameres.rc">

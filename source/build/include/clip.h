@@ -46,6 +46,8 @@ extern "C" {
 #define CM_NOROT(Spri) (sprite[Spri].cstat&2)
 #define CM_NOROTS(Sect) (sector[Sect].CM_CSTAT&2)
 
+extern vec2_t hitscangoal;
+
 typedef struct
 {
     int16_t qbeg, qend;  // indices into sectq

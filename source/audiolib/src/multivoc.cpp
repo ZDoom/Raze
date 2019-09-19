@@ -96,13 +96,13 @@ float MV_GlobalVolume = 1.f;
 
 static int32_t lockdepth = 0;
 
-static FORCE_INLINE void DisableInterrupts(void)
+void DisableInterrupts(void)
 {
     if (!lockdepth++)
         SoundDriver_Lock();
 }
 
-static FORCE_INLINE void RestoreInterrupts(void)
+void RestoreInterrupts(void)
 {
     if (!--lockdepth)
         SoundDriver_Unlock();
