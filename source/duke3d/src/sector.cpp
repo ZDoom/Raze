@@ -3401,10 +3401,7 @@ void P_CheckSectors(int playerNum)
         {
             if (klabs(A_GetHitscanRange(pPlayer->i)) < 512)
             {
-#ifndef EDUKE32_STANDALONE
-                if (!FURY)
-                    A_PlaySound(((krand()&255) < 16) ? DUKE_SEARCH2 : DUKE_SEARCH, pPlayer->i);
-#endif
+                A_PlaySound(((krand()&255) < 16) ? DUKE_SEARCH2 : DUKE_SEARCH, pPlayer->i);
                 return;
             }
         }
