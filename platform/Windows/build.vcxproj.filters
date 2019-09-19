@@ -53,10 +53,10 @@
     <ClCompile Include="..\..\source\build\src\engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\build\src\fix16.c">
+    <ClCompile Include="..\..\source\build\src\fix16.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\build\src\fix16_str.c">
+    <ClCompile Include="..\..\source\build\src\fix16_str.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\glbuild.cpp">
