@@ -85,6 +85,7 @@ extern kb_scancode KB_LastScan;
 #define KB_GetCh keyGetChar
 #define KB_KeyWaiting keyBufferWaiting
 #define KB_FlushKeyboardQueue keyFlushChars
+#define KB_FlushKeyboardQueueScans keyFlushScans
 
 static inline void KB_ClearKeysDown(void)
 {
