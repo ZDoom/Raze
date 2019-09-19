@@ -105,6 +105,17 @@ extern int32_t useprecache;
 extern int32_t MouseDeadZone, MouseBias;
 extern int32_t SmoothInput;
 
+extern int32_t FXVolume;
+extern int32_t MusicVolume;
+extern int32_t MixRate;
+extern int32_t MidiPort;
+extern int32_t NumVoices;
+extern int32_t NumChannels;
+extern int32_t NumBits;
+extern int32_t ReverseStereo;
+extern int32_t MusicDevice;
+extern int32_t FXDevice;
+
 // JBF 20031211: Store the input settings because
 // (currently) mact can't regurgitate them
 extern int32_t MouseFunctions[MAXMOUSEBUTTONS][2];

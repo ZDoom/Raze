@@ -104,6 +104,7 @@ static FORCE_INLINE int FX_SetPan(int handle, int vol, int left, int right)
 }
 static FORCE_INLINE int FX_SetPitch(int handle, int pitchoffset) { return FX_CheckMVErr(MV_SetPitch(handle, pitchoffset)); }
 static FORCE_INLINE int FX_SetFrequency(int handle, int frequency) { return FX_CheckMVErr(MV_SetFrequency(handle, frequency)); }
+static FORCE_INLINE int32_t FX_GetFrequency(int32_t handle, int32_t *frequency) { return FX_CheckMVErr(MV_GetFrequency(handle, frequency)); }
 static FORCE_INLINE int FX_Pan3D(int handle, int angle, int distance)
 {
     return FX_CheckMVErr(MV_Pan3D(handle, angle, distance));

@@ -390,6 +390,13 @@ void CONFIG_SetDefaults()
     gSetup.fullscreen = 1;
     gSetup.usemouse = 1;
 
+    MixRate = 44100;
+    FXVolume = 255;
+    MusicVolume = 255;
+    NumChannels = 2;
+    NumBits = 16;
+    NumVoices = 32;
+
     CONFIG_SetDefaultKeys(keydefaults);
 
     memset(MouseFunctions, -1, sizeof(MouseFunctions));

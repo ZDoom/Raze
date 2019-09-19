@@ -1536,7 +1536,7 @@ int app_main(int argc, char const* const* argv)
 
     wConsoleNode = 0;
 
-    int nMenu; // TEMP
+    int nMenu = 0; // TEMP
 
     // Check for any command line arguments
     for (i = 1; i < argc; i++)
@@ -1815,7 +1815,6 @@ int app_main(int argc, char const* const* argv)
     }
 
     // loc_116A5:
-    InitFX();
 
     if (nNetPlayerCount)
     {
@@ -1861,7 +1860,6 @@ int app_main(int argc, char const* const* argv)
     SetupInput();
     InitView();
     myloadconfig();
-    LoadFX();
     setCDaudiovolume(gMusicVolume);
     seq_LoadSequences();
     InitStatus();
@@ -1878,6 +1876,9 @@ int app_main(int argc, char const* const* argv)
     EraseScreen(overscanindex);
     ResetEngine();
     EraseScreen(overscanindex);
+
+    InitFX();
+    LoadFX();
 
     ResetView();
     GrabPalette();
