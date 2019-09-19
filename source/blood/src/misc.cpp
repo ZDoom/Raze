@@ -131,11 +131,80 @@ void ChangeExtension(char *pzFile, const char *pzExt)
     _splitpath(pzFile, drive, dir, filename, NULL);
     _makepath(pzFile, drive, dir, filename, pzExt);
 #else
-    char *pDot = strrchr(pzFile, '.');
-    if (!pDot)
-        pDot = pzFile + strlen(pzFile);
-    else
-        *pDot = 0;
-    strcat(pDot, pzExt);
+    int const nLength = Bstrlen(pzFile);
+    char * pDot = pzFile+nLength;
+    for (int i = nLength-1; i >= 0; i--)
+    {
+        if (pzFile[i] == '/' || pzFile[i] == '\\')
+            break;
+        if (pzFile[i] == '.')
+        {
+            pDot = pzFile+i;
+            break;
+        }
+    }
+    *pDot = '\0';
+    Bstrcat(pDot, pzExt);
 #endif
 }
+
+void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType)
+{
+    int const nLength = Bstrlen(pzFile);
+    const char *pDirectory = pzFile+nLength;
+    const char *pDot = NULL;
+    for (int i = nLength-1; i >= 0; i--)
+    {
+        if (pzFile[i] == '/' || pzFile[i] == '\\')
+        {
+            Bstrncpy(pzDirectory, pzPath, i);
+            pzDirectory[i] = 0;
+            if (!pDot)
+            {
+                Bstrcpy(pzFile, pzPath+i+1);
+                Bstrcpy(pzType, "");
+            }
+            else
+            {
+                Bstrncpy(pzFile, pzPath+i+1, pDot-(pzPath+i+1));
+                Bstrcpy(pzType, pDot+1);
+            }
+           
+            return;
+        }
+        else if (pzFile[i] == '.')
+        {
+            pDot = pzFile+i;
+        }
+    }
+    Bstrcpy(pzDirectory, "/");
+    if (!pDot)
+    {
+        Bstrcpy(pzFile, pzPath);
+        Bstrcpy(pzType, "");
+    }
+    else
+    {
+        Bstrncpy(pzFile, pzPath, pDot-pzPath);
+        Bstrcpy(pzType, pDot+1);
+    }
+}
+
+void ConcatPath(const char *pzPath1, const char *pzPath2, char *pzConcatPath)
+{
+    int n1 = Bstrlen(pzPath1), n2 = Bstrlen(pzPath2);
+    int i = n1, j = 0;
+    while (i > 0 && (pzPath1[i-1] == '/' || pzPath1[i-1] == '\\'))
+    {
+        i--;
+    }
+    while (j < n2 && (pzPath2[j] == '/' || pzPath1[j] == '\\'))
+    {
+        j++;
+    }
+    Bstrncpy(pzConcatPath, pzPath1, i);
+    pzConcatPath[i] = 0;
+    Bstrcpy(pzConcatPath, pzPath2+j);
+}
+
+

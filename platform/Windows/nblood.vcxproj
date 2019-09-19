@@ -195,6 +195,7 @@
     <ClCompile Include="..\..\source\blood\src\aizomba.cpp" />
     <ClCompile Include="..\..\source\blood\src\aizombf.cpp" />
     <ClCompile Include="..\..\source\blood\src\asound.cpp" />
+    <ClCompile Include="..\..\source\blood\src\barf.cpp" />
     <ClCompile Include="..\..\source\blood\src\blood.cpp" />
     <ClCompile Include="..\..\source\blood\src\callback.cpp" />
     <ClCompile Include="..\..\source\blood\src\choke.cpp" />
@@ -299,6 +300,7 @@
     <ClInclude Include="..\..\source\blood\src\aizomba.h" />
     <ClInclude Include="..\..\source\blood\src\aizombf.h" />
     <ClInclude Include="..\..\source\blood\src\asound.h" />
+    <ClInclude Include="..\..\source\blood\src\barf.h" />
     <ClInclude Include="..\..\source\blood\src\blood.h" />
     <ClInclude Include="..\..\source\blood\src\callback.h" />
     <ClInclude Include="..\..\source\blood\src\choke.h" />

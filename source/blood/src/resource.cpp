@@ -68,6 +68,8 @@ Resource::~Resource(void)
                 Free(dict[i].type);
             if (dict[i].name)
                 Free(dict[i].name);
+            if (dict[i].path)
+                Free(dict[i].path);
         }
         Free(dict);
         dict = NULL;
@@ -149,6 +151,7 @@ void Resource::Init(const char *filename)
                     dict[i].name = (char*)Alloc(nNameLength+1);
                     strncpy(dict[i].type, tdict[i].type, min(3, nTypeLength));
                     strncpy(dict[i].name, tdict[i].name, min(8, nNameLength));
+                    dict[i].path = NULL;
                     dict[i].type[nTypeLength] = 0;
                     dict[i].name[nNameLength] = 0;
                     dict[i].id = B_LITTLE32(tdict[i].id);
@@ -362,14 +365,20 @@ void Resource::Grow(void)
     Reindex();
 }
 
-void Resource::AddExternalResource(const char *name, const char *type, int id)
+void Resource::AddExternalResource(const char *name, const char *type, int id, int flags, const char *pzDirectory)
 {
-    char name2[BMAX_PATH], type2[BMAX_PATH], filename[BMAX_PATH*2];
-    //if (strlen(name) > 8 || strlen(type) > 3) return;
+    char name2[BMAX_PATH], type2[BMAX_PATH], filename[BMAX_PATH], path[BMAX_PATH];
+
     if (Bstrlen(type) > 0)
-        Bsprintf(filename, "%s.%s", name, type);
+        Bsnprintf(filename, BMAX_PATH-1, "%s.%s", name, type);
     else
-        Bsprintf(filename, "%s", name);
+        Bsnprintf(filename, BMAX_PATH-1, "%s", name);
+
+    if (pzDirectory)
+        Bsnprintf(path, BMAX_PATH-1, "%s/%s", pzDirectory, filename);
+    else
+        Bstrncpy(path, filename, BMAX_PATH-1);
+
     int fhandle = kopen4loadfrommod(filename, 0);
     if (fhandle == -1)
         return;
@@ -404,17 +413,25 @@ void Resource::AddExternalResource(const char *name, const char *type, int id)
             Free(node->name);
             node->name = NULL;
         }
+        if (node->path)
+        {
+            Free(node->path);
+            node->path = NULL;
+        }
         int nTypeLength = strlen(type2);
         int nNameLength = strlen(name2);
+        int nPathLength = strlen(path);
         node->type = (char*)Alloc(nTypeLength+1);
         node->name = (char*)Alloc(nNameLength+1);
+        node->path = (char*)Alloc(nPathLength+1);
         strcpy(node->type, type2);
         strcpy(node->name, name2);
+        strcpy(node->path, path);
     }
     node->size = size;
-    node->flags |= DICT_EXTERNAL;
+    node->flags |= DICT_EXTERNAL | flags;
     Flush(node);
-    if (id != -1)
+    if (id >= 0)
     {
         index = Probe(id, type2);
         dassert(index != NULL);
@@ -439,15 +456,23 @@ void Resource::AddExternalResource(const char *name, const char *type, int id)
             Free(node->name);
             node->name = NULL;
         }
+        if (node->path)
+        {
+            Free(node->path);
+            node->path = NULL;
+        }
         int nTypeLength = strlen(type2);
         int nNameLength = strlen(name2);
+        int nPathLength = strlen(path);
         node->type = (char*)Alloc(nTypeLength+1);
         node->name = (char*)Alloc(nNameLength+1);
+        node->path = (char*)Alloc(nPathLength+1);
         strcpy(node->type, type2);
         strcpy(node->name, name2);
+        strcpy(node->path, path);
         node->id = id;
         node->size = size;
-        node->flags |= DICT_EXTERNAL;
+        node->flags |= DICT_EXTERNAL | flags;
         Flush(node);
     }
 }
@@ -550,7 +575,10 @@ void Resource::Read(DICTNODE *n, void *p)
     dassert(n != NULL);
     if (n->flags & DICT_EXTERNAL)
     {
-        sprintf(filename, "%s.%s", n->name, n->type);
+        if (n->path)
+            Bstrncpy(filename, n->path, BMAX_PATH-1);
+        else
+            Bsnprintf(filename, MAX_PATH-1, "%s.%s", n->name, n->type);
         int fhandle = kopen4loadfrommod(filename, 0);
         if (fhandle == -1 || (uint32_t)kread(fhandle, p, n->size) != n->size)
         {
@@ -813,6 +841,11 @@ void Resource::RemoveNode(DICTNODE* pNode)
     {
         Free(pNode->type);
         pNode->type = NULL;
+    }
+    if (pNode->path)
+    {
+        Free(pNode->path);
+        pNode->path = NULL;
     }
     *pNode = dict[--count];
     Bmemset(&dict[count], 0, sizeof(DICTNODE));

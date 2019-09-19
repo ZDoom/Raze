@@ -1,7 +1,7 @@
 //-------------------------------------------------------------------------
 /*
 Copyright (C) 2010-2019 EDuke32 developers and contributors
-Copyright (C) 2019 Nuke.YKT
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
 
 This file is part of NBlood.
 
@@ -21,14 +21,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
-void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes);
-bool FileRead(FILE *, void *, unsigned int);
-bool FileWrite(FILE *, void *, unsigned int);
-bool FileLoad(const char *, void *, unsigned int);
-int FileLength(FILE *);
-unsigned int qrand(void);
-int wrand(void);
-void wsrand(int);
-void ChangeExtension(char *pzFile, const char *pzExt);
-void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType);
-void ConcatPath(const char* pzPath1, const char* pzPath2, char* pzConcatPath);
+

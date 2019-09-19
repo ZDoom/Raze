@@ -76,6 +76,7 @@ struct DICTNODE : CACHENODE
     //char name[8];
     char *type;
     char *name;
+    char *path;
     unsigned int id;
 };
 
@@ -92,7 +93,7 @@ public:
     DICTNODE **Probe(unsigned int id, const char *type);
     void Reindex(void);
     void Grow(void);
-    void AddExternalResource(const char *name, const char *type, int id = -1);
+    void AddExternalResource(const char *name, const char *type, int id = 0, int flags = 0, const char* pzDirectory = NULL);
     static void *Alloc(int nSize);
     static void Free(void *p);
     DICTNODE *Lookup(const char *name, const char *type);
