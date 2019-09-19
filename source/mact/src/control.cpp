@@ -123,8 +123,8 @@ static void CONTROL_GetMouseDelta(ControlInfo * info)
         last = input;
     }
 
-    info->mousex = Blrintf(finput.x * 4.f * CONTROL_MouseSensitivity);
-    info->mousey = Blrintf(finput.y * 4.f * CONTROL_MouseSensitivity);
+    info->mousex = mulscale16(Blrintf(finput.x * 4.f * CONTROL_MouseSensitivity), CONTROL_MouseAxesScale[0]);
+    info->mousey = mulscale16(Blrintf(finput.y * 4.f * CONTROL_MouseSensitivity), CONTROL_MouseAxesScale[1]);
 }
 
 static int32_t CONTROL_GetTime(void)
