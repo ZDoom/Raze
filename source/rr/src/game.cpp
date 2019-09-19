@@ -4332,7 +4332,7 @@ rr_badguy:
                     int const startWall = sector[sectNum].wallptr;
                     int const endWall   = startWall + sector[sectNum].wallnum;
 
-                    pSprite->extra = ((uint16_t)sector[sectNum].hitag != UINT16_MAX);
+                    pSprite->extra = (uint16_t)((uint16_t)sector[sectNum].hitag != UINT16_MAX);
 
                     // TRAIN_SECTOR_TO_SE_INDEX
                     sector[sectNum].hitag = newSprite;
