@@ -746,8 +746,8 @@ void UpdateSounds()
             }
             else
             {
-                dx = sprite[nSoundSprite].x-pASound->f_1e;
-                dy = sprite[nSoundSprite].y-pASound->f_22;
+                dx = x-sprite[nSoundSprite].x;
+                dy = y-sprite[nSoundSprite].y;
             }
 
             dx >>= 8;
@@ -815,14 +815,17 @@ void UpdateSounds()
             if (nCreaturesLeft > 0 && !(SectFlag[nPlayerViewSect[nLocalPlayer]]&0x2000))
             {
                 int vsi = seq_GetFrameSound(SeqOffsets[kSeqCreepy], totalmoves%SeqSize[SeqOffsets[kSeqCreepy]]);
-                int vdx = (totalmoves+32)&31;
-                if (totalmoves & 1)
-                    vdx = -vdx;
-                int vax = (totalmoves+32)&63;
-                if (totalmoves & 2)
-                    vax = -vax;
+                if (vsi >= 0 && (vsi&0x1ff) < kMaxSounds)
+                {
+                    int vdx = (totalmoves+32)&31;
+                    if (totalmoves & 1)
+                        vdx = -vdx;
+                    int vax = (totalmoves+32)&63;
+                    if (totalmoves & 2)
+                        vax = -vax;
 
-                PlayFXAtXYZ(vsi, pSprite->x+vdx, pSprite->y+vax, pSprite->z, pSprite->sectnum);
+                    PlayFXAtXYZ(vsi, pSprite->x+vdx, pSprite->y+vax, pSprite->z, pSprite->sectnum);
+                }
             }
             nCreepyTimer = 450;
         }

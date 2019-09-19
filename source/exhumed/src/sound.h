@@ -103,6 +103,7 @@ int GetLocalSound();
 void UpdateLocalSound();
 void StopLocalSound();
 void PlayLocalSound(short nSound, short val);
+int LoadSound(const char* sound);
 
 void BendAmbientSound();
 void CheckAmbience(short nSector);

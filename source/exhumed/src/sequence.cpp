@@ -191,6 +191,8 @@ int seq_ReadSequence(const char *seqName)
         SeqBase[sequences + i] += frames;
     }
 
+    short vdi = frames;
+
     int16_t nFrames;
     kread(hFile, &nFrames, sizeof(nFrames));
 
@@ -269,10 +271,9 @@ int seq_ReadSequence(const char *seqName)
             kread(hFile, &var_28, sizeof(var_28));
             kread(hFile, &var_2C, sizeof(var_2C));
 
-            int hSound = 0;
-    //		int hSound = LoadSound();
+            int hSound = LoadSound(&buffer[(var_2C&0x1FF)*10]);
 
-            FrameSound[frames + var_28] = hSound | (var_2C & 0xFE00);
+            FrameSound[vdi + var_28] = hSound | (var_2C & 0xFE00);
         }
     }
 

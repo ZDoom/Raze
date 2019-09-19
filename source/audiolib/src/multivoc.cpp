@@ -502,7 +502,11 @@ int32_t MV_GetFrequency(int32_t handle, int32_t *frequency)
     if (voice == NULL || !frequency)
         return MV_Error;
 
+    if (voice->SamplingRate == 0)
+        voice->GetSound(voice);
+
     *frequency = voice->SamplingRate;
+    MV_EndService();
 
     return MV_Ok;
 }
