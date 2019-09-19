@@ -3160,8 +3160,10 @@ void P_CheckSectors(int playerNum)
             g_player[playerNum].input->bits &= ~BIT(SK_OPEN);
     }
 
-    if (ud.cashman && TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_OPEN))
+#ifndef EDUKE32_STANDALONE
+    if (!FURY && ud.cashman && TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_OPEN))
         A_SpawnMultiple(pPlayer->i, MONEY, 2);
+#endif
 
     if (pPlayer->newowner >= 0)
     {
