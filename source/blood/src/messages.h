@@ -26,32 +26,44 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "player.h"
 
+#define kMessageLogSize 32
+#define kMaxMessageTextLength 81
+
+enum MESSAGE_PRIORITY {
+    MESSAGE_PRIORITY_PICKUP = -10,
+    MESSAGE_PRIORITY_NORMAL = 0,
+    MESSAGE_PRIORITY_SECRET = 10,
+    MESSAGE_PRIORITY_INI = 20
+};
+
 class CGameMessageMgr
 {
 public:
     struct messageStruct
     {
-        ClockTicks at0;
-        char at4[81];
+        ClockTicks lastTickWhenVisible;
+        char text[kMaxMessageTextLength];
         int pal;
+        MESSAGE_PRIORITY priority;
+        bool deleted = false;
     };
-    char at0;
-    int at1;
-    int at5;
+    char state;
+    int x;
+    int y;
     ClockTicks at9;
     ClockTicks atd;
-    int at11;
-    int at15;
-    int at19;
-    int at1d;
-    char at21;
-    int at22;
-    int at26;
-    int at2a;
-    messageStruct at2e[16];
+    int nFont;
+    int fontHeight;
+    int maxNumberOfMessagesToDisplay;
+    int visibilityDurationInSecs;
+    char messageFlags;
+    int numberOfDisplayedMessages;
+    int messagesIndex;
+    int nextMessagesIndex;
+    messageStruct messages[kMessageLogSize];
     CGameMessageMgr();
     void SetState(char state);
-    void Add(const char *pText, char a2, const int pal = 0);
+    void Add(const char *pText, char a2, const int pal = 0, const MESSAGE_PRIORITY priority = MESSAGE_PRIORITY_NORMAL);
     void Display(void);
     void Clear();
     void SetMaxMessages(int nMessages);
@@ -59,6 +71,9 @@ public:
     void SetCoordinates(int x, int y);
     void SetMessageTime(int nTime);
     void SetMessageFlags(unsigned int nFlags);
+private:
+    void SortMessagesByPriority(messageStruct** messages, int count);
+    void SortMessagesByTime(messageStruct** messages, int count);
 };
 
 

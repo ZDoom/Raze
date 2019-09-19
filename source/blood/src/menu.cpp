@@ -742,7 +742,7 @@ void SetupOptionsOldMenu(void)
     boolSlopeTilting.at20 = gSlopeTilting;
     boolViewBobbing.at20 = gViewVBobbing;
     boolViewSwaying.at20 = gViewHBobbing;
-    boolMessages.at20 = gGameMessageMgr.at0;
+    boolMessages.at20 = gGameMessageMgr.state;
     menuOptionsOld.Add(&itemOptionsTitle, false);
     menuOptionsOld.Add(&itemOption1, true);
     menuOptionsOld.Add(&sliderDetail, false);

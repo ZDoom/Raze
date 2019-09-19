@@ -2783,10 +2783,10 @@ void viewBurnTime(int gScale)
     }
 }
 
-void viewSetMessage(const char *pMessage, const int pal)
+void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY priority)
 {
     OSD_Printf("%s\n", pMessage);
-    gGameMessageMgr.Add(pMessage, 15, pal);
+    gGameMessageMgr.Add(pMessage, 15, pal, priority);
 }
 
 void viewDisplayMessage(void)

@@ -50,6 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "warp.h"
 #include "weapon.h"
 #include "common_game.h"
+#include "messages.h"
 
 PROFILE gProfile[kMaxPlayers];
 
@@ -1375,7 +1376,7 @@ void PickUp(PLAYER *pPlayer, spritetype *pSprite)
         pPlayer->at377 = 30;
         if (pPlayer == gMe)
             if (customMsg > 0) trTextOver(customMsg - 1);
-            else viewSetMessage(buffer);
+            else viewSetMessage(buffer, 0, MESSAGE_PRIORITY_PICKUP);
     }
 }
 
