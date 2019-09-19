@@ -7526,10 +7526,10 @@ static void G_Startup(void)
         if (g_modDir[0] != '/' && (cwd = getcwd(NULL, 0)))
         {
             Bchdir(g_modDir);
-            if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
+            if (artLoadFiles("tiles%03d.art",MAXCACHE1DSIZE) < 0)
             {
                 Bchdir(cwd);
-                if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
+                if (artLoadFiles("tiles%03d.art",MAXCACHE1DSIZE) < 0)
                     G_GameExit("Failed loading art.");
             }
             Bchdir(cwd);
@@ -7538,7 +7538,7 @@ static void G_Startup(void)
 #endif
 
         }
-        else if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
+        else if (artLoadFiles("tiles%03d.art",MAXCACHE1DSIZE) < 0)
             G_GameExit("Failed loading art.");
     }
 

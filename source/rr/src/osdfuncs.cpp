@@ -36,8 +36,17 @@ float osdscale = 1.f, osdrscale = 1.f;
 #endif
 float osdscale2 = 1.f, osdrscale2 = 1.f;
 
-#define OSD_SCALE(x) (int32_t)Blrintf(osdscale*osdscale2*(float)(x))
-#define OSD_SCALEDIV(x) (int32_t)Blrintf((float)(x) * osdrscale * osdrscale2)
+template<class valtype>
+int32_t OSD_SCALE(valtype x)
+{
+	return (int32_t)Blrintf(osdscale * osdscale2 * (float)(x));
+}
+
+template<class valtype>
+int32_t OSD_SCALEDIV(valtype x)
+{
+	return (int32_t)Blrintf((float)(x)* osdrscale * osdrscale2);
+}
 
 #define OSDCHAR_WIDTH (tilesiz[STARTALPHANUM + 'W' - '!'].x)
 #define OSDCHAR_HEIGHT (tilesiz[STARTALPHANUM + 'W' - '!'].y + 1)
