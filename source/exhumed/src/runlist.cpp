@@ -1709,7 +1709,7 @@ void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius)
     }
 }
 
-void runlist_DamageEnemy(short nSprite, short nSprite2, short nDamage)
+void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
 {
     if (sprite[nSprite].statnum >= kMaxStatus) {
         return;
@@ -1721,7 +1721,7 @@ void runlist_DamageEnemy(short nSprite, short nSprite2, short nDamage)
         return;
     }
 
-    runlist_SendMessageToRunRec(nRun, nSprite2 | 0x80000, nDamage * 4);
+    runlist_SendMessageToRunRec(nRun, (nSprite2 & 0xFFFF) | 0x80000, nDamage * 4);
 
     if (nCreaturesLeft <= 0) {
         return;

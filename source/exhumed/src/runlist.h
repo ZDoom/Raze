@@ -55,7 +55,7 @@ void runlist_SubRunRec(int RunPtr);
 void runlist_ProcessWallTag(int nWall, short lotag, short hitag);
 int runlist_CheckRadialDamage(short nSprite);
 void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius);
-void runlist_DamageEnemy(short nSprite, short nSprite2, short nDamage);
+void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage);
 void runlist_SignalRun(int NxtPtr, int edx);
 
 void runlist_CleanRunRecs();
