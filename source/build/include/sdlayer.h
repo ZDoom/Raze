@@ -61,7 +61,7 @@ int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout);
         }                                                                                                              \
     }
 
-#define SDL_CHECKMODE(w, h) ((w < MAXXDIM) && (h < MAXYDIM) && (w >= MINXDIM) && (h >= MINYDIM) && (((float)w/(float)h) >= 1.3f))
+#define SDL_CHECKMODE(w, h) ((w < MAXXDIM) && (h < MAXYDIM) && (w >= MINXDIM) && (h >= MINYDIM) && (((float)w/(float)h) >= 1.2f))
 
 #define SDL_CHECKFSMODES(w, h)                                                                                         \
     if (w == 0 && h == 0)                                                                                              \

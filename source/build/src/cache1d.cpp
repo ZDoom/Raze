@@ -1092,6 +1092,22 @@ int32_t kopen4load(const char *filename, char searchfirst)
     return h;
 }
 
+char g_modDir[BMAX_PATH] = "/";
+
+int32_t kopen4loadfrommod(const char *fileName, char searchfirst)
+{
+    int kFile = -1;
+
+    if (g_modDir[0] != '/' || g_modDir[1] != 0)
+    {
+        static char staticFileName[BMAX_PATH];
+        Bsnprintf(staticFileName, sizeof(staticFileName), "%s/%s", g_modDir, fileName);
+        kFile = kopen4load(staticFileName, searchfirst);
+    }
+
+    return (kFile < 0) ? kopen4load(fileName, searchfirst) : kFile;
+}
+
 int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, const uint8_t *arraygrp, const intptr_t *arrayhan, int32_t *arraypos)
 {
     int32_t filenum = arrayhan[handle];
@@ -1275,7 +1291,7 @@ static void kclose_grp(int32_t handle)
 }
 #endif
 
-static int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, int32_t source)
+int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, int32_t source)
 {
     CACHE1D_FIND_REC *r = NULL, *attach = NULL;
 

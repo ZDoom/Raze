@@ -96,10 +96,12 @@ int32_t		findfrompath(const char *fn, char **where);
 buildvfs_kfd     openfrompath(const char *fn, int32_t flags, int32_t mode);
 buildvfs_FILE fopenfrompath(const char *fn, const char *mode);
 
+extern char g_modDir[BMAX_PATH];
 extern int32_t numgroupfiles;
 int initgroupfile(const char *filename);
 void	uninitgroupfile(void);
 buildvfs_kfd	kopen4load(const char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
+buildvfs_kfd	kopen4loadfrommod(const char *filename, char searchfirst);
 int32_t	kread(buildvfs_kfd handle, void *buffer, int32_t leng);
 #define kread_and_test(handle, buffer, leng) EDUKE32_PREDICT_FALSE(kread((handle), (buffer), (leng)) != (leng))
 int32_t	klseek(buildvfs_kfd handle, int32_t offset, int32_t whence);
@@ -145,6 +147,7 @@ typedef struct _CACHE1D_FIND_REC {
     int32_t type, source;
     struct _CACHE1D_FIND_REC *next, *prev, *usera, *userb;
 } CACHE1D_FIND_REC;
+int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, int32_t source);
 void klistfree(CACHE1D_FIND_REC *rec);
 CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int32_t type);
 

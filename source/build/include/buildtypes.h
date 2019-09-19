@@ -165,8 +165,17 @@ typedef struct
     StructTracker(Sprite, uint8_t) xrepeat, yrepeat;
     StructTracker(Sprite, int8_t) xoffset, yoffset;
     StructTracker(Sprite, int16_t) sectnum, statnum;
-    StructTracker(Sprite, int16_t) ang, owner, xvel, yvel, zvel;
-    StructTracker(Sprite, int16_t) lotag, hitag;
+    StructTracker(Sprite, int16_t) ang, owner;
+    union {
+        StructTracker(Sprite, int16_t) xvel;
+        StructTracker(Sprite, int16_t) index;
+    };
+    StructTracker(Sprite, int16_t) yvel, zvel;
+    union {
+        StructTracker(Sprite, int16_t) lotag;
+        StructTracker(Sprite, int16_t) type;
+    };
+    StructTracker(Sprite, int16_t) hitag;
     StructTracker(Sprite, int16_t) extra;
 } StructName(spritetypev7);
 

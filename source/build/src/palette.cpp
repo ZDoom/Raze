@@ -79,6 +79,50 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 }
+
+int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
+
+void fullscreen_tint_gl_blood(void)
+{
+    if (!(tint_blood_r|tint_blood_g|tint_blood_b))
+        return;
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_ALPHA_TEST);
+    polymost_setFogEnabled(false);
+
+    glBlendFunc(GL_ONE, GL_ONE);
+    glEnable(GL_BLEND);
+
+    polymost_useColorOnly(true);
+    glColor4ub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(-2.5f, 1.f);
+    glVertex2f(2.5f, 1.f);
+    glVertex2f(.0f, -2.5f);
+    glEnd();
+    glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+    glColor4ub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(-2.5f, 1.f);
+    glVertex2f(2.5f, 1.f);
+    glVertex2f(.0f, -2.5f);
+    glEnd();
+    glBlendEquation(GL_FUNC_ADD);
+    glColor4ub(0,0,0,0);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    polymost_useColorOnly(false);
+
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+}
 #endif
 
 void videoFadeToBlack(int32_t moreopaquep)
@@ -142,6 +186,8 @@ static void alloc_palookup(int32_t pal)
 
 static void maybe_alloc_palookup(int32_t palnum);
 
+void (*paletteLoadFromDisk_replace)(void) = NULL;
+
 //
 // loadpalette (internal)
 //
@@ -155,7 +201,12 @@ void paletteLoadFromDisk(void)
         x = defaultglblend;
 #endif
 
-    buildvfs_kfd fil;
+    if (paletteLoadFromDisk_replace)
+    {
+        paletteLoadFromDisk_replace();
+        return;
+    }
+
     if ((fil = kopen4load("palette.dat", 0)) == buildvfs_kfd_invalid)
         return;
 
@@ -841,3 +892,12 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
 
     g_lastpalettesum = lastpalettesum = newpalettesum;
 }
+
+#ifdef USE_OPENGL
+void videoTintBlood(int32_t r, int32_t g, int32_t b)
+{
+    tint_blood_r = r;
+    tint_blood_g = g;
+    tint_blood_b = b;
+}
+#endif

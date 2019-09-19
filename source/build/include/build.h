@@ -50,6 +50,8 @@ enum rendmode_t {
 #define MAXWALLSV7 8192
 #define MAXSPRITESV7 4096
 
+#define MAXVOXMIPS 5
+
 #if !defined GEKKO && !defined __OPENDINGUX__
 # define MAXSECTORS MAXSECTORSV8
 # define MAXWALLS MAXWALLSV8
@@ -106,7 +108,7 @@ enum rendmode_t {
 #define MAXSTATUS 1024
 #define MAXPLAYERS 16
 // Maximum number of component tiles in a multi-psky:
-#define MAXPSKYTILES 8
+#define MAXPSKYTILES 16
 #define MAXSPRITESONSCREEN 2560
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
 
@@ -845,6 +847,7 @@ typedef struct {
     uint8_t num;  // animate number
     int8_t xofs, yofs;
     uint8_t sf;  // anim. speed and flags
+    uint8_t extra;
 } picanm_t;
 EXTERN picanm_t picanm[MAXTILES];
 typedef struct { int16_t newtile; int16_t owner; } rottile_t;
@@ -1069,7 +1072,7 @@ void    tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy);
 int32_t artReadHeader(buildvfs_kfd fil, char const *fn, artheader_t *local);
 int32_t artReadHeaderFromBuffer(uint8_t const *buf, artheader_t *local);
 int32_t artCheckUnitFileHeader(uint8_t const *buf, int32_t length);
-void    tileConvertAnimFormat(int32_t picnum);
+void    tileConvertAnimFormat(int32_t const picnum, int32_t const picanmdisk);
 void    artReadManifest(buildvfs_kfd fil, artheader_t const *local);
 void    artPreloadFile(buildvfs_kfd fil, artheader_t const *local);
 int32_t artLoadFiles(const char *filename, int32_t askedsize);
@@ -1079,6 +1082,7 @@ bool    tileLoad(int16_t tilenume);
 void    tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer);
 int32_t tileCRC(int16_t tileNum);
 void    artConvertRGB(palette_t *pic, uint8_t const *buf, int32_t bufsizx, int32_t sizx, int32_t sizy);
+void    tileUpdatePicSiz(int32_t picnum);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
@@ -1100,7 +1104,10 @@ void   renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   renderRestoreTarget(void);
 void   renderPrepareMirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
                      int32_t *tposx, int32_t *tposy, fix16_t *tang);
+void   renderPrepareMirrorOld(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz,
+                            int16_t dawall, int16_t dasector, int32_t *tposx, int32_t *tposy, fix16_t *tang);
 void   renderCompleteMirror(void);
+void   renderCompleteMirrorOld(void);
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t daang, fix16_t dahoriz, int16_t dacursectnum);
 
@@ -1155,6 +1162,7 @@ void bfirst_search_try(int16_t * const list, uint8_t * const bitmap, int32_t * c
 
 void   getzrange(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
+extern vec2_t hitscangoal;
 int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                   hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
 void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
@@ -1164,6 +1172,10 @@ void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                  int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum) ATTRIBUTE((nonnull(3)));
+inline void updatesectorbreadth(int32_t const x, int32_t const y, int16_t *sectnum) ATTRIBUTE((nonnull(3)))
+{
+	updatesector(x, y, sectnum);
+}
 void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectnum,
                          const uint8_t * const excludesectbitmap) ATTRIBUTE((nonnull(3,4)));
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum) ATTRIBUTE((nonnull(4)));
@@ -1375,6 +1387,10 @@ extern int32_t r_downsize;
 extern int32_t r_downsizevar;
 extern int32_t mdtims, omdtims;
 extern int32_t glrendmode;
+
+extern int32_t r_rortexture;
+extern int32_t r_rortexturerange;
+extern int32_t r_rorphase;
 #endif
 
 void hicinit(void);
@@ -1551,6 +1567,25 @@ extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     int32_t vx_, int32_t vy_, int32_t vz,
     int32_t x3, int32_t y3, int32_t x4, int32_t y4,
     int32_t *intx, int32_t *inty, int32_t *intz);
+
+extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
+extern void(*paletteLoadFromDisk_replace)(void);
+extern int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade);
+extern void(*initspritelists_replace)(void);
+extern int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum);
+extern int32_t(*deletesprite_replace)(int16_t spritenum);
+extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum);
+extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum);
+extern void(*loadvoxel_replace)(int32_t voxel);
+#ifdef USE_OPENGL
+extern void(*PolymostProcessVoxels_Callback)(void);
+#endif
+
+extern int32_t automapping;
+extern int32_t bloodhack;
+extern int32_t blooddemohack;
+extern intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
+extern int8_t voxreserve[(MAXVOXELS+7)>>3];
 
 #ifdef __cplusplus
 }

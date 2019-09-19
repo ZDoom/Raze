@@ -25,6 +25,7 @@ char    inputdevices = 0;
 char    keystatus[NUMKEYS];
 char    g_keyFIFO[KEYFIFOSIZ];
 char    g_keyAsciiFIFO[KEYFIFOSIZ];
+uint8_t g_keyFIFOpos;
 uint8_t g_keyFIFOend;
 uint8_t g_keyAsciiPos;
 uint8_t g_keyAsciiEnd;
@@ -47,6 +48,23 @@ void keySetState(int32_t key, int32_t state)
         g_keyFIFO[(g_keyFIFOend+1)&(KEYFIFOSIZ-1)] = state;
         g_keyFIFOend = ((g_keyFIFOend+2)&(KEYFIFOSIZ-1));
     }
+}
+
+char keyGetScan(void)
+{
+    if (g_keyFIFOpos == g_keyFIFOend)
+        return 0;
+
+    char const c    = g_keyFIFO[g_keyFIFOpos];
+    g_keyFIFOpos = ((g_keyFIFOpos + 2) & (KEYFIFOSIZ - 1));
+
+    return c;
+}
+
+void keyFlushScans(void)
+{
+    Bmemset(&g_keyFIFO,0,sizeof(g_keyFIFO));
+    g_keyFIFOpos = g_keyFIFOend = 0;
 }
 
 //

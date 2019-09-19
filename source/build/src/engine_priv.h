@@ -270,11 +270,18 @@ int32_t wallfront(int32_t l1, int32_t l2);
 
 void set_globalang(fix16_t const ang);
 
-int32_t animateoffs(int tilenum);
-#define DO_TILE_ANIM(Picnum, Fakevar) do { \
-        if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum); \
-        if ((((Fakevar) & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && rottile[Picnum].newtile != -1) Picnum = rottile[Picnum].newtile; \
-    } while (0)
+int32_t animateoffs(int tilenum, int fakevar);
+
+template <class inttype>
+inline void DO_TILE_ANIM(inttype &Picnum, int Fakevar)
+{
+#ifndef PLAYING_BLOOD
+    if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum);
+#else
+    Picnum += animateoffs(Picnum, Fakevar);
+#endif
+    if (((Fakevar & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && rottile[Picnum].newtile != -1) Picnum = rottile[Picnum].newtile;
+}
 
 static FORCE_INLINE int32_t bad_tspr(tspriteptr_t tspr)
 {
@@ -288,6 +295,8 @@ static FORCE_INLINE int32_t bad_tspr(tspriteptr_t tspr)
 //
 static FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
 {
+    if (getpalookup_replace)
+        return getpalookup_replace(davis, dashade);
     return min(max(dashade + (davis >> 8), 0), numshades - 1);
 }
 

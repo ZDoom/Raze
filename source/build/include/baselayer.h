@@ -143,6 +143,14 @@ char CONSTEXPR const g_keyAsciiTable[128] = {
     0  ,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,
 };
 
+char CONSTEXPR const g_keyAsciiTableShift[128] = {
+    0  ,   0,   '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 0,  0,   'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
+    '{', '}', 0,   0,   'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~', 0,   '|',  'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<',
+    '>', '?', 0,   '*', 0,   32,  0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6',
+    '+', '1', '2', '3', '0', '.', 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0  ,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,
+};
+
 extern char    keystatus[NUMKEYS];
 extern char    g_keyFIFO[KEYFIFOSIZ];
 extern char    g_keyAsciiFIFO[KEYFIFOSIZ];
@@ -218,6 +226,7 @@ void joySetCallback(void (*callback)(int32_t,int32_t));
 const char *keyGetName(int32_t num);
 const char *joyGetName(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=hat
 
+char keyGetScan(void);
 char keyGetChar(void);
 #define keyBufferWaiting() (g_keyAsciiPos != g_keyAsciiEnd)
 
@@ -232,6 +241,7 @@ static FORCE_INLINE void keyBufferInsert(char code)
     g_keyAsciiEnd = ((g_keyAsciiEnd+1)&(KEYFIFOSIZ-1));
 }
 
+void keyFlushScans(void);
 void keyFlushChars(void);
 
 void mouseInit(void);
@@ -239,6 +249,7 @@ void mouseUninit(void);
 int32_t mouseReadAbs(vec2_t *pResult, vec2_t const *pInput);
 void mouseGrabInput(bool grab);
 void mouseLockToWindow(char a);
+void mouseMoveToCenter(void);
 int32_t mouseReadButtons(void);
 void mouseReadPos(int32_t *x, int32_t *y);
 

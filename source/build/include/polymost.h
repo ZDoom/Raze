@@ -6,6 +6,7 @@
 #include "baselayer.h"  // glinfo
 #include "glad/glad.h"
 #include "hightile.h"
+#include "mdsprite.h"
 
 void Polymost_CacheHitList(uint8_t* hash);
 
@@ -87,6 +88,7 @@ extern uint8_t alphahackarray[MAXTILES];
 extern int32_t r_usenewshading;
 extern int32_t r_npotwallmode;
 extern int32_t r_brightnesshack;
+extern int32_t polymostcenterhoriz;
 
 extern int16_t globalpicnum;
 

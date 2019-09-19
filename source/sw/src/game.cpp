@@ -1009,7 +1009,7 @@ InitGame(int32_t argc, char const * const * argv)
     //_outtext("\n\n\n\n\n\n\n\n");
     //AnimateCacheCursor();
     buildputs("Loading sound and graphics...\n");
-    LoadImages("tiles000.art");
+    LoadImages("tiles%03d.art");
 
     // Now free it up for later use
     /*

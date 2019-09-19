@@ -121,6 +121,7 @@ enum scripttoken_t
     T_DST_COLOR, T_ONE_MINUS_DST_COLOR,
     T_SHADERED, T_SHADEGREEN, T_SHADEBLUE,
     T_SHADEFACTOR,
+    T_RFFDEFINEID,
     T_IFCRC,
 };
 
@@ -402,6 +403,8 @@ static int32_t defsparser(scriptfile *script)
         { "undefpalookuprange", T_UNDEFPALOOKUPRANGE },
         { "undefblendtablerange", T_UNDEFBLENDTABLERANGE },
         { "shadefactor",     T_SHADEFACTOR      },
+
+        { "rffdefineid",     T_RFFDEFINEID      },  // dummy
     };
 
     while (1)
@@ -1306,6 +1309,9 @@ static int32_t defsparser(scriptfile *script)
             if (EDUKE32_PREDICT_FALSE(scriptfile_getstring(script,&fn)))
                 break; //voxel filename
 
+            while (nextvoxid < MAXVOXELS && (voxreserve[nextvoxid>>3]&(1<<(nextvoxid&7))))
+                nextvoxid++;
+
             if (EDUKE32_PREDICT_FALSE(nextvoxid == MAXVOXELS))
             {
                 initprintf("Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
@@ -1837,6 +1843,9 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(scriptfile_getstring(script,&fn)))
                 break; //voxel filename
+
+            while (nextvoxid < MAXVOXELS && (voxreserve[nextvoxid>>3]&(1<<(nextvoxid&7))))
+                nextvoxid++;
 
             if (EDUKE32_PREDICT_FALSE(nextvoxid == MAXVOXELS))
             {
@@ -3632,6 +3641,21 @@ static int32_t defsparser(scriptfile *script)
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_TRANSLUC;
+        }
+        break;
+        case T_RFFDEFINEID:
+        {
+            char *dummy;
+            int dummy2;
+
+            if (scriptfile_getstring(script, &dummy))
+                break;
+            if (scriptfile_getstring(script, &dummy))
+                break;
+            if (scriptfile_getnumber(script, &dummy2))
+                break;
+            if (scriptfile_getstring(script, &dummy))
+                break;
         }
         break;
 

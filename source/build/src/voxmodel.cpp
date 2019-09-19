@@ -894,6 +894,119 @@ voxmodel_t *voxload(const char *filnam)
     return vm;
 }
 
+voxmodel_t *loadkvxfrombuf(const char *kvxbuffer, int32_t length)
+{
+    int32_t i, mip1leng;
+
+    if (!kvxbuffer)
+        return NULL;
+
+    char *buffer = (char*)Xmalloc(length);
+    if (!buffer)
+        return NULL;
+
+    Bmemcpy(buffer, kvxbuffer, length);
+
+    int32_t *longptr = (int32_t*)buffer;
+
+    mip1leng = *longptr++; mip1leng = B_LITTLE32(mip1leng);
+    if (mip1leng > length - 4)
+    {
+        // Invalid KVX file
+        Bfree(buffer);
+        return NULL;
+    }
+    memcpy(&voxsiz, longptr, sizeof(vec3_t));
+    longptr += 3;
+#if B_BIG_ENDIAN != 0
+    voxsiz.x = B_LITTLE32(voxsiz.x);
+    voxsiz.y = B_LITTLE32(voxsiz.y);
+    voxsiz.z = B_LITTLE32(voxsiz.z);
+#endif
+    i = *longptr++; voxpiv.x = (float)B_LITTLE32(i)*(1.f/256.f);
+    i = *longptr++; voxpiv.y = (float)B_LITTLE32(i)*(1.f/256.f);
+    i = *longptr++; voxpiv.z = (float)B_LITTLE32(i)*(1.f/256.f);
+    longptr += voxsiz.x+1;
+
+    const int32_t ysizp1 = voxsiz.y+1;
+    i = voxsiz.x*ysizp1*sizeof(int16_t);
+    uint16_t *xyoffs = (uint16_t*)longptr;
+
+    for (i=i/sizeof(int16_t)-1; i>=0; i--)
+        xyoffs[i] = B_LITTLE16(xyoffs[i]);
+
+    const char *paloff = buffer+length-768;
+    int32_t pal[256];
+
+    for (bssize_t i=0; i<256; i++)
+    {
+        const char *c = &paloff[i*3];
+//#if B_BIG_ENDIAN != 0
+        pal[i] = B_LITTLE32((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24));
+//#endif
+    }
+
+    alloc_vbit();
+
+    for (vcolhashsizm1=4096; vcolhashsizm1<(mip1leng>>1); vcolhashsizm1<<=1)
+    {
+        /* do nothing */
+    }
+    vcolhashsizm1--; //approx to numvoxs!
+    alloc_vcolhashead();
+
+    const char *cptr = buffer+28+((voxsiz.x+1)<<2)+((ysizp1*voxsiz.x)<<1);
+
+    for (bssize_t x=0; x<voxsiz.x; x++) //Set surface voxels to 1 else 0
+        for (bssize_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
+        {
+            i = xyoffs[x*ysizp1+y+1] - xyoffs[x*ysizp1+y];
+            if (!i)
+                continue;
+
+            int32_t z1 = 0;
+
+            while (i)
+            {
+                const int32_t z0 = cptr[0];
+                const int32_t k = cptr[1];
+                cptr += 3;
+
+                if (!(cptr[-1]&16))
+                    setzrange1(vbit, j+z1, j+z0);
+
+                i -= k+3;
+                z1 = z0+k;
+
+                setzrange1(vbit, j+z0, j+z1);  // PK: oob in AMC TC dev if vbit alloc'd w/o +1
+
+                for (bssize_t z=z0; z<z1; z++)
+                    putvox(x, y, z, pal[*cptr++]);
+            }
+        }
+
+    voxmodel_t *const vm = vox2poly();
+
+    if (vm)
+    {
+        vm->mdnum = 1; //VOXel model id
+        vm->scale = vm->bscale = 1.f;
+        vm->siz.x = voxsiz.x; vm->siz.y = voxsiz.y; vm->siz.z = voxsiz.z;
+        vm->piv.x = voxpiv.x; vm->piv.y = voxpiv.y; vm->piv.z = voxpiv.z;
+        vm->is8bit = 1;
+
+        vm->texid = (uint32_t *)Xcalloc(MAXPALOOKUPS, sizeof(uint32_t));
+    }
+
+    DO_FREE_AND_NULL(shcntmal);
+    DO_FREE_AND_NULL(vbit);
+    DO_FREE_AND_NULL(vcol);
+    vnum = vmax = 0;
+    DO_FREE_AND_NULL(vcolhashead);
+    Bfree(buffer);
+
+    return vm;
+}
 
 //Draw voxel model as perfect cubes
 // Note: This is a hopeless mess that totally forfeits any chance of using a vertex buffer with its messy coordinate adjustments. :(

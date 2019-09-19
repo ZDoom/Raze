@@ -39,7 +39,8 @@ static char ** g_bakFakeTileData;
 //static int32_t artsize = 0;
 static int32_t cachesize = 0;
 
-static char artfilename[20];
+static char artfilename[BMAX_PATH];
+static char artfilenameformat[BMAX_PATH];
 static char mapartfilename[BMAX_PATH];  // map-specific ART file name
 static int32_t mapartfnXXofs;  // byte offset to 'XX' (the number part) in the above
 static int32_t artfilnum, artfilplc;
@@ -462,13 +463,18 @@ static const char *artGetIndexedFileName(int32_t tilefilei)
     }
     else
     {
-        artfilename[7] = '0' + tilefilei%10;
-        artfilename[6] = '0' + (tilefilei/10)%10;
-        artfilename[5] = '0' + (tilefilei/100)%10;
+        Bsnprintf(artfilename, sizeof(artfilename), artfilenameformat, tilefilei);
 
         return artfilename;
     }
 }
+
+
+#ifndef PLAYING_BLOOD
+auto kopen4loadfunc = kopen4load;
+#else
+auto kopen4loadfunc = kopen4loadfrommod;
+#endif
 
 // Returns:
 //  0: successfully read ART file
@@ -481,7 +487,7 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
     const int32_t permap = (tilefilei >= MAXARTFILES_BASE);  // is it a per-map ART file?
     buildvfs_kfd fil;
 
-    if ((fil = kopen4load(fn, 0)) != buildvfs_kfd_invalid)
+    if ((fil = kopen4loadfunc(fn, 0)) != buildvfs_kfd_invalid)
     {
         artheader_t local;
         int const headerval = artReadHeader(fil, fn, &local);
@@ -558,7 +564,7 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
 //
 int32_t artLoadFiles(const char *filename, int32_t askedsize)
 {
-    Bstrncpyz(artfilename, filename, sizeof(artfilename));
+    Bstrncpyz(artfilenameformat, filename, sizeof(artfilenameformat));
 
     Bmemset(&tilesiz[0], 0, sizeof(vec2s_t) * MAXTILES);
     Bmemset(picanm, 0, sizeof(picanm));
@@ -684,7 +690,7 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
 
         char const *fn = artGetIndexedFileName(tfn);
 
-        artfil = kopen4load(fn, 0);
+        artfil = kopen4loadfunc(fn, 0);
 
         if (artfil == buildvfs_kfd_invalid)
         {

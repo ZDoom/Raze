@@ -97,7 +97,7 @@ uint8_t globalr = 255, globalg = 255, globalb = 255;
 
 int16_t pskybits_override = -1;
 
-//void loadvoxel(int32_t voxindex) { UNREFERENCED_PARAMATER(voxindex); }
+void (*loadvoxel_replace)(int32_t voxindex) = NULL;
 int16_t tiletovox[MAXTILES];
 int32_t usevoxels = 1;
 #ifdef USE_OPENGL
@@ -111,12 +111,12 @@ int32_t novoxmips = 1;
 #define MAXXSIZ 256
 #define MAXYSIZ 256
 #define MAXZSIZ 255
-#define MAXVOXMIPS 5
 #ifdef EDUKE32_TOUCH_DEVICES
 # define DISTRECIPSIZ (65536+256)
 #else
 # define DISTRECIPSIZ 131072
 #endif
+int8_t voxreserve[(MAXVOXELS+7)>>3];
 intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
 static char voxlock[MAXVOXELS][MAXVOXMIPS];
 int32_t voxscale[MAXVOXELS];
@@ -341,6 +341,8 @@ static FORCE_INLINE int32_t yax_islockededge(int32_t line, int32_t cf)
 //// bunch getters/setters
 int16_t yax_getbunch(int16_t i, int16_t cf)
 {
+    if (bloodhack)
+        return -1;
     if (editstatus==0)
         return yax_bunchnum[i][cf];
 
@@ -417,6 +419,8 @@ void yax_setbunches(int16_t i, int16_t cb, int16_t fb)
 //// nextwall getters/setters
 int16_t yax_getnextwall(int16_t wal, int16_t cf)
 {
+    if (bloodhack)
+        return -1;
     if (editstatus==0)
         return yax_nextwall[wal][cf];
 
@@ -1646,7 +1650,14 @@ static inline int findUnusedTile(void)
 static void classicScanSector(int16_t startsectnum)
 {
     if (startsectnum < 0)
+    {
         return;
+    }
+
+	if (automapping)
+    {
+        show2dsector[startsectnum>>3] |= pow2char[startsectnum&7];
+    }
 
     sectorborder[0] = startsectnum;
     int32_t sectorbordercnt = 1;
@@ -2299,8 +2310,14 @@ static void prepwall(int32_t z, uwallptr_t wal)
 //
 // animateoffs (internal)
 //
-int32_t animateoffs(int const tilenum)
+int32_t (*animateoffs_replace)(int const tilenum, int fakevar) = NULL;
+int32_t animateoffs(int const tilenum, int fakevar)
 {
+    if (animateoffs_replace)
+    {
+        return animateoffs_replace(tilenum, fakevar);
+    }
+
     int const animnum = picanm[tilenum].num;
 
     if (animnum <= 0)
@@ -4829,6 +4846,10 @@ static void classicDrawSprite(int32_t snum)
                 cstat |= 512;
             else
                 cstat &= ~512;
+
+            // Blood's transparency table is inverted
+            if (bloodhack)
+                cstat ^= 512;
         }
 
         tspr->cstat = cstat;
@@ -5728,14 +5749,15 @@ draw_as_face_sprite:
                 if (lwall[x] < swall[x]) break;
             if (x == rx) return;
         }
-/*
+
+        if (loadvoxel_replace)
         for (i=0; i<MAXVOXMIPS; i++)
             if (!voxoff[vtilenum][i])
             {
-                kloadvoxel(vtilenum);
+                    loadvoxel_replace(vtilenum);
                 break;
             }
-*/
+
         const int32_t *const longptr = (int32_t *)voxoff[vtilenum][0];
         if (longptr == NULL)
         {
@@ -7144,7 +7166,11 @@ static void dosetaspect(void)
             radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
 
-        if (xdimen != oxdimen && voxoff[0][0])
+        if (xdimen != oxdimen
+#ifndef PLAYING_BLOOD 
+		&& voxoff[0][0]
+#endif
+		)
         {
             if (distrecip == NULL)
                 distrecip = (uint32_t *)Xaligned_alloc(16, DISTRECIPSIZ * sizeof(uint32_t));
@@ -7342,8 +7368,11 @@ LISTFN_STATIC void do_deletespritestat(int16_t deleteme)
 //
 // insertsprite
 //
+int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum) = NULL;
 int32_t insertsprite(int16_t sectnum, int16_t statnum)
 {
+    if (insertsprite_replace)
+        return insertsprite_replace(sectnum, statnum);
     // TODO: guard against bad sectnum?
     int32_t const newspritenum = insertspritestat(statnum);
 
@@ -7362,8 +7391,11 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 //
 // deletesprite
 //
+int32_t (*deletesprite_replace)(int16_t spritenum) = NULL;
 int32_t deletesprite(int16_t spritenum)
 {
+    if (deletesprite_replace)
+        return deletesprite_replace(spritenum);
     Bassert((sprite[spritenum].statnum == MAXSTATUS)
             == (sprite[spritenum].sectnum == MAXSECTORS));
 
@@ -7395,8 +7427,11 @@ int32_t deletesprite(int16_t spritenum)
 //
 // changespritesect
 //
+int32_t (*changespritesect_replace)(int16_t spritenum, int16_t newsectnum) = NULL;
 int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 {
+    if (changespritesect_replace)
+        return changespritesect_replace(spritenum, newsectnum);
     // XXX: NOTE: MAXSECTORS is allowed
     if ((newsectnum < 0 || newsectnum > MAXSECTORS) || (sprite[spritenum].sectnum == MAXSECTORS))
         return -1;
@@ -7413,8 +7448,11 @@ int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 //
 // changespritestat
 //
+int32_t (*changespritestat_replace)(int16_t spritenum, int16_t newstatnum) = NULL;
 int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
 {
+    if (changespritestat_replace)
+        return changespritestat_replace(spritenum, newstatnum);
     // XXX: NOTE: MAXSTATUS is allowed
     if ((newstatnum < 0 || newstatnum > MAXSTATUS) || (sprite[spritenum].statnum == MAXSTATUS))
         return -1;  // can't set the statnum of a sprite not in the world
@@ -7919,8 +7957,14 @@ void engineUnInit(void)
 //
 // initspritelists
 //
+void (*initspritelists_replace)(void) = NULL;
 void initspritelists(void)
 {
+    if (initspritelists_replace)
+    {
+        initspritelists_replace();
+        return;
+    }
     int32_t i;
 
     // initial list state for statnum lists:
@@ -8542,7 +8586,7 @@ killsprite:
                     if (tspriteptr[k]->x == tspriteptr[l]->x &&
                         tspriteptr[k]->y == tspriteptr[l]->y &&
                         (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
-                        tspriteptr[k]->owner < tspriteptr[l]->owner)
+                        (bloodhack ? tspriteptr[k]->statnum < tspriteptr[l]->statnum : tspriteptr[k]->owner < tspriteptr[l]->owner))
                     {
                         swapptr(&tspriteptr[k], &tspriteptr[l]);
                         vec3_t tv3 = spritesxyz[k];
@@ -8688,7 +8732,11 @@ killsprite:
 
                             get_wallspr_points((uspriteptr_t)tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
 
+#ifndef PLAYING_BLOOD 
                             if ((tspr->cstat & 48) == 0)
+#else
+                            if ((tspr->cstat & 48) != 16)
+#endif
                                 tspriteptr[i]->ang = oang;
                         }
 
@@ -9960,6 +10008,7 @@ static void videoAllocateBuffers(void)
 }
 
 #ifdef USE_OPENGL
+void (*PolymostProcessVoxels_Callback)(void) = NULL;
 static void PolymostProcessVoxels(void)
 {
     if (!g_haveVoxels)
@@ -11696,6 +11745,46 @@ void renderPrepareMirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall
     inpreparemirror = 1;
 }
 
+static int32_t mirthoriz, mirbakdaz;
+static int16_t mirbakdasector;
+
+void renderPrepareMirrorOld(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz,
+                            int16_t dawall, int16_t dasector, int32_t *tposx, int32_t *tposy, fix16_t *tang)
+{
+    mirrorrender = 1;
+    const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
+    const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
+
+    const int32_t j = dx*dx + dy*dy;
+    if (j == 0)
+        return;
+
+    int i = ((dax-x)*dx + (day-y)*dy)<<1;
+
+    *tposx = (x<<1) + scale(dx,i,j) - dax;
+    *tposy = (y<<1) + scale(dy,i,j) - day;
+    *tang  = (fix16_from_int(getangle(dx, dy) << 1) - daang) & 0x7FFFFFF;
+
+    if (videoGetRenderMode() != REND_CLASSIC)
+    {
+        inpreparemirror = 1;
+        return;
+    }
+
+    videoBeginDrawing();
+    mirbakdaz = daz; mirbakdasector = dasector;
+    if ((daz > sector[dasector].ceilingz) && (daz < sector[dasector].floorz))
+    {
+        //Draw pink pixels on horizon to get mirror l&r bounds.
+        mirthoriz = scale(dahoriz - fix16_from_int(100), windowxy2.x - windowxy1.x, fix16_from_int(320)) + ((windowxy1.y + windowxy2.y) >> 1);
+        if ((daz << 1) > sector[dasector].ceilingz + sector[dasector].floorz)
+            mirthoriz--; else mirthoriz++;
+        mirthoriz = min(max(mirthoriz, windowxy1.y), windowxy2.y);
+        clearbufbyte((char*)frameplace + ylookup[mirthoriz] + windowxy1.x, windowxy2.x - windowxy1.x + 1, 0xffffffff);
+    }
+    videoEndDrawing();
+}
+
 
 //
 // completemirror
@@ -11752,6 +11841,47 @@ void renderCompleteMirror(void)
         faketimerhandler();
     }
 
+    videoEndDrawing();
+}
+
+void renderCompleteMirrorOld(void)
+{
+    mirrorrender = 0;
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() != REND_CLASSIC)
+        return;
+#endif
+
+    videoBeginDrawing();
+    int32_t x1, y1, x2, y2, dy;
+    char *ptr;
+
+    //Get pink pixels on horizon to get mirror l&r bounds.
+    x1 = 0; x2 = windowxy2.x - windowxy1.x;
+    if ((mirbakdaz > sector[mirbakdasector].ceilingz) && (mirbakdaz < sector[mirbakdasector].floorz))
+    {
+        ptr = (char *)frameplace + ylookup[mirthoriz] + windowxy1.x;
+        while ((ptr[x1] == 255) && (x2 >= x1)) x1++;
+        while ((ptr[x2] == 255) && (x2 >= x1)) x2--;
+        if (x1 > 0) x1--;
+        if (x2 < windowxy2.x - windowxy1.x) x2++;
+        x2 |= 3;
+        if (x2 > windowxy2.x - windowxy1.x) x2 = windowxy2.x - windowxy1.x;
+    }
+
+    if (x2 >= x1)  //Flip window x-wise
+    {
+        ptr = (char *)frameplace + ylookup[windowxy1.y] + windowxy1.x;
+        y1 = windowxy2.x - windowxy1.x - x2; x2 -= x1; y2 = x2 + 1;
+        for (dy = windowxy2.y - windowxy1.y; dy >= 0; dy--)
+        {
+            copybufbyte(&ptr[x1 + 1], &tempbuf[0], y2);
+            tempbuf[x2] = tempbuf[x2 - 1];
+            copybufreverse(&tempbuf[x2], &ptr[y1], y2);
+            ptr += ylookup[1];
+            faketimerhandler();
+        }
+    }
     videoEndDrawing();
 }
 
