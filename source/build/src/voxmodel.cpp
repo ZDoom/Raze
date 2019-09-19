@@ -995,7 +995,7 @@ voxmodel_t *loadkvxfrombuf(const char *kvxbuffer, int32_t length)
         vm->piv.x = voxpiv.x; vm->piv.y = voxpiv.y; vm->piv.z = voxpiv.z;
         vm->is8bit = 1;
 
-        vm->texid = (uint32_t *)Xcalloc(MAXPALOOKUPS, sizeof(uint32_t));
+        vm->texid = (FHardwareTexture **)Xcalloc(MAXPALOOKUPS, sizeof(FHardwareTexture *));
     }
 
     DO_FREE_AND_NULL(shcntmal);

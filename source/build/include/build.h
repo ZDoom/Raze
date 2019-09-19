@@ -1162,7 +1162,6 @@ void bfirst_search_try(int16_t * const list, uint8_t * const bitmap, int32_t * c
 
 void   getzrange(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
-extern vec2_t hitscangoal;
 int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                   hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
 void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
@@ -1583,7 +1582,6 @@ extern void(*PolymostProcessVoxels_Callback)(void);
 
 extern int32_t automapping;
 extern int32_t bloodhack;
-extern int32_t blooddemohack;
 extern intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
 extern int8_t voxreserve[(MAXVOXELS+7)>>3];
 

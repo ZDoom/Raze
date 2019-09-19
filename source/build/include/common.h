@@ -18,6 +18,7 @@ extern "C" {
 #endif
 
 extern bool playing_rr;
+extern bool playing_blood;
 
 //// TYPES
 struct strllist

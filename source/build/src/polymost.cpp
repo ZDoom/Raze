@@ -19,6 +19,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 extern char textfont[2048], smalltextfont[2048];
 
 bool playing_rr;
+bool playing_blood;
 
 int32_t rendmode=0;
 int32_t usemodels=1;

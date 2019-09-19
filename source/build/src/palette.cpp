@@ -210,7 +210,7 @@ void paletteLoadFromDisk(void)
     }
 
 	auto fil = kopen4load("palette.dat", 0);
-    if (fil) == buildvfs_kfd_invalid)
+    if (fil == buildvfs_kfd_invalid)
         return;
 
 

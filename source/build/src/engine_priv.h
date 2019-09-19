@@ -272,16 +272,25 @@ void set_globalang(fix16_t const ang);
 
 int32_t animateoffs(int tilenum, int fakevar);
 
+extern bool playing_blood;
+
+}
+
 template <class inttype>
 inline void DO_TILE_ANIM(inttype &Picnum, int Fakevar)
 {
-#ifndef PLAYING_BLOOD
-    if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum);
-#else
-    Picnum += animateoffs(Picnum, Fakevar);
-#endif
+	if (!playing_blood)
+	{
+		if (picanm[Picnum].sf & PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum, Fakevar);
+	}
+	else
+	{
+		Picnum += animateoffs(Picnum, Fakevar);
+	}
     if (((Fakevar & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && rottile[Picnum].newtile != -1) Picnum = rottile[Picnum].newtile;
 }
+
+extern "C" {
 
 static FORCE_INLINE int32_t bad_tspr(tspriteptr_t tspr)
 {

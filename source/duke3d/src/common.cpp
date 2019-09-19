@@ -239,21 +239,8 @@ void G_SetupGlobalPsky(void)
 //////////
 
 static char g_rootDir[BMAX_PATH];
-char g_modDir[BMAX_PATH] = "/";
+//char g_modDir[BMAX_PATH] = "/";
 
-buildvfs_kfd kopen4loadfrommod(const char *fileName, char searchfirst)
-{
-    buildvfs_kfd kFile = buildvfs_kfd_invalid;
-
-    if (g_modDir[0] != '/' || g_modDir[1] != 0)
-    {
-        static char staticFileName[BMAX_PATH];
-        Bsnprintf(staticFileName, sizeof(staticFileName), "%s/%s", g_modDir, fileName);
-        kFile = kopen4load(staticFileName, searchfirst);
-    }
-
-    return (kFile == buildvfs_kfd_invalid) ? kopen4load(fileName, searchfirst) : kFile;
-}
 
 int g_useCwd;
 static void G_LoadAddon(void);

@@ -13,6 +13,7 @@
 #include "build.h"
 #include "cache1d.h"
 #include "colmatch.h"
+#include "common.h"
 #include "compat.h"
 #include "crc32.h"
 #include "editor.h"
@@ -188,6 +189,11 @@ static void draw_rainbow_background(void);
 
 int16_t editstatus = 0;
 static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
+
+int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade) = NULL;
+
+int32_t automapping = 0;
+int32_t bloodhack = 0;
 
 // adapted from build.c
 static void getclosestpointonwall_internal(vec2_t const &p, int32_t const dawall, vec2_t *const closest)
@@ -7166,11 +7172,7 @@ static void dosetaspect(void)
             radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
 
-        if (xdimen != oxdimen
-#ifndef PLAYING_BLOOD 
-		&& voxoff[0][0]
-#endif
-		)
+        if (xdimen != oxdimen && (playing_blood || voxoff[0][0]))
         {
             if (distrecip == NULL)
                 distrecip = (uint32_t *)Xaligned_alloc(16, DISTRECIPSIZ * sizeof(uint32_t));
@@ -8125,25 +8127,28 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
         dmost[0] = shortptr2[0]-windowxy1.y;
     }
 
-    for (int i = 0; i < numwalls; ++i)
+    if (!bloodhack)
     {
-        if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
+        for (int i = 0; i < numwalls; ++i)
         {
-            auto &w    = wall[i];
-            auto &tile = rottile[w.picnum+animateoffs(w.picnum)];
-
-            if (tile.newtile == -1 && tile.owner == -1)
+            if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
             {
-                tile.newtile = findUnusedTile();
-                Bassert(tile.newtile != -1);
+                auto &w    = wall[i];
+                auto &tile = rottile[w.picnum+animateoffs(w.picnum,16384)];
 
-                rottile[tile.newtile].owner = w.picnum+animateoffs(w.picnum);
+                if (tile.newtile == -1 && tile.owner == -1)
+                {
+                    tile.newtile = findUnusedTile();
+                    Bassert(tile.newtile != -1);
 
-                auto &siz  = tilesiz[w.picnum+animateoffs(w.picnum)];
-                tileSetSize(tile.newtile, siz.x, siz.y);
+                    rottile[tile.newtile].owner = w.picnum+animateoffs(w.picnum,16384);
 
-                tileLoad(tile.newtile);
-                // Bassert(waloff[tile.newtile]);
+                    auto &siz  = tilesiz[w.picnum+animateoffs(w.picnum,16384)];
+                    tileSetSize(tile.newtile, siz.x, siz.y);
+
+                    tileLoad(tile.newtile);
+                    // Bassert(waloff[tile.newtile]);
+                }
             }
         }
     }
@@ -8732,11 +8737,7 @@ killsprite:
 
                             get_wallspr_points((uspriteptr_t)tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
 
-#ifndef PLAYING_BLOOD 
-                            if ((tspr->cstat & 48) == 0)
-#else
-                            if ((tspr->cstat & 48) != 16)
-#endif
+                            if (!playing_blood?  ((tspr->cstat & 48) == 0) : ((tspr->cstat & 48) != 16))
                                 tspriteptr[i]->ang = oang;
                         }
 

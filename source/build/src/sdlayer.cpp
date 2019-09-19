@@ -6,6 +6,7 @@
 #include "a.h"
 #include "build.h"
 #include "cache1d.h"
+#include "common.h"
 #include "compat.h"
 #include "engine_priv.h"
 #include "osd.h"
@@ -1715,9 +1716,8 @@ void videoShowFrame(int32_t w)
         {
             if (palfadedelta)
                 fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
-#ifdef PLAYING_BLOOD
-            fullscreen_tint_gl_blood();
-#endif
+            if (playing_blood) 
+				fullscreen_tint_gl_blood();
 
 #ifdef __ANDROID__
             AndroidDrawControls();

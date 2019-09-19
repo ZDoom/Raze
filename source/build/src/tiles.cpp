@@ -367,40 +367,41 @@ int32_t artCheckUnitFileHeader(uint8_t const * const buf, int32_t length)
     return 0;
 }
 
-void tileConvertAnimFormat(int32_t const picnum)
+void tileConvertAnimFormat(int32_t const picnum, int32_t const picanmdisk)
 {
-    EDUKE32_STATIC_ASSERT(sizeof(picanm_t) == 4);
-    EDUKE32_STATIC_ASSERT(PICANM_ANIMTYPE_MASK == 192);
+	EDUKE32_STATIC_ASSERT(PICANM_ANIMTYPE_MASK == 192);
 
-    picanm_t * const thispicanm = &picanm[picnum];
-
-    // Old on-disk format: anim type is in the 2 highest bits of the lowest byte.
-    thispicanm->sf &= ~192;
-    thispicanm->sf |= thispicanm->num&192;
-    thispicanm->num &= ~192;
-
-    // don't allow setting texhitscan/nofullbright from ART
-    thispicanm->sf &= ~PICANM_MISC_MASK;
+	// Unpack a 4 byte packed anim descriptor into the internal 5 byte format.
+	picanm_t* const thispicanm = &picanm[picnum];
+	thispicanm->num = picanmdisk & 63;
+	thispicanm->xofs = (picanmdisk >> 8) & 255;
+	thispicanm->yofs = (picanmdisk >> 16) & 255;
+	thispicanm->sf = ((picanmdisk >> 24) & 15) | (picanmdisk & 192);
+	thispicanm->extra = (picanmdisk >> 28) & 15;
 }
 
-void artReadManifest(buildvfs_kfd const fil, artheader_t const * const local)
+void artReadManifest(int32_t const fil, artheader_t const* const local)
 {
-    int16_t *tilesizx = (int16_t *) Xmalloc(local->numtiles * sizeof(int16_t));
-    int16_t *tilesizy = (int16_t *) Xmalloc(local->numtiles * sizeof(int16_t));
-    kread(fil, tilesizx, local->numtiles*sizeof(int16_t));
-    kread(fil, tilesizy, local->numtiles*sizeof(int16_t));
-    kread(fil, &picanm[local->tilestart], local->numtiles*sizeof(picanm_t));
+	int16_t* tilesizx = (int16_t*)Xmalloc(local->numtiles * sizeof(int16_t));
+	int16_t* tilesizy = (int16_t*)Xmalloc(local->numtiles * sizeof(int16_t));
+	kread(fil, tilesizx, local->numtiles * sizeof(int16_t));
+	kread(fil, tilesizy, local->numtiles * sizeof(int16_t));
 
-    for (bssize_t i=local->tilestart; i<=local->tileend; i++)
-    {
-        tilesiz[i].x = B_LITTLE16(tilesizx[i-local->tilestart]);
-        tilesiz[i].y = B_LITTLE16(tilesizy[i-local->tilestart]);
+	for (bssize_t i = local->tilestart; i <= local->tileend; i++)
+	{
+		int32_t picanmdisk;
 
-        tileConvertAnimFormat(i);
-    }
+		tilesiz[i].x = B_LITTLE16(tilesizx[i - local->tilestart]);
+		tilesiz[i].y = B_LITTLE16(tilesizy[i - local->tilestart]);
 
-    DO_FREE_AND_NULL(tilesizx);
-    DO_FREE_AND_NULL(tilesizy);
+		kread(fil, &picanmdisk, sizeof(int32_t));
+		picanmdisk = B_LITTLE32(picanmdisk);
+
+		tileConvertAnimFormat(i, picanmdisk);
+	}
+
+	DO_FREE_AND_NULL(tilesizx);
+	DO_FREE_AND_NULL(tilesizy);
 }
 
 void artPreloadFile(buildvfs_kfd const fil, artheader_t const * const local)
@@ -470,11 +471,6 @@ static const char *artGetIndexedFileName(int32_t tilefilei)
 }
 
 
-#ifndef PLAYING_BLOOD
-auto kopen4loadfunc = kopen4load;
-#else
-auto kopen4loadfunc = kopen4loadfrommod;
-#endif
 
 // Returns:
 //  0: successfully read ART file
@@ -486,6 +482,8 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
     const char *fn = artGetIndexedFileName(tilefilei);
     const int32_t permap = (tilefilei >= MAXARTFILES_BASE);  // is it a per-map ART file?
     buildvfs_kfd fil;
+
+	auto kopen4loadfunc = playing_blood ? kopen4loadfrommod : kopen4load;
 
     if ((fil = kopen4loadfunc(fn, 0)) != buildvfs_kfd_invalid)
     {
@@ -690,7 +688,9 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
 
         char const *fn = artGetIndexedFileName(tfn);
 
-        artfil = kopen4loadfunc(fn, 0);
+		auto kopen4loadfunc = playing_blood ? kopen4loadfrommod : kopen4load;
+		
+		artfil = kopen4loadfunc(fn, 0);
 
         if (artfil == buildvfs_kfd_invalid)
         {
