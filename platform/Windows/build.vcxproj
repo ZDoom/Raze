@@ -257,7 +257,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\source\build\src\polymer.cpp" />
     <ClCompile Include="..\..\source\build\src\polymost.cpp" />
     <ClCompile Include="..\..\source\build\src\pragmas.cpp" />
     <ClCompile Include="..\..\source\build\src\rawinput.cpp">
