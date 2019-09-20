@@ -1,5 +1,4 @@
 #version 110
-#extension ARB_shader_texture_lod : enable
 
 //include an additional space here so that we can programmatically search for and disable this preprocessor definition easily
  #define POLYMOST1_EXTENDED
@@ -33,6 +32,7 @@ uniform float u_npotEmulation;
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
 uniform float u_shadeInterpolate;
+uniform float u_brightness;
 
 #ifdef POLYMOST1_EXTENDED
 uniform float u_useDetailMapping;
@@ -59,17 +59,11 @@ void main()
     coordX += u_npotEmulationXOffset*floor(mod(coordY,u_npotEmulationFactor));
     coordY = period+mod(coordY,u_npotEmulationFactor);
     vec2 newCoord = mix(gl_TexCoord[0].xy,mix(vec2(coordX,coordY),vec2(coordY,coordX),u_usePalette),u_npotEmulation);
-#ifdef GL_ARB_shader_texture_lod
-    vec2 texCoord = fract(newCoord.xy);
-    texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);
-    vec4 color = texture2DGradARB(s_texture, u_texturePosSize.xy+texCoord, dFdx(texCoord), dFdy(texCoord));
-#else
     vec2 transitionBlend = fwidth(floor(newCoord.xy));
     transitionBlend = fwidth(transitionBlend)+transitionBlend;
     vec2 texCoord = mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend);
     texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);
     vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);
-#endif
 
     float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);
     float shadeFrac = mod(shade, c_one);
@@ -111,6 +105,7 @@ void main()
 #endif
 
     color.a *= v_color.a;
+    color.rgb = pow(color.rgb, vec3(u_brightness));
 
     gl_FragData[0] = color;
 }
