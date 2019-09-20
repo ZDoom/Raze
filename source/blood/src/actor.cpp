@@ -3601,6 +3601,17 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
     PLAYER *pSourcePlayer = NULL;
     if (IsPlayerSprite(&sprite[nSource]))
         pSourcePlayer = &gPlayer[sprite[nSource].type-kDudePlayer1];
+    if (!gGameOptions.bFriendlyFire && pSourcePlayer != NULL && (gGameOptions.nGameType == 1 || gGameOptions.nGameType == 3)  && IsPlayerSprite(pSprite))
+    {
+        PLAYER *pTargetPlayer = &gPlayer[pSprite->type-kDudePlayer1];
+        if (pSourcePlayer != pTargetPlayer)
+        {
+            if (gGameOptions.nGameType == 1)
+                return 0;
+            if (gGameOptions.nGameType == 3 && (pSourcePlayer->at2ea&3) == (pTargetPlayer->at2ea&3))
+                return 0;
+        }
+    }
     switch (pSprite->statnum)
     {
     case 6:

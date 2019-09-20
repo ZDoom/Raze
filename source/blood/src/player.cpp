@@ -349,10 +349,10 @@ ARMORDATA armorData[5] = {
 };
 
 void PlayerSurvive(int, int);
-void PlayerKeelsOver(int, int);
+void PlayerKneelsOver(int, int);
 
 int nPlayerSurviveClient = seqRegisterClient(PlayerSurvive);
-int nPlayerKeelClient = seqRegisterClient(PlayerKeelsOver);
+int nPlayerKneelClient = seqRegisterClient(PlayerKneelsOver);
 
 struct VICTORY {
     const char *at0;
@@ -934,8 +934,9 @@ void playerStart(int nPlayer)
     pPlayer->at1ca.dz = 0;
     pPlayer->at1d6 = -1;
     pPlayer->at6b = pPlayer->at73;
-    for (int i = 0; i < 8; i++)
-        pPlayer->at88[i] = gGameOptions.nGameType >= 2;
+    if (!(gGameOptions.nGameType == 1 && gGameOptions.bKeepKeysOnRespawn))
+        for (int i = 0; i < 8; i++)
+            pPlayer->at88[i] = gGameOptions.nGameType >= 2;
     pPlayer->at90 = 0;
     for (int i = 0; i < 8; i++)
         pPlayer->at91[i] = -1;
@@ -2157,7 +2158,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
     int nXSector = sector[pSprite->sectnum].extra;
     DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
     int nDeathSeqID = -1;
-    int v18 = -1;
+    int nKneelingPlayer = -1;
     int nSprite = pSprite->index;
     char va = playerSeqPlaying(pPlayer, 16);
     if (!pXSprite->health)
@@ -2252,7 +2253,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
                 DAMAGEINFO *pDamageInfo = &damageInfo[nDamageType];
                 sfxPlay3DSound(pSprite, pDamageInfo->at10[0], 0, 2);
                 nDeathSeqID = 16;
-                v18 = nPlayerKeelClient;
+                nKneelingPlayer = nPlayerKneelClient;
                 powerupActivate(pPlayer, 28);
                 pXSprite->target = nSource;
                 evPost(pSprite->index, 3, 15, CALLBACK_ID_13);
@@ -2282,7 +2283,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
         trTriggerSprite(nSprite, pXSprite, 0);
     }
     dassert(gSysRes.Lookup(pDudeInfo->seqStartID + nDeathSeqID, "SEQ") != NULL);
-    seqSpawn(pDudeInfo->seqStartID+nDeathSeqID, 3, nXSprite, v18);
+    seqSpawn(pDudeInfo->seqStartID+nDeathSeqID, 3, nXSprite, nKneelingPlayer);
     return nDamage;
 }
 
@@ -2369,7 +2370,7 @@ void PlayerSurvive(int, int nXSprite)
     }
 }
 
-void PlayerKeelsOver(int, int nXSprite)
+void PlayerKneelsOver(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     for (int p = connecthead; p >= 0; p = connectpoint2[p])

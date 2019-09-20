@@ -76,6 +76,8 @@ struct PKT_STARTGAME {
     char episodeId, levelId;
     int unk;
     char userMap, userMapName[13];
+    bool bFriendlyFire;
+    bool bKeepKeysOnRespawn;
 };
 
 extern PKT_STARTGAME gPacketStartGame;

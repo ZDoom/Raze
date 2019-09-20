@@ -114,7 +114,7 @@ struct PLAYER {
     int at202[kMaxPowerUps]; // [13]: cloak of invisibility, [14]: death mask (invulnerability), [15]: jump boots, [17]: guns akimbo, [18]: diving suit, [21]: crystal ball, [24]: reflective shots, [25]: beast vision, [26]: cloak of shadow
     int at2c6; // frags
     int at2ca[8];
-    int at2ea;
+    int at2ea; // color (team)
     int at2ee; // killer
     int at2f2;
     int at2f6;
@@ -249,7 +249,7 @@ int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec);
 void sub_41250(PLAYER *pPlayer);
 void playerLandingSound(PLAYER *pPlayer);
 void PlayerSurvive(int, int nXSprite);
-void PlayerKeelsOver(int, int nXSprite);
+void PlayerKneelsOver(int, int nXSprite);
 bool isGrown(spritetype* pSprite);
 bool isShrinked(spritetype* pSprite);
 bool shrinkPlayerSize(PLAYER* pPlayer, int divider);
