@@ -11727,7 +11727,7 @@ static int16_t mirbakdasector;
 void renderPrepareMirrorOld(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz,
                             int16_t dawall, int16_t dasector, int32_t *tposx, int32_t *tposy, fix16_t *tang)
 {
-    mirrorrender = 1;
+    //mirrorrender = 1;
     const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
     const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
 
@@ -11826,7 +11826,7 @@ void renderCompleteMirror(void)
 
 void renderCompleteMirrorOld(void)
 {
-    mirrorrender = 0;
+    //mirrorrender = 0;
 #ifdef USE_OPENGL
     if (videoGetRenderMode() != REND_CLASSIC)
         return;

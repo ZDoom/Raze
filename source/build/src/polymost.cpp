@@ -3166,9 +3166,6 @@ skip: ;
                         {
                             if (yax_drawcf != -1)
                                 yax_holecf[yax_drawcf][yax_holencf[yax_drawcf]++] = { dx0, dx1, vsp[i].cy[0], vsp[i].cy[1], n0.y, vsp[i].cy[1] };
-
-                            if (editstatus && doeditorcheck)
-                                polymost_polyeditorfunc(dpxy, n);
                         }
                         else
 #endif
@@ -7587,7 +7584,6 @@ void polymost_initosdfuncs(void)
         { "r_nofog", "enable/disable GL fog", (void *)&nofog, CVAR_BOOL, 0, 1},
         { "r_hightile","enable/disable hightile texture rendering",(void *) &usehightile, CVAR_BOOL, 0, 1 },
 
-        { "r_preview_mouseaim", "toggles mouse aiming preview, use this to calibrate yxaspect in Polymost Mapster32", (void *) &preview_mouseaim, CVAR_BOOL, 0, 1 },
     };
 
     for (i=0; i<ARRAY_SIZE(cvars_polymost); i++)
