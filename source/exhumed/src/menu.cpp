@@ -1145,124 +1145,126 @@ int menu_NewGameMenu()
 
         char ch = 0;
 
-        while (KB_KeyWaiting())
+check_keys:
+        if (KB_KeyWaiting())
         {
             HandleAsync();
 
             ch = KB_GetCh();
-            if (!ch) {
-                KB_GetCh();
-                continue;
-            }
-        }
-
-        if (ch == asc_Enter)
-        {
-            // loc_39ACA:
-
-            nameList[nSlot][nNameOffset] = 0;
-
-            PlayLocalSound(StaticSound[kSound33], 0);
-            KB_KeyDown[sc_Return] = 0;
-
-            if (nameList[nSlot][0] == 0) {
-                return -1;
-            }
-
-            if (nNameLength) // does the save slot already exist?
+            if (!ch)
             {
-                menu_DoPlasma();
-                if (Query(2, 4, "Overwrite existing game?", "Y/N", 'Y', 13, 'N', 27) >= 2) {
+                KB_GetCh();
+                goto check_keys;
+            }
+
+            // handle key input
+            if (ch == asc_Enter)
+            {
+                // loc_39ACA:
+                nameList[nSlot][nNameOffset] = 0;
+
+                PlayLocalSound(StaticSound[kSound33], 0);
+                KB_KeyDown[sc_Return] = 0;
+
+                if (nameList[nSlot][0] == 0) {
                     return -1;
                 }
-            }
 
-            FILE *fp = fopen("savgamea.sav", "rb+");
-            if (fp == NULL) {
-                return -1;
-            }
-
-            memset(&GameStats, 0, sizeof(GameStat));
-            GameStats.nWeapons = 1;
-            GameStats.nMap = 1;
-
-            fwrite(nameList, sizeof(nameList), 1, fp);
-            fseek(fp, sizeof(nameList), SEEK_SET);
-            fseek(fp, nSlot * sizeof(GameStat), SEEK_CUR);
-            fwrite(&GameStats, sizeof(GameStat), 1, fp);
-            fclose(fp);
-            return nSlot;
-        }
-        else
-        {
-            // Enter wasn't pressed
-            PlayLocalSound(4, 0); // ??
-
-            if (ch == asc_BackSpace)
-            {
-                nameList[nSlot][nNameOffset] = 0;
-
-                if (nNameOffset > 0) {
-                    nNameOffset--;
+                if (nNameLength) // does the save slot already exist?
+                {
+                    menu_DoPlasma();
+                    if (Query(2, 4, "Overwrite existing game?", "Y/N", 'Y', 13, 'N', 27) >= 2) {
+                        return -1;
+                    }
                 }
 
-                nameList[nSlot][nNameOffset] = 0;
-            }
-            else if (ch == asc_Escape)
-            {
-                PlayLocalSound(StaticSound[kSound33], 0);
-                KB_ClearKeysDown();
-                KB_FlushKeyboardQueue();
-                KB_KeyDown[sc_Escape] = 0;
-                return -1;
-            }
-            else 
-            {
-                // check if a slot name is being typed
-                if ((ch >= '0' && ch <= '9')
-                ||  (ch >= 'A' && ch <= 'Z')
-                ||  (ch >= 'a' && ch <= 'z')
-                ||  (ch == ' '))	
-                {
-                    ch = toupper(ch);
-                    if (nNameOffset < 24) // n chars per slot name
-                    {
-                        nameList[nSlot][nNameOffset] = ch;
-                        nNameOffset++;
-                        nameList[nSlot][nNameOffset] = '\0'; // null terminate in the new offset
+                FILE *fp = fopen("savgamea.sav", "rb+");
+                if (fp == NULL) {
+                    return -1;
+                }
 
-                        int nLen = MyGetStringWidth(nameList[nSlot]);
-                        if (nLen > arg_3E)
+                memset(&GameStats, 0, sizeof(GameStat));
+                GameStats.nWeapons = 1;
+                GameStats.nMap = 1;
+
+                fwrite(nameList, sizeof(nameList), 1, fp);
+                fseek(fp, sizeof(nameList), SEEK_SET);
+                fseek(fp, nSlot * sizeof(GameStat), SEEK_CUR);
+                fwrite(&GameStats, sizeof(GameStat), 1, fp);
+                fclose(fp);
+                return nSlot;
+            }
+            else
+            {
+                // Enter wasn't pressed
+                PlayLocalSound(4, 0); // ??
+
+                if (ch == asc_BackSpace)
+                {
+                    nameList[nSlot][nNameOffset] = 0;
+
+                    if (nNameOffset > 0) {
+                        nNameOffset--;
+                    }
+
+                    nameList[nSlot][nNameOffset] = 0;
+                }
+                else if (ch == asc_Escape)
+                {
+                    PlayLocalSound(StaticSound[kSound33], 0);
+                    KB_ClearKeysDown();
+                    KB_FlushKeyboardQueue();
+                    KB_KeyDown[sc_Escape] = 0;
+                    return -1;
+                }
+                else 
+                {
+                    // check if a slot name is being typed
+                    if ((ch >= '0' && ch <= '9')
+                    ||  (ch >= 'A' && ch <= 'Z')
+                    ||  (ch >= 'a' && ch <= 'z')
+                    ||  (ch == ' '))	
+                    {
+                        ch = toupper(ch);
+                        if (nNameOffset < 24) // n chars per slot name
                         {
-                            nNameOffset--;
-                            nameList[nSlot][nNameOffset] = '\0';
+                            nameList[nSlot][nNameOffset] = ch;
+                            nNameOffset++;
+                            nameList[nSlot][nNameOffset] = '\0'; // null terminate in the new offset
+
+                            int nLen = MyGetStringWidth(nameList[nSlot]);
+                            if (nLen > arg_3E)
+                            {
+                                nNameOffset--;
+                                nameList[nSlot][nNameOffset] = '\0';
+                            }
                         }
                     }
                 }
             }
+        }
 
-            // loc_399FD:
-            menu_DoPlasma();
+        // loc_399FD:
+        menu_DoPlasma();
 
-            int arg_5E = ((int)totalclock / 30) & 1;
+        int arg_5E = ((int)totalclock / 30) & 1;
 
-            int y = 90;
-            int arg_42 = 98;
+        int y = 90;
+        int arg_42 = 98;
 
-            for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
+        {
+            overwritesprite(55, y, kMenuBlankTitleTile, (i != nSlot) * 31, 2, kPalNormal);
+            int nTextWidth = myprintext(63, arg_42, nameList[i], 0);
+
+            // flash a full-stop to show the current typing position
+            if (arg_5E != 0 && nSlot == i)
             {
-                overwritesprite(55, y, kMenuBlankTitleTile, (i != nSlot) * 31, 2, kPalNormal);
-                int nTextWidth = myprintext(63, arg_42, nameList[i], 0);
-
-                // flash a full-stop to show the current typing position
-                if (arg_5E != 0 && nSlot == i)
-                {
-                    myprintext(nTextWidth, arg_42, ".", 0);
-                }
-
-                arg_42 += 22;
-                y += 22;
+                myprintext(nTextWidth, arg_42, ".", 0);
             }
+
+            arg_42 += 22;
+            y += 22;
         }
     }
 }
