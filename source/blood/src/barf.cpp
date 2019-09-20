@@ -116,7 +116,7 @@ const int kTagCount = sizeof(tags) / sizeof(tag_t);
 
 int qsort_compar(const void *a, const void *b)
 {
-    return stricmp((const char*)a, (const char*)b);
+    return strcasecmp((const char*)a, (const char*)b);
 }
 
 void SortTags()
@@ -171,7 +171,7 @@ void RFS::Open(const char *fileName)
         ThrowError("Error opening file %s", _fileName);
     }
 
-    int fileSize = filelength(hFile);
+    int fileSize = kfilelength(hFile);
     _ptr = (char*)Resource::Alloc(fileSize);
     if (_ptr == NULL) {
         ThrowError("Not enough memory to read %s", _fileName);
@@ -314,14 +314,14 @@ uint8_t RFS::GetNextTag()
     else
     {
         scriptValue = 0;
-        BOOL isNegative = FALSE; // or 'isSigned' ?
+        bool isNegative = false; // or 'isSigned' ?
 
         // is it a negative number?
         if (_curChar == '-')
         {
             Increment();
 
-            isNegative = TRUE;
+            isNegative = true;
 
             if (!isdigit(_curChar)) {
                 UnsetMark();
@@ -407,7 +407,7 @@ uint8_t RFS::GetNextTag()
                     }
 
                     // eax = strnicmp(tags[i]._value, scriptBuffer, ebp);
-                    eax = strnicmp(scriptBuffer, tags[i]._value, ebp);
+                    eax = strncasecmp(scriptBuffer, tags[i]._value, ebp);
 
                     //if (eax >= 0) {
                     if (eax == 0) {
@@ -468,7 +468,7 @@ void ParseScript(char *scriptFileName)
     gParseLevel = 0;
     dword_44CE0[0] = 0;
 
-    BOOL parsing = TRUE;
+    bool parsing = true;
 
     while (parsing)
     {
@@ -485,7 +485,7 @@ void ParseScript(char *scriptFileName)
             }
             case kTagEnd:
             {
-                parsing = FALSE;
+                parsing = true;
                 break;
             }
             case kTagComment:
@@ -539,7 +539,7 @@ void ParseScript(char *scriptFileName)
                 strcpy(inp, scriptBuffer);
                 char nFlags = 0;
                 int ID = 0;
-                BOOL isDefine = FALSE;
+                bool isDefine = false;
 
                 tag = rfs.GetNextTag();
                 if (tag == kTagAs)
@@ -556,7 +556,7 @@ void ParseScript(char *scriptFileName)
                             break;
                         }
 
-                        isDefine = TRUE;
+                        isDefine = true;
                         tag = rfs.GetNextTag();
                     }
 
@@ -626,13 +626,13 @@ void ParseScript(char *scriptFileName)
                     rfs.SetMark();
                     strcpy(char256_1, scriptBuffer);
 
-                    BOOL bGotDefine = FALSE;
+                    bool bGotDefine = false;
 
                     // check if this was defined via command prompt arguments
                     for (int i = 0; i < nCmdDefines; i++)
                     {
-                        if (stricmp(gCmdDefines[i]._text, char256_1) == 0) { // string is equivalent
-                            bGotDefine = TRUE;
+                        if (strcasecmp(gCmdDefines[i]._text, char256_1) == 0) { // string is equivalent
+                            bGotDefine = true;
                             break;
                         }
                     }
@@ -719,7 +719,7 @@ void ParseScript(char *scriptFileName)
                 char nFlags = 0;
                 int ID = 0;
 
-                BOOL isDefine = FALSE;
+                bool isDefine = false;
 
                 tag = rfs.GetNextTag();
 
@@ -738,7 +738,7 @@ void ParseScript(char *scriptFileName)
                             break;
                         }
 
-                        isDefine = TRUE;
+                        isDefine = true;
                         tag = rfs.GetNextTag();
                     }
 
@@ -888,7 +888,7 @@ void sub_11C10(char *pzScriptDir, char *fileName, char flags, int ID)
     dirr = Bopendir("./");
     if (dirr)
     {
-        while (dirent = Breaddir(dirr))
+        while ((dirent = Breaddir(dirr)))
         {
             if (!Bwildmatch(dirent->name, fileName))
                 continue;
@@ -905,7 +905,7 @@ void sub_11C10(char *pzScriptDir, char *fileName, char flags, int ID)
     dirr = Bopendir(pzScriptDir);
     if (dirr)
     {
-        while (dirent = Breaddir(dirr))
+        while ((dirent = Breaddir(dirr)))
         {
             if (!Bwildmatch(dirent->name, fileName))
                 continue;

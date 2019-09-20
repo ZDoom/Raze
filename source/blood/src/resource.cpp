@@ -578,7 +578,7 @@ void Resource::Read(DICTNODE *n, void *p)
         if (n->path)
             Bstrncpy(filename, n->path, BMAX_PATH-1);
         else
-            Bsnprintf(filename, MAX_PATH-1, "%s.%s", n->name, n->type);
+            Bsnprintf(filename, BMAX_PATH-1, "%s.%s", n->name, n->type);
         int fhandle = kopen4loadfrommod(filename, 0);
         if (fhandle == -1 || (uint32_t)kread(fhandle, p, n->size) != n->size)
         {
