@@ -411,14 +411,7 @@ template <typename T> static FORCE_INLINE void tileUpdatePicnum(T * const tilept
 {
     auto &tile = *tileptr;
 
-	if (!playing_blood)
-	{
-		if (picanm[tile].sf & PICANM_ANIMTYPE_MASK) tile += animateoffs(tile, Fakevar);
-	}
-	else
-	{
-		tile += animateoffs(tile, Fakevar);
-	}
+	if (playing_blood || picanm[tile].sf & PICANM_ANIMTYPE_MASK) tile += animateoffs(tile, obj);
 
     if (((obj & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && rottile[tile].newtile != -1)
         tile = rottile[tile].newtile;
