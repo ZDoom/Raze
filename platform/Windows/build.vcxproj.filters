@@ -43,7 +43,6 @@
     <ClCompile Include="..\..\source\build\src\screenshot.cpp" />
     <ClCompile Include="..\..\source\build\src\scriptfile.cpp" />
     <ClCompile Include="..\..\source\build\src\sdlayer.cpp" />
-    <ClCompile Include="..\..\source\build\src\sdlayer12.cpp" />
     <ClCompile Include="..\..\source\build\src\sdlkeytrans.cpp" />
     <ClCompile Include="..\..\source\build\src\smalltextfont.cpp" />
     <ClCompile Include="..\..\source\build\src\softsurface.cpp" />
@@ -52,7 +51,6 @@
     <ClCompile Include="..\..\source\build\src\tiles.cpp" />
     <ClCompile Include="..\..\source\build\src\timer.cpp" />
     <ClCompile Include="..\..\source\build\src\voxmodel.cpp" />
-    <ClCompile Include="..\..\source\build\src\wiibits.cpp" />
     <ClCompile Include="..\..\source\build\src\winbits.cpp" />
     <ClCompile Include="..\..\source\thirdparty\src\xxhash.c" />
     <ClCompile Include="..\..\source\glbackend\glbackend.cpp" />

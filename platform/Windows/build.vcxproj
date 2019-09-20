@@ -269,12 +269,6 @@
     <ClCompile Include="..\..\source\build\src\screenshot.cpp" />
     <ClCompile Include="..\..\source\build\src\scriptfile.cpp" />
     <ClCompile Include="..\..\source\build\src\sdlayer.cpp" />
-    <ClCompile Include="..\..\source\build\src\sdlayer12.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\source\build\src\sdlkeytrans.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -288,12 +282,6 @@
     <ClCompile Include="..\..\source\build\src\tiles.cpp" />
     <ClCompile Include="..\..\source\build\src\timer.cpp" />
     <ClCompile Include="..\..\source\build\src\voxmodel.cpp" />
-    <ClCompile Include="..\..\source\build\src\wiibits.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\source\build\src\winbits.cpp" />
     <ClCompile Include="..\..\source\thirdparty\src\xxhash.c" />
     <ClCompile Include="..\..\source\glbackend\glbackend.cpp" />
