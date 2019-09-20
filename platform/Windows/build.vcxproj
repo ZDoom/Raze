@@ -206,7 +206,7 @@
     <ClCompile Include="..\..\source\build\src\colmatch.cpp" />
     <ClCompile Include="..\..\source\build\src\common.cpp" />
     <ClCompile Include="..\..\source\build\src\compat.cpp" />
-    <ClCompile Include="..\..\source\build\src\crc32.cpp" />
+    <ClCompile Include="..\..\source\thirdparty\src\crc32.cpp" />
     <ClCompile Include="..\..\source\build\src\defs.cpp" />
     <ClCompile Include="..\..\source\build\src\dynamicgtk.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -230,7 +230,7 @@
     <ClCompile Include="..\..\source\build\src\klzw.cpp" />
     <ClCompile Include="..\..\source\build\src\kplib.cpp" />
     <ClCompile Include="..\..\source\thirdparty\src\lz4.c" />
-    <ClCompile Include="..\..\source\build\src\md4.cpp" />
+    <ClCompile Include="..\..\source\thirdparty\src\md4.cpp" />
     <ClCompile Include="..\..\source\build\src\mdsprite.cpp" />
     <ClCompile Include="..\..\source\build\src\mhk.cpp" />
     <ClCompile Include="..\..\source\build\src\mingw_main.cpp">
