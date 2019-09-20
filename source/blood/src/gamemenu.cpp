@@ -62,6 +62,7 @@ void CMenuTextMgr::GetFontInfo(int nFont, const char *pString, int *pXSize, int 
 
 bool CGameMenuMgr::m_bInitialized = false;
 bool CGameMenuMgr::m_bActive = false;
+bool CGameMenuMgr::m_bScanning = false;
 
 CGameMenuMgr::CGameMenuMgr()
 {
@@ -1936,7 +1937,7 @@ CGameMenuItemZEditBitmap::CGameMenuItemZEditBitmap()
     at36 = 0;
     at30 = NULL;
     at2c = NULL;
-    at34 = 0;
+    bScan = 0;
     at28 = 0;
     at37 = 0;
     at35 = 1;
@@ -1945,7 +1946,7 @@ CGameMenuItemZEditBitmap::CGameMenuItemZEditBitmap()
 CGameMenuItemZEditBitmap::CGameMenuItemZEditBitmap(char *a1, int a2, int a3, int a4, int a5, char *a6, int a7, char a8, void(*a9)(CGameMenuItemZEditBitmap *, CGameMenuEvent *), int a10)
 {
     at2c = NULL;
-    at34 = 0;
+    bScan = 0;
     at35 = 1;
     at37 = 0;
     m_pzText = a1;
@@ -1986,7 +1987,7 @@ void CGameMenuItemZEditBitmap::Draw(void)
     if (pMenu->IsFocusItem(this))
         shade = 32-((int)totalclock&63);
     at2c->at24 = -1;
-    if (at34)
+    if (bScan)
         shade = -128;
     if (m_pzText)
         gMenuTextMgr.DrawText(m_pzText, m_nFont, m_nX, m_nY, shade, pal, false);
@@ -1998,14 +1999,14 @@ void CGameMenuItemZEditBitmap::Draw(void)
         int shade2;
         if (at36)
         {
-            if (at34)
+            if (bScan)
                 shade2 = -128;
             else
                 shade2 = shade;
         }
         else
         {
-            if (at34)
+            if (bScan)
                 shade2 = shade;
             else
                 shade2 = 32;
@@ -2013,7 +2014,7 @@ void CGameMenuItemZEditBitmap::Draw(void)
         gMenuTextMgr.DrawText(at20, m_nFont, x, m_nY, shade2, 0, false);
         x += width;
     }
-    if (at34 && ((int)totalclock & 32))
+    if (bScan && ((int)totalclock & 32))
         gMenuTextMgr.DrawText("_", m_nFont, x, m_nY, shade, pal, false);
 
     int mx = m_nX<<16;
@@ -2021,7 +2022,7 @@ void CGameMenuItemZEditBitmap::Draw(void)
     int mw = m_nWidth<<16;
     int mh = height<<16;
 
-    if (bEnable && MOUSEACTIVECONDITIONAL(!gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousepos, mx, my, mw, mh)))
+    if (!gGameMenuMgr.m_bScanning && bEnable && MOUSEACTIVECONDITIONAL(!gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousepos, mx, my, mw, mh)))
     {
         if (MOUSEWATCHPOINTCONDITIONAL(!gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_prevmousepos, mx, my, mw, mh)))
         {
@@ -2051,11 +2052,12 @@ bool CGameMenuItemZEditBitmap::Event(CGameMenuEvent &event)
     switch (event.at0)
     {
     case kMenuEventEscape:
-        if (at34)
+        if (bScan)
         {
             strncpy(at20, buffer, at24);
             at20[at24-1] = 0;
-            at34 = 0;
+            bScan = 0;
+            gGameMenuMgr.m_bScanning = false;
             gSaveGameActive = false;
             return false;
         }
@@ -2069,11 +2071,12 @@ bool CGameMenuItemZEditBitmap::Event(CGameMenuEvent &event)
             gSaveGameActive = false;
             return false;
         }
-        if (at34)
+        if (bScan)
         {
             if (at30)
                 at30(this, &event);
-            at34 = 0;
+            bScan = 0;
+            gGameMenuMgr.m_bScanning = false;
             gSaveGameActive = false;
             return false;
         }
@@ -2081,10 +2084,11 @@ bool CGameMenuItemZEditBitmap::Event(CGameMenuEvent &event)
         if (at37)
             at20[0] = 0;
         buffer[at24-1] = 0;
-        at34 = 1;
+        bScan = 1;
+        gGameMenuMgr.m_bScanning = true;
         return false;
     case kMenuEventBackSpace:
-        if (at34)
+        if (bScan)
             BackChar();
         return false;
     case kMenuEventKey:
@@ -2106,11 +2110,11 @@ bool CGameMenuItemZEditBitmap::Event(CGameMenuEvent &event)
         return CGameMenuItem::Event(event);
     }
     case kMenuEventUp:
-        if (at34)
+        if (bScan)
             return false;
         return CGameMenuItem::Event(event);
     case kMenuEventDown:
-        if (at34)
+        if (bScan)
             return false;
         return CGameMenuItem::Event(event);
     }

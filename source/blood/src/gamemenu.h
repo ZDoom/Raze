@@ -307,7 +307,7 @@ public:
     int at28;
     CGameMenuItemBitmapLS *at2c;
     void(*at30)(CGameMenuItemZEditBitmap *, CGameMenuEvent *);
-    char at34;
+    char bScan;
     char at35;
     char at36;
     char at37;
@@ -462,6 +462,7 @@ class CGameMenuMgr
 public:
     static bool m_bInitialized;
     static bool m_bActive;
+    static bool m_bScanning;
     CGameMenu *pTempMenu;
     CGameMenu *pActiveMenu;
     CGameMenu *pMenuStack[8];
