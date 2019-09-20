@@ -5446,8 +5446,6 @@ void polymost_drawrooms()
 
     resizeglcheck();
 
-    polymost_shadeInterpolate(r_shadeinterpolate);
-
     //global cos/sin tilt angle
     gctang = cosf(gtang);
     gstang = sinf(gtang);
