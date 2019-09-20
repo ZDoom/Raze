@@ -918,7 +918,7 @@ static FORCE_INLINE void *Baligned_alloc(const size_t alignment, const size_t si
 #if defined _WIN32 && !defined NO_ALIGNED_MALLOC
 # define Baligned_free _aligned_free
 #else
-# define Baligned_free Xfree
+# define Baligned_free xfree()
 #endif
 
 
@@ -1304,6 +1304,9 @@ static FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
     // Since we want to catch an out-of-mem in the first case, this leaves:
     return (EDUKE32_PREDICT_TRUE(newptr != NULL || size == 0)) ? newptr: handle_memerr(ptr);
 }
+
+// This will throw up when BFee is no longer usable, I do not want to change all code right now that uses it to make future merges easier.
+static_assert(Bfree == free, "BFree must be free");
 
 static FORCE_INLINE void xfree(void *const ptr) { Bfree(ptr); }
 
