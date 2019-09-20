@@ -4337,94 +4337,95 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 else
                 {
-                if (r_yshearing)
-                    ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*(dapyscale-65536.f)*(1.f/65536.f)+float(ydimen>>1);
+                    if (r_yshearing)
+                        ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*(dapyscale-65536.f)*(1.f/65536.f)+float(ydimen>>1);
 
-                float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
-                float vv[2];
-                float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
-                vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+dapyoffs)) - vv[1]*ghoriz;
-                int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
-                vec3f_t o;
+                    float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
+                    float vv[2];
+                    float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
+                    vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
+                    vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+dapyoffs)) - vv[1]*ghoriz;
+                    int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
+                    vec3f_t o;
 
-                if (playing_rr || ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256))
-                {
-                    //Hack to draw black rectangle below sky when looking down...
-                    xtex.d = xtex.u = xtex.v = 0;
-
-                    ytex.d = gxyaspect * (1.0 / 262144.0);
-                    ytex.u = 0;
-                    ytex.v = double(tilesiz[globalpicnum].y - 1) * ytex.d;
-
-                    otex.d = -ghoriz * ytex.d;
-                    otex.u = 0;
-                    otex.v = double(tilesiz[globalpicnum].y - 1) * otex.d;
-
-                    o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
-
-                    if ((o.y > fy0) && (o.y > fy1))
-                        polymost_domost(x0,o.y,x1,o.y);
-                    else if ((o.y > fy0) != (o.y > fy1))
+                    if (playing_rr || ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256))
                     {
-                        //  fy0                      fy1
-                        //     \                    /
-                        //oy----------      oy----------
-                        //        \              /
-                        //         fy1        fy0
-                        o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
-                        if (o.y > fy0)
+                        //Hack to draw black rectangle below sky when looking down...
+                        xtex.d = xtex.u = xtex.v = 0;
+
+                        ytex.d = gxyaspect * (1.0 / 262144.0);
+                        ytex.u = 0;
+                        ytex.v = double(tilesiz[globalpicnum].y - 1) * ytex.d;
+
+                        otex.d = -ghoriz * ytex.d;
+                        otex.u = 0;
+                        otex.v = double(tilesiz[globalpicnum].y - 1) * otex.d;
+
+                        o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
+
+                        if ((o.y > fy0) && (o.y > fy1))
+                            polymost_domost(x0,o.y,x1,o.y);
+                        else if ((o.y > fy0) != (o.y > fy1))
                         {
-                            polymost_domost(x0,o.y,o.x,o.y);
-                            polymost_domost(o.x,o.y,x1,fy1);
+                            //  fy0                      fy1
+                            //     \                    /
+                            //oy----------      oy----------
+                            //        \              /
+                            //         fy1        fy0
+                            o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
+                            if (o.y > fy0)
+                            {
+                                polymost_domost(x0,o.y,o.x,o.y);
+                                polymost_domost(o.x,o.y,x1,fy1);
+                            }
+                            else
+                            {
+                                polymost_domost(x0,fy0,o.x,o.y);
+                                polymost_domost(o.x,o.y,x1,o.y);
+                            }
                         }
                         else
-                        {
-                            polymost_domost(x0,fy0,o.x,o.y);
-                            polymost_domost(o.x,o.y,x1,o.y);
-                        }
+                            polymost_domost(x0,fy0,x1,fy1);
+
                     }
                     else
-                        polymost_domost(x0,fy0,x1,fy1);
+                        skyclamphack = 0;
 
-                            polymost_domost(x1,fy1,o.x,o.y);
-                    skyclamphack = 0;
+                    xtex.d = xtex.v = 0;
+                    ytex.d = ytex.u = 0;
+                    otex.d = dd;
+                    xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
+                                      (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
+                    ytex.v = vv[1];
+                    otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->floorypanning*(float)i*(1.f/256.f) : vv[0];
 
-                xtex.d = xtex.v = 0;
-                ytex.d = ytex.u = 0;
-                otex.d = dd;
-                xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
-                                  (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
-                ytex.v = vv[1];
-                otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->floorypanning*(float)i*(1.f/256.f) : vv[0];
+					int const npot = (1 << (picsiz[globalpicnum] & 15)) != tilesiz[globalpicnum].x;
 
-				int const npot = (1 << (picsiz[globalpicnum] & 15)) != tilesiz[globalpicnum].x;
+                    i = globalpicnum;
+                    float const r = (fy1-fy0)/(x1-x0); //slope of line
+                    o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
 
-                i = globalpicnum;
-                float const r = (fy1-fy0)/(x1-x0); //slope of line
-                o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
-
-                int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
-                float fx = x0;
-                do
-                {
-                    globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-					if (!npot)
+                    int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
+                    float fx = x0;
+                    do
+                    {
+                        globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
+						if (!npot)
 	   
-                        otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
-					else
-					{
-	                    int32_t picbits = picsiz[globalpicnum]&15;
-    	                int32_t np2 = tilesiz[globalpicnum].x != (1<<picbits);
-        	            otex.u = otex.d*(t*((float)(fglobalang-(np2 ? 0 : (y<<(11-dapskybits))))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
-					}
-                    y++;
-                    o.x = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
-                    if (fx > x1) { fx = x1; i = -1; }
+	                        otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
+						else
+						{
+		                    int32_t picbits = picsiz[globalpicnum]&15;
+	    	                int32_t np2 = tilesiz[globalpicnum].x != (1<<picbits);
+	        	            otex.u = otex.d*(t*((float)(fglobalang-(np2 ? 0 : (y<<(11-dapskybits))))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
+						}
+                        y++;
+                        o.x = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
+                        if (fx > x1) { fx = x1; i = -1; }
 
-                    pow2xsplit = 0; polymost_domost(o.x,(o.x-x0)*r+fy0,fx,(fx-x0)*r+fy0); //flor
-                }
-                while (i >= 0);
+                        pow2xsplit = 0; polymost_domost(o.x,(o.x-x0)*r+fy0,fx,(fx-x0)*r+fy0); //flor
+                    }
+                    while (i >= 0);
                 }
                 ghoriz = ghorizbak;
             }
