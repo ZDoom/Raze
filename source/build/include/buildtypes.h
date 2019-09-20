@@ -179,14 +179,21 @@ typedef struct
     StructTracker(Sprite, int8_t) xoffset, yoffset;
     StructTracker(Sprite, int16_t) sectnum, statnum;
     StructTracker(Sprite, int16_t) ang, owner;
+	// What a gross hack! This needs to be done differently. :(
     union {
         struct
         {
             StructTracker(Sprite, int16_t) xvel /*index*/, yvel, zvel;
         };
-        vec3_16_t vel;
+		StructTracker(Sprite, int16_t) index;
+		vec3_16_t vel;
     };
-    StructTracker(Sprite, int16_t) lotag /*type*/, hitag;
+	union {
+		struct {
+			StructTracker(Sprite, int16_t) lotag /*type*/, hitag;
+		};
+		StructTracker(Sprite, int16_t) type;
+	};
     StructTracker(Sprite, int16_t) extra;
 } StructName(spritetypev7);
 
