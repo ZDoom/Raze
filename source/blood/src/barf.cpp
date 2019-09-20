@@ -116,7 +116,7 @@ const int kTagCount = sizeof(tags) / sizeof(tag_t);
 
 int qsort_compar(const void *a, const void *b)
 {
-    return strcasecmp((const char*)a, (const char*)b);
+    return Bstrcasecmp((const char*)a, (const char*)b);
 }
 
 void SortTags()
@@ -407,7 +407,7 @@ uint8_t RFS::GetNextTag()
                     }
 
                     // eax = strnicmp(tags[i]._value, scriptBuffer, ebp);
-                    eax = strncasecmp(scriptBuffer, tags[i]._value, ebp);
+                    eax = Bstrncasecmp(scriptBuffer, tags[i]._value, ebp);
 
                     //if (eax >= 0) {
                     if (eax == 0) {
@@ -631,7 +631,7 @@ void ParseScript(char *scriptFileName)
                     // check if this was defined via command prompt arguments
                     for (int i = 0; i < nCmdDefines; i++)
                     {
-                        if (strcasecmp(gCmdDefines[i]._text, char256_1) == 0) { // string is equivalent
+                        if (Bstrcasecmp(gCmdDefines[i]._text, char256_1) == 0) { // string is equivalent
                             bGotDefine = true;
                             break;
                         }
