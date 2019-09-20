@@ -82,8 +82,8 @@ void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
     }
 #endif
 
-    char const col = palookup[0][p.f];
-    drawlinepixels(x1, y1, x2, y2, col);
+    //char const col = palookup[0][p.f];
+    //drawlinepixels(x1, y1, x2, y2, col);
 }
 
 void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
@@ -100,7 +100,7 @@ void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     }
 #endif
 
-    drawlinepixels(x1, y1, x2, y2, col);
+    //drawlinepixels(x1, y1, x2, y2, col);
 }
 
 

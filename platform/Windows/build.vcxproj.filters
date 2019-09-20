@@ -14,8 +14,8 @@
     <ClCompile Include="..\..\source\build\src\defs.cpp" />
     <ClCompile Include="..\..\source\build\src\dynamicgtk.cpp" />
     <ClCompile Include="..\..\source\build\src\engine.cpp" />
-    <ClCompile Include="..\..\source\build\src\fix16.cpp" />
-    <ClCompile Include="..\..\source\build\src\fix16_str.cpp" />
+    <ClCompile Include="..\..\source\thirdparty\src\fix16.cpp" />
+    <ClCompile Include="..\..\source\thirdparty\src\fix16_str.cpp" />
     <ClCompile Include="..\..\source\build\src\glbuild.cpp" />
     <ClCompile Include="..\..\source\build\src\glsurface.cpp" />
     <ClCompile Include="..\..\source\build\src\gtkbits.cpp" />
