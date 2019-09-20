@@ -711,11 +711,11 @@ void G_DrawStatusBar(int32_t snum)
 
                 if (sprite[p->i].pal == 1 && p->last_extra < 2)
                     G_DrawAltDigiNum(44, -(hudoffset-22), 1, -16, 10+16+256);
-                else if (!althud_flashing || p->last_extra >(p->max_player_health>>2) || totalclock&32)
+                else if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || (int32_t)totalclock & 32)
                 {
                     int32_t s = -8;
                     if (althud_flashing && p->last_extra > p->max_player_health)
-                        s += (sintable[(totalclock<<5)&2047]>>10);
+                        s += (sintable[((int32_t)totalclock << 5) & 2047] >> 10);
                     G_DrawAltDigiNum(44, -(hudoffset-22), p->last_extra, s, 10+16+256);
                 }
 
@@ -738,7 +738,7 @@ void G_DrawStatusBar(int32_t snum)
                 else i = p->curr_weapon;
 
                 if (p->curr_weapon != KNEE_WEAPON && p->curr_weapon != SLINGBLADE_WEAPON &&
-                    (!althud_flashing || totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
+                    (!althud_flashing || (int32_t)totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
                     G_DrawAltDigiNum(-20, -(hudoffset-22), p->ammo_amount[i], -16, 10+16+512);
 
                 o = 102;
@@ -806,11 +806,11 @@ void G_DrawStatusBar(int32_t snum)
 
                 if (sprite[p->i].pal == 1 && p->last_extra < 2)
                     G_DrawAltDigiNum(40, -(hudoffset-22), 1, -16, 10+16+256);
-                else if (!althud_flashing || p->last_extra >(p->max_player_health>>2) || totalclock&32)
+                else if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || (int32_t)totalclock & 32)
                 {
                     int32_t s = -8;
                     if (althud_flashing && p->last_extra > p->max_player_health)
-                        s += (sintable[(totalclock<<5)&2047]>>10);
+                        s += (sintable[((int32_t)totalclock << 5) & 2047] >> 10);
                     G_DrawAltDigiNum(40, -(hudoffset-22), p->last_extra, s, 10+16+256);
                 }
 
@@ -827,7 +827,7 @@ void G_DrawStatusBar(int32_t snum)
                 else i = p->curr_weapon;
 
                 if (p->curr_weapon != KNEE_WEAPON &&
-                    (!althud_flashing || totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
+                    (!althud_flashing || (int32_t)totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
                     G_DrawAltDigiNum(-20, -(hudoffset-22), p->ammo_amount[i], -16, 10+16+512);
 
                 o = 102;

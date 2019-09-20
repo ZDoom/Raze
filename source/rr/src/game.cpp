@@ -212,7 +212,7 @@ void G_GameQuit(void)
     if (g_gameQuit == 0)
     {
         g_gameQuit = 1;
-        g_quitDeadline = totalclock+120;
+        g_quitDeadline  = (int32_t)totalclock + 120;
         g_netDisconnect = 1;
     }
 
@@ -484,8 +484,8 @@ static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vs
     vect->y += mulscale16(n.y,CAMERADIST);
     vect->z += mulscale16(n.z,CAMERADIST);
 
-    CAMERADIST = min(CAMERADIST+((totalclock-CAMERACLOCK)<<10),65536);
-    CAMERACLOCK = totalclock;
+    CAMERADIST  = min(CAMERADIST + (((int32_t)totalclock - CAMERACLOCK) << 10), 65536);
+    CAMERACLOCK = (int32_t)totalclock;
 
     updatesectorz(vect->x,vect->y,vect->z,vsectnum);
 
@@ -963,7 +963,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     if (ud.pause_on || pPlayer->on_crane > -1)
         smoothRatio = 65536;
     else
-        smoothRatio = calc_smoothratio(totalclock, ototalclock);
+        smoothRatio = calc_smoothratio((int32_t)totalclock, (int32_t)ototalclock);
 
     if (RRRA && g_fogType)
         pPlayer->visibility = ud.const_visibility;
@@ -1539,7 +1539,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             }
 
             pPlayer->visibility += visinc;
-            lastvist = totalclock;
+            lastvist = (int32_t)totalclock;
         }
     }
 
@@ -4737,7 +4737,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
             if (t->lotag == SE_27_DEMO_CAM && ud.recstat == 1)
             {
-                t->picnum = 11+((totalclock>>3)&1);
+                t->picnum = 11 + (((int32_t)totalclock >> 3) & 1);
                 t->cstat |= 128;
             }
             else
@@ -4921,7 +4921,7 @@ default_case1:
         case RESPAWNMARKERYELLOW__STATICRR:
         case RESPAWNMARKERGREEN__STATICRR:
             if (!RR) goto default_case2;
-            t->picnum = 861 + ((totalclock >> 4) & 13);
+            t->picnum = 861 + (((int32_t)totalclock >> 4) & 13);
             if (pSprite->picnum == RESPAWNMARKERRED)
                 t->pal = 0;
             else if (pSprite->picnum == RESPAWNMARKERYELLOW)
@@ -5005,7 +5005,7 @@ default_case1:
             t->z -= ZOFFSET6;
             break;
         case CRYSTALAMMO__STATIC:
-            t->shade = (sintable[(totalclock<<4)&2047]>>10);
+            t->shade = (sintable[((int32_t)totalclock << 4) & 2047] >> 10);
             if (RR) break;
             continue;
         case VIEWSCREEN__STATIC:
@@ -5052,33 +5052,33 @@ default_case1:
             {
                 if (RRRA && (sprite[pSprite->owner].picnum == CHEER || sprite[pSprite->owner].picnum == CHEERSTAYPUT))
                 {
-                    t->picnum = CHEERBLADE + ((totalclock >> 4) & 3);
+                    t->picnum = CHEERBLADE + (((int32_t)totalclock >> 4) & 3);
                     t->shade = -127;
                 }
                 else
-                    t->picnum = SHRINKSPARK + ((totalclock >> 4) & 7);
+                    t->picnum = SHRINKSPARK + (((int32_t)totalclock >> 4) & 7);
             }
             else
-                t->picnum = SHRINKSPARK+((totalclock>>4)&3);
+                t->picnum = SHRINKSPARK + (((int32_t)totalclock >> 4) & 3);
             break;
         case CHEERBOMB__STATICRR:
             if (!RRRA) goto default_case2;
-            t->picnum = CHEERBOMB+( (totalclock>>4)&3 );
+            t->picnum = CHEERBOMB + (((int32_t)totalclock >> 4) & 3);
             break;
         case GROWSPARK__STATIC:
             if (RR) goto default_case2;
-            t->picnum = GROWSPARK+((totalclock>>4)&3);
+            t->picnum = GROWSPARK + (((int32_t)totalclock >> 4) & 3);
             break;
         case SPIT__STATIC:
             if (!RR) goto default_case2;
-            t->picnum = SPIT + ((totalclock >> 4) & 3);
+            t->picnum = SPIT + (((int32_t)totalclock >> 4) & 3);
             if (RRRA)
             {
                 if (sprite[pSprite->owner].picnum == MINION && sprite[pSprite->owner].pal == 8)
-                    t->picnum = RRTILE3500 + ((totalclock >> 4) % 6);
+                    t->picnum = RRTILE3500 + (((int32_t)totalclock >> 4) % 6);
                 else if (sprite[pSprite->owner].picnum == MINION && sprite[pSprite->owner].pal == 19)
                 {
-                    t->picnum = RRTILE5090 + ((totalclock >> 4) & 3);
+                    t->picnum = RRTILE5090 + (((int32_t)totalclock >> 4) & 3);
                     t->shade = -127;
                 }
                 else if (sprite[pSprite->owner].picnum == MAMA)
@@ -5713,7 +5713,7 @@ rrcoolexplosion1:
                     t->pal = 0;
             }
             else if (RR && t->picnum == FIRELASER)
-                t->picnum = FIRELASER+((totalclock>>2)&5);
+                t->picnum = FIRELASER + (((int32_t)totalclock >> 2) & 5);
             t->shade = -127;
             t->cstat |= 8192+1024;
             break;
@@ -5828,11 +5828,11 @@ rrcoolexplosion1:
                 t->shade = -127;
             break;
         case RRTILE2034__STATICRR:
-            t->picnum = RRTILE2034 + (totalclock & 1);
+            t->picnum = RRTILE2034 + ((int32_t)totalclock & 1);
             break;
         case RRTILE2944__STATICRR:
             t->shade = -127;
-            t->picnum = RRTILE2944 + ((totalclock >> 2) & 4);
+            t->picnum = RRTILE2944 + (((int32_t)totalclock >> 2) & 4);
             break;
         case PLAYERONWATER__STATIC:
 #ifdef USE_OPENGL
@@ -6443,7 +6443,7 @@ FAKE_F3:
                 g_player[myconnectindex].ps->over_shoulder_on = !g_player[myconnectindex].ps->over_shoulder_on;
 
                 CAMERADIST  = 0;
-                CAMERACLOCK = totalclock;
+                CAMERACLOCK = (int32_t)totalclock;
 
                 P_DoQuote(QUOTE_VIEW_MODE_OFF + g_player[myconnectindex].ps->over_shoulder_on, g_player[myconnectindex].ps);
             }
@@ -6509,7 +6509,7 @@ FAKE_F3:
 
         if (ud.overhead_on != 0)
         {
-            int const timerOffset = (totalclock - nonsharedtimer);
+            int const timerOffset = ((int32_t)totalclock - nonsharedtimer);
             nonsharedtimer += timerOffset;
 
             if (BUTTON(gamefunc_Enlarge_Screen))
@@ -8309,7 +8309,7 @@ MAIN_LOOP_RESTART:
 
                 ototalclock += TICSPERFRAME;
 
-                int const moveClock = totalclock;
+                int const moveClock = (int32_t)totalclock;
 
                 if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                         (g_player[myconnectindex].ps->gm&MODE_GAME))
@@ -8363,7 +8363,7 @@ MAIN_LOOP_RESTART:
             = ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm & MODE_MENU))
                || (g_netServer || ud.multimode > 1)
                || ud.recstat == 2)
-              ? calc_smoothratio(totalclock, ototalclock)
+              ? calc_smoothratio((int32_t)totalclock, (int32_t)ototalclock)
               : 65536;
 
             G_DrawRooms(screenpeek, smoothRatio);

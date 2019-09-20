@@ -552,7 +552,7 @@ void G_AnimateCamSprite(int smoothRatio)
 #endif
         }
 
-        T1(spriteNum) = totalclock;
+        T1(spriteNum) = (int32_t)totalclock;
     }
 }
 

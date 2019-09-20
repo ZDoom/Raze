@@ -3512,7 +3512,7 @@ default_case:
                                             A_SetSprite(newSprite, CLIPMASK0);
                                         }
 
-                                        actor[sectSprite].lasttransport = (totalclock & UINT8_MAX);
+                                        actor[sectSprite].lasttransport = ((int32_t)totalclock & UINT8_MAX);
 
                                         if (sectLotag == ST_1_ABOVE_WATER || sectLotag == ST_2_UNDERWATER)
                                         {

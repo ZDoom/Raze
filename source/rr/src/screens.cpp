@@ -273,12 +273,12 @@ static void G_DrawCameraText(int16_t i)
         rotatesprite_win(22<<16, 163<<16, 65536L, 512, CAMCORNER+1, 0, 0, 2+4);
         rotatesprite_win((310-10)<<16, 163<<16, 65536L, 512, CAMCORNER+1, 0, 0, 2);
 
-        if (totalclock&16)
+        if ((int32_t)totalclock & 16)
             rotatesprite_win(46<<16, 32<<16, 65536L, 0, CAMLIGHT, 0, 0, 2);
     }
     else
     {
-        int32_t flipbits = (totalclock<<1)&48;
+        int32_t flipbits = ((int32_t)totalclock << 1) & 48;
 
         for (bssize_t x=-64; x<394; x+=64)
             for (bssize_t y=0; y<200; y+=64)
@@ -290,10 +290,10 @@ static inline void G_MoveClouds(void)
 {
     int32_t i;
 
-    if (totalclock <= g_cloudClock && totalclock >= (g_cloudClock-7))
+    if ((int32_t)totalclock <= g_cloudClock && (int32_t)totalclock >= (g_cloudClock - 7))
         return;
 
-    g_cloudClock = totalclock+6;
+    g_cloudClock = (int32_t)totalclock + 6;
 
     g_cloudX += sintable[(fix16_to_int(g_player[screenpeek].ps->q16ang)+512)&2047]>>9;
     g_cloudY += sintable[fix16_to_int(g_player[screenpeek].ps->q16ang)&2047]>>9;
@@ -584,7 +584,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         if (p == screenpeek || GTFLAGS(GAMETYPE_OTHERPLAYERSINMAP))
         {
             if (pSprite->xvel > 16 && pPlayer->on_ground)
-                i = APLAYERTOP+((totalclock>>4)&3);
+                i = APLAYERTOP + (((int32_t)totalclock >> 4) & 3);
             else
                 i = APLAYERTOP;
 
@@ -653,7 +653,7 @@ static void G_PrintCoords(int32_t snum)
     y += 7;
     Bsprintf(tempbuf, "THOLD= %d", ps->transporter_hold);
     printext256(x, y+54, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "GAMETIC= %u, TOTALCLOCK=%d", g_moveThingsCount, totalclock);
+    Bsprintf(tempbuf, "GAMETIC= %u, TOTALCLOCK=%d", g_moveThingsCount, (int32_t)totalclock);
     printext256(x, y+63, COLOR_WHITE, -1, tempbuf, 0);
 #ifdef DEBUGGINGAIDS
     Bsprintf(tempbuf, "NUMSPRITES= %d", Numsprites);
@@ -1046,7 +1046,7 @@ void G_DisplayRest(int32_t smoothratio)
         if (ud.overhead_on > 0)
         {
             // smoothratio = min(max(smoothratio,0),65536);
-            smoothratio = calc_smoothratio(totalclock, ototalclock);
+            smoothratio = calc_smoothratio((int32_t)totalclock, (int32_t)ototalclock);
             G_DoInterpolations(smoothratio);
 
             if (ud.scrollmode == 0)
@@ -1340,8 +1340,8 @@ void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e)
     videoFadePalette(r, g, b, e);
     videoNextPage();
 
-    int32_t tc = totalclock;
-    while (totalclock < tc + 4)
+    int32_t tc = (int32_t)totalclock;
+    while ((int32_t)totalclock < tc + 4)
         G_HandleAsync();
 }
 
@@ -1649,7 +1649,7 @@ void G_DisplayLogo(void)
                         soundanm++;
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
-                    rotatesprite_fs(160<<16, 104<<16, (totalclock-120)<<10, 0, DUKENUKEM, 0, 0, 2+8);
+                    rotatesprite_fs(160 << 16, 104 << 16, ((int32_t)totalclock - 120) << 10, 0, DUKENUKEM, 0, 0, 2 + 8);
                 }
                 else if (totalclock >= (120+60))
                     rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, DUKENUKEM, 0, 0, 2+8);
@@ -1663,7 +1663,7 @@ void G_DisplayLogo(void)
                     }
 
                     rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, DUKENUKEM, 0, 0, 2+8);
-                    rotatesprite_fs(160<<16, (129)<<16, (totalclock - 220)<<11, 0, THREEDEE, 0, 0, 2+8);
+                    rotatesprite_fs(160 << 16, (129) << 16, ((int32_t)totalclock - 220) << 11, 0, THREEDEE, 0, 0, 2 + 8);
                 }
                 else if (totalclock >= (220+30))
                     rotatesprite_fs(160<<16, (129)<<16, 30<<11, 0, THREEDEE, 0, 0, 2+8);
@@ -1673,7 +1673,7 @@ void G_DisplayLogo(void)
                     // JBF 20030804
                     if (totalclock >= 280 && totalclock < 395)
                     {
-                        rotatesprite_fs(160<<16, (151)<<16, (410-totalclock)<<12, 0, PLUTOPAKSPRITE+1, (sintable[(totalclock<<4)&2047]>>11), 0, 2+8);
+                        rotatesprite_fs(160<<16, (151)<<16, (410-(int32_t)totalclock)<<12, 0, PLUTOPAKSPRITE+1, (sintable[((int32_t)totalclock<<4)&2047]>>11), 0, 2+8);
                         if (soundanm == 2)
                         {
                             soundanm++;
@@ -1687,7 +1687,7 @@ void G_DisplayLogo(void)
                             soundanm++;
                             S_PlaySound(PIPEBOMB_EXPLODE);
                         }
-                        rotatesprite_fs(160<<16, (151)<<16, 30<<11, 0, PLUTOPAKSPRITE+1, (sintable[(totalclock<<4)&2047]>>11), 0, 2+8);
+                        rotatesprite_fs(160<<16, (151)<<16, 30<<11, 0, PLUTOPAKSPRITE+1, (sintable[((int32_t)totalclock<<4)&2047]>>11), 0, 2+8);
                     }
                 }
 
@@ -2354,7 +2354,7 @@ void G_BonusScreen(int32_t bonusonly)
 
                 if (totalclock >= 1000000000 && totalclock < 1000000320)
                 {
-                    switch ((totalclock>>4)%15)
+                    switch (((int32_t)totalclock >> 4) % 15)
                     {
                     case 0:
                         if (bonuscnt == 6)
@@ -2391,10 +2391,10 @@ void G_BonusScreen(int32_t bonusonly)
                         break;
                     }
                 }
-                else if (totalclock > (10240+120L)) break;
+                else if ((int32_t)totalclock > (10240+120L)) break;
                 else
                 {
-                    switch ((totalclock>>5)&3)
+                    switch (((int32_t)totalclock >> 5) & 3)
                     {
                     case 1:
                     case 3:
@@ -2948,7 +2948,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
 
                 if (totalclock >= 1000000000 && totalclock < 1000000320)
                 {
-                    switch ((totalclock>>4)%15)
+                    switch (((uint32_t)totalclock>>4)%15)
                     {
                     case 0:
                         if (bonuscnt == 6)
@@ -2981,10 +2981,10 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                         break;
                     }
                 }
-                else if (totalclock > (10240+120L)) break;
+                else if ((int32_t)totalclock > (10240+120L)) break;
                 else
                 {
-                    switch ((totalclock>>5)&3)
+                    switch (((int32_t)totalclock >> 5) & 3)
                     {
                     case 1:
                     case 3:
@@ -3177,7 +3177,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);
         while (1)
         {
-            switch ((totalclock >> 4) & 1)
+            switch (((int32_t)totalclock >> 4) & 1)
             {
             case 0:
                 rotatesprite(0,0,65536,0,RRTILE8677,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);

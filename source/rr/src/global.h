@@ -136,7 +136,7 @@ G_EXTERN int16_t g_mirrorWall[64];
 G_EXTERN int32_t *labelcode;
 G_EXTERN int32_t *labeltype;
 G_EXTERN int32_t lockclock;
-G_EXTERN int32_t ototalclock;
+G_EXTERN ClockTicks ototalclock;
 
 G_EXTERN int32_t g_wupass;
 G_EXTERN int32_t g_chickenPlant;

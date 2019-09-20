@@ -564,7 +564,7 @@ void G_DoCheats(void)
                     {
                         pPlayer->over_shoulder_on ^= 1;
                         CAMERADIST = 0;
-                        CAMERACLOCK = totalclock;
+                        CAMERACLOCK = (int32_t) totalclock;
                         //                    P_DoQuote(QUOTE_CHEATS_DISABLED,pPlayer);
                     }
                     end_cheat(pPlayer);
@@ -719,7 +719,7 @@ void G_DoCheats(void)
 
                 case CHEAT_RAAARON:
                     pPlayer->drug_mode = pPlayer->drug_mode ? 0 : 5;
-                    pPlayer->drug_timer = totalclock;
+                    pPlayer->drug_timer = (int32_t) totalclock;
                     end_cheat(pPlayer);
                     KB_FlushKeyboardQueue();
                     return;
