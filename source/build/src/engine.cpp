@@ -205,7 +205,6 @@ static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to dr
 
 int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade) = NULL;
 
-int32_t automapping = 0;
 int32_t bloodhack = 0;
 
 // adapted from build.c
@@ -12142,47 +12141,6 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, f
 #endif
 }
 
-static int32_t mirthoriz, mirbakdaz;
-static int16_t mirbakdasector;
-
-void renderPrepareMirrorOld(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz,
-                            int16_t dawall, int16_t dasector, int32_t *tposx, int32_t *tposy, fix16_t *tang)
-{
-    //mirrorrender = 1;
-    const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
-    const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
-
-    const int32_t j = dx*dx + dy*dy;
-    if (j == 0)
-        return;
-
-    int i = ((dax-x)*dx + (day-y)*dy)<<1;
-
-    *tposx = (x<<1) + scale(dx,i,j) - dax;
-    *tposy = (y<<1) + scale(dy,i,j) - day;
-    *tang  = (fix16_from_int(getangle(dx, dy) << 1) - daang) & 0x7FFFFFF;
-
-    if (videoGetRenderMode() != REND_CLASSIC)
-    {
-        inpreparemirror = 1;
-        return;
-    }
-
-    videoBeginDrawing();
-    mirbakdaz = daz; mirbakdasector = dasector;
-    if ((daz > sector[dasector].ceilingz) && (daz < sector[dasector].floorz))
-    {
-        //Draw pink pixels on horizon to get mirror l&r bounds.
-        mirthoriz = scale(dahoriz - fix16_from_int(100), windowxy2.x - windowxy1.x, fix16_from_int(320)) + ((windowxy1.y + windowxy2.y) >> 1);
-        if ((daz << 1) > sector[dasector].ceilingz + sector[dasector].floorz)
-            mirthoriz--; else mirthoriz++;
-        mirthoriz = min(max(mirthoriz, windowxy1.y), windowxy2.y);
-        clearbufbyte((char*)frameplace + ylookup[mirthoriz] + windowxy1.x, windowxy2.x - windowxy1.x + 1, 0xffffffff);
-    }
-    videoEndDrawing();
-}
-
-
 //
 // completemirror
 //
@@ -12242,47 +12200,6 @@ void renderCompleteMirror(void)
         faketimerhandler();
     }
 
-    videoEndDrawing();
-}
-
-void renderCompleteMirrorOld(void)
-{
-    //mirrorrender = 0;
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() != REND_CLASSIC)
-        return;
-#endif
-
-    videoBeginDrawing();
-    int32_t x1, y1, x2, y2, dy;
-    char *ptr;
-
-    //Get pink pixels on horizon to get mirror l&r bounds.
-    x1 = 0; x2 = windowxy2.x - windowxy1.x;
-    if ((mirbakdaz > sector[mirbakdasector].ceilingz) && (mirbakdaz < sector[mirbakdasector].floorz))
-    {
-        ptr = (char *)frameplace + ylookup[mirthoriz] + windowxy1.x;
-        while ((ptr[x1] == 255) && (x2 >= x1)) x1++;
-        while ((ptr[x2] == 255) && (x2 >= x1)) x2--;
-        if (x1 > 0) x1--;
-        if (x2 < windowxy2.x - windowxy1.x) x2++;
-        x2 |= 3;
-        if (x2 > windowxy2.x - windowxy1.x) x2 = windowxy2.x - windowxy1.x;
-    }
-
-    if (x2 >= x1)  //Flip window x-wise
-    {
-        ptr = (char *)frameplace + ylookup[windowxy1.y] + windowxy1.x;
-        y1 = windowxy2.x - windowxy1.x - x2; x2 -= x1; y2 = x2 + 1;
-        for (dy = windowxy2.y - windowxy1.y; dy >= 0; dy--)
-        {
-            copybufbyte(&ptr[x1 + 1], &tempbuf[0], y2);
-            tempbuf[x2] = tempbuf[x2 - 1];
-            copybufreverse(&tempbuf[x2], &ptr[y1], y2);
-            ptr += ylookup[1];
-            faketimerhandler();
-        }
-    }
     videoEndDrawing();
 }
 

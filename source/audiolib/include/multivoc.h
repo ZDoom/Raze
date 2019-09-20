@@ -67,8 +67,8 @@ enum MV_Errors
     MV_InvalidFile,
 };
 
-void DisableInterrupts(void);
-void RestoreInterrupts(void);
+void MV_Lock(void);
+void MV_Unlock(void);
 
 extern void (*MV_Printf)(const char *fmt, ...);
 const char *MV_ErrorString(int32_t ErrorNumber);

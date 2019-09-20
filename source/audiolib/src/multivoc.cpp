@@ -90,13 +90,13 @@ float MV_VolumeSmooth = 1.f;
 
 static int lockdepth = 0;
 
-static inline void MV_Lock(void)
+void MV_Lock(void)
 {
     if (!lockdepth++)
         SoundDriver_Lock();
 }
 
-static inline void MV_Unlock(void)
+void MV_Unlock(void)
 {
     if (!--lockdepth)
         SoundDriver_Unlock();

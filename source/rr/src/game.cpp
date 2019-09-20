@@ -849,7 +849,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             int32_t tposx, tposy;
             fix16_t tang;
 
-            renderPrepareMirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
+            renderPrepareMirror(x, y, z, a, q16horiz, g_mirrorWall[i], &tposx, &tposy, &tang);
 
             int32_t j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
@@ -7692,30 +7692,26 @@ void G_MaybeAllocPlayer(int32_t pnum)
 
 int G_FPSLimit(void)
 {
-	static double nextPageDelay = g_frameDelay;
-	static uint64_t lastFrameTicks = timerGetTicksU64() - (uint64_t)g_frameDelay;
-	int frameWaiting = 0;
+	if (!r_maxfps)
+		return 1;
 
-	uint64_t const frameTicks = timerGetTicksU64();
-	uint64_t elapsedTime = frameTicks - lastFrameTicks;
+	static double nextPageDelay;
+	static double lastFrameTicks;
 
-	if (!r_maxfps || elapsedTime >= (uint64_t)nextPageDelay)
+	double const frameTicks = timerGetTicksU64();
+	double const elapsedTime = frameTicks - lastFrameTicks;
+
+	if (elapsedTime >= nextPageDelay)
 	{
-		if (elapsedTime >= (uint64_t)(nextPageDelay + g_frameDelay))
-		{
-			//If we missed a frame, reset any cumulated remainder from rendering frames early
-			nextPageDelay = g_frameDelay;
-		}
-		else
-		{
+		if (elapsedTime <= nextPageDelay + g_frameDelay)
 			nextPageDelay += g_frameDelay - elapsedTime;
-		}
 
 		lastFrameTicks = frameTicks;
-		++frameWaiting;
+
+		return 1;
 	}
 
-	return frameWaiting;
+	return 0;
 }
 
 
