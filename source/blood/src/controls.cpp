@@ -195,25 +195,26 @@ void ctrlGetInput(void)
 
     CONTROL_GetInput(&info);
 
-    if (MouseDeadZone)
-    {
-        if (info.dpitch > 0)
-            info.dpitch = max(info.dpitch - MouseDeadZone, 0);
-        else if (info.dpitch < 0)
-            info.dpitch = min(info.dpitch + MouseDeadZone, 0);
+	if (MouseDeadZone)
+	{
+		if (info.mousey > 0)
+			info.mousey = max(info.mousey - MouseDeadZone, 0);
+		else if (info.mousey < 0)
+			info.mousey = min(info.mousey + MouseDeadZone, 0);
 
-        if (info.dyaw > 0)
-            info.dyaw = max(info.dyaw - MouseDeadZone, 0);
-        else if (info.dyaw < 0)
-            info.dyaw = min(info.dyaw + MouseDeadZone, 0);
-    }
+		if (info.mousex > 0)
+			info.mousex = max(info.mousex - MouseDeadZone, 0);
+		else if (info.mousex < 0)
+			info.mousex = min(info.mousex + MouseDeadZone, 0);
+	}
 
-    if (MouseBias)
-    {
-        if (klabs(info.dyaw) > klabs(info.dpitch))
-            info.dpitch = tabledivide32_noinline(info.dpitch, MouseBias);
-        else info.dyaw = tabledivide32_noinline(info.dyaw, MouseBias);
-    }
+	if (MouseBias)
+	{
+		if (klabs(info.mousex) > klabs(info.mousey))
+			info.mousey = tabledivide32_noinline(info.mousey, MouseBias);
+		else
+			info.mousex = tabledivide32_noinline(info.mousex, MouseBias);
+	}
 
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;
@@ -453,9 +454,9 @@ void ctrlGetInput(void)
         turn <<= 1;
 
     if (BUTTON(gamefunc_Strafe))
-        strafe = ClipRange(strafe - info.dyaw, -2048, 2048);
+        strafe = ClipRange(strafe - info.mousex, -2048, 2048);
     else
-        turn = fix16_clamp(turn + fix16_div(fix16_from_int(info.dyaw), F16(32)), F16(-1024)>>2, F16(1024)>>2);
+        turn = fix16_clamp(turn + fix16_div(fix16_from_int(info.mousex), F16(32)), F16(-1024)>>2, F16(1024)>>2);
 
     strafe = ClipRange(strafe-(info.dx<<5), -2048, 2048);
 
@@ -465,7 +466,7 @@ void ctrlGetInput(void)
     else
         gInput.mlook = ClipRange(info.dz>>7, -127, 127);
 #endif
-    gInput.q16mlook = fix16_clamp(fix16_div(fix16_from_int(info.dpitch), F16(256)), F16(-127)>>2, F16(127)>>2);
+    gInput.q16mlook = fix16_clamp(fix16_div(fix16_from_int(info.mousey*2), F16(256)), F16(-127)>>2, F16(127)>>2);
     if (!gMouseAimingFlipped)
         gInput.q16mlook = -gInput.q16mlook;
     forward = ClipRange(forward - info.dz, -2048, 2048);

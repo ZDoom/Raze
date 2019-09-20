@@ -96,8 +96,8 @@ void CChoke::sub_84110(int x, int y)
     gFrameClock = gGameClock;
     at8->x = x;
     at8->y = y;
-    int vd = totalclock-at10;
-    at10 = totalclock;
+    int vd = totalclock.Ticks()-at10;
+    at10 = totalclock.Ticks();
     atc -= vd;
     if (atc <= 0 || atc > at8->at10)
         atc = at8->at10;
@@ -121,7 +121,7 @@ void CChoke::sub_84110(int x, int y)
 void CChoke::sub_84218()
 {
     atc = at8->at10;
-    at10 = totalclock;
+    at10 = totalclock.Ticks();
 }
 
 void sub_84230(PLAYER *pPlayer)

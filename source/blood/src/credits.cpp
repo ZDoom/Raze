@@ -245,7 +245,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     UpdateDacs(0, true);
 
     timerUpdate();
-    int32_t nStartTime = totalclock;
+    int32_t nStartTime = totalclock.Ticks();
 
     ctrlClearAllInput();
     
@@ -253,7 +253,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     do
     {
         G_HandleAsync();
-        if (scale(totalclock-nStartTime, nFrameRate, kTicRate) < nFrame)
+        if (scale(totalclock.Ticks() -nStartTime, nFrameRate, kTicRate) < nFrame)
             continue;
 
         if (ctrlCheckAllInput())

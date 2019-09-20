@@ -470,7 +470,7 @@ void PreloadCache(void)
         sndTryPlaySpecialMusic(MUS_LOADING);
     gSoundRes.PrecacheSounds();
     PreloadTiles();
-    int clock = totalclock;
+    int clock = totalclock.Ticks();
     int cnt = 0;
     int percentDisplayed = -1;
 
@@ -503,12 +503,12 @@ void PreloadCache(void)
 
                     if (totalclock - clock >= 1)
                     {
-                        clock = totalclock;
+                        clock = totalclock.Ticks();
                         percentDisplayed++;
                     }
                 }
 
-                clock = totalclock;
+                clock = totalclock.Ticks();
             }
         }
     }
