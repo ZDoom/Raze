@@ -5442,9 +5442,6 @@ void polymost_drawrooms()
         gchang  = Bsqrtf(1.f - gshang * gshang);
         ghoriz2 = 0.f;
     }
-
-        ghoriz2 = 0.f;
-    }
     ghoriz = (float)(ydimen>>1);
 
     resizeglcheck();
