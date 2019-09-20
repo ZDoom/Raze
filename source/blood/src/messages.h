@@ -81,8 +81,8 @@ class CPlayerMsg
 {
 public:
     int at0;
-    char at4[41];
-    CPlayerMsg() { at0 = 0; at4[0] = 0; }
+    char text[41];
+    CPlayerMsg() { at0 = 0; text[0] = 0; }
     void Clear(void);
     void Term(void);
     void Draw(void);
@@ -91,6 +91,8 @@ public:
     void Set(const char *pzString);
     void Send(void);
     void ProcessKeys(void);
+private:
+    bool IsWhitespaceOnly(const char* const pzString);
 };
 
 class CCheatMgr

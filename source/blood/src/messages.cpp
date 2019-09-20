@@ -518,7 +518,7 @@ void CGameMessageMgr::SortMessagesByTime(messageStruct** messages, int count) {
 
 void CPlayerMsg::Clear(void)
 {
-    at4[0] = 0;
+    text[0] = 0;
     at0 = 0;
 }
 
@@ -531,7 +531,7 @@ void CPlayerMsg::Term(void)
 void CPlayerMsg::Draw(void)
 {
     char buffer[44];
-    strcpy(buffer, at4);
+    strcpy(buffer, text);
     if ((int)totalclock & 16)
         strcat(buffer, "_");
     int x = gViewMode == 3 ? gViewX0S : 0;
@@ -546,8 +546,8 @@ bool CPlayerMsg::AddChar(char ch)
 {
     if (at0 < 40)
     {
-        at4[at0++] = ch;
-        at4[at0] = 0;
+        text[at0++] = ch;
+        text[at0] = 0;
         return true;
     }
     return false;
@@ -556,20 +556,32 @@ bool CPlayerMsg::AddChar(char ch)
 void CPlayerMsg::DelChar(void)
 {
     if (at0 > 0)
-        at4[--at0] = 0;
+        text[--at0] = 0;
 }
 
 void CPlayerMsg::Set(const char * pzString)
 {
-    strncpy(at4, pzString, 40);
+    strncpy(text, pzString, 40);
     at0 = ClipHigh(strlen(pzString), 40);
-    at4[at0] = 0;
+    text[at0] = 0;
 }
 
 void CPlayerMsg::Send(void)
 {
-    netBroadcastMessage(myconnectindex, at4);
-    viewSetMessage(at4);
+    if (VanillaMode() || !IsWhitespaceOnly(text))
+    {
+        netBroadcastMessage(myconnectindex, text);
+        if (!VanillaMode())
+        {
+            char *myName = gProfile[myconnectindex].name;
+            char szTemp[128];
+            sprintf(szTemp, "%s: %s", myName, text);
+            viewSetMessage(szTemp, 10); // 10: dark blue
+        }
+        else
+            viewSetMessage(text);
+    }
+
     Term();
     keyFlushScans();
 }
@@ -611,7 +623,7 @@ void CPlayerMsg::ProcessKeys(void)
             break;
         case sc_Enter:
         case sc_kpad_Enter:
-            if (gCheatMgr.Check(at4))
+            if (gCheatMgr.Check(text))
                 Term();
             else
                 Send();
@@ -627,6 +639,15 @@ void CPlayerMsg::ProcessKeys(void)
         }
         sub_5A944(key);
     }
+}
+
+bool CPlayerMsg::IsWhitespaceOnly(const char * const pzString)
+{
+    const char *p = pzString;
+    while (*p != 0)
+        if (*p++ > 32)
+            return false;
+    return true;
 }
 
 CCheatMgr::CHEATINFO CCheatMgr::s_CheatInfo[] = {
