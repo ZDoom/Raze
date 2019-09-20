@@ -154,10 +154,10 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
         priority = rVol;
     if (gDoppler)
     {
-        DisableInterrupts();
+        MV_Lock();
         pBonkle->at0 = FX_PlayRaw(pData + lPhase, size - lPhase, lPitch, 0, lVol, lVol, 0, priority, 1.f, (intptr_t)&pBonkle->at0);
         pBonkle->at4 = FX_PlayRaw(pData + rPhase, size - rPhase, rPitch, 0, rVol, 0, rVol, priority, 1.f, (intptr_t)&pBonkle->at4);
-        RestoreInterrupts();
+        MV_Unlock();
     }
     else
     {
@@ -247,7 +247,7 @@ void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3, int a4)
     int loopEnd = ClipLow(size - 1, 0);
     if (a3 < 0)
         loopStart = -1;
-    DisableInterrupts();
+    MV_Lock();
     char *pData = (char*)gSoundRes.Lock(hRes);
     if (loopStart >= 0)
     {
@@ -276,7 +276,7 @@ void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3, int a4)
             pBonkle->at4 = 0;
         }
     }
-    RestoreInterrupts();
+    MV_Unlock();
 }
 
 // By NoOne: same as previous, but allows to set custom pitch for sound AND volume. Used by SFX gen now.
@@ -358,7 +358,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
     int loopEnd = ClipLow(size - 1, 0);
     if (a3 < 0)
         loopStart = -1;
-    DisableInterrupts();
+    MV_Lock();
     char* pData = (char*)gSoundRes.Lock(hRes);
     if (loopStart >= 0)
     {
@@ -387,7 +387,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
             pBonkle->at4 = 0;
         }
     }
-    RestoreInterrupts();
+    MV_Unlock();
 }
 
 
@@ -477,7 +477,7 @@ void sfxUpdate3DSounds(void)
                 pBonkle->at38 = pBonkle->at10->sectnum;
             }
             Calc3DValues(pBonkle);
-            DisableInterrupts();
+            MV_Lock();
             if (pBonkle->at0 > 0)
             {
                 if (pBonkle->at4 > 0)
@@ -493,7 +493,7 @@ void sfxUpdate3DSounds(void)
                 FX_SetPan(pBonkle->at4, rVol, 0, rVol);
                 FX_SetFrequency(pBonkle->at4, rPitch);
             }
-            RestoreInterrupts();
+            MV_Unlock();
         }
         else
         {
