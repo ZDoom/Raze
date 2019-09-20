@@ -1398,8 +1398,30 @@ void viewDrawCtfHudVanilla(ClockTicks arg)
     }
 }
 
+void flashTeamScore(ClockTicks arg, int team, bool show)
+{
+    dassert(0 == team || 1 == team); // 0: blue, 1: red
+
+    if (dword_21EFD0[team] == 0 || ((int)totalclock & 8))
+    {
+        dword_21EFD0[team] = dword_21EFD0[team] - arg;
+        if (dword_21EFD0[team] < 0)
+            dword_21EFD0[team] = 0;
+
+        if (show)
+            DrawStatNumber("%d", dword_21EFB0[team], kSBarNumberInv, 290, team ? 125 : 90, 0, team ? 2 : 10, 512, 65536 * 0.75);
+    }
+}
+
 void viewDrawCtfHud(ClockTicks arg)
 {
+    if (0 == gViewSize)
+    {
+        flashTeamScore(arg, 0, false);
+        flashTeamScore(arg, 1, false);
+        return;
+    }
+
     bool blueFlagTaken = false;
     bool redFlagTaken = false;
     int blueFlagCarrierColor = 0;
@@ -1424,13 +1446,7 @@ void viewDrawCtfHud(ClockTicks arg)
         DrawStatMaskedSprite(2332, 305, 83, 0, 10, 512, 65536);
     else if (blueFlagTaken)
         DrawStatMaskedSprite(4097, 307, 77, 0, blueFlagCarrierColor ? 2 : 10, 512, 65536);
-    if (dword_21EFD0[0] == 0 || ((int)totalclock & 8))
-    {
-        dword_21EFD0[0] = dword_21EFD0[0] - arg;
-        if (dword_21EFD0[0] < 0)
-            dword_21EFD0[0] = 0;
-        DrawStatNumber("%d", dword_21EFB0[0], kSBarNumberInv, 290, 90, 0, 10, 512, 65536 * 0.75);
-    }
+    flashTeamScore(arg, 0, true);
 
     bool meHaveRedFlag = gMe->at90 & 2;
     DrawStatMaskedSprite(meHaveRedFlag ? 3558 : 3559, 320, 110, 0, 2, 512, 65536 * 0.35);
@@ -1438,13 +1454,7 @@ void viewDrawCtfHud(ClockTicks arg)
         DrawStatMaskedSprite(2332, 305, 117, 0, 2, 512, 65536);
     else if (redFlagTaken)
         DrawStatMaskedSprite(4097, 307, 111, 0, redFlagCarrierColor ? 2 : 10, 512, 65536);
-    if (dword_21EFD0[1] == 0 || ((int)totalclock & 8))
-    {
-        dword_21EFD0[1] = dword_21EFD0[1] - arg;
-        if (dword_21EFD0[1] < 0)
-            dword_21EFD0[1] = 0;
-        DrawStatNumber("%d", dword_21EFB0[1], kSBarNumberInv, 290, 125, 0, 2, 512, 65536 * 0.75);
-    }
+    flashTeamScore(arg, 1, true);
 }
 
 void UpdateStatusBar(ClockTicks arg)
