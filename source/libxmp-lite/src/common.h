@@ -145,10 +145,7 @@ void __inline CLIB_DECL D_(const char *text, ...) { do {} while (0); }
 #define close _close
 #define unlink _unlink
 #endif
-#if defined(_MSC_VER)
-#define snprintf _snprintf
-#define vsnprintf _vsnprintf
-#elif defined(__WATCOMC__) /* in win32.c */
+#if defined(_WIN32) || defined(__WATCOMC__) /* in win32.c */
 int libxmp_vsnprintf(char *, size_t, const char *, va_list);
 int libxmp_snprintf (char *, size_t, const char *, ...);
 #define snprintf  libxmp_snprintf
@@ -296,28 +293,40 @@ struct module_data {
 };
 
 struct pattern_loop {
-    int start;
-    int count;
+	int start;
+	int count;
 };
 
+
 struct flow_control {
-    int pbreak;
-    int jump;
-    int delay;
-    int jumpline;
-    int loop_chn;
-
-    struct pattern_loop *loop;
-
-    int num_rows;
-    int end_point;
-    int rowdelay;		/* For IT pattern row delay */
-    int rowdelay_set;
+	int pbreak;
+	int jump;
+	int delay;
+	int jumpline;
+	int loop_chn;
+	
+	struct pattern_loop *loop;
+	
+	int num_rows;
+	int end_point;
+	int rowdelay;		/* For IT pattern row delay */
+	int rowdelay_set;
 };
 
 struct virt_channel {
-    int count;
-    int map;
+	int count;
+	int map;
+};
+
+struct virt_control {
+	int num_tracks;		/* Number of tracks */
+	int virt_channels;	/* Number of virtual channels */
+	int virt_used;		/* Number of voices currently in use */
+	int maxvoc;		/* Number of sound card voices */
+	
+	struct virt_channel *virt_channel;
+	
+	struct mixer_voice *voice_array;
 };
 
 struct player_data {
@@ -342,7 +351,7 @@ struct player_data {
 	int master_vol;			/* Music volume */
 	int gvol;
 
-    struct flow_control flow;
+	struct flow_control flow;
 
 	struct {
 		int time;		/* replay time in ms */
@@ -356,16 +365,7 @@ struct player_data {
 	int channel_vol[XMP_MAX_CHANNELS];
 	char channel_mute[XMP_MAX_CHANNELS];
 
-	struct virt_control {
-		int num_tracks;		/* Number of tracks */
-		int virt_channels;	/* Number of virtual channels */
-		int virt_used;		/* Number of voices currently in use */
-		int maxvoc;		/* Number of sound card voices */
-	
-		struct virt_channel *virt_channel;
-	
-		struct mixer_voice *voice_array;
-	} virt;
+	struct virt_control virt;
 
 	struct xmp_event inject_event[XMP_MAX_CHANNELS];
 

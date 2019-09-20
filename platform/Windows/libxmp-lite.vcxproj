@@ -66,6 +66,7 @@
     <ClCompile Include="..\..\source\libxmp-lite\src\scan.c" />
     <ClCompile Include="..\..\source\libxmp-lite\src\smix.c" />
     <ClCompile Include="..\..\source\libxmp-lite\src\virtual.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\win32.c" />
     <ClCompile Include="..\..\source\libxmp-lite\src\xm_load.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

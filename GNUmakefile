@@ -75,6 +75,7 @@ libxmplite_objs := \
     s3m_load.c \
     sample.c \
     xm_load.c \
+    win32.c \
 
 libxmplite_root := $(source)/$(libxmplite)
 libxmplite_src := $(libxmplite_root)/src

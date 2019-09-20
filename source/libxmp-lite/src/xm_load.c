@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -351,6 +351,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE * f)
 	struct xm_instrument xi;
 	struct xm_sample_header xsh[16];
 	int sample_num = 0;
+	long total_sample_size;
 	int i, j;
 	uint8 buf[208];
 
@@ -363,6 +364,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE * f)
 		return -1;
 
 	for (i = 0; i < mod->ins; i++) {
+		long instr_pos = hio_tell(f);
 		struct xmp_instrument *xxi = &mod->xxi[i];
 
 		/* Modules converted with MOD2XM 1.0 always say we have 31
@@ -571,6 +573,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE * f)
 			xxs->flg |= xsh[j].type & XM_LOOP_PINGPONG ? XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR : 0;
 		}
 
+		total_sample_size = 0;
 		for (j = 0; j < xxi->nsm; j++) {
 			struct xmp_subinstrument *sub = &xxi->sub[j];
 			int flags;
@@ -595,7 +598,19 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE * f)
 				if (libxmp_load_sample(m, f, flags, &mod->xxs[sub->sid], NULL) < 0) {
 					return -1;
 				}
+				if (flags & SAMPLE_FLAG_ADPCM) {
+					total_sample_size += 16 + ((xsh[j].length + 1) >> 1);
+				} else {
+					total_sample_size += xsh[j].length;
+				}
 			}
+			}
+
+		/* Reposition correctly in case of 16-bit sample having odd in-file length.
+		 * See "Lead Lined for '99", reported by Dennis Mulleneers.
+		 */
+		if (hio_seek(f, instr_pos + xih.size + 40 * xih.samples + total_sample_size, SEEK_SET) < 0) {
+			return -1;
 		}
 	}
 

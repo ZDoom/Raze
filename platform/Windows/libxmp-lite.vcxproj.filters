@@ -149,5 +149,6 @@
     <ClCompile Include="..\..\source\libxmp-lite\src\xm_load.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\libxmp-lite\src\win32.c" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -1502,8 +1502,13 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 	p->loop_count = 0;
 	p->sequence = 0;
 
-	/* Unmute all channels and set default volume */
-	for (i = 0; i < XMP_MAX_CHANNELS; i++) {
+	/* Set default volume and mute status */
+	for (i = 0; i < mod->chn; i++) {
+		if (mod->xxc[i].flg & XMP_CHANNEL_MUTE)
+			p->channel_mute[i] = 1;
+		p->channel_vol[i] = 100;
+	}
+	for (i = mod->chn; i < XMP_MAX_CHANNELS; i++) {
 		p->channel_mute[i] = 0;
 		p->channel_vol[i] = 100;
 	}
@@ -1552,6 +1557,9 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 		ret = -XMP_ERROR_SYSTEM;
 		goto err1;
 	}
+
+	/* Reset our buffer pointers */
+	xmp_play_buffer(opaque, NULL, 0, 0);
 
 #ifndef LIBXMP_CORE_PLAYER
 	for (i = 0; i < p->virt.virt_channels; i++) {

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -251,7 +251,7 @@ int xmp_smix_load_sample(xmp_context opaque, int num, char *path)
 		retval = -XMP_ERROR_SYSTEM;
 		goto err2;
 	}
-	size = hio_read32l(h) / (bits / 8);
+	size = hio_read32l(h);
 	if (size == 0) {
 		retval = -XMP_ERROR_FORMAT;
 		goto err2;
@@ -264,11 +264,17 @@ int xmp_smix_load_sample(xmp_context opaque, int num, char *path)
 	xxs->lpe = 0;
 	xxs->flg = bits == 16 ? XMP_SAMPLE_16BIT : 0;
 
-	xxs->data = (unsigned char *)malloc(size);
+	xxs->data = malloc(size + 8);
 	if (xxs->data == NULL) {
 		retval = -XMP_ERROR_SYSTEM;
 		goto err2;
 	}
+
+	/* ugly hack to make the interpolator happy */
+	memset(xxs->data, 0, 4);
+	memset(xxs->data + 4 + size, 0, 4);
+	xxs->data += 4;
+
 	if (hio_seek(h, 44, SEEK_SET) < 0) {
 		retval = -XMP_ERROR_SYSTEM;
 		goto err2;
@@ -300,7 +306,9 @@ int xmp_smix_release_sample(xmp_context opaque, int num)
 		return -XMP_ERROR_INVALID;
 	}
 
-	free(smix->xxs[num].data);
+	if (smix->xxs[num].data != NULL) {
+		free(smix->xxs[num].data - 4);
+	}
 	free(smix->xxi[num].sub);
 
 	smix->xxs[num].data = NULL;
@@ -322,3 +330,4 @@ void xmp_end_smix(xmp_context opaque)
 	free(smix->xxs);
 	free(smix->xxi);
 }
+
