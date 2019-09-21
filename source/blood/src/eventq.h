@@ -47,7 +47,6 @@ enum COMMAND_ID {
     kCommandCallback = 20,
     COMMAND_ID_21,
     kGDXCommandPaste = 53, // used by some new GDX types
-    kGDXCommandSpriteDamage, // used by sprite damager GDX type
     COMMAND_ID_64 = 64,
 };
 

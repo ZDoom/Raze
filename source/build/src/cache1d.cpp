@@ -1111,18 +1111,18 @@ int32_t kopen4load(const char *filename, char searchfirst)
 
 char g_modDir[BMAX_PATH] = "/";
 
-buildvfs_kfd kopen4loadfrommod(const char* fileName, char searchfirst)
+buildvfs_kfd kopen4loadfrommod(const char *fileName, char searchfirst)
 {
-	buildvfs_kfd kFile = buildvfs_kfd_invalid;
+    buildvfs_kfd kFile = buildvfs_kfd_invalid;
 
-	if (g_modDir[0] != '/' || g_modDir[1] != 0)
-	{
-		static char staticFileName[BMAX_PATH];
-		Bsnprintf(staticFileName, sizeof(staticFileName), "%s/%s", g_modDir, fileName);
-		kFile = kopen4load(staticFileName, searchfirst);
-	}
+    if (g_modDir[0] != '/' || g_modDir[1] != 0)
+    {
+        static char staticFileName[BMAX_PATH];
+        Bsnprintf(staticFileName, sizeof(staticFileName), "%s/%s", g_modDir, fileName);
+        kFile = kopen4load(staticFileName, searchfirst);
+    }
 
-	return (kFile == buildvfs_kfd_invalid) ? kopen4load(fileName, searchfirst) : kFile;
+    return (kFile == buildvfs_kfd_invalid) ? kopen4load(fileName, searchfirst) : kFile;
 }
 
 int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, const uint8_t *arraygrp, const intptr_t *arrayhan, int32_t *arraypos)

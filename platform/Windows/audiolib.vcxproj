@@ -189,7 +189,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\audiolib\src\al_midi.cpp" />
     <ClCompile Include="..\..\source\audiolib\src\drivers.cpp" />
     <ClCompile Include="..\..\source\audiolib\src\driver_directsound.cpp" />
     <ClCompile Include="..\..\source\audiolib\src\driver_nosound.cpp" />
@@ -209,8 +208,6 @@
     <ClCompile Include="..\..\source\audiolib\src\mpu401.cpp" />
     <ClCompile Include="..\..\source\audiolib\src\multivoc.cpp" />
     <ClCompile Include="..\..\source\audiolib\src\music.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\opl3.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\oplmidi.cpp" />
     <ClCompile Include="..\..\source\audiolib\src\pitch.cpp" />
     <ClCompile Include="..\..\source\audiolib\src\sdlmusic.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -223,21 +220,17 @@
     <ClCompile Include="..\..\source\audiolib\src\xmp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\source\audiolib\include\al_midi.h" />
     <ClInclude Include="..\..\source\audiolib\include\drivers.h" />
     <ClInclude Include="..\..\source\audiolib\include\fx_man.h" />
     <ClInclude Include="..\..\source\audiolib\include\midi.h" />
     <ClInclude Include="..\..\source\audiolib\include\mpu401.h" />
     <ClInclude Include="..\..\source\audiolib\include\multivoc.h" />
     <ClInclude Include="..\..\source\audiolib\include\music.h" />
-    <ClInclude Include="..\..\source\audiolib\include\opl3.h" />
-    <ClInclude Include="..\..\source\audiolib\include\oplmidi.h" />
     <ClInclude Include="..\..\source\audiolib\src\driver_directsound.h" />
     <ClInclude Include="..\..\source\audiolib\src\driver_nosound.h" />
     <ClInclude Include="..\..\source\audiolib\src\driver_sdl.h" />
     <ClInclude Include="..\..\source\audiolib\src\linklist.h" />
     <ClInclude Include="..\..\source\audiolib\src\pitch.h" />
-    <ClInclude Include="..\..\source\audiolib\src\_al_midi.h" />
     <ClInclude Include="..\..\source\audiolib\src\_midi.h" />
     <ClInclude Include="..\..\source\audiolib\src\_multivc.h" />
     <ClInclude Include="..\..\source\audiolib\src\_oplmidi.h" />

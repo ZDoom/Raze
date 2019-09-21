@@ -507,7 +507,7 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
     const int32_t permap = (tilefilei >= MAXARTFILES_BASE);  // is it a per-map ART file?
     buildvfs_kfd fil;
 
-	auto kopen4loadfunc = playing_blood ? kopen4loadfrommod : kopen4load;
+	auto kopen4loadfunc = bloodhack == 2 ? kopen4loadfrommod : kopen4load;
 
     if ((fil = kopen4loadfunc(fn, 0)) != buildvfs_kfd_invalid)
     {
@@ -713,7 +713,7 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
 
         char const *fn = artGetIndexedFileName(tfn);
 
-		auto kopen4loadfunc = playing_blood ? kopen4loadfrommod : kopen4load;
+		auto kopen4loadfunc = bloodhack == 2 ? kopen4loadfrommod : kopen4load;
 		
 		artfil = kopen4loadfunc(fn, 0);
 

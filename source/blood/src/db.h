@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kMaxXWalls 512
 #define kMaxXSectors 512
 
+// by NoOne additional non-thing proximity, sight and physics sprites 
+#define kMaxSuperXSprites 128
+
 #pragma pack(push, 1)
 
 struct AISTATE;
@@ -52,14 +55,14 @@ struct XSPRITE {
 
     unsigned int respawnPending : 2; // respawnPending
 
-    signed int dropMsg : 10; // Drop Item
+    signed int dropMsg : 8; // Drop Item
     unsigned int Decoupled : 1; // Decoupled
     unsigned int triggerOnce : 1; // 1-shot
     unsigned int isTriggered : 1; // works in case if triggerOnce selected
 
     unsigned int key : 3; // Key
     unsigned int wave : 2; // Wave
-    unsigned int Push: 1; // Push
+    unsigned int Push : 1; // Push
     unsigned int Vector : 1; // Vector
     unsigned int Impact : 1; // Impact
     unsigned int Pickup : 1; // Pickup
@@ -95,9 +98,9 @@ struct XSPRITE {
     signed   int burnSource : 16;
     unsigned int height : 16;
     unsigned int stateTimer : 16; // ai timer
-    AISTATE *aiState; // ai
-    signed int txIndex : 10; // used by kGDXSequentialTX to keep current TX ID index
-    signed int cumulDamage : 16; // for dudes
+    AISTATE* aiState; // ai
+    signed int sysData1 : 16; // used to keep here various system data, so user can't change it in map editor
+    unsigned int physAttr : 12; // currently used by additional physics sprites to keep it's attributes.
     signed int scale; // used for scaling SEQ size on sprites
 };
 
@@ -207,7 +210,7 @@ struct XWALL {
     unsigned int key : 3; // Key 
     unsigned int triggerPush : 1; // Push
     unsigned int triggerVector : 1; // Vector
-    unsigned int triggerReserved : 1; // Reserved
+    unsigned int triggerTouch : 1; // by NoOne: renamed from Reserved to Touch as it works with Touch now.
     unsigned int at11_0 : 2; // unused
     unsigned int xpanFrac : 8; // x panning frac
     unsigned int ypanFrac : 8; // y panning frac

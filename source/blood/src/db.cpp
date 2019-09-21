@@ -519,6 +519,8 @@ void dbXWallClean(void)
 
 void dbXSectorClean(void)
 {
+
+
     for (int i = 0; i < numsectors; i++)
     {
         int nXSector = sector[i].extra;
@@ -1038,7 +1040,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXWall->key = bitReader.readUnsigned(3);
             pXWall->triggerPush = bitReader.readUnsigned(1);
             pXWall->triggerVector = bitReader.readUnsigned(1);
-            pXWall->triggerReserved = bitReader.readUnsigned(1);
+            pXWall->triggerTouch = bitReader.readUnsigned(1);
             pXWall->at11_0 = bitReader.readUnsigned(2);
             pXWall->xpanFrac = bitReader.readUnsigned(8);
             pXWall->ypanFrac = bitReader.readUnsigned(8);
@@ -1077,12 +1079,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         pSprite->hitag = B_LITTLE16(pSprite->hitag);
         pSprite->extra = B_LITTLE16(pSprite->extra);
 #endif
-        // NoOne's extension bit
-        if (pSprite->hitag&1)
-        {
-            pSprite->hitag &= ~1;
-            pSprite->hitag |= kHitagExtBit;
-        }
         InsertSpriteSect(i, sprite[i].sectnum);
         InsertSpriteStat(i, sprite[i].statnum);
         Numsprites++;
@@ -1284,8 +1280,8 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
 int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSector)
 {
-    char sMapExt[_MAX_PATH];
-    char sBakExt[_MAX_PATH];
+    char sMapExt[BMAX_PATH];
+    char sBakExt[BMAX_PATH];
     int16_t tpskyoff[256];
     int nSpriteNum;
     psky_t *pSky = tileSetupSky(0);
@@ -1527,7 +1523,7 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
             bitWriter.write(pXWall->key, 3);
             bitWriter.write(pXWall->triggerPush, 1);
             bitWriter.write(pXWall->triggerVector, 1);
-            bitWriter.write(pXWall->triggerReserved, 1);
+            bitWriter.write(pXWall->triggerTouch, 1);
             bitWriter.write(pXWall->at11_0, 2);
             bitWriter.write(pXWall->xpanFrac, 8);
             bitWriter.write(pXWall->ypanFrac, 8);

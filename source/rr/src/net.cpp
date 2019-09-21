@@ -88,7 +88,7 @@ void Net_SyncPlayer(ENetEvent *event)
 
     event->peer->data = (void *)(intptr_t)i;
 
-    g_player[i].netsynctime    = (int32_t)totalclock;
+    //g_player[i].netsynctime = totalclock;
     g_player[i].playerquitflag = 1;
     //g_player[i].revision = g_netMapRevision;
 
@@ -2178,7 +2178,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
 
         if ((g_player[other].movefifoend&(TIMERUPDATESIZ-1)) == 0)
             for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-        {
+            {
                 if (g_player[i].playerquitflag == 0) continue;
                 if (i == myconnectindex)
                     otherminlag = (int)((signed char)packbuf[j]);
@@ -2192,7 +2192,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         for(TRAVERSE_CONNECT(i))
         j += g_player[i].playerquitflag+g_player[i].playerquitflag;
         for(TRAVERSE_CONNECT(i))
-            {
+        {
             if (g_player[i].playerquitflag == 0) continue;
 
             l = packbuf[k]+(int)(packbuf[k+1]<<8);
@@ -2260,7 +2260,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
 
         movefifosendplc += g_movesPerPacket;
 
-                        break;
+        break;
     case PACKET_TYPE_SLAVE_TO_MASTER:  //[1] (receive slave sync buffer)
         j = 3;
         k = packbuf[1] + (int)(packbuf[2]<<8);
@@ -2272,13 +2272,13 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
         if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
         if (k&4)
-                {
+        {
             nsyn[other].q16avel = (fix16_t)packbuf[j];
             nsyn[other].q16avel += (fix16_t)packbuf[j + 1] << 8;
             nsyn[other].q16avel += (fix16_t)packbuf[j + 2] << 16;
             nsyn[other].q16avel += (fix16_t)packbuf[j + 3] << 24;
             j += 4;
-                }
+        }
         if (k&8)   nsyn[other].bits = ((nsyn[other].bits&0xffffff00)|((int)packbuf[j++]));
         if (k&16)  nsyn[other].bits = ((nsyn[other].bits&0xffff00ff)|((int)packbuf[j++])<<8);
         if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((int)packbuf[j++])<<16);
@@ -2311,7 +2311,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             g_player[other].movefifoend++;
         }
 
-                break;
+        break;
 
     case PACKET_TYPE_BROADCAST:
         g_player[other].movefifoend = movefifoplc = movefifosendplc = predictfifoplc = 0;
@@ -2326,7 +2326,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
                     if (i == myconnectindex)
                         otherminlag = (int)((signed char)packbuf[j]);
                     j++;
-            }
+                }
 
         osyn = (input_t *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
         nsyn = (input_t *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
@@ -2338,7 +2338,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
         if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
         if (k&4)
-                {
+        {
             nsyn[other].q16avel = (fix16_t)packbuf[j];
             nsyn[other].q16avel += (fix16_t)packbuf[j + 1] << 8;
             nsyn[other].q16avel += (fix16_t)packbuf[j + 2] << 16;
@@ -2350,7 +2350,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((int)packbuf[j++])<<16);
         if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((int)packbuf[j++])<<24);
         if (k&128)
-                {
+        {
             nsyn[other].q16horz = (fix16_t)packbuf[j];
             nsyn[other].q16horz += (fix16_t)packbuf[j + 1] << 8;
             nsyn[other].q16horz += (fix16_t)packbuf[j + 2] << 16;
@@ -2366,10 +2366,10 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         g_player[other].movefifoend++;
 
         for (i=g_movesPerPacket-1;i>=1;i--)
-                    {
+        {
             copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
             g_player[other].movefifoend++;
-                    }
+        }
 
         /*
                     while (j < packbufleng)
@@ -2383,7 +2383,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         if (j > packbufleng)
             initprintf("INVALID GAME PACKET!!! (packet %d, %d too many bytes (%d %d))\n",packbuf[0],j-packbufleng,packbufleng,k);
 
-                    break;
+        break;
     case PACKET_TYPE_NULL_PACKET:
         break;
 
@@ -2427,7 +2427,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             pus = NUMPAGES;
             pub = NUMPAGES;
 
-                break;
+            break;
 
         case PACKET_TYPE_NEW_GAME:
             //Slaves in M/S mode only send to master
@@ -2500,14 +2500,14 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             {
                 initprintf("Player has version %d, expecting %d\n",packbuf[2],(char)atoi(s_buildDate));
                 G_GameExit("You cannot play with different versions of EDuke32!");
-        }
+            }
             if (packbuf[3] != (char)BYTEVERSION)
             {
                 initprintf("Player has version %d, expecting %d (%d, %d, %d)\n",packbuf[3],BYTEVERSION, NETVERSION, PLUTOPAK, VOLUMEONE);
                 G_GameExit("You cannot play Duke with different versions!");
-    }
+            }
             if (packbuf[4] > g_numSyncBytes)
-    {
+            {
                 initprintf("Sync debugging enabled\n");
                 g_numSyncBytes = packbuf[4];
             }
@@ -2604,7 +2604,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         case PACKET_TYPE_MENU_LEVEL_QUIT:
             //slaves in M/S mode only send to master
             if (myconnectindex == connecthead)
-        {
+            {
                 //Master re-transmits message to all others
                 for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                     if (i != other)
@@ -2629,7 +2629,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             boardfilename[packbufleng-1] = 0;
             Bcorrectfilename(boardfilename,0);
             if (boardfilename[0] != 0)
-                {
+            {
                 if ((i = kopen4loadfrommod(boardfilename,0)) < 0)
                 {
                     Bmemset(boardfilename,0,sizeof(boardfilename));
@@ -2641,7 +2641,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
                 ud.m_level_number = 0;
 
-                    break;
+            break;
 
         case PACKET_TYPE_MAP_VOTE:
         case PACKET_TYPE_MAP_VOTE_INITIATE:
@@ -2653,7 +2653,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
                 for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                     if (i != other)
                         Net_SendPacket(i,packbuf,packbufleng);
-                }
+            }
 
             switch (packbuf[0])
             {
@@ -2665,7 +2665,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
                     Bsprintf(tempbuf,"Confirmed vote from %s",g_player[packbuf[1]].user_name);
                     G_AddUserQuote(tempbuf);
                 }
-                    break;
+                break;
 
             case PACKET_TYPE_MAP_VOTE_INITIATE: // call map vote
                 /*                    if (g_networkBroadcastMode == 0 && packbuf[1] == connecthead)
@@ -2706,11 +2706,11 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
                     {
                         g_player[i].vote = 0;
                         g_player[i].gotvote = 0;
-            }
+                    }
                     G_AddUserQuote(tempbuf);
-        }
+                }
                 break;
-    }
+            }
             break;
 
         //case PACKET_TYPE_LOAD_GAME:
@@ -3063,12 +3063,12 @@ void Net_ParseClientPacket(ENetEvent *event)
         break;
     default:
     {
-    uint8_t *pbuf = event->packet->data;
-    int32_t packbufleng = event->packet->dataLength;
-    int16_t j;
-    int32_t other = pbuf[--packbufleng];
-    switch (pbuf[0])
-    {
+        uint8_t *pbuf = event->packet->data;
+        int32_t packbufleng = event->packet->dataLength;
+        int16_t j;
+        int32_t other = pbuf[--packbufleng];
+        switch (pbuf[0])
+        {
         //case PACKET_SLAVE_TO_MASTER:  //[1] (receive slave sync buffer)
         //    Net_ReceiveClientUpdate(event);
         //    break;
@@ -3105,14 +3105,14 @@ void Net_ParseClientPacket(ENetEvent *event)
         //    g_player[other].pingcnt++;
         //    break;
 
-    case PACKET_AUTH:
-        Net_ReceiveChallenge(pbuf, packbufleng, event);
-        break;
+        case PACKET_AUTH:
+            Net_ReceiveChallenge(pbuf, packbufleng, event);
+            break;
 
-    default:
-        Net_ParsePacketCommon(pbuf, packbufleng, 0);
-        break;
-    }
+        default:
+            Net_ParsePacketCommon(pbuf, packbufleng, 0);
+            break;
+        }
         break;
     }
     }
@@ -3168,7 +3168,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 
     case PACKET_PLAYER_DISCONNECTED:
         //if ((g_player[myconnectindex].ps->gm & MODE_GAME))
-            P_RemovePlayer(pbuf[1]);
+        P_RemovePlayer(pbuf[1]);
         numplayers = pbuf[2];
         ud.multimode = pbuf[3];
         g_mostConcurrentPlayers = pbuf[4];

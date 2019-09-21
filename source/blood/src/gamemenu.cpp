@@ -830,12 +830,14 @@ bool CGameMenuItem7EA1C::Event(CGameMenuEvent &event)
         if (at24)
             delete at24;
         at24 = new CGameMenu(1);
+		/*
         DICTNODE *pRes = gGuiRes.Lookup(at38, "MNU");
         if (pRes)
         {
             at34 = new IniFile(gGuiRes.Load(pRes));
             Setup();
         }
+		*/
         if (at24)
             gGameMenuMgr.Push(at24, at28);
         return false;
@@ -2891,7 +2893,7 @@ void CGameMenuItemPassword::Draw(void)
             gMenuTextMgr.GetFontInfo(m_nFont, kInvalidPasswordMsg, &width, NULL);
             gMenuTextMgr.DrawText(kInvalidPasswordMsg, m_nFont, m_nX - width / 2, m_nY + 20, shade, 0, false);
         }
-        if (at5b && totalclock.Ticks() -at5b > 256)
+        if (at5b && totalclock-at5b > 256)
         {
             at5b = 0;
             at37 = 0;

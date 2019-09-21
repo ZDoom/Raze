@@ -43,7 +43,6 @@ void trTextOver(int nId);
 // By NoOne: functions required for new features
 // -------------------------------------------------------
 void pastePropertiesInObj(int type, int nDest, EVENT event);
-void trDamageSprite(int type, int nDest, EVENT event);
 spritetype* getTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode);
 bool isMateOf(XSPRITE* pXDude, XSPRITE* pXSprite);
 spritetype* targetIsPlayer(XSPRITE* pXSprite);
@@ -56,7 +55,7 @@ void disturbDudesInSight(spritetype* pSprite, int max);
 int getTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* pTarget);
 int getFineTargetDist(spritetype* pSprite, spritetype* pTarget);
 bool IsBurningDude(spritetype* pSprite);
-bool IsKillableDude(spritetype* pSprite, bool locked);
+bool IsKillableDude(spritetype* pSprite);
 bool isAnnoyingUnit(spritetype* pDude);
 bool unitCanFly(spritetype* pDude);
 bool isMeleeUnit(spritetype* pDude);
@@ -69,5 +68,8 @@ bool getDudesForTargetChg(XSPRITE* pXSprite);
 void stopWindOnSectors(XSPRITE* pXSource);
 void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector);
 void useEffectGen(XSPRITE* pXSource, spritetype* pSprite);
-void useSeqSpawnerGen(XSPRITE* pXSource, spritetype* pSprite);
+void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index);
+void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite);
+void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite);
+void TeleFrag(int nKiller, int nSector);
 // -------------------------------------------------------

@@ -168,6 +168,7 @@ int credKOpen4Load(char *&pzFile)
 
 void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 {
+    return;
 #if 0
     CSMKPlayer smkPlayer;
     if (dword_148E14 >= 0)

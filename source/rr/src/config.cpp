@@ -630,20 +630,25 @@ int32_t CONFIG_ReadSetup(void)
 
     if (ud.config.scripthandle < 0)
     {
-		if (buildvfs_exists(g_setupFileName))  // JBF 20031211
-			ud.config.scripthandle = SCRIPT_Load(g_setupFileName);
+        if (buildvfs_exists(g_setupFileName))  // JBF 20031211
+            ud.config.scripthandle = SCRIPT_Load(g_setupFileName);
 #if !defined(EDUKE32_TOUCH_DEVICES)
-		else if (buildvfs_exists(SETUPFILENAME))
-		{
-			int const i = wm_ynbox("Import Configuration Settings",
-				"The configuration file \"%s\" was not found. "
-				"Import configuration data from \"%s\"?",
-				g_setupFileName, SETUPFILENAME);
-			if (i)
-				ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
-		}
+        else if (buildvfs_exists(SETUPFILENAME))
+        {
+            int32_t i;
+            i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
+                "Import configuration data from \"%s\"?", g_setupFileName, SETUPFILENAME);
+            if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
+        }
+        else if (buildvfs_exists("duke3d.cfg"))
+        {
+            int32_t i;
+            i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
+                "Import configuration data from \"duke3d.cfg\"?", g_setupFileName);
+            if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
+        }
 #endif
-	}
+    }
 
     pathsearchmode = 0;
 

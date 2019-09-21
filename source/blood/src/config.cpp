@@ -69,6 +69,7 @@ int32_t JoystickAnalogueSaturate[MAXJOYAXES];
 uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 int32_t scripthandle;
 int32_t setupread;
+int32_t MusicRestartsOnLoadToggle;
 int32_t configversion;
 int32_t CheckForUpdates;
 int32_t LastUpdateCheck;
@@ -111,6 +112,10 @@ int32_t gShowMapTitle;
 int32_t gFov;
 int32_t gCenterHoriz;
 int32_t gDeliriumBlur;
+
+//////////
+int gWeaponsV10x;
+/////////
 
 int32_t CONFIG_FunctionNameToNum(const char *func)
 {
@@ -668,18 +673,18 @@ int CONFIG_ReadSetup(void)
 
     if (scripthandle < 0)
     {
-		if (buildvfs_exists(SetupFilename))  // JBF 20031211
-			scripthandle = SCRIPT_Load(SetupFilename);
+        if (buildvfs_exists(SetupFilename))  // JBF 20031211
+            scripthandle = SCRIPT_Load(SetupFilename);
 #if !defined(EDUKE32_TOUCH_DEVICES) && !defined(EDUKE32_STANDALONE)
-		else if (buildvfs_exists(SETUPFILENAME))
-		{
-			int const i = wm_ynbox("Import Configuration Settings",
-				"The configuration file \"%s\" was not found. "
-				"Import configuration data from \"%s\"?",
-				SetupFilename, SETUPFILENAME);
-			if (i)
-				scripthandle = SCRIPT_Load(SETUPFILENAME);
-		}
+        else if (buildvfs_exists(SETUPFILENAME))
+        {
+            int const i = wm_ynbox("Import Configuration Settings",
+                                   "The configuration file \"%s\" was not found. "
+                                   "Import configuration data from \"%s\"?",
+                                   SetupFilename, SETUPFILENAME);
+            if (i)
+                scripthandle = SCRIPT_Load(SETUPFILENAME);
+        }
 #endif
     }
 
@@ -687,6 +692,11 @@ int CONFIG_ReadSetup(void)
 
     if (scripthandle < 0)
         return -1;
+
+    // Nuke: make cvar
+    ///////
+    SCRIPT_GetNumber(scripthandle, "Game Options", "WeaponsV10x", &gWeaponsV10x);
+    ///////
 
     char commmacro[] = "CommbatMacro# ";
 
@@ -995,6 +1005,10 @@ void CONFIG_WriteSetup(uint32_t flags)
         SCRIPT_PutString(scripthandle, "Comm Setup",commmacro,&CommbatMacro[dummy][0]);
     }
 
+    ///////
+    SCRIPT_PutNumber(scripthandle, "Game Options", "WeaponsV10x", gWeaponsV10x, FALSE, FALSE);
+    ///////
+    
     SCRIPT_Save(scripthandle, SetupFilename);
 
     if ((flags & 2) == 0)

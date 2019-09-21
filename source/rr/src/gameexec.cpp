@@ -1149,7 +1149,6 @@ void Screen_Play(void)
 
         videoNextPage();
         I_ClearAllInput();
-		videoNextPage();
     } while (running);
 }
 

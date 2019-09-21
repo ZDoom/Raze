@@ -47,6 +47,8 @@ enum CALLBACK_ID {
     CALLBACK_ID_19,
     CALLBACK_ID_20,
     CALLBACK_ID_21,
+    CALLBACK_ID_22, // by NoOne: UniMissileBurst();
+    CALLBACK_ID_23, // by NoOne: makeMissileBlocking();
     kCallbackMax
 };
 

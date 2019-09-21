@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameutil.h"
 #include "globals.h"
 #include "trig.h"
+#include "sectorfx.h"
 
 char flicker1[] = {
     0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0,
@@ -105,8 +106,10 @@ int GetWaveValue(int a, int b, int c)
     return 0;
 }
 
-int shadeCount;
-short shadeList[512];
+int shadeCount = 0;
+short shadeList[kMaxXSectors];
+int panCount = 0;
+short panList[kMaxXSectors];
 
 void DoSectorLighting(void)
 {
@@ -251,8 +254,6 @@ void UndoSectorLighting(void)
     }
 }
 
-int panCount;
-short panList[kMaxXSectors];
 short wallPanList[kMaxXWalls];
 int wallPanCount;
 

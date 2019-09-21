@@ -178,7 +178,7 @@ void yax_updategrays(int32_t posze);
 # else
    // More user tag hijacking: lotag/extra. :/
 #  define YAX_PTRNEXTWALL(Ptr, Wall, Cf) (*(int16_t *)(&Ptr[Wall].lotag + (bloodhack ? 1 : 2)*Cf))
-#  define YAX_NEXTWALLDEFAULT(Cf) (((Cf)==YAX_CEILING) ? 0 : -1)
+#  define YAX_NEXTWALLDEFAULT(Cf) (bloodhack ? 0 : ((Cf)==YAX_CEILING) ? 0 : -1)
    extern int16_t yax_bunchnum[MAXSECTORS][2];
    extern int16_t yax_nextwall[MAXWALLS][2];
 # endif
@@ -947,6 +947,9 @@ static FORCE_INLINE int32_t videoGetRenderMode(void)
     return rendmode;
 #endif
 }
+
+extern int32_t bloodhack;
+extern int32_t blooddemohack;
 
 /*************************************************************************
 POSITION VARIABLES:

@@ -7638,14 +7638,14 @@ void M_DisplayMenus(void)
         m_menuchange_watchpoint++;
 #endif
 
-    if ((int32_t)totalclock < m_animation.start)
+    if (totalclock < m_animation.start)
     {
         m_animation.start = 0;
         m_animation.length = 0;
     }
 
     // Determine animation values.
-    if ((int32_t)totalclock < m_animation.start + m_animation.length)
+    if (totalclock < m_animation.start + m_animation.length)
     {
         const int32_t screenwidth = scale(240<<16, xdim, ydim);
 
@@ -7659,7 +7659,7 @@ void M_DisplayMenus(void)
     }
 
     // Display the menu, with a transition animation if applicable.
-    if ((int32_t)totalclock < m_animation.start + m_animation.length)
+    if (totalclock < m_animation.start + m_animation.length)
     {
         Menu_Run(m_animation.previous, previousOrigin);
         Menu_Run(m_animation.current, origin);

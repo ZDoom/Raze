@@ -166,6 +166,8 @@ static tokenmap_t const vm_keywords[] =
     { "calchypotenuse",         CON_CALCHYPOTENUSE },
     { "cansee",                 CON_CANSEE },
     { "canseespr",              CON_CANSEESPR },
+    { "capia",                  CON_CAPIA },
+    { "capis",                  CON_CAPIS },
     { "case",                   CON_CASE },
     { "changespritesect",       CON_CHANGESPRITESECT },
     { "changespritestat",       CON_CHANGESPRITESTAT },
@@ -992,6 +994,8 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_RESETGOTPICS",
     "EVENT_VALIDATESTART",
     "EVENT_NEWGAMECUSTOM",
+    "EVENT_INITCOMPLETE",
+    "EVENT_CAPIR",
 #ifdef LUNATIC
     "EVENT_ANIMATEALLSPRITES",
 #endif
@@ -3595,6 +3599,7 @@ DO_DEFSTATE:
             fallthrough__;
         case CON_ACTIVATECHEAT:
         case CON_ANGOFF:
+        case CON_CAPIA:
         case CON_CHECKACTIVATORMOTION:
         case CON_CHECKAVAILINVEN:
         case CON_CHECKAVAILWEAPON:
@@ -3658,6 +3663,7 @@ DO_DEFSTATE:
             C_GetNextVarType(GAMEVAR_READONLY);
             fallthrough__;
         case CON_ACTORSOUND:
+        case CON_CAPIS:
         case CON_CHANGESPRITESECT:
         case CON_CHANGESPRITESTAT:
         case CON_EZSHOOT:

@@ -209,8 +209,8 @@ void paletteLoadFromDisk(void)
         return;
     }
 
-	auto fil = kopen4load("palette.dat", 0);
-    if (fil == buildvfs_kfd_invalid)
+    buildvfs_kfd fil;
+    if ((fil = kopen4load("palette.dat", 0)) == buildvfs_kfd_invalid)
         return;
 
 
@@ -773,7 +773,7 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
     }
 
     videoSetGamma();
-    j = (!gammabrightness || (flags&32) != 0) ? curbrightness : 0;
+    j = !gammabrightness ? curbrightness : 0;
 
     for (i=0; i<256; i++)
     {
@@ -791,7 +791,7 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
     }
 
 #ifdef USE_OPENGL
-    if ((flags&32) != 0 && videoGetRenderMode() == REND_POLYMOST)
+    if ((flags&32) != 0 && videoGetRenderMode() == REND_POLYMOST && playing_rr)
         r_brightnesshack = j;
     else
         r_brightnesshack = 0;

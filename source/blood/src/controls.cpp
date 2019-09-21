@@ -187,8 +187,8 @@ void ctrlGetInput(void)
 
     CONTROL_GetInput(&info);
 
-	if (MouseDeadZone)
-	{
+    if (MouseDeadZone)
+    {
         if (info.mousey > 0)
             info.mousey = max(info.mousey - MouseDeadZone, 0);
         else if (info.mousey < 0)
@@ -198,15 +198,15 @@ void ctrlGetInput(void)
             info.mousex = max(info.mousex - MouseDeadZone, 0);
         else if (info.mousex < 0)
             info.mousex = min(info.mousex + MouseDeadZone, 0);
-	}
+    }
 
-	if (MouseBias)
-	{
+    if (MouseBias)
+    {
         if (klabs(info.mousex) > klabs(info.mousey))
             info.mousey = tabledivide32_noinline(info.mousey, MouseBias);
         else
             info.mousex = tabledivide32_noinline(info.mousex, MouseBias);
-	}
+    }
 
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;

@@ -750,7 +750,7 @@ DUDEINFO dudeInfo[kDudeMax-kDudeBase] =
         0,
         0,
         7, -1, -1,
-        128, 256, 128, 256, 128, 128, 256,
+        256, 256, 256, 256, 256, 256, 256,
         0, 0, 0, 0, 0, 0, 0,
         0,
         0
@@ -1554,7 +1554,7 @@ DUDEINFO dudeInfo[kDudeMax-kDudeBase] =
         //			    0,
         618,			// melee distance
         5,			// flee health
-        12,			// hinder damage
+        5,			// hinder damage
         0x0100,		// change target chance
         0x0010,		// change target to kin chance
         0x8000,		// alertChance

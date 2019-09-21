@@ -4186,7 +4186,7 @@ static void polymost_drawalls(int32_t const bunch)
     drawpoly_blend = 0;
 
     int32_t const sectnum = thesector[bunchfirst[bunch]];
-    usectortype const * const sec = (usectortype *)&sector[sectnum];
+    auto const sec = (usectorptr_t)&sector[sectnum];
     float const fglobalang = fix16_to_float(qglobalang);
 
     polymost_outputGLDebugMessage(3, "polymost_drawalls(bunch:%d)", bunch);
@@ -4196,10 +4196,10 @@ static void polymost_drawalls(int32_t const bunch)
     {
         int32_t const wallnum = thewall[z];
 
-        auto const wal = (uwalltype *)&wall[wallnum];
-        auto const wal2 = (uwalltype *)&wall[wal->point2];
+        auto const wal = (uwallptr_t)&wall[wallnum];
+        auto const wal2 = (uwallptr_t)&wall[wal->point2];
         int32_t const nextsectnum = wal->nextsector;
-        auto const nextsec = nextsectnum>=0 ? (usectortype *)&sector[nextsectnum] : NULL;
+        auto const nextsec = nextsectnum>=0 ? (usectorptr_t)&sector[nextsectnum] : NULL;
 
         //Offset&Rotate 3D coordinates to screen 3D space
         vec2f_t walpos = { (float)(wal->x-globalposx), (float)(wal->y-globalposy) };
@@ -4720,66 +4720,67 @@ static void polymost_drawalls(int32_t const bunch)
                 {
 
 
-                    //Hack to draw color rectangle above sky when looking up...
-                    xtex.d = xtex.u = xtex.v = 0;
 
-                    ytex.d = gxyaspect * (1.0 / -262144.0);
-                    ytex.u = 0;
-                    ytex.v = 0;
+                        //Hack to draw color rectangle above sky when looking up...
+                        xtex.d = xtex.u = xtex.v = 0;
 
-                    otex.d = -ghoriz * ytex.d;
-                    otex.u = 0;
-                    otex.v = 0;
+                        ytex.d = gxyaspect * (1.0 / -262144.0);
+                        ytex.u = 0;
+                        ytex.v = 0;
 
-                    o.y = -vv[0]/vv[1];
+                        otex.d = -ghoriz * ytex.d;
+                        otex.u = 0;
+                        otex.v = 0;
 
-                    if ((o.y < cy0) && (o.y < cy1))
-                        polymost_domost(x1,o.y,x0,o.y);
-                    else if ((o.y < cy0) != (o.y < cy1))
-                    {
-                        /*         cy1        cy0
-                        //        /              \
-                        //oy----------      oy---------
-                        //    /                   \
-                        //  cy0                     cy1 */
-                        o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
-                        if (o.y < cy0)
+                        o.y = -vv[0]/vv[1];
+
+                        if ((o.y < cy0) && (o.y < cy1))
+                            polymost_domost(x1,o.y,x0,o.y);
+                        else if ((o.y < cy0) != (o.y < cy1))
                         {
-                            polymost_domost(o.x,o.y,x0,o.y);
-                            polymost_domost(x1,cy1,o.x,o.y);
+                            /*         cy1        cy0
+                            //        /              \
+                            //oy----------      oy---------
+                            //    /                   \
+                            //  cy0                     cy1 */
+                            o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
+                            if (o.y < cy0)
+                            {
+                                polymost_domost(o.x,o.y,x0,o.y);
+                                polymost_domost(x1,cy1,o.x,o.y);
+                            }
+                            else
+                            {
+                                polymost_domost(o.x,o.y,x0,cy0);
+                                polymost_domost(x1,o.y,o.x,o.y);
+                            }
                         }
                         else
-                        {
-                            polymost_domost(o.x,o.y,x0,cy0);
-                            polymost_domost(x1,o.y,o.x,o.y);
-                        }
+                            polymost_domost(x1,cy1,x0,cy0);
                     }
                     else
-                        polymost_domost(x1,cy1,x0,cy0);
-                }
-                else
-                    skyclamphack = 0;
+                        skyclamphack = 0;
 
-                xtex.d = xtex.v = 0;
-                ytex.d = ytex.u = 0;
-                otex.d = dd;
-                xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
-                                  (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
-                ytex.v = vv[1];
-                otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->ceilingypanning*(float)i*(1.f/256.f) : vv[0];
+                    xtex.d = xtex.v = 0;
+                    ytex.d = ytex.u = 0;
+                    otex.d = dd;
+                    xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
+                                      (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
+                    ytex.v = vv[1];
+                    otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->ceilingypanning*(float)i*(1.f/256.f) : vv[0];
 
                     int const npot = (1<<(picsiz[globalpicnum]&15)) != tilesiz[globalpicnum].x;
                     int const xpanning = (r_parallaxskypanning?sec->ceilingxpanning:0);
 
-                i = globalpicnum;
-                float const r = (cy1-cy0)/(x1-x0); //slope of line
-                o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
+                    i = globalpicnum;
+                    float const r = (cy1-cy0)/(x1-x0); //slope of line
+                    o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
 
-                int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
-                float fx = x0;
-                do
-                {
-                    globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
+                    int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
+                    float fx = x0;
+                    do
+                    {
+                        globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
                         if (npot)
                         {
                             fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
@@ -4788,13 +4789,13 @@ static void polymost_drawalls(int32_t const bunch)
                         }
                         else
                             otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + xpanning) - xtex.u*ghalfx;
-                    y++;
-                    o.x = fx; fx = (((float) (y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
-                    if (fx > x1) { fx = x1; i = -1; }
+                        y++;
+                        o.x = fx; fx = (((float) (y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
+                        if (fx > x1) { fx = x1; i = -1; }
 
-                    pow2xsplit = 0; polymost_domost(fx,(fx-x0)*r+cy0,o.x,(o.x-x0)*r+cy0); //ceil
-                }
-                while (i >= 0);
+                        pow2xsplit = 0; polymost_domost(fx,(fx-x0)*r+cy0,o.x,(o.x-x0)*r+cy0); //ceil
+                    }
+                    while (i >= 0);
 
                 }
                 ghoriz = ghorizbak;
@@ -5104,12 +5105,12 @@ static void polymost_drawalls(int32_t const bunch)
             }
             if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat)&1)))
             {
-                uwalltype *nwal;
+                uwallptr_t nwal;
 
                 if (!(wal->cstat&2)) nwal = wal;
                 else
                 {
-                    nwal = (uwalltype *)&wall[wal->nextwall];
+                    nwal = (uwallptr_t)&wall[wal->nextwall];
                     otex.u += (float)(nwal->xpanning - wal->xpanning) * otex.d;
                     xtex.u += (float)(nwal->xpanning - wal->xpanning) * xtex.d;
                     ytex.u += (float)(nwal->xpanning - wal->xpanning) * ytex.d;
@@ -5261,7 +5262,7 @@ void polymost_scansector(int32_t sectnum)
 #endif
         for (bssize_t z=headspritesect[sectnum]; z>=0; z=nextspritesect[z])
         {
-            uspritetype const * const spr = (uspritetype *)&sprite[z];
+            auto const spr = (uspriteptr_t)&sprite[z];
 
             if ((spr->cstat & 0x8000 && !showinvisibility) || spr->xrepeat == 0 || spr->yrepeat == 0)
                 continue;
@@ -5291,12 +5292,12 @@ void polymost_scansector(int32_t sectnum)
 
         vec2d_t p2 = { 0, 0 };
 
-        uwalltype *wal;
+        uwallptr_t wal;
         int z;
 
-        for (z=startwall,wal=(uwalltype *)&wall[z]; z<endwall; z++,wal++)
+        for (z=startwall,wal=(uwallptr_t)&wall[z]; z<endwall; z++,wal++)
         {
-            uwalltype const *const wal2 = (uwalltype *)&wall[wal->point2];
+            auto const wal2 = (uwallptr_t)&wall[wal->point2];
 
             vec2d_t const fp1 = { double(wal->x - globalposx), double(wal->y - globalposy) };
             vec2d_t const fp2 = { double(wal2->x - globalposx), double(wal2->y - globalposy) };
@@ -5551,15 +5552,16 @@ void polymost_drawrooms()
     {
         gshang  = 0.f;
         gchang  = 1.f;
-        ghoriz2 = (float)(ydimen >> 1) - ghoriz - ghorizcorrect;
+        ghoriz2 = (float)(ydimen >> 1) - (ghoriz + ghorizcorrect);
     }
     else
     {
-        float r = (float)(ydimen >> 1) - ghoriz - ghorizcorrect;
+        float r = (float)(ydimen >> 1) - (ghoriz + ghorizcorrect);
         gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx / (gvrcorrection * gvrcorrection));
         gchang  = Bsqrtf(1.f - gshang * gshang);
         ghoriz2 = 0.f;
     }
+
     ghoriz = (float)(ydimen>>1);
 
     resizeglcheck();
@@ -5761,13 +5763,13 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     auto const wal = (uwallptr_t)&wall[wallIndex];
     auto const wal2 = (uwallptr_t)&wall[wal->point2];
     int32_t const sectnum = wall[wal->nextwall].nextsector;
-    auto const sec = (usectortype *)&sector[sectnum];
+    auto const sec = (usectorptr_t)&sector[sectnum];
 
 //    if (wal->nextsector < 0) return;
     // Without MASKWALL_BAD_ACCESS fix:
     // wal->nextsector is -1, WGR2 SVN Lochwood Hollow (Til' Death L1)  (or trueror1.map)
 
-    auto const nsec = (usectortype *)&sector[wal->nextsector];
+    auto const nsec = (usectorptr_t)&sector[wal->nextsector];
 
     polymost_outputGLDebugMessage(3, "polymost_drawmaskwallinternal(wallIndex:%d)", wallIndex);
 
@@ -6005,17 +6007,18 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
     ghalfy = (float)(ydimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = fix16_to_float(qglobalhoriz);
+    ghorizcorrect = fix16_to_float((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
     gvisibility = ((float)globalvisibility)*FOGSCALE;
     resizeglcheck();
     if (r_yshearing)
     {
         gshang  = 0.f;
         gchang  = 1.f;
-        ghoriz2 = (float)(ydimen >> 1) - ghoriz;
+        ghoriz2 = (float)(ydimen >> 1) - (ghoriz+ghorizcorrect);
     }
     else
     {
-        float r = (float)(ydimen >> 1) - ghoriz;
+        float r = (float)(ydimen >> 1) - (ghoriz+ghorizcorrect);
         gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx / (gvrcorrection * gvrcorrection));
         gchang  = Bsqrtf(1.f - gshang * gshang);
         ghoriz2 = 0.f;
@@ -6068,10 +6071,10 @@ void Polymost_prepare_loadboard(void)
     Bmemset(wsprinfo, 0, sizeof(wsprinfo));
 }
 
-static inline int32_t polymost_findwall(uspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
+static inline int32_t polymost_findwall(uspriteptr_t const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
     int32_t dist = 4, closest = -1;
-    usectortype const * const sect = (usectortype  * )&sector[tspr->sectnum];
+    auto const sect = (usectortype  * )&sector[tspr->sectnum];
     vec2_t n;
 
     for (bssize_t i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
@@ -6140,12 +6143,12 @@ int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 
 void polymost_drawsprite(int32_t snum)
 {
-    uspritetype *const tspr = tspriteptr[snum];
+    auto const tspr = tspriteptr[snum];
 
     if (EDUKE32_PREDICT_FALSE(bad_tspr(tspr)))
         return;
 
-    const usectortype *sec;
+    usectorptr_t sec;
 
     int32_t spritenum = tspr->owner;
 
@@ -6187,7 +6190,7 @@ void polymost_drawsprite(int32_t snum)
     drawpoly_alpha = spriteext[spritenum].alpha;
     drawpoly_blend = tspr->blend;
 
-    sec = (usectortype *)&sector[tspr->sectnum];
+    sec = (usectorptr_t)&sector[tspr->sectnum];
 
     //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART))
         //|| (usemodels && md_tilehasmodel(globalpicnum, globalpal) >= 0))
@@ -7804,10 +7807,6 @@ void polymost_initosdfuncs(void)
 
     static osdcvardata_t cvars_polymost[] =
     {
-        { "r_animsmoothing","enable/disable model animation smoothing",(void *) &r_animsmoothing, CVAR_BOOL, 0, 1 },
-        { "r_fullbrights","enable/disable fullbright textures",(void *) &r_fullbrights, CVAR_BOOL, 0, 1 },
-        { "r_parallaxskyclamping","enable/disable parallaxed floor/ceiling sky texture clamping", (void *) &r_parallaxskyclamping, CVAR_BOOL, 0, 1 },
-        { "r_parallaxskypanning","enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky", (void *) &r_parallaxskypanning, CVAR_BOOL, 0, 1 },
         { "r_polymostDebug","Set the verbosity of Polymost GL debug messages",(void *) &r_polymostDebug, CVAR_INT, 0, 3 },
 #ifdef USE_GLEXT
         { "r_detailmapping","enable/disable detail mapping",(void *) &r_detailmapping, CVAR_BOOL, 0, 1 },
@@ -7815,37 +7814,32 @@ void polymost_initosdfuncs(void)
 #endif
         { "r_polygonmode","debugging feature",(void *) &r_polygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
 
+        { "r_animsmoothing","enable/disable model animation smoothing",(void *) &r_animsmoothing, CVAR_BOOL, 0, 1 },
+        { "r_anisotropy", "changes the OpenGL texture anisotropy setting", (void *) &glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
+        { "r_fullbrights","enable/disable fullbright textures",(void *) &r_fullbrights, CVAR_BOOL, 0, 1 },
+        { "r_hightile","enable/disable hightile texture rendering",(void *) &usehightile, CVAR_BOOL, 0, 1 },
+        { "r_models", "enable/disable model rendering", (void *)&usemodels, CVAR_BOOL, 0, 1 },
+        { "r_nofog", "enable/disable GL fog", (void *)&nofog, CVAR_BOOL, 0, 1},
+        { "r_npotwallmode", "enable/disable emulation of walls with non-power-of-two height textures (Polymost, r_hightile 0)",
+          (void *) &r_npotwallmode, CVAR_INT | CVAR_NOSAVE, 0, 2 },
+        { "r_parallaxskyclamping","enable/disable parallaxed floor/ceiling sky texture clamping", (void *) &r_parallaxskyclamping, CVAR_BOOL, 0, 1 },
+        { "r_parallaxskypanning","enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky", (void *) &r_parallaxskypanning, CVAR_BOOL, 0, 1 },
+        { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 2 },
+        { "r_shadeinterpolate", "enable/disable shade interpolation", (void *) &r_shadeinterpolate, CVAR_BOOL, 0, 1 },
         { "r_shadescale","multiplier for shading",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
         { "r_shadescale_unbounded","enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },
         { "r_swapinterval","sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
-        {
-            "r_npotwallmode", "enable/disable emulation of walls with non-power-of-two height textures (Polymost, r_hightile 0)",
-            (void *) &r_npotwallmode, CVAR_INT, 0, 2
-        },
-        { "r_anisotropy", "changes the OpenGL texture anisotropy setting", (void *) &glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
         { "r_texturemaxsize","changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
         { "r_texturemiplevel","changes the highest OpenGL mipmap level used",(void *) &gltexmiplevel, CVAR_INT, 0, 6 },
         { "r_texfilter", "changes the texture filtering settings (may require restart)", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
         { "r_useindexedcolortextures", "enable/disable indexed color texture rendering", (void *) &r_useindexedcolortextures, CVAR_INT, 0, 1 },
 
-        { "r_usenewshading",
-          "visibility/fog code: 0: orig. Polymost   1: 07/2011   2: linear 12/2012   3: no neg. start 03/2014   4: base constant on shade table 11/2017",
-          (void *) &r_usenewshading, CVAR_INT|CVAR_FUNCPTR, 0, 4
-        },
-
-        { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 1 },
-        { "r_shadeinterpolate", "enable/disable shade interpolation", (void *) &r_shadeinterpolate, CVAR_INT, 0, 1 },
-        { "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_INT, 0, 1 },
-
-
-#ifdef __ANDROID__
-        { "r_models","enable/disable model rendering",(void *) &usemodels, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
-#else
-        { "r_models","enable/disable model rendering",(void *) &usemodels, CVAR_BOOL, 0, 1 },
+		{ "r_usenewshading",
+		  "visibility/fog code: 0: orig. Polymost   1: 07/2011   2: linear 12/2012   3: no neg. start 03/2014   4: base constant on shade table 11/2017",
+		  (void*)& r_usenewshading, CVAR_INT | CVAR_FUNCPTR, 0, 4},
+        { "r_yshearing", "enable/disable y-shearing", (void*) &r_yshearing, CVAR_BOOL, 0, 1 },
+        { "r_flatsky", "enable/disable flat skies", (void*)& r_flatsky, CVAR_BOOL, 0, 1 },
 #endif
-        { "r_nofog", "enable/disable GL fog", (void *)&nofog, CVAR_BOOL, 0, 1},
-        { "r_hightile","enable/disable hightile texture rendering",(void *) &usehightile, CVAR_BOOL, 0, 1 },
-
     };
 
     for (i=0; i<ARRAY_SIZE(cvars_polymost); i++)
@@ -7879,11 +7873,3 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
         mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
 }
 
-#else /* if !defined USE_OPENGL */
-
-#include "compat.h"
-
-
-#endif
-
-// vim:ts=4:sw=4:

@@ -346,7 +346,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
     pBonkle->at2c = pBonkle->at20;
     pBonkle->atc = soundId;
     pBonkle->at8 = hRes;
-    pBonkle->at1c = (volume <= 0) ? pEffect->relVol : volume;
+    pBonkle->at1c = ((volume == 0) ? pEffect->relVol : ((volume == -1) ? 0 : ((volume > 255) ? 255 : volume)));
     pBonkle->at18 = v14;
     Calc3DValues(pBonkle);
     int priority = 1;

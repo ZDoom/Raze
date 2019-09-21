@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ai.h"
 #include "eventq.h"
 
+#define kMaxGenDudeSndMode 11
+#define kDefaultAnimationBase 11520
+
+
 extern AISTATE GDXGenDudeIdleL;
 extern AISTATE GDXGenDudeIdleW;
 extern AISTATE GDXGenDudeSearchL;
@@ -43,18 +47,24 @@ extern AISTATE GDXGenDudeChaseW;
 extern AISTATE GDXGenDudeFireL;
 extern AISTATE GDXGenDudeFireD;
 extern AISTATE GDXGenDudeFireW;
-extern AISTATE GDXGenDudeFire2L;
-extern AISTATE GDXGenDudeFire2D;
-extern AISTATE GDXGenDudeFire2W;
 extern AISTATE GDXGenDudeRecoilL;
 extern AISTATE GDXGenDudeRecoilD;
 extern AISTATE GDXGenDudeRecoilW;
-extern AISTATE GDGenDudeThrow;
-extern AISTATE GDGenDudeThrow2;
+extern AISTATE GDXGenDudeThrow;
+extern AISTATE GDXGenDudeThrow2;
 extern AISTATE GDXGenDudePunch;
 extern AISTATE GDXGenDudeRTesla;
-extern AISTATE GDXGenDudeProne;
-extern AISTATE GDXGenDudeTurn;
+extern AISTATE GDXGenDudeTransform;
+
+struct GENDUDESND
+{
+    int defaultSndId;
+    int randomRange;
+    int sndIdOffset;  // relative to data3
+    bool aiPlaySound; // false = sfxStart3DSound();
+};
+
+extern GENDUDESND gCustomDudeSnd[];
 
 XSPRITE* getNextIncarnation(XSPRITE* pXSprite);
 void killDudeLeech(spritetype* pLeech);
@@ -62,7 +72,7 @@ void removeLeech(spritetype* pLeech, bool delSprite = true);
 void removeDudeStuff(spritetype* pSprite);
 spritetype* leechIsDropped(spritetype* pSprite);
 bool spriteIsUnderwater(spritetype* pSprite, bool oldWay);
-bool sfxPlayGDXGenDudeSound(spritetype* pSprite, int mode, int data);
+bool sfxPlayGDXGenDudeSound(spritetype* pSprite, int mode);
 void aiGenDudeMoveForward(spritetype* pSprite, XSPRITE* pXSprite);
 int getGenDudeMoveSpeed(spritetype* pSprite, int which, bool mul, bool shift);
 bool TargetNearThing(spritetype* pSprite, int thingType);
@@ -73,3 +83,9 @@ int getDodgeChance(spritetype* pSprite);
 int getRecoilChance(spritetype* pSprite);
 bool dudeIsMelee(XSPRITE* pXSprite);
 void updateTargetOfSlaves(spritetype* pSprite);
+bool canSwim(spritetype* pSprite);
+bool canDuck(spritetype* pSprite);
+bool CDCanMove(spritetype* pSprite);
+bool inDodge(AISTATE* aiState);
+bool inIdle(AISTATE* aiState);
+int getSeqStartId(XSPRITE* pXSprite);

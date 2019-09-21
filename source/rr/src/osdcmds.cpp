@@ -619,7 +619,7 @@ static int osdcmd_cmenu(osdcmdptr_t parm)
     if ((g_player[myconnectindex].ps->gm & MODE_MENU) != MODE_MENU)
         Menu_Open(myconnectindex);
 
-        Menu_Change(Batol(parm->parms[0]));
+    Menu_Change(Batol(parm->parms[0]));
 
     return OSDCMD_OK;
 }
@@ -769,7 +769,7 @@ static int osdcmd_button(osdcmdptr_t parm)
 //    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
     CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
 
-	return OSDCMD_OK;
+    return OSDCMD_OK;
 }
 
 const char *const ConsoleButtons[] =
@@ -887,37 +887,37 @@ static int osdcmd_bind(osdcmdptr_t parm)
 
     CONTROL_BindKey(sctokeylut[i].sc, tempbuf, repeat, sctokeylut[i].key);
 
-        char *cp = tempbuf;
+    char *cp = tempbuf;
 
-        // Populate the keyboard config menu based on the bind.
-        // Take care of processing one-to-many bindings properly, too.
+    // Populate the keyboard config menu based on the bind.
+    // Take care of processing one-to-many bindings properly, too.
     static char const s_gamefunc_[] = "gamefunc_";
     int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
 
     while ((cp = Bstrstr(cp, s_gamefunc_)))
-        {
+    {
         cp += strlen_gamefunc_;
 
         char *semi = Bstrchr(cp, ';');
 
-            if (semi)
-                *semi = 0;
+        if (semi)
+            *semi = 0;
 
-            j = CONFIG_FunctionNameToNum(cp);
+        j = CONFIG_FunctionNameToNum(cp);
 
-            if (semi)
-                cp = semi+1;
+        if (semi)
+            cp = semi+1;
 
-            if (j != -1)
-            {
-                ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
+        if (j != -1)
+        {
+            ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
             ud.config.KeyboardKeys[j][0] = sctokeylut[i].sc;
 //            CONTROL_MapKey(j, sctokeylut[i].sc, ud.config.KeyboardKeys[j][0]);
 
-                if (j == gamefunc_Show_Console)
+            if (j == gamefunc_Show_Console)
                 OSD_CaptureKey(sctokeylut[i].sc);
-            }
         }
+    }
 
     if (!OSD_ParsingScript())
         OSD_Printf("%s\n",parm->raw);
@@ -963,10 +963,10 @@ static int osdcmd_unbind(osdcmdptr_t parm)
     {
         if (!Bstrcasecmp(parm->parms[0], ConsoleButtons[i]))
         {
-        CONTROL_FreeMouseBind(i);
+            CONTROL_FreeMouseBind(i);
             OSD_Printf("unbound %s\n", ConsoleButtons[i]);
-        return OSDCMD_OK;
-    }
+            return OSDCMD_OK;
+        }
     }
 
     return OSDCMD_SHOWHELP;
@@ -1507,12 +1507,12 @@ int32_t registerosdcommands(void)
     {
         switch (cv.flags & (CVAR_FUNCPTR|CVAR_MULTI))
         {
-        case CVAR_FUNCPTR:
+            case CVAR_FUNCPTR:
                 OSD_RegisterCvar(&cv, osdcmd_cvar_set_game); break;
-        case CVAR_MULTI:
-        case CVAR_FUNCPTR|CVAR_MULTI:
+            case CVAR_MULTI:
+            case CVAR_FUNCPTR|CVAR_MULTI:
                 OSD_RegisterCvar(&cv, osdcmd_cvar_set_multi); break;
-        default:
+            default:
                 OSD_RegisterCvar(&cv, osdcmd_cvar_set); break;
         }
     }

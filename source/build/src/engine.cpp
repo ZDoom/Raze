@@ -204,6 +204,7 @@ static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to dr
 int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade) = NULL;
 
 int32_t bloodhack = 0;
+int32_t blooddemohack = 0;
 
 // adapted from build.c
 static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall, vec2_t *const closest)
@@ -1668,9 +1669,7 @@ static inline int findUnusedTile(void)
 static void classicScanSector(int16_t startsectnum)
 {
     if (startsectnum < 0)
-    {
         return;
-    }
 
     if (automapping)
         show2dsector[startsectnum>>3] |= pow2char[startsectnum&7];
@@ -3386,7 +3385,6 @@ static inline void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, i
 static void tslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int32_t bx, int32_t by)
 {
     const char *const A_C_RESTRICT buf = ggbuf;
-    const char *const A_C_RESTRICT pal = ggpal;
     const char *const A_C_RESTRICT trans = paletteGetBlendTable(0);
     const int32_t bzinc = (asm1>>3), pinc = ggpinc;
 
@@ -3418,7 +3416,6 @@ static void tslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int3
 static void mslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int32_t bx, int32_t by)
 {
     const char *const A_C_RESTRICT buf = ggbuf;
-    const char *const A_C_RESTRICT pal = ggpal;
     const int32_t bzinc = (asm1>>3), pinc = ggpinc;
 
     const uint32_t xtou = globalx3, ytov = globaly3;
@@ -6102,10 +6099,10 @@ draw_as_face_sprite:
             if (x == rx) return;
         }
 
-        if (loadvoxel_replace)
         for (i=0; i<MAXVOXMIPS; i++)
             if (!voxoff[vtilenum][i])
             {
+                if (loadvoxel_replace)
                     loadvoxel_replace(vtilenum);
                 break;
             }
@@ -7077,6 +7074,10 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                 dastat |= RS_TRANS2;
             else
                 dastat &= ~RS_TRANS2;
+
+            // Blood's transparency table is inverted
+            if (bloodhack)
+                dastat ^= RS_TRANS2;
         }
     }
 
@@ -7737,7 +7738,7 @@ LISTFN_STATIC int32_t insertspritestat(int16_t statnum)
     // make back-link of the new freelist head point to nil
     if (headspritestat[MAXSTATUS] >= 0)
         prevspritestat[headspritestat[MAXSTATUS]] = -1;
-    else
+    else if (!blooddemohack)
         tailspritefree = -1;
 
     do_insertsprite_at_headofstat(blanktouse, statnum);
@@ -7806,15 +7807,20 @@ int32_t deletesprite(int16_t spritenum)
     sprite[spritenum].sectnum = MAXSECTORS;
 
     // insert at tail of status freelist
-    prevspritestat[spritenum] = tailspritefree;
-    nextspritestat[spritenum] = -1;
-    if (tailspritefree >= 0)
-        nextspritestat[tailspritefree] = spritenum;
+    if (blooddemohack)
+        do_insertsprite_at_headofstat(spritenum, MAXSTATUS);
     else
-        headspritestat[MAXSTATUS] = spritenum;
-    sprite[spritenum].statnum = MAXSTATUS;
+    {
+        prevspritestat[spritenum] = tailspritefree;
+        nextspritestat[spritenum] = -1;
+        if (tailspritefree >= 0)
+            nextspritestat[tailspritefree] = spritenum;
+        else
+            headspritestat[MAXSTATUS] = spritenum;
+        sprite[spritenum].statnum = MAXSTATUS;
 
-    tailspritefree = spritenum;
+        tailspritefree = spritenum;
+    }
     Numsprites--;
 
     return 0;
@@ -9717,7 +9723,7 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 {
     if (loadboard_replace)
         return loadboard_replace(filename, flags, dapos, daang, dacursectnum);
-    int32_t fil, i;
+    int32_t i;
     int16_t numsprites;
     const char myflags = flags&(~3);
 
@@ -10706,8 +10712,46 @@ void vox_undefine(int32_t const tile)
 //
 // See http://fabiensanglard.net/duke3d/build_engine_internals.php,
 // "Inside details" for the idea behind the algorithm.
+
+int32_t inside_old(int32_t x, int32_t y, int16_t sectnum)
+{
+    if (sectnum >= 0 && sectnum < numsectors)
+    {
+        uint32_t cnt = 0;
+        auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
+        int  wallsleft = sector[sectnum].wallnum;
+
+        do
+        {
+            // Get the x and y components of the [tested point]-->[wall
+            // point{1,2}] vectors.
+            vec2_t v1 = { wal->x - x, wal->y - y };
+            auto const &wal2 = *(uwallptr_t)&wall[wal->point2];
+            vec2_t v2 = { wal2.x - x, wal2.y - y };
+
+            // If their signs differ[*], ...
+            //
+            // [*] where '-' corresponds to <0 and '+' corresponds to >=0.
+            // Equivalently, the branch is taken iff
+            //   y1 != y2 AND y_m <= y < y_M,
+            // where y_m := min(y1, y2) and y_M := max(y1, y2).
+            if ((v1.y^v2.y) < 0)
+                cnt ^= (((v1.x^v2.x) >= 0) ? v1.x : (v1.x*v2.y-v2.x*v1.y)^v2.y);
+
+            wal++;
+        }
+        while (--wallsleft);
+
+        return cnt>>31;
+    }
+
+    return -1;
+}
+
 int32_t inside(int32_t x, int32_t y, int16_t sectnum)
 {
+    if (blooddemohack)
+        return inside_old(x, y, sectnum);
     if ((unsigned)sectnum < (unsigned)numsectors)
     {
         uint32_t cnt1 = 0, cnt2 = 0;
@@ -12257,6 +12301,7 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, f
 #endif
 }
 
+
 //
 // completemirror
 //
@@ -12373,7 +12418,8 @@ int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     if (i == 0) return sec->ceilingz;
 
     int const j = dmulscale3(d.x, day-w.y, -d.y, dax-w.x);
-    return sec->ceilingz + (scale(sec->ceilingheinum,j>>1,i)<<1);
+    int const shift = blooddemohack ? 0 : 1;
+    return sec->ceilingz + (scale(sec->ceilingheinum,j>>shift,i)<<shift);
 }
 
 int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
@@ -12391,7 +12437,8 @@ int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     if (i == 0) return sec->floorz;
 
     int const j = dmulscale3(d.x, day-w.y, -d.y, dax-w.x);
-    return sec->floorz + (scale(sec->floorheinum,j>>1,i)<<1);
+    int const shift = blooddemohack ? 0 : 1;
+    return sec->floorz + (scale(sec->floorheinum,j>>shift,i)<<shift);
 }
 
 void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
@@ -12410,10 +12457,11 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
     if (i == 0) return;
 
     int const j = dmulscale3(d.x,day-wal->y, -d.y,dax-wal->x);
+    int const shift = blooddemohack ? 0 : 1;
     if (sec->ceilingstat&2)
-        *ceilz += scale(sec->ceilingheinum,j>>1,i)<<1;
+        *ceilz += scale(sec->ceilingheinum,j>>shift,i)<<shift;
     if (sec->floorstat&2)
-        *florz += scale(sec->floorheinum,j>>1,i)<<1;
+        *florz += scale(sec->floorheinum,j>>shift,i)<<shift;
 }
 
 #ifdef YAX_ENABLE

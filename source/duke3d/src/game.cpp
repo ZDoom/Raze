@@ -820,12 +820,12 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
 #ifdef POLYMER
             if (videoGetRenderMode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, pSprite->z, fix16_to_int(CAMERA(q16ang)), smoothRatio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, fix16_to_int(CAMERA(q16ang)), smoothRatio);
 #endif
             yax_preparedrawrooms();
             renderDrawRoomsQ16(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), fix16_from_int(pSprite->yvel), pSprite->sectnum);
             yax_drawrooms(G_DoSpriteAnimations, pSprite->sectnum, 0, smoothRatio);
-            G_DoSpriteAnimations(pSprite->x, pSprite->y, pSprite->z, fix16_to_int(CAMERA(q16ang)), smoothRatio);
+            G_DoSpriteAnimations(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, fix16_to_int(CAMERA(q16ang)), smoothRatio);
             renderDrawMasks();
         }
     }
@@ -6143,10 +6143,10 @@ static void G_Startup(void)
     if (g_modDir[0] != '/' && (cwd = buildvfs_getcwd(NULL, 0)))
     {
         buildvfs_chdir(g_modDir);
-        if (artLoadFiles("tiles%03d.art", MAXCACHE1DSIZE) < 0)
+        if (artLoadFiles("tiles%03i.art", MAXCACHE1DSIZE) < 0)
         {
             buildvfs_chdir(cwd);
-            if (artLoadFiles("tiles%03d.art", MAXCACHE1DSIZE) < 0)
+            if (artLoadFiles("tiles%03i.art", MAXCACHE1DSIZE) < 0)
                 G_GameExit("Failed loading art.");
         }
         buildvfs_chdir(cwd);
@@ -6154,7 +6154,7 @@ static void G_Startup(void)
         Xfree(cwd);
 #endif
     }
-    else if (artLoadFiles("tiles%03d.art",MAXCACHE1DSIZE) < 0)
+    else if (artLoadFiles("tiles%03i.art",MAXCACHE1DSIZE) < 0)
         G_GameExit("Failed loading art.");
 
     cacheAllSounds();
@@ -6808,6 +6808,8 @@ int app_main(int argc, char const * const * argv)
     S_ClearSoundLocks();
 
     //    getpackets();
+
+    VM_OnEvent(EVENT_INITCOMPLETE);
 
 MAIN_LOOP_RESTART:
     totalclock = 0;

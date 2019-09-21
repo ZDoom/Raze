@@ -11,6 +11,7 @@
 #include "build.h"
 #include "compat.h"
 #include "baselayer.h"
+#include "globals.h"
 
 #ifndef MAC_OS_X_VERSION_10_5
 # define NSImageScaleNone NSScaleNone

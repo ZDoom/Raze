@@ -1023,10 +1023,10 @@ void viewTileSprite(int nTile, int nShade, int nPalette, int x1, int y1, int x2,
     dassert(nTile >= 0 && nTile < kMaxTiles);
     int width = tilesiz[nTile].x;
     int height = tilesiz[nTile].y;
-    int bx1 = DecBy(rect1.x1+1, width);
-    int by1 = DecBy(rect1.y1+1, height);
-    int bx2 = IncBy(rect1.x2-1, width);
-    int by2 = IncBy(rect1.y2-1, height);
+    int bx1 = DecBy(rect1.x0+1, width);
+    int by1 = DecBy(rect1.y0+1, height);
+    int bx2 = IncBy(rect1.x1-1, width);
+    int by2 = IncBy(rect1.y1-1, height);
     for (int x = bx1; x < bx2; x += width)
         for (int y = by1; y < by2; y += height)
             rotatesprite(x<<16, y<<16, 65536, 0, nTile, nShade, nPalette, 64+16+8, x1, y1, x2-1, y2-1);
@@ -2204,13 +2204,11 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 break;
             case 1:
             {
-#ifdef USE_OPENGL
-                if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pTSprite->picnum, pTSprite->pal) >= 0 && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+                if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(spriteext[nSprite].flags&SPREXT_NOTMD))
                 {
                     pTSprite->cstat &= ~4;
                     break;
                 }
-#endif
                 int dX = cX - pTSprite->x;
                 int dY = cY - pTSprite->y;
                 RotateVector(&dX, &dY, 128-pTSprite->ang);
@@ -2228,13 +2226,11 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             }
             case 2:
             {
-#ifdef USE_OPENGL
-                if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pTSprite->picnum, pTSprite->pal) >= 0 && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+                if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(spriteext[nSprite].flags&SPREXT_NOTMD))
                 {
                     pTSprite->cstat &= ~4;
                     break;
                 }
-#endif
                 int dX = cX - pTSprite->x;
                 int dY = cY - pTSprite->y;
                 RotateVector(&dX, &dY, 128-pTSprite->ang);
@@ -2270,6 +2266,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     if ((pTSprite->hitag&16) == 0)
                     {
                         pTSprite->cstat |= 48;
+                        pTSprite->cstat &= ~(4|8);
                         pTSprite->yoffset += picanm[pTSprite->picnum].yofs;
                         pTSprite->picnum = voxelIndex[pTSprite->picnum];
                         if (!voxoff[pTSprite->picnum])
@@ -2289,9 +2286,15 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             nAnim--;
         }
 
-        if (usevoxels && videoGetRenderMode() != REND_POLYMER && tiletovox[pTSprite->picnum] != -1)
+        if ((pTSprite->cstat&48) != 48)
         {
-            pTSprite->yoffset += picanm[pTSprite->picnum].yofs;
+            int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);
+
+            if (usevoxels && videoGetRenderMode() != REND_POLYMER && tiletovox[nAnimTile] != -1)
+            {
+                pTSprite->yoffset += picanm[nAnimTile].yofs;
+                pTSprite->xoffset += picanm[nAnimTile].xofs;
+            }
         }
 
         sectortype *pSector = &sector[pTSprite->sectnum];

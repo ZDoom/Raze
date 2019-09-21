@@ -1325,13 +1325,13 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon)
         sfxPlay3DSound(pPlayer->pSprite, 777, -1, 0);
         return 1;
     }
-    if (!actGetRespawnTime(pWeapon))
-        return 0;
-    if (nAmmoType == -1)
-        return 0;
-    if (pPlayer->at181[nAmmoType] >= gAmmoInfo[nAmmoType].at0)
-        return 0;
-    pPlayer->at181[nAmmoType] = ClipHigh(pPlayer->at181[nAmmoType]+pWeaponItemData->atc, gAmmoInfo[nAmmoType].at0);
+    
+    if (!actGetRespawnTime(pWeapon) || nAmmoType == -1 || pPlayer->at181[nAmmoType] >= gAmmoInfo[nAmmoType].at0) return 0;    
+    else if (pWeapon->extra < 0 || xsprite[pWeapon->extra].data1 <= 0 || VanillaMode() || DemoRecordStatus())
+        pPlayer->at181[nAmmoType] = ClipHigh(pPlayer->at181[nAmmoType]+pWeaponItemData->atc, gAmmoInfo[nAmmoType].at0);
+    else
+        pPlayer->at181[nAmmoType] = ClipHigh(pPlayer->at181[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].at0);
+
     sfxPlay3DSound(pPlayer->pSprite, 777, -1, 0);
     return 1;
 }
@@ -1342,28 +1342,27 @@ void PickUp(PLAYER *pPlayer, spritetype *pSprite)
     int nType = pSprite->type;
     char pickedUp = 0;
     int customMsg = -1;
-    if (nType != 40 && nType != 80) { // By NoOne: no pickup for random item generators.
         
-        XSPRITE* pXSprite = (pSprite->extra >= 0) ? &xsprite[pSprite->extra] : NULL;
-        if (pXSprite != NULL && pXSprite->txID != 3 && pXSprite->lockMsg > 0) // by NoOne: allow custom INI message instead "Picked up"
-            customMsg = pXSprite->lockMsg;
+    XSPRITE* pXSprite = (pSprite->extra >= 0) ? &xsprite[pSprite->extra] : NULL;
+    if (pXSprite != NULL && pXSprite->txID != 3 && pXSprite->lockMsg > 0) // by NoOne: allow custom INI message instead "Picked up"
+        customMsg = pXSprite->lockMsg;
 
-        if (nType >= 100 && nType <= 149)
-        {
-            pickedUp = PickupItem(pPlayer, pSprite);
-            if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gItemText[nType - 100]);
-        }
-        else if (nType >= 60 && nType < 81)
-        {
-            pickedUp = PickupAmmo(pPlayer, pSprite);
-            if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gAmmoText[nType - 60]);
-        }
-        else if (nType >= 40 && nType < 51)
-        {
-            pickedUp = PickupWeapon(pPlayer, pSprite);
-            if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gWeaponText[nType - 40]);
-        }
+    if (nType >= 100 && nType <= 149)
+    {
+        pickedUp = PickupItem(pPlayer, pSprite);
+        if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gItemText[nType - 100]);
     }
+    else if (nType >= 60 && nType < 81)
+    {
+        pickedUp = PickupAmmo(pPlayer, pSprite);
+        if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gAmmoText[nType - 60]);
+    }
+    else if (nType >= 40 && nType < 51)
+    {
+        pickedUp = PickupWeapon(pPlayer, pSprite);
+        if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gWeaponText[nType - 40]);
+    }
+
     if (pickedUp)
     {
         if (pSprite->extra > 0)

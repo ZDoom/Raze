@@ -401,18 +401,16 @@ static FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t
     globalposz = z, fglobalposz = (float)z;
 }
 
-extern bool playing_blood;
-
 #ifdef __cplusplus
 }
 #endif
-
 
 template <typename T> static FORCE_INLINE void tileUpdatePicnum(T * const tileptr, int const obj)
 {
     auto &tile = *tileptr;
 
-	if (playing_blood || picanm[tile].sf & PICANM_ANIMTYPE_MASK) tile += animateoffs(tile, obj);
+    if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+        tile += animateoffs(tile, obj);
 
     if (((obj & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && rottile[tile].newtile != -1)
         tile = rottile[tile].newtile;

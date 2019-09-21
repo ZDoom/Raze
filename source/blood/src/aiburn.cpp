@@ -123,7 +123,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
         case 252:
             aiNewState(pSprite, pXSprite, &tinycalebBurnSearch);
             break;
-        case kGDXGenDudeBurning:
+        case kCustomDudeBurning:
             aiNewState(pSprite, pXSprite, &GDXGenDudeBurnSearch);
             break;
         }
@@ -155,7 +155,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         case 252:
             aiNewState(pSprite, pXSprite, &tinycalebBurnGoto);
             break;
-        case kGDXGenDudeBurning:
+        case kCustomDudeBurning:
             aiNewState(pSprite, pXSprite, &GDXGenDudeBurnGoto);
             break;
         }
@@ -191,7 +191,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         case 252:
             aiNewState(pSprite, pXSprite, &tinycalebBurnSearch);
             break;
-        case kGDXGenDudeBurning:
+        case kCustomDudeBurning:
             aiNewState(pSprite, pXSprite, &GDXGenDudeBurnSearch);
             break;
         }
@@ -229,7 +229,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                     case 252:
                         aiNewState(pSprite, pXSprite, &tinycalebBurnAttack);
                         break;
-                    case kGDXGenDudeBurning:
+                    case kCustomDudeBurning:
                         aiNewState(pSprite, pXSprite, &GDXGenDudeBurnSearch);
                         break;
                     }
@@ -259,7 +259,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     case 252:
         aiNewState(pSprite, pXSprite, &tinycalebBurnGoto);
         break;
-    case kGDXGenDudeBurning:
+    case kCustomDudeBurning:
         aiNewState(pSprite, pXSprite, &GDXGenDudeBurnSearch);
         break;
     }

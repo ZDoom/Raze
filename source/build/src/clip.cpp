@@ -794,15 +794,15 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
 
     if (blooddemohack)
     {
-		int32_t daz = getflorzofslope(dasect, pos.x, pos.y);
-		int32_t daz2 = getflorzofslope(nextsect, pos.x, pos.y);
+        int32_t daz = getflorzofslope(dasect, pos.x, pos.y);
+        int32_t daz2 = getflorzofslope(nextsect, pos.x, pos.y);
 
-		if (daz2 < daz-(1<<8) && (sec2->floorstat&1) == 0)
-			if (posz >= daz2-(flordist-1)) return 1;
-		daz = getceilzofslope(dasect, pos.x, pos.y);
-		daz2 = getceilzofslope(nextsect, pos.x, pos.y);
-		if (daz2 > daz+(1<<8) && (sec2->ceilingstat&1) == 0)
-			if (posz <= daz2+(ceildist-1)) return 1;
+        if (daz2 < daz-(1<<8) && (sec2->floorstat&1) == 0)
+            if (posz >= daz2-(flordist-1)) return 1;
+        daz = getceilzofslope(dasect, pos.x, pos.y);
+        daz2 = getceilzofslope(nextsect, pos.x, pos.y);
+        if (daz2 > daz+(1<<8) && (sec2->ceilingstat&1) == 0)
+            if (posz <= daz2+(ceildist-1)) return 1;
 
         return 0;
     }
@@ -817,7 +817,6 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
         return 1;
 
     auto const sec = (usectorptr_t)&sector[dasect];
-
     int32_t daz  = sec->floorz;
     int32_t dacz = sec->ceilingz;
 
@@ -1373,17 +1372,17 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
     do
     {
         if (!blooddemohack)
-        for (native_t i=clipnum-1;i>=0;--i)
-        {
-            if (!bitmap_test(clipignore, i) && clipinsideboxline(pos->x, pos->y, clipit[i].x1, clipit[i].y1, clipit[i].x2, clipit[i].y2, walldist))
+            for (native_t i=clipnum-1;i>=0;--i)
             {
-                vec2_t const vec = pos->vec2;
-                keepaway(&pos->x, &pos->y, i);
-                if (inside(pos->x,pos->y, *sectnum) != 1)
-                    pos->vec2 = vec;
-                break;
+                if (!bitmap_test(clipignore, i) && clipinsideboxline(pos->x, pos->y, clipit[i].x1, clipit[i].y1, clipit[i].x2, clipit[i].y2, walldist))
+                {
+                    vec2_t const vec = pos->vec2;
+                    keepaway(&pos->x, &pos->y, i);
+                    if (inside(pos->x,pos->y, *sectnum) != 1)
+                        pos->vec2 = vec;
+                    break;
+                }
             }
-        }
 
         vec2_t vec = goal;
 
@@ -1392,8 +1391,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
             int64_t const templl = maybe_truncate_to_int32((int64_t)clipr.x * clipr.x + (int64_t)clipr.y * clipr.y);
 
-                if (templl > 0)
-                {
+            if (templl > 0)
+            {
                 int64_t const templl2 = maybe_truncate_to_int32((int64_t)(goal.x-vec.x)*clipr.x + (int64_t)(goal.y-vec.y)*clipr.y);
                 int32_t const i = ((llabs(templl2)>>11) < templl) ? divscale64(templl2, templl, 20) : 0;
 
@@ -1411,7 +1410,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                     if (blooddemohack == 1)
                         updatesector(pos->x, pos->y, sectnum);
                     return clipReturn;
-            }
+                }
             }
 
             keepaway(&goal.x, &goal.y, hitwall);
@@ -1424,7 +1423,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         }
 
         if (!blooddemohack)
-        clipupdatesector(vec, sectnum, rad);
+            clipupdatesector(vec, sectnum, rad);
 
         pos->x = vec.x;
         pos->y = vec.y;
@@ -1437,7 +1436,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             if (inside(pos->x, pos->y, clipsectorlist[j]) == 1)
             {
                 *sectnum = clipsectorlist[j];
-    return clipReturn;
+                return clipReturn;
             }
 
         int32_t tempint2, tempint1 = INT32_MAX;
@@ -1705,13 +1704,13 @@ restart_grand:
                 int32_t daz, daz2;
                 closest = { pos->x, pos->y };
                 if (!blooddemohack)
-                getsectordist(closest, k, &closest);
+                    getsectordist(closest, k, &closest);
                 getzsofslope(k,closest.x,closest.y,&daz,&daz2);
 
                 int32_t fz, cz;
                 closest = { pos->x, pos->y };
                 if (!blooddemohack)
-                getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
+                    getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
                 getzsofslope(sectq[clipinfo[curidx].qend],closest.x,closest.y,&cz,&fz);
 
                 const int hitwhat = (curspr-(uspritetype *)sprite)+49152;
@@ -1797,7 +1796,7 @@ restart_grand:
                 int32_t daz, daz2;
                 closest = { pos->x, pos->y };
                 if (!blooddemohack)
-                getsectordist(closest, k, &closest);
+                    getsectordist(closest, k, &closest);
                 getzsofslope(k, closest.x,closest.y, &daz,&daz2);
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -1807,7 +1806,7 @@ restart_grand:
 
                     closest = { pos->x, pos->y };
                     if (!blooddemohack)
-                    getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
+                        getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
                     getzsofslope(sectq[clipinfo[curidx].qend],closest.x,closest.y,&cz,&fz);
 
                     if ((sec->ceilingstat&1)==0)
@@ -2441,19 +2440,19 @@ restart_grand:
                     if ((sv->z > intz) == ((cstat&8)==0)) continue;
                 if (!blooddemohack)
                 {
-                // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
-                // PK: the reason for the crash is not the overflowing (even if it IS a problem;
-                // signed overflow is undefined behavior in C), but rather the idiv trap when
-                // the resulting quotient doesn't fit into a *signed* 32-bit integer.
-                zz = (uint32_t)(intz-sv->z) * vx;
-                intx = sv->x+scale(zz,1,vz);
-                zz = (uint32_t)(intz-sv->z) * vy;
-                inty = sv->y+scale(zz,1,vz);
+                    // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
+                    // PK: the reason for the crash is not the overflowing (even if it IS a problem;
+                    // signed overflow is undefined behavior in C), but rather the idiv trap when
+                    // the resulting quotient doesn't fit into a *signed* 32-bit integer.
+                    zz = (uint32_t)(intz-sv->z) * vx;
+                    intx = sv->x+scale(zz,1,vz);
+                    zz = (uint32_t)(intz-sv->z) * vy;
+                    inty = sv->y+scale(zz,1,vz);
                 }
                 else
                 {
-                intx = sv->x+scale(intz-sv->z,vx,vz);
-                inty = sv->y+scale(intz-sv->z,vy,vz);
+                    intx = sv->x+scale(intz-sv->z,vx,vz);
+                    inty = sv->y+scale(intz-sv->z,vy,vz);
                 }
 
                 if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))

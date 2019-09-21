@@ -182,17 +182,19 @@ typedef struct
     union {
         struct
         {
-            StructTracker(Sprite, int16_t) xvel /*index*/, yvel, zvel;
+            union {
+                StructTracker(Sprite, int16_t) xvel;
+                StructTracker(Sprite, int16_t) index;
+            };
+            StructTracker(Sprite, int16_t) yvel, zvel;
         };
-		StructTracker(Sprite, int16_t) index;
-		vec3_16_t vel;
+        vec3_16_t vel;
     };
-	union {
-		struct {
-			StructTracker(Sprite, int16_t) lotag /*type*/, hitag;
-		};
-		StructTracker(Sprite, int16_t) type;
-	};
+    union {
+        StructTracker(Sprite, int16_t) lotag;
+        StructTracker(Sprite, int16_t) type;
+    };
+    StructTracker(Sprite, int16_t) hitag;
     StructTracker(Sprite, int16_t) extra;
 } StructName(spritetypev7);
 

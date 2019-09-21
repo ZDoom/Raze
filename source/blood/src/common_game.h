@@ -83,12 +83,13 @@ void QuitGame(void);
 #define kMissileBase 300
 #define kMissileMax 318
 #define kThingBase 400
-#define kThingMax 435
+#define kThingMax 436
 
-#define kMaxPowerUps 49
+#define kMaxPowerUps 51
 
 #define kStatRespawn 8
 #define kStatMarker 10
+#define kStatGDXDudeTargetChanger 20
 #define kStatFree 1024
 
 #define kLensSize 80
@@ -103,7 +104,7 @@ void QuitGame(void);
 
 #define kItemBase 100
 #define kWeaponItemBase 40
-#define kItemMax 149
+#define kItemMax 151
 
 // marker sprite types
 #define kMarkerSPStart 1
@@ -122,16 +123,26 @@ void QuitGame(void);
 #define kMarkerLowGoo 14
 #define kMarkerPath 15
 
-
 // sprite attributes
-#define kHitagMovePhys 0x0001 // affected by movement physics
-#define kHitagGravityPhys 0x0002 // affected by gravity
-#define kHitagFalling 0x0004 // currently in z-motion
 #define kHitagAutoAim 0x0008
 #define kHitagRespawn 0x0010
 #define kHitagFree 0x0020
 #define kHitagSmoke 0x0100
-#define kHitagExtBit 0x8000 // NoOne's extension bit(Note: it's bit 0 in editor!)
+
+// sprite physics attributes
+#define kPhysMove 0x0001 // affected by movement physics
+#define kPhysGravity 0x0002 // affected by gravity
+#define kPhysFalling 0x0004 // currently in z-motion
+// additional physics attributes for debris sprites
+#define kPhysDebrisFly 0x0008 // *debris* affected by negative gravity (fly instead of falling, DO NOT mess with kHitagAutoAim)
+#define kPhysDebrisVector 0x0400 // *debris* can be affected by vector weapons
+#define kPhysDebrisExplode 0x0800 // *debris* can be affected by explosions
+
+// *modern types only hitag*
+#define kModernTypeFlag0 0x0
+#define kModernTypeFlag1 0x1
+#define kModernTypeFlag2 0x2
+#define kModernTypeFlag3 0x3
 
 // sector types 
 #define kSecBase 600
@@ -187,14 +198,18 @@ void QuitGame(void);
 #define kGDXSectorFXChanger 34
 #define kGDXObjDataChanger 35
 #define kGDXSpriteDamager 36
-// 37 reserved
+#define kGDXObjDataAccumulator 37
 #define kGDXEffectSpawner 38
 #define kGDXWindGenerator 39
+#define kModernConcussSprite 712
 
 #define kGDXThingTNTProx 433 // detects only players
 #define kGDXThingThrowableRock 434 // does small damage if hits target
-#define kGDXDudeUniversalCultist 254
-#define kGDXGenDudeBurning 255
+#define kGDXThingCustomDudeLifeLeech 435 // the same as normal, except it aims in specified target
+#define kCustomDude 254
+#define kCustomDudeBurning 255
+
+#define kGDXItemMapLevel 150 // once picked up, draws whole minimap
 
 // ai state types
 #define kAiStateOther -1
@@ -536,18 +551,18 @@ inline int approxDist(int dx, int dy)
 
 class Rect {
 public:
-    int x1, y1, x2, y2;
-    Rect(int _x1, int _y1, int _x2, int _y2)
+    int x0, y0, x1, y1;
+    Rect(int _x0, int _y0, int _x1, int _y1)
     {
-        x1 = _x1; y1 = _y1; x2 = _x2; y2 = _y2;
+        x0 = _x0; y0 = _y0; x1 = _x1; y1 = _y1;
     }
     bool isValid(void) const
     {
-        return x1 < x2 && y1 < y2;
+        return x0 < x1 && y0 < y1;
     }
     char isEmpty(void) const
     {
-        return !(x1 < x2 && y1 < y2);
+        return !isValid();
     }
     bool operator!(void) const
     {
@@ -556,11 +571,39 @@ public:
 
     Rect & operator&=(Rect &pOther)
     {
-        x1 = ClipLow(x1, pOther.x1);
-        y1 = ClipLow(y1, pOther.y1);
-        x2 = ClipHigh(x2, pOther.x2);
-        y2 = ClipHigh(y2, pOther.y2);
+        x0 = ClipLow(x0, pOther.x0);
+        y0 = ClipLow(y0, pOther.y0);
+        x1 = ClipHigh(x1, pOther.x1);
+        y1 = ClipHigh(y1, pOther.y1);
         return *this;
+    }
+
+    void offset(int dx, int dy)
+    {
+        x0 += dx;
+        y0 += dy;
+        x1 += dx;
+        y1 += dy;
+    }
+
+    int height()
+    {
+        return y1 - y0;
+    }
+
+    int width()
+    {
+        return x1 - x0;
+    }
+
+    bool inside(Rect& other)
+    {
+        return (x0 <= other.x0 && x1 >= other.x1 && y0 <= other.y0 && y1 >= other.y1);
+    }
+
+    bool inside(int x, int y)
+    {
+        return (x0 <= x && x1 > x && y0 <= y && y1 > y);
     }
 };
 

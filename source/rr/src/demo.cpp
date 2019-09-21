@@ -631,8 +631,10 @@ RECHECK:
 
     renderFlushPerms();
 
+#ifdef PLAYDEMOLOOP	// Todo: Make a CVar.
 	if (!g_netServer && ud.multimode < 2)
-		foundemo = 0;// G_OpenDemoRead(g_whichDemo);
+		foundemo = G_OpenDemoRead(g_whichDemo);
+#endif
 
     if (foundemo == 0)
     {
@@ -988,7 +990,7 @@ nextdemo_nomenu:
                 }
                 else
                 {
-                    j = calc_smoothratio((int32_t)totalclock, (int32_t)ototalclock);
+                    j = calc_smoothratio(totalclock, ototalclock);
                     if (g_demo_paused && g_demo_rewind)
                         j = 65536-j;
 

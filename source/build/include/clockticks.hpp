@@ -131,7 +131,6 @@ public:
 
     explicit operator uint32_t() const { return wholeTicks; };
     explicit operator int32_t() const { return wholeTicks; };
-	int32_t Ticks() const { return wholeTicks; }
 
 private:
     //POGO: wholeTicks must be first in member-order to ensure the address of

@@ -44,6 +44,62 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "triggers.h"
 #include "view.h"
 
+void makeMissileBlocking(int nSprite) // 23
+{
+    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    if (sprite[nSprite].statnum != 5) return;
+    sprite[nSprite].cstat |= CSTAT_SPRITE_BLOCK;
+}
+
+void UniMissileBurst(int nSprite) // 22
+{
+    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    if (sprite[nSprite].statnum != 5) return;
+    spritetype * pSprite = &sprite[nSprite];
+    int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
+    int nRadius = 0x55555;
+
+    for (int i = 0; i < 8; i++)
+    {
+        spritetype* pBurst = actSpawnSprite(pSprite, 5);
+        
+        pBurst->lotag = pSprite->lotag;
+        pBurst->shade = pSprite->shade;
+        pBurst->picnum = pSprite->picnum;
+
+        pBurst->cstat = pSprite->cstat;
+        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) {
+            pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
+            evPost(pBurst->xvel, 3, 100, CALLBACK_ID_23); // so set blocking flag a bit later
+        }
+
+        pBurst->pal = pSprite->pal;
+        pBurst->clipdist = pSprite->clipdist / 4;
+        pBurst->hitag = pSprite->hitag;
+        pBurst->xrepeat = pSprite->xrepeat / 2;
+        pBurst->yrepeat = pSprite->yrepeat / 2;
+        pBurst->ang = ((pSprite->ang + missileInfo[pSprite->lotag - kMissileBase].at6) & 2047);
+        pBurst->owner = pSprite->owner;
+       
+        actBuildMissile(pBurst, pBurst->extra, pSprite->xvel);
+        
+        int nAngle2 = (i << 11) / 8;
+        int dx = 0;
+        int dy = mulscale30r(nRadius, Sin(nAngle2));
+        int dz = mulscale30r(nRadius, -Cos(nAngle2));
+        if (i & 1)
+        {
+            dy >>= 1;
+            dz >>= 1;
+        }
+        RotateVector(&dx, &dy, nAngle);
+        xvel[pBurst->index] += dx;
+        yvel[pBurst->index] += dy;
+        zvel[pBurst->index] += dz;
+        evPost(pBurst->index, 3, 960, CALLBACK_ID_1);
+    }
+    evPost(nSprite, 3, 0, CALLBACK_ID_1);
+}
 
 void sub_74C20(int nSprite) // 7
 {
@@ -730,5 +786,7 @@ void(*gCallback[kCallbackMax])(int) =
     sub_768E8,
     sub_766B8,
     sub_769B4,
-    sub_76B78
+    sub_76B78,
+    UniMissileBurst,
+    makeMissileBlocking,
 };

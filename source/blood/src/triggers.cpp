@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "triggers.h"
 #include "trig.h"
 #include "view.h"
+#include "sectorfx.h"
 #include "messages.h"
 
 int basePath[kMaxSectors];
@@ -79,7 +80,32 @@ unsigned int GetWaveValue(unsigned int nPhase, int nType)
     return nPhase;
 }
 
-char SetSpriteState(int nSprite, XSPRITE *pXSprite, int nState)
+char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
+{
+    if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
+        return 0;
+    pXSprite->busy = nState << 16;
+    pXSprite->state = nState;
+    evKill(nSprite, 3);
+    if ((sprite[nSprite].hitag & 16) != 0 && sprite[nSprite].type >= kDudeBase && sprite[nSprite].type < kDudeMax)
+    {
+        pXSprite->respawnPending = 3;
+        evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, CALLBACK_ID_9);
+        return 1;
+    }
+    if (pXSprite->restState != nState && pXSprite->waitTime > 0)
+        evPost(nSprite, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? COMMAND_ID_1 : COMMAND_ID_0);
+    if (pXSprite->txID)
+    {
+        if (pXSprite->command != 5 && pXSprite->triggerOn && pXSprite->state)
+            evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+        if (pXSprite->command != 5 && pXSprite->triggerOff && !pXSprite->state)
+            evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+    }
+    return 1;
+}
+
+char modernTypeSetSpriteState(int nSprite, XSPRITE *pXSprite, int nState)
 {
     if ((pXSprite->busy&0xffff) == 0 && pXSprite->state == nState)
         return 0;
@@ -94,12 +120,26 @@ char SetSpriteState(int nSprite, XSPRITE *pXSprite, int nState)
     }
     if (pXSprite->restState != nState && pXSprite->waitTime > 0)
         evPost(nSprite, 3, (pXSprite->waitTime*120) / 10, pXSprite->restState ? COMMAND_ID_1 : COMMAND_ID_0);
-    if (pXSprite->txID)
-    {
-        if (pXSprite->command != 5 && pXSprite->triggerOn && pXSprite->state)
-            evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-        if (pXSprite->command != 5 && pXSprite->triggerOff && !pXSprite->state)
-            evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+
+    if (pXSprite->txID != 0 && ((pXSprite->triggerOn && pXSprite->state) || (pXSprite->triggerOff && !pXSprite->state))) {
+
+        // by NoOne: Sending new command instead of link is *required*, because types above
+        //are universal and can paste properties in different objects.
+        switch (pXSprite->command) {
+            case COMMAND_ID_5:
+            case kGDXCommandPaste:
+                evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // just send command to change properties
+                return 1;
+            case COMMAND_ID_7:
+                evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // send normal command first
+                evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);  // then send command to change properties
+                return 1;
+            default:
+                evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // send first command to change properties
+                evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // then send normal command
+                return 1;
+        }
+
     }
     return 1;
 }
@@ -374,48 +414,45 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
     /* - ranged TX ID is now supported also - */
     case kGDXRandomTX:
     {
-        std::default_random_engine rng; int tx = 0;
+        std::default_random_engine rng; int tx = 0; int maxRetries = 10;
         // set range of TX ID if data2 and data3 is empty.
         if (pXSprite->data1 > 0 && pXSprite->data2 <= 0 && pXSprite->data3 <= 0 && pXSprite->data4 > 0) {
 
             // data1 must be less than data4
             if (pXSprite->data1 > pXSprite->data4) {
-                int tmp = pXSprite->data1;
-                pXSprite->data1 = pXSprite->data4;
+                short tmp = pXSprite->data1;
+                pXSprite->data1 = (short) pXSprite->data4;
                 pXSprite->data4 = tmp;
             }
             
             int total = pXSprite->data4 - pXSprite->data1;
-            int data1 = pXSprite->data1; int result = 0;
+            while (maxRetries > 0) {
+                    
+                // use true random only for single player mode
+                // otherwise use Blood's default one. In the future it maybe possible to make
+                // host send info to clients about what was generated.
 
-            // use true random only for single player mode
-            if (gGameOptions.nGameType == 0 && !VanillaMode() && !DemoRecordStatus()) {
-                rng.seed(std::random_device()());
-                pXSprite->txID = (int)my_random(pXSprite->data1, pXSprite->data4);
-            
-            // otherwise use Blood's default one. In the future it maybe possible to make
-            // host send info to clients about what was generated.
-            } else {
-                pXSprite->txID = Random(total) + data1;
+                if (gGameOptions.nGameType != 0 || VanillaMode() || DemoRecordStatus()) tx = Random(total) + pXSprite->data1;
+                else {
+                    rng.seed(std::random_device()());
+                    tx = (int)my_random(pXSprite->data1, pXSprite->data4);
+                }
+
+                if (tx != pXSprite->txID) break;
+                maxRetries--;
             }
 
-        } else if ((tx = GetRandDataVal(NULL,pSprite)) > 0) { 
-            pXSprite->txID = tx; 
+        } else {
+            while (maxRetries > 0) {
+                if ((tx = GetRandDataVal(NULL, pSprite)) > 0 && tx != pXSprite->txID) break;
+                maxRetries--;
+            }
         }
-
-        switch (a3.cmd)
-        {
-        case COMMAND_ID_0:
-            SetSpriteState(nSprite, pXSprite, 0);
-            break;
-        case COMMAND_ID_1:
-            SetSpriteState(nSprite, pXSprite, 1);
-            break;
-        default:
+        
+        if (tx > 0) {
+            pXSprite->txID = tx;
             SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
-            break;
         }
-
         break;
     }
     /* - Sequential Switch takes values from data fields starting from data1 and uses it as TX ID - */
@@ -428,79 +465,92 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
 
             // data1 must be less than data4
             if (pXSprite->data1 > pXSprite->data4) {
-                int tmp = pXSprite->data1;
-                pXSprite->data1 = (short)pXSprite->data4;
+                short tmp = pXSprite->data1;
+                pXSprite->data1 = (short) pXSprite->data4;
                 pXSprite->data4 = tmp;
             }
             
             // force send command to all TX id in a range
-            if (pSprite->hitag == 1) {
-                for (int i = pXSprite->data1; i <= pXSprite->data4; i++) {
-                    evSend(nSprite, 3, i, (COMMAND_ID) pXSprite->command);
+            if (pSprite->hitag & kModernTypeFlag1) {
+                for (pXSprite->txID = pXSprite->data1; pXSprite->txID <= pXSprite->data4; pXSprite->txID++) {
+                    if (pXSprite->txID > 0) 
+                        evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                 }
 
-                pXSprite->txIndex = 0;
-                SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
-                break;
+                pXSprite->txID = pXSprite->sysData1 = 0;
+                return;
             }
 
             // Make sure txIndex is correct as we store current index of TX ID here.
-            if (pXSprite->txIndex < pXSprite->data1) pXSprite->txIndex = pXSprite->data1;
-            else if (pXSprite->txIndex > pXSprite->data4) pXSprite->txIndex = pXSprite->data4;
+            if (pXSprite->sysData1 < pXSprite->data1) pXSprite->sysData1 = pXSprite->data1;
+            else if (pXSprite->sysData1 > pXSprite->data4) pXSprite->sysData1 = pXSprite->data4;
 
             range = true;
 
         } else {
+
+            // force send command to all TX id specified in data
+            if (pSprite->hitag & kModernTypeFlag1) {
+                for (int i = 0; i <= 3; i++) {
+                    if ((pXSprite->txID = GetDataVal(pSprite, i)) > 0)
+                        evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                }
+
+                pXSprite->txID = pXSprite->sysData1 = 0;
+                return;
+            }
+            
             // Make sure txIndex is correct as we store current index of data field here.
-            if (pXSprite->txIndex > 3) pXSprite->txIndex = 0;
-            else if (pXSprite->txIndex < 0) pXSprite->txIndex = 3;
+            if (pXSprite->sysData1 > 3) pXSprite->sysData1 = 0;
+            else if (pXSprite->sysData1 < 0) pXSprite->sysData1 = 3;
+
         }
 
         switch (a3.cmd) {
             case COMMAND_ID_0:
                 if (range == false) {
                     while (cnt-- >= 0) { // skip empty data fields
-                        pXSprite->txIndex--;
-                        if (pXSprite->txIndex < 0) pXSprite->txIndex = 3;
-                        tx = GetDataVal(pSprite, pXSprite->txIndex);
+                        pXSprite->sysData1--;
+                        if (pXSprite->sysData1 < 0) pXSprite->sysData1 = 3;
+                        tx = GetDataVal(pSprite, pXSprite->sysData1);
                         if (tx < 0) ThrowError(" -- Current data index is negative");
                         if (tx > 0) break;
                         continue;
                     }
                 } else {
-                    pXSprite->txIndex--;
-                    if (pXSprite->txIndex < pXSprite->data1) {
-                        pXSprite->txIndex = pXSprite->data4;
+                    pXSprite->sysData1--;
+                    if (pXSprite->sysData1 < pXSprite->data1) {
+                        pXSprite->sysData1 = pXSprite->data4;
                     }
-                    tx = pXSprite->txIndex;
+                    tx = pXSprite->sysData1;
                 }
                 break;
 
             default:
                 if (range == false) {
                     while (cnt-- >= 0) { // skip empty data fields
-                        if (pXSprite->txIndex > 3) pXSprite->txIndex = 0;
-                        tx = GetDataVal(pSprite, pXSprite->txIndex);
+                        if (pXSprite->sysData1 > 3) pXSprite->sysData1 = 0;
+                        tx = GetDataVal(pSprite, pXSprite->sysData1);
                         if (tx < 0) ThrowError(" ++ Current data index is negative");
-                        pXSprite->txIndex++;
+                        pXSprite->sysData1++;
                         if (tx > 0) break;
                         continue;
                     }
                 } else {
-                    tx = pXSprite->txIndex;
-                    if (pXSprite->txIndex >= pXSprite->data4) {
-                        pXSprite->txIndex = pXSprite->data1;
+                    tx = pXSprite->sysData1;
+                    if (pXSprite->sysData1 >= pXSprite->data4) {
+                        pXSprite->sysData1 = pXSprite->data1;
                         break;
                     }
-                    pXSprite->txIndex++;
+                    pXSprite->sysData1++;
                 }
                 break;
         }
-
-        pXSprite->txID = (short)tx;
+        
+        pXSprite->txID = tx;
         SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
-        break;
     }
+    break;
     case 413:
         if (pXSprite->health > 0)
         {
@@ -587,6 +637,31 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
             break;
         }
         break;
+    // by NoOne: various modern types
+    case kMarkerWarpDest:
+        if (pXSprite->txID <= 0) {
+            if (SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1) == 1)
+                useTeleportTarget(pXSprite, NULL);
+            break;
+        }
+        modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
+        break;
+    case kGDXSpriteDamager:
+        if (pXSprite->txID <= 0) {
+            if (SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1) == 1)
+                useSpriteDamager(pXSprite, NULL);
+            break;
+        }
+        modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
+        break;
+    case kGDXObjPropertiesChanger:
+    case kGDXObjPicnumChanger:
+    case kGDXObjSizeChanger:
+    case kGDXSectorFXChanger:
+    case kGDXObjDataChanger:
+    case kModernConcussSprite:
+        modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
+        break;
     case 20:
         switch (a3.cmd)
         {
@@ -640,9 +715,27 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
     case kMarkerLowLink:
     case kMarkerUpStack:
     case kMarkerLowStack:
-    case kMarkerPath:
         if (pXSprite->command == 5 && pXSprite->txID != 0)
             evSend(nSprite, 3, pXSprite->txID, COMMAND_ID_5);
+        break;
+    // by NoOne: add triggering sprite feature. Path sector will trigger the marker after
+    // it gets reached so it can send commands.
+    case kMarkerPath:
+        switch (a3.cmd) {
+            case COMMAND_ID_0:
+                SetSpriteState(nSprite, pXSprite, 0);
+                break;
+            case COMMAND_ID_1:
+                SetSpriteState(nSprite, pXSprite, 1);
+                break;
+            case COMMAND_ID_5:
+                if (pXSprite->txID != 0)
+                    evSend(nSprite, 3, pXSprite->txID, COMMAND_ID_5); // don't forget linking!
+                break;
+            default:
+                SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
+                break;
+        }
         break;
     case 22:
         switch (a3.cmd)
@@ -665,40 +758,6 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
             SetSpriteState(nSprite, pXSprite, 1);
         else
             SetSpriteState(nSprite, pXSprite, 0);
-        break;
-    case kGDXObjPropertiesChanger:
-    case kGDXObjPicnumChanger:
-    case kGDXObjSizeChanger:
-    case kGDXSectorFXChanger:
-    case kGDXObjDataChanger:
-        // by NoOne: Sending new command instead of link is *required*, because types above 
-        //are universal and can paste properties in different objects.
-        if (pXSprite->command == COMMAND_ID_5)
-            evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);
-        else {
-            evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // send first command to change properties
-            evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID) pXSprite->command); // then send normal command
-        }
-        break;
-    // this type damages sprite with given damageType
-    case kGDXSpriteDamager:
-        evSend(nSprite, 3, pXSprite->txID, kGDXCommandSpriteDamage);
-        break;
-    case 40: // Random weapon
-    case 80: // Random ammo
-        // let's first search for previously dropped items and remove it
-        if (pXSprite->dropMsg > 0) {
-            for (short nItem = headspritestat[3]; nItem >= 0; nItem = nextspritestat[nItem]) {
-                spritetype* pItem = &sprite[nItem];
-                if (pItem->lotag == pXSprite->dropMsg && pItem->x == pSprite->x && pItem->y == pSprite->y && pItem->z == pSprite->z) {
-                    gFX.fxSpawn((FX_ID) 29, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-                    deletesprite(nItem);
-                    break;
-                }
-            }
-        }
-        // then drop item
-        DropRandomPickupObject(pSprite, pXSprite->dropMsg);
         break;
     case kGDXCustomDudeSpawn:
         if (gGameOptions.nMonsterSettings && actSpawnCustomDude(pSprite, -1) != NULL)
@@ -778,28 +837,38 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
     case kGDXEffectSpawner:
         switch (a3.cmd) {
             case COMMAND_ID_0:
-                SetSpriteState(nSprite, pXSprite, 0);
+                if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                 break;
             case COMMAND_ID_1:
-                if (pXSprite->state == 1) break;
+                evKill(nSprite, 3); // queue overflow protect
+                if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                 fallthrough__;
             case COMMAND_ID_21:
-                SetSpriteState(nSprite, pXSprite, 1);
                 if (pXSprite->txID <= 0)
-                    (pSprite->type == kGDXSeqSpawner) ? useSeqSpawnerGen(pXSprite, NULL) : useEffectGen(pXSprite, NULL);
-                else if (pXSprite->command == COMMAND_ID_5)
-                    evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);
+                    (pSprite->type == kGDXSeqSpawner) ? useSeqSpawnerGen(pXSprite, 3, pSprite->xvel) : useEffectGen(pXSprite, NULL);
                 else {
-                    evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);
-                    evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID) pXSprite->command);
+                    
+                    switch (pXSprite->command) {
+                    case COMMAND_ID_5:
+                        evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // just send command to change properties
+                        break;
+                    case COMMAND_ID_7:
+                        evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // send normal command first
+                        evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);  // then send command to change properties
+                        break;
+                    default:
+                        evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // send first command to change properties
+                        evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // then send normal command
+                        break;
+                    }
+
                 }
-            
+
                 if (pXSprite->busyTime > 0)
                     evPost(nSprite, 3, ClipLow((int(pXSprite->busyTime) + Random2(pXSprite->data1)) * 120 / 10, 0), COMMAND_ID_21);
                 break;
-
-            case COMMAND_ID_3:
-                if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_21);
+            default:
+                if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_1);
                 else evPost(nSprite, 3, 0, COMMAND_ID_0);
                 break;
         }
@@ -849,26 +918,36 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
         switch (a3.cmd) {
         case COMMAND_ID_0:
             stopWindOnSectors(pXSprite);
-            SetSpriteState(nSprite, pXSprite, 0);
+            if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
             break;
         case COMMAND_ID_1:
-            if (pXSprite->state == 1) break;
+            evKill(nSprite, 3); // queue overflow protect
+            if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
             fallthrough__;
         case COMMAND_ID_21:
-            SetSpriteState(nSprite, pXSprite, 1);
             if (pXSprite->txID <= 0) useSectorWindGen(pXSprite, NULL);
-            else if (pXSprite->command == COMMAND_ID_5)
-                evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);
             else {
-                evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);
-                evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID) pXSprite->command);
+                
+                switch (pXSprite->command) {
+                case COMMAND_ID_5:
+                    evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // just send command to change properties
+                    break;
+                case COMMAND_ID_7:
+                    evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // send normal command first
+                    evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);  // then send command to change properties
+                    break;
+                default:
+                    evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // send first command to change properties
+                    evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // then send normal command
+                    break;
+                }
+
             }
 
-            if (pXSprite->busyTime > 0)
-                evPost(nSprite, 3, pXSprite->busyTime, COMMAND_ID_21);
+            if (pXSprite->busyTime > 0)  evPost(nSprite, 3, pXSprite->busyTime, COMMAND_ID_21);
             break;
-        case COMMAND_ID_3:
-            if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_21);
+        default:
+            if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_1);
             else evPost(nSprite, 3, 0, COMMAND_ID_0);
             break;
         }
@@ -889,28 +968,38 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
         {
         case COMMAND_ID_0:
             if (pXSprite->data4 == 3 && activated == false) activateDudes(pXSprite->txID);
-            SetSpriteState(nSprite, pXSprite, 0);
+            if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
             break;
         case COMMAND_ID_1:
-            if (pXSprite->state == 1) break;
+            evKill(nSprite, 3); // queue overflow protect
+            if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
             fallthrough__;
         case COMMAND_ID_21:
-            SetSpriteState(nSprite, pXSprite, 1);
             if (pXSprite->txID <= 0 || !getDudesForTargetChg(pXSprite)) {
                 evPost(nSprite, 3, 0, COMMAND_ID_0);
                 break;
-            }
-            else if (pXSprite->command == COMMAND_ID_5)
-                evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);
-            else {
-                evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);
-                evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+            } else {
+                
+                switch (pXSprite->command) {
+                case COMMAND_ID_5:
+                    evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // just send command to change properties
+                    break;
+                case COMMAND_ID_7:
+                    evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // send normal command first
+                    evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);  // then send command to change properties
+                    break;
+                default:
+                    evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // send first command to change properties
+                    evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // then send normal command
+                    break;
+                }
+
             }
 
             if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, COMMAND_ID_21);
             break;
-        case COMMAND_ID_3:
-            if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_21);
+        default:
+            if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_1);
             else evPost(nSprite, 3, 0, COMMAND_ID_0);
             break;
         }
@@ -921,12 +1010,13 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
     case kGDXObjDataAccumulator:
             switch (a3.cmd) {
             case COMMAND_ID_0:
-                SetSpriteState(nSprite, pXSprite, 0);
+                if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                 break;
             case COMMAND_ID_1:
-                if (pXSprite->state == 1) break;
+                evKill(nSprite, 3); // queue overflow protect
+                if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                fallthrough__;
             case COMMAND_ID_21:
-                SetSpriteState(nSprite, pXSprite, 1);
 
                 // force OFF after *all* TX objects reach the goal value
                 if (pSprite->hitag == 0 && goalValueIsReached(pXSprite)) {
@@ -934,29 +1024,77 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
                     break;
                 }
 
-                if (pXSprite->data1 > 0 && pXSprite->data1 <= 4 && pXSprite->data2 > 0) {
-                    if (pXSprite->txID != 0) {
-                        if (pXSprite->command == COMMAND_ID_5)
-                            evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);
-                        else {
-                            evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);
-                            evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID) pXSprite->command);
-                        }
+                if (pXSprite->txID > 0 && pXSprite->data1 > 0 && pXSprite->data1 <= 4) {
+                    
+                    switch (pXSprite->command) {
+                    case COMMAND_ID_5:
+                        evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // just send command to change properties
+                        break;
+                    case COMMAND_ID_7:
+                        evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // send normal command first
+                        evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste);  // then send command to change properties
+                        break;
+                    default:
+                        evSend(nSprite, 3, pXSprite->txID, kGDXCommandPaste); // send first command to change properties
+                        evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command); // then send normal command
+                        break;
                     }
+
                     if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, COMMAND_ID_21);
                 }
                 break;
-            case COMMAND_ID_3:
-                if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_21);
+            default:
+                if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_1);
                 else evPost(nSprite, 3, 0, COMMAND_ID_0);
                 break;
             }
+        break;
+    case 704: // ecto skull gen
+        switch (a3.cmd) {
+            case COMMAND_ID_0:
+                if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                break;
+            case COMMAND_ID_1:
+                evKill(nSprite, 3); // queue overflow protect
+                if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                fallthrough__;
+            case COMMAND_ID_21:
+                ActivateGenerator(nSprite);
+                if (pXSprite->txID) evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                if (pXSprite->busyTime > 0) evPost(nSprite, 3, (120 * pXSprite->busyTime) / 10, COMMAND_ID_21);
+                break;
+            default:
+                if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_1);
+                else evPost(nSprite, 3, 0, COMMAND_ID_0);
+                break;
+        }
+        break;
+    
+    case 40: // Random ammo
+    case 80: // Random weapon
+        switch (a3.cmd) {
+            case COMMAND_ID_0:
+                if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                break;
+            case COMMAND_ID_1:
+                evKill(nSprite, 3); // queue overflow protect
+                if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                fallthrough__;
+            case COMMAND_ID_21:
+                ActivateGenerator(nSprite);
+                if (pXSprite->busyTime > 0) 
+                    evPost(nSprite, 3, (120 * pXSprite->busyTime) / 10, COMMAND_ID_21);
+                break;
+            default:
+                if (pXSprite->state == 0) evPost(nSprite, 3, 0, COMMAND_ID_1);
+                else evPost(nSprite, 3, 0, COMMAND_ID_0);
+                break;
+        }
         break;
     case 700:
     case 701:
     case 702:
     case 703:
-    case 704:
     case 705:
     case 706:
     case 707:
@@ -1035,19 +1173,132 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT a3)
 
 // by NoOne: this function stops wind on all TX sectors affected by WindGen after it goes off state.
 void stopWindOnSectors(XSPRITE* pXSource) {
+    spritetype* pSource = &sprite[pXSource->reference];
+    
+    if (pXSource->txID <= 0) {
+        
+        if (sector[pSource->sectnum].extra >= 0)
+            xsector[sector[pSource->sectnum].extra].windVel = 0;
+
+        return;
+    }
+
     for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) {
-        if (rxBucket[i].type != 3) continue;
+        if (rxBucket[i].type != 6) continue;
         XSECTOR * pXSector = &xsector[sector[rxBucket[i].index].extra];
-        if ((pXSector->state == 1 && !pXSector->windAlways) || sprite[pXSource->reference].hitag == 1)
+        if ((pXSector->state == 1 && !pXSector->windAlways) || (sprite[pXSource->reference].hitag & kModernTypeFlag1))
             pXSector->windVel = 0;
     }
 }
+/// WIP ////////////////////////////////////////////////////////
+void useConcussSprite(XSPRITE* pXSource, spritetype* pSprite) {
+    spritetype* pSource = &sprite[pXSource->reference];
+    int nIndex = isDebris(pSprite->index);
+    //ThrowError("%d", gPhysSpritesList[nIndex]);
+    //int size = (tilesiz[pSprite->picnum].x * pSprite->xrepeat * tilesiz[pSprite->picnum].y * pSprite->yrepeat) >> 1;
+    //int t = scale(pXSource->data1, size, gSpriteMass[pSprite->extra].mass);
+    //xvel[pSprite->xvel] += mulscale16(t, pSprite->x);
+    //yvel[pSprite->xvel] += mulscale16(t, pSprite->y);
+    //zvel[pSprite->xvel] += mulscale16(t, pSprite->z);
+
+    //debrisConcuss(pXSource->reference, nIndex, pSprite->x - 100, pSprite->y - 100, pSprite->z - 100, pXSource->data1);
+}
+
+void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
+    spritetype* pSource = &sprite[pXSource->reference];
+    XSECTOR* pXSector = (sector[pSource->sectnum].extra >= 0) ? &xsector[sector[pSource->sectnum].extra] : NULL;
+
+    if (pSprite == NULL) {
+
+        if (pXSource->data1 > 0) {
+            for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
+
+                if (pXSource->data1 < kMaxPlayers) // relative to connected players
+                    if (pXSource->data1 != (i + 1))
+                        continue;
+                else if (pXSource->data1 < (kDudePlayer1 + kMaxPlayers)) // absolute lotag
+                    if (pXSource->data1 >= kDudePlayer1 && (pXSource->data1 + (kDudePlayer1 - 1)) == gPlayer[i].pSprite->type)
+                        continue;
+
+                useTeleportTarget(pXSource, gPlayer[i].pSprite);
+                return;
+
+            }
+        }
+
+        return;
+    }
+
+    pSprite->x = pSource->x; pSprite->y = pSource->y;
+    pSprite->z += (sector[pSource->sectnum].floorz - sector[pSprite->sectnum].floorz);
+
+    if (pSource->hitag & kModernTypeFlag1) // force telefrag
+        TeleFrag(pSprite->xvel, pSource->sectnum);
+
+    changespritesect((short)pSprite->xvel, pSource->sectnum);
+    if (pXSector != NULL && pXSector->Underwater) xsprite[pSprite->extra].medium = 1;
+    else xsprite[pSprite->extra].medium = 0;
+
+    if (pXSource->data2 == 1)
+        pSprite->ang = pSource->ang;
+
+    if (pXSource->data3 == 1)
+        xvel[pSprite->xvel] = yvel[pSprite->xvel] = zvel[pSprite->xvel] = 0;
+
+    viewBackupSpriteLoc(pSprite->xvel, pSprite);
+
+    if (pXSource->data4 > 0)
+        sfxPlay3DSound(pSource, pXSource->data4, -1, 0);
+
+    if (IsPlayerSprite(pSprite)) {
+
+        PLAYER* pPlayer = &gPlayer[pSprite->lotag - kDudePlayer1];
+        playerResetInertia(pPlayer);
+        
+        if (pXSource->data2 == 1) {
+            pPlayer->at6b = pPlayer->at73 = 0;
+        }
+    }
+}
+
+
+void useEffectGen(XSPRITE * pXSource, spritetype * pSprite) {
+    if (pSprite == NULL) pSprite = &sprite[pXSource->reference];
+    if (pSprite->extra < 0) return;
+
+    int top, bottom; GetSpriteExtents(pSprite, &top, &bottom); spritetype * pEffect = NULL;
+    int dx = 0, dy = 0; int cnt = (pXSource->data4 > 32) ? 32 : pXSource->data4;
+
+    while (cnt-- >= 0) {
+        if (cnt > 0) {
+            int dx = Random3(250);
+            int dy = Random3(150);
+        }
+
+        pEffect = gFX.fxSpawn((FX_ID)pXSource->data2, pSprite->sectnum, pSprite->x + dx, pSprite->y + dy, top, 0);
+        if (pEffect != NULL) {
+            
+            if ((pEffect->cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (pEffect->cstat & CSTAT_SPRITE_ONE_SIDED))
+                pEffect->cstat &= ~CSTAT_SPRITE_ONE_SIDED;
+
+            if (pEffect->pal <= 0) pEffect->pal = pSprite->pal;
+            if (pEffect->xrepeat <= 0) pEffect->xrepeat = pSprite->xrepeat;
+            if (pEffect->yrepeat <= 0) pEffect->yrepeat = pSprite->yrepeat;
+            if (pEffect->shade == 0) pEffect->shade = pSprite->shade;
+        }
+    }
+
+    if (pXSource->data3 > 0)
+        sfxPlay3DSound(pSprite, pXSource->data3, -1, 0);
+
+}
+
 
 void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
     
     spritetype* pSource = &sprite[pXSource->reference];
-    XSECTOR* pXSector = NULL; bool forceWind = false;
-
+    XSECTOR* pXSector = NULL; bool forceWind = false; 
+    int nXSector = 0;
     if (pSector == NULL) {
         
         if (sector[pSource->sectnum].extra < 0) {
@@ -1059,9 +1310,12 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
 
         } else {
             pXSector = &xsector[sector[pSource->sectnum].extra];
+            nXSector = sector[pXSector->reference].extra;
         }
+
     } else {
         pXSector = &xsector[pSector->extra];
+        nXSector = sector[pXSector->reference].extra;
     }
     
     if (pSource->hitag) {
@@ -1099,54 +1353,128 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
             break;
         }
 
+        short oldPan = pXSector->panVel;
         pXSector->panAngle = pXSector->windAng;
         pXSector->panVel = pXSector->windVel;
+
+        // add to panList if panVel was set to 0 previously
+        if (oldPan == 0 && pXSector->panVel != 0 && panCount < kMaxXSprites) {
+
+            int i;
+            for (i = 0; i < panCount; i++) {
+                if (panList[i] != nXSector) continue;
+                break;
+            }
+
+            if (i == panCount)
+                panList[panCount++] = nXSector;
+        }
+
     }
 }
 
-void useSeqSpawnerGen(XSPRITE* pXSource, spritetype* pSprite) {
-    if (pSprite == NULL) pSprite = &sprite[pXSource->reference];
-    if (pSprite->extra < 0) return;
-    
-    seqSpawn(pXSource->data2, 3, pSprite->extra, (pXSource->data3 > 0) ? pXSource->data3 : -1);
-    if (pXSource->data4 > 0)
-        sfxPlay3DSound(pSprite, pXSource->data4, -1, 0);
-}
+void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
+    int dmg = (pXSource->data4 == 0 || pXSource->data4 > 65534) ? 65535 : pXSource->data4;
+    int dmgType = (pXSource->data3 >= 7) ? Random(6) : ((pXSource->data3 < 0) ? 0 : pXSource->data3);
 
-void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
-    if (pSprite == NULL) pSprite = &sprite[pXSource->reference];
-    if (pSprite->extra < 0) return;
+    // just damage / heal TX ID sprite
+    if (pSprite != NULL) {
+        actDamageSprite(pSprite->xvel, pSprite, (DAMAGE_TYPE) dmgType, dmg);
+        return;
 
-    int top, bottom; GetSpriteExtents(pSprite, &top, &bottom); int cnt = pXSource->data4;
-    spritetype* pEffect = NULL; if (cnt > 32) cnt = 32;
+        
+    } // or damage / heal player# specified in data2 (or all players if data2 is empty)
+    else if (pXSource->data2 > 0 && pXSource->data2 <= kMaxPlayers) {
 
-    while (cnt-- >= 0) {
-        if (cnt > 0) {
-
-            int dx = Random3(250);
-            int dy = Random3(150);
-
-            pEffect = gFX.fxSpawn((FX_ID)pXSource->data2, pSprite->sectnum, pSprite->x + dx, pSprite->y + dy, top, 0);
-
-        }
-        else {
-            pEffect = gFX.fxSpawn((FX_ID)pXSource->data2, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
-        }
-
-        if (pEffect != NULL) {
-            if (pEffect->pal <= 0) pEffect->pal = pSprite->pal;
-            if (pEffect->xrepeat <= 0) pEffect->xrepeat = pSprite->xrepeat;
-            if (pEffect->yrepeat <= 0) pEffect->yrepeat = pSprite->yrepeat;
-            if (pEffect->shade == 0) pEffect->shade = pSprite->shade;
+        for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
+            if (pXSource->data1 < kMaxPlayers) // relative to connected players
+                if (pXSource->data1 != (i + 1))
+                    continue;
+            else if (pXSource->data1 < (kDudePlayer1 + kMaxPlayers)) // absolute lotag
+                if (pXSource->data1 >= kDudePlayer1 && (pXSource->data1 + (kDudePlayer1 - 1)) == gPlayer[i].pSprite->type)
+                    continue;
+            actDamageSprite(sprite[pXSource->reference].xvel, gPlayer[i].pSprite, (DAMAGE_TYPE) dmgType, dmg);
+            return;
         }
     }
-
-    if (pXSource->data3 > 0)
-        sfxPlay3DSound(pSprite, pXSource->data3, -1, 0);
-
 }
 
+void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
+    switch (objType) {
+        case 6:
+            if (pXSource->data2 <= 0) {
+                if (pXSource->data3 == 3 || pXSource->data3 == 1)
+                    seqKill(2, sector[index].extra);
+                if (pXSource->data3 == 3 || pXSource->data3 == 2)
+                    seqKill(1, sector[index].extra);
+            }
+            else {
+                if (pXSource->data3 == 3 || pXSource->data3 == 1)
+                    seqSpawn(pXSource->data2, 2, sector[index].extra, -1);
+                if (pXSource->data3 == 3 || pXSource->data3 == 2)
+                    seqSpawn(pXSource->data2, 1, sector[index].extra, -1);
+            }
+            return;
 
+        case 0:
+            if (pXSource->data2 <= 0) {
+                if (pXSource->data3 == 3 || pXSource->data3 == 1)
+                    seqKill(0, wall[index].extra);
+                if ((pXSource->data3 == 3 || pXSource->data3 == 2) && (wall[index].cstat & CSTAT_WALL_MASKED))
+                    seqKill(4, wall[index].extra);
+            }
+            else {
+
+                if (pXSource->data3 == 3 || pXSource->data3 == 1)
+                    seqSpawn(pXSource->data2, 0, wall[index].extra, -1);
+                if (pXSource->data3 == 3 || pXSource->data3 == 2) {
+
+                    if (wall[index].nextwall < 0) {
+                        if (pXSource->data3 == 3)
+                            seqSpawn(pXSource->data2, 0, wall[index].extra, -1);
+
+                    }
+                    else {
+                        if (!(wall[index].cstat & CSTAT_WALL_MASKED))
+                            wall[index].cstat |= CSTAT_WALL_MASKED;
+
+                        seqSpawn(pXSource->data2, 4, wall[index].extra, -1);
+                    }
+                }
+
+                if (pXSource->data4 > 0) {
+
+                    int cx, cy, cz, wx, wy, wz;
+                    cx = (wall[index].x + wall[wall[index].point2].x) >> 1;
+                    cy = (wall[index].y + wall[wall[index].point2].y) >> 1;
+                    int nSector = sectorofwall(index);
+                    int32_t ceilZ, floorZ;
+                    getzsofslope(nSector, cx, cy, &ceilZ, &floorZ);
+                    int32_t ceilZ2, floorZ2;
+                    getzsofslope(wall[index].nextsector, cx, cy, &ceilZ2, &floorZ2);
+                    ceilZ = ClipLow(ceilZ, ceilZ2);
+                    floorZ = ClipHigh(floorZ, floorZ2);
+                    wz = floorZ - ceilZ;
+                    wx = wall[wall[index].point2].x - wall[index].x;
+                    wy = wall[wall[index].point2].y - wall[index].y;
+                    cz = (ceilZ + floorZ) >> 1;
+                    
+                    sfxPlay3DSound(cx, cy, cz, pXSource->data4, nSector);
+
+                }
+
+            }
+            return;
+
+        case 3:
+            if (pXSource->data2 <= 0) seqKill(3, sprite[index].extra);
+            else {
+                seqSpawn(pXSource->data2, 3, sprite[index].extra, -1);
+                if (pXSource->data4 > 0) sfxPlay3DSound(&sprite[index], pXSource->data4, -1, 0);
+            }
+            return;
+    }
+}
 
 void SetupGibWallState(walltype *pWall, XWALL *pXWall)
 {
@@ -1193,47 +1521,64 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT a3)
         pXWall->locked ^= 1;
         return;
     }
-    if (GetWallType(nWall) == 511)
-    {
-        char bStatus;
-        switch (a3.cmd)
-        {
-        case 1:
-        case 51:
-            bStatus = SetWallState(nWall, pXWall, 1);
+    
+    switch (pWall->lotag) {
+        // by NoOne: make 1-Way switch type for walls to work...
+        case 21:
+            if (VanillaMode()) break;
+            switch (a3.cmd) {
+                case 0:
+                    SetWallState(nWall,pXWall,0);
+                    break;
+                case 1:
+                    SetWallState(nWall, pXWall, 1);
+                    break;
+                default:
+                    SetWallState(nWall, pXWall, pXWall->restState ^ 1);
+                    break;
+            }
+            return;
+        case 511:
+            if (GetWallType(nWall) == 511) {
+                char bStatus;
+                switch (a3.cmd) {
+                    case 1:
+                    case 51:
+                        bStatus = SetWallState(nWall, pXWall, 1);
+                        break;
+                    case 0:
+                        bStatus = SetWallState(nWall, pXWall, 0);
+                        break;
+                    default:
+                        bStatus = SetWallState(nWall, pXWall, pXWall->state ^ 1);
+                        break;
+                }
+                if (bStatus) {
+                    SetupGibWallState(pWall, pXWall);
+                    if (pXWall->state) {
+                        CGibVelocity vel(100, 100, 250);
+                        int nType = ClipRange(pXWall->data, 0, 31);
+                        if (nType > 0)
+                            GibWall(nWall, (GIBTYPE)nType, &vel);
+                    }
+                }
+                return;
+            }
             break;
+    }
+    
+    switch (a3.cmd) {
         case 0:
-            bStatus = SetWallState(nWall, pXWall, 0);
+            SetWallState(nWall, pXWall, 0);
+            break;
+        case 1:
+            SetWallState(nWall, pXWall, 1);
             break;
         default:
-            bStatus = SetWallState(nWall, pXWall, pXWall->state^1);
+            SetWallState(nWall, pXWall, pXWall->state ^ 1);
             break;
-        }
-        if (bStatus)
-        {
-            SetupGibWallState(pWall, pXWall);
-            if (pXWall->state)
-            {
-                CGibVelocity vel(100, 100, 250);
-                int nType = ClipRange(pXWall->data, 0, 31);
-                if (nType > 0)
-                    GibWall(nWall, (GIBTYPE)nType, &vel);
-            }
-        }
-        return;
     }
-    switch (a3.cmd)
-    {
-    case 0:
-        SetWallState(nWall, pXWall, 0);
-        break;
-    case 1:
-        SetWallState(nWall, pXWall, 1);
-        break;
-    default:
-        SetWallState(nWall, pXWall, pXWall->state ^ 1);
-        break;
-    }
+
 }
 
 void SectorStartSound(int nSector, int nState)
@@ -1403,7 +1748,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
         spritetype *pSprite = &sprite[nSprite];
         // By NoOne: allow to move markers by sector movements in game if hitag 1 is added in editor.
         if (pSprite->statnum == 10 || pSprite->statnum == 16) {
-            if (!(pSprite->hitag&kHitagExtBit)) continue;
+            if (!(pSprite->hitag & kModernTypeFlag1)) continue;
         }
         x = baseSprite[nSprite].x;
         y = baseSprite[nSprite].y;
@@ -1992,6 +2337,11 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT a3)
                 break;
         }
     }
+
+    // by NoOne: trigger marker after it gets reached
+    if (pXSprite2->state != 1)
+        trTriggerSprite(pSprite2->xvel, pXSprite2, COMMAND_ID_1);
+
     if (nSprite < 0)
         ThrowError("Unable to find path marker with id #%d", nId);
     pXSector->at2e_0 = nSprite;
@@ -2437,34 +2787,8 @@ void trMessageSprite(unsigned int nSprite, EVENT a2)
             LinkSprite(nSprite, pXSprite, a2);
         else if (a2.cmd == kGDXCommandPaste)
             pastePropertiesInObj(3, nSprite, a2);
-        else if (a2.cmd == kGDXCommandSpriteDamage)
-            trDamageSprite(3, nSprite, a2);
         else
             OperateSprite(nSprite, pXSprite, a2);
-    }
-}
-
-// By NoOne: this function damages sprite
-void trDamageSprite(int type, int nDest, EVENT event) {
-    UNREFERENCED_PARAMETER(type);
-
-    /* - damages xsprite via TX ID	- */
-    /* - data3 = damage type		- */
-    /* - data4 = damage amount		- */
-
-    if (event.type == 3) {
-        spritetype* pSource = NULL; pSource = &sprite[event.index];
-        XSPRITE* pXSource = &xsprite[pSource->extra];
-        if (xsprite[sprite[nDest].extra].health > 0) {
-            if (pXSource->data4 == 0)
-                pXSource->data4 = 65535;
-
-            int dmgType = pXSource->data3;
-            if (pXSource->data3 >= 7)
-                dmgType = Random(6);
-
-            actDamageSprite(pSource->xvel, &sprite[nDest], (DAMAGE_TYPE) dmgType, pXSource->data4);
-        }
     }
 }
 
@@ -2473,101 +2797,59 @@ bool valueIsBetween(int val, int min, int max) {
 }
 // By NoOne: this function used by various new GDX types.
 void pastePropertiesInObj(int type, int nDest, EVENT event) {
-    spritetype* pSource = NULL; pSource = &sprite[event.index];
-    if (pSource == NULL || event.type != 3) return;
-    XSPRITE* pXSource = &xsprite[pSource->extra];
+   
+    if (event.type != 3) return;
+    spritetype* pSource = &sprite[event.index];
     
-    if (pSource->type == kGDXEffectSpawner) {
+    if (pSource->extra < 0) return;
+    XSPRITE* pXSource = &xsprite[pSource->extra];
+
+    switch (type) {
+        case 6:
+            if (sector[nDest].extra < 0) return;
+            break;
+        case 0:
+            if (wall[nDest].extra < 0) return;
+            break;
+        case 3:
+            if (sprite[nDest].extra < 0) return;
+            break;
+        default:
+            return;
+    }
+
+    if (pSource->type == kModernConcussSprite) {
+        /* - Concussing any physics affected sprite with give strength - */
+        if (type != 3) return;
+        else if ((sprite[nDest].hitag & kPhysMove) || (sprite[nDest].hitag & kPhysGravity) || isDebris(nDest))
+            useConcussSprite(pXSource, &sprite[nDest]);
+        return;
+
+    } else if (pSource->type == kMarkerWarpDest) {
+        /* - Allows teleport any sprite from any location to the source destination - */
+        useTeleportTarget(pXSource, &sprite[nDest]);
+        return;
+
+    } else if (pSource->type == kGDXSpriteDamager) {
+        /* - damages xsprite via TX ID	- */
+        if (type != 3) return;
+        else if (xsprite[sprite[nDest].extra].health > 0) useSpriteDamager(pXSource, &sprite[nDest]);
+        return;
+
+    } if (pSource->type == kGDXEffectSpawner) {
         /* - Effect Spawner can spawn any effect passed in data2 on it's or txID sprite - */
         if (pXSource->data2 < 0 || pXSource->data2 >= kFXMax) return;
         else if (type == 3)  useEffectGen(pXSource, &sprite[nDest]);
         return;
 
-    } else if (pSource->type == kGDXSeqSpawner) {
+    }
+    else if (pSource->type == kGDXSeqSpawner) {
         /* - SEQ Spawner takes data2 as SEQ ID and spawns it on it's or TX ID sprite - */
-        if (pXSource->data2 <= 0 || !gSysRes.Lookup(pXSource->data2, "SEQ")) return;
-        else if (type == 3) useSeqSpawnerGen(pXSource, &sprite[nDest]);
+        if (pXSource->data2 > 0 && !gSysRes.Lookup(pXSource->data2, "SEQ")) return;
+        useSeqSpawnerGen(pXSource, type, nDest);
         return;
-
-    } else if (pSource->type == kGDXObjDataAccumulator) {
-        /* - Object Data Accumulator allows to perform sum and sub operations in data fields of object - */
-        /* - data1 = destination data index 															- */
-        /* - data2 = step value																			- */
-        /* - data3 = min value																			- */
-        /* - data4 = max value																			- */
-        /* - min > max = sub, 	min < max = sum															- */
-
-        /* - hitag: 0 = force OFF if goal value was reached for all objects		     					- */
-        /* - hitag: 2 = force swap min and max if goal value was reached								- */
-        /* - hitag: 3 = force reset counter	                                           					- */
-
-        if (pXSource->data3 < 0) pXSource->data3 = 0;
-        else if (pXSource->data3 > 32766) pXSource->data3 = 32767;
-        if (pXSource->data4 < 0) pXSource->data4 = 0;
-        else if (pXSource->data4 > 32766) pXSource->data4 = 32767;
-
-        long data = getDataFieldOfObject(type, nDest, pXSource->data1);
-        if (data == -65535) return;
-        else if (pXSource->data3 < pXSource->data4) {
-
-            if (data < pXSource->data3) data = pXSource->data3;
-            if (data > pXSource->data4) data = pXSource->data4;
-
-            if ((data += pXSource->data2) >= pXSource->data4) {
-                switch (pSource->hitag) {
-                    case 0:
-                    case 1:
-                        if (data > pXSource->data4) data = pXSource->data4;
-                        break;
-                    case 2:
-                    {
-                        
-                        if (data > pXSource->data4) data = pXSource->data4;
-                        if (!goalValueIsReached(pXSource)) break;
-                        int tmp = pXSource->data4;
-                        pXSource->data4 = pXSource->data3;
-                        pXSource->data3 = tmp;
-                        
-                    }
-                    break;
-                    case 3:
-                        if (data > pXSource->data4) data = pXSource->data3;
-                        break;
-                }
-            }
-
-        }
-        else if (pXSource->data3 > pXSource->data4) {
-
-            if (data > pXSource->data3) data = pXSource->data3;
-            if (data < pXSource->data4) data = pXSource->data4;
-
-            if ((data -= pXSource->data2) <= pXSource->data4) {
-                switch (pSource->hitag) {
-                    case 0:
-                    case 1:
-                        if (data < pXSource->data4) data = pXSource->data4;
-                        break;
-                    case 2:
-                    {
-                        if (data < pXSource->data4) data = pXSource->data4;
-                        int tmp = pXSource->data4;
-                        pXSource->data4 = pXSource->data3;
-                        pXSource->data3 = tmp;
-                        break;
-                    }
-                    case 3:
-                        if (data < pXSource->data4) data = pXSource->data3;
-                        break;
-                }
-            }
-        }
-        
-        setDataValueOfObject(type, nDest, pXSource->data1, data);
-        return;
-
-    } else if (pSource->type == kGDXWindGenerator) {
-
+    }
+    else if (pSource->type == kGDXWindGenerator) {
         /* - Wind generator via TX or for current sector if TX ID not specified - */
         /* - sprite.ang = sector wind direction									- */
         /* - data1 = randomness settings										- */
@@ -2584,12 +2866,81 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
         /* - 		 3: pan both												- */
 
         /* - hi-tag = 1: force windAlways and panAlways							- */
-        
+
         if (pXSource->data2 < 0) return;
         else if (type == 6) useSectorWindGen(pXSource, &sector[nDest]);
         return;
+    } else if (pSource->type == kGDXObjDataAccumulator) {
+        /* - Object Data Accumulator allows to perform sum and sub operations in data fields of object - */
+        /* - data1 = destination data index 															- */
+        /* - data2 = min value																			- */
+        /* - data3 = max value																			- */
+        /* - data4 = step value																			- */
+        /* - min > max = sub, 	min < max = sum															- */
 
+        /* - hitag: 0 = force OFF if goal value was reached for all objects		     					- */
+        /* - hitag: 2 = force swap min and max if goal value was reached								- */
+        /* - hitag: 3 = force reset counter	                                           					- */
 
+        long data = getDataFieldOfObject(type, nDest, pXSource->data1);
+        if (data == -65535) return;
+
+        if (pXSource->data2 < pXSource->data3) {
+
+            if (data < pXSource->data2) data = pXSource->data2;
+            if (data > pXSource->data3) data = pXSource->data3;
+
+            if ((data += pXSource->data4) >= pXSource->data3) {
+
+                switch (pSource->hitag) {
+                    case kModernTypeFlag0:
+                    case kModernTypeFlag1:
+                        if (data > pXSource->data3) data = pXSource->data3;
+                        break;
+                    case kModernTypeFlag2: {
+                        if (data > pXSource->data3) data = pXSource->data3;
+                        if (!goalValueIsReached(pXSource)) break;
+                        short tmp = pXSource->data3;
+                        pXSource->data3 = pXSource->data2;
+                        pXSource->data2 = tmp;
+                    }
+                        break;
+                    case kModernTypeFlag3:
+                        if (data > pXSource->data3) data = pXSource->data2;
+                        break;
+                }
+            }
+
+        } else if (pXSource->data2 > pXSource->data3) {
+
+            if (data > pXSource->data2) data = pXSource->data2;
+            if (data < pXSource->data3) data = pXSource->data3;
+
+            if ((data -= pXSource->data4) <= pXSource->data3) {
+                switch (pSource->hitag) {
+                    case kModernTypeFlag0:
+                    case kModernTypeFlag1:
+                        if (data < pXSource->data3) data = pXSource->data3;
+                        break;
+                    case kModernTypeFlag2: {
+                        if (data < pXSource->data3) data = pXSource->data3;
+                        if (!goalValueIsReached(pXSource)) break;
+                        short tmp = pXSource->data3;
+                        pXSource->data3 = pXSource->data2;
+                        pXSource->data2 = tmp;
+                    }
+                        break;
+                    case kModernTypeFlag3:
+                        if (data < pXSource->data3) data = pXSource->data2;
+                        break;
+                }
+            }
+        }
+        
+        setDataValueOfObject(type, nDest, pXSource->data1, data);
+        
+        return;
+    
     } else if (pSource->type == kGDXObjDataChanger) {
 
         /* - Data field changer via TX - */
@@ -2598,87 +2949,74 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
         /* - data3 = sprite data3	- */
         /* - data4 = sprite data4	- */
 
+        /* - hitag: 1 = treat "ignore value" as actual value - */
+
         switch (type) {
-            // for sectors
             case 6:
-            {
-                XSECTOR* pXSector = &xsector[sector[nDest].extra];
-
-                if (valueIsBetween(pXSource->data1, -1, 32767))
-                    pXSector->data = pXSource->data1;
-
+                if ((pSource->hitag & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
+                    setDataValueOfObject(type, nDest, 1, pXSource->data1);
                 break;
-            }
-            // for sprites
+
             case 3:
-            {
-                XSPRITE* pXSprite = &xsprite[sprite[nDest].extra];
+                if ((pSource->hitag & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
+                    setDataValueOfObject(type, nDest, 1, pXSource->data1);
 
-                if (valueIsBetween(pXSource->data1, -1, 32767))
-                    pXSprite->data1 = pXSource->data1;
+                if ((pSource->hitag & kModernTypeFlag1) || (pXSource->data2 != -1 && pXSource->data2 != 32767))
+                    setDataValueOfObject(type, nDest, 2, pXSource->data2);
 
-                if (valueIsBetween(pXSource->data2, -1, 32767))
-                    pXSprite->data2 = pXSource->data2;
+                if ((pSource->hitag & kModernTypeFlag1) || (pXSource->data3 != -1 && pXSource->data3 != 32767))
+                    setDataValueOfObject(type, nDest, 3, pXSource->data3);
 
-                if (valueIsBetween(pXSource->data3, -1, 32767))
-                    pXSprite->data3 = pXSource->data3;
-
-                if (valueIsBetween(pXSource->data4, -1, 65535))
-                    pXSprite->data4 = pXSource->data4;
-
+                if ((pSource->hitag & kModernTypeFlag1) || (pXSource->data4 != -1 && pXSource->data1 != 65535))
+                    setDataValueOfObject(type, nDest, 4, pXSource->data4);
                 break;
-            }
-            // for walls
+
             case 0:
-            {
-                XWALL* pXWall = &xwall[wall[nDest].extra];
-
-                if (valueIsBetween(pXSource->data1, -1, 32767))
-                    pXWall->data = pXSource->data1;
-
+                if ((pSource->hitag & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
+                    setDataValueOfObject(type, nDest, 1, pXSource->data1);
                 break;
-            }
         }
 
     } else if (pSource->type == kGDXSectorFXChanger) {
 
         /* - FX Wave changer for sector via TX - */
-        /* - data1 = Wave 	- */
-        /* - data2 = Amplitude	- */
-        /* - data3 = Freq	- */
-        /* - data4 = Phase	- */
+            /* - data1 = Wave 	- */
+            /* - data2 = Amplitude	- */
+            /* - data3 = Freq	- */
+            /* - data4 = Phase	- */
 
-        if (type == 6) {
-            XSECTOR* pXSector = &xsector[sector[nDest].extra];
-            if (valueIsBetween(pXSource->data1, -1, 32767))
-                pXSector->wave = pXSource->data1;
+        if (type != 6) return;
+        XSECTOR* pXSector = &xsector[sector[nDest].extra];
 
-            if (pXSource->data2 >= 0) {
+        if (valueIsBetween(pXSource->data1, -1, 32767))
+            pXSector->wave = (pXSource->data1 > 11) ? 11 : pXSource->data1;
 
-                if (pXSource->data2 > 127) pXSector->amplitude = 127;
-                else pXSector->amplitude = pXSource->data2;
+        int oldAmplitude = pXSector->amplitude;
+        if (pXSource->data2 >= 0) pXSector->amplitude = (pXSource->data2 > 127) ? 127 : pXSource->data2;
+        else if (pXSource->data2 < -1) pXSector->amplitude = (pXSource->data2 < -127) ? -127 : pXSource->data2;
 
+        if (valueIsBetween(pXSource->data3, -1, 32767))
+            pXSector->freq = (pXSource->data3 > 255) ? 255 : pXSource->data3;
+
+        if (valueIsBetween(pXSource->data4, -1, 65535))
+            pXSector->phase = (pXSource->data4 > 255) ? 255 : pXSource->data4;
+
+        // force shadeAlways
+        if (pSource->hitag & kModernTypeFlag1)
+            pXSector->shadeAlways = true;
+
+        // add to shadeList if amplitude was set to 0 previously
+        if (oldAmplitude == 0 && pXSector->amplitude != 0 && shadeCount < kMaxXSectors) {
+            
+            bool found = false;
+            for (int i = 0; i < shadeCount; i++) {
+                if (shadeList[i] != sector[nDest].extra) continue;
+                found = true; 
+                break;
             }
-            else if (pXSource->data2 < -1) {
 
-                if (pXSource->data2 < -127) pXSector->amplitude = -127;
-                else pXSector->amplitude = pXSource->data2;
-
-            }
-
-            if (valueIsBetween(pXSource->data3, -1, 32767)) {
-                if (pXSource->data3 > 255) pXSector->freq = 255;
-                else pXSector->freq = pXSource->data3;
-            }
-
-            if (valueIsBetween(pXSource->data4, -1, 65535)) {
-                if (pXSource->data4 > 255) pXSector->phase = 255;
-                else pXSector->phase = (short)pXSource->data4;
-            }
-
-            if ((pSource->hitag & kHitagExtBit) != 0)
-                pXSector->shadeAlways = true;
-
+            if (!found)
+                shadeList[shadeCount++] = sector[nDest].extra;
         }
 
     } else if (pSource->type == kGDXDudeTargetChanger) {
@@ -2735,12 +3073,12 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
             if (pXSource->data4 == 3) {
                 aiSetTarget(pXSprite, pSprite->x, pSprite->y, pSprite->z);
                 aiSetGenIdleState(pSprite, pXSprite);
-                if (pSprite->lotag == kGDXDudeUniversalCultist)
+                if (pSprite->lotag == kCustomDude)
                     removeLeech(leechIsDropped(pSprite));
             }
             else if (pXSource->data4 == 4) {
                 aiSetTarget(pXSprite, pPlayer->x, pPlayer->y, pPlayer->z);
-                if (pSprite->lotag == kGDXDudeUniversalCultist)
+                if (pSprite->lotag == kCustomDude)
                     removeLeech(leechIsDropped(pSprite));
             }
         }
@@ -2884,7 +3222,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
                 // if Target Changer have data1 = 666, everyone can be target, except AI team mates.
                 else if (pXSource->data1 != 666 && pXSource->data1 != pXTarget->data1) continue;
                 // don't attack immortal, burning dudes and mates
-                if (IsBurningDude(pTarget) || !IsKillableDude(pTarget, true) || (pXSource->data2 == 1 && isMateOf(pXSprite, pXTarget)))
+                if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || (pXSource->data2 == 1 && isMateOf(pXSprite, pXTarget)))
                     continue;
 
                 if (pXSource->data2 == 0 || (pXSource->data2 == 1 && !isMatesHaveSameTarget(pXSprite, pTarget, matesPerEnemy))) {
@@ -2968,43 +3306,25 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
                     sector[nDest].ceilingxpanning = pXSource->data3;
 
                 if (valueIsBetween(pXSource->data4, -1, 65535))
-                    sector[nDest].ceilingypanning = (short)pXSource->data4;
+                    sector[nDest].ceilingypanning = pXSource->data4;
                 break;
             // for sprites
             case 3:
-
-                if (valueIsBetween(pXSource->data1, -1, 32767) &&
-                    valueIsBetween(pXSource->data2, -1, 32767) &&
-                    pXSource->data1 < 4 && pXSource->data2 < 4)
-                {
-
-                    sprite[nDest].xrepeat = 4;
-                    sprite[nDest].yrepeat = 4;
-                    sprite[nDest].cstat |= CSTAT_SPRITE_INVISIBLE;
-
+                if (valueIsBetween(pXSource->data1, -1, 32767)) {
+                    if (pXSource->data1 < 1) sprite[nDest].xrepeat = 0;
+                    else sprite[nDest].xrepeat = pXSource->data1;
                 }
-                else {
 
-                    if (valueIsBetween(pXSource->data1, -1, 32767)) {
-                        if (pXSource->data1 < 4)
-                            sprite[nDest].xrepeat = 4;
-                        else
-                            sprite[nDest].xrepeat = pXSource->data1;
-                    }
-
-                    if (valueIsBetween(pXSource->data2, -1, 32767)) {
-                        if (pXSource->data2 < 4)
-                            sprite[nDest].yrepeat = 4;
-                        else
-                            sprite[nDest].yrepeat = pXSource->data2;
-                    }
+                if (valueIsBetween(pXSource->data2, -1, 32767)) {
+                    if (pXSource->data2 < 1)  sprite[nDest].yrepeat = 0;
+                    else sprite[nDest].yrepeat = pXSource->data2;
                 }
 
                 if (valueIsBetween(pXSource->data3, -1, 32767))
                     sprite[nDest].xoffset = pXSource->data3;
 
                 if (valueIsBetween(pXSource->data4, -1, 65535))
-                    sprite[nDest].yoffset = (short)pXSource->data4;
+                    sprite[nDest].yoffset = pXSource->data4;
 
                 break;
             // for walls
@@ -3016,10 +3336,10 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
                     wall[nDest].yrepeat = pXSource->data2;
 
                 if (valueIsBetween(pXSource->data3, -1, 32767))
-                    wall[nDest].xpanning = (short)pXSource->data3;
+                    wall[nDest].xpanning = pXSource->data3;
 
                 if (valueIsBetween(pXSource->data4, -1, 65535))
-                    wall[nDest].ypanning = (short)pXSource->data4;
+                    wall[nDest].ypanning = pXSource->data4;
 
                 break;
         }
@@ -3028,6 +3348,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
 
         /* - picnum changer can change picnum of sprite/wall/sector via TX ID - */
         /* - data1 = sprite pic / wall pic / sector floor pic 				 - */
+        /* - data2 = sprite shade / wall overpic / sector ceil pic 		    - */
         /* - data3 = sprite pal / wall pal / sector floor pic				- */
 
         switch (type) {
@@ -3043,14 +3364,14 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
                 XSECTOR *pXSector = &xsector[sector[nDest].extra];
                 if (valueIsBetween(pXSource->data3, -1, 32767)) {
                     sector[nDest].floorpal = pXSource->data3;
-                    if ((pSource->hitag & kHitagExtBit) != 0)
+                    if (pSource->hitag & kModernTypeFlag1)
                         pXSector->floorpal = pXSource->data3;
                 }
 
                 if (valueIsBetween(pXSource->data4, -1, 65535)) {
-                    sector[nDest].ceilingpal = (short)pXSource->data4;
-                    if ((pSource->hitag & kHitagExtBit) != 0)
-                        pXSector->ceilpal = (short)pXSource->data4;
+                    sector[nDest].ceilingpal = pXSource->data4;
+                    if (pSource->hitag & kModernTypeFlag1)
+                        pXSector->ceilpal = pXSource->data4;
                 }
                 break;
             }
@@ -3058,6 +3379,9 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
             case 3:
                 if (valueIsBetween(pXSource->data1, -1, 32767))
                     sprite[nDest].picnum = pXSource->data1;
+
+                if (pXSource->data2 >= 0) sprite[nDest].shade = (pXSource->data2 > 127) ? 127 : pXSource->data2;
+                else if (pXSource->data2 < -1) sprite[nDest].shade = (pXSource->data2 < -127) ? -127 : pXSource->data2;
 
                 if (valueIsBetween(pXSource->data3, -1, 32767))
                     sprite[nDest].pal = pXSource->data3;
@@ -3082,48 +3406,20 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
         /* - data2 = sector visibility 															- */
         /* - data3 = sector ceiling cstat / sprite / wall hitag 								- */
         /* - data4 = sector floor / sprite / wall cstat 										- */
-
+        int old = -1;
         switch (type) {
         // for sectors
         case 6:
         {
             XSECTOR* pXSector = &xsector[sector[nDest].extra];
 
-            switch (pXSource->data1) {
-            case 0:
-                pXSector->Underwater = false;
-                break;
-            case 1:
-                pXSector->Underwater = true;
-                break;
-            case 2:
-                pXSector->Depth = 0;
-                break;
-            case 3:
-                pXSector->Depth = 1;
-                break;
-            case 4:
-                pXSector->Depth = 2;
-                break;
-            case 5:
-                pXSector->Depth = 3;
-                break;
-            case 6:
-                pXSector->Depth = 4;
-                break;
-            case 7:
-                pXSector->Depth = 5;
-                break;
-            case 8:
-                pXSector->Depth = 6;
-                break;
-            case 9:
-                pXSector->Depth = 7;
-                break;
-            }
+            if (pXSource->data1 == 0) pXSector->Underwater = false;
+            else if (pXSource->data1 == 1) pXSector->Underwater = true;
+            else if (pXSource->data1 > 9) pXSector->Depth = 7;
+            else if (pXSource->data1 > 1) pXSector->Depth = pXSource->data1 - 2;
 
             if (valueIsBetween(pXSource->data2, -1, 32767)) {
-                if (pXSource->data2 > 255) sector[nDest].visibility = 255;
+                if (pXSource->data2 > 234) sector[nDest].visibility = 234;
                 else sector[nDest].visibility = pXSource->data2;
             }
 
@@ -3135,26 +3431,188 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
             break;
         }
         // for sprites
-        case 3:
-            if (valueIsBetween(pXSource->data3, -1, 32767))
-                sprite[nDest].hitag = pXSource->data3;
+        case 3: {
+            
+            spritetype* pSprite = &sprite[nDest]; bool thing2debris = false;
+            XSPRITE* pXSprite = &xsprite[pSprite->extra];
+
+            if (valueIsBetween(pXSource->data3, -1, 32767)) {
+                old = pSprite->hitag; pSprite->hitag = pXSource->data3; // set new hitag
+
+                // and handle exceptions
+                if ((old & kHitagFree) && !(pSprite->hitag & kHitagFree)) pSprite->hitag |= kHitagFree;
+                if ((old & kHitagRespawn) && !(pSprite->hitag & kHitagRespawn)) pSprite->hitag |= kHitagRespawn;
+
+                // prepare things for different (debris) physics.
+                if (pSprite->statnum == 4 && debrisGetFreeIndex() >= 0) thing2debris = true;
+                    
+            }
+
+            if ((pXSource->data2 >= 0 && pXSource->data3 <= 33) || thing2debris) {
+                switch (pSprite->statnum) {
+                    case 6: // dudes already treating in game
+                    case kStatFree:
+                    case kStatMarker:
+                    case 16: // path marker
+                        break;
+                    default:
+                        // store physics attributes in xsprite to avoid setting hitag for modern types!
+                        int flags = (pXSprite->physAttr != 0) ? pXSprite->physAttr : 0;
+
+                        if (thing2debris) {
+                            
+                            // converting thing to debris
+                            if ((pSprite->hitag & kPhysMove) != 0) flags |= kPhysMove;
+                            else flags &= ~kPhysMove;
+
+                            if ((pSprite->hitag & kPhysGravity) != 0) flags |= (kPhysGravity | kPhysFalling);
+                            else flags &= ~(kPhysGravity | kPhysFalling);
+                            
+                            pSprite->hitag &= ~(kPhysMove | kPhysGravity | kPhysFalling);
+                            xvel[nDest] = yvel[nDest] = zvel[nDest] = 0;  pXSprite->restState = pXSprite->state;
+
+                        } else {
+
+                            // first digit of data2: set main physics attributes first
+                            switch (pXSource->data2) {
+                                case 0:
+                                    flags &= ~kPhysMove;
+                                    flags &= ~(kPhysGravity | kPhysFalling);
+                                    break;
+
+                                case 1: case 10: case 11: case 12: case 13:
+                                    flags |= kPhysMove;
+                                    flags &= ~(kPhysGravity | kPhysFalling);
+                                    break;
+
+                                case 2: case 20: case 21: case 22: case 23:
+                                    flags &= ~kPhysMove;
+                                    flags |= (kPhysGravity | kPhysFalling);
+                                    break;
+
+                                case 3: case 30: case 31: case 32: case 33:
+                                    flags |= kPhysMove;
+                                    flags |= (kPhysGravity | kPhysFalling);
+                                    break;
+                            }
+
+                            // second digit of data2: then set physics flags
+                            switch (pXSource->data2) {
+                                case 0: case 1: case 2: case 3:
+                                case 10: case 20: case 30:
+                                    flags &= ~kPhysDebrisVector;
+                                    flags &= ~kPhysDebrisExplode;
+                                    break;
+
+                                case 11: case 21: case 31:
+                                    flags |= kPhysDebrisVector;
+                                    flags &= ~kPhysDebrisExplode;
+                                    break;
+
+                                case 12: case 22: case 32:
+                                    flags &= ~kPhysDebrisVector;
+                                    flags |= kPhysDebrisExplode;
+                                    break;
+
+                                case 13: case 23: case 33:
+                                    flags |= kPhysDebrisVector;
+                                    flags |= kPhysDebrisExplode;
+                                    break;
+                            }
+
+                        }
+                        
+                        int nIndex = isDebris(nDest); // check if there is no sprite in list
+                        
+                        // adding physics sprite in list
+                        if ((flags & kPhysGravity) != 0 || (flags & kPhysMove) != 0) {
+							if (nIndex != -1) pXSprite->physAttr = flags; // just update physics attributes
+							else if ((nIndex = debrisGetFreeIndex()) < 0)
+								;// showWarning("Max (%d) Physics affected sprites reached!", kMaxSuperXSprites);
+                            else {
+                                
+                                pXSprite->physAttr = flags; // update physics attributes
+
+                                // allow things to became debris, so they use different physics...
+                                if (pSprite->statnum == 4) changespritestat(nDest, 0);
+                                //actPostSprite(nDest, 0); // !!!! not working here for some reason
+
+                                gPhysSpritesList[nIndex] = nDest;
+                                if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
+                                getSpriteMassBySize(pSprite); // create physics cache
+
+                            }
+                        // removing physics from sprite in list (don't remove sprite from list)
+                        } else if (nIndex != -1) {
+                            pXSprite->physAttr = flags;
+                            xvel[nDest] = yvel[nDest] = zvel[nDest] = 0;
+                            if (pSprite->lotag >= kThingBase && pSprite->lotag < kThingMax)
+                                changespritestat(nDest, 4);  // if it was a thing - restore statnum
+                        }
+
+                        break;
+                }
+            }
 
             if (valueIsBetween(pXSource->data4, -1, 65535)) {
-                pXSource->data4 |= CSTAT_SPRITE_YCENTER;
-                sprite[nDest].cstat = pXSource->data4;
-            }
-            break;
-            // for walls
-        case 0:
-            if (valueIsBetween(pXSource->data3, -1, 32767))
-                wall[nDest].hitag = pXSource->data3;
 
-            if (valueIsBetween(pXSource->data4, -1, 65535))
-                wall[nDest].cstat = pXSource->data4;
+                old = pSprite->cstat;
+                pSprite->cstat = pXSource->data4; // set new cstat
+
+                // and handle exceptions
+                if ((old & 0x1000) && !(pSprite->cstat & 0x1000)) pSprite->cstat |= 0x1000; //kSpritePushable
+                if ((old & 0x80) && !(pSprite->cstat & 0x80)) pSprite->cstat |= 0x80; // kSpriteOriginAlign
+
+                if (old & 0x6000) {
+
+                    if (!(pSprite->cstat & 0x6000))
+                        pSprite->cstat |= 0x6000; // kSpriteMoveMask
+
+                    if ((old & 0x0) && !(pSprite->cstat & 0x0)) pSprite->cstat |= 0x0; // kSpriteMoveNone
+                    else if ((old & 0x2000) && !(pSprite->cstat & 0x2000)) pSprite->cstat |= 0x2000; // kSpriteMoveForward, kSpriteMoveFloor
+                    else if ((old & 0x4000) && !(pSprite->cstat & 0x4000)) pSprite->cstat |= 0x4000; // kSpriteMoveReverse, kSpriteMoveCeiling
+
+                }
+
+            }
+
+        }
+            break;
+        // for walls
+        case 0: {
+            
+            walltype* pWall = &wall[nDest];
+            if (valueIsBetween(pXSource->data3, -1, 32767))
+                pWall->hitag = pXSource->data3;
+
+            if (valueIsBetween(pXSource->data4, -1, 65535)) {
+                old = pWall->cstat;
+                pWall->cstat = pXSource->data4; // set new cstat
+
+                // and hanlde exceptions
+                if ((old & 0x2) && !(pWall->cstat & 0x2)) pWall->cstat |= 0x2; // kWallBottomSwap
+                if ((old & 0x4) && !(pWall->cstat & 0x4)) pWall->cstat |= 0x4; // kWallBottomOrg, kWallOutsideOrg
+                if ((old & 0x20) && !(pWall->cstat & 0x20)) pWall->cstat |= 0x20; // kWallOneWay
+
+                if (old & 0xc000) {
+
+                    if (!(pWall->cstat & 0xc000))
+                        pWall->cstat |= 0xc000; // kWallMoveMask
+
+                    if ((old & 0x0) && !(pWall->cstat & 0x0)) pWall->cstat |= 0x0; // kWallMoveNone
+                    else if ((old & 0x4000) && !(pWall->cstat & 0x4000)) pWall->cstat |= 0x4000; // kWallMoveForward
+                    else if ((old & 0x8000) && !(pWall->cstat & 0x8000)) pWall->cstat |= 0x8000; // kWallMoveBackward
+
+                }
+
+            }
+
+        }
             break;
         }
     }
 }
+
 // By NoOne: the following functions required for kGDXDudeTargetChanger
 //---------------------------------------
 spritetype* getTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode) {
@@ -3168,7 +3626,7 @@ spritetype* getTargetInRange(spritetype* pSprite, int minDist, int maxDist, shor
         if (dist < minDist || dist > maxDist) continue;
         else if (pXSprite->target == pTarget->xvel) return pTarget;
         else if (!IsDudeSprite(pTarget) || pTarget->xvel == pSprite->xvel || IsPlayerSprite(pTarget)) continue;
-        else if (IsBurningDude(pTarget) || !IsKillableDude(pTarget, true) || pTarget->owner == pSprite->xvel) continue;
+        else if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || pTarget->owner == pSprite->xvel) continue;
         else if ((teamMode == 1 && isMateOf(pXSprite, pXTarget)) || isMatesHaveSameTarget(pXSprite,pTarget,1)) continue;
         else if (data == 666 || pXTarget->data1 == data) {
 
@@ -3320,7 +3778,12 @@ int getDataFieldOfObject(int objType, int objIndex, int dataIndex) {
         case 2:
             return xsprite[sprite[objIndex].extra].data2;
         case 3:
-            return xsprite[sprite[objIndex].extra].data3;
+            switch (sprite[objIndex].type) {
+                case kCustomDude:
+                    return xsprite[sprite[objIndex].extra].sysData1;
+                default:
+                    return xsprite[sprite[objIndex].extra].data3;
+            }
         case 4:
             return xsprite[sprite[objIndex].extra].data4;
         default:
@@ -3337,29 +3800,44 @@ int getDataFieldOfObject(int objType, int objIndex, int dataIndex) {
 
 bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
     switch (objType) {
-    case 3:
-        switch (dataIndex) {
-        case 1:
-            xsprite[sprite[objIndex].extra].data1 = value;
-            return true;
-        case 2:
-            xsprite[sprite[objIndex].extra].data2 = value;
-            return true;
         case 3:
-            xsprite[sprite[objIndex].extra].data3 = value;
+            switch (dataIndex) {
+            case 1:
+                xsprite[sprite[objIndex].extra].data1 = value;
+                switch (sprite[objIndex].type) {
+                    case kSwitchCombo:
+                        if (xsprite[sprite[objIndex].extra].data1 == xsprite[sprite[objIndex].extra].data2) 
+                            SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 1);
+                        else  
+                            SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 0);
+                        break;
+                }
+                return true;
+            case 2:
+                xsprite[sprite[objIndex].extra].data2 = value;
+                return true;
+            case 3:
+                switch (sprite[objIndex].type) {
+                    case kCustomDude:
+                        xsprite[sprite[objIndex].extra].sysData1 = value;
+                        break;
+                    default:
+                        xsprite[sprite[objIndex].extra].data3 = value;
+                        break;
+                }
+                return true;
+            case 4:
+                xsprite[sprite[objIndex].extra].data4 = value;
+                return true;
+            default:
+                return false;
+            }
+        case 0:
+            xsector[sector[objIndex].extra].data = value;
             return true;
-        case 4:
-            xsprite[sprite[objIndex].extra].data4 = value;
+        case 6:
+            xwall[wall[objIndex].extra].data = value;
             return true;
-        default:
-            return false;
-        }
-    case 0:
-        xsector[sector[objIndex].extra].data = value;
-        return true;
-    case 6:
-        xwall[wall[objIndex].extra].data = value;
-        return true;
     default:
         return false;
     }
@@ -3368,7 +3846,7 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
 // by NoOne: this function checks if all TX objects have the same value
 bool goalValueIsReached(XSPRITE* pXSprite) {
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-        if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, pXSprite->data1) != pXSprite->data4)
+        if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, pXSprite->data1) != pXSprite->data3)
             return false;
     }
     return true;
@@ -3444,30 +3922,22 @@ bool IsBurningDude(spritetype* pSprite) {
     case 242: // fat zombie burning
     case 252: // tiny caleb burning
     case 253: // beast burning
-    case kGDXGenDudeBurning:
+    case kCustomDudeBurning:
         return true;
     }
 
     return false;
 }
 
-bool IsKillableDude(spritetype* pSprite, bool locked) {
-    if (!IsDudeSprite(pSprite)) return false;
-    DUDEINFO* pDudeInfo = &dudeInfo[pSprite->lotag - kDudeBase];
-
-    // Optionally check if dude is locked
-    if (locked && xsprite[pSprite->extra].locked == 1)
+bool IsKillableDude(spritetype* pSprite) {
+    switch (pSprite->type) {
+    case 208: // flesh statue
+    case 209: // stone statue
         return false;
-
-
-    // Make sure damage shift is greater than 0;
-    int a = 0;
-    for (int i = 0; i <= 6; i++) {
-        a += pDudeInfo->startDamage[i];
+    default:
+        if (!IsDudeSprite(pSprite) || xsprite[pSprite->extra].locked == 1) return false;
+        return true;
     }
-
-    if (a == 0) return false;
-    return true;
 }
 
 bool isAnnoyingUnit(spritetype* pDude) {
@@ -3525,7 +3995,7 @@ bool isMeleeUnit(spritetype* pDude) {
     case 250: // tiny caleb
     case 251: // beast
         return true;
-    case kGDXDudeUniversalCultist:
+    case kCustomDude:
         return (pDude->extra >= 0 && dudeIsMelee(&xsprite[pDude->extra]));
     default:
         return false;
@@ -3786,9 +4256,10 @@ void trInit(void)
             case 23:
                 pXSprite->triggerOnce = 1;
                 break;
-            case kGDXSequentialTX:
-                break;
+            case 40: // Random weapon
+            case 80: // Random ammo
             case kGDXSeqSpawner:
+            case kGDXObjDataAccumulator:
             case kGDXDudeTargetChanger:
             case kGDXEffectSpawner:
             case kGDXWindGenerator:
@@ -3847,9 +4318,15 @@ void InitGenerator(int nSprite)
     int nXSprite = pSprite->extra;
     dassert(nXSprite > 0);
     XSPRITE *pXSprite = &xsprite[nXSprite];
-    switch (sprite[nSprite].type)
-    {
+    switch (sprite[nSprite].type) {
     // By NoOne: intialize GDX generators
+    case 40: // Random weapon
+    case 80: // Random ammo
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+        pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+        if (pXSprite->state != pXSprite->restState)
+            evPost(nSprite, 3, (120 * pXSprite->busyTime) / 10, COMMAND_ID_21);
+        return;
     case kGDXDudeTargetChanger:
         pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
         pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -3857,11 +4334,19 @@ void InitGenerator(int nSprite)
         if (pXSprite->state != pXSprite->restState)
             evPost(nSprite, 3, 0, COMMAND_ID_21);
         return;
-    case kGDXObjDataAccumulator:
-    case kGDXSeqSpawner:
     case kGDXEffectSpawner:
+    case kGDXSeqSpawner:
+        if (pXSprite->state != pXSprite->restState)
+            evPost(nSprite, 3, 0, COMMAND_ID_21);
+        return;
+    case kGDXObjDataAccumulator:
         pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
         pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+        if (pXSprite->state != pXSprite->restState)
+            evPost(nSprite, 3, 0, COMMAND_ID_21);
+        return;
+    case kGDXWindGenerator:
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
         if (pXSprite->state != pXSprite->restState)
             evPost(nSprite, 3, 0, COMMAND_ID_21);
         return;
@@ -3883,70 +4368,93 @@ void ActivateGenerator(int nSprite)
     dassert(nXSprite > 0);
     XSPRITE *pXSprite = &xsprite[nXSprite];
     switch (pSprite->type) {
-    case 701:
-    {
-        int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
-        actSpawnThing(pSprite->sectnum, pSprite->x, pSprite->y, bottom, 423);
-        break;
-    }
-    case 702:
-    {
-        int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
-        actSpawnThing(pSprite->sectnum, pSprite->x, pSprite->y, bottom, 424);
-        break;
-    }
-    case 708:
-    {
-        // By NoOne: allow custom pitch for sounds in SFX gen.
-        int pitch = pXSprite->data4 << 1; if (pitch < 2000) pitch = 0;
-        sfxPlay3DSoundCP(pSprite, pXSprite->data2, -1, 0, pitch);
-        break;
-    }
-    case 703:
-        switch (pXSprite->data2)
+        case 40: // Random weapon
+        case 80: { // Random ammo
+            // let's first search for previously dropped items and remove it
+            if (pXSprite->dropMsg > 0) {
+                for (short nItem = headspritestat[3]; nItem >= 0; nItem = nextspritestat[nItem]) {
+                    spritetype* pItem = &sprite[nItem];
+                    if (pItem->lotag == pXSprite->dropMsg && pItem->x == pSprite->x && pItem->y == pSprite->y && pItem->z == pSprite->z) {
+                        gFX.fxSpawn((FX_ID)29, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+                        deletesprite(nItem);
+                        break;
+                    }
+                }
+            }
+
+            // then drop item
+            spritetype* pDrop = DropRandomPickupObject(pSprite, pXSprite->dropMsg);
+
+            // check if generator affected by physics
+            if (pDrop != NULL && isDebris(pSprite->xvel) != -1 && (pDrop->extra >= 0 || dbInsertXSprite(pDrop->xvel) > 0)) {
+                int nIndex = debrisGetFreeIndex();
+                if (nIndex >= 0) {
+                    xsprite[pDrop->extra].physAttr |= kPhysMove | kPhysGravity | kPhysFalling; // must fall always
+                    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+
+                    gPhysSpritesList[nIndex] = pDrop->xvel; 
+                    if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
+                    getSpriteMassBySize(pDrop); // create mass cache
+                }
+            }
+        }
+            break;
+        case 701:
         {
-        case 0:
-            FireballTrapSeqCallback(3, nXSprite);
-            break;
-        case 1:
-            seqSpawn(35, 3, nXSprite, nFireballTrapClient);
-            break;
-        case 2:
-            seqSpawn(36, 3, nXSprite, nFireballTrapClient);
+            int top, bottom;
+            GetSpriteExtents(pSprite, &top, &bottom);
+            actSpawnThing(pSprite->sectnum, pSprite->x, pSprite->y, bottom, 423);
             break;
         }
-        break;
-    // By NoOne: EctoSkull gen can now fire any missile
-    case 704:
-        switch (pXSprite->data2)
+        case 702:
         {
-        case 0:
+            int top, bottom;
+            GetSpriteExtents(pSprite, &top, &bottom);
+            actSpawnThing(pSprite->sectnum, pSprite->x, pSprite->y, bottom, 424);
+            break;
+        }
+        case 708:
+        {
+            // By NoOne: allow custom pitch and volume for sounds in SFX gen.
+            if (VanillaMode()) sfxPlay3DSound(pSprite, pXSprite->data2, -1, 0);
+            else {
+                int pitch = pXSprite->data4 << 1; if (pitch < 2000) pitch = 0;
+                sfxPlay3DSoundCP(pSprite, pXSprite->data2, -1, 0, pitch, pXSprite->data3);
+            }
+            break;
+        }
+        case 703:
+            switch (pXSprite->data2)
+            {
+            case 0:
+                FireballTrapSeqCallback(3, nXSprite);
+                break;
+            case 1:
+                seqSpawn(35, 3, nXSprite, nFireballTrapClient);
+                break;
+            case 2:
+                seqSpawn(36, 3, nXSprite, nFireballTrapClient);
+                break;
+            }
+            break;
+        // By NoOne: EctoSkull gen can now fire any missile
+        case 704:
             UniMissileTrapSeqCallback(3, nXSprite);
             break;
-        case 1:
-            seqSpawn(35, 3, nXSprite, nUniMissileTrapClient);
-            break;
-        case 2:
-            seqSpawn(36, 3, nXSprite, nUniMissileTrapClient);
+        case 706:
+        {
+            int top, bottom;
+            GetSpriteExtents(pSprite, &top, &bottom);
+            gFX.fxSpawn(FX_23, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
             break;
         }
-        break;
-    case 706:
-    {
-        int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
-        gFX.fxSpawn(FX_23, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
-        break;
-    }
-    case 707:
-    {
-        int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
-        gFX.fxSpawn(FX_26, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
-        break;
-    }
+        case 707:
+        {
+            int top, bottom;
+            GetSpriteExtents(pSprite, &top, &bottom);
+            gFX.fxSpawn(FX_26, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
+            break;
+        }
     }
 }
 
@@ -3961,23 +4469,58 @@ void FireballTrapSeqCallback(int, int nXSprite)
         actFireMissile(pSprite, 0, 0, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, 305);
 }
 
-// By NoOne: Callback for trap that can fire any missile specified in data3
+// By NoOne: Callback for trap that can fire any missile specified in data1
 void UniMissileTrapSeqCallback(int, int nXSprite)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
-
-    int nMissile = 307;
-    if (pXSprite->data3 >= kMissileBase && pXSprite->data3 < kMissileMax)
-        nMissile = pXSprite->data3;
-    else
+    
+    XSPRITE* pXSprite = &xsprite[nXSprite]; int dx = 0, dy = 0, dz = 0;
+    spritetype* pSprite = &sprite[pXSprite->reference];
+    
+    if (pXSprite->data1 < kMissileBase || pXSprite->data1 >= kMissileMax) 
         return;
 
-    if (pSprite->cstat&32)
-        actFireMissile(pSprite, 0, 0, 0, 0, (pSprite->cstat&8) ? 0x4000 : -0x4000, nMissile);
-    else
-        actFireMissile(pSprite, 0, 0, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, nMissile);
+    if (pSprite->cstat & 32) {
+        if (pSprite->cstat & 8) dz = 0x4000;
+        else dz = -0x4000;
+    } else {
+        dx = Cos(pSprite->ang) >> 16;
+        dy = Sin(pSprite->ang) >> 16;
+        dz = pXSprite->data3 << 6; // add slope controlling
+        if (dz > 0x10000) dz = 0x10000;
+        else if (dz < -0x10000) dz = -0x10000;
+    }
+
+    spritetype* pMissile = NULL;
+    pMissile = actFireMissile(pSprite, 0, 0, dx, dy, dz, pXSprite->data1);
+    if (pMissile != NULL) {
+
+        // inherit some properties of the generator
+        if (pSprite->hitag & kModernTypeFlag1) {
+            
+            pMissile->xrepeat = pSprite->xrepeat;
+            pMissile->yrepeat = pSprite->yrepeat;
+
+            pMissile->pal = pSprite->pal;
+            pMissile->shade = pSprite->shade;
+
+        }
+
+        // add velocity controlling
+        if (pXSprite->data2 > 0) {
+            
+            long velocity = pXSprite->data2 << 12; 
+            xvel[pMissile->xvel] = mulscale(velocity, dx, 14);
+            yvel[pMissile->xvel] = mulscale(velocity, dy, 14);
+            zvel[pMissile->xvel] = mulscale(velocity, dz, 14);
+
+        }
+
+        // add bursting for missiles
+        if (pMissile->type != 303 && pXSprite->data4 > 0)
+            evPost(pMissile->xvel, 3, (pXSprite->data4 > 500) ? 500 : pXSprite->data4 - 1, CALLBACK_ID_22);
+
+    }
+
 }
 
 void MGunFireSeqCallback(int, int nXSprite)

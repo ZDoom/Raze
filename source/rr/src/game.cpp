@@ -979,7 +979,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     if (ud.pause_on || pPlayer->on_crane > -1)
         smoothRatio = 65536;
     else
-        smoothRatio = calc_smoothratio((int32_t)totalclock, (int32_t)ototalclock);
+        smoothRatio = calc_smoothratio(totalclock, ototalclock);
 
     if (RRRA && g_fogType)
         pPlayer->visibility = ud.const_visibility;
@@ -7451,6 +7451,8 @@ static void G_Startup(void)
     initcrc32table();
 
     G_CompileScripts();
+
+    blooddemohack = 1;
 
     if (engineInit())
         G_FatalEngineError();

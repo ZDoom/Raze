@@ -290,10 +290,10 @@ static inline void G_MoveClouds(void)
 {
     int32_t i;
 
-    if ((int32_t)totalclock <= g_cloudClock && (int32_t)totalclock >= (g_cloudClock - 7))
+    if (totalclock <= g_cloudClock && totalclock >= (g_cloudClock-7))
         return;
 
-    g_cloudClock = (int32_t)totalclock + 6;
+    g_cloudClock = totalclock+6;
 
     g_cloudX += sintable[(fix16_to_int(g_player[screenpeek].ps->q16ang)+512)&2047]>>9;
     g_cloudY += sintable[fix16_to_int(g_player[screenpeek].ps->q16ang)&2047]>>9;
@@ -1062,7 +1062,7 @@ void G_DisplayRest(int32_t smoothratio)
         if (ud.overhead_on > 0)
         {
             // smoothratio = min(max(smoothratio,0),65536);
-            smoothratio = calc_smoothratio((int32_t)totalclock, (int32_t)ototalclock);
+            smoothratio = calc_smoothratio(totalclock, ototalclock);
             G_DoInterpolations(smoothratio);
 
             if (ud.scrollmode == 0)
@@ -2420,7 +2420,7 @@ void G_BonusScreen(int32_t bonusonly)
                         break;
                     }
                 }
-                else if ((int32_t)totalclock > (10240+120L)) break;
+                else if (totalclock > (10240+120L)) break;
                 else
                 {
                     switch (((int32_t) totalclock>>5)&3)
@@ -3010,7 +3010,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                         break;
                     }
                 }
-                else if ((int32_t)totalclock > (10240+120L)) break;
+                else if (totalclock > (10240+120L)) break;
                 else
                 {
                     switch (((int32_t) totalclock>>5)&3)

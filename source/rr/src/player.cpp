@@ -2736,12 +2736,13 @@ enddisplayweapon:
 
 int32_t g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
-void P_GetInput(int const playerNum)
+
+void P_GetInput(int playerNum)
 {
     auto const pPlayer = g_player[playerNum].ps;
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU | MODE_TYPE)) || (ud.pause_on && !KB_KeyPressed(sc_Pause)))
+    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !KB_KeyPressed(sc_Pause)))
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -2855,7 +2856,7 @@ void P_GetInput(int const playerNum)
             input.q16avel += fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
         }
         else
-            turnHeldTime = 0;
+            turnHeldTime=0;
     }
 
     if (BUTTON(gamefunc_Strafe_Left) && !(pPlayer->movement_lock & 4))
@@ -3018,11 +3019,11 @@ void P_GetInput(int const playerNum)
         ud.folfvel = input.fvel;
         ud.folavel = fix16_to_int(input.q16avel);
 
-        localInput.fvel   = 0;
-        localInput.svel   = 0;
+        localInput.fvel = 0;
+        localInput.svel = 0;
 
-        localInput.q16avel  = 0;
-        localInput.q16horz  = 0;
+        localInput.q16avel = 0;
+        localInput.q16horz = 0;
 
         return;
     }
@@ -4008,7 +4009,7 @@ static int32_t P_DoCounters(int playerNum)
                 }
                 A_PlaySound(soundId, pPlayer->i);
             }
-            else if ((int32_t)totalclock > 1024)
+            else if (totalclock > 1024)
                 if (playerNum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
                 {
                     if (rand()&1)

@@ -313,6 +313,7 @@ void MyLoadSave::Load(void)
     Read(&numyaxbunches, sizeof(numyaxbunches));
 #endif
     gCheatMgr.sub_5BCF4();
+
 }
 
 void MyLoadSave::Save(void)

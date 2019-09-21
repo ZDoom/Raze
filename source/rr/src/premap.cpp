@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "demo.h"
 #include "savegame.h"
+#include "cmdline.h"
 
 static int32_t g_whichPalForPlayer = 9;
 
@@ -687,7 +688,7 @@ void G_CacheMapData(void)
 
     Bmemset(gotpic, 0, sizeof(gotpic));
 
-	endtime = timerGetTicks();
+    endtime = timerGetTicks();
     OSD_Printf("Cache time: %dms\n", endtime-starttime);
 }
 
@@ -2177,7 +2178,7 @@ static inline void clearfrags(void)
 
 void G_ResetTimers(uint8_t keepgtics)
 {
-    ototalclock = totalclock = g_cloudClock = lockclock = 0;
+    totalclock = g_cloudClock = ototalclock = lockclock = 0;
     ready2send = 1;
     g_levelTextTime = 85;
 

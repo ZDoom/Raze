@@ -475,12 +475,12 @@ void PreloadCache(void)
 
                     if (totalclock - clock >= 1)
                     {
-                        clock = totalclock.Ticks();
+                        clock = totalclock;
                         percentDisplayed++;
                     }
                 }
 
-                clock = totalclock.Ticks();
+                clock = totalclock;
             }
         }
     }
@@ -522,6 +522,10 @@ void StartLevel(GAMEOPTIONS *gameOptions)
             gGameOptions.uGameFlags |= 4;
         if ((gGameOptions.uGameFlags&4) && gDemo.at1 == 0)
             levelPlayIntroScene(gGameOptions.nEpisode);
+
+        ///////
+        gGameOptions.weaponsV10x = gWeaponsV10x;
+        ///////
     }
     else if (gGameOptions.nGameType > 0 && !(gGameOptions.uGameFlags&1))
     {
@@ -540,6 +544,10 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         else
             levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
 
+        ///////
+        gGameOptions.weaponsV10x = gPacketStartGame.weaponsV10x;
+        ///////
+
         gBlueFlagDropped = false;
         gRedFlagDropped = false;
     }
@@ -552,7 +560,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         }
     }
     bVanilla = gDemo.at1 && gDemo.m_bLegacy;
-    //blooddemohack = 1;//bVanilla;
+    blooddemohack = 2;//bVanilla;
     memset(xsprite,0,sizeof(xsprite));
     memset(sprite,0,kMaxSprites*sizeof(spritetype));
     drawLoadingScreen();
@@ -566,6 +574,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     gSecretMgr.Clear();
     gLevelTime = 0;
     automapping = 1;
+  
     for (int i = 0; i < kMaxSprites; i++)
     {
         spritetype *pSprite = &sprite[i];
@@ -579,9 +588,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
                 DeleteSprite(i);
                 continue;
             }
-
-            if (sprite[i].lotag == kGDXDudeTargetChanger)
-                InsertSpriteStat(i, kStatGDXDudeTargetChanger);
         }
     }
     scrLoadPLUs();
@@ -611,7 +617,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     }
     InitSectorFX();
     warpInit();
-    actInit();
+    actInit(false);
     evInit();
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
@@ -1517,14 +1523,14 @@ int app_main(int argc, char const * const * argv)
     Resource::heap = new QHeap(nMaxAlloc);
 #endif
     gSysRes.Init(pUserRFF ? pUserRFF : "BLOOD.RFF");
-    gGuiRes.Init("GUI.RFF");
+    //gGuiRes.Init("GUI.RFF");
     gSoundRes.Init(pUserSoundRFF ? pUserSoundRFF : "SOUNDS.RFF");
 
     HookReplaceFunctions();
 
     initprintf("Initializing Build 3D engine\n");
     scrInit();
-    
+
     initprintf("Loading tiles\n");
     if (pUserTiles)
     {

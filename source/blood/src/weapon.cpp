@@ -1382,41 +1382,79 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
 
 void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
 {
-    if (nTrigger != 2)
-        return;
-    //int nAmmo = pPlayer->at181[9];
-    int nCount = ClipHigh(pPlayer->at181[9], pPlayer->at1da);
-    if (nCount > 0)
-    {
-        int v4 = pPlayer->at181[9] - (pPlayer->at181[9] / nCount)*nCount;
-        for (int i = 0; i < pPlayer->at1da; i++)
-        {
-            int nTarget = pPlayer->at1de[i];
-            spritetype *pTarget = &sprite[nTarget];
-            if (v4 > 0)
-                v4--;
-            int nDist = approxDist(pTarget->x-pPlayer->pSprite->x, pTarget->y-pPlayer->pSprite->y);
-            if (nDist > 0 && nDist < 51200)
+    
+    if (nTrigger == 2) {
+
+        // by NoOne: trying to simulate v1.0x voodoo here.
+        // dunno how exactly it works, but at least it not spend all the ammo on alt fire
+        if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) {
+            int nCount = ClipHigh(pPlayer->at181[9], pPlayer->at1da);
+            if (nCount > 0)
             {
-                int vc = pPlayer->at181[9]>>3;
-                int v8 = pPlayer->at181[9]<<1;
-                int nDamage = (v8+Random2(vc))<<4;
-                nDamage = (nDamage*((51200-nDist)+1))/51200;
-                nDamage = actDamageSprite(pPlayer->at5b, pTarget, DAMAGE_TYPE_5, nDamage);
-                UseAmmo(pPlayer, 9, nDamage);
-                if (pTarget->type >= kDudePlayer1 && pTarget->type <= kDudePlayer8)
+                for (int i = 0; i < pPlayer->at1da; i++)
                 {
-                    PLAYER *pOtherPlayer = &gPlayer[pTarget->type-kDudePlayer1];
-                    if (!pOtherPlayer->at31a || !powerupCheck(pOtherPlayer,14))
-                        powerupActivate(pOtherPlayer, 28);
+                    int nTarget = pPlayer->at1de[i];
+                    spritetype* pTarget = &sprite[nTarget];
+
+                    int nDist = approxDist(pTarget->x - pPlayer->pSprite->x, pTarget->y - pPlayer->pSprite->y);
+                    if (nDist > 0 && nDist < 51200)
+                    {
+                        int vc = pPlayer->at181[9] >> 3;
+                        int v8 = pPlayer->at181[9] << 1;
+                        int nDamage = (v8 + Random(vc)) << 4;
+                        nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
+                        nDamage = actDamageSprite(pPlayer->at5b, pTarget, DAMAGE_TYPE_5, nDamage);
+
+                        if (pTarget->type >= kDudePlayer1 && pTarget->type <= kDudePlayer8)
+                        {
+                            PLAYER* pOtherPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+                            if (!pOtherPlayer->at31a || !powerupCheck(pOtherPlayer, 14))
+                                powerupActivate(pOtherPlayer, 28);
+                        }
+                        fxSpawnBlood(pTarget, 0);
+                    }
                 }
-                fxSpawnBlood(pTarget, 0);
+            }
+
+            UseAmmo(pPlayer, 9, 20);
+            pPlayer->atc3 = 0;
+            return;
+        }
+
+        //int nAmmo = pPlayer->at181[9];
+        int nCount = ClipHigh(pPlayer->at181[9], pPlayer->at1da);
+        if (nCount > 0)
+        {
+            int v4 = pPlayer->at181[9] - (pPlayer->at181[9] / nCount) * nCount;
+            for (int i = 0; i < pPlayer->at1da; i++)
+            {
+                int nTarget = pPlayer->at1de[i];
+                spritetype* pTarget = &sprite[nTarget];
+                if (v4 > 0)
+                    v4--;
+                int nDist = approxDist(pTarget->x - pPlayer->pSprite->x, pTarget->y - pPlayer->pSprite->y);
+                if (nDist > 0 && nDist < 51200)
+                {
+                    int vc = pPlayer->at181[9] >> 3;
+                    int v8 = pPlayer->at181[9] << 1;
+                    int nDamage = (v8 + Random2(vc)) << 4;
+                    nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
+                    nDamage = actDamageSprite(pPlayer->at5b, pTarget, DAMAGE_TYPE_5, nDamage);
+                    UseAmmo(pPlayer, 9, nDamage);
+                    if (pTarget->type >= kDudePlayer1 && pTarget->type <= kDudePlayer8)
+                    {
+                        PLAYER* pOtherPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+                        if (!pOtherPlayer->at31a || !powerupCheck(pOtherPlayer, 14))
+                            powerupActivate(pOtherPlayer, 28);
+                    }
+                    fxSpawnBlood(pTarget, 0);
+                }
             }
         }
+        UseAmmo(pPlayer, 9, pPlayer->at181[9]);
+        pPlayer->atcb[10] = 0;
+        pPlayer->atc3 = -1;
     }
-    UseAmmo(pPlayer, 9, pPlayer->at181[9]);
-    pPlayer->atcb[10] = 0;
-    pPlayer->atc3 = -1;
 }
 
 void DropVoodoo(int nTrigger, PLAYER *pPlayer)
@@ -2357,9 +2395,11 @@ void WeaponProcess(PLAYER *pPlayer)
             return;
         case 5:
             if (powerupCheck(pPlayer, 17))
-                StartQAV(pPlayer, 122, nClientAltFireNapalm, 0);
+                // by NoOne: allow napalm launcher alt fire act like in v1.0x versions
+                if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) StartQAV(pPlayer, 123, nClientFireNapalm2, 0);
+                else StartQAV(pPlayer, 122, nClientAltFireNapalm, 0);
             else
-                StartQAV(pPlayer, 91, nClientAltFireNapalm, 0);
+                StartQAV(pPlayer, 91, (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) ? nClientFireNapalm : nClientAltFireNapalm, 0);
             return;
         case 2:
             if (CheckAmmo(pPlayer, 1, 8))
