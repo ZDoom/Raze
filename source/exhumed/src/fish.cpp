@@ -9,6 +9,7 @@
 #include "move.h"
 #include "trigdat.h"
 #include "init.h"
+#include "sound.h"
 #include <assert.h>
 
 #define kMaxFishes		128
@@ -348,7 +349,7 @@ void FuncFish(int a, int nDamage, int nRun)
                         BuildFishLimb(nFish, i);
                     }
 
-// TODO				PlayFXAtXYZ(StaticSound[kSound40], sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum);
+                    PlayFXAtXYZ(StaticSound[kSound40], sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum);
                     DestroyFish(nFish);
                 }
                 else

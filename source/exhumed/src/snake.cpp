@@ -234,7 +234,7 @@ int BuildSnake(short nPlayer, short zVal)
             }
         }
 
-// TODO	D3PlayFX(StaticSound[kSound6], var_24);
+        D3PlayFX(StaticSound[kSound6], var_24);
     }
 
     return nSprite;

@@ -1405,7 +1405,7 @@ void SetHiRes()
 void DoClockBeep()
 {
     for (int i = headspritestat[407]; i != -1; i = nextspritestat[i]) {
-// TODO		PlayFX2(StaticSound[kSound74], i);
+        PlayFX2(StaticSound[kSound74], i);
     }
 }
 
@@ -1421,7 +1421,7 @@ void DoRedAlert(int nVal)
     {
         if (nVal)
         {
-// TODO		PlayFXAtXYZ(StaticSound[kSoundAlarm], sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum);
+            PlayFXAtXYZ(StaticSound[kSoundAlarm], sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum);
             AddFlash(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z, 192);
         }
     }
@@ -2505,7 +2505,7 @@ void DoGameOverScene()
     Clip();
     videoNextPage();
     CinemaFadeIn();
-    // TODO	PlayGameOverSound();
+    PlayGameOverSound();
     WaitAnyKey(3);
     FadeOut(0);
     SetOverscan(kenpal);
@@ -2544,7 +2544,7 @@ void DoTitle()
     videoNextPage();
 
     FadeIn();
-    // TODO	PlayLogoSound();
+    PlayLogoSound();
 
     WaitAnyKey(2);
 
@@ -2588,7 +2588,7 @@ void DoTitle()
     WaitNoKey(2, KeyFn1);
 
     if (time(0) & 0xF) {
-        // TODO		PlayGameOverSound();
+        PlayGameOverSound();
     }
     else {
         PlayLocalSound(StaticSound[61], 0);
@@ -3255,7 +3255,7 @@ int DoSpiritHead()
 
                 if (esi < eax)
                 {
-                    // SoundBigEntrance(); // TODO
+                    SoundBigEntrance();
                     AddGlow(sprite[nSpiritSprite].sectnum, 20);
                     AddFlash(
                         sprite[nSpiritSprite].sectnum,

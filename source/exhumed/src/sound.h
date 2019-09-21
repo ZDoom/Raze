@@ -116,4 +116,10 @@ void StopSpriteSound(short nSprite);
 void StartSwirlies();
 void UpdateSwirlies();
 
+void PlayLogoSound(void);
+void PlayTitleSound(void);
+void PlayGameOverSound(void);
+
+void SoundBigEntrance(void);
+
 #endif

@@ -495,13 +495,11 @@ int CheckSectorSprites(short nSector, int nVal)
 
                 if (sprite[nSprite].statnum == 100 && PlayerList[GetPlayerFromSprite(nSprite)].nHealth <= 0)
                 {
-                    /* TODO
                     PlayFXAtXYZ(StaticSound[kSoundJonFDie],
                         sprite[nSprite].x,
                         sprite[nSprite].y,
                         sprite[nSprite].z,
                         sprite[nSprite].sectnum | 0x40FF); // TODO - check last param??
-                    */
                 }
             }
             nSprite = nextspritesect[nSprite];
@@ -737,7 +735,7 @@ void FuncElev(int a, int b, int nRun)
                             SetQuake(di, 30);
                         }
 
-// TODO					PlayFXAtXYZ(StaticSound[kSound26], sprite[di].x, sprite[di].y, sprite[di].z, sprite[di].sectnum);
+                        PlayFXAtXYZ(StaticSound[kSound26], sprite[di].x, sprite[di].y, sprite[di].z, sprite[di].sectnum);
                     }
 
                     if (var_18 & 0x4)
@@ -1500,7 +1498,7 @@ void DoFinale()
 
         if (!RandomSize(2))
         {
-// TODO		PlayFX2(StaticSound[kSound78] | 0x2000, nFinaleSpr);
+            PlayFX2(StaticSound[kSound78] | 0x2000, nFinaleSpr);
 
             for (int i = 0; i < nTotalPlayers; i++) {
                 nQuake[i] = 1280;
@@ -1675,7 +1673,7 @@ void ExplodeEnergyBlock(int nSprite)
     sprite[nSprite].cstat = 0;
     sprite[nSprite].xrepeat = 100;
 
-// TODO	PlayFX2(StaticSound[kSound78], nSprite);
+    PlayFX2(StaticSound[kSound78], nSprite);
 
     sprite[nSprite].xrepeat = 0;
 
@@ -1888,7 +1886,7 @@ void ExplodeScreen(short nSprite)
     }
 
     sprite[nSprite].cstat = 0x8000;
-// TODO	PlayFX2(StaticSound[kSound78], nSprite);
+    PlayFX2(StaticSound[kSound78], nSprite);
 }
 
 void FuncObject(int a, int b, int nRun)

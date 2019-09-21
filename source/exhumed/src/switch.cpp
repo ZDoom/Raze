@@ -4,6 +4,7 @@
 #include "runlist.h"
 #include "engine.h"
 #include "player.h"
+#include "sound.h"
 #include <string.h>
 #include <assert.h>
 
@@ -273,7 +274,7 @@ void FuncSwStepOn(int a, int, int nRun)
             if (var_14 != sRunChannels[nChannel].c)
             {
                 short nWall = sector[nSector].wallptr;
-// TODO			PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, sector[nSector].floorz, nSector);
+                PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, sector[nSector].floorz, nSector);
 
                 assert(sRunChannels[nChannel].c < 8);
 
@@ -439,7 +440,7 @@ void FuncSwPressSector(int a, int, int nRun)
                 if (SwitchData[nSwitch].field_12)
                 {
                     short nSprite = PlayerList[nPlayer].nSprite;
-                    // TODO			PlayFXAtXYZ(StaticSound[nSwitchSound], sprite[nSprite].x, sprite[nSprite].y, 0, sprite[nSprite].sectnum);
+                    PlayFXAtXYZ(StaticSound[nSwitchSound], sprite[nSprite].x, sprite[nSprite].y, 0, sprite[nSprite].sectnum);
 
                     StatusMessage(300, "YOU NEED THE KEY FOR THIS DOOR");
                 }
@@ -516,7 +517,7 @@ void FuncSwPressWall(int a, int, int nRun)
             short nWall = SwitchData[nSwitch].nWall;
             short nSector = SwitchData[nSwitch].nSector; // CHECKME - where is this set??
 
-// TODO		PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, 0, nSector);
+            PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, 0, nSector);
 
             return;
         }

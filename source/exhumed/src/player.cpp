@@ -1275,7 +1275,7 @@ void FuncPlayer(int pA, int nDamage, int nRun)
                             sprite[nPlayerSprite].yvel = 0;
 
                             StopSpriteSound(nPlayerSprite);
-// TODO						PlayFXAtXYZ(StaticSound[kSoundJonFDie], sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z, sprite[nPlayerSprite].sectnum |= 0x4000); // CHECKME
+    					    PlayFXAtXYZ(StaticSound[kSoundJonFDie], sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z, sprite[nPlayerSprite].sectnum |= 0x4000); // CHECKME
                         }
                         else
                         {
@@ -1350,7 +1350,7 @@ void FuncPlayer(int pA, int nDamage, int nRun)
             {
                 if (nPlayerPushSect[nPlayer] > -1)
                 {
-// TODO				StopSpriteSound(sBlockInfo[sector[nPlayerPushSect[nPlayer]].extra].nSprite);
+                    StopSpriteSound(sBlockInfo[sector[nPlayerPushSect[nPlayer]].extra].nSprite);
                 }
 
                 nPlayerPushSound[nPlayer] = -1;

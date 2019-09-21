@@ -11,6 +11,7 @@
 #include "trigdat.h"
 #include "anims.h"
 #include "player.h"
+#include "sound.h"
 #include <assert.h>
 
 #define kMaxQueens	1
@@ -988,7 +989,7 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                             if ((nMov & 0x3FFF) == nTarget)
                             {
                                 runlist_DamageEnemy(nTarget, nSprite, 10);
-// TODO							D3PlayFX((StaticSound[kSoundQTail] | 0x2000)) & 0xFFFF, nSprite);
+                                D3PlayFX((StaticSound[kSoundQTail] | 0x2000) & 0xFFFF, nSprite);
 
                                 sprite[nSprite].ang += RandomSize(9) + 768;
                                 sprite[nSprite].ang &= kAngleMask;
@@ -1573,14 +1574,12 @@ void FuncQueen(int a, int nDamage, int nRun)
                             sprite[nChunkSprite].picnum = 3126;
                             sprite[nChunkSprite].yrepeat = 100;
                             sprite[nChunkSprite].xrepeat = 100;
-/* TODO
                             PlayFXAtXYZ(
                                 StaticSound[40],
                                 sprite[nSprite].x,
                                 sprite[nSprite].y,
                                 sprite[nSprite].z,
                                 sprite[nSprite].sectnum);
-*/
                             BuildQueenHead(nQueen);
 
                             QueenList[nQueen].nAction++;
