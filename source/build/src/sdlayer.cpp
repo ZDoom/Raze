@@ -1,6 +1,8 @@
 // SDL interface layer for the Build Engine
 // Use SDL 1.2 or 2.0 from http://www.libsdl.org
 
+#include <Windows.h>
+#include <CommCtrl.h>>
 #include <signal.h>
 
 #include "a.h"
@@ -341,6 +343,54 @@ static void sighandler(int signum)
 
 
 #ifdef _WIN32
+
+namespace Duke
+{
+	extern GameInterface Interface;
+}
+
+void ChooseGame()
+{
+	int nResult = 0;
+
+	TASKDIALOGCONFIG stTaskConfig;
+	ZeroMemory(&stTaskConfig, sizeof(stTaskConfig));
+
+	stTaskConfig.cbSize = sizeof(TASKDIALOGCONFIG);
+	stTaskConfig.hwndParent = NULL;
+	stTaskConfig.hInstance = NULL;
+
+	stTaskConfig.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION;
+
+	stTaskConfig.pszWindowTitle = L"Demolition";
+	stTaskConfig.pszMainInstruction = L"Choose your game";
+	stTaskConfig.pszContent = L"";
+	stTaskConfig.cButtons = 3;
+	TASKDIALOG_BUTTON buttons[] = {
+	   {1000,L"EDuke32"},
+	   {1001,L"RedNukem"},
+	   {1002,L"Blood"},
+	};
+	stTaskConfig.pButtons = buttons;
+	stTaskConfig.nDefaultButton = 1000;
+
+	if (SUCCEEDED(TaskDialogIndirect(&stTaskConfig, &nResult, NULL, NULL)))
+	{
+		//API call succeeded, now , check return values
+		if (nResult == 1000)
+		{
+			gi = &Duke::Interface;
+		}
+		else if (nResult == 1001)
+		{
+		}
+		else if (nResult == 1002)
+		{
+		}
+	}
+	if (gi == nullptr) exit(1);
+}
+
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 #else
 int main(int argc, char *argv[])
@@ -351,6 +401,9 @@ int main(int argc, char *argv[])
     // Thread naming interferes with debugging using MinGW-w64's GDB.
     SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
 #endif
+
+	// Hack to be able to choose from the available game frontends until the startup dialogue can be moved out of the frontend code.
+	ChooseGame();
 
     int32_t r;
 
