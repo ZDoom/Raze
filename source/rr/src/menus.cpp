@@ -30,11 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "cheats.h"
 
-#include "in_android.h"
-#ifndef __ANDROID__
-droidinput_t droidinput;
-#endif
-
 // common positions
 #define MENU_MARGIN_REGULAR 40
 #define MENU_MARGIN_WIDE    32

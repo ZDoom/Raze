@@ -16,10 +16,6 @@
 #include "osd.h"
 #include "pragmas.h"
 
-#ifdef __ANDROID__
-#include "android.h"
-#endif
-
 bool CONTROL_Started         = false;
 bool CONTROL_MouseEnabled    = false;
 bool CONTROL_MousePresent    = false;

@@ -28,10 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
-#ifdef __ANDROID__
-# include "android.h"
-#endif
-
 #if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
 # include "sdl_inc.h"
 #endif

@@ -30,11 +30,6 @@
 #include "mutex.h"
 #include "sdl_inc.h"
 
-#ifdef __ANDROID__
-#include "duke3d.h"
-#include "android.h"
-#endif
-
 enum {
    SDLErr_Warning = -2,
    SDLErr_Error   = -1,

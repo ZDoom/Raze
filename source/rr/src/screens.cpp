@@ -32,10 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "mdsprite.h"
 
-#ifdef __ANDROID__
-#include "android.h"
-#endif
-
 #define COLOR_RED redcol
 #define COLOR_WHITE whitecol
 

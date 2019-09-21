@@ -41,14 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdline.h"
 #include "palette.h"
 
-#ifdef __ANDROID__
-#include "android.h"
-#endif
-
-#ifdef LUNATIC
-# include "lunatic_game.h"
-#endif
-
 #include "vfs.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to

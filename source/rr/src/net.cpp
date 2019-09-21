@@ -248,7 +248,6 @@ void Net_DoPrediction(void)
         if (pPlayer->on_motorcycle && pSprite->extra > 0)
         {
             int var64, var68, var6c, var74, var7c;
-            int16_t var84;
             if (my_moto_speed < 0)
                 my_moto_speed = 0;
             if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
@@ -432,7 +431,7 @@ void Net_DoPrediction(void)
             }
             else if (my_moto_speed >= 20 && myonground == 1 && (my_moto_on_mud || my_moto_on_oil))
             {
-                short var9c, vara0, vara4;
+                short var9c, vara0;
                 var9c = my_moto_speed;
                 vara0 = fix16_to_int(myang);
                 if (my_moto_on_oil)
@@ -448,7 +447,6 @@ void Net_DoPrediction(void)
         else if (pPlayer->on_boat && pSprite->extra > 0)
         {
             int vara8, varac, varb0, varb4, varbc, varc4;
-            int16_t varcc;
             if (my_moto_speed < 0)
                 my_moto_speed = 0;
             if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && TEST_SYNC_KEY(playerBits, SK_JUMP))
@@ -1418,7 +1416,7 @@ char Net_PlayerSync(void)
 
 char Net_PlayerSync2(void)
 {
-    int j, nextj;
+    int nextj;
     uint16_t crc = 0;
     DukePlayer_t *pp;
     spritetype *spr;
@@ -1684,7 +1682,7 @@ void  Net_AddSyncInfoToPacket(int *j)
 
 void Net_GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int otherconnectindex)
 {
-    int sb, i;
+    int sb;
     extern int syncvaltail, syncvaltottail;
     playerdata_t *ppo = &g_player[otherconnectindex];
     char found = 0;
@@ -3065,7 +3063,6 @@ void Net_ParseClientPacket(ENetEvent *event)
     {
         uint8_t *pbuf = event->packet->data;
         int32_t packbufleng = event->packet->dataLength;
-        int16_t j;
         int32_t other = pbuf[--packbufleng];
         switch (pbuf[0])
         {

@@ -30,14 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "sbar.h"
 
-#ifdef LUNATIC
-# include "lunatic_game.h"
-#endif
-
-#ifdef EDUKE32_TOUCH_DEVICES
-#include "in_android.h"
-#endif
-
 #include "vfs.h"
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
