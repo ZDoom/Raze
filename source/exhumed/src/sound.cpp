@@ -1030,7 +1030,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
     short v4 = nSound & 0x2000;
     short v8 = nSound & 0x1000;
     short v14 = nSound & 0x4000;
-    short v10 = (nSound&0xe000)>>9;
+    short v10 = (nSound&0xe00)>>9;
     int v2c = 0x7fffffff;
     ActiveSound* v38 = NULL;
     ActiveSound* v28 = NULL;
@@ -1096,7 +1096,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
 
     int nPitch;
     if (v10)
-        nPitch = -(totalmoves&((1<<v10)-1));
+        nPitch = -(totalmoves&((1<<v10)-1))*16;
     else
         nPitch = 0;
 
