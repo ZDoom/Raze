@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"	// Must come before everything else!
+
 #ifdef _WIN32
 
 #include "compat.h"

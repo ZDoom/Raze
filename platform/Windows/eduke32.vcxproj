@@ -169,8 +169,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\duke3d\src\actors.h" />
-    <ClInclude Include="..\..\source\duke3d\src\android.h" />
-    <ClInclude Include="..\..\source\duke3d\src\in_android.h" />
     <ClInclude Include="..\..\source\duke3d\src\anim.h" />
     <ClInclude Include="..\..\source\duke3d\src\cheats.h" />
     <ClInclude Include="..\..\source\duke3d\src\cmdline.h" />

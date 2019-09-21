@@ -173,9 +173,6 @@
     <ClCompile Include="..\..\source\rr\src\gamestructures.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\rr\src\gamevars.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\rr\src\global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

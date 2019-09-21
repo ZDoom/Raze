@@ -232,7 +232,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\source\rr\src\gamevars.cpp" />
     <ClCompile Include="..\..\source\rr\src\global.cpp" />
     <ClCompile Include="..\..\source\rr\src\grpscan.cpp" />
     <ClCompile Include="..\..\source\rr\src\input.cpp" />

@@ -7,6 +7,8 @@
  *
  */
 
+#include "ns.h"	// Must come before everything else!
+
 #include "GrpFile.game.h"
 
 @implementation GrpFile

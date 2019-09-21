@@ -1,3 +1,4 @@
+#include "ns.h"	// Must come before everything else!
 
 #include "compat.h"
 #include "mdump.h"

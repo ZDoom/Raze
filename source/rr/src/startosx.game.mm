@@ -1,6 +1,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "ns.h"	// Must come before everything else!
+
 #include "duke3d.h"
 #include "game.h"
 #include "common.h"

@@ -1,6 +1,7 @@
 //
 // Common non-engine code/data for EDuke32 and Mapster32
 //
+#include "ns.h"	// Must come before everything else!
 
 #include "compat.h"
 #include "build.h"

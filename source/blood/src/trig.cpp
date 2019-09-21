@@ -1,3 +1,5 @@
+#include "ns.h"	// Must come before everything else!
+
 #include "build.h"
 #include "pragmas.h"
 #include "common_game.h"

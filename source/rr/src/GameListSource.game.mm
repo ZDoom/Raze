@@ -9,6 +9,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include "ns.h"	// Must come before everything else!
+
 #include "compat.h"
 
 #import "GrpFile.game.h"

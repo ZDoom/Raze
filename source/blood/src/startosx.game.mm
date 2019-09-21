@@ -5,6 +5,8 @@
 
 #undef Rect
 
+#include "ns.h"	// Must come before everything else!
+
 #include "blood.h"
 #include "common.h"
 #include "common_game.h"

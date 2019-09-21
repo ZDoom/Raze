@@ -7,9 +7,6 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{82d4000f-cd8c-4737-88dc-4ada5775a68e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\android">
-      <UniqueIdentifier>{52ce6149-4982-41a4-9adf-c7a9468421fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{598e3748-14c8-47c3-9bb6-eea06f762413}</UniqueIdentifier>
     </Filter>
@@ -124,12 +121,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\duke3d\src\common_game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\duke3d\src\in_android.h">
-      <Filter>Header Files\android</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\duke3d\src\android.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\duke3d\src\cheats.h">

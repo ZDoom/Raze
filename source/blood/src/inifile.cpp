@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 // Note: This module is based on the sirlemonhead's work
 
+#include "ns.h"	// Must come before everything else!
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

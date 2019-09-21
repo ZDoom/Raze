@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"	// Must come before everything else!
+
 /// Preprocessor directives:
 ///
 /// ITERATE_ON_UPDATE:  Every time the netcode updates the sprite linked lists, attempt to iterate through all of them.

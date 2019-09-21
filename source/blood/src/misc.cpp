@@ -20,6 +20,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+#include "ns.h"	// Must come before everything else!
+
 #include <stdio.h>
 #include <string.h>
 #include "common_game.h"
