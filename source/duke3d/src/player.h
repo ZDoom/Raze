@@ -26,10 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "inv.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern int32_t g_mostConcurrentPlayers;
 
 #define MOVEFIFOSIZ                 2
@@ -371,11 +367,7 @@ void    P_EndLevel(void);
 void    P_CheckWeaponI(int playerNum);
 int     P_GetHudPal(const DukePlayer_t *pPlayer);
 int     P_GetKneePal(const DukePlayer_t *pPlayer);
-#ifdef __cplusplus
-}
 int     P_GetKneePal(const DukePlayer_t *pPlayer, int hudPal);
-extern "C" {
-#endif
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
 
 int Proj_GetDamage(projectile_t const *pProj);
@@ -414,10 +406,6 @@ static inline int P_GetP(const void *pSprite)
 
 // Get the player index given an APLAYER sprite index.
 static inline int P_Get(int32_t spriteNum) { return P_GetP((uspriteptr_t)&sprite[spriteNum]); }
-
-#ifdef __cplusplus
-}
-#endif
 
 extern int portableBackupSave(const char *, const char *, int, int);
 

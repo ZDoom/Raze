@@ -27,9 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef LUNATIC
 # define SV_MAJOR_VER 2
@@ -154,14 +151,5 @@ enum
 };
 void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode);
 void G_Util_PtrToIdx2(void *ptr, int32_t count, size_t stride, const void *base, int32_t mode);
-
-#ifdef LUNATIC
-extern const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
-void El_FreeSaveCode(void);
-#endif
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

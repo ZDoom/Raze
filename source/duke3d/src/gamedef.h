@@ -31,10 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"  // tokenlist
 #include "player.h"  // projectile_t
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 enum
 {
     LABEL_ACTION = 0x01,
@@ -1402,10 +1398,6 @@ enum ScriptKeywords_t
 #undef ENUM_TRANSFORM
 #undef COMMA
 
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif // gamedef_h_

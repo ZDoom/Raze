@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "player.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MAXSLEEPDIST        16384
 #define SLEEPTIME           1536
 #define ZOFFSET             (1<<8)
@@ -487,9 +483,6 @@ EXTERN_INLINE_HEADER int G_CheckForSpaceFloor(int sectnum);
 
 EXTERN_INLINE_HEADER int A_CheckEnemySprite(void const * s);
 
-#ifdef __cplusplus
-}
-#endif
 
 #if defined actors_c_ || !defined DISABLE_INLINING
 

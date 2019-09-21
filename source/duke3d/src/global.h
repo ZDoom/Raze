@@ -51,10 +51,6 @@ G_EXTERN int32_t *curipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t bakipos[MAXINTERPOLATIONS];
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 G_EXTERN int32_t duke3d_globalflags;
 
 // KEEPINSYNC astub.c (used values only)
@@ -205,10 +201,6 @@ enum
 
 EXTERN_INLINE_HEADER void G_UpdateInterpolations(void);
 EXTERN_INLINE_HEADER void G_RestoreInterpolations(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #if defined global_c_ || !defined DISABLE_INLINING
 

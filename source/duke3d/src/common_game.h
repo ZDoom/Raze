@@ -12,10 +12,6 @@
 
 #include "vfs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern int g_useCwd;
 
 #ifndef APPNAME
@@ -155,10 +151,6 @@ extern void G_LoadLookups(void);
 extern buildvfs_kfd S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
 #else
 # define S_OpenAudio(fn, searchfirst, ismusic) kopen4loadfrommod(fn, searchfirst)
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif

@@ -25,17 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if defined EDUKE32_TOUCH_DEVICES
-# define EDUKE32_SIMPLE_MENU
-# define EDUKE32_ANDROID_MENU
-#endif
-
-// #define EDUKE32_SIMPLE_MENU
-
 enum MenuIndex_t {
     MENU_NULL           = INT32_MIN, // sentinel for "do nothing"
     MENU_CLOSE          = -2, // sentinel for "close the menu"/"no menu"
@@ -526,9 +515,5 @@ extern MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
 
 extern MenuEntry_t ME_NEWGAMECUSTOMENTRIES[MAXMENUGAMEPLAYENTRIES];
 extern MenuEntry_t ME_NEWGAMECUSTOMSUBENTRIES[MAXMENUGAMEPLAYENTRIES][MAXMENUGAMEPLAYENTRIES];
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

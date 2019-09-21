@@ -29,10 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "namesdyn.h"  // for G_GetForcefieldPicnum()
 #include "player.h"  // playerspawn_t
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MAXCYCLERS      1024
 #define MAXANIMATES     1024
 #define MAXANIMWALLS    512
@@ -171,10 +167,6 @@ static inline vec3_t G_GetCameraPosition(int32_t const i, int32_t const smoothra
 }
 
 EXTERN_INLINE_HEADER int32_t G_CheckPlayerInSector(int32_t const sect);
-
-#ifdef __cplusplus
-}
-#endif
 
 #if defined sector_c_ || !defined DISABLE_INLINING
 

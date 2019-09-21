@@ -35,9 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "network.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifndef ONLY_USERDEFS
 
@@ -616,9 +613,6 @@ EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue
 
 #endif
 
-#ifdef __cplusplus
-}
-#endif
 
 #ifndef ONLY_USERDEFS
 

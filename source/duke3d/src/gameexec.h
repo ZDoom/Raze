@@ -66,10 +66,6 @@ static FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int spriteNum, in
     return VM_HaveEvent(nEventID) ? VM_ExecuteEventWithValue(nEventID, spriteNum, playerNum, nReturn) : nReturn;
 }
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 enum vmflags_t
 {
     VM_RETURN    = 0x00000001,
@@ -127,20 +123,8 @@ void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int3
 
 void G_GetTimeDate(int32_t * pValues);
 int G_StartTrack(int levelNum);
-#ifdef LUNATIC
-void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect,
-                int ix1, int iy1, int ix2, int iy2, bool unbiasedp);
-void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap);
-void VM_FallSprite(int32_t i);
-int32_t VM_ResetPlayer2(int32_t snum, int32_t flags);
-int32_t VM_CheckSquished2(int32_t i, int32_t snum);
-#endif
 
 void VM_UpdateAnim(int const spriteNum, int32_t * const pData);
 void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
