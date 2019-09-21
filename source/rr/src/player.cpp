@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "enet/enet.h"
 
+BEGIN_RR_NS
+
+
 int32_t PHEIGHT = PHEIGHT_DUKE;
 
 int32_t lastvisinc;
@@ -8128,3 +8131,5 @@ int P_HasKey(int sectNum, int playerNum)
     }
     return 0;
 }
+
+END_RR_NS

@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+BEGIN_RR_NS
+
 void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal);
 void GAME_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t len, int32_t shade, int32_t pal);
 void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress);
@@ -32,3 +34,5 @@ extern int32_t osdhightile;
 extern int32_t osdshown;
 extern float osdscale, osdrscale;
 extern float osdscale2, osdrscale2;
+
+END_RR_NS

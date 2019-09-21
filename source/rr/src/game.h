@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "net.h"
 #include "mmulti.h"
 
+BEGIN_RR_NS
+
 #ifndef ONLY_USERDEFS
 
 // Compile game-side legacy Room over Room code?
@@ -595,3 +597,5 @@ EXTERN_INLINE void SetIfGreater(int32_t *variable, int32_t potentialValue)
 #endif
 
 #endif
+
+END_RR_NS

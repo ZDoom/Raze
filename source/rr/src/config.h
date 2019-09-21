@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "function.h"
 
+BEGIN_RR_NS
+
 #define SETUPNAMEPARM "SETUPFILE"
 
 int32_t CONFIG_ReadSetup( void );
@@ -44,5 +46,7 @@ char *CONFIG_FunctionNumToName(int32_t func);
 int32_t CONFIG_AnalogNameToNum(const char *func);
 const char *CONFIG_AnalogNumToName(int32_t func);
 void CONFIG_SetDefaults(void);
+
+END_RR_NS
 
 #endif

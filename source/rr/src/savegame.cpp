@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "prlights.h"
 #include "savegame.h"
 
+BEGIN_RR_NS
+
+
 static OutputFileCounter savecounter;
 
 // For storing pointers in files.
@@ -2023,3 +2026,5 @@ static void postloadplayer(int32_t savegamep)
 
 ////////// END GENERIC SAVING/LOADING SYSTEM //////////
 
+
+END_RR_NS

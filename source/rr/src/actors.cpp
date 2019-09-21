@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 
+BEGIN_RR_NS
+
 #if KRANDDEBUG
 # define ACTOR_STATIC
 #else
@@ -9708,3 +9710,5 @@ void G_MoveWorld(void)
 
     g_moveWorldTime = (1-0.033)*g_moveWorldTime + 0.033*(timerGetHiTicks()-worldTime);
 }
+
+END_RR_NS

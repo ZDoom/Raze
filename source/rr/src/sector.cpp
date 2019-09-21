@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "input.h"
 
+BEGIN_RR_NS
+
 // PRIMITIVE
 
 static int g_haltSoundHack = 0;
@@ -5297,3 +5299,4 @@ void G_Thunder(void)
     }
 }
 
+END_RR_NS

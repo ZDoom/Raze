@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef anim_h_
 #define anim_h_
 
+BEGIN_RR_NS
+
 typedef struct {
     uint16_t frame;
     int16_t sound;
@@ -46,4 +48,6 @@ extern dukeanim_t * Anim_Create(const char *fn);
 int32_t Anim_Play(const char *fn);
 void Anim_Init(void);
 
+END_RR_NS
 #endif
+

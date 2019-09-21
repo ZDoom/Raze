@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fix16.h"
 #include "net.h"
 
+BEGIN_RR_NS
+
 extern int32_t g_mostConcurrentPlayers;
 
 #define MOVEFIFOSIZ                 256
@@ -307,5 +309,7 @@ static inline int P_GetP(const void *pSprite)
 
 // Get the player index given an APLAYER sprite index.
 static inline int P_Get(int32_t spriteNum) { return P_GetP((const uspritetype *)&sprite[spriteNum]); }
+
+END_RR_NS
 
 #endif

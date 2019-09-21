@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamedef.h"  // vmstate_t
 #include "events_defs.h"
 
+BEGIN_RR_NS
+
 
 extern int32_t ticrandomseed;
 
@@ -60,5 +62,7 @@ int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
 void G_GetTimeDate(int32_t * pValues);
 int G_StartTrack(int levelNum);
 void VM_UpdateAnim(int spriteNum, int32_t *pData);
+
+END_RR_NS
 
 #endif

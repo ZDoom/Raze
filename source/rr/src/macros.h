@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "mmulti.h"
 
+BEGIN_RR_NS
+
 // Macros, some from SW source
 
 static FORCE_INLINE int32_t krand2(void)
@@ -208,5 +210,7 @@ static FORCE_INLINE int32_t krand2(void)
 #define T4(i)  actor[i].t_data[3]
 #define T5(i)  actor[i].t_data[4]
 #define T6(i)  actor[i].t_data[5]
+
+END_RR_NS
 
 #endif

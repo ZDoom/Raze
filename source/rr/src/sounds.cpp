@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h" // for win_gethwnd()
 #include <atomic>
 
+BEGIN_RR_NS
+
 #define DQSIZE 128
 
 int32_t g_numEnvSoundsPlaying, g_highestSoundIdx = 0;
@@ -977,3 +979,5 @@ bool S_CheckSoundPlaying(int spriteNum, int soundNum)
     if (EDUKE32_PREDICT_FALSE((unsigned)soundNum > (unsigned)g_highestSoundIdx)) return 0;
     return (spriteNum == -1) ? (g_soundlocks[soundNum] > 200) : (g_sounds[soundNum].num != 0);
 }
+
+END_RR_NS

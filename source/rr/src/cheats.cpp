@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdcmds.h"
 #include "cheats.h"
 
+BEGIN_RR_NS
+
 // KEEPINSYNC game.h: enum cheatindex_t
 char CheatStrings [NUMCHEATS][MAXCHEATLEN] =
 {
@@ -903,3 +905,4 @@ void G_DoCheats(void)
         }
     }
 }
+END_RR_NS

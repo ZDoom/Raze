@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "enet/enet.h"
 
+BEGIN_RR_NS
+
 // net packet specification/compatibility version
 #define NETVERSION    1
 
@@ -391,5 +393,7 @@ void    faketimerhandler(void);
 #define Net_NotifyNewGame(...) ((void)0)
 
 #endif
+
+END_RR_NS
 
 #endif // netplay_h_

@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"  // tokenlist
 #include "player.h"  // projectile_t
 
+BEGIN_RR_NS
+
 enum
 {
     LABEL_ANY    = -1,
@@ -310,5 +312,6 @@ enum ScriptKeywords_t
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua
 
+END_RR_NS
 
 #endif // gamedef_h_

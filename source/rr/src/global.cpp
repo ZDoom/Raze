@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "global.h"
 #include "duke3d.h"
 
+BEGIN_RR_NS
+
 user_defs ud;
 
 const char *s_buildDate = "20120522";
@@ -124,3 +126,4 @@ char CheatKeys[2]       = { sc_D, sc_N };
 
 char g_setupFileName[BMAX_PATH] = SETUPFILENAME;
 
+END_RR_NS

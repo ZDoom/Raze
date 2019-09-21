@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "cheats.h"
 
+BEGIN_RR_NS
+
 // common positions
 #define MENU_MARGIN_REGULAR 40
 #define MENU_MARGIN_WIDE    32
@@ -7729,3 +7731,4 @@ void M_DisplayMenus(void)
         CAMERADIST = 65536;
     }
 }
+END_RR_NS

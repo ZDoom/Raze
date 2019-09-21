@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "debugbreak.h"
 
+BEGIN_RR_NS
+
 #if KRANDDEBUG
 # define GAMEEXEC_INLINE
 # define GAMEEXEC_STATIC
@@ -2705,3 +2707,4 @@ safe_delete:
     if (vm.flags & VM_SAFEDELETE)
         A_DeleteSprite(spriteNum);
 }
+END_RR_NS

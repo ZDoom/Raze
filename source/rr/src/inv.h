@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
+BEGIN_RR_NS
+
 enum dukeinv_t
 {
     GET_STEROIDS,  // 0
@@ -56,3 +58,4 @@ extern int const icon_to_inv[ICON_MAX];
 
 extern int const inv_to_icon[GET_MAX];
 
+END_RR_NS

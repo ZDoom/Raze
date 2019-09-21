@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef rts_private__
 #define rts_private__
 
+BEGIN_RR_NS
+
 //===============
 //   TYPES
 //===============
@@ -46,5 +48,7 @@ typedef struct
     int32_t size;
     char name[8];
 } filelump_t;
+
+END_RR_NS
 
 #endif

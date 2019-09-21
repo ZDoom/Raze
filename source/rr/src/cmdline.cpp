@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h"
 #include "cmdline.h"
 
+BEGIN_RR_NS
+
 int32_t g_commandSetup = 0;
 int32_t g_noSetup = 0;
 int32_t g_noAutoLoad = 0;
@@ -794,3 +796,4 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
         } while (i < argc);
     }
 }
+END_RR_NS

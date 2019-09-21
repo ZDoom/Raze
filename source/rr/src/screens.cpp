@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "mdsprite.h"
 
+BEGIN_RR_NS
+
 #define COLOR_RED redcol
 #define COLOR_WHITE whitecol
 
@@ -3244,3 +3246,4 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         g_vixenLevel = 0;
 }
 
+END_RR_NS

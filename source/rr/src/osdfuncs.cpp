@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdfuncs.h"
 #include "premap.h"
 
+BEGIN_RR_NS
+
 int32_t osdhightile = 1;
 int32_t osdshown = 0;
 
@@ -181,3 +183,5 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
 }
 
 #undef OSD_SCALE
+
+END_RR_NS

@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+BEGIN_RR_NS
+
 #define DYNSOUNDREMAP_ENABLE
 
 
@@ -326,3 +328,5 @@ extern int32_t BIGBANG;
 #define DYNAMICSOUNDMAP(Soundnum) (Soundnum)
 
 #endif
+
+END_RR_NS

@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 
+BEGIN_RR_NS
 
 static int32_t rts_numlumps;
 static void  **rts_lumpcache;
@@ -169,3 +170,4 @@ void *RTS_GetSound(int32_t lump)
 
     return rts_lumpcache[lump];
 }
+END_RR_NS

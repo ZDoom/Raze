@@ -169,8 +169,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\rr\src\actors.h" />
-    <ClInclude Include="..\..\source\rr\src\android.h" />
-    <ClInclude Include="..\..\source\rr\src\in_android.h" />
     <ClInclude Include="..\..\source\rr\src\anim.h" />
     <ClInclude Include="..\..\source\rr\src\cheats.h" />
     <ClInclude Include="..\..\source\rr\src\cmdline.h" />

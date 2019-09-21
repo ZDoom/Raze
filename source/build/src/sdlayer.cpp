@@ -379,7 +379,7 @@ void ChooseGame()
 		//API call succeeded, now , check return values
 		if (nResult == 1000)
 		{
-			gi = &Duke::Interface;
+			//gi = &Duke::Interface;
 		}
 		else if (nResult == 1001)
 		{

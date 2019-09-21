@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef rts_public_
 #define rts_public_
 
+BEGIN_RR_NS
+
 extern char rts_lumplockbyte[11];
 
 /* Files with a .rts extension are idlink files with multiple lumps */
@@ -40,5 +42,7 @@ int32_t RTS_IsInitialized(void);
 int32_t RTS_SoundLength(int32_t lump);
 
 void *RTS_GetSound(int32_t lump);
+
+END_RR_NS
 
 #endif

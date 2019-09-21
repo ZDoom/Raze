@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osd.h"
 #include "crc32.h"
 
+BEGIN_RR_NS
+
 int32_t g_scriptVersion = 14; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
 char g_scriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
@@ -2514,3 +2516,4 @@ void C_ReportError(int32_t iError)
     }
 }
 
+END_RR_NS

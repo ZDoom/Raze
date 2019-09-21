@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "input.h"
 #include "screens.h"
 
+BEGIN_RR_NS
+
 char g_firstDemoFile[BMAX_PATH];
 
 FILE *g_demo_filePtr = (FILE *)NULL;  // write
@@ -1151,3 +1153,5 @@ nextdemo_nomenu:
     // return so that e.g. the title can be shown
     return 1;
 }
+
+END_RR_NS

@@ -10,6 +10,9 @@
 #include "collections.h"
 #include "grpscan.h"
 
+BEGIN_RR_NS
+
+
 extern int g_useCwd;
 
 #ifndef APPNAME
@@ -161,5 +164,7 @@ extern int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
 
 void G_AddGroup(const char* buffer);
 void G_AddPath(const char* buffer);
+
+END_RR_NS
 
 #endif

@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "soundsdyn.h"
 #include "global.h"
 
+BEGIN_RR_NS
+
 #ifdef DYNSOUNDREMAP_ENABLE
 # define DVPTR(x) &x
 #else
@@ -381,3 +383,4 @@ void G_InitDynamicSounds(void)
 #endif
 
 }
+END_RR_NS

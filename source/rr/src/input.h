@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef input_h_
 #define input_h_
 
+BEGIN_RR_NS
+
 extern int32_t I_CheckAllInput(void);
 extern void I_ClearAllInput(void);
 
@@ -62,5 +64,7 @@ enum EnterTextFlags_t {
 };
 
 extern int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags);
+
+END_RR_NS
 
 #endif

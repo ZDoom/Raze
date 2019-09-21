@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdline.h"
 #include "palette.h"
 
+
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
 //#define DEBUG_MIRRORS_ONLY
@@ -64,6 +65,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #  include <sys/ioctl.h>
 # endif
 #endif /* _WIN32 */
+
+BEGIN_RR_NS
+
 
 void Duke_CommonCleanup(void);
 extern const char* G_DefaultDefFile(void);
@@ -8895,3 +8899,4 @@ GameInterface Interface = {
 	startwin_idle,
 	startwin_run
 };
+END_RR_NS

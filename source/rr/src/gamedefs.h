@@ -31,6 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef gamedefs_public_h_
 #define gamedefs_public_h_
 
+BEGIN_RR_NS
+
+
 // config file name
 #define SETUPFILENAME APPBASENAME ".cfg"
 
@@ -60,6 +63,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define DEFAULTJOYSTICKANALOGUEDEAD         1000
 #define DEFAULTJOYSTICKANALOGUESATURATE     9500
 #endif
+
+END_RR_NS
 
 #endif
 

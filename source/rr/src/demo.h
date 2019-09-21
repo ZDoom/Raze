@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_RR_NS
+
+
 #define DEMOFN_FMT "edemo%03d.edm"
 #define LDEMOFN_FMT "demo%d.dmo"
 #define MAXDEMOS 1000
@@ -63,5 +66,7 @@ int32_t Demo_IsProfiling(void);
 int32_t krd_print(const char *filename);
 void krd_enable(int32_t which);
 #endif
+
+END_RR_NS
 
 #endif

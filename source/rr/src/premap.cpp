@@ -28,6 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "cmdline.h"
 
+extern coltypef fogtable[MAXPALOOKUPS];
+
+BEGIN_RR_NS
+
 static int32_t g_whichPalForPlayer = 9;
 
 static uint8_t precachehightile[2][MAXTILES>>3];
@@ -2622,7 +2626,6 @@ void G_SetFog(int fogtype)
     static char *lut0,*lut30,*lut33,*lut23,*lut8;
 #ifdef USE_OPENGL
     static palette_t flut0,flut30,flut33,flut23,flut8;
-    extern coltypef fogtable[MAXPALOOKUPS];
 #endif
     if (!makeTables)
     {
@@ -2695,3 +2698,5 @@ void G_SetFog(int fogtype)
 #endif
     }
 }
+
+END_RR_NS

@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __SETUP__   // JBF 20031211
 #include "_functio.h"
 
+BEGIN_RR_NS
+
 hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
 
 int32_t CONFIG_FunctionNameToNum(const char *func)
@@ -1016,3 +1018,4 @@ int32_t CONFIG_SetMapBestTime(uint8_t const * const mapmd4, int32_t const tm)
     return 0;
 }
 
+END_RR_NS

@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "sbar.h"
 
+BEGIN_RR_NS
+
 int32_t althud_flashing = 1;
 int32_t althud_numbertile = 2930;
 int32_t althud_numberpal = 0;
@@ -1469,3 +1471,5 @@ void G_DrawBackground(void)
 
     pus = pub = NUMPAGES;
 }
+
+END_RR_NS

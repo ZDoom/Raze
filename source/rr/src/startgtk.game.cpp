@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "grpscan.h"
 #include "gtkpixdata.h"
 
+BEGIN_RR_NS
+
 enum
 {
     NONE,
@@ -883,3 +885,4 @@ int32_t startwin_run(void)
 
     return retval;
 }
+END_RR_NS

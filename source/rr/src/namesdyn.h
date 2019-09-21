@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef namesdyn_h__
 #define namesdyn_h__
 
+BEGIN_RR_NS
+
 
 #define SECTOREFFECTOR__STATIC 1
 #define ACTIVATOR__STATIC 2
@@ -3580,4 +3582,7 @@ extern int32_t SLINGBLADE_WEAPON;
 extern int32_t CHICKEN_WEAPON;
 
 #define DYNAMICWEAPONMAP(Weaponnum) (DynamicWeaponMap[Weaponnum])
+
+END_RR_NS
+
 #endif // namesdyn_h__

@@ -27,6 +27,8 @@
 #include "common.h"
 #include "common_game.h"
 
+BEGIN_RR_NS
+
 struct grpfile_t const *g_selectedGrp;
 
 int32_t g_gameType = GAMEFLAG_DUKE;
@@ -1192,3 +1194,5 @@ void Duke_CommonCleanup(void)
 }
 
 #endif
+
+END_RR_NS

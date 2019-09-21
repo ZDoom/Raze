@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "animvpx.h"
 #endif
 
+BEGIN_RR_NS
+
 // animsound_t.sound
 EDUKE32_STATIC_ASSERT(INT16_MAX >= MAXSOUNDS);
 
@@ -598,3 +600,4 @@ end_anim:
 
     return !running;
 }
+END_RR_NS

@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 # include "namesdyn.h"
 
+BEGIN_RR_NS
+
 #define MAXSLEEPDIST        16384
 #define SLEEPTIME           1536
 #define ZOFFSET             (1<<8)
@@ -336,5 +338,7 @@ EXTERN_INLINE int A_CheckEnemySprite(void const * const pSprite)
 }
 
 #endif
+
+END_RR_NS
 
 #endif

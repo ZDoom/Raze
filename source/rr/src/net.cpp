@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "lz4.h"
 #include "crc32.h"
 
+BEGIN_RR_NS
+
 #define TIMERUPDATESIZ 32
 
 ENetHost *g_netServer = NULL;
@@ -4070,3 +4072,5 @@ void Net_ReceiveMapVoteCancel(uint8_t *pbuf)
 }
 
 #endif  // !defined NETCODE_DISABLE
+
+END_RR_NS

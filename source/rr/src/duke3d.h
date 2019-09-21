@@ -34,13 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "keyboard.h"
 #include "pragmas.h"
 
-#ifdef POLYMER
-    #include "polymer.h"
-#else
-#ifdef USE_OPENGL
-    #include "polymost.h"
-#endif
-#endif
+#include "polymost.h"
+
+BEGIN_RR_NS
 
 #define HEAD2                   APPNAME
 
@@ -113,6 +109,8 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 // so that debugging with valgrind --smc-check=none is possible:
 //#define DEBUG_VALGRIND_NO_SMC
 
+END_RR_NS
+
 #include "_rts.h"
 #include "actors.h"
 #include "common_game.h"
@@ -138,6 +136,8 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "sounds.h"
 #include "soundsdyn.h"
 
+BEGIN_RR_NS
+
 static inline int32_t G_HaveActor(int spriteNum)
 {
     return g_tile[spriteNum].execPtr!=NULL;
@@ -147,5 +147,7 @@ static inline int32_t G_DefaultActorHealth(int spriteNum)
 {
     return G_HaveActor(spriteNum) ? g_tile[spriteNum].execPtr[0] : 0;
 }
+
+END_RR_NS
 
 #endif

@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "sbar.h"
 
+BEGIN_RR_NS
+
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 
@@ -1598,3 +1600,4 @@ int32_t registerosdcommands(void)
     return 0;
 }
 
+END_RR_NS
