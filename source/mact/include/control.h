@@ -35,9 +35,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef control_public_h_
 #define control_public_h_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 
 //***************************************************************************
@@ -260,7 +257,4 @@ void CONTROL_ProcessBinds(void);
 extern int32_t CONTROL_ButtonFlags[CONTROL_NUM_FLAGS];
 extern bool CONTROL_SmoothMouse;
 
-#ifdef __cplusplus
-}
-#endif
 #endif

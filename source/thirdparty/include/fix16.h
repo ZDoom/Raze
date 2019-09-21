@@ -3,10 +3,6 @@
 
 #include "compat.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 
 /* These options may let the optimizer to remove some calls to the functions.
@@ -304,9 +300,6 @@ extern fix16_t fix16_from_str(const char *buf);
     ) \
 )
 
-#ifdef __cplusplus
-}
 #include "fix16.hpp"
-#endif
 
 #endif

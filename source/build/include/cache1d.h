@@ -13,10 +13,6 @@
 
 #include "vfs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern char *kpzbuf;
 extern int32_t kpzbufsiz;
 extern int32_t kpzbufload(const char *);
@@ -156,10 +152,6 @@ int32_t     kdfread(void *buffer, int dasizeof, int count, buildvfs_kfd fil);
 int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil);
 void     dfwrite(const void *buffer, int dasizeof, int count, buildvfs_FILE fil);
 void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // cache1d_h_
 

@@ -34,10 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "drivers.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef enum
 {
     FMT_UNKNOWN,
@@ -132,9 +128,5 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
                 void *initdata);
 int32_t MV_Shutdown(void);
 void MV_SetPrintf(void (*function)(const char *fmt, ...));
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

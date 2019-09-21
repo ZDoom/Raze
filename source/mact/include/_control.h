@@ -40,10 +40,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "compat.h"
 #include "keyboard.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 //****************************************************************************
 //
@@ -177,7 +173,4 @@ typedef struct
 //
 //***************************************************************************
 
-#ifdef __cplusplus
-}
-#endif
 #endif

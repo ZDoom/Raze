@@ -32,69 +32,6 @@ typedef int64_t coord_t;
 typedef int64_t inthi_t;
 #define inthi_rintf llrintf
 
-#if !defined(NOASM) && (defined(_MSC_VER) || (defined(__GNUC__) && defined(__i386__)))
-
-#if defined __linux || defined __APPLE__ || defined EDUKE32_BSD || defined __SYLLABLE__
-#define __cdecl
-#endif
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-extern int32_t __cdecl mmxoverlay();
-extern int32_t __cdecl sethlinesizes(int32_t,int32_t,int32_t);
-extern int32_t __cdecl setpalookupaddress(char *);
-extern int32_t __cdecl setuphlineasm4(int32_t,int32_t);
-extern int32_t __cdecl hlineasm4(ssize_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl setuprhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl rhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl setuprmhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl rmhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl setupqrhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl qrhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl setvlinebpl(int32_t);
-extern int32_t __cdecl fixtransluscence(int32_t);
-extern int32_t __cdecl prevlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl vlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl vlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl setuptvlineasm(int32_t,int32_t);
-extern int32_t __cdecl tvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl tvlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl setuptvlineasm2(int32_t,int32_t,int32_t);
-extern int32_t __cdecl tvlineasm2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl mvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl mvlineasm1nonpow2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl setupvlineasm(int32_t);
-extern int32_t __cdecl vlineasm4(int32_t,char *);
-extern int32_t __cdecl setupmvlineasm(int32_t,int32_t);
-extern int32_t __cdecl mvlineasm4(int32_t,char *);
-extern int32_t __cdecl setupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl spritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl msetupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl mspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl tsetupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl tspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl mhline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl mhlineskipmodify(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl msethlineshift(int32_t,int32_t);
-extern int32_t __cdecl thline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl thlineskipmodify(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl tsethlineshift(int32_t,int32_t);
-extern int32_t __cdecl setupslopevlin(int32_t,int32_t,int32_t);
-extern int32_t __cdecl slopevlin(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern int32_t __cdecl settransnormal();
-extern int32_t __cdecl settransreverse();
-extern int32_t __cdecl setupdrawslab(int32_t,int32_t);
-extern int32_t __cdecl drawslab(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-extern void __cdecl stretchhline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
-
-#ifdef __cplusplus
-}
-#endif
-
-#else // !defined(NOASM) && (defined(_MSC_VER) || (defined(__GNUC__) && defined(__i386__)))
 
 #define ENGINE_USING_A_C
 
@@ -147,7 +84,5 @@ void drawslab (int32_t dx, int32_t v, int32_t dy, int32_t vi, intptr_t vptr, int
 void stretchhline (intptr_t p0, int32_t u, bssize_t cnt, int32_t uinc, intptr_t rptr, intptr_t p);
 
 void mmxoverlay();
-
-#endif	// else
 
 #endif // a_h_

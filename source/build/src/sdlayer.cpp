@@ -330,84 +330,13 @@ static void sighandler(int signum)
 }
 #endif
 
-#ifdef __ANDROID__
-int mobile_halted = 0;
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-void G_Shutdown(void);
-#ifdef __cplusplus
-}
-#endif
-
-int sdlayer_mobilefilter(void *userdata, SDL_Event *event)
-{
-    switch (event->type)
-    {
-        case SDL_APP_TERMINATING:
-            // yes, this calls into the game, ugh
-            if (mobile_halted == 1)
-                G_Shutdown();
-
-            mobile_halted = 1;
-            return 0;
-        case SDL_APP_LOWMEMORY:
-            gltexinvalidatetype(INVALIDATE_ALL);
-            return 0;
-        case SDL_APP_WILLENTERBACKGROUND:
-            mobile_halted = 1;
-            return 0;
-        case SDL_APP_DIDENTERBACKGROUND:
-            gltexinvalidatetype(INVALIDATE_ALL);
-            // tear down video?
-            return 0;
-        case SDL_APP_WILLENTERFOREGROUND:
-            // restore video?
-            return 0;
-        case SDL_APP_DIDENTERFOREGROUND:
-            mobile_halted = 0;
-            return 0;
-        default:
-            return 1;//!halt;
-    }
-
-    UNREFERENCED_PARAMETER(userdata);
-}
-#endif
-
-#ifdef __ANDROID__
-# include <setjmp.h>
-static jmp_buf eduke32_exit_jmp_buf;
-static int eduke32_return_value;
-
-void eduke32_exit_return(int retval)
-{
-    eduke32_return_value = retval;
-    longjmp(eduke32_exit_jmp_buf, 1);
-    EDUKE32_UNREACHABLE_SECTION(return);
-}
-#endif
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
-#elif defined __ANDROID__
-# ifdef __cplusplus
-extern "C" int eduke32_android_main(int argc, char const *argv[]);
-# endif
-int eduke32_android_main(int argc, char const *argv[])
-#elif defined GEKKO
-int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char *argv[])
 #endif
 {
-#ifdef __ANDROID__
-    if (setjmp(eduke32_exit_jmp_buf))
-    {
-        return eduke32_return_value;
-    }
-#endif
 
 #if defined _WIN32 && defined SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING
     // Thread naming interferes with debugging using MinGW-w64's GDB.
@@ -451,8 +380,6 @@ int main(int argc, char *argv[])
         MessageBox(0, "This application requires a newer Windows version to run.", apptitle, MB_OK | MB_ICONSTOP);
         return -1;
     }
-#elif defined(GEKKO)
-    wii_open();
 #elif defined(HAVE_GTK2)
     // Pre-initialize SDL video system in order to make sure XInitThreads() is called
     // before GTK starts talking to X11.

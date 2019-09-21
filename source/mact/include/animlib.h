@@ -35,9 +35,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef animlib_public_h_
 #define animlib_public_h_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 # pragma pack(push,1)
 
@@ -148,7 +145,4 @@ uint8_t * ANIM_DrawFrame(int32_t framenumber);
 
 uint8_t * ANIM_GetPalette(void);
 
-#ifdef __cplusplus
-}
-#endif
 #endif

@@ -7,10 +7,6 @@
 
 #include "vfs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "mutex.h"
 
 typedef struct {
@@ -305,10 +301,6 @@ static inline void OSD_SetHistory(int idx, const char *src)
 extern int osdcmd_restartvid(osdcmdptr_t parm);
 
 extern void M32RunScript(const char *s);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // osd_h_
 

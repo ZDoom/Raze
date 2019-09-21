@@ -1,10 +1,6 @@
 #ifndef HIGHTILE_PRIV_H
 #define HIGHTILE_PRIV_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 struct hicskybox_t {
     char *face[6];
 };
@@ -135,9 +131,5 @@ enum
 #define GRAYSCALE_COEFF_RED 0.3
 #define GRAYSCALE_COEFF_GREEN 0.59
 #define GRAYSCALE_COEFF_BLUE 0.11
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

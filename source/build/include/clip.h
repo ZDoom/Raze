@@ -11,10 +11,6 @@
 #ifndef clip_h_
 #define clip_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MAXCLIPSECTORS 512
 #define MAXCLIPNUM 2048
 #define CLIPCURBHEIGHT (1<<8)
@@ -85,9 +81,5 @@ int32_t clipmovex(vec3_t *const pos, int16_t *const sectnum, int32_t xvect, int3
                   int32_t const flordist, uint32_t const cliptype, uint8_t const noslidep) ATTRIBUTE((nonnull(1, 2)));
 int pushmove(vec3_t *const vect, int16_t *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
                  uint32_t const cliptype, bool clear = true) ATTRIBUTE((nonnull(1, 2)));
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

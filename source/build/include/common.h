@@ -12,11 +12,6 @@
 #include "pragmas.h"  // klabs
 #include "scriptfile.h"
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern bool playing_rr;
 extern bool playing_blood;
 
@@ -53,14 +48,8 @@ enum
 //// EXTERN DECLS
 extern struct strllist *CommandPaths, *CommandGrps;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 extern const char *s_buildRev;
 extern const char *s_buildTimestamp;
-#ifdef __cplusplus
-}
-#endif
 
 //// FUNCTIONS
 extern void PrintBuildInfo(void);
@@ -154,9 +143,5 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 #define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
 
 void Duke_CommonCleanup(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

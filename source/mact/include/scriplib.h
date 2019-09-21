@@ -28,9 +28,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #ifndef scriplib_public_h_
 #define scriplib_public_h_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*
 ==============
@@ -225,8 +222,4 @@ void SCRIPT_PutBoolean(int32_t scripthandle, char *sectionname, char *entryname,
 
 void SCRIPT_PutDouble(int32_t scripthandle, char *sectionname, char *entryname, double number, int32_t defaultvalue);
 
-
-#ifdef __cplusplus
-}
-#endif
 #endif

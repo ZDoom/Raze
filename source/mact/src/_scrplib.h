@@ -31,9 +31,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef scriplib_private_h_
 #define scriplib_private_h_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define SCRIPTSECTIONSTART ('[')
 #define SCRIPTSECTIONEND   (']')
@@ -202,8 +199,4 @@ void SCRIPT_AddEntry
 
 void SCRIPT_DecodeToken ( int32_t scripthandle, char * str );
 
-
-#ifdef __cplusplus
-}
-#endif
 #endif

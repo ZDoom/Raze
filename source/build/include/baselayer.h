@@ -11,10 +11,6 @@
 #include "osd.h"
 #include "timer.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern int app_main(int argc, char const * const * argv);
 extern const char* AppProperName;
 extern const char* AppTechnicalName;
@@ -277,10 +273,6 @@ int32_t baselayer_init();
 
 void makeasmwriteable(void);
 void maybe_redirect_outputs(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "print.h"
 

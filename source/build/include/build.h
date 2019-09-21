@@ -29,10 +29,6 @@
 #include "vfs.h"
 #include "cache1d.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 enum rendmode_t {
     REND_CLASSIC,
     REND_POLYMOST = 3,
@@ -271,21 +267,17 @@ enum {
 #  define EXTERN extern
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
 #if defined __cplusplus && (defined USE_OPENGL || defined POLYMER)
 # define USE_STRUCT_TRACKERS
 #endif
 
 #ifdef USE_STRUCT_TRACKERS
 
-extern "C" {
+
 static FORCE_INLINE void sector_tracker_hook__(intptr_t address);
 static FORCE_INLINE void wall_tracker_hook__(intptr_t address);
 static FORCE_INLINE void sprite_tracker_hook__(intptr_t address);
-}
+
 
 #define TRACKER_NAME__ SectorTracker
 #define TRACKER_HOOK_ sector_tracker_hook__
@@ -527,10 +519,6 @@ static inline void inplace_vx_tweak_wall(walltypevx *vxwal, int32_t yaxp)
 
 int32_t getwalldist(vec2_t const in, int const wallnum);
 int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out);
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct {
     uint32_t mdanimtims;
@@ -1489,10 +1477,6 @@ int32_t loaddefinitionsfile(const char *fn);
 // -2, board is dodgy
 int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 
-#ifdef __cplusplus
-}
-#endif
-
 #include "hash.h"
 
 #ifdef POLYMER
@@ -1502,9 +1486,6 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 # include "polymost.h"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 static FORCE_INLINE void renderDisableFog(void)
 {
@@ -1614,10 +1595,6 @@ extern int32_t(*loadboard_replace)(const char *filename, char flags, vec3_t *dap
 extern int32_t(*saveboard_replace)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 #ifdef USE_OPENGL
 extern void(*PolymostProcessVoxels_Callback)(void);
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif // build_h_

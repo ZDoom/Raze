@@ -10,10 +10,6 @@
 
 void Polymost_CacheHitList(uint8_t* hash);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 	class FHardwareTexture;
 typedef struct { uint8_t r, g, b, a; } coltype;
 typedef struct { float r, g, b, a; } coltypef;
@@ -295,10 +291,6 @@ extern hitdata_t polymost_hitdata;
 
 extern void polymost_setupglowtexture(int32_t texunits, FHardwareTexture *tex);
 extern void polymost_setupdetailtexture(int32_t texunits, FHardwareTexture* tex);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 

@@ -14,10 +14,6 @@
 #include "cache1d.h"
 #include "vfs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MAXBASEPALS 256
 #define MAXPALOOKUPS 256
 #define MAXBLENDTABS 256
@@ -136,10 +132,6 @@ extern glblend_t const nullglblend, defaultglblend;
 extern glblend_t glblend[MAXBLENDTABS];
 
 extern void handle_blend(uint8_t enable, uint8_t blend, uint8_t def);
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif

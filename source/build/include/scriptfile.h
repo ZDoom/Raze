@@ -2,10 +2,6 @@
 #ifndef BUILD_SCRIPTFILE_H_
 #define BUILD_SCRIPTFILE_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct {
 	char *textbuf;
 	uint32_t textlength;
@@ -33,9 +29,5 @@ int scriptfile_eof(scriptfile *sf);
 int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val);
 int32_t scriptfile_addsymbolvalue(char const *name, int32_t val);
 void scriptfile_clearsymbols(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

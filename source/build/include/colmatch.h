@@ -1,10 +1,6 @@
 
 #include "compat.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern void initfastcolorlookup_scale(int32_t rscale, int32_t gscale, int32_t bscale);
 extern void initfastcolorlookup_palette(uint8_t const * pal) ATTRIBUTE((nonnull(1)));
 extern void initfastcolorlookup_gridvectors(void);
@@ -21,7 +17,3 @@ static FORCE_INLINE int32_t getclosestcol_nocache(int32_t r, int32_t g, int32_t 
 {
     return getclosestcol_nocache_lim(r, g, b, 255);
 }
-
-#ifdef __cplusplus
-}
-#endif

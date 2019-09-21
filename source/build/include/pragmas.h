@@ -9,9 +9,6 @@
 #ifndef pragmas_h_
 #define pragmas_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define EDUKE32_GENERATE_PRAGMAS                                                                            \
     EDUKE32_SCALER_PRAGMA(1)  EDUKE32_SCALER_PRAGMA(2)  EDUKE32_SCALER_PRAGMA(3)  EDUKE32_SCALER_PRAGMA(4)  \
@@ -23,13 +20,7 @@ extern "C" {
     EDUKE32_SCALER_PRAGMA(25) EDUKE32_SCALER_PRAGMA(26) EDUKE32_SCALER_PRAGMA(27) EDUKE32_SCALER_PRAGMA(28) \
     EDUKE32_SCALER_PRAGMA(29) EDUKE32_SCALER_PRAGMA(30) EDUKE32_SCALER_PRAGMA(31)
 
-#if !defined(NOASM) && defined __cplusplus
-extern "C" {
-#endif
 extern int32_t reciptable[2048], fpuasm;
-#if !defined(NOASM) && defined __cplusplus
-}
-#endif
 
 // break the C version of divscale out from the others
 // because asm version overflows in drawmapview()
@@ -143,8 +134,6 @@ EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 #endif
 
 
-#ifdef __cplusplus
-}
 template <typename T>
 static FORCE_INLINE void swap(T * const a, T * const b)
 {
@@ -153,15 +142,6 @@ static FORCE_INLINE void swap(T * const a, T * const b)
     *b = t;
 }
 #define swapptr swap
-extern "C" {
-#else
-static FORCE_INLINE void swapptr(void *a, void *b)
-{
-    intptr_t const t = *(intptr_t*) a;
-    *(intptr_t*) a = *(intptr_t*) b;
-    *(intptr_t*) b = t;
-}
-#endif
 
 #ifndef pragmas_have_swaps
 #define swapchar swap
@@ -263,8 +243,5 @@ static inline void swapbufreverse(void *s, void *d, int32_t c)
         swapchar(dst++, src--);
 }
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif  // pragmas_h_

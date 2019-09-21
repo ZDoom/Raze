@@ -33,10 +33,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "baselayer.h"	// for the keyboard stuff
 #include "scancodes.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef uint8_t kb_scancode;
 
 // translation table for taking key names to scancodes and back again
@@ -104,7 +100,4 @@ static inline void KB_Shutdown(void) { keySetCallback((void (*)(int32_t, int32_t
 const char *  KB_ScanCodeToString( kb_scancode scancode ); // convert scancode into a string
 kb_scancode KB_StringToScanCode( const char * string );  // convert a string into a scancode
 
-#ifdef __cplusplus
-}
-#endif
 #endif

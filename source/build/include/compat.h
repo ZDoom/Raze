@@ -81,11 +81,7 @@
 
 ////////// Language and compiler feature polyfills //////////
 
-#ifdef __cplusplus
-# define EXTERNC extern "C"
-#else
 # define EXTERNC
-#endif
 
 #ifndef UNREFERENCED_PARAMETER
 # define UNREFERENCED_PARAMETER(x) (x) = (x)
@@ -1222,10 +1218,6 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
 /* Begin dependence on compat.o object. */
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 #ifndef USE_PHYSFS
 ////////// Directory enumeration //////////
@@ -1350,9 +1342,6 @@ static FORCE_INLINE void *xaligned_alloc(const bsize_t alignment, const bsize_t 
 #define Xaligned_alloc(alignment, size) (EDUKE32_PRE_XALLOC xaligned_alloc(alignment, size))
 #define Xfree(ptr) (EDUKE32_PRE_XALLOC xfree(ptr))
 #define Xaligned_free(ptr) (EDUKE32_PRE_XALLOC xaligned_free(ptr))
-#ifdef __cplusplus
-}
-#endif
 
 
 ////////// More utility functions //////////

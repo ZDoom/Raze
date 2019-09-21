@@ -36,10 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "limits.h"
 #include "multivoc.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 enum FX_ERRORS
 {
     FX_Warning = -2,
@@ -117,9 +113,5 @@ static FORCE_INLINE int32_t FX_SoundActive(int32_t handle) { return MV_VoicePlay
 static FORCE_INLINE int32_t FX_SoundsPlaying(void) { return MV_VoicesPlaying(); }
 static FORCE_INLINE int32_t FX_StopSound(int32_t handle) { return FX_CheckMVErr(MV_Kill(handle)); }
 static FORCE_INLINE int32_t FX_StopAllSounds(void) { return FX_CheckMVErr(MV_KillAllVoices()); }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

@@ -4,10 +4,6 @@
 #ifndef hash_h_
 #define hash_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // Hash functions
 
 typedef struct hashitem_ // size is 12/24 bytes.
@@ -80,9 +76,5 @@ void inthash_delete(inthashtable_t *t, intptr_t key);
 // keep the load factor below 0.75 and make sure the size is odd
 // ideally we would find the next largest prime number
 #define INTHASH_SIZE(size) ((size * 4u / 3u) | 1u)
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

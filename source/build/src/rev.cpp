@@ -4,11 +4,5 @@
 # define REV "r(?)"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 const char* s_buildRev = REV;
 const char* s_buildTimestamp = __DATE__ " " __TIME__;
-#ifdef __cplusplus
-}
-#endif

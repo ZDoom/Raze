@@ -201,10 +201,6 @@ typedef struct sjson_node
 // Not multi-threaded. Do not use the same context in multiple threads
 typedef struct sjson_context sjson_context;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 sjson_context* sjson_create_context(int pool_size, int str_buffer_size, void* alloc_user);
 void 		   sjson_destroy_context(sjson_context* ctx);
 void 		   sjson_reset_context(sjson_context* ctx);
@@ -283,10 +279,6 @@ sjson_node* sjson_put_uint16s(sjson_context* ctx, sjson_node* parent, const char
  * to errmsg (unless errmsg is NULL).
  */
 bool sjson_check(const sjson_node* node, char errmsg[256]);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // SJSON_H_
 

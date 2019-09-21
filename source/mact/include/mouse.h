@@ -32,10 +32,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #include "baselayer.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define LEFT_MOUSE      1
 #define RIGHT_MOUSE     2
 #define MIDDLE_MOUSE    4
@@ -58,7 +54,4 @@ static inline int32_t MOUSE_GetButtons(void) { return mouseReadButtons(); }
 static inline void MOUSE_ClearButton(int32_t b) { g_mouseBits &= ~b; }
 static inline void MOUSE_ClearAllButtons(void) { g_mouseBits = 0; }
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* __mouse_h */

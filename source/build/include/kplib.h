@@ -5,10 +5,6 @@
 
 #include "vfs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct
 {
     buildvfs_FILE fil;    //0:no file open, !=0:open file (either stand-alone or zip)
@@ -61,7 +57,3 @@ static inline int32_t filnamcmp(const char *j, const char *i)
     return *i != '\0' || *j != '\0';
 }
 extern int32_t wildmatch(const char *match, const char *wild);
-
-#ifdef __cplusplus
-}
-#endif

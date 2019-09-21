@@ -24,145 +24,12 @@
 # define YAX_MAXDRAWS 8
 #endif
 
-#if !defined(NOASM) && defined __cplusplus
-extern "C" {
-#endif
     extern intptr_t asm1, asm2, asm3, asm4;
     extern int32_t globalx1, globaly2;
-#if !defined(NOASM) && defined __cplusplus
-}
-#endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
 
-#if defined(_MSC_VER) && !defined(NOASM)
-
-    //
-    // Microsoft C Inline Assembly Routines
-    //
-
-    static inline int32_t nsqrtasm(int32_t a)
-    {
-        _asm
-        {
-            push ebx
-            mov eax, a
-            test eax, 0xff000000
-            mov ebx, eax
-            jnz short over24
-            shr ebx, 12
-            mov cx, word ptr shlookup[ebx*2]
-            jmp short under24
-            over24 :
-            shr ebx, 24
-                mov cx, word ptr shlookup[ebx*2+8192]
-                under24 :
-                shr eax, cl
-                mov cl, ch
-                mov ax, word ptr sqrtable[eax*2]
-                shr eax, cl
-                pop ebx
-        }
-    }
-
-    static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
-    {
-        _asm
-        {
-            push ebx
-            mov eax, a
-            mov ebx, b
-            mov ecx, c
-            mov edx, d
-            sar eax, 31
-            add ebx, ebx
-            adc eax, eax
-            add ecx, ecx
-            adc eax, eax
-            add edx, edx
-            adc eax, eax
-            mov ebx, eax
-            shl ebx, 4
-            or al, 0xf0
-            xor eax, ebx
-            pop ebx
-        }
-    }
-
-    static inline int32_t getkensmessagecrc(void *b)
-    {
-        _asm
-        {
-            push ebx
-            mov ebx, b
-            xor eax, eax
-            mov ecx, 32
-            beg:
-            mov edx, dword ptr[ebx+ecx*4-4]
-                ror edx, cl
-                adc eax, edx
-                bswap eax
-                loop short beg
-                pop ebx
-        }
-    }
-
-#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// _MSC_VER
-
-    //
-    // GCC "Inline" Assembly Routines
-    //
-
-#define nsqrtasm(a) \
-    ({ int32_t __r, __a=(a); \
-       __asm__ __volatile__ ( \
-        "testl $0xff000000, %%eax\n\t" \
-        "movl %%eax, %%ebx\n\t" \
-        "jnz 0f\n\t" \
-        "shrl $12, %%ebx\n\t" \
-        "movw " ASMSYM("shlookup") "(,%%ebx,2), %%cx\n\t" \
-        "jmp 1f\n\t" \
-        "0:\n\t" \
-        "shrl $24, %%ebx\n\t" \
-        "movw (" ASMSYM("shlookup") "+8192)(,%%ebx,2), %%cx\n\t" \
-        "1:\n\t" \
-        "shrl %%cl, %%eax\n\t" \
-        "movb %%ch, %%cl\n\t" \
-        "movw " ASMSYM("sqrtable") "(,%%eax,2), %%ax\n\t" \
-        "shrl %%cl, %%eax" \
-        : "=a" (__r) : "a" (__a) : "ebx", "ecx", "cc"); \
-     __r; })
-
-#define getclipmask(a,b,c,d) \
-    ({ int32_t __a=(a), __b=(b), __c=(c), __d=(d); \
-       __asm__ __volatile__ ("sarl $31, %%eax; addl %%ebx, %%ebx; adcl %%eax, %%eax; " \
-                "addl %%ecx, %%ecx; adcl %%eax, %%eax; addl %%edx, %%edx; " \
-                "adcl %%eax, %%eax; movl %%eax, %%ebx; shl $4, %%ebx; " \
-                "orb $0xf0, %%al; xorl %%ebx, %%eax" \
-        : "=a" (__a), "=b" (__b), "=c" (__c), "=d" (__d) \
-        : "a" (__a), "b" (__b), "c" (__c), "d" (__d) : "cc"); \
-     __a; })
-
-
-#define getkensmessagecrc(b) \
-    ({ int32_t __a, __b=(b); \
-       __asm__ __volatile__ ( \
-        "xorl %%eax, %%eax\n\t" \
-        "movl $32, %%ecx\n\t" \
-        "0:\n\t" \
-        "movl -4(%%ebx,%%ecx,4), %%edx\n\t" \
-        "rorl %%cl, %%edx\n\t" \
-        "adcl %%edx, %%eax\n\t" \
-        "bswapl %%eax\n\t" \
-        "loop 0b" \
-        : "=a" (__a) : "b" (__b) : "ecx", "edx" \
-     __a; })
-
-#else   // __GNUC__ && __i386__
 
     static inline int32_t nsqrtasm(uint32_t a)
     {
@@ -203,7 +70,6 @@ extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[409
         return 0x56c764d4l;
     }
 
-#endif
 
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
@@ -400,10 +266,6 @@ static FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t
     globalposy = y, fglobalposy = (float)y;
     globalposz = z, fglobalposz = (float)z;
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 template <typename T> static FORCE_INLINE void tileUpdatePicnum(T * const tileptr, int const obj)
 {
