@@ -3101,9 +3101,9 @@ bool actHealDude(XSPRITE *pXDude, int a2, int a3)
     return 0;
 }
 
-void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
+void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType, int damage)
 {
-    spritetype *pSprite2 = &sprite[a1];
+    spritetype *pKillerSprite = &sprite[nKillerSprite];
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int nType = pSprite->type-kDudeBase;
     int nXSprite = pSprite->extra;
@@ -3115,13 +3115,13 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
         if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == NULL) {
             
             if (pXSprite->data1 >= 459 && pXSprite->data1 < (459 + kExplodeMax) - 1 &&
-                Chance(0x4000) && a3 != 5 && a3 != 4) {
+                Chance(0x4000) && damageType != 5 && damageType != 4) {
 
                 doExplosion(pSprite, pXSprite->data1 - 459);
-                if (Chance(0x9000)) a3 = (DAMAGE_TYPE) 3;
+                if (Chance(0x9000)) damageType = (DAMAGE_TYPE) 3;
             }
 
-            if (a3 == DAMAGE_TYPE_1) {
+            if (damageType == DAMAGE_TYPE_1) {
                 if ((gSysRes.Lookup(pXSprite->data2 + 15, "SEQ") || gSysRes.Lookup(pXSprite->data2 + 16, "SEQ")) && pXSprite->medium == 0) {
                     if (gSysRes.Lookup(pXSprite->data2 + 3, "SEQ")) {
                         pSprite->type = kCustomDudeBurning;
@@ -3138,7 +3138,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
                 } else {
                     pXSprite->burnTime = 0;
                     pXSprite->burnSource = -1;
-                    a3 = DAMAGE_TYPE_0;
+                    damageType = DAMAGE_TYPE_0;
                 }
             }
             
@@ -3196,7 +3196,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
     case 202:
     case 247:
     case 248:
-        if (a3 == DAMAGE_TYPE_1 && pXSprite->medium == 0)
+        if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == 0)
         {
             pSprite->type = 240;
             aiNewState(pSprite, pXSprite, &cultistBurnGoto);
@@ -3206,7 +3206,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
         // no break
         fallthrough__;
     case 251:
-        if (a3 == DAMAGE_TYPE_1 && pXSprite->medium == 0)
+        if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == 0)
         {
             pSprite->type = 253;
             aiNewState(pSprite, pXSprite, &beastBurnGoto);
@@ -3216,7 +3216,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
         // no break
         fallthrough__;
     case 245:
-        if (a3 == DAMAGE_TYPE_1 && pXSprite->medium == 0)
+        if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == 0)
         {
             pSprite->type = 239;
             aiNewState(pSprite, pXSprite, &innocentBurnGoto);
@@ -3233,11 +3233,23 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
     if (pSprite->type != 249)
         trTriggerSprite(pSprite->index, pXSprite, 0);
     pSprite->hitag |= 7;
-    if (IsPlayerSprite(pSprite2))
+    if (VanillaMode())
     {
-        PLAYER *pPlayer = &gPlayer[pSprite2->index-kDudePlayer1];
-        if (gGameOptions.nGameType == 1)
-            pPlayer->at2c6++;
+        if (IsPlayerSprite(pKillerSprite))
+        {
+            PLAYER *pPlayer = &gPlayer[pKillerSprite->index-kDudePlayer1];
+            if (gGameOptions.nGameType == 1)
+                pPlayer->at2c6++;
+        }
+    }
+    else
+    {
+        if (gGameOptions.nGameType == 1 && IsPlayerSprite(pKillerSprite)
+            && pSprite->statnum == 6 && pSprite->type != 219 && pSprite->type != 220 && pSprite->type != 245 && pSprite->type != 239)
+        {
+            PLAYER *pKillerPlayer = &gPlayer[pKillerSprite->type-kDudePlayer1];
+            pKillerPlayer->at2c6++;
+        }
     }
 
     if (pXSprite->key > 0)
@@ -3261,7 +3273,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
             actDropObject(pSprite, 67);
     }
     int nSeq;
-    switch (a3)
+    switch (damageType)
     {
     case DAMAGE_TYPE_3:
         nSeq = 2;
@@ -3379,7 +3391,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
             sfxPlay3DSound(pSprite, 718, -1, 0);
         else
             sfxPlay3DSound(pSprite, 1018+Random(2), -1, 0);
-        a3 = DAMAGE_TYPE_3;
+        damageType = DAMAGE_TYPE_3;
         if (Chance(0x8000))
         {
             for (int i = 0; i < 3; i++)
@@ -3410,7 +3422,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
     case kCustomDudeBurning:
     {
         sfxPlayGDXGenDudeSound(pSprite, 4);
-        a3 = DAMAGE_TYPE_3;
+        damageType = DAMAGE_TYPE_3;
 
         if (Chance(0x4000)) {
             int top, bottom;
@@ -3435,7 +3447,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
             sfxPlay3DSound(pSprite, 1109, -1, 0);
         else
             sfxPlay3DSound(pSprite, 1107+Random(2), -1, 0);
-        a3 = DAMAGE_TYPE_3;
+        damageType = DAMAGE_TYPE_3;
         if (Chance(0x8000))
         {
             seqSpawn(dudeInfo[nType].seqStartID+13, 3, nXSprite, nDudeToGibClient1);
@@ -3456,7 +3468,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
         seqSpawn(dudeInfo[4].seqStartID+10, 3, nXSprite, -1);
         break;
     case 239:
-        a3 = DAMAGE_TYPE_3;
+        damageType = DAMAGE_TYPE_3;
         seqSpawn(dudeInfo[nType].seqStartID+7, 3, nXSprite, nDudeToGibClient1);
         break;
     case 204:
@@ -3583,14 +3595,14 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
         seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, -1);
         break;
     case 222:
-        if (a4 == 5)
+        if (damage == 5)
             sfxPlay3DSound(pSprite, 2471, -1, 0);
         else
             sfxPlay3DSound(pSprite, 2472, -1, 0);
         seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, -1);
         break;
     case 223:
-        if (a4 == 5)
+        if (damage == 5)
             sfxPlay3DSound(pSprite, 2451, -1, 0);
         else
             sfxPlay3DSound(pSprite, 2452, -1, 0);
@@ -3633,7 +3645,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
         seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, -1);
         break;
     case 252:
-        a3 = DAMAGE_TYPE_3;
+        damageType = DAMAGE_TYPE_3;
         seqSpawn(dudeInfo[nType].seqStartID+11, 3, nXSprite, nDudeToGibClient1);
         break;
     case 251:
@@ -3644,7 +3656,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
             seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, nDudeToGibClient1);
         break;
     case 253:
-        a3 = DAMAGE_TYPE_3;
+        damageType = DAMAGE_TYPE_3;
         seqSpawn(dudeInfo[nType].seqStartID+12, 3, nXSprite, nDudeToGibClient1);
         break;
     default:
@@ -3666,14 +3678,14 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
         }
     }
     
-    if (a3 == DAMAGE_TYPE_3)
+    if (damageType == DAMAGE_TYPE_3)
     {
         DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
         for (int i = 0; i < 3; i++)
             if (pDudeInfo->nGibType[i] > -1)
                 GibSprite(pSprite, (GIBTYPE)pDudeInfo->nGibType[i], NULL, NULL);
         for (int i = 0; i < 4; i++)
-            fxSpawnBlood(pSprite, a4);
+            fxSpawnBlood(pSprite, damage);
     }
     gKillMgr.AddKill(pSprite);
     actCheckRespawn(pSprite);
@@ -3681,7 +3693,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
     actPostSprite(pSprite->index, 4);
 }
 
-int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
+int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, int damage)
 {
     dassert(nSource < kMaxSprites);
     if (pSprite->hitag&32)
@@ -3721,40 +3733,40 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
         }
         dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
         int nType = pSprite->type-kDudeBase;
-        int nDamageFactor = dudeInfo[nType].at70[a3];
+        int nDamageFactor = dudeInfo[nType].at70[damageType];
         if (!nDamageFactor)
             return 0;
         if (nDamageFactor != 256)
-            a4 = mulscale8(a4, nDamageFactor);
+            damage = mulscale8(damage, nDamageFactor);
         if (!IsPlayerSprite(pSprite))
         {
             if (!pXSprite->health)
                 return 0;
-            a4 = aiDamageSprite(pSprite, pXSprite, nSource, a3, a4);
+            damage = aiDamageSprite(pSprite, pXSprite, nSource, damageType, damage);
             if (!pXSprite->health)
             {
-                if (a3 == DAMAGE_TYPE_3 && a4 < 160)
-                    a3 = DAMAGE_TYPE_0;
-                actKillDude(nSource, pSprite, a3, a4);
+                if (damageType == DAMAGE_TYPE_3 && damage < 160)
+                    damageType = DAMAGE_TYPE_0;
+                actKillDude(nSource, pSprite, damageType, damage);
             }
         }
         else
         {
             PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
             if (pXSprite->health > 0 || playerSeqPlaying(pPlayer, 16))
-                a4 = playerDamageSprite(nSource, pPlayer, a3, a4);
+                damage = playerDamageSprite(nSource, pPlayer, damageType, damage);
         }
         break;
     }
     case 4:
         dassert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
         int nType = pSprite->type-kThingBase;
-        int nDamageFactor = thingInfo[nType].at17[a3];
+        int nDamageFactor = thingInfo[nType].at17[damageType];
         if (!nDamageFactor)
             return 0;
         if (nDamageFactor != 256)
-            a4 = mulscale8(a4, nDamageFactor);
-        pXSprite->health = ClipLow(pXSprite->health-a4, 0);
+            damage = mulscale8(damage, nDamageFactor);
+        pXSprite->health = ClipLow(pXSprite->health-damage, 0);
         if (!pXSprite->health)
         {
             if (pSprite->type == 431 || pSprite->type == kGDXThingCustomDudeLifeLeech)
@@ -3781,7 +3793,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
             case 425:
             case 426:
             case 427:
-                if (a3 == 3 && pSourcePlayer && gFrameClock > pSourcePlayer->at312 && Chance(0x4000))
+                if (damageType == 3 && pSourcePlayer && gFrameClock > pSourcePlayer->at312 && Chance(0x4000))
                 {
                     sfxPlay3DSound(pSourcePlayer->pSprite, gPlayerGibThingComments[Random(10)], 0, 2);
                     pSourcePlayer->at312 = (int)gFrameClock+3600;
@@ -3827,7 +3839,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4)
         }
         break;
     }
-    return a4>>4;
+    return damage>>4;
 }
 
 void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRITE **a5, int *a6, walltype **a7, XWALL **a8, int *a9, sectortype **a10, XSECTOR **a11)

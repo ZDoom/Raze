@@ -1159,7 +1159,7 @@ void viewDrawStats(PLAYER *pPlayer, int x, int y)
         );
     viewDrawText(3, buffer, x, y, 20, 0, 0, true, 256);
     y += nHeight+1;
-    if (gGameOptions.nGameType == 0 || gGameOptions.nGameType == 2)
+    if (gGameOptions.nGameType != 3)
         sprintf(buffer, "K:%d/%d", gKillMgr.at4, gKillMgr.at0);
     else
         sprintf(buffer, "K:%d", pPlayer->at2c6);
