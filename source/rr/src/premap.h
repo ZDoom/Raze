@@ -23,10 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef premap_h_
 #define premap_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern int16_t g_ambientLotag[64];
 extern int16_t g_ambientHitag[64];
 extern int32_t g_levelTextTime;
@@ -52,9 +48,5 @@ void G_ResetInterpolations(void);
 extern int32_t fragbarheight(void);
 void G_SetFog(int fogtype);
 void G_InitRRRASkies(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

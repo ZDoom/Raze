@@ -32,9 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef function_private_h_
 #define function_private_h_
-#ifdef __cplusplus
-extern "C" {
-#endif
 // KEEPINSYNC lunatic/con_lang.lua
 char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    {
@@ -389,8 +386,5 @@ static const char * joystickdigitaldefaults[MAXJOYDIGITAL] =
    };
 #endif
 
-#endif
-#ifdef __cplusplus
-}
 #endif
 #endif

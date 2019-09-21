@@ -25,16 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if defined EDUKE32_TOUCH_DEVICES
-# define EDUKE32_SIMPLE_MENU
-# define EDUKE32_ANDROID_MENU
-#endif
-
-// #define EDUKE32_SIMPLE_MENU
 
 enum MenuIndex_t {
     MENU_NULL           = INT32_MIN, // sentinel for "do nothing"
@@ -503,12 +493,6 @@ extern MenuFont_t MF_Redfont, MF_Bluefont, MF_Minifont;
 #define M_MOUSETIMEOUT 210
 extern int32_t m_mouselastactivity;
 
-#if defined EDUKE32_TOUCH_DEVICES
-# define MOUSEALPHA 0
-# define CURSORALPHA (255/3)
-# define MOUSEACTIVECONDITIONAL(condition) (condition)
-# define MOUSEWATCHPOINTCONDITIONAL(condition) (condition)
-#else
 extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 // alpha increments of 3 --> 255 / 3 = 85 --> round up to power of 2 --> 128 --> divide by 2 --> 64 alphatabs required
 // use 16 anyway :P
@@ -519,10 +503,6 @@ extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 # define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
 # define MOUSEINACTIVECONDITIONAL(condition) (!MOUSEACTIVECONDITION && (condition))
 # define MOUSEWATCHPOINTCONDITIONAL(condition) ((condition) || m_mousewake_watchpoint || m_menuchange_watchpoint == 3)
-#endif
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif

@@ -30,9 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef function_public_h_
 #define function_public_h_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define NUMGAMEFUNCTIONS 62
 #define MAXGAMEFUNCLEN 32
@@ -106,7 +103,4 @@ enum GameFunction_t
    gamefunc_Third_Person_View,
    gamefunc_Toggle_Crouch, // TODO: Implement properly for mp
    };
-#ifdef __cplusplus
-}
-#endif
 #endif

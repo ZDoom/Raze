@@ -25,9 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "game.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 # define SV_MAJOR_VER 1
 #define SV_MINOR_VER 7
@@ -150,9 +147,5 @@ enum
 };
 void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode);
 void G_Util_PtrToIdx2(void *ptr, int32_t count, size_t stride, const void *base, int32_t const mode);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

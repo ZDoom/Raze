@@ -29,10 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "events_defs.h"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern int32_t ticrandomseed;
 
 extern vmstate_t vm;
@@ -64,9 +60,5 @@ int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
 void G_GetTimeDate(int32_t * pValues);
 int G_StartTrack(int levelNum);
 void VM_UpdateAnim(int spriteNum, int32_t *pData);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

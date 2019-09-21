@@ -28,10 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fix16.h"
 #include "net.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern int32_t g_mostConcurrentPlayers;
 
 #define MOVEFIFOSIZ                 256
@@ -282,11 +278,7 @@ void    P_EndLevel(void);
 void    P_CheckWeaponI(int playerNum);
 int     P_GetHudPal(const DukePlayer_t *pPlayer);
 int     P_GetKneePal(const DukePlayer_t *pPlayer);
-#ifdef __cplusplus
-}
 int     P_GetKneePal(const DukePlayer_t *pPlayer, int hudPal);
-extern "C" {
-#endif
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
 void P_MadeNoise(int playerNum);
 int P_HasKey(int sectNum, int playerNum);
@@ -315,9 +307,5 @@ static inline int P_GetP(const void *pSprite)
 
 // Get the player index given an APLAYER sprite index.
 static inline int P_Get(int32_t spriteNum) { return P_GetP((const uspritetype *)&sprite[spriteNum]); }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

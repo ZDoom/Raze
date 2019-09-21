@@ -22,16 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-//struct osdcmd_cheatsinfo {
-//	int32_t cheatnum;	// -1 = none, else = see DoCheats()
-//	int32_t volume,level;
-//};
-//
-//extern struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 
 int32_t registerosdcommands(void);
 void onvideomodechange(int32_t newmode);
@@ -43,8 +33,4 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows);
 extern const char *const ConsoleButtons[];
 
 extern uint32_t cl_cheatmask;
-
-#ifdef __cplusplus
-}
-#endif
 

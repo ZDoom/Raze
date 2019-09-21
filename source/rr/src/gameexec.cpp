@@ -173,9 +173,6 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 }
 
 // wow, this function sucks
-#ifdef __cplusplus
-extern "C"
-#endif
 int32_t A_Dodge(spritetype * const);
 int32_t A_Dodge(spritetype * const pSprite)
 {

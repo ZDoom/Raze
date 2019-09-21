@@ -23,10 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef grpscan_h_
 #define grpscan_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MAXLISTNAMELEN 32
 
 // List of internally-known GRP files
@@ -102,9 +98,5 @@ extern grpfile_t * FindGroup(int32_t crcval);
 
 int32_t ScanGroups(void);
 void FreeGroups(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

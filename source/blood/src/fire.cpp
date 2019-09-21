@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 int fireSize = 128;
 int gDamping = 6;
 
-/*extern "C" */char CoolTable[1024];
+char CoolTable[1024];
 
 void CellularFrame(char *pFrame, int sizeX, int sizeY);
 

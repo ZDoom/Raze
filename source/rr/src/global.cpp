@@ -28,10 +28,6 @@ user_defs ud;
 
 const char *s_buildDate = "20120522";
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 char    g_volumeNames[MAXVOLUMES][33] = { "L.A. Meltdown", "Lunar Apocalypse", "Shrapnel City" };
 char    g_skillNames[MAXSKILLS][33] = { "Piece Of Cake", "Let's Rock", "Come Get Some", "Damn I'm Good" };
 char    g_gametypeNames[MAXGAMETYPES][33]
@@ -126,8 +122,4 @@ int16_t g_blimpSpawnItems[15] =
 char CheatKeys[2]       = { sc_D, sc_N };
 
 char g_setupFileName[BMAX_PATH] = SETUPFILENAME;
-
-#ifdef __cplusplus
-}
-#endif
 
