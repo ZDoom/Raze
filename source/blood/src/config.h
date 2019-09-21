@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MAXRIDECULE 10
 #define MAXRIDECULELENGTH 40
 #define MAXPLAYERNAME 16
+#define MAXMOUSEAXES 2
 
 extern int32_t MouseDeadZone, MouseBias;
 extern int32_t SmoothInput;
