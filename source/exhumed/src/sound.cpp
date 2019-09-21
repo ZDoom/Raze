@@ -269,8 +269,17 @@ void CalcASSPan(int nPan, int nVolume, int *pLeft, int *pRight)
     else if (nVolume > 127)
         nVolume = 127;
 
-    *pLeft = mulscale6(nPanTable[127-nPan], nVolume);
-    *pRight = mulscale6(nPanTable[nPan], nVolume);
+    *pLeft = mulscale6(nPanTable[nPan], nVolume);
+    *pRight = mulscale6(nPanTable[127-nPan], nVolume);
+}
+
+void ASSCallback(uint32_t num)
+{
+    // TODO: add mutex?
+    if (num == -1)
+        handle = -1;
+    else if (num >= 0 && num < kMaxActiveSounds)
+        sActiveSound[num].f_e = -1;
 }
 
 void CreateDistTable(void)
@@ -328,6 +337,8 @@ void InitFX(void)
     }
 
     dig = 1;
+
+    FX_SetCallBack(ASSCallback);
 
     CreateDistTable();
     InitSoundInfo();
@@ -794,7 +805,7 @@ void UpdateSounds()
             if (nVolume != pASound->f_4 || nSoundAng != pASound->f_6)
             {
                 int nLeft, nRight;
-                int nPan = 63+(Sin(nSoundAng&1023)>>8);
+                int nPan = 63+(Sin(nSoundAng+1023)>>8);
                 CalcASSPan(nPan, nVolume, &nLeft, &nRight);
                 FX_SetPan(pASound->f_e, nVolume, nLeft, nRight);
 
@@ -1108,7 +1119,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
         vdi->f_1a = (int)totalclock;
         vdi->f_c = v20;
         vdi->f_a = vc;
-        short nPan = 63+(Sin(nSoundAng&1023)>>8);
+        short nPan = 63+(Sin(nSoundAng+1023)>>8);
         int nLeft, nRight;
 
         int bLoop = SoundBuf[nSound][26] == 6;
