@@ -150,26 +150,14 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "sounds.h"
 #include "soundsdyn.h"
 
-#ifdef LUNATIC
-# include "lunatic_game.h"
-#endif
-
 static inline int32_t G_HaveActor(int spriteNum)
 {
-#ifdef LUNATIC
-    return El_HaveActor(spriteNum);
-#else
     return g_tile[spriteNum].execPtr!=NULL;
-#endif
 }
 
 static inline int32_t G_DefaultActorHealth(int spriteNum)
 {
-#ifdef LUNATIC
-    return g_elActors[spriteNum].strength;
-#else
     return G_HaveActor(spriteNum) ? g_tile[spriteNum].execPtr[0] : 0;
-#endif
 }
 
 #endif

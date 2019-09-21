@@ -32,10 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "scriplib.h"
 
-#ifdef LUNATIC
-# include "lunatic_game.h"
-#endif
-
 #include "vfs.h"
 
 #if KRANDDEBUG

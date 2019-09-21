@@ -24,11 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "premap.h"
 #include "prlights.h"
 #include "savegame.h"
-#ifdef LUNATIC
-# include "lunatic_game.h"
-static int32_t g_savedOK;
-const char *g_failedVarname;
-#endif
 
 #include "vfs.h"
 

@@ -28,10 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamedef.h"  // vmstate_t
 #include "sector.h"  // mapstate_t
 
-#ifdef LUNATIC
-# include "lunatic_game.h"
-#endif
-
 int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn);
 int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist);
 int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum);
@@ -39,11 +35,7 @@ int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int co
 
 static FORCE_INLINE bool VM_HaveEvent(int const nEventID)
 {
-#ifdef LUNATIC
-    return L_IsInitialized(&g_ElState) && El_HaveEvent(nEventID);
-#else
     return !!apScriptEvents[nEventID];
-#endif
 }
 
 static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn)
