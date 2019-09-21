@@ -1371,7 +1371,6 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
     IOBuffer1.Write(&mapheader, sizeof(MAPHEADER));
     if (byte_1A76C8)
     {
-        Bstrcpy(byte_19AE44.at0, AppProperName);
         byte_19AE44.at48 = nXSectorSize;
         byte_19AE44.at44 = nXWallSize;
         byte_19AE44.at40 = nXSpriteSize;

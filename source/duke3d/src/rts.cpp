@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+BEGIN_DUKE_NS
 
 static int32_t rts_numlumps;
 static void  **rts_lumpcache;
@@ -172,3 +173,5 @@ void *RTS_GetSound(int32_t lump)
 
     return rts_lumpcache[lump];
 }
+
+END_DUKE_NS

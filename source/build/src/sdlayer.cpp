@@ -39,6 +39,8 @@
 static SDL_version linked;
 #endif
 
+GameInterface* gi;
+
 #if !defined STARTUP_SETUP_WINDOW
 int32_t startwin_open(void) { return 0; }
 int32_t startwin_close(void) { return 0; }
@@ -46,6 +48,13 @@ int32_t startwin_puts(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_idle(void *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_settitle(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_run(void) { return 0; }
+#else
+int32_t startwin_open(void) { return gi->startwin_open(); }
+int32_t startwin_close(void) { return gi->startwin_close(); }
+int32_t startwin_puts(const char* s) { return gi->startwin_puts(s); }
+int32_t startwin_idle(void* s) { return gi->startwin_idle(s); }
+int32_t startwin_settitle(const char* s) { return gi->startwin_settitle(s); }
+int32_t startwin_run(void) { return gi->startwin_run(); }
 #endif
 
 /// These can be useful for debugging sometimes...
@@ -323,7 +332,7 @@ static void sighandler(int signum)
         //        usleep(15000000);
 #endif
         attach_debugger_here();
-        app_crashhandler();
+        gi->app_crashhandler();
         uninitsystem();
         Bexit(8);
     }
@@ -411,7 +420,7 @@ int main(int argc, char *argv[])
     PHYSFS_init(buildargv[0]);
     PHYSFS_setWriteDir(PHYSFS_getBaseDir());
 #endif
-    r = app_main(buildargc, (const char **)buildargv);
+    r = gi->app_main(buildargc, (const char **)buildargv);
 #else
 #ifdef USE_PHYSFS
     int pfsi = PHYSFS_init(argv[0]);

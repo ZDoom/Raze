@@ -11,9 +11,6 @@
 #include "osd.h"
 #include "timer.h"
 
-extern int app_main(int argc, char const * const * argv);
-extern const char* AppProperName;
-extern const char* AppTechnicalName;
 
 #ifdef DEBUGGINGAIDS
 # define DEBUG_MASK_DRAWING
@@ -28,16 +25,6 @@ extern int32_t vsync;
 extern int32_t swapcomplete;
 extern int32_t r_borderless;
 extern int32_t r_displayindex;
-
-extern void app_crashhandler(void);
-
-// NOTE: these are implemented in game-land so they may be overridden in game specific ways
-extern int32_t startwin_open(void);
-extern int32_t startwin_close(void);
-extern int32_t startwin_puts(const char *);
-extern int32_t startwin_settitle(const char *);
-extern int32_t startwin_idle(void *);
-extern int32_t startwin_run(void);
 
 // video
 extern int32_t r_usenewaspect, newaspect_enable;
@@ -276,5 +263,23 @@ void maybe_redirect_outputs(void);
 
 #include "print.h"
 
+struct GameInterface
+{
+	void (*faketimerhandler)();
+	int (*app_main)(int, char const* const*);
+
+	// These will later be removed.
+	void (*app_crashhandler)();
+	int32_t(*startwin_open)();
+	int32_t(*startwin_close)();
+	int32_t(*startwin_puts)(const char*);
+	int32_t(*startwin_settitle)(const char*);
+	int32_t (*startwin_idle)(void*);
+	int32_t (*startwin_run)(void);
+	const char* (*DefaultDefFile)();
+	const char* (*DefFile)();
+};
+
+extern GameInterface* gi;
 #endif // baselayer_h_
 

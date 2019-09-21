@@ -2,6 +2,8 @@
 #ifndef EDUKE32_EVENTS_DEFS_H_
 #define EDUKE32_EVENTS_DEFS_H_
 
+BEGIN_DUKE_NS
+
 // the order of these can't be changed or else compatibility with EDuke 2.0 mods will break
 // KEEPINSYNC with EventNames[] and lunatic/con_lang.lua
 enum GameEvent_t {
@@ -167,5 +169,7 @@ enum GameEvent_t {
 #endif
     MAXEVENTS
 };
+
+END_DUKE_NS
 
 #endif

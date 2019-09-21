@@ -443,7 +443,7 @@ static int32_t defsparser(scriptfile *script)
         }
         case T_INCLUDEDEFAULT:
         {
-            defsparser_include(G_DefaultDefFile(), script, cmdtokptr);
+            defsparser_include(gi->DefaultDefFile(), script, cmdtokptr);
             break;
         }
         case T_DEFINE:

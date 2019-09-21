@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sbar.h"
 #include "menus.h"
 
+BEGIN_DUKE_NS
+
 // get the string length until the next '\n'
 int32_t G_GetStringLineLength(const char *text, const char *end, const int32_t iter)
 {
@@ -1163,3 +1165,4 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
     pub = NUMPAGES;
     pus = NUMPAGES;
 }
+END_DUKE_NS

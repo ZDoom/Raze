@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "function.h"
 
+BEGIN_DUKE_NS
+
+
 int  CONFIG_ReadSetup(void);
 void CONFIG_WriteSetup(uint32_t flags);
 void CONFIG_SetDefaults(void);
@@ -48,4 +51,5 @@ void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode
 const char * CONFIG_GetGameFuncOnKeyboard(int gameFunc);
 const char * CONFIG_GetGameFuncOnJoystick(int gameFunc);
 
+END_DUKE_NS
 #endif

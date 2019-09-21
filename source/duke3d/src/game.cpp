@@ -67,8 +67,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # endif
 #endif /* _WIN32 */
 
-const char* AppProperName = APPNAME;
-const char* AppTechnicalName = APPBASENAME;
+BEGIN_DUKE_NS
+
+void Duke_CommonCleanup(void);
+extern const char* G_DefaultDefFile(void);
+extern const char* G_DefFile(void);
+
 
 int32_t g_quitDeadline = 0;
 
@@ -6365,18 +6369,6 @@ int app_main(int argc, char const * const * argv)
 #endif
 
 #ifdef _WIN32
-#ifndef DEBUGGINGAIDS
-    if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && win_checkinstance())
-    {
-#ifdef EDUKE32_STANDALONE
-        if (!wm_ynbox(APPNAME, "It looks like " APPNAME " is already running.\n\n"
-#else
-        if (!wm_ynbox(APPNAME, "It looks like the game is already running.\n\n"
-#endif
-                      "Are you sure you want to start another copy?"))
-            return 3;
-    }
-#endif
 
     backgroundidle = 0;
 
@@ -6459,49 +6451,6 @@ int app_main(int argc, char const * const * argv)
 #endif
     CONFIG_ReadSetup();
 
-#if defined(_WIN32) && !defined (EDUKE32_STANDALONE)
-
-//    initprintf("build %d\n",(uint8_t)Batoi(BUILDDATE));
-
-    if (ud.config.CheckForUpdates == 1)
-    {
-        if (time(NULL) - ud.config.LastUpdateCheck > UPDATEINTERVAL)
-        {
-            initprintf("Checking for updates...\n");
-
-            ud.config.LastUpdateCheck = time(NULL);
-
-            if (G_GetVersionFromWebsite(tempbuf))
-            {
-                initprintf("Current version is %d",Batoi(tempbuf));
-
-                if (Batoi(tempbuf) > atoi(s_buildDate))
-                {
-                    if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
-                                 "Browse to http://www.eduke32.com now?"))
-                    {
-                        SHELLEXECUTEINFOA sinfo;
-                        char const *p = "http://www.eduke32.com";
-
-                        Bmemset(&sinfo, 0, sizeof(sinfo));
-                        sinfo.cbSize  = sizeof(sinfo);
-                        sinfo.fMask   = SEE_MASK_CLASSNAME;
-                        sinfo.lpVerb  = "open";
-                        sinfo.lpFile  = p;
-                        sinfo.nShow   = SW_SHOWNORMAL;
-                        sinfo.lpClass = "http";
-
-                        if (!ShellExecuteExA(&sinfo))
-                            initprintf("update: error launching browser!\n");
-                    }
-                }
-                else initprintf("... no updates available\n");
-            }
-            else initprintf("update: failed to check for updates\n");
-        }
-    }
-#endif
-
     if (enginePreInit())
     {
         wm_msgbox("Build Engine Initialization Error",
@@ -6518,7 +6467,7 @@ int app_main(int argc, char const * const * argv)
 #ifdef STARTUP_SETUP_WINDOW
     if (readSetup < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.setup.forcesetup)) || g_commandSetup)
     {
-        if (quitevent || !startwin_run())
+        if (quitevent || !gi->startwin_run())
         {
             engineUnInit();
             Bexit(0);
@@ -7398,3 +7347,27 @@ static void G_SetupGameButtons(void)
     CONTROL_DefineFlag(gamefunc_Third_Person_View, FALSE);
     CONTROL_DefineFlag(gamefunc_Toggle_Crouch, FALSE);
 }
+
+extern void faketimerhandler();
+extern int app_main(int argc, char const* const* argv);
+extern void app_crashhandler(void);
+extern int32_t startwin_open(void);
+extern int32_t startwin_close(void);
+extern int32_t startwin_puts(const char*);
+extern int32_t startwin_settitle(const char*);
+extern int32_t startwin_idle(void*);
+extern int32_t startwin_run(void);
+
+GameInterface Interface = {
+	faketimerhandler,
+	app_main,
+	app_crashhandler,
+	startwin_open,
+	startwin_close,
+	startwin_puts,
+	startwin_settitle,
+	startwin_idle,
+	startwin_run
+};
+
+END_DUKE_NS

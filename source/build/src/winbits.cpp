@@ -136,16 +136,6 @@ void win_allowtaskswitching(int32_t onf)
 }
 
 
-//
-// win_checkinstance() -- looks for another instance of a Build app
-//
-int32_t win_checkinstance(void)
-{
-    if (!instanceflag) return 0;
-    return (WaitForSingleObject(instanceflag,0) == WAIT_TIMEOUT);
-}
-
-
 static void ToggleDesktopComposition(BOOL compEnable)
 {
     static HMODULE              hDWMApiDLL        = NULL;
@@ -169,21 +159,6 @@ typedef void (*dllSetString)(const char*);
 //
 void win_open(void)
 {
-#ifdef DEBUGGINGAIDS
-    HMODULE ebacktrace = LoadLibraryA(EBACKTRACEDLL);
-    if (ebacktrace)
-    {
-        dllSetString SetTechnicalName = (dllSetString) (void (*)(void))GetProcAddress(ebacktrace, "SetTechnicalName");
-        dllSetString SetProperName = (dllSetString) (void (*)(void))GetProcAddress(ebacktrace, "SetProperName");
-
-        if (SetTechnicalName)
-            SetTechnicalName(AppTechnicalName);
-
-        if (SetProperName)
-            SetProperName(AppProperName);
-    }
-#endif
-
     instanceflag = CreateSemaphore(NULL, 1,1, WindowClass);
 }
 

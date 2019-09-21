@@ -215,9 +215,6 @@
     <ClCompile Include="..\..\source\duke3d\src\startwin.game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\duke3d\src\winbits.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

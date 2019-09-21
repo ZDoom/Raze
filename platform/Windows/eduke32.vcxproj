@@ -257,7 +257,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\startwin.game.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\winbits.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="audiolib.vcxproj">

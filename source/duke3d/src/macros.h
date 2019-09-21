@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "mmulti.h"
 
+BEGIN_DUKE_NS
+
+
 // Macros, some from SW source
 
 #define BGSTRETCH (ud.bgstretch ? 1024 : 0)
@@ -192,5 +195,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define T4(i)  actor[i].t_data[3]
 #define T5(i)  actor[i].t_data[4]
 #define T6(i)  actor[i].t_data[5]
+
+END_DUKE_NS
 
 #endif

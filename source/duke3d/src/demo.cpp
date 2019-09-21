@@ -31,6 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+
+BEGIN_DUKE_NS
+
 char g_firstDemoFile[BMAX_PATH];
 
 buildvfs_FILE g_demo_filePtr{};  // write
@@ -1003,3 +1006,5 @@ nextdemo_nomenu:
     // return so that e.g. the title can be shown
     return 1;
 }
+
+END_DUKE_NS

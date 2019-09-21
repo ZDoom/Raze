@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+BEGIN_DUKE_NS
+
 #if KRANDDEBUG
 # define GAMEEXEC_INLINE
 # define GAMEEXEC_STATIC
@@ -6869,3 +6871,5 @@ void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int3
 }
 
 #endif
+
+END_DUKE_NS

@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
+BEGIN_DUKE_NS
+
 extern int32_t althud_flashing;
 extern int32_t althud_numberpal;
 extern int32_t althud_numbertile;
@@ -36,3 +38,5 @@ int32_t sbarx16(int32_t x);
 int32_t sbary16(int32_t y);
 void G_DrawInventory(const DukePlayer_t *p);
 void G_DrawStatusBar(int32_t snum);
+
+END_DUKE_NS

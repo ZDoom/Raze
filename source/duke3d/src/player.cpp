@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "demo.h"
 #include "enet/enet.h"
+#include "sjson.h"
+
+BEGIN_DUKE_NS
+
 
 int32_t lastvisinc;
 hudweapon_t hudweap;
@@ -5620,7 +5624,6 @@ RECHECK:
 }
 
 
-#include "sjson.h"
 
 int portableBackupSave(const char * path, const char * name, int volume, int level)
 {
@@ -5740,3 +5743,4 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
 
     return 0;
 }
+END_DUKE_NS

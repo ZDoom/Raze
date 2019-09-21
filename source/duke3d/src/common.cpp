@@ -30,6 +30,9 @@
 #include "common.h"
 #include "common_game.h"
 
+BEGIN_DUKE_NS
+
+
 struct grpfile_t const *g_selectedGrp;
 
 int32_t g_gameType = GAMEFLAG_DUKE;
@@ -247,6 +250,7 @@ static char g_rootDir[BMAX_PATH];
 int g_useCwd;
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;
+struct strllist* CommandPaths, * CommandGrps;
 
 void G_ExtPreInit(int32_t argc,char const * const * argv)
 {
@@ -926,7 +930,6 @@ void G_CleanupSearchPaths(void)
 
 //////////
 
-struct strllist *CommandPaths, *CommandGrps;
 
 GrowArray<char *> g_scriptModules;
 
@@ -1170,3 +1173,5 @@ void Duke_CommonCleanup(void)
 }
 
 #endif
+
+END_DUKE_NS

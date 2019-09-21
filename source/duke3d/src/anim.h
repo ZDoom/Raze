@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "hash.h"
 
+BEGIN_DUKE_NS
+
 typedef struct {
     uint16_t frame;
     int16_t sound;
@@ -48,5 +50,7 @@ extern dukeanim_t * Anim_Find(const char *s);
 extern dukeanim_t * Anim_Create(const char *fn);
 int32_t Anim_Play(const char *fn);
 void Anim_Init(void);
+
+END_DUKE_NS
 
 #endif

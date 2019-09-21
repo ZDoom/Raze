@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+BEGIN_DUKE_NS
+
 #ifndef EDUKE32_STANDALONE
 static void process_vaca13(int32_t crcval);
 static void process_vacapp15(int32_t crcval);
@@ -683,3 +685,5 @@ static void process_vacapp15(int32_t crcval)
     initgroupfile("VACATION.PRG");
 }
 #endif
+
+END_DUKE_NS

@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef premap_h_
 #define premap_h_
 
+BEGIN_DUKE_NS
+
 extern int32_t g_levelTextTime;
 extern int32_t voting,vote_map,vote_episode;
 extern palette_t CrosshairColors;
@@ -44,5 +46,7 @@ void P_ResetWeapons(int playerNum);
 void G_ClearFIFO(void);
 void G_ResetInterpolations(void);
 int fragbarheight(void);
+
+END_DUKE_NS
 
 #endif

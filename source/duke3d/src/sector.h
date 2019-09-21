@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "namesdyn.h"  // for G_GetForcefieldPicnum()
 #include "player.h"  // playerspawn_t
 
+BEGIN_DUKE_NS
+
 #define MAXCYCLERS      1024
 #define MAXANIMATES     1024
 #define MAXANIMWALLS    512
@@ -179,5 +181,7 @@ EXTERN_INLINE int32_t G_CheckPlayerInSector(int32_t const sect)
 }
 
 #endif
+
+END_DUKE_NS
 
 #endif

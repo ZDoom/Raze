@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "enet/enet.h"
 
+BEGIN_DUKE_NS
+
 // net packet specification/compatibility version
 #define NETVERSION    1
 
@@ -347,5 +349,7 @@ void Net_WaitForInitialSnapshot();
 
 
 #endif
+
+END_DUKE_NS
 
 #endif // netplay_h_

@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+BEGIN_DUKE_NS
+
+
 #define DQSIZE 256
 
 int32_t g_numEnvSoundsPlaying, g_highestSoundIdx;
@@ -1036,3 +1039,4 @@ int S_CheckSoundPlaying(int soundNum)
     if (EDUKE32_PREDICT_FALSE((unsigned)soundNum > (unsigned)g_highestSoundIdx)) return false;
     return (g_sounds[soundNum].num != 0);
 }
+END_DUKE_NS

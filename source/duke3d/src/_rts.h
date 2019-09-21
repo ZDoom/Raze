@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cache1d.h"
 #include "vfs.h"
 
+BEGIN_DUKE_NS
+
 //===============
 //   TYPES
 //===============
@@ -50,5 +52,7 @@ typedef struct
     int32_t size;
     char name[8];
 } filelump_t;
+
+END_DUKE_NS
 
 #endif

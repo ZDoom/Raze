@@ -26,8 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "premap.h"
 #include "prlights.h"
 #include "savegame.h"
+#include "sjson.h"
 
 #include "vfs.h"
+
+BEGIN_DUKE_NS
+
 
 static OutputFileCounter savecounter;
 
@@ -354,7 +358,6 @@ static void sv_postudload();
 // hack
 static int different_user_map;
 
-#include "sjson.h"
 
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(savebrief_t & sv)
@@ -2580,3 +2583,4 @@ static void postloadplayer(int32_t savegamep)
 }
 
 ////////// END GENERIC SAVING/LOADING SYSTEM //////////
+END_DUKE_NS

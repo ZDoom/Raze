@@ -16,7 +16,6 @@ extern char silentvideomodeswitch;
 
 extern BOOL CheckWinVersion(void);
 extern void win_allowtaskswitching(int32_t onf);
-extern int32_t win_checkinstance(void);
 
 #if defined(RENDERTYPEWIN) || SDL_MAJOR_VERSION==1
 extern int32_t win_inittimer(void);

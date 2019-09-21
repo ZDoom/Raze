@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef soundsdyn_h__
 #define soundsdyn_h__
 
+BEGIN_DUKE_NS
+
 #define DYNSOUNDREMAP_ENABLE
 
 
@@ -330,4 +332,7 @@ extern int32_t WIND_REPEAT;
 #define DYNAMICSOUNDMAP(Soundnum) (Soundnum)
 
 #endif
+
+END_DUKE_NS
+
 #endif // soundsdyn_h__

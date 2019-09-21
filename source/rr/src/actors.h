@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define actors_h_
 
 #include "player.h"
+# include "namesdyn.h"
 
 #define MAXSLEEPDIST        16384
 #define SLEEPTIME           1536
@@ -316,7 +317,6 @@ ACTOR_INLINE int A_SetSprite(int const spriteNum, uint32_t cliptype)
 
 # endif
 
-# include "namesdyn.h"
 
 EXTERN_INLINE int G_CheckForSpaceCeiling(int const sectnum)
 {

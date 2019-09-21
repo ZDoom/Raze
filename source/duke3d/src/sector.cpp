@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "input.h"
 
+BEGIN_DUKE_NS
+
 // PRIMITIVE
 
 static int g_haltSoundHack = 0;
@@ -3446,3 +3448,4 @@ void P_CheckSectors(int playerNum)
     }
 }
 
+END_DUKE_NS

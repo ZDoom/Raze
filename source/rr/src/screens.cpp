@@ -709,6 +709,7 @@ static void G_ShowCacheLocks(void)
         return;
 
     k = 0;
+/*
 #if !defined DEBUG_ALLOCACHE_AS_MALLOC
     for (i=cacnum-1; i>=0; i--)
         if ((*cac[i].lock) >= 200)
@@ -721,6 +722,7 @@ static void G_ShowCacheLocks(void)
             k += 6;
         }
 #endif
+*/
     if (k < ydim-12)
         k += 6;
 

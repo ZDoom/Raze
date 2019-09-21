@@ -56,8 +56,6 @@ extern void PrintBuildInfo(void);
 
 extern void clearDefNamePtr(void);
 
-void G_AddGroup(const char *buffer);
-void G_AddPath(const char *buffer);
 void G_AddDef(const char *buffer);
 void G_AddDefModule(const char *buffer);
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -141,7 +139,5 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 #define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=timerGetTicks();
 #define EDUKE32_TMRTIC t[ti++]=timerGetTicks()
 #define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
-
-void Duke_CommonCleanup(void);
 
 #endif

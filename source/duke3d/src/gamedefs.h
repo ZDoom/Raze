@@ -51,15 +51,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // default joystick settings
 
-#if defined(GEKKO)
-#define DEFAULTJOYSTICKANALOGUESCALE        16384
-#define DEFAULTJOYSTICKANALOGUEDEAD         1000
-#define DEFAULTJOYSTICKANALOGUESATURATE     9500
-#else
 #define DEFAULTJOYSTICKANALOGUESCALE        65536
 #define DEFAULTJOYSTICKANALOGUEDEAD         2000
 #define DEFAULTJOYSTICKANALOGUESATURATE     9500
-#endif
 
 #endif
 

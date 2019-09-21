@@ -1875,8 +1875,6 @@ void OSD_Dispatch(const char *cmd)
 
             if ((strlen_gamefunc_ >= strlen_token || Bstrncmp(token, s_gamefunc_, strlen_gamefunc_)) && !m32_osd_tryscript)
                 OSD_Printf("%s\"%s\" is not a valid command or cvar\n", osd->draw.highlight, token);
-            else if (m32_osd_tryscript)
-                M32RunScript(cmd);
 
             Xfree(workbuf);
             return;
@@ -2159,7 +2157,7 @@ int osdcmd_cvar_set(osdcmdptr_t parm)
         switch (pData.flags & (CVAR_RESTARTVID|CVAR_INVALIDATEALL|CVAR_INVALIDATEART))
         {
         case CVAR_RESTARTVID:
-            osdcmd_restartvid(NULL);
+            //osdcmd_restartvid(NULL);
             break;
         case CVAR_INVALIDATEALL:
             gltexinvalidatetype(INVALIDATE_ALL);

@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+BEGIN_DUKE_NS
+
 static uint8_t precachehightile[2][(MAXTILES+7)>>3];
 static int32_t g_precacheCount;
 
@@ -2105,3 +2107,4 @@ void G_FreeMapState(int levelNum)
 
     ALIGNED_FREE_AND_NULL(board.savedstate);
 }
+END_DUKE_NS

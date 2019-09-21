@@ -28,6 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+BEGIN_DUKE_NS
+
+
 #define MAXGAMEVARS 2048 // must be a power of two
 #define MAXVARLABEL 26
 
@@ -296,5 +299,7 @@ VM_GAMEVAR_OPERATOR(Gv_ShiftVarR, >>=)
 #undef VM_GAMEVAR_OPERATOR
 
 #endif
+
+END_DUKE_NS
 
 #endif

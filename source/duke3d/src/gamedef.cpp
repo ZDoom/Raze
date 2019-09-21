@@ -37,6 +37,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+BEGIN_DUKE_NS
+
 #define LINE_NUMBER (g_lineNumber << 12)
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
@@ -6480,3 +6482,5 @@ void C_ReportError(int error)
     }
 }
 #endif
+
+END_DUKE_NS

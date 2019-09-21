@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "_control.h"
 #include "control.h"
 
+BEGIN_DUKE_NS
+
 #ifndef function_private_h_
 #define function_private_h_
 
@@ -280,6 +282,7 @@ static const char * mousedigitaldefaults[MAXMOUSEDIGITAL] =
    {
    };
 
+END_DUKE_NS
 
 #endif
 #endif

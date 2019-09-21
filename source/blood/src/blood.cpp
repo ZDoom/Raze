@@ -79,8 +79,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # endif
 #endif /* _WIN32 */
 
-const char* AppProperName = APPNAME;
-const char* AppTechnicalName = APPBASENAME;
+extern const char* G_DefaultDefFile(void);
+extern const char* G_DefFile(void);
 
 char SetupFilename[BMAX_PATH] = SETUPFILENAME;
 int32_t gNoSetup = 0, gCommandSetup = 0;
@@ -1408,12 +1408,6 @@ int app_main(int argc, char const * const * argv)
     margc = argc;
     margv = argv;
 #ifdef _WIN32
-    if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && win_checkinstance())
-    {
-        if (!wm_ynbox(APPNAME, "Another Build game is currently running. "
-                      "Do you wish to continue starting this copy?"))
-            return 3;
-    }
 
     backgroundidle = 0;
 
@@ -1484,7 +1478,7 @@ int app_main(int argc, char const * const * argv)
 #ifdef STARTUP_SETUP_WINDOW
     if (readSetup < 0 || (!gNoSetup && (configversion != BYTEVERSION || gSetup.forcesetup)) || gCommandSetup)
     {
-        if (quitevent || !startwin_run())
+        if (quitevent || !gi->startwin_run())
         {
             engineUnInit();
             Bexit(0);
@@ -2537,3 +2531,27 @@ void sndPlaySpecialMusicOrNothing(int nMusic)
         strncpy(gGameOptions.zLevelSong, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
     }
 }
+
+extern void faketimerhandler();
+extern int app_main(int argc, char const* const* argv);
+extern void app_crashhandler(void);
+extern int32_t startwin_open(void);
+extern int32_t startwin_close(void);
+extern int32_t startwin_puts(const char*);
+extern int32_t startwin_settitle(const char*);
+extern int32_t startwin_idle(void*);
+extern int32_t startwin_run(void);
+
+GameInterface Interface = {
+	faketimerhandler,
+	app_main,
+	app_crashhandler,
+	startwin_open,
+	startwin_close,
+	startwin_puts,
+	startwin_settitle,
+	startwin_idle,
+	startwin_run,
+	G_DefaultDefFile,
+	G_DefFile
+};

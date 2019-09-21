@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define KEYS_H
 
+BEGIN_DUKE_NS
+
    #define NUM_CODES     128
 
    #define ESC    0x1B
@@ -144,5 +146,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     #define asc_Esc         27
     #define asc_Enter       13
     #define asc_Space       32
+
+END_DUKE_NS
 
 #endif

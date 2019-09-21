@@ -49,6 +49,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "startwin.game.h"
 #include "windows_inc.h"
 
+BEGIN_DUKE_NS
+
+
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1
 
@@ -714,4 +717,8 @@ int32_t startwin_run(void)
     return done;
 }
 
+END_DUKE_NS
+
 #endif // STARTUP_SETUP_WINDOW
+
+

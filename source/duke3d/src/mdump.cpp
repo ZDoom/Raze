@@ -4,6 +4,9 @@
 #include "mdump.h"
 
 #include <tchar.h>
+
+BEGIN_DUKE_NS
+
 LPCSTR MiniDumper::m_szAppName;
 
 MiniDumper g_dumper("eduke32");
@@ -96,3 +99,5 @@ LONG MiniDumper::TopLevelFilter(struct _EXCEPTION_POINTERS *pExceptionInfo)
 
     return retval;
 }
+
+END_DUKE_NS

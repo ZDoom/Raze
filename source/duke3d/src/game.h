@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "network.h"
 
+BEGIN_DUKE_NS
 
 #ifndef ONLY_USERDEFS
 
@@ -635,5 +636,7 @@ EXTERN_INLINE void SetIfGreater(int32_t *variable, int32_t potentialValue)
 #endif
 
 #endif
+
+END_DUKE_NS
 
 #endif

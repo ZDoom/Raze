@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_DUKE_NS
+
 enum MenuIndex_t {
     MENU_NULL           = INT32_MIN, // sentinel for "do nothing"
     MENU_CLOSE          = -2, // sentinel for "close the menu"/"no menu"
@@ -515,5 +517,7 @@ extern MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
 
 extern MenuEntry_t ME_NEWGAMECUSTOMENTRIES[MAXMENUGAMEPLAYENTRIES];
 extern MenuEntry_t ME_NEWGAMECUSTOMSUBENTRIES[MAXMENUGAMEPLAYENTRIES][MAXMENUGAMEPLAYENTRIES];
+
+END_DUKE_NS
 
 #endif

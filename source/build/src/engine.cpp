@@ -245,6 +245,10 @@ double u64tickspersec;
 int32_t engine_screenshot = 0;
 #endif
 
+void faketimerhandler()
+{
+}
+
 int32_t get_alwaysshowgray(void)
 {
     return showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT32_MAX);

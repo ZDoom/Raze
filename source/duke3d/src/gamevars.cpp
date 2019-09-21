@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+BEGIN_DUKE_NS
+
 #define gamevars_c_
 
 #ifdef LUNATIC
@@ -1473,3 +1475,5 @@ void Gv_RefreshPointers(void)
     aGameArrays[Gv_GetArrayIndex("tilesizy")].pValues = (intptr_t *)&tilesiz[0].y;
 }
 #endif
+
+END_DUKE_NS

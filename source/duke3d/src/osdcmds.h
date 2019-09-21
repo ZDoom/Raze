@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef osdcmds_h_
 #define osdcmds_h_
 
+BEGIN_DUKE_NS
+
 struct osdcmd_cheatsinfo {
 	int32_t cheatnum;	// -1 = none, else = see DoCheats()
 	int32_t volume,level;
@@ -38,6 +40,8 @@ extern float r_ambientlight,r_ambientlightrecip;
 extern const char *const ConsoleButtons[];
 
 extern uint32_t cl_cheatmask;
+
+END_DUKE_NS
 
 #endif	// osdcmds_h_
 

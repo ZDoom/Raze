@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "vfs.h"
 
+BEGIN_DUKE_NS
+
 // Data needed even if netcode is disabled
 ENetHost    *g_netServer     = NULL;
 ENetHost    *g_netClient     = NULL;
@@ -5251,3 +5253,4 @@ void Net_NotifyNewGame()
 #endif
 
 //-------------------------------------------------------------------------------------------------
+END_DUKE_NS

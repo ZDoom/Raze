@@ -690,3 +690,5 @@ public:
     }
 };
 
+void G_AddGroup(const char* buffer);
+void G_AddPath(const char* buffer);

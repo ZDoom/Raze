@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
+BEGIN_DUKE_NS
+
 enum dukeinv_t
 {
     GET_STEROIDS,  // 0
@@ -72,3 +74,5 @@ enum dukeweapon_t
     GROW_WEAPON,
     MAX_WEAPONS
 };
+
+END_DUKE_NS

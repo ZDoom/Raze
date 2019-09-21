@@ -32,6 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "input.h"
 #include "menus.h"
 
+BEGIN_DUKE_NS
+
+
 int32_t I_CheckAllInput(void)
 {
     return
@@ -403,3 +406,5 @@ int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
 
     return 0;
 }
+
+END_DUKE_NS

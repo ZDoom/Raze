@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdcmds.h"
 #include "cheats.h"
 
+BEGIN_DUKE_NS
+
 char CheatStrings [NUMCHEATS][MAXCHEATLEN] =
 {
 #ifndef EDUKE32_STANDALONE
@@ -754,3 +756,5 @@ void G_DoCheats(void)
         }
     }
 }
+
+END_DUKE_NS

@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_DUKE_NS
+
+
 extern void G_CheckCommandLine(int32_t argc, char const * const * argv);
 extern void G_ShowParameterHelp(void);
 extern void G_ShowDebugHelp(void);
@@ -38,4 +41,7 @@ extern const char *CommandMap;
 extern const char *CommandName;
 extern int32_t g_forceWeaponChoice;
 extern int32_t g_fakeMultiMode;
+
+END_DUKE_NS
+
 #endif // cmdline_h__

@@ -150,6 +150,8 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "sounds.h"
 #include "soundsdyn.h"
 
+BEGIN_DUKE_NS
+
 static inline int32_t G_HaveActor(int spriteNum)
 {
     return g_tile[spriteNum].execPtr!=NULL;
@@ -159,5 +161,7 @@ static inline int32_t G_DefaultActorHealth(int spriteNum)
 {
     return G_HaveActor(spriteNum) ? g_tile[spriteNum].execPtr[0] : 0;
 }
+
+END_DUKE_NS
 
 #endif

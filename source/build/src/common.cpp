@@ -10,6 +10,8 @@
 
 #include "vfs.h"
 
+GrowArray<char*> g_defModules;
+
 void PrintBuildInfo(void)
 {
     buildprint(
@@ -69,8 +71,6 @@ void clearDefNamePtr(void)
     Xfree(g_defNamePtr);
     // g_defNamePtr assumed to be assigned to right after
 }
-
-GrowArray<char *> g_defModules;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 GrowArray<char *> g_clipMapFiles;

@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheats.h"
 #include "common.h"  // tokenlist
 #include "player.h"  // projectile_t
+#include "events_defs.h"
+
+
+BEGIN_DUKE_NS
 
 enum
 {
@@ -81,7 +85,6 @@ void VM_ScriptInfo(intptr_t const * const ptr, int const range);
 
 extern hashtable_t h_gamefuncs;
 
-#if !defined LUNATIC
 extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;
 extern hashtable_t h_labels;
@@ -121,9 +124,7 @@ enum QuickStructureAccess_t
 
 extern int32_t g_structVarIDs;
 
-#include "events_defs.h"
 extern intptr_t apScriptEvents[MAXEVENTS];
-#endif
 
 extern char g_scriptFileName[BMAX_PATH];
 
@@ -1399,5 +1400,7 @@ enum ScriptKeywords_t
 #undef COMMA
 
 #endif
+
+END_DUKE_NS
 
 #endif // gamedef_h_

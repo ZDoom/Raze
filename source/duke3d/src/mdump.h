@@ -3,6 +3,8 @@
 #define NEED_MMSYSTEM_H
 #include "windows_inc.h"
 
+BEGIN_DUKE_NS
+
 // based on dbghelp.h
 typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
 									CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
@@ -20,3 +22,5 @@ private:
 public:
 	MiniDumper( LPCSTR szAppName );
 };
+
+END_DUKE_NS

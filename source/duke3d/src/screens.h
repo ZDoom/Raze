@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+BEGIN_DUKE_NS
+
 extern void G_DisplayExtraScreens(void);
 extern void G_DisplayLogo(void);
 extern void G_DoOrderScreen(void);
@@ -44,3 +46,5 @@ extern int32_t dr_yxaspect, dr_viewingrange;
 extern int32_t g_noLogoAnim, g_noLogo;
 
 extern void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e);
+
+END_DUKE_NS

@@ -28,10 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h"
 #include "cmdline.h"
 
-#ifdef LUNATIC
-char const * const * g_argv;
-const char **g_elModules;
-#endif
+BEGIN_DUKE_NS
 
 int32_t g_commandSetup = 0;
 int32_t g_noSetup = 0;
@@ -849,3 +846,5 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
         } while (i < argc);
     }
 }
+
+END_DUKE_NS

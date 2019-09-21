@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sbar.h"
 #include "screens.h"
 
+BEGIN_DUKE_NS
+
 #define COLOR_RED redcol
 #define COLOR_WHITE whitecol
 
@@ -712,6 +714,7 @@ static void G_ShowCacheLocks(void)
 
     int k = 0;
 
+/*
 #if !defined DEBUG_ALLOCACHE_AS_MALLOC
     for (int i=cacnum-1; i>=0; i--)
     {
@@ -726,6 +729,7 @@ static void G_ShowCacheLocks(void)
         }
     }
 #endif
+*/
 
     if (k < ydim-12)
         k += 6;
@@ -2588,3 +2592,4 @@ void G_BonusScreen(int32_t bonusonly)
     } while (1);
 }
 
+END_DUKE_NS
