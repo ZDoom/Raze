@@ -31,6 +31,7 @@ texturecache
 
 *.manifest
 /*.map
+/*.mhk
 /platform/Windows/*.map
 *.pdb
 .vs/
@@ -40,7 +41,10 @@ texturecache
 /*.grp
 /*.rts
 /*.art
+/*.ar_
 /*.con
+/*.SMK
+/*.WAV
 /platform/Windows/*.con
 *.memmap
 *.sdf

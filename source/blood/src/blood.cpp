@@ -503,6 +503,32 @@ void EndLevel(void)
     seqKillAll();
 }
 
+int G_TryMapHack(const char* mhkfile)
+{
+    int const failure = engineLoadMHK(mhkfile);
+
+    if (!failure)
+        initprintf("Loaded map hack file \"%s\"\n", mhkfile);
+
+    return failure;
+}
+
+void G_LoadMapHack(char* outbuf, const char* filename)
+{
+    if (filename != NULL)
+        Bstrcpy(outbuf, filename);
+
+    append_ext_UNSAFE(outbuf, ".mhk");
+
+    if (G_TryMapHack(outbuf) && usermaphacks != NULL)
+    {
+        auto pMapInfo = (usermaphack_t*)bsearch(&g_loadedMapHack, usermaphacks, num_usermaphacks,
+            sizeof(usermaphack_t), compare_usermaphacks);
+        if (pMapInfo)
+            G_TryMapHack(pMapInfo->mhkfile);
+    }
+}
+
 PLAYER gPlayerTemp[kMaxPlayers];
 int gHealthTemp[kMaxPlayers];
 
@@ -575,6 +601,8 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         gQuitGame = true;
         return;
     }
+    char levelName[BMAX_PATH];
+    G_LoadMapHack(levelName, gameOptions->zLevelName);
     wsrand(gameOptions->uMapCRC);
     gKillMgr.Clear();
     gSecretMgr.Clear();
