@@ -3716,17 +3716,8 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
     PLAYER *pSourcePlayer = NULL;
     if (IsPlayerSprite(&sprite[nSource]))
         pSourcePlayer = &gPlayer[sprite[nSource].type-kDudePlayer1];
-    if (!gGameOptions.bFriendlyFire && pSourcePlayer != NULL && (gGameOptions.nGameType == 1 || gGameOptions.nGameType == 3)  && IsPlayerSprite(pSprite))
-    {
-        PLAYER *pTargetPlayer = &gPlayer[pSprite->type-kDudePlayer1];
-        if (pSourcePlayer != pTargetPlayer)
-        {
-            if (gGameOptions.nGameType == 1)
-                return 0;
-            if (gGameOptions.nGameType == 3 && (pSourcePlayer->at2ea&3) == (pTargetPlayer->at2ea&3))
-                return 0;
-        }
-    }
+    if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pSourcePlayer, pSprite))
+        return 0;
     switch (pSprite->statnum)
     {
     case 6:
@@ -6935,6 +6926,8 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         int nSprite = gHitInfo.hitsprite;
         dassert(nSprite >= 0 && nSprite < kMaxSprites);
         spritetype *pSprite = &sprite[nSprite];
+        if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pShooter, pSprite))
+            return;
         if (IsPlayerSprite(pSprite))
         {
             PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];

@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "controls.h"
 #include "db.h"
 #include "dude.h"
+#include "levels.h"
 
 BEGIN_BLD_NS
 
@@ -207,6 +208,35 @@ extern int dword_21EFB0[kMaxPlayers];
 extern ClockTicks dword_21EFD0[kMaxPlayers];
 extern AMMOINFO gAmmoInfo[];
 extern POWERUPINFO gPowerUpInfo[kMaxPowerUps];
+
+inline bool IsTargetTeammate(PLAYER* pSourcePlayer, spritetype* pTargetSprite)
+{
+    if (pSourcePlayer == NULL)
+        return false;
+    if (!IsPlayerSprite(pTargetSprite))
+        return false;
+    if (gGameOptions.nGameType == 1 || gGameOptions.nGameType == 3)
+    {
+        PLAYER* pTargetPlayer = &gPlayer[pTargetSprite->type - kDudePlayer1];
+        if (pSourcePlayer != pTargetPlayer)
+        {
+            if (gGameOptions.nGameType == 1)
+                return true;
+            if (gGameOptions.nGameType == 3 && (pSourcePlayer->at2ea & 3) == (pTargetPlayer->at2ea & 3))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+inline bool IsTargetTeammate(spritetype* pSourceSprite, spritetype* pTargetSprite)
+{
+    if (!IsPlayerSprite(pSourceSprite))
+        return false;
+    PLAYER* pSourcePlayer = &gPlayer[pSourceSprite->type - kDudePlayer1];
+    return IsTargetTeammate(pSourcePlayer, pTargetSprite);
+}
 
 int powerupCheck(PLAYER *pPlayer, int nPowerUp);
 char powerupActivate(PLAYER *pPlayer, int nPowerUp);
