@@ -292,8 +292,9 @@ CGameMenuItemZCycle itemNetStart6("WEAPONS:", 3, 66, 110, 180, 0, 0, zWeaponStri
 CGameMenuItemZCycle itemNetStart7("ITEMS:", 3, 66, 120, 180, 0, 0, zItemStrings, 3, 0);
 CGameMenuItemZBool itemNetStart8("FRIENDLY FIRE:", 3, 66, 130, 180, true, 0, NULL, NULL);
 CGameMenuItemZBool itemNetStart9("KEEP KEYS ON RESPAWN:", 3, 66, 140, 180, false, 0, NULL, NULL);
-CGameMenuItemZEdit itemNetStart10("USER MAP:", 3, 66, 150, 180, zUserMapName, 13, 0, NULL, 0);
-CGameMenuItemChain itemNetStart11("START GAME", 1, 66, 165, 280, 0, 0, -1, StartNetGame, 0);
+CGameMenuItemZBool itemNetStart10("V1.0x WEAPONS BALANCE:", 3, 66, 150, 180, false, 0, NULL, NULL);
+CGameMenuItemZEdit itemNetStart11("USER MAP:", 3, 66, 160, 180, zUserMapName, 13, 0, NULL, 0);
+CGameMenuItemChain itemNetStart12("START GAME", 1, 66, 175, 280, 0, 0, -1, StartNetGame, 0);
 
 CGameMenuItemText itemLoadingText("LOADING...", 1, 160, 100, 1);
 
@@ -900,6 +901,7 @@ void SetupNetStartMenu(void)
     menuNetStart.Add(&itemNetStart9, false);
     menuNetStart.Add(&itemNetStart10, false);
     menuNetStart.Add(&itemNetStart11, false);
+    menuNetStart.Add(&itemNetStart12, false);
     itemNetStart1.SetTextIndex(1);
     itemNetStart4.SetTextIndex(2);
     itemNetStart5.SetTextIndex(0);
@@ -2194,15 +2196,14 @@ void StartNetGame(CGameMenuItemChain *pItem)
     gPacketStartGame.respawnSettings = 0;
     gPacketStartGame.bFriendlyFire = itemNetStart8.at20;
     gPacketStartGame.bKeepKeysOnRespawn = itemNetStart9.at20;
+    ////
+    gPacketStartGame.weaponsV10x = itemNetStart10.at20;
+    ////
     gPacketStartGame.unk = 0;
     gPacketStartGame.userMapName[0] = 0;
-    strncpy(gPacketStartGame.userMapName, itemNetStart10.at20, 13);
+    strncpy(gPacketStartGame.userMapName, itemNetStart11.at20, 13);
     gPacketStartGame.userMapName[12] = 0;
     gPacketStartGame.userMap = gPacketStartGame.userMapName[0] != 0;
-
-    ////
-    gPacketStartGame.weaponsV10x = gWeaponsV10x;
-    ////
 
     netBroadcastNewGame();
     gStartNewGame = 1;
