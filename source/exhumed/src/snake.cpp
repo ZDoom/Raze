@@ -352,7 +352,7 @@ void FuncSnake(int a, int nDamage, int nRun)
                     600 * Sin(sprite[nSprite].ang + 512),
                     600 * Sin(sprite[nSprite].ang),
                     Sin(SnakeList[nSnake].sE) >> 5,
-                    0, 0, 1);
+                    0, 0, CLIPMASK1);
 
                 FindSnakeEnemy(nSnake);
 
