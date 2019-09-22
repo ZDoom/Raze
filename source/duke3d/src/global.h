@@ -150,7 +150,7 @@ G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
 G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 #pragma pack(pop)
 
-G_EXTERN char g_soundlocks[MAXSOUNDS];
+G_EXTERN uint8_t g_soundlocks[MAXSOUNDS];
 G_EXTERN int32_t g_noEnemies;
 G_EXTERN int32_t g_restorePalette;
 G_EXTERN int32_t g_screenCapture;

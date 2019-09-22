@@ -10,12 +10,6 @@
 
 #include "winbits.h"
 
-#ifdef BITNESS64
-# define EBACKTRACEDLL "ebacktrace1-64.dll"
-#else
-# define EBACKTRACEDLL "ebacktrace1.dll"
-#endif
-
 int32_t backgroundidle = 1;
 
 char silentvideomodeswitch = 0;
@@ -24,7 +18,7 @@ static char taskswitching = 1;
 
 static HANDLE instanceflag = NULL;
 
-static OSVERSIONINFOEX osv;
+static OSVERSIONINFOEXA osv;
 
 static int32_t togglecomp = 0;
 
@@ -33,20 +27,6 @@ FARPROC pwinever;
 //
 // CheckWinVersion() -- check to see what version of Windows we happen to be running under
 //
-BOOL CheckWinVersion(void)
-{
-    HMODULE hntdll = GetModuleHandle("ntdll.dll");
-
-    if (hntdll)
-        pwinever = GetProcAddress(hntdll, "wine_get_version");
-
-    ZeroMemory(&osv, sizeof(osv));
-    osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-
-    if (!GetVersionEx((LPOSVERSIONINFOA)&osv)) return FALSE;
-
-    return TRUE;
-}
 
 static void win_printversion(void)
 {
@@ -114,34 +94,13 @@ static void win_printversion(void)
     Xfree(str);
 }
 
-//
-// win_allowtaskswitching() -- captures/releases alt+tab hotkeys
-//
-void win_allowtaskswitching(int32_t onf)
-{
-    if (onf == taskswitching) return;
-    taskswitching = onf;
-
-    if (onf)
-    {
-        UnregisterHotKey(0,0);
-        UnregisterHotKey(0,1);
-    }
-    else
-    {
-        RegisterHotKey(0,0,MOD_ALT,VK_TAB);
-        RegisterHotKey(0,1,MOD_ALT|MOD_SHIFT,VK_TAB);
-    }
-
-}
-
 
 static void ToggleDesktopComposition(BOOL compEnable)
 {
     static HMODULE              hDWMApiDLL        = NULL;
     static HRESULT(WINAPI *aDwmEnableComposition)(UINT);
 
-    if (!hDWMApiDLL && (hDWMApiDLL = LoadLibrary("DWMAPI.DLL")))
+    if (!hDWMApiDLL && (hDWMApiDLL = LoadLibraryA("DWMAPI.DLL")))
         aDwmEnableComposition = (HRESULT(WINAPI *)(UINT))(void (*)(void))GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
 
     if (aDwmEnableComposition)
@@ -159,7 +118,7 @@ typedef void (*dllSetString)(const char*);
 //
 void win_open(void)
 {
-    instanceflag = CreateSemaphore(NULL, 1,1, WindowClass);
+    instanceflag = CreateSemaphoreA(NULL, 1,1, WindowClass);
 }
 
 void win_init(void)
@@ -185,7 +144,6 @@ void win_setvideomode(int32_t c)
 
 void win_uninit(void)
 {
-    win_allowtaskswitching(1);
 }
 
 void win_close(void)
@@ -194,78 +152,6 @@ void win_close(void)
 }
 
 
-// Keyboard layout switching (disable because this is rude.)
-
-static void switchlayout(char const * layout)
-{
-    /*
-    char layoutname[KL_NAMELENGTH];
-
-    GetKeyboardLayoutName(layoutname);
-
-    if (!Bstrcmp(layoutname, layout))
-        return;
-
-    initprintf("Switching keyboard layout from %s to %s\n", layoutname, layout);
-    LoadKeyboardLayout(layout, KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
-	*/
-}
-
-static char OriginalLayoutName[KL_NAMELENGTH];
-
-void Win_GetOriginalLayoutName(void)
-{
-    //GetKeyboardLayoutName(OriginalLayoutName);
-}
-
-void Win_SetKeyboardLayoutUS(int const toggle)
-{
-    /*
-    static int currentstate;
-
-    if (toggle != currentstate)
-    {
-        if (toggle)
-        {
-            // 00000409 is "American English"
-            switchlayout("00000409");
-            currentstate = toggle;
-        }
-        else if (OriginalLayoutName[0])
-        {
-            switchlayout(OriginalLayoutName);
-            currentstate = toggle;
-        }
-    }
-	*/
-}
-
-
-//
-// ShowErrorBox() -- shows an error message box
-//
-void ShowErrorBox(const char *m)
-{
-    TCHAR msg[1024];
-
-    wsprintf(msg, "%s: %s", m, GetWindowsErrorMsg(GetLastError()));
-    MessageBox(0, msg, apptitle, MB_OK|MB_ICONSTOP);
-}
-
-//
-// GetWindowsErrorMsg() -- gives a pointer to a static buffer containing the Windows error message
-//
-LPTSTR GetWindowsErrorMsg(DWORD code)
-{
-    static TCHAR lpMsgBuf[1024];
-
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                  NULL, code,
-                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                  (LPTSTR)lpMsgBuf, 1024, NULL);
-
-    return lpMsgBuf;
-}
 
 
 //
@@ -296,7 +182,7 @@ int32_t win_buildargs(char **argvbuf)
 {
     int32_t buildargc = 0;
 
-    *argvbuf = Xstrdup(GetCommandLine());
+    *argvbuf = Xstrdup(GetCommandLineA());
 
     if (*argvbuf)
     {

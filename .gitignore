@@ -63,6 +63,5 @@ project.xcworkspace/
 /*.DEM
 /game*.sav
 
-Platform/Windows/Build
-Platform/Windows/Win32
-Platform/Windows/x64
+build-vs2019/
+/source/gitinfo.h

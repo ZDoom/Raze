@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "scriptfile.h"
 #include "cache1d.h"
-#include "crc32.h"
+#include "crc32_.h"
 
 #include "duke3d.h"
 #include "common_game.h"

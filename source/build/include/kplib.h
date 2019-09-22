@@ -48,7 +48,7 @@ extern int32_t kzfindfile (char *); //you alloc buf, returns 1:found,0:~found
 
 //like stricmp(st0,st1) except: '/' == '\'
 
-extern char toupperlookup[256];
+extern uint8_t toupperlookup[256];
 static inline int32_t filnamcmp(const char *j, const char *i)
 {
     // If we reach at the end of both strings, we are done

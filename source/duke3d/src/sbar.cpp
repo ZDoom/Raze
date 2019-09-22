@@ -541,14 +541,14 @@ static int32_t G_GetMorale(int32_t p_i, int32_t snum)
 #endif
 }
 
-static inline void rotatesprite_althud(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat)
+static inline void rotatesprite_althud(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat)
 {
     if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
         rotatesprite_(sbarx(sx+1), sbary(sy+1), z, a, picnum, 127, 4, dastat + POLYMOSTTRANS2, 0, 0, 0, 0, xdim - 1, ydim - 1);
     rotatesprite_(sbarx(sx), sbary(sy), z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, 0, xdim - 1, ydim - 1);
 }
 
-static inline void rotatesprite_althudr(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat)
+static inline void rotatesprite_althudr(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat)
 {
     if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
         rotatesprite_(sbarxr(sx - 1), sbary(sy + 1), z, a, picnum, 127, 4, dastat + POLYMOSTTRANS2, 0, 0, 0, 0, xdim - 1, ydim - 1);

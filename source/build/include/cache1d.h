@@ -18,7 +18,7 @@ extern int32_t kpzbufsiz;
 extern int32_t kpzbufload(const char *);
 
 void	cacheInitBuffer(intptr_t dacachestart, int32_t dacachesize);
-void	cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr);
+void	cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, uint8_t *newlockptr);
 void	cacheAgeEntries(void);
 
 #ifdef USE_PHYSFS
@@ -120,7 +120,7 @@ typedef struct
 {
     intptr_t *hand;
     int32_t   leng;
-    char *    lock;
+    uint8_t *    lock;
 } cactype;
 
 enum {

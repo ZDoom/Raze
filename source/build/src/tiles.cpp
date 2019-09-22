@@ -12,7 +12,7 @@
 #include "engine_priv.h"
 #include "cache1d.h"
 #include "lz4.h"
-#include "crc32.h"
+#include "crc32_.h"
 
 #include "vfs.h"
 

@@ -33,7 +33,7 @@ static void  **rts_lumpcache;
 static lumpinfo_t *rts_lumpinfo;
 static int32_t RTS_Started = FALSE;
 
-char rts_lumplockbyte[11];
+uint8_t rts_lumplockbyte[11];
 
 
 /*

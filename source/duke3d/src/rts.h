@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 
-extern char rts_lumplockbyte[11];
+extern uint8_t rts_lumplockbyte[11];
 
 /* Files with a .rts extension are idlink files with multiple lumps */
 void RTS_Init(const char *filename);

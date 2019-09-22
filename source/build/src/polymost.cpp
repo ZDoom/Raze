@@ -6784,7 +6784,7 @@ EDUKE32_STATIC_ASSERT((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
 //cx1,...     clip window (actual screen coords)
 
 void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-    int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend, int32_t uniqid)
+    int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend, int32_t uniqid)
 {
     float d, cosang, sinang, cosang2, sinang2;
     float m[4][4];
@@ -7022,7 +7022,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 }
 
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                             int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+                             int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                              int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
 {
     if (usemodels && tile2model[picnum].hudmem[(dastat&4)>>2])

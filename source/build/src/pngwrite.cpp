@@ -1,6 +1,6 @@
 #include "compat.h"
 #include "pngwrite.h"
-#include "crc32.h"
+#include "crc32_.h"
 
 #include "vfs.h"
 
@@ -17,13 +17,13 @@ static FORCE_INLINE void png_write_uint32(uint32_t const in)
 static void png_write_chunk(uint32_t const size, char const *const type,
                             uint8_t const *const data, uint32_t flags)
 {
-    mz_ulong chunk_size = (flags & CHUNK_COMPRESSED) ? compressBound(size) : size;
+    uLongf chunk_size = (flags & CHUNK_COMPRESSED) ? compressBound(size) : size;
     uint8_t * const chunk = (uint8_t *) Xcalloc(1, 4 + chunk_size);
 
     Bmemcpy(chunk, type, 4);
 
     if (flags & CHUNK_COMPRESSED)
-        compress(chunk + 4, (mz_ulong *) &chunk_size, data, size);
+        compress(chunk + 4, (uLongf *) &chunk_size, data, size);
     else
         Bmemcpy(chunk + 4, data, size);
 

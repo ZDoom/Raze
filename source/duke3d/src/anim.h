@@ -41,7 +41,7 @@ typedef struct
     uint16_t numsounds;
     uint8_t framedelay;
     uint8_t frameflags;
-    char animlock;
+    uint8_t animlock;
 } dukeanim_t;
 
 extern dukeanim_t * g_animPtr;

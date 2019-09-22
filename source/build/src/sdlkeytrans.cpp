@@ -1,8 +1,8 @@
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
-static char keytranslation[SDLK_LAST];
+static uint8_t keytranslation[SDLK_LAST];
 #else
-static char keytranslation[SDL_NUM_SCANCODES];
+static uint8_t keytranslation[SDL_NUM_SCANCODES];
 #endif
 static int32_t buildkeytranslationtable(void);
 

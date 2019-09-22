@@ -800,8 +800,8 @@ EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
 EXTERN vec2_16_t tilesiz[MAXTILES];
 
-EXTERN char picsiz[MAXTILES];
-EXTERN char walock[MAXTILES];
+EXTERN uint8_t picsiz[MAXTILES];
+EXTERN uint8_t walock[MAXTILES];
 
 extern const char pow2char_[];
 static CONSTEXPR const int32_t pow2long[32] =
@@ -1115,7 +1115,7 @@ void   videoClearViewableArea(int32_t dacol);
 void   videoClearScreen(int32_t dacol);
 void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
 void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                     int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+                     int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                      int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void   renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
 void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p);
@@ -1127,26 +1127,26 @@ void   Buninitart(void);
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
 static FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                                int8_t dashade, char dapalnum, int32_t dastat,
+                                int8_t dashade, uint8_t dapalnum, int32_t dastat,
                                 int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, cx1, cy1, cx2, cy2);
 }
 // Don't clip at all, i.e. the whole screen real estate is available:
 static FORCE_INLINE void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                                   int8_t dashade, char dapalnum, int32_t dastat)
+                                   int8_t dashade, uint8_t dapalnum, int32_t dastat)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0,0,xdim-1,ydim-1);
 }
 
 static FORCE_INLINE void rotatesprite_fs_alpha(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                                  int8_t dashade, char dapalnum, int32_t dastat, uint8_t alpha)
+                                  int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t alpha)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, alpha, 0, 0, 0, xdim-1, ydim-1);
 }
 
 static FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                                    int8_t dashade, char dapalnum, int32_t dastat)
+                                    int8_t dashade, uint8_t dapalnum, int32_t dastat)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
 }

@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "common_game.h"
-#include "crc32.h"
+#include "crc32_.h"
 
 #include "globals.h"
 #include "tile.h"

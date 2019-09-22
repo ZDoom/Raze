@@ -73,7 +73,7 @@
 # ifndef CINTERFACE
 #  define CINTERFACE
 # endif
-# include "dx/ddraw.h"
+# include <ddraw.h>
 # undef NEED_DDRAW_H
 #endif
 
@@ -83,7 +83,7 @@
 # ifndef CINTERFACE
 #  define CINTERFACE
 # endif
-# include "dx/dinput.h"
+# include <dinput.h>
 # undef NEED_DINPUT_H
 
 # if defined (_MSC_VER) || !defined(__cplusplus)
@@ -116,7 +116,7 @@
 # ifndef CINTERFACE
 #  define CINTERFACE
 # endif
-# include "dx/dsound.h"
+# include <dsound.h>
 # undef NEED_DSOUND_H
 #endif
 

@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "compat.h"
 #include "common_game.h"
-#include "crc32.h"
+#include "crc32_.h"
 
 //#include "actor.h"
 #include "globals.h"
@@ -1283,7 +1283,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSector)
 {
     char sMapExt[BMAX_PATH];
-    char sBakExt[BMAX_PATH];
     int16_t tpskyoff[256];
     int nSpriteNum;
     psky_t *pSky = tileSetupSky(0);

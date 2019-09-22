@@ -10,6 +10,8 @@ extern "C" {
 #define XMP_VER_MAJOR 4
 #define XMP_VER_MINOR 5
 #define XMP_VER_RELEASE 0
+#define BUILDING_STATIC
+
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 # if defined(BUILDING_STATIC)

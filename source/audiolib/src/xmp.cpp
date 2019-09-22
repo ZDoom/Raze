@@ -7,7 +7,6 @@
 #include "multivoc.h"
 #include "_multivc.h"
 
-#define BUILDING_STATIC
 #include "libxmp-lite/xmp.h"
 
 typedef struct {

@@ -104,7 +104,7 @@ int32_t kpzbufload(char const * const filnam)
 
 #if !defined DEBUG_ALLOCACHE_AS_MALLOC
 static int32_t cachesize = 0;
-static char zerochar = 0;
+static uint8_t zerochar = 0;
 static intptr_t cachestart = 0;
 static int32_t lockrecip[200];
 
@@ -112,7 +112,7 @@ int32_t cacnum = 0;
 cactype cac[MAXCACHEOBJECTS];
 #endif
 
-char toupperlookup[256] =
+uint8_t toupperlookup[256] =
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,
     0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,
@@ -161,7 +161,7 @@ void cacheInitBuffer(intptr_t dacachestart, int32_t dacachesize)
 }
 
 #ifdef DEBUG_ALLOCACHE_AS_MALLOC
-void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
+void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, uint8_t *newlockptr)
 {
     UNREFERENCED_PARAMETER(newlockptr);
 
@@ -222,7 +222,7 @@ int32_t cacheFindBlock(int32_t newbytes, int32_t *besto, int32_t *bestz)
     return bestval;
 }
 
-void cacheAllocateBlock(intptr_t* newhandle, int32_t newbytes, char* newlockptr)
+void cacheAllocateBlock(intptr_t* newhandle, int32_t newbytes, uint8_t* newlockptr)
 {
     // Make all requests a multiple of the system page size
     int const pageSize = Bgetpagesize();

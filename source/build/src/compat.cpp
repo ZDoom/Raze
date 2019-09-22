@@ -81,46 +81,16 @@ void set_memerr_handler(void(*handlerfunc)(int32_t, const char *, const char *))
 char *Bgethomedir(void)
 {
 #ifdef _WIN32
-    int32_t loaded = 0;
-    auto hShell32 = GetModuleHandle("shell32.dll");
 
-    if (hShell32 == NULL)
+    char appdata[MAX_PATH];
+
+    if (SUCCEEDED(SHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
     {
-        hShell32 = LoadLibrary("shell32.dll");
-        loaded = 1;
+        return Xstrdup(appdata);
     }
-
-    if (hShell32 == NULL)
-        return NULL;
-
-    using SHGSFPA_t = BOOL (WINAPI *)(HWND, LPTSTR, int, BOOL);
-    auto aSHGetSpecialFolderPathA = (SHGSFPA_t)(void (*)(void))GetProcAddress(hShell32, "SHGetSpecialFolderPathA");
-
-    if (aSHGetSpecialFolderPathA != NULL)
-    {
-        TCHAR appdata[MAX_PATH];
-
-        if (SUCCEEDED(aSHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
-        {
-            if (loaded)
-                FreeLibrary(hShell32);
-            return Xstrdup(appdata);
-        }
-    }
-
-    if (loaded)
-        FreeLibrary(hShell32);
     return NULL;
 #elif defined EDUKE32_OSX
     return osx_gethomedir();
-#elif defined(GEKKO)
-    // return current drive's name
-    char *drv, cwd[BMAX_PATH] = {0};
-    buildvfs_getcwd(cwd, BMAX_PATH);
-    drv = strchr(cwd, ':');
-    if (drv)
-        drv[1] = '\0';
-    return Xstrdup(cwd);
 #else
     char *e = getenv("HOME");
     if (!e) return NULL;
@@ -133,9 +103,9 @@ char *Bgetappdir(void)
     char *dir = NULL;
 
 #ifdef _WIN32
-    TCHAR appdir[MAX_PATH];
+    char appdir[MAX_PATH];
 
-    if (GetModuleFileName(NULL, appdir, MAX_PATH) > 0) {
+    if (GetModuleFileNameA(NULL, appdir, MAX_PATH) > 0) {
         // trim off the filename
         char *slash = Bstrrchr(appdir, '\\');
         if (slash) slash[0] = 0;
@@ -600,40 +570,18 @@ int Bgetpagesize(void)
 //
 // Bgetsysmemsize() -- gets the amount of system memory in the machine
 //
-#ifdef _WIN32
-typedef BOOL (WINAPI *aGlobalMemoryStatusExType)(LPMEMORYSTATUSEX);
-#endif
 
 uint32_t Bgetsysmemsize(void)
 {
     uint32_t siz = UINT32_MAX;
 
 #ifdef _WIN32
-    HMODULE lib = LoadLibrary("KERNEL32.DLL");
+    //WinNT
+    MEMORYSTATUSEX memst;
+    memst.dwLength = sizeof(MEMORYSTATUSEX);
+    if (GlobalMemoryStatusEx(&memst))
+        siz = min<decltype(memst.ullTotalPhys)>(UINT32_MAX, memst.ullTotalPhys);
 
-    if (lib)
-    {
-        aGlobalMemoryStatusExType aGlobalMemoryStatusEx =
-            (aGlobalMemoryStatusExType)(void (*)(void))GetProcAddress(lib, "GlobalMemoryStatusEx");
-
-        if (aGlobalMemoryStatusEx)
-        {
-            //WinNT
-            MEMORYSTATUSEX memst;
-            memst.dwLength = sizeof(MEMORYSTATUSEX);
-            if (aGlobalMemoryStatusEx(&memst))
-                siz = min<decltype(memst.ullTotalPhys)>(UINT32_MAX, memst.ullTotalPhys);
-        }
-
-        if (!aGlobalMemoryStatusEx || siz == 0)
-        {
-            initprintf("Bgetsysmemsize(): error determining system memory size!\n");
-            siz = UINT32_MAX;
-        }
-
-        FreeLibrary(lib);
-    }
-    else initprintf("Bgetsysmemsize(): unable to load KERNEL32.DLL!\n");
 #elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES) && !defined(GEKKO)
 #ifdef _SC_PAGE_SIZE
     int64_t const scpagesiz = sysconf(_SC_PAGE_SIZE);
@@ -653,16 +601,3 @@ uint32_t Bgetsysmemsize(void)
     return siz;
 }
 
-#ifdef GEKKO
-int access(const char *pathname, int mode)
-{
-    struct stat st;
-    if (stat(pathname, &st)==-1)
-        return -1;
-
-    // TODO: Check mode against st_mode
-    UNREFERENCED_PARAMETER(mode);
-
-    return 0;
-}
-#endif

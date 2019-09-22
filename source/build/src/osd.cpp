@@ -4,7 +4,7 @@
 
 #include "build.h"
 #include "cache1d.h"
-#include "crc32.h"
+#include "crc32_.h"
 #include "compat.h"
 #include "baselayer.h"
 #include "osd.h"

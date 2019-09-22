@@ -14,26 +14,11 @@ extern int64_t win_timerfreq;
 
 extern char silentvideomodeswitch;
 
-extern BOOL CheckWinVersion(void);
-extern void win_allowtaskswitching(int32_t onf);
-
-#if defined(RENDERTYPEWIN) || SDL_MAJOR_VERSION==1
-extern int32_t win_inittimer(void);
-extern uint64_t win_getu64ticks(void);
-#endif
-
 extern void win_open(void);
 extern void win_init(void);
 extern void win_setvideomode(int32_t c);
 extern void win_uninit(void);
 extern void win_close(void);
-
-extern void Win_GetOriginalLayoutName(void);
-extern void Win_SetKeyboardLayoutUS(int);
-
-extern void ShowErrorBox(const char *m);
-
-extern LPTSTR GetWindowsErrorMsg(DWORD code);
 
 extern int32_t addsearchpath_ProgramFiles(const char *p);
 

@@ -146,9 +146,4 @@ int32_t loadwgl(const char *driver);
 int32_t unloadwgl(void);
 #endif
 
-#ifdef POLYMER
-int32_t loadglulibrary(const char *driver);
-int32_t unloadglulibrary(void);
-#endif
-
 #endif

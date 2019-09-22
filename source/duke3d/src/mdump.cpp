@@ -27,7 +27,7 @@ LONG MiniDumper::TopLevelFilter(struct _EXCEPTION_POINTERS *pExceptionInfo)
     HMODULE hDll = NULL;
     char    szDbgHelpPath[_MAX_PATH];
 
-    if (GetModuleFileName(NULL, szDbgHelpPath, _MAX_PATH))
+    if (GetModuleFileNameW(NULL, szDbgHelpPath, _MAX_PATH))
     {
         auto pSlash = _tcsrchr(szDbgHelpPath, '\\');
 

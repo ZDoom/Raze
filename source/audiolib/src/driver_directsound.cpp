@@ -248,7 +248,7 @@ int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * i
     if (FAILED(err = IDirectSound_CreateSoundBuffer(lpds, &bufdesc, &lpdsbsec, 0)))
         return DirectSound_Error(err, DSErr_CreateSoundBufferSecondary);
 
-    if (FAILED(err = IDirectSoundBuffer_QueryInterface(lpdsbsec, &IID_IDirectSoundNotify, (LPVOID *)&lpdsnotify)))
+    if (FAILED(err = IDirectSoundBuffer_QueryInterface(lpdsbsec, IID_IDirectSoundNotify, (LPVOID *)&lpdsnotify)))
         return DirectSound_Error(err, DSErr_Notify);
 
     for (int i = 0; i < MIXBUFFERPOSITIONS; i++)

@@ -2,7 +2,7 @@
 // Use SDL 1.2 or 2.0 from http://www.libsdl.org
 
 #include <Windows.h>
-#include <CommCtrl.h>>
+#include <CommCtrl.h>
 #include <signal.h>
 
 #include "a.h"
@@ -158,7 +158,7 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
 #if defined EDUKE32_OSX
     return osx_msgbox(name, buf);
 #elif defined _WIN32
-    MessageBox(win_gethwnd(),buf,name,MB_OK|MB_TASKMODAL);
+    MessageBoxA(win_gethwnd(),buf,name,MB_OK|MB_TASKMODAL);
     return 0;
 #elif defined EDUKE32_TOUCH_DEVICES
     initprintf("wm_msgbox called. Message: %s: %s",name,buf);
@@ -204,7 +204,7 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
 #if defined EDUKE32_OSX
     return osx_ynbox(name, buf);
 #elif defined _WIN32
-    return (MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL) == IDYES);
+    return (MessageBoxA(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL) == IDYES);
 #elif defined EDUKE32_TOUCH_DEVICES
     initprintf("wm_ynbox called, this is bad! Message: %s: %s",name,buf);
     initprintf("Returning false..");
@@ -348,6 +348,14 @@ namespace Duke
 {
 	extern GameInterface Interface;
 }
+namespace Redneck
+{
+	extern GameInterface Interface;
+}
+namespace Blood
+{
+	extern GameInterface Interface;
+}
 
 void ChooseGame()
 {
@@ -379,13 +387,15 @@ void ChooseGame()
 		//API call succeeded, now , check return values
 		if (nResult == 1000)
 		{
-			//gi = &Duke::Interface;
+			gi = &Duke::Interface;
 		}
 		else if (nResult == 1001)
 		{
+			gi = &Redneck::Interface;
 		}
 		else if (nResult == 1002)
 		{
+			gi = &Blood::Interface;
 		}
 	}
 	if (gi == nullptr) exit(1);
@@ -437,11 +447,6 @@ int main(int argc, char *argv[])
 
     win_open();
 
-    if (!CheckWinVersion())
-    {
-        MessageBox(0, "This application requires a newer Windows version to run.", apptitle, MB_OK | MB_ICONSTOP);
-        return -1;
-    }
 #elif defined(HAVE_GTK2)
     // Pre-initialize SDL video system in order to make sure XInitThreads() is called
     // before GTK starts talking to X11.
@@ -613,13 +618,6 @@ int32_t initsystem(void)
             initprintf("Failed loading OpenGL Driver.  GL modes will be unavailable. Error: %s\n", SDL_GetError());
             nogl = 1;
         }
-#ifdef POLYMER
-        if (loadglulibrary(getenv("BUILD_GLULIB")))
-        {
-            initprintf("Failed loading GLU.  GL modes will be unavailable. Error: %s\n", SDL_GetError());
-            nogl = 1;
-        }
-#endif
 #endif
 
 #ifndef _WIN32
@@ -659,9 +657,6 @@ void uninitsystem(void)
 #ifdef USE_OPENGL
 # if SDL_MAJOR_VERSION!=1
     SDL_GL_UnloadLibrary();
-# endif
-# ifdef POLYMER
-    unloadglulibrary();
 # endif
 #endif
 }
@@ -910,10 +905,6 @@ int32_t initinput(void)
 {
     int32_t i;
 
-#ifdef _WIN32
-    Win_GetOriginalLayoutName();
-    Win_SetKeyboardLayoutUS(1);
-#endif
 
 #if defined EDUKE32_OSX
     // force OS X to operate in >1 button mouse mode so that LMB isn't adulterated
@@ -1845,7 +1836,7 @@ int32_t videoSetGamma(void)
 }
 
 #if !defined __APPLE__ && !defined EDUKE32_TOUCH_DEVICES
-extern "C" struct sdlappicon sdlappicon;
+extern struct sdlappicon sdlappicon;
 static inline SDL_Surface *loadappicon(void)
 {
     SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)sdlappicon.pixels, sdlappicon.width, sdlappicon.height, 32,
@@ -2220,8 +2211,6 @@ int32_t handleevents_pollsdl(void)
                         if (g_mouseGrabbed && g_mouseEnabled)
                             grabmouse_low(appactive);
 #ifdef _WIN32
-                        // Win_SetKeyboardLayoutUS(appactive);
-
                         if (backgroundidle)
                             SetPriorityClass(GetCurrentProcess(), appactive ? NORMAL_PRIORITY_CLASS : IDLE_PRIORITY_CLASS);
 #endif
@@ -2287,3 +2276,5 @@ int32_t handleevents(void)
 
     return rv;
 }
+
+auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.

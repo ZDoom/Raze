@@ -110,7 +110,7 @@ void G_ExtPreInit(int32_t argc,char const * const * argv)
     g_useCwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
 
 #ifdef _WIN32
-    GetModuleFileName(NULL,g_rootDir,BMAX_PATH);
+    GetModuleFileNameA(NULL,g_rootDir,BMAX_PATH);
     Bcorrectfilename(g_rootDir,1);
     //chdir(g_rootDir);
 #else

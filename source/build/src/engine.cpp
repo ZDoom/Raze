@@ -15,7 +15,7 @@
 #include "colmatch.h"
 #include "common.h"
 #include "compat.h"
-#include "crc32.h"
+#include "crc32_.h"
 #include "engine_priv.h"
 #include "lz4.h"
 #include "osd.h"
@@ -117,7 +117,7 @@ int32_t novoxmips = 1;
 #else
 # define DISTRECIPSIZ 131072
 #endif
-static char voxlock[MAXVOXELS][MAXVOXMIPS];
+static uint8_t voxlock[MAXVOXELS][MAXVOXMIPS];
 int32_t voxscale[MAXVOXELS];
 
 static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
@@ -1437,7 +1437,7 @@ typedef struct
     int32_t sx, sy, z;
     int16_t a, picnum;
     int8_t dashade;
-    char dapalnum, dastat;
+    uint8_t dapalnum, dastat;
     uint8_t daalpha, dablend;
     char pagesleft;
     int32_t cx1, cy1, cx2, cy2;
@@ -6912,7 +6912,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 //
 //JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
 static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                           int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+                           int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                            int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2,
                            int32_t uniqid)
 {
@@ -11994,7 +11994,7 @@ void renderFlushPerms(void)
 // rotatesprite
 //
 void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                   int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+                   int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                    int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     int32_t i;

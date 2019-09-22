@@ -53,7 +53,7 @@ static FORCE_INLINE void Menu_StopTextInput()
 {
 }
 
-static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
+static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, ydim_upper, xdim-1, ydim_lower);
 }

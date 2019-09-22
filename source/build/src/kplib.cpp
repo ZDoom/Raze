@@ -2450,7 +2450,7 @@ intptr_t kzopen(const char *filnam)
 
 #if defined(_WIN32)
 static HANDLE hfind = INVALID_HANDLE_VALUE;
-static WIN32_FIND_DATA findata;
+static WIN32_FIND_DATAA findata;
 #else
 #include <dirent.h>
 #define MAX_PATH 260
@@ -2502,7 +2502,7 @@ int32_t kzfindfile(char *filnam)
             Bmemcpy(filnam,newildst,wildstpathleng);
 
 #if defined(_WIN32)
-            hfind = FindFirstFile(newildst,&findata);
+            hfind = FindFirstFileA(newildst,&findata);
             if (hfind == INVALID_HANDLE_VALUE)
                 { if (!kzhashbuf) return 0; srchstat = 2; continue; }
             if (findata.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) continue;
@@ -2535,7 +2535,7 @@ int32_t kzfindfile(char *filnam)
         {
             Bmemcpy(filnam,newildst,wildstpathleng);
 #if defined(_WIN32)
-            if (!FindNextFile(hfind,&findata))
+            if (!FindNextFileA(hfind,&findata))
                 { FindClose(hfind); hfind = INVALID_HANDLE_VALUE; if (!kzhashbuf) return 0; srchstat = 2; break; }
             if (findata.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) continue;
             i = wildstpathleng;

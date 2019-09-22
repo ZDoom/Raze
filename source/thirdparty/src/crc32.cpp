@@ -1,7 +1,7 @@
 // based on http://create.stephan-brumme.com/crc32/Crc32.cpp, zlib license
 
 #include "compat.h"
-#include "crc32.h"
+#include "crc32_.h"
 
 uint32_t Bcrc32(const void* data, int length, uint32_t crc)
 {

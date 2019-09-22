@@ -1,7 +1,7 @@
 #ifndef __PNGWRITE_H__
 #define __PNGWRITE_H__
 
-#include "miniz.h"
+#include <zlib.h>
 
 #include "vfs.h"
 

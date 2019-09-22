@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h"
 #include "osdfuncs.h"
 #include "osdcmds.h"
-#include "crc32.h"
+#include "crc32_.h"
 #include "net.h"
 #include "menus.h"
 #include "savegame.h"
@@ -7525,35 +7525,6 @@ static void G_Startup(void)
     if (VOLUMEONE)
     {
         initprintf("*** You have run Duke Nukem 3D %d times. ***\n\n",ud.executions);
-
-#if 0//def _WIN32
-        if (ud.executions >= 50 && !DUKEBETA)
-        {
-            initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!\n");
-
-            Bsprintf(tempbuf, "You have run Duke Nukem 3D shareware %d times.  It is now time to upgrade to the complete version!\n\n"
-                     "Upgrade Duke Nukem 3D now?\n", ud.executions);
-
-            if (wm_ynbox("Upgrade to the full version of Duke Nukem 3D","%s",tempbuf))
-            {
-                SHELLEXECUTEINFOA sinfo;
-                char const *p = "http://store.steampowered.com/app/225140";
-
-                Bmemset(&sinfo, 0, sizeof(sinfo));
-                sinfo.cbSize = sizeof(sinfo);
-                sinfo.fMask = SEE_MASK_CLASSNAME;
-                sinfo.lpVerb = "open";
-                sinfo.lpFile = p;
-                sinfo.nShow = SW_SHOWNORMAL;
-                sinfo.lpClass = "http";
-
-                if (!ShellExecuteExA(&sinfo))
-                    G_GameExit("Error launching default system browser!");
-
-                quitevent = 1;
-            }
-        }
-#endif
     }
 
     for (i=0; i<MAXPLAYERS; i++)

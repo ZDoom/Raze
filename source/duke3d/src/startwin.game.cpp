@@ -49,6 +49,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "startwin.game.h"
 #include "windows_inc.h"
 
+#pragma warning(disable:4244) // There's just a bit too much of these in here...
+
 BEGIN_DUKE_NS
 
 
@@ -336,9 +338,9 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
 static void SetPage(int pageNum)
 {
     HWND tab = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
-    auto const cur = SendMessage(tab, TCM_GETCURSEL, 0, 0);
+    auto const cur = SendMessageA(tab, TCM_GETCURSEL, 0, 0);
     ShowWindow(pages[cur], SW_HIDE);
-    SendMessage(tab, TCM_SETCURSEL, pageNum, 0);
+    SendMessageA(tab, TCM_SETCURSEL, pageNum, 0);
     ShowWindow(pages[pageNum], SW_SHOW);
     mode = pageNum;
 
@@ -412,7 +414,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         hbmp = LoadBitmap((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(RSRC_BMP));
 
         HWND hwnd = GetDlgItem(hwndDlg, WIN_STARTWIN_BITMAP);
-        SendMessage(hwnd, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmp);
+        SendMessageA(hwnd, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmp);
 
         RECT r;
         GetClientRect(hwnd, &r);
@@ -445,23 +447,23 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
         // Add tabs to the tab control
         {
-            static char textSetup[] = TEXT("Setup");
-            static char textMessageLog[] = TEXT("Message Log");
+            static char textSetup[] = "Setup";
+            static char textMessageLog[] = "Message Log";
 
             hwnd = GetDlgItem(hwndDlg, WIN_STARTWIN_TABCTL);
 
-            TCITEM tab = {};
+            TCITEMA tab = {};
             tab.mask = TCIF_TEXT;
             tab.pszText = textSetup;
-            SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
+            SendMessageA(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
             tab.pszText = textMessageLog;
-            SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
+            SendMessageA(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
 
             // Work out the position and size of the area inside the tab control for the pages
             ZeroMemory(&r, sizeof(r));
             GetClientRect(hwnd, &r);
-            SendMessage(hwnd, TCM_ADJUSTRECT, FALSE, (LPARAM)&r);
+            SendMessageA(hwnd, TCM_ADJUSTRECT, FALSE, (LPARAM)&r);
             r.right -= r.left-1;
             r.bottom -= r.top-1;
             r.top += rtab.top;
@@ -478,7 +480,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             GetClientRect(pages[TAB_MESSAGES], &r);
             r.right -= GetSystemMetrics(SM_CXVSCROLL)+4;
             r.left = r.top = 0;
-            SendMessage(pages[TAB_MESSAGES], EM_SETRECTNP,0,(LPARAM)&r);
+            SendMessageA(pages[TAB_MESSAGES], EM_SETRECTNP,0,(LPARAM)&r);
 
             // Set a tab stop in the game data listbox
             {
@@ -487,7 +489,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             }
 
             SetFocus(GetDlgItem(hwndDlg, WIN_STARTWIN_START));
-            SetWindowText(hwndDlg, apptitle);
+            SetWindowTextA(hwndDlg, apptitle);
         }
         return FALSE;
     }
@@ -496,7 +498,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
     {
         auto nmhdr = (LPNMHDR)lParam;
         if (nmhdr->idFrom != WIN_STARTWIN_TABCTL) break;
-        int const cur = SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
+        int const cur = SendMessageA(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
         switch (nmhdr->code)
         {
             case TCN_SELCHANGING:
@@ -590,15 +592,15 @@ int32_t startwin_puts(const char *buf)
     static HWND dactrl = NULL;
     if (!dactrl) dactrl = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
 
-    int const vis = ((int)SendMessage(dactrl, TCM_GETCURSEL,0,0) == TAB_MESSAGES);
+    int const vis = ((int)SendMessageA(dactrl, TCM_GETCURSEL,0,0) == TAB_MESSAGES);
 
     if (vis)
-        SendMessage(edctl, WM_SETREDRAW, FALSE, 0);
+        SendMessageA(edctl, WM_SETREDRAW, FALSE, 0);
 
-    int const curlen = SendMessage(edctl, WM_GETTEXTLENGTH, 0,0);
-    SendMessage(edctl, EM_SETSEL, (WPARAM)curlen, (LPARAM)curlen);
+    int const curlen = SendMessageA(edctl, WM_GETTEXTLENGTH, 0,0);
+    SendMessageA(edctl, EM_SETSEL, (WPARAM)curlen, (LPARAM)curlen);
 
-    int const   numlines = SendMessage(edctl, EM_GETLINECOUNT, 0, 0);
+    int const   numlines = SendMessageA(edctl, EM_GETLINECOUNT, 0, 0);
     static bool newline  = false;
     const char *p        = buf;
 
@@ -606,7 +608,7 @@ int32_t startwin_puts(const char *buf)
     {
         if (newline)
         {
-            SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)"\r\n");
+            SendMessageA(edctl, EM_REPLACESEL, 0, (LPARAM)"\r\n");
             newline = false;
         }
         const char *q = p;
@@ -633,14 +635,14 @@ int32_t startwin_puts(const char *buf)
             workbuf[q-p] = 0;
             p = q;
         }
-        SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)workbuf);
+        SendMessageA(edctl, EM_REPLACESEL, 0, (LPARAM)workbuf);
     }
 
-    int const newnumlines = SendMessage(edctl, EM_GETLINECOUNT, 0, 0);
-    SendMessage(edctl, EM_LINESCROLL, 0, newnumlines - numlines);
+    int const newnumlines = SendMessageA(edctl, EM_GETLINECOUNT, 0, 0);
+    SendMessageA(edctl, EM_LINESCROLL, 0, newnumlines - numlines);
 
     if (vis)
-        SendMessage(edctl, WM_SETREDRAW, TRUE, 0);
+        SendMessageA(edctl, WM_SETREDRAW, TRUE, 0);
 
     return 0;
 }
@@ -648,7 +650,7 @@ int32_t startwin_puts(const char *buf)
 int32_t startwin_settitle(const char *str)
 {
     if (!startupdlg) return 1;
-    SetWindowText(startupdlg, str);
+    SetWindowTextA(startupdlg, str);
     return 0;
 }
 

@@ -37,7 +37,7 @@ extern uint32_t PaletteIndexFullbrights[8];
 #define SetPaletteIndexFullbright(col) (PaletteIndexFullbrights[(col)>>5] |= (1u<<((col)&31)))
 
 typedef struct {
-    char r, g, b, f;
+    uint8_t r, g, b, f;
 } palette_t;
 typedef struct {
     uint8_t r, g, b;

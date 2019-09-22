@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "enet/enet.h"
 #include "lz4.h"
-#include "crc32.h"
+#include "crc32_.h"
 
 #include "vfs.h"
 
