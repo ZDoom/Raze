@@ -1051,6 +1051,9 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                             
                             sprite[nSprite].cstat = 0x8000;
 
+                            // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
+                            // This behavior probably would be needed emulated for demo compatibility
+                            // int dx = sintable[RandomSize(11) & kAngleMask) + 512] << 10;
                             int dx = Sin((RandomSize(11) & kAngleMask) + 512) << 10;
                             int dy = Sin(RandomSize(11) & kAngleMask) << 10;
                             int dz = (RandomSize(5) - RandomSize(5)) << 7;

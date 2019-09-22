@@ -1177,7 +1177,7 @@ void FuncPlayer(int pA, int nDamage, int nRun)
             }
 
             // loc_1A6E4
-            if (!inside(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].sectnum))
+            if (inside(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].sectnum) != 1)
             {
                 mychangespritesect(nPlayerSprite, spr_sectnum);
 
