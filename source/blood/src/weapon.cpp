@@ -325,6 +325,8 @@ void UpdateAimVector(PLAYER * pPlayer)
             pSprite = &sprite[nSprite];
             if (pSprite == pPSprite)
                 continue;
+            if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
+                continue;
             if (pSprite->hitag&32)
                 continue;
             if (!(pSprite->hitag&8))
@@ -379,6 +381,8 @@ void UpdateAimVector(PLAYER * pPlayer)
             for (nSprite = headspritestat[4]; nSprite >= 0; nSprite = nextspritestat[nSprite])
             {
                 pSprite = &sprite[nSprite];
+                if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
+                    continue;
                 if (!(pSprite->hitag&8))
                     continue;
                 int x2 = pSprite->x;
