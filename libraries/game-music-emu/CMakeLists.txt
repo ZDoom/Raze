@@ -16,7 +16,7 @@ if( NOT CMAKE_BUILD_TYPE MATCHES "Release" )
     set( CMAKE_BUILD_TYPE "RelWithDebInfo" )
 endif()
 
-if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra" )
     if( NOT PROFILE )
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fomit-frame-pointer" )
@@ -27,16 +27,16 @@ if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
     endif()
 endif()
 
-#[ZDoom] Disable most of bogus and annoying MSVC warnings
+# Disable most of bogus and annoying MSVC warnings
 if( MSVC )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4101 /wd4800 /wd4702 /wd4706 /wd4805 /wd4310 /wd4244 /wd4456 /wd4459 /wd4146 /wd4127 /wd4458 /wd4267 /wd4804")
 endif()
 
 # Enable fast flag for GME
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ZD_FASTMATH_FLAG}" )
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DEM_FASTMATH_FLAG}" )
 
 # Default emulators to build (all of them! ;)
-# [ZDoom] No options, enable all of them by default.
+#  No options, enable all of them by default.
 
 #if (NOT DEFINED USE_GME_AY)
     SET(USE_GME_AY 1 CACHE BOOL "Enable support for Spectrum ZX music emulation")
@@ -87,7 +87,7 @@ set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ZD_FASTMATH_FLAG}" )
     SET(USE_GME_NSF 1 CACHE BOOL "Enable NES NSF music emulation" FORCE)
 #endif()
 
-# [ZDoom] Set always to OFF.
+#  Set always to OFF.
 set(BUILD_SHARED_LIBS OFF)
 set(ENABLE_UBSAN  OFF)
 
@@ -139,7 +139,7 @@ endif()
 add_subdirectory(gme)
 
 # EXCLUDE_FROM_ALL adds build rules but keeps it out of default build
-# [ZDoom] Not needed.
+#  Not needed.
 if( FALSE )
 add_subdirectory(player EXCLUDE_FROM_ALL)
 add_subdirectory(demo EXCLUDE_FROM_ALL)

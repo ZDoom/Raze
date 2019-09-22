@@ -52,21 +52,21 @@ function( add_pk3 PK3_NAME PK3_DIR )
 	# Generate target name. Just use "pk3" for main pk3 target.
 	string( REPLACE "." "_" PK3_TARGET ${PK3_NAME} )
 
-	if( NOT ZDOOM_OUTPUT_OLDSTYLE )
-		add_custom_command( OUTPUT ${ZDOOM_OUTPUT_DIR}/${PK3_NAME}
-			COMMAND zipdir -udf ${PK3_ZIPDIR_OPTIONS} ${ZDOOM_OUTPUT_DIR}/${PK3_NAME} ${PK3_DIR}
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ZDOOM_OUTPUT_DIR}/${PK3_NAME} $<TARGET_FILE_DIR:zdoom>/${PK3_NAME}
+	if( NOT DEMOLITION_OUTPUT_OLDSTYLE )
+		add_custom_command( OUTPUT ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME}
+			COMMAND zipdir -udf ${PK3_ZIPDIR_OPTIONS} ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME} ${PK3_DIR}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME} $<TARGET_FILE_DIR:demolition>/${PK3_NAME}
 			DEPENDS zipdir )
 	else()
-		add_custom_command( OUTPUT ${ZDOOM_OUTPUT_DIR}/${PK3_NAME}
-			COMMAND zipdir -udf ${PK3_ZIPDIR_OPTIONS} ${ZDOOM_OUTPUT_DIR}/${PK3_NAME} ${PK3_DIR}
+		add_custom_command( OUTPUT ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME}
+			COMMAND zipdir -udf ${PK3_ZIPDIR_OPTIONS} ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME} ${PK3_DIR}
 			DEPENDS zipdir )
 	endif()
 	# Create a list of source files for this PK3, for use in the IDE
 	# Phase 1: Create a list of all source files for this PK3 archive, except
 	#  for a couple of strife image file names that confuse CMake.
 	file(GLOB_RECURSE PK3_SRCS ${PK3_DIR}/*)
-	# Exclude from the source list some gzdoom .png files with brackets in the
+	# Exclude from the source list some gdemolition .png files with brackets in the
 	# file names here, because they confuse CMake.
 	# This only affects the list of source files shown in the IDE.
 	# It does not actually remove the files from the PK3 archive.
@@ -85,15 +85,15 @@ function( add_pk3 PK3_NAME PK3_DIR )
 	# rebuild each time since their dependency has "changed."
 	add_custom_target( ${PK3_TARGET} ALL
 		COMMAND ${CMAKE_COMMAND} -E touch $<TARGET_FILE:zipdir>
-		DEPENDS ${ZDOOM_OUTPUT_DIR}/${PK3_NAME}
+		DEPENDS ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME}
 		SOURCES ${PK3_SRCS})
 	# Phase 3: Assign source files to a nice folder structure in the IDE
 	assort_pk3_source_folder("Source Files" ${PK3_DIR})
 	# Phase 4: Add the resulting PK3 to the install target.
 	if( WIN32 )
-		set( INSTALL_PK3_PATH . CACHE STRING "Directory where zdoom.pk3 will be placed during install." )
+		set( INSTALL_PK3_PATH . CACHE STRING "Directory where demolition.pk3 will be placed during install." )
 	else()
-		set( INSTALL_PK3_PATH share/games/doom CACHE STRING "Directory where zdoom.pk3 will be placed during install." )
+		set( INSTALL_PK3_PATH share/games/doom CACHE STRING "Directory where demolition.pk3 will be placed during install." )
 	endif()
 	install(FILES "${PROJECT_BINARY_DIR}/${PK3_NAME}"
 			DESTINATION ${INSTALL_PK3_PATH}
@@ -116,30 +116,30 @@ IF( NOT CMAKE_BUILD_TYPE )
 		FORCE )
 ENDIF()
 
-set( ZDOOM_OUTPUT_DIR ${CMAKE_BINARY_DIR} CACHE PATH "Directory where demolition.pk3 and the executable will be created." )
-set( ZDOOM_EXE_NAME "demolition" CACHE FILEPATH "Name of the executable to create" )
+set( DEMOLITION_OUTPUT_DIR ${CMAKE_BINARY_DIR} CACHE PATH "Directory where demolition.pk3 and the executable will be created." )
+set( DEMOLITION_EXE_NAME "demolition" CACHE FILEPATH "Name of the executable to create" )
 if( MSVC )
-	# Allow the user to use ZDOOM_OUTPUT_DIR as a single release point.
-	# Use zdoom, zdoomd, zdoom64, and zdoomd64 for the binary names
-	option( ZDOOM_OUTPUT_OLDSTYLE "Don't use Release/Debug directories." OFF )
+	# Allow the user to use DEMOLITION_OUTPUT_DIR as a single release point.
+	# Use demolition, demolitiond, demolition64, and demolitiond64 for the binary names
+	option( DEMOLITION_OUTPUT_OLDSTYLE "Don't use Release/Debug directories." OFF )
 else()
-	set( ZDOOM_OUTPUT_OLDSTYLE OFF )
+	set( DEMOLITION_OUTPUT_OLDSTYLE OFF )
 endif()
 
 # Replacement variables for a possible long list of C/C++ compilers compatible with GCC
 if( "${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" )
-	set( ZD_CMAKE_COMPILER_IS_GNUC_COMPATIBLE TRUE )
+	set( DEM_CMAKE_COMPILER_IS_GNUC_COMPATIBLE TRUE )
 else()
-	set( ZD_CMAKE_COMPILER_IS_GNUC_COMPATIBLE FALSE )
+	set( DEM_CMAKE_COMPILER_IS_GNUC_COMPATIBLE FALSE )
 endif()
 
 if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
-	set( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE TRUE )
+	set( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE TRUE )
 else()
-	set( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE FALSE )
+	set( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE FALSE )
 endif()
 
-if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	set( PROFILE 0 CACHE BOOL "Enable profiling with gprof for Debug and RelWithDebInfo build types." )
 endif()
 
@@ -151,10 +151,10 @@ find_package( ZLIB )
 
 include( TargetArch )
 
-target_architecture(ZDOOM_TARGET_ARCH)
+target_architecture(DEMOLITION_TARGET_ARCH)
 
 # Things for later. Currently we have no VM and no Vulkan
-#if( ${ZDOOM_TARGET_ARCH} MATCHES "x86_64" )
+#if( ${DEMOLITION_TARGET_ARCH} MATCHES "x86_64" )
 #	set( HAVE_VM_JIT ON )
 #	option (HAVE_VULKAN "Enable Vulkan support" ON)
 #endif()
@@ -194,8 +194,8 @@ if( MSVC )
 
 #	if( CMAKE_SIZEOF_VOID_P MATCHES "4")
 #		# SSE2 option (to allow x87 in 32 bit and disallow extended feature sets which have not yet been checked for precision)
-#		option (ZDOOM_USE_SSE2	"Use SSE2 instruction set")
-#		if (ZDOOM_USE_SSE2)
+#		option (DEMOLITION_USE_SSE2	"Use SSE2 instruction set")
+#		if (DEMOLITION_USE_SSE2)
 #			set( ALL_C_FLAGS "${ALL_C_FLAGS} /arch:SSE2")
 #		else ()
 #			if (MSVC_VERSION GREATER 1699)	
@@ -208,8 +208,8 @@ if( MSVC )
 #	endif()
 
 	# Avoid CRT DLL dependancies in release builds, optionally generate assembly output for checking crash locations.
-	option( ZDOOM_GENERATE_ASM "Generate assembly output." OFF )
-	if( ZDOOM_GENERATE_ASM )
+	option( DEMOLITION_GENERATE_ASM "Generate assembly output." OFF )
+	if( DEMOLITION_GENERATE_ASM )
 		set( REL_C_FLAGS "/MT /Oy /Oi /FAcs /GS-" )
 	else()
 		set( REL_C_FLAGS "/MT /Oy /Oi /GS-" )
@@ -314,18 +314,18 @@ if (HAVE_VULKAN)
 endif()
 
 # Fast math flags, required by some subprojects
-set( ZD_FASTMATH_FLAG "" )
-if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
-	set( ZD_FASTMATH_FLAG "-ffast-math -ffp-contract=fast" )
+set( DEM_FASTMATH_FLAG "" )
+if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+	set( DEM_FASTMATH_FLAG "-ffast-math -ffp-contract=fast" )
 elseif( MSVC )
-	set( ZD_FASTMATH_FLAG "/fp:fast" )
+	set( DEM_FASTMATH_FLAG "/fp:fast" )
 endif()
 
 if( ZLIB_FOUND AND NOT FORCE_INTERNAL_ZLIB )
 	message( STATUS "Using system zlib, includes found at ${ZLIB_INCLUDE_DIR}" )
 else()
 	message( STATUS "Using internal zlib" )
-	set( SKIP_INSTALL_ALL TRUE ) # Avoid installing zlib alongside zdoom
+	set( SKIP_INSTALL_ALL TRUE ) # Avoid installing zlib alongside demolition
 	add_subdirectory( libraries/zlib )
 	set( ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib )
 	set( ZLIB_LIBRARIES z )
@@ -350,7 +350,7 @@ endif()
 #		message( STATUS "Using system asmjit, includes found at ${ASMJIT_INCLUDE_DIR}" )
 #	else()
 #		message( STATUS "Using internal asmjit" )
-#		set( SKIP_INSTALL_ALL TRUE ) # Avoid installing asmjit alongside zdoom
+#		set( SKIP_INSTALL_ALL TRUE ) # Avoid installing asmjit alongside demolition
 #		add_subdirectory( libraries/asmjit )
 #		set( ASMJIT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/asmjit )
 #		set( ASMJIT_LIBRARIES asmjit )
@@ -402,7 +402,7 @@ endif()
 #if( WIN32 )
 #	set( INSTALL_DOCS_PATH docs CACHE STRING "Directory where the documentation will be placed during install." )
 #else()
-#	set( INSTALL_DOCS_PATH share/doc/${ZDOOM_EXE_NAME} CACHE STRING "Directory where the zdoom documentation will be placed during install." )
+#	set( INSTALL_DOCS_PATH share/doc/${DEMOLITION_EXE_NAME} CACHE STRING "Directory where the demolition documentation will be placed during install." )
 #endif()
 #install(DIRECTORY docs/
 #		DESTINATION ${INSTALL_DOCS_PATH}

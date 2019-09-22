@@ -8,7 +8,7 @@ if( MSVC )
 	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4554 /wd4102" )
 endif()
 
-if( ZD_CMAKE_COMPILER_IS_GNUC_COMPATIBLE )
+if( DEM_CMAKE_COMPILER_IS_GNUC_COMPATIBLE )
 	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra" )
 endif()
 

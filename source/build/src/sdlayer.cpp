@@ -459,7 +459,8 @@ int main(int argc, char *argv[])
 #endif
 
     startwin_open();
-    maybe_redirect_outputs();
+
+	maybe_redirect_outputs();
 
 #ifdef _WIN32
     char *argvbuf;

@@ -1,6 +1,6 @@
 #define NEED_COMMCTRL_H
 #include "../../build/include/windows_inc.h"
-#include "../src/startwin.game.h"
+#include "startwin.game.h"
 
 RSRC_ICON ICON "game_icon.ico"
 RSRC_BMP BITMAP "game.bmp"
@@ -25,9 +25,9 @@ BEGIN
     CONTROL "&Video mode:",   -1, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 5, 6, 50, 8
     CONTROL "",               IDCVMODE, "COMBOBOX", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 60, 4, 86, 56
     CONTROL "&Fullscreen",    IDCFULLSCREEN, "BUTTON", BS_CHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 154, 6, 46, 10
-#if defined POLYMER && POLYMER != 0
-    CONTROL "&Polymer",       IDCPOLYMER, "BUTTON", BS_CHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 203, 6, 40, 10
-#endif
+//#if defined POLYMER && POLYMER != 0
+//    CONTROL "&Polymer",       IDCPOLYMER, "BUTTON", BS_CHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 203, 6, 40, 10
+//#endif
     CONTROL "Input devices:", -1, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 5, 20, 50, 8
     CONTROL "",               IDCINPUT, "COMBOBOX", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP, 60, 19, 86, 56
     CONTROL "&Game:", 	  -1, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 5, 35, 100, 8
@@ -38,6 +38,51 @@ BEGIN
     CONTROL "&Enable ""autoload"" folder", IDCAUTOLOAD, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 5, 116, 100, 8
     CONTROL "&Always show this window at startup", IDCALWAYSSHOW, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 118, 116, 140, 8
 END
+
+IDD_CRASHDIALOG DIALOGEX 0, 0, 415, 308
+STYLE DS_SETFONT | DS_MODALFRAME | DS_SETFOREGROUND | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTROLPARENT | WS_EX_APPWINDOW
+CAPTION "Demolition Very Fatal Error"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_CRASHTAB,"SysTabControl32",WS_TABSTOP,4,4,404,280
+    PUSHBUTTON      "Save Report to Disk...",IDC_SAVEREPORT,242,289,91,14
+    PUSHBUTTON      "&Discard Report",IDNO,338,289,70,14
+END
+
+IDD_CRASHOVERVIEW DIALOGEX 1, 13, 400, 264
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_CRASHINFO,7,126,377,90,ES_MULTILINE | ES_AUTOVSCROLL | ES_WANTRETURN | WS_VSCROLL
+    CONTROL         "",IDC_PLEASETELLUS,"RichEdit20A",ES_MULTILINE | ES_READONLY,7,50,377,54,WS_EX_TRANSPARENT
+    LTEXT           "(Optional) To help diagnose the cause of this error, please describe what you were doing when the error occured. If you were playing with custom wads, please also indicate where to obtain them:",IDC_STATIC,7,108,377,16,0,WS_EX_TRANSPARENT
+    CONTROL         131,IDC_DEADGUYVIEWER,"Static",SS_BITMAP,345,7,23,26
+    CONTROL         "",IDC_CRASHHEADER,"RichEdit20A",ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY,18,13,306,25,WS_EX_TRANSPARENT
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,0,42,407,1
+    GROUPBOX        "Summary",IDC_STATIC,7,223,377,34
+    LTEXT           "Static",IDC_CRASHSUMMARY,14,233,363,20
+END
+
+IDD_CRASHDETAILS DIALOGEX 0, 0, 400, 164
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "The error report contains these files:",IDC_STATIC,7,5,119,8
+    LTEXT           "The selected file contains this information:",IDC_STATIC,7,74,136,8
+    RTEXT           "Static",IDC_CRASHFILESIZE,337,74,55,8
+    LISTBOX         IDC_CRASHFILES,7,15,385,53,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_CRASHFILECONTENTS,"RichEdit20A",ES_MULTILINE | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_TABSTOP,7,83,385,174
+END
+
+IDD_ERRORPANE DIALOGEX 0, 0, 190, 28
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Quit",IDOK,133,7,50,14
+END
+
 
 #define FILEVER        1,9,9,9
 #define PRODUCTVER     1,9,9,9
@@ -61,13 +106,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "EDuke32"
+            VALUE "FileDescription", "Demolition"
             VALUE "FileVersion", STRFILEVER
-            VALUE "InternalName", "EDuke32"
-            VALUE "LegalCopyright", "Copyright © 2018 EDuke32 Developers, 1996, 2003 3D Realms Entertainment"
+            VALUE "InternalName", "Demolition"
+            VALUE "LegalCopyright", "Copyright © 2019 Christoph Oelckers, Copyright © 2018 EDuke32 Developers, 1996, 2003 3D Realms Entertainment"
             VALUE "LegalTrademarks", "Duke Nukem® is a Registered Trademark of Gearbox Software, LLC."
-            VALUE "OriginalFilename", "eduke32.exe"
-            VALUE "ProductName", "EDuke32"
+            VALUE "OriginalFilename", "demolition.exe"
+            VALUE "ProductName", "Demolition"
             VALUE "ProductVersion", STRPRODUCTVER
         END
     END

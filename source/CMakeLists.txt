@@ -14,7 +14,7 @@ include( CheckIncludeFiles )
 include( CheckLibraryExists )
 include( FindPkgConfig )
 
-if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	option( NO_STRIP "Do not strip Release or MinSizeRel builds" )
 	# At least some versions of Xcode fail if you strip with the linker
 	# instead of the separate strip utility.
@@ -32,16 +32,16 @@ if( APPLE )
     option( OSX_COCOA_BACKEND "Use native Cocoa backend instead of SDL" ON )
 endif()
 
-if( ${ZDOOM_TARGET_ARCH} MATCHES "x86_64" )
+if( ${DEMOLITION_TARGET_ARCH} MATCHES "x86_64" )
 	set( X64 64 )
 endif()
 
-if( X64 OR ${ZDOOM_TARGET_ARCH} MATCHES "i386" )
+if( X64 OR ${DEMOLITION_TARGET_ARCH} MATCHES "i386" )
 	add_definitions( -DARCH_IA32 )
 endif()
 
-if( NOT ZDOOM_LIBS )
-	set( ZDOOM_LIBS "" )
+if( NOT DEMOLITION_LIBS )
+	set( DEMOLITION_LIBS "" )
 endif()
 
 if( WIN32 )
@@ -81,7 +81,7 @@ if( WIN32 )
 		find_library( DX_dinput8_LIBRARY dinput8
 			PATHS ENV DXSDK_DIR
 			PATH_SUFFIXES Lib Lib/${XBITS} )
-		if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+		if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 			find_library( DX_dxguid_LIBRARY dxguid
 				PATHS ENV DXSDK_DIR
 				PATH_SUFFIXES Lib Lib/${XBITS} )
@@ -94,7 +94,7 @@ if( WIN32 )
 			set( DX_dinput8_LIBRARY dinput8 )
 		endif()
 
-		if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+		if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 			# Modern versions of the Windows SDK do NOT include dxguid. Its contents
 			# were moved to dinput8.
 			if( NOT DX_dxguid_LIBRARY )
@@ -109,7 +109,7 @@ if( WIN32 )
 		link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../platform/Windows/lib/32)
 	endif()
 	
-	set( ZDOOM_LIBS
+	set( DEMOLITION_LIBS
 		opengl32
 		wsock32
 		winmm
@@ -153,13 +153,13 @@ if( WIN32 )
 
 		
 
-	if( NOT ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
-		set( ZDOOM_LIBS ${ZDOOM_LIBS} DelayImp )
+	if( NOT DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+		set( DEMOLITION_LIBS ${DEMOLITION_LIBS} DelayImp )
 	endif()
 
-	if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+	if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 		if( DX_dxguid_LIBRARY )
-			list( APPEND ZDOOM_LIBS "${DX_dxguid_LIBRARY}" )
+			list( APPEND DEMOLITION_LIBS "${DX_dxguid_LIBRARY}" )
 		endif()
 	endif()
 else()
@@ -181,7 +181,7 @@ else()
 			pkg_check_modules( GTK3 gtk+-3.0 )
 			if( GTK3_FOUND )
 				if( NOT DYN_GTK )
-					set( ZDOOM_LIBS ${ZDOOM_LIBS} ${GTK3_LIBRARIES} )
+					set( DEMOLITION_LIBS ${DEMOLITION_LIBS} ${GTK3_LIBRARIES} )
 				endif()
 				include_directories( ${GTK3_INCLUDE_DIRS} )
 				link_directories( ${GTK3_LIBRARY_DIRS} )
@@ -189,7 +189,7 @@ else()
 				pkg_check_modules( GTK2 gtk+-2.0 )
 				if( GTK2_FOUND )
 					if( NOT DYN_GTK )
-						set( ZDOOM_LIBS ${ZDOOM_LIBS} ${GTK2_LIBRARIES} )
+						set( DEMOLITION_LIBS ${DEMOLITION_LIBS} ${GTK2_LIBRARIES} )
 					endif()
 					include_directories( ${GTK2_INCLUDE_DIRS} )
 					link_directories( ${GTK2_LIBRARY_DIRS} )
@@ -212,7 +212,7 @@ else()
 	if( NOT APPLE OR NOT OSX_COCOA_BACKEND )
 		find_package( SDL2 REQUIRED )
 		include_directories( "${SDL2_INCLUDE_DIR}" )
-		set( ZDOOM_LIBS ${ZDOOM_LIBS} "${SDL2_LIBRARY}" )
+		set( DEMOLITION_LIBS ${DEMOLITION_LIBS} "${SDL2_LIBRARY}" )
 	endif()
 
 	find_path( FPU_CONTROL_DIR fpu_control.h )
@@ -230,7 +230,7 @@ if( NOT NO_OPENAL )
 			include_directories( ${OPENAL_INCLUDE_DIR} )
 			mark_as_advanced(CLEAR OPENAL_LIBRARY)
 			if( OPENAL_LIBRARY )
-				set( ZDOOM_LIBS ${OPENAL_LIBRARY} ${ZDOOM_LIBS} )
+				set( DEMOLITION_LIBS ${OPENAL_LIBRARY} ${DEMOLITION_LIBS} )
 			else()
 				set( NO_OPENAL ON )
 			endif()
@@ -270,7 +270,7 @@ find_package( FluidSynth )
 set( SSE_MATTERS NO )
 
 # with global use of SSE 2 we do not need special handling for selected files
-if (NOT ZDOOM_USE_SSE2)
+if (NOT DEMOLITION_USE_SSE2)
 	# SSE only matters on 32-bit targets. We check compiler flags to know if we can do it.
 	if( CMAKE_SIZEOF_VOID_P MATCHES "4" AND NOT CMAKE_OSX_ARCHITECTURES MATCHES ppc )
 		CHECK_CXX_COMPILER_FLAG( "-msse2 -mfpmath=sse" CAN_DO_MFPMATH )
@@ -292,9 +292,9 @@ if( X64 )
 else( X64 )
 	set( SAFE_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
 
-	if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+	if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 		set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmmx")
-	endif( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+	endif( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 
 	CHECK_CXX_SOURCE_COMPILES("#include <mmintrin.h>
 		int main(void) { __m64 v = _m_from_int(0); }"
@@ -320,7 +320,7 @@ endif (MSVC)
 
 # Set up flags for GCC
 
-if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	if( PROFILE )
 		set( CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -pg" )
 		set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg" )
@@ -483,7 +483,7 @@ if( UNIX )
 			add_definitions( -DNO_CLOCK_GETTIME )
 		endif()
 	else()
-		set( ZDOOM_LIBS ${ZDOOM_LIBS} rt )
+		set( DEMOLITION_LIBS ${DEMOLITION_LIBS} rt )
 	endif()
 endif()
 
@@ -496,12 +496,12 @@ add_custom_target( revision_check ALL
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	DEPENDS updaterevision )
 
-# Libraries ZDoom needs
+# Libraries Demolition needs
 
 message( STATUS "Fluid synth libs: ${FLUIDSYNTH_LIBRARIES}" )
-set( ZDOOM_LIBS ${ZDOOM_LIBS} "${ZLIB_LIBRARIES}" "${JPEG_LIBRARIES}" "${BZIP2_LIBRARIES}" "${GME_LIBRARIES}" "${CMAKE_DL_LIBS}" )
+set( DEMOLITION_LIBS ${DEMOLITION_LIBS} "${ZLIB_LIBRARIES}" "${JPEG_LIBRARIES}" "${BZIP2_LIBRARIES}" "${GME_LIBRARIES}" "${CMAKE_DL_LIBS}" )
 if (HAVE_VULKAN)
-	set( ZDOOM_LIBS ${ZDOOM_LIBS} "glslang" "SPIRV" "OGLCompiler")
+	set( DEMOLITION_LIBS ${DEMOLITION_LIBS} "glslang" "SPIRV" "OGLCompiler")
 endif()
 
 # Ugh... These precompiled dependencies need to go.
@@ -515,27 +515,27 @@ endif()
 if( ${HAVE_VM_JIT} )
 	add_definitions( -DHAVE_VM_JIT )
 	include_directories( "${ASMJIT_INCLUDE_DIR}" )
-	set( ZDOOM_LIBS ${ZDOOM_LIBS} "${ASMJIT_LIBRARIES}")
+	set( DEMOLITION_LIBS ${DEMOLITION_LIBS} "${ASMJIT_LIBRARIES}")
 endif()
 
 if( SNDFILE_FOUND )
-    set( ZDOOM_LIBS ${ZDOOM_LIBS} "${SNDFILE_LIBRARIES}" )
+    set( DEMOLITION_LIBS ${DEMOLITION_LIBS} "${SNDFILE_LIBRARIES}" )
     include_directories( "${SNDFILE_INCLUDE_DIRS}" )
 endif()
 if( MPG123_FOUND )
-    set( ZDOOM_LIBS ${ZDOOM_LIBS} "${MPG123_LIBRARIES}" )
+    set( DEMOLITION_LIBS ${DEMOLITION_LIBS} "${MPG123_LIBRARIES}" )
     include_directories( "${MPG123_INCLUDE_DIR}" )
 endif()
 if( NOT DYN_FLUIDSYNTH )
 	if( FLUIDSYNTH_FOUND )
-		set( ZDOOM_LIBS ${ZDOOM_LIBS} "${FLUIDSYNTH_LIBRARIES}" )
+		set( DEMOLITION_LIBS ${DEMOLITION_LIBS} "${FLUIDSYNTH_LIBRARIES}" )
 		include_directories( "${FLUIDSYNTH_INCLUDE_DIR}" )
 	endif()
 endif()
 
 
 
-# Start defining source files for ZDoom
+# Start defining source files for Demolition
 set( PLAT_WIN32_SOURCES
 	audiolib/src/driver_directsound.cpp
 	glad/src/glad_wgl.c
@@ -578,7 +578,7 @@ if( WIN32 )
 	set( SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} )
 	set( OTHER_SYSTEM_SOURCES ${PLAT_POSIX_SOURCES} ${PLAT_SDL_SOURCES} ${PLAT_OSX_SOURCES} ${PLAT_COCOA_SOURCES} ${PLAT_UNIX_SOURCES} )
 
-	set( SYSTEM_SOURCES ${SYSTEM_SOURCES} platform/win32/zdoom.rc )
+	set( SYSTEM_SOURCES ${SYSTEM_SOURCES} platform/win32/gameres.rc )
 elseif( APPLE )
 	if( OSX_COCOA_BACKEND )
 		#set( SYSTEM_SOURCES_DIR posix posix/cocoa )
@@ -593,7 +593,7 @@ elseif( APPLE )
 
 	set( SYSTEM_SOURCES ${SYSTEM_SOURCES} ${PLAT_POSIX_SOURCES} ${PLAT_OSX_SOURCES} )
 
-	##set_source_files_properties( posix/osx/zdoom.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
+	##set_source_files_properties( posix/osx/demolition.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
 	##set_source_files_properties( posix/osx/iwadpicker_cocoa.mm PROPERTIES COMPILE_FLAGS -fobjc-exceptions )
 else()
 	#set( SYSTEM_SOURCES_DIR posix posix/sdl )
@@ -985,7 +985,7 @@ else()
 	set_source_files_properties( ${PCH_SOURCES} PROPERTIES COMPILE_FLAGS "-include g_pch.h" )
 endif()
 
-add_executable( zdoom WIN32 MACOSX_BUNDLE
+add_executable( demolition WIN32 MACOSX_BUNDLE
 	${HEADER_FILES}
 	${NOT_COMPILED_SOURCE_FILES}
 	#__autostart.cpp
@@ -997,7 +997,7 @@ add_executable( zdoom WIN32 MACOSX_BUNDLE
 	#zzautozend.cpp
 )
 
-set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${ZD_FASTMATH_FLAG} )
+set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${DEM_FASTMATH_FLAG} )
 set_source_files_properties( xlat/parse_xlat.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/xlat_parser.c" )
 set_source_files_properties( utility/sc_man.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h" )
 set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
@@ -1005,17 +1005,17 @@ set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
 	# [BL] Solaris requires these to be explicitly linked.
-	set( ZDOOM_LIBS ${ZDOOM_LIBS} nsl socket)
+	set( DEMOLITION_LIBS ${DEMOLITION_LIBS} nsl socket)
 endif()
 
 if( UNIX )
 	find_package( Backtrace )
 	if(Backtrace_FOUND)
-		set( ZDOOM_LIBS ${ZDOOM_LIBS} ${Backtrace_LIBRARIES} )
+		set( DEMOLITION_LIBS ${DEMOLITION_LIBS} ${Backtrace_LIBRARIES} )
 	endif()
 endif()
 
-target_link_libraries( zdoom ${ZDOOM_LIBS} gdtoa dumb lzma )
+target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa dumb lzma )
 
 include_directories(
     build/include
@@ -1032,64 +1032,64 @@ include_directories(
 	#${SYSTEM_SOURCES_DIR} 
 )
 
-add_dependencies( zdoom revision_check )
+add_dependencies( demolition revision_check )
 
 # Due to some quirks, we need to do this in this order
-if( NOT ZDOOM_OUTPUT_OLDSTYLE )
+if( NOT DEMOLITION_OUTPUT_OLDSTYLE )
 	# RUNTIME_OUTPUT_DIRECTORY does not exist in CMake 2.4.
 	# Linux distributions are slow to adopt 2.6. :(
-	set_target_properties( zdoom PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ZDOOM_OUTPUT_DIR} )
-	set_target_properties( zdoom PROPERTIES OUTPUT_NAME ${ZDOOM_EXE_NAME} )
+	set_target_properties( demolition PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${DEMOLITION_OUTPUT_DIR} )
+	set_target_properties( demolition PROPERTIES OUTPUT_NAME ${DEMOLITION_EXE_NAME} )
 else()
-	set_target_properties( zdoom PROPERTIES
-		RUNTIME_OUTPUT_NAME ${ZDOOM_EXE_NAME}
-		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${ZDOOM_OUTPUT_DIR}
-		RUNTIME_OUTPUT_NAME_DEBUG ${ZDOOM_EXE_NAME}d
-		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${ZDOOM_OUTPUT_DIR}
-		RUNTIME_OUTPUT_NAME_MINSIZEREL ${ZDOOM_EXE_NAME}msr
-		RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${ZDOOM_OUTPUT_DIR}
-		RUNTIME_OUTPUT_NAME_RELWITHDEBINFO ${ZDOOM_EXE_NAME}rd
-		RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${ZDOOM_OUTPUT_DIR}
+	set_target_properties( demolition PROPERTIES
+		RUNTIME_OUTPUT_NAME ${DEMOLITION_EXE_NAME}
+		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${DEMOLITION_OUTPUT_DIR}
+		RUNTIME_OUTPUT_NAME_DEBUG ${DEMOLITION_EXE_NAME}d
+		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${DEMOLITION_OUTPUT_DIR}
+		RUNTIME_OUTPUT_NAME_MINSIZEREL ${DEMOLITION_EXE_NAME}msr
+		RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${DEMOLITION_OUTPUT_DIR}
+		RUNTIME_OUTPUT_NAME_RELWITHDEBINFO ${DEMOLITION_EXE_NAME}rd
+		RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${DEMOLITION_OUTPUT_DIR}
 	)
 endif()
 
 if( MSVC )
-	option( ZDOOM_GENERATE_MAPFILE "Generate .map file for debugging." OFF )
+	option( DEMOLITION_GENERATE_MAPFILE "Generate .map file for debugging." OFF )
 	set( LINKERSTUFF "/MANIFEST:NO" )
 
-	if( ZDOOM_GENERATE_MAPFILE )
+	if( DEMOLITION_GENERATE_MAPFILE )
 		set( LINKERSTUFF "${LINKERSTUFF} /MAP" )
 	endif()
-	set_target_properties(zdoom PROPERTIES LINK_FLAGS ${LINKERSTUFF})
+	set_target_properties(demolition PROPERTIES LINK_FLAGS ${LINKERSTUFF})
 
-	add_custom_command(TARGET zdoom POST_BUILD
-		COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\platform\\win32\\zdoom.exe.manifest\" -outputresource:\"$<TARGET_FILE:zdoom>\"\;\#1
+	add_custom_command(TARGET demolition POST_BUILD
+		COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\platform\\win32\\manifest.game.xml\" -outputresource:\"$<TARGET_FILE:demolition>\"\;\#1
 		COMMENT "Adding manifest..."
 	)
 
 endif()
 
 if( NOT WIN32 AND NOT APPLE )
-	FILE( WRITE ${CMAKE_CURRENT_BINARY_DIR}/link-make "if [ ! -e ${ZDOOM_OUTPUT_DIR}/${ZDOOM_EXE_NAME} ]; then ln -sf ${CMAKE_CURRENT_BINARY_DIR}/${ZDOOM_EXE_NAME} ${ZDOOM_OUTPUT_DIR}/${ZDOOM_EXE_NAME}; fi" )
-	add_custom_command( TARGET zdoom POST_BUILD
+	FILE( WRITE ${CMAKE_CURRENT_BINARY_DIR}/link-make "if [ ! -e ${DEMOLITION_OUTPUT_DIR}/${DEMOLITION_EXE_NAME} ]; then ln -sf ${CMAKE_CURRENT_BINARY_DIR}/${DEMOLITION_EXE_NAME} ${DEMOLITION_OUTPUT_DIR}/${DEMOLITION_EXE_NAME}; fi" )
+	add_custom_command( TARGET demolition POST_BUILD
 		COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/link-make
 		COMMAND /bin/sh -c ${CMAKE_CURRENT_BINARY_DIR}/link-make )
 endif()
 
-#add_custom_command(TARGET zdoom POST_BUILD
+#add_custom_command(TARGET demolition POST_BUILD
 #	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#	${CMAKE_SOURCE_DIR}/soundfont/gzdoom.sf2 $<TARGET_FILE_DIR:zdoom>/soundfonts/gzdoom.sf2
+#	${CMAKE_SOURCE_DIR}/soundfont/gdemolition.sf2 $<TARGET_FILE_DIR:demolition>/soundfonts/gdemolition.sf2
 #	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#	${CMAKE_SOURCE_DIR}/fm_banks/GENMIDI.GS.wopl $<TARGET_FILE_DIR:zdoom>/fm_banks/GENMIDI.GS.wopl
+#	${CMAKE_SOURCE_DIR}/fm_banks/GENMIDI.GS.wopl $<TARGET_FILE_DIR:demolition>/fm_banks/GENMIDI.GS.wopl
 #	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#	${CMAKE_SOURCE_DIR}/fm_banks/gs-by-papiezak-and-sneakernets.wopn $<TARGET_FILE_DIR:zdoom>/fm_banks/gs-by-papiezak-and-sneakernets.wopn
+#	${CMAKE_SOURCE_DIR}/fm_banks/gs-by-papiezak-and-sneakernets.wopn $<TARGET_FILE_DIR:demolition>/fm_banks/gs-by-papiezak-and-sneakernets.wopn
 #)
 
 if( CMAKE_COMPILER_IS_GNUCXX )
 	# GCC misoptimizes this file
 	#set_source_files_properties( oplsynth/fmopl.cpp PROPERTIES COMPILE_FLAGS "-fno-tree-dominator-opts -fno-tree-fre" )
 endif()
-#if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+#if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	# Need to enable intrinsics for these files.
 #	if( SSE_MATTERS )
 #		set_source_files_properties(
@@ -1105,9 +1105,9 @@ if( APPLE )
 		set( LINK_FRAMEWORKS "${LINK_FRAMEWORKS} -framework QuartzCore" )
 	endif()
 
-	set_target_properties(zdoom PROPERTIES
+	set_target_properties(demolition PROPERTIES
 		LINK_FLAGS "${LINK_FRAMEWORKS}"
-		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/posix/osx/zdoom-info.plist" )
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/posix/osx/demolition-info.plist" )
 
 	# Dymanic libraries like libvulkan.dylib or libMoltenVK.dylib will be loaded by dlopen()
 	# if placed in the directory with the main executable
@@ -1115,11 +1115,11 @@ if( APPLE )
 endif()
 
 if( WIN32 )
-	set( INSTALL_PATH . CACHE STRING "Directory where the zdoom executable will be placed during install." )
+	set( INSTALL_PATH . CACHE STRING "Directory where the demolition executable will be placed during install." )
 else()
-	set( INSTALL_PATH bin CACHE STRING "Directory where the zdoom executable will be placed during install." )
+	set( INSTALL_PATH bin CACHE STRING "Directory where the demolition executable will be placed during install." )
 endif()
-install(TARGETS zdoom
+install(TARGETS demolition
 		DESTINATION ${INSTALL_PATH}
 		COMPONENT "Game executable")
 

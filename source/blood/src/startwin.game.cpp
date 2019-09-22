@@ -103,6 +103,10 @@ static inline void getfilenames(char const *path)
 #define INPUT_JOYSTICK 2
 #define INPUT_ALL 3
 
+// Thanks, Microsoft for not providing alternatives for the dialog control macros. :(
+#undef SNDMSG
+#define SNDMSG ::SendMessageA
+
 const char *controlstrings[] = { "Keyboard only", "Keyboard and mouse", "Keyboard and joystick", "All supported devices" };
 
 static void PopulateForm(int32_t pgs)
@@ -462,10 +466,10 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             TCITEMA tab = {};
             tab.mask = TCIF_TEXT;
             tab.pszText = textSetup;
-            SendMessageA(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
+            SendMessageA(hwnd, TCM_INSERTITEMA, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
             tab.pszText = textMessageLog;
-            SendMessageA(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
+            SendMessageA(hwnd, TCM_INSERTITEMA, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
 
             // Work out the position and size of the area inside the tab control for the pages
             ZeroMemory(&r, sizeof(r));

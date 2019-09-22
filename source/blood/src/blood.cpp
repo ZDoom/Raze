@@ -2392,9 +2392,14 @@ const char *pzCrypticArts[] = {
     "CPART07.AR_", "CPART15.AR_"
 };
 
+const char* pzCrypticArts1[] = {
+	"addons/Cryptic Passage/CPART07.ART", "addons/Cryptic Passage/CPART15.ART"
+};
+
 INIDESCRIPTION gINIDescription[] = {
     { "BLOOD: One Unit Whole Blood", "BLOOD.INI", NULL, 0 },
     { "Cryptic passage", "CRYPTIC.INI", pzCrypticArts, ARRAY_SSIZE(pzCrypticArts) },
+	{ "Cryptic passage", "addons/Cryptic Passage/CRYPTIC.INI", pzCrypticArts1, ARRAY_SSIZE(pzCrypticArts1) },	// let's hope this works for the 
 };
 
 bool AddINIFile(const char *pzFile, bool bForce = false)

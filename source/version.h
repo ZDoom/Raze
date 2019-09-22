@@ -52,7 +52,7 @@ const char *GetVersionString();
 #define VER_MINOR 1
 #define VER_REVISION 0
 
-// This should always refer to the GZDoom version a derived port is based on and not reflect the derived port's version number!
+// This should always refer to the version a derived port is based on and not reflect the derived port's version number!
 #define ENG_MAJOR 0
 #define ENG_MINOR 1
 #define ENG_REVISION 0
