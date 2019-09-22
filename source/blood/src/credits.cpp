@@ -61,6 +61,7 @@ char Wait(int nTicks)
 
 char DoFade(char r, char g, char b, int nTicks)
 {
+#if 0
     dassert(nTicks > 0);
     scrSetupFade(r, g, b);
     totalclock = gFrameClock = 0;
@@ -73,11 +74,13 @@ char DoFade(char r, char g, char b, int nTicks)
         if (keyGetScan())
             return 0;
     } while (totalclock <= nTicks);
+#endif
     return 1;
 }
 
 char DoUnFade(int nTicks)
 {
+#if 0
     dassert(nTicks > 0);
     scrSetupUnfade();
     totalclock = gFrameClock = 0;
@@ -89,6 +92,7 @@ char DoUnFade(int nTicks)
         if (keyGetScan())
             return 0;
     } while (totalclock <= nTicks);
+#endif
     return 1;
 }
 

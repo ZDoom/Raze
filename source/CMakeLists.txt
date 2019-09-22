@@ -492,7 +492,7 @@ endif()
 # Update gitinfo.h
 
 add_custom_target( revision_check ALL
-	COMMAND updaterevision src/gitinfo.h
+	COMMAND updaterevision source/gitinfo.h
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	DEPENDS updaterevision )
 
