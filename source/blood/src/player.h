@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "dude.h"
 
+BEGIN_BLD_NS
+
 enum LifeMode {
     kModeHuman = 0,
     kModeBeast,
@@ -256,3 +258,5 @@ bool shrinkPlayerSize(PLAYER* pPlayer, int divider);
 bool growPlayerSize(PLAYER* pPlayer, int multiplier);
 bool resetPlayerSize(PLAYER* pPlayer);
 void deactivateSizeShrooms(PLAYER* pPlayer);
+
+END_BLD_NS

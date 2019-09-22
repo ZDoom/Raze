@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "eventq.h"
 #include "dude.h"
 
+BEGIN_BLD_NS
+
 void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int a3);
 void trMessageSector(unsigned int nSector, EVENT a2);
 void trTriggerWall(unsigned int nWall, XWALL *pXWall, int a3);
@@ -73,3 +75,5 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite);
 void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite);
 void TeleFrag(int nKiller, int nSector);
 // -------------------------------------------------------
+
+END_BLD_NS

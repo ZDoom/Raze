@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tile.h"
 #include "screen.h"
 
+BEGIN_BLD_NS
+
 int qanimateoffs(int a1, int a2)
 {
     int offset = 0;
@@ -76,15 +78,16 @@ int32_t qgetpalookup(int32_t a1, int32_t a2)
         return ClipRange((a1 >> 8) + a2, 0, 63);
 }
 
+void qinitspritelists();
+int32_t qinsertsprite(int16_t nSector, int16_t nStat);
+int32_t qdeletesprite(int16_t nSprite);
+int32_t qchangespritesect(int16_t nSprite, int16_t nSector);
+int32_t qchangespritestat(int16_t nSprite, int16_t nStatus);
+int32_t qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum);
+int32_t qsaveboard(const char* filename, const vec3_t* dapos, int16_t daang, int16_t dacursectnum);
+
 void HookReplaceFunctions(void)
 {
-    void qinitspritelists();
-    int32_t qinsertsprite(int16_t nSector, int16_t nStat);
-    int32_t qdeletesprite(int16_t nSprite);
-    int32_t qchangespritesect(int16_t nSprite, int16_t nSector);
-    int32_t qchangespritestat(int16_t nSprite, int16_t nStatus);
-    int32_t qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum);
-    int32_t qsaveboard(const char* filename, const vec3_t* dapos, int16_t daang, int16_t dacursectnum);
     animateoffs_replace = qanimateoffs;
     paletteLoadFromDisk_replace = qloadpalette;
     getpalookup_replace = qgetpalookup;
@@ -98,3 +101,5 @@ void HookReplaceFunctions(void)
     saveboard_replace = qsaveboard;
     bloodhack = true;
 }
+
+END_BLD_NS

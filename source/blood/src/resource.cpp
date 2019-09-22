@@ -44,6 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #endif
 
+BEGIN_BLD_NS
+
 CACHENODE Resource::purgeHead = { NULL, &purgeHead, &purgeHead, 0 };
 
 #ifdef USE_QHEAP
@@ -858,3 +860,5 @@ void Resource::RemoveNode(DICTNODE* pNode)
     }
     Reindex();
 }
+
+END_BLD_NS

@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "tile.h"
 
+BEGIN_BLD_NS
+
 void qloadvoxel(int32_t nVoxel)
 {
     static int nLastVoxel = 0;
@@ -281,3 +283,5 @@ char tileGetSurfType(int hit)
     }
     return 0;
 }
+
+END_BLD_NS

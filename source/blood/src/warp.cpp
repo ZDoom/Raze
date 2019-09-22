@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "warp.h"
 
+BEGIN_BLD_NS
+
 ZONE gStartZone[8];
 ZONE gStartZoneTeam1[8];
 ZONE gStartZoneTeam2[8];
@@ -322,3 +324,5 @@ void WarpLoadSaveConstruct(void)
 {
     myLoadSave = new WarpLoadSave();
 }
+
+END_BLD_NS

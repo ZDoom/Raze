@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
 
 extern int margc;
 extern char const * const *margv;
@@ -35,3 +36,5 @@ struct SWITCH {
     int at4, at8;
 };
 int GetOptions(SWITCH *switches);
+
+END_BLD_NS

@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE cerberusIdle;
 extern AISTATE cerberusSearch;
 extern AISTATE cerberusChase;
@@ -42,3 +44,5 @@ extern AISTATE cerberus2Burn;
 extern AISTATE cerberus4Burn;
 extern AISTATE cerberus139890;
 extern AISTATE cerberus1398AC;
+
+END_BLD_NS

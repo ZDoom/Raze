@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "inifile.h"
 
+BEGIN_BLD_NS
+
+
 #define kMaxMessages 32
 #define kMaxEpisodes 7
 #define kMaxLevels 16
@@ -139,3 +142,5 @@ void levelRestart(void);
 int levelGetMusicIdx(const char *str);
 bool levelTryPlayMusic(int nEpisode, int nlevel, bool bSetLevelSong = false);
 void levelTryPlayMusicOrNothing(int nEpisode, int nLevel);
+
+END_BLD_NS

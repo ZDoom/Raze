@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trig.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 void sub_2541C(int x, int y, int z, short a)
 {
     int tmpydim = (xdim * 5) / 8;
@@ -253,3 +255,6 @@ void CViewMap::FollowMode(char mode)
 }
 
 CViewMap gViewMap;
+
+
+END_BLD_NS

@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
+
 #define kMaxXSprites 2048
 #define kMaxXWalls 512
 #define kMaxXSectors 512
@@ -336,3 +338,5 @@ void dbInit(void);
 void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
 int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC);
+
+END_BLD_NS

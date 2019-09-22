@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "misc.h"
 #include "tile.h"
 
+BEGIN_BLD_NS
+
 int fireSize = 128;
 int gDamping = 6;
 
@@ -125,3 +127,5 @@ void CellularFrame(char *pFrame, int sizeX, int sizeY)
         pPtr1++;
     }
 }
+
+END_BLD_NS

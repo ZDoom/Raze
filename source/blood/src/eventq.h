@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 #include "callback.h"
+
+BEGIN_BLD_NS
+
 #define kMaxChannels 4096
 
 struct RXBUCKET
@@ -65,3 +68,5 @@ void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID a4);
 void evProcess(unsigned int nTime);
 void evKill(int a1, int a2);
 void evKill(int a1, int a2, CALLBACK_ID a3);
+
+END_BLD_NS

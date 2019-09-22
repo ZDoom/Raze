@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "resource.h"
 
+BEGIN_BLD_NS
 
 ud_setup_t gSetup;
 bool bVanilla = false;
@@ -94,3 +95,5 @@ const char *GetVersionString(void)
     }
     return gVersionString;
 }
+
+END_BLD_NS

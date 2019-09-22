@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"
 #include "qheap.h"
 
+BEGIN_BLD_NS
+
 #pragma pack(push, 1)
 
 enum DICTFLAGS {
@@ -125,3 +127,5 @@ public:
 #endif
     static CACHENODE purgeHead;
 };
+
+END_BLD_NS

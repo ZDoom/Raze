@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "controls.h"
 
+BEGIN_BLD_NS
+
 enum PACKETMODE {
     PACKETMODE_0 = 0,
     PACKETMODE_1,
@@ -156,3 +158,5 @@ void netPlayerQuit(int nPlayer);
 void netUpdate(void);
 void netDeinitialize(void);
 void netBroadcastNewGame(void);
+
+END_BLD_NS

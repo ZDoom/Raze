@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "db.h"
 
+BEGIN_BLD_NS
+
 struct INIDESCRIPTION {
     const char *pzName;
     const char *pzFilename;
@@ -82,3 +84,5 @@ bool VanillaMode(void);
 bool fileExistsRFF(int id, const char* ext);
 int sndTryPlaySpecialMusic(int nMusic);
 void sndPlaySpecialMusicOrNothing(int nMusic);
+
+END_BLD_NS

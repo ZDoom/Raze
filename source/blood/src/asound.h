@@ -22,6 +22,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
+
 void ambProcess(void);
 void ambKillAll(void);
 void ambInit(void);
+
+END_BLD_NS

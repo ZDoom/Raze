@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "trig.h"
 
+BEGIN_BLD_NS
+
 POINT2D earL, earR, earL0, earR0; // Ear position
 VECTOR2D earVL, earVR; // Ear velocity ?
 int lPhase, rPhase, lVol, rVol, lPitch, rPitch;
@@ -528,3 +530,5 @@ void sfxSetReverb2(bool toggle)
     else
         FX_SetReverb(0);
 }
+
+END_BLD_NS

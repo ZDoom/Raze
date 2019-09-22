@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "common_game.h"
 
+BEGIN_BLD_NS
+
 struct ZONE {
     int x, y, z;
     short sectnum, ang;
@@ -35,3 +37,5 @@ extern bool gTeamsSpawnUsed;
 void warpInit(void);
 int CheckLink(spritetype *pSprite);
 int CheckLink(int *x, int *y, int *z, int *nSector);
+
+END_BLD_NS

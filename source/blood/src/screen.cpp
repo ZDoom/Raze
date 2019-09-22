@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "screen.h"
 
+BEGIN_BLD_NS
+
 LOADITEM PLU[15] = {
     { 0, "NORMAL" },
     { 1, "SATURATE" },
@@ -289,3 +291,5 @@ void scrNextPage(void)
 {
     videoNextPage();
 }
+
+END_BLD_NS

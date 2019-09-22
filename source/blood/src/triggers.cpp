@@ -53,6 +53,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sectorfx.h"
 #include "messages.h"
 
+BEGIN_BLD_NS
+
 int basePath[kMaxSectors];
 
 void FireballTrapSeqCallback(int, int);
@@ -4577,3 +4579,5 @@ void TriggersLoadSaveConstruct(void)
 {
     myLoadSave = new TriggersLoadSave();
 }
+
+END_BLD_NS

@@ -22,7 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 #include "fix16.h"
+
+BEGIN_BLD_NS
+
 void InitMirrors(void);
 void sub_5571C(char mode);
 void sub_557C4(int x, int y, int interpolation);
 void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int viewPlayer);
+
+END_BLD_NS

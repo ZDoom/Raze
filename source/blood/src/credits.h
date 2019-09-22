@@ -22,6 +22,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
+
 void credLogosDos(void);
 void credReset(void);
 void credPlaySmk(const char *pzSMK, const char *pzWAV, int nWAV);
+
+END_BLD_NS

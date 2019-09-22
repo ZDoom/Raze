@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "trig.h"
 
+BEGIN_BLD_NS
+
 static void SlashSeqCallback(int, int);
 static void ThrowSeqCallback(int, int);
 static void BlastSeqCallback(int, int);
@@ -588,3 +590,5 @@ static void MoveFly(spritetype *pSprite, XSPRITE *pXSprite)
         break;
     }
 }
+
+END_BLD_NS

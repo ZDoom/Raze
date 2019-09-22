@@ -54,6 +54,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "messages.h"
 
+BEGIN_BLD_NS
+
 PROFILE gProfile[kMaxPlayers];
 
 PLAYER gPlayer[kMaxPlayers];
@@ -2426,3 +2428,5 @@ void PlayerLoadSaveConstruct(void)
 {
     myLoadSave = new PlayerLoadSave();
 }
+
+END_BLD_NS

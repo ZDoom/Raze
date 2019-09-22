@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "blood.h"
 
+BEGIN_BLD_NS
+
 #define kQavOrientationLeft 4096
 
 #pragma pack(push, 1)
@@ -88,3 +90,5 @@ struct QAV
 #pragma pack(pop)
 
 int qavRegisterClient(void(*pClient)(int, void *));
+
+END_BLD_NS

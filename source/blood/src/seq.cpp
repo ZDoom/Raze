@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "actor.h"
 #include "tile.h"
 
+BEGIN_BLD_NS
+
 #define kMaxClients 256
 #define kMaxSequences 1024
 
@@ -605,3 +607,5 @@ void SeqLoadSaveConstruct(void)
 {
     myLoadSave = new SeqLoadSave();
 }
+
+END_BLD_NS

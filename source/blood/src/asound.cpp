@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "sound.h"
 
+BEGIN_BLD_NS
+
 #define kMaxAmbChannel 64
 
 struct AMB_CHANNEL
@@ -159,3 +161,5 @@ void ambInit(void)
         }
     }
 }
+
+END_BLD_NS

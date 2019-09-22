@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
 
 enum CALLBACK_ID {
     CALLBACK_ID_NONE = -1,
@@ -53,3 +54,5 @@ enum CALLBACK_ID {
 };
 
 extern void (*gCallback[kCallbackMax])(int);
+
+END_BLD_NS

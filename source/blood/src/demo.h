@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "controls.h"
 #include "levels.h"
 
+BEGIN_BLD_NS
+
 #define kInputBufferSize 1024
 
 #pragma pack(push, 1)
@@ -108,3 +110,5 @@ public:
 };
 
 extern CDemo gDemo;
+
+END_BLD_NS

@@ -78,6 +78,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "warp.h"
 #include "weapon.h"
 
+BEGIN_BLD_NS
+
 VECTORDATA gVectorData[] = {
     // Tine
     {
@@ -7950,3 +7952,4 @@ bool ceilIsTooLow(spritetype* pSprite) {
     return false;
 }
 
+END_BLD_NS

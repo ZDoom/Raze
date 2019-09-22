@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "map2d.h"
 #include "view.h"
 
+BEGIN_BLD_NS
 
 int32_t ctrlCheckAllInput(void)
 {
@@ -487,3 +488,5 @@ void ctrlGetInput(void)
     gInput.q16turn = turn;
     gInput.strafe = strafe;
 }
+
+END_BLD_NS

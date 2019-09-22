@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 CMenuTextMgr gMenuTextMgr;
 CGameMenuMgr gGameMenuMgr;
 
@@ -3006,3 +3008,5 @@ bool CGameMenuItemPassword::Event(CGameMenuEvent &event)
     }
     return CGameMenuItem::Event(event);
 }
+
+END_BLD_NS

@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <set>
 #include <functional>
 #include "common_game.h"
+
+BEGIN_BLD_NS
+
 #define kPQueueSize 1024
 
 template <typename T> struct queueItem
@@ -184,3 +187,5 @@ public:
         }
     }
 };
+
+END_BLD_NS

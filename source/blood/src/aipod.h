@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE podIdle;
 extern AISTATE pod13A600;
 extern AISTATE podSearch;
@@ -39,3 +41,5 @@ extern AISTATE tentacleSearch;
 extern AISTATE tentacle13A750;
 extern AISTATE tentacleRecoil;
 extern AISTATE tentacleChase;
+
+END_BLD_NS

@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
 
 struct LOADITEM {
     int id;
@@ -55,3 +56,5 @@ void scrInit(void);
 void scrUnInit(void);
 void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits);
 void scrNextPage(void);
+
+END_BLD_NS

@@ -60,6 +60,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "warp.h"
 #include "weapon.h"
 
+BEGIN_BLD_NS
+
 struct VIEW {
 	int at0;
 	int at4;
@@ -3957,3 +3959,5 @@ void ViewLoadSaveConstruct(void)
 {
     myLoadSave = new ViewLoadSave();
 }
+
+END_BLD_NS

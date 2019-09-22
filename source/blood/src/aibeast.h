@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE beastIdle;
 extern AISTATE beastChase;
 extern AISTATE beastDodge;
@@ -44,3 +46,5 @@ extern AISTATE beastMorphFromCultist;
 extern AISTATE beast138FB4;
 extern AISTATE beast138FD0;
 extern AISTATE beast138FEC;
+
+END_BLD_NS

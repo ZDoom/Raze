@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "renderlayer.h"
 
+BEGIN_BLD_NS
+
 int32_t SoundToggle;
 int32_t MusicToggle;
 int32_t CDAudioToggle;
@@ -501,3 +503,5 @@ void sndInit(void)
     //atexit(sndTerm);
     sndActive = true;
 }
+
+END_BLD_NS

@@ -41,6 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "trig.h"
 
+BEGIN_BLD_NS
+
 static void SlashSeqCallback(int, int);
 static void StompSeqCallback(int, int);
 static void MorphToBeast(spritetype *, XSPRITE *);
@@ -582,3 +584,5 @@ static void sub_62D7C(spritetype *pSprite, XSPRITE *pXSprite)
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
     zvel[nSprite] = dz;
 }
+
+END_BLD_NS

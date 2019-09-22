@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "_control.h"
 #include "control.h"
 
+BEGIN_BLD_NS
+
 #ifndef function_private_h_
 #define function_private_h_
 // KEEPINSYNC lunatic/con_lang.lua
@@ -368,3 +370,5 @@ static const char * joystickdigitaldefaults[MAXJOYDIGITAL] =
 
 #endif
 #endif
+
+END_BLD_NS

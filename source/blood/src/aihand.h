@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE handIdle;
 extern AISTATE hand13A3B4;
 extern AISTATE handSearch;
@@ -30,3 +32,5 @@ extern AISTATE handChase;
 extern AISTATE handRecoil;
 extern AISTATE handGoto;
 extern AISTATE handJump;
+
+END_BLD_NS

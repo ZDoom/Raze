@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "_control.h"
 #include "hash.h"
 
+BEGIN_BLD_NS
+
 #define MAXRIDECULE 10
 #define MAXRIDECULELENGTH 40
 #define MAXPLAYERNAME 16
@@ -115,5 +117,7 @@ int32_t     CONFIG_AnalogNameToNum(const char *func);
 const char *CONFIG_AnalogNumToName(int32_t func);
 
 void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
+
+END_BLD_NS
 
 #endif

@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trig.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 CFX gFX;
 
 struct FXDATA {
@@ -348,3 +350,5 @@ void sub_74A18(spritetype *pSprite, int z, int a3, int a4)
         zvel[pShell->index] = zvel[pSprite->index]-(0x20000+(Random2(20)<<18)/120);
     }
 }
+
+END_BLD_NS

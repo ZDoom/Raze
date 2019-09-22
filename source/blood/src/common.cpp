@@ -49,6 +49,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"
 #include "common_game.h"
 
+BEGIN_BLD_NS
+
 // g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
 char *g_grpNamePtr = NULL;
 
@@ -774,3 +776,4 @@ success:
 
 #endif
 
+END_BLD_NS

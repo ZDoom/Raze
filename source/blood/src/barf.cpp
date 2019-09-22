@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "sound.h"
 
+BEGIN_BLD_NS
+
 static Resource gBarfRes;
 
 #define kMaxCmdLineDefines  5
@@ -952,3 +954,4 @@ void sub_11DF0(char* pzScriptDir, char *filePath, char flags, int ID)
         gSysRes.AddExternalResource(zFilename, zType, ID, flags, zFilePath);
 }
 
+END_BLD_NS

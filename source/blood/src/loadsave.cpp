@@ -46,6 +46,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 GAMEOPTIONS gSaveGameOptions[10];
 char *gSaveGamePic[10];
 unsigned int gSavedOffset = 0;
@@ -466,22 +468,22 @@ void UpdateSavedInfo(int nSlot)
 static MyLoadSave *myLoadSave;
 
 
+void ActorLoadSaveConstruct(void);
+void AILoadSaveConstruct(void);
+void EndGameLoadSaveConstruct(void);
+void EventQLoadSaveConstruct(void);
+void LevelsLoadSaveConstruct(void);
+void MessagesLoadSaveConstruct(void);
+void MirrorLoadSaveConstruct(void);
+void PlayerLoadSaveConstruct(void);
+void SeqLoadSaveConstruct(void);
+void TriggersLoadSaveConstruct(void);
+void ViewLoadSaveConstruct(void);
+void WarpLoadSaveConstruct(void);
+void WeaponLoadSaveConstruct(void);
+
 void LoadSaveSetup(void)
 {
-    void ActorLoadSaveConstruct(void);
-    void AILoadSaveConstruct(void);
-    void EndGameLoadSaveConstruct(void);
-    void EventQLoadSaveConstruct(void);
-    void LevelsLoadSaveConstruct(void);
-    void MessagesLoadSaveConstruct(void);
-    void MirrorLoadSaveConstruct(void);
-    void PlayerLoadSaveConstruct(void);
-    void SeqLoadSaveConstruct(void);
-    void TriggersLoadSaveConstruct(void);
-    void ViewLoadSaveConstruct(void);
-    void WarpLoadSaveConstruct(void);
-    void WeaponLoadSaveConstruct(void);
-
     myLoadSave = new MyLoadSave();
 
     ActorLoadSaveConstruct();
@@ -498,3 +500,5 @@ void LoadSaveSetup(void)
     WarpLoadSaveConstruct();
     WeaponLoadSaveConstruct();
 }
+
+END_BLD_NS

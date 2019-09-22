@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "sound.h"
 
+BEGIN_BLD_NS
+
 #define kMaxClients 64
 static void (*clientCallback[kMaxClients])(int, void *);
 static int nClients;
@@ -142,3 +144,5 @@ void QAV::Preload(void)
         }
     }
 }
+
+END_BLD_NS

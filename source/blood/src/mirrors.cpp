@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "warp.h"
 
+BEGIN_BLD_NS
+
 int mirrorcnt, mirrorsector, mirrorwall[4];
 
 typedef struct
@@ -194,7 +196,6 @@ void TranslateMirrorColors(int nShade, int nPalette)
     videoBeginDrawing();
     nShade = ClipRange(nShade, 0, 63);
     char *pMap = palookup[nPalette] + (nShade<<8);
-    extern intptr_t frameplace;
     char *pFrame = (char*)frameplace;
     unsigned int nPixels = xdim*ydim;
     for (unsigned int i = 0; i < nPixels; i++, pFrame++)
@@ -536,3 +537,5 @@ void MirrorLoadSaveConstruct(void)
 {
     myLoadSave = new MirrorLoadSave();
 }
+
+END_BLD_NS

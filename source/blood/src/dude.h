@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 #include "blood.h"
+
+BEGIN_BLD_NS
+
 // By NoOne: renamed dude struct
 struct DUDEINFO {
     short seqStartID; // seq
@@ -54,3 +57,5 @@ struct DUDEINFO {
 
 extern DUDEINFO dudeInfo[kDudeMax-kDudeBase];
 extern DUDEINFO gPlayerTemplate[4];
+
+END_BLD_NS

@@ -46,6 +46,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "triggers.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 void makeMissileBlocking(int nSprite) // 23
 {
     dassert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -792,3 +794,5 @@ void(*gCallback[kCallbackMax])(int) =
     UniMissileBurst,
     makeMissileBlocking,
 };
+
+END_BLD_NS

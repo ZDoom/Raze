@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common_game.h"
 
+BEGIN_BLD_NS
+
 struct HITINFO {
     short hitsect;
     short hitwall;
@@ -66,3 +68,5 @@ int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3);
 unsigned int ClipMove(int *x, int *y, int *z, int *nSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask);
 int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, char *pSectBit);
 int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSectors, char *pSectBit, short *a8);
+
+END_BLD_NS

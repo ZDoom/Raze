@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 CPlayerMsg gPlayerMsg;
 CCheatMgr gCheatMgr;
 
@@ -939,3 +941,5 @@ void MessagesLoadSaveConstruct(void)
 {
     myLoadSave = new MessagesLoadSave();
 }
+
+END_BLD_NS

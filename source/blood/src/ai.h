@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "actor.h"
 #include "db.h"
 
+BEGIN_BLD_NS
+
+
 struct AISTATE {
     int stateType; // By NoOne: current type of state. Basically required for kGDXDudeTargetChanger, but can be used for something else.
     int at0; // seq
@@ -103,3 +106,5 @@ void aiInitSprite(spritetype *pSprite);
 
 // By NoOne: this function required for kGDXDudeTargetChanger
 void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite);
+
+END_BLD_NS

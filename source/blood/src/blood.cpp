@@ -79,6 +79,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # endif
 #endif /* _WIN32 */
 
+BEGIN_BLD_NS
+
+
 extern const char* G_DefaultDefFile(void);
 extern const char* G_DefFile(void);
 
@@ -2555,3 +2558,5 @@ GameInterface Interface = {
 	G_DefaultDefFile,
 	G_DefFile
 };
+
+END_BLD_NS

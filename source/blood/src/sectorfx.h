@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
 
 extern int shadeCount;
 extern short shadeList[kMaxXSectors];
@@ -32,3 +33,5 @@ void DoSectorLighting(void);
 void UndoSectorLighting(void);
 void DoSectorPanning(void);
 void InitSectorFX(void);
+
+END_BLD_NS

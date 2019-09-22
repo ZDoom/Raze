@@ -50,6 +50,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "triggers.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 void FirePitchfork(int, PLAYER *pPlayer);
 void FireSpray(int, PLAYER *pPlayer);
 void ThrowCan(int, PLAYER *pPlayer);
@@ -2513,3 +2515,4 @@ void WeaponLoadSaveConstruct(void)
     myLoadSave = new WeaponLoadSave();
 }
 
+END_BLD_NS

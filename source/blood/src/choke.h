@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "qav.h"
 #include "resource.h"
 
+BEGIN_BLD_NS
+
 class CChoke
 {
 public:
@@ -59,3 +61,5 @@ public:
 void sub_84230(PLAYER*);
 
 extern CChoke gChoke;
+
+END_BLD_NS

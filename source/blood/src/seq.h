@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "resource.h"
 
+BEGIN_BLD_NS
+
 struct SEQFRAME {
     unsigned int tile : 12;
     unsigned int at1_4 : 1; // transparent
@@ -92,3 +94,5 @@ void seqKillAll(void);
 int seqGetStatus(int a1, int a2);
 int seqGetID(int a1, int a2);
 void seqProcess(int a1);
+
+END_BLD_NS

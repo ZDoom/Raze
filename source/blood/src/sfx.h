@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "db.h"
 
+BEGIN_BLD_NS
+
 void sfxInit(void);
 void sfxTerm(void);
 void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector);
@@ -33,3 +35,5 @@ void sfxKillAllSounds(void);
 void sfxUpdate3DSounds(void);
 void sfxSetReverb(bool toggle);
 void sfxSetReverb2(bool toggle);
+
+END_BLD_NS

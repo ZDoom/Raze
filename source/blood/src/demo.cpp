@@ -48,6 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screen.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 int nBuild = 0;
 
 void ReadGameOptionsLegacy(GAMEOPTIONS &gameOptions, GAMEOPTIONSLEGACY &gameOptionsLegacy)
@@ -627,3 +629,5 @@ void CDemo::ReadInput(int nCount)
         }
     }
 }
+
+END_BLD_NS

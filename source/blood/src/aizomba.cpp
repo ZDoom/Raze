@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "trig.h"
 
+BEGIN_BLD_NS
+
 static void HackSeqCallback(int, int);
 static void StandSeqCallback(int, int);
 static void thinkSearch(spritetype *, XSPRITE *);
@@ -282,3 +284,5 @@ static void entryEStand(spritetype *pSprite, XSPRITE *pXSprite)
     sfxPlay3DSound(pSprite, 1100, -1, 0);
     pSprite->ang = getangle(pXSprite->targetX-pSprite->x, pXSprite->targetY-pSprite->y);
 }
+
+END_BLD_NS

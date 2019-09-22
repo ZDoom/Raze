@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 
 #include "resource.h"
+
+BEGIN_BLD_NS
+
 struct SAMPLE2D
 {
     int at0;
@@ -70,3 +73,5 @@ void sndTerm(void);
 void sndInit(void);
 
 extern Resource gSoundRes;
+
+END_BLD_NS

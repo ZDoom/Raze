@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
+
 class IOBuffer
 {
 public:
@@ -32,3 +34,5 @@ public:
     void Write(void *, int);
     void Skip(int);
 };
+
+END_BLD_NS

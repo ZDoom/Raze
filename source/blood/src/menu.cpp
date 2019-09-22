@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 void SaveGame(CGameMenuItemZEditBitmap *, CGameMenuEvent *);
 
 void SaveGameProcess(CGameMenuItemChain *);
@@ -2292,3 +2294,5 @@ void drawLoadingScreen(void)
         sprintf(buffer, "%s", zNetGameTypes[gGameOptions.nGameType-1]);
     viewLoadingScreen(2049, buffer, levelGetTitle(), NULL);
 }
+
+END_BLD_NS

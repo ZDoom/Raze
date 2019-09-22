@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
+
 extern AISTATE ghostIdle;
 extern AISTATE ghostChase;
 extern AISTATE ghostGoto;
@@ -40,3 +42,5 @@ extern AISTATE ghostDodgeUpLeft;
 extern AISTATE ghostDodgeDown;
 extern AISTATE ghostDodgeDownRight;
 extern AISTATE ghostDodgeDownLeft;
+
+END_BLD_NS

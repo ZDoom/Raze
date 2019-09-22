@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 // Note: This module is based on the sirlemonhead's work
 #pragma once
+
+BEGIN_BLD_NS
+
 struct FNODE
 {
     FNODE *next;
@@ -66,3 +69,5 @@ private:
     void LoadRes(void *);
     void Load();
 };
+
+END_BLD_NS

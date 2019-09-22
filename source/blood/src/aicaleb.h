@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE tinycalebIdle;
 extern AISTATE tinycalebChase;
 extern AISTATE tinycalebDodge;
@@ -41,3 +43,5 @@ extern AISTATE tinycalebSwimRecoil;
 extern AISTATE tinycaleb139660;
 extern AISTATE tinycaleb13967C;
 extern AISTATE tinycaleb139698;
+
+END_BLD_NS

@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 #include "dude.h"
 
+BEGIN_BLD_NS
+
 DUDEINFO dudeInfo[kDudeMax-kDudeBase] = 
 {
     {
@@ -1728,3 +1730,5 @@ DUDEINFO gPlayerTemplate[4] =
          0
      },
 };
+
+END_BLD_NS

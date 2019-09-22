@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "misc.h"
 #include "network.h"
 
+BEGIN_BLD_NS
+
 extern int g_useCwd;
 
 #ifndef APPNAME
@@ -511,6 +513,12 @@ inline char TestBitString(char *pArray, int nIndex)
     return pArray[nIndex>>3] & (1<<(nIndex&7));
 }
 
+// This is to override the namepace prioritization without altering the actual calls.
+inline int scale(int a, int b, int c)
+{
+	return ::scale(a, b, c);
+}
+
 inline int scale(int a1, int a2, int a3, int a4, int a5)
 {
     return a4 + (a5-a4) * (a1-a2) / (a3-a2);
@@ -692,3 +700,5 @@ public:
 
 void G_AddGroup(const char* buffer);
 void G_AddPath(const char* buffer);
+
+END_BLD_NS

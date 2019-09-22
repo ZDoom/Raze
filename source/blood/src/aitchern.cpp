@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "trig.h"
 
+BEGIN_BLD_NS
+
 static void sub_71A90(int, int);
 static void sub_71BD4(int, int);
 static void sub_720AC(int, int);
@@ -358,3 +360,5 @@ static void sub_72934(spritetype *pSprite, XSPRITE *pXSprite)
     aiNewState(pSprite, pXSprite, &tcherno13A9B8);
     pXSprite->target = -1;
 }
+
+END_BLD_NS

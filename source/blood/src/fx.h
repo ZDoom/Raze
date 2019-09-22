@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common_game.h"
 
+BEGIN_BLD_NS
+
+
 enum FX_ID {
     FX_NONE = -1,
     FX_0 = 0,
@@ -100,3 +103,5 @@ void sub_74818(spritetype *pSprite, int z, int a3, int a4);
 void sub_74A18(spritetype *pSprite, int z, int a3, int a4);
 
 extern CFX gFX;
+
+END_BLD_NS

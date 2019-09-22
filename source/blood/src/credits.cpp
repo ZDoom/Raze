@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "view.h"
 
+BEGIN_BLD_NS
+
 char exitCredits = 0;
 
 char Wait(int nTicks)
@@ -286,3 +288,5 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     Bfree(pzSMK_);
     Bfree(pzWAV_);
 }
+
+END_BLD_NS

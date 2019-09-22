@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "trig.h"
 
+BEGIN_BLD_NS
+
 static void HackSeqCallback(int, int);
 static void PukeSeqCallback(int, int);
 static void ThrowSeqCallback(int, int);
@@ -231,3 +233,5 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiNewState(pSprite, pXSprite, &zombieFSearch);
     pXSprite->target = -1;
 }
+
+END_BLD_NS

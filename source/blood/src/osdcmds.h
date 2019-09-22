@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+BEGIN_BLD_NS
 
 int32_t registerosdcommands(void);
 void onvideomodechange(int32_t newmode);
@@ -34,3 +35,4 @@ extern const char *const ConsoleButtons[];
 
 extern uint32_t cl_cheatmask;
 
+END_BLD_NS

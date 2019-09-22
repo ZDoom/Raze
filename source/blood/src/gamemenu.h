@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "qav.h"
 
+BEGIN_BLD_NS
+
 #define M_MOUSETIMEOUT 210
 
 #define kMaxGameMenuItems 128
@@ -488,3 +490,5 @@ public:
 
 extern CMenuTextMgr gMenuTextMgr;
 extern CGameMenuMgr gGameMenuMgr;
+
+END_BLD_NS

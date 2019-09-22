@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "resource.h"
 
+BEGIN_BLD_NS
+
 extern int costable[2048];
 
 int GetOctant(int x, int y);
@@ -40,3 +42,5 @@ inline int Cos(int ang)
 {
     return costable[ang & 2047];
 }
+
+END_BLD_NS

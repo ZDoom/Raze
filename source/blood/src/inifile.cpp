@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "inifile.h"
 #include "misc.h"
 
+BEGIN_BLD_NS
+
 
 IniFile::IniFile(const char *fileName)
 {
@@ -465,3 +467,6 @@ IniFile::~IniFile()
         free(anotherNode);
     }
 }
+
+
+END_BLD_NS

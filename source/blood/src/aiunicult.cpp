@@ -47,6 +47,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "triggers.h"
 #include "endgame.h"
 
+BEGIN_BLD_NS
+
 static void GDXCultistAttack1(int, int);
 static void punchCallback(int, int);
 static void ThrowCallback1(int, int);
@@ -1168,3 +1170,5 @@ int getSeqStartId(XSPRITE* pXSprite) {
     return seqStartId;
 }
 //////////
+
+END_BLD_NS

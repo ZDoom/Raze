@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "misc.h"
 
+BEGIN_BLD_NS
+
 void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes)
 {
     unsigned int i;
@@ -210,3 +212,4 @@ void ConcatPath(const char *pzPath1, const char *pzPath2, char *pzConcatPath)
 }
 
 
+END_BLD_NS

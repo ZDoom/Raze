@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE tchernobogIdle;
 extern AISTATE tchernobogSearch;
 extern AISTATE tchernobogChase;
@@ -32,3 +34,5 @@ extern AISTATE tcherno13A9D4;
 extern AISTATE tcherno13A9F0;
 extern AISTATE tcherno13AA0C;
 extern AISTATE tcherno13AA28;
+
+END_BLD_NS

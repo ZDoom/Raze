@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fx.h"
 #include "gameutil.h"
 
+BEGIN_BLD_NS
+
 enum DAMAGE_TYPE {
     DAMAGE_TYPE_0 = 0,
     DAMAGE_TYPE_1, // Flame
@@ -285,3 +287,5 @@ extern short gPhysSpritesList[kMaxSuperXSprites];
 extern short gProxySpritesCount;
 extern short gSightSpritesCount;
 extern short gPhysSpritesCount;
+
+END_BLD_NS

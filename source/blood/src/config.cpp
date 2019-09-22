@@ -51,6 +51,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __SETUP__   // JBF 20031211
 #include "_functio.h"
 
+BEGIN_BLD_NS
+
+
 hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
 
 int32_t MouseDeadZone, MouseBias;
@@ -1017,63 +1020,5 @@ void CONFIG_WriteSetup(uint32_t flags)
     Bfflush(NULL);
 }
 
-#if 0
-static const char *CONFIG_GetMapEntryName(char m[], char const * const mapname)
-{
-    strcpy(m, mapname);
 
-    char *p = strrchr(m, '/');
-    if (!p) p = strrchr(m, '\\');
-    if (p) Bmemmove(m, p, Bstrlen(p)+1);
-    for (p=m; *p; p++) *p = tolower(*p);
-
-    // cheap hack because SCRIPT_GetNumber doesn't like the slashes
-    p = m;
-    while (*p == '/') p++;
-
-    return p;
-}
-
-static void CONFIG_GetMD4EntryName(char m[], uint8_t const * const md4)
-{
-    sprintf(m, "MD4_%08x%08x%08x%08x",
-            B_BIG32(B_UNBUF32(&md4[0])), B_BIG32(B_UNBUF32(&md4[4])),
-            B_BIG32(B_UNBUF32(&md4[8])), B_BIG32(B_UNBUF32(&md4[12])));
-}
-
-int32_t CONFIG_GetMapBestTime(char const * const mapname, uint8_t const * const mapmd4)
-{
-    if (!setupread || scripthandle < 0)
-        return -1;
-
-    char m[37];
-
-    CONFIG_GetMD4EntryName(m, mapmd4);
-
-    int32_t t = -1;
-    if (SCRIPT_GetNumber(scripthandle, "MapTimes", m, &t))
-    {
-        // fall back to map filenames
-        char m2[BMAX_PATH];
-        auto p = CONFIG_GetMapEntryName(m2, mapname);
-
-        SCRIPT_GetNumber(scripthandle, "MapTimes", p, &t);
-    }
-
-    return t;
-}
-
-int CONFIG_SetMapBestTime(uint8_t const * const mapmd4, int32_t tm)
-{
-    if (scripthandle < 0 && (scripthandle = SCRIPT_Init(SetupFilename)) < 0)
-        return -1;
-
-    char m[37];
-
-    CONFIG_GetMD4EntryName(m, mapmd4);
-    SCRIPT_PutNumber(scripthandle, "MapTimes", m, tm, FALSE, FALSE);
-
-    return 0;
-}
-
-#endif
+END_BLD_NS

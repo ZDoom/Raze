@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE zombieAIdle;
 extern AISTATE zombieAChase;
 extern AISTATE zombieAPonder;
@@ -40,3 +42,5 @@ extern AISTATE zombie2Idle;
 extern AISTATE zombie2Search;
 extern AISTATE zombieSIdle;
 extern AISTATE zombie13AC2C;
+
+END_BLD_NS

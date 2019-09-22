@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "blood.h"
 
+BEGIN_BLD_NS
+
 enum SurfaceType {
     kSurfNone = 0,
     kSurfStone,
@@ -64,3 +66,5 @@ char * tileAllocTile(int nTile, int x, int y, int ox, int oy);
 void tilePreloadTile(int nTile);
 void tilePrecacheTile(int nTile, int nType = 1);
 char tileGetSurfType(int hit);
+
+END_BLD_NS

@@ -41,6 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "trig.h"
 
+BEGIN_BLD_NS
+
 static void SeqAttackCallback(int, int);
 static void thinkSearch(spritetype *, XSPRITE *);
 static void thinkGoto(spritetype *, XSPRITE *);
@@ -424,3 +426,5 @@ static void sub_661E0(spritetype *pSprite, XSPRITE *pXSprite)
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
     zvel[nSprite] = dz;
 }
+
+END_BLD_NS

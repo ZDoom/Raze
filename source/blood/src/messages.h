@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "player.h"
 
+BEGIN_BLD_NS
+
 #define kMessageLogSize 32
 #define kMaxMessageTextLength 81
 
@@ -164,3 +166,5 @@ void SetArmor(bool stat);
 void SetKeys(bool stat);
 void SetGodMode(bool god);
 void SetClipMode(bool noclip);
+
+END_BLD_NS

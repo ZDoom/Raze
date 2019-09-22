@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "trig.h"
 
+BEGIN_BLD_NS
+
 struct GIBFX
 {
     FX_ID at0;
@@ -510,3 +512,5 @@ void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel)
         GibFX(nWall, pGibFX, ceilZ, wx, wy, wz, pVel);
     }
 }
+
+END_BLD_NS

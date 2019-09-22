@@ -66,6 +66,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trig.h"
 #include "triggers.h"
 
+BEGIN_BLD_NS
+
 int cumulDamage[kMaxXSprites];
 int gDudeSlope[kMaxXSprites];
 DUDEEXTRA gDudeExtra[kMaxXSprites];
@@ -1808,3 +1810,4 @@ void AILoadSaveConstruct(void)
     myLoadSave = new AILoadSave();
 }
 
+END_BLD_NS

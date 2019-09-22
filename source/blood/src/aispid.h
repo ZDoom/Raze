@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE spidIdle;
 extern AISTATE spidChase;
 extern AISTATE spidDodge;
@@ -31,3 +33,5 @@ extern AISTATE spidSearch;
 extern AISTATE spidBite;
 extern AISTATE spidJump;
 extern AISTATE spid13A92C;
+
+END_BLD_NS

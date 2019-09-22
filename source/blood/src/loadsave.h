@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include "levels.h"
 
+BEGIN_BLD_NS
+
 class LoadSave {
 public:
     static LoadSave head;
@@ -57,3 +59,5 @@ extern char *gSaveGamePic[10];
 void UpdateSavedInfo(int nSlot);
 void LoadSavedInfo(void);
 void LoadSaveSetup(void);
+
+END_BLD_NS

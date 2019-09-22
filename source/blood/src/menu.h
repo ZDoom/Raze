@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "gamemenu.h"
 
+BEGIN_BLD_NS
+
 extern CGameMenu menuMain;
 extern CGameMenu menuMainWithSave;
 extern CGameMenu menuNetMain;
@@ -56,3 +58,5 @@ void SetupMenus(void);
 void UpdateNetworkMenus(void);
 void QuickSaveGame(void);
 void QuickLoadGame(void);
+
+END_BLD_NS

@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "messages.h"
 #include "player.h"
 
+BEGIN_BLD_NS
+
 enum VIEW_EFFECT {
     VIEW_EFFECT_0 = 0,
     VIEW_EFFECT_1,
@@ -193,3 +195,5 @@ inline void viewBackupSpriteLoc(int nSprite, spritetype *pSprite)
         SetBitString(gInterpolateSprite, nSprite);
     }
 }
+
+END_BLD_NS

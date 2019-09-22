@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "common_game.h"
 #include "db.h"
+
+BEGIN_BLD_NS
+
 class CViewMap {
 public:
     char bActive;
@@ -39,3 +42,5 @@ public:
 };
 
 extern CViewMap gViewMap;
+
+END_BLD_NS

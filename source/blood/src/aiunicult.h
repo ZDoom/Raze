@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ai.h"
 #include "eventq.h"
 
+BEGIN_BLD_NS
+
 #define kMaxGenDudeSndMode 11
 #define kDefaultAnimationBase 11520
 
@@ -89,3 +91,5 @@ bool CDCanMove(spritetype* pSprite);
 bool inDodge(AISTATE* aiState);
 bool inIdle(AISTATE* aiState);
 int getSeqStartId(XSPRITE* pXSprite);
+
+END_BLD_NS

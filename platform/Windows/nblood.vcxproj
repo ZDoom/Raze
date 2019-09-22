@@ -243,7 +243,6 @@
     <ClCompile Include="..\..\source\blood\src\view.cpp" />
     <ClCompile Include="..\..\source\blood\src\warp.cpp" />
     <ClCompile Include="..\..\source\blood\src\weapon.cpp" />
-    <ClCompile Include="..\..\source\blood\src\winbits.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="audiolib.vcxproj">

@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "trig.h"
 
+BEGIN_BLD_NS
+
 int costable[2048];
 
 int OctantTable[8] = { 5, 6, 2, 1, 4, 7, 3, 0 };
@@ -78,3 +80,5 @@ void trigInit(Resource &Res)
         costable[i] = costable[2048 - i];
     }
 }
+
+END_BLD_NS

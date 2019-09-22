@@ -23,9 +23,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE innocentIdle;
 extern AISTATE innocentSearch;
 extern AISTATE innocentChase;
 extern AISTATE innocentRecoil;
 extern AISTATE innocentTeslaRecoil;
 extern AISTATE innocentGoto;
+
+END_BLD_NS

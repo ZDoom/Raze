@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "view.h"
 
+BEGIN_BLD_NS
 
 static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
 {
@@ -1162,3 +1163,4 @@ void GAME_clearbackground(int numcols, int numrows)
     COMMON_clearbackground(numcols, numrows);
 }
 
+END_BLD_NS

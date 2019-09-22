@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common_game.h"
 
+BEGIN_BLD_NS
+
 class CEndGameMgr {
 public:
     char at0;
@@ -60,3 +62,5 @@ public:
 extern CEndGameMgr gEndGameMgr;
 extern CSecretMgr gSecretMgr;
 extern CKillMgr gKillMgr;
+
+END_BLD_NS

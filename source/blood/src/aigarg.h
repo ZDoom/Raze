@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "ai.h"
 
+BEGIN_BLD_NS
+
 extern AISTATE gargoyleFIdle;
 extern AISTATE gargoyleStatueIdle;
 extern AISTATE gargoyleFChase;
@@ -48,3 +50,5 @@ extern AISTATE gargoyleFDodgeDownRight;
 extern AISTATE gargoyleFDodgeDownLeft;
 extern AISTATE statueFBreakSEQ;
 extern AISTATE statueSBreakSEQ;
+
+END_BLD_NS

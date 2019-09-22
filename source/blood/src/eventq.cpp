@@ -37,6 +37,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "pqueue.h"
 #include "triggers.h"
 
+BEGIN_BLD_NS
+
 class EventQueue
 {
 public:
@@ -605,3 +607,5 @@ void EventQLoadSaveConstruct(void)
 {
     myLoadSave = new EventQLoadSave();
 }
+
+END_BLD_NS

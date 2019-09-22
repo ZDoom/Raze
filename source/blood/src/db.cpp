@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "iob.h"
 
+BEGIN_BLD_NS
+
 unsigned short gStatCount[kMaxStatus + 1];
 
 XSPRITE xsprite[kMaxXSprites];
@@ -1633,16 +1635,7 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
     Bclose(nHandle);
     Bfree(pData);
     return 0;
-#if 0
-    char *pExt = strchr(sMapExt, '.');
-    if (pExt)
-    {
-        *pExt = 0;
-    }
-    gSysRes.AddExternalResource(sMapExt, "MAP", nSize);
-    DICTNODE *hMap = gSysRes.Lookup(sMapExt, "MAP");
-    dassert(hMap != NULL);
-#endif
+
 }
 
 int32_t qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum)
@@ -1657,3 +1650,5 @@ int32_t qsaveboard(const char* filename, const vec3_t* dapos, int16_t daang, int
     byte_1A76C6 = byte_1A76C8 = byte_1A76C7 = 1;
     return dbSaveMap(filename, dapos->x, dapos->y, dapos->z, daang, dacursectnum);
 }
+
+END_BLD_NS

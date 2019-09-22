@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trig.h"
 #include "sectorfx.h"
 
+BEGIN_BLD_NS
+
 char flicker1[] = {
     0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0,
     1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1,
@@ -425,3 +427,5 @@ short * CSectorListMgr::GetSectorList(int nList)
 {
     return nSectors+nListStart[nList];
 }
+
+END_BLD_NS

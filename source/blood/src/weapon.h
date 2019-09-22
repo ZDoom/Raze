@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "player.h"
 
+BEGIN_BLD_NS
+
 void WeaponInit(void);
 void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5);
 void WeaponRaise(PLAYER *pPlayer);
@@ -33,3 +35,5 @@ void WeaponLower(PLAYER *pPlayer);
 char WeaponUpgrade(PLAYER *pPlayer, char newWeapon);
 void WeaponProcess(PLAYER *pPlayer);
 void sub_51340(spritetype *pMissile, int a2);
+
+END_BLD_NS

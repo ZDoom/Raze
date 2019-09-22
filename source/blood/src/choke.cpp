@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "qav.h"
 #include "resource.h"
 
+BEGIN_BLD_NS
 
 void CChoke::sub_83F54(char *a1, int _x, int _y, void (*a2)(PLAYER*))
 {
@@ -137,3 +138,5 @@ void sub_84230(PLAYER *pPlayer)
 }
 
 CChoke gChoke;
+
+END_BLD_NS

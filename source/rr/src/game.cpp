@@ -7862,49 +7862,6 @@ int app_main(int argc, char const * const * argv)
 #endif
     CONFIG_ReadSetup();
 
-//#if defined(_WIN32)
-#if 0
-
-//    initprintf("build %d\n",(uint8_t)Batoi(BUILDDATE));
-
-    if (ud.config.CheckForUpdates == 1)
-    {
-        if (time(NULL) - ud.config.LastUpdateCheck > UPDATEINTERVAL)
-        {
-            initprintf("Checking for updates...\n");
-
-            ud.config.LastUpdateCheck = time(NULL);
-
-            if (G_GetVersionFromWebsite(tempbuf))
-            {
-                initprintf("Current version is %d",Batoi(tempbuf));
-
-                if (Batoi(tempbuf) > atoi(s_buildDate))
-                {
-                    if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
-                                 "Browse to http://www.eduke32.com now?"))
-                    {
-                        SHELLEXECUTEINFOA sinfo;
-                        char const *      p = "http://www.eduke32.com";
-
-                        Bmemset(&sinfo, 0, sizeof(sinfo));
-                        sinfo.cbSize  = sizeof(sinfo);
-                        sinfo.fMask   = SEE_MASK_CLASSNAME;
-                        sinfo.lpVerb  = "open";
-                        sinfo.lpFile  = p;
-                        sinfo.nShow   = SW_SHOWNORMAL;
-                        sinfo.lpClass = "http";
-
-                        if (!ShellExecuteExA(&sinfo))
-                            initprintf("update: error launching browser!\n");
-                    }
-                }
-                else initprintf("... no updates available\n");
-            }
-            else initprintf("update: failed to check for updates\n");
-        }
-    }
-#endif
 
     if (enginePreInit())
     {
