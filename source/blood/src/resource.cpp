@@ -159,6 +159,7 @@ void Resource::Init(const char *filename)
                     dict[i].type[nTypeLength] = 0;
                     dict[i].name[nNameLength] = 0;
                     dict[i].id = B_LITTLE32(tdict[i].id);
+                    dict[i].buffer = NULL;
                 }
                 Free(tdict);
             }
@@ -433,7 +434,8 @@ void Resource::AddExternalResource(const char *name, const char *type, int id, i
         strcpy(node->path, path);
     }
     node->size = size;
-    node->flags |= DICT_EXTERNAL | flags;
+    node->flags = DICT_EXTERNAL | flags;
+    node->buffer = NULL;
     Flush(node);
     if (id >= 0)
     {
@@ -476,7 +478,103 @@ void Resource::AddExternalResource(const char *name, const char *type, int id, i
         strcpy(node->path, path);
         node->id = id;
         node->size = size;
-        node->flags |= DICT_EXTERNAL | flags;
+        node->flags = DICT_EXTERNAL | flags;
+        node->buffer = NULL;
+        Flush(node);
+    }
+}
+
+void Resource::AddFromBuffer(const char* name, const char* type, char* data, int size, int id, int flags)
+{
+    char name2[BMAX_PATH], type2[BMAX_PATH];
+
+    char *pHeapData = (char*)Alloc(size);
+    if (!pHeapData)
+        return;
+    Bmemcpy(pHeapData, data, size);
+    strcpy(name2, name);
+    strcpy(type2, type);
+    Bstrupr(name2);
+    Bstrupr(type2);
+    dassert(dict != NULL);
+    DICTNODE **index = Probe(name2, type2);
+    dassert(index != NULL);
+    DICTNODE *node = *index;
+    if (!node)
+    {
+        if (2 * count >= buffSize)
+        {
+            Grow();
+        }
+        node = &dict[count++];
+        index = Probe(name2, type2);
+        *index = node;
+        if (node->type)
+        {
+            Free(node->type);
+            node->type = NULL;
+        }
+        if (node->name)
+        {
+            Free(node->name);
+            node->name = NULL;
+        }
+        if (node->path)
+        {
+            Free(node->path);
+            node->path = NULL;
+        }
+        int nTypeLength = strlen(type2);
+        int nNameLength = strlen(name2);
+        node->type = (char*)Alloc(nTypeLength+1);
+        node->name = (char*)Alloc(nNameLength+1);
+        strcpy(node->type, type2);
+        strcpy(node->name, name2);
+    }
+    node->size = size;
+    node->flags = DICT_BUFFER | flags;
+    node->buffer = pHeapData;
+    Flush(node);
+    if (id >= 0)
+    {
+        index = Probe(id, type2);
+        dassert(index != NULL);
+        DICTNODE *node = *index;
+        if (!node)
+        {
+            if (2 * count >= buffSize)
+            {
+                Grow();
+            }
+            node = &dict[count++];
+            index = Probe(id, type2);
+            *index = node;
+        }
+        if (node->type)
+        {
+            Free(node->type);
+            node->type = NULL;
+        }
+        if (node->name)
+        {
+            Free(node->name);
+            node->name = NULL;
+        }
+        if (node->path)
+        {
+            Free(node->path);
+            node->path = NULL;
+        }
+        int nTypeLength = strlen(type2);
+        int nNameLength = strlen(name2);
+        node->type = (char*)Alloc(nTypeLength+1);
+        node->name = (char*)Alloc(nNameLength+1);
+        strcpy(node->type, type2);
+        strcpy(node->name, name2);
+        node->id = id;
+        node->size = size;
+        node->flags = DICT_BUFFER | flags;
+        node->buffer = pHeapData;
         Flush(node);
     }
 }
@@ -589,6 +687,10 @@ void Resource::Read(DICTNODE *n, void *p)
             ThrowError("Error reading external resource (%i)", errno);
         }
         kclose(fhandle);
+    }
+    else if (n->flags & DICT_BUFFER)
+    {
+        Bmemcpy(p, n->buffer, n->size);
     }
     else
     {

@@ -154,12 +154,12 @@ void ChangeExtension(char *pzFile, const char *pzExt)
 
 void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType)
 {
-    int const nLength = Bstrlen(pzFile);
-    const char *pDirectory = pzFile+nLength;
+    int const nLength = Bstrlen(pzPath);
+    const char *pDirectory = pzPath+nLength;
     const char *pDot = NULL;
     for (int i = nLength-1; i >= 0; i--)
     {
-        if (pzFile[i] == '/' || pzFile[i] == '\\')
+        if (pzPath[i] == '/' || pzPath[i] == '\\')
         {
             Bstrncpy(pzDirectory, pzPath, i);
             pzDirectory[i] = 0;
@@ -171,14 +171,15 @@ void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType
             else
             {
                 Bstrncpy(pzFile, pzPath+i+1, pDot-(pzPath+i+1));
+                pzFile[pDot-(pzPath+i+1)] = 0;
                 Bstrcpy(pzType, pDot+1);
             }
            
             return;
         }
-        else if (pzFile[i] == '.')
+        else if (pzPath[i] == '.')
         {
-            pDot = pzFile+i;
+            pDot = pzPath+i;
         }
     }
     Bstrcpy(pzDirectory, "/");
@@ -190,6 +191,7 @@ void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType
     else
     {
         Bstrncpy(pzFile, pzPath, pDot-pzPath);
+        pzFile[pDot-pzPath] = 0;
         Bstrcpy(pzType, pDot+1);
     }
 }
@@ -208,7 +210,8 @@ void ConcatPath(const char *pzPath1, const char *pzPath2, char *pzConcatPath)
     }
     Bstrncpy(pzConcatPath, pzPath1, i);
     pzConcatPath[i] = 0;
-    Bstrcpy(pzConcatPath, pzPath2+j);
+    Bstrcat(pzConcatPath, "/");
+    Bstrcat(pzConcatPath, pzPath2+j);
 }
 
 
