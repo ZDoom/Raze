@@ -592,7 +592,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         }
     }
     bVanilla = gDemo.at1 && gDemo.m_bLegacy;
-    blooddemohack = 2;//bVanilla;
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;//bVanilla;
     memset(xsprite,0,sizeof(xsprite));
     memset(sprite,0,kMaxSprites*sizeof(spritetype));
     drawLoadingScreen();

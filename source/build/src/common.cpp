@@ -223,7 +223,8 @@ int32_t ldist(const void *s1, const void *s2)
 {
     auto sp1 = (vec2_t const *)s1;
     auto sp2 = (vec2_t const *)s2;
-    return sepldist(sp1->x - sp2->x, sp1->y - sp2->y) + (blooddemohack ? 1 : 0);
+    return sepldist(sp1->x - sp2->x, sp1->y - sp2->y)
+        + (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 1 : 0);
 }
 
 int32_t dist(const void *s1, const void *s2)

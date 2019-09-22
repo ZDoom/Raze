@@ -935,7 +935,14 @@ static FORCE_INLINE int32_t videoGetRenderMode(void)
 }
 
 extern int32_t bloodhack;
-extern int32_t blooddemohack;
+enum {
+    ENGINECOMPATIBILITY_NONE = 0,
+    ENGINECOMPATIBILITY_19950829, // Powerslave/Exhumed
+    ENGINECOMPATIBILITY_19960925, // Blood v1.21
+    ENGINECOMPATIBILITY_19961112, // Duke 3d v1.5, Redneck Rampage
+};
+
+EXTERN int32_t enginecompatibility_mode;
 
 /*************************************************************************
 POSITION VARIABLES:
@@ -1520,9 +1527,9 @@ static FORCE_INLINE CONSTEXPR bool inside_p(int32_t const x, int32_t const y, in
         return;                    \
     } while (0)
 
-static inline int64_t maybe_truncate_to_int32(int64_t val)
+static inline int64_t compat_maybe_truncate_to_int32(int64_t val)
 {
-    return blooddemohack ? (int32_t)val : val;
+    return enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? (int32_t)val : val;
 }
 
 static inline int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,

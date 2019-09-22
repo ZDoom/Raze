@@ -176,7 +176,7 @@ static int16_t radarang[1280];
 static int32_t qradarang[10240], *radarang2;
 const char ATTRIBUTE((used)) pow2char_[8] = {1,2,4,8,16,32,64,128};
 
-uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
+uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256], ATTRIBUTE((used)) sqrtable_old[2048];
 
 char britable[16][256]; // JBF 20040207: full 8bit precision
 
@@ -198,7 +198,6 @@ static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to dr
 int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade) = NULL;
 
 int32_t bloodhack = 0;
-int32_t blooddemohack = 0;
 
 // adapted from build.c
 static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall, vec2_t *const closest)
@@ -7475,6 +7474,8 @@ static uint32_t msqrtasm(uint32_t c)
 static inline void initksqrt(void)
 {
     int32_t i, j, k;
+    uint32_t root, num;
+    int32_t temp;
 
     j = 1; k = 0;
     for (i=0; i<4096; i++)
@@ -7483,6 +7484,29 @@ static inline void initksqrt(void)
         sqrtable[i] = (uint16_t)(msqrtasm((i<<18)+131072)<<1);
         shlookup[i] = (k<<1)+((10-k)<<8);
         if (i < 256) shlookup[i+4096] = ((k+6)<<1)+((10-(k+6))<<8);
+    }
+
+    for(i=0;i<2048;i++)
+    {
+        root = 128;
+        num = i<<20;
+        do
+        {
+            temp = root;
+            root = (root+num/root)>>1;
+        } while((temp-root+1) > 2);
+        temp = root*root-num;
+        while (klabs(int32_t(temp-2*root+1)) < klabs(temp))
+        {
+            temp += -(2*root)+1;
+            root--;
+        }
+        while (klabs(int32_t(temp+2*root+1)) < klabs(temp))
+        {
+            temp += 2*root+1;
+            root++;
+        }
+        sqrtable_old[i] = root;
     }
 }
 
@@ -7736,7 +7760,7 @@ LISTFN_STATIC int32_t insertspritestat(int16_t statnum)
     // make back-link of the new freelist head point to nil
     if (headspritestat[MAXSTATUS] >= 0)
         prevspritestat[headspritestat[MAXSTATUS]] = -1;
-    else if (!blooddemohack)
+    else if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
         tailspritefree = -1;
 
     do_insertsprite_at_headofstat(blanktouse, statnum);
@@ -7805,7 +7829,7 @@ int32_t deletesprite(int16_t spritenum)
     sprite[spritenum].sectnum = MAXSECTORS;
 
     // insert at tail of status freelist
-    if (blooddemohack)
+    if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
         do_insertsprite_at_headofstat(spritenum, MAXSTATUS);
     else
     {
@@ -7886,7 +7910,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 
     if (rayCrossLineVec == 0)
     {
-        if (originDiffCrossRay != 0 || blooddemohack)
+        if (originDiffCrossRay != 0 || enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
         {
             // line segments are parallel
             return 0;
@@ -8000,7 +8024,7 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
 {
     //p1 towards p2 is a ray
 
-    if (blooddemohack)
+    if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
         return rintersect_old(x1,y1,z1,vx,vy,vz,x3,y3,x4,y4,intx,inty,intz);
 
     int64_t const x34=x3-x4, y34=y3-y4;
@@ -10710,7 +10734,32 @@ void vox_undefine(int32_t const tile)
 //
 // See http://fabiensanglard.net/duke3d/build_engine_internals.php,
 // "Inside details" for the idea behind the algorithm.
+int32_t inside_ps(int32_t x, int32_t y, int16_t sectnum)
+{
+    if (sectnum >= 0 && sectnum < numsectors)
+    {
+        int32_t cnt = 0;
+        auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
+        int  wallsleft = sector[sectnum].wallnum;
 
+        do
+        {
+            vec2_t v1 = { wal->x - x, wal->y - y };
+            auto const &wal2 = *(uwallptr_t)&wall[wal->point2];
+            vec2_t v2 = { wal2.x - x, wal2.y - y };
+
+            if ((v1.y^v2.y) < 0)
+                cnt ^= (((v1.x^v2.x) < 0) ? (v1.x*v2.y<v2.x*v1.y)^(v1.y<v2.y) : (v1.x >= 0));
+
+            wal++;
+        }
+        while (--wallsleft);
+
+        return cnt;
+    }
+
+    return -1;
+}
 int32_t inside_old(int32_t x, int32_t y, int16_t sectnum)
 {
     if (sectnum >= 0 && sectnum < numsectors)
@@ -10748,8 +10797,15 @@ int32_t inside_old(int32_t x, int32_t y, int16_t sectnum)
 
 int32_t inside(int32_t x, int32_t y, int16_t sectnum)
 {
-    if (blooddemohack)
+    switch (enginecompatibility_mode)
+    {
+    case ENGINECOMPATIBILITY_NONE:
+        break;
+    case ENGINECOMPATIBILITY_19950829:
+        return inside_ps(x, y, sectnum);
+    default:
         return inside_old(x, y, sectnum);
+    }
     if ((unsigned)sectnum < (unsigned)numsectors)
     {
         uint32_t cnt1 = 0, cnt2 = 0;
@@ -10946,8 +11002,48 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, in
 //
 // cansee
 //
+int32_t cansee_old(int32_t xs, int32_t ys, int32_t zs, int16_t sectnums, int32_t xe, int32_t ye, int32_t ze, int16_t sectnume)
+{
+    sectortype *sec, *nsec;
+    walltype *wal, *wal2;
+    int32_t intx, inty, intz, i, cnt, nextsector, dasectnum, dacnt, danum;
+
+    if ((xs == xe) && (ys == ye) && (sectnums == sectnume)) return 1;
+    
+    clipsectorlist[0] = sectnums; danum = 1;
+    for(dacnt=0;dacnt<danum;dacnt++)
+    {
+        dasectnum = clipsectorlist[dacnt]; sec = &sector[dasectnum];
+        
+        for(cnt=sec->wallnum,wal=&wall[sec->wallptr];cnt>0;cnt--,wal++)
+        {
+            wal2 = &wall[wal->point2];
+            if (lintersect(xs,ys,zs,xe,ye,ze,wal->x,wal->y,wal2->x,wal2->y,&intx,&inty,&intz) != 0)
+            {
+                nextsector = wal->nextsector; if (nextsector < 0) return 0;
+
+                if (intz <= sec->ceilingz) return 0;
+                if (intz >= sec->floorz) return 0;
+                nsec = &sector[nextsector];
+                if (intz <= nsec->ceilingz) return 0;
+                if (intz >= nsec->floorz) return 0;
+
+                for(i=danum-1;i>=0;i--)
+                    if (clipsectorlist[i] == nextsector) break;
+                if (i < 0) clipsectorlist[danum++] = nextsector;
+            }
+        }
+
+        if (clipsectorlist[dacnt] == sectnume)
+            return 1;
+    }
+    return 0;
+}
+
 int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2)
 {
+    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
+        return cansee_old(x1, y1, z2, sect1, x2, y2, z2, sect2);
     int32_t dacnt, danum;
     const int32_t x21 = x2-x1, y21 = y2-y1, z21 = z2-z1;
 
@@ -11559,7 +11655,7 @@ int findwallbetweensectors(int sect1, int sect2)
 //
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
-    if (blooddemohack)
+    if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {
         if (inside_p(x, y, *sectnum))
             return;
@@ -11629,7 +11725,7 @@ void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectn
 
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
 {
-    if (blooddemohack)
+    if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {
         if ((uint32_t)(*sectnum) < 2*MAXSECTORS)
         {
@@ -12416,7 +12512,7 @@ int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     if (i == 0) return sec->ceilingz;
 
     int const j = dmulscale3(d.x, day-w.y, -d.y, dax-w.x);
-    int const shift = blooddemohack ? 0 : 1;
+    int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
     return sec->ceilingz + (scale(sec->ceilingheinum,j>>shift,i)<<shift);
 }
 
@@ -12435,7 +12531,7 @@ int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     if (i == 0) return sec->floorz;
 
     int const j = dmulscale3(d.x, day-w.y, -d.y, dax-w.x);
-    int const shift = blooddemohack ? 0 : 1;
+    int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
     return sec->floorz + (scale(sec->floorheinum,j>>shift,i)<<shift);
 }
 
@@ -12455,7 +12551,7 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
     if (i == 0) return;
 
     int const j = dmulscale3(d.x,day-wal->y, -d.y,dax-wal->x);
-    int const shift = blooddemohack ? 0 : 1;
+    int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
     if (sec->ceilingstat&2)
         *ceilz += scale(sec->ceilingheinum,j>>shift,i)<<shift;
     if (sec->floorstat&2)
