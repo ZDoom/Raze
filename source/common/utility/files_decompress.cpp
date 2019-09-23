@@ -41,6 +41,7 @@
 
 #include "files.h"
 #include "templates.h"
+#include "zstring.h"
 
 //==========================================================================
 //
@@ -84,7 +85,6 @@ char *DecompressorBase::Gets(char *strbuf, int len)
 //
 // M_ZlibError
 //
-#if 0
 FString M_ZLibError(int zerr)
 {
 	if (zerr >= 0)
@@ -111,7 +111,6 @@ FString M_ZLibError(int zerr)
 		return errs[-zerr - 1];
 	}
 }
-#endif
 
 //==========================================================================
 //
@@ -148,10 +147,7 @@ public:
 
 		if (err != Z_OK)
 		{
-			// Later, when FString is available.
-#if 0
 			DecompressionError ("DecompressorZ: inflateInit failed: %s\n", M_ZLibError(err).GetChars());
-#endif
 		}
 	}
 

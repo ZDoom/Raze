@@ -506,9 +506,9 @@ endif()
 
 # Ugh... These precompiled dependencies need to go.
 if (WIN32)
-	include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${ENET_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
+	include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${ENET_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
 else ()
-include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${ENET_INCLUDE_DIR}")
+include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${ENET_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
 endif()
 
 
@@ -965,7 +965,11 @@ set (PCH_SOURCES
 	common/utility/m_argv.cpp
 	common/utility/files.cpp
 	common/utility/files_decompress.cpp
-	#common/utility/configfile.cpp
+	common/utility/zstring.cpp
+	common/utility/zstrformat.cpp
+	common/utility/utf8.cpp
+	common/utility/superfasthash.cpp
+#common/utility/configfile.cpp
 )
 
 if( MSVC )

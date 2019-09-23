@@ -35,12 +35,13 @@
 
 #include "files.h"
 #include "templates.h"	// just for 'clamp'
+#include "zstring.h"
 
 
 FILE *myfopen(const char *filename, const char *flags)
 {
 	// fix this later
-#if 1//ndef _WIN32
+#ifndef _WIN32
 	return fopen(filename, flags);
 #else
 	auto widename = WideString(filename);

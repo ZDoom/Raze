@@ -392,6 +392,7 @@ endif()
 
 set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/lzma/C" )
 set( ENET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/enet" ) 
+set( GDTOA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/gdtoa" ) 
 
 if( NOT CMAKE_CROSSCOMPILING )
 	if( NOT CROSS_EXPORTS )
