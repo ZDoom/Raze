@@ -198,11 +198,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
 
             c = oc;
 
-            if ((*c == '-')
-#ifdef _WIN32
-                || (*c == '/')
-#endif
-                )
+            if (*c == '-')
             {
                 shortopt = 0;
 

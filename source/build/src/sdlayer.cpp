@@ -370,35 +370,68 @@ void ChooseGame()
 
 	stTaskConfig.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION;
 
-	stTaskConfig.pszWindowTitle = L"Demolition";
-	stTaskConfig.pszMainInstruction = L"Choose your game";
-	stTaskConfig.pszContent = L"";
-	stTaskConfig.cButtons = 3;
-	TASKDIALOG_BUTTON buttons[] = {
-	   {1000,L"EDuke32"},
-	   {1001,L"RedNukem"},
-	   {1002,L"Blood"},
-	};
-	stTaskConfig.pButtons = buttons;
-	stTaskConfig.nDefaultButton = 1000;
-
-	if (SUCCEEDED(TaskDialogIndirect(&stTaskConfig, &nResult, NULL, NULL)))
+	if (!gi)
 	{
-		//API call succeeded, now , check return values
-		if (nResult == 1000)
+		// Gross hack to allow selecting the games without rewriting the entire front end.
+		// That's for later.
+		// This popup should go away anyway and be replaced by something nicer.
+		stTaskConfig.pszWindowTitle = L"Demolition";
+		stTaskConfig.pszMainInstruction = L"Choose your game";
+		stTaskConfig.pszContent = L"";
+		stTaskConfig.cButtons = 7;
+		TASKDIALOG_BUTTON buttons[] = {
+		   {1000,L"Duke Nukem 3D"},
+		   {1001,L"Nam"},
+		   {1002,L"WW2 GI"},
+		   {1003,L"Redneck Rampage"},
+		   {1004,L"Redneck Rides Again"},
+		   {1005,L"Blood"},
+		   {1006,L"Ion Fury"},
+		};
+		stTaskConfig.pButtons = buttons;
+		stTaskConfig.nDefaultButton = 1000;
+
+		if (SUCCEEDED(TaskDialogIndirect(&stTaskConfig, &nResult, NULL, NULL)))
 		{
-			gi = &Duke::Interface;
+			//API call succeeded, now , check return values
+			if (nResult == 1000)
+			{
+				chdir("c:/Doom/Play_Build/Duke Nukem 3D");
+				gi = &Duke::Interface;
+			}
+			else if (nResult == 1001)
+			{
+				chdir("c:/Doom/Play_Build/Nam");
+				gi = &Duke::Interface;
+			}
+			else if (nResult == 1002)
+			{
+				chdir("c:/Doom/Play_Build/WW2GI");
+				gi = &Duke::Interface;
+			}
+			else if (nResult == 1003)
+			{
+				chdir("c:/Doom/Play_Build/Redneck Rampage");
+				gi = &Redneck::Interface;
+			}
+			else if (nResult == 1004)
+			{
+				chdir("c:/Doom/Play_Build/Redneck Rides Again");
+				gi = &Redneck::Interface;
+			}
+			else if (nResult == 1005)
+			{
+				chdir("c:/Doom/Play_Build/Blood");
+				gi = &Blood::Interface;
+			}
+			else if (nResult == 1006)
+			{
+				chdir("c:/Doom/Play_Build/Ion Fury");
+				gi = &Duke::Interface;
+			}
 		}
-		else if (nResult == 1001)
-		{
-			gi = &Redneck::Interface;
-		}
-		else if (nResult == 1002)
-		{
-			gi = &Blood::Interface;
-		}
+		if (gi == nullptr) exit(1);
 	}
-	if (gi == nullptr) exit(1);
 }
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
@@ -407,13 +440,57 @@ int main(int argc, char *argv[])
 #endif
 {
 
+#ifdef _WIN32
+	char* argvbuf;
+	int32_t buildargc = win_buildargs(&argvbuf);
+	const char** buildargv = (const char**)Xmalloc(sizeof(char*) * (buildargc + 1));
+	char* wp = argvbuf;
+
+	for (bssize_t i = 0; i < buildargc; i++, wp++)
+	{
+		buildargv[i] = wp;
+		while (*wp) wp++;
+	}
+	buildargv[buildargc] = NULL;
+#else
+	auto buildargc = argc;
+	auto buildargv = argv;
+#endif
+
+	for (int i = 0; i < buildargc - 1; i++)
+	{
+		if (!strcmp(buildargv[i], "-maindir"))
+		{
+			const char* dir = buildargv[i + 1];
+			if (!chdir(dir))
+			{
+				FILE* f = fopen("blood.rff", "rb");
+				if (f)
+				{
+					gi = &Blood::Interface;
+					fclose(f);
+				}
+				else
+				{
+					f = fopen("redneck.grp", "rb");
+					if (f)
+					{
+						gi = &Redneck::Interface;
+						fclose(f);
+					}
+					else
+						gi = &Duke::Interface;
+				}
+			}
+		}
+	}
+	// Hack to be able to choose from the available game frontends until the startup dialogue can be moved out of the frontend code.
+	if (!gi) ChooseGame();
+
 #if defined _WIN32 && defined SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING
     // Thread naming interferes with debugging using MinGW-w64's GDB.
     SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
 #endif
-
-	// Hack to be able to choose from the available game frontends until the startup dialogue can be moved out of the frontend code.
-	ChooseGame();
 
     int32_t r;
 
@@ -458,22 +535,13 @@ int main(int argc, char *argv[])
     gtkbuild_init(&argc, &argv);
 #endif
 
+
+
     startwin_open();
 
 	maybe_redirect_outputs();
 
 #ifdef _WIN32
-    char *argvbuf;
-    int32_t buildargc = win_buildargs(&argvbuf);
-    const char **buildargv = (const char **) Xmalloc(sizeof(char *)*(buildargc+1));
-    char *wp = argvbuf;
-
-    for (bssize_t i=0; i<buildargc; i++, wp++)
-    {
-        buildargv[i] = wp;
-        while (*wp) wp++;
-    }
-    buildargv[buildargc] = NULL;
 
 #ifdef USE_PHYSFS
     PHYSFS_init(buildargv[0]);

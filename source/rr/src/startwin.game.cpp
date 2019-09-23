@@ -97,6 +97,10 @@ static inline void getfilenames(char const *path)
 #define INPUT_JOYSTICK 2
 #define INPUT_ALL 3
 
+// Thanks, Microsoft for not providing alternatives for the dialog control macros. :(
+#undef SNDMSG
+#define SNDMSG ::SendMessageA
+
 const char *controlstrings[] = { "Keyboard only", "Keyboard and mouse", "Keyboard and joystick", "All supported devices" };
 
 static void PopulateForm(int32_t pgs)
@@ -156,7 +160,7 @@ static void PopulateForm(int32_t pgs)
         }
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), ((settings.shared.fullscreen) ? BST_CHECKED : BST_UNCHECKED));
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), ((settings.polymer) ? BST_CHECKED : BST_UNCHECKED));
+        //Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), ((settings.polymer) ? BST_CHECKED : BST_UNCHECKED));
 
         (void)ComboBox_ResetContent(hwnd);
 
@@ -235,11 +239,11 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             settings.shared.fullscreen = !settings.shared.fullscreen;
             PopulateForm(POPULATE_VIDEO);
             return TRUE;
-        case IDCPOLYMER:
-            settings.polymer = !settings.polymer;
-            if (settings.shared.bpp == 8) settings.shared.bpp = 32;
-            PopulateForm(POPULATE_VIDEO);
-            return TRUE;
+        //case IDCPOLYMER:
+        //    settings.polymer = !settings.polymer;
+        //    if (settings.shared.bpp == 8) settings.shared.bpp = 32;
+        //    PopulateForm(POPULATE_VIDEO);
+        //    return TRUE;
         case IDCVMODE:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
@@ -353,7 +357,7 @@ static void EnableConfig(bool n)
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUT), n);
-    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), n);
+    //EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCVMODE), n);
 }
 
@@ -453,10 +457,10 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             TCITEMA tab = {};
             tab.mask = TCIF_TEXT;
             tab.pszText = textSetup;
-            SendMessageA(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
+            SendMessageA(hwnd, TCM_INSERTITEMA, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
             tab.pszText = textMessageLog;
-            SendMessageA(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
+            SendMessageA(hwnd, TCM_INSERTITEMA, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
 
             // Work out the position and size of the area inside the tab control for the pages
             ZeroMemory(&r, sizeof(r));
