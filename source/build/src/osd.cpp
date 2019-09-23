@@ -2206,7 +2206,7 @@ void OSD_WriteCvars(buildvfs_FILE fp)
     {
         osdcvardata_t const &pData = *osd->cvars[i].pData;
 
-        if (!(pData.flags & CVAR_NOSAVE) && OSD_CvarModified(&osd->cvars[i]))
+        if (!(pData.flags & CVAR_NOSAVE))
         {
             switch (pData.flags & CVAR_TYPEMASK)
             {
