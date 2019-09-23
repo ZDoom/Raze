@@ -17,6 +17,7 @@
 #include "sdl_inc.h"
 #include "softsurface.h"
 #include "m_argv.h"
+#include "../../glbackend/glbackend.h"
 
 #ifdef USE_OPENGL
 # include "glad/glad.h"
@@ -569,11 +570,13 @@ int32_t videoSetVsync(int32_t newSync)
     else
 #endif
     {
+		/*
         vsync_renderlayer = newSync;
 
         videoResetMode();
         if (videoSetGameMode(fullscreen, xres, yres, bpp, upscalefactor))
             OSD_Printf("restartvid: Reset failed...\n");
+		*/
     }
 
     return newSync;
@@ -1395,6 +1398,11 @@ void sdlayer_setvideomode_opengl(void)
         glinfo.dumped = 1;
         bpp = oldbpp;
     }
+
+	GLInterface.Deinit();
+	GLInterface.Init();
+	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
+
 }
 #endif  // defined USE_OPENGL
 
@@ -1508,10 +1516,15 @@ void setrefreshrate(void)
     refreshfreq = error ? -1 : newmode.refresh_rate;
 }
 
+int called = 0;
 int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     int32_t regrab = 0, ret;
 
+	if (called++)
+	{
+		assert(0);
+	}
     ret = setvideomode_sdlcommon(&x, &y, c, fs, &regrab);
     if (ret != 1)
     {

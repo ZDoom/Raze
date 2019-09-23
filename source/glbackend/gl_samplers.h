@@ -25,6 +25,7 @@ class FSamplerManager
 	unsigned int mSamplers[NumSamplers];
 
 	void UnbindAll();
+	void CreateSamplers();
 
 public:
 

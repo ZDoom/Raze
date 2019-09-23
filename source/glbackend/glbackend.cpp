@@ -2,6 +2,7 @@
 #include "glad/glad.h"
 #include "gl_samplers.h"
 
+
 GLInstance GLInterface;
 
 void GLInstance::Init()
@@ -16,6 +17,7 @@ void GLInstance::Init()
 void GLInstance::Deinit()
 {
 	if (mSamplers) delete mSamplers;
+	mSamplers = nullptr;
 }
 	
 std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)

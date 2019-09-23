@@ -75,7 +75,7 @@ FSamplerManager::~FSamplerManager()
 
 void FSamplerManager::UnbindAll()
 {
-	for (int i = 0; i < 8 /* fixme */; i++)
+	for (int i = 0; i < 16 /* fixme */; i++)
 	{
 		glBindSampler(i, 0);
 	}

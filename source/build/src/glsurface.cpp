@@ -67,7 +67,6 @@ bool glsurface_initialize(vec2_t bufferResolution)
 	bufferTexture = GLInterface.NewTexture();
 	bufferTexture->CreateTexture(bufferRes.x, bufferRes.y, true, false);
 
-	GLInterface.Init();
     glsurface_setPalette(curpalettefaded);
 
     const char* const VERTEX_SHADER_CODE =

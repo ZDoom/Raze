@@ -794,8 +794,6 @@ void polymost_glinit()
     //glEnable(GL_LINE_SMOOTH);
 
 	globalflags |= GLOBAL_NO_GL_TILESHADES; // This re-enables the old fading logic without re-adding the r_usetileshades variable. The entire thing will have to be done on a more abstract level anyway.
-	GLInterface.Init();
-	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
 
 
 #ifdef USE_GLEXT
