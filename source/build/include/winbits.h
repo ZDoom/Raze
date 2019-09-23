@@ -14,11 +14,9 @@ extern int64_t win_timerfreq;
 
 extern char silentvideomodeswitch;
 
-extern void win_open(void);
 extern void win_init(void);
 extern void win_setvideomode(int32_t c);
 extern void win_uninit(void);
-extern void win_close(void);
 
 extern int32_t addsearchpath_ProgramFiles(const char *p);
 

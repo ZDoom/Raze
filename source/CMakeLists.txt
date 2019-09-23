@@ -962,6 +962,7 @@ set (PCH_SOURCES
 	blood/src/warp.cpp
 	blood/src/weapon.cpp
 
+	common/utility/m_argv.cpp
 )
 
 if( MSVC )
@@ -1015,6 +1016,7 @@ include_directories(
 	libxmp-lite/include/libxmp-lite
 	libsmackerdec/include
 	thirdparty/include
+	common/utility
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 	${CMAKE_BINARY_DIR}/libraries/enet
@@ -1113,6 +1115,7 @@ install(TARGETS demolition
 		DESTINATION ${INSTALL_PATH}
 		COMPONENT "Game executable")
 
+source_group("Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
 source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
 source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")

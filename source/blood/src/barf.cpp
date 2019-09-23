@@ -943,7 +943,6 @@ void sub_11DF0(char *filePath, char flags, int ID)
     char zDirectory[BMAX_PATH];
     char zFilename[BMAX_PATH];
     char zType[BMAX_PATH];
-    buildvfs_fd handle;
 
     SplitPath(filePath, zDirectory, zFilename, zType);
 

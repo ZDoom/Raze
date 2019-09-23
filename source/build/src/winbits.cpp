@@ -16,8 +16,6 @@ char silentvideomodeswitch = 0;
 
 static char taskswitching = 1;
 
-static HANDLE instanceflag = NULL;
-
 static OSVERSIONINFOEXA osv;
 
 static int32_t togglecomp = 0;
@@ -113,14 +111,6 @@ static void ToggleDesktopComposition(BOOL compEnable)
 
 typedef void (*dllSetString)(const char*);
 
-//
-// win_open(), win_init(), win_setvideomode(), win_uninit(), win_close() -- shared code
-//
-void win_open(void)
-{
-    instanceflag = CreateSemaphoreA(NULL, 1,1, WindowClass);
-}
-
 void win_init(void)
 {
     uint32_t i;
@@ -144,11 +134,6 @@ void win_setvideomode(int32_t c)
 
 void win_uninit(void)
 {
-}
-
-void win_close(void)
-{
-    if (instanceflag) CloseHandle(instanceflag);
 }
 
 

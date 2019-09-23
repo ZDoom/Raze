@@ -258,9 +258,6 @@ void wm_setapptitle(const char *name);
 // baselayer.c
 int32_t baselayer_init();
 
-void makeasmwriteable(void);
-void maybe_redirect_outputs(void);
-
 #include "print.h"
 
 struct GameInterface

@@ -8162,7 +8162,6 @@ int32_t enginePreInit(void)
     baselayer_init();
     initdivtables();
     if (initsystem()) Bexit(9);
-    makeasmwriteable();
 
 #if !defined DEBUG_MAIN_ARRAYS
     sector = sector_s;
@@ -10504,9 +10503,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     g_lastpalettesum = 0;
     if (videoSetMode(daupscaledxdim,daupscaledydim,dabpp,davidoption) < 0) return -1;
-
-    // Workaround possible bugs in the GL driver
-    makeasmwriteable();
 
 #ifdef USE_OPENGL
     if (dabpp > 8) rendmode = glrendmode;    // GL renderer

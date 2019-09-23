@@ -16,6 +16,7 @@
 #include "renderlayer.h"
 #include "sdl_inc.h"
 #include "softsurface.h"
+#include "m_argv.h"
 
 #ifdef USE_OPENGL
 # include "glad/glad.h"
@@ -42,6 +43,7 @@ static SDL_version linked;
 #endif
 
 GameInterface* gi;
+FArgs* Args;
 
 #if !defined STARTUP_SETUP_WINDOW
 int32_t startwin_open(void) { return 0; }
@@ -434,7 +436,7 @@ void ChooseGame()
 	}
 }
 
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE , HINSTANCE , LPSTR , int )
 #else
 int main(int argc, char *argv[])
 #endif
@@ -457,31 +459,27 @@ int main(int argc, char *argv[])
 	auto buildargv = argv;
 #endif
 
-	for (int i = 0; i < buildargc - 1; i++)
+	Args = new FArgs(buildargc, buildargv);
+
+	auto dir = Args->CheckValue("-maindir");
+	if (dir && !chdir(dir))
 	{
-		if (!strcmp(buildargv[i], "-maindir"))
+		FILE* f = fopen("blood.rff", "rb");
+		if (f)
 		{
-			const char* dir = buildargv[i + 1];
-			if (!chdir(dir))
+			gi = &Blood::Interface;
+			fclose(f);
+		}
+		else
+		{
+			f = fopen("redneck.grp", "rb");
+			if (f)
 			{
-				FILE* f = fopen("blood.rff", "rb");
-				if (f)
-				{
-					gi = &Blood::Interface;
-					fclose(f);
-				}
-				else
-				{
-					f = fopen("redneck.grp", "rb");
-					if (f)
-					{
-						gi = &Redneck::Interface;
-						fclose(f);
-					}
-					else
-						gi = &Duke::Interface;
-				}
+				gi = &Redneck::Interface;
+				fclose(f);
 			}
+			else
+				gi = &Duke::Interface;
 		}
 	}
 	// Hack to be able to choose from the available game frontends until the startup dialogue can be moved out of the frontend code.
@@ -507,24 +505,15 @@ int main(int argc, char *argv[])
 
     buildkeytranslationtable();
 
-#ifndef __ANDROID__
+#ifndef _WIN32	// catching signals is not really helpful on Windows.
     signal(SIGSEGV, sighandler);
     signal(SIGILL, sighandler);  /* clang -fcatch-undefined-behavior uses an ill. insn */
     signal(SIGABRT, sighandler);
     signal(SIGFPE, sighandler);
-#else
-    SDL_SetEventFilter(sdlayer_mobilefilter, NULL);
 #endif
 
-#ifdef _WIN32
-    UNREFERENCED_PARAMETER(hInst);
-    UNREFERENCED_PARAMETER(hPrevInst);
-    UNREFERENCED_PARAMETER(lpCmdLine);
-    UNREFERENCED_PARAMETER(nCmdShow);
 
-    win_open();
-
-#elif defined(HAVE_GTK2)
+#if defined(HAVE_GTK2)
     // Pre-initialize SDL video system in order to make sure XInitThreads() is called
     // before GTK starts talking to X11.
     uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
@@ -535,33 +524,13 @@ int main(int argc, char *argv[])
     gtkbuild_init(&argc, &argv);
 #endif
 
-
-
     startwin_open();
 
-	maybe_redirect_outputs();
-
-#ifdef _WIN32
-
-#ifdef USE_PHYSFS
-    PHYSFS_init(buildargv[0]);
-    PHYSFS_setWriteDir(PHYSFS_getBaseDir());
-#endif
     r = gi->app_main(buildargc, (const char **)buildargv);
-#else
-#ifdef USE_PHYSFS
-    int pfsi = PHYSFS_init(argv[0]);
-    assert(pfsi != 0);
-    PHYSFS_setWriteDir(PHYSFS_getUserDir());
-#endif
-    r = app_main(argc, (char const * const *)argv);
-#endif
 
     startwin_close();
 
-#ifdef _WIN32
-    win_close();
-#elif defined(HAVE_GTK2)
+#if defined(HAVE_GTK2)
     gtkbuild_exit(r);
 #endif
 
