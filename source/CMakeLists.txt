@@ -969,7 +969,7 @@ set (PCH_SOURCES
 	common/utility/zstrformat.cpp
 	common/utility/utf8.cpp
 	common/utility/superfasthash.cpp
-#common/utility/configfile.cpp
+	common/utility/configfile.cpp
 )
 
 if( MSVC )
