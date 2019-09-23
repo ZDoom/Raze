@@ -506,9 +506,9 @@ endif()
 
 # Ugh... These precompiled dependencies need to go.
 if (WIN32)
-	include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
+	include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${ENET_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
 else ()
-include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" )
+include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${ENET_INCLUDE_DIR}")
 endif()
 
 
@@ -667,7 +667,6 @@ file( GLOB HEADER_FILES
 	audiolib/src/*.h
 	blood/src/*.h
 	build/include/*.h
-	enet/include/enet/*.h
 	glad/include/glad/*.h
 	glad/include/Khr/*.h
 	glbackend/*.h
@@ -701,16 +700,6 @@ set( NOT_COMPILED_SOURCE_FILES
 
 # Enable fast math for some sources where performance matters (or where the PCH must not be used.) (This would be good for rendering code, but unfortunately that is hopelessly intermingled with the playsim code in engine.cpp.)
 set( FASTMATH_SOURCES
-	# This should better be made a library subproject later, once things are working.
-	enet/src/callbacks.c
-	enet/src/compress.c
-	enet/src/host.c
-	enet/src/list.c
-	enet/src/packet.c
-	enet/src/peer.c
-	enet/src/protocol.c
-	enet/src/unix.c		# This and the next one are platform safe!
-	enet/src/win32.c
 
 	# This should better be made a library subproject later, once things are working.
 	libsmackerdec/src/BitReader.cpp
@@ -1015,13 +1004,12 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa dumb lzma )
+target_link_libraries( demolition ${DEMOLITION_LIBS} enet gdtoa dumb lzma )
 
 include_directories(
     build/include
 	mact/include
 	audiolib/include
-	enet/include
 	glad/include
 	libxmp-lite/include
 	libxmp-lite/include/libxmp-lite
@@ -1029,6 +1017,8 @@ include_directories(
 	thirdparty/include
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
+	${CMAKE_BINARY_DIR}/libraries/enet
+
 	#${SYSTEM_SOURCES_DIR} 
 )
 
@@ -1126,9 +1116,6 @@ install(TARGETS demolition
 source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
 source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
 source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")
-source_group("Utility\\ENet" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/enet/.+")
-source_group("Utility\\ENet Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/enet/include/enet/.+")
-source_group("Utility\\ENet Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/enet/src/.+")
 source_group("Utility\\Glad" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/.+")
 source_group("Utility\\Glad Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/glad/.+")
 source_group("Utility\\Glad Khr Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/Khr/.+")

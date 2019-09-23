@@ -391,6 +391,7 @@ else()
 endif()
 
 set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/lzma/C" )
+set( ENET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/enet" ) 
 
 if( NOT CMAKE_CROSSCOMPILING )
 	if( NOT CROSS_EXPORTS )
@@ -412,6 +413,7 @@ add_subdirectory( libraries/lzma )
 add_subdirectory( tools )
 add_subdirectory( libraries/dumb )
 add_subdirectory( libraries/gdtoa )
+add_subdirectory( libraries/enet )
 #add_subdirectory( wadsrc )
 add_subdirectory( source )
 
