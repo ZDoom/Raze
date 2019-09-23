@@ -46,6 +46,7 @@ public:
 	FArgs();
 	FArgs(const FArgs &args);
 	FArgs(int argc, char **argv);
+	FArgs(int argc, const char** argv);
 	FArgs(int argc, const std::string *argv);
 
 	FArgs &operator=(const FArgs &other);

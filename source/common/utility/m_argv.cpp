@@ -69,6 +69,17 @@ FArgs::FArgs(int argc, char **argv)
 
 //===========================================================================
 //
+// FArgs Argv Constructor
+//
+//===========================================================================
+
+FArgs::FArgs(int argc, const char** argv)
+{
+	SetArgs(argc, const_cast<char **>(argv));	// Thanks, C++, for the inflexible const casting rules...
+}
+
+//===========================================================================
+//
 // FArgs String Argv Constructor
 //
 //===========================================================================

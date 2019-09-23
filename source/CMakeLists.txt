@@ -963,6 +963,9 @@ set (PCH_SOURCES
 	blood/src/weapon.cpp
 
 	common/utility/m_argv.cpp
+	common/utility/files.cpp
+	common/utility/files_decompress.cpp
+	#common/utility/configfile.cpp
 )
 
 if( MSVC )
