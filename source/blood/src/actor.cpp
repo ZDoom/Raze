@@ -7820,7 +7820,7 @@ void debrisMove(int listIndex) {
             switch (warp) {
             case kMarkerUpWater:
             case kMarkerUpGoo:
-                long pitch = (150000 - (gSpriteMass[pSprite->extra].mass << 9)) + Random3(8192);
+                int pitch = (150000 - (gSpriteMass[pSprite->extra].mass << 9)) + Random3(8192);
                 sfxPlay3DSoundCP(pSprite, 720, -1, 0, pitch, 75 - Random(40));
                 
                 if (sector[pSprite->sectnum].extra < 0 || !xsector[sector[pSprite->sectnum].extra].Underwater)

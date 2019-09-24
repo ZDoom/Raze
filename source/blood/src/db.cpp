@@ -1622,7 +1622,7 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
             }
         }
     }
-    unsigned long nCRC = Bcrc32(pData, nSize-4, 0);
+    unsigned int nCRC = Bcrc32(pData, nSize-4, 0);
     IOBuffer1.Write(&nCRC, 4);
     int nHandle = Bopen(sMapExt, BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY, BS_IREAD|BS_IWRITE);
     if (nHandle == -1)
