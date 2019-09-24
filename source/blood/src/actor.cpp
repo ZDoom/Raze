@@ -7125,8 +7125,9 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                         actBurnSprite(actSpriteIdToOwnerId(nShooter), &xsprite[nXSprite], pVectorData->at11);
                     }
 
-                    if (pSprite->index >= kThingBase && pSprite->index < kThingMax)
-                        actPostSprite(pSprite->index, 4); // if it was a thing, return it's statnum back
+                    if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
+                        changespritestat(pSprite->index, 4);
+                        //actPostSprite(pSprite->index, 4); // if it was a thing, return it's statnum back
                 }
             }
 
@@ -7739,10 +7740,13 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) {
                 yvel[pSprite->xvel] += mulscale16(t, dy);
                 zvel[pSprite->xvel] += mulscale16(t, dz);
             }
+
+
+            if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
+                //actPostSprite(pSprite->index, 4); // !!! (does not working here) if it was a thing, return it's statnum back
+                changespritestat(pSprite->index, 4);
         }
 
-        if (pSprite->index >= kThingBase && pSprite->index < kThingMax)
-            actPostSprite(pSprite->index, 4); // if it was a thing, return it's statnum back
 
         actDamageSprite(nOwner, pSprite, DAMAGE_TYPE_3, dmg);
         return;

@@ -137,6 +137,7 @@ void QuitGame(void);
 #define kPhysFalling 0x0004 // currently in z-motion
 // additional physics attributes for debris sprites
 #define kPhysDebrisFly 0x0008 // *debris* affected by negative gravity (fly instead of falling, DO NOT mess with kHitagAutoAim)
+#define kPhysDebrisSwim 0x0016 // *debris* can swim underwater (instead of drowning)
 #define kPhysDebrisVector 0x0400 // *debris* can be affected by vector weapons
 #define kPhysDebrisExplode 0x0800 // *debris* can be affected by explosions
 
