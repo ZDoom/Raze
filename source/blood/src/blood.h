@@ -71,6 +71,7 @@ extern bool gSavingGame;
 extern bool gQuitGame;
 extern int gQuitRequest;
 extern int gCacheMiss;
+extern int gDoQuickSave;
 
 void QuitGame(void);
 void PreloadCache(void);

@@ -690,6 +690,37 @@ static int osdcmd_unbind(osdcmdptr_t parm)
     return OSDCMD_SHOWHELP;
 }
 
+static int osdcmd_unbound(osdcmdptr_t parm)
+{
+    if (parm->numparms != 1)
+        return OSDCMD_OK;
+
+    int const gameFunc = CONFIG_FunctionNameToNum(parm->parms[0]);
+
+    if (gameFunc != -1)
+        KeyboardKeys[gameFunc][0] = 0;
+
+    return OSDCMD_OK;
+}
+
+static int osdcmd_quicksave(osdcmdptr_t UNUSED(parm))
+{
+    UNREFERENCED_CONST_PARAMETER(parm);
+    if (!gGameStarted || gDemo.at1 || gGameMenuMgr.m_bActive)
+        OSD_Printf("quicksave: not in a game.\n");
+    else gDoQuickSave = 1;
+    return OSDCMD_OK;
+}
+
+static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
+{
+    UNREFERENCED_CONST_PARAMETER(parm);
+    if (!gGameStarted || gDemo.at1 || gGameMenuMgr.m_bActive)
+        OSD_Printf("quickload: not in a game.\n");
+    else gDoQuickSave = 2;
+    return OSDCMD_OK;
+}
+
 static int osdcmd_screenshot(osdcmdptr_t parm)
 {
     static const char *fn = "blud0000.png";
@@ -1109,8 +1140,8 @@ int32_t registerosdcommands(void)
 //
 //    OSD_RegisterFunction("purgesaves", "purgesaves: deletes obsolete and unreadable save files", osdcmd_purgesaves);
 //
-//    OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
-//    OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
+    OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
+    OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
     OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
 //
@@ -1131,6 +1162,7 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("unbind","unbind <key>: unbinds a key", osdcmd_unbind);
     OSD_RegisterFunction("unbindall","unbindall: unbinds all keys", osdcmd_unbindall);
+    OSD_RegisterFunction("unbound", NULL, osdcmd_unbound);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
 #ifdef USE_OPENGL
