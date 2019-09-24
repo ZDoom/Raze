@@ -552,11 +552,11 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
         break;
     case 118: // diving suit
         pPlayer->ata1[4]--;
-        if (pPlayer == gMe)
+        if (pPlayer == gMe && VanillaMode() ? true : pPlayer->at202[24] == 0)
             sfxSetReverb(0);
         break;
     case 124: // reflective shots
-        if (pPlayer == gMe)
+        if (pPlayer == gMe && VanillaMode() ? true : pPlayer->packInfo[1].at0 == 0)
             sfxSetReverb(0);
         break;
     case 119:
