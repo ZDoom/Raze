@@ -8834,6 +8834,112 @@ static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, c
 int32_t g_maskDrawMode = 0;
 #endif
 
+static void sortsprites(int const start, int const end)
+{
+    int32_t i, gap, y, ys;
+
+    if (start >= end)
+        return;
+
+    gap = 1; while (gap < end - start) gap = (gap<<1)+1;
+    for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
+        for (i=start; i<end-gap; i++)
+            for (bssize_t l=i; l>=start; l-=gap)
+            {
+                if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
+                swapptr(&tspriteptr[l],&tspriteptr[l+gap]);
+                swaplong(&spritesxyz[l].x,&spritesxyz[l+gap].x);
+                swaplong(&spritesxyz[l].y,&spritesxyz[l+gap].y);
+            }
+
+    ys = spritesxyz[start].y; i = start;
+    for (bssize_t j=start+1; j<=end; j++)
+    {
+        if (j < end)
+        {
+            y = spritesxyz[j].y;
+            if (y == ys)
+                continue;
+
+            ys = y;
+        }
+
+        if (j > i+1)
+        {
+            for (bssize_t k=i; k<j; k++)
+            {
+                auto const s = tspriteptr[k];
+
+                spritesxyz[k].z = s->z;
+                if ((s->cstat&48) != 32)
+                {
+                    int32_t yoff = picanm[s->picnum].yofs + s->yoffset;
+                    int32_t yspan = (tilesiz[s->picnum].y*s->yrepeat<<2);
+
+                    spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
+
+                    if (!(s->cstat&128))
+                        spritesxyz[k].z -= (yspan>>1);
+                    if (klabs(spritesxyz[k].z-globalposz) < (yspan>>1))
+                        spritesxyz[k].z = globalposz;
+                }
+            }
+
+#ifdef USE_OPENGL
+            if (videoGetRenderMode() == REND_POLYMOST)
+            {
+                for (bssize_t k=i+1; k<j; k++)
+                    for (bssize_t l=i; l<k; l++)
+                        if ((tspriteptr[k]->cstat & 48) < (tspriteptr[l]->cstat & 48)
+                         || ((tspriteptr[k]->cstat & 48) == 16 && (tspriteptr[l]->cstat & 48) == 16
+                             && tspriteptr[k]->ang < tspriteptr[l]->ang))
+                        {
+                            swapptr(&tspriteptr[k], &tspriteptr[l]);
+                            vec3_t tv3 = spritesxyz[k];
+                            spritesxyz[k] = spritesxyz[l];
+                            spritesxyz[l] = tv3;
+                        }
+            }
+#endif
+
+            for (bssize_t k=i+1; k<j; k++)
+                for (bssize_t l=i; l<k; l++)
+                    if (klabs(spritesxyz[k].z-globalposz) < klabs(spritesxyz[l].z-globalposz))
+                    {
+                        swapptr(&tspriteptr[k],&tspriteptr[l]);
+                        vec3_t tv3 = spritesxyz[k];
+                        spritesxyz[k] = spritesxyz[l];
+                        spritesxyz[l] = tv3;
+                    }
+
+            for (bssize_t k=i+1; k<j; k++)
+                for (bssize_t l=i; l<k; l++)
+                    if (tspriteptr[k]->x == tspriteptr[l]->x &&
+                        tspriteptr[k]->y == tspriteptr[l]->y &&
+                        tspriteptr[k]->z == tspriteptr[l]->z &&
+                        (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
+                        tspriteptr[k]->owner < tspriteptr[l]->owner)
+                    {
+                        swapptr(&tspriteptr[k], &tspriteptr[l]);
+                        vec3_t tv3 = spritesxyz[k];
+                        spritesxyz[k] = spritesxyz[l];
+                        spritesxyz[l] = tv3;
+                    }
+
+            for (bssize_t k=i+1; k<j; k++)
+                for (bssize_t l=i; l<k; l++)
+                    if (tspriteptr[k]->statnum < tspriteptr[l]->statnum)
+                    {
+                        swapptr(&tspriteptr[k], &tspriteptr[l]);
+                        vec3_t tv3 = spritesxyz[k];
+                        spritesxyz[k] = spritesxyz[l];
+                        spritesxyz[l] = tv3;
+                    }
+        }
+        i = j;
+    }
+}
+
 //
 // drawmasks
 //
@@ -8885,7 +8991,7 @@ void renderDrawMasks(void)
         }
     }
 
-    for (i=spritesortcnt-1; i>=0; --i)
+    for (i=numSprites-1; i>=0; --i)
     {
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
@@ -8910,16 +9016,29 @@ killsprite:
 #endif
             {
                 //Delete face sprite if on wrong side!
-                --numSprites;
-                --spritesortcnt;
-                if (i != numSprites)
+                if (i >= spritesortcnt)
                 {
-                    tspriteptr[i] = tspriteptr[spritesortcnt];
-                    spritesxyz[i].x = spritesxyz[spritesortcnt].x;
-                    spritesxyz[i].y = spritesxyz[spritesortcnt].y;
-                    tspriteptr[spritesortcnt] = tspriteptr[numSprites];
-                    spritesxyz[spritesortcnt].x = spritesxyz[numSprites].x;
-                    spritesxyz[spritesortcnt].y = spritesxyz[numSprites].y;
+                    --numSprites;
+                    if (i != numSprites)
+                    {
+                        tspriteptr[i] = tspriteptr[numSprites];
+                        spritesxyz[i].x = spritesxyz[numSprites].x;
+                        spritesxyz[i].y = spritesxyz[numSprites].y;
+                    }
+                }
+                else
+                {
+                    --numSprites;
+                    --spritesortcnt;
+                    if (i != numSprites)
+                    {
+                        tspriteptr[i] = tspriteptr[spritesortcnt];
+                        spritesxyz[i].x = spritesxyz[spritesortcnt].x;
+                        spritesxyz[i].y = spritesxyz[spritesortcnt].y;
+                        tspriteptr[spritesortcnt] = tspriteptr[numSprites];
+                        spritesxyz[spritesortcnt].x = spritesxyz[numSprites].x;
+                        spritesxyz[spritesortcnt].y = spritesxyz[numSprites].y;
+                    }
                 }
                 continue;
             }
@@ -8927,74 +9046,8 @@ killsprite:
         spritesxyz[i].y = yp;
     }
 
-    int32_t gap, y, ys;
-
-    gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
-    for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
-        for (i=0; i<spritesortcnt-gap; i++)
-            for (bssize_t l=i; l>=0; l-=gap)
-            {
-                if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
-                swapptr(&tspriteptr[l],&tspriteptr[l+gap]);
-                swaplong(&spritesxyz[l].x,&spritesxyz[l+gap].x);
-                swaplong(&spritesxyz[l].y,&spritesxyz[l+gap].y);
-            }
-
-    ys = spritesxyz[0].y; i = 0;
-    for (bssize_t j=1; j<=spritesortcnt; j++)
-    {
-        y = spritesxyz[j].y^(j == spritesortcnt);
-        if (y == ys)
-            continue;
-
-        ys = y;
-
-        if (j > i+1)
-        {
-            for (bssize_t k=i; k<j; k++)
-            {
-                auto const s = tspriteptr[k];
-
-                spritesxyz[k].z = s->z;
-                if ((s->cstat&48) != 32)
-                {
-                    int32_t yoff = picanm[s->picnum].yofs + s->yoffset;
-                    int32_t yspan = (tilesiz[s->picnum].y*s->yrepeat<<2);
-
-                    spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
-
-                    if (!(s->cstat&128))
-                        spritesxyz[k].z -= (yspan>>1);
-                    if (klabs(spritesxyz[k].z-globalposz) < (yspan>>1))
-                        spritesxyz[k].z = globalposz;
-                }
-            }
-
-            for (bssize_t k=i+1; k<j; k++)
-                for (bssize_t l=i; l<k; l++)
-                    if (klabs(spritesxyz[k].z-globalposz) < klabs(spritesxyz[l].z-globalposz))
-                    {
-                        swapptr(&tspriteptr[k],&tspriteptr[l]);
-                        vec3_t tv3 = spritesxyz[k];
-                        spritesxyz[k] = spritesxyz[l];
-                        spritesxyz[l] = tv3;
-                    }
-
-            for (bssize_t k=i+1; k<j; k++)
-                for (bssize_t l=i; l<k; l++)
-                    if (tspriteptr[k]->x == tspriteptr[l]->x &&
-                        tspriteptr[k]->y == tspriteptr[l]->y &&
-                        (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
-                        (bloodhack ? tspriteptr[k]->statnum < tspriteptr[l]->statnum : tspriteptr[k]->owner < tspriteptr[l]->owner))
-                    {
-                        swapptr(&tspriteptr[k], &tspriteptr[l]);
-                        vec3_t tv3 = spritesxyz[k];
-                        spritesxyz[k] = spritesxyz[l];
-                        spritesxyz[l] = tv3;
-                    }
-        }
-        i = j;
-    }
+    sortsprites(0, spritesortcnt);
+    sortsprites(spritesortcnt, numSprites);
 
     videoBeginDrawing(); //{{{
 
@@ -9005,14 +9058,52 @@ killsprite:
         glEnable(GL_ALPHA_TEST);
         polymost_setClamp(1+2);
 
-        for (i = spritesortcnt; i < numSprites; ++i)
+        if (spritesortcnt < numSprites)
         {
-            if (tspriteptr[i] != NULL)
+            int32_t py = spritesxyz[spritesortcnt].y;
+            int32_t pcstat = tspriteptr[spritesortcnt]->cstat & 48;
+            int32_t pangle = tspriteptr[spritesortcnt]->ang;
+            i = spritesortcnt;
+            for (bssize_t j = spritesortcnt + 1; j <= numSprites; j++)
             {
-                debugmask_add(i | 32768, tspriteptr[i]->owner);
-                renderDrawSprite(i);
+                if (j < numSprites)
+                {
+                    if (py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang))
+                        continue;
+                    py = spritesxyz[j].y;
+                    pcstat = (tspriteptr[j]->cstat & 48);
+                    pangle = tspriteptr[j]->ang;
+                }
+                if (j - i == 1)
+                {
+                    debugmask_add(i | 32768, tspriteptr[i]->owner);
+                    renderDrawSprite(i);
+                    tspriteptr[i] = NULL;
+                }
+                else
+                {
+                    glDepthMask(GL_FALSE);
 
-                tspriteptr[i] = NULL;
+                    for (bssize_t k = j-1; k >= i; k--)
+                    {
+                        debugmask_add(k | 32768, tspriteptr[k]->owner);
+                        renderDrawSprite(k);
+                    }
+
+                    glDepthMask(GL_TRUE);
+
+                    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                    
+                    for (bssize_t k = j-1; k >= i; k--)
+                    {
+                        renderDrawSprite(k);
+                        tspriteptr[k] = NULL;
+                    }
+
+                    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+                }
+                i = j;
             }
         }
 
