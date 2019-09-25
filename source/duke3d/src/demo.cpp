@@ -142,13 +142,6 @@ extern int32_t krd_print(const char *filename);
 
 void G_OpenDemoWrite(void)
 {
-#ifdef LUNATIC
-    // TODO: Currently, we can't diff gamevars in Lunatic...
-    Bstrcpy(apStrings[QUOTE_RESERVED4], "DEMOS UNSUPPORTED IN LUNATIC BUILD");
-    P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-    ud.recstat = ud.m_recstat = 0;
-    return;
-#else
     char demofn[BMAX_PATH];
     int32_t i, demonum=1;
 
@@ -165,26 +158,6 @@ void G_OpenDemoWrite(void)
         ud.recstat = ud.m_recstat = 0;
         return;
     }
-# if !defined LUNATIC
-    if (demorec_diffs_cvar && !demorec_force_cvar)
-        for (i=1; i<g_scriptSize-2; i++)
-        {
-            intptr_t w=apScript[i];
-            if (VM_DECODE_INST(w)==CON_RESIZEARRAY && VM_DECODE_LINE_NUMBER(w) && apScript[i+1]>=0 && apScript[i+1]<g_gameArrayCount)
-            {
-                OSD_Printf("\nThe CON code possibly contains a RESIZEARRAY command.\n");
-                OSD_Printf("Gamearrays that change their size during the game are unsupported by\n");
-                OSD_Printf("the demo recording system. If you are sure that the code doesn't\n");
-                OSD_Printf("contain a RESIZEARRAY command, you can force recording with the\n");
-                OSD_Printf("`demorec_force' cvar. Alternatively, you can disable diff recording\n");
-                OSD_Printf("with the `demorec_diffs' cvar.\n\n");
-                Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD.");
-                P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-                ud.recstat = ud.m_recstat = 0;
-                return;
-            }
-        }
-# endif
     do
     {
         if (demonum == MAXDEMOS)
@@ -237,7 +210,6 @@ error_wopen_demo:
     krd_enable(1);
 # endif
     g_demo_cnt = 1;
-#endif
 }
 
 // demo_profile: < 0: prepare
@@ -521,8 +493,10 @@ RECHECK:
 
     renderFlushPerms();
 
-    if (!g_netServer && ud.multimode < 2)
-        foundemo = G_OpenDemoRead(g_whichDemo);
+#ifdef PLAYDEMOLOOP	// Todo: Make a CVar.
+	if (!g_netServer && ud.multimode < 2)
+		foundemo = G_OpenDemoRead(g_whichDemo);
+#endif
 
     if (foundemo == 0)
     {
@@ -799,9 +773,6 @@ nextdemo_nomenu:
             if (foundemo == 0)
             {
                 G_DrawBackground();
-    #ifdef LUNATIC
-                El_DisplayErrors();
-    #endif
             }
             else
             {

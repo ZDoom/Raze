@@ -17,7 +17,6 @@
 #include "pragmas.h"
 #include "baselayer.h"
 #include "lz4.h"
-#include "klzw.h"
 
 #include "vfs.h"
 
@@ -1674,11 +1673,6 @@ static void dfwrite_func(intptr_t fp, const void *inbuf, int32_t length)
 }
 
 
-int32_t kdfread(void *buffer, int dasizeof, int count, buildvfs_kfd fil)
-{
-    return klzw_read_compressed(buffer, dasizeof, count, (intptr_t)fil, kdfread_func);
-}
-
 // LZ4_COMPRESSION_ACCELERATION_VALUE can be tuned for performance/space trade-off
 // (lower number = higher compression ratio, higher number = faster compression speed)
 #define LZ4_COMPRESSION_ACCELERATION_VALUE 5
@@ -1712,11 +1706,6 @@ int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil)
     return decompressedLength/dasizeof;
 }
 
-
-void dfwrite(const void *buffer, int dasizeof, int count, buildvfs_FILE fil)
-{
-    klzw_write_compressed(buffer, dasizeof, count, (intptr_t)fil, dfwrite_func);
-}
 
 void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil)
 {

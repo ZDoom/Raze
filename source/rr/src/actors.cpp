@@ -6085,12 +6085,6 @@ DETONATEB:
             }
         }
 
-        if (deleteAfterExecute && ud.recstat == 2 && g_demo_legacy)
-        {
-            A_DeleteSprite(spriteNum);
-            deleteAfterExecute = 0;
-        }
-
         if (G_HaveActor(sprite[spriteNum].picnum))
         {
             int32_t playerDist;
