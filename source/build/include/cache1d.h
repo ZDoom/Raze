@@ -148,9 +148,7 @@ void klistfree(CACHE1D_FIND_REC *rec);
 CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
 
 extern int32_t lz4CompressionLevel;
-int32_t     kdfread(void *buffer, int dasizeof, int count, buildvfs_kfd fil);
 int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil);
-void     dfwrite(const void *buffer, int dasizeof, int count, buildvfs_FILE fil);
 void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil);
 
 #endif // cache1d_h_

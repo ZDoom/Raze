@@ -3899,7 +3899,6 @@ void A_ResetLanePics(void)
 
 ACTOR_STATIC void G_MoveActors(void)
 {
-    extern char g_demo_legacy;
     int spriteNum;
 
     if (g_jailDoorCnt)

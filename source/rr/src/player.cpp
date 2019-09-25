@@ -6133,8 +6133,6 @@ static void P_HandlePal(DukePlayer_t *const pPlayer)
     pPlayer->pals.f--;
 }
 
-extern char g_demo_legacy;
-
 void P_ProcessInput(int playerNum)
 {
     if (g_player[playerNum].playerquitflag == 0)
@@ -6781,27 +6779,15 @@ void P_ProcessInput(int playerNum)
         }
     }
 
-    if (ud.recstat == 2 && g_demo_legacy)
+    if (pPlayer->q16horizoff > 0)
     {
-        int horizoff = fix16_to_int(pPlayer->q16horizoff);
-        if (horizoff > 0)
-            horizoff -= ((horizoff >> 3) + 1);
-        else if (horizoff < 0)
-            horizoff += (((-horizoff) >> 3) + 1);
-        pPlayer->q16horizoff = F16(horizoff);
+        pPlayer->q16horizoff -= ((pPlayer->q16horizoff >> 3) + fix16_one);
+        pPlayer->q16horizoff = max(pPlayer->q16horizoff, 0);
     }
-    else
+    else if (pPlayer->q16horizoff < 0)
     {
-        if (pPlayer->q16horizoff > 0)
-        {
-            pPlayer->q16horizoff -= ((pPlayer->q16horizoff >> 3) + fix16_one);
-            pPlayer->q16horizoff = max(pPlayer->q16horizoff, 0);
-        }
-        else if (pPlayer->q16horizoff < 0)
-        {
-            pPlayer->q16horizoff += (((-pPlayer->q16horizoff) >> 3) + fix16_one);
-            pPlayer->q16horizoff = min(pPlayer->q16horizoff, 0);
-        }
+        pPlayer->q16horizoff += (((-pPlayer->q16horizoff) >> 3) + fix16_one);
+        pPlayer->q16horizoff = min(pPlayer->q16horizoff, 0);
     }
 
     if (highZhit >= 0 && (highZhit&49152) == 49152)
@@ -7403,11 +7389,7 @@ check_enemy_sprite:
     {
         fix16_t const inputAng  = g_player[playerNum].inputBits->q16avel;
 
-        if (ud.recstat == 2 && g_demo_legacy)
-            pPlayer->q16angvel = (sectorLotag == ST_2_UNDERWATER) ? ((fix16_to_int(inputAng) - (fix16_to_int(inputAng) >> 3))*fix16_from_int(ksgn(velocityModifier)))
-                                                               : (fix16_to_int(inputAng) * fix16_from_int(ksgn(velocityModifier)));
-        else
-            pPlayer->q16angvel = (sectorLotag == ST_2_UNDERWATER) ? fix16_mul(inputAng - (inputAng >> 3), fix16_from_int(ksgn(velocityModifier)))
+        pPlayer->q16angvel = (sectorLotag == ST_2_UNDERWATER) ? fix16_mul(inputAng - (inputAng >> 3), fix16_from_int(ksgn(velocityModifier)))
                                                                : fix16_mul(inputAng, fix16_from_int(ksgn(velocityModifier)));
         pPlayer->q16ang       += pPlayer->q16angvel;
         pPlayer->q16ang       &= 0x7FFFFFF;
@@ -7983,10 +7965,7 @@ HORIZONLY:;
     else if (pPlayer->return_to_center > 0 && !TEST_SYNC_KEY(playerBits, SK_LOOK_UP) && !TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {
         pPlayer->return_to_center--;
-        if (ud.recstat == 2 && g_demo_legacy)
-            pPlayer->q16horiz += F16(33-fix16_to_int(pPlayer->q16horiz) / 3);
-        else
-            pPlayer->q16horiz += F16(33)-fix16_div(pPlayer->q16horiz, F16(3));
+        pPlayer->q16horiz += F16(33)-fix16_div(pPlayer->q16horiz, F16(3));
         centerHoriz++;
     }
 
@@ -7996,9 +7975,7 @@ HORIZONLY:;
         pPlayer->q16horiz -= fix16_from_int(pPlayer->hard_landing<<4);
     }
 
-    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + ((ud.recstat == 2 && g_demo_legacy && !pPlayer->aim_mode) ? 0 : g_player[playerNum].inputBits->q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
-
-    if (ud.recstat == 2 && g_demo_legacy) centerHoriz = !pPlayer->aim_mode;
+    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + g_player[playerNum].inputBits->q16horz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
     if (centerHoriz && (!RR || !pPlayer->recoil))
     {
