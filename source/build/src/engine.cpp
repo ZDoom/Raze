@@ -8834,6 +8834,34 @@ static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, c
 int32_t g_maskDrawMode = 0;
 #endif
 
+static inline int comparetsprites(int const k, int const l)
+{
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() == REND_POLYMOST)
+    {
+        if ((tspriteptr[k]->cstat & 48) != (tspriteptr[l]->cstat & 48))
+            return (tspriteptr[k]->cstat & 48) - (tspriteptr[l]->cstat & 48);
+
+        if ((tspriteptr[k]->cstat & 48) == 16 && tspriteptr[k]->ang != tspriteptr[l]->ang)
+            return tspriteptr[k]->ang - tspriteptr[l]->ang;
+    }
+#endif
+    if (tspriteptr[k]->statnum != tspriteptr[l]->statnum)
+        return tspriteptr[k]->statnum - tspriteptr[l]->statnum;
+
+    if (tspriteptr[k]->x == tspriteptr[l]->x &&
+        tspriteptr[k]->y == tspriteptr[l]->y &&
+        tspriteptr[k]->z == tspriteptr[l]->z &&
+        (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
+        tspriteptr[k]->owner != tspriteptr[l]->owner)
+        return tspriteptr[k]->owner - tspriteptr[l]->owner;
+
+    if (klabs(spritesxyz[k].z-globalposz) != klabs(spritesxyz[l].z-globalposz))
+        return klabs(spritesxyz[k].z-globalposz)-klabs(spritesxyz[l].z-globalposz);
+
+    return 0;
+}
+
 static void sortsprites(int const start, int const end)
 {
     int32_t i, gap, y, ys;
@@ -8885,52 +8913,11 @@ static void sortsprites(int const start, int const end)
                 }
             }
 
-#ifdef USE_OPENGL
-            if (videoGetRenderMode() == REND_POLYMOST)
-            {
-                for (bssize_t k=i+1; k<j; k++)
-                    for (bssize_t l=i; l<k; l++)
-                        if ((tspriteptr[k]->cstat & 48) < (tspriteptr[l]->cstat & 48)
-                         || ((tspriteptr[k]->cstat & 48) == 16 && (tspriteptr[l]->cstat & 48) == 16
-                             && tspriteptr[k]->ang < tspriteptr[l]->ang))
-                        {
-                            swapptr(&tspriteptr[k], &tspriteptr[l]);
-                            vec3_t tv3 = spritesxyz[k];
-                            spritesxyz[k] = spritesxyz[l];
-                            spritesxyz[l] = tv3;
-                        }
-            }
-#endif
-
             for (bssize_t k=i+1; k<j; k++)
                 for (bssize_t l=i; l<k; l++)
-                    if (klabs(spritesxyz[k].z-globalposz) < klabs(spritesxyz[l].z-globalposz))
+                    if (comparetsprites(k, l) < 0)
                     {
                         swapptr(&tspriteptr[k],&tspriteptr[l]);
-                        vec3_t tv3 = spritesxyz[k];
-                        spritesxyz[k] = spritesxyz[l];
-                        spritesxyz[l] = tv3;
-                    }
-
-            for (bssize_t k=i+1; k<j; k++)
-                for (bssize_t l=i; l<k; l++)
-                    if (tspriteptr[k]->x == tspriteptr[l]->x &&
-                        tspriteptr[k]->y == tspriteptr[l]->y &&
-                        tspriteptr[k]->z == tspriteptr[l]->z &&
-                        (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
-                        tspriteptr[k]->owner < tspriteptr[l]->owner)
-                    {
-                        swapptr(&tspriteptr[k], &tspriteptr[l]);
-                        vec3_t tv3 = spritesxyz[k];
-                        spritesxyz[k] = spritesxyz[l];
-                        spritesxyz[l] = tv3;
-                    }
-
-            for (bssize_t k=i+1; k<j; k++)
-                for (bssize_t l=i; l<k; l++)
-                    if (tspriteptr[k]->statnum < tspriteptr[l]->statnum)
-                    {
-                        swapptr(&tspriteptr[k], &tspriteptr[l]);
                         vec3_t tv3 = spritesxyz[k];
                         spritesxyz[k] = spritesxyz[l];
                         spritesxyz[l] = tv3;
