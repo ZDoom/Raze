@@ -296,59 +296,47 @@ int BelowNear(short nSprite)
 
 int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
 {
-    short nSector = sprite[nSprite].sectnum;
+    spritetype* pSprite = &sprite[nSprite];
+    short nSector = pSprite->sectnum;
     assert(nSector >= 0 && nSector < kMaxSectors);
 
     overridesect = nSector;
-    int edi = nSector;
+    short edi = nSector;
 
     // backup cstat
-    uint16_t cstat = sprite[nSprite].cstat;
+    uint16_t cstat = pSprite->cstat;
 
-    sprite[nSprite].cstat &= 0xFFFE;
+    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
 
     int nRet = 0;
 
-    if (SectFlag[nSector] & kSectUnderwater) {
+    short nSectFlags = SectFlag[nSector];
+
+    if (nSectFlags & kSectUnderwater) {
         z >>= 1;
     }
 
-    int spriteZ = sprite[nSprite].z;
+    int spriteZ = pSprite->z;
     int floorZ = sector[nSector].floorz;
 
     int ebp = spriteZ + z;
     int eax = sector[nSector].ceilingz + (height >> 1);
 
-    if ((SectFlag[nSector] & kSectUnderwater) && ebp < eax) {
+    if ((nSectFlags & kSectUnderwater) && ebp < eax) {
         ebp = eax;
     }
 
     // loc_151E7:
-    while (1)
+    while (ebp > sector[pSprite->sectnum].floorz && SectBelow[pSprite->sectnum] >= 0)
     {
-        if (ebp <= sector[sprite[nSprite].sectnum].floorz || SectBelow[sprite[nSprite].sectnum] < 0)
-            break;
-
-        edi = SectBelow[sprite[nSprite].sectnum];
+        edi = SectBelow[pSprite->sectnum];
 
         mychangespritesect(nSprite, edi);
     }
 
-    if (edi == nSector)
+    if (edi != nSector)
     {
-        while (1)
-        {
-            if ((ebp >= sector[sprite[nSprite].sectnum].ceilingz) || (SectAbove[sprite[nSprite].sectnum] < 0))
-                break;
-
-            edi = SectAbove[sprite[nSprite].sectnum];
-
-            mychangespritesect(nSprite, edi);
-        }
-    }
-    else
-    {
-        sprite[nSprite].z = ebp;
+        pSprite->z = ebp;
 
         if (SectFlag[edi] & kSectUnderwater)
         {
@@ -356,21 +344,30 @@ int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
                 D3PlayFX(StaticSound[kSound2], nSprite);
             }
 
-            if (sprite[nSprite].statnum <= 107) {
-                sprite[nSprite].hitag = 0;
+            if (pSprite->statnum <= 107) {
+                pSprite->hitag = 0;
             }
+        }
+    }
+    else
+    {
+        while ((ebp < sector[pSprite->sectnum].ceilingz) && (SectAbove[pSprite->sectnum] >= 0))
+        {
+            edi = SectAbove[pSprite->sectnum];
+
+            mychangespritesect(nSprite, edi);
         }
     }
 
     // This function will keep the player from falling off cliffs when you're too close to the edge.
     // This function finds the highest and lowest z coordinates that your clipping BOX can get to.
-    getzrange_old(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - 256, sprite[nSprite].sectnum, 
-        (int32_t*)&sprceiling, (int32_t*)&hihit, (int32_t*)&sprfloor, (int32_t*)&lohit, 128, CLIPMASK0);
+    getzrange_old(pSprite->x, pSprite->y, pSprite->z - 256, pSprite->sectnum,
+        &sprceiling, &hihit, &sprfloor, &lohit, 128, CLIPMASK0);
 
     int mySprfloor = sprfloor;
 
     if ((lohit & 0xC000) != 0xC000) {
-        mySprfloor += SectDepth[sprite[nSprite].sectnum];
+        mySprfloor += SectDepth[pSprite->sectnum];
     }
 
     if (ebp > mySprfloor)
@@ -379,64 +376,24 @@ int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
         {
             bTouchFloor = kTrue;
 
-            if ((lohit & 0xC000) != 0xC000)
-            {
-                // Path B
-                if (SectBelow[sprite[nSprite].sectnum] == -1)
-                {
-                    nRet |= 0x20000;
-
-                    short nSectDamage = SectDamage[sprite[nSprite].sectnum];
-
-                    if (nSectDamage != 0)
-                    {
-                        if (sprite[nSprite].hitag < 15)
-                        {
-                            IgniteSprite(nSprite);
-                            sprite[nSprite].hitag = 20;
-                        }
-#if 0
-                        short dx = nSectDamage;
-                        dx >>= 2;
-                        int eax = dx;
-                        int edx = eax;
-                        edx >>= 2;
-                        eax -= edx;
-
-                        int outval;
-
-                        __asm
-                        {
-                            mov		dx, nSectDamage
-                            sar     dx, 2
-                            movsx   eax, dx
-                            mov     edx, eax
-                            sar     edx, 2; // >> 4
-                            sub     eax, edx
-                            //mov     edx, eax
-                            movsx   edx, ax
-                            mov		outval, edx
-                        }
-#endif
-                        nSectDamage >>= 2;
-                        nSectDamage = nSectDamage - (nSectDamage>>2);
-                        if (nSectDamage) {
-                            runlist_DamageEnemy(nSprite, -1, nSectDamage);
-                        }
-                    }
-
-                    sprite[nSprite].zvel = 0;
-                }
-            }
-            else
+            if ((lohit & 0xC000) == 0xC000)
             {
                 // Path A
                 short nFloorSprite = lohit & 0x3FFF;
 
-                if (sprite[nSprite].statnum != 100 || !sprite[nFloorSprite].statnum || sprite[nFloorSprite].statnum >= 100)
+                if (pSprite->statnum == 100 && sprite[nFloorSprite].statnum != 0 || sprite[nFloorSprite].statnum < 100)
                 {
-                    short nStat = sprite[nFloorSprite].statnum;
-                    if (!nStat || nStat > 199)
+                    short nDamage = (z >> 9);
+                    if (nDamage)
+                    {
+                        runlist_DamageEnemy(nFloorSprite, nSprite, nDamage << 1);
+                    }
+
+                    pSprite->zvel = -z;
+                }
+                else
+                {
+                    if (sprite[nFloorSprite].statnum == 0 || sprite[nFloorSprite].statnum > 199)
                     {
                         nRet |= 0x20000;
                     }
@@ -445,27 +402,44 @@ int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
                         nRet |= lohit;
                     }
 
-                    sprite[nSprite].zvel = 0;
+                    pSprite->zvel = 0;
                 }
-                else
+            }
+            else
+            {
+                // Path B
+                if (SectBelow[pSprite->sectnum] == -1)
                 {
-                    if (z >> 9)
+                    nRet |= 0x20000;
+
+                    short nSectDamage = SectDamage[pSprite->sectnum];
+
+                    if (nSectDamage != 0)
                     {
-                        runlist_DamageEnemy((lohit & 0x3FFF), nSprite, (z >> 9) * 2);
+                        if (pSprite->hitag < 15)
+                        {
+                            IgniteSprite(nSprite);
+                            pSprite->hitag = 20;
+                        }
+                        nSectDamage >>= 2;
+                        nSectDamage = nSectDamage - (nSectDamage>>2);
+                        if (nSectDamage) {
+                            runlist_DamageEnemy(nSprite, -1, nSectDamage);
+                        }
                     }
 
-                    sprite[nSprite].zvel = -z;
+                    pSprite->zvel = 0;
                 }
             }
         }
 
         // loc_1543B:
         ebp = mySprfloor;
-        sprite[nSprite].z = mySprfloor;
+        pSprite->z = mySprfloor;
     }
     else
     {
-        if ((ebp - height) < sprceiling && ((hihit & 0xC000) == 0xC000 || SectAbove[sprite[nSprite].sectnum] == -1))
+        if ((ebp - height) < sprceiling && ((hihit & 0xC000) == 0xC000 || SectAbove[pSprite->sectnum] == -1))
         {
             ebp = sprceiling + height;
             nRet |= 0x10000;
@@ -481,12 +455,12 @@ int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
         }
     }
 
-    sprite[nSprite].cstat = cstat; // restore cstat
-    sprite[nSprite].z = ebp;
+    pSprite->cstat = cstat; // restore cstat
+    pSprite->z = ebp;
 
-    if (sprite[nSprite].statnum == 100)
+    if (pSprite->statnum == 100)
     {
-        BuildNear(sprite[nSprite].x, sprite[nSprite].y, clipdist + (clipdist / 2), sprite[nSprite].sectnum);
+        BuildNear(pSprite->x, pSprite->y, clipdist + (clipdist / 2), pSprite->sectnum);
         nRet |= BelowNear(nSprite);
     }
 
@@ -501,17 +475,18 @@ int GetSpriteHeight(int nSprite)
 // TODO - where is ceildist used?
 int movesprite(short nSprite, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
 {
+    spritetype *pSprite = &sprite[nSprite];
     bTouchFloor = kFalse;
 
-    int x = sprite[nSprite].x;
-    int y = sprite[nSprite].y;
-    int z = sprite[nSprite].z;
+    int x = pSprite->x;
+    int y = pSprite->y;
+    int z = pSprite->z;
     
     int nSpriteHeight = GetSpriteHeight(nSprite);
 
-    int nClipDist = sprite[nSprite].clipdist << 2;
+    int nClipDist = (int8_t)pSprite->clipdist << 2;
 
-    short nSector = sprite[nSprite].sectnum;
+    short nSector = pSprite->sectnum;
     assert(nSector >= 0 && nSector < kMaxSectors);
 
     int floorZ = sector[nSector].floorz;
@@ -524,20 +499,18 @@ int movesprite(short nSprite, int dx, int dy, int dz, int ceildist, int flordist
         dy >>= 1;
     }
 
-    short nSprite2 = nSprite;
-
     nRet |= movespritez(nSprite, dz, nSpriteHeight, flordist, nClipDist);
 
-    nSector = sprite[nSprite].sectnum; // modified in movespritez so re-grab this variable
+    nSector = pSprite->sectnum; // modified in movespritez so re-grab this variable
 
-    if (sprite[nSprite].statnum == 100)
+    if (pSprite->statnum == 100)
     {
-        short nPlayer = GetPlayerFromSprite(nSprite2);
+        short nPlayer = GetPlayerFromSprite(nSprite);
 
         int varA = 0;
         int varB = 0;
 
-        CheckSectorFloor(overridesect, sprite[nSprite].z, &varB, &varA);
+        CheckSectorFloor(overridesect, pSprite->z, &varB, &varA);
 
         if (varB || varA)
         {
@@ -550,15 +523,12 @@ int movesprite(short nSprite, int dx, int dy, int dz, int ceildist, int flordist
     }
     else
     {
-        CheckSectorFloor(overridesect, sprite[nSprite].z, &dx, &dy);
+        CheckSectorFloor(overridesect, pSprite->z, &dx, &dy);
     }
 
-    /* 
-        The game masks off the top 16 bits of the return value.
-    */
-    nRet |= clipmove_old(&sprite[nSprite].x, &sprite[nSprite].y, &sprite[nSprite].z, &nSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask) & 0xFFFF;
+    nRet |= (uint16_t)clipmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask);
 
-    if ((nSector != sprite[nSprite].sectnum) && nSector >= 0)
+    if ((nSector != pSprite->sectnum) && nSector >= 0)
     {
         if (nRet & 0x20000) {
             dz = 0;
@@ -566,16 +536,16 @@ int movesprite(short nSprite, int dx, int dy, int dz, int ceildist, int flordist
         
         if ((sector[nSector].floorz - z) < (dz + flordist))
         {
-            sprite[nSprite].x = x;
-            sprite[nSprite].y = y;
+            pSprite->x = x;
+            pSprite->y = y;
         }
         else
         {
             mychangespritesect(nSprite, nSector);
 
-            if (sprite[nSprite].pal < 5 && !sprite[nSprite].hitag)
+            if (pSprite->pal < 5 && !pSprite->hitag)
             {
-                sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
+                pSprite->pal = sector[pSprite->sectnum].ceilingpal;
             }
         }
     }
@@ -1237,7 +1207,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
 int GetWallNormal(short nWall)
 {
-    nWall &= 0x1FFF;
+    nWall &= kMaxWalls-1;
 
     int nWall2 = wall[nWall].point2;
 

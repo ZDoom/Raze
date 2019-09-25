@@ -6,6 +6,7 @@
 #include "build.h"
 #include "pragmas.h"
 #include "typedefs.h"
+#include "trigdat.h"
 
 #define kMaxTiles	6144
 #define kMaxSprites 4096
@@ -27,7 +28,12 @@ enum
 
 inline int Sin(int angle)
 {
-    return sintable[angle & 0x7FF];
+    return sintable[angle & kAngleMask];
+}
+
+inline int Cos(int angle)
+{
+    return sintable[(angle + 512) & kAngleMask];
 }
 
 int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
