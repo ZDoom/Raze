@@ -806,7 +806,6 @@ set (PCH_SOURCES
 	build/src/glsurface.cpp
 	build/src/hash.cpp
 	build/src/hightile.cpp
-	build/src/klzw.cpp
 	build/src/kplib.cpp
 	build/src/mdsprite.cpp
 	build/src/mhk.cpp
@@ -967,6 +966,8 @@ set (PCH_SOURCES
 	common/utility/utf8.cpp
 	common/utility/superfasthash.cpp
 	common/utility/configfile.cpp
+
+	common/console/c_cvars.cpp
 )
 
 if( MSVC )
@@ -1021,6 +1022,7 @@ include_directories(
 	libsmackerdec/include
 	thirdparty/include
 	common/utility
+	common/console
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
