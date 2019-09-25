@@ -1484,9 +1484,6 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 
 #include "hash.h"
 
-#ifdef POLYMER
-# include "polymer.h"
-#endif
 #ifdef USE_OPENGL
 # include "polymost.h"
 #endif

@@ -17,6 +17,7 @@
 #include "sdl_inc.h"
 #include "softsurface.h"
 #include "m_argv.h"
+#include "mmulti.h"
 #include "../../glbackend/glbackend.h"
 
 #ifdef USE_OPENGL
@@ -61,6 +62,10 @@ int32_t startwin_idle(void* s) { return gi->startwin_idle(s); }
 int32_t startwin_settitle(const char* s) { return gi->startwin_settitle(s); }
 int32_t startwin_run(void) { return gi->startwin_run(); }
 #endif
+
+int myconnectindex, numplayers;
+int connecthead, connectpoint2[MAXMULTIPLAYERS];
+unsigned char syncstate;
 
 /// These can be useful for debugging sometimes...
 //#define SDL_WM_GrabInput(x) SDL_WM_GrabInput(SDL_GRAB_OFF)

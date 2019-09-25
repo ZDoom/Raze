@@ -32,14 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fx_man.h"
 #include "keyboard.h"
 #include "pragmas.h"
-
-#ifdef POLYMER
-    #include "polymer.h"
-#else
-#ifdef USE_OPENGL
-    #include "polymost.h"
-#endif
-#endif
+#include "polymost.h"
 
 
 #define HEAD2                   APPNAME
@@ -54,18 +47,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     #define VOLUMEONE           (g_Shareware == 1)
 #endif
 
-// increase by 3, because atomic GRP adds 1, and Shareware adds 2
-#ifdef LUNATIC
-// Lunatic
 # define BYTEVERSION_EDUKE32      339
-#else
-// Non-Lua build
-# define BYTEVERSION_EDUKE32      339
-#endif
 
-//#define BYTEVERSION_13      27
-//#define BYTEVERSION_14      116
-//#define BYTEVERSION_15      117
 #define BYTEVERSION         (BYTEVERSION_EDUKE32+(PLUTOPAK?1:(VOLUMEONE<<1)))
 
 #define NUMPAGES            1

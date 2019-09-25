@@ -810,7 +810,6 @@ set (PCH_SOURCES
 	build/src/kplib.cpp
 	build/src/mdsprite.cpp
 	build/src/mhk.cpp
-	build/src/mmulti_null.cpp
 	build/src/mutex.cpp
 	build/src/osd.cpp
 	build/src/palette.cpp

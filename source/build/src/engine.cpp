@@ -29,16 +29,9 @@
 # include "glsurface.h"
 # include "hightile.h"
 # include "mdsprite.h"
-# ifdef POLYMER
-#  include "polymer.h"
-# endif
 # include "polymost.h"
 #endif
 
-#ifdef LUNATIC
-# include "lunatic.h"
-L_State g_engState;
-#endif
 
 #include "vfs.h"
 
