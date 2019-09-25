@@ -559,13 +559,13 @@ set( PLAT_SDL_SOURCES
 	)
 	
 set( PLAT_UNIX_SOURCES
-	build/src/dynamicgtk.cpp
-	build/src/gtkbits.cpp
+	platform/gtk/dynamicgtk.cpp
+	platform/gtk/gtkbits.cpp
 	)
 	
 set( PLAT_OSX_SOURCES
-	build/src/SDLMain.mm
-	build/src/osxbits.mm
+	platform/macos/SDLMain.mm
+	platform/macos/osxbits.mm
 	)
 	
 set( PLAT_COCOA_SOURCES
