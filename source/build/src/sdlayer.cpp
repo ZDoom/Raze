@@ -34,7 +34,7 @@
 # include <mach/mach.h>
 # include <mach/mach_time.h>
 #elif defined _WIN32
-# include "winbits.h"
+# include "win32/winbits.h"
 #endif
 
 #include "vfs.h"
@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
 
 #ifdef _WIN32
 	char* argvbuf;
-	int32_t buildargc = win_buildargs(&argvbuf);
+	int32_t buildargc =  win_buildargs(&argvbuf);
 	const char** buildargv = (const char**)Xmalloc(sizeof(char*) * (buildargc + 1));
 	char* wp = argvbuf;
 
@@ -690,10 +690,6 @@ void uninitsystem(void)
     }
 
     SDL_Quit();
-
-#ifdef _WIN32
-    win_uninit();
-#endif
 
 #ifdef USE_OPENGL
 # if SDL_MAJOR_VERSION!=1
@@ -2261,10 +2257,6 @@ int32_t handleevents_pollsdl(void)
                         appactive = (ev.window.event == SDL_WINDOWEVENT_FOCUS_GAINED);
                         if (g_mouseGrabbed && g_mouseEnabled)
                             grabmouse_low(appactive);
-#ifdef _WIN32
-                        if (backgroundidle)
-                            SetPriorityClass(GetCurrentProcess(), appactive ? NORMAL_PRIORITY_CLASS : IDLE_PRIORITY_CLASS);
-#endif
                         break;
 
                     case SDL_WINDOWEVENT_MOVED:

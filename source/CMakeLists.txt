@@ -539,7 +539,7 @@ endif()
 set( PLAT_WIN32_SOURCES
 	audiolib/src/driver_directsound.cpp
 	glad/src/glad_wgl.c
-	build/src/winbits.cpp
+	platform/win32/winbits.cpp
 	
 	duke3d/src/startwin.game.cpp	
 	rr/src/startwin.game.cpp	
@@ -689,7 +689,6 @@ file( GLOB HEADER_FILES
 # without being compiled.
 set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
-	build/src/mingw_main.cpp
 	build/src/sdlkeytrans.cpp
 	duke3d/src/gamestructures.cpp
 	rr/src/gamestructures.cpp
@@ -828,7 +827,6 @@ set (PCH_SOURCES
 	build/src/textfont.cpp
 	build/src/tiles.cpp
 	build/src/timer.cpp
-	build/src/vfs.cpp
 	build/src/voxmodel.cpp
 	
 	duke3d/src/actors.cpp
@@ -1024,6 +1022,7 @@ include_directories(
 	libsmackerdec/include
 	thirdparty/include
 	common/utility
+	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 	${CMAKE_BINARY_DIR}/libraries/enet

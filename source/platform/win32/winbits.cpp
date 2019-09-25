@@ -5,54 +5,26 @@
 #include "baselayer.h"
 #include "osd.h"
 #include "cache1d.h"
-
-
-
+#include "zstring.h"
 #include "winbits.h"
 
-int32_t backgroundidle = 1;
-
-char silentvideomodeswitch = 0;
-
-static char taskswitching = 1;
-
-static OSVERSIONINFOEXA osv;
-
-static int32_t togglecomp = 0;
-
-FARPROC pwinever;
-
 //
-// CheckWinVersion() -- check to see what version of Windows we happen to be running under
+// CheckWinVersion() -- check to see what version of Windows we happen to be running under (stripped down to what is actually still supported.)
 //
 
-static void win_printversion(void)
+void win_init(void)
 {
     const char *ver = "";
+	OSVERSIONINFOEXA osv;
 
+	osv.dwOSVersionInfoSize  = sizeof(osv);
+	GetVersionExA((LPOSVERSIONINFOA)&osv);
+	
     switch (osv.dwPlatformId)
     {
-        case VER_PLATFORM_WIN32_WINDOWS:
-            if (osv.dwMinorVersion < 10)
-                ver = "95";
-            else if (osv.dwMinorVersion < 90)
-                ver = "98";
-            else
-                ver = "ME";
-            break;
-
         case VER_PLATFORM_WIN32_NT:
             switch (osv.dwMajorVersion)
             {
-                case 5:
-                    switch (osv.dwMinorVersion)
-                    {
-                        case 0: ver = "2000"; break;
-                        case 1: ver = "XP"; break;
-                        case 2: ver = osv.wProductType == VER_NT_WORKSTATION ? "XP x64" : "Server 2003"; break;
-                    }
-                    break;
-
                 case 6:
                     switch (osv.dwMinorVersion)
                     {
@@ -73,101 +45,33 @@ static void win_printversion(void)
             break;
     }
 
-    char *str = (char *)Xcalloc(1, 256);
-    int l;
-
-    if (pwinever)
-        l = Bsprintf(str, "Wine %s, identifying as Windows %s", (char *)pwinever(), ver);
-    else
-        l = Bsprintf(str, "Windows %s", ver);
+	FStringf str("Windows %s", ver);
 
     // service packs
     if (osv.szCSDVersion[0])
     {
-        str[l] = 32;
-        Bstrcat(&str[l], osv.szCSDVersion);
+		str.AppendFormat(" %s", osv.szCSDVersion);
     }
 
-    initprintf("Running on %s (build %lu.%lu.%lu)\n", str, osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
-    Xfree(str);
+    initprintf("Running on %s (build %lu.%lu.%lu)\n", str.GetChars(), osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
 }
 
-
-static void ToggleDesktopComposition(BOOL compEnable)
-{
-    static HMODULE              hDWMApiDLL        = NULL;
-    static HRESULT(WINAPI *aDwmEnableComposition)(UINT);
-
-    if (!hDWMApiDLL && (hDWMApiDLL = LoadLibraryA("DWMAPI.DLL")))
-        aDwmEnableComposition = (HRESULT(WINAPI *)(UINT))(void (*)(void))GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
-
-    if (aDwmEnableComposition)
-    {
-        aDwmEnableComposition(compEnable);
-        if (!silentvideomodeswitch)
-            initprintf("%sabling desktop composition...\n", (compEnable) ? "En" : "Dis");
-    }
-}
-
-typedef void (*dllSetString)(const char*);
-
-void win_init(void)
-{
-    uint32_t i;
-
-    static osdcvardata_t cvars_win[] =
-    {
-        { "r_togglecomposition","enable/disable toggle of desktop composition when initializing screen modes",(void *) &togglecomp, CVAR_BOOL, 0, 1 },
-    };
-
-    for (i=0; i<ARRAY_SIZE(cvars_win); i++)
-        OSD_RegisterCvar(&cvars_win[i], osdcmd_cvar_set);
-
-    win_printversion();
-}
-
-void win_setvideomode(int32_t c)
-{
-    if (togglecomp && osv.dwMajorVersion == 6 && osv.dwMinorVersion < 2)
-        ToggleDesktopComposition(c < 16);
-}
-
-void win_uninit(void)
-{
-}
-
-
-
-
+//==========================================================================
 //
-// Miscellaneous
+// win_buildargs
 //
+// This should be removed once everything can use the FArgs list.
+//
+//==========================================================================
 
-int32_t addsearchpath_ProgramFiles(const char *p)
-{
-    int32_t returncode = -1, i;
-    const char *ProgramFiles[2] = { Bgetenv("ProgramFiles"), Bgetenv("ProgramFiles(x86)") };
-
-    for (i = 0; i < 2; ++i)
-    {
-        if (ProgramFiles[i])
-        {
-            char *buffer = (char*)Xmalloc((strlen(ProgramFiles[i])+1+strlen(p)+1)*sizeof(char));
-            Bsprintf(buffer,"%s/%s",ProgramFiles[i],p);
-            if (addsearchpath(buffer) == 0) // if any work, return success
-                returncode = 0;
-            Xfree(buffer);
-        }
-    }
-
-    return returncode;
-}
 
 int32_t win_buildargs(char **argvbuf)
 {
     int32_t buildargc = 0;
+	
+	FString cmdline_utf8 = FString(GetCommandLineW());
 
-    *argvbuf = Xstrdup(GetCommandLineA());
+    *argvbuf = Xstrdup(cmdline_utf8.GetChars());
 
     if (*argvbuf)
     {
@@ -298,9 +202,3 @@ public:
 
 static Initer initer;
 
-
-// Workaround for a bug in mingwrt-4.0.0 and up where a function named main() in misc/src/libcrt/gdtoa/qnan.c takes precedence over the proper one in src/libcrt/crt/main.c.
-#if (defined __MINGW32__ && EDUKE32_GCC_PREREQ(4,8)) || EDUKE32_CLANG_PREREQ(3,4)
-# undef main
-# include "mingw_main.cpp"
-#endif

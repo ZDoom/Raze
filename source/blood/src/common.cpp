@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef _WIN32
 # define NEED_SHLWAPI_H
 # include "windows_inc.h"
-# include "winbits.h"
+# include "win32/winbits.h"
 # ifndef KEY_WOW64_64KEY
 #  define KEY_WOW64_64KEY 0x0100
 # endif
