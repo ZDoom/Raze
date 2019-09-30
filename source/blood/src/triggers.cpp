@@ -90,7 +90,7 @@ char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
     pXSprite->busy = nState << 16;
     pXSprite->state = nState;
     evKill(nSprite, 3);
-    if ((sprite[nSprite].hitag & 16) != 0 && sprite[nSprite].type >= kDudeBase && sprite[nSprite].type < kDudeMax)
+    if ((sprite[nSprite].hitag & 16) != 0 && sprite[nSprite].zvel >= kDudeBase && sprite[nSprite].zvel < kDudeMax)
     {
         pXSprite->respawnPending = 3;
         evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, CALLBACK_ID_9);
@@ -115,7 +115,7 @@ char modernTypeSetSpriteState(int nSprite, XSPRITE *pXSprite, int nState)
     pXSprite->busy = nState<<16;
     pXSprite->state = nState;
     evKill(nSprite, 3);
-    if ((sprite[nSprite].hitag & 16) != 0 && sprite[nSprite].type >= kDudeBase && sprite[nSprite].type < kDudeMax)
+    if ((sprite[nSprite].hitag & 16) != 0 && sprite[nSprite].zvel >= kDudeBase && sprite[nSprite].zvel < kDudeMax)
     {
         pXSprite->respawnPending = 3;
         evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, CALLBACK_ID_9);
