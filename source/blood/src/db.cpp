@@ -671,14 +671,38 @@ MAPHEADER2 byte_19AE44;
 
 unsigned int dbReadMapCRC(const char *pPath)
 {
+    char name2[BMAX_PATH];
     byte_1A76C7 = 0;
     byte_1A76C8 = 0;
-    DICTNODE *pNode = gSysRes.Lookup(pPath, "MAP");
+
+    int const bakpathsearchmode = pathsearchmode;
+    pathsearchmode = 1;
+
+    Bstrncpy(name2, pPath, BMAX_PATH);
+    Bstrupr(name2);
+    DICTNODE* pNode = *gSysRes.Probe(name2, "MAP");
+    if (pNode && pNode->flags & DICT_EXTERNAL)
+    {
+        gSysRes.RemoveNode(pNode);
+    }
+    pNode = gSysRes.Lookup(pPath, "MAP");
     if (!pNode)
     {
-        ThrowError("Error opening map file %s", pPath);
+        char name2[BMAX_PATH];
+        Bstrncpy(name2, pPath, BMAX_PATH);
+        ChangeExtension(name2, "");
+        pNode = gSysRes.Lookup(name2, "MAP");
+    }
+
+    if (!pNode)
+    {
+        initprintf("Error opening map file %s", pPath);
+        pathsearchmode = bakpathsearchmode;
+        return -1;
     }
     char *pData = (char*)gSysRes.Lock(pNode);
+    pathsearchmode = bakpathsearchmode;
+
     int nSize = pNode->size;
     MAPSIGNATURE header;
     IOBuffer(nSize, pData).Read(&header, 6);
@@ -713,6 +737,7 @@ const int nXWallSize = 24;
 
 int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC)
 {
+    char name2[BMAX_PATH];
     int16_t tpskyoff[256];
     memset(show2dsector, 0, sizeof(show2dsector));
     memset(show2dwall, 0, sizeof(show2dwall));
@@ -724,17 +749,15 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     int const bakpathsearchmode = pathsearchmode;
     pathsearchmode = 1;
 
+    Bstrncpy(name2, pPath, BMAX_PATH);
+    Bstrupr(name2);
+    DICTNODE* pNode = *gSysRes.Probe(name2, "MAP");
+    if (pNode && pNode->flags & DICT_EXTERNAL)
     {
-        char name2[BMAX_PATH];
-        Bstrncpy(name2, pPath, BMAX_PATH);
-        Bstrupr(name2);
-        DICTNODE* pNode = *gSysRes.Probe(name2, "MAP");
-        if (pNode && pNode->flags & DICT_EXTERNAL)
-        {
-            gSysRes.RemoveNode(pNode);
-        }
+        gSysRes.RemoveNode(pNode);
     }
-    DICTNODE *pNode = gSysRes.Lookup(pPath, "MAP");
+
+    pNode = gSysRes.Lookup(pPath, "MAP");
     if (!pNode)
     {
         char name2[BMAX_PATH];
@@ -743,14 +766,14 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         pNode = gSysRes.Lookup(name2, "MAP");
     }
 
-    pathsearchmode = bakpathsearchmode;
-
     if (!pNode)
     {
         initprintf("Error opening map file %s", pPath);
+        pathsearchmode = bakpathsearchmode;
         return -1;
     }
     char *pData = (char*)gSysRes.Lock(pNode);
+    pathsearchmode = bakpathsearchmode;
     int nSize = pNode->size;
     MAPSIGNATURE header;
     IOBuffer IOBuffer1 = IOBuffer(nSize, pData);
