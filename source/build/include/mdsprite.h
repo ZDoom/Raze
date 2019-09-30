@@ -199,7 +199,6 @@ typedef struct
     vec3_t siz;
     vec3f_t piv;
     int32_t is8bit;
-    int8_t rotate;
 
 } voxmodel_t;
 
@@ -211,7 +210,7 @@ void mdinit(void);
 void freeallmodels(void);
 void clearskins(int32_t type);
 int32_t polymost_mddraw(tspriteptr_t tspr);
-EXTERN void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16], int32_t extraangoff = 0);
+EXTERN void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16]);
 
 EXTERN int32_t mdpause;
 EXTERN int32_t nextmodelid;

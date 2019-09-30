@@ -1843,7 +1843,7 @@ int      md3postload_polymer(md3model_t *m)
 }
 
 
-void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16], int32_t extraangoff)
+void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16])
 {
     float g;
     float k0, k1, k2, k3, k4, k5, k6, k7;
@@ -1852,8 +1852,8 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float
     k1 = ((float)(tspr->y-globalposy))*f*(1.f/1024.f);
     f = gcosang2*gshang/gvrcorrection;
     g = gsinang2*gshang/gvrcorrection;
-    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+extraangoff+1024)&2047] * (1.f/16384.f);
-    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+extraangoff+ 512)&2047] * (1.f/16384.f);
+    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] * (1.f/16384.f);
+    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] * (1.f/16384.f);
     k2 = k0*(1-k4)+k1*k5;
     k3 = k1*(1-k4)-k0*k5;
     k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;

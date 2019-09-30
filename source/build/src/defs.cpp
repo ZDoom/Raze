@@ -1921,10 +1921,6 @@ static int32_t defsparser(scriptfile *script)
 
                 case T_ROTATE:
                     voxrotate[lastvoxid>>3] |= pow2char[lastvoxid&7];
-#ifdef USE_OPENGL
-                    if (voxmodels[lastvoxid])
-                        voxmodels[lastvoxid]->rotate = 1;
-#endif
                     break;
                 }
             }

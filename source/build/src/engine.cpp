@@ -6195,9 +6195,6 @@ draw_as_face_sprite:
         i = (int32_t)tspr->ang+1536;
         i += spriteext[spritenum].angoff;
 
-        if (voxrotate[vtilenum>>3]&pow2char[vtilenum&7])
-            i += (int)totalclocklock<<3;
-
         const int32_t ceilingz = (sec->ceilingstat&3) == 0 ? sec->ceilingz : INT32_MIN;
         const int32_t floorz = (sec->floorstat&3) == 0 ? sec->floorz : INT32_MAX;
 
@@ -10535,7 +10532,6 @@ static void PolymostProcessVoxels(void)
         {
             voxmodels[i] = voxload(voxfilenames[i]);
             voxmodels[i]->scale = voxscale[i]*(1.f/65536.f);
-            voxmodels[i]->rotate = (voxrotate[i>>3]>>(i&7))&1;
             DO_FREE_AND_NULL(voxfilenames[i]);
         }
     }
