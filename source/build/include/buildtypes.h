@@ -50,7 +50,10 @@ typedef struct
     StructTracker(Sector, int8_t) floorshade;
     StructTracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
     StructTracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
-    StructTracker(Sector, int16_t) lotag, hitag;
+    union {
+        StructTracker(Sector, int16_t) lotag, type;
+    };
+    StructTracker(Sector, int16_t) hitag;
     StructTracker(Sector, int16_t) extra;
 } StructName(sectortypev7);
 
@@ -83,7 +86,10 @@ typedef struct
     StructTracker(Wall, int16_t) picnum, overpicnum;
     StructTracker(Wall, int8_t) shade;
     StructTracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
-    StructTracker(Wall, int16_t) lotag, hitag;
+    union {
+        StructTracker(Wall, int16_t) lotag, type;
+    };
+    StructTracker(Wall, int16_t) hitag;
     StructTracker(Wall, int16_t) extra;
 } StructName(walltypev7);
 
@@ -183,18 +189,21 @@ typedef struct
         struct
         {
             union {
-                StructTracker(Sprite, int16_t) xvel;
-                StructTracker(Sprite, int16_t) index;
+                StructTracker(Sprite, int16_t) xvel, index;
             };
-            StructTracker(Sprite, int16_t) yvel, zvel;
+            StructTracker(Sprite, int16_t) yvel;
+            union {
+                StructTracker(Sprite, int16_t) zvel, inittype;
+            };
         };
         vec3_16_t vel;
     };
     union {
-        StructTracker(Sprite, int16_t) lotag;
-        StructTracker(Sprite, int16_t) type;
+        StructTracker(Sprite, int16_t) lotag, type;
     };
-    StructTracker(Sprite, int16_t) hitag;
+    union {
+        StructTracker(Sprite, int16_t) hitag, flags;
+    };
     StructTracker(Sprite, int16_t) extra;
 } StructName(spritetypev7);
 

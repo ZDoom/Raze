@@ -905,7 +905,7 @@ void playerStart(int nPlayer)
     pPlayer->q16ang = fix16_from_int(pSprite->ang);
     pSprite->type = kDudePlayer1+nPlayer;
     pSprite->clipdist = pDudeInfo->clipdist;
-    pSprite->hitag = 15;
+    pSprite->flags = 15;
     pXSprite->burnTime = 0;
     pXSprite->burnSource = -1;
     pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
@@ -1396,7 +1396,7 @@ void CheckPickUp(PLAYER *pPlayer)
     {
         spritetype *pItem = &sprite[nSprite];
         nNextSprite = nextspritestat[nSprite];
-        if (pItem->hitag&32)
+        if (pItem->flags&32)
             continue;
         int dx = klabs(x-pItem->x)>>4;
         if (dx > 48)
@@ -2282,7 +2282,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
         powerupClear(pPlayer);
         if (nXSector > 0 && xsector[nXSector].Exit)
             trTriggerSector(pSprite->sectnum, &xsector[nXSector], 43);
-        pSprite->hitag |= 7;
+        pSprite->flags |= 7;
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
             if (gPlayer[p].at2ee == nSprite && gPlayer[p].at1fe > 0)

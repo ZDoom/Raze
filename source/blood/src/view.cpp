@@ -258,7 +258,7 @@ void viewInitializePrediction(void)
 	predict.at54 = gMe->pSprite->y;
 	predict.at58 = gMe->pSprite->z;
 	predict.at68 = gMe->pSprite->sectnum;
-	predict.at73 = gMe->pSprite->hitag;
+	predict.at73 = gMe->pSprite->flags;
 	predict.at5c = xvel[gMe->pSprite->index];
 	predict.at60 = yvel[gMe->pSprite->index];
 	predict.at64 = zvel[gMe->pSprite->index];
@@ -608,7 +608,7 @@ void fakeMoveDude(spritetype *pSprite)
             if (nSector == -1)
                 nSector = predict.at68;
                     
-            if (sector[nSector].lotag >= 612 && sector[nSector].lotag <= 617)
+            if (sector[nSector].type >= 612 && sector[nSector].type <= 617)
             {
                 short nSector2 = nSector;
                 pushmove_old((int32_t*)&predict.at50, (int32_t*)&predict.at54, (int32_t*)&predict.at58, &nSector2, wd, tz, bz, CLIPMASK0);
@@ -2176,7 +2176,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
 
         int nSprite = pTSprite->owner;
-        if (gViewInterpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->hitag&512))
+        if (gViewInterpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->flags&512))
         {
             LOCATION *pPrevLoc = &gPrevSpriteLoc[nSprite];
             pTSprite->x = interpolate(pPrevLoc->x, pTSprite->x, gInterpolate);
@@ -2267,7 +2267,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 // Can be overridden by def script
                 if (usevoxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1)
                 {
-                    if ((pTSprite->hitag&16) == 0)
+                    if ((pTSprite->flags&16) == 0)
                     {
                         pTSprite->cstat |= 48;
                         pTSprite->cstat &= ~(4|8);
@@ -2327,7 +2327,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         nShade += tileShade[pTSprite->picnum];
         pTSprite->shade = ClipRange(nShade, -128, 127);
-        if ((pTSprite->hitag&16) && sprite[pTSprite->owner].owner == 3)
+        if ((pTSprite->flags&16) && sprite[pTSprite->owner].owner == 3)
         {
             dassert(pTXSprite != NULL);
             pTSprite->xrepeat = 48;
@@ -2350,15 +2350,15 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         {
             pTSprite->shade = ClipRange(pTSprite->shade-16-QRandom(8), -128, 127);
         }
-        if (pTSprite->hitag&256)
+        if (pTSprite->flags&256)
         {
             viewAddEffect(nTSprite, VIEW_EFFECT_6);
         }
-        if (pTSprite->hitag&1024)
+        if (pTSprite->flags&1024)
         {
             pTSprite->cstat |= 4;
         }
-        if (pTSprite->hitag&2048)
+        if (pTSprite->flags&2048)
         {
             pTSprite->cstat |= 8;
         }
@@ -2620,7 +2620,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             {
                 pTSprite->pal = pSector->floorpal;
             }
-            if (pTSprite->hitag&1)
+            if (pTSprite->flags&1)
             {
                 if (getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
                 {

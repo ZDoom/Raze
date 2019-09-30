@@ -327,9 +327,9 @@ void UpdateAimVector(PLAYER * pPlayer)
                 continue;
             if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
                 continue;
-            if (pSprite->hitag&32)
+            if (pSprite->flags&32)
                 continue;
-            if (!(pSprite->hitag&8))
+            if (!(pSprite->flags&8))
                 continue;
             int x2 = pSprite->x;
             int y2 = pSprite->y;
@@ -383,7 +383,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 pSprite = &sprite[nSprite];
                 if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
                     continue;
-                if (!(pSprite->hitag&8))
+                if (!(pSprite->flags&8))
                     continue;
                 int x2 = pSprite->x;
                 int y2 = pSprite->y;
@@ -2469,7 +2469,7 @@ void sub_51340(spritetype *pMissile, int a2)
         if (nSprite != nOwner || v4)
         {
             spritetype *pSprite = &sprite[nSprite];
-            if (pSprite->hitag&32)
+            if (pSprite->flags&32)
                 continue;
             if (TestBitString(va4, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
             {
@@ -2485,7 +2485,7 @@ void sub_51340(spritetype *pMissile, int a2)
     for (int nSprite = headspritestat[4]; nSprite >= 0; nSprite = nextspritestat[nSprite])
     {
         spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->hitag&32)
+        if (pSprite->flags&32)
             continue;
         if (TestBitString(va4, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
         {

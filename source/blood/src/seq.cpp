@@ -99,11 +99,11 @@ void UpdateSprite(int nXSprite, SEQFRAME *pFrame)
     dassert(nSprite >= 0 && nSprite < kMaxSprites);
     spritetype *pSprite = &sprite[nSprite];
     dassert(pSprite->extra == nXSprite);
-    if (pSprite->hitag & 2)
+    if (pSprite->flags & 2)
     {
         if (tilesiz[pSprite->picnum].y != tilesiz[seqGetTile(pFrame)].y || picanm[pSprite->picnum].yofs != picanm[seqGetTile(pFrame)].yofs
             || (pFrame->at3_0 && pFrame->at3_0 != pSprite->yrepeat))
-            pSprite->hitag |= 4;
+            pSprite->flags |= 4;
     }
     pSprite->picnum = seqGetTile(pFrame);
     if (pFrame->at5_0)
@@ -146,21 +146,21 @@ void UpdateSprite(int nXSprite, SEQFRAME *pFrame)
     else
         pSprite->cstat &= ~4096;
     if (pFrame->at5_6)
-        pSprite->hitag |= 256;
+        pSprite->flags |= 256;
     else
-        pSprite->hitag &= ~256;
+        pSprite->flags &= ~256;
     if (pFrame->at5_7)
-        pSprite->hitag |= 8;
+        pSprite->flags |= 8;
     else
-        pSprite->hitag &= ~8;
+        pSprite->flags &= ~8;
     if (pFrame->at6_3)
-        pSprite->hitag |= 1024;
+        pSprite->flags |= 1024;
     else
-        pSprite->hitag &= ~1024;
+        pSprite->flags &= ~1024;
     if (pFrame->at6_4)
-        pSprite->hitag |= 2048;
+        pSprite->flags |= 2048;
     else
-        pSprite->hitag &= ~2048;
+        pSprite->flags &= ~2048;
 }
 
 void UpdateWall(int nXWall, SEQFRAME *pFrame)
@@ -510,7 +510,7 @@ void seqProcess(int a1)
                             int nSprite = xsprite[nXSprite].reference;
                             dassert(nSprite >= 0 && nSprite < kMaxSprites);
                             evKill(nSprite, 3);
-                            if ((sprite[nSprite].hitag & 16) && sprite[nSprite].zvel >= 200 && sprite[nSprite].zvel < 254)
+                            if ((sprite[nSprite].flags & 16) && sprite[nSprite].inittype >= 200 && sprite[nSprite].inittype < 254)
                                 evPost(nSprite, 3, gGameOptions.nMonsterSettings, (COMMAND_ID)9);
                             else
                                 DeleteSprite(nSprite);

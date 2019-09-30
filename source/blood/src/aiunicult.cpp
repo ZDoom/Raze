@@ -355,7 +355,7 @@ static void thinkGoto( spritetype* pSprite, XSPRITE* pXSprite )
 {
     int dx, dy, dist;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO* pDudeInfo = &dudeInfo[pSprite->lotag - kDudeBase];
+    DUDEINFO* pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
 
     dx = pXSprite->targetX - pSprite->x;
     dy = pXSprite->targetY - pSprite->y;
@@ -867,7 +867,7 @@ bool spriteIsUnderwater(spritetype* pSprite,bool oldWay) {
     
 spritetype* leechIsDropped(spritetype* pSprite) {
     for (int nSprite = headspritestat[4]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-        if (sprite[nSprite].lotag == kGDXThingCustomDudeLifeLeech && sprite[nSprite].owner == pSprite->xvel)
+        if (sprite[nSprite].type == kGDXThingCustomDudeLifeLeech && sprite[nSprite].owner == pSprite->xvel)
             return &sprite[nSprite];
     }
         
@@ -878,11 +878,11 @@ spritetype* leechIsDropped(spritetype* pSprite) {
 void removeDudeStuff(spritetype* pSprite) {
     for (short nSprite = headspritestat[4]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         if (sprite[nSprite].owner != pSprite->xvel) continue;
-        switch (sprite[nSprite].lotag) {
+        switch (sprite[nSprite].type) {
         case 401:
         case 402:
         case 433:
-            sprite[nSprite].lotag = 0;
+            sprite[nSprite].type = 0;
             actPostSprite(sprite[nSprite].xvel, kStatFree);
             break;
         case kGDXThingCustomDudeLifeLeech:
@@ -1009,7 +1009,7 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT a3)
     int nTarget = pXSprite->target;
     if (nTarget >= 0 && nTarget < kMaxSprites) {
         spritetype* pTarget = &sprite[nTarget];
-        if (pTarget->statnum == 6 && !(pTarget->hitag & 32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites && !pXSprite->stateTimer)
+        if (pTarget->statnum == 6 && !(pTarget->flags & 32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites && !pXSprite->stateTimer)
         {
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
@@ -1057,7 +1057,7 @@ bool doExplosion(spritetype* pSprite, int nType) {
 
     pExplosion->yrepeat = pExpl->at0;
     pExplosion->xrepeat = pExpl->at0;
-    pExplosion->lotag = nType;
+    pExplosion->type = nType;
     pExplosion->cstat |= CSTAT_SPRITE_INVISIBLE | CSTAT_SPRITE_ALIGNMENT_SLAB;
     pExplosion->owner = pSprite->xvel;
 

@@ -135,7 +135,7 @@ static void BlastSeqCallback(int, int nXSprite)
     for (short nSprite2 = headspritestat[6]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
     {
         spritetype *pSprite2 = &sprite[nSprite2];
-        if (pSprite == pSprite2 || !(pSprite2->hitag&8))
+        if (pSprite == pSprite2 || !(pSprite2->flags&8))
             continue;
         int x2 = pSprite2->x;
         int y2 = pSprite2->y;

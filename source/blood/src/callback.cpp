@@ -67,7 +67,7 @@ void UniMissileBurst(int nSprite) // 22
     {
         spritetype* pBurst = actSpawnSprite(pSprite, 5);
         
-        pBurst->lotag = pSprite->lotag;
+        pBurst->type = pSprite->type;
         pBurst->shade = pSprite->shade;
         pBurst->picnum = pSprite->picnum;
 
@@ -79,10 +79,10 @@ void UniMissileBurst(int nSprite) // 22
 
         pBurst->pal = pSprite->pal;
         pBurst->clipdist = pSprite->clipdist / 4;
-        pBurst->hitag = pSprite->hitag;
+        pBurst->flags = pSprite->flags;
         pBurst->xrepeat = pSprite->xrepeat / 2;
         pBurst->yrepeat = pSprite->yrepeat / 2;
-        pBurst->ang = ((pSprite->ang + missileInfo[pSprite->lotag - kMissileBase].at6) & 2047);
+        pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].at6) & 2047);
         pBurst->owner = pSprite->owner;
        
         actBuildMissile(pBurst, pBurst->extra, pSprite->xvel);
@@ -308,7 +308,7 @@ void Respawn(int nSprite) // 9
     XSPRITE *pXSprite = &xsprite[nXSprite];
     if (pSprite->statnum != 8 && pSprite->statnum != 4)
         ThrowError("Sprite %d is not on Respawn or Thing list\n", nSprite);
-    if (!(pSprite->hitag&16))
+    if (!(pSprite->flags&16))
         ThrowError("Sprite %d does not have the respawn attribute\n", nSprite);
     switch (pXSprite->respawnPending)
     {
@@ -331,9 +331,9 @@ void Respawn(int nSprite) // 9
         dassert(pSprite->owner != kStatRespawn);
         dassert(pSprite->owner >= 0 && pSprite->owner < kMaxStatus);
         ChangeSpriteStat(nSprite, pSprite->owner);
-        pSprite->type = pSprite->zvel;
+        pSprite->type = pSprite->inittype;
         pSprite->owner = -1;
-        pSprite->hitag &= ~16;
+        pSprite->flags &= ~16;
         xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
         pXSprite->respawnPending = 0;
         pXSprite->burnTime = 0;
@@ -426,7 +426,7 @@ void CounterCheck(int nSector) // 12
     sectortype *pSector = &sector[nSector];
     // By NoOne: edits for counter sector new features.
     // remove check below, so every sector can be counter if command 12 (this callback) received.
-    //if (pSector->lotag != 619) return;
+    //if (pSector->type != 619) return;
     int nXSprite = pSector->extra;
     if (nXSprite > 0)
     {
@@ -622,8 +622,8 @@ void sub_768E8(int nSprite) // 18
 void sub_769B4(int nSprite) // 19
 {
     spritetype *pSprite = &sprite[nSprite];
-    if (pSprite->statnum == 4 && !(pSprite->hitag & 32)) {
-        switch (pSprite->lotag) {
+    if (pSprite->statnum == 4 && !(pSprite->flags & 32)) {
+        switch (pSprite->type) {
             case 431:
             case kGDXThingCustomDudeLifeLeech:
                 xsprite[pSprite->extra].stateTimer = 0;

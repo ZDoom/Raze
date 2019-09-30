@@ -288,7 +288,7 @@ void sub_557C4(int x, int y, int interpolation)
                         pTSprite->statnum = 0;
                         pTSprite->owner = pSprite->index;
                         pTSprite->extra = pSprite->extra;
-                        pTSprite->hitag = pSprite->hitag|0x200;
+                        pTSprite->flags = pSprite->hitag|0x200;
                         LOCATION *pLocation = &gPrevSpriteLoc[pSprite->index];
                         pTSprite->x = dx+interpolate(pLocation->x, pSprite->x, interpolation);
                         pTSprite->y = dy+interpolate(pLocation->y, pSprite->y, interpolation);

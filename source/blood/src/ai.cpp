@@ -167,7 +167,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
             Underwater = 1;
         if (pXSector->Depth)
             Depth = 1;
-        if (sector[nSector].lotag == kSecDamage || pXSector->damageType > 0) {
+        if (sector[nSector].type == kSecDamage || pXSector->damageType > 0) {
             // By NoOne: a quick fix for Cerberus spinning in E3M7-like maps, where damage sectors is used.
             // It makes ignore danger if enemy immune to N damageType. As result Cerberus start acting like
             // in Blood 1.0 so it can move normally to player. It's up to you for adding rest of enemies here as
@@ -281,7 +281,7 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
         pXSprite->goalAng = pSprite->ang;
     else if (CanMove(pSprite, pXSprite->target, pSprite->ang-v8, vsi))
         pXSprite->goalAng = pSprite->ang-v8;
-    else if (pSprite->hitag&2)
+    else if (pSprite->flags&2)
         pXSprite->goalAng = pSprite->ang+341;
     else // Weird..
         pXSprite->goalAng = pSprite->ang+341;
@@ -546,8 +546,8 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         pDudeExtraE->at4 = 0;
         pDudeExtraE->at8 = 1;
         pDudeExtraE->at0 = 0;
-        if (!pSprite->hitag)
-            pSprite->hitag = 9;
+        if (!pSprite->flags)
+            pSprite->flags = 9;
         if (pXSprite->target == -1)
             aiNewState(pSprite, pXSprite, &batSearch);
         else
@@ -801,7 +801,7 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
     case 213:
     case 214:
     case 215:
-        pSprite->hitag |= 2;
+        pSprite->flags |= 2;
         pSprite->cstat &= ~8;
         if (pXSprite->target == -1)
             aiNewState(pSprite, pXSprite, &spidSearch);
@@ -816,7 +816,7 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
         pDudeExtraE->at8 = 1;
         pDudeExtraE->at0 = 0;
-        pSprite->hitag |= 2;
+        pSprite->flags |= 2;
         pSprite->cstat &= ~8;
         if (pXSprite->target == -1)
             aiNewState(pSprite, pXSprite, &spidSearch);
@@ -1496,7 +1496,7 @@ void aiProcessDudes(void)
     for (int nSprite = headspritestat[6]; nSprite >= 0; nSprite = nextspritestat[nSprite])
     {
         spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->hitag&32)
+        if (pSprite->flags&32)
             continue;
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
@@ -1611,7 +1611,7 @@ void aiInitSprite(spritetype *pSprite)
         pDudeExtraE->at4 = 0;
         pDudeExtraE->at0 = 0;
         aiNewState(pSprite, pXSprite, &zombieSIdle);
-        pSprite->hitag &= ~1;
+        pSprite->flags &= ~1;
         break;
     }
     case 205:
@@ -1743,26 +1743,26 @@ void aiInitSprite(spritetype *pSprite)
     case 214:
     case 215:
         if (pSprite->cstat&8)
-            pSprite->hitag |= 9;
+            pSprite->flags |= 9;
         else
-            pSprite->hitag = 15;
+            pSprite->flags = 15;
         break;
     case 206:
     case 207:
     case 210:
     case 218:
     case 219:
-        pSprite->hitag |= 9;
+        pSprite->flags |= 9;
         break;
     case 217:
         if (pXSector && pXSector->Underwater)
-            pSprite->hitag |= 9;
+            pSprite->flags |= 9;
         else
-            pSprite->hitag = 15;
+            pSprite->flags = 15;
         break;
     case 205:
     case 244:
-        pSprite->hitag = 7;
+        pSprite->flags = 7;
         break;
     case 225: // by NoOne: FakeDude type
         break;
@@ -1773,14 +1773,14 @@ void aiInitSprite(spritetype *pSprite)
     case 224:
     case 226:
         if ((pSprite->cstat & CSTAT_SPRITE_YFLIP) != 0) {
-            if (!(pSprite->hitag & kModernTypeFlag1)) // don't add autoaim for player if hitag 1 specified in editor.
-                pSprite->hitag = kHitagAutoAim;
+            if (!(pSprite->flags & kModernTypeFlag1)) // don't add autoaim for player if hitag 1 specified in editor.
+                pSprite->flags = kHitagAutoAim;
             break;
         }
         fallthrough__;
     // go default
     default:
-        pSprite->hitag = 15;
+        pSprite->flags = 15;
         break;
     }
 }

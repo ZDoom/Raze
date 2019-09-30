@@ -481,7 +481,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
         if (gHitInfo.hitsprite >= 0)
         {
             spritetype *pOther = &sprite[gHitInfo.hitsprite];
-            if ((pOther->hitag & 8) && !(ac & 1))
+            if ((pOther->flags & 8) && !(ac & 1))
                 return 3;
             if ((pOther->cstat & 0x30) != 0)
                 return 3;

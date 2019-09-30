@@ -270,7 +270,7 @@ static void entryEZombie(spritetype *pSprite, XSPRITE *pXSprite)
 {
     UNREFERENCED_PARAMETER(pXSprite);
     pSprite->type = 203;
-    pSprite->hitag |= 1;
+    pSprite->flags |= 1;
 }
 
 static void entryAIdle(spritetype *pSprite, XSPRITE *pXSprite)

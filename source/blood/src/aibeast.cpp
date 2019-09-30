@@ -136,7 +136,7 @@ static void StompSeqCallback(int, int nXSprite)
             {
                 if (pSprite2->type == 251)
                     continue;
-                if (pSprite2->hitag&32)
+                if (pSprite2->flags&32)
                     continue;
                 if (TestBitString(vb8, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
                 {
@@ -166,7 +166,7 @@ static void StompSeqCallback(int, int nXSprite)
     for (int nSprite2 = headspritestat[4]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
     {
         spritetype *pSprite2 = &sprite[nSprite2];
-        if (pSprite2->hitag&32)
+        if (pSprite2->flags&32)
             continue;
         if (TestBitString(vb8, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
         {
@@ -293,7 +293,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                 aiSetTarget(pXSprite, pXSprite->target);
                 int nXSprite = sprite[pXSprite->reference].extra;
                 gDudeSlope[nXSprite] = divscale(pTarget->z-pSprite->z, nDist, 10);
-                if (nDist < 0x1400 && nDist > 0xa00 && klabs(nDeltaAngle) < 85 && (pTarget->hitag&2)
+                if (nDist < 0x1400 && nDist > 0xa00 && klabs(nDeltaAngle) < 85 && (pTarget->flags&2)
                     && IsPlayerSprite(pTarget) && Chance(0x8000))
                 {
                     XSECTOR *pXSector;

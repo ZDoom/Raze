@@ -434,7 +434,7 @@ void MoveToCeil(spritetype *pSprite, XSPRITE *pXSprite)
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
         pDudeExtraE->at8 = 0;
-        pSprite->hitag = 0;
+        pSprite->flags = 0;
         aiNewState(pSprite, pXSprite, &batIdle);
     }
     else

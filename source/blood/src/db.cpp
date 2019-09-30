@@ -882,7 +882,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         pSector->ceilingheinum = B_LITTLE16(pSector->ceilingheinum);
         pSector->floorpicnum = B_LITTLE16(pSector->floorpicnum);
         pSector->floorheinum = B_LITTLE16(pSector->floorheinum);
-        pSector->lotag = B_LITTLE16(pSector->lotag);
+        pSector->type = B_LITTLE16(pSector->type);
         pSector->hitag = B_LITTLE16(pSector->hitag);
         pSector->extra = B_LITTLE16(pSector->extra);
 #endif
@@ -1004,7 +1004,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         pWall->cstat = B_LITTLE16(pWall->cstat);
         pWall->picnum = B_LITTLE16(pWall->picnum);
         pWall->overpicnum = B_LITTLE16(pWall->overpicnum);
-        pWall->lotag = B_LITTLE16(pWall->lotag);
+        pWall->type = B_LITTLE16(pWall->type);
         pWall->hitag = B_LITTLE16(pWall->hitag);
         pWall->extra = B_LITTLE16(pWall->extra);
 #endif
@@ -1081,11 +1081,11 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         pSprite->statnum = B_LITTLE16(pSprite->statnum);
         pSprite->ang = B_LITTLE16(pSprite->ang);
         pSprite->owner = B_LITTLE16(pSprite->owner);
-        pSprite->xvel = B_LITTLE16(pSprite->xvel);
+        pSprite->index = B_LITTLE16(pSprite->index);
         pSprite->yvel = B_LITTLE16(pSprite->yvel);
-        pSprite->zvel = B_LITTLE16(pSprite->zvel);
-        pSprite->lotag = B_LITTLE16(pSprite->lotag);
-        pSprite->hitag = B_LITTLE16(pSprite->hitag);
+        pSprite->inittype = B_LITTLE16(pSprite->inittype);
+        pSprite->type = B_LITTLE16(pSprite->type);
+        pSprite->flags = B_LITTLE16(pSprite->hitag);
         pSprite->extra = B_LITTLE16(pSprite->extra);
 #endif
         InsertSpriteSect(i, sprite[i].sectnum);

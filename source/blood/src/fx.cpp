@@ -170,7 +170,7 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
     if (gStatCount[1] == 512)
     {
         int nSprite = headspritestat[1];;
-        while ((sprite[nSprite].hitag & 32) && nSprite != -1)
+        while ((sprite[nSprite].flags & 32) && nSprite != -1)
             nSprite = nextspritestat[nSprite];
         if (nSprite == -1)
             return NULL;
