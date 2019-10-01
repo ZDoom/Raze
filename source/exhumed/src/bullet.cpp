@@ -38,7 +38,7 @@ struct Bullet
     short nType;
     short field_C;
     short field_E;
-    short field_10;
+    uint16_t field_10;
     uint8_t field_12;
     uint8_t field_13;
     int x;
@@ -274,11 +274,9 @@ int MoveBullet(short nBullet)
 
     int x2, y2, z2;
 
-    short var_3C = pBullet->field_10;
-
     int nVal;
 
-    if (var_3C < 30000)
+    if (pBullet->field_10 < 30000)
     {
         short nEnemySprite = nBulletEnemy[nBullet];
         if (nEnemySprite > -1)
@@ -287,7 +285,7 @@ int MoveBullet(short nBullet)
                 nBulletEnemy[nBullet] = -1;
             else
             {
-                nVal = AngleChase(nSprite, nEnemySprite, var_3C, 0, 16);
+                nVal = AngleChase(nSprite, nEnemySprite, pBullet->field_10, 0, 16);
                 goto MOVEEND;
             }
         }
