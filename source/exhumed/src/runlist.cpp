@@ -893,7 +893,7 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
             short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].floorz, sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev);
 
