@@ -9,6 +9,7 @@
 #include "baselayer.h"
 #include "osd.h"
 #include "scancodes.h"
+#include "common.h"
 
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash.h"
@@ -1618,7 +1619,7 @@ static inline void OSD_LineFeed(void)
 
 void OSD_Puts(const char *tmpstr)
 {
-    if (tmpstr[0] == 0)
+    if (tmpstr[0] == 0 || osdlog == nullptr)
         return;
 
     if (!osd)

@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <CommCtrl.h>
 #include <signal.h>
+#include <string>
 
 #include "a.h"
 #include "build.h"
@@ -18,6 +19,8 @@
 #include "softsurface.h"
 #include "m_argv.h"
 #include "mmulti.h"
+#include "scriptfile.h"
+#include "zstring.h"
 #include "../../glbackend/glbackend.h"
 
 #ifdef USE_OPENGL
@@ -365,8 +368,61 @@ namespace Blood
 	extern GameInterface Interface;
 }
 
+GameInterface *CheckFrontend()
+{
+	FILE* f = fopen("blood.rff", "rb");
+	if (f)
+	{
+		fclose(f);
+		return &Blood::Interface;
+	}
+	else
+	{
+		f = fopen("redneck.grp", "rb");
+		if (f)
+		{
+			fclose(f);
+			return &Redneck::Interface;
+		}
+		else
+			return &Duke::Interface;
+	}
+}
+
 void ChooseGame()
 {
+	auto dir = Args->CheckValue("-game");
+	if (dir && !chdir(dir))
+	{
+		gi = CheckFrontend();
+		return;
+	}
+
+	TArray<FString> paths;
+	std::vector<std::wstring> wgames;
+	TArray<TASKDIALOG_BUTTON> buttons;
+	char* token;
+	auto script = scriptfile_fromfile("./games.list");
+	int id = 1000;
+	while (!scriptfile_eof(script))
+	{
+		scriptfile_getstring(script, &token);
+		if (scriptfile_eof(script))
+		{
+			break;
+		}
+		FString game = token;
+		scriptfile_getstring(script, &token);
+		paths.Push(token);
+		FStringf display("%s\n%s", game.GetChars(), token);
+		wgames.push_back(display.WideString());
+		buttons.Push({ id++, wgames.back().c_str() });
+	}
+	if (paths.Size() == 0)
+	{
+		exit(1);
+	}
+
 	int nResult = 0;
 
 	TASKDIALOGCONFIG stTaskConfig;
@@ -376,67 +432,25 @@ void ChooseGame()
 	stTaskConfig.hwndParent = NULL;
 	stTaskConfig.hInstance = NULL;
 
-	stTaskConfig.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION;
+	stTaskConfig.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION| TDF_USE_COMMAND_LINKS;
 
 	if (!gi)
 	{
-		// Gross hack to allow selecting the games without rewriting the entire front end.
-		// That's for later.
-		// This popup should go away anyway and be replaced by something nicer.
+		// Open a popup to select the game.
+		// The entire startup code just doesn't work right if this isn't checked as the very first thing.
 		stTaskConfig.pszWindowTitle = L"Demolition";
 		stTaskConfig.pszMainInstruction = L"Choose your game";
 		stTaskConfig.pszContent = L"";
-		stTaskConfig.cButtons = 7;
-		TASKDIALOG_BUTTON buttons[] = {
-		   {1000,L"Duke Nukem 3D"},
-		   {1001,L"Nam"},
-		   {1002,L"WW2 GI"},
-		   {1003,L"Redneck Rampage"},
-		   {1004,L"Redneck Rides Again"},
-		   {1005,L"Blood"},
-		   {1006,L"Ion Fury"},
-		};
-		stTaskConfig.pButtons = buttons;
+		stTaskConfig.cButtons = buttons.Size();
+
+		stTaskConfig.pButtons = buttons.Data();
 		stTaskConfig.nDefaultButton = 1000;
 
 		if (SUCCEEDED(TaskDialogIndirect(&stTaskConfig, &nResult, NULL, NULL)))
 		{
-			//API call succeeded, now , check return values
-			if (nResult == 1000)
-			{
-				chdir("c:/Doom/Play_Build/Duke Nukem 3D");
-				gi = &Duke::Interface;
-			}
-			else if (nResult == 1001)
-			{
-				chdir("c:/Doom/Play_Build/Nam");
-				gi = &Duke::Interface;
-			}
-			else if (nResult == 1002)
-			{
-				chdir("c:/Doom/Play_Build/WW2GI");
-				gi = &Duke::Interface;
-			}
-			else if (nResult == 1003)
-			{
-				chdir("c:/Doom/Play_Build/Redneck Rampage");
-				gi = &Redneck::Interface;
-			}
-			else if (nResult == 1004)
-			{
-				chdir("c:/Doom/Play_Build/Redneck Rides Again");
-				gi = &Redneck::Interface;
-			}
-			else if (nResult == 1005)
-			{
-				chdir("c:/Doom/Play_Build/Blood");
-				gi = &Blood::Interface;
-			}
-			else if (nResult == 1006)
-			{
-				chdir("c:/Doom/Play_Build/Ion Fury");
-				gi = &Duke::Interface;
-			}
+			nResult -= 1000;
+			chdir(paths[nResult]);
+			gi = CheckFrontend();
 		}
 		if (gi == nullptr) exit(1);
 	}
@@ -467,29 +481,7 @@ int main(int argc, char *argv[])
 
 	Args = new FArgs(buildargc, buildargv);
 
-	auto dir = Args->CheckValue("-maindir");
-	if (dir && !chdir(dir))
-	{
-		FILE* f = fopen("blood.rff", "rb");
-		if (f)
-		{
-			gi = &Blood::Interface;
-			fclose(f);
-		}
-		else
-		{
-			f = fopen("redneck.grp", "rb");
-			if (f)
-			{
-				gi = &Redneck::Interface;
-				fclose(f);
-			}
-			else
-				gi = &Duke::Interface;
-		}
-	}
-	// Hack to be able to choose from the available game frontends until the startup dialogue can be moved out of the frontend code.
-	if (!gi) ChooseGame();
+	ChooseGame();
 
 #if defined _WIN32 && defined SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING
     // Thread naming interferes with debugging using MinGW-w64's GDB.
