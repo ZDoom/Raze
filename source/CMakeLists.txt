@@ -966,8 +966,8 @@ set (PCH_SOURCES
 	common/utility/utf8.cpp
 	common/utility/superfasthash.cpp
 	common/utility/configfile.cpp
-
-	common/console/c_cvars.cpp
+	common/utility/file_zip.cpp
+	common/utility/resourcefile.cpp
 )
 
 if( MSVC )
