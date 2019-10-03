@@ -968,6 +968,7 @@ set (PCH_SOURCES
 	common/utility/configfile.cpp
 	common/utility/file_zip.cpp
 	common/utility/resourcefile.cpp
+	common/utility/matrix.cpp
 )
 
 if( MSVC )

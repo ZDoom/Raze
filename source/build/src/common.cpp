@@ -272,7 +272,7 @@ void COMMON_doclearbackground(int numcols, int height)
     }
 # endif
 
-    CLEARLINES2D(0, min(ydim, numrows*8+8), editorcolors[16]);
+    CLEARLINES2D(0, min(ydim, height), editorcolors[16]);
 }
 
 void COMMON_clearbackground(int numcols, int numrows)
