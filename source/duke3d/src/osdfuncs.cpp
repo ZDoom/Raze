@@ -140,37 +140,12 @@ void GAME_onshowosd(int shown)
 //        KB_KeyDown[sc_Pause] = 1;
 }
 
+void COMMON_doclearbackground(int numcols, int numrows);
+
 void GAME_clearbackground(int numcols, int numrows)
 {
-    UNREFERENCED_PARAMETER(numcols);
-
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
-    {
-        int const i8n8 = OSD_SCALE(OSDCHAR_HEIGHT*numrows);
-
-        polymost_setFogEnabled(false);
-        polymost_useColorOnly(true);
-
-        polymostSet2dView();
-        glColor4f(0.f, 0.f, 0.f, 0.67f);
-        glEnable(GL_BLEND);
-        glDisable(GL_ALPHA_TEST);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glRecti(0, 0, xdim, i8n8+OSDCHAR_HEIGHT);
-        glColor4f(0.f, 0.f, 0.f, 1.f);
-        glRecti(0, i8n8+4, xdim, i8n8+OSDCHAR_HEIGHT);
-
-        polymost_useColorOnly(false);
-
-        if (!nofog)
-            polymost_setFogEnabled(true);
-
-        return;
-    }
-#endif
-
-    CLEARLINES2D(0, min(ydim, OSD_SCALE(numrows * OSDCHAR_HEIGHT + OSDCHAR_HEIGHT)), editorcolors[16]);
+	int const i8n8 = OSD_SCALE(OSDCHAR_HEIGHT * numrows);
+	COMMON_doclearbackground(numcols, i8n8 + OSDCHAR_HEIGHT);
 }
 
 #undef OSD_SCALE

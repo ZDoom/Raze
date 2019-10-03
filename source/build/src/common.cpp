@@ -246,7 +246,7 @@ int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
 
 
 // Clear OSD background
-void COMMON_clearbackground(int numcols, int numrows)
+void COMMON_doclearbackground(int numcols, int height)
 {
     UNREFERENCED_PARAMETER(numcols);
 
@@ -260,9 +260,9 @@ void COMMON_clearbackground(int numcols, int numrows)
         polymostSet2dView();
         glColor4f(0.f, 0.f, 0.f, 0.67f);
         glEnable(GL_BLEND);
-        glRecti(0, 0, xdim, 8*numrows+8);
+        glRecti(0, 0, xdim, height);
         glColor4f(0.f, 0.f, 0.f, 1.f);
-        glRecti(0, 8*numrows+4, xdim, 8*numrows+8);
+        glRecti(0, height-4, xdim, height);
 
 //        glPopAttrib();
         polymost_useColorOnly(false);
@@ -273,4 +273,9 @@ void COMMON_clearbackground(int numcols, int numrows)
 # endif
 
     CLEARLINES2D(0, min(ydim, numrows*8+8), editorcolors[16]);
+}
+
+void COMMON_clearbackground(int numcols, int numrows)
+{
+	COMMON_doclearbackground(numcols, 8 * numrows + 8);
 }
