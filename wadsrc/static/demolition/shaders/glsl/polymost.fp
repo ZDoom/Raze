@@ -1,4 +1,3 @@
-char const *polymost1Frag = R"shader( 
 #version 110
 
 //include an additional space here so that we can programmatically search for and disable this preprocessor definition easily
@@ -11,10 +10,8 @@ uniform sampler2D s_palswap;
 //s_palette is the base palette texture where u is the color index
 uniform sampler2D s_palette;
 
-#ifdef POLYMOST1_EXTENDED
 uniform sampler2D s_detail;
 uniform sampler2D s_glow;
-#endif
 
 //u_texturePosSize is the texture position & size packaged into a single vec4 as {pos.x, pos.y, size.x, size.y}
 uniform vec4 u_texturePosSize;
@@ -37,10 +34,8 @@ uniform float u_npotEmulationXOffset;
 uniform float u_shadeInterpolate;
 uniform float u_brightness;
 
-#ifdef POLYMOST1_EXTENDED
 uniform float u_useDetailMapping;
 uniform float u_useGlowMapping;
-#endif
 
 varying vec4 v_color;
 varying float v_distance;
@@ -81,18 +76,14 @@ void main()
     palettedColor.a = c_one-floor(color.r);
     color = mix(color, palettedColor, u_usePalette);
 
-#ifdef POLYMOST1_EXTENDED
-    vec4 detailColor = texture2D(s_detail, gl_TexCoord[3].xy);
-    detailColor = mix(c_vec4_one, 2.0*detailColor, u_useDetailMapping*detailColor.a);
-    color.rgb *= detailColor.rgb;
-#endif
+	if (u_useDetailMapping != 0.0)
+	{
+		vec4 detailColor = texture2D(s_detail, gl_TexCoord[3].xy);
+		detailColor = mix(c_vec4_one, 2.0*detailColor, detailColor.a);
+		color.rgb *= detailColor.rgb;
+	}
 
     color = mix(color, c_vec4_one, u_useColorOnly);
-
-    // DEBUG
-    //color = texture2D(s_palswap, gl_TexCoord[0].xy);
-    //color = texture2D(s_palette, gl_TexCoord[0].xy);
-    //color = texture2D(s_texture, gl_TexCoord[0].yx);
 
     color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);
 
@@ -102,14 +93,15 @@ void main()
     //float fogFactor = clamp(gl_FogFragCoord, fullbright, c_one);
     color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);
 
-#ifdef POLYMOST1_EXTENDED
-    vec4 glowColor = texture2D(s_glow, gl_TexCoord[4].xy);
-    color.rgb = mix(color.rgb, glowColor.rgb, u_useGlowMapping*glowColor.a*(c_one-u_useColorOnly));
-#endif
-
+	if (u_useGlowMapping != 0.0)
+	{
+		vec4 glowColor = texture2D(s_glow, gl_TexCoord[4].xy);
+		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a*(c_one-u_useColorOnly));
+	}
+	
     color.a *= v_color.a;
     color.rgb = pow(color.rgb, vec3(u_brightness));
 
     gl_FragData[0] = color;
 }
-)shader"; 
+

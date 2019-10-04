@@ -22,6 +22,7 @@
 
 #ifdef WITHKPLIB
 #include "kplib.h"
+#include "zstring.h"
 
 //Insert '|' in front of filename
 //Doing this tells kzopen to load the file only if inside a .ZIP file
@@ -723,6 +724,8 @@ static int32_t kread_grp(int32_t handle, void *buffer, int32_t leng);
 static int32_t klseek_grp(int32_t handle, int32_t offset, int32_t whence);
 static void kclose_grp(int32_t handle);
 
+static bool alreadycalled;
+extern FString progdir;
 int initgroupfile(const char *filename)
 {
     char buf[70];

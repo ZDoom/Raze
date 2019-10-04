@@ -66,7 +66,7 @@ function( add_pk3 PK3_NAME PK3_DIR )
 	# Phase 1: Create a list of all source files for this PK3 archive, except
 	#  for a couple of strife image file names that confuse CMake.
 	file(GLOB_RECURSE PK3_SRCS ${PK3_DIR}/*)
-	# Exclude from the source list some gdemolition .png files with brackets in the
+	# Exclude from the source list some demolition .png files with brackets in the
 	# file names here, because they confuse CMake.
 	# This only affects the list of source files shown in the IDE.
 	# It does not actually remove the files from the PK3 archive.
@@ -415,7 +415,7 @@ add_subdirectory( tools )
 add_subdirectory( libraries/dumb )
 add_subdirectory( libraries/gdtoa )
 add_subdirectory( libraries/enet )
-#add_subdirectory( wadsrc )
+add_subdirectory( wadsrc )
 add_subdirectory( source )
 
 if( NOT CMAKE_CROSSCOMPILING )

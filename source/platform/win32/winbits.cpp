@@ -8,6 +8,7 @@
 #include "zstring.h"
 #include "winbits.h"
 
+FString progdir;
 //
 // CheckWinVersion() -- check to see what version of Windows we happen to be running under (stripped down to what is actually still supported.)
 //
@@ -127,7 +128,13 @@ int32_t win_buildargs(char **argvbuf)
         *wp = 0;
     }
 
-    return buildargc;
+	// Figure out what directory the program resides in.
+	progdir = argvbuf[0];
+	auto lastsep = progdir.LastIndexOf('/');
+	if (lastsep != -1)
+		progdir.Truncate(lastsep + 1);
+
+	return buildargc;
 }
 
 

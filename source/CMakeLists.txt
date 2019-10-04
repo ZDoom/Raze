@@ -743,13 +743,9 @@ set( FASTMATH_SOURCES
 	thirdparty/src/xxhash.c
 
 	# Will we need this anymore with ZLib being available?
-	thirdparty/src/miniz.c
-	thirdparty/src/miniz_tdef.c
-	thirdparty/src/miniz_tinfl.c
-	
-	# These will be exported to a resource file later - until that works they need to be explicitly compiled.
-	polymost1Vert.glsl.cpp
-	polymost1Frag.glsl.cpp
+	#thirdparty/src/miniz.c
+	#thirdparty/src/miniz_tdef.c
+	#thirdparty/src/miniz_tinfl.c
 	
 	# Another bit of cruft just to make S(hit)DL happy...
 	sdlappicon.cpp

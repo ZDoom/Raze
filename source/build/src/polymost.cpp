@@ -12,6 +12,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "kplib.h"
 #include "mdsprite.h"
 #include "polymost.h"
+#include "files.h"
 #include "../../glbackend/glbackend.h"
 
 extern char textfont[2048], smalltextfont[2048];
@@ -140,10 +141,9 @@ int32_t r_useindexedcolortextures = -1;
 static int32_t lastbasepal = -1;
 static FHardwareTexture *paletteTextureIDs[MAXBASEPALS];
 static FHardwareTexture *palswapTextureID = nullptr;
-extern char const *polymost1Frag;
-extern char const *polymost1Vert;
+//extern char const *polymost1Frag;
+//extern char const *polymost1Vert;
 static GLuint polymost1CurrentShaderProgramID = 0;
-static GLuint polymost1BasicShaderProgramID = 0;
 static GLuint polymost1ExtendedShaderProgramID = 0;
 static GLint polymost1TexSamplerLoc = -1;
 static GLint polymost1PalSwapSamplerLoc = -1;
@@ -671,9 +671,6 @@ void polymost_useDetailMapping(char useDetailMapping)
     if (currentShaderProgramID != polymost1CurrentShaderProgramID || useDetailMapping == polymost1UseDetailMapping)
         return;
 
-    if (useDetailMapping)
-        polymost_setCurrentShaderProgram(polymost1ExtendedShaderProgramID);
-
     polymost1UseDetailMapping = useDetailMapping;
     glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
 }
@@ -682,9 +679,6 @@ void polymost_useGlowMapping(char useGlowMapping)
 {
     if (currentShaderProgramID != polymost1CurrentShaderProgramID || useGlowMapping == polymost1UseGlowMapping)
         return;
-
-    if (useGlowMapping)
-        polymost_setCurrentShaderProgram(polymost1ExtendedShaderProgramID);
 
     polymost1UseGlowMapping = useGlowMapping;
     glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
@@ -738,6 +732,8 @@ void useShaderProgram(uint32_t shaderID)
     currentShaderProgramID = shaderID;
 }
 
+FileReader GetBaseResource(const char* fn);
+
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
@@ -746,31 +742,47 @@ void polymost_glinit()
     currentTextureID = 0;
     char allPacked = false;
 
+	auto fr1 = GetBaseResource("demolition/shaders/glsl/polymost.vp");
+	TArray<uint8_t> polymost1Vert = fr1.Read();
+	fr1 = GetBaseResource("demolition/shaders/glsl/polymost.fp");
+	TArray<uint8_t> polymost1Frag = fr1.Read();
+	// Zero-terminate both strings.
+	polymost1Vert.Push(0);
+	polymost1Frag.Push(0);
+
     polymost1ExtendedShaderProgramID = glCreateProgram();
-    GLuint polymost1BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, polymost1Vert);
-    GLuint polymost1ExtendedFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, polymost1Frag);
+    GLuint polymost1BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, (char*)polymost1Vert.Data());
+    GLuint polymost1ExtendedFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, (char*)polymost1Frag.Data());
     glAttachShader(polymost1ExtendedShaderProgramID, polymost1BasicVertexShaderID);
     glAttachShader(polymost1ExtendedShaderProgramID, polymost1ExtendedFragmentShaderID);
     glLinkProgram(polymost1ExtendedShaderProgramID);
 
-    int polymost1BasicFragLen = strlen(polymost1Frag);
-    char* polymost1BasicFrag = (char*) malloc(polymost1BasicFragLen);
-    memcpy(polymost1BasicFrag, polymost1Frag, polymost1BasicFragLen);
-    char* extDefineSubstr = strstr(polymost1BasicFrag, " #define POLYMOST1_EXTENDED");
-    if (extDefineSubstr)
-    {
-        //Disable extensions for basic fragment shader
-        extDefineSubstr[0] = '/';
-        extDefineSubstr[1] = '/';
-    }
-    polymost1BasicShaderProgramID = glCreateProgram();
-    GLuint polymost1BasicFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, polymost1BasicFrag, polymost1BasicFragLen);
-    glAttachShader(polymost1BasicShaderProgramID, polymost1BasicVertexShaderID);
-    glAttachShader(polymost1BasicShaderProgramID, polymost1BasicFragmentShaderID);
-    glLinkProgram(polymost1BasicShaderProgramID);
-    free(polymost1BasicFrag);
-    polymost1BasicFrag = 0;
+	char buffer[10000];
+	glGetShaderInfoLog(polymost1BasicVertexShaderID, 10000, NULL, buffer);
+	if (*buffer)
+	{
+		initprintf("Vertex shader:\n%s\n", buffer);
+	}
+	glGetShaderInfoLog(polymost1ExtendedFragmentShaderID, 10000, NULL, buffer);
+	if (*buffer)
+	{
+		initprintf("Fragment shader:\n%s\n", buffer);
+	}
 
+	glGetProgramInfoLog(polymost1ExtendedShaderProgramID, 10000, NULL, buffer);
+	if (*buffer)
+	{
+		initprintf("Linking:\n%s\n", buffer);
+	}
+	GLint status = 0;
+	glGetProgramiv(polymost1ExtendedShaderProgramID, GL_LINK_STATUS, &status);
+	auto linked = (status == GL_TRUE);
+	if (!linked)
+	{
+		// only print message if there's an error.
+		wm_msgbox("Fatal error", "Unable to init shader\n");
+		exit(1);
+	}
     // set defaults
     polymost_setCurrentShaderProgram(polymost1ExtendedShaderProgramID);
     glUniform1i(polymost1TexSamplerLoc, 0);
@@ -779,10 +791,6 @@ void polymost_glinit()
     glUniform1i(polymost1DetailSamplerLoc, 3);
     glUniform1i(polymost1GlowSamplerLoc, 4);
     polymost_setPalswapSize(256, numshades+1);
-    polymost_setCurrentShaderProgram(polymost1BasicShaderProgramID);
-    glUniform1i(polymost1TexSamplerLoc, 0);
-    glUniform1i(polymost1PalSwapSamplerLoc, 1);
-    glUniform1i(polymost1PaletteSamplerLoc, 2);
     useShaderProgram(0);
 
     lastbasepal = -1;
@@ -1125,7 +1133,7 @@ void uploadtexture(FHardwareTexture *tex, int32_t doalloc, vec2_t siz, int32_t t
 
 void uploadbasepalette(int32_t basepalnum)
 {
-    if (!polymost1BasicShaderProgramID)
+    if (!polymost1ExtendedShaderProgramID)
     {
         //POGO: if we haven't initialized properly yet, we shouldn't be uploading base palettes
         return;
@@ -1157,7 +1165,7 @@ void uploadbasepalette(int32_t basepalnum)
 
 void uploadpalswap(int32_t palookupnum)
 {
-    if (!polymost1BasicShaderProgramID)
+    if (!polymost1ExtendedShaderProgramID)
     {
         //POGO: if we haven't initialized properly yet, we shouldn't be uploading palette swap tables
         return;
