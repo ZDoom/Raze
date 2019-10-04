@@ -2204,7 +2204,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (skyzbufferhack_pass)
         pc[3] = 0.01f;
 
-    glColor4f(pc[0], pc[1], pc[2], pc[3]);
+    GLInterface.SetColor(pc[0], pc[1], pc[2], pc[3]);
 
     //POGOTODO: remove this, replace it with a shader implementation
     //Hack for walls&masked walls which use textures that are not a power of 2
@@ -7195,7 +7195,7 @@ void polymost_fillpolygon(int32_t npoints)
     if (maskprops > DAMETH_MASK)
     {
         GLInterface.EnableBlend(true);
-        glColor4f(f, f, f, float_trans(maskprops, 0));
+        GLInterface.SetColor(f, f, f, float_trans(maskprops, 0));
     }
     else
     {
@@ -7296,7 +7296,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     GLInterface.EnableAlphaTest(false);
     glDepthMask(GL_FALSE);	// disable writing to the z-buffer
 
-//    glPushAttrib(GL_POLYGON_BIT|GL_ENABLE_BIT);
     // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading >= 2.
     polymost_setFogEnabled(false);
     // We want to have readable text in wireframe mode, too:
@@ -7307,7 +7306,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     {
         int const c = Bstrlen(name);
 
-        glColor4ub(b.r,b.g,b.b,255);
+        GLInterface.SetColorub(b.r,b.g,b.b,255);
 
 		auto data = GLInterface.AllocVertices(4);
 		auto vt = data.second;
@@ -7321,7 +7320,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     }
 
     GLInterface.EnableBlend(true);
-    glColor4ub(p.r,p.g,p.b,255);
+    GLInterface.SetColorub(p.r,p.g,p.b,255);
 
     vec2f_t const tc = { fontsize ? (4.f / 256.f) : (8.f / 256.f),
                          fontsize ? (6.f / 128.f) : (8.f / 128.f) };
@@ -7352,7 +7351,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
             bricolor(&p, col);
 
-            glColor4ub(p.r, p.g, p.b, 255);
+            GLInterface.SetColorub(p.r, p.g, p.b, 255);
 
             continue;
         }
@@ -7386,8 +7385,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
 
     glDepthMask(GL_TRUE);	// re-enable writing to the z-buffer
-
-//    glPopAttrib();
 
     if (!nofog) polymost_setFogEnabled(true);
 

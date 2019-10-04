@@ -1082,10 +1082,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     if (shadowHack)
     {
         glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-//        glDepthRange(0.0, 0.9999);
     }
 
-//    glPushAttrib(GL_POLYGON_BIT);
 
     if ((grhalfxdown10x >= 0) ^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0))
         glFrontFace(GL_CW);
@@ -1164,7 +1162,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 				qstart += qdone * 4;
 				qdone = 0;
 			}
-            glColor4f(pc[0]*f, pc[1]*f, pc[2]*f, pc[3]*f);
+            GLInterface.SetColor(pc[0]*f, pc[1]*f, pc[2]*f, pc[3]*f);
         }
 
         const vert_t *const vptr = &m->quad[i].v[0];

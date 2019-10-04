@@ -254,18 +254,16 @@ void COMMON_doclearbackground(int numcols, int height)
 # ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
     {
-//        glPushAttrib(GL_FOG_BIT);
         polymost_setFogEnabled(false);
         polymost_useColorOnly(true);
 
         polymostSet2dView();
-        glColor4f(0.f, 0.f, 0.f, 0.67f);
+        GLInterface.SetColor(0.f, 0.f, 0.f, 0.67f);
         GLInterface.EnableBlend(true);
         glRecti(0, 0, xdim, height);
-        glColor4f(0.f, 0.f, 0.f, 1.f);
+        GLInterface.SetColor(0.f, 0.f, 0.f, 1.f);
         glRecti(0, height-4, xdim, height);
 
-//        glPopAttrib();
         polymost_useColorOnly(false);
         polymost_setFogEnabled(true);
 

@@ -62,7 +62,7 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     GLInterface.EnableBlend(true);
-    glColor4ub(r, g, b, f);
+    GLInterface.SetColorub(r, g, b, f);
 
     polymost_useColorOnly(true);
 
@@ -99,7 +99,7 @@ void fullscreen_tint_gl_blood(void)
     GLInterface.EnableBlend(true);
 
     polymost_useColorOnly(true);
-    glColor4ub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
+    GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
 	auto data = GLInterface.AllocVertices(3);
 	auto vt = data.second;
 	vt[0].Set(-2.5f, 1.f);
@@ -107,7 +107,7 @@ void fullscreen_tint_gl_blood(void)
 	vt[2].Set(.0f, -2.5f);
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
 	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
-	glColor4ub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
+	GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
 	data = GLInterface.AllocVertices(3);
 	vt = data.second;
 	vt[0].Set(-2.5f, 1.f);
@@ -115,7 +115,7 @@ void fullscreen_tint_gl_blood(void)
 	vt[2].Set(.0f, -2.5f);
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
 	glBlendEquation(GL_FUNC_ADD);
-    glColor4ub(0,0,0,0);
+    GLInterface.SetColorub(0,0,0,0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     polymost_useColorOnly(false);
 

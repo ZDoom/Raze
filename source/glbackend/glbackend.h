@@ -123,6 +123,11 @@ public:
 	void EnableStencilWrite(int value);
 	void EnableStencilTest(int value);
 	void DisableStencil();
+	void SetColor(float r, float g, float b, float a = 1.f);
+	void SetColorub(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
+	{
+		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
+	}
 };
 
 extern GLInstance GLInterface;

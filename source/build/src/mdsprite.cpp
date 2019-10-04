@@ -1987,19 +1987,11 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     if (tspr->extra&TSPR_EXTRA_MDHACK)
     {
-#ifdef __arm__ // GL ES has a glDepthRangef and the loss of precision is OK there
-        float f = (float) (tspr->owner + 1) * (std::numeric_limits<float>::epsilon() * 8.0);
-        if (f != 0.0) f *= 1.f/(float) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
-#else
         double f = (double) (tspr->owner + 1) * (std::numeric_limits<double>::epsilon() * 8.0);
         if (f != 0.0) f *= 1.0/(double) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
-//        glBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
-#endif
         glDepthFunc(GL_LEQUAL);
-//        glDepthRange(0.0 - f, 1.0 - f);
     }
 
-//    glPushAttrib(GL_POLYGON_BIT);
     if ((grhalfxdown10x >= 0) ^((globalorientation&8) != 0) ^((globalorientation&4) != 0)) glFrontFace(GL_CW); else glFrontFace(GL_CCW);
 	GLInterface.SetCull(Cull_Back);
 
@@ -2037,9 +2029,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if ((tspr->cstat&2) || sext->alpha > 0.f || pc[3] < 1.0f)
             GLInterface.EnableBlend(true); //else GLInterface.EnableBlend(false);
     }
-    glColor4f(pc[0],pc[1],pc[2],pc[3]);
+    GLInterface.SetColor(pc[0],pc[1],pc[2],pc[3]);
     //if (MFLAGS_NOCONV(m))
-    //    glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+    //    GLInterface.SetColor(0.0f, 0.0f, 1.0f, 1.0f);
     //------------
 
     // PLAG: Cleaner model rotation code

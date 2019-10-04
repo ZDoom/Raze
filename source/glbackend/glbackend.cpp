@@ -196,3 +196,8 @@ void GLInstance::SetCull(int type)
 		glCullFace(GL_BACK);
 	}
 }
+
+void GLInstance::SetColor(float r, float g, float b, float a)
+{
+	glColor4f(r, g, b, a);
+}

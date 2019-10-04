@@ -419,7 +419,6 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
 	GLInterface.SetMatrix(Matrix_Projection, &identity);
 	GLInterface.SetMatrix(Matrix_Texture0, &identity);
 
-//    glPushAttrib(GL_ENABLE_BIT);
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(false);
     GLInterface.EnableBlend(false);
