@@ -151,10 +151,10 @@ void GAME_onshowosd(int32_t shown)
 //        KB_KeyDown[sc_Pause] = 1;
 }
 
-void COMMON_doclearbackground(int numcols, int numrows);
 
 void GAME_clearbackground(int numcols, int numrows)
 {
+	void COMMON_doclearbackground(int numcols, int numrows);
 	int const i8n8 = OSD_SCALE(OSDCHAR_HEIGHT * numrows);
 	COMMON_doclearbackground(numcols, i8n8 + OSDCHAR_HEIGHT);
 }
