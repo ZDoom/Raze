@@ -78,20 +78,7 @@ extern float g_videoGamma, g_videoContrast, g_videoBrightness;
 extern int32_t (*baselayer_osdcmd_vidmode_func)(osdcmdptr_t parm);
 extern int osdcmd_glinfo(osdcmdptr_t parm);
 
-struct glinfo_t {
-    const char *vendor;
-    const char *renderer;
-    const char *version;
-    const char *extensions;
 
-    float maxanisotropy;
-    char debugoutput;
-    char bufferstorage;
-    char sync;
-    char dumped;
-};
-
-extern struct glinfo_t glinfo;
 #endif
 
 vec2_t CONSTEXPR const g_defaultVideoModes []
@@ -230,6 +217,9 @@ void joyReadButtons(int32_t *pResult);
 void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur);
 void joyGetDeadZone(int32_t axis, uint16_t *dead, uint16_t *satur);
 extern int32_t inputchecked;
+
+void getScreen(uint8_t* imgBuf);
+
 
 int32_t wm_msgbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
 int32_t wm_ynbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));

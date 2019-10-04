@@ -50,7 +50,7 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
         if (y1 > wy2) x1 += scale(wy2-y1, dx, dy), y1 = wy2;
     }
 
-    glViewport(0, 0, xdim, ydim);
+    GLInterface.SetViewport(0, 0, xdim, ydim);
 	VSMatrix proj(0);
 	proj.ortho(0, xdim, ydim, 0, -1, 1);
 	GLInterface.SetMatrix(Matrix_Projection, &proj);
@@ -115,7 +115,7 @@ void polymostSet2dView(void)
 #ifdef USE_OPENGL
     if (videoGetRenderMode() < REND_POLYMOST) return;
 
-    glViewport(0, 0, xdim, ydim);
+	GLInterface.SetViewport(0, 0, xdim, ydim);
 
 	VSMatrix proj(0);
 	proj.ortho(0, xdim, ydim, 0, -1, 1);

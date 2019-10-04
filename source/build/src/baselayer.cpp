@@ -8,6 +8,7 @@
 #include "a.h"
 #include "polymost.h"
 #include "cache1d.h"
+#include "../../glbackend/glbackend.h"
 
 // video
 #ifdef _WIN32
@@ -304,21 +305,8 @@ int osdcmd_glinfo(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
-    if (bpp == 8)
-    {
-        initprintf("glinfo: not in OpenGL mode!\n");
-        return OSDCMD_OK;
-    }
-
     initprintf("OpenGL information\n %s %s %s\n",
-               glinfo.vendor, glinfo.renderer, glinfo.version);
-
-    if (!glinfo.dumped)
-        return OSDCMD_OK;
-
-    char const *s[] = { "supported", "not supported" };
-
-    initprintf(" Extensions:\n%s", glinfo.extensions);
+               GLInterface.glinfo.vendor, GLInterface.glinfo.renderer, GLInterface.glinfo.version);
 
     return OSDCMD_OK;
 }

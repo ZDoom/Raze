@@ -915,7 +915,6 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
 static void G_ReadGLFrame(void)
 {
     // Save OpenGL screenshot with Duke3D palette
-    // NOTE: maybe need to move this to the engine...
     palette_t *const frame = (palette_t *)Xcalloc(xdim * ydim, sizeof(palette_t));
     char *const pic = (char *) waloff[TILE_SAVESHOT];
 
@@ -933,7 +932,7 @@ static void G_ReadGLFrame(void)
     }
 
     videoBeginDrawing();
-    glReadPixels(0, 0, xdim, ydim, GL_RGBA, GL_UNSIGNED_BYTE, frame);
+    getScreen((uint8_t*)frame);
     videoEndDrawing();
 
     for (y = 0; y < 200; y++)

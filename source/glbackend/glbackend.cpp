@@ -2,6 +2,7 @@
 #include "glad/glad.h"
 #include "gl_samplers.h"
 
+#include "baselayer.h"
 
 GLInstance GLInterface;
 
@@ -12,12 +13,24 @@ void GLInstance::Init()
 		mSamplers = new FSamplerManager;
 		memset(LastBoundTextures, 0, sizeof(LastBoundTextures));
 	}
+
+	glinfo.vendor = (const char*)glGetString(GL_VENDOR);
+	glinfo.renderer = (const char*)glGetString(GL_RENDERER);
+	glinfo.version = (const char*)glGetString(GL_VERSION);
+	glinfo.extensions = (const char*)glGetString(GL_EXTENSIONS);
+	glinfo.bufferstorage = !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
+	if (!glinfo.dumped)
+	{
+		osdcmd_glinfo(NULL);
+		glinfo.dumped = 1;
+	}
+
 }
 
 void GLInstance::InitGLState(int fogmode, int multisample)
 {
 	glShadeModel(GL_SMOOTH);  // GL_FLAT
-	glClearColor(0, 0, 0, 1.0);  // Black Background
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glDisable(GL_DITHER);
 	glEnable(GL_TEXTURE_2D);
@@ -178,7 +191,7 @@ void GLInstance::DisableStencil()
 	glDisable(GL_STENCIL_TEST);
 }
 
-void GLInstance::SetCull(int type)
+void GLInstance::SetCull(int type, int winding)
 {
 	if (type == Cull_None)
 	{
@@ -186,11 +199,13 @@ void GLInstance::SetCull(int type)
 	}
 	else if (type == Cull_Front)
 	{
+		glFrontFace(winding == Winding_CW ? GL_CW : GL_CCW);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 	}
 	else if (type == Cull_Back)
 	{
+		glFrontFace(winding == Winding_CW ? GL_CW : GL_CCW);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 	}
@@ -244,4 +259,35 @@ static int renderops[] = { GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRA
 void GLInstance::SetBlendOp(int op)
 {
 	glBlendEquation(renderops[op]);
+}
+
+void GLInstance::ClearScreen(float r, float g, float b, bool depth)
+{
+	glClearColor(r, g, b, 1.f);
+	glClear(depth ? GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT : GL_COLOR_BUFFER_BIT);
+}
+
+void GLInstance::ClearDepth()
+{
+	glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void GLInstance::SetAlphaThreshold(float al)
+{
+	glAlphaFunc(GL_GREATER, al);
+}
+
+void GLInstance::SetViewport(int x, int y, int w, int h)
+{
+	glViewport(x, y, w, h);
+}
+
+void GLInstance::SetWireframe(bool on)
+{
+	glPolygonMode(GL_FRONT_AND_BACK,on? GL_LINE : GL_FILL); 
+}
+
+void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
+{
+	glReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, buffer);
 }

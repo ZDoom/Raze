@@ -1002,8 +1002,8 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
     {
-        glClear(GL_DEPTH_BUFFER_BIT);
-        yax_polymostclearzbuffer = 0;
+		GLInterface.ClearScreen(0, 0, 0, true);
+		yax_polymostclearzbuffer = 0;
     }
 #endif
 
@@ -12081,11 +12081,10 @@ void videoClearViewableArea(int32_t dacol)
     {
         palette_t const p = paletteGetColor(dacol);
 
-        glClearColor((float)p.r * (1.f/255.f),
+        GLInterface.ClearScreen((float)p.r * (1.f/255.f),
                       (float)p.g * (1.f/255.f),
                       (float)p.b * (1.f/255.f),
-                      0);
-        glClear(GL_COLOR_BUFFER_BIT);
+                      false);
         return;
     }
 #endif
@@ -12119,12 +12118,11 @@ void videoClearScreen(int32_t dacol)
     {
         palette_t const p = paletteGetColor(dacol);
 
-        glViewport(0,0,xdim,ydim); glox1 = -1;
-        glClearColor((float)p.r * (1.f/255.f),
+		GLInterface.SetViewport(0,0,xdim,ydim); glox1 = -1;
+        GLInterface.ClearScreen((float)p.r * (1.f/255.f),
                       (float)p.g * (1.f/255.f),
                       (float)p.b * (1.f/255.f),
-                      0);
-        glClear(GL_COLOR_BUFFER_BIT);
+                      false);
         return;
     }
 #endif

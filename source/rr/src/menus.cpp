@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "input.h"
 #include "menus.h"
 #include "cheats.h"
+#include "../../glbackend/glbackend.h"
 
 BEGIN_RR_NS
 
@@ -2012,7 +2013,7 @@ static void Menu_Pre(MenuID_t cm)
 
             for (i = (int32_t) ARRAY_SIZE(MEOSV_DISPLAYSETUP_ANISOTROPY) - 1; i >= 0; --i)
             {
-                if (MEOSV_DISPLAYSETUP_ANISOTROPY[i] <= glinfo.maxanisotropy)
+                if (MEOSV_DISPLAYSETUP_ANISOTROPY[i] <= GLInterface.glinfo.maxanisotropy)
                 {
                     MEOS_DISPLAYSETUP_ANISOTROPY.numOptions = i + 1;
                     break;

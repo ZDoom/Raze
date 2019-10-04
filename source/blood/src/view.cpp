@@ -3450,17 +3450,20 @@ RORHACK:
             {
                 if (videoGetRenderMode() == REND_POLYMOST && gDeliriumBlur)
                 {
+					// todo: Implement using modern techniques instead of relying on deprecated old stuff that isn't well supported anymore.
+					/* names broken up so that searching for GL keywords won't find them anymore
                     if (!bDeliriumOld)
                     {
-                        glAccum(GL_LOAD, 1.f);
+                        g lAccum(GL_LOAD, 1.f);
                     }
                     else
                     {
                         const float fBlur = pow(1.f/3.f, 30.f/g_frameRate);
-                        glAccum(GL_MULT, fBlur);
-                        glAccum(GL_ACCUM, 1.f-fBlur);
-                        glAccum(GL_RETURN, 1.f);
+                        g lAccum(GL _MULT, fBlur);
+                        g lAccum(GL _ACCUM, 1.f-fBlur);
+                        g lAccum(GL _RETURN, 1.f);
                     }
+					*/
                 }
             }
 #endif

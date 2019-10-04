@@ -1085,12 +1085,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 	}
 
 
-    if ((grhalfxdown10x >= 0) ^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0))
-        glFrontFace(GL_CW);
-    else
-        glFrontFace(GL_CCW);
-
-	GLInterface.SetCull(Cull_Back);
+	int winding = ((grhalfxdown10x >= 0) ^ ((globalorientation & 8) != 0) ^ ((globalorientation & 4) != 0)) ? Winding_CW : Winding_CCW;
+	GLInterface.SetCull(Cull_Back, winding);
 
     float pc[4];
 

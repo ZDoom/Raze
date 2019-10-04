@@ -5,6 +5,7 @@
 #include "pngwrite.h"
 
 #include "vfs.h"
+#include "../../glbackend/glbackend.h"
 
 //
 // screencapture
@@ -54,6 +55,11 @@ static void screencapture_end(char *fn, buildvfs_FILE * filptr)
 #  define HICOLOR 0
 # endif
 
+void getScreen(uint8_t* imgBuf)
+{
+	GLInterface.ReadPixels(xdim, ydim, imgBuf);
+}
+
 int videoCaptureScreen(const char *filename, char inverseit)
 {
     char *fn = Xstrdup(filename);
@@ -72,7 +78,7 @@ int videoCaptureScreen(const char *filename, char inverseit)
 #ifdef USE_OPENGL
     if (HICOLOR)
     {
-        glReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, imgBuf);
+        getScreen(imgBuf);
         int const bytesPerLine = xdim * 3;
 
         if (inverseit)
@@ -200,7 +206,7 @@ int videoCaptureScreenTGA(const char *filename, char inverseit)
         int const size = xdim * ydim * 3;
         uint8_t *inversebuf = (uint8_t *) Xmalloc(size);
 
-        glReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, inversebuf);
+        getScreen(inversebuf);
 
         for (i = 0; i < size; i += 3)
             swapchar(&inversebuf[i], &inversebuf[i + 2]);

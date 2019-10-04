@@ -412,7 +412,7 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
     ////////// GL STATE //////////
 
     //Force fullscreen (glox1=-1 forces it to restore afterwards)
-    glViewport(0,0,xdim,ydim); glox1 = -1;
+	GLInterface.SetViewport(0,0,xdim,ydim); glox1 = -1;
 
 	VSMatrix identity(0);
 	GLInterface.SetMatrix(Matrix_ModelView, &identity);
@@ -439,8 +439,7 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
     texuploaded = 0;
     ////////////////////
 
-    glClearColor(0.0,0.0,0.0,1.0);
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	GLInterface.ClearScreen(0, 0, 0, true);
 }
 
 void animvpx_restore_glstate(void)

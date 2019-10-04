@@ -59,8 +59,6 @@ bool glsurface_initialize(vec2_t bufferResolution)
     if (buffer)
         glsurface_destroy();
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
     bufferRes = bufferResolution;
     buffer    = Xaligned_alloc(16, bufferRes.x * bufferRes.y);
 

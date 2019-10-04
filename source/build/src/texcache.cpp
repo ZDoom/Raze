@@ -13,7 +13,6 @@
 #include "vfs.h"
 
 
-#define CLEAR_GL_ERRORS() while(glGetError() != GL_NO_ERROR) { }
 #define TEXCACHE_FREEBUFS() { Xfree(pic), Xfree(packbuf), Xfree(midbuf); }
 
 globaltexcache texcache;

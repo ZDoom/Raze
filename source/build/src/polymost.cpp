@@ -49,8 +49,6 @@ static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 float shadescale = 1.0f;
 int32_t shadescale_unbounded = 0;
 
-int32_t r_polymostDebug = 0;
-int32_t r_enablepolymost2 = 0;
 int32_t r_pogoDebug = 0;
 int32_t r_usenewshading = 4;
 int32_t r_npotwallmode = 2;
@@ -228,25 +226,6 @@ hitdata_t polymost_hitdata;
 
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
-    static char msg[8192];
-    va_list vArgs;
-
-    if (!glinfo.debugoutput ||
-        r_polymostDebug < severity)
-    {
-        return;
-    }
-
-    va_start(vArgs, format);
-    Bvsnprintf(msg, sizeof(msg), format, vArgs);
-    va_end(vArgs);
-
-    glDebugMessageInsertARB(GL_DEBUG_SOURCE_APPLICATION_ARB,
-                            GL_DEBUG_TYPE_OTHER_ARB,
-                            0,
-                            GL_DEBUG_SEVERITY_HIGH_ARB+severity-1,
-                            -1,
-                            msg);
 }
 
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
@@ -296,10 +275,10 @@ void gltexapplyprops(void)
     if (videoGetRenderMode() == REND_CLASSIC)
         return;
 
-	if (glinfo.maxanisotropy > 1.f)
+	if (GLInterface.glinfo.maxanisotropy > 1.f)
 	{
-		if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy)
-			glanisotropy = (int32_t)glinfo.maxanisotropy;
+		if (glanisotropy <= 0 || glanisotropy > GLInterface.glinfo.maxanisotropy)
+			glanisotropy = (int32_t)GLInterface.glinfo.maxanisotropy;
 	}
 
 
@@ -1029,21 +1008,11 @@ static void resizeglcheck(void)
     if (lastglpolygonmode != r_polygonmode)
     {
         lastglpolygonmode = r_polygonmode;
-        switch (r_polygonmode)
-        {
-        default:
-        case 0:
-            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL); break;
-        case 1:
-            glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); break;
-        case 2:
-            glPolygonMode(GL_FRONT_AND_BACK,GL_POINT); break;
-        }
+		GLInterface.SetWireframe(r_polygonmode == 1);
     }
     if (r_polygonmode) //FUK
     {
-        glClearColor(1.0,1.0,1.0,0.0);
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		GLInterface.ClearScreen(1, 1, 1, true);
     }
 
     if ((glox1 != windowxy1.x) || (gloy1 != windowxy1.y) || (glox2 != windowxy2.x) || (gloy2 != windowxy2.y) || (gloxyaspect != gxyaspect) || (gloyxscale != gyxscale) || (glohoriz2 != ghoriz2) || (glohorizcorrect != ghorizcorrect) || (glotang != gtang))
@@ -1057,7 +1026,7 @@ static void resizeglcheck(void)
         glox1 = (float)windowxy1.x; gloy1 = (float)windowxy1.y;
         glox2 = (float)windowxy2.x; gloy2 = (float)windowxy2.y;
 
-        glViewport(windowxy1.x-(fovcorrect/2), ydim-(windowxy2.y+1),
+		GLInterface.SetViewport(windowxy1.x-(fovcorrect/2), ydim-(windowxy2.y+1),
                     ourxdimen+fovcorrect, windowxy2.y-windowxy1.y+1);
 
         float m[4][4];
@@ -2152,7 +2121,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         float const al = alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f) :
                          (pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f);
 
-        glAlphaFunc(GL_GREATER, al);
+		GLInterface.SetAlphaThreshold(al);
         handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
     }
 
@@ -5252,10 +5221,11 @@ void polymost_drawrooms()
     frameoffset = frameplace + windowxy1.y*bytesperline + windowxy1.x;
 
 #ifdef YAX_ENABLE
-    if (yax_polymostclearzbuffer)
+	if (yax_polymostclearzbuffer)
 #endif
-    glClear(GL_DEPTH_BUFFER_BIT);
-
+	{
+		GLInterface.ClearDepth();
+	}
     GLInterface.EnableBlend(false);
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(true);
@@ -6653,12 +6623,12 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
     if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
     {
-        glViewport(windowxy1.x, ydim-(windowxy2.y+1), windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
+		GLInterface.SetViewport(windowxy1.x, ydim-(windowxy2.y+1), windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
         glox1 = -1;
     }
     else
     {
-        glViewport(0, 0, xdim, ydim);
+		GLInterface.SetViewport(0, 0, xdim, ydim);
         glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
     }
 
@@ -6706,8 +6676,8 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
         if (onumframes != numframes)
         {
             onumframes = numframes;
-            glClear(GL_DEPTH_BUFFER_BIT);
-        }
+			GLInterface.ClearDepth();
+		}
     }
 
     spriteext[tspr.owner].alpha = daalpha * (1.0f / 255.0f);
@@ -6746,7 +6716,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     polymost_outputGLDebugMessage(3, "polymost_dorotatesprite(sx:%d, sy:%d, z:%d, a:%hd, picnum:%hd, dashade:%hhd, dapalnum:%hhu, dastat:%d, daalpha:%hhu, dablend:%hhu, cx1:%d, cy1:%d, cx2:%d, cy2:%d, uniqid:%d)",
                                   sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2, uniqid);
 
-    glViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
+	GLInterface.SetViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
 	auto oldproj = GLInterface.GetMatrix(Matrix_Projection);
 	auto oldmv = GLInterface.GetMatrix(Matrix_ModelView);
 	
@@ -7295,8 +7265,8 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading >= 2.
     polymost_setFogEnabled(false);
     // We want to have readable text in wireframe mode, too:
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    lastglpolygonmode = 0;
+	GLInterface.SetWireframe(false);
+	lastglpolygonmode = 0;
 
     if (backcol >= 0)
     {
@@ -7481,7 +7451,6 @@ void polymost_initosdfuncs(void)
 
     static osdcvardata_t cvars_polymost[] =
     {
-        { "r_polymostDebug","Set the verbosity of Polymost GL debug messages",(void *) &r_polymostDebug, CVAR_INT, 0, 3 },
 #ifdef USE_GLEXT
         { "r_detailmapping","enable/disable detail mapping",(void *) &r_detailmapping, CVAR_BOOL, 0, 1 },
         { "r_glowmapping","enable/disable glow mapping",(void *) &r_glowmapping, CVAR_BOOL, 0, 1 },

@@ -9,6 +9,17 @@
 
 class FSamplerManager;
 
+struct glinfo_t {
+	const char* vendor;
+	const char* renderer;
+	const char* version;
+	const char* extensions;
+
+	float maxanisotropy;
+	char bufferstorage;
+	char dumped;
+};
+
 struct BaseVertex
 {
 	float x, y, z;
@@ -97,6 +108,12 @@ enum ERenderOp
 	STYLEOP_Sub,			// Subtract source from destination
 	STYLEOP_RevSub,			// Subtract destination from source
 };
+
+enum EWinding
+{
+	Winding_CCW,
+	Winding_CW
+};
 class GLInstance
 {
 	enum
@@ -114,6 +131,7 @@ class GLInstance
 	
 	
 public:
+	glinfo_t glinfo;
 	FSamplerManager *mSamplers;
 	
 	void Init();
@@ -147,7 +165,7 @@ public:
 	{
 		SetMatrix(num, reinterpret_cast<const VSMatrix*>(mat));
 	}
-	void SetCull(int type);
+	void SetCull(int type, int winding = Winding_CCW);
 
 	void EnableStencilWrite(int value);
 	void EnableStencilTest(int value);
@@ -165,6 +183,13 @@ public:
 	void SetDepthMask(bool on);
 	void SetBlendFunc(int src, int dst);
 	void SetBlendOp(int op);
+	void ClearScreen(float r, float g, float b, bool depth);
+	void ClearDepth();
+	void SetViewport(int x, int y, int w, int h);
+	void SetAlphaThreshold(float al);
+	void SetWireframe(bool on);
+
+	void ReadPixels(int w, int h, uint8_t* buffer);
 };
 
 extern GLInstance GLInterface;

@@ -1992,8 +1992,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 		GLInterface.SetDepthFunc(Depth_LessEqual);
     }
 
-    if ((grhalfxdown10x >= 0) ^((globalorientation&8) != 0) ^((globalorientation&4) != 0)) glFrontFace(GL_CW); else glFrontFace(GL_CCW);
-	GLInterface.SetCull(Cull_Back);
+	int winding = ((grhalfxdown10x >= 0) ^((globalorientation&8) != 0) ^((globalorientation&4) != 0))? Winding_CW : Winding_CCW;
+	GLInterface.SetCull(Cull_Back, winding);
 
     // tinting
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
@@ -2022,7 +2022,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
             al=alphahackarray[globalpicnum] * (1.f/255.f);
         GLInterface.EnableBlend(true);
         GLInterface.EnableAlphaTest(true);
-        glAlphaFunc(GL_GREATER,al);
+		GLInterface.SetAlphaThreshold(al);
     }
     else
     {

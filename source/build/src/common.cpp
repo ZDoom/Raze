@@ -249,29 +249,36 @@ int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
 // Clear OSD background
 void COMMON_doclearbackground(int numcols, int height)
 {
-    UNREFERENCED_PARAMETER(numcols);
+    polymost_setFogEnabled(false);
+    polymost_useColorOnly(true);
 
-# ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
-    {
-        polymost_setFogEnabled(false);
-        polymost_useColorOnly(true);
+	polymostSet2dView();
 
-        polymostSet2dView();
-        GLInterface.SetColor(0.f, 0.f, 0.f, 0.67f);
-        GLInterface.EnableBlend(true);
-        glRecti(0, 0, xdim, height);
-        GLInterface.SetColor(0.f, 0.f, 0.f, 1.f);
-        glRecti(0, height-4, xdim, height);
+	VSMatrix identity(0);
+	GLInterface.SetMatrix(Matrix_ModelView, &identity);
+	auto vert = GLInterface.AllocVertices(8);
+	auto vt = vert.second;
 
-        polymost_useColorOnly(false);
-        polymost_setFogEnabled(true);
+	auto h4 = height - 4;
 
-        return;
-    }
-# endif
+	GLInterface.EnableBlend(true);
 
-    CLEARLINES2D(0, min(ydim, height), editorcolors[16]);
+	vt[0].Set(0, 0); //top-left
+	vt[1].Set(0, h4); //bottom-left
+	vt[2].Set(xdim, 0); //top-right
+	vt[3].Set(xdim, h4);  //bottom-right
+	GLInterface.SetColor(0.f, 0.f, 0.f, 0.67f);
+	GLInterface.Draw(DT_TRIANGLE_STRIP, vert.first, 4);
+
+	vt[0].Set(0, h4); //top-left
+	vt[1].Set(0, height); //bottom-left
+	vt[2].Set(xdim, h4); //top-right
+	vt[3].Set(xdim, height);  //bottom-right
+	GLInterface.SetColor(0.f, 0.f, 0.f, 1.f);
+	GLInterface.Draw(DT_TRIANGLE_STRIP, vert.first+4, 4);
+
+    polymost_useColorOnly(false);
+    polymost_setFogEnabled(true);
 }
 
 void COMMON_clearbackground(int numcols, int numrows)

@@ -1323,39 +1323,6 @@ void sdlayer_setvideomode_opengl(void)
     glsurface_destroy();
     polymost_glreset();
 
-    glinfo.vendor = (const char *) glGetString(GL_VENDOR);
-    glinfo.renderer = (const char *) glGetString(GL_RENDERER);
-    glinfo.version = (const char *) glGetString(GL_VERSION);
-    glinfo.extensions = (const char *) glGetString(GL_EXTENSIONS);
-
-    // process the extensions string and flag stuff we recognize
-
-    glinfo.debugoutput = !!Bstrstr(glinfo.extensions, "GL_ARB_debug_output");
-    glinfo.bufferstorage = !!Bstrstr(glinfo.extensions, "GL_ARB_buffer_storage");
-    glinfo.sync = !!Bstrstr(glinfo.extensions, "GL_ARB_sync");
-
-    if (Bstrstr(glinfo.extensions, "WGL_3DFX_gamma_control"))
-    {
-        static int32_t warnonce;
-        // 3dfx cards have issues with fog
-        nofog = 1;
-        if (!(warnonce & 1))
-            initprintf("3dfx card detected: OpenGL fog disabled\n");
-        warnonce |= 1;
-    }
-
-//    if (Bstrstr(glinfo.extensions, "GL_EXT_texture_filter_anisotropic"))
-    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
-
-    if (!glinfo.dumped)
-    {
-        int32_t oldbpp = bpp;
-        bpp = 32;
-        osdcmd_glinfo(NULL);
-        glinfo.dumped = 1;
-        bpp = oldbpp;
-    }
-
 	GLInterface.Deinit();
 	GLInterface.Init();
 	GLInterface.InitGLState(r_usenewshading, glmultisample);
