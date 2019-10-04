@@ -60,7 +60,7 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
     GLInterface.EnableAlphaTest(false);
     polymost_setFogEnabled(false);
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
     GLInterface.EnableBlend(true);
     GLInterface.SetColorub(r, g, b, f);
 
@@ -95,7 +95,7 @@ void fullscreen_tint_gl_blood(void)
     GLInterface.EnableAlphaTest(false);
     polymost_setFogEnabled(false);
 
-    glBlendFunc(GL_ONE, GL_ONE);
+	GLInterface.SetBlendFunc(STYLEALPHA_One, STYLEALPHA_One);
     GLInterface.EnableBlend(true);
 
     polymost_useColorOnly(true);
@@ -106,7 +106,7 @@ void fullscreen_tint_gl_blood(void)
 	vt[1].Set(2.5f, 1.f);
 	vt[2].Set(.0f, -2.5f);
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
-	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+	GLInterface.SetBlendOp(STYLEOP_RevSub);
 	GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
 	data = GLInterface.AllocVertices(3);
 	vt = data.second;
@@ -114,10 +114,10 @@ void fullscreen_tint_gl_blood(void)
 	vt[1].Set(2.5f, 1.f);
 	vt[2].Set(.0f, -2.5f);
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
-	glBlendEquation(GL_FUNC_ADD);
-    GLInterface.SetColorub(0,0,0,0);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    polymost_useColorOnly(false);
+	GLInterface.SetBlendOp(STYLEOP_Add);
+	GLInterface.SetColorub(0,0,0,0);
+	GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+	polymost_useColorOnly(false);
 
 	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
 	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);
@@ -579,26 +579,26 @@ void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
 {
     static GLenum const blendFuncTokens[NUMBLENDFACTORS] =
     {
-        GL_ZERO,
-        GL_ONE,
-        GL_SRC_COLOR,
-        GL_ONE_MINUS_SRC_COLOR,
-        GL_SRC_ALPHA,
-        GL_ONE_MINUS_SRC_ALPHA,
-        GL_DST_ALPHA,
-        GL_ONE_MINUS_DST_ALPHA,
-        GL_DST_COLOR,
-        GL_ONE_MINUS_DST_COLOR,
-    };
+        STYLEALPHA_Zero,
+        STYLEALPHA_One,
+        STYLEALPHA_SrcCol,
+        STYLEALPHA_InvSrcCol,
+        STYLEALPHA_Src,
+        STYLEALPHA_InvSrc,
+        STYLEALPHA_Dst,
+		STYLEALPHA_InvDst,
+		STYLEALPHA_DstCol,
+		STYLEALPHA_InvDstCol,
+	};
 
     if (!enable)
     {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        return;
+		GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+		return;
     }
 
     glblenddef_t const * const glbdef = glblend[blend].def + def;
-    glBlendFunc(blendFuncTokens[glbdef->src], blendFuncTokens[glbdef->dst]);
+	GLInterface.SetBlendFunc(blendFuncTokens[glbdef->src], blendFuncTokens[glbdef->dst]);
 }
 #endif
 

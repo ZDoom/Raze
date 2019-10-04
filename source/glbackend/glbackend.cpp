@@ -221,3 +221,27 @@ void GLInstance::SetFogExp2(float* color, float coefficient)
 	glFogf(GL_FOG_DENSITY, coefficient);
 	glFogfv(GL_FOG_COLOR, color);
 }
+
+void GLInstance::SetColorMask(bool on)
+{
+	glColorMask(on, on, on, on);
+}
+
+void GLInstance::SetDepthMask(bool on)
+{
+	glDepthMask(on);
+}
+
+static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
+
+void GLInstance::SetBlendFunc(int src, int dst)
+{
+	glBlendFunc(blendstyles[src], blendstyles[dst]);
+}
+
+static int renderops[] = { GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
+
+void GLInstance::SetBlendOp(int op)
+{
+	glBlendEquation(renderops[op]);
+}

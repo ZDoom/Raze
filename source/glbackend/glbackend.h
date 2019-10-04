@@ -76,6 +76,27 @@ enum EDepthFunc
 	Depth_LessEqual
 };
 
+enum ERenderAlpha
+{
+	STYLEALPHA_Zero,		// Blend factor is 0.0
+	STYLEALPHA_One,			// Blend factor is 1.0
+	STYLEALPHA_Src,			// Blend factor is alpha
+	STYLEALPHA_InvSrc,		// Blend factor is 1.0 - alpha
+	STYLEALPHA_SrcCol,		// Blend factor is color (HWR only)
+	STYLEALPHA_InvSrcCol,	// Blend factor is 1.0 - color (HWR only)
+	STYLEALPHA_DstCol,		// Blend factor is dest. color (HWR only)
+	STYLEALPHA_InvDstCol,	// Blend factor is 1.0 - dest. color (HWR only)
+	STYLEALPHA_Dst,			// Blend factor is dest. alpha
+	STYLEALPHA_InvDst,		// Blend factor is 1.0 - dest. alpha
+	STYLEALPHA_MAX
+};
+
+enum ERenderOp
+{
+	STYLEOP_Add,			// Add source to destination
+	STYLEOP_Sub,			// Subtract source from destination
+	STYLEOP_RevSub,			// Subtract destination from source
+};
 class GLInstance
 {
 	enum
@@ -140,6 +161,10 @@ public:
 	void SetDepthFunc(int func);
 	void SetFogLinear(float* color, float start, float end);
 	void SetFogExp2(float* color, float coefficient);
+	void SetColorMask(bool on);
+	void SetDepthMask(bool on);
+	void SetBlendFunc(int src, int dst);
+	void SetBlendOp(int op);
 };
 
 extern GLInstance GLInterface;

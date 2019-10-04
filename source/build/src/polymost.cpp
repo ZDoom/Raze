@@ -2022,7 +2022,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (!waloff[globalpicnum])
     {
         tsiz.x = tsiz.y = 1;
-        glColorMask(false, false, false, false); //Hack to update Z-buffer for invalid mirror textures
+		GLInterface.SetColorMask(false); //Hack to update Z-buffer for invalid mirror textures
     }
 
     static int32_t fullbright_pass = 0;
@@ -2371,7 +2371,7 @@ do                                                                              
     if (videoGetRenderMode() != REND_POLYMOST)
     {
         if (!waloff[globalpicnum])
-            glColorMask(true, true, true, true);
+			GLInterface.SetColorMask(true);
 
         return;
     }
@@ -2408,15 +2408,15 @@ do                                                                              
         vec3d_t const bxtex = xtex, bytex = ytex, botex = otex;
         xtex = xtex2, ytex = ytex2, otex = otex2;
         skyzbufferhack_pass++;
-        glColorMask(false, false, false, false);
-        polymost_drawpoly(dpxy, n, DAMETH_MASK);
-        glColorMask(true, true, true, true);
-        xtex = bxtex, ytex = bytex, otex = botex;
+		GLInterface.SetColorMask(false);
+		polymost_drawpoly(dpxy, n, DAMETH_MASK);
+		GLInterface.SetColorMask(true);
+		xtex = bxtex, ytex = bytex, otex = botex;
         skyzbufferhack_pass--;
     }
 
     if (!waloff[globalpicnum])
-        glColorMask(true, true, true, true);
+		GLInterface.SetColorMask(true);
 }
 
 
@@ -7290,7 +7290,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     polymostSet2dView();	// disables blending, texturing, and depth testing
 
     GLInterface.EnableAlphaTest(false);
-    glDepthMask(GL_FALSE);	// disable writing to the z-buffer
+	GLInterface.SetDepthMask(false);
 
     // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading >= 2.
     polymost_setFogEnabled(false);
@@ -7380,7 +7380,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     }
 
 
-    glDepthMask(GL_TRUE);	// re-enable writing to the z-buffer
+	GLInterface.SetDepthMask(true);
 
     if (!nofog) polymost_setFogEnabled(true);
 

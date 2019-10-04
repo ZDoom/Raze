@@ -9001,7 +9001,7 @@ killsprite:
                 }
                 else
                 {
-                    glDepthMask(GL_FALSE);
+					GLInterface.SetDepthMask(false);
 
                     for (bssize_t k = j-1; k >= i; k--)
                     {
@@ -9009,9 +9009,9 @@ killsprite:
                         renderDrawSprite(k);
                     }
 
-                    glDepthMask(GL_TRUE);
+					GLInterface.SetDepthMask(true);
 
-                    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+					GLInterface.SetColorMask(false);
                     
                     for (bssize_t k = j-1; k >= i; k--)
                     {
@@ -9019,7 +9019,7 @@ killsprite:
                         tspriteptr[k] = NULL;
                     }
 
-                    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+					GLInterface.SetColorMask(true);
 
                 }
                 i = j;
@@ -9042,30 +9042,8 @@ killsprite:
 
         GLInterface.EnableBlend(true);
         GLInterface.EnableAlphaTest(true);
-        glDepthMask(GL_FALSE);
-    }
-#endif
-
-#if 0
-        for (i=spritesortcnt-1; i>=0; i--)
-        {
-            double xs = tspriteptr[i]->x-globalposx;
-            double ys = tspriteptr[i]->y-globalposy;
-            int32_t zs = tspriteptr[i]->z-globalposz;
-
-            int32_t xp = ys*cosglobalang-xs*singlobalang;
-            int32_t yp = (zs<<1);
-            int32_t zp = xs*cosglobalang+ys*singlobalang;
-
-            xs = ((double)xp*(halfxdimen<<12)/zp)+((halfxdimen+windowxy1.x)<<12);
-            ys = ((double)yp*(xdimenscale<<12)/zp)+((globalhoriz+windowxy1.y)<<12);
-
-            if (xs >= INT32_MIN && xs <= INT32_MAX && ys >= INT32_MIN && ys <= INT32_MAX)
-            {
-                drawline256(xs-65536,ys-65536,xs+65536,ys+65536,31);
-                drawline256(xs+65536,ys-65536,xs-65536,ys+65536,31);
-            }
-        }
+		GLInterface.SetDepthMask(false);
+	}
 #endif
 
     vec2f_t pos;
@@ -9204,45 +9182,11 @@ killsprite:
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
     {
-        glDepthMask(GL_TRUE);
-        polymost_setClamp(0);
+		GLInterface.SetDepthMask(true);
+		polymost_setClamp(0);
     }
 #endif
 
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-        polymer_drawmasks();
-#endif
-#ifdef DEBUG_MASK_DRAWING
-    if (g_maskDrawMode && videoGetRenderMode() == REND_CLASSIC)
-    {
-        for (i=0; i<dmasknum; i++)
-        {
-            EDUKE32_STATIC_ASSERT(MAXWALLS <= 32768 && MAXSPRITES <= 32768);
-            int32_t spritep = !!(debugmask[i].di & 32768);
-            int32_t di = debugmask[i].di & 32767;
-//            int32_t ii = debugmask[i].i;
-
-            char numstr[12];
-            Bsprintf(numstr, "%d", i+1);
-
-            if (spritep)
-            {
-                int32_t sx = spritesxyz[di].x>>8, sy = ydim/2 + 8;
-                // XXX: printext256 really ought to do bound checking on the
-                // x/y coords!
-                sx = clamp(sx, 0, xdim-8*Bstrlen(numstr)-1);
-                printext256(sx, sy, 241, 0, numstr, 0);
-            }
-            else
-            {
-                int32_t sx = xb1[di] + (xb2[di]-xb1[di])/2, sy = ydim/2;
-                sx = clamp(sx, 0, xdim-8*Bstrlen(numstr)-1);
-                printext256(sx, sy, 31, 0, numstr, 0);
-            }
-        }
-    }
-#endif
 
     videoEndDrawing();   //}}}
 }
