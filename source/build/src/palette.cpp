@@ -50,19 +50,18 @@ static void paletteSetFade(uint8_t offset);
 #ifdef USE_OPENGL
 void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
 {
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
+	auto oldproj = GLInterface.GetMatrix(Matrix_Projection);
+	auto oldmv = GLInterface.GetMatrix(Matrix_ModelView);
+	VSMatrix identity(0);
+	GLInterface.SetMatrix(Matrix_Projection, &identity);
+	GLInterface.SetMatrix(Matrix_ModelView, &identity);
 
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_ALPHA_TEST);
+    GLInterface.EnableDepthTest(false);
+    GLInterface.EnableAlphaTest(false);
     polymost_setFogEnabled(false);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    GLInterface.EnableBlend(true);
     glColor4ub(r, g, b, f);
 
     polymost_useColorOnly(true);
@@ -75,9 +74,8 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
     polymost_useColorOnly(false);
 
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
+	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
+	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);
 }
 
 int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
@@ -86,19 +84,19 @@ void fullscreen_tint_gl_blood(void)
 {
     if (!(tint_blood_r|tint_blood_g|tint_blood_b))
         return;
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
+	auto oldproj = GLInterface.GetMatrix(Matrix_Projection);
+	auto oldmv = GLInterface.GetMatrix(Matrix_ModelView);
+	VSMatrix identity(0);
+	GLInterface.SetMatrix(Matrix_Projection, &identity);
+	GLInterface.SetMatrix(Matrix_ModelView, &identity);
 
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_ALPHA_TEST);
+
+    GLInterface.EnableDepthTest(false);
+    GLInterface.EnableAlphaTest(false);
     polymost_setFogEnabled(false);
 
     glBlendFunc(GL_ONE, GL_ONE);
-    glEnable(GL_BLEND);
+    GLInterface.EnableBlend(true);
 
     polymost_useColorOnly(true);
     glColor4ub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
@@ -121,9 +119,9 @@ void fullscreen_tint_gl_blood(void)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     polymost_useColorOnly(false);
 
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
+	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
+	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);
+
 }
 #endif
 
@@ -846,8 +844,8 @@ palette_t paletteGetColor(int32_t col)
 {
     if (!gammabrightness)
     {
-        palette_t const p = { britable[curbrightness][curpalette[col].r], britable[curbrightness][curpalette[col].g],
-                              britable[curbrightness][curpalette[col].b], 0 };
+        palette_t const p = { (uint8_t)britable[curbrightness][curpalette[col].r],            (uint8_t)britable[curbrightness][curpalette[col].g],
+                              (uint8_t)britable[curbrightness][curpalette[col].b], 0 };
         return p;
     }
 

@@ -9,6 +9,7 @@
 #include "common.h"
 
 #include "vfs.h"
+#include "../../glbackend/glbackend.h"
 
 GrowArray<char*> g_defModules;
 
@@ -259,7 +260,7 @@ void COMMON_doclearbackground(int numcols, int height)
 
         polymostSet2dView();
         glColor4f(0.f, 0.f, 0.f, 0.67f);
-        glEnable(GL_BLEND);
+        GLInterface.EnableBlend(true);
         glRecti(0, 0, xdim, height);
         glColor4f(0.f, 0.f, 0.f, 1.f);
         glRecti(0, height-4, xdim, height);

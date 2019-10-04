@@ -1318,57 +1318,21 @@ static void destroy_window_resources()
 #endif
 }
 
-#ifdef USE_OPENGL
 void sdlayer_setvideomode_opengl(void)
 {
     glsurface_destroy();
     polymost_glreset();
-
-    glShadeModel(GL_SMOOTH);  // GL_FLAT
-    glClearColor(0, 0, 0, 1.0);  // Black Background
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Use FASTEST for ortho!
-//    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-    glDisable(GL_DITHER);
 
     glinfo.vendor = (const char *) glGetString(GL_VENDOR);
     glinfo.renderer = (const char *) glGetString(GL_RENDERER);
     glinfo.version = (const char *) glGetString(GL_VERSION);
     glinfo.extensions = (const char *) glGetString(GL_EXTENSIONS);
 
-    glinfo.maxanisotropy = 1.0;
-    glinfo.bgra = 0;
-    glinfo.clamptoedge = 1;
-    glinfo.multitex = 1;
-
     // process the extensions string and flag stuff we recognize
 
-    glinfo.texnpot = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_non_power_of_two") || !!Bstrstr(glinfo.extensions, "GL_OES_texture_npot");
-    glinfo.multisample = !!Bstrstr(glinfo.extensions, "GL_ARB_multisample");
-    glinfo.nvmultisamplehint = !!Bstrstr(glinfo.extensions, "GL_NV_multisample_filter_hint");
-    glinfo.arbfp = !!Bstrstr(glinfo.extensions, "GL_ARB_fragment_program");
-    glinfo.depthtex = !!Bstrstr(glinfo.extensions, "GL_ARB_depth_texture");
-    glinfo.shadow = !!Bstrstr(glinfo.extensions, "GL_ARB_shadow");
-    glinfo.fbos = !!Bstrstr(glinfo.extensions, "GL_EXT_framebuffer_object") || !!Bstrstr(glinfo.extensions, "GL_OES_framebuffer_object");
-
-    glinfo.texcompr = 0;
-	glinfo.bgra = 0;// !!Bstrstr(glinfo.extensions, "GL_EXT_bgra");
-    glinfo.clamptoedge = true;
-    glinfo.rect =
-    !!Bstrstr(glinfo.extensions, "GL_NV_texture_rectangle") || !!Bstrstr(glinfo.extensions, "GL_EXT_texture_rectangle");
-
-    glinfo.multitex = !!Bstrstr(glinfo.extensions, "GL_ARB_multitexture");
-
-    glinfo.envcombine = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_env_combine");
-    glinfo.vbos = !!Bstrstr(glinfo.extensions, "GL_ARB_vertex_buffer_object");
-    glinfo.sm4 = !!Bstrstr(glinfo.extensions, "GL_EXT_gpu_shader4");
-    glinfo.occlusionqueries = !!Bstrstr(glinfo.extensions, "GL_ARB_occlusion_query");
-    glinfo.glsl = !!Bstrstr(glinfo.extensions, "GL_ARB_shader_objects");
     glinfo.debugoutput = !!Bstrstr(glinfo.extensions, "GL_ARB_debug_output");
     glinfo.bufferstorage = !!Bstrstr(glinfo.extensions, "GL_ARB_buffer_storage");
     glinfo.sync = !!Bstrstr(glinfo.extensions, "GL_ARB_sync");
-    glinfo.depthclamp = !!Bstrstr(glinfo.extensions, "GL_ARB_depth_clamp");
-    glinfo.clipcontrol = !!Bstrstr(glinfo.extensions, "GL_ARB_clip_control");
 
     if (Bstrstr(glinfo.extensions, "WGL_3DFX_gamma_control"))
     {
@@ -1381,7 +1345,7 @@ void sdlayer_setvideomode_opengl(void)
     }
 
 //    if (Bstrstr(glinfo.extensions, "GL_EXT_texture_filter_anisotropic"))
-        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 
     if (!glinfo.dumped)
     {
@@ -1394,10 +1358,10 @@ void sdlayer_setvideomode_opengl(void)
 
 	GLInterface.Deinit();
 	GLInterface.Init();
+	GLInterface.InitGLState(r_usenewshading, glmultisample);
 	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
 
 }
-#endif  // defined USE_OPENGL
 
 //
 // setvideomode() -- set SDL video mode

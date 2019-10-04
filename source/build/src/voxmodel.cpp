@@ -1092,8 +1092,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     else
         glFrontFace(GL_CCW);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+	GLInterface.SetCull(Cull_Back);
 
     float pc[4];
 
@@ -1108,7 +1107,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
         handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
         if (!(tspr->cstat & 2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f)
-            glEnable(GL_BLEND);  // else glDisable(GL_BLEND);
+            GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);
     }
     else pc[3] = 1.f;
     //------------
@@ -1126,10 +1125,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     mat[13] -= (m->piv.x*mat[1] + m->piv.y*mat[5] + zoff*mat[9]);
     mat[14] -= (m->piv.x*mat[2] + m->piv.y*mat[6] + zoff*mat[10]);
     //
-    glMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
+    //Let OpenGL (and perhaps hardware :) handle the matrix rotation
     mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
 
-    glLoadMatrixf(mat);
+	GLInterface.SetMatrix(Matrix_ModelView, mat);
 
     const float ru = 1.f/((float)m->mytexx);
     const float rv = 1.f/((float)m->mytexy);
@@ -1192,15 +1191,15 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 	GLInterface.Draw(DT_QUADS, qstart, qdone * 4);
     polymost_setClamp(prevClamp);
     //------------
-    glDisable(GL_CULL_FACE);
-//    glPopAttrib();
+	GLInterface.SetCull(Cull_None);
+
     if (shadowHack)
     {
         glDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        glDepthRange(0.0, 0.99999);
     }
-    glLoadIdentity();
-
+	VSMatrix identity(0);
+	GLInterface.SetMatrix(Matrix_ModelView, &identity);
     return 1;
 }
 #endif

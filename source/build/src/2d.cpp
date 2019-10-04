@@ -9,6 +9,7 @@
 #include "build.h"
 #include "compat.h"
 #include "baselayer.h"
+#include "matrix.h"
 #include "../../glbackend/glbackend.h"
 
 
@@ -50,14 +51,14 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
     }
 
     glViewport(0, 0, xdim, ydim);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, xdim, ydim, 0, -1, 1);
+	VSMatrix proj(0);
+	proj.ortho(0, xdim, ydim, 0, -1, 1);
+	GLInterface.SetMatrix(Matrix_Projection, &proj);
 
     gloy1 = -1;
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);	// When using line antialiasing, this is needed
+    GLInterface.EnableAlphaTest(false);
+    GLInterface.EnableDepthTest(false);
+    GLInterface.EnableBlend(true);	// When using line antialiasing, this is needed
 
     polymost_useColorOnly(true);
     glColor4ub(p.r, p.g, p.b, 255);
@@ -86,7 +87,7 @@ void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
     //drawlinepixels(x1, y1, x2, y2, col);
 }
 
-void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
+void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
 {
     col = palookup[0][col];
 
@@ -116,13 +117,13 @@ void polymostSet2dView(void)
 
     glViewport(0, 0, xdim, ydim);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, xdim, ydim, 0, -1, 1);
+	VSMatrix proj(0);
+	proj.ortho(0, xdim, ydim, 0, -1, 1);
+	GLInterface.SetMatrix(Matrix_Projection, &proj);
 
     gloy1 = -1;
 
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
+    GLInterface.EnableDepthTest(false);
+    GLInterface.EnableBlend(false);
 #endif
 }

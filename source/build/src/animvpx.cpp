@@ -9,6 +9,7 @@
 #include "build.h"
 #include "glad/glad.h"
 #include "cache1d.h"
+#include "matrix.h"
 #include "../../glbackend/glbackend.h"
 
 #undef UNUSED
@@ -376,9 +377,6 @@ static const char *fragprog_src =
 
 void animvpx_setup_glstate(int32_t animvpx_flags)
 {
-#ifdef USE_GLEXT
-    if (glinfo.glsl)
-    {
         GLint gli;
         GLuint FSHandle, PHandle;
         static char logbuf[512];
@@ -409,28 +407,23 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
 
         /* Finally, use the program. */
         useShaderProgram(PHandle);
-    }
-#endif
+
 
     ////////// GL STATE //////////
 
     //Force fullscreen (glox1=-1 forces it to restore afterwards)
     glViewport(0,0,xdim,ydim); glox1 = -1;
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
+	VSMatrix identity(0);
+	GLInterface.SetMatrix(Matrix_ModelView, &identity);
+	GLInterface.SetMatrix(Matrix_Projection, &identity);
+	GLInterface.SetMatrix(Matrix_Texture0, &identity);
 
 //    glPushAttrib(GL_ENABLE_BIT);
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
+    GLInterface.EnableAlphaTest(false);
+    GLInterface.EnableDepthTest(false);
+    GLInterface.EnableBlend(false);
+	GLInterface.SetCull(Cull_None);
 
 	texture = GLInterface.NewTexture();
 
@@ -453,15 +446,8 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
 
 void animvpx_restore_glstate(void)
 {
-#ifdef USE_GLEXT
-    if (glinfo.glsl)
-    {
-        useShaderProgram(0);
-        polymost_resetProgram();
-    }
-#endif
-
-//    glPopAttrib();
+	useShaderProgram(0);
+	polymost_resetProgram();
 
 	delete texture;
 	texture = nullptr;
@@ -504,9 +490,6 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
     }
 #endif
 
-    if (!glinfo.glsl)
-        glColor3f(1.0, 1.0, 1.0);
-
 	auto data = GLInterface.AllocVertices(4);
 	auto vt = data.second;
 	
@@ -539,9 +522,6 @@ void animvpx_print_stats(const animvpx_codec_ctx *codec)
         const int32_t *s = codec->sumtimes;
         const int32_t *m = codec->maxtimes;
         int32_t n = codec->numframes;
-
-        if (glinfo.glsl)
-            initprintf("animvpx: GLSL mode\n");
 
         initprintf("VP8 timing stats (mean, max) [ms] for %d frames:\n"
                    " read and decode frame: %.02f, %d\n"

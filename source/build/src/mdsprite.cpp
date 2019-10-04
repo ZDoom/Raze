@@ -693,13 +693,7 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
             isart = 1;
         }
 
-        if (!glinfo.texnpot)
-        {
-            for (siz.x=1; siz.x<tsiz.x; siz.x+=siz.x) { }
-            for (siz.y=1; siz.y<tsiz.y; siz.y+=siz.y) { }
-        }
-        else
-            siz = tsiz;
+        siz = tsiz;
 
         if (isart)
         {
@@ -765,9 +759,9 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
         char *cptr = britable[gammabrightness ? 0 : curbrightness];
 
         polytint_t const & tint = hictinting[pal];
-        int32_t r = (glinfo.bgra) ? tint.r : tint.b;
+        int32_t r = tint.r;
         int32_t g = tint.g;
-        int32_t b = (glinfo.bgra) ? tint.b : tint.r;
+        int32_t b = tint.b;
 
         char al = 255;
         char onebitalpha = 1;
@@ -832,12 +826,6 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
 
         // mdloadskin doesn't duplicate npow2 texture pixels
 
-        if (!glinfo.bgra)
-        {
-            for (bssize_t j = siz.x*siz.y - 1; j >= 0; j--)
-                swapchar(&pic[j].r, &pic[j].b);
-        }
-
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))
             m->usesalpha = hasalpha;
 		if ((doalloc & 3) == 1)
@@ -845,9 +833,7 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
 			*texidx = GLInterface.NewTexture();
 		}
 
-        //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
-
-        int32_t const texfmt = glinfo.bgra ? GL_BGRA : GL_RGBA;
+		int32_t const texfmt = GL_BGRA;
 
         uploadtexture(*texidx, (doalloc&1), siz, texfmt, pic, tsiz,
                       DAMETH_HI | DAMETH_MASK |
@@ -2015,8 +2001,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
 //    glPushAttrib(GL_POLYGON_BIT);
     if ((grhalfxdown10x >= 0) ^((globalorientation&8) != 0) ^((globalorientation&4) != 0)) glFrontFace(GL_CW); else glFrontFace(GL_CCW);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+	GLInterface.SetCull(Cull_Back);
 
     // tinting
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
@@ -2043,14 +2028,14 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         float al = 0.0;
         if (alphahackarray[globalpicnum] != 0)
             al=alphahackarray[globalpicnum] * (1.f/255.f);
-        glEnable(GL_BLEND);
-        glEnable(GL_ALPHA_TEST);
+        GLInterface.EnableBlend(true);
+        GLInterface.EnableAlphaTest(true);
         glAlphaFunc(GL_GREATER,al);
     }
     else
     {
         if ((tspr->cstat&2) || sext->alpha > 0.f || pc[3] < 1.0f)
-            glEnable(GL_BLEND); //else glDisable(GL_BLEND);
+            GLInterface.EnableBlend(true); //else GLInterface.EnableBlend(false);
     }
     glColor4f(pc[0],pc[1],pc[2],pc[3]);
     //if (MFLAGS_NOCONV(m))
@@ -2137,8 +2122,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
             }
         }
 
-        glMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
-        mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; glLoadMatrixf(mat);
+        //Let OpenGL (and perhaps hardware :) handle the matrix rotation
+        mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
+		GLInterface.SetMatrix(Matrix_ModelView, mat);
         // PLAG: End
 
         auto tex = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,globalpal,surfi);
@@ -2147,10 +2133,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
 		GLInterface.BindTexture(0, tex);
 
-        glMatrixMode(GL_TEXTURE);
-        glLoadIdentity();
-        glTranslatef(xpanning, ypanning, 1.0f);
-        glMatrixMode(GL_MODELVIEW);
+		VSMatrix texmat(0);
+		texmat.translate(xpanning, ypanning, 1.0f);
 
         if (!(tspr->extra&TSPR_EXTRA_MDHACK))
         {
@@ -2171,13 +2155,10 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
                     if ((int32_t) sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum && sk->surfnum == surfi)
                         f = sk->param;
 
-				glActiveTexture(GL_TEXTURE3);
-                glMatrixMode(GL_TEXTURE);
-                glLoadIdentity();
-                glTranslatef(xpanning, ypanning, 1.0f);
-                glScalef(f, f, 1.0f);
-                glMatrixMode(GL_MODELVIEW);
-				glActiveTexture(GL_TEXTURE0);
+				texmat.loadIdentity();
+                texmat.translate(xpanning, ypanning, 1.0f);
+                texmat.scale(f, f, 1.0f);
+				GLInterface.SetMatrix(Matrix_Texture3, &texmat);
 			}
 
             tex = r_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi) : 0;
@@ -2187,12 +2168,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
                 polymost_useGlowMapping(true);
                 polymost_setupglowtexture(4, tex);
 
-				glActiveTexture(GL_TEXTURE4);
-				glMatrixMode(GL_TEXTURE);
-                glLoadIdentity();
-                glTranslatef(xpanning, ypanning, 1.0f);
-                glMatrixMode(GL_MODELVIEW);
-				glActiveTexture(GL_TEXTURE0);
+				texmat.loadIdentity();
+                texmat.translate(xpanning, ypanning, 1.0f);
+				GLInterface.SetMatrix(Matrix_Texture4, &texmat);
 			}
 
 #endif
@@ -2254,15 +2232,13 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     }
     //------------
 
-    if (m->usesalpha) glDisable(GL_ALPHA_TEST);
+    if (m->usesalpha) GLInterface.EnableAlphaTest(false);
 
-    glDisable(GL_CULL_FACE);
-//    glPopAttrib();
+	GLInterface.SetCull(Cull_None);
 
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+	VSMatrix identity(0);
+	GLInterface.SetMatrix(Matrix_ModelView, &identity);
+	GLInterface.SetMatrix(Matrix_Texture0, &identity);
 
     polymost_setClamp(prevClamp);
     polymost_usePaletteIndexing(true);

@@ -5,6 +5,7 @@
 #include <map>
 #include "gl_samplers.h"
 #include "gl_hwtexture.h"
+#include "matrix.h"
 
 class FSamplerManager;
 
@@ -45,6 +46,28 @@ enum EDrawType
 	DT_LINES
 };
 
+enum EMatrixType
+{
+	Matrix_Projection,
+	Matrix_ModelView,
+	Matrix_Texture0,
+	Matrix_Texture1,
+	Matrix_Texture2,
+	Matrix_Texture3,
+	Matrix_Texture4,
+	Matrix_Texture5,
+	Matrix_Texture6,
+	Matrix_Texture7,
+	NUMMATRICES
+};
+
+enum ECull
+{
+	Cull_None,
+	Cull_Front,
+	Cull_Back
+};
+
 class GLInstance
 {
 	enum
@@ -56,12 +79,17 @@ class GLInstance
 	unsigned int LastBoundTextures[MAX_TEXTURES];
 	unsigned TextureHandleCache[THCACHESIZE];
 	int currentindex = THCACHESIZE;
+	int maxTextureSize;
+	
+	VSMatrix matrices[NUMMATRICES];
 	
 	
 public:
 	FSamplerManager *mSamplers;
 	
 	void Init();
+	void InitGLState(int fogmode, int multisample);
+
 	void Deinit();
 	
 	static int GetTexDimension(int value)
@@ -78,7 +106,23 @@ public:
 	void BindTexture(int texunit, FHardwareTexture *texid, int sampler = NoSampler);
 	void UnbindTexture(int texunit);
 	void UnbindAllTextures();
-	
+	void EnableBlend(bool on);
+	void EnableAlphaTest(bool on);
+	void EnableDepthTest(bool on);
+	const VSMatrix &GetMatrix(int num)
+	{
+		return matrices[num];
+	}
+	void SetMatrix(int num, const VSMatrix *mat );
+	void SetMatrix(int num, const float *mat)
+	{
+		SetMatrix(num, reinterpret_cast<const VSMatrix*>(mat));
+	}
+	void SetCull(int type);
+
+	void EnableStencilWrite(int value);
+	void EnableStencilTest(int value);
+	void DisableStencil();
 };
 
 extern GLInstance GLInterface;

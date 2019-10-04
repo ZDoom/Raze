@@ -1,7 +1,6 @@
 #ifndef polymost_h_
 # define polymost_h_
 
-#ifdef USE_OPENGL
 
 #include "baselayer.h"  // glinfo
 #include "glad/glad.h"
@@ -148,15 +147,12 @@ static FORCE_INLINE int polymost_is_npotmode(void)
 {
     // The glinfo.texnpot check is so we don't have to deal with that case in
     // gloadtile_art().
-    return glinfo.texnpot &&
+    return
         // r_npotwallmode is NYI for hightiles. We require r_hightile off
         // because in calc_ypanning(), the repeat would be multiplied by a
         // factor even if no modified texture were loaded.
         !usehightile &&
-#ifdef NEW_MAP_FORMAT
-        g_loadedMapVersion < 10 &&
-#endif
-        r_npotwallmode;
+       r_npotwallmode;
 }
 
 static inline float polymost_invsqrt_approximation(float x)
@@ -291,7 +287,5 @@ extern hitdata_t polymost_hitdata;
 
 extern void polymost_setupglowtexture(int32_t texunits, FHardwareTexture *tex);
 extern void polymost_setupdetailtexture(int32_t texunits, FHardwareTexture* tex);
-
-#endif
 
 #endif

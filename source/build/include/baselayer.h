@@ -85,29 +85,9 @@ struct glinfo_t {
     const char *extensions;
 
     float maxanisotropy;
-    char bgra;
-    char clamptoedge;
-    char texcompr;
-    char texnpot;
-    char multisample;
-    char nvmultisamplehint;
-    char arbfp;
-    char depthtex;
-    char shadow;
-    char fbos;
-    char rect;
-    char multitex;
-    char envcombine;
-    char vbos;
-    char vsync;
-    char sm4;
-    char occlusionqueries;
-    char glsl;
     char debugoutput;
     char bufferstorage;
     char sync;
-    char depthclamp;
-    char clipcontrol;
     char dumped;
 };
 

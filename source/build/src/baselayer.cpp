@@ -212,30 +212,6 @@ struct glinfo_t glinfo =
     "",         // extensions
 
     1.0,        // max anisotropy
-    0,          // brga texture format
-    0,          // clamp-to-edge support
-    0,          // texture compression
-    0,          // non-power-of-two textures
-    0,          // multisampling
-    0,          // nvidia multisampling hint
-    0,          // ARBfp
-    0,          // depth textures
-    0,          // shadow comparison
-    0,          // Frame Buffer Objects
-    0,          // rectangle textures
-    0,          // multitexturing
-    0,          // env_combine
-    0,          // Vertex Buffer Objects
-    0,          // VSync support
-    0,          // Shader Model 4 support
-    0,          // Occlusion Queries
-    0,          // GLSL
-    0,          // Debug Output
-    0,          // Buffer storage
-    0,          // Sync
-    0,          // Depth Clamp
-    0,          // Clip Control
-    0,          // GL info dumped
 };
 
 // Used to register the game's / editor's osdcmd_vidmode() functions here.
@@ -341,32 +317,6 @@ int osdcmd_glinfo(osdcmdptr_t UNUSED(parm))
         return OSDCMD_OK;
 
     char const *s[] = { "supported", "not supported" };
-
-#define SUPPORTED(x) (x ? s[0] : s[1])
-
-    initprintf(" BGRA textures:           %s\n", SUPPORTED(glinfo.bgra));
-    initprintf(" Non-power-of-2 textures: %s\n", SUPPORTED(glinfo.texnpot));
-    initprintf(" Clamp-to-edge:           %s\n", SUPPORTED(glinfo.clamptoedge));
-    initprintf(" Multi-texturing:         %s\n", SUPPORTED(glinfo.multitex));
-    initprintf(" Framebuffer objects:     %s\n", SUPPORTED(glinfo.fbos));
-    initprintf(" Texture compression:     %s\n", SUPPORTED(glinfo.texcompr));
-    initprintf(" Multi-sampling:          %s\n", SUPPORTED(glinfo.multisample));
-    initprintf(" NVIDIA multisample hint: %s\n", SUPPORTED(glinfo.nvmultisamplehint));
-    initprintf(" ARBfp fragment programs: %s\n", SUPPORTED(glinfo.arbfp));
-    initprintf(" Depth textures:          %s\n", SUPPORTED(glinfo.depthtex));
-    initprintf(" Shadow textures:         %s\n", SUPPORTED(glinfo.shadow));
-    initprintf(" Rectangle textures:      %s\n", SUPPORTED(glinfo.rect));
-    initprintf(" env_combine:             %s\n", SUPPORTED(glinfo.envcombine));
-    initprintf(" Vertex buffer objects:   %s\n", SUPPORTED(glinfo.vbos));
-    initprintf(" Shader model 4:          %s\n", SUPPORTED(glinfo.sm4));
-    initprintf(" Occlusion queries:       %s\n", SUPPORTED(glinfo.occlusionqueries));
-    initprintf(" GLSL:                    %s\n", SUPPORTED(glinfo.glsl));
-    initprintf(" Debug output:            %s\n", SUPPORTED(glinfo.debugoutput));
-    initprintf(" Buffer storage:          %s\n", SUPPORTED(glinfo.bufferstorage));
-    initprintf(" Sync:                    %s\n", SUPPORTED(glinfo.sync));
-    initprintf(" Maximum anisotropy:      %.1f%s\n", glinfo.maxanisotropy, glinfo.maxanisotropy > 1.0 ? "" : " (no anisotropic filtering)");
-
-#undef SUPPORTED
 
     initprintf(" Extensions:\n%s", glinfo.extensions);
 

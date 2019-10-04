@@ -30,6 +30,7 @@
 # include "hightile.h"
 # include "mdsprite.h"
 # include "polymost.h"
+#include "../../glbackend/glbackend.h"
 #endif
 
 
@@ -874,9 +875,6 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_
 
     if (videoGetRenderMode() == REND_POLYMER || numyaxbunches==0)
     {
-#ifdef ENGINE_SCREENSHOT_DEBUG
-        engine_screenshot = 0;
-#endif
         return;
     }
 
@@ -1000,22 +998,6 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_
     // now comes the real drawing!
     g_nodraw = 0;
     scansector_collectsprites = 0;
-
-    if (editstatus==1 && in3dmode())
-    {
-        if (videoGetRenderMode() == REND_CLASSIC)
-        {
-            videoBeginDrawing();
-            draw_rainbow_background();
-            videoEndDrawing();
-        }
-#ifdef USE_OPENGL
-        else
-        {
-            glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-        }
-#endif
-    }
 
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
@@ -6217,15 +6199,6 @@ static void renderDrawSprite(int32_t snum)
     case REND_POLYMOST:
         polymost_drawsprite(snum);
         return;
-# ifdef POLYMER
-    case REND_POLYMER:
-        glEnable(GL_ALPHA_TEST);
-        glEnable(GL_BLEND);
-        polymer_drawsprite(snum);
-        glDisable(GL_BLEND);
-        glDisable(GL_ALPHA_TEST);
-        return;
-# endif
 #endif
     }
 }
@@ -6239,20 +6212,6 @@ static void renderDrawMaskedWall(int16_t damaskwallcnt)
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST) { polymost_drawmaskwall(damaskwallcnt); return; }
-# ifdef POLYMER
-    else if (videoGetRenderMode() == REND_POLYMER)
-    {
-        glEnable(GL_ALPHA_TEST);
-        glEnable(GL_BLEND);
-
-        polymer_drawmaskwall(damaskwallcnt);
-
-        glDisable(GL_BLEND);
-        glDisable(GL_ALPHA_TEST);
-
-        return;
-    }
-#endif
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -8538,30 +8497,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
         }
     }
 
-#ifdef USE_OPENGL
-# ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-    {
-#  ifdef YAX_ENABLE
-        // BEGIN_TWEAK ceiling/floor fake 'TROR' pics, see END_TWEAK in build.c
-        if (editstatus && showinvisibility)
-        {
-            for (i=0; i<numyaxbunches; i++)
-            {
-                yax_tweakpicnums(i, YAX_CEILING, 0);
-                yax_tweakpicnums(i, YAX_FLOOR, 0);
-            }
-        }
-#  endif
-        polymer_glinit();
-        polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
-        glDisable(GL_CULL_FACE);
-        gloy1 = 0;
-        return 0;
-    }
-# endif
-#endif
-
     // Update starting sector number (common to classic and Polymost).
     // ADJUST_GLOBALCURSECTNUM.
     if (globalcursectnum >= MAXSECTORS)
@@ -9038,8 +8973,8 @@ killsprite:
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
     {
-        glDisable(GL_BLEND);
-        glEnable(GL_ALPHA_TEST);
+        GLInterface.EnableBlend(false);
+        GLInterface.EnableAlphaTest(true);
         polymost_setClamp(1+2);
 
         if (spritesortcnt < numSprites)
@@ -9105,8 +9040,8 @@ killsprite:
                 renderDrawMaskedWall(i);
         }
 
-        glEnable(GL_BLEND);
-        glEnable(GL_ALPHA_TEST);
+        GLInterface.EnableBlend(true);
+        GLInterface.EnableAlphaTest(true);
         glDepthMask(GL_FALSE);
     }
 #endif
@@ -11454,7 +11389,6 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 //  1: don't reset walbitmap[] (the bitmap of already dragged vertices)
 //  2: In the editor, do wall[].cstat |= (1<<14) also for the lastwall().
 void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
-#ifdef YAX_ENABLE
 {
     int32_t i, numyaxwalls=0;
     static int16_t yaxwalls[MAXWALLS];
@@ -11546,63 +11480,6 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
             }
     }
 }
-#else
-{
-    int16_t cnt, tempshort;
-    int32_t thelastwall;
-
-    tempshort = pointhighlight;    //search points CCW
-    cnt = MAXWALLS;
-
-    wall[tempshort].x = dax;
-    wall[tempshort].y = day;
-
-    if (editstatus)
-    {
-        editwall[pointhighlight>>3] |= 1<<(pointhighlight&7);
-        if (linehighlight >= 0 && linehighlight < MAXWALLS)
-            editwall[linehighlight>>3] |= 1<<(linehighlight&7);
-        int wn = lastwall(pointhighlight);
-        editwall[wn>>3] |= 1<<(wn&7);
-    }
-
-    do
-    {
-        if (wall[tempshort].nextwall >= 0)
-        {
-            tempshort = wall[wall[tempshort].nextwall].point2;
-
-            wall[tempshort].x = dax;
-            wall[tempshort].y = day;
-            editwall[tempshort>>3] |= 1<<(tempshort&7);
-        }
-        else
-        {
-            tempshort = pointhighlight;    //search points CW if not searched all the way around
-            do
-            {
-                thelastwall = lastwall(tempshort);
-                if (wall[thelastwall].nextwall >= 0)
-                {
-                    tempshort = wall[thelastwall].nextwall;
-                    wall[tempshort].x = dax;
-                    wall[tempshort].y = day;
-                    editwall[tempshort>>3] |= 1<<(tempshort&7);
-                }
-                else
-                {
-                    break;
-                }
-                cnt--;
-            }
-            while ((tempshort != pointhighlight) && (cnt > 0));
-            break;
-        }
-        cnt--;
-    }
-    while ((tempshort != pointhighlight) && (cnt > 0));
-}
-#endif
 
 //
 // lastwall
@@ -13132,8 +13009,8 @@ int32_t videoSetRenderMode(int32_t renderer)
 #ifdef USE_OPENGL
     if (bpp == 8)
     {
-        glDisable(GL_BLEND);
-        glDisable(GL_ALPHA_TEST);
+        GLInterface.EnableBlend(false);
+        GLInterface.EnableAlphaTest(false);
         renderer = REND_CLASSIC;
     }
 # ifdef POLYMER

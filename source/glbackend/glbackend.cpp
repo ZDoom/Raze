@@ -14,6 +14,30 @@ void GLInstance::Init()
 	}
 }
 
+void GLInstance::InitGLState(int fogmode, int multisample)
+{
+	glShadeModel(GL_SMOOTH);  // GL_FLAT
+	glClearColor(0, 0, 0, 1.0);  // Black Background
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glDisable(GL_DITHER);
+	glEnable(GL_TEXTURE_2D);
+    glHint(GL_FOG_HINT, GL_NICEST);
+    glFogi(GL_FOG_MODE, (fogmode < 2) ? GL_EXP2 : GL_LINEAR);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glEnable(GL_DEPTH_CLAMP);
+
+    if (multisample > 0 )
+    {
+		glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+        glEnable(GL_MULTISAMPLE);
+    }
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+}
+
 void GLInstance::Deinit()
 {
 	if (mSamplers) delete mSamplers;
@@ -91,5 +115,84 @@ void GLInstance::UnbindAllTextures()
 	for(int texunit = 0; texunit < MAX_TEXTURES; texunit++)
 	{
 		UnbindTexture(texunit);
+	}
+}
+
+void GLInstance::EnableBlend(bool on)
+{
+	if (on) glEnable (GL_BLEND);
+	else glDisable (GL_BLEND);
+}
+
+void GLInstance::EnableAlphaTest(bool on)
+{
+	if (on) glEnable (GL_ALPHA_TEST);
+	else glDisable (GL_ALPHA_TEST);
+}
+
+void GLInstance::EnableDepthTest(bool on)
+{
+	if (on) glEnable (GL_DEPTH_TEST);
+	else glDisable (GL_DEPTH_TEST);
+}
+
+void GLInstance::SetMatrix(int num, const VSMatrix *mat)
+{
+	matrices[num] = *mat;
+	switch(num)
+	{
+		case Matrix_Projection:
+			glMatrixMode(GL_PROJECTION);
+			break;
+			
+		case Matrix_ModelView:
+			glMatrixMode(GL_MODELVIEW);
+			break;
+			
+		default:
+			glActiveTexture(GL_TEXTURE0 + num - Matrix_Texture0);
+			glMatrixMode(GL_TEXTURE);
+			break;
+	}
+	glLoadMatrixf(mat->get());
+	glMatrixMode(GL_MODELVIEW);
+	if (num > Matrix_Texture0) glActiveTexture(GL_TEXTURE0);
+}
+
+void GLInstance::EnableStencilWrite(int value)
+{
+    glEnable(GL_STENCIL_TEST);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, value, 0xFF);
+}
+
+void GLInstance::EnableStencilTest(int value)
+{
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_EQUAL, value, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+}
+
+void GLInstance::DisableStencil()
+{
+	glDisable(GL_STENCIL_TEST);
+}
+
+void GLInstance::SetCull(int type)
+{
+	if (type == Cull_None)
+	{
+		glDisable(GL_CULL_FACE);
+	}
+	else if (type == Cull_Front)
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+	}
+	else if (type == Cull_Back)
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 	}
 }
