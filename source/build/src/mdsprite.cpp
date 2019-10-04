@@ -1989,7 +1989,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     {
         double f = (double) (tspr->owner + 1) * (std::numeric_limits<double>::epsilon() * 8.0);
         if (f != 0.0) f *= 1.0/(double) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
-        glDepthFunc(GL_LEQUAL);
+		GLInterface.SetDepthFunc(Depth_LessEqual);
     }
 
     if ((grhalfxdown10x >= 0) ^((globalorientation&8) != 0) ^((globalorientation&4) != 0)) glFrontFace(GL_CW); else glFrontFace(GL_CCW);

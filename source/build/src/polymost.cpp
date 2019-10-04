@@ -942,23 +942,20 @@ void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal)
             fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
         }
 
-        glFogf(GL_FOG_START, fogresult);
-        glFogf(GL_FOG_END, fogresult2);
-        glFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
-
+		GLInterface.SetFogLinear((float*)&fogcol, fogresult, fogresult2);
         return;
     }
 
     fogcalc(shade, vis, pal);
-    glFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
 
-    if (r_usenewshading < 2)
-        glFogf(GL_FOG_DENSITY, fogresult);
-    else
+	if (r_usenewshading < 2)
+	{
+		GLInterface.SetFogExp2((float*)& fogcol, fogresult);
+	}
+	else
     {
-        glFogf(GL_FOG_START, fogresult);
-        glFogf(GL_FOG_END, fogresult2);
-    }
+		GLInterface.SetFogLinear((float*)& fogcol, fogresult, fogresult2);
+	}
 }
 
 void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float factor)
@@ -987,25 +984,21 @@ void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float fa
             fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
         }
 
-        glFogf(GL_FOG_START, fogresult);
-        glFogf(GL_FOG_END, fogresult2);
-        glFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
-
-        return;
+		GLInterface.SetFogLinear((float*)& fogcol, fogresult, fogresult2);
+		return;
     }
 
     // NOTE: for r_usenewshading >= 2, the fog beginning/ending distance results are
     // unused.
     fogcalc(shade, vis, pal);
-    glFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
-
-    if (r_usenewshading < 2)
-        glFogf(GL_FOG_DENSITY, fogresult*factor);
-    else
-    {
-        glFogf(GL_FOG_START, (GLfloat) FULLVIS_BEGIN);
-        glFogf(GL_FOG_END, (GLfloat) FULLVIS_END);
-    }
+	if (r_usenewshading < 2)
+	{
+		GLInterface.SetFogExp2((float*)& fogcol, fogresult*factor);
+	}
+	else
+	{
+		GLInterface.SetFogLinear((float*)& fogcol, FULLVIS_BEGIN, FULLVIS_END);
+	}
 }
 ////////////////////
 
@@ -2397,11 +2390,11 @@ do                                                                              
 
         polymost_setFogEnabled(false);
 
-        glDepthFunc(GL_EQUAL);
+		GLInterface.SetDepthFunc(Depth_Equal);
 
         polymost_drawpoly(dpxy, n, method_);
 
-        glDepthFunc(GL_LEQUAL);
+		GLInterface.SetDepthFunc(Depth_LessEqual);
 
         if (!nofog)
             polymost_setFogEnabled(true);
@@ -5266,8 +5259,7 @@ void polymost_drawrooms()
     GLInterface.EnableBlend(false);
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(true);
-    glDepthFunc(GL_ALWAYS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-//        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
+	GLInterface.SetDepthFunc(Depth_Always);
 
     polymost_setBrightness(r_brightnesshack);
 
@@ -5375,7 +5367,12 @@ void polymost_drawrooms()
         }
     }
 
-    if (n < 3) { glDepthFunc(GL_LEQUAL); videoEndDrawing(); return; }
+    if (n < 3) 
+	{
+		GLInterface.SetDepthFunc(Depth_LessEqual);
+		videoEndDrawing(); 
+		return; 
+	}
 
     float sx[6], sy[6];
 
@@ -5506,9 +5503,8 @@ void polymost_drawrooms()
         bunchlast[closest] = bunchlast[numbunches];
     }
 
-    glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-//        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
-    polymost_identityrotmat();
+	GLInterface.SetDepthFunc(Depth_LessEqual);
+	polymost_identityrotmat();
 
     videoEndDrawing();
 }
@@ -7474,8 +7470,6 @@ static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
             gltexapplyprops();
         else if (!Bstrcasecmp(parm->name, "r_texfilter"))
             gltexturemode(parm);
-        else if (!Bstrcasecmp(parm->name, "r_usenewshading"))
-            glFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
     }
 
     return r;

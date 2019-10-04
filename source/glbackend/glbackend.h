@@ -68,6 +68,14 @@ enum ECull
 	Cull_Back
 };
 
+enum EDepthFunc
+{
+	Depth_Always,
+	Depth_Less,
+	Depth_Equal,
+	Depth_LessEqual
+};
+
 class GLInstance
 {
 	enum
@@ -128,6 +136,10 @@ public:
 	{
 		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
 	}
+
+	void SetDepthFunc(int func);
+	void SetFogLinear(float* color, float start, float end);
+	void SetFogExp2(float* color, float coefficient);
 };
 
 extern GLInstance GLInterface;

@@ -1081,8 +1081,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     if (shadowHack)
     {
-        glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-    }
+		GLInterface.SetDepthFunc(Depth_LessEqual);
+	}
 
 
     if ((grhalfxdown10x >= 0) ^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0))
@@ -1193,9 +1193,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     if (shadowHack)
     {
-        glDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-//        glDepthRange(0.0, 0.99999);
-    }
+		GLInterface.SetDepthFunc(Depth_Less);
+	}
 	VSMatrix identity(0);
 	GLInterface.SetMatrix(Matrix_ModelView, &identity);
     return 1;

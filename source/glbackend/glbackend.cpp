@@ -22,7 +22,6 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 	glDisable(GL_DITHER);
 	glEnable(GL_TEXTURE_2D);
     glHint(GL_FOG_HINT, GL_NICEST);
-    glFogi(GL_FOG_MODE, (fogmode < 2) ? GL_EXP2 : GL_LINEAR);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -200,4 +199,25 @@ void GLInstance::SetCull(int type)
 void GLInstance::SetColor(float r, float g, float b, float a)
 {
 	glColor4f(r, g, b, a);
+}
+
+void GLInstance::SetDepthFunc(int func)
+{
+	int f[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
+	glDepthFunc(f[func]);
+}
+
+void GLInstance::SetFogLinear(float* color, float start, float end)
+{
+	glFogi(GL_FOG_MODE, GL_LINEAR);
+	glFogf(GL_FOG_START, start);
+	glFogf(GL_FOG_END, end);
+	glFogfv(GL_FOG_COLOR, color);
+}
+
+void GLInstance::SetFogExp2(float* color, float coefficient)
+{
+	glFogi(GL_FOG_MODE, GL_EXP2);
+	glFogf(GL_FOG_DENSITY, coefficient);
+	glFogfv(GL_FOG_COLOR, color);
 }
