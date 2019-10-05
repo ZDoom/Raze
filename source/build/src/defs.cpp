@@ -3494,7 +3494,7 @@ static int32_t defsparser(scriptfile *script)
                                 case T_SRC:
                                 case T_DST:
                                 {
-                                    static const tokenlist glBlendFuncTokens[] =
+                                    static const tokenlist blendFuncTokens[] =
                                     {
                                         { "ZERO", T_ZERO },
                                         { "ONE", T_ONE },
@@ -3508,7 +3508,7 @@ static int32_t defsparser(scriptfile *script)
                                         { "ONE_MINUS_DST_COLOR", T_ONE_MINUS_DST_COLOR },
                                     };
 
-                                    int32_t factortoken = getatoken(script,glBlendFuncTokens,ARRAY_SIZE(glBlendFuncTokens));
+                                    int32_t factortoken = getatoken(script,blendFuncTokens,ARRAY_SIZE(blendFuncTokens));
 
 #ifdef USE_OPENGL
                                     uint8_t * const factor = glblenddeftoken == T_SRC ? &glbdef->src : &glbdef->dst;

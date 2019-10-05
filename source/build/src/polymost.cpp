@@ -370,11 +370,6 @@ static void polymost_bindPth(pthtyp const* const pPth, int sampler)
 }
 
 
-void useShaderProgram(uint32_t shaderID)
-{
-    glUseProgram(shaderID);
-}
-
 FileReader GetBaseResource(const char* fn);
 
 // one-time initialization of OpenGL for polymost
@@ -6732,7 +6727,7 @@ void polymost_fillpolygon(int32_t npoints)
     else
     {
         GLInterface.EnableBlend(false);
-        glColor3f(f, f, f);
+		GLInterface.SetColor(f, f, f);
     }
 
     tessectrap((float *)rx1,(float *)ry1,xb1,npoints);

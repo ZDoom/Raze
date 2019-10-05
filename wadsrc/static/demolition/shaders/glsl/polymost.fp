@@ -13,9 +13,6 @@ uniform sampler2D s_palette;
 uniform sampler2D s_detail;
 uniform sampler2D s_glow;
 
-//u_texturePosSize is the texture position & size packaged into a single vec4 as {pos.x, pos.y, size.x, size.y}
-uniform vec4 u_texturePosSize;
-uniform vec2 u_halfTexelSize;
 uniform vec2 u_palswapPos;
 uniform vec2 u_palswapSize;
 
@@ -60,8 +57,7 @@ void main()
     vec2 transitionBlend = fwidth(floor(newCoord.xy));
     transitionBlend = fwidth(transitionBlend)+transitionBlend;
     vec2 texCoord = mix(mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend), clamp(newCoord.xy, c_zero, c_one), u_clamp);
-    texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);
-    vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);
+    vec4 color = texture2D(s_texture, texCoord);
 
     float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);
     float shadeFrac = mod(shade, c_one);

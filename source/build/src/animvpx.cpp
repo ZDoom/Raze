@@ -406,7 +406,7 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
             OSD_Printf("animvpx link log: %s\n", logbuf);
 
         /* Finally, use the program. */
-        useShaderProgram(PHandle);
+		glUseProgram(PHandle);
 
 
     ////////// GL STATE //////////
