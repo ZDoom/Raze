@@ -51,27 +51,12 @@ void polymost_completeMirror();
 int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall);
 int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr);
 
-void polymost_resetVertexPointers(void);
-void polymost_disableProgram(void);
-void polymost_resetProgram(void);
-void polymost_setTexturePosSize(vec4f_t const &texturePosSize);
-void polymost_setHalfTexelSize(vec2f_t const &halfTexelSize);
-char polymost_getClamp();
-void polymost_setClamp(char clamp);
-void polymost_setVisibility(float visibility);
-void polymost_setFogEnabled(char fogEnabled);
-void polymost_useColorOnly(char useColorOnly);
-void polymost_usePaletteIndexing(char usePaletteIndexing);
-void polymost_useDetailMapping(char useDetailMapping);
-void polymost_useGlowMapping(char useGlowMapping);
 void useShaderProgram(uint32_t shaderID);
 
 float* multiplyMatrix4f(float m0[4*4], const float m1[4*4]);
 
 void polymost_glinit(void);
 void polymost_glreset(void);
-
-void polymost_init(void);
 
 enum {
     INVALIDATE_ALL,

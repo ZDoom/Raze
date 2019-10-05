@@ -58,13 +58,13 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
 
     GLInterface.EnableDepthTest(false);
     GLInterface.EnableAlphaTest(false);
-    polymost_setFogEnabled(false);
+	GLInterface.SetFogEnabled(false);
 
     GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
     GLInterface.EnableBlend(true);
     GLInterface.SetColorub(r, g, b, f);
 
-    polymost_useColorOnly(true);
+	GLInterface.UseColorOnly(true);
 
 	auto data = GLInterface.AllocVertices(3);
 	auto vt = data.second;
@@ -72,7 +72,7 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
 	vt[1].Set(2.5f, 1.f);
 	vt[2].Set(.0f, -2.5f);
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
-    polymost_useColorOnly(false);
+	GLInterface.UseColorOnly(false);
 
 	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
 	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);
@@ -93,12 +93,12 @@ void fullscreen_tint_gl_blood(void)
 
     GLInterface.EnableDepthTest(false);
     GLInterface.EnableAlphaTest(false);
-    polymost_setFogEnabled(false);
+	GLInterface.SetFogEnabled(false);
 
 	GLInterface.SetBlendFunc(STYLEALPHA_One, STYLEALPHA_One);
     GLInterface.EnableBlend(true);
 
-    polymost_useColorOnly(true);
+	GLInterface.UseColorOnly(true);
     GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
 	auto data = GLInterface.AllocVertices(3);
 	auto vt = data.second;
@@ -117,7 +117,7 @@ void fullscreen_tint_gl_blood(void)
 	GLInterface.SetBlendOp(STYLEOP_Add);
 	GLInterface.SetColorub(0,0,0,0);
 	GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
-	polymost_useColorOnly(false);
+	GLInterface.UseColorOnly(false);
 
 	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
 	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);

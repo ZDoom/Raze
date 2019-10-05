@@ -5,9 +5,12 @@
 #include <map>
 #include "gl_samplers.h"
 #include "gl_hwtexture.h"
+#include "gl_renderstate.h"
 #include "matrix.h"
 
 class FSamplerManager;
+class FShader;
+class PolymostShader;
 
 struct glinfo_t {
 	const char* vendor;
@@ -59,16 +62,12 @@ enum EDrawType
 
 enum EMatrixType
 {
+	Matrix_View,
 	Matrix_Projection,
 	Matrix_ModelView,
-	Matrix_Texture0,
-	Matrix_Texture1,
-	Matrix_Texture2,
 	Matrix_Texture3,
 	Matrix_Texture4,
-	Matrix_Texture5,
-	Matrix_Texture6,
-	Matrix_Texture7,
+	// These are the only ones being used.
 	NUMMATRICES
 };
 
@@ -128,6 +127,9 @@ class GLInstance
 	int maxTextureSize;
 	
 	VSMatrix matrices[NUMMATRICES];
+	PolymostRenderState renderState;
+	FShader* activeShader;
+	PolymostShader* polymostShader;
 	
 	
 public:
@@ -136,6 +138,7 @@ public:
 	
 	void Init();
 	void InitGLState(int fogmode, int multisample);
+	void LoadPolymostShader();
 
 	void Deinit();
 	
@@ -188,8 +191,79 @@ public:
 	void SetViewport(int x, int y, int w, int h);
 	void SetAlphaThreshold(float al);
 	void SetWireframe(bool on);
+	void SetPolymostShader();
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
+
+
+	void SetPalswap(uint32_t index)
+	{
+		renderState.PalSwapIndex = index;
+	}
+
+	int GetClamp()
+	{
+		return int(renderState.Clamp[0] + 2*renderState.Clamp[1]);
+	}
+
+	void SetClamp(int clamp)
+	{
+		renderState.Clamp[0] = clamp & 1;
+		renderState.Clamp[1] = !!(clamp & 2);
+	}
+
+	void SetShade(int32_t shade, int numshades)
+	{
+		renderState.Shade = shade;
+		renderState.NumShades = numshades;
+	}
+
+	void SetVisibility(float visibility, float fviewingrange)
+	{
+		renderState.VisFactor = visibility * fviewingrange * (1.f / (64.f * 65536.f));
+	}
+
+	void SetFogEnabled(bool fogEnabled)
+	{
+		renderState.FogEnabled = fogEnabled;
+	}
+
+	void UseColorOnly(bool useColorOnly)
+	{
+		renderState.UseColorOnly = useColorOnly;
+	}
+
+	void UsePaletteIndexing(bool usePaletteIndexing)
+	{
+		renderState.UsePalette = usePaletteIndexing;
+	}
+
+	void UseDetailMapping(bool useDetailMapping)
+	{
+		renderState.UseDetailMapping = useDetailMapping;
+	}
+
+	void UseGlowMapping(bool useGlowMapping)
+	{
+		renderState.UseGlowMapping = useGlowMapping;
+	}
+
+	void SetNpotEmulation(bool npotEmulation, float factor, float xOffset)
+	{
+		renderState.NPOTEmulation = npotEmulation;
+		renderState.NPOTEmulationFactor = factor;
+		renderState.NPOTEmulationXOffset = xOffset;
+	}
+
+	void SetShadeInterpolate(int32_t shadeInterpolate)
+	{
+		renderState.ShadeInterpolate = shadeInterpolate;
+	}
+
+	void SetBrightness(int brightness) 
+	{
+		renderState.Brightness = 8.f / (brightness + 8.f);
+	}
 };
 
 extern GLInstance GLInterface;

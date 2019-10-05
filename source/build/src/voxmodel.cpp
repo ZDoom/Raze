@@ -1132,15 +1132,14 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 #endif
     const float phack[2] = { 0, 1.f/256.f };
 
-    char prevClamp = polymost_getClamp();
-    polymost_setClamp(0);
+    int prevClamp = GLInterface.GetClamp();
+	GLInterface.SetClamp(0);
     if (!m->texid[globalpal])
         m->texid[globalpal] = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, globalpal);
 
 	GLInterface.BindTexture(0, m->texid[globalpal]);
 
-    polymost_usePaletteIndexing(false);
-    polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });
+	GLInterface.UsePaletteIndexing(false);
 
 	auto data = GLInterface.AllocVertices(m->qcnt * 4);
 	auto vt = data.second;
@@ -1183,7 +1182,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     }
 
 	GLInterface.Draw(DT_QUADS, qstart, qdone * 4);
-    polymost_setClamp(prevClamp);
+	GLInterface.SetClamp(prevClamp);
     //------------
 	GLInterface.SetCull(Cull_None);
 

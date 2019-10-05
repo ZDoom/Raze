@@ -2058,10 +2058,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     float const xpanning = (float)sext->xpanning * (1.f/256.f);
     float const ypanning = (float)sext->ypanning * (1.f/256.f);
 
-    char prevClamp = polymost_getClamp();
-    polymost_setClamp(0);
-    polymost_usePaletteIndexing(false);
-    polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });
+    int prevClamp = GLInterface.GetClamp();
+	GLInterface.SetClamp(0);
+	GLInterface.UsePaletteIndexing(false);
 
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
@@ -2130,7 +2129,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
         if (!(tspr->extra&TSPR_EXTRA_MDHACK))
         {
-#ifdef USE_GLEXT
             //POGOTODO: if we add support for palette indexing on model skins, the texture for the palswap could be setup here
             texunits += 4;
 
@@ -2140,7 +2138,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
             {
                 mdskinmap_t *sk;
 
-                polymost_useDetailMapping(true);
+				GLInterface.UseDetailMapping(true);
                 polymost_setupdetailtexture(3, tex);
 
                 for (sk = m->skinmap; sk; sk = sk->next)
@@ -2157,7 +2155,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
             if (i)
             {
-                polymost_useGlowMapping(true);
+				GLInterface.UseGlowMapping(true);
                 polymost_setupglowtexture(4, tex);
 
 				texmat.loadIdentity();
@@ -2165,8 +2163,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 				GLInterface.SetMatrix(Matrix_Texture4, &texmat);
 			}
 
-#endif
-                indexhandle = m->vindexes;
+            indexhandle = m->vindexes;
 
             //PLAG: delayed polygon-level sorted rendering
 
@@ -2217,10 +2214,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
             md3draw_handle_triangles(s, indexhandle, texunits, NULL);
         }
 
-#ifdef USE_GLEXT
-        polymost_useDetailMapping(false);
-        polymost_useGlowMapping(false);
-#endif
+		GLInterface.UseDetailMapping(false);
+		GLInterface.UseGlowMapping(false);
     }
     //------------
 
@@ -2230,12 +2225,11 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
 	VSMatrix identity(0);
 	GLInterface.SetMatrix(Matrix_ModelView, &identity);
-	GLInterface.SetMatrix(Matrix_Texture0, &identity);
 
-    polymost_setClamp(prevClamp);
-    polymost_usePaletteIndexing(true);
-    polymost_resetVertexPointers();
-
+	GLInterface.SetClamp(prevClamp);
+	GLInterface.UsePaletteIndexing(true);
+	GLInterface.SetPolymostShader();
+    
     globalnoeffect=0;
     return 1;
 }

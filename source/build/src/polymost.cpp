@@ -129,7 +129,6 @@ int32_t r_flatsky = 1;
 static float fogresult, fogresult2;
 coltypef fogcol, fogtable[MAXPALOOKUPS];
 
-static uint32_t currentShaderProgramID = 0;
 static GLenum currentActiveTexture = 0;
 static uint32_t currentTextureID = 0;
 
@@ -143,55 +142,6 @@ static FHardwareTexture *paletteTextureIDs[MAXBASEPALS];
 static FHardwareTexture *palswapTextureID = nullptr;
 //extern char const *polymost1Frag;
 //extern char const *polymost1Vert;
-static GLuint polymost1CurrentShaderProgramID = 0;
-static GLuint polymost1ExtendedShaderProgramID = 0;
-static GLint polymost1TexSamplerLoc = -1;
-static GLint polymost1PalSwapSamplerLoc = -1;
-static GLint polymost1PaletteSamplerLoc = -1;
-static GLint polymost1DetailSamplerLoc = -1;
-static GLint polymost1GlowSamplerLoc = -1;
-static GLint polymost1TexturePosSizeLoc = -1;
-static vec4f_t polymost1TexturePosSize = { 0.f, 0.f, 1.f, 1.f };
-static GLint polymost1HalfTexelSizeLoc = -1;
-static vec2f_t polymost1HalfTexelSize = { 0.f, 0.f };
-static GLint polymost1PalswapPosLoc = -1;
-static vec2f_t polymost1PalswapPos = { 0.f, 0.f };
-static GLint polymost1PalswapSizeLoc = -1;
-static vec2f_t polymost1PalswapSize = { 0.f, 0.f };
-static vec2f_t polymost1PalswapInnerSize = { 0.f, 0.f };
-static GLint polymost1ClampLoc = -1;
-static vec2f_t polymost1Clamp = { 0.f, 0.f };
-static GLint polymost1ShadeLoc = -1;
-static float polymost1Shade = 0.f;
-static GLint polymost1NumShadesLoc = -1;
-static float polymost1NumShades = 64.f;
-static GLint polymost1VisFactorLoc = -1;
-static float polymost1VisFactor = 128.f;
-static GLint polymost1FogEnabledLoc = -1;
-static float polymost1FogEnabled = 1.f;
-static GLint polymost1UseColorOnlyLoc = -1;
-static float polymost1UseColorOnly = 0.f;
-static GLint polymost1UsePaletteLoc = -1;
-static float polymost1UsePalette = 1.f;
-static GLint polymost1UseDetailMappingLoc = -1;
-static float polymost1UseDetailMapping = 0.f;
-static GLint polymost1UseGlowMappingLoc = -1;
-static float polymost1UseGlowMapping = 0.f;
-static GLint polymost1NPOTEmulationLoc = -1;
-static float polymost1NPOTEmulation = 0.f;
-static GLint polymost1NPOTEmulationFactorLoc = -1;
-static float polymost1NPOTEmulationFactor = 1.f;
-static GLint polymost1NPOTEmulationXOffsetLoc = -1;
-static float polymost1NPOTEmulationXOffset = 0.f;
-static GLint polymost1BrightnessLoc = -1;
-static float polymost1Brightness = 1.f;
-static GLint polymost1RotMatrixLoc = -1;
-static float polymost1RotMatrix[16] = { 1.f, 0.f, 0.f, 0.f,
-                                        0.f, 1.f, 0.f, 0.f,
-                                        0.f, 0.f, 1.f, 0.f,
-                                        0.f, 0.f, 0.f, 1.f };
-static GLint polymost1ShadeInterpolateLoc = -1;
-static float polymost1ShadeInterpolate = 1.f;
 
 static inline float float_trans(uint32_t maskprops, uint8_t blend)
 {
@@ -356,44 +306,6 @@ static void calcmat(vec3f_t a0, const vec2f_t *offset, float f, float mat[16], i
     mat[14] = (mat[14] + a0.y*mat[2]) + (a0.z*mat[6] + a0.x*mat[10]);
 }
 
-static GLuint polymost2_compileShader(GLenum shaderType, const char* const source, int * pLength = nullptr)
-{
-    GLuint shaderID = glCreateShader(shaderType);
-    if (shaderID == 0)
-    {
-        return 0;
-    }
-
-    glShaderSource(shaderID,
-                   1,
-                   &source,
-                   pLength);
-    glCompileShader(shaderID);
-
-    GLint compileStatus;
-    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileStatus);
-    if (!compileStatus)
-    {
-        GLint logLength;
-        glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
-        OSD_Printf("Compile Status: %u\n", compileStatus);
-        if (logLength > 0)
-        {
-            char *infoLog = (char*)Xmalloc(logLength);
-            glGetShaderInfoLog(shaderID, logLength, &logLength, infoLog);
-            OSD_Printf("Log:\n%s\n", infoLog);
-            free(infoLog);
-        }
-    }
-
-    return shaderID;
-}
-
-static GLuint polymost2_compileShader(GLenum shaderType, const char* const source, int length)
-{
-    return polymost2_compileShader(shaderType, source, &length);
-}
-
 void polymost_glreset()
 {
     for (bssize_t i=0; i<=MAXPALOOKUPS-1; i++)
@@ -450,286 +362,17 @@ void polymost_glreset()
 #endif
 }
 
-// reset vertex pointers to polymost default
-void polymost_resetVertexPointers()
+static void polymost_bindPth(pthtyp const* const pPth, int sampler)
 {
-    polymost_resetProgram();
-}
+	Bassert(pPth);
 
-void polymost_disableProgram()
-{
-    if (videoGetRenderMode() != REND_POLYMOST)
-        return;
-
-    polymost_outputGLDebugMessage(3, "polymost_disableProgram()");
-
-    useShaderProgram(0);
-}
-
-void polymost_resetProgram()
-{
-    if (videoGetRenderMode() != REND_POLYMOST)
-        return;
-
-    polymost_outputGLDebugMessage(3, "polymost_resetProgram()");
-
-    useShaderProgram(polymost1CurrentShaderProgramID);
-
-    // ensure that palswapTexture and paletteTexture[curbasepal] is bound
-	GLInterface.BindTexture(1, palswapTextureID);
-	GLInterface.BindTexture(2, paletteTextureIDs[curbasepal]);
-}
-
-static void polymost_setCurrentShaderProgram(uint32_t programID)
-{
-    polymost_outputGLDebugMessage(3, "polymost_setCurrentShaderProgram(programID:%u)", programID);
-
-    polymost1CurrentShaderProgramID = programID;
-    useShaderProgram(programID);
-
-    //update the uniform locations
-    polymost1TexSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_texture");
-    polymost1PalSwapSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_palswap");
-    polymost1PaletteSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_palette");
-    polymost1DetailSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_detail");
-    polymost1GlowSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_glow");
-    polymost1TexturePosSizeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_texturePosSize");
-    polymost1HalfTexelSizeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_halfTexelSize");
-    polymost1PalswapPosLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_palswapPos");
-    polymost1PalswapSizeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_palswapSize");
-    polymost1ClampLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_clamp");
-    polymost1ShadeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_shade");
-    polymost1NumShadesLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_numShades");
-    polymost1VisFactorLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_visFactor");
-    polymost1FogEnabledLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_fogEnabled");
-    polymost1UsePaletteLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_usePalette");
-    polymost1UseColorOnlyLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_useColorOnly");
-    polymost1UseDetailMappingLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_useDetailMapping");
-    polymost1UseGlowMappingLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_useGlowMapping");
-    polymost1NPOTEmulationLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_npotEmulation");
-    polymost1NPOTEmulationFactorLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_npotEmulationFactor");
-    polymost1NPOTEmulationXOffsetLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_npotEmulationXOffset");
-    polymost1BrightnessLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_brightness");
-    polymost1RotMatrixLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_rotMatrix");
-    polymost1ShadeInterpolateLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_shadeInterpolate");
-
-    //set the uniforms to the current values
-    glUniform4f(polymost1TexturePosSizeLoc, polymost1TexturePosSize.x, polymost1TexturePosSize.y, polymost1TexturePosSize.z, polymost1TexturePosSize.w);
-    glUniform2f(polymost1HalfTexelSizeLoc, polymost1HalfTexelSize.x, polymost1HalfTexelSize.y);
-    glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
-    glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
-    glUniform2f(polymost1ClampLoc, polymost1Clamp.x, polymost1Clamp.y);
-    glUniform1f(polymost1ShadeLoc, polymost1Shade);
-    glUniform1f(polymost1NumShadesLoc, polymost1NumShades);
-    glUniform1f(polymost1VisFactorLoc, polymost1VisFactor);
-    glUniform1f(polymost1FogEnabledLoc, polymost1FogEnabled);
-    glUniform1f(polymost1UseColorOnlyLoc, polymost1UseColorOnly);
-    glUniform1f(polymost1UsePaletteLoc, polymost1UsePalette);
-    glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
-    glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
-    glUniform1f(polymost1NPOTEmulationLoc, polymost1NPOTEmulation);
-    glUniform1f(polymost1NPOTEmulationFactorLoc, polymost1NPOTEmulationFactor);
-    glUniform1f(polymost1NPOTEmulationXOffsetLoc, polymost1NPOTEmulationXOffset);
-    glUniform1f(polymost1BrightnessLoc, polymost1Brightness);
-    glUniformMatrix4fv(polymost1RotMatrixLoc, 1, false, polymost1RotMatrix);
-    glUniform1f(polymost1ShadeInterpolateLoc, polymost1ShadeInterpolate);
-}
-
-void polymost_setTexturePosSize(vec4f_t const &texturePosSize)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-        return;
-
-    polymost1TexturePosSize = texturePosSize;
-    glUniform4f(polymost1TexturePosSizeLoc, polymost1TexturePosSize.x, polymost1TexturePosSize.y, polymost1TexturePosSize.z, polymost1TexturePosSize.w);
-}
-
-static inline void polymost_setHalfTexelSize(vec2f_t const &halfTexelSize)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-        return;
-
-    polymost1HalfTexelSize = halfTexelSize;
-    glUniform2f(polymost1HalfTexelSizeLoc, polymost1HalfTexelSize.x, polymost1HalfTexelSize.y);
-}
-
-static void polymost_setPalswap(uint32_t index)
-{
-    static uint32_t lastPalswapIndex;
-
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-        return;
-
-    lastPalswapIndex = index;
-    polymost1PalswapPos.x = index*polymost1PalswapSize.x;
-    polymost1PalswapPos.y = floorf(polymost1PalswapPos.x);
-    polymost1PalswapPos = { polymost1PalswapPos.x - polymost1PalswapPos.y + (0.5f/PALSWAP_TEXTURE_SIZE),
-                            polymost1PalswapPos.y * polymost1PalswapSize.y + (0.5f/PALSWAP_TEXTURE_SIZE) };
-    glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
-}
-
-static void polymost_setPalswapSize(uint32_t width, uint32_t height)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-        return;
-
-    polymost1PalswapSize = { width*(1.f/PALSWAP_TEXTURE_SIZE),
-                             height*(1.f/PALSWAP_TEXTURE_SIZE) };
-
-    polymost1PalswapInnerSize = { (width-1)*(1.f/PALSWAP_TEXTURE_SIZE),
-                                  (height-1)*(1.f/PALSWAP_TEXTURE_SIZE) };
-
-    glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
-}
-
-char polymost_getClamp()
-{
-    return polymost1Clamp.x + polymost1Clamp.y*2.0;
-}
-
-void polymost_setClamp(char clamp)
-{
-    char clampx = clamp&1;
-    char clampy = clamp>>1;
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID ||
-        (clampx == polymost1Clamp.x && clampy == polymost1Clamp.y))
-        return;
-
-    polymost1Clamp.x = clampx;
-    polymost1Clamp.y = clampy;
-    glUniform2f(polymost1ClampLoc, polymost1Clamp.x, polymost1Clamp.y);
-}
-
-static void polymost_setShade(int32_t shade)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-        return;
-
-    if (globalflags & GLOBAL_NO_GL_TILESHADES)
-        shade = 0;
-
-    static int32_t lastShade;
-    static int32_t lastNumShades;
-
-    if (shade != lastShade)
-    {
-        lastShade = shade;
-        polymost1Shade = shade;
-        glUniform1f(polymost1ShadeLoc, polymost1Shade);
-    }
-
-    if (numshades != lastNumShades)
-    {
-        lastNumShades = numshades;
-        polymost1NumShades = numshades;
-        glUniform1f(polymost1NumShadesLoc, polymost1NumShades);
-    }
-}
-
-static void polymost_setVisibility(float visibility)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-        return;
-
-    float visFactor = visibility * fviewingrange * (1.f / (64.f * 65536.f));
-    if (visFactor == polymost1VisFactor)
-        return;
-
-    polymost1VisFactor = visFactor;
-    glUniform1f(polymost1VisFactorLoc, polymost1VisFactor);
-}
-
-void polymost_setFogEnabled(char fogEnabled)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-        return;
-
-    polymost1FogEnabled = fogEnabled;
-    glUniform1f(polymost1FogEnabledLoc, polymost1FogEnabled);
-}
-
-void polymost_useColorOnly(char useColorOnly)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-        return;
-
-    polymost1UseColorOnly = useColorOnly;
-    glUniform1f(polymost1UseColorOnlyLoc, polymost1UseColorOnly);
-}
-
-void polymost_usePaletteIndexing(char usePaletteIndexing)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-        return;
-
-    polymost1UsePalette = usePaletteIndexing;
-    glUniform1f(polymost1UsePaletteLoc, polymost1UsePalette);
-}
-
-void polymost_useDetailMapping(char useDetailMapping)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID || useDetailMapping == polymost1UseDetailMapping)
-        return;
-
-    polymost1UseDetailMapping = useDetailMapping;
-    glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
-}
-
-void polymost_useGlowMapping(char useGlowMapping)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID || useGlowMapping == polymost1UseGlowMapping)
-        return;
-
-    polymost1UseGlowMapping = useGlowMapping;
-    glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
-}
-
-void polymost_npotEmulation(char npotEmulation, float factor, float xOffset)
-{
-    if (currentShaderProgramID != polymost1CurrentShaderProgramID || npotEmulation == polymost1NPOTEmulation)
-        return;
-
-    polymost1NPOTEmulation = npotEmulation;
-    glUniform1f(polymost1NPOTEmulationLoc, polymost1NPOTEmulation);
-    polymost1NPOTEmulationFactor = factor;
-    glUniform1f(polymost1NPOTEmulationFactorLoc, polymost1NPOTEmulationFactor);
-    polymost1NPOTEmulationXOffset = xOffset;
-    glUniform1f(polymost1NPOTEmulationXOffsetLoc, polymost1NPOTEmulationXOffset);
-}
-
-void polymost_shadeInterpolate(int32_t shadeInterpolate)
-{
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1ShadeInterpolate = shadeInterpolate;
-        glUniform1f(polymost1ShadeInterpolateLoc, polymost1ShadeInterpolate);
-    }
-}
-
-void polymost_setBrightness(int brightness){
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
-    {
-        polymost1Brightness = 8.f / (brightness+8.f);
-        glUniform1f(polymost1BrightnessLoc, polymost1Brightness);
-    }
-}
-
-
-static void polymost_bindPth(pthtyp const * const pPth, int sampler)
-{
-    Bassert(pPth);
-
-    vec4f_t texturePosSize = { 0.f, 0.f, 1.f, 1.f };
-    vec2f_t halfTexelSize = { 0.f, 0.f };
-    polymost_setTexturePosSize(texturePosSize);
-    polymost_setHalfTexelSize(halfTexelSize);
 	GLInterface.BindTexture(0, pPth->glpic, sampler);
 }
+
 
 void useShaderProgram(uint32_t shaderID)
 {
     glUseProgram(shaderID);
-    currentShaderProgramID = shaderID;
 }
 
 FileReader GetBaseResource(const char* fn);
@@ -742,56 +385,6 @@ void polymost_glinit()
     currentTextureID = 0;
     char allPacked = false;
 
-	auto fr1 = GetBaseResource("demolition/shaders/glsl/polymost.vp");
-	TArray<uint8_t> polymost1Vert = fr1.Read();
-	fr1 = GetBaseResource("demolition/shaders/glsl/polymost.fp");
-	TArray<uint8_t> polymost1Frag = fr1.Read();
-	// Zero-terminate both strings.
-	polymost1Vert.Push(0);
-	polymost1Frag.Push(0);
-
-    polymost1ExtendedShaderProgramID = glCreateProgram();
-    GLuint polymost1BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, (char*)polymost1Vert.Data());
-    GLuint polymost1ExtendedFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, (char*)polymost1Frag.Data());
-    glAttachShader(polymost1ExtendedShaderProgramID, polymost1BasicVertexShaderID);
-    glAttachShader(polymost1ExtendedShaderProgramID, polymost1ExtendedFragmentShaderID);
-    glLinkProgram(polymost1ExtendedShaderProgramID);
-
-	char buffer[10000];
-	glGetShaderInfoLog(polymost1BasicVertexShaderID, 10000, NULL, buffer);
-	if (*buffer)
-	{
-		initprintf("Vertex shader:\n%s\n", buffer);
-	}
-	glGetShaderInfoLog(polymost1ExtendedFragmentShaderID, 10000, NULL, buffer);
-	if (*buffer)
-	{
-		initprintf("Fragment shader:\n%s\n", buffer);
-	}
-
-	glGetProgramInfoLog(polymost1ExtendedShaderProgramID, 10000, NULL, buffer);
-	if (*buffer)
-	{
-		initprintf("Linking:\n%s\n", buffer);
-	}
-	GLint status = 0;
-	glGetProgramiv(polymost1ExtendedShaderProgramID, GL_LINK_STATUS, &status);
-	auto linked = (status == GL_TRUE);
-	if (!linked)
-	{
-		// only print message if there's an error.
-		wm_msgbox("Fatal error", "Unable to init shader\n");
-		exit(1);
-	}
-    // set defaults
-    polymost_setCurrentShaderProgram(polymost1ExtendedShaderProgramID);
-    glUniform1i(polymost1TexSamplerLoc, 0);
-    glUniform1i(polymost1PalSwapSamplerLoc, 1);
-    glUniform1i(polymost1PaletteSamplerLoc, 2);
-    glUniform1i(polymost1DetailSamplerLoc, 3);
-    glUniform1i(polymost1GlowSamplerLoc, 4);
-    polymost_setPalswapSize(256, numshades+1);
-    useShaderProgram(0);
 
     lastbasepal = -1;
     for (int basepalnum = 0; basepalnum < MAXBASEPALS; ++basepalnum)
@@ -804,15 +397,6 @@ void polymost_glinit()
     {
         uploadpalswap(palookupnum);
     }
-
-    polymost_resetVertexPointers();
-   
-}
-
-void polymost_init()
-{
-    lastbasepal = -1;
-    polymost_resetVertexPointers();
 }
 
 ////////// VISIBILITY FOG ROUTINES //////////
@@ -1060,7 +644,7 @@ static void resizeglcheck(void)
 		VSMatrix identity(0);
 		GLInterface.SetMatrix(Matrix_ModelView, &identity);
 
-        if (!nofog) polymost_setFogEnabled(true);
+        if (!nofog) GLInterface.SetFogEnabled(true);
     }
 }
 
@@ -1133,11 +717,6 @@ void uploadtexture(FHardwareTexture *tex, int32_t doalloc, vec2_t siz, int32_t t
 
 void uploadbasepalette(int32_t basepalnum)
 {
-    if (!polymost1ExtendedShaderProgramID)
-    {
-        //POGO: if we haven't initialized properly yet, we shouldn't be uploading base palettes
-        return;
-    }
     if (!basepaltable[basepalnum])
     {
         return;
@@ -1165,11 +744,6 @@ void uploadbasepalette(int32_t basepalnum)
 
 void uploadpalswap(int32_t palookupnum)
 {
-    if (!polymost1ExtendedShaderProgramID)
-    {
-        //POGO: if we haven't initialized properly yet, we shouldn't be uploading palette swap tables
-        return;
-    }
     if (!palookup[palookupnum])
     {
         return;
@@ -1826,8 +1400,8 @@ static void polymost_updatePalette()
         return;
     }
 
-    polymost_setPalswap(globalpal);
-    polymost_setShade(globalshade);
+	GLInterface.SetPalswap(globalpal);
+	GLInterface.SetShade(globalshade, numshades);
 
     //POGO: only bind the base pal once when it's swapped
     if (curbasepal != lastbasepal)
@@ -1840,7 +1414,7 @@ static void polymost_updatePalette()
 
 static void polymost_updaterotmat(void)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    if (1)
     {
         float matrix[16] = {
             1.f, 0.f, 0.f, 0.f,
@@ -1866,24 +1440,17 @@ static void polymost_updaterotmat(void)
         multiplyMatrix4f(matrix, udmatrix);
         multiplyMatrix4f(matrix, tiltmatrix);
 #endif
-        Bmemcpy(polymost1RotMatrix, matrix, sizeof(matrix));
-        glUniformMatrix4fv(polymost1RotMatrixLoc, 1, false, polymost1RotMatrix);
+		GLInterface.SetMatrix(Matrix_View, matrix);
     }
 }
 
 static void polymost_identityrotmat(void)
 {
-    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    if (1)
     {
-        float matrix[16] = {
-            1.f, 0.f, 0.f, 0.f,
-            0.f, 1.f, 0.f, 0.f,
-            0.f, 0.f, 1.f, 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
-        Bmemcpy(polymost1RotMatrix, matrix, sizeof(matrix));
-        glUniformMatrix4fv(polymost1RotMatrixLoc, 1, false, polymost1RotMatrix);
-    }
+		VSMatrix matrix(0);
+		GLInterface.SetMatrix(Matrix_View, &matrix);
+	}
 }
 
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method);
@@ -2022,7 +1589,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         //POGOTODO: I could move this into bindPth
         if (!(pth->flags & PTH_INDEXED))
-            polymost_usePaletteIndexing(false);
+			GLInterface.UsePaletteIndexing(false);
 
 		// The entire logic here is just one lousy hack.
 		int mSampler = NoSampler;
@@ -2065,7 +1632,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & ~DAMETH_MASKPROPS)) &&
             detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
         {
-            polymost_useDetailMapping(true);
+			GLInterface.UseDetailMapping(true);
             polymost_setupdetailtexture(3, detailpth->glpic);
 
 			texmat.loadIdentity();
@@ -2089,7 +1656,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, (method & ~DAMETH_MASKPROPS) | DAMETH_MASK)) &&
             glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
         {
-            polymost_useGlowMapping(true);
+			GLInterface.UseGlowMapping(true);
             polymost_setupglowtexture(4, glowpth->glpic);
         }
     }
@@ -2100,16 +1667,16 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         int32_t size2;
         for (size2 = 1; size2 < size; size2 += size2) {}
         if (size == size2)
-            polymost_npotEmulation(false, 1.f, 0.f);
+			GLInterface.SetNpotEmulation(false, 1.f, 0.f);
         else
         {
             float xOffset = 1.f / tilesiz[globalpicnum].x;
-            polymost_npotEmulation(true, (1.f*size2) / size, xOffset);
+			GLInterface.SetNpotEmulation(true, (1.f*size2) / size, xOffset);
         }
     }
     else
     {
-        polymost_npotEmulation(false, 1.f, 0.f);
+		GLInterface.SetNpotEmulation(false, 1.f, 0.f);
     }
 #endif
 
@@ -2333,12 +1900,10 @@ do                                                                              
 		GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
 	}
 
-#ifdef USE_GLEXT
+	GLInterface.UseDetailMapping(false);
+	GLInterface.UseGlowMapping(false);
+	GLInterface.SetNpotEmulation(false, 1.f, 0.f);
 
-    polymost_useDetailMapping(false);
-    polymost_useGlowMapping(false);
-    polymost_npotEmulation(false, 1.f, 0.f);
-#endif
     if (pth->hicr)
     {
 		VSMatrix identity(0);
@@ -2356,7 +1921,7 @@ do                                                                              
     if (!(pth->flags & PTH_INDEXED))
     {
         // restore palette usage if we were just rendering a non-indexed color texture
-        polymost_usePaletteIndexing(true);
+		GLInterface.UsePaletteIndexing(true);
     }
     if (fullbright_pass == 1)
     {
@@ -2365,7 +1930,7 @@ do                                                                              
         globalshade = -128;
         fullbright_pass = 2;
 
-        polymost_setFogEnabled(false);
+		GLInterface.SetFogEnabled(false);
 
 		GLInterface.SetDepthFunc(Depth_Equal);
 
@@ -2374,7 +1939,7 @@ do                                                                              
 		GLInterface.SetDepthFunc(Depth_LessEqual);
 
         if (!nofog)
-            polymost_setFogEnabled(true);
+			GLInterface.SetFogEnabled(true);
 
         globalshade = shade;
         fullbright_pass = 0;
@@ -3771,7 +3336,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     int const npot = (1<<(picsiz[globalpicnum]&15)) != tilesiz[globalpicnum].x;
     int const xpanning = (r_parallaxskypanning?global_cf_xpanning:0);
 
-    polymost_setClamp((npot || xpanning != 0) ? 0 : 2);
+	GLInterface.SetClamp((npot || xpanning != 0) ? 0 : 2);
 
     int picnumbak = globalpicnum;
     ti = globalpicnum;
@@ -3906,7 +3471,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
 
     globalpicnum = picnumbak;
 
-    polymost_setClamp(0);
+	GLInterface.SetClamp(0);
 
     flatskyrender = 1;
 }
@@ -4016,7 +3581,7 @@ static void polymost_drawalls(int32_t const bunch)
         globvis2 = (sector[sectnum].visibility != 0) ?
                   mulscale4(globalcisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
                   globalcisibility2;
-        polymost_setVisibility(globvis2);
+		GLInterface.SetVisibility(globvis2, fviewingrange);
 
         tileUpdatePicnum(&globalpicnum, sectnum);
 
@@ -4054,7 +3619,7 @@ static void polymost_drawalls(int32_t const bunch)
             if (sec->visibility != 0)
                 globvis2 = mulscale4(globvis2, (uint8_t)(sec->visibility + 16));
             float viscale = xdimscale*fxdimen*(.0000001f/256.f);
-            polymost_setVisibility(globvis2*viscale);
+			GLInterface.SetVisibility(globvis2*viscale, fviewingrange);
 
             //Use clamping for tiled sky textures
             //(don't wrap around edges if the sky use multiple panels)
@@ -4073,7 +3638,7 @@ static void polymost_drawalls(int32_t const bunch)
                     skyclamphack = 0;
                     flatskyrender = 1;
                     globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
-                    polymost_setVisibility(0.f);
+					GLInterface.SetVisibility(0.f, fviewingrange);
                     polymost_domost(x0,fy0,x1,fy1);
                     flatskyrender = 0;
                 }
@@ -4353,7 +3918,7 @@ static void polymost_drawalls(int32_t const bunch)
             skyclamphack = 0;
             skyzbufferhack = 0;
             if (!nofog)
-                polymost_setFogEnabled(true);
+				GLInterface.SetFogEnabled(true);
         }
 
         // Ceiling
@@ -4373,7 +3938,7 @@ static void polymost_drawalls(int32_t const bunch)
         globvis2 = (sector[sectnum].visibility != 0) ?
                   mulscale4(globalcisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
                   globalcisibility2;
-        polymost_setVisibility(globvis2);
+		GLInterface.SetVisibility(globvis2, fviewingrange);
 
         tileUpdatePicnum(&globalpicnum, sectnum);
 
@@ -4411,7 +3976,7 @@ static void polymost_drawalls(int32_t const bunch)
             if (sec->visibility != 0)
                 globvis2 = mulscale4(globvis2, (uint8_t)(sec->visibility + 16));
             float viscale = xdimscale*fxdimen*(.0000001f/256.f);
-            polymost_setVisibility(globvis2*viscale);
+			GLInterface.SetVisibility(globvis2*viscale, fviewingrange);
 
             //Use clamping for tiled sky textures
             //(don't wrap around edges if the sky use multiple panels)
@@ -4430,7 +3995,7 @@ static void polymost_drawalls(int32_t const bunch)
                     skyclamphack = 0;
                     flatskyrender = 1;
                     globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
-                    polymost_setVisibility(0.f);
+					GLInterface.SetVisibility(0.f, fviewingrange);
                     polymost_domost(x1,cy1,x0,cy0);
                     flatskyrender = 0;
                 }
@@ -4713,7 +4278,7 @@ static void polymost_drawalls(int32_t const bunch)
             skyclamphack = 0;
             skyzbufferhack = 0;
             if (!nofog)
-                polymost_setFogEnabled(true);
+				GLInterface.SetFogEnabled(true);
         }
 
 #ifdef YAX_ENABLE
@@ -4721,13 +4286,6 @@ static void polymost_drawalls(int32_t const bunch)
         {
             int32_t baselevp, checkcf, i, j;
             int16_t bn[2];
-# if 0
-            int32_t obunchchk = (1 && yax_globalbunch>=0 &&
-                                 haveymost[yax_globalbunch>>3]&pow2char[yax_globalbunch&7]);
-
-            // if (obunchchk)
-            const int32_t x2 = yax_globalbunch*xdimen;
-# endif
             baselevp = (yax_globallev == YAX_MAXDRAWS);
 
             yax_getbunches(sectnum, &bn[0], &bn[1]);
@@ -4806,7 +4364,7 @@ static void polymost_drawalls(int32_t const bunch)
                 if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
                 globvis2 = globalvisibility2;
                 if (sector[sectnum].visibility != 0) globvis2 = mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility+16));
-                polymost_setVisibility(globvis2);
+				GLInterface.SetVisibility(globvis2, fviewingrange);
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -4851,7 +4409,7 @@ static void polymost_drawalls(int32_t const bunch)
                 if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
                 globvis2 = globalvisibility2;
                 if (sector[sectnum].visibility != 0) globvis2 = mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility+16));
-                polymost_setVisibility(globvis2);
+				GLInterface.SetVisibility(globvis2, fviewingrange);
                 globalorientation = nwal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -4904,7 +4462,7 @@ static void polymost_drawalls(int32_t const bunch)
                 globvis2 = (sector[sectnum].visibility != 0) ?
                           mulscale4(globalvisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
                           globalvisibility2;
-                polymost_setVisibility(globvis2);
+				GLInterface.SetVisibility(globvis2, fviewingrange);
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -5239,7 +4797,7 @@ void polymost_drawrooms()
     GLInterface.EnableDepthTest(true);
 	GLInterface.SetDepthFunc(Depth_Always);
 
-    polymost_setBrightness(r_brightnesshack);
+	GLInterface.SetBrightness(r_brightnesshack);
 
     gvrcorrection = viewingrange*(1.f/65536.f);
     if (glprojectionhacks == 2)
@@ -5270,7 +4828,7 @@ void polymost_drawrooms()
 
     gvisibility = ((float)globalvisibility)*FOGSCALE;
 
-    polymost_shadeInterpolate(r_shadeinterpolate);
+	GLInterface.SetShadeInterpolate(r_shadeinterpolate);
 
     //global cos/sin height angle
     if (r_yshearing)
@@ -5514,7 +5072,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
 
     globvis2 = globalvisibility2;
     globvis2 = (sector[sectnum].visibility != 0) ? mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility + 16)) : globalvisibility2;
-    polymost_setVisibility(globvis2);
+	GLInterface.SetVisibility(globvis2, fviewingrange);
 
     globalshade = (int32_t)wal->shade;
     globalpal = (int32_t)((uint8_t)wal->pal);
@@ -5894,7 +5452,7 @@ void polymost_drawsprite(int32_t snum)
     globvis2 = globalvisibility2;
     if (sector[tspr->sectnum].visibility != 0)
         globvis2 = mulscale4(globvis2, (uint8_t)(sector[tspr->sectnum].visibility + 16));
-    polymost_setVisibility(globvis2);
+	GLInterface.SetVisibility(globvis2, fviewingrange);
 
     vec2_t off = { 0, 0 };
 
@@ -6308,7 +5866,7 @@ void polymost_drawsprite(int32_t snum)
             globvis2 = globalhisibility2;
             if (sector[tspr->sectnum].visibility != 0)
                 globvis2 = mulscale4(globvis2, (uint8_t)(sector[tspr->sectnum].visibility + 16));
-            polymost_setVisibility(globvis2);
+			GLInterface.SetVisibility(globvis2, fviewingrange);
 
             if ((globalorientation & 64) != 0 && (globalposz > tspr->z) == (!(globalorientation & 8)))
                 goto _drawsprite_return;
@@ -6691,12 +6249,12 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     spriteext[tspr.owner].alpha = daalpha * (1.0f / 255.0f);
     tspr.blend = dablend;
 
-    polymost_setFogEnabled(false);
+	GLInterface.SetFogEnabled(false);
 
     if (videoGetRenderMode() == REND_POLYMOST)
         polymost_mddraw(&tspr);
 
-    if (!nofog) polymost_setFogEnabled(true);
+    if (!nofog) GLInterface.SetFogEnabled(true);
 
     gvrcorrection = ogvrcorrection;
     viewingrange = oldviewingrange;
@@ -6730,8 +6288,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	
     globvis = 0;
     globvis2 = 0;
-    polymost_setClamp(1+2);
-    polymost_setVisibility(globvis2);
+	GLInterface.SetClamp(1+2);
+	GLInterface.SetVisibility(globvis2, fviewingrange);
 
     int32_t const ogpicnum = globalpicnum;
     globalpicnum = picnum;
@@ -6931,14 +6489,14 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         xtex.v = yv2*(1.0/65536.0);
         ytex.v = yv*(1.0/65536.0);
 
-        polymost_setFogEnabled(false);
+		GLInterface.SetFogEnabled(false);
         pow2xsplit = 0; polymost_drawpoly(fpxy,n,method);
-        if (!nofog) polymost_setFogEnabled(true);
+        if (!nofog) GLInterface.SetFogEnabled(true);
     }
 
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableBlend(false);
-    polymost_setClamp(0);
+	GLInterface.SetClamp(0);
 
 	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
 	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);
@@ -7130,7 +6688,7 @@ void polymost_fillpolygon(int32_t npoints)
     polymost_outputGLDebugMessage(3, "polymost_fillpolygon(npoints:%d)", npoints);
 
     globvis2 = 0;
-    polymost_setVisibility(globvis2);
+	GLInterface.SetVisibility(globvis2, fviewingrange);
 
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
@@ -7157,7 +6715,7 @@ void polymost_fillpolygon(int32_t npoints)
         polymost_bindPth(pth, -1);
 
         if (!(pth->flags & PTH_INDEXED))
-            polymost_usePaletteIndexing(false);
+			GLInterface.UsePaletteIndexing(false);
     }
 
     polymost_updatePalette();
@@ -7182,7 +6740,7 @@ void polymost_fillpolygon(int32_t npoints)
     if (pth && !(pth->flags & PTH_INDEXED))
     {
         // restore palette usage if we were just rendering a non-indexed color texture
-        polymost_usePaletteIndexing(true);
+		GLInterface.UsePaletteIndexing(true);
     }
 }
 
@@ -7241,6 +6799,17 @@ static int32_t gen_font_glyph_tex(void)
     return 0;
 }
 
+// These are used by the automap drawers
+void renderDisableFog(void)
+{
+	GLInterface.SetFogEnabled(false);
+}
+
+void renderEnableFog(void)
+{
+	if (!nofog) GLInterface.SetFogEnabled(true);
+}
+
 int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
 {
     int const arbackcol = (unsigned)backcol < 256 ? backcol : 0;
@@ -7261,9 +6830,8 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         return -1;
 
 	GLInterface.BindTexture(0, polymosttext);
-    polymost_setTexturePosSize({0, 0, 1, 1});
-
-    polymost_usePaletteIndexing(false);
+    
+	GLInterface.UsePaletteIndexing(false);
 
     polymostSet2dView();	// disables blending, texturing, and depth testing
 
@@ -7271,7 +6839,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 	GLInterface.SetDepthMask(false);
 
     // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading >= 2.
-    polymost_setFogEnabled(false);
+	GLInterface.SetFogEnabled(false);
     // We want to have readable text in wireframe mode, too:
 	GLInterface.SetWireframe(false);
 	lastglpolygonmode = 0;
@@ -7360,9 +6928,9 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
 	GLInterface.SetDepthMask(true);
 
-    if (!nofog) polymost_setFogEnabled(true);
+    if (!nofog) GLInterface.SetFogEnabled(true);
 
-    polymost_usePaletteIndexing(true);
+	GLInterface.UsePaletteIndexing(true);
 
     return 0;
 }

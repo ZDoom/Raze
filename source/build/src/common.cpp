@@ -249,8 +249,8 @@ int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
 // Clear OSD background
 void COMMON_doclearbackground(int numcols, int height)
 {
-    polymost_setFogEnabled(false);
-    polymost_useColorOnly(true);
+	GLInterface.SetFogEnabled(false);
+	GLInterface.UseColorOnly(true);
 
 	polymostSet2dView();
 
@@ -277,8 +277,8 @@ void COMMON_doclearbackground(int numcols, int height)
 	GLInterface.SetColor(0.f, 0.f, 0.f, 1.f);
 	GLInterface.Draw(DT_TRIANGLE_STRIP, vert.first+4, 4);
 
-    polymost_useColorOnly(false);
-    polymost_setFogEnabled(true);
+	GLInterface.UseColorOnly(false);
+	GLInterface.SetFogEnabled(true);
 }
 
 void COMMON_clearbackground(int numcols, int numrows)

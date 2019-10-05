@@ -1489,23 +1489,8 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 #endif
 
 
-static FORCE_INLINE void renderDisableFog(void)
-{
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        polymost_setFogEnabled(false);
-    }
-#endif
-}
-
-static FORCE_INLINE void renderEnableFog(void)
-{
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST && !nofog)
-        polymost_setFogEnabled(true);
-#endif
-}
+void renderDisableFog(void);
+void renderEnableFog(void);
 
 static vec2_t const zerovec = { 0, 0 };
 

@@ -417,7 +417,6 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
 	VSMatrix identity(0);
 	GLInterface.SetMatrix(Matrix_ModelView, &identity);
 	GLInterface.SetMatrix(Matrix_Projection, &identity);
-	GLInterface.SetMatrix(Matrix_Texture0, &identity);
 
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(false);
@@ -444,8 +443,7 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
 
 void animvpx_restore_glstate(void)
 {
-	useShaderProgram(0);
-	polymost_resetProgram();
+	GLInterface.SetPolymostShader();
 
 	delete texture;
 	texture = nullptr;

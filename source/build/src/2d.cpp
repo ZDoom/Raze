@@ -60,7 +60,7 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
     GLInterface.EnableDepthTest(false);
     GLInterface.EnableBlend(true);	// When using line antialiasing, this is needed
 
-    polymost_useColorOnly(true);
+	GLInterface.UseColorOnly(true);
     GLInterface.SetColorub(p.r, p.g, p.b, 255);
 
 	auto data = GLInterface.AllocVertices(2);
@@ -68,7 +68,7 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
 	data.second[1].Set((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
 	GLInterface.Draw(DT_LINES, data.first, 2);
 
-	polymost_useColorOnly(false);
+	GLInterface.UseColorOnly(false);
 }
 #endif
 

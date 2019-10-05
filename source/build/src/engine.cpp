@@ -8975,7 +8975,7 @@ killsprite:
     {
         GLInterface.EnableBlend(false);
         GLInterface.EnableAlphaTest(true);
-        polymost_setClamp(1+2);
+		GLInterface.SetClamp(1+2);
 
         if (spritesortcnt < numSprites)
         {
@@ -9026,7 +9026,7 @@ killsprite:
             }
         }
 
-        polymost_setClamp(0);
+		GLInterface.SetClamp(0);
         int32_t numMaskWalls = maskwallcnt;
         maskwallcnt = 0;
         for (i = 0; i < numMaskWalls; i++)
@@ -9071,7 +9071,7 @@ killsprite:
 
 #ifdef USE_OPENGL
         if (videoGetRenderMode() == REND_POLYMOST)
-            polymost_setClamp(1+2);
+			GLInterface.SetClamp(1+2);
 #endif
 
         i = spritesortcnt;
@@ -9160,14 +9160,14 @@ killsprite:
         debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
 #ifdef USE_OPENGL
         if (videoGetRenderMode() == REND_POLYMOST)
-            polymost_setClamp(0);
+			GLInterface.SetClamp(0);
 #endif
         renderDrawMaskedWall(maskwallcnt);
     }
 
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
-        polymost_setClamp(1+2);
+		GLInterface.SetClamp(1+2);
 #endif
     while (spritesortcnt)
     {
@@ -9183,7 +9183,7 @@ killsprite:
     if (videoGetRenderMode() == REND_POLYMOST)
     {
 		GLInterface.SetDepthMask(true);
-		polymost_setClamp(0);
+		GLInterface.SetClamp(0);
     }
 #endif
 
@@ -12982,10 +12982,6 @@ int32_t videoSetRenderMode(int32_t renderer)
     if (videoGetRenderMode() >= REND_POLYMOST)
         glrendmode = rendmode;
 
-    if (renderer == REND_POLYMOST)
-    {
-        polymost_init();
-    }
 #endif
 
     return 0;

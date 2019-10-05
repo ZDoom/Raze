@@ -772,6 +772,7 @@ set (PCH_SOURCES
 	
 	glbackend/gl_hwtexture.cpp
 	glbackend/gl_samplers.cpp
+	glbackend/gl_shader.cpp
 	glbackend/glbackend.cpp
 	
 	mact/src/animlib.cpp

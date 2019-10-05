@@ -2,6 +2,7 @@
 #include "glbackend.h"
 #include "glad/glad.h"
 #include "gl_samplers.h"
+#include "gl_shader.h"
 
 #include "baselayer.h"
 #include "resourcefile.h"
@@ -60,8 +61,28 @@ void GLInstance::Init()
 		osdcmd_glinfo(NULL);
 		glinfo.dumped = 1;
 	}
+	new(&renderState) PolymostRenderState;	// reset to defaults.
+	LoadPolymostShader();
 
 }
+
+void GLInstance::LoadPolymostShader()
+{
+	auto fr1 = GetBaseResource("demolition/shaders/glsl/polymost.vp");
+	TArray<uint8_t> polymost1Vert = fr1.Read();
+	fr1 = GetBaseResource("demolition/shaders/glsl/polymost.fp");
+	TArray<uint8_t> polymost1Frag = fr1.Read();
+	// Zero-terminate both strings.
+	polymost1Vert.Push(0);
+	polymost1Frag.Push(0);
+	polymostShader = new PolymostShader();
+	if (!polymostShader->Load("PolymostShader", (const char*)polymost1Vert.Data(), (const char*)polymost1Frag.Data()))
+	{
+		exit(1);
+	}
+	SetPolymostShader();
+}
+
 
 void GLInstance::InitGLState(int fogmode, int multisample)
 {
@@ -89,6 +110,10 @@ void GLInstance::Deinit()
 {
 	if (mSamplers) delete mSamplers;
 	mSamplers = nullptr;
+	if (polymostShader) delete polymostShader;
+	polymostShader = nullptr;
+
+	activeShader = nullptr;
 }
 	
 std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
@@ -108,6 +133,7 @@ static GLint primtypes[] =
 	
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
+	if (activeShader == polymostShader) renderState.Apply(polymostShader);
 	glBegin(primtypes[type]);
 	auto p = &Buffer[start];
 	for (size_t i = 0; i < count; i++, p++)
@@ -188,22 +214,30 @@ void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 	matrices[num] = *mat;
 	switch(num)
 	{
+		default:
+			return;
+		case Matrix_View:
+			polymostShader->RotMatrix.Set(mat->get());
+			break;
+
 		case Matrix_Projection:
 			glMatrixMode(GL_PROJECTION);
+			glLoadMatrixf(mat->get());
 			break;
 			
 		case Matrix_ModelView:
 			glMatrixMode(GL_MODELVIEW);
+			glLoadMatrixf(mat->get());
 			break;
 			
-		default:
-			glActiveTexture(GL_TEXTURE0 + num - Matrix_Texture0);
+		case Matrix_Texture3:
+		case Matrix_Texture4:
+			glActiveTexture(GL_TEXTURE3 + num - Matrix_Texture3);
 			glMatrixMode(GL_TEXTURE);
+			glLoadMatrixf(mat->get());
+			glActiveTexture(GL_TEXTURE0);
 			break;
 	}
-	glLoadMatrixf(mat->get());
-	glMatrixMode(GL_MODELVIEW);
-	if (num > Matrix_Texture0) glActiveTexture(GL_TEXTURE0);
 }
 
 void GLInstance::EnableStencilWrite(int value)
@@ -326,3 +360,68 @@ void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
 {
 	glReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, buffer);
 }
+
+void GLInstance::SetPolymostShader()
+{
+	if (activeShader != polymostShader)
+	{
+		polymostShader->Bind();
+		activeShader = polymostShader;
+	}
+	//GLInterface.BindTexture(1, palswapTextureID);
+	//GLInterface.BindTexture(2, paletteTextureIDs[curbasepal]);
+
+}
+
+
+void PolymostRenderState::Apply(PolymostShader* shader)
+{
+	shader->Clamp.Set(Clamp);
+	shader->Shade.Set(Shade);
+	shader->NumShades.Set(NumShades);
+	shader->VisFactor.Set(VisFactor);
+	shader->FogEnabled.Set(FogEnabled);
+	shader->UseColorOnly.Set(UseColorOnly);
+	shader->UsePalette.Set(UsePalette);
+	shader->UseDetailMapping.Set(UseDetailMapping);
+	shader->UseGlowMapping.Set(UseGlowMapping);
+	shader->NPOTEmulation.Set(NPOTEmulation);
+	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
+	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
+	shader->ShadeInterpolate.Set(ShadeInterpolate);
+	shader->Brightness.Set(Brightness);
+}
+
+#if 0
+
+static void polymost_setPalswap(uint32_t index)
+{
+	static uint32_t lastPalswapIndex;
+
+	if (currentShaderProgramID != polymost1CurrentShaderProgramID)
+		return;
+
+	lastPalswapIndex = index;
+	polymost1PalswapPos.x = index * polymost1PalswapSize.x;
+	polymost1PalswapPos.y = floorf(polymost1PalswapPos.x);
+	polymost1PalswapPos = { polymost1PalswapPos.x - polymost1PalswapPos.y + (0.5f / PALSWAP_TEXTURE_SIZE),
+							polymost1PalswapPos.y * polymost1PalswapSize.y + (0.5f / PALSWAP_TEXTURE_SIZE) };
+	glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
+}
+
+static void polymost_setPalswapSize(uint32_t width, uint32_t height)
+{
+	if (currentShaderProgramID != polymost1CurrentShaderProgramID)
+		return;
+
+	polymost1PalswapSize = { width * (1.f / PALSWAP_TEXTURE_SIZE),
+							 height * (1.f / PALSWAP_TEXTURE_SIZE) };
+
+	polymost1PalswapInnerSize = { (width - 1) * (1.f / PALSWAP_TEXTURE_SIZE),
+								  (height - 1) * (1.f / PALSWAP_TEXTURE_SIZE) };
+
+	glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
+}
+
+
+#endif
