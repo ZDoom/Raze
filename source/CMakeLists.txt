@@ -982,6 +982,7 @@ set (PCH_SOURCES
 	common/textures/formats/pcxtexture.cpp
 	common/textures/formats/pngtexture.cpp
 	common/textures/formats/tgatexture.cpp
+	common/textures/formats/arttexture.cpp
 	
 )
 

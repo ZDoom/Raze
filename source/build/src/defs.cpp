@@ -17,6 +17,7 @@
 #include "mdsprite.h"  // md3model_t
 #include "colmatch.h"
 #include "textures.h"
+#include "bitmap.h"
 
 #ifdef USE_OPENGL
 # include "hightile.h"
@@ -252,52 +253,9 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
     if (check_file_exist(fn))
         return -1;
 
-    int32_t xsiz = 0, ysiz = 0;
-    palette_t *picptr = NULL;
 
 	FTexture* tex = FTexture::GetTexture(fn);
-
-	// This should be implemented as a separate texture type to avoid maintenance problems elsewhere.
-    if (!tex)
-    {
-		auto fr = kopenFileReader(fn, 0);
-		auto data = fr.Read();
-        int32_t const artstatus = artCheckUnitFileHeader(data.Data(), data.Size());
-        if (artstatus < 0)
-            return artstatus<<8;
-
-        int32_t picanmdisk;
-        Bmemcpy(&picanmdisk, &kpzbuf[20], sizeof(int32_t));
-        picanmdisk = B_LITTLE32(picanmdisk);
-        tileConvertAnimFormat(tile, picanmdisk);
-
-        int32_t const xsiz = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
-        int32_t const ysiz = B_LITTLE16(B_UNBUF16(&kpzbuf[18]));
-
-        if (EDUKE32_PREDICT_FALSE(xsiz <= 0 || ysiz <= 0))
-        {
-            tileDelete(tile);
-            return 2;
-        }
-
-        tileSetSize(tile, xsiz, ysiz);
-        int32_t const dasiz = xsiz * ysiz;
-
-        if (EDUKE32_PREDICT_FALSE(ARTv1_UNITOFFSET + dasiz > (int)data.Size()))
-        {
-            tileSetupDummy(tile);
-            return 3;
-        }
-
-        tileSetData(tile, dasiz, &kpzbuf[ARTv1_UNITOFFSET]);
-
-#ifdef USE_OPENGL
-        if (istexture)
-            hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0f, 1.0f, HICR_ARTIMMUNITY);
-#endif
-
-        return 1;
-    }
+	int32_t xsiz = tex->GetWidth(), ysiz = tex->GetHeight();
 
     if (EDUKE32_PREDICT_FALSE(xsiz <= 0 || ysiz <= 0))
         return -2;
@@ -305,11 +263,12 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
     if (!(paletteloaded & PALETTE_MAIN))
         return -3;
 
-    tileSetSize(tile, tex->GetWidth(), tex->GetHeight());
-
-    tile_from_truecolpic(tile, picptr, alphacut);
-
-    Xfree(picptr);
+	if (videoGetRenderMode() < REND_POLYMOST)
+	{
+		tileSetSize(tile, tex->GetWidth(), tex->GetHeight());
+		auto image = tex->GetBgraBitmap(nullptr, nullptr);
+		tile_from_truecolpic(tile, (const palette_t*)image.GetPixels(), alphacut);
+	}
 
 #ifdef USE_OPENGL
     if (istexture)

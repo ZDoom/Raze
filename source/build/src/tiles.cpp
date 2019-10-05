@@ -796,31 +796,6 @@ int32_t tileCRC(int16_t tileNum)
     return crc;
 }
 
-// Assumes pic has been initialized to zero.
-void artConvertRGB(palette_t * const pic, uint8_t const * const buf, int32_t const bufsizx, int32_t const sizx, int32_t const sizy)
-{
-    for (bssize_t y = 0; y < sizy; ++y)
-    {
-        palette_t * const picrow = &pic[bufsizx * y];
-
-        for (bssize_t x = 0; x < sizx; ++x)
-        {
-            uint8_t index = buf[sizy * x + y];
-
-            if (index == 255)
-                continue;
-
-            index *= 3;
-
-            // pic is BGRA
-            picrow[x].r = palette[index+2];
-            picrow[x].g = palette[index+1];
-            picrow[x].b = palette[index];
-            picrow[x].f = 255;
-        }
-    }
-}
-
 //
 // allocatepermanenttile
 //
