@@ -132,6 +132,7 @@ class GLInstance
 	FShader* activeShader;
 	PolymostShader* polymostShader;
 	SurfaceShader* surfaceShader;
+	FShader* vpxShader;
 	
 	
 public:
@@ -197,6 +198,7 @@ public:
 	void SetWireframe(bool on);
 	void SetPolymostShader();
 	void SetSurfaceShader();
+	void SetVPXShader();
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
 

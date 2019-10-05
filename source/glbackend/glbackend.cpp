@@ -63,6 +63,7 @@ void GLInstance::Init()
 	}
 	new(&renderState) PolymostRenderState;	// reset to defaults.
 	LoadSurfaceShader();
+	LoadVPXShader();
 	LoadPolymostShader();
 
 }
@@ -70,18 +71,34 @@ void GLInstance::Init()
 void GLInstance::LoadPolymostShader()
 {
 	auto fr1 = GetBaseResource("demolition/shaders/glsl/polymost.vp");
-	TArray<uint8_t> polymost1Vert = fr1.Read();
+	TArray<uint8_t> Vert = fr1.Read();
 	fr1 = GetBaseResource("demolition/shaders/glsl/polymost.fp");
-	TArray<uint8_t> polymost1Frag = fr1.Read();
+	TArray<uint8_t> Frag = fr1.Read();
 	// Zero-terminate both strings.
-	polymost1Vert.Push(0);
-	polymost1Frag.Push(0);
+	Vert.Push(0);
+	Frag.Push(0);
 	polymostShader = new PolymostShader();
-	if (!polymostShader->Load("PolymostShader", (const char*)polymost1Vert.Data(), (const char*)polymost1Frag.Data()))
+	if (!polymostShader->Load("PolymostShader", (const char*)Vert.Data(), (const char*)Frag.Data()))
 	{
 		exit(1);
 	}
 	SetPolymostShader();
+}
+
+void GLInstance::LoadVPXShader()
+{
+	auto fr1 = GetBaseResource("demolition/shaders/glsl/animvpx.vp");
+	TArray<uint8_t> Vert = fr1.Read();
+	fr1 = GetBaseResource("demolition/shaders/glsl/animvpx.fp");
+	TArray<uint8_t> Frag = fr1.Read();
+	// Zero-terminate both strings.
+	Vert.Push(0);
+	Frag.Push(0);
+	vpxShader = new FShader();
+	if (!vpxShader->Load("VPXShader", (const char*)Vert.Data(), (const char*)Frag.Data()))
+	{
+		exit(1);
+	}
 }
 
 void GLInstance::LoadSurfaceShader()
@@ -399,6 +416,14 @@ void GLInstance::SetSurfaceShader()
 	}
 }
 
+void GLInstance::SetVPXShader()
+{
+	if (activeShader != vpxShader)
+	{
+		vpxShader->Bind();
+		activeShader = vpxShader;
+	}
+}
 
 
 void PolymostRenderState::Apply(PolymostShader* shader)

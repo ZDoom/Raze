@@ -675,6 +675,8 @@ file( GLOB HEADER_FILES
 	libxmp-lite/src/*.h
 	mact/include/*.h
 	mact/src/*.h
+	common/*.h
+	common/utility/*.h
 
 	build/src/*.h
 	duke3d/src/*.h
@@ -1018,6 +1020,7 @@ include_directories(
 	libxmp-lite/include/libxmp-lite
 	libsmackerdec/include
 	thirdparty/include
+	common
 	common/utility
 	common/console
 	platform

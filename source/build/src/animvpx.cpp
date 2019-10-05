@@ -344,69 +344,11 @@ static FHardwareTexture* texture;
 static int sampler;
 static int32_t texuploaded;
 
-#ifdef USE_GLEXT
-// YUV->RGB conversion fragment shader adapted from
-// http://www.fourcc.org/fccyvrgb.php: "Want some sample code?"
-// direct link: http://www.fourcc.org/source/YUV420P-OpenGL-GLSLang.c
-static const char *fragprog_src =
-    "#version 120\n"
-
-    "uniform sampler2D tex;\n"
-
-    "void main(void) {\n"
-
-    "  float r,g,b,y,u,v;\n"
-    "  vec3 yuv;\n"
-
-    "  yuv = texture2D(tex, gl_TexCoord[0].st).rgb;\n"
-    "  y = yuv.r;\n"
-    "  u = yuv.g;\n"
-    "  v = yuv.b;\n"
-
-    "  y = 1.1643*(y-0.0625);\n"
-    "  u = u-0.5;\n"
-    "  v = v-0.5;\n"
-
-    "  r = y + 1.5958*v;\n"
-    "  g = y - 0.39173*u - 0.81290*v;\n"
-    "  b = y + 2.017*u;\n"
-
-    "  gl_FragColor = vec4(r,g,b,1.0);\n"
-    "}\n";
-#endif
-
 void animvpx_setup_glstate(int32_t animvpx_flags)
 {
-        GLint gli;
-        GLuint FSHandle, PHandle;
-        static char logbuf[512];
+    static char logbuf[512];
 
-        // first, compile the fragment shader
-        /* Set up program objects. */
-        PHandle = glCreateProgram();
-        FSHandle = glCreateShader(GL_FRAGMENT_SHADER);
-
-        /* Compile the shader. */
-        glShaderSource(FSHandle, 1, (const GLchar **)&fragprog_src, NULL);
-        glCompileShader(FSHandle);
-
-        /* Print the compilation log. */
-        glGetShaderiv(FSHandle, GL_COMPILE_STATUS, &gli);
-        glGetShaderInfoLog(FSHandle, sizeof(logbuf), NULL, logbuf);
-        if (logbuf[0])
-            OSD_Printf("animvpx compile log: %s\n", logbuf);
-
-        /* Create a complete program object. */
-        glAttachShader(PHandle, FSHandle);
-        glLinkProgram(PHandle);
-
-        /* And print the link log. */
-        glGetProgramInfoLog(PHandle, sizeof(logbuf), NULL, logbuf);
-        if (logbuf[0])
-            OSD_Printf("animvpx link log: %s\n", logbuf);
-
-        /* Finally, use the program. */
-		glUseProgram(PHandle);
+	GLInterface.SetVPXShader();
 
 
     ////////// GL STATE //////////
@@ -444,7 +386,6 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
 void animvpx_restore_glstate(void)
 {
 	GLInterface.SetPolymostShader();
-
 	delete texture;
 	texture = nullptr;
     texuploaded = 0;
