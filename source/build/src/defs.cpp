@@ -16,6 +16,7 @@
 #include "common.h"
 #include "mdsprite.h"  // md3model_t
 #include "colmatch.h"
+#include "textures.h"
 
 #ifdef USE_OPENGL
 # include "hightile.h"
@@ -254,14 +255,14 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
     int32_t xsiz = 0, ysiz = 0;
     palette_t *picptr = NULL;
 
-    int32_t const length = kpzbufload(fn);
-#ifdef WITHKPLIB
-    kpzdecode(length, (intptr_t *)&picptr, &xsiz, &ysiz);
-#endif
+	FTexture* tex = FTexture::GetTexture(fn);
 
-    if (!picptr)
+	// This should be implemented as a separate texture type to avoid maintenance problems elsewhere.
+    if (!tex)
     {
-        int32_t const artstatus = artCheckUnitFileHeader((uint8_t *)kpzbuf, length);
+		auto fr = kopenFileReader(fn, 0);
+		auto data = fr.Read();
+        int32_t const artstatus = artCheckUnitFileHeader(data.Data(), data.Size());
         if (artstatus < 0)
             return artstatus<<8;
 
@@ -282,7 +283,7 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
         tileSetSize(tile, xsiz, ysiz);
         int32_t const dasiz = xsiz * ysiz;
 
-        if (EDUKE32_PREDICT_FALSE(ARTv1_UNITOFFSET + dasiz > length))
+        if (EDUKE32_PREDICT_FALSE(ARTv1_UNITOFFSET + dasiz > (int)data.Size()))
         {
             tileSetupDummy(tile);
             return 3;
@@ -304,7 +305,7 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
     if (!(paletteloaded & PALETTE_MAIN))
         return -3;
 
-    tileSetSize(tile, xsiz, ysiz);
+    tileSetSize(tile, tex->GetWidth(), tex->GetHeight());
 
     tile_from_truecolpic(tile, picptr, alphacut);
 
@@ -2057,45 +2058,6 @@ static int32_t defsparser(scriptfile *script)
             if (check_file_exist(fn))
                 break;
 
-#ifdef POLYMER
-            fd = kopen4load(fn, 0);
-
-            // load the highpalookup and send it to polymer
-            highpaldata = (char *)Xmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
-
-            {
-                char *filebuf;
-                int32_t xsiz, ysiz, filesize, i;
-
-                filesize = kfilelength(fd);
-
-                filebuf = (char *)Xmalloc(filesize);
-
-                klseek(fd, 0, SEEK_SET);
-                if (kread(fd, filebuf, filesize)!=filesize)
-                    { kclose(fd); Xfree(highpaldata); initprintf("Error: didn't read all of \"%s\".\n", fn); break; }
-
-                kclose(fd);
-                kpgetdim(filebuf, filesize, &xsiz, &ysiz);
-
-                if (EDUKE32_PREDICT_FALSE(xsiz != PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM || ysiz != PR_HIGHPALOOKUP_DIM))
-                {
-                    initprintf("Error: image dimensions of \"%s\" must be %dx%d.\n",
-                               fn, PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM, PR_HIGHPALOOKUP_DIM);
-                    Xfree(filebuf); Xfree(highpaldata);
-                    break;
-                }
-
-                i = kprender(filebuf, filesize, (intptr_t)highpaldata, xsiz*sizeof(coltype), xsiz, ysiz);
-                Xfree(filebuf);
-                if (EDUKE32_PREDICT_FALSE(i))
-                    { Xfree(highpaldata); initprintf("Error: failed rendering \"%s\".\n", fn); break; }
-            }
-
-            polymer_definehighpalookup(basepal, pal, highpaldata);
-
-            Xfree(highpaldata);
-#endif
         }
         break;
         case T_TINT:
