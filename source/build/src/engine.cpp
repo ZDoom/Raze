@@ -25,7 +25,6 @@
 #include "softsurface.h"
 
 #ifdef USE_OPENGL
-# include "glad/glad.h"
 # include "glsurface.h"
 # include "hightile.h"
 # include "mdsprite.h"

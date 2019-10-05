@@ -78,12 +78,12 @@ static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 
 struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 {
-    {"GL_NEAREST",GL_NEAREST,GL_NEAREST},
-    {"GL_LINEAR",GL_LINEAR,GL_LINEAR},
-    {"GL_NEAREST_MIPMAP_NEAREST",GL_NEAREST_MIPMAP_NEAREST,GL_NEAREST},
-    {"GL_LINEAR_MIPMAP_NEAREST",GL_LINEAR_MIPMAP_NEAREST,GL_LINEAR},
-    {"GL_NEAREST_MIPMAP_LINEAR",GL_NEAREST_MIPMAP_LINEAR,GL_NEAREST},
-    {"GL_LINEAR_MIPMAP_LINEAR",GL_LINEAR_MIPMAP_LINEAR,GL_LINEAR}
+    {"NEAREST"},
+    {"LINEAR"},
+    {"NEAREST_MIPMAP_NEAREST"},
+    {"LINEAR_MIPMAP_NEAREST"},
+    {"NEAREST_MIPMAP_LINEAR"},
+    {"LINEAR_MIPMAP_LINEAR"}
 };
 
 int32_t glanisotropy = 0;            // 0 = maximum supported by card
@@ -233,8 +233,6 @@ void gltexapplyprops(void)
 
 
 	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
-
-    gltexfiltermode = clamp(gltexfiltermode, 0, NUMGLFILTERMODES-1);
     r_useindexedcolortextures = !gltexfiltermode;
 }
 
@@ -751,17 +749,17 @@ void uploadpalswap(int32_t palookupnum)
     {
         G etTextureHandle(&palswapTextureID);
     }
-    g lBindTexture(GL_TEXTURE_2D, palswapTextureID);
+    g lBindTexture(GL _TEXTURE_2D, palswapTextureID);
     if (allocateTexture)
     {
-        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
-        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        g lTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        g lTexImage2D(GL_TEXTURE_2D, 0, GL_RED, PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_BASE_LEVEL, 0);
+        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MAX_LEVEL, 0);
+        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MAG_FILTER, GL _NEAREST);
+        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MIN_FILTER, GL _NEAREST);
+        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MAX_ANISOTROPY_EXT, 1);
+        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_WRAP_S, GL _CLAMP_TO_EDGE);
+        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_WRAP_T, GL _CLAMP_TO_EDGE);
+        g lTexImage2D(GL _TEXTURE_2D, 0, GL _RED, PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, 0, GL _RED, GL _UNSIGNED_BYTE, NULL);
     }
 
     int32_t column = palookupnum%(PALSWAP_TEXTURE_SIZE/256);
@@ -772,7 +770,7 @@ void uploadpalswap(int32_t palookupnum)
         OSD_Printf("Polymost: palswaps are too large for palswap tilesheet!\n");
         return;
     }
-    g lTexSubImage2D(GL_TEXTURE_2D, 0, 256*column, rowOffset, 256, numshades+1, GL_RED, GL_UNSIGNED_BYTE, palookup[palookupnum]);
+    g lTexSubImage2D(GL _TEXTURE_2D, 0, 256*column, rowOffset, 256, numshades+1, GL _RED, GL _UNSIGNED_BYTE, palookup[palookupnum]);
 #endif
 }
 
@@ -1003,7 +1001,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                 doalloc = true;
             }
         }
-        uploadtexture(pth->glpic, doalloc, siz, GL_BGRA, pic, tsiz,
+        uploadtexture(pth->glpic, doalloc, siz, 1, pic, tsiz,
                       dameth | DAMETH_ARTIMMUNITY |
                       (dapic >= MAXUSERTILES ? (DAMETH_NOTEXCOMPRESS|DAMETH_NODOWNSIZE) : 0) | /* never process these short-lived tiles */
                       (hasfullbright ? DAMETH_HASFULLBRIGHT : 0) |
@@ -1263,8 +1261,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         fixtransparency(pic,tsiz,siz,dameth);
 
-        int32_t const texfmt = GL_BGRA;
-
         if (!doalloc)
         {
             vec2_t pthSiz2 = pth->siz;
@@ -1276,7 +1272,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 doalloc = true;
             }
         }
-        uploadtexture(pth->glpic, doalloc,siz,texfmt,pic,tsiz,
+        uploadtexture(pth->glpic, doalloc,siz,0,pic,tsiz,
                       dameth | DAMETH_HI | DAMETH_NOFIX |
                       TO_DAMETH_NODOWNSIZE(hicr->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(hicr->flags) |
@@ -1610,12 +1606,10 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 
 #ifdef USE_GLEXT
-    int32_t texunits = GL_TEXTURE0;
 
     if (videoGetRenderMode() == REND_POLYMOST)
     {
         polymost_updatePalette();
-        texunits += 4;
     }
 
     // detail texture

@@ -4,7 +4,6 @@
 
 #include "compat.h"
 #include "build.h"
-#include "glad/glad.h"
 #include "pragmas.h"
 #include "baselayer.h"
 #include "engine_priv.h"
@@ -833,9 +832,7 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
 			*texidx = GLInterface.NewTexture();
 		}
 
-		int32_t const texfmt = GL_BGRA;
-
-        uploadtexture(*texidx, (doalloc&1), siz, texfmt, pic, tsiz,
+        uploadtexture(*texidx, (doalloc&1), siz, 1, pic, tsiz,
                       DAMETH_HI | DAMETH_MASK |
                       TO_DAMETH_NODOWNSIZE(sk->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(sk->flags) |
@@ -1890,7 +1887,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     int32_t i, surfi;
     float f, g, k0, k1, k2=0, k3=0, mat[16];  // inits: compiler-happy
     GLfloat pc[4];
-    int32_t texunits = GL_TEXTURE0;
+ //   int32_t texunits = GL_TEXTURE0;
 
     const int32_t owner = tspr->owner;
     const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? owner : MAXSPRITES+MAXUNIQHUDID-1];
@@ -2130,7 +2127,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if (!(tspr->extra&TSPR_EXTRA_MDHACK))
         {
             //POGOTODO: if we add support for palette indexing on model skins, the texture for the palswap could be setup here
-            texunits += 4;
 
             tex = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi) : nullptr;
 
@@ -2205,13 +2201,13 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
                 quicksort(m->indexes, m->maxdepths, 0, s->numtris - 1);
             }
 
-            md3draw_handle_triangles(s, indexhandle, texunits, m->usesalpha ? m : NULL);
+            md3draw_handle_triangles(s, indexhandle, 1, m->usesalpha ? m : NULL);
         }
         else
         {
             indexhandle = m->vindexes;
 
-            md3draw_handle_triangles(s, indexhandle, texunits, NULL);
+            md3draw_handle_triangles(s, indexhandle, 1, NULL);
         }
 
 		GLInterface.UseDetailMapping(false);

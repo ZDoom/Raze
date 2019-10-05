@@ -21,7 +21,6 @@
 
 #include "collections.h"
 #include "compat.h"
-#include "glad/glad.h"
 #include "glbuild.h"
 #include "palette.h"
 #include "pragmas.h"

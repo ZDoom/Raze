@@ -3,7 +3,6 @@
 
 
 #include "baselayer.h"  // glinfo
-#include "glad/glad.h"
 #include "hightile.h"
 #include "mdsprite.h"
 
@@ -25,7 +24,6 @@ extern float gvrcorrection;
 
 struct glfiltermodes {
     const char *name;
-    int32_t min,mag;
 };
 #define NUMGLFILTERMODES 6
 extern struct glfiltermodes glfiltermodes[NUMGLFILTERMODES];

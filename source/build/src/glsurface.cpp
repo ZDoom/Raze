@@ -6,7 +6,6 @@
  */
 
 #include "glsurface.h"
-#include "glad/glad.h"
 
 #include "baselayer.h"
 #include "build.h"

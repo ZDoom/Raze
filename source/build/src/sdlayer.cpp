@@ -5,6 +5,7 @@
 #include <CommCtrl.h>
 #include <signal.h>
 #include <string>
+# include "glad/glad.h"
 
 #include "a.h"
 #include "build.h"
@@ -24,7 +25,6 @@
 #include "../../glbackend/glbackend.h"
 
 #ifdef USE_OPENGL
-# include "glad/glad.h"
 # include "glbuild.h"
 # include "glsurface.h"
 #endif
