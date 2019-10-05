@@ -10,6 +10,7 @@
 #define cache1d_h_
 
 #include "compat.h"
+#include "files.h"
 
 #include "vfs.h"
 
@@ -150,6 +151,56 @@ CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
 extern int32_t lz4CompressionLevel;
 int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil);
 void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil);
+
+class KFileReaderInterface : public FileReaderInterface
+{
+	buildvfs_kfd khandle = buildvfs_kfd_invalid;
+public:
+
+	KFileReaderInterface(int handle)
+	{
+		khandle = handle;
+		Length = 0;
+		if (khandle != buildvfs_kfd_invalid)
+		{
+			klseek(khandle, 0, SEEK_END);
+			Length = ktell(khandle);
+			klseek(khandle, 0, SEEK_SET);
+		}
+	}
+	~KFileReaderInterface() 
+	{
+		if (khandle != buildvfs_kfd_invalid)
+		{
+			kclose(khandle);
+		}
+	}
+	virtual long Tell() const
+	{
+		return ktell(khandle);
+	}
+	virtual long Seek(long offset, int origin)
+	{
+		return klseek(khandle, offset, origin);
+	}
+	virtual long Read(void* buffer, long len)
+	{
+		return kread(khandle, buffer, (int32_t)len);
+	}
+	virtual char* Gets(char* strbuf, int len)
+	{
+		// Not supported by the underlying system, so we do not need it anyway.
+		return nullptr;
+	}
+
+};
+
+inline FileReader kopenFileReader(const char* name, int where)
+{
+	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
+	KFileReaderInterface *fri = handle == buildvfs_kfd_invalid? nullptr : new KFileReaderInterface(handle);
+	return FileReader(fri);
+}
 
 #endif // cache1d_h_
 

@@ -301,16 +301,15 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
 
 scriptfile *scriptfile_fromfile(const char *fn)
 {
-    buildvfs_kfd fp = kopen4load(fn, 0);
-    if (fp == buildvfs_kfd_invalid) return nullptr;
+	auto fr = kopenFileReader(fn, 0);
+	if (!fr.isOpen()) return nullptr;
 
-    uint32_t flen = kfilelength(fp);
+	uint32_t flen = fr.GetLength();
     char *   tx   = (char *)Xmalloc(flen + 2);
 
     scriptfile *sf = (scriptfile *)Xmalloc(sizeof(scriptfile));
 
-    kread(fp, tx, flen);
-    kclose(fp);
+	fr.Read(tx, flen);
 
     tx[flen] = tx[flen+1] = 0;
 

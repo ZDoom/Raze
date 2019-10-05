@@ -123,12 +123,13 @@ class FileReader
 	FileReader(const FileReader &r) = delete;
 	FileReader &operator=(const FileReader &r) = delete;
 
+public:
+
 	explicit FileReader(FileReaderInterface *r)
 	{
 		mReader = r;
 	}
 
-public:
 	enum ESeek
 	{
 		SeekSet = SEEK_SET,
