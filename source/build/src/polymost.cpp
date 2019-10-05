@@ -13,6 +13,8 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "mdsprite.h"
 #include "polymost.h"
 #include "files.h"
+#include "textures.h"
+#include "bitmap.h"
 #include "../../glbackend/glbackend.h"
 
 extern char textfont[2048], smalltextfont[2048];
@@ -691,21 +693,7 @@ static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t
 void uploadtexture(FHardwareTexture *tex, int32_t doalloc, vec2_t siz, int32_t texfmt,
 	coltype* pic, vec2_t tsiz, int32_t dameth)
 {
-#ifdef TIMING
-	cycle_t clock;
-
-	clock.Reset();
-	clock.Clock();
-#endif
-
 	tex->LoadTexture((uint8_t *)pic);
-
-#ifdef TIMING
-	clock.Unclock();
-
-	static int ttt;
-	OSD_Printf("%d: texture upload %d x %d took %2.3f ms\n", ttt++, siz.x, siz.y, clock.TimeMS());
-#endif
 }
 
 void uploadbasepalette(int32_t basepalnum)
@@ -1060,239 +1048,26 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         fn = hicr->filename;
     }
 
-    buildvfs_kfd filh;
-    if (EDUKE32_PREDICT_FALSE((filh = kopen4load(fn, 0)) == buildvfs_kfd_invalid))
+	auto texture = FTexture::GetTexture(fn);
+
+    if (texture == nullptr)
     {
         OSD_Printf("hightile: %s (pic %d) not found\n", fn, dapic);
         return -2;
     }
 
-    int32_t picfillen = kfilelength(filh);
-    kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
+	if ((doalloc & 3) == 1)
+	{
+		pth->glpic = GLInterface.NewTexture();
+		pth->glpic->CreateTexture(texture->GetWidth(), texture->GetHeight(), false, true);
+	}
+	auto image = texture->GetBgraBitmap(nullptr, nullptr);
+	bool hasalpha = texture->GetTranslucency();
+	bool onebitalpha = texture->isMasked();
 
-    int32_t startticks = timerGetTicks(), willprint = 0;
-
-    char onebitalpha = 1;
-    char hasalpha;
-    vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
-
-    {
-        // CODEDUP: mdloadskin
-
-        int32_t isart = 0;
-
-        int32_t const length = kpzbufload(fn);
-        if (length == 0)
-            return -1;
-
-        // tsizx/y = replacement texture's natural size
-        // xsiz/y = 2^x size of replacement
-
-#ifdef WITHKPLIB
-        kpgetdim(kpzbuf,picfillen,&tsiz.x,&tsiz.y);
-#endif
-
-        if (tsiz.x == 0 || tsiz.y == 0)
-        {
-            if (artCheckUnitFileHeader((uint8_t *)kpzbuf, picfillen))
-                return -1;
-
-            tsiz = { B_LITTLE16(B_UNBUF16(&kpzbuf[16])), B_LITTLE16(B_UNBUF16(&kpzbuf[18])) };
-
-            if (tsiz.x == 0 || tsiz.y == 0)
-                return -1;
-
-            isart = 1;
-        }
-
-        siz = tsiz;
-
-        if (isart)
-        {
-            if (tsiz.x * tsiz.y + ARTv1_UNITOFFSET > picfillen)
-                return -2;
-        }
-
-        int32_t const bytesperline = siz.x * sizeof(coltype);
-        coltype *pic = (coltype *)Xcalloc(siz.y, bytesperline);
-
-        static coltype *lastpic = NULL;
-        static char *lastfn = NULL;
-        static int32_t lastsize = 0;
-
-        if (lastpic && lastfn && !Bstrcmp(lastfn,fn))
-        {
-            willprint=1;
-            Bmemcpy(pic, lastpic, siz.x*siz.y*sizeof(coltype));
-        }
-        else
-        {
-            if (isart)
-            {
-                artConvertRGB((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], siz.x, tsiz.x, tsiz.y);
-            }
-#ifdef WITHKPLIB
-            else
-            {
-                if (kprender(kpzbuf,picfillen,(intptr_t)pic,bytesperline,siz.x,siz.y))
-                {
-                    Xfree(pic);
-                    return -2;
-                }
-            }
-#endif
-
-            willprint=2;
-
-            if (hicprecaching)
-            {
-                lastfn = fn;  // careful...
-                if (!lastpic)
-                {
-                    lastpic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
-                    lastsize = siz.x*siz.y;
-                }
-                else if (lastsize < siz.x*siz.y)
-                {
-                    Xfree(lastpic);
-                    lastpic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
-                }
-                if (lastpic)
-                    Bmemcpy(lastpic, pic, siz.x*siz.y*sizeof(coltype));
-            }
-            else if (lastpic)
-            {
-                DO_FREE_AND_NULL(lastpic);
-                lastfn = NULL;
-                lastsize = 0;
-            }
-        }
-
-        char *cptr = britable[gammabrightness ? 0 : curbrightness];
-
-        polytint_t const & tint = hictinting[dapalnum];
-        int32_t r = tint.r;
-        int32_t g = tint.g;
-        int32_t b = tint.b;
-
-        char al = 255;
-
-        for (bssize_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
-        {
-            coltype tcol, *rpptr = &pic[j];
-
-            for (bssize_t x = 0; x < tsiz.x; ++x)
-            {
-                tcol.b = cptr[rpptr[x].b];
-                tcol.g = cptr[rpptr[x].g];
-                tcol.r = cptr[rpptr[x].r];
-                al &= tcol.a = rpptr[x].a;
-                onebitalpha &= tcol.a == 0 || tcol.a == 255;
-
-                if (effect & HICTINT_GRAYSCALE)
-                {
-                    tcol.g = tcol.r = tcol.b = (uint8_t) ((tcol.b * GRAYSCALE_COEFF_RED) +
-                                                          (tcol.g * GRAYSCALE_COEFF_GREEN) +
-                                                          (tcol.r * GRAYSCALE_COEFF_BLUE));
-                }
-
-                if (effect & HICTINT_INVERT)
-                {
-                    tcol.b = 255 - tcol.b;
-                    tcol.g = 255 - tcol.g;
-                    tcol.r = 255 - tcol.r;
-                }
-
-                if (effect & HICTINT_COLORIZE)
-                {
-                    tcol.b = min((int32_t)((tcol.b) * r) >> 6, 255);
-                    tcol.g = min((int32_t)((tcol.g) * g) >> 6, 255);
-                    tcol.r = min((int32_t)((tcol.r) * b) >> 6, 255);
-                }
-
-                switch (effect & HICTINT_BLENDMASK)
-                {
-                    case HICTINT_BLEND_SCREEN:
-                        tcol.b = 255 - (((255 - tcol.b) * (255 - r)) >> 8);
-                        tcol.g = 255 - (((255 - tcol.g) * (255 - g)) >> 8);
-                        tcol.r = 255 - (((255 - tcol.r) * (255 - b)) >> 8);
-                        break;
-                    case HICTINT_BLEND_OVERLAY:
-                        tcol.b = tcol.b < 128 ? (tcol.b * r) >> 7 : 255 - (((255 - tcol.b) * (255 - r)) >> 7);
-                        tcol.g = tcol.g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
-                        tcol.r = tcol.r < 128 ? (tcol.r * b) >> 7 : 255 - (((255 - tcol.r) * (255 - b)) >> 7);
-                        break;
-                    case HICTINT_BLEND_HARDLIGHT:
-                        tcol.b = r < 128 ? (tcol.b * r) >> 7 : 255 - (((255 - tcol.b) * (255 - r)) >> 7);
-                        tcol.g = g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
-                        tcol.r = b < 128 ? (tcol.r * b) >> 7 : 255 - (((255 - tcol.r) * (255 - b)) >> 7);
-                        break;
-                }
-
-                rpptr[x] = tcol;
-            }
-        }
-
-        hasalpha = (al != 255);
-        onebitalpha &= hasalpha;
-
-        if ((!(dameth & DAMETH_CLAMPED)) || facen) //Duplicate texture pixels (wrapping tricks for non power of 2 texture sizes)
-        {
-            if (siz.x > tsiz.x)  // Copy left to right
-            {
-                for (int32_t y = 0, *lptr = (int32_t *)pic; y < tsiz.y; y++, lptr += siz.x)
-                    Bmemcpy(&lptr[tsiz.x], lptr, (siz.x - tsiz.x) << 2);
-            }
-
-            if (siz.y > tsiz.y)  // Copy top to bottom
-                Bmemcpy(&pic[siz.x * tsiz.y], pic, (siz.y - tsiz.y) * siz.x << 2);
-        }
-
-        // end CODEDUP
-
-        if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
-            hicr->flags |= HICR_ARTIMMUNITY;
-
-		if ((doalloc & 3) == 1)
-		{
-			pth->glpic = GLInterface.NewTexture();
-			pth->glpic->CreateTexture(siz.x, siz.y, false, true);
-		}
-
-        fixtransparency(pic,tsiz,siz,dameth);
-
-        if (!doalloc)
-        {
-            vec2_t pthSiz2 = pth->siz;
-            pthSiz2 = tsiz;
-            if (siz.x > pthSiz2.x ||
-                siz.y > pthSiz2.y)
-            {
-                //POGO: grow our texture to hold the tile data
-                doalloc = true;
-            }
-        }
-        uploadtexture(pth->glpic, doalloc,siz,0,pic,tsiz,
-                      dameth | DAMETH_HI | DAMETH_NOFIX |
-                      TO_DAMETH_NODOWNSIZE(hicr->flags) |
-                      TO_DAMETH_NOTEXCOMPRESS(hicr->flags) |
-                      TO_DAMETH_ARTIMMUNITY(hicr->flags) |
-                      (onebitalpha ? DAMETH_ONEBITALPHA : 0) |
-                      (hasalpha ? DAMETH_HASALPHA : 0));
-
-        Xfree(pic);
-    }
-
-    // precalculate scaling parameters for replacement
-    if (facen > 0)
-        pth->scale = { (float)tsiz.x * (1.0f/64.f), (float)tsiz.y * (1.0f/64.f) };
-    else
-        pth->scale = { (float)tsiz.x / (float)tilesiz[dapic].x, (float)tsiz.y / (float)tilesiz[dapic].y };
+	pth->glpic->LoadTexture(image);
 
     polymost_setuptexture(pth->glpic, dameth, (hicr->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
-
-    if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
-        hicr->flags |= HICR_ARTIMMUNITY;
 
     pth->picnum = dapic;
     pth->effects = effect;
@@ -1303,17 +1078,10 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                  ((hicr->flags & HICR_FORCEFILTER) ? PTH_FORCEFILTER : 0);
     pth->skyface = facen;
     pth->hicr = hicr;
-    pth->siz = tsiz;
 
-
-    if (willprint)
-    {
-        int32_t etime = timerGetTicks()-startticks;
-        if (etime>=MIN_CACHETIME_PRINT)
-            OSD_Printf("Load tile %4d: p%d-m%d-e%d %s... %d ms\n", dapic, dapalnum, dameth, effect,
-                       willprint==2 ? fn : "", etime);
-    }
-
+	// pretend to the higher level code that this texture is not scaled.
+	pth->scale = { 1.f, 1.f };
+	if (facen > 0) pth->siz = { 64, 64 }; else pth->siz = { tilesiz[dapic].x, tilesiz[dapic].y };
     return 0;
 }
 

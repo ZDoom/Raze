@@ -2102,8 +2102,6 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_COLCORR:
     case MENU_COLCORR_INGAME:
-        MenuEntry_DisableOnCondition(&ME_COLCORR_CONTRAST, !gammabrightness);
-        MenuEntry_DisableOnCondition(&ME_COLCORR_BRIGHTNESS, !gammabrightness);
         break;
 
     case MENU_CHEATS:

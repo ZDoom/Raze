@@ -108,7 +108,6 @@ static int32_t vsync_renderlayer;
 int32_t maxrefreshfreq=0;
 
 // last gamma, contrast, brightness
-static float lastvidgcb[3];
 
 //#define KEY_PRINT_DEBUG
 
@@ -1369,9 +1368,6 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
        softsurface_destroy();
     }
 
-    // clear last gamma/contrast/brightness so that it will be set anew
-    lastvidgcb[0] = lastvidgcb[1] = lastvidgcb[2] = 0.0f;
-
     return 1;
 }
 
@@ -1394,18 +1390,6 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
     lockcount = 0;
     modechange = 1;
     videomodereset = 0;
-
-    // save the current system gamma to determine if gamma is available
-    if (!gammabrightness)
-    {
-        //        float f = 1.0 + ((float)curbrightness / 10.0);
-        if (SDL_GetWindowGammaRamp(sdl_window, sysgamma[0], sysgamma[1], sysgamma[2]) == 0)
-            gammabrightness = 1;
-
-        // see if gamma really is working by trying to set the brightness
-        if (gammabrightness && videoSetGamma() < 0)
-            gammabrightness = 0;  // nope
-    }
 
     videoFadePalette(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
@@ -1759,55 +1743,7 @@ int32_t videoSetGamma(void)
     if (novideo)
         return 0;
 
-    int32_t i;
-    uint16_t gammaTable[768];
-    float gamma = max(0.1f, min(4.f, g_videoGamma));
-    float contrast = max(0.1f, min(3.f, g_videoContrast));
-    float bright = max(-0.8f, min(0.8f, g_videoBrightness));
-
-    float invgamma = 1.f / gamma;
-    float norm = powf(255.f, invgamma - 1.f);
-
-    if (lastvidgcb[0] == gamma && lastvidgcb[1] == contrast && lastvidgcb[2] == bright)
-        return 0;
-
-    // This formula is taken from Doomsday
-
-    for (i = 0; i < 256; i++)
-    {
-        float val = i * contrast - (contrast - 1.f) * 127.f;
-        if (gamma != 1.f)
-            val = powf(val, invgamma) / norm;
-
-        val += bright * 128.f;
-
-        gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (uint16_t)max(0.f, min(65535.f, val * 256.f));
-    }
-
-    i = INT32_MIN;
-
-    if (sdl_window)
-        i = SDL_SetWindowGammaRamp(sdl_window, &gammaTable[0], &gammaTable[256], &gammaTable[512]);
-
-    if (i < 0)
-    {
-        OSD_Printf("videoSetGamma(): %s\n", SDL_GetError());
-
-
-        if (sdl_window)
-            SDL_SetWindowGammaRamp(sdl_window, &sysgamma[0][0], &sysgamma[1][0], &sysgamma[2][0]);
-        gammabrightness = 0;
-    }
-    else
-    {
-        lastvidgcb[0] = gamma;
-        lastvidgcb[1] = contrast;
-        lastvidgcb[2] = bright;
-
-        gammabrightness = 1;
-    }
-
-    return i;
+	return 1;
 }
 
 #if !defined __APPLE__ && !defined EDUKE32_TOUCH_DEVICES

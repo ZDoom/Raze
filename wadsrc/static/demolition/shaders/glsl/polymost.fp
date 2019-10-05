@@ -46,6 +46,79 @@ const float c_two = 2.0;
 const vec4 c_vec4_one = vec4(c_one);
 const float c_wrapThreshold = 0.9;
 
+
+//===========================================================================
+//
+// Color to grayscale
+//
+//===========================================================================
+
+float grayscale(vec4 color)
+{
+	return dot(color.rgb, vec3(0.3, 0.56, 0.14));
+}
+ 
+//===========================================================================
+//
+// Hightile tinting code. (hictinting[dapalnum]) This can be done inside the shader 
+// to avoid costly texture duplication (but needs a more modern GLSL than 1.10.)
+//
+//===========================================================================
+
+vec4 convertColor(vec4 color, int effect, vec3 tint)
+{
+#if 0
+
+	if (effect & HICTINT_GRAYSCALE)
+	{
+		float g = grayscale(color);
+		color = vec4(g, g, g, color.a);
+	}
+
+	if (effect & HICTINT_INVERT)
+	{
+		color = vec4(1.0 - color.r, 1.0 - color.g, 1.0 - color.b);
+	}
+	
+	vec3 tcol = color.rgb * 255.0;	// * 255.0 to make it easier to reuse the integer math.
+	tint *= 255.0;
+
+	if (effect & HICTINT_COLORIZE)
+	{
+		tcol.b = min(((tcol.b) * tint.r) / 64.0, 255.0);
+		tcol.g = min(((tcol.g) * tint.g) / 64.0, 255.0);
+		tcol.r = min(((tcol.r) * tint.b) / 64.0, 255.0);
+	}
+
+	switch (effect & HICTINT_BLENDMASK)
+	{
+		case HICTINT_BLEND_SCREEN:
+			tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - tint.r)) / 256.0);
+			tcol.g = 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 256.0);
+			tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - tint.b)) / 256.0);
+			break;
+		case HICTINT_BLEND_OVERLAY:
+			tcol.b = tcol.b < 128.0? (tcol.b * tint.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - tint.r)) / 128.0);
+			tcol.g = tcol.g < 128.0? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 128.0);
+			tcol.r = tcol.r < 128.0? (tcol.r * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - tint.b)) / 128.0);
+			break;
+		case HICTINT_BLEND_HARDLIGHT:
+			tcol.b = tint.r < 128.0 ? (tcol.b * tint.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - r)) / 128.0);
+			tcol.g = tint.g < 128.0 ? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - g)) / 128.0);
+			tcol.r = tint.b < 128.0 ? (tcol.r * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - b)) / 128.0);
+			break;
+	}
+	color.rgb = tcol / 255.0;
+#endif
+	return color;
+}
+
+//===========================================================================
+//
+// Talk about all the wrong way of being 'efficient'... :(
+//
+//===========================================================================
+
 void main()
 {
     float coordY = mix(gl_TexCoord[0].y,gl_TexCoord[0].x,u_usePalette);
@@ -100,4 +173,3 @@ void main()
 
     gl_FragData[0] = color;
 }
-

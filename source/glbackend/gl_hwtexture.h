@@ -2,6 +2,7 @@
 #ifndef __GLTEXTURE_H
 #define __GLTEXTURE_H
 
+class FBitmap;
 
 class FHardwareTexture //: public IHardwareTexture
 {
@@ -23,6 +24,7 @@ public:
 
 	unsigned int CreateTexture(int w, int h, bool eightbit, bool mipmapped);
 	unsigned int LoadTexture(unsigned char * buffer);
+	unsigned int LoadTexture(FBitmap &bmp);
 	unsigned int GetTextureHandle();
 	int GetSampler() { return mSampler; }
 	void SetSampler(int sampler) { mSampler = sampler;  }

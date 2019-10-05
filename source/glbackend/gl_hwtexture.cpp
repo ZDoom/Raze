@@ -22,6 +22,7 @@
 
 #include "glad/glad.h"
 #include "glbackend.h"
+#include "bitmap.h"
 //#include "compat.h"
 
 // Workaround to avoid including the dirty 'compat.h' header. This will hopefully not be needed anymore once the texture format uses something better.
@@ -84,6 +85,10 @@ unsigned int FHardwareTexture::LoadTexture(unsigned char * buffer)
 	return glTexID;
 }
 
+unsigned int FHardwareTexture::LoadTexture(FBitmap& bmp)
+{
+	return LoadTexture(bmp.GetPixels());
+}
 
 //===========================================================================
 // 

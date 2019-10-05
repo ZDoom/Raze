@@ -39,8 +39,6 @@ static voxmodel_t *gvox;
 //pitch must equal xsiz*4
 FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
 {
-    const char *const cptr = &britable[gammabrightness ? 0 : curbrightness][0];
-
     // Correct for GL's RGB order; also apply gamma here:
     const coltype *const pic = (const coltype *)picbuf;
     coltype *pic2 = (coltype *)Xmalloc(xsiz*ysiz*sizeof(coltype));
@@ -49,9 +47,9 @@ FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, in
     {
         for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
         {
-            pic2[i].b = cptr[pic[i].r];
-            pic2[i].g = cptr[pic[i].g];
-            pic2[i].r = cptr[pic[i].b];
+            pic2[i].b = pic[i].r;
+            pic2[i].g = pic[i].g;
+            pic2[i].r = pic[i].b;
             pic2[i].a = 255;
         }
     }
@@ -64,9 +62,9 @@ FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, in
         {
             const int32_t ii = palookup[dapal][pic[i].a];
 
-            pic2[i].b = cptr[curpalette[ii].b];
-            pic2[i].g = cptr[curpalette[ii].g];
-            pic2[i].r = cptr[curpalette[ii].r];
+            pic2[i].b = curpalette[ii].b;
+            pic2[i].g = curpalette[ii].g;
+            pic2[i].r = curpalette[ii].r;
             pic2[i].a = 255;
         }
     }

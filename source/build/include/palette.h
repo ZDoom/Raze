@@ -72,7 +72,7 @@ extern void paletteLoadFromDisk(void);
 extern void palettePostLoadTables(void);
 extern void setup_blend(int32_t blend, int32_t doreverse);
 extern uint8_t basepalreset;
-extern int32_t curbrightness, gammabrightness;
+extern int32_t curbrightness;
 
 extern int32_t paletteLoadLookupTable(buildvfs_kfd fp);
 extern void paletteSetupDefaultFog(void);
@@ -88,18 +88,9 @@ extern palette_t palookupfog[MAXPALOOKUPS];
 
 static inline void bricolor(palette_t *wpptr, int32_t dacol)
 {
-    if (gammabrightness)
-    {
-        wpptr->r = curpalette[dacol].r;
-        wpptr->g = curpalette[dacol].g;
-        wpptr->b = curpalette[dacol].b;
-    }
-    else
-    {
-        wpptr->r = britable[curbrightness][curpalette[dacol].r];
-        wpptr->g = britable[curbrightness][curpalette[dacol].g];
-        wpptr->b = britable[curbrightness][curpalette[dacol].b];
-    }
+    wpptr->r = curpalette[dacol].r;
+    wpptr->g = curpalette[dacol].g;
+    wpptr->b = curpalette[dacol].b;
 }
 
 enum

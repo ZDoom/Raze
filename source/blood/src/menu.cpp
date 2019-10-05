@@ -1672,9 +1672,9 @@ void UpdateVideoColorMenu(CGameMenuItemSliderFloat *pItem)
 void PreDrawDisplayColor(CGameMenuItem *pItem)
 {
     if (pItem == &itemOptionsDisplayColorContrast)
-        pItem->bEnable = gammabrightness;
+        pItem->bEnable = 1;
     else if (pItem == &itemOptionsDisplayColorBrightness)
-        pItem->bEnable = gammabrightness;
+        pItem->bEnable = 1;
 }
 
 void ResetVideoColor(CGameMenuItemChain *pItem)

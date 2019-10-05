@@ -417,3 +417,14 @@ FWrapperTexture::FWrapperTexture(int w, int h, int bits)
 }
 
 #endif
+
+TMap<FString, FTexture *> textures;
+
+FTexture *FTexture::GetTexture(const char *path)
+{
+	auto res = textures.CheckKey(path);
+	if (res) return *res;
+	auto tex = FTexture::CreateTexture(path);
+	if (tex) textures.Insert(path, tex);
+	return tex;
+}

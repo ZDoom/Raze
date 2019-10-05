@@ -12,6 +12,7 @@ class FSamplerManager;
 class FShader;
 class PolymostShader;
 class SurfaceShader;
+class FTexture;
 
 struct glinfo_t {
 	const char* vendor;
@@ -271,6 +272,8 @@ public:
 	{
 		renderState.Brightness = 8.f / (brightness + 8.f);
 	}
+	
+	FTexture *GetTexture(const char *filename);
 };
 
 extern GLInstance GLInterface;

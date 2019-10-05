@@ -36,6 +36,7 @@
 #define __TEXTURES_H
 
 #include "textureid.h"
+#include "zstring.h"
 #include "palentry.h"
 /*
 #include "v_palette.h"
@@ -145,6 +146,8 @@ class FTexture
 
 public:
 	static FTexture *CreateTexture(const char *name);
+	static FTexture* GetTexture(const char* path);
+
 	virtual ~FTexture ();
 	virtual FImageSource *GetImage() const { return nullptr; }
 
@@ -189,9 +192,8 @@ protected:
 	PalEntry CeilingSkyColor;
 
 	FTexture (const char *name = NULL);
-};
 
-extern TMap<FString, FTexture *> textures;
+};
 
 #endif
 

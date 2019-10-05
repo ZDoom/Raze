@@ -43,7 +43,7 @@ palette_t palookupfog[MAXPALOOKUPS];
 // NOTE: g_noFloorPal[0] is irrelevant as it's never checked.
 int8_t g_noFloorPal[MAXPALOOKUPS];
 
-int32_t curbrightness = 0, gammabrightness = 0;
+int32_t curbrightness = 0;
 
 static void paletteSetFade(uint8_t offset);
 
@@ -771,7 +771,7 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
     }
 
     videoSetGamma();
-    j = !gammabrightness ? curbrightness : 0;
+    j = !0;
 
     for (i=0; i<256; i++)
     {
@@ -811,7 +811,6 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 
     g_lastpalettesum = lastpalettesum = newpalettesum;
 
-#ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
         // Only reset the textures if the corresponding preserve flags are clear and
@@ -820,18 +819,13 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 
         // XXX: no-HW-gamma OpenGL platforms will exhibit bad performance with
         // simultaneous basepal and tint changes?
-        const int32_t doinvalidate = (paldidchange || (palsumdidchange && !gammabrightness));
+        const int32_t doinvalidate = (paldidchange);
 
         if (!(flags&2) && doinvalidate)
             gltexinvalidatetype(INVALIDATE_ALL_NON_INDEXED);
         if (!(flags&8) && doinvalidate)
             gltexinvalidatetype(INVALIDATE_ART_NON_INDEXED);
-#ifdef POLYMER
-        if ((videoGetRenderMode() == REND_POLYMER) && doinvalidate)
-            polymer_texinvalidate();
-#endif
     }
-#endif
 
     if ((flags&16)==0)
     {
@@ -842,13 +836,6 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 
 palette_t paletteGetColor(int32_t col)
 {
-    if (!gammabrightness)
-    {
-        palette_t const p = { (uint8_t)britable[curbrightness][curpalette[col].r],            (uint8_t)britable[curbrightness][curpalette[col].g],
-                              (uint8_t)britable[curbrightness][curpalette[col].b], 0 };
-        return p;
-    }
-
     return curpalette[col];
 }
 

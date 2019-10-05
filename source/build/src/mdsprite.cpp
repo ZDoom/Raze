@@ -15,6 +15,8 @@
 #include "kplib.h"
 #include "common.h"
 #include "palette.h"
+#include "textures.h"
+#include "bitmap.h"
 #include "../../glbackend/glbackend.h"
 
 #include "vfs.h"
@@ -647,235 +649,26 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
 
     *texidx = 0;
 
-    buildvfs_kfd filh;
-    if ((filh = kopen4load(fn, 0)) == buildvfs_kfd_invalid)
-        return mdloadskin_notfound(skinfile, fn);
+	auto texture = FTexture::GetTexture(fn);
 
+	if (texture == nullptr)
+	{
+		return mdloadskin_notfound(skinfile, fn);
+	}
 
-    int32_t picfillen = kfilelength(filh);
-    kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
+	if ((doalloc & 3) == 1)
+	{
+		*texidx = GLInterface.NewTexture();
+	}
 
-    int32_t startticks = timerGetTicks(), willprint = 0;
-
-    char hasalpha;
-    vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
-
-    {
-        polytintflags_t const effect = hicfxmask(pal);
-
-        // CODEDUP: gloadtile_hi
-
-        int32_t isart = 0;
-
-        int32_t const length = kpzbufload(fn);
-        if (length == 0)
-            return mdloadskin_notfound(skinfile, fn);
-
-        // tsizx/y = replacement texture's natural size
-        // xsiz/y = 2^x size of replacement
-
-#ifdef WITHKPLIB
-        kpgetdim(kpzbuf,picfillen,&tsiz.x,&tsiz.y);
-#endif
-
-        if (tsiz.x == 0 || tsiz.y == 0)
-        {
-            if (artCheckUnitFileHeader((uint8_t *)kpzbuf, picfillen))
-                return mdloadskin_failed(skinfile, fn);
-
-            tsiz.x = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
-            tsiz.y = B_LITTLE16(B_UNBUF16(&kpzbuf[18]));
-
-            if (tsiz.x == 0 || tsiz.y == 0)
-                return mdloadskin_failed(skinfile, fn);
-
-            isart = 1;
-        }
-
-        siz = tsiz;
-
-        if (isart)
-        {
-            if (tsiz.x * tsiz.y + ARTv1_UNITOFFSET > picfillen)
-                return mdloadskin_failed(skinfile, fn);
-        }
-
-        int32_t const bytesperline = siz.x * sizeof(coltype);
-        coltype *pic = (coltype *)Xcalloc(siz.y, bytesperline);
-
-        static coltype *lastpic = NULL;
-        static char *lastfn = NULL;
-        static int32_t lastsize = 0;
-
-        if (lastpic && lastfn && !Bstrcmp(lastfn,fn))
-        {
-            willprint=1;
-            Bmemcpy(pic, lastpic, siz.x*siz.y*sizeof(coltype));
-        }
-        else
-        {
-            if (isart)
-            {
-                artConvertRGB((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], siz.x, tsiz.x, tsiz.y);
-            }
-#ifdef WITHKPLIB
-            else
-            {
-                if (kprender(kpzbuf,picfillen,(intptr_t)pic,bytesperline,siz.x,siz.y))
-                {
-                    Xfree(pic);
-                    return mdloadskin_failed(skinfile, fn);
-                }
-            }
-#endif
-
-            willprint=2;
-
-            if (hicprecaching)
-            {
-                lastfn = fn;  // careful...
-                if (!lastpic)
-                {
-                    lastpic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
-                    lastsize = siz.x*siz.y;
-                }
-                else if (lastsize < siz.x*siz.y)
-                {
-                    Xfree(lastpic);
-                    lastpic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
-                }
-                if (lastpic)
-                    Bmemcpy(lastpic, pic, siz.x*siz.y*sizeof(coltype));
-            }
-            else if (lastpic)
-            {
-                DO_FREE_AND_NULL(lastpic);
-                lastfn = NULL;
-                lastsize = 0;
-            }
-        }
-
-        char *cptr = britable[gammabrightness ? 0 : curbrightness];
-
-        polytint_t const & tint = hictinting[pal];
-        int32_t r = tint.r;
-        int32_t g = tint.g;
-        int32_t b = tint.b;
-
-        char al = 255;
-        char onebitalpha = 1;
-
-        for (bssize_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
-        {
-            coltype tcol, *rpptr = &pic[j];
-
-            for (bssize_t x = 0; x < tsiz.x; ++x)
-            {
-                tcol.b = cptr[rpptr[x].b];
-                tcol.g = cptr[rpptr[x].g];
-                tcol.r = cptr[rpptr[x].r];
-                al &= tcol.a = rpptr[x].a;
-                onebitalpha &= tcol.a == 0 || tcol.a == 255;
-
-                if (effect & HICTINT_GRAYSCALE)
-                {
-                    tcol.g = tcol.r = tcol.b = (uint8_t) ((tcol.b * GRAYSCALE_COEFF_RED) +
-                                                          (tcol.g * GRAYSCALE_COEFF_GREEN) +
-                                                          (tcol.r * GRAYSCALE_COEFF_BLUE));
-                }
-
-                if (effect & HICTINT_INVERT)
-                {
-                    tcol.b = 255 - tcol.b;
-                    tcol.g = 255 - tcol.g;
-                    tcol.r = 255 - tcol.r;
-                }
-
-                if (effect & HICTINT_COLORIZE)
-                {
-                    tcol.b = min((int32_t)((tcol.b) * r) >> 6, 255);
-                    tcol.g = min((int32_t)((tcol.g) * g) >> 6, 255);
-                    tcol.r = min((int32_t)((tcol.r) * b) >> 6, 255);
-                }
-
-                switch (effect & HICTINT_BLENDMASK)
-                {
-                    case HICTINT_BLEND_SCREEN:
-                        tcol.b = 255 - (((255 - tcol.b) * (255 - r)) >> 8);
-                        tcol.g = 255 - (((255 - tcol.g) * (255 - g)) >> 8);
-                        tcol.r = 255 - (((255 - tcol.r) * (255 - b)) >> 8);
-                        break;
-                    case HICTINT_BLEND_OVERLAY:
-                        tcol.b = tcol.b < 128 ? (tcol.b * r) >> 7 : 255 - (((255 - tcol.b) * (255 - r)) >> 7);
-                        tcol.g = tcol.g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
-                        tcol.r = tcol.r < 128 ? (tcol.r * b) >> 7 : 255 - (((255 - tcol.r) * (255 - b)) >> 7);
-                        break;
-                    case HICTINT_BLEND_HARDLIGHT:
-                        tcol.b = r < 128 ? (tcol.b * r) >> 7 : 255 - (((255 - tcol.b) * (255 - r)) >> 7);
-                        tcol.g = g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
-                        tcol.r = b < 128 ? (tcol.r * b) >> 7 : 255 - (((255 - tcol.r) * (255 - b)) >> 7);
-                        break;
-                }
-
-                rpptr[x] = tcol;
-            }
-        }
-
-        hasalpha = (al != 255);
-
-        // mdloadskin doesn't duplicate npow2 texture pixels
-
-        if (pal < (MAXPALOOKUPS - RESERVEDPALS))
-            m->usesalpha = hasalpha;
-		if ((doalloc & 3) == 1)
-		{
-			*texidx = GLInterface.NewTexture();
-		}
-
-        uploadtexture(*texidx, (doalloc&1), siz, 1, pic, tsiz,
-                      DAMETH_HI | DAMETH_MASK |
-                      TO_DAMETH_NODOWNSIZE(sk->flags) |
-                      TO_DAMETH_NOTEXCOMPRESS(sk->flags) |
-                      TO_DAMETH_ARTIMMUNITY(sk->flags) |
-                      (onebitalpha ? DAMETH_ONEBITALPHA : 0) |
-                      (hasalpha ? DAMETH_HASALPHA : 0));
-
-        Xfree(pic);
-    }
-
+	auto glpic = *texidx;
+	glpic->CreateTexture(texture->GetWidth(), texture->GetHeight(), false, true);
+	auto image = texture->GetBgraBitmap(nullptr, nullptr);
+	bool hasalpha = texture->GetTranslucency();
+	bool onebitalpha = texture->isMasked();
+	glpic->LoadTexture(image);
     if (!m->skinloaded)
     {
-        if (siz.x != tsiz.x || siz.y != tsiz.y)
-        {
-            float fx, fy;
-            fx = ((float)tsiz.x)/((float)siz.x);
-            fy = ((float)tsiz.y)/((float)siz.y);
-            if (m->mdnum == 2)
-            {
-                int32_t *lptr;
-                for (lptr=m->glcmds; (i=*lptr++);)
-                    for (i=labs(i); i>0; i--,lptr+=3)
-                    {
-                        ((float *)lptr)[0] *= fx;
-                        ((float *)lptr)[1] *= fy;
-                    }
-            }
-            else if (m->mdnum == 3)
-            {
-                md3model_t *m3 = (md3model_t *)m;
-                md3surf_t *s;
-                int32_t surfi;
-                for (surfi=0; surfi<m3->head.numsurfs; surfi++)
-                {
-                    s = &m3->head.surfs[surfi];
-                    for (i=s->numverts-1; i>=0; i--)
-                    {
-                        s->uv[i].u *= fx;
-                        s->uv[i].v *= fy;
-                    }
-                }
-            }
-        }
         m->skinloaded = 1+number;
     }
 
@@ -883,13 +676,6 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
 	{
 		(*texidx)->SetSampler(SamplerRepeat);
 	}
-    if (willprint)
-    {
-        int32_t etime = timerGetTicks()-startticks;
-        if (etime>=MIN_CACHETIME_PRINT)
-            OSD_Printf("Load skin: p%d-e%d \"%s\"... %d ms\n", pal, hicfxmask(pal), fn, etime);
-    }
-
     return (*texidx);
 }
 
