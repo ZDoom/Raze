@@ -2,11 +2,6 @@
 obj/
 
 eduke32
-mapster32
-voidsw
-voidsw-editor
-kenbuild
-kenbuild-editor
 apps/
 *.exe
 /*.dll
@@ -25,7 +20,6 @@ apps/
 *.log
 *.cache
 *.cfg
-textures
 texturecache
 *.index
 

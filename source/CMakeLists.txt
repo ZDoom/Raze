@@ -684,6 +684,8 @@ file( GLOB HEADER_FILES
 	#sw/src/*.h Shadow Warrior does not work yet.
 	thirdparty/include/*.h
 	thirdparty/include/*.hpp
+	common/textures/*.h
+	common/textures/formats/*.h
 )
 
 
@@ -967,6 +969,20 @@ set (PCH_SOURCES
 	common/utility/file_zip.cpp
 	common/utility/resourcefile.cpp
 	common/utility/matrix.cpp
+	common/utility/m_png.cpp
+	common/utility/memarena.cpp
+
+	common/textures/bitmap.cpp
+	common/textures/texture.cpp
+	common/textures/image.cpp
+	common/textures/imagetexture.cpp
+	common/textures/formats/buildtexture.cpp
+	common/textures/formats/ddstexture.cpp
+	common/textures/formats/jpegtexture.cpp
+	common/textures/formats/pcxtexture.cpp
+	common/textures/formats/pngtexture.cpp
+	common/textures/formats/tgatexture.cpp
+	
 )
 
 if( MSVC )
@@ -1023,6 +1039,7 @@ include_directories(
 	common
 	common/utility
 	common/console
+	common/textures
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -1123,6 +1140,8 @@ install(TARGETS demolition
 		COMPONENT "Game executable")
 
 source_group("Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
+source_group("Code\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
+source_group("Code\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/formats/.+")
 source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
 source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
 source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")

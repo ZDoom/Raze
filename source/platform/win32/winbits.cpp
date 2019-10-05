@@ -1,5 +1,6 @@
 // Windows layer-independent code
 
+#include <Windows.h>
 #include "compat.h"
 #include "build.h"
 #include "baselayer.h"
