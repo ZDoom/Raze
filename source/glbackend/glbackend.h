@@ -11,6 +11,7 @@
 class FSamplerManager;
 class FShader;
 class PolymostShader;
+class SurfaceShader;
 
 struct glinfo_t {
 	const char* vendor;
@@ -130,6 +131,7 @@ class GLInstance
 	PolymostRenderState renderState;
 	FShader* activeShader;
 	PolymostShader* polymostShader;
+	SurfaceShader* surfaceShader;
 	
 	
 public:
@@ -139,6 +141,8 @@ public:
 	void Init();
 	void InitGLState(int fogmode, int multisample);
 	void LoadPolymostShader();
+	void LoadSurfaceShader();
+	void LoadVPXShader();
 
 	void Deinit();
 	
@@ -192,6 +196,7 @@ public:
 	void SetAlphaThreshold(float al);
 	void SetWireframe(bool on);
 	void SetPolymostShader();
+	void SetSurfaceShader();
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
 

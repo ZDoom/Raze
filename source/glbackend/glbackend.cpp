@@ -62,6 +62,7 @@ void GLInstance::Init()
 		glinfo.dumped = 1;
 	}
 	new(&renderState) PolymostRenderState;	// reset to defaults.
+	LoadSurfaceShader();
 	LoadPolymostShader();
 
 }
@@ -81,6 +82,22 @@ void GLInstance::LoadPolymostShader()
 		exit(1);
 	}
 	SetPolymostShader();
+}
+
+void GLInstance::LoadSurfaceShader()
+{
+	auto fr1 = GetBaseResource("demolition/shaders/glsl/surface.vp");
+	TArray<uint8_t> Vert = fr1.Read();
+	fr1 = GetBaseResource("demolition/shaders/glsl/surface.fp");
+	TArray<uint8_t> Frag = fr1.Read();
+	// Zero-terminate both strings.
+	Vert.Push(0);
+	Frag.Push(0);
+	surfaceShader = new SurfaceShader();
+	if (!surfaceShader->Load("SurfaceShader", (const char*)Vert.Data(), (const char*)Frag.Data()))
+	{
+		exit(1);
+	}
 }
 
 
@@ -372,6 +389,16 @@ void GLInstance::SetPolymostShader()
 	//GLInterface.BindTexture(2, paletteTextureIDs[curbasepal]);
 
 }
+
+void GLInstance::SetSurfaceShader()
+{
+	if (activeShader != surfaceShader)
+	{
+		surfaceShader->Bind();
+		activeShader = surfaceShader;
+	}
+}
+
 
 
 void PolymostRenderState::Apply(PolymostShader* shader)

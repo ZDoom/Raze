@@ -177,3 +177,28 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	glUseProgram(0);
 	return true;
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+bool SurfaceShader::Load(const char* name, const char* vert_prog, const char* frag_prog)
+{
+	if (!FShader::Load(name, vert_prog, frag_prog)) return false;
+
+	glUseProgram(hShader);
+
+	int SamplerLoc;
+	SamplerLoc = glGetUniformLocation(hShader, "s_texture");
+	glUniform1i(SamplerLoc, 0);
+	SamplerLoc = glGetUniformLocation(hShader, "s_palette");
+	glUniform1i(SamplerLoc, 1);
+
+	glBindAttribLocation(hShader, 0, "i_vertPos");
+	glBindAttribLocation(hShader, 1, "i_texCoord");
+
+	glUseProgram(0);
+	return true;
+}
