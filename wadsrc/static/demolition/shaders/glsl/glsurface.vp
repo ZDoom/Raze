@@ -1,1 +1,13 @@
-#version 110 attribute vec4 i_vertPos;attribute vec2 i_texCoord;varying vec2 v_texCoord;void main(){ gl_Position = i_vertPos; v_texCoord = i_texCoord;}
+#version 110
+ 
+attribute vec4 i_vertPos;
+attribute vec2 i_texCoord;
+
+varying vec2 v_texCoord;
+
+void main()
+{
+ gl_Position = i_vertPos;
+ v_texCoord = i_texCoord;
+}
+

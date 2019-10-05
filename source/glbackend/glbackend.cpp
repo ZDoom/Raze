@@ -80,6 +80,7 @@ void GLInstance::LoadPolymostShader()
 	polymostShader = new PolymostShader();
 	if (!polymostShader->Load("PolymostShader", (const char*)Vert.Data(), (const char*)Frag.Data()))
 	{
+		wm_msgbox("Fatal Error", "Shader compilation failed");
 		exit(1);
 	}
 	SetPolymostShader();
@@ -97,15 +98,16 @@ void GLInstance::LoadVPXShader()
 	vpxShader = new FShader();
 	if (!vpxShader->Load("VPXShader", (const char*)Vert.Data(), (const char*)Frag.Data()))
 	{
+		wm_msgbox("Fatal Error", "Shader compilation failed");
 		exit(1);
 	}
 }
 
 void GLInstance::LoadSurfaceShader()
 {
-	auto fr1 = GetBaseResource("demolition/shaders/glsl/surface.vp");
+	auto fr1 = GetBaseResource("demolition/shaders/glsl/glsurface.vp");
 	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetBaseResource("demolition/shaders/glsl/surface.fp");
+	fr1 = GetBaseResource("demolition/shaders/glsl/glsurface.fp");
 	TArray<uint8_t> Frag = fr1.Read();
 	// Zero-terminate both strings.
 	Vert.Push(0);
@@ -113,6 +115,7 @@ void GLInstance::LoadSurfaceShader()
 	surfaceShader = new SurfaceShader();
 	if (!surfaceShader->Load("SurfaceShader", (const char*)Vert.Data(), (const char*)Frag.Data()))
 	{
+		wm_msgbox("Fatal Error", "Shader compilation failed");
 		exit(1);
 	}
 }
