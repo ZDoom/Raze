@@ -14,6 +14,46 @@ class FShader;
 class PolymostShader;
 class SurfaceShader;
 class FTexture;
+class GLInstance;
+
+struct PaletteData
+{
+	int32_t crc32;
+	PalEntry colors[256];
+	FHardwareTexture* paltexture;
+};
+
+class PaletteManager
+{
+	// The current engine limit is 256 palettes and 256 palswaps.
+	uint32_t palettemap[256] = {};
+	uint32_t palswapmap[256] = {};
+	uint32_t lastindex = ~0u;
+
+	// Keep the short lived movie palettes out of the palette list for ease of maintenance.
+	// Since it is transient this doesn't need to be preserved if it changes, unlike the other palettes which need to be preserved as references for the texture management.
+	PaletteData transientpalette = { -1 };
+
+	// All data is being stored in contiguous blocks that can be used as uniform buffers as-is.
+	TArray<PaletteData> palettes;
+	TArray<uint8_t> palswaps;
+	GLInstance* const inst;
+
+	//OpenGLRenderer::GLDataBuffer* palswapBuffer = nullptr;
+
+	unsigned FindPalette(const uint8_t* paldata);
+
+public:
+	PaletteManager(GLInstance *inst_) : inst(inst_)
+	{}
+	~PaletteManager();
+	void DeleteAll();
+	void SetPalette(int index, const uint8_t *data, bool transient);
+	void AddPalswap(const uint8_t* data);
+
+	void BindPalette(int index);
+};
+
 
 struct glinfo_t {
 	const char* vendor;
@@ -128,6 +168,7 @@ class GLInstance
 	unsigned TextureHandleCache[THCACHESIZE];
 	int currentindex = THCACHESIZE;
 	int maxTextureSize;
+	PaletteManager palmanager;
 	
 	VSMatrix matrices[NUMMATRICES];
 	PolymostRenderState renderState;
@@ -155,6 +196,7 @@ public:
 		return value;
 	}
 
+	GLInstance();
 	std::pair<size_t, BaseVertex *> AllocVertices(size_t num);
 	void Draw(EDrawType type, size_t start, size_t count);
 	
@@ -203,8 +245,14 @@ public:
 	void SetPolymostShader();
 	void SetSurfaceShader();
 	void SetVPXShader();
+	void SetPalette(int palette);
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
+
+	void SetPaletteData(int index, const uint8_t* data, bool transient)
+	{
+		palmanager.SetPalette(index, data, transient);
+	}
 
 
 	void SetPalswap(uint32_t index)

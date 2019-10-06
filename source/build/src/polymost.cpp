@@ -136,8 +136,6 @@ static GLuint quadVertsID = 0;
 
 #define PALSWAP_TEXTURE_SIZE 2048
 int32_t r_useindexedcolortextures = -1;
-static int32_t lastbasepal = -1;
-static FHardwareTexture *paletteTextureIDs[MAXBASEPALS];
 static FHardwareTexture *palswapTextureID = nullptr;
 
 static inline float float_trans(uint32_t maskprops, uint8_t blend)
@@ -373,10 +371,8 @@ void polymost_glinit()
 {
 	globalflags |= GLOBAL_NO_GL_TILESHADES; // This re-enables the old fading logic without re-adding the r_usetileshades variable. The entire thing will have to be done on a more abstract level anyway.
 
-    lastbasepal = -1;
-    for (int basepalnum = 0; basepalnum < MAXBASEPALS; ++basepalnum)
+	for (int basepalnum = 0; basepalnum < MAXBASEPALS; ++basepalnum)
     {
-        paletteTextureIDs[basepalnum] = 0;
         uploadbasepalette(basepalnum);
     }
     palswapTextureID = 0;
@@ -705,14 +701,7 @@ void uploadbasepalette(int32_t basepalnum, bool transient)	// transient palettes
         basepalWFullBrightInfo[i*4+3] = 0-(IsPaletteIndexFullbright(i) != 0);
     }
 
-    if (!paletteTextureIDs[basepalnum])
-	{
-		auto &p = paletteTextureIDs[basepalnum];
-		p = GLInterface.NewTexture();
-		p->CreateTexture(256, 1, false, false);
-		p->SetSampler(Sampler2DNoFilter);
-    }
-	paletteTextureIDs[basepalnum]->LoadTexture(basepalWFullBrightInfo); // RGBA
+	GLInterface.SetPaletteData(basepalnum, basepalWFullBrightInfo, transient);
 }
 
 // Used by RRRA fog hackery - the only place changing the palswaps at run time.
@@ -1162,13 +1151,7 @@ static void polymost_updatePalette()
 
 	GLInterface.SetPalswap(globalpal);
 	GLInterface.SetShade(globalshade, numshades);
-
-    //POGO: only bind the base pal once when it's swapped
-    if (curbasepal != lastbasepal)
-    {
-		GLInterface.BindTexture(2, paletteTextureIDs[curbasepal], Sampler2DNoFilter);
-        lastbasepal = curbasepal;
-    }
+	GLInterface.SetPalette(curbasepal);
 }
 
 

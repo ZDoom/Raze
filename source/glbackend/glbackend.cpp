@@ -41,6 +41,12 @@ FileReader GetBaseResource(const char* fn)
 
 GLInstance GLInterface;
 
+GLInstance::GLInstance()
+	:palmanager(this)
+{
+
+}
+
 void GLInstance::Init()
 {
 	InitBaseRes();
@@ -146,8 +152,12 @@ void GLInstance::Deinit()
 	mSamplers = nullptr;
 	if (polymostShader) delete polymostShader;
 	polymostShader = nullptr;
-
+	if (surfaceShader) delete surfaceShader;
+	surfaceShader = nullptr;
+	if (vpxShader) delete vpxShader;
+	vpxShader = nullptr;
 	activeShader = nullptr;
+	palmanager.DeleteAll();
 }
 	
 std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
@@ -402,9 +412,6 @@ void GLInstance::SetPolymostShader()
 		polymostShader->Bind();
 		activeShader = polymostShader;
 	}
-	//GLInterface.BindTexture(1, palswapTextureID);
-	//GLInterface.BindTexture(2, paletteTextureIDs[curbasepal]);
-
 }
 
 void GLInstance::SetSurfaceShader()
@@ -425,6 +432,10 @@ void GLInstance::SetVPXShader()
 	}
 }
 
+void GLInstance::SetPalette(int index)
+{
+	palmanager.BindPalette(index);
+}
 
 void PolymostRenderState::Apply(PolymostShader* shader)
 {
@@ -446,36 +457,3 @@ void PolymostRenderState::Apply(PolymostShader* shader)
 	shader->FogColor.Set(FogColor);
 }
 
-#if 0
-
-static void polymost_setPalswap(uint32_t index)
-{
-	static uint32_t lastPalswapIndex;
-
-	if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-		return;
-
-	lastPalswapIndex = index;
-	polymost1PalswapPos.x = index * polymost1PalswapSize.x;
-	polymost1PalswapPos.y = floorf(polymost1PalswapPos.x);
-	polymost1PalswapPos = { polymost1PalswapPos.x - polymost1PalswapPos.y + (0.5f / PALSWAP_TEXTURE_SIZE),
-							polymost1PalswapPos.y * polymost1PalswapSize.y + (0.5f / PALSWAP_TEXTURE_SIZE) };
-	glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
-}
-
-static void polymost_setPalswapSize(uint32_t width, uint32_t height)
-{
-	if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-		return;
-
-	polymost1PalswapSize = { width * (1.f / PALSWAP_TEXTURE_SIZE),
-							 height * (1.f / PALSWAP_TEXTURE_SIZE) };
-
-	polymost1PalswapInnerSize = { (width - 1) * (1.f / PALSWAP_TEXTURE_SIZE),
-								  (height - 1) * (1.f / PALSWAP_TEXTURE_SIZE) };
-
-	glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
-}
-
-
-#endif

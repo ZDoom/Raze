@@ -778,6 +778,7 @@ set (PCH_SOURCES
 	glbackend/gl_samplers.cpp
 	glbackend/gl_shader.cpp
 	glbackend/glbackend.cpp
+	glbackend/gl_palmanager.cpp
 	
 	mact/src/animlib.cpp
 	mact/src/control.cpp
