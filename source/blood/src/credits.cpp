@@ -230,7 +230,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     int nFrames = Smacker_GetNumFrames(hSMK);
 
     Smacker_GetPalette(hSMK, palette);
-    paletteSetColorTable(kSMKPal, palette);
+    paletteSetColorTable(kSMKPal, palette, true);
     videoSetPalette(gBrightness>>2, kSMKPal, 8+2);
 
     int nScale;
@@ -271,7 +271,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
         videoClearScreen(0);
         Smacker_GetPalette(hSMK, palette);
-        paletteSetColorTable(kSMKPal, palette);
+        paletteSetColorTable(kSMKPal, palette, true);
         videoSetPalette(gBrightness >> 2, kSMKPal, 0);
         tileInvalidate(kSMKTile, 0, 1 << 4);  // JBF 20031228
         Smacker_GetFrame(hSMK, pFrame);

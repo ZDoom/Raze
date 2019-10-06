@@ -131,9 +131,6 @@ int32_t r_flatsky = 1;
 static float fogresult, fogresult2;
 coltypef fogcol, fogtable[MAXPALOOKUPS];
 
-static GLenum currentActiveTexture = 0;
-static uint32_t currentTextureID = 0;
-
 static GLuint quadVertsID = 0;
 
 
@@ -142,8 +139,6 @@ int32_t r_useindexedcolortextures = -1;
 static int32_t lastbasepal = -1;
 static FHardwareTexture *paletteTextureIDs[MAXBASEPALS];
 static FHardwareTexture *palswapTextureID = nullptr;
-//extern char const *polymost1Frag;
-//extern char const *polymost1Vert;
 
 static inline float float_trans(uint32_t maskprops, uint8_t blend)
 {
@@ -376,10 +371,6 @@ FileReader GetBaseResource(const char* fn);
 void polymost_glinit()
 {
 	globalflags |= GLOBAL_NO_GL_TILESHADES; // This re-enables the old fading logic without re-adding the r_usetileshades variable. The entire thing will have to be done on a more abstract level anyway.
-
-    currentTextureID = 0;
-    char allPacked = false;
-
 
     lastbasepal = -1;
     for (int basepalnum = 0; basepalnum < MAXBASEPALS; ++basepalnum)
@@ -696,7 +687,7 @@ void uploadtexture(FHardwareTexture *tex, int32_t doalloc, vec2_t siz, int32_t t
 	tex->LoadTexture((uint8_t *)pic);
 }
 
-void uploadbasepalette(int32_t basepalnum)
+void uploadbasepalette(int32_t basepalnum, bool transient)	// transient palettes are used by movies and should not affect the engine state. All other palettes only get set at game startup.
 {
     if (!basepaltable[basepalnum])
     {
@@ -1424,7 +1415,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         int32_t size2;
         for (size2 = 1; size2 < size; size2 += size2) {}
         if (size == size2)
-			GLInterface.SetNpotEmulation(false, 1.f, 0.f);
+			GLInterface.SetNpotEmulation(false, 1.f, 0.f); 
         else
         {
             float xOffset = 1.f / tilesiz[globalpicnum].x;
@@ -1459,11 +1450,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     float pc[4];
 
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER && pr_artmapping && !(globalflags & GLOBAL_NO_GL_TILESHADES) && polymer_eligible_for_artmap(globalpicnum, pth))
-        pc[0] = pc[1] = pc[2] = 1.0f;
-    else
-#endif
     {
         polytint_t const & tint = hictinting[globalpal];
         float shadeFactor = (pth->flags & PTH_INDEXED) &&

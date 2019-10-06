@@ -499,7 +499,7 @@ int32_t Anim_Play(const char *fn)
         goto end_anim;
     }
 
-    paletteSetColorTable(ANIMPAL, ANIM_GetPalette());
+    paletteSetColorTable(ANIMPAL, ANIM_GetPalette(), true);
 
     // setpalette(0L,256L,tempbuf);
     // setbrightness(ud.brightness>>2,tempbuf,2);

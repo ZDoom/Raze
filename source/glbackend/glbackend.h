@@ -7,6 +7,7 @@
 #include "gl_hwtexture.h"
 #include "gl_renderstate.h"
 #include "matrix.h"
+#include "palentry.h"
 
 class FSamplerManager;
 class FShader;

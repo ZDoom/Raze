@@ -2165,10 +2165,6 @@ int osdcmd_cvar_set(osdcmdptr_t parm)
             fallthrough__;
         case CVAR_INVALIDATEART:
             gltexinvalidatetype(INVALIDATE_ART);
-#ifdef POLYMER
-            if (videoGetRenderMode() == REND_POLYMER)
-                polymer_texinvalidate();
-#endif
             break;
         }
     }

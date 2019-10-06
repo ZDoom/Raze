@@ -708,7 +708,7 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
 //
 // setbasepal
 //
-void paletteSetColorTable(int32_t id, uint8_t const * const table)
+void paletteSetColorTable(int32_t id, uint8_t const * const table, bool transient)
 {
     if (basepaltable[id] == NULL)
         basepaltable[id] = (uint8_t *) Xmalloc(768);
@@ -718,7 +718,7 @@ void paletteSetColorTable(int32_t id, uint8_t const * const table)
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        uploadbasepalette(id);
+        uploadbasepalette(id, transient);
     }
 #endif
 }
@@ -811,6 +811,7 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 
     g_lastpalettesum = lastpalettesum = newpalettesum;
 
+#if 0
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
         // Only reset the textures if the corresponding preserve flags are clear and
@@ -826,6 +827,7 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
         if (!(flags&8) && doinvalidate)
             gltexinvalidatetype(INVALIDATE_ART_NON_INDEXED);
     }
+#endif
 
     if ((flags&16)==0)
     {
