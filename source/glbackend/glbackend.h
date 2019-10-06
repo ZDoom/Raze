@@ -20,7 +20,26 @@ struct PaletteData
 {
 	int32_t crc32;
 	PalEntry colors[256];
+	float shades[512];	// two values (addshade and mulshade for each palswap.)
+	bool shadesdone;
 	FHardwareTexture* paltexture;
+};
+
+struct PalShade
+{
+	int palindex;
+	float mulshade, addshade;
+};
+
+struct PalswapData
+{
+	int32_t crc32;
+	uint8_t swaps[256];
+};
+
+enum
+{
+	PALSWAP_TEXTURE_SIZE = 2048
 };
 
 class PaletteManager
@@ -36,12 +55,14 @@ class PaletteManager
 
 	// All data is being stored in contiguous blocks that can be used as uniform buffers as-is.
 	TArray<PaletteData> palettes;
-	TArray<uint8_t> palswaps;
+	TArray<PalswapData> palswaps;
+	FHardwareTexture* palswapTexture = nullptr;
 	GLInstance* const inst;
 
 	//OpenGLRenderer::GLDataBuffer* palswapBuffer = nullptr;
 
 	unsigned FindPalette(const uint8_t* paldata);
+	unsigned FindPalswap(const uint8_t* paldata);
 
 public:
 	PaletteManager(GLInstance *inst_) : inst(inst_)
@@ -49,7 +70,8 @@ public:
 	~PaletteManager();
 	void DeleteAll();
 	void SetPalette(int index, const uint8_t *data, bool transient);
-	void AddPalswap(const uint8_t* data);
+	void SetPalswapData(int index, const uint8_t* data);
+	void UpdatePalswaps(int w, int h);
 
 	void BindPalette(int index);
 };
@@ -169,7 +191,9 @@ class GLInstance
 	int currentindex = THCACHESIZE;
 	int maxTextureSize;
 	PaletteManager palmanager;
-	
+	int lastPalswapIndex = -1;
+
+
 	VSMatrix matrices[NUMMATRICES];
 	PolymostRenderState renderState;
 	FShader* activeShader;
@@ -254,10 +278,22 @@ public:
 		palmanager.SetPalette(index, data, transient);
 	}
 
-
-	void SetPalswap(uint32_t index)
+	void SetPalswapData(int index, const uint8_t* data)
 	{
-		renderState.PalSwapIndex = index;
+		palmanager.SetPalswapData(index, data);
+	}
+
+	void UpdatePalswaps(int w, int h)
+	{
+		palmanager.UpdatePalswaps(w, h);
+	}
+
+	void SetPalswap(int index);
+
+	void SetPalswapSize(float* pos)
+	{
+		renderState.PalswapSize[0] = pos[0];
+		renderState.PalswapSize[1] = pos[1];
 	}
 
 	int GetClamp()

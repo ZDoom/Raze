@@ -5,8 +5,8 @@ class PolymostShader;
 struct PolymostRenderState
 {
 	int PalSwapIndex;
-	//float PalswapPos[2];
-    //float PalswapSize[2];
+	float PalswapPos[2];
+    float PalswapSize[2];
     float Clamp[2];
     float Shade;
     float NumShades = 64.f;

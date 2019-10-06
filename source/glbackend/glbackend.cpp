@@ -158,6 +158,7 @@ void GLInstance::Deinit()
 	vpxShader = nullptr;
 	activeShader = nullptr;
 	palmanager.DeleteAll();
+	lastPalswapIndex = -1;
 }
 	
 std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
@@ -455,5 +456,9 @@ void PolymostRenderState::Apply(PolymostShader* shader)
 	shader->Brightness.Set(Brightness);
 	shader->Fog.Set(Fog);
 	shader->FogColor.Set(FogColor);
+	shader->PalswapPos.Set(PalswapPos);
+	shader->PalswapSize.Set(PalswapSize);
+	shader->PalswapIndex.Set(PalSwapIndex);
+
 }
 

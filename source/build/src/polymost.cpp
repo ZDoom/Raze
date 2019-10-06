@@ -134,7 +134,6 @@ coltypef fogcol, fogtable[MAXPALOOKUPS];
 static GLuint quadVertsID = 0;
 
 
-#define PALSWAP_TEXTURE_SIZE 2048
 int32_t r_useindexedcolortextures = -1;
 static FHardwareTexture *palswapTextureID = nullptr;
 
@@ -364,7 +363,6 @@ static void polymost_bindPth(pthtyp const* const pPth, int sampler)
 
 
 FileReader GetBaseResource(const char* fn);
-void uploadpalswap(int32_t palookupnum);
 
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
@@ -378,8 +376,9 @@ void polymost_glinit()
     palswapTextureID = 0;
     for (int palookupnum = 0; palookupnum < MAXPALOOKUPS; ++palookupnum)
     {
-        uploadpalswap(palookupnum);
-    }
+		GLInterface.SetPalswapData(palookupnum, palookup[palookupnum]);
+	}
+	GLInterface.UpdatePalswaps(256, numshades+1);
 }
 
 ////////// VISIBILITY FOG ROUTINES //////////
@@ -709,47 +708,9 @@ void uploadpalswaps(int count, int32_t* swaps)
 {
 	for (int i = 0; i < count; i++)
 	{
-		uploadpalswap(i);
+		GLInterface.SetPalswapData(i, (uint8_t*)palookup[i]);
 	}
-}
-
-void uploadpalswap(int32_t palookupnum)
-{
-    if (!palookup[palookupnum])
-    {
-        return;
-    }
-
-	// No point porting this, it's too much work for a short lived solution.
-#if 0
-    char allocateTexture = !palswapTextureID;
-    if (allocateTexture)
-    {
-        G etTextureHandle(&palswapTextureID);
-    }
-    g lBindTexture(GL _TEXTURE_2D, palswapTextureID);
-    if (allocateTexture)
-    {
-        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_BASE_LEVEL, 0);
-        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MAX_LEVEL, 0);
-        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MAG_FILTER, GL _NEAREST);
-        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MIN_FILTER, GL _NEAREST);
-        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MAX_ANISOTROPY_EXT, 1);
-        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_WRAP_S, GL _CLAMP_TO_EDGE);
-        g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_WRAP_T, GL _CLAMP_TO_EDGE);
-        g lTexImage2D(GL _TEXTURE_2D, 0, GL _RED, PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, 0, GL _RED, GL _UNSIGNED_BYTE, NULL);
-    }
-
-    int32_t column = palookupnum%(PALSWAP_TEXTURE_SIZE/256);
-    int32_t row = palookupnum/(PALSWAP_TEXTURE_SIZE/256);
-    int32_t rowOffset = (numshades+1)*row;
-    if (rowOffset > PALSWAP_TEXTURE_SIZE)
-    {
-        OSD_Printf("Polymost: palswaps are too large for palswap tilesheet!\n");
-        return;
-    }
-    g lTexSubImage2D(GL _TEXTURE_2D, 0, 256*column, rowOffset, 256, numshades+1, GL _RED, GL _UNSIGNED_BYTE, palookup[palookupnum]);
-#endif
+	GLInterface.UpdatePalswaps(256, numshades + 1);
 }
 
 
