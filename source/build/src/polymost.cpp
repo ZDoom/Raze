@@ -376,7 +376,7 @@ void polymost_glinit()
     palswapTextureID = 0;
     for (int palookupnum = 0; palookupnum < MAXPALOOKUPS; ++palookupnum)
     {
-		GLInterface.SetPalswapData(palookupnum, palookup[palookupnum]);
+		GLInterface.SetPalswapData(palookupnum, (uint8_t*)palookup[palookupnum], numshades+1);
 	}
 	GLInterface.UpdatePalswaps(256, numshades+1);
 }
@@ -708,7 +708,7 @@ void uploadpalswaps(int count, int32_t* swaps)
 {
 	for (int i = 0; i < count; i++)
 	{
-		GLInterface.SetPalswapData(i, (uint8_t*)palookup[i]);
+		GLInterface.SetPalswapData(i, (uint8_t*)palookup[i], numshades + 1);
 	}
 	GLInterface.UpdatePalswaps(256, numshades + 1);
 }

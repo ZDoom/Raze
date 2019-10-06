@@ -34,7 +34,7 @@ struct PalShade
 struct PalswapData
 {
 	int32_t crc32;
-	uint8_t swaps[256];
+	const uint8_t *lookup;	// points to the original data. This is static so no need to copy
 };
 
 enum
@@ -47,7 +47,10 @@ class PaletteManager
 	// The current engine limit is 256 palettes and 256 palswaps.
 	uint32_t palettemap[256] = {};
 	uint32_t palswapmap[256] = {};
+	float addshade[256] = {};
+	float mulshade[256] = {};
 	uint32_t lastindex = ~0u;
+	int numshades = 1;
 
 	// Keep the short lived movie palettes out of the palette list for ease of maintenance.
 	// Since it is transient this doesn't need to be preserved if it changes, unlike the other palettes which need to be preserved as references for the texture management.
@@ -70,7 +73,7 @@ public:
 	~PaletteManager();
 	void DeleteAll();
 	void SetPalette(int index, const uint8_t *data, bool transient);
-	void SetPalswapData(int index, const uint8_t* data);
+	void SetPalswapData(int index, const uint8_t* data, int numshades);
 	void UpdatePalswaps(int w, int h);
 
 	void BindPalette(int index);
@@ -278,9 +281,9 @@ public:
 		palmanager.SetPalette(index, data, transient);
 	}
 
-	void SetPalswapData(int index, const uint8_t* data)
+	void SetPalswapData(int index, const uint8_t* data, int numshades)
 	{
-		palmanager.SetPalswapData(index, data);
+		palmanager.SetPalswapData(index, data, numshades);
 	}
 
 	void UpdatePalswaps(int w, int h)

@@ -78,6 +78,10 @@ void PaletteManager::DeleteAll()
 	lastindex = -1;
 	memset(palettemap, 0, sizeof(palettemap));
 	memset(palswapmap, 0, sizeof(palswapmap));
+	memset(addshade, 0, sizeof(addshade));
+	memset(mulshade, 0, sizeof(mulshade));
+	numshades = 1;
+
 
 }
 
@@ -116,19 +120,19 @@ unsigned PaletteManager::FindPalette(const uint8_t *paldata)
 
 unsigned PaletteManager::FindPalswap(const uint8_t* paldata)
 {
-	auto crc32 = CalcCRC32(paldata, 256);
+	auto crc32 = CalcCRC32(paldata, 256 * numshades);
 	for (unsigned int i = 0; i < palswaps.Size(); i++)
 	{
 		if (crc32 == palswaps[i].crc32)
 		{
-			if (!memcmp(paldata, palswaps[i].swaps, 256))
+			if (!memcmp(paldata, palswaps[i].lookup, 256 * numshades))
 			{
 				return i;
 			}
 		}
 	}
 	PalswapData pd;
-	memcpy(pd.swaps, paldata, 256);
+	pd.lookup = paldata;
 	pd.crc32 = crc32;
 	return palswaps.Push(pd);
 }
@@ -208,15 +212,22 @@ void PaletteManager::BindPalette(int index)
 //
 //===========================================================================
 
-void PaletteManager::SetPalswapData(int index, const uint8_t* data)
+void PaletteManager::SetPalswapData(int index, const uint8_t* data, int numshades_)
 {
 	// New palettes may only be added if declared transient or on startup. 
 	// Otherwise this would require a renderer reset to flush out the textures affected by the change.
 
 	if (index < 0 || index > 255) return;	// invalid index - ignore.
+	numshades = numshades_;
 	palswapmap[index] = FindPalswap(data);
 
 }
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
 
 void PaletteManager::UpdatePalswaps(int width, int height)
 {
