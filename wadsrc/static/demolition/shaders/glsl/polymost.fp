@@ -136,66 +136,92 @@ vec4 convertColor(vec4 color, int effect, vec3 tint)
 
 void main()
 {
-	float coordX = v_texCoord.x;
-	float coordY = v_texCoord.y;
-	vec2 newCoord;
-		
-	// Coordinate adjustment for NPOT textures (something must have gone very wrong to make this necessary...)
-	if (u_npotEmulation != 0.0)
+	float fullbright = 0.0;
+	vec4 color;
+	if (u_useColorOnly == 0.0)
 	{
-		float period = floor(coordY / u_npotEmulationFactor);
-		coordX += u_npotEmulationXOffset * floor(mod(coordY, u_npotEmulationFactor));
-		coordY = period + mod(coordY, u_npotEmulationFactor);
-	}
-	newCoord = vec2(coordX, coordY);
+		float coordX = v_texCoord.x;
+		float coordY = v_texCoord.y;
+		vec2 newCoord;
+		
+		// Coordinate adjustment for NPOT textures (something must have gone very wrong to make this necessary...)
+		if (u_npotEmulation != 0.0)
+		{
+			float period = floor(coordY / u_npotEmulationFactor);
+			coordX += u_npotEmulationXOffset * floor(mod(coordY, u_npotEmulationFactor));
+			coordY = period + mod(coordY, u_npotEmulationFactor);
+		}
+		newCoord = vec2(coordX, coordY);
 #if 1
-	if (u_clamp != 0.0) newCoord = clamp(newCoord.xy, 0.0, 1.0);
+		if (u_clamp != 0.0) newCoord = clamp(newCoord.xy, 0.0, 1.0);
 #else	
-	// what is this for? The only effect I could observe was a significant degradation of anisotropic filtering.
-	vec2 transitionBlend = fwidth(floor(newCoord.xy));
-	transitionBlend = fwidth(transitionBlend) + transitionBlend;
+		// what is this for? The only effect I could observe was a significant degradation of anisotropic filtering.
+		vec2 transitionBlend = fwidth(floor(newCoord.xy));
+		transitionBlend = fwidth(transitionBlend) + transitionBlend;
 		
-	vec2 val1 = mix(fract(newCoord.xy), abs(1.0-mod(newCoord.xy+1.0, 2.0)), transitionBlend);
-	vec2 clampedCoord = clamp(newCoord.xy, 0.0, 1.0);
-	newCoord = mix(val1, clampedCoord, u_clamp);
+		vec2 val1 = mix(fract(newCoord.xy), abs(1.0-mod(newCoord.xy+1.0, 2.0)), transitionBlend);
+		vec2 clampedCoord = clamp(newCoord.xy, 0.0, 1.0);
+		newCoord = mix(val1, clampedCoord, u_clamp);
 #endif
-	vec4 color = texture2D(s_texture, newCoord);
+		color = texture2D(s_texture, newCoord);
 
-    float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);
-    float shadeFrac = mod(shade, c_one);
-    float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, floor(shade)/u_numShades)).r;
-    colorIndex = c_basepalOffset + c_basepalScale*colorIndex;
-    vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));
-    colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, (floor(shade)+c_one)/u_numShades)).r;
-    colorIndex = c_basepalOffset + c_basepalScale*colorIndex;
-    vec4 palettedColorNext = texture2D(s_palette, vec2(colorIndex, c_zero));
-    palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac*u_shadeInterpolate);
-    float fullbright = mix(u_usePalette*palettedColor.a, c_zero, u_useColorOnly);	// This only gets set for paletted rendering.
-    palettedColor.a = c_one-floor(color.r);
-    color = mix(color, palettedColor, u_usePalette);
+		// This was further down but it really should be done before applying any kind of depth fading, not afterward.
+		vec4 detailColor = vec4(1.0);
+		if (u_useDetailMapping != 0.0)
+		{
+			detailColor = texture2D(s_detail, v_detailCoord.xy);
+			detailColor = mix(vec4(1.0), 2.0 * detailColor, detailColor.a);
+			// Application of this differs of render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
+		}
+		
+		float visibility = max(u_visFactor * v_distance - 0.5 * u_shadeInterpolate, 0.0);
+		float shade = clamp((u_shade + visibility), 0.0, u_numShades - 1.0);
+		
+		if (u_usePalette != 0.0)
+		{
+			// Get the shaded palette index
+			float colorIndex = texture2D(s_palswap, u_palswapPos + u_palswapSize*vec2(color.r, floor(shade)/u_numShades)).r;
+			colorIndex = c_basepalOffset + c_basepalScale*colorIndex;	// this is for compensating roundoff errors.
+			vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));
+			
+			if (u_shadeInterpolate != 0.0)
+			{
+				// Get the next shaded palette index for interpolation
+				colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, (floor(shade)+1.0)/u_numShades)).r;
+				colorIndex = c_basepalOffset + c_basepalScale*colorIndex;	// this is for compensating roundoff errors.
+	    			vec4 palettedColorNext = texture2D(s_palette, vec2(colorIndex, c_zero));
+				float shadeFrac = mod(shade, 1.0);
+				palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac*u_shadeInterpolate);
+			}
+			fullbright = palettedColor.a;	// This only gets set for paletted rendering.
+	    		palettedColor.a = c_one-floor(color.r);
+	    		color = mix(color, palettedColor, u_usePalette);
+			color.rgb *= detailColor.rgb;	// with all this palettizing, this can only be applied afterward, even though it is wrong to do it this way.
+		}
+		else
+		{
+			color.rgb *= detailColor.rgb;
+			// todo: For True Color, calculate a shade value from the table and apply that to the color directly.
+		}
+		if (fullbright == 0.0) color.rgb *= v_color.rgb;
+		color.a *= v_color.a;
 
-	if (u_useDetailMapping != 0.0)
-	{
-		vec4 detailColor = texture2D(s_detail, v_detailCoord.xy);
-		detailColor = mix(c_vec4_one, 2.0*detailColor, detailColor.a);
-		color.rgb *= detailColor.rgb;
+		if (u_fogEnabled != 0.0)// the following would make sense if 'fullbright' could ever be true in non-paletted rendering: && (fullbright != 0.0 || u_fogColor.rgb != vec3(0.0) ))
+		{
+			float fogFactor;
+
+			color.rgb *= detailColor.rgb;
+			if (u_fog.z == 0) fogFactor = (u_fog.x-v_fogCoord)*u_fog.y;	// linear fog
+	 		else fogFactor = exp2 (u_fog.z * v_fogCoord); 				// exponential fog
+
+			fogFactor = clamp(fogFactor, 0.0, 1.0);
+			color.rgb = mix(u_fogColor.rgb, color.rgb, fogFactor);
+		}
 	}
-
-	// should be an 'else' to all the above.
-	color = mix(color, c_vec4_one, u_useColorOnly);
-
-	// only relevant for paletted rendering - in true color this requires a fifth color channel (i.e. an external brightmap - work for later) or an overlay (current implementation)
-    	color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);
-
-	if (u_usePalette == 0.0 && u_fogEnabled != 0.0)// the following would make sense if 'fullbright' could ever be true in non-paletted rendering: && (fullbright != 0.0 || u_fogColor.rgb != vec3(0.0) ))
+	else
 	{
-		float fogFactor;
-
-		if (u_fog.z == 0) fogFactor = (u_fog.x-v_fogCoord)*u_fog.y;	// linear fog
- 		else fogFactor = exp2 (u_fog.z * v_fogCoord); 				// exponential fog
-
-		fogFactor = clamp(fogFactor, 0.0, 1.0);
-		color.rgb = mix(u_fogColor.rgb, color.rgb, fogFactor);
+		// untextured rendering
+		color = v_color;
 	}
 
 	if (u_useGlowMapping != 0.0 && u_useColorOnly == 0.0)
@@ -204,7 +230,6 @@ void main()
 		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);
 	}
 	
-	color.a *= v_color.a;
 	color.rgb = pow(color.rgb, vec3(u_brightness));
 	fragColor = color;
 }
