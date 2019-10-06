@@ -159,7 +159,9 @@ public:
 	
 	int GetTextureID();
 	FHardwareTexture* NewTexture();
+	FGameTexture* NewTexture(const char *name, bool hightile);
 	void BindTexture(int texunit, FHardwareTexture *texid, int sampler = NoSampler);
+	void BindTexture(int texunit, FGameTexture* texid, int sampler = NoSampler);
 	void UnbindTexture(int texunit);
 	void UnbindAllTextures();
 	void EnableBlend(bool on);
