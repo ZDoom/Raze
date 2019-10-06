@@ -1930,7 +1930,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 				texmat.loadIdentity();
                 texmat.translate(xpanning, ypanning, 1.0f);
                 texmat.scale(f, f, 1.0f);
-				GLInterface.SetMatrix(Matrix_Texture3, &texmat);
+				GLInterface.SetMatrix(Matrix_Detail, &texmat);
 			}
 
             tex = r_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi) : 0;
@@ -1942,7 +1942,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
 				texmat.loadIdentity();
                 texmat.translate(xpanning, ypanning, 1.0f);
-				GLInterface.SetMatrix(Matrix_Texture4, &texmat);
+				GLInterface.SetMatrix(Matrix_Glow, &texmat);
 			}
 
             indexhandle = m->vindexes;

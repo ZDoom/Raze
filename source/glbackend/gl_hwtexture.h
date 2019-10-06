@@ -5,6 +5,8 @@
 class FBitmap;
 class FTexture;
 
+#include "tarray.h"
+
 class FHardwareTexture //: public IHardwareTexture
 {
 public:
@@ -34,13 +36,16 @@ public:
 	friend class FGameTexture;
 };
 
+// This class identifies a single source image to the game.
+// Since hightile palette variations are identified by file name, they will create separate game textures.
 class FGameTexture
 {
 	int Width, Height;
 	bool isHightile;
 
+	// Source image for this texture.
 	FTexture* sourceData = nullptr;
-	// either indexed or the sole image for hightiles.
+	// indexed or the sole image for hightiles. 
 	FHardwareTexture* hwBase = nullptr;	
 	// If the number was large a TMap would be better - 
 	// but in most cases the maximum number of palettes for a single tile is less than 10 where a linear search is much faster than a TMap.

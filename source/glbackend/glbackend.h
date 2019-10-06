@@ -67,8 +67,8 @@ enum EMatrixType
 	Matrix_View,
 	Matrix_Projection,
 	Matrix_ModelView,
-	Matrix_Texture3,
-	Matrix_Texture4,
+	Matrix_Detail,
+	Matrix_Glow,
 	// These are the only ones being used.
 	NUMMATRICES
 };

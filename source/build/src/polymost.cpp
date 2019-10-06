@@ -1400,7 +1400,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             if ((detailpth->hicr->scale.x != 1.0f) || (detailpth->hicr->scale.y != 1.0f))
                 texmat.scale(detailpth->hicr->scale.x, detailpth->hicr->scale.y, 1.0f);
 
-			GLInterface.SetMatrix(Matrix_Texture3, &texmat);
+			GLInterface.SetMatrix(Matrix_Detail, &texmat);
         }
     }
 
@@ -1664,7 +1664,7 @@ do                                                                              
     if (pth->hicr)
     {
 		VSMatrix identity(0);
-		GLInterface.SetMatrix(Matrix_Texture3, &identity);
+		GLInterface.SetMatrix(Matrix_Detail, &identity);
     }
 
     if (videoGetRenderMode() != REND_POLYMOST)

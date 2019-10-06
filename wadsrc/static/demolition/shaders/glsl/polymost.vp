@@ -5,6 +5,10 @@ varying float v_distance;
 
 uniform float u_usePalette;
 uniform mat4 u_rotMatrix;
+uniform mat4 u_modelMatrix;
+uniform mat4 u_projectionMatrix;
+uniform mat4 u_detailMatrix;
+uniform mat4 u_glowMatrix;
 
 const float c_zero = 0.0;
 const float c_one  = 1.0;
@@ -12,16 +16,16 @@ const float c_one  = 1.0;
 void main()
 {
    vec4 vertex = u_rotMatrix * gl_Vertex;
-   vec4 eyeCoordPosition = gl_ModelViewMatrix * vertex;
-   gl_Position = gl_ModelViewProjectionMatrix * vertex;
+   vec4 eyeCoordPosition = u_modelMatrix * vertex;
+   gl_Position = u_projectionMatrix * eyeCoordPosition;
 
    eyeCoordPosition.xyz /= eyeCoordPosition.w;
 
    gl_TexCoord[0] = gl_MultiTexCoord0;
    //gl_TexCoord[0] = mix(gl_TexCoord[0].xyzw, gl_TexCoord[0].yxzw, u_usePalette); WTF is this???
 
-   gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord0;
-   gl_TexCoord[4] = gl_TextureMatrix[4] * gl_MultiTexCoord0;
+   gl_TexCoord[3] = u_detailMatrix * gl_MultiTexCoord0;
+   gl_TexCoord[4] = u_glowMatrix * gl_MultiTexCoord0;
 
    gl_FogFragCoord = abs(eyeCoordPosition.z);
 

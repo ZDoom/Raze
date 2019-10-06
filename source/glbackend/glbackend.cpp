@@ -62,9 +62,18 @@ void GLInstance::Init()
 		glinfo.dumped = 1;
 	}
 	new(&renderState) PolymostRenderState;	// reset to defaults.
-	LoadSurfaceShader();
-	LoadVPXShader();
-	LoadPolymostShader();
+	try
+	{
+		LoadSurfaceShader();
+		LoadVPXShader();
+		LoadPolymostShader();
+	}
+	catch (const std::runtime_error& err)
+	{
+		// This is far from an optimal solution but at this point the only way to get the error out.
+		wm_msgbox("Shader compilation failed", err.what());
+		exit(1);
+	}
 
 }
 
@@ -78,11 +87,7 @@ void GLInstance::LoadPolymostShader()
 	Vert.Push(0);
 	Frag.Push(0);
 	polymostShader = new PolymostShader();
-	if (!polymostShader->Load("PolymostShader", (const char*)Vert.Data(), (const char*)Frag.Data()))
-	{
-		wm_msgbox("Fatal Error", "Shader compilation failed");
-		exit(1);
-	}
+	polymostShader->Load("PolymostShader", (const char*)Vert.Data(), (const char*)Frag.Data());
 	SetPolymostShader();
 }
 
@@ -96,11 +101,7 @@ void GLInstance::LoadVPXShader()
 	Vert.Push(0);
 	Frag.Push(0);
 	vpxShader = new FShader();
-	if (!vpxShader->Load("VPXShader", (const char*)Vert.Data(), (const char*)Frag.Data()))
-	{
-		wm_msgbox("Fatal Error", "Shader compilation failed");
-		exit(1);
-	}
+	vpxShader->Load("VPXShader", (const char*)Vert.Data(), (const char*)Frag.Data());
 }
 
 void GLInstance::LoadSurfaceShader()
@@ -113,11 +114,7 @@ void GLInstance::LoadSurfaceShader()
 	Vert.Push(0);
 	Frag.Push(0);
 	surfaceShader = new SurfaceShader();
-	if (!surfaceShader->Load("SurfaceShader", (const char*)Vert.Data(), (const char*)Frag.Data()))
-	{
-		wm_msgbox("Fatal Error", "Shader compilation failed");
-		exit(1);
-	}
+	surfaceShader->Load("SurfaceShader", (const char*)Vert.Data(), (const char*)Frag.Data());
 }
 
 
@@ -253,26 +250,25 @@ void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 	{
 		default:
 			return;
+
 		case Matrix_View:
 			polymostShader->RotMatrix.Set(mat->get());
 			break;
 
 		case Matrix_Projection:
-			glMatrixMode(GL_PROJECTION);
-			glLoadMatrixf(mat->get());
+			polymostShader->ProjectionMatrix.Set(mat->get());
 			break;
 			
 		case Matrix_ModelView:
-			glMatrixMode(GL_MODELVIEW);
-			glLoadMatrixf(mat->get());
+			polymostShader->ModelMatrix.Set(mat->get());
 			break;
 			
-		case Matrix_Texture3:
-		case Matrix_Texture4:
-			glActiveTexture(GL_TEXTURE3 + num - Matrix_Texture3);
-			glMatrixMode(GL_TEXTURE);
-			glLoadMatrixf(mat->get());
-			glActiveTexture(GL_TEXTURE0);
+		case Matrix_Detail:
+			polymostShader->DetailMatrix.Set(mat->get());
+			break;
+
+		case Matrix_Glow:
+			polymostShader->GlowMatrix.Set(mat->get());
 			break;
 	}
 }

@@ -355,10 +355,6 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
     //Force fullscreen (glox1=-1 forces it to restore afterwards)
 	GLInterface.SetViewport(0,0,xdim,ydim); glox1 = -1;
 
-	VSMatrix identity(0);
-	GLInterface.SetMatrix(Matrix_ModelView, &identity);
-	GLInterface.SetMatrix(Matrix_Projection, &identity);
-
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(false);
     GLInterface.EnableBlend(false);
