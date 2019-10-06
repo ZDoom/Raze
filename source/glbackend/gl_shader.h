@@ -50,12 +50,15 @@ public:
     FBufferedUniform1f NPOTEmulationFactor;
     FBufferedUniform1f NPOTEmulationXOffset;
     FBufferedUniform1f Brightness;
-    FUniformMatrix4f   RotMatrix;
+	FBufferedUniform4f Fog;
+	FBufferedUniform4f FogColor;
+	FBufferedUniform1f ShadeInterpolate;
+
+	FUniformMatrix4f   RotMatrix;
 	FUniformMatrix4f   ModelMatrix;
 	FUniformMatrix4f   ProjectionMatrix;
 	FUniformMatrix4f   DetailMatrix;
 	FUniformMatrix4f   GlowMatrix;
-	FBufferedUniform1f ShadeInterpolate;
 	
 public:
 

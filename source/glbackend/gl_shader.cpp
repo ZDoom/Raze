@@ -156,14 +156,17 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
     NPOTEmulationFactor.Init(hShader, "u_npotEmulationFactor");
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");
     Brightness.Init(hShader, "u_brightness");
+	ShadeInterpolate.Init(hShader, "u_shadeInterpolate");
+	Fog.Init(hShader, "u_fog");
+	FogColor.Init(hShader, "u_fogColor");
+
     RotMatrix.Init(hShader, "u_rotMatrix");
 	ModelMatrix.Init(hShader, "u_modelMatrix");
 	ProjectionMatrix.Init(hShader, "u_projectionMatrix");
 	DetailMatrix.Init(hShader, "u_detailMatrix");
 	GlowMatrix.Init(hShader, "u_glowMatrix");
 
-    ShadeInterpolate.Init(hShader, "u_shadeInterpolate");
-
+    
 	glUseProgram(hShader);
 
 	int SamplerLoc;

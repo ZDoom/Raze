@@ -274,6 +274,7 @@ public:
 	{
 		renderState.Brightness = 8.f / (brightness + 8.f);
 	}
+
 	
 	FTexture *GetTexture(const char *filename);
 };

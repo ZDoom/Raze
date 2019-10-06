@@ -1,6 +1,4 @@
-#version 120
-
-#extension GL_ARB_uniform_buffer_object:enable
+#version 330
 
 //s_texture points to an indexed color texture
 uniform sampler2D s_texture;
@@ -29,6 +27,8 @@ uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
 uniform float u_shadeInterpolate;
 uniform float u_brightness;
+uniform vec4 u_fog;
+uniform vec4 u_fogColor;
 
 uniform float u_useDetailMapping;
 uniform float u_useGlowMapping;
@@ -36,12 +36,12 @@ uniform float u_useGlowMapping;
 uniform int u_tinteffect;
 uniform vec3 u_tintcolor;
 
-varying vec4 v_color;
-varying float v_distance;
-varying vec4 v_texCoord;
-varying vec4 v_detailCoord;
-varying vec4 v_glowCoord;
-varying float v_fogCoord;
+in vec4 v_color;
+in float v_distance;
+in vec4 v_texCoord;
+in vec4 v_detailCoord;
+in vec4 v_glowCoord;
+in float v_fogCoord;
 
 const float c_basepalScale = 255.0/256.0;
 const float c_basepalOffset = 0.5/256.0;
@@ -51,6 +51,8 @@ const float c_one = 1.0;
 const float c_two = 2.0;
 const vec4 c_vec4_one = vec4(c_one);
 const float c_wrapThreshold = 0.9;
+
+layout(location=0) out vec4 fragColor;
 
 layout(std140) uniform Palette {
 	vec4 palette[256];
@@ -154,7 +156,7 @@ void main()
     colorIndex = c_basepalOffset + c_basepalScale*colorIndex;
     vec4 palettedColorNext = texture2D(s_palette, vec2(colorIndex, c_zero));
     palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac*u_shadeInterpolate);
-    float fullbright = mix(u_usePalette*palettedColor.a, c_zero, u_useColorOnly);
+    float fullbright = mix(u_usePalette*palettedColor.a, c_zero, u_useColorOnly);	// This only gets set for paletted rendering.
     palettedColor.a = c_one-floor(color.r);
     color = mix(color, palettedColor, u_usePalette);
 
@@ -165,24 +167,31 @@ void main()
 		color.rgb *= detailColor.rgb;
 	}
 
+	// should be an 'else' to all the above.
     color = mix(color, c_vec4_one, u_useColorOnly);
 
+	// only relevant for paletted rendering - in true color this requires a fifth color channel (i.e. an external brightmap - work for later) or an overlay (current implementation)
     color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);
 
-    float fogEnabled = mix(u_fogEnabled, c_zero, u_usePalette);
-    fullbright = max(c_one-fogEnabled, fullbright);
-    float fogFactor = clamp((gl_Fog.end-v_fogCoord)*gl_Fog.scale, fullbright, c_one);
-    //float fogFactor = clamp(v_fogCoord, fullbright, c_one);
-    color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);
+	if (u_usePalette == 0.0 && u_fogEnabled != 0.0)// the following would make sense if 'fullbright' could ever be true in non-paletted rendering: && (fullbright != 0.0 || u_fogColor.rgb != vec3(0.0) ))
+	{
+		float fogFactor;
 
-	if (u_useGlowMapping != 0.0)
+		if (u_fog.z == 0) fogFactor = (u_fog.x-v_fogCoord)*u_fog.y;	// linear fog
+ 		else fogFactor = exp2 (u_fog.z * v_fogCoord); 				// exponential fog
+
+		fogFactor = clamp(fogFactor, 0.0, 1.0);
+		color.rgb = mix(u_fogColor.rgb, color.rgb, fogFactor);
+	}
+
+	if (u_useGlowMapping != 0.0 && u_useColorOnly == 0.0)
 	{
 		vec4 glowColor = texture2D(s_glow, v_glowCoord.xy);
-		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a*(c_one-u_useColorOnly));
+		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);
 	}
 	
     color.a *= v_color.a;
     color.rgb = pow(color.rgb, vec3(u_brightness));
 
-    gl_FragData[0] = color;
+    fragColor = color;
 }
