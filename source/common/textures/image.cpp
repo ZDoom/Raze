@@ -100,6 +100,7 @@ FImageSource *DDSImage_TryCreate(FileReader &);
 FImageSource *PCXImage_TryCreate(FileReader &);
 FImageSource *TGAImage_TryCreate(FileReader &);
 FImageSource *ArtImage_TryCreate(FileReader &);
+FImageSource *StbImage_TryCreate(FileReader &);
 
 
 // Examines the lump contents to decide what type of texture to create,
@@ -111,6 +112,7 @@ FImageSource * FImageSource::GetImage(const char *name)
 		{ JPEGImage_TryCreate },
 		{ DDSImage_TryCreate },
 		{ PCXImage_TryCreate },
+		{ StbImage_TryCreate },
 		{ ArtImage_TryCreate },
 		{ nullptr }
 	};
