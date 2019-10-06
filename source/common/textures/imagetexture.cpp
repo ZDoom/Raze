@@ -72,6 +72,7 @@ FImageTexture::FImageTexture(FImageSource *img, const char *name)
 FBitmap FImageTexture::GetBgraBitmap(PalEntry *p, int *trans)
 {
 	FBitmap bmp;
+	bmp.Create(Width, Height);
 	mImage->CopyPixels(&bmp, 0);	// Todo: Handle translations.
 	return bmp;
 }	
