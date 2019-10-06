@@ -136,16 +136,30 @@ vec4 convertColor(vec4 color, int effect, vec3 tint)
 
 void main()
 {
-    float coordY = mix(v_texCoord.y,v_texCoord.x,u_usePalette);
-    float coordX = mix(v_texCoord.x,v_texCoord.y,u_usePalette);
-    float period = floor(coordY/u_npotEmulationFactor);
-    coordX += u_npotEmulationXOffset*floor(mod(coordY,u_npotEmulationFactor));
-    coordY = period+mod(coordY,u_npotEmulationFactor);
-    vec2 newCoord = mix(v_texCoord.xy,mix(vec2(coordX,coordY),vec2(coordY,coordX),u_usePalette),u_npotEmulation);
-    vec2 transitionBlend = fwidth(floor(newCoord.xy));
-    transitionBlend = fwidth(transitionBlend)+transitionBlend;
-    vec2 texCoord = mix(mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend), clamp(newCoord.xy, c_zero, c_one), u_clamp);
-    vec4 color = texture2D(s_texture, texCoord);
+	float coordX = v_texCoord.x;
+	float coordY = v_texCoord.y;
+	vec2 newCoord;
+		
+	// Coordinate adjustment for NPOT textures (something must have gone very wrong to make this necessary...)
+	if (u_npotEmulation != 0.0)
+	{
+		float period = floor(coordY / u_npotEmulationFactor);
+		coordX += u_npotEmulationXOffset * floor(mod(coordY, u_npotEmulationFactor));
+		coordY = period + mod(coordY, u_npotEmulationFactor);
+	}
+	newCoord = vec2(coordX, coordY);
+#if 1
+	if (u_clamp != 0.0) newCoord = clamp(newCoord.xy, 0.0, 1.0);
+#else	
+	// what is this for? The only effect I could observe was a significant degradation of anisotropic filtering.
+	vec2 transitionBlend = fwidth(floor(newCoord.xy));
+	transitionBlend = fwidth(transitionBlend) + transitionBlend;
+		
+	vec2 val1 = mix(fract(newCoord.xy), abs(1.0-mod(newCoord.xy+1.0, 2.0)), transitionBlend);
+	vec2 clampedCoord = clamp(newCoord.xy, 0.0, 1.0);
+	newCoord = mix(val1, clampedCoord, u_clamp);
+#endif
+	vec4 color = texture2D(s_texture, newCoord);
 
     float shade = clamp((u_shade+max(u_visFactor*v_distance-0.5*u_shadeInterpolate,c_zero)), c_zero, u_numShades-c_one);
     float shadeFrac = mod(shade, c_one);
@@ -168,10 +182,10 @@ void main()
 	}
 
 	// should be an 'else' to all the above.
-    color = mix(color, c_vec4_one, u_useColorOnly);
+	color = mix(color, c_vec4_one, u_useColorOnly);
 
 	// only relevant for paletted rendering - in true color this requires a fifth color channel (i.e. an external brightmap - work for later) or an overlay (current implementation)
-    color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);
+    	color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);
 
 	if (u_usePalette == 0.0 && u_fogEnabled != 0.0)// the following would make sense if 'fullbright' could ever be true in non-paletted rendering: && (fullbright != 0.0 || u_fogColor.rgb != vec3(0.0) ))
 	{
@@ -190,8 +204,7 @@ void main()
 		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);
 	}
 	
-    color.a *= v_color.a;
-    color.rgb = pow(color.rgb, vec3(u_brightness));
-
-    fragColor = color;
+	color.a *= v_color.a;
+	color.rgb = pow(color.rgb, vec3(u_brightness));
+	fragColor = color;
 }
