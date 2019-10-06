@@ -35,7 +35,7 @@ void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...);
 //void phex(char v, char *s);
 void uploadtexture(FHardwareTexture *tex, int32_t doalloc, vec2_t siz, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
 void uploadbasepalette(int32_t basepalnum, bool transient = false);
-void uploadpalswap(int32_t palookupnum);
+void uploadpalswaps(int count, int32_t *palookupnum);
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,

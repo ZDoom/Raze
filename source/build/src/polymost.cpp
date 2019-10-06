@@ -366,6 +366,7 @@ static void polymost_bindPth(pthtyp const* const pPth, int sampler)
 
 
 FileReader GetBaseResource(const char* fn);
+void uploadpalswap(int32_t palookupnum);
 
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
@@ -712,6 +713,15 @@ void uploadbasepalette(int32_t basepalnum, bool transient)	// transient palettes
 		p->SetSampler(Sampler2DNoFilter);
     }
 	paletteTextureIDs[basepalnum]->LoadTexture(basepalWFullBrightInfo); // RGBA
+}
+
+// Used by RRRA fog hackery - the only place changing the palswaps at run time.
+void uploadpalswaps(int count, int32_t* swaps)
+{
+	for (int i = 0; i < count; i++)
+	{
+		uploadpalswap(i);
+	}
 }
 
 void uploadpalswap(int32_t palookupnum)

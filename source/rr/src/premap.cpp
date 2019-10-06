@@ -2688,12 +2688,9 @@ void G_SetFog(int fogtype)
                 fogtable[i].b = palookupfog[i].b * (1.f/255.f);
                 fogtable[i].a = 0;
             }
-            gltexinvalidatetype(INVALIDATE_ALL_NON_INDEXED);
-            uploadpalswap(0);
-            uploadpalswap(30);
-            uploadpalswap(33);
-            uploadpalswap(23);
-            uploadpalswap(8);
+            //gltexinvalidatetype(INVALIDATE_ALL_NON_INDEXED);
+			static int swaps[] = { 0, 30, 33, 23, 8 };
+            uploadpalswaps(5, swaps);
         }
 #endif
     }
