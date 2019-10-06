@@ -1266,16 +1266,14 @@ bool CGameMenuItemKeyList::Event(CGameMenuEvent &event)
             pCallback(this);
         Scan();
         return false;
+    case kMenuEventBackSpace:
     case kMenuEventDelete:
-        if (keystatus[sc_LeftControl] || keystatus[sc_RightControl])
-        {
-            uint8_t oldKey[2];
-            oldKey[0] = KeyboardKeys[nFocus][0];
-            oldKey[1] = KeyboardKeys[nFocus][1];
-            KeyboardKeys[nFocus][0] = 0;
-            KeyboardKeys[nFocus][1] = 0;
-            CONFIG_MapKey(nFocus, 0, oldKey[0], 0, oldKey[1]);
-        }
+        uint8_t oldKey[2];
+        oldKey[0] = KeyboardKeys[nFocus][0];
+        oldKey[1] = KeyboardKeys[nFocus][1];
+        KeyboardKeys[nFocus][0] = 0;
+        KeyboardKeys[nFocus][1] = 0;
+        CONFIG_MapKey(nFocus, 0, oldKey[0], 0, oldKey[1]);
         return false;
     case kMenuEventScrollUp:
         if (nFocus-nTopDelta > 0)
