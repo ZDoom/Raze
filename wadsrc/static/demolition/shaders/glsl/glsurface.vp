@@ -1,9 +1,9 @@
-#version 110
+#version 330
  
 attribute vec4 i_vertPos;
 attribute vec2 i_texCoord;
 
-varying vec2 v_texCoord;
+out vec2 v_texCoord;
 
 void main()
 {

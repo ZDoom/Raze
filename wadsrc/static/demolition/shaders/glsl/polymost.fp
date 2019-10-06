@@ -38,6 +38,10 @@ uniform vec3 u_tintcolor;
 
 varying vec4 v_color;
 varying float v_distance;
+varying vec4 v_texCoord;
+varying vec4 v_detailCoord;
+varying vec4 v_glowCoord;
+varying float v_fogCoord;
 
 const float c_basepalScale = 255.0/256.0;
 const float c_basepalOffset = 0.5/256.0;
@@ -130,12 +134,12 @@ vec4 convertColor(vec4 color, int effect, vec3 tint)
 
 void main()
 {
-    float coordY = mix(gl_TexCoord[0].y,gl_TexCoord[0].x,u_usePalette);
-    float coordX = mix(gl_TexCoord[0].x,gl_TexCoord[0].y,u_usePalette);
+    float coordY = mix(v_texCoord.y,v_texCoord.x,u_usePalette);
+    float coordX = mix(v_texCoord.x,v_texCoord.y,u_usePalette);
     float period = floor(coordY/u_npotEmulationFactor);
     coordX += u_npotEmulationXOffset*floor(mod(coordY,u_npotEmulationFactor));
     coordY = period+mod(coordY,u_npotEmulationFactor);
-    vec2 newCoord = mix(gl_TexCoord[0].xy,mix(vec2(coordX,coordY),vec2(coordY,coordX),u_usePalette),u_npotEmulation);
+    vec2 newCoord = mix(v_texCoord.xy,mix(vec2(coordX,coordY),vec2(coordY,coordX),u_usePalette),u_npotEmulation);
     vec2 transitionBlend = fwidth(floor(newCoord.xy));
     transitionBlend = fwidth(transitionBlend)+transitionBlend;
     vec2 texCoord = mix(mix(fract(newCoord.xy), abs(c_one-mod(newCoord.xy+c_one, c_two)), transitionBlend), clamp(newCoord.xy, c_zero, c_one), u_clamp);
@@ -156,7 +160,7 @@ void main()
 
 	if (u_useDetailMapping != 0.0)
 	{
-		vec4 detailColor = texture2D(s_detail, gl_TexCoord[3].xy);
+		vec4 detailColor = texture2D(s_detail, v_detailCoord.xy);
 		detailColor = mix(c_vec4_one, 2.0*detailColor, detailColor.a);
 		color.rgb *= detailColor.rgb;
 	}
@@ -167,13 +171,13 @@ void main()
 
     float fogEnabled = mix(u_fogEnabled, c_zero, u_usePalette);
     fullbright = max(c_one-fogEnabled, fullbright);
-    float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, fullbright, c_one);
-    //float fogFactor = clamp(gl_FogFragCoord, fullbright, c_one);
+    float fogFactor = clamp((gl_Fog.end-v_fogCoord)*gl_Fog.scale, fullbright, c_one);
+    //float fogFactor = clamp(v_fogCoord, fullbright, c_one);
     color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);
 
 	if (u_useGlowMapping != 0.0)
 	{
-		vec4 glowColor = texture2D(s_glow, gl_TexCoord[4].xy);
+		vec4 glowColor = texture2D(s_glow, v_glowCoord.xy);
 		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a*(c_one-u_useColorOnly));
 	}
 	

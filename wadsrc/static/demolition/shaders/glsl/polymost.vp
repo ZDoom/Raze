@@ -2,6 +2,10 @@
 
 varying vec4 v_color;
 varying float v_distance;
+varying vec4 v_texCoord;
+varying vec4 v_detailCoord;
+varying vec4 v_glowCoord;
+varying float v_fogCoord;
 
 uniform float u_usePalette;
 uniform mat4 u_rotMatrix;
@@ -21,13 +25,13 @@ void main()
 
    eyeCoordPosition.xyz /= eyeCoordPosition.w;
 
-   gl_TexCoord[0] = gl_MultiTexCoord0;
+   v_texCoord = gl_MultiTexCoord0;
    //gl_TexCoord[0] = mix(gl_TexCoord[0].xyzw, gl_TexCoord[0].yxzw, u_usePalette); WTF is this???
 
-   gl_TexCoord[3] = u_detailMatrix * gl_MultiTexCoord0;
-   gl_TexCoord[4] = u_glowMatrix * gl_MultiTexCoord0;
+   v_detailCoord = u_detailMatrix * gl_MultiTexCoord0;
+   v_glowCoord = u_glowMatrix * gl_MultiTexCoord0;
 
-   gl_FogFragCoord = abs(eyeCoordPosition.z);
+   v_fogCoord = abs(eyeCoordPosition.z);
 
    v_color = gl_Color;
    v_distance = gl_Vertex.z;
