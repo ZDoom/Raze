@@ -242,8 +242,8 @@ void GLInstance::SetPalswap(int index)
 {
 	float v1 = index * renderState.PalswapSize[0];
 	float v2 = floorf(v1);
-	renderState.PalswapPos[0] = renderState.PalswapPos[0] - renderState.PalswapPos[1] + (0.5f / PALSWAP_TEXTURE_SIZE);
-	renderState.PalswapPos[1] = renderState.PalswapPos[1] * renderState.PalswapSize[1] + (0.5f / PALSWAP_TEXTURE_SIZE);
+	renderState.PalswapPos[0] = v1 - v2 + (0.5f / PALSWAP_TEXTURE_SIZE);
+	renderState.PalswapPos[1] = v2 * renderState.PalswapSize[1] + (0.5f / PALSWAP_TEXTURE_SIZE);
 }
 
 
