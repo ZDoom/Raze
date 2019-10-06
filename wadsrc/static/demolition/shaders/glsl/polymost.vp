@@ -1,11 +1,11 @@
-#version 120
+#version 330
 
-varying vec4 v_color;
-varying float v_distance;
-varying vec4 v_texCoord;
-varying vec4 v_detailCoord;
-varying vec4 v_glowCoord;
-varying float v_fogCoord;
+out vec4 v_color;
+out float v_distance;
+out vec4 v_texCoord;
+out vec4 v_detailCoord;
+out vec4 v_glowCoord;
+out float v_fogCoord;
 
 uniform float u_usePalette;
 uniform mat4 u_rotMatrix;
@@ -14,25 +14,30 @@ uniform mat4 u_projectionMatrix;
 uniform mat4 u_detailMatrix;
 uniform mat4 u_glowMatrix;
 
+in vec4 i_vertPos;
+in vec4 i_texCoord;
+in vec4 i_color;
+
+
 const float c_zero = 0.0;
 const float c_one  = 1.0;
 
 void main()
 {
-   vec4 vertex = u_rotMatrix * gl_Vertex;
+   vec4 vertex = u_rotMatrix * i_vertPos;
    vec4 eyeCoordPosition = u_modelMatrix * vertex;
    gl_Position = u_projectionMatrix * eyeCoordPosition;
 
    eyeCoordPosition.xyz /= eyeCoordPosition.w;
 
-   v_texCoord = gl_MultiTexCoord0;
+   v_texCoord = i_texCoord;
    //gl_TexCoord[0] = mix(gl_TexCoord[0].xyzw, gl_TexCoord[0].yxzw, u_usePalette); WTF is this???
 
-   v_detailCoord = u_detailMatrix * gl_MultiTexCoord0;
-   v_glowCoord = u_glowMatrix * gl_MultiTexCoord0;
+   v_detailCoord = u_detailMatrix * i_texCoord;
+   v_glowCoord = u_glowMatrix * i_texCoord;
 
    v_fogCoord = abs(eyeCoordPosition.z);
 
-   v_color = gl_Color;
-   v_distance = gl_Vertex.z;
+   v_color = i_color;
+   v_distance = i_vertPos.z;
 }

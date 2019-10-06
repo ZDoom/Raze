@@ -71,10 +71,9 @@ bool FShader::Load(const char * name, const char * vert_prog, const char * frag_
 	glAttachShader(hShader, hVertProg);
 	glAttachShader(hShader, hFragProg);
 
-	//glBindAttribLocation(hShader, VATTR_VERTEX, "aPosition");
-	//glBindAttribLocation(hShader, VATTR_TEXCOORD, "aTexCoord");
-	//glBindAttribLocation(hShader, VATTR_COLOR, "aColor");
-	//glBindAttribLocation(hShader, VATTR_VERTEX2, "aVertex2");
+	glBindAttribLocation(hShader, 0, "i_vertPos");
+	glBindAttribLocation(hShader, 1, "i_texCoord");
+	glBindAttribLocation(hShader, 2, "i_color");
 
 	glLinkProgram(hShader);
 
@@ -200,10 +199,7 @@ bool SurfaceShader::Load(const char* name, const char* vert_prog, const char* fr
 	glUniform1i(SamplerLoc, 0);
 	SamplerLoc = glGetUniformLocation(hShader, "s_palette");
 	glUniform1i(SamplerLoc, 1);
-
-	glBindAttribLocation(hShader, 0, "i_vertPos");
-	glBindAttribLocation(hShader, 1, "i_texCoord");
-
+	
 	glUseProgram(0);
 	return true;
 }

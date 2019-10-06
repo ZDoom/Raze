@@ -6,6 +6,7 @@ uniform sampler2D s_texture;
 uniform sampler2D s_palette;
 
 in vec2 v_texCoord;
+out vec4 FragColor;
 
 const float c_paletteScale = 255.0/256.0;
 const float c_paletteOffset = 0.5/256.0;
@@ -16,5 +17,5 @@ void main()
  color.r = c_paletteOffset + c_paletteScale*color.r;
  color.rgb = texture2D(s_palette, color.rg).rgb;
  
- gl_FragColor = color;
+ FragColor = color;
 }

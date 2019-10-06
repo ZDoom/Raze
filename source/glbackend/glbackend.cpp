@@ -172,8 +172,8 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	auto p = &Buffer[start];
 	for (size_t i = 0; i < count; i++, p++)
 	{
-		glTexCoord2f(p->u, p->v);
-		glVertex3f(p->x, p->y, p->z);
+		glVertexAttrib2f(1, p->u, p->v);
+		glVertexAttrib3f(0, p->x, p->y, p->z);
 	}
 	glEnd();
 }
@@ -315,7 +315,7 @@ void GLInstance::SetCull(int type, int winding)
 
 void GLInstance::SetColor(float r, float g, float b, float a)
 {
-	glColor4f(r, g, b, a);
+	glVertexAttrib4f(2, r, g, b, a);
 }
 
 void GLInstance::SetDepthFunc(int func)
