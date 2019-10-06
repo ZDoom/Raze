@@ -1,4 +1,4 @@
-#version 110
+#version 120
 
 varying vec4 v_color;
 varying float v_distance;
@@ -17,8 +17,8 @@ void main()
 
    eyeCoordPosition.xyz /= eyeCoordPosition.w;
 
-   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-   gl_TexCoord[0] = mix(gl_TexCoord[0].xyzw, gl_TexCoord[0].yxzw, u_usePalette);
+   gl_TexCoord[0] = gl_MultiTexCoord0;
+   //gl_TexCoord[0] = mix(gl_TexCoord[0].xyzw, gl_TexCoord[0].yxzw, u_usePalette); WTF is this???
 
    gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord0;
    gl_TexCoord[4] = gl_TextureMatrix[4] * gl_MultiTexCoord0;

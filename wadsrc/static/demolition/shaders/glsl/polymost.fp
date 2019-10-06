@@ -1,7 +1,6 @@
-#version 110
+#version 120
 
-//include an additional space here so that we can programmatically search for and disable this preprocessor definition easily
- #define POLYMOST1_EXTENDED
+#extension GL_ARB_uniform_buffer_object:enable
 
 //s_texture points to an indexed color texture
 uniform sampler2D s_texture;
@@ -34,6 +33,9 @@ uniform float u_brightness;
 uniform float u_useDetailMapping;
 uniform float u_useGlowMapping;
 
+uniform int u_tinteffect;
+uniform vec3 u_tintcolor;
+
 varying vec4 v_color;
 varying float v_distance;
 
@@ -46,6 +48,13 @@ const float c_two = 2.0;
 const vec4 c_vec4_one = vec4(c_one);
 const float c_wrapThreshold = 0.9;
 
+layout(std140) uniform Palette {
+	vec4 palette[256];
+};
+
+layout(std140) uniform Palswap {
+	int palswap[256];
+};
 
 //===========================================================================
 //
