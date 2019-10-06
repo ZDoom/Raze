@@ -904,8 +904,9 @@ void LocalKeys(void)
             break;
         case sc_F8:
             keyFlushScans();
-            gGameMenuMgr.Push(&menuOptions,-1);
-            break;
+            if (!gGameMenuMgr.m_bActive)
+                gGameMenuMgr.Push(&menuOptionsDisplayMode, -1);
+            return;
         case sc_F9:
             keyFlushScans();
             DoQuickLoad();
