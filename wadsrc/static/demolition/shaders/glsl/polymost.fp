@@ -54,14 +54,6 @@ const float c_wrapThreshold = 0.9;
 
 layout(location=0) out vec4 fragColor;
 
-layout(std140) uniform Palette {
-	vec4 palette[256];
-};
-
-layout(std140) uniform Palswap {
-	int palswap[256];
-};
-
 //===========================================================================
 //
 // Color to grayscale
@@ -152,17 +144,9 @@ void main()
 			coordY = period + mod(coordY, u_npotEmulationFactor);
 		}
 		newCoord = vec2(coordX, coordY);
-#if 1
 		if (u_clamp != 0.0) newCoord = clamp(newCoord.xy, 0.0, 1.0);
-#else	
-		// what is this for? The only effect I could observe was a significant degradation of anisotropic filtering.
-		vec2 transitionBlend = fwidth(floor(newCoord.xy));
-		transitionBlend = fwidth(transitionBlend) + transitionBlend;
-		
-		vec2 val1 = mix(fract(newCoord.xy), abs(1.0-mod(newCoord.xy+1.0, 2.0)), transitionBlend);
-		vec2 clampedCoord = clamp(newCoord.xy, 0.0, 1.0);
-		newCoord = mix(val1, clampedCoord, u_clamp);
-#endif
+
+		// Paletted textures are stored in column major order rather than row major so coordinates need to be swapped here.
 		color = texture2D(s_texture, newCoord);
 
 		// This was further down but it really should be done before applying any kind of depth fading, not afterward.
@@ -171,12 +155,13 @@ void main()
 		{
 			detailColor = texture2D(s_detail, v_detailCoord.xy);
 			detailColor = mix(vec4(1.0), 2.0 * detailColor, detailColor.a);
-			// Application of this differs of render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
+			// Application of this differs based on render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
 		}
-		
+
 		float visibility = max(u_visFactor * v_distance - 0.5 * u_shadeInterpolate, 0.0);
 		float shade = clamp((u_shade + visibility), 0.0, u_numShades - 1.0);
 		
+
 		if (u_usePalette != 0.0)
 		{
 			// Get the shaded palette index
@@ -189,13 +174,14 @@ void main()
 				// Get the next shaded palette index for interpolation
 				colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, (floor(shade)+1.0)/u_numShades)).r;
 				colorIndex = c_basepalOffset + c_basepalScale*colorIndex;	// this is for compensating roundoff errors.
-	    			vec4 palettedColorNext = texture2D(s_palette, vec2(colorIndex, c_zero));
+				vec4 palettedColorNext = texture2D(s_palette, vec2(colorIndex, c_zero));
 				float shadeFrac = mod(shade, 1.0);
-				palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac*u_shadeInterpolate);
+				palettedColor.rgb = mix(palettedColorNext.rgb, palettedColor.rgb, shadeFrac);
 			}
+			
 			fullbright = palettedColor.a;	// This only gets set for paletted rendering.
-	    		palettedColor.a = c_one-floor(color.r);
-	    		color = mix(color, palettedColor, u_usePalette);
+	   		palettedColor.a = c_one-floor(color.r);
+	   		color = palettedColor.bgra;
 			color.rgb *= detailColor.rgb;	// with all this palettizing, this can only be applied afterward, even though it is wrong to do it this way.
 		}
 		else
