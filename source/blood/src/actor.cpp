@@ -6880,7 +6880,7 @@ bool actCheckRespawn(spritetype *pSprite)
             pSprite->owner = pSprite->statnum;
             actPostSprite(pSprite->index, 8);
             pSprite->flags |= 16;
-            if (pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
+            if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
             {
                 pSprite->cstat &= ~257;
                 pSprite->x = baseSprite[nSprite].x;
