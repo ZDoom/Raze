@@ -122,6 +122,7 @@ unsigned PaletteManager::FindPalette(const uint8_t *paldata)
 
 unsigned PaletteManager::FindPalswap(const uint8_t* paldata)
 {
+	if (paldata == nullptr) return 0;
 	auto crc32 = CalcCRC32(paldata, 256 * numshades);
 	for (unsigned int i = 0; i < palswaps.Size(); i++)
 	{
