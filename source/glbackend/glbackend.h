@@ -22,6 +22,7 @@ struct PaletteData
 	PalEntry colors[256];
 	float shades[512];	// two values (addshade and mulshade for each palswap.)
 	bool shadesdone;
+	int whiteindex, blackindex;
 	FHardwareTexture* paltexture;
 };
 

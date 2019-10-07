@@ -35,10 +35,7 @@
 
 #include <memory>
 #include "m_crc32.h"
-#include "glad/glad.h"
 #include "glbackend.h"
-#include "gl_samplers.h"
-#include "gl_shader.h"
 
 #include "baselayer.h"
 #include "resourcefile.h"
@@ -214,12 +211,27 @@ void PaletteManager::BindPalette(int index)
 
 void PaletteManager::SetPalswapData(int index, const uint8_t* data, int numshades_)
 {
-	// New palettes may only be added if declared transient or on startup. 
-	// Otherwise this would require a renderer reset to flush out the textures affected by the change.
-
 	if (index < 0 || index > 255) return;	// invalid index - ignore.
 	numshades = numshades_;
 	palswapmap[index] = FindPalswap(data);
+
+	if (palswapTexture == nullptr)
+	{
+		palswapTexture = inst->NewTexture();
+		palswapTexture->CreateTexture(PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, true, false);
+		palswapTexture->SetSampler(Sampler2DNoFilter);
+	}
+	else inst->UnbindTexture(1);	// Unbind for updating.
+
+	int32_t column = index % (PALSWAP_TEXTURE_SIZE / 256);
+	int32_t row = index / (PALSWAP_TEXTURE_SIZE / 256);
+	int32_t rowOffset = (numshades + 1) * row;
+	if (rowOffset > PALSWAP_TEXTURE_SIZE)
+	{
+		OSD_Printf("Polymost: palswaps are too large for palswap tilesheet!\n");
+		return;
+	}
+	palswapTexture->LoadTexturePart(data, 256 * column, rowOffset, 256, numshades + 1);
 
 }
 
@@ -231,7 +243,6 @@ void PaletteManager::SetPalswapData(int index, const uint8_t* data, int numshade
 
 void PaletteManager::UpdatePalswaps(int width, int height)
 {
-	if (palswapTexture) delete palswapTexture;
 	for (auto& pal : palettes)
 	{
 		pal.shadesdone = false;
@@ -245,72 +256,5 @@ void PaletteManager::UpdatePalswaps(int width, int height)
 								  (height - 1) * (1.f / PALSWAP_TEXTURE_SIZE) };
 
 	inst->SetPalswapSize(&polymost1PalswapInnerSize.x);
-
+	inst->BindTexture(1, palswapTexture);
 }
-
-
-void GLInstance::SetPalswap(int index)
-{
-	float v1 = index * renderState.PalswapSize[0];
-	float v2 = floorf(v1);
-	renderState.PalswapPos[0] = v1 - v2 + (0.5f / PALSWAP_TEXTURE_SIZE);
-	renderState.PalswapPos[1] = v2 * renderState.PalswapSize[1] + (0.5f / PALSWAP_TEXTURE_SIZE);
-}
-
-
-#if 0
-
-static void polymost_setPalswapSize(uint32_t width, uint32_t height)
-{
-	if (currentShaderProgramID != polymost1CurrentShaderProgramID)
-		return;
-
-}
-
-
-#endif
-
-// No point porting this, it's too much work for a short lived solution.
-#if 0
-char allocateTexture = !palswapTextureID;
-if (allocateTexture)
-{
-	G etTextureHandle(&palswapTextureID);
-}
-g lBindTexture(GL _TEXTURE_2D, palswapTextureID);
-if (allocateTexture)
-{
-	g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_BASE_LEVEL, 0);
-	g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MAX_LEVEL, 0);
-	g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MAG_FILTER, GL _NEAREST);
-	g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MIN_FILTER, GL _NEAREST);
-	g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_MAX_ANISOTROPY_EXT, 1);
-	g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_WRAP_S, GL _CLAMP_TO_EDGE);
-	g lTexParameteri(GL _TEXTURE_2D, GL _TEXTURE_WRAP_T, GL _CLAMP_TO_EDGE);
-	g lTexImage2D(GL _TEXTURE_2D, 0, GL _RED, PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, 0, GL _RED, GL _UNSIGNED_BYTE, NULL);
-}
-
-int32_t column = palookupnum % (PALSWAP_TEXTURE_SIZE / 256);
-int32_t row = palookupnum / (PALSWAP_TEXTURE_SIZE / 256);
-int32_t rowOffset = (numshades + 1) * row;
-if (rowOffset > PALSWAP_TEXTURE_SIZE)
-{
-	OSD_Printf("Polymost: palswaps are too large for palswap tilesheet!\n");
-	return;
-}
-g lTexSubImage2D(GL _TEXTURE_2D, 0, 256 * column, rowOffset, 256, numshades + 1, GL _RED, GL _UNSIGNED_BYTE, palookup[palookupnum]);
-
-polymost_setPalswapSize(256, numshades + 1);
-
-static void polymost_updatePalette()
-{
-	if (videoGetRenderMode() != REND_POLYMOST)
-	{
-		return;
-	}
-
-	polymost_setPalswap(globalpal);
-	polymost_setShade(globalshade);
-
-}
-#endif

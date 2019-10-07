@@ -64,30 +64,41 @@ unsigned int FHardwareTexture::CreateTexture(int w, int h, bool eightbit, bool m
 //
 //===========================================================================
 
-unsigned int FHardwareTexture::LoadTexture(unsigned char * buffer)
+unsigned int FHardwareTexture::LoadTexture(const unsigned char * buffer)
+{
+	return LoadTexturePart(buffer, 0, 0, mWidth, mHeight);
+}
+
+unsigned int FHardwareTexture::LoadTexture(FBitmap& bmp)
+{
+	return LoadTexture(bmp.GetPixels());
+}
+
+//===========================================================================
+// 
+//	Loads the texture image into the hardware
+//
+//===========================================================================
+
+unsigned int FHardwareTexture::LoadTexturePart(const unsigned char* buffer, int x, int y, int w, int h)
 {
 	if (glTexID == 0) return 0;
 
-	int dstformat = glTextureBytes == 1? GL_R8 : GL_RGBA8;// TexFormat[gl_texture_format];
+	int dstformat = glTextureBytes == 1 ? GL_R8 : GL_RGBA8;// TexFormat[gl_texture_format];
 	int srcformat = glTextureBytes == 1 ? GL_RED : GL_BGRA;// TexFormat[gl_texture_format];
 
 	glActiveTexture(GL_TEXTURE15);
 	glBindTexture(GL_TEXTURE_2D, glTexID);
 
 	if (glTextureBytes < 4) glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mWidth, mHeight, srcformat, GL_UNSIGNED_BYTE, buffer);
+
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, srcformat, GL_UNSIGNED_BYTE, buffer);
 	if (mipmapped) glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glActiveTexture(GL_TEXTURE0);
 	if (glTextureBytes < 4) glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	return glTexID;
-}
-
-unsigned int FHardwareTexture::LoadTexture(FBitmap& bmp)
-{
-	return LoadTexture(bmp.GetPixels());
 }
 
 //===========================================================================
