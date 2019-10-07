@@ -26,6 +26,8 @@ int32_t rendmode=0;
 int32_t usemodels=1;
 int32_t usehightile=1;
 
+int fixpalette = 0, fixpalswap = 0;
+
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 2048 //<- careful!
 static vsptyp vsp[VSPMAX];
@@ -225,9 +227,13 @@ void gltexapplyprops(void)
 			glanisotropy = (int32_t)GLInterface.glinfo.maxanisotropy;
 	}
 
-
+#if 1
+	GLInterface.mSamplers->SetTextureFilterMode(0, 1);
+	r_useindexedcolortextures = true;// !gltexfiltermode;
+#else
 	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
-    r_useindexedcolortextures = !gltexfiltermode;
+	r_useindexedcolortextures = false;// !gltexfiltermode;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -367,7 +373,7 @@ FileReader GetBaseResource(const char* fn);
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
-	globalflags |= GLOBAL_NO_GL_TILESHADES; // This re-enables the old fading logic without re-adding the r_usetileshades variable. The entire thing will have to be done on a more abstract level anyway.
+	//globalflags |= GLOBAL_NO_GL_TILESHADES; // This re-enables the old fading logic without re-adding the r_usetileshades variable. The entire thing will have to be done on a more abstract level anyway.
 
 	for (int basepalnum = 0; basepalnum < MAXBASEPALS; ++basepalnum)
     {
@@ -728,6 +734,18 @@ static void polymost_setuptexture(FHardwareTexture *tex, const int32_t dameth, i
     }
 }
 
+template<class T>
+void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
+{
+	for (int i = 0; i < x; ++i)
+	{
+		for (int j = 0; j < y; ++j)
+		{
+			dst[i * y + j] = src[i + j * srcpitch];
+		}
+	}
+}
+
 static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     vec2_16_t const & tsizart = tilesiz[dapic];
@@ -747,7 +765,10 @@ static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp *pth, in
 			pth->glpic->SetSampler(SamplerNoFilter);
 			polymost_setuptexture(pth->glpic, dameth, 0);
         }
-		pth->glpic->LoadTexture((uint8_t*)waloff[dapic]); // Indexed
+		TArray<uint8_t> flipped(siz.x*siz.y, true);
+		FlipNonSquareBlock(flipped.Data(), (uint8_t*)waloff[dapic], siz.y, siz.x, siz.y);
+
+		pth->glpic->LoadTexture(flipped.Data());
     }
     else
     {
@@ -1110,9 +1131,9 @@ static void polymost_updatePalette()
         return;
     }
 
-	GLInterface.SetPalswap(globalpal);
+	GLInterface.SetPalswap(fixpalswap >= 1? fixpalswap-1 : globalpal);
 	GLInterface.SetShade(globalshade, numshades);
-	GLInterface.SetPalette(curbasepal);
+	GLInterface.SetPalette(fixpalette >= 1? fixpalette-1 : curbasepal);
 }
 
 
@@ -6755,6 +6776,8 @@ void polymost_initosdfuncs(void)
 		  (void*)& r_usenewshading, CVAR_INT | CVAR_FUNCPTR, 0, 4},
         { "r_yshearing", "enable/disable y-shearing", (void*) &r_yshearing, CVAR_BOOL, 0, 1 },
         { "r_flatsky", "enable/disable flat skies", (void*)& r_flatsky, CVAR_BOOL, 0, 1 },
+		{ "fixpalette", "", (void*)& fixpalette, CVAR_INT, 0, 256 },
+		{ "fixpalswap", "", (void*)& fixpalswap, CVAR_INT, 0, 256 },
 
     };
 
