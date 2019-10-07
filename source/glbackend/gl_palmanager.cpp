@@ -221,7 +221,6 @@ void PaletteManager::SetPalswapData(int index, const uint8_t* data, int numshade
 		palswapTexture->CreateTexture(PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, true, false);
 		palswapTexture->SetSampler(Sampler2DNoFilter);
 	}
-	else inst->UnbindTexture(1);	// Unbind for updating.
 
 	int32_t column = index % (PALSWAP_TEXTURE_SIZE / 256);
 	int32_t row = index / (PALSWAP_TEXTURE_SIZE / 256);
