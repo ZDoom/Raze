@@ -176,7 +176,7 @@ void main()
 				colorIndex = c_basepalOffset + c_basepalScale*colorIndex;	// this is for compensating roundoff errors.
 				vec4 palettedColorNext = texture2D(s_palette, vec2(colorIndex, c_zero));
 				float shadeFrac = mod(shade, 1.0);
-				palettedColor.rgb = mix(palettedColorNext.rgb, palettedColor.rgb, shadeFrac);
+				palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac);
 			}
 			
 			fullbright = palettedColor.a;	// This only gets set for paletted rendering.
