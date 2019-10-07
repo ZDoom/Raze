@@ -744,16 +744,24 @@ void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 	}
 }
 
-static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp *pth, int32_t doalloc)
+TArray<uint8_t> emptiness;
+static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
 {
-    vec2_16_t const & tsizart = tilesiz[dapic];
-    vec2_t siz = { tsizart.x, tsizart.y };
-    //POGOTODO: npoty
-    char npoty = 0;
+	vec2_16_t const& tsizart = tilesiz[dapic];
+	vec2_t siz = { tsizart.x, tsizart.y };
+	//POGOTODO: npoty
+	char npoty = 0;
 
-    //POGOTODO: if !glinfo.texnpot, then we could allocate a texture of the pow2 size, and then populate the subportion using buffersubdata func
+	//POGOTODO: if !glinfo.texnpot, then we could allocate a texture of the pow2 size, and then populate the subportion using buffersubdata func
 
-    if (waloff[dapic])
+	uint8_t *p = (uint8_t*)waloff[dapic];
+	if (!waloff[dapic])
+	{
+		emptiness.Resize(siz.x*siz.y);
+		memset(emptiness.Data(), 255, siz.x * siz.y);
+		p = emptiness.Data();
+
+	}
     {
         if (doalloc)
         {
@@ -764,14 +772,11 @@ static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp *pth, in
 			polymost_setuptexture(pth->glpic, dameth, 0);
         }
 		TArray<uint8_t> flipped(siz.x*siz.y, true);
-		FlipNonSquareBlock(flipped.Data(), (uint8_t*)waloff[dapic], siz.y, siz.x, siz.y);
+		FlipNonSquareBlock(flipped.Data(), p, siz.y, siz.x, siz.y);
 
 		pth->glpic->LoadTexture(flipped.Data());
     }
-    else
-    {
-		assert(false);
-    }
+
 
     pth->picnum = dapic;
     pth->palnum = 0;
