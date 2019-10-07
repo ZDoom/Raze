@@ -140,19 +140,19 @@ void CKillMgr::sub_263E0(int nCount)
 
 void CKillMgr::AddKill(spritetype *pSprite)
 {
-    if (pSprite->statnum == 6 && pSprite->type != 219 && pSprite->type != 220 && pSprite->type != 245 && pSprite->type != 239)
+    if (pSprite->statnum == kStatDude && pSprite->type != 219 && pSprite->type != 220 && pSprite->type != 245 && pSprite->type != 239)
         at4++;
 }
 
 void CKillMgr::sub_2641C(void)
 {
     at0 = 0;
-    for (int nSprite = headspritestat[6]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
             ThrowError("Non-enemy sprite (%d) in the enemy sprite list.", nSprite);
-        if (pSprite->statnum == 6 && pSprite->type != 219 && pSprite->type != 220 && pSprite->type != 245 && pSprite->type != 239)
+        if (pSprite->statnum == kStatDude && pSprite->type != 219 && pSprite->type != 220 && pSprite->type != 245 && pSprite->type != 239)
             at0++;
     }
 }

@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "loadsave.h"
 #include "pqueue.h"
 #include "triggers.h"
+#include "view.h"
 
 BEGIN_BLD_NS
 
@@ -360,55 +361,50 @@ char evGetSourceState(int nType, int nIndex)
 
 void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 {
-    if (command == COMMAND_ID_2)
-        command = evGetSourceState(nType, nIndex) ? COMMAND_ID_1 : COMMAND_ID_0;
-    else if (command == COMMAND_ID_4)
-        command = evGetSourceState(nType, nIndex) ? COMMAND_ID_0 : COMMAND_ID_1;
-    EVENT evn;
-    evn.index = nIndex;
-    evn.type = nType;
-    evn.cmd = command;
-    if (rxId > 0)
-    {
-        switch (rxId)
-        {
-        case 7:
-        case 10:
+    EVENT event; event.index = nIndex; event.type = nType; event.cmd = command;
+    
+    switch (command) {
+        case COMMAND_ID_2:
+            command = evGetSourceState(nType, nIndex) ? COMMAND_ID_1 : COMMAND_ID_0;
             break;
-        case 3:
-            if (command < COMMAND_ID_64)
-                ThrowError("Invalid TextOver command by xobject %d(type %d)", nIndex, nType);
-            trTextOver(command-COMMAND_ID_64);
+        case COMMAND_ID_4:
+            command = evGetSourceState(nType, nIndex) ? COMMAND_ID_0 : COMMAND_ID_1;
+            break;
+    }
+    
+    switch (rxId) {
+        case kChannelTextOver:
+            if (command >= COMMAND_ID_64) trTextOver(command - COMMAND_ID_64);
+            else viewSetSystemMessage("Invalid TextOver command by xobject #%d (object type %d)", nIndex, nType);
             return;
-        case 4:
+        case kChannelLevelExitNormal:
             levelEndLevel(0);
             return;
-        case 5:
+        case kChannelLevelExitSecret:
             levelEndLevel(1);
             return;
         // By NoOne: finished level and load custom level ¹ via numbered command.
-        case kGDXChannelEndLevelCustom:
-            levelEndLevelCustom(command - 64);
+        case kChannelModernEndLevelCustom:
+            if (command >= COMMAND_ID_64) levelEndLevelCustom(command - COMMAND_ID_64);
+            else viewSetSystemMessage("Invalid Level-Exit# command by xobject #%d (object type %d)", nIndex, nType);
             return;
-        case 1:
-            if (command < COMMAND_ID_64)
-                ThrowError("Invalid SetupSecret command by xobject %d(type %d)", nIndex, nType);
-            levelSetupSecret(command - COMMAND_ID_64);
+        case kChannelSetTotalSecrets:
+            if (command >= COMMAND_ID_64) levelSetupSecret(command - COMMAND_ID_64);
+            else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
             break;
-        case 2:
-            if (command < COMMAND_ID_64)
-                ThrowError("Invalid Secret command by xobject %d(type %d)", nIndex, nType);
-            levelTriggerSecret(command - COMMAND_ID_64);
+        case kChannelSecretFound:
+            if (command >= COMMAND_ID_64) levelTriggerSecret(command - COMMAND_ID_64);
+            else viewSetSystemMessage("Invalid Trigger-Secret command by xobject #%d (object type %d)", nIndex, nType);
             break;
-        case 90:
-        case 91:
-        case 92:
-        case 93:
-        case 94:
-        case 95:
-        case 96:
-        case 97:
-            for (int nSprite = headspritestat[4]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+        case kChannelRemoteBomb0:
+        case kChannelRemoteBomb1:
+        case kChannelRemoteBomb2:
+        case kChannelRemoteBomb3:
+        case kChannelRemoteBomb4:
+        case kChannelRemoteBomb5:
+        case kChannelRemoteBomb6:
+        case kChannelRemoteBomb7:
+            for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
             {
                 spritetype *pSprite = &sprite[nSprite];
                 if (pSprite->flags&32)
@@ -418,13 +414,13 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
                 {
                     XSPRITE *pXSprite = &xsprite[nXSprite];
                     if (pXSprite->rxID == rxId)
-                        trMessageSprite(nSprite, evn);
+                        trMessageSprite(nSprite, event);
                 }
             }
             return;
-        case 80:
-        case 81:
-            for (int nSprite = headspritestat[3]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+        case kChannelTeamAFlagCaptured:
+        case kChannelTeamBFlagCaptured:
+            for (int nSprite = headspritestat[kStatItem]; nSprite >= 0; nSprite = nextspritestat[nSprite])
             {
                 spritetype *pSprite = &sprite[nSprite];
                 if (pSprite->flags&32)
@@ -434,39 +430,38 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
                 {
                     XSPRITE *pXSprite = &xsprite[nXSprite];
                     if (pXSprite->rxID == rxId)
-                        trMessageSprite(nSprite, evn);
+                        trMessageSprite(nSprite, event);
                 }
             }
             return;
-        }
+        default:
+            break;
     }
-    for (int i = bucketHead[rxId]; i < bucketHead[rxId+1]; i++)
-    {
-        if (evn.type != rxBucket[i].type || evn.index != rxBucket[i].index)
-        {
-            switch (rxBucket[i].type)
-            {
-            case 6:
-                trMessageSector(rxBucket[i].index, evn);
-                break;
-            case 0:
-                trMessageWall(rxBucket[i].index, evn);
-                break;
-            case 3:
-            {
-                int nSprite = rxBucket[i].index;
-                spritetype *pSprite = &sprite[nSprite];
-                if (pSprite->flags&32)
-                    continue;
-                int nXSprite = pSprite->extra;
-                if (nXSprite > 0)
+
+    for (int i = bucketHead[rxId]; i < bucketHead[rxId+1]; i++) {
+        if (event.type != rxBucket[i].type || event.index != rxBucket[i].index) {
+            switch (rxBucket[i].type) {
+                case 6:
+                    trMessageSector(rxBucket[i].index, event);
+                    break;
+                case 0:
+                    trMessageWall(rxBucket[i].index, event);
+                    break;
+                case 3:
                 {
-                    XSPRITE *pXSprite = &xsprite[nXSprite];
-                    if (pXSprite->rxID > 0)
-                        trMessageSprite(nSprite, evn);
+                    int nSprite = rxBucket[i].index;
+                    spritetype *pSprite = &sprite[nSprite];
+                    if (pSprite->flags&32)
+                        continue;
+                    int nXSprite = pSprite->extra;
+                    if (nXSprite > 0)
+                    {
+                        XSPRITE *pXSprite = &xsprite[nXSprite];
+                        if (pXSprite->rxID > 0)
+                            trMessageSprite(nSprite, event);
+                    }
+                    break;
                 }
-                break;
-            }
             }
         }
     }

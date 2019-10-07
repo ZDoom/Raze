@@ -132,7 +132,7 @@ static void BlastSeqCallback(int, int nXSprite)
     aim.dy = Sin(pSprite->ang)>>16;
     aim.dz = gDudeSlope[nXSprite];
     int nClosest = 0x7fffffff;
-    for (short nSprite2 = headspritestat[6]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
+    for (short nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
     {
         spritetype *pSprite2 = &sprite[nSprite2];
         if (pSprite == pSprite2 || !(pSprite2->flags&8))

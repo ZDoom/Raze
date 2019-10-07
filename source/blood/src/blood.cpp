@@ -357,10 +357,10 @@ void PreloadTiles(void)
             spritetype *pSprite = &sprite[i];
             switch (pSprite->statnum)
             {
-            case 6:
+            case kStatDude:
                 PrecacheDude(pSprite);
                 break;
-            case 4:
+            case kStatThing:
                 PrecacheThing(pSprite);
                 break;
             default:

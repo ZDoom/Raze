@@ -123,11 +123,11 @@ static void StompSeqCallback(int, int nXSprite)
     actHitcodeToData(hit, &gHitInfo, &v34, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     if (hit == 3 && v34 >= 0)
     {
-        if (sprite[v34].statnum == 6)
+        if (sprite[v34].statnum == kStatDude)
             v4 = 0;
     }
     vc <<= 4;
-    for (int nSprite2 = headspritestat[6]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
+    for (int nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
     {
         if (nSprite != nSprite2 || v4)
         {
@@ -163,7 +163,7 @@ static void StompSeqCallback(int, int nXSprite)
             }
         }
     }
-    for (int nSprite2 = headspritestat[4]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
+    for (int nSprite2 = headspritestat[kStatThing]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
     {
         spritetype *pSprite2 = &sprite[nSprite2];
         if (pSprite2->flags&32)

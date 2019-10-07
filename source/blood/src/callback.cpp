@@ -51,14 +51,14 @@ BEGIN_BLD_NS
 void makeMissileBlocking(int nSprite) // 23
 {
     dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    if (sprite[nSprite].statnum != 5) return;
+    if (sprite[nSprite].statnum != kStatProjectile) return;
     sprite[nSprite].cstat |= CSTAT_SPRITE_BLOCK;
 }
 
 void UniMissileBurst(int nSprite) // 22
 {
     dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    if (sprite[nSprite].statnum != 5) return;
+    if (sprite[nSprite].statnum != kStatProjectile) return;
     spritetype * pSprite = &sprite[nSprite];
     int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
     int nRadius = 0x55555;
@@ -306,7 +306,7 @@ void Respawn(int nSprite) // 9
     int nXSprite = pSprite->extra;
     dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
     XSPRITE *pXSprite = &xsprite[nXSprite];
-    if (pSprite->statnum != 8 && pSprite->statnum != 4)
+    if (pSprite->statnum != kStatRespawn && pSprite->statnum != kStatThing)
         ThrowError("Sprite %d is not on Respawn or Thing list\n", nSprite);
     if (!(pSprite->flags&16))
         ThrowError("Sprite %d does not have the respawn attribute\n", nSprite);
@@ -622,7 +622,7 @@ void sub_768E8(int nSprite) // 18
 void sub_769B4(int nSprite) // 19
 {
     spritetype *pSprite = &sprite[nSprite];
-    if (pSprite->statnum == 4 && !(pSprite->flags & 32)) {
+    if (pSprite->statnum == kStatThing && !(pSprite->flags & 32)) {
         switch (pSprite->type) {
             case 431:
             case kGDXThingCustomDudeLifeLeech:
@@ -683,7 +683,7 @@ void sub_76B78(int nSprite)
             return;
         }
         int nSprite2, nNextSprite;
-        for (nSprite2 = headspritestat[6]; nSprite2 >= 0; nSprite2 = nNextSprite)
+        for (nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nNextSprite)
         {
             nNextSprite = nextspritestat[nSprite2];
             if (nOwner == nSprite2)

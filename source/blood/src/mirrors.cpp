@@ -258,7 +258,7 @@ void sub_557C4(int x, int y, int interpolation)
                     GetSpriteExtents(pSprite, &top, &bottom);
                     int zCeil, zFloor;
                     getzsofslope(nSector, pSprite->x, pSprite->y, &zCeil, &zFloor);
-                    if (pSprite->statnum == 6 && (top < zCeil || bottom > zFloor))
+                    if (pSprite->statnum == kStatDude && (top < zCeil || bottom > zFloor))
                     {
                         int j = i;
                         if (mirror[i].at0 == 2)
@@ -285,7 +285,7 @@ void sub_557C4(int x, int y, int interpolation)
                         pTSprite->xoffset = pSprite->xoffset;
                         pTSprite->yoffset = pSprite->yoffset;
                         pTSprite->cstat = pSprite->cstat;
-                        pTSprite->statnum = 0;
+                        pTSprite->statnum = kStatDecoration;
                         pTSprite->owner = pSprite->index;
                         pTSprite->extra = pSprite->extra;
                         pTSprite->flags = pSprite->hitag|0x200;

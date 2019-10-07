@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "db.h"
 #include "iob.h"
+#include "eventq.h"
 
 BEGIN_BLD_NS
 
@@ -48,7 +49,7 @@ int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
 
 int gVisibility;
-
+bool gModernMap = false;
 const char *gItemText[] = {
     "Skull Key",
     "Eye Key",
@@ -236,7 +237,7 @@ void RemoveSpriteStat(int nSprite)
     {
         headspritestat[nStat] = nextspritestat[nSprite];
     }
-    sprite[nSprite].statnum = -1;
+    sprite[nSprite].statnum = kStatNothing;
     gStatCount[nStat]--;
 }
 
@@ -599,7 +600,7 @@ void dbInit(void)
 void PropagateMarkerReferences(void)
 {
     int nSprite, nNextSprite;
-    for (nSprite = headspritestat[10]; nSprite != -1; nSprite = nNextSprite)
+    for (nSprite = headspritestat[kStatMarker]; nSprite != -1; nSprite = nNextSprite)
     {
         nNextSprite = nextspritestat[nSprite];
         switch (sprite[nSprite].type)
@@ -1008,6 +1009,11 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSector->bobRotate = bitReader.readUnsigned(1);
             xsector[sector[i].extra].reference = i;
             xsector[sector[i].extra].busy = xsector[sector[i].extra].state<<16;
+
+            // by NoOne: indicate if the map requires modern features to work properly
+            // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
+            if (pXSector->rxID == kChannelMapExtended && pXSector->rxID == pXSector->txID && pXSector->command == kCommandMapExtend)
+                gModernMap = true;
         }
     }
     for (int i = 0; i < numwalls; i++)
@@ -1082,6 +1088,11 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXWall->at14_0 = bitReader.readUnsigned(32);
             xwall[wall[i].extra].reference = i;
             xwall[wall[i].extra].busy = xwall[wall[i].extra].state << 16;
+
+            // by NoOne: indicate if the map requires modern features to work properly
+            // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
+            if (pXWall->rxID == kChannelMapExtended && pXWall->rxID == pXWall->txID && pXWall->command == kCommandMapExtend)
+                gModernMap = true;
         }
     }
     initspritelists();
@@ -1198,10 +1209,14 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             bitReader.skipBits(32);
             xsprite[sprite[i].extra].reference = i;
             xsprite[sprite[i].extra].busy = xsprite[sprite[i].extra].state << 16;
-            if (!byte_1A76C8)
-            {
+            if (!byte_1A76C8) {
                 xsprite[sprite[i].extra].lT |= xsprite[sprite[i].extra].lB;
             }
+
+            // by NoOne: indicate if the map requires modern features to work properly
+            // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
+            if (pXSprite->rxID == kChannelMapExtended && pXSprite->rxID == pXSprite->txID && pXSprite->command == kCommandMapExtend)
+                gModernMap = true;
         }
         if ((sprite[i].cstat & 0x30) == 0x30)
         {

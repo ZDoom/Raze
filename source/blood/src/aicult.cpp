@@ -222,7 +222,7 @@ static char TargetNearExplosion(spritetype *pSprite)
 {
     for (short nSprite = headspritesect[pSprite->sectnum]; nSprite >= 0; nSprite = nextspritesect[nSprite])
     {
-        if (sprite[nSprite].type == 418 || sprite[nSprite].statnum == 2)
+        if (sprite[nSprite].type == 418 || sprite[nSprite].statnum == kStatExplosion)
             return 1;
     }
     return 0;

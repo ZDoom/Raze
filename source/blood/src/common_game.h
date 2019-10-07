@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 extern int g_useCwd;
-
 #ifndef APPNAME
 #define APPNAME "NBlood"
 #endif
@@ -89,9 +88,25 @@ void QuitGame(void);
 
 #define kMaxPowerUps 51
 
+#define kStatNothing -1
+#define kStatDecoration 0
+#define kStatFX 1
+#define kStatExplosion 2
+#define kStatItem 3
+#define kStatThing 4
+#define kStatProjectile 5
+#define kStatDude 6
+#define kStatInactive 7 // inactive (ambush) dudes
 #define kStatRespawn 8
+#define kStatPurge 9
 #define kStatMarker 10
-#define kStatGDXDudeTargetChanger 20
+#define kStatTraps 11
+#define kStatAmbience 12
+#define kStatSpares 13
+#define kStatFlare 14
+#define kStatDebris 15
+#define kStatPathMarker 16
+#define kStatModernDudeTargetChanger 20
 #define kStatFree 1024
 
 #define kLensSize 80
@@ -184,9 +199,6 @@ void QuitGame(void);
 
 // projectile types
 #define kProjectileEctoSkull 307
-
-// custom level end
-#define kGDXChannelEndLevelCustom 6
 
 // GDX types
 #define kGDXTypeBase 24

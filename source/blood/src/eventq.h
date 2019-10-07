@@ -25,6 +25,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+
+enum {
+    kChannelZero = 0,
+    kChannelSetTotalSecrets,
+    kChannelSecretFound,
+    kChannelTextOver,
+    kChannelLevelExitNormal,
+    kChannelLevelExitSecret,
+    kChannelModernEndLevelCustom, // // custom level end
+    kChannelLevelStartSinglePlayer,
+    kChannelLevelStartMatch, // DM and TEAMS
+    kChannelLevelStartCoop,
+    kChannelLevelStartTeamsOnly,
+    kChannelPlayerDeathTeamA = 15,
+    kChannelPlayerDeathTeamB,
+    kChannelMapExtended = 60, // map requires modern features to work properly
+    kChannelTeamAFlagCaptured = 80,
+    kChannelTeamBFlagCaptured,
+    kChannelRemoteBomb0 = 90,
+    kChannelRemoteBomb1,
+    kChannelRemoteBomb2,
+    kChannelRemoteBomb3,
+    kChannelRemoteBomb4,
+    kChannelRemoteBomb5,
+    kChannelRemoteBomb6,
+    kChannelRemoteBomb7,
+};
+
 #define kMaxChannels 4096
 
 struct RXBUCKET
@@ -51,6 +79,7 @@ enum COMMAND_ID {
     COMMAND_ID_21,
     kGDXCommandPaste = 53, // used by some new GDX types
     COMMAND_ID_64 = 64,
+    kCommandMapExtend = 100
 };
 
 struct EVENT {

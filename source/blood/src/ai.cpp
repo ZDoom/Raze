@@ -83,7 +83,7 @@ void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) {
 
 bool sub_5BDA8(spritetype *pSprite, int nSeq)
 {
-    if (pSprite->statnum == 6 && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
+    if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
     {
         DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
         if (seqGetID(3, pSprite->extra) == pDudeInfo->seqStartID + nSeq && seqGetStatus(3, pSprite->extra) >= 0)
@@ -1152,7 +1152,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
 {
     char v4 = Chance(0x8000);
     DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
-    if (pSprite->statnum == 6 && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
+    if (pSprite->statnum == kStatDude && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
     {
         DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
         switch (pSprite->type)
@@ -1470,7 +1470,7 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
             gAffectedSectors[0] = 0;
             gAffectedXWalls[0] = 0;
             GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, gAffectedSectors, va4, gAffectedXWalls);
-            for (int nSprite2 = headspritestat[6]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
+            for (int nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
             {
                 spritetype *pSprite2 = &sprite[nSprite2];
                 int dx = pSprite2->x-pSprite->x;
@@ -1493,7 +1493,7 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
 
 void aiProcessDudes(void)
 {
-    for (int nSprite = headspritestat[6]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->flags&32)
@@ -1528,7 +1528,7 @@ void aiProcessDudes(void)
 
 void aiInit(void)
 {
-    for (int nSprite = headspritestat[6]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
     {
         aiInitSprite(&sprite[nSprite]);
     }

@@ -722,35 +722,11 @@ int checkAttackState(spritetype* pSprite, XSPRITE* pXSprite) {
     return 0;
 }
 
-/*bool sub_5BDA8(spritetype* pSprite, int nSeq)
-{
-    if (pSprite->statnum == 6 && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
-    {
-        DUDEINFO* pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
-        if (seqGetID(3, pSprite->extra) == pDudeInfo->seqStartID + nSeq && seqGetStatus(3, pSprite->extra) >= 0)
-            return true;
-    }
-    return false;
-}
-
-bool sub_57901(spritetype* pSprite, int nSeqID) {
-    if ( pSprite->statnum == 6 )
-    {
-        if ( IsDudeSprite(pSprite) )
-        {
-            SEQINST* pSeqInst = GetInstance(3, pSprite->extra); Seq* pSeq = pSeqInst->pSequence;
-            if ( pSeq == pSEQs.get(xsprite[pSprite->extra].data2 + nSeqID) && seqGetStatus(3, pSprite->extra) >= 0 )
-                return true;
-        }
-    }
-    return false;
-}*/
-
 bool TargetNearThing(spritetype* pSprite, int thingType) {
     for ( int nSprite = headspritesect[pSprite->sectnum]; nSprite >= 0; nSprite = nextspritesect[nSprite] )
     {
         // check for required things or explosions in the same sector as the target
-        if ( sprite[nSprite].type == thingType || sprite[nSprite].statnum == 2 )
+        if ( sprite[nSprite].type == thingType || sprite[nSprite].statnum == kStatExplosion )
             return true; // indicate danger
     }
     return false;
@@ -866,7 +842,7 @@ bool spriteIsUnderwater(spritetype* pSprite,bool oldWay) {
 }
     
 spritetype* leechIsDropped(spritetype* pSprite) {
-    for (int nSprite = headspritestat[4]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         if (sprite[nSprite].type == kGDXThingCustomDudeLifeLeech && sprite[nSprite].owner == pSprite->xvel)
             return &sprite[nSprite];
     }
@@ -876,7 +852,7 @@ spritetype* leechIsDropped(spritetype* pSprite) {
 }
     
 void removeDudeStuff(spritetype* pSprite) {
-    for (short nSprite = headspritestat[4]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    for (short nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         if (sprite[nSprite].owner != pSprite->xvel) continue;
         switch (sprite[nSprite].type) {
         case 401:
@@ -891,7 +867,7 @@ void removeDudeStuff(spritetype* pSprite) {
         }
     }
 
-    for (short nSprite = headspritestat[6]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    for (short nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         if (sprite[nSprite].owner != pSprite->xvel) continue;
         actDamageSprite(sprite[nSprite].owner, &sprite[nSprite], (DAMAGE_TYPE) 0, 65535);
     }
@@ -928,8 +904,8 @@ XSPRITE* getNextIncarnation(XSPRITE* pXSprite) {
             continue;
         
         switch (sprite[rxBucket[i].index].statnum) {
-            case 6:
-            case 7: // inactive (ambush) dudes
+            case kStatDude:
+            case kStatInactive: // inactive (ambush) dudes
                 if (xsprite[sprite[rxBucket[i].index].extra].health > 0)
                     return &xsprite[sprite[rxBucket[i].index].extra];
         }
@@ -1009,7 +985,7 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT a3)
     int nTarget = pXSprite->target;
     if (nTarget >= 0 && nTarget < kMaxSprites) {
         spritetype* pTarget = &sprite[nTarget];
-        if (pTarget->statnum == 6 && !(pTarget->flags & 32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites && !pXSprite->stateTimer)
+        if (pTarget->statnum == kStatDude && !(pTarget->flags & 32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites && !pXSprite->stateTimer)
         {
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
@@ -1087,7 +1063,7 @@ bool doExplosion(spritetype* pSprite, int nType) {
 
 
 void updateTargetOfSlaves(spritetype* pSprite) {
-    for (short nSprite = headspritestat[6]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    for (short nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         if (sprite[nSprite].owner != pSprite->xvel || sprite[nSprite].extra < 0 || !IsDudeSprite(&sprite[nSprite])) continue;
         else if (xsprite[pSprite->extra].target != xsprite[sprite[nSprite].extra].target
             && IsDudeSprite(&sprite[xsprite[pSprite->extra].target])) {

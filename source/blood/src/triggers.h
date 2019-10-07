@@ -75,7 +75,10 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite);
 void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index);
 void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite);
 void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite);
+void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex);
 void TeleFrag(int nKiller, int nSector);
+bool valueIsBetween(int val, int min, int max);
+
 // -------------------------------------------------------
 
 END_BLD_NS

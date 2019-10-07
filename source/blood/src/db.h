@@ -31,6 +31,8 @@ BEGIN_BLD_NS
 // by NoOne additional non-thing proximity, sight and physics sprites 
 #define kMaxSuperXSprites 128
 
+extern bool gModernMap;
+
 #pragma pack(push, 1)
 
 struct AISTATE;
