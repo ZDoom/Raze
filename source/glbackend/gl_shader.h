@@ -35,9 +35,6 @@ public:
 class PolymostShader : public FShader
 {
 public:
-	FBufferedUniform1f PalswapIndex;
-	FBufferedUniform2f PalswapPos;
-    FBufferedUniform2f PalswapSize;
     FBufferedUniform2f Clamp;
     FBufferedUniform1f Shade;
     FBufferedUniform1f NumShades;

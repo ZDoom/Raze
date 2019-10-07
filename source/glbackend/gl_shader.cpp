@@ -141,9 +141,7 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 {
 	if (!FShader::Load(name, vert_prog, frag_prog)) return false;
 	
-	PalswapPos.Init(hShader, "u_palswapPos");
-    PalswapSize.Init(hShader, "u_palswapSize");
-    Clamp.Init(hShader, "u_clamp");
+	Clamp.Init(hShader, "u_clamp");
     Shade.Init(hShader, "u_shade");
     NumShades.Init(hShader, "u_numShades");
     VisFactor.Init(hShader, "u_visFactor");

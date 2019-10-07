@@ -441,10 +441,7 @@ void GLInstance::SetPalette(int index)
 
 void GLInstance::SetPalswap(int index)
 {
-	float v1 = index * renderState.PalswapSize[0];
-	float v2 = floorf(v1);
-	renderState.PalswapPos[0] = v1 - v2 + (0.5f / PALSWAP_TEXTURE_SIZE);
-	renderState.PalswapPos[1] = v2 * renderState.PalswapSize[1] + (0.5f / PALSWAP_TEXTURE_SIZE);
+	palmanager.BindPalswap(index);
 }
 
 
@@ -466,9 +463,6 @@ void PolymostRenderState::Apply(PolymostShader* shader)
 	shader->Brightness.Set(Brightness);
 	shader->Fog.Set(Fog);
 	shader->FogColor.Set(FogColor);
-	shader->PalswapPos.Set(PalswapPos);
-	shader->PalswapSize.Set(PalswapSize);
-	shader->PalswapIndex.Set(PalSwapIndex);
 
 }
 

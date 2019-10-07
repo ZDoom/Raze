@@ -65,6 +65,10 @@ void PaletteManager::DeleteAll()
 	{
 		if (pal.paltexture) delete pal.paltexture;
 	}
+	for (auto& pal : palswaps)
+	{
+		if (pal.swaptexture) delete pal.swaptexture;
+	}
 	if (transientpalette.paltexture) delete transientpalette.paltexture;
 	if (palswapTexture) delete palswapTexture;
 	palswapTexture = nullptr;
@@ -72,7 +76,8 @@ void PaletteManager::DeleteAll()
 	transientpalette.crc32 = -1;
 	palettes.Reset();
 	palswaps.Reset();
-	lastindex = -1;
+	lastindex = ~0u;
+	lastsindex = ~0u;
 	memset(palettemap, 0, sizeof(palettemap));
 	memset(palswapmap, 0, sizeof(palswapmap));
 	memset(addshade, 0, sizeof(addshade));
@@ -131,6 +136,7 @@ unsigned PaletteManager::FindPalswap(const uint8_t* paldata)
 	PalswapData pd;
 	pd.lookup = paldata;
 	pd.crc32 = crc32;
+	pd.swaptexture = nullptr;
 	return palswaps.Push(pd);
 }
 
@@ -214,24 +220,6 @@ void PaletteManager::SetPalswapData(int index, const uint8_t* data, int numshade
 	if (index < 0 || index > 255) return;	// invalid index - ignore.
 	numshades = numshades_;
 	palswapmap[index] = FindPalswap(data);
-
-	if (palswapTexture == nullptr)
-	{
-		palswapTexture = inst->NewTexture();
-		palswapTexture->CreateTexture(PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, true, false);
-		palswapTexture->SetSampler(Sampler2DNoFilter);
-	}
-
-	int32_t column = index % (PALSWAP_TEXTURE_SIZE / 256);
-	int32_t row = index / (PALSWAP_TEXTURE_SIZE / 256);
-	int32_t rowOffset = (numshades + 1) * row;
-	if (rowOffset > PALSWAP_TEXTURE_SIZE)
-	{
-		OSD_Printf("Polymost: palswaps are too large for palswap tilesheet!\n");
-		return;
-	}
-	palswapTexture->LoadTexturePart(data, 256 * column, rowOffset, 256, numshades + 1);
-
 }
 
 //===========================================================================
@@ -240,20 +228,25 @@ void PaletteManager::SetPalswapData(int index, const uint8_t* data, int numshade
 //
 //===========================================================================
 
-void PaletteManager::UpdatePalswaps(int width, int height)
+void PaletteManager::BindPalswap(int index)
 {
-	for (auto& pal : palettes)
+	if (palswapmap[index] < palswaps.Size())
 	{
-		pal.shadesdone = false;
+		auto uindex = palswapmap[index];
+		if (uindex != lastsindex)
+		{
+			lastsindex = uindex;
+			if (palswaps[uindex].swaptexture == nullptr)
+			{
+				auto p = GLInterface.NewTexture();
+				p->CreateTexture(256, numshades, true, false);
+				p->LoadTexture((uint8_t*)palswaps[uindex].lookup);
+				p->SetSampler(Sampler2DNoFilter);
+				palswaps[uindex].swaptexture = p;
+			}
+			inst->BindTexture(1, palswaps[uindex].swaptexture);
+		}
 	}
-	// recreate it
 
-	vec2f_t polymost1PalswapSize = { width * (1.f / PALSWAP_TEXTURE_SIZE),
-							 height * (1.f / PALSWAP_TEXTURE_SIZE) };
-
-	vec2f_t polymost1PalswapInnerSize = { (width - 1) * (1.f / PALSWAP_TEXTURE_SIZE),
-								  (height - 1) * (1.f / PALSWAP_TEXTURE_SIZE) };
-
-	inst->SetPalswapSize(&polymost1PalswapInnerSize.x);
-	inst->BindTexture(1, palswapTexture);
 }
+

@@ -10,9 +10,6 @@ uniform sampler2D s_palette;
 uniform sampler2D s_detail;
 uniform sampler2D s_glow;
 
-uniform vec2 u_palswapPos;
-uniform vec2 u_palswapSize;
-
 uniform vec2 u_clamp;
 
 uniform float u_shade;
@@ -164,17 +161,18 @@ void main()
 
 		if (u_usePalette != 0.0)
 		{
-			// Get the shaded palette index
-			float colorIndex = texture2D(s_palswap, u_palswapPos + u_palswapSize*vec2(color.r, floor(shade)/u_numShades)).r;
-			colorIndex = c_basepalOffset + c_basepalScale*colorIndex;	// this is for compensating roundoff errors.
-			vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));
+			int palindex = int(color.r * 255.0 + 0.1); // The 0.1 is for roundoff error compensation.
+			int shadeindex = int(floor(shade));
+			float colorIndexF = texelFetch(s_palswap, ivec2(palindex, shadeindex), 0).r;
+			int colorIndex = int(colorIndexF * 255.0 + 0.1); // The 0.1 is for roundoff error compensation.
+			vec4 palettedColor = texelFetch(s_palette, ivec2(colorIndex, 0), 0);
 			
 			if (u_shadeInterpolate != 0.0)
 			{
 				// Get the next shaded palette index for interpolation
-				colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, (floor(shade)+1.0)/u_numShades)).r;
-				colorIndex = c_basepalOffset + c_basepalScale*colorIndex;	// this is for compensating roundoff errors.
-				vec4 palettedColorNext = texture2D(s_palette, vec2(colorIndex, c_zero));
+				colorIndexF = texelFetch(s_palswap, ivec2(palindex, shadeindex+1), 0).r;
+				colorIndex = int(colorIndexF * 255.0 + 0.1); // The 0.1 is for roundoff error compensation.
+				vec4 palettedColorNext = texelFetch(s_palette, ivec2(colorIndex, 0), 0);
 				float shadeFrac = mod(shade, 1.0);
 				palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac);
 			}

@@ -36,6 +36,7 @@ struct PalswapData
 {
 	int32_t crc32;
 	const uint8_t *lookup;	// points to the original data. This is static so no need to copy
+	FHardwareTexture* swaptexture;
 };
 
 enum
@@ -51,6 +52,7 @@ class PaletteManager
 	float addshade[256] = {};
 	float mulshade[256] = {};
 	uint32_t lastindex = ~0u;
+	uint32_t lastsindex = ~0u;
 	int numshades = 1;
 
 	// Keep the short lived movie palettes out of the palette list for ease of maintenance.
@@ -75,9 +77,9 @@ public:
 	void DeleteAll();
 	void SetPalette(int index, const uint8_t *data, bool transient);
 	void SetPalswapData(int index, const uint8_t* data, int numshades);
-	void UpdatePalswaps(int w, int h);
 
 	void BindPalette(int index);
+	void BindPalswap(int index);
 };
 
 
@@ -287,18 +289,7 @@ public:
 		palmanager.SetPalswapData(index, data, numshades);
 	}
 
-	void UpdatePalswaps(int w, int h)
-	{
-		palmanager.UpdatePalswaps(w, h);
-	}
-
 	void SetPalswap(int index);
-
-	void SetPalswapSize(float* pos)
-	{
-		renderState.PalswapSize[0] = pos[0];
-		renderState.PalswapSize[1] = pos[1];
-	}
 
 	int GetClamp()
 	{

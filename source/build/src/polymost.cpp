@@ -384,7 +384,6 @@ void polymost_glinit()
     {
 		GLInterface.SetPalswapData(palookupnum, (uint8_t*)palookup[palookupnum], numshades+1);
 	}
-	GLInterface.UpdatePalswaps(256, numshades+1);
 }
 
 ////////// VISIBILITY FOG ROUTINES //////////
@@ -716,7 +715,6 @@ void uploadpalswaps(int count, int32_t* swaps)
 	{
 		GLInterface.SetPalswapData(i, (uint8_t*)palookup[i], numshades + 1);
 	}
-	GLInterface.UpdatePalswaps(256, numshades + 1);
 }
 
 
