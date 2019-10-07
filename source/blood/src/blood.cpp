@@ -1107,7 +1107,8 @@ SWITCH switches[] = {
     { "j", 42, 1 },
     { "c", 43, 1 },
     { "conf", 43, 1 },
-    { "noconsole", 43, 0 },
+	{ "game", 44, 1 },
+	{ "noconsole", 43, 0 },
     { NULL, 0, 0 }
 };
 
@@ -1431,6 +1432,7 @@ void ParseOptions(void)
             G_AddPath(OptArgv[0]);
             break;
         case 43: // conf, noconsole
+		case 44:
             break;
         }
     }
