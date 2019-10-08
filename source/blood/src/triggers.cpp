@@ -1350,9 +1350,9 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                         // adding physics sprite in list
                         if ((flags & kPhysGravity) != 0 || (flags & kPhysMove) != 0) {
                         
-                            if (nIndex != -1) pXSprite->physAttr = flags; // just update physics attributes
-                            else if ((nIndex = debrisGetFreeIndex()) < 0)
-                                showWarning("Max (%d) Physics affected sprites reached!", kMaxSuperXSprites);
+							if (nIndex != -1) pXSprite->physAttr = flags; // just update physics attributes
+							else if ((nIndex = debrisGetFreeIndex()) < 0)
+								;// showWarning("Max (%d) Physics affected sprites reached!", kMaxSuperXSprites);
                             else {
 
                                 pXSprite->physAttr = flags; // update physics attributes
