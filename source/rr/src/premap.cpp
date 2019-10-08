@@ -181,17 +181,17 @@ static void G_CacheSpriteNum(int32_t i)
         break;
     case CHEERBOAT__STATICRR:
         if (!RRRA) break;
-        if (waloff[CHEERBOAT] == 0) tloadtile(CHEERBOAT,1);
+        tloadtile(CHEERBOAT,1);
         maxc = 0;
         break;
     case HULKBOAT__STATICRR:
         if (!RRRA) break;
-        if (waloff[HULKBOAT] == 0) tloadtile(HULKBOAT,1);
+        tloadtile(HULKBOAT,1);
         maxc = 0;
         break;
     case MINIONBOAT__STATICRR:
         if (!RRRA) break;
-        if (waloff[MINIONBOAT] == 0) tloadtile(MINIONBOAT,1);
+        tloadtile(MINIONBOAT,1);
         maxc = 0;
         break;
     case BILLYPLAY__STATICRR:
