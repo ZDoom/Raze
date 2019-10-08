@@ -456,27 +456,6 @@ static inline void fogcalc(int32_t shade, int32_t vis, int32_t pal)
 
 #define GL_FOG_MAX 1.0e37f
 
-void polymost2_calc_fog(int32_t shade, int32_t vis, int32_t pal)
-{
-    if (nofog) return;
-
-    fogcol = fogtable[pal];
-
-    if (((uint8_t)(vis + 16)) > 0 && g_visibility > 0)
-    {
-        constexpr GLfloat glfogconstant = 262144.f;
-        GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
-
-        fogresult = 0.f - (((min(shade, 0) - 0.5f) / frealmaxshade) * fogrange); // min() = subtract shades from fog
-        fogresult2 = fogrange - (((shade - 0.5f) / frealmaxshade) * fogrange);
-    }
-    else
-    {
-        fogresult = 0.f;
-        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
-    }
-}
-
 void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal)
 {
     if (nofog) return;
