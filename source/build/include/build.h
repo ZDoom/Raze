@@ -839,6 +839,11 @@ typedef struct {
     int8_t xofs, yofs;
     uint8_t sf;  // anim. speed and flags
     uint8_t extra;
+	
+	void Clear()
+	{
+		extra = sf = yofs = xofs = num = 0;
+	}
 } picanm_t;
 EXTERN picanm_t picanm[MAXTILES];
 typedef struct { int16_t newtile; int16_t owner; } rottile_t;
@@ -1053,7 +1058,7 @@ typedef struct {
 typedef struct artheader_t {
     int32_t tilestart, tileend, numtiles;
 } artheader_t;
-#define ARTv1_UNITOFFSET ((signed)(4*sizeof(int32_t) + 2*sizeof(int16_t) + sizeof(picanm_t)))
+#define ARTv1_UNITOFFSET 24 // using siseof does not work because picanm_t is not the in-file format.
 
 int32_t    enginePreInit(void);	// a partial setup of the engine used for launch windows
 int32_t    engineInit(void);

@@ -1017,7 +1017,7 @@ static int32_t defsparser(scriptfile *script)
             if (texstatus < 0)
                 break;
 
-            Bmemset(&picanm[tile], 0, sizeof(picanm_t));
+			picanm[tile].Clear();
 
             break;
         }
@@ -1041,8 +1041,8 @@ static int32_t defsparser(scriptfile *script)
             if (xsiz > 0 && ysiz > 0)
             {
                 tileSetSize(tile, xsiz, ysiz);
-                Bmemset(&picanm[tile], 0, sizeof(picanm_t));
-                tileSetupDummy(tile);
+				picanm[tile].Clear();
+				tileSetupDummy(tile);
             }
 
             break;
@@ -1072,8 +1072,8 @@ static int32_t defsparser(scriptfile *script)
             for (i=tile1; i<=tile2; i++)
             {
                 tileSetSize(i, xsiz, ysiz);
-                Bmemset(&picanm[i], 0, sizeof(picanm_t));
-                tileSetupDummy(i);
+				picanm[i].Clear();
+				tileSetupDummy(i);
             }
 
             break;
@@ -2287,8 +2287,8 @@ static int32_t defsparser(scriptfile *script)
                     if (xsiz > 0 && ysiz > 0)
                     {
                         tileSetSize(tile, xsiz, ysiz);
-                        Bmemset(&picanm[tile], 0, sizeof(picanm_t));
-                        tileSetupDummy(tile);
+						picanm[tile].Clear();
+						tileSetupDummy(tile);
                     }
 #ifdef USE_OPENGL
                     xscale = 1.0f / xscale;

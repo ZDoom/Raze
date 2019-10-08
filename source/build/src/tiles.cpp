@@ -132,10 +132,6 @@ void artClearMapArt(void)
 #ifdef USE_OPENGL
     //POGOTODO: review this to ensure we're not invalidating more than we have to
     gltexinvalidatetype(INVALIDATE_ART);
-# ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-        polymer_texinvalidate();
-# endif
 #endif
 }
 
@@ -255,8 +251,7 @@ static void tileSoftDelete(int32_t const tile)
     waloff[tile] = 0;
 
     faketile[tile>>3] &= ~pow2char[tile&7];
-
-    Bmemset(&picanm[tile], 0, sizeof(picanm_t));
+	picanm[tile].Clear();
 }
 
 void tileDelete(int32_t const tile)
@@ -507,9 +502,7 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
     const int32_t permap = (tilefilei >= MAXARTFILES_BASE);  // is it a per-map ART file?
     buildvfs_kfd fil;
 
-	auto kopen4loadfunc = bloodhack == 2 ? kopen4loadfrommod : kopen4load;
-
-    if ((fil = kopen4loadfunc(fn, 0)) != buildvfs_kfd_invalid)
+    if ((fil = kopen4loadfrommod(fn, 0)) != buildvfs_kfd_invalid)
     {
         artheader_t local;
         int const headerval = artReadHeader(fil, fn, &local);
@@ -543,11 +536,7 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
 
         artReadManifest(fil, &local);
 
-#ifndef USE_PHYSFS
         if (cache1d_file_fromzip(fil))
-#else
-        if (1)
-#endif
         {
             if (permap)
                 artPreloadFileSafe(fil, &local);
@@ -570,10 +559,6 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
             }
         }
 
-#ifdef DEBUGGINGAIDS
-        if (permap)
-            initprintf("Read in per-map ART file \"%s\"\n", fn);
-#endif
         kclose(fil);
         return 0;
     }
@@ -619,7 +604,6 @@ int32_t artLoadFiles(const char *filename, int32_t askedsize)
 //
 // loadtile
 //
-static void tilePostLoad(int16_t tilenume);
 
 bool tileLoad(int16_t tileNum)
 {
@@ -636,23 +620,6 @@ bool tileLoad(int16_t tileNum)
 
     tileLoadData(tileNum, dasiz, (char *) waloff[tileNum]);
 
-	/*
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST &&
-        in3dmode())
-    {
-        //POGOTODO: this type stuff won't be necessary down the line -- review this
-        int type;
-        for (type = 0; type <= 1; ++type)
-        {
-            gltexinvalidate(tileNum, 0, (type ? DAMETH_CLAMPED : DAMETH_MASK) | PTH_INDEXED);
-            texcache_fetch(tileNum, 0, 0, (type ? DAMETH_CLAMPED : DAMETH_MASK) | PTH_INDEXED);
-        }
-    }
-#endif
-*/
-
-    tilePostLoad(tileNum);
 
     return (waloff[tileNum] != 0 && tilesiz[tileNum].x > 0 && tilesiz[tileNum].y > 0);
 }
@@ -742,39 +709,6 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
     artfilplc = tilefileoffs[tilenume]+dasiz;
 }
 
-static void tilePostLoad(int16_t tilenume)
-{
-#if !defined DEBUG_TILESIZY_512 && !defined DEBUG_TILEOFFSETS
-    UNREFERENCED_PARAMETER(tilenume);
-#endif
-#ifdef DEBUG_TILESIZY_512
-    if (tilesizy[tilenume] >= 512)
-    {
-        int32_t i;
-        char *p = (char *) waloff[tilenume];
-        for (i=0; i<tilesizx[tilenume]*tilesizy[tilenume]; i++)
-            p[i] = i;
-    }
-#endif
-#ifdef DEBUG_TILEOFFSETS
-    // Add some dark blue marker lines to STEAM and CEILINGSTEAM.
-    // See test_tileoffsets.map.
-    if (tilenume==1250 || tilenume==1255)
-    {
-        char *p = (char *) waloff[tilenume];
-        p[0] = p[1] = p[2] = p[3] = 254;
-    }
-
-    // Add some offset to the cocktail glass neon sign. It's more asymmetric
-    // than the steam, and thus more suited to debugging the spatial
-    // orientation of drawn sprites.
-    if (tilenume==1008)
-    {
-        picanm[tilenume].xofs = 8;
-        picanm[tilenume].yofs = 12;
-    }
-#endif
-}
 
 int32_t tileCRC(int16_t tileNum)
 {
@@ -810,7 +744,7 @@ intptr_t tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     cacheAllocateBlock(&waloff[tilenume], dasiz, &walock[tilenume]);
 
     tileSetSize(tilenume, xsiz, ysiz);
-    Bmemset(&picanm[tilenume], 0, sizeof(picanm_t));
+	picanm[tilenume].Clear();
 
     return waloff[tilenume];
 }
