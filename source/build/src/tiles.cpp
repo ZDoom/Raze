@@ -26,6 +26,7 @@ EDUKE32_STATIC_ASSERT(MAXARTFILES_TOTAL <= 256);
 
 static int32_t tilefileoffs[MAXTILES];
 
+
 // Backup tilefilenum[] and tilefileoffs[]. These get allocated only when
 // necessary (have per-map ART files).
 static uint8_t *g_bakTileFileNum;
@@ -251,7 +252,7 @@ static void tileSoftDelete(int32_t const tile)
     waloff[tile] = 0;
 
     faketile[tile>>3] &= ~pow2char[tile&7];
-	picanm[tile].Clear();
+	picanm[tile] = {};
 }
 
 void tileDelete(int32_t const tile)
@@ -680,9 +681,7 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
 
         char const *fn = artGetIndexedFileName(tfn);
 
-		auto kopen4loadfunc = bloodhack == 2 ? kopen4loadfrommod : kopen4load;
-		
-		artfil = kopen4loadfunc(fn, 0);
+		artfil = kopen4loadfrommod(fn, 0);
 
         if (artfil == buildvfs_kfd_invalid)
         {
@@ -744,7 +743,7 @@ intptr_t tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     cacheAllocateBlock(&waloff[tilenume], dasiz, &walock[tilenume]);
 
     tileSetSize(tilenume, xsiz, ysiz);
-	picanm[tilenume].Clear();
+	picanm[tilenume] = {};
 
     return waloff[tilenume];
 }

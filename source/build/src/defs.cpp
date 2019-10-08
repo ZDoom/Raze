@@ -1017,7 +1017,7 @@ static int32_t defsparser(scriptfile *script)
             if (texstatus < 0)
                 break;
 
-			picanm[tile].Clear();
+			picanm[tile] = {};
 
             break;
         }
@@ -1041,7 +1041,7 @@ static int32_t defsparser(scriptfile *script)
             if (xsiz > 0 && ysiz > 0)
             {
                 tileSetSize(tile, xsiz, ysiz);
-				picanm[tile].Clear();
+				picanm[tile] = {};
 				tileSetupDummy(tile);
             }
 
@@ -1072,7 +1072,7 @@ static int32_t defsparser(scriptfile *script)
             for (i=tile1; i<=tile2; i++)
             {
                 tileSetSize(i, xsiz, ysiz);
-				picanm[i].Clear();
+				picanm[i] = {};
 				tileSetupDummy(i);
             }
 
@@ -2287,7 +2287,7 @@ static int32_t defsparser(scriptfile *script)
                     if (xsiz > 0 && ysiz > 0)
                     {
                         tileSetSize(tile, xsiz, ysiz);
-						picanm[tile].Clear();
+						picanm[tile] = {};
 						tileSetupDummy(tile);
                     }
 #ifdef USE_OPENGL
