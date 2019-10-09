@@ -51,6 +51,9 @@ static int done = -1, mode = TAB_CONFIG;
 #define POPULATE_VIDEO 1
 #define POPULATE_CONFIG 2
 #define POPULATE_GAME 4
+// Thanks, Microsoft for not providing alternatives for the dialog control macros. :(
+#undef SNDMSG
+#define SNDMSG ::SendMessageA
 
 static int addSoundQualityItem(struct soundQuality_t *q, HWND hwnd)
 {

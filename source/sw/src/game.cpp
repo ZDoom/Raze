@@ -5996,5 +5996,27 @@ saveable_module saveable_build =
     NUM_SAVEABLE_ITEMS(saveable_build_data)
 };
 
+extern void faketimerhandler();
+extern int app_main(int argc, char const* const* argv);
+extern void app_crashhandler(void);
+extern int32_t startwin_open(void);
+extern int32_t startwin_close(void);
+extern int32_t startwin_puts(const char*);
+extern int32_t startwin_settitle(const char*);
+extern int32_t startwin_idle(void*);
+extern int32_t startwin_run(void);
+
+GameInterface Interface = {
+	faketimerhandler,
+	app_main,
+	app_crashhandler,
+	startwin_open,
+	startwin_close,
+	startwin_puts,
+	startwin_settitle,
+	startwin_idle,
+	startwin_run
+};
+
 // vim:ts=4:sw=4:expandtab:
 END_SW_NS

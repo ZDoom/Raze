@@ -366,6 +366,10 @@ namespace Blood
 {
 	extern GameInterface Interface;
 }
+namespace ShadowWarrior
+{
+	extern GameInterface Interface;
+}
 
 GameInterface *CheckFrontend()
 {
@@ -384,7 +388,11 @@ GameInterface *CheckFrontend()
 			return &Redneck::Interface;
 		}
 		else
+		{
+			f = fopen("sw.grp", "rb");
+			if (f) return &ShadowWarrior::Interface;
 			return &Duke::Interface;
+		}
 	}
 }
 
