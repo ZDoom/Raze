@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -8227,7 +8227,8 @@ MAIN_LOOP_RESTART:
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         CONTROL_BindsEnabled = !!(g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO));
 
-#ifndef _WIN32
+#if 0
+//#ifndef _WIN32
         // stdin -> OSD input for dedicated server
         if (g_networkMode == NET_DEDICATED_SERVER)
         {
