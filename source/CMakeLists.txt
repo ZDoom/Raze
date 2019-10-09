@@ -1252,4 +1252,4 @@ source_group("Game Frontends\\EDuke32\\Sources" REGULAR_EXPRESSION "^${CMAKE_CUR
 source_group("Game Frontends\\RedNukem\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/rr/.+")
 #source_group("Game Frontends\\NBlood\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/blood/.h")
 source_group("Game Frontends\\NBlood\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/blood/.+")
- 
+source_group("Game Frontends\\Shadow Warrior\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/sw/.+")

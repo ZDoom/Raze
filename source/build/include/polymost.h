@@ -164,41 +164,10 @@ enum {
 
     // used internally by polymost_domost
     DAMETH_BACKFACECULL = -1,
-
-    // used internally by uploadtexture
-    DAMETH_NODOWNSIZE = 4096,
-    DAMETH_HI = 8192,
-    DAMETH_NOFIX = 16384,
-    DAMETH_NOTEXCOMPRESS = 32768,
-    DAMETH_HASALPHA = 65536,
-    DAMETH_ONEBITALPHA = 131072,
-    DAMETH_ARTIMMUNITY = 262144,
-
-    DAMETH_HASFULLBRIGHT = 524288,
-    DAMETH_NPOTWALL = 1048576,
-
-    DAMETH_UPLOADTEXTURE_MASK =
-        DAMETH_HI |
-        DAMETH_NODOWNSIZE |
-        DAMETH_NOFIX |
-        DAMETH_NOTEXCOMPRESS |
-        DAMETH_HASALPHA |
-        DAMETH_ONEBITALPHA |
-        DAMETH_ARTIMMUNITY |
-        DAMETH_HASFULLBRIGHT |
-        DAMETH_NPOTWALL,
 };
 
 #define DAMETH_NARROW_MASKPROPS(dameth) (((dameth)&(~DAMETH_TRANS1))|(((dameth)&DAMETH_TRANS1)>>1))
 EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
-EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_CLAMPED) == DAMETH_CLAMPED);
-
-#define TO_DAMETH_NODOWNSIZE(hicr_flags) (((hicr_flags)&HICR_NODOWNSIZE)<<8)
-EDUKE32_STATIC_ASSERT(TO_DAMETH_NODOWNSIZE(HICR_NODOWNSIZE) == DAMETH_NODOWNSIZE);
-#define TO_DAMETH_NOTEXCOMPRESS(hicr_flags) (((hicr_flags)&HICR_NOTEXCOMPRESS)<<15)
-EDUKE32_STATIC_ASSERT(TO_DAMETH_NOTEXCOMPRESS(HICR_NOTEXCOMPRESS) == DAMETH_NOTEXCOMPRESS);
-#define TO_DAMETH_ARTIMMUNITY(hicr_flags) (((hicr_flags)&HICR_ARTIMMUNITY)<<13)
-EDUKE32_STATIC_ASSERT(TO_DAMETH_ARTIMMUNITY(HICR_ARTIMMUNITY) == DAMETH_ARTIMMUNITY);
 
 // Do we want a NPOT-y-as-classic texture for this <dameth> and <ysiz>?
 static FORCE_INLINE int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
@@ -208,7 +177,6 @@ static FORCE_INLINE int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
 
 // pthtyp pth->flags bits
 enum pthtyp_flags {
-    PTH_CLAMPED = 1,
     PTH_HIGHTILE = 2,
     PTH_SKYBOX = 4,
     PTH_HASALPHA = 8,
@@ -217,8 +185,6 @@ enum pthtyp_flags {
     PTH_FORCEFILTER = 64,
 
     PTH_INVALIDATED = 128,
-
-    PTH_NOTRANSFIX = 256, // fixtransparency() bypassed
 
     PTH_INDEXED = 512,
     PTH_ONEBITALPHA = 1024,
@@ -241,15 +207,6 @@ typedef struct pthtyp_t
     char            shade;
     char            skyface;
 } pthtyp;
-
-// DAMETH -> PTH conversions
-#define TO_PTH_CLAMPED(dameth) (((dameth)&DAMETH_CLAMPED)>>2)
-EDUKE32_STATIC_ASSERT(TO_PTH_CLAMPED(DAMETH_CLAMPED) == PTH_CLAMPED);
-#define TO_PTH_NOTRANSFIX(dameth) ((((~(dameth))&DAMETH_MASK)<<8)&(((~(dameth))&DAMETH_TRANS1)<<7))
-EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_NOMASK) == PTH_NOTRANSFIX);
-EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_MASK) == 0);
-EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_TRANS1) == 0);
-EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_MASKPROPS) == 0);
 
 extern void gloadtile_art(int32_t,int32_t,int32_t,int32_t,int32_t,pthtyp *,int32_t);
 extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t, polytintflags_t);

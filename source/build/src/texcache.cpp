@@ -28,45 +28,31 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
     if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
     {
         tintpalnum = dapalnum;
-        dameth &= ~PTH_INDEXED;
         if (!(tintflags & HICTINT_APPLYOVERPALSWAP))
             searchpalnum = 0;
     }
 
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
-        if (pth->picnum == dapicnum &&
-            (dameth & PTH_INDEXED ? (pth->flags & PTH_INDEXED) &&
-                                    (pth->flags & PTH_CLAMPED) == TO_PTH_CLAMPED(dameth) :
-                 (pth->palnum == dapalnum && pth->shade == dashade &&
-                 !(pth->flags & PTH_INDEXED) &&
-                 (pth->flags & (PTH_CLAMPED | PTH_HIGHTILE | PTH_NOTRANSFIX)) ==
-                     (TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth)) &&
-                 polymost_want_npotytex(dameth, tilesiz[dapicnum].y) == !!(pth->flags&PTH_NPOTWALL))))
-        {
-            if (pth->flags & PTH_INVALIDATED)
-            {
-                pth->flags &= ~PTH_INVALIDATED;
-                gloadtile_art(dapicnum, searchpalnum, tintpalnum, dashade, dameth, pth, 0);
-                pth->palnum = dapalnum;
-            }
+		if (pth->picnum == dapicnum &&
+			(pth->flags & PTH_INDEXED) &&
+			(pth->flags & (PTH_HIGHTILE)) == 0 &&
+			polymost_want_npotytex(dameth, tilesiz[dapicnum].y) == !!(pth->flags & PTH_NPOTWALL))
+		{
+			if (pth->flags & PTH_INVALIDATED)
+			{
+				pth->flags &= ~PTH_INVALIDATED;
+				gloadtile_art(dapicnum, searchpalnum, tintpalnum, dashade, dameth, pth, 0);
+				pth->palnum = dapalnum;
+			}
 
-            return pth;
-        }
+			return pth;
+		}
 
     pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
 
-#ifdef TIMING
-	cycle_t clock;
-	clock.Reset();
-	clock.Clock();
-#endif
 	gloadtile_art(dapicnum, searchpalnum, tintpalnum, dashade, dameth, pth, 1);
 	//thl.AddToCache(dapicnum, dapalnum, dameth);
-#ifdef TIMING
-	clock.Unclock();
-	OSD_Printf("Loaded texture %d, palnum %d, meth %d -> %2.3f\n", dapicnum, dapalnum, dameth, clock.TimeMS());
-#endif
 
     pth->palnum = dapalnum;
     pth->next = texcache.list[j];
@@ -90,8 +76,7 @@ pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int3
             {
                 Bmemcpy(pth, pth2, sizeof(pthtyp));
                 pth->picnum = dapicnum;
-                pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) |
-                             PTH_HIGHTILE | (drawingskybox>0)*PTH_SKYBOX;
+                pth->flags = PTH_HIGHTILE | (drawingskybox>0)*PTH_SKYBOX;
                 if (pth2->flags & PTH_HASALPHA)
                     pth->flags |= PTH_HASALPHA;
                 pth->hicr = si;
@@ -113,12 +98,12 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     const int32_t j = dapicnum & (GLTEXCACHEADSIZ - 1);
     hicreplctyp *si = usehightile ? hicfindsubst(dapicnum, dapalnum, hictinting[dapalnum].f & HICTINT_ALWAYSUSEART) : NULL;
 
-    if (drawingskybox && usehightile)
-        if ((si = hicfindskybox(dapicnum, dapalnum)) == NULL)
-            return NULL;
-
-    if ((globalflags & GLOBAL_NO_GL_TILESHADES) || videoGetRenderMode() != REND_POLYMOST)
-        dashade = 0;
+	if (drawingskybox && usehightile)
+	{
+		auto si = hicfindskybox(dapicnum, dapalnum);
+		if (si == nullptr)
+			return nullptr;
+	}
 
     if (!si)
     {
@@ -141,8 +126,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     for (pthtyp *pth = texcache.list[j]; pth; pth = pth->next)
     {
         if (pth->picnum == dapicnum && pth->palnum == checkcachepal && (checktintpal > 0 ? 1 : (pth->effects == tintflags))
-            && (pth->flags & (PTH_CLAMPED | PTH_HIGHTILE | PTH_SKYBOX | PTH_NOTRANSFIX))
-               == (TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | PTH_HIGHTILE | (drawingskybox > 0) * PTH_SKYBOX)
+            && (pth->flags & (PTH_HIGHTILE | PTH_SKYBOX)) == (PTH_HIGHTILE | (drawingskybox > 0) * PTH_SKYBOX)
             && (drawingskybox > 0 ? (pth->skyface == drawingskybox) : 1))
         {
             if (pth->flags & PTH_INVALIDATED)
@@ -171,17 +155,9 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     if (dapalnum == DETAILPAL && texcache_fetchmulti(pth, si, dapicnum, dameth))
         return pth;
 
-#ifdef TIMING
-	cycle_t clock;
-	clock.Reset();
-	clock.Clock();
-#endif
     int32_t tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (checktintpal > 0) ? 0 : tintflags);
-#ifdef TIMING
-	clock.Unclock();
-	OSD_Printf("Loaded texture %d, palnum %d, meth %d -> %2.3f\n", dapicnum, dapalnum, dameth, clock.TimeMS());
-#endif
-    if (!tilestat)
+
+	if (!tilestat)
     {
         pth->next = texcache.list[j];
         pth->palnum = checkcachepal;

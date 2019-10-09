@@ -355,6 +355,10 @@ public:
 		renderState.Brightness = 8.f / (brightness + 8.f);
 	}
 
+	void SetTinting(int flags, PalEntry color)
+	{
+		// not yet implemented.
+	}
 	
 	FTexture *GetTexture(const char *filename);
 };

@@ -1780,13 +1780,15 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     // tinting
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
-    polytintflags_t const tintflags = hictinting[globalpal].f;
+	auto& h = hictinting[globalpal];
+	polytintflags_t const tintflags = h.f;
     if (!(tintflags & HICTINT_PRECOMPUTED))
     {
         if (!(m->flags&1))
             hictinting_apply(pc, globalpal);
         else globalnoeffect=1;
     }
+	GLInterface.SetTinting(tintflags, PalEntry(h.sr, h.sg, h.sb));
 
     // global tinting
     if (have_basepal_tint())
@@ -2008,6 +2010,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 	VSMatrix identity(0);
 	GLInterface.SetMatrix(Matrix_ModelView, &identity);
 
+	GLInterface.SetTinting(0, 0);
 	GLInterface.SetClamp(prevClamp);
 	GLInterface.UsePaletteIndexing(true);
 	GLInterface.SetPolymostShader();

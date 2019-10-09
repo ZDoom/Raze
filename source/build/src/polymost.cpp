@@ -179,8 +179,7 @@ void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
     const int32_t pic = (dapicnum&(GLTEXCACHEADSIZ-1));
 
     for (pthtyp *pth=texcache.list[pic]; pth; pth=pth->next)
-        if (pth->picnum == dapicnum && pth->palnum == dapalnum &&
-            (pth->flags & PTH_CLAMPED) == TO_PTH_CLAMPED(dameth))
+        if (pth->picnum == dapicnum && pth->palnum == dapalnum)
         {
             pth->flags |= PTH_INVALIDATED;
             if (pth->flags & PTH_HASFULLBRIGHT)
@@ -614,55 +613,8 @@ static void resizeglcheck(void)
     }
 }
 
-static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t dameth)
-{
-    if (!(dameth & DAMETH_MASKPROPS))
-        return;
 
-    vec2_t doxy = { dasiz2.x-1, dasiz2.y-1 };
-
-    if (dameth & DAMETH_CLAMPED)
-        doxy = { min(doxy.x, dasiz.x), min(doxy.y, dasiz.y) };
-    else  dasiz = dasiz2; //Make repeating textures duplicate top/left parts
-
-    dasiz.x--; dasiz.y--; //Hacks for optimization inside loop
-    int32_t const naxsiz2 = -dasiz2.x;
-
-    //Set transparent pixels to average color of neighboring opaque pixels
-    //Doing this makes bilinear filtering look much better for masked textures (I.E. sprites)
-    for (bssize_t y=doxy.y; y>=0; y--)
-    {
-        coltype * wpptr = &dapic[y*dasiz2.x+doxy.x];
-
-        for (bssize_t x=doxy.x; x>=0; x--,wpptr--)
-        {
-            if (wpptr->a) continue;
-
-            int r = 0, g = 0, b = 0, j = 0;
-
-            if ((x>     0) && (wpptr[     -1].a)) { r += wpptr[     -1].r; g += wpptr[     -1].g; b += wpptr[     -1].b; j++; }
-            if ((x<dasiz.x) && (wpptr[     +1].a)) { r += wpptr[     +1].r; g += wpptr[     +1].g; b += wpptr[     +1].b; j++; }
-            if ((y>     0) && (wpptr[naxsiz2].a)) { r += wpptr[naxsiz2].r; g += wpptr[naxsiz2].g; b += wpptr[naxsiz2].b; j++; }
-            if ((y<dasiz.y) && (wpptr[dasiz2.x].a)) { r += wpptr[dasiz2.x].r; g += wpptr[dasiz2.x].g; b += wpptr[dasiz2.x].b; j++; }
-
-            switch (j)
-            {
-            case 1:
-                wpptr->r =   r            ; wpptr->g =   g            ; wpptr->b =   b            ; break;
-            case 2:
-                wpptr->r = ((r   +  1)>>1); wpptr->g = ((g   +  1)>>1); wpptr->b = ((b   +  1)>>1); break;
-            case 3:
-                wpptr->r = ((r*85+128)>>8); wpptr->g = ((g*85+128)>>8); wpptr->b = ((b*85+128)>>8); break;
-            case 4:
-                wpptr->r = ((r   +  2)>>2); wpptr->g = ((g   +  2)>>2); wpptr->b = ((b   +  2)>>2); break;
-            }
-        }
-    }
-}
-
-
-void uploadtexture(FHardwareTexture *tex, int32_t doalloc, vec2_t siz, int32_t texfmt,
-	coltype* pic, vec2_t tsiz, int32_t dameth)
+void uploadtexture(FHardwareTexture *tex, coltype* pic)
 {
 	tex->LoadTexture((uint8_t *)pic);
 }
@@ -761,7 +713,7 @@ static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp* pth, in
     pth->palnum = 0;
     pth->shade = 0;
     pth->effects = 0;
-    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | (PTH_HASALPHA|PTH_ONEBITALPHA) | (npoty*PTH_NPOTWALL) | PTH_INDEXED;
+    pth->flags = (PTH_HASALPHA|PTH_ONEBITALPHA) | (npoty*PTH_NPOTWALL) | PTH_INDEXED;
     pth->hicr = NULL;
     pth->siz = siz;
 }
@@ -808,12 +760,6 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                 {
                     int32_t dacol;
                     int32_t x2 = (x < tsiz.x) ? x : x-tsiz.x;
-
-                    if ((dameth & DAMETH_CLAMPED) && (x >= tsiz.x || y >= tsiz.y)) //Clamp texture
-                    {
-                        wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0;
-                        continue;
-                    }
 
                     dacol = *(char *)(waloff[dapic]+x2*tsiz.y+y2);
 
@@ -909,8 +855,6 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
 			pth->glpic->CreateTexture(siz.x, siz.y, false, true);
 		}
 
-        fixtransparency(pic,tsiz,siz,dameth);
-
         if (polymost_want_npotytex(dameth, siz.y) && tsiz.x == siz.x && tsiz.y == siz.y)  // XXX
         {
             const int32_t nextpoty = 1 << ((picsiz[dapic] >> 4) + 1);
@@ -943,12 +887,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                 doalloc = true;
             }
         }
-        uploadtexture(pth->glpic, doalloc, siz, 1, pic, tsiz,
-                      dameth | DAMETH_ARTIMMUNITY |
-                      (dapic >= MAXUSERTILES ? (DAMETH_NOTEXCOMPRESS|DAMETH_NODOWNSIZE) : 0) | /* never process these short-lived tiles */
-                      (hasfullbright ? DAMETH_HASFULLBRIGHT : 0) |
-                      (npoty ? DAMETH_NPOTWALL : 0) |
-                      (hasalpha ? (DAMETH_HASALPHA|DAMETH_ONEBITALPHA) : 0));
+        uploadtexture(pth->glpic, pic);
 
         Xfree(pic);
     }
@@ -959,7 +898,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
     pth->palnum = dapal;
     pth->shade = dashade;
     pth->effects = 0;
-    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | (hasalpha*(PTH_HASALPHA|PTH_ONEBITALPHA)) | (npoty*PTH_NPOTWALL);
+    pth->flags = (hasalpha*(PTH_HASALPHA|PTH_ONEBITALPHA)) | (npoty*PTH_NPOTWALL);
     pth->hicr = NULL;
     pth->siz = tsiz;
 
@@ -1020,21 +959,25 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 	bool onebitalpha = texture->isMasked();
 
 	pth->glpic->LoadTexture(image);
+	vec2_t tsiz = { texture->GetWidth(), texture->GetHeight() };
+    // precalculate scaling parameters for replacement
+    if (facen > 0)
+        pth->scale = { (float)tsiz.x * (1.0f/64.f), (float)tsiz.y * (1.0f/64.f) };
+    else
+        pth->scale = { (float)tsiz.x / (float)tilesiz[dapic].x, (float)tsiz.y / (float)tilesiz[dapic].y };
 
     polymost_setuptexture(pth->glpic, dameth, (hicr->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
 
     pth->picnum = dapic;
     pth->effects = effect;
-    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) |
-                 PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) |
+    pth->flags = PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) |
                  (onebitalpha ? PTH_ONEBITALPHA : 0) |
                  (hasalpha ? PTH_HASALPHA : 0) |
                  ((hicr->flags & HICR_FORCEFILTER) ? PTH_FORCEFILTER : 0);
     pth->skyface = facen;
     pth->hicr = hicr;
+    pth->siz = tsiz;
 
-	// pretend to the higher level code that this texture is not scaled.
-	pth->scale = { 1.f, 1.f };
 	if (facen > 0) pth->siz = { 64, 64 }; else pth->siz = { tilesiz[dapic].x, tilesiz[dapic].y };
     return 0;
 }
@@ -1101,7 +1044,7 @@ int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
     if (palookup[pal] == NULL)
         pal = 0;
 
-    pthtyp* pth = texcache_fetch(tspr->picnum, pal, 0, DAMETH_MASK | DAMETH_CLAMPED);
+    pthtyp* pth = texcache_fetch(tspr->picnum, pal, 0, DAMETH_MASK);
     return pth && (pth->flags & PTH_HASALPHA) && !(pth->flags & PTH_ONEBITALPHA);
 }
 
@@ -1420,7 +1363,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
 
     // tinting
-    polytintflags_t const tintflags = hictinting[globalpal].f;
+	auto& h = hictinting[globalpal];
+	polytintflags_t const tintflags = h.f;
     if (!(tintflags & HICTINT_PRECOMPUTED))
     {
         if (pth->flags & PTH_HIGHTILE)
@@ -1431,6 +1375,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
             hictinting_apply(pc, globalpal);
     }
+	GLInterface.SetTinting(tintflags, PalEntry(h.sr, h.sg, h.sb));
 
     // global tinting
     if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
@@ -1600,6 +1545,7 @@ do                                                                              
 		GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
 	}
 
+	GLInterface.SetTinting(0,0);
 	GLInterface.UseDetailMapping(false);
 	GLInterface.UseGlowMapping(false);
 	GLInterface.SetNpotEmulation(false, 1.f, 0.f);
@@ -6779,7 +6725,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
-    texcache_fetch(dapicnum, dapalnum, 0, (datype & 1)*(DAMETH_CLAMPED|DAMETH_MASK));
+    texcache_fetch(dapicnum, dapalnum, 0, (datype & 1)*(DAMETH_MASK));
     hicprecaching = 0;
 
     if (datype == 0 || !usemodels) return;

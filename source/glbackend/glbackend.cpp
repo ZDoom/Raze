@@ -178,6 +178,8 @@ static GLint primtypes[] =
 	
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
+	// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
+
 	if (activeShader == polymostShader) renderState.Apply(polymostShader);
 	glBegin(primtypes[type]);
 	auto p = &Buffer[start];
