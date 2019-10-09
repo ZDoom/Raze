@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 #define ANIM_INTRO 0
 #define ANIM_SERP 1
@@ -31,3 +32,4 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 unsigned char *LoadAnm(short anim_num);
 void playanm(short anim_num);
+END_SW_NS

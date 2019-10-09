@@ -24,6 +24,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
 // CTW NOTE
 /*
 Known remaining issues:
@@ -93,6 +94,8 @@ Things required to make savegames work:
 #include "common_game.h"
 
 #include "crc32.h"
+
+BEGIN_SW_NS
 
 const char* AppProperName = "VoidSW";
 const char* AppTechnicalName = "voidsw";
@@ -5992,3 +5995,4 @@ saveable_module saveable_build =
 };
 
 // vim:ts=4:sw=4:expandtab:
+END_SW_NS

@@ -21,6 +21,8 @@
  */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
+
 #include "build.h"
 #include "baselayer.h"
 
@@ -29,6 +31,8 @@
 #include "crc32.h"
 
 #include "grpscan.h"
+
+BEGIN_SW_NS
 
 internalgrpfile grpfiles[numgrpfiles] =
 {
@@ -210,3 +214,4 @@ void FreeGroups(void)
     }
 }
 
+END_SW_NS

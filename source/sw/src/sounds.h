@@ -36,6 +36,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef sounds_public_
 #define sounds_public_
 
+BEGIN_SW_NS
+
 void SoundStartup(void);
 void SoundShutdown(void);
 void MusicStartup(void);
@@ -180,5 +182,7 @@ struct VOC3Dstruct
 };
 
 extern VOC_INFO voc[];
+
+END_SW_NS
 
 #endif

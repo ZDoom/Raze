@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #include "build.h"
 
 #include "keys.h"
@@ -38,6 +39,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "actor.h"
 #include "track.h"
+
+BEGIN_SW_NS
 
 //extern short Zombies;
 #define ZOMBIE_TIME_LIMIT ((120*20)/ACTORMOVETICS)
@@ -1038,3 +1041,4 @@ saveable_module saveable_zombie =
     saveable_zombie_data,
     SIZ(saveable_zombie_data)
 };
+END_SW_NS

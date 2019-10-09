@@ -28,6 +28,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define SPRITE_H
 
+BEGIN_SW_NS
+
 void KillSprite(int16_t SpriteNum);
 int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel);
 void SpriteSetup(void);
@@ -79,6 +81,8 @@ struct InventoryDecl_t
     int  amount;
 };
 extern struct InventoryDecl_t InventoryDecls[InvDecl_TOTAL];
+
+END_SW_NS
 
 #endif
 

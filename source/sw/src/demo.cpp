@@ -24,6 +24,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
 //#define MAIN
 //#define QUIET
 #include "build.h"
@@ -43,6 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 #include "menus.h"
 
+BEGIN_SW_NS
 
 DFILE DemoFileIn = DF_ERR;
 FILE *DemoFileOut;
@@ -654,3 +656,4 @@ ScenePlayBack(void)
 
 
 
+END_SW_NS

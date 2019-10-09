@@ -25,6 +25,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //-------------------------------------------------------------------------
 
 // scriplib.h
+BEGIN_SW_NS
 
 #define MAXTOKEN    255
 
@@ -47,3 +48,4 @@ void ExtractFileBase(char *path, char *dest);
 
 int ParseNum(char *str);
 
+END_SW_NS

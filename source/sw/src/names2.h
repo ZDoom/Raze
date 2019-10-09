@@ -29,6 +29,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "names.h"
 
+BEGIN_SW_NS
+
 // Rotation info
 
 //      4
@@ -1245,5 +1247,7 @@ enum STAT_ENUMS
 
 #define SCROLL 516
 #define SCROLL_FIRE 524
+
+END_SW_NS
 
 #endif

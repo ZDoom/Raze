@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #include "compat.h"
 #include "build.h"
 #include "cache1d.h"
@@ -52,6 +53,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifdef _WIN32
 #include "winlayer.h"
 #endif
+
+BEGIN_SW_NS
 
 extern USERp User[MAXSPRITES];
 void DumpSounds(void);
@@ -2062,3 +2065,4 @@ PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags)
 }
 
 // vim:ts=4:sw=4:expandtab:
+END_SW_NS

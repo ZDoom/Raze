@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #include "build.h"
 
 #include "names2.h"
@@ -33,6 +34,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "quake.h"
 #include "pal.h"
 #include "sprite.h"
+
+BEGIN_SW_NS
 
 extern short NormalVisibility;  // player.c
 extern SWBOOL GamePaused;
@@ -185,3 +188,4 @@ int SpawnVis(short Parent, short sectnum, int x, int y, int z, int amt)
     return SpriteNum;
 }
 
+END_SW_NS

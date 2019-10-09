@@ -24,6 +24,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
+
 #undef MAIN
 #include "build.h"
 
@@ -35,6 +37,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "text.h"
 #include "colormap.h"
 #include "player.h"
+
+BEGIN_SW_NS
 
 //#define SAVE_EXTERN
 //#include "_save.h"
@@ -1148,3 +1152,4 @@ PlayerUpdateInventoryState(PLAYERp pp)
         InventoryDisplayString(pp, x, y, 0, ds);
     }
 }
+END_SW_NS

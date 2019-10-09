@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 #define SHORT_MAXINTERPOLATIONS 256
 extern short short_numinterpolations, short_startofdynamicinterpolations;
@@ -41,3 +42,4 @@ void stopinterpolation(int *posptr);
 void updateinterpolations(void);
 void dointerpolations(int smoothratio);
 void restoreinterpolations(void);
+END_SW_NS

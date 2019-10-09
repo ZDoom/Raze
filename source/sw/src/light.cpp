@@ -23,11 +23,15 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 
 #include "names2.h"
 #include "game.h"
 #include "light.h"
+
+BEGIN_SW_NS
 
 /* #define LIGHT_Match(sp)         (SP_TAG2((sp)))                      */
 /* #define LIGHT_Type(sp)          (SP_TAG3((sp)))                      */
@@ -424,3 +428,4 @@ void DoLighting(void)
         }
     }
 }
+END_SW_NS

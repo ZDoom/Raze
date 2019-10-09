@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 #include "common.h"
 
@@ -38,6 +40,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ai.h"
 
 #include "network.h"
+
+BEGIN_SW_NS
 
 SWBOOL PlayerTakeDamage(PLAYERp, short);
 ANIMATOR InitActorRunToward;
@@ -2229,3 +2233,4 @@ saveable_module saveable_ai =
     saveable_ai_data,
     SIZ(saveable_ai_data)
 };
+END_SW_NS

@@ -26,6 +26,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
+
 #include "build.h"
 #include "editor.h"
 #include "cache1d.h"
@@ -34,6 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 #include "game.h"
 
+BEGIN_SW_NS
 
 #define M_RED 12
 #define M_BLUE 9
@@ -219,3 +222,4 @@ void ContextHelp(short spritenum)
 }
 
 
+END_SW_NS

@@ -31,6 +31,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "mytypes.h"
 #include "game.h"
 
+BEGIN_SW_NS
+
 #define FRAG_BAR 2920
 
 #define PRI_FRONT_MAX   250
@@ -197,5 +199,7 @@ void pKillSprite(PANEL_SPRITEp psp);
 void InitChops(PLAYERp pp);
 void ChopsSetRetract(PLAYERp pp);
 void PlayerUpdateTimeLimit(PLAYERp pp);
+
+END_SW_NS
 
 #endif

@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 #include "common.h"
 
@@ -33,6 +35,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "break.h"
 #include "quake.h"
 #include "sprite.h"
+
+BEGIN_SW_NS
 
 #define QUAKE_Match(sp) (SP_TAG2(sp))
 #define QUAKE_Zamt(sp) (SP_TAG3(sp))
@@ -367,3 +371,4 @@ saveable_module saveable_quake =
     NULL,0
 };
 
+END_SW_NS

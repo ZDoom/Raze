@@ -23,7 +23,9 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 void ProcessVisOn(void);
 void VisViewChange(PLAYERp pp, int *vis);
 int SpawnVis(short Parent, short sectnum, int x, int y, int z, int amt);
+END_SW_NS

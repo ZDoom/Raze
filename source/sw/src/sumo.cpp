@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #include "build.h"
 
 #include "keys.h"
@@ -36,6 +37,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "weapon.h"
 #include "sector.h"
+
+BEGIN_SW_NS
 
 extern uint8_t RedBookSong[40];
 extern uint8_t playTrack;
@@ -1059,3 +1062,4 @@ saveable_module saveable_sumo =
     saveable_sumo_data,
     SIZ(saveable_sumo_data)
 };
+END_SW_NS

@@ -24,6 +24,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
 // rts.c
 
 #include "build.h"
@@ -34,6 +35,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "_rts.h"
 #include "rts.h"
 #include "cache.h"
+
+BEGIN_SW_NS
 
 char ValidPtr(void *ptr);
 void *AllocMem(int size);
@@ -339,3 +342,4 @@ void *RTS_GetSound(int32_t lump)
     return (void *)lumpcache[lump];
 }
 #endif
+END_SW_NS

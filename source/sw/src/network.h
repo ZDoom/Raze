@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 #define PACKET_TYPE_MASTER_TO_SLAVE                 0
 #define PACKET_TYPE_SLAVE_TO_MASTER                 1
@@ -204,3 +205,4 @@ void SW_SendMessage(short pnum,const char *text);
 void PauseGame(void);
 void ResumeGame(void);
 
+END_SW_NS

@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 #ifdef MAKE_STAG_ENUM
 #define STAG_ENTRY(st1_name, number, flgs)  st1_name = number,
@@ -227,3 +228,4 @@ STAG_ENTRY(ECHOSPOT,                   1005,    0)
 STAG_ENTRY(DRIP_GENERATOR,             1006,    0)
 
 #undef STAG_ENTRY
+END_SW_NS

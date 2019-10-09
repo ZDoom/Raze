@@ -23,12 +23,15 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #include "build.h"
 
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
 #include "warp.h"
+
+BEGIN_SW_NS
 
 void _ErrMsg(const char *strFile, unsigned uLine, const char *format, ...);
 void FAF_DrawRooms(int posx, int posy, int posz, short ang, int horiz, short cursectnum);
@@ -1148,3 +1151,4 @@ DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
     }
 }
 
+END_SW_NS

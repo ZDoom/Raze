@@ -29,6 +29,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "reserve.h"
 
+BEGIN_SW_NS
+
 #define MAXMIRRORDIST       3300    // At this distance, or less, the magic mirrors activate.
 #define MAXMIRRORMONSTERS   4       // Max monsters any one magic mirror can spawn
 
@@ -76,5 +78,7 @@ void JS_ToggleLockouts(void);
 void JS_UnInitLockouts(void);
 void JS_ProcessEchoSpot(void);
 void JS_SpriteSetup(void);
+
+END_SW_NS
 
 #endif

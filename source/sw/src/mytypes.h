@@ -30,6 +30,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "compat.h"
 
+BEGIN_SW_NS
+
 #define OFF     0
 #define ON     (!OFF)
 
@@ -152,6 +154,8 @@ typedef unsigned char SWBOOL;
 //#define ABS(num) ((num) < 0 ? -(num) : (num))
 
 #define BETWEEN(x,low,high) (((x) >= (low)) && ((x) <= (high)))
+
+END_SW_NS
 
 #endif
 

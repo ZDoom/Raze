@@ -27,6 +27,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define SECTOR_H
 
+BEGIN_SW_NS
 
 void SectorSetup(void);
 DOOR_AUTO_CLOSEp SetDoorAutoClose(short SectorNum, short Type);
@@ -76,5 +77,7 @@ void WeaponExplodeSectorInRange(short weapon);
 
 void initlava(void);
 void movelava(char *dapic);
+
+END_SW_NS
 
 #endif

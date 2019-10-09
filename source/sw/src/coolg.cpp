@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 
 #include "keys.h"
@@ -34,6 +36,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "actor.h"
 #include "weapon.h"
 #include "track.h"
+
+BEGIN_SW_NS
 
 ANIMATOR DoCoolgCircle,InitCoolgCircle;
 
@@ -994,3 +998,4 @@ saveable_module saveable_coolg =
     saveable_coolg_data,
     SIZ(saveable_coolg_data)
 };
+END_SW_NS

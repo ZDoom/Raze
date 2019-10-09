@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 #include "osd.h"
 
@@ -52,6 +54,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "colormap.h"
 #include "config.h"
+
+BEGIN_SW_NS
 
 //#define PLOCK_VERSION TRUE
 
@@ -5295,3 +5299,4 @@ void ResetPalette(PLAYERp pp)
 // vim:ts=4:sw=4:enc=utf-8:
 
 
+END_SW_NS

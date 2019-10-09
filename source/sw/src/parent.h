@@ -27,6 +27,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef PARENT_PUBLIC_
 #define PARENT_PUBLIC_
 
+BEGIN_SW_NS
+
 #define INVISTILE 6145
 
 typedef struct TILE_INFO_TYPE
@@ -65,4 +67,7 @@ extern OrgTileList orgsectorceilinglist;       // The list containing orginal se
 // ceiling pics
 extern OrgTileList orgsectorfloorlist;         // The list containing orginal sector
 // floor pics
+
+END_SW_NS
+
 #endif

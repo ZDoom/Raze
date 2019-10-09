@@ -33,9 +33,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "keyboard.h"
 #include "control.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+BEGIN_SW_NS
 
 #define SETUPNAMEPARM "SETUPFILE"
 
@@ -132,7 +130,5 @@ int32_t CONFIG_FunctionNameToNum(const char *func);
 const char *CONFIG_AnalogNumToName(int32_t func);
 int32_t CONFIG_AnalogNameToNum(const char *func);
 
-#ifdef __cplusplus
-};
-#endif
+END_SW_NS
 #endif

@@ -24,10 +24,14 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
+
 #include "compat.h"
 #include "pragmas.h"
 
 #include "interp.h"
+
+BEGIN_SW_NS
 
 #define SHORT_MAXINTERPOLATIONS 256
 short short_numinterpolations = 0, short_startofdynamicinterpolations = 0;
@@ -107,3 +111,4 @@ void short_restoreinterpolations(void)                 // Stick at end of drawsc
     for (i = short_numinterpolations - 1; i >= 0; i--)
         *short_curipos[i] = short_bakipos[i];
 }
+END_SW_NS

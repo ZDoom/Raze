@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 void DoQuakeMatch(short match);
 void ProcessQuakeOn(void);
@@ -37,3 +38,4 @@ int SetNuclearQuake(int16_t Weapon);
 int SetSumoQuake(int16_t SpriteNum);
 int SetSumoFartQuake(int16_t SpriteNum);
 
+END_SW_NS

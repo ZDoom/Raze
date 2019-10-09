@@ -28,6 +28,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define LISTS_H
 
+BEGIN_SW_NS
+
 /********************************************************************/
 
 typedef
@@ -63,6 +65,8 @@ typedef
                                                                               o = n)
 
 #define EMPTY(list)          (((LIST) list)->Next == (LIST) list)
+
+END_SW_NS
 
 #endif
 

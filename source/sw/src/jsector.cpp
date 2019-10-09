@@ -26,6 +26,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 // JSECTOR.C
 // This is all Jim's programming having to do with sectors.
+#include "ns.h"
 
 #include "build.h"
 
@@ -45,6 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "parent.h"
 
+BEGIN_SW_NS
 
 // V A R I A B L E   D E C L A R A T I O N S //////////////////////////////////////////////////////
 
@@ -1474,3 +1476,4 @@ UnlockKeyLock(short key_num, short hit_sprite)
 
     }
 }
+END_SW_NS

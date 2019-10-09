@@ -28,6 +28,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 Removed sounds that were causing "Could
 not load" error messages.
 ****************************************/
+#include "ns.h"
 
 #include "build.h"
 
@@ -41,6 +42,8 @@ not load" error messages.
 #include "cache.h"
 #include "sounds.h"
 #include "network.h"
+
+BEGIN_SW_NS
 
 // Run the game with the -CACHEPRINT option and redirect to a file.
 // It will save out the tile and sound number every time one caches.
@@ -726,3 +729,4 @@ precache(void)
 }
 
 
+END_SW_NS

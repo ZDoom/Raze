@@ -27,6 +27,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef NINJA_H
 #define NINJA_H
 
+BEGIN_SW_NS
+
 #define NINJA_NORMAL_SPEED          60
 #define NINJA_RUN_AWAY_SPEED        130
 #define NINJA_FIND_PLAYER_SPEED     100
@@ -38,5 +40,7 @@ void InitAllPlayerSprites(void);
 void PlayerPanelSetup(void);
 void PlayerDeathReset(PLAYERp pp);
 void SpawnPlayerUnderSprite(PLAYERp pp);
+
+END_SW_NS
 
 #endif

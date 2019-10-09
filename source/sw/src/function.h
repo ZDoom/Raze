@@ -34,6 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #ifndef function_public_
 #define function_public_
+BEGIN_SW_NS
 
 #define NUMGAMEFUNCTIONS 51
 
@@ -93,4 +94,6 @@ enum
     gamefunc_Show_Menu,
     gamefunc_Show_Console,
 };
+END_SW_NS
+
 #endif

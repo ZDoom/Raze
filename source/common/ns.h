@@ -11,7 +11,7 @@
 #define BEGIN_BLD_NS namespace Blood {
 #define END_BLD_NS }
 
-#define BEGIN_SW_NS namespace Blood {
+#define BEGIN_SW_NS namespace ShadowWarrior {
 #define END_SW_NS }
 
 #else

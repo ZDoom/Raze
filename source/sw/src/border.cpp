@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 
 #include "keys.h"
@@ -33,6 +35,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "common_game.h"
 #include "network.h"
 #include "text.h"
+
+BEGIN_SW_NS
 
 #define BAR_HEIGHT 48
 #define XDIM 320
@@ -582,3 +586,4 @@ SetRedrawScreen(PLAYERp pp)
     RedrawScreen = TRUE;
 }
 
+END_SW_NS

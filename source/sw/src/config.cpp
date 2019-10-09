@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 #include "baselayer.h"
 #include "osd.h"
@@ -48,6 +50,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
 # include "sdl_inc.h"
 #endif
+
+BEGIN_SW_NS
 
 extern void ReadGameSetup(int32_t scripthandle);
 extern void WriteGameSetup(int32_t scripthandle);
@@ -753,3 +757,4 @@ void CONFIG_WriteSetup(void)
     SCRIPT_Free(scripthandle);
 }
 
+END_SW_NS

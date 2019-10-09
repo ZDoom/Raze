@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 
 #include "names2.h"
@@ -33,6 +35,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ai.h"
 #include "player.h"
 #include "game.h"
+
+BEGIN_SW_NS
 
 void ScaleSectorObject(SECTOR_OBJECTp);
 
@@ -586,3 +590,4 @@ saveable_module saveable_morph =
     // data
     NULL,0
 };
+END_SW_NS

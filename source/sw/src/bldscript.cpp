@@ -26,6 +26,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
 // scriplib.c
 #include "build.h"
 #include "editor.h"
@@ -38,6 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define PATHSEPERATOR   '\\'
 
+BEGIN_SW_NS
 
 //#define COMPUTE_TOTALS	1
 
@@ -641,3 +643,4 @@ void LogUserTime( SWBOOL bIsLoggingIn )
 
 }
 */
+END_SW_NS

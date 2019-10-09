@@ -23,11 +23,15 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 
 #include "keys.h"
 #include "pal.h"
 #include "game.h"
+
+BEGIN_SW_NS
 
 short f_c = 3;
 static char tempbuf[256];
@@ -465,3 +469,4 @@ void GetPaletteFromVESA(unsigned char *pal)
     }
     //    fprintf(stderr,"GetPaletteFromVESA() called\n");
 }
+END_SW_NS

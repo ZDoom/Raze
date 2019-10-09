@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+
+#include "ns.h"
 #include "build.h"
 #include "cache1d.h"
 
@@ -45,6 +47,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "animlib.h"
 #include "anim.h"
+
+BEGIN_SW_NS
 
 #define MAX_ANMS 10
 anim_t *anm_ptr[MAX_ANMS];
@@ -387,3 +391,4 @@ ENDOFANIMLOOP:
     ANIM_FreeAnim();
     walock[ANIM_TILE(ANIMnum)] = 1;
 }
+END_SW_NS

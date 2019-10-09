@@ -34,6 +34,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #ifndef function_private_
 #define function_private_
+
+BEGIN_SW_NS
+
 const char *gamefunctions[] =
 {
     "Move_Forward",
@@ -381,4 +384,5 @@ static const char *joystickdigitaldefaults[] =
     "",
     "",
 };
+END_SW_NS
 #endif

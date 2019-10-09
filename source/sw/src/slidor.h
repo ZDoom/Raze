@@ -26,6 +26,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #ifndef SLIDOR_PUBLIC_
 #define SLIDOR_PUBLIC_
+BEGIN_SW_NS
 
 short DoSlidorMatch(PLAYERp pp, short match, SWBOOL);
 SWBOOL TestSlidorMatchActive(short match);
@@ -37,4 +38,5 @@ typedef INTERP_FUNC *INTERP_FUNCp;
 void SetSlidorActive(short SpriteNum);
 void DoSlidorInterp(short, INTERP_FUNCp);
 
+END_SW_NS
 #endif

@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 
 #include "keys.h"
@@ -36,6 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "function.h"
 //#include "inv.h"
 
+BEGIN_SW_NS
 
 SWBOOL CheatInputMode = FALSE;
 char CheatInputString[256];
@@ -470,3 +473,4 @@ void CheatInput(void)
     }
 
 */
+END_SW_NS

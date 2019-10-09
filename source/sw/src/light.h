@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 
 void SectorLightShade(SPRITEp sp, short intensity);
@@ -52,3 +53,4 @@ void DoLighting(void);
 #define LIGHT_DiffuseMult(sp) (SP_TAG4((sp)))
 
 enum LightTypes {LIGHT_CONSTANT, LIGHT_FLICKER, LIGHT_FADE, LIGHT_FLICKER_ON, LIGHT_FADE_TO_ON_OFF};
+END_SW_NS

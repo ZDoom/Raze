@@ -34,9 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #ifndef common_public_
 #define common_public_
-#ifdef __cplusplus
-extern "C" {
-#endif
+BEGIN_SW_NS
 
 //****************************************************************************
 //
@@ -143,7 +141,5 @@ void clearGrpNamePtr(void);
 
 void SW_InitMultiPsky(void);
 
-#ifdef __cplusplus
-};
-#endif
+END_SW_NS
 #endif

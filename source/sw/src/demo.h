@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 extern FILE *DemoFile;
 extern SWBOOL DemoPlaying;
@@ -74,3 +75,4 @@ void ScenePlayBack(void);
 void DemoRecordSetup(void);
 void DemoDebugWrite(void);
 void DemoWriteBuffer(void);
+END_SW_NS

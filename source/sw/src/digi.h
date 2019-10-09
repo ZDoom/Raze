@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 #ifdef DIGI_TABLE
 #define DIGI_ENTRY(name, id, id_num, pri, pitch_lo, pitch_hi, voc_num, voc_dist, voc_flags) { name, NULL, 0, pitch_lo, pitch_hi, pri, voc_num, voc_dist, voc_flags, 0,0},
@@ -990,3 +991,4 @@ DIGI_ENTRY("ZC9.VOC",     DIGI_ZC9,               624,      PRI_PLAYERVOICE, 0, 
 DIGI_ENTRY("Z16043.VOC",  DIGI_Z16043,            625,      PRI_PLAYERVOICE, 0,      0, 0, DIST_NORMAL, VF_NORMAL)
 
 #undef DIGI_ENTRY
+END_SW_NS

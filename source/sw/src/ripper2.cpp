@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #include "build.h"
 
 #include "keys.h"
@@ -36,6 +37,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sprite.h"
 #include "track.h"
 #include "fx_man.h"
+
+BEGIN_SW_NS
 
 ANIMATOR InitRipper2Hang;
 ANIMATOR DoActorMoveJump;
@@ -1464,3 +1467,4 @@ saveable_module saveable_ripper2 =
     saveable_ripper2_data,
     SIZ(saveable_ripper2_data)
 };
+END_SW_NS

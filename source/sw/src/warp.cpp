@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #include "build.h"
 
 #include "names2.h"
@@ -30,6 +31,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "game.h"
 
 #include "warp.h"
+
+BEGIN_SW_NS
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -256,3 +259,4 @@ Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 
     return NULL;
 }
+END_SW_NS

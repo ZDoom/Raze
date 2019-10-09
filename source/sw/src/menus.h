@@ -30,6 +30,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef MENUS_PUBLIC_
 #define MENUS_PUBLIC_
 
+BEGIN_SW_NS
+
 #define MENU_SHADE_DEFAULT 0
 #define MENU_SHADE_INACTIVE 20
 
@@ -339,5 +341,7 @@ typedef struct
 {
     int x,y;
 } VMODE;
+
+END_SW_NS
 
 #endif

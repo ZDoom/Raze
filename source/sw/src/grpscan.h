@@ -24,6 +24,8 @@
 #ifndef grpscan_h__
 #define grpscan_h__
 
+BEGIN_SW_NS
+
 // List of internally-known GRP files
 #define numgrpfiles 3
 struct internalgrpfile
@@ -45,5 +47,7 @@ extern grpfile *foundgrps;
 
 int ScanGroups(void);
 void FreeGroups(void);
+
+END_SW_NS
 
 #endif

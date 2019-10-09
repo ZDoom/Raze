@@ -58,6 +58,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #ifndef rts_public__
 #define rts_public__
 
+BEGIN_SW_NS
+
 /*
 ====================
 =
@@ -108,4 +110,7 @@ char *RTS_GetSoundName(int32_t i);
 ====================
 */
 void *RTS_GetSound(int32_t lump);
+
+END_SW_NS
+
 #endif

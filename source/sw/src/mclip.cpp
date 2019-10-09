@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 #include "common.h"
 
@@ -34,6 +36,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "player.h"
 #include "mclip.h"
+
+BEGIN_SW_NS
 
 #if 0
 int MultiClipMove(PLAYERp pp, int z, int floor_dist)
@@ -560,3 +564,4 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
 
     return FALSE;
 }
+END_SW_NS

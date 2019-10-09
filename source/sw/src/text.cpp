@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #undef MAIN
 #include "build.h"
 
@@ -37,6 +38,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "menus.h"
 
 #include "network.h"
+
+BEGIN_SW_NS
 
 #define PANEL_FONT_G 3636
 #define PANEL_FONT_Y 3646
@@ -533,3 +536,4 @@ void PutStringPlayerInfo(PLAYERp pp, const char *string)
 
     PutStringTimer(pp, x, y, string, GlobInfoStringTime);
 }
+END_SW_NS

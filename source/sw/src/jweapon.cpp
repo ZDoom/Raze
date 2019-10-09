@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 #include "common.h"
 
@@ -43,6 +45,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sprite.h"
 #include "sector.h"
 #include "actor.h"
+
+BEGIN_SW_NS
 
 ANIMATOR NullAnimator,DoSuicide;
 ANIMATOR DoBloodSpray;
@@ -2614,3 +2618,4 @@ saveable_module saveable_jweapon =
     saveable_jweapon_data,
     SIZ(saveable_jweapon_data)
 };
+END_SW_NS

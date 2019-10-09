@@ -958,6 +958,84 @@ set (PCH_SOURCES
 	blood/src/view.cpp
 	blood/src/warp.cpp
 	blood/src/weapon.cpp
+	
+	sw/src/actor.cpp
+	sw/src/ai.cpp
+	sw/src/anim.cpp
+	sw/src/bldscript.cpp
+	sw/src/border.cpp
+	sw/src/break.cpp
+	sw/src/brooms.cpp
+	sw/src/bunny.cpp
+	sw/src/cache.cpp
+	sw/src/cheats.cpp
+	sw/src/colormap.cpp
+	sw/src/common.cpp
+	sw/src/config.cpp
+	sw/src/console.cpp
+	sw/src/coolg.cpp
+	sw/src/coolie.cpp
+	sw/src/copysect.cpp
+	sw/src/demo.cpp
+	sw/src/draw.cpp
+	sw/src/eel.cpp
+	sw/src/game.cpp
+	sw/src/girlninj.cpp
+	sw/src/goro.cpp
+	sw/src/grpscan.cpp
+	sw/src/hornet.cpp
+	sw/src/interp.cpp
+	sw/src/interpsh.cpp
+	sw/src/inv.cpp
+	sw/src/jbhlp.cpp
+	sw/src/jplayer.cpp
+	sw/src/jsector.cpp
+	sw/src/jweapon.cpp
+	sw/src/lava.cpp
+	sw/src/light.cpp
+	sw/src/mclip.cpp
+	sw/src/mdastr.cpp
+	sw/src/menus.cpp
+	sw/src/miscactr.cpp
+	sw/src/morph.cpp
+	sw/src/network.cpp
+	sw/src/ninja.cpp
+	sw/src/panel.cpp
+	sw/src/player.cpp
+	sw/src/predict.cpp
+	sw/src/quake.cpp
+	sw/src/ripper.cpp
+	sw/src/ripper2.cpp
+	sw/src/rooms.cpp
+	sw/src/rotator.cpp
+	sw/src/rts.cpp
+	sw/src/save.cpp
+	sw/src/saveable.cpp
+	sw/src/scrip2.cpp
+	sw/src/sector.cpp
+	sw/src/serp.cpp
+	sw/src/setup.cpp
+	sw/src/skel.cpp
+	sw/src/skull.cpp
+	sw/src/slidor.cpp
+	sw/src/sounds.cpp
+	sw/src/spike.cpp
+	sw/src/sprite.cpp
+	sw/src/startgtk.game.cpp
+	sw/src/startwin.game.cpp
+	sw/src/sumo.cpp
+	sw/src/swconfig.cpp
+	sw/src/sync.cpp
+	sw/src/text.cpp
+	sw/src/track.cpp
+	sw/src/vator.cpp
+	sw/src/vis.cpp
+	sw/src/wallmove.cpp
+	sw/src/warp.cpp
+	sw/src/weapon.cpp
+	sw/src/zilla.cpp
+	sw/src/zombie.cpp
+	
 
 	common/utility/m_argv.cpp
 	common/utility/files.cpp

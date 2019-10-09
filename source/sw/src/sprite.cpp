@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #include "build.h"
 
 #include "keys.h"
@@ -47,6 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "slidor.h"
 #include "player.h"
 
+BEGIN_SW_NS
 
 SWBOOL FAF_Sector(short sectnum);
 SWBOOL MoveSkip4, MoveSkip2, MoveSkip8;
@@ -7735,3 +7737,4 @@ saveable_module saveable_sprite =
     SIZ(saveable_sprite_data)
 };
 
+END_SW_NS

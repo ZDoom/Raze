@@ -28,6 +28,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // Handles all argument storing and user console variable modifications.
 // Copyright (c) 1996 by Jim Norwood
 
+#include "ns.h"
+
 #include "build.h"
 
 #include "mytypes.h"
@@ -54,6 +56,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "text.h"
 #include "jsector.h"
+
+BEGIN_SW_NS
 
 // DEFINES ///////////////////////////////////////////////////////////////////////////////////
 #define MAX_USER_ARGS           100
@@ -1422,3 +1426,4 @@ void CON_DumpSoundList(void)
 
 }
 
+END_SW_NS

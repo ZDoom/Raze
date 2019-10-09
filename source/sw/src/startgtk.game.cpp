@@ -2,6 +2,7 @@
  * then patch into this file whenever you make a change to the Glade
  * template.
  */
+#include "ns.h"
 
 #include "compat.h"
 
@@ -24,6 +25,8 @@
 #define TAB_CONFIG 0
 #define TAB_GAME 1
 #define TAB_MESSAGES 2
+
+BEGIN_SW_NS
 
 static struct
 {
@@ -750,3 +753,4 @@ int startwin_run(void)
     return retval;
 }
 
+END_SW_NS

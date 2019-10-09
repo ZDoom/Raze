@@ -1,6 +1,7 @@
 #ifndef _WIN32
 #error Only for Windows
 #endif
+#include "ns.h"
 
 #include "build.h"
 
@@ -19,6 +20,8 @@
 #include "grpscan.h"
 
 #include "startwin.game.h"
+
+BEGIN_SW_NS
 
 #define TAB_CONFIG 0
 #define TAB_GAME 1
@@ -671,3 +674,4 @@ int startwin_run(void)
 }
 
 
+END_SW_NS

@@ -27,6 +27,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamedefs.h"
 // Only ad to the end. These currently have to be in this order because of the
 // way they are initilized.
+BEGIN_SW_NS
 
 typedef struct
 {
@@ -74,3 +75,4 @@ typedef struct
 extern const GAME_SET gs_defaults;
 extern GAME_SET gs;
 
+END_SW_NS

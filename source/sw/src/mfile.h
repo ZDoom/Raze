@@ -27,6 +27,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "compat.h"
 #include "cache1d.h"
 
+BEGIN_SW_NS
+
 typedef BFILE* MFILE_WRITE;
 typedef int32_t MFILE_READ;
 #define MREAD(ptr, size, num,handle) kdfread((ptr),(size),(num),(handle))
@@ -37,3 +39,4 @@ typedef int32_t MFILE_READ;
 #define MCLOSE_READ(handle) kclose(handle)
 #define MOPEN_WRITE_ERR 0
 #define MOPEN_READ_ERR -1
+END_SW_NS

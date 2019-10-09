@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 
 #include "keys.h"
@@ -33,6 +35,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ai.h"
 #include "actor.h"
 #include "track.h"
+
+BEGIN_SW_NS
 
 DECISION LavaBattle[] =
 {
@@ -567,3 +571,4 @@ saveable_module saveable_lava =
     saveable_lava_data,
     SIZ(saveable_lava_data)
 };
+END_SW_NS

@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 #ifdef DAMAGE_TABLE
 #define DAMAGE_ENTRY(id, init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon) \
@@ -106,3 +107,4 @@ DAMAGE_ENTRY(MAX_WEAPONS,         NULL,                10,    20,   0, -1, -1, -
 
 #undef DAMAGE_ENTRY
 #undef DAMAGE_ENTRY_WPN
+END_SW_NS

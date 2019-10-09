@@ -27,6 +27,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef AI_H
 
 #define AI_H
+BEGIN_SW_NS
 
 // Call functions based on a random range value
 typedef struct
@@ -162,5 +163,7 @@ DoActorExtra6Noise;
 */
 
 void DoActorSetSpeed(short SpriteNum, uint8_t speed);
+
+END_SW_NS
 
 #endif

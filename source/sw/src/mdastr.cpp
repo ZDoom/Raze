@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #include "build.h"
 
 #include "mytypes.h"
@@ -30,6 +32,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 //#include "panel.h"
 #include "game.h"
+
+BEGIN_SW_NS
 
 // macros this function needs
 //#define MK_FP(seg,ofs)       ((void _seg *)(seg)+(void near *)(ofs))
@@ -80,3 +84,4 @@ PokeStringMono(uint8_t Attr, uint8_t* String)
 }
 //#endif
 
+END_SW_NS

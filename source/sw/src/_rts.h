@@ -51,6 +51,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #ifndef rts_private__
 #define rts_private__
+BEGIN_SW_NS
 
 //===============
 //   TYPES
@@ -75,5 +76,7 @@ typedef struct
     int32_t size;
     char name[8];
 } filelump_t;
+
+END_SW_NS
 
 #endif

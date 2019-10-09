@@ -27,6 +27,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef BREAK_PUBLIC_
 #define BREAK_PUBLIC_
 
+BEGIN_SW_NS
+
 #define BF_TOUGH (BIT(0))
 #define BF_KILL  (BIT(1))
 #define BF_BURN  (BIT(2))
@@ -51,5 +53,7 @@ int HitBreakSprite(short BreakSprite, short type);
 SWBOOL CheckBreakToughness(BREAK_INFOp break_info, short ID);
 int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, short *ang);
 void SortBreakInfo(void);
+
+END_SW_NS
 
 #endif

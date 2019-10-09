@@ -1,7 +1,10 @@
+#include "ns.h"
 
 #include "build.h"
 
 #include "common_game.h"
+
+BEGIN_SW_NS
 
 static const char *defaultgrpfilename = "sw.grp";
 static const char *defaultdeffilename = "sw.def";
@@ -47,3 +50,4 @@ void SW_InitMultiPsky(void)
     defaultsky->lognumtiles = 1;
     defaultsky->horizfrac = 8192;
 }
+END_SW_NS

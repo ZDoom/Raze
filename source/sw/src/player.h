@@ -119,6 +119,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define PLAYER_NINJA_XREPEAT (47)
 #define PLAYER_NINJA_YREPEAT (33)
 
+BEGIN_SW_NS
+
 int SetVisHigh(void);
 int SetVisNorm(void);
 void DoWeapon(void);
@@ -141,5 +143,7 @@ void UpdatePlayerSprite(PLAYERp pp);
 void PlaySOsound(short sectnum,short sound_num);
 void DoSpawnTeleporterEffectPlace(SPRITEp sp);
 void FindMainSector(SECTOR_OBJECTp sop);
+
+END_SW_NS
 
 #endif

@@ -24,6 +24,8 @@
 #ifndef SAVEABLE_H
 #define SAVEABLE_H
 
+BEGIN_SW_NS
+
 typedef void *saveable_code;
 
 typedef struct
@@ -66,5 +68,7 @@ int Saveable_FindDataSym(void *ptr, saveddatasym *sym);
 
 int Saveable_RestoreCodeSym(savedcodesym *sym, void **ptr);
 int Saveable_RestoreDataSym(saveddatasym *sym, void **ptr);
+
+END_SW_NS
 
 #endif

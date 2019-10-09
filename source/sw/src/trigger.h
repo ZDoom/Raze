@@ -24,4 +24,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+BEGIN_SW_NS
+
 enum TriggerType {TRIGGER_TYPE_REMOTE_SO};
+END_SW_NS

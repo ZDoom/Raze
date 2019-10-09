@@ -21,8 +21,12 @@
  */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
+
 #include "compat.h"
 #include "saveable.h"
+
+BEGIN_SW_NS
 
 #define maxModules 35
 
@@ -165,3 +169,4 @@ int Saveable_RestoreDataSym(saveddatasym *sym, void **ptr)
 
     return 0;
 }
+END_SW_NS

@@ -26,6 +26,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 // JPLAYER.C
 // Copyright (c) 1996 by Jim Norwood
+#include "ns.h"
 
 #include "build.h"
 
@@ -51,6 +52,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 
 #include "bots.h"
+
+BEGIN_SW_NS
 
 SWBOOL WeaponOK(PLAYERp pp);
 
@@ -898,3 +901,4 @@ void computergetinput(int snum, SW_PACKET *syn)
     */
 }
 
+END_SW_NS

@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+BEGIN_SW_NS
 
 #define RECT_CLIP 1
 
@@ -33,3 +34,4 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy);
 int testpointinquad(int x, int y, int *qx, int *qy);
 //short RectClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist, int *qx, int *qy);
 short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy);
+END_SW_NS

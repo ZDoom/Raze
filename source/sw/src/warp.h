@@ -24,8 +24,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+BEGIN_SW_NS
 SWBOOL WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor);
 SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
 SPRITEp WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
 SWBOOL WarpSectorInfo(short sectnum, SPRITEp *sp_warp);
 SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
+END_SW_NS

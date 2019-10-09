@@ -41,6 +41,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sounds.h"
 #include "settings.h"
 
+BEGIN_SW_NS
+
 //#define SW_SHAREWARE 1     // This determines whether game is shareware compile or not!
 extern char isShareware, useDarts;
 #define SW_SHAREWARE (isShareware)
@@ -2384,3 +2386,5 @@ void SetSpikeActive(short SpriteNum);   // spike.c
 int COVERinsertsprite(short sectnum, short statnum);   //returns (short)spritenum;
 
 void AudioUpdate(void); // stupid
+
+END_SW_NS

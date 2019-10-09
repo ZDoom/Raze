@@ -24,6 +24,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+BEGIN_SW_NS
+
 #define CACHE_NONE          0       // don't use this - this is for ken
 #define CACHE_LOCK_MAX      255
 #define CACHE_LOCK_START    200
@@ -38,3 +40,4 @@ void PreCacheRange(short start_pic, short end_pic);
 void DoTheCache(void);
 void precache(void);
 
+END_SW_NS

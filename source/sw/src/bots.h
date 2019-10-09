@@ -30,6 +30,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef BOTS_H
 #define BOTS_H
 
+BEGIN_SW_NS
 
 // BOT DEFINITIONS AND STRUCTURES
 
@@ -105,5 +106,7 @@ typedef struct BOT_BRAIN
 ////////////////////////
 extern NODETREE BOT_TREELIST[25][50]; // There can be up to 50 of each item
 // with a cooresponding search tree for each
+
+END_SW_NS
 
 #endif

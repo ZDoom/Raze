@@ -24,10 +24,14 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
+
 #include "compat.h"
 #include "pragmas.h"
 
 #include "interp.h"
+
+BEGIN_SW_NS
 
 #define MAXINTERPOLATIONS 1024
 int numinterpolations = 0, startofdynamicinterpolations = 0;
@@ -107,3 +111,4 @@ void restoreinterpolations(void)                 // Stick at end of drawscreen
     for (i = numinterpolations - 1; i >= 0; i--)
         *curipos[i] = bakipos[i];
 }
+END_SW_NS

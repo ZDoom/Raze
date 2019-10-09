@@ -23,6 +23,7 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
 #include "build.h"
 #include "common.h"
 
@@ -45,6 +46,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "common_game.h"
 #include "light.h"
 #include "text.h"
+
+BEGIN_SW_NS
 
 #define LAVASIZ 128
 #define LAVALOGSIZ 7
@@ -3584,3 +3587,4 @@ saveable_module saveable_sector =
 };
 
 
+END_SW_NS

@@ -23,6 +23,8 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#include "ns.h"
+
 #define QUIET
 #include "build.h"
 #include "pragmas.h"
@@ -54,6 +56,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interp.h"
 #include "sector.h"
 #include "config.h"
+
+BEGIN_SW_NS
 
 static int OverlapDraw = FALSE;
 extern SWBOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo, PauseKeySet;
@@ -2718,3 +2722,4 @@ ScreenSaveSetup(PLAYERp pp)
 
 
 
+END_SW_NS

@@ -24,6 +24,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
+
 #define MAIN
 #define QUIET
 #include "build.h"
@@ -57,6 +59,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "saveable.h"
 
 //void TimerFunc(task * Task);
+BEGIN_SW_NS
 
 /*
 //////////////////////////////////////////////////////////////////////////////
@@ -1325,3 +1328,4 @@ ScreenLoad(MFILE_READ fin)
     renderRestoreTarget();
 }
 
+END_SW_NS

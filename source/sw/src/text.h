@@ -24,6 +24,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+BEGIN_SW_NS
 #define TEXT_INFO_TIME (3)
 #define TEXT_INFO_X (16)
 //#define TEXT_INFO_Y (20)
@@ -43,3 +44,4 @@ void PutStringInfoLine(PLAYERp pp, const char *string);
 void PutStringInfoLine2(PLAYERp pp, const char *string);
 void pClearTextLine(PLAYERp pp,long y);
 void pMenuClearTextLine(PLAYERp pp);
+END_SW_NS

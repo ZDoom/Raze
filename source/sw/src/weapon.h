@@ -27,6 +27,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef WEAPON_H
 #define WEAPON_H
 
+BEGIN_SW_NS
+
 #define NEW_ELECTRO 1
 #define HORIZ_MULT 128L
 
@@ -237,5 +239,7 @@ int DoItemFly(int16_t SpriteNum);
 int SpawnVehicleSmoke(short SpriteNum);
 short PrevWall(short wall_num);
 int DoDamage(short SpriteNum,short Weapon);
+
+END_SW_NS
 
 #endif
