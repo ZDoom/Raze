@@ -47,6 +47,23 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+int InitSwordAttack(PLAYERp pp);
+PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp);
+PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp);
+int InitShotgun(PLAYERp pp);
+int InitRail(PLAYERp pp);
+int InitEMP(PLAYERp pp);
+int InitMicro(PLAYERp pp);
+int InitRocket(PLAYERp pp);
+int InitNuke(PLAYERp pp);
+int InitGrenade(PLAYERp pp);
+int InitMine(PLAYERp pp);
+int InitFistAttack(PLAYERp pp);
+
+
+
+
+
 //#define UK_VERSION TRUE
 
 #define PANF_UZI_XFLIP (BIT(21))
@@ -1628,7 +1645,6 @@ pSwordAction(PANEL_SPRITEp psp)
 void
 pSwordAttack(PANEL_SPRITEp psp)
 {
-    int InitSwordAttack(PLAYERp pp);
 
     InitSwordAttack(psp->PlayerP);
 }
@@ -2336,7 +2352,6 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
 void
 pUziDoneReload(PANEL_SPRITEp psp)
 {
-    PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp);
     PLAYERp pp = psp->PlayerP;
 
 
@@ -2438,7 +2453,6 @@ pUziClip(PANEL_SPRITEp oclip)
 void
 InitWeaponUzi(PLAYERp pp)
 {
-    PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp);
     PANEL_SPRITEp psp = NULL;
 
     if (Prediction)
@@ -3540,8 +3554,6 @@ pShotgunAction(PANEL_SPRITEp psp)
 void
 pShotgunFire(PANEL_SPRITEp psp)
 {
-    int InitShotgun(PLAYERp pp);
-
     SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 32);
     InitShotgun(psp->PlayerP);
     //SpawnShotgunShell(psp);
@@ -3940,9 +3952,6 @@ pRailAction(PANEL_SPRITEp psp)
 void
 pRailFire(PANEL_SPRITEp psp)
 {
-    int InitRail(PLAYERp pp);
-    int InitEMP(PLAYERp pp);
-
     SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 16);
     if (psp->PlayerP->WpnRailType == 0)
         InitRail(psp->PlayerP);
@@ -4939,10 +4948,6 @@ pMicroAction(PANEL_SPRITEp psp)
 void
 pMicroFire(PANEL_SPRITEp psp)
 {
-    int InitMicro(PLAYERp pp);
-    int InitRocket(PLAYERp pp);
-    int InitNuke(PLAYERp pp);
-
     SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 20);
     switch (psp->PlayerP->WpnRocketType)
     {
@@ -5268,6 +5273,7 @@ pHeartActionBlood(PANEL_SPRITEp psp)
     SpawnHeartBlood(psp);
 }
 
+void InitHeartAttack(PLAYERp pp);
 
 void
 pHeartAttack(PANEL_SPRITEp psp)
@@ -5275,7 +5281,6 @@ pHeartAttack(PANEL_SPRITEp psp)
     PLAYERp pp = psp->PlayerP;
     // CTW MODIFICATION
     //int InitHeartAttack(PLAYERp pp);
-    void InitHeartAttack(PLAYERp pp);
     // CTW MODIFICATION END
 
     PlaySound(DIGI_HEARTFIRE,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan);
@@ -5810,8 +5815,6 @@ pGrenadeAction(PANEL_SPRITEp psp)
 void
 pGrenadeFire(PANEL_SPRITEp psp)
 {
-    int InitGrenade(PLAYERp pp);
-
     SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 32);
     InitGrenade(psp->PlayerP);
 }
@@ -6056,8 +6059,6 @@ pMineAction(PANEL_SPRITEp psp)
 void
 pMineThrow(PANEL_SPRITEp psp)
 {
-    int InitMine(PLAYERp pp);
-
     InitMine(psp->PlayerP);
 }
 
@@ -7018,8 +7019,6 @@ pFistAction(PANEL_SPRITEp psp)
 void
 pFistAttack(PANEL_SPRITEp psp)
 {
-    int InitFistAttack(PLAYERp pp);
-
     InitFistAttack(psp->PlayerP);
 }
 

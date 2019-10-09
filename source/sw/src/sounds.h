@@ -33,8 +33,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "mytypes.h"
 
 
-#ifndef sounds_public_
-#define sounds_public_
+#ifndef sw_sounds_public_
+#define sw_sounds_public_
 
 BEGIN_SW_NS
 
@@ -149,7 +149,7 @@ struct VOCstruct
     int16_t voc_num;                      // Backward reference to parent sound
     int voc_distance;                   // Sound's distance effectiveness
     Voc_Flags voc_flags;                // Various allowable flag settings for voc
-    char lock;                          // locking byte for caching
+    uint8_t lock;                          // locking byte for caching
     uint8_t playing;                       // number of this type of sound currently playing
 };
 

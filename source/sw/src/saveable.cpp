@@ -24,9 +24,10 @@
 #include "ns.h"
 
 #include "compat.h"
+BEGIN_SW_NS
+
 #include "saveable.h"
 
-BEGIN_SW_NS
 
 #define maxModules 35
 

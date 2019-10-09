@@ -41,6 +41,7 @@ int InitSpriteChemBomb(short SpriteNum);
 int InitFlashBomb(short SpriteNum);
 int InitCaltrops(short SpriteNum);
 int InitPhosphorus(int16_t SpriteNum);
+SWBOOL SpriteOverlapZ(int16_t, int16_t, int);
 
 //////////////////////
 //
@@ -389,7 +390,6 @@ int DoSkullJump(short SpriteNum)
         // jump/fall type
         if (sp->xvel)
         {
-            SWBOOL SpriteOverlapZ(int16_t, int16_t, int);
 
             int dist,a,b,c;
 
@@ -804,8 +804,6 @@ int DoBettyJump(short SpriteNum)
         // jump/fall type
         if (sp->xvel)
         {
-            SWBOOL SpriteOverlapZ(int16_t, int16_t, int);
-
             int dist,a,b,c;
 
             DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);

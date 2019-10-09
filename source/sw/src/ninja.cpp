@@ -44,6 +44,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+int SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z);
+
 /*
 
  !AIC - Decision tables used in mostly ai.c DoActorActionDecide().
@@ -1921,7 +1923,6 @@ DoNinjaHariKari(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    int SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z);
     short cnt,i;
 
     UpdateSinglePlayKills(SpriteNum);
@@ -1952,7 +1953,6 @@ DoNinjaGrabThroat(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    int SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z);
     short cnt,i;
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)

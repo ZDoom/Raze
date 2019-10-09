@@ -54,6 +54,10 @@ BEGIN_SW_NS
 #define LAVAMAXDROPS 32
 #define DEFAULT_DOOR_SPEED 800
 
+int InitFireballTrap(short SpriteNum);
+ANIMATOR DoGrating;
+void DoPlayerBeginForceJump(PLAYERp);
+
 short FindNextSectorByTag(short sectnum, int tag);
 short LevelSecrets;
 SWBOOL TestVatorMatchActive(short match);
@@ -738,7 +742,6 @@ DoSpringBoard(PLAYERp pp, short sectnum)
 {
     int sb;
     int i;
-    void DoPlayerBeginForceJump(PLAYERp);
 
 #if 0
     i = AnimGetGoal(&sector[sectnum].floorz);
@@ -2025,7 +2028,6 @@ OperateSprite(short SpriteNum, short player_is_operating)
     case TAG_SPRITE_GRATING:
     {
         USERp u;
-        ANIMATOR DoGrating;
 
         change_sprite_stat(SpriteNum, STAT_NO_STATE);
 
@@ -2125,7 +2127,6 @@ int DoTrapMatch(short match)
     short i, nexti;
     SPRITEp sp;
     USERp u;
-    int InitFireballTrap(short SpriteNum);
 
     // may need to be reset to fire immediately
 
@@ -2352,7 +2353,6 @@ OperateContinuousTrigger(PLAYERp pp)
         short i, nexti;
         SPRITEp sp;
         USERp u;
-        int InitFireballTrap(short SpriteNum);
 
         TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRAP], i, nexti)
         {

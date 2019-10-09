@@ -168,6 +168,8 @@ CheckTileSound(short picnum)
     return sndnum;
 }
 
+ANIMATOR GenerateDrips;
+
 /////////////////////////////////////////////////////
 //  Initialize any of my special use sprites
 /////////////////////////////////////////////////////
@@ -225,8 +227,6 @@ JS_SpriteSetup(void)
             }
             else if (tag == TAG_DRIPGEN)
             {
-                ANIMATOR GenerateDrips;
-
                 u = SpawnUser(SpriteNum, 0, NULL);
 
                 ASSERT(u != NULL);

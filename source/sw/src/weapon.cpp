@@ -50,6 +50,15 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+int SpawnZombie2(short);
+int move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+void DoPlayerBeginDie(PLAYERp);
+void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator);
+ANIMATOR DoBettyBeginDeath;
+ANIMATOR DoSkullBeginDeath;
+ANIMATOR DoRipperGrow;
+ANIMATOR InitMineShrap;
+
 //
 // Damage Amounts defined in damage.h
 //
@@ -5109,14 +5118,12 @@ ActorChooseDeath(short SpriteNum, short Weapon)
     {
     case BETTY_R0:
     {
-        ANIMATOR DoBettyBeginDeath;
         DoBettyBeginDeath(SpriteNum);
         break;
     }
     case SKULL_R0:
     {
-        ANIMATOR DoSkullBeginDeath;
-        DoSkullBeginDeath(SpriteNum);
+		DoSkullBeginDeath(SpriteNum);
         break;
     }
     case TOILETGIRL_R0:
@@ -5451,7 +5458,6 @@ SopCheckKill(SECTOR_OBJECTp sop)
     SPRITEp sp = sop->sp_child;
     USERp u = User[sp - sprite];
     SWBOOL killed = FALSE;
-    void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator);
 
     if (TEST(sop->flags, SOBJ_BROKEN))
         return FALSE;
@@ -5759,7 +5765,6 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
 
     if (u->Health <= 0 && !TEST(pp->Flags, PF_DEAD))
     {
-        void DoPlayerBeginDie(PLAYERp);
 
         // pick a death type
         if (u->LastDamage >= PLAYER_DEATH_EXPLODE_DAMMAGE_AMT)
@@ -7350,8 +7355,7 @@ DoDamage(short SpriteNum, short Weapon)
             }
             else if (u->ID == RIPPER_RUN_R0)
             {
-                ANIMATOR DoRipperGrow;
-                DoRipperGrow(SpriteNum);
+				DoRipperGrow(SpriteNum);
                 break;
             }
 
@@ -11645,8 +11649,7 @@ SpawnGrenadeExp(int16_t Weapon)
     SPRITEp exp;
     USERp eu;
     short explosion;
-    ANIMATOR InitMineShrap;
-    short ang;
+	short ang;
     int dx,dy,dz;
 
     ASSERT(u);
@@ -12377,12 +12380,10 @@ DoBloodWorm(int16_t Weapon)
     SPRITEp sp = &sprite[Weapon], exp;
     USERp u = User[Weapon];
     int offset;
-    int move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
     short ang;
     int x,y,z,xvect,yvect;
     int bx,by;
     int amt;
-    int SpawnZombie2(short);
     short sectnum;
 
     u = User[Weapon];
@@ -12471,12 +12472,10 @@ DoBloodWorm(int16_t Weapon)
     SPRITEp sp = &sprite[Weapon], exp;
     USERp u = User[Weapon];
     int offset;
-    int move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
-    short ang;
+	short ang;
     int x,y,z,xvect,yvect;
     int bx,by;
     int amt;
-    int SpawnZombie2(short);
     short sectnum;
 
     u = User[Weapon];

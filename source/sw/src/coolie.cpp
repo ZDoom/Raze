@@ -30,7 +30,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "keys.h"
 #include "names2.h"
 #include "panel.h"
-#include "game.h"
 #include "tags.h"
 #include "ai.h"
 #include "sprite.h"
@@ -567,9 +566,9 @@ SetupCoolie(short SpriteNum)
 }
 
 
+int NewCoolg(short);
 int SpawnCoolg(short SpriteNum)
 {
-    int NewCoolg(short);
     USERp u = User[SpriteNum];
 
     // Don't do a ghost every time

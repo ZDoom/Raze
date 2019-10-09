@@ -46,6 +46,7 @@ BEGIN_SW_NS
 SWBOOL PlayerTakeDamage(PLAYERp, short);
 ANIMATOR InitActorRunToward;
 SWBOOL FAF_Sector(short);
+SWBOOL DropAhead(short SpriteNum, short min_height);
 
 short FindTrackToPlayer(USERp u);
 ANIMATORp ChooseAction(DECISION decision[]);
@@ -1773,7 +1774,6 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL DropAhead(short SpriteNum, short min_height);
 
     static short toward_angle_delta[4][9] =
     {

@@ -34,7 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #ifndef gamedefs_public_
 #define gamedefs_public_
-BEGIN_SW_NS
 
 //****************************************************************************
 //
@@ -213,6 +212,5 @@ enum
 };
 
 
-END_SW_NS
 #endif
 

@@ -57,6 +57,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+signed char MNU_InputString(char*, short);
+
 //#define PLOCK_VERSION TRUE
 
 
@@ -612,7 +614,6 @@ SWBOOL
 MNU_DoParentalPassword(UserCall call, MenuItem_p item)
 {
     short w,h;
-    signed char MNU_InputString(char *, short);
     static SWBOOL cur_show;
     char TempString[80];
     const char *extra_text;

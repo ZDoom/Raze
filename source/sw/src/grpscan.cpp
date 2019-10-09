@@ -28,7 +28,7 @@
 
 #include "scriptfile.h"
 #include "cache1d.h"
-#include "crc32.h"
+#include "crc32_.h"
 
 #include "grpscan.h"
 

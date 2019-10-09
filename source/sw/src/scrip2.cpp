@@ -38,6 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sprite.h"
 #include "jsector.h"
 #include "parent.h"
+#include "scriptfile.h"
 
 BEGIN_SW_NS
 
@@ -377,7 +378,6 @@ void LoadPLockFromScript(const char *filename)
  * Here begins JonoF's modding enhancement stuff
  */
 
-#include "scriptfile.h"
 
 enum
 {

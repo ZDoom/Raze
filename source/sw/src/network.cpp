@@ -43,6 +43,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+void getinput(SW_PACKET*);
+
 /*
 SYNC BUG NOTES:
 
@@ -153,11 +155,11 @@ void netsendpacket(int ind, uint8_t* buf, int len)
         memcpy(&prx[1], buf, len);  // &prx[1] == (char*)prx + sizeof(PACKET_PROXY)
         len += sizeof(PACKET_PROXY);
 
-        sendpacket(connecthead, bbuf, len);
+        //sendpacket(connecthead, bbuf, len);
         return;
     }
 
-    sendpacket(ind, buf, len);
+    //sendpacket(ind, buf, len);
 
     buildprintf("netsendpacket() sends normal to %d\nContents:",ind);
     for (i=0; i<len; i++)
@@ -190,14 +192,14 @@ void netbroadcastpacket(uint8_t* buf, int len)
         memcpy(&prx[1], buf, len);
         len += sizeof(PACKET_PROXY);
 
-        sendpacket(connecthead, bbuf, len);
+        //sendpacket(connecthead, bbuf, len);
         return;
     }
 
     for (i = connecthead; i >= 0; i = connectpoint2[i])
     {
         if (i == myconnectindex) continue;
-        sendpacket(i, buf, len);
+        //sendpacket(i, buf, len);
         buildprintf("netsendpacket() sends normal to %d\n",i);
     }
     buildputs("Contents:");
@@ -212,7 +214,7 @@ int netgetpacket(int *ind, uint8_t* buf)
     int len;
     PACKET_PROXYp prx;
 
-    len = getpacket(ind, buf);
+	len = 0;// getpacket(ind, buf);
     if ((unsigned)len < sizeof(PACKET_PROXY) || buf[0] != PACKET_TYPE_PROXY)
     {
         if (len > 0)
@@ -248,7 +250,7 @@ int netgetpacket(int *ind, uint8_t* buf)
             {
                 if (i == myconnectindex || i == *ind) continue;
                 buildprintf("netgetpacket(): distributing to %d\n", i);
-                sendpacket(i, buf, len);
+                //sendpacket(i, buf, len);
             }
 
             // Return the packet payload to the caller
@@ -274,7 +276,7 @@ int netgetpacket(int *ind, uint8_t* buf)
             }
 
             buildprintf("netgetpacket(): forwarding to %d\n", i);
-            sendpacket(i, buf, len);
+            //sendpacket(i, buf, len);
             return 0;   // nothing for us to do
         }
     }
@@ -941,7 +943,6 @@ faketimerhandler(void)
     int i, j, k, l;
     PLAYERp pp;
     short pnum;
-    void getinput(SW_PACKET *);
     extern SWBOOL BotMode;
 
 #if 0

@@ -23,7 +23,6 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
-BEGIN_SW_NS
 
 #ifdef AMBIENT_TABLE
 #define AMB_ENTRY(name, diginame, ambient_flags, maxtics) {name, diginame, ambient_flags, maxtics},
@@ -214,4 +213,3 @@ AMB_ENTRY(81,   DIGI_SHIPBELL,          AMB_INTERMIT,  AMB_30)
 AMB_ENTRY(82,   DIGI_FOGHORN,           AMB_INTERMIT,  AMB_120)
 
 #undef AMB_ENTRY
-END_SW_NS

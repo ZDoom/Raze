@@ -40,6 +40,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+int DoCheckSwarm(short SpriteNum);
+
 ANIMATOR InitRipper2Hang;
 ANIMATOR DoActorMoveJump;
 ANIMATOR DoRipper2MoveJump;
@@ -1315,8 +1317,7 @@ DoRipper2Move(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    int DoCheckSwarm(short SpriteNum);
-
+    
     if (sp->hitag == TAG_SWARMSPOT && sp->lotag == 1)
         DoCheckSwarm(SpriteNum);
 

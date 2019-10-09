@@ -50,6 +50,45 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+ANIMATOR SetupCoolie;
+ANIMATOR SetupNinja;
+ANIMATOR SetupGoro;
+ANIMATOR SetupCoolg;
+ANIMATOR SetupEel;
+ANIMATOR SetupSumo;
+ANIMATOR SetupZilla;
+ANIMATOR SetupToiletGirl;
+ANIMATOR SetupWashGirl;
+ANIMATOR SetupCarGirl;
+ANIMATOR SetupMechanicGirl;
+ANIMATOR SetupSailorGirl;
+ANIMATOR SetupPruneGirl;
+ANIMATOR SetupTrashCan;
+ANIMATOR SetupBunny;
+ANIMATOR SetupRipper;
+ANIMATOR SetupRipper2;
+ANIMATOR SetupSerp;
+ANIMATOR SetupLava;
+ANIMATOR SetupSkel;
+ANIMATOR SetupHornet;
+ANIMATOR SetupSkull;
+ANIMATOR SetupBetty;
+ANIMATOR SetupPachinkoLight;
+ANIMATOR SetupPachinko1;
+ANIMATOR SetupPachinko2;
+ANIMATOR SetupPachinko3;
+ANIMATOR SetupPachinko4;
+ANIMATOR SetupGirlNinja;
+ANIMATOR DoVator, DoVatorAuto;
+ANIMATOR DoRotator;
+ANIMATOR DoSlidor;
+ANIMATOR DoSpike, DoSpikeAuto;
+ANIMATOR DoLavaErupt;
+int DoSlidorInstantClose(short SpriteNum);
+
+void InitWeaponRocket(PLAYERp);
+void InitWeaponUzi(PLAYERp);
+
 SWBOOL FAF_Sector(short sectnum);
 SWBOOL MoveSkip4, MoveSkip2, MoveSkip8;
 
@@ -1084,8 +1123,6 @@ ActorSpawn(SPRITEp sp)
     {
     case COOLIE_RUN_R0:
     {
-        ANIMATOR SetupCoolie;
-
         //PreCacheCoolie();
 
         if (!ActorTestSpawn(sp))
@@ -1103,7 +1140,6 @@ ActorSpawn(SPRITEp sp)
     case NINJA_RUN_R0:
     case NINJA_CRAWL_R0:
     {
-        ANIMATOR SetupNinja;
 
         //PreCacheNinja();
 
@@ -1121,7 +1157,6 @@ ActorSpawn(SPRITEp sp)
 
     case GORO_RUN_R0:
     {
-        ANIMATOR SetupGoro;
 
         //PreCacheGuardian();
 
@@ -1139,7 +1174,6 @@ ActorSpawn(SPRITEp sp)
     case 1441:
     case COOLG_RUN_R0:
     {
-        ANIMATOR SetupCoolg;
 
         //PreCacheGhost();
 
@@ -1156,7 +1190,6 @@ ActorSpawn(SPRITEp sp)
 
     case EEL_RUN_R0:
     {
-        ANIMATOR SetupEel;
 
         //PreCacheEel();
 
@@ -1173,7 +1206,6 @@ ActorSpawn(SPRITEp sp)
 
     case SUMO_RUN_R0:
     {
-        ANIMATOR SetupSumo;
 
         //PreCacheSumo();
 
@@ -1191,7 +1223,6 @@ ActorSpawn(SPRITEp sp)
 
     case ZILLA_RUN_R0:
     {
-        ANIMATOR SetupZilla;
 
         //PreCacheSumo();
 
@@ -1209,7 +1240,6 @@ ActorSpawn(SPRITEp sp)
 
     case TOILETGIRL_R0:
     {
-        ANIMATOR SetupToiletGirl;
 
         //PreCacheToiletGirl();
 
@@ -1227,7 +1257,6 @@ ActorSpawn(SPRITEp sp)
 
     case WASHGIRL_R0:
     {
-        ANIMATOR SetupWashGirl;
 
         //PreCacheWashGirl();
 
@@ -1245,7 +1274,6 @@ ActorSpawn(SPRITEp sp)
 
     case CARGIRL_R0:
     {
-        ANIMATOR SetupCarGirl;
 
         //PreCacheCarGirl();
 
@@ -1263,7 +1291,6 @@ ActorSpawn(SPRITEp sp)
 
     case MECHANICGIRL_R0:
     {
-        ANIMATOR SetupMechanicGirl;
 
         //PreCacheMechanicGirl();
 
@@ -1281,7 +1308,6 @@ ActorSpawn(SPRITEp sp)
 
     case SAILORGIRL_R0:
     {
-        ANIMATOR SetupSailorGirl;
 
         //PreCacheSailorGirl();
 
@@ -1299,7 +1325,6 @@ ActorSpawn(SPRITEp sp)
 
     case PRUNEGIRL_R0:
     {
-        ANIMATOR SetupPruneGirl;
 
         //PreCachePruneGirl();
 
@@ -1317,7 +1342,6 @@ ActorSpawn(SPRITEp sp)
 
     case TRASHCAN:
     {
-        ANIMATOR SetupTrashCan;
 
         //PreCacheTrash();
         PicAnimOff(sp->picnum);
@@ -1328,7 +1352,6 @@ ActorSpawn(SPRITEp sp)
 
     case BUNNY_RUN_R0:
     {
-        ANIMATOR SetupBunny;
 
         //PreCacheBunny();
 
@@ -1345,7 +1368,6 @@ ActorSpawn(SPRITEp sp)
 
     case RIPPER_RUN_R0:
     {
-        ANIMATOR SetupRipper;
 
         //PreCacheRipper();
 
@@ -1362,7 +1384,6 @@ ActorSpawn(SPRITEp sp)
 
     case RIPPER2_RUN_R0:
     {
-        ANIMATOR SetupRipper2;
 
         //PreCacheRipper2();
 
@@ -1379,7 +1400,6 @@ ActorSpawn(SPRITEp sp)
 
     case SERP_RUN_R0:
     {
-        ANIMATOR SetupSerp;
 
         //PreCacheSerpent();
 
@@ -1396,7 +1416,6 @@ ActorSpawn(SPRITEp sp)
 
     case LAVA_RUN_R0:
     {
-        ANIMATOR SetupLava;
 
         if (!ActorTestSpawn(sp))
         {
@@ -1411,7 +1430,6 @@ ActorSpawn(SPRITEp sp)
 
     case SKEL_RUN_R0:
     {
-        ANIMATOR SetupSkel;
 
         //PreCacheSkel();
 
@@ -1428,7 +1446,6 @@ ActorSpawn(SPRITEp sp)
 
     case HORNET_RUN_R0:
     {
-        ANIMATOR SetupHornet;
 
         //PreCacheHornet();
 
@@ -1445,7 +1462,6 @@ ActorSpawn(SPRITEp sp)
 
     case SKULL_R0:
     {
-        ANIMATOR SetupSkull;
 
         //PreCacheSkull();
 
@@ -1462,7 +1478,6 @@ ActorSpawn(SPRITEp sp)
 
     case BETTY_R0:
     {
-        ANIMATOR SetupBetty;
 
         //PreCacheBetty();
 
@@ -1479,7 +1494,6 @@ ActorSpawn(SPRITEp sp)
 
     case 623:   // Pachinko win light
     {
-        ANIMATOR SetupPachinkoLight;
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
@@ -1489,7 +1503,6 @@ ActorSpawn(SPRITEp sp)
 
     case PACHINKO1:
     {
-        ANIMATOR SetupPachinko1;
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
@@ -1499,7 +1512,6 @@ ActorSpawn(SPRITEp sp)
 
     case PACHINKO2:
     {
-        ANIMATOR SetupPachinko2;
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
@@ -1509,7 +1521,6 @@ ActorSpawn(SPRITEp sp)
 
     case PACHINKO3:
     {
-        ANIMATOR SetupPachinko3;
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
@@ -1519,7 +1530,6 @@ ActorSpawn(SPRITEp sp)
 
     case PACHINKO4:
     {
-        ANIMATOR SetupPachinko4;
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
@@ -1529,7 +1539,6 @@ ActorSpawn(SPRITEp sp)
 
     case GIRLNINJA_RUN_R0:
     {
-        ANIMATOR SetupGirlNinja;
 
         if (!ActorTestSpawn(sp))
         {
@@ -2249,7 +2258,6 @@ SpriteSetup(void)
 
                 case SECT_VATOR:
                 {
-                    ANIMATOR DoVator, DoVatorAuto;
                     SECTORp sectp = &sector[sp->sectnum];
                     SECT_USERp sectu;
                     short speed,vel,time,type,start_on,floor_vator;
@@ -2360,8 +2368,7 @@ SpriteSetup(void)
 
                 case SECT_ROTATOR:
                 {
-                    ANIMATOR DoRotator;
-                    SECTORp sectp = &sector[sp->sectnum];
+					SECTORp sectp = &sector[sp->sectnum];
                     SECT_USERp sectu;
                     short time,type;
                     short wallcount,startwall,endwall,w;
@@ -2425,12 +2432,10 @@ SpriteSetup(void)
 
                 case SECT_SLIDOR:
                 {
-                    ANIMATOR DoSlidor;
                     SECTORp sectp = &sector[sp->sectnum];
                     SECT_USERp sectu;
                     short time,type;
                     short wallcount,startwall,endwall,w;
-                    int DoSlidorInstantClose(short SpriteNum);
 
                     u = SpawnUser(SpriteNum, 0, NULL);
 
@@ -2481,7 +2486,6 @@ SpriteSetup(void)
 
                 case SECT_SPIKE:
                 {
-                    ANIMATOR DoSpike, DoSpikeAuto;
                     short speed,vel,time,type,start_on,floor_vator;
                     int floorz,ceilingz,trash;
                     u = SpawnUser(SpriteNum, 0, NULL);
@@ -2701,7 +2705,6 @@ SpriteSetup(void)
 
                 case LAVA_ERUPT:
                 {
-                    ANIMATOR DoLavaErupt;
 
                     u = SpawnUser(SpriteNum, ST1, NULL);
 
@@ -5590,8 +5593,6 @@ DoGet(short SpriteNum)
     PLAYERp pp;
     short pnum, key_num;
     int dist, a,b,c;
-    void InitWeaponRocket(PLAYERp);
-    void InitWeaponUzi(PLAYERp);
     SWBOOL can_see;
     int cstat_bak;
 

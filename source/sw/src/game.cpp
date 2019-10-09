@@ -93,9 +93,17 @@ Things required to make savegames work:
 #include "common.h"
 #include "common_game.h"
 
-#include "crc32.h"
+//#include "crc32.h"
 
 BEGIN_SW_NS
+
+void pClearSpriteList(PLAYERp pp);
+signed char MNU_InputSmallString(char*, short);
+signed char MNU_InputString(char*, short);
+SWBOOL IsCommand(char* str);
+SWBOOL MNU_StartNetGame(void);
+
+const char* G_DefFile(void);
 
 const char* AppProperName = "VoidSW";
 const char* AppTechnicalName = "voidsw";
@@ -673,7 +681,7 @@ TerminateGame(void)
 
     ErrorCorrectionQuit();
 
-    uninitmultiplayers();
+ //   uninitmultiplayers();
 
     if (CleanExit)
     {
@@ -809,7 +817,7 @@ void Set_GameMode(void)
         result = COVERsetgamemode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP);
         if (result < 0)
         {
-            uninitmultiplayers();
+            //uninitmultiplayers();
             //uninitkeys();
             KB_Shutdown();
             engineUnInit();
@@ -836,7 +844,7 @@ void MultiSharewareCheck(void)
             "\n\nTo play a Network game with more than 4 players you must purchase the\n"
             "full version.  Read the Ordering Info screens for details.\n\n");
 #endif
-        uninitmultiplayers();
+        //uninitmultiplayers();
         //uninitkeys();
         KB_Shutdown();
         engineUnInit();
@@ -945,6 +953,7 @@ InitGame(int32_t argc, char const * const * argv)
     InitPalette();
     // sets numplayers, connecthead, connectpoint2, myconnectindex
 
+#if 0
     if (!firstnet)
         initmultiplayers(0, NULL, 0, 0, 0);
     else if (initmultiplayersparms(argc - firstnet, &argv[firstnet]))
@@ -960,6 +969,7 @@ InitGame(int32_t argc, char const * const * argv)
             }
         }
     }
+#endif
     initsynccrc();
 
     // code to duplicate packets
@@ -1478,7 +1488,6 @@ InitLevel(void)
 void
 TerminateLevel(void)
 {
-    void pClearSpriteList(PLAYERp pp);
     int i, nexti, stat, pnum, ndx;
     SECT_USERp *sectu;
 
@@ -2100,10 +2109,8 @@ IntroAnimLevel(void)
 void
 MenuLevel(void)
 {
-    SWBOOL MNU_StartNetGame(void);
     char called;
     int fin;
-    extern ClockTicks totalclocklock;
     short w,h;
 
     DSPRINTF(ds,"MenuLevel...");
@@ -4717,14 +4724,11 @@ void GetMessageInput(PLAYERp pp)
 {
     int pnum = myconnectindex;
     short w,h;
-    signed char MNU_InputSmallString(char *, short);
-    signed char MNU_InputString(char *, short);
     static SWBOOL cur_show;
     static SWBOOL TeamSendAll, TeamSendTeam;
 #define TEAM_MENU "A - Send to ALL,  T - Send to TEAM"
     static char HoldMessageInputString[256];
     int i;
-    SWBOOL IsCommand(char *str);
 
     if (!MessageInputMode && !ConInputMode)
     {
@@ -4870,8 +4874,6 @@ void GetConInput(PLAYERp pp)
 {
     int pnum = myconnectindex;
     short w,h;
-    signed char MNU_InputSmallString(char *, short);
-    signed char MNU_InputString(char *, short);
     static SWBOOL cur_show;
 
     if (MessageInputMode || HelpInputMode)

@@ -32,6 +32,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define DEBUG 0
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable:4101) // there's too many of these... :(
+#endif
+
 #include "compat.h"
 #include "baselayer.h"
 #include "mmulti.h"
@@ -40,6 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "keyboard.h"
 #include "sounds.h"
 #include "settings.h"
+#include "pragmas.h"
 
 BEGIN_SW_NS
 
@@ -120,7 +125,6 @@ int krand1(void);
 
 #define PRINT(line,str) DebugPrint(line,str)
 
-#include "pragmas.h"
 
 
 //
@@ -2114,7 +2118,7 @@ SWBOOL FAF_ConnectFloor(short sectnum);
 #define FAF_ConnectFloor(sectnum) (sector[(sectnum)].floorpicnum == FAF_MIRROR_PIC)
 #define FAF_ConnectArea(sectnum) (FAF_ConnectCeiling(sectnum) || FAF_ConnectFloor(sectnum))
 #endif
-void updatesectorz(int, int, int, short *);
+//void updatesectorz(int, int, int, short *);
 void FAF_ConnectPlayerCeiling(PLAYERp pp);
 void FAF_ConnectPlayerFloor(PLAYERp pp);
 SWBOOL PlayerCeilingHit(PLAYERp pp, int zlimit);
@@ -2136,8 +2140,6 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                        int32_t* loz, int32_t* florhit);
 
 void COVERupdatesector(int32_t x, int32_t y, int16_t* newsector);
-
-void updatesectorz(int,int,int,int16_t*);
 
 
 void short_setinterpolation(short *posptr);
@@ -2275,7 +2277,6 @@ extern void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor);
 extern void DoPaletteFlash(PLAYERp pp);
 extern unsigned char palette_data[256][3];
 extern SWBOOL NightVision;
-#endif
 
 int _PlayerSound(const char *file, int line, int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp);
 #define PlayerSound(num, x, y, z, flags, pp) _PlayerSound(__FILE__, __LINE__, (num), (x), (y), (z), (flags), (pp))
@@ -2388,3 +2389,5 @@ int COVERinsertsprite(short sectnum, short statnum);   //returns (short)spritenu
 void AudioUpdate(void); // stupid
 
 END_SW_NS
+#endif
+

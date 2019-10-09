@@ -45,7 +45,7 @@ void *ReAllocMem(void *ptr, int size);
 void FreeMem(void *ptr);
 
 extern char ds[];
-char lumplockbyte[11];
+uint8_t lumplockbyte[11];
 
 //=============
 // STATICS

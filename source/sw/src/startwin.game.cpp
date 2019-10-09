@@ -261,9 +261,9 @@ static void SetPage(int n)
     HWND tab;
     int cur;
     tab = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
-    cur = (int)SendMessage(tab, TCM_GETCURSEL,0,0);
+    cur = (int)SendMessageA(tab, TCM_GETCURSEL,0,0);
     ShowWindow(pages[cur],SW_HIDE);
-    SendMessage(tab, TCM_SETCURSEL, n, 0);
+    SendMessageA(tab, TCM_SETCURSEL, n, 0);
     ShowWindow(pages[n],SW_SHOW);
     mode = n;
 
@@ -325,7 +325,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         // Load the bitmap into the bitmap control and fetch its dimensions
         hbmp = LoadBitmap((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(RSRC_BMP));
         hwnd = GetDlgItem(hwndDlg,WIN_STARTWIN_BITMAP);
-        SendMessage(hwnd, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmp);
+        SendMessageA(hwnd, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmp);
         GetClientRect(hwnd, &r);
         xoffset = r.right;
         yoffset = r.bottom - rdlg.bottom;
@@ -352,28 +352,28 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
         // Add tabs to the tab control
         {
-            TCITEM tab;
+            TCITEMA tab;
 
             hwnd = GetDlgItem(hwndDlg, WIN_STARTWIN_TABCTL);
 
             ZeroMemory(&tab, sizeof(tab));
             tab.mask = TCIF_TEXT;
-            static char textConfiguration[] = TEXT("Configuration");
+            static char textConfiguration[] = ("Configuration");
             tab.pszText = textConfiguration;
-            SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
+            SendMessageA(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
-            static char textGame[] = TEXT("Game");
+            static char textGame[] = ("Game");
             tab.pszText = textGame;
-            SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_GAME, (LPARAM)&tab);
+            SendMessageA(hwnd, TCM_INSERTITEM, (WPARAM)TAB_GAME, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
-            static char textMessages[] = TEXT("Messages");
+            static char textMessages[] = ("Messages");
             tab.pszText = textMessages;
-            SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
+            SendMessageA(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
 
             // Work out the position and size of the area inside the tab control for the pages
             ZeroMemory(&r, sizeof(r));
             GetClientRect(hwnd, &r);
-            SendMessage(hwnd, TCM_ADJUSTRECT, FALSE, (LPARAM)&r);
+            SendMessageA(hwnd, TCM_ADJUSTRECT, FALSE, (LPARAM)&r);
             r.right -= r.left-1;
             r.bottom -= r.top-1;
             r.top += rtab.top;
@@ -393,7 +393,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             GetClientRect(pages[TAB_MESSAGES],&r);
             r.right -= GetSystemMetrics(SM_CXVSCROLL)+4;
             r.left = r.top = 0;
-            SendMessage(pages[TAB_MESSAGES], EM_SETRECTNP,0,(LPARAM)&r);
+            SendMessageA(pages[TAB_MESSAGES], EM_SETRECTNP,0,(LPARAM)&r);
 
             // Set a tab stop in the game data listbox
             {
@@ -402,7 +402,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             }
 
             SetFocus(GetDlgItem(hwndDlg, WIN_STARTWIN_START));
-            SetWindowText(hwndDlg, apptitle);
+            SetWindowTextA(hwndDlg, apptitle);
         }
         return FALSE;
     }
@@ -412,7 +412,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         LPNMHDR nmhdr = (LPNMHDR)lParam;
         int cur;
         if (nmhdr->idFrom != WIN_STARTWIN_TABCTL) break;
-        cur = (int)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
+        cur = (int)SendMessageA(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
         switch (nmhdr->code)
         {
         case TCN_SELCHANGING:
@@ -552,18 +552,18 @@ int startwin_puts(const char *buf)
     edctl = pages[TAB_MESSAGES];
     if (!edctl) return -1;
 
-    vis = ((int)SendMessage(GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL), TCM_GETCURSEL,0,0) == TAB_MESSAGES);
+    vis = ((int)SendMessageA(GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL), TCM_GETCURSEL,0,0) == TAB_MESSAGES);
 
-    if (vis) SendMessage(edctl, WM_SETREDRAW, FALSE,0);
-    curlen = SendMessage(edctl, WM_GETTEXTLENGTH, 0,0);
-    SendMessage(edctl, EM_SETSEL, (WPARAM)curlen, (LPARAM)curlen);
-    linesbefore = SendMessage(edctl, EM_GETLINECOUNT, 0,0);
+    if (vis) SendMessageA(edctl, WM_SETREDRAW, FALSE,0);
+    curlen = SendMessageA(edctl, WM_GETTEXTLENGTH, 0,0);
+    SendMessageA(edctl, EM_SETSEL, (WPARAM)curlen, (LPARAM)curlen);
+    linesbefore = SendMessageA(edctl, EM_GETLINECOUNT, 0,0);
     p = buf;
     while (*p)
     {
         if (newline)
         {
-            SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)"\r\n");
+            SendMessageA(edctl, EM_REPLACESEL, 0, (LPARAM)"\r\n");
             newline = 0;
         }
         q = p;
@@ -589,18 +589,18 @@ int startwin_puts(const char *buf)
             workbuf[q-p] = 0;
             p = q;
         }
-        SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)workbuf);
+        SendMessageA(edctl, EM_REPLACESEL, 0, (LPARAM)workbuf);
     }
-    linesafter = SendMessage(edctl, EM_GETLINECOUNT, 0,0);
-    SendMessage(edctl, EM_LINESCROLL, 0, linesafter-linesbefore);
-    if (vis) SendMessage(edctl, WM_SETREDRAW, TRUE,0);
+    linesafter = SendMessageA(edctl, EM_GETLINECOUNT, 0,0);
+    SendMessageA(edctl, EM_LINESCROLL, 0, linesafter-linesbefore);
+    if (vis) SendMessageA(edctl, WM_SETREDRAW, TRUE,0);
     return 0;
 }
 
 int startwin_settitle(const char *str)
 {
     if (!startupdlg) return 1;
-    SetWindowText(startupdlg, str);
+    SetWindowTextA(startupdlg, str);
     return 0;
 }
 

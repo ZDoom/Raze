@@ -68,6 +68,15 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+void pSpriteControl(PLAYERp pp);
+int WeaponOperate(PLAYERp pp);
+SWBOOL MyCommPlayerQuit(void);
+SECTOR_OBJECTp PlayerOnObject(short sectnum_match);
+void PlayerRemoteReset(PLAYERp pp, short sectnum);
+void KillAllPanelInv(PLAYERp pp);
+void DoPlayerDeathDrown(PLAYERp pp);
+void pWeaponForceRest(PLAYERp pp);
+
 #define SO_DRIVE_SOUND 2
 #define SO_IDLE_SOUND 1
 
@@ -5888,7 +5897,6 @@ void DoPlayerOperateMatch(PLAYERp pp, SWBOOL starting)
 void
 DoPlayerBeginOperate(PLAYERp pp)
 {
-    SECTOR_OBJECTp PlayerOnObject(short sectnum_match);
     SECTOR_OBJECTp sop;
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite];
@@ -5989,13 +5997,11 @@ DoPlayerBeginOperate(PLAYERp pp)
 void
 DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 {
-    SECTOR_OBJECTp PlayerOnObject(short sectnum_match);
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite];
     int cz, fz;
     int i;
     short save_sectnum;
-    void PlayerRemoteReset(PLAYERp pp, short sectnum);
 
     pp->sop_remote = pp->sop = pp->sop_control = sop;
     sop->controller = pp->SpriteP;
@@ -6498,9 +6504,6 @@ void
 DoPlayerBeginDie(PLAYERp pp)
 {
     extern SWBOOL ReloadPrompt;
-    void KillAllPanelInv(PLAYERp pp);
-    void DoPlayerDeathDrown(PLAYERp pp);
-    void pWeaponForceRest(PLAYERp pp);
     short bak;
     int choosesnd = 0;
     extern short GlobInfoStringTime;
@@ -7938,12 +7941,10 @@ domovethings(void)
     extern SWBOOL ResCheat;
     extern int PlayClock;
     short i, j, pnum, nexti;
-    int WeaponOperate(PLAYERp pp);
-    extern SWBOOL GamePaused;
+	extern SWBOOL GamePaused;
     PLAYERp pp;
     USERp u;
     SPRITEp sp;
-    SWBOOL MyCommPlayerQuit(void);
     extern unsigned int MoveThingsCount;
     extern SWBOOL ScrollMode2D;
     extern SWBOOL ReloadPrompt;
@@ -8079,7 +8080,6 @@ domovethings(void)
     {
         extern short screenpeek;
         extern SWBOOL PlayerTrackingMode;
-        void pSpriteControl(PLAYERp pp);
         extern PLAYERp GlobPlayerP;
         extern SWBOOL ScrollMode2D;
 

@@ -44,6 +44,11 @@ BEGIN_SW_NS
 void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny);
 void DoAutoTurretObject(SECTOR_OBJECTp sop);
 void DoTornadoObject(SECTOR_OBJECTp sop);
+int DoActorMoveJump(short SpriteNum);
+int PickJumpSpeed(short SpriteNum, int pix_height);
+SPRITEp FindNearSprite(SPRITEp, short);
+ANIMATOR DoActorMoveJump;
+ANIMATOR NinjaJumpActionFunc;
 
 #define ACTOR_STD_JUMP (-384)
 int GlobSpeedSO;
@@ -3272,8 +3277,6 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
     case TRACK_ACTOR_QUICK_SUPER_JUMP:
         if (u->ActorActionSet->Jump)
         {
-            int DoActorMoveJump(short SpriteNum);
-            int PickJumpSpeed(short SpriteNum, int pix_height);
             int zdiff;
             hitdata_t hitinfo;
 
@@ -3609,7 +3612,6 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             int bos_z,nx,ny;
             int dist;
             SPRITEp lsp;
-            SPRITEp FindNearSprite(SPRITEp, short);
 
             //
             // Get angle and x,y pos from CLIMB_MARKER
@@ -3828,8 +3830,6 @@ ActorFollowTrack(short SpriteNum, short locktics)
         {
             if (SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)) < u->sz)
             {
-                ANIMATOR DoActorMoveJump;
-                ANIMATOR NinjaJumpActionFunc;
                 RESET(u->Flags, SPR_CLIMBING);
 
                 sp->zvel = 0;

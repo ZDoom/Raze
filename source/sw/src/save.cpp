@@ -56,10 +56,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "colormap.h"
 #include "player.h"
 
-#include "saveable.h"
-
 //void TimerFunc(task * Task);
 BEGIN_SW_NS
+
+// This cannot have a namespace declaration
+#include "saveable.h"
 
 /*
 //////////////////////////////////////////////////////////////////////////////

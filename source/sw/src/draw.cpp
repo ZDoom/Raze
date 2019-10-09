@@ -2243,6 +2243,9 @@ void FAF_DrawRooms(int x, int y, int z, short ang, int horiz, short sectnum)
 
 short ScreenSavePic = FALSE;
 
+SWBOOL PicInView(short, SWBOOL);
+void DoPlayerDiveMeter(PLAYERp pp);
+
 void
 drawscreen(PLAYERp pp)
 {
@@ -2255,10 +2258,8 @@ drawscreen(PLAYERp pp)
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
     short quake_ang;
-    SWBOOL PicInView(short, SWBOOL);
     extern SWBOOL FAF_DebugView;
     PLAYERp camerapp;                       // prediction player if prediction is on, else regular player
-    void DoPlayerDiveMeter(PLAYERp pp);
 
     // last valid stuff
     static short lv_sectnum = -1;

@@ -51,7 +51,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "config.h"
 
 #ifdef _WIN32
-#include "winlayer.h"
+#include "sdlayer.h"
 #endif
 
 BEGIN_SW_NS
@@ -252,7 +252,7 @@ int PlayerYellVocs[] =
     DIGI_PLAYERYELL3
 };
 
-extern char lumplockbyte[];
+extern uint8_t lumplockbyte[];
 
 #if 0
 // DEBUG

@@ -31,9 +31,10 @@ BEGIN_SW_NS
 
 typedef BFILE* MFILE_WRITE;
 typedef int32_t MFILE_READ;
-#define MREAD(ptr, size, num,handle) kdfread((ptr),(size),(num),(handle))
-#define MWRITE(ptr, size, num,handle) dfwrite((ptr),(size),(num),(handle))
-#define MOPEN_WRITE(name) Bfopen(name,"wb")
+
+#define MREAD(ptr, size, num,handle) kread((handle),(ptr), (size) * (num))
+#define MWRITE(ptr, size, num,handle) fwrite((ptr),(size),(num),(handle))
+#define MOPEN_WRITE(name) fopen(name,"wb")
 #define MOPEN_READ(name) kopen4load(name,0)
 #define MCLOSE_WRITE(handle) Bfclose(handle)
 #define MCLOSE_READ(handle) kclose(handle)

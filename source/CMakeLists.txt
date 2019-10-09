@@ -544,9 +544,11 @@ set( PLAT_WIN32_SOURCES
 	duke3d/src/startwin.game.cpp	
 	rr/src/startwin.game.cpp	
 	blood/src/startwin.game.cpp	
+	sw/src/startwin.game.cpp
 	# This needs a rework anyway in order to consolidate the startup dialogs so don't bother to sort in properly.
 	#startgtk.game.cpp
 	#startosx.game.mm
+	#sw/src/startgtk.game.cpp
 	
 	)
 
@@ -962,10 +964,10 @@ set (PCH_SOURCES
 	sw/src/actor.cpp
 	sw/src/ai.cpp
 	sw/src/anim.cpp
-	sw/src/bldscript.cpp
+	#sw/src/bldscript.cpp
 	sw/src/border.cpp
 	sw/src/break.cpp
-	sw/src/brooms.cpp
+	#sw/src/brooms.cpp
 	sw/src/bunny.cpp
 	sw/src/cache.cpp
 	sw/src/cheats.cpp
@@ -987,7 +989,7 @@ set (PCH_SOURCES
 	sw/src/interp.cpp
 	sw/src/interpsh.cpp
 	sw/src/inv.cpp
-	sw/src/jbhlp.cpp
+	#sw/src/jbhlp.cpp
 	sw/src/jplayer.cpp
 	sw/src/jsector.cpp
 	sw/src/jweapon.cpp
@@ -1021,8 +1023,6 @@ set (PCH_SOURCES
 	sw/src/sounds.cpp
 	sw/src/spike.cpp
 	sw/src/sprite.cpp
-	sw/src/startgtk.game.cpp
-	sw/src/startwin.game.cpp
 	sw/src/sumo.cpp
 	sw/src/swconfig.cpp
 	sw/src/sync.cpp
