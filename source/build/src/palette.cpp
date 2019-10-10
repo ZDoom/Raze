@@ -735,105 +735,83 @@ void paletteFreeColorTable(int32_t const id)
 // setbrightness
 //
 // flags:
-//  1: don't setpalette(),  DON'T USE THIS FLAG!
+//  1: don't setpalette(),  not checked anymore.
 //  2: don't gltexinvalidateall()
 //  4: don't calc curbrightness from dabrightness,  DON'T USE THIS FLAG!
 //  8: don't gltexinvalidate8()
 // 16: don't reset palfade*
+// 32: apply brightness to scene in OpenGL
 void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 {
-    int32_t i, j;
-    const uint8_t *dapal;
+	int32_t i, j;
+	const uint8_t* dapal;
 
-#ifdef USE_OPENGL
-    int32_t paldidchange;
-#endif
-    int32_t palsumdidchange;
-    //    uint32_t lastbright = curbrightness;
+	int32_t paldidchange;
+	int32_t palsumdidchange;
+	//    uint32_t lastbright = curbrightness;
 
-    Bassert((flags&4)==0);
+	Bassert((flags & 4) == 0);
 
-    if (/*(unsigned)dapalid >= MAXBASEPALS ||*/ basepaltable[dapalid] == NULL)
-        dapalid = 0;
-#ifdef USE_OPENGL
-    paldidchange = (curbasepal != dapalid || basepalreset);
-#endif
-    curbasepal = dapalid;
-    basepalreset = 0;
+	if (/*(unsigned)dapalid >= MAXBASEPALS ||*/ basepaltable[dapalid] == NULL)
+		dapalid = 0;
+	paldidchange = (curbasepal != dapalid || basepalreset);
+	curbasepal = dapalid;
+	basepalreset = 0;
 
-    dapal = basepaltable[curbasepal];
+	dapal = basepaltable[curbasepal];
 
-    if (!(flags&4))
-    {
-        curbrightness = clamp(dabrightness, 0, 15);
-        //        if (lastbright != (unsigned)curbrightness)
-        //            vid_gamma = 1.0 + ((float)curbrightness / 10.0);
-    }
+	if (!(flags & 4))
+	{
+		curbrightness = clamp(dabrightness, 0, 15);
+	}
 
-    videoSetGamma();
-    j = !0;
+	// In-scene brightness mode for RR's thunderstorm. This shouldn't affect the global gamma ramp.
+	if ((videoGetRenderMode() >= REND_POLYMOST) && (flags & 32))
+	{
+		r_scenebrightness = curbrightness;
+	}
+	else
+	{
+		videoSetGamma();
+		r_scenebrightness = 0;
+	}
+	j = 0;	// Assume that the backend can do it.
 
-    for (i=0; i<256; i++)
-    {
-        // save palette without any brightness adjustment
-        curpalette[i].r = dapal[i*3+0];
-        curpalette[i].g = dapal[i*3+1];
-        curpalette[i].b = dapal[i*3+2];
-        curpalette[i].f = 0;
+	for (i = 0; i < 256; i++)
+	{
+		// save palette without any brightness adjustment
+		curpalette[i].r = dapal[i * 3 + 0];
+		curpalette[i].g = dapal[i * 3 + 1];
+		curpalette[i].b = dapal[i * 3 + 2];
+		curpalette[i].f = 0;
 
-        // brightness adjust the palette
-        curpalettefaded[i].b = britable[j][curpalette[i].b];
-        curpalettefaded[i].g = britable[j][curpalette[i].g];
-        curpalettefaded[i].r = britable[j][curpalette[i].r];
-        curpalettefaded[i].f = 0;
-    }
+		// brightness adjust the palette
+		curpalettefaded[i].b = britable[j][curpalette[i].b];
+		curpalettefaded[i].g = britable[j][curpalette[i].g];
+		curpalettefaded[i].r = britable[j][curpalette[i].r];
+		curpalettefaded[i].f = 0;
+	}
 
-#ifdef USE_OPENGL
-    if ((flags&32) != 0 && videoGetRenderMode() == REND_POLYMOST && playing_rr)
-        r_brightnesshack = j;
-    else
-        r_brightnesshack = 0;
-#endif
+	if ((flags & 16) && palfadedelta)  // keep the fade
+		paletteSetFade(palfadedelta >> 2);
 
-    if ((flags&16) && palfadedelta)  // keep the fade
-        paletteSetFade(palfadedelta>>2);
+	static uint32_t lastpalettesum = 0;
+	uint32_t newpalettesum = XXH32((uint8_t*)curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
 
-    static uint32_t lastpalettesum=0;
-    uint32_t newpalettesum = XXH32((uint8_t *) curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
+	palsumdidchange = (newpalettesum != lastpalettesum);
 
-    palsumdidchange = (newpalettesum != lastpalettesum);
+	if (palsumdidchange || newpalettesum != g_lastpalettesum)
+	{
+		videoUpdatePalette(0, 256);
+	}
 
-    if (palsumdidchange || newpalettesum != g_lastpalettesum)
-    {
-        //            if ((flags&1) == 0)
-        videoUpdatePalette(0, 256);
-    }
+	g_lastpalettesum = lastpalettesum = newpalettesum;
 
-    g_lastpalettesum = lastpalettesum = newpalettesum;
-
-#if 0
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        // Only reset the textures if the corresponding preserve flags are clear and
-        // either (a) the new palette is different to the last, or (b) the brightness
-        // changed and we couldn't set it using hardware gamma.
-
-        // XXX: no-HW-gamma OpenGL platforms will exhibit bad performance with
-        // simultaneous basepal and tint changes?
-        const int32_t doinvalidate = (paldidchange);
-
-        if (!(flags&2) && doinvalidate)
-            gltexinvalidatetype(INVALIDATE_ALL_NON_INDEXED);
-        if (!(flags&8) && doinvalidate)
-            gltexinvalidatetype(INVALIDATE_ART_NON_INDEXED);
-    }
-#endif
-
-    if ((flags&16)==0)
-    {
-        palfadergb.r = palfadergb.g = palfadergb.b = 0;
-        palfadedelta = 0;
-    }
+	if ((flags & 16) == 0)
+	{
+		palfadergb.r = palfadergb.g = palfadergb.b = 0;
+		palfadedelta = 0;
+	}
 }
 
 palette_t paletteGetColor(int32_t col)
