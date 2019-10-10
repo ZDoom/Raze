@@ -17,6 +17,8 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "bitmap.h"
 #include "../../glbackend/glbackend.h"
 
+void cleartexturecache();
+
 extern char textfont[2048], smalltextfont[2048];
 
 bool playing_rr;
@@ -164,47 +166,6 @@ void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
 }
 
-void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
-{
-    const int32_t pic = (dapicnum&(GLTEXCACHEADSIZ-1));
-
-    for (pthtyp *pth=texcache.list[pic]; pth; pth=pth->next)
-        if (pth->picnum == dapicnum && pth->palnum == dapalnum)
-        {
-            pth->flags |= PTH_INVALIDATED;
-            if (pth->flags & PTH_HASFULLBRIGHT)
-                pth->ofb->flags |= PTH_INVALIDATED;
-        }
-}
-
-//Make all textures "dirty" so they reload, but not re-allocate
-//This should be much faster than polymost_glreset()
-//Use this for palette effects ... but not ones that change every frame!
-void gltexinvalidatetype(int32_t type)
-{
-    for (bssize_t j=0; j<=GLTEXCACHEADSIZ-1; j++)
-    {
-        for (pthtyp *pth=texcache.list[j]; pth; pth=pth->next)
-        {
-            if (type == INVALIDATE_ALL ||
-                (type == INVALIDATE_ALL_NON_INDEXED && !(pth->flags & PTH_INDEXED)) ||
-                (type == INVALIDATE_ART && pth->hicr == NULL) ||
-                (type == INVALIDATE_ART_NON_INDEXED && pth->hicr == NULL && !(pth->flags & PTH_INDEXED)))
-            {
-                pth->flags |= PTH_INVALIDATED;
-                if (pth->flags & PTH_HASFULLBRIGHT)
-                    pth->ofb->flags |= PTH_INVALIDATED;
-            }
-        }
-    }
-
-    clearskins(type);
-
-#ifdef DEBUGGINGAIDS
-    OSD_Printf("gltexinvalidateall()\n");
-#endif
-}
-
 void gltexapplyprops(void)
 {
     if (videoGetRenderMode() == REND_CLASSIC)
@@ -314,26 +275,7 @@ void polymost_glreset()
     }
     else
     {
-        for (bssize_t i = 0; i <= GLTEXCACHEADSIZ-1; i++)
-        {
-            for (pthtyp *pth = texcache.list[i]; pth;)
-            {
-                pthtyp *const next = pth->next;
-
-                if (pth->flags & PTH_HASFULLBRIGHT)
-                {
-                    delete pth->ofb->glpic;
-                    Xfree(pth->ofb);
-                }
-
-                delete pth->glpic;
-                Xfree(pth);
-                pth = next;
-            }
-
-            texcache.list[i] = NULL;
-        }
-
+		cleartexturecache();
         clearskins(INVALIDATE_ALL);
     }
 
@@ -540,142 +482,6 @@ void uploadpalswaps(int count, int32_t* swaps)
 }
 
 
-static void polymost_setuptexture(FHardwareTexture *tex, const int32_t dameth, int filter)
-{
-
-    if (!(dameth & DAMETH_CLAMPED))
-    {
-		tex->SetSampler(SamplerRepeat);
-    }
-    else
-    {
-        // For sprite textures, clamping looks better than wrapping
-		tex->SetSampler(SamplerClampXY);
-    }
-}
-
-template<class T>
-void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
-{
-	for (int i = 0; i < x; ++i)
-	{
-		for (int j = 0; j < y; ++j)
-		{
-			dst[i * y + j] = src[i + j * srcpitch];
-		}
-	}
-}
-
-void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
-{
-	vec2_16_t const& tsizart = tilesiz[dapic];
-	vec2_t siz = { tsizart.x, tsizart.y };
-	vec2_t ssiz = siz;
-	//POGOTODO: npoty
-	char npoty = 0;
-
-	//POGOTODO: if !glinfo.texnpot, then we could allocate a texture of the pow2 size, and then populate the subportion using buffersubdata func
-
-	uint8_t *p = (uint8_t*)waloff[dapic];
-	if (!waloff[dapic])
-	{
-		static uint8_t pix = 255;
-		siz.x = siz.y = 1;
-
-		p = &pix;
-	}
-    {
-        if (doalloc)
-        {
-			assert(pth->glpic == nullptr);
-			pth->glpic = GLInterface.NewTexture();
-			pth->glpic->CreateTexture(siz.x, siz.y, true, false);
-			pth->glpic->SetSampler((dameth & DAMETH_CLAMPED)? SamplerClampXY : SamplerRepeat);
-
-			polymost_setuptexture(pth->glpic, dameth, 0);
-        }
-		TArray<uint8_t> flipped(siz.x*siz.y, true);
-		FlipNonSquareBlock(flipped.Data(), p, siz.y, siz.x, siz.y);
-
-		pth->glpic->LoadTexture(flipped.Data());
-    }
-
-
-    pth->picnum = dapic;
-    pth->palnum = 0;
-    pth->shade = 0;
-    pth->effects = 0;
-    pth->flags = PTH_HASALPHA|PTH_ONEBITALPHA|PTH_INDEXED;
-    pth->hicr = NULL;
-    pth->siz = ssiz;
-}
-
-int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
-                            int32_t dameth, pthtyp *pth, int32_t doalloc, polytintflags_t effect)
-{
-    if (!hicr) return -1;
-
-    char *fn;
-
-    if (facen > 0)
-    {
-        if (!hicr->skybox || facen > 6 || !hicr->skybox->face[facen-1])
-            return -1;
-
-        fn = hicr->skybox->face[facen-1];
-    }
-    else
-    {
-        if (!hicr->filename)
-            return -1;
-
-        fn = hicr->filename;
-    }
-
-	auto texture = FTexture::GetTexture(fn);
-
-    if (texture == nullptr)
-    {
-        OSD_Printf("hightile: %s (pic %d) not found\n", fn, dapic);
-        return -2;
-    }
-
-	if ((doalloc & 3) == 1)
-	{
-		pth->glpic = GLInterface.NewTexture();
-		pth->glpic->CreateTexture(texture->GetWidth(), texture->GetHeight(), false, true);
-	}
-	auto image = texture->GetBgraBitmap(nullptr, nullptr);
-	bool hasalpha = texture->GetTranslucency();
-	bool onebitalpha = texture->isMasked();
-
-	pth->glpic->LoadTexture(image);
-
-#if 0	// I don't really think this is a good idea. The hightile should look indistinguishable to the game compared to the regular one.
-	vec2_t tsiz = { texture->GetWidth(), texture->GetHeight() };
-    // precalculate scaling parameters for replacement
-    if (facen > 0)
-        pth->scale = { (float)tsiz.x * (1.0f/64.f), (float)tsiz.y * (1.0f/64.f) };
-    else
-        pth->scale = { (float)tsiz.x / (float)tilesiz[dapic].x, (float)tsiz.y / (float)tilesiz[dapic].y };
-#else
-	pth->scale = { 1.f,1.f };
-#endif
-
-    polymost_setuptexture(pth->glpic, dameth, (hicr->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
-
-    pth->picnum = dapic;
-    pth->effects = effect;
-    pth->flags = PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) |
-                 (onebitalpha ? PTH_ONEBITALPHA : 0) |
-                 (hasalpha ? PTH_HASALPHA : 0) |
-                 ((hicr->flags & HICR_FORCEFILTER) ? PTH_FORCEFILTER : 0);
-    pth->skyface = facen;
-    pth->hicr = hicr;
-
-	if (facen > 0) pth->siz = { 64, 64 }; else pth->siz = { tilesiz[dapic].x, tilesiz[dapic].y };
-    return 0;
-}
 
 #ifdef USE_GLEXT
 void polymost_setupdetailtexture(const int32_t texunits, FHardwareTexture *tex)
@@ -721,8 +527,8 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     if (palookup[pal] == NULL)
         pal = 0;
 
-    pthtyp* pth = texcache_fetch(wall->picnum, pal, 0, DAMETH_MASK | DAMETH_WALL);
-    return pth && (pth->flags & PTH_HASALPHA) && !(pth->flags & PTH_ONEBITALPHA);
+	auto tex = FTexture::GetTexture(si->filename);
+	return tex && tex->GetTranslucency();
 }
 
 int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
@@ -742,9 +548,8 @@ int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
     if (palookup[pal] == NULL)
         pal = 0;
 
-	// FIXME: This needs to be done without loading the texture!
-    pthtyp* pth = texcache_fetch(tspr->picnum, pal, 0, DAMETH_MASK);
-    return pth && (pth->flags & PTH_HASALPHA) && !(pth->flags & PTH_ONEBITALPHA);
+	auto tex = FTexture::GetTexture(si->filename);
+	return tex && tex->GetTranslucency();
 }
 
 
