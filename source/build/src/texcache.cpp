@@ -34,10 +34,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
 
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
-		if (pth->picnum == dapicnum &&
-			(pth->flags & PTH_INDEXED) &&
-			(pth->flags & (PTH_HIGHTILE)) == 0 &&
-			polymost_want_npotytex(dameth, tilesiz[dapicnum].y) == !!(pth->flags & PTH_NPOTWALL))
+		if (pth->picnum == dapicnum && ((pth->flags & (PTH_INDEXED|PTH_HIGHTILE)) == PTH_INDEXED))
 		{
 			if (pth->flags & PTH_INVALIDATED)
 			{

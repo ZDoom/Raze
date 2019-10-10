@@ -33,6 +33,7 @@ public:
 	unsigned int GetTextureHandle();
 	int GetSampler() { return mSampler; }
 	void SetSampler(int sampler) { mSampler = sampler;  }
+	bool isIndexed() const { return glTextureBytes == 1; }
 
 	friend class FGameTexture;
 };

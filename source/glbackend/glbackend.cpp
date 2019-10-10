@@ -209,14 +209,21 @@ FHardwareTexture* GLInstance::NewTexture()
 	return new FHardwareTexture;
 }
 
+FHardwareTexture* texv;
+
 void GLInstance::BindTexture(int texunit, FHardwareTexture *tex, int sampler)
 {
 	if (!tex) return;
 	if (texunit != 0) glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, tex->GetTextureHandle());
+	if (tex->isIndexed() && sampler > NoSampler && sampler < Sampler2D)
+	{
+		sampler = sampler == SamplerRepeat ? SamplerNoFilter : Sampler2DNoFilter;
+	}
 	mSamplers->Bind(texunit, sampler == NoSampler? tex->GetSampler() : sampler, 0);
 	if (texunit != 0) glActiveTexture(GL_TEXTURE0);
 	LastBoundTextures[texunit] = tex->GetTextureHandle();
+	texv = tex;
 }
 
 void GLInstance::UnbindTexture(int texunit)
