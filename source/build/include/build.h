@@ -172,8 +172,8 @@ void yax_updategrays(int32_t posze);
 #  define YAX_NEXTWALLDEFAULT(Cf) (-1)
 # else
    // More user tag hijacking: lotag/extra. :/
-#  define YAX_PTRNEXTWALL(Ptr, Wall, Cf) (*(int16_t *)(&Ptr[Wall].lotag + (bloodhack ? 1 : 2)*Cf))
-#  define YAX_NEXTWALLDEFAULT(Cf) (bloodhack ? 0 : ((Cf)==YAX_CEILING) ? 0 : -1)
+#  define YAX_PTRNEXTWALL(Ptr, Wall, Cf) (*(int16_t *)(&Ptr[Wall].lotag + (playing_blood ? 1 : 2)*Cf))
+#  define YAX_NEXTWALLDEFAULT(Cf) (playing_blood ? 0 : ((Cf)==YAX_CEILING) ? 0 : -1)
    extern int16_t yax_bunchnum[MAXSECTORS][2];
    extern int16_t yax_nextwall[MAXWALLS][2];
 # endif
@@ -938,7 +938,6 @@ static FORCE_INLINE int32_t videoGetRenderMode(void)
 #endif
 }
 
-extern int32_t bloodhack;
 enum {
     ENGINECOMPATIBILITY_NONE = 0,
     ENGINECOMPATIBILITY_19950829, // Powerslave/Exhumed

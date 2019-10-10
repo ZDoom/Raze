@@ -190,8 +190,6 @@ static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to dr
 
 int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade) = NULL;
 
-int32_t bloodhack = 0;
-
 // adapted from build.c
 static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall, vec2_t *const closest)
 {
@@ -755,7 +753,7 @@ void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
                 if (editstatus && showinvisibility)
                     SECTORFLD(i,picnum, cf) = MAXTILES-1;
                 else //if ((dastat&(128+256))==0)
-                    SECTORFLD(i,picnum, cf) = bloodhack ? MAXTILES-2 : 13; //FOF;
+                    SECTORFLD(i,picnum, cf) = playing_blood ? MAXTILES-2 : 13; //FOF;
             }
             else
             {
@@ -5169,7 +5167,7 @@ static void classicDrawSprite(int32_t snum)
                 cstat &= ~512;
 
             // Blood's transparency table is inverted
-            if (bloodhack)
+            if (playing_blood)
                 cstat ^= 512;
         }
 
@@ -7021,7 +7019,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                 dastat &= ~RS_TRANS2;
 
             // Blood's transparency table is inverted
-            if (bloodhack)
+            if (playing_blood)
                 dastat ^= RS_TRANS2;
         }
     }
@@ -7514,7 +7512,7 @@ static void dosetaspect(void)
             radarang2[i] = ((qradarang[k]+j)>>6);
         }
 
-        if (xdimen != oxdimen && (voxoff[0][0] || bloodhack))
+        if (xdimen != oxdimen && (voxoff[0][0] || playing_blood))
         {
             distrecip = NULL;
             for (i = 0; i < DISTRECIPCACHESIZE; i++)

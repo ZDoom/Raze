@@ -15,6 +15,7 @@
 #include "palette.h"
 #include "a.h"
 #include "xxhash.h"
+#include "common.h"
 #include "../../glbackend/glbackend.h"
 
 #include "vfs.h"
@@ -387,7 +388,7 @@ void palettePostLoadTables(void)
     for (size_t i = 0; i<16; i++)
     {
         palette_t *edcol = (palette_t *) &vgapal16[4*i];
-        editorcolors[i] = getclosestcol_lim(edcol->b, edcol->g, edcol->r, bloodhack ? 254 : 239);
+        editorcolors[i] = getclosestcol_lim(edcol->b, edcol->g, edcol->r, playing_blood ? 254 : 239);
     }
 
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));

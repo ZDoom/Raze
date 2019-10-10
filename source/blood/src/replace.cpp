@@ -99,7 +99,7 @@ void HookReplaceFunctions(void)
     loadvoxel_replace = qloadvoxel;
     loadboard_replace = qloadboard;
     saveboard_replace = qsaveboard;
-    bloodhack = true;
+    playing_blood = true;
 }
 
 END_BLD_NS
