@@ -72,7 +72,6 @@ extern int32_t shadescale_unbounded;
 extern uint8_t alphahackarray[MAXTILES];
 
 extern int32_t r_usenewshading;
-extern int32_t r_npotwallmode;
 extern int32_t r_brightnesshack;
 extern int32_t polymostcenterhoriz;
 
@@ -122,20 +121,6 @@ static FORCE_INLINE int check_nonpow2(int32_t const x)
     return (x > 1 && (x&(x-1)));
 }
 
-// Are we using the mode that uploads non-power-of-two wall textures like they
-// render in classic?
-static FORCE_INLINE int polymost_is_npotmode(void)
-{
-    // The glinfo.texnpot check is so we don't have to deal with that case in
-    // gloadtile_art().
-    return
-        // r_npotwallmode is NYI for hightiles. We require r_hightile off
-        // because in calc_ypanning(), the repeat would be multiplied by a
-        // factor even if no modified texture were loaded.
-        !usehightile &&
-       r_npotwallmode;
-}
-
 static inline float polymost_invsqrt_approximation(float x)
 {
 #ifdef B_LITTLE_ENDIAN
@@ -168,12 +153,6 @@ enum {
 
 #define DAMETH_NARROW_MASKPROPS(dameth) (((dameth)&(~DAMETH_TRANS1))|(((dameth)&DAMETH_TRANS1)>>1))
 EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
-
-// Do we want a NPOT-y-as-classic texture for this <dameth> and <ysiz>?
-static FORCE_INLINE int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
-{
-    return polymost_is_npotmode() && (dameth&DAMETH_WALL) && check_nonpow2(ysiz);
-}
 
 // pthtyp pth->flags bits
 enum pthtyp_flags {

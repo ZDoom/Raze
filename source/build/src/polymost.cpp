@@ -56,7 +56,6 @@ int32_t shadescale_unbounded = 0;
 
 int32_t r_pogoDebug = 0;
 int32_t r_usenewshading = 4;
-int32_t r_npotwallmode = 2;
 int32_t polymostcenterhoriz = 100;
 
 static float gviewxrange;
@@ -724,199 +723,6 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
     {
         return gloadtile_art_indexed(dapic, dameth, pth, doalloc);
     }
-
-    static int32_t fullbrightloadingpass = 0;
-    vec2_16_t const & tsizart = tilesiz[dapic];
-    vec2_t siz = { 0, 0 }, tsiz = { tsizart.x, tsizart.y };
-    int const picdim = tsiz.x*tsiz.y;
-    char hasalpha = 0, hasfullbright = 0;
-    char npoty = 0;
-
-    {
-        if ((tsiz.x|tsiz.y) == 0)
-            siz.x = siz.y = 1;
-        else
-            siz = tsiz;
-
-        coltype *pic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
-
-        if (!waloff[dapic])
-        {
-            //Force invalid textures to draw something - an almost purely transparency texture
-            //This allows the Z-buffer to be updated for mirrors (which are invalidated textures)
-            pic[0].r = pic[0].g = pic[0].b = 0; pic[0].a = 1;
-            tsiz.x = tsiz.y = 1; hasalpha = 1;
-        }
-        else
-        {
-            const int dofullbright = !(picanm[dapic].sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT);
-
-            for (bssize_t y = 0; y < siz.y; y++)
-            {
-                coltype *wpptr = &pic[y * siz.x];
-                int32_t y2 = (y < tsiz.y) ? y : y - tsiz.y;
-
-                for (bssize_t x = 0; x < siz.x; x++, wpptr++)
-                {
-                    int32_t dacol;
-                    int32_t x2 = (x < tsiz.x) ? x : x-tsiz.x;
-
-                    dacol = *(char *)(waloff[dapic]+x2*tsiz.y+y2);
-
-                    if (dacol == 255)
-                    {
-                        wpptr->a = 0;
-                        hasalpha = 1;
-                    }
-                    else
-                        wpptr->a = 255;
-
-                    char *p = (char *)(palookup[dapal])+(int32_t)(dashade<<8);
-                    dacol = (uint8_t)p[dacol];
-
-                    if (!fullbrightloadingpass)
-                    {
-                        // regular texture
-                        if (IsPaletteIndexFullbright(dacol) && dofullbright)
-                            hasfullbright = 1;
-                    }
-                    else
-                    {
-                        // texture with only fullbright areas
-                        if (!IsPaletteIndexFullbright(dacol))    // regular colors
-                        {
-                            wpptr->a = 0;
-                            hasalpha = 1;
-                        }
-                    }
-
-                    bricolor((palette_t *)wpptr, dacol);
-
-                    if (!fullbrightloadingpass && tintpalnum >= 0)
-                    {
-                        polytint_t const & tint = hictinting[tintpalnum];
-                        polytintflags_t const effect = tint.f;
-                        uint8_t const r = tint.r;
-                        uint8_t const g = tint.g;
-                        uint8_t const b = tint.b;
-
-                        if (effect & HICTINT_GRAYSCALE)
-                        {
-                            wpptr->g = wpptr->r = wpptr->b = (uint8_t) ((wpptr->r * GRAYSCALE_COEFF_RED) +
-                                                                  (wpptr->g * GRAYSCALE_COEFF_GREEN) +
-                                                                  (wpptr->b * GRAYSCALE_COEFF_BLUE));
-                        }
-
-                        if (effect & HICTINT_INVERT)
-                        {
-                            wpptr->b = 255 - wpptr->b;
-                            wpptr->g = 255 - wpptr->g;
-                            wpptr->r = 255 - wpptr->r;
-                        }
-
-                        if (effect & HICTINT_COLORIZE)
-                        {
-                            wpptr->b = min((int32_t)((wpptr->b) * b) >> 6, 255);
-                            wpptr->g = min((int32_t)((wpptr->g) * g) >> 6, 255);
-                            wpptr->r = min((int32_t)((wpptr->r) * r) >> 6, 255);
-                        }
-
-                        switch (effect & HICTINT_BLENDMASK)
-                        {
-                            case HICTINT_BLEND_SCREEN:
-                                wpptr->b = 255 - (((255 - wpptr->b) * (255 - b)) >> 8);
-                                wpptr->g = 255 - (((255 - wpptr->g) * (255 - g)) >> 8);
-                                wpptr->r = 255 - (((255 - wpptr->r) * (255 - r)) >> 8);
-                                break;
-                            case HICTINT_BLEND_OVERLAY:
-                                wpptr->b = wpptr->b < 128 ? (wpptr->b * b) >> 7 : 255 - (((255 - wpptr->b) * (255 - b)) >> 7);
-                                wpptr->g = wpptr->g < 128 ? (wpptr->g * g) >> 7 : 255 - (((255 - wpptr->g) * (255 - g)) >> 7);
-                                wpptr->r = wpptr->r < 128 ? (wpptr->r * r) >> 7 : 255 - (((255 - wpptr->r) * (255 - r)) >> 7);
-                                break;
-                            case HICTINT_BLEND_HARDLIGHT:
-                                wpptr->b = b < 128 ? (wpptr->b * b) >> 7 : 255 - (((255 - wpptr->b) * (255 - b)) >> 7);
-                                wpptr->g = g < 128 ? (wpptr->g * g) >> 7 : 255 - (((255 - wpptr->g) * (255 - g)) >> 7);
-                                wpptr->r = r < 128 ? (wpptr->r * r) >> 7 : 255 - (((255 - wpptr->r) * (255 - r)) >> 7);
-                                break;
-                        }
-                    }
-
-                    //swap r & b so that we deal with the data as BGRA
-                    uint8_t tmpR = wpptr->r;
-                    wpptr->r = wpptr->b;
-                    wpptr->b = tmpR;
-                }
-            }
-        }
-
-		if (doalloc)
-		{
-			pth->glpic = GLInterface.NewTexture();
-			pth->glpic->CreateTexture(siz.x, siz.y, false, true);
-		}
-
-        if (polymost_want_npotytex(dameth, siz.y) && tsiz.x == siz.x && tsiz.y == siz.y)  // XXX
-        {
-            const int32_t nextpoty = 1 << ((picsiz[dapic] >> 4) + 1);
-            const int32_t ydif = nextpoty - siz.y;
-            coltype *paddedpic;
-
-            Bassert(ydif < siz.y);
-
-            paddedpic = (coltype *)Xrealloc(pic, siz.x * nextpoty * sizeof(coltype));
-
-            pic = paddedpic;
-            Bmemcpy(&pic[siz.x * siz.y], pic, siz.x * ydif * sizeof(coltype));
-            siz.y = tsiz.y = nextpoty;
-
-            npoty = 1;
-        }
-
-        if (!doalloc)
-        {
-            vec2_t pthSiz2 = pth->siz;
-            if ((pthSiz2.x|pthSiz2.y) == 0)
-                pthSiz2.x = pthSiz2.y = 1;
-            else
-                pthSiz2 = pth->siz;
-
-			if (siz.x > pthSiz2.x ||
-                siz.y > pthSiz2.y)
-            {
-                //POGO: grow our texture to hold the tile data
-                doalloc = true;
-            }
-        }
-        uploadtexture(pth->glpic, pic);
-
-        Xfree(pic);
-    }
-
-    polymost_setuptexture(pth->glpic, dameth, -1);
-
-    pth->picnum = dapic;
-    pth->palnum = dapal;
-    pth->shade = dashade;
-    pth->effects = 0;
-    pth->flags = (hasalpha*(PTH_HASALPHA|PTH_ONEBITALPHA)) | (npoty*PTH_NPOTWALL);
-    pth->hicr = NULL;
-    pth->siz = tsiz;
-
-    if (hasfullbright && !fullbrightloadingpass)
-    {
-        // Load the ONLY texture that'll be assembled with the regular one to
-        // make the final texture with fullbright pixels.
-        fullbrightloadingpass = 1;
-
-        if (!pth->ofb)
-            pth->ofb = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
-
-        pth->flags |= PTH_HASFULLBRIGHT;
-
-        gloadtile_art(dapic, dapal, -1, 0, (dameth & ~DAMETH_MASKPROPS) | DAMETH_MASK, pth->ofb, 1);
-
-        fullbrightloadingpass = 0;
-    }
 }
 
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
@@ -1309,7 +1115,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         }
     }
 
-    if (r_npotwallmode == 2 && (method & DAMETH_WALL) != 0)
+    if ((method & DAMETH_WALL) != 0)
     {
         int32_t size = tilesiz[globalpicnum].y;
         int32_t size2;
@@ -2810,25 +2616,6 @@ static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
     int i = (1<<(picsiz[globalpicnum]>>4));
     if (i < tilesiz[globalpicnum].y) i <<= 1;
 
-#ifdef NEW_MAP_FORMAT
-    if (g_loadedMapVersion >= 10)
-        i = tilesiz[globalpicnum].y;
-    else
-#endif
-    if (polymost_is_npotmode())
-    {
-        t *= (float)tilesiz[globalpicnum].y / i;
-        i = tilesiz[globalpicnum].y;
-    }
-    else if (!(r_npotwallmode == 2) && dopancor)
-    {
-        // Carry out panning "correction" to make it look like classic in some
-        // cases, but failing in the general case.
-        int32_t yoffs = Blrintf((i-tilesiz[globalpicnum].y)*(255.f/i));
-
-        if (ypan > 256-yoffs)
-            ypan -= yoffs;
-    }
 
     float const fy = (float)(ypan * i) * (1.f / 256.f);
 
@@ -6685,8 +6472,6 @@ void polymost_initosdfuncs(void)
         { "r_hightile","enable/disable hightile texture rendering",(void *) &usehightile, CVAR_BOOL, 0, 1 },
         { "r_models", "enable/disable model rendering", (void *)&usemodels, CVAR_BOOL, 0, 1 },
         { "r_nofog", "enable/disable GL fog", (void *)&nofog, CVAR_BOOL, 0, 1},
-        { "r_npotwallmode", "enable/disable emulation of walls with non-power-of-two height textures (Polymost, r_hightile 0)",
-          (void *) &r_npotwallmode, CVAR_INT | CVAR_NOSAVE, 0, 2 },
         { "r_parallaxskyclamping","enable/disable parallaxed floor/ceiling sky texture clamping", (void *) &r_parallaxskyclamping, CVAR_BOOL, 0, 1 },
         { "r_parallaxskypanning","enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky", (void *) &r_parallaxskypanning, CVAR_BOOL, 0, 1 },
         { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 2 },
