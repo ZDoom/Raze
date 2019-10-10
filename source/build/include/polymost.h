@@ -187,7 +187,7 @@ typedef struct pthtyp_t
     char            skyface;
 } pthtyp;
 
-extern void gloadtile_art(int32_t,int32_t,int32_t,int32_t,int32_t,pthtyp *,int32_t);
+void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc);
 extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t, polytintflags_t);
 
 extern int32_t globalnoeffect;

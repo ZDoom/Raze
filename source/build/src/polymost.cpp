@@ -674,11 +674,11 @@ void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 	}
 }
 
-TArray<uint8_t> emptiness;
-static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
+void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
 {
 	vec2_16_t const& tsizart = tilesiz[dapic];
 	vec2_t siz = { tsizart.x, tsizart.y };
+	vec2_t ssiz = siz;
 	//POGOTODO: npoty
 	char npoty = 0;
 
@@ -687,10 +687,10 @@ static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp* pth, in
 	uint8_t *p = (uint8_t*)waloff[dapic];
 	if (!waloff[dapic])
 	{
-		emptiness.Resize(siz.x*siz.y);
-		memset(emptiness.Data(), 255, siz.x * siz.y);
-		p = emptiness.Data();
+		static uint8_t pix = 255;
+		siz.x = siz.y = 1;
 
+		p = &pix;
 	}
     {
         if (doalloc)
@@ -698,7 +698,8 @@ static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp* pth, in
 			assert(pth->glpic == nullptr);
 			pth->glpic = GLInterface.NewTexture();
 			pth->glpic->CreateTexture(siz.x, siz.y, true, false);
-			pth->glpic->SetSampler(SamplerNoFilter);
+			pth->glpic->SetSampler((dameth & DAMETH_CLAMPED)? SamplerClampXY : SamplerRepeat);
+
 			polymost_setuptexture(pth->glpic, dameth, 0);
         }
 		TArray<uint8_t> flipped(siz.x*siz.y, true);
@@ -712,17 +713,9 @@ static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp* pth, in
     pth->palnum = 0;
     pth->shade = 0;
     pth->effects = 0;
-    pth->flags = (PTH_HASALPHA|PTH_ONEBITALPHA) | (npoty*PTH_NPOTWALL) | PTH_INDEXED;
+    pth->flags = PTH_HASALPHA|PTH_ONEBITALPHA| PTH_INDEXED;
     pth->hicr = NULL;
-    pth->siz = siz;
-}
-
-void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
-{
-    if (dameth & PTH_INDEXED)
-    {
-        return gloadtile_art_indexed(dapic, dameth, pth, doalloc);
-    }
+    pth->siz = ssiz;
 }
 
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,

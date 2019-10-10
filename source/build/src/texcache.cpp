@@ -39,7 +39,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
 			if (pth->flags & PTH_INVALIDATED)
 			{
 				pth->flags &= ~PTH_INVALIDATED;
-				gloadtile_art(dapicnum, searchpalnum, tintpalnum, dashade, dameth, pth, 0);
+				gloadtile_art(dapicnum, dameth, pth, 0);
 				pth->palnum = dapalnum;
 			}
 
@@ -48,8 +48,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
 
     pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
 
-	gloadtile_art(dapicnum, searchpalnum, tintpalnum, dashade, dameth, pth, 1);
-	//thl.AddToCache(dapicnum, dapalnum, dameth);
+	gloadtile_art(dapicnum, dameth, pth, 1);
 
     pth->palnum = dapalnum;
     pth->next = texcache.list[j];
