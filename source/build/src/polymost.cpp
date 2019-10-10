@@ -605,7 +605,7 @@ void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
     pth->palnum = 0;
     pth->shade = 0;
     pth->effects = 0;
-    pth->flags = PTH_HASALPHA|PTH_ONEBITALPHA| PTH_INDEXED;
+    pth->flags = PTH_HASALPHA|PTH_ONEBITALPHA|PTH_INDEXED;
     pth->hicr = NULL;
     pth->siz = ssiz;
 }
@@ -714,6 +714,9 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     if (!usehightile)
         return false;
 
+	hicreplctyp* si = hicfindsubst(wall->picnum, wall->pal, hictinting[wall->pal].f & HICTINT_ALWAYSUSEART);
+	if (!si) return false;	// regular tiles have no translucency
+
     uint8_t pal = wall->pal;
     if (palookup[pal] == NULL)
         pal = 0;
@@ -732,10 +735,14 @@ int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
     if (!usehightile)
         return false;
 
+	hicreplctyp* si = hicfindsubst(tspr->picnum, tspr->shade, hictinting[tspr->shade].f & HICTINT_ALWAYSUSEART);
+	if (!si) return false;	// regular tiles have no translucency
+
     uint8_t pal = tspr->shade;
     if (palookup[pal] == NULL)
         pal = 0;
 
+	// FIXME: This needs to be done without loading the texture!
     pthtyp* pth = texcache_fetch(tspr->picnum, pal, 0, DAMETH_MASK);
     return pth && (pth->flags & PTH_HASALPHA) && !(pth->flags & PTH_ONEBITALPHA);
 }
