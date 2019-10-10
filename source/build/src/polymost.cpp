@@ -102,8 +102,6 @@ int32_t r_detailmapping = 1;
 int32_t r_glowmapping = 1;
 #endif
 
-int32_t gltexmaxsize = 0;      // 0 means autodetection on first run
-int32_t gltexmiplevel = 0;		// discards this many mipmap levels
 int32_t glprojectionhacks = 2;
 static FHardwareTexture *polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
@@ -119,7 +117,6 @@ int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
 
 int32_t r_yshearing = 0;
-int32_t r_flatsky = 1;
 
 // used for fogcalc
 static float fogresult, fogresult2;
@@ -2580,108 +2577,13 @@ static void polymost_drawalls(int32_t const bunch)
             if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
             {
                 float const ghorizbak = ghoriz;
-                if (r_flatsky && ! r_yshearing)
-                {
-                    pow2xsplit = 0;
-                    skyclamphack = 0;
-                    flatskyrender = 1;
-                    globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
-					GLInterface.SetVisibility(0.f, fviewingrange);
-                    polymost_domost(x0,fy0,x1,fy1);
-                    flatskyrender = 0;
-                }
-                else
-                {
-                    if (r_yshearing)
-                        ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*(dapyscale-65536.f)*(1.f/65536.f)+float(ydimen>>1);
-
-                    float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
-                    float vv[2];
-                    float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                    vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
-                    vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+dapyoffs)) - vv[1]*ghoriz;
-                    int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
-                    vec3f_t o;
-
-                    if (playing_rr || ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256))
-                    {
-                        //Hack to draw black rectangle below sky when looking down...
-                        xtex.d = xtex.u = xtex.v = 0;
-
-                        ytex.d = gxyaspect * (1.0 / 262144.0);
-                        ytex.u = 0;
-                        ytex.v = double(tilesiz[globalpicnum].y - 1) * ytex.d;
-
-                        otex.d = -ghoriz * ytex.d;
-                        otex.u = 0;
-                        otex.v = double(tilesiz[globalpicnum].y - 1) * otex.d;
-
-                        o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
-
-                        if ((o.y > fy0) && (o.y > fy1))
-                            polymost_domost(x0,o.y,x1,o.y);
-                        else if ((o.y > fy0) != (o.y > fy1))
-                        {
-                            //  fy0                      fy1
-                            //     \                    /
-                            //oy----------      oy----------
-                            //        \              /
-                            //         fy1        fy0
-                            o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
-                            if (o.y > fy0)
-                            {
-                                polymost_domost(x0,o.y,o.x,o.y);
-                                polymost_domost(o.x,o.y,x1,fy1);
-                            }
-                            else
-                            {
-                                polymost_domost(x0,fy0,o.x,o.y);
-                                polymost_domost(o.x,o.y,x1,o.y);
-                            }
-                        }
-                        else
-                            polymost_domost(x0,fy0,x1,fy1);
-
-                    }
-                    else
-                        skyclamphack = 0;
-
-                    xtex.d = xtex.v = 0;
-                    ytex.d = ytex.u = 0;
-                    otex.d = dd;
-                    xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
-                                      (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
-                    ytex.v = vv[1];
-                    otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->floorypanning*(float)i*(1.f/256.f) : vv[0];
-
-                    int const npot = (1<<(picsiz[globalpicnum]&15)) != tilesiz[globalpicnum].x;
-                    int const xpanning = (r_parallaxskypanning?sec->floorxpanning:0);
-
-                    i = globalpicnum;
-                    float const r = (fy1-fy0)/(x1-x0); //slope of line
-                    o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
-
-                    int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
-                    float fx = x0;
-                    do
-                    {
-                        globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                        if (npot)
-                        {
-                            fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
-                            int tang = (y<<(11-dapskybits))&2047;
-                            otex.u = otex.d*(t*((float)(tang)) * (1.f/2048.f) + xpanning) - xtex.u*fx;
-                        }
-                        else
-                            otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + xpanning) - xtex.u*ghalfx;
-                        y++;
-                        o.x = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
-                        if (fx > x1) { fx = x1; i = -1; }
-
-                        pow2xsplit = 0; polymost_domost(o.x,(o.x-x0)*r+fy0,fx,(fx-x0)*r+fy0); //flor
-                    }
-                    while (i >= 0);
-                }
+				pow2xsplit = 0;
+                skyclamphack = 0;
+                flatskyrender = 1;
+                globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
+				GLInterface.SetVisibility(0.f, fviewingrange);
+                polymost_domost(x0,fy0,x1,fy1);
+                flatskyrender = 0;
                 ghoriz = ghorizbak;
             }
             else  //NOTE: code copied from ceiling code... lots of duplicated stuff :/
@@ -2934,116 +2836,18 @@ static void polymost_drawalls(int32_t const bunch)
 
             skyzbufferhack = 1;
 
-            if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
-            {
-                float const ghorizbak = ghoriz;
-                if (r_flatsky && ! r_yshearing)
-                {
-                    pow2xsplit = 0;
-                    skyclamphack = 0;
-                    flatskyrender = 1;
-                    globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
-					GLInterface.SetVisibility(0.f, fviewingrange);
-                    polymost_domost(x1,cy1,x0,cy0);
-                    flatskyrender = 0;
-                }
-                else
-                {
-                if (r_yshearing)
-                    ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*(dapyscale-65536.f)*(1.f/65536.f)+float(ydimen>>1);
-
-                float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
-                float vv[2];
-                float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
-                vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+dapyoffs)) - vv[1]*ghoriz;
-                int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
-                vec3f_t o;
-
-                if (playing_rr || ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256) && !r_yshearing)
-                {
-
-
-
-                        //Hack to draw color rectangle above sky when looking up...
-                        xtex.d = xtex.u = xtex.v = 0;
-
-                        ytex.d = gxyaspect * (1.0 / -262144.0);
-                        ytex.u = 0;
-                        ytex.v = 0;
-
-                        otex.d = -ghoriz * ytex.d;
-                        otex.u = 0;
-                        otex.v = 0;
-
-                        o.y = -vv[0]/vv[1];
-
-                        if ((o.y < cy0) && (o.y < cy1))
-                            polymost_domost(x1,o.y,x0,o.y);
-                        else if ((o.y < cy0) != (o.y < cy1))
-                        {
-                            /*         cy1        cy0
-                            //        /              \
-                            //oy----------      oy---------
-                            //    /                   \
-                            //  cy0                     cy1 */
-                            o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
-                            if (o.y < cy0)
-                            {
-                                polymost_domost(o.x,o.y,x0,o.y);
-                                polymost_domost(x1,cy1,o.x,o.y);
-                            }
-                            else
-                            {
-                                polymost_domost(o.x,o.y,x0,cy0);
-                                polymost_domost(x1,o.y,o.x,o.y);
-                            }
-                        }
-                        else
-                            polymost_domost(x1,cy1,x0,cy0);
-                    }
-                    else
-                        skyclamphack = 0;
-
-                    xtex.d = xtex.v = 0;
-                    ytex.d = ytex.u = 0;
-                    otex.d = dd;
-                    xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
-                                      (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
-                    ytex.v = vv[1];
-                    otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->ceilingypanning*(float)i*(1.f/256.f) : vv[0];
-
-                    int const npot = (1<<(picsiz[globalpicnum]&15)) != tilesiz[globalpicnum].x;
-                    int const xpanning = (r_parallaxskypanning?sec->ceilingxpanning:0);
-
-                    i = globalpicnum;
-                    float const r = (cy1-cy0)/(x1-x0); //slope of line
-                    o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
-
-                    int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
-                    float fx = x0;
-                    do
-                    {
-                        globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                        if (npot)
-                        {
-                            fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
-                            int tang = (y<<(11-dapskybits))&2047;
-                            otex.u = otex.d*(t*((float)(tang)) * (1.f/2048.f) + xpanning) - xtex.u*fx;
-                        }
-                        else
-                            otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + xpanning) - xtex.u*ghalfx;
-                        y++;
-                        o.x = fx; fx = (((float) (y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
-                        if (fx > x1) { fx = x1; i = -1; }
-
-                        pow2xsplit = 0; polymost_domost(fx,(fx-x0)*r+cy0,o.x,(o.x-x0)*r+cy0); //ceil
-                    }
-                    while (i >= 0);
-
-                }
+			if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
+			{
+				float const ghorizbak = ghoriz;
+				pow2xsplit = 0;
+				skyclamphack = 0;
+				flatskyrender = 1;
+				globalshade += globvis2 * xdimscale * fviewingrange * (1.f / (64.f * 65536.f * 256.f * 1024.f));
+				GLInterface.SetVisibility(0.f, fviewingrange);
+				polymost_domost(x1, cy1, x0, cy0);
+				flatskyrender = 0;
                 ghoriz = ghorizbak;
-            }
+			}
             else
             {
                 //Skybox code for parallax ceiling!
@@ -5053,13 +4857,6 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
     vec1 = hud->add;
 
-#ifdef POLYMER
-    if (pr_overridehud) {
-        vec1.x = pr_hudxadd;
-        vec1.y = pr_hudyadd;
-        vec1.z = pr_hudzadd;
-    }
-#endif
     if (!(hud->flags & HUDFLAG_NOBOB))
     {
         vec2f_t f = { (float)sx * (1.f / 65536.f), (float)sy * (1.f / 65536.f) };
@@ -5098,26 +4895,10 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     }
     tspr.ang = hud->angadd+globalang;
 
-#ifdef POLYMER
-    if (pr_overridehud) {
-        tspr.ang = pr_hudangadd + globalang;
-    }
-#endif
 
     if (dastat & RS_YFLIP) { vec1.x = -vec1.x; vec1.y = -vec1.y; }
 
     // In Polymost, we don't care if the model is very big
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-    {
-        vec3f_t const vec2 = { fglobalposx + (gcosang * vec1.z - gsinang * vec1.x) * 2560.f,
-                               fglobalposy + (gsinang * vec1.z + gcosang * vec1.x) * 2560.f,
-                               fglobalposz + (vec1.y * (2560.f * 0.8f)) };
-        *(vec3f_t *)&tspr = vec2;
-        tspr.xrepeat = tspr.yrepeat = 5;
-    }
-    else
-#endif
     {
         tspr.xrepeat = tspr.yrepeat = 32;
 
@@ -5154,10 +4935,6 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
         {
             float f = 1.f;
             int32_t fov = hud->fov;
-#ifdef POLYMER
-            if (pr_overridehud)
-                fov = pr_hudfov;
-#endif
             if (fov != -1)
                 f = 1.f/tanf(((float)fov * 2.56f) * ((.5f * fPI) * (1.0f/2048.f)));
 
@@ -5915,13 +5692,6 @@ static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
 
     if (xdim == 0 || ydim == 0 || bpp == 0) // video not set up yet
     {
-        if (r == OSDCMD_OK)
-        {
-#ifdef POLYMER
-            if (!Bstrcasecmp(parm->name, "r_pr_maxlightpasses"))
-                pr_maxlightpasses = r_pr_maxlightpasses;
-#endif
-        }
 
         return r;
     }
@@ -5977,13 +5747,10 @@ void polymost_initosdfuncs(void)
         { "r_shadescale","multiplier for shading",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
         { "r_shadescale_unbounded","enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },
         { "r_swapinterval","sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
-        { "r_texturemaxsize","changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
-        { "r_texturemiplevel","changes the highest OpenGL mipmap level used",(void *) &gltexmiplevel, CVAR_INT, 0, 6 },
         { "r_texfilter", "changes the texture filtering settings (may require restart)", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
         { "r_useindexedcolortextures", "enable/disable indexed color texture rendering", (void *) &r_useindexedcolortextures, CVAR_INT, 0, 1 },
 
         { "r_yshearing", "enable/disable y-shearing", (void*) &r_yshearing, CVAR_BOOL, 0, 1 },
-        { "r_flatsky", "enable/disable flat skies", (void*)& r_flatsky, CVAR_BOOL, 0, 1 },
 		{ "fixpalette", "", (void*)& fixpalette, CVAR_INT, 0, 256 },
 		{ "fixpalswap", "", (void*)& fixpalswap, CVAR_INT, 0, 256 },
 
