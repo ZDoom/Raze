@@ -57,7 +57,8 @@ public:
 	FUniformMatrix4f   ProjectionMatrix;
 	FUniformMatrix4f   DetailMatrix;
 	FUniformMatrix4f   GlowMatrix;
-	
+	FUniformMatrix4f   TextureMatrix;
+
 public:
 
 	PolymostShader() = default;

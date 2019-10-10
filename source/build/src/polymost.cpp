@@ -371,8 +371,6 @@ FileReader GetBaseResource(const char* fn);
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
-	//globalflags |= GLOBAL_NO_GL_TILESHADES; // This re-enables the old fading logic without re-adding the r_usetileshades variable. The entire thing will have to be done on a more abstract level anyway.
-
 	for (int basepalnum = 0; basepalnum < MAXBASEPALS; ++basepalnum)
     {
         uploadbasepalette(basepalnum);
@@ -758,12 +756,17 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 	bool onebitalpha = texture->isMasked();
 
 	pth->glpic->LoadTexture(image);
+
+#if 0	// I don't really think this is a good idea. The hightile should look indistinguishable to the game compared to the regular one.
 	vec2_t tsiz = { texture->GetWidth(), texture->GetHeight() };
     // precalculate scaling parameters for replacement
     if (facen > 0)
         pth->scale = { (float)tsiz.x * (1.0f/64.f), (float)tsiz.y * (1.0f/64.f) };
     else
         pth->scale = { (float)tsiz.x / (float)tilesiz[dapic].x, (float)tsiz.y / (float)tilesiz[dapic].y };
+#else
+	pth->scale = { 1.f,1.f };
+#endif
 
     polymost_setuptexture(pth->glpic, dameth, (hicr->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
 
@@ -775,7 +778,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                  ((hicr->flags & HICR_FORCEFILTER) ? PTH_FORCEFILTER : 0);
     pth->skyface = facen;
     pth->hicr = hicr;
-    pth->siz = tsiz;
 
 	if (facen > 0) pth->siz = { 64, 64 }; else pth->siz = { tilesiz[dapic].x, tilesiz[dapic].y };
     return 0;
@@ -1060,7 +1062,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
 		texmat.loadIdentity();
         texmat.scale(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
-		GLInterface.SetMatrix(Matrix_ModelView, &texmat);
+		GLInterface.SetMatrix(Matrix_Texture, &texmat);
     }
 
 #ifdef USE_GLEXT
@@ -1149,14 +1151,10 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     float pc[4];
 
-    {
-        polytint_t const & tint = hictinting[globalpal];
-        float shadeFactor = (pth->flags & PTH_INDEXED) &&
-                            !(globalflags & GLOBAL_NO_GL_TILESHADES) ? 1.f : getshadefactor(globalshade);
-        pc[0] = (1.f-(tint.sr*(1.f/255.f)))*shadeFactor+(tint.sr*(1.f/255.f));
-        pc[1] = (1.f-(tint.sg*(1.f/255.f)))*shadeFactor+(tint.sg*(1.f/255.f));
-        pc[2] = (1.f-(tint.sb*(1.f/255.f)))*shadeFactor+(tint.sb*(1.f/255.f));
-    }
+	polytint_t const& tint = hictinting[globalpal];
+	pc[0] = (1.f - (tint.sr * (1.f / 255.f))) + (tint.sr * (1.f / 255.f));
+	pc[1] = (1.f - (tint.sg * (1.f / 255.f))) + (tint.sg * (1.f / 255.f));
+	pc[2] = (1.f - (tint.sb * (1.f / 255.f))) + (tint.sb * (1.f / 255.f));
 
     // spriteext full alpha control
     pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
@@ -1352,6 +1350,7 @@ do                                                                              
     if (pth->hicr)
     {
 		VSMatrix identity(0);
+		GLInterface.SetMatrix(Matrix_Texture, &identity);
 		GLInterface.SetMatrix(Matrix_Detail, &identity);
     }
 
@@ -6146,19 +6145,17 @@ void polymost_fillpolygon(int32_t npoints)
 
     polymost_updatePalette();
 
-    float const f = getshadefactor(globalshade);
-
     uint8_t const maskprops = (globalorientation>>7)&DAMETH_MASKPROPS;
     handle_blend(maskprops > DAMETH_MASK, 0, maskprops == DAMETH_TRANS2);
     if (maskprops > DAMETH_MASK)
     {
         GLInterface.EnableBlend(true);
-        GLInterface.SetColor(f, f, f, float_trans(maskprops, 0));
+        GLInterface.SetColor(1.f, 1.f, 1.f, float_trans(maskprops, 0));
     }
     else
     {
         GLInterface.EnableBlend(false);
-		GLInterface.SetColor(f, f, f);
+		GLInterface.SetColor(1.f, 1.f, 1.f);
     }
 
     tessectrap((float *)rx1,(float *)ry1,xb1,npoints);

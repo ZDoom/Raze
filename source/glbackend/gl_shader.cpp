@@ -163,6 +163,7 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	ProjectionMatrix.Init(hShader, "u_projectionMatrix");
 	DetailMatrix.Init(hShader, "u_detailMatrix");
 	GlowMatrix.Init(hShader, "u_glowMatrix");
+	TextureMatrix.Init(hShader, "u_textureMatrix");
 
     
 	glUseProgram(hShader);

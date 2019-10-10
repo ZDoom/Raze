@@ -138,6 +138,7 @@ enum EMatrixType
 	Matrix_ModelView,
 	Matrix_Detail,
 	Matrix_Glow,
+	Matrix_Texture,
 	// These are the only ones being used.
 	NUMMATRICES
 };
