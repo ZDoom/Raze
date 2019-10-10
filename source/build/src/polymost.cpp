@@ -55,7 +55,6 @@ float shadescale = 1.0f;
 int32_t shadescale_unbounded = 0;
 
 int32_t r_pogoDebug = 0;
-int32_t r_usenewshading = 4;
 int32_t polymostcenterhoriz = 100;
 
 static float gviewxrange;
@@ -108,18 +107,10 @@ static FHardwareTexture *polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
 int32_t r_shadeinterpolate = 1;
 
-// This variable, and 'shadeforfullbrightpass' control the drawing of
-// fullbright tiles.  Also see 'fullbrightloadingpass'.
-
-int32_t r_fullbrights = 1;
-#ifdef USE_GLEXT
-//POGOTODO: we no longer support rendering without VBOs -- update any outdated pre-GL2 code that renders without VBOs
-int32_t r_vbocount = 64;
-#endif
 int32_t r_animsmoothing = 1;
 int32_t r_downsize = 0;
 int32_t r_downsizevar = -1;
-int32_t r_brightnesshack = 0;
+int32_t r_scenebrightness = 0;
 
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
@@ -384,154 +375,58 @@ void polymost_glinit()
 
 ////////// VISIBILITY FOG ROUTINES //////////
 
-// only for r_usenewshading < 2 (not preferred)
-static void fogcalc_old(int32_t shade, int32_t vis)
-{
-    float f;
-
-    if (r_usenewshading == 1)
-    {
-        f = 0.9f * shade;
-        f = (vis > 239) ? (float)(gvisibility * (vis - 240 + f)) :
-                          (float)(gvisibility * (vis + 16 + f));
-    }
-    else
-    {
-        f = (shade < 0) ? shade * 3.5f : shade * .66f;
-        f = (vis > 239) ? (float)(gvisibility * ((vis - 240 + f) / (klabs(vis - 256)))) :
-                          (float)(gvisibility * (vis + 16 + f));
-    }
-
-    fogresult = clamp(f, 0.001f, 100.0f);
-}
-
 // For GL_LINEAR fog:
-#define FOGDISTCONST 600
-#define FULLVIS_BEGIN 2.9e30f
-#define FULLVIS_END 3.0e30f
-
-static inline void fogcalc(int32_t shade, int32_t vis, int32_t pal)
-{
-    fogcol = fogtable[pal];
-
-    if (r_usenewshading < 2)
-    {
-        fogcalc_old(shade, vis);
-        return;
-    }
-
-    float combvis = (float) globalvisibility * (uint8_t) (vis+16);
-
-    if (combvis == 0.f)
-    {
-        if (r_usenewshading == 2 && shade > 0)
-        {
-            // beg = -D*shade, end = D*(NUMSHADES-1-shade)
-            //  => end/beg = -(NUMSHADES-1-shade)/shade
-            fogresult = -FULLVIS_BEGIN;
-            fogresult2 = FULLVIS_BEGIN * (float)(numshades-1-shade) / shade;
-        }
-        else
-        {
-            fogresult  = FULLVIS_BEGIN;
-            fogresult2 = FULLVIS_END;
-        }
-    }
-    else if (r_usenewshading == 3 && shade >= numshades-1)
-    {
-        fogresult = -1;
-        fogresult2 = 0;
-    }
-    else
-    {
-        combvis = 1.f/combvis;
-        fogresult = (r_usenewshading == 3 && shade > 0) ? 0.f : -(FOGDISTCONST * shade) * combvis;
-        fogresult2 = (FOGDISTCONST * (numshades-1-shade)) * combvis;
-    }
-}
-
 #define GL_FOG_MAX 1.0e37f
 
 void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal)
 {
     if (nofog) return;
 
-    if (r_usenewshading == 4)
+    fogresult = 0.f;
+    fogcol = fogtable[pal];
+
+    if (((uint8_t)(vis + 16)) > 0 && globalvisibility > 0)
+    {
+        constexpr GLfloat glfogconstant = 262144.f;
+        GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
+
+        fogresult = 0.f - (((min(shade, 0) - 0.5f) / frealmaxshade) * fogrange); // min() = subtract shades from fog
+        fogresult2 = fogrange - (((shade - 0.5f) / frealmaxshade) * fogrange);
+    }
+    else
     {
         fogresult = 0.f;
-        fogcol = fogtable[pal];
-
-        if (((uint8_t)(vis + 16)) > 0 && globalvisibility > 0)
-        {
-            constexpr GLfloat glfogconstant = 262144.f;
-            GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
-
-            fogresult = 0.f - (((min(shade, 0) - 0.5f) / frealmaxshade) * fogrange); // min() = subtract shades from fog
-            fogresult2 = fogrange - (((shade - 0.5f) / frealmaxshade) * fogrange);
-        }
-        else
-        {
-            fogresult = 0.f;
-            fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
-        }
-
-		GLInterface.SetFogLinear((float*)&fogcol, fogresult, fogresult2);
-        return;
+        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
     }
 
-    fogcalc(shade, vis, pal);
-
-	if (r_usenewshading < 2)
-	{
-		GLInterface.SetFogExp2((float*)& fogcol, fogresult);
-	}
-	else
-    {
-		GLInterface.SetFogLinear((float*)& fogcol, fogresult, fogresult2);
-	}
+	GLInterface.SetFogLinear((float*)&fogcol, fogresult, fogresult2);
 }
 
 void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float factor)
 {
     if (nofog) return;
 
-    if (r_usenewshading == 4)
+    fogcol = fogtable[pal];
+
+    if (((uint8_t)(vis + 16)) > 0 && ((((uint8_t)(vis + 16)) / 8.f) + shade) > 0)
     {
-        fogcol = fogtable[pal];
+        GLfloat normalizedshade = (shade - 0.5f) / frealmaxshade;
+        GLfloat fogrange = (((uint8_t)(vis + 16)) / (8.f * frealmaxshade)) + normalizedshade;
 
-        if (((uint8_t)(vis + 16)) > 0 && ((((uint8_t)(vis + 16)) / 8.f) + shade) > 0)
-        {
-            GLfloat normalizedshade = (shade - 0.5f) / frealmaxshade;
-            GLfloat fogrange = (((uint8_t)(vis + 16)) / (8.f * frealmaxshade)) + normalizedshade;
+        // subtract shades from fog
+        if (normalizedshade > 0.f && normalizedshade < 1.f)
+            fogrange = (fogrange - normalizedshade) / (1.f - normalizedshade);
 
-            // subtract shades from fog
-            if (normalizedshade > 0.f && normalizedshade < 1.f)
-                fogrange = (fogrange - normalizedshade) / (1.f - normalizedshade);
-
-            fogresult = -(GL_FOG_MAX * fogrange);
-            fogresult2 = GL_FOG_MAX - (GL_FOG_MAX * fogrange);
-        }
-        else
-        {
-            fogresult = 0.f;
-            fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
-        }
-
-		GLInterface.SetFogLinear((float*)& fogcol, fogresult, fogresult2);
-		return;
+        fogresult = -(GL_FOG_MAX * fogrange);
+        fogresult2 = GL_FOG_MAX - (GL_FOG_MAX * fogrange);
+    }
+    else
+    {
+        fogresult = 0.f;
+        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
     }
 
-    // NOTE: for r_usenewshading >= 2, the fog beginning/ending distance results are
-    // unused.
-    fogcalc(shade, vis, pal);
-	if (r_usenewshading < 2)
-	{
-		GLInterface.SetFogExp2((float*)& fogcol, fogresult*factor);
-	}
-	else
-	{
-		GLInterface.SetFogLinear((float*)& fogcol, FULLVIS_BEGIN, FULLVIS_END);
-	}
+	GLInterface.SetFogLinear((float*)& fogcol, fogresult, fogresult2);
 }
 ////////////////////
 
@@ -623,7 +518,6 @@ void uploadbasepalette(int32_t basepalnum, bool transient)	// transient palettes
         return;
     }
 
-    //POGO: this is only necessary for GL fog/vertex color shade compatibility, since those features don't index into shade tables
     uint8_t basepalWFullBrightInfo[4*256];
     for (int i = 0; i < 256; ++i)
     {
@@ -808,10 +702,7 @@ static uint8_t drawpoly_blend = 0;
 
 static inline pthtyp *our_texcache_fetch(int32_t dameth)
 {
-    if (r_usenewshading == 4)
-        return texcache_fetch(globalpicnum, globalpal, getpalookup(!(globalflags & GLOBAL_NO_GL_TILESHADES), globalshade), dameth);
-
-    return texcache_fetch(globalpicnum, globalpal, getpalookup(!(globalflags & GLOBAL_NO_GL_TILESHADES) ? globvis>>3 : 0, globalshade), dameth);
+    return texcache_fetch(globalpicnum, globalpal, getpalookup(1, globalshade), dameth);
 }
 
 int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
@@ -1020,16 +911,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 		GLInterface.SetColorMask(false); //Hack to update Z-buffer for invalid mirror textures
     }
 
-    static int32_t fullbright_pass = 0;
-
-    if (pth->flags & PTH_HASFULLBRIGHT && r_fullbrights)
-    {
-        if (!fullbright_pass)
-            fullbright_pass = 1;
-        else if (fullbright_pass == 2)
-            pth = pth->ofb;
-    }
-
     Bassert(pth);
 
     // If we aren't rendmode 3, we're in Polymer, which means this code is
@@ -1140,7 +1021,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     vec2_t tsiz2 = tsiz;
 
 
-    if (method & DAMETH_MASKPROPS || fullbright_pass == 2)
+    if (method & DAMETH_MASKPROPS)
     {
         float const al = alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f) :
                          (pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f);
@@ -1367,29 +1248,8 @@ do                                                                              
         // restore palette usage if we were just rendering a non-indexed color texture
 		GLInterface.UsePaletteIndexing(true);
     }
-    if (fullbright_pass == 1)
-    {
-        int32_t const shade = globalshade;
 
-        globalshade = -128;
-        fullbright_pass = 2;
-
-		GLInterface.SetFogEnabled(false);
-
-		GLInterface.SetDepthFunc(Depth_Equal);
-
-        polymost_drawpoly(dpxy, n, method_);
-
-		GLInterface.SetDepthFunc(Depth_LessEqual);
-
-        if (!nofog)
-			GLInterface.SetFogEnabled(true);
-
-        globalshade = shade;
-        fullbright_pass = 0;
-    }
-
-    if (skyzbufferhack && skyzbufferhack_pass == 0)
+	if (skyzbufferhack && skyzbufferhack_pass == 0)
     {
         vec3d_t const bxtex = xtex, bytex = ytex, botex = otex;
         xtex = xtex2, ytex = ytex2, otex = otex2;
@@ -4222,7 +4082,7 @@ void polymost_drawrooms()
     GLInterface.EnableDepthTest(true);
 	GLInterface.SetDepthFunc(Depth_Always);
 
-	GLInterface.SetBrightness(r_brightnesshack);
+	GLInterface.SetBrightness(r_scenebrightness);
 
     gvrcorrection = viewingrange*(1.f/65536.f);
     if (glprojectionhacks == 2)
@@ -6261,7 +6121,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     GLInterface.EnableAlphaTest(false);
 	GLInterface.SetDepthMask(false);
 
-    // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading >= 2.
 	GLInterface.SetFogEnabled(false);
     // We want to have readable text in wireframe mode, too:
 	GLInterface.SetWireframe(false);
@@ -6458,7 +6317,6 @@ void polymost_initosdfuncs(void)
 
         { "r_animsmoothing","enable/disable model animation smoothing",(void *) &r_animsmoothing, CVAR_BOOL, 0, 1 },
         { "r_anisotropy", "changes the OpenGL texture anisotropy setting", (void *) &glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
-        { "r_fullbrights","enable/disable fullbright textures",(void *) &r_fullbrights, CVAR_BOOL, 0, 1 },
         { "r_hightile","enable/disable hightile texture rendering",(void *) &usehightile, CVAR_BOOL, 0, 1 },
         { "r_models", "enable/disable model rendering", (void *)&usemodels, CVAR_BOOL, 0, 1 },
         { "r_nofog", "enable/disable GL fog", (void *)&nofog, CVAR_BOOL, 0, 1},
@@ -6474,9 +6332,6 @@ void polymost_initosdfuncs(void)
         { "r_texfilter", "changes the texture filtering settings (may require restart)", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
         { "r_useindexedcolortextures", "enable/disable indexed color texture rendering", (void *) &r_useindexedcolortextures, CVAR_INT, 0, 1 },
 
-		{ "r_usenewshading",
-		  "visibility/fog code: 0: orig. Polymost   1: 07/2011   2: linear 12/2012   3: no neg. start 03/2014   4: base constant on shade table 11/2017",
-		  (void*)& r_usenewshading, CVAR_INT | CVAR_FUNCPTR, 0, 4},
         { "r_yshearing", "enable/disable y-shearing", (void*) &r_yshearing, CVAR_BOOL, 0, 1 },
         { "r_flatsky", "enable/disable flat skies", (void*)& r_flatsky, CVAR_BOOL, 0, 1 },
 		{ "fixpalette", "", (void*)& fixpalette, CVAR_INT, 0, 256 },
@@ -6496,7 +6351,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     //    while sprites are clamped
 
     if (videoGetRenderMode() < REND_POLYMOST) return;
-    if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (palookup[dapalnum] == NULL)) return;//dapalnum = 0;
+   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (palookup[dapalnum] == NULL)) return;//dapalnum = 0;
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;

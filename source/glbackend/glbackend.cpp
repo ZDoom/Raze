@@ -356,14 +356,6 @@ void GLInstance::SetFogLinear(float* color, float start, float end)
 	memcpy(renderState.FogColor, color, 4 * sizeof(float));
 };
 
-void GLInstance::SetFogExp2(float* color, float coefficient)
-{
-	renderState.Fog[0] = 
-	renderState.Fog[1] = 0.f;
-	renderState.Fog[2] = coefficient;
-	memcpy(renderState.FogColor, color, 4 * sizeof(float));
-}
-
 void GLInstance::SetColorMask(bool on)
 {
 	glColorMask(on, on, on, on);

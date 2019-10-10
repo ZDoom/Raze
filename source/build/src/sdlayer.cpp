@@ -1332,7 +1332,7 @@ void sdlayer_setvideomode_opengl(void)
 
 	GLInterface.Deinit();
 	GLInterface.Init();
-	GLInterface.InitGLState(r_usenewshading, glmultisample);
+	GLInterface.InitGLState(4, glmultisample);
 	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
 
 }

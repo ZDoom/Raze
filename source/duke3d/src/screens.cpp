@@ -689,15 +689,6 @@ static void G_PrintCoords(int32_t snum)
         printcoordsline("rendmode = %d", videoGetRenderMode());
         printcoordsline("r_ambientlight = %.03f", r_ambientlight);
 
-        if (rendmode >= 3)
-        {
-            if (rendmode==3)
-                printcoordsline("r_usenewshading = %d", r_usenewshading);
-# ifdef POLYMER
-            else
-                printcoordsline("r_pr_artmapping = %d", pr_artmapping);
-#endif
-        }
     }
 #endif
 }

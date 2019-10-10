@@ -8412,30 +8412,11 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     case REND_CLASSIC:
         globalvisibility = mulscale16(g_visibility,i);
         break;
-#ifdef USE_OPENGL
     case REND_POLYMOST:
         // NOTE: In Polymost, the fragment depth depends on the x screen size!
-        if (r_usenewshading == 4)
-            globalvisibility = g_visibility * xdimen;
-        else if (r_usenewshading >= 2)
-            globalvisibility = scale(g_visibility<<2, xdimen, 1680);
-        else
-            globalvisibility = scale(g_visibility<<2, xdimen, 1100);
+        globalvisibility = g_visibility * xdimen;
         globalvisibility2 = mulscale16(g_visibility, i);
         break;
-# ifdef POLYMER
-    case REND_POLYMER:
-        if (r_usenewshading == 4)
-            globalvisibility = g_visibility<<5;
-        else if (r_usenewshading > 1)
-        /* 0.65127==150/230, another constant found out by experiment. :/
-         * (150 is Polymost's old FOGDISTCONST.) */
-            globalvisibility = (g_visibility<<2) * 150 / (230 * 35);
-        else
-            globalvisibility = (g_visibility<<2) / 35;
-        break;
-# endif
-#endif
     }
 
     globalhisibility = mulscale16(globalvisibility,xyaspect);

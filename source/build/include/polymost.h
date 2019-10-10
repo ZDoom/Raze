@@ -71,8 +71,7 @@ extern float shadescale;
 extern int32_t shadescale_unbounded;
 extern uint8_t alphahackarray[MAXTILES];
 
-extern int32_t r_usenewshading;
-extern int32_t r_brightnesshack;
+extern int32_t r_scenebrightness;
 extern int32_t polymostcenterhoriz;
 
 extern int16_t globalpicnum;

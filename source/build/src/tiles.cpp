@@ -786,8 +786,7 @@ void tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, 
             x1++; if (x1 >= xsiz1) x1 = 0;
         }
     }
-	if (playing_rr)
-	    tileInvalidate(tilenume2, -1, -1);
+    tileInvalidate(tilenume2, -1, -1);
 }
 
 void Buninitart(void)

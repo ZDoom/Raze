@@ -263,7 +263,6 @@ public:
 
 	void SetDepthFunc(int func);
 	void SetFogLinear(float* color, float start, float end);
-	void SetFogExp2(float* color, float coefficient);
 	void SetColorMask(bool on);
 	void SetDepthMask(bool on);
 	void SetBlendFunc(int src, int dst);
