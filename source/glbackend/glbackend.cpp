@@ -180,7 +180,11 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
 	// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
 
-	if (activeShader == polymostShader) renderState.Apply(polymostShader);
+	if (activeShader == polymostShader)
+	{
+		renderState.UsePalette = texv && texv->isIndexed();
+		renderState.Apply(polymostShader);
+	}
 	glBegin(primtypes[type]);
 	auto p = &Buffer[start];
 	for (size_t i = 0; i < count; i++, p++)
@@ -209,21 +213,16 @@ FHardwareTexture* GLInstance::NewTexture()
 	return new FHardwareTexture;
 }
 
-FHardwareTexture* texv;
 
 void GLInstance::BindTexture(int texunit, FHardwareTexture *tex, int sampler)
 {
 	if (!tex) return;
 	if (texunit != 0) glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, tex->GetTextureHandle());
-	if (tex->isIndexed() && sampler > NoSampler && sampler < Sampler2D)
-	{
-		sampler = sampler == SamplerRepeat ? SamplerNoFilter : Sampler2DNoFilter;
-	}
 	mSamplers->Bind(texunit, sampler == NoSampler? tex->GetSampler() : sampler, 0);
 	if (texunit != 0) glActiveTexture(GL_TEXTURE0);
 	LastBoundTextures[texunit] = tex->GetTextureHandle();
-	texv = tex;
+	if (texunit == 0) texv = tex;
 }
 
 void GLInstance::UnbindTexture(int texunit)

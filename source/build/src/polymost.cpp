@@ -926,10 +926,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (videoGetRenderMode() == REND_POLYMOST)
     {
 
-        //POGOTODO: I could move this into bindPth
-        if (!(pth->flags & PTH_INDEXED))
-			GLInterface.UsePaletteIndexing(false);
-
 		// The entire logic here is just one lousy hack.
 		int mSampler = NoSampler;
 		if (pth->glpic->GetSampler() != SamplerRepeat)
@@ -1248,12 +1244,6 @@ do                                                                              
 			GLInterface.SetColorMask(true);
 
         return;
-    }
-
-    if (!(pth->flags & PTH_INDEXED))
-    {
-        // restore palette usage if we were just rendering a non-indexed color texture
-		GLInterface.UsePaletteIndexing(true);
     }
 
 	if (skyzbufferhack && skyzbufferhack_pass == 0)
@@ -6005,9 +5995,6 @@ void polymost_fillpolygon(int32_t npoints)
     if (pth)
     {
         polymost_bindPth(pth, -1);
-
-        if (!(pth->flags & PTH_INDEXED))
-			GLInterface.UsePaletteIndexing(false);
     }
 
     polymost_updatePalette();
@@ -6026,12 +6013,6 @@ void polymost_fillpolygon(int32_t npoints)
     }
 
     tessectrap((float *)rx1,(float *)ry1,xb1,npoints);
-
-    if (pth && !(pth->flags & PTH_INDEXED))
-    {
-        // restore palette usage if we were just rendering a non-indexed color texture
-		GLInterface.UsePaletteIndexing(true);
-    }
 }
 
 static int32_t gen_font_glyph_tex(void)
@@ -6121,8 +6102,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
 	GLInterface.BindTexture(0, polymosttext);
     
-	GLInterface.UsePaletteIndexing(false);
-
     polymostSet2dView();	// disables blending, texturing, and depth testing
 
     GLInterface.EnableAlphaTest(false);
@@ -6218,8 +6197,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 	GLInterface.SetDepthMask(true);
 
     if (!nofog) GLInterface.SetFogEnabled(true);
-
-	GLInterface.UsePaletteIndexing(true);
 
     return 0;
 }

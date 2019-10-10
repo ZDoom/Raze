@@ -1845,7 +1845,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
-	GLInterface.UsePaletteIndexing(false);
 
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
@@ -2012,7 +2011,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
 	GLInterface.SetTinting(0, 0);
 	GLInterface.SetClamp(prevClamp);
-	GLInterface.UsePaletteIndexing(true);
 	GLInterface.SetPolymostShader();
     
     globalnoeffect=0;

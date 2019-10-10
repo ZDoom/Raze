@@ -1136,8 +1136,6 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
 	GLInterface.BindTexture(0, m->texid[globalpal]);
 
-	GLInterface.UsePaletteIndexing(false);
-
 	auto data = GLInterface.AllocVertices(m->qcnt * 4);
 	auto vt = data.second;
 

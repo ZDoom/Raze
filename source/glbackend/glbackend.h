@@ -199,6 +199,7 @@ class GLInstance
 	int maxTextureSize;
 	PaletteManager palmanager;
 	int lastPalswapIndex = -1;
+	FHardwareTexture* texv;
 
 
 	VSMatrix matrices[NUMMATRICES];
@@ -321,11 +322,6 @@ public:
 	void UseColorOnly(bool useColorOnly)
 	{
 		renderState.UseColorOnly = useColorOnly;
-	}
-
-	void UsePaletteIndexing(bool usePaletteIndexing)
-	{
-		renderState.UsePalette = usePaletteIndexing;
 	}
 
 	void UseDetailMapping(bool useDetailMapping)
