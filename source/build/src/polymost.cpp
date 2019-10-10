@@ -754,8 +754,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 		GLInterface.SetMatrix(Matrix_Texture, &texmat);
     }
 
-#ifdef USE_GLEXT
-
     if (videoGetRenderMode() == REND_POLYMOST)
     {
         polymost_updatePalette();
@@ -816,7 +814,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
 		GLInterface.SetNpotEmulation(false, 1.f, 0.f);
     }
-#endif
 
     vec2f_t hacksc = { 1.f, 1.f };
 
@@ -874,162 +871,26 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     GLInterface.SetColor(pc[0], pc[1], pc[2], pc[3]);
 
-    //POGOTODO: remove this, replace it with a shader implementation
-    //Hack for walls&masked walls which use textures that are not a power of 2
-    if ((pow2xsplit) && (tsiz.x != tsiz2.x))
+    vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
+	auto data = GLInterface.AllocVertices(npoints);
+	auto vt = data.second;
+	for (bssize_t i = 0; i < npoints; ++i, vt++)
     {
-        vec3f_t const opxy[3] = { { py[1] - py[2], py[2] - py[0], py[0] - py[1] },
-                                  { px[2] - px[1], px[0] - px[2], px[1] - px[0] },
-                                  { px[0] - .5f, py[0] - .5f, 0 } };
+        float const r = 1.f / dd[i];
 
-        float const r = 1.f / (opxy[0].x*px[0] + opxy[0].y*px[1] + opxy[0].z*px[2]);
+		//update texcoords
+		vt->SetTexCoord(
+			uu[i] * r * scale.x,
+			vv[i] * r * scale.y);
 
-        vec3f_t ngx = { (opxy[0].x * dd[0] + opxy[0].y * dd[1] + opxy[0].z * dd[2]) * r,
-                        ((opxy[0].x * uu[0] + opxy[0].y * uu[1] + opxy[0].z * uu[2]) * r) * hacksc.x,
-                        ((opxy[0].x * vv[0] + opxy[0].y * vv[1] + opxy[0].z * vv[2]) * r) * hacksc.y };
+        //update verts
+		vt->SetVertex(
+			(px[i] - ghalfx) * r * grhalfxdown10x,
+			(ghalfy - py[i]) * r * grhalfxdown10,
+			r * (1.f / 1024.f));
 
-        vec3f_t ngy = { (opxy[1].x * dd[0] + opxy[1].y * dd[1] + opxy[1].z * dd[2]) * r,
-                        ((opxy[1].x * uu[0] + opxy[1].y * uu[1] + opxy[1].z * uu[2]) * r) * hacksc.x,
-                        ((opxy[1].x * vv[0] + opxy[1].y * vv[1] + opxy[1].z * vv[2]) * r) * hacksc.y };
-
-        vec3f_t ngo = { dd[0] - opxy[2].x * ngx.d - opxy[2].y * ngy.d,
-                        (uu[0] - opxy[2].x * ngx.u - opxy[2].y * ngy.u) * hacksc.x,
-                        (vv[0] - opxy[2].x * ngx.v - opxy[2].y * ngy.v) * hacksc.y };
-
-        float const uoffs = ((float)(tsiz2.x - tsiz.x) * 0.5f);
-
-        ngx.u -= ngx.d * uoffs;
-        ngy.u -= ngy.d * uoffs;
-        ngo.u -= ngo.d * uoffs;
-
-        float du0 = 0.f, du1 = 0.f;
-
-        //Find min&max u coordinates (du0...du1)
-        for (bssize_t i=0; i<npoints; ++i)
-        {
-            vec2f_t const o = { px[i], py[i] };
-            float const f = (o.x*ngx.u + o.y*ngy.u + ngo.u) / (o.x*ngx.d + o.y*ngy.d + ngo.d);
-            if (!i) { du0 = du1 = f; continue; }
-            if (f < du0) du0 = f;
-            else if (f > du1) du1 = f;
-        }
-
-        float const rf = 1.0f / tsiz.x;
-        int const ix1 = (int)floorf(du1 * rf);
-
-        for (bssize_t ix0 = (int)floorf(du0 * rf); ix0 <= ix1; ++ix0)
-        {
-            du0 = (float)(ix0 * tsiz.x);        // + uoffs;
-            du1 = (float)((ix0 + 1) * tsiz.x);  // + uoffs;
-
-            float duj = (px[0]*ngx.u + py[0]*ngy.u + ngo.u) / (px[0]*ngx.d + py[0]*ngy.d + ngo.d);
-            int i = 0, nn = 0;
-
-            do
-            {
-                j = i + 1;
-
-                if (j == npoints)
-                    j = 0;
-
-                float const dui = duj;
-
-                duj = (px[j]*ngx.u + py[j]*ngy.u + ngo.u) / (px[j]*ngx.d + py[j]*ngy.d + ngo.d);
-
-                if ((du0 <= dui) && (dui <= du1))
-                {
-                    uu[nn] = px[i];
-                    vv[nn] = py[i];
-                    nn++;
-                }
-
-                //ox*(ngx.u-ngx.d*du1) + oy*(ngy.u-ngdy*du1) + (ngo.u-ngo.d*du1) = 0
-                //(px[j]-px[i])*f + px[i] = ox
-                //(py[j]-py[i])*f + py[i] = oy
-
-                ///Solve for f
-                //((px[j]-px[i])*f + px[i])*(ngx.u-ngx.d*du1) +
-                //((py[j]-py[i])*f + py[i])*(ngy.u-ngdy*du1) + (ngo.u-ngo.d*du1) = 0
-
-                //POGOTODO: this could be a static inline function -- the do/while loop should be just a pair of braces
-#define DRAWPOLY_MATH_BULLSHIT(XXX)                                                                                \
-do                                                                                                                 \
-{                                                                                                                  \
-    float const f = -(px[i] * (ngx.u - ngx.d * XXX) + py[i] * (ngy.u - ngy.d * XXX) + (ngo.u - ngo.d * XXX)) /     \
-        ((px[j] - px[i]) * (ngx.u - ngx.d * XXX) + (py[j] - py[i]) * (ngy.u - ngy.d * XXX));                       \
-    uu[nn] = (px[j] - px[i]) * f + px[i];                                                                          \
-    vv[nn] = (py[j] - py[i]) * f + py[i];                                                                          \
-    ++nn;                                                                                                          \
-} while (0)
-
-                if (duj <= dui)
-                {
-                    if ((du1 < duj) != (du1 < dui)) DRAWPOLY_MATH_BULLSHIT(du1);
-                    if ((du0 < duj) != (du0 < dui)) DRAWPOLY_MATH_BULLSHIT(du0);
-                }
-                else
-                {
-                    if ((du0 < duj) != (du0 < dui)) DRAWPOLY_MATH_BULLSHIT(du0);
-                    if ((du1 < duj) != (du1 < dui)) DRAWPOLY_MATH_BULLSHIT(du1);
-                }
-
-#undef DRAWPOLY_MATH_BULLSHIT
-
-                i = j;
-            }
-            while (i);
-
-            if (nn < 3) continue;
-
-            vec2f_t const invtsiz2 = { 1.f / tsiz2.x, 1.f / tsiz2.y };
-			auto data = GLInterface.AllocVertices(nn);
-			auto vt = data.second;
-            for (i = 0; i<nn; ++i, vt++)
-            {
-                vec2f_t const o = { uu[i], vv[i] };
-                vec3f_t const p = { o.x * ngx.d + o.y * ngy.d + ngo.d,
-                                    o.x * ngx.u + o.y * ngy.u + ngo.u,
-                                    o.x * ngx.v + o.y * ngy.v + ngo.v };
-                float const r = 1.f/p.d;
-
-				//update texcoords
-				vt->SetTexCoord(
-					(p.u * r - du0 + uoffs) * invtsiz2.x,
-					p.v * r * invtsiz2.y);
-
-                //update verts
-				vt->SetVertex(
-					(o.x - ghalfx) * r * grhalfxdown10x,
-					(ghalfy - o.y) * r * grhalfxdown10,
-					r * (1.f / 1024.f));
-
-            }
-			GLInterface.Draw(DT_TRIANGLE_FAN, data.first, nn);
-        }
     }
-    else
-    {
-        vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
-		auto data = GLInterface.AllocVertices(npoints);
-		auto vt = data.second;
-		for (bssize_t i = 0; i < npoints; ++i, vt++)
-        {
-            float const r = 1.f / dd[i];
-
-			//update texcoords
-			vt->SetTexCoord(
-				uu[i] * r * scale.x,
-				vv[i] * r * scale.y);
-
-            //update verts
-			vt->SetVertex(
-				(px[i] - ghalfx) * r * grhalfxdown10x,
-				(ghalfy - py[i]) * r * grhalfxdown10,
-				r * (1.f / 1024.f));
-
-        }
-		GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
-	}
+	GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
 
 	GLInterface.SetTinting(0,0);
 	GLInterface.UseDetailMapping(false);
