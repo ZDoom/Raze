@@ -64,22 +64,43 @@ extern RXBUCKET rxBucket[];
 extern unsigned short bucketHead[];
 
 enum COMMAND_ID {
-    COMMAND_ID_0 = 0,
-    COMMAND_ID_1,
-    COMMAND_ID_2,
-    COMMAND_ID_3,
-    COMMAND_ID_4,
-    COMMAND_ID_5,
-    COMMAND_ID_6,
-    COMMAND_ID_7,
-    COMMAND_ID_8,
-    COMMAND_ID_9,
+    kCmdOff = 0,
+    kCmdOn = 1,
+    kCmdState = 2,
+    kCmdToggle = 3,
+    kCmdNotState = 4,
+    kCmdLink = 5,
+    kCmdLock = 6,
+    kCmdUnlock = 7,
+    kCmdToggleLock = 8,
+    kCmdStopOff = 9,
+    kCmdStopOn = 10,
+    kCmdStopNext = 11,
+    kCmdCounterSector = 12,
+    kCmdCallback = 20,
+    kCmdRepeat = 21,
+    
+    kCmdSpritePush = 30,
+    kCmdSpriteImpact = 31,
+    kCmdSpritePickup = 32,
+    kCmdSpriteTouch = 33,
+    kCmdSpriteSight = 34,
+    kCmdSpriteProximity = 35,
+    kCmdSpriteExplode = 36,
+    
+    kCmdSectorPush = 40,
+    kCmdSectorImpact = 41,
+    kCmdSectorEnter = 42,
+    kCmdSectorExit = 43,
 
-    kCommandCallback = 20,
-    COMMAND_ID_21,
-    kGDXCommandPaste = 53, // used by some new GDX types
-    COMMAND_ID_64 = 64,
-    kCommandMapExtend = 100
+    kCmdWallPush = 50,
+    kCmdWallImpact = 51,
+    kCmdWallTouch = 52,
+
+    kCmdModernUse = 53, // used by most of modern types
+    kCmdNumberic = 64, // 64: 0, 65: 1 and so on up to 255
+    kCmdModernFeaturesEnable = 100, // must be in object with kChannelMapExtended RX / TX
+    kCmdModernFeaturesDisable = 200 // must be in object with kChannelMapExtended RX / TX 
 };
 
 struct EVENT {

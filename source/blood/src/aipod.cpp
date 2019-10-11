@@ -111,7 +111,7 @@ static void sub_6FFA0(int, int nXSprite)
     spritetype *pMissile = NULL;
     switch (pSprite->type)
     {
-    case 221:
+    case kDudePodGreen:
         dz += 8000;
         if (pDudeInfo->seeDist*0.1 < nDist)
         {
@@ -119,17 +119,17 @@ static void sub_6FFA0(int, int nXSprite)
                 sfxPlay3DSound(pSprite, 2474, -1, 0);
             else
                 sfxPlay3DSound(pSprite, 2475, -1, 0);
-            pMissile = actFireThing(pSprite, 0, -8000, dz/128-14500, 430, (nDist2<<23)/120);
+            pMissile = actFireThing(pSprite, 0, -8000, dz/128-14500, kThingPodFireBall, (nDist2<<23)/120);
         }
         if (pMissile)
             seqSpawn(68, 3, pMissile->extra, -1);
         break;
-    case 223:
+    case kDudePodFire:
         dz += 8000;
         if (pDudeInfo->seeDist*0.1 < nDist)
         {
             sfxPlay3DSound(pSprite, 2454, -1, 0);
-            pMissile = actFireThing(pSprite, 0, -8000, dz/128-14500, 429, (nDist2<<23)/120);
+            pMissile = actFireThing(pSprite, 0, -8000, dz/128-14500, kThingPodGreenBall, (nDist2<<23)/120);
         }
         if (pMissile)
             seqSpawn(22, 3, pMissile->extra, -1);
@@ -147,19 +147,18 @@ static void sub_70284(int, int nXSprite)
     sfxPlay3DSound(pSprite, 2502, -1, 0);
     int nDist, nBurn;
     DAMAGE_TYPE dmgType;
-    switch (pSprite->type)
-    {
-    case 222:
-    default:
-        nBurn = 0;
-        dmgType = DAMAGE_TYPE_2;
-        nDist = 50;
-        break;
-    case 224:
-        nBurn = (gGameOptions.nDifficulty*120)>>2;
-        dmgType = DAMAGE_TYPE_3;
-        nDist = 75;
-        break;
+    switch (pSprite->type) {
+        case kDudeTentacleGreen:
+        default: // ???
+            nBurn = 0;
+            dmgType = DAMAGE_TYPE_2;
+            nDist = 50;
+            break;
+        case kDudeTentacleFire: // ???
+            nBurn = (gGameOptions.nDifficulty*120)>>2;
+            dmgType = DAMAGE_TYPE_3;
+            nDist = 75;
+            break;
     }
     sub_2A620(nSprite, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5*(1+gGameOptions.nDifficulty), dmgType, 2, nBurn, 0, 0);
 }
@@ -182,18 +181,16 @@ static void sub_70380(spritetype *pSprite, XSPRITE *pXSprite)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-    {
-        switch (pSprite->type)
-        {
-        case 221:
-        case 223:
-            aiNewState(pSprite, pXSprite, &podSearch);
-            break;
-        case 222:
-        case 224:
-            aiNewState(pSprite, pXSprite, &tentacleSearch);
-            break;
+    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery) {
+        switch (pSprite->type) {
+            case kDudePodGreen:
+            case kDudePodFire:
+                aiNewState(pSprite, pXSprite, &podSearch);
+                break;
+            case kDudeTentacleGreen:
+            case kDudeTentacleFire:
+                aiNewState(pSprite, pXSprite, &tentacleSearch);
+                break;
         }
     }
     aiThinkTarget(pSprite, pXSprite);
@@ -201,18 +198,16 @@ static void sub_70380(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    if (pXSprite->target == -1)
-    {
-        switch (pSprite->type)
-        {
-        case 221:
-        case 223:
-            aiNewState(pSprite, pXSprite, &pod13A600);
-            break;
-        case 222:
-        case 224:
-            aiNewState(pSprite, pXSprite, &tentacle13A718);
-            break;
+    if (pXSprite->target == -1) {
+        switch (pSprite->type) {
+            case kDudePodGreen:
+            case kDudePodFire:
+                aiNewState(pSprite, pXSprite, &pod13A600);
+                break;
+            case kDudeTentacleGreen:
+            case kDudeTentacleFire:
+                aiNewState(pSprite, pXSprite, &tentacle13A718);
+                break;
         }
         return;
     }
@@ -228,18 +223,17 @@ static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
-    if (pXTarget->health == 0)
-    {
-        switch (pSprite->type)
-        {
-        case 221:
-        case 223:
-            aiNewState(pSprite, pXSprite, &podSearch);
-            break;
-        case 222:
-        case 224:
-            aiNewState(pSprite, pXSprite, &tentacleSearch);
-            break;
+    if (pXTarget->health == 0) {
+        
+        switch (pSprite->type) {
+            case kDudePodGreen:
+            case kDudePodFire:
+                aiNewState(pSprite, pXSprite, &podSearch);
+                break;
+            case kDudeTentacleGreen:
+            case kDudeTentacleFire:
+                aiNewState(pSprite, pXSprite, &tentacleSearch);
+                break;
         }
         return;
     }
@@ -253,18 +247,16 @@ static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                if (klabs(nDeltaAngle) < 85 && pTarget->type != 221 && pTarget->type != 223)
-                {
-                    switch (pSprite->type)
-                    {
-                    case 221:
-                    case 223:
-                        aiNewState(pSprite, pXSprite, &pod13A638);
-                        break;
-                    case 222:
-                    case 224:
-                        aiNewState(pSprite, pXSprite, &tentacle13A750);
-                        break;
+                if (klabs(nDeltaAngle) < 85 && pTarget->type != kDudePodGreen && pTarget->type != kDudePodFire) {
+                    switch (pSprite->type) {
+                        case kDudePodGreen:
+                        case kDudePodFire:
+                            aiNewState(pSprite, pXSprite, &pod13A638);
+                            break;
+                        case kDudeTentacleGreen:
+                        case kDudeTentacleFire:
+                            aiNewState(pSprite, pXSprite, &tentacle13A750);
+                            break;
                     }
                 }
                 return;
@@ -272,16 +264,15 @@ static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
         }
     }
     
-    switch (pSprite->type)
-    {
-    case 221:
-    case 223:
-        aiNewState(pSprite, pXSprite, &pod13A600);
-        break;
-    case 222:
-    case 224:
-        aiNewState(pSprite, pXSprite, &tentacle13A718);
-        break;
+    switch (pSprite->type) {
+        case kDudePodGreen:
+        case kDudePodFire:
+            aiNewState(pSprite, pXSprite, &pod13A600);
+            break;
+        case kDudeTentacleGreen:
+        case kDudeTentacleFire:
+            aiNewState(pSprite, pXSprite, &tentacle13A718);
+            break;
     }
     pXSprite->target = -1;
 }

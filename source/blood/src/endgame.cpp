@@ -138,22 +138,41 @@ void CKillMgr::sub_263E0(int nCount)
     at0 += nCount;
 }
 
-void CKillMgr::AddKill(spritetype *pSprite)
-{
-    if (pSprite->statnum == kStatDude && pSprite->type != 219 && pSprite->type != 220 && pSprite->type != 245 && pSprite->type != 239)
+void CKillMgr::AddKill(spritetype *pSprite) {
+    if (pSprite->statnum == kStatDude) {
+        switch (pSprite->type) {
+            case kDudeBat:
+            case kDudeRat:
+            case kDudeBurningInnocent:
+            case kDudeInnocent:
+                return;
+        }
+
         at4++;
+    }
 }
 
 void CKillMgr::sub_2641C(void)
 {
     at0 = 0;
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
-    {
+    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+        
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
             ThrowError("Non-enemy sprite (%d) in the enemy sprite list.", nSprite);
-        if (pSprite->statnum == kStatDude && pSprite->type != 219 && pSprite->type != 220 && pSprite->type != 245 && pSprite->type != 239)
+        
+        if (pSprite->statnum == kStatDude) {
+            switch (pSprite->type) {
+            case kDudeBat:
+            case kDudeRat:
+            case kDudeBurningInnocent:
+            case kDudeInnocent:
+                return;
+            }
+
             at0++;
+        }
+
     }
 }
 

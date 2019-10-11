@@ -100,7 +100,7 @@ void InitMirrors(void)
         int nTile = 4080+mirrorcnt;
         if (wall[i].overpicnum == 504)
         {
-            if (wall[i].extra > 0 && GetWallType(i) == 501)
+            if (wall[i].extra > 0 && GetWallType(i) == kWallStack)
             {
                 wall[i].overpicnum = nTile;
                 mirror[mirrorcnt].at14 = i;
@@ -112,7 +112,7 @@ void InitMirrors(void)
                 {
                     if (j == i)
                         continue;
-                    if (wall[j].extra > 0 && GetWallType(i) == 501)
+                    if (wall[j].extra > 0 && GetWallType(i) == kWallStack)
                     {
                         if (tmp != xwall[wall[j].extra].data)
                             continue;
@@ -374,7 +374,7 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                 sector[mirrorsector].floorz = sector[nSector].floorz;
                 sector[mirrorsector].ceilingz = sector[nSector].ceilingz;
                 int cx, cy, ca;
-                if (GetWallType(nWall) == 501)
+                if (GetWallType(nWall) == kWallStack)
                 {
                      cx = x - (wall[pWall->hitag].x-wall[pWall->point2].x);
                      cy = y - (wall[pWall->hitag].y-wall[pWall->point2].y);
@@ -393,7 +393,7 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                 yax_drawrooms(viewProcessSprites, mirrorsector, didmirror, smooth);
                 viewProcessSprites(cx,cy,z,fix16_to_int(ca),smooth);
                 renderDrawMasks();
-                if (GetWallType(nWall) != 501)
+                if (GetWallType(nWall) != kWallStack)
                     renderCompleteMirror();
                 if (wall[nWall].pal != 0 || wall[nWall].shade != 0)
                     TranslateMirrorColors(wall[nWall].shade, wall[nWall].pal);

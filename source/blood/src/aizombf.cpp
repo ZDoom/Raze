@@ -75,7 +75,7 @@ static void HackSeqCallback(int, int nXSprite)
     if (nXSprite < 0 || nXSprite >= kMaxSprites)
         return;
     spritetype *pSprite = &sprite[nSprite];
-    if (pSprite->type != 204)
+    if (pSprite->type != kDudeZombieButcher)
         return;
     spritetype *pTarget = &sprite[pXSprite->target];
     DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
@@ -102,7 +102,7 @@ static void PukeSeqCallback(int, int nXSprite)
     int dx = Cos(nAngle)>>16;
     int dy = Sin(nAngle)>>16;
     sfxPlay3DSound(pSprite, 1203, 1, 0);
-    actFireMissile(pSprite, 0, -(height-height2), dx, dy, 0, 309);
+    actFireMissile(pSprite, 0, -(height-height2), dx, dy, 0, kMissilePukeGreen);
 }
 
 static void ThrowSeqCallback(int, int nXSprite)
@@ -110,7 +110,7 @@ static void ThrowSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    actFireMissile(pSprite, 0, -dudeInfo[pSprite->type-kDudeBase].eyeHeight, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, 300);
+    actFireMissile(pSprite, 0, -dudeInfo[pSprite->type-kDudeBase].eyeHeight, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, kMissileButcherKnife);
 }
 
 static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)

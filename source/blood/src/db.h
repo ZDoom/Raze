@@ -110,7 +110,7 @@ struct XSPRITE {
 
 struct XSECTOR {
     signed int reference : 14;
-    unsigned int state : 1; // State 0
+    unsigned int state : 1; // State
     unsigned int busy : 17;
     unsigned int data : 16; // Data
     unsigned int txID : 10; // TX ID
@@ -118,7 +118,7 @@ struct XSECTOR {
     unsigned int at7_2 : 3; // OFF->ON wave
     unsigned int at7_5 : 3; // ON->OFF wave
 
-    unsigned int command : 8; // Cmd 0
+    unsigned int command : 8; // Cmd
     unsigned int triggerOn : 1; // Send at ON
     unsigned int triggerOff : 1; // Send at OFF
     unsigned int busyTimeA : 12; // OFF->ON busyTime
@@ -148,7 +148,7 @@ struct XSECTOR {
     unsigned int at16_3 : 1;
     unsigned int decoupled : 1; // Decoupled
     unsigned int triggerOnce : 1; // 1-shot
-    unsigned int at16_6 : 1;
+    unsigned int isTriggered : 1;
     unsigned int Key : 3; // Key
     unsigned int Push : 1; // Push
     unsigned int Vector : 1; // Vector
@@ -160,15 +160,15 @@ struct XSECTOR {
     unsigned int at18_1 : 1;
     unsigned int busyTimeB : 12; // ON->OFF busyTime
     unsigned int waitTimeB : 12; // ON->OFF waitTime
-    unsigned int at1b_2 : 1;
-    unsigned int at1b_3 : 1;
+    unsigned int stopOn : 1;
+    unsigned int stopOff : 1;
     unsigned int ceilpal : 4; // Ceil pal2
     signed int at1c_0 : 32;
     signed int at20_0 : 32;
     signed int at24_0 : 32;
     signed int at28_0 : 32;
-    unsigned int at2c_0 : 16;
-    unsigned int at2e_0 : 16;
+    unsigned int marker0 : 16;
+    unsigned int marker1 : 16;
     unsigned int Crush : 1; // Crush
     unsigned int at30_1 : 8; // Ceiling x panning frac
     unsigned int at31_1 : 8; // Ceiling y panning frac

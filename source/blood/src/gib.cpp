@@ -363,11 +363,10 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
 void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVelocity *pVel)
 {
     if (gbAdultContent && gGameOptions.nGameType <= 0)
-        switch (pGThing->at0)
-        {
-        case 425:
-        case 427:
-            return;
+        switch (pGThing->at0) {
+            case kThingBloodBits:
+            case kThingZombieHead:
+                return;
         }
 
     if (pGThing->chance == 65536 || Chance(pGThing->chance))

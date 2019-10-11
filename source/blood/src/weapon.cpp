@@ -979,7 +979,7 @@ void FirePitchfork(int, PLAYER *pPlayer)
 
 void FireSpray(int, PLAYER *pPlayer)
 {
-    playerFireMissile(pPlayer, 0, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, 304);
+    playerFireMissile(pPlayer, 0, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, kMissileFlameSpray);
     UseAmmo(pPlayer, 6, 4);
     if (CheckAmmo(pPlayer, 6, 1))
         sfxPlay3DSound(pPlayer->pSprite, 441, 1, 2);
@@ -992,11 +992,11 @@ void ThrowCan(int, PLAYER *pPlayer)
     sfxKill3DSound(pPlayer->pSprite, -1, 441);
     int nSpeed = mulscale16(pPlayer->at1ba, 0x177777)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
-    spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, 420, nSpeed);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedSpray, nSpeed);
     if (pSprite)
     {
         sfxPlay3DSound(pSprite, 441, 0, 0);
-        evPost(pSprite->index, 3, pPlayer->at1b2, COMMAND_ID_1);
+        evPost(pSprite->index, 3, pPlayer->at1b2, kCmdOn);
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
         pXSprite->Impact = 1;
@@ -1008,10 +1008,10 @@ void ThrowCan(int, PLAYER *pPlayer)
 void DropCan(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, -1, 441);
-    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, 420, 0);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
     if (pSprite)
     {
-        evPost(pSprite->index, 3, pPlayer->at1b2, COMMAND_ID_1);
+        evPost(pSprite->index, 3, pPlayer->at1b2, kCmdOn);
         UseAmmo(pPlayer, 6, gAmmoItemData[0].at8);
     }
 }
@@ -1019,8 +1019,8 @@ void DropCan(int, PLAYER *pPlayer)
 void ExplodeCan(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, -1, 441);
-    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, 420, 0);
-    evPost(pSprite->index, 3, 0, COMMAND_ID_1);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
+    evPost(pSprite->index, 3, 0, kCmdOn);
     UseAmmo(pPlayer, 6, gAmmoItemData[0].at8);
     StartQAV(pPlayer, 15, -1);
     pPlayer->atbd = 0;
@@ -1032,13 +1032,13 @@ void ThrowBundle(int, PLAYER *pPlayer)
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
     int nSpeed = mulscale16(pPlayer->at1ba, 0x177777)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
-    spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, 419, nSpeed);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedTNTBundle, nSpeed);
     int nXSprite = pSprite->extra;
     XSPRITE *pXSprite = &xsprite[nXSprite];
     if (pPlayer->at1b2 < 0)
         pXSprite->Impact = 1;
     else
-        evPost(pSprite->index, 3, pPlayer->at1b2, COMMAND_ID_1);
+        evPost(pSprite->index, 3, pPlayer->at1b2, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
     pPlayer->at1ba = 0;
 }
@@ -1046,16 +1046,16 @@ void ThrowBundle(int, PLAYER *pPlayer)
 void DropBundle(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
-    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, 419, 0);
-    evPost(pSprite->index, 3, pPlayer->at1b2, COMMAND_ID_1);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
+    evPost(pSprite->index, 3, pPlayer->at1b2, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
 }
 
 void ExplodeBundle(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
-    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, 419, 0);
-    evPost(pSprite->index, 3, 0, COMMAND_ID_1);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
+    evPost(pSprite->index, 3, 0, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
     StartQAV(pPlayer, 24, -1, 0);
     pPlayer->atbd = 0;
@@ -1066,16 +1066,16 @@ void ThrowProx(int, PLAYER *pPlayer)
 {
     int nSpeed = mulscale16(pPlayer->at1ba, 0x177777)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
-    spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, 401, nSpeed);
-    evPost(pSprite->index, 3, 240, COMMAND_ID_1);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedProxBomb, nSpeed);
+    evPost(pSprite->index, 3, 240, kCmdOn);
     UseAmmo(pPlayer, 10, 1);
     pPlayer->at1ba = 0;
 }
 
 void DropProx(int, PLAYER *pPlayer)
 {
-    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, 401, 0);
-    evPost(pSprite->index, 3, 240, COMMAND_ID_1);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedProxBomb, 0);
+    evPost(pSprite->index, 3, 240, kCmdOn);
     UseAmmo(pPlayer, 10, 1);
 }
 
@@ -1083,7 +1083,7 @@ void ThrowRemote(int, PLAYER *pPlayer)
 {
     int nSpeed = mulscale16(pPlayer->at1ba, 0x177777)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
-    spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, 402, nSpeed);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedRemoteBomb, nSpeed);
     int nXSprite = pSprite->extra;
     XSPRITE *pXSprite = &xsprite[nXSprite];
     pXSprite->rxID = 90+(pPlayer->pSprite->type-kDudePlayer1);
@@ -1093,7 +1093,7 @@ void ThrowRemote(int, PLAYER *pPlayer)
 
 void DropRemote(int, PLAYER *pPlayer)
 {
-    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, 402, 0);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedRemoteBomb, 0);
     int nXSprite = pSprite->extra;
     XSPRITE *pXSprite = &xsprite[nXSprite];
     pXSprite->rxID = 90+(pPlayer->pSprite->type-kDudePlayer1);
@@ -1102,7 +1102,7 @@ void DropRemote(int, PLAYER *pPlayer)
 
 void FireRemote(int, PLAYER *pPlayer)
 {
-    evSend(0, 0, 90+(pPlayer->pSprite->type-kDudePlayer1), COMMAND_ID_1);
+    evSend(0, 0, 90+(pPlayer->pSprite->type-kDudePlayer1), kCmdOn);
 }
 
 #define kMaxShotgunBarrels 4
@@ -1305,7 +1305,7 @@ void FireFlare(int nTrigger, PLAYER *pPlayer)
         offset = 120;
         break;
     }
-    playerFireMissile(pPlayer, offset, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, 301);
+    playerFireMissile(pPlayer, offset, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, kMissileFlareRegular);
     UseAmmo(pPlayer, 1, 1);
     sfxPlay3DSound(pSprite, 420, 2, 0);
     pPlayer->at362 = 30;
@@ -1325,7 +1325,7 @@ void AltFireFlare(int nTrigger, PLAYER *pPlayer)
         offset = 120;
         break;
     }
-    playerFireMissile(pPlayer, offset, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, 303);
+    playerFireMissile(pPlayer, offset, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, kMissileFlareAlt);
     UseAmmo(pPlayer, 1, 8);
     sfxPlay3DSound(pSprite, 420, 2, 0);
     pPlayer->at362 = 45;
@@ -1361,7 +1361,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
         sfxPlay3DSound(pSprite, 460, 2, 0);
         fxSpawnBlood(pTarget, 17<<4);
         int nDamage = actDamageSprite(nSprite, pTarget, DAMAGE_TYPE_5, 9<<4);
-        if (pTarget->type >= kDudePlayer1 && pTarget->type <= kDudePlayer8)
+        if (IsPlayerSprite(pTarget))
             WeaponLower(&gPlayer[pTarget->type-kDudePlayer1]);
         UseAmmo(pPlayer, 9, nDamage/4);
         break;
@@ -1379,9 +1379,9 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
         sfxPlay3DSound(pSprite, 460, 2, 0);
         fxSpawnBlood(pTarget, 17<<4);
         int nDamage = actDamageSprite(nSprite, pTarget, DAMAGE_TYPE_5, 11<<4);
-        if (pTarget->type >= kDudePlayer1 && pTarget->type <= kDudePlayer8)
+        if (IsPlayerSprite(pTarget))
         {
-            PLAYER *pOtherPlayer = &gPlayer[pTarget->type-kDudePlayer1];
+            PLAYER *pOtherPlayer = &gPlayer[pTarget->type - kDudePlayer1];
             pOtherPlayer->at36a = 128;
         }
         UseAmmo(pPlayer, 9, nDamage/4);
@@ -1415,7 +1415,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                         nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
                         nDamage = actDamageSprite(pPlayer->at5b, pTarget, DAMAGE_TYPE_5, nDamage);
 
-                        if (pTarget->type >= kDudePlayer1 && pTarget->type <= kDudePlayer8)
+                        if (IsPlayerSprite(pTarget))
                         {
                             PLAYER* pOtherPlayer = &gPlayer[pTarget->type - kDudePlayer1];
                             if (!pOtherPlayer->at31a || !powerupCheck(pOtherPlayer, 14))
@@ -1453,7 +1453,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                     nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
                     nDamage = actDamageSprite(pPlayer->at5b, pTarget, DAMAGE_TYPE_5, nDamage);
                     UseAmmo(pPlayer, 9, nDamage);
-                    if (pTarget->type >= kDudePlayer1 && pTarget->type <= kDudePlayer8)
+                    if (IsPlayerSprite(pTarget))
                     {
                         PLAYER* pOtherPlayer = &gPlayer[pTarget->type - kDudePlayer1];
                         if (!pOtherPlayer->at31a || !powerupCheck(pOtherPlayer, 14))
@@ -1473,13 +1473,13 @@ void DropVoodoo(int nTrigger, PLAYER *pPlayer)
 {
     UNREFERENCED_PARAMETER(nTrigger);
     sfxPlay3DSound(pPlayer->pSprite, 455, 2, 0);
-    spritetype *pSprite = playerFireThing(pPlayer, 0, -4730, 432, 0xccccc);
+    spritetype *pSprite = playerFireThing(pPlayer, 0, -4730, kThingVoodooHead, 0xccccc);
     if (pSprite)
     {
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
         pXSprite->data1 = pPlayer->at181[9];
-        evPost(pSprite->index, 3, 90, CALLBACK_ID_21);
+        evPost(pSprite->index, 3, 90, kCallbackDropVoodoo);
         UseAmmo(pPlayer, 6, gAmmoItemData[0].at8);
         UseAmmo(pPlayer, 9, pPlayer->at181[9]);
         pPlayer->atcb[10] = 0;
@@ -1535,7 +1535,7 @@ void AltFireTesla(int nTrigger, PLAYER *pPlayer)
 {
     UNREFERENCED_PARAMETER(nTrigger);
     spritetype *pSprite = pPlayer->pSprite;
-    playerFireMissile(pPlayer, 0, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, 302);
+    playerFireMissile(pPlayer, 0, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, kMissileTeslaAlt);
     UseAmmo(pPlayer, pPlayer->atc7, 35);
     sfxPlay3DSound(pSprite, 471, 2, 0);
     pPlayer->at362 = 40;
@@ -1555,7 +1555,7 @@ void FireNapalm(int nTrigger, PLAYER *pPlayer)
         offset = 50;
         break;
     }
-    playerFireMissile(pPlayer, offset, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, 312);
+    playerFireMissile(pPlayer, offset, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, kMissileFireballNapam);
     sfxPlay3DSound(pSprite, 480, 2, 0);
     UseAmmo(pPlayer, 4, 1);
     pPlayer->at37b = 1;
@@ -1565,8 +1565,8 @@ void FireNapalm2(int nTrigger, PLAYER *pPlayer)
 {
     UNREFERENCED_PARAMETER(nTrigger);
     spritetype *pSprite = pPlayer->pSprite;
-    playerFireMissile(pPlayer, -120, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, 312);
-    playerFireMissile(pPlayer, 120, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, 312);
+    playerFireMissile(pPlayer, -120, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, kMissileFireballNapam);
+    playerFireMissile(pPlayer, 120, pPlayer->at1be.dx, pPlayer->at1be.dy, pPlayer->at1be.dz, kMissileFireballNapam);
     sfxPlay3DSound(pSprite, 480, 2, 0);
     UseAmmo(pPlayer, 4, 2);
     pPlayer->at37b = 1;
@@ -1577,7 +1577,7 @@ void AltFireNapalm(int nTrigger, PLAYER *pPlayer)
     UNREFERENCED_PARAMETER(nTrigger);
     char UNUSED(bAkimbo) = powerupCheck(pPlayer, 17);
     int nSpeed = mulscale16(0x8000, 0x177777)+0x66666;
-    spritetype *pMissile = playerFireThing(pPlayer, 0, -4730, 428, nSpeed);
+    spritetype *pMissile = playerFireThing(pPlayer, 0, -4730, kThingNapalmBall, nSpeed);
     if (pMissile)
     {
         XSPRITE *pXSprite = &xsprite[pMissile->extra];
@@ -1585,7 +1585,7 @@ void AltFireNapalm(int nTrigger, PLAYER *pPlayer)
         UseAmmo(pPlayer, 4, pXSprite->data4);
         seqSpawn(22, 3, pMissile->extra, -1);
         actBurnSprite(actSpriteIdToOwnerId(pPlayer->pSprite->index), pXSprite, 600);
-        evPost(pMissile->index, 3, 0, CALLBACK_ID_0);
+        evPost(pMissile->index, 3, 0, kCallbackFXFlameLick);
         sfxPlay3DSound(pMissile, 480, 2, 0);
         pPlayer->at362 = 30;
         pPlayer->at37b = 1;
@@ -1617,7 +1617,7 @@ void AltFireLifeLeech(int nTrigger, PLAYER *pPlayer)
 {
     UNREFERENCED_PARAMETER(nTrigger);
     sfxPlay3DSound(pPlayer->pSprite, 455, 2, 0);
-    spritetype *pMissile = playerFireThing(pPlayer, 0, -4730, 431, 0x19999);
+    spritetype *pMissile = playerFireThing(pPlayer, 0, -4730, kThingDroppedLifeLeech, 0x19999);
     if (pMissile)
     {
         pMissile->cstat |= 4096;
@@ -1627,7 +1627,7 @@ void AltFireLifeLeech(int nTrigger, PLAYER *pPlayer)
         pXSprite->DudeLockout = 1;
         pXSprite->data4 = ClipHigh(pPlayer->at181[4], 12);
         pXSprite->stateTimer = 1;
-        evPost(pMissile->index, 3, 120, CALLBACK_ID_20);
+        evPost(pMissile->index, 3, 120, kCallbackLeechStateTimer);
         if (gGameOptions.nGameType <= 1)
         {
             int nAmmo = pPlayer->at181[8];

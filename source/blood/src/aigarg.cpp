@@ -125,7 +125,7 @@ static void ThrowFSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
-    actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, 421, 0xeeeee);
+    actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, 0xeeeee);
 }
 
 static void BlastSSeqCallback(int, int nXSprite)
@@ -210,8 +210,8 @@ static void BlastSSeqCallback(int, int nXSprite)
     }
     if (IsPlayerSprite(pTarget) || !VanillaMode()) // By NoOne: allow to fire missile in non-player targets
     {
-        actFireMissile(pSprite, -120, 0, aim.dx, aim.dy, aim.dz, 311);
-        actFireMissile(pSprite, 120, 0, aim.dx, aim.dy, aim.dz, 311);
+        actFireMissile(pSprite, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+        actFireMissile(pSprite, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
     }
 }
 
@@ -220,7 +220,7 @@ static void ThrowSSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    actFireThing(pSprite, 0, 0, gDudeSlope[nXSprite]-7500, 421, Chance(0x6000) ? 0x133333 : 0x111111);
+    actFireThing(pSprite, 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
 }
 
 static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
@@ -398,9 +398,8 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 int floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-                switch (pSprite->type)
-                {
-                case 206:
+                switch (pSprite->type) {
+                case kDudeGargoyleFlesh:
                     if (nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
                     {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
@@ -414,7 +413,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != 207)
+                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleStone)
                             {
                                 sfxPlay3DSound(pSprite, 1408, 0, 0);
                                 aiNewState(pSprite, pXSprite, &gargoyleFThrow);
@@ -439,7 +438,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != 207)
+                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleStone)
                             {
                                 sfxPlay3DSound(pSprite, 1406, 0, 0);
                                 aiNewState(pSprite, pXSprite, &gargoyleFSlash);
@@ -459,7 +458,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                     else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && klabs(nDeltaAngle) < 85)
                         aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
                     break;
-                case 207:
+                case kDudeGargoyleStone:
                     if (nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
                     {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
@@ -473,7 +472,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != 206)
+                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleFlesh)
                             {
                                 sfxPlay3DSound(pSprite, 1457, 0, 0);
                                 aiNewState(pSprite, pXSprite, &gargoyleSBlast);
@@ -497,7 +496,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != 206)
+                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleFlesh)
                                 aiNewState(pSprite, pXSprite, &gargoyleFSlash);
                             break;
                         default:
@@ -507,7 +506,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                     }
                     else if ((height2-height > 0x2000 || floorZ-bottom > 0x2000) && nDist < 0x1400 && nDist > 0x800)
                     {
-                        if (pSprite->type == 206)
+                        if (pSprite->type == kDudeGargoyleFlesh)
                             aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
                         else
                             aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
@@ -535,14 +534,14 @@ static void entryFStatue(spritetype *pSprite, XSPRITE *pXSprite)
 {
     DUDEINFO *pDudeInfo = &dudeInfo[6];
     actHealDude(pXSprite, pDudeInfo->startHealth, pDudeInfo->startHealth);
-    pSprite->type = 206;
+    pSprite->type = kDudeGargoyleFlesh;
 }
 
 static void entrySStatue(spritetype *pSprite, XSPRITE *pXSprite)
 {
     DUDEINFO *pDudeInfo = &dudeInfo[7];
     actHealDude(pXSprite, pDudeInfo->startHealth, pDudeInfo->startHealth);
-    pSprite->type = 207;
+    pSprite->type = kDudeGargoyleStone;
 }
 
 static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
@@ -612,14 +611,13 @@ static void MoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
     t2 >>= 1;
     xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    switch (pSprite->type)
-    {
-    case 206:
-        zvel[nSprite] = 0x44444;
-        break;
-    case 207:
-        zvel[nSprite] = 0x35555;
-        break;
+    switch (pSprite->type) { 
+        case kDudeGargoyleFlesh:
+            zvel[nSprite] = 0x44444;
+            break;
+        case kDudeGargoyleStone:
+            zvel[nSprite] = 0x35555;
+            break;
     }
 }
 
@@ -654,14 +652,13 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
     t1 += nAccel>>1;
     xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    switch (pSprite->type)
-    {
-    case 206:
-        zvel[nSprite] = t1;
-        break;
-    case 207:
-        zvel[nSprite] = t1;
-        break;
+    switch (pSprite->type) {
+        case kDudeGargoyleFlesh:
+            zvel[nSprite] = t1;
+            break;
+        case kDudeGargoyleStone:
+            zvel[nSprite] = t1;
+            break;
     }
 }
 
@@ -696,14 +693,13 @@ static void MoveFly(spritetype *pSprite, XSPRITE *pXSprite)
     t1 += nAccel>>1;
     xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    switch (pSprite->type)
-    {
-    case 206:
-        zvel[nSprite] = -t1;
-        break;
-    case 207:
-        zvel[nSprite] = -t1;
-        break;
+    switch (pSprite->type) {
+        case kDudeGargoyleFlesh:
+            zvel[nSprite] = -t1;
+            break;
+        case kDudeGargoyleStone:
+            zvel[nSprite] = -t1;
+            break;
     }
     klabs(zvel[nSprite]);
 }

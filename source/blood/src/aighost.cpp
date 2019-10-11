@@ -108,7 +108,7 @@ static void ThrowSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
-    actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, 421, 0xeeeee);
+    actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, 0xeeeee);
 }
 
 static void BlastSeqCallback(int, int nXSprite)
@@ -194,7 +194,7 @@ static void BlastSeqCallback(int, int nXSprite)
     if (IsPlayerSprite(pTarget) || !VanillaMode()) // By NoOne: allow fire missile in non-player targets if not a demo
     {
         sfxPlay3DSound(pSprite, 489, 0, 0);
-        actFireMissile(pSprite, 0, 0, aim.dx, aim.dy, aim.dz, 307);
+        actFireMissile(pSprite, 0, 0, aim.dx, aim.dy, aim.dz, kMissileEctoSkull);
     }
 }
 
@@ -372,11 +372,9 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 int floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-                switch (pSprite->type)
-                {
-                case 210:
-                    if (nDist < 0x2000 && nDist > 0x1000 && klabs(nDeltaAngle) < 85)
-                    {
+                switch (pSprite->type) {
+                case kDudePhantasm:
+                    if (nDist < 0x2000 && nDist > 0x1000 && klabs(nDeltaAngle) < 85) {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                         switch (hit)
                         {
@@ -387,7 +385,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != 210)
+                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudePhantasm)
                                 aiNewState(pSprite, pXSprite, &ghostBlast);
                             break;
                         default:
@@ -407,7 +405,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != 210)
+                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudePhantasm)
                                 aiNewState(pSprite, pXSprite, &ghostSlash);
                             break;
                         default:
@@ -505,11 +503,10 @@ static void MoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
     t2 >>= 1;
     xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    switch (pSprite->type)
-    {
-    case 210:
-        zvel[nSprite] = 0x44444;
-        break;
+    switch (pSprite->type) {
+        case kDudePhantasm:
+            zvel[nSprite] = 0x44444;
+            break;
     }
 }
 
@@ -544,11 +541,10 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
     t1 += nAccel>>1;
     xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    switch (pSprite->type)
-    {
-    case 210:
-        zvel[nSprite] = t1;
-        break;
+    switch (pSprite->type) {
+        case kDudePhantasm:
+            zvel[nSprite] = t1;
+            break;
     }
 }
 
@@ -583,11 +579,10 @@ static void MoveFly(spritetype *pSprite, XSPRITE *pXSprite)
     t1 += nAccel>>1;
     xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    switch (pSprite->type)
-    {
-    case 210:
-        zvel[nSprite] = -t1;
-        break;
+    switch (pSprite->type) {
+        case kDudePhantasm:
+            zvel[nSprite] = -t1;
+            break;
     }
 }
 

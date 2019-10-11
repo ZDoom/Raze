@@ -608,7 +608,7 @@ void fakeMoveDude(spritetype *pSprite)
             if (nSector == -1)
                 nSector = predict.at68;
                     
-            if (sector[nSector].type >= 612 && sector[nSector].type <= 617)
+            if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate)
             {
                 short nSector2 = nSector;
                 pushmove_old((int32_t*)&predict.at50, (int32_t*)&predict.at54, (int32_t*)&predict.at58, &nSector2, wd, tz, bz, CLIPMASK0);
@@ -2185,25 +2185,18 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             pTSprite->ang = pPrevLoc->ang+mulscale16(((pTSprite->ang-pPrevLoc->ang+1024)&2047)-1024, gInterpolate);
         }
         int nAnim = 0;
-        switch (picanm[nTile].extra&7)
-        {
+        switch (picanm[nTile].extra & 7) {
             case 0:
-                if (nXSprite > 0)
-                {
-                    dassert(nXSprite < kMaxXSprites);
-                    switch (pTSprite->type)
-                    {
-                    case 20:
-                    case 21:
-                        if (xsprite[nXSprite].state)
-                        {
-                            nAnim = 1;
-                        }
+                //dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+                if (nXSprite <= 0 || nXSprite >= kMaxXSprites) break;
+                switch (pTSprite->type) {
+                    case kSwitchToggle:
+                    case kSwitchOneWay:
+                        if (xsprite[nXSprite].state) nAnim = 1;
                         break;
-                    case 22:
+                    case kSwitchCombo:
                         nAnim = xsprite[nXSprite].data1;
                         break;
-                    }
                 }
                 break;
             case 1:
@@ -2362,145 +2355,106 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         {
             pTSprite->cstat |= 8;
         }
-        switch (pTSprite->statnum)
-        {
-        case kStatDecoration:
-        {
-            switch (pTSprite->type)
-            {
-            case 32:
-                if (pTXSprite)
-                {
-                    if (pTXSprite->state > 0)
-                    {
+        switch (pTSprite->statnum) {
+        case kStatDecoration: {
+            switch (pTSprite->type) {
+                case kDecorationCandle:
+                    if (!pTXSprite || pTXSprite->state == 1) {
                         pTSprite->shade = -128;
                         viewAddEffect(nTSprite, VIEW_EFFECT_11);
-                    }
-                    else
-                    {
+                    } else {
                         pTSprite->shade = -8;
                     }
-                }
-                else
-                {
-                    pTSprite->shade = -128;
-                    viewAddEffect(nTSprite, VIEW_EFFECT_11);
-                }
-                break;
-            case 30:
-                if (pTXSprite)
-                {
-                    if (pTXSprite->state > 0)
-                    {
+                    break;
+                case kDecorationTorch:
+                    if (!pTXSprite || pTXSprite->state == 1) {
                         pTSprite->picnum++;
                         viewAddEffect(nTSprite, VIEW_EFFECT_4);
-                    }
-                    else
-                    {
+                    } else {
                         viewAddEffect(nTSprite, VIEW_EFFECT_6);
                     }
-                }
-                else
-                {
-                    pTSprite->picnum++;
-                    viewAddEffect(nTSprite, VIEW_EFFECT_4);
-                }
-                break;
-            default:
-                if (pXSector && pXSector->color)
-                {
-                    pTSprite->pal = pSector->floorpal;
-                }
-                break;
+                    break;
+                default:
+                    if (pXSector && pXSector->color) pTSprite->pal = pSector->floorpal;
+                    break;
             }
-            break;
         }
-        case kStatItem:
-        {
-            switch (pTSprite->type)
-            {
-            case 145:
-                if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3)
-                {
-                    uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
-                    if (pNTSprite)
-                        pNTSprite->pal = 10;
-                }
-                break;
-            case 146:
-                if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3)
-                {
-                    uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
-                    if (pNTSprite)
-                        pNTSprite->pal = 7;
-                }
-                break;
-            case 147:
-                pTSprite->pal = 10;
-                pTSprite->cstat |= 1024;
-                break;
-            case 148:
-                pTSprite->pal = 7;
-                pTSprite->cstat |= 1024;
-                break;
-            default:
-                if (pTSprite->type >= 100 && pTSprite->type <= 106)
-                    pTSprite->shade = -128;
-                if (pXSector && pXSector->color)
-                {
-                    pTSprite->pal = pSector->floorpal;
-                }
-                break;
-            }
-            break;
-        }
-        case kStatProjectile:
-        {
-            switch (pTSprite->type)
-            {
-            case 302:
-                pTSprite->yrepeat = 128;
-                pTSprite->cstat |= 32;
-                break;
-            case 306:
-                viewAddEffect(nTSprite, VIEW_EFFECT_15);
-                break;
-            case 300:
-                viewAddEffect(nTSprite, VIEW_EFFECT_10);
-                break;
-            case 301:
-            case 303:
-                if (pTSprite->statnum == kStatFlare)
-                {
-                    dassert(pTXSprite != NULL);
-                    if (pTXSprite->target == gView->at5b)
-                    {
-                        pTSprite->xrepeat = 0;
-                        break;
+        break;
+        case kStatItem: {
+            switch (pTSprite->type) {
+                case kItemFlagABase:
+                    if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3) {
+                        uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
+                        if (pNTSprite) pNTSprite->pal = 10;
                     }
-                }
-                viewAddEffect(nTSprite, VIEW_EFFECT_1);
-                if (pTSprite->type == 301)
-                {
+                    break;
+                case kItemFlagBBase:
+                    if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3) {
+                        uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
+                        if (pNTSprite) pNTSprite->pal = 7;
+                    }
+                    break;
+                case kItemFlagA:
+                    pTSprite->pal = 10;
+                    pTSprite->cstat |= 1024;
+                    break;
+                case kItemFlagB:
+                    pTSprite->pal = 7;
+                    pTSprite->cstat |= 1024;
+                    break;
+                default:
+                    if (pTSprite->type >= kItemKeySkull && pTSprite->type < kItemKeyMax)
+                        pTSprite->shade = -128;
+                
+                    if (pXSector && pXSector->color) {
+                        pTSprite->pal = pSector->floorpal;
+                    }
+                    break;
+            }
+        }
+        break;
+        case kStatProjectile: {
+            switch (pTSprite->type) {
+                case kMissileTeslaAlt:
+                    pTSprite->yrepeat = 128;
+                    pTSprite->cstat |= 32;
+                    break;
+                case kMissileTeslaRegular:
+                    viewAddEffect(nTSprite, VIEW_EFFECT_15);
+                    break;
+                case kMissileButcherKnife:
+                    viewAddEffect(nTSprite, VIEW_EFFECT_10);
+                    break;
+                case kMissileFlareRegular:
+                case kMissileFlareAlt:
+                    if (pTSprite->statnum == kStatFlare) {
+                        dassert(pTXSprite != NULL);
+                        if (pTXSprite->target == gView->at5b) {
+                            pTSprite->xrepeat = 0;
+                            break;
+                        }
+                    }
+                    
+                    viewAddEffect(nTSprite, VIEW_EFFECT_1);
+                    if (pTSprite->type != kMissileFlareRegular) break;
                     sectortype *pSector = &sector[pTSprite->sectnum];
-                    int zDiff = (pTSprite->z-pSector->ceilingz)>>8;
-                    if ((pSector->ceilingstat&1) == 0 && zDiff < 64)
-                    {
+                    
+                    int zDiff = (pTSprite->z - pSector->ceilingz) >> 8;
+                    if ((pSector->ceilingstat&1) == 0 && zDiff < 64) {
                         viewAddEffect(nTSprite, VIEW_EFFECT_2);
                     }
-                    zDiff = (pSector->floorz-pTSprite->z)>>8;
-                    if ((pSector->floorstat&1) == 0 && zDiff < 64)
-                    {
+                    
+                    zDiff = (pSector->floorz - pTSprite->z) >> 8;
+                    if ((pSector->floorstat&1) == 0 && zDiff < 64) {
                         viewAddEffect(nTSprite, VIEW_EFFECT_3);
                     }
+                    break;
                 }
-                break;
-            }
             break;
         }
         case kStatDude:
         {
-            if (pTSprite->type == 212 && pTXSprite->aiState == &hand13A3B4)
+            if (pTSprite->type == kDudeHand && pTXSprite->aiState == &hand13A3B4)
             {
                 spritetype *pTTarget = &sprite[pTXSprite->target];
                 dassert(pTXSprite != NULL && pTTarget != NULL);
@@ -2585,53 +2539,31 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             }
             break;
         }
-        case kStatTraps:
-        {
-            if (pTSprite->type == 454)
-            {
-                if (pTXSprite->state)
-                {
-                    if (pTXSprite->data1)
-                    {
+        case kStatTraps: {
+            if (pTSprite->type == kTrapSawCircular) {
+                if (pTXSprite->state) {
+                    if (pTXSprite->data1) {
                         pTSprite->picnum = 772;
                         if (pTXSprite->data2)
-                        {
                             viewAddEffect(nTSprite, VIEW_EFFECT_9);
-                        }
                     }
-                }
-                else
-                {
-                    if (pTXSprite->data1)
-                    {
-                        pTSprite->picnum = 773;
-                    }
-                    else
-                    {
-                        pTSprite->picnum = 656;
-                    }
-                }
+                } 
+                else if (pTXSprite->data1) pTSprite->picnum = 773;
+                else pTSprite->picnum = 656;
+                
             }
             break;
         }
-        case kStatThing:
-        {
+        case kStatThing: {
             if (pXSector && pXSector->color)
-            {
                 pTSprite->pal = pSector->floorpal;
+
+            if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || !gSpriteHit[nXSprite].florhit) {
+                if ((pTSprite->flags & kPhysMove) && getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
+                    viewAddEffect(nTSprite, VIEW_EFFECT_0);
             }
-            if (pTSprite->flags&1)
-            {
-                if (getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
-                {
-                    if (pTSprite->type < 400 || pTSprite->type >= 433 || !gSpriteHit[nXSprite].florhit)
-                    {
-                        viewAddEffect(nTSprite, VIEW_EFFECT_0);
-                    }
-                }
-            }
-            break;
         }
+        break;
         }
     }
 
@@ -3364,20 +3296,15 @@ RORHACKOTHER:
             nSprite = nextspritestat[nSprite];
         }
         nSprite = headspritestat[kStatProjectile];
-        while (nSprite >= 0)
-        {
+        while (nSprite >= 0) {
             spritetype *pSprite = &sprite[nSprite];
-            switch (pSprite->type)
-            {
-            case 301:
-            case 302:
-            case 303:
-            case 306:
-                if (TestBitString(gotsector, pSprite->sectnum))
-                {
-                    unk += 256;
-                }
-                break;
+            switch (pSprite->type) {
+                case kMissileFlareRegular:
+                case kMissileTeslaAlt:
+                case kMissileFlareAlt:
+                case kMissileTeslaRegular:
+                    if (TestBitString(gotsector, pSprite->sectnum)) unk += 256;
+                    break;
             }
             nSprite = nextspritestat[nSprite];
         }

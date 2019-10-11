@@ -269,7 +269,7 @@ static void myThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 static void entryEZombie(spritetype *pSprite, XSPRITE *pXSprite)
 {
     UNREFERENCED_PARAMETER(pXSprite);
-    pSprite->type = 203;
+    pSprite->type = kDudeZombieAxeNormal;
     pSprite->flags |= 1;
 }
 

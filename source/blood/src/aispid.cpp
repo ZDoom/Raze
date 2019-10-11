@@ -101,48 +101,34 @@ static void SpidBiteSeqCallback(int, int nXSprite)
     dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
-    if (IsPlayerSprite(pTarget))
-    {
+    if (IsPlayerSprite(pTarget)) {
+        
         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
-        if (hit == 3)
-        {
-            if (sprite[gHitInfo.hitsprite].type <= kDudePlayer8 && sprite[gHitInfo.hitsprite].type >= kDudePlayer1)
-            {
-                dz += pTarget->z-pSprite->z;
-                if (pTarget->type >= kDudePlayer1 && pTarget->type <= kDudePlayer8)
-                {
-                    PLAYER *pPlayer = &gPlayer[pTarget->type-kDudePlayer1];
-                    switch (pSprite->type)
-                    {
-                    case 213:
-                        actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
-                        if (IsPlayerSprite(pTarget) && !pPlayer->at31a && powerupCheck(pPlayer, 14) <= 0
-                            && Chance(0x4000))
-                            powerupActivate(pPlayer, 28);
-                        break;
-                    case 214:
-                        actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
-                        if (Chance(0x5000))
-                            sub_70D30(pXTarget, 4, 16);
-                        break;
-                    case 215:
-                        actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
-                        sub_70D30(pXTarget, 8, 16);
-                        break;
-                    case 216:
-                    {
-                        actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
-                        dx += Random2(2000);
-                        dy += Random2(2000);
-                        dz += Random2(2000);
-                        actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
-                        sub_70D30(pXTarget, 8, 16);
-                        break;
-                    }
-                    }
-                }
+        if (hit == 3 && IsPlayerSprite(&sprite[gHitInfo.hitsprite])) {
+            dz += pTarget->z - pSprite->z;
+            PLAYER *pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+            switch (pSprite->type) {
+                case kDudeSpiderBrown:
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
+                    if (IsPlayerSprite(pTarget) && !pPlayer->at31a && powerupCheck(pPlayer, 14) <= 0 && Chance(0x4000))
+                        powerupActivate(pPlayer, 28);
+                    break;
+                case kDudeSpiderRed:
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
+                    if (Chance(0x5000)) sub_70D30(pXTarget, 4, 16);
+                    break;
+                case kDudeSpiderBlack:
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
+                    sub_70D30(pXTarget, 8, 16);
+                    break;
+                case kDudeSpiderMother:
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
+                    actFireVector(pSprite, 0, 0, dx + Random2(2000), dy + Random2(2000), dz + Random2(2000), VECTOR_TYPE_17);
+                    sub_70D30(pXTarget, 8, 16);
+                    break;
             }
         }
+
     }
 }
 
@@ -159,21 +145,16 @@ static void SpidJumpSeqCallback(int, int nXSprite)
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
-    if (IsPlayerSprite(pTarget))
-    {
+    if (IsPlayerSprite(pTarget)) {
         dz += pTarget->z-pSprite->z;
-        if (pTarget->type >= kDudePlayer1 && pTarget->type <= kDudePlayer8)
-        {
-            switch (pSprite->type)
-            {
-            case 213:
-            case 214:
-            case 215:
+        switch (pSprite->type) {
+            case kDudeSpiderBrown:
+            case kDudeSpiderRed:
+            case kDudeSpiderBlack:
                 xvel[nSprite] = dx << 16;
                 yvel[nSprite] = dy << 16;
                 zvel[nSprite] = dz << 16;
                 break;
-            }
         }
     }
 }
@@ -192,22 +173,24 @@ static void sub_71370(int, int nXSprite)
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
+    
     spritetype *pSpawn = NULL;
-    if (IsPlayerSprite(pTarget) && pDudeExtraE->at4 < 10)
-    {
+    if (IsPlayerSprite(pTarget) && pDudeExtraE->at4 < 10) {
+        
         if (nDist < 0x1a00 && nDist > 0x1400 && klabs(pSprite->ang-nAngle) < pDudeInfo->periphery)
-            pSpawn = actSpawnDude(pSprite, 214, pSprite->clipdist, 0);
+            pSpawn = actSpawnDude(pSprite, kDudeSpiderRed, pSprite->clipdist, 0);
         else if (nDist < 0x1400 && nDist > 0xc00 && klabs(pSprite->ang-nAngle) < pDudeInfo->periphery)
-            pSpawn = actSpawnDude(pSprite, 213, pSprite->clipdist, 0);
+            pSpawn = actSpawnDude(pSprite, kDudeSpiderBrown, pSprite->clipdist, 0);
         else if (nDist < 0xc00 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-            pSpawn = actSpawnDude(pSprite, 213, pSprite->clipdist, 0);
-        if (pSpawn)
-        {
+            pSpawn = actSpawnDude(pSprite, kDudeSpiderBrown, pSprite->clipdist, 0);
+        
+        if (pSpawn) {
             pDudeExtraE->at4++;
             pSpawn->owner = nSprite;
             gKillMgr.sub_263E0(1);
         }
     }
+
 }
 
 static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
@@ -256,35 +239,33 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     }
     int nDist = approxDist(dx, dy);
-    if (nDist <= pDudeInfo->seeDist)
-    {
+    if (nDist <= pDudeInfo->seeDist) {
         int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
-        if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
-        {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
-            {
+        if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum)) {
+            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery) {
                 aiSetTarget(pXSprite, pXSprite->target);
-                switch (pSprite->type)
-                {
-                case 214:
-                    if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
-                        aiNewState(pSprite, pXSprite, &spidBite);
-                    break;
-                case 213:
-                case 215:
-                    if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
-                        aiNewState(pSprite, pXSprite, &spidJump);
-                    else if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
-                        aiNewState(pSprite, pXSprite, &spidBite);
-                    break;
-                case 216:
-                    if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
-                        aiNewState(pSprite, pXSprite, &spidJump);
-                    else if (Chance(0x8000))
-                        aiNewState(pSprite, pXSprite, &spid13A92C);
-                    break;
+                
+                switch (pSprite->type) {
+                    case kDudeSpiderRed:
+                        if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
+                            aiNewState(pSprite, pXSprite, &spidBite);
+                        break;
+                    case kDudeSpiderBrown:
+                    case kDudeSpiderBlack:
+                        if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
+                            aiNewState(pSprite, pXSprite, &spidJump);
+                        else if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
+                            aiNewState(pSprite, pXSprite, &spidBite);
+                        break;
+                    case kDudeSpiderMother:
+                        if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
+                            aiNewState(pSprite, pXSprite, &spidJump);
+                        else if (Chance(0x8000))
+                            aiNewState(pSprite, pXSprite, &spid13A92C);
+                        break;
                 }
+
                 return;
             }
         }

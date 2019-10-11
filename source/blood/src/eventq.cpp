@@ -68,7 +68,7 @@ void EventQueue::Kill(int a1, int a2)
 
 void EventQueue::Kill(int a1, int a2, CALLBACK_ID a3)
 {
-    EVENT evn = { (unsigned int)a1, (unsigned int)a2, kCommandCallback, (unsigned int)a3 };
+    EVENT evn = { (unsigned int)a1, (unsigned int)a2, kCmdCallback, (unsigned int)a3 };
     PQueue->Kill([=](EVENT nItem)->bool {return !memcmp(&nItem, &evn, sizeof(EVENT)); });
 }
 
@@ -364,17 +364,17 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
     EVENT event; event.index = nIndex; event.type = nType; event.cmd = command;
     
     switch (command) {
-        case COMMAND_ID_2:
-            command = evGetSourceState(nType, nIndex) ? COMMAND_ID_1 : COMMAND_ID_0;
+        case kCmdState:
+            command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
             break;
-        case COMMAND_ID_4:
-            command = evGetSourceState(nType, nIndex) ? COMMAND_ID_0 : COMMAND_ID_1;
+        case kCmdNotState:
+            command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
             break;
     }
     
     switch (rxId) {
         case kChannelTextOver:
-            if (command >= COMMAND_ID_64) trTextOver(command - COMMAND_ID_64);
+            if (command >= kCmdNumberic) trTextOver(command - kCmdNumberic);
             else viewSetSystemMessage("Invalid TextOver command by xobject #%d (object type %d)", nIndex, nType);
             return;
         case kChannelLevelExitNormal:
@@ -385,15 +385,15 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
             return;
         // By NoOne: finished level and load custom level ¹ via numbered command.
         case kChannelModernEndLevelCustom:
-            if (command >= COMMAND_ID_64) levelEndLevelCustom(command - COMMAND_ID_64);
+            if (command >= kCmdNumberic) levelEndLevelCustom(command - kCmdNumberic);
             else viewSetSystemMessage("Invalid Level-Exit# command by xobject #%d (object type %d)", nIndex, nType);
             return;
         case kChannelSetTotalSecrets:
-            if (command >= COMMAND_ID_64) levelSetupSecret(command - COMMAND_ID_64);
+            if (command >= kCmdNumberic) levelSetupSecret(command - kCmdNumberic);
             else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
             break;
         case kChannelSecretFound:
-            if (command >= COMMAND_ID_64) levelTriggerSecret(command - COMMAND_ID_64);
+            if (command >= kCmdNumberic) levelTriggerSecret(command - kCmdNumberic);
             else viewSetSystemMessage("Invalid Trigger-Secret command by xobject #%d (object type %d)", nIndex, nType);
             break;
         case kChannelRemoteBomb0:
@@ -469,11 +469,11 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 
 void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
 {
-    dassert(command != kCommandCallback);
-    if (command == COMMAND_ID_2)
-        command = evGetSourceState(nType, nIndex) ? COMMAND_ID_1 : COMMAND_ID_0;
-    else if (command == COMMAND_ID_4)
-        command = evGetSourceState(nType, nIndex) ? COMMAND_ID_0 : COMMAND_ID_1;
+    dassert(command != kCmdCallback);
+    if (command == kCmdState)
+        command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
+    else if (command == kCmdNotState)
+        command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
     EVENT evn = {};
     evn.index = nIndex;
     evn.type = nType;
@@ -487,7 +487,7 @@ void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID a4)
     EVENT evn = {};
     evn.index = nIndex;
     evn.type = nType;
-    evn.cmd = kCommandCallback;
+    evn.cmd = kCmdCallback;
     evn.funcID = a4;
     eventQ.PQueue->Insert((int)gFrameClock+nDelta, evn);
 }
@@ -509,7 +509,7 @@ void evProcess(unsigned int nTime)
     while(eventQ.IsNotEmpty(nTime))
     {
         EVENT event = eventQ.ERemove();
-        if (event.cmd == kCommandCallback)
+        if (event.cmd == kCmdCallback)
         {
             dassert(event.funcID < kCallbackMax);
             dassert(gCallback[event.funcID] != NULL);

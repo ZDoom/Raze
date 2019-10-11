@@ -600,68 +600,37 @@ void dbInit(void)
 void PropagateMarkerReferences(void)
 {
     int nSprite, nNextSprite;
-    for (nSprite = headspritestat[kStatMarker]; nSprite != -1; nSprite = nNextSprite)
-    {
+    for (nSprite = headspritestat[kStatMarker]; nSprite != -1; nSprite = nNextSprite) {
+        
         nNextSprite = nextspritestat[nSprite];
-        switch (sprite[nSprite].type)
-        {
-        case 8:
-        {
-            int nOwner = sprite[nSprite].owner;
-            if (nOwner >= 0 && nOwner < numsectors)
-            {
-                int nXSector = sector[nOwner].extra;
-                if (nXSector > 0 && nXSector < kMaxXSectors)
-                {
-                    xsector[nXSector].at2c_0 = nSprite;
-                    continue;
+        
+        switch (sprite[nSprite].type)  {
+            case kMarkerOff:
+            case kMarkerAxis:
+            case kMarkerWarpDest: {
+                int nOwner = sprite[nSprite].owner;
+                if (nOwner >= 0 && nOwner < numsectors) {
+                    int nXSector = sector[nOwner].extra;
+                    if (nXSector > 0 && nXSector < kMaxXSectors) {
+                        xsector[nXSector].marker0 = nSprite;
+                        continue;
+                    }
+                }
+            }
+            break;
+            case kMarkerOn: {
+                int nOwner = sprite[nSprite].owner;
+                if (nOwner >= 0 && nOwner < numsectors) {
+                    int nXSector = sector[nOwner].extra;
+                    if (nXSector > 0 && nXSector < kMaxXSectors) {
+                        xsector[nXSector].marker1 = nSprite;
+                        continue;
+                    }
                 }
             }
             break;
         }
-        case 3:
-        {
-            int nOwner = sprite[nSprite].owner;
-            if (nOwner >= 0 && nOwner < numsectors)
-            {
-                int nXSector = sector[nOwner].extra;
-                if (nXSector > 0 && nXSector < kMaxXSectors)
-                {
-                    xsector[nXSector].at2c_0 = nSprite;
-                    continue;
-                }
-            }
-            break;
-        }
-        case 4:
-        {
-            int nOwner = sprite[nSprite].owner;
-            if (nOwner >= 0 && nOwner < numsectors)
-            {
-                int nXSector = sector[nOwner].extra;
-                if (nXSector > 0 && nXSector < kMaxXSectors)
-                {
-                    xsector[nXSector].at2e_0 = nSprite;
-                    continue;
-                }
-            }
-            break;
-        }
-        case 5:
-        {
-            int nOwner = sprite[nSprite].owner;
-            if (nOwner >= 0 && nOwner < numsectors)
-            {
-                int nXSector = sector[nOwner].extra;
-                if (nXSector > 0 && nXSector < kMaxXSectors)
-                {
-                    xsector[nXSector].at2c_0 = nSprite;
-                    continue;
-                }
-            }
-            break;
-        }
-        }
+        
         DeleteSprite(nSprite);
     }
 }
@@ -789,26 +758,28 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         return -1;
     }
     byte_1A76C8 = 0;
-    if ((header.version & 0xff00) == 0x600)
-    {
-    }
-    else if ((header.version & 0xff00) == 0x700)
-    {
+    if ((header.version & 0xff00) == 0x700) {
         byte_1A76C8 = 1;
-    }
-    else
-    {
+        
+        // by NoOne: indicate if the map requires modern features to work properly
+        // for maps wich created in PMAPEDIT BETA13 or higher versions. Since only minor version changed,
+        // the map is still can be loaded with vanilla BLOOD / MAPEDIT and should work in other ports too.
+        if ((header.version & 0x00ff) == 0x001) gModernMap = true;
+        else gModernMap = false;
+
+    } else {
         initprintf("Map file is wrong version");
         gSysRes.Unlock(pNode);
         return -1;
     }
+
     MAPHEADER mapHeader;
     IOBuffer1.Read(&mapHeader,37/* sizeof(mapHeader)*/);
-    if (mapHeader.at16 != 0 && mapHeader.at16 != 0x7474614d && mapHeader.at16 != 0x4d617474)
-    {
+    if (mapHeader.at16 != 0 && mapHeader.at16 != 0x7474614d && mapHeader.at16 != 0x4d617474) {
         dbCrypt((char*)&mapHeader, sizeof(mapHeader), 0x7474614d);
         byte_1A76C7 = 1;
     }
+
 #if B_BIG_ENDIAN == 1
     mapHeader.at0 = B_LITTLE32(mapHeader.at0);
     mapHeader.at4 = B_LITTLE32(mapHeader.at4);
@@ -967,7 +938,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSector->at16_3 = bitReader.readUnsigned(1);
             pXSector->decoupled = bitReader.readUnsigned(1);
             pXSector->triggerOnce = bitReader.readUnsigned(1);
-            pXSector->at16_6 = bitReader.readUnsigned(1);
+            pXSector->isTriggered = bitReader.readUnsigned(1);
             pXSector->Key = bitReader.readUnsigned(3);
             pXSector->Push = bitReader.readUnsigned(1);
             pXSector->Vector = bitReader.readUnsigned(1);
@@ -979,15 +950,15 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSector->at18_1 = bitReader.readUnsigned(1);
             pXSector->busyTimeB = bitReader.readUnsigned(12);
             pXSector->waitTimeB = bitReader.readUnsigned(12);
-            pXSector->at1b_2 = bitReader.readUnsigned(1);
-            pXSector->at1b_3 = bitReader.readUnsigned(1);
+            pXSector->stopOn = bitReader.readUnsigned(1);
+            pXSector->stopOff = bitReader.readUnsigned(1);
             pXSector->ceilpal = bitReader.readUnsigned(4);
             pXSector->at1c_0 = bitReader.readSigned(32);
             pXSector->at20_0 = bitReader.readSigned(32);
             pXSector->at24_0 = bitReader.readSigned(32);
             pXSector->at28_0 = bitReader.readSigned(32);
-            pXSector->at2c_0 = bitReader.readUnsigned(16);
-            pXSector->at2e_0 = bitReader.readUnsigned(16);
+            pXSector->marker0 = bitReader.readUnsigned(16);
+            pXSector->marker1 = bitReader.readUnsigned(16);
             pXSector->Crush = bitReader.readUnsigned(1);
             pXSector->at30_1 = bitReader.readUnsigned(8);
             pXSector->at31_1 = bitReader.readUnsigned(8);
@@ -1012,7 +983,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
             // by NoOne: indicate if the map requires modern features to work properly
             // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
-            if (pXSector->rxID == kChannelMapExtended && pXSector->rxID == pXSector->txID && pXSector->command == kCommandMapExtend)
+            if (pXSector->rxID == kChannelMapExtended && pXSector->rxID == pXSector->txID && pXSector->command == kCmdModernFeaturesEnable)
                 gModernMap = true;
         }
     }
@@ -1091,7 +1062,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
             // by NoOne: indicate if the map requires modern features to work properly
             // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
-            if (pXWall->rxID == kChannelMapExtended && pXWall->rxID == pXWall->txID && pXWall->command == kCommandMapExtend)
+            if (pXWall->rxID == kChannelMapExtended && pXWall->rxID == pXWall->txID && pXWall->command == kCmdModernFeaturesEnable)
                 gModernMap = true;
         }
     }
@@ -1215,7 +1186,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
             // by NoOne: indicate if the map requires modern features to work properly
             // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
-            if (pXSprite->rxID == kChannelMapExtended && pXSprite->rxID == pXSprite->txID && pXSprite->command == kCommandMapExtend)
+            if (pXSprite->rxID == kChannelMapExtended && pXSprite->rxID == pXSprite->txID && pXSprite->command == kCmdModernFeaturesEnable)
                 gModernMap = true;
         }
         if ((sprite[i].cstat & 0x30) == 0x30)
@@ -1486,7 +1457,7 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
             bitWriter.write(pXSector->at16_3, 1);
             bitWriter.write(pXSector->decoupled, 1);
             bitWriter.write(pXSector->triggerOnce, 1);
-            bitWriter.write(pXSector->at16_6, 1);
+            bitWriter.write(pXSector->isTriggered, 1);
             bitWriter.write(pXSector->Key, 3);
             bitWriter.write(pXSector->Push, 1);
             bitWriter.write(pXSector->Vector, 1);
@@ -1498,15 +1469,15 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
             bitWriter.write(pXSector->at18_1, 1);
             bitWriter.write(pXSector->busyTimeB, 12);
             bitWriter.write(pXSector->waitTimeB, 12);
-            bitWriter.write(pXSector->at1b_2, 1);
-            bitWriter.write(pXSector->at1b_3, 1);
+            bitWriter.write(pXSector->stopOn, 1);
+            bitWriter.write(pXSector->stopOff, 1);
             bitWriter.write(pXSector->ceilpal, 4);
             bitWriter.write(pXSector->at1c_0, 32);
             bitWriter.write(pXSector->at20_0, 32);
             bitWriter.write(pXSector->at24_0, 32);
             bitWriter.write(pXSector->at28_0, 32);
-            bitWriter.write(pXSector->at2c_0, 16);
-            bitWriter.write(pXSector->at2e_0, 16);
+            bitWriter.write(pXSector->marker0, 16);
+            bitWriter.write(pXSector->marker1, 16);
             bitWriter.write(pXSector->Crush, 1);
             bitWriter.write(pXSector->at30_1, 8);
             bitWriter.write(pXSector->at31_1, 8);

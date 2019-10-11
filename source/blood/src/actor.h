@@ -82,7 +82,7 @@ struct THINGINFO
     unsigned char at15; // xrepeat
     unsigned char at16; // yrepeat
     int at17[7]; // damage
-    bool allowThrow; // By NoOne: indicates if kCustomDude can throw it
+    bool allowThrow; // By NoOne: indicates if kDudeModernCustom can throw it
 };
 
 struct AMMOITEMDATA
@@ -131,7 +131,7 @@ struct MissileType
     unsigned char atb; // yrepeat
     char atc; // shade
     unsigned char atd; // clipdist
-    int fireSound[2]; // By NoOne: predefined fire sounds. used by kCustomDude, but can be used for something else.
+    int fireSound[2]; // By NoOne: predefined fire sounds. used by kDudeModernCustom, but can be used for something else.
 };
 
 struct EXPLOSION
@@ -164,7 +164,7 @@ struct VECTORDATA {
     int at15; // blood splats
     int at19; // blood splat chance
     VECTORDATA_at1d at1d[15];
-    int fireSound[2]; // By NoOne: predefined fire sounds. used by kCustomDude, but can be used for something else.
+    int fireSound[2]; // By NoOne: predefined fire sounds. used by kDudeModernCustom, but can be used for something else.
 };
 
 // by NoOne: sprite mass info for getSpriteMassBySize();
@@ -239,7 +239,7 @@ bool actHealDude(XSPRITE *pXDude, int a2, int a3);
 void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
 int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
 void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRITE **a5, int *a6, walltype **a7, XWALL **a8, int *a9, sectortype **a10, XSECTOR **a11);
-void actImpactMissile(spritetype *pMissile, int a2);
+void actImpactMissile(spritetype *pMissile, int hitCode);
 void actKickObject(spritetype *pSprite1, spritetype *pSprite2);
 void actTouchFloor(spritetype *pSprite, int nSector);
 void ProcessTouchObjects(spritetype *pSprite, int nXSprite);

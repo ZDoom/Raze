@@ -51,90 +51,85 @@ void warpInit(void)
     int team1 = 0; int team2 = 0; // increment if team start positions specified.
     for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
     {
-        if (sprite[nSprite].statnum < kMaxStatus)
-        {
+        if (sprite[nSprite].statnum < kMaxStatus) {
             spritetype *pSprite = &sprite[nSprite];
             int nXSprite = pSprite->extra;
-            if (nXSprite > 0)
-            {
+            if (nXSprite > 0) {
                 XSPRITE *pXSprite = &xsprite[nXSprite];
-                switch (pSprite->type)
-                {
-                case 1:
-                    if (gGameOptions.nGameType < 2 && pXSprite->data1 >= 0 && pXSprite->data1 < 8)
-                    {
-                        ZONE *pZone = &gStartZone[pXSprite->data1];
-                        pZone->x = pSprite->x;
-                        pZone->y = pSprite->y;
-                        pZone->z = pSprite->z;
-                        pZone->sectnum = pSprite->sectnum;
-                        pZone->ang = pSprite->ang;
-                    }
-                    DeleteSprite(nSprite);
-                    break;
-                case 2:
-                    if (pXSprite->data1 >= 0 && pXSprite->data2 < 8) {
-                        if (gGameOptions.nGameType >= 2)
-                        {
-                            // default if BB or teams without data2 specified
-                            ZONE* pZone = &gStartZone[pXSprite->data1];
+                switch (pSprite->type) {
+                    case kMarkerSPStart:
+                        if (gGameOptions.nGameType < 2 && pXSprite->data1 >= 0 && pXSprite->data1 < kMaxPlayers) {
+                            ZONE *pZone = &gStartZone[pXSprite->data1];
                             pZone->x = pSprite->x;
                             pZone->y = pSprite->y;
                             pZone->z = pSprite->z;
                             pZone->sectnum = pSprite->sectnum;
                             pZone->ang = pSprite->ang;
-                            
-                            // By NoOne: fill player spawn position according team of player in TEAMS mode.
-                            if (gGameOptions.nGameType == 3) {
-                                if (pXSprite->data2 == 1) {
-                                    pZone = &gStartZoneTeam1[team1];
-                                    pZone->x = pSprite->x;
-                                    pZone->y = pSprite->y;
-                                    pZone->z = pSprite->z;
-                                    pZone->sectnum = pSprite->sectnum;
-                                    pZone->ang = pSprite->ang;
-                                    team1++;
-
-                                } else if (pXSprite->data2 == 2) {
-                                    pZone = &gStartZoneTeam2[team2];
-                                    pZone->x = pSprite->x;
-                                    pZone->y = pSprite->y;
-                                    pZone->z = pSprite->z;
-                                    pZone->sectnum = pSprite->sectnum;
-                                    pZone->ang = pSprite->ang;
-                                    team2++;
-                                }
-                            }
                         }
                         DeleteSprite(nSprite);
-                    }
-                    break;
-                case 7:
-                    gUpperLink[pSprite->sectnum] = nSprite;
-                    pSprite->cstat |= 32768;
-                    pSprite->cstat &= ~257;
-                    break;
-                case 6:
-                    gLowerLink[pSprite->sectnum] = nSprite;
-                    pSprite->cstat |= 32768;
-                    pSprite->cstat &= ~257;
-                    break;
-                case 9:
-                case 11:
-                case 13:
-                    gUpperLink[pSprite->sectnum] = nSprite;
-                    pSprite->cstat |= 32768;
-                    pSprite->cstat &= ~257;
-                    pSprite->z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-                    break;
-                case 10:
-                case 12:
-                case 14:
-                    gLowerLink[pSprite->sectnum] = nSprite;
-                    pSprite->cstat |= 32768;
-                    pSprite->cstat &= ~257;
-                    pSprite->z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-                    break;
+                        break;
+                    case kMarkerMPStart:
+                        if (pXSprite->data1 >= 0 && pXSprite->data2 < kMaxPlayers) {
+                            if (gGameOptions.nGameType >= 2) {
+                                // default if BB or teams without data2 specified
+                                ZONE* pZone = &gStartZone[pXSprite->data1];
+                                pZone->x = pSprite->x;
+                                pZone->y = pSprite->y;
+                                pZone->z = pSprite->z;
+                                pZone->sectnum = pSprite->sectnum;
+                                pZone->ang = pSprite->ang;
+                            
+                                // By NoOne: fill player spawn position according team of player in TEAMS mode.
+                                if (gModernMap && gGameOptions.nGameType == 3) {
+                                    if (pXSprite->data2 == 1) {
+                                        pZone = &gStartZoneTeam1[team1];
+                                        pZone->x = pSprite->x;
+                                        pZone->y = pSprite->y;
+                                        pZone->z = pSprite->z;
+                                        pZone->sectnum = pSprite->sectnum;
+                                        pZone->ang = pSprite->ang;
+                                        team1++;
+
+                                    } else if (pXSprite->data2 == 2) {
+                                        pZone = &gStartZoneTeam2[team2];
+                                        pZone->x = pSprite->x;
+                                        pZone->y = pSprite->y;
+                                        pZone->z = pSprite->z;
+                                        pZone->sectnum = pSprite->sectnum;
+                                        pZone->ang = pSprite->ang;
+                                        team2++;
+                                    }
+                                }
+                            }
+                            DeleteSprite(nSprite);
+                        }
+                        break;
+                    case kMarkerUpLink:
+                        gUpperLink[pSprite->sectnum] = nSprite;
+                        pSprite->cstat |= 32768;
+                        pSprite->cstat &= ~257;
+                        break;
+                    case kMarkerLowLink:
+                        gLowerLink[pSprite->sectnum] = nSprite;
+                        pSprite->cstat |= 32768;
+                        pSprite->cstat &= ~257;
+                        break;
+                    case kMarkerUpWater:
+                    case kMarkerUpStack:
+                    case kMarkerUpGoo:
+                        gUpperLink[pSprite->sectnum] = nSprite;
+                        pSprite->cstat |= 32768;
+                        pSprite->cstat &= ~257;
+                        pSprite->z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+                        break;
+                    case kMarkerLowWater:
+                    case kMarkerLowStack:
+                    case kMarkerLowGoo:
+                        gLowerLink[pSprite->sectnum] = nSprite;
+                        pSprite->cstat |= 32768;
+                        pSprite->cstat &= ~257;
+                        pSprite->z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+                        break;
                 }
             }
         }

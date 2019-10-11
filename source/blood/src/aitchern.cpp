@@ -76,7 +76,7 @@ static void sub_71A90(int, int nXSprite)
     int nTarget = pTarget->index;
     int nOwner = actSpriteIdToOwnerId(nSprite);
     if (pXTarget->burnTime == 0)
-        evPost(nTarget, 3, 0, CALLBACK_ID_0);
+        evPost(nTarget, 3, 0, kCallbackFXFlameLick);
     actBurnSprite(nOwner, pXTarget, 40);
     if (Chance(0x6000))
         aiNewState(pSprite, pXSprite, &tcherno13A9D4);
@@ -150,8 +150,8 @@ static void sub_71BD4(int, int nXSprite)
             }
         }
     }
-    actFireMissile(pSprite, -350, 0, aim.dx, aim.dy, aim.dz, 314);
-    actFireMissile(pSprite, 350, 0, aim.dx, aim.dy, aim.dz, 314);
+    actFireMissile(pSprite, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
+    actFireMissile(pSprite, 350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
 }
 
 static void sub_720AC(int, int nXSprite)
@@ -226,8 +226,8 @@ static void sub_720AC(int, int nXSprite)
             }
         }
     }
-    actFireMissile(pSprite, 350, 0, aim.dx, aim.dy, -aim.dz, 314);
-    actFireMissile(pSprite, -350, 0, ax, ay, az, 314);
+    actFireMissile(pSprite, 350, 0, aim.dx, aim.dy, -aim.dz, kMissileFireballTchernobog);
+    actFireMissile(pSprite, -350, 0, ax, ay, az, kMissileFireballTchernobog);
 }
 
 static void sub_72580(spritetype *pSprite, XSPRITE *pXSprite)

@@ -23,34 +23,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 
 BEGIN_BLD_NS
+void sleeveStopBouncing(spritetype* pSprite);
 
 enum CALLBACK_ID {
-    CALLBACK_ID_NONE = -1,
-    CALLBACK_ID_0 = 0,
-    CALLBACK_ID_1,
-    CALLBACK_ID_2,
-    CALLBACK_ID_3,
-    CALLBACK_ID_4,
-    CALLBACK_ID_5,
-    CALLBACK_ID_6,
-    CALLBACK_ID_7,
-    CALLBACK_ID_8,
-    CALLBACK_ID_9,
-    CALLBACK_ID_10,
-    CALLBACK_ID_11,
-    CALLBACK_ID_12,
-    CALLBACK_ID_13,
-    CALLBACK_ID_14,
-    CALLBACK_ID_15,
-    CALLBACK_ID_16,
-    CALLBACK_ID_17,
-    CALLBACK_ID_18,
-    CALLBACK_ID_19,
-    CALLBACK_ID_20,
-    CALLBACK_ID_21,
-    CALLBACK_ID_22, // by NoOne: UniMissileBurst();
-    CALLBACK_ID_23, // by NoOne: makeMissileBlocking();
-    kCallbackMax
+    kCallbackNone = -1,
+    kCallbackFXFlameLick = 0,
+    kCallbackRemove = 1,
+    kCallbackFXFlareBurst = 2,
+    kCallbackFXFlareSpark = 3,
+    kCallbackFXFlareSparkLite = 4,
+    kCallbackFXZombieSpurt = 5,
+    kCallbackFXBloodSpurt = 6,
+    kCallbackFXArcSpark = 7,
+    kCallbackFXDynPuff = 8,
+    kCallbackRespawn = 9,
+    kCallbackPlayerBubble = 10,
+    kCallbackEnemeyBubble = 11,
+    kCallbackCounterCheck = 12,
+    kCallbackFinishHim = 13,
+    kCallbackFXBloodBits = 14,
+    kCallbackFXTeslaAlt = 15,
+    kCallbackFXBouncingSleeve = 16,
+    kCallbackReturnFlag = 17,
+    kCallbackFXPodBloodSpray = 18,
+    kCallbackFXPodBloodSplat = 19,
+    kCallbackLeechStateTimer = 20,
+    kCallbackDropVoodoo = 21, // unused
+    kCallbackMissileBurst = 22, // by NoOne
+    kCallbackMissileSpriteBlock = 23, // by NoOne
+    kCallbackMax = 24
 };
 
 extern void (*gCallback[kCallbackMax])(int);

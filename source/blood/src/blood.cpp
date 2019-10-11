@@ -222,10 +222,10 @@ void PrecacheDude(spritetype *pSprite)
     seqPrecacheId(pDudeInfo->seqStartID+2);
     switch (pSprite->type)
     {
-    case 201:
-    case 202:
-    case 247:
-    case 248:
+    case kDudeCultistTommy:
+    case kDudeCultistShotgun:
+    case kDudeCultistTesla:
+    case kDudeCultistTNT:
         seqPrecacheId(pDudeInfo->seqStartID+6);
         seqPrecacheId(pDudeInfo->seqStartID+7);
         seqPrecacheId(pDudeInfo->seqStartID+8);
@@ -234,8 +234,8 @@ void PrecacheDude(spritetype *pSprite)
         seqPrecacheId(pDudeInfo->seqStartID+14);
         seqPrecacheId(pDudeInfo->seqStartID+15);
         break;
-    case 204:
-    case 217:
+    case kDudeZombieButcher:
+    case kDudeGillBeast:
         seqPrecacheId(pDudeInfo->seqStartID+6);
         seqPrecacheId(pDudeInfo->seqStartID+7);
         seqPrecacheId(pDudeInfo->seqStartID+8);
@@ -243,51 +243,51 @@ void PrecacheDude(spritetype *pSprite)
         seqPrecacheId(pDudeInfo->seqStartID+10);
         seqPrecacheId(pDudeInfo->seqStartID+11);
         break;
-    case 208:
-    case 209:
+    case kDudeGargoyleStatueFlesh:
+    case kDudeGargoyleStatueStone:
         seqPrecacheId(pDudeInfo->seqStartID+6);
         seqPrecacheId(pDudeInfo->seqStartID+6);
         fallthrough__;
-    case 206:
-    case 207:
+    case kDudeGargoyleFlesh:
+    case kDudeGargoyleStone:
         seqPrecacheId(pDudeInfo->seqStartID+6);
         seqPrecacheId(pDudeInfo->seqStartID+7);
         seqPrecacheId(pDudeInfo->seqStartID+8);
         seqPrecacheId(pDudeInfo->seqStartID+9);
         break;
-    case 210:
-    case 211:
-    case 213:
-    case 214:
-    case 215:
-    case 216:
-    case 229:
+    case kDudePhantasm:
+    case kDudeHellHound:
+    case kDudeSpiderBrown:
+    case kDudeSpiderRed:
+    case kDudeSpiderBlack:
+    case kDudeSpiderMother:
+    case kDudeTchernobog:
         seqPrecacheId(pDudeInfo->seqStartID+6);
         seqPrecacheId(pDudeInfo->seqStartID+7);
         seqPrecacheId(pDudeInfo->seqStartID+8);
         break;
-    case 227:
+    case kDudeCerberusTwoHead:
         seqPrecacheId(pDudeInfo->seqStartID+6);
         seqPrecacheId(pDudeInfo->seqStartID+7);
         fallthrough__;
-    case 212:
-    case 218:
-    case 219:
-    case 220:
+    case kDudeHand:
+    case kDudeBoneEel:
+    case kDudeBat:
+    case kDudeRat:
         seqPrecacheId(pDudeInfo->seqStartID+6);
         seqPrecacheId(pDudeInfo->seqStartID+7);
         break;
-    case 249:
+    case kDudeCultistBeast:
         seqPrecacheId(pDudeInfo->seqStartID+6);
         break;
-    case 205:
+    case kDudeZombieAxeBuried:
         seqPrecacheId(pDudeInfo->seqStartID+12);
         seqPrecacheId(pDudeInfo->seqStartID+9);
         fallthrough__;
-    case 244:
+    case kDudeZombieAxeLaying:
         seqPrecacheId(pDudeInfo->seqStartID+10);
         fallthrough__;
-    case 203:
+    case kDudeZombieAxeNormal:
         seqPrecacheId(pDudeInfo->seqStartID+6);
         seqPrecacheId(pDudeInfo->seqStartID+7);
         seqPrecacheId(pDudeInfo->seqStartID+8);
@@ -298,34 +298,33 @@ void PrecacheDude(spritetype *pSprite)
     }
 }
 
-void PrecacheThing(spritetype *pSprite)
-{
-    switch (pSprite->type)
-    {
-    case 406:
-    case 407:
-        seqPrecacheId(12);
-        break;
-    case 410:
-        seqPrecacheId(15);
-        break;
-    case 411:
-        seqPrecacheId(21);
-        break;
-    case 412:
-        seqPrecacheId(25);
-        seqPrecacheId(26);
-        break;
-    case 413:
-        seqPrecacheId(38);
-        seqPrecacheId(40);
-        seqPrecacheId(28);
-        break;
-    case 416:
-        break;
-    default:
-        tilePreloadTile(pSprite->picnum);
-        break;
+void PrecacheThing(spritetype *pSprite) {
+    switch (pSprite->type) {
+        case kThingGlassWindow: // worthless...
+        case kThingFluorescent:
+            seqPrecacheId(12);
+            break;
+        case kThingSpiderWeb:
+            seqPrecacheId(15);
+            break;
+        case kThingMetalGrate:
+            seqPrecacheId(21);
+            break;
+        case kThingFlammableTree:
+            seqPrecacheId(25);
+            seqPrecacheId(26);
+            break;
+        case kTrapMachinegun:
+            seqPrecacheId(38);
+            seqPrecacheId(40);
+            seqPrecacheId(28);
+            break;
+        case kThingObjectGib:
+        //case kThingObjectExplode: weird that only gib object is precached and this one is not
+            break;
+        default:
+            tilePreloadTile(pSprite->picnum);
+            break;
     }
     seqPrecacheId(3);
     seqPrecacheId(4);
@@ -611,8 +610,8 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     for (int i = 0; i < kMaxSprites; i++)
     {
         spritetype *pSprite = &sprite[i];
-        if (pSprite->statnum < kMaxStatus && pSprite->extra > 0)
-        {
+        if (pSprite->statnum < kMaxStatus && pSprite->extra > 0) {
+            
             XSPRITE *pXSprite = &xsprite[pSprite->extra];
             if ((pXSprite->lSkill & (1 << gameOptions->nDifficulty)) || (pXSprite->lS && gameOptions->nGameType == 0)
                 || (pXSprite->lB && gameOptions->nGameType == 2) || (pXSprite->lT && gameOptions->nGameType == 3)
@@ -621,12 +620,81 @@ void StartLevel(GAMEOPTIONS *gameOptions)
                 DeleteSprite(i);
                 continue;
             }
+
+            
+            if (gModernMap) {
+                
+                switch (pSprite->type) {
+                    // add statnum for faster dude searching
+                    case kModernDudeTargetChanger:
+                        changespritestat(i, kStatModernDudeTargetChanger);
+                        break;
+                    // remove kStatItem status from random item generators
+                    case kModernRandom:
+                    case kModernRandom2:
+                        changespritestat(i, kStatDecoration);
+                        break;
+                }
+
+            } else {
+                
+                switch (pSprite->type) {
+                    // erase all modern types if the map is not extended
+                    case kModernCustomDudeSpawn:
+                    case kModernRandomTX:
+                    case kModernSequentialTX:
+                    case kModernSeqSpawner:
+                    case kModernObjPropertiesChanger:
+                    case kModernObjPicnumChanger:
+                    case kModernObjSizeChanger:
+                    case kModernDudeTargetChanger:
+                    case kModernSectorFXChanger:
+                    case kModernObjDataChanger:
+                    case kModernSpriteDamager:
+                    case kModernObjDataAccumulator:
+                    case kModernEffectSpawner:
+                    case kModernWindGenerator:
+                        pSprite->type = kSpriteDecoration;
+                        break;
+                    case kItemModernMapLevel:
+                    case kDudeModernCustom:
+                    case kDudeModernCustomBurning:
+                    case kModernThingTNTProx:
+                    case kModernThingEnemyLifeLeech:
+                        pSprite->type = kSpriteDecoration;
+                        changespritestat(pSprite->index, kStatDecoration);
+                        break;
+                    case kModernConcussSprite:
+                        pSprite->type = kSpriteDecoration;
+                        changespritestat(pSprite->index, kStatDecoration);
+                        break;
+                    // also erase some modernized vanilla types which was not active
+                    case kMarkerWarpDest:
+                        if (pSprite->statnum != kStatMarker) pSprite->type = kSpriteDecoration;
+                        break;
+                }
+
+                if (pXSprite->Sight) 
+                    pXSprite->Sight = false; // it does not work in vanilla at all
+                
+                if (pXSprite->Proximity) {
+                    // proximity works only for things and dudes in vanilla
+                    switch (pSprite->statnum) {
+                        case kStatThing:
+                        case kStatDude:
+                            break;
+                        default:
+                            pXSprite->Proximity = false;
+                            break;
+
+                    }
+                }
+            }
         }
     }
     scrLoadPLUs();
     startpos.z = getflorzofslope(startsectnum,startpos.x,startpos.y);
-    for (int i = 0; i < kMaxPlayers; i++)
-    {
+    for (int i = 0; i < kMaxPlayers; i++) {
         gStartZone[i].x = startpos.x;
         gStartZone[i].y = startpos.y;
         gStartZone[i].z = startpos.z;
@@ -634,7 +702,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         gStartZone[i].ang = startang;
 
         // By NoOne: Create spawn zones for players in teams mode.
-        if (i <= kMaxPlayers / 2) {
+        if (gModernMap && i <= kMaxPlayers / 2) {
             gStartZoneTeam1[i].x = startpos.x;
             gStartZoneTeam1[i].y = startpos.y;
             gStartZoneTeam1[i].z = startpos.z;

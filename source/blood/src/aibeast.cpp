@@ -134,7 +134,7 @@ static void StompSeqCallback(int, int nXSprite)
             spritetype *pSprite2 = &sprite[nSprite2];
             if (pSprite2->extra > 0 && pSprite2->extra < kMaxXSprites)
             {
-                if (pSprite2->type == 251)
+                if (pSprite2->type == kDudeBeast)
                     continue;
                 if (pSprite2->flags&32)
                     continue;
@@ -195,7 +195,7 @@ static void StompSeqCallback(int, int nXSprite)
 static void MorphToBeast(spritetype *pSprite, XSPRITE *pXSprite)
 {
     actHealDude(pXSprite, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
-    pSprite->type = 251;
+    pSprite->type = kDudeBeast;
 }
 
 static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)

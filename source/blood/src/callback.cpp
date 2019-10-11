@@ -48,99 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void makeMissileBlocking(int nSprite) // 23
-{
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    if (sprite[nSprite].statnum != kStatProjectile) return;
-    sprite[nSprite].cstat |= CSTAT_SPRITE_BLOCK;
-}
 
-void UniMissileBurst(int nSprite) // 22
-{
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    if (sprite[nSprite].statnum != kStatProjectile) return;
-    spritetype * pSprite = &sprite[nSprite];
-    int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
-    int nRadius = 0x55555;
-
-    for (int i = 0; i < 8; i++)
-    {
-        spritetype* pBurst = actSpawnSprite(pSprite, 5);
-        
-        pBurst->type = pSprite->type;
-        pBurst->shade = pSprite->shade;
-        pBurst->picnum = pSprite->picnum;
-
-        pBurst->cstat = pSprite->cstat;
-        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) {
-            pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
-            evPost(pBurst->xvel, 3, 100, CALLBACK_ID_23); // so set blocking flag a bit later
-        }
-
-        pBurst->pal = pSprite->pal;
-        pBurst->clipdist = pSprite->clipdist / 4;
-        pBurst->flags = pSprite->flags;
-        pBurst->xrepeat = pSprite->xrepeat / 2;
-        pBurst->yrepeat = pSprite->yrepeat / 2;
-        pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].at6) & 2047);
-        pBurst->owner = pSprite->owner;
-       
-        actBuildMissile(pBurst, pBurst->extra, pSprite->xvel);
-        
-        int nAngle2 = (i << 11) / 8;
-        int dx = 0;
-        int dy = mulscale30r(nRadius, Sin(nAngle2));
-        int dz = mulscale30r(nRadius, -Cos(nAngle2));
-        if (i & 1)
-        {
-            dy >>= 1;
-            dz >>= 1;
-        }
-        RotateVector(&dx, &dy, nAngle);
-        xvel[pBurst->index] += dx;
-        yvel[pBurst->index] += dy;
-        zvel[pBurst->index] += dz;
-        evPost(pBurst->index, 3, 960, CALLBACK_ID_1);
-    }
-    evPost(nSprite, 3, 0, CALLBACK_ID_1);
-}
-
-void sub_74C20(int nSprite) // 7
-{
-    spritetype *pSprite = &sprite[nSprite];
-    spritetype *pFX = gFX.fxSpawn(FX_15, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-    if (pFX)
-    {
-        xvel[pFX->index] = xvel[nSprite] + Random2(0x10000);
-        yvel[pFX->index] = yvel[nSprite] + Random2(0x10000);
-        zvel[pFX->index] = zvel[nSprite] - Random(0x1aaaa);
-    }
-    evPost(nSprite, 3, 3, CALLBACK_ID_7);
-}
-
-void sub_74D04(int nSprite) // 15
-{
-    spritetype *pSprite = &sprite[nSprite];
-    spritetype *pFX = gFX.fxSpawn(FX_49, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-    if (pFX)
-    {
-        xvel[pFX->index] = xvel[nSprite] + Random2(0x1aaaa);
-        yvel[pFX->index] = yvel[nSprite] + Random2(0x1aaaa);
-        zvel[pFX->index] = zvel[nSprite] - Random(0x1aaaa);
-    }
-    evPost(nSprite, 3, 3, CALLBACK_ID_15);
-}
-
-void FinishHim(int nSprite) // 13
-{
-    spritetype *pSprite = &sprite[nSprite];
-    int nXSprite = pSprite->extra;
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    if (playerSeqPlaying(&gPlayer[pSprite->type-kDudePlayer1], 16) && pXSprite->target == gMe->at5b)
-        sndStartSample(3313, -1, 1, 0);
-}
-
-void FlameLick(int nSprite) // 0
+void fxFlameLick(int nSprite) // 0
 {
     spritetype *pSprite = &sprite[nSprite];
     int nXSprite = pSprite->extra;
@@ -165,7 +74,7 @@ void FlameLick(int nSprite) // 0
         }
     }
     if (pXSprite->burnTime > 0)
-        evPost(nSprite, 3, 5, CALLBACK_ID_0);
+        evPost(nSprite, 3, 5, kCallbackFXFlameLick);
 }
 
 void Remove(int nSprite) // 1
@@ -190,7 +99,7 @@ void FlareBurst(int nSprite) // 2
         pSpawn->picnum = 2424;
         pSpawn->shade = -128;
         pSpawn->xrepeat = pSpawn->yrepeat = 32;
-        pSpawn->type = 303;
+        pSpawn->type = kMissileFlareAlt;
         pSpawn->clipdist = 2;
         pSpawn->owner = pSprite->owner;
         int nAngle2 = (i<<11)/8;
@@ -206,12 +115,12 @@ void FlareBurst(int nSprite) // 2
         xvel[pSpawn->index] += dx;
         yvel[pSpawn->index] += dy;
         zvel[pSpawn->index] += dz;
-        evPost(pSpawn->index, 3, 960, CALLBACK_ID_1);
+        evPost(pSpawn->index, 3, 960, kCallbackRemove);
     }
-    evPost(nSprite, 3, 0, CALLBACK_ID_1);
+    evPost(nSprite, 3, 0, kCallbackRemove);
 }
 
-void FlareSpark(int nSprite) // 3
+void fxFlareSpark(int nSprite) // 3
 {
     spritetype *pSprite = &sprite[nSprite];
     spritetype *pFX = gFX.fxSpawn(FX_28, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
@@ -221,10 +130,10 @@ void FlareSpark(int nSprite) // 3
         yvel[pFX->index] = yvel[nSprite] + Random2(0x1aaaa);
         zvel[pFX->index] = zvel[nSprite] - Random(0x1aaaa);
     }
-    evPost(nSprite, 3, 4, CALLBACK_ID_3);
+    evPost(nSprite, 3, 4, kCallbackFXFlareSpark);
 }
 
-void FlareSparkLite(int nSprite) // 4
+void fxFlareSparkLite(int nSprite) // 4
 {
     spritetype *pSprite = &sprite[nSprite];
     spritetype *pFX = gFX.fxSpawn(FX_28, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
@@ -234,10 +143,10 @@ void FlareSparkLite(int nSprite) // 4
         yvel[pFX->index] = yvel[nSprite] + Random2(0x1aaaa);
         zvel[pFX->index] = zvel[nSprite] - Random(0x1aaaa);
     }
-    evPost(nSprite, 3, 12, CALLBACK_ID_4);
+    evPost(nSprite, 3, 12, kCallbackFXFlareSparkLite);
 }
 
-void ZombieSpurt(int nSprite) // 5
+void fxZombieBloodSpurt(int nSprite) // 5
 {
     dassert(nSprite >= 0 && nSprite < kMaxSprites);
     spritetype *pSprite = &sprite[nSprite];
@@ -255,18 +164,18 @@ void ZombieSpurt(int nSprite) // 5
     }
     if (pXSprite->data1 > 0)
     {
-        evPost(nSprite, 3, 4, CALLBACK_ID_5);
+        evPost(nSprite, 3, 4, kCallbackFXZombieSpurt);
         pXSprite->data1 -= 4;
     }
     else if (pXSprite->data2 > 0)
     {
-        evPost(nSprite, 3, 60, CALLBACK_ID_5);
+        evPost(nSprite, 3, 60, kCallbackFXZombieSpurt);
         pXSprite->data1 = 40;
         pXSprite->data2--;
     }
 }
 
-void BloodSpurt(int nSprite) // 6
+void fxBloodSpurt(int nSprite) // 6
 {
     spritetype *pSprite = &sprite[nSprite];
     spritetype *pFX = gFX.fxSpawn(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
@@ -277,10 +186,25 @@ void BloodSpurt(int nSprite) // 6
         yvel[pFX->index] = yvel[nSprite]>>8;
         zvel[pFX->index] = zvel[nSprite]>>8;
     }
-    evPost(nSprite, 3, 6, CALLBACK_ID_6);
+    evPost(nSprite, 3, 6, kCallbackFXBloodSpurt);
 }
 
-void DynPuff(int nSprite) // 8
+
+void fxArcSpark(int nSprite) // 7
+{
+    spritetype* pSprite = &sprite[nSprite];
+    spritetype* pFX = gFX.fxSpawn(FX_15, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+    if (pFX)
+    {
+        xvel[pFX->index] = xvel[nSprite] + Random2(0x10000);
+        yvel[pFX->index] = yvel[nSprite] + Random2(0x10000);
+        zvel[pFX->index] = zvel[nSprite] - Random(0x1aaaa);
+    }
+    evPost(nSprite, 3, 3, kCallbackFXArcSpark);
+}
+
+
+void fxDynPuff(int nSprite) // 8
 {
     spritetype *pSprite = &sprite[nSprite];
     if (zvel[nSprite])
@@ -297,7 +221,7 @@ void DynPuff(int nSprite) // 8
             zvel[pFX->index] = zvel[nSprite];
         }
     }
-    evPost(nSprite, 3, 12, CALLBACK_ID_8);
+    evPost(nSprite, 3, 12, kCallbackFXDynPuff);
 }
 
 void Respawn(int nSprite) // 9
@@ -316,14 +240,14 @@ void Respawn(int nSprite) // 9
     {
         int nTime = mulscale16(actGetRespawnTime(pSprite), 0x4000);
         pXSprite->respawnPending = 2;
-        evPost(nSprite, 3, nTime, CALLBACK_ID_9);
+        evPost(nSprite, 3, nTime, kCallbackRespawn);
         break;
     }
     case 2:
     {
         int nTime = mulscale16(actGetRespawnTime(pSprite), 0x2000);
         pXSprite->respawnPending = 3;
-        evPost(nSprite, 3, nTime, CALLBACK_ID_9);
+        evPost(nSprite, 3, nTime, kCallbackRespawn);
         break;
     }
     case 3:
@@ -352,10 +276,10 @@ void Respawn(int nSprite) // 9
             aiInitSprite(pSprite);
             pXSprite->key = 0;
         }
-        if (pSprite->type == 400)
+        if (pSprite->type == kThingTNTBarrel)
         {
-            pSprite->cstat |= 257;
-            pSprite->cstat &= (unsigned short)~32768;
+            pSprite->cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN;
+            pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
         }
         gFX.fxSpawn(FX_29, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
         sfxPlay3DSound(pSprite, 350, -1, 0);
@@ -393,7 +317,7 @@ void PlayerBubble(int nSprite) // 10
                 zvel[pFX->index] = zvel[nSprite] + Random2(0x1aaaa);
             }
         }
-        evPost(nSprite, 3, 4, CALLBACK_ID_10);
+        evPost(nSprite, 3, 4, kCallbackPlayerBubble);
     }
 }
 
@@ -417,44 +341,44 @@ void EnemyBubble(int nSprite) // 11
             zvel[pFX->index] = zvel[nSprite] + Random2(0x1aaaa);
         }
     }
-    evPost(nSprite, 3, 4, CALLBACK_ID_11);
+    evPost(nSprite, 3, 4, kCallbackEnemeyBubble);
 }
 
 void CounterCheck(int nSector) // 12
 {
     dassert(nSector >= 0 && nSector < kMaxSectors);
-    sectortype *pSector = &sector[nSector];
-    // By NoOne: edits for counter sector new features.
-    // remove check below, so every sector can be counter if command 12 (this callback) received.
-    //if (pSector->type != 619) return;
-    int nXSprite = pSector->extra;
-    if (nXSprite > 0)
-    {
-        XSECTOR *pXSector = &xsector[nXSprite];
-        int nReq = pXSector->waitTimeA;
-        int nType = pXSector->data;
-        if (nType && nReq)
-        {
-            int nCount = 0;
-            for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
-            {
-                if (sprite[nSprite].type == nType)
-                    nCount++;
-            }
-            if (nCount >= nReq)
-            {
 
+    // By NoOne: remove check below, so every sector can be counter if command 12 (this callback) received.
+    //if (pSector->type != kSectorCounter) return;
+    if (sector[nSector].extra <= 0) return; XSECTOR *pXSector = &xsector[sector[nSector].extra];
+    int nReq = pXSector->waitTimeA; int nType = pXSector->data; int nCount = 0;
+    if (!nType || !nReq) return;
+    
+    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
+        if (sprite[nSprite].type == nType) nCount++;
+            }
+        
+    if (nCount < nReq) {
+        evPost(nSector, 6, 5, kCallbackCounterCheck);
+        return;
+    } else {
                 //pXSector->waitTimeA = 0; //do not reset necessary objects counter to zero
-                trTriggerSector(nSector, pXSector, 1);
+        trTriggerSector(nSector, pXSector, kCmdOn);
                 pXSector->locked = 1; //lock sector, so it can be opened again later
             }
-            else
-                evPost(nSector, 6, 5, CALLBACK_ID_12);
-        }
-    }
 }
 
-void sub_76140(int nSprite) // 14
+
+void FinishHim(int nSprite) // 13
+{
+    spritetype* pSprite = &sprite[nSprite];
+    int nXSprite = pSprite->extra;
+    XSPRITE* pXSprite = &xsprite[nXSprite];
+    if (playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && pXSprite->target == gMe->at5b)
+        sndStartSample(3313, -1, 1, 0);
+}
+
+void fxBloodBits(int nSprite) // 14
 {
     spritetype *pSprite = &sprite[nSprite];
     int ceilZ, ceilHit, floorZ, floorHit;
@@ -482,14 +406,65 @@ void sub_76140(int nSprite) // 14
     gFX.sub_73FFC(nSprite);
 }
 
-void sub_7632C(spritetype *pSprite)
+
+void fxTeslaAlt(int nSprite) // 15
 {
-    xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
-    if (pSprite->extra > 0)
-        seqKill(3, pSprite->extra);
-    sfxKill3DSound(pSprite, -1, -1);
-    switch (pSprite->type)
+    spritetype* pSprite = &sprite[nSprite];
+    spritetype* pFX = gFX.fxSpawn(FX_49, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+    if (pFX)
     {
+        xvel[pFX->index] = xvel[nSprite] + Random2(0x1aaaa);
+        yvel[pFX->index] = yvel[nSprite] + Random2(0x1aaaa);
+        zvel[pFX->index] = zvel[nSprite] - Random(0x1aaaa);
+    }
+    evPost(nSprite, 3, 3, kCallbackFXTeslaAlt);
+}
+
+
+int tommySleeveSnd[] = { 608, 609, 611 }; // unused?
+int sawedOffSleeveSnd[] = { 610, 612 };
+
+void fxBouncingSleeve(int nSprite) // 16
+{
+    spritetype* pSprite = &sprite[nSprite]; int ceilZ, ceilHit, floorZ, floorHit;
+    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
+    int top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
+    pSprite->z += floorZ - bottom;
+    
+    int zv = zvel[nSprite] - velFloor[pSprite->sectnum];
+    
+    if (zvel[nSprite] == 0) sleeveStopBouncing(pSprite);
+    else if (zv > 0) {
+        actFloorBounceVector((int*)& xvel[nSprite], (int*)& yvel[nSprite], &zv, pSprite->sectnum, 0x9000);
+        zvel[nSprite] = zv;
+        if (velFloor[pSprite->sectnum] == 0 && klabs(zvel[nSprite]) < 0x20000)  {
+            sleeveStopBouncing(pSprite);
+            return;
+        }
+
+        int nChannel = 28 + (pSprite->index & 2);
+        dassert(nChannel < 32);
+        
+        // tommy sleeve
+        if (pSprite->type >= 37 && pSprite->type <= 39) {
+            Random(3); 
+            sfxPlay3DSound(pSprite, 608 + Random(2), nChannel, 1);
+        
+        // sawed-off sleeve
+        } else {
+            sfxPlay3DSound(pSprite, sawedOffSleeveSnd[Random(2)], nChannel, 1);
+        }
+    }   
+
+}
+
+
+void sleeveStopBouncing(spritetype* pSprite) {
+    xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
+    if (pSprite->extra > 0) seqKill(3, pSprite->extra);
+    sfxKill3DSound(pSprite, -1, -1);
+
+    switch (pSprite->type) {
     case 37:
     case 38:
     case 39:
@@ -501,72 +476,56 @@ void sub_7632C(spritetype *pSprite)
         pSprite->picnum = 2464;
         break;
     }
+
     pSprite->type = 51;
     pSprite->xrepeat = pSprite->yrepeat = 10;
 }
 
-int dword_13B32C[] = { 608, 609, 611 };
-int dword_13B338[] = { 610, 612 };
 
-void sub_763BC(int nSprite) // 16
+void returnFlagToBase(int nSprite) // 17
 {
-    spritetype *pSprite = &sprite[nSprite];
-    int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
-    int top, bottom;
-    GetSpriteExtents(pSprite, &top, &bottom);
-    pSprite->z += floorZ-bottom;
-    int zv = zvel[nSprite]-velFloor[pSprite->sectnum];
-    if (zv > 0)
-    {
-        actFloorBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], &zv, pSprite->sectnum, 0x9000);
-        zvel[nSprite] = zv;
-        if (velFloor[pSprite->sectnum] == 0 && klabs(zvel[nSprite]) < 0x20000)
-        {
-            sub_7632C(pSprite);
-            return;
-        }
-        int nChannel = 28+(pSprite->index&2);
-        dassert(nChannel < 32);
-        if (pSprite->type >= 37 && pSprite->type <= 39)
-        {
-            Random(3);
-            sfxPlay3DSound(pSprite, 608+Random(2), nChannel, 1);
-        }
-        else
-            sfxPlay3DSound(pSprite, dword_13B338[Random(2)], nChannel, 1);
-    }
-    else if (zvel[nSprite] == 0)
-        sub_7632C(pSprite);
-}
-
-void sub_765B8(int nSprite) // 17
-{
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype* pSprite = &sprite[nSprite];
     if (pSprite->owner >= 0 && pSprite->owner < kMaxSprites)
     {
-        spritetype *pOwner = &sprite[pSprite->owner];
-        XSPRITE *pXOwner = &xsprite[pOwner->extra];
-        switch (pSprite->type)
-        {
-        case 147:
-            trTriggerSprite(pOwner->index, pXOwner, 1);
+        spritetype* pOwner = &sprite[pSprite->owner];
+        XSPRITE* pXOwner = &xsprite[pOwner->extra];
+        switch (pSprite->type) {
+            case kItemFlagA:
+                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
             sndStartSample(8003, 255, 2, 0);
             gBlueFlagDropped = false;
             viewSetMessage("Blue Flag returned to base.");
             break;
-        case 148:
-            trTriggerSprite(pOwner->index, pXOwner, 1);
+            case kItemFlagB:
+                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
             sndStartSample(8002, 255, 2, 0);
             gRedFlagDropped = false;
             viewSetMessage("Red Flag returned to base.");
             break;
         }
     }
-    evPost(pSprite->index, 3, 0, CALLBACK_ID_1);
+    evPost(pSprite->index, 3, 0, kCallbackRemove);
 }
 
-void sub_766B8(int nSprite) // 19
+void fxPodBloodSpray(int nSprite) // 18
+{
+    spritetype* pSprite = &sprite[nSprite];
+    spritetype* pFX;
+    if (pSprite->type == 53)
+        pFX = gFX.fxSpawn(FX_53, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+    else
+        pFX = gFX.fxSpawn(FX_54, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+    if (pFX)
+    {
+        pFX->ang = 0;
+        xvel[pFX->index] = xvel[nSprite] >> 8;
+        yvel[pFX->index] = yvel[nSprite] >> 8;
+        zvel[pFX->index] = zvel[nSprite] >> 8;
+    }
+    evPost(nSprite, 3, 6, kCallbackFXPodBloodSpray);
+}
+
+void fxPodBloodSplat(int nSprite) // 19
 {
     spritetype *pSprite = &sprite[nSprite];
     int ceilZ, ceilHit, floorZ, floorHit;
@@ -585,9 +544,9 @@ void sub_766B8(int nSprite) // 19
         sfxPlay3DSound(pSprite, 385, nChannel, 1);
     }
     spritetype *pFX = NULL;
-    if (pSprite->type == 53 || pSprite->type == 430)
+    if (pSprite->type == 53 || pSprite->type == kThingPodFireBall)
     {
-        if (Chance(0x500) || pSprite->type == 430)
+        if (Chance(0x500) || pSprite->type == kThingPodFireBall)
             pFX = gFX.fxSpawn(FX_55, pSprite->sectnum, x, y, floorZ-64, 0);
         if (pFX)
             pFX->ang = nAngle;
@@ -601,38 +560,22 @@ void sub_766B8(int nSprite) // 19
     gFX.sub_73FFC(nSprite);
 }
 
-void sub_768E8(int nSprite) // 18
-{
-    spritetype *pSprite = &sprite[nSprite];
-    spritetype *pFX;
-    if (pSprite->type == 53)
-        pFX = gFX.fxSpawn(FX_53, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-    else
-        pFX = gFX.fxSpawn(FX_54, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-    if (pFX)
-    {
-        pFX->ang = 0;
-        xvel[pFX->index] = xvel[nSprite]>>8;
-        yvel[pFX->index] = yvel[nSprite]>>8;
-        zvel[pFX->index] = zvel[nSprite]>>8;
-    }
-    evPost(nSprite, 3, 6, CALLBACK_ID_18);
-}
 
-void sub_769B4(int nSprite) // 19
+
+void LeechStateTimer(int nSprite) // 20
 {
     spritetype *pSprite = &sprite[nSprite];
     if (pSprite->statnum == kStatThing && !(pSprite->flags & 32)) {
         switch (pSprite->type) {
-            case 431:
-            case kGDXThingCustomDudeLifeLeech:
+            case kThingDroppedLifeLeech:
+            case kModernThingEnemyLifeLeech:
                 xsprite[pSprite->extra].stateTimer = 0;
                 break;
         }
     }
 }
 
-void sub_76A08(spritetype *pSprite, spritetype *pSprite2, PLAYER *pPlayer)
+void sub_76A08(spritetype *pSprite, spritetype *pSprite2, PLAYER *pPlayer) // ???
 {
     int top, bottom;
     int nSprite = pSprite->index;
@@ -652,13 +595,13 @@ void sub_76A08(spritetype *pSprite, spritetype *pSprite2, PLAYER *pPlayer)
     }
 }
 
-void sub_76B78(int nSprite)
+void DropVoodoo(int nSprite) // unused
 {
     spritetype *pSprite = &sprite[nSprite];
     int nOwner = actSpriteOwnerToSpriteId(pSprite);
     if (nOwner < 0 || nOwner >= kMaxSprites)
     {
-        evPost(nSprite, 3, 0, CALLBACK_ID_1);
+        evPost(nSprite, 3, 0, kCallbackRemove);
         return;
     }
     spritetype *pOwner = &sprite[nOwner];
@@ -669,7 +612,7 @@ void sub_76B78(int nSprite)
         pPlayer = NULL;
     if (!pPlayer)
     {
-        evPost(nSprite, 3, 0, CALLBACK_ID_1);
+        evPost(nSprite, 3, 0, kCallbackRemove);
         return;
     }
     pSprite->ang = getangle(pOwner->x-pSprite->x, pOwner->y-pSprite->y);
@@ -679,7 +622,7 @@ void sub_76B78(int nSprite)
         XSPRITE *pXSprite = &xsprite[nXSprite];
         if (pXSprite->data1 == 0)
         {
-            evPost(nSprite, 3, 0, CALLBACK_ID_1);
+            evPost(nSprite, 3, 0, kCallbackRemove);
             return;
         }
         int nSprite2, nNextSprite;
@@ -714,7 +657,7 @@ void sub_76B78(int nSprite)
                             int nDmg = actDamageSprite(nOwner, pSprite2, DAMAGE_TYPE_5, pXSprite->data1<<4);
                             pXSprite->data1 = ClipLow(pXSprite->data1-nDmg, 0);
                             sub_76A08(pSprite2, pSprite, pPlayer2);
-                            evPost(nSprite, 3, 0, CALLBACK_ID_1);
+                            evPost(nSprite, 3, 0, kCallbackRemove);
                             return;
                         }
                     }
@@ -723,39 +666,39 @@ void sub_76B78(int nSprite)
                         int vd = 0x2666;
                         switch (pSprite2->type)
                         {
-                        case 218:
-                        case 219:
-                        case 220:
-                        case 250:
-                        case 251:
+                        case kDudeBoneEel:
+                        case kDudeBat:
+                        case kDudeRat:
+                        case kDudeTinyCaleb:
+                        case kDudeBeast:
                             vd = 0x147;
                             break;
-                        case 205:
-                        case 221:
-                        case 222:
-                        case 223:
-                        case 224:
-                        case 225:
-                        case 226:
-                        case 227:
-                        case 228:
-                        case 229:
-                        case 239:
-                        case 240:
-                        case 241:
-                        case 242:
-                        case 243:
-                        case 244:
-                        case 245:
-                        case 252:
-                        case 253:
+                        case kDudeZombieAxeBuried:
+                        case kDudePodGreen:
+                        case kDudeTentacleGreen:
+                        case kDudePodFire:
+                        case kDudeTentacleFire:
+                        case kDudePodMother:
+                        case kDudeTentacleMother:
+                        case kDudeCerberusTwoHead:
+                        case kDudeCerberusOneHead:
+                        case kDudeTchernobog:
+                        case kDudeBurningInnocent:
+                        case kDudeBurningCultist:
+                        case kDudeBurningZombieAxe:
+                        case kDudeBurningZombieButcher:
+                        case kDudeCultistReserved:
+                        case kDudeZombieAxeLaying:
+                        case kDudeInnocent:
+                        case kDudeBurningTinyCaleb:
+                        case kDudeBurningBeast:
                             vd = 0;
                             break;
                         }
                         if (vd && (Chance(vd) || nNextSprite < 0))
                         {
                             sub_76A08(pSprite2, pSprite, NULL);
-                            evPost(nSprite, 3, 0, CALLBACK_ID_1);
+                            evPost(nSprite, 3, 0, kCallbackRemove);
                             return;
                         }
                     }
@@ -763,34 +706,92 @@ void sub_76B78(int nSprite)
             }
         }
         pXSprite->data1 = ClipLow(pXSprite->data1-1, 0);
-        evPost(nSprite, 3, 0, CALLBACK_ID_1);
+        evPost(nSprite, 3, 0, kCallbackRemove);
     }
+}
+
+void UniMissileBurst(int nSprite) // 22
+{
+    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    if (sprite[nSprite].statnum != kStatProjectile) return;
+    spritetype * pSprite = &sprite[nSprite];
+    int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
+    int nRadius = 0x55555;
+
+    for (int i = 0; i < 8; i++)
+    {
+        spritetype* pBurst = actSpawnSprite(pSprite, 5);
+
+        pBurst->type = pSprite->type;
+        pBurst->shade = pSprite->shade;
+        pBurst->picnum = pSprite->picnum;
+
+        pBurst->cstat = pSprite->cstat;
+        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) {
+            pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
+            evPost(pBurst->xvel, 3, 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
+        }
+
+        pBurst->pal = pSprite->pal;
+        pBurst->clipdist = pSprite->clipdist / 4;
+        pBurst->flags = pSprite->flags;
+        pBurst->xrepeat = pSprite->xrepeat / 2;
+        pBurst->yrepeat = pSprite->yrepeat / 2;
+        pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].at6) & 2047);
+        pBurst->owner = pSprite->owner;
+
+        actBuildMissile(pBurst, pBurst->extra, pSprite->xvel);
+
+        int nAngle2 = (i << 11) / 8;
+        int dx = 0;
+        int dy = mulscale30r(nRadius, Sin(nAngle2));
+        int dz = mulscale30r(nRadius, -Cos(nAngle2));
+        if (i & 1)
+        {
+            dy >>= 1;
+            dz >>= 1;
+        }
+        RotateVector(&dx, &dy, nAngle);
+        xvel[pBurst->index] += dx;
+        yvel[pBurst->index] += dy;
+        zvel[pBurst->index] += dz;
+        evPost(pBurst->index, 3, 960, kCallbackRemove);
+    }
+    evPost(nSprite, 3, 0, kCallbackRemove);
+}
+
+
+void makeMissileBlocking(int nSprite) // 23
+{
+    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    if (sprite[nSprite].statnum != kStatProjectile) return;
+    sprite[nSprite].cstat |= CSTAT_SPRITE_BLOCK;
 }
 
 void(*gCallback[kCallbackMax])(int) =
 {
-    FlameLick,
+    fxFlameLick,
     Remove,
     FlareBurst,
-    FlareSpark,
-    FlareSparkLite,
-    ZombieSpurt,
-    BloodSpurt,
-    sub_74C20,
-    DynPuff,
+    fxFlareSpark,
+    fxFlareSparkLite,
+    fxZombieBloodSpurt,
+    fxBloodSpurt,
+    fxArcSpark,
+    fxDynPuff,
     Respawn,
     PlayerBubble,
     EnemyBubble,
     CounterCheck,
     FinishHim,
-    sub_76140,
-    sub_74D04,
-    sub_763BC,
-    sub_765B8,
-    sub_768E8,
-    sub_766B8,
-    sub_769B4,
-    sub_76B78,
+    fxBloodBits,
+    fxTeslaAlt,
+    fxBouncingSleeve,
+    returnFlagToBase,
+    fxPodBloodSpray,
+    fxPodBloodSplat,
+    LeechStateTimer,
+    DropVoodoo, // unused
     UniMissileBurst,
     makeMissileBlocking,
 };

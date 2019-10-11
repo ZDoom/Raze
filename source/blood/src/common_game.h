@@ -77,14 +77,7 @@ void QuitGame(void);
 
 #define kExplodeMax 8
 
-#define kDudeBase 200
-#define kDudePlayer1 231
-#define kDudePlayer8 238
-#define kDudeMax 260
-#define kMissileBase 300
-#define kMissileMax 318
-#define kThingBase 400
-#define kThingMax 436
+
 
 #define kMaxPowerUps 51
 
@@ -119,26 +112,290 @@ void QuitGame(void);
 // -------------------------------
 #define kMaxPAL 5
 
-#define kItemBase 100
-#define kWeaponItemBase 40
-#define kItemMax 151
 
-// marker sprite types
-#define kMarkerSPStart 1
-#define kMarkerMPStart 2
-#define kMarkerOff 3
-#define kMarkerOn 4
-#define kMarkerAxis 5
-#define kMarkerLowLink 6
-#define kMarkerUpLink 7
-#define kMarkerWarpDest 8
-#define kMarkerUpWater 9
-#define kMarkerLowWater 10
-#define kMarkerUpStack 11
-#define kMarkerLowStack 12
-#define kMarkerUpGoo 13
-#define kMarkerLowGoo 14
-#define kMarkerPath 15
+// SPRITE TYPES /////////////////////////////////////////////////
+enum {
+    kSpriteDecoration = 0,
+
+    // markers
+    kMarkerSPStart = 1,
+    kMarkerMPStart = 2,
+    kMarkerOff = 3,
+    kMarkerOn = 4,
+    kMarkerAxis = 5,
+    kMarkerLowLink = 6,
+    kMarkerUpLink = 7,
+    kMarkerWarpDest = 8,
+    kMarkerUpWater = 9,
+    kMarkerLowWater = 10,
+    kMarkerUpStack = 11,
+    kMarkerLowStack = 12,
+    kMarkerUpGoo = 13,
+    kMarkerLowGoo = 14,
+    kMarkerPath = 15,
+    kMarkerDudeSpawn = 18,
+    kMarkerEarthQuake = 19,
+
+    // switches
+    kSwitchBase = 20,
+    kSwitchToggle = 20,
+    kSwitchOneWay = 21,
+    kSwitchCombo = 22,
+    kSwitchPadlock = 23,
+    kSwitchMax = 24,
+
+    // modern types (gModernMap only)
+    kModernCustomDudeSpawn = 24,
+    kModernRandomTX = 25,
+    kModernSequentialTX = 26,
+    kModernSeqSpawner = 27,
+    kModernObjPropertiesChanger = 28,
+    kModernObjPicnumChanger = 29,
+    kModernObjSizeChanger = 31,
+    kModernDudeTargetChanger = 33,
+    kModernSectorFXChanger = 34,
+    kModernObjDataChanger = 35,
+    kModernSpriteDamager = 36,
+    kModernObjDataAccumulator = 37,
+    kModernEffectSpawner = 38,
+    kModernWindGenerator = 39,
+    kModernConcussSprite = 712,
+
+    // decorations
+    kDecorationTorch = 30,
+    kDecorationCandle = 32,
+
+    // (weapons)
+    kItemWeaponBase = 40,
+    kModernRandom = 40, // gModernMap only
+    kItemWeaponSawedoff = 41,
+    kItemWeaponTommygun = 42,
+    kItemWeaponVoodooDoll = 44,
+    kItemWeaponLifeLeech = 50,
+    kItemWeaponMax = 51,
+
+    // items (ammos)
+    kItemAmmoBase = 60,
+    kItemAmmoSawedoffFew = 67,
+    kItemAmmoTommygunFew = 69,
+    kAmmoItemVoodooDoll = 70,
+    kModernRandom2 = 80, // gModernMap Only
+    kItemAmmoMax = 81,
+
+    kItemBase = 100,
+    
+    // items (keys)
+    kItemKeyBase = kItemBase,
+    kItemKeySkull = kItemKeyBase,
+    kItemKeyEye = 101,
+    kItemKeyFire = 102,
+    kItemKeyDagger = 103,
+    kItemKeySpider = 104,
+    kItemKeyMoon = 105,
+    kItemKeyKey7 = 106,
+    kItemKeyMax = 107,
+
+    // items (health)
+    kItemHealthDoctorBag = 107,
+    kItemHealthMedPouch = 108,
+    kItemHealthLifeEssense = 109,
+    kItemHealthLifeSeed = 110,
+    kItemHealthRedPotion = 111,
+
+    // items (misc)
+    kItemFeatherFall = 112,
+    kItemShadowCloak = 113, // ltdInvisibility
+    kItemDeathMask = 114, // invulnerability
+    kItemJumpBoots = 115,
+    kItemTwoGuns = 117,
+    kItemDivingSuit = 118,
+    kItemGasMask = 119,
+    kItemCrystalBall = 121,
+    kItemReflectShots = 124,
+    kItemBeastVision = 125,
+    kItemShroomDelirium = 128,
+    kItemShroomGrow = 129, // gModernMap = only
+    kItemShroomShrink = 130, // gModernMap = only
+
+    kItemArmorAsbest = 139,
+    kItemArmorBasic = 140,
+    kItemArmorBody = 141,
+    kItemArmorFire = 142,
+    kItemArmorSpirit = 143,
+    kItemArmorSuper = 144,
+
+    kItemFlagABase = 145,
+    kItemFlagBBase = 146,
+    kItemFlagA = 147,
+    kItemFlagB = 148,
+    kItemModernMapLevel = 150,  // once picked up, draws whole minimap
+    kItemMax = 151,
+
+    // dudes
+    kDudeBase = 200,
+    kDudeCultistTommy = 201,
+    kDudeCultistShotgun = 202,
+    kDudeZombieAxeNormal = 203,
+    kDudeZombieButcher = 204,
+    kDudeZombieAxeBuried = 205,
+    kDudeGargoyleFlesh = 206,
+    kDudeGargoyleStone = 207,
+    kDudeGargoyleStatueFlesh = 208,
+    kDudeGargoyleStatueStone = 209,
+    kDudePhantasm = 210,
+    kDudeHellHound = 211,
+    kDudeHand = 212,
+    kDudeSpiderBrown = 213,
+    kDudeSpiderRed = 214,
+    kDudeSpiderBlack = 215,
+    kDudeSpiderMother = 216,
+    kDudeGillBeast = 217,
+    kDudeBoneEel = 218,
+    kDudeBat = 219,
+    kDudeRat = 220,
+    kDudePodGreen = 221,
+    kDudeTentacleGreen = 222,
+    kDudePodFire = 223,
+    kDudeTentacleFire = 224,
+    kDudePodMother = 225,
+    kDudeTentacleMother = 226,
+    kDudeCerberusTwoHead = 227,
+    kDudeCerberusOneHead = 228,
+    kDudeTchernobog = 229,
+    kDudeCultistTommyProne = 230,
+    kDudePlayer1 = 231,
+    kDudePlayer2 = 232,
+    kDudePlayer3 = 233,
+    kDudePlayer4 = 234,
+    kDudePlayer5 = 235,
+    kDudePlayer6 = 236,
+    kDudePlayer7 = 237,
+    kDudePlayer8 = 238,
+    kDudeBurningInnocent = 239,
+    kDudeBurningCultist = 240,
+    kDudeBurningZombieAxe = 241,
+    kDudeBurningZombieButcher = 242,
+    kDudeCultistReserved = 243, // unused
+    kDudeZombieAxeLaying = 244,
+    kDudeInnocent = 245,
+    kDudeCultistShotgunProne = 246,
+    kDudeCultistTesla = 247,
+    kDudeCultistTNT = 248,
+    kDudeCultistBeast = 249,
+    kDudeTinyCaleb = 250,
+    kDudeBeast = 251,
+    kDudeBurningTinyCaleb = 252,
+    kDudeBurningBeast = 253,
+    kDudeModernCustom = 254, // gModern map only
+    kDudeModernCustomBurning = 255, // gModern map only
+    kDudeMax = 256,
+    
+    kMissileBase = 300,
+    kMissileButcherKnife = kMissileBase,
+    kMissileFlareRegular = 301,
+    kMissileTeslaAlt = 302,
+    kMissileFlareAlt = 303,
+    kMissileFlameSpray = 304,
+    kMissileFireball = 305,
+    kMissileTeslaRegular = 306,
+    kMissileEctoSkull = 307,
+    kMissileFlameHound = 308,
+    kMissilePukeGreen = 309,
+    kMissileArcGargoyle = 311,
+    kMissileFireballNapam = 312,
+    kMissileFireballCerberus = 313,
+    kMissileFireballTchernobog = 314,
+    kMissileLifeLeechRegular = 315,
+    kMissileLifeLeechAltNormal = 316,
+    kMissileLifeLeechAltSmall = 317,
+    kMissileMax = 318,
+
+    // things
+    kThingBase = 400,
+    kThingTNTBarrel = 400,
+    kThingArmedProxBomb = 401,
+    kThingArmedRemoteBomb = 402,
+    kThingCrateFace = 405,
+    kThingGlassWindow = 406,
+    kThingFluorescent = 407,
+    kThingWallCrack = 408,
+    kThingSpiderWeb = 410,
+    kThingMetalGrate = 411,
+    kThingFlammableTree = 412,
+    kTrapMachinegun = 413, // not really a thing, should be in traps instead
+    kThingFallingRock = 414,
+    kThingKickablePail = 415,
+    kThingObjectGib = 416,
+    kThingObjectExplode = 417,
+    kThingArmedTNTStick = 418,
+    kThingArmedTNTBundle = 419,
+    kThingArmedSpray = 420,
+    kThingBone = 421,
+    kThingDripWater = 423,
+    kThingDripBlood = 424,
+    kThingBloodBits = 425,
+    kThingBloodChunks = 426,
+    kThingZombieHead = 427,
+    kThingNapalmBall = 428,
+    kThingPodGreenBall = 429,
+    kThingPodFireBall = 430,
+    kThingDroppedLifeLeech = 431,
+    kThingVoodooHead = 432, // unused
+    kModernThingTNTProx = 433, // gModernMap only - detects only players
+    kModernThingThrowableRock = 434, // gModernMap only - does small damage if hits target
+    kModernThingEnemyLifeLeech = 435, // gModernMap only - the same as normal, except it aims in specified target only
+    kThingMax = 436,
+
+    // traps
+    kTrapFlame = 452,
+    kTrapSawCircular = 454,
+    kTrapZapSwitchable = 456,
+    kTrapExploder = 459,
+
+    // generators
+    kGenTrigger = 700,
+    kGenDripWater = 701,
+    kGenDripBlood = 702,
+    kGenMissileFireball = 703,
+    kGenMissileEctoSkull = 704, // does not work in vanilla
+    kGenModernMissileUniversal = 704, // gModernMap only
+    kGenDart = 705,
+    kGenBubble = 706,
+    kGenBubbleMulti = 707,
+    
+    // sound sprites
+    kGenSound = 708,
+    kSoundSector = 709,
+    kSoundPlayer = 711,
+};
+
+
+// WALL TYPES /////////////////////////////////////////////////
+enum {
+    kWallBase = 500,
+    kWallStack = 501,
+    kWallGib = 511,
+    kWallMax = 512,
+};
+
+
+// SECTOR TYPES /////////////////////////////////////////////////
+enum {
+    kSectorBase = 600,
+    kSectorZMotion = 600,
+    kSectorZMotionSprite = 602,
+    kSectorTeleport = 604,
+    kSectorPath = 612,
+    kSectorRotateStep = 613,
+    kSectorSlideMarked = 614,
+    kSectorRotateMarked = 615,
+    kSectorSlide = 616,
+    kSectorRotate = 617,
+    kSectorDamage = 618,
+    kSectorCounter = 619,
+    kSectorMax = 620,
+};
+
 
 // sprite attributes
 #define kHitagAutoAim 0x0008
@@ -162,21 +419,6 @@ void QuitGame(void);
 #define kModernTypeFlag2 0x2
 #define kModernTypeFlag3 0x3
 
-// sector types 
-#define kSecBase 600
-#define kSecZMotion kSectorBase
-#define kSecZSprite 602
-#define kSecWarp 603
-#define kSecTeleport 604
-#define kSecPath 612
-#define kSecRotateStep 613
-#define kSecSlideMarked 614
-#define kSecRotateMarked 615
-#define kSecSlide 616
-#define kSecRotate 617
-#define kSecDamage 618
-#define kSecCounter 619
-#define kSecMax 620
 
 // sector cstat
 #define kSecCParallax 0x01
@@ -189,42 +431,6 @@ void QuitGame(void);
 #define kSecCRelAlign 0x40
 #define kSecCFloorShade 0x8000
 
-// switch types
-#define kSwitchBase 20
-#define kSwitchToggle 20
-#define kSwitchOneWay 21
-#define kSwitchCombo 22
-#define kSwitchPadlock 23
-#define kSwitchMax 24
-
-// projectile types
-#define kProjectileEctoSkull 307
-
-// GDX types
-#define kGDXTypeBase 24
-#define kGDXCustomDudeSpawn 24
-#define kGDXRandomTX 25
-#define kGDXSequentialTX 26
-#define kGDXSeqSpawner 27
-#define kGDXObjPropertiesChanger 28
-#define kGDXObjPicnumChanger 29
-#define kGDXObjSizeChanger 31
-#define kGDXDudeTargetChanger 33
-#define kGDXSectorFXChanger 34
-#define kGDXObjDataChanger 35
-#define kGDXSpriteDamager 36
-#define kGDXObjDataAccumulator 37
-#define kGDXEffectSpawner 38
-#define kGDXWindGenerator 39
-#define kModernConcussSprite 712
-
-#define kGDXThingTNTProx 433 // detects only players
-#define kGDXThingThrowableRock 434 // does small damage if hits target
-#define kGDXThingCustomDudeLifeLeech 435 // the same as normal, except it aims in specified target
-#define kCustomDude 254
-#define kCustomDudeBurning 255
-
-#define kGDXItemMapLevel 150 // once picked up, draws whole minimap
 
 // ai state types
 #define kAiStateOther -1

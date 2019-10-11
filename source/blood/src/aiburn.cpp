@@ -110,25 +110,25 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     {
         switch (pSprite->type)
         {
-        case 240:
+        case kDudeBurningCultist:
             aiNewState(pSprite, pXSprite, &cultistBurnSearch);
             break;
-        case 241:
+        case kDudeBurningZombieAxe:
             aiNewState(pSprite, pXSprite, &zombieABurnSearch);
             break;
-        case 242:
+        case kDudeBurningZombieButcher:
             aiNewState(pSprite, pXSprite, &zombieFBurnSearch);
             break;
-        case 239:
+        case kDudeBurningInnocent:
             aiNewState(pSprite, pXSprite, &innocentBurnSearch);
             break;
-        case 253:
+        case kDudeBurningBeast:
             aiNewState(pSprite, pXSprite, &beastBurnSearch);
             break;
-        case 252:
+        case kDudeBurningTinyCaleb:
             aiNewState(pSprite, pXSprite, &tinycalebBurnSearch);
             break;
-        case kCustomDudeBurning:
+        case kDudeModernCustomBurning:
             aiNewState(pSprite, pXSprite, &GDXGenDudeBurnSearch);
             break;
         }
@@ -142,25 +142,25 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     {
         switch (pSprite->type)
         {
-        case 240:
+        case kDudeBurningCultist:
             aiNewState(pSprite, pXSprite, &cultistBurnGoto);
             break;
-        case 241:
+        case kDudeBurningZombieAxe:
             aiNewState(pSprite, pXSprite, &zombieABurnGoto);
             break;
-        case 242:
+        case kDudeBurningZombieButcher:
             aiNewState(pSprite, pXSprite, &zombieFBurnGoto);
             break;
-        case 239:
+        case kDudeBurningInnocent:
             aiNewState(pSprite, pXSprite, &innocentBurnGoto);
             break;
-        case 253:
+        case kDudeBurningBeast:
             aiNewState(pSprite, pXSprite, &beastBurnGoto);
             break;
-        case 252:
+        case kDudeBurningTinyCaleb:
             aiNewState(pSprite, pXSprite, &tinycalebBurnGoto);
             break;
-        case kCustomDudeBurning:
+        case kDudeModernCustomBurning:
             aiNewState(pSprite, pXSprite, &GDXGenDudeBurnGoto);
             break;
         }
@@ -178,25 +178,25 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     {
         switch (pSprite->type)
         {
-        case 240:
+        case kDudeBurningCultist:
             aiNewState(pSprite, pXSprite, &cultistBurnSearch);
             break;
-        case 241:
+        case kDudeBurningZombieAxe:
             aiNewState(pSprite, pXSprite, &zombieABurnSearch);
             break;
-        case 242:
+        case kDudeBurningZombieButcher:
             aiNewState(pSprite, pXSprite, &zombieFBurnSearch);
             break;
-        case 239:
+        case kDudeBurningInnocent:
             aiNewState(pSprite, pXSprite, &innocentBurnSearch);
             break;
-        case 253:
+        case kDudeBurningBeast:
             aiNewState(pSprite, pXSprite, &beastBurnSearch);
             break;
-        case 252:
+        case kDudeBurningTinyCaleb:
             aiNewState(pSprite, pXSprite, &tinycalebBurnSearch);
             break;
-        case kCustomDudeBurning:
+        case kDudeModernCustomBurning:
             aiNewState(pSprite, pXSprite, &GDXGenDudeBurnSearch);
             break;
         }
@@ -216,25 +216,25 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                 {
                     switch (pSprite->type)
                     {
-                    case 240:
+                    case kDudeBurningCultist:
                         aiNewState(pSprite, pXSprite, &cultistBurnAttack);
                         break;
-                    case 241:
+                    case kDudeBurningZombieAxe:
                         aiNewState(pSprite, pXSprite, &zombieABurnAttack);
                         break;
-                    case 242:
+                    case kDudeBurningZombieButcher:
                         aiNewState(pSprite, pXSprite, &zombieFBurnAttack);
                         break;
-                    case 239:
+                    case kDudeBurningInnocent:
                         aiNewState(pSprite, pXSprite, &innocentBurnAttack);
                         break;
-                    case 253:
+                    case kDudeBurningBeast:
                         aiNewState(pSprite, pXSprite, &beastBurnAttack);
                         break;
-                    case 252:
+                    case kDudeBurningTinyCaleb:
                         aiNewState(pSprite, pXSprite, &tinycalebBurnAttack);
                         break;
-                    case kCustomDudeBurning:
+                    case kDudeModernCustomBurning:
                         aiNewState(pSprite, pXSprite, &GDXGenDudeBurnSearch);
                         break;
                     }
@@ -246,25 +246,25 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     
     switch (pSprite->type)
     {
-    case 240:
+    case kDudeBurningCultist:
         aiNewState(pSprite, pXSprite, &cultistBurnGoto);
         break;
-    case 241:
+    case kDudeBurningZombieAxe:
         aiNewState(pSprite, pXSprite, &zombieABurnGoto);
         break;
     case 242:
         aiNewState(pSprite, pXSprite, &zombieFBurnGoto);
         break;
-    case 239:
+    case kDudeBurningInnocent:
         aiNewState(pSprite, pXSprite, &innocentBurnGoto);
         break;
-    case 253:
+    case kDudeBurningBeast:
         aiNewState(pSprite, pXSprite, &beastBurnGoto);
         break;
-    case 252:
+    case kDudeBurningTinyCaleb:
         aiNewState(pSprite, pXSprite, &tinycalebBurnGoto);
         break;
-    case kCustomDudeBurning:
+    case kDudeModernCustomBurning:
         aiNewState(pSprite, pXSprite, &GDXGenDudeBurnSearch);
         break;
     }
