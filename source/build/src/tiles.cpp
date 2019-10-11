@@ -26,6 +26,12 @@ EDUKE32_STATIC_ASSERT(MAXARTFILES_TOTAL <= 256);
 
 static int32_t tilefileoffs[MAXTILES];
 
+static vec2_16_t tilesizearray[MAXTILES];
+static uint8_t picsizearray[MAXTILES];
+// These may only be manipulated through a function interface so that the backing texture objects can be adjusted or replaced.
+const vec2_16_t* const tilesiz = tilesizearray;
+const uint8_t* const picsiz = picsizearray;
+
 
 // Backup tilefilenum[] and tilefileoffs[]. These get allocated only when
 // necessary (have per-map ART files).
@@ -112,8 +118,8 @@ void artClearMapArt(void)
     // Restore original per-tile arrays
     RESTORE_MAPART_ARRAY(tilefilenum, g_bakTileFileNum);
     RESTORE_MAPART_ARRAY(tilefileoffs, g_bakTileFileOffs);
-    RESTORE_MAPART_ARRAY(tilesiz, g_bakTileSiz);
-    RESTORE_MAPART_ARRAY(picsiz, g_bakPicSiz);
+    RESTORE_MAPART_ARRAY(tilesizearray, g_bakTileSiz);
+    RESTORE_MAPART_ARRAY(picsizearray, g_bakPicSiz);
     RESTORE_MAPART_ARRAY(walock, g_bakWalock);
     RESTORE_MAPART_ARRAY(waloff, g_bakWaloff);
     RESTORE_MAPART_ARRAY(picanm, g_bakPicAnm);
@@ -161,8 +167,8 @@ void artSetupMapArt(const char *filename)
     // Allocate backup arrays.
     ALLOC_MAPART_ARRAY(tilefilenum, g_bakTileFileNum);
     ALLOC_MAPART_ARRAY(tilefileoffs, g_bakTileFileOffs);
-    ALLOC_MAPART_ARRAY(tilesiz, g_bakTileSiz);
-    ALLOC_MAPART_ARRAY(picsiz, g_bakPicSiz);
+    ALLOC_MAPART_ARRAY(tilesizearray, g_bakTileSiz);
+    ALLOC_MAPART_ARRAY(picsizearray, g_bakPicSiz);
     ALLOC_MAPART_ARRAY(walock, g_bakWalock);
     ALLOC_MAPART_ARRAY(waloff, g_bakWaloff);
     ALLOC_MAPART_ARRAY(picanm, g_bakPicAnm);
@@ -243,9 +249,9 @@ void tileSetData(int32_t const tile, int32_t tsiz, char const * const buffer)
 
 static void tileSoftDelete(int32_t const tile)
 {
-    tilesiz[tile].x = 0;
-    tilesiz[tile].y = 0;
-    picsiz[tile] = 0;
+    tilesizearray[tile].x = 0;
+    tilesizearray[tile].y = 0;
+    picsizearray[tile] = 0;
 
     // CACHE1D_FREE
     walock[tile] = 1;
@@ -277,18 +283,18 @@ void tileUpdatePicSiz(int32_t picnum)
 
     while ((j > 1) && (pow2long[j] > tilesiz[picnum].x))
         j--;
-    picsiz[picnum] = j;
+    picsizearray[picnum] = j;
 
     j = 15;
     while ((j > 1) && (pow2long[j] > tilesiz[picnum].y))
         j--;
-    picsiz[picnum] |= j<<4;
+    picsizearray[picnum] |= j<<4;
 }
 
 void tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy)
 {
-    tilesiz[picnum].x = dasizx;
-    tilesiz[picnum].y = dasizy;
+    tilesizearray[picnum].x = dasizx;
+    tilesizearray[picnum].y = dasizy;
 
     tileUpdatePicSiz(picnum);
 }
@@ -411,8 +417,8 @@ void artReadManifest(int32_t const fil, artheader_t const* const local)
 	{
 		int32_t picanmdisk;
 
-		tilesiz[i].x = B_LITTLE16(tilesizx[i - local->tilestart]);
-		tilesiz[i].y = B_LITTLE16(tilesizy[i - local->tilestart]);
+		tilesizearray[i].x = B_LITTLE16(tilesizx[i - local->tilestart]);
+		tilesizearray[i].y = B_LITTLE16(tilesizy[i - local->tilestart]);
 
 		kread(fil, &picanmdisk, sizeof(int32_t));
 		picanmdisk = B_LITTLE32(picanmdisk);
@@ -574,7 +580,7 @@ int32_t artLoadFiles(const char *filename, int32_t askedsize)
 {
     Bstrncpyz(artfilenameformat, filename, sizeof(artfilenameformat));
 
-    Bmemset(&tilesiz[0], 0, sizeof(vec2_16_t) * MAXTILES);
+    Bmemset(&tilesizearray[0], 0, sizeof(vec2_16_t) * MAXTILES);
     Bmemset(picanm, 0, sizeof(picanm));
 
     for (auto &rot : rottile)
@@ -747,6 +753,22 @@ intptr_t tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 
     return waloff[tilenume];
 }
+
+intptr_t tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, const uint8_t *data)
+{
+	if (xsiz <= 0 || ysiz <= 0 || (unsigned)tilenume >= MAXTILES)
+		return 0;
+
+	int const dasiz = xsiz * ysiz;
+
+	walock[tilenume] = 255;
+	waloff[tilenume] = (intptr_t)data;
+	tileSetSize(tilenume, xsiz, ysiz);
+	picanm[tilenume] = {};
+
+	return waloff[tilenume];
+}
+
 
 //
 // copytilepiece

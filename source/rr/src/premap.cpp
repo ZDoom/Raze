@@ -1892,8 +1892,7 @@ static void prelevel(char g)
     }
     if (RR)
     {
-        tilesiz[0].x = 0;
-        tilesiz[0].y = 0;
+		tileDelete(0);
     }
 
     G_SetupGlobalPsky();

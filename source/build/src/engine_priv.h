@@ -122,7 +122,7 @@ extern int16_t searchbottomwall, searchisbottom;
 
 extern char inpreparemirror;
 
-extern uint8_t picsiz[MAXTILES];
+extern const uint8_t * const picsiz;
 extern int16_t sectorborder[256];
 extern int32_t qsetmode;
 extern int32_t hitallsprites;

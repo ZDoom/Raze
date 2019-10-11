@@ -1056,7 +1056,6 @@ set (PCH_SOURCES
 	common/textures/image.cpp
 	common/textures/imagetexture.cpp
 	common/textures/imagehelpers.cpp
-	common/textures/formats/buildtexture.cpp
 	common/textures/formats/ddstexture.cpp
 	common/textures/formats/jpegtexture.cpp
 	common/textures/formats/pcxtexture.cpp

@@ -56,7 +56,6 @@ extern char precachehightile[2][(MAXTILES+7)>>3];
 extern int32_t MAXCACHE1DSIZE;
 
 void qloadvoxel(int32_t nVoxel);
-void CalcPicsiz(int a1, int a2, int a3);
 int tileInit(char a1, const char *a2);
 #ifdef USE_OPENGL
 void tileProcessGLVoxels(void);

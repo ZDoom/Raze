@@ -334,13 +334,11 @@ JS_InitMirrors(void)
 
     // Scan wall tags for mirrors
     mirrorcnt = 0;
-    tilesiz[MIRROR].x = 0;
-    tilesiz[MIRROR].y = 0;
+	tileDelete(MIRROR);
 
     for (i = 0; i < MAXMIRRORS; i++)
     {
-        tilesiz[i + MIRRORLABEL].x = 0;
-        tilesiz[i + MIRRORLABEL].y = 0;
+		tileDelete(i + MIRRORLABEL);
         mirror[i].campic = -1;
         mirror[i].camsprite = -1;
         mirror[i].camera = -1;
@@ -422,7 +420,7 @@ JS_InitMirrors(void)
                                 mirror[mirrorcnt].camsprite = SpriteNum;
 
                                 // JBF: commenting out this line results in the screen in $BULLET being visible
-                                tilesiz[mirror[mirrorcnt].campic].x = tilesiz[mirror[mirrorcnt].campic].y = 0;
+								tileDelete(mirror[mirrorcnt].campic);
 
                                 Found_Cam = TRUE;
                             }
@@ -785,12 +783,12 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                     // you are outside of it!
                     if (mirror[cnt].mstate != m_viewon)
                     {
-                        tilesiz[MIRROR].x = tilesiz[MIRROR].y = 0;
+						tileDelete(MIRROR);
                         // Set TV camera sprite size to 0 to show mirror
                         // behind in this case!
 
                         if (mirror[cnt].campic != -1)
-                            tilesiz[mirror[cnt].campic].x = tilesiz[mirror[cnt].campic].y = 0;
+							tileDelete(mirror[cnt].campic);
                         drawrooms(dx, dy, dz, tpang, tphoriz, sp->sectnum + MAXSECTORS);
                         analyzesprites(dx, dy, dz, FALSE);
                         renderDrawMasks();
@@ -862,7 +860,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
 
                         // Set up the tile for drawing
-                        tilesiz[mirror[cnt].campic].x = tilesiz[mirror[cnt].campic].y = 128;
+						tileCreate(mirror[cnt].campic, 128, 128);
 
                         if (MirrorMoveSkip16 == 0 || (DoCam && (MoveSkip4 == 0)))
                         {
@@ -910,7 +908,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                 // drawrooms(tx, ty, tz, tpang, tphoriz, pp->cursectnum);
                 // Clean up anything that the camera view might have done
                 SetFragBar(pp);
-                tilesiz[MIRROR].x = tilesiz[MIRROR].y = 0;
+				tileDelete(MIRROR);
                 wall[mirror[cnt].mirrorwall].overpicnum = MIRRORLABEL + cnt;
             }
             else

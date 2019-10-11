@@ -147,6 +147,7 @@ class FTexture
 public:
 	static FTexture *CreateTexture(const char *name);
 	static FTexture* GetTexture(const char* path);
+	static FTexture* GetTileTexture(const char* name, const uint8_t* data, int width, int height, int xofs, int yofs);
 
 	virtual ~FTexture ();
 	virtual FImageSource *GetImage() const { return nullptr; }

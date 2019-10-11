@@ -467,14 +467,12 @@ int32_t Anim_Play(const char *fn)
         goto end_anim;
     }
 
-    walock[TILE_ANIM] = 219;
     anim->animlock = 1;
 
     if (!anim->animbuf)
         cacheAllocateBlock((intptr_t *)&anim->animbuf, length + 1, &anim->animlock);
 
-    tilesiz[TILE_ANIM].x = 200;
-    tilesiz[TILE_ANIM].y = 320;
+	tileCreate(TILE_ANIM, 200, 320);
 
     kread(handle, anim->animbuf, length);
     kclose(handle);

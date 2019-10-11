@@ -12128,7 +12128,8 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
         return;
 
     //DRAWROOMS TO TILE BACKUP&SET CODE
-    tilesiz[tilenume].x = xsiz; tilesiz[tilenume].y = ysiz;
+	tileDelete(tilenume);
+	tileCreate(tilenume, xsiz, ysiz);
     bakxsiz[setviewcnt] = xdim; bakysiz[setviewcnt] = ydim;
     bakframeplace[setviewcnt] = frameplace; frameplace = waloff[tilenume];
     bakwindowxy1[setviewcnt] = windowxy1;

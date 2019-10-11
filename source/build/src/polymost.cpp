@@ -604,9 +604,9 @@ static void polymost_identityrotmat(void)
 	}
 }
 
-static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method);
+static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
 
-static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method)
+static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method, const vec2_16_t &tilesize)
 {
     if (method == DAMETH_BACKFACECULL ||
 #ifdef YAX_ENABLE
@@ -635,7 +635,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     static int32_t skyzbufferhack_pass = 0;
     if (flatskyrender && skyzbufferhack_pass == 0)
     {
-        polymost_flatskyrender(dpxy, n, method);
+        polymost_flatskyrender(dpxy, n, method, tilesize);
         return;
     }
 
@@ -644,8 +644,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     //Load texture (globalpicnum)
     setgotpic(globalpicnum);
-    vec2_16_t const & tsizart = tilesiz[globalpicnum];
-    vec2_t tsiz = { tsizart.x, tsizart.y };
+	vec2_t tsiz = { tilesize.x, tilesize.y };
 
     if (!waloff[globalpicnum])
     {
@@ -796,14 +795,14 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     if ((method & DAMETH_WALL) != 0)
     {
-        int32_t size = tilesiz[globalpicnum].y;
+        int32_t size = tilesize.y;
         int32_t size2;
         for (size2 = 1; size2 < size; size2 += size2) {}
         if (size == size2)
 			GLInterface.SetNpotEmulation(false, 1.f, 0.f); 
         else
         {
-            float xOffset = 1.f / tilesiz[globalpicnum].x;
+            float xOffset = 1.f / tilesize.x;
 			GLInterface.SetNpotEmulation(true, (1.f*size2) / size, xOffset);
         }
     }
@@ -915,7 +914,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         xtex = xtex2, ytex = ytex2, otex = otex2;
         skyzbufferhack_pass++;
 		GLInterface.SetColorMask(false);
-		polymost_drawpoly(dpxy, n, DAMETH_MASK);
+		polymost_drawpoly(dpxy, n, DAMETH_MASK, tilesize);
 		GLInterface.SetColorMask(true);
 		xtex = bxtex, ytex = bytex, otex = botex;
         skyzbufferhack_pass--;
@@ -1318,7 +1317,7 @@ skip: ;
                         }
                         else
 #endif
-                            polymost_drawpoly(dpxy, n, domostpolymethod);
+                            polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
 
                         vsp[i].cy[0] = n0.y;
                         vsp[i].cy[1] = n1.y;
@@ -1340,7 +1339,7 @@ skip: ;
                         }
                         else
 #endif
-                            polymost_drawpoly(dpxy, n, domostpolymethod);
+                            polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
 
                         vsp[i].cy[0] = n0.y;
                         vsp[i].ctag = gtag;
@@ -1361,7 +1360,7 @@ skip: ;
                         }
                         else
 #endif
-                            polymost_drawpoly(dpxy, n, domostpolymethod);
+                            polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
 
                         vsp[i].cy[1] = n1.y;
                         vsp[i].ctag = gtag;
@@ -1383,7 +1382,7 @@ skip: ;
                         }
                         else
 #endif
-                            polymost_drawpoly(dpxy, n, domostpolymethod);
+                            polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
 
                         vsp[i].ctag = vsp[i].ftag = -1;
                     }
@@ -1412,7 +1411,7 @@ skip: ;
                     }
                     else
 #endif
-                        polymost_drawpoly(dpxy, n, domostpolymethod);
+                        polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
 
                     vsp[i].fy[0] = n0.y;
                     vsp[i].fy[1] = n1.y;
@@ -1434,7 +1433,7 @@ skip: ;
                     }
                     else
 #endif
-                        polymost_drawpoly(dpxy, n, domostpolymethod);
+                        polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
 
                     vsp[i].fy[0] = n0.y;
                     vsp[i].ftag = gtag;
@@ -1455,7 +1454,7 @@ skip: ;
                     }
                     else
 #endif
-                        polymost_drawpoly(dpxy, n, domostpolymethod);
+                        polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
 
                     vsp[i].fy[1] = n1.y;
                     vsp[i].ftag = gtag;
@@ -1475,7 +1474,7 @@ skip: ;
                     }
                     else
 #endif
-                        polymost_drawpoly(dpxy, n, domostpolymethod);
+                        polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
 
                     vsp[i].ctag = vsp[i].ftag = -1;
                 }
@@ -2120,13 +2119,13 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
 
 static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
                           float x0, float x1, uint8_t ypan, uint8_t yrepeat,
-                          int32_t dopancor)
+                          int32_t dopancor, const vec2_16_t &tilesize)
 {
     float const t0 = ((float)(refposz-globalposz))*ryp0 + ghoriz;
     float const t1 = ((float)(refposz-globalposz))*ryp1 + ghoriz;
     float t = (float(xtex.d*x0 + otex.d) * (float)yrepeat) / ((x1-x0) * ryp0 * 2048.f);
     int i = (1<<(picsiz[globalpicnum]>>4));
-    if (i < tilesiz[globalpicnum].y) i <<= 1;
+    if (i < tilesize.y) i <<= 1;
 
 
     float const fy = (float)(ypan * i) * (1.f / 256.f);
@@ -2229,7 +2228,7 @@ void fgetzsofslope(usectorptr_t sec, float dax, float day, float* ceilz, float *
         *florz += (sec->floorheinum*j)/i;
 }
 
-static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method)
+static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t &tilesiz)
 {
     flatskyrender = 0;
     vec2f_t xys[8];
@@ -2256,8 +2255,8 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     float vv[2];
     float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
     vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
-    vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+dapyoffs)) - vv[1]*ghoriz;
-    int ti = (1<<(picsiz[globalpicnum]>>4)); if (ti != tilesiz[globalpicnum].y) ti += ti;
+    vv[0] = dd*((float)((tilesiz.y>>1)+dapyoffs)) - vv[1]*ghoriz;
+    int ti = (1<<(picsiz[globalpicnum]>>4)); if (ti != tilesiz.y) ti += ti;
     vec3f_t o;
 
     skyclamphack = 0;
@@ -2278,7 +2277,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         if (xys[i].x > x1) x1 = xys[i].x;
     }
 
-    int const npot = (1<<(picsiz[globalpicnum]&15)) != tilesiz[globalpicnum].x;
+    int const npot = (1<<(picsiz[globalpicnum]&15)) != tilesiz.x;
     int const xpanning = (r_parallaxskypanning?global_cf_xpanning:0);
 
 	GLInterface.SetClamp((npot || xpanning != 0) ? 0 : 2);
@@ -2408,7 +2407,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
             cxy[i].y = v.y * r + ghalfy;
         }
 
-        polymost_drawpoly(cxy, n3, method|DAMETH_WALL);
+        polymost_drawpoly(cxy, n3, method|DAMETH_WALL, tilesiz);
 
         otex = otexbak, xtex = xtexbak, ytex = ytexbak;
     }
@@ -3123,7 +3122,7 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (!(wal->cstat&4)) ? sector[nextsectnum].ceilingz : sec->ceilingz;
 
                 // over
-                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, wal->cstat&4);
+                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, wal->cstat&4, tilesiz[globalpicnum]);
 
                 if (wal->cstat&8) //xflip
                 {
@@ -3168,7 +3167,7 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (!(nwal->cstat&4)) ? sector[nextsectnum].floorz : sec->ceilingz;
 
                 // under
-                calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypanning, wal->yrepeat, !(nwal->cstat&4));
+                calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypanning, wal->yrepeat, !(nwal->cstat&4), tilesiz[globalpicnum]);
 
                 if (wal->cstat&8) //xflip
                 {
@@ -3225,7 +3224,7 @@ static void polymost_drawalls(int32_t const bunch)
                 else { i = nwcs4 ? sec->ceilingz : sec->floorz; }
 
                 // white / 1-way
-                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, nwcs4 && !maskingOneWay);
+                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, nwcs4 && !maskingOneWay, tilesiz[globalpicnum]);
 
                 if (wal->cstat&8) //xflip
                 {
@@ -3890,7 +3889,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
 
     // mask
     calc_ypanning((!(wal->cstat & 4)) ? max(nsec->ceilingz, sec->ceilingz) : min(nsec->floorz, sec->floorz), ryp0, ryp1,
-                  x0, x1, wal->ypanning, wal->yrepeat, 0);
+                  x0, x1, wal->ypanning, wal->yrepeat, 0, tilesiz[globalpicnum]);
 
     if (wal->cstat&8) //xflip
     {
@@ -4004,7 +4003,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     skyclamphack = 0;
 
     polymost_updaterotmat();
-    polymost_drawpoly(dpxy, n, method);
+    polymost_drawpoly(dpxy, n, method, tilesiz[globalpicnum]);
     polymost_identityrotmat();
 }
 
@@ -4395,9 +4394,9 @@ void polymost_drawsprite(int32_t snum)
                     pxy[2].y = pxy[3].y = s0.y;
             }
 
-            tilesiz[globalpicnum] = { (int16_t)tsiz.x, (int16_t)tsiz.y };
+            vec2_16_t tempsiz = { (int16_t)tsiz.x, (int16_t)tsiz.y };
             pow2xsplit = 0;
-            polymost_drawpoly(pxy, 4, method);
+            polymost_drawpoly(pxy, 4, method, tempsiz);
 
             drawpoly_srepeat = 0;
             drawpoly_trepeat = 0;
@@ -4605,9 +4604,9 @@ void polymost_drawsprite(int32_t snum)
 
             vec2f_t const pxy[4] = { { sx0, sc0 }, { sx1, sc1 }, { sx1, sf1 }, { sx0, sf0 } };
 
-            tilesiz[globalpicnum] = { (int16_t)tsiz.x, (int16_t)tsiz.y };
-            pow2xsplit = 0;
-            polymost_drawpoly(pxy, 4, method);
+			vec2_16_t tempsiz = { (int16_t)tsiz.x, (int16_t)tsiz.y };
+			pow2xsplit = 0;
+            polymost_drawpoly(pxy, 4, method, tempsiz);
 
             drawpoly_srepeat = 0;
             drawpoly_trepeat = 0;
@@ -4780,10 +4779,10 @@ void polymost_drawsprite(int32_t snum)
                     drawpoly_trepeat = 1;
                 }
 
-                tilesiz[globalpicnum] = { (int16_t)tsiz.x, (int16_t)tsiz.y };
-                pow2xsplit = 0;
+				vec2_16_t tempsiz = { (int16_t)tsiz.x, (int16_t)tsiz.y };
+				pow2xsplit = 0;
 
-                polymost_drawpoly(pxy, npoints, method);
+                polymost_drawpoly(pxy, npoints, method, tempsiz);
 
                 drawpoly_srepeat = 0;
                 drawpoly_trepeat = 0;
@@ -4800,7 +4799,6 @@ void polymost_drawsprite(int32_t snum)
 
 _drawsprite_return:
     polymost_identityrotmat();
-    tilesiz[globalpicnum] = oldsiz;
 }
 
 EDUKE32_STATIC_ASSERT((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
@@ -5215,7 +5213,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         ytex.v = yv*(1.0/65536.0);
 
 		GLInterface.SetFogEnabled(false);
-        pow2xsplit = 0; polymost_drawpoly(fpxy,n,method);
+        pow2xsplit = 0; polymost_drawpoly(fpxy,n,method, tilesiz[globalpicnum]);
         if (!nofog) GLInterface.SetFogEnabled(true);
     }
 

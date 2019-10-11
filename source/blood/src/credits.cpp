@@ -215,10 +215,9 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     uint32_t nWidth, nHeight;
     Smacker_GetFrameSize(hSMK, nWidth, nHeight);
     uint8_t palette[768];
-    uint8_t *pFrame = (uint8_t*)Xmalloc(nWidth*nHeight);
-    waloff[kSMKTile] = (intptr_t)pFrame;
-    tilesiz[kSMKTile].y = nWidth;
-    tilesiz[kSMKTile].x = nHeight;
+	tileDelete(kSMKTile);
+	tileCreate(kSMKTile, nWidth, nHeight);
+	auto pFrame = (uint8_t*)waloff[kSMKTile];
     if (!pFrame)
     {
         Smacker_Close(hSMK);
@@ -288,7 +287,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     ctrlClearAllInput();
     FX_StopAllSounds();
     videoSetPalette(gBrightness >> 2, 0, 8+2);
-    Bfree(pFrame);
+	tileDelete(kSMKTile);
     Bfree(pzSMK_);
     Bfree(pzWAV_);
 }

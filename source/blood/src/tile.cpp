@@ -61,16 +61,6 @@ void qloadvoxel(int32_t nVoxel)
     }
 }
 
-void CalcPicsiz(int a1, int a2, int a3)
-{
-    int nP = 0;
-    for (int i = 2; i <= a2; i<<= 1)
-        nP++;
-    for (int i = 2; i <= a3; i<<= 1)
-        nP+=1<<4;
-    picsiz[a1] = nP;
-}
-
 CACHENODE tileNode[kMaxTiles];
 
 bool artLoaded = false;

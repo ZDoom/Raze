@@ -500,7 +500,7 @@ static void G_SE40(int32_t smoothratio)
                 renderz = sprite[sprite2].z - (sprite[sprite2].yrepeat * tilesiz[sprite[sprite2].picnum].y<<1);
                 picnum = sector[sprite[sprite2].sectnum].ceilingpicnum;
                 sector[sprite[sprite2].sectnum].ceilingpicnum = 562;
-                tilesiz[562].x = tilesiz[562].y = 0;
+				tileDelete(562);
 
                 pix_diff = klabs(z) >> 8;
                 newz = - ((pix_diff / 128) + 1) * (128<<8);
@@ -522,7 +522,7 @@ static void G_SE40(int32_t smoothratio)
                 renderz = sprite[sprite2].z;
                 picnum = sector[sprite[sprite2].sectnum].floorpicnum;
                 sector[sprite[sprite2].sectnum].floorpicnum = 562;
-                tilesiz[562].x = tilesiz[562].y = 0;
+				tileDelete(562);
 
                 pix_diff = klabs(z) >> 8;
                 newz = ((pix_diff / 128) + 1) * (128<<8);
@@ -714,14 +714,13 @@ static void G_ReadGLFrame(void)
 {
     // Save OpenGL screenshot with Duke3D palette
     palette_t *const frame = (palette_t *)Xcalloc(xdim * ydim, sizeof(palette_t));
-    char *const pic = (char *) waloff[TILE_SAVESHOT];
 
     int32_t x, y;
     const int32_t xf = divscale16(ydim*4/3, 320);
     const int32_t yf = divscale16(ydim, 200);  // (ydim<<16)/200
 
-    tilesiz[TILE_SAVESHOT].x = 200;
-    tilesiz[TILE_SAVESHOT].y = 320;
+	tileCreate(TILE_SAVESHOT, 200, 320);
+    char* const pic = (char*)waloff[TILE_SAVESHOT];
 
     if (!frame)
     {

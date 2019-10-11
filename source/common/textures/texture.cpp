@@ -431,3 +431,38 @@ FTexture *FTexture::GetTexture(const char *path)
 	if (tex) textures.Insert(path, tex);
 	return tex;
 }
+
+//==========================================================================
+//
+// A minimalistic wrapper around a Build ART file.
+// The data in here is already the format we need.
+//
+//==========================================================================
+
+class FBuildTexture : public FImageSource
+{
+	const uint8_t* RawPixels;
+public:
+	FBuildTexture(const uint8_t* raw, int width, int height, int left, int top)
+		: RawPixels(raw)
+	{
+		Width = width;
+		Height = height;
+		LeftOffset = left;
+		TopOffset = top;
+	}
+
+	const uint8_t* GetPalettedPixels() override
+	{
+		return RawPixels;
+	}
+};
+
+FTexture* FTexture::GetTileTexture(const char* name, const uint8_t* data, int width, int height, int xofs, int yofs)
+{
+	auto res = textures.CheckKey(name);
+	if (res) return *res;
+	auto tex = new FImageTexture(new FBuildTexture(data, width, height, xofs, yofs), name);
+	if (tex) textures.Insert(name, tex);
+	return tex;
+}

@@ -87,12 +87,12 @@ void InitMirrors(void)
 
 #endif
     mirrorcnt = 0;
-    tilesiz[504].x = 0;
-    tilesiz[504].y = 0;
     tileDelete(504);
     
-    for(int i = 0; i < 16; i++)
-        tilesiz[4080+i].x = 0, tilesiz[4080+i].y = 0;
+	for (int i = 0; i < 16; i++)
+	{
+		tileDelete(4080 + i);
+	}
     for (int i = numwalls - 1; i >= 0; i--)
     {
         if (mirrorcnt == 16)
@@ -504,11 +504,12 @@ void MirrorLoadSave::Load(void)
     Read(&mirrorsector,sizeof(mirrorsector));
     Read(mirror, sizeof(mirror));
     Read(mirrorwall, sizeof(mirrorwall));
-    tilesiz[504].x = 0;
-    tilesiz[504].y = 0;
+	tileDelete(504);
 
-    for (int i = 0; i < 16; i++)
-        tilesiz[4080 + i].x = 0, tilesiz[4080 + i].y = 0;
+	for (int i = 0; i < 16; i++)
+	{
+		tileDelete(4080 + i);
+	}
     for (int i = 0; i < 4; i++)
     {
         wall[mirrorwall[i]].picnum = 504;

@@ -797,9 +797,8 @@ EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
-EXTERN vec2_16_t tilesiz[MAXTILES];
-
-EXTERN uint8_t picsiz[MAXTILES];
+extern const vec2_16_t * const tilesiz;
+extern const uint8_t * const picsiz;
 EXTERN uint8_t walock[MAXTILES];
 
 extern const char pow2char_[];
@@ -1095,6 +1094,7 @@ void    tileUpdatePicSiz(int32_t picnum);
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
 intptr_t   tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz);
+intptr_t   tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, const uint8_t* data);
 void   tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   squarerotatetile(int16_t tilenume);
 
