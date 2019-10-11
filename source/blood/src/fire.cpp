@@ -68,13 +68,15 @@ void DoFireFrame(void)
         memcpy(FrameBuffer+16896+i*128, SeedBuffer[nRand], 128);
     }
     CellularFrame(FrameBuffer, 128, 132);
-    char *pData = tileLoadTile(2342);
+	tileLoadTile(2342);
+	tileMakeWritable(2342);
+	auto pData = tileData(2342);
     char *pSource = FrameBuffer;
     int x = fireSize;
     do
     {
         int y = fireSize;
-        char *pDataBak = pData;
+        auto pDataBak = pData;
         do
         {
             *pData = gCLU[*pSource];

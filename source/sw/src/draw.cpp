@@ -2454,6 +2454,7 @@ drawscreen(PLAYERp pp)
     // Only animate lava if its picnum is on screen
     // gotpic is a bit array where the tile number's bit is set
     // whenever it is drawn (ceilings, walls, sprites, etc.)
+#if 0	// This needs a different implementation.
     if ((gotpic[SLIME >> 3] & (1 << (SLIME & 7))) > 0)
     {
         gotpic[SLIME >> 3] &= ~(1 << (SLIME & 7));
@@ -2461,6 +2462,7 @@ drawscreen(PLAYERp pp)
         if (waloff[SLIME])
             movelava((char *) waloff[SLIME]);
     }
+#endif
 
 
     i = pp->cursectnum;

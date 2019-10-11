@@ -455,8 +455,7 @@ void PreloadCache(void)
     {
         if (TestBitString(gotpic, i))
         {
-            if (waloff[i] == 0)
-                tileLoad((int16_t)i);
+			tileCache(i);
 
 #ifdef USE_OPENGL
             PrecacheExtraTextureMaps(i);

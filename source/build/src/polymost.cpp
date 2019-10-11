@@ -646,11 +646,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     setgotpic(globalpicnum);
 	vec2_t tsiz = { tilesize.x, tilesize.y };
 
-    if (!waloff[globalpicnum])
-    {
-        tileLoad(globalpicnum);
-    }
-
     Bassert(n <= MAX_DRAWPOLY_VERTS);
 
     int j = 0;
@@ -713,7 +708,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         return;
     }
 
-    if (!waloff[globalpicnum])
+    if (!tilePtr(globalpicnum))
     {
         tsiz.x = tsiz.y = 1;
 		GLInterface.SetColorMask(false); //Hack to update Z-buffer for invalid mirror textures
@@ -900,14 +895,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 		GLInterface.SetMatrix(Matrix_Detail, &identity);
     }
 
-    if (videoGetRenderMode() != REND_POLYMOST)
-    {
-        if (!waloff[globalpicnum])
-			GLInterface.SetColorMask(true);
-
-        return;
-    }
-
 	if (skyzbufferhack && skyzbufferhack_pass == 0)
     {
         vec3d_t const bxtex = xtex, bytex = ytex, botex = otex;
@@ -920,7 +907,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         skyzbufferhack_pass--;
     }
 
-    if (!waloff[globalpicnum])
+	if (!tilePtr(globalpicnum))
 		GLInterface.SetColorMask(true);
 }
 

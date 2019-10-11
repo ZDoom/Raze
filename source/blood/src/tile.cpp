@@ -142,20 +142,20 @@ void tileProcessGLVoxels(void)
 }
 #endif
 
-char * tileLoadTile(int nTile)
+const uint8_t * tileLoadTile(int nTile)
 {
-    if (!waloff[nTile]) tileLoad(nTile);
-    return (char*)waloff[nTile];
+	tileCache(nTile);
+    return (const uint8_t*)tilePtr(nTile);
 }
 
-char * tileAllocTile(int nTile, int x, int y, int ox, int oy)
+uint8_t * tileAllocTile(int nTile, int x, int y, int ox, int oy)
 {
     dassert(nTile >= 0 && nTile < kMaxTiles);
-    char *p = (char*)tileCreate(nTile, x, y);
+    uint8_t *p = tileCreate(nTile, x, y);
     dassert(p != NULL);
     picanm[nTile].xofs = ClipRange(ox, -127, 127);
     picanm[nTile].yofs = ClipRange(oy, -127, 127);
-    return (char*)waloff[nTile];
+    return p;
 }
 
 void tilePreloadTile(int nTile)

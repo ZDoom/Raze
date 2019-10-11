@@ -487,10 +487,7 @@ JS_InitMirrors(void)
 void drawroomstotile(int daposx, int daposy, int daposz,
                      short daang, int dahoriz, short dacursectnum, short tilenume)
 {
-    if (waloff[tilenume] == 0)
-        tileLoad(tilenume);
-
-    PRODUCTION_ASSERT(waloff[tilenume]);
+	tileCreate(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
     renderSetTarget(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 

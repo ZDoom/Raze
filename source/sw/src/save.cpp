@@ -1313,7 +1313,7 @@ void
 ScreenSave(MFILE_WRITE fout)
 {
     // int num;
-    MWRITE((void *)waloff[SAVE_SCREEN_TILE], SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, 1, fout);
+    MWRITE((void *)tileData(SAVE_SCREEN_TILE), SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, 1, fout);
     // ASSERT(num == 1);
 }
 
@@ -1324,7 +1324,7 @@ ScreenLoad(MFILE_READ fin)
 
     renderSetTarget(SAVE_SCREEN_TILE, SAVE_SCREEN_YSIZE, SAVE_SCREEN_XSIZE);
 
-    num = MREAD((void *)waloff[SAVE_SCREEN_TILE], SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, 1, fin);
+    num = MREAD(tileData(SAVE_SCREEN_TILE), SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, 1, fin);
 
     renderRestoreTarget();
 }

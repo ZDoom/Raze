@@ -1854,7 +1854,7 @@ static WSHELPER_DECL void calc_bufplc(intptr_t *bufplc, int32_t lw, vec2_16_t ts
 //    Bassert(i >= 0 && i < tilesiz[globalpicnum].x*tilesiz[globalpicnum].y);
 
     // Address is at the first row of tile storage (which is column-major).
-    *bufplc = waloff[globalpicnum] + i;
+	*bufplc = (intptr_t)tilePtr(globalpicnum) + i;
 }
 
 static WSHELPER_DECL void calc_vplcinc_wall(uint32_t *vplc, int32_t *vinc, inthi_t sw, int32_t y1v)
@@ -1911,7 +1911,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 
     setgotpic(globalpicnum);
 
-    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
+    tileCache(globalpicnum);
 
     tweak_tsizes(&tsiz);
 
@@ -2633,9 +2633,10 @@ static int32_t setup_globals_cf1(usectorptr_t sec, int32_t pal, int32_t zd,
     tileUpdatePicnum(&globalpicnum, 0);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return 1;
-    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
+        tileCache(globalpicnum);
 
-    globalbufplc = waloff[globalpicnum];
+
+    globalbufplc = (intptr_t)tilePtr(globalpicnum);
 
     globalshade = shade;
     globvis = globalcisibility;
@@ -2928,7 +2929,8 @@ static void wallscan(int32_t x1, int32_t x2,
     if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen)) return;
     if ((dwal[x1] < 0) && (dwal[x2] < 0)) return;
 
-    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
+        tileCache(globalpicnum);
+
 
     tweak_tsizes(&tsiz);
 
@@ -3149,7 +3151,8 @@ static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0))
         return;
 
-    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
+        tileCache(globalpicnum);
+
 
     setuptvlineasm(globalshiftval, saturatevplc);
 
@@ -3448,7 +3451,8 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     tileUpdatePicnum(&globalpicnum, sectnum);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return;
-    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
+        tileCache(globalpicnum);
+
 
     wal = (uwalltype *)&wall[sec->wallptr];
     wxi = wall[wal->point2].x - wal->x;
@@ -3536,7 +3540,7 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     intptr_t fj = FP_OFF(palookup[globalpal]);
 
     setupslopevlin_alsotrans((picsiz[globalpicnum]&15) + ((picsiz[globalpicnum]>>4)<<8),
-                             waloff[globalpicnum],-ylookup[1]);
+                             (intptr_t)tilePtr(globalpicnum),-ylookup[1]);
 
     l = Blrintf((globalzd)*(1.f/65536.f));
 
@@ -3739,7 +3743,8 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     tileUpdatePicnum(&globalpicnum, sectnum);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return;
-    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
+        tileCache(globalpicnum);
+
 
     wal = (uwallptr_t)&wall[sec->wallptr];
     wx = wall[wal->point2].x - wal->x;
@@ -3822,7 +3827,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     j = FP_OFF(palookup[globalpal]);
 
     setupslopevlin_alsotrans((picsiz[globalpicnum]&15) + ((picsiz[globalpicnum]>>4)<<8),
-                             waloff[globalpicnum],-ylookup[1]);
+                             (intptr_t)tilePtr(globalpicnum),-ylookup[1]);
 
     l = (globalzd>>16);
 
@@ -5957,9 +5962,10 @@ draw_as_face_sprite:
         globalpicnum = tilenum;
         if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
 
-        if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
+            tileCache(globalpicnum);
+
         setgotpic(globalpicnum);
-        globalbufplc = waloff[globalpicnum];
+        globalbufplc = (intptr_t)tilePtr(globalpicnum);
 
         globvis = mulscale16(globalhisibility,viewingrange);
         if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
@@ -6991,9 +6997,9 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         nextv = v;
     }
 
-    if (waloff[picnum] == 0) tileLoad(picnum);
+    tileCache(picnum);
     setgotpic(picnum);
-    bufplc = waloff[picnum];
+    bufplc = (intptr_t)tilePtr(picnum);
 
     if (palookup[dapalnum] == NULL) dapalnum = 0;
     palookupoffs = FP_OFF(palookup[dapalnum]) + (getpalookup(0, dashade)<<8);
@@ -8470,7 +8476,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
                 tileSetSize(tile.newtile, siz.x, siz.y);
 
                 tileLoad(tile.newtile);
-                // Bassert(waloff[tile.newtile]);
             }
         }
     }
@@ -9286,8 +9291,9 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
-            if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
-            globalbufplc = waloff[globalpicnum];
+                tileCache(globalpicnum);
+
+            globalbufplc = (intptr_t)tilePtr(globalpicnum);
             globalshade = max(min<int>(sec->floorshade,numshades-1),0);
             globvis = globalhisibility;
             if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
@@ -9411,8 +9417,9 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
-            if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
-            globalbufplc = waloff[globalpicnum];
+                tileCache(globalpicnum);
+
+            globalbufplc = (intptr_t)tilePtr(globalpicnum);
 
             // 'loading' the tile doesn't actually guarantee that it's there afterwards.
             // This can really happen when drawing the second frame of a floor-aligned
@@ -10506,19 +10513,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 void videoNextPage(void)
 {
     permfifotype *per;
-
-    //char snotbuf[32];
-    //j = 0; k = 0;
-    //for(i=0;i<4096;i++)
-    //   if (waloff[i] != 0)
-    //   {
-    //      sprintf(snotbuf,"%d-%d",i,tilesizx[i]*tilesizy[i]);
-    //      printext256((j>>5)*40+32,(j&31)*6,walock[i]>>3,-1,snotbuf,1);
-    //      k += tilesizx[i]*tilesizy[i];
-    //      j++;
-    //   }
-    //sprintf(snotbuf,"Total: %d",k);
-    //printext256((j>>5)*40+32,(j&31)*6,31,-1,snotbuf,1);
 
     if (in3dmode())
     {
@@ -12131,7 +12125,7 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 	tileDelete(tilenume);
 	tileCreate(tilenume, xsiz, ysiz);
     bakxsiz[setviewcnt] = xdim; bakysiz[setviewcnt] = ydim;
-    bakframeplace[setviewcnt] = frameplace; frameplace = waloff[tilenume];
+    bakframeplace[setviewcnt] = frameplace; frameplace = (intptr_t)tilePtr(tilenume);
     bakwindowxy1[setviewcnt] = windowxy1;
     bakwindowxy2[setviewcnt] = windowxy2;
 
@@ -12203,26 +12197,28 @@ void squarerotatetile(int16_t tilenume)
     if (siz != tilesiz[tilenume].y)
         return;
 
-    char *ptr1, *ptr2;
+    uint8_t *ptr1, *ptr2;
+	auto p = tileData(tilenume);
+	if (!p) return;	// safety precaution, this may only be called on writable tiles for camera textures.
 
     for (bssize_t i=siz-1, j; i>=3; i-=4)
     {
-        ptr2 = ptr1 = (char *) (waloff[tilenume]+i*(siz+1));
+        ptr2 = ptr1 = (p+i*(siz+1));
         swapchar(--ptr1, (ptr2 -= siz));
         for (j=(i>>1)-1; j>=0; --j)
             swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
 
-        ptr2 = ptr1 = (char *) (waloff[tilenume]+(i-1)*(siz+1));
+        ptr2 = ptr1 = (p+(i-1)*(siz+1));
         for (j=((i-1)>>1)-1; j>=0; --j)
             swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
 
-        ptr2 = ptr1 = (char *) (waloff[tilenume]+(i-2)*(siz+1));
+        ptr2 = ptr1 = (p+(i-2)*(siz+1));
         swapchar(--ptr1, (ptr2 -= siz));
 
         for (j=((i-2)>>1)-1; j>=0; --j)
             swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
 
-        ptr2 = ptr1 = (char *) (waloff[tilenume]+(i-3)*(siz+1));
+        ptr2 = ptr1 = (p+(i-3)*(siz+1));
 
         for (j=((i-3)>>1)-1; j>=0; --j)
             swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);

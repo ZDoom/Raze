@@ -385,7 +385,6 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     vec3_t const camera     = G_GetCameraPosition(spriteNum, smoothRatio);
     int const    saveMirror = display_mirror;
 
-    //if (waloff[wn] == 0) loadtile(wn);
     renderSetTarget(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
 
     int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERATILE, spriteNum, playerNum, 0);
@@ -436,7 +435,7 @@ void G_AnimateCamSprite(int smoothRatio)
             int const viewscrShift = G_GetViewscreenSizeShift((uspriteptr_t)&sprite[spriteNum]);
             int const viewscrTile  = TILE_VIEWSCR - viewscrShift;
 
-            if (waloff[viewscrTile] == 0)
+            if (tileData(viewscrTile) == 0)
                 tileCreate(viewscrTile, tilesiz[PN(spriteNum)].x << viewscrShift, tilesiz[PN(spriteNum)].y << viewscrShift);
             else
                 walock[viewscrTile] = 199;

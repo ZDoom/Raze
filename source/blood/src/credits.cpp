@@ -216,8 +216,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     Smacker_GetFrameSize(hSMK, nWidth, nHeight);
     uint8_t palette[768];
 	tileDelete(kSMKTile);
-	tileCreate(kSMKTile, nWidth, nHeight);
-	auto pFrame = (uint8_t*)waloff[kSMKTile];
+	auto pFrame = tileCreate(kSMKTile, nWidth, nHeight);
     if (!pFrame)
     {
         Smacker_Close(hSMK);

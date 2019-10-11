@@ -719,8 +719,7 @@ static void G_ReadGLFrame(void)
     const int32_t xf = divscale16(ydim*4/3, 320);
     const int32_t yf = divscale16(ydim, 200);  // (ydim<<16)/200
 
-	tileCreate(TILE_SAVESHOT, 200, 320);
-    char* const pic = (char*)waloff[TILE_SAVESHOT];
+	auto pic = tileCreate(TILE_SAVESHOT, 200, 320);
 
     if (!frame)
     {
@@ -848,9 +847,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         if (g_screenCapture)
         {
-            walock[TILE_SAVESHOT] = 199;
-            if (waloff[TILE_SAVESHOT] == 0)
-                cacheAllocateBlock(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
+			tileCreate(TILE_SAVESHOT, 200, 320);
 
             if (videoGetRenderMode() == REND_CLASSIC)
                 renderSetTarget(TILE_SAVESHOT, 200, 320);
@@ -908,9 +905,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 const int32_t viewtilexsiz = (tang&1023) ? tiltcx : tiltcy;
                 const int32_t viewtileysiz = tiltcx;
 
-                walock[TILE_TILT] = 255;
-                if (waloff[TILE_TILT] == 0)
-                    cacheAllocateBlock(&waloff[TILE_TILT], maxTiltSize, &walock[TILE_TILT]);
+				tileCreate(TILE_TILT, tiltcx, tiltcx);
 
                 renderSetTarget(TILE_TILT, viewtilexsiz, viewtileysiz);
 
@@ -3873,7 +3868,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
                 t->xrepeat += 10;
                 t->yrepeat += 9;
             }
-            else if (g_curViewscreen == i && display_mirror != 3 && waloff[viewscrTile])
+            else if (g_curViewscreen == i && display_mirror != 3 && tileData(viewscrTile))
             {
                 // this exposes a sprite sorting issue which needs to be debugged further...
 #if 0

@@ -502,7 +502,6 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     vec3_t const camera     = G_GetCameraPosition(spriteNum, smoothRatio);
     int const    saveMirror = display_mirror;
 
-    //if (waloff[wn] == 0) loadtile(wn);
     renderSetTarget(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
 
     yax_preparedrawrooms();
@@ -542,7 +541,7 @@ void G_AnimateCamSprite(int smoothRatio)
             int const viewscrShift = G_GetViewscreenSizeShift((const uspritetype *)&sprite[spriteNum]);
             int const viewscrTile  = TILE_VIEWSCR - viewscrShift;
 
-            if (waloff[viewscrTile] == 0)
+            if (tileData(viewscrTile) == 0)
                 tileCreate(viewscrTile, tilesiz[PN(spriteNum)].x << viewscrShift, tilesiz[PN(spriteNum)].y << viewscrShift);
             else
                 walock[viewscrTile] = 255;
@@ -5213,7 +5212,7 @@ void G_Thunder(void)
         if ((gotpic[RRTILE2577>>3]&(1<<(RRTILE2577&7))))
         {
             gotpic[RRTILE2577>>3] &= ~(1<<(RRTILE2577&7));
-            if (waloff[RRTILE2577] != 0)
+            if (tilePtr(RRTILE2577) != 0)	// why does this on texture load state???
             {
                 g_visibility = 256;
                 if (krand2() > 65000)
@@ -5246,7 +5245,7 @@ void G_Thunder(void)
         if ((gotpic[RRTILE2562>>3]&(1<<(RRTILE2562&7))))
         {
             gotpic[RRTILE2562>>3] &= ~(1<<(RRTILE2562&7));
-            if (waloff[RRTILE2562] != 0)
+            if (tilePtr(RRTILE2562) != 0)	// why does this on texture load state???
             {
                 if (krand2() > 65000)
                 {

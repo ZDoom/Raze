@@ -522,7 +522,7 @@ int32_t Anim_Play(const char *fn)
         if (totalclock < ototalclock - 1)
             continue;
 
-        waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
+		tileSetExternal(TILE_ANIM, 200, 320, ANIM_DrawFrame(i));
         tileInvalidate(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
         if (I_CheckAllInput())
@@ -593,6 +593,7 @@ end_anim_restore_gl:
 end_anim:
     I_ClearAllInput();
     ANIM_FreeAnim();
+	tileDelete(TILE_ANIM);
     walock[TILE_ANIM] = 1;
     anim->animlock = 0;
 

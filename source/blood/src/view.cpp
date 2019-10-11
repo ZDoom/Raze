@@ -1726,7 +1726,7 @@ void viewInit(void)
         lensTable[i] = B_LITTLE32(lensTable[i]);
     }
 #endif
-    char *data = tileAllocTile(4077, kLensSize, kLensSize, 0, 0);
+    uint8_t *data = tileAllocTile(4077, kLensSize, kLensSize, 0, 0);
     memset(data, 255, kLensSize*kLensSize);
     gGameMessageMgr.SetState(gMessageState);
     gGameMessageMgr.SetCoordinates(1, 1);
@@ -2841,9 +2841,10 @@ void viewSetErrorMessage(const char *pMessage)
 
 void DoLensEffect(void)
 {
-    char *d = (char*)waloff[4077];
+	// To investigate whether this can be implemented as a shader effect.
+    auto d = tileData(4077);
     dassert(d != NULL);
-    char *s = (char*)waloff[4079];
+	auto s = tilePtr(4079);
     dassert(s != NULL);
     for (int i = 0; i < kLensSize*kLensSize; i++, d++)
         if (lensTable[i] >= 0)
@@ -3225,8 +3226,7 @@ void viewDrawScreen(void)
             if (videoGetRenderMode() == REND_CLASSIC)
             {
                 int vr = viewingrange;
-                walock[TILTBUFFER] = 255;
-                if (!waloff[TILTBUFFER])
+                if (!tileData(TILTBUFFER))
                 {
                     tileAllocTile(TILTBUFFER, 640, 640, 0, 0);
                 }
@@ -3268,7 +3268,7 @@ void viewDrawScreen(void)
             }
             PLAYER *pOther = &gPlayer[i];
             //othercameraclock = gGameClock;
-            if (!waloff[4079])
+            if (!tileData(4079))
             {
                 tileAllocTile(4079, 128, 128, 0, 0);
             }
@@ -3439,7 +3439,7 @@ RORHACK:
         {
             if (videoGetRenderMode() == REND_CLASSIC)
             {
-                dassert(waloff[ TILTBUFFER ] != 0);
+                dassert(tileData(TILTBUFFER) !=  0);
                 renderRestoreTarget();
                 int vrc = 64+4+2+1024;
                 if (bDelirium)
@@ -3761,12 +3761,13 @@ void viewSetCrosshairColor(int32_t r, int32_t g, int32_t b)
     CrosshairColors.g = g;
     CrosshairColors.b = b;
 
+	tileMakeWritable(kCrosshairTile);
     tileLoad(kCrosshairTile);
 
-    if (!waloff[kCrosshairTile])
+    if (!tilePtr(kCrosshairTile))
         return;
 
-    char *ptr = (char *)waloff[kCrosshairTile];
+    auto ptr = tileData(kCrosshairTile);
 
     int32_t ii = tilesiz[kCrosshairTile].x * tilesiz[kCrosshairTile].y;
 

@@ -2530,17 +2530,14 @@ restart_grand:
                     {
                         tileUpdatePicnum(&tilenum, 0);
 
-                        if (!waloff[tilenum])
-                            tileLoad(tilenum);
-
-                        if (waloff[tilenum])
+                        if (tileCache(tilenum))
                         {
                             // daz-intz > 0 && daz-intz < k
                             int32_t xtex = mulscale16(ucoefup16, tilesiz[tilenum].x);
                             int32_t vcoefup16 = 65536-divscale16(daz-intz, k);
                             int32_t ytex = mulscale16(vcoefup16, tilesiz[tilenum].y);
 
-                            const char *texel = (char *)(waloff[tilenum] + tilesiz[tilenum].y*xtex + ytex);
+                            auto texel = (tilePtr(tilenum) + tilesiz[tilenum].y*xtex + ytex);
                             if (*texel == 255)
                                 continue;
                         }

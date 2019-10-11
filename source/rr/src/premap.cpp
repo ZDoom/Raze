@@ -590,7 +590,7 @@ void G_CacheMapData(void)
     {
         tloadtile(sector[i].floorpicnum, 0);
         tloadtile(sector[i].ceilingpicnum, 0);
-        if (sector[i].ceilingpicnum == LA)  // JBF 20040509: if( waloff[sector[i].ceilingpicnum] == LA) WTF?!?!?!?
+        if (sector[i].ceilingpicnum == LA)  // JBF 20040509: if( w aloff[sector[i].ceilingpicnum] == LA) WTF?!?!?!?
         {
             tloadtile(LA+1, 0);
             tloadtile(LA+2, 0);
@@ -615,8 +615,7 @@ void G_CacheMapData(void)
         }
         if (gotpic[i>>3] & pow2char[i&7])
         {
-            if (waloff[i] == 0)
-                tileLoad((int16_t)i);
+			tileCache(i);
 
 #ifdef USE_OPENGL
 // PRECACHE
@@ -1476,7 +1475,7 @@ static void prelevel(char g)
 
         if (sector[i].ceilingstat&1)
         {
-            if (waloff[sector[i].ceilingpicnum] == 0)
+            if (tilePtr(sector[i].ceilingpicnum) == 0)
             {
                 if (sector[i].ceilingpicnum == LA)
                     for (bsize_t j = 0; j < 5; j++)

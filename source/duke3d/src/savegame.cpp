@@ -317,7 +317,7 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 	tileCreate(TILE_LOADSHOT, 200, 320);
     if (screenshotofs)
     {
-        if (kdfread_LZ4((char *)waloff[TILE_LOADSHOT], 320, 200, fil) != 200)
+        if (kdfread_LZ4(tileData(TILE_LOADSHOT), 320, 200, fil) != 200)
         {
             OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
             goto corrupt;
@@ -329,14 +329,14 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
         if (G_ModDirSnprintf(scrbuf, sizeof(scrbuf), "%s.raw", fn) == 0)
         {
             buildvfs_FILE scrfil = buildvfs_fopen_write(scrbuf);
-            buildvfs_fwrite((char *)waloff[TILE_LOADSHOT], 320, 200, scrfil);
+            buildvfs_fwrite(tileData(TILE_LOADSHOT), 320, 200, scrfil);
             buildvfs_fclose(scrfil);
         }
 #endif
     }
     else
     {
-        Bmemset((char *)waloff[TILE_LOADSHOT], 0, 320*200);
+        Bmemset(tileData(TILE_LOADSHOT), 0, 320*200);
     }
     tileInvalidate(TILE_LOADSHOT, 0, 255);
 
@@ -1747,12 +1747,12 @@ int32_t sv_saveandmakesnapshot(buildvfs_FILE fil, char const *name, int8_t spot,
     // for savegames, the file offset after the screenshot goes here;
     // for demos, we keep it 0 to signify that we didn't save one
     buildvfs_fwrite("\0\0\0\0", 4, 1, fil);
-    if (spot >= 0 && waloff[TILE_SAVESHOT])
+    if (spot >= 0 && tileData(TILE_SAVESHOT))
     {
         int32_t ofs;
 
         // write the screenshot compressed
-        dfwrite_LZ4((char *)waloff[TILE_SAVESHOT], 320, 200, fil);
+        dfwrite_LZ4(tileData(TILE_SAVESHOT), 320, 200, fil);
 
         // write the current file offset right after the header
         ofs = buildvfs_ftell(fil);

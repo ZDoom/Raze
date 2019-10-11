@@ -2391,7 +2391,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         if (msv.brief.isValid())
         {
-            if (waloff[TILE_LOADSHOT])
+            if (tilePtr(TILE_LOADSHOT))
                 rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT, msv.isOldVer?16:-32, 0,4+10+64);
 
             if (msv.isOldVer)
@@ -2456,7 +2456,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
             if (msv.brief.isValid())
             {
-                if (waloff[TILE_LOADSHOT])
+                if (tilePtr(TILE_LOADSHOT))
                     rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT, msv.isOldVer?16:-32, 0,4+10+64);
 
                 if (msv.isOldVer)

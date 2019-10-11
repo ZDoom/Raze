@@ -500,9 +500,7 @@ int32_t Anim_Play(const char *fn)
 
         i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
 
-        walock[TILE_ANIM] = 255;
-        waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
-        tileSetSize(TILE_ANIM, 200, 320);
+		tileSetExternal(TILE_ANIM, 200, 320, ANIM_DrawFrame(i));
         tileInvalidate(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
         if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_GeneralTrigger()))
@@ -576,9 +574,7 @@ end_anim:
     I_ClearAllInput();
     ANIM_FreeAnim();
 
-    tileSetSize(TILE_ANIM, 0, 0);
-    walock[TILE_ANIM] = 0;
-    waloff[TILE_ANIM] = 0;
+	tileDelete(TILE_ANIM);
 
     // this is the lock for anim->animbuf
     anim->animlock = 1;

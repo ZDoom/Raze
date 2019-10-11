@@ -847,7 +847,6 @@ typedef struct {
 EXTERN picanm_t picanm[MAXTILES];
 typedef struct { int16_t newtile; int16_t owner; } rottile_t;
 EXTERN rottile_t rottile[MAXTILES];
-EXTERN intptr_t waloff[MAXTILES];  // stores pointers to cache  -- SA
 
 EXTERN int32_t windowpos, windowx, windowy;
 
@@ -1086,15 +1085,19 @@ void    artPreloadFile(buildvfs_kfd fil, artheader_t const *local);
 int32_t artLoadFiles(const char *filename, int32_t askedsize);
 void    artClearMapArt(void);
 void    artSetupMapArt(const char *filename);
+bool    tileCache(int tilenume);
+const uint8_t* tilePtr(int num);	// read-only
+uint8_t* tileData(int num);		// writable.
 bool    tileLoad(int16_t tilenume);
 void    tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer);
 int32_t tileCRC(int16_t tileNum);
 void    tileUpdatePicSiz(int32_t picnum);
+void tileMakeWritable(int num);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
-intptr_t   tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz);
-intptr_t   tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, const uint8_t* data);
+uint8_t *tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz);
+void   tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, uint8_t* data);
 void   tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   squarerotatetile(int16_t tilenume);
 

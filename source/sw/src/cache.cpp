@@ -631,7 +631,7 @@ void DoTheCache(void)
 
     for (i = 0; i < MAXTILES; i++)
     {
-        if ((TEST(gotpic[i>>3], 1<<(i&7))) && (!waloff[i]))
+        if ((TEST(gotpic[i>>3], 1<<(i&7))) && (!tilePtr(i)))
         {
             tileLoad(i);
             cnt++;

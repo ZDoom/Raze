@@ -505,8 +505,7 @@ void G_CacheMapData(void)
         else if ((gotpic[i>>3] & pow2char[i&7]) != pow2char[i&7])
             continue;
 
-        if (waloff[i] == 0)
-            tileLoad((int16_t)i);
+		tileCache(i);
 
 #ifdef USE_OPENGL
         cacheExtraTextureMaps(i);

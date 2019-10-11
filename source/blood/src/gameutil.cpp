@@ -510,7 +510,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 width2 += nOffset + tilesiz[nPicnum].x / 2;
                 if (width2 >= 0 && width2 < tilesiz[nPicnum].x)
                 {
-                    char *pData = tileLoadTile(nPicnum);
+                    auto pData = tileLoadTile(nPicnum);
                     if (pData[width2*tilesiz[nPicnum].y+height2] != (char)255)
                         return 3;
                 }
@@ -591,7 +591,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 nOffset &= nSizY - 1;
             else
                 nOffset %= nSizY;
-            char *pData = tileLoadTile(nPicnum);
+            auto pData = tileLoadTile(nPicnum);
             int nPixel;
             if (potY)
                 nPixel = (nHOffset<<(picsiz[nPicnum]>>4)) + nOffset;

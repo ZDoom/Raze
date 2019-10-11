@@ -31,6 +31,8 @@ static uint8_t picsizearray[MAXTILES];
 // These may only be manipulated through a function interface so that the backing texture objects can be adjusted or replaced.
 const vec2_16_t* const tilesiz = tilesizearray;
 const uint8_t* const picsiz = picsizearray;
+static const uint8_t *tileptr[MAXTILES];  // points to tile data -. may be constant
+static uint8_t* tiledata[MAXTILES];  // points to modifiable tile data - only set by tileCreate!
 
 
 // Backup tilefilenum[] and tilefileoffs[]. These get allocated only when
@@ -40,7 +42,7 @@ static int32_t *g_bakTileFileOffs;
 static vec2_16_t *g_bakTileSiz;
 static char *g_bakPicSiz;
 static char *g_bakWalock;
-static intptr_t *g_bakWaloff;
+static const uint8_t *g_bakWaloff;
 static picanm_t *g_bakPicAnm;
 static char * g_bakFakeTile;
 static char ** g_bakFakeTileData;
@@ -111,7 +113,7 @@ void artClearMapArt(void)
         {
             // XXX: OK way to free it? Better: cache1d API. CACHE1D_FREE
             walock[i] = 1;
-            waloff[i] = 0;
+            tileptr[i] = nullptr;
         }
     }
 
@@ -121,7 +123,7 @@ void artClearMapArt(void)
     RESTORE_MAPART_ARRAY(tilesizearray, g_bakTileSiz);
     RESTORE_MAPART_ARRAY(picsizearray, g_bakPicSiz);
     RESTORE_MAPART_ARRAY(walock, g_bakWalock);
-    RESTORE_MAPART_ARRAY(waloff, g_bakWaloff);
+    //RESTORE_MAPART_ARRAY(tileptr, g_bakWaloff);
     RESTORE_MAPART_ARRAY(picanm, g_bakPicAnm);
     RESTORE_MAPART_ARRAY(faketile, g_bakFakeTile);
 
@@ -170,7 +172,7 @@ void artSetupMapArt(const char *filename)
     ALLOC_MAPART_ARRAY(tilesizearray, g_bakTileSiz);
     ALLOC_MAPART_ARRAY(picsizearray, g_bakPicSiz);
     ALLOC_MAPART_ARRAY(walock, g_bakWalock);
-    ALLOC_MAPART_ARRAY(waloff, g_bakWaloff);
+    //ALLOC_MAPART_ARRAY(tileptr, g_bakWaloff);
     ALLOC_MAPART_ARRAY(picanm, g_bakPicAnm);
     ALLOC_MAPART_ARRAY(faketile, g_bakFakeTile);
     ALLOC_MAPART_ARRAY(faketiledata, g_bakFakeTileData);
@@ -255,7 +257,8 @@ static void tileSoftDelete(int32_t const tile)
 
     // CACHE1D_FREE
     walock[tile] = 1;
-    waloff[tile] = 0;
+    tileptr[tile] = nullptr;
+	tiledata[tile] = nullptr;
 
     faketile[tile>>3] &= ~pow2char[tile&7];
 	picanm[tile] = {};
@@ -537,8 +540,9 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
             }
 
             // Free existing tiles from the cache1d. CACHE1D_FREE
-            Bmemset(&waloff[local.tilestart], 0, local.numtiles*sizeof(intptr_t));
-            Bmemset(&walock[local.tilestart], 1, local.numtiles*sizeof(walock[0]));
+            Bmemset(&tileptr[local.tilestart], 0, local.numtiles*sizeof(uint8_t*));
+			Bmemset(&tiledata[local.tilestart], 0, local.numtiles * sizeof(uint8_t*));
+			Bmemset(&walock[local.tilestart], 1, local.numtiles*sizeof(walock[0]));
         }
 
         artReadManifest(fil, &local);
@@ -607,6 +611,23 @@ int32_t artLoadFiles(const char *filename, int32_t askedsize)
     return 0;
 }
 
+const uint8_t* tilePtr(int num)
+{
+	return tileptr[num];
+}
+uint8_t* tileData(int num)
+{
+	// Q: Should this automatically make the tile writable?
+	return tiledata[num];
+}
+
+void tileMakeWritable(int num)
+{
+	// This won't be so simple anymore with a real texture manager backing this.
+	tileCache(num);
+	walock[num] = 255;	// disable caching.
+	tiledata[num] = (uint8_t*)tileptr[num];
+}
 
 //
 // loadtile
@@ -619,16 +640,25 @@ bool tileLoad(int16_t tileNum)
     if (dasiz <= 0) return 0;
 
     // Allocate storage if necessary.
-    if (waloff[tileNum] == 0)
+    if (tileptr[tileNum] == nullptr)
     {
         walock[tileNum] = 199;
-        cacheAllocateBlock(&waloff[tileNum], dasiz, &walock[tileNum]);
+		intptr_t handle;
+        cacheAllocateBlock(&handle, dasiz, &walock[tileNum]);
+		tileptr[tileNum] = (const uint8_t*)handle;
     }
 
-    tileLoadData(tileNum, dasiz, (char *) waloff[tileNum]);
+    tileLoadData(tileNum, dasiz, (char *)tileptr[tileNum]);
 
 
-    return (waloff[tileNum] != 0 && tilesiz[tileNum].x > 0 && tilesiz[tileNum].y > 0);
+    return (tileptr[tileNum] != nullptr && tilesiz[tileNum].x > 0 && tilesiz[tileNum].y > 0);
+}
+
+bool tileCache(int tilenume)
+{
+	if ((unsigned)tilenume >= (unsigned)MAXTILES) return false;
+	if (!tileptr[tilenume]) return tileLoad(tilenume);
+	return true;
 }
 
 void tileMaybeRotate(int16_t tilenume)
@@ -636,8 +666,8 @@ void tileMaybeRotate(int16_t tilenume)
     auto &rot = rottile[tilenume];
     auto &siz = tilesiz[rot.owner];
 
-    auto src = (char *)waloff[rot.owner];
-    auto dst = (char *)waloff[tilenume];
+    auto src = (char *)tileptr[rot.owner];
+    auto dst = (char *)tileptr[tilenume];
 
     // the engine has a squarerotatetile() we could call, but it mirrors at the same time
     for (int x = 0; x < siz.x; ++x)
@@ -658,10 +688,10 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
 
     if (owner != -1)
     {
-        if (!waloff[owner])
+        if (!tileptr[owner])
             tileLoad(owner);
 
-        if (waloff[tilenume])
+        if (tileptr[tilenume])
             tileMaybeRotate(tilenume);
 
         return;
@@ -738,7 +768,7 @@ int32_t tileCRC(int16_t tileNum)
 //
 // allocatepermanenttile
 //
-intptr_t tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz)
+uint8_t *tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
     if (xsiz <= 0 || ysiz <= 0 || (unsigned) tilenume >= MAXTILES)
         return 0;
@@ -746,27 +776,27 @@ intptr_t tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     int const dasiz = xsiz*ysiz;
 
     walock[tilenume] = 255;
-    cacheAllocateBlock(&waloff[tilenume], dasiz, &walock[tilenume]);
+	intptr_t handle;
+    cacheAllocateBlock(&handle, dasiz, &walock[tilenume]);
+	tileptr[tilenume] = tiledata[tilenume] = (uint8_t*)handle;
 
     tileSetSize(tilenume, xsiz, ysiz);
 	picanm[tilenume] = {};
 
-    return waloff[tilenume];
+    return tiledata[tilenume];
 }
 
-intptr_t tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, const uint8_t *data)
+void tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, uint8_t *data)
 {
 	if (xsiz <= 0 || ysiz <= 0 || (unsigned)tilenume >= MAXTILES)
-		return 0;
+		return;
 
 	int const dasiz = xsiz * ysiz;
 
 	walock[tilenume] = 255;
-	waloff[tilenume] = (intptr_t)data;
+	tileptr[tilenume] = tiledata[tilenume] = data;
 	tileSetSize(tilenume, xsiz, ysiz);
 	picanm[tilenume] = {};
-
-	return waloff[tilenume];
 }
 
 
@@ -776,15 +806,14 @@ intptr_t tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, const uin
 void tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz,
     int32_t tilenume2, int32_t sx2, int32_t sy2)
 {
-    char *ptr1, *ptr2, dat;
     int32_t xsiz1, ysiz1, xsiz2, ysiz2, i, j, x1, y1, x2, y2;
 
     xsiz1 = tilesiz[tilenume1].x; ysiz1 = tilesiz[tilenume1].y;
     xsiz2 = tilesiz[tilenume2].x; ysiz2 = tilesiz[tilenume2].y;
     if ((xsiz1 > 0) && (ysiz1 > 0) && (xsiz2 > 0) && (ysiz2 > 0))
     {
-        if (waloff[tilenume1] == 0) tileLoad(tilenume1);
-        if (waloff[tilenume2] == 0) tileLoad(tilenume2);
+        if (tileptr[tilenume1] == 0) tileLoad(tilenume1);
+        if (tiledata[tilenume2] == 0) tileLoad(tilenume2);
 
         x1 = sx1;
         for (i=0; i<xsiz; i++)
@@ -796,9 +825,9 @@ void tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, 
                 y2 = sy2+j;
                 if ((x2 >= 0) && (y2 >= 0) && (x2 < xsiz2) && (y2 < ysiz2))
                 {
-                    ptr1 = (char *) (waloff[tilenume1] + x1*ysiz1 + y1);
-                    ptr2 = (char *) (waloff[tilenume2] + x2*ysiz2 + y2);
-                    dat = *ptr1;
+					auto ptr1 = tilePtr(tilenume1) + x1 * ysiz1 + y1;
+					auto ptr2 = tileData(tilenume2) + x2 * ysiz2 + y2;
+                    auto dat = *ptr1;
                     if (dat != 255)
                         *ptr2 = *ptr1;
                 }

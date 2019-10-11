@@ -96,12 +96,10 @@ void G_GetCrosshairColor(void)
     if (DefaultCrosshairColors.f)
         return;
 
-    tileLoad(CROSSHAIR);
+	tileLoad(CROSSHAIR);
 
-    if (!waloff[CROSSHAIR])
-        return;
-
-    char const *ptr = (char const *) waloff[CROSSHAIR];
+	auto ptr = tilePtr(CROSSHAIR);
+	if (!ptr) return;
 
     // find the brightest color in the original 8-bit tile
     int32_t ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
@@ -130,9 +128,10 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
         return;
 
     tileLoad(CROSSHAIR);
+	tileMakeWritable(CROSSHAIR);
 
-    if (!waloff[CROSSHAIR])
-        return;
+	auto ptr = tileData(CROSSHAIR);
+	if (!ptr) return;
 
     if (!DefaultCrosshairColors.f)
         G_GetCrosshairColor();
@@ -141,8 +140,6 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     CrosshairColors.r = r;
     CrosshairColors.g = g;
     CrosshairColors.b = b;
-
-    char *ptr = (char *) waloff[CROSSHAIR];
 
     int32_t ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
 

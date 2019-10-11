@@ -115,10 +115,10 @@ void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
 	//POGOTODO: npoty
 	char npoty = 0;
 
-	//POGOTODO: if !glinfo.texnpot, then we could allocate a texture of the pow2 size, and then populate the subportion using buffersubdata func
+	tileCache(globalpicnum);
 
-	uint8_t* p = (uint8_t*)waloff[dapic];
-	if (!waloff[dapic])
+	const uint8_t* p = tilePtr(dapic);
+	if (!p)
 	{
 		static uint8_t pix = 255;
 		siz.x = siz.y = 1;
