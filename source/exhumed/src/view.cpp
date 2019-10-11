@@ -415,9 +415,23 @@ void DrawView()
 
     if (nFreeze != 3)
     {
+        int const viewingRange = viewingrange;
+
+        if (r_usenewaspect)
+        {
+            newaspect_enable = 1;
+            videoSetCorrectedAspect();
+        }
+
         drawrooms(nCamerax, nCameray, viewz, nCameraa, nCamerapan, nSector);
         analyzesprites();
         renderDrawMasks();
+
+        if (r_usenewaspect)
+        {
+            newaspect_enable = 0;
+            renderSetAspect(viewingRange, tabledivide32_noinline(65536 * ydim * 8, xdim * 5));
+        }
 
         if (nFreeze)
         {
