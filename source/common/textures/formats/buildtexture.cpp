@@ -53,7 +53,7 @@ class FBuildTexture : public FImageSource
 {
 public:
 	FBuildTexture (const FString &pathprefix, int tilenum, const uint8_t *pixels, int width, int height, int left, int top);
-	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
+	//void CreatePalettedPixels(uint8_t *destbuffer) override;
 
 protected:
 	const uint8_t *RawPixels;
@@ -75,12 +75,14 @@ FBuildTexture::FBuildTexture(const FString &pathprefix, int tilenum, const uint8
 	TopOffset = top;
 }
 
+#if 0
 TArray<uint8_t> FBuildTexture::CreatePalettedPixels(int conversion)
 {
 	TArray<uint8_t> Pixels(Width * Height, true);
 	memcpy(Pixels.Data(), RawPixels, Width * Height);
 	return Pixels;
 }
+#endif
 
 #if 0
 //===========================================================================

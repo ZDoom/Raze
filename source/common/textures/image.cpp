@@ -39,6 +39,7 @@
 #include "image.h"
 #include "files.h"
 #include "cache1d.h"
+#include "imagehelpers.h"
 
 int FImageSource::NextID;
 
@@ -48,13 +49,15 @@ int FImageSource::NextID;
 //
 //===========================================================================
 
-TArray<uint8_t> FImageSource::CreatePalettedPixels(int conversion)
+void FImageSource::CreatePalettedPixels(uint8_t *buffer)
 {
-	TArray<uint8_t> Pixels(Width * Height, true);
-	memset(Pixels.Data(), 0, Width * Height);
-	return Pixels;
+	memset(buffer, 0, Width * Height);
 }
 
+const uint8_t* FImageSource::GetPalettedPixels()
+{
+	return nullptr;
+}
 
 //===========================================================================
 //
@@ -70,14 +73,21 @@ TArray<uint8_t> FImageSource::CreatePalettedPixels(int conversion)
 
 int FImageSource::CopyTranslatedPixels(FBitmap *bmp, PalEntry *remap)
 {
-	auto ppix = CreatePalettedPixels(false);
-	bmp->CopyPixelData(0, 0, ppix.Data(), Width, Height, Height, 1, 0, remap);
+	TArray<uint8_t> buffer;
+	const uint8_t* ppix = GetPalettedPixels();
+	if (ppix == nullptr)
+	{
+		buffer.Resize(Width * Height);
+		CreatePalettedPixels(buffer.Data());
+		ppix = buffer.Data();
+	}
+	bmp->CopyPixelData(0, 0, ppix, Width, Height, Height, 1, 0, remap);
 	return 0;
 }
 
 int FImageSource::CopyPixels(FBitmap* bmp, int conversion)
 {
-	return CopyTranslatedPixels(bmp, nullptr);	// This should never get called for ART tiles.
+	return CopyTranslatedPixels(bmp, ImageHelpers::BaseColors);	// This should never get called for ART tiles.
 }
 
 

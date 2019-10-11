@@ -1055,6 +1055,7 @@ set (PCH_SOURCES
 	common/textures/texture.cpp
 	common/textures/image.cpp
 	common/textures/imagetexture.cpp
+	common/textures/imagehelpers.cpp
 	common/textures/formats/buildtexture.cpp
 	common/textures/formats/ddstexture.cpp
 	common/textures/formats/jpegtexture.cpp
@@ -1223,6 +1224,7 @@ install(TARGETS demolition
 source_group("Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Code\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Code\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/formats/.+")
+source_group("Code\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
 source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
 source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")

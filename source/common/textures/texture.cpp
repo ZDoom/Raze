@@ -390,11 +390,14 @@ bool FTexture::GetTranslucency()
 //
 //===========================================================================
 
-TArray<uint8_t> FTexture::Get8BitPixels(bool alphatex)
+const uint8_t* FTexture::Get8BitPixels()
 {
-	TArray<uint8_t> Pixels(Width * Height, true);
-	memset(Pixels.Data(), 0, Width * Height);
-	return Pixels;
+	return nullptr;	// most textures do not provide a static buffer.
+}
+
+void FTexture::Create8BitPixels(uint8_t *buffer)
+{
+	// The base class does not fill the texture.
 }
 
 #if 0

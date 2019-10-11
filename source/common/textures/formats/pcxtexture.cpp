@@ -37,6 +37,7 @@
 #include "basics.h"
 #include "files.h"
 #include "bitmap.h"
+#include "imagehelpers.h"
 #include "image.h"
 #include "cache1d.h"
 
@@ -90,6 +91,8 @@ protected:
 	void ReadPCX4bits (uint8_t *dst, FileReader & lump, PCXHeader *hdr);
 	void ReadPCX8bits (uint8_t *dst, FileReader & lump, PCXHeader *hdr);
 	void ReadPCX24bits (uint8_t *dst, FileReader & lump, PCXHeader *hdr, int planes);
+
+	void CreatePalettedPixels(uint8_t *destbuffer) override;
 };
 
 
@@ -330,6 +333,89 @@ void FPCXTexture::ReadPCX24bits (uint8_t *dst, FileReader & lump, PCXHeader *hdr
 				rle_count--;
 				ptr[c] = (uint8_t)rle_value;
 				ptr += planes;
+			}
+		}
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FPCXTexture::CreatePalettedPixels(uint8_t *buffer)
+{
+	uint8_t PaletteMap[256];
+	PCXHeader header;
+	int bitcount;
+
+	auto lump = kopenFileReader(Name, 0);
+	if (!lump.isOpen()) return;	// Just leave the texture blank.
+
+	lump.Read(&header, sizeof(header));
+
+	bitcount = header.bitsPerPixel * header.numColorPlanes;
+
+	if (bitcount < 24)
+	{
+		if (bitcount < 8)
+		{
+			switch (bitcount)
+			{
+			default:
+			case 1:
+				PaletteMap[0] = ImageHelpers::GrayMap[0];
+				PaletteMap[1] = ImageHelpers::GrayMap[255];
+				ReadPCX1bit (buffer, lump, &header);
+				break;
+
+			case 4:
+				for (int i = 0; i < 16; i++)
+				{
+					PaletteMap[i] = ImageHelpers::RGBToPalettePrecise(false, header.palette[i * 3], header.palette[i * 3 + 1], header.palette[i * 3 + 2]);
+				}
+				ReadPCX4bits (buffer, lump, &header);
+				break;
+			}
+		}
+		else if (bitcount == 8)
+		{
+			lump.Seek(-769, FileReader::SeekEnd);
+			uint8_t c = lump.ReadUInt8();
+			//if (c !=0x0c) memcpy(PaletteMap, GrayMap, 256);	// Fallback for files without palette
+			//else 
+			for(int i=0;i<256;i++)
+			{
+				uint8_t r = lump.ReadUInt8();
+				uint8_t g = lump.ReadUInt8();
+				uint8_t b = lump.ReadUInt8();
+				PaletteMap[i] = ImageHelpers::RGBToPalettePrecise(false, r, g, b);
+			}
+			lump.Seek(sizeof(header), FileReader::SeekSet);
+			ReadPCX8bits (buffer, lump, &header);
+		}
+		if (Width == Height)
+		{
+			ImageHelpers::FlipSquareBlockRemap(buffer, Width, PaletteMap);
+		}
+		else
+		{
+			TArray<uint8_t> newpix(Width*Height, true);
+			ImageHelpers::FlipNonSquareBlockRemap (newpix.Data(), buffer, Width, Height, Width, PaletteMap);
+		}
+	}
+	else
+	{
+		TArray<uint8_t> buffer(Width*Height * 3, true);
+		uint8_t * row = buffer.Data();
+		ReadPCX24bits (row, lump, &header, 3);
+		for(int y=0; y<Height; y++)
+		{
+			for(int x=0; x < Width; x++)
+			{
+				buffer[y + Height * x] = ImageHelpers::RGBToPalette(false, row[0], row[1], row[2]);
+				row+=3;
 			}
 		}
 	}

@@ -38,6 +38,7 @@
 #include "bitmap.h"
 #include "image.h"
 #include "cache1d.h"
+#include "imagehelpers.h"
 
 
 //==========================================================================
@@ -82,6 +83,7 @@ public:
 
 protected:
 	void ReadCompressed(FileReader &lump, uint8_t * buffer, int bytesperpixel);
+	void CreatePalettedPixels(uint8_t *destbuffer) override;
 };
 
 //==========================================================================
@@ -168,6 +170,212 @@ void FTGATexture::ReadCompressed(FileReader &lump, uint8_t * buffer, int bytespe
 	}
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
+{
+	uint8_t PaletteMap[256];
+	auto lump = kopenFileReader(Name, 0);
+	if (!lump.isOpen()) return;
+	TGAHeader hdr;
+	uint16_t w;
+	uint8_t r,g,b,a;
+
+	TArray<uint8_t> Pixels(Width*Height, true);
+	lump.Read(&hdr, sizeof(hdr));
+	lump.Seek(hdr.id_len, FileReader::SeekCur);
+	
+	hdr.width = LittleShort(hdr.width);
+	hdr.height = LittleShort(hdr.height);
+	hdr.cm_first = LittleShort(hdr.cm_first);
+	hdr.cm_length = LittleShort(hdr.cm_length);
+
+	if (hdr.has_cm)
+	{
+		memset(PaletteMap, 0, 256);
+		for (int i = hdr.cm_first; i < hdr.cm_first + hdr.cm_length && i < 256; i++)
+		{
+			switch (hdr.cm_size)
+			{
+			case 15:
+			case 16:
+				w = lump.ReadUInt16();
+				r = (w & 0x001F) << 3;
+				g = (w & 0x03E0) >> 2;
+				b = (w & 0x7C00) >> 7;
+				a = 255;
+				break;
+				
+			case 24:
+				b = lump.ReadUInt8();
+				g = lump.ReadUInt8();
+				r = lump.ReadUInt8();
+				a=255;
+				break;
+				
+			case 32:
+				b = lump.ReadUInt8();
+				g = lump.ReadUInt8();
+				r = lump.ReadUInt8();
+				a = lump.ReadUInt8();
+				if ((hdr.img_desc&15)!=8) a=255;
+				break;
+				
+			default:	// should never happen
+				r=g=b=a=0;
+				break;
+			}
+			PaletteMap[i] = ImageHelpers::RGBToPalettePrecise(false, r, g, b, a);
+		}
+    }
+    
+    int Size = Width * Height * (hdr.bpp>>3);
+   	
+    if (hdr.img_type < 4)	// uncompressed
+    {
+    	lump.Read(buffer, Size);
+    }
+    else				// compressed
+    {
+    	ReadCompressed(lump, buffer, hdr.bpp>>3);
+    }
+    
+	uint8_t * ptr = buffer;
+	int step_x = (hdr.bpp>>3);
+	int Pitch = Width * step_x;
+
+	/*
+	if (hdr.img_desc&32)
+	{
+		ptr += (Width-1) * step_x;
+		step_x =- step_x;
+	}
+	*/
+	if (!(hdr.img_desc&32))
+	{
+		ptr += (Height-1) * Pitch;
+		Pitch = -Pitch;
+	}
+
+    switch (hdr.img_type & 7)
+    {
+	case 1:	// paletted
+		for(int y=0;y<Height;y++)
+		{
+			uint8_t * p = ptr + y * Pitch;
+			for(int x=0;x<Width;x++)
+			{
+				Pixels[x*Height+y] = PaletteMap[*p];
+				p+=step_x;
+			}
+		}
+		break;
+
+	case 2:	// RGB
+		switch (hdr.bpp)
+		{
+		case 15:
+		case 16:
+			step_x>>=1;
+			for(int y=0;y<Height;y++)
+			{
+				uint16_t * p = (uint16_t*)(ptr + y * Pitch);
+				for(int x=0;x<Width;x++)
+				{
+					int v = LittleShort(*p);
+					Pixels[x*Height + y] = ImageHelpers::RGBToPalette(false, ((v >> 10) & 0x1f) * 8, ((v >> 5) & 0x1f) * 8, (v & 0x1f) * 8);
+					p+=step_x;
+				}
+			}
+			break;
+		
+		case 24:
+			for(int y=0;y<Height;y++)
+			{
+				uint8_t * p = ptr + y * Pitch;
+				for(int x=0;x<Width;x++)
+				{
+					Pixels[x*Height + y] = ImageHelpers::RGBToPalette(false, p[2], p[1], p[0]);
+					p+=step_x;
+				}
+			}
+			break;
+		
+		case 32:
+			if ((hdr.img_desc&15)!=8)	// 32 bits without a valid alpha channel
+			{
+				for(int y=0;y<Height;y++)
+				{
+					uint8_t * p = ptr + y * Pitch;
+					for(int x=0;x<Width;x++)
+					{
+						Pixels[x*Height + y] = ImageHelpers::RGBToPalette(false, p[2], p[1], p[0]);
+						p+=step_x;
+					}
+				}
+			}
+			else
+			{
+				for(int y=0;y<Height;y++)
+				{
+					uint8_t * p = ptr + y * Pitch;
+					for(int x=0;x<Width;x++)
+					{
+						Pixels[x*Height + y] = ImageHelpers::RGBToPalette(false, p[2], p[1], p[0], p[3]);
+						p+=step_x;
+					}
+				}
+			}
+			break;
+		
+		default:
+			break;
+		}
+		break;
+	
+	case 3:	// Grayscale
+	{
+		auto remap = ImageHelpers::GetGraymap();
+		switch (hdr.bpp)
+		{
+		case 8:
+			for (int y = 0; y < Height; y++)
+			{
+				uint8_t * p = ptr + y * Pitch;
+				for (int x = 0; x < Width; x++)
+				{
+					Pixels[x*Height + y] = remap[*p];
+					p += step_x;
+				}
+			}
+			break;
+
+		case 16:
+			for (int y = 0; y < Height; y++)
+			{
+				uint8_t * p = ptr + y * Pitch;
+				for (int x = 0; x < Width; x++)
+				{
+					Pixels[x*Height + y] = remap[p[1]];	// only use the high byte
+					p += step_x;
+				}
+			}
+			break;
+
+		default:
+			break;
+		}
+		break;
+	}
+	default:
+		break;
+    }
+}	
+
 //===========================================================================
 //
 // FTGATexture::CopyPixels
@@ -178,6 +386,7 @@ int FTGATexture::CopyPixels(FBitmap *bmp, int conversion)
 {
 	PalEntry pe[256];
 	auto lump = kopenFileReader(Name, 0);
+	if (!lump.isOpen()) return -1;
 	TGAHeader hdr;
 	uint16_t w;
 	uint8_t r,g,b,a;
@@ -232,7 +441,7 @@ int FTGATexture::CopyPixels(FBitmap *bmp, int conversion)
     }
     
     int Size = Width * Height * (hdr.bpp>>3);
-	TArray<uint8_t> sbuffer(Size);
+	TArray<uint8_t> sbuffer(Size, true);
    	
     if (hdr.img_type < 4)	// uncompressed
     {

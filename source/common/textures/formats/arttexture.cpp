@@ -52,6 +52,7 @@ class FArtTexture : public FImageSource
 
 public:
 	FArtTexture (int width, int height, int p);
+	void CreatePalettedPixels(uint8_t* buffer);
 	int CopyPixels(FBitmap *bmp, int conversion) override;
 	int32_t picanmdisk;	// Todo: Get this out again on the other side.
 };
@@ -102,6 +103,20 @@ FArtTexture::FArtTexture(int width, int height, int p)
 	Width = width;
 	Height = height;
 	picanmdisk = p;
+}
+
+//==========================================================================
+//
+// This will never be called by the software renderer but let's be safe.
+//
+//==========================================================================
+
+void FArtTexture::CreatePalettedPixels(uint8_t* buffer)
+{
+	FileReader fr = kopenFileReader(Name, 0);
+	if (!fr.isOpen()) return;
+	int numpixels = Width * Height;
+	fr.Read(buffer, numpixels);
 }
 
 //===========================================================================

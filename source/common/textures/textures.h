@@ -157,7 +157,8 @@ public:
 	PalEntry GetSkyCapColor(bool bottom);
 
 	// Returns the whole texture, stored in column-major order
-	virtual TArray<uint8_t> Get8BitPixels(bool alphatex);
+	virtual void Create8BitPixels(uint8_t* buffer);
+	virtual const uint8_t* Get8BitPixels();
 	virtual FBitmap GetBgraBitmap(PalEntry *remap, int *trans = nullptr);
 
 	static int SmoothEdges(unsigned char * buffer,int w, int h);

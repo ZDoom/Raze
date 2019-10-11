@@ -37,6 +37,7 @@
 #include "templates.h"
 #include "m_png.h"
 #include "bitmap.h"
+#include "imagehelpers.h"
 #include "image.h"
 #include "printf.h"
 #include "cache1d.h"
@@ -52,6 +53,7 @@ class FPNGTexture : public FImageSource
 public:
 	FPNGTexture (FileReader &lump, int width, int height, uint8_t bitdepth, uint8_t colortype, uint8_t interlace);
 
+	void CreatePalettedPixels(uint8_t* buffer);
 	int CopyPixels(FBitmap *bmp, int conversion) override;
 
 protected:
@@ -61,7 +63,8 @@ protected:
 	bool HaveTrans;
 	uint16_t NonPaletteTrans[3];
 
-	int PaletteSize = 0;
+	uint8_t PaletteMap[256];
+	uint32_t PaletteSize = 0;
 	uint32_t StartOfIDAT = 0;
 	uint32_t StartOfPalette = 0;
 };
@@ -145,8 +148,14 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 						  uint8_t depth, uint8_t colortype, uint8_t interlace)
   : BitDepth(depth), ColorType(colortype), Interlace(interlace), HaveTrans(false)
 {
+	union
+	{
+		PalEntry palette[256];
+		uint8_t pngpal[256][3];
+	} p;
 	uint8_t trans[256];
 	uint32_t len, id;
+	int i;
 
 	bMasked = false;
 
@@ -197,6 +206,15 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 		case MAKE_ID('P','L','T','E'):
 			PaletteSize = std::min<int> (len / 3, 256);
 			StartOfPalette = (uint32_t)lump.Tell();
+			lump.Read (p.pngpal, PaletteSize * 3);
+			if (PaletteSize * 3 != (int)len)
+			{
+				lump.Seek (len - PaletteSize * 3, FileReader::SeekCur);
+			}
+			for (i = PaletteSize - 1; i >= 0; --i)
+			{
+				p.palette[i] = PalEntry(p.pngpal[i][0], p.pngpal[i][1], p.pngpal[i][2]);
+			}
 			break;
 
 		case MAKE_ID('t','R','N','S'):
@@ -219,16 +237,36 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 	{
 	case 4:		// Grayscale + Alpha
 		bMasked = true;
-		break;
+		// intentional fall-through
 
 	case 0:		// Grayscale
 		if (colortype == 0 && HaveTrans && NonPaletteTrans[0] < 256)
 		{
 			bMasked = true;
+			PaletteSize = 256;
+			memcpy (PaletteMap, ImageHelpers::GrayMap+1, 256);
+			PaletteMap[255] = 254;	// cannot use 255.
+			PaletteMap[NonPaletteTrans[0]] = 255;
+		}
+		else
+		{
+			memcpy(PaletteMap, ImageHelpers::GrayMap, 256);
 		}
 		break;
 
 	case 3:		// Paletted
+		for (i = 0; i < PaletteSize; ++i)
+		{
+			if (trans[i] == 0)
+			{
+				bMasked = true;
+				PaletteMap[i] = 255;
+			}
+			else
+			{
+				PaletteMap[i] = ImageHelpers::BestColor(p.palette[i].r, p.palette[i].g, p.palette[i].b);
+			}
+		}
 		break;
 
 	case 6:		// RGB + Alpha
@@ -238,6 +276,116 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 	case 2:		// RGB
 		bMasked = HaveTrans;
 		break;
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FPNGTexture::CreatePalettedPixels(uint8_t *buffer)
+{
+	FileReader *lump;
+	FileReader lfr;
+
+	lfr = kopenFileReader(Name, 0);
+	if (!lfr.isOpen()) return;
+	lump = &lfr;
+
+	TArray<uint8_t> Pixels(Width*Height, true);
+	if (StartOfIDAT == 0)
+	{
+		memset (Pixels.Data(), 0x99, Width*Height);
+	}
+	else
+	{
+		uint32_t len, id;
+		lump->Seek (StartOfIDAT, FileReader::SeekSet);
+		lump->Read(&len, 4);
+		lump->Read(&id, 4);
+
+		if (ColorType == 0 || ColorType == 3)	/* Grayscale and paletted */
+		{
+			M_ReadIDAT (*lump, Pixels.Data(), Width, Height, Width, BitDepth, ColorType, Interlace, BigLong((unsigned int)len));
+
+			if (Width == Height)
+			{
+				ImageHelpers::FlipSquareBlockRemap (Pixels.Data(), Width, PaletteMap);
+			}
+			else
+			{
+				TArray<uint8_t> newpix(Width*Height, true);
+				ImageHelpers::FlipNonSquareBlockRemap (newpix.Data(), Pixels.Data(), Width, Height, Width, PaletteMap);
+			}
+		}
+		else		/* RGB and/or Alpha present */
+		{
+			int bytesPerPixel = ColorType == 2 ? 3 : ColorType == 4 ? 2 : 4;
+			uint8_t *tempix = new uint8_t[Width * Height * bytesPerPixel];
+			uint8_t *in, *out;
+			int x, y, pitch, backstep;
+
+			M_ReadIDAT (*lump, tempix, Width, Height, Width*bytesPerPixel, BitDepth, ColorType, Interlace, BigLong((unsigned int)len));
+			in = tempix;
+			out = Pixels.Data();
+
+			// Convert from source format to paletted, column-major.
+			// Formats with alpha maps are reduced to only 1 bit of alpha.
+			switch (ColorType)
+			{
+			case 2:		// RGB
+				pitch = Width * 3;
+				backstep = Height * pitch - 3;
+				for (x = Width; x > 0; --x)
+				{
+					for (y = Height; y > 0; --y)
+					{
+						if (HaveTrans && in[0] == NonPaletteTrans[0] && in[1] == NonPaletteTrans[1] && in[2] == NonPaletteTrans[2])
+						{
+							*out++ = 255;
+						}
+						else
+						{
+							*out++ = ImageHelpers::RGBToPalette(false, in[0], in[1], in[2]);
+						}
+						in += pitch;
+					}
+					in -= backstep;
+				}
+				break;
+
+			case 4:		// Grayscale + Alpha
+				pitch = Width * 2;
+				backstep = Height * pitch - 2;
+				for (x = Width; x > 0; --x)
+				{
+					for (y = Height; y > 0; --y)
+					{
+						*out++ = PaletteMap[in[0]];
+						in += pitch;
+					}
+					in -= backstep;
+				}
+				break;
+
+			case 6:		// RGB + Alpha
+				pitch = Width * 4;
+				backstep = Height * pitch - 4;
+				for (x = Width; x > 0; --x)
+				{
+					for (y = Height; y > 0; --y)
+					{
+						*out++ = ImageHelpers::RGBToPalette(false, in[0], in[1], in[2], in[3]);
+						in += pitch;
+					}
+					in -= backstep;
+				}
+				break;
+			}
+			delete[] tempix;
+		}
 	}
 }
 

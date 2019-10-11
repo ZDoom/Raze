@@ -47,6 +47,7 @@
 
 #include "files.h"
 #include "bitmap.h"
+#include "imagehelpers.h"
 #include "image.h"
 #include "cache1d.h"
 
@@ -66,6 +67,7 @@ class FStbTexture : public FImageSource
 
 public:
 	FStbTexture (int w, int h);
+	void CreatePalettedPixels(uint8_t *destbuffer) override;
 	int CopyPixels(FBitmap *bmp, int conversion) override;
 };
 
@@ -114,9 +116,46 @@ FStbTexture::FStbTexture (int w, int h)
 //
 //==========================================================================
 
+void FStbTexture::CreatePalettedPixels(uint8_t *buffer)
+{
+	FBitmap bitmap;
+	bitmap.Create(Width, Height);
+	CopyPixels(&bitmap, 0);
+	const uint8_t *data = bitmap.GetPixels();
+
+	uint8_t *dest_p;
+	int dest_adv = Height;
+	int dest_rew = Width * Height - 1;
+
+	dest_p = buffer;
+
+	// Convert the source image from row-major to column-major format and remap it
+	for (int y = Height; y != 0; --y)
+	{
+		for (int x = Width; x != 0; --x)
+		{
+			int b = *data++;
+			int g = *data++;
+			int r = *data++;
+			int a = *data++;
+			if (a < 128) *dest_p = 0;
+			else *dest_p = ImageHelpers::RGBToPalette(false, r, g, b); 
+			dest_p += dest_adv;
+		}
+		dest_p -= dest_rew;
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 int FStbTexture::CopyPixels(FBitmap *bmp, int conversion)
 {
-	auto lump = kopenFileReader(Name, 0); 
+	auto lump = kopenFileReader(Name, 0);
+	if (!lump.isOpen()) return -1;	// Just leave the texture blank.
 	int x, y, chan;
 	auto image = stbi_load_from_callbacks(&callbacks, &lump, &x, &y, &chan, STBI_rgb_alpha); 	
 	if (image)

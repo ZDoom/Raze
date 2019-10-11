@@ -51,6 +51,7 @@
 #include <stdint.h>
 #include "files.h"
 #include "bitmap.h"
+#include "imagehelpers.h"
 #include "image.h"
 #include "m_png.h"
 #include "cache1d.h"
@@ -162,6 +163,8 @@ class FDDSTexture : public FImageSource
 	};
 public:
 	FDDSTexture (FileReader &lump, void *surfdesc);
+
+	void CreatePalettedPixels(uint8_t *destbuffer) override;
 
 protected:
 	uint32_t Format;
@@ -364,6 +367,38 @@ void FDDSTexture::CalcBitShift (uint32_t mask, uint8_t *lshiftp, uint8_t *rshift
 
 //==========================================================================
 //
+//
+//
+//==========================================================================
+
+void FDDSTexture::CreatePalettedPixels(uint8_t *buffer)
+{
+	auto lump = kopenFileReader(Name, 0);
+	if (!lump.isOpen()) return;	// Just leave the texture blank.
+
+	lump.Seek (sizeof(DDSURFACEDESC2) + 4, FileReader::SeekSet);
+
+	int pmode = PIX_Palette;
+	if (Format >= 1 && Format <= 4)		// RGB: Format is # of bytes per pixel
+	{
+		ReadRGB (lump, buffer, pmode);
+	}
+	else if (Format == ID_DXT1)
+	{
+		DecompressDXT1 (lump, buffer, pmode);
+	}
+	else if (Format == ID_DXT3 || Format == ID_DXT2)
+	{
+		DecompressDXT3 (lump, Format == ID_DXT2, buffer, pmode);
+	}
+	else if (Format == ID_DXT5 || Format == ID_DXT4)
+	{
+		DecompressDXT5 (lump, Format == ID_DXT4, buffer, pmode);
+	}
+}
+
+//==========================================================================
+//
 // Note that pixel size == 8 is column-major, but 32 is row-major!
 //
 //==========================================================================
@@ -400,7 +435,20 @@ void FDDSTexture::ReadRGB (FileReader &lump, uint8_t *buffer, int pixelmode)
 			}
 			if (pixelmode != PIX_ARGB)
 			{
-				assert(false);
+				if (amask == 0 || (c & amask))
+				{
+					uint32_t r = (c & RMask) << RShiftL; r |= r >> RShiftR;
+					uint32_t g = (c & GMask) << GShiftL; g |= g >> GShiftR;
+					uint32_t b = (c & BMask) << BShiftL; b |= b >> BShiftR;
+					uint32_t a = (c & AMask) << AShiftL; a |= a >> AShiftR;
+					*pixelp = ImageHelpers::RGBToPalette(false, r >> 24, g >> 24, b >> 24, a >> 24);
+				}
+				else
+				{
+					*pixelp = 0;
+					bMasked = true;
+				}
+				pixelp += Height;
 			}
 			else
 			{
@@ -479,7 +527,7 @@ void FDDSTexture::DecompressDXT1 (FileReader &lump, uint8_t *buffer, int pixelmo
 			// Pick colors from the palette for each of the four colors.
 			if (pixelmode != PIX_ARGB) for (i = 3; i >= 0; --i)
 			{
-				assert(false);
+				palcol[i] = ImageHelpers::RGBToPalette(pixelmode == PIX_Alphatex, color[i]);
 			}
 			// Now decode this 4x4 block to the pixel buffer.
 			for (y = 0; y < 4; ++y)
@@ -559,7 +607,7 @@ void FDDSTexture::DecompressDXT3 (FileReader &lump, bool premultiplied, uint8_t 
 			// Pick colors from the palette for each of the four colors.
 			if (pixelmode != PIX_ARGB) for (i = 3; i >= 0; --i)
 			{
-				assert(false);
+				palcol[i] = ImageHelpers::RGBToPalette(pixelmode == PIX_Alphatex, color[i], false);
 			}
 
 			// Now decode this 4x4 block to the pixel buffer.
@@ -671,7 +719,7 @@ void FDDSTexture::DecompressDXT5 (FileReader &lump, bool premultiplied, uint8_t 
 			// Pick colors from the palette for each of the four colors.
 			if (pixelmode != PIX_ARGB) for (i = 3; i >= 0; --i)
 			{
-				assert(false);
+				palcol[i] = ImageHelpers::RGBToPalette(pixelmode == PIX_Alphatex, color[i], false);
 			}
 			// Now decode this 4x4 block to the pixel buffer.
 			for (y = 0; y < 4; ++y)

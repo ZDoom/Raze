@@ -40,6 +40,7 @@
 #include "bitmap.h"
 #include "image.h"
 #include "cache1d.h"
+#include "imagehelpers.h"
 
 extern "C"
 {
@@ -183,6 +184,7 @@ class FJPEGTexture : public FImageSource
 public:
 	FJPEGTexture (int width, int height);
 
+	void CreatePalettedPixels(uint8_t* destbuffer) override;
 	int CopyPixels(FBitmap *bmp, int conversion) override;
 };
 
@@ -249,6 +251,125 @@ FJPEGTexture::FJPEGTexture (int width, int height)
 	Width = width;
 	Height = height;
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
+{
+	auto lump = kopenFileReader(Name, 0);
+	if (!lump.isOpen()) return;	// Just leave the texture blank.
+	JSAMPLE *buff = NULL;
+
+	jpeg_decompress_struct cinfo;
+	jpeg_error_mgr jerr;
+
+	TArray<uint8_t> Pixels(Width * Height, true);
+	memset (Pixels.Data(), 0xBA, Width * Height);
+
+	cinfo.err = jpeg_std_error(&jerr);
+	cinfo.err->output_message = JPEG_OutputMessage;
+	cinfo.err->error_exit = JPEG_ErrorExit;
+	jpeg_create_decompress(&cinfo);
+
+	FLumpSourceMgr sourcemgr(&lump, &cinfo);
+	try
+	{
+		jpeg_read_header(&cinfo, TRUE);
+		if (!((cinfo.out_color_space == JCS_RGB && cinfo.num_components == 3) ||
+			(cinfo.out_color_space == JCS_CMYK && cinfo.num_components == 4) ||
+			(cinfo.out_color_space == JCS_YCbCr && cinfo.num_components == 3) ||
+			(cinfo.out_color_space == JCS_GRAYSCALE && cinfo.num_components == 1)))
+		{
+			Printf(TEXTCOLOR_ORANGE "Unsupported color format in %s\n", Name.GetChars());
+		}
+		else
+		{
+			jpeg_start_decompress(&cinfo);
+
+			int y = 0;
+			buff = new uint8_t[cinfo.output_width * cinfo.output_components];
+
+			while (cinfo.output_scanline < cinfo.output_height)
+			{
+				int num_scanlines = jpeg_read_scanlines(&cinfo, &buff, 1);
+				uint8_t *in = buff;
+				uint8_t *out = Pixels.Data() + y;
+				switch (cinfo.out_color_space)
+				{
+				case JCS_RGB:
+					for (int x = Width; x > 0; --x)
+					{
+						*out = ImageHelpers::RGBToPalette(false, in[0], in[1], in[2]);
+						out += Height;
+						in += 3;
+					}
+					break;
+
+				case JCS_GRAYSCALE:
+				{
+					auto remap = ImageHelpers::GetGraymap();
+					for (int x = Width; x > 0; --x)
+					{
+						*out = remap[in[0]];
+						out += Height;
+						in += 1;
+					}
+					break;
+				}
+				case JCS_CMYK:
+					// What are you doing using a CMYK image? :)
+					for (int x = Width; x > 0; --x)
+					{
+						// To be precise, these calculations should use 255, but
+						// 256 is much faster and virtually indistinguishable.
+						int r = in[3] - (((256 - in[0])*in[3]) >> 8);
+						int g = in[3] - (((256 - in[1])*in[3]) >> 8);
+						int b = in[3] - (((256 - in[2])*in[3]) >> 8);
+						*out = ImageHelpers::RGBToPalette(false, r, g, b);
+						out += Height;
+						in += 4;
+					}
+					break;
+
+				case JCS_YCbCr:
+					// Probably useless but since I had the formula available...
+					for (int x = Width; x > 0; --x)
+					{
+						double Y = in[0], Cb = in[1], Cr = in[2];
+						int r = clamp((int)(Y + 1.40200 * (Cr - 0x80)), 0, 255);
+						int g = clamp((int)(Y - 0.34414 * (Cb - 0x80) - 0.71414 * (Cr - 0x80)), 0, 255);
+						int b = clamp((int)(Y + 1.77200 * (Cb - 0x80)), 0, 255);
+						*out = ImageHelpers::RGBToPalette(false, r, g, b);
+						out += Height;
+						in += 4;
+					}
+					break;
+
+				default:
+					// The other colorspaces were considered above and discarded,
+					// but GCC will complain without a default for them here.
+					break;
+				}
+				y++;
+			}
+			jpeg_finish_decompress(&cinfo);
+		}
+	}
+	catch (int)
+	{
+		Printf(TEXTCOLOR_ORANGE "JPEG error in %s\n", Name.GetChars());
+	}
+	jpeg_destroy_decompress(&cinfo);
+	if (buff != NULL)
+	{
+		delete[] buff;
+	}
+}
+
 
 //===========================================================================
 //

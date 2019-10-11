@@ -83,8 +83,12 @@ FBitmap FImageTexture::GetBgraBitmap(PalEntry *p, int *trans)
 //
 //===========================================================================
 
-TArray<uint8_t> FImageTexture::Get8BitPixels(bool alpha)
+const uint8_t *FImageTexture::Get8BitPixels()
 {
-	return mImage->CreatePalettedPixels(0);
+	return mImage->GetPalettedPixels();
 }	
 
+void FImageTexture::Create8BitPixels(uint8_t* buffer)
+{
+	return mImage->CreatePalettedPixels(buffer);
+}
