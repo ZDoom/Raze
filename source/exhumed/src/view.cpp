@@ -73,121 +73,88 @@ static void analyzesprites()
     int var_38 = 20;
     int var_2C = 30000;
 
+    spritetype *pPlayerSprite = &sprite[nPlayerSprite];
+
     besttarget = -1;
 
-    int x = sprite[nPlayerSprite].x;
-    int y = sprite[nPlayerSprite].y;
+    int x = pPlayerSprite->x;
+    int y = pPlayerSprite->y;
 
-    int z = sprite[nPlayerSprite].z - (GetSpriteHeight(nPlayerSprite) / 2);
+    int z = pPlayerSprite->z - (GetSpriteHeight(nPlayerSprite) / 2);
 
-    short nSector = sprite[nPlayerSprite].sectnum;
+    short nSector = pPlayerSprite->sectnum;
 
-    int nAngle = (2048 - sprite[nPlayerSprite].ang) & kAngleMask;
+    int nAngle = (2048 - pPlayerSprite->ang) & kAngleMask;
 
-    int edi = spritesortcnt;
-    int nSprite = spritesortcnt - 1;
+    int nTSprite;
+    tspritetype *pTSprite;
 
 //	int var_20 = var_24; 
 
-    while (1)
+    for (nTSprite = spritesortcnt-1, pTSprite = &tsprite[nTSprite]; nTSprite >= 0; nTSprite--, pTSprite--)
     {
-        edi--;
-        if (edi < 0)
+        int nSprite = pTSprite->owner;
+        spritetype *pSprite = &sprite[nSprite];
+
+        if (pTSprite->sectnum >= 0)
         {
-            if (besttarget != -1)
-            {
-                nCreepyTimer = 450;
-
-                if (!cansee(x, y, z, nSector, sprite[besttarget].x, sprite[besttarget].y, sprite[besttarget].z - GetSpriteHeight(besttarget), sprite[besttarget].sectnum))
-                {
-                    besttarget = -1;
-                }
-            }
-
-            return;
+            sectortype *pSector = &sector[pTSprite->sectnum];
+            int nSectShade = (pSector->ceilingstat & 1) ? pSector->ceilingshade : pSector->floorshade;
+            int nShade = pTSprite->shade + nSectShade + 6;
+            pTSprite->shade = clamp(nShade, -128, 127);
         }
-        else
+
+        if (pSprite->statnum > 0)
         {
-            int nSprite2 = tsprite[nSprite].owner;
+            runlist_SignalRun(pSprite->lotag - 1, nTSprite | 0x90000);
 
-            if (sprite[nSprite2].statnum > 0)
+            if ((pSprite->statnum < 150) && (pSprite->cstat & 0x101) && (nSprite != nPlayerSprite))
             {
-                runlist_SignalRun(sprite[nSprite2].lotag - 1, edi | 0x90000);
+                int xval = pSprite->x - x;
+                int yval = pSprite->y - y;
 
-                if ((sprite[nSprite2].statnum < 150) && (sprite[nSprite2].cstat & 0x101) && (nSprite2 != nPlayerSprite))
+                int vcos = Cos(nAngle);
+                int vsin = Sin(nAngle);
+
+
+                int edx = ((vcos * yval) + (xval * vsin)) >> 14;
+
+
+                int ebx = klabs(((vcos * xval) - (yval * vsin)) >> 14);
+
+                if (!ebx)
+                    continue;
+
+                edx = (klabs(edx) * 32) / ebx;
+                if (ebx < 1000 && ebx < var_2C && edx < 10)
                 {
-                    int xval = sprite[nSprite2].x - x;
-                    int yval = sprite[nSprite2].y - y;
-
-                    int var_40 = xval * Sin(nAngle + 512);
-                    int var_44 = sintable[nAngle];
-
-
-                    int edx = ((Sin(nAngle + 512) * yval) + (xval * var_44)) >> 14;
-
-
-                    int eax = (var_40 - (yval * var_44)) >> 14;
-
-
-                    if (eax < 0) {
-                        eax = -eax;
-                    }
-
-                    int ebx = eax;
-                    int ecx = eax;
-
-                    if (eax)
+                    besttarget = nSprite;
+                    var_38 = edx;
+                    var_2C = ebx;
+                }
+                else if (ebx < 30000)
+                {
+                    int t = var_38 - edx;
+                    if (t > 3 || (ebx < var_2C && klabs(t) < 5))
                     {
-                        eax = edx;
-
-                        if (eax < 0) {
-                            eax = -eax;
-                        }
-
-                        edx = (eax * 32) / ebx;
-
-                        if (ebx >= 1000 || ebx >= var_2C || edx >= 10)
-                        {
-                            // loc_170A1
-                            if (ecx < 30000)
-                            {
-                                eax = var_38 - edx;
-                                if (eax <= 3)
-                                {
-                                    if (ecx < var_2C)
-                                    {
-                                        if (eax < 0) {
-                                            eax = -eax;
-                                        }
-
-                                        if (eax < 5)
-                                        {
-                                            var_38 = edx;
-                                            var_2C = ecx;
-                                            besttarget = nSprite2;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    var_38 = edx;
-                                    var_2C = ecx;
-                                    besttarget = nSprite2;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            besttarget = nSprite2;
-                            var_38 = edx;
-                            var_2C = ebx;
-                        }
+                        var_38 = edx;
+                        var_2C = ebx;
+                        besttarget = nSprite;
                     }
                 }
             }
         }
+    }
+    if (besttarget != -1)
+    {
+        spritetype *pTarget = &sprite[besttarget];
 
-        nSprite--;
+        nCreepyTimer = 450;
+
+        if (!cansee(x, y, z, nSector, pTarget->x, pTarget->y, pTarget->z - GetSpriteHeight(besttarget), pTarget->sectnum))
+        {
+            besttarget = -1;
+        }
     }
 }
 
