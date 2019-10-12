@@ -1052,6 +1052,7 @@ set (PCH_SOURCES
 	common/utility/memarena.cpp
 
 	common/textures/bitmap.cpp
+	common/textures/buildtiles.cpp
 	common/textures/texture.cpp
 	common/textures/image.cpp
 	common/textures/imagetexture.cpp

@@ -6129,23 +6129,7 @@ static void G_Startup(void)
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
 
-    char *cwd;
-
-    if (g_modDir[0] != '/' && (cwd = buildvfs_getcwd(NULL, 0)))
-    {
-        buildvfs_chdir(g_modDir);
-        if (artLoadFiles("tiles%03i.art", MAXCACHE1DSIZE) < 0)
-        {
-            buildvfs_chdir(cwd);
-            if (artLoadFiles("tiles%03i.art", MAXCACHE1DSIZE) < 0)
-                G_GameExit("Failed loading art.");
-        }
-        buildvfs_chdir(cwd);
-#ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
-        Xfree(cwd);
-#endif
-    }
-    else if (artLoadFiles("tiles%03i.art",MAXCACHE1DSIZE) < 0)
+    if (artLoadFiles("tiles%03i.art",MAXCACHE1DSIZE) < 0)
         G_GameExit("Failed loading art.");
 
     cacheAllSounds();

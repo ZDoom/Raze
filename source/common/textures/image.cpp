@@ -43,54 +43,6 @@
 
 int FImageSource::NextID;
 
-//===========================================================================
-// 
-// the default just returns an empty texture.
-//
-//===========================================================================
-
-void FImageSource::CreatePalettedPixels(uint8_t *buffer)
-{
-	memset(buffer, 0, Width * Height);
-}
-
-const uint8_t* FImageSource::GetPalettedPixels()
-{
-	return nullptr;
-}
-
-//===========================================================================
-//
-// FImageSource::CopyPixels
-//
-// this is the generic case that can handle
-// any properly implemented texture for software rendering.
-// Its drawback is that it is limited to the base palette which is
-// why all classes that handle different palettes should subclass this
-// method
-//
-//===========================================================================
-
-int FImageSource::CopyTranslatedPixels(FBitmap *bmp, PalEntry *remap)
-{
-	TArray<uint8_t> buffer;
-	const uint8_t* ppix = GetPalettedPixels();
-	if (ppix == nullptr)
-	{
-		buffer.Resize(Width * Height);
-		CreatePalettedPixels(buffer.Data());
-		ppix = buffer.Data();
-	}
-	bmp->CopyPixelData(0, 0, ppix, Width, Height, Height, 1, 0, remap);
-	return 0;
-}
-
-int FImageSource::CopyPixels(FBitmap* bmp, int conversion)
-{
-	return CopyTranslatedPixels(bmp, ImageHelpers::BaseColors);	// This should never get called for ART tiles.
-}
-
-
 //==========================================================================
 //
 //

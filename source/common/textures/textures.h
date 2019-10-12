@@ -58,6 +58,10 @@ enum ECreateTexBufferFlags
 	CTF_CheckOnly = 8,		// Only runs the code to get a content ID but does not create a texture. Can be used to access a caching system for the hardware textures.
 };
 
+struct size_16_t	// must be the same format as vec2_16_t, we cannot include a dirty header like compat.h here.
+{
+	int16_t x, y;
+};
 
 
 class FBitmap;
@@ -147,7 +151,8 @@ class FTexture
 public:
 	static FTexture *CreateTexture(const char *name);
 	static FTexture* GetTexture(const char* path);
-	static FTexture* GetTileTexture(const char* name, const uint8_t* data, int width, int height, int xofs, int yofs);
+	static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height, int xofs, int yofs);
+
 
 	virtual ~FTexture ();
 	virtual FImageSource *GetImage() const { return nullptr; }
@@ -160,13 +165,15 @@ public:
 	// Returns the whole texture, stored in column-major order
 	virtual void Create8BitPixels(uint8_t* buffer);
 	virtual const uint8_t* Get8BitPixels();
+	virtual uint8_t* GetWritableBuffer() { return nullptr; }	// For dynamic tiles. Requesting this must also invalidate the texture.
 	virtual FBitmap GetBgraBitmap(PalEntry *remap, int *trans = nullptr);
 
 	static int SmoothEdges(unsigned char * buffer,int w, int h);
 	static PalEntry averageColor(const uint32_t *data, int size, int maxout);
 
-	int GetWidth() { return Width; }
-	int GetHeight() { return Height; }
+	int GetWidth() { return Size.x; }
+	int GetHeight() { return Size.y; }
+	const size_16_t &GetSize() { return Size; }
 	int GetLeftOffset() { return LeftOffset; }
 	int GetTopOffset() { return TopOffset; }
 	FTextureBuffer CreateTexBuffer(int translation, int flags = 0);
@@ -178,15 +185,20 @@ protected:
 	
 	void CopySize(FTexture *BaseTexture)
 	{
-		Width = BaseTexture->GetWidth();
-		Height = BaseTexture->GetHeight();
+		Size.x = BaseTexture->GetWidth();
+		Size.y = BaseTexture->GetHeight();
 		TopOffset = BaseTexture->TopOffset;
 		TopOffset = BaseTexture->TopOffset;
 	}
 
-	int Width = 0, Height = 0;
-	int LeftOffset = 0, TopOffset = 0;
+	void SetSize(int w, int h)
+	{
+		Size = { int16_t(w), int16_t(h) };
+	}
+
 	FString Name;
+	size_16_t Size = { 0,0 };	// Keep this in the native format so that we can use it without copying it around.
+	int LeftOffset = 0, TopOffset = 0;
 	uint8_t bMasked = true;		// Texture (might) have holes
 	int8_t bTranslucent = -1;	// Does this texture have an active alpha channel?
 	bool skyColorDone = false;
@@ -195,6 +207,15 @@ protected:
 
 	FTexture (const char *name = NULL);
 
+};
+
+
+class FTileTexture : public FTexture
+{
+public:
+	void SetName(const char* name) { Name = name; }
+	FBitmap GetBgraBitmap(PalEntry* remap, int* ptrans) override;
+	void Create8BitPixels(uint8_t* buffer) override;
 };
 
 #endif

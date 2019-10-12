@@ -61,10 +61,8 @@ public:
 	// 'noremap0' will only be looked at by FPatchTexture and forwarded by FMultipatchTexture.
 	static FImageSource * GetImage(const char *name);
 
-	virtual void CreatePalettedPixels(uint8_t *destbuffer);
-	virtual const uint8_t* GetPalettedPixels();
-	virtual int CopyPixels(FBitmap* bmp, int conversion);			// This will always ignore 'luminance'.
-	int CopyTranslatedPixels(FBitmap* bmp, PalEntry* remap);
+	virtual void CreatePalettedPixels(uint8_t *destbuffer) = 0;
+	virtual int CopyPixels(FBitmap* bmp, int conversion) = 0;			// This will always ignore 'luminance'.
 
 
 	// Conversion option
@@ -126,7 +124,6 @@ class FImageTexture : public FTexture
 public:
 	FImageTexture (FImageSource *image, const char *name = nullptr);
 	void Create8BitPixels(uint8_t* buffer) override;
-	const uint8_t* Get8BitPixels() override;
 
 	void SetImage(FImageSource *img)	// This is only for the multipatch texture builder!
 	{

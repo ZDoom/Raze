@@ -51,8 +51,8 @@ FImageTexture::FImageTexture(FImageSource *img, const char *name)
 	mImage = img;
 	if (img != nullptr)
 	{
-		Width = img->GetWidth();
-		Height = img->GetHeight();
+		Size.x = img->GetWidth();
+		Size.y = img->GetHeight();
 
 		auto offsets = img->GetOffsets();
 		LeftOffset = offsets.first;
@@ -72,7 +72,7 @@ FImageTexture::FImageTexture(FImageSource *img, const char *name)
 FBitmap FImageTexture::GetBgraBitmap(PalEntry *p, int *trans)
 {
 	FBitmap bmp;
-	bmp.Create(Width, Height);
+	bmp.Create(Size.x, Size.y);
 	mImage->CopyPixels(&bmp, 0);	// Todo: Handle translations.
 	return bmp;
 }	
@@ -82,11 +82,6 @@ FBitmap FImageTexture::GetBgraBitmap(PalEntry *p, int *trans)
 // 
 //
 //===========================================================================
-
-const uint8_t *FImageTexture::Get8BitPixels()
-{
-	return mImage->GetPalettedPixels();
-}	
 
 void FImageTexture::Create8BitPixels(uint8_t* buffer)
 {

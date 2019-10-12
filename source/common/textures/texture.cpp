@@ -93,7 +93,7 @@ FTexture::~FTexture ()
 FBitmap FTexture::GetBgraBitmap(PalEntry *remap, int *ptrans)
 {
 	FBitmap bmp;
-	bmp.Create(Width, Height);
+	bmp.Create(Size.x, Size.y);
 	return bmp;
 }
 
@@ -434,35 +434,62 @@ FTexture *FTexture::GetTexture(const char *path)
 
 //==========================================================================
 //
-// A minimalistic wrapper around a Build ART file.
-// The data in here is already the format we need.
+// Base class for Build tile textures
+// This needs a few subclasses for different use cases.
 //
 //==========================================================================
 
-class FBuildTexture : public FImageSource
+FBitmap FTileTexture::GetBgraBitmap(PalEntry* remap, int* ptrans)
 {
-	const uint8_t* RawPixels;
+	FBitmap bmp;
+	bmp.Create(Size.x, Size.y);
+	const uint8_t* ppix = Get8BitPixels();	// any properly implemented tile MUST return something valid here.
+	if (ppix) bmp.CopyPixelData(0, 0, ppix, Size.x, Size.y, Size.y, 1, 0, remap);
+	return bmp;
+}
+
+void FTileTexture::Create8BitPixels(uint8_t* buffer)
+{
+	auto pix = Get8BitPixels();
+	if (pix) memcpy(buffer, pix, Size.x * Size.y);
+}
+
+
+//==========================================================================
+//
+// A tile coming from an ART file.
+//
+//==========================================================================
+
+class FArtTile : public FTileTexture
+{
+	const TArray<uint8_t> &RawPixels;
+	const uint32_t Offset;
 public:
-	FBuildTexture(const uint8_t* raw, int width, int height, int left, int top)
-		: RawPixels(raw)
+	FArtTile(const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height, int left, int top)
+		: RawPixels(backingstore), Offset(offset)
 	{
-		Width = width;
-		Height = height;
+		Size.x = (int16_t)width;
+		Size.y = (int16_t)height;
 		LeftOffset = left;
 		TopOffset = top;
 	}
 
-	const uint8_t* GetPalettedPixels() override
+	const uint8_t* Get8BitPixels() override
 	{
-		return RawPixels;
+		return RawPixels.Data() ? RawPixels.Data() + Offset : nullptr;
 	}
 };
 
-FTexture* FTexture::GetTileTexture(const char* name, const uint8_t* data, int width, int height, int xofs, int yofs)
+FTexture* FTexture::GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height, int xofs, int yofs)
 {
 	auto res = textures.CheckKey(name);
 	if (res) return *res;
-	auto tex = new FImageTexture(new FBuildTexture(data, width, height, xofs, yofs), name);
-	if (tex) textures.Insert(name, tex);
+	auto tex = new FArtTile(backingstore, offset, width, height, xofs, yofs);
+	if (tex)
+	{
+		tex->SetName(name);
+		textures.Insert(name, tex);
+	}
 	return tex;
 }
