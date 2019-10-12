@@ -411,12 +411,7 @@ uint8_t LoadLevel(int nMap)
 
 void ResetEngine()
 {
-    uint8_t blankPal[768];
-
-    memset(blankPal, 0, sizeof(blankPal));
-    MySetPalette(blankPal);
-
-    SetOverscan(kenpal);
+    SetOverscan(BASEPAL);
 
     EraseScreen(-1);
 
@@ -508,7 +503,6 @@ void InstallEngine()
     }
 
     LoadPaletteLookups();
-    MyLoadPalette();
 
     enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }

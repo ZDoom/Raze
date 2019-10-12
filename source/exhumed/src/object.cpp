@@ -1686,7 +1686,7 @@ void ExplodeEnergyBlock(int nSprite)
         BuildSpark(nSprite, 1);
     }
 
-    TintPalette(16, 16, 16);
+    TintPalette(64, 64, 64);
 
     if (nEnergyTowers == 1)
     {

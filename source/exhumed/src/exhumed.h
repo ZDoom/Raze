@@ -29,6 +29,12 @@ void handleevents();
 
 #define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
 
+enum basepal_t {
+    BASEPAL = 0,
+    ANIMPAL,
+    BASEPALCOUNT
+};
+
 void ShutDown(void);
 void DebugOut(const char *fmt, ...);
 void bail2dos(const char *fmt, ...);
@@ -47,8 +53,8 @@ int Query(short n, short l, ...);
 extern unsigned char curpal[];
 
 void TintPalette(int a, int b, int c);
-void MySetPalette(unsigned char *palette);
-void GetCurPal(unsigned char *palette);
+//void MySetPalette(unsigned char *palette);
+//void GetCurPal(unsigned char *palette);
 
 void EraseScreen(int eax);
 

@@ -943,7 +943,7 @@ void FuncPlayer(int pA, int nDamage, int nRun)
                 PlayerList[nPlayer].nHealth -= nDamage;
                 if (nPlayer == nLocalPlayer)
                 {
-                    TintPalette(nDamage >> 2, 0, 0);
+                    TintPalette(nDamage, 0, 0);
                     SetHealthFrame(-1);
                 }
             }
@@ -1694,7 +1694,7 @@ do_default_b:
                                         StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                     }
 
-                                    TintPalette(var_44, var_8C, 0);
+                                    TintPalette(var_44*4, var_8C*4, 0);
 
                                     if (var_88 > -1)
                                     {
@@ -1759,7 +1759,7 @@ do_default_b:
                                                 StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                             }
 
-                                            TintPalette(var_44, var_8C, 0);
+                                            TintPalette(var_44*4, var_8C*4, 0);
 
                                             if (var_88 > -1)
                                             {
@@ -1851,7 +1851,7 @@ do_default_b:
                                                 StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                             }
 
-                                            TintPalette(var_44, var_8C, 0);
+                                            TintPalette(var_44*4, var_8C*4, 0);
 
                                             if (var_88 > -1)
                                             {
@@ -1926,7 +1926,7 @@ do_default_b:
                                                 StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                             }
 
-                                            TintPalette(var_44, var_8C, 0);
+                                            TintPalette(var_44*4, var_8C*4, 0);
 
                                             if (var_88 > -1)
                                             {
@@ -2000,7 +2000,7 @@ do_default_b:
                                                 StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                             }
 
-                                            TintPalette(var_44, var_8C, 0);
+                                            TintPalette(var_44*4, var_8C*4, 0);
 
                                             if (var_88 > -1)
                                             {
@@ -2169,7 +2169,7 @@ do_default_b:
                                         StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                     }
 
-                                    TintPalette(var_44, var_8C, 0);
+                                    TintPalette(var_44*4, var_8C*4, 0);
 
                                     if (var_88 > -1)
                                     {
@@ -2229,7 +2229,7 @@ do_default_b:
                                         StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                     }
 
-                                    TintPalette(var_44, var_8C, 0);
+                                    TintPalette(var_44*4, var_8C*4, 0);
 
                                     if (var_88 > -1)
                                     {
@@ -2289,7 +2289,7 @@ do_default_b:
                                         StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                     }
 
-                                    TintPalette(var_44, var_8C, 0);
+                                    TintPalette(var_44*4, var_8C*4, 0);
 
                                     if (var_88 > -1)
                                     {
@@ -2349,7 +2349,7 @@ do_default_b:
                                         StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                     }
 
-                                    TintPalette(var_44, var_8C, 0);
+                                    TintPalette(var_44*4, var_8C*4, 0);
 
                                     if (var_88 > -1)
                                     {
@@ -2409,7 +2409,7 @@ do_default_b:
                                         StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                     }
 
-                                    TintPalette(var_44, var_8C, 0);
+                                    TintPalette(var_44*4, var_8C*4, 0);
 
                                     if (var_88 > -1)
                                     {
@@ -2469,7 +2469,7 @@ do_default_b:
                                         StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                     }
 
-                                    TintPalette(var_44, var_8C, 0);
+                                    TintPalette(var_44*4, var_8C*4, 0);
 
                                     if (var_88 > -1)
                                     {
@@ -2543,7 +2543,7 @@ do_default_b:
                                             StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                         }
 
-                                        TintPalette(var_44, var_8C, 0);
+                                        TintPalette(var_44*4, var_8C*4, 0);
 
                                         if (var_88 > -1)
                                         {
@@ -2598,7 +2598,7 @@ do_default_b:
                                                 StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                             }
 
-                                            TintPalette(var_44, var_8C, 0);
+                                            TintPalette(var_44*4, var_8C*4, 0);
 
                                             if (var_88 > -1)
                                             {
@@ -2654,7 +2654,7 @@ do_default_b:
                                                 StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                             }
 
-                                            TintPalette(var_44, var_8C, 0);
+                                            TintPalette(var_44*4, var_8C*4, 0);
 
                                             if (var_88 > -1)
                                             {
@@ -2710,7 +2710,7 @@ do_default_b:
                                                 StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
                                             }
 
-                                            TintPalette(var_44, var_8C, 0);
+                                            TintPalette(var_44*4, var_8C*4, 0);
 
                                             if (var_88 > -1)
                                             {

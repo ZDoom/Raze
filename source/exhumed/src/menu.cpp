@@ -1774,45 +1774,47 @@ int LoadCinemaPalette(int nPal)
     return nPal;
 }
 
-int IncrementCinemaFadeIn()
-{
-    dest = cinemapal;
-    cur = curpal;
-
-    int ebx = 0;
-
-    for (int i = 0; i < 768; i++)
-    {
-        ebx++;
-
-        if (*cur < *dest)
-        {
-            (*cur)++;
-        }
-        else if (*cur == *dest)
-        {
-            ebx--;
-        }
-        else
-        {
-            (*cur)--;
-        }
-
-        cur++;
-        dest++;
-    }
-
-    MySetPalette(curpal);
-    return ebx;
-}
+//int IncrementCinemaFadeIn()
+//{
+//    dest = cinemapal;
+//    cur = curpal;
+//
+//    int ebx = 0;
+//
+//    for (int i = 0; i < 768; i++)
+//    {
+//        ebx++;
+//
+//        if (*cur < *dest)
+//        {
+//            (*cur)++;
+//        }
+//        else if (*cur == *dest)
+//        {
+//            ebx--;
+//        }
+//        else
+//        {
+//            (*cur)--;
+//        }
+//
+//        cur++;
+//        dest++;
+//    }
+//
+//    MySetPalette(curpal);
+//    return ebx;
+//}
 
 void CinemaFadeIn()
 {
     BlackOut();
 
+    videoSetPalette(0, ANIMPAL, 0);
+
     while (1)
     {
-        int val = IncrementCinemaFadeIn();
+        int val = DoFadeIn();
         WaitTicks(2);
 
         if (val <= 0) {
@@ -2069,7 +2071,7 @@ void GoToTheCinema(int nVal)
     overwritesprite(0, 0, 764, 100, 2, kPalNormal);
     videoNextPage();
 
-    MySetPalette(kenpal);
+    videoSetPalette(0, BASEPAL, 0);
     GrabPalette();
     Clip();
 }

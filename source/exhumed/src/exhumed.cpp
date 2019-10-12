@@ -1796,7 +1796,7 @@ int app_main(int argc, char const* const* argv)
     ResetPassword();
     nCDTracks = initcdaudio();
 
-    GetCurPal(NULL);
+    // GetCurPal(NULL);
 
     CONFIG_WriteSetup(1);
     CONFIG_ReadSetup();
@@ -2499,7 +2499,7 @@ void DoGameOverScene()
         return;
     }
 
-    SetOverscan(cinemapal);
+    SetOverscan(ANIMPAL);
     NoClip();
     overwritesprite(0, 0, kTile3591, 0, 2, kPalNormal);
     Clip();
@@ -2508,7 +2508,7 @@ void DoGameOverScene()
     PlayGameOverSound();
     WaitAnyKey(3);
     FadeOut(0);
-    SetOverscan(kenpal);
+    SetOverscan(BASEPAL);
 }
 
 // TODO - missing some values?
@@ -2536,7 +2536,7 @@ void DoTitle()
 
     FadeOut(0);
 
-    SetOverscan(kenpal);
+    SetOverscan(BASEPAL);
 
     int nScreenTile = seq_GetSeqPicnum(kSeqScreens, 0, 0);
 
@@ -2555,7 +2555,7 @@ void DoTitle()
 
     FadeOut(0);
 
-    SetOverscan(kenpal);
+    SetOverscan(BASEPAL);
     GrabPalette();
 
     SetLocalChan(1);
@@ -3265,7 +3265,7 @@ int DoSpiritHead()
                         128);
 
                     nHeadStage = 3;
-                    TintPalette(63, 63, 63);
+                    TintPalette(255, 255, 255);
                     CopyHeadToWorkTile(kTileRamsesNormal);
                 }
 
@@ -3719,7 +3719,7 @@ int DoSpiritHead()
                     128);
 
                 nHeadStage = 3;
-                TintPalette(63, 63, 63);
+                TintPalette(255, 255, 255);
                 CopyHeadToWorkTile(kTileRamsesNormal);
             }
 

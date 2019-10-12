@@ -11,9 +11,9 @@ void FixPalette();
 void FadeToWhite();
 
 extern void DoOverscanSet(short someval);
-void SetOverscan(unsigned char *palette);
+void SetOverscan(int id);
 
-extern unsigned char kenpal[];
+//extern unsigned char kenpal[];
 extern short overscanindex;
 
 extern char *origpalookup[];

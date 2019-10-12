@@ -160,25 +160,11 @@ static void analyzesprites()
 
 void ResetView()
 {
-    uint8_t blankPal[768];
-    memset(blankPal, 0, sizeof(blankPal));
-    MySetPalette(blankPal);
-
-    EraseScreen(0);
-
-    // FIXME
-#ifdef __WATCOMC__
-    setgamemode(2, 320, 200);
-#else
     videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, 0);
-#endif
-
-    MySetPalette(blankPal);
-
     DoOverscanSet(overscanindex);
     EraseScreen(overscanindex);
-
-    MySetPalette(kenpal);
+    memcpy(curpalettefaded, curpalette, sizeof(curpalette));
+    videoUpdatePalette(0, 256);
 
     LoadStatus();
 }

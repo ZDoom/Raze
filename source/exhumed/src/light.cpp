@@ -29,10 +29,10 @@ int rtint = 0;
 int gtint = 0;
 int btint = 0;
 char *origpalookup[kMaxPalookups];
-unsigned char curpal[768];
-unsigned char kenpal[768];
-unsigned char *fadedestpal;
-unsigned char *fadecurpal;
+//unsigned char curpal[768];
+//unsigned char kenpal[768];
+palette_t *fadedestpal;
+palette_t *fadecurpal;
 short nPalDelay;
 short nPalDiff;
 short overscanindex;
@@ -43,17 +43,17 @@ uint8_t vgaPalette[768];
 
 void MyLoadPalette()
 {
-    int hFile = kopen4load("PALETTE.DAT", 1);
-    if (hFile == -1)
-    {
-        initprintf("Error reading palette 'PALETTE.DAT'\n");
-        return;
-    }
-
-    kread(hFile, kenpal, sizeof(kenpal));
-    kclose(hFile);
-
-    SetOverscan(kenpal);
+    //int hFile = kopen4load("PALETTE.DAT", 1);
+    //if (hFile == -1)
+    //{
+    //    initprintf("Error reading palette 'PALETTE.DAT'\n");
+    //    return;
+    //}
+    //
+    //kread(hFile, kenpal, sizeof(kenpal));
+    //kclose(hFile);
+    videoSetPalette(0, BASEPAL, 0);
+    SetOverscan(BASEPAL);
 }
 
 int LoadPaletteLookups()
@@ -108,65 +108,32 @@ void WaitVBL()
 #endif
 }
 
-void MySetPalette(unsigned char *palette)
-{
-    WaitVBL();
+//void MySetPalette(unsigned char *palette)
+//{
+//    WaitVBL();
+//
+//    // TODO
+//    kensetpalette(palette);
+//
+//    memcpy(vgaPalette, palette, sizeof(vgaPalette));
+//}
 
-#ifdef __WATCOMC__
-    outp(0x3C8, 0);
-
-    int i;
-    for (i = 0; i < 768; i++)
-    {
-        outp(0x3C9, *palette);
-        palette++;
-    }
-
-#else
-    // TODO
-    kensetpalette(palette);
-
-    memcpy(vgaPalette, palette, sizeof(vgaPalette));
-#endif
-}
-
-void GetCurPal(unsigned char *palette)
-{
-#ifdef __WATCOMC__
-    if (!palette) {
-        palette = curpal;
-    }
-
-    outp(0x3C7, 0);
-
-    int i;
-    for (i = 0; i < 256; i++)
-    {
-        *palette = inp(0x3C9);
-        palette++;
-        *palette = inp(0x3C9);
-        palette++;
-        *palette = inp(0x3C9);
-        palette++;
-    }
-
-#else
-    if (!palette) {
-        memcpy(curpal, vgaPalette, sizeof(curpal));
-    }
-    else {
-        memcpy(palette, vgaPalette, sizeof(curpal));
-    }
-#endif
-}
+//void GetCurPal(unsigned char *palette)
+//{
+//    if (!palette) {
+//        memcpy(curpal, vgaPalette, sizeof(curpal));
+//    }
+//    else {
+//        memcpy(palette, vgaPalette, sizeof(curpal));
+//    }
+//}
 
 void GrabPalette()
 {
-    SetOverscan(kenpal);
+    SetOverscan(BASEPAL);
 
-    memcpy(curpal, kenpal, sizeof(curpal));
-
-    MySetPalette(kenpal);
+    memcpy(curpalettefaded, curpalette, sizeof(curpalette));
+    videoUpdatePalette(0, 256);
 
     nPalDiff  = 0;
     nPalDelay = 0;
@@ -178,14 +145,19 @@ void GrabPalette()
 
 void BlackOut()
 {
-    memset(curpal, 0, sizeof(curpal));
-    MySetPalette(curpal);
+    for (int i = 0; i < 256; i++)
+    {
+        curpalettefaded[i].r = 0;
+        curpalettefaded[i].g = 0;
+        curpalettefaded[i].b = 0;
+    }
+    videoUpdatePalette(0, 256);
 }
 
 void RestorePalette()
 {
-    memcpy(curpal, kenpal, sizeof(curpal));
-    MySetPalette(curpal);
+    memcpy(curpalettefaded, curpalette, sizeof(curpalette));
+    videoUpdatePalette(0, 256);
 }
 
 void WaitTicks(int nTicks)
@@ -207,46 +179,63 @@ void WaitTicks(int nTicks)
 // unused
 void DoFadeToRed()
 {
-    for (int i = 0; i < 256; i += 3)
+    for (int i = 0; i < 256; i++)
     {
-        if (curpal[i + 1] > 0)
+        if (curpalettefaded[i].g > 0)
         {
-            curpal[i + 1]--;
+            curpalettefaded[i].g -= 4;
+            if (curpalettefaded[i].g < 0)
+                curpalettefaded[i].g = 0;
         }
 
-        if (curpal[i + 2] > 0)
+        if (curpalettefaded[i].b > 0)
         {
-            curpal[i + 1]--;
+            curpalettefaded[i].b -= 4;
+            if (curpalettefaded[i].b < 0)
+                curpalettefaded[i].b = 0;
         }
     }
 
-    MySetPalette(curpal);
+    videoUpdatePalette(0, 256);
 }
 
 void FadeToWhite()
 {
     int ebx = 0;
+    int const palstep = (videoGetRenderMode() >= REND_POLYMOST) ? 255 : 4;
+    int const fadestep = (videoGetRenderMode() >= REND_POLYMOST) ? 1 : 64;
 
-    for (int i = 0; i < 64; i++)
+    for (int i = 0; i < fadestep; i++)
     {
-        uint8_t *pPal = curpal;
+        palette_t *pPal = curpalettefaded;
 
         for (int j = 0; j < 256; j++)
         {
-            for (int k = 0; k < 3; k++)
+            if (pPal->r < 255)
             {
-                if (*pPal < 63)
-                {
-                    (*pPal)++;
-
-                    ebx++;
-                }
-
-                pPal++;
+                pPal->r += palstep;
+                if (pPal->r > 255)
+                    pPal->r = 255;
+                ebx++;
             }
+            if (pPal->g < 255)
+            {
+                pPal->g += palstep;
+                if (pPal->g > 255)
+                    pPal->g = 255;
+                ebx++;
+            }
+            if (pPal->b < 255)
+            {
+                pPal->b += palstep;
+                if (pPal->b > 255)
+                    pPal->b = 255;
+                ebx++;
+            }
+            pPal++;
         }
 
-        MySetPalette(curpal);
+        videoUpdatePalette(0, 256);
         WaitTicks(2);
 
         // need to page flip in each iteration of the loop for non DOS version
@@ -260,24 +249,44 @@ void FadeToWhite()
 
 void FadeOut(int bFadeMusic)
 {
+    int const palstep = (videoGetRenderMode() >= REND_POLYMOST) ? 255 : 4;
+    int const fadestep = (videoGetRenderMode() >= REND_POLYMOST) ? 1 : 64;
     if (bFadeMusic) {
         StartfadeCDaudio();
     }
 
-    for (int i = 64; i > 0; i--)
+    for (int i = fadestep; i > 0; i--)
     {
         int v4 = 0;
+        palette_t *pPal = curpalettefaded;
 
-        for (int j = 0; j < 768; j++)
+        for (int j = 0; j < 256; j++)
         {
-            if (curpal[j] > 0)
+            if (pPal->r > 0)
             {
-                curpal[j]--;
+                pPal->r -= palstep;
+                if (pPal->r < 0)
+                    pPal->r = 0;
                 v4++;
             }
+            if (pPal->g > 0)
+            {
+                pPal->g -= palstep;
+                if (pPal->g < 0)
+                    pPal->g = 0;
+                v4++;
+            }
+            if (pPal->b > 0)
+            {
+                pPal->b -= palstep;
+                if (pPal->b < 0)
+                    pPal->b = 0;
+                v4++;
+            }
+            pPal++;
         }
 
-        MySetPalette(curpal);
+        videoUpdatePalette(0, 256);
         WaitTicks(2);
 
         // need to page flip in each iteration of the loop for non DOS version
@@ -301,56 +310,71 @@ void FadeOut(int bFadeMusic)
 
 void StartFadeIn()
 {
-    fadedestpal = kenpal;
-    fadecurpal = curpal;
+    //fadedestpal = curpalette;
+    //fadecurpal = curpal;
 }
 
 int DoFadeIn()
 {
     int v2 = 0;
 
-    for (int i = 0; i < 768; i++)
+    for (int i = 0; i < 256; i++)
     {
-        v2++;
-
-        if (fadecurpal[i] < fadedestpal[i])
+        if (curpalettefaded[i].r != curpalette[i].r)
         {
-            fadecurpal[i]++;
+            v2++;
+            int diff = curpalette[i].r - curpalettefaded[i].r;
+            if (klabs(diff) < 4)
+                curpalettefaded[i].r = curpalette[i].r;
+            else
+                curpalettefaded[i].r += 4 * ksgn(diff);
         }
-
-        else
+        if (curpalettefaded[i].g != curpalette[i].g)
         {
-            if (fadecurpal[i] == fadedestpal[i])
-            {
-                v2--;
-            }
-            else {
-                fadecurpal[i]--;
-            }
+            v2++;
+            int diff = curpalette[i].g - curpalettefaded[i].g;
+            if (klabs(diff) < 4)
+                curpalettefaded[i].g = curpalette[i].g;
+            else
+                curpalettefaded[i].g += 4 * ksgn(diff);
+        }
+        if (curpalettefaded[i].b != curpalette[i].b)
+        {
+            v2++;
+            int diff = curpalette[i].b - curpalettefaded[i].b;
+            if (klabs(diff) < 4)
+                curpalettefaded[i].b = curpalette[i].b;
+            else
+                curpalettefaded[i].b += 4 * ksgn(diff);
         }
     }
 
-    MySetPalette(fadecurpal);
+    videoUpdatePalette(0, 256);
 
     return v2;
 }
 
 void FadeIn()
 {
+    if (videoGetRenderMode() >= REND_POLYMOST)
+    {
+        Bmemcpy(curpalettefaded, curpalette, sizeof(curpalette));
+        videoUpdatePalette(0, 256);
+        videoNextPage();
+        return;
+    }
     StartFadeIn();
 
-    while (1)
+    int val;
+
+    do
     {
-        int val = DoFadeIn();
+        val = DoFadeIn();
         WaitTicks(2);
 
         // need to page flip in each iteration of the loop for non DOS version
         videoNextPage();
-
-        if (!val) {
-            break;
-        }
-    }
+    } while (val);
 }
 
 void FixPalette()
@@ -367,25 +391,53 @@ void FixPalette()
 
     nPalDelay = 5;
 
-    for (int i = 0; i < 768; i++)
+    for (int i = 0; i < 256; i++)
     {
-        short nVal = curpal[i] - kenpal[i];
+        short nVal;
+
+        nVal = curpalettefaded[i].r - curpalette[i].r;
         if (nVal > 0)
         {
-            if (nVal > 5)
+            if (nVal > 20)
             {
-                curpal[i] -= 5;
+                curpalettefaded[i].r -= 20;
             }
             else
             {
-                curpal[i] = kenpal[i];
+                curpalettefaded[i].r = curpalette[i].r;
+            }
+        }
+
+        nVal = curpalettefaded[i].g - curpalette[i].g;
+        if (nVal > 0)
+        {
+            if (nVal > 20)
+            {
+                curpalettefaded[i].g -= 20;
+            }
+            else
+            {
+                curpalettefaded[i].g = curpalette[i].g;
+            }
+        }
+
+        nVal = curpalettefaded[i].b - curpalette[i].b;
+        if (nVal > 0)
+        {
+            if (nVal > 20)
+            {
+                curpalettefaded[i].b -= 20;
+            }
+            else
+            {
+                curpalettefaded[i].b = curpalette[i].b;
             }
         }
     }
 
-    nPalDiff -= 5;
-    gtint -= 5;
-    rtint -= 5;
+    nPalDiff -= 20;
+    gtint -= 20;
+    rtint -= 20;
 
     if (gtint < 0) {
         gtint = 0;
@@ -399,7 +451,7 @@ void FixPalette()
         nPalDiff = 0;
     }
 
-    MySetPalette(curpal);
+    videoUpdatePalette(0, 256);
 }
 
 void TintPalette(int r, int g, int b)
@@ -408,123 +460,94 @@ void TintPalette(int r, int g, int b)
     int g2 = g;
     int b2 = b;
 
-    uint8_t *pPal = curpal;
+    palette_t *pPal = curpalettefaded;
 
     if (bCamera) {
         return;
     }
 
-    // range limit R between 5 and 63 if positive
-    if (r > 63)
+    // range limit R between 20 and 255 if positive
+    if (r > 255)
     {
-        r = 63;
+        r = 255;
     }
     else
     {
-        if (r && r < 5) {
-            r = 5;
+        if (r && r < 20) {
+            r = 20;
         }
     }
 
-    // range limit G between 5 and 63 if positive
-    if (g > 63)
+    // range limit G between 20 and 255 if positive
+    if (g > 255)
     {
-        g = 63;
+        g = 255;
     }
     else
     {
-        if (g && g < 5) {
-            g = 5;
+        if (g && g < 20) {
+            g = 20;
         }
     }
 
-    // range limit B between 5 and 63 if positive
-    if (b > 63)
+    // range limit B between 20 and 255 if positive
+    if (b > 255)
     {
-        b = 63;
+        b = 255;
     }
     else
     {
-        if (b && b < 5) {
-            b = 5;
+        if (b && b < 20) {
+            b = 20;
         }
     }
 
     // loc_17EFA
-    if (g && gtint > 8) {
+    if (g && gtint > 32) {
         return;
     }
 
     gtint += g;
 
-    if (r && rtint > 64) {
+    if (r && rtint > 256) {
         return;
     }
 
     rtint += r;
 
     // do not modify r, g or b variables from this point on
-    r2 = r;
-    g2 = g;
     b2 = b;
-
-    if (r2 < 0) {
-        r2 = -r2;
-    }
-
-    // loc_17F3A
-    if (g2 < 0) {
-        g2 = -g2;
-    }
-
     int nVal;
 
     // loc_17F49
-    if (r2 > g2) {
-        nVal = r;
+    if (klabs(r) > klabs(g)) {
+        nVal = klabs(r);
     }
     else {
-        nVal = g;
+        nVal = klabs(g);
     }
 
-    if (nVal < 0) {
-        nVal = -nVal;
-    }
-
-    if (b2 < 0) {
-        b2 = -b2;
-    }
-
-    if (nVal > b2) {
-        nVal = b2;
-    }
-    else {
-        if (b < 0) {
-            nVal = -b;
-        }
+    if (nVal < klabs(b)) {
+        nVal = klabs(b);
     }
 
     nPalDiff += nVal;
 
     for (int i = 0; i < 256; i++)
     {
-        *pPal += r;
-        if (*pPal > 63) {
-            *pPal = 63;
+        pPal->r += r;
+        if (pPal->r > 255) {
+            pPal->r = 255;
         }
 
-        pPal++;
-
-        *pPal += g;
-        if (*pPal > 63) {
-            *pPal = 63;
+        pPal->g += g;
+        if (pPal->g > 255) {
+            pPal->g = 255;
         }
 
-        pPal++;
-
-        *pPal += b;
-        if (*pPal > 63) {
-            *pPal = 63;
+        pPal->b += b;
+        if (pPal->b > 255) {
+            pPal->b = 255;
         }
 
         pPal++;
@@ -553,8 +576,11 @@ void SetWhiteOverscan()
 
 }
 
-void SetOverscan(unsigned char *palette)
+void SetOverscan(int id)
 {
+    if (basepaltable[id] == NULL)
+        return;
+    uint8_t *palette = basepaltable[id];
     int edi = 1000;
     overscanindex = 0;
 

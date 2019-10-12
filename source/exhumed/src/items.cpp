@@ -132,7 +132,7 @@ void DestroyItemAnim(short nSprite)
 
 void ItemFlash()
 {
-    TintPalette(4, 4, 4);
+    TintPalette(16, 16, 16);
 }
 
 void FillItems(short nPlayer)
