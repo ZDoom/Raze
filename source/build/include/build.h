@@ -27,6 +27,7 @@
 
 #include "vfs.h"
 #include "cache1d.h"
+#include "textures.h"
 
 enum rendmode_t {
     REND_CLASSIC,
@@ -814,38 +815,7 @@ static CONSTEXPR const int32_t pow2long[32] =
     268435456, 536870912, 1073741824, 2147483647
 };
 
-// picanm[].sf:
-// |bit(1<<7)
-// |animtype|animtype|texhitscan|nofullbright|speed|speed|speed|speed|
-enum {
-    PICANM_ANIMTYPE_NONE = 0,
-    PICANM_ANIMTYPE_OSC = (1<<6),
-    PICANM_ANIMTYPE_FWD = (2<<6),
-    PICANM_ANIMTYPE_BACK = (3<<6),
-
-    PICANM_ANIMTYPE_SHIFT = 6,
-    PICANM_ANIMTYPE_MASK = (3<<6),  // must be 192
-    PICANM_MISC_MASK = (3<<4),
-    PICANM_TEXHITSCAN_BIT = (2<<4),
-    PICANM_NOFULLBRIGHT_BIT = (1<<4),
-    PICANM_ANIMSPEED_MASK = 15,  // must be 15
-};
-
-// NOTE: If the layout of this struct is changed, loadpics() must be modified
-// accordingly.
-typedef struct {
-    uint8_t num;  // animate number
-    int8_t xofs, yofs;
-    uint8_t sf;  // anim. speed and flags
-    uint8_t extra;
-	
-	void Clear()
-	{
-		extra = sf = yofs = xofs = num = 0;
-	}
-} picanm_t;
 EXTERN picanm_t picanm[MAXTILES];
-typedef struct { int16_t newtile; int16_t owner; } rottile_t;
 EXTERN rottile_t rottile[MAXTILES];
 
 EXTERN int32_t windowpos, windowx, windowy;
@@ -1079,7 +1049,6 @@ void    tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy);
 int32_t artReadHeader(buildvfs_kfd fil, char const *fn, artheader_t *local);
 int32_t artReadHeaderFromBuffer(uint8_t const *buf, artheader_t *local);
 int32_t artCheckUnitFileHeader(uint8_t const *buf, int32_t length);
-void    tileConvertAnimFormat(int32_t const picnum, int32_t const picanmdisk);
 void    artReadManifest(buildvfs_kfd fil, artheader_t const *local);
 void    artPreloadFile(buildvfs_kfd fil, artheader_t const *local);
 int32_t artLoadFiles(const char *filename, int32_t askedsize);

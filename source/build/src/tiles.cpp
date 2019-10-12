@@ -396,19 +396,6 @@ int32_t artCheckUnitFileHeader(uint8_t const * const buf, int32_t length)
     return 0;
 }
 
-void tileConvertAnimFormat(int32_t const picnum, int32_t const picanmdisk)
-{
-	EDUKE32_STATIC_ASSERT(PICANM_ANIMTYPE_MASK == 192);
-
-	// Unpack a 4 byte packed anim descriptor into the internal 5 byte format.
-	picanm_t* const thispicanm = &picanm[picnum];
-	thispicanm->num = picanmdisk & 63;
-	thispicanm->xofs = (picanmdisk >> 8) & 255;
-	thispicanm->yofs = (picanmdisk >> 16) & 255;
-	thispicanm->sf = ((picanmdisk >> 24) & 15) | (picanmdisk & 192);
-	thispicanm->extra = (picanmdisk >> 28) & 15;
-}
-
 void artReadManifest(int32_t const fil, artheader_t const* const local)
 {
 	int16_t* tilesizx = (int16_t*)Xmalloc(local->numtiles * sizeof(int16_t));
@@ -426,7 +413,7 @@ void artReadManifest(int32_t const fil, artheader_t const* const local)
 		kread(fil, &picanmdisk, sizeof(int32_t));
 		picanmdisk = B_LITTLE32(picanmdisk);
 
-		tileConvertAnimFormat(i, picanmdisk);
+		picanm[i] = tileConvertAnimFormat(picanmdisk);
 	}
 
 	DO_FREE_AND_NULL(tilesizx);
@@ -582,6 +569,8 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
 //
 int32_t artLoadFiles(const char *filename, int32_t askedsize)
 {
+	TileFiles.LoadArtSet(filename);
+
     Bstrncpyz(artfilenameformat, filename, sizeof(artfilenameformat));
 
     Bmemset(&tilesizearray[0], 0, sizeof(vec2_16_t) * MAXTILES);

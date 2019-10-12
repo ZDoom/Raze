@@ -28,7 +28,7 @@
     extern int32_t globalx1, globaly2;
 
 
-extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256], ATTRIBUTE((used)) sqrtable_old[2048];
+extern uint16_t sqrtable[4096], shlookup[4096+256],sqrtable_old[2048];
 
 
     static inline int32_t nsqrtasm(uint32_t a)

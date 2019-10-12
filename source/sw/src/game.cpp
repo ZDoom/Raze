@@ -5836,46 +5836,6 @@ SHOWSPRITE:
 extern int tilefileoffs[MAXTILES]; //offset into the
 extern char tilefilenum[MAXTILES]; //0-11
 
-#if 0
-loadtile(short tilenume)
-{
-    char *ptr;
-    int i;
-    char zerochar = 0;
-
-    if (walsiz[tilenume] <= 0)
-        return;
-
-    i = tilefilenum[tilenume];
-    if (i != artfilnum)
-    {
-        if (artfil != -1)
-            kclose(artfil);
-        artfilnum = i;
-        artfilplc = 0L;
-
-        artfilename[7] = (i%10)+48;
-        artfilename[6] = ((i/10)%10)+48;
-        artfilename[5] = ((i/100)%10)+48;
-        artfil = kopen4load(artfilename);
-        faketimerhandler();
-    }
-
-    if (waloff[tilenume] == 0)
-        allocache(&waloff[tilenume],walsiz[tilenume],&zerochar);
-
-    if (artfilplc != tilefileoffs[tilenume])
-    {
-        klseek(artfil,tilefileoffs[tilenume]-artfilplc,SEEK_CUR);
-        faketimerhandler();
-    }
-
-    ptr = (char *)waloff[tilenume];
-    kread(artfil,ptr,walsiz[tilenume]);
-    faketimerhandler();
-    artfilplc = tilefileoffs[tilenume]+walsiz[tilenume];
-}
-#endif
 
 #if RANDOM_DEBUG
 int

@@ -39,44 +39,63 @@
 #include "image.h"
 #include "cache1d.h"
 
-struct BuildTileDescriptor
+enum
 {
-	int tilenum;
-	FTexture *Texture;
+	MAXARTFILES_BASE = 200,
+	MAXARTFILES_TOTAL = 220
 };
 
-struct BuildFileDescriptor
+picanm_t tileConvertAnimFormat(int32_t const picanmdisk)
 {
-	FString filename;
-	TArray<uint8_t> RawData;
-	TArray<BuildTileDescriptor> Textures;
-	bool MapArt;
-	bool Active;
+	// Unpack a 4 byte packed anim descriptor into the internal 5 byte format.
+	picanm_t anm;
+	anm.num = picanmdisk & 63;
+	anm.xofs = (picanmdisk >> 8) & 255;
+	anm.yofs = (picanmdisk >> 16) & 255;
+	anm.sf = ((picanmdisk >> 24) & 15) | (picanmdisk & 192);
+	anm.extra = (picanmdisk >> 28) & 15;
+	return anm;
+}
 
-	void AddTiles();
-};
 
-struct BuildFiles
+//==========================================================================
+//
+// Base class for Build tile textures
+// This needs a few subclasses for different use cases.
+//
+//==========================================================================
+
+FBitmap FTileTexture::GetBgraBitmap(PalEntry* remap, int* ptrans)
 {
-	TArray<BuildFileDescriptor> FileDescriptors;
-	void AddFile(BuildFileDescriptor &bfd)
+	FBitmap bmp;
+	bmp.Create(Size.x, Size.y);
+	const uint8_t* ppix = Get8BitPixels();	// any properly implemented tile MUST return something valid here.
+	if (ppix) bmp.CopyPixelData(0, 0, ppix, Size.x, Size.y, Size.y, 1, 0, remap);
+	return bmp;
+}
+
+void FTileTexture::Create8BitPixels(uint8_t* buffer)
+{
+	auto pix = Get8BitPixels();
+	if (pix) memcpy(buffer, pix, Size.x * Size.y);
+}
+
+
+//==========================================================================
+//
+// Tile textures are owned by their containing file object.
+//
+//==========================================================================
+
+FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height, int picanm)
+{
+	auto tex = new FArtTile(backingstore, offset, width, height, picanm);
+	if (tex)
 	{
-		FileDescriptors.Push(std::move(bfd));
+		tex->SetName(name);
 	}
-	BuildFileDescriptor *FindFile(const FString &filename)
-	{
-		auto ndx = FileDescriptors.FindEx([filename](const BuildFileDescriptor & element) { return filename.CompareNoCase(element.filename) == 0; });
-		if (ndx < FileDescriptors.Size()) return &FileDescriptors[ndx];
-			return nullptr;
-	}
-	void LoadArtFile(const char *file, bool mapart);
-	void CloseAllMapArt();
-	int LoadIndexedFile(const char* base, int index);
-	void LoadArtSet(const char* filename);
-
-};
-			
-static BuildFiles alltilefiles;
+	return tex;
+}
 
 //===========================================================================
 //
@@ -86,7 +105,7 @@ static BuildFiles alltilefiles;
 //
 //===========================================================================
 
-void BuildFileDescriptor::AddTiles ()
+void BuildArtFile::AddTiles ()
 {
 
 	const uint8_t *tiles = RawData.Data();
@@ -104,17 +123,15 @@ void BuildFileDescriptor::AddTiles ()
 		int width = LittleShort(tilesizx[pic]);
 		int height = LittleShort(tilesizy[pic]);
 		uint32_t anm = LittleLong(picanm[pic]);
-		int xoffs = (int8_t)((anm >> 8) & 255) + width/2;
-		int yoffs = (int8_t)((anm >> 16) & 255) + height/2;
 		int size = width*height;
 
 		if (width <= 0 || height <= 0) continue;
 
 		// This name is mainly for debugging so that there is something more to go by than the mere index.
 		FStringf name("TILE_%s_%05d_%08x_%04x_%04x", filename, uint32_t(tiledata - tiles), width, height);
-		auto tex = FTexture::GetTileTexture(name, RawData, uint32_t(tiledata - tiles), width, height, xoffs, yoffs);
-		BuildTileDescriptor desc;
-		//Textures.Push();
+		auto tex = GetTileTexture(name, RawData, uint32_t(tiledata - tiles), width, height, anm);
+		BuildTileDescriptor desc = { i, tex };
+		Textures.Push(desc);
 		tiledata += size;
 	}
 }
@@ -151,14 +168,7 @@ int CountTiles (const void *RawData)
 
 void BuildFiles::CloseAllMapArt()
 {
-	for (auto& fd : FileDescriptors)
-	{
-		if (fd.MapArt)
-		{
-			fd.Active = false;
-			fd.RawData.Reset();
-		}
-	}
+	PerMapArtFiles.Clear();
 }
 
 //===========================================================================
@@ -177,7 +187,7 @@ void BuildFiles::CloseAllMapArt()
 void BuildFiles::LoadArtFile(const char *fn, bool mapart)
 {
 	auto old = FindFile(fn);
-	if (old)
+	if (old >= ArtFiles.Size())	// Do not process if already loaded.
 	{
 		FileReader fr = kopenFileReader(fn, 0);
 		if (fr.isOpen())
@@ -190,136 +200,49 @@ void BuildFiles::LoadArtFile(const char *fn, bool mapart)
 				// Only load the data if the header is present
 				if (CountTiles(artptr) > 0)
 				{
-					FileDescriptors.Reserve(1);
-					auto &fd = FileDescriptors.Last();
+					auto& descs = mapart ? PerMapArtFiles : ArtFiles;
+					descs.Reserve(1);
+					auto& fd = descs.Last();
 					fd.filename = fn;
-					fd.MapArt = mapart;
-					fd.Active = true;
 					fd.RawData = std::move(artdata);
 					fd.AddTiles();
 				}
 			}
 		}
 	}
-}
-
-#if 0
-
-//===========================================================================
-//
-// Returns:
-//  0: successfully read ART file
-// >0: error with the ART file
-// -1: ART file does not exist
-//<-1: per-map ART issue
-//
-//===========================================================================
-
-int BuildFiles::LoadIndexedFile(const char *base, int index)
-{
-	FStringf name(base, index);
-
-	const char* fn = artGetIndexedFileName(tilefilei);
-	const int32_t permap = (tilefilei >= MAXARTFILES_BASE);  // is it a per-map ART file?
-	buildvfs_kfd fil;
-
-	if ((fil = kopen4loadfrommod(fn, 0)) != buildvfs_kfd_invalid)
+	else
 	{
-		artheader_t local;
-		int const headerval = artReadHeader(fil, fn, &local);
-		if (headerval != 0)
-		{
-			kclose(fil);
-			return headerval;
-		}
-
-		if (permap)
-		{
-			// Check whether we can evict existing tiles to make place for
-			// per-map ART ones.
-			for (int i = local.tilestart; i <= local.tileend; i++)
-			{
-				// Tiles having dummytile replacements or those that are
-				// cache1d-locked can't be replaced.
-				if (faketile[i >> 3] & pow2char[i & 7] || walock[i] >= 200)
-				{
-					initprintf("loadpics: per-map ART file \"%s\": "
-						"tile %d has dummytile or is locked\n", fn, i);
-					kclose(fil);
-					return -3;
-				}
-			}
-
-			// Free existing tiles from the cache1d. CACHE1D_FREE
-			Bmemset(&tileptr[local.tilestart], 0, local.numtiles * sizeof(uint8_t*));
-			Bmemset(&tiledata[local.tilestart], 0, local.numtiles * sizeof(uint8_t*));
-			Bmemset(&walock[local.tilestart], 1, local.numtiles * sizeof(walock[0]));
-		}
-
-		artReadManifest(fil, &local);
-
-		if (cache1d_file_fromzip(fil))
-		{
-			if (permap)
-				artPreloadFileSafe(fil, &local);
-			else
-				artPreloadFile(fil, &local);
-		}
-		else
-		{
-			int offscount = ktell(fil);
-
-			for (bssize_t i = local.tilestart; i <= local.tileend; ++i)
-			{
-				int const dasiz = tilesiz[i].x * tilesiz[i].y;
-
-				tilefilenum[i] = tilefilei;
-				tilefileoffs[i] = offscount;
-
-				offscount += dasiz;
-				// artsize += ((dasiz+15)&0xfffffff0);
-			}
-		}
-
-		kclose(fil);
-		return 0;
+		// Reuse the old one but move it to the top.
+		auto fd = std::move(ArtFiles[old]);
+		ArtFiles.Delete(old);
+		ArtFiles.Push(std::move(fd));
 	}
-
-	return -1;
 }
 
-//
-// loadpics
-//
-int32_t BuildFiles::LoadArtSet(const char* filename)
+static FString artGetIndexedFileName(const char *base, int32_t index)
 {
-	Bstrncpyz(artfilenameformat, filename, sizeof(artfilenameformat));
-
-	Bmemset(&tilesizearray[0], 0, sizeof(vec2_16_t) * MAXTILES);
-	Bmemset(picanm, 0, sizeof(picanm));
-
-	for (auto& rot : rottile)
-		rot = { -1, -1 };
-
-	//    artsize = 0;
-
-	for (int tilefilei = 0; tilefilei < MAXARTFILES_BASE; tilefilei++)
-		artReadIndexedFile(tilefilei);
-
-	Bmemset(gotpic, 0, sizeof(gotpic));
-
-	//cachesize = min((int32_t)((Bgetsysmemsize()/100)*60),max(artsize,askedsize));
-	cachesize = (Bgetsysmemsize() <= (uint32_t)askedsize) ? (int32_t)((Bgetsysmemsize() / 100) * 60) : askedsize;
-	pic = Xaligned_alloc(Bgetpagesize(), cachesize);
-	cacheInitBuffer((intptr_t)pic, cachesize);
-
-	artUpdateManifest();
-
-	artfil = buildvfs_kfd_invalid;
-	artfilnum = -1;
-	artfilplc = 0L;
-
-	return 0;
+	FString result;
+	if (index >= MAXARTFILES_BASE)
+	{
+		char XX[3] = { char('0' + (index / 10) % 10), char('0' + index % 10), 0 };
+		result = base;
+		result.Substitute("XX", XX);
+	}
+	else
+	{
+		result.Format(base, index);
+	}
+	return result;
 }
 
-#endif
+
+void BuildFiles::LoadArtSet(const char* filename)
+{
+	for (int index = 0; index < MAXARTFILES_BASE; index++)
+	{
+		auto fn = artGetIndexedFileName(filename, index);
+		LoadArtFile(fn, false);
+	}
+}
+
+BuildFiles TileFiles;
