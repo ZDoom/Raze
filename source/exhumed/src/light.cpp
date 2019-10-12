@@ -132,8 +132,7 @@ void GrabPalette()
 {
     SetOverscan(BASEPAL);
 
-    memcpy(curpalettefaded, curpalette, sizeof(curpalette));
-    videoUpdatePalette(0, 256);
+    videoSetPalette(0, BASEPAL, 2+8);
 
     nPalDiff  = 0;
     nPalDelay = 0;
@@ -141,6 +140,9 @@ void GrabPalette()
     btint = 0;
     gtint = 0;
     rtint = 0;
+#ifdef USE_OPENGL
+    videoTintBlood(0, 0, 0);
+#endif
 }
 
 void BlackOut()
@@ -152,12 +154,17 @@ void BlackOut()
         curpalettefaded[i].b = 0;
     }
     videoUpdatePalette(0, 256);
+#ifdef USE_OPENGL
+    videoTintBlood(0, 0, 0);
+#endif
 }
 
 void RestorePalette()
 {
-    memcpy(curpalettefaded, curpalette, sizeof(curpalette));
-    videoUpdatePalette(0, 256);
+    videoSetPalette(0, BASEPAL, 2+8);
+#ifdef USE_OPENGL
+    videoTintBlood(0, 0, 0);
+#endif
 }
 
 void WaitTicks(int nTicks)
@@ -179,6 +186,14 @@ void WaitTicks(int nTicks)
 // unused
 void DoFadeToRed()
 {
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() >= REND_POLYMOST)
+    {
+        videoTintBlood(-255, -255, -255);
+        videoNextPage();
+        return;
+    }
+#endif
     for (int i = 0; i < 256; i++)
     {
         if (curpalettefaded[i].g > 0)
@@ -202,10 +217,17 @@ void DoFadeToRed()
 void FadeToWhite()
 {
     int ebx = 0;
-    int const palstep = (videoGetRenderMode() >= REND_POLYMOST) ? 255 : 4;
-    int const fadestep = (videoGetRenderMode() >= REND_POLYMOST) ? 1 : 64;
 
-    for (int i = 0; i < fadestep; i++)
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() >= REND_POLYMOST)
+    {
+        videoTintBlood(255, 255, 255);
+        videoNextPage();
+        return;
+    }
+#endif
+
+    for (int i = 0; i < 64; i++)
     {
         palette_t *pPal = curpalettefaded;
 
@@ -213,21 +235,21 @@ void FadeToWhite()
         {
             if (pPal->r < 255)
             {
-                pPal->r += palstep;
+                pPal->r += 4;
                 if (pPal->r > 255)
                     pPal->r = 255;
                 ebx++;
             }
             if (pPal->g < 255)
             {
-                pPal->g += palstep;
+                pPal->g += 4;
                 if (pPal->g > 255)
                     pPal->g = 255;
                 ebx++;
             }
             if (pPal->b < 255)
             {
-                pPal->b += palstep;
+                pPal->b += 4;
                 if (pPal->b > 255)
                     pPal->b = 255;
                 ebx++;
@@ -249,13 +271,20 @@ void FadeToWhite()
 
 void FadeOut(int bFadeMusic)
 {
-    int const palstep = (videoGetRenderMode() >= REND_POLYMOST) ? 255 : 4;
-    int const fadestep = (videoGetRenderMode() >= REND_POLYMOST) ? 1 : 64;
     if (bFadeMusic) {
         StartfadeCDaudio();
     }
 
-    for (int i = fadestep; i > 0; i--)
+
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() >= REND_POLYMOST)
+    {
+        videoTintBlood(-255, -255, -255);
+        videoNextPage();
+    }
+    else
+#endif
+    for (int i = 64; i > 0; i--)
     {
         int v4 = 0;
         palette_t *pPal = curpalettefaded;
@@ -264,21 +293,21 @@ void FadeOut(int bFadeMusic)
         {
             if (pPal->r > 0)
             {
-                pPal->r -= palstep;
+                pPal->r -= 4;
                 if (pPal->r < 0)
                     pPal->r = 0;
                 v4++;
             }
             if (pPal->g > 0)
             {
-                pPal->g -= palstep;
+                pPal->g -= 4;
                 if (pPal->g < 0)
                     pPal->g = 0;
                 v4++;
             }
             if (pPal->b > 0)
             {
-                pPal->b -= palstep;
+                pPal->b -= 4;
                 if (pPal->b < 0)
                     pPal->b = 0;
                 v4++;
@@ -316,6 +345,15 @@ void StartFadeIn()
 
 int DoFadeIn()
 {
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() >= REND_POLYMOST)
+    {
+        paletteSetColorTable(curbasepal, basepaltable[BASEPAL]);
+        videoSetPalette(0, curbasepal, 2+8);
+        videoNextPage();
+        return 0;
+    }
+#endif
     int v2 = 0;
 
     for (int i = 0; i < 256; i++)
@@ -356,13 +394,14 @@ int DoFadeIn()
 
 void FadeIn()
 {
+#ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        Bmemcpy(curpalettefaded, curpalette, sizeof(curpalette));
-        videoUpdatePalette(0, 256);
+        videoSetPalette(0, BASEPAL, 2+8);
         videoNextPage();
         return;
     }
+#endif
     StartFadeIn();
 
     int val;

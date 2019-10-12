@@ -165,6 +165,9 @@ void ResetView()
     EraseScreen(overscanindex);
     memcpy(curpalettefaded, curpalette, sizeof(curpalette));
     videoUpdatePalette(0, 256);
+#ifdef USE_OPENGL
+    videoTintBlood(0, 0, 0);
+#endif
 
     LoadStatus();
 }

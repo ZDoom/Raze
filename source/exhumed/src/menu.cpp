@@ -1810,17 +1810,28 @@ void CinemaFadeIn()
 {
     BlackOut();
 
-    videoSetPalette(0, ANIMPAL, 0);
+    paletteSetColorTable(ANIMPAL, cinemapal);
+    videoSetPalette(0, ANIMPAL, 2+8);
 
-    while (1)
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        int val = DoFadeIn();
+        videoNextPage();
+        return;
+    }
+#endif
+
+    int val;
+
+    do
+    {
+        val = DoFadeIn();
         WaitTicks(2);
 
-        if (val <= 0) {
-            break;
-        }
-    }
+        // need to page flip in each iteration of the loop for non DOS version
+        videoNextPage();
+
+    } while (val > 0);
 }
 
 void ComputeCinemaText(int nLine)
@@ -2071,7 +2082,6 @@ void GoToTheCinema(int nVal)
     overwritesprite(0, 0, 764, 100, 2, kPalNormal);
     videoNextPage();
 
-    videoSetPalette(0, BASEPAL, 0);
     GrabPalette();
     Clip();
 }

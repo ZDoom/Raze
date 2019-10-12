@@ -71,7 +71,7 @@ int ReadFrame(FILE *fp)
                 fread(&var_1C, sizeof(var_1C), 1, fp);
 
                 paletteSetColorTable(ANIMPAL, palette);
-                videoSetPalette(0, ANIMPAL, 0);
+                videoSetPalette(0, ANIMPAL, 2+8);
 
                 memset(CurFrame, overscanindex, 4); //sizeof(CurFrame));
                 continue;
@@ -175,7 +175,7 @@ void PlayMovie(const char *fileName)
     int angle = 1536;
     int z = 0;
 
-    videoSetPalette(0, ANIMPAL, 0);
+    videoSetPalette(0, ANIMPAL, 2+8);
 
     if (ReadFrame(fp))
     {

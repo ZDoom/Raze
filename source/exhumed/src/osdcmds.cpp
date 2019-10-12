@@ -122,16 +122,9 @@ static int osdcmd_initgroupfile(osdcmdptr_t parm)
 
 void onvideomodechange(int32_t newmode)
 {
-    // TODO:
+    uint8_t palid = BASEPAL;
+
 #if 0
-    uint8_t palid;
-
-    // XXX?
-    if (!newmode || g_player[screenpeek].ps->palette < BASEPALCOUNT)
-        palid = g_player[screenpeek].ps->palette;
-    else
-        palid = BASEPAL;
-
 #ifdef POLYMER
     if (videoGetRenderMode() == REND_POLYMER)
     {
@@ -149,11 +142,9 @@ void onvideomodechange(int32_t newmode)
         }
     }
 #endif
-
-    videoSetPalette(ud.brightness>>2, palid, 0);
-    g_restorePalette = -1;
-    g_crosshairSum = -1;
 #endif
+
+    videoSetPalette(0, palid, 0);
 }
 
 static int osdcmd_button(osdcmdptr_t parm)
