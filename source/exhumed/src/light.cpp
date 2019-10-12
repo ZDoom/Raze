@@ -391,6 +391,9 @@ void FixPalette()
 
     nPalDelay = 5;
 
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() == REND_CLASSIC)
+#endif
     for (int i = 0; i < 256; i++)
     {
         short nVal;
@@ -438,6 +441,7 @@ void FixPalette()
     nPalDiff -= 20;
     gtint -= 20;
     rtint -= 20;
+    btint -= 20;
 
     if (gtint < 0) {
         gtint = 0;
@@ -447,10 +451,18 @@ void FixPalette()
         rtint = 0;
     }
 
+    if (btint < 0) {
+        btint = 0;
+    }
+
     if (nPalDiff < 0) {
         nPalDiff = 0;
     }
 
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() >= REND_POLYMOST) videoTintBlood(rtint, gtint, btint);
+    else
+#endif
     videoUpdatePalette(0, 256);
 }
 
@@ -515,6 +527,8 @@ void TintPalette(int r, int g, int b)
 
     rtint += r;
 
+    btint += b;
+
     // do not modify r, g or b variables from this point on
     b2 = b;
     int nVal;
@@ -533,6 +547,10 @@ void TintPalette(int r, int g, int b)
 
     nPalDiff += nVal;
 
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() >= REND_POLYMOST) videoTintBlood(rtint, gtint, btint);
+    else
+#endif
     for (int i = 0; i < 256; i++)
     {
         pPal->r += r;
