@@ -158,19 +158,18 @@ void CKillMgr::sub_2641C(void)
     for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         
         spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
-            ThrowError("Non-enemy sprite (%d) in the enemy sprite list.", nSprite);
-        
-        if (pSprite->statnum == kStatDude) {
-            switch (pSprite->type) {
-            case kDudeBat:
-            case kDudeRat:
-            case kDudeBurningInnocent:
-            case kDudeInnocent:
-                return;
-            }
+        if (IsDudeSprite(pSprite)) {
+            if (pSprite->statnum == kStatDude) {
+                switch (pSprite->type) {
+                case kDudeBat:
+                case kDudeRat:
+                case kDudeBurningInnocent:
+                case kDudeInnocent:
+                    return;
+                }
 
-            at0++;
+                at0++;
+            }
         }
 
     }
@@ -229,22 +228,20 @@ void CSecretMgr::SetCount(int nCount)
 
 void CSecretMgr::Found(int nType)
 {
-    if (nType < 0)
-        ThrowError("Invalid secret type %d triggered.", nType);
-    if (nType == 0)
-        at4++;
-    else
-        at8++;
-    if (gGameOptions.nGameType == 0)
-    {
-        switch (Random(2))
-        {
-        case 0:
-            viewSetMessage("A secret is revealed.", 0, MESSAGE_PRIORITY_SECRET);
-            break;
-        case 1:
-            viewSetMessage("You found a secret.", 0, MESSAGE_PRIORITY_SECRET);
-            break;
+    if (nType == 0) at4++;
+    else if (nType < 0) {
+        viewSetSystemMessage("Invalid secret type %d triggered.", nType);
+        return;
+    } else at8++;
+
+    if (gGameOptions.nGameType == 0) {
+        switch (Random(2)) {
+            case 0:
+                viewSetMessage("A secret is revealed.", 0, MESSAGE_PRIORITY_SECRET);
+                break;
+            case 1:
+                viewSetMessage("You found a secret.", 0, MESSAGE_PRIORITY_SECRET);
+                break;
         }
     }
 }

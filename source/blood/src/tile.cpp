@@ -35,16 +35,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "resource.h"
 #include "tile.h"
+#include "view.h"
 
 BEGIN_BLD_NS
 
 void qloadvoxel(int32_t nVoxel)
 {
     static int nLastVoxel = 0;
-    dassert(nVoxel >= 0 && nVoxel < kMaxVoxels);
     DICTNODE *hVox = gSysRes.Lookup(nVoxel, "KVX");
-    if (!hVox)
-        ThrowError("Missing voxel #%d", nVoxel);
+    if (!hVox) {
+        viewSetSystemMessage("Missing voxel #%d (max voxels: %d)", nVoxel, kMaxVoxels);
+        return;
+    }
+
     if (!hVox->lockCount)
         voxoff[nLastVoxel][0] = 0;
     nLastVoxel = nVoxel;

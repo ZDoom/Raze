@@ -99,7 +99,8 @@ void QuitGame(void);
 #define kStatFlare 14
 #define kStatDebris 15
 #define kStatPathMarker 16
-#define kStatModernDudeTargetChanger 20
+#define kStatModernDudeTargetChanger 20 // gModernMap only
+#define kStatModernPlayQAV 21 // gModernMap only
 #define kStatFree 1024
 
 #define kLensSize 80
@@ -159,7 +160,8 @@ enum {
     kModernObjDataAccumulator = 37,
     kModernEffectSpawner = 38,
     kModernWindGenerator = 39,
-    kModernConcussSprite = 712,
+    kModernConcussSprite = 712, /// WIP
+    kModernPlayQAV = 713, /// WIP
 
     // decorations
     kDecorationTorch = 30,

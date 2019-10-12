@@ -121,10 +121,15 @@ static void SpidBiteSeqCallback(int, int nXSprite)
                     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
                     sub_70D30(pXTarget, 8, 16);
                     break;
-                case kDudeSpiderMother:
+                case kDudeSpiderMother: {
                     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
-                    actFireVector(pSprite, 0, 0, dx + Random2(2000), dy + Random2(2000), dz + Random2(2000), VECTOR_TYPE_17);
+
+                    dx += Random2(2000);
+                    dy += Random2(2000);
+                    dz += Random2(2000);
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
                     sub_70D30(pXTarget, 8, 16);
+                }
                     break;
             }
         }

@@ -82,32 +82,25 @@ RXBUCKET rxBucket[kMaxChannels+1];
 
 int GetBucketChannel(const RXBUCKET *pRX)
 {
-    switch (pRX->type)
-    {
-    case 6:
-    {
-        int nIndex = pRX->index;
-        int nXIndex = sector[nIndex].extra;
-        dassert(nXIndex > 0);
-        return xsector[nXIndex].rxID;
-    }
-    case 0:
-    {
-        int nIndex = pRX->index;
-        int nXIndex = wall[nIndex].extra;
-        dassert(nXIndex > 0);
-        return xwall[nXIndex].rxID;
-    }
-    case 3:
-    {
-        int nIndex = pRX->index;
-        int nXIndex = sprite[nIndex].extra;
-        dassert(nXIndex > 0);
-        return xsprite[nXIndex].rxID;
-    }
-    default:
-        ThrowError("Unexpected rxBucket type %d, index %d", pRX->type, pRX->index);
-        break;
+    switch (pRX->type) {
+        case 6: {
+            int nIndex = pRX->index;
+            int nXIndex = sector[nIndex].extra;
+            dassert(nXIndex > 0);
+            return xsector[nXIndex].rxID;
+        }
+        case 0: {
+            int nIndex = pRX->index;
+            int nXIndex = wall[nIndex].extra;
+            dassert(nXIndex > 0);
+            return xwall[nXIndex].rxID;
+        }
+        case 3: {
+            int nIndex = pRX->index;
+            int nXIndex = sprite[nIndex].extra;
+            dassert(nXIndex > 0);
+            return xsprite[nXIndex].rxID;
+        }
     }
     return 0;
 }

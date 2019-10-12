@@ -629,6 +629,10 @@ void StartLevel(GAMEOPTIONS *gameOptions)
                     case kModernDudeTargetChanger:
                         changespritestat(i, kStatModernDudeTargetChanger);
                         break;
+                    // add statnum for faster searching of already enabled qav players
+                    case kModernPlayQAV:
+                        changespritestat(i, kStatModernPlayQAV);
+                        break;
                     // remove kStatItem status from random item generators
                     case kModernRandom:
                     case kModernRandom2:

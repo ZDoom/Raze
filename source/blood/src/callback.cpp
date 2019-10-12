@@ -227,67 +227,66 @@ void fxDynPuff(int nSprite) // 8
 void Respawn(int nSprite) // 9
 {
     spritetype *pSprite = &sprite[nSprite];
-    int nXSprite = pSprite->extra;
-    dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    if (pSprite->statnum != kStatRespawn && pSprite->statnum != kStatThing)
-        ThrowError("Sprite %d is not on Respawn or Thing list\n", nSprite);
-    if (!(pSprite->flags&16))
-        ThrowError("Sprite %d does not have the respawn attribute\n", nSprite);
-    switch (pXSprite->respawnPending)
-    {
-    case 1:
-    {
-        int nTime = mulscale16(actGetRespawnTime(pSprite), 0x4000);
-        pXSprite->respawnPending = 2;
-        evPost(nSprite, 3, nTime, kCallbackRespawn);
-        break;
+    dassert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+    XSPRITE *pXSprite = &xsprite[pSprite->extra];
+    
+    if (pSprite->statnum != kStatRespawn && pSprite->statnum != kStatThing) {
+        viewSetSystemMessage("Sprite #%d is not on Respawn or Thing list\n", nSprite);
+        return;
+    } else if (!(pSprite->flags & kHitagRespawn)) {
+        viewSetSystemMessage("Sprite #%d does not have the respawn attribute\n", nSprite);
+        return;
     }
-    case 2:
-    {
-        int nTime = mulscale16(actGetRespawnTime(pSprite), 0x2000);
-        pXSprite->respawnPending = 3;
-        evPost(nSprite, 3, nTime, kCallbackRespawn);
-        break;
-    }
-    case 3:
-    {
-        dassert(pSprite->owner != kStatRespawn);
-        dassert(pSprite->owner >= 0 && pSprite->owner < kMaxStatus);
-        ChangeSpriteStat(nSprite, pSprite->owner);
-        pSprite->type = pSprite->inittype;
-        pSprite->owner = -1;
-        pSprite->flags &= ~16;
-        xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
-        pXSprite->respawnPending = 0;
-        pXSprite->burnTime = 0;
-        pXSprite->isTriggered = 0;
-        if (pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
-        {
-            int nType = pSprite->type-kDudeBase;
-            pSprite->x = baseSprite[nSprite].x;
-            pSprite->y = baseSprite[nSprite].y;
-            pSprite->z = baseSprite[nSprite].z;
-            pSprite->cstat |= 0x1101;
-            pSprite->clipdist = dudeInfo[nType].clipdist;
-            pXSprite->health = dudeInfo[nType].startHealth<<4;
-            if (gSysRes.Lookup(dudeInfo[nType].seqStartID, "SEQ"))
-                seqSpawn(dudeInfo[nType].seqStartID, 3, pSprite->extra, -1);
-            aiInitSprite(pSprite);
-            pXSprite->key = 0;
+
+    switch (pXSprite->respawnPending) {
+        case 1: {
+            int nTime = mulscale16(actGetRespawnTime(pSprite), 0x4000);
+            pXSprite->respawnPending = 2;
+            evPost(nSprite, 3, nTime, kCallbackRespawn);
+            break;
         }
-        if (pSprite->type == kThingTNTBarrel)
-        {
-            pSprite->cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN;
-            pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
+        case 2: {
+            int nTime = mulscale16(actGetRespawnTime(pSprite), 0x2000);
+            pXSprite->respawnPending = 3;
+            evPost(nSprite, 3, nTime, kCallbackRespawn);
+            break;
         }
-        gFX.fxSpawn(FX_29, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-        sfxPlay3DSound(pSprite, 350, -1, 0);
-        break;
-    }
-    default:
-        ThrowError("Unexpected respawnPending value = %d", pXSprite->respawnPending);
-        break;
+        case 3: {
+            dassert(pSprite->owner != kStatRespawn);
+            dassert(pSprite->owner >= 0 && pSprite->owner < kMaxStatus);
+            ChangeSpriteStat(nSprite, pSprite->owner);
+            pSprite->type = pSprite->inittype;
+            pSprite->owner = -1;
+            pSprite->flags &= ~16;
+            xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
+            pXSprite->respawnPending = 0;
+            pXSprite->burnTime = 0;
+            pXSprite->isTriggered = 0;
+            if (IsDudeSprite(pSprite)) {
+                
+                int nType = pSprite->type-kDudeBase;
+                pSprite->x = baseSprite[nSprite].x;
+                pSprite->y = baseSprite[nSprite].y;
+                pSprite->z = baseSprite[nSprite].z;
+                pSprite->cstat |= 0x1101;
+                pSprite->clipdist = dudeInfo[nType].clipdist;
+                pXSprite->health = dudeInfo[nType].startHealth<<4;
+                if (gSysRes.Lookup(dudeInfo[nType].seqStartID, "SEQ"))
+                    seqSpawn(dudeInfo[nType].seqStartID, 3, pSprite->extra, -1);
+                aiInitSprite(pSprite);
+                pXSprite->key = 0;
+            
+            } else if (pSprite->type == kThingTNTBarrel) {
+                
+                pSprite->cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN;
+                pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
+
+            }
+
+            gFX.fxSpawn(FX_29, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+            sfxPlay3DSound(pSprite, 350, -1, 0);
+            break;
+        }
     }
 }
 

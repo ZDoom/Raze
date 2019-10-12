@@ -52,6 +52,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "sectorfx.h"
 #include "messages.h"
+#include "weapon.h"
 
 BEGIN_BLD_NS
 
@@ -406,10 +407,10 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             case kMarkerLowStack:
             case kMarkerPath:
                 switch (pXSprite->command) {
-                case kCmdLink:
-                    if (pXSprite->txID <= 0) return;
-                    evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    return;
+                    case kCmdLink:
+                        if (pXSprite->txID <= 0) return;
+                        evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                        return;
                 }
                 break; // go normal operate switch
 
@@ -809,6 +810,36 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         ActivateGenerator(nSprite);
                         if (pXSprite->txID) evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                         if (pXSprite->busyTime > 0) evPost(nSprite, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
+                        break;
+                    default:
+                        if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
+                        else evPost(nSprite, 3, 0, kCmdOff);
+                        break;
+                }
+                return;
+            case kModernPlayQAV: // WIP
+                PLAYER* pPlayer = &gPlayer[pXSprite->data1];
+                switch (event.cmd) {
+                    case kCmdOff:
+                        pPlayer->atbd = pXSprite->sysData1;
+                        if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                        if (pPlayer->atbd != 0)
+                            WeaponRaise(pPlayer);
+                        break;
+                    case kCmdOn:
+                        evKill(nSprite, 3); // queue overflow protect
+                        disableQAVPlayers(pSprite);
+                        if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                        if (pPlayer->atbd != 0) {
+                            pXSprite->sysData1 = pPlayer->atbd; // save current weapon
+                            WeaponLower(pPlayer);
+                        }
+                        fallthrough__;
+                    case kCmdRepeat:
+                        if (pPlayer->at26 != pXSprite->data2)
+                            StartQAV(&gPlayer[pXSprite->data1], pXSprite->data2);
+                        
+                        if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
                         break;
                     default:
                         if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
@@ -1711,6 +1742,7 @@ void SetupGibWallState(walltype *pWall, XWALL *pXWall)
 
 void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
     walltype *pWall = &wall[nWall];
+    
     switch (event.cmd) {
         case kCmdLock:
             pXWall->locked = 1;
@@ -1723,28 +1755,30 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
             return;
     }
     
+    // by NoOne: make 1-Way switch type for walls to work...
     if (gModernMap) {
         
-        // by NoOne: make 1-Way switch type for walls to work...
         switch (pWall->type) {
-        case kSwitchOneWay:
-            switch (event.cmd) {
-                case kCmdOff:
-                    SetWallState(nWall, pXWall, 0);
-                    break;
-                case kCmdOn:
-                    SetWallState(nWall, pXWall, 1);
-                    break;
-                default:
-                    SetWallState(nWall, pXWall, pXWall->restState ^ 1);
-                    break;
-                }
-            return;
+            case kSwitchOneWay:
+                switch (event.cmd) {
+                    case kCmdOff:
+                        SetWallState(nWall, pXWall, 0);
+                        break;
+                    case kCmdOn:
+                        SetWallState(nWall, pXWall, 1);
+                        break;
+                    default:
+                        SetWallState(nWall, pXWall, pXWall->restState ^ 1);
+                        break;
+                    }
+                return;
+            default:
+                break;
         }
 
-    } else {
+    }
         
-        switch (pWall->type) {
+    switch (pWall->type) {
         case kWallGib:
             if (GetWallType(nWall) != pWall->type) break;
             char bStatus;
@@ -1771,21 +1805,21 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
                 }
             }
             return;
-        }
-
-    }
-    
-    switch (event.cmd) {
-        case kCmdOff:
-            SetWallState(nWall, pXWall, 0);
-            break;
-        case kCmdOn:
-            SetWallState(nWall, pXWall, 1);
-            break;
         default:
-            SetWallState(nWall, pXWall, pXWall->state ^ 1);
-            break;
+            switch (event.cmd) {
+                case kCmdOff:
+                    SetWallState(nWall, pXWall, 0);
+                    break;
+                case kCmdOn:
+                    SetWallState(nWall, pXWall, 1);
+                    break;
+                default:
+                    SetWallState(nWall, pXWall, pXWall->state ^ 1);
+                    break;
+            }
+            return;
     }
+
 
 }
 
@@ -3756,6 +3790,14 @@ bool dudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* pTarget)
 
     return false;
 
+}
+
+void disableQAVPlayers(spritetype* pException) {
+    for (int nSprite = headspritestat[kStatModernPlayQAV]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+        if (nSprite == pException->index || sprite[nSprite].extra < 0) continue;
+        else if (xsprite[sprite[nSprite].extra].state == 1)
+            evPost(nSprite, 3, 0, kCmdOff);
+    }
 }
 
 // by NoOne: this function required if monsters in genIdle ai state. It wakes up monsters

@@ -119,18 +119,15 @@ void Calc3DValues(BONKLE *pBonkle)
 
 void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
 {
-    if (!SoundToggle)
-        return;
-    if (soundId < 0)
-        ThrowError("Invalid sound ID");
+    if (!SoundToggle || soundId < 0) return;
+    
     DICTNODE *hRes = gSoundRes.Lookup(soundId, "SFX");
-    if (!hRes)
-        return;
+    if (!hRes)return;
 
     SFX *pEffect = (SFX*)gSoundRes.Load(hRes);
     hRes = gSoundRes.Lookup(pEffect->rawName, "RAW");
-    if (!hRes)
-        return;
+    if (!hRes) return;
+
     int v1c, v18;
     v1c = v18 = mulscale16(pEffect->pitch, sndGetRate(pEffect->format));
     if (nBonkles >= 256)

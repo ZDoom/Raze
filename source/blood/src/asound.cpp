@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fx_man.h"
 #include "common_game.h"
 //#include "blood.h"
+#include "view.h"
 #include "config.h"
 #include "db.h"
 #include "player.h"
@@ -116,49 +117,52 @@ void ambInit(void)
 {
     ambKillAll();
     memset(ambChannels, 0, sizeof(ambChannels));
-    for (int nSprite = headspritestat[kStatAmbience]; nSprite >= 0; nSprite = nextspritestat[nSprite])
-    {
-        spritetype *pSprite = &sprite[nSprite];
-        int nXSprite = pSprite->extra;
-        if (nXSprite > 0 && nXSprite < kMaxXSprites)
-        {
-            XSPRITE *pXSprite = &xsprite[nXSprite];
-            if (pXSprite->data1 < pXSprite->data2)
-            {
-                int i;
-                AMB_CHANNEL *pChannel = ambChannels;
-                for (i = 0; i < nAmbChannels; i++, pChannel++)
-                    if (pXSprite->data3 == pChannel->at8)
-                        break;
-                if (i == nAmbChannels)
-                {
-                    if (i >= kMaxAmbChannel)
-                    {
-                        pSprite->owner = -1;
-                        continue;
-                    }
-                    int nSFX = pXSprite->data3;
-                    DICTNODE *pSFXNode = gSoundRes.Lookup(nSFX, "SFX");
-                    if (!pSFXNode)
-                        ThrowError("Missing sound #%d used in ambient sound generator %d\n", nSFX);
-                    SFX *pSFX = (SFX*)gSoundRes.Load(pSFXNode);
-                    DICTNODE *pRAWNode = gSoundRes.Lookup(pSFX->rawName, "RAW");
-                    if (!pRAWNode)
-                        ThrowError("Missing RAW sound \"%s\" used in ambient sound generator %d\n", pSFX->rawName, nSFX);
-                    if (pRAWNode->size > 0)
-                    {
-                        pChannel->at14 = pRAWNode->size;
-                        pChannel->at8 = nSFX;
-                        pChannel->atc = pRAWNode;
-                        pChannel->at14 = pRAWNode->size;
-                        pChannel->at10 = (char*)gSoundRes.Lock(pRAWNode);
-                        pChannel->at18 = pSFX->format;
-                        nAmbChannels++;
-                    }
-                }
-                pSprite->owner = i;
+    for (int nSprite = headspritestat[kStatAmbience]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+        if (sprite[nSprite].extra <= 0 || sprite[nSprite].extra >= kMaxXSprites) continue;
+        
+        XSPRITE *pXSprite = &xsprite[sprite[nSprite].extra];
+        if (pXSprite->data1 >= pXSprite->data2) continue;
+        
+        int i; AMB_CHANNEL *pChannel = ambChannels;
+        for (i = 0; i < nAmbChannels; i++, pChannel++)
+            if (pXSprite->data3 == pChannel->at8) break;
+        
+        if (i == nAmbChannels) {
+            
+            if (i >= kMaxAmbChannel) {
+                sprite[nSprite].owner = -1;
+                continue;
             }
+                    
+            int nSFX = pXSprite->data3;
+            DICTNODE *pSFXNode = gSoundRes.Lookup(nSFX, "SFX");
+            if (!pSFXNode) {
+                //ThrowError("Missing sound #%d used in ambient sound generator %d\n", nSFX);
+                viewSetSystemMessage("Missing sound #%d used in ambient sound generator #%d\n", nSFX);
+                continue;
+            }
+
+            SFX *pSFX = (SFX*)gSoundRes.Load(pSFXNode);
+            DICTNODE *pRAWNode = gSoundRes.Lookup(pSFX->rawName, "RAW");
+            if (!pRAWNode) {
+                //ThrowError("Missing RAW sound \"%s\" used in ambient sound generator %d\n", pSFX->rawName, nSFX);
+                viewSetSystemMessage("Missing RAW sound \"%s\" used in ambient sound generator %d\n", pSFX->rawName, nSFX);
+                continue;
+            }
+            
+            if (pRAWNode->size > 0) {
+                pChannel->at14 = pRAWNode->size;
+                pChannel->at8 = nSFX;
+                pChannel->atc = pRAWNode;
+                pChannel->at14 = pRAWNode->size;
+                pChannel->at10 = (char*)gSoundRes.Lock(pRAWNode);
+                pChannel->at18 = pSFX->format;
+                nAmbChannels++;
+            }
+
         }
+
+        sprite[nSprite].owner = i;
     }
 }
 

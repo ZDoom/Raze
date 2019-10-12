@@ -69,10 +69,10 @@ enum VECTOR_TYPE {
 
 struct THINGINFO
 {
-    short at0; // health
-    short at2; // mass
-    unsigned char at4; // clipdist
-    short at5; // flags
+    short health; // health
+    short mass; // mass
+    unsigned char clipdist; // clipdist
+    short flags; // flags
     int at7; // elasticity
     int atb; // damage resistance
     short atf; // cstat
@@ -190,7 +190,6 @@ extern VECTORDATA gVectorData[];
 extern int gDudeDrag;
 extern short gAffectedSectors[kMaxSectors];
 extern short gAffectedXWalls[kMaxXWalls];
-
 
 inline bool IsPlayerSprite(spritetype *pSprite)
 {
