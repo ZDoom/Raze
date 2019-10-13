@@ -288,7 +288,8 @@ enum {
     kDudeBeast = 251,
     kDudeBurningTinyCaleb = 252,
     kDudeBurningBeast = 253,
-    kDudeModernCustom = 254, // gModern map only
+    kDudeVanillaMax = 254,
+    kDudeModernCustom = kDudeVanillaMax, // gModern map only
     kDudeModernCustomBurning = 255, // gModern map only
     kDudeMax = 256,
     

@@ -6690,7 +6690,7 @@ void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite) {
             evPost(nMissile, 3, 0, kCallbackFXFlareSpark);
         sfxPlay3DSound(pMissile, 422, 0, 0);
         break;
-    case 317:
+        case kMissileLifeLeechAltSmall:
             evPost(nMissile, 3, 0, kCallbackFXArcSpark);
         break;
         case kMissileArcGargoyle:
@@ -6699,45 +6699,37 @@ void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite) {
     }
 }
 
-int actGetRespawnTime(spritetype *pSprite)
-{
-    int nXSprite = pSprite->extra;
-    if (nXSprite <= 0)
-        return -1;
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    if (IsDudeSprite(pSprite) && !IsPlayerSprite(pSprite))
-    {
-        if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nMonsterSettings == 2))
+int actGetRespawnTime(spritetype *pSprite) {
+    if (pSprite->extra <= 0) return -1; 
+    XSPRITE *pXSprite = &xsprite[pSprite->extra];
+    if (IsDudeSprite(pSprite) && !IsPlayerSprite(pSprite)) {
+        if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nMonsterSettings == 2)) 
             return gGameOptions.nMonsterRespawnTime;
         return -1;
     }
-    if (IsWeaponSprite(pSprite))
-    {
-        if (pXSprite->respawn == 3 || gGameOptions.nWeaponSettings == 1)
-            return 0;
-        if (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0)
+
+    if (IsWeaponSprite(pSprite)) {
+        if (pXSprite->respawn == 3 || gGameOptions.nWeaponSettings == 1) return 0;
+        else if (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0) 
             return gGameOptions.nWeaponRespawnTime;
         return -1;
     }
-    if (IsAmmoSprite(pSprite))
-    {
-        if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0))
+
+    if (IsAmmoSprite(pSprite)) {
+        if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0)) 
             return gGameOptions.nWeaponRespawnTime;
         return -1;
     }
-    if (IsItemSprite(pSprite))
-    {
-        if (pXSprite->respawn == 3 && gGameOptions.nGameType == 1)
-            return 0;
-        if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nItemSettings != 0))
-        {
-            switch (pSprite->type)
-            {
-            case 113:
-            case 117:
-            case 124:
+
+    if (IsItemSprite(pSprite)) {
+        if (pXSprite->respawn == 3 && gGameOptions.nGameType == 1) return 0;
+        else if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nItemSettings != 0)) {
+            switch (pSprite->type) {
+                case kItemShadowCloak:
+                case kItemTwoGuns:
+                case kItemReflectShots:
                 return gGameOptions.nSpecialRespawnTime;
-            case 114:
+                case kItemDeathMask:
                 return gGameOptions.nSpecialRespawnTime<<1;
             default:
                 return gGameOptions.nItemRespawnTime;

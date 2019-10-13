@@ -851,6 +851,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     } 
     
     if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax) {
+        
         switch (event.cmd) {
             case kCmdOff:
                 SetSpriteState(nSprite, pXSprite, 0);
@@ -864,9 +865,9 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 if (!pXSprite->state) SetSpriteState(nSprite, pXSprite, 1);
                 aiActivateDude(pSprite, pXSprite);
                 break;
-            default:
-                return;
         }
+
+        return;
     }
 
 
@@ -1006,8 +1007,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
 
         break;
     case kMarkerDudeSpawn:
-        if (gGameOptions.nMonsterSettings && pXSprite->data1 >= kDudeBase && pXSprite->data1 < kDudeMax)
-        {
+        if (gGameOptions.nMonsterSettings && pXSprite->data1 >= kDudeBase && pXSprite->data1 < kDudeMax) {
             
             spritetype* pSpawn = NULL;
             // By NoOne: add spawn random dude feature - works only if at least 2 data fields are not empty.
@@ -1018,8 +1018,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
               pSpawn = actSpawnDude(pSprite, pXSprite->data1, -1, 0);
             }
 
-            if (pSpawn)
-            {
+            if (pSpawn) {
                 XSPRITE *pXSpawn = &xsprite[pSpawn->extra];
                 gKillMgr.sub_263E0(1);
                 switch (pXSprite->data1) {
@@ -1027,8 +1026,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                     case kDudeBurningCultist:
                     case kDudeBurningZombieButcher:
                     case kDudeBurningTinyCaleb:
-                    case kDudeBurningBeast:
-                    {
+                    case kDudeBurningBeast: {
                         pXSpawn->health = dudeInfo[pXSprite->data1 - kDudeBase].startHealth << 4;
                         pXSpawn->burnTime = 10;
                         pXSpawn->target = -1;
