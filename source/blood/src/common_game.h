@@ -511,18 +511,24 @@ inline int QRandom2(int a1)
     return mulscale(qrand(), a1, 14)-a1;
 }
 
-inline void SetBitString(char *pArray, int nIndex)
+template<class T>
+inline void SetBitString(T *pArray, int nIndex)
 {
-    pArray[nIndex>>3] |= 1<<(nIndex&7);
+	static_assert(sizeof(T) == 1);
+	pArray[nIndex>>3] |= 1<<(nIndex&7);
 }
 
-inline void ClearBitString(char *pArray, int nIndex)
+template<class T>
+inline void ClearBitString(T *pArray, int nIndex)
 {
-    pArray[nIndex >> 3] &= ~(1 << (nIndex & 7));
+	static_assert(sizeof(T) == 1);
+	pArray[nIndex >> 3] &= ~(1 << (nIndex & 7));
 }
 
-inline char TestBitString(char *pArray, int nIndex)
+template<class T>
+inline char TestBitString(T *pArray, int nIndex)
 {
+	static_assert(sizeof(T) == 1);
     return pArray[nIndex>>3] & (1<<(nIndex&7));
 }
 
