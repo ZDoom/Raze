@@ -55,6 +55,7 @@ namespace ImageHelpers
 	extern PalEntry BasePalette[256];	// same as above, but with a being a proper alpha channel.
 	extern int WhiteIndex, BlackIndex;
 	extern ColorTable256k RGB256k;
+	extern int alphaThreshold;
 
 	// Todo: This should not pick fullbright colors.
 	int BestColor(int r, int g, int b, int first = 0, int num = 255);
@@ -74,7 +75,7 @@ namespace ImageHelpers
 	
 	inline uint8_t RGBToPalette(bool wantluminance, int r, int g, int b, int a = 255)
 	{
-		return a < 128? 255 : RGB256k.RGB[r >> 2][g >> 2][b >> 2];
+		return a < alphaThreshold? 255 : RGB256k.RGB[r >> 2][g >> 2][b >> 2];
 	}
 	
 	inline uint8_t RGBToPalette(bool wantluminance, PalEntry pe, bool hasalpha = true)

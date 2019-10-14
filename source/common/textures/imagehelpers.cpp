@@ -43,6 +43,7 @@ namespace ImageHelpers
 	PalEntry BaseColors[256];
 	PalEntry BasePalette[256];	// same as above, but with a being a proper alpha channel.
 	int WhiteIndex, BlackIndex;
+	int alphaThreshold;
 	ColorTable256k RGB256k;
 
 	int BestColor(int r, int g, int b, int first, int num)

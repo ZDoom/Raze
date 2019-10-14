@@ -37,6 +37,7 @@
 #include "templates.h"
 #include "bitmap.h"
 #include "image.h"
+#include "imagehelpers.h"
 
 
 //==========================================================================
@@ -73,9 +74,19 @@ FBitmap FImageTexture::GetBgraBitmap(PalEntry *p, int *trans)
 {
 	FBitmap bmp;
 	bmp.Create(Size.x, Size.y);
-	mImage->CopyPixels(&bmp, 0);	// Todo: Handle translations.
+	if (p == nullptr)
+	{
+		mImage->CopyPixels(&bmp, 0);	// Todo: Handle translations.
+	}
+	else 
+	{
+		// For different base palettes the image needs to be downconverted.
+		TArray<uint8_t> ppix(Size.x * Size.y, true);
+		mImage->CreatePalettedPixels(ppix.Data());
+		bmp.CopyPixelData(0, 0, ppix.Data(), Size.x, Size.y, Size.y, 1, 0, p);
+	}
 	return bmp;
-}	
+}
 
 //===========================================================================
 //
@@ -85,5 +96,6 @@ FBitmap FImageTexture::GetBgraBitmap(PalEntry *p, int *trans)
 
 void FImageTexture::Create8BitPixels(uint8_t* buffer)
 {
+	ImageHelpers::alphaThreshold = alphaThreshold;
 	return mImage->CreatePalettedPixels(buffer);
 }

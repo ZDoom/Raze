@@ -66,16 +66,21 @@ public:
 FImageSource *ArtImage_TryCreate(FileReader & file)
 {
 	auto buffer = file.Read();
-	int32_t const artstatus = artCheckUnitFileHeader(buffer.Data(), buffer.Size());
-	if (artstatus < 0) return nullptr;
 
-	int32_t picanmdisk;
-	memcpy(&picanmdisk, &buffer[20], sizeof(int32_t));
-	picanmdisk = B_LITTLE32(picanmdisk);
-	//tileConvertAnimFormat(tile, picanmdisk);
+	// Cannot load if smaller than the header.
+	if (buffer.Size() < ARTv1_UNITOFFSET) return nullptr;
+	uint32_t* header = (uint32_t *) buffer.Data();
+	int ver = LittleLong(header[0]);
+	if (ver != 1) return nullptr;
 
-	int Width = B_LITTLE16(B_UNBUF16(&buffer[16]));
-	int Height = B_LITTLE16(B_UNBUF16(&buffer[18]));
+	// Only allow files with one tile.
+	int firsttile = LittleLong(header[1]);
+	int lasttile = LittleLong(header[2]);
+	if (firsttile != lasttile) return nullptr;
+
+	int32_t picanmdisk = LittleLong(header[5]);
+	int Width = LittleShort(B_UNBUF16(&buffer[16]));
+	int Height = LittleShort(B_UNBUF16(&buffer[18]));
 
 	if (Width <= 0 || Height <= 0)
 	{

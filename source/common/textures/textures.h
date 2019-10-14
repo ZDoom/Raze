@@ -35,6 +35,7 @@
 #ifndef __TEXTURES_H
 #define __TEXTURES_H
 
+#include "compat.h"
 #include "textureid.h"
 #include "zstring.h"
 #include "tarray.h"
@@ -69,9 +70,13 @@ enum ECreateTexBufferFlags
 	CTF_CheckOnly = 8,		// Only runs the code to get a content ID but does not create a texture. Can be used to access a caching system for the hardware textures.
 };
 
-struct size_16_t	// must be the same format as vec2_16_t, we cannot include a dirty header like compat.h here.
+enum
 {
-	int16_t x, y;
+	//MAXCACHE1DSIZE = (50 * 1024 * 1024),
+
+	MAXTILES = 30720,
+	MAXUSERTILES = (MAXTILES-16)  // reserve 16 tiles at the end
+
 };
 
 // NOTE: If the layout of this struct is changed, loadpics() must be modified
@@ -182,6 +187,10 @@ struct FTextureBuffer
 // Base texture class
 class FTexture
 {
+	friend struct BuildFiles;
+	friend bool tileLoad(int tileNum);
+	friend const uint8_t* tilePtr(int num);
+
 public:
 	enum UseType : uint8_t
 	{
@@ -214,16 +223,21 @@ public:
 
 	int GetWidth() const { return Size.x; }
 	int GetHeight() const { return Size.y; }
-	const size_16_t &GetSize() const { return Size; }
+	const vec2_16_t &GetSize() const { return Size; }
 	const uint8_t& GetPicSize() const { return PicSize; }
 	int GetLeftOffset() const { return PicAnim.xofs; }
 	int GetTopOffset() const { return PicAnim.yofs; }
 	picanm_t& GetAnim() { return PicAnim;  }	// This must be modifiable. There's quite a bit of code messing around with the flags in here.
+	rottile_t& GetRotTile() { return RotTile; }
 	FTextureBuffer CreateTexBuffer(int translation, int flags = 0);
 	bool GetTranslucency();
 	void CheckTrans(unsigned char * buffer, int size, int trans);
 	bool ProcessData(unsigned char * buffer, int w, int h, bool ispatch);
 	virtual void Reload() {}
+	UseType GetUseType() const { return useType; }
+
+	int alphaThreshold = 128;
+	picanm_t PicAnim = {};
 
 protected:
 	
@@ -259,8 +273,7 @@ protected:
 
 
 	FString Name;
-	size_16_t Size = { 0,0 };	// Keep this in the native format so that we can use it without copying it around.
-	picanm_t PicAnim = {};
+	vec2_16_t Size = { 0,0 };	// Keep this in the native format so that we can use it without copying it around.
 	rottile_t RotTile = { -1,-1 };
 	uint8_t bMasked = true;		// Texture (might) have holes
 	int8_t bTranslucent = -1;	// Does this texture have an active alpha channel?
@@ -269,11 +282,11 @@ protected:
 	UseType useType = Image;
 	PalEntry FloorSkyColor;
 	PalEntry CeilingSkyColor;
+	intptr_t CacheHandle = 0;	// For tiles that do not have a static image but get accessed by the software renderer.
+	uint8_t CacheLock = 0;
 
 	FTexture (const char *name = NULL);
-
 };
-
 
 class FTileTexture : public FTexture
 {
@@ -285,7 +298,6 @@ public:
 	void SetName(const char* name) { Name = name; }
 	FBitmap GetBgraBitmap(PalEntry* remap, int* ptrans) override;
 	void Create8BitPixels(uint8_t* buffer) override;
-	virtual bool Resize(int w, int h) { return false; }	// Regular tiles cannot be resized.
 };
 
 //==========================================================================
@@ -314,6 +326,51 @@ public:
 
 //==========================================================================
 //
+// A tile with its own pixel buffer
+//
+//==========================================================================
+
+class FLooseTile : public FTileTexture
+{
+	TArray<uint8_t> RawPixels;
+public:
+	FLooseTile(TArray<uint8_t> &store, int width, int height)
+	{
+		useType = Art;	// Whatever this was before - now it's a tile!
+		RawPixels = std::move(store);
+		SetSize(width, height);
+	}
+
+	const uint8_t* Get8BitPixels() override
+	{
+		return RawPixels.Data();
+	}
+};
+
+//==========================================================================
+//
+// A tile with its own pixel buffer
+//
+//==========================================================================
+
+class FDummyTile : public FTileTexture
+{
+	uint8_t pixel = 0;
+public:
+	FDummyTile(int width, int height)
+	{
+		useType = Art;
+		SetSize(width, height);
+	}
+
+	const uint8_t* Get8BitPixels() override
+	{
+		return &pixel;	// do not return null.
+	}
+};
+
+//==========================================================================
+//
 // A tile with a writable surface
 //
 //==========================================================================
@@ -323,13 +380,10 @@ class FWritableTile : public FTileTexture
 protected:
 	TArray<uint8_t> buffer;
 
-	FWritableTile() {}
 public:
-	FWritableTile(int width, int height)
+	FWritableTile()
 	{
 		useType = Writable;
-		SetSize(width, height);
-		buffer.Resize(width * height);
 	}
 
 	const uint8_t* Get8BitPixels() override
@@ -337,16 +391,24 @@ public:
 		return buffer.Data();
 	}
 
-	bool Resize(int w, int h) override
+	uint8_t* GetWritableBuffer() override
 	{
-		if (w * h == 0)
+		// Todo: Invalidate all hardware textures depending on this.
+		return buffer.Data();
+	}
+
+	bool Resize(int w, int h)
+	{
+		if (w <= 0 || h <=  0)
 		{
 			buffer.Reset();
+			return false;
 		}
 		else
 		{
 			SetSize(w, h);
 			buffer.Resize(w * h);
+			return true;
 		}
 	}
 
@@ -368,6 +430,7 @@ public:
 		useType = Restorable;
 		Base = base;
 		CopySize(base);
+		Resize(GetWidth(), GetHeight());
 		Reload();
 	}
 
@@ -375,46 +438,6 @@ public:
 	{
 		Base->Create8BitPixels(buffer.Data());
 	}
-
-	bool Resize(int w, int h) override
-	{
-		return false;
-	}
-};
-
-//==========================================================================
-//
-// A tile with a user provided buffer
-//
-//==========================================================================
-
-class FUserTile : public FTileTexture
-{
-	const uint8_t* RawPixels;
-public:
-	FUserTile(const uint8_t* data, int width, int height)
-		: RawPixels(data)
-	{
-		useType = User;
-		SetSize(width, height);
-	}
-
-	const uint8_t* Get8BitPixels() override
-	{
-		return RawPixels;
-	}
-};
-
-//==========================================================================
-//
-// A tile with a user provided buffer
-//
-//==========================================================================
-
-struct BuildTileDescriptor
-{
-	int tilenum;
-	FTexture* Texture;
 };
 
 //==========================================================================
@@ -427,16 +450,6 @@ struct BuildArtFile
 {
 	FString filename;
 	TArray<uint8_t> RawData;
-	TArray<BuildTileDescriptor> Textures;
-
-	void AddTiles();
-	~BuildArtFile()
-	{
-		for (auto& desc : Textures)
-		{
-			delete desc.Texture;
-		}
-	}
 
 	BuildArtFile() = default;
 	BuildArtFile(const BuildArtFile&) = delete;
@@ -445,14 +458,12 @@ struct BuildArtFile
 	{
 		filename = std::move(other.filename);
 		RawData = std::move(other.RawData);
-		Textures = std::move(other.Textures);
 	}
 
 	BuildArtFile& operator=(const BuildArtFile&& other)
 	{
 		filename = std::move(other.filename);
 		RawData = std::move(other.RawData);
-		Textures = std::move(other.Textures);
 	}
 };
 
@@ -464,20 +475,42 @@ struct BuildArtFile
 
 struct BuildFiles
 {
-	TArray<BuildArtFile> ArtFiles;
-	TArray<BuildArtFile> PerMapArtFiles;
-	void AddFile(BuildArtFile& bfd, bool permap)
+	FTexture* Placeholder;
+	TDeletingArray<BuildArtFile*> ArtFiles;
+	TDeletingArray<BuildArtFile*> PerMapArtFiles;
+	TDeletingArray<FTexture*> AllTiles;	// This is for deleting tiles when shutting down.
+	TDeletingArray<FTexture*> AllMapTiles;	// Same for map tiles;
+	FTexture* tiles[MAXTILES];
+	FTexture* tilesbak[MAXTILES];
+
+	BuildFiles()
 	{
-		if (!permap) ArtFiles.Push(std::move(bfd));
-		else PerMapArtFiles.Push(std::move(bfd));
+		Placeholder = new FDummyTile(0, 0);
+		for (auto& tile : tiles) tile = Placeholder;
+		for (auto& tile : tilesbak) tile = Placeholder;
+	}
+	~BuildFiles()
+	{
+		delete Placeholder;
+	}
+
+	void AddTile(int tilenum, FTexture* tex, bool permap = false);
+
+	void AddTiles(int firsttile, TArray<uint8_t>& store, bool permap);
+
+	void AddFile(BuildArtFile *bfd, bool permap)
+	{
+		if (!permap) ArtFiles.Push(bfd);
+		else PerMapArtFiles.Push(bfd);
 	}
 	int FindFile(const FString& filename)
 	{
-		return ArtFiles.FindEx([filename](const BuildArtFile& element) { return filename.CompareNoCase(element.filename) == 0; });
+		return ArtFiles.FindEx([filename](const BuildArtFile* element) { return filename.CompareNoCase(element->filename) == 0; });
 	}
-	void LoadArtFile(const char* file, bool mapart);
+	void LoadArtFile(const char* file, bool mapart = false, int firsttile = -1);
 	void CloseAllMapArt();
 	void LoadArtSet(const char* filename);
+	FTexture* ValidateCustomTile(int tilenum, int type);
 
 };
 

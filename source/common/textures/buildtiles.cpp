@@ -38,12 +38,26 @@
 #include "textures.h"
 #include "image.h"
 #include "cache1d.h"
+#include "baselayer.h"
+#include "palette.h"
+#include "m_crc32.h"
+#include "build.h"
 
 enum
 {
 	MAXARTFILES_BASE = 200,
 	MAXARTFILES_TOTAL = 220
 };
+
+extern char* palookup[];
+
+BuildFiles TileFiles;
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
 
 picanm_t tileConvertAnimFormat(int32_t const picanmdisk)
 {
@@ -68,8 +82,16 @@ picanm_t tileConvertAnimFormat(int32_t const picanmdisk)
 FBitmap FTileTexture::GetBgraBitmap(PalEntry* remap, int* ptrans)
 {
 	FBitmap bmp;
+	TArray<uint8_t> buffer;
 	bmp.Create(Size.x, Size.y);
-	const uint8_t* ppix = Get8BitPixels();	// any properly implemented tile MUST return something valid here.
+	const uint8_t* ppix = Get8BitPixels();
+	if (!ppix)
+	{
+		// This is needed for tiles with a palette remap.
+		buffer.Resize(Size.x * Size.y);
+		Create8BitPixels(buffer.Data());
+		ppix = buffer.Data();
+	}
 	if (ppix) bmp.CopyPixelData(0, 0, ppix, Size.x, Size.y, Size.y, 1, 0, remap);
 	return bmp;
 }
@@ -87,7 +109,7 @@ void FTileTexture::Create8BitPixels(uint8_t* buffer)
 //
 //==========================================================================
 
-FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height, int picanm)
+FArtTile* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height, int picanm)
 {
 	auto tex = new FArtTile(backingstore, offset, width, height, picanm);
 	if (tex)
@@ -95,6 +117,20 @@ FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, 
 		tex->SetName(name);
 	}
 	return tex;
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void BuildFiles::AddTile(int tilenum, FTexture* tex, bool permap)
+{
+	auto& array = permap ? AllMapTiles : AllTiles;
+	array.Push(tex);
+	tiles[tilenum] = tex;
+	if (!permap) tilesbak[tilenum] = tex;
 }
 
 //===========================================================================
@@ -105,17 +141,23 @@ FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, 
 //
 //===========================================================================
 
-void BuildArtFile::AddTiles ()
+void BuildFiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, bool permap)
 {
 
 	const uint8_t *tiles = RawData.Data();
 //	int numtiles = LittleLong(((uint32_t *)tiles)[1]);	// This value is not reliable
-	int tilestart = LittleLong(((uint32_t *)tiles)[2]);
-	int tileend = LittleLong(((uint32_t *)tiles)[3]);
+	int tilestart = LittleLong(((int *)tiles)[2]);
+	int tileend = LittleLong(((int *)tiles)[3]);
 	const uint16_t *tilesizx = &((const uint16_t *)tiles)[8];
 	const uint16_t *tilesizy = &tilesizx[tileend - tilestart + 1];
 	const uint32_t *picanm = (const uint32_t *)&tilesizy[tileend - tilestart + 1];
 	const uint8_t *tiledata = (const uint8_t *)&picanm[tileend - tilestart + 1];
+
+	if (firsttile != -1)
+	{
+		tileend = tileend - tilestart + firsttile;
+		tilestart = firsttile;
+	}
 
 	for (int i = tilestart; i <= tileend; ++i)
 	{
@@ -127,11 +169,8 @@ void BuildArtFile::AddTiles ()
 
 		if (width <= 0 || height <= 0) continue;
 
-		// This name is mainly for debugging so that there is something more to go by than the mere index.
-		FStringf name("TILE_%s_%05d_%08x_%04x_%04x", filename, uint32_t(tiledata - tiles), width, height);
-		auto tex = GetTileTexture(name, RawData, uint32_t(tiledata - tiles), width, height, anm);
-		BuildTileDescriptor desc = { i, tex };
-		Textures.Push(desc);
+		auto tex = GetTileTexture("", RawData, uint32_t(tiledata - tiles), width, height, anm);
+		AddTile(i, tex);
 		tiledata += size;
 	}
 }
@@ -144,16 +183,28 @@ void BuildArtFile::AddTiles ()
 //
 //===========================================================================
 
-int CountTiles (const void *RawData)
+int CountTiles (const char *fn, const uint8_t *RawData)
 {
 	int version = LittleLong(*(uint32_t *)RawData);
 	if (version != 1)
 	{
+		initprintf("%s: Invalid art file version.  Must be 1, got %d\n", fn, version);
 		return 0;
 	}
 
 	int tilestart = LittleLong(((uint32_t *)RawData)[2]);
 	int tileend = LittleLong(((uint32_t *)RawData)[3]);
+
+	if ((unsigned)tilestart >= MAXUSERTILES || (unsigned)tileend >= MAXUSERTILES)
+	{
+		initprintf("%s: Invalid tilestart or tileend\n", fn);
+		return 0;
+	}
+	if (tileend < tilestart)
+	{
+		initprintf("%s: tileend < tilestart\n", fn);
+		return 0;
+	}
 
 	return tileend >= tilestart ? tileend - tilestart + 1 : 0;
 }
@@ -168,7 +219,8 @@ int CountTiles (const void *RawData)
 
 void BuildFiles::CloseAllMapArt()
 {
-	PerMapArtFiles.Clear();
+	AllMapTiles.DeleteAndClear();
+	PerMapArtFiles.DeleteAndClear();
 }
 
 //===========================================================================
@@ -184,7 +236,7 @@ void BuildFiles::CloseAllMapArt()
 //
 //===========================================================================
 
-void BuildFiles::LoadArtFile(const char *fn, bool mapart)
+void BuildFiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 {
 	auto old = FindFile(fn);
 	if (old >= ArtFiles.Size())	// Do not process if already loaded.
@@ -198,51 +250,79 @@ void BuildFiles::LoadArtFile(const char *fn, bool mapart)
 			{
 				if (memcmp(artptr, "BUILDART", 8) == 0) artptr += 8;
 				// Only load the data if the header is present
-				if (CountTiles(artptr) > 0)
+				if (CountTiles(fn, artptr) > 0)
 				{
 					auto& descs = mapart ? PerMapArtFiles : ArtFiles;
-					descs.Reserve(1);
-					auto& fd = descs.Last();
-					fd.filename = fn;
-					fd.RawData = std::move(artdata);
-					fd.AddTiles();
+					auto file = new BuildArtFile;
+					descs.Push(file);
+					file->filename = fn;
+					file->RawData = std::move(artdata);
+					AddTiles(firsttile, file->RawData, mapart);
 				}
 			}
+		}
+		else
+		{
+			//initprintf("%s: file not found\n", fn);
 		}
 	}
 	else
 	{
-		// Reuse the old one but move it to the top.
-		auto fd = std::move(ArtFiles[old]);
-		ArtFiles.Delete(old);
-		ArtFiles.Push(std::move(fd));
+		// Reuse the old one but move it to the top. (better not.)
+		//auto fd = std::move(ArtFiles[old]);
+		//ArtFiles.Delete(old);
+		//ArtFiles.Push(std::move(fd));
 	}
 }
 
-static FString artGetIndexedFileName(const char *base, int32_t index)
-{
-	FString result;
-	if (index >= MAXARTFILES_BASE)
-	{
-		char XX[3] = { char('0' + (index / 10) % 10), char('0' + index % 10), 0 };
-		result = base;
-		result.Substitute("XX", XX);
-	}
-	else
-	{
-		result.Format(base, index);
-	}
-	return result;
-}
-
+//==========================================================================
+//
+// 
+//
+//==========================================================================
 
 void BuildFiles::LoadArtSet(const char* filename)
 {
 	for (int index = 0; index < MAXARTFILES_BASE; index++)
 	{
-		auto fn = artGetIndexedFileName(filename, index);
+		FStringf fn(filename, index);
 		LoadArtFile(fn, false);
 	}
 }
 
-BuildFiles TileFiles;
+
+//==========================================================================
+//
+// Checks if a custom tile has alredy been added to the list.
+// For each tile index there may only be one replacement and its
+// type may never change!
+//
+//==========================================================================
+
+FTexture* BuildFiles::ValidateCustomTile(int tilenum, int type)
+{
+	if (tilenum < 0 || tilenum >= MAXTILES) return nullptr;
+	if (tiles[tilenum] != tilesbak[tilenum]) return nullptr;	// no mucking around with map tiles.
+	auto tile = tiles[tilenum];
+	if (tile && tile->GetUseType() == type) return tile;		// already created
+	if (tile->GetUseType() > FTexture::Art) return nullptr;		// different custom type - cannot replace again.
+	FTexture* replacement = nullptr;
+	if (type == FTexture::Writable)
+	{
+		replacement = new FWritableTile;
+	}
+	else if (type == FTexture::Restorable)
+	{
+		// This is for modifying an existing tile.
+		// It only gets used for the crosshair and two specific effects:
+		// A) the fire in Blood.
+		// B) the pin display in Redneck Rampage's bowling lanes.
+		if (tile->GetWidth() == 0 || tile->GetHeight() == 0) return nullptr;	// The base must have a size for this to work.
+		// todo: invalidate hardware textures for tile.
+		replacement = new FRestorableTile(tile);
+	}
+	else return nullptr;
+	AddTile(tilenum, replacement);
+	return replacement;
+}
+
