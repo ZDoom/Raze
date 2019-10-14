@@ -633,8 +633,14 @@ void DoTheCache(void)
     {
         if ((TEST(gotpic[i>>3], 1<<(i&7))) && (!tilePtr(i)))
         {
-            tileLoad(i);
-            cnt++;
+			// For the hardware renderer precaching the raw pixel data is pointless.
+			if (videoGetRenderMode() < REND_POLYMOST)
+				tileLoad(i);
+#ifdef USE_OPENGL
+			/*if (useprecache)*/ PrecacheHardwareTextures(i);
+#endif
+
+			cnt++;
             if (!(cnt&7))
             {
                 AnimateCacheCursor();

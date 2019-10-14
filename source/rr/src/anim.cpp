@@ -460,6 +460,7 @@ int32_t Anim_Play(const char *fn)
         return 0;
 
     int32_t length = kfilelength(handle);
+	TArray<uint8_t> buffer(length + 1, true);
 
     if (length <= 4)
     {
@@ -467,10 +468,7 @@ int32_t Anim_Play(const char *fn)
         goto end_anim;
     }
 
-    anim->animlock = 1;
-
-    if (!anim->animbuf)
-        cacheAllocateBlock((intptr_t *)&anim->animbuf, length + 1, &anim->animlock);
+	anim->animbuf = buffer.Data();
 
 	tileCreate(TILE_ANIM, 200, 320);
 
@@ -592,10 +590,9 @@ end_anim_restore_gl:
 #endif
 end_anim:
     I_ClearAllInput();
+	anim->animbuf = nullptr;
     ANIM_FreeAnim();
 	tileDelete(TILE_ANIM);
-    walock[TILE_ANIM] = 1;
-    anim->animlock = 0;
 
     return !running;
 }

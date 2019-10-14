@@ -619,15 +619,10 @@ const uint8_t* tilePtr(int num)
 }
 uint8_t* tileData(int num)
 {
-	// Q: Should this automatically make the tile writable?
+	auto tex = TileFiles.tiles[num];
+	assert(tex);
+	if (tex->GetWritableBuffer()) return tex->GetWritableBuffer();
 	return tiledata[num];
-}
-
-void tileMakeWritable(int num)
-{
-	// This won't be so simple anymore with a real texture manager backing this.
-	tiledata[num] = TileFiles.tileMakeWritable(num);
-	tilesizearray[num] = TileFiles.tiles[num]->GetSize();
 }
 
 //

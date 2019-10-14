@@ -72,7 +72,7 @@ enum ECreateTexBufferFlags
 
 enum
 {
-	//MAXCACHE1DSIZE = (50 * 1024 * 1024),
+	MAXCACHE1DSIZE = (50 * 1024 * 1024),
 
 	MAXTILES = 30720,
 	MAXUSERTILES = (MAXTILES-16)  // reserve 16 tiles at the end

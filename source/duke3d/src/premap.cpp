@@ -412,49 +412,7 @@ static void G_DoLoadScreen(const char *statustext, int percent)
     }
 }
 
-#ifdef USE_OPENGL
-static void cacheExtraTextureMaps(int tileNum)
-{
-    // PRECACHE
-    if (ud.config.useprecache && bpp > 8)
-    {
-        for (int type = 0; type < 2 && !KB_KeyPressed(sc_Space); type++)
-        {
-            if (precachehightile[type][tileNum >> 3] & pow2char[tileNum & 7])
-            {
-                for (int k = 0; k < MAXPALOOKUPS - RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
-                {
-                    // this is the CROSSHAIR_PAL, see screens.cpp
-                    if (k == MAXPALOOKUPS - RESERVEDPALS - 1)
-                        break;
-#ifdef POLYMER
-                    if (videoGetRenderMode() != REND_POLYMER || !polymer_havehighpalookup(0, k))
-#endif
-                        polymost_precache(tileNum, k, type);
-                }
 
-#ifdef USE_GLEXT
-                if (r_detailmapping)
-                    polymost_precache(tileNum, DETAILPAL, type);
-
-                if (r_glowmapping)
-                    polymost_precache(tileNum, GLOWPAL, type);
-#endif
-#ifdef POLYMER
-                if (videoGetRenderMode() == REND_POLYMER)
-                {
-                    if (pr_specularmapping)
-                        polymost_precache(tileNum, SPECULARPAL, type);
-
-                    if (pr_normalmapping)
-                        polymost_precache(tileNum, NORMALPAL, type);
-                }
-#endif
-            }
-        }
-    }
-}
-#endif
 
 void G_CacheMapData(void)
 {
@@ -505,10 +463,12 @@ void G_CacheMapData(void)
         else if ((gotpic[i>>3] & pow2char[i&7]) != pow2char[i&7])
             continue;
 
-		tileCache(i);
+		// For the hardware renderer precaching the raw pixel data is pointless.
+		if (videoGetRenderMode() < REND_POLYMOST)
+			tileLoad(i);
 
 #ifdef USE_OPENGL
-        cacheExtraTextureMaps(i);
+		if (ud.config.useprecache) PrecacheHardwareTextures(i);
 #endif
 
         MUSIC_Update();

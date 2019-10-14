@@ -615,48 +615,14 @@ void G_CacheMapData(void)
         }
         if (gotpic[i>>3] & pow2char[i&7])
         {
-			tileCache(i);
+			// For the hardware renderer precaching the raw pixel data is pointless.
+			if (videoGetRenderMode() < REND_POLYMOST)
+				tileLoad(i);
 
 #ifdef USE_OPENGL
-// PRECACHE
-            if (ud.config.useprecache && bpp > 8)
-            {
-                int32_t k,type;
-
-                for (type=0; type<=1; type++)
-                    if (precachehightile[type][i>>3] & pow2char[i&7])
-                    {
-                        k = 0;
-                        for (k=0; k<MAXPALOOKUPS-RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
-                        {
-                            // this is the CROSSHAIR_PAL, see comment in game.c
-                            if (k == MAXPALOOKUPS-RESERVEDPALS-1)
-                                break;
-#ifdef POLYMER
-                            if (videoGetRenderMode() != REND_POLYMER || !polymer_havehighpalookup(0, k))
+			if (ud.config.useprecache) PrecacheHardwareTextures(i);
 #endif
-                                polymost_precache(i,k,type);
-                        }
-
-#ifdef USE_GLEXT
-                        if (r_detailmapping && !KB_KeyPressed(sc_Space))
-                            polymost_precache(i,DETAILPAL,type);
-                        if (r_glowmapping && !KB_KeyPressed(sc_Space))
-                            polymost_precache(i,GLOWPAL,type);
-#endif
-#ifdef POLYMER
-                        if (videoGetRenderMode() == REND_POLYMER)
-                        {
-                            if (pr_specularmapping && !KB_KeyPressed(sc_Space))
-                                polymost_precache(i,SPECULARPAL,type);
-                            if (pr_normalmapping && !KB_KeyPressed(sc_Space))
-                                polymost_precache(i,NORMALPAL,type);
-                        }
-#endif
-                    }
-            }
-#endif
-            j++;
+			j++;
             pc++;
         }
         else continue;

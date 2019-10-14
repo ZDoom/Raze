@@ -90,15 +90,6 @@ const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "REDNECK.RTS", "REDNEC
 
 int32_t g_Shareware = 0;
 
-// This was 32 for a while, but I think lowering it to 24 will help things like the Dingoo.
-// Ideally, we would look at our memory usage on our most cramped platform and figure out
-// how much of that is needed for the underlying OS and things like SDL instead of guessing
-#ifndef GEKKO
-int32_t MAXCACHE1DSIZE = (96*1024*1024);
-#else
-int32_t MAXCACHE1DSIZE = (8*1024*1024);
-#endif
-
 int32_t tempwallptr;
 
 static int32_t nonsharedtimer;
@@ -1488,7 +1479,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             if (videoGetRenderMode() == REND_CLASSIC)
             {
                 renderRestoreTarget();
-//                walock[TILE_SAVESHOT] = 1;
             }
 #ifdef USE_OPENGL
             else
@@ -1536,7 +1526,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 tiltZoom >>= tiltcs;  // JBF 20030807
 
                 rotatesprite_win(160 << 16, 100 << 16, tiltZoom, tang + 512, TILE_TILT, 0, 0, 4 + 2 + 64 + 1024);
-                walock[TILE_TILT] = 199;
             }
         }
     }
@@ -5052,7 +5041,7 @@ default_case1:
                 t->xrepeat += 10;
                 t->yrepeat += 9;
             }
-            else if (g_curViewscreen == i && display_mirror != 3 && tileData(viewscrTile) && walock[viewscrTile] > 200)
+            else if (g_curViewscreen == i && display_mirror != 3 && tileData(viewscrTile))
             {
                 // this exposes a sprite sorting issue which needs to be debugged further...
 #if 0
@@ -6866,9 +6855,6 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
             if (scriptfile_getnumber(pScript, &cacheSize) || !firstPass)
                 break;
-
-            if (cacheSize > 0)
-                MAXCACHE1DSIZE = cacheSize << 10;
         }
         break;
         case T_INCLUDE:

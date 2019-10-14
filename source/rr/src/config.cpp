@@ -678,9 +678,6 @@ int32_t CONFIG_ReadSetup(void)
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.setup.noautoload);
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "CacheSize", &dummy);
 
-    if (dummy > MAXCACHE1DSIZE)
-        MAXCACHE1DSIZE = dummy;
-
     if (g_noSetup == 0 && g_modDir[0] == '/')
     {
         struct Bstat st;

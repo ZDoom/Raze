@@ -3688,13 +3688,8 @@ void viewSetCrosshairColor(int32_t r, int32_t g, int32_t b)
     CrosshairColors.g = g;
     CrosshairColors.b = b;
 
-	tileMakeWritable(kCrosshairTile);
-    tileLoad(kCrosshairTile);
-
-    if (!tilePtr(kCrosshairTile))
-        return;
-
-    auto ptr = tileData(kCrosshairTile);
+	auto ptr = TileFiles.tileMakeWritable(kCrosshairTile);
+    if (!ptr) return;
 
     int32_t ii = tilesiz[kCrosshairTile].x * tilesiz[kCrosshairTile].y;
 

@@ -53,8 +53,6 @@ extern short voxelIndex[kMaxTiles];
 extern int nPrecacheCount;
 extern char precachehightile[2][(MAXTILES+7)>>3];
 
-extern int32_t MAXCACHE1DSIZE;
-
 void qloadvoxel(int32_t nVoxel);
 int tileInit(char a1, const char *a2);
 #ifdef USE_OPENGL

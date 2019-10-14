@@ -666,7 +666,10 @@ int SaveGame(short save_num)
     MWRITE(palette,sizeof(palette),1,fil);
     MWRITE(palette_data,sizeof(palette_data),1,fil);
     MWRITE(&gs,sizeof(gs),1,fil);
-    MWRITE(picanm,sizeof(picanm),1,fil);
+	for (int i = 0; i < MAXTILES; i++)
+	{
+		MWRITE(&picanm[i], sizeof(picanm[i]), 1, fil);
+	}
 
     MWRITE(&LevelSecrets,sizeof(LevelSecrets),1,fil);
 
@@ -1182,7 +1185,10 @@ int LoadGame(short save_num)
 
     //COVERsetbrightness(gs.Brightness,(char *)palette_data);
 
-    MREAD(picanm,sizeof(picanm),1,fil);
+	for (int i = 0; i < MAXTILES; i++)
+	{
+		MREAD(&picanm[i], sizeof(picanm[i]), 1, fil);
+	}
 
     MREAD(&LevelSecrets,sizeof(LevelSecrets),1,fil);
 

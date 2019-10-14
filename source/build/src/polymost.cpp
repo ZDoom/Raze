@@ -819,6 +819,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     if (method & DAMETH_MASKPROPS)
     {
+		// Fixme: Alpha test on shaders must be done differently.
+		// Also: Consider a texture's alpha threshold.
         float const al = alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f) :
                          (pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f);
 
@@ -5772,3 +5774,17 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
         mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
 }
 
+void PrecacheHardwareTextures(int nTile)
+{
+	// PRECACHE
+	// This really *really* needs improvement on the game side - the entire precaching logic has no clue about the different needs of a hardware renderer.
+
+	polymost_precache(nTile, 0, 1);
+
+	if (r_detailmapping)
+		polymost_precache(nTile, DETAILPAL, 1);
+
+	if (r_glowmapping)
+		polymost_precache(nTile, GLOWPAL, 1);
+
+}

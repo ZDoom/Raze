@@ -2676,12 +2676,10 @@ DrawCompass(PLAYERp pp)
 
 void ScreenTileLock(void)
 {
-    walock[SAVE_SCREEN_TILE] = CACHE_LOCK_MAX;
 }
 
 void ScreenTileUnLock(void)
 {
-    walock[SAVE_SCREEN_TILE] = CACHE_UNLOCK_MAX;
 }
 
 int

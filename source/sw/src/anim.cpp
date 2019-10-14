@@ -57,6 +57,7 @@ int ANIMnumframes;
 unsigned char ANIMpal[3*256];
 unsigned char ANIMnum = 0;
 short SoundState;
+static TArray<uint8_t> buffer;
 
 const char *ANIMname[] =
 {
@@ -238,8 +239,7 @@ unsigned char *LoadAnm(short anim_num)
     ANIMnum = anim_num;
 
     // lock it
-    walock[ANIM_TILE(ANIMnum)] = 219;
-
+    
     if (anm_ptr[anim_num] == 0)
     {
         handle = kopen4load(ANIMname[ANIMnum], 0);
@@ -247,7 +247,8 @@ unsigned char *LoadAnm(short anim_num)
             return NULL;
         length = kfilelength(handle);
 
-        cacheAllocateBlock((intptr_t *) &anm_ptr[anim_num], length + sizeof(anim_t), &walock[ANIM_TILE(ANIMnum)]);
+		buffer.Resize(length + sizeof(anim_t));
+		anm_ptr[anim_num] = (anim_t*)buffer.Data();
         animbuf = (unsigned char *)((intptr_t)anm_ptr[anim_num] + sizeof(anim_t));
 
         kread(handle, animbuf, length);
@@ -387,6 +388,5 @@ ENDOFANIMLOOP:
     KB_FlushKeyboardQueue();
     KB_ClearKeysDown();
     ANIM_FreeAnim();
-    walock[ANIM_TILE(ANIMnum)] = 1;
 }
 END_SW_NS

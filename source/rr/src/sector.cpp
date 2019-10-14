@@ -541,10 +541,8 @@ void G_AnimateCamSprite(int smoothRatio)
             int const viewscrShift = G_GetViewscreenSizeShift((const uspritetype *)&sprite[spriteNum]);
             int const viewscrTile  = TILE_VIEWSCR - viewscrShift;
 
-            if (tileData(viewscrTile) == 0)
+            if (tileData(viewscrTile) == nullptr)
                 tileCreate(viewscrTile, tilesiz[PN(spriteNum)].x << viewscrShift, tilesiz[PN(spriteNum)].y << viewscrShift);
-            else
-                walock[viewscrTile] = 255;
 
             G_SetupCamTile(OW(spriteNum), viewscrTile, smoothRatio);
 #ifdef POLYMER

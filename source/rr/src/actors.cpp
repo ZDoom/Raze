@@ -3694,7 +3694,7 @@ ACTOR_STATIC int A_CheckPins(int16_t const sectNum)
     if (tag != 0)
     {
         int const tileNumber = LANEPICS + tag + 1;
-		tileMakeWritable(tileNumber);
+		TileFiles.tileMakeWritable(tileNumber);
         tileCopySection(LANEPICS+1, 0, 0, 128, 64, tileNumber, 0, 0);
 
         for (int pin = 0; pin < 10; pin++)
@@ -3787,7 +3787,7 @@ ACTOR_STATIC void A_ResetPins(int16_t sect)
     if (tag != 0)
     {
         int const tileNumber = LANEPICS + tag + 1;
-		tileMakeWritable(tileNumber);
+		TileFiles.tileMakeWritable(tileNumber);
 		tileCopySection(LANEPICS+1, 0, 0, 128, 64, tileNumber, 0, 0);
 
         for (int pin = 0; pin < 10; pin++)
@@ -3846,7 +3846,7 @@ void A_ResetLanePics(void)
     for (int tag = 1; tag <= 4; tag++)
     {
         int const tileNumber = LANEPICS + tag + 1;
-		tileMakeWritable(tileNumber);
+		TileFiles.tileMakeWritable(tileNumber);
 		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, tileNumber, 0, 0);
 
         for (int pin = 0; pin < 10; pin++)

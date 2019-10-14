@@ -390,49 +390,6 @@ void PreloadTiles(void)
     G_HandleAsync();
 }
 
-#ifdef USE_OPENGL
-void PrecacheExtraTextureMaps(int nTile)
-{
-    // PRECACHE
-    if (useprecache && bpp > 8)
-    {
-        for (int type = 0; type < 2 && !KB_KeyPressed(sc_Space); type++)
-        {
-            if (TestBitString(precachehightile[type], nTile))
-            {
-                for (int k = 0; k < MAXPALOOKUPS - RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
-                {
-                    // this is the CROSSHAIR_PAL, see screens.cpp
-                    if (k == MAXPALOOKUPS - RESERVEDPALS - 1)
-                        break;
-#ifdef POLYMER
-                    if (videoGetRenderMode() != REND_POLYMER || !polymer_havehighpalookup(0, k))
-#endif
-                        polymost_precache(nTile, k, type);
-                }
-
-#ifdef USE_GLEXT
-                if (r_detailmapping)
-                    polymost_precache(nTile, DETAILPAL, type);
-
-                if (r_glowmapping)
-                    polymost_precache(nTile, GLOWPAL, type);
-#endif
-#ifdef POLYMER
-                if (videoGetRenderMode() == REND_POLYMER)
-                {
-                    if (pr_specularmapping)
-                        polymost_precache(nTile, SPECULARPAL, type);
-
-                    if (pr_normalmapping)
-                        polymost_precache(nTile, NORMALPAL, type);
-                }
-#endif
-            }
-        }
-    }
-}
-#endif
 
 void PreloadCache(void)
 {
@@ -454,10 +411,12 @@ void PreloadCache(void)
     {
         if (TestBitString(gotpic, i))
         {
-			tileCache(i);
+			// For the hardware renderer precaching the raw pixel data is pointless.
+			if (videoGetRenderMode() < REND_POLYMOST)
+				tileLoad(i);
 
 #ifdef USE_OPENGL
-            PrecacheExtraTextureMaps(i);
+            if (useprecache) PrecacheHardwareTextures(i);
 #endif
 
             MUSIC_Update();
@@ -1459,10 +1418,8 @@ void ParseOptions(void)
         {
             if (OptArgc < 1)
                 ThrowError("Missing argument");
-            uint32_t j = strtoul(OptArgv[0], NULL, 0);
-            MAXCACHE1DSIZE = j<<10;
-            initprintf("Cache size: %dkB\n", j);
-            break;
+			// No longer supported.
+			break;
         }
         case 35:
             if (OptArgc < 1)
@@ -2168,9 +2125,6 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
             if (scriptfile_getnumber(pScript, &cacheSize) || !firstPass)
                 break;
-
-            if (cacheSize > 0)
-                MAXCACHE1DSIZE = cacheSize << 10;
         }
         break;
         case T_INCLUDE:
@@ -2596,39 +2550,13 @@ void ScanINIFiles(void)
     }
 }
 
-bool LoadArtFile(const char *pzFile)
-{
-    int hFile = kopen4loadfrommod(pzFile, 0);
-    if (hFile == -1)
-    {
-        initprintf("Can't open extra art file:\"%s\"\n", pzFile);
-        return false;
-    }
-    artheader_t artheader;
-    int nStatus = artReadHeader(hFile, pzFile, &artheader);
-    if (nStatus != 0)
-    {
-        kclose(hFile);
-        initprintf("Error reading extra art file:\"%s\"\n", pzFile);
-        return false;
-    }
-    for (int i = artheader.tilestart; i <= artheader.tileend; i++)
-        tileDelete(i);
-    artReadManifest(hFile, &artheader);
-    artPreloadFile(hFile, &artheader);
-    for (int i = artheader.tilestart; i <= artheader.tileend; i++)
-        tileUpdatePicSiz(i);
-    kclose(hFile);
-    return true;
-}
-
 void LoadExtraArts(void)
 {
     if (!pINISelected->pDescription)
         return;
     for (int i = 0; i < pINISelected->pDescription->nArts; i++)
     {
-        LoadArtFile(pINISelected->pDescription->pzArts[i]);
+        TileFiles.LoadArtFile(pINISelected->pDescription->pzArts[i]);
     }
 }
 

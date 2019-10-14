@@ -833,12 +833,6 @@ int CONFIG_ReadSetup(void)
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.setup.forcesetup);
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.setup.noautoload);
 
-    int32_t cachesize;
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "CacheSize", &cachesize);
-
-    if (cachesize > MAXCACHE1DSIZE)
-        MAXCACHE1DSIZE = cachesize;
-
     if (g_noSetup == 0 && g_modDir[0] == '/')
     {
         SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
@@ -968,7 +962,6 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions", ud.executions, FALSE, FALSE);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "CacheSize", MAXCACHE1DSIZE, FALSE, FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ConfigVersion", BYTEVERSION_EDUKE32, FALSE, FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup", ud.setup.forcesetup, FALSE, FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", ud.setup.noautoload, FALSE, FALSE);

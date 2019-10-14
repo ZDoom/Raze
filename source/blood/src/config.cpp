@@ -724,12 +724,6 @@ int CONFIG_ReadSetup(void)
     SCRIPT_GetNumber(scripthandle, "Setup", "ForceSetup", &gSetup.forcesetup);
     SCRIPT_GetNumber(scripthandle, "Setup", "NoAutoLoad", &gSetup.noautoload);
 
-    int32_t cachesize;
-    SCRIPT_GetNumber(scripthandle, "Setup", "CacheSize", &cachesize);
-
-    if (cachesize > MAXCACHE1DSIZE)
-        MAXCACHE1DSIZE = cachesize;
-
     if (gNoSetup == 0 && g_modDir[0] == '/')
     {
         struct Bstat st;
@@ -846,7 +840,6 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     //SCRIPT_PutNumber(scripthandle, "Misc", "Executions", ud.executions, FALSE, FALSE);
 
-    SCRIPT_PutNumber(scripthandle, "Setup", "CacheSize", MAXCACHE1DSIZE, FALSE, FALSE);
     SCRIPT_PutNumber(scripthandle, "Setup", "ConfigVersion", BYTEVERSION, FALSE, FALSE);
     SCRIPT_PutNumber(scripthandle, "Setup", "ForceSetup", gSetup.forcesetup, FALSE, FALSE);
     SCRIPT_PutNumber(scripthandle, "Setup", "NoAutoLoad", gSetup.noautoload, FALSE, FALSE);

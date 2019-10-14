@@ -500,10 +500,8 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 {
                     if (argc > i+1)
                     {
-                        uint32_t j = Batol(argv[i+1]);
-                        MAXCACHE1DSIZE = j<<10;
-                        initprintf("Cache size: %dkB\n", j);
-                        i++;
+						// No longer supported.
+						i++;
                     }
                     i++;
                     continue;

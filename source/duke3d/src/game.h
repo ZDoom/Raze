@@ -343,7 +343,6 @@ extern int32_t ticrandomseed;
 extern int32_t vote_map;
 extern int32_t voting;
 
-extern int32_t MAXCACHE1DSIZE;
 //extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
 #define CROSSHAIR_PAL (MAXPALOOKUPS-RESERVEDPALS-1)

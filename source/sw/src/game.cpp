@@ -5833,9 +5833,6 @@ SHOWSPRITE:
 
 }
 
-extern int tilefileoffs[MAXTILES]; //offset into the
-extern char tilefilenum[MAXTILES]; //0-11
-
 
 #if RANDOM_DEBUG
 int

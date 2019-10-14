@@ -1058,7 +1058,6 @@ bool    tileLoad(int16_t tilenume);
 void    tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer);
 int32_t tileCRC(int16_t tileNum);
 void    tileUpdatePicSiz(int32_t picnum);
-void tileMakeWritable(int num);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
@@ -1325,6 +1324,7 @@ void polymostSet2dView(void);   // sets up GL for 2D drawing
 
 void polymost_glreset(void);
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
+void PrecacheHardwareTextures(int nTile);
 
 typedef uint16_t polytintflags_t;
 

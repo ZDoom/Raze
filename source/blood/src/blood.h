@@ -78,7 +78,6 @@ void PreloadCache(void);
 void StartLevel(GAMEOPTIONS *gameOptions);
 void ProcessFrame(void);
 void ScanINIFiles(void);
-bool LoadArtFile(const char *pzFile);
 void LoadExtraArts(void);
 bool DemoRecordStatus(void);
 bool VanillaMode(void);

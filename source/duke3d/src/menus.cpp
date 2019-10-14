@@ -4548,7 +4548,6 @@ void Menu_Close(uint8_t playerID)
                 actor[g_curViewscreen].t_data[0] = (int32_t) totalclock;
         }
 
-        walock[TILE_SAVESHOT] = 1;
         G_UpdateScreenArea();
         S_PauseSounds(false);
     }

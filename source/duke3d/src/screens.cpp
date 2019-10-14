@@ -134,10 +134,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     if (g_crosshairSum == r+(g<<8)+(b<<16))
         return;
 
-    tileLoad(CROSSHAIR);
-	tileMakeWritable(CROSSHAIR);
-
-	auto ptr = tileData(CROSSHAIR);
+	auto ptr = TileFiles.tileMakeWritable(CROSSHAIR);
 	if (!ptr) return;
 
     if (!DefaultCrosshairColors.f)
