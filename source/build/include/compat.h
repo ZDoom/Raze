@@ -655,7 +655,7 @@ static FORCE_INLINE int32_t Blrintf(const float x)
 #ifdef DEBUGGINGAIDS
 # define Bexit(status) do { initprintf("exit(%d) at %s:%d in %s()\n", status, __FILE__, __LINE__, EDUKE32_FUNCTION); exit(status); } while (0)
 #else
-# define Bexit exit
+# define Bexit(a) throw(1)
 #endif
 
 

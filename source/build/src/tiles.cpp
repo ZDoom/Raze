@@ -571,6 +571,7 @@ int32_t artLoadFiles(const char *filename, int32_t askedsize)
 {
 	TileFiles.LoadArtSet(filename);
 
+#if 1
     Bstrncpyz(artfilenameformat, filename, sizeof(artfilenameformat));
 
     Bmemset(&tilesizearray[0], 0, sizeof(vec2_16_t) * MAXTILES);
@@ -596,12 +597,24 @@ int32_t artLoadFiles(const char *filename, int32_t askedsize)
     artfil = buildvfs_kfd_invalid;
     artfilnum = -1;
     artfilplc = 0L;
+#endif
+
+	for (unsigned i = 0; i < MAXTILES; i++)
+	{
+		auto tex = TileFiles.tiles[i];
+		assert(tex);
+		picanm[i] = tex->PicAnim;
+		tilesizearray[i] = tex->GetSize();
+	}
 
     return 0;
 }
 
 const uint8_t* tilePtr(int num)
 {
+	auto tex = TileFiles.tiles[num];
+	assert(tex);
+	if (tex->Get8BitPixels()) return tex->Get8BitPixels();
 	return tileptr[num];
 }
 uint8_t* tileData(int num)
@@ -613,9 +626,8 @@ uint8_t* tileData(int num)
 void tileMakeWritable(int num)
 {
 	// This won't be so simple anymore with a real texture manager backing this.
-	tileCache(num);
-	walock[num] = 255;	// disable caching.
-	tiledata[num] = (uint8_t*)tileptr[num];
+	tiledata[num] = TileFiles.tileMakeWritable(num);
+	tilesizearray[num] = TileFiles.tiles[num]->GetSize();
 }
 
 //
@@ -625,6 +637,8 @@ void tileMakeWritable(int num)
 bool tileLoad(int16_t tileNum)
 {
     if ((unsigned) tileNum >= (unsigned) MAXTILES) return 0;
+	auto tex = TileFiles.tiles[tileNum]->Get8BitPixels();
+	if (tex) return true;
     int const dasiz = tilesiz[tileNum].x*tilesiz[tileNum].y;
     if (dasiz <= 0) return 0;
 
@@ -759,33 +773,19 @@ int32_t tileCRC(int16_t tileNum)
 //
 uint8_t *tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
-    if (xsiz <= 0 || ysiz <= 0 || (unsigned) tilenume >= MAXTILES)
-        return 0;
+	if (xsiz <= 0 || ysiz <= 0 || (unsigned)tilenume >= MAXTILES)
+		return 0;
 
-    int const dasiz = xsiz*ysiz;
-
-    walock[tilenume] = 255;
-	intptr_t handle;
-    cacheAllocateBlock(&handle, dasiz, &walock[tilenume]);
-	tileptr[tilenume] = tiledata[tilenume] = (uint8_t*)handle;
-
-    tileSetSize(tilenume, xsiz, ysiz);
-	picanm[tilenume] = {};
-
+	tiledata[tilenume] = TileFiles.tileCreate(tilenume, xsiz, ysiz);
+	tilesizearray[tilenume] = TileFiles.tiles[tilenume]->GetSize();
     return tiledata[tilenume];
 }
 
 void tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, uint8_t *data)
 {
-	if (xsiz <= 0 || ysiz <= 0 || (unsigned)tilenume >= MAXTILES)
-		return;
-
-	int const dasiz = xsiz * ysiz;
-
-	walock[tilenume] = 255;
-	tileptr[tilenume] = tiledata[tilenume] = data;
-	tileSetSize(tilenume, xsiz, ysiz);
-	picanm[tilenume] = {};
+	TileFiles.tileSetExternal(tilenume, xsiz, ysiz, data);
+	tilesizearray[tilenume] = TileFiles.tiles[tilenume]->GetSize();
+	tiledata[tilenume] = TileFiles.tiles[tilenume]->GetWritableBuffer();
 }
 
 

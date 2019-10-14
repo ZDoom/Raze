@@ -326,3 +326,48 @@ FTexture* BuildFiles::ValidateCustomTile(int tilenum, int type)
 	return replacement;
 }
 
+//==========================================================================
+//
+// Creates a tile for displaying custom content
+//
+//==========================================================================
+
+uint8_t* BuildFiles::tileCreate(int tilenum, int width, int height)
+{
+	if (width <= 0 || height <= 0) return nullptr;
+	auto tex = ValidateCustomTile(tilenum, FTexture::Writable);
+	if (tex == nullptr) return nullptr;
+	auto wtex = static_cast<FWritableTile*>(tex);
+	if (!wtex->Resize(width, height)) return nullptr;
+	return tex->GetWritableBuffer();
+}
+
+//==========================================================================
+//
+// Makes a tile writable - only used for a handful of special cases
+// (todo: Investigate how to get rid of this)
+//
+//==========================================================================
+
+uint8_t * BuildFiles::tileMakeWritable(int num)
+{
+	auto tex = ValidateCustomTile(num, FTexture::Restorable);
+	return tex ? tex->GetWritableBuffer() : nullptr;
+}
+
+//==========================================================================
+//
+// Sets user content for a tile.
+// This must copy the buffer to make sure that the renderer has the data, 
+// even if processing is deferred.
+//
+// Only used by the movie players.
+// 
+//==========================================================================
+
+void BuildFiles::tileSetExternal(int tilenum, int width, int height, uint8_t* data)
+{
+	uint8_t* buffer = tileCreate(tilenum, width, height);
+	if (buffer) memcpy(buffer, data, width * height);
+}
+

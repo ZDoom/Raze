@@ -511,6 +511,9 @@ struct BuildFiles
 	void CloseAllMapArt();
 	void LoadArtSet(const char* filename);
 	FTexture* ValidateCustomTile(int tilenum, int type);
+	uint8_t *tileMakeWritable(int num);
+	uint8_t *tileCreate(int tilenum, int width, int height);
+	void tileSetExternal(int tilenum, int width, int height, uint8_t* data);
 
 };
 
