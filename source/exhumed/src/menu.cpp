@@ -526,7 +526,7 @@ void menu_DoPlasma()
 }
 
 
-uint8_t MapDataArray_A[] = { 0, 50, 10, 20, 0, 45, 236, 20, 5, 0, 246, 10, 30, 236, 0, 20, 0, 0, 0, 0 };
+int8_t MapLevelOffsets[] = { 0, 50, 10, 20, 0, 45, -20, 20, 5, 0, -10, 10, 30, -20, 0, 20, 0, 0, 0, 0 };
 
 struct TILEFRAMEDEF
 {
@@ -545,33 +545,33 @@ struct MapNamePlaque
 };
 
 MapNamePlaque mapNamePlaques[] = {
-    { 100, 170, 3376, 0, 0, 3377, 0, 0, 3411, 18, 6 },
-    { 230, 10,  3378, 0, 0, 3379, 0, 0, 3414, 18, 6 }, // DENDUR (level 2)
-    { 180, 125, 3380, 0, 0, 3381, 0, 0, 3417, 18, 6 }, // Kalabash
-    { 10,  95,  3382, 0, 0, 3383, 0, 0, 3420, 18, 6 },
-    { 210, 160, 3384, 0, 0, 3385, 0, 0, 3423, 18, 6 },
-    { 10,  110, 3371, 0, 0, 3386, 0, 0, 3426, 18, 6 },
-    { 10,  50,  3387, 0, 0, 3388, 0, 0, 3429, 18, 6 },
-    { 140, 0,   3389, 0, 0, 3390, 0, 0, 3432, 18, 6 },
-    { 30,  20,  3391, 0, 0, 3392, 0, 0, 3435, 18, 6 },
-    { 200, 150, 3409, 0, 0, 3410, 0, 0, 3418, 20, 4 },
-    { 145, 170, 3393, 0, 0, 3394, 0, 0, 3438, 18, 6 },
-    { 80,  80,  3395, 0, 0, 3396, 0, 0, 3441, 18, 6 },
-    { 15,  0,   3397, 0, 0, 3398, 0, 0, 3444, 18, 5 },
-    { 220, 35,  3399, 0, 0, 3400, 0, 0, 3447, 18, 6 },
-    { 190, 40,  3401, 0, 0, 3402, 0, 0, 3450, 18, 6 },
-    { 20,  130, 3403, 0, 0, 3404, 0, 0, 3453, 19, 6 },
-    { 220, 160, 3405, 0, 0, 3406, 0, 0, 3456, 18, 6 },
-    { 20,  10,  3407, 0, 0, 3408, 0, 0, 3459, 18, 6 },
-    { 200, 10,  3412, 0, 0, 3413, 0, 0, 3419, 18, 5 },
-    { 20,  10,  3415, 0, 0, 3416, 0, 0, 3421, 19, 4 }
+    { 100, 170, kTile3376, 0, 0, kTile3377, 0, 0, kTile3411, 18, 6 },
+    { 230, 10,  kTile3378, 0, 0, kTile3379, 0, 0, kTile3414, 18, 6 }, // DENDUR (level 2)
+    { 180, 125, kTile3380, 0, 0, kTile3381, 0, 0, kTile3417, 18, 6 }, // Kalabash
+    { 10,  95,  kTile3382, 0, 0, kTile3383, 0, 0, kTile3420, 18, 6 },
+    { 210, 160, kTile3384, 0, 0, kTile3385, 0, 0, kTile3423, 18, 6 },
+    { 10,  110, kTile3371, 0, 0, kTile3386, 0, 0, kTile3426, 18, 6 },
+    { 10,  50,  kTile3387, 0, 0, kTile3388, 0, 0, kTile3429, 18, 6 },
+    { 140, 0,   kTile3389, 0, 0, kTile3390, 0, 0, kTile3432, 18, 6 },
+    { 30,  20,  kTile3391, 0, 0, kTile3392, 0, 0, kTile3435, 18, 6 },
+    { 200, 150, kTile3409, 0, 0, kTile3410, 0, 0, kTile3418, 20, 4 },
+    { 145, 170, kTile3393, 0, 0, kTile3394, 0, 0, kTile3438, 18, 6 },
+    { 80,  80,  kTile3395, 0, 0, kTile3396, 0, 0, kTile3441, 18, 6 },
+    { 15,  0,   kTile3397, 0, 0, kTile3398, 0, 0, kTile3444, 18, 5 },
+    { 220, 35,  kTile3399, 0, 0, kTile3400, 0, 0, kTile3447, 18, 6 },
+    { 190, 40,  kTile3401, 0, 0, kTile3402, 0, 0, kTile3450, 18, 6 },
+    { 20,  130, kTile3403, 0, 0, kTile3404, 0, 0, kTile3453, 19, 6 },
+    { 220, 160, kTile3405, 0, 0, kTile3406, 0, 0, kTile3456, 18, 6 },
+    { 20,  10,  kTile3407, 0, 0, kTile3408, 0, 0, kTile3459, 18, 6 },
+    { 200, 10,  kTile3412, 0, 0, kTile3413, 0, 0, kTile3419, 18, 5 },
+    { 20,  10,  kTile3415, 0, 0, kTile3416, 0, 0, kTile3421, 19, 4 }
 };
 
 // 3 different types of fire, each with 4 frames
 TILEFRAMEDEF FireTiles[3][4] = {
-    {{ 3484,0,3 },{ 3485,0,0 },{ 3486,0,3 },{ 3487,0,0 }},
-    {{ 3488,1,0 },{ 3489,1,0 },{ 3490,0,1 },{ 3491,1,1 }},
-    {{ 3492,1,2 },{ 3493,1,0 },{ 3494,1,2 },{ 3495,1,0 }}
+    {{ kTile3484,0,3 },{ kTile3485,0,0 },{ kTile3486,0,3 },{ kTile3487,0,0 }},
+    {{ kTile3488,1,0 },{ kTile3489,1,0 },{ kTile3490,0,1 },{ kTile3491,1,1 }},
+    {{ kTile3492,1,2 },{ kTile3493,1,0 },{ kTile3494,1,2 },{ kTile3495,1,0 }}
 };
 
 struct Fire
@@ -623,7 +623,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     int i;
     int x = 0;
     int var_2C = 0;
-    int var_38 = 0;
+    int nIdleSeconds = 0;
     int bFadeDone = kFalse;
 
     int startTime = (int)totalclock;
@@ -637,11 +637,11 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     nLevelNew--;
     nLevelBest--;
 
-    if (nLevel > kMap20) { // max levels
+    if (nLevel >= kMap20) { // max single player levels
         return -1;
     }
 
-    if (nLevelNew > kMap20) {
+    if (nLevelNew >= kMap20) {
         return -1;
     }
 
@@ -653,30 +653,33 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         nLevelNew = nLevel;
     }
 
-    int y1 = MapDataArray_A[nLevel] + (200 * (nLevel / 2));
-    int y2 = MapDataArray_A[nLevelNew] + (200 * (nLevelNew / 2));
+    int curYPos = MapLevelOffsets[nLevel] + (200 * (nLevel / 2));
+    int destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
 
-    if (y1 < y2) {
+    if (curYPos < destYPos) {
         var_2C = 2;
     }
 
-    if (y1 > y2) {
+    if (curYPos > destYPos) {
         var_2C = -2;
     }
 
-    while (var_38 < 12)
+    int runtimer = (int)totalclock;
+
+    // User has 12 seconds to do something on the map screen before loading the current level
+    while (nIdleSeconds < 12)
     {
         HandleAsync();
 
         if (((int)totalclock - startTime) / kTimerTicks)
         {
-            var_38++;
+            nIdleSeconds++;
             startTime = (int)totalclock;
         }
 
-        int var_3C = (int)totalclock;
+        int moveTimer = (int)totalclock;
 
-        int tileY = y1;
+        int tileY = curYPos;
 
         // Draw the background screens
         for (i = 0; i < 10; i++)
@@ -702,7 +705,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
                     int nTile = FireTiles[nFireType][nFireFrame].nTile;
                     int smokeX = MapLevelFires[i].fires[j].xPos + FireTiles[nFireType][nFireFrame].xOffs;
-                    int smokeY = MapLevelFires[i].fires[j].yPos + FireTiles[nFireType][nFireFrame].yOffs + y1 + screenY;
+                    int smokeY = MapLevelFires[i].fires[j].yPos + FireTiles[nFireType][nFireFrame].yOffs + curYPos + screenY;
 
                     overwritesprite(smokeX, smokeY, nTile, 0, 2, kPalNormal);
                 }
@@ -713,7 +716,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
             int nTile = mapNamePlaques[i].tiles[t].nTile;
 
             int nameX = mapNamePlaques[i].xPos + mapNamePlaques[i].tiles[t].xOffs;
-            int nameY = mapNamePlaques[i].yPos + mapNamePlaques[i].tiles[t].yOffs + y1 + screenY;
+            int nameY = mapNamePlaques[i].yPos + mapNamePlaques[i].tiles[t].yOffs + curYPos + screenY;
 
             // Draw level name plaque
             overwritesprite(nameX, nameY, nTile, 0, 2, kPalNormal);
@@ -729,7 +732,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 shade = 31;
             }
 
-            int textY = mapNamePlaques[i].yPos + mapNamePlaques[i].text.yOffs + y1 + screenY;
+            int textY = mapNamePlaques[i].yPos + mapNamePlaques[i].text.yOffs + curYPos + screenY;
             int textX = mapNamePlaques[i].xPos + mapNamePlaques[i].text.xOffs;
             nTile = mapNamePlaques[i].text.nTile;
 
@@ -742,10 +745,10 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         {
             bFadeDone = kTrue;
             FadeIn();
-            var_3C = (int)totalclock;
+            moveTimer = (int)totalclock;
         }
 
-        if (y1 == y2)
+        if (curYPos == destYPos)
         {
             if (KB_KeyDown[sc_UpArrow])
             {
@@ -754,17 +757,18 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 if (nLevelNew <= nLevelBest)
                 {
                     nLevelNew++;
+                    assert(nLevelNew < 20);
 
-                    y2 = MapDataArray_A[nLevelNew] + (200 * (nLevelNew / 2));
+                    destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
 
-                    if (y1 <= y2) {
+                    if (curYPos <= destYPos) {
                         var_2C = 2;
                     }
                     else {
                         var_2C = -2;
                     }
 
-                    var_38 = 0;	
+                    nIdleSeconds = 0;
                 }
             }
 
@@ -775,17 +779,18 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 if (nLevelNew > 0)
                 {
                     nLevelNew--;
+                    assert(nLevelNew >= 0);
 
-                    y2 = MapDataArray_A[nLevelNew] + (200 * (nLevelNew / 2));
+                    destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
 
-                    if (y1 <= y2) {
+                    if (curYPos <= destYPos) {
                         var_2C = 2;
                     }
                     else {
                         var_2C = -2;
                     }
 
-                    var_38 = 0;
+                    nIdleSeconds = 0;
                 }
             }
 
@@ -793,13 +798,19 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
             {
                 KB_KeyDown[sc_Escape] = 0;
                 KB_KeyDown[sc_Return] = 0;
-                KB_KeyDown[sc_Space]  = 0;
+                KB_KeyDown[sc_Space] = 0;
                 return nLevelNew + 1;
             }
         }
         else
         {
-            y1 += var_2C * (((int)totalclock - var_3C) / 2);
+            // scroll the map every couple of ms
+            if (totalclock - runtimer >= (kTimerTicks / 32)) {
+                curYPos += var_2C;
+                runtimer = (int)totalclock;
+            }
+
+            //curYPos += var_2C * (((int)totalclock - moveTimer) / 2);
 
             if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Space] || KB_KeyDown[sc_Return])
             {
@@ -809,18 +820,18 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
                 KB_KeyDown[sc_Escape] = 0;
                 KB_KeyDown[sc_Return] = 0;
-                KB_KeyDown[sc_Space]  = 0;
+                KB_KeyDown[sc_Space] = 0;
             }
 
-            if (y1 > y2 && var_2C > 0) {
-                y1 = y2;
+            if (curYPos > destYPos&& var_2C > 0) {
+                curYPos = destYPos;
             }
 
-            if (y1 < y2 && var_2C < 0) {
-                y1 = y2;
+            if (curYPos < destYPos && var_2C < 0) {
+                curYPos = destYPos;
             }
 
-            var_38 = 0;
+            nIdleSeconds = 0;
         }
     }
 
