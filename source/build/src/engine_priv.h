@@ -209,7 +209,6 @@ extern int32_t m32_numdebuglines;
 
 static FORCE_INLINE void setgotpic(int32_t tilenume)
 {
-    if (walock[tilenume] < 200) walock[tilenume] = 199;
     gotpic[tilenume>>3] |= pow2char[tilenume&7];
 }
 

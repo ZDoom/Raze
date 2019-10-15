@@ -84,7 +84,7 @@ int tileInit(char a1, const char *a2)
     UNREFERENCED_PARAMETER(a1);
     if (artLoaded)
         return 1;
-    artLoadFiles(a2 ? a2 : pzBaseFileName, MAXCACHE1DSIZE);
+	TileFiles.artLoadFiles(a2 ? a2 : pzBaseFileName);
     for (int i = 0; i < kMaxTiles; i++)
         voxelIndex[i] = 0;
 

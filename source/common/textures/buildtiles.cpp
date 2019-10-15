@@ -236,7 +236,7 @@ void BuildFiles::CloseAllMapArt()
 //
 //===========================================================================
 
-void BuildFiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
+int BuildFiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 {
 	auto old = FindFile(fn);
 	if (old >= ArtFiles.Size())	// Do not process if already loaded.
@@ -264,6 +264,7 @@ void BuildFiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 		else
 		{
 			//initprintf("%s: file not found\n", fn);
+			return -1;
 		}
 	}
 	else
@@ -273,6 +274,7 @@ void BuildFiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 		//ArtFiles.Delete(old);
 		//ArtFiles.Push(std::move(fd));
 	}
+	return 0;
 }
 
 //==========================================================================
@@ -324,6 +326,34 @@ FTexture* BuildFiles::ValidateCustomTile(int tilenum, int type)
 	else return nullptr;
 	AddTile(tilenum, replacement);
 	return replacement;
+}
+
+//==========================================================================
+//
+//  global interface
+//
+//==========================================================================
+extern vec2_16_t tilesizearray[MAXTILES];
+extern uint8_t picsizearray[MAXTILES];
+
+int32_t BuildFiles::artLoadFiles(const char* filename)
+{
+	TileFiles.LoadArtSet(filename);
+	memset(gotpic, 0, MAXTILES);
+	cacheInitBuffer(MAXCACHE1DSIZE);
+
+	for (unsigned i = 0; i < MAXTILES; i++)
+	{
+		auto tex = TileFiles.tiles[i];
+		assert(tex);
+		picanm[i] = tex->PicAnim;
+		tilesizearray[i] = tex->GetSize();
+		picsizearray[i] = tex->PicSize;
+		rottile[i] = { -1, -1 };
+	}
+
+
+	return 0;
 }
 
 //==========================================================================

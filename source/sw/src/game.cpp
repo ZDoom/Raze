@@ -734,7 +734,7 @@ LoadImages(const char *filename)
     short ndx;
     FILE *fin;
 
-    if (artLoadFiles(filename, 32*1048576) == -1)
+    if (TileFiles.LoadArtFile(filename) == -1)
     {
         TerminateGame();
 #ifdef RENDERTYPEWIN

@@ -259,11 +259,10 @@ protected:
 	void UpdatePicSize()
 	{
 		int j = 15;
-		int size;
 
 		while ((j > 1) && ((1 << j) > Size.x))
 			j--;
-		size = j;
+		PicSize = j;
 
 		j = 15;
 		while ((j > 1) && ((1 << j) > Size.y))
@@ -278,7 +277,7 @@ protected:
 	uint8_t bMasked = true;		// Texture (might) have holes
 	int8_t bTranslucent = -1;	// Does this texture have an active alpha channel?
 	bool skyColorDone = false;
-	uint8_t PicSize;			// A special piece of Build weirdness.
+	uint8_t PicSize = 0;			// A special piece of Build weirdness.
 	UseType useType = Image;
 	PalEntry FloorSkyColor;
 	PalEntry CeilingSkyColor;
@@ -507,10 +506,11 @@ struct BuildFiles
 	{
 		return ArtFiles.FindEx([filename](const BuildArtFile* element) { return filename.CompareNoCase(element->filename) == 0; });
 	}
-	void LoadArtFile(const char* file, bool mapart = false, int firsttile = -1);
+	int LoadArtFile(const char* file, bool mapart = false, int firsttile = -1);
 	void CloseAllMapArt();
 	void LoadArtSet(const char* filename);
 	FTexture* ValidateCustomTile(int tilenum, int type);
+	int32_t artLoadFiles(const char* filename);
 	uint8_t *tileMakeWritable(int num);
 	uint8_t *tileCreate(int tilenum, int width, int height);
 	void tileSetExternal(int tilenum, int width, int height, uint8_t* data);

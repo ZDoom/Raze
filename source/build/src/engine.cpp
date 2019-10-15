@@ -8258,8 +8258,6 @@ void engineUnInit(void)
 # endif
 #endif
 
-    Buninitart();
-
     DO_FREE_AND_NULL(lookups);
     for (bssize_t i=0; i<DISTRECIPCACHESIZE; i++)
         ALIGNED_FREE_AND_NULL(distrecipcache[i].distrecip);

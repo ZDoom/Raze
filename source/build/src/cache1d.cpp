@@ -103,8 +103,8 @@ int32_t kpzbufload(char const * const filnam)
 #define MAXCACHEOBJECTS 16384
 
 #if !defined DEBUG_ALLOCACHE_AS_MALLOC
-static int32_t cachesize = 0;
 static uint8_t zerochar = 0;
+static TArray<uint8_t> cache;
 static intptr_t cachestart = 0;
 static int32_t lockrecip[200];
 
@@ -135,7 +135,7 @@ uint8_t toupperlookup[256] =
 static void reportandexit(const char *errormessage);
 
 
-void cacheInitBuffer(intptr_t dacachestart, int32_t dacachesize)
+void cacheInitBuffer(int32_t dacachesize)
 {
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC
     int32_t i;
@@ -143,14 +143,11 @@ void cacheInitBuffer(intptr_t dacachestart, int32_t dacachesize)
     for (i=1; i<200; i++)
         lockrecip[i] = tabledivide32_noinline(1<<28, 200-i);
 
-    // we allocate this block with aligned_alloc, but I'm leaving this here in
-    // case we run on any platforms that just implement it as regular malloc
+	cache.Resize(dacachesize);
 
-    cachestart = ((uintptr_t)dacachestart+15)&~(uintptr_t)0xf;
-    cachesize = (dacachesize-(((uintptr_t)(dacachestart))&0xf))&~(uintptr_t)0xf;
-
-    cac[0].leng = cachesize;
+	cac[0].leng = cache.Size();
     cac[0].lock = &zerochar;
+	cachestart = (intptr_t)cache.Data();
     cacnum = 1;
 
     initprintf("Initialized %.1fM cache\n", (float)(dacachesize/1024.f/1024.f));
@@ -178,13 +175,13 @@ int32_t cacheFindBlock(int32_t newbytes, int32_t *besto, int32_t *bestz)
 {
     int32_t bestval = 0x7fffffff;
 
-    for (native_t z=cacnum-1, o1=cachesize; z>=0; z--)
+    for (native_t z=cacnum-1, o1=cache.Size(); z>=0; z--)
     {
         o1 -= cac[z].leng;
 
         int32_t const o2 = o1 + newbytes;
 
-        if (o2 > cachesize)
+        if (o2 > cache.Size())
             continue;
 
         int32_t daval = 0;
@@ -234,9 +231,9 @@ void cacheAllocateBlock(intptr_t* newhandle, int32_t newbytes, uint8_t* newlockp
         reportandexit("ALLOCACHE CALLED WITH LOCK OF 0!");
 #endif
 
-    if (EDUKE32_PREDICT_FALSE((unsigned)newbytes > (unsigned)cachesize))
+    if ((unsigned)newbytes > (unsigned)cache.Size())
     {
-        initprintf("Cachesize: %d\n",cachesize);
+        initprintf("Cachesize: %u\n", cache.Size());
         initprintf("*Newhandle: 0x%" PRIxPTR ", Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
         reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
     }
@@ -353,7 +350,7 @@ static void reportandexit(const char *errormessage)
         j += cac[i].leng;
     }
 
-    initprintf("Cachesize = %d\n", cachesize);
+    initprintf("Cachesize = %u\n", cache.Size());
     initprintf("Cacnum = %d\n", cacnum);
     initprintf("Cache length sum = %d\n", j);
 #endif

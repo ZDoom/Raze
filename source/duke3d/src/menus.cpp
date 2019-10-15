@@ -7014,7 +7014,6 @@ void M_DisplayMenus(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
     {
-        walock[TILE_LOADSHOT] = 1;
         return;
     }
 

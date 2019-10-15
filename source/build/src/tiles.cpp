@@ -26,8 +26,8 @@ EDUKE32_STATIC_ASSERT(MAXARTFILES_TOTAL <= 256);
 
 static int32_t tilefileoffs[MAXTILES];
 
-static vec2_16_t tilesizearray[MAXTILES];
-static uint8_t picsizearray[MAXTILES];
+vec2_16_t tilesizearray[MAXTILES];
+uint8_t picsizearray[MAXTILES];
 // These may only be manipulated through a function interface so that the backing texture objects can be adjusted or replaced.
 const vec2_16_t* const tilesiz = tilesizearray;
 const uint8_t* const picsiz = picsizearray;
@@ -567,49 +567,6 @@ static int32_t artReadIndexedFile(int32_t tilefilei)
 //
 // loadpics
 //
-int32_t artLoadFiles(const char *filename, int32_t askedsize)
-{
-	TileFiles.LoadArtSet(filename);
-
-#if 1
-    Bstrncpyz(artfilenameformat, filename, sizeof(artfilenameformat));
-
-    Bmemset(&tilesizearray[0], 0, sizeof(vec2_16_t) * MAXTILES);
-    Bmemset(picanm, 0, sizeof(picanm));
-
-    for (auto &rot : rottile)
-        rot = { -1, -1 };
-
-    //    artsize = 0;
-
-    for (int tilefilei=0; tilefilei<MAXARTFILES_BASE; tilefilei++)
-        artReadIndexedFile(tilefilei);
-
-    Bmemset(gotpic, 0, sizeof(gotpic));
-
-    //cachesize = min((int32_t)((Bgetsysmemsize()/100)*60),max(artsize,askedsize));
-    cachesize = (Bgetsysmemsize() <= (uint32_t)askedsize) ? (int32_t)((Bgetsysmemsize() / 100) * 60) : askedsize;
-    pic = Xaligned_alloc(Bgetpagesize(), cachesize);
-    cacheInitBuffer((intptr_t) pic, cachesize);
-
-    artUpdateManifest();
-
-    artfil = buildvfs_kfd_invalid;
-    artfilnum = -1;
-    artfilplc = 0L;
-#endif
-
-	for (unsigned i = 0; i < MAXTILES; i++)
-	{
-		auto tex = TileFiles.tiles[i];
-		assert(tex);
-		picanm[i] = tex->PicAnim;
-		tilesizearray[i] = tex->GetSize();
-	}
-
-    return 0;
-}
-
 const uint8_t* tilePtr(int num)
 {
 	auto tex = TileFiles.tiles[num];
@@ -796,8 +753,8 @@ void tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, 
     xsiz2 = tilesiz[tilenume2].x; ysiz2 = tilesiz[tilenume2].y;
     if ((xsiz1 > 0) && (ysiz1 > 0) && (xsiz2 > 0) && (ysiz2 > 0))
     {
-        if (tileptr[tilenume1] == 0) tileLoad(tilenume1);
-        if (tiledata[tilenume2] == 0) tileLoad(tilenume2);
+        tileLoad(tilenume1);
+        if (tileData(tilenume2) == 0) return;	// Error: Destination is not writable.
 
         x1 = sx1;
         for (i=0; i<xsiz; i++)

@@ -518,11 +518,6 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getnumber(script,&col)) break;
             if (scriptfile_getnumber(script,&col2)) break;
-            if ((uint32_t)tile < MAXTILES)
-            {
-                spritecol2d[tile][0] = col;
-                spritecol2d[tile][1] = col2;
-            }
         }
         break;
         case T_2DCOL:

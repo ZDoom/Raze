@@ -6115,7 +6115,7 @@ static void G_Startup(void)
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
 
-    if (artLoadFiles("tiles%03i.art",MAXCACHE1DSIZE) < 0)
+    if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
         G_GameExit("Failed loading art.");
 
     cacheAllSounds();

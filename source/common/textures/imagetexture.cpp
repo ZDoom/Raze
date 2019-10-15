@@ -52,8 +52,7 @@ FImageTexture::FImageTexture(FImageSource *img, const char *name)
 	mImage = img;
 	if (img != nullptr)
 	{
-		Size.x = img->GetWidth();
-		Size.y = img->GetHeight();
+		SetSize(img->GetWidth(), img->GetHeight());
 
 		auto offsets = img->GetOffsets();
 		PicAnim.xofs = offsets.first;

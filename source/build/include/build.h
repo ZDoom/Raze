@@ -833,15 +833,8 @@ EXTERN char show2dsector[(MAXSECTORS+7)>>3];
 EXTERN char show2dwall[(MAXWALLS+7)>>3];
 EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
 
-// In the editor, gotpic is only referenced from inline assembly;
-// the compiler needs that hint or building with LTO will discard it.
-#if !defined __clang__ && !defined NOASM
-# define GOTPIC_USED ATTRIBUTE((used))
-#else
-# define GOTPIC_USED
-#endif
 
-EXTERN char GOTPIC_USED gotpic[(MAXTILES+7)>>3];
+EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char editorcolors[256];
@@ -1048,7 +1041,6 @@ int32_t artReadHeaderFromBuffer(uint8_t const *buf, artheader_t *local);
 int32_t artCheckUnitFileHeader(uint8_t const *buf, int32_t length);
 void    artReadManifest(buildvfs_kfd fil, artheader_t const *local);
 void    artPreloadFile(buildvfs_kfd fil, artheader_t const *local);
-int32_t artLoadFiles(const char *filename, int32_t askedsize);
 void    artClearMapArt(void);
 void    artSetupMapArt(const char *filename);
 bool    tileCache(int tilenume);
@@ -1100,7 +1092,6 @@ int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
                       const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
                    const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
-void   Buninitart(void);
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
 static FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,

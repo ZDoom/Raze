@@ -723,6 +723,11 @@ void initprintf(const char *f, ...)
     Bvsnprintf(buf, sizeof(buf), f, va);
     va_end(va);
 
+#ifdef _WIN32
+	if (IsDebuggerPresent())
+		OutputDebugStringA(buf);
+#endif
+
     initputs(buf);
 }
 
