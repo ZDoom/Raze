@@ -1621,17 +1621,6 @@ static int get_screen_coords(const vec2_t &p1, const vec2_t &p2,
 }
 
 
-static inline int findUnusedTile(void)
-{
-    static int lastUnusedTile = MAXUSERTILES-1;
-
-    for (; lastUnusedTile >= 0; --lastUnusedTile)
-        if ((tilesiz[lastUnusedTile].x|tilesiz[lastUnusedTile].y) == 0)
-            return lastUnusedTile;
-
-    return -1;
-}
-
 //
 // scansector (internal)
 //
@@ -8258,7 +8247,7 @@ void engineUnInit(void)
 # endif
 #endif
 
-	//TileFiles.CloseAll();
+	TileFiles.CloseAll();
 
     DO_FREE_AND_NULL(lookups);
     for (bssize_t i=0; i<DISTRECIPCACHESIZE; i++)
@@ -8463,19 +8452,18 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
         if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
         {
             auto &w    = wall[i];
-            auto &tile = rottile[w.picnum+animateoffs(w.picnum,16384)];
+			auto &tile = RotTile(w.picnum+animateoffs(w.picnum,16384));
 
             if (tile.newtile == -1 && tile.owner == -1)
             {
-                tile.newtile = findUnusedTile();
+				auto owner = w.picnum + animateoffs(w.picnum, 16384);
+
+				tile.newtile = TileFiles.tileCreateRotated(owner);
                 Bassert(tile.newtile != -1);
 
-                rottile[tile.newtile].owner = w.picnum+animateoffs(w.picnum,16384);
+                RotTile(tile.newtile).owner = w.picnum+animateoffs(w.picnum,16384);
 
                 auto &siz  = tilesiz[w.picnum+animateoffs(w.picnum,16384)];
-                tileSetSize(tile.newtile, siz.x, siz.y);
-
-                tileLoad(tile.newtile);
             }
         }
     }

@@ -1032,23 +1032,6 @@ int32_t engineLoadClipMaps(void);
 #endif
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 
-void    tileSetupDummy(int32_t tile);
-void    tileSetData(int32_t tile, int32_t tsiz, char const *buffer);
-void    tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy);
-int32_t artReadHeader(buildvfs_kfd fil, char const *fn, artheader_t *local);
-int32_t artReadHeaderFromBuffer(uint8_t const *buf, artheader_t *local);
-int32_t artCheckUnitFileHeader(uint8_t const *buf, int32_t length);
-void    artReadManifest(buildvfs_kfd fil, artheader_t const *local);
-void    artPreloadFile(buildvfs_kfd fil, artheader_t const *local);
-void    artClearMapArt(void);
-void    artSetupMapArt(const char *filename);
-bool    tileCache(int tilenume);
-const uint8_t* tilePtr(int num);	// read-only
-uint8_t* tileData(int num);		// writable.
-bool    tileLoad(int16_t tilenume);
-void    tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer);
-void    tileUpdatePicSiz(int32_t picnum);
-
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
 void   tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);

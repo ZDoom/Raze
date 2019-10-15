@@ -493,11 +493,20 @@ struct BuildFiles
 		delete Placeholder;
 	}
 
+	void CloseAll()
+	{
+		CloseAllMapArt();
+		ArtFiles.DeleteAndClear();
+		AllTiles.DeleteAndClear();
+		delete Placeholder;
+		Placeholder = nullptr;
+	}
+
 	void AddTile(int tilenum, FTexture* tex, bool permap = false);
 
 	void AddTiles(int firsttile, TArray<uint8_t>& store, bool permap);
 
-	void AddFile(BuildArtFile *bfd, bool permap)
+	void AddFile(BuildArtFile* bfd, bool permap)
 	{
 		if (!permap) ArtFiles.Push(bfd);
 		else PerMapArtFiles.Push(bfd);
@@ -511,10 +520,11 @@ struct BuildFiles
 	void LoadArtSet(const char* filename);
 	FTexture* ValidateCustomTile(int tilenum, int type);
 	int32_t artLoadFiles(const char* filename);
-	uint8_t *tileMakeWritable(int num);
-	uint8_t *tileCreate(int tilenum, int width, int height);
+	uint8_t* tileMakeWritable(int num);
+	uint8_t* tileCreate(int tilenum, int width, int height);
 	void tileSetExternal(int tilenum, int width, int height, uint8_t* data);
-
+	int findUnusedTile(void);
+	int tileCreateRotated(int owner);
 };
 
 int tileCRC(int tileNum);
@@ -522,6 +532,11 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 void tileCopy(int tile, int tempsource, int temppal, int xoffset, int yoffset, int flags);
 void tileSetDummy(int tile, int width, int height);
 void tileDelete(int tile);
+bool tileLoad(int tileNum);
+void    artClearMapArt(void);
+void    artSetupMapArt(const char* filename);
+void tileSetAnim(int tile, const picanm_t& anm);
+
 extern BuildFiles TileFiles;
 inline bool tileCheck(int num)
 {
@@ -529,6 +544,24 @@ inline bool tileCheck(int num)
 	return tex->GetWidth() > 0 && tex->GetHeight() > 0;
 }
 
+inline const uint8_t* tilePtr(int num)
+{
+	auto tex = TileFiles.tiles[num];
+	auto p = tex->Get8BitPixels();
+	if (p) return p;
+	return (const uint8_t*)tex->CacheHandle;
+}
+
+inline uint8_t* tileData(int num)
+{
+	auto tex = TileFiles.tiles[num];
+	return tex->GetWritableBuffer();
+}
+
+inline rottile_t& RotTile(int tile)
+{
+	return TileFiles.tiles[tile]->GetRotTile();
+}
 #endif
 
 

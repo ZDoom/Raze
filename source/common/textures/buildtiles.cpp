@@ -498,6 +498,41 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 	picanm->sf = (picanm->sf & ~PICANM_MISC_MASK) | (sourceanm->sf & PICANM_MISC_MASK) | flags;
 }
 
+//==========================================================================
+//
+// Clear map specific ART
+//
+//==========================================================================
+
+void artClearMapArt(void)
+{
+	TileFiles.CloseAllMapArt();
+	memcpy(TileFiles.tiles, TileFiles.tilesbak, sizeof(TileFiles.tiles));
+}
+
+//==========================================================================
+//
+// Load map specfici ART
+//
+//==========================================================================
+
+void artSetupMapArt(const char* filename)
+{
+	artClearMapArt();
+
+	FStringf firstname("%s_00.art", filename);
+	auto fr = kopenFileReader(firstname, 0);
+	if (!fr.isOpen()) return;
+
+	for (bssize_t i = 0; i < MAXARTFILES_TOTAL - MAXARTFILES_BASE; i++)
+	{
+		FStringf fullname("%s_%02d.art", filename, i);
+		TileFiles.LoadArtFile(fullname, true);
+	}
+}
+
+//==========================================================================
+//
 //
 //
 //==========================================================================
@@ -531,3 +566,80 @@ void tileSetDummy(int tile, int width, int height)
 	}
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+bool tileLoad(int tileNum)
+{
+	if ((unsigned)tileNum >= MAXTILES) return false;
+	auto tex = TileFiles.tiles[tileNum];
+	if (!tex || tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return false;
+	if (tex->Get8BitPixels()) return true;
+	tex->CacheLock = 199;
+
+	if (!tex->CacheHandle)
+	{
+		// Allocate storage if necessary.
+		int size = tex->GetWidth() * tex->GetHeight();
+		cacheAllocateBlock(&tex->CacheHandle, size, &tex->CacheLock);
+		tex->Create8BitPixels((uint8_t*)tex->CacheHandle);
+	}
+	return true;
+}
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+int BuildFiles::findUnusedTile(void)
+{
+	static int lastUnusedTile = MAXUSERTILES - 1;
+
+	for (; lastUnusedTile >= 0; --lastUnusedTile)
+	{
+		auto tex = TileFiles.tiles[lastUnusedTile];
+		if (!tex || tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return lastUnusedTile;
+	}
+	return -1;
+}
+
+int BuildFiles::tileCreateRotated(int tileNum)
+{
+	if ((unsigned)tileNum >= MAXTILES) return tileNum;
+	auto tex = TileFiles.tiles[tileNum];
+	if (!tex || tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return tileNum;
+	TArray<uint8_t> buffer(tex->GetWidth() * tex->GetHeight(), true);
+	tex->Create8BitPixels(buffer.Data());
+	TArray<uint8_t> dbuffer(tex->GetWidth() * tex->GetHeight(), true);
+
+	auto src = buffer.Data();
+	auto dst = dbuffer.Data();
+
+	// the engine has a squarerotatetile() we could call, but it mirrors at the same time
+	auto siz = tex->GetSize();
+	for (int x = 0; x < siz.x; ++x)
+	{
+		int xofs = siz.x - x - 1;
+		int yofs = siz.y * x;
+
+		for (int y = 0; y < siz.y; ++y)
+			*(dst + y * siz.x + xofs) = *(src + y + yofs);
+	}
+
+	auto dtex = new FLooseTile(dbuffer, tex->GetHeight(), tex->GetWidth());
+	int index = findUnusedTile();
+	bool mapart = TileFiles.tiles[tileNum] != TileFiles.tilesbak[tileNum];
+	TileFiles.AddTile(index, dtex, mapart);
+	return index;
+}
+
+void tileSetAnim(int tile, const picanm_t& anm)
+{
+
+}
