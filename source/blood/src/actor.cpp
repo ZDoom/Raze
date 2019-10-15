@@ -5694,7 +5694,7 @@ void actProcessSprites(void)
                 if (gModernMap && (pXSprite->locked || pXSprite->isTriggered)) 
                     continue;
                 
-                //if (pSprite->type == kThingDroppedLifeLeech) pXSprite->target = -1; why?
+                if (pSprite->type == kThingDroppedLifeLeech) pXSprite->target = -1;
                 for (int nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nNextSprite)
                 {
                     
@@ -5710,7 +5710,7 @@ void actProcessSprites(void)
 
                         int proxyDist = 96;
                         if (pSprite->type == kModernThingEnemyLifeLeech) proxyDist = 512;
-                        else if (pSprite->type == kThingDroppedLifeLeech /*&& pXSprite->target == -1*/)  {
+                        else if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target == -1)  {
                             int nOwner = actOwnerIdToSpriteId(pSprite->owner);
                             spritetype *pOwner = &sprite[nOwner];
                             PLAYER *pPlayer = &gPlayer[pOwner->type-kDudePlayer1];
@@ -6367,6 +6367,8 @@ spritetype * actSpawnSprite(int nSector, int x, int y, int z, int nStat, char a6
         int nXSprite = dbInsertXSprite(nSprite);
         gSpriteHit[nXSprite].florhit = 0;
         gSpriteHit[nXSprite].ceilhit = 0;
+        if (!VanillaMode())
+            xsprite[nXSprite].target = -1;
     }
     return pSprite;
 }
@@ -6455,6 +6457,8 @@ spritetype * actSpawnSprite(spritetype *pSource, int nStat)
     int nXSprite = dbInsertXSprite(nSprite);
     gSpriteHit[nXSprite].florhit = 0;
     gSpriteHit[nXSprite].ceilhit = 0;
+    if (!VanillaMode())
+        xsprite[nXSprite].target = -1;
     return pSprite;
 }
 
