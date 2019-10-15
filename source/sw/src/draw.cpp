@@ -2693,8 +2693,7 @@ ScreenLoadSaveSetup(PLAYERp pp)
 
     ScreenTileLock();
 
-	tileDelete(SAVE_SCREEN_TILE);
-	tileCreate(SAVE_SCREEN_TILE, SAVE_SCREEN_XSIZE, SAVE_SCREEN_YSIZE);
+	TileFiles.tileCreate(SAVE_SCREEN_TILE, SAVE_SCREEN_XSIZE, SAVE_SCREEN_YSIZE);
     return SAVE_SCREEN_TILE;
 }
 

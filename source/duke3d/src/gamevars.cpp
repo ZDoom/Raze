@@ -585,6 +585,8 @@ size_t __fastcall Gv_GetArrayCountForAllocSize(int const arrayIdx, size_t const 
     return tabledivide64(filelength + denominator - 1, denominator);
 }
 
+typedef int (*gamearray_func_cb)(int);
+
 int __fastcall Gv_GetArrayValue(int const id, int index)
 {
     if (aGameArrays[id].flags & GAMEARRAY_STRIDE2)
@@ -603,7 +605,14 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
         case GAMEARRAY_UINT8:  returnValue =  ((uint8_t *)aGameArrays[id].pValues)[index]; break;
 
         case GAMEARRAY_BITMAP:returnValue = !!(((uint8_t *)aGameArrays[id].pValues)[index >> 3] & pow2char[index & 7]); break;
-    }
+
+		case GAMEARRAY_FUNC:
+		{
+			auto cb = (gamearray_func_cb)aGameArrays[id].pValues;
+			returnValue = cb(index);
+		}
+
+	}
 
     return returnValue;
 }
@@ -1122,6 +1131,17 @@ void Gv_FinalizeWeaponDefaults(void)
 static int32_t lastvisinc;
 #endif
 
+// Helpers to read the refactored tilesiz array.
+static int tileWidth(int num)
+{
+	return tilesiz[num].x;
+}
+
+static int tileHeight(int num)
+{
+	return tilesiz[num].y;
+}
+
 static void Gv_AddSystemVars(void)
 {
     // only call ONCE
@@ -1322,8 +1342,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("gotpic",            (void *)&gotpic[0],              MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
     Gv_NewArray("radiusdmgstatnums", (void *)&g_radiusDmgStatnums[0], MAXSTATUS,  GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
     Gv_NewArray("show2dsector",      (void *)&show2dsector[0],        MAXSECTORS, GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
-    Gv_NewArray("tilesizx",          (void *)&tilesiz[0].x,           MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_STRIDE2 | GAMEARRAY_READONLY | GAMEARRAY_INT16);
-    Gv_NewArray("tilesizy",          (void *)&tilesiz[0].y,           MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_STRIDE2 | GAMEARRAY_READONLY | GAMEARRAY_INT16);
+    Gv_NewArray("tilesizx",          (void *)tileWidth,               MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_FUNC | GAMEARRAY_READONLY);
+    Gv_NewArray("tilesizy",          (void *)tileHeight,              MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_FUNC | GAMEARRAY_READONLY);
 #endif
 }
 

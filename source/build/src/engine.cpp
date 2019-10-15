@@ -1906,12 +1906,12 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     if ((uwall[x1] > ydimen) && (uwall[x2] > ydimen)) return;
     if ((dwall[x1] < 0) && (dwall[x2] < 0)) return;
 
-    vec2_16_t tsiz = tilesiz[globalpicnum];
+    auto tsiz = tilesiz[globalpicnum];
     if ((tsiz.x <= 0) || (tsiz.y <= 0)) return;
 
     setgotpic(globalpicnum);
 
-    tileCache(globalpicnum);
+    tileLoad(globalpicnum);
 
     tweak_tsizes(&tsiz);
 
@@ -2633,7 +2633,7 @@ static int32_t setup_globals_cf1(usectorptr_t sec, int32_t pal, int32_t zd,
     tileUpdatePicnum(&globalpicnum, 0);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return 1;
-        tileCache(globalpicnum);
+        tileLoad(globalpicnum);
 
 
     globalbufplc = (intptr_t)tilePtr(globalpicnum);
@@ -2929,7 +2929,7 @@ static void wallscan(int32_t x1, int32_t x2,
     if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen)) return;
     if ((dwal[x1] < 0) && (dwal[x2] < 0)) return;
 
-        tileCache(globalpicnum);
+        tileLoad(globalpicnum);
 
 
     tweak_tsizes(&tsiz);
@@ -3151,7 +3151,7 @@ static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0))
         return;
 
-        tileCache(globalpicnum);
+        tileLoad(globalpicnum);
 
 
     setuptvlineasm(globalshiftval, saturatevplc);
@@ -3451,7 +3451,7 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     tileUpdatePicnum(&globalpicnum, sectnum);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return;
-        tileCache(globalpicnum);
+        tileLoad(globalpicnum);
 
 
     wal = (uwalltype *)&wall[sec->wallptr];
@@ -3743,7 +3743,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     tileUpdatePicnum(&globalpicnum, sectnum);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return;
-        tileCache(globalpicnum);
+        tileLoad(globalpicnum);
 
 
     wal = (uwallptr_t)&wall[sec->wallptr];
@@ -5962,7 +5962,7 @@ draw_as_face_sprite:
         globalpicnum = tilenum;
         if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
 
-            tileCache(globalpicnum);
+            tileLoad(globalpicnum);
 
         setgotpic(globalpicnum);
         globalbufplc = (intptr_t)tilePtr(globalpicnum);
@@ -6997,7 +6997,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         nextv = v;
     }
 
-    tileCache(picnum);
+    tileLoad(picnum);
     setgotpic(picnum);
     bufplc = (intptr_t)tilePtr(picnum);
 
@@ -8258,6 +8258,8 @@ void engineUnInit(void)
 # endif
 #endif
 
+	//TileFiles.CloseAll();
+
     DO_FREE_AND_NULL(lookups);
     for (bssize_t i=0; i<DISTRECIPCACHESIZE; i++)
         ALIGNED_FREE_AND_NULL(distrecipcache[i].distrecip);
@@ -9289,11 +9291,16 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
-                tileCache(globalpicnum);
 
-            globalbufplc = (intptr_t)tilePtr(globalpicnum);
-            globalshade = max(min<int>(sec->floorshade,numshades-1),0);
-            globvis = globalhisibility;
+			if (videoGetRenderMode() == REND_POLYMOST)
+			{
+				tileLoad(globalpicnum);
+				// Only load tiles when software rendering.
+				globalbufplc = (intptr_t)tilePtr(globalpicnum);
+			}
+
+			globalshade = max(min<int>(sec->floorshade, numshades - 1), 0);
+			globvis = globalhisibility;
             if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
             globalpolytype = 0;
             if ((globalorientation&64) == 0)
@@ -9415,15 +9422,19 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
-                tileCache(globalpicnum);
 
-            globalbufplc = (intptr_t)tilePtr(globalpicnum);
-
-            // 'loading' the tile doesn't actually guarantee that it's there afterwards.
-            // This can really happen when drawing the second frame of a floor-aligned
-            // 'storm icon' sprite (4894+1)
-            if (!globalbufplc)
-                continue;
+			if (videoGetRenderMode() == REND_POLYMOST)
+			{
+				tileLoad(globalpicnum);
+				// Only load tiles when software rendering.
+				globalbufplc = (intptr_t)tilePtr(globalpicnum);
+				// 'loading' the tile doesn't actually guarantee that it's there afterwards.
+				// This can really happen when drawing the second frame of a floor-aligned
+				// 'storm icon' sprite (4894+1)
+				if (!globalbufplc)
+					continue;
+			}
+			// For Polymost the abovementioned edge case cannot be detected here if the only way is to check the texture's pixel data.
 
             if ((sector[spr->sectnum].ceilingstat&1) > 0)
                 globalshade = ((int32_t)sector[spr->sectnum].ceilingshade);
@@ -9600,7 +9611,6 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
 
     guniqhudid = 0;
 
-    Bmemset(tilecols, 0, sizeof(tilecols));
     return numremoved;
 }
 
@@ -12120,8 +12130,7 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
         return;
 
     //DRAWROOMS TO TILE BACKUP&SET CODE
-	tileDelete(tilenume);
-	tileCreate(tilenume, xsiz, ysiz);
+	TileFiles.tileCreate(tilenume, xsiz, ysiz);
     bakxsiz[setviewcnt] = xdim; bakysiz[setviewcnt] = ydim;
     bakframeplace[setviewcnt] = frameplace; frameplace = (intptr_t)tilePtr(tilenume);
     bakwindowxy1[setviewcnt] = windowxy1;

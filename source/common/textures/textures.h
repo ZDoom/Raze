@@ -518,6 +518,11 @@ struct BuildFiles
 };
 
 extern BuildFiles TileFiles;
+inline bool tileCheck(int num)
+{
+	auto tex = TileFiles.tiles[num];
+	return tex->GetWidth() > 0 && tex->GetHeight() > 0;
+}
 
 #endif
 

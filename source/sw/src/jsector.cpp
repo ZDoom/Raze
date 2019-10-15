@@ -487,7 +487,7 @@ JS_InitMirrors(void)
 void drawroomstotile(int daposx, int daposy, int daposz,
                      short daang, int dahoriz, short dacursectnum, short tilenume)
 {
-	tileCreate(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
+	TileFiles.tileCreate(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
     renderSetTarget(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
@@ -857,7 +857,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
 
                         // Set up the tile for drawing
-						tileCreate(mirror[cnt].campic, 128, 128);
+						TileFiles.tileCreate(mirror[cnt].campic, 128, 128);
 
                         if (MirrorMoveSkip16 == 0 || (DoCam && (MoveSkip4 == 0)))
                         {

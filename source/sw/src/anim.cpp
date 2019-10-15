@@ -315,7 +315,7 @@ playanm(short anim_num)
     if (ANIMnum == 1)
     {
         // draw the first frame
-		tileSetExternal(ANIM_TILE(ANIMnum), 200, 320, ANIM_DrawFrame(1));
+		TileFiles.tileSetExternal(ANIM_TILE(ANIMnum), 200, 320, ANIM_DrawFrame(1));
         tileInvalidate(ANIM_TILE(ANIMnum), 0, 1<<4);
         rotatesprite(0 << 16, 0 << 16, 65536L, 512, ANIM_TILE(ANIMnum), 0, 0, 2 + 4 + 8 + 16 + 64, 0, 0, xdim - 1, ydim - 1);
     }
@@ -362,7 +362,7 @@ playanm(short anim_num)
             break;
         }
 
-		tileSetExternal(ANIM_TILE(ANIMnum), 200, 320, ANIM_DrawFrame(1));
+		TileFiles.tileSetExternal(ANIM_TILE(ANIMnum), 200, 320, ANIM_DrawFrame(1));
 		tileInvalidate(ANIM_TILE(ANIMnum), 0, 1<<4);
 
         rotatesprite(0 << 16, 0 << 16, 65536L, 512, ANIM_TILE(ANIMnum), 0, 0, 2 + 4 + 8 + 16 + 64, 0, 0, xdim - 1, ydim - 1);

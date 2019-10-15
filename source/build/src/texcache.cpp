@@ -115,7 +115,7 @@ void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
 	//POGOTODO: npoty
 	char npoty = 0;
 
-	tileCache(globalpicnum);
+	tileLoad(globalpicnum);
 
 	const uint8_t* p = tilePtr(dapic);
 	if (!p)

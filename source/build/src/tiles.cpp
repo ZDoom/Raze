@@ -723,22 +723,6 @@ int32_t tileCRC(int16_t tileNum)
 //
 // allocatepermanenttile
 //
-uint8_t *tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz)
-{
-	if (xsiz <= 0 || ysiz <= 0 || (unsigned)tilenume >= MAXTILES)
-		return 0;
-
-	tiledata[tilenume] = TileFiles.tileCreate(tilenume, xsiz, ysiz);
-	tilesizearray[tilenume] = TileFiles.tiles[tilenume]->GetSize();
-    return tiledata[tilenume];
-}
-
-void tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, uint8_t *data)
-{
-	TileFiles.tileSetExternal(tilenume, xsiz, ysiz, data);
-	tilesizearray[tilenume] = TileFiles.tiles[tilenume]->GetSize();
-	tiledata[tilenume] = TileFiles.tiles[tilenume]->GetWritableBuffer();
-}
 
 
 //

@@ -145,14 +145,14 @@ void tileProcessGLVoxels(void)
 
 const uint8_t * tileLoadTile(int nTile)
 {
-	tileCache(nTile);
+	tileLoad(nTile);
     return (const uint8_t*)tilePtr(nTile);
 }
 
 uint8_t * tileAllocTile(int nTile, int x, int y, int ox, int oy)
 {
     dassert(nTile >= 0 && nTile < kMaxTiles);
-    uint8_t *p = tileCreate(nTile, x, y);
+    uint8_t *p = TileFiles.tileCreate(nTile, x, y);
     dassert(p != NULL);
     picanm[nTile].xofs = ClipRange(ox, -127, 127);
     picanm[nTile].yofs = ClipRange(oy, -127, 127);

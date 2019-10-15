@@ -1053,8 +1053,6 @@ void    tileUpdatePicSiz(int32_t picnum);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
-uint8_t *tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz);
-void   tileSetExternal(int16_t tilenume, int32_t xsiz, int32_t ysiz, uint8_t* data);
 void   tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   squarerotatetile(int16_t tilenume);
 

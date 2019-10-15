@@ -499,7 +499,7 @@ int32_t Anim_Play(const char *fn)
 
         i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
 
-		tileSetExternal(TILE_ANIM, 200, 320, ANIM_DrawFrame(i));
+		TileFiles.tileSetExternal(TILE_ANIM, 200, 320, ANIM_DrawFrame(i));
         tileInvalidate(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
         if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_GeneralTrigger()))

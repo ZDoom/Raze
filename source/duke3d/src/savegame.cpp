@@ -314,7 +314,7 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
     if (kread(fil, &screenshotofs, 4) != 4)
         goto corrupt;
 
-	tileCreate(TILE_LOADSHOT, 200, 320);
+	TileFiles.tileCreate(TILE_LOADSHOT, 200, 320);
     if (screenshotofs)
     {
         if (kdfread_LZ4(tileData(TILE_LOADSHOT), 320, 200, fil) != 200)

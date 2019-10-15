@@ -470,7 +470,7 @@ int32_t Anim_Play(const char *fn)
 
 	anim->animbuf = buffer.Data();
 
-	tileCreate(TILE_ANIM, 200, 320);
+	TileFiles.tileCreate(TILE_ANIM, 200, 320);
 
     kread(handle, anim->animbuf, length);
     kclose(handle);
@@ -520,7 +520,7 @@ int32_t Anim_Play(const char *fn)
         if (totalclock < ototalclock - 1)
             continue;
 
-		tileSetExternal(TILE_ANIM, 200, 320, ANIM_DrawFrame(i));
+		TileFiles.tileSetExternal(TILE_ANIM, 200, 320, ANIM_DrawFrame(i));
         tileInvalidate(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
         if (I_CheckAllInput())

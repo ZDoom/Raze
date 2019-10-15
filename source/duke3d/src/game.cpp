@@ -710,7 +710,7 @@ static void G_ReadGLFrame(void)
     const int32_t xf = divscale16(ydim*4/3, 320);
     const int32_t yf = divscale16(ydim, 200);  // (ydim<<16)/200
 
-	auto pic = tileCreate(TILE_SAVESHOT, 200, 320);
+	auto pic = TileFiles.tileCreate(TILE_SAVESHOT, 200, 320);
 
     if (!frame)
     {
@@ -838,7 +838,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         if (g_screenCapture)
         {
-			tileCreate(TILE_SAVESHOT, 200, 320);
+			TileFiles.tileCreate(TILE_SAVESHOT, 200, 320);
 
             if (videoGetRenderMode() == REND_CLASSIC)
                 renderSetTarget(TILE_SAVESHOT, 200, 320);
@@ -896,7 +896,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 const int32_t viewtilexsiz = (tang&1023) ? tiltcx : tiltcy;
                 const int32_t viewtileysiz = tiltcx;
 
-				tileCreate(TILE_TILT, tiltcx, tiltcx);
+				TileFiles.tileCreate(TILE_TILT, tiltcx, tiltcx);
 
                 renderSetTarget(TILE_TILT, viewtilexsiz, viewtileysiz);
 
@@ -6681,7 +6681,7 @@ int app_main(int argc, char const * const * argv)
     minitext_lowercase = 1;
 
     for (int i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
-        minitext_lowercase &= (int)tileLoad(i);
+        minitext_lowercase &= (int)tileCheck(i);
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {

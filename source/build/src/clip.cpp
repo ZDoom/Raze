@@ -2530,7 +2530,7 @@ restart_grand:
                     {
                         tileUpdatePicnum(&tilenum, 0);
 
-                        if (tileCache(tilenum))
+                        if (tileLoad(tilenum))
                         {
                             // daz-intz > 0 && daz-intz < k
                             int32_t xtex = mulscale16(ucoefup16, tilesiz[tilenum].x);
