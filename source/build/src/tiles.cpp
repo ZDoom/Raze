@@ -684,31 +684,6 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
 }
 
 
-int32_t tileCRC(int16_t tileNum)
-{
-    char *data;
-
-    if ((unsigned)tileNum >= (unsigned)MAXTILES)
-        return 0;
-    int const dasiz = tilesiz[tileNum].x * tilesiz[tileNum].y;
-    if (dasiz <= 0)
-        return 0;
-
-    data = (char *)Xmalloc(dasiz);
-    tileLoadData(tileNum, dasiz, data);
-
-    int32_t crc = Bcrc32((unsigned char *)data, (unsigned int)dasiz, 0);
-
-    Xfree(data);
-
-    return crc;
-}
-
-//
-// allocatepermanenttile
-//
-
-
 //
 // copytilepiece
 //

@@ -517,6 +517,9 @@ struct BuildFiles
 
 };
 
+int tileCRC(int tileNum);
+int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istexture);
+void tileCopy(int tile, int tempsource, int temppal, int xoffset, int yoffset, int flags);
 void tileSetDummy(int tile, int width, int height);
 void tileDelete(int tile);
 extern BuildFiles TileFiles;

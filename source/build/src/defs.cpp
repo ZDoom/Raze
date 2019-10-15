@@ -204,82 +204,6 @@ static int32_t check_tile(const char *defcmd, int32_t tile, const scriptfile *sc
     return 0;
 }
 
-static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t alphacut)
-{
-    vec2_16_t const siz = tilesiz[tile];
-    int32_t i, j, tsiz = siz.x * siz.y;
-
-    maybe_grow_buffer(&faketilebuffer, &faketilebuffersiz, tsiz);
-
-    getclosestcol_flush();
-
-    for (j = 0; j < siz.y; ++j)
-    {
-        int const ofs = j * siz.x;
-        for (i = 0; i < siz.x; ++i)
-        {
-            palette_t const *const col = &picptr[ofs + i];
-            faketilebuffer[(i * siz.y) + j] =
-            (col->f < alphacut) ? 255 : getclosestcol_lim(col->b, col->g, col->r, 254);
-        }
-    }
-
-    tileSetData(tile, tsiz, faketilebuffer);
-}
-
-static int32_t Defs_LoadTileIntoBuffer(int32_t const tile)
-{
-    vec2_16_t const siz = tilesiz[tile];
-    int32_t const tsiz = siz.x * siz.y;
-
-    if (EDUKE32_PREDICT_FALSE(tilesiz[tile].x <= 0 || tilesiz[tile].y <= 0))
-        return 0;
-
-    maybe_grow_buffer(&faketilebuffer, &faketilebuffersiz, tsiz);
-
-    tileLoadData(tile, tsiz, faketilebuffer);
-
-    return tsiz;
-}
-
-static void Defs_ApplyPaletteToTileBuffer(int32_t const tsiz, int32_t const pal)
-{
-    for (bssize_t i = 0; i < tsiz; i++)
-        faketilebuffer[i] = palookup[pal][faketilebuffer[i]];
-}
-
-static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const tile, int32_t const alphacut, int32_t istexture)
-{
-    if (check_file_exist(fn))
-        return -1;
-
-
-	FTexture* tex = FTexture::GetTexture(fn);
-	int32_t xsiz = tex->GetWidth(), ysiz = tex->GetHeight();
-
-    if (EDUKE32_PREDICT_FALSE(xsiz <= 0 || ysiz <= 0))
-        return -2;
-
-    if (!(paletteloaded & PALETTE_MAIN))
-        return -3;
-
-	if (videoGetRenderMode() < REND_POLYMOST)
-	{
-		tileSetSize(tile, tex->GetWidth(), tex->GetHeight());
-		auto image = tex->GetBgraBitmap(nullptr, nullptr);
-		tile_from_truecolpic(tile, (const palette_t*)image.GetPixels(), alphacut);
-	}
-
-#ifdef USE_OPENGL
-    if (istexture)
-        hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0, 1.0, HICR_ARTIMMUNITY);
-#else
-    UNREFERENCED_PARAMETER(istexture);
-#endif
-
-    return 0;
-}
-
 #undef USE_DEF_PROGRESS
 #if defined _WIN32 || defined HAVE_GTK2
 # define USE_DEF_PROGRESS
@@ -635,32 +559,8 @@ static int32_t defsparser(scriptfile *script)
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
-
-            buildvfs_kfd const fil = kopen4load(fn, 0);
-            if (fil == buildvfs_kfd_invalid)
-                break;
-
-            artheader_t local;
-            int32_t headerval = artReadHeader(fil, fn, &local);
-            if (headerval != 0)
-            {
-                kclose(fil);
-                break;
-            }
-
-            if (havetile)
-            {
-                if (!check_tile("artfile", tile, script, cmdtokptr))
-                {
-                    local.tilestart = tile;
-                    local.tileend = tile + local.numtiles - 1;
-                }
-            }
-
-            artReadManifest(fil, &local);
-            artPreloadFile(fil, &local);
-
-            kclose(fil);
+			if (!check_tile("artfile", tile, script, cmdtokptr))
+				TileFiles.LoadArtFile(fn, false, tile);
         }
         break;
         case T_SETUPTILE:
@@ -854,7 +754,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, alphacut, istexture);
+            int32_t const texstatus = tileImportFromTexture(fn, tile, alphacut, istexture);
             if (texstatus == -3)
                 initprintf("Error: No palette loaded, in tilefromtexture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
@@ -885,9 +785,11 @@ static int32_t defsparser(scriptfile *script)
             char *blockend;
             int32_t tile = -1, source;
             int32_t havetile = 0, havexoffset = 0, haveyoffset = 0;
-            int32_t xoffset = 0, yoffset = 0;
+            int32_t xoffset = -1024, yoffset = -1024;
             int32_t flags = 0;
             int32_t tsiz = 0;
+			int32_t temppal = -1;
+			int32_t tempsource = -1;
 
             static const tokenlist copytiletokens[] =
             {
@@ -911,12 +813,9 @@ static int32_t defsparser(scriptfile *script)
                 {
                 case T_TILE:
                 {
-                    int32_t tempsource;
                     scriptfile_getsymbol(script,&tempsource);
 
                     if (check_tile("copytile", tempsource, script, cmdtokptr))
-                        break;
-                    if ((tsiz = Defs_LoadTileIntoBuffer(tempsource)) <= 0)
                         break;
                     source = tempsource;
 
@@ -925,15 +824,12 @@ static int32_t defsparser(scriptfile *script)
                 }
                 case T_PAL:
                 {
-                    int32_t temppal;
                     scriptfile_getsymbol(script,&temppal);
 
                     // palettize self case
                     if (!havetile)
                     {
                         if (check_tile("copytile", source, script, cmdtokptr))
-                            break;
-                        if ((tsiz = Defs_LoadTileIntoBuffer(source)) <= 0)
                             break;
                         havetile = 1;
                     }
@@ -944,8 +840,6 @@ static int32_t defsparser(scriptfile *script)
                                    MAXPALOOKUPS-RESERVEDPALS-1);
                         break;
                     }
-
-                    Defs_ApplyPaletteToTileBuffer(tsiz, temppal);
                     break;
                 }
                 case T_XOFFSET:
@@ -968,27 +862,14 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile("copytile", tile, script, cmdtokptr))
                 break;
 
-            if (havetile)
+            if (!havetile)
             {
-                tileSetData(tile, tsiz, faketilebuffer);
-            }
-            else // if !havetile, we have never confirmed a valid source
-            {
+				// if !havetile, we have never confirmed a valid source
                 if (check_tile("copytile", source, script, cmdtokptr))
                     break;
             }
 
-            if (tsiz <= 0)
-            {
-                tileDelete(tile);
-                break;
-            }
-
-            tileSetSize(tile, tilesiz[source].x, tilesiz[source].y);
-            picanm[tile].xofs = havexoffset ? clamp(xoffset, -128, 127) : picanm[source].xofs;
-            picanm[tile].yofs = haveyoffset ? clamp(yoffset, -128, 127) : picanm[source].yofs;
-            picanm[tile].sf = (picanm[tile].sf & ~PICANM_MISC_MASK) | (picanm[source].sf & PICANM_MISC_MASK) | flags;
-
+			tileCopy(tile, tempsource, temppal, xoffset, yoffset, flags);
         }
         break;
         case T_IMPORTTILE:
@@ -1002,7 +883,7 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile("importtile", tile, script, cmdtokptr))
                 break;
 
-            int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, 255, 0);
+            int32_t const texstatus = tileImportFromTexture(fn, tile, 255, 0);
             if (texstatus == -3)
                 initprintf("Error: No palette loaded, in importtile definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));

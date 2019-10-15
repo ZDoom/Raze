@@ -403,6 +403,101 @@ void BuildFiles::tileSetExternal(int tilenum, int width, int height, uint8_t* da
 
 //==========================================================================
 //
+// Returns checksum for a given tile
+//
+//==========================================================================
+
+int32_t tileCRC(int tileNum)
+{
+	if ((unsigned)tileNum >= (unsigned)MAXTILES) return 0;
+	auto tile = TileFiles.tiles[tileNum];
+	if (!tile ||tile->GetUseType() != FTexture::Art) return 0;	// only consider original ART tiles.
+	auto pixels = tile->Get8BitPixels();
+	if (!pixels) return 0;
+	int size = tile->GetWidth() * tile->GetHeight();
+	if (size == 0) return 0;
+	return crc32(0, (const Bytef*)pixels, size);
+}
+
+
+//==========================================================================
+//
+// Import a tile from an external image.
+// This has been signifcantly altered so it may not cover everything yet.
+//
+//==========================================================================
+
+int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istexture)
+{
+	FTexture* tex = FTexture::GetTexture(fn);
+	if (tex == nullptr) return -1;
+	tex->alphaThreshold = 255 - alphacut;
+
+	int32_t xsiz = tex->GetWidth(), ysiz = tex->GetHeight();
+
+	if (xsiz <= 0 || ysiz <= 0)
+		return -2;
+
+	TileFiles.AddTile(tilenum, tex);
+
+#if 0
+	// Does this make any difference when the texture gets *properly* inserted into the tile array?
+	if (istexture)
+		hicsetsubsttex(tile, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);
+#endif
+	return 0;
+
+}
+
+//==========================================================================
+//
+// Copies a tile into another and optionally translates its palette.
+//
+//==========================================================================
+
+void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags)
+{
+	// Todo. Since I do not know if some mod needs this it's of low priority now.
+	// Let's get things working first.
+	picanm_t* picanm = nullptr;
+	picanm_t* sourceanm = nullptr;
+
+	if (pal == -1 && tile == source)
+	{
+		// Only modify the picanm info.
+		FTexture* tex = TileFiles.tiles[tile];
+		if (!tex) return;
+		picanm = &tex->PicAnim;
+		sourceanm = picanm;
+	}
+	else
+	{
+		if (source == -1) source = tile;
+		FTexture* tex = TileFiles.tiles[source];
+		if (!tex) return;
+		sourceanm = &tex->PicAnim;
+
+		TArray<uint8_t> buffer(tex->GetWidth() * tex->GetHeight(), true);
+		tex->Create8BitPixels(buffer.Data());
+
+		if (pal != -1)
+		{
+			auto remap = palookup[pal];
+			for (auto& pixel : buffer)
+			{
+				pixel = palookup[pal][pixel];
+			}
+		}
+		tex = new FLooseTile(buffer, tex->GetWidth(), tex->GetHeight());
+		picanm = &tex->PicAnim;
+		TileFiles.AddTile(tile, tex);
+	}
+
+	picanm->xofs = xoffset != -1024 ? clamp(xoffset, -128, 127) : sourceanm->xofs;
+	picanm->yofs = yoffset != -1024 ? clamp(yoffset, -128, 127) : sourceanm->yofs;
+	picanm->sf = (picanm->sf & ~PICANM_MISC_MASK) | (sourceanm->sf & PICANM_MISC_MASK) | flags;
+}
+
 //
 //
 //==========================================================================

@@ -1047,7 +1047,6 @@ const uint8_t* tilePtr(int num);	// read-only
 uint8_t* tileData(int num);		// writable.
 bool    tileLoad(int16_t tilenume);
 void    tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer);
-int32_t tileCRC(int16_t tileNum);
 void    tileUpdatePicSiz(int32_t picnum);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
