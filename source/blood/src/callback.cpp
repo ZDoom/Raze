@@ -257,7 +257,7 @@ void Respawn(int nSprite) // 9
             ChangeSpriteStat(nSprite, pSprite->owner);
             pSprite->type = pSprite->inittype;
             pSprite->owner = -1;
-            pSprite->flags &= ~16;
+            pSprite->flags &= ~kHitagRespawn;
             xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
             pXSprite->respawnPending = 0;
             pXSprite->burnTime = 0;

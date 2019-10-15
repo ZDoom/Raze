@@ -2260,7 +2260,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 // Can be overridden by def script
                 if (usevoxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1)
                 {
-                    if ((pTSprite->flags&16) == 0)
+                    if ((pTSprite->flags&kHitagRespawn) == 0)
                     {
                         pTSprite->cstat |= 48;
                         pTSprite->cstat &= ~(4|8);
@@ -2320,7 +2320,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         nShade += tileShade[pTSprite->picnum];
         pTSprite->shade = ClipRange(nShade, -128, 127);
-        if ((pTSprite->flags&16) && sprite[pTSprite->owner].owner == 3)
+        if ((pTSprite->flags&kHitagRespawn) && sprite[pTSprite->owner].owner == 3)
         {
             dassert(pTXSprite != NULL);
             pTSprite->xrepeat = 48;
