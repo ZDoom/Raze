@@ -401,3 +401,38 @@ void BuildFiles::tileSetExternal(int tilenum, int width, int height, uint8_t* da
 	if (buffer) memcpy(buffer, data, width * height);
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void tileDelete(int tile)
+{
+	TileFiles.tiles[tile] = TileFiles.tilesbak[tile] = TileFiles.Placeholder;
+	vox_undefine(tile);
+	md_undefinetile(tile);
+	for (ssize_t i = MAXPALOOKUPS - 1; i >= 0; --i)
+		hicclearsubst(tile, i);
+
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void tileSetDummy(int tile, int width, int height)
+{
+	if (width == 0 || height == 0)
+	{
+		tileDelete(tile);
+	}
+	else if (width > 0 && height > 0)
+	{
+		auto dtile = new FDummyTile(width, height);
+		TileFiles.AddTile(tile, dtile);
+	}
+}
+

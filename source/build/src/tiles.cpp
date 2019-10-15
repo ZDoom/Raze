@@ -264,22 +264,6 @@ static void tileSoftDelete(int32_t const tile)
 	picanm[tile] = {};
 }
 
-void tileDelete(int32_t const tile)
-{
-    tileSoftDelete(tile);
-
-    DO_FREE_AND_NULL(faketiledata[tile]);
-
-    vox_undefine(tile);
-
-#ifdef USE_OPENGL
-    for (ssize_t i=MAXPALOOKUPS-1; i>=0; --i)
-        hicclearsubst(tile, i);
-
-    md_undefinetile(tile);
-#endif
-}
-
 void tileUpdatePicSiz(int32_t picnum)
 {
     int j = 15;

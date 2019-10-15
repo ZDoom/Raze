@@ -517,6 +517,8 @@ struct BuildFiles
 
 };
 
+void tileSetDummy(int tile, int width, int height);
+void tileDelete(int tile);
 extern BuildFiles TileFiles;
 inline bool tileCheck(int num)
 {

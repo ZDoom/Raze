@@ -1027,18 +1027,7 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile("dummytile", tile, script, cmdtokptr))
                 break;
 
-            if ((int16_t) xsiz == 0 || (int16_t) ysiz == 0)
-            {
-                tileDelete(tile);
-                break;
-            }
-
-            if (xsiz > 0 && ysiz > 0)
-            {
-                tileSetSize(tile, xsiz, ysiz);
-				picanm[tile] = {};
-				tileSetupDummy(tile);
-            }
+			tileSetDummy(tile, xsiz, ysiz);
 
             break;
         }
@@ -1057,18 +1046,9 @@ static int32_t defsparser(scriptfile *script)
             if (xsiz < 0 || ysiz < 0)
                 break;  // TODO: message
 
-            if ((int16_t) xsiz == 0 || (int16_t) ysiz == 0)
-            {
-                for (i=tile1; i<=tile2; i++)
-                    tileDelete(i);
-                break;
-            }
-
             for (i=tile1; i<=tile2; i++)
             {
-                tileSetSize(i, xsiz, ysiz);
-				picanm[i] = {};
-				tileSetupDummy(i);
+				tileSetDummy(i, xsiz, ysiz);
             }
 
             break;
@@ -2281,9 +2261,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (xsiz > 0 && ysiz > 0)
                     {
-                        tileSetSize(tile, xsiz, ysiz);
-						picanm[tile] = {};
-						tileSetupDummy(tile);
+                        tileSetDummy(tile, xsiz, ysiz);
                     }
 #ifdef USE_OPENGL
                     xscale = 1.0f / xscale;

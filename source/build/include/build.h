@@ -1034,7 +1034,6 @@ int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, in
 
 void    tileSetupDummy(int32_t tile);
 void    tileSetData(int32_t tile, int32_t tsiz, char const *buffer);
-void    tileDelete(int32_t tile);
 void    tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy);
 int32_t artReadHeader(buildvfs_kfd fil, char const *fn, artheader_t *local);
 int32_t artReadHeaderFromBuffer(uint8_t const *buf, artheader_t *local);
