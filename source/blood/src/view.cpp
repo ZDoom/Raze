@@ -2148,6 +2148,16 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
 
 LOCATION gPrevSpriteLoc[kMaxSprites];
 
+static void viewApplyDefaultPal(uspritetype *pTSprite, sectortype const *pSector)
+{
+    int const nXSector = pSector->extra;
+    XSECTOR const *pXSector = nXSector >= 0 ? &xsector[nXSector] : NULL;
+    if (pXSector && pXSector->color && (VanillaMode() || pSector->floorpal != 0))
+    {
+        pTSprite->pal = pSector->floorpal;
+    }
+}
+
 void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth)
 {
     UNREFERENCED_PARAMETER(cA);
@@ -2375,7 +2385,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     }
                     break;
                 default:
-                    if (pXSector && pXSector->color) pTSprite->pal = pSector->floorpal;
+                    viewApplyDefaultPal(pTSprite, pSector);
                     break;
             }
         }
@@ -2405,10 +2415,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 default:
                     if (pTSprite->type >= kItemKeySkull && pTSprite->type < kItemKeyMax)
                         pTSprite->shade = -128;
-                
-                    if (pXSector && pXSector->color) {
-                        pTSprite->pal = pSector->floorpal;
-                    }
+
+                    viewApplyDefaultPal(pTSprite, pSector);
                     break;
             }
         }
@@ -2464,10 +2472,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     break;
                 }
             }
-            if (pXSector && pXSector->color)
-            {
-                pTSprite->pal = pSector->floorpal;
-            }
+            viewApplyDefaultPal(pTSprite, pSector);
             if (powerupCheck(gView, 25) > 0)
             {
                 pTSprite->shade = -128;
@@ -2555,8 +2560,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             break;
         }
         case kStatThing: {
-            if (pXSector && pXSector->color)
-                pTSprite->pal = pSector->floorpal;
+            viewApplyDefaultPal(pTSprite, pSector);
 
             if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || !gSpriteHit[nXSprite].florhit) {
                 if ((pTSprite->flags & kPhysMove) && getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
