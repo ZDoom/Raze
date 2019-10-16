@@ -425,11 +425,13 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	if (xsiz <= 0 || ysiz <= 0)
 		return -2;
 
-#if 0
+	TileFiles.tiles[tilenum] = tex;
+#pragma message("tileImportFromTexture needs rework!")	// Reminder so that this place isn't forgotten.
+//#if 0
 	// Does this make any difference when the texture gets *properly* inserted into the tile array?
-	if (istexture)
-		hicsetsubsttex(tile, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);
-#endif
+	//if (istexture)
+		hicsetsubsttex(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);	// At the moment this is the only way to load the texture. The texture creation code is not ready yet for downconverting an image.
+//#endif
 	return 0;
 
 }
@@ -573,7 +575,7 @@ bool tileLoad(int tileNum)
 		tex->Create8BitPixels((uint8_t*)tex->CacheHandle);
 	}
 	return true;
-}
+	}
 
 
 //==========================================================================
