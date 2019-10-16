@@ -507,10 +507,6 @@ void FixPalette()
 
 void TintPalette(int r, int g, int b)
 {
-    int r2 = r;
-    int g2 = g;
-    int b2 = b;
-
     palette_t *pPal = curpalettefaded;
 
     if (bCamera) {
@@ -569,7 +565,6 @@ void TintPalette(int r, int g, int b)
     btint += b;
 
     // do not modify r, g or b variables from this point on
-    b2 = b;
     int nVal;
 
     // loc_17F49
@@ -592,20 +587,23 @@ void TintPalette(int r, int g, int b)
 #endif
     for (int i = 0; i < 256; i++)
     {
-        pPal->r += r;
-        if (pPal->r > 255) {
-            pPal->r = 255;
+        nVal = pPal->r + r;
+        if (nVal > 255) {
+            nVal = 255;
         }
+        pPal->r = nVal;
 
-        pPal->g += g;
-        if (pPal->g > 255) {
-            pPal->g = 255;
+        nVal = pPal->g + g;
+        if (nVal > 255) {
+            nVal = 255;
         }
+        pPal->g = nVal;
 
-        pPal->b += b;
-        if (pPal->b > 255) {
-            pPal->b = 255;
+        nVal = pPal->b + b;
+        if (nVal > 255) {
+            nVal = 255;
         }
+        pPal->b = nVal;
 
         pPal++;
     }
