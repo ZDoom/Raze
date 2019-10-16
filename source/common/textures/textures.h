@@ -489,7 +489,7 @@ struct BuildFiles
 	}
 	~BuildFiles()
 	{
-		if (Placeholder) delete Placeholder;
+		CloseAll();
 	}
 
 	void CloseAll();
