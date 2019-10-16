@@ -649,7 +649,7 @@ FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t
 
     *texidx = 0;
 
-	auto texture = FTexture::GetTexture(fn);
+	auto texture = TileFiles.GetTexture(fn);
 
 	if (texture == nullptr)
 	{

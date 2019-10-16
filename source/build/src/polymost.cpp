@@ -524,7 +524,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     if (palookup[pal] == NULL)
         pal = 0;
 
-	auto tex = FTexture::GetTexture(si->filename);
+	auto tex = TileFiles.GetTexture(si->filename);
 	return tex && tex->GetTranslucency();
 }
 
@@ -545,7 +545,7 @@ int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
     if (palookup[pal] == NULL)
         pal = 0;
 
-	auto tex = FTexture::GetTexture(si->filename);
+	auto tex = TileFiles.GetTexture(si->filename);
 	return tex && tex->GetTranslucency();
 }
 

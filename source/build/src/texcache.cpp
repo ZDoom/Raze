@@ -174,7 +174,7 @@ int32_t gloadtile_hi(int32_t dapic, int32_t dapalnum, int32_t facen, hicreplctyp
 		fn = hicr->filename;
 	}
 
-	auto texture = FTexture::GetTexture(fn);
+	auto texture = TileFiles.GetTexture(fn);
 
 	if (texture == nullptr)
 	{

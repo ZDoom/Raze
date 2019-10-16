@@ -202,7 +202,6 @@ public:
 	};
 
 	static FTexture *CreateTexture(const char *name);
-	static FTexture* GetTexture(const char* path);
 
 	virtual ~FTexture ();
 	virtual FImageSource *GetImage() const { return nullptr; }
@@ -480,6 +479,7 @@ struct BuildFiles
 	TDeletingArray<FTexture*> AllMapTiles;	// Same for map tiles;
 	FTexture* tiles[MAXTILES];
 	FTexture* tilesbak[MAXTILES];
+	TMap<FString, FTexture*> textures;
 
 	BuildFiles()
 	{
@@ -489,17 +489,11 @@ struct BuildFiles
 	}
 	~BuildFiles()
 	{
-		delete Placeholder;
+		if (Placeholder) delete Placeholder;
 	}
 
-	void CloseAll()
-	{
-		CloseAllMapArt();
-		ArtFiles.DeleteAndClear();
-		AllTiles.DeleteAndClear();
-		delete Placeholder;
-		Placeholder = nullptr;
-	}
+	void CloseAll();
+	FTexture* GetTexture(const char* path);
 
 	void AddTile(int tilenum, FTexture* tex, bool permap = false);
 

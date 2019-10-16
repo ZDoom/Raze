@@ -127,6 +127,7 @@ FArtTile* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, 
 
 void BuildFiles::AddTile(int tilenum, FTexture* tex, bool permap)
 {
+	assert(AllTiles.Find(tex) == AllTiles.Size() && AllMapTiles.Find(tex) == AllMapTiles.Size());
 	auto& array = permap ? AllMapTiles : AllTiles;
 	array.Push(tex);
 	tiles[tilenum] = tex;
@@ -415,7 +416,7 @@ int32_t tileCRC(int tileNum)
 
 int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istexture)
 {
-	FTexture* tex = FTexture::GetTexture(fn);
+	FTexture* tex = TileFiles.GetTexture(fn);
 	if (tex == nullptr) return -1;
 	tex->alphaThreshold = 255 - alphacut;
 
@@ -423,8 +424,6 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 
 	if (xsiz <= 0 || ysiz <= 0)
 		return -2;
-
-	TileFiles.AddTile(tilenum, tex);
 
 #if 0
 	// Does this make any difference when the texture gets *properly* inserted into the tile array?
@@ -629,6 +628,41 @@ void tileSetAnim(int tile, const picanm_t& anm)
 {
 
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+FTexture* BuildFiles::GetTexture(const char* path)
+{
+	auto res = textures.CheckKey(path);
+	if (res) return *res;
+	auto tex = FTexture::CreateTexture(path);
+	if (tex) textures.Insert(path, tex);
+	return tex;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void BuildFiles::CloseAll()
+{
+	decltype(textures)::Iterator it(textures);
+	decltype(textures)::Pair* pair;
+	while (it.NextPair(pair)) delete pair->Value;
+	textures.Clear();
+	CloseAllMapArt();
+	ArtFiles.DeleteAndClear();
+	AllTiles.DeleteAndClear();
+	if (Placeholder) delete Placeholder;
+	Placeholder = nullptr;
+}
+
 
 TileSiz tilesiz;
 PicAnm picanm;
