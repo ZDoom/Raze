@@ -348,13 +348,12 @@ public:
 
 //==========================================================================
 //
-// A tile with its own pixel buffer
+// A non-existent tile
 //
 //==========================================================================
 
 class FDummyTile : public FTileTexture
 {
-	uint8_t pixel = 0;
 public:
 	FDummyTile(int width, int height)
 	{
@@ -364,7 +363,7 @@ public:
 
 	const uint8_t* Get8BitPixels() override
 	{
-		return &pixel;	// do not return null.
+		return NULL;
 	}
 };
 
@@ -558,8 +557,40 @@ inline uint8_t* tileData(int num)
 	return tex->GetWritableBuffer();
 }
 
+// Some hacks to allow accessing the no lpnger existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
+struct TileSiz
+{
+	const vec2_16_t &operator[](size_t index)
+	{
+		assert(index < MAXTILES);
+		return TileFiles.tiles[index]->GetSize();
+	}
+};
+extern TileSiz tilesiz;
+
+struct PicAnm
+{
+	picanm_t& operator[](size_t index)
+	{
+		assert(index < MAXTILES);
+		return TileFiles.tiles[index]->GetAnim();
+	}
+};
+extern PicAnm picanm;
+
+struct PicSiz
+{
+	uint8_t operator[](size_t index)
+	{
+		assert(index < MAXTILES);
+		return TileFiles.tiles[index]->GetPicSize();
+	}
+};
+extern PicSiz picsiz;
+
 inline rottile_t& RotTile(int tile)
 {
+	assert(tile < MAXTILES);
 	return TileFiles.tiles[tile]->GetRotTile();
 }
 #endif

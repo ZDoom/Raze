@@ -795,10 +795,6 @@ EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
-extern const vec2_16_t * const tilesiz;
-extern const uint8_t * const picsiz;
-EXTERN uint8_t walock[MAXTILES];
-
 extern const char pow2char_[];
 static CONSTEXPR const int32_t pow2long[32] =
 {
@@ -811,9 +807,6 @@ static CONSTEXPR const int32_t pow2long[32] =
     16777216, 33554432, 67108864, 134217728,
     268435456, 536870912, 1073741824, 2147483647
 };
-
-EXTERN picanm_t picanm[MAXTILES];
-EXTERN rottile_t rottile[MAXTILES];
 
 EXTERN int32_t windowpos, windowx, windowy;
 
@@ -838,12 +831,6 @@ EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char editorcolors[256];
-
-EXTERN char faketile[(MAXTILES+7)>>3];
-EXTERN char *faketiledata[MAXTILES];
-
-EXTERN char spritecol2d[MAXTILES][2];
-EXTERN uint8_t tilecols[MAXTILES];
 
 EXTERN char editwall[(MAXWALLS+7)>>3];
 

@@ -16,16 +16,8 @@
 
 #include "vfs.h"
 
-static int32_t tilefileoffs[MAXTILES];
 
-vec2_16_t tilesizearray[MAXTILES];
-uint8_t picsizearray[MAXTILES];
-// These may only be manipulated through a function interface so that the backing texture objects can be adjusted or replaced.
-const vec2_16_t* const tilesiz = tilesizearray;
-const uint8_t* const picsiz = picsizearray;
-static const uint8_t *tileptr[MAXTILES];  // points to tile data -. may be constant
-static uint8_t* tiledata[MAXTILES];  // points to modifiable tile data - only set by tileCreate!
-
+//
 // copytilepiece
 //
 void tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz,

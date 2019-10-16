@@ -1491,8 +1491,8 @@ void Gv_RefreshPointers(void)
 # endif
 
     aGameArrays[Gv_GetArrayIndex("gotpic")].pValues = (intptr_t *)&gotpic[0];
-    aGameArrays[Gv_GetArrayIndex("tilesizx")].pValues = (intptr_t *)&tilesiz[0].x;
-    aGameArrays[Gv_GetArrayIndex("tilesizy")].pValues = (intptr_t *)&tilesiz[0].y;
+    aGameArrays[Gv_GetArrayIndex("tilesizx")].pValues = (intptr_t *)tileWidth;
+    aGameArrays[Gv_GetArrayIndex("tilesizy")].pValues = (intptr_t *)tileHeight;
 }
 #endif
 

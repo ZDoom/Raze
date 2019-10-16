@@ -122,7 +122,6 @@ extern int16_t searchbottomwall, searchisbottom;
 
 extern char inpreparemirror;
 
-extern const uint8_t * const picsiz;
 extern int16_t sectorborder[256];
 extern int32_t qsetmode;
 extern int32_t hitallsprites;
@@ -245,8 +244,8 @@ template <typename T> static FORCE_INLINE void tileUpdatePicnum(T * const tilept
     if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
         tile += animateoffs(tile, obj);
 
-    if (((obj & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && rottile[tile].newtile != -1)
-        tile = rottile[tile].newtile;
+    if (((obj & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && RotTile(tile).newtile != -1)
+        tile = RotTile(tile).newtile;
 }
 
 #endif	/* ENGINE_PRIV_H */

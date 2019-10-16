@@ -8463,7 +8463,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
                 RotTile(tile.newtile).owner = w.picnum+animateoffs(w.picnum,16384);
 
-                auto &siz  = tilesiz[w.picnum+animateoffs(w.picnum,16384)];
             }
         }
     }

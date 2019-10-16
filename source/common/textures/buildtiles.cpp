@@ -333,26 +333,12 @@ FTexture* BuildFiles::ValidateCustomTile(int tilenum, int type)
 //  global interface
 //
 //==========================================================================
-extern vec2_16_t tilesizearray[MAXTILES];
-extern uint8_t picsizearray[MAXTILES];
 
 int32_t BuildFiles::artLoadFiles(const char* filename)
 {
 	TileFiles.LoadArtSet(filename);
-	memset(gotpic, 0, MAXTILES);
+	memset(gotpic, 0, sizeof(gotpic));
 	cacheInitBuffer(MAXCACHE1DSIZE);
-
-	for (unsigned i = 0; i < MAXTILES; i++)
-	{
-		auto tex = TileFiles.tiles[i];
-		assert(tex);
-		picanm[i] = tex->PicAnim;
-		tilesizearray[i] = tex->GetSize();
-		picsizearray[i] = tex->PicSize;
-		rottile[i] = { -1, -1 };
-	}
-
-
 	return 0;
 }
 
@@ -643,3 +629,7 @@ void tileSetAnim(int tile, const picanm_t& anm)
 {
 
 }
+
+TileSiz tilesiz;
+PicAnm picanm;
+PicSiz picsiz;
