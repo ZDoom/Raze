@@ -20,6 +20,7 @@
 //--------------------------------------------------------------------------
 //
 
+#include <algorithm>
 #include "glad/glad.h"
 #include "glbackend.h"
 #include "bitmap.h"

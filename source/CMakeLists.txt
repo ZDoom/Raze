@@ -23,6 +23,10 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	endif()
 endif()
 
+if (MSVC)
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /J" )
+endif()
+
 option( DYN_FLUIDSYNTH "Dynamically load fluidsynth" ON )
 option( DYN_OPENAL "Dynamically load OpenAL" ON )
 option( DYN_SNDFILE "Dynamically load libsndfile" ON )
@@ -541,10 +545,6 @@ set( PLAT_WIN32_SOURCES
 	glad/src/glad_wgl.c
 	platform/win32/winbits.cpp
 	
-	duke3d/src/startwin.game.cpp	
-	rr/src/startwin.game.cpp	
-	blood/src/startwin.game.cpp	
-	sw/src/startwin.game.cpp
 	# This needs a rework anyway in order to consolidate the startup dialogs so don't bother to sort in properly.
 	#startgtk.game.cpp
 	#startosx.game.mm
@@ -667,7 +667,6 @@ add_definitions(-DOPNMIDI_DISABLE_GX_EMULATOR)
 file( GLOB HEADER_FILES
 	audiolib/include/*.h
 	audiolib/src/*.h
-	blood/src/*.h
 	build/include/*.h
 	glad/include/glad/*.h
 	glad/include/Khr/*.h
@@ -681,9 +680,6 @@ file( GLOB HEADER_FILES
 	common/utility/*.h
 
 	build/src/*.h
-	duke3d/src/*.h
-	rr/src/*.h
-	#sw/src/*.h Shadow Warrior does not work yet.
 	thirdparty/include/*.h
 	thirdparty/include/*.hpp
 	common/textures/*.h
@@ -696,8 +692,6 @@ file( GLOB HEADER_FILES
 set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
 	build/src/sdlkeytrans.cpp
-	duke3d/src/gamestructures.cpp
-	rr/src/gamestructures.cpp
 		#sc_man_scanner.h
 	#utility/sc_man_scanner.re
 )
@@ -830,213 +824,6 @@ set (PCH_SOURCES
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
 	
-	duke3d/src/actors.cpp
-	duke3d/src/anim.cpp
-	duke3d/src/cheats.cpp
-	duke3d/src/cmdline.cpp
-	duke3d/src/common.cpp
-	duke3d/src/config.cpp
-	duke3d/src/demo.cpp
-	duke3d/src/game.cpp
-	duke3d/src/gamedef.cpp
-	duke3d/src/gameexec.cpp
-	duke3d/src/gamevars.cpp
-	duke3d/src/global.cpp
-	duke3d/src/grpscan.cpp
-	duke3d/src/input.cpp
-	duke3d/src/menus.cpp
-	duke3d/src/namesdyn.cpp
-	duke3d/src/network.cpp
-	duke3d/src/osdcmds.cpp
-	duke3d/src/osdfuncs.cpp
-	duke3d/src/player.cpp
-	duke3d/src/premap.cpp
-	duke3d/src/rts.cpp
-	duke3d/src/savegame.cpp
-	duke3d/src/sbar.cpp
-	duke3d/src/screens.cpp
-	duke3d/src/screentext.cpp
-	duke3d/src/sector.cpp
-	duke3d/src/sounds.cpp
-	duke3d/src/soundsdyn.cpp
-	
-	rr/src/actors.cpp
-	rr/src/anim.cpp
-	rr/src/cheats.cpp
-	rr/src/cmdline.cpp
-	rr/src/common.cpp
-	rr/src/config.cpp
-	rr/src/demo.cpp
-	rr/src/game.cpp
-	rr/src/gamedef.cpp
-	rr/src/gameexec.cpp
-	rr/src/gamevars.cpp
-	rr/src/global.cpp
-	rr/src/grpscan.cpp
-	rr/src/input.cpp
-	rr/src/menus.cpp
-	rr/src/namesdyn.cpp
-	rr/src/net.cpp
-	rr/src/osdcmds.cpp
-	rr/src/osdfuncs.cpp
-	rr/src/player.cpp
-	rr/src/premap.cpp
-	rr/src/rts.cpp
-	rr/src/savegame.cpp
-	rr/src/sbar.cpp
-	rr/src/screens.cpp
-	rr/src/screentext.cpp
-	rr/src/sector.cpp
-	rr/src/sounds.cpp
-	rr/src/soundsdyn.cpp
-
-	blood/src/actor.cpp
-	blood/src/ai.cpp
-	blood/src/aibat.cpp
-	blood/src/aibeast.cpp
-	blood/src/aiboneel.cpp
-	blood/src/aiburn.cpp
-	blood/src/aicaleb.cpp
-	blood/src/aicerber.cpp
-	blood/src/aicult.cpp
-	blood/src/aigarg.cpp
-	blood/src/aighost.cpp
-	blood/src/aigilbst.cpp
-	blood/src/aihand.cpp
-	blood/src/aihound.cpp
-	blood/src/aiinnoc.cpp
-	blood/src/aipod.cpp
-	blood/src/airat.cpp
-	blood/src/aispid.cpp
-	blood/src/aitchern.cpp
-	blood/src/aiunicult.cpp
-	blood/src/aizomba.cpp
-	blood/src/aizombf.cpp
-	blood/src/asound.cpp
-	blood/src/barf.cpp
-	blood/src/blood.cpp
-	blood/src/callback.cpp
-	blood/src/choke.cpp
-	blood/src/common.cpp
-	blood/src/config.cpp
-	blood/src/controls.cpp
-	blood/src/credits.cpp
-	blood/src/db.cpp
-	blood/src/demo.cpp
-	blood/src/dude.cpp
-	blood/src/endgame.cpp
-	blood/src/eventq.cpp
-	blood/src/fire.cpp
-	blood/src/fx.cpp
-	blood/src/gamemenu.cpp
-	blood/src/gameutil.cpp
-	blood/src/getopt.cpp
-	blood/src/gib.cpp
-	blood/src/globals.cpp
-	blood/src/inifile.cpp
-	blood/src/iob.cpp
-	blood/src/levels.cpp
-	blood/src/loadsave.cpp
-	blood/src/map2d.cpp
-	blood/src/menu.cpp
-	blood/src/messages.cpp
-	blood/src/mirrors.cpp
-	blood/src/misc.cpp
-	blood/src/network.cpp
-	blood/src/osdcmd.cpp
-	blood/src/player.cpp
-	blood/src/qav.cpp
-	blood/src/qheap.cpp
-	blood/src/replace.cpp
-	blood/src/resource.cpp
-	blood/src/screen.cpp
-	blood/src/sectorfx.cpp
-	blood/src/seq.cpp
-	blood/src/sfx.cpp
-	blood/src/sound.cpp
-	blood/src/tile.cpp
-	blood/src/trig.cpp
-	blood/src/triggers.cpp
-	blood/src/view.cpp
-	blood/src/warp.cpp
-	blood/src/weapon.cpp
-	
-	sw/src/actor.cpp
-	sw/src/ai.cpp
-	sw/src/anim.cpp
-	#sw/src/bldscript.cpp
-	sw/src/border.cpp
-	sw/src/break.cpp
-	#sw/src/brooms.cpp
-	sw/src/bunny.cpp
-	sw/src/cache.cpp
-	sw/src/cheats.cpp
-	sw/src/colormap.cpp
-	sw/src/common.cpp
-	sw/src/config.cpp
-	sw/src/console.cpp
-	sw/src/coolg.cpp
-	sw/src/coolie.cpp
-	sw/src/copysect.cpp
-	sw/src/demo.cpp
-	sw/src/draw.cpp
-	sw/src/eel.cpp
-	sw/src/game.cpp
-	sw/src/girlninj.cpp
-	sw/src/goro.cpp
-	sw/src/grpscan.cpp
-	sw/src/hornet.cpp
-	sw/src/interp.cpp
-	sw/src/interpsh.cpp
-	sw/src/inv.cpp
-	#sw/src/jbhlp.cpp
-	sw/src/jplayer.cpp
-	sw/src/jsector.cpp
-	sw/src/jweapon.cpp
-	sw/src/lava.cpp
-	sw/src/light.cpp
-	sw/src/mclip.cpp
-	sw/src/mdastr.cpp
-	sw/src/menus.cpp
-	sw/src/miscactr.cpp
-	sw/src/morph.cpp
-	sw/src/network.cpp
-	sw/src/ninja.cpp
-	sw/src/panel.cpp
-	sw/src/player.cpp
-	sw/src/predict.cpp
-	sw/src/quake.cpp
-	sw/src/ripper.cpp
-	sw/src/ripper2.cpp
-	sw/src/rooms.cpp
-	sw/src/rotator.cpp
-	sw/src/rts.cpp
-	sw/src/save.cpp
-	sw/src/saveable.cpp
-	sw/src/scrip2.cpp
-	sw/src/sector.cpp
-	sw/src/serp.cpp
-	sw/src/setup.cpp
-	sw/src/skel.cpp
-	sw/src/skull.cpp
-	sw/src/slidor.cpp
-	sw/src/sounds.cpp
-	sw/src/spike.cpp
-	sw/src/sprite.cpp
-	sw/src/sumo.cpp
-	sw/src/swconfig.cpp
-	sw/src/sync.cpp
-	sw/src/text.cpp
-	sw/src/track.cpp
-	sw/src/vator.cpp
-	sw/src/vis.cpp
-	sw/src/wallmove.cpp
-	sw/src/warp.cpp
-	sw/src/weapon.cpp
-	sw/src/zilla.cpp
-	sw/src/zombie.cpp
-	
-
 	common/utility/m_argv.cpp
 	common/utility/files.cpp
 	common/utility/files_decompress.cpp
@@ -1071,7 +858,6 @@ if( MSVC )
 	enable_precompiled_headers( g_pch.h PCH_SOURCES )
 	# The original Build code was written with unsigned chars and unfortunately they still haven't been eliminated entirely.
 	# All other code should stay with signed chars. What a mess... :(
-	set_source_files_properties( ${PCH_SOURCES} PROPERTIES COMPILE_FLAGS "/J" )
 else()
 	# Temporary solution for compilers other than MSVC
 	set_source_files_properties( ${PCH_SOURCES} PROPERTIES COMPILE_FLAGS "-include g_pch.h" )
@@ -1107,7 +893,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( demolition ${DEMOLITION_LIBS} enet gdtoa dumb lzma )
+target_link_libraries( demolition ${DEMOLITION_LIBS} enet gdtoa dumb lzma duke3d blood rr sw )
 
 include_directories(
     build/include
@@ -1248,10 +1034,3 @@ source_group("OpenGL Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/g
 source_group("Build Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/.+")
 source_group("Build Engine\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/include/.+")
 source_group("Build Engine\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/src/.+")
-#source_group("Game Frontends\\EDuke32\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/duke3d/.h")
-source_group("Game Frontends\\EDuke32\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/duke3d/.+")
-#source_group("Game Frontends\\RedNukem\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/rr/.h")
-source_group("Game Frontends\\RedNukem\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/rr/.+")
-#source_group("Game Frontends\\NBlood\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/blood/.h")
-source_group("Game Frontends\\NBlood\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/blood/.+")
-source_group("Game Frontends\\Shadow Warrior\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/sw/.+")
