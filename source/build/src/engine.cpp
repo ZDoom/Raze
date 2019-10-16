@@ -10377,6 +10377,9 @@ static void videoAllocateBuffers(void)
 void (*PolymostProcessVoxels_Callback)(void) = NULL;
 static void PolymostProcessVoxels(void)
 {
+	if (PolymostProcessVoxels_Callback)
+		PolymostProcessVoxels_Callback();
+
     if (g_haveVoxels != 1)
         return;
 

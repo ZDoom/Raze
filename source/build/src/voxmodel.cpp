@@ -62,9 +62,9 @@ FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, in
         {
             const int32_t ii = palookup[dapal][pic[i].a];
 
-            pic2[i].b = curpalette[ii].b;
+            pic2[i].r = curpalette[ii].b;
             pic2[i].g = curpalette[ii].g;
-            pic2[i].r = curpalette[ii].r;
+            pic2[i].b = curpalette[ii].r;
             pic2[i].a = 255;
         }
     }
