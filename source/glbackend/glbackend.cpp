@@ -201,7 +201,68 @@ std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
 	return std::make_pair((size_t)0, Buffer.data());
 }
 
-static GLint primtypes[] = 
+void GLInstance::ApplyTextureProps()
+{
+	
+	VSMatrix texmat;
+	// texture scale by parkar request
+	if (pth->hicr && !drawingskybox && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
+	{
+		texmat.loadIdentity();
+		texmat.scale(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
+		GLInterface.SetMatrix(Matrix_Texture, &texmat);
+	}
+
+	    // detail texture
+    if (r_detailmapping)
+    {
+        pthtyp *detailpth = NULL;
+
+        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL, 1) &&
+            (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & ~DAMETH_MASKPROPS)) &&
+            detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
+        {
+			GLInterface.UseDetailMapping(true);
+            polymost_setupdetailtexture(3, detailpth->glpic);
+
+			texmat.loadIdentity();
+
+            if (pth->hicr && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
+                texmat.scale(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
+
+            if ((detailpth->hicr->scale.x != 1.0f) || (detailpth->hicr->scale.y != 1.0f))
+                texmat.scale(detailpth->hicr->scale.x, detailpth->hicr->scale.y, 1.0f);
+
+			GLInterface.SetMatrix(Matrix_Detail, &texmat);
+        }
+    }
+
+    // glow texture
+    if (r_glowmapping)
+    {
+        pthtyp *glowpth = NULL;
+
+        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL, 1) &&
+            (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, (method & ~DAMETH_MASKPROPS) | DAMETH_MASK)) &&
+            glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
+        {
+			GLInterface.UseGlowMapping(true);
+            polymost_setupglowtexture(4, glowpth->glpic);
+        }
+    }
+	return true; // true if the matrices were changed, false otherwise
+}
+
+void GLInstance::RestoreTextureProps()
+{
+	// todo: reset everything that's needed to ensure proper functionality
+	VSMatrix identity(0);
+	GLInterface.SetMatrix(Matrix_Texture, &identity);
+	GLInterface.SetMatrix(Matrix_Detail, &identity);
+}
+
+
+static GLint primtypes[] =
 {
 	GL_TRIANGLES,
 	GL_TRIANGLE_STRIP,
@@ -213,9 +274,11 @@ static GLint primtypes[] =
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
 	// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
+	bool applied = false;
 
 	if (activeShader == polymostShader)
 	{
+		applied = ApplyTextureProps();
 		renderState.UsePalette = texv && texv->isIndexed();
 		renderState.Apply(polymostShader);
 	}
@@ -227,6 +290,7 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 		glVertexAttrib3f(0, p->x, p->y, p->z);
 	}
 	glEnd();
+	if (applied) RestoreTextureProps();
 }
 
 int GLInstance::GetTextureID()

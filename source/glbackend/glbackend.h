@@ -277,6 +277,7 @@ public:
 	void SetSurfaceShader();
 	void SetVPXShader();
 	void SetPalette(int palette);
+	void ApplyTextureProps();
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
 

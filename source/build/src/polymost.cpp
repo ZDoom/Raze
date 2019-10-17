@@ -717,57 +717,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 		polymost_bindPth(pth, mSampler);
 
     }
-
-	VSMatrix texmat;
-    // texture scale by parkar request
-    if (pth->hicr && !drawingskybox && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
-    {
-		texmat.loadIdentity();
-        texmat.scale(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
-		GLInterface.SetMatrix(Matrix_Texture, &texmat);
-    }
-
-    if (videoGetRenderMode() == REND_POLYMOST)
+   if (videoGetRenderMode() == REND_POLYMOST)
     {
         polymost_updatePalette();
-    }
-
-    // detail texture
-    if (r_detailmapping)
-    {
-        pthtyp *detailpth = NULL;
-
-        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL, 1) &&
-            (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & ~DAMETH_MASKPROPS)) &&
-            detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
-        {
-			GLInterface.UseDetailMapping(true);
-            polymost_setupdetailtexture(3, detailpth->glpic);
-
-			texmat.loadIdentity();
-
-            if (pth->hicr && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
-                texmat.scale(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
-
-            if ((detailpth->hicr->scale.x != 1.0f) || (detailpth->hicr->scale.y != 1.0f))
-                texmat.scale(detailpth->hicr->scale.x, detailpth->hicr->scale.y, 1.0f);
-
-			GLInterface.SetMatrix(Matrix_Detail, &texmat);
-        }
-    }
-
-    // glow texture
-    if (r_glowmapping)
-    {
-        pthtyp *glowpth = NULL;
-
-        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL, 1) &&
-            (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, (method & ~DAMETH_MASKPROPS) | DAMETH_MASK)) &&
-            glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
-        {
-			GLInterface.UseGlowMapping(true);
-            polymost_setupglowtexture(4, glowpth->glpic);
-        }
     }
 
     if ((method & DAMETH_WALL) != 0)
@@ -871,13 +823,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 	GLInterface.UseDetailMapping(false);
 	GLInterface.UseGlowMapping(false);
 	GLInterface.SetNpotEmulation(false, 1.f, 0.f);
-
-    if (pth->hicr)
-    {
-		VSMatrix identity(0);
-		GLInterface.SetMatrix(Matrix_Texture, &identity);
-		GLInterface.SetMatrix(Matrix_Detail, &identity);
-    }
 
 	if (skyzbufferhack && skyzbufferhack_pass == 0)
     {
