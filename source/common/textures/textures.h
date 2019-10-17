@@ -43,6 +43,7 @@
 
 class FImageSource;
 class FTexture;
+class FHardwareTexture;
 
 // picanm[].sf:
 // |bit(1<<7)
@@ -249,6 +250,16 @@ public:
 		Hightiles.Clear();
 	}
 
+	void SetHardwareTexture(int palid, FHardwareTexture* htex)
+	{
+		HardwareTextures.Insert(palid, htex);
+	}
+	FHardwareTexture* GetHardwareTexture(int palid)
+	{
+		auto k = HardwareTextures.CheckKey(palid);
+		return k ? *k : nullptr;
+	}
+
 	HightileReplacement * FindReplacement(int palnum, bool skybox = false);
 	
 	int alphaThreshold = 128;
@@ -299,6 +310,8 @@ protected:
 	intptr_t CacheHandle = 0;	// For tiles that do not have a static image but get accessed by the software renderer.
 	uint8_t CacheLock = 0;
 	TArray<HightileReplacement> Hightiles;
+	// Don't waste too much effort on efficient storage here. Polymost performs so many calculations on a single draw call that the minor map lookup hardly matters.
+	TMap<int, FHardwareTexture*> HardwareTextures;	// Note: These must be deleted by the backend. When the texture manager is taken down it may already be too late to delete them.
 
 	FTexture (const char *name = NULL);
 };

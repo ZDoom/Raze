@@ -649,7 +649,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 	if (drawpoly_srepeat && drawpoly_trepeat) sampleroverride = SamplerRepeat;
 	else if (drawpoly_srepeat) sampleroverride = SamplerClampY;
 	else if (drawpoly_trepeat) sampleroverride = SamplerClampX;
-	else sampleroverride = -1;
+	else sampleroverride = SamplerClampXY;
 
 
 	bool success = GLInterface.SetTexture(TileFiles.tiles[globalpicnum], globalpal, method, sampleroverride);

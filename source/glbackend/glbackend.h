@@ -62,6 +62,7 @@ class PaletteManager
 	// All data is being stored in contiguous blocks that can be used as uniform buffers as-is.
 	TArray<PaletteData> palettes;
 	TArray<PalswapData> palswaps;
+	TMap<int, int> swappedpalmap;
 	FHardwareTexture* palswapTexture = nullptr;
 	GLInstance* const inst;
 
@@ -81,6 +82,7 @@ public:
 	void BindPalette(int index);
 	void BindPalswap(int index);
 	int ActivePalswap() const { return lastsindex; }
+	int LookupPalette(int palette, int palswap);
 };
 
 
@@ -186,6 +188,14 @@ enum EWinding
 	Winding_CCW,
 	Winding_CW
 };
+
+enum ETexType
+{
+	TT_INDEXED,
+	TT_TRUECOLOR,
+	TT_HICREPLACE
+};
+
 class GLInstance
 {
 	enum
@@ -202,6 +212,8 @@ class GLInstance
 	int lastPalswapIndex = -1;
 	FHardwareTexture* texv;
 	FTexture* currentTexture = nullptr;
+	int TextureType;
+	int MatrixChange = 0;
 
 
 	VSMatrix matrices[NUMMATRICES];
@@ -279,7 +291,7 @@ public:
 	void SetSurfaceShader();
 	void SetVPXShader();
 	void SetPalette(int palette);
-	bool ApplyTextureProps();
+	bool ApplyTextureProps(FTexture *tex, int pal);
 	void RestoreTextureProps();
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
@@ -365,6 +377,8 @@ public:
 		// not yet implemented - only relevant for hires replacements.
 	}
 	
+	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
+	FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
 	bool SetTexture(FTexture* tex, int palette, int method, int sampleroverride = -1);
 };
 

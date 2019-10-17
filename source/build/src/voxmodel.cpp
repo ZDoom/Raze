@@ -1188,7 +1188,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 	}
 	VSMatrix identity(0);
 	GLInterface.SetMatrix(Matrix_ModelView, &identity);
-    return 1;
+	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
+	return 1;
 }
 #endif
 

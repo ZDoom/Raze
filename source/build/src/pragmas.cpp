@@ -129,45 +129,7 @@ void copybufbyte(const void *s, void *d, int32_t c)
 // *and* x86_64, and the C version otherwise.
 // XXX: we don't honor NOASM in the x86_64 case.
 
-#if defined(__GNUC__) && defined(__x86_64__)
-// NOTE: Almost CODEDUP from x86 GCC assembly version, except that
-// - %%esi -> %%rsi
-// - %%edi -> %%rdi
-// - (dec,inc,sub,add)l suffix removed where necessary
-void copybufreverse(const void *S, void *D, int32_t c)
-{
-    __asm__ __volatile__(
-        "shrl $1, %%ecx\n\t"
-        "jnc 0f\n\t"		// jnc skipit1
-        "movb (%%rsi), %%al\n\t"
-        "dec %%rsi\n\t"
-        "movb %%al, (%%rdi)\n\t"
-        "inc %%rdi\n\t"
-        "0:\n\t"		// skipit1:
-        "shrl $1, %%ecx\n\t"
-        "jnc 1f\n\t"		// jnc skipit2
-        "movw -1(%%rsi), %%ax\n\t"
-        "sub $2, %%rsi\n\t"
-        "rorw $8, %%ax\n\t"
-        "movw %%ax, (%%rdi)\n\t"
-        "add $2, %%rdi\n\t"
-        "1:\n\t"		// skipit2
-        "testl %%ecx, %%ecx\n\t"
-        "jz 3f\n\t"		// jz endloop
-        "2:\n\t"		// begloop
-        "movl -3(%%rsi), %%eax\n\t"
-        "sub $4, %%rsi\n\t"
-        "bswapl %%eax\n\t"
-        "movl %%eax, (%%rdi)\n\t"
-        "add $4, %%rdi\n\t"
-        "decl %%ecx\n\t"
-        "jnz 2b\n\t"		// jnz begloop
-        "3:"
-    : "+S"(S), "+D"(D), "+c"(c) :
-            : "eax", "memory", "cc"
-        );
-}
-#elif !defined pragmas_have_copybufreverse
+#if !defined pragmas_have_copybufreverse
 void copybufreverse(const void *s, void *d, int32_t c)
 {
     auto src = (const char *)s;

@@ -39,6 +39,7 @@
 
 #include "baselayer.h"
 #include "resourcefile.h"
+#include "imagehelpers.h"
 
 //===========================================================================
 //
@@ -168,6 +169,10 @@ void PaletteManager::SetPalette(int index, const uint8_t* data, bool transient)
 		return;
 	}
 	palettemap[index] = FindPalette(data);
+	if (index == 0)
+	{
+		ImageHelpers::SetPalette((PalEntry*)data);	// Palette 0 is always the reference for downconverting images
+	}
 }
 
 //===========================================================================
@@ -251,3 +256,24 @@ void PaletteManager::BindPalswap(int index)
 
 }
 
+
+int PaletteManager::LookupPalette(int palette, int palswap)
+{
+	int realpal = palettemap[palette];
+	int realswap = palswapmap[palswap];
+	int combined = realpal * 0x10000 + realswap;
+	int* combinedindex = swappedpalmap.CheckKey(combined);
+	if (combinedindex) return *combinedindex;
+	
+	PaletteData* paldata = &palettes[realpal];
+	PalswapData* swapdata = &palswaps[realswap];
+	PalEntry swappedpalette[256];
+	for (int i = 0; i < 256; i++)
+	{
+		int swapi = swapdata->lookup[i];
+		swappedpalette[i] = paldata->colors[swapi];
+	}
+	int palid = FindPalette((uint8_t*)swappedpalette);
+	swappedpalmap.Insert(combined, palid);
+	return palid;
+}

@@ -1,4 +1,3 @@
-#ifdef USE_OPENGL
 
 #include "baselayer.h"
 #include "build.h"
@@ -14,6 +13,9 @@
 #include "textures.h"
 #include "bitmap.h"
 #include "../../glbackend/glbackend.h"
+
+extern int r_detailmapping, r_glowmapping, usehightile, r_useindexedcolortextures;
+extern int fixpalette, fixpalswap;
 
 #if 0
 
@@ -98,18 +100,6 @@ static void polymost_setupsampler(FHardwareTexture* tex, const int32_t dameth, i
 	}
 }
 
-
-template<class T>
-void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
-{
-	for (int i = 0; i < x; ++i)
-	{
-		for (int j = 0; j < y; ++j)
-		{
-			dst[i * y + j] = src[i + j * srcpitch];
-		}
-	}
-}
 
 void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
 {
@@ -229,77 +219,8 @@ int32_t gloadtile_hi(int32_t dapic, int32_t dapalnum, int32_t facen, hicreplctyp
 
 globaltexcache texcache;
 
-static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, int32_t const dashade, int32_t dameth)
-{
-    const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
-    pthtyp *pth;
-    int32_t tintpalnum = -1;
-    int32_t searchpalnum = dapalnum;
-    polytintflags_t const tintflags = hictinting[dapalnum].f;
 
-    if (tintflags & (HICTINT_USEONART))
-    {
-        tintpalnum = dapalnum;
-        if (!(tintflags & HICTINT_APPLYOVERPALSWAP))
-            searchpalnum = 0;
-    }
 
-    // load from art
-    for (pth=texcache.list[j]; pth; pth=pth->next)
-		if (pth->picnum == dapicnum && ((pth->flags & (PTH_INDEXED|PTH_HIGHTILE)) == PTH_INDEXED))
-		{
-			if (pth->flags & PTH_INVALIDATED)
-			{
-				pth->flags &= ~PTH_INVALIDATED;
-				gloadtile_art(dapicnum, dameth, pth, 0);
-				pth->palnum = dapalnum;
-			}
-
-			return pth;
-		}
-
-    pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
-
-	gloadtile_art(dapicnum, dameth, pth, 1);
-
-    pth->palnum = dapalnum;
-    pth->next = texcache.list[j];
-    texcache.list[j] = pth;
-
-    return pth;
-}
-
-#if 0
-pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int32_t dameth)
-{
-    const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
-    int32_t i;
-
-    for (i = 0; i <= (GLTEXCACHEADSIZ - 1); i++)
-    {
-        const pthtyp *pth2;
-
-        for (pth2=texcache.list[i]; pth2; pth2=pth2->next)
-        {
-            if (pth2->hicr && pth2->hicr->filename && si->filename && filnamcmp(pth2->hicr->filename, si->filename) == 0)
-            {
-                Bmemcpy(pth, pth2, sizeof(pthtyp));
-                pth->picnum = dapicnum;
-                pth->flags = PTH_HIGHTILE | (drawingskybox>0)*PTH_SKYBOX;
-                if (pth2->flags & PTH_HASALPHA)
-                    pth->flags |= PTH_HASALPHA;
-                pth->hicr = si;
-
-                pth->next = texcache.list[j];
-                texcache.list[j] = pth;
-
-                return pth;
-            }
-        }
-    }
-    return NULL;
-}
-#endif
 
 // <dashade>: ignored if not in Polymost+r_usetileshades
 pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
@@ -379,94 +300,171 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
 
 }
 
-extern int r_detailmapping, r_glowmapping, usehightile;
+#endif
 
-bool GLInstance::ApplyTextureProps()
+
+template<class T>
+void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 {
-	int pal = palmanager.ActivePalswap();
-	if (currentTexture == nullptr) return false;
-	auto rep = currentTexture->FindReplacement(pal);
-	VSMatrix texmat;
-	bool changed = false;
-
-	// texture scale 
-	if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
+	for (int i = 0; i < x; ++i)
 	{
-		texmat.loadIdentity();
-		texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
-		GLInterface.SetMatrix(Matrix_Texture, &texmat);
-	}
-
-	if (r_detailmapping)
-	{
-		auto detailrep = currentTexture->FindReplacement(DETAILPAL);
-		if (detailrep)
+		for (int j = 0; j < y; ++j)
 		{
-			UseDetailMapping(true);
-			//BindTexture(3, detailrep->faces[0], SamplerRepeat);
-
-			texmat.loadIdentity();
-			bool scaled = false;
-
-			if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
-			{
-				texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
-				scaled = true;
-			}
-
-			if ((detailrep->scale.x != 1.0f) || (detailrep->scale.y != 1.0f))
-			{
-				texmat.scale(detailrep->scale.x, detailrep->scale.y, 1.0f);
-				scaled = true;
-			}
-
-			if (scaled) GLInterface.SetMatrix(Matrix_Detail, &texmat);
-			changed |= scaled;
+			dst[i * y + j] = src[i + j * srcpitch];
 		}
 	}
-
-	// glow texture
-	if (r_glowmapping)
-	{
-		auto glowrep = currentTexture->FindReplacement(GLOWPAL);
-		if (glowrep)
-		{
-			UseGlowMapping(true);
-			//BindTexture(4, glowrep->faces[0], SamplerRepeat);
-		}
-	}
-
-	auto brightrep = currentTexture->FindReplacement(BRIGHTPAL);
-	if (brightrep)
-	{
-		//UseGlowMapping(true);
-		//BindTexture(5, glowrep->faces[0], SamplerRepeat);
-	}
-
-	return false; // true if the matrices were changed, false otherwise
 }
 
 
+//===========================================================================
+// 
+//	Create an indexed version of the requested texture
+//
+//===========================================================================
 
-void GLInstance::SetTexture(FTexture* tex, int palette, int method)
+FHardwareTexture* CreateIndexedTexture(FTexture* tex)
 {
+	auto siz = tex->GetSize();
+	bool npoty = false;
 
-	GLInterface.SetPalswap(fixpalswap >= 1 ? fixpalswap - 1 : globalpal);
-	GLInterface.SetPalette(fixpalette >= 1 ? fixpalette - 1 : curbasepal);
+	const uint8_t* p = tex->Get8BitPixels();
+	TArray<uint8_t> store(siz.x * siz.y, true);
+	if (!p)
+	{
+		tex->Create8BitPixels(store.Data());
+		p = store.Data();
+	}
 
+	auto glpic = GLInterface.NewTexture();
+	glpic->CreateTexture(siz.x, siz.y, true, false);
 
-	pthtyp* pth = texcache_fetch(globalpicnum, globalpal, getpalookup(1, globalshade), method | PTH_INDEXED);
-	GLInterface.BindTexture(0, pth->glpic, mSampler);
+	TArray<uint8_t> flipped(siz.x * siz.y, true);
+	FlipNonSquareBlock(flipped.Data(), p, siz.y, siz.x, siz.y);
+	glpic->LoadTexture(flipped.Data());
+	return glpic;
+}
 
-	// Fixme: Alpha test on shaders must be done differently.
-// Also: Consider a texture's alpha threshold.
-	float const al = alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f / 255.f) :
-		(pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f);
+//===========================================================================
+// 
+//	Retrieve the texture to be used.
+//
+//===========================================================================
 
+FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
+{
+	if (textype == TT_TRUECOLOR && palid == 0) textype = TT_HICREPLACE;	// true color tiles with the base palette won't get processed.
+	if (textype == TT_INDEXED)
+	{
+		auto hwtex = tex->GetHardwareTexture(-1);
+		if (hwtex) return hwtex;
+		else
+		{
+			hwtex = CreateIndexedTexture(tex);
+			tex->SetHardwareTexture(-1, hwtex);
+			return hwtex;
+		}
+	}
+}
+
+//===========================================================================
+// 
+//	Sets a texture for rendering
+//
+//===========================================================================
+
+bool GLInstance::SetTexture(FTexture* tex, int palette, int method, int sampleroverride)
+{
+	int usepalette = fixpalette >= 1 ? fixpalette - 1 : curbasepal;
+	int usepalswap = fixpalswap >= 1 ? fixpalswap - 1 : palette;
+	GLInterface.SetPalette(usepalette);
+	GLInterface.SetPalswap(usepalswap);
+
+	TextureType = r_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
+
+	int lookuppal = 0;
+	VSMatrix texmat;
+
+	auto rep = usehightile? currentTexture->FindReplacement(palette) : nullptr;
+	if (rep)
+	{
+		// Hightile replacements have only one texture representation and it is always the base.
+		tex = rep->faces[0];
+		TextureType = TT_HICREPLACE;
+	}
+	else
+	{
+		// Only look up the palette if we really want to use it (i.e. when creating a true color texture of an ART tile.)
+		if (!r_useindexedcolortextures) lookuppal = palmanager.LookupPalette(usepalette, usepalswap);
+	}
+
+	// Load the main texture
+	auto mtex = LoadTexture(tex, TextureType, lookuppal);
+	if (mtex)
+	{
+		auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
+
+		BindTexture(0, mtex, sampler);
+		if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
+		{
+			texmat.loadIdentity();
+			texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
+			GLInterface.SetMatrix(Matrix_Texture, &texmat);
+			MatrixChange |= 1;
+		}
+
+		// Also load additional layers needed for this texture.
+		if (r_detailmapping && usehightile)
+		{
+			auto drep = currentTexture->FindReplacement(DETAILPAL);
+			if (drep)
+			{
+				auto htex = LoadTexture(drep->faces[0], TT_HICREPLACE, 0);
+				UseDetailMapping(true);
+				BindTexture(3, htex, SamplerRepeat);
+
+				texmat.loadIdentity();
+
+				if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
+				{
+					texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
+					MatrixChange |= 2;
+				}
+
+				if ((drep->scale.x != 1.0f) || (drep->scale.y != 1.0f))
+				{
+					texmat.scale(drep->scale.x, drep->scale.y, 1.0f);
+					MatrixChange |= 2;
+				}
+				if (MatrixChange & 2) GLInterface.SetMatrix(Matrix_Detail, &texmat);
+			}
+		}
+		if (r_glowmapping && usehightile)
+		{
+			auto drep = currentTexture->FindReplacement(GLOWPAL);
+			if (drep)
+			{
+				auto htex = LoadTexture(drep->faces[0], TT_HICREPLACE, 0);
+				UseGlowMapping(true);
+				BindTexture(4, htex, SamplerRepeat);
+
+			}
+		}
+		auto brep = currentTexture->FindReplacement(BRIGHTPAL);
+		if (brep)
+		{
+			auto htex = LoadTexture(brep->faces[0], TT_HICREPLACE, 0);
+			BindTexture(5, mtex, sampler);
+		}
+	}
+
+	float al = 0;
+	if (TextureType == TT_HICREPLACE)
+	{
+		al = /*alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f / 255.f) :*/
+			(tex->alphaThreshold >= 0.f ? tex->alphaThreshold : 0.f);
+	}
 	GLInterface.SetAlphaThreshold(al);
 }
 
 
-#endif
 
-#endif
