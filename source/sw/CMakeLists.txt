@@ -34,6 +34,7 @@ if (WIN32)
 set( PLAT_SOURCES
 	src/startwin.game.cpp
 	)
+endif()
 	
 set( PCH_SOURCES
 	src/actor.cpp
@@ -112,7 +113,6 @@ set( PCH_SOURCES
 	src/zombie.cpp
 )
 
-endif()
 
 if( MSVC )
 	enable_precompiled_headers( ../g_pch.h PCH_SOURCES )

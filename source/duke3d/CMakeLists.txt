@@ -34,6 +34,7 @@ if (WIN32)
 set( PLAT_SOURCES
 	src/startwin.game.cpp
 	)
+endif()
 	
 set( NOT_COMPILED_SOURCE_FILES
 	src/gamestructures.cpp
@@ -72,8 +73,6 @@ set( PCH_SOURCES
 	src/sounds.cpp
 	src/soundsdyn.cpp
 )
-
-endif()
 
 if( MSVC )
 	enable_precompiled_headers( ../g_pch.h PCH_SOURCES )
