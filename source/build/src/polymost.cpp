@@ -513,18 +513,9 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
         return true;
 
-    //POGO: only hightiles may have translucency in their texture
-    if (!usehightile)
-        return false;
-
-	hicreplctyp* si = hicfindsubst(wall->picnum, wall->pal, hictinting[wall->pal].f & HICTINT_ALWAYSUSEART);
-	if (!si) return false;	// regular tiles have no translucency
-
-    uint8_t pal = wall->pal;
-    if (palookup[pal] == NULL)
-        pal = 0;
-
-	auto tex = TileFiles.GetTexture(si->filename);
+	auto tex = TileFiles.tiles[wall->picnum];
+	auto si = tex->FindReplacement(wall->pal);
+	if (si && usehightile) tex = si->faces[0];
 	return tex && tex->GetTranslucency();
 }
 
@@ -534,18 +525,9 @@ int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
         ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
         return true;
 
-    //POGO: only hightiles may have translucency in their texture
-    if (!usehightile)
-        return false;
-
-	hicreplctyp* si = hicfindsubst(tspr->picnum, tspr->shade, hictinting[tspr->shade].f & HICTINT_ALWAYSUSEART);
-	if (!si) return false;	// regular tiles have no translucency
-
-    uint8_t pal = tspr->shade;
-    if (palookup[pal] == NULL)
-        pal = 0;
-
-	auto tex = TileFiles.GetTexture(si->filename);
+	auto tex = TileFiles.tiles[tspr->picnum];
+	auto si = tex->FindReplacement(tspr->shade, hictinting[tspr->shade].f & HICTINT_ALWAYSUSEART);
+	if (si && usehightile) tex = si->faces[0];
 	return tex && tex->GetTranslucency();
 }
 
@@ -2076,8 +2058,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     drawpoly_alpha = 0.f;
     drawpoly_blend = 0;
 
-    //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
-        calc_and_apply_fog(fogshade(global_cf_shade, global_cf_pal), sec->visibility, POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
+	calc_and_apply_fog(fogshade(global_cf_shade, global_cf_pal), sec->visibility, POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
 
     if (have_floor)
     {
@@ -2544,9 +2525,7 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
-            //Parallaxing sky... hacked for Ken's mountain texture
-            //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
-                calc_and_apply_fog_factor(sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
+			calc_and_apply_fog_factor(sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
 
             globvis2 = globalpisibility;
             if (sec->visibility != 0)
@@ -2806,9 +2785,7 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
-            //Parallaxing sky... hacked for Ken's mountain texture
-            //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
-                calc_and_apply_fog_factor(sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
+			calc_and_apply_fog_factor(sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
 
             globvis2 = globalpisibility;
             if (sec->visibility != 0)
@@ -3122,8 +3099,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-                //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
-                    calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
+				calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1;
 #ifdef YAX_ENABLE
@@ -3167,8 +3143,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (nwal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-                //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
-                    calc_and_apply_fog(fogshade(nwal->shade, nwal->pal), sec->visibility, get_floor_fogpal(sec));
+				calc_and_apply_fog(fogshade(nwal->shade, nwal->pal), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1;
 #ifdef YAX_ENABLE
@@ -3224,8 +3199,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-                //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
-                    calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
+				calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1;
 
@@ -3904,8 +3878,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     drawpoly_alpha = 0.f;
     drawpoly_blend = blend;
 
-    //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART)))
-        calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
+	calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
     float const csy[4] = { ((float)(cz[0] - globalposz)) * ryp0 + ghoriz,
                            ((float)(cz[1] - globalposz)) * ryp0 + ghoriz,
@@ -4215,9 +4188,7 @@ void polymost_drawsprite(int32_t snum)
 
     sec = (usectorptr_t)&sector[tspr->sectnum];
 
-    //if ((usehightile && hicfindsubst(globalpicnum, globalpal, hictinting[globalpal].f & HICTINT_ALWAYSUSEART))
-        //|| (usemodels && md_tilehasmodel(globalpicnum, globalpal) >= 0))
-        calc_and_apply_fog(fogshade(globalshade, globalpal), sec->visibility, get_floor_fogpal(sec));
+	calc_and_apply_fog(fogshade(globalshade, globalpal), sec->visibility, get_floor_fogpal(sec));
 
     while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
     {

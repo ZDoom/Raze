@@ -1,19 +1,6 @@
 #ifndef HIGHTILE_PRIV_H
 #define HIGHTILE_PRIV_H
 
-struct hicskybox_t {
-    char *face[6];
-};
-
-typedef struct hicreplc_t {
-    struct hicreplc_t *next;
-    char *filename;
-    struct hicskybox_t *skybox;
-    vec2f_t scale;
-    float alphacut, specpower, specfactor;
-    char palnum, flags;
-} hicreplctyp;
-
 typedef struct {
     polytintflags_t f;
     uint8_t r, g, b;
@@ -21,27 +8,6 @@ typedef struct {
 } polytint_t;
 
 extern polytint_t hictinting[MAXPALOOKUPS];
-extern hicreplctyp *hicreplc[MAXTILES];
-extern int32_t hicinitcounter;
-
-typedef struct texcachehead_t
-{
-    char magic[4];	// 'PMST', was 'Polymost'
-    int xdim, ydim;	// of image, unpadded
-    int flags;		// 1 = !2^x, 2 = has alpha, 4 = lzw compressed
-    int quality;    // r_downsize at the time the cache was written
-} texcacheheader;
-
-typedef struct texcachepic_t
-{
-    int size;
-    int format;
-    int xdim, ydim;	// of mipmap (possibly padded)
-    int border, depth;
-} texcachepicture;
-
-hicreplctyp * hicfindsubst(int picnum, int palnum, int nozero = 0);
-hicreplctyp * hicfindskybox(int picnum, int palnum, int nozero = 0);
 
 static inline int have_basepal_tint(void)
 {
@@ -81,25 +47,11 @@ static inline void globaltinting_apply_ub(uint8_t *color)
     color[2] = (uint8_t)(color[2] * (float)globalb * (1.f/255.f));
 }
 
-// texcacheheader cachead.flags bits
-enum
-{
-    CACHEAD_NONPOW2 = 1,
-    CACHEAD_HASALPHA = 2,
-    CACHEAD_COMPRESSED = 4,
-    CACHEAD_NODOWNSIZE = 8,
-    CACHEAD_HASFULLBRIGHT = 16,
-    CACHEAD_NPOTWALL = 32,
-};
 
-// hicreplctyp hicr->flags bits
+// replacement flags
 enum
 {
-    HICR_NOTEXCOMPRESS = 1,
     HICR_FORCEFILTER = 2,
-
-    HICR_NODOWNSIZE = 16,
-    HICR_ARTIMMUNITY = 32,
 };
 
 // hictinting[].f / gloadtile_hi() and mdloadskin() <effect> arg bits
@@ -127,9 +79,5 @@ enum
 
     HICTINT_MEMORY_COMBINATIONS = 1<<5,
 };
-
-#define GRAYSCALE_COEFF_RED 0.3
-#define GRAYSCALE_COEFF_GREEN 0.59
-#define GRAYSCALE_COEFF_BLUE 0.11
 
 #endif

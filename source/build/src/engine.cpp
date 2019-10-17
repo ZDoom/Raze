@@ -8197,7 +8197,6 @@ int32_t engineInit(void)
     paletteLoadFromDisk();
 
 #ifdef USE_OPENGL
-    if (!hicinitcounter) hicinit();
     if (!mdinited) mdinit();
 #endif
 

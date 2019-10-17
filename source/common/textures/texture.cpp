@@ -400,6 +400,53 @@ void FTexture::Create8BitPixels(uint8_t *buffer)
 	// The base class does not fill the texture.
 }
 
+//===========================================================================
+//
+// Replacement textures
+//
+//===========================================================================
+
+void FTexture::AddReplacement(const HightileReplacement & replace)
+{
+	for (auto &ht : Hightiles)
+	{
+		if (replace.palnum == ht.palnum && (replace.faces[1] == nullptr) == (ht.faces[1] == nullptr))
+		{
+			ht = replace;
+			return;
+		}
+	}
+	Hightiles.Push(replace);
+}
+
+void FTexture::DeleteReplacement(int palnum)
+{
+	for (int i = Hightiles.Size() -1; i >= 0; i--)
+	{
+		if (Hightiles[i].palnum == palnum) Hightiles.Delete(i);
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+HightileReplacement *FTexture::FindReplacement(int palnum, int nozero, bool skybox)
+{
+	for(;;)
+    {
+		for (auto &rep : Hightiles)
+		{
+			if (rep.palnum == palnum && (rep.faces[1] != nullptr) == skybox) return &rep;
+		}
+        if (!palnum || nozero) break;
+        palnum = 0;
+    }
+    return nullptr;	// no replacement found
+}
+
 #if 0
 //==========================================================================
 //

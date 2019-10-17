@@ -100,6 +100,13 @@ struct rottile_t
 	int16_t owner;
 };
 
+struct HightileReplacement
+{
+	FTexture *faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
+    vec2f_t scale;
+    float alphacut, specpower, specfactor;
+    uint8_t palnum, flags;
+};
 
 class FBitmap;
 struct FRemapTable;
@@ -234,7 +241,15 @@ public:
 	bool ProcessData(unsigned char * buffer, int w, int h, bool ispatch);
 	virtual void Reload() {}
 	UseType GetUseType() const { return useType; }
+	void AddReplacement(const HightileReplacement &);
+	void DeleteReplacement(int palnum);
+	void DeleteReplacements()
+	{
+		Hightiles.Clear();
+	}
 
+	HightileReplacement * FindReplacement(int palnum, int nozero = 0, bool skybox = false);
+	
 	int alphaThreshold = 128;
 	picanm_t PicAnim = {};
 
@@ -282,6 +297,7 @@ protected:
 	PalEntry CeilingSkyColor;
 	intptr_t CacheHandle = 0;	// For tiles that do not have a static image but get accessed by the software renderer.
 	uint8_t CacheLock = 0;
+	TArray<HightileReplacement> Hightiles;
 
 	FTexture (const char *name = NULL);
 };
@@ -525,10 +541,14 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 void tileCopy(int tile, int tempsource, int temppal, int xoffset, int yoffset, int flags);
 void tileSetDummy(int tile, int width, int height);
 void tileDelete(int tile);
+void tileRemoveReplacement(int tile);
 bool tileLoad(int tileNum);
 void    artClearMapArt(void);
 void    artSetupMapArt(const char* filename);
 void tileSetAnim(int tile, const picanm_t& anm);
+int tileSetHightileReplacement(int picnum, int palnum, const char *filen, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
+int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags );
+int tileDeleteReplacement(int picnum, int palnum);
 
 extern BuildFiles TileFiles;
 inline bool tileCheck(int num)

@@ -341,9 +341,6 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
                 if (!tilestat)
                     continue;
 
-                if (tilestat == -2)  // bad filename
-                    hicclearsubst(dapicnum, dapalnum);
-
                 return (drawingskybox || hicprecaching) ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
             }
 
@@ -366,10 +363,6 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
         texcache.list[j] = pth;
         return pth;
     }
-
-    if (tilestat == -2)  // bad filename
-        hicclearsubst(dapicnum, dapalnum);
-
     Xfree(pth);
 
     return (drawingskybox || hicprecaching) ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);

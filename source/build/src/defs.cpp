@@ -361,9 +361,7 @@ static int32_t defsparser(scriptfile *script)
             if (check_file_exist(fn))
                 break;
 
-#ifdef USE_OPENGL
-            hicsetsubsttex(tile,pal,fn,-1.0,1.0,1.0,1.0,1.0,0);
-#endif
+            tileSetHightileReplacement(tile,pal,fn,-1.0,1.0,1.0,1.0,1.0,0);
         }
         break;
         case T_DEFINESKYBOX:
@@ -382,9 +380,7 @@ static int32_t defsparser(scriptfile *script)
                     happy = 0;
             }
             if (i < 6 || !happy) break;
-#ifdef USE_OPENGL
-            hicsetskybox(tile,pal,fn, 0);
-#endif
+			tileSetSkybox(tile, pal, (const char **)fn, 0);
         }
         break;
         case T_DEFINETINT:
@@ -1445,14 +1441,8 @@ static int32_t defsparser(scriptfile *script)
                         case T_SURF:
                             scriptfile_getnumber(script,&surfnum); break;
 #ifdef USE_OPENGL
-                        case T_NOCOMPRESS:
-                            flags |= HICR_NOTEXCOMPRESS; break;
-                        case T_NODOWNSIZE:
-                            flags |= HICR_NODOWNSIZE; break;
                         case T_FORCEFILTER:
                             flags |= HICR_FORCEFILTER; break;
-                        case T_ARTQUALITY:
-                            flags |= HICR_ARTIMMUNITY; break;
 #endif
                         }
                     }
@@ -1749,9 +1739,7 @@ static int32_t defsparser(scriptfile *script)
             char *fn[6] = {0,0,0,0,0,0};
             char *modelend;
             int32_t i, tile = -1, pal = 0, happy = 1;
-#ifdef USE_OPENGL
-            int32_t flags = 0;
-#endif
+			int flags = 0;
 
             static const tokenlist skyboxtokens[] =
             {
@@ -1792,15 +1780,10 @@ static int32_t defsparser(scriptfile *script)
                 case T_BOTTOM:
                     scriptfile_getstring(script,&fn[5]); break;
 #ifdef USE_OPENGL
-                case T_NOCOMPRESS:
-                    flags |= HICR_NOTEXCOMPRESS; break;
-                case T_NODOWNSIZE:
-                    flags |= HICR_NODOWNSIZE; break;
-                case T_FORCEFILTER:
-                    flags |= HICR_FORCEFILTER; break;
-                case T_ARTQUALITY:
-                    flags |= HICR_ARTIMMUNITY; break;
+				case T_FORCEFILTER:
+					flags |= HICR_FORCEFILTER; break;
 #endif
+
                 }
             }
 
@@ -1814,9 +1797,7 @@ static int32_t defsparser(scriptfile *script)
             }
             if (!happy) break;
 
-#ifdef USE_OPENGL
-            hicsetskybox(tile,pal,fn, flags);
-#endif
+			tileSetSkybox(tile, pal, (const char **)fn, flags);
         }
         break;
         case T_HIGHPALOOKUP:
@@ -2065,9 +2046,7 @@ static int32_t defsparser(scriptfile *script)
                     int32_t pal=-1, xsiz = 0, ysiz = 0;
                     char *fn = NULL;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
-#ifdef USE_OPENGL
-                    char flags = 0;
-#endif
+                    uint8_t flags = 0;
 
                     static const tokenlist texturetokens_pal[] =
                     {
@@ -2102,16 +2081,6 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&specpower); break;
                         case T_SPECFACTOR:
                             scriptfile_getdouble(script,&specfactor); break;
-#ifdef USE_OPENGL
-                        case T_NOCOMPRESS:
-                            flags |= HICR_NOTEXCOMPRESS; break;
-                        case T_NODOWNSIZE:
-                            flags |= HICR_NODOWNSIZE; break;
-                        case T_FORCEFILTER:
-                            flags |= HICR_FORCEFILTER; break;
-                        case T_ARTQUALITY:
-                            flags |= HICR_ARTIMMUNITY; break;
-#endif
                         case T_ORIGSIZEX:
                             scriptfile_getnumber(script, &xsiz);
                             break;
@@ -2144,21 +2113,17 @@ static int32_t defsparser(scriptfile *script)
                     {
                         tileSetDummy(tile, xsiz, ysiz);
                     }
-#ifdef USE_OPENGL
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
-                    hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor,flags);
-#endif
+                    tileSetHightileReplacement(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor,flags);
                 }
                 break;
                 case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
                     char *detailtokptr = script->ltextptr, *detailend;
-#ifdef USE_OPENGL
                     int32_t pal = 0;
                     char flags = 0;
-#endif
                     char *fn = NULL;
                     double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
@@ -2191,16 +2156,6 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&specpower); break;
                         case T_SPECFACTOR:
                             scriptfile_getdouble(script,&specfactor); break;
-#ifdef USE_OPENGL
-                        case T_NOCOMPRESS:
-                            flags |= HICR_NOTEXCOMPRESS; break;
-                        case T_NODOWNSIZE:
-                            flags |= HICR_NODOWNSIZE; break;
-                        case T_FORCEFILTER:
-                            flags |= HICR_FORCEFILTER; break;
-                        case T_ARTQUALITY:
-                            flags |= HICR_ARTIMMUNITY; break;
-#endif
                         default:
                             break;
                         }
@@ -2217,7 +2172,6 @@ static int32_t defsparser(scriptfile *script)
                     if (EDUKE32_PREDICT_FALSE(check_file_exist(fn)))
                         break;
 
-#ifdef USE_OPENGL
                     switch (token)
                     {
                     case T_DETAIL:
@@ -2235,8 +2189,7 @@ static int32_t defsparser(scriptfile *script)
                         pal = NORMALPAL;
                         break;
                     }
-                    hicsetsubsttex(tile,pal,fn,-1.0f,xscale,yscale, specpower, specfactor,flags);
-#endif
+                    tileSetHightileReplacement(tile,pal,fn,-1.0f,xscale,yscale, specpower, specfactor,flags);
                 }
                 break;
                 default:
@@ -2308,10 +2261,6 @@ static int32_t defsparser(scriptfile *script)
         case T_UNDEFTEXTURERANGE:
         {
             int32_t r0,r1;
-#ifdef USE_OPENGL
-            int32_t i;
-#endif
-
             if (EDUKE32_PREDICT_FALSE(scriptfile_getsymbol(script,&r0))) break;
             if (tokn == T_UNDEFTEXTURERANGE)
             {
@@ -2327,12 +2276,7 @@ static int32_t defsparser(scriptfile *script)
                 if (EDUKE32_PREDICT_FALSE(check_tile("undeftexture", r0, script, cmdtokptr)))
                     break;
             }
-
-#ifdef USE_OPENGL
-            for (; r0 <= r1; r0++)
-                for (i=MAXPALOOKUPS-1; i>=0; i--)
-                    hicclearsubst(r0,i);
-#endif
+			for (; r0 <= r1; r0++) tileRemoveReplacement(r0);
         }
         break;
 

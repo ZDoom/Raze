@@ -439,7 +439,7 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 //#if 0
 	// Does this make any difference when the texture gets *properly* inserted into the tile array?
 	//if (istexture)
-		hicsetsubsttex(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);	// At the moment this is the only way to load the texture. The texture creation code is not ready yet for downconverting an image.
+		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);	// At the moment this is the only way to load the texture. The texture creation code is not ready yet for downconverting an image.
 //#endif
 	return 0;
 
@@ -538,9 +538,20 @@ void tileDelete(int tile)
 	TileFiles.tiles[tile] = TileFiles.tilesbak[tile] = TileFiles.Placeholder;
 	vox_undefine(tile);
 	md_undefinetile(tile);
-	for (ssize_t i = MAXPALOOKUPS - 1; i >= 0; --i)
-		hicclearsubst(tile, i);
+	tileRemoveReplacement(tile);
+}
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void tileRemoveReplacement(int tile)
+{
+	if ((unsigned)tileNum >= MAXTILES) return false;
+	FTexture *tex = TileFiles.tiles[tile];
+	tex->DeleteReplacements();
 }
 
 //==========================================================================
@@ -673,6 +684,92 @@ void BuildFiles::CloseAll()
 	if (Placeholder) delete Placeholder;
 	Placeholder = nullptr;
 }
+
+//==========================================================================
+//
+//   Specifies a replacement texture for an ART tile.
+//
+//==========================================================================
+
+int tileSetHightileReplacement(int picnum, int palnum, const char *filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags)
+{
+    if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
+    if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
+
+	auto tex = TileFiles.tiles[picnum];
+	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0)
+	{
+		initprintf("Warning: defined hightile replacement for empty tile %d.", picnum);
+		return -1;	// cannot add replacements to empty tiles, must create one beforehand
+	}
+	HightileReplacement replace = {};
+
+	replace.faces[0] = TileFiles.GetTexture(filename);
+	if (replace.faces[0] == nullptr)
+	{
+		initprintf("%s: Replacement for tile %d does not exist or is invalid\n", filename, picnum);
+		return -1;
+	}
+    replace.alphacut = min(alphacut,1.f);
+	replace.scale = { xscale, yscale };
+    replace.specpower = specpower; // currently unused
+    replace.specfactor = specfactor; // currently unused
+    replace.flags = flags;
+	replace.palnum = (uint8_t)palnum;
+	tex->AddReplacement(replace);
+    return 0;
+}
+
+
+//==========================================================================
+//
+//  Define the faces of a skybox
+//
+//==========================================================================
+
+int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
+{
+    if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
+    if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
+
+	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0)
+	{
+		initprintf("Warning: defined skybox replacement for empty tile %d.", picnum);
+		return -1;	// cannot add replacements to empty tiles, must create one beforehand
+	}
+	HightileReplacement replace = {};
+	
+	for (auto &face : replace.faces)
+	{
+		face = TileFiles.GetTexture(*facenames);
+		if (face == nullptr)
+		{
+			initprintf("%s: Skybox image for tile %d does not exist or is invalid\n", *facenames, picnum);
+			return -1;
+		}
+	}
+    replace.flags = flags;
+	replace.palnum = (uint8_t)palnum;
+	tex->AddReplacement(replace);
+	return 0;
+}
+
+//==========================================================================
+//
+//  Remove a replacement
+//
+//==========================================================================
+
+int tileDeleteReplacement(int picnum, int palnum)
+{
+    if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
+    if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
+	auto tex = TileFiles.tiles[picnum];
+	tex->DeleteReplacement(palnum);
+    return 0;
+}
+
+
 
 
 TileSiz tilesiz;

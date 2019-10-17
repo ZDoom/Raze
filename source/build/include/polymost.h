@@ -149,7 +149,7 @@ typedef struct pthtyp_t
 {
     struct pthtyp_t *next;
     struct pthtyp_t *ofb; // fullbright pixels
-    hicreplctyp     *hicr;
+    //     *hicr;
 
     FHardwareTexture * glpic;
     vec2f_t         scale;
@@ -164,7 +164,7 @@ typedef struct pthtyp_t
 } pthtyp;
 
 void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc);
-extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t, polytintflags_t);
+extern int32_t gloadtile_hi(int32_t,int32_t,int32_t, int32_t,pthtyp *,int32_t, polytintflags_t);
 
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;

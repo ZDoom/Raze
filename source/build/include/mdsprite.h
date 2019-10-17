@@ -39,7 +39,7 @@ typedef struct _mdanim_t
 
 typedef struct _mdskinmap_t
 {
-    uint8_t palette, flags, filler[2]; // Build palette number, flags the same as hicreplctyp
+    uint8_t palette, flags, filler[2]; // Build palette number, flags the same as hightiles
     int32_t skinnum, surfnum;   // Skin identifier, surface number
     char *fn;   // Skin filename
     FHardwareTexture *texid[HICTINT_MEMORY_COMBINATIONS];   // OpenGL texture numbers for effect variations
