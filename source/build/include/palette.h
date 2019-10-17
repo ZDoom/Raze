@@ -23,14 +23,11 @@
 #define GLOWPAL     (MAXPALOOKUPS - 2)
 #define SPECULARPAL (MAXPALOOKUPS - 3)
 #define NORMALPAL   (MAXPALOOKUPS - 4)
+#define BRIGHTPAL	(MAXPALOOKUPS)
 
 extern uint8_t curbasepal;
 
-#ifdef LUNATIC
-extern const char *(paletteGetBlendTable) (int32_t blend);
-#else
 #define paletteGetBlendTable(blend) (blendtable[blend])
-#endif
 
 extern uint32_t PaletteIndexFullbrights[8];
 

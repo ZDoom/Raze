@@ -80,6 +80,7 @@ public:
 
 	void BindPalette(int index);
 	void BindPalswap(int index);
+	int ActivePalswap() const { return lastsindex; }
 };
 
 
@@ -200,6 +201,7 @@ class GLInstance
 	PaletteManager palmanager;
 	int lastPalswapIndex = -1;
 	FHardwareTexture* texv;
+	FTexture* currentTexture = nullptr;
 
 
 	VSMatrix matrices[NUMMATRICES];
@@ -277,7 +279,8 @@ public:
 	void SetSurfaceShader();
 	void SetVPXShader();
 	void SetPalette(int palette);
-	void ApplyTextureProps();
+	bool ApplyTextureProps();
+	void RestoreTextureProps();
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
 
@@ -352,9 +355,14 @@ public:
 		renderState.Brightness = 8.f / (brightness + 8.f);
 	}
 
-	void SetTinting(int flags, PalEntry color)
+	void SetTinting(int flags, PalEntry color, PalEntry modulateColor)
 	{
 		// not yet implemented.
+	}
+
+	void SetBasepalTint(PalEntry color)
+	{
+		// not yet implemented - only relevant for hires replacements.
 	}
 	
 	FTexture *GetTexture(const char *filename);

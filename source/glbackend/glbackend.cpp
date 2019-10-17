@@ -37,6 +37,8 @@
 #include "glbackend.h"
 #include "gl_samplers.h"
 #include "gl_shader.h"
+#include "textures.h"
+#include "palette.h"
 
 #include "baselayer.h"
 #include "resourcefile.h"
@@ -201,56 +203,71 @@ std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
 	return std::make_pair((size_t)0, Buffer.data());
 }
 
-void GLInstance::ApplyTextureProps()
+extern int r_detailmapping, r_glowmapping, usehightile;
+
+bool GLInstance::ApplyTextureProps()
 {
-	
+	int pal = palmanager.ActivePalswap();
+	if (currentTexture == nullptr) return false;
+	auto rep = currentTexture->FindReplacement(pal);
 	VSMatrix texmat;
-	// texture scale by parkar request
-	if (pth->hicr && !drawingskybox && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
+	bool changed = false;
+
+	// texture scale 
+	if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
 	{
 		texmat.loadIdentity();
-		texmat.scale(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
+		texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
 		GLInterface.SetMatrix(Matrix_Texture, &texmat);
 	}
 
-	    // detail texture
     if (r_detailmapping)
     {
-        pthtyp *detailpth = NULL;
-
-        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL, 1) &&
-            (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & ~DAMETH_MASKPROPS)) &&
-            detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
+		auto detailrep = currentTexture->FindReplacement(DETAILPAL);
+		if (detailrep)
         {
-			GLInterface.UseDetailMapping(true);
-            polymost_setupdetailtexture(3, detailpth->glpic);
+			UseDetailMapping(true);
+			//BindTexture(3, detailrep->faces[0], SamplerRepeat);
 
 			texmat.loadIdentity();
+			bool scaled = false;
 
-            if (pth->hicr && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
-                texmat.scale(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
+			if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
+			{
+				texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
+				scaled = true;
+			}
 
-            if ((detailpth->hicr->scale.x != 1.0f) || (detailpth->hicr->scale.y != 1.0f))
-                texmat.scale(detailpth->hicr->scale.x, detailpth->hicr->scale.y, 1.0f);
+			if ((detailrep->scale.x != 1.0f) || (detailrep->scale.y != 1.0f))
+			{
+				texmat.scale(detailrep->scale.x, detailrep->scale.y, 1.0f);
+				scaled = true;
+			}
 
-			GLInterface.SetMatrix(Matrix_Detail, &texmat);
+			if (scaled) GLInterface.SetMatrix(Matrix_Detail, &texmat);
+			changed |= scaled;
         }
     }
 
     // glow texture
     if (r_glowmapping)
     {
-        pthtyp *glowpth = NULL;
-
-        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL, 1) &&
-            (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, (method & ~DAMETH_MASKPROPS) | DAMETH_MASK)) &&
-            glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
-        {
-			GLInterface.UseGlowMapping(true);
-            polymost_setupglowtexture(4, glowpth->glpic);
-        }
+		auto glowrep = currentTexture->FindReplacement(GLOWPAL);
+		if (glowrep)
+		{
+			UseGlowMapping(true);
+			//BindTexture(4, glowrep->faces[0], SamplerRepeat);
+		}
     }
-	return true; // true if the matrices were changed, false otherwise
+
+	auto brightrep = currentTexture->FindReplacement(BRIGHTPAL);
+	if (brightrep)
+	{
+		//UseGlowMapping(true);
+		//BindTexture(5, glowrep->faces[0], SamplerRepeat);
+	}
+
+	return false; // true if the matrices were changed, false otherwise
 }
 
 void GLInstance::RestoreTextureProps()

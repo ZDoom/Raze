@@ -1780,19 +1780,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     // tinting
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
-	auto& h = hictinting[globalpal];
-	polytintflags_t const tintflags = h.f;
-    if (!(tintflags & HICTINT_PRECOMPUTED))
-    {
-        if (!(m->flags&1))
-            hictinting_apply(pc, globalpal);
-        else globalnoeffect=1;
-    }
-	GLInterface.SetTinting(tintflags, PalEntry(h.sr, h.sg, h.sb));
-
-    // global tinting
-    if (have_basepal_tint())
-        hictinting_apply(pc, MAXPALOOKUPS-1);
+	auto h = hictinting[globalpal];
+	GLInterface.SetTinting(h.f, PalEntry(h.sr, h.sg, h.sb), PalEntry(h.r, h.g, h.b));
 
     pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
     pc[3] *= 1.0f - sext->alpha;
@@ -1914,7 +1903,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if (!(tspr->extra&TSPR_EXTRA_MDHACK))
         {
             //POGOTODO: if we add support for palette indexing on model skins, the texture for the palswap could be setup here
-
+#if 0	// FIXME: This shouls use the HightileReplacement structure inside the texture so that it can use the same code as world textures.
             tex = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi) : nullptr;
 
             if (tex)
@@ -1922,7 +1911,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
                 mdskinmap_t *sk;
 
 				GLInterface.UseDetailMapping(true);
-                polymost_setupdetailtexture(3, tex);
+                //polymost_setupdetailtexture(3, tex);
 
                 for (sk = m->skinmap; sk; sk = sk->next)
                     if ((int32_t) sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum && sk->surfnum == surfi)
@@ -1939,13 +1928,13 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
             if (i)
             {
 				GLInterface.UseGlowMapping(true);
-                polymost_setupglowtexture(4, tex);
+                //polymost_setupglowtexture(4, tex);
 
 				texmat.loadIdentity();
                 texmat.translate(xpanning, ypanning, 1.0f);
 				GLInterface.SetMatrix(Matrix_Glow, &texmat);
 			}
-
+#endif
             indexhandle = m->vindexes;
 
             //PLAG: delayed polygon-level sorted rendering
@@ -2009,7 +1998,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 	VSMatrix identity(0);
 	GLInterface.SetMatrix(Matrix_ModelView, &identity);
 
-	GLInterface.SetTinting(0, 0);
+	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
 	GLInterface.SetClamp(prevClamp);
 	GLInterface.SetPolymostShader();
     

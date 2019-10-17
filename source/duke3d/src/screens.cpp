@@ -920,20 +920,11 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 #endif  // USE_OPENGL
-
     palaccum_add(&tint, &pp->pals, pp->pals.f);
-#ifdef SPLITSCREEN_MOD_HACKS
-    if (pp2)
-        palaccum_add(&tint, &pp2->pals, pp2->pals.f);
-#endif
     {
         static const palette_t loogiepal = { 0, 63, 0, 0 };
 
         palaccum_add(&tint, &loogiepal, pp->loogcnt>>1);
-#ifdef SPLITSCREEN_MOD_HACKS
-        if (pp2)
-            palaccum_add(&tint, &loogiepal, pp2->loogcnt>>1);
-#endif
     }
 
     if (g_restorePalette)
@@ -944,21 +935,9 @@ void G_DisplayRest(int32_t smoothratio)
         if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
         {
             int32_t pal = pp->palette;
-#ifdef SPLITSCREEN_MOD_HACKS
-            const int32_t opal = pal;
-
-            if (pp2)  // splitscreen HACK: BASEPAL trumps all, then it's arbitrary.
-                pal = min(pal, pp2->palette);
-#endif
 
             // g_restorePalette < 0: reset tinting, too (e.g. when loading new game)
             P_SetGamePalette(pp, pal, 2 + (g_restorePalette>0)*16);
-
-#ifdef SPLITSCREEN_MOD_HACKS
-            if (pp2)  // keep first player's pal as its member!
-                pp->palette = opal;
-#endif
-
             g_restorePalette = 0;
         }
         else

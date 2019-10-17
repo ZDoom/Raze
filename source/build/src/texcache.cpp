@@ -33,6 +33,7 @@ void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 //Use this for palette effects ... but not ones that change every frame!
 void gltexinvalidatetype(int32_t type)
 {
+#if 0
 	for (bssize_t j = 0; j <= GLTEXCACHEADSIZ - 1; j++)
 	{
 		for (pthtyp* pth = texcache.list[j]; pth; pth = pth->next)
@@ -48,6 +49,7 @@ void gltexinvalidatetype(int32_t type)
 			}
 		}
 	}
+#endif
 
 	clearskins(type);
 
@@ -147,11 +149,12 @@ void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
 	pth->shade = 0;
 	pth->effects = 0;
 	pth->flags = PTH_HASALPHA | PTH_ONEBITALPHA | PTH_INDEXED;
-	pth->hicr = NULL;
+	//pth->hicr = NULL;
 	pth->siz = ssiz;
 }
 
 
+#if 0
 int32_t gloadtile_hi(int32_t dapic, int32_t dapalnum, int32_t facen, hicreplctyp* hicr,
 	int32_t dameth, pthtyp* pth, int32_t doalloc, polytintflags_t effect)
 {
@@ -213,11 +216,12 @@ int32_t gloadtile_hi(int32_t dapic, int32_t dapalnum, int32_t facen, hicreplctyp
 		(hasalpha ? PTH_HASALPHA : 0) |
 		((hicr->flags & HICR_FORCEFILTER) ? PTH_FORCEFILTER : 0);
 	pth->skyface = facen;
-	pth->hicr = hicr;
+	//pth->hicr = hicr;
 
 	if (facen > 0) pth->siz = { 64, 64 }; else pth->siz = { tilesiz[dapic].x, tilesiz[dapic].y };
 	return 0;
 }
+#endif
 
 #define TEXCACHE_FREEBUFS() { Xfree(pic), Xfree(packbuf), Xfree(midbuf); }
 
@@ -231,7 +235,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
     int32_t searchpalnum = dapalnum;
     polytintflags_t const tintflags = hictinting[dapalnum].f;
 
-    if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
+    if (tintflags & (HICTINT_USEONART))
     {
         tintpalnum = dapalnum;
         if (!(tintflags & HICTINT_APPLYOVERPALSWAP))
@@ -263,6 +267,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
     return pth;
 }
 
+#if 0
 pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int32_t dameth)
 {
     const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
@@ -290,15 +295,16 @@ pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int3
             }
         }
     }
-
     return NULL;
 }
+#endif
 
 // <dashade>: ignored if not in Polymost+r_usetileshades
 pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
 {
+#if 0
     const int32_t j = dapicnum & (GLTEXCACHEADSIZ - 1);
-    hicreplctyp *si = usehightile ? hicfindsubst(dapicnum, dapalnum, hictinting[dapalnum].f & HICTINT_ALWAYSUSEART) : NULL;
+    hicreplctyp *si = usehightile ? hicfindsubst(dapicnum, dapalnum) : NULL;
 
 	if (drawingskybox && usehightile)
 	{
@@ -308,11 +314,12 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
 	}
 
     if (!si)
-    {
+#endif
+	{
         return (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS) || hicprecaching) ?
                 NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
     }
-
+#if 0
     /* if palette > 0 && replacement found
      *    no effects are applied to the texture
      * else if palette > 0 && no replacement found
@@ -366,6 +373,8 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     Xfree(pth);
 
     return (drawingskybox || hicprecaching) ? NULL : texcache_tryart(dapicnum, dapalnum, dashade, dameth);
+#endif
+
 }
 
 

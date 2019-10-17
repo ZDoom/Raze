@@ -549,7 +549,7 @@ void tileDelete(int tile)
 
 void tileRemoveReplacement(int tile)
 {
-	if ((unsigned)tileNum >= MAXTILES) return false;
+	if ((unsigned)tile >= MAXTILES) return;
 	FTexture *tex = TileFiles.tiles[tile];
 	tex->DeleteReplacements();
 }
@@ -715,7 +715,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char *filename, flo
     replace.specpower = specpower; // currently unused
     replace.specfactor = specfactor; // currently unused
     replace.flags = flags;
-	replace.palnum = (uint8_t)palnum;
+	replace.palnum = (uint16_t)palnum;
 	tex->AddReplacement(replace);
     return 0;
 }
@@ -732,6 +732,7 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
     if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
 
+	auto tex = TileFiles.tiles[picnum];
 	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0)
 	{
 		initprintf("Warning: defined skybox replacement for empty tile %d.", picnum);
@@ -749,7 +750,7 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 		}
 	}
     replace.flags = flags;
-	replace.palnum = (uint8_t)palnum;
+	replace.palnum = (uint16_t)palnum;
 	tex->AddReplacement(replace);
 	return 0;
 }

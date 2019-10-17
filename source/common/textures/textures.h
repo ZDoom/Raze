@@ -42,6 +42,7 @@
 #include "palentry.h"
 
 class FImageSource;
+class FTexture;
 
 // picanm[].sf:
 // |bit(1<<7)
@@ -105,7 +106,7 @@ struct HightileReplacement
 	FTexture *faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
     vec2f_t scale;
     float alphacut, specpower, specfactor;
-    uint8_t palnum, flags;
+    uint16_t palnum, flags;
 };
 
 class FBitmap;
@@ -248,7 +249,7 @@ public:
 		Hightiles.Clear();
 	}
 
-	HightileReplacement * FindReplacement(int palnum, int nozero = 0, bool skybox = false);
+	HightileReplacement * FindReplacement(int palnum, bool skybox = false);
 	
 	int alphaThreshold = 128;
 	picanm_t PicAnim = {};

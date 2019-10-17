@@ -479,20 +479,6 @@ void uploadpalswaps(int count, int32_t* swaps)
 }
 
 
-
-#ifdef USE_GLEXT
-void polymost_setupdetailtexture(const int32_t texunits, FHardwareTexture *tex)
-{
-	GLInterface.BindTexture(texunits, tex, SamplerRepeat);
-}
-
-void polymost_setupglowtexture(const int32_t texunits, FHardwareTexture* tex)
-{
-	GLInterface.BindTexture(texunits, tex, SamplerRepeat);
-}
-#endif
-
-
 //(dpx,dpy) specifies an n-sided polygon. The polygon must be a convex clockwise loop.
 //    n must be <= 8 (assume clipping can double number of vertices)
 //method: 0:solid, 1:masked(255 is transparent), 2:transluscent #1, 3:transluscent #2
@@ -516,6 +502,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
 	auto tex = TileFiles.tiles[wall->picnum];
 	auto si = tex->FindReplacement(wall->pal);
 	if (si && usehightile) tex = si->faces[0];
+	if (tex->Get8BitPixels()) return false;
 	return tex && tex->GetTranslucency();
 }
 
@@ -526,8 +513,9 @@ int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
         return true;
 
 	auto tex = TileFiles.tiles[tspr->picnum];
-	auto si = tex->FindReplacement(tspr->shade, hictinting[tspr->shade].f & HICTINT_ALWAYSUSEART);
+	auto si = tex->FindReplacement(tspr->shade, 0);
 	if (si && usehightile) tex = si->faces[0];
+	if (tex->Get8BitPixels()) return false;
 	return tex && tex->GetTranslucency();
 }
 
@@ -755,8 +743,12 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
 		// Fixme: Alpha test on shaders must be done differently.
 		// Also: Consider a texture's alpha threshold.
+#ifdef HICR
         float const al = alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f) :
                          (pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f);
+#else
+		float al = 0;
+#endif
 
 		GLInterface.SetAlphaThreshold(al);
         handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
@@ -774,22 +766,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     // tinting
 	auto& h = hictinting[globalpal];
-	polytintflags_t const tintflags = h.f;
-    if (!(tintflags & HICTINT_PRECOMPUTED))
-    {
-        if (pth->flags & PTH_HIGHTILE)
-        {
-            if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
-                hictinting_apply(pc, globalpal);
-        }
-        else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
-            hictinting_apply(pc, globalpal);
-    }
-	GLInterface.SetTinting(tintflags, PalEntry(h.sr, h.sg, h.sb));
 
-    // global tinting
-    if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
-        hictinting_apply(pc, MAXPALOOKUPS-1);
+	GLInterface.SetTinting(h.f, PalEntry(h.sr, h.sg, h.sb), PalEntry(h.r, h.g, h.b));
 
     globaltinting_apply(pc);
 
@@ -819,7 +797,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 	GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
 
-	GLInterface.SetTinting(0,0);
+	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
 	GLInterface.UseDetailMapping(false);
 	GLInterface.UseGlowMapping(false);
 	GLInterface.SetNpotEmulation(false, 1.f, 0.f);
@@ -2486,7 +2464,7 @@ static void polymost_drawalls(int32_t const bunch)
 
             skyzbufferhack = 1;
 
-            if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
+            //if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
             {
                 float const ghorizbak = ghoriz;
 				pow2xsplit = 0;
@@ -2498,6 +2476,7 @@ static void polymost_drawalls(int32_t const bunch)
                 flatskyrender = 0;
                 ghoriz = ghorizbak;
             }
+#if 0
             else  //NOTE: code copied from ceiling code... lots of duplicated stuff :/
             {
                 //Skybox code for parallax floor!
@@ -2676,6 +2655,7 @@ static void polymost_drawalls(int32_t const bunch)
                 skyclamphack = 0;
                 drawingskybox = 0;
             }
+#endif
 
             skyclamphack = 0;
             skyzbufferhack = 0;
@@ -2746,7 +2726,7 @@ static void polymost_drawalls(int32_t const bunch)
 
             skyzbufferhack = 1;
 
-			if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
+			//if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
 			{
 				float const ghorizbak = ghoriz;
 				pow2xsplit = 0;
@@ -2758,6 +2738,7 @@ static void polymost_drawalls(int32_t const bunch)
 				flatskyrender = 0;
                 ghoriz = ghorizbak;
 			}
+#if 0
             else
             {
                 //Skybox code for parallax ceiling!
@@ -2936,6 +2917,7 @@ static void polymost_drawalls(int32_t const bunch)
                 skyclamphack = 0;
                 drawingskybox = 0;
             }
+#endif
 
             skyclamphack = 0;
             skyzbufferhack = 0;
@@ -3439,6 +3421,12 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
 void polymost_drawrooms()
 {
     if (videoGetRenderMode() == REND_CLASSIC) return;
+
+	// This is a global setting for the entire scene, so let's do it here, right at the start.
+	auto& hh = hictinting[MAXPALOOKUPS - 1];
+	// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
+	GLInterface.SetBasepalTint(PalEntry(hh.sr, hh.sg, hh.sb));
+
 
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
 
@@ -5702,5 +5690,7 @@ void PrecacheHardwareTextures(int nTile)
 
 	if (r_glowmapping)
 		polymost_precache(nTile, GLOWPAL, 1);
+
+	polymost_precache(nTile, BRIGHTPAL, 1);
 
 }

@@ -88,8 +88,7 @@ static FORCE_INLINE int32_t get_ceiling_fogpal(usectorptr_t const sec)
 }
 static FORCE_INLINE int32_t fogshade(int32_t const shade, int32_t const pal)
 {
-    polytintflags_t const tintflags = hictinting[pal].f;
-    return (globalflags & GLOBAL_NO_GL_FOGSHADE || tintflags & HICTINT_NOFOGSHADE) ? 0 : shade;
+    return (globalflags & GLOBAL_NO_GL_FOGSHADE) ? 0 : shade;
 }
 
 static FORCE_INLINE int check_nonpow2(int32_t const x)
@@ -177,8 +176,5 @@ extern char ptempbuf[MAXWALLSB<<1];
 extern hitdata_t polymost_hitdata;
 
 #include "texcache.h"
-
-extern void polymost_setupglowtexture(int32_t texunits, FHardwareTexture *tex);
-extern void polymost_setupdetailtexture(int32_t texunits, FHardwareTexture* tex);
 
 #endif
