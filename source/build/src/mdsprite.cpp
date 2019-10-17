@@ -9,7 +9,6 @@
 #include "engine_priv.h"
 #include "hightile.h"
 #include "polymost.h"
-#include "texcache.h"
 #include "mdsprite.h"
 #include "cache1d.h"
 #include "kplib.h"

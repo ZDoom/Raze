@@ -365,7 +365,7 @@ public:
 		// not yet implemented - only relevant for hires replacements.
 	}
 	
-	FTexture *GetTexture(const char *filename);
+	bool SetTexture(FTexture* tex, int palette, int method, int sampleroverride = -1);
 };
 
 extern GLInstance GLInterface;

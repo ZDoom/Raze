@@ -435,10 +435,15 @@ void FTexture::DeleteReplacement(int palnum)
 
 HightileReplacement *FTexture::FindReplacement(int palnum, bool skybox)
 {
-	for (auto &rep : Hightiles)
-	{
-		if (rep.palnum == palnum && (rep.faces[1] != nullptr) == skybox) return &rep;
-	}
+	for(;;)
+    {
+		for (auto &rep : Hightiles)
+		{
+			if (rep.palnum == palnum && (rep.faces[1] != nullptr) == skybox) return &rep;
+		}
+        if (!palnum) break;
+        palnum = 0;
+    }
     return nullptr;	// no replacement found
 }
 

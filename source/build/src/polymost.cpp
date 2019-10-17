@@ -280,21 +280,12 @@ void polymost_glreset()
 		delete polymosttext;
     polymosttext=nullptr;
 
-    Bmemset(texcache.list,0,sizeof(texcache.list));
     glox1 = -1;
 
 #ifdef DEBUGGINGAIDS
     OSD_Printf("polymost_glreset()\n");
 #endif
 }
-
-static void polymost_bindPth(pthtyp const* const pPth, int sampler)
-{
-	Bassert(pPth);
-
-	GLInterface.BindTexture(0, pPth->glpic, sampler);
-}
-
 
 FileReader GetBaseResource(const char* fn);
 
@@ -489,11 +480,6 @@ static int32_t pow2xsplit = 0, skyclamphack = 0, skyzbufferhack = 0, flatskyrend
 static float drawpoly_alpha = 0.f;
 static uint8_t drawpoly_blend = 0;
 
-static inline pthtyp *our_texcache_fetch(int32_t dameth)
-{
-    return texcache_fetch(globalpicnum, globalpal, getpalookup(1, globalshade), dameth);
-}
-
 int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
 {
     if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
@@ -517,19 +503,6 @@ int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
 	if (si && usehightile) tex = si->faces[0];
 	if (tex->Get8BitPixels()) return false;
 	return tex && tex->GetTranslucency();
-}
-
-
-static void polymost_updatePalette()
-{
-    if (videoGetRenderMode() != REND_POLYMOST)
-    {
-        return;
-    }
-
-	GLInterface.SetPalswap(fixpalswap >= 1? fixpalswap-1 : globalpal);
-	GLInterface.SetShade(globalshade, numshades);
-	GLInterface.SetPalette(fixpalette >= 1? fixpalette-1 : curbasepal);
 }
 
 
@@ -671,44 +644,22 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     polymost_outputGLDebugMessage(3, "polymost_drawpoly(dpxy:%p, n:%d, method_:%X), method: %X", dpxy, n, method_, method);
 
-    pthtyp *pth = our_texcache_fetch(method | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
+	// This only takes effect for textures with their default set to SamplerClampXY.
+	int sampleroverride;
+	if (drawpoly_srepeat && drawpoly_trepeat) sampleroverride = SamplerRepeat;
+	else if (drawpoly_srepeat) sampleroverride = SamplerClampY;
+	else if (drawpoly_trepeat) sampleroverride = SamplerClampX;
+	else sampleroverride = -1;
 
-    if (!pth)
-    {
-        return;
-    }
 
-    if (!tilePtr(globalpicnum))
-    {
-        tsiz.x = tsiz.y = 1;
+	bool success = GLInterface.SetTexture(TileFiles.tiles[globalpicnum], globalpal, method, sampleroverride);
+	if (!success)
+	{
+		tsiz.x = tsiz.y = 1;
 		GLInterface.SetColorMask(false); //Hack to update Z-buffer for invalid mirror textures
-    }
+	}
 
-    Bassert(pth);
-
-    // If we aren't rendmode 3, we're in Polymer, which means this code is
-    // used for rotatesprite only. Polymer handles all the material stuff,
-    // just submit the geometry and don't mess with textures.
-    if (videoGetRenderMode() == REND_POLYMOST)
-    {
-
-		// The entire logic here is just one lousy hack.
-		int mSampler = NoSampler;
-		if (pth->glpic->GetSampler() != SamplerRepeat)
-		{
-			if (drawpoly_srepeat && drawpoly_trepeat) mSampler = SamplerRepeat;
-			else if (drawpoly_srepeat) mSampler = SamplerClampY;
-			else if (drawpoly_trepeat) mSampler = SamplerClampX;
-			else mSampler = SamplerClampXY;
-		}
-
-		polymost_bindPth(pth, mSampler);
-
-    }
-   if (videoGetRenderMode() == REND_POLYMOST)
-    {
-        polymost_updatePalette();
-    }
+	GLInterface.SetShade(globalshade, numshades);
 
     if ((method & DAMETH_WALL) != 0)
     {
@@ -730,27 +681,19 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     vec2f_t hacksc = { 1.f, 1.f };
 
+#if 0
     if (pth->flags & PTH_HIGHTILE)
     {
         hacksc = pth->scale;
         tsiz = pth->siz;
     }
+#endif
 
     vec2_t tsiz2 = tsiz;
 
 
     if (method & DAMETH_MASKPROPS)
     {
-		// Fixme: Alpha test on shaders must be done differently.
-		// Also: Consider a texture's alpha threshold.
-#ifdef HICR
-        float const al = alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f) :
-                         (pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f);
-#else
-		float al = 0;
-#endif
-
-		GLInterface.SetAlphaThreshold(al);
         handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
     }
 
@@ -5324,14 +5267,7 @@ void polymost_fillpolygon(int32_t npoints)
 
     if (gloy1 != -1) polymostSet2dView(); //disables blending, texturing, and depth testing
     GLInterface.EnableAlphaTest(true);
-    pthtyp const * const pth = our_texcache_fetch(DAMETH_NOMASK | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
-
-    if (pth)
-    {
-        polymost_bindPth(pth, -1);
-    }
-
-    polymost_updatePalette();
+	GLInterface.SetTexture(TileFiles.tiles[globalpicnum], globalpal, DAMETH_NOMASK);
 
     uint8_t const maskprops = (globalorientation>>7)&DAMETH_MASKPROPS;
     handle_blend(maskprops > DAMETH_MASK, 0, maskprops == DAMETH_TRANS2);
@@ -5663,7 +5599,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
-    texcache_fetch(dapicnum, dapalnum, 0, (datype & 1)*(DAMETH_MASK));
+    GLInterface.SetTexture(TileFiles.tiles[dapicnum], dapalnum, 0);
     hicprecaching = 0;
 
     if (datype == 0 || !usemodels) return;
@@ -5682,15 +5618,5 @@ void PrecacheHardwareTextures(int nTile)
 {
 	// PRECACHE
 	// This really *really* needs improvement on the game side - the entire precaching logic has no clue about the different needs of a hardware renderer.
-
 	polymost_precache(nTile, 0, 1);
-
-	if (r_detailmapping)
-		polymost_precache(nTile, DETAILPAL, 1);
-
-	if (r_glowmapping)
-		polymost_precache(nTile, GLOWPAL, 1);
-
-	polymost_precache(nTile, BRIGHTPAL, 1);
-
 }

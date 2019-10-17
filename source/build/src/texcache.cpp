@@ -15,6 +15,8 @@
 #include "bitmap.h"
 #include "../../glbackend/glbackend.h"
 
+#if 0
+
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 {
 	const int32_t pic = (dapicnum & (GLTEXCACHEADSIZ - 1));
@@ -82,7 +84,7 @@ void cleartexturecache()
 	}
 }
 
-static void polymost_setuptexture(FHardwareTexture* tex, const int32_t dameth, int filter)
+static void polymost_setupsampler(FHardwareTexture* tex, const int32_t dameth, int filter)
 {
 
 	if (!(dameth & DAMETH_CLAMPED))
@@ -135,7 +137,7 @@ void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc)
 			pth->glpic->CreateTexture(siz.x, siz.y, true, false);
 			pth->glpic->SetSampler((dameth & DAMETH_CLAMPED) ? SamplerClampXY : SamplerRepeat);
 
-			polymost_setuptexture(pth->glpic, dameth, 0);
+			polymost_setupsampler(pth->glpic, dameth, 0);
 		}
 		TArray<uint8_t> flipped(siz.x * siz.y, true);
 		FlipNonSquareBlock(flipped.Data(), p, siz.y, siz.x, siz.y);
@@ -207,7 +209,7 @@ int32_t gloadtile_hi(int32_t dapic, int32_t dapalnum, int32_t facen, hicreplctyp
 	pth->scale = { 1.f,1.f };
 #endif
 
-	polymost_setuptexture(pth->glpic, dameth, (hicr->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
+	polymost_setupsampler(pth->glpic, dameth, (hicr->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : -1);
 
 	pth->picnum = dapic;
 	pth->effects = effect;
@@ -377,7 +379,94 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
 
 }
 
+extern int r_detailmapping, r_glowmapping, usehightile;
+
+bool GLInstance::ApplyTextureProps()
+{
+	int pal = palmanager.ActivePalswap();
+	if (currentTexture == nullptr) return false;
+	auto rep = currentTexture->FindReplacement(pal);
+	VSMatrix texmat;
+	bool changed = false;
+
+	// texture scale 
+	if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
+	{
+		texmat.loadIdentity();
+		texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
+		GLInterface.SetMatrix(Matrix_Texture, &texmat);
+	}
+
+	if (r_detailmapping)
+	{
+		auto detailrep = currentTexture->FindReplacement(DETAILPAL);
+		if (detailrep)
+		{
+			UseDetailMapping(true);
+			//BindTexture(3, detailrep->faces[0], SamplerRepeat);
+
+			texmat.loadIdentity();
+			bool scaled = false;
+
+			if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
+			{
+				texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
+				scaled = true;
+			}
+
+			if ((detailrep->scale.x != 1.0f) || (detailrep->scale.y != 1.0f))
+			{
+				texmat.scale(detailrep->scale.x, detailrep->scale.y, 1.0f);
+				scaled = true;
+			}
+
+			if (scaled) GLInterface.SetMatrix(Matrix_Detail, &texmat);
+			changed |= scaled;
+		}
+	}
+
+	// glow texture
+	if (r_glowmapping)
+	{
+		auto glowrep = currentTexture->FindReplacement(GLOWPAL);
+		if (glowrep)
+		{
+			UseGlowMapping(true);
+			//BindTexture(4, glowrep->faces[0], SamplerRepeat);
+		}
+	}
+
+	auto brightrep = currentTexture->FindReplacement(BRIGHTPAL);
+	if (brightrep)
+	{
+		//UseGlowMapping(true);
+		//BindTexture(5, glowrep->faces[0], SamplerRepeat);
+	}
+
+	return false; // true if the matrices were changed, false otherwise
+}
 
 
+
+void GLInstance::SetTexture(FTexture* tex, int palette, int method)
+{
+
+	GLInterface.SetPalswap(fixpalswap >= 1 ? fixpalswap - 1 : globalpal);
+	GLInterface.SetPalette(fixpalette >= 1 ? fixpalette - 1 : curbasepal);
+
+
+	pthtyp* pth = texcache_fetch(globalpicnum, globalpal, getpalookup(1, globalshade), method | PTH_INDEXED);
+	GLInterface.BindTexture(0, pth->glpic, mSampler);
+
+	// Fixme: Alpha test on shaders must be done differently.
+// Also: Consider a texture's alpha threshold.
+	float const al = alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f / 255.f) :
+		(pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f);
+
+	GLInterface.SetAlphaThreshold(al);
+}
+
+
+#endif
 
 #endif

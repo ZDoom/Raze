@@ -175,6 +175,4 @@ extern char ptempbuf[MAXWALLSB<<1];
 
 extern hitdata_t polymost_hitdata;
 
-#include "texcache.h"
-
 #endif
