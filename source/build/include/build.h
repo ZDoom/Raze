@@ -961,11 +961,6 @@ Coding example #2:
 
 TILE VARIABLES:
         NUMTILES - the number of tiles found TILES.DAT.
-        TILESIZX[MAXTILES] - simply the x-dimension of the tile number.
-        TILESIZY[MAXTILES] - simply the y-dimension of the tile number.
-        WALOFF[MAXTILES] - the actual address pointing to the top-left
-                                 corner of the tile.
-        PICANM[MAXTILES] - flags for animating the tile.
 
 TIMING VARIABLES:
         TOTALCLOCK - When the engine is initialized, TOTALCLOCK is set to zero.

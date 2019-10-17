@@ -59,15 +59,15 @@ BuildFiles TileFiles;
 //
 //==========================================================================
 
-picanm_t tileConvertAnimFormat(int32_t const picanmdisk)
+picanm_t tileConvertAnimFormat(int32_t const picanimraw)
 {
 	// Unpack a 4 byte packed anim descriptor into the internal 5 byte format.
 	picanm_t anm;
-	anm.num = picanmdisk & 63;
-	anm.xofs = (picanmdisk >> 8) & 255;
-	anm.yofs = (picanmdisk >> 16) & 255;
-	anm.sf = ((picanmdisk >> 24) & 15) | (picanmdisk & 192);
-	anm.extra = (picanmdisk >> 28) & 15;
+	anm.num = picanimraw & 63;
+	anm.xofs = (picanimraw >> 8) & 255;
+	anm.yofs = (picanimraw >> 16) & 255;
+	anm.sf = ((picanimraw >> 24) & 15) | (picanimraw & 192);
+	anm.extra = (picanimraw >> 28) & 15;
 	return anm;
 }
 
@@ -228,11 +228,10 @@ void BuildFiles::CloseAllMapArt()
 //
 // LoadArtFile
 //
-// Returns the number of tiles found. Also loads all the data for
-// R_InitBuildTiles() to process later.
+// Returns the number of tiles found.
 //
 // let's load everything into memory on startup.
-// Even for Ion Fury this will merely add 60 MB, because the engine already needs to cache the data, albeit in a compressed-per-lump form,
+// Even for Ion Fury this will merely add 80 MB, because the engine already needs to cache the data, albeit in a compressed-per-lump form,
 // so its 100MB art file will only have a partial impact on memory.
 //
 //===========================================================================
@@ -300,6 +299,8 @@ void BuildFiles::LoadArtSet(const char* filename)
 // For each tile index there may only be one replacement and its
 // type may never change!
 //
+// All these uses will need some review further down the line so that the texture manager's content is immutable.
+//
 //==========================================================================
 
 FTexture* BuildFiles::ValidateCustomTile(int tilenum, int type)
@@ -312,6 +313,13 @@ FTexture* BuildFiles::ValidateCustomTile(int tilenum, int type)
 	FTexture* replacement = nullptr;
 	if (type == FTexture::Writable)
 	{
+		// Creates an empty writable tile.
+		// Current use cases are:
+		// Camera textures (should be made to be creatable by the hardware renderer instead of falling back on the software renderer.)
+		// thumbnails for savegame and loadgame (should bypass the texture manager entirely.)
+		// view tilting in the software renderer (this should just use a local buffer instead of relying on the texture manager.)
+		// Movie playback (like thumbnails this should bypass the texture manager entirely.)
+		// Blood's 'lens' effect (apparently MP only) - combination of a camera texture with a distortion map - should be made a shader effect to be applied to the camera texture.
 		replacement = new FWritableTile;
 	}
 	else if (type == FTexture::Restorable)
@@ -320,6 +328,7 @@ FTexture* BuildFiles::ValidateCustomTile(int tilenum, int type)
 		// It only gets used for the crosshair and two specific effects:
 		// A) the fire in Blood.
 		// B) the pin display in Redneck Rampage's bowling lanes.
+		// All of these effects should probably be redone without actual texture hacking...
 		if (tile->GetWidth() == 0 || tile->GetHeight() == 0) return nullptr;	// The base must have a size for this to work.
 		// todo: invalidate hardware textures for tile.
 		replacement = new FRestorableTile(tile);

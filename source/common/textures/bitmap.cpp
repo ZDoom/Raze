@@ -2,7 +2,7 @@
 ** bitmap.cpp
 **
 **---------------------------------------------------------------------------
-** Copyright 2008 Christoph Oelckers
+** Copyright 2008-2019 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
