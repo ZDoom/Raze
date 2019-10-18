@@ -6,26 +6,28 @@
 
 #define SHIFTMOD32(a) ((a)&31)
 
-#define SHARED_MODEL_DATA int32_t mdnum, shadeoff; \
-                  float scale, bscale, zadd, yoffset; \
-                  FHardwareTexture **texid; \
-                  int32_t flags;
-
-#define IDMODEL_SHARED_DATA int32_t numframes, cframe, nframe, fpssc, usesalpha; \
-                       float oldtime, curtime, interpol; \
-                       mdanim_t *animations; \
-                       mdskinmap_t *skinmap; \
-                       int32_t numskins, skinloaded;
-
 #define IDP2_MAGIC 0x32504449
 #define IDP3_MAGIC 0x33504449
 
-class FHardwareTexture;
+class FTexture;
 
-typedef struct
+struct mdmodel_t
 {
-    SHARED_MODEL_DATA;
-} mdmodel_t;
+	int32_t mdnum, shadeoff;
+	float scale, bscale, zadd, yoffset;
+	FTexture **textures;
+	
+	int32_t flags;
+};
+
+struct idmodel_t : public mdmodel_t
+{
+	int32_t numframes, cframe, nframe, fpssc, usesalpha;
+	float oldtime, curtime, interpol;
+	mdanim_t *animations;
+	mdskinmap_t *skinmap;
+	int32_t numskins, skinloaded;
+};
 
 typedef struct _mdanim_t
 {
@@ -41,8 +43,7 @@ typedef struct _mdskinmap_t
 {
     uint8_t palette, flags, filler[2]; // Build palette number, flags the same as hightiles
     int32_t skinnum, surfnum;   // Skin identifier, surface number
-    char *fn;   // Skin filename
-    FHardwareTexture *texid[HICTINT_MEMORY_COMBINATIONS];   // OpenGL texture numbers for effect variations
+	FTexture *texture;
     struct _mdskinmap_t *next;
     float param, specpower, specfactor;
 } mdskinmap_t;
@@ -76,11 +77,8 @@ typedef struct
     uint16_t u[3];
 } md2tri_t;
 
-typedef struct
+struct md2model_t : public idmodel_t
 {
-    SHARED_MODEL_DATA;
-    IDMODEL_SHARED_DATA;
-
     //MD2 specific stuff:
     int32_t numverts, numglcmds, framebytes, *glcmds;
     char *frames;
@@ -88,7 +86,7 @@ typedef struct
     char *skinfn;   // pointer to first of numskins 64-char strings
     md2uv_t *uv;
     md2tri_t* tris;
-} md2model_t;
+};
 
 
 typedef struct { char nam[64]; int32_t i; } md3shader_t; //ascz path of shader, shader index
@@ -152,10 +150,8 @@ typedef struct
 
 #define SIZEOF_MD3HEAD_T (sizeof(md3head_t)-3*sizeof(void*))
 
-typedef struct
+struct md3model_t : public idmodel_t
 {
-    SHARED_MODEL_DATA;
-    IDMODEL_SHARED_DATA;
 
     //MD3 specific
     md3head_t head;
@@ -171,7 +167,7 @@ typedef struct
     GLuint *texcoords;
     GLuint *geometry;
 	*/
-} md3model_t;
+};
 
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
 #define VOXUSECHAR 0
@@ -184,15 +180,8 @@ typedef struct { uint16_t x, y, z, u, v; } vert_t;
 
 typedef struct { vert_t v[4]; } voxrect_t;
 
-typedef struct
+struct voxmodel_t : public mdmodel_t
 {
-    //WARNING: This top block is a union of md2model,md3model,voxmodel: Make sure it matches!
-    int32_t mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
-    int32_t shadeoff;
-    float scale, bscale, zadd;
-    FHardwareTexture **texid;    // skins for palettes
-    int32_t flags;
-
     //VOX specific stuff:
     voxrect_t *quad; int32_t qcnt, qfacind[7];
     int32_t *mytex, mytexx, mytexy;
@@ -205,10 +194,9 @@ typedef struct
 EXTERN mdmodel_t **models;
 
 void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal);
-FHardwareTexture *mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf);
+FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bool *exact)
 void mdinit(void);
 void freeallmodels(void);
-void clearskins(int32_t type);
 int32_t polymost_mddraw(tspriteptr_t tspr);
 EXTERN void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16]);
 

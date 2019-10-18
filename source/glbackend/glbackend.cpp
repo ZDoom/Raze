@@ -334,10 +334,6 @@ void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 			polymostShader->DetailMatrix.Set(mat->get());
 			break;
 
-		case Matrix_Glow:
-			polymostShader->GlowMatrix.Set(mat->get());
-			break;
-
 		case Matrix_Texture:
 			polymostShader->TextureMatrix.Set(mat->get());
 			break;

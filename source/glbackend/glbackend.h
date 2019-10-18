@@ -141,7 +141,6 @@ enum EMatrixType
 	Matrix_Projection,
 	Matrix_ModelView,
 	Matrix_Detail,
-	Matrix_Glow,
 	Matrix_Texture,
 	// These are the only ones being used.
 	NUMMATRICES
@@ -382,7 +381,20 @@ public:
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
 	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false);
 	FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
-	bool SetTexture(FTexture* tex, int palette, int method, int sampleroverride = -1);
+	bool SetTextureInternal(FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow);
+
+
+	bool SetTexture(FTexture* tex, int palette, int method, int sampleroverride)
+	{
+		return SetTextureInternal(tex, palette, method, sampleroverride, 0, 0, nullptr, 1, nullptr);
+	}
+
+	bool SetModelTexture(FTexture *tex, int palette, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow)
+	{
+		return SetTextureInternal(tex, palette, DAMETH_MODEL, -1, xpanning, ypanning, det, detscale, glow);
+	}
+
+)
 };
 
 extern GLInstance GLInterface;

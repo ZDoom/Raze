@@ -8,7 +8,6 @@
 
 void Polymost_CacheHitList(uint8_t* hash);
 
-	class FHardwareTexture;
 typedef struct { uint8_t r, g, b, a; } coltype;
 typedef struct { float r, g, b, a; } coltypef;
 
@@ -33,7 +32,6 @@ extern void Polymost_prepare_loadboard(void);
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...);
 
 //void phex(char v, char *s);
-void uploadtexture(FHardwareTexture *tex, int32_t doalloc, vec2_t siz, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
 void uploadbasepalette(int32_t basepalnum, bool transient = false);
 void uploadpalswaps(int count, int32_t *palookupnum);
 void polymost_drawsprite(int32_t snum);
@@ -117,6 +115,7 @@ enum {
     DAMETH_MASKPROPS = 3,
 
     DAMETH_CLAMPED = 4,
+	DAMETH_MODEL = 8,
 
     DAMETH_WALL = 32,  // signals a texture for a wall (for r_npotwallmode)
 
@@ -126,42 +125,6 @@ enum {
 
 #define DAMETH_NARROW_MASKPROPS(dameth) (((dameth)&(~DAMETH_TRANS1))|(((dameth)&DAMETH_TRANS1)>>1))
 EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
-
-// pthtyp pth->flags bits
-enum pthtyp_flags {
-    PTH_HIGHTILE = 2,
-    PTH_SKYBOX = 4,
-    PTH_HASALPHA = 8,
-    PTH_HASFULLBRIGHT = 16,
-    PTH_NPOTWALL = DAMETH_WALL,  // r_npotwallmode=1 generated texture
-    PTH_FORCEFILTER = 64,
-
-    PTH_INVALIDATED = 128,
-
-    PTH_INDEXED = 512,
-    PTH_ONEBITALPHA = 1024,
-};
-
-typedef struct pthtyp_t
-{
-    struct pthtyp_t *next;
-    struct pthtyp_t *ofb; // fullbright pixels
-    //     *hicr;
-
-    FHardwareTexture * glpic;
-    vec2f_t         scale;
-    vec2_t          siz;
-    int16_t         picnum;
-
-    uint16_t        flags; // see pthtyp_flags
-    polytintflags_t effects;
-    char            palnum;
-    char            shade;
-    char            skyface;
-} pthtyp;
-
-void gloadtile_art(int32_t dapic, int32_t dameth, pthtyp* pth, int32_t doalloc);
-extern int32_t gloadtile_hi(int32_t,int32_t,int32_t, int32_t,pthtyp *,int32_t, polytintflags_t);
 
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;

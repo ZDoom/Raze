@@ -4,7 +4,6 @@ out vec4 v_color;
 out float v_distance;
 out vec4 v_texCoord;
 out vec4 v_detailCoord;
-out vec4 v_glowCoord;
 out float v_fogCoord;
 
 uniform float u_usePalette;
@@ -12,7 +11,6 @@ uniform mat4 u_rotMatrix;
 uniform mat4 u_modelMatrix;
 uniform mat4 u_projectionMatrix;
 uniform mat4 u_detailMatrix;
-uniform mat4 u_glowMatrix;
 uniform mat4 u_textureMatrix;
 
 in vec4 i_vertPos;
@@ -33,7 +31,6 @@ void main()
 
    v_texCoord = u_textureMatrix * i_texCoord;
    v_detailCoord = u_detailMatrix * i_texCoord;
-   v_glowCoord = u_glowMatrix * i_texCoord;
 
    v_fogCoord = abs(eyeCoordPosition.z);
 

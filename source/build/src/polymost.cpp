@@ -121,11 +121,7 @@ int32_t r_yshearing = 0;
 static float fogresult, fogresult2;
 coltypef fogcol, fogtable[MAXPALOOKUPS];
 
-static GLuint quadVertsID = 0;
-
-
 int32_t r_useindexedcolortextures = -1;
-static FHardwareTexture *palswapTextureID = nullptr;
 
 static inline float float_trans(uint32_t maskprops, uint8_t blend)
 {
@@ -295,7 +291,6 @@ void polymost_glinit()
     {
         uploadbasepalette(basepalnum);
     }
-    palswapTextureID = 0;
     for (int palookupnum = 0; palookupnum < MAXPALOOKUPS; ++palookupnum)
     {
 		GLInterface.SetPalswapData(palookupnum, (uint8_t*)palookup[palookupnum], numshades+1);
@@ -432,12 +427,6 @@ static void resizeglcheck(void)
 
         if (!nofog) GLInterface.SetFogEnabled(true);
     }
-}
-
-
-void uploadtexture(FHardwareTexture *tex, coltype* pic)
-{
-	tex->LoadTexture((uint8_t *)pic);
 }
 
 void uploadbasepalette(int32_t basepalnum, bool transient)	// transient palettes are used by movies and should not affect the engine state. All other palettes only get set at game startup.
@@ -5610,7 +5599,10 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     int const surfaces = (models[mid]->mdnum == 3) ? ((md3model_t *)models[mid])->head.numsurfs : 0;
 
     for (int i = 0; i <= surfaces; i++)
-        mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
+	{
+        auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
+		if (tex) GLInterface.SetTexture(tex, dapalnum, 0);
+	}
 }
 
 void PrecacheHardwareTextures(int nTile)

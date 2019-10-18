@@ -119,11 +119,11 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 
 //===========================================================================
 // 
-//	Sets a texture for rendering
+//	Sets a texture for rendering. This should be the ONLY place to bind in-game textures
 //
 //===========================================================================
 
-bool GLInstance::SetTexture(FTexture* tex, int palette, int method, int sampleroverride)
+bool GLInstance::SetTextureInternal(FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow)
 {
 	int usepalette = fixpalette >= 1 ? fixpalette - 1 : curbasepal;
 	int usepalswap = fixpalswap >= 1 ? fixpalswap - 1 : palette;
@@ -155,9 +155,10 @@ bool GLInstance::SetTexture(FTexture* tex, int palette, int method, int samplero
 		auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
 
 		BindTexture(0, mtex, sampler);
-		if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
+		if (rep && (rep->scale.x != 1.0f || rep->scale.y != 1.0f || xpanning != 0 || ypanning != 0))
 		{
 			texmat.loadIdentity();
+			texmat.translate(xpanning, ypanning, 0);
 			texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
 			GLInterface.SetMatrix(Matrix_Texture, &texmat);
 			MatrixChange |= 1;
@@ -166,24 +167,30 @@ bool GLInstance::SetTexture(FTexture* tex, int palette, int method, int samplero
 		// Also load additional layers needed for this texture.
 		if (r_detailmapping && usehightile)
 		{
-			auto drep = currentTexture->FindReplacement(DETAILPAL);
-			if (drep)
+			float detscalex = detscale, detscaley = detscale;
+			if (!(method & DAMETH_MODEL))
 			{
-				auto htex = LoadTexture(drep->faces[0], TT_HICREPLACE, 0);
+				auto drep = currentTexture->FindReplacement(DETAILPAL);
+				if (drep)
+				{
+					det = drep->faces[0];
+					detscalex = drep->scale.x;
+					detscaley = drep->scale.y;
+				}
+			}
+			if (det)
+			{
+				auto htex = LoadTexture(det, TT_HICREPLACE, 0);
 				UseDetailMapping(true);
 				BindTexture(3, htex, SamplerRepeat);
 
-				texmat.loadIdentity();
+				// Q: Pass the scale factor as a separate uniform to get rid of the additional matrix?
+				if (MatrixChange & 1) MatrixChange |= 2;
+				else texmat.loadIdentity();
 
-				if (rep && ((rep->scale.x != 1.0f) || (rep->scale.y != 1.0f)))
+				if ((detscalex != 1.0f) || (detscaley != 1.0f))
 				{
-					texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
-					MatrixChange |= 2;
-				}
-
-				if ((drep->scale.x != 1.0f) || (drep->scale.y != 1.0f))
-				{
-					texmat.scale(drep->scale.x, drep->scale.y, 1.0f);
+					texmat.scale(detscalex, detscaley, 1.0f);
 					MatrixChange |= 2;
 				}
 				if (MatrixChange & 2) GLInterface.SetMatrix(Matrix_Detail, &texmat);
@@ -191,13 +198,19 @@ bool GLInstance::SetTexture(FTexture* tex, int palette, int method, int samplero
 		}
 		if (r_glowmapping && usehightile)
 		{
-			auto drep = currentTexture->FindReplacement(GLOWPAL);
-			if (drep)
+			if (!(method & DAMETH_MODEL))
 			{
-				auto htex = LoadTexture(drep->faces[0], TT_HICREPLACE, 0);
+				auto drep = currentTexture->FindReplacement(DETAILPAL);
+				if (drep)
+				{
+					glow = drep->faces[0];
+				}
+			}
+			if (glow)
+			{
+				auto htex = LoadTexture(glow, TT_HICREPLACE, 0);
 				UseGlowMapping(true);
 				BindTexture(4, htex, SamplerRepeat);
-
 			}
 		}
 		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT))
@@ -233,6 +246,5 @@ bool GLInstance::SetTexture(FTexture* tex, int palette, int method, int samplero
 	}
 	GLInterface.SetAlphaThreshold(al);
 }
-
 
 

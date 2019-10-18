@@ -37,7 +37,6 @@ in vec4 v_color;
 in float v_distance;
 in vec4 v_texCoord;
 in vec4 v_detailCoord;
-in vec4 v_glowCoord;
 in float v_fogCoord;
 
 const float c_basepalScale = 255.0/256.0;
@@ -210,7 +209,7 @@ void main()
 
 	if (u_useGlowMapping != 0.0 && u_useColorOnly == 0.0)
 	{
-		vec4 glowColor = texture2D(s_glow, v_glowCoord.xy);
+		vec4 glowColor = texture2D(s_glow, v_texCoord.xy);
 		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);
 	}
 	

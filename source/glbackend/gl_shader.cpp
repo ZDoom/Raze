@@ -156,7 +156,6 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	ModelMatrix.Init(hShader, "u_modelMatrix");
 	ProjectionMatrix.Init(hShader, "u_projectionMatrix");
 	DetailMatrix.Init(hShader, "u_detailMatrix");
-	GlowMatrix.Init(hShader, "u_glowMatrix");
 	TextureMatrix.Init(hShader, "u_textureMatrix");
 
 
@@ -166,7 +165,6 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	VSMatrix identity(0);
 	TextureMatrix.Set(identity.get());
 	DetailMatrix.Set(identity.get());
-	GlowMatrix.Set(identity.get());
 
 	int SamplerLoc;
     SamplerLoc = glGetUniformLocation(hShader, "s_texture");
