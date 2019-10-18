@@ -288,7 +288,7 @@ bool FTexture::ProcessData(unsigned char * buffer, int w, int h, bool ispatch)
 //
 //===========================================================================
 
-FTextureBuffer FTexture::CreateTexBuffer(int translation, int flags)
+FTextureBuffer FTexture::CreateTexBuffer(PalEntry * remap, int flags)
 {
 	FTextureBuffer result;
 
@@ -297,29 +297,19 @@ FTextureBuffer FTexture::CreateTexBuffer(int translation, int flags)
 	int isTransparent = -1;
 	bool checkonly = !!(flags & CTF_CheckOnly);
 
-#if 0
-	if (flags & CTF_CheckHires)
-	{
-		// No image means that this cannot be checked,
-		if (GetImage() && LoadHiresTexture(result, checkonly)) return result;
-	}
-#endif
-	int exx = !!(flags & CTF_Expand);
-
-	W = GetWidth() + 2 * exx;
-	H = GetHeight() + 2 * exx;
+	W = GetWidth();
+	H = GetHeight();
 
 	if (!checkonly)
 	{
 		buffer = new unsigned char[W*(H + 1) * 4];
 		memset(buffer, 0, W * (H + 1) * 4);
 
-		auto remap = nullptr;// translation <= 0 ? nullptr : FUniquePalette::GetPalette(translation);
 		FBitmap bmp(buffer, W * 4, W, H);
 
 		int trans;
 		auto Pixels = GetBgraBitmap(remap, &trans);
-		bmp.Blit(exx, exx, Pixels);
+		bmp.Blit(0, 0, Pixels);
 
 		if (remap == nullptr)
 		{
@@ -333,27 +323,13 @@ FTextureBuffer FTexture::CreateTexBuffer(int translation, int flags)
 		}
 	}
 
-	if (GetImage())
-	{
-		FContentIdBuilder builder;
-		builder.id = 0;
-		builder.imageID = GetImage()->GetId();
-		builder.translation = std::max(0, translation);
-		builder.expand = exx;
-		result.mContentId = builder.id;
-	}
-	else result.mContentId = 0;	// for non-image backed textures this has no meaning so leave it at 0.
-
 	result.mBuffer = buffer;
 	result.mWidth = W;
 	result.mHeight = H;
 
 	// Only do postprocessing for image-backed textures. (i.e. not for the burn texture which can also pass through here.)
-	if (GetImage() && flags & CTF_ProcessData) 
+	if (flags & CTF_ProcessData)
 	{
-#if 0
-		CreateUpsampledTextureBuffer(result, !!isTransparent, checkonly);
-#endif
 		if (!checkonly) ProcessData(result.mBuffer, result.mWidth, result.mHeight, false);
 	}
 
@@ -447,24 +423,19 @@ HightileReplacement *FTexture::FindReplacement(int palnum, bool skybox)
     return nullptr;	// no replacement found
 }
 
-#if 0
-//==========================================================================
+//===========================================================================
 //
-// 
 //
-//==========================================================================
+//
+//===========================================================================
 
-FWrapperTexture::FWrapperTexture(int w, int h, int bits)
+void FTexture::DeleteHardwareTextures()
 {
-	Width = w;
-	Height = h;
-	Format = bits;
-	UseType = ETextureType::SWCanvas;
-	bNoCompress = true;
-	auto hwtex = screen->CreateHardwareTexture();
-	// todo: Initialize here.
-	SystemTextures.AddHardwareTexture(0, false, hwtex);
+	decltype(HardwareTextures)::Iterator it(HardwareTextures);
+	decltype(HardwareTextures)::Pair *pair;
+	while (it.NextPair(pair))
+	{
+		delete pair;
+	}
+	HardwareTextures.Clear();
 }
-
-#endif
-

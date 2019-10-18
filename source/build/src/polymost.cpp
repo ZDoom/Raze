@@ -17,7 +17,6 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "bitmap.h"
 #include "../../glbackend/glbackend.h"
 
-void cleartexturecache();
 
 extern char textfont[2048], smalltextfont[2048];
 
@@ -272,7 +271,7 @@ void polymost_glreset()
     }
     else
     {
-		cleartexturecache();
+		TileFiles.CleatTextureCache();
         clearskins(INVALIDATE_ALL);
     }
 

@@ -257,7 +257,7 @@ void PaletteManager::BindPalswap(int index)
 }
 
 
-int PaletteManager::LookupPalette(int palette, int palswap)
+int PaletteManager::LookupPalette(int palette, int palswap, bool brightmap)
 {
 	int realpal = palettemap[palette];
 	int realswap = palswapmap[palswap];

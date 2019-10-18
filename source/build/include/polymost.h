@@ -61,8 +61,6 @@ enum {
     INVALIDATE_ART_NON_INDEXED
 };
 
-void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
-void gltexinvalidatetype(int32_t type);
 int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
 
 extern float curpolygonoffset;

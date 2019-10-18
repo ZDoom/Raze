@@ -162,7 +162,6 @@ struct FTextureBuffer
 	uint8_t *mBuffer = nullptr;
 	int mWidth = 0;
 	int mHeight = 0;
-	uint64_t mContentId = 0;	// unique content identifier. (Two images created from the same image source with the same settings will return the same value.)
 
 	FTextureBuffer() = default;
 
@@ -237,12 +236,13 @@ public:
 	int GetTopOffset() const { return PicAnim.yofs; }
 	picanm_t& GetAnim() { return PicAnim;  }	// This must be modifiable. There's quite a bit of code messing around with the flags in here.
 	rottile_t& GetRotTile() { return RotTile; }
-	FTextureBuffer CreateTexBuffer(int translation, int flags = 0);
+	FTextureBuffer CreateTexBuffer(PalEntry *palette, int flags = 0);
 	bool GetTranslucency();
 	void CheckTrans(unsigned char * buffer, int size, int trans);
 	bool ProcessData(unsigned char * buffer, int w, int h, bool ispatch);
 	virtual void Reload() {}
 	UseType GetUseType() const { return useType; }
+	void DeleteHardwareTextures();
 	void AddReplacement(const HightileReplacement &);
 	void DeleteReplacement(int palnum);
 	void DeleteReplacements()
@@ -254,10 +254,9 @@ public:
 	{
 		HardwareTextures.Insert(palid, htex);
 	}
-	FHardwareTexture* GetHardwareTexture(int palid)
+	FHardwareTexture** GetHardwareTexture(int palid)
 	{
-		auto k = HardwareTextures.CheckKey(palid);
-		return k ? *k : nullptr;
+		return HardwareTextures.CheckKey(palid);
 	}
 
 	HightileReplacement * FindReplacement(int palnum, bool skybox = false);
@@ -314,6 +313,7 @@ protected:
 	TMap<int, FHardwareTexture*> HardwareTextures;	// Note: These must be deleted by the backend. When the texture manager is taken down it may already be too late to delete them.
 
 	FTexture (const char *name = NULL);
+	friend class BuildFiles;
 };
 
 class FTileTexture : public FTexture
@@ -548,6 +548,8 @@ struct BuildFiles
 	void tileSetExternal(int tilenum, int width, int height, uint8_t* data);
 	int findUnusedTile(void);
 	int tileCreateRotated(int owner);
+	void CleatTextureCache(bool artonly = false);
+	void InvalidateTile(int num);
 };
 
 int tileCRC(int tileNum);
@@ -621,6 +623,13 @@ inline rottile_t& RotTile(int tile)
 	assert(tile < MAXTILES);
 	return TileFiles.tiles[tile]->GetRotTile();
 }
+
+
+inline void tileInvalidate(int16_t tilenume, int32_t, int32_t)
+{
+	TileFiles.InvalidateTile(tilenume);
+}
+
 #endif
 
 

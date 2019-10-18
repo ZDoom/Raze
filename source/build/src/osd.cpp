@@ -2161,10 +2161,10 @@ int osdcmd_cvar_set(osdcmdptr_t parm)
             //osdcmd_restartvid(NULL);
             break;
         case CVAR_INVALIDATEALL:
-            gltexinvalidatetype(INVALIDATE_ALL);
-            fallthrough__;
+			TileFiles.ClearTextureCache(false);
+			break;
         case CVAR_INVALIDATEART:
-            gltexinvalidatetype(INVALIDATE_ART);
+			TileFiles.ClearTextureCache(true);
             break;
         }
     }

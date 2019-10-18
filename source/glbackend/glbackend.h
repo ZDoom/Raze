@@ -82,7 +82,8 @@ public:
 	void BindPalette(int index);
 	void BindPalswap(int index);
 	int ActivePalswap() const { return lastsindex; }
-	int LookupPalette(int palette, int palswap);
+	int LookupPalette(int palette, int palswap, bool brightmap);
+	const PalEntry *GetPaletteData(int palid) const { return palettes[palid].colors; }
 };
 
 
@@ -193,7 +194,8 @@ enum ETexType
 {
 	TT_INDEXED,
 	TT_TRUECOLOR,
-	TT_HICREPLACE
+	TT_HICREPLACE,
+	TT_BRIGHTMAP
 };
 
 class GLInstance
@@ -378,6 +380,7 @@ public:
 	}
 	
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
+	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false);
 	FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
 	bool SetTexture(FTexture* tex, int palette, int method, int sampleroverride = -1);
 };

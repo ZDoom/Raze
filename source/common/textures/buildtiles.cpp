@@ -226,6 +226,52 @@ void BuildFiles::CloseAllMapArt()
 
 //===========================================================================
 //
+// ClearTextureCache
+//
+// Deletes all hardware textures
+//
+//===========================================================================
+
+void BuildFiles::CleatTextureCache(bool artonly)
+{
+	for (auto tex : AllTiles)
+	{
+		tex->DeleteHardwareTextures();
+	}
+	for (auto tex : AllMapTiles)
+	{
+		tex->DeleteHardwareTextures();
+	}
+	if (!artonly)
+	{
+		decltype(textures)::Iterator it(textures);
+		decltype(textures)::Pair* pair;
+		while (it.NextPair(pair))
+		{
+			pair->Value->DeleteHardwareTextures();
+		}
+	}
+}
+
+
+void BuildFiles::InvalidateTile(int num)
+{
+	if ((unsigned) num < MAXTILES)
+	{
+		auto tex = tiles[num];
+		tex->DeleteHardwareTextures();
+		for (auto &rep : tex->Hightiles)
+		{
+			for (auto &reptex : rep.Faces)
+			{
+				if (reptex) reptex->DeleteHardwareTextures();
+			}
+		}
+	}
+}
+
+//===========================================================================
+//
 // LoadArtFile
 //
 // Returns the number of tiles found.
