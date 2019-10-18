@@ -294,7 +294,10 @@ int BuildFiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 			const uint8_t *artptr = artdata.Data();
 			if (artdata.Size() > 16)
 			{
-				if (memcmp(artptr, "BUILDART", 8) == 0) artptr += 8;
+				if (memcmp(artptr, "BUILDART", 8) == 0)
+				{
+					artdata.Delete(0, 8);
+				}
 				// Only load the data if the header is present
 				if (CountTiles(fn, artptr) > 0)
 				{
