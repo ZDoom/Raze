@@ -5464,14 +5464,37 @@ void palookupinfo()
 	int black = -1, white = -1;
 
 	int brightness = 0;
+	int brightest = -1, darkest = -1;
+	int brightlum = 0, darklum = 255;
 	for (int i = 0; i < 765; i += 3)
 	{
 		if (pal[i] == 0 && pal[i + 1] == 0 && pal[i + 2] == 0) black = i;
 		if (pal[i] == 255 && pal[i + 1] == 255 && pal[i + 2] == 255) white = i/3;
-		brightness += Luminance(pal[i], pal[i + 1], pal[i + 2]);
+		int lumi = Luminance(pal[i], pal[i + 1], pal[i + 2]);
+		brightness += lumi;
+		if (lumi < darklum)
+		{
+			darklum = lumi;
+			darkest = i;
+		}
+		if (lumi > brightlum)
+		{
+			brightlum = lumi;
+			brightest = i;
+		}
 	}
 	brightness /= 255;
 	OSD_Printf("Black at index %d, white at index %d, avg. luminance %d\n", black, white, brightness);
+	if (black == -1)
+	{
+		OSD_Printf("No black found - using nearest color %02x %02x %02x\n", pal[darkest], pal[darkest + 1], pal[darkest + 2]);
+		black = darkest;
+	}
+	if (white == -1)
+	{
+		OSD_Printf("No white found - using nearest color %02x %02x %02x\n", pal[brightest], pal[brightest + 1], pal[brightest + 2]);
+		white = brightest;
+	}
 
 
 	for (int i = 0; i < 256; i++)
@@ -5488,21 +5511,27 @@ void palookupinfo()
 		}
 		OSD_Printf("palookup[%d]:\n", i);
 
-		for (int j = 0; j <= numshades; j++)
+		float lum0 = 0;
+		for (int j = 0; j < numshades; j++)
 		{
 			OSD_Printf("    Shade %d\n", j);
 			int map = palookup[i][j * 256 + black] * 3;
-			OSD_Printf("        Black maps to %d - %02x %02x %02x\n", map, pal[map], pal[map + 1], pal[map + 2]);
+			PalEntry blackmap(pal[map], pal[map + 1], pal[map + 2]);
 			map = palookup[i][j * 256 + white] * 3;
-			OSD_Printf("        White maps to %d - %02x %02x %02x\n", map, pal[map], pal[map + 1], pal[map + 2]);
-			int mylum = 0;
+			PalEntry whitemap(pal[map], pal[map + 1], pal[map + 2]);
+
+			OSD_Printf("        Black maps to %d - %02x %02x %02x\n", map/3, blackmap.r, blackmap.g, blackmap.b);
+			OSD_Printf("        White maps to %d - %02x %02x %02x\n", map/3, whitemap.r, whitemap.g, whitemap.b);
+			OSD_Printf("        White-Black maps to %d - %02x %02x %02x\n", map/3, whitemap.r-blackmap.r, whitemap.g - blackmap.g, whitemap.b - blackmap.b );
+			float mylum = 0;
 			for (int k = 0; k < 255; k++)
 			{
 				map = palookup[i][j * 256 + k] * 3;
 				mylum += Luminance(pal[map], pal[map + 1], pal[map + 2]);
 			}
-			mylum /= 255;
-			OSD_Printf("        luminance = %d\n", mylum);
+			mylum /= 255*255;
+			if (j == 0) lum0 = mylum;
+			OSD_Printf("        luminance abs = %2.4f rel = %2.4f, fade only = %2.4f\n", mylum, mylum / lum0, (mylum - blackmap.Luminance()/255.f) / lum0);
 		}
 		OSD_Printf("-------------------------\n");
 	}
