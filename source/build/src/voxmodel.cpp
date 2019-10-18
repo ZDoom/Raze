@@ -46,9 +46,9 @@ FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, in
     {
         for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
         {
-            pic2[i].b = pic[i].r;
+            pic2[i].r = pic[i].r;
             pic2[i].g = pic[i].g;
-            pic2[i].r = pic[i].b;
+            pic2[i].b = pic[i].b;
             pic2[i].a = 255;
         }
     }
@@ -61,9 +61,9 @@ FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, in
         {
             const int32_t ii = palookup[dapal][pic[i].a];
 
-            pic2[i].r = curpalette[ii].b;
+            pic2[i].r = curpalette[ii].r;
             pic2[i].g = curpalette[ii].g;
-            pic2[i].b = curpalette[ii].r;
+            pic2[i].b = curpalette[ii].b;
             pic2[i].a = 255;
         }
     }
@@ -1128,7 +1128,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
-#if 0
+#if 1
     if (!m->texid[globalpal])
         m->texid[globalpal] = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, globalpal);
 
