@@ -261,18 +261,43 @@ int PaletteManager::LookupPalette(int palette, int palswap, bool brightmap)
 {
 	int realpal = palettemap[palette];
 	int realswap = palswapmap[palswap];
-	int combined = realpal * 0x10000 + realswap;
+	int combined = (brightmap? 0x1000000 : 0) + realpal * 0x10000 + realswap;
 	int* combinedindex = swappedpalmap.CheckKey(combined);
 	if (combinedindex) return *combinedindex;
 	
 	PaletteData* paldata = &palettes[realpal];
 	PalswapData* swapdata = &palswaps[realswap];
 	PalEntry swappedpalette[256];
-	for (int i = 0; i < 256; i++)
+	if (!brightmap)
 	{
-		int swapi = swapdata->lookup[i];
-		swappedpalette[i] = paldata->colors[swapi];
+		for (int i = 0; i < 255; i++)
+		{
+			int swapi = swapdata->lookup[i];
+			swappedpalette[i] = paldata->colors[swapi];
+			swappedpalette[i].a = 255;
+		}
 	}
+	else
+	{
+		bool found = false;
+		memset(swappedpalette, 0, sizeof(swappedpalette));
+		for (int i = 0; i < 255; i++)
+		{
+			int swapi = swapdata->lookup[i];
+			auto swapc = paldata->colors[swapi];
+			if (swapc.a)
+			{
+				found = true;
+				swappedpalette[i] = 0xffffffff;
+			}
+		}
+		if (!found)
+		{
+			swappedpalmap.Insert(combined, -1);
+			return -1;
+		}
+	}
+	swappedpalette[255] = 0;
 	int palid = FindPalette((uint8_t*)swappedpalette);
 	swappedpalmap.Insert(combined, palid);
 	return palid;

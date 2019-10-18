@@ -214,7 +214,6 @@ bool GLInstance::SetTexture(FTexture* tex, int palette, int method, int samplero
 			}
 			else if (TextureType == TT_TRUECOLOR)
 			{
-				// Todo: brightmaps for true color tiles
 				lookuppal = palmanager.LookupPalette(usepalette, usepalswap, true);
 				if (lookuppal >= 0)
 				{
