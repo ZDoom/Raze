@@ -176,7 +176,6 @@ struct FTextureBuffer
 		mBuffer = other.mBuffer;
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
-		mContentId = other.mContentId;
 		other.mBuffer = nullptr;
 	}
 
@@ -185,7 +184,6 @@ struct FTextureBuffer
 		mBuffer = other.mBuffer;
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
-		mContentId = other.mContentId;
 		other.mBuffer = nullptr;
 		return *this;
 	}
@@ -223,7 +221,7 @@ public:
 	virtual void Create8BitPixels(uint8_t* buffer);
 	virtual const uint8_t* Get8BitPixels();
 	virtual uint8_t* GetWritableBuffer() { return nullptr; }	// For dynamic tiles. Requesting this must also invalidate the texture.
-	virtual FBitmap GetBgraBitmap(PalEntry *remap, int *trans = nullptr);
+	virtual FBitmap GetBgraBitmap(const PalEntry *remap, int *trans = nullptr);
 
 	static int SmoothEdges(unsigned char * buffer,int w, int h);
 	static PalEntry averageColor(const uint32_t *data, int size, int maxout);
@@ -236,7 +234,7 @@ public:
 	int GetTopOffset() const { return PicAnim.yofs; }
 	picanm_t& GetAnim() { return PicAnim;  }	// This must be modifiable. There's quite a bit of code messing around with the flags in here.
 	rottile_t& GetRotTile() { return RotTile; }
-	FTextureBuffer CreateTexBuffer(PalEntry *palette, int flags = 0);
+	FTextureBuffer CreateTexBuffer(const PalEntry *palette, int flags = 0);
 	bool GetTranslucency();
 	void CheckTrans(unsigned char * buffer, int size, int trans);
 	bool ProcessData(unsigned char * buffer, int w, int h, bool ispatch);
@@ -313,7 +311,7 @@ protected:
 	TMap<int, FHardwareTexture*> HardwareTextures;	// Note: These must be deleted by the backend. When the texture manager is taken down it may already be too late to delete them.
 
 	FTexture (const char *name = NULL);
-	friend class BuildFiles;
+	friend struct BuildFiles;
 };
 
 class FTileTexture : public FTexture
@@ -324,7 +322,7 @@ public:
 		useType = Art;
 	}
 	void SetName(const char* name) { Name = name; }
-	FBitmap GetBgraBitmap(PalEntry* remap, int* ptrans) override;
+	FBitmap GetBgraBitmap(const PalEntry* remap, int* ptrans) override;
 	void Create8BitPixels(uint8_t* buffer) override;
 };
 
@@ -548,7 +546,7 @@ struct BuildFiles
 	void tileSetExternal(int tilenum, int width, int height, uint8_t* data);
 	int findUnusedTile(void);
 	int tileCreateRotated(int owner);
-	void CleatTextureCache(bool artonly = false);
+	void ClearTextureCache(bool artonly = false);
 	void InvalidateTile(int num);
 };
 

@@ -267,8 +267,7 @@ void polymost_glreset()
     }
     else
     {
-		TileFiles.CleatTextureCache();
-        clearskins(INVALIDATE_ALL);
+		TileFiles.ClearTextureCache();
     }
 
 	if (polymosttext)
@@ -5255,7 +5254,7 @@ void polymost_fillpolygon(int32_t npoints)
 
     if (gloy1 != -1) polymostSet2dView(); //disables blending, texturing, and depth testing
     GLInterface.EnableAlphaTest(true);
-	GLInterface.SetTexture(TileFiles.tiles[globalpicnum], globalpal, DAMETH_NOMASK);
+	GLInterface.SetTexture(TileFiles.tiles[globalpicnum], globalpal, DAMETH_NOMASK, -1);
 
     uint8_t const maskprops = (globalorientation>>7)&DAMETH_MASKPROPS;
     handle_blend(maskprops > DAMETH_MASK, 0, maskprops == DAMETH_TRANS2);
@@ -5587,7 +5586,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
-    GLInterface.SetTexture(TileFiles.tiles[dapicnum], dapalnum, 0);
+    GLInterface.SetTexture(TileFiles.tiles[dapicnum], dapalnum, 0, -1);
     hicprecaching = 0;
 
     if (datype == 0 || !usemodels) return;
@@ -5600,8 +5599,8 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
     for (int i = 0; i <= surfaces; i++)
 	{
-        auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
-		if (tex) GLInterface.SetTexture(tex, dapalnum, 0);
+        auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i, nullptr);
+		if (tex) GLInterface.SetTexture(tex, dapalnum, 0, -1);
 	}
 }
 

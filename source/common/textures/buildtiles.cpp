@@ -79,7 +79,7 @@ picanm_t tileConvertAnimFormat(int32_t const picanimraw)
 //
 //==========================================================================
 
-FBitmap FTileTexture::GetBgraBitmap(PalEntry* remap, int* ptrans)
+FBitmap FTileTexture::GetBgraBitmap(const PalEntry* remap, int* ptrans)
 {
 	FBitmap bmp;
 	TArray<uint8_t> buffer;
@@ -232,7 +232,7 @@ void BuildFiles::CloseAllMapArt()
 //
 //===========================================================================
 
-void BuildFiles::CleatTextureCache(bool artonly)
+void BuildFiles::ClearTextureCache(bool artonly)
 {
 	for (auto tex : AllTiles)
 	{
@@ -262,7 +262,7 @@ void BuildFiles::InvalidateTile(int num)
 		tex->DeleteHardwareTextures();
 		for (auto &rep : tex->Hightiles)
 		{
-			for (auto &reptex : rep.Faces)
+			for (auto &reptex : rep.faces)
 			{
 				if (reptex) reptex->DeleteHardwareTextures();
 			}

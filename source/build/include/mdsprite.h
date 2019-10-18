@@ -15,9 +15,25 @@ struct mdmodel_t
 {
 	int32_t mdnum, shadeoff;
 	float scale, bscale, zadd, yoffset;
-	FTexture **textures;
+	FTexture *texture;
 	
 	int32_t flags;
+};
+
+struct mdanim_t
+{
+	int32_t startframe, endframe;
+	int32_t fpssc, flags;
+	mdanim_t* next;
+};
+
+struct mdskinmap_t
+{
+	uint8_t palette, flags, filler[2]; // Build palette number, flags the same as hightiles
+	int32_t skinnum, surfnum;   // Skin identifier, surface number
+	FTexture* texture;
+	mdskinmap_t* next;
+	float param, specpower, specfactor;
 };
 
 struct idmodel_t : public mdmodel_t
@@ -29,24 +45,9 @@ struct idmodel_t : public mdmodel_t
 	int32_t numskins, skinloaded;
 };
 
-typedef struct _mdanim_t
-{
-    int32_t startframe, endframe;
-    int32_t fpssc, flags;
-    struct _mdanim_t *next;
-} mdanim_t;
-
 #define MDANIM_LOOP 0
 #define MDANIM_ONESHOT 1
 
-typedef struct _mdskinmap_t
-{
-    uint8_t palette, flags, filler[2]; // Build palette number, flags the same as hightiles
-    int32_t skinnum, surfnum;   // Skin identifier, surface number
-	FTexture *texture;
-    struct _mdskinmap_t *next;
-    float param, specpower, specfactor;
-} mdskinmap_t;
 
 
 //This MD2 code is based on the source code from David Henry (tfc_duke(at)hotmail.com)
@@ -189,12 +190,12 @@ struct voxmodel_t : public mdmodel_t
     vec3f_t piv;
     int32_t is8bit;
 
-} voxmodel_t;
+};
 
 EXTERN mdmodel_t **models;
 
 void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal);
-FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bool *exact)
+FTexture* mdloadskin(idmodel_t* m, int32_t number, int32_t pal, int32_t surf, bool* exact);
 void mdinit(void);
 void freeallmodels(void);
 int32_t polymost_mddraw(tspriteptr_t tspr);

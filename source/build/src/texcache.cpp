@@ -4,7 +4,6 @@
 #include "lz4.h"
 #include "hightile.h"
 #include "polymost.h"
-#include "texcache.h"
 #include "scriptfile.h"
 #include "xxhash.h"
 #include "kplib.h"
@@ -109,9 +108,9 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 
 	FHardwareTexture *hwtex;
 	if (textype == TT_INDEXED)
-		auto hwtex = CreateIndexedTexture(tex);
+		hwtex = CreateIndexedTexture(tex);
 	else
-		auto hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP);
+		hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP);
 	
 	tex->SetHardwareTexture(palid, hwtex);
 	return hwtex;
@@ -135,7 +134,7 @@ bool GLInstance::SetTextureInternal(FTexture* tex, int palette, int method, int 
 	int lookuppal = 0;
 	VSMatrix texmat;
 
-	auto rep = usehightile? currentTexture->FindReplacement(palette) : nullptr;
+	auto rep = usehightile? tex->FindReplacement(palette) : nullptr;
 	if (rep)
 	{
 		// Hightile replacements have only one texture representation and it is always the base.
@@ -170,7 +169,7 @@ bool GLInstance::SetTextureInternal(FTexture* tex, int palette, int method, int 
 			float detscalex = detscale, detscaley = detscale;
 			if (!(method & DAMETH_MODEL))
 			{
-				auto drep = currentTexture->FindReplacement(DETAILPAL);
+				auto drep = tex->FindReplacement(DETAILPAL);
 				if (drep)
 				{
 					det = drep->faces[0];
@@ -200,7 +199,7 @@ bool GLInstance::SetTextureInternal(FTexture* tex, int palette, int method, int 
 		{
 			if (!(method & DAMETH_MODEL))
 			{
-				auto drep = currentTexture->FindReplacement(DETAILPAL);
+				auto drep = tex->FindReplacement(DETAILPAL);
 				if (drep)
 				{
 					glow = drep->faces[0];
@@ -217,7 +216,7 @@ bool GLInstance::SetTextureInternal(FTexture* tex, int palette, int method, int 
 		{
 			if (TextureType == TT_HICREPLACE)
 			{
-				auto brep = currentTexture->FindReplacement(BRIGHTPAL);
+				auto brep = tex->FindReplacement(BRIGHTPAL);
 				if (brep)
 				{
 					auto htex = LoadTexture(brep->faces[0], TT_HICREPLACE, 0);
@@ -237,6 +236,7 @@ bool GLInstance::SetTextureInternal(FTexture* tex, int palette, int method, int 
 			}
 		}
 	}
+	else return false;
 
 	float al = 0;
 	if (TextureType == TT_HICREPLACE)
@@ -245,6 +245,7 @@ bool GLInstance::SetTextureInternal(FTexture* tex, int palette, int method, int 
 			(tex->alphaThreshold >= 0.f ? tex->alphaThreshold : 0.f);
 	}
 	GLInterface.SetAlphaThreshold(al);
+	return true;
 }
 
 

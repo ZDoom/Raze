@@ -805,7 +805,7 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
     // the MD2 is now loaded internally - let's begin the MD3 conversion process
     //OSD_Printf("Beginning md3 conversion.\n");
     m3 = (md3model_t *)Xcalloc(1, sizeof(md3model_t));
-    m3->mdnum = 3; m3->texture = nullptr m3->scale = m->scale;
+	m3->mdnum = 3; m3->texture = nullptr; m3->scale = m->scale;
     m3->head.id = IDP3_MAGIC; m3->head.vers = 15;
 
     m3->head.flags = 0;
@@ -911,7 +911,7 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
 			sk->texture = TileFiles.GetTexture(fn);
 			if (!sk->texture)
 			{
-				initprintf("Unable to load %s as model skin\n", skinfn);
+				initprintf("Unable to load %s as model skin\n", m->skinfn);
 			}
         }
         m3->skinmap = sk;
@@ -1743,7 +1743,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 			det = tex = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi, nullptr) : nullptr;
 			if (det)
 			{
-                for (sk = m->skinmap; sk; sk = sk->next)
+                for (auto sk = m->skinmap; sk; sk = sk->next)
                     if ((int32_t) sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum && sk->surfnum == surfi)
                         detscale = sk->param;
 			}

@@ -100,7 +100,7 @@ void FBitmap::CopyPixelDataRGB(int originx, int originy, const uint8_t *patch, i
 
 template<class TDest, class TBlend> 
 void iCopyPaletted(uint8_t *buffer, const uint8_t * patch, int srcwidth, int srcheight, int Pitch,
-					int step_x, int step_y, int rotate, PalEntry * palette)
+					int step_x, int step_y, int rotate, const PalEntry * palette)
 {
 	int x,y,pos;
 
@@ -133,7 +133,7 @@ typedef void (*CopyPalettedFunc)(uint8_t *buffer, const uint8_t * patch, int src
 //
 //===========================================================================
 void FBitmap::CopyPixelData(int originx, int originy, const uint8_t * patch, int srcwidth, int srcheight, 
-										int step_x, int step_y, int rotate, PalEntry * palette)
+										int step_x, int step_y, int rotate, const PalEntry * palette)
 {
 	uint8_t *buffer = data + 4*originx + Pitch*originy;
 	iCopyPaletted<cBGRA, bCopy>(buffer, patch, srcwidth, srcheight, Pitch,

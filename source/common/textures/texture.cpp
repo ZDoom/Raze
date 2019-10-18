@@ -90,7 +90,7 @@ FTexture::~FTexture ()
 //
 //===========================================================================
 
-FBitmap FTexture::GetBgraBitmap(PalEntry *remap, int *ptrans)
+FBitmap FTexture::GetBgraBitmap(const PalEntry *remap, int *ptrans)
 {
 	FBitmap bmp;
 	bmp.Create(Size.x, Size.y);
@@ -288,7 +288,7 @@ bool FTexture::ProcessData(unsigned char * buffer, int w, int h, bool ispatch)
 //
 //===========================================================================
 
-FTextureBuffer FTexture::CreateTexBuffer(PalEntry * remap, int flags)
+FTextureBuffer FTexture::CreateTexBuffer(const PalEntry * remap, int flags)
 {
 	FTextureBuffer result;
 

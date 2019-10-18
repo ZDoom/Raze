@@ -207,8 +207,9 @@ void GLInstance::RestoreTextureProps()
 {
 	// todo: reset everything that's needed to ensure proper functionality
 	VSMatrix identity(0);
-	GLInterface.SetMatrix(Matrix_Texture, &identity);
-	GLInterface.SetMatrix(Matrix_Detail, &identity);
+	if (MatrixChange & 1) GLInterface.SetMatrix(Matrix_Texture, &identity);
+	if (MatrixChange & 2) GLInterface.SetMatrix(Matrix_Detail, &identity);
+	MatrixChange = 0;
 }
 
 
@@ -228,7 +229,6 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 
 	if (activeShader == polymostShader)
 	{
-		applied = ApplyTextureProps();
 		renderState.UsePalette = texv && texv->isIndexed();
 		renderState.Apply(polymostShader);
 	}
@@ -240,7 +240,7 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 		glVertexAttrib3f(0, p->x, p->y, p->z);
 	}
 	glEnd();
-	if (applied) RestoreTextureProps();
+	if (MatrixChange) RestoreTextureProps();
 }
 
 int GLInstance::GetTextureID()

@@ -849,7 +849,6 @@ void voxfree(voxmodel_t *m)
 
     DO_FREE_AND_NULL(m->mytex);
     DO_FREE_AND_NULL(m->quad);
-    DO_FREE_AND_NULL(m->texid);
 
     Xfree(m);
 }
@@ -877,8 +876,7 @@ voxmodel_t *voxload(const char *filnam)
         vm->siz.x = voxsiz.x; vm->siz.y = voxsiz.y; vm->siz.z = voxsiz.z;
         vm->piv.x = voxpiv.x; vm->piv.y = voxpiv.y; vm->piv.z = voxpiv.z;
         vm->is8bit = is8bit;
-
-        vm->texid = (FHardwareTexture * *)Xcalloc(MAXPALOOKUPS, sizeof(FHardwareTexture*));
+		vm->texture = nullptr;
     }
 
     DO_FREE_AND_NULL(shcntmal);
@@ -990,8 +988,6 @@ voxmodel_t *loadkvxfrombuf(const char *kvxbuffer, int32_t length)
         vm->siz.x = voxsiz.x; vm->siz.y = voxsiz.y; vm->siz.z = voxsiz.z;
         vm->piv.x = voxpiv.x; vm->piv.y = voxpiv.y; vm->piv.z = voxpiv.z;
         vm->is8bit = 1;
-
-        vm->texid = (FHardwareTexture **)Xcalloc(MAXPALOOKUPS, sizeof(FHardwareTexture *));
     }
 
     DO_FREE_AND_NULL(shcntmal);
@@ -1132,10 +1128,12 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
+#if 0
     if (!m->texid[globalpal])
         m->texid[globalpal] = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, globalpal);
 
-	GLInterface.BindTexture(0, m->texid[globalpal]);
+	GLInterface.BindTexture(0, m->texid[globalpal], -1);
+#endif
 
 	auto data = GLInterface.AllocVertices(m->qcnt * 4);
 	auto vt = data.second;

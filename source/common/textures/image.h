@@ -131,7 +131,7 @@ public:
 	}
 
 	FImageSource *GetImage() const override { return mImage; }
-	FBitmap GetBgraBitmap(PalEntry *p, int *trans) override;
+	FBitmap GetBgraBitmap(const PalEntry *p, int *trans) override;
 
 };
 

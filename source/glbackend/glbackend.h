@@ -391,10 +391,8 @@ public:
 
 	bool SetModelTexture(FTexture *tex, int palette, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow)
 	{
-		return SetTextureInternal(tex, palette, DAMETH_MODEL, -1, xpanning, ypanning, det, detscale, glow);
+		return SetTextureInternal(tex, palette, 8/*DAMETH_MODEL*/, -1, xpanning, ypanning, det, detscale, glow);
 	}
-
-)
 };
 
 extern GLInstance GLInterface;

@@ -16,7 +16,7 @@ public:
 	bool fliptop;
 
 	FSkyBox(const char *name);
-	FBitmap GetBgraBitmap(PalEntry *, int *trans) override;
+	FBitmap GetBgraBitmap(const PalEntry *, int *trans) override;
 	FImageSource *GetImage() const override;
 
 

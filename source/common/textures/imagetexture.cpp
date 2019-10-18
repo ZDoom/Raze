@@ -69,7 +69,7 @@ FImageTexture::FImageTexture(FImageSource *img, const char *name)
 //
 //===========================================================================
 
-FBitmap FImageTexture::GetBgraBitmap(PalEntry *p, int *trans)
+FBitmap FImageTexture::GetBgraBitmap(const PalEntry *p, int *trans)
 {
 	FBitmap bmp;
 	bmp.Create(Size.x, Size.y);
