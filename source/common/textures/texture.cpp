@@ -435,7 +435,7 @@ void FTexture::DeleteHardwareTextures()
 	decltype(HardwareTextures)::Pair *pair;
 	while (it.NextPair(pair))
 	{
-		delete pair;
+		delete pair->Value;
 	}
 	HardwareTextures.Clear();
 }
