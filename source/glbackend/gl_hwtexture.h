@@ -27,9 +27,9 @@ public:
 	//bool BindOrCreate(FTexture *tex, int texunit, int clampmode, int translation, int flags);
 
 	unsigned int CreateTexture(int w, int h, bool eightbit, bool mipmapped);
-	unsigned int LoadTexture(const unsigned char * buffer);
-	unsigned int LoadTexturePart(const unsigned char* buffer, int x, int y, int w, int h);
-	unsigned int LoadTexture(FBitmap &bmp);
+	unsigned int LoadTexture(const unsigned char * buffer, bool brga = false);
+	unsigned int LoadTexturePart(const unsigned char* buffer, int x, int y, int w, int h, bool brga = false);
+	unsigned int LoadTexture(FBitmap &bmp, bool brga = false);
 	unsigned int GetTextureHandle();
 	int GetSampler() { return mSampler; }
 	void SetSampler(int sampler) { mSampler = sampler;  }

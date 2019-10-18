@@ -188,12 +188,12 @@ void main()
 		}
 		if (fullbright == 0.0) color.rgb *= v_color.rgb;
 		color.a *= v_color.a;
+		color.rgb *= detailColor.rgb;
 
-		if (u_fogEnabled != 0.0)// the following would make sense if 'fullbright' could ever be true in non-paletted rendering: && (fullbright != 0.0 || u_fogColor.rgb != vec3(0.0) ))
+		if (u_fogEnabled != 0.0 && u_usePalette == 0.0)// the following would make sense if 'fullbright' could ever be true in non-paletted rendering: && (fullbright != 0.0 || u_fogColor.rgb != vec3(0.0) ))
 		{
 			float fogFactor;
 
-			color.rgb *= detailColor.rgb;
 			if (u_fog.z == 0) fogFactor = (u_fog.x-v_fogCoord)*u_fog.y;	// linear fog
 	 		else fogFactor = exp2 (u_fog.z * v_fogCoord); 				// exponential fog
 

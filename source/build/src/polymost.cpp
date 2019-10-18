@@ -5458,6 +5458,56 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     return 0;
 }
 
+void palookupinfo()
+{
+	auto pal = basepaltable[0];
+	int black = -1, white = -1;
+
+	int brightness = 0;
+	for (int i = 0; i < 765; i += 3)
+	{
+		if (pal[i] == 0 && pal[i + 1] == 0 && pal[i + 2] == 0) black = i;
+		if (pal[i] == 255 && pal[i + 1] == 255 && pal[i + 2] == 255) white = i/3;
+		brightness += Luminance(pal[i], pal[i + 1], pal[i + 2]);
+	}
+	brightness /= 255;
+	OSD_Printf("Black at index %d, white at index %d, avg. luminance %d\n", black, white, brightness);
+
+
+	for (int i = 0; i < 256; i++)
+	{
+		if (palookup[i] == nullptr)
+		{
+			OSD_Printf("palookup[%d] undefined\n", i);
+			continue;
+		}
+		if (i > 0 && palookup[i] == palookup[0])
+		{
+			OSD_Printf("palookup[%d] == default\n", i);
+			continue;
+		}
+		OSD_Printf("palookup[%d]:\n", i);
+
+		for (int j = 0; j <= numshades; j++)
+		{
+			OSD_Printf("    Shade %d\n", j);
+			int map = palookup[i][j * 256 + black] * 3;
+			OSD_Printf("        Black maps to %d - %02x %02x %02x\n", map, pal[map], pal[map + 1], pal[map + 2]);
+			map = palookup[i][j * 256 + white] * 3;
+			OSD_Printf("        White maps to %d - %02x %02x %02x\n", map, pal[map], pal[map + 1], pal[map + 2]);
+			int mylum = 0;
+			for (int k = 0; k < 255; k++)
+			{
+				map = palookup[i][j * 256 + k] * 3;
+				mylum += Luminance(pal[map], pal[map + 1], pal[map + 2]);
+			}
+			mylum /= 255;
+			OSD_Printf("        luminance = %d\n", mylum);
+		}
+		OSD_Printf("-------------------------\n");
+	}
+}
+
 // Console commands by JBF
 static int32_t gltexturemode(osdcmdptr_t parm)
 {
@@ -5512,7 +5562,10 @@ static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
 
     if (r == OSDCMD_OK)
     {
-        if (!Bstrcasecmp(parm->name, "r_swapinterval"))
+		if (!Bstrcasecmp(parm->name, "r_palookupinfo"))
+			palookupinfo();
+
+        else if (!Bstrcasecmp(parm->name, "r_swapinterval"))
             vsync = videoSetVsync(vsync);
         else if (!Bstrcasecmp(parm->name, "r_downsize"))
         {
@@ -5536,6 +5589,8 @@ static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
 
     return r;
 }
+
+int r_palookupinfo;
 
 void polymost_initosdfuncs(void)
 {
@@ -5563,6 +5618,7 @@ void polymost_initosdfuncs(void)
         { "r_swapinterval","sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
         { "r_texfilter", "changes the texture filtering settings (may require restart)", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
         { "r_useindexedcolortextures", "enable/disable indexed color texture rendering", (void *) &r_useindexedcolortextures, CVAR_INT, 0, 1 },
+		{ "r_palookupinfo", "", (void*)&r_palookupinfo, CVAR_INT|CVAR_FUNCPTR, 0, 1 },
 
         { "r_yshearing", "enable/disable y-shearing", (void*) &r_yshearing, CVAR_BOOL, 0, 1 },
 		{ "fixpalette", "", (void*)& fixpalette, CVAR_INT, 0, 256 },
