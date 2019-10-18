@@ -1875,7 +1875,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 pSprite->ang = oldAng;
 
                 // we're on a trip wire
-                int16_t cursectnum;
+                //int16_t cursectnum;
 
                 while (hitDist > 0)
                 {

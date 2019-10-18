@@ -205,8 +205,8 @@ const char *CONFIG_AnalogNumToName(int32_t func)
 void CONFIG_SetDefaults(void)
 {
     // JBF 20031211
-    int32_t i,f;
-    uint8_t k1,k2;
+	int32_t i;// , f;
+    //uint8_t k1,k2;
 
     ScreenMode = 1;
 
@@ -432,7 +432,7 @@ void CONFIG_ReadKeys(int32_t scripthandle)
 void CONFIG_SetupMouse(void)
 {
     int32_t i;
-    char str[80],*p;
+	char str[80];// , * p;
     char temp[80];
     int32_t function, scale;
 
@@ -501,9 +501,9 @@ void CONFIG_SetupMouse(void)
 void CONFIG_SetupJoystick(void)
 {
     int32_t i;
-    char str[80],*p;
+	char str[80];// , * p;
     char temp[80];
-    int32_t function, scale;
+    int32_t /*function,*/ scale;
 
     if (scripthandle < 0) return;
 
@@ -577,7 +577,7 @@ void CONFIG_SetupJoystick(void)
 int32_t CONFIG_ReadSetup(void)
 {
     int32_t dummy;
-    char ret;
+    //char ret;
     extern char ds[];
     extern char PlayerNameArg[32];
 
