@@ -30,28 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int32_t MUSIC_SoundDevice = -1;
 int32_t MUSIC_ErrorCode = MUSIC_Ok;
-
+char const *errorMessage;
 static midifuncs MUSIC_MidiFunctions;
 
 int32_t MUSIC_InitMidi(int32_t card, midifuncs *Funcs, int32_t Address);
-
-#define MUSIC_SetErrorCode(status) MUSIC_ErrorCode = (status);
-
-const char *MUSIC_ErrorString(int32_t ErrorNumber)
-{
-    const char *ErrorString;
-
-    switch (ErrorNumber)
-    {
-        case MUSIC_Warning:
-        case MUSIC_Error:       ErrorString = MUSIC_ErrorString(MUSIC_ErrorCode); break;
-        case MUSIC_Ok:          ErrorString = "Music ok."; break;
-        case MUSIC_MidiError:   ErrorString = "Error playing MIDI file."; break;
-        default:                ErrorString = "Unknown Music error code."; break;
-    }
-
-    return ErrorString;
-}
 
 
 int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
@@ -90,16 +72,17 @@ int32_t MUSIC_StopSong(void)
 }
 
 
-int32_t MUSIC_PlaySong(char *song, int32_t songsize, int32_t loopflag)
+int32_t MUSIC_PlaySong(char *song, int32_t songsize, int32_t loopflag, const char *fn /*= nullptr*/)
 {
     UNREFERENCED_PARAMETER(songsize);
+    UNREFERENCED_PARAMETER(fn);
 
     MUSIC_SetErrorCode(MUSIC_Ok)
 
     if (MIDI_PlaySong(song, loopflag) != MIDI_Ok)
     {
-        MUSIC_SetErrorCode(MUSIC_MidiError);
-        return MUSIC_Warning;
+        MUSIC_SetErrorCode(MUSIC_FileError);
+        return MUSIC_Error;
     }
 
     return MUSIC_Ok;

@@ -239,7 +239,7 @@ static int S_PlayMusic(const char *fn)
 
     if (!Bmemcmp(MyMusicPtr, "MThd", 4))
     {
-        int32_t retval = MUSIC_PlaySong(MyMusicPtr, MyMusicSize, MUSIC_LoopSong);
+        int32_t retval = MUSIC_PlaySong(MyMusicPtr, MyMusicSize, MUSIC_LoopSong, fn);
 
         if (retval != MUSIC_Ok)
         {

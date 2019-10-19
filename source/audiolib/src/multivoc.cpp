@@ -581,7 +581,9 @@ int32_t MV_GetPosition(int32_t handle, int32_t *position)
 #ifdef HAVE_FLAC
         case FMT_FLAC: *position = MV_GetFLACPosition(voice); break;
 #endif
-        case FMT_XA: *position = MV_GetXAPosition(voice); break;
+        case FMT_XA: *position = MV_GetXAPosition(voice);
+        default:
+            break;
 #ifdef HAVE_XMP
         case FMT_XMP: *position = MV_GetXMPPosition(voice); break;
 #endif
@@ -607,7 +609,9 @@ int32_t MV_SetPosition(int32_t handle, int32_t position)
 #ifdef HAVE_FLAC
         case FMT_FLAC: MV_SetFLACPosition(voice, position); break;
 #endif
-        case FMT_XA: MV_SetXAPosition(voice, position); break;
+        case FMT_XA: MV_SetXAPosition(voice, position);
+        default:
+            break;
 #ifdef HAVE_XMP
         case FMT_XMP: MV_SetXMPPosition(voice, position); break;
 #endif
