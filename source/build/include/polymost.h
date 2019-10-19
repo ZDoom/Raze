@@ -116,6 +116,7 @@ enum {
 
     DAMETH_CLAMPED = 4,
 	DAMETH_MODEL = 8,
+	DAMETH_SKY = 16,
 
     DAMETH_WALL = 32,  // signals a texture for a wall (for r_npotwallmode)
 

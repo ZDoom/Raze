@@ -503,7 +503,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     static int32_t skyzbufferhack_pass = 0;
     if (flatskyrender && skyzbufferhack_pass == 0)
     {
-        polymost_flatskyrender(dpxy, n, method, tilesize);
+        polymost_flatskyrender(dpxy, n, method|DAMETH_SKY, tilesize);
         return;
     }
 
