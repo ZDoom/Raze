@@ -392,6 +392,11 @@ void GLInstance::SetFadeColor(PalEntry color)
 	renderState.FogColor[2] = color.b * (1 / 255.f);
 };
 
+void GLInstance::SetFadeDisable(bool on)
+{
+	renderState.FogColor[3] = on;
+}
+
 void GLInstance::SetColorMask(bool on)
 {
 	glColorMask(on, on, on, on);

@@ -279,6 +279,7 @@ public:
 
 	void SetDepthFunc(int func);
 	void SetFadeColor(PalEntry color);
+	void SetFadeDisable(bool on);
 	void SetColorMask(bool on);
 	void SetDepthMask(bool on);
 	void SetBlendFunc(int src, int dst);
