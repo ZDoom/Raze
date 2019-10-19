@@ -31,14 +31,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    (c) Copyright 1993 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
-#include "compat.h"
-#include "pragmas.h"
-#include "linklist.h"
-#include "drivers.h"
-#include "pitch.h"
 #include "multivoc.h"
+
 #include "_multivc.h"
+#include "baselayer.h"
+#include "compat.h"
+#include "drivers.h"
 #include "fx_man.h"
+#include "linklist.h"
+#include "osd.h"
+#include "pitch.h"
+#include "pragmas.h"
 
 static void MV_StopVoice(VoiceNode *voice);
 static void MV_ServiceVoc(void);
@@ -51,7 +54,7 @@ static float MV_ReverbVolume;
 
 Pan MV_PanTable[MV_NUMPANPOSITIONS][MV_MAXVOLUME + 1];
 
-int32_t MV_Installed = FALSE;
+int32_t MV_Installed;
 static int32_t MV_TotalVolume = MV_MAXTOTALVOLUME;
 static int32_t MV_MaxVoices = 1;
 
@@ -62,22 +65,22 @@ static int32_t MV_NumberOfBuffers = MV_NUMBEROFBUFFERS;
 
 static int32_t MV_Channels = 1;
 
-static int32_t MV_ReverseStereo = FALSE;
+static int32_t MV_ReverseStereo;
 
 int32_t MV_MixRate;
 
 static int32_t MV_BufferEmpty[MV_NUMBEROFBUFFERS];
 char *MV_MixBuffer[MV_NUMBEROFBUFFERS + 1];
 
-static VoiceNode *MV_Voices = NULL;
+static VoiceNode *MV_Voices;
 
 static VoiceNode VoiceList;
 static VoiceNode VoicePool;
 
-static int32_t MV_MixPage = 0;
+static int32_t MV_MixPage;
 
-void (*MV_Printf)(const char *fmt, ...) = NULL;
-static void (*MV_CallBackFunc)(intptr_t) = NULL;
+void (*MV_Printf)(const char *fmt, ...) = initprintf;
+static void (*MV_CallBackFunc)(uint32_t);
 
 char *MV_MixDestination;
 int32_t MV_SampleSize = 1;
@@ -88,19 +91,19 @@ int32_t MV_ErrorCode = MV_NotInstalled;
 float MV_GlobalVolume = 1.f;
 float MV_VolumeSmooth = 1.f;
 
-static int lockdepth = 0;
+static int lockdepth;
 
-void MV_Lock(void)
+static inline void MV_Lock(void)
 {
     if (!lockdepth++)
         SoundDriver_Lock();
 }
 
-void MV_Unlock(void)
+static inline void MV_Unlock(void)
 {
     if (!--lockdepth)
         SoundDriver_Unlock();
-    else if (lockdepth < 0 && MV_Printf)
+    else if (lockdepth < 0)
         MV_Printf("MV_Unlock(): lockdepth < 0!\n");
 }
 
@@ -278,9 +281,8 @@ static VoiceNode *MV_GetVoice(int32_t handle)
 {
     if (handle < MV_MINVOICEHANDLE || handle > MV_MaxVoices)
     {
-        if (MV_Printf)
             MV_Printf("MV_GetVoice(): bad handle (%d)!\n", handle);
-        return NULL;
+        return nullptr;
     }
 
     MV_Lock();
@@ -296,20 +298,20 @@ static VoiceNode *MV_GetVoice(int32_t handle)
 
     MV_Unlock();
     MV_SetErrorCode(MV_VoiceNotFound);
-    return NULL;
+    return nullptr;
 }
 
 VoiceNode *MV_BeginService(int32_t handle)
 {
     if (!MV_Installed)
-        return NULL;
+        return nullptr;
 
     VoiceNode *voice = MV_GetVoice(handle);
 
-    if (voice == NULL)
+    if (voice == nullptr)
     {
         MV_SetErrorCode(MV_VoiceNotFound);
-        return NULL;
+        return nullptr;
     }
 
     MV_Lock();
@@ -361,7 +363,7 @@ int32_t MV_Kill(int32_t handle)
 {
     VoiceNode *voice = MV_BeginService(handle);
 
-    if (voice == NULL)
+    if (voice == nullptr)
         return MV_Error;
 
     MV_StopVoice(voice);
@@ -389,7 +391,7 @@ int32_t MV_VoicesPlaying(void)
 
 VoiceNode *MV_AllocVoice(int32_t priority)
 {
-    VoiceNode   *voice, *node;
+    VoiceNode   *voice;
 
     MV_Lock();
 
@@ -397,7 +399,7 @@ VoiceNode *MV_AllocVoice(int32_t priority)
     if (LL::Empty(&VoicePool))
     {
         // check if we have a higher priority than a voice that is playing.
-        for (voice = node = VoiceList.next; node != &VoiceList; node = node->next)
+        for (auto node = voice = VoiceList.next; node != &VoiceList; node = node->next)
         {
             if (node->priority < voice->priority)
                 voice = node;
@@ -410,7 +412,7 @@ VoiceNode *MV_AllocVoice(int32_t priority)
         {
             // No free voices
             MV_Unlock();
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -440,10 +442,10 @@ int32_t MV_VoiceAvailable(int32_t priority)
 
     MV_Lock();
 
-    VoiceNode   *voice, *node;
+    VoiceNode   *voice;
 
     // check if we have a higher priority than a voice that is playing.
-    for (voice = node = VoiceList.next; node != &VoiceList; node = node->next)
+    for (auto node = voice = VoiceList.next; node != &VoiceList; node = node->next)
     {
         if (node->priority < voice->priority)
             voice = node;
@@ -463,7 +465,7 @@ void MV_SetVoicePitch(VoiceNode *voice, uint32_t rate, int32_t pitchoffset)
 {
     voice->SamplingRate = rate;
     voice->PitchScale   = PITCH_GetScale(pitchoffset);
-    voice->RateScale    = (rate * voice->PitchScale) / MV_MixRate;
+    voice->RateScale    = divideu32(rate * voice->PitchScale, MV_MixRate);
 
     // Multiply by MV_MIXBUFFERSIZE - 1
     voice->FixedPointBufferSize = (voice->RateScale * MV_MIXBUFFERSIZE) -
@@ -474,7 +476,7 @@ int32_t MV_SetPitch(int32_t handle, int32_t pitchoffset)
 {
     VoiceNode *voice = MV_BeginService(handle);
 
-    if (voice == NULL)
+    if (voice == nullptr)
         return MV_Error;
 
     MV_SetVoicePitch(voice, voice->SamplingRate, pitchoffset);
@@ -487,7 +489,7 @@ int32_t MV_SetFrequency(int32_t handle, int32_t frequency)
 {
     VoiceNode *voice = MV_BeginService(handle);
 
-    if (voice == NULL)
+    if (voice == nullptr)
         return MV_Error;
 
     MV_SetVoicePitch(voice, frequency, 0);
@@ -541,13 +543,11 @@ void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t righ
 {
     if (MV_Channels == 1)
         left = right = vol;
+    else if (MV_ReverseStereo)
+        swap(&left, &right);
 
     voice->LeftVolumeDest = float(left)*(1.f/MV_MAXTOTALVOLUME);
     voice->RightVolumeDest = float(right)*(1.f/MV_MAXTOTALVOLUME);
-
-    if (MV_ReverseStereo)
-        swapfloat(&voice->LeftVolumeDest, &voice->RightVolumeDest);
-
     voice->volume = volume;
 
     MV_SetVoiceMixMode(voice);
@@ -557,7 +557,7 @@ int32_t MV_PauseVoice(int32_t handle, int32_t pause)
 {
     VoiceNode *voice = MV_BeginService(handle);
 
-    if (voice == NULL)
+    if (voice == nullptr)
         return MV_Error;
 
     voice->Paused = pause;
@@ -570,7 +570,7 @@ int32_t MV_GetPosition(int32_t handle, int32_t *position)
 {
     VoiceNode *voice = MV_BeginService(handle);
 
-    if (voice == NULL)
+    if (voice == nullptr)
         return MV_Error;
 
     switch (voice->wavetype)
@@ -585,7 +585,6 @@ int32_t MV_GetPosition(int32_t handle, int32_t *position)
 #ifdef HAVE_XMP
         case FMT_XMP: *position = MV_GetXMPPosition(voice); break;
 #endif
-        default: break;
     }
 
     MV_EndService();
@@ -597,7 +596,7 @@ int32_t MV_SetPosition(int32_t handle, int32_t position)
 {
     VoiceNode *voice = MV_BeginService(handle);
 
-    if (voice == NULL)
+    if (voice == nullptr)
         return MV_Error;
 
     switch (voice->wavetype)
@@ -612,7 +611,6 @@ int32_t MV_SetPosition(int32_t handle, int32_t position)
 #ifdef HAVE_XMP
         case FMT_XMP: MV_SetXMPPosition(voice, position); break;
 #endif
-        default: break;
     }
 
     MV_EndService();
@@ -624,12 +622,12 @@ int32_t MV_EndLooping(int32_t handle)
 {
     VoiceNode *voice = MV_BeginService(handle);
 
-    if (voice == NULL)
+    if (voice == nullptr)
         return MV_Error;
 
     voice->LoopCount = 0;
-    voice->LoopStart = NULL;
-    voice->LoopEnd = NULL;
+    voice->LoopStart = nullptr;
+    voice->LoopEnd = nullptr;
 
     MV_EndService();
 
@@ -640,7 +638,7 @@ int32_t MV_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right)
 {
     VoiceNode *voice = MV_BeginService(handle);
 
-    if (voice == NULL)
+    if (voice == nullptr)
         return MV_Error;
 
     MV_SetVoiceVolume(voice, vol, left, right, voice->volume);
@@ -672,7 +670,7 @@ void MV_SetReverb(int32_t reverb)
 }
 
 int32_t MV_GetMaxReverbDelay(void) { return MV_MIXBUFFERSIZE * MV_NumberOfBuffers; }
-int32_t MV_GetReverbDelay(void) { return MV_ReverbDelay / MV_SampleSize; }
+int32_t MV_GetReverbDelay(void) { return tabledivide32(MV_ReverbDelay, MV_SampleSize); }
 
 void MV_SetReverbDelay(int32_t delay)
 {
@@ -688,7 +686,7 @@ static int32_t MV_SetMixMode(int32_t numchannels)
     MV_SampleSize = sizeof(int8_t) * MV_Channels * 2;
 
     MV_BufferSize = MV_MIXBUFFERSIZE * MV_SampleSize;
-    MV_NumberOfBuffers = MV_TOTALBUFFERSIZE / MV_BufferSize;
+    MV_NumberOfBuffers = tabledivide32(MV_TOTALBUFFERSIZE, MV_BufferSize);
     Bassert(isPow2(MV_NumberOfBuffers));
     MV_BufferLength = MV_TOTALBUFFERSIZE;
 
@@ -708,10 +706,7 @@ static int32_t MV_StartPlayback(void)
     MV_MixPage = 1;
 
     if (SoundDriver_BeginPlayback(MV_MixBuffer[0], MV_BufferSize, MV_NumberOfBuffers, MV_ServiceVoc) != MV_Ok)
-    {
-        MV_SetErrorCode(MV_DriverError);
-        return MV_Error;
-    }
+        return MV_SetErrorCode(MV_DriverError);
 
     return MV_Ok;
 }
@@ -769,7 +764,7 @@ void MV_SetVolume(int32_t volume)
 
 int32_t MV_GetVolume(void) { return MV_TotalVolume; }
 
-void MV_SetCallBack(void (*function)(intptr_t)) { MV_CallBackFunc = function; }
+void MV_SetCallBack(void (*function)(uint32_t)) { MV_CallBackFunc = function; }
 
 void MV_SetReverseStereo(int32_t setting) { MV_ReverseStereo = setting; }
 
@@ -788,10 +783,7 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
     char *ptr = (char *) Xaligned_alloc(16, totalmem);
 
     if (!ptr)
-    {
-        MV_SetErrorCode(MV_NoMem);
-        return MV_Error;
-    }
+        return MV_SetErrorCode(MV_NoMem);
 
     Bmemset(ptr, 0, totalmem);
 
@@ -823,7 +815,7 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
     }
 
     MV_Installed    = TRUE;
-    MV_CallBackFunc = NULL;
+    MV_CallBackFunc = nullptr;
     MV_ReverbLevel  = 0;
     MV_ReverbVolume = 0.f;
 
@@ -853,8 +845,7 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
         // Preserve error code while we shutdown.
         int status = MV_ErrorCode;
         MV_Shutdown();
-        MV_SetErrorCode(status);
-        return MV_Error;
+        return MV_SetErrorCode(status);
     }
 
     return MV_Ok;
@@ -885,14 +876,12 @@ int32_t MV_Shutdown(void)
 
     // Release the descriptor from our mix buffer
     for (int buffer = 0; buffer < MV_NUMBEROFBUFFERS; buffer++)
-        MV_MixBuffer[ buffer ] = NULL;
+        MV_MixBuffer[ buffer ] = nullptr;
 
     MV_SetErrorCode(MV_NotInstalled);
 
     return MV_Ok;
 }
-
-void MV_SetPrintf(void (*function)(const char *, ...)) { MV_Printf = function; }
 
 const char *loopStartTags[loopStartTagCount] = { "LOOP_START", "LOOPSTART", "LOOP" };
 const char *loopEndTags[loopEndTagCount] = { "LOOP_END", "LOOPEND" };

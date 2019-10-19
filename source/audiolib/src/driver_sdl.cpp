@@ -40,20 +40,20 @@ enum {
 };
 
 static int32_t ErrorCode = SDLErr_Ok;
-static int32_t Initialised = 0;
-static int32_t Playing = 0;
+static int32_t Initialised;
+static int32_t Playing;
 static int32_t StartedSDL = -1;
 
-static char *MixBuffer = 0;
-static int32_t MixBufferSize = 0;
-static int32_t MixBufferCount = 0;
-static int32_t MixBufferCurrent = 0;
-static int32_t MixBufferUsed = 0;
-static void ( *MixCallBack )( void ) = 0;
+static char *MixBuffer;
+static int32_t MixBufferSize;
+static int32_t MixBufferCount;
+static int32_t MixBufferCurrent;
+static int32_t MixBufferUsed;
+static void ( *MixCallBack )( void );
 
-static Mix_Chunk *DummyChunk = NULL;
-static uint8_t *DummyBuffer = NULL;
-static int32_t InterruptsDisabled = 0;
+static Mix_Chunk *DummyChunk;
+static uint8_t *DummyBuffer;
+static int32_t InterruptsDisabled;
 static mutex_t EffectFence;
 
 static void fillData(int chan, void *ptr, int remaining, void *udata)
@@ -198,13 +198,13 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata)
     *mixrate = intmixrate;
     *numchannels = intnumchannels;
 
-    //Mix_SetPostMix(fillData, NULL);
+    //Mix_SetPostMix(fillData, nullptr);
 
     mutex_init(&EffectFence);
 
     // channel 0 and 1 are actual sounds
     // dummy channel 2 runs our fillData() callback as an effect
-    Mix_RegisterEffect(2, fillData, NULL, NULL);
+    Mix_RegisterEffect(2, fillData, nullptr, nullptr);
 
     DummyBuffer = (uint8_t *) calloc(1, chunksize);
 
@@ -223,10 +223,10 @@ void SDLDrv_PCM_Shutdown(void)
         return;
     else Mix_HaltChannel(-1);
 
-    if (DummyChunk != NULL)
+    if (DummyChunk != nullptr)
     {
         Mix_FreeChunk(DummyChunk);
-        DummyChunk = NULL;
+        DummyChunk = nullptr;
     }
 
     DO_FREE_AND_NULL(DummyBuffer);

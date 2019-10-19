@@ -34,10 +34,10 @@
 #include "FLAC/all.h"
 #endif
 
-#include "pitch.h"
-#include "multivoc.h"
 #include "_multivc.h"
-
+#include "multivoc.h"
+#include "pitch.h"
+#include "pragmas.h"
 
 typedef struct
 {
@@ -233,12 +233,12 @@ FLAC__StreamDecoderWriteStatus write_flac_stream(const FLAC__StreamDecoder *deco
                       (FLAC__uint64)(uintptr_t)voice->LoopStart, (FLAC__uint64)(uintptr_t)voice->LoopEnd);
     }
 
-    size_t const size = samples * voice->channels * (voice->bits / 8);
+    size_t const size = samples * voice->channels * (voice->bits >> 3);
 
     voice->position = 0;
     voice->BlockLength = 0;
     // CODEDUP multivoc.c MV_SetVoicePitch
-    voice->RateScale = (voice->SamplingRate * voice->PitchScale) / MV_MixRate;
+    voice->RateScale = divideu32(voice->SamplingRate * voice->PitchScale, MV_MixRate);
     voice->FixedPointBufferSize = (voice->RateScale * MV_MIXBUFFERSIZE) - voice->RateScale;
     MV_SetVoiceMixMode(voice);
 
@@ -389,10 +389,7 @@ int32_t MV_PlayFLAC3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitch
     int32_t status;
 
     if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
-        return MV_Error;
-    }
+        return MV_SetErrorCode(MV_NotInstalled);
 
     if (distance < 0)
     {
@@ -431,24 +428,18 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
     UNREFERENCED_PARAMETER(loopend);
 
     if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
-        return MV_Error;
-    }
+        return MV_SetErrorCode(MV_NotInstalled);
 
     fd = (flac_data *)Xcalloc(1, sizeof(flac_data));
     if (!fd)
-    {
-        MV_SetErrorCode(MV_InvalidFile);
-        return MV_Error;
-    }
+        return MV_SetErrorCode(MV_InvalidFile);
 
     fd->ptr = ptr;
     fd->pos = 0;
     fd->blocksize = 0;
     fd->length = length;
 
-    fd->block = NULL;
+    fd->block = nullptr;
 
     fd->stream = FLAC__stream_decoder_new();
     fd->sample_pos = 0;
@@ -457,24 +448,22 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
 
     if (FLAC__stream_decoder_init_stream(fd->stream, read_flac_stream, seek_flac_stream, tell_flac_stream,
                                          length_flac_stream, eof_flac_stream, write_flac_stream,
-                                         /*metadata_flac_stream*/ NULL, error_flac_stream,
+                                         /*metadata_flac_stream*/ nullptr, error_flac_stream,
                                          (void *)fd) != FLAC__STREAM_DECODER_INIT_STATUS_OK)
     {
         Xfree(fd);
         MV_Printf("MV_PlayFLAC: %s\n", FLAC__stream_decoder_get_resolved_state_string(fd->stream));
-        MV_SetErrorCode(MV_InvalidFile);
-        return MV_Error;
+        return MV_SetErrorCode(MV_InvalidFile);
     }
 
     // Request a voice from the voice pool
     voice = MV_AllocVoice(priority);
-    if (voice == NULL)
+    if (voice == nullptr)
     {
         FLAC__stream_decoder_finish(fd->stream);
         FLAC__stream_decoder_delete(fd->stream);
         Xfree(fd);
-        MV_SetErrorCode(MV_NoVoices);
-        return MV_Error;
+        return MV_SetErrorCode(MV_NoVoices);
     }
 
     fd->owner = voice;
@@ -486,8 +475,8 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
     voice->LoopCount = 0;
     voice->BlockLength = 0;
     voice->PitchScale = PITCH_GetScale(pitchoffset);
-    voice->next = NULL;
-    voice->prev = NULL;
+    voice->next = nullptr;
+    voice->prev = nullptr;
     voice->priority = priority;
     voice->callbackval = callbackval;
 
@@ -504,16 +493,16 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
     // but libvorbisfile may be confused by the signedness of char* vs FLAC__byte* and this code does not depend on
     // HAVE_VORBIS.
     metadata_chain = FLAC__metadata_chain_new();
-    if (metadata_chain != NULL)
+    if (metadata_chain != nullptr)
     {
         if (FLAC__metadata_chain_read_with_callbacks(metadata_chain, fd, flac_callbacks))
         {
             FLAC__Metadata_Iterator *metadata_iterator = FLAC__metadata_iterator_new();
-            if (metadata_iterator != NULL)
+            if (metadata_iterator != nullptr)
             {
-                char *vc_loopstart = NULL;
-                char *vc_loopend = NULL;
-                char *vc_looplength = NULL;
+                char *vc_loopstart = nullptr;
+                char *vc_loopend = nullptr;
+                char *vc_looplength = nullptr;
 
                 FLAC__metadata_iterator_init(metadata_iterator, metadata_chain);
 
@@ -533,8 +522,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
                             FLAC__stream_decoder_finish(fd->stream);
                             FLAC__stream_decoder_delete(fd->stream);
                             Xfree(fd);
-                            MV_SetErrorCode(MV_InvalidFile);
-                            return MV_Error;
+                            return MV_SetErrorCode(MV_InvalidFile);
                         }
 
                         voice->channels = info->channels;
@@ -549,27 +537,27 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
                         for (comment = 0; comment < tags->data.vorbis_comment.num_comments; ++comment)
                         {
                             const char *entry = (const char *)tags->data.vorbis_comment.comments[comment].entry;
-                            if (entry != NULL && entry[0] != '\0')
+                            if (entry != nullptr && entry[0] != '\0')
                             {
                                 const char *value = strchr(entry, '=');
                                 const size_t field = value - entry;
                                 value += 1;
 
-                                for (int t = 0; t < loopStartTagCount && vc_loopstart == NULL; ++t)
+                                for (int t = 0; t < loopStartTagCount && vc_loopstart == nullptr; ++t)
                                 {
                                     char const * const tag = loopStartTags[t];
                                     if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                                         vc_loopstart = Xstrdup(value);
                                 }
 
-                                for (int t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
+                                for (int t = 0; t < loopEndTagCount && vc_loopend == nullptr; ++t)
                                 {
                                     char const * const tag = loopEndTags[t];
                                     if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                                         vc_loopend = Xstrdup(value);
                                 }
 
-                                for (int t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
+                                for (int t = 0; t < loopLengthTagCount && vc_looplength == nullptr; ++t)
                                 {
                                     char const * const tag = loopLengthTags[t];
                                     if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
@@ -583,7 +571,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
                     tags);  // If it were not for this, I would assign pointers instead of strdup().
                 } while (FLAC__metadata_iterator_next(metadata_iterator));
 
-                if (vc_loopstart != NULL)
+                if (vc_loopstart != nullptr)
                 {
                     {
                         const FLAC__int64 flac_loopstart = atol(vc_loopstart);
@@ -595,7 +583,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
                     }
                     free(vc_loopstart);
                 }
-                if (vc_loopend != NULL)
+                if (vc_loopend != nullptr)
                 {
                     if (voice->LoopSize > 0)
                     {
@@ -605,7 +593,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
                     }
                     free(vc_loopend);
                 }
-                if (vc_looplength != NULL)
+                if (vc_looplength != nullptr)
                 {
                     if (voice->LoopSize > 0 && voice->LoopEnd == 0)
                     {
@@ -631,7 +619,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
         MV_Printf("Error allocating FLAC__Metadata_Chain!\n");
 
     // CODEDUP multivoc.c MV_SetVoicePitch
-    voice->RateScale = (voice->SamplingRate * voice->PitchScale) / MV_MixRate;
+    voice->RateScale = divideu32(voice->SamplingRate * voice->PitchScale, MV_MixRate);
     voice->FixedPointBufferSize = (voice->RateScale * MV_MIXBUFFERSIZE) - voice->RateScale;
     MV_SetVoiceMixMode(voice);
 
@@ -652,7 +640,7 @@ void MV_ReleaseFLACVoice(VoiceNode *voice)
     }
 
     voice->rawdataptr = 0;
-    if (fd->stream != NULL)
+    if (fd->stream != nullptr)
     {
     auto stream = fd->stream;
     fd->stream = nullptr;

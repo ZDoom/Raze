@@ -3,9 +3,10 @@
 
 #ifdef HAVE_XMP
 
-#include "pitch.h"
-#include "multivoc.h"
 #include "_multivc.h"
+#include "multivoc.h"
+#include "pitch.h"
+#include "pragmas.h"
 
 #include "libxmp-lite/xmp.h"
 
@@ -72,10 +73,7 @@ int32_t MV_PlayXMP3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitcho
     int32_t status;
 
     if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
-        return MV_Error;
-    }
+        return MV_SetErrorCode(MV_NotInstalled);
 
     if (distance < 0)
     {
@@ -106,45 +104,36 @@ int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
     UNREFERENCED_PARAMETER(loopend);
 
     if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
-        return MV_Error;
-    }
+        return MV_SetErrorCode(MV_NotInstalled);
 
     xmpd = (xmp_data *)Xcalloc(1, sizeof(xmp_data));
     if (!xmpd)
-    {
-        MV_SetErrorCode(MV_InvalidFile);
-        return MV_Error;
-    }
+        return MV_SetErrorCode(MV_InvalidFile);
 
     xmpd->ptr = ptr;
     xmpd->length = length;
 
-    if ((xmpd->context = xmp_create_context()) == NULL)
+    if ((xmpd->context = xmp_create_context()) == nullptr)
     {
         Xfree(xmpd);
-        MV_SetErrorCode(MV_InvalidFile);
-        return MV_Error;
+        return MV_SetErrorCode(MV_InvalidFile);
     }
 
     if ((retval = xmp_load_module_from_memory(xmpd->context, ptr, length)) != 0)
     {
         Xfree(xmpd);
         MV_Printf("MV_PlayXMP: xmp_load_module_from_memory failed (%i)\n", retval);
-        MV_SetErrorCode(MV_InvalidFile);
-        return MV_Error;
+        return MV_SetErrorCode(MV_InvalidFile);
     }
 
     // Request a voice from the voice pool
     voice = MV_AllocVoice(priority);
-    if (voice == NULL)
+    if (voice == nullptr)
     {
         xmp_release_module(xmpd->context);
         xmp_free_context(xmpd->context);
         Xfree(xmpd);
-        MV_SetErrorCode(MV_NoVoices);
-        return MV_Error;
+        return MV_SetErrorCode(MV_NoVoices);
     }
 
     xmpd->owner = voice;
@@ -158,8 +147,8 @@ int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
     voice->LoopCount   = 0;
     voice->BlockLength = 0;
     voice->PitchScale  = PITCH_GetScale(pitchoffset);
-    voice->next        = NULL;
-    voice->prev        = NULL;
+    voice->next        = nullptr;
+    voice->prev        = nullptr;
     voice->priority    = priority;
     voice->callbackval = callbackval;
 
@@ -177,7 +166,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
     xmp_set_player(xmpd->context, XMP_PLAYER_INTERP, XMP_INTERP_SPLINE);
 
     // CODEDUP multivoc.c MV_SetVoicePitch
-    voice->RateScale = (voice->SamplingRate * voice->PitchScale) / MV_MixRate;
+    voice->RateScale = divideu32(voice->SamplingRate * voice->PitchScale, MV_MixRate);
     voice->FixedPointBufferSize = (voice->RateScale * MV_MIXBUFFERSIZE) - voice->RateScale;
     MV_SetVoiceMixMode(voice);
 

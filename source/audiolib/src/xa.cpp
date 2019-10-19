@@ -4,10 +4,11 @@
  * Adapted and remixed from superxa2wav
  */
 
-#include "compat.h"
-#include "pitch.h"
-#include "multivoc.h"
 #include "_multivc.h"
+#include "compat.h"
+#include "multivoc.h"
+#include "pitch.h"
+#include "pragmas.h"
 
 //#define NO_XA_HEADER
 
@@ -324,7 +325,7 @@ static playbackstatus MV_GetNextXABlock
     voice->SamplingRate = (((coding >> 2) & 3) == 1) ? 18900 : 37800;
 
     // CODEDUP multivoc.c MV_SetVoicePitch
-    voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
+    voice->RateScale    = divideu32(voice->SamplingRate * voice->PitchScale, MV_MixRate);
     voice->FixedPointBufferSize = ( voice->RateScale * MV_MIXBUFFERSIZE ) - voice->RateScale;
     MV_SetVoiceMixMode( voice );
 
@@ -378,10 +379,7 @@ int32_t MV_PlayXA3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchof
     int32_t status;
 
     if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
-        return MV_Error;
-    }
+        return MV_SetErrorCode(MV_NotInstalled);
 
     if (distance < 0)
     {
@@ -419,17 +417,12 @@ int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend
 
    UNREFERENCED_PARAMETER(loopend);
 
-   if ( !MV_Installed )
-   {
-      MV_SetErrorCode( MV_NotInstalled );
-      return MV_Error;
-   }
+   if (!MV_Installed)
+       return MV_SetErrorCode(MV_NotInstalled);
 
    xad = (xa_data *) Xcalloc( 1, sizeof(xa_data) );
-   if (!xad) {
-      MV_SetErrorCode( MV_InvalidFile );
-      return MV_Error;
-   }
+   if (!xad)
+       return MV_SetErrorCode(MV_InvalidFile);
 
    xad->ptr = ptr;
    xad->pos = XA_DATA_START;
@@ -437,13 +430,11 @@ int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend
    xad->length = length;
 
    // Request a voice from the voice pool
-   voice = MV_AllocVoice( priority );
-   if ( voice == NULL )
+   voice = MV_AllocVoice(priority);
+   if (voice == nullptr)
    {
-
-      Xfree(xad);
-      MV_SetErrorCode( MV_NoVoices );
-      return MV_Error;
+       Xfree(xad);
+       return MV_SetErrorCode(MV_NoVoices);
    }
 
    xad->owner = voice;
@@ -455,8 +446,8 @@ int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend
    voice->LoopCount   = 0;
    voice->BlockLength = 0;
    voice->PitchScale  = PITCH_GetScale( pitchoffset );
-   voice->next        = NULL;
-   voice->prev        = NULL;
+   voice->next        = nullptr;
+   voice->prev        = nullptr;
    voice->priority    = priority;
    voice->callbackval = callbackval;
 

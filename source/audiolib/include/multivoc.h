@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "drivers.h"
 
-typedef enum
+typedef enum : char
 {
     FMT_UNKNOWN,
     FMT_RAW,
@@ -83,9 +83,7 @@ void MV_SetReverb(int32_t reverb);
 int32_t MV_GetMaxReverbDelay(void);
 int32_t MV_GetReverbDelay(void);
 void MV_SetReverbDelay(int32_t delay);
-// int32_t   MV_SetMixMode( int32_t numchannels, int32_t samplebits );
-// int32_t   MV_StartPlayback( void );
-// void  MV_StopPlayback( void );
+
 int32_t MV_PlayWAV3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority,
                      float volume, intptr_t callbackval);
 int32_t MV_PlayWAV(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
@@ -118,7 +116,6 @@ int MV_IdentifyXMP(char const *ptr, uint32_t length);
 int32_t MV_GetPosition(int32_t handle, int32_t *position);
 int32_t MV_SetPosition(int32_t handle, int32_t position);
 
-// void  MV_CreateVolumeTable( int32_t index, int32_t volume, int32_t MaxVolume );
 void MV_SetVolume(int32_t volume);
 int32_t MV_GetVolume(void);
 void MV_SetCallBack(void (*function)(intptr_t));
@@ -127,6 +124,6 @@ int32_t MV_GetReverseStereo(void);
 int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numchannels,
                 void *initdata);
 int32_t MV_Shutdown(void);
-void MV_SetPrintf(void (*function)(const char *fmt, ...));
+static inline void MV_SetPrintf(void (*function)(const char *, ...)) { if (function) MV_Printf = function; }
 
 #endif

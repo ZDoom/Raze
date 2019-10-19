@@ -232,7 +232,11 @@ extern int32_t MV_ErrorCode;
 extern int32_t MV_Installed;
 extern int32_t MV_MixRate;
 
-#define MV_SetErrorCode(status) MV_ErrorCode = (status);
+static FORCE_INLINE int MV_SetErrorCode(int status)
+{
+    MV_ErrorCode = status;
+    return MV_Error;
+}
 
 void MV_PlayVoice(VoiceNode *voice);
 

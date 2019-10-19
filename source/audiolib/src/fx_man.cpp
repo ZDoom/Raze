@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fx_man.h"
 
 int32_t FX_ErrorCode = FX_Ok;
-int32_t FX_Installed = FALSE;
+int32_t FX_Installed;
 
 const char *FX_ErrorString(int32_t ErrorNumber)
 {
@@ -138,7 +138,7 @@ int32_t FX_Play(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopen
                           int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
 {
     static int32_t(*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, float, intptr_t) =
-    { NULL, NULL, MV_PlayVOC, MV_PlayWAV, MV_PlayVorbis, MV_PlayFLAC, MV_PlayXA, MV_PlayXMP };
+    { nullptr, nullptr, MV_PlayVOC, MV_PlayWAV, MV_PlayVorbis, MV_PlayFLAC, MV_PlayXA, MV_PlayXMP };
 
     EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
 
@@ -160,7 +160,7 @@ int32_t FX_Play3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitcho
                       int32_t priority, float volume, intptr_t callbackval)
 {
     static int32_t (*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, float, intptr_t) =
-    { NULL, NULL, MV_PlayVOC3D, MV_PlayWAV3D, MV_PlayVorbis3D, MV_PlayFLAC3D, MV_PlayXA3D, MV_PlayXMP3D };
+    { nullptr, nullptr, MV_PlayVOC3D, MV_PlayWAV3D, MV_PlayVorbis3D, MV_PlayFLAC3D, MV_PlayXA3D, MV_PlayXMP3D };
 
     EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
 
