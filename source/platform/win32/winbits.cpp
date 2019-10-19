@@ -131,6 +131,7 @@ int32_t win_buildargs(char **argvbuf)
 
 	// Figure out what directory the program resides in.
 	progdir = argvbuf[0];
+	progdir.Substitute("\\", "/");
 	auto lastsep = progdir.LastIndexOf('/');
 	if (lastsep != -1)
 		progdir.Truncate(lastsep + 1);

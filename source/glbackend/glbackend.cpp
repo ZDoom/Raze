@@ -58,7 +58,8 @@ void InitBaseRes()
 		engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
 		if (!engine_res)
 		{
-			wm_msgbox("Fatal error", "Engine resources (demolition.pk3) not found");
+			FStringf msg("Engine resources (%s) not found", baseres.GetChars());
+			wm_msgbox("Fatal error", msg.GetChars());
 			exit(-1); 
 		}
 	}
