@@ -1,5 +1,28 @@
 #pragma once
 
+class FBufferedUniform1i
+{
+	int mBuffer;
+	int mIndex;
+
+public:
+	void Init(GLuint hShader, const GLchar* name)
+	{
+		mIndex = glGetUniformLocation(hShader, name);
+		mBuffer = 0;
+	}
+
+	void Set(int newvalue)
+	{
+		if (newvalue != mBuffer)
+		{
+			mBuffer = newvalue;
+			glUniform1i(mIndex, newvalue);
+		}
+	}
+};
+
+
 class FBufferedUniform1f
 {
 	float mBuffer;
@@ -76,6 +99,35 @@ public:
 		}
 	}
 }; 
+
+class FBufferedUniformPalEntry
+{
+	PalEntry mBuffer;
+	int mIndex;
+
+public:
+	void Init(GLuint hShader, const GLchar* name)
+	{
+		mIndex = glGetUniformLocation(hShader, name);
+		mBuffer = 0;
+	}
+
+	void Set(PalEntry newvalue)
+	{
+		if (newvalue != mBuffer)
+		{
+			mBuffer = newvalue;
+			glUniform4f(mIndex,
+				newvalue.r * (1 / 255.f),
+				newvalue.g * (1 / 255.f),
+				newvalue.b * (1 / 255.f),
+				newvalue.a * (1 / 255.f));
+
+		}
+	}
+};
+
+
 
 class FUniformMatrix4f
 {

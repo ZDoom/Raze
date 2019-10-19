@@ -32,7 +32,7 @@ extern void Polymost_prepare_loadboard(void);
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...);
 
 //void phex(char v, char *s);
-void uploadbasepalette(int32_t basepalnum, bool transient = false);
+void uploadbasepalette(int32_t basepalnum);
 void uploadpalswaps(int count, int32_t *palookupnum);
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);

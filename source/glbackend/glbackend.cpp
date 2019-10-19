@@ -230,7 +230,6 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 
 	if (activeShader == polymostShader)
 	{
-		renderState.UsePalette = texv && texv->isIndexed();
 		renderState.Apply(polymostShader);
 	}
 	glBegin(primtypes[type]);
@@ -386,18 +385,6 @@ void GLInstance::SetDepthFunc(int func)
 	glDepthFunc(f[func]);
 }
 
-void GLInstance::SetFadeColor(PalEntry color)
-{
-	renderState.FogColor[0] = color.r * (1 / 255.f);
-	renderState.FogColor[1] = color.g * (1 / 255.f);
-	renderState.FogColor[2] = color.b * (1 / 255.f);
-};
-
-void GLInstance::SetFadeDisable(bool on)
-{
-	renderState.FogColor[3] = on;
-}
-
 void GLInstance::SetColorMask(bool on)
 {
 	glColorMask(on, on, on, on);
@@ -494,18 +481,13 @@ void GLInstance::SetPalswap(int index)
 
 void PolymostRenderState::Apply(PolymostShader* shader)
 {
-	shader->Clamp.Set(Clamp);
+	shader->Flags.Set(Flags);
 	shader->Shade.Set(Shade);
 	shader->NumShades.Set(NumShades);
 	shader->VisFactor.Set(VisFactor);
-	shader->UseColorOnly.Set(UseColorOnly);
-	shader->UsePalette.Set(UsePalette);
-	shader->UseDetailMapping.Set(UseDetailMapping);
-	shader->UseGlowMapping.Set(UseGlowMapping);
-	shader->NPOTEmulation.Set(NPOTEmulation);
+	shader->Flags.Set(Flags);
 	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
 	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
-	shader->ShadeInterpolate.Set(ShadeInterpolate);
 	shader->Brightness.Set(Brightness);
 	shader->FogColor.Set(FogColor);
 

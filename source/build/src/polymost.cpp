@@ -366,7 +366,7 @@ static void resizeglcheck(void)
     }
 }
 
-void uploadbasepalette(int32_t basepalnum, bool transient)	// transient palettes are used by movies and should not affect the engine state. All other palettes only get set at game startup.
+void uploadbasepalette(int32_t basepalnum)
 {
     if (!basepaltable[basepalnum])
     {
@@ -382,7 +382,7 @@ void uploadbasepalette(int32_t basepalnum, bool transient)	// transient palettes
         basepalWFullBrightInfo[i*4+3] = 0-(IsPaletteIndexFullbright(i) != 0);
     }
 
-	GLInterface.SetPaletteData(basepalnum, basepalWFullBrightInfo, transient);
+	GLInterface.SetPaletteData(basepalnum, basepalWFullBrightInfo);
 }
 
 // Used by RRRA fog hackery - the only place changing the palswaps at run time.

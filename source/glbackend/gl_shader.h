@@ -35,20 +35,14 @@ public:
 class PolymostShader : public FShader
 {
 public:
-    FBufferedUniform2f Clamp;
+	FBufferedUniform1i Flags;
     FBufferedUniform1f Shade;
     FBufferedUniform1f NumShades;
     FBufferedUniform1f VisFactor;
-    FBufferedUniform1f UseColorOnly;
-    FBufferedUniform1f UsePalette;
-    FBufferedUniform1f UseDetailMapping;
-    FBufferedUniform1f UseGlowMapping;
-    FBufferedUniform1f NPOTEmulation;
     FBufferedUniform1f NPOTEmulationFactor;
     FBufferedUniform1f NPOTEmulationXOffset;
     FBufferedUniform1f Brightness;
-	FBufferedUniform4f FogColor;
-	FBufferedUniform1f ShadeInterpolate;
+	FBufferedUniformPalEntry FogColor;
 
 	FUniformMatrix4f   RotMatrix;
 	FUniformMatrix4f   ModelMatrix;

@@ -70,11 +70,8 @@ void PaletteManager::DeleteAll()
 	{
 		if (pal.swaptexture) delete pal.swaptexture;
 	}
-	if (transientpalette.paltexture) delete transientpalette.paltexture;
 	if (palswapTexture) delete palswapTexture;
 	palswapTexture = nullptr;
-	transientpalette.paltexture = nullptr;
-	transientpalette.crc32 = -1;
 	palettes.Reset();
 	palswaps.Reset();
 	lastindex = ~0u;
@@ -168,26 +165,12 @@ unsigned PaletteManager::FindPalswap(const uint8_t* paldata)
 //
 //===========================================================================
 
-void PaletteManager::SetPalette(int index, const uint8_t* data, bool transient)
+void PaletteManager::SetPalette(int index, const uint8_t* data)
 {
 	// New palettes may only be added if declared transient or on startup. 
 	// Otherwise this would require a renderer reset to flush out the textures affected by the change.
 
 	if (index < 0 || index > 255) return;	// invalid index - ignore.
-	if (transient)
-	{
-		// Transient palettes do not get stored in the list because it is assumed that they won't be needed for long.
-		// Only clear the texture if the palette is different.
-		if (memcmp(data, transientpalette.colors, 1024))
-		{
-			memcpy(transientpalette.colors, data, 1024);
-			if (transientpalette.paltexture) delete transientpalette.paltexture;
-			transientpalette.paltexture = nullptr;
-		}
-		transientpalette.crc32 = index;
-		palettemap[index] = 0;
-		return;
-	}
 	palettemap[index] = FindPalette(data);
 	if (index == 0)
 	{
@@ -203,19 +186,7 @@ void PaletteManager::SetPalette(int index, const uint8_t* data, bool transient)
 
 void PaletteManager::BindPalette(int index)
 {
-	if (index == transientpalette.crc32)
-	{
-		if (transientpalette.paltexture == nullptr)
-		{
-			auto p = GLInterface.NewTexture();
-			p->CreateTexture(256, 1, false, false);
-			p->LoadTexture((uint8_t*)transientpalette.colors);
-			p->SetSampler(SamplerNoFilterClampXY);
-			transientpalette.paltexture = p;
-		}
-		inst->BindTexture(2, transientpalette.paltexture);
-	}
-	else if (palettemap[index] < palettes.Size())
+	if (palettemap[index] < palettes.Size())
 	{
 		auto uindex = palettemap[index];
 		if (uindex != lastindex)

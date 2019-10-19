@@ -135,19 +135,13 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 {
 	if (!FShader::Load(name, vert_prog, frag_prog)) return false;
 	
-	Clamp.Init(hShader, "u_clamp");
-    Shade.Init(hShader, "u_shade");
+	Flags.Init(hShader, "u_flags");
+	Shade.Init(hShader, "u_shade");
     NumShades.Init(hShader, "u_numShades");
     VisFactor.Init(hShader, "u_visFactor");
-    UseColorOnly.Init(hShader, "u_useColorOnly");
-    UsePalette.Init(hShader, "u_usePalette");
-    UseDetailMapping.Init(hShader, "u_useDetailMapping");
-    UseGlowMapping.Init(hShader, "u_useGlowMapping");
-    NPOTEmulation.Init(hShader, "u_npotEmulation");
     NPOTEmulationFactor.Init(hShader, "u_npotEmulationFactor");
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");
     Brightness.Init(hShader, "u_brightness");
-	ShadeInterpolate.Init(hShader, "u_shadeInterpolate");
 	FogColor.Init(hShader, "u_fogColor");
 
     RotMatrix.Init(hShader, "u_rotMatrix");

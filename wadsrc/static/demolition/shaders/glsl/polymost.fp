@@ -1,5 +1,23 @@
 #version 330
 
+const int RF_ColorOnly = 1;
+const int RF_UsePalette = 2;
+const int RF_DetailMapping = 4;
+const int RF_GlowMapping = 8;
+const int RF_Brightmapping = 16;
+const int RF_NPOTEmulation = 32;
+const int RF_ShadeInterpolate = 64;
+const int RF_FogDisabled = 128;
+
+const int RF_HICTINT_Grayscale = 0x10000;
+const int RF_HICTINT_Invert = 0x20000;
+const int RF_HICTINT_Colorize = 0x40000;
+const int RF_HICTINT_BLEND_Screen = 0x80000;
+const int RF_HICTINT_BLEND_Overlay = 0x100000;
+const int RF_HICTINT_BLEND_Hardlight = 0x200000;
+const int RF_HICTINT_BLENDMASK = RF_HICTINT_BLEND_Screen | RF_HICTINT_BLEND_Overlay | RF_HICTINT_BLEND_Hardlight;
+
+
 //s_texture points to an indexed color texture
 uniform sampler2D s_texture;
 //s_palswap is the palette swap texture where u is the color index and v is the shade
@@ -10,27 +28,17 @@ uniform sampler2D s_palette;
 uniform sampler2D s_detail;
 uniform sampler2D s_glow;
 
-uniform vec2 u_clamp;
-
 uniform float u_shade;
 uniform float u_numShades;
 uniform float u_visFactor;
-uniform float u_fogEnabled;
+uniform int u_flags;
 
-uniform float u_useColorOnly;
-uniform float u_usePalette;
-uniform float u_npotEmulation;
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
-uniform float u_shadeInterpolate;
 uniform float u_brightness;
 uniform vec4 u_fogColor;
-
-uniform float u_useDetailMapping;
-uniform float u_useGlowMapping;
-
-uniform int u_tinteffect;
 uniform vec3 u_tintcolor;
+uniform vec3 u_tintmodulate;
 
 in vec4 v_color;
 in float v_distance;
@@ -71,13 +79,13 @@ vec4 convertColor(vec4 color, int effect, vec3 tint)
 {
 #if 0
 
-	if (effect & HICTINT_GRAYSCALE)
+	if (effect & RF_HICTINT_Grayscale)
 	{
 		float g = grayscale(color);
 		color = vec4(g, g, g, color.a);
 	}
 
-	if (effect & HICTINT_INVERT)
+	if (effect & RF_HICTINT_Invert)
 	{
 		color = vec4(1.0 - color.r, 1.0 - color.g, 1.0 - color.b);
 	}
@@ -85,26 +93,26 @@ vec4 convertColor(vec4 color, int effect, vec3 tint)
 	vec3 tcol = color.rgb * 255.0;	// * 255.0 to make it easier to reuse the integer math.
 	tint *= 255.0;
 
-	if (effect & HICTINT_COLORIZE)
+	if (effect & RF_HICTINT_Colorize)
 	{
 		tcol.b = min(((tcol.b) * tint.r) / 64.0, 255.0);
 		tcol.g = min(((tcol.g) * tint.g) / 64.0, 255.0);
 		tcol.r = min(((tcol.r) * tint.b) / 64.0, 255.0);
 	}
 
-	switch (effect & HICTINT_BLENDMASK)
+	switch (effect & RF_HICTINT_BLENDMASK)
 	{
-		case HICTINT_BLEND_SCREEN:
+		case RF_HICTINT_BLEND_Screen:
 			tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - tint.r)) / 256.0);
 			tcol.g = 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 256.0);
 			tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - tint.b)) / 256.0);
 			break;
-		case HICTINT_BLEND_OVERLAY:
+		case RF_HICTINT_BLEND_Overlay:
 			tcol.b = tcol.b < 128.0? (tcol.b * tint.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - tint.r)) / 128.0);
 			tcol.g = tcol.g < 128.0? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 128.0);
 			tcol.r = tcol.r < 128.0? (tcol.r * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - tint.b)) / 128.0);
 			break;
-		case HICTINT_BLEND_HARDLIGHT:
+		case RF_HICTINT_BLEND_Hardlight:
 			tcol.b = tint.r < 128.0 ? (tcol.b * tint.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - r)) / 128.0);
 			tcol.g = tint.g < 128.0 ? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - g)) / 128.0);
 			tcol.r = tint.b < 128.0 ? (tcol.r * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - b)) / 128.0);
@@ -125,39 +133,38 @@ void main()
 {
 	float fullbright = 0.0;
 	vec4 color;
-	if (u_useColorOnly == 0.0)
+	if ((u_flags & RF_ColorOnly) == 0)
 	{
 		float coordX = v_texCoord.x;
 		float coordY = v_texCoord.y;
 		vec2 newCoord;
 		
 		// Coordinate adjustment for NPOT textures (something must have gone very wrong to make this necessary...)
-		if (u_npotEmulation != 0.0)
+		if ((u_flags & RF_NPOTEmulation) != 0)
 		{
 			float period = floor(coordY / u_npotEmulationFactor);
 			coordX += u_npotEmulationXOffset * floor(mod(coordY, u_npotEmulationFactor));
 			coordY = period + mod(coordY, u_npotEmulationFactor);
 		}
 		newCoord = vec2(coordX, coordY);
-		if (u_clamp != 0.0) newCoord = clamp(newCoord.xy, 0.0, 1.0);
 
 		// Paletted textures are stored in column major order rather than row major so coordinates need to be swapped here.
 		color = texture2D(s_texture, newCoord);
 
 		// This was further down but it really should be done before applying any kind of depth fading, not afterward.
 		vec4 detailColor = vec4(1.0);
-		if (u_useDetailMapping != 0.0)
+		if ((u_flags & RF_DetailMapping) != 0)
 		{
 			detailColor = texture2D(s_detail, v_detailCoord.xy);
 			detailColor = mix(vec4(1.0), 2.0 * detailColor, detailColor.a);
 			// Application of this differs based on render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
 		}
 
-		float visibility = max(u_visFactor * v_distance - 0.5 * u_shadeInterpolate, 0.0);
+		float visibility = max(u_visFactor * v_distance - ((u_flags & RF_ShadeInterpolate) != 0.0? 0.5 : 0.0), 0.0);
 		float shade = clamp((u_shade + visibility), 0.0, u_numShades - 1.0);
 		
 
-		if (u_usePalette != 0.0)
+		if ((u_flags & RF_UsePalette) != 0)
 		{
 			int palindex = int(color.r * 255.0 + 0.1); // The 0.1 is for roundoff error compensation.
 			int shadeindex = int(floor(shade));
@@ -165,7 +172,7 @@ void main()
 			int colorIndex = int(colorIndexF * 255.0 + 0.1); // The 0.1 is for roundoff error compensation.
 			vec4 palettedColor = texelFetch(s_palette, ivec2(colorIndex, 0), 0);
 			
-			if (u_shadeInterpolate != 0.0)
+			if ((u_flags & RF_ShadeInterpolate) != 0)
 			{
 				// Get the next shaded palette index for interpolation
 				colorIndexF = texelFetch(s_palswap, ivec2(palindex, shadeindex+1), 0).r;
@@ -183,7 +190,7 @@ void main()
 		else
 		{
 			color.rgb *= detailColor.rgb;
-			if (u_fogColor.a == 0.0)
+			if ((u_flags & RF_FogDisabled) == 0)
 			{
 				shade = clamp(shade / (u_numShades-2), 0.0, 1.0);
 				// Apply the shade as a linear depth fade ramp.
@@ -200,7 +207,7 @@ void main()
 		color = v_color;
 	}
 
-	if (u_useGlowMapping != 0.0 && u_useColorOnly == 0.0)
+	if ((u_flags & (RF_ColorOnly|RF_GlowMapping)) == RF_GlowMapping)
 	{
 		vec4 glowColor = texture2D(s_glow, v_texCoord.xy);
 		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);

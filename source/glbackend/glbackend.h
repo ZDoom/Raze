@@ -55,10 +55,6 @@ class PaletteManager
 	uint32_t lastsindex = ~0u;
 	int numshades = 1;
 
-	// Keep the short lived movie palettes out of the palette list for ease of maintenance.
-	// Since it is transient this doesn't need to be preserved if it changes, unlike the other palettes which need to be preserved as references for the texture management.
-	PaletteData transientpalette = { -1 };
-
 	// All data is being stored in contiguous blocks that can be used as uniform buffers as-is.
 	TArray<PaletteData> palettes;
 	TArray<PalswapData> palswaps;
@@ -76,7 +72,7 @@ public:
 	{}
 	~PaletteManager();
 	void DeleteAll();
-	void SetPalette(int index, const uint8_t *data, bool transient);
+	void SetPalette(int index, const uint8_t *data);
 	void SetPalswapData(int index, const uint8_t* data, int numshades);
 
 	void BindPalette(int index);
@@ -278,8 +274,6 @@ public:
 	}
 
 	void SetDepthFunc(int func);
-	void SetFadeColor(PalEntry color);
-	void SetFadeDisable(bool on);
 	void SetColorMask(bool on);
 	void SetDepthMask(bool on);
 	void SetBlendFunc(int src, int dst);
@@ -298,9 +292,9 @@ public:
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
 
-	void SetPaletteData(int index, const uint8_t* data, bool transient)
+	void SetPaletteData(int index, const uint8_t* data)
 	{
-		palmanager.SetPalette(index, data, transient);
+		palmanager.SetPalette(index, data);
 	}
 
 	void SetPalswapData(int index, const uint8_t* data, int numshades)
@@ -312,13 +306,14 @@ public:
 
 	int GetClamp()
 	{
-		return int(renderState.Clamp[0] + 2*renderState.Clamp[1]);
+		return 0;// int(renderState.Clamp[0] + 2 * renderState.Clamp[1]);
 	}
 
 	void SetClamp(int clamp)
 	{
-		renderState.Clamp[0] = clamp & 1;
-		renderState.Clamp[1] = !!(clamp & 2);
+		// This option is totally pointless and should be removed.
+		//renderState.Clamp[0] = clamp & 1;
+		//renderState.Clamp[1] = !!(clamp & 2);
 	}
 
 	void SetShade(int32_t shade, int numshades)
@@ -332,31 +327,56 @@ public:
 		renderState.VisFactor = visibility * fviewingrange * (1.f / (64.f * 65536.f));
 	}
 
-	void UseColorOnly(bool useColorOnly)
+	void UseColorOnly(bool yes)
 	{
-		renderState.UseColorOnly = useColorOnly;
+		if (yes) renderState.Flags |= RF_ColorOnly;
+		else renderState.Flags &= ~RF_ColorOnly;
 	}
 
-	void UseDetailMapping(bool useDetailMapping)
+	void UseDetailMapping(bool yes)
 	{
-		renderState.UseDetailMapping = useDetailMapping;
+		if (yes) renderState.Flags |= RF_DetailMapping;
+		else renderState.Flags &= ~RF_DetailMapping;
 	}
 
-	void UseGlowMapping(bool useGlowMapping)
+	void UseGlowMapping(bool yes)
 	{
-		renderState.UseGlowMapping = useGlowMapping;
+		if (yes) renderState.Flags |= RF_GlowMapping;
+		else renderState.Flags &= ~RF_GlowMapping;
 	}
 
-	void SetNpotEmulation(bool npotEmulation, float factor, float xOffset)
+	void UseBrightmaps(bool yes)
 	{
-		renderState.NPOTEmulation = npotEmulation;
-		renderState.NPOTEmulationFactor = factor;
-		renderState.NPOTEmulationXOffset = xOffset;
+		if (yes) renderState.Flags |= RF_Brightmapping;
+		else renderState.Flags &= ~RF_Brightmapping;
 	}
 
-	void SetShadeInterpolate(int32_t shadeInterpolate)
+	void SetNpotEmulation(bool yes, float factor, float xOffset)
 	{
-		renderState.ShadeInterpolate = shadeInterpolate;
+		if (yes)
+		{
+			renderState.Flags |= RF_NPOTEmulation;
+			renderState.NPOTEmulationFactor = factor;
+			renderState.NPOTEmulationXOffset = xOffset;
+		}
+		else renderState.Flags &= ~RF_NPOTEmulation;
+	}
+
+	void SetShadeInterpolate(int32_t yes)
+	{
+		if (yes) renderState.Flags |= RF_ShadeInterpolate;
+		else renderState.Flags &= ~RF_ShadeInterpolate;
+	}
+
+	void SetFadeColor(PalEntry color)
+	{
+		renderState.FogColor = color;
+	};
+
+	void SetFadeDisable(bool yes)
+	{
+		if (!yes) renderState.Flags |= RF_FogDisabled;
+		else renderState.Flags &= ~RF_FogDisabled;
 	}
 
 	void SetBrightness(int brightness) 
