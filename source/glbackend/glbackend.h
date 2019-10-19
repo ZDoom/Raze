@@ -373,7 +373,7 @@ public:
 
 	void SetFadeDisable(bool yes)
 	{
-		if (!yes) renderState.Flags |= RF_FogDisabled;
+		if (yes) renderState.Flags |= RF_FogDisabled;
 		else renderState.Flags &= ~RF_FogDisabled;
 	}
 
