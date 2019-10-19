@@ -6315,6 +6315,8 @@ int G_FPSLimit(void)
     static double   nextPageDelay;
     static uint64_t lastFrameTicks;
 
+    nextPageDelay = clamp(nextPageDelay, 0.0, g_frameDelay);
+
     uint64_t const frameTicks   = timerGetTicksU64();
     uint64_t const elapsedTime  = frameTicks - lastFrameTicks;
     double const   dElapsedTime = elapsedTime;
