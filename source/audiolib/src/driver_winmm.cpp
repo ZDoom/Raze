@@ -65,7 +65,7 @@ static HANDLE midiMutex;
 static BOOL midiStreamRunning;
 static int midiLastDivision;
 #define THREAD_QUEUE_INTERVAL 10      // 1/10 sec
-#define MIDI_BUFFER_SPACE   (12*128)  // 128 note-on events
+#define MIDI_BUFFER_SPACE   (12*128u)  // 128 note-on events
 
 typedef struct MidiBuffer {
     struct MidiBuffer *next;
@@ -79,7 +79,6 @@ static volatile MidiBuffer activeMidiBuffers;
 static volatile MidiBuffer spareMidiBuffers;
 static MidiBuffer *currentMidiBuffer;
 
-
 #define MIDI_NOTE_OFF         0x80
 #define MIDI_NOTE_ON          0x90
 #define MIDI_POLY_AFTER_TCH   0xA0
@@ -92,8 +91,6 @@ static MidiBuffer *currentMidiBuffer;
 #define MIDI_TEMPO_CHANGE     0x51
 #define MIDI_MONO_MODE_ON     0x7E
 #define MIDI_ALL_NOTES_OFF    0x7B
-
-
 
 
 int WinMMDrv_GetError(void)
@@ -357,7 +354,7 @@ static void midi_setup_event(int length, unsigned char ** data)
  */
 static BOOL midi_get_buffer(int length, unsigned char ** data)
 {
-    int datalen;
+    unsigned int datalen;
     MidiBuffer * node;
     
     // determine the space to alloc.
@@ -646,6 +643,8 @@ static DWORD midi_get_tick(void)
 
 static DWORD WINAPI midiDataThread(LPVOID lpParameter)
 {
+    UNREFERENCED_PARAMETER(lpParameter);
+
     DWORD waitret;
     DWORD sequenceTime;
     DWORD sleepAmount = 100 / THREAD_QUEUE_INTERVAL;
@@ -677,7 +676,7 @@ static DWORD WINAPI midiDataThread(LPVOID lpParameter)
             sequenceTime = midi_get_tick();
 
             sleepAmount = 100 / THREAD_QUEUE_INTERVAL;
-            if ((int)(midiThreadTimer - sequenceTime) > midiThreadQueueTicks) {
+            if ((midiThreadTimer - sequenceTime) > midiThreadQueueTicks) {
                 // we're running ahead, so sleep for half the usual
                 // amount and try again
                 sleepAmount /= 2;

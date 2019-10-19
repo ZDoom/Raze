@@ -1131,7 +1131,7 @@ static MenuEntry_t ME_SAVE_NEW = MAKE_MENUENTRY( s_NewSaveGame, &MF_Minifont, &M
 static MenuEntry_t *ME_SAVE;
 static MenuEntry_t **MEL_SAVE;
 
-static int32_t soundrate, soundvoices;
+static int32_t soundrate, soundvoices, musicdevice;
 static MenuOption_t MEO_SOUND = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &snd_enabled.Value );
 static MenuEntry_t ME_SOUND = MAKE_MENUENTRY( "Sound:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND, Option );
 
@@ -1165,6 +1165,23 @@ static MenuRangeInt32_t MEO_SOUND_NUMVOICES = MAKE_MENURANGE( &soundvoices, &MF_
 static MenuEntry_t ME_SOUND_NUMVOICES = MAKE_MENUENTRY( "Voices:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_NUMVOICES, RangeInt32 );
 #endif
 
+static char const *MEOSN_SOUND_MUSICDEVICE[] = {
+#ifdef _WIN32
+    "Windows",
+#endif
+    "OPL3",
+};
+static int32_t MEOSV_SOUND_MUSICDEVICE[] = {
+#ifdef _WIN32
+    ASS_WinMM,
+#endif
+    ASS_OPL3,
+};
+
+static MenuOptionSet_t MEOS_SOUND_MUSICDEVICE = MAKE_MENUOPTIONSET( MEOSN_SOUND_MUSICDEVICE, MEOSV_SOUND_MUSICDEVICE, 0x2 );
+static MenuOption_t MEO_SOUND_MUSICDEVICE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_SOUND_MUSICDEVICE, &musicdevice );
+static MenuEntry_t ME_SOUND_MUSICDEVICE = MAKE_MENUENTRY( "Music device:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_MUSICDEVICE, Option );
+
 static MenuEntry_t ME_SOUND_RESTART = MAKE_MENUENTRY( "Apply Changes", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_NULL, Link );
 
 #ifndef EDUKE32_SIMPLE_MENU
@@ -1190,6 +1207,7 @@ static MenuEntry_t *MEL_ADVSOUND[] = {
     &ME_SOUND_NUMVOICES,
     &ME_Space2_Redfont,
 #endif
+    &ME_SOUND_MUSICDEVICE,
     &ME_SOUND_RESTART,
 };
 
@@ -3219,6 +3237,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     {
         snd_mixrate = soundrate;
         snd_numvoices = soundvoices;
+        ud.config.MusicDevice = musicdevice;
 
         S_SoundShutdown();
         S_MusicShutdown();
@@ -4241,6 +4260,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
     case MENU_ADVSOUND:
         soundrate = snd_mixrate;
         soundvoices = snd_numvoices;
+        musicdevice = ud.config.MusicDevice;
         break;
 
     default:

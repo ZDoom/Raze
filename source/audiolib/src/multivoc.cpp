@@ -58,7 +58,7 @@ int MV_Installed;
 static int MV_TotalVolume = MV_MAXTOTALVOLUME;
 static int MV_MaxVoices = 1;
 
-static int MV_BufferSize = MV_MIXBUFFERSIZE;
+int MV_BufferSize = MV_MIXBUFFERSIZE;
 static int MV_BufferLength;
 
 static int MV_NumberOfBuffers = MV_NUMBEROFBUFFERS;
@@ -92,8 +92,8 @@ float MV_VolumeSmooth = 1.f;
 
 int MV_Locked;
 
-static char *MV_MusicBuffer;
-static void (*MV_MusicCallback)(char *buffer, int length) = NULL;
+char *MV_MusicBuffer;
+static void (*MV_MusicCallback)(void);
 static int MV_MixMusic = FALSE;
 
 static bool MV_Mix(VoiceNode * const voice, int const buffer)
@@ -269,10 +269,10 @@ static void MV_ServiceVoc(void)
 
     if (MV_MixMusic)
     {
-        MV_MusicCallback(MV_MusicBuffer, MV_BufferSize);
+        MV_MusicCallback();
         int16_t *source = (int16_t*)MV_MusicBuffer;
         int16_t *dest = (int16_t*)MV_MixBuffer[MV_MixPage+MV_NumberOfBuffers];
-        for (int i = 0; i < MV_BufferSize / 4; i++)
+        for (int i = 0; i < MV_BufferSize>>2; i++)
         {
             int sl = *source++;
             int sr = *source++;
@@ -716,7 +716,7 @@ static int MV_StartPlayback(void)
 
     MV_MixPage = 1;
 
-    if (SoundDriver_PCM_BeginPlayback(MV_MixBuffer[0], MV_BufferSize, MV_NumberOfBuffers, MV_ServiceVoc) != MV_Ok)
+    if (SoundDriver_PCM_BeginPlayback(MV_MixBuffer[MV_NumberOfBuffers], MV_BufferSize, MV_NumberOfBuffers, MV_ServiceVoc) != MV_Ok)
         return MV_SetErrorCode(MV_DriverError);
 
     return MV_Ok;
@@ -789,7 +789,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, void *initd
     MV_SetErrorCode(MV_Ok);
 
     // MV_TotalMemory + 2: FIXME, see valgrind_errors.log
-    int const totalmem = Voices * sizeof(VoiceNode) + (MV_TOTALBUFFERSIZE << 1) + 2;
+    int const totalmem = Voices * sizeof(VoiceNode) + (MV_TOTALBUFFERSIZE<<1) + (MV_MIXBUFFERSIZE<<2);
 
     char *ptr = (char *) Xaligned_alloc(16, totalmem);
 
@@ -845,6 +845,8 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, void *initd
         ptr += MV_BufferSize;
     }
 
+    MV_MusicBuffer = ptr;
+
     // Calculate pan table
     MV_CalcPanTable();
 
@@ -894,7 +896,7 @@ int MV_Shutdown(void)
     return MV_Ok;
 }
 
-void MV_HookMusicRoutine(void(*callback)(char *buffer, int length))
+void MV_HookMusicRoutine(void(*callback)(void))
 {
     MV_Lock();
     MV_MusicCallback = callback;
@@ -904,10 +906,13 @@ void MV_HookMusicRoutine(void(*callback)(char *buffer, int length))
 
 void MV_UnhookMusicRoutine(void)
 {
-    MV_Lock();
-    MV_MusicCallback = NULL;
-    MV_MixMusic = FALSE;
-    MV_Unlock();
+    if (MV_MusicCallback)
+    {
+        MV_Lock();
+        MV_MusicCallback = NULL;
+        MV_MixMusic      = FALSE;
+        MV_Unlock();
+    }
 }
 
 const char *loopStartTags[loopStartTagCount] = { "LOOP_START", "LOOPSTART", "LOOP" };

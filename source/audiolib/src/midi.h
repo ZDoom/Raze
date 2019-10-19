@@ -54,20 +54,20 @@ enum MIDI_Errors
 
 #define MIDI_MaxVolume 255
 
-int MIDI_AllNotesOff(void);
-int MIDI_Reset(void);
-int MIDI_SetVolume(int volume);
-int MIDI_GetVolume(void);
-void    MIDI_SetMidiFuncs(midifuncs *funcs);
-void    MIDI_SetLoopFlag(int loopflag);
-void    MIDI_ContinueSong(void);
-void    MIDI_PauseSong(void);
-void    MIDI_StopSong(void);
-int MIDI_PlaySong(char *song, int loopflag);
-void    MIDI_SetTempo(int tempo);
-int MIDI_GetTempo(void);
-void    MIDI_MusicMix(char *buffer, int length);
-void    MIDI_UpdateMusic(void);
-void    MIDI_SetDivision(int division);
+int  MIDI_AllNotesOff(void);
+int  MIDI_Reset(void);
+int  MIDI_SetVolume(int volume);
+int  MIDI_GetVolume(void);
+void MIDI_SetMidiFuncs(midifuncs *funcs);
+void MIDI_SetLoopFlag(int loopflag);
+void MIDI_ContinueSong(void);
+void MIDI_PauseSong(void);
+void MIDI_StopSong(void);
+int  MIDI_PlaySong(char *song, int loopflag);
+void MIDI_SetTempo(int tempo);
+int  MIDI_GetTempo(void);
+void MV_RenderMIDI(void);
+void MIDI_UpdateMusic(void);
+void MIDI_SetDivision(int division);
 
 #endif

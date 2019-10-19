@@ -124,7 +124,7 @@ void MV_SetReverseStereo(int setting);
 int  MV_GetReverseStereo(void);
 int  MV_Init(int soundcard, int MixRate, int Voices, int numchannels, void *initdata);
 int  MV_Shutdown(void);
-void MV_HookMusicRoutine(void (*callback)(char *buffer, int length));
+void MV_HookMusicRoutine(void (*callback)(void));
 void MV_UnhookMusicRoutine(void);
 
 static inline void MV_SetPrintf(void (*function)(const char *, ...)) { if (function) MV_Printf = function; }

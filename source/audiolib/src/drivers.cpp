@@ -26,6 +26,7 @@
 #include "drivers.h"
 
 #include "driver_nosound.h"
+#include "driver_adlib.h"
 
 #ifdef RENDERTYPESDL
 # include "driver_sdl.h"
@@ -141,50 +142,23 @@ static struct {
     #else
         UNSUPPORTED_COMPLETELY
     #endif
-
-    // TODO: create the driver functions for these
-    // 
-    // older MPU-401 code...
-    #ifdef _WIN32
-    {
-        "MPU-401",
-        WinMMDrv_GetError,
-        WinMMDrv_ErrorString,
-
-        UNSUPPORTED_PCM,
-
-        WinMMDrv_MIDI_Init,
-        WinMMDrv_MIDI_Shutdown,
-        WinMMDrv_MIDI_StartPlayback,
-        WinMMDrv_MIDI_HaltPlayback,
-        WinMMDrv_MIDI_SetTempo,
-        WinMMDrv_MIDI_Lock,
-        WinMMDrv_MIDI_Unlock,
-    },
-    #else
-        UNSUPPORTED_COMPLETELY
-    #endif
-
-    #ifdef _WIN32
+    
     // OPL3 emulation
     {
-        "OPL3",
-        WinMMDrv_GetError,
-        WinMMDrv_ErrorString,
+        "Nuked OPL3",
+        AdlibDrv_GetError,
+        AdlibDrv_ErrorString,
 
         UNSUPPORTED_PCM,
 
-        WinMMDrv_MIDI_Init,
-        WinMMDrv_MIDI_Shutdown,
-        WinMMDrv_MIDI_StartPlayback,
-        WinMMDrv_MIDI_HaltPlayback,
-        WinMMDrv_MIDI_SetTempo,
-        WinMMDrv_MIDI_Lock,
-        WinMMDrv_MIDI_Unlock,
+        AdlibDrv_MIDI_Init,
+        AdlibDrv_MIDI_Shutdown,
+        AdlibDrv_MIDI_StartPlayback,
+        AdlibDrv_MIDI_HaltPlayback,
+        AdlibDrv_MIDI_SetTempo,
+        AdlibDrv_MIDI_Lock,
+        AdlibDrv_MIDI_Unlock,
     },
-    #else
-        UNSUPPORTED_COMPLETELY
-    #endif
 };
 
 

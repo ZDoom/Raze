@@ -231,6 +231,11 @@ extern Pan MV_PanTable[ MV_NUMPANPOSITIONS ][ MV_MAXVOLUME + 1 ];
 extern int MV_ErrorCode;
 extern int MV_Installed;
 extern int MV_MixRate;
+extern char *MV_MusicBuffer;
+extern int MV_BufferSize;
+
+extern int MV_MIDIRenderTempo;
+extern int MV_MIDIRenderTimer;
 
 static FORCE_INLINE int MV_SetErrorCode(int status)
 {

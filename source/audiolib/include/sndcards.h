@@ -37,7 +37,6 @@ typedef enum
     ASS_SDL,
     ASS_DirectSound,
     ASS_WinMM,
-    ASS_MPU401,
     ASS_OPL3,
     ASS_NumSoundCards,
     ASS_AutoDetect = -2
