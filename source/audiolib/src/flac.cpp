@@ -101,7 +101,7 @@ static size_t write_flac(const void *ptr, size_t size, size_t nmemb, FLAC__IOHan
     return 0;
 }
 
-static int32_t seek_flac(FLAC__IOHandle datasource, FLAC__int64 offset, int32_t whence)
+static int seek_flac(FLAC__IOHandle datasource, FLAC__int64 offset, int whence)
 {
     flac_data *flac = (flac_data *)datasource;
 
@@ -136,14 +136,14 @@ static FLAC__int64 length_flac(FLAC__IOHandle datasource)
     return flac->length;
 }
 
-static int32_t eof_flac(FLAC__IOHandle datasource)
+static int eof_flac(FLAC__IOHandle datasource)
 {
     flac_data *flac = (flac_data *)datasource;
 
     return (flac->pos == flac->length);
 }
 
-static int32_t close_flac(FLAC__IOHandle datasource)
+static int close_flac(FLAC__IOHandle datasource)
 {
     UNREFERENCED_PARAMETER(datasource);
     return 0;
@@ -294,7 +294,7 @@ void error_flac_stream(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderEr
     // FLAC__stream_decoder_flush(fd->stream);
 }
 
-int32_t MV_GetFLACPosition(VoiceNode *voice)
+int MV_GetFLACPosition(VoiceNode *voice)
 {
     FLAC__uint64 position = 0;
     flac_data *fd = (flac_data *)voice->rawdataptr;
@@ -304,7 +304,7 @@ int32_t MV_GetFLACPosition(VoiceNode *voice)
     return position;
 }
 
-void MV_SetFLACPosition(VoiceNode *voice, int32_t position)
+void MV_SetFLACPosition(VoiceNode *voice, int position)
 {
     flac_data *fd = (flac_data *)voice->rawdataptr;
 
@@ -380,13 +380,13 @@ Begin playback of sound data at specified angle and distance
 from listener.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayFLAC3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority, float volume, intptr_t callbackval)
+int MV_PlayFLAC3D(char *ptr, uint32_t length, int loophow, int pitchoffset, int angle, int distance, int priority, float volume, uint32_t callbackval)
 {
-    int32_t left;
-    int32_t right;
-    int32_t mid;
-    int32_t vol;
-    int32_t status;
+    int left;
+    int right;
+    int mid;
+    int vol;
+    int status;
 
     if (!MV_Installed)
         return MV_SetErrorCode(MV_NotInstalled);
@@ -419,7 +419,7 @@ Begin playback of sound data with the given sound levels and
 priority.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
+int MV_PlayFLAC(char *ptr, uint32_t length, int loopstart, int loopend, int pitchoffset, int vol, int left, int right, int priority, float volume, uint32_t callbackval)
 {
     VoiceNode *voice;
     flac_data *fd = 0;
@@ -657,8 +657,8 @@ void MV_ReleaseFLACVoice(VoiceNode *voice)
 #else
 #include "_multivc.h"
 
-int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
-    int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
+int MV_PlayFLAC(char *ptr, uint32_t ptrlength, int loopstart, int loopend, int pitchoffset,
+    int vol, int left, int right, int priority, float volume, uint32_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);
@@ -676,8 +676,8 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t lo
     return -1;
 }
 
-int32_t MV_PlayFLAC3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
-    int32_t distance, int32_t priority, float volume, intptr_t callbackval)
+int MV_PlayFLAC3D(char *ptr, uint32_t ptrlength, int loophow, int pitchoffset, int angle,
+    int distance, int priority, float volume, uint32_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);

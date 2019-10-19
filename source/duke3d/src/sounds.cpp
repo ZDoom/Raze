@@ -58,7 +58,7 @@ static inline void S_SetProperties(assvoice_t *snd, int const owner, int const v
 
 void S_SoundStartup(void)
 {
-#ifdef MIXERTYPEWIN
+#ifdef _WIN32
     void *initdata = (void *) win_gethwnd(); // used for DirectSound
 #else
     void *initdata = NULL;
@@ -114,7 +114,7 @@ void S_MusicStartup(void)
 {
     initprintf("Initializing music...\n");
 
-    if (MUSIC_Init(0, 0) == MUSIC_Ok || MUSIC_Init(1, 0) == MUSIC_Ok)
+    if (MUSIC_Init(ud.config.MusicDevice) == MUSIC_Ok || MUSIC_Init(0) == MUSIC_Ok || MUSIC_Init(1) == MUSIC_Ok)
     {
         MUSIC_SetVolume(mus_volume);
         return;

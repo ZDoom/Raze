@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "multivoc.h"
 #include "fx_man.h"
 
-int32_t FX_ErrorCode = FX_Ok;
-int32_t FX_Installed;
+int FX_ErrorCode = FX_Ok;
+int FX_Installed;
 
-const char *FX_ErrorString(int32_t ErrorNumber)
+const char *FX_ErrorString(int ErrorNumber)
 {
     const char *ErrorString;
 
@@ -44,23 +44,34 @@ const char *FX_ErrorString(int32_t ErrorNumber)
     return ErrorString;
 }
 
-int32_t FX_Init(int32_t numvoices, int32_t numchannels, unsigned mixrate, void *initdata)
+int FX_Init(int numvoices, int numchannels, unsigned mixrate, void *initdata)
 {
     if (FX_Installed)
         FX_Shutdown();
 
-#if defined MIXERTYPEWIN
-    int SoundCard = ASS_DirectSound;
-#elif defined MIXERTYPESDL
-    int SoundCard = ASS_SDL;
-#else
-#warning No sound driver selected!
-    int SoundCard = ASS_NoSound;
-#endif
+    int SoundCard = ASS_AutoDetect;
 
-    if (SoundDriver_IsSupported(SoundCard) == 0)
+    if (SoundCard == ASS_AutoDetect) {
+#if defined RENDERTYPESDL
+        SoundCard = ASS_SDL;
+#elif defined _WIN32
+        SoundCard = ASS_DirectSound;
+#else
+        SoundCard = ASS_NoSound;
+#endif
+    }
+
+    if (SoundCard < 0 || SoundCard >= ASS_NumSoundCards)
+    {
+        FX_SetErrorCode(FX_InvalidCard);
+        return FX_Error;
+    }
+
+
+    if (SoundDriver_IsPCMSupported(SoundCard) == 0)
     {
         // unsupported cards fall back to no sound
+        MV_Printf("Couldn't init %s, falling back to no sound...\n", SoundDriver_GetName(SoundCard));
         SoundCard = ASS_NoSound;
     }
 
@@ -78,7 +89,7 @@ int32_t FX_Init(int32_t numvoices, int32_t numchannels, unsigned mixrate, void *
     return status;
 }
 
-int32_t FX_Shutdown(void)
+int FX_Shutdown(void)
 {
     if (!FX_Installed)
         return FX_Ok;
@@ -103,7 +114,7 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
 
     wavefmt_t fmt = FMT_UNKNOWN;
 
-    switch (B_LITTLE32(*(int32_t const *)ptr))
+    switch (B_LITTLE32(*(int const *)ptr))
     {
         case 'C' + ('r' << 8) + ('e' << 16) + ('a' << 24):  // Crea
             fmt = FMT_VOC;
@@ -112,7 +123,7 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
             fmt = FMT_VORBIS;
             break;
         case 'R' + ('I' << 8) + ('F' << 16) + ('F' << 24):  // RIFF
-            switch (B_LITTLE32(*(int32_t const *)(ptr + 8)))
+            switch (B_LITTLE32(*(int const *)(ptr + 8)))
             {
                 case 'C' + ('D' << 8) + ('X' << 16) + ('A' << 24):  // CDXA
                     fmt = FMT_XA;
@@ -134,10 +145,10 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
     return fmt;
 }
 
-int32_t FX_Play(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
-                          int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
+int FX_Play(char *ptr, uint32_t ptrlength, int loopstart, int loopend, int pitchoffset,
+                          int vol, int left, int right, int priority, float volume, uint32_t callbackval)
 {
-    static int32_t(*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, float, intptr_t) =
+    static constexpr decltype(MV_PlayVOC) *func[] =
     { nullptr, nullptr, MV_PlayVOC, MV_PlayWAV, MV_PlayVorbis, MV_PlayFLAC, MV_PlayXA, MV_PlayXMP };
 
     EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
@@ -156,10 +167,10 @@ int32_t FX_Play(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopen
     return handle;
 }
 
-int32_t FX_Play3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
-                      int32_t priority, float volume, intptr_t callbackval)
+int FX_Play3D(char *ptr, uint32_t ptrlength, int loophow, int pitchoffset, int angle, int distance,
+                      int priority, float volume, uint32_t callbackval)
 {
-    static int32_t (*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, float, intptr_t) =
+    static constexpr decltype(MV_PlayVOC3D) *func[] =
     { nullptr, nullptr, MV_PlayVOC3D, MV_PlayWAV3D, MV_PlayVorbis3D, MV_PlayFLAC3D, MV_PlayXA3D, MV_PlayXMP3D };
 
     EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
@@ -178,35 +189,7 @@ int32_t FX_Play3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitcho
     return handle;
 }
 
-int32_t FX_PlayRaw(char *ptr, uint32_t ptrlength, int32_t rate, int32_t pitchoffset, int32_t vol,
-    int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
-{
-    int handle = MV_PlayRAW(ptr, ptrlength, rate, NULL, NULL, pitchoffset, vol, left, right, priority, volume, callbackval);
-
-    if (handle <= MV_Ok)
-    {
-        FX_SetErrorCode(FX_MultiVocError);
-        handle = FX_Warning;
-    }
-
-    return handle;
-}
-
-int32_t FX_PlayLoopedRaw(char *ptr, uint32_t ptrlength, char *loopstart, char *loopend, int32_t rate,
-    int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
-{
-    int handle = MV_PlayRAW(ptr, ptrlength, rate, loopstart, loopend, pitchoffset, vol, left, right, priority, volume, callbackval);
-
-    if (handle <= MV_Ok)
-    {
-        FX_SetErrorCode(FX_MultiVocError);
-        handle = FX_Warning;
-    }
-
-    return handle;
-}
-
-int32_t FX_SetPrintf(void (*function)(const char *, ...))
+int FX_SetPrintf(void (*function)(const char *, ...))
 {
     MV_SetPrintf(function);
 

@@ -53,7 +53,7 @@ typedef struct {
    OggVorbis_File vf;
 
    char block[BLOCKSIZE];
-   int32_t lastbitstream;
+   int lastbitstream;
 } vorbis_data;
 
 // designed with multiple calls in mind
@@ -139,14 +139,14 @@ static size_t read_vorbis(void *ptr, size_t size, size_t nmemb, void *datasource
     if (vorb->length == vorb->pos)
         return 0;
 
-    int32_t nread = 0;
+    int nread = 0;
 
     for (; nmemb > 0; nmemb--, nread++)
     {
-        int32_t bytes = vorb->length - vorb->pos;
+        int bytes = vorb->length - vorb->pos;
 
         if ((signed)size < bytes)
-            bytes = (int32_t)size;
+            bytes = (int)size;
 
         memcpy(ptr, (uint8_t *)vorb->ptr + vorb->pos, bytes);
         vorb->pos += bytes;
@@ -198,14 +198,14 @@ static long tell_vorbis(void *datasource)
 static ov_callbacks vorbis_callbacks = { read_vorbis, seek_vorbis, close_vorbis, tell_vorbis };
 
 
-int32_t MV_GetVorbisPosition(VoiceNode *voice)
+int MV_GetVorbisPosition(VoiceNode *voice)
 {
     auto vd = (vorbis_data *) voice->rawdataptr;
 
     return ov_pcm_tell(&vd->vf);
 }
 
-void MV_SetVorbisPosition(VoiceNode *voice, int32_t position)
+void MV_SetVorbisPosition(VoiceNode *voice, int position)
 {
     auto vd = (vorbis_data *) voice->rawdataptr;
 
@@ -222,14 +222,14 @@ static playbackstatus MV_GetNextVorbisBlock(VoiceNode *voice)
 {
     int bitstream;
 
-    int32_t bytesread = 0;
+    int bytesread = 0;
     auto vd = (vorbis_data *)voice->rawdataptr;
     do
     {
 #ifdef USING_TREMOR
-        int32_t bytes = ov_read(&vd->vf, vd->block + bytesread, BLOCKSIZE - bytesread, &bitstream);
+        int bytes = ov_read(&vd->vf, vd->block + bytesread, BLOCKSIZE - bytesread, &bitstream);
 #else
-        int32_t bytes = ov_read(&vd->vf, vd->block + bytesread, BLOCKSIZE - bytesread, 0, 2, 1, &bitstream);
+        int bytes = ov_read(&vd->vf, vd->block + bytesread, BLOCKSIZE - bytesread, 0, 2, 1, &bitstream);
 #endif
         // fprintf(stderr, "ov_read = %d\n", bytes);
         if (bytes > 0)
@@ -324,7 +324,7 @@ Begin playback of sound data at specified angle and distance
 from listener.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayVorbis3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority, float volume, intptr_t callbackval)
+int MV_PlayVorbis3D(char *ptr, uint32_t length, int loophow, int pitchoffset, int angle, int distance, int priority, float volume, uint32_t callbackval)
 {
     if (!MV_Installed)
         return MV_SetErrorCode(MV_NotInstalled);
@@ -352,7 +352,7 @@ Begin playback of sound data with the given sound levels and
 priority.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
+int MV_PlayVorbis(char *ptr, uint32_t length, int loopstart, int loopend, int pitchoffset, int vol, int left, int right, int priority, float volume, uint32_t callbackval)
 {
     UNREFERENCED_PARAMETER(loopend);
 
@@ -370,7 +370,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loo
 
     vd->lastbitstream = -1;
 
-    int32_t status = ov_open_callbacks((void *)vd, &vd->vf, 0, 0, vorbis_callbacks);
+    int status = ov_open_callbacks((void *)vd, &vd->vf, 0, 0, vorbis_callbacks);
 
     if (status < 0)
     {
@@ -457,8 +457,8 @@ void MV_ReleaseVorbisVoice( VoiceNode * voice )
 #else
 #include "_multivc.h"
 
-int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
-    int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, intptr_t callbackval)
+int MV_PlayVorbis(char *ptr, uint32_t ptrlength, int loopstart, int loopend, int pitchoffset,
+    int vol, int left, int right, int priority, float volume, uint32_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);
@@ -476,8 +476,8 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t 
     return -1;
 }
 
-int32_t MV_PlayVorbis3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
-    int32_t distance, int32_t priority, float volume, intptr_t callbackval)
+int MV_PlayVorbis3D(char *ptr, uint32_t ptrlength, int loophow, int pitchoffset, int angle,
+    int distance, int priority, float volume, uint32_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);

@@ -24,7 +24,7 @@ template uint32_t MV_MixMono<uint8_t, int16_t>(struct VoiceNode * const voice, u
 template uint32_t MV_MixStereo<uint8_t, int16_t>(struct VoiceNode * const voice, uint32_t length);
 template uint32_t MV_MixMono<int16_t, int16_t>(struct VoiceNode * const voice, uint32_t length);
 template uint32_t MV_MixStereo<int16_t, int16_t>(struct VoiceNode * const voice, uint32_t length);
-template void MV_Reverb<int16_t>(char const *src, char * const dest, const float volume, int32_t count);
+template void MV_Reverb<int16_t>(char const *src, char * const dest, const float volume, int count);
 
 /*
  length = count of samples to mix
@@ -95,7 +95,7 @@ uint32_t MV_MixStereo(struct VoiceNode * const voice, uint32_t length)
 }
 
 template <typename T>
-void MV_Reverb(char const *src, char * const dest, const float volume, int32_t count)
+void MV_Reverb(char const *src, char * const dest, const float volume, int count)
 {
     auto input  = (T const *)src;
     auto output = (T *)dest;

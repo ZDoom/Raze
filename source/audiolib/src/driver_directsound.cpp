@@ -34,15 +34,15 @@
 
 #define MIXBUFFERPOSITIONS 8
 
-static int32_t ErrorCode;
-static int32_t Initialised;
-static int32_t Playing;
+static int ErrorCode;
+static int Initialised;
+static int Playing;
 
 static char *  MixBuffer;
-static int32_t MixBufferSize;
-static int32_t MixBufferCount;
-static int32_t MixBufferCurrent;
-static int32_t MixBufferUsed;
+static int MixBufferSize;
+static int MixBufferCount;
+static int MixBufferCurrent;
+static int MixBufferUsed;
 
 static void (*MixCallBack)(void);
 
@@ -55,9 +55,9 @@ static mutex_t mutex;
 
 static DSBPOSITIONNOTIFY notifyPositions[MIXBUFFERPOSITIONS + 1] = {};
 
-static void FillBufferPosition(char * ptr, int32_t remaining)
+static void FillBufferPosition(char * ptr, int remaining)
 {
-    int32_t len = 0;
+    int len = 0;
 
     do
     {
@@ -90,11 +90,11 @@ static void FillBufferPosition(char * ptr, int32_t remaining)
     while (remaining >= len);
 }
 
-static void FillBuffer(int32_t bufnum)
+static void FillBuffer(int bufnum)
 {
     LPVOID ptr, ptr2;
     DWORD remaining, remaining2;
-    int32_t retries = 1;
+    int retries = 1;
 
     do
     {
@@ -112,7 +112,7 @@ static void FillBuffer(int32_t bufnum)
                     continue;
             }
 fail:
-            MV_Printf("DirectSound FillBuffer: err %x\n", (uint32_t)err);
+            MV_Printf("DirectSound FillBuffer: err %x\n", (unsigned int)err);
 
             return;
         }
@@ -157,7 +157,7 @@ static DWORD WINAPI fillDataThread(LPVOID lpParameter)
                     break;
 
                 default:
-                    MV_Printf("DirectSound fillDataThread: wfmo err %d\n", (int32_t)waitret);
+                    MV_Printf("DirectSound fillDataThread: wfmo err %d\n", (int)waitret);
                     break;
             }
         }
@@ -170,7 +170,7 @@ static DWORD WINAPI fillDataThread(LPVOID lpParameter)
 static void TeardownDSound(HRESULT err)
 {
     if (FAILED(err))
-        MV_Printf("Dying error: %x\n", (uint32_t)err);
+        MV_Printf("Dying error: %x\n", (unsigned int)err);
 
     if (lpdsnotify)
         IDirectSoundNotify_Release(lpdsnotify), lpdsnotify = nullptr;
@@ -204,7 +204,7 @@ static int DirectSound_Error(HRESULT err, int code)
     return DSErr_Error;
 }
 
-int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata)
+int DirectSoundDrv_PCM_Init(int *mixrate, int *numchannels, void * initdata)
 {
     HRESULT err;
     DSBUFFERDESC bufdesc = {};
@@ -281,7 +281,7 @@ void DirectSoundDrv_PCM_Shutdown(void)
     Initialised = 0;
 }
 
-int32_t DirectSoundDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize, int32_t NumDivisions, void (*CallBackFunc)(void))
+int DirectSoundDrv_PCM_BeginPlayback(char *BufferStart, int BufferSize, int NumDivisions, void (*CallBackFunc)(void))
 {
     if (!Initialised)
     {
@@ -343,12 +343,12 @@ void DirectSoundDrv_PCM_Unlock(void)
     mutex_unlock(&mutex);
 }
 
-int32_t DirectSoundDrv_GetError(void)
+int DirectSoundDrv_GetError(void)
 {
     return ErrorCode;
 }
 
-const char *DirectSoundDrv_ErrorString(int32_t ErrorNumber)
+const char *DirectSoundDrv_ErrorString(int ErrorNumber)
 {
     const char *ErrorString;
 

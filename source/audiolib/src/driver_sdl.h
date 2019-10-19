@@ -23,12 +23,12 @@
 
 #include "compat.h"
 
-int32_t SDLDrv_GetError(void);
-const char *SDLDrv_ErrorString( int32_t ErrorNumber );
-int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata);
+int SDLDrv_GetError(void);
+const char *SDLDrv_ErrorString( int ErrorNumber );
+int SDLDrv_PCM_Init(int *mixrate, int *numchannels, void * initdata);
 void SDLDrv_PCM_Shutdown(void);
-int32_t SDLDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
-                 int32_t NumDivisions, void ( *CallBackFunc )( void ) );
+int SDLDrv_PCM_BeginPlayback(char *BufferStart, int BufferSize,
+                 int NumDivisions, void ( *CallBackFunc )( void ) );
 void SDLDrv_PCM_StopPlayback(void);
 void SDLDrv_PCM_Lock(void);
 void SDLDrv_PCM_Unlock(void);

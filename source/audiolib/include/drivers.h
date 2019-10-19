@@ -21,30 +21,36 @@
 #ifndef DRIVERS_H
 #define DRIVERS_H
 
-#include "inttypes.h"
+#include "sndcards.h"
+#include "midifuncs.h"
 
-typedef enum
-{
-    ASS_NoSound,
-#if defined MIXERTYPEWIN
-    ASS_DirectSound,
-#elif defined MIXERTYPESDL
-    ASS_SDL,
-#endif
-    ASS_NumSoundCards,
-} soundcardnames;
+extern int ASS_PCMSoundDriver;
+extern int ASS_CDSoundDriver;
+extern int ASS_MIDISoundDriver;
 
-extern int32_t ASS_SoundDriver;
+int SoundDriver_IsPCMSupported(int driver);
+int SoundDriver_IsMIDISupported(int driver);
 
-int32_t SoundDriver_IsSupported(int32_t driver);
+const char *SoundDriver_GetName(int driver);
 
-int32_t SoundDriver_GetError(void);
-const char *SoundDriver_ErrorString(int32_t ErrorNumber);
-int32_t SoundDriver_Init(int32_t *mixrate, int32_t *numchannels, void *initdata);
-void SoundDriver_Shutdown(void);
-int32_t SoundDriver_BeginPlayback(char *BufferStart, int32_t BufferSize, int32_t NumDivisions, void(*CallBackFunc)(void));
-void SoundDriver_StopPlayback(void);
-void SoundDriver_Lock(void);
-void SoundDriver_Unlock(void);
+int         SoundDriver_PCM_GetError(void);
+const char *SoundDriver_PCM_ErrorString(int ErrorNumber);
+int         SoundDriver_MIDI_GetError(void);
+const char *SoundDriver_MIDI_ErrorString(int ErrorNumber);
+
+int  SoundDriver_PCM_Init(int *mixrate, int *numchannels, void *initdata);
+void SoundDriver_PCM_Shutdown(void);
+int  SoundDriver_PCM_BeginPlayback(char *BufferStart, int BufferSize, int NumDivisions, void (*CallBackFunc)(void));
+void SoundDriver_PCM_StopPlayback(void);
+void SoundDriver_PCM_Lock(void);
+void SoundDriver_PCM_Unlock(void);
+
+int  SoundDriver_MIDI_Init(midifuncs *);
+void SoundDriver_MIDI_Shutdown(void);
+int  SoundDriver_MIDI_StartPlayback(void (*service)(void));
+void SoundDriver_MIDI_HaltPlayback(void);
+void SoundDriver_MIDI_SetTempo(int tempo, int division);
+void SoundDriver_MIDI_Lock(void);
+void SoundDriver_MIDI_Unlock(void);
 
 #endif
