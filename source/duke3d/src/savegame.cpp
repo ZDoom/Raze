@@ -34,6 +34,7 @@ BEGIN_DUKE_NS
 
 
 static OutputFileCounter savecounter;
+char previousboardfilename[BMAX_PATH];
 
 // For storing pointers in files.
 //  back_p==0: ptr -> "small int"
@@ -463,9 +464,13 @@ int32_t G_LoadPlayer(savebrief_t & sv)
             else if (g_mapInfo[mapIdx].filename)
                 Bstrcpy(currentboardfilename, g_mapInfo[mapIdx].filename);
 
+
             if (currentboardfilename[0])
             {
-                artSetupMapArt(currentboardfilename);
+                // only setup art if map differs from previous
+                if (!previousboardfilename[0] || previousboardfilename != currentboardfilename)
+                    artSetupMapArt(currentboardfilename);
+                Bstrcpy(previousboardfilename, currentboardfilename);
                 append_ext_UNSAFE(currentboardfilename, ".mhk");
                 engineLoadMHK(currentboardfilename);
             }
@@ -662,7 +667,10 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     if (currentboardfilename[0])
     {
-        artSetupMapArt(currentboardfilename);
+        // only setup art if map differs from previous
+        if (!previousboardfilename[0] || Bstrcmp(previousboardfilename, currentboardfilename))
+            artSetupMapArt(currentboardfilename);
+        Bstrcpy(previousboardfilename, currentboardfilename);
         append_ext_UNSAFE(currentboardfilename, ".mhk");
         engineLoadMHK(currentboardfilename);
     }
