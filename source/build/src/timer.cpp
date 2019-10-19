@@ -1,3 +1,4 @@
+// Build engine timer stuff
 
 #include "timer.h"
 
@@ -15,7 +16,7 @@ static time_point<steady_clock> timerlastsample;
 static int timerticspersec;
 static void(*usertimercallback)(void) = NULL;
 
-int      timerGetRate(void)     { return timerticspersec; }
+int timerGetClockRate(void) { return timerticspersec; }
 uint32_t timerGetTicks(void)    { return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count(); }
 uint64_t timerGetTicksU64(void) { return steady_clock::now().time_since_epoch().count() * steady_clock::period::num; }
 uint64_t timerGetFreqU64(void)  { return steady_clock::period::den; }
@@ -34,7 +35,7 @@ int timerInit(int const tickspersecond)
     return 0;
 }
 
-ATTRIBUTE((flatten)) void timerUpdate(void)
+ATTRIBUTE((flatten)) void timerUpdateClock(void)
 {
     auto time = steady_clock::now();
     auto elapsedTime = time - timerlastsample;

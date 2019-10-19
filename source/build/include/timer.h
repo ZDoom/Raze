@@ -9,8 +9,8 @@
 #define timerUninit()
 
 int      timerInit(int const tickspersecond);
-void     timerUpdate(void);
-int      timerGetRate(void);
+void     timerUpdateClock(void);
+int      timerGetClockRate(void);
 uint64_t timerGetTicksU64(void);
 uint64_t timerGetFreqU64(void);
 double   timerGetHiTicks(void);

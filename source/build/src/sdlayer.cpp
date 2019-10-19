@@ -2212,7 +2212,7 @@ int32_t handleevents(void)
     rv = handleevents_pollsdl();
 
     inputchecked = 0;
-    timerUpdate();
+    timerUpdateClock();
 
 #ifndef _WIN32
     startwin_idle(NULL);
