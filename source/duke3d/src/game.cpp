@@ -6644,7 +6644,7 @@ int app_main(int argc, char const * const * argv)
 
     if (quitevent) return 4;
 
-    if (g_networkMode != NET_DEDICATED_SERVER)
+    if (g_networkMode != NET_DEDICATED_SERVER && validmodecnt > 0)
     {
         if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail) < 0)
         {
@@ -6670,7 +6670,7 @@ int app_main(int argc, char const * const * argv)
                 initprintf("Failure setting video mode %dx%dx%d windowed! Trying next mode...\n",
                            validmode[resIdx].xdim, validmode[resIdx].ydim, bpp);
 
-                if (++resIdx == validmodecnt)
+                if (++resIdx >= validmodecnt)
                 {
                     if (bpp == 8)
                         G_GameExit("Fatal error: unable to set any video mode!");
