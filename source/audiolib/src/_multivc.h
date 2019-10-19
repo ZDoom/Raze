@@ -259,7 +259,7 @@ void MV_ReleaseXMPVoice(VoiceNode *voice);
 // implemented in mix.c
 template <typename S, typename D> uint32_t MV_MixMono(struct VoiceNode * const voice, uint32_t length);
 template <typename S, typename D> uint32_t MV_MixStereo(struct VoiceNode * const voice, uint32_t length);
-template <typename T> void MV_Reverb(char const *src, char *dest, const float volume, int32_t count);
+template <typename T> void MV_Reverb(char const *src, char * const dest, const float volume, int32_t count);
 
 // implemented in mixst.c
 template <typename S, typename D> uint32_t MV_MixMonoStereo(struct VoiceNode * const voice, uint32_t length);
