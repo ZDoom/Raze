@@ -282,7 +282,7 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
         return OSDCMD_OK;
     }
 
-    int32_t  crctime = timerGetTicks();
+    double   crctime = timerGetHiTicks();
     uint32_t crcval  = 0;
     int32_t  siz     = 0;
 
@@ -296,11 +296,11 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
     }
     while (siz == ReadSize);
 
-    crctime = timerGetTicks() - crctime;
+    crctime = timerGetHiTicks() - crctime;
 
     klseek(h, 0, BSEEK_SET);
 
-    int32_t xxhtime = timerGetTicks();
+    double xxhtime = timerGetHiTicks();
 
     XXH32_state_t xxh;
     XXH32_reset(&xxh, 0x1337);
@@ -313,17 +313,17 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
     while (siz == ReadSize);
 
     uint32_t const xxhash = XXH32_digest(&xxh);
-    xxhtime = timerGetTicks() - xxhtime;
+    xxhtime = timerGetHiTicks() - xxhtime;
 
     Xfree(buf);
 
     OSD_Printf("fileinfo: %s\n"
-               "  File size: %d\n"
-               "  CRC-32:    %08X (%g sec)\n"
-               "  xxHash:    %08X (%g sec)\n",
+               "  File size: %d bytes\n"
+               "  CRC-32:    %08X (%.1fms)\n"
+               "  xxHash:    %08X (%.1fms)\n",
                parm->parms[0], kfilelength(h),
-               crcval, (double)crctime/timerGetRate(),
-               xxhash, (double)xxhtime/timerGetRate());
+               crcval, crctime,
+               xxhash, xxhtime);
 
     kclose(h);
 
