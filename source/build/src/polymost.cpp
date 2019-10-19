@@ -2048,6 +2048,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
     float fx = x0;
 
+	if (playing_blood) method |= DAMETH_CLAMPED;	// Hack to make Blood's skies show properly.
     do
     {
         globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+ti;

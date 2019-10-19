@@ -15,13 +15,6 @@ BEGIN_RR_NS
 
 extern int g_useCwd;
 
-#ifndef APPNAME
-#define APPNAME             "Rednukem"
-#endif
-
-#ifndef APPBASENAME
-#define APPBASENAME         "rednukem"
-#endif
 
 #define GAMEFLAG_DUKE       0x00000001
 #define GAMEFLAG_NAM        0x00000002

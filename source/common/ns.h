@@ -29,3 +29,11 @@
 #define END_SW_NS
 
 #endif
+
+#ifndef APPNAME
+#define APPNAME             "Demolition"
+#endif
+
+#ifndef APPBASENAME
+#define APPBASENAME         "demolition"
+#endif

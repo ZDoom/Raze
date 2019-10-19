@@ -32,13 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 extern int g_useCwd;
-#ifndef APPNAME
-#define APPNAME "NBlood"
-#endif
-
-#ifndef APPBASENAME
-#define APPBASENAME "nblood"
-#endif
 
 #define BLOODWIDESCREENDEF "blood_widescreen.def"
 

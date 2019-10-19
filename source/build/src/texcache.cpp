@@ -156,7 +156,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	auto mtex = LoadTexture(tex, TextureType, lookuppal);
 	if (mtex)
 	{
-		auto sampler = method & DAMETH_SKY? SamplerClampXY : (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
+		auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
 		if (TextureType == TT_INDEXED) sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
 
 		BindTexture(0, mtex, sampler);
