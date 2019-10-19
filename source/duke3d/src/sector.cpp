@@ -543,10 +543,7 @@ int G_ActivateWarpElevators(int spriteNum, int warpDir)
     if (i == -1)
         return 1; // No find
 
-#ifndef EDUKE32_STANDALONE
-    if (!FURY)
-        A_PlaySound(warpDir ? ELEVATOR_ON : ELEVATOR_OFF, spriteNum);
-#endif
+    A_PlaySound(warpDir ? ELEVATOR_ON : ELEVATOR_OFF, spriteNum);
 
     for (SPRITES_OF(STAT_EFFECTOR, i))
         if (SLT(i) == SE_17_WARP_ELEVATOR && SHT(i) == sprite[spriteNum].hitag)
