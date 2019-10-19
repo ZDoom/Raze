@@ -90,12 +90,12 @@ static inline void idle_waitevent(void)
     SDL_WaitEvent(NULL);
 }
 
-static inline void idle(void)
+static inline void idle(int const msec = 1)
 {
 #ifndef _WIN32
-    usleep(1000);
+    usleep(msec * 1000);
 #else
-    Sleep(1);
+    Sleep(msec);
 #endif
 }
 
