@@ -4429,7 +4429,7 @@ void Net_WaitForInitialSnapshot()
 {
     while (g_netMapRevisionNumber < cStartingRevisionIndex)
     {
-        G_HandleAsync();
+        gameHandleEvents();
     }
 }
 
@@ -4709,7 +4709,7 @@ void Net_WaitForServer(void)
         }
 
 
-        G_HandleAsync();
+        gameHandleEvents();
 
         if (g_player[0].pingcnt > serverReady)
         {

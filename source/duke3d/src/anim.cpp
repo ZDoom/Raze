@@ -398,7 +398,7 @@ int32_t Anim_Play(const char *fn)
 
             do
             {
-                G_HandleAsync();
+                gameHandleEvents();
 
                 if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_GeneralTrigger()))
                 {
@@ -491,7 +491,7 @@ int32_t Anim_Play(const char *fn)
             goto end_anim_restore_gl;
         }
 
-        G_HandleAsync();
+        gameHandleEvents();
 
         if (totalclock < ototalclock - 1)
             continue;

@@ -440,7 +440,7 @@ extern int G_StartRTS(int lumpNum, int localPlayer);
 
 extern void G_MaybeAllocPlayer(int32_t pnum);
 
-static inline int32_t G_HandleAsync(void)
+static inline int32_t gameHandleEvents(void)
 {
     Net_GetPackets();
     return handleevents();

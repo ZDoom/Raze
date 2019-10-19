@@ -941,7 +941,7 @@ nextdemo_nomenu:
         // NOTE: We must prevent handleevents() and Net_GetPackets() from
         // updating totalclock when profiling (both via sampletimer()):
         if (!Demo_IsProfiling())
-            G_HandleAsync();
+            gameHandleEvents();
 
         if (g_player[myconnectindex].ps->gm == MODE_GAME)
         {

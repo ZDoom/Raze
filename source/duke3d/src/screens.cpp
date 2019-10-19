@@ -55,7 +55,7 @@ static void G_HandleEventsWhileNoInput(void)
     I_ClearAllInput();
 
     while (!I_GeneralTrigger())
-        G_HandleAsync();
+        gameHandleEvents();
 
     I_ClearAllInput();
 }
@@ -66,7 +66,7 @@ static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
     I_ClearAllInput();
     while (S_CheckSoundPlaying(soundnum))
     {
-        G_HandleAsync();
+        gameHandleEvents();
         if (I_GeneralTrigger())
         {
             I_ClearAllInput();
@@ -1357,7 +1357,7 @@ void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e)
 
     int32_t tc = (int32_t) totalclock;
     while (totalclock < tc + 4)
-        G_HandleAsync();
+        gameHandleEvents();
 }
 
 // START and END limits are always inclusive!
@@ -1438,7 +1438,7 @@ void gameDisplayTENScreen()
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, TENSCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     fadepaltile(0, 0, 0, 252, 0, -28, TENSCREEN);
     while (!I_GeneralTrigger() && totalclock < 2400)
-        G_HandleAsync();
+        gameHandleEvents();
 
     fadepaltile(0, 0, 0, 0, 252, 28, TENSCREEN);
     I_ClearAllInput();
@@ -1461,14 +1461,14 @@ void gameDisplaySharewareScreens()
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 3291, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     fadepaltile(0, 0, 0, 252, 0, -28, 3291);
     while (!I_GeneralTrigger())
-        G_HandleAsync();
+        gameHandleEvents();
 
     fadepaltile(0, 0, 0, 0, 252, 28, 3291);
     I_ClearAllInput();
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 3290, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     fadepaltile(0, 0, 0, 252, 0, -28, 3290);
     while (!I_GeneralTrigger())
-        G_HandleAsync();
+        gameHandleEvents();
 
 #ifdef __ANDROID__
     inExtraScreens = 0;
@@ -1524,7 +1524,7 @@ void gameDisplay3DRScreen()
                 {
                     videoClearScreen(0);
                     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
-                    G_HandleAsync();
+                    gameHandleEvents();
 
                     if (g_restorePalette)
                     {
@@ -1645,7 +1645,7 @@ void gameDisplayTitleScreen(void)
 #endif
         }
 
-        G_HandleAsync();
+        gameHandleEvents();
     }
 }
 
@@ -1752,7 +1752,7 @@ void G_DoOrderScreen(void)
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, ORDERING+i, 0, 0, 2+8+64+BGSTRETCH);
         fadepal(0, 0, 0, 252, 0, -28);
         while (!I_CheckAllInput())
-            G_HandleAsync();
+            gameHandleEvents();
     }
 
     I_ClearAllInput();
@@ -1848,7 +1848,7 @@ static void G_BonusCutscenes(void)
                     videoNextPage();
                 }
 
-                G_HandleAsync();
+                gameHandleEvents();
 
                 if (I_GeneralTrigger()) break;
             } while (1);
@@ -2005,7 +2005,7 @@ static void G_BonusCutscenes(void)
             I_ClearAllInput();
             ototalclock = totalclock+200;
             while (totalclock < ototalclock)
-                G_HandleAsync();
+                gameHandleEvents();
             videoClearScreen(0L);
             videoNextPage();
 
@@ -2033,7 +2033,7 @@ static void G_BonusCutscenes(void)
         if (PLUTOPAK || (G_GetLogoFlags() & LOGO_NODUKETEAMPIC))
         {
             while (totalclock < 120 && !I_GeneralTrigger())
-                G_HandleAsync();
+                gameHandleEvents();
 
             I_ClearAllInput();
         }
@@ -2263,7 +2263,7 @@ void G_BonusScreen(int32_t bonusonly)
 
         while (totalclock < TICRATE*10)
         {
-            G_HandleAsync();
+            gameHandleEvents();
             MUSIC_Update();
 
             if (G_FPSLimit())
@@ -2307,7 +2307,7 @@ void G_BonusScreen(int32_t bonusonly)
     {
         int32_t yy = 0, zz;
 
-        G_HandleAsync();
+        gameHandleEvents();
         MUSIC_Update();
 
         if (G_FPSLimit())
