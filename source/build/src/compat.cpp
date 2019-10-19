@@ -4,7 +4,6 @@
 
 #define LIBDIVIDE_BODY
 #include "compat.h"
-#include "debugbreak.h"
 
 #ifdef _WIN32
 # define NEED_SHLOBJ_H

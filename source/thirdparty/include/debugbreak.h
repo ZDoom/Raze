@@ -25,6 +25,8 @@
  */
 #ifndef DEBUG_BREAK_H
 
+#pragma once
+
 #ifdef _MSC_VER
 
 #define debug_break __debugbreak
