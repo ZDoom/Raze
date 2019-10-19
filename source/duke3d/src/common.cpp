@@ -1060,26 +1060,26 @@ void G_LoadLookups(void)
 //////////
 
 #ifdef FORMAT_UPGRADE_ELIGIBLE
+int g_maybeUpgradeSoundFormats = 1;
 
 static buildvfs_kfd S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
 {
-#ifdef HAVE_FLAC
+    if (g_maybeUpgradeSoundFormats)
     {
+#ifdef HAVE_FLAC
         Bstrcpy(fn_suffix, ".flac");
-        buildvfs_kfd const fp = kopen4loadfrommod(testfn, searchfirst);
-        if (fp != buildvfs_kfd_invalid)
-            return fp;
-    }
+        buildvfs_kfd const ffp = kopen4loadfrommod(testfn, searchfirst);
+        if (ffp != buildvfs_kfd_invalid)
+            return ffp;
 #endif
 
 #ifdef HAVE_VORBIS
-    {
         Bstrcpy(fn_suffix, ".ogg");
         buildvfs_kfd const fp = kopen4loadfrommod(testfn, searchfirst);
         if (fp != buildvfs_kfd_invalid)
             return fp;
-    }
 #endif
+    }
 
     return buildvfs_kfd_invalid;
 }
