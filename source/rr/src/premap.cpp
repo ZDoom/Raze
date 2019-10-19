@@ -632,6 +632,7 @@ void G_CacheMapData(void)
         if ((j&7) == 0)
             G_HandleAsync();
 
+#if 0
         if (bpp > 8 && totalclock - tc > TICRATE/4)
         {
             /*Bsprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc+1);*/
@@ -654,6 +655,7 @@ void G_CacheMapData(void)
 
             tc = (int32_t) totalclock;
         }
+#endif
     }
 
     Bmemset(gotpic, 0, sizeof(gotpic));
