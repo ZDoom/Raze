@@ -214,7 +214,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 if (!Bstrcasecmp(c+1, "?") || !Bstrcasecmp(c+1, "help") || !Bstrcasecmp(c+1, "-help"))
                 {
                     G_ShowParameterHelp();
-                    Bexit(0);
+                    Bexit(EXIT_SUCCESS);
                 }
                 if (!Bstrcasecmp(c+1, "addon"))
                 {
@@ -234,7 +234,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 if (!Bstrcasecmp(c+1, "debughelp") || !Bstrcasecmp(c+1, "-debughelp"))
                 {
                     G_ShowDebugHelp();
-                    Bexit(0);
+                    Bexit(EXIT_SUCCESS);
                 }
                 if (!Bstrcasecmp(c+1, "grp") || !Bstrcasecmp(c+1, "g"))
                 {
@@ -637,7 +637,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     else
                     {
                         G_ShowParameterHelp();
-                        exit(-1);
+                        Bexit(EXIT_SUCCESS);
                     }
                     break;
                 case 'q':

@@ -1096,7 +1096,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
         if (newhandle < 0)
         {
             initprintf("TOO MANY FILES OPEN IN FILE GROUPING SYSTEM!");
-            Bexit(0);
+            Bexit(EXIT_SUCCESS);
         }
     }
 

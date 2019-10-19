@@ -8505,7 +8505,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     //if (smostwallcnt < 0)
     //  if (getkensmessagecrc(FP_OFF(kensmessage)) != 0x56c764d4)
-    //      { /* setvmode(0x3);*/ OSD_Printf("Nice try.\n"); Bexit(0); }
+    //      { /* setvmode(0x3);*/ OSD_Printf("Nice try.\n"); Bexit(EXIT_SUCCESS); }
 
     numhits = xdimen; numscans = 0; numbunches = 0;
     maskwallcnt = 0; smostwallcnt = 0; smostcnt = 0; spritesortcnt = 0;
@@ -10421,7 +10421,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
            "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
     //  if (getkensmessagecrc(FP_OFF(kensmessage)) != 0x56c764d4)
-    //      { OSD_Printf("Nice try.\n"); Bexit(0); }
+    //      { OSD_Printf("Nice try.\n"); Bexit(EXIT_SUCCESS); }
 
     //if (checkvideomode(&daxdim, &daydim, dabpp, davidoption)<0) return -1;
 

@@ -425,7 +425,7 @@ static int32_t playmusic()
         if (execv(external_midi_argv[0], external_midi_argv) < 0)
         {
             perror("execv");
-            _exit(1);
+            _exit(EXIT_FAILURE);
         }
     }
     else  // parent
