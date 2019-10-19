@@ -38,20 +38,21 @@
 //
 //===========================================================================
 
-unsigned int FHardwareTexture::CreateTexture(int w, int h, bool eightbit, bool mipmapped)
+unsigned int FHardwareTexture::CreateTexture(int w, int h, int type, bool mipmapped)
 {
+	static int gltypes[] = { GL_R8, GL_RGBA8, GL_RGB5_A1, GL_RGBA2 };
 	glTexID = GLInterface.GetTextureID();
 	glActiveTexture(GL_TEXTURE15);
 	glBindTexture(GL_TEXTURE_2D, glTexID);
 	int size = std::max(w, h);
 	int bits = 0;
 	while (size) bits++, size >>= 1;
-	glTextureBytes = eightbit? 1 : 4;
-	if (eightbit) mipmapped = false;
+	internalType = type;
+	if (type == Indexed) mipmapped = false;
 	mWidth = w;
 	mHeight = h;
 
-	glTexStorage2D(GL_TEXTURE_2D, mipmapped? bits : 1, eightbit? GL_R8 : GL_RGBA8, w, h);
+	glTexStorage2D(GL_TEXTURE_2D, mipmapped? bits : 1, gltypes[type], w, h);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glActiveTexture(GL_TEXTURE0);
 	this->mipmapped = mipmapped;
@@ -85,20 +86,19 @@ unsigned int FHardwareTexture::LoadTexturePart(const unsigned char* buffer, int 
 {
 	if (glTexID == 0) return 0;
 
-	int dstformat = glTextureBytes == 1 ? GL_R8 : GL_RGBA8;// TexFormat[gl_texture_format];
-	int srcformat = glTextureBytes == 1 ? GL_RED : GL_BGRA;// TexFormat[gl_texture_format];
+	int srcformat = internalType == Indexed ? GL_RED : GL_BGRA;// TexFormat[gl_texture_format];
 
 	glActiveTexture(GL_TEXTURE15);
 	glBindTexture(GL_TEXTURE_2D, glTexID);
 
-	if (glTextureBytes < 4) glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	if (internalType == Indexed) glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, srcformat, GL_UNSIGNED_BYTE, buffer);
 	if (mipmapped) glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glActiveTexture(GL_TEXTURE0);
-	if (glTextureBytes < 4) glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	if (internalType == Indexed) glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	return glTexID;
 }
 

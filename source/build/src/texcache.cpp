@@ -51,7 +51,7 @@ FHardwareTexture* GLInstance::CreateIndexedTexture(FTexture* tex)
 	}
 
 	auto glpic = GLInterface.NewTexture();
-	glpic->CreateTexture(siz.x, siz.y, true, false);
+	glpic->CreateTexture(siz.x, siz.y, FHardwareTexture::Indexed, false);
 
 	TArray<uint8_t> flipped(siz.x * siz.y, true);
 	FlipNonSquareBlock(flipped.Data(), p, siz.y, siz.x, siz.y);
@@ -65,7 +65,7 @@ FHardwareTexture* GLInstance::CreateIndexedTexture(FTexture* tex)
 //
 //===========================================================================
 
-FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency)
+FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency, bool rgb8bit)
 {
 	auto siz = tex->GetSize();
 	bool npoty = false;
@@ -89,7 +89,10 @@ FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, b
 	}
 
 	auto glpic = GLInterface.NewTexture();
-	glpic->CreateTexture(texbuffer.mWidth, texbuffer.mHeight, false, true);
+	if (!rgb8bit)
+		glpic->CreateTexture(texbuffer.mWidth, texbuffer.mHeight, FHardwareTexture::TrueColor, true);
+	else
+		glpic->CreateTexture(texbuffer.mWidth, texbuffer.mHeight, FHardwareTexture::Brightmap, false);	// Use a more memory friendly format for simple brightmaps.
 	glpic->LoadTexture(texbuffer.mBuffer);
 	return glpic;
 }
@@ -110,7 +113,7 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 	if (textype == TT_INDEXED)
 		hwtex = CreateIndexedTexture(tex);
 	else
-		hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP);
+		hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP, textype == TT_BRIGHTMAP);
 	
 	tex->SetHardwareTexture(palid, hwtex);
 	return hwtex;

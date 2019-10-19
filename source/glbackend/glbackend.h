@@ -245,9 +245,7 @@ public:
 	
 	int GetTextureID();
 	FHardwareTexture* NewTexture();
-	FGameTexture* NewTexture(const char *name, bool hightile);
 	void BindTexture(int texunit, FHardwareTexture *texid, int sampler = NoSampler);
-	void BindTexture(int texunit, FGameTexture* texid, int sampler = NoSampler);
 	void UnbindTexture(int texunit);
 	void UnbindAllTextures();
 	void EnableBlend(bool on);
@@ -395,7 +393,7 @@ public:
 	}
 	
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
-	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false);
+	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
 	FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
 	bool SetTextureInternal(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow);
 

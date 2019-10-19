@@ -27,7 +27,7 @@ bool glsurface_initialize(vec2_t bufferResolution)
 	buffer.Resize(bufferRes.x * bufferRes.y);
 
 	bufferTexture = GLInterface.NewTexture();
-	bufferTexture->CreateTexture(bufferRes.x, bufferRes.y, true, false);
+	bufferTexture->CreateTexture(bufferRes.x, bufferRes.y, FHardwareTexture::Indexed, false);
 
     glsurface_setPalette(curpalettefaded);
 	GLInterface.SetSurfaceShader();
@@ -52,7 +52,7 @@ void glsurface_setPalette(void* pPalette)
 	if (!paletteTexture)
 	{
 		paletteTexture = GLInterface.NewTexture();
-		paletteTexture->CreateTexture(256, 1, false, false);
+		paletteTexture->CreateTexture(256, 1, FHardwareTexture::TrueColor, false);
 	}
 	paletteTexture->LoadTexture(palette);
 	GLInterface.BindTexture(1, paletteTexture, SamplerNoFilterClampXY);

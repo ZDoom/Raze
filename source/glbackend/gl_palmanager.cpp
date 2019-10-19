@@ -195,7 +195,7 @@ void PaletteManager::BindPalette(int index)
 			if (palettes[uindex].paltexture == nullptr)
 			{
 				auto p = GLInterface.NewTexture();
-				p->CreateTexture(256, 1, false, false);
+				p->CreateTexture(256, 1, FHardwareTexture::TrueColor, false);
 				p->LoadTexture((uint8_t*)palettes[uindex].colors);
 				p->SetSampler(SamplerNoFilterClampXY);
 				palettes[uindex].paltexture = p;
@@ -237,7 +237,7 @@ void PaletteManager::BindPalswap(int index)
 			if (ps.swaptexture == nullptr)
 			{
 				auto p = GLInterface.NewTexture();
-				p->CreateTexture(256, numshades, true, false);
+				p->CreateTexture(256, numshades, FHardwareTexture::Indexed, false);
 				p->LoadTexture((uint8_t*)ps.lookup);
 				p->SetSampler(SamplerNoFilterClampXY);
 				ps.swaptexture = p;

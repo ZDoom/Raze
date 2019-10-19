@@ -5230,7 +5230,7 @@ static int32_t gen_font_glyph_tex(void)
         }
     }
 
-	polymosttext->CreateTexture(256, 128, false, false);
+	polymosttext->CreateTexture(256, 128, FHardwareTexture::TrueColor, false);
 	polymosttext->LoadTexture((uint8_t*)tbuf);
 	polymosttext->SetSampler(SamplerNoFilterClampXY);
     Xfree(tbuf);

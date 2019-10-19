@@ -398,7 +398,7 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
 
     if (!texuploaded)
     {
-		texture->CreateTexture(codec->width, codec->height, false, false);
+		texture->CreateTexture(codec->width, codec->height, FHardwareTexture::TrueColor, false);
         texuploaded = 1;
     }
 	texture->LoadTexture(codec->pic);
