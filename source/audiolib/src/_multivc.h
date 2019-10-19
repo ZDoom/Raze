@@ -175,7 +175,7 @@ typedef struct VoiceNode
 
     float volume;
 
-    unsigned LoopCount;
+    int      LoopCount;
     uint32_t LoopSize;
     uint32_t BlockLength;
 

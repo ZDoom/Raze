@@ -20,6 +20,8 @@
 
 #include "midifuncs.h"
 
+#include <inttypes.h>
+
 int NoSoundDrv_GetError(void);
 const char *NoSoundDrv_ErrorString( int ErrorNumber );
 
@@ -35,7 +37,7 @@ int  NoSoundDrv_MIDI_Init(midifuncs *);
 void NoSoundDrv_MIDI_Shutdown(void);
 int  NoSoundDrv_MIDI_StartPlayback(void (*service)(void));
 void NoSoundDrv_MIDI_HaltPlayback(void);
-unsigned int NoSoundDrv_MIDI_GetTick(void);
+uint32_t NoSoundDrv_MIDI_GetTick(void);
 void NoSoundDrv_MIDI_SetTempo(int tempo, int division);
 void NoSoundDrv_MIDI_Lock(void);
 void NoSoundDrv_MIDI_Unlock(void);

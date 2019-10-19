@@ -71,7 +71,7 @@ int NoSoundDrv_MIDI_StartPlayback(void (*service)(void))
 }
 
 void         NoSoundDrv_MIDI_HaltPlayback(void) {}
-unsigned int NoSoundDrv_MIDI_GetTick(void) { return 0; }
+uint32_t NoSoundDrv_MIDI_GetTick(void) { return 0; }
 
 void NoSoundDrv_MIDI_SetTempo(int tempo, int division)
 {

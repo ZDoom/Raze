@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 int FX_ErrorCode = FX_Ok;
 int FX_Installed;
 
-const char *FX_ErrorString(int ErrorNumber)
+const char *FX_ErrorString(int const ErrorNumber)
 {
     const char *ErrorString;
 
@@ -63,7 +63,7 @@ static int osdcmd_cvar_set_audiolib(osdcmdptr_t parm)
     return r;
 }
 
-int FX_Init(int numvoices, int numchannels, unsigned mixrate, void *initdata)
+int FX_Init(int numvoices, int numchannels, int mixrate, void *initdata)
 {
     if (FX_Installed)
         FX_Shutdown();
@@ -82,9 +82,11 @@ int FX_Init(int numvoices, int numchannels, unsigned mixrate, void *initdata)
                 OSD_RegisterCvar(&i, (i.flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_audiolib : osdcmd_cvar_set);
         }
     }
+
     int SoundCard = ASS_AutoDetect;
 
-    if (SoundCard == ASS_AutoDetect) {
+    if (SoundCard == ASS_AutoDetect)
+    {
 #if defined RENDERTYPESDL
         SoundCard = ASS_SDL;
 #elif defined RENDERTYPEWIN
@@ -99,7 +101,6 @@ int FX_Init(int numvoices, int numchannels, unsigned mixrate, void *initdata)
         FX_SetErrorCode(FX_InvalidCard);
         return FX_Error;
     }
-
 
     if (SoundDriver_IsPCMSupported(SoundCard) == 0)
     {

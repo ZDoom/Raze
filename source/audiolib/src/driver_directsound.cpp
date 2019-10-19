@@ -112,7 +112,7 @@ static void FillBuffer(int bufnum)
                     continue;
             }
 fail:
-            MV_Printf("DirectSound FillBuffer: err %x\n", (unsigned int)err);
+            MV_Printf("DirectSound FillBuffer: err %x\n", (uint32_t)err);
 
             return;
         }
@@ -170,7 +170,7 @@ static DWORD WINAPI fillDataThread(LPVOID lpParameter)
 static void TeardownDSound(HRESULT err)
 {
     if (FAILED(err))
-        MV_Printf("Dying error: %x\n", (unsigned int)err);
+        MV_Printf("Dying error: %x\n", (uint32_t)err);
 
     if (lpdsnotify)
         IDirectSoundNotify_Release(lpdsnotify), lpdsnotify = nullptr;

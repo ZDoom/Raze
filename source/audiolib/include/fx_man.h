@@ -54,7 +54,7 @@ enum FX_LOOP_HOW
 #define FX_MUSIC_PRIORITY	INT_MAX
 
 const char *FX_ErrorString(int ErrorNumber);
-int FX_Init(int numvoices, int numchannels, unsigned mixrate, void *initdata);
+int FX_Init(int numvoices, int numchannels, int mixrate, void *initdata);
 int FX_Shutdown(void);
 
 

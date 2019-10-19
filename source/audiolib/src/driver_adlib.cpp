@@ -117,12 +117,12 @@ static opl3_chip chip;
 
 opl3_chip *AL_GetChip(void) { return &chip; }
 
-static constexpr unsigned int OctavePitch[MAX_OCTAVE+1] = {
+static constexpr uint32_t OctavePitch[MAX_OCTAVE+1] = {
     OCTAVE_0, OCTAVE_1, OCTAVE_2, OCTAVE_3, OCTAVE_4, OCTAVE_5, OCTAVE_6, OCTAVE_7,
 };
 
-static unsigned int NoteMod12[MAX_NOTE+1];
-static unsigned int NoteDiv12[MAX_NOTE+1];
+static uint32_t NoteMod12[MAX_NOTE+1];
+static uint32_t NoteDiv12[MAX_NOTE+1];
 
 // Pitch table
 
@@ -131,7 +131,7 @@ static unsigned int NoteDiv12[MAX_NOTE+1];
 //      { C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B },
 //   };
 
-static constexpr unsigned int NotePitch[FINETUNE_MAX+1][12] = {
+static constexpr uint32_t NotePitch[FINETUNE_MAX+1][12] = {
     { 0x157, 0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x241, 0x263, 0x287 },
     { 0x157, 0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x242, 0x264, 0x288 },
     { 0x158, 0x16c, 0x182, 0x199, 0x1b1, 0x1cb, 0x1e6, 0x203, 0x221, 0x243, 0x265, 0x289 },
@@ -198,7 +198,7 @@ static AdLibChannel Channel[NUMADLIBCHANNELS];
 
 static int AL_LeftPort  = ADLIB_PORT;
 static int AL_RightPort = ADLIB_PORT;
-int AL_Stereo;
+int        AL_Stereo;
 static int AL_SendStereo;
 static int AL_MaxMidiChannel = 16;
 
@@ -334,13 +334,13 @@ static void AL_SetVoiceVolume(int const voice)
     int const port = Voice[voice].port;
 
     // amplitude
-    uint32_t t1 = (unsigned int)VoiceLevel[slot][port] * (velocity + 0x80);
+    auto t1 = (uint32_t)VoiceLevel[slot][port] * (velocity + 0x80);
     t1 = (Channel[channel].Volume * t1) >> 15;
 
     if (!AL_SendStereo)
     {
         uint32_t volume = t1 ^ 63;
-        volume |= (unsigned int)VoiceKsl[slot][port];
+        volume |= (uint32_t)VoiceKsl[slot][port];
 
         AL_SendOutput(port, 0x40 + offsetSlot[slot], volume);
 
@@ -350,11 +350,11 @@ static void AL_SetVoiceVolume(int const voice)
             int const slot = slotVoice[voc][0];
 
             // amplitude
-            uint32_t t2 = (unsigned int)VoiceLevel[slot][port] * (velocity + 0x80);
+            auto t2 = (uint32_t)VoiceLevel[slot][port] * (velocity + 0x80);
             t2 = (Channel[channel].Volume * t2) >> 15;
 
             volume = t2 ^ 63;
-            volume |= (unsigned int)VoiceKsl[slot][port];
+            volume |= (uint32_t)VoiceKsl[slot][port];
 
             AL_SendOutput(port, 0x40 + offsetSlot[slot], volume);
         }
@@ -371,7 +371,7 @@ static void AL_SetVoiceVolume(int const voice)
     }
 
     volume ^= 63;
-    volume |= (unsigned int)VoiceKsl[slot][port];
+    volume |= (uint32_t)VoiceKsl[slot][port];
 
     AL_SendOutputToPort(AL_LeftPort, 0x40 + offsetSlot[slot], volume);
 
@@ -384,7 +384,7 @@ static void AL_SetVoiceVolume(int const voice)
     }
 
     volume ^= 63;
-    volume |= (unsigned int)VoiceKsl[slot][port];
+    volume |= (uint32_t)VoiceKsl[slot][port];
 
     AL_SendOutputToPort(AL_RightPort, 0x40 + offsetSlot[slot], volume);
 
@@ -392,7 +392,7 @@ static void AL_SetVoiceVolume(int const voice)
     if (timbre->Feedback & 0x01)
     {
         // amplitude
-        uint32_t t2 = (unsigned int)VoiceLevel[slot][port] * (velocity + 0x80);
+        auto t2 = (uint32_t)VoiceLevel[slot][port] * (velocity + 0x80);
         t2 = (Channel[channel].Volume * t2) >> 15;
 
         int const slot = slotVoice[voc][0];
@@ -406,7 +406,7 @@ static void AL_SetVoiceVolume(int const voice)
         }
 
         volume ^= 63;
-        volume |= (unsigned int)VoiceKsl[slot][port];
+        volume |= (uint32_t)VoiceKsl[slot][port];
 
         AL_SendOutputToPort(AL_LeftPort, 0x40 + offsetSlot[slot], volume);
 
@@ -419,7 +419,7 @@ static void AL_SetVoiceVolume(int const voice)
         }
 
         volume ^= 63;
-        volume |= (unsigned int)VoiceKsl[slot][port];
+        volume |= (uint32_t)VoiceKsl[slot][port];
 
         AL_SendOutputToPort(AL_RightPort, 0x40 + offsetSlot[slot], volume);
     }
@@ -430,9 +430,9 @@ static int AL_AllocVoice(void)
 {
     if (Voice_Pool.start)
     {
-        int voice = Voice_Pool.start->num;
+        int const voice = Voice_Pool.start->num;
         LL_Remove(AdLibVoice, &Voice_Pool, &Voice[voice]);
-        return  voice;
+        return voice;
     }
 
     return  AL_VoiceNotFound;
@@ -441,11 +441,11 @@ static int AL_AllocVoice(void)
 
 static int AL_GetVoice(int const channel, int const key)
 {
-    auto voice = Channel[channel].Voices.start;
+    auto const *voice = Channel[channel].Voices.start;
 
     while (voice != nullptr)
     {
-        if (voice->key == (unsigned int)key)
+        if (voice->key == (uint32_t)key)
             return  voice->num;
         voice = voice->next;
     }
@@ -554,10 +554,7 @@ static void AL_ResetVoices(void)
     Voice_Pool.start = nullptr;
     Voice_Pool.end   = nullptr;
 
-    int numvoices = NUMADLIBVOICES;
-
-    if (!AL_Stereo)
-        numvoices = NUMADLIBVOICES * 2;
+    int const numvoices = AL_Stereo ? NUMADLIBVOICES : NUMADLIBVOICES * 2;
 
     for (int index = 0; index < numvoices; index++)
     {
@@ -576,15 +573,9 @@ static void AL_ResetVoices(void)
 
     for (int index = 0; index < NUMADLIBCHANNELS; index++)
     {
-        Channel[index].Voices.start       = nullptr;
-        Channel[index].Voices.end         = nullptr;
-        Channel[index].Timbre             = 0;
-        Channel[index].Pitchbend          = 0;
-        Channel[index].KeyOffset          = 0;
-        Channel[index].KeyDetune          = 0;
+        Channel[index] = {};
         Channel[index].Volume             = AL_DefaultChannelVolume;
         Channel[index].Pan                = 64;
-        Channel[index].RPN                = 0;
         Channel[index].PitchBendRange     = AL_DefaultPitchBendRange;
         Channel[index].PitchBendSemiTones = AL_DefaultPitchBendRange / 100;
         Channel[index].PitchBendHundreds  = AL_DefaultPitchBendRange % 100;
@@ -618,27 +609,27 @@ static void AL_FlushCard(int const port)
 {
     for (int i = 0; i < NUMADLIBVOICES; i++)
     {
-        if (VoiceReserved[i] == FALSE)
-        {
-            unsigned slot1 = offsetSlot[slotVoice[i][0]];
-            unsigned slot2 = offsetSlot[slotVoice[i][1]];
+        if (VoiceReserved[i])
+            continue;
 
-            AL_SendOutputToPort(port, 0xA0 + i, 0);
-            AL_SendOutputToPort(port, 0xB0 + i, 0);
+        auto slot1 = offsetSlot[slotVoice[i][0]];
+        auto slot2 = offsetSlot[slotVoice[i][1]];
 
-            AL_SendOutputToPort(port, 0xE0 + slot1, 0);
-            AL_SendOutputToPort(port, 0xE0 + slot2, 0);
+        AL_SendOutputToPort(port, 0xA0 + i, 0);
+        AL_SendOutputToPort(port, 0xB0 + i, 0);
 
-            // Set the envelope to be fast and quiet
-            AL_SendOutputToPort(port, 0x60 + slot1, 0xff);
-            AL_SendOutputToPort(port, 0x60 + slot2, 0xff);
-            AL_SendOutputToPort(port, 0x80 + slot1, 0xff);
-            AL_SendOutputToPort(port, 0x80 + slot2, 0xff);
+        AL_SendOutputToPort(port, 0xE0 + slot1, 0);
+        AL_SendOutputToPort(port, 0xE0 + slot2, 0);
 
-            // Maximum attenuation
-            AL_SendOutputToPort(port, 0x40 + slot1, 0xff);
-            AL_SendOutputToPort(port, 0x40 + slot2, 0xff);
-        }
+        // Set the envelope to be fast and quiet
+        AL_SendOutputToPort(port, 0x60 + slot1, 0xff);
+        AL_SendOutputToPort(port, 0x60 + slot2, 0xff);
+        AL_SendOutputToPort(port, 0x80 + slot1, 0xff);
+        AL_SendOutputToPort(port, 0x80 + slot2, 0xff);
+
+        // Maximum attenuation
+        AL_SendOutputToPort(port, 0x40 + slot1, 0xff);
+        AL_SendOutputToPort(port, 0x40 + slot2, 0xff);
     }
 }
 
@@ -839,7 +830,7 @@ static void AL_SetPitchBend(int const channel, int const lsb, int const msb)
     Channel[channel].KeyOffset = (int)(TotalBend / FINETUNE_RANGE);
     Channel[channel].KeyOffset -= Channel[channel].PitchBendSemiTones;
 
-    Channel[channel].KeyDetune = (unsigned int)(TotalBend % FINETUNE_RANGE);
+    Channel[channel].KeyDetune = (uint32_t)(TotalBend % FINETUNE_RANGE);
 
     auto voice = Channel[channel].Voices.start;
     while (voice != nullptr)

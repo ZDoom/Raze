@@ -55,10 +55,10 @@ static BOOL midiInstalled;
 static HMIDISTRM midiStream;
 static UINT midiDeviceID = MIDI_MAPPER;
 static void (*midiThreadService)(void);
-static unsigned int midiThreadTimer;
-static unsigned int midiLastEventTime;
-static unsigned int midiThreadQueueTimer;
-static unsigned int midiThreadQueueTicks;
+static uint32_t midiThreadTimer;
+static uint32_t midiLastEventTime;
+static uint32_t midiThreadQueueTimer;
+static uint32_t midiThreadQueueTicks;
 static HANDLE midiThread;
 static HANDLE midiThreadQuitEvent;
 static HANDLE midiMutex;
@@ -354,7 +354,7 @@ static void midi_setup_event(int length, unsigned char ** data)
  */
 static BOOL midi_get_buffer(int length, unsigned char ** data)
 {
-    unsigned int datalen;
+    uint32_t datalen;
     MidiBuffer * node;
     
     // determine the space to alloc.
