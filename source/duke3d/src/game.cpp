@@ -195,17 +195,18 @@ void G_HandleSpecialKeys(void)
         CONTROL_GetInput(&noshareinfo);
     }
 
-//    CONTROL_ProcessBinds();
-
     if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
         if (videoSetGameMode(!ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail))
         {
-            OSD_Printf(OSD_ERROR "Failed setting fullscreen video mode.\n");
+            OSD_Printf(OSD_ERROR "Failed setting video mode!\n");
+
             if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail))
-                G_GameExit("Failed to recover from failure to set fullscreen video mode.\n");
+                G_GameExit("Fatal error: unable to recover from failure setting video mode!\n");
         }
-        else ud.setup.fullscreen = !ud.setup.fullscreen;
+        else
+            ud.setup.fullscreen = !ud.setup.fullscreen;
+
         KB_ClearKeyDown(sc_Enter);
         g_restorePalette = 1;
         G_UpdateScreenArea();
