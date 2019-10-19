@@ -223,8 +223,7 @@ static int osdfunc_setrendermode(osdcmdptr_t parm)
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
 
-    char *p;
-    int32_t m = Bstrtol(parm->parms[0], &p, 10);
+    int32_t m = Bstrtol(parm->parms[0], NULL, 10);
 
     if (m != REND_CLASSIC && m != REND_POLYMOST && m != REND_POLYMER)
         return OSDCMD_SHOWHELP;
