@@ -126,7 +126,7 @@ void S_MusicStartup(void)
             int l = kfilelength(fil);
             auto tmb = (uint8_t *)Xmalloc(l);
             kread(fil, tmb, l);
-            OPLMusic::AL_RegisterTimbreBank(tmb);
+            AL_RegisterTimbreBank(tmb);
             Xfree(tmb);
             kclose(fil);
         }

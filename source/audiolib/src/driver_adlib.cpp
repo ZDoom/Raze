@@ -50,7 +50,7 @@ static int ErrorCode;
 
 int AdLibDrv_GetError(void) { return ErrorCode; }
 
-const char *AdLibDrv_ErrorString( int ErrorNumber )
+const char *AdLibDrv_ErrorString(int const ErrorNumber)
 {
     const char *ErrorString;
     
@@ -73,7 +73,7 @@ const char *AdLibDrv_ErrorString( int ErrorNumber )
     return ErrorString;
 }
 
-int AdLibDrv_MIDI_Init(midifuncs *funcs)
+int AdLibDrv_MIDI_Init(midifuncs * const funcs)
 {
     AdLibDrv_MIDI_Shutdown();
     Bmemset(funcs, 0, sizeof(midifuncs));
@@ -107,14 +107,15 @@ int AdLibDrv_MIDI_StartPlayback(void (*service)(void))
     return MIDI_Ok;
 }
 
-void AdLibDrv_MIDI_SetTempo(int tempo, int division)
+void AdLibDrv_MIDI_SetTempo(int const tempo, int const division)
 {
     MV_MIDIRenderTempo = tempo * division / 60;
     MV_MIDIRenderTimer = 0;
 }
 
 static opl3_chip chip;
-opl3_chip *AL_GetChip() { return &chip; }
+
+opl3_chip *AL_GetChip(void) { return &chip; }
 
 static constexpr unsigned int OctavePitch[MAX_OCTAVE+1] = {
     OCTAVE_0, OCTAVE_1, OCTAVE_2, OCTAVE_3, OCTAVE_4, OCTAVE_5, OCTAVE_6, OCTAVE_7,
@@ -201,6 +202,7 @@ int AL_Stereo;
 static int AL_SendStereo;
 static int AL_MaxMidiChannel = 16;
 
+// TODO: clean up this shit...
 #define OFFSET(structure, offset) (*((char **)&(structure)[offset]))
 
 #define LL_AddToTail(type, listhead, node)                                                                                 \
@@ -241,10 +243,13 @@ static void LL_AddNode(char *item, char **head, char **tail, intptr_t next, intp
 }
 
 
-static void AL_SendOutputToPort(int port, int reg, int data) { OPL3_WriteRegBuffered(&chip, (Bit16u)(reg + ((port & 2) << 7)), (Bit8u)data); }
+static void AL_SendOutputToPort(int const port, int const reg, int const data)
+{
+    OPL3_WriteRegBuffered(&chip, (Bit16u)(reg + ((port & 2) << 7)), (Bit8u)data);
+}
 
 
-static void AL_SendOutput(int voice, int reg, int data)
+static void AL_SendOutput(int const voice, int const reg, int const data)
 {
     if (AL_SendStereo)
     {
@@ -259,22 +264,22 @@ static void AL_SendOutput(int voice, int reg, int data)
 }
 
 
-static void AL_SetVoiceTimbre(int voice)
+static void AL_SetVoiceTimbre(int const voice)
 {
-    int channel = Voice[voice].channel;
-    int patch = (channel == 9) ? Voice[voice].key + 128 : Channel[channel].Timbre;
+    int const channel = Voice[voice].channel;
+    int const patch = (channel == 9) ? Voice[voice].key + 128 : Channel[channel].Timbre;
 
     if (Voice[voice].timbre == patch)
         return;
 
     Voice[voice].timbre = patch;
 
-    auto timbre = &ADLIB_TimbreBank[patch];
+    auto const timbre = &ADLIB_TimbreBank[patch];
 
-    int port = Voice[voice].port;
-    int voc  = (voice >= NUMADLIBVOICES) ? voice - NUMADLIBVOICES : voice;
-    int slot = slotVoice[voc][0];
-    int off  = offsetSlot[slot];
+    int const port = Voice[voice].port;
+    int const voc  = (voice >= NUMADLIBVOICES) ? voice - NUMADLIBVOICES : voice;
+    int       slot = slotVoice[voc][0];
+    int       off  = offsetSlot[slot];
 
     VoiceLevel[slot][port] = 63 - (timbre->Level[0] & 0x3f);
     VoiceKsl[slot][port]   = timbre->Level[0] & 0xc0;
@@ -318,14 +323,11 @@ static void AL_SetVoiceTimbre(int voice)
 }
 
 
-static void AL_SetVoiceVolume(int voice)
+static void AL_SetVoiceVolume(int const voice)
 {
-    int channel = Voice[voice].channel;
-
-    auto timbre = &ADLIB_TimbreBank[Voice[voice].timbre];
-
-    int velocity = Voice[voice].velocity + timbre->Velocity;
-    velocity = min(velocity, MAX_VELOCITY);
+    int  const channel  = Voice[voice].channel;
+    auto const timbre   = &ADLIB_TimbreBank[Voice[voice].timbre];
+    int  const velocity = min<int>(Voice[voice].velocity + timbre->Velocity, MAX_VELOCITY);
 
     int const voc  = (voice >= NUMADLIBVOICES) ? voice - NUMADLIBVOICES : voice;
     int const slot = slotVoice[voc][1];
@@ -393,7 +395,7 @@ static void AL_SetVoiceVolume(int voice)
         uint32_t t2 = (unsigned int)VoiceLevel[slot][port] * (velocity + 0x80);
         t2 = (Channel[channel].Volume * t2) >> 15;
 
-        int  const slot = slotVoice[voc][0];
+        int const slot = slotVoice[voc][0];
 
         // Set left channel volume
         volume = t2;
@@ -437,7 +439,7 @@ static int AL_AllocVoice(void)
 }
 
 
-static int AL_GetVoice(int channel, int key)
+static int AL_GetVoice(int const channel, int const key)
 {
     auto voice = Channel[channel].Voices.start;
 
@@ -452,11 +454,11 @@ static int AL_GetVoice(int channel, int key)
 }
 
 
-static void AL_SetVoicePitch(int voice)
+static void AL_SetVoicePitch(int const voice)
 {
-    int port    = Voice[voice].port;
-    int voc     = (voice >= NUMADLIBVOICES) ? voice - NUMADLIBVOICES : voice;
-    int channel = Voice[voice].channel;
+    int const port    = Voice[voice].port;
+    int const voc     = (voice >= NUMADLIBVOICES) ? voice - NUMADLIBVOICES : voice;
+    int const channel = Voice[voice].channel;
 
     int patch, note;
 
@@ -522,12 +524,9 @@ static void AL_SetVoicePitch(int voice)
 }
 
 
-static void AL_SetChannelVolume(int channel, int volume)
+static void AL_SetChannelVolume(int const channel, int const volume)
 {
-    volume = max(0, volume);
-    volume = min(volume, AL_MaxVolume);
-
-    Channel[channel].Volume = volume;
+    Channel[channel].Volume = clamp(volume, 0, AL_MaxVolume);
 
     auto voice = Channel[channel].Voices.start;
 
@@ -539,7 +538,7 @@ static void AL_SetChannelVolume(int channel, int volume)
 }
 
 
-static void AL_SetChannelPan(int channel, int pan)
+static void AL_SetChannelPan(int const channel, int const pan)
 {
     // Don't pan drum sounds
     if (channel != 9)
@@ -547,7 +546,7 @@ static void AL_SetChannelPan(int channel, int pan)
 }
 
 
-static void AL_SetChannelDetune(int channel, int detune) { Channel[channel].Detune = detune; }
+static void AL_SetChannelDetune(int const channel, int const detune) { Channel[channel].Detune = detune; }
 
 
 static void AL_ResetVoices(void)
@@ -615,7 +614,7 @@ static void AL_CalcPitchInfo(void)
 }
 
 
-static void AL_FlushCard(int port)
+static void AL_FlushCard(int const port)
 {
     for (int i = 0; i < NUMADLIBVOICES; i++)
     {
@@ -677,7 +676,7 @@ static void AL_Reset(void)
 }
 
 
-static void AL_NoteOff(int channel, int key, int velocity)
+static void AL_NoteOff(int const channel, int const key, int velocity)
 {
     UNREFERENCED_PARAMETER(velocity);
 
@@ -708,7 +707,7 @@ static void AL_NoteOff(int channel, int key, int velocity)
 }
 
 
-static void AL_NoteOn(int channel, int key, int velocity)
+static void AL_NoteOn(int const channel, int const key, int const velocity)
 {
     // We only play channels 1 through 10
     if (channel > AL_MaxMidiChannel)
@@ -747,14 +746,14 @@ static void AL_NoteOn(int channel, int key, int velocity)
 }
 
 
-static inline void AL_AllNotesOff(int channel)
+static inline void AL_AllNotesOff(int const channel)
 {
     while (Channel[channel].Voices.start != nullptr)
         AL_NoteOff(channel, Channel[channel].Voices.start->key, 0);
 }
 
 
-static void AL_ControlChange(int channel, int type, int data)
+static void AL_ControlChange(int const channel, int const type, int const data)
 {
     // We only play channels 1 through 10
     if (channel > AL_MaxMidiChannel)
@@ -814,7 +813,7 @@ static void AL_ControlChange(int channel, int type, int data)
 }
 
 
-static void AL_ProgramChange(int channel, int patch)
+static void AL_ProgramChange(int const channel, int const patch)
 {
     // We only play channels 1 through 10
     if (channel > AL_MaxMidiChannel)
@@ -824,7 +823,7 @@ static void AL_ProgramChange(int channel, int patch)
 }
 
 
-static void AL_SetPitchBend(int channel, int lsb, int msb)
+static void AL_SetPitchBend(int const channel, int const lsb, int const msb)
 {
     // We only play channels 1 through 10
     if (channel > AL_MaxMidiChannel)
@@ -859,7 +858,7 @@ static void AL_Shutdown(void)
 }
 
 
-static int AL_Init(int rate)
+static int AL_Init(int const rate)
 {
     OPL3_Reset(&chip, rate);
 
