@@ -240,7 +240,7 @@ static void MV_ServiceVoc(void)
         {
             int const count = (source + length > end) ? (end - source) : length;
 
-            MV_16BitReverb(source, dest, MV_ReverbVolume, count >> 1);
+            MV_Reverb<int16_t>(source, dest, MV_ReverbVolume, count >> 1);
 
             // if we go through the loop again, it means that we've wrapped around the buffer
             source  = MV_MixBuffer[ 0 ];
@@ -505,15 +505,15 @@ int32_t MV_SetFrequency(int32_t handle, int32_t frequency)
    Mono         Ster  |  Mono  Mono   Ster  Ster  |  Mixer
    Out          Out   |  In    In     In    In    |
 ----------------------+---------------------------+-------------
-    X                 |         X                 | Mix16BitMono16
-    X                 |   X                       | Mix16BitMono
-                 X    |         X                 | Mix16BitStereo16
-                 X    |   X                       | Mix16BitStereo
+    X                 |         X                 | MixMono<int16_t, int16_t>
+    X                 |   X                       | MixMono<uint8_t, int16_t>
+                 X    |         X                 | MixStereo<int16_t, int16_t>
+                 X    |   X                       | MixStereo<uint8_t, int16_t>
 ----------------------+---------------------------+-------------
-                 X    |                      X    | Mix16BitStereo16Stereo
-                 X    |                X          | Mix16BitStereo8Stereo
-    X                 |                      X    | Mix16BitMono16Stereo
-    X                 |                X          | Mix16BitMono8Stereo
+                 X    |                      X    | MixStereoStereo<int16_t, int16_t>
+                 X    |                X          | MixStereoStereo<uint8_t, int16_t>
+    X                 |                      X    | MixMonoStereo<int16_t, int16_t>
+    X                 |                X          | MixMonoStereo<uint8_t, int16_t>
 ---------------------------------------------------------------------*/
 
 void MV_SetVoiceMixMode(VoiceNode *voice)
@@ -531,8 +531,8 @@ void MV_SetVoiceMixMode(VoiceNode *voice)
 
     // stereo look-up table
     static constexpr decltype(voice->mix) mixslut[]
-    = { MV_Mix16BitStereo,        MV_Mix16BitMono,        MV_Mix16BitStereo16,       MV_Mix16BitMono16,
-        MV_Mix16BitStereo8Stereo, MV_Mix16BitMono8Stereo, MV_Mix16BitStereo16Stereo, MV_Mix16BitMono16Stereo };
+    = { MV_MixStereo<uint8_t, int16_t>,       MV_MixMono<uint8_t, int16_t>,       MV_MixStereo<int16_t, int16_t>,       MV_MixMono<int16_t, int16_t>,
+        MV_MixStereoStereo<uint8_t, int16_t>, MV_MixMonoStereo<uint8_t, int16_t>, MV_MixStereoStereo<int16_t, int16_t>, MV_MixMonoStereo<int16_t, int16_t> };
 
     voice->mix = mixslut[type];
 }

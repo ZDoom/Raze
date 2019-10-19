@@ -72,10 +72,53 @@ static inline enable_if_t<is_signed<T>::value, T> SCALE_SAMPLE(T src, float volu
 {
     return (T)Blrintf((float)src * volume);
 }
+
 template <typename T>
-static inline enable_if_t<is_unsigned<T>::value, T> SCALE_SAMPLE(T src, float volume)
+static inline T CONVERT_SAMPLE_FROM_SIGNED(int32_t src);
+
+template<>
+inline int16_t CONVERT_SAMPLE_FROM_SIGNED<int16_t>(int32_t src)
 {
-    return FLIP_SIGN(SCALE_SAMPLE(FLIP_SIGN(src), volume));
+    return src;
+}
+
+template <typename T>
+static inline int32_t CONVERT_SAMPLE_TO_SIGNED(T src);
+
+template<>
+inline int32_t CONVERT_SAMPLE_TO_SIGNED<int16_t>(int16_t src)
+{
+    return src;
+}
+
+template <typename S, typename D>
+static inline int32_t CONVERT_LE_SAMPLE_TO_SIGNED(S src);
+
+template<>
+inline int32_t CONVERT_LE_SAMPLE_TO_SIGNED<uint8_t, int16_t>(uint8_t src)
+{
+    return FLIP_SIGN(src) << 8;
+}
+
+template<>
+inline int32_t CONVERT_LE_SAMPLE_TO_SIGNED<int16_t, int16_t>(int16_t src)
+{
+    return B_LITTLE16(src);
+}
+
+template <typename T>
+static int32_t CLAMP_SAMPLE(int32_t src);
+
+template<>
+inline int32_t CLAMP_SAMPLE<int16_t>(int32_t src)
+{
+    return clamp(src, INT16_MIN, INT16_MAX);
+}
+
+template <typename T>
+static T MIX_SAMPLES(int32_t signed_sample, T untouched_sample)
+{
+    return CONVERT_SAMPLE_FROM_SIGNED<T>(CLAMP_SAMPLE<T>(signed_sample + CONVERT_SAMPLE_TO_SIGNED<T>(untouched_sample)));
 }
 
 struct split16_t
@@ -214,17 +257,13 @@ void MV_ReleaseXAVoice(VoiceNode *voice);
 void MV_ReleaseXMPVoice(VoiceNode *voice);
 
 // implemented in mix.c
-uint32_t MV_Mix16BitMono(struct VoiceNode *voice, uint32_t length);
-uint32_t MV_Mix16BitStereo(struct VoiceNode *voice, uint32_t length);
-uint32_t MV_Mix16BitMono16(struct VoiceNode *voice, uint32_t length);
-uint32_t MV_Mix16BitStereo16(struct VoiceNode *voice, uint32_t length);
-void MV_16BitReverb(char const *src, char *dest, const float volume, int32_t count);
+template <typename S, typename D> uint32_t MV_MixMono(struct VoiceNode * const voice, uint32_t length);
+template <typename S, typename D> uint32_t MV_MixStereo(struct VoiceNode * const voice, uint32_t length);
+template <typename T> void MV_Reverb(char const *src, char *dest, const float volume, int32_t count);
 
 // implemented in mixst.c
-uint32_t MV_Mix16BitMono8Stereo(struct VoiceNode *voice, uint32_t length);
-uint32_t MV_Mix16BitStereo8Stereo(struct VoiceNode *voice, uint32_t length);
-uint32_t MV_Mix16BitMono16Stereo(struct VoiceNode *voice, uint32_t length);
-uint32_t MV_Mix16BitStereo16Stereo(struct VoiceNode *voice, uint32_t length);
+template <typename S, typename D> uint32_t MV_MixMonoStereo(struct VoiceNode * const voice, uint32_t length);
+template <typename S, typename D> uint32_t MV_MixStereoStereo(struct VoiceNode * const voice, uint32_t length);
 
 extern char *MV_MixDestination;  // pointer to the next output sample
 extern int32_t MV_SampleSize;
