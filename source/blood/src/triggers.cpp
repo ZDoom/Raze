@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "loadsave.h"
 #include "player.h"
 #include "seq.h"
+#include "qav.h"
 #include "sfx.h"
 #include "sound.h"
 #include "triggers.h"
@@ -817,34 +818,106 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         break;
                 }
                 return;
-            case kModernPlayQAV: // WIP
-                PLAYER* pPlayer = &gPlayer[pXSprite->data1];
+            case kModernPlayerControl: // WIP
+                PLAYER* pPlayer = NULL;
+                if ((pPlayer = getPlayerById(pXSprite->data1)) == NULL) return;
+                else if (event.cmd < kCmdNumberic) { // play qav as weapon qav
                 switch (event.cmd) {
                     case kCmdOff:
-                        pPlayer->atbd = pXSprite->sysData1;
-                        if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
-                        if (pPlayer->atbd != 0)
+                            if (gQavPlayerIndex == nSprite) {
+                                pXSprite->sysData1 = 0;
+                                pPlayer->atc.newWeapon = pPlayer->atbd = pXSprite->data4;
+                                gQavPlayerIndex = -1;
                             WeaponRaise(pPlayer);
+                            }
                         break;
-                    case kCmdOn:
-                        evKill(nSprite, 3); // queue overflow protect
-                        disableQAVPlayers(pSprite);
-                        if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
-                        if (pPlayer->atbd != 0) {
-                            pXSprite->sysData1 = pPlayer->atbd; // save current weapon
+                        case kCmdOn: {
+                            if (gQavPlayerIndex == nSprite && !pXSprite->Interrutable) break;
+                            QAV* pQav = NULL; DICTNODE* hQav = gSysRes.Lookup(pXSprite->data2, "QAV");
+                            if (hQav) {
+                                
+                                pXSprite->data4 = pPlayer->atbd;
+                                if (gQavPlayerIndex > -1 && gQavPlayerIndex != nSprite && sprite[gQavPlayerIndex].extra >= 0) {
+                                    pXSprite->data4 = xsprite[sprite[gQavPlayerIndex].extra].data4;
+                                    xsprite[sprite[gQavPlayerIndex].extra].data4 = 0;
+                                }
+
                             WeaponLower(pPlayer);
+
+                                pQav = (QAV*)gSysRes.Load(hQav); weaponQAV[kFreeQAVEntry] = pQav;
+                                pXSprite->busyTime = (((pQav->at10) / 12) * 120) / 10;
+                                //pXSprite->busyTime = (((pQav->nFrames * pQav->ticksPerFrame) / 12) * 120) / 10;
+                                pXSprite->sysData1 = pXSprite->waitTime; // how many times animation should be played
+                                gQavPlayerIndex = nSprite;
+
                         }
-                        fallthrough__;
-                    case kCmdRepeat:
-                        if (pPlayer->at26 != pXSprite->data2)
-                            StartQAV(&gPlayer[pXSprite->data1], pXSprite->data2);
-                        
-                        if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
                         break;
+                        }
                     default:
-                        if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
+                            if (gQavPlayerIndex != nSprite) evPost(nSprite, 3, 0, kCmdOn);
                         else evPost(nSprite, 3, 0, kCmdOff);
                         break;
+                }
+                } else if (event.cmd < kCmdNumbericMax) {
+                    switch (event.cmd) {
+                        case kCmdNumberic: // player life form
+                            if (pXSprite->data2 >= kModeHuman || pXSprite->data2 <= kModeHumanShrink) {
+                                playerSetRace(pPlayer, pXSprite->data2);
+                                switch (pPlayer->at5f) {
+                                    case kModeHuman:
+                                    case kModeBeast:
+                                        resetPlayerSize(pPlayer);
+                                        break;
+                                    case kModeHumanShrink:
+                                        shrinkPlayerSize(pPlayer, 2);
+                                        break;
+                                    case kModeHumanGrown:
+                                        growPlayerSize(pPlayer, 2);
+                                        break;
+                                }
+                            }
+                            break;
+                        case kCmdNumberic + 1: // player movement speed (for all players ATM)
+                            for (int i = (pSprite->flags & kModernTypeFlag1) ? pPlayer->at5f : 0; i < 4; i++) {
+                                for (int a = 0; a < 3; a++) {
+
+                                    int speed = pXSprite->data2 << 1;
+                                    if (speed > 0) speed = ClipRange(mulscale8(gDefaultAccel[a], speed), 0, 65535);
+                                    else if (speed < 0) speed = gDefaultAccel[a];
+
+                                    gPosture[i][a].at0 = gPosture[i][a].at4 = gPosture[i][a].at8 = speed;
+
+                                    viewSetSystemMessage("%d", speed);
+                                }
+
+                                if (pSprite->flags & kModernTypeFlag1) // for current lifeform only
+                                    break;
+                            }
+                            break;
+                        case kCmdNumberic + 2: // player screen effects
+                            if (pXSprite->data3 < 0) break;
+                            switch (pXSprite->data2) {
+                                case 1: // tilting
+                                    pPlayer->at35e = pXSprite->data3;
+                                    break;
+                                case 2: // pain
+                                    pPlayer->at366 = pXSprite->data3;
+                                    break;
+                                case 3: // blind
+                                    pPlayer->at36a = pXSprite->data3;
+                                    break;
+                                case 4: // pickup
+                                    pPlayer->at377 = pXSprite->data3;
+                                    break;
+                                case 5: // quake
+                                    pPlayer->at37f = pXSprite->data3;
+                                    break;
+                                case 6: // visibility
+                                    pPlayer->at362 = pXSprite->data3;
+                                    break;
+                            }
+                            break;
+                    }
                 }
                 return;
         }
@@ -1344,7 +1417,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                         
 							if (nIndex != -1) pXSprite->physAttr = flags; // just update physics attributes
 							else if ((nIndex = debrisGetFreeIndex()) < 0)
-								;// showWarning("Max (%d) Physics affected sprites reached!", kMaxSuperXSprites);
+                                viewSetSystemMessage("Max (%d) Physics affected sprites reached!", kMaxSuperXSprites);
                             else {
 
                                 pXSprite->physAttr = flags; // update physics attributes
@@ -1474,8 +1547,8 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
         TeleFrag(pSprite->xvel, pSource->sectnum);
 
     changespritesect((short)pSprite->xvel, pSource->sectnum);
-    if (pXSector != NULL && pXSector->Underwater) xsprite[pSprite->extra].medium = 1;
-    else xsprite[pSprite->extra].medium = 0;
+    if (pXSector != NULL && pXSector->Underwater) xsprite[pSprite->extra].medium = kMediumWater;
+    else xsprite[pSprite->extra].medium = kMediumNormal;
 
     if (pXSource->data2 == 1)
         pSprite->ang = pSource->ang;
@@ -3788,14 +3861,6 @@ bool dudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* pTarget)
 
     return false;
 
-}
-
-void disableQAVPlayers(spritetype* pException) {
-    for (int nSprite = headspritestat[kStatModernPlayQAV]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-        if (nSprite == pException->index || sprite[nSprite].extra < 0) continue;
-        else if (xsprite[sprite[nSprite].extra].state == 1)
-            evPost(nSprite, 3, 0, kCmdOff);
-    }
 }
 
 // by NoOne: this function required if monsters in genIdle ai state. It wakes up monsters

@@ -2540,6 +2540,8 @@ short gSightSpritesCount; // current count
 short gPhysSpritesList[];  // by NoOne: list of additional sprites which can be affected by physics
 short gPhysSpritesCount; // current count
 
+short gQavPlayerIndex = -1; // by NoOne: index of sprite which currently activated to play qav
+
 void actInit(bool bSaveLoad) {
     
     // by NoOne: init code for all my stuff
@@ -2547,6 +2549,9 @@ void actInit(bool bSaveLoad) {
         
         // reset counters
         gProxySpritesCount = gSightSpritesCount = gPhysSpritesCount = 0;
+
+        // reset qav player index
+        gQavPlayerIndex = -1;
 
         // fill arrays with negative values to avoid xvel 0 situation
         memset(gSightSpritesList, -1, sizeof(gSightSpritesList));
@@ -2614,7 +2619,7 @@ void actInit(bool bSaveLoad) {
                         else {
                             gProxySpritesList[gProxySpritesCount++] = pSprite->xvel;
                             if (gProxySpritesCount == kMaxSuperXSprites)
-                                ThrowError("Max (%d) *additional* Proximity sprites reached!",kMaxSuperXSprites);
+                                viewSetSystemMessage("Max (%d) *additional* Proximity sprites reached!", kMaxSuperXSprites);
                         }
                         break;
                 }
@@ -2638,7 +2643,7 @@ void actInit(bool bSaveLoad) {
                     default:
                         gSightSpritesList[gSightSpritesCount++] = pSprite->xvel;
                         if (gSightSpritesCount == kMaxSuperXSprites)
-                            ThrowError("Max (%d) Sight sprites reached!", kMaxSuperXSprites);
+                            viewSetSystemMessage("Max (%d) Sight sprites reached!", kMaxSuperXSprites);
                         break;
                 }
             }
@@ -2779,13 +2784,14 @@ void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6)
                 mass = getSpriteMassBySize(pSprite);
                 break;
             }
-        }
-        else if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
+
+        } else if (pSprite->type >= kThingBase && pSprite->type < kThingMax) {
             mass = thingInfo[pSprite->type - kThingBase].mass;
-        else
+        } else {
+            consoleSysMsg("Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", (int)pSprite->index, (int)pSprite->type, (int)pSprite->statnum);
             return;
-        //else
-            //ThrowError("Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", (int)pSprite->index, (int)pSprite->type, (int)pSprite->statnum);
+        }
+
         int size = (tilesiz[pSprite->picnum].x*pSprite->xrepeat*tilesiz[pSprite->picnum].y*pSprite->yrepeat)>>1;
         dassert(mass > 0);
 
@@ -3096,7 +3102,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             }
 
             if (damageType == DAMAGE_TYPE_1) {
-                if ((gSysRes.Lookup(pXSprite->data2 + 15, "SEQ") || gSysRes.Lookup(pXSprite->data2 + 16, "SEQ")) && pXSprite->medium == 0) {
+                if ((gSysRes.Lookup(pXSprite->data2 + 15, "SEQ") || gSysRes.Lookup(pXSprite->data2 + 16, "SEQ")) && pXSprite->medium == kMediumNormal) {
                     if (gSysRes.Lookup(pXSprite->data2 + 3, "SEQ")) {
                         pSprite->type = kDudeModernCustomBurning;
                         if (pXSprite->data2 == kDefaultAnimationBase) // don't inherit palette for burning if using default animation
@@ -3170,7 +3176,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeCultistShotgun:
     case kDudeCultistTesla:
     case kDudeCultistTNT:
-        if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == 0)
+        if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == kMediumNormal)
         {
             pSprite->type = kDudeBurningCultist;
             aiNewState(pSprite, pXSprite, &cultistBurnGoto);
@@ -3180,7 +3186,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         // no break
         fallthrough__;
     case kDudeBeast:
-        if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == 0)
+        if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == kMediumNormal)
         {
             pSprite->type = kDudeBurningBeast;
             aiNewState(pSprite, pXSprite, &beastBurnGoto);
@@ -3190,7 +3196,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         // no break
         fallthrough__;
     case kDudeInnocent:
-        if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == 0)
+        if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == kMediumNormal)
         {
             pSprite->type = kDudeBurningInnocent;
             aiNewState(pSprite, pXSprite, &innocentBurnGoto);
@@ -3664,8 +3670,11 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
     
     switch (pSprite->statnum) {
         case kStatDude: {
-            if (!IsDudeSprite(pSprite))
-                ThrowError("Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
+            if (!IsDudeSprite(pSprite)) {
+                consoleSysMsg("Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
+                return damage >> 4;
+                //ThrowError("Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
+            }
             int nType = pSprite->type - kDudeBase; int nDamageFactor = dudeInfo[nType].at70[damageType];
         
             if (!nDamageFactor) return 0;
@@ -4060,7 +4069,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
         case kMissileButcherKnife:
         actPostSprite(pMissile->index, kStatDebris);
         pMissile->cstat &= ~16;
-        pMissile->type = 0;
+            pMissile->type = kSpriteDecoration;
         seqSpawn(20, 3, pMissile->extra, -1);
             if (hitCode == 3)
         {
@@ -4225,7 +4234,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                             case kDudeModernCustomBurning:
                                 int dmg = (getSpriteMassBySize(pSprite2) - getSpriteMassBySize(pSprite)) + pSprite2->clipdist;
                                 if (dmg > 0) {
-                                    if (IsPlayerSprite(pSprite) && powerupCheck(&gPlayer[pSprite->type - kDudePlayer1],15) > 0)
+                                    if (IsPlayerSprite(pSprite) && powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpJumpBoots) > 0)
                                         actDamageSprite(pSprite2->xvel, pSprite, DAMAGE_TYPE_3, dmg);
                                     else
                                         actDamageSprite(pSprite2->xvel, pSprite, DAMAGE_TYPE_0, dmg);
@@ -4825,9 +4834,9 @@ void MoveDude(spritetype *pSprite)
     }
     int nUpperLink = gUpperLink[nSector];
     int nLowerLink = gLowerLink[nSector];
-    if (nUpperLink >= 0 && (sprite[nUpperLink].type == 9 || sprite[nUpperLink].type == 13))
+    if (nUpperLink >= 0 && (sprite[nUpperLink].type == kMarkerUpWater || sprite[nUpperLink].type == kMarkerUpGoo))
         bDepth = 1;
-    if (nLowerLink >= 0 && (sprite[nLowerLink].type == 10 || sprite[nLowerLink].type == 14))
+    if (nLowerLink >= 0 && (sprite[nLowerLink].type == kMarkerLowWater || sprite[nLowerLink].type == kMarkerLowGoo))
         bDepth = 1;
     if (pPlayer)
         wd += 16;
@@ -4897,7 +4906,7 @@ void MoveDude(spritetype *pSprite)
             break;
         case kMarkerLowWater:
         case kMarkerLowGoo:
-            pXSprite->medium = 0;
+            pXSprite->medium = kMediumNormal;
             if (pPlayer) {
                 pPlayer->at2f = 0;
                 pPlayer->at302 = 0;
@@ -4926,7 +4935,7 @@ void MoveDude(spritetype *pSprite)
         case kMarkerUpWater:
         case kMarkerUpGoo:
         {
-            pXSprite->medium = nLink == kMarkerUpGoo ? 2 : 1;
+            pXSprite->medium = (nLink == kMarkerUpGoo ? kMediumGoo : kMediumWater);
 
             if (pPlayer)
             {
@@ -5011,7 +5020,7 @@ void MoveDude(spritetype *pSprite)
             break;
         }
         /*case 13:
-            pXSprite->medium = 2;
+            pXSprite->medium = kMediumGoo;
             if (pPlayer)
             {
                 pPlayer->changeTargetKin = 1;
@@ -5665,6 +5674,19 @@ void actProcessSprites(void)
 
             }
         }
+
+        // process playing 3-rd side qavs for player(s)
+        if (gQavPlayerIndex > -1) {
+            if (sprite[gQavPlayerIndex].extra >= 0) {
+                XSPRITE* pXSprite = &xsprite[sprite[gQavPlayerIndex].extra];
+                if (((int)gFrameClock & pXSprite->busyTime) == 0) {
+                    if (pXSprite->waitTime <= 0 || pXSprite->sysData1-- > 0) StartQAV(getPlayerById(pXSprite->data1), kFreeQAVEntry);
+                    else evPost(gQavPlayerIndex, 3, 0, kCmdOff);
+    }
+            } else {
+                gQavPlayerIndex = -1;
+            }
+        }
     }
 
     for (nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
@@ -5713,10 +5735,10 @@ void actProcessSprites(void)
                         else if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target == -1)  {
                             int nOwner = actOwnerIdToSpriteId(pSprite->owner);
                             spritetype *pOwner = &sprite[nOwner];
-                            PLAYER *pPlayer = &gPlayer[pOwner->type-kDudePlayer1];
+                            PLAYER *pPlayer = &gPlayer[pOwner->type - kDudePlayer1];
                             PLAYER *pPlayer2 = NULL;
                             if (IsPlayerSprite(pSprite2))
-                                pPlayer2 = &gPlayer[pSprite2->type-kDudePlayer1];
+                                pPlayer2 = &gPlayer[pSprite2->type - kDudePlayer1];
                             if (nSprite2 == nOwner || pSprite2->type == kDudeZombieAxeBuried || pSprite2->type == kDudeRat || pSprite2->type == kDudeBat)
                                 continue;
                             if (gGameOptions.nGameType == 3 && pPlayer2 && pPlayer->at2ea == pPlayer2->at2ea)
@@ -6361,7 +6383,7 @@ spritetype * actSpawnSprite(int nSector, int x, int y, int z, int nStat, char a6
     vec3_t pos = { x, y, z };
     setsprite(nSprite, &pos);
     spritetype *pSprite = &sprite[nSprite];
-    pSprite->type = 0;
+    pSprite->type = kSpriteDecoration;
     if (a6 && pSprite->extra == -1)
     {
         int nXSprite = dbInsertXSprite(nSprite);
@@ -6814,12 +6836,10 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         int nSprite = gHitInfo.hitsprite;
         dassert(nSprite >= 0 && nSprite < kMaxSprites);
         spritetype *pSprite = &sprite[nSprite];
-        if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pShooter, pSprite))
-            return;
-        if (IsPlayerSprite(pSprite))
-        {
+        if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pShooter, pSprite)) return;
+        if (IsPlayerSprite(pSprite)) {
             PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
-            if (powerupCheck(pPlayer, 24))
+            if (powerupCheck(pPlayer, kPwUpReflectShots))
             {
                 gHitInfo.hitsprite = nShooter;
                 gHitInfo.hitx = pShooter->x;

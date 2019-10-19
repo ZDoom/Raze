@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "common_game.h"
 
+
 #include "actor.h"
 #include "ai.h"
 #include "aipod.h"
@@ -93,13 +94,19 @@ static void sub_6FFA0(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites))
+    ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
+        consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
-    //dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    }
+    
     spritetype *pTarget = &sprite[pXSprite->target];
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
+
+    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
-    //dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    }
     DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
     int x = pTarget->x-pSprite->x;
     int y = pTarget->y-pSprite->y;
@@ -171,9 +178,11 @@ static void sub_7034C(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void sub_70380(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
+    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
-    //dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    }
     
     DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
     int dx = pXSprite->targetX-pSprite->x;
@@ -211,13 +220,17 @@ static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
         }
         return;
     }
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
+    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
-    //dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    }
     DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites))
+    ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
+        consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
-    //dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    }
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;

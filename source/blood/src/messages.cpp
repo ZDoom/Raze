@@ -201,91 +201,91 @@ void SetWooMode(bool stat)
 {
     if (stat)
     {
-        if (!powerupCheck(gMe, 17))
-            powerupActivate(gMe, 17);
+        if (!powerupCheck(gMe, kPwUpTwoGuns))
+            powerupActivate(gMe, kPwUpTwoGuns);
     }
     else
     {
-        if (powerupCheck(gMe, 17))
+        if (powerupCheck(gMe, kPwUpTwoGuns))
         {
             if (!VanillaMode())
-                gMe->at202[17] = 0;
-            powerupDeactivate(gMe, 17);
+                gMe->at202[kPwUpTwoGuns] = 0;
+            powerupDeactivate(gMe, kPwUpTwoGuns);
         }
     }
 }
 
 void ToggleWooMode(void)
 {
-    SetWooMode(!(powerupCheck(gMe, 17) != 0));
+    SetWooMode(!(powerupCheck(gMe, kPwUpTwoGuns) != 0));
 }
 
 void ToggleBoots(void)
 {
-    if (powerupCheck(gMe, 15))
+    if (powerupCheck(gMe, kPwUpJumpBoots))
     {
         viewSetMessage("You have no Jumping Boots.");
         if (!VanillaMode())
         {
-            gMe->at202[15] = 0;
+            gMe->at202[kPwUpJumpBoots] = 0;
             gMe->packInfo[4].at1 = 0;
         }
-        powerupDeactivate(gMe, 15);
+        powerupDeactivate(gMe, kPwUpJumpBoots);
     }
     else
     {
         viewSetMessage("You have the Jumping Boots.");
         if (!VanillaMode())
-            gMe->at202[15] = gPowerUpInfo[15].at3;
-        powerupActivate(gMe, 15);
+            gMe->at202[kPwUpJumpBoots] = gPowerUpInfo[kPwUpJumpBoots].bonusTime;
+        powerupActivate(gMe, kPwUpJumpBoots);
     }
 }
 
 void ToggleInvisibility(void)
 {
-    if (powerupCheck(gMe, 13))
+    if (powerupCheck(gMe, kPwUpShadowCloak))
     {
         viewSetMessage("You are visible.");
         if (!VanillaMode())
-            gMe->at202[13] = 0;
-        powerupDeactivate(gMe, 13);
+            gMe->at202[kPwUpShadowCloak] = 0;
+        powerupDeactivate(gMe, kPwUpShadowCloak);
     }
     else
     {
         viewSetMessage("You are invisible.");
-        powerupActivate(gMe, 13);
+        powerupActivate(gMe, kPwUpShadowCloak);
     }
 }
 
 void ToggleInvulnerability(void)
 {
-    if (powerupCheck(gMe, 14))
+    if (powerupCheck(gMe, kPwUpDeathMask))
     {
         viewSetMessage("You are vulnerable.");
         if (!VanillaMode())
-            gMe->at202[14] = 0;
-        powerupDeactivate(gMe, 14);
+            gMe->at202[kPwUpDeathMask] = 0;
+        powerupDeactivate(gMe, kPwUpDeathMask);
     }
     else
     {
         viewSetMessage("You are invulnerable.");
-        powerupActivate(gMe, 14);
+        powerupActivate(gMe, kPwUpDeathMask);
     }
 }
 
 void ToggleDelirium(void)
 {
-    if (powerupCheck(gMe, 28))
+    if (powerupCheck(gMe, kPwUpDeliriumShroom))
     {
         viewSetMessage("You are not delirious.");
         if (!VanillaMode())
-            gMe->at202[28] = 0;
-        powerupDeactivate(gMe, 28);
+            gMe->at202[kPwUpDeliriumShroom] = 0;
+        powerupDeactivate(gMe, kPwUpDeliriumShroom);
     }
     else
     {
         viewSetMessage("You are delirious.");
-        powerupActivate(gMe, 28);
+        powerupActivate(gMe, kPwUpDeliriumShroom);
     }
 }
 
@@ -832,7 +832,7 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
     case kCheatCheeseHead:
         gMe->packInfo[1].at1 = 100;
         if (!VanillaMode())
-            gMe->at202[18] = gPowerUpInfo[18].at3;
+            gMe->at202[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
         break;
     case kCheatTequila:
         ToggleWooMode();
@@ -885,7 +885,7 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
         actHealDude(gMe->pXSprite,200,200);
         gMe->packInfo[1].at1 = 100;
         if (!VanillaMode())
-            gMe->at202[18] = gPowerUpInfo[18].at3;
+            gMe->at202[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
         break;
     case kCheatForkYou:
         SetInfiniteAmmo(false);
@@ -896,7 +896,7 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
         SetToys(false);
         SetKeys(false);
         SetWooMode(true);
-        powerupActivate(gMe, 28);
+        powerupActivate(gMe, kPwUpDeliriumShroom);
         gMe->pXSprite->health = 16;
         gMe->atcb[1] = 1;
         gMe->atbd = 0;

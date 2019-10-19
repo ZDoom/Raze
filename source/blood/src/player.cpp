@@ -64,72 +64,87 @@ PLAYER *gMe, *gView;
 bool gBlueFlagDropped = false;
 bool gRedFlagDropped = false;
 
+// V = has effect in game, X = no effect in game
 POWERUPINFO gPowerUpInfo[kMaxPowerUps] = {
-    { -1, 1, 1, 1 },
-    { -1, 1, 1, 1 },
-    { -1, 1, 1, 1 },
-    { -1, 1, 1, 1 },
-    { -1, 1, 1, 1 },
-    { -1, 1, 1, 1 },
-    { -1, 1, 1, 1 },
-    { -1, 0, 100, 100 },
-    { -1, 0, 50, 100 },
-    { -1, 0, 20, 100 },
-    { -1, 0, 100, 200 },
-    { -1, 0, 2, 200 },
-    { 783, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 }, // 13: cloak of invisibility
-    { -1, 1, 3600, 432000 }, // 14: death mask (invulnerability)
-    { 827, 0, 3600, 432000 }, // 15: jump boots
-    { 828, 0, 3600, 432000 },
-    { -1, 0, 3600, 1728000 }, // 17: guns akimbo
-    { -1, 0, 3600, 432000 }, // 18: diving suit
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 }, // 21: crystal ball
-    { -1, 0, 3600, 432000 },
-    { 851, 0, 3600, 432000 },
-    { 2428, 0, 3600, 432000 }, // 24: reflective shots
-    { -1, 0, 3600, 432000 }, // 25: beast vision
-    { -1, 0, 3600, 432000 }, // 26: cloak of shadow
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 900, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 0, 3600, 432000 },
-    { -1, 1, 3600, 432000 },
-    { -1, 0, 1, 432000 },
-    { -1, 0, 1, 432000 },
-    { -1, 0, 1, 432000 },
-    { -1, 0, 1, 432000 },
-    { -1, 0, 1, 432000 },
-    { 0, 0, 0, 0 },
-    { 0, 0, 0, 0 },
-    { 0, 0, 0, 0 },
-    { 0, 0, 0, 0 },
-    { 0, 0, 0, 0 }, // dummy
-    { -1, 1, 1, 1 } // kGDXItemLevelMap
+    { -1, 1, 1, 1 },            // 00: V keys
+    { -1, 1, 1, 1 },            // 01: V keys
+    { -1, 1, 1, 1 },            // 02: V keys
+    { -1, 1, 1, 1 },            // 03: V keys
+    { -1, 1, 1, 1 },            // 04: V keys
+    { -1, 1, 1, 1 },            // 05: V keys
+    { -1, 1, 1, 1 },            // 06: V keys
+    { -1, 0, 100, 100 },        // 07: V doctor's bag
+    { -1, 0, 50, 100 },         // 08: V medicine pouch
+    { -1, 0, 20, 100 },         // 09: V life essense
+    { -1, 0, 100, 200 },        // 10: V life seed
+    { -1, 0, 2, 200 },          // 11: V red potion
+    { 783, 0, 3600, 432000 },   // 12: V feather fall
+    { 896, 0, 3600, 432000 },   // 13: V cloak of invisibility
+    { 825, 1, 3600, 432000 },   // 14: V death mask (invulnerability)
+    { 827, 0, 3600, 432000 },   // 15: V jump boots
+    { 828, 0, 3600, 432000 },   // 16: X raven flight
+    { 829, 0, 3600, 1728000 },  // 17: V guns akimbo
+    { 830, 0, 3600, 432000 },   // 18: V diving suit
+    { 831, 0, 3600, 432000 },   // 19: V gas mask
+    { -1, 0, 3600, 432000 },    // 20: X clone
+    { 2566, 0, 3600, 432000 },  // 21: V crystal ball
+    { 836, 0, 3600, 432000 },   // 22: X decoy
+    { 853, 0, 3600, 432000 },   // 23: V doppleganger
+    { 2428, 0, 3600, 432000 },  // 24: V reflective shots
+    { 839, 0, 3600, 432000 },   // 25: V beast vision
+    { 768, 0, 3600, 432000 },   // 26: X cloak of shadow (useless)
+    { 840, 0, 3600, 432000 },   // 27: X rage shroom
+    { 841, 0, 900, 432000 },    // 28: V delirium shroom
+    { 842, 0, 3600, 432000 },   // 29: V grow shroom (gModernMap only)
+    { 843, 0, 3600, 432000 },   // 30: V shrink shroom (gModernMap only)
+    { -1, 0, 3600, 432000 },    // 31: X death mask (useless)
+    { -1, 0, 3600, 432000 },    // 32: X wine goblet
+    { -1, 0, 3600, 432000 },    // 33: X wine bottle
+    { -1, 0, 3600, 432000 },    // 34: X skull grail
+    { -1, 0, 3600, 432000 },    // 35: X silver grail
+    { -1, 0, 3600, 432000 },    // 36: X tome
+    { -1, 0, 3600, 432000 },    // 37: X black chest
+    { -1, 0, 3600, 432000 },    // 38: X wooden chest
+    { 837, 1, 3600, 432000 },   // 39: V asbestos armor
+    { -1, 0, 1, 432000 },       // 40: V basic armor
+    { -1, 0, 1, 432000 },       // 41: V body armor
+    { -1, 0, 1, 432000 },       // 42: V fire armor
+    { -1, 0, 1, 432000 },       // 43: V spirit armor
+    { -1, 0, 1, 432000 },       // 44: V super armor
+    { 0, 0, 0, 0 },             // 45: ? unknown
+    { 0, 0, 0, 0 },             // 46: ? unknown
+    { 0, 0, 0, 0 },             // 47: ? unknown
+    { 0, 0, 0, 0 },             // 48: ? unknown
+    { 0, 0, 0, 0 },             // 49: X dummy
+    { 833, 1, 1, 1 }            // 50: V kModernItemLevelMap (gModernMap only)
 };
 
 int Handicap[] = {
     144, 208, 256, 304, 368
 };
 
+int gDefaultAccel[] = {
+    
+    // normal human
+    0x4000, 0x1200, 0x2000, // stand (front, side, back) / crouch (front, side, back) / swim (front, side, back)
+    // normal beast
+    0x4000, 0x1200, 0x2000, // stand (front, side, back) / crouch (front, side, back) / swim (front, side, back)
+    // shrink human
+    10384,  2108,  2192,    // stand (front, side, back) / crouch (front, side, back) / swim (front, side, back)
+    // grown human
+    19384,  5608,  11192    // stand (front, side, back) / crouch (front, side, back) / swim (front, side, back)
+
+};
+
+
 POSTURE gPosture[4][3] = {
     
     // normal human
     {
         {
-            0x4000,
-            0x4000,
-            0x4000,
+            gDefaultAccel[0],
+            gDefaultAccel[0],
+            gDefaultAccel[0],
             14,
             17,
             24,
@@ -142,9 +157,9 @@ POSTURE gPosture[4][3] = {
             0x90
         },
         {
-            0x1200,
-            0x1200,
-            0x1200,
+            gDefaultAccel[1],
+            gDefaultAccel[1],
+            gDefaultAccel[1],
             14,
             17,
             24,
@@ -157,9 +172,9 @@ POSTURE gPosture[4][3] = {
             0xb0
         },
         {
-            0x2000,
-            0x2000,
-            0x2000,
+            gDefaultAccel[2],
+            gDefaultAccel[2],
+            gDefaultAccel[2],
             22,
             28,
             24,
@@ -176,9 +191,9 @@ POSTURE gPosture[4][3] = {
     // normal beast
     {
         {
-            0x4000,
-            0x4000,
-            0x4000,
+            gDefaultAccel[3],
+            gDefaultAccel[3],
+            gDefaultAccel[3],
             14,
             17,
             24,
@@ -191,9 +206,9 @@ POSTURE gPosture[4][3] = {
             0x90
         },
         {
-            0x1200,
-            0x1200,
-            0x1200,
+            gDefaultAccel[4],
+            gDefaultAccel[4],
+            gDefaultAccel[4],
             14,
             17,
             24,
@@ -206,9 +221,9 @@ POSTURE gPosture[4][3] = {
             0xb0
         },
         {
-            0x2000,
-            0x2000,
-            0x2000,
+            gDefaultAccel[5],
+            gDefaultAccel[5],
+            gDefaultAccel[5],
             22,
             28,
             24,
@@ -225,9 +240,9 @@ POSTURE gPosture[4][3] = {
     // shrink human
     {
         {
-            10384, 
-            12384, 
-            12384, 
+            gDefaultAccel[6],
+            gDefaultAccel[6],
+            gDefaultAccel[6],
             14, 
             17, 
             24, 
@@ -240,9 +255,9 @@ POSTURE gPosture[4][3] = {
             144
         },
         {
-            2108, 
-            2108, 
-            2108, 
+            gDefaultAccel[7],
+            gDefaultAccel[7],
+            gDefaultAccel[7],
             14, 
             17, 
             24,
@@ -255,9 +270,9 @@ POSTURE gPosture[4][3] = {
             176
         },
         {
-            2192, 
-            3192, 
-            4192,
+            gDefaultAccel[8],
+            gDefaultAccel[8],
+            gDefaultAccel[8],
             22, 
             28, 
             24, 
@@ -274,9 +289,9 @@ POSTURE gPosture[4][3] = {
     // grown human
     {
         {
-            19384, 
-            15384, 
-            15384, 
+            gDefaultAccel[9],
+            gDefaultAccel[9],
+            gDefaultAccel[9],
             14, 
             17, 
             24, 
@@ -289,9 +304,9 @@ POSTURE gPosture[4][3] = {
             144
         },
         {
-            5608, 
-            5608, 
-            5608, 
+            gDefaultAccel[10],
+            gDefaultAccel[10],
+            gDefaultAccel[10],
             14, 
             17, 
             24, 
@@ -304,9 +319,9 @@ POSTURE gPosture[4][3] = {
             176
         },
         {
-            11192, 
-            11192, 
-            11192,
+            gDefaultAccel[11],
+            gDefaultAccel[11],
+            gDefaultAccel[11],
             22, 
             28, 
             24, 
@@ -431,11 +446,15 @@ int powerupCheck(PLAYER *pPlayer, int nPowerUp)
 }
 
 bool isGrown(spritetype* pSprite) {
-    return (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], 29) > 0);
+    if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpGrowShroom) > 0) return true;
+    else if (pSprite->extra >= 0 && xsprite[pSprite->extra].scale >= 512) return true;
+    else return false;
 }
 
 bool isShrinked(spritetype* pSprite) {
-    return (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], 30) > 0);
+    if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpShrinkShroom) > 0) return true;
+    else if (pSprite->extra >= 0 && xsprite[pSprite->extra].scale > 0 && xsprite[pSprite->extra].scale <= 128) return true;
+    else return false;
 }
 
 bool shrinkPlayerSize(PLAYER* pPlayer, int divider) {
@@ -447,6 +466,7 @@ bool shrinkPlayerSize(PLAYER* pPlayer, int divider) {
 bool growPlayerSize(PLAYER* pPlayer, int multiplier) {
     pPlayer->pXSprite->scale = 256*multiplier;
     playerSetRace(pPlayer, kModeHumanGrown);
+    viewSetSystemMessage("%d", pPlayer->pXSprite->scale);
     return true;
 }
 
@@ -457,19 +477,34 @@ bool resetPlayerSize(PLAYER* pPlayer) {
 }
 
 void deactivateSizeShrooms(PLAYER* pPlayer) {
-    powerupDeactivate(pPlayer, 29);
-    pPlayer->at202[29] = 0;
+    powerupDeactivate(pPlayer, kPwUpGrowShroom);
+    pPlayer->at202[kPwUpGrowShroom] = 0;
 
-    powerupDeactivate(pPlayer, 30);
-    pPlayer->at202[30] = 0;
+    powerupDeactivate(pPlayer, kPwUpShrinkShroom);
+    pPlayer->at202[kPwUpShrinkShroom] = 0;
 }
+
+
+PLAYER* getPlayerById(short id) {
+    if (id > 0) {
+        for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
+            if (id < kMaxPlayers && id == i + 1) return &gPlayer[i]; // relative to connected players
+            else if (id >= kDudePlayer1 && id <= kDudePlayer8 && id == gPlayer[i].pSprite->type) // absolute type
+                return &gPlayer[i];
+
+
+        }
+    }
+    return NULL;
+}
+
 
 char powerupActivate(PLAYER *pPlayer, int nPowerUp)
 {
-    if (powerupCheck(pPlayer, nPowerUp) > 0 && gPowerUpInfo[nPowerUp].at2)
+    if (powerupCheck(pPlayer, nPowerUp) > 0 && gPowerUpInfo[nPowerUp].pickupOnce)
         return 0;
     if (!pPlayer->at202[nPowerUp])
-        pPlayer->at202[nPowerUp] = gPowerUpInfo[nPowerUp].at3;
+        pPlayer->at202[nPowerUp] = gPowerUpInfo[nPowerUp].bonusTime;
     int nPack = powerupToPackItem(nPowerUp);
     if (nPack >= 0)
         pPlayer->packInfo[nPack].at0 = 1;
@@ -488,9 +523,9 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
             else if (isShrinked(pPlayer->pSprite)) deactivateSizeShrooms(pPlayer);
             else {
                 growPlayerSize(pPlayer, 2);
-                if (powerupCheck(&gPlayer[pPlayer->pSprite->type - kDudePlayer1], 13) > 0) {
-                    powerupDeactivate(pPlayer, 13);
-                    pPlayer->at202[13] = 0;
+                if (powerupCheck(&gPlayer[pPlayer->pSprite->type - kDudePlayer1], kPwUpShadowCloak) > 0) {
+                    powerupDeactivate(pPlayer, kPwUpShadowCloak);
+                    pPlayer->at202[kPwUpShadowCloak] = 0;
                 }
 
                 if (ceilIsTooLow(pPlayer->pSprite))
@@ -596,7 +631,7 @@ void powerupProcess(PLAYER *pPlayer)
             {
                 pPlayer->at202[i] = ClipLow(pPlayer->at202[i]-4, 0);
                 if (pPlayer->at202[i])
-                    pPlayer->packInfo[nPack].at1 = (100*pPlayer->at202[i])/gPowerUpInfo[i].at3;
+                    pPlayer->packInfo[nPack].at1 = (100*pPlayer->at202[i])/gPowerUpInfo[i].bonusTime;
                 else
                 {
                     powerupDeactivate(pPlayer, i);
@@ -629,46 +664,44 @@ void powerupInit(void)
 int packItemToPowerup(int nPack)
 {
     int nPowerUp = -1;
-    switch (nPack)
-    {
-    case 0:
-        break;
-    case 1:
-        nPowerUp = 18;
-        break;
-    case 2:
-        nPowerUp = 21;
-        break;
-    case 3:
-        nPowerUp = 25;
-        break;
-    case 4:
-        nPowerUp = 15;
-        break;
-    default:
-        ThrowError("Unhandled pack item %d", nPack);
-        break;
+    switch (nPack) {
+        case 0:
+            break;
+        case 1:
+            nPowerUp = kPwUpDivingSuit;
+            break;
+        case 2:
+            nPowerUp = kPwUpCrystalBall;
+            break;
+        case 3:
+            nPowerUp = kPwUpBeastVision;
+            break;
+        case 4:
+            nPowerUp = kPwUpJumpBoots;
+            break;
+        default:
+            ThrowError("Unhandled pack item %d", nPack);
+            break;
     }
     return nPowerUp;
 }
 
 int powerupToPackItem(int nPowerUp)
 {
-    const int jumpBoots = 15;
-    const int divingSuit = 18;
-    const int crystalBall = 21;
-    const int beastVision = 25;
+    //const int jumpBoots = kPwUpJumpBoots;
+    //const int divingSuit = kPwUpDivingSuit;
+    //const int crystalBall = kPwUpCrystalBall;
+    //const int beastVision = 25;
 
-    switch (nPowerUp)
-    {
-    case divingSuit:
-        return 1;
-    case crystalBall:
-        return 2;
-    case beastVision:
-        return 3;
-    case jumpBoots:
-        return 4;
+    switch (nPowerUp) {
+        case kPwUpDivingSuit:
+            return 1;
+        case kPwUpCrystalBall:
+            return 2;
+        case kPwUpBeastVision:
+            return 3;
+        case kPwUpJumpBoots:
+            return 4;
     }
     return -1;
 }
@@ -682,7 +715,7 @@ char packAddItem(PLAYER *pPlayer, unsigned int nPack)
         pPlayer->packInfo[nPack].at1 = 100;
         int nPowerUp = packItemToPowerup(nPack);
         if (nPowerUp >= 0)
-            pPlayer->at202[nPowerUp] = gPowerUpInfo[nPowerUp].at3;
+            pPlayer->at202[nPowerUp] = gPowerUpInfo[nPowerUp].bonusTime;
         if (pPlayer->at321 == -1)
             pPlayer->at321 = nPack;
         if (!pPlayer->packInfo[pPlayer->at321].at1)
@@ -725,19 +758,19 @@ void packUseItem(PLAYER *pPlayer, int nPack)
         }
         case 1:
             v4 = 1;
-            nPowerUp = 18;
+            nPowerUp = kPwUpDivingSuit;
             break;
         case 2:
             v4 = 1;
-            nPowerUp = 21;
+            nPowerUp = kPwUpCrystalBall;
             break;
         case 3:
             v4 = 1;
-            nPowerUp = 25;
+            nPowerUp = kPwUpBeastVision;
             break;
         case 4:
             v4 = 1;
-            nPowerUp = 15;
+            nPowerUp = kPwUpJumpBoots;
             break;
         default:
             ThrowError("Unhandled pack item %d", nPack);
@@ -835,20 +868,14 @@ void playerCorrectInertia(PLAYER* pPlayer, vec3_t const *oldpos)
 
 void playerResetPowerUps(PLAYER* pPlayer)
 {
-    const int jumpBoots = 15;
-    const int divingSuit = 18;
-    const int crystalBall = 21;
-    const int beastVision = 25;
+    //const int jumpBoots = kPwUpJumpBoots;
+    //const int divingSuit = kPwUpDivingSuit;
+    //const int crystalBall = kPwUpCrystalBall;
+    //const int beastVision = 25;
 
-    for (int i = 0; i < kMaxPowerUps; i++)
-    {
-        if (!VanillaMode()
-            && (i == jumpBoots
-                || i == divingSuit
-                || i == crystalBall
-                || i == beastVision))
+    for (int i = 0; i < kMaxPowerUps; i++) {
+        if (!VanillaMode() && (i == kPwUpJumpBoots || i == kPwUpDivingSuit || i == kPwUpCrystalBall || i == kPwUpBeastVision))
             continue;
-
         pPlayer->at202[i] = 0;
     }
 }
@@ -990,7 +1017,7 @@ void playerStart(int nPlayer)
     if (IsUnderwaterSector(pSprite->sectnum))
     {
         pPlayer->at2f = 1;
-        pPlayer->pXSprite->medium = 1;
+        pPlayer->pXSprite->medium = kMediumWater;
     }
 }
 
@@ -1035,6 +1062,11 @@ void playerReset(PLAYER *pPlayer)
     {
         pPlayer->packInfo[i].at0 = 0;
         pPlayer->packInfo[i].at1 = 0;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        for (int a = 0; a < 3; a++)
+            gPosture[i][a].at0 = gPosture[i][a].at4 = gPosture[i][a].at8 = gDefaultAccel[a];
     }
 }
 
@@ -1244,12 +1276,12 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemHealthLifeEssense:
         case kItemHealthLifeSeed:
         case kItemHealthRedPotion:  {
-            int addPower = gPowerUpInfo[nType].at3;
+            int addPower = gPowerUpInfo[nType].bonusTime;
             // by NoOne: allow custom amount for item
             if (gModernMap && sprite[pItem->xvel].extra >= 0 && xsprite[sprite[pItem->xvel].extra].data1 > 0)
                 addPower = xsprite[sprite[pItem->xvel].extra].data1;
         
-            if (!actHealDude(pXSprite, addPower, gPowerUpInfo[nType].at7)) return 0;
+            if (!actHealDude(pXSprite, addPower, gPowerUpInfo[nType].maxTime)) return 0;
             return 1;
         }
         case kItemHealthDoctorBag:
@@ -1940,7 +1972,7 @@ void playerProcess(PLAYER *pPlayer)
         pPlayer->at87 = 1;
         int nSector = pSprite->sectnum;
         int nLink = gLowerLink[nSector];
-        if (nLink > 0 && (sprite[nLink].type == 14 || sprite[nLink].type == 10))
+        if (nLink > 0 && (sprite[nLink].type == kMarkerLowGoo || sprite[nLink].type == kMarkerLowWater))
         {
             if (getceilzofslope(nSector, pSprite->x, pSprite->y) > pPlayer->at67)
                 pPlayer->at87 = 0;
@@ -2195,7 +2227,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
                 nSound = pDamageInfo->at4[0];
             else
                 nSound = pDamageInfo->at4[Random(3)];
-            if (nDamageType == DAMAGE_TYPE_4 && pXSprite->medium == 1 && !pPlayer->at376)
+            if (nDamageType == DAMAGE_TYPE_4 && pXSprite->medium == kMediumWater && !pPlayer->at376)
                 nSound = 714;
             sfxPlay3DSound(pSprite, nSound, 0, 6);
             return nDamage;
@@ -2235,7 +2267,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
                 sfxPlay3DSound(pSprite, pDamageInfo->at10[0], 0, 2);
                 nDeathSeqID = 16;
                 nKneelingPlayer = nPlayerKneelClient;
-                powerupActivate(pPlayer, 28);
+                powerupActivate(pPlayer, kPwUpDeliriumShroom);
                 pXSprite->target = nSource;
                 evPost(pSprite->index, 3, 15, kCallbackFinishHim);
             }

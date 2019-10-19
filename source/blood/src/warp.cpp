@@ -180,7 +180,7 @@ int CheckLink(spritetype *pSprite)
     {
         spritetype *pUpper = &sprite[nUpper];
         int z;
-        if (pUpper->type == 7)
+        if (pUpper->type == kMarkerUpLink)
             z = pUpper->z;
         else
             z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
@@ -194,7 +194,7 @@ int CheckLink(spritetype *pSprite)
             pSprite->x += pLower->x-pUpper->x;
             pSprite->y += pLower->y-pUpper->y;
             int z2;
-            if (pLower->type == 6)
+            if (pLower->type == kMarkerLowLink)
                 z2 = pLower->z;
             else
                 z2 = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
@@ -207,7 +207,7 @@ int CheckLink(spritetype *pSprite)
     {
         spritetype *pLower = &sprite[nLower];
         int z;
-        if (pLower->type == 6)
+        if (pLower->type == kMarkerLowLink)
             z = pLower->z;
         else
             z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
@@ -221,7 +221,7 @@ int CheckLink(spritetype *pSprite)
             pSprite->x += pUpper->x-pLower->x;
             pSprite->y += pUpper->y-pLower->y;
             int z2;
-            if (pUpper->type == 7)
+            if (pUpper->type == kMarkerUpLink)
                 z2 = pUpper->z;
             else
                 z2 = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
@@ -241,7 +241,7 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
     {
         spritetype *pUpper = &sprite[nUpper];
         int z1;
-        if (pUpper->type == 7)
+        if (pUpper->type == kMarkerUpLink)
             z1 = pUpper->z;
         else
             z1 = getflorzofslope(*nSector, *x, *y);
@@ -255,7 +255,7 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
             *x += pLower->x-pUpper->x;
             *y += pLower->y-pUpper->y;
             int z2;
-            if (pUpper->type == 6)
+            if (pUpper->type == kMarkerLowLink)
                 z2 = pLower->z;
             else
                 z2 = getceilzofslope(*nSector, *x, *y);
@@ -267,7 +267,7 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
     {
         spritetype *pLower = &sprite[nLower];
         int z1;
-        if (pLower->type == 6)
+        if (pLower->type == kMarkerLowLink)
             z1 = pLower->z;
         else
             z1 = getceilzofslope(*nSector, *x, *y);
@@ -281,7 +281,7 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
             *x += pUpper->x-pLower->x;
             *y += pUpper->y-pLower->y;
             int z2;
-            if (pLower->type == 7)
+            if (pLower->type == kMarkerUpLink)
                 z2 = pUpper->z;
             else
                 z2 = getflorzofslope(*nSector, *x, *y);

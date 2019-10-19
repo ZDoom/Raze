@@ -411,7 +411,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite )
     if (IsPlayerSprite(pTarget))
     {
         PLAYER* pPlayer = &gPlayer[ pTarget->type - kDudePlayer1 ];
-        if (powerupCheck( pPlayer, 13 ) > 0)  {
+        if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)  {
             if(spriteIsUnderwater(pSprite,false)) aiNewState(pSprite, pXSprite, &GDXGenDudeSearchW);
             else aiNewState(pSprite, pXSprite, &GDXGenDudeSearchL);
             return;
@@ -829,7 +829,7 @@ bool sfxPlayGDXGenDudeSound(spritetype* pSprite, int mode) {
     
 bool spriteIsUnderwater(spritetype* pSprite,bool oldWay) {
     if (oldWay){
-        if (xsprite[pSprite->extra].medium == 1 || xsprite[pSprite->extra].medium == 2)
+        if (xsprite[pSprite->extra].medium == kMediumWater || xsprite[pSprite->extra].medium == kMediumGoo)
             return true;
         return false;
     }
@@ -858,7 +858,7 @@ void removeDudeStuff(spritetype* pSprite) {
             case kThingArmedProxBomb:
             case kThingArmedRemoteBomb:
             case kModernThingTNTProx:
-                sprite[nSprite].type = 0;
+                sprite[nSprite].type = kSpriteDecoration;
                 actPostSprite(sprite[nSprite].xvel, kStatFree);
                 break;
             case kModernThingEnemyLifeLeech:
@@ -885,7 +885,7 @@ void removeLeech(spritetype* pLeech, bool delSprite) {
         }
         sfxPlay3DSoundCP(pLeech, 490, -1, 0,60000);
         if (delSprite) {
-            pLeech->type = 0;
+            pLeech->type = kSpriteDecoration;
             actPostSprite(pLeech->index, kStatFree);
         }
     }

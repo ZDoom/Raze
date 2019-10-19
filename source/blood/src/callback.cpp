@@ -649,7 +649,7 @@ void DropVoodoo(int nSprite) // unused
                         if (gGameOptions.nGameType == 3 && pPlayer->at2ea == pPlayer2->at2ea)
                             continue;
                         int t = 0x8000/ClipLow(gNetPlayers-1, 1);
-                        if (!powerupCheck(pPlayer2, 14))
+                        if (!powerupCheck(pPlayer2, kPwUpDeathMask))
                             t += ((3200-pPlayer2->at33e[2])<<15)/3200;
                         if (Chance(t) || nNextSprite < 0)
                         {

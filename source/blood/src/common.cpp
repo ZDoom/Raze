@@ -80,6 +80,7 @@ const char *G_DefFile(void)
     return (g_defNamePtr == NULL) ? G_DefaultDefFile() : g_defNamePtr;
 }
 
+
 void G_SetupGlobalPsky(void)
 {
     int skyIdx = 0;

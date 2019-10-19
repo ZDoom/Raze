@@ -77,8 +77,6 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite);
 void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex);
 void TeleFrag(int nKiller, int nSector);
 bool valueIsBetween(int val, int min, int max);
-void disableQAVPlayers(spritetype* pException);
-
 // -------------------------------------------------------
 
 END_BLD_NS

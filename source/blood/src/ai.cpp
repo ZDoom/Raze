@@ -379,15 +379,15 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         pDudeExtraE->at0 = 0;
         if (pXSprite->target == -1) {
             switch (pXSprite->medium) {
-                case 0:
+                case kMediumNormal:
                     aiNewState(pSprite, pXSprite, &cultistSearch);
                     if (Chance(0x8000)) {
                         if (pSprite->type == kDudeCultistTommy) aiPlay3DSound(pSprite, 4008+Random(5), AI_SFX_PRIORITY_1, -1);
                         else aiPlay3DSound(pSprite, 1008+Random(5), AI_SFX_PRIORITY_1, -1);
                     }
                     break;
-                case 1:
-                case 2:
+                case kMediumWater:
+                case kMediumGoo:
                     aiNewState(pSprite, pXSprite, &cultistSwimSearch);
                     break;
             }
@@ -397,12 +397,12 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
                 else aiPlay3DSound(pSprite, 1003+Random(4), AI_SFX_PRIORITY_1, -1);
             }
             switch (pXSprite->medium) {
-                case 0:
+                case kMediumNormal:
                     if (pSprite->type == kDudeCultistTommy) aiNewState(pSprite, pXSprite, &fanaticChase);
                     else aiNewState(pSprite, pXSprite, &cultistChase);
                     break;
-                case 1:
-                case 2:
+                case kMediumWater:
+                case kMediumGoo:
                     aiNewState(pSprite, pXSprite, &cultistSwimChase);
                     break;
             }
@@ -453,8 +453,8 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
                     if (Chance(0x8000))
                         aiPlay3DSound(pSprite, 4008+Random(5), AI_SFX_PRIORITY_1, -1);
                     break;
-                case 1:
-                case 2:
+                case kMediumWater:
+                case kMediumGoo:
                     aiNewState(pSprite, pXSprite, &cultistSwimSearch);
                     break;
             }
@@ -463,11 +463,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
                 aiPlay3DSound(pSprite, 4008+Random(5), AI_SFX_PRIORITY_1, -1);
             
             switch (pXSprite->medium) {
-                case 0:
+                case kMediumNormal:
                     aiNewState(pSprite, pXSprite, &cultistProneChase);
                     break;
-                case 1:
-                case 2:
+                case kMediumWater:
+                case kMediumGoo:
                     aiNewState(pSprite, pXSprite, &cultistSwimChase);
                     break;
             }
@@ -484,13 +484,13 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         {
             switch (pXSprite->medium)
             {
-            case 0:
+            case kMediumNormal:
                 aiNewState(pSprite, pXSprite, &cultistSearch);
                 if (Chance(0x8000))
                     aiPlay3DSound(pSprite, 1008+Random(5), AI_SFX_PRIORITY_1, -1);
                 break;
-            case 1:
-            case 2:
+            case kMediumWater:
+            case kMediumGoo:
                 aiNewState(pSprite, pXSprite, &cultistSwimSearch);
                 break;
             }
@@ -501,11 +501,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
                 aiPlay3DSound(pSprite, 1003+Random(4), AI_SFX_PRIORITY_1, -1);
             switch (pXSprite->medium)
             {
-            case 0:
+            case kMediumNormal:
                 aiNewState(pSprite, pXSprite, &cultistProneChase);
                 break;
-            case 1:
-            case 2:
+            case kMediumWater:
+            case kMediumGoo:
                 aiNewState(pSprite, pXSprite, &cultistSwimChase);
                 break;
             }
@@ -807,11 +807,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         {
             switch (pXSprite->medium)
             {
-            case 0:
+            case kMediumNormal:
                 aiNewState(pSprite, pXSprite, &tinycalebSearch);
                 break;
-            case 1:
-            case 2:
+            case kMediumWater:
+            case kMediumGoo:
                 aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
                 break;
             }
@@ -820,11 +820,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         {
             switch (pXSprite->medium)
             {
-            case 0:
+            case kMediumNormal:
                 aiNewState(pSprite, pXSprite, &tinycalebChase);
                 break;
-            case 1:
-            case 2:
+            case kMediumWater:
+            case kMediumGoo:
                 aiNewState(pSprite, pXSprite, &tinycalebSwimChase);
                 break;
             }
@@ -840,11 +840,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         {
             switch (pXSprite->medium)
             {
-            case 0:
+            case kMediumNormal:
                 aiNewState(pSprite, pXSprite, &beastSearch);
                 break;
-            case 1:
-            case 2:
+            case kMediumWater:
+            case kMediumGoo:
                 aiNewState(pSprite, pXSprite, &beastSwimSearch);
                 break;
             }
@@ -854,11 +854,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
             aiPlay3DSound(pSprite, 9009+Random(2), AI_SFX_PRIORITY_1, -1);
             switch (pXSprite->medium)
             {
-            case 0:
+            case kMediumNormal:
                 aiNewState(pSprite, pXSprite, &beastChase);
                 break;
-            case 1:
-            case 2:
+            case kMediumWater:
+            case kMediumGoo:
                 aiNewState(pSprite, pXSprite, &beastSwimChase);
                 break;
             }
@@ -953,7 +953,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                     aiNewState(pSprite, pXSprite, &cultistDodge);
                 else if (sub_5BDA8(pSprite, 14) && !pXSprite->medium)
                     aiNewState(pSprite, pXSprite, &cultistProneDodge);
-                else if (sub_5BDA8(pSprite, 13) && (pXSprite->medium == 1 || pXSprite->medium == 2))
+                else if (sub_5BDA8(pSprite, 13) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
                     aiNewState(pSprite, pXSprite, &cultistSwimDodge);
             }
             else if (nDmgType == DAMAGE_TYPE_1 && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth/* && (pXSprite->at17_6 != 1 || pXSprite->at17_6 != 2)*/)
@@ -984,13 +984,13 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
                 gDudeExtra[pSprite->extra].at0 = (int)gFrameClock+360;
             }
-            if (Chance(0x600) && (pXSprite->medium == 1 || pXSprite->medium == 2))
+            if (Chance(0x600) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
             {
                 pSprite->type = kDudeCultistTommy;
                 pXSprite->burnTime = 0;
                 aiNewState(pSprite, pXSprite, &cultistSwimGoto);
             }
-            else if (pXSprite->medium == 1 || pXSprite->medium == 2)
+            else if (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)
             {
                 pSprite->type = kDudeCultistShotgun;
                 pXSprite->burnTime = 0;
@@ -1169,16 +1169,16 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
             if (pSprite->type == kDudeCultistTommy) aiPlay3DSound(pSprite, 4013+Random(2), AI_SFX_PRIORITY_2, -1);
             else aiPlay3DSound(pSprite, 1013+Random(2), AI_SFX_PRIORITY_2, -1);
             
-            if (!v4 && pXSprite->medium == 0) {
+            if (!v4 && pXSprite->medium == kMediumNormal) {
                 if (pDudeExtra->at4) aiNewState(pSprite, pXSprite, &cultistTeslaRecoil);
                 else aiNewState(pSprite, pXSprite, &cultistRecoil);
 
-            } else if (v4 && pXSprite->medium == 0) {
+            } else if (v4 && pXSprite->medium == kMediumNormal) {
                 if (pDudeExtra->at4) aiNewState(pSprite, pXSprite, &cultistTeslaRecoil);
                 else if (gGameOptions.nDifficulty > 0) aiNewState(pSprite, pXSprite, &cultistProneRecoil);
                 else aiNewState(pSprite, pXSprite, &cultistRecoil);
             }
-            else if (pXSprite->medium == 1 || pXSprite->medium == 2)
+            else if (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)
                 aiNewState(pSprite, pXSprite, &cultistSwimRecoil);
             else
             {
@@ -1298,14 +1298,14 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
                 aiNewState(pSprite, pXSprite, &innocentRecoil);
             break;
         case kDudeTinyCaleb:
-            if (pXSprite->medium == 0)
+            if (pXSprite->medium == kMediumNormal)
             {
                 if (pDudeExtra->at4)
                     aiNewState(pSprite, pXSprite, &tinycalebTeslaRecoil);
                 else
                     aiNewState(pSprite, pXSprite, &tinycalebRecoil);
             }
-            else if (pXSprite->medium == 1 || pXSprite->medium == 2)
+            else if (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)
                 aiNewState(pSprite, pXSprite, &tinycalebSwimRecoil);
             else
             {
@@ -1317,14 +1317,14 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
             break;
         case kDudeBeast:
             aiPlay3DSound(pSprite, 9004+Random(2), AI_SFX_PRIORITY_2, -1);
-            if (pXSprite->medium == 0)
+            if (pXSprite->medium == kMediumNormal)
             {
                 if (pDudeExtra->at4)
                     aiNewState(pSprite, pXSprite, &beastTeslaRecoil);
                 else
                     aiNewState(pSprite, pXSprite, &beastRecoil);
             }
-            else if (pXSprite->medium == 1 || pXSprite->medium == 2)
+            else if (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)
                 aiNewState(pSprite, pXSprite, &beastSwimRecoil);
             else
             {
@@ -1359,7 +1359,7 @@ void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
             PLAYER *pPlayer = &gPlayer[p];
-            if (pSprite->owner == pPlayer->at5b || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, 13) > 0)
+            if (pSprite->owner == pPlayer->at5b || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
@@ -1398,7 +1398,7 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
             PLAYER *pPlayer = &gPlayer[p];
-            if (pSprite->owner == pPlayer->at5b || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, 13) > 0)
+            if (pSprite->owner == pPlayer->at5b || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;

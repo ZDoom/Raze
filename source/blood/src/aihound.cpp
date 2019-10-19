@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "common_game.h"
 
+
 #include "actor.h"
 #include "ai.h"
 #include "aihound.h"
@@ -69,13 +70,17 @@ static void BiteSeqCallback(int, int nXSprite)
     spritetype *pSprite = &sprite[nSprite];
     int dx = Cos(pSprite->ang)>>16;
     int dy = Sin(pSprite->ang)>>16;
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) 
+    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
-    //dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    }
 
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites))
+    ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
+        consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
-    //dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    }
     spritetype *pTarget = &sprite[pXSprite->target];
     if (IsPlayerSprite(pTarget) || !VanillaMode()) // allow to hit non-player targets if not a demo
         actFireVector(pSprite, 0, 0, dx, dy, pTarget->z-pSprite->z, VECTOR_TYPE_15);
@@ -97,9 +102,11 @@ static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
+    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
-    //dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    }
     
     DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
     int dx = pXSprite->targetX-pSprite->x;
@@ -119,13 +126,17 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &houndGoto);
         return;
     }
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
+    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
-    //dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    }
     DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites))
+    ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
+        consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
-    //dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    }
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -136,7 +147,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &houndSearch);
         return;
     }
-    if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], 13) > 0)
+    if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
         aiNewState(pSprite, pXSprite, &houndSearch);
         return;

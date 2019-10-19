@@ -72,6 +72,19 @@ void _ThrowError(const char *pzFormat, ...)
     QuitGame();
 }
 
+// by NoOne: show warning msgs in game instead of throwing errors (in some cases)
+void _consoleSysMsg(const char* pzFormat, ...) {
+
+    char buffer[1024];
+    va_list args;
+    va_start(args, pzFormat);
+    vsprintf(buffer, pzFormat, args);
+    initprintf("%s(%i): %s\n", _module, _line, buffer);
+
+    OSD_Printf(OSDTEXT_RED "%s(%i): %s\n", _module, _line, buffer);
+}
+
+
 void __dassert(const char * pzExpr, const char * pzFile, int nLine)
 {
     initprintf("Assertion failed: %s in file %s at line %i\n", pzExpr, pzFile, nLine);

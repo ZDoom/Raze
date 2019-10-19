@@ -79,9 +79,9 @@ SAMPLE2D Channel[kMaxChannels];
 SAMPLE2D * FindChannel(void)
 {
     for (int i = kMaxChannels - 1; i >= 0; i--)
-        if (Channel[i].at5 == 0)
-            return &Channel[i];
-    ThrowError("No free channel available for sample");
+        if (Channel[i].at5 == 0) return &Channel[i];
+    consoleSysMsg("No free channel available for sample");
+    //ThrowError("No free channel available for sample");
     return NULL;
 }
 

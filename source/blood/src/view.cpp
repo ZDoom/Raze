@@ -569,7 +569,7 @@ void fakePlayerProcess(PLAYER *pPlayer, GINPUT *pInput)
 		predict.at72 = 1;
         int nSector = predict.at68;
         int nLink = gLowerLink[nSector];
-		if (nLink > 0 && (sprite[nLink].type == 14 || sprite[nLink].type == 10))
+		if (nLink > 0 && (sprite[nLink].type == kMarkerLowGoo || sprite[nLink].type == kMarkerLowWater))
 		{
 			if (getceilzofslope(nSector, predict.at50, predict.at54) > predict.at38)
 				predict.at72 = 0;
@@ -658,9 +658,9 @@ void fakeMoveDude(spritetype *pSprite)
     }
     int nUpperLink = gUpperLink[nSector];
     int nLowerLink = gLowerLink[nSector];
-    if (nUpperLink >= 0 && (sprite[nUpperLink].type == 9 || sprite[nUpperLink].type == 13))
+    if (nUpperLink >= 0 && (sprite[nUpperLink].type == kMarkerUpWater || sprite[nUpperLink].type == kMarkerUpGoo))
         bDepth = 1;
-    if (nLowerLink >= 0 && (sprite[nLowerLink].type == 10 || sprite[nLowerLink].type == 14))
+    if (nLowerLink >= 0 && (sprite[nLowerLink].type == kMarkerLowWater || sprite[nLowerLink].type == kMarkerLowGoo))
         bDepth = 1;
     if (pPlayer)
         wd += 16;
@@ -1227,18 +1227,21 @@ void viewDrawPowerUps(PLAYER* pPlayer)
     if (!gPowerupDuration)
         return;
 
-    const int nCloakOfInvisibility = 13;
-    const int nReflectiveShots = 24;
-    const int nDeathMask = 14; // invulnerability
-    const int nGunsAkimbo = 17;
-    const int nCloakOfShadow = 26; // does nothing, only appears at near the end of Cryptic Passage's Lost Monastery (CP04)
+    // NoOne to author: the following powerups can be safely added in this list:
+    // kPwUpFeatherFall -   (used in some user addons, makes player immune to fall damage)
+    // kPwUpGasMask -       (used in some user addons, makes player immune to choke damage)
+    // kPwUpDoppleganger -  (works in multiplayer, it swaps player's team colors, so enemy team player thinks it's a team mate)
+    // kPwUpAsbestArmor -   (used in some user addons, makes player immune to fire damage and draws hud)
+    // kPwUpGrowShroom -    (grows player size, works only if gModernMap == true)
+    // kPwUpShrinkShroom -  (shrinks player size, works only if gModernMap == true)
 
     POWERUPDISPLAY powerups[5];
-    powerups[0] = { 896, 0.4f, 0, pPlayer->at202[nCloakOfInvisibility] };
-    powerups[1] = { 2428, 0.4f, 5, pPlayer->at202[nReflectiveShots] };
-    powerups[2] = { 825, 0.3f, 9, pPlayer->at202[nDeathMask] };
-    powerups[3] = { 829, 0.3f, 5, pPlayer->at202[nGunsAkimbo] };
-    powerups[4] = { 768, 0.4f, 9, pPlayer->at202[nCloakOfShadow] };
+    powerups[0] = { gPowerUpInfo[kPwUpShadowCloak].picnum,  0.4f, 0, pPlayer->at202[kPwUpShadowCloak] }; // invisibility
+    powerups[1] = { gPowerUpInfo[kPwUpReflectShots].picnum, 0.4f, 5, pPlayer->at202[kPwUpReflectShots] };
+    powerups[2] = { gPowerUpInfo[kPwUpDeathMask].picnum, 0.3f, 9, pPlayer->at202[kPwUpDeathMask] }; // invulnerability
+    powerups[3] = { gPowerUpInfo[kPwUpTwoGuns].picnum, 0.3f, 5, pPlayer->at202[kPwUpTwoGuns] };
+    // does nothing, only appears at near the end of Cryptic Passage's Lost Monastery (CP04)
+    powerups[4] = { gPowerUpInfo[kPwUpShadowCloakUseless].picnum, 0.4f, 9, pPlayer->at202[kPwUpShadowCloakUseless] };
 
     sortPowerUps(powerups);
 
@@ -2491,51 +2494,42 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     break;
                 }
             }
-            viewApplyDefaultPal(pTSprite, pSector);
-            if (powerupCheck(gView, 25) > 0)
-            {
-                pTSprite->shade = -128;
-            }
-            if (IsPlayerSprite((spritetype *)pTSprite))
-            {
+            
+            if (pXSector && pXSector->color) pTSprite->pal = pSector->floorpal;
+            if (powerupCheck(gView, kPwUpBeastVision) > 0) pTSprite->shade = -128;
+
+            if (IsPlayerSprite((spritetype *)pTSprite)) {
                 PLAYER *pPlayer = &gPlayer[pTSprite->type-kDudePlayer1];
-                if (powerupCheck(pPlayer, 13) && !powerupCheck(gView, 25))
-                {
+                if (powerupCheck(pPlayer, kPwUpShadowCloak) && !powerupCheck(gView, kPwUpBeastVision)) {
                     pTSprite->cstat |= 2;
                     pTSprite->pal = 5;
-                }
-                else if (powerupCheck(pPlayer, 14))
-                {
+                }  else if (powerupCheck(pPlayer, kPwUpDeathMask)) {
                     pTSprite->shade = -128;
                     pTSprite->pal = 5;
-                }
-                else if (powerupCheck(pPlayer, 23))
-                {
+                } else if (powerupCheck(pPlayer, kPwUpDoppleganger)) {
                     pTSprite->pal = 11+(gView->at2ea&3);
                 }
-                if (powerupCheck(pPlayer, 24))
-                {
+                
+                if (powerupCheck(pPlayer, kPwUpReflectShots)) {
                     viewAddEffect(nTSprite, VIEW_EFFECT_13);
                 }
-                if (gShowWeapon && gGameOptions.nGameType > 0 && gView)
-                {
+                
+                if (gShowWeapon && gGameOptions.nGameType > 0 && gView) {
                     viewAddEffect(nTSprite, VIEW_EFFECT_12);
                 }
-                if (pPlayer->at37b && (gView != pPlayer || gViewPos != VIEWPOS_0))
-                {
+                
+                if (pPlayer->at37b && (gView != pPlayer || gViewPos != VIEWPOS_0)) {
                     uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_14);
-                    if (pNTSprite)
-                    {
+                    if (pNTSprite) {
                         POSTURE *pPosture = &gPosture[pPlayer->at5f][pPlayer->at2f];
                         pNTSprite->x += mulscale28(pPosture->at30, Cos(pTSprite->ang));
                         pNTSprite->y += mulscale28(pPosture->at30, Sin(pTSprite->ang));
                         pNTSprite->z = pPlayer->pSprite->z-pPosture->at2c;
                     }
                 }
-                if (pPlayer->at90 > 0 && gGameOptions.nGameType == 3)
-                {
-                    if (pPlayer->at90&1)
-                    {
+                
+                if (pPlayer->at90 > 0 && gGameOptions.nGameType == 3) {
+                    if (pPlayer->at90&1)  {
                         uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_16);
                         if (pNTSprite)
                         {
@@ -2543,8 +2537,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                             pNTSprite->cstat |= 4;
                         }
                     }
-                    if (pPlayer->at90&2)
-                    {
+                    if (pPlayer->at90&2) {
                         uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_16);
                         if (pNTSprite)
                         {
@@ -2554,8 +2547,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     }
                 }
             }
-            if (pTSprite->owner != gView->pSprite->index || gViewPos != VIEWPOS_0)
-            {
+            
+            if (pTSprite->owner != gView->pSprite->index || gViewPos != VIEWPOS_0) {
                 if (getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
                 {
                     viewAddEffect(nTSprite, VIEW_EFFECT_0);
@@ -2762,10 +2755,10 @@ void viewBurnTime(int gScale)
 
 // by NoOne: show warning msgs in game instead of throwing errors (in some cases)
 void viewSetSystemMessage(const char* pMessage, ...) {
-    char buffer[256]; va_list args; va_start(args, pMessage);
+    char buffer[1024]; va_list args; va_start(args, pMessage);
     vsprintf(buffer, pMessage, args);
-
-    OSD_Printf("%s\n", buffer);
+    
+    OSD_Printf("%s\n", buffer); // print it also in console
     gGameMessageMgr.Add(buffer, 15, 7, MESSAGE_PRIORITY_SYSTEM);
 }
 
@@ -2941,7 +2934,7 @@ void viewUpdateDelirium(void)
     deliriumTurnO = deliriumTurn;
     deliriumPitchO = deliriumPitch;
 	int powerCount;
-	if ((powerCount = powerupCheck(gView,28)) != 0)
+	if ((powerCount = powerupCheck(gView, kPwUpDeliriumShroom)) != 0)
 	{
 		int tilt1 = 170, tilt2 = 170, pitch = 20;
         int timer = (int)gFrameClock*4;
@@ -3169,10 +3162,10 @@ void viewDrawScreen(void)
         int v78 = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
         char v14 = 0;
         char v10 = 0;
-        bool bDelirium = powerupCheck(gView, 28) > 0;
+        bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
         static bool bDeliriumOld = false;
         int tiltcs, tiltdim;
-        char v4 = powerupCheck(gView, 21) > 0;
+        char v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
 #ifdef USE_OPENGL
         renderSetRollAngle(0);
 #endif
@@ -3493,7 +3486,7 @@ RORHACK:
                 rotatesprite(212<<16, 77<<16, 65536, 0, 2347, 32, 0, 512+19, gViewX0, gViewY0, gViewX1, gViewY1);
             }
         }
-        if (powerupCheck(gView, 39) > 0)
+        if (powerupCheck(gView, kPwUpAsbestArmor) > 0)
         {
             rotatesprite(0, 200<<16, 65536, 0, 2358, 0, 0, 256+22, gViewX0, gViewY0, gViewX1, gViewY1);
             rotatesprite(320<<16, 200<<16, 65536, 1024, 2358, 0, 0, 512+18, gViewX0, gViewY0, gViewX1, gViewY1);
@@ -3508,35 +3501,18 @@ RORHACK:
             rotatesprite(280<<16, 35<<16, 53248, 0, 1683, v10, 0, 512+35, gViewX0, gViewY0, gViewX1, gViewY1);
             renderSetAspect(viewingRange, yxAspect);
         }
-        if (powerupCheck(gView, 14) > 0)
-        {
-            nPalette = 4;
+        
+        if (powerupCheck(gView, kPwUpDeathMask) > 0) nPalette = 4;
+        else if(powerupCheck(gView, kPwUpReflectShots) > 0) nPalette = 1;
+        else if (gView->at87) {
+            if (gView->nWaterPal) nPalette = gView->nWaterPal;
+            else {
+                if (gView->pXSprite->medium == kMediumWater) nPalette = 1;
+                else if (gView->pXSprite->medium == kMediumGoo) nPalette = 3;
+                else nPalette = 2;
         }
-        else if(powerupCheck(gView, 24) > 0)
-        {
-            nPalette = 1;
         }
-        else if (gView->at87)
-        {
-            if (gView->nWaterPal)
-                nPalette = gView->nWaterPal;
-            else
-            {
-                if (gView->pXSprite->medium == 1)
-                {
-                    nPalette = 1;
                 }
-                else if (gView->pXSprite->medium == 2)
-                {
-                    nPalette = 3;
-                }
-                else
-                {
-                    nPalette = 2;
-                }
-            }
-        }
-    }
     if (gViewMode == 4)
     {
         gViewMap.sub_25DB0(gView->pSprite);

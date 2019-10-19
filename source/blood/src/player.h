@@ -143,9 +143,9 @@ struct PLAYER {
     int at352;
     int at356;
     int at35a; // quake
-    int at35e;
+    int at35e; // tilt
     int at362; // light
-    int at366;
+    int at366; // pain
     int at36a; // blind
     int at36e; // choke
     int at372;
@@ -158,6 +158,9 @@ struct PLAYER {
     int player_par;
     int nWaterPal;
 };
+
+// by NoOne: defaut player movement speeds of all move states for gPosture
+extern int gDefaultAccel[12];
 
 struct POSTURE {
     int at0;
@@ -188,10 +191,10 @@ struct AMMOINFO {
 
 struct POWERUPINFO
 {
-    short at0;
-    char at2;
-    int at3; // max value
-    int at7;
+    short picnum;
+    bool pickupOnce;
+    int bonusTime;
+    int maxTime;
 };
 
 extern POSTURE gPosture[4][3];

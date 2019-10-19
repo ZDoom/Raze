@@ -100,7 +100,8 @@ enum COMMAND_ID {
     kCmdModernUse = 53, // used by most of modern types
     kCmdNumberic = 64, // 64: 0, 65: 1 and so on up to 255
     kCmdModernFeaturesEnable = 100, // must be in object with kChannelMapExtended RX / TX
-    kCmdModernFeaturesDisable = 200 // must be in object with kChannelMapExtended RX / TX 
+    kCmdModernFeaturesDisable = 200, // must be in object with kChannelMapExtended RX / TX
+    kCmdNumbericMax = 255,
 };
 
 struct EVENT {
