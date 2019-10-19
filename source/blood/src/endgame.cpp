@@ -99,7 +99,7 @@ extern void EndLevel(void);
 void CEndGameMgr::Setup(void)
 {
     at1 = gInputMode;
-    gInputMode = INPUT_MODE_3;
+    gInputMode = kInputEndGame;
     at0 = 1;
     EndLevel();
     sndStartSample(268, 128, -1, 1);

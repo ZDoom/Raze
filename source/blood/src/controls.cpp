@@ -154,7 +154,7 @@ void ctrlGetInput(void)
     fix16_t turn = 0;
     memset(&gInput, 0, sizeof(gInput));
 
-    if (!gGameStarted || gInputMode != INPUT_MODE_0)
+    if (!gGameStarted || gInputMode != kInputGame)
     {
         CONTROL_GetInput(&info);
         return;
@@ -215,12 +215,12 @@ void ctrlGetInput(void)
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;
 
-    if (gGameStarted && gInputMode != INPUT_MODE_2 && gInputMode != INPUT_MODE_1
+    if (gGameStarted && gInputMode != kInputMessage && gInputMode != kInputMenu
         && BUTTON(gamefunc_Send_Message))
     {
         CONTROL_ClearButton(gamefunc_Send_Message);
         keyFlushScans();
-        gInputMode = INPUT_MODE_2;
+        gInputMode = kInputMessage;
     }
 
     if (BUTTON(gamefunc_AutoRun))

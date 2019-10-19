@@ -470,6 +470,10 @@ enum searchpathtypes_t {
     SEARCHPATH_REMOVE = 1<<0,
 };
 
+#define NEG_ALPHA_TO_BLEND(alpha, blend, orientation) do { \
+    if (alpha < 0) { blend = -alpha; alpha = 0; orientation |= RS_TRANS1; } \
+} while (0)
+
 extern char *g_grpNamePtr;
 
 extern int loaddefinitions_game(const char *fn, int32_t preload);
@@ -776,6 +780,14 @@ inline int approxDist(int dx, int dy)
     else
         dx = (3*dx)>>3;
     return dx+dy;
+}
+
+// the point of this is to prevent re-running a function or calculation passed to potentialValue
+// without making a new variable under each individual circumstance
+inline void SetIfGreater(int32_t* variable, int32_t potentialValue)
+{
+    if (potentialValue > * variable)
+        * variable = potentialValue;
 }
 
 class Rect {

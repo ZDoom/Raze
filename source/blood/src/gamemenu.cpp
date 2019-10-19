@@ -122,7 +122,7 @@ bool CGameMenuMgr::Push(CGameMenu *pMenu, int nItem)
     if (nItem >= 0)
         pMenu->SetFocusItem(nItem);
     m_bActive = true;
-    gInputMode = INPUT_MODE_1;
+    gInputMode = kInputMenu;
     InitializeMenu();
     m_menuchange_watchpoint = 1;
     m_mousecaught = 1;
@@ -297,7 +297,7 @@ void CGameMenuMgr::Deactivate(void)
     m_bActive = false;
 
     mouseLockToWindow(1);
-    gInputMode = INPUT_MODE_0;
+    gInputMode = kInputGame;
 }
 
 bool CGameMenuMgr::MouseOutsideBounds(vec2_t const * const pos, const int32_t x, const int32_t y, const int32_t width, const int32_t height)

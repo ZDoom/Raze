@@ -483,7 +483,7 @@ static int osdcmd_button(osdcmdptr_t parm)
     char const *p = parm->name + strlen_gamefunc_;
 
 //    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
-    if (gInputMode == INPUT_MODE_0)
+    if (gInputMode == kInputGame)
         CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
 
     return OSDCMD_OK;

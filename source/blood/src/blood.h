@@ -45,10 +45,10 @@ extern INICHAIN *pINIChain;
 extern INICHAIN const*pINISelected;
 
 enum INPUT_MODE {
-    INPUT_MODE_0 = 0,
-    INPUT_MODE_1,
-    INPUT_MODE_2,
-    INPUT_MODE_3,
+    kInputGame = 0,
+    kInputMenu,
+    kInputMessage,
+    kInputEndGame,
 };
 
 extern INPUT_MODE gInputMode;

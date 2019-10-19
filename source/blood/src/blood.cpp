@@ -1726,14 +1726,14 @@ RESTART:
         }
         netUpdate();
         MUSIC_Update();
-        CONTROL_BindsEnabled = gInputMode == INPUT_MODE_0;
+        CONTROL_BindsEnabled = gInputMode == kInputGame;
         switch (gInputMode)
         {
-        case INPUT_MODE_1:
+        case kInputMenu:
             if (gGameMenuMgr.m_bActive)
                 gGameMenuMgr.Process();
             break;
-        case INPUT_MODE_0:
+        case kInputGame:
             LocalKeys();
             break;
         default:
@@ -1811,15 +1811,15 @@ RESTART:
         {
             switch (gInputMode)
             {
-            case INPUT_MODE_1:
+            case kInputMenu:
                 if (gGameMenuMgr.m_bActive)
                     gGameMenuMgr.Draw();
                 break;
-            case INPUT_MODE_2:
+            case kInputMessage:
                 gPlayerMsg.ProcessKeys();
                 gPlayerMsg.Draw();
                 break;
-            case INPUT_MODE_3:
+            case kInputEndGame:
                 gEndGameMgr.ProcessKeys();
                 gEndGameMgr.Draw();
                 break;
