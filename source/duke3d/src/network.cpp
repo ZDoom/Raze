@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "input.h"
 
-#include "enet/enet.h"
+#include "enet.h"
 #include "lz4.h"
 #include "crc32_.h"
 

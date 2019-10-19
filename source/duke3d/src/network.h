@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define EDUKE32_UNUSED
 #endif
 
-#include "enet/enet.h"
+#include "enet.h"
 
 BEGIN_DUKE_NS
 

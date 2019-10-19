@@ -1277,6 +1277,7 @@ static int osdcmd_listplayers(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
+#if 0
 static int osdcmd_kick(osdcmdptr_t parm)
 {
     ENetPeer *currentPeer;
@@ -1358,6 +1359,7 @@ static int osdcmd_kickban(osdcmdptr_t parm)
 
     return OSDCMD_OK;
 }
+#endif
 #endif
 
 static int osdcmd_purgesaves(osdcmdptr_t UNUSED(parm))
@@ -1730,8 +1732,10 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
     OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
     OSD_RegisterFunction("dumpmapstates", "Dumps current snapshots to CL/Srv_MapStates.bin", osdcmd_dumpmapstate);
+#if 0
     OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
     OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
+#endif
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
