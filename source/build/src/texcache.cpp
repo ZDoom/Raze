@@ -124,6 +124,10 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 
 bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow)
 {
+	if (picnum == 3692)
+	{
+		int a = 0;
+	}
 	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return false;
 	int usepalette = fixpalette >= 1 ? fixpalette - 1 : curbasepal;
 	int usepalswap = fixpalswap >= 1 ? fixpalswap - 1 : palette;

@@ -245,15 +245,9 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 
 int GLInstance::GetTextureID()
 {
-	// Generating large numbers of texture IDs piece by piece does not work well on modern NVidia drivers.
-
-	if (currentindex == THCACHESIZE)
-	{
-		currentindex = 0;
-		glGenTextures(THCACHESIZE, TextureHandleCache);
-	}
-	else currentindex++;
-	return TextureHandleCache[currentindex];
+	uint32_t id = 0;
+	glGenTextures(1, &id);
+	return id;
 }
 
 FHardwareTexture* GLInstance::NewTexture()
