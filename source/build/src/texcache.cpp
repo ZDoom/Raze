@@ -160,7 +160,12 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	if (mtex)
 	{
 		auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
-		if (TextureType == TT_INDEXED) sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
+		if (TextureType == TT_INDEXED)
+		{
+			renderState.Flags |= RF_UsePalette;
+			sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
+		}
+		else renderState.Flags &= ~RF_UsePalette;
 
 		BindTexture(0, mtex, sampler);
 		if (rep && (rep->scale.x != 1.0f || rep->scale.y != 1.0f || xpanning != 0 || ypanning != 0))
@@ -247,7 +252,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	}
 	else return false;
 
-	float al = 0;
+	float al = 0.5f;
 	if (TextureType == TT_HICREPLACE)
 	{
 		al = ((unsigned)picnum < MAXTILES && alphahackarray[picnum] != 0) ? alphahackarray[picnum] * (1.f / 255.f) :
