@@ -996,8 +996,8 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
         break;
     }
     if (shadow)
-        G_ScreenText(pFont->tile, x + 1, y + 1, 65536, 0, 0, pString, 127, nPalette, 2|8|16, alpha, 0, 0, pFont->space, 0, nFlags, 0, 0, xdim-1, ydim-1);
-    G_ScreenText(pFont->tile, x, y, 65536, 0, 0, pString, nShade, nPalette, 2|8|16, alpha, 0, 0, pFont->space, 0, nFlags, 0, 0, xdim-1, ydim-1);
+        G_ScreenText(pFont->tile, x + 1, y + 1, 65536, 0, 0, pString, 127, nPalette, 2|8|16|nStat, alpha, 0, 0, pFont->space, 0, nFlags, 0, 0, xdim-1, ydim-1);
+    G_ScreenText(pFont->tile, x, y, 65536, 0, 0, pString, nShade, nPalette, 2|8|16|nStat, alpha, 0, 0, pFont->space, 0, nFlags, 0, 0, xdim-1, ydim-1);
     //if (nFont < 0 || nFont >= 5 || !pString) return;
     //FONT *pFont = &gFont[nFont];
     //
@@ -1070,14 +1070,15 @@ void DrawStatMaskedSprite(int nTile, int x, int y, int nShade, int nPalette, uns
 void DrawStatNumber(const char *pFormat, int nNumber, int nTile, int x, int y, int nShade, int nPalette, unsigned int nStat, int nScale)
 {
     char tempbuf[80];
-    int width = tilesiz[nTile].x+1;
-    x <<= 16;
     sprintf(tempbuf, pFormat, nNumber);
-    for (unsigned int i = 0; i < strlen(tempbuf); i++, x += width*nScale)
-    {
-        if (tempbuf[i] == ' ') continue;
-        rotatesprite(x, y<<16, nScale, 0, nTile+tempbuf[i]-'0', nShade, nPalette, nStat | 10, 0, 0, xdim-1, ydim-1);
-    }
+    G_ScreenText(nTile, x<<16, y<<16, nScale, 0, 0, tempbuf, nShade, nPalette, 2|8|ROTATESPRITE_FULL16|nStat, 0, tilesiz[nTile].x * nScale, 0, 1<<16, 0, TEXT_DIGITALNUMBER, 0, 0, xdim-1, ydim-1);
+    //int width = tilesiz[nTile].x+1;
+    //x <<= 16;
+    //for (unsigned int i = 0; i < strlen(tempbuf); i++, x += width*nScale)
+    //{
+    //    if (tempbuf[i] == ' ') continue;
+    //    rotatesprite(x, y<<16, nScale, 0, nTile+tempbuf[i]-'0', nShade, nPalette, nStat | 10, 0, 0, xdim-1, ydim-1);
+    //}
 }
 
 void TileHGauge(int nTile, int x, int y, int nMult, int nDiv, int nStat, int nScale)
