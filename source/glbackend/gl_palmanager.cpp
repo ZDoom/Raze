@@ -210,7 +210,7 @@ void PaletteManager::BindPalette(int index)
 			auto p = GLInterface.NewTexture();
 			p->CreateTexture(256, 1, false, false);
 			p->LoadTexture((uint8_t*)transientpalette.colors);
-			p->SetSampler(Sampler2DNoFilter);
+			p->SetSampler(SamplerNoFilterClampXY);
 			transientpalette.paltexture = p;
 		}
 		inst->BindTexture(2, transientpalette.paltexture);
@@ -226,7 +226,7 @@ void PaletteManager::BindPalette(int index)
 				auto p = GLInterface.NewTexture();
 				p->CreateTexture(256, 1, false, false);
 				p->LoadTexture((uint8_t*)palettes[uindex].colors);
-				p->SetSampler(Sampler2DNoFilter);
+				p->SetSampler(SamplerNoFilterClampXY);
 				palettes[uindex].paltexture = p;
 			}
 			inst->BindTexture(2, palettes[uindex].paltexture);
@@ -268,7 +268,7 @@ void PaletteManager::BindPalswap(int index)
 				auto p = GLInterface.NewTexture();
 				p->CreateTexture(256, numshades, true, false);
 				p->LoadTexture((uint8_t*)ps.lookup);
-				p->SetSampler(Sampler2DNoFilter);
+				p->SetSampler(SamplerNoFilterClampXY);
 				ps.swaptexture = p;
 			}
 			inst->BindTexture(1, ps.swaptexture);

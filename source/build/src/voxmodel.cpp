@@ -71,7 +71,7 @@ FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, in
 	auto tex = GLInterface.NewTexture();
 	tex->CreateTexture(xsiz, ysiz, false, false);
 	tex->LoadTexture((uint8_t*)pic2);
-	tex->SetSampler(SamplerNoFilter);
+	tex->SetSampler(SamplerNoFilterClampXY);
     Xfree(pic2);
 
     return tex;

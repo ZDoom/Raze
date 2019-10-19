@@ -10,10 +10,11 @@ enum ESampler
 	SamplerClampX,
 	SamplerClampY,
 	SamplerClampXY,
-	Sampler2D,
-	SamplerNoFilter,
-	Sampler2DFiltered,
-	Sampler2DNoFilter,
+	SamplerNoFilterRepeat,
+	SamplerNoFilterClampX,
+	SamplerNoFilterClampY,
+	SamplerNoFilterClampXY,
+	Sampler2DFiltered,	// Currently unused  shpuld be used for 2D content
 	NumSamplers
 };
 

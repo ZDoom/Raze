@@ -55,7 +55,7 @@ void glsurface_setPalette(void* pPalette)
 		paletteTexture->CreateTexture(256, 1, false, false);
 	}
 	paletteTexture->LoadTexture(palette);
-	GLInterface.BindTexture(1, paletteTexture, Sampler2DNoFilter);
+	GLInterface.BindTexture(1, paletteTexture, SamplerNoFilterClampXY);
 }
 
 void* glsurface_getBuffer()
@@ -74,7 +74,7 @@ void glsurface_blitBuffer()
 		return;
 
 	bufferTexture->LoadTexture(buffer.Data());
-	GLInterface.BindTexture(0, bufferTexture, Sampler2DNoFilter);
+	GLInterface.BindTexture(0, bufferTexture, SamplerNoFilterClampXY);
 
 	auto data = GLInterface.AllocVertices(4);
 	auto vt = data.second;

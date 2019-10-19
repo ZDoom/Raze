@@ -171,13 +171,8 @@ void gltexapplyprops(void)
 			glanisotropy = (int32_t)GLInterface.glinfo.maxanisotropy;
 	}
 
-#if 1
-	GLInterface.mSamplers->SetTextureFilterMode(0, 1);
-	r_useindexedcolortextures = true;// !gltexfiltermode;
-#else
 	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
-	r_useindexedcolortextures = false;// !gltexfiltermode;
-#endif
+	// do not force switch indexed textures with the filter. 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -4670,7 +4665,6 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
         glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
     }
 
-    if (videoGetRenderMode() < REND_POLYMER)
     {
         Bmemset(m, 0, sizeof(m));
 
@@ -5237,7 +5231,7 @@ static int32_t gen_font_glyph_tex(void)
 
 	polymosttext->CreateTexture(256, 128, false, false);
 	polymosttext->LoadTexture((uint8_t*)tbuf);
-	polymosttext->SetSampler(Sampler2DNoFilter);
+	polymosttext->SetSampler(SamplerNoFilterClampXY);
     Xfree(tbuf);
 
     return 0;
