@@ -855,13 +855,13 @@ static void LoadSDLControllerDB()
         return;
     }
 
-    int i = SDL_GameControllerAddMappingsFromRW(rwops, 0);
+    int i = SDL_GameControllerAddMappingsFromRW(rwops, 1);
+
     if (i == -1)
         buildprintf("Failed loading game controller database: %s\n", SDL_GetError());
     else
         buildputs("Loaded game controller database\n");
 
-    SDL_free(rwops);
     free(dbuf);
 }
 #endif
