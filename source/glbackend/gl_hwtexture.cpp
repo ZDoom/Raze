@@ -65,14 +65,14 @@ unsigned int FHardwareTexture::CreateTexture(int w, int h, bool eightbit, bool m
 //
 //===========================================================================
 
-unsigned int FHardwareTexture::LoadTexture(const unsigned char * buffer, bool bgra)
+unsigned int FHardwareTexture::LoadTexture(const unsigned char * buffer)
 {
-	return LoadTexturePart(buffer, 0, 0, mWidth, mHeight, bgra);
+	return LoadTexturePart(buffer, 0, 0, mWidth, mHeight);
 }
 
-unsigned int FHardwareTexture::LoadTexture(FBitmap& bmp, bool bgra)
+unsigned int FHardwareTexture::LoadTexture(FBitmap& bmp)
 {
-	return LoadTexture(bmp.GetPixels(), bgra);
+	return LoadTexture(bmp.GetPixels());
 }
 
 //===========================================================================
@@ -81,12 +81,12 @@ unsigned int FHardwareTexture::LoadTexture(FBitmap& bmp, bool bgra)
 //
 //===========================================================================
 
-unsigned int FHardwareTexture::LoadTexturePart(const unsigned char* buffer, int x, int y, int w, int h, bool bgra)
+unsigned int FHardwareTexture::LoadTexturePart(const unsigned char* buffer, int x, int y, int w, int h)
 {
 	if (glTexID == 0) return 0;
 
 	int dstformat = glTextureBytes == 1 ? GL_R8 : GL_RGBA8;// TexFormat[gl_texture_format];
-	int srcformat = glTextureBytes == 1 ? GL_RED : (bgra ? GL_BGRA : GL_RGBA);// TexFormat[gl_texture_format];
+	int srcformat = glTextureBytes == 1 ? GL_RED : GL_BGRA;// TexFormat[gl_texture_format];
 
 	glActiveTexture(GL_TEXTURE15);
 	glBindTexture(GL_TEXTURE_2D, glTexID);

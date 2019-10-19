@@ -178,7 +178,7 @@ void main()
 			
 			fullbright = palettedColor.a;	// This only gets set for paletted rendering.
 	   		palettedColor.a = c_one-floor(color.r);
-	   		color = palettedColor.bgra;
+	   		color = palettedColor;
 			color.rgb *= detailColor.rgb;	// with all this palettizing, this can only be applied afterward, even though it is wrong to do it this way.
 		}
 		else

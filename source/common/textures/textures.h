@@ -74,7 +74,7 @@ enum ECreateTexBufferFlags
 
 enum
 {
-	MAXCACHE1DSIZE = (50 * 1024 * 1024),
+	MAXCACHE1DSIZE = (200 * 1024 * 1024),// Ion Fury really needs this much (and allocating less makes no difference for the other games on systems with multiple gigabytes of RAM)
 
 	MAXTILES = 30720,
 	MAXUSERTILES = (MAXTILES-16)  // reserve 16 tiles at the end

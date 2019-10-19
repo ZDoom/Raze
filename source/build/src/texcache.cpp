@@ -122,7 +122,7 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 //
 //===========================================================================
 
-bool GLInstance::SetTextureInternal(FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow)
+bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow)
 {
 	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return false;
 	int usepalette = fixpalette >= 1 ? fixpalette - 1 : curbasepal;
@@ -242,7 +242,7 @@ bool GLInstance::SetTextureInternal(FTexture* tex, int palette, int method, int 
 	float al = 0;
 	if (TextureType == TT_HICREPLACE)
 	{
-		al = /*alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f / 255.f) :*/
+		al = ((unsigned)picnum < MAXTILES && alphahackarray[picnum] != 0) ? alphahackarray[picnum] * (1.f / 255.f) :
 			(tex->alphaThreshold >= 0.f ? tex->alphaThreshold : 0.f);
 	}
 	GLInterface.SetAlphaThreshold(al);

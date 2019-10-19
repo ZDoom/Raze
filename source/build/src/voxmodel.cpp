@@ -46,9 +46,9 @@ FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, in
     {
         for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
         {
-            pic2[i].r = pic[i].r;
+            pic2[i].r = pic[i].b;
             pic2[i].g = pic[i].g;
-            pic2[i].b = pic[i].b;
+            pic2[i].b = pic[i].r;
             pic2[i].a = 255;
         }
     }
@@ -61,16 +61,16 @@ FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, in
         {
             const int32_t ii = palookup[dapal][pic[i].a];
 
-            pic2[i].r = curpalette[ii].r;
+            pic2[i].r = curpalette[ii].b;
             pic2[i].g = curpalette[ii].g;
-            pic2[i].b = curpalette[ii].b;
+            pic2[i].b = curpalette[ii].r;
             pic2[i].a = 255;
         }
     }
 
 	auto tex = GLInterface.NewTexture();
 	tex->CreateTexture(xsiz, ysiz, false, false);
-	tex->LoadTexture((uint8_t*)pic2); // RGBA
+	tex->LoadTexture((uint8_t*)pic2);
 	tex->SetSampler(SamplerNoFilter);
     Xfree(pic2);
 

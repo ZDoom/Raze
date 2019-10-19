@@ -23,6 +23,8 @@ extern char textfont[2048], smalltextfont[2048];
 bool playing_rr;
 bool playing_blood;
 
+int skytile;
+
 int32_t rendmode=0;
 int32_t usemodels=1;
 int32_t usehightile=1;
@@ -438,9 +440,9 @@ void uploadbasepalette(int32_t basepalnum, bool transient)	// transient palettes
     uint8_t basepalWFullBrightInfo[4*256];
     for (int i = 0; i < 256; ++i)
     {
-        basepalWFullBrightInfo[i*4] = basepaltable[basepalnum][i*3];
+        basepalWFullBrightInfo[i*4+0] = basepaltable[basepalnum][i*3+2];
         basepalWFullBrightInfo[i*4+1] = basepaltable[basepalnum][i*3+1];
-        basepalWFullBrightInfo[i*4+2] = basepaltable[basepalnum][i*3+2];
+        basepalWFullBrightInfo[i*4+2] = basepaltable[basepalnum][i*3+0];
         basepalWFullBrightInfo[i*4+3] = 0-(IsPaletteIndexFullbright(i) != 0);
     }
 
@@ -639,7 +641,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 	else sampleroverride = SamplerClampXY;
 
 
-	bool success = GLInterface.SetTexture(TileFiles.tiles[globalpicnum], globalpal, method, sampleroverride);
+	bool success = GLInterface.SetTexture(globalpicnum, TileFiles.tiles[globalpicnum], globalpal, method, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
@@ -2115,6 +2117,8 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     do
     {
         globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+ti;
+		if (skytile > 0) 
+			globalpicnum = skytile;
         if (npot)
         {
             fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
@@ -5254,7 +5258,7 @@ void polymost_fillpolygon(int32_t npoints)
 
     if (gloy1 != -1) polymostSet2dView(); //disables blending, texturing, and depth testing
     GLInterface.EnableAlphaTest(true);
-	GLInterface.SetTexture(TileFiles.tiles[globalpicnum], globalpal, DAMETH_NOMASK, -1);
+	GLInterface.SetTexture(globalpicnum, TileFiles.tiles[globalpicnum], globalpal, DAMETH_NOMASK, -1);
 
     uint8_t const maskprops = (globalorientation>>7)&DAMETH_MASKPROPS;
     handle_blend(maskprops > DAMETH_MASK, 0, maskprops == DAMETH_TRANS2);
@@ -5320,7 +5324,7 @@ static int32_t gen_font_glyph_tex(void)
     }
 
 	polymosttext->CreateTexture(256, 128, false, false);
-	polymosttext->LoadTexture((uint8_t*)tbuf); // RGBA
+	polymosttext->LoadTexture((uint8_t*)tbuf);
 	polymosttext->SetSampler(Sampler2DNoFilter);
     Xfree(tbuf);
 
@@ -5647,11 +5651,13 @@ void polymost_initosdfuncs(void)
         { "r_swapinterval","sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
         { "r_texfilter", "changes the texture filtering settings (may require restart)", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
         { "r_useindexedcolortextures", "enable/disable indexed color texture rendering", (void *) &r_useindexedcolortextures, CVAR_INT, 0, 1 },
-		{ "r_palookupinfo", "", (void*)&r_palookupinfo, CVAR_INT|CVAR_FUNCPTR, 0, 1 },
+		{ "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_BOOL, 0, 1 },
 
-        { "r_yshearing", "enable/disable y-shearing", (void*) &r_yshearing, CVAR_BOOL, 0, 1 },
+		// For testing - will be removed later.
+		{ "r_palookupinfo", "", (void*)&r_palookupinfo, CVAR_INT|CVAR_FUNCPTR, 0, 1 },
 		{ "fixpalette", "", (void*)& fixpalette, CVAR_INT, 0, 256 },
 		{ "fixpalswap", "", (void*)& fixpalswap, CVAR_INT, 0, 256 },
+		{ "skytile", "", (void*)&skytile, CVAR_INT, 0, 30720 },
 
     };
 
@@ -5671,7 +5677,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
-    GLInterface.SetTexture(TileFiles.tiles[dapicnum], dapalnum, 0, -1);
+    GLInterface.SetTexture(dapicnum, TileFiles.tiles[dapicnum], dapalnum, 0, -1);
     hicprecaching = 0;
 
     if (datype == 0 || !usemodels) return;
@@ -5685,7 +5691,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     for (int i = 0; i <= surfaces; i++)
 	{
         auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i, nullptr);
-		if (tex) GLInterface.SetTexture(tex, dapalnum, 0, -1);
+		if (tex) GLInterface.SetTexture(-1, tex, dapalnum, 0, -1);
 	}
 }
 
