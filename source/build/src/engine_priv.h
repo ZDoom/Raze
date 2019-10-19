@@ -132,15 +132,6 @@ extern int16_t bunchp2[MAXWALLSB];
 extern int16_t numscans, numbunches;
 extern int32_t rxi[8], ryi[8];
 
-#ifdef USE_OPENGL
-
-// For GL_EXP2 fog:
-#define FOGSCALE 0.0000768f
-
-void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal);
-void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float factor);
-#endif
-
 extern void get_wallspr_points(uspriteptr_t spr, int32_t *x1, int32_t *x2,
     int32_t *y1, int32_t *y2);
 extern void get_floorspr_points(uspriteptr_t spr, int32_t px, int32_t py,

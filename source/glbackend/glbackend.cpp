@@ -385,12 +385,11 @@ void GLInstance::SetDepthFunc(int func)
 	glDepthFunc(f[func]);
 }
 
-void GLInstance::SetFogLinear(float* color, float start, float end)
+void GLInstance::SetFadeColor(PalEntry color)
 {
-	renderState.Fog[0] = end;
-	renderState.Fog[1] = 1.f / (end - start);
-	renderState.Fog[2] = 0.f;
-	memcpy(renderState.FogColor, color, 4 * sizeof(float));
+	renderState.FogColor[0] = color.r * (1 / 255.f);
+	renderState.FogColor[1] = color.g * (1 / 255.f);
+	renderState.FogColor[2] = color.b * (1 / 255.f);
 };
 
 void GLInstance::SetColorMask(bool on)
@@ -493,7 +492,6 @@ void PolymostRenderState::Apply(PolymostShader* shader)
 	shader->Shade.Set(Shade);
 	shader->NumShades.Set(NumShades);
 	shader->VisFactor.Set(VisFactor);
-	shader->FogEnabled.Set(FogEnabled);
 	shader->UseColorOnly.Set(UseColorOnly);
 	shader->UsePalette.Set(UsePalette);
 	shader->UseDetailMapping.Set(UseDetailMapping);
@@ -503,7 +501,6 @@ void PolymostRenderState::Apply(PolymostShader* shader)
 	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
 	shader->ShadeInterpolate.Set(ShadeInterpolate);
 	shader->Brightness.Set(Brightness);
-	shader->Fog.Set(Fog);
 	shader->FogColor.Set(FogColor);
 
 }

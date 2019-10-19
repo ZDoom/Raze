@@ -1408,9 +1408,6 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 #endif
 
 
-void renderDisableFog(void);
-void renderEnableFog(void);
-
 static vec2_t const zerovec = { 0, 0 };
 
 #ifdef LUNATIC

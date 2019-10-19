@@ -310,7 +310,7 @@ playanm(short anim_num)
 
     videoClearViewableArea(0L);
 
-    paletteSetColorTable(0, ANIMvesapal);
+    paletteSetColorTable(0, ANIMvesapal, true);
     videoSetPalette(gs.Brightness,0,2);
     if (ANIMnum == 1)
     {

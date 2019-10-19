@@ -66,7 +66,7 @@ static float ghorizcorrect;
 double gxyaspect;
 float gyxscale, ghalfx, grhalfxdown10, grhalfxdown10x, ghalfy;
 float gcosang, gsinang, gcosang2, gsinang2;
-float gchang, gshang, gctang, gstang, gvisibility;
+float gchang, gshang, gctang, gstang;
 float gtang = 0.f;
 float gvrcorrection = 1.f;
 
@@ -298,63 +298,6 @@ void polymost_glinit()
 	}
 }
 
-////////// VISIBILITY FOG ROUTINES //////////
-
-// For GL_LINEAR fog:
-#define GL_FOG_MAX 1.0e37f
-
-void calc_and_apply_fog(int32_t shade, int32_t vis, int32_t pal)
-{
-    if (nofog) return;
-
-    fogresult = 0.f;
-    fogcol = fogtable[pal];
-
-    if (((uint8_t)(vis + 16)) > 0 && globalvisibility > 0)
-    {
-        constexpr GLfloat glfogconstant = 262144.f;
-        GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
-
-        fogresult = 0.f - (((min(shade, 0) - 0.5f) / frealmaxshade) * fogrange); // min() = subtract shades from fog
-        fogresult2 = fogrange - (((shade - 0.5f) / frealmaxshade) * fogrange);
-    }
-    else
-    {
-        fogresult = 0.f;
-        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
-    }
-
-	GLInterface.SetFogLinear((float*)&fogcol, fogresult, fogresult2);
-}
-
-void calc_and_apply_fog_factor(int32_t shade, int32_t vis, int32_t pal, float factor)
-{
-    if (nofog) return;
-
-    fogcol = fogtable[pal];
-
-    if (((uint8_t)(vis + 16)) > 0 && ((((uint8_t)(vis + 16)) / 8.f) + shade) > 0)
-    {
-        GLfloat normalizedshade = (shade - 0.5f) / frealmaxshade;
-        GLfloat fogrange = (((uint8_t)(vis + 16)) / (8.f * frealmaxshade)) + normalizedshade;
-
-        // subtract shades from fog
-        if (normalizedshade > 0.f && normalizedshade < 1.f)
-            fogrange = (fogrange - normalizedshade) / (1.f - normalizedshade);
-
-        fogresult = -(GL_FOG_MAX * fogrange);
-        fogresult2 = GL_FOG_MAX - (GL_FOG_MAX * fogrange);
-    }
-    else
-    {
-        fogresult = 0.f;
-        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
-    }
-
-	GLInterface.SetFogLinear((float*)& fogcol, fogresult, fogresult2);
-}
-////////////////////
-
 
 static float get_projhack_ratio(void)
 {
@@ -425,8 +368,6 @@ static void resizeglcheck(void)
 		GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
 		VSMatrix identity(0);
 		GLInterface.SetMatrix(Matrix_ModelView, &identity);
-
-        if (!nofog) GLInterface.SetFogEnabled(true);
     }
 }
 
@@ -1913,8 +1854,6 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     drawpoly_alpha = 0.f;
     drawpoly_blend = 0;
 
-	calc_and_apply_fog(fogshade(global_cf_shade, global_cf_pal), sec->visibility, POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
-
     if (have_floor)
     {
         if (globalposz > getflorzofslope(sectnum, globalposx, globalposy))
@@ -2382,8 +2321,6 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
-			calc_and_apply_fog_factor(sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
-
             globvis2 = globalpisibility;
             if (sec->visibility != 0)
                 globvis2 = mulscale4(globvis2, (uint8_t)(sec->visibility + 16));
@@ -2593,8 +2530,6 @@ static void polymost_drawalls(int32_t const bunch)
 
             skyclamphack = 0;
             skyzbufferhack = 0;
-            if (!nofog)
-				GLInterface.SetFogEnabled(true);
         }
 
         // Ceiling
@@ -2644,8 +2579,6 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
-			calc_and_apply_fog_factor(sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
-
             globvis2 = globalpisibility;
             if (sec->visibility != 0)
                 globvis2 = mulscale4(globvis2, (uint8_t)(sec->visibility + 16));
@@ -2855,8 +2788,6 @@ static void polymost_drawalls(int32_t const bunch)
 
             skyclamphack = 0;
             skyzbufferhack = 0;
-            if (!nofog)
-				GLInterface.SetFogEnabled(true);
         }
 
 #ifdef YAX_ENABLE
@@ -2960,8 +2891,6 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-				calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
-
                 pow2xsplit = 1;
 #ifdef YAX_ENABLE
                 if (should_clip_cfwall(x1,cy1,x0,cy0))
@@ -3003,8 +2932,6 @@ static void polymost_drawalls(int32_t const bunch)
                     otex.u = otex.d*t - otex.u;
                 }
                 if (nwal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
-
-				calc_and_apply_fog(fogshade(nwal->shade, nwal->pal), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1;
 #ifdef YAX_ENABLE
@@ -3059,8 +2986,6 @@ static void polymost_drawalls(int32_t const bunch)
                     otex.u = otex.d*t - otex.u;
                 }
                 if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
-
-				calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1;
 
@@ -3407,9 +3332,7 @@ void polymost_drawrooms()
     ghoriz = fix16_to_float(qglobalhoriz);
     ghorizcorrect = fix16_to_float((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
 
-    gvisibility = ((float)globalvisibility)*FOGSCALE;
-
-	GLInterface.SetShadeInterpolate(r_shadeinterpolate);
+    GLInterface.SetShadeInterpolate(r_shadeinterpolate);
 
     //global cos/sin height angle
     if (r_yshearing)
@@ -3745,8 +3668,6 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     drawpoly_alpha = 0.f;
     drawpoly_blend = blend;
 
-	calc_and_apply_fog(fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
-
     float const csy[4] = { ((float)(cz[0] - globalposz)) * ryp0 + ghoriz,
                            ((float)(cz[1] - globalposz)) * ryp0 + ghoriz,
                            ((float)(cz[2] - globalposz)) * ryp1 + ghoriz,
@@ -3875,7 +3796,6 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = fix16_to_float(qglobalhoriz);
     ghorizcorrect = fix16_to_float((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
-    gvisibility = ((float)globalvisibility)*FOGSCALE;
     resizeglcheck();
     if (r_yshearing)
     {
@@ -4054,8 +3974,6 @@ void polymost_drawsprite(int32_t snum)
     drawpoly_blend = tspr->blend;
 
     sec = (usectorptr_t)&sector[tspr->sectnum];
-
-	calc_and_apply_fog(fogshade(globalshade, globalpal), sec->visibility, get_floor_fogpal(sec));
 
     while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
     {
@@ -4799,12 +4717,8 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     spriteext[tspr.owner].alpha = daalpha * (1.0f / 255.0f);
     tspr.blend = dablend;
 
-	GLInterface.SetFogEnabled(false);
-
     if (videoGetRenderMode() == REND_POLYMOST)
         polymost_mddraw(&tspr);
-
-    if (!nofog) GLInterface.SetFogEnabled(true);
 
     gvrcorrection = ogvrcorrection;
     viewingrange = oldviewingrange;
@@ -5039,9 +4953,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         xtex.v = yv2*(1.0/65536.0);
         ytex.v = yv*(1.0/65536.0);
 
-		GLInterface.SetFogEnabled(false);
         pow2xsplit = 0; polymost_drawpoly(fpxy,n,method, tilesiz[globalpicnum]);
-        if (!nofog) GLInterface.SetFogEnabled(true);
     }
 
     GLInterface.EnableAlphaTest(false);
@@ -5331,17 +5243,6 @@ static int32_t gen_font_glyph_tex(void)
     return 0;
 }
 
-// These are used by the automap drawers
-void renderDisableFog(void)
-{
-	GLInterface.SetFogEnabled(false);
-}
-
-void renderEnableFog(void)
-{
-	if (!nofog) GLInterface.SetFogEnabled(true);
-}
-
 int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
 {
     int const arbackcol = (unsigned)backcol < 256 ? backcol : 0;
@@ -5368,7 +5269,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     GLInterface.EnableAlphaTest(false);
 	GLInterface.SetDepthMask(false);
 
-	GLInterface.SetFogEnabled(false);
     // We want to have readable text in wireframe mode, too:
 	GLInterface.SetWireframe(false);
 	lastglpolygonmode = 0;
@@ -5456,8 +5356,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
 
 	GLInterface.SetDepthMask(true);
-
-    if (!nofog) GLInterface.SetFogEnabled(true);
 
     return 0;
 }

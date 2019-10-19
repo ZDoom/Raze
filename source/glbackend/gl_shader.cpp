@@ -139,7 +139,6 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
     Shade.Init(hShader, "u_shade");
     NumShades.Init(hShader, "u_numShades");
     VisFactor.Init(hShader, "u_visFactor");
-    FogEnabled.Init(hShader, "u_fogEnabled");
     UseColorOnly.Init(hShader, "u_useColorOnly");
     UsePalette.Init(hShader, "u_usePalette");
     UseDetailMapping.Init(hShader, "u_useDetailMapping");
@@ -149,7 +148,6 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");
     Brightness.Init(hShader, "u_brightness");
 	ShadeInterpolate.Init(hShader, "u_shadeInterpolate");
-	Fog.Init(hShader, "u_fog");
 	FogColor.Init(hShader, "u_fogColor");
 
     RotMatrix.Init(hShader, "u_rotMatrix");

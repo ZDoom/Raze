@@ -139,6 +139,26 @@ unsigned PaletteManager::FindPalswap(const uint8_t* paldata)
 	pd.lookup = paldata;
 	pd.crc32 = crc32;
 	pd.swaptexture = nullptr;
+
+	// Find what index maps to black (or the darkest available color)
+	int found = -1;
+	PalEntry foundColor = 0xffffffff;
+	for (int i = 0; i < 255; i++)
+	{
+		int map = paldata[i];
+		PalEntry color = palettes[0].colors[map];
+		if (color.Luminance() < foundColor.Luminance())
+		{
+			foundColor = color;
+			found = i;
+		}
+	}
+
+	// Determine the fade color. We pick what black, or the darkest color, maps to in the lowest shade level.
+	int map = paldata[(numshades - 2) * 256 + found]; // do not look in the latest shade level because it doesn't always contain useful data for this.
+	pd.fadeColor = palettes[0].colors[map];
+	if (pd.fadeColor.Luminance() < 10) pd.fadeColor = 0;	// Account for the inability to check the last fade level by using a higher threshold for determining black fog.
+
 	return palswaps.Push(pd);
 }
 
@@ -251,6 +271,7 @@ void PaletteManager::BindPalswap(int index)
 				palswaps[uindex].swaptexture = p;
 			}
 			inst->BindTexture(1, palswaps[uindex].swaptexture);
+			inst->SetFadeColor(palswaps[index].fadeColor);
 		}
 	}
 

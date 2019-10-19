@@ -24,7 +24,6 @@ uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
 uniform float u_shadeInterpolate;
 uniform float u_brightness;
-uniform vec4 u_fog;
 uniform vec4 u_fogColor;
 
 uniform float u_useDetailMapping;
@@ -189,17 +188,6 @@ void main()
 		if (fullbright == 0.0) color.rgb *= v_color.rgb;
 		color.a *= v_color.a;
 		color.rgb *= detailColor.rgb;
-
-		if (u_fogEnabled != 0.0 && u_usePalette == 0.0)// the following would make sense if 'fullbright' could ever be true in non-paletted rendering: && (fullbright != 0.0 || u_fogColor.rgb != vec3(0.0) ))
-		{
-			float fogFactor;
-
-			if (u_fog.z == 0) fogFactor = (u_fog.x-v_fogCoord)*u_fog.y;	// linear fog
-	 		else fogFactor = exp2 (u_fog.z * v_fogCoord); 				// exponential fog
-
-			fogFactor = clamp(fogFactor, 0.0, 1.0);
-			color.rgb = mix(u_fogColor.rgb, color.rgb, fogFactor);
-		}
 	}
 	else
 	{

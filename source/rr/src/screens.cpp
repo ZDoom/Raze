@@ -318,8 +318,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     xvect2 = mulscale16(xvect, yxaspect);
     yvect2 = mulscale16(yvect, yxaspect);
 
-    renderDisableFog();
-
     //Draw red lines
     for (i=numsectors-1; i>=0; i--)
     {
@@ -361,8 +359,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             renderDrawLine(x1, y1, x2, y2, col);
         }
     }
-
-    renderEnableFog();
 
     //Draw sprites
     k = g_player[screenpeek].ps->i;
@@ -509,8 +505,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         }
     }
 
-    renderDisableFog();
-
     //Draw white lines
     for (i=numsectors-1; i>=0; i--)
     {
@@ -550,8 +544,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             renderDrawLine(x1, y1, x2, y2, editorcolors[7]);
         }
     }
-
-    renderEnableFog();
 
     videoSetCorrectedAspect();
 

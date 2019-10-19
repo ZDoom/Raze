@@ -59,7 +59,6 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
 
     GLInterface.EnableDepthTest(false);
     GLInterface.EnableAlphaTest(false);
-	GLInterface.SetFogEnabled(false);
 
     GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
     GLInterface.EnableBlend(true);
@@ -94,8 +93,7 @@ void fullscreen_tint_gl_blood(void)
 
     GLInterface.EnableDepthTest(false);
     GLInterface.EnableAlphaTest(false);
-	GLInterface.SetFogEnabled(false);
-
+	
 	GLInterface.SetBlendFunc(STYLEALPHA_One, STYLEALPHA_One);
     GLInterface.EnableBlend(true);
 

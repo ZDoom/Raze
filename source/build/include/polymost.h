@@ -18,7 +18,7 @@ extern float glox1, gloy1;
 extern double gxyaspect;
 extern float grhalfxdown10x;
 extern float gcosang, gsinang, gcosang2, gsinang2;
-extern float gchang, gshang, gctang, gstang, gvisibility;
+extern float gchang, gshang, gctang, gstang;
 extern float gvrcorrection;
 
 struct glfiltermodes {

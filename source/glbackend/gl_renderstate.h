@@ -8,7 +8,6 @@ struct PolymostRenderState
     float Shade;
     float NumShades = 64.f;
     float VisFactor = 128.f;
-    float FogEnabled = 1.f;
     float UseColorOnly;
     float UsePalette = 1.f;
     float UseDetailMapping;
@@ -18,7 +17,6 @@ struct PolymostRenderState
     float NPOTEmulationXOffset;
     float Brightness = 1.f;
 	float ShadeInterpolate = 1.f;
-	float Fog[4];
 	float FogColor[4];
  	
 	void Apply(PolymostShader *shader);

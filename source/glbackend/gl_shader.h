@@ -39,7 +39,6 @@ public:
     FBufferedUniform1f Shade;
     FBufferedUniform1f NumShades;
     FBufferedUniform1f VisFactor;
-    FBufferedUniform1f FogEnabled;
     FBufferedUniform1f UseColorOnly;
     FBufferedUniform1f UsePalette;
     FBufferedUniform1f UseDetailMapping;
@@ -48,7 +47,6 @@ public:
     FBufferedUniform1f NPOTEmulationFactor;
     FBufferedUniform1f NPOTEmulationXOffset;
     FBufferedUniform1f Brightness;
-	FBufferedUniform4f Fog;
 	FBufferedUniform4f FogColor;
 	FBufferedUniform1f ShadeInterpolate;
 

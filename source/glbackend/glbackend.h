@@ -20,7 +20,6 @@ struct PaletteData
 {
 	int32_t crc32;
 	PalEntry colors[256];
-	float shades[512];	// two values (addshade and mulshade for each palswap.)
 	bool shadesdone;
 	int whiteindex, blackindex;
 	FHardwareTexture* paltexture;
@@ -37,6 +36,7 @@ struct PalswapData
 	int32_t crc32;
 	const uint8_t *lookup;	// points to the original data. This is static so no need to copy
 	FHardwareTexture* swaptexture;
+	PalEntry fadeColor;
 };
 
 enum
@@ -278,7 +278,7 @@ public:
 	}
 
 	void SetDepthFunc(int func);
-	void SetFogLinear(float* color, float start, float end);
+	void SetFadeColor(PalEntry color);
 	void SetColorMask(bool on);
 	void SetDepthMask(bool on);
 	void SetBlendFunc(int src, int dst);
@@ -329,11 +329,6 @@ public:
 	void SetVisibility(float visibility, float fviewingrange)
 	{
 		renderState.VisFactor = visibility * fviewingrange * (1.f / (64.f * 65536.f));
-	}
-
-	void SetFogEnabled(bool fogEnabled)
-	{
-		renderState.FogEnabled = fogEnabled;
 	}
 
 	void UseColorOnly(bool useColorOnly)
