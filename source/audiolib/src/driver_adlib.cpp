@@ -197,7 +197,7 @@ static AdLibChannel Channel[NUMADLIBCHANNELS];
 
 static int AL_LeftPort  = ADLIB_PORT;
 static int AL_RightPort = ADLIB_PORT;
-static int AL_Stereo;
+int AL_Stereo;
 static int AL_SendStereo;
 static int AL_MaxMidiChannel = 16;
 
@@ -863,7 +863,7 @@ static int AL_Init(int rate)
 {
     OPL3_Reset(&chip, rate);
 
-    AL_Stereo    = FALSE;
+    AL_Stereo    = TRUE;
     AL_LeftPort  = ADLIB_PORT;
     AL_RightPort = ADLIB_PORT + 2;
 

@@ -22,6 +22,8 @@
 #include "midifuncs.h"
 #include "opl3.h"
 
+extern int AL_Stereo;
+
 int         AdLibDrv_GetError(void);
 const char *AdLibDrv_ErrorString(int ErrorNumber);
 
