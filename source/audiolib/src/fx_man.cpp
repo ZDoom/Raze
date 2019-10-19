@@ -48,11 +48,39 @@ const char *FX_ErrorString(int ErrorNumber)
     return ErrorString;
 }
 
+static int osdcmd_cvar_set_audiolib(osdcmdptr_t parm)
+{
+    int32_t r = osdcmd_cvar_set(parm);
+
+    if (r != OSDCMD_OK) return r;
+
+    if (!Bstrcasecmp(parm->name, "mus_emidicard"))
+    {
+        MIDI_Restart();
+        return r;
+    }
+
+    return r;
+}
+
 int FX_Init(int numvoices, int numchannels, unsigned mixrate, void *initdata)
 {
     if (FX_Installed)
         FX_Shutdown();
+    else
+    {
+        static int init;
 
+        static osdcvardata_t cvars_audiolib[] = {
+            { "mus_emidicard", "force a specific EMIDI instrument set", (void *)&ASS_EMIDICard, CVAR_INT | CVAR_FUNCPTR, 0, 10 },
+        };
+
+        if (!init++)
+        {
+            for (auto &i : cvars_audiolib)
+                OSD_RegisterCvar(&i, (i.flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_audiolib : osdcmd_cvar_set);
+        }
+    }
     int SoundCard = ASS_AutoDetect;
 
     if (SoundCard == ASS_AutoDetect) {

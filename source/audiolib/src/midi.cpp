@@ -89,6 +89,13 @@ static int _MIDI_Reset;
 int MV_MIDIRenderTempo = -1;
 int MV_MIDIRenderTimer;
 
+static char *_MIDI_SongPtr;
+
+void MIDI_Restart(void)
+{
+    MIDI_PlaySong(_MIDI_SongPtr, _MIDI_Loop);
+}
+
 static int _MIDI_ReadNumber(void *from, size_t size)
 {
     if (size > 4)
@@ -701,6 +708,8 @@ int MIDI_PlaySong(char *song, int loopflag)
 
     if (B_UNBUF32(song) != MIDI_HEADER_SIGNATURE)
         return MIDI_InvalidMidiFile;
+
+    _MIDI_SongPtr = song;
 
     song += 4;
     int const headersize = _MIDI_ReadNumber(song, 4);
