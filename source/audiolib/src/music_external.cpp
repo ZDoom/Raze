@@ -22,9 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // This object is shared by all Build games with MIDI playback!
 
-#include "cache1d.h"
 #include "compat.h"
-#include "duke3d.h"
+#include "multivoc.h"
 #include "music.h"
 #include "vfs.h"
 #include "winbits.h"
@@ -42,9 +41,9 @@ typedef HANDLE proc_t;
 #endif
 
 static char ** g_musicPlayerArgv;
-static int32_t g_musicPlayerEnabled;
+static int g_musicPlayerEnabled;
 static proc_t  g_musicPlayerHandle = INVALID_HANDLE_VALUE;
-static int32_t g_musicPlayerReady;
+static int g_musicPlayerReady;
 static int8_t  g_musicPlayerRestart;
 static char *  g_musicPlayerCommandLine;
 
@@ -53,7 +52,7 @@ static int g_musicFileNameArgvPos;
 
 char const *errorMessage;
 
-int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
+int MUSIC_Init(int SoundCard)
 {
     // Use an external music player
     g_musicPlayerCommandLine = getenv("EDUKE32_MUSIC_CMD");
@@ -75,10 +74,10 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
         return MUSIC_Error;
     }
 
-    initprintf("Using external music player: \"%s\"\n", g_musicPlayerCommandLine);
+    MV_Printf("Using external music player: \"%s\"\n", g_musicPlayerCommandLine);
 
 #ifndef _WIN32
-    int32_t ws=1, numargs=0, pagesize=Bgetpagesize();
+    int ws=1, numargs=0, pagesize=Bgetpagesize();
     char *c, *cmd;
     size_t sz;
 
@@ -144,7 +143,7 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 }
 
 
-int32_t MUSIC_Shutdown(void)
+int MUSIC_Shutdown(void)
 {
     MUSIC_StopSong();
     g_musicPlayerReady = 0;
@@ -153,14 +152,14 @@ int32_t MUSIC_Shutdown(void)
 } // MUSIC_Shutdown
 
 
-void MUSIC_SetMaxFMMidiChannel(int32_t channel)
+void MUSIC_SetMaxFMMidiChannel(int channel)
 {
     UNREFERENCED_PARAMETER(channel);
 } // MUSIC_SetMaxFMMidiChannel
 
 int MUSIC_Volume;
 
-void MUSIC_SetVolume(int32_t volume)
+void MUSIC_SetVolume(int volume)
 {
     volume = max(0, volume);
     volume = min(volume, 255);
@@ -169,13 +168,13 @@ void MUSIC_SetVolume(int32_t volume)
 } // MUSIC_SetVolume
 
 
-int32_t MUSIC_GetVolume(void)
+int MUSIC_GetVolume(void)
 {
     return MUSIC_Volume;
 } // MUSIC_GetVolume
 
 
-void MUSIC_SetLoopFlag(int32_t loopflag)
+void MUSIC_SetLoopFlag(int loopflag)
 {
     UNREFERENCED_PARAMETER(loopflag);
 } // MUSIC_SetLoopFlag
@@ -190,7 +189,7 @@ void MUSIC_Pause(void)
 {
 } // MUSIC_Pause
 
-int32_t MUSIC_StopSong(void)
+int MUSIC_StopSong(void)
 {
     if (!g_musicPlayerEnabled)
         return MUSIC_Ok;
@@ -232,7 +231,7 @@ int32_t MUSIC_StopSong(void)
     return MUSIC_Ok;
 } // MUSIC_StopSong
 
-static int32_t MUSIC_PlayExternal()
+static int MUSIC_PlayExternal()
 {
 #ifdef _WIN32
     STARTUPINFO si;
@@ -244,7 +243,7 @@ static int32_t MUSIC_PlayExternal()
 
     if (!CreateProcess(NULL,g_musicPlayerCommandLine,NULL,NULL,0,0,NULL,NULL,&si,&pi))
     {
-        initprintf("%s: CreateProcess: %s\n", __func__, windowsGetErrorMessage(GetLastError()));
+        MV_Printf("%s: CreateProcess: %s\n", __func__, windowsGetErrorMessage(GetLastError()));
         return MUSIC_Error;
     }
     else
@@ -293,7 +292,7 @@ static void sigchld_handler(int signo)
 }
 #endif
 
-int32_t MUSIC_PlaySong(char *song, int32_t songsize, int32_t loopflag, const char *fn /*= nullptr*/)
+int MUSIC_PlaySong(char *song, int songsize, int loopflag, const char *fn /*= nullptr*/)
 {
     if (!g_musicPlayerEnabled)
     {
@@ -302,7 +301,7 @@ int32_t MUSIC_PlaySong(char *song, int32_t songsize, int32_t loopflag, const cha
     }
 
 #ifndef _WIN32
-    static int32_t sigchld_handler_set;
+    static int sigchld_handler_set;
 
     if (!sigchld_handler_set)
     {
@@ -336,7 +335,7 @@ int32_t MUSIC_PlaySong(char *song, int32_t songsize, int32_t loopflag, const cha
     }
     else
     {
-        initprintf("%s: fopen: %s\n", __func__, strerror(errno));
+        MV_Printf("%s: fopen: %s\n", __func__, strerror(errno));
         return MUSIC_Error;
     }
 

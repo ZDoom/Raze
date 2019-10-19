@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define ___MIDI_H
 #include "compat.h"
 
+#ifdef OPL_MIDI_HEADER
+namespace OPLMusic {
+#endif
 #define RELATIVE_BEAT( measure, beat, tick ) \
    ( ( tick ) + ( ( beat ) << 9 ) + ( ( measure ) << 16 ) )
 
@@ -95,6 +98,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define EMIDI_GeneralMIDI       0
 #define EMIDI_SoundBlaster      4
+#define EMIDI_Adlib             7
 
 #define EMIDI_AffectsCurrentCard(c, type) (((c) == EMIDI_ALL_CARDS) || ((c) == (type)))
 #define EMIDI_NUM_CONTEXTS      7
@@ -106,14 +110,14 @@ typedef struct
     int16_t loopcount;
     int16_t RunningStatus;
     unsigned time;
-    int32_t FPSecondsPerTick;
+    int FPSecondsPerTick;
     int16_t tick;
     int16_t beat;
     int16_t measure;
     int16_t BeatsPerMeasure;
     int16_t TicksPerBeat;
     int16_t TimeBase;
-    int32_t delay;
+    int delay;
     int16_t active;
 } songcontext;
 
@@ -122,7 +126,7 @@ typedef struct
     char *start;
     char *pos;
 
-    int32_t delay;
+    int delay;
     int16_t active;
     int16_t RunningStatus;
 
@@ -134,16 +138,19 @@ typedef struct
     char EMIDI_VolumeChange;
 } track;
 
-static int32_t _MIDI_ReadNumber(void *from, size_t size);
-static int32_t _MIDI_ReadDelta(track *ptr);
+static int _MIDI_ReadNumber(void *from, size_t size);
+static int _MIDI_ReadDelta(track *ptr);
 static void _MIDI_ResetTracks(void);
 static void _MIDI_AdvanceTick(void);
 static void _MIDI_MetaEvent(track *Track);
 static void _MIDI_SysEx(track *Track);
-static int32_t _MIDI_InterpretControllerInfo(track *Track, int32_t TimeSet, int32_t channel, int32_t c1, int32_t c2);
-static int32_t _MIDI_SendControlChange(int32_t channel, int32_t c1, int32_t c2);
-static void _MIDI_SetChannelVolume(int32_t channel, int32_t volume);
+static int _MIDI_InterpretControllerInfo(track *Track, int TimeSet, int channel, int c1, int c2);
+static int _MIDI_SendControlChange(int channel, int c1, int c2);
+static void _MIDI_SetChannelVolume(int channel, int volume);
 static void _MIDI_SendChannelVolumes(void);
 static void _MIDI_InitEMIDI(void);
 
+#ifdef OPL_MIDI_HEADER
+}
+#endif
 #endif

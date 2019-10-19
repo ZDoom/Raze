@@ -41,25 +41,25 @@ enum MPU_ERRORS
 #define MPU_CmdReset       0xff
 #define MPU_CmdAcknowledge 0xfe
 
-extern int32_t _MPU_CurrentBuffer;
-extern int32_t _MPU_BuffersWaiting;
+extern int _MPU_CurrentBuffer;
+extern int _MPU_BuffersWaiting;
 
-void MPU_SendMidi( char *data, int32_t count );
-void MPU_SendMidiImmediate( char *data, int32_t count );
-int32_t  MPU_Reset( void );
-int32_t  MPU_Init( int32_t addr );
-void MPU_NoteOff( int32_t channel, int32_t key, int32_t velocity );
-void MPU_NoteOn( int32_t channel, int32_t key, int32_t velocity );
-void MPU_PolyAftertouch( int32_t channel, int32_t key, int32_t pressure );
-void MPU_ControlChange( int32_t channel, int32_t number, int32_t value );
-void MPU_ProgramChange( int32_t channel, int32_t program );
-void MPU_ChannelAftertouch( int32_t channel, int32_t pressure );
-void MPU_PitchBend( int32_t channel, int32_t lsb, int32_t msb );
+void MPU_SendMidi( char *data, int count );
+void MPU_SendMidiImmediate( char *data, int count );
+int  MPU_Reset( void );
+int  MPU_Init( int addr );
+void MPU_NoteOff( int channel, int key, int velocity );
+void MPU_NoteOn( int channel, int key, int velocity );
+void MPU_PolyAftertouch( int channel, int key, int pressure );
+void MPU_ControlChange( int channel, int number, int value );
+void MPU_ProgramChange( int channel, int program );
+void MPU_ChannelAftertouch( int channel, int pressure );
+void MPU_PitchBend( int channel, int lsb, int msb );
 
-void MPU_SetTempo(int32_t tempo);
-void MPU_SetDivision(int32_t division);
-void MPU_SetVolume(int32_t volume);
-int32_t  MPU_GetVolume(void);
+void MPU_SetTempo(int tempo);
+void MPU_SetDivision(int division);
+void MPU_SetVolume(int volume);
+int  MPU_GetVolume(void);
 
 void MPU_BeginPlayback( void );
 void MPU_Pause(void);

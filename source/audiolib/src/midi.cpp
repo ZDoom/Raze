@@ -34,74 +34,72 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // This object is shared by all Build games with MIDI playback!
 
-#include "compat.h"
-#include "music.h"
-#include "_midi.h"
 #include "midi.h"
-#include "mpu401.h"
+
+#include "_midi.h"
+#include "al_midi.h"
 #include "compat.h"
-#include "pragmas.h"
-
+#include "mpu401.h"
 #include "multivoc.h"
-
+#include "music.h"
+#include "pragmas.h"
+#include "sndcards.h"
 #include "windows_inc.h"
 
-extern int32_t MUSIC_SoundDevice;
+extern int MV_MixRate;
+extern int ASS_MIDISoundDriver;
 
-static const int32_t _MIDI_CommandLengths[ NUM_MIDI_CHANNELS ] =
-{
-    0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 2, 0
-};
+static const int _MIDI_CommandLengths[NUM_MIDI_CHANNELS] = { 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 2, 0 };
 
-static track *_MIDI_TrackPtr = NULL;
-static int32_t    _MIDI_TrackMemSize;
-static int32_t    _MIDI_NumTracks;
+static track * _MIDI_TrackPtr;
+static int _MIDI_TrackMemSize;
+static int _MIDI_NumTracks;
 
-static int32_t _MIDI_SongActive = FALSE;
-static int32_t _MIDI_SongLoaded = FALSE;
-static int32_t _MIDI_Loop = FALSE;
+static int _MIDI_SongActive;
+static int _MIDI_SongLoaded;
+static int _MIDI_Loop;
 
-static int32_t  _MIDI_Division;
-static int32_t  _MIDI_Tick    = 0;
-static int32_t  _MIDI_Beat    = 1;
-static int32_t  _MIDI_Measure = 1;
+static int  _MIDI_Division;
+static int  _MIDI_Tick;
+static int  _MIDI_Beat    = 1;
+static int  _MIDI_Measure = 1;
 static uint32_t _MIDI_Time;
-static int32_t  _MIDI_BeatsPerMeasure;
-static int32_t  _MIDI_TicksPerBeat;
-static int32_t  _MIDI_TimeBase;
-static int32_t _MIDI_FPSecondsPerTick;
+static int  _MIDI_BeatsPerMeasure;
+static int  _MIDI_TicksPerBeat;
+static int  _MIDI_TimeBase;
+static int  _MIDI_FPSecondsPerTick;
 static uint32_t _MIDI_TotalTime;
-static int32_t  _MIDI_TotalTicks;
-static int32_t  _MIDI_TotalBeats;
-static int32_t  _MIDI_TotalMeasures;
+static int  _MIDI_TotalTicks;
+static int  _MIDI_TotalBeats;
+static int  _MIDI_TotalMeasures;
 
 uint32_t _MIDI_PositionInTicks;
 uint32_t _MIDI_GlobalPositionInTicks;
 
-static int32_t  _MIDI_Context;
+static int  _MIDI_Context;
 
-static int32_t _MIDI_ActiveTracks;
-static int32_t _MIDI_TotalVolume = MIDI_MaxVolume;
+static int _MIDI_ActiveTracks;
+static int _MIDI_TotalVolume = MIDI_MaxVolume;
 
-static int32_t _MIDI_ChannelVolume[ NUM_MIDI_CHANNELS ];
+static int _MIDI_ChannelVolume[ NUM_MIDI_CHANNELS ];
 
-static midifuncs *_MIDI_Funcs = NULL;
+static midifuncs *_MIDI_Funcs;
 
-static int32_t Reset = FALSE;
+static int _MIDI_Reset;
 
-int32_t MIDI_Tempo = 120;
+int MIDI_Tempo = 120;
 
-static int32_t _MIDI_PlayRoutine = -1;
-static int32_t _MIDI_MixRate = 44100;
-static int32_t _MIDI_MixTimer = 0;
+static int _MIDI_PlayRoutine = -1;
+static int _MIDI_MixRate = 44100;
+static int _MIDI_MixTimer;
 
-static int32_t _MIDI_ReadNumber(void *from, size_t size)
+static int _MIDI_ReadNumber(void *from, size_t size)
 {
     if (size > 4)
         size = 4;
 
     char *FromPtr = (char *)from;
-    int32_t value = 0;
+    int value = 0;
 
     while (size--)
     {
@@ -112,9 +110,9 @@ static int32_t _MIDI_ReadNumber(void *from, size_t size)
     return value;
 }
 
-static int32_t _MIDI_ReadDelta(track *ptr)
+static int _MIDI_ReadDelta(track *ptr)
 {
-    int32_t value;
+    int value;
 
     GET_NEXT_EVENT(ptr, value);
 
@@ -185,15 +183,15 @@ static void _MIDI_AdvanceTick(void)
 
 static void _MIDI_SysEx(track *Track)
 {
-    int32_t length = _MIDI_ReadDelta(Track);
+    int length = _MIDI_ReadDelta(Track);
     Track->pos += length;
 }
 
 
 static void _MIDI_MetaEvent(track *Track)
 {
-    int32_t   command;
-    int32_t   length;
+    int   command;
+    int   length;
 
     GET_NEXT_EVENT(Track, command);
     GET_NEXT_EVENT(Track, length);
@@ -208,7 +206,7 @@ static void _MIDI_MetaEvent(track *Track)
 
         case MIDI_TEMPO_CHANGE:
         {
-            int32_t tempo = tabledivide32_noinline(60000000L, _MIDI_ReadNumber(Track->pos, 3));
+            int tempo = tabledivide32_noinline(60000000L, _MIDI_ReadNumber(Track->pos, 3));
             MIDI_SetTempo(tempo);
             break;
         }
@@ -221,8 +219,8 @@ static void _MIDI_MetaEvent(track *Track)
             _MIDI_Tick = 0;
             _MIDI_Beat = 1;
             _MIDI_TimeBase = 1;
-            _MIDI_BeatsPerMeasure = (int32_t)*Track->pos;
-            int32_t denominator = (int32_t) * (Track->pos + 1);
+            _MIDI_BeatsPerMeasure = (int)*Track->pos;
+            int denominator = (int) * (Track->pos + 1);
 
             while (denominator > 0)
             {
@@ -238,11 +236,11 @@ static void _MIDI_MetaEvent(track *Track)
     Track->pos += length;
 }
 
-static int32_t _MIDI_InterpretControllerInfo(track *Track, int32_t TimeSet, int32_t channel, int32_t c1, int32_t c2)
+static int _MIDI_InterpretControllerInfo(track *Track, int TimeSet, int channel, int c1, int c2)
 {
     track *trackptr;
-    int32_t tracknum;
-    int32_t loopcount;
+    int tracknum;
+    int loopcount;
 
     switch (c1)
     {
@@ -401,16 +399,16 @@ static void _MIDI_ServiceRoutine(void)
         return;
 
     track *Track = _MIDI_TrackPtr;
-    int32_t tracknum = 0;
-    int32_t TimeSet = FALSE;
-    int32_t c1 = 0;
-    int32_t c2 = 0;
+    int tracknum = 0;
+    int TimeSet = FALSE;
+    int c1 = 0;
+    int c2 = 0;
 
     while (tracknum < _MIDI_NumTracks)
     {
         while ((Track->active) && (Track->delay == 0))
         {
-            int32_t event;
+            int event;
             GET_NEXT_EVENT(Track, event);
 
             if (GET_MIDI_COMMAND(event) == MIDI_SPECIAL)
@@ -511,7 +509,7 @@ static void _MIDI_ServiceRoutine(void)
     _MIDI_GlobalPositionInTicks++;
 }
 
-static int32_t _MIDI_SendControlChange(int32_t channel, int32_t c1, int32_t c2)
+static int _MIDI_SendControlChange(int channel, int c1, int c2)
 {
     if (_MIDI_Funcs == NULL || _MIDI_Funcs->ControlChange == NULL)
         return MIDI_Error;
@@ -521,7 +519,7 @@ static int32_t _MIDI_SendControlChange(int32_t channel, int32_t c1, int32_t c2)
     return MIDI_Ok;
 }
 
-int32_t MIDI_AllNotesOff(void)
+int MIDI_AllNotesOff(void)
 {
     for (bssize_t channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
     {
@@ -533,7 +531,7 @@ int32_t MIDI_AllNotesOff(void)
     return MIDI_Ok;
 }
 
-static void _MIDI_SetChannelVolume(int32_t channel, int32_t volume)
+static void _MIDI_SetChannelVolume(int channel, int volume)
 {
     _MIDI_ChannelVolume[ channel ] = volume;
 
@@ -552,7 +550,7 @@ static void _MIDI_SendChannelVolumes(void)
         _MIDI_SetChannelVolume(channel, _MIDI_ChannelVolume[channel]);
 }
 
-int32_t MIDI_Reset(void)
+int MIDI_Reset(void)
 {
     MIDI_AllNotesOff();
 
@@ -568,25 +566,48 @@ int32_t MIDI_Reset(void)
 
     _MIDI_SendChannelVolumes();
 
-    Reset = TRUE;
+    _MIDI_Reset = TRUE;
 
     return MIDI_Ok;
 }
 
-int32_t MIDI_SetVolume(int32_t volume)
+
+int MIDI_SetVolume(int volume)
 {
     if (_MIDI_Funcs == NULL)
         return MIDI_NullMidiModule;
 
-    _MIDI_TotalVolume = max(0, min(MIDI_MaxVolume, volume));
-    _MIDI_SendChannelVolumes();
+    volume = min(MIDI_MaxVolume, volume);
+    volume = max(0, volume);
+
+    _MIDI_TotalVolume = volume;
+
+    SoundDriver_MIDI_Lock();
+
+    if (_MIDI_Funcs->SetVolume)
+        _MIDI_Funcs->SetVolume(volume);
+    else
+        _MIDI_SendChannelVolumes();
+
+    SoundDriver_MIDI_Unlock();
 
     return MIDI_Ok;
 }
 
-int32_t MIDI_GetVolume(void) { return (_MIDI_Funcs == NULL) ? MIDI_NullMidiModule : _MIDI_TotalVolume; }
 
-void MIDI_SetLoopFlag(int32_t loopflag) { _MIDI_Loop = loopflag; }
+int MIDI_GetVolume(void)
+{
+    if (_MIDI_Funcs == NULL)
+        return MIDI_NullMidiModule;
+
+    SoundDriver_MIDI_Lock();
+    int volume = (_MIDI_Funcs->GetVolume) ? _MIDI_Funcs->GetVolume() : _MIDI_TotalVolume;
+    SoundDriver_MIDI_Unlock();
+
+    return volume;
+}
+
+void MIDI_SetLoopFlag(int loopflag) { _MIDI_Loop = loopflag; }
 
 void MIDI_ContinueSong(void)
 {
@@ -594,7 +615,8 @@ void MIDI_ContinueSong(void)
         return;
 
     _MIDI_SongActive = TRUE;
-    MPU_Unpause();
+    if (ASS_MIDISoundDriver == ASS_MPU401)
+        MPU_Unpause();
 }
 
 void MIDI_PauseSong(void)
@@ -604,7 +626,8 @@ void MIDI_PauseSong(void)
 
     _MIDI_SongActive = FALSE;
     MIDI_AllNotesOff();
-    MPU_Pause();
+    if (ASS_MIDISoundDriver == ASS_MPU401)
+        MPU_Pause();
 }
 
 void MIDI_SetMidiFuncs(midifuncs *funcs) { _MIDI_Funcs = funcs; }
@@ -617,8 +640,11 @@ void MIDI_StopSong(void)
     _MIDI_SongActive = FALSE;
     _MIDI_SongLoaded = FALSE;
 
-    MPU_Reset();
-    MPU_Init(MUSIC_SoundDevice);
+    if (ASS_MIDISoundDriver == ASS_MPU401)
+    {
+        MPU_Reset();
+        MPU_Init(ASS_MIDISoundDriver);
+    }
 
     MIDI_Reset();
     _MIDI_ResetTracks();
@@ -633,15 +659,17 @@ void MIDI_StopSong(void)
     _MIDI_TotalBeats    = 0;
     _MIDI_TotalMeasures = 0;
 
+    if (ASS_MIDISoundDriver == ASS_OPL3)
+        MV_UnhookMusicRoutine();
+
 }
 
-int32_t MIDI_PlaySong(char *song, int32_t loopflag)
+int MIDI_PlaySong(char *song, int loopflag)
 {
-    extern int32_t MV_MixRate;
-    int32_t    numtracks;
-    int32_t    format;
-    int32_t   headersize;
-    int32_t   tracklength;
+    int    numtracks;
+    int    format;
+    int   headersize;
+    int   tracklength;
     track *CurrentTrack;
     char *ptr;
 
@@ -655,8 +683,8 @@ int32_t MIDI_PlaySong(char *song, int32_t loopflag)
     headersize      = _MIDI_ReadNumber(song, 4);
     song += 4;
     format          = _MIDI_ReadNumber(song, 2);
-    int32_t My_MIDI_NumTracks = _MIDI_ReadNumber(song + 2, 2);
-    int32_t My_MIDI_Division  = _MIDI_ReadNumber(song + 4, 2);
+    int My_MIDI_NumTracks = _MIDI_ReadNumber(song + 2, 2);
+    int My_MIDI_Division  = _MIDI_ReadNumber(song + 4, 2);
     if (My_MIDI_Division < 0)
     {
         // If a SMPTE time division is given, just set to 96 so no errors occur
@@ -671,7 +699,7 @@ int32_t MIDI_PlaySong(char *song, int32_t loopflag)
     if (My_MIDI_NumTracks == 0)
         return MIDI_NoTracks;
 
-    int32_t My_MIDI_TrackMemSize = My_MIDI_NumTracks  * sizeof(track);
+    int My_MIDI_TrackMemSize = My_MIDI_NumTracks  * sizeof(track);
     track * My_MIDI_TrackPtr = (track *)Xmalloc(My_MIDI_TrackMemSize);
 
     CurrentTrack = My_MIDI_TrackPtr;
@@ -700,7 +728,16 @@ int32_t MIDI_PlaySong(char *song, int32_t loopflag)
     if (_MIDI_SongLoaded)
         MIDI_StopSong();
 
-	MPU_Init(0/*MUSIC_SoundDevice*/);
+    switch (ASS_MIDISoundDriver)
+    {
+    case ASS_MPU401:
+        MPU_Init(0/*MUSIC_SoundDevice*/);
+        break;
+    case ASS_OPL3:
+        OPLMusic::AL_Init(MV_MixRate);
+        break;
+    }
+
 
     _MIDI_Loop = loopflag;
     _MIDI_NumTracks = My_MIDI_NumTracks;
@@ -711,42 +748,81 @@ int32_t MIDI_PlaySong(char *song, int32_t loopflag)
     _MIDI_InitEMIDI();
     _MIDI_ResetTracks();
 
-    if (!Reset)
+    if (!_MIDI_Reset)
         MIDI_Reset();
 
-    Reset = FALSE;
+    _MIDI_Reset = FALSE;
 
-    MIDI_SetDivision(_MIDI_Division);
+    if (ASS_MIDISoundDriver == ASS_MPU401)
+    {
+        MIDI_SetDivision(_MIDI_Division);
+        //MIDI_SetTempo( 120 );
+    }
+    else
+    {
+        _MIDI_PlayRoutine = 100;
+        _MIDI_MixTimer = 0;
+
+        //MIDI_SetDivision(_MIDI_Division);
+        MIDI_SetTempo( 120 );
+    }
 
     _MIDI_SongLoaded = TRUE;
     _MIDI_SongActive = TRUE;
 
-    while (_MPU_BuffersWaiting < 4) _MIDI_ServiceRoutine();
-    MPU_BeginPlayback();
+    if (ASS_MIDISoundDriver == ASS_MPU401)
+    {
+        while (_MPU_BuffersWaiting < 4) _MIDI_ServiceRoutine();
+        MPU_BeginPlayback();
+    }
+    else if (ASS_MIDISoundDriver == ASS_OPL3)
+    {
+        MV_HookMusicRoutine(MIDI_MusicMix);
+        _MIDI_MixRate = MV_MixRate;
+    }
 
     return MIDI_Ok;
 }
 
-void MIDI_SetTempo(int32_t tempo)
+void MIDI_SetTempo(int tempo)
 {
-    int32_t tickspersecond;
+    int tickspersecond;
 
     MIDI_Tempo = tempo;
     tickspersecond = ((tempo) * _MIDI_Division)/60;
     _MIDI_FPSecondsPerTick = tabledivide32_noinline(1 << TIME_PRECISION, tickspersecond);
-    MPU_SetTempo(tempo);
+    if (ASS_MIDISoundDriver == ASS_MPU401)
+    {
+        MPU_SetTempo(tempo);
+    }
+    else if (ASS_MIDISoundDriver == ASS_OPL3)
+    {
+        _MIDI_PlayRoutine = tickspersecond;
+        _MIDI_MixTimer = 0;
+    }
 }
 
-void MIDI_SetDivision(int32_t division)
+void MIDI_SetDivision(int division)
 {
-    MPU_SetDivision(division);
+    if (ASS_MIDISoundDriver == ASS_MPU401)
+        MPU_SetDivision(division);
 }
 
-int32_t MIDI_GetTempo(void) { return MIDI_Tempo; }
+int MIDI_GetTempo(void) { return MIDI_Tempo; }
 
 static void _MIDI_InitEMIDI(void)
 {
-    int32_t type = EMIDI_GeneralMIDI;
+    int type = EMIDI_GeneralMIDI;
+
+    switch (ASS_MIDISoundDriver)
+    {
+    case ASS_MPU401:
+        type = EMIDI_GeneralMIDI;
+        break;
+    case ASS_OPL3:
+        type = EMIDI_Adlib;
+        break;
+    }
 
     _MIDI_ResetTracks();
 
@@ -756,7 +832,7 @@ static void _MIDI_InitEMIDI(void)
     _MIDI_TotalMeasures = 0;
 
     track *Track = _MIDI_TrackPtr;
-    int32_t tracknum = 0;
+    int tracknum = 0;
 
     while ((tracknum < _MIDI_NumTracks) && (Track != NULL))
     {
@@ -787,11 +863,11 @@ static void _MIDI_InitEMIDI(void)
             Track->delay--;
         }
 
-        int32_t IncludeFound = FALSE;
+        int IncludeFound = FALSE;
 
         while (Track->active)
         {
-            int32_t event;
+            int event;
 
             GET_NEXT_EVENT(Track, event);
 
@@ -834,7 +910,7 @@ static void _MIDI_InitEMIDI(void)
                 if (*Track->pos == MIDI_MONO_MODE_ON)
                     length++;
 
-                int32_t c1, c2;
+                int c1, c2;
                 GET_NEXT_EVENT(Track, c1);
                 GET_NEXT_EVENT(Track, c2);
                 length -= 2;
@@ -949,6 +1025,28 @@ static void _MIDI_InitEMIDI(void)
 
     _MIDI_ResetTracks();
 }
+
+void MIDI_MusicMix(char *buffer, int length)
+{
+    int16_t * buffer16 = (int16_t *)buffer;
+    int const samples  = length >> 2;
+
+    for (int i = 0; i < samples; i++)
+    {
+        Bit16s buf[2];
+        while (_MIDI_MixTimer >= _MIDI_MixRate)
+        {
+            if (_MIDI_PlayRoutine >= 0)
+                _MIDI_ServiceRoutine();
+            _MIDI_MixTimer -= _MIDI_MixRate;
+        }
+        if (_MIDI_PlayRoutine >= 0) _MIDI_MixTimer += _MIDI_PlayRoutine;
+        OPL3_GenerateResampled(&OPLMusic::chip, buf);
+        *buffer16++ = clamp(buf[0]<<1, INT16_MIN, INT16_MAX);
+        *buffer16++ = clamp(buf[1]<<1, INT16_MIN, INT16_MAX);
+    }
+}
+
 
 void MIDI_UpdateMusic(void)
 {
