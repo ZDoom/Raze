@@ -29,9 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"
 #include "blood.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+BEGIN_BLD_NS
 
 #if defined EDUKE32_TOUCH_DEVICES
 # define EDUKE32_SIMPLE_MENU
@@ -495,6 +493,7 @@ extern int32_t m_mouselastactivity;
 extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 // alpha increments of 3 --> 255 / 3 = 85 --> round up to power of 2 --> 128 --> divide by 2 --> 64 alphatabs required
 // use 16 anyway :P
+#if 0
 # define MOUSEUSEALPHA (videoGetRenderMode() != REND_CLASSIC || numalphatabs >= 15)
 # define MOUSEALPHA (MOUSEUSEALPHA ? clamp(((int32_t) totalclock - m_mouselastactivity - 90)*3, 0, 255) : 0)
 # define CURSORALPHA (MOUSEUSEALPHA ? clamp(((int32_t) totalclock - m_mouselastactivity - 90)*2 + (255/3), (255/3), 255) : 255/3)
@@ -502,6 +501,7 @@ extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 # define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
 # define MOUSEINACTIVECONDITIONAL(condition) ((gInputMode != kInputMenu || !MOUSEACTIVECONDITION) && (condition))
 # define MOUSEWATCHPOINTCONDITIONAL(condition) ((condition) || m_mousewake_watchpoint || m_menuchange_watchpoint == 3)
+#endif
 #endif
 
 #define MAXMENUGAMEPLAYENTRIES 7
@@ -535,8 +535,6 @@ extern MenuEntry_t ME_NEWGAMECUSTOMSUBENTRIES[MAXMENUGAMEPLAYENTRIES][MAXMENUGAM
 #define TYPEBUFSIZE 141
 extern char typebuf[TYPEBUFSIZE];
 
-#ifdef __cplusplus
-}
-#endif
+END_BLD_NS
 
 #endif

@@ -24,9 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "menus.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+BEGIN_BLD_NS
 
 #define USERQUOTE_LEFTOFFSET    5
 #define USERQUOTE_RIGHTOFFSET   14
@@ -97,6 +95,4 @@ extern void G_AddCoordsFromRotation(vec2_t *coords, const vec2_t *unitDirection,
 extern vec2_t G_ScreenText(int32_t font, int32_t x, int32_t y, int32_t z, int32_t blockangle, int32_t charangle, const char *str, int32_t shade, int32_t pal, int32_t o, int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 extern vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy, int32_t font, int32_t x, int32_t y, int32_t z, int32_t blockangle, int32_t charangle, const char *str, int32_t shade, int32_t pal, int32_t o, int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
-#ifdef __cplusplus
-}
-#endif
+END_BLD_NS

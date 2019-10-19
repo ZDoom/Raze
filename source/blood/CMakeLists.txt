@@ -81,11 +81,13 @@ set( PCH_SOURCES
 	src/gib.cpp
 	src/globals.cpp
 	src/inifile.cpp
+	src/input.cpp
 	src/iob.cpp
 	src/levels.cpp
 	src/loadsave.cpp
 	src/map2d.cpp
 	src/menu.cpp
+	src/menus.cpp
 	src/messages.cpp
 	src/mirrors.cpp
 	src/misc.cpp
@@ -97,6 +99,7 @@ set( PCH_SOURCES
 	src/replace.cpp
 	src/resource.cpp
 	src/screen.cpp
+	src/screentext.cpp
 	src/sectorfx.cpp
 	src/seq.cpp
 	src/sfx.cpp

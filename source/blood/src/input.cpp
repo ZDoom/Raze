@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"	// Must come before everything else!
 //#include "global.h"
 //#include "game.h"
 #include "function.h"
@@ -29,6 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "control.h"
 #include "input.h"
 #include "menus.h"
+#include "gamemenu.h"
+
+BEGIN_BLD_NS
+
 
 int32_t I_CheckAllInput(void)
 {
@@ -401,3 +406,5 @@ int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
 
     return 0;
 }
+
+END_BLD_NS

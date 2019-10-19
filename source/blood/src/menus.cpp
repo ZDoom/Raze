@@ -20,21 +20,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "cheats.h"
-#include "communityapi.h"
+#include "ns.h"	// Must come before everything else!
+// Most of this is not used by Blood.
+
+//#include "cheats.h"
 #include "compat.h"
 #include "demo.h"
-#include "duke3d.h"
+//#include "duke3d.h"
 #include "input.h"
-#include "in_android.h"
 #include "menus.h"
 #include "osdcmds.h"
-#include "savegame.h"
+//#include "savegame.h"
 #include "xxhash.h"
+#include "../../glbackend/glbackend.h"
 
-#ifndef __ANDROID__
-droidinput_t droidinput;
-#endif
+BEGIN_BLD_NS
+#if 0
+
 
 // common positions
 #define MENU_MARGIN_REGULAR 40
@@ -48,27 +50,13 @@ static FORCE_INLINE void Menu_StartTextInput()
 {
     KB_FlushKeyboardQueue();
     KB_ClearKeysDown();
-#if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
-# if defined __ANDROID__
-    AndroidShowKeyboard(1);
-# else
-    SDL_StartTextInput();
-# endif
-#endif
 }
 
 static FORCE_INLINE void Menu_StopTextInput()
 {
-#if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
-# if defined __ANDROID__
-    AndroidShowKeyboard(0);
-# else
-    SDL_StopTextInput();
-# endif
-#endif
 }
 
-static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
+static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, ydim_upper, xdim-1, ydim_lower);
 }
@@ -585,6 +573,7 @@ static MenuEntry_t ME_DISPLAYSETUP_FOV = MAKE_MENUENTRY( "FOV:", &MF_Redfont, &M
 
 #ifdef USE_OPENGL
 # if !(defined EDUKE32_STANDALONE) || defined POLYMER
+#define TEXFILTER_MENU_OPTIONS
 //POGOTODO: allow filtering again in standalone once indexed colour textures support filtering
 #ifdef TEXFILTER_MENU_OPTIONS
 static char const *MEOSN_DISPLAYSETUP_TEXFILTER[] = { "Classic", "Filtered" };
@@ -1059,8 +1048,6 @@ static MenuEntry_t ME_RENDERERSETUP_PRECACHE = MAKE_MENUENTRY( "Pre-load map tex
 # ifndef EDUKE32_GLES
 static char const *MEOSN_RENDERERSETUP_TEXCACHE[] = { "Off", "On", "Compr.", };
 static MenuOptionSet_t MEOS_RENDERERSETUP_TEXCACHE = MAKE_MENUOPTIONSET( MEOSN_RENDERERSETUP_TEXCACHE, NULL, 0x2 );
-static MenuOption_t MEO_RENDERERSETUP_TEXCACHE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_RENDERERSETUP_TEXCACHE, &glusetexcache );
-static MenuEntry_t ME_RENDERERSETUP_TEXCACHE = MAKE_MENUENTRY( "On-disk texture cache:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_TEXCACHE, Option );
 # endif
 # ifdef USE_GLEXT
 static MenuOption_t MEO_RENDERERSETUP_DETAILTEX = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &r_detailmapping );
@@ -1072,31 +1059,12 @@ static MenuOption_t MEO_RENDERERSETUP_MODELS = MAKE_MENUOPTION( &MF_Bluefont, &M
 static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "3D models:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_MODELS, Option );
 #endif
 
-#ifdef POLYMER
-static char const *MEOSN_POLYMER_LIGHTS [] = { "Off", "Full", "Map only", };
-static MenuOptionSet_t MEOS_POLYMER_LIGHTS = MAKE_MENUOPTIONSET(MEOSN_POLYMER_LIGHTS, NULL, 0x2);
-static MenuOption_t MEO_POLYMER_LIGHTS = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_POLYMER_LIGHTS, &pr_lighting);
-static MenuEntry_t ME_POLYMER_LIGHTS = MAKE_MENUENTRY("Dynamic lights:", &MF_Bluefont, &MEF_SmallOptions, &MEO_POLYMER_LIGHTS, Option);
-
-static MenuRangeInt32_t MEO_POLYMER_LIGHTPASSES = MAKE_MENURANGE(&r_pr_maxlightpasses, &MF_Bluefont, 1, 10, 1, 10, 1);
-static MenuEntry_t ME_POLYMER_LIGHTPASSES = MAKE_MENUENTRY("Lights per surface:", &MF_Bluefont, &MEF_SmallOptions, &MEO_POLYMER_LIGHTPASSES, RangeInt32);
-
-static MenuOption_t MEO_POLYMER_SHADOWS = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_OffOn, &pr_shadows);
-static MenuEntry_t ME_POLYMER_SHADOWS = MAKE_MENUENTRY("Dynamic shadows:", &MF_Bluefont, &MEF_SmallOptions, &MEO_POLYMER_SHADOWS, Option);
-
-static MenuRangeInt32_t MEO_POLYMER_SHADOWCOUNT = MAKE_MENURANGE(&pr_shadowcount, &MF_Bluefont, 1, 10, 1, 10, 1);
-static MenuEntry_t ME_POLYMER_SHADOWCOUNT = MAKE_MENUENTRY("Shadows per surface:", &MF_Bluefont, &MEF_SmallOptions, &MEO_POLYMER_SHADOWCOUNT, RangeInt32);
-
-#endif
 
 #ifdef USE_OPENGL
 static MenuEntry_t *MEL_RENDERERSETUP_POLYMOST[] = {
     &ME_RENDERERSETUP_HIGHTILE,
     &ME_RENDERERSETUP_TEXQUALITY,
     &ME_RENDERERSETUP_PRECACHE,
-# ifndef EDUKE32_GLES
-    &ME_RENDERERSETUP_TEXCACHE,
-# endif
 # ifdef USE_GLEXT
     &ME_RENDERERSETUP_DETAILTEX,
     &ME_RENDERERSETUP_GLOWTEX,
@@ -1105,27 +1073,6 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMOST[] = {
     &ME_RENDERERSETUP_MODELS,
 };
 
-#ifdef POLYMER
-static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] = {
-    &ME_RENDERERSETUP_HIGHTILE,
-    &ME_RENDERERSETUP_TEXQUALITY,
-    &ME_RENDERERSETUP_PRECACHE,
-# ifndef EDUKE32_GLES
-    &ME_RENDERERSETUP_TEXCACHE,
-# endif
-# ifdef USE_GLEXT
-    &ME_RENDERERSETUP_DETAILTEX,
-    &ME_RENDERERSETUP_GLOWTEX,
-# endif
-    &ME_Space4_Bluefont,
-    &ME_RENDERERSETUP_MODELS,
-    &ME_Space4_Bluefont,
-    &ME_POLYMER_LIGHTS,
-    &ME_POLYMER_LIGHTPASSES,
-    &ME_POLYMER_SHADOWS,
-    &ME_POLYMER_SHADOWCOUNT,
-};
-#endif
 #endif
 
 #ifdef EDUKE32_ANDROID_MENU
@@ -1267,18 +1214,11 @@ static MenuEntry_t ME_SAVESETUP_MAXAUTOSAVES = MAKE_MENUENTRY( "Limit:", &MF_Red
 
 static MenuEntry_t ME_SAVESETUP_CLEANUP = MAKE_MENUENTRY( "Clean Up Saves", &MF_Redfont, &MEF_BigOptionsRt, &MEO_NULL, Link );
 
-#ifdef EDUKE32_STANDALONE
-static MenuEntry_t ME_SAVESETUP_RESETSTATS = MAKE_MENUENTRY( "Reset Stats/Achievements", &MF_Redfont, &MEF_BigOptionsRt, &MEO_NULL, Link );
-#endif
-
 static MenuEntry_t *MEL_SAVESETUP[] = {
     &ME_SAVESETUP_AUTOSAVE,
     &ME_SAVESETUP_AUTOSAVEDELETION,
     &ME_SAVESETUP_MAXAUTOSAVES,
     &ME_SAVESETUP_CLEANUP,
-#ifdef EDUKE32_STANDALONE
-    &ME_SAVESETUP_RESETSTATS,
-#endif
 };
 
 
@@ -1467,7 +1407,6 @@ static MenuPanel_t M_CREDITS5 = { "About " APPNAME, MENU_CREDITS4, MA_Return, ME
 #define CURSOR_BOTTOMRIGHT { 304<<16, 186<<16, }
 
 static MenuVerify_t M_SAVECLEANVERIFY = { CURSOR_CENTER_3LINE, MENU_SAVESETUP, MA_None, };
-static MenuVerify_t M_RESETSTATSVERIFY = { CURSOR_CENTER_3LINE, MENU_SAVESETUP, MA_None, };
 static MenuVerify_t M_QUIT = { CURSOR_CENTER_2LINE, MENU_CLOSE, MA_None, };
 static MenuVerify_t M_QUITTOTITLE = { CURSOR_CENTER_2LINE, MENU_CLOSE, MA_None, };
 static MenuVerify_t M_LOADVERIFY = { CURSOR_CENTER_3LINE, MENU_CLOSE, MA_None, };
@@ -1551,7 +1490,6 @@ static Menu_t Menus[] = {
     { &M_ADVSOUND, MENU_ADVSOUND, MENU_SOUND, MA_Return, Menu },
     { &M_SAVESETUP, MENU_SAVESETUP, MENU_OPTIONS, MA_Return, Menu },
     { &M_SAVECLEANVERIFY, MENU_SAVECLEANVERIFY, MENU_SAVESETUP, MA_None, Verify },
-    { &M_RESETSTATSVERIFY, MENU_RESETSTATSVERIFY, MENU_SAVESETUP, MA_None, Verify },
 #ifdef EDUKE32_SIMPLE_MENU
     { &M_CHEATS, MENU_CHEATS, MENU_OPTIONS, MA_Return, Menu },
 #else
@@ -2106,7 +2044,7 @@ static void Menu_Pre(MenuID_t cm)
 
             for (i = (int32_t) ARRAY_SIZE(MEOSV_DISPLAYSETUP_ANISOTROPY) - 1; i >= 0; --i)
             {
-                if (MEOSV_DISPLAYSETUP_ANISOTROPY[i] <= glinfo.maxanisotropy)
+                if (MEOSV_DISPLAYSETUP_ANISOTROPY[i] <= GLInterface.glinfo.maxanisotropy)
                 {
                     MEOS_DISPLAYSETUP_ANISOTROPY.numOptions = i + 1;
                     break;
@@ -2121,9 +2059,6 @@ static void Menu_Pre(MenuID_t cm)
     case MENU_POLYMOST:
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXQUALITY, !usehightile);
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_PRECACHE, !usehightile);
-# ifndef EDUKE32_GLES
-        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXCACHE, !(glusetexcompr && usehightile));
-# endif
 # ifdef USE_GLEXT
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_DETAILTEX, !usehightile);
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_GLOWTEX, !usehightile);
@@ -2198,9 +2133,6 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_SAVESETUP:
         MenuEntry_DisableOnCondition(&ME_SAVESETUP_MAXAUTOSAVES, !ud.autosavedeletion);
-#ifdef EDUKE32_STANDALONE
-        MenuEntry_DisableOnCondition(&ME_SAVESETUP_RESETSTATS, !communityapiEnabled());
-#endif
         break;
 
     case MENU_JOYSTICKSETUP:
@@ -2242,8 +2174,6 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_COLCORR:
     case MENU_COLCORR_INGAME:
-        MenuEntry_DisableOnCondition(&ME_COLCORR_CONTRAST, !gammabrightness);
-        MenuEntry_DisableOnCondition(&ME_COLCORR_BRIGHTNESS, !gammabrightness);
         break;
 
     case MENU_CHEATS:
@@ -2434,12 +2364,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         }
         break;
 
-    case MENU_VIDEOSETUP:
-        if (entry == &ME_VIDEOSETUP_VSYNC && *MEO_VIDEOSETUP_VSYNC.data)
-            mgametextcenter(origin.x, origin.y + (175<<16), "Try VSync in your graphics driver's\n"
-                                                            "control panel before this option.");
-        break;
-
     case MENU_RESETPLAYER:
         videoFadeToBlack(1);
         Bsprintf(tempbuf, "Load last game:\n\"%s\"", g_quickload->name);
@@ -2469,7 +2393,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         if (msv.brief.isValid())
         {
-            if (waloff[TILE_LOADSHOT])
+            if (tilePtr(TILE_LOADSHOT))
                 rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT, msv.isOldVer?16:-32, 0,4+10+64);
 
             if (msv.isOldVer)
@@ -2534,7 +2458,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
             if (msv.brief.isValid())
             {
-                if (waloff[TILE_LOADSHOT])
+                if (tilePtr(TILE_LOADSHOT))
                     rotatesprite_fs(origin.x + (101<<16), origin.y + (97<<16), 65536>>1,512,TILE_LOADSHOT, msv.isOldVer?16:-32, 0,4+10+64);
 
                 if (msv.isOldVer)
@@ -2589,19 +2513,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         }
         else
             mgametextcenter(origin.x, origin.y + (90<<16), "No obsolete saves found!");
-
-        break;
-
-    case MENU_RESETSTATSVERIFY:
-        videoFadeToBlack(1);
-
-        if (communityapiEnabled())
-        {
-            Bsprintf(tempbuf, "Delete %s stats and achievement data?\nThis action cannot be undone!", communityApiGetPlatformName());
-            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
-        }
-        else
-            mgametextcenter(origin.x, origin.y + (90<<16), "No data found!");
 
         break;
 
@@ -3343,10 +3254,6 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         g_oldSaveCnt = G_CountOldSaves();
         Menu_Change(MENU_SAVECLEANVERIFY);
     }
-#ifdef EDUKE32_STANDALONE
-    else if (entry == &ME_SAVESETUP_RESETSTATS)
-        Menu_Change(MENU_RESETSTATSVERIFY);
-#endif
     else if (entry == &ME_NETHOST_LAUNCH)
     {
         // master does whatever it wants
@@ -3533,16 +3440,9 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
 #endif
     else if (entry == &ME_RENDERERSETUP_TEXQUALITY)
     {
-        texcache_invalidate();
         r_downsizevar = r_downsize;
         domodechange = 1;
     }
-#ifdef POLYMER
-    else if (entry == &ME_POLYMER_LIGHTS ||
-             entry == &ME_POLYMER_LIGHTPASSES ||
-             entry == &ME_POLYMER_SHADOWCOUNT)
-        domodechange = 1;
-#endif
 
     if (domodechange)
     {
@@ -3738,16 +3638,6 @@ static void Menu_Verify(int32_t input)
             G_DeleteOldSaves();
         }
         break;
-
-#ifdef EDUKE32_STANDALONE
-    case MENU_RESETSTATSVERIFY:
-        if (input)
-        {
-            communityapiResetStats();
-            VM_OnEvent(EVENT_CAPIR);
-        }
-        break;
-#endif
 
     case MENU_RESETPLAYER:
         switch (input)
@@ -4660,7 +4550,6 @@ void Menu_Close(uint8_t playerID)
                 actor[g_curViewscreen].t_data[0] = (int32_t) totalclock;
         }
 
-        walock[TILE_SAVESHOT] = 1;
         G_UpdateScreenArea();
         S_PauseSounds(false);
     }
@@ -5744,7 +5633,6 @@ static void Menu_Recurse(MenuID_t cm, const vec2_t origin)
     switch (cm)
     {
     case MENU_SAVECLEANVERIFY:
-    case MENU_RESETSTATSVERIFY:
     case MENU_LOADVERIFY:
     case MENU_LOADDELVERIFY:
     case MENU_SAVEVERIFY:
@@ -7128,7 +7016,6 @@ void M_DisplayMenus(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
     {
-        walock[TILE_LOADSHOT] = 1;
         return;
     }
 
@@ -7351,3 +7238,5 @@ void M_DisplayMenus(void)
         CAMERADIST = 65536;
     }
 }
+#endif
+END_BLD_NS
