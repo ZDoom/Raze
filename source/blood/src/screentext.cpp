@@ -794,7 +794,6 @@ vec2_t G_ScreenText(const int32_t font,
     return size;
 }
 
-#if 0
 vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy,
     const int32_t font,
     int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle,
@@ -830,6 +829,7 @@ vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy,
     return size;
 }
 
+#if 0
 void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
                      int32_t s, int32_t p, int32_t o,
                      int32_t x1, int32_t y1, int32_t x2, int32_t y2,
