@@ -1166,16 +1166,16 @@ static MenuEntry_t ME_SOUND_NUMVOICES = MAKE_MENUENTRY( "Voices:", &MF_Redfont, 
 #endif
 
 static char const *MEOSN_SOUND_MUSICDEVICE[] = {
+    "OPL3",
 #ifdef _WIN32
     "Windows",
 #endif
-    "OPL3",
 };
 static int32_t MEOSV_SOUND_MUSICDEVICE[] = {
+    ASS_OPL3,
 #ifdef _WIN32
     ASS_WinMM,
 #endif
-    ASS_OPL3,
 };
 
 static MenuOptionSet_t MEOS_SOUND_MUSICDEVICE = MAKE_MENUOPTIONSET( MEOSN_SOUND_MUSICDEVICE, MEOSV_SOUND_MUSICDEVICE, 0x2 );

@@ -54,7 +54,7 @@ int FX_Init(int numvoices, int numchannels, unsigned mixrate, void *initdata)
     if (SoundCard == ASS_AutoDetect) {
 #if defined RENDERTYPESDL
         SoundCard = ASS_SDL;
-#elif defined _WIN32
+#elif defined RENDERTYPEWIN
         SoundCard = ASS_DirectSound;
 #else
         SoundCard = ASS_NoSound;

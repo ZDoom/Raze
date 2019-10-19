@@ -39,6 +39,7 @@
 
 int ASS_PCMSoundDriver  = ASS_AutoDetect;
 int ASS_MIDISoundDriver = ASS_AutoDetect;
+int ASS_EMIDICard = -1;
 
 #define UNSUPPORTED_PCM         0,0,0,0,0,0
 #define UNSUPPORTED_MIDI        0,0,0,0,0,0,0
@@ -68,7 +69,7 @@ static struct {
     
     // Everyone gets the "no sound" driver
     {
-        "No Sound",
+        "null sound device",
         NoSoundDrv_GetError,
         NoSoundDrv_ErrorString,
         NoSoundDrv_PCM_Init,
@@ -103,9 +104,9 @@ static struct {
     #else
         UNSUPPORTED_COMPLETELY
     #endif
-        
+
     // Windows DirectSound
-    #ifdef _WIN32
+    #ifdef RENDERTYPEWIN
     {
         "DirectSound",
         DirectSoundDrv_GetError,
@@ -121,6 +122,23 @@ static struct {
     #else
         UNSUPPORTED_COMPLETELY
     #endif
+
+    // OPL3 emulation
+    {
+        "Nuked OPL3 AdLib emulator",
+        AdLibDrv_GetError,
+        AdLibDrv_ErrorString,
+
+        UNSUPPORTED_PCM,
+
+        AdLibDrv_MIDI_Init,
+        AdLibDrv_MIDI_Shutdown,
+        AdLibDrv_MIDI_StartPlayback,
+        AdLibDrv_MIDI_HaltPlayback,
+        AdLibDrv_MIDI_SetTempo,
+        nullptr,
+        nullptr,
+    },
 
     // Windows MultiMedia system
     #ifdef _WIN32
@@ -142,23 +160,6 @@ static struct {
     #else
         UNSUPPORTED_COMPLETELY
     #endif
-    
-    // OPL3 emulation
-    {
-        "Nuked OPL3",
-        AdlibDrv_GetError,
-        AdlibDrv_ErrorString,
-
-        UNSUPPORTED_PCM,
-
-        AdlibDrv_MIDI_Init,
-        AdlibDrv_MIDI_Shutdown,
-        AdlibDrv_MIDI_StartPlayback,
-        AdlibDrv_MIDI_HaltPlayback,
-        AdlibDrv_MIDI_SetTempo,
-        AdlibDrv_MIDI_Lock,
-        AdlibDrv_MIDI_Unlock,
-    },
 };
 
 
@@ -223,7 +224,7 @@ int  SoundDriver_MIDI_StartPlayback(void (*service)(void)) { return SoundDrivers
 void SoundDriver_MIDI_Shutdown(void)                       { SoundDrivers[ASS_MIDISoundDriver].MIDI_Shutdown(); }
 void SoundDriver_MIDI_HaltPlayback(void)                   { SoundDrivers[ASS_MIDISoundDriver].MIDI_HaltPlayback(); }
 void SoundDriver_MIDI_SetTempo(int tempo, int division)    { SoundDrivers[ASS_MIDISoundDriver].MIDI_SetTempo(tempo, division); }
-void SoundDriver_MIDI_Lock(void)                           { SoundDrivers[ASS_MIDISoundDriver].MIDI_Lock(); }
-void SoundDriver_MIDI_Unlock(void)                         { SoundDrivers[ASS_MIDISoundDriver].MIDI_Unlock(); }
+void SoundDriver_MIDI_Lock(void)                           { if (SoundDrivers[ASS_MIDISoundDriver].MIDI_Lock) SoundDrivers[ASS_MIDISoundDriver].MIDI_Lock(); }
+void SoundDriver_MIDI_Unlock(void)                         { if (SoundDrivers[ASS_MIDISoundDriver].MIDI_Unlock) SoundDrivers[ASS_MIDISoundDriver].MIDI_Unlock(); }
 
 // vim:ts=4:sw=4:expandtab:

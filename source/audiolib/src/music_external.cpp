@@ -58,7 +58,6 @@ int MUSIC_Init(int SoundCard)
     g_musicPlayerCommandLine = getenv("EDUKE32_MUSIC_CMD");
 
     UNREFERENCED_PARAMETER(SoundCard);
-    UNREFERENCED_PARAMETER(Address);
 
     if (g_musicPlayerReady)
     {
@@ -126,7 +125,7 @@ int MUSIC_Init(int SoundCard)
     }
     g_musicFileNameArgvPos = numargs;
     g_musicPlayerArgv[numargs] = g_musicFileName;
-    g_musicPlayerArgv[numargs+1] = NULL;
+    g_musicPlayerArgv[numargs+1] = nullptr;
 
 #if 0
     if (mprotect(g_musicPlayerArgv, sz, PROT_READ)==-1)  // make argv and command string read-only
@@ -151,44 +150,6 @@ int MUSIC_Shutdown(void)
     return MUSIC_Ok;
 } // MUSIC_Shutdown
 
-
-void MUSIC_SetMaxFMMidiChannel(int channel)
-{
-    UNREFERENCED_PARAMETER(channel);
-} // MUSIC_SetMaxFMMidiChannel
-
-int MUSIC_Volume;
-
-void MUSIC_SetVolume(int volume)
-{
-    volume = max(0, volume);
-    volume = min(volume, 255);
-
-    MUSIC_Volume = volume;
-} // MUSIC_SetVolume
-
-
-int MUSIC_GetVolume(void)
-{
-    return MUSIC_Volume;
-} // MUSIC_GetVolume
-
-
-void MUSIC_SetLoopFlag(int loopflag)
-{
-    UNREFERENCED_PARAMETER(loopflag);
-} // MUSIC_SetLoopFlag
-
-
-void MUSIC_Continue(void)
-{
-} // MUSIC_Continue
-
-
-void MUSIC_Pause(void)
-{
-} // MUSIC_Pause
-
 int MUSIC_StopSong(void)
 {
     if (!g_musicPlayerEnabled)
@@ -205,9 +166,9 @@ int MUSIC_StopSong(void)
         ts.tv_nsec = 5000000;  // sleep 5ms at most
 
         kill(g_musicPlayerHandle, SIGTERM);
-        nanosleep(&ts, NULL);
+        nanosleep(&ts, nullptr);
 
-        if (int ret = waitpid(g_musicPlayerHandle, NULL, WNOHANG|WUNTRACED) != g_musicPlayerHandle)
+        if (int ret = waitpid(g_musicPlayerHandle, nullptr, WNOHANG|WUNTRACED) != g_musicPlayerHandle)
         {
             if (ret==-1)
                 initprintf("%s: waitpid: %s\n", __func__, strerror(errno));
@@ -218,7 +179,7 @@ int MUSIC_StopSong(void)
 
                 initprintf("%s: SIGTERM timed out--trying SIGKILL\n", __func__);
 
-                if (waitpid(g_musicPlayerHandle, NULL, WUNTRACED)==-1)
+                if (waitpid(g_musicPlayerHandle, nullptr, WUNTRACED)==-1)
                     initprintf("%s: waitpid: %s\n", __func__, strerror(errno));
             }
         }
@@ -241,7 +202,7 @@ static int MUSIC_PlayExternal()
     ZeroMemory(&pi,sizeof(pi));
     si.cb = sizeof(si);
 
-    if (!CreateProcess(NULL,g_musicPlayerCommandLine,NULL,NULL,0,0,NULL,NULL,&si,&pi))
+    if (!CreateProcess(nullptr,g_musicPlayerCommandLine,nullptr,nullptr,0,0,nullptr,nullptr,&si,&pi))
     {
         MV_Printf("%s: CreateProcess: %s\n", __func__, windowsGetErrorMessage(GetLastError()));
         return MUSIC_Error;
@@ -310,7 +271,7 @@ int MUSIC_PlaySong(char *song, int songsize, int loopflag, const char *fn /*= nu
         sa.sa_flags=0;
         sigemptyset(&sa.sa_mask);
 
-        if (sigaction(SIGCHLD, &sa, NULL)==-1)
+        if (sigaction(SIGCHLD, &sa, nullptr)==-1)
             initprintf("%s: sigaction: %s\n", __func__, strerror(errno));
 
         sigchld_handler_set = 1;

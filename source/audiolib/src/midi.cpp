@@ -38,12 +38,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "_midi.h"
 #include "_multivc.h"
-#include "al_midi.h"
 #include "compat.h"
 #include "multivoc.h"
 #include "music.h"
 #include "pragmas.h"
 #include "sndcards.h"
+#include "driver_adlib.h"
 
 extern int MV_MixRate;
 extern int ASS_MIDISoundDriver;
@@ -85,8 +85,6 @@ static int _MIDI_ChannelVolume[ NUM_MIDI_CHANNELS ];
 static midifuncs *_MIDI_Funcs;
 
 static int _MIDI_Reset;
-
-static int MIDI_Tempo = 120;
 
 int MV_MIDIRenderTempo = -1;
 int MV_MIDIRenderTimer;
@@ -270,7 +268,7 @@ static int _MIDI_InterpretControllerInfo(track *Track, int TimeSet, int channel,
 
         case EMIDI_CONTEXT_END :
             if ((Track->currentcontext == _MIDI_Context) || (_MIDI_Context < 0) ||
-                (Track->context[_MIDI_Context].pos == NULL))
+                (Track->context[_MIDI_Context].pos == nullptr))
                 break;
 
             Track->currentcontext = _MIDI_Context;
@@ -333,7 +331,7 @@ static int _MIDI_InterpretControllerInfo(track *Track, int TimeSet, int channel,
 
         case EMIDI_LOOP_END :
         case EMIDI_SONG_LOOP_END :
-            if ((c2 != EMIDI_END_LOOP_VALUE) || (Track->context[0].loopstart == NULL) || (Track->context[0].loopcount == 0))
+            if ((c2 != EMIDI_END_LOOP_VALUE) || (Track->context[0].loopstart == nullptr) || (Track->context[0].loopcount == 0))
                 break;
 
             if (c1 == EMIDI_SONG_LOOP_END)
@@ -507,12 +505,43 @@ static void _MIDI_ServiceRoutine(void)
     _MIDI_GlobalPositionInTicks++;
 }
 
+static void _MIDI_ServiceMultivoc(void)
+{
+    int16_t * buffer16 = (int16_t *)MV_MusicBuffer;
+    int const samples  = MV_BufferSize >> 2;
+
+    for (int i = 0; i < samples; i++)
+    {
+        Bit16s buf[2];
+        while (MV_MIDIRenderTimer >= MV_MixRate)
+        {
+            if (MV_MIDIRenderTempo >= 0)
+                _MIDI_ServiceRoutine();
+            MV_MIDIRenderTimer -= MV_MixRate;
+        }
+        if (MV_MIDIRenderTempo >= 0) MV_MIDIRenderTimer += MV_MIDIRenderTempo;
+        OPL3_GenerateResampled(AL_GetChip(), buf);
+        *buffer16++ = clamp(buf[0]<<1, INT16_MIN, INT16_MAX);
+        *buffer16++ = clamp(buf[1]<<1, INT16_MIN, INT16_MAX);
+    }
+}
+
 static int _MIDI_SendControlChange(int channel, int c1, int c2)
 {
-    if (_MIDI_Funcs == NULL || _MIDI_Funcs->ControlChange == NULL)
+    if (_MIDI_Funcs == nullptr || _MIDI_Funcs->ControlChange == nullptr)
         return MIDI_Error;
 
     _MIDI_Funcs->ControlChange(channel, c1, c2);
+
+    return MIDI_Ok;
+}
+
+static int _MIDI_SendProgramChange(int channel, int c1)
+{
+    if (_MIDI_Funcs == nullptr || _MIDI_Funcs->ProgramChange == nullptr)
+        return MIDI_Error;
+
+    _MIDI_Funcs->ProgramChange(channel, c1);
 
     return MIDI_Ok;
 }
@@ -536,9 +565,9 @@ int MIDI_AllNotesOff(void)
 
 static void _MIDI_SetChannelVolume(int channel, int volume)
 {
-    _MIDI_ChannelVolume[ channel ] = volume;
+    _MIDI_ChannelVolume[channel] = volume;
 
-    if (_MIDI_Funcs == NULL || _MIDI_Funcs->ControlChange == NULL)
+    if (_MIDI_Funcs == nullptr || _MIDI_Funcs->ControlChange == nullptr)
         return;
 
     volume *= _MIDI_TotalVolume;
@@ -566,7 +595,13 @@ int MIDI_Reset(void)
         _MIDI_SendControlChange(channel, MIDI_RPN_LSB, MIDI_PITCHBEND_LSB);
         _MIDI_SendControlChange(channel, MIDI_DATAENTRY_MSB, 2); /* Pitch Bend Sensitivity MSB */
         _MIDI_SendControlChange(channel, MIDI_DATAENTRY_LSB, 0); /* Pitch Bend Sensitivity LSB */
-        _MIDI_ChannelVolume[ channel ] = GENMIDI_DefaultVolume;
+        _MIDI_ChannelVolume[channel] = GENMIDI_DefaultVolume;
+        _MIDI_SendControlChange(channel, MIDI_PAN, 64);  // begin TURRICAN's recommendation
+        _MIDI_SendControlChange(channel, MIDI_REVERB, 40);
+        _MIDI_SendControlChange(channel, MIDI_CHORUS, 0);
+        _MIDI_SendControlChange(channel, MIDI_BANK_SELECT_MSB, 0);
+        _MIDI_SendControlChange(channel, MIDI_BANK_SELECT_LSB, 0);
+        _MIDI_SendProgramChange(channel, 0);  // end TURRICAN's recommendation
     }
 
     _MIDI_SendChannelVolumes();
@@ -581,7 +616,7 @@ int MIDI_Reset(void)
 
 int MIDI_SetVolume(int volume)
 {
-    if (_MIDI_Funcs == NULL)
+    if (_MIDI_Funcs == nullptr)
         return MIDI_NullMidiModule;
 
     volume = min(MIDI_MaxVolume, volume);
@@ -604,7 +639,7 @@ int MIDI_SetVolume(int volume)
 
 int MIDI_GetVolume(void)
 {
-    if (_MIDI_Funcs == NULL)
+    if (_MIDI_Funcs == nullptr)
         return MIDI_NullMidiModule;
 
     SoundDriver_MIDI_Lock();
@@ -668,7 +703,7 @@ int MIDI_PlaySong(char *song, int loopflag)
     track *CurrentTrack;
     char *ptr;
 
-    if (_MIDI_Funcs == NULL)
+    if (_MIDI_Funcs == nullptr)
         return MIDI_NullMidiModule;
 
     if (B_UNBUF32(song) != MIDI_HEADER_SIGNATURE)
@@ -723,7 +758,6 @@ int MIDI_PlaySong(char *song, int loopflag)
     if (_MIDI_SongLoaded)
         MIDI_StopSong();
 
-
     _MIDI_Loop = loopflag;
     _MIDI_NumTracks = My_MIDI_NumTracks;
     _MIDI_Division = My_MIDI_Division;
@@ -738,15 +772,10 @@ int MIDI_PlaySong(char *song, int loopflag)
 
     _MIDI_Reset = FALSE;
 
-    if (ASS_MIDISoundDriver == ASS_OPL3)
-    {
-        MV_MIDIRenderTempo = 100;
-        MV_MIDIRenderTimer = 0;
-    }
-
     MIDI_SetTempo(120);
 
-    if (SoundDriver_MIDI_StartPlayback(ASS_MIDISoundDriver == ASS_OPL3 ? MV_RenderMIDI : _MIDI_ServiceRoutine) != MIDI_Ok)
+    // this can either stay like this, or I can add another field to the MIDI driver spec that holds the service callback
+    if (SoundDriver_MIDI_StartPlayback(ASS_MIDISoundDriver == ASS_OPL3 ? _MIDI_ServiceMultivoc : _MIDI_ServiceRoutine) != MIDI_Ok)
         return MIDI_DriverError;
 
     _MIDI_SongLoaded = TRUE;
@@ -757,18 +786,10 @@ int MIDI_PlaySong(char *song, int loopflag)
 
 void MIDI_SetTempo(int tempo)
 {
-    MIDI_Tempo = tempo;
     SoundDriver_MIDI_SetTempo(tempo, _MIDI_Division);
     int const tickspersecond = tempo * _MIDI_Division / 60;
     _MIDI_FPSecondsPerTick = tabledivide32_noinline(1 << TIME_PRECISION, tickspersecond);
 }
-
-void MIDI_SetDivision(int division)
-{
-    UNREFERENCED_PARAMETER(division);
-}
-
-int MIDI_GetTempo(void) { return MIDI_Tempo; }
 
 static void _MIDI_InitEMIDI(void)
 {
@@ -777,9 +798,12 @@ static void _MIDI_InitEMIDI(void)
     switch (ASS_MIDISoundDriver)
     {
     case ASS_OPL3:
-        type = EMIDI_Adlib;
+        type = EMIDI_SoundBlaster;
         break;
     }
+
+    if (ASS_EMIDICard != -1)
+        type = ASS_EMIDICard;
 
     _MIDI_ResetTracks();
 
@@ -791,7 +815,7 @@ static void _MIDI_InitEMIDI(void)
     track *Track = _MIDI_TrackPtr;
     int tracknum = 0;
 
-    while ((tracknum < _MIDI_NumTracks) && (Track != NULL))
+    while ((tracknum < _MIDI_NumTracks) && (Track != nullptr))
     {
         _MIDI_Tick = 0;
         _MIDI_Beat = 1;
@@ -894,7 +918,7 @@ static void _MIDI_InitEMIDI(void)
                 case EMIDI_SONG_LOOP_END :
                     if (c2 == EMIDI_END_LOOP_VALUE)
                     {
-                        Track->context[ 0 ].loopstart = NULL;
+                        Track->context[ 0 ].loopstart = nullptr;
                         Track->context[ 0 ].loopcount = 0;
                     }
                     break;
@@ -981,32 +1005,5 @@ static void _MIDI_InitEMIDI(void)
     }
 
     _MIDI_ResetTracks();
-}
-
-void MV_RenderMIDI(void)
-{
-    int16_t * buffer16 = (int16_t *)MV_MusicBuffer;
-    int const samples  = MV_BufferSize >> 2;
-
-    for (int i = 0; i < samples; i++)
-    {
-        Bit16s buf[2];
-        while (MV_MIDIRenderTimer >= MV_MixRate)
-        {
-            if (MV_MIDIRenderTempo >= 0)
-                _MIDI_ServiceRoutine();
-            MV_MIDIRenderTimer -= MV_MixRate;
-        }
-        if (MV_MIDIRenderTempo >= 0) MV_MIDIRenderTimer += MV_MIDIRenderTempo;
-        OPL3_GenerateResampled(&OPLMusic::chip, buf);
-        *buffer16++ = clamp(buf[0]<<1, INT16_MIN, INT16_MAX);
-        *buffer16++ = clamp(buf[1]<<1, INT16_MIN, INT16_MAX);
-    }
-}
-
-
-void MIDI_UpdateMusic(void)
-{
-
 }
 

@@ -61,15 +61,15 @@ typedef struct
 
 extern const char *MUSIC_ErrorString(int ErrorNumber);
 
-int MUSIC_Init(int SoundCard);
-int MUSIC_Shutdown(void);
-void    MUSIC_SetVolume(int volume);
-int MUSIC_GetVolume(void);
-void    MUSIC_SetLoopFlag(int loopflag);
-void    MUSIC_Continue(void);
-void    MUSIC_Pause(void);
-int MUSIC_StopSong(void);
-int MUSIC_PlaySong(char *song, int songsize, int loopflag, const char *fn = nullptr);
-void    MUSIC_Update(void);
+int  MUSIC_Init(int SoundCard, int ForceEMIDI = -1);
+int  MUSIC_Shutdown(void);
+void MUSIC_SetVolume(int volume);
+int  MUSIC_GetVolume(void);
+void MUSIC_SetLoopFlag(int loopflag);
+void MUSIC_Continue(void);
+void MUSIC_Pause(void);
+int  MUSIC_StopSong(void);
+int  MUSIC_PlaySong(char *song, int songsize, int loopflag, const char *fn = nullptr);
+void MUSIC_Update(void);
 
 #endif

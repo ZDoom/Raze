@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define FX_MAN_H_
 
 #include "drivers.h"
-#include "inttypes.h"
+#include <inttypes.h>
 #include "limits.h"
 #include "multivoc.h"
 

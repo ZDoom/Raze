@@ -25,8 +25,8 @@
 #include "midifuncs.h"
 
 extern int ASS_PCMSoundDriver;
-extern int ASS_CDSoundDriver;
 extern int ASS_MIDISoundDriver;
+extern int ASS_EMIDICard;
 
 int SoundDriver_IsPCMSupported(int driver);
 int SoundDriver_IsMIDISupported(int driver);

@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "music.h"
 
-#include "al_midi.h"
 #include "compat.h"
 #include "drivers.h"
 #include "midi.h"
@@ -55,7 +54,7 @@ const char *MUSIC_ErrorString(int ErrorNumber)
 }
 
 
-int MUSIC_Init(int SoundCard)
+int MUSIC_Init(int SoundCard, int EMIDICard /*= -1*/)
 {
     int detected = 0;
 
@@ -63,14 +62,7 @@ int MUSIC_Init(int SoundCard)
     {
 redetect:
         detected++;
-
-#if defined _WIN32
-        SoundCard = ASS_WinMM;
-#elif RENDERTYPESDL
-        SoundCard = ASS_SDL;
-#else
-        SoundCard = ASS_NoSound;
-#endif
+        SoundCard = ASS_OPL3;
     }
 
     if (SoundCard < 0 || SoundCard >= ASS_NumSoundCards)
@@ -92,6 +84,7 @@ failed:
     }
 
     ASS_MIDISoundDriver = SoundCard;
+    ASS_EMIDICard       = EMIDICard;
 
     int status = SoundDriver_MIDI_Init(&MUSIC_MidiFunctions);
 
@@ -103,7 +96,7 @@ failed:
         goto failed;
     }
 
-    MV_Printf("successfully initialized %s!\n", SoundDriver_GetName(SoundCard));
+    MV_Printf("%s\n", SoundDriver_GetName(SoundCard));
 
     MIDI_SetMidiFuncs(&MUSIC_MidiFunctions);
 
@@ -154,5 +147,4 @@ int MUSIC_PlaySong(char *song, int songsize, int loopflag, const char *fn /*= nu
 
 void MUSIC_Update(void)
 {
-    MIDI_UpdateMusic();
 }

@@ -65,9 +65,5 @@ void MIDI_PauseSong(void);
 void MIDI_StopSong(void);
 int  MIDI_PlaySong(char *song, int loopflag);
 void MIDI_SetTempo(int tempo);
-int  MIDI_GetTempo(void);
-void MV_RenderMIDI(void);
-void MIDI_UpdateMusic(void);
-void MIDI_SetDivision(int division);
 
 #endif

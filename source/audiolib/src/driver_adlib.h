@@ -18,15 +18,16 @@
  
  */
 
+#include "al_midi.h"
 #include "midifuncs.h"
+#include "opl3.h"
 
-int AdlibDrv_GetError(void);
-const char *AdlibDrv_ErrorString( int ErrorNumber );
+int         AdLibDrv_GetError(void);
+const char *AdLibDrv_ErrorString(int ErrorNumber);
 
-int  AdlibDrv_MIDI_Init(midifuncs *);
-void AdlibDrv_MIDI_Shutdown(void);
-int  AdlibDrv_MIDI_StartPlayback(void (*service)(void));
-void AdlibDrv_MIDI_HaltPlayback(void);
-void AdlibDrv_MIDI_SetTempo(int tempo, int division);
-void AdlibDrv_MIDI_Lock(void);
-void AdlibDrv_MIDI_Unlock(void);
+int  AdLibDrv_MIDI_Init(midifuncs *);
+void AdLibDrv_MIDI_Shutdown(void);
+int  AdLibDrv_MIDI_StartPlayback(void (*service)(void));
+void AdLibDrv_MIDI_HaltPlayback(void);
+void AdLibDrv_MIDI_SetTempo(int tempo, int division);
+

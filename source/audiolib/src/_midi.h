@@ -25,11 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define ___MIDI_H
 #include "compat.h"
 
-#ifdef OPL_MIDI_HEADER
-namespace OPLMusic {
-#endif
-#define RELATIVE_BEAT( measure, beat, tick ) \
-   ( ( tick ) + ( ( beat ) << 9 ) + ( ( measure ) << 16 ) )
+#define RELATIVE_BEAT(measure, beat, tick) ((tick) + ((beat) << 9) + ((measure) << 16))
 
 //Bobby Prince thinks this may be 100
 //#define GENMIDI_DefaultVolume 100
@@ -105,7 +101,7 @@ namespace OPLMusic {
 
 #define EMIDI_GeneralMIDI       0
 #define EMIDI_SoundBlaster      4
-#define EMIDI_Adlib             7
+#define EMIDI_AdLib             7
 
 #define EMIDI_AffectsCurrentCard(c, type) (((c) == EMIDI_ALL_CARDS) || ((c) == (type)))
 #define EMIDI_NUM_CONTEXTS      7
@@ -145,19 +141,16 @@ typedef struct
     char EMIDI_VolumeChange;
 } track;
 
-static int _MIDI_ReadNumber(void *from, size_t size);
-static int _MIDI_ReadDelta(track *ptr);
+static int  _MIDI_ReadNumber(void *from, size_t size);
+static int  _MIDI_ReadDelta(track *ptr);
 static void _MIDI_ResetTracks(void);
 static void _MIDI_AdvanceTick(void);
 static void _MIDI_MetaEvent(track *Track);
 static void _MIDI_SysEx(track *Track);
-static int _MIDI_InterpretControllerInfo(track *Track, int TimeSet, int channel, int c1, int c2);
-static int _MIDI_SendControlChange(int channel, int c1, int c2);
+static int  _MIDI_InterpretControllerInfo(track *Track, int TimeSet, int channel, int c1, int c2);
+static int  _MIDI_SendControlChange(int channel, int c1, int c2);
 static void _MIDI_SetChannelVolume(int channel, int volume);
 static void _MIDI_SendChannelVolumes(void);
 static void _MIDI_InitEMIDI(void);
 
-#ifdef OPL_MIDI_HEADER
-}
-#endif
 #endif

@@ -909,7 +909,7 @@ void MV_UnhookMusicRoutine(void)
     if (MV_MusicCallback)
     {
         MV_Lock();
-        MV_MusicCallback = NULL;
+        MV_MusicCallback = nullptr;
         MV_MixMusic      = FALSE;
         MV_Unlock();
     }

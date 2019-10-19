@@ -19,22 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <inttypes.h>
+#include "_al_midi.h"
 
-namespace OPLMusic {
-
-typedef struct
-   {
-   uint8_t SAVEK[ 2 ];
-   uint8_t Level[ 2 ];
-   uint8_t Env1[ 2 ];
-   uint8_t Env2[ 2 ];
-   uint8_t Wave[ 2 ];
-   uint8_t Feedback;
-   int8_t  Transpose;
-   int8_t  Velocity;
-   } TIMBRE;
-
-TIMBRE ADLIB_TimbreBank[ 256 ] =
+AdLibTimbre ADLIB_TimbreBank[256] =
    {
       { { 33, 33 }, { 143, 6 }, { 242, 242 }, { 69, 118 }, { 0, 0 }, 8, 0, 0 },
       { { 49, 33 }, { 75, 0 }, { 242, 242 }, { 84, 86 }, { 0, 0 }, 8, 0, 0 },
@@ -293,5 +280,3 @@ TIMBRE ADLIB_TimbreBank[ 256 ] =
       { { 16, 17 }, { 68, 0 }, { 248, 243 }, { 119, 6 }, { 2, 0 }, 8, 35, 0 },
       { { 16, 17 }, { 68, 0 }, { 248, 243 }, { 119, 6 }, { 2, 0 }, 8, 35, 0 }
    };
-
-}

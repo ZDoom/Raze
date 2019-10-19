@@ -649,7 +649,7 @@ static DWORD WINAPI midiDataThread(LPVOID lpParameter)
     DWORD sequenceTime;
     DWORD sleepAmount = 100 / THREAD_QUEUE_INTERVAL;
     
-    MV_Printf("WinMM midiDataThread: started\n");
+    // MV_Printf("WinMM midiDataThread: started\n");
 
     midiThreadTimer = midi_get_tick();
     midiLastEventTime = midiThreadTimer;
@@ -669,7 +669,7 @@ static DWORD WINAPI midiDataThread(LPVOID lpParameter)
     do {
         waitret = WaitForSingleObject(midiThreadQuitEvent, sleepAmount);
         if (waitret == WAIT_OBJECT_0) {
-            MV_Printf("WinMM midiDataThread: exiting\n");
+            // MV_Printf("WinMM midiDataThread: exiting\n");
             break;
         } else if (waitret == WAIT_TIMEOUT) {
             // queue a tick
@@ -712,7 +712,7 @@ int WinMMDrv_MIDI_StartPlayback(void (*service)(void))
 
     midiThreadService = service;
 
-    midiThreadQuitEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    midiThreadQuitEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
     if (!midiThreadQuitEvent) {
         ErrorCode = WinMMErr_MIDICreateEvent;
         return WinMMErr_Error;
@@ -730,7 +730,7 @@ int WinMMDrv_MIDI_StartPlayback(void (*service)(void))
         midiStreamRunning = TRUE;
     }
 
-    midiThread = CreateThread(NULL, 0, midiDataThread, 0, 0, 0);
+    midiThread = CreateThread(nullptr, 0, midiDataThread, 0, 0, 0);
     if (!midiThread) {
         WinMMDrv_MIDI_HaltPlayback();
         ErrorCode = WinMMErr_MIDIPlayThread;
@@ -748,7 +748,7 @@ void WinMMDrv_MIDI_HaltPlayback(void)
         SetEvent(midiThreadQuitEvent);
 
         WaitForSingleObject(midiThread, INFINITE);
-        MV_Printf("WinMM MIDI_HaltPlayback synched\n");
+        // MV_Printf("WinMM MIDI_HaltPlayback synched\n");
 
         CloseHandle(midiThread);
     }
@@ -758,12 +758,12 @@ void WinMMDrv_MIDI_HaltPlayback(void)
     }
     
     if (midiStreamRunning) {
-        MV_Printf("stopping stream\n");
+        // MV_Printf("stopping stream\n");
         rv = midiStreamStop(midiStream);
         if (rv != MMSYSERR_NOERROR) {
             midi_error(rv, "WinMM MIDI_HaltPlayback midiStreamStop");
         }
-        MV_Printf("stream stopped\n");
+        // MV_Printf("stream stopped\n");
     
         midiStreamRunning = FALSE;
     }

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "renderlayer.h" // for win_gethwnd()
+#include "al_midi.h"
 #include <atomic>
 
 #include "vfs.h"
@@ -117,6 +118,19 @@ void S_MusicStartup(void)
     if (MUSIC_Init(ud.config.MusicDevice) == MUSIC_Ok || MUSIC_Init(0) == MUSIC_Ok || MUSIC_Init(1) == MUSIC_Ok)
     {
         MUSIC_SetVolume(mus_volume);
+
+        // TODO: figure out why this produces garbage output
+#if 0
+        if (auto fil = kopen4load("d3dtimbr.tmb", 0) != -1)
+        {
+            int l = kfilelength(fil);
+            auto tmb = (uint8_t *)Xmalloc(l);
+            kread(fil, tmb, l);
+            OPLMusic::AL_RegisterTimbreBank(tmb);
+            Xfree(tmb);
+            kclose(fil);
+        }
+#endif
         return;
     }
 
