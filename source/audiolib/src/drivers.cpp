@@ -41,9 +41,9 @@ int ASS_PCMSoundDriver  = ASS_AutoDetect;
 int ASS_MIDISoundDriver = ASS_AutoDetect;
 int ASS_EMIDICard = -1;
 
-#define UNSUPPORTED_PCM         0,0,0,0,0,0
-#define UNSUPPORTED_MIDI        0,0,0,0,0,0,0
-#define UNSUPPORTED_COMPLETELY  { 0,0, UNSUPPORTED_PCM, UNSUPPORTED_MIDI },
+#define UNSUPPORTED_PCM          nullptr,nullptr,nullptr,nullptr,nullptr,nullptr
+#define UNSUPPORTED_MIDI         nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr
+#define UNSUPPORTED_COMPLETELY { nullptr, nullptr, nullptr, UNSUPPORTED_PCM, UNSUPPORTED_MIDI },
 
 static struct {
     const char * DriverName;
@@ -169,39 +169,39 @@ const char *SoundDriver_GetName(int driver) { return  SoundDrivers[driver].Drive
 
 int SoundDriver_PCM_GetError(void)
 {
-    if (!SoundDriver_IsPCMSupported(ASS_PCMSoundDriver)) {
+    if (!SoundDriver_IsPCMSupported(ASS_PCMSoundDriver))
         return -1;
-    }
+
     return SoundDrivers[ASS_PCMSoundDriver].GetError();
 }
 
 const char * SoundDriver_PCM_ErrorString( int ErrorNumber )
 {
-    if (ASS_PCMSoundDriver < 0 || ASS_PCMSoundDriver >= ASS_NumSoundCards) {
+    if (ASS_PCMSoundDriver < 0 || ASS_PCMSoundDriver >= ASS_NumSoundCards)
         return "No sound driver selected.";
-    }
-    if (!SoundDriver_IsPCMSupported(ASS_PCMSoundDriver)) {
+
+    if (!SoundDriver_IsPCMSupported(ASS_PCMSoundDriver))
         return "Unsupported sound driver selected.";
-    }
+
     return SoundDrivers[ASS_PCMSoundDriver].ErrorString(ErrorNumber);
 }
 
 int SoundDriver_MIDI_GetError(void)
 {
-    if (!SoundDriver_IsMIDISupported(ASS_MIDISoundDriver)) {
+    if (!SoundDriver_IsMIDISupported(ASS_MIDISoundDriver))
         return -1;
-    }
+
     return SoundDrivers[ASS_MIDISoundDriver].GetError();
 }
 
 const char * SoundDriver_MIDI_ErrorString( int ErrorNumber )
 {
-    if (ASS_MIDISoundDriver < 0 || ASS_MIDISoundDriver >= ASS_NumSoundCards) {
+    if (ASS_MIDISoundDriver < 0 || ASS_MIDISoundDriver >= ASS_NumSoundCards)
         return "No sound driver selected.";
-    }
-    if (!SoundDriver_IsMIDISupported(ASS_MIDISoundDriver)) {
+
+    if (!SoundDriver_IsMIDISupported(ASS_MIDISoundDriver))
         return "Unsupported sound driver selected.";
-    }
+
     return SoundDrivers[ASS_MIDISoundDriver].ErrorString(ErrorNumber);
 }
 

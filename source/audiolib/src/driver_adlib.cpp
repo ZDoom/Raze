@@ -116,21 +116,21 @@ void AdLibDrv_MIDI_SetTempo(int tempo, int division)
 static opl3_chip chip;
 opl3_chip *AL_GetChip() { return &chip; }
 
-static unsigned int OctavePitch[MAX_OCTAVE + 1] = {
+static constexpr unsigned int OctavePitch[MAX_OCTAVE+1] = {
     OCTAVE_0, OCTAVE_1, OCTAVE_2, OCTAVE_3, OCTAVE_4, OCTAVE_5, OCTAVE_6, OCTAVE_7,
 };
 
-static unsigned int NoteMod12[MAX_NOTE + 1];
-static unsigned int NoteDiv12[MAX_NOTE + 1];
+static unsigned int NoteMod12[MAX_NOTE+1];
+static unsigned int NoteDiv12[MAX_NOTE+1];
 
 // Pitch table
 
-//static unsigned NotePitch[ FINETUNE_MAX + 1 ][ 12 ] =
+//static unsigned NotePitch[ FINETUNE_MAX+1 ][ 12 ] =
 //   {
 //      { C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B },
 //   };
 
-static unsigned int NotePitch[FINETUNE_MAX + 1][12] = {
+static constexpr unsigned int NotePitch[FINETUNE_MAX+1][12] = {
     { 0x157, 0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x241, 0x263, 0x287 },
     { 0x157, 0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x242, 0x264, 0x288 },
     { 0x158, 0x16c, 0x182, 0x199, 0x1b1, 0x1cb, 0x1e6, 0x203, 0x221, 0x243, 0x265, 0x289 },
@@ -168,7 +168,7 @@ static unsigned int NotePitch[FINETUNE_MAX + 1][12] = {
 // Slot numbers as a function of the voice and the operator.
 // ( melodic only)
 
-static int slotVoice[NUMADLIBVOICES][2] = {
+static constexpr int slotVoice[NUMADLIBVOICES][2] = {
     { 0, 3 },    // voice 0
     { 1, 4 },    // 1
     { 2, 5 },    // 2
@@ -186,7 +186,7 @@ static int VoiceKsl[AL_NumChipSlots][2];
 // This table gives the offset of each slot within the chip.
 // offset = fn( slot)
 
-static int8_t offsetSlot[AL_NumChipSlots] = { 0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21 };
+static constexpr int8_t offsetSlot[AL_NumChipSlots] = { 0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21 };
 
 static int VoiceReserved[NUMADLIBVOICES * 2];
 
@@ -854,7 +854,6 @@ static void AL_SetPitchBend(int channel, int lsb, int msb)
 static void AL_Shutdown(void)
 {
     AL_StereoOff();
-
     AL_ResetVoices();
     AL_Reset();
 }

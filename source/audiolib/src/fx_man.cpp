@@ -20,10 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "fx_man.h"
+
 #include "compat.h"
 #include "drivers.h"
+#include "driver_adlib.h"
+#include "midi.h"
 #include "multivoc.h"
-#include "fx_man.h"
+#include "osd.h"
 
 int FX_ErrorCode = FX_Ok;
 int FX_Installed;

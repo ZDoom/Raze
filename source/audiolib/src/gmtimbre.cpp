@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <inttypes.h>
-#include "_al_midi.h"
+#include "al_midi.h"
 
 AdLibTimbre ADLIB_TimbreBank[256] =
    {

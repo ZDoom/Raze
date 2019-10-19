@@ -696,13 +696,6 @@ void MIDI_StopSong(void)
 
 int MIDI_PlaySong(char *song, int loopflag)
 {
-    int    numtracks;
-    int    format;
-    int   headersize;
-    int   tracklength;
-    track *CurrentTrack;
-    char *ptr;
-
     if (_MIDI_Funcs == nullptr)
         return MIDI_NullMidiModule;
 
@@ -710,11 +703,13 @@ int MIDI_PlaySong(char *song, int loopflag)
         return MIDI_InvalidMidiFile;
 
     song += 4;
-    headersize      = _MIDI_ReadNumber(song, 4);
+    int const headersize = _MIDI_ReadNumber(song, 4);
     song += 4;
-    format          = _MIDI_ReadNumber(song, 2);
+    int const format = _MIDI_ReadNumber(song, 2);
+
     int My_MIDI_NumTracks = _MIDI_ReadNumber(song + 2, 2);
     int My_MIDI_Division  = _MIDI_ReadNumber(song + 4, 2);
+
     if (My_MIDI_Division < 0)
     {
         // If a SMPTE time division is given, just set to 96 so no errors occur
@@ -724,7 +719,7 @@ int MIDI_PlaySong(char *song, int loopflag)
     if (format > MAX_FORMAT)
         return MIDI_UnknownMidiFormat;
 
-    ptr = song + headersize;
+    char *ptr = song + headersize;
 
     if (My_MIDI_NumTracks == 0)
         return MIDI_NoTracks;
@@ -732,8 +727,8 @@ int MIDI_PlaySong(char *song, int loopflag)
     int My_MIDI_TrackMemSize = My_MIDI_NumTracks  * sizeof(track);
     track * My_MIDI_TrackPtr = (track *)Xmalloc(My_MIDI_TrackMemSize);
 
-    CurrentTrack = My_MIDI_TrackPtr;
-    numtracks    = My_MIDI_NumTracks;
+    auto CurrentTrack = My_MIDI_TrackPtr;
+    int numtracks    = My_MIDI_NumTracks;
 
     while (numtracks--)
     {
@@ -746,7 +741,7 @@ int MIDI_PlaySong(char *song, int loopflag)
             return MIDI_InvalidTrack;
         }
 
-        tracklength = _MIDI_ReadNumber(ptr + 4, 4);
+        int tracklength = _MIDI_ReadNumber(ptr + 4, 4);
         ptr += 8;
         CurrentTrack->start = ptr;
         ptr += tracklength;
