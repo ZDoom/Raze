@@ -27,7 +27,8 @@ struct PolymostRenderState
 {
     float Shade;
     float NumShades = 64.f;
-    float VisFactor = 128.f;
+	float ShadeDiv = 62.f;
+	float VisFactor = 128.f;
 	int Flags = 0;
     float NPOTEmulationFactor = 1.f;
     float NPOTEmulationXOffset;

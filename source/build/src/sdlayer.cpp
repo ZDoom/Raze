@@ -354,6 +354,8 @@ static void sighandler(int signum)
 
 #ifdef _WIN32
 
+FString currentGame;	// Currently there is no global state for the current game. This is a temporary workaround because the video init code needs to do a few things based on the active game.
+
 namespace Duke
 {
 	extern GameInterface Interface;
@@ -376,6 +378,7 @@ GameInterface *CheckFrontend()
 	FILE* f = fopen("blood.rff", "rb");
 	if (f)
 	{
+		currentGame = "Blood";
 		fclose(f);
 		return &Blood::Interface;
 	}
@@ -384,13 +387,26 @@ GameInterface *CheckFrontend()
 		f = fopen("redneck.grp", "rb");
 		if (f)
 		{
+			currentGame = "Redneck";	// RRRA is not separately covered
 			fclose(f);
 			return &Redneck::Interface;
 		}
 		else
 		{
 			f = fopen("sw.grp", "rb");
-			if (f) return &ShadowWarrior::Interface;
+			if (f)
+			{
+				currentGame = "ShadowWarrior";
+				fclose(f);
+				return &ShadowWarrior::Interface;
+			}
+			f = fopen("fury.grp", "rb");
+			if (f)
+			{
+				currentGame = "Fury";
+				fclose(f);
+			}
+			else currentGame = "Duke"; // also covers Nam and WW2GI.
 			return &Duke::Interface;
 		}
 	}
@@ -1341,11 +1357,12 @@ void sdlayer_setvideomode_opengl(void)
 	GLInterface.Deinit();
 	GLInterface.Init();
 	GLInterface.InitGLState(4, glmultisample);
-#if 1
-	GLInterface.mSamplers->SetTextureFilterMode(0, 1);
-#else
+	// I have no idea how to get this info from the lookup tables. Fortunately it is consistent per game.
+	if (!currentGame.Compare("Blood")) GLInterface.SetShadeDiv(62);
+	else if (!currentGame.Compare("Fury")) GLInterface.SetShadeDiv(30);
+	else GLInterface.SetShadeDiv(26);
+
 	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
-#endif
 
 }
 

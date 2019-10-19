@@ -38,7 +38,8 @@ public:
 	FBufferedUniform1i Flags;
     FBufferedUniform1f Shade;
     FBufferedUniform1f NumShades;
-    FBufferedUniform1f VisFactor;
+	FBufferedUniform1f ShadeDiv;
+	FBufferedUniform1f VisFactor;
     FBufferedUniform1f NPOTEmulationFactor;
     FBufferedUniform1f NPOTEmulationXOffset;
     FBufferedUniform1f Brightness;

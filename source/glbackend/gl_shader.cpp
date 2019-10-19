@@ -137,7 +137,8 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	
 	Flags.Init(hShader, "u_flags");
 	Shade.Init(hShader, "u_shade");
-    NumShades.Init(hShader, "u_numShades");
+	ShadeDiv.Init(hShader, "u_shadeDiv");
+	NumShades.Init(hShader, "u_numShades");
     VisFactor.Init(hShader, "u_visFactor");
     NPOTEmulationFactor.Init(hShader, "u_npotEmulationFactor");
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");

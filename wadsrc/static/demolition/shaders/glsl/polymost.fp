@@ -30,6 +30,7 @@ uniform sampler2D s_glow;
 
 uniform float u_shade;
 uniform float u_numShades;
+uniform float u_shadeDiv;
 uniform float u_visFactor;
 uniform int u_flags;
 
@@ -192,7 +193,7 @@ void main()
 			color.rgb *= detailColor.rgb;
 			if ((u_flags & RF_FogDisabled) == 0)
 			{
-				shade = clamp(shade / (u_numShades-2), 0.0, 1.0);
+				shade = clamp(shade * u_shadeDiv, 0.0, 1.0);	// u_shadeDiv is really 1/shadeDiv.
 				// Apply the shade as a linear depth fade ramp.
 				color.rgb = mix(color.rgb, u_fogColor.rgb, shade);
 			}

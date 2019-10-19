@@ -484,6 +484,7 @@ void PolymostRenderState::Apply(PolymostShader* shader)
 	shader->Flags.Set(Flags);
 	shader->Shade.Set(Shade);
 	shader->NumShades.Set(NumShades);
+	shader->ShadeDiv.Set(ShadeDiv);
 	shader->VisFactor.Set(VisFactor);
 	shader->Flags.Set(Flags);
 	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
