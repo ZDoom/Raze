@@ -82,6 +82,9 @@ extern "C" {
 *  LZ4LIB_VISIBILITY :
 *  Control library symbols visibility.
 */
+
+#define LZ4LIB_VISIBILITY 
+
 #ifndef LZ4LIB_VISIBILITY
 #  if defined(__GNUC__) && (__GNUC__ >= 4)
 #    define LZ4LIB_VISIBILITY __attribute__ ((visibility ("default")))
