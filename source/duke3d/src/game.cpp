@@ -6321,7 +6321,7 @@ int G_FPSLimit(void)
     uint64_t const elapsedTime  = frameTicks - lastFrameTicks;
     double const   dElapsedTime = elapsedTime;
 
-    if (dElapsedTime >= floor(nextPageDelay))
+    if (dElapsedTime >= nextPageDelay)
     {
         if (dElapsedTime <= nextPageDelay+g_frameDelay)
             nextPageDelay += g_frameDelay-dElapsedTime;
@@ -6859,53 +6859,66 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
-        char gameUpdate = false;
-        double const gameUpdateStartTime = timerGetHiTicks();
+        static bool frameJustDrawn;
+        bool gameUpdate = false;
+        double gameUpdateStartTime = timerGetHiTicks();
+
         if (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU|MODE_DEMO)) == 0) && totalclock >= ototalclock+TICSPERFRAME)
         {
-            if (g_networkMode != NET_DEDICATED_SERVER)
+            do 
             {
-                P_GetInput(myconnectindex);
-                inputfifo[0][myconnectindex] = localInput;
-            }
-
-            do
-            {
-                if (ready2send == 0) break;
-
-                ototalclock += TICSPERFRAME;
-
-                int const moveClock = (int) totalclock;
-
-                if (((ud.show_help == 0 && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-                        (myplayer.gm & MODE_GAME))
+                if (g_networkMode != NET_DEDICATED_SERVER)
                 {
-                    G_MoveLoop();
-                    S_Update();
+                    if (!frameJustDrawn)
+                        break;
+
+                    frameJustDrawn = false;
+
+                    P_GetInput(myconnectindex);
+                    inputfifo[0][myconnectindex] = localInput;
+                }
+
+                do
+                {
+                    if (ready2send == 0)
+                        break;
+
+                    ototalclock += TICSPERFRAME;
+
+                    int const moveClock = (int)totalclock;
+
+                    if (((ud.show_help == 0 && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
+                        && (myplayer.gm & MODE_GAME))
+                    {
+                        G_MoveLoop();
+                        S_Update();
 
 #ifdef __ANDROID__
-                    inputfifo[0][myconnectindex].fvel = 0;
-                    inputfifo[0][myconnectindex].svel = 0;
-                    inputfifo[0][myconnectindex].avel = 0;
-                    inputfifo[0][myconnectindex].horz = 0;
+                        inputfifo[0][myconnectindex].fvel = 0;
+                        inputfifo[0][myconnectindex].svel = 0;
+                        inputfifo[0][myconnectindex].avel = 0;
+                        inputfifo[0][myconnectindex].horz = 0;
 #endif
-                }
+                    }
 
-                if (totalclock - moveClock >= TICSPERFRAME)
-                {
-                    // computing a tic takes longer than a tic, so we're slowing
-                    // the game down. rather than tightly spinning here, go draw
-                    // a frame since we're fucked anyway
-                    break;
-                }
-            }
-            while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU|MODE_DEMO)) == 0) && totalclock >= ototalclock+TICSPERFRAME);
+                    if (totalclock - moveClock >= (TICSPERFRAME>>1))
+                    {
+                        // computing a tic takes longer than half a tic, so we're slowing
+                        // the game down. rather than tightly spinning here, go draw
+                        // a frame since we're fucked anyway
+                        break;
+                    }
+                } while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU | MODE_DEMO)) == 0) && totalclock >= ototalclock + TICSPERFRAME);
 
-            gameUpdate = true;
-            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
-            if (g_gameUpdateAvgTime < 0.f)
-                g_gameUpdateAvgTime = g_gameUpdateTime;
-            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
+                gameUpdate = true;
+                g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
+
+                if (g_gameUpdateAvgTime <= 0.0)
+                    g_gameUpdateAvgTime = g_gameUpdateTime;
+
+                g_gameUpdateAvgTime
+                = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
+            } while (0);
         }
 
         G_DoCheats();
@@ -6934,9 +6947,9 @@ MAIN_LOOP_RESTART:
             videoNextPage();
 
             if (gameUpdate)
-            {
                 g_gameUpdateAndDrawTime = timerGetHiTicks()-gameUpdateStartTime;
-            }
+
+            frameJustDrawn = true;
         }
 
         // handle CON_SAVE and CON_SAVENN
