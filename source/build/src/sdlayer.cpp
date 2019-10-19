@@ -455,9 +455,12 @@ void ChooseGame()
 
 		if (SUCCEEDED(TaskDialogIndirect(&stTaskConfig, &nResult, NULL, NULL)))
 		{
-			nResult -= 1000;
-			chdir(paths[nResult]);
-			gi = CheckFrontend();
+			if (nResult >= 1000 && nResult < 1000 +(int)buttons.Size())
+			{
+				nResult -= 1000;
+				chdir(paths[nResult]);
+				gi = CheckFrontend();
+			}
 		}
 		if (gi == nullptr) exit(1);
 	}

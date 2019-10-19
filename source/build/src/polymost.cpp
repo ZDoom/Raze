@@ -5462,6 +5462,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     return 0;
 }
 
+// This is for testing the shade map calculator needed for true color shading.
 void palookupinfo()
 {
 	auto pal = basepaltable[0];
@@ -5503,39 +5504,60 @@ void palookupinfo()
 
 	for (int i = 0; i < 256; i++)
 	{
-		if (palookup[i] == nullptr)
+		if (palookup[i] == nullptr || (i > 0 && palookup[i] == palookup[0]))
 		{
-			OSD_Printf("palookup[%d] undefined\n", i);
-			continue;
-		}
-		if (i > 0 && palookup[i] == palookup[0])
-		{
-			OSD_Printf("palookup[%d] == default\n", i);
+			// Either the same as the base of not present.
 			continue;
 		}
 		OSD_Printf("palookup[%d]:\n", i);
 
 		float lum0 = 0;
-		for (int j = 0; j < numshades; j++)
+		TArray<PalEntry> blacks, whites;
+		TArray<float> abslum, rellum, fadelum;
+		for (int j = 0; j < numshades - 1; j++)	// do not count the last one, it doesn't look correct in most lookups - this value needs to be extrapolated from the rest.
 		{
-			OSD_Printf("    Shade %d\n", j);
 			int map = palookup[i][j * 256 + black] * 3;
 			PalEntry blackmap(pal[map], pal[map + 1], pal[map + 2]);
 			map = palookup[i][j * 256 + white] * 3;
 			PalEntry whitemap(pal[map], pal[map + 1], pal[map + 2]);
 
-			OSD_Printf("        Black maps to %d - %02x %02x %02x\n", map/3, blackmap.r, blackmap.g, blackmap.b);
-			OSD_Printf("        White maps to %d - %02x %02x %02x\n", map/3, whitemap.r, whitemap.g, whitemap.b);
-			OSD_Printf("        White-Black maps to %d - %02x %02x %02x\n", map/3, whitemap.r-blackmap.r, whitemap.g - blackmap.g, whitemap.b - blackmap.b );
+			blacks.Push(blackmap);
+			whites.Push(whitemap);
+
 			float mylum = 0;
+			int palcnt = 0;
 			for (int k = 0; k < 255; k++)
 			{
-				map = palookup[i][j * 256 + k] * 3;
-				mylum += Luminance(pal[map], pal[map + 1], pal[map + 2]);
+				if (!IsPaletteIndexFullbright(i))
+				{
+					map = palookup[i][j * 256 + k] * 3;
+					mylum += Luminance(pal[map], pal[map + 1], pal[map + 2]);
+					palcnt++;
+				}
 			}
-			mylum /= 255*255;
-			if (j == 0) lum0 = mylum;
-			OSD_Printf("        luminance abs = %2.4f rel = %2.4f, fade only = %2.4f\n", mylum, mylum / lum0, (mylum - blackmap.Luminance()/255.f) / lum0);
+			mylum /= 255 * palcnt;
+			if (j == 0)
+			{
+				lum0 = mylum;
+				if (lum0 == 0) lum0 = 1;	// for always-black palettes.
+			}
+			abslum.Push(mylum);
+			rellum.Push(mylum / lum0);
+			fadelum.Push((mylum - blackmap.Luminance() / 255.f) / lum0);
+		}
+		TArray<float> interlum;
+		auto lastblack = blacks.Last();
+		auto& array = (lastblack.r < 6 && lastblack.g < 6 && lastblack.b < 6) ? rellum : fadelum;
+		float range = array[0] - array.Last();
+		for (int i = 0; i < numshades - 1; i++)
+		{
+			float interval = array[0] - i * range / (numshades-2);
+			interlum.Push(interval);
+		}
+		OSD_Printf("    fades to %02x %02x %02x\n", lastblack.r, lastblack.g, lastblack.b);
+		for (int i = 0; i < numshades - 1; i++)
+		{
+			OSD_Printf("        Shade %d: relative luminance = %2.4f, interpolated luminance: %2.4f\n", i, array[i], interlum[i]);
 		}
 		OSD_Printf("-------------------------\n");
 	}
