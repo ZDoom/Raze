@@ -183,7 +183,10 @@ void main()
 		else
 		{
 			color.rgb *= detailColor.rgb;
-			// todo: For True Color, calculate a shade value from the table and apply that to the color directly.
+			shade = clamp(shade / (u_numShades-2), 0.0, 1.0);
+			// Apply the shade as a linear depth fade ramp.
+			color.rgb = mix(color.rgb, u_fogColor.rgb, shade);
+
 		}
 		if (fullbright == 0.0) color.rgb *= v_color.rgb;
 		color.a *= v_color.a;

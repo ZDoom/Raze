@@ -262,16 +262,17 @@ void PaletteManager::BindPalswap(int index)
 		if (uindex != lastsindex)
 		{
 			lastsindex = uindex;
-			if (palswaps[uindex].swaptexture == nullptr)
+			auto& ps = palswaps[uindex];
+			if (ps.swaptexture == nullptr)
 			{
 				auto p = GLInterface.NewTexture();
 				p->CreateTexture(256, numshades, true, false);
-				p->LoadTexture((uint8_t*)palswaps[uindex].lookup);
+				p->LoadTexture((uint8_t*)ps.lookup);
 				p->SetSampler(Sampler2DNoFilter);
-				palswaps[uindex].swaptexture = p;
+				ps.swaptexture = p;
 			}
-			inst->BindTexture(1, palswaps[uindex].swaptexture);
-			inst->SetFadeColor(palswaps[index].fadeColor);
+			inst->BindTexture(1, ps.swaptexture);
+			inst->SetFadeColor(ps.fadeColor);
 		}
 	}
 
