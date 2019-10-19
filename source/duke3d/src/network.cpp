@@ -65,22 +65,9 @@ int32_t     g_networkMode       = NET_CLIENT;
 
 typedef TYPE_PUNNED int32_t NetChunk32;
 
+void faketimerhandler(void) { ; }
 
-// Unfortunately faketimerhandler needs extra "help" because the Build Engine source doesn't include network.h.
-#ifdef NETCODE_DISABLE
-void faketimerhandler(void)
-{
-    ;
-}
-#else
-void faketimerhandler(void)
-{
-    if (g_netServer == NULL && g_netClient == NULL)
-        return;
-
-    enet_host_service(g_netServer ? g_netServer : g_netClient, NULL, 0);
-}
-
+#ifndef NETCODE_DISABLE
 static void Net_Disconnect(void);
 static void Net_HandleClientPackets(void);
 static void Net_HandleServerPackets(void);
@@ -88,13 +75,10 @@ static void Net_HandleServerPackets(void);
 
 void Net_GetPackets(void)
 {
-    timerUpdate();
-    MUSIC_Update();
-    S_Update();
-
-    G_HandleSpecialKeys();
-
 #ifndef NETCODE_DISABLE
+    if (g_netServer == NULL && g_netClient == NULL)
+        return;
+
     if (g_netDisconnect)
     {
         Net_Disconnect();
@@ -106,14 +90,12 @@ void Net_GetPackets(void)
         return;
     }
 
+    enet_host_service(g_netServer ? g_netServer : g_netClient, NULL, 0);
+
     if (g_netServer)
-    {
         Net_HandleClientPackets();
-    }
     else if (g_netClient)
-    {
         Net_HandleServerPackets();
-    }
 #endif
 }
 

@@ -703,8 +703,6 @@ static void G_SaveTimers(void)
 
 static void G_RestoreTimers(void)
 {
-    timerUpdate();
-
     totalclock     = g_timers.totalclock;
     totalclocklock = g_timers.totalclocklock;
     ototalclock    = g_timers.ototalclock;

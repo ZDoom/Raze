@@ -1222,7 +1222,7 @@ void Screen_Play(void)
 
     do
     {
-        G_HandleAsync();
+        gameHandleEvents();
 
         ototalclock = totalclock + 1; // pause game like ANMs
 

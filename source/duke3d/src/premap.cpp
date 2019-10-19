@@ -481,7 +481,6 @@ void G_CacheMapData(void)
             {
                 Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", percentDisplayed, cnt, g_precacheCount);
                 G_DoLoadScreen(tempbuf, percentDisplayed);
-                timerUpdate();
 
                 if (totalclock - clock >= 1)
                 {
