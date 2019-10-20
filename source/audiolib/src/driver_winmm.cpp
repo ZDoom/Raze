@@ -737,6 +737,8 @@ int WinMMDrv_MIDI_StartPlayback(void (*service)(void))
         return WinMMErr_Error;
     }
 
+    midiLastDivision = 0;
+
     return WinMMErr_Ok;
 }
 

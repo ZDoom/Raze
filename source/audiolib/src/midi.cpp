@@ -776,11 +776,11 @@ int MIDI_PlaySong(char *song, int loopflag)
 
     _MIDI_Reset = FALSE;
 
-    MIDI_SetTempo(120);
-
     // this can either stay like this, or I can add another field to the MIDI driver spec that holds the service callback
     if (SoundDriver_MIDI_StartPlayback(ASS_MIDISoundDriver == ASS_OPL3 ? _MIDI_ServiceMultivoc : _MIDI_ServiceRoutine) != MIDI_Ok)
         return MIDI_DriverError;
+
+    MIDI_SetTempo(120);
 
     _MIDI_SongLoaded = TRUE;
     _MIDI_SongActive = TRUE;
