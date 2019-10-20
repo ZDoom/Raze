@@ -136,11 +136,37 @@ public:
 
 };
 
+// Wrappers for the handle based API to get rid of the direct  calls without any actual changes to the implementation.
 inline FileReader kopenFileReader(const char* name, int where)
 {
 	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
 	KFileReaderInterface *fri = handle == buildvfs_kfd_invalid? nullptr : new KFileReaderInterface(handle);
 	return FileReader(fri);
+}
+
+inline bool testkopen(const char* name, int where)
+{
+	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
+	if (handle != buildvfs_kfd_invalid) kclose(handle);
+	return handle != buildvfs_kfd_invalid;
+}
+
+inline TArray<uint8_t> kloadfile(const char* name, int where)
+{
+	auto fr = kopenFileReader(name, where);
+	return fr.isOpen() ? fr.Read() : TArray <uint8_t>();
+}
+
+inline int32_t kfilesize(const char* name, int where)
+{
+	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
+	if (handle != buildvfs_kfd_invalid)
+	{
+		auto fs = kfilelength(handle);
+		kclose(handle);
+		return fs;
+	}
+	return -1;
 }
 
 #endif // cache1d_h_

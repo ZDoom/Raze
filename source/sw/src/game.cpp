@@ -1721,7 +1721,6 @@ LogoLevel(void)
     char called;
     int fin;
     unsigned char backup_pal[256*3];
-    unsigned char pal[PAL_SIZE];
     char tempbuf[256];
     char *palook_bak = palookup[0];
     UserInput uinfo = { FALSE, FALSE, dir_None };
@@ -1754,12 +1753,10 @@ LogoLevel(void)
     // PreCache Anim
     LoadAnm(0);
 
-    if ((fin = kopen4load("3drealms.pal", 0)) != -1)
+	auto pal = kloadfile("3drealms.pal", 0);
+	if (pal.Size() >= 768)
     {
-        kread(fin, pal, PAL_SIZE);
-        kclose(fin);
-
-        paletteSetColorTable(1, pal);
+        paletteSetColorTable(1, pal.Data());
         videoSetPalette(gs.Brightness, 1, 2);
     }
     DSPRINTF(ds,"Just read in 3drealms.pal...");
@@ -1951,7 +1948,7 @@ TenScreen(void)
     GetPaletteFromVESA(pal);
     memcpy(backup_pal, pal, PAL_SIZE);
 
-    if ((fin = kopen4load("ten.pal", 0)) != -1)
+    if ((fin = k open4load("ten.pal", 0)) != -1)
         {
         kread(fin, pal, PAL_SIZE);
         kclose(fin);
@@ -2012,7 +2009,7 @@ TitleLevel(void)
     videoClearViewableArea(0L);
     videoNextPage();
 
-//    if ((fin = kopen4load("title.pal", 0)) != -1)
+//    if ((fin = k open4load("title.pal", 0)) != -1)
 //        {
 //        kread(fin, pal, PAL_SIZE);
 //        kclose(fin);
@@ -3216,11 +3213,10 @@ void DosScreen(void)
 
 #define DOS_SCREEN_SIZE (4000-(80*2))
 #define DOS_SCREEN_PTR ((void *)(0xB8000))
-    int fin;
     int i;
     char buffer[DOS_SCREEN_SIZE];
 
-    fin = kopen4load(DOS_SCREEN_NAME,0);
+    fin = k open4load(DOS_SCREEN_NAME,0);
     if (fin == -1)
         return;
 
@@ -3370,19 +3366,15 @@ int DetectShareware(void)
 
     int h;
 
-    h = kopen4load(DOS_SCREEN_NAME_SW,1);
-    if (h >= 0)
+    if (testkopen(DOS_SCREEN_NAME_SW, 1))
     {
         isShareware = TRUE;
-        kclose(h);
         return 0;
     }
 
-    h = kopen4load(DOS_SCREEN_NAME_REG,1);
-    if (h >= 0)
+    if (testkopen(DOS_SCREEN_NAME_REG, 1))
     {
         isShareware = FALSE;
-        kclose(h);
         return 0;
     }
 
@@ -3468,15 +3460,6 @@ int32_t app_main(int32_t argc, char const * const * argv)
             return 0;
         }
     }
-
-#ifdef RENDERTYPEWIN
-    if (win_checkinstance())
-    {
-        if (!wm_ynbox("Shadow Warrior","Another Build game is currently running. "
-                      "Do you wish to continue starting this copy?"))
-            return 0;
-    }
-#endif
 
 #if defined(PREFIX)
     {
@@ -4057,7 +4040,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
             if (strchr(UserMapName, '.') == 0)
                 strcat(UserMapName, ".map");
 
-            if ((fil = kopen4load(UserMapName,0)) == -1)
+            if (!testkopen(UserMapName,0))
             {
 #ifdef RENDERTYPEWIN
                 char msg[256];
@@ -4066,11 +4049,8 @@ int32_t app_main(int32_t argc, char const * const * argv)
 #else
                 printf("ERROR: Could not find user map %s!\n\n",UserMapName);
 #endif
-                kclose(fil);
                 swexit(0);
             }
-            else
-                kclose(fil);
         }
 
         else if (Bstrncasecmp(arg, "g", 1) == 0 && !SW_SHAREWARE)

@@ -226,7 +226,6 @@ void AnimZilla(int frame, int numframes)
 
 unsigned char *LoadAnm(short anim_num)
 {
-    int handle;
     int length;
     unsigned char *animbuf, *palptr;
     int i,j,k;
@@ -242,17 +241,16 @@ unsigned char *LoadAnm(short anim_num)
     
     if (anm_ptr[anim_num] == 0)
     {
-        handle = kopen4load(ANIMname[ANIMnum], 0);
-        if (handle == -1)
+        auto handle = kopenFileReader(ANIMname[ANIMnum], 0);
+        if (!handle.isOpen())
             return NULL;
-        length = kfilelength(handle);
+        length = handle.GetLength();
 
 		buffer.Resize(length + sizeof(anim_t));
 		anm_ptr[anim_num] = (anim_t*)buffer.Data();
         animbuf = (unsigned char *)((intptr_t)anm_ptr[anim_num] + sizeof(anim_t));
 
-        kread(handle, animbuf, length);
-        kclose(handle);
+        handle.Read(animbuf, length);
     }
     else
     {
@@ -289,10 +287,8 @@ playanm(short anim_num)
         return;
 
     // [JM] Temporary, needed to get the file's length for ANIM_LoadAnim. !CHECKME!
-    handle = kopen4load(ANIMname[ANIMnum], 0);
-    if (handle == -1) return;
-    length = kfilelength(handle);
-    kclose(handle);
+    length = kfilesize(ANIMname[ANIMnum], 0);
+	if (length == -1) return;
 
     DSPRINTF(ds,"PlayAnm - Palette Stuff");
     MONO_PRINT(ds);

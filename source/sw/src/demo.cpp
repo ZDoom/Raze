@@ -46,7 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-DFILE DemoFileIn = DF_ERR;
+DFILE DemoFileIn;
 FILE *DemoFileOut;
 SWBOOL DemoPlaying = FALSE;
 SWBOOL DemoRecording = FALSE;
@@ -228,7 +228,7 @@ DemoReadHeader(void)
         DemoFileIn = DOPEN_READ(DemoFileName);
     }
 
-    if (DemoFileIn == DF_ERR)
+    if (DF_ERR(DemoFileIn))
     {
         TerminateGame();
         printf("File %s is not a valid demo file.",DemoFileName);
@@ -360,11 +360,10 @@ DemoTerm(void)
 
     if (DemoPlaying)
     {
-        if (DemoFileIn == DF_ERR)
-            return;
+		if (DF_ERR(DemoFileIn))
+			return;
 
         DCLOSE(DemoFileIn);
-        DemoFileIn = DF_ERR;
     }
 
     if (DemoSyncTest||DemoSyncRecord)

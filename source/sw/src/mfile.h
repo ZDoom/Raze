@@ -29,15 +29,16 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-typedef BFILE* MFILE_WRITE;
-typedef int32_t MFILE_READ;
+typedef FILE* MFILE_WRITE;
+typedef FILE* MFILE_READ;
 
-#define MREAD(ptr, size, num,handle) kread((handle),(ptr), (size) * (num))
+// This needs some real fixing...
+#define MREAD(ptr, size, num,handle) fread((ptr),(size),(num),(handle))
 #define MWRITE(ptr, size, num,handle) fwrite((ptr),(size),(num),(handle))
 #define MOPEN_WRITE(name) fopen(name,"wb")
-#define MOPEN_READ(name) kopen4load(name,0)
-#define MCLOSE_WRITE(handle) Bfclose(handle)
-#define MCLOSE_READ(handle) kclose(handle)
-#define MOPEN_WRITE_ERR 0
-#define MOPEN_READ_ERR -1
+#define MOPEN_READ(name) fopen(name,"rb")
+#define MCLOSE_WRITE(handle) fclose(handle)
+#define MCLOSE_READ(handle) fclose(handle)
+#define MOPEN_WRITE_ERR nullptr
+#define MOPEN_READ_ERR nullptr
 END_SW_NS

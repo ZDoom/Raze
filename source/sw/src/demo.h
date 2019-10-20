@@ -53,11 +53,11 @@ extern int DemoRecCnt;                    // Can only record 1-player game
 
 // Demo File - reading from group
 #if DEMO_FILE_TYPE == DEMO_FILE_GROUP
-typedef long DFILE;
-#define DREAD(ptr, size, num, handle) kread((handle),(ptr),(size)*(num))
-#define DOPEN_READ(name) kopen4load(name,0)
-#define DCLOSE(handle) kclose(handle)
-#define DF_ERR -1
+typedef FileReader DFILE;
+#define DREAD(ptr, size, num, handle) (handle).Read((ptr),(size)*(num))
+#define DOPEN_READ(name) kopenFileReader(name,0)
+#define DCLOSE(handle) ((handle).Close())
+#define DF_ERR(f) (!(f).isOpen())
 #else
 typedef FILE *DFILE;
 #define DREAD(ptr, size, num,handle) fread((ptr),(size),(num),(handle))
@@ -65,7 +65,7 @@ typedef FILE *DFILE;
 #define DOPEN_WRITE(name) fopen(name,"wb")
 #define DOPEN_READ(name) fopen(name,"rb")
 #define DCLOSE(handle) fclose(handle)
-#define DF_ERR NULL
+#define DF_ERR(f) ((f) == NULL)
 #endif
 
 void DemoTerm(void);

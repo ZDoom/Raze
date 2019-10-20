@@ -129,15 +129,6 @@ int32_t G_CheckCmdSwitch(int32_t argc, char const * const * argv, const char *st
     return 0;
 }
 
-// returns: 1 if file could be opened, 0 else
-int32_t testkopen(const char *filename, char searchfirst)
-{
-    buildvfs_kfd fd = kopen4load(filename, searchfirst);
-    if (fd != buildvfs_kfd_invalid)
-        kclose(fd);
-    return (fd != buildvfs_kfd_invalid);
-}
-
 // checks from path and in ZIPs, returns 1 if NOT found
 int32_t check_file_exist(const char *fn)
 {
