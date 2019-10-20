@@ -39,6 +39,7 @@
 
 #include "bitmap.h"
 #include "image.h"
+#include "../glbackend/gl_hwtexture.h"
 
 FTexture *CreateBrightmapTexture(FImageSource*);
 
