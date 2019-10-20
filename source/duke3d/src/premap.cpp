@@ -471,26 +471,6 @@ void G_CacheMapData(void)
 
         if ((++cnt & 7) == 0)
             gameHandleEvents();
-
-        if (videoGetRenderMode() != REND_CLASSIC && totalclock - clock > (TICRATE>>2))
-        {
-            int const percentComplete = min(100, tabledivide32_noinline(100 * cnt, g_precacheCount));
-
-            // this just prevents the loading screen percentage bar from making large jumps
-            while (percentDisplayed < percentComplete)
-            {
-                Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", percentDisplayed, cnt, g_precacheCount);
-                G_DoLoadScreen(tempbuf, percentDisplayed);
-
-                if (totalclock - clock >= 1)
-                {
-                    clock = (int) totalclock;
-                    percentDisplayed++;
-                }
-            }
-
-            clock = (int) totalclock;
-        }
     }
 
     Bmemset(gotpic, 0, sizeof(gotpic));
