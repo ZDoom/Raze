@@ -1010,7 +1010,7 @@ static int get_floorspr_clipyou(vec2_t const v1, vec2_t const v2, vec2_t const v
     return clipyou;
 }
 
-static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int const walldist)
+static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int walldist)
 {
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {
@@ -1021,9 +1021,17 @@ static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int cons
     if (inside_p(pos.x, pos.y, *sectnum))
         return;
 
+    int16_t nsecs = min<int16_t>(getsectordist(pos, *sectnum), INT16_MAX);
+
+    if (nsecs > (walldist + 8))
+    {
+        OSD_Printf(EDUKE32_PRETTY_FUNCTION ":%d shortest distance between origin point (%d, %d) and sector %d is %d. Sector may be corrupt!\n",
+                   __LINE__, pos.x, pos.y, *sectnum, nsecs);
+        walldist = 0x7fff;
+    }
+
     static int16_t sectlist[MAXSECTORS];
     static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-    int16_t        nsecs;
 
     bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, *sectnum);
 
