@@ -76,25 +76,24 @@ SWBOOL    tokenready;                     // only TRUE if UnGetToken was just ca
 
 SWBOOL LoadScriptFile(const char *filename)
 {
-    int size, readsize;
-    int fp;
+    size_t size, readsize;
+    FileReader fp;
 
 
-    if ((fp=kopen4load(filename,0)) == -1)
-    {
-        // If there's no script file, forget it.
-        return FALSE;
-    }
 
-    size = kfilelength(fp);
+	if (!(fp = kopenFileReader(filename, 0)).isOpen())
+	{
+		// If there's no script file, forget it.
+		return FALSE;
+	}
+
+	size = fp.GetLength();
 
     scriptbuffer = (char *)AllocMem(size);
 
     ASSERT(scriptbuffer != NULL);
 
-    readsize = kread(fp, scriptbuffer, size);
-
-    kclose(fp);
+    readsize = fp.Read(scriptbuffer, size);
 
     ASSERT(readsize == size);
 

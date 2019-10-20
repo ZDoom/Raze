@@ -160,8 +160,8 @@ AMB_INFO ambarray[] =
 
 #define MAXSONGS        10              // This is the max songs per episode
 
-SWBOOL OpenSound(VOC_INFOp vp, int *handle, int *length);
-int ReadSound(int handle, VOC_INFOp vp, int length);
+SWBOOL OpenSound(VOC_INFOp vp, FileReader &handle, int *length);
+int ReadSound(FileReader & handle, VOC_INFOp vp, int length);
 
 // 3d sound engine function prototype
 VOC3D_INFOp Insert3DSound(void);
@@ -752,10 +752,10 @@ SWBOOL CacheSound(int num, int type)
     // if no data we need to cache it in
     if (!vp->data)
     {
-        int handle;
+        FileReader handle;
         int length;
 
-        if (!OpenSound(vp, &handle, &length))
+        if (!OpenSound(vp, handle, &length))
         {
             sprintf(ds,"Could not open sound %s, num %d, priority %d\n",vp->name,num,vp->priority);
             CON_ConMessage("%s", ds);
@@ -778,29 +778,11 @@ SWBOOL CacheSound(int num, int type)
 
             cacheAllocateBlock((intptr_t*)&vp->data, length, &vp->lock);
 
-#if 0
-            // DEBUG
-            globsndata[num] = AllocMem(length);
-            glength[num] = length;
-
-            fp = fopen(vp->name, "rb");
-            if (fp != NULL)
-            {
-                fread(globsndata[num], length, 1, fp);
-                ASSERT(globsndata[num] != NULL);
-                fclose(fp);
-            }
-#endif
             ///////
 
             ASSERT(vp->data);
             ReadSound(handle, vp, length);
 
-#if 0
-            //DEBUG
-            globvpdata[num] = vp->data;
-            CheckSndData(__FILE__, __LINE__);
-#endif
         }
     }
 
@@ -1093,25 +1075,25 @@ void PlaySoundRTS(int rts_num)
 ///////////////////////////////////////////////
 
 SWBOOL
-OpenSound(VOC_INFOp vp, int *handle, int *length)
+OpenSound(VOC_INFOp vp, FileReader &handle, int *length)
 {
-    *handle = kopen4load(vp->name, 0);
+    handle = kopenFileReader(vp->name, 0);
 
-    if (*handle == -1)
+    if (!handle.isOpen())
     {
         return FALSE;
     }
 
-    *length = kfilelength(*handle);
+    *length = handle.GetLength();
 
     return TRUE;
 }
 
 
 int
-ReadSound(int handle, VOC_INFOp vp, int length)
+ReadSound(FileReader &handle, VOC_INFOp vp, int length)
 {
-    if (kread(handle, vp->data, length) != length)
+    if (handle.Read(vp->data, length) != length)
     {
         TerminateGame();
         printf("Error reading file '%s'.\n", vp->name);
@@ -1119,41 +1101,31 @@ ReadSound(int handle, VOC_INFOp vp, int length)
     }
 
     vp->datalen = length;
-
-    kclose(handle);
     return 0;
 }
 
 SWBOOL
 LoadSong(const char *filename)
 {
-    int handle;
-    int size;
-    char *ptr;
-
-    if ((handle = kopen4load(filename, 0)) == -1)
+	auto fr = kopenFileReader(filename, 0);
+	if (!fr.isOpen())
     {
         return FALSE;
     }
 
-    size = kfilelength(handle);
+    auto size = fr.GetLength();
 
-    ptr = (char *) AllocMem(size);
+    auto ptr = (char *) AllocMem(size);
     if (ptr == NULL)
     {
-        kclose(handle);
         return FALSE;
     }
 
-    if (kread(handle, ptr, size) != size)
+    if (fr.Read(ptr, size) != size)
     {
         FreeMem(ptr);
-        kclose(handle);
         return FALSE;
     }
-
-    kclose(handle);
-
     SongPtr = ptr;
     SongLength = size;
 
@@ -1246,14 +1218,13 @@ void loadtmb(void)
     char tmb[8000];
     int fil, l;
 
-    fil = kopen4load("swtimbr.tmb",0);
-    if (fil == -1)
+	auto fil = kopenFileReader("swtimbr.tmb",0);
+    if (!fil.isOpen())
         return;
 
-    l = min((size_t)kfilelength(fil), sizeof(tmb));
-    kread(fil,tmb,l);
-    MUSIC_RegisterTimbreBank(tmb);
-    kclose(fil);
+	auto tmb = fil.Read();
+	if(tmb.Size())
+		MUSIC_RegisterTimbreBank(tmb.Data());
 }
 #endif
 

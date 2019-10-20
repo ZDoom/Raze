@@ -140,13 +140,9 @@ extern void G_LoadLookups(void);
 
 //////////
 
-#if defined HAVE_FLAC || defined HAVE_VORBIS
 # define FORMAT_UPGRADE_ELIGIBLE
 extern int g_maybeUpgradeSoundFormats;
 extern buildvfs_kfd S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
-#else
-# define S_OpenAudio(fn, searchfirst, ismusic) kopen4loadfrommod(fn, searchfirst)
-#endif
 
 void G_AddGroup(const char* buffer);
 void G_AddPath(const char* buffer);
