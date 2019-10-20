@@ -731,6 +731,7 @@ set (PCH_SOURCES
 	glbackend/gl_shader.cpp
 	glbackend/glbackend.cpp
 	glbackend/gl_palmanager.cpp
+	glbackend/gl_texture.cpp
 	
 	mact/src/animlib.cpp
 	mact/src/control.cpp
@@ -774,7 +775,6 @@ set (PCH_SOURCES
 	build/src/sdlayer.cpp
 	build/src/smalltextfont.cpp
 	build/src/softsurface.cpp
-	build/src/texcache.cpp
 	build/src/textfont.cpp
 	build/src/tiles.cpp
 	build/src/timer.cpp
