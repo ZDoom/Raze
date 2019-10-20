@@ -528,8 +528,8 @@ static void _MIDI_ServiceMultivoc(void)
         }
         if (MV_MIDIRenderTempo >= 0) MV_MIDIRenderTimer += MV_MIDIRenderTempo;
         OPL3_GenerateResampled(AL_GetChip(), buf);
-        *buffer16++ = clamp(buf[0]<<1, INT16_MIN, INT16_MAX);
-        *buffer16++ = clamp(buf[1]<<1, INT16_MIN, INT16_MAX);
+        *buffer16++ = clamp(buf[0]<<3, INT16_MIN, INT16_MAX);
+        *buffer16++ = clamp(buf[1]<<3, INT16_MIN, INT16_MAX);
     }
 }
 
