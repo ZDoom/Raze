@@ -1,14 +1,7 @@
-
-#include "baselayer.h"
+#include "palette.h"
 #include "build.h"
-#include "lz4.h"
 #include "hightile.h"
 #include "polymost.h"
-#include "scriptfile.h"
-#include "xxhash.h"
-#include "kplib.h"
-
-#include "vfs.h"
 #include "textures.h"
 #include "bitmap.h"
 #include "../../glbackend/glbackend.h"
