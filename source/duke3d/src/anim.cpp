@@ -438,8 +438,7 @@ int32_t Anim_Play(const char *fn)
         goto end_anim;
     }
 
-    anim->animlock = 255;
-	anim->animbuf = buffer.Data();
+    anim->animbuf = buffer.Data();
 
     kread(handle, anim->animbuf, length);
     kclose(handle);
@@ -576,8 +575,7 @@ end_anim:
 	tileDelete(TILE_ANIM);
 
     // this is the lock for anim->animbuf
-    anim->animlock = 1;
-
+    
     return !running;
 }
 
