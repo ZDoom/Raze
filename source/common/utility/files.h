@@ -210,6 +210,15 @@ public:
 		return buffer;
 	}
 
+	TArray<uint8_t> ReadPadded(int padding)
+	{
+		TArray<uint8_t> buffer(mReader->Length + padding, true);
+		Size length = mReader->Read(&buffer[0], mReader->Length);
+		if (length < mReader->Length) buffer.Clear();
+		else memset(buffer.Data() + mReader->Length, 0, padding);
+		return buffer;
+	}
+
 	char *Gets(char *strbuf, Size len)
 	{
 		return mReader->Gets(strbuf, (int)len);

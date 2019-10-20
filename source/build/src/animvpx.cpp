@@ -28,11 +28,11 @@ const char *animvpx_read_ivf_header_errmsg[] = {
 
 EDUKE32_STATIC_ASSERT(sizeof(animvpx_ivf_header_t) == 32);
 
-int32_t animvpx_read_ivf_header(buildvfs_kfd inhandle, animvpx_ivf_header_t *hdr)
+int32_t animvpx_read_ivf_header(FileReader & inhandle, animvpx_ivf_header_t *hdr)
 {
     int32_t err;
 
-    if (kread(inhandle, hdr, sizeof(animvpx_ivf_header_t)) != sizeof(animvpx_ivf_header_t))
+    if (inhandle.Read(hdr, sizeof(animvpx_ivf_header_t)) != sizeof(animvpx_ivf_header_t))
         return 1;  // "couldn't read header"
 
     err = animvpx_check_header(hdr);
@@ -86,7 +86,7 @@ static void get_codec_error(animvpx_codec_ctx *codec)
 }
 
 // no checks for double-init!
-int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, buildvfs_kfd inhandle, animvpx_codec_ctx *codec)
+int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, FileReader & inhandle, animvpx_codec_ctx *codec)
 {
     vpx_codec_dec_cfg_t cfg;
 
@@ -98,7 +98,7 @@ int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, buildvfs_kfd inhand
     codec->height = info->height;
 
     //
-    codec->inhandle = inhandle;
+    codec->inhandle = &inhandle;
     codec->pic = (uint8_t *)Xcalloc(info->width*info->height,4);
 
     codec->compbuflen = codec->compbufallocsiz = 0;
@@ -153,13 +153,13 @@ int32_t animvpx_uninit_codec(animvpx_codec_ctx *codec)
 ////////// FRAME RETRIEVAL //////////
 
 // read one IVF/VP8 frame, which may code multiple "picture-frames"
-static int32_t animvpx_read_frame(buildvfs_kfd inhandle, uint8_t **bufptr, uint32_t *bufsizptr, uint32_t *bufallocsizptr)
+static int32_t animvpx_read_frame(FileReader & inhandle, uint8_t **bufptr, uint32_t *bufsizptr, uint32_t *bufallocsizptr)
 {
 #pragma pack(push,1)
     struct { uint32_t framesiz; uint64_t timestamp; } hdr;
 #pragma pack(pop)
 
-    if (kread(inhandle, &hdr, sizeof(hdr)) != sizeof(hdr))
+    if (inhandle.Read(&hdr, sizeof(hdr)) != sizeof(hdr))
         return 1;
 
     if (hdr.framesiz == 0)
@@ -184,7 +184,7 @@ static int32_t animvpx_read_frame(buildvfs_kfd inhandle, uint8_t **bufptr, uint3
 
     *bufsizptr = hdr.framesiz;
 
-    if (kread(inhandle, *bufptr, hdr.framesiz) != (signed)hdr.framesiz)
+    if (inhandle.Read(*bufptr, hdr.framesiz) != (signed)hdr.framesiz)
         return 3;
 
     return 0;
@@ -226,7 +226,7 @@ int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **picptr)
 read_ivf_frame:
         corrupted = 0;
 
-        ret = animvpx_read_frame(codec->inhandle, &codec->compbuf, &codec->compbuflen,
+        ret = animvpx_read_frame(*codec->inhandle, &codec->compbuf, &codec->compbuflen,
                                  &codec->compbufallocsiz);
         if (ret == 1)
         {

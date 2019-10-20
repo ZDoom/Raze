@@ -36,7 +36,7 @@ typedef struct
 #include "vfs.h"
 
 extern const char *animvpx_read_ivf_header_errmsg[7];
-int32_t animvpx_read_ivf_header(buildvfs_kfd inhandle, animvpx_ivf_header_t *hdr);
+int32_t animvpx_read_ivf_header(FileReader & inhandle, animvpx_ivf_header_t *hdr);
 
 typedef struct
 {
@@ -48,7 +48,7 @@ typedef struct
 
     // VVV everything that follows should be considered private! VVV
 
-    buildvfs_kfd inhandle;  // the kread() file handle
+    FileReader *inhandle;  // the kread() file handle
 
     // state of this struct:
     //  0: uninited (either not yet or already)
@@ -79,7 +79,7 @@ typedef struct
 } animvpx_codec_ctx;
 
 
-int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, buildvfs_kfd inhandle, animvpx_codec_ctx *codec);
+int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, FileReader & inhandle, animvpx_codec_ctx *codec);
 int32_t animvpx_uninit_codec(animvpx_codec_ctx *codec);
 
 extern const char *animvpx_nextpic_errmsg[8];

@@ -286,11 +286,11 @@ int32_t Anim_Play(const char *fn)
             break;
 
         dukeanim_t const * origanim = anim;
-        int32_t handle = -1;
+		FileReader handle;
         if (!Bstrcmp(dot, ".ivf"))
         {
-            handle = kopen4loadfrommod(fn, 0);
-            if (handle == -1)
+            handle = kopenFileReader(fn, 0);
+            if (!handle.isOpen())
                 break;
         }
         else
@@ -308,9 +308,9 @@ int32_t Anim_Play(const char *fn)
             vpxfndot[3] = 'f';
             vpxfndot[4] = '\0';
 
-            handle = kopen4loadfrommod(vpxfn, 0);
-            if (handle == -1)
-                break;
+            handle = kopenFileReader(vpxfn, 0);
+			if (!handle.isOpen())
+				break;
 
             anim = Anim_Find(vpxfn);
         }
@@ -321,7 +321,6 @@ int32_t Anim_Play(const char *fn)
         if (i)
         {
             OSD_Printf("Failed reading IVF file: %s\n", animvpx_read_ivf_header_errmsg[i]);
-            kclose(handle);
             return 0;
         }
 
@@ -336,7 +335,6 @@ int32_t Anim_Play(const char *fn)
         {
             OSD_Printf("Error initializing VPX codec.\n");
             animvpx_restore_glstate();
-            kclose(handle);
             return 0;
         }
 
@@ -441,7 +439,6 @@ int32_t Anim_Play(const char *fn)
         animvpx_print_stats(&codec);
 
         //
-        kclose(handle);
         animvpx_restore_glstate();
         animvpx_uninit_codec(&codec);
 
@@ -454,15 +451,15 @@ int32_t Anim_Play(const char *fn)
 #ifdef USE_OPENGL
     int32_t ogltexfiltermode = gltexfiltermode;
 #endif
-    int32_t handle = kopen4load(fn, 0);
+	auto fr = kopenFileReader(fn, 0);
 
-    if (handle == -1)
+    if (!fr.isOpen())
         return 0;
 
-    int32_t length = kfilelength(handle);
-	TArray<uint8_t> buffer(length + 1, true);
+	auto buffer = fr.ReadPadded(1);
+	fr.Close();
 
-    if (length <= 4)
+    if (buffer.Size() <= 5)
     {
         OSD_Printf("Warning: skipping playback of empty ANM file \"%s\".\n", fn);
         goto end_anim;
@@ -471,9 +468,6 @@ int32_t Anim_Play(const char *fn)
 	anim->animbuf = buffer.Data();
 
 	TileFiles.tileCreate(TILE_ANIM, 200, 320);
-
-    kread(handle, anim->animbuf, length);
-    kclose(handle);
 
     uint32_t firstfour;
     Bmemcpy(&firstfour, anim->animbuf, 4);
@@ -486,7 +480,7 @@ int32_t Anim_Play(const char *fn)
 
     // "LPF " (.anm)
     if (firstfour != B_LITTLE32(0x2046504C) ||
-        ANIM_LoadAnim(anim->animbuf, length) < 0 ||
+        ANIM_LoadAnim(anim->animbuf, buffer.Size()-1) < 0 ||
         (numframes = ANIM_NumFrames()) <= 0)
     {
         // XXX: ANM_LoadAnim() still checks less than the bare minimum,
