@@ -72,8 +72,8 @@ int FX_Init(int numvoices, int numchannels, int mixrate, void *initdata)
         static int init;
 
         static osdcvardata_t cvars_audiolib[] = {
-            { "mus_emidicard", "force a specific EMIDI instrument set", (void *)&ASS_EMIDICard, CVAR_INT | CVAR_FUNCPTR, 0, 10 },
-            { "mus_adlibstereo", "enable/disable OPL3 stereo mode", (void *)&AL_Stereo, CVAR_BOOL | CVAR_FUNCPTR, 0, 10 },
+            { "mus_emidicard", "force a specific EMIDI instrument set", (void *)&ASS_EMIDICard, CVAR_INT | CVAR_FUNCPTR, -1, 10 },
+            { "mus_adlibstereo", "enable/disable OPL3 stereo mode", (void *)&AL_Stereo, CVAR_BOOL | CVAR_FUNCPTR, 0, 1 },
         };
 
         if (!init++)
