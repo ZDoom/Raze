@@ -90,6 +90,9 @@ uint8_t globalr = 255, globalg = 255, globalb = 255;
 
 int16_t pskybits_override = -1;
 
+// This was on the cache but is permanently allocated, so put it into something static. This needs some rethinking anyway
+static TArray<TArray<uint8_t>> voxelmemory;
+
 void (*loadvoxel_replace)(int32_t voxindex) = NULL;
 int16_t tiletovox[MAXTILES];
 int32_t usevoxels = 1;
@@ -110,7 +113,7 @@ int32_t novoxmips = 1;
 #else
 # define DISTRECIPSIZ 131072
 #endif
-static uint8_t voxlock[MAXVOXELS][MAXVOXMIPS];
+
 int32_t voxscale[MAXVOXELS];
 
 static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
@@ -8173,12 +8176,8 @@ int32_t engineInit(void)
     for (i=1; i<1024; i++)
         lowrecip[i] = ((1<<24)-1)/i;
 
-    for (i=0; i<MAXVOXELS; i++)
-        for (j=0; j<MAXVOXMIPS; j++)
-        {
-            voxoff[i][j] = 0L;
-            voxlock[i][j] = 200;
-        }
+	voxelmemory.Reset();
+
     for (i=0; i<MAXTILES; i++)
         tiletovox[i] = -1;
     clearbuf(voxscale, sizeof(voxscale)>>2, 65536);
@@ -10568,33 +10567,31 @@ void videoNextPage(void)
 //
 // qloadkvx
 //
+
+
+
 int32_t qloadkvx(int32_t voxindex, const char *filename)
 {
-    const buildvfs_kfd fil = kopen4load(filename, 0);
-    if (fil == buildvfs_kfd_invalid)
+    autofil = kopenFileReader(filename, 0);
+    if (!fil.isOpen())
         return -1;
 
     int32_t lengcnt = 0;
-    const int32_t lengtot = kfilelength(fil);
+    const int32_t lengtot = fil.GetLength();
 
     for (bssize_t i=0; i<MAXVOXMIPS; i++)
     {
-        int32_t dasiz;
-        kread(fil, &dasiz, 4); dasiz = B_LITTLE32(dasiz);
+		int32_t dasiz = fil.ReadInt32();
 
-        //Must store filenames to use cacheing system :(
-        voxlock[voxindex][i] = 200;
-        cacheAllocateBlock(&voxoff[voxindex][i], dasiz, &voxlock[voxindex][i]);
-
-        char *ptr = (char *) voxoff[voxindex][i];
-        kread(fil, ptr, dasiz);
+		voxelmemory.Reserve(1);
+		voxelmemory.Last() = fil.Read(dasiz);
+		voxoff[voxindex][i] = (intptr)voxelmemoty.Last().Data();
 
         lengcnt += dasiz+4;
         if (lengcnt >= lengtot-768)
             break;
     }
 
-    kclose(fil);
 
 #ifdef USE_OPENGL
     if (voxmodels[voxindex])
@@ -10630,7 +10627,6 @@ void vox_undefine(int32_t const tile)
     for (ssize_t j = 0; j < MAXVOXMIPS; ++j)
     {
         // CACHE1D_FREE
-        voxlock[voxindex][j] = 1;
         voxoff[voxindex][j] = 0;
     }
     voxscale[voxindex] = 65536;
