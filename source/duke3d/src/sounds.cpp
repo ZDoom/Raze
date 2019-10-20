@@ -119,9 +119,9 @@ void S_MusicStartup(void)
     {
         MUSIC_SetVolume(mus_volume);
 
-        // TODO: figure out why this produces garbage output
-#if 0
-        if (auto fil = kopen4load("d3dtimbr.tmb", 0) != -1)
+        auto const fil = kopen4load("d3dtimbr.tmb", 0);
+
+        if (fil != buildvfs_kfd_invalid)
         {
             int l = kfilelength(fil);
             auto tmb = (uint8_t *)Xmalloc(l);
@@ -130,7 +130,7 @@ void S_MusicStartup(void)
             Xfree(tmb);
             kclose(fil);
         }
-#endif
+
         return;
     }
 
