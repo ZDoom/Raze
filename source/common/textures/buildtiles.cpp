@@ -634,17 +634,15 @@ bool tileLoad(int tileNum)
 	auto tex = TileFiles.tiles[tileNum];
 	if (!tex || tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return false;
 	if (tex->Get8BitPixels()) return true;
-	tex->CacheLock = 199;
 
-	if (!tex->CacheHandle)
+	if (!tex->CachedPixels.Size())
 	{
 		// Allocate storage if necessary.
-		int size = tex->GetWidth() * tex->GetHeight();
-		cacheAllocateBlock(&tex->CacheHandle, size, &tex->CacheLock);
-		tex->Create8BitPixels((uint8_t*)tex->CacheHandle);
+		tex->CachedPixels.Resize(tex->GetWidth() * tex->GetHeight());
+		tex->Create8BitPixels(tex->CachedPixels.Data());
 	}
 	return true;
-	}
+}
 
 
 //==========================================================================

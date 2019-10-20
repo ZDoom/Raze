@@ -304,8 +304,7 @@ protected:
 	UseType useType = Image;
 	PalEntry FloorSkyColor;
 	PalEntry CeilingSkyColor;
-	intptr_t CacheHandle = 0;	// For tiles that do not have a static image but get accessed by the software renderer.
-	uint8_t CacheLock = 0;
+	TArray<uint8_t> CachedPixels;
 	TArray<HightileReplacement> Hightiles;
 	// Don't waste too much effort on efficient storage here. Polymost performs so many calculations on a single draw call that the minor map lookup hardly matters.
 	TMap<int, FHardwareTexture*> HardwareTextures;	// Note: These must be deleted by the backend. When the texture manager is taken down it may already be too late to delete them.
@@ -576,7 +575,7 @@ inline const uint8_t* tilePtr(int num)
 	auto tex = TileFiles.tiles[num];
 	auto p = tex->Get8BitPixels();
 	if (p) return p;
-	return (const uint8_t*)tex->CacheHandle;
+	return tex->CachedPixels.Data();
 }
 
 inline uint8_t* tileData(int num)
