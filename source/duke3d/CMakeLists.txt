@@ -64,7 +64,6 @@ set( PCH_SOURCES
 	src/osdfuncs.cpp
 	src/player.cpp
 	src/premap.cpp
-	src/rts.cpp
 	src/savegame.cpp
 	src/sbar.cpp
 	src/screens.cpp

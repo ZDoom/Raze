@@ -686,17 +686,6 @@ static void G_ShowCacheLocks(void)
     if (k < ydim-12)
         k += 6;
 
-    for (i=10; i>=0; i--)
-        if (rts_lumplockbyte[i] >= 200)
-        {
-            if (k >= ydim-12)
-                break;
-
-            Bsprintf(tempbuf, "RTS Locked %d:", i);
-            printext256(0, k, COLOR_WHITE, -1, tempbuf, 1);
-            k += 6;
-        }
-
     if (k >= ydim-12 && k<ydim-6)
         printext256(0, k, COLOR_WHITE, -1, "(MORE . . .)", 1);
 

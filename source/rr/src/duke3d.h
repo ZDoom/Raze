@@ -111,7 +111,6 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 
 END_RR_NS
 
-#include "_rts.h"
 #include "actors.h"
 #include "common_game.h"
 #include "config.h"

@@ -781,6 +781,8 @@ set (PCH_SOURCES
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
 	
+	common/rts.cpp
+	
 	common/utility/m_argv.cpp
 	common/utility/files.cpp
 	common/utility/files_decompress.cpp

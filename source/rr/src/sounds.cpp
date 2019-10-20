@@ -71,8 +71,6 @@ void S_SoundStartup(void)
             voice.dist      = UINT16_MAX;
             voice.clock     = 0;
         }
-
-        g_soundlocks[i] = 199;
     }
 
     S_PrecacheSounds();
@@ -391,8 +389,6 @@ void S_Cleanup(void)
         // negative index is RTS playback
         if ((int32_t)num < 0)
         {
-            if (rts_lumplockbyte[-(int32_t)num] >= 200)
-                rts_lumplockbyte[-(int32_t)num]--;
             continue;
         }
 
@@ -931,12 +927,6 @@ void S_ClearSoundLocks(void)
 {
 #ifdef CACHING_DOESNT_SUCK
     int32_t i;
-    int32_t const msp = g_highestSoundIdx;
-
-    for (native_t i = 0; i < 11; ++i)
-        if (rts_lumplockbyte[i] >= 200)
-            rts_lumplockbyte[i] = 199;
-
     int32_t const msp = g_highestSoundIdx;
 
     for (native_t i = 0; i <= msp; ++i)

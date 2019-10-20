@@ -108,7 +108,6 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 // so that debugging with valgrind --smc-check=none is possible:
 //#define DEBUG_VALGRIND_NO_SMC
 
-#include "_rts.h"
 #include "actors.h"
 #include "common_game.h"
 #include "config.h"

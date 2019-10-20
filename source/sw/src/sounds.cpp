@@ -252,8 +252,6 @@ int PlayerYellVocs[] =
     DIGI_PLAYERYELL3
 };
 
-extern uint8_t lumplockbyte[];
-
 #if 0
 // DEBUG
 void CheckSndData(char *file, int line)
@@ -293,8 +291,6 @@ SoundCallBack(intptr_t num)
     // RTS sounds are negative
     if ((int)num < 0)
     {
-        ASSERT(-num < 11);
-        lumplockbyte[-num]--;
         return;
     }
 
@@ -316,12 +312,6 @@ ClearSoundLocks(void)
     {
         if (voc[i].lock >= 200)
             voc[i].lock = 199;
-    }
-
-    for (i = 0; i < 11; i++)
-    {
-        if (lumplockbyte[i] >= 200)
-            lumplockbyte[i] = 199;
     }
 }
 
@@ -1057,7 +1047,7 @@ void PlaySoundRTS(int rts_num)
     char *rtsptr;
     int voice=-1;
 
-    if (RTS_NumSounds() <= 0 || !gs.FxOn)
+    if (!RTS_IsInitialized() || !gs.FxOn)
         return;
 
     rtsptr = (char *)RTS_GetSound(rts_num - 1);
@@ -1065,11 +1055,6 @@ void PlaySoundRTS(int rts_num)
     ASSERT(rtsptr);
 
     voice = FX_Play3D(rtsptr, RTS_SoundLength(rts_num - 1), FX_ONESHOT, 0, 0, 0, 255, 1.f, -rts_num); // [JM] Float volume here too I bet. !CHECKME!
-
-    if (voice <= FX_Ok)
-    {
-        lumplockbyte[rts_num]--;
-    }
 }
 
 ///////////////////////////////////////////////

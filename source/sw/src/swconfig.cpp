@@ -357,6 +357,5 @@ void TermSetup(void)
 {
     extern SWBOOL BotMode;
     CONFIG_WriteSetup();
-    RTS_Shutdown();
 }
 END_SW_NS

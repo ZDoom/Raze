@@ -86,7 +86,6 @@ set( PCH_SOURCES
 	src/ripper2.cpp
 	src/rooms.cpp
 	src/rotator.cpp
-	src/rts.cpp
 	src/save.cpp
 	src/saveable.cpp
 	src/scrip2.cpp
