@@ -111,10 +111,10 @@ extern menusave_t * g_menusaves;
 extern uint16_t g_nummenusaves;
 
 int32_t sv_updatestate(int32_t frominit);
-int32_t sv_readdiff(int32_t fil);
+int32_t sv_readdiff(FileReader &fil);
 uint32_t sv_writediff(FILE *fil);
-int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h);
-int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h);
+int32_t sv_loadheader(FileReader& fil, int32_t spot, savehead_t* h);
+int32_t sv_loadsnapshot(FileReader& fil, int32_t spot, savehead_t* h);
 int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave = false);
 void sv_freemem();
 void G_DeleteSave(savebrief_t const & sv);

@@ -156,8 +156,8 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
     for (; f != nullptr; f = f->next)
     {
         char const * fn = f->name;
-        buildvfs_kfd fil = kopen4loadfrommod(fn, 0);
-        if (fil == buildvfs_kfd_invalid)
+        auto fil = fopenFileReader(fn, 0);
+        if (!fil.isOpen())
             continue;
 
         menusave_t & msv = g_internalsaves[g_numinternalsaves];
@@ -200,7 +200,6 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
         else
             msv.isUnreadable = 1;
 
-        kclose(fil);
     }
 }
 
@@ -303,8 +302,8 @@ void ReadSaveGameHeaders(void)
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 {
-    buildvfs_kfd fil = kopen4loadfrommod(fn, 0);
-    if (fil == buildvfs_kfd_invalid)
+    auto fil = fopenFileReader(fn, 0);
+    if (!fil.isOpen())
         return -1;
 
     int32_t i = sv_loadheader(fil, 0, saveh);
@@ -312,7 +311,7 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
         goto corrupt;
 
     int32_t screenshotofs;
-    if (kread(fil, &screenshotofs, 4) != 4)
+    if (fil.Read(&screenshotofs, 4) != 4)
         goto corrupt;
 
 	TileFiles.tileCreate(TILE_LOADSHOT, 200, 320);
@@ -341,11 +340,9 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
     }
     tileInvalidate(TILE_LOADSHOT, 0, 255);
 
-    kclose(fil);
     return 0;
 
 corrupt:
-    kclose(fil);
     return 1;
 }
 
@@ -365,9 +362,9 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         int level = -1;
         int skill = -1;
 
-        buildvfs_kfd const fil = kopen4loadfrommod(sv.path, 0);
+		auto fil = fopenFileReader(sv.path, 0);
 
-        if (fil != buildvfs_kfd_invalid)
+        if (fil.isOpen())
         {
             savehead_t h;
             int status = sv_loadheader(fil, 0, &h);
@@ -377,8 +374,6 @@ int32_t G_LoadPlayer(savebrief_t & sv)
                 level = h.levnum;
                 skill = h.skill;
             }
-
-            kclose(fil);
         }
 
         char extfn[BMAX_PATH];
@@ -604,9 +599,9 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         return 0;
     }
 
-    buildvfs_kfd const fil = kopen4loadfrommod(sv.path, 0);
+    auto fil = fopenFileReader(sv.path, 0);
 
-    if (fil == buildvfs_kfd_invalid)
+    if (!fil.isOpen())
         return -1;
 
     ready2send = 0;
@@ -621,7 +616,6 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         else if (h.numplayers != ud.multimode)
             P_DoQuote(QUOTE_SAVE_BAD_PLAYERS, g_player[myconnectindex].ps);
 
-        kclose(fil);
         ototalclock = totalclock;
         ready2send = 1;
 
@@ -689,7 +683,6 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     sv_postudload();  // ud.m_XXX = ud.XXX
     VM_OnEvent(EVENT_LOADGAME, g_player[screenpeek].ps->i, screenpeek);
-    kclose(fil);
 
     return 0;
 }
@@ -1010,14 +1003,14 @@ static uint8_t *writespecdata(const dataspec_t *spec, buildvfs_FILE fil, uint8_t
 // (fil>=0 && havedump): first restore dump from file, then restore state from dump
 // (fil<0 && havedump): only restore state from dump
 // (fil>=0 && !havedump): only restore state from file
-static int32_t readspecdata(const dataspec_t *spec, buildvfs_kfd fil, uint8_t **dumpvar)
+static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **dumpvar)
 {
     uint8_t *  dump = dumpvar ? *dumpvar : NULL;
     auto const sptr = spec;
 
     for (; spec->flags != DS_END; spec++)
     {
-        if (fil == buildvfs_kfd_invalid && spec->flags & (DS_NOCHK|DS_STRING|DS_CMP))  // we're updating
+        if (fil == nullptr && spec->flags & (DS_NOCHK|DS_STRING|DS_CMP))  // we're updating
             continue;
 
         if (spec->flags & (DS_LOADFN|DS_SAVEFN))
@@ -1031,7 +1024,7 @@ static int32_t readspecdata(const dataspec_t *spec, buildvfs_kfd fil, uint8_t **
         {
             static char cmpstrbuf[32];
             int const siz  = (spec->flags & DS_STRING) ? Bstrlen((const char *)spec->ptr) : spec->size * spec->cnt;
-            int const ksiz = kread(fil, cmpstrbuf, siz);
+            int const ksiz = fil->Read(cmpstrbuf, siz);
 
             if (ksiz != siz || Bmemcmp(spec->ptr, cmpstrbuf, siz))
             {
@@ -1061,12 +1054,12 @@ static int32_t readspecdata(const dataspec_t *spec, buildvfs_kfd fil, uint8_t **
         if (!ptr || !cnt)
             continue;
 
-        if (fil != buildvfs_kfd_invalid)
+        if (fil != nullptr)
         {
             auto const mem  = (dump && (spec->flags & DS_NOCHK) == 0) ? dump : (uint8_t *)ptr;
             bool const comp = !((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres);
             int const  siz  = comp ? cnt : cnt * spec->size;
-            int const  ksiz = comp ? kdfread_LZ4(mem, spec->size, siz, fil) : kread(fil, mem, siz);
+            int const  ksiz = comp ? kdfread_LZ4(mem, spec->size, siz, *fil) : fil->Read(mem, siz);
 
             if (ksiz != siz)
             {
@@ -1571,7 +1564,7 @@ static const dataspec_t svgm_anmisc[] =
 static dataspec_gv_t *svgm_vars=NULL;
 #endif
 static uint8_t *dosaveplayer2(buildvfs_FILE fil, uint8_t *mem);
-static int32_t doloadplayer2(buildvfs_kfd fil, uint8_t **memptr);
+static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr);
 static void postloadplayer(int32_t savegamep);
 
 // SVGM snapshot system
@@ -1803,11 +1796,11 @@ int32_t sv_saveandmakesnapshot(buildvfs_FILE fil, char const *name, int8_t spot,
 }
 
 // if file is not an EDuke32 savegame/demo, h->headerstr will be all zeros
-int32_t sv_loadheader(buildvfs_kfd fil, int32_t spot, savehead_t *h)
+int32_t sv_loadheader(FileReader &fil, int32_t spot, savehead_t *h)
 {
     int32_t havedemo = (spot < 0);
 
-    if (kread(fil, h, sizeof(savehead_t)) != sizeof(savehead_t))
+    if (fil.Read(h, sizeof(savehead_t)) != sizeof(savehead_t))
     {
         OSD_Printf("%s %d header corrupt.\n", havedemo ? "Demo":"Savegame", havedemo ? -spot : spot);
         Bmemset(h->headerstr, 0, sizeof(h->headerstr));
@@ -1863,7 +1856,7 @@ int32_t sv_loadheader(buildvfs_kfd fil, int32_t spot, savehead_t *h)
     return 0;
 }
 
-int32_t sv_loadsnapshot(buildvfs_kfd fil, int32_t spot, savehead_t *h)
+int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
 {
     uint8_t *p;
     int32_t i;
@@ -1886,14 +1879,14 @@ int32_t sv_loadsnapshot(buildvfs_kfd fil, int32_t spot, savehead_t *h)
     OSD_Printf("sv_loadsnapshot: snapshot size: %d bytes.\n", h->snapsiz);
 #endif
 
-    if (kread(fil, &i, 4) != 4)
+    if (fil.Read(&i, 4) != 4)
     {
         OSD_Printf("sv_snapshot: couldn't read 4 bytes after header.\n");
         return 7;
     }
     if (i > 0)
     {
-        if (klseek(fil, i, SEEK_SET) != i)
+        if (fil.Seek(i, FileReader::SeekSet) != i)
         {
             OSD_Printf("sv_snapshot: failed skipping over the screenshot.\n");
             return 8;
@@ -1976,11 +1969,11 @@ uint32_t sv_writediff(buildvfs_FILE fil)
     return diffsiz;
 }
 
-int32_t sv_readdiff(buildvfs_kfd fil)
+int32_t sv_readdiff(FileReader &fil)
 {
     int32_t diffsiz;
 
-    if (kread(fil, &diffsiz, sizeof(uint32_t)) != sizeof(uint32_t))
+    if (fil.Read(&diffsiz, sizeof(uint32_t)) != sizeof(uint32_t))
         return -1;
 
     if (savegame_diffcompress)
@@ -1990,7 +1983,7 @@ int32_t sv_readdiff(buildvfs_kfd fil)
     }
     else
     {
-        if (kread(fil, svdiff, diffsiz) != diffsiz)
+        if (fil.Read(svdiff, diffsiz) != diffsiz)
             return -2;
     }
 
@@ -2353,16 +2346,16 @@ void El_FreeSaveCode(void)
 }
 #endif
 
-static int32_t doloadplayer2(buildvfs_kfd fil, uint8_t **memptr)
+static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr)
 {
     uint8_t *mem = memptr ? *memptr : NULL;
 #ifdef DEBUGGINGAIDS
     uint8_t *tmem=mem;
     int32_t t=timerGetTicks();
 #endif
-    if (readspecdata(svgm_udnetw, fil, &mem)) return -2;
+    if (readspecdata(svgm_udnetw, &fil, &mem)) return -2;
     PRINTSIZE("ud");
-    if (readspecdata(svgm_secwsp, fil, &mem)) return -4;
+    if (readspecdata(svgm_secwsp, &fil, &mem)) return -4;
     PRINTSIZE("sws");
 #ifdef LUNATIC
     {
@@ -2371,9 +2364,9 @@ static int32_t doloadplayer2(buildvfs_kfd fil, uint8_t **memptr)
             return ret;
     }
 #endif
-    if (readspecdata(svgm_script, fil, &mem)) return -5;
+    if (readspecdata(svgm_script, &fil, &mem)) return -5;
     PRINTSIZE("script");
-    if (readspecdata(svgm_anmisc, fil, &mem)) return -6;
+    if (readspecdata(svgm_anmisc, &fil, &mem)) return -6;
     PRINTSIZE("animisc");
 
 #if !defined LUNATIC
@@ -2407,13 +2400,13 @@ int32_t sv_updatestate(int32_t frominit)
     if (frominit)
         Bmemcpy(svsnapshot, svinitsnap, svsnapsiz);
 
-    if (readspecdata(svgm_udnetw, buildvfs_kfd_invalid, &p)) return -2;
-    if (readspecdata(svgm_secwsp, buildvfs_kfd_invalid, &p)) return -4;
-    if (readspecdata(svgm_script, buildvfs_kfd_invalid, &p)) return -5;
-    if (readspecdata(svgm_anmisc, buildvfs_kfd_invalid, &p)) return -6;
+    if (readspecdata(svgm_udnetw, nullptr, &p)) return -2;
+    if (readspecdata(svgm_secwsp, nullptr, &p)) return -4;
+    if (readspecdata(svgm_script, nullptr, &p)) return -5;
+    if (readspecdata(svgm_anmisc, nullptr, &p)) return -6;
 
 #if !defined LUNATIC
-    if (readspecdata((const dataspec_t *)svgm_vars, buildvfs_kfd_invalid, &p)) return -8;
+    if (readspecdata((const dataspec_t *)svgm_vars, nullptr, &p)) return -8;
 #endif
 
     if (p != pbeg+svsnapsiz)

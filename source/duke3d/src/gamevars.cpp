@@ -113,11 +113,11 @@ void Gv_Clear(void)
         hash_free(i);
 }
 
-int Gv_ReadSave(buildvfs_kfd kFile)
+int Gv_ReadSave(FileReader &kFile)
 {
     char tbuf[12];
 
-    if (kread(kFile, tbuf, 12)!=12) goto corrupt;
+    if (kFile.Read(tbuf, 12)!=12) goto corrupt;
     if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { OSD_Printf("BEG ERR\n"); return 2; }
 
     Gv_Free(); // nuke 'em from orbit, it's the only way to be sure...
@@ -223,7 +223,7 @@ int Gv_ReadSave(buildvfs_kfd kFile)
             }
     }
 
-    if (kread(kFile, tbuf, 12) != 12) return -13;
+    if (kFile.Read(tbuf, 12) != 12) return -13;
     if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { OSD_Printf("EOF ERR\n"); return 2; }
 
     return 0;

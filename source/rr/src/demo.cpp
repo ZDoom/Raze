@@ -37,7 +37,7 @@ BEGIN_RR_NS
 char g_firstDemoFile[BMAX_PATH];
 
 buildvfs_FILE g_demo_filePtr{};  // write
-buildvfs_kfd g_demo_recFilePtr = buildvfs_kfd_invalid;  // read
+FileReader g_demo_recFilePtr;
 
 int32_t g_demo_cnt;
 int32_t g_demo_goalCnt=0;
@@ -101,8 +101,8 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
         demofnptr = demofn;
     }
 
-    g_demo_recFilePtr = kopen4loadfrommod(demofnptr, g_loadFromGroupOnly);
-    if (g_demo_recFilePtr == buildvfs_kfd_invalid)
+    g_demo_recFilePtr = fopenFileReader(demofnptr, g_loadFromGroupOnly);
+    if (!g_demo_recFilePtr.isOpen())
         return 0;
 
     Bassert(g_whichDemo >= 1);
@@ -110,7 +110,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     if (i)
     {
         OSD_Printf(OSD_ERROR "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
-        kclose(g_demo_recFilePtr); g_demo_recFilePtr = buildvfs_kfd_invalid;
+		g_demo_recFilePtr.Close();
         return 0;
     }
 
@@ -147,8 +147,7 @@ void G_OpenDemoWrite(void)
 
     if (ud.recstat == 2)
     {
-        kclose(g_demo_recFilePtr);
-        g_demo_recFilePtr = buildvfs_kfd_invalid;
+		g_demo_recFilePtr.Close();
     }
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) && g_player[myconnectindex].ps->dead_flag)
@@ -329,13 +328,13 @@ static int32_t Demo_ReadSync(int32_t errcode)
     uint16_t si;
     int32_t i;
 
-    if (kread(g_demo_recFilePtr, &si, sizeof(uint16_t)) != sizeof(uint16_t))
+    if (g_demo_recFilePtr.Read(&si, sizeof(uint16_t)) != sizeof(uint16_t))
         return errcode;
 
     i = si;
     if (demo_hasseeds)
     {
-        if (kread(g_demo_recFilePtr, g_demo_seedbuf, i) != i)
+        if (g_demo_recFilePtr.Read(g_demo_seedbuf, i) != i)
             return errcode;
     }
 
@@ -348,7 +347,7 @@ static int32_t Demo_ReadSync(int32_t errcode)
     {
         int32_t bytes = sizeof(input_t)*i;
 
-        if (kread(g_demo_recFilePtr, recsync, bytes) != bytes)
+        if (g_demo_recFilePtr.Read(recsync, bytes) != bytes)
             return errcode+2;
     }
 
@@ -527,7 +526,7 @@ RECHECK:
         g_player[myconnectindex].ps->gm &= ~MODE_GAME;
         g_player[myconnectindex].ps->gm |= MODE_DEMO;
 
-        lastsyncofs = ktell(g_demo_recFilePtr);
+        lastsyncofs = g_demo_recFilePtr.Tell();
         initsyncofs = lastsyncofs;
         lastsynctic = g_demo_cnt;
         lastsyncclock = (int32_t) totalclock;
@@ -583,8 +582,8 @@ RECHECK:
                     if (Demo_UpdateState(0)==0)
                     {
                         g_demo_cnt = lastsynctic;
-                        klseek(g_demo_recFilePtr, lastsyncofs, SEEK_SET);
-                        ud.reccnt = 0;
+						g_demo_recFilePtr.Seek(lastsyncofs, FileReader::SeekSet);
+						ud.reccnt = 0;
 
                         totalclock = ototalclock = lockclock = lastsyncclock;
                     }
@@ -595,8 +594,8 @@ RECHECK:
                     // update to initial state
                     if (Demo_UpdateState(1) == 0)
                     {
-                        klseek(g_demo_recFilePtr, initsyncofs, SEEK_SET);
-                        g_levelTextTime = 0;
+						g_demo_recFilePtr.Seek(initsyncofs, FileReader::SeekSet);
+						g_levelTextTime = 0;
 
                         g_demo_cnt = 1;
                         ud.reccnt = 0;
@@ -634,7 +633,7 @@ RECHECK:
 
                     bigi = 0;
                     //reread:
-                    if (kread(g_demo_recFilePtr, tmpbuf, 4) != 4)
+                    if (g_demo_recFilePtr.Read(tmpbuf, 4) != 4)
                         CORRUPT(2);
 
                     if (Bmemcmp(tmpbuf, "sYnC", 4)==0)
@@ -655,11 +654,11 @@ RECHECK:
                         }
                         else
                         {
-                            lastsyncofs = ktell(g_demo_recFilePtr);
+                            lastsyncofs = g_demo_recFilePtr.Tell();
                             lastsynctic = g_demo_cnt;
                             lastsyncclock = (int32_t) totalclock;
 
-                            if (kread(g_demo_recFilePtr, tmpbuf, 4) != 4)
+                            if (g_demo_recFilePtr.Read(tmpbuf, 4) != 4)
                                 CORRUPT(7);
                             if (Bmemcmp(tmpbuf, "sYnC", 4))
                                 CORRUPT(8);
@@ -690,7 +689,7 @@ nextdemo:
 nextdemo_nomenu:
                         foundemo = 0;
                         ud.reccnt = 0;
-                        kclose(g_demo_recFilePtr); g_demo_recFilePtr = buildvfs_kfd_invalid;
+						g_demo_recFilePtr.Close();
 
                         if (g_demo_goalCnt>0)
                         {
@@ -957,7 +956,7 @@ nextdemo_nomenu:
 #if KRANDDEBUG
                 krd_print("krandplay.log");
 #endif
-                kclose(g_demo_recFilePtr); g_demo_recFilePtr = buildvfs_kfd_invalid;
+				g_demo_recFilePtr.Close();
             }
 
             return 0;
@@ -965,7 +964,7 @@ nextdemo_nomenu:
     }
 
     ud.multimode = numplayers;  // fixes 2 infinite loops after watching demo
-    kclose(g_demo_recFilePtr); g_demo_recFilePtr = buildvfs_kfd_invalid;
+	g_demo_recFilePtr.Close();
 
     Demo_FinishProfile();
 

@@ -46,7 +46,7 @@ extern int32_t demorec_synccompress_cvar;
 extern int32_t g_demo_cnt;
 extern int32_t g_demo_goalCnt;
 extern int32_t g_demo_paused;
-extern buildvfs_kfd g_demo_recFilePtr;
+extern FileReader g_demo_recFilePtr;
 extern int32_t g_demo_rewind;
 extern int32_t g_demo_showStats;
 extern int32_t g_demo_totalCnt;

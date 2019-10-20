@@ -91,6 +91,7 @@ CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
 
 extern int32_t lz4CompressionLevel;
 int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil);
+int32_t kdfread_LZ4(void* buffer, int dasizeof, int count, FileReader& fil);
 void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil);
 
 class KFileReaderInterface : public FileReaderInterface
@@ -142,6 +143,13 @@ inline FileReader kopenFileReader(const char* name, int where)
 	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
 	KFileReaderInterface *fri = handle == buildvfs_kfd_invalid? nullptr : new KFileReaderInterface(handle);
 	return FileReader(fri);
+}
+
+// This is only here to mark a file as not being part of the game assets (e.g. savegames)
+// These should be handled differently (e.g read from a userdata directory or similar things.)
+inline FileReader fopenFileReader(const char* name, int where)
+{
+	return kopenFileReader(name, 0);
 }
 
 inline bool testkopen(const char* name, int where)

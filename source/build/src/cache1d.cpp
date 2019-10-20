@@ -1707,6 +1707,32 @@ int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil)
     return decompressedLength/dasizeof;
 }
 
+int32_t kdfread_LZ4(void* buffer, int dasizeof, int count, FileReader &fil)
+{
+	int32_t leng;
+
+	// read compressed data length
+	if (fil.Read(&leng, sizeof(leng)) != sizeof(leng))
+		return -1;
+
+	leng = B_LITTLE32(leng);
+
+	char* pCompressedData = compressedDataStackBuf;
+
+	if (leng > ARRAY_SSIZE(compressedDataStackBuf))
+		pCompressedData = (char*)Xaligned_alloc(16, leng);
+
+	if (fil.Read(pCompressedData, leng) != leng)
+		return -1;
+
+	int32_t decompressedLength = LZ4_decompress_safe(pCompressedData, (char*)buffer, leng, dasizeof * count);
+
+	if (pCompressedData != compressedDataStackBuf)
+		Xaligned_free(pCompressedData);
+
+	return decompressedLength / dasizeof;
+}
+
 
 void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil)
 {

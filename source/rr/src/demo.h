@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define demo_h_
 
 #include "compat.h"
+#include "files.h"
 
 BEGIN_RR_NS
 
@@ -46,7 +47,7 @@ extern int32_t demorec_synccompress_cvar;
 extern int32_t g_demo_cnt;
 extern int32_t g_demo_goalCnt;
 extern int32_t g_demo_paused;
-extern int32_t g_demo_recFilePtr;
+extern FileReader g_demo_recFilePtr;
 extern int32_t g_demo_rewind;
 extern int32_t g_demo_showStats;
 extern int32_t g_demo_totalCnt;

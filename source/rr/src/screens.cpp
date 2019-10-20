@@ -1540,17 +1540,10 @@ void G_DisplayLogo(void)
 
         if (!I_CheckAllInput() && g_noLogoAnim == 0)
         {
-            int32_t i;
             Net_GetPackets();
 
-            i = kopen4loadfrommod("3dr.ivf", 0);
-
-            if (i == -1)
-                i = kopen4loadfrommod("3dr.anm", 0);
-
-            if (i != -1)
+			if (testkopen("3dr.ivf", 0) || testkopen("3dr.anm", 0))
             {
-                kclose(i);
                 Anim_Play("3dr.anm");
                 G_FadePalette(0, 0, 0, 252);
                 I_ClearAllInput();
