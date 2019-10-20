@@ -121,7 +121,6 @@ int32_t r_yshearing = 0;
 
 // used for fogcalc
 static float fogresult, fogresult2;
-coltypef fogcol, fogtable[MAXPALOOKUPS];
 
 int32_t r_useindexedcolortextures = -1;
 
@@ -245,14 +244,6 @@ static void calcmat(vec3f_t a0, const vec2f_t *offset, float f, float mat[16], i
 
 void polymost_glreset()
 {
-    for (bssize_t i=0; i<=MAXPALOOKUPS-1; i++)
-    {
-        fogtable[i].r = palookupfog[i].r * (1.f/255.f);
-        fogtable[i].g = palookupfog[i].g * (1.f/255.f);
-        fogtable[i].b = palookupfog[i].b * (1.f/255.f);
-        fogtable[i].a = 0;
-    }
-
     //Reset if this is -1 (meaning 1st texture call ever), or > 0 (textures in memory)
     if (gltexcacnum < 0)
     {

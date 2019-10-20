@@ -462,19 +462,19 @@ void paletteFixTranslucencyMask(void)
 //  - on success, 0
 //  - on error, -1 (didn't read enough data)
 //  - -2: error, we already wrote an error message ourselves
-int32_t paletteLoadLookupTable(buildvfs_kfd fp)
+int32_t paletteLoadLookupTable(FileReader &fp)
 {
     uint8_t numlookups;
     char remapbuf[256];
 
-    if (kread_and_test(fp, &numlookups, 1))
+    if (1 != fp.Read(&numlookups, 1))
         return -1;
 
     for (bssize_t j=0; j<numlookups; j++)
     {
         uint8_t palnum;
 
-        if (kread_and_test(fp, &palnum, 1))
+        if (1 != fp.Read(&palnum, 1))
             return -1;
 
         if (palnum >= 256-RESERVEDPALS)
@@ -483,7 +483,7 @@ int32_t paletteLoadLookupTable(buildvfs_kfd fp)
             return -2;
         }
 
-        if (kread_and_test(fp, remapbuf, 256))
+        if (256 != fp.Read(remapbuf, 256))
             return -1;
 
         paletteMakeLookupTable(palnum, remapbuf, 0, 0, 0, 0);

@@ -992,20 +992,20 @@ void G_DoAutoload(const char *dirname)
 
 void G_LoadLookups(void)
 {
-    int32_t fp, j;
+    int32_t j;
 
-    if ((fp=kopen4loadfrommod("lookup.dat",0)) == -1)
-        if ((fp=kopen4loadfrommod("lookup.dat",1)) == -1)
-            return;
+	auto fr = kopenFileReader("lookup.dat", 0);
+	if (!fr.isOpen())
+           return;
 
-    j = paletteLoadLookupTable(fp);
+    j = paletteLoadLookupTable(fr);
 
     if (j < 0)
     {
         if (j == -1)
             initprintf("ERROR loading \"lookup.dat\": failed reading enough data.\n");
 
-        return kclose(fp);
+        return;
     }
 
     uint8_t paldata[768];
@@ -1015,8 +1015,8 @@ void G_LoadLookups(void)
         // Account for TITLE and REALMS swap between basepal number and on-disk order.
         int32_t basepalnum = (j == 3 || j == 4) ? 4+3-j : j;
 
-        if (kread_and_test(fp, paldata, 768))
-            return kclose(fp);
+		if (fr.Read(paldata, 768) != 768)
+			return;
 
         for (bssize_t k = 0; k < 768; k++)
             paldata[k] <<= 2;
@@ -1027,8 +1027,6 @@ void G_LoadLookups(void)
     Bmemcpy(paldata, palette+1, 767);
     paldata[767] = palette[767];
     paletteSetColorTable(DRUGPAL, paldata);
-
-    kclose(fp);
 
     if (RR)
     {

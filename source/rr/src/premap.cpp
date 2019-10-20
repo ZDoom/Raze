@@ -28,8 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "cmdline.h"
 
-extern coltypef fogtable[MAXPALOOKUPS];
-
 BEGIN_RR_NS
 
 static int32_t g_whichPalForPlayer = 9;
@@ -2646,13 +2644,6 @@ void G_SetFog(int fogtype)
 #ifdef USE_OPENGL
         if (videoGetRenderMode() >= REND_POLYMOST)
         {
-            for (bssize_t i=0; i<=MAXPALOOKUPS-1; i++)
-            {
-                fogtable[i].r = palookupfog[i].r * (1.f/255.f);
-                fogtable[i].g = palookupfog[i].g * (1.f/255.f);
-                fogtable[i].b = palookupfog[i].b * (1.f/255.f);
-                fogtable[i].a = 0;
-            }
             //gltexinvalidatetype(INVALIDATE_ALL_NON_INDEXED);
 			static int swaps[] = { 0, 30, 33, 23, 8 };
             uploadpalswaps(5, swaps);

@@ -79,7 +79,7 @@ extern void setup_blend(int32_t blend, int32_t doreverse);
 extern uint8_t basepalreset;
 extern int32_t curbrightness;
 
-extern int32_t paletteLoadLookupTable(buildvfs_kfd fp);
+extern int32_t paletteLoadLookupTable(FileReader &fp);
 extern void paletteSetupDefaultFog(void);
 extern void palettePostLoadLookups(void);
 extern void paletteFixTranslucencyMask(void);
