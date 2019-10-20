@@ -291,5 +291,6 @@ bool shrinkPlayerSize(PLAYER* pPlayer, int divider);
 bool growPlayerSize(PLAYER* pPlayer, int multiplier);
 bool resetPlayerSize(PLAYER* pPlayer);
 void deactivateSizeShrooms(PLAYER* pPlayer);
+PLAYER* getPlayerById(short id);
 
 END_BLD_NS

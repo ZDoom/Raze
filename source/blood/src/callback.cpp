@@ -355,16 +355,16 @@ void CounterCheck(int nSector) // 12
     
     for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
         if (sprite[nSprite].type == nType) nCount++;
-            }
+    }
         
     if (nCount < nReq) {
         evPost(nSector, 6, 5, kCallbackCounterCheck);
         return;
     } else {
-                //pXSector->waitTimeA = 0; //do not reset necessary objects counter to zero
+        //pXSector->waitTimeA = 0; //do not reset necessary objects counter to zero
         trTriggerSector(nSector, pXSector, kCmdOn);
-                pXSector->locked = 1; //lock sector, so it can be opened again later
-            }
+        pXSector->locked = 1; //lock sector, so it can be opened again later
+    }
 }
 
 
@@ -491,16 +491,16 @@ void returnFlagToBase(int nSprite) // 17
         switch (pSprite->type) {
             case kItemFlagA:
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
-            sndStartSample(8003, 255, 2, 0);
-            gBlueFlagDropped = false;
-            viewSetMessage("Blue Flag returned to base.");
-            break;
+                sndStartSample(8003, 255, 2, 0);
+                gBlueFlagDropped = false;
+                viewSetMessage("Blue Flag returned to base.");
+                break;
             case kItemFlagB:
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
-            sndStartSample(8002, 255, 2, 0);
-            gRedFlagDropped = false;
-            viewSetMessage("Red Flag returned to base.");
-            break;
+                sndStartSample(8002, 255, 2, 0);
+                gRedFlagDropped = false;
+                viewSetMessage("Red Flag returned to base.");
+                break;
         }
     }
     evPost(pSprite->index, 3, 0, kCallbackRemove);

@@ -822,15 +822,15 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 PLAYER* pPlayer = NULL;
                 if ((pPlayer = getPlayerById(pXSprite->data1)) == NULL) return;
                 else if (event.cmd < kCmdNumberic) { // play qav as weapon qav
-                switch (event.cmd) {
-                    case kCmdOff:
+                    switch (event.cmd) {
+                        case kCmdOff:
                             if (gQavPlayerIndex == nSprite) {
                                 pXSprite->sysData1 = 0;
                                 pPlayer->atc.newWeapon = pPlayer->atbd = pXSprite->data4;
                                 gQavPlayerIndex = -1;
-                            WeaponRaise(pPlayer);
+                                WeaponRaise(pPlayer);
                             }
-                        break;
+                            break;
                         case kCmdOn: {
                             if (gQavPlayerIndex == nSprite && !pXSprite->Interrutable) break;
                             QAV* pQav = NULL; DICTNODE* hQav = gSysRes.Lookup(pXSprite->data2, "QAV");
@@ -842,7 +842,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                                     xsprite[sprite[gQavPlayerIndex].extra].data4 = 0;
                                 }
 
-                            WeaponLower(pPlayer);
+                                WeaponLower(pPlayer);
 
                                 pQav = (QAV*)gSysRes.Load(hQav); weaponQAV[kFreeQAVEntry] = pQav;
                                 pXSprite->busyTime = (((pQav->at10) / 12) * 120) / 10;
@@ -850,14 +850,14 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                                 pXSprite->sysData1 = pXSprite->waitTime; // how many times animation should be played
                                 gQavPlayerIndex = nSprite;
 
+                            }
+                            break;
                         }
-                        break;
-                        }
-                    default:
+                        default:
                             if (gQavPlayerIndex != nSprite) evPost(nSprite, 3, 0, kCmdOn);
-                        else evPost(nSprite, 3, 0, kCmdOff);
-                        break;
-                }
+                            else evPost(nSprite, 3, 0, kCmdOff);
+                            break;
+                    }
                 } else if (event.cmd < kCmdNumbericMax) {
                     switch (event.cmd) {
                         case kCmdNumberic: // player life form
@@ -1415,8 +1415,8 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                         // adding physics sprite in list
                         if ((flags & kPhysGravity) != 0 || (flags & kPhysMove) != 0) {
                         
-							if (nIndex != -1) pXSprite->physAttr = flags; // just update physics attributes
-							else if ((nIndex = debrisGetFreeIndex()) < 0)
+                            if (nIndex != -1) pXSprite->physAttr = flags; // just update physics attributes
+                            else if ((nIndex = debrisGetFreeIndex()) < 0)
                                 viewSetSystemMessage("Max (%d) Physics affected sprites reached!", kMaxSuperXSprites);
                             else {
 
@@ -1579,10 +1579,10 @@ void useEffectGen(XSPRITE * pXSource, spritetype * pSprite) {
 
     int fxId = pXSource->data2 + Random(pXSource->data3);
     int top, bottom; GetSpriteExtents(pSprite, &top, &bottom); spritetype * pEffect = NULL;
-            
+    
     if (fxId > 0 && fxId < 57 && (pEffect = gFX.fxSpawn((FX_ID) fxId, pSprite->sectnum, pSprite->x, pSprite->y, top, 0)) != NULL) {
-            if ((pEffect->cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (pEffect->cstat & CSTAT_SPRITE_ONE_SIDED))
-                pEffect->cstat &= ~CSTAT_SPRITE_ONE_SIDED;
+        if ((pEffect->cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && (pEffect->cstat & CSTAT_SPRITE_ONE_SIDED))
+            pEffect->cstat &= ~CSTAT_SPRITE_ONE_SIDED;
 
         if (pSprite->flags & kModernTypeFlag1) {
             if (pEffect->pal <= 0) pEffect->pal = pSprite->pal;
@@ -3732,7 +3732,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
     } else if (pSource->type == kModernObjPropertiesChanger) {
         /* - properties changer can change various properties - */
         usePropertiesChanger(pXSource, type, nDest);
-            }
+    }
 }
 
 // By NoOne: the following functions required for kModernDudeTargetChanger
