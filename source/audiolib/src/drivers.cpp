@@ -43,7 +43,7 @@ int ASS_EMIDICard = -1;
 
 #define UNSUPPORTED_PCM          nullptr,nullptr,nullptr,nullptr,nullptr,nullptr
 #define UNSUPPORTED_MIDI         nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr
-#define UNSUPPORTED_COMPLETELY { nullptr, nullptr, nullptr, UNSUPPORTED_PCM, UNSUPPORTED_MIDI },
+#define UNSUPPORTED_COMPLETELY   nullptr, nullptr, UNSUPPORTED_PCM, UNSUPPORTED_MIDI
 
 static struct {
     const char * DriverName;
@@ -88,9 +88,9 @@ static struct {
    },
     
     // Simple DirectMedia Layer
-    #ifdef RENDERTYPESDL
     {
         "SDL",
+    #ifdef RENDERTYPESDL
         SDLDrv_GetError,
         SDLDrv_ErrorString,
         SDLDrv_PCM_Init,
@@ -100,15 +100,15 @@ static struct {
         SDLDrv_PCM_Lock,
         SDLDrv_PCM_Unlock,
         UNSUPPORTED_MIDI,
-    },
     #else
         UNSUPPORTED_COMPLETELY
     #endif
+    },
 
     // Windows DirectSound
-    #ifdef RENDERTYPEWIN
     {
         "DirectSound",
+    #ifdef RENDERTYPEWIN
         DirectSoundDrv_GetError,
         DirectSoundDrv_ErrorString,
         DirectSoundDrv_PCM_Init,
@@ -118,10 +118,10 @@ static struct {
         DirectSoundDrv_PCM_Lock,
         DirectSoundDrv_PCM_Unlock,
         UNSUPPORTED_MIDI,
-    },
     #else
         UNSUPPORTED_COMPLETELY
     #endif
+    },
 
     // OPL3 emulation
     {
@@ -141,9 +141,9 @@ static struct {
     },
 
     // Windows MultiMedia system
-    #ifdef _WIN32
     {
         "WinMM",
+    #ifdef _WIN32
         WinMMDrv_GetError,
         WinMMDrv_ErrorString,
 
@@ -156,10 +156,10 @@ static struct {
         WinMMDrv_MIDI_SetTempo,
         WinMMDrv_MIDI_Lock,
         WinMMDrv_MIDI_Unlock,
-    },
     #else
         UNSUPPORTED_COMPLETELY
     #endif
+    },
 };
 
 
