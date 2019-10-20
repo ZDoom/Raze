@@ -199,7 +199,6 @@ static AdLibChannel Channel[NUMADLIBCHANNELS];
 static int AL_LeftPort  = ADLIB_PORT;
 static int AL_RightPort = ADLIB_PORT;
 int        AL_Stereo    = TRUE;
-static int AL_SendStereo;
 static int AL_MaxMidiChannel = 16;
 
 // TODO: clean up this shit...
@@ -251,16 +250,8 @@ static void AL_SendOutputToPort(int const port, int const reg, int const data)
 
 static void AL_SendOutput(int const voice, int const reg, int const data)
 {
-    if (AL_SendStereo)
-    {
-        AL_SendOutputToPort(AL_LeftPort, reg, data);
-        AL_SendOutputToPort(AL_RightPort, reg, data);
-    }
-    else
-    {
-        int port = (voice == 0) ? AL_RightPort : AL_LeftPort;
-        AL_SendOutputToPort(port, reg, data);
-    }
+    int port = (voice == 0) ? AL_RightPort : AL_LeftPort;
+    AL_SendOutputToPort(port, reg, data);
 }
 
 
@@ -298,13 +289,7 @@ static void AL_SetVoiceTimbre(int const voice)
     AL_SendOutput(port, 0x40 + off, timbre->Level[0]);
     slot = slotVoice[voc][1];
 
-    if (AL_SendStereo)
-    {
-        AL_SendOutputToPort(AL_LeftPort, 0xC0 + voice, (timbre->Feedback & 0x0f) | 0x20);
-        AL_SendOutputToPort(AL_RightPort, 0xC0 + voice, (timbre->Feedback & 0x0f) | 0x10);
-    }
-    else
-        AL_SendOutput(port, 0xC0 + voc, (timbre->Feedback & 0x0f) | 0x30);
+    AL_SendOutput(port, 0xC0 + voc, (timbre->Feedback & 0x0f) | 0x30);
 
     off = offsetSlot[slot];
 
@@ -337,89 +322,23 @@ static void AL_SetVoiceVolume(int const voice)
     auto t1 = (uint32_t)VoiceLevel[slot][port] * (velocity + 0x80);
     t1 = (Channel[channel].Volume * t1) >> 15;
 
-    if (!AL_SendStereo)
-    {
-        uint32_t volume = t1 ^ 63;
-        volume |= (uint32_t)VoiceKsl[slot][port];
-
-        AL_SendOutput(port, 0x40 + offsetSlot[slot], volume);
-
-        // Check if this timbre is Additive
-        if (timbre->Feedback & 0x01)
-        {
-            int const slot = slotVoice[voc][0];
-
-            // amplitude
-            auto t2 = (Channel[channel].Volume * t1) >> 15;
-
-            volume = t2 ^ 63;
-            volume |= (uint32_t)VoiceKsl[slot][port];
-
-            AL_SendOutput(port, 0x40 + offsetSlot[slot], volume);
-        }
-
-        return;
-    }
-
-    // Set left channel volume
-    uint32_t volume = t1;
-    if (Channel[channel].Pan < 64)
-    {
-        volume *= Channel[channel].Pan;
-        volume >>= 6;
-    }
-
-    volume ^= 63;
+    uint32_t volume = t1 ^ 63;
     volume |= (uint32_t)VoiceKsl[slot][port];
 
-    AL_SendOutputToPort(AL_LeftPort, 0x40 + offsetSlot[slot], volume);
-
-    // Set right channel volume
-    volume = t1;
-    if (Channel[channel].Pan > 64)
-    {
-        volume *= 127 - Channel[channel].Pan;
-        volume >>= 6;
-    }
-
-    volume ^= 63;
-    volume |= (uint32_t)VoiceKsl[slot][port];
-
-    AL_SendOutputToPort(AL_RightPort, 0x40 + offsetSlot[slot], volume);
+    AL_SendOutput(port, 0x40 + offsetSlot[slot], volume);
 
     // Check if this timbre is Additive
     if (timbre->Feedback & 0x01)
     {
+        int const slot = slotVoice[voc][0];
+
         // amplitude
         auto t2 = (Channel[channel].Volume * t1) >> 15;
 
-        int const slot = slotVoice[voc][0];
-
-        // Set left channel volume
-        volume = t2;
-        if (Channel[channel].Pan < 64)
-        {
-            volume *= Channel[channel].Pan;
-            volume >>= 6;
-        }
-
-        volume ^= 63;
+        volume = t2 ^ 63;
         volume |= (uint32_t)VoiceKsl[slot][port];
 
-        AL_SendOutputToPort(AL_LeftPort, 0x40 + offsetSlot[slot], volume);
-
-        // Set right channel volume
-        volume = t2;
-        if (Channel[channel].Pan > 64)
-        {
-            volume *= 127 - Channel[channel].Pan;
-            volume >>= 6;
-        }
-
-        volume ^= 63;
-        volume |= (uint32_t)VoiceKsl[slot][port];
-
-        AL_SendOutputToPort(AL_RightPort, 0x40 + offsetSlot[slot], volume);
+        AL_SendOutput(port, 0x40 + offsetSlot[slot], volume);
     }
 }
 
@@ -485,40 +404,18 @@ static void AL_SetVoicePitch(int const voice)
 
     pitch |= Voice[voice].status;
 
-    if (!AL_SendStereo)
-    {
-        AL_SendOutput(port, 0xA0 + voc, pitch);
-        AL_SendOutput(port, 0xB0 + voc, pitch >> 8);
-    }
-    else
-    {
-        AL_SendOutputToPort(AL_LeftPort, 0xA0 + voice, pitch);
-        AL_SendOutputToPort(AL_LeftPort, 0xB0 + voice, pitch >> 8);
+    AL_SendOutput(port, 0xA0 + voc, pitch);
+    AL_SendOutput(port, 0xB0 + voc, pitch >> 8);
+}
 
-        if (channel != 9)
-            detune += STEREO_DETUNE;
+static void AL_SetVoicePan(int const voice)
+{
+    int const port    = Voice[voice].port;
+    int const voc     = (voice >= NUMADLIBVOICES) ? voice - NUMADLIBVOICES : voice;
+    int const channel = Voice[voice].channel;
 
-        if (detune > FINETUNE_MAX)
-        {
-            detune -= FINETUNE_RANGE;
-
-            if (note < MAX_NOTE)
-            {
-                note++;
-                ScaleNote = NoteMod12[note];
-                Octave    = NoteDiv12[note];
-            }
-        }
-
-        pitch = OctavePitch[Octave] | NotePitch[detune][ScaleNote];
-
-        Voice[voice].pitchright = pitch;
-
-        pitch |= Voice[voice].status;
-
-        AL_SendOutputToPort(AL_RightPort, 0xA0 + voice, pitch);
-        AL_SendOutputToPort(AL_RightPort, 0xB0 + voice, pitch >> 8);
-    }
+    if (AL_Stereo)
+        AL_SendOutput(port, 0xD0 + voc, Channel[channel].Pan << 1);
 }
 
 
@@ -541,6 +438,13 @@ static void AL_SetChannelPan(int const channel, int const pan)
     // Don't pan drum sounds
     if (channel != 9)
         Channel[channel].Pan = pan;
+
+    auto voice = Channel[channel].Voices.start;
+    while (voice != nullptr)
+    {
+        AL_SetVoicePan(voice->num);
+        voice = voice->next;
+    }
 }
 
 
@@ -552,7 +456,7 @@ static void AL_ResetVoices(void)
     Voice_Pool.start = nullptr;
     Voice_Pool.end   = nullptr;
 
-    int const numvoices = AL_Stereo ? NUMADLIBVOICES : NUMADLIBVOICES * 2;
+    int const numvoices = NUMADLIBVOICES * 2;
 
     for (int index = 0; index < numvoices; index++)
     {
@@ -649,12 +553,7 @@ static void AL_Reset(void)
 
 void AL_SetStereo(int const stereo)
 {
-    if (stereo == AL_SendStereo)
-        return;
-
-    AL_SendStereo = stereo;
-    AL_SendOutputToPort(AL_RightPort, 0x5, AL_SendStereo);
-    AL_Reset();
+    AL_SendOutputToPort(AL_RightPort, 0x5, (stereo<<1)+1);
 }
 
 
@@ -676,13 +575,7 @@ static void AL_NoteOff(int const channel, int const key, int velocity)
     int port = Voice[voice].port;
     int voc  = (voice >= NUMADLIBVOICES) ? voice - NUMADLIBVOICES : voice;
 
-    if (AL_SendStereo)
-    {
-        AL_SendOutputToPort(AL_LeftPort, 0xB0 + voice, hibyte(Voice[voice].pitchleft));
-        AL_SendOutputToPort(AL_RightPort, 0xB0 + voice, hibyte(Voice[voice].pitchright));
-    }
-    else
-        AL_SendOutput(port, 0xB0 + voc, hibyte(Voice[voice].pitchleft));
+    AL_SendOutput(port, 0xB0 + voc, hibyte(Voice[voice].pitchleft));
 
     LL_Remove(AdLibVoice, &Channel[channel].Voices, &Voice[voice]);
     LL_AddToTail(AdLibVoice, &Voice_Pool, &Voice[voice]);
@@ -725,6 +618,7 @@ static void AL_NoteOn(int const channel, int const key, int const velocity)
     AL_SetVoiceTimbre(voice);
     AL_SetVoiceVolume(voice);
     AL_SetVoicePitch(voice);
+    AL_SetVoicePan(voice);
 }
 
 
@@ -834,7 +728,6 @@ static void AL_SetPitchBend(int const channel, int const lsb, int const msb)
 
 static void AL_Shutdown(void)
 {
-    AL_SetStereo(FALSE);
     AL_ResetVoices();
     AL_Reset();
 }
