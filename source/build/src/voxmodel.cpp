@@ -594,14 +594,14 @@ static void alloc_vbit(void)
     memset(vbit, 0, i);
 }
 
-static void read_pal(buildvfs_kfd fil, int32_t pal[256])
+static void read_pal(FileReader &fil, int32_t pal[256])
 {
-    klseek(fil, -768, SEEK_END);
+    fil.Seek(-768, FileReader::SeekEnd);
 
     for (bssize_t i=0; i<256; i++)
     {
         char c[3];
-        kread(fil, c, 3);
+        fil.Read(c, 3);
 //#if B_BIG_ENDIAN != 0
         pal[i] = B_LITTLE32((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24));
 //#endif
@@ -610,11 +610,11 @@ static void read_pal(buildvfs_kfd fil, int32_t pal[256])
 
 static int32_t loadvox(const char *filnam)
 {
-    const buildvfs_kfd fil = kopen4load(filnam, 0);
-    if (fil == buildvfs_kfd_invalid)
-        return -1;
+	auto fil = kopenFileReader(filnam, 0);
+	if (!fil.isOpen())
+		return -1;
 
-    kread(fil, &voxsiz, sizeof(vec3_t));
+    fil.Read(&voxsiz, sizeof(vec3_t));
 #if B_BIG_ENDIAN != 0
     voxsiz.x = B_LITTLE32(voxsiz.x);
     voxsiz.y = B_LITTLE32(voxsiz.y);
@@ -634,11 +634,11 @@ static int32_t loadvox(const char *filnam)
 
     char *const tbuf = (char *)Xmalloc(voxsiz.z*sizeof(uint8_t));
 
-    klseek(fil, 12, SEEK_SET);
+    fil.Seek(12, FileReader::SeekSet);
     for (bssize_t x=0; x<voxsiz.x; x++)
         for (bssize_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
         {
-            kread(fil, tbuf, voxsiz.z);
+            fil.Read(tbuf, voxsiz.z);
 
             for (bssize_t z=voxsiz.z-1; z>=0; z--)
                 if (tbuf[z] != 255)
@@ -648,11 +648,11 @@ static int32_t loadvox(const char *filnam)
                 }
         }
 
-    klseek(fil, 12, SEEK_SET);
+    fil.Seek(12, FileReader::SeekSet);
     for (bssize_t x=0; x<voxsiz.x; x++)
         for (bssize_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
         {
-            kread(fil, tbuf, voxsiz.z);
+            fil.Read(tbuf, voxsiz.z);
 
             for (bssize_t z=0; z<voxsiz.z; z++)
             {
@@ -678,7 +678,6 @@ static int32_t loadvox(const char *filnam)
         }
 
     Xfree(tbuf);
-    kclose(fil);
 
     return 0;
 }
@@ -687,27 +686,27 @@ static int32_t loadkvx(const char *filnam)
 {
     int32_t i, mip1leng;
 
-    const buildvfs_kfd fil = kopen4load(filnam, 0);
-    if (fil == buildvfs_kfd_invalid)
-        return -1;
+	auto fil = kopenFileReader(filnam, 0);
+	if (!fil.isOpen())
+		return -1;
 
-    kread(fil, &mip1leng, 4); mip1leng = B_LITTLE32(mip1leng);
-    kread(fil, &voxsiz, sizeof(vec3_t));
+    fil.Read(&mip1leng, 4); mip1leng = B_LITTLE32(mip1leng);
+    fil.Read(&voxsiz, sizeof(vec3_t));
 #if B_BIG_ENDIAN != 0
     voxsiz.x = B_LITTLE32(voxsiz.x);
     voxsiz.y = B_LITTLE32(voxsiz.y);
     voxsiz.z = B_LITTLE32(voxsiz.z);
 #endif
-    kread(fil, &i, 4); voxpiv.x = (float)B_LITTLE32(i)*(1.f/256.f);
-    kread(fil, &i, 4); voxpiv.y = (float)B_LITTLE32(i)*(1.f/256.f);
-    kread(fil, &i, 4); voxpiv.z = (float)B_LITTLE32(i)*(1.f/256.f);
-    klseek(fil, (voxsiz.x+1)<<2, SEEK_CUR);
+    fil.Read(&i, 4); voxpiv.x = (float)B_LITTLE32(i)*(1.f/256.f);
+    fil.Read(&i, 4); voxpiv.y = (float)B_LITTLE32(i)*(1.f/256.f);
+    fil.Read(&i, 4); voxpiv.z = (float)B_LITTLE32(i)*(1.f/256.f);
+    fil.Seek((voxsiz.x+1)<<2, FileReader::SeekCur);
 
     const int32_t ysizp1 = voxsiz.y+1;
     i = voxsiz.x*ysizp1*sizeof(int16_t);
 
     uint16_t *xyoffs = (uint16_t *)Xmalloc(i);
-    kread(fil, xyoffs, i);
+    fil.Read(xyoffs, i);
 
     for (i=i/sizeof(int16_t)-1; i>=0; i--)
         xyoffs[i] = B_LITTLE16(xyoffs[i]);
@@ -724,13 +723,12 @@ static int32_t loadkvx(const char *filnam)
     vcolhashsizm1--; //approx to numvoxs!
     alloc_vcolhashead();
 
-    klseek(fil, 28+((voxsiz.x+1)<<2)+((ysizp1*voxsiz.x)<<1), SEEK_SET);
+    fil.Seek(28+((voxsiz.x+1)<<2)+((ysizp1*voxsiz.x)<<1), FileReader::SeekSet);
 
-    i = kfilelength(fil)-ktell(fil);
+	i = fil.GetLength() - fil.Tell();
     char *const tbuf = (char *)Xmalloc(i);
 
-    kread(fil, tbuf, i);
-    kclose(fil);
+    fil.Read(tbuf, i);
 
     char *cptr = tbuf;
 
@@ -772,38 +770,37 @@ static int32_t loadkv6(const char *filnam)
 {
     int32_t i;
 
-    const buildvfs_kfd fil = kopen4load(filnam, 0);
-    if (fil == buildvfs_kfd_invalid)
+    auto fil = kopenFileReader(filnam, 0);
+    if (!fil.isOpen())
         return -1;
 
-    kread(fil, &i, 4);
+    fil.Read(&i, 4);
     if (B_LITTLE32(i) != 0x6c78764b)
     {
-        kclose(fil);
         return -1;
     } //Kvxl
 
-    kread(fil, &voxsiz, sizeof(vec3_t));
+    fil.Read(&voxsiz, sizeof(vec3_t));
 #if B_BIG_ENDIAN != 0
     voxsiz.x = B_LITTLE32(voxsiz.x);
     voxsiz.y = B_LITTLE32(voxsiz.y);
     voxsiz.z = B_LITTLE32(voxsiz.z);
 #endif
-    kread(fil, &i, 4);       voxpiv.x = (float)B_LITTLE32(i);
-    kread(fil, &i, 4);       voxpiv.y = (float)B_LITTLE32(i);
-    kread(fil, &i, 4);       voxpiv.z = (float)B_LITTLE32(i);
+    fil.Read(&i, 4);       voxpiv.x = (float)B_LITTLE32(i);
+    fil.Read(&i, 4);       voxpiv.y = (float)B_LITTLE32(i);
+    fil.Read(&i, 4);       voxpiv.z = (float)B_LITTLE32(i);
 
     int32_t numvoxs;
-    kread(fil, &numvoxs, 4); numvoxs = B_LITTLE32(numvoxs);
+    fil.Read(&numvoxs, 4); numvoxs = B_LITTLE32(numvoxs);
 
     uint16_t *const ylen = (uint16_t *)Xmalloc(voxsiz.x*voxsiz.y*sizeof(int16_t));
 
-    klseek(fil, 32+(numvoxs<<3)+(voxsiz.x<<2), SEEK_SET);
-    kread(fil, ylen, voxsiz.x*voxsiz.y*sizeof(int16_t));
+    fil.Seek(32+(numvoxs<<3)+(voxsiz.x<<2), FileReader::SeekSet);
+    fil.Read(ylen, voxsiz.x*voxsiz.y*sizeof(int16_t));
     for (i=voxsiz.x*voxsiz.y-1; i>=0; i--)
         ylen[i] = B_LITTLE16(ylen[i]);
 
-    klseek(fil, 32, SEEK_SET);
+    fil.Seek(32, FileReader::SeekSet);
 
     alloc_vbit();
 
@@ -822,7 +819,7 @@ static int32_t loadkv6(const char *filnam)
             for (i=ylen[x*voxsiz.y+y]; i>0; i--)
             {
                 char c[8];
-                kread(fil, c, 8); //b,g,r,a,z_lo,z_hi,vis,dir
+                fil.Read(c, 8); //b,g,r,a,z_lo,z_hi,vis,dir
 
                 const int32_t z0 = B_LITTLE16(B_UNBUF16(&c[4]));
 
@@ -837,7 +834,6 @@ static int32_t loadkv6(const char *filnam)
         }
 
     Xfree(ylen);
-    kclose(fil);
 
     return 0;
 }

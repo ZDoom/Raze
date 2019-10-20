@@ -187,6 +187,11 @@ static void maybe_alloc_palookup(int32_t palnum);
 
 void (*paletteLoadFromDisk_replace)(void) = NULL;
 
+inline bool read_and_test(FileReader& handle, void* buffer, int32_t leng)
+{
+	return handle.Read(buffer, leng) != leng;
+};
+
 //
 // loadpalette (internal)
 //
@@ -206,15 +211,15 @@ void paletteLoadFromDisk(void)
         return;
     }
 
-    buildvfs_kfd fil;
-    if ((fil = kopen4load("palette.dat", 0)) == buildvfs_kfd_invalid)
+	auto fil = kopenFileReader("palette.dat", 0);
+	if (!fil.isOpen())
         return;
 
 
     // PALETTE_MAIN
 
-    if (kread_and_test(fil, palette, 768))
-        return kclose(fil);
+    if (768 != fil.Read(palette, 768))
+        return;
 
     for (unsigned char & k : palette)
         k <<= 2;
@@ -226,15 +231,16 @@ void paletteLoadFromDisk(void)
 
     // PALETTE_SHADES
 
-    if (kread_and_test(fil, &numshades, 2))
-        return kclose(fil);
+    if (2 != fil.Read(&numshades, 2))
+        return;
+
     numshades = B_LITTLE16(numshades);
 
     if (numshades <= 1)
     {
         initprintf("Warning: Invalid number of shades in \"palette.dat\"!\n");
         numshades = 0;
-        return kclose(fil);
+        return;
     }
 
     // Auto-detect LameDuke. Its PALETTE.DAT doesn't have a 'numshades' 16-bit
@@ -247,15 +253,15 @@ void paletteLoadFromDisk(void)
         static char const * const seekfail = "Warning: klseek() failed in loadpalette()!\n";
 
         uint16_t temp;
-        if (kread_and_test(fil, &temp, 2))
-            return kclose(fil);
+        if (read_and_test(fil, &temp, 2))
+            return;
         temp = B_LITTLE16(temp);
         if (temp == 770 || numshades > 256) // 02 03
         {
-            if (klseek(fil, -4, BSEEK_CUR) < 0)
+            if (fil.Seek(-4, FileReader::SeekCur) < 0)
             {
                 initputs(seekfail);
-                return kclose(fil);
+                return;
             }
 
             numshades = 32;
@@ -263,18 +269,18 @@ void paletteLoadFromDisk(void)
         }
         else
         {
-            if (klseek(fil, -2, BSEEK_CUR) < 0)
+            if (fil.Seek(-2, FileReader::SeekCur) < 0)
             {
                 initputs(seekfail);
-                return kclose(fil);
+                return;
             }
         }
     }
 
     // Read base shade table (palookup 0).
     maybe_alloc_palookup(0);
-    if (kread_and_test(fil, palookup[0], numshades<<8))
-        return kclose(fil);
+    if (read_and_test(fil, palookup[0], numshades<<8))
+        return;
 
     paletteloaded |= PALETTE_SHADE;
 
@@ -292,8 +298,8 @@ void paletteLoadFromDisk(void)
 
             // Read the entries above and on the diagonal, if the table is
             // thought as being row-major.
-            if (kread_and_test(fil, &transluc[256*i + i], 256-i-1))
-                return kclose(fil);
+            if (read_and_test(fil, &transluc[256*i + i], 256-i-1))
+                return;
 
             // Duplicate the entries below the diagonal.
             for (bssize_t j=0; j<i; j++)
@@ -302,8 +308,8 @@ void paletteLoadFromDisk(void)
     }
     else
     {
-        if (kread_and_test(fil, transluc, 65536))
-            return kclose(fil);
+        if (read_and_test(fil, transluc, 65536))
+            return;
     }
 
     paletteloaded |= PALETTE_TRANSLUC;
@@ -312,34 +318,34 @@ void paletteLoadFromDisk(void)
     // additional blending tables
 
     uint8_t magic[12];
-    if (!kread_and_test(fil, magic, sizeof(magic)) && !Bmemcmp(magic, "MoreBlendTab", sizeof(magic)))
+    if (!read_and_test(fil, magic, sizeof(magic)) && !Bmemcmp(magic, "MoreBlendTab", sizeof(magic)))
     {
         uint8_t addblendtabs;
-        if (kread_and_test(fil, &addblendtabs, 1))
+        if (read_and_test(fil, &addblendtabs, 1))
         {
             initprintf("Warning: failed reading additional blending table count\n");
-            return kclose(fil);
+            return;
         }
 
         uint8_t blendnum;
         char *tab = (char *) Xmalloc(256*256);
         for (bssize_t i=0; i<addblendtabs; i++)
         {
-            if (kread_and_test(fil, &blendnum, 1))
+            if (read_and_test(fil, &blendnum, 1))
             {
                 initprintf("Warning: failed reading additional blending table index\n");
                 Xfree(tab);
-                return kclose(fil);
+                return;
             }
 
             if (paletteGetBlendTable(blendnum) != NULL)
                 initprintf("Warning: duplicate blending table index %3d encountered\n", blendnum);
 
-            if (kread_and_test(fil, tab, 256*256))
+            if (read_and_test(fil, tab, 256*256))
             {
                 initprintf("Warning: failed reading additional blending table\n");
                 Xfree(tab);
-                return kclose(fil);
+                return;
             }
 
             paletteSetBlendTable(blendnum, tab);
@@ -348,7 +354,7 @@ void paletteLoadFromDisk(void)
 
         // Read log2 of count of alpha blending tables.
         uint8_t lognumalphatabs;
-        if (!kread_and_test(fil, &lognumalphatabs, 1))
+        if (!read_and_test(fil, &lognumalphatabs, 1))
         {
             if (!(lognumalphatabs >= 1 && lognumalphatabs <= 7))
                 initprintf("invalid lognumalphatabs value, must be in [1 .. 7]\n");
@@ -356,8 +362,6 @@ void paletteLoadFromDisk(void)
                 numalphatabs = 1<<lognumalphatabs;
         }
     }
-
-    kclose(fil);
 }
 
 uint32_t PaletteIndexFullbrights[8];
@@ -456,7 +460,7 @@ void paletteFixTranslucencyMask(void)
 
 // Load LOOKUP.DAT, which contains lookup tables and additional base palettes.
 //
-// <fp>: kopen4load file handle
+// <fp>: open file handle
 //
 // Returns:
 //  - on success, 0

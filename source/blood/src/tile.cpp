@@ -88,27 +88,24 @@ int tileInit(char a1, const char *a2)
     for (int i = 0; i < kMaxTiles; i++)
         voxelIndex[i] = 0;
 
-    int hFile = kopen4loadfrommod("SURFACE.DAT", 0);
-    if (hFile != -1)
+    auto hFile = kopenFileReader("SURFACE.DAT", 0);
+    if (hFile.isOpen())
     {
-        kread(hFile, surfType, sizeof(surfType));
-        kclose(hFile);
+        hFile.Read(surfType, sizeof(surfType));
     }
-    hFile = kopen4loadfrommod("VOXEL.DAT", 0);
-    if (hFile != -1)
+    hFile = kopenFileReader("VOXEL.DAT", 0);
+    if (hFile.isOpen())
     {
-        kread(hFile, voxelIndex, sizeof(voxelIndex));
+        hFile.Read(voxelIndex, sizeof(voxelIndex));
 #if B_BIG_ENDIAN == 1
         for (int i = 0; i < kMaxTiles; i++)
             voxelIndex[i] = B_LITTLE16(voxelIndex[i]);
 #endif
-        kclose(hFile);
     }
-    hFile = kopen4loadfrommod("SHADE.DAT", 0);
-    if (hFile != -1)
+    hFile = kopenFileReader("SHADE.DAT", 0);
+    if (hFile.isOpen())
     {
-        kread(hFile, tileShade, sizeof(tileShade));
-        kclose(hFile);
+		hFile.Read(tileShade, sizeof(tileShade));
     }
     for (int i = 0; i < kMaxTiles; i++)
     {

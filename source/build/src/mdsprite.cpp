@@ -683,7 +683,7 @@ prep_return:
 }
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
-static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
+static md2model_t *md2load(FileReader & fil, const char *filnam)
 {
     md2model_t *m;
     md3model_t *m3;
@@ -698,7 +698,7 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
     m = (md2model_t *)Xcalloc(1,sizeof(md2model_t));
     m->mdnum = 2; m->scale = .01f;
 
-    kread(fil,(char *)&head,sizeof(md2head_t));
+    fil.Read((char *)&head,sizeof(md2head_t));
 #if B_BIG_ENDIAN != 0
     head.id = B_LITTLE32(head.id);                 head.vers = B_LITTLE32(head.vers);
     head.skinxsiz = B_LITTLE32(head.skinxsiz);     head.skinysiz = B_LITTLE32(head.skinysiz);
@@ -727,23 +727,23 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
     m->tris = (md2tri_t *)Xmalloc(head.numtris*sizeof(md2tri_t));
     m->uv = (md2uv_t *)Xmalloc(head.numuv*sizeof(md2uv_t));
 
-    klseek(fil,head.ofsframes,SEEK_SET);
-    if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
+    fil.Seek(head.ofsframes,FileReader::SeekSet);
+    if (fil.Read((char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
         { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
 
     if (m->numglcmds > 0)
     {
-        klseek(fil,head.ofsglcmds,SEEK_SET);
-        if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(int32_t)) != (int32_t)(m->numglcmds*sizeof(int32_t)))
+        fil.Seek(head.ofsglcmds,FileReader::SeekSet);
+        if (fil.Read((char *)m->glcmds,m->numglcmds*sizeof(int32_t)) != (int32_t)(m->numglcmds*sizeof(int32_t)))
             { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
     }
 
-    klseek(fil,head.ofstris,SEEK_SET);
-    if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int32_t)(head.numtris*sizeof(md2tri_t)))
+    fil.Seek(head.ofstris,FileReader::SeekSet);
+    if (fil.Read((char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int32_t)(head.numtris*sizeof(md2tri_t)))
         { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
 
-    klseek(fil,head.ofsuv,SEEK_SET);
-    if (kread(fil,(char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int32_t)(head.numuv*sizeof(md2uv_t)))
+    fil.Seek(head.ofsuv,FileReader::SeekSet);
+    if (fil.Read((char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int32_t)(head.numuv*sizeof(md2uv_t)))
         { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
 
 #if B_BIG_ENDIAN != 0
@@ -792,8 +792,8 @@ static md2model_t *md2load(buildvfs_kfd fil, const char *filnam)
     m->skinfn = (char *)Xmalloc(ournumskins*64);
     if (m->numskins > 0)
     {
-        klseek(fil,head.ofsskins,SEEK_SET);
-        if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
+        fil.Seek(head.ofsskins,FileReader::SeekSet);
+        if (fil.Read(m->skinfn,64*m->numskins) != 64*m->numskins)
             { Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
     }
 
@@ -967,7 +967,7 @@ static inline void quicksort(uint16_t *indexes, float *depths, int32_t first, in
 
 //--------------------------------------- MD3 LIBRARY BEGINS ---------------------------------------
 
-static md3model_t *md3load(buildvfs_kfd fil)
+static md3model_t *md3load(FileReader & fil)
 {
     int32_t i, surfi, ofsurf, offs[4], leng[4];
     int32_t maxtrispersurf;
@@ -979,7 +979,7 @@ static md3model_t *md3load(buildvfs_kfd fil)
 
     m->muladdframes = NULL;
 
-    kread(fil,&m->head,SIZEOF_MD3HEAD_T);
+    fil.Read(&m->head,SIZEOF_MD3HEAD_T);
 
 #if B_BIG_ENDIAN != 0
     m->head.id = B_LITTLE32(m->head.id);             m->head.vers = B_LITTLE32(m->head.vers);
@@ -997,19 +997,19 @@ static md3model_t *md3load(buildvfs_kfd fil)
 
     ofsurf = m->head.ofssurfs;
 
-    klseek(fil,m->head.ofsframes,SEEK_SET); i = m->head.numframes*sizeof(md3frame_t);
+    fil.Seek(m->head.ofsframes,FileReader::SeekSet); i = m->head.numframes*sizeof(md3frame_t);
     m->head.frames = (md3frame_t *)Xmalloc(i);
-    kread(fil,m->head.frames,i);
+    fil.Read(m->head.frames,i);
 
     if (m->head.numtags == 0) m->head.tags = NULL;
     else
     {
-        klseek(fil,m->head.ofstags,SEEK_SET); i = m->head.numtags*sizeof(md3tag_t);
+        fil.Seek(m->head.ofstags,FileReader::SeekSet); i = m->head.numtags*sizeof(md3tag_t);
         m->head.tags = (md3tag_t *)Xmalloc(i);
-        kread(fil,m->head.tags,i);
+        fil.Read(m->head.tags,i);
     }
 
-    klseek(fil,m->head.ofssurfs,SEEK_SET);
+    fil.Seek(m->head.ofssurfs,FileReader::SeekSet);
     m->head.surfs = (md3surf_t *)Xcalloc(m->head.numsurfs, sizeof(md3surf_t));
     // NOTE: We assume that NULL is represented by all-zeros.
     // surfs[0].geometry is for POLYMER_MD_PROCESS_CHECK (else: crashes).
@@ -1039,7 +1039,7 @@ static md3model_t *md3load(buildvfs_kfd fil)
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
         s = &m->head.surfs[surfi];
-        klseek(fil,ofsurf,SEEK_SET); kread(fil,s,SIZEOF_MD3SURF_T);
+        fil.Seek(ofsurf,FileReader::SeekSet); fil.Read(s,SIZEOF_MD3SURF_T);
 
 #if B_BIG_ENDIAN != 0
         {
@@ -1069,10 +1069,10 @@ static md3model_t *md3load(buildvfs_kfd fil)
         s->uv      = (md3uv_t *)(((intptr_t)s->shaders)+leng[1]);
         s->xyzn    = (md3xyzn_t *)(((intptr_t)s->uv)+leng[2]);
 
-        klseek(fil,offs[0],SEEK_SET); kread(fil,s->tris   ,leng[0]);
-        klseek(fil,offs[1],SEEK_SET); kread(fil,s->shaders,leng[1]);
-        klseek(fil,offs[2],SEEK_SET); kread(fil,s->uv     ,leng[2]);
-        klseek(fil,offs[3],SEEK_SET); kread(fil,s->xyzn   ,leng[3]);
+        fil.Seek(offs[0],FileReader::SeekSet); fil.Read(s->tris   ,leng[0]);
+        fil.Seek(offs[1],FileReader::SeekSet); fil.Read(s->shaders,leng[1]);
+        fil.Seek(offs[2],FileReader::SeekSet); fil.Read(s->uv     ,leng[2]);
+        fil.Seek(offs[3],FileReader::SeekSet); fil.Read(s->xyzn   ,leng[3]);
 
 #if B_BIG_ENDIAN != 0
         {
@@ -1880,13 +1880,13 @@ mdmodel_t *mdload(const char *filnam)
     vm = (mdmodel_t *)voxload(filnam);
     if (vm) return vm;
 
-    buildvfs_kfd fil = kopen4load(filnam,0);
+    auto fil = kopenFileReader(filnam,0);
 
-    if (fil == buildvfs_kfd_invalid)
+    if (!fil.isOpen())
         return NULL;
 
-    kread(fil,&i,4);
-    klseek(fil,0,SEEK_SET);
+    fil.Read(&i,4);
+    fil.Seek(0,FileReader::SeekSet);
 
     switch (B_LITTLE32(i))
     {
@@ -1901,8 +1901,6 @@ mdmodel_t *mdload(const char *filnam)
         vm = NULL;
         break;
     }
-
-    kclose(fil);
 
     if (vm)
     {

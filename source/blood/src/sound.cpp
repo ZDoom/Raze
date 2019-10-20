@@ -365,18 +365,16 @@ void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel)
         pChannel = &Channel[nChannel];
     if (pChannel->at0 > 0)
         sndKillSound(pChannel);
-    int hFile = kopen4loadfrommod(pzFile, 0);
-    if (hFile == -1)
+    auto hFile = kopenFileReader(pzFile, 0);
+    if (!hFile.isOpen())
         return;
-    int nLength = kfilelength(hFile);
+    int nLength = hFile.GetLength();
     char *pData = (char*)gSoundRes.Alloc(nLength);
     if (!pData)
     {
-        kclose(hFile);
         return;
     }
-    kread(hFile, pData, kfilelength(hFile));
-    kclose(hFile);
+	hFile.Read(pData, nLength);
     pChannel->at5 = (DICTNODE*)pData;
     pChannel->at4 |= 2;
     pChannel->at0 = FX_Play(pData, nLength, 0, -1, 0, nVolume, nVolume, nVolume, nVolume, 1.f, (intptr_t)&pChannel->at0);

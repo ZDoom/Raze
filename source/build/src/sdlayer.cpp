@@ -820,33 +820,29 @@ static SDL_GameController *controller = NULL;
 
 static void LoadSDLControllerDB()
 {
-    buildvfs_kfd fh = kopen4load("gamecontrollerdb.txt", 0);
-    if (fh == buildvfs_kfd_invalid)
+    auto fh = fopenFileReader("gamecontrollerdb.txt", 0);
+    if (!fh.isOpen())
         return;
 
-    int flen = kfilelength(fh);
+	int flen = fh.GetLength();
     if (flen <= 0)
     {
-        kclose(fh);
         return;
     }
 
     char * dbuf = (char *)malloc(flen + 1);
     if (!dbuf)
     {
-        kclose(fh);
         return;
     }
 
-    if (kread_and_test(fh, dbuf, flen))
+    if (fh.Read(dbuf, flen) != flen)
     {
         free(dbuf);
-        kclose(fh);
         return;
     }
 
     dbuf[flen] = '\0';
-    kclose(fh);
 
     SDL_RWops * rwops = SDL_RWFromConstMem(dbuf, flen);
     if (!rwops)

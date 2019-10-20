@@ -166,11 +166,11 @@ int OSD_Exec(const char *szScript)
 {
     int err = 0;
     int32_t len = 0;
-    buildvfs_kfd handle;
+    FileReader handle;
 
-    if ((handle = kopen4load(szScript, 0)) == buildvfs_kfd_invalid)
+    if (!(handle = fopenFileReader(szScript, 0)).isOpen())
         err = 1;
-    else if ((len = kfilelength(handle)) <= 0)
+    else if ((len = handle.GetLength()) <= 0)
         err = 2; // blank file
 
     if (!err)
@@ -178,19 +178,15 @@ int OSD_Exec(const char *szScript)
 
     auto buf = (char *) Xmalloc(len + 1);
 
-    if (err || kread(handle, buf, len) != len)
+    if (err || handle.Read(buf, len) != len)
     {
         if (!err) // no error message for blank file
             OSD_Printf("Error executing \"%s\"!\n", szScript);
-
-        if (handle != buildvfs_kfd_invalid)
-            kclose(handle);
 
         Xfree(buf);
         return 1;
     }
 
-    kclose(handle);
     buf[len] = '\0';
 
     char const *cp = strtok(buf, "\r\n");
@@ -274,9 +270,9 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
 {
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-    buildvfs_kfd h;
+    FileReader h;
 
-    if ((h = kopen4load(parm->parms[0],0)) == buildvfs_kfd_invalid)
+    if (!(h = kopenFileReader(parm->parms[0],0)).isOpen())
     {
         OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
         return OSDCMD_OK;
@@ -291,14 +287,14 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
 
     do
     {
-        siz   = kread(h, buf, ReadSize);
+        siz   = h.Read(buf, ReadSize);
         crcval = Bcrc32((uint8_t *)buf, siz, crcval);
     }
     while (siz == ReadSize);
 
     crctime = timerGetHiTicks() - crctime;
 
-    klseek(h, 0, BSEEK_SET);
+    h.Seek(0, FileReader::SeekSet);
 
     double xxhtime = timerGetHiTicks();
 
@@ -307,7 +303,7 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
 
     do
     {
-        siz = kread(h, buf, ReadSize);
+        siz = h.Read(buf, ReadSize);
         XXH32_update(&xxh, (uint8_t *)buf, siz);
     }
     while (siz == ReadSize);
@@ -321,11 +317,9 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
                "  File size: %d bytes\n"
                "  CRC-32:    %08X (%.1fms)\n"
                "  xxHash:    %08X (%.1fms)\n",
-               parm->parms[0], kfilelength(h),
+               parm->parms[0], (int)h.GetLength(),
                crcval, crctime,
                xxhash, xxhtime);
-
-    kclose(h);
 
     return OSDCMD_OK;
 }
