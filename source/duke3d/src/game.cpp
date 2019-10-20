@@ -286,10 +286,6 @@ int32_t A_CheckInventorySprite(spritetype *s)
 
 void G_GameExit(const char *msg)
 {
-#ifdef LUNATIC
-    El_PrintTimes();
-    El_DestroyState(&g_ElState);
-#endif
     if (*msg != 0 && g_player[myconnectindex].ps != NULL)
         g_player[myconnectindex].ps->palette = BASEPAL;
 
