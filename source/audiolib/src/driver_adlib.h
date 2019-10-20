@@ -23,6 +23,7 @@
 #include "opl3.h"
 
 extern int AL_Stereo;
+extern int AL_AdditiveMode;
 
 int         AdLibDrv_GetError(void);
 const char *AdLibDrv_ErrorString(int ErrorNumber);

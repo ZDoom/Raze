@@ -200,6 +200,7 @@ static int AL_LeftPort  = ADLIB_PORT;
 static int AL_RightPort = ADLIB_PORT;
 int        AL_Stereo    = TRUE;
 static int AL_MaxMidiChannel = 16;
+int        AL_AdditiveMode;
 
 // TODO: clean up this shit...
 #define OFFSET(structure, offset) (*((char **)&(structure)[offset]))
@@ -331,9 +332,13 @@ static void AL_SetVoiceVolume(int const voice)
     if (timbre->Feedback & 0x01)
     {
         int const slot = slotVoice[voc][0];
+        uint32_t t2;
 
         // amplitude
-        auto t2 = (Channel[channel].Volume * t1) >> 15;
+        if (AL_AdditiveMode)
+            t1 = (uint32_t)VoiceLevel[slot][port] * (velocity + 0x80);
+
+        t2 = (Channel[channel].Volume * t1) >> 15;
 
         volume = t2 ^ 63;
         volume |= (uint32_t)VoiceKsl[slot][port];
