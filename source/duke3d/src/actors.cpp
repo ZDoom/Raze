@@ -6291,10 +6291,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         pPlayer->pos.y += x;
 
                         if (g_netServer || numplayers > 1)
-                        {
-                            pPlayer->opos.x = pPlayer->pos.x;
-                            pPlayer->opos.y = pPlayer->pos.y;
-                        }
+                            pPlayer->opos.vec2 = pPlayer->pos.vec2;
 
                         pPlayer->bobpos.x += l;
                         pPlayer->bobpos.y += x;
@@ -7549,16 +7546,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     pPlayer->bobpos.y += x;
 
                     if (g_netServer || numplayers > 1)
-                    {
-                        pPlayer->opos.x = pPlayer->pos.x;
-                        pPlayer->opos.y = pPlayer->pos.y;
-                    }
+                        pPlayer->opos.vec2 = pPlayer->pos.vec2;
 
                     if (sprite[pPlayer->i].extra <= 0)
-                    {
-                        sprite[pPlayer->i].x = pPlayer->pos.x;
-                        sprite[pPlayer->i].y = pPlayer->pos.y;
-                    }
+                        sprite[pPlayer->i].pos.vec2 = pPlayer->pos.vec2;
                 }
             }
 

@@ -4911,21 +4911,14 @@ void P_ProcessInput(int playerNum)
         pPlayer->bobcounter += sprite[pPlayer->i].xvel>>1;
 
     if (ud.noclip == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == MIRROR))
-    {
-        pPlayer->pos.x = pPlayer->opos.x;
-        pPlayer->pos.y = pPlayer->opos.y;
-    }
+        pPlayer->pos.vec2 = pPlayer->opos.vec2;
     else
-    {
-        pPlayer->opos.x = pPlayer->pos.x;
-        pPlayer->opos.y = pPlayer->pos.y;
-    }
+        pPlayer->opos.vec2 = pPlayer->pos.vec2;
 
-    pPlayer->bobpos.x = pPlayer->pos.x;
-    pPlayer->bobpos.y = pPlayer->pos.y;
-    pPlayer->opos.z   = pPlayer->pos.z;
-    pPlayer->opyoff   = pPlayer->pyoff;
-    pPlayer->oq16ang    = pPlayer->q16ang;
+    pPlayer->bobpos  = pPlayer->pos.vec2;
+    pPlayer->opos.z  = pPlayer->pos.z;
+    pPlayer->opyoff  = pPlayer->pyoff;
+    pPlayer->oq16ang = pPlayer->q16ang;
 
     if (pPlayer->one_eighty_count < 0)
     {
@@ -5430,7 +5423,7 @@ HORIZONLY:;
 
     pPlayer->on_warping_sector = 0;
 
-    bool mashedPotato = 0;
+    bool mashedPotato = false;
 
     if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
     {
