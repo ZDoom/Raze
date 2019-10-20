@@ -3054,7 +3054,7 @@ void P_GetInput(int const playerNum)
     int const sectorLotag = pPlayer->cursectnum != -1 ? sector[pPlayer->cursectnum].lotag : 0;
     int const crouchable = sectorLotag != 2 && (sectorLotag != 1 || pPlayer->spritebridge);
 
-    if (BUTTON(gamefunc_Toggle_Crouch))
+    if (pPlayer->cheat_phase == 0 && BUTTON(gamefunc_Toggle_Crouch))
     {
         pPlayer->crouch_toggle = !pPlayer->crouch_toggle && crouchable;
 
