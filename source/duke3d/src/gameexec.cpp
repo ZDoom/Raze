@@ -5647,12 +5647,12 @@ badindex:
 
                     VM_ASSERT((unsigned)quoteFilename < MAXQUOTES && apStrings[quoteFilename], "invalid quote %d\n", quoteFilename);
 
-                    buildvfs_kfd kFile = kopen4loadfrommod(apStrings[quoteFilename], 0);
+                    auto kFile = kopenFileReader(apStrings[quoteFilename], 0);
 
-                    if (kFile == buildvfs_kfd_invalid)
+                    if (!kFile.isOpen())
                         dispatch();
 
-                    size_t const filelength  = kfilelength(kFile);
+					size_t const filelength = kFile.GetLength();
                     size_t const numElements = Gv_GetArrayCountForAllocSize(arrayNum, filelength);
 
                     if (numElements > 0)
@@ -5680,7 +5680,7 @@ badindex:
                             {
                                 void *const pArray = Xcalloc(1, newBytes);
 
-                                kread(kFile, pArray, readBytes);
+                                kFile.Read(pArray, readBytes);
 
                                 if (flags & GAMEARRAY_UNSIGNED)
                                 {
@@ -5699,12 +5699,12 @@ badindex:
 #endif
                             default:
                                 memset((char *)pValues + readBytes, 0, newBytes - readBytes);
-                                kread(kFile, pValues, readBytes);
+								kFile.Read(pValues, readBytes);
                                 break;
                         }
                     }
 
-                    kclose(kFile);
+					kFile.Close();
                     dispatch();
                 }
 

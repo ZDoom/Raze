@@ -98,8 +98,8 @@ int sndPlaySong(const char *songName, bool bLoop)
     if (!songName || strlen(songName) == 0)
         return 1;
 
-    int32_t fp = S_OpenAudio(songName, 0, 1);
-    if (EDUKE32_PREDICT_FALSE(fp < 0))
+    auto fp = S_OpenAudio(songName, 0, 1);
+    if (!fp.isOpen())
     {
         hSong = gSoundRes.Lookup(songName, "MID");
         if (!hSong)
@@ -132,28 +132,24 @@ int sndPlaySong(const char *songName, bool bLoop)
         return 0;
     }
 
-    int32_t nSongLen = kfilelength(fp);
+    int32_t nSongLen = fp.Tell();
 
     if (EDUKE32_PREDICT_FALSE(nSongLen < 4))
     {
         OSD_Printf(OSD_ERROR "sndPlaySong(): error: empty music file \"%s\"\n", songName);
-        kclose(fp);
         return 3;
     }
 
     char * pNewSongPtr = (char *)Xaligned_alloc(16, nSongLen);
-    int nNewSongSize = kread(fp, pNewSongPtr, nSongLen);
+    int nNewSongSize = fp.Read(pNewSongPtr, nSongLen);
 
     if (EDUKE32_PREDICT_FALSE(nNewSongSize != nSongLen))
     {
         OSD_Printf(OSD_ERROR "sndPlaySong(): error: read %d bytes from \"%s\", expected %d\n",
             nNewSongSize, songName, nSongLen);
-        kclose(fp);
         ALIGNED_FREE_AND_NULL(pNewSongPtr);
         return 4;
     }
-
-    kclose(fp);
 
     if (!Bmemcmp(pNewSongPtr, "MThd", 4))
     {

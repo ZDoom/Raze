@@ -1901,22 +1901,22 @@ static int C_CountCaseStatements()
 
 static void C_Include(const char *confile)
 {
-    buildvfs_kfd fp = kopen4loadfrommod(confile, g_loadFromGroupOnly);
+	auto fp = kopenFileReader(confile,g_loadFromGroupOnly);
 
-    if (EDUKE32_PREDICT_FALSE(fp == buildvfs_kfd_invalid))
+    if (!fp.isOpen())
     {
         g_errorCnt++;
         initprintf("%s:%d: error: could not find file `%s'.\n",g_scriptFileName,g_lineNumber,confile);
         return;
     }
 
-    int32_t const len = kfilelength(fp);
+    int32_t const len = fp.GetLength();
     char *mptr = (char *)Xmalloc(len+1);
 
     initprintf("Including: %s (%d bytes)\n",confile, len);
 
-    kread(fp, mptr, len);
-    kclose(fp);
+	fp.Read(mptr, len);
+	fp.Close();
 
     mptr[len] = 0;
     g_scriptcrc = Bcrc32(mptr, len, g_scriptcrc);
@@ -1956,9 +1956,8 @@ static void C_Include(const char *confile)
 #ifdef _WIN32
 static void check_filename_case(const char *fn)
 {
-    buildvfs_kfd fp;
-    if ((fp = kopen4loadfrommod(fn, g_loadFromGroupOnly)) != buildvfs_kfd_invalid)
-        kclose(fp);
+	// WTF?!?
+	testkopen(fn, g_loadFromGroupOnly);
 }
 #else
 static void check_filename_case(const char *fn) { UNREFERENCED_PARAMETER(fn); }
@@ -6261,9 +6260,9 @@ void C_Compile(const char *fileName)
     Gv_Init();
     C_InitProjectiles();
 
-    buildvfs_kfd kFile = kopen4loadfrommod(fileName, g_loadFromGroupOnly);
+    auto kFile = kopenFileReader(fileName,g_loadFromGroupOnly);
 
-    if (kFile == buildvfs_kfd_invalid) // JBF: was 0
+	if (!kFile.isOpen())
     {
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
@@ -6286,7 +6285,7 @@ void C_Compile(const char *fileName)
         return; //Not there
     }
 
-    int const kFileLen = kfilelength(kFile);
+	int const kFileLen = kFile.GetLength();
 
     initprintf("Compiling: %s (%d bytes)\n", fileName, kFileLen);
 
@@ -6298,8 +6297,8 @@ void C_Compile(const char *fileName)
     mptr[kFileLen] = 0;
 
     textptr = (char *)mptr;
-    kread(kFile, (char *)textptr, kFileLen);
-    kclose(kFile);
+	kFile.Read((char*)textptr, kFileLen);
+	kFile.Close();
 
     g_scriptcrc = Bcrc32(NULL, 0, 0L);
     g_scriptcrc = Bcrc32(textptr, kFileLen, g_scriptcrc);

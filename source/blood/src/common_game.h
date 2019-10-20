@@ -541,7 +541,7 @@ static inline void G_HandleAsync(void)
 }
 
 # define FORMAT_UPGRADE_ELIGIBLE
-extern int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
+extern FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
 
 #pragma pack(push,1)
 

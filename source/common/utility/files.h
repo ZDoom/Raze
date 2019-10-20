@@ -262,6 +262,13 @@ public:
 		return LittleShort(v);
 	}
 
+	int16_t ReadInt16BE()
+	{
+		uint16_t v = 0;
+		Read(&v, 2);
+		return BigShort(v);
+	}
+
 	uint32_t ReadUInt32()
 	{
 		uint32_t v = 0;

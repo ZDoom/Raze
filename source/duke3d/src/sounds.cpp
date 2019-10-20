@@ -212,35 +212,31 @@ static int S_PlayMusic(const char *fn)
     if (fn == NULL)
         return 1;
 
-    buildvfs_kfd fp = S_OpenAudio(fn, 0, 1);
-    if (EDUKE32_PREDICT_FALSE(fp == buildvfs_kfd_invalid))
+    auto fp = S_OpenAudio(fn, 0, 1);
+    if (!fp.isOpen())
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
         return 2;
     }
 
-    int32_t MusicLen = kfilelength(fp);
+    int32_t MusicLen = fp.GetLength();
 
     if (EDUKE32_PREDICT_FALSE(MusicLen < 4))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: empty music file \"%s\"\n", fn);
-        kclose(fp);
         return 3;
     }
 
     char * MyMusicPtr = (char *)Xaligned_alloc(16, MusicLen);
-    int MyMusicSize = kread(fp, MyMusicPtr, MusicLen);
+    int MyMusicSize = fp.Read(MyMusicPtr, MusicLen);
 
     if (EDUKE32_PREDICT_FALSE(MyMusicSize != MusicLen))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from \"%s\", expected %d\n",
                    MyMusicSize, fn, MusicLen);
-        kclose(fp);
         ALIGNED_FREE_AND_NULL(MyMusicPtr);
         return 4;
     }
-
-    kclose(fp);
 
     if (!Bmemcmp(MyMusicPtr, "MThd", 4))
     {
@@ -450,20 +446,19 @@ int32_t S_LoadSound(int num)
 
     auto &snd = g_sounds[num];
 
-    buildvfs_kfd fp = S_OpenAudio(snd.filename, g_loadFromGroupOnly, 0);
+    auto fp = S_OpenAudio(snd.filename, g_loadFromGroupOnly, 0);
 
-    if (EDUKE32_PREDICT_FALSE(fp == buildvfs_kfd_invalid))
+    if (!fp.isOpen())
     {
         OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n", snd.filename, num);
         return 0;
     }
 
-    int32_t l = kfilelength(fp);
+	int32_t l = fp.GetLength();
     g_soundlocks[num] = 255;
     snd.siz = l;
     cacheAllocateBlock((intptr_t *)&snd.ptr, l, &g_soundlocks[num]);
-    l = kread(fp, snd.ptr, l);
-    kclose(fp);
+    l = fp.Read(snd.ptr, l);
 
     return l;
 }

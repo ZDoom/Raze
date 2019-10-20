@@ -173,14 +173,12 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
             {
                 if (FURY)
                 {
-                    char extfn[BMAX_PATH];
-                    snprintf(extfn, ARRAY_SIZE(extfn), "%s.ext", fn);
-                    buildvfs_kfd extfil = kopen4loadfrommod(extfn, 0);
-                    if (extfil != buildvfs_kfd_invalid)
-                    {
-                        msv.brief.isExt = 1;
-                        kclose(extfil);
-                    }
+					FStringf extfn("%s.ext", fn);
+					auto extfil = fopenFileReader(extfn, 0);
+					if (extfil.isOpen())
+					{
+						msv.brief.isExt = 1;
+					}
                 }
             }
             msv.isOldVer = 1;
@@ -376,32 +374,22 @@ int32_t G_LoadPlayer(savebrief_t & sv)
             }
         }
 
-        char extfn[BMAX_PATH];
-        snprintf(extfn, ARRAY_SIZE(extfn), "%s.ext", sv.path);
-        buildvfs_kfd extfil = kopen4loadfrommod(extfn, 0);
-        if (extfil == buildvfs_kfd_invalid)
+		FStringf extfn("%s.ext", sv.path);
+        auto extfil = fopenFileReader(extfn, 0);
+        if (!extfil.isOpen())
         {
             return -1;
         }
 
-        int32_t len = kfilelength(extfil);
-        auto text = (char *)Xmalloc(len+1);
-        text[len] = '\0';
+		auto text = extfil.ReadPadded(1);
 
-        if (kread_and_test(extfil, text, len))
+        if (text.Size() == 0)
         {
-            kclose(extfil);
-            Xfree(text);
             return -1;
         }
-
-        kclose(extfil);
-
 
         sjson_context * ctx = sjson_create_context(0, 0, NULL);
-        sjson_node * root = sjson_decode(ctx, text);
-
-        Xfree(text);
+        sjson_node * root = sjson_decode(ctx, (const char *)text.Data());
 
         if (volume == -1)
             volume = sjson_get_int(root, "volume", volume);

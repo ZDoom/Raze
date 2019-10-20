@@ -6096,11 +6096,9 @@ static void G_Startup(void)
 
             Bcorrectfilename(boardfilename,0);
 
-            buildvfs_kfd ii = kopen4loadfrommod(boardfilename, 0);
-            if (ii != buildvfs_kfd_invalid)
-            {
+			if (testkopen(boardfilename, 0))
+			{
                 initprintf("Using level: \"%s\".\n",boardfilename);
-                kclose(ii);
             }
             else
             {
@@ -6461,14 +6459,11 @@ int app_main(int argc, char const * const * argv)
         g_Shareware = 1;
     else
     {
-        buildvfs_kfd const kFile = kopen4load("DUKESW.BIN",1); // JBF 20030810
-
-        if (kFile != buildvfs_kfd_invalid)
-        {
-            g_Shareware = 1;
-            kclose(kFile);
-        }
-    }
+		if (testkopen("DUKESW.BIN", 1)) // JBF 20030810
+		{
+			g_Shareware = 1;
+		}
+	}
 #endif
 
     // gotta set the proper title after we compile the CONs if this is the full version

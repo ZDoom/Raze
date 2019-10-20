@@ -1728,9 +1728,8 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
 
         Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
-        if ((kFile = kopen4loadfrommod(nameBuf, 0)) != buildvfs_kfd_invalid)
-        {
-            kclose(kFile);
+		if (testkopen(nameBuf, 0))
+		{
             realloc_copy(&g_mapInfo[USERMAPMUSICFAKESLOT].musicfn, nameBuf);
             return;
         }

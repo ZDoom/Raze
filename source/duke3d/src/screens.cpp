@@ -1460,14 +1460,10 @@ void gameDisplay3DRScreen()
         buildvfs_kfd i;
         Net_GetPackets();
 
-        i = kopen4loadfrommod("3dr.ivf", 0);
-
-        if (i == buildvfs_kfd_invalid)
-            i = kopen4loadfrommod("3dr.anm", 0);
-
-        if (i != buildvfs_kfd_invalid)
-        {
-            kclose(i);
+		if (testkopen("3dr.ivf", 0) || testkopen("3dr.anm", 0))
+		{
+			Anim_Play("3dr.anm");
+			kclose(i);
             Anim_Play("3dr.anm");
             G_FadePalette(0, 0, 0, 252);
             I_ClearAllInput();

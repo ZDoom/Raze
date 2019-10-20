@@ -24,8 +24,8 @@ namespace SmackerCommon {
 
 bool FileStream::Open(const std::string &fileName)
 {
-    file = kopen4loadfrommod(fileName.c_str(), 0);
-	if (file == -1)
+    file = kopenFileReader(fileName.c_str(), 0);
+	if (!file.isOpen())
 	{
 		// log error
 		return false;
@@ -36,18 +36,17 @@ bool FileStream::Open(const std::string &fileName)
 
 bool FileStream::Is_Open()
 {
-	return file != -1;
+	return file.isOpen();
 }
 
 void FileStream::Close()
 {
-    kclose(file);
-    file = -1;
+	file.Close();
 }
 
 int32_t FileStream::ReadBytes(uint8_t *data, uint32_t nBytes)
 {
-	uint32_t nCount = (uint32_t)kread(file, data, static_cast<int32_t>(nBytes));
+	uint32_t nCount = (uint32_t)file.Read(data, static_cast<int32_t>(nBytes));
 
 	if (nCount != nBytes)
 	{
@@ -59,47 +58,37 @@ int32_t FileStream::ReadBytes(uint8_t *data, uint32_t nBytes)
 
 uint32_t FileStream::ReadUint32LE()
 {
-	uint32_t value;
-	kread(file, &value, 4);
-	return B_LITTLE32(value);
+	return file.ReadInt32();
 }
 
 uint32_t FileStream::ReadUint32BE()
 {
-	uint32_t value;
-    kread(file, &value, 4);
-	return B_BIG32(value);
+	return file.ReadInt32BE();
 }
 
 uint16_t FileStream::ReadUint16LE()
 {
-	uint16_t value;
-    kread(file, &value, 2);
-	return B_LITTLE16(value);
+	return file.ReadInt16();
 }
 
 uint16_t FileStream::ReadUint16BE()
 {
-	uint16_t value;
-    kread(file, &value, 2);
-	return B_BIG16(value);
+	return file.ReadInt16BE();
 }
 
 uint8_t FileStream::ReadByte()
 {
-	uint8_t value;
-    kread(file, &value, 1);
-	return value;
+	return file.ReadInt8();
 }
 
 bool FileStream::Seek(int32_t offset, SeekDirection direction)
 {
     int32_t nStatus = -1;
 	if (kSeekStart == direction) {
-        nStatus = klseek(file, offset, SEEK_SET);
+        nStatus = file.Seek(offset, FileReader::SeekSet);
 	}
 	else if (kSeekCurrent == direction) {
-        nStatus = klseek(file, offset, SEEK_CUR);
+		nStatus = file.Seek(offset, FileReader::SeekCur);
 	}
 
 	// TODO - end seek
@@ -125,7 +114,7 @@ bool FileStream::Is_Eos()
 
 int32_t FileStream::GetPosition()
 {
-    return ktell(file);
+    return file.Tell();
 }
 
 } // close namespace SmackerCommon

@@ -1059,29 +1059,30 @@ void G_LoadLookups(void)
 #ifdef FORMAT_UPGRADE_ELIGIBLE
 int g_maybeUpgradeSoundFormats = 1;
 
-static buildvfs_kfd S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
+static FileReader S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
 {
-    if (g_maybeUpgradeSoundFormats)
-    {
 #ifdef HAVE_FLAC
+    {
         Bstrcpy(fn_suffix, ".flac");
-        buildvfs_kfd const ffp = kopen4loadfrommod(testfn, searchfirst);
-        if (ffp != buildvfs_kfd_invalid)
-            return ffp;
+        auto fp = kopenFileReader(testfn, searchfirst);
+        if (fp.isOpen())
+            return fp;
+    }
 #endif
 
 #ifdef HAVE_VORBIS
+    {
         Bstrcpy(fn_suffix, ".ogg");
-        buildvfs_kfd const fp = kopen4loadfrommod(testfn, searchfirst);
-        if (fp != buildvfs_kfd_invalid)
-            return fp;
+		auto fp = kopenFileReader(testfn, searchfirst);
+		if (fp.isOpen())
+			return fp;
+	}
 #endif
-    }
 
-    return buildvfs_kfd_invalid;
+    return FileReader();
 }
 
-static buildvfs_kfd S_TryExtensionReplacements(char * const testfn, char const searchfirst, uint8_t const ismusic)
+static FileReader S_TryExtensionReplacements(char * const testfn, char const searchfirst, uint8_t const ismusic)
 {
     char * extension = Bstrrchr(testfn, '.');
     char * const fn_end = Bstrchr(testfn, '\0');
@@ -1091,8 +1092,8 @@ static buildvfs_kfd S_TryExtensionReplacements(char * const testfn, char const s
     {
         *extension = '_';
 
-        buildvfs_kfd const fp = S_TryFormats(testfn, fn_end, searchfirst);
-        if (fp != buildvfs_kfd_invalid)
+        auto fp = S_TryFormats(testfn, fn_end, searchfirst);
+        if (fp.isOpen())
             return fp;
     }
     else
@@ -1103,34 +1104,32 @@ static buildvfs_kfd S_TryExtensionReplacements(char * const testfn, char const s
     // ex: grabbag.mid --> grabbag.*
     if (ismusic)
     {
-        buildvfs_kfd const fp = S_TryFormats(testfn, extension, searchfirst);
-        if (fp != buildvfs_kfd_invalid)
-            return fp;
+        auto fp = S_TryFormats(testfn, extension, searchfirst);
+		if (fp.isOpen())
+			return fp;
     }
 
-    return buildvfs_kfd_invalid;
+    return FileReader();
 }
 
-buildvfs_kfd S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
+FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 {
-    buildvfs_kfd const origfp      = kopen4loadfrommod(fn, searchfirst);
-#ifndef USE_PHYSFS
-    char const * const origparent  = origfp != buildvfs_kfd_invalid ? kfileparent(origfp) : NULL;
-    uint32_t const    parentlength = origparent != NULL ? Bstrlen(origparent) : 0;
+	auto origfp = kopenFileReader(fn, searchfirst);
+	char const* const origparent = origfp.isOpen() ? kfileparent(origfp) : NULL;
+	uint32_t const    parentlength = origparent != NULL ? Bstrlen(origparent) : 0;
 
     auto testfn = (char *)Xmalloc(Bstrlen(fn) + 12 + parentlength); // "music/" + overestimation of parent minus extension + ".flac" + '\0'
-#else
-    auto testfn = (char *)Xmalloc(Bstrlen(fn) + 12);
-#endif
 
     // look in ./
     // ex: ./grabbag.mid
     Bstrcpy(testfn, fn);
-    buildvfs_kfd fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-    if (fp != buildvfs_kfd_invalid)
-        goto success;
+	auto fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+	if (fp.isOpen())
+	{
+		Bfree(testfn);
+		return fp;
+	}
 
-#ifndef USE_PHYSFS
     // look in ./music/<file's parent GRP name>/
     // ex: ./music/duke3d/grabbag.mid
     // ex: ./music/nwinter/grabbag.mid
@@ -1139,27 +1138,29 @@ buildvfs_kfd S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic
         char const * const parentextension = Bstrrchr(origparent, '.');
         uint32_t const namelength = parentextension != NULL ? (unsigned)(parentextension - origparent) : parentlength;
 
-        Bsprintf(testfn, "music/%.*s/%s", namelength, origparent, fn);
-        fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-        if (fp != buildvfs_kfd_invalid)
-            goto success;
+		Bsprintf(testfn, "music/%.*s/%s", namelength, origparent, fn);
+		auto fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+		if (fp.isOpen())
+		{
+			Bfree(testfn);
+			return fp;
+		}
     }
 
-    // look in ./music/
-    // ex: ./music/grabbag.mid
-    Bsprintf(testfn, "music/%s", fn);
-    fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-    if (fp != buildvfs_kfd_invalid)
-        goto success;
-#endif
+	// look in ./music/
+	// ex: ./music/grabbag.mid
+	{
+		Bsprintf(testfn, "music/%s", fn);
+		auto fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+		if (fp.isOpen())
+		{
+			Bfree(testfn);
+			return fp;
+		}
+	}
 
-    Xfree(testfn);
-    return origfp;
-
-success:
-    Xfree(testfn);
-    kclose(origfp);
-    return fp;
+	Bfree(testfn);
+	return origfp;
 }
 
 void Duke_CommonCleanup(void)

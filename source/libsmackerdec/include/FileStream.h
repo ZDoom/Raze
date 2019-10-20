@@ -58,7 +58,7 @@ class FileStream
 		bool Is_Eos();
 
 	private:
-		int file;
+		FileReader file;
 };
 
 } // close namespace SmackerCommon
