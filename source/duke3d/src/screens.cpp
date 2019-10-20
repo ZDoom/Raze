@@ -679,10 +679,6 @@ static void G_PrintCoords(int32_t snum)
 #endif
 }
 
-#if !defined DEBUG_ALLOCACHE_AS_MALLOC
-extern int32_t cacnum;
-extern cactype cac [];
-#endif
 
 static void G_ShowCacheLocks(void)
 {
@@ -690,23 +686,6 @@ static void G_ShowCacheLocks(void)
         return;
 
     int k = 0;
-
-/*
-#if !defined DEBUG_ALLOCACHE_AS_MALLOC
-    for (int i=cacnum-1; i>=0; i--)
-    {
-        if ((*cac[i].lock) != 200 && (*cac[i].lock) != 1)
-        {
-            if (k >= ydim-12)
-                break;
-
-            Bsprintf(tempbuf, "Locked- %d: Leng:%d, Lock:%d", i, cac[i].leng, *cac[i].lock);
-            printext256(0L, k, COLOR_WHITE, -1, tempbuf, 1);
-            k += 6;
-        }
-    }
-#endif
-*/
 
     if (k < ydim-12)
         k += 6;
