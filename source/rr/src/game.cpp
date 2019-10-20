@@ -7485,11 +7485,9 @@ static void G_Startup(void)
 
             Bcorrectfilename(boardfilename,0);
 
-            i = kopen4loadfrommod(boardfilename,0);
-            if (i!=-1)
+            if (testkopen(boardfilename, 0))
             {
                 initprintf("Using level: \"%s\".\n",boardfilename);
-                kclose(i);
             }
             else
             {
@@ -7834,12 +7832,9 @@ int app_main(int argc, char const * const * argv)
         g_Shareware = 1;
     else
     {
-        int const kFile = kopen4load("DUKESW.BIN",1); // JBF 20030810
-
-        if (kFile != -1)
+		if (testkopen("DUKESW.BIN",1)) // JBF 20030810
         {
             g_Shareware = 1;
-            kclose(kFile);
         }
     }
 

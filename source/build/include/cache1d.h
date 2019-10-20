@@ -132,7 +132,9 @@ public:
 	virtual char* Gets(char* strbuf, int len)
 	{
 		// Not supported by the underlying system, so we do not need it anyway.
-		return nullptr;
+		// Gross hack alert: Abuse this function to return the container's name until we have a better resource management in place.
+		// Right now there is no way to cleanly pass this through and this function is the most convenient workaround.
+		return (char*)kfileparent(khandle);
 	}
 
 };
@@ -175,6 +177,12 @@ inline int32_t kfilesize(const char* name, int where)
 		return fs;
 	}
 	return -1;
+}
+
+inline char const* kfileparent(FileReader &fr)
+{
+	// This is by no means a good implementation. Its only advantage is that it can be done without hacking in something more invasive.
+	return fr.Gets(nullptr, 0);
 }
 
 #endif // cache1d_h_

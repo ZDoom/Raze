@@ -2631,12 +2631,11 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             Bcorrectfilename(boardfilename,0);
             if (boardfilename[0] != 0)
             {
-                if ((i = kopen4loadfrommod(boardfilename,0)) < 0)
+                if (testkopen(boardfilename,0))
                 {
                     Bmemset(boardfilename,0,sizeof(boardfilename));
                     Net_SendUserMapName();
                 }
-                else kclose(i);
             }
 
             if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
@@ -3563,12 +3562,11 @@ void Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng)
     Bcorrectfilename(boardfilename,0);
     if (boardfilename[0] != 0)
     {
-        if ((i = kopen4loadfrommod(boardfilename,0)) < 0)
+        if (testkopen(boardfilename,0))
         {
             Bmemset(boardfilename,0,sizeof(boardfilename));
             Net_SendUserMapName();
         }
-        else kclose(i);
     }
 
     if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)

@@ -2278,9 +2278,8 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
 
         Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
-        if ((kFile = kopen4loadfrommod(nameBuf, 0)) != -1)
+        if (testkopen(nameBuf, 0))
         {
-            kclose(kFile);
             realloc_copy(&g_mapInfo[levelNum].musicfn, nameBuf);
             return;
         }

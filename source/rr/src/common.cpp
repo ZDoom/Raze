@@ -1077,13 +1077,13 @@ void G_LoadLookups(void)
 
 #ifdef FORMAT_UPGRADE_ELIGIBLE
 
-static int32_t S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
+static FileReader S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
 {
 #ifdef HAVE_FLAC
     {
         Bstrcpy(fn_suffix, ".flac");
-        int32_t const fp = kopen4loadfrommod(testfn, searchfirst);
-        if (fp >= 0)
+        auto fp = kopenFileReader(testfn, searchfirst);
+        if (fp.isOpen())
             return fp;
     }
 #endif
@@ -1091,16 +1091,16 @@ static int32_t S_TryFormats(char * const testfn, char * const fn_suffix, char co
 #ifdef HAVE_VORBIS
     {
         Bstrcpy(fn_suffix, ".ogg");
-        int32_t const fp = kopen4loadfrommod(testfn, searchfirst);
-        if (fp >= 0)
-            return fp;
-    }
+		auto fp = kopenFileReader(testfn, searchfirst);
+		if (fp.isOpen())
+			return fp;
+	}
 #endif
 
-    return -1;
+    return FileReader();
 }
 
-static int32_t S_TryExtensionReplacements(char * const testfn, char const searchfirst, uint8_t const ismusic)
+static FileReader S_TryExtensionReplacements(char * const testfn, char const searchfirst, uint8_t const ismusic)
 {
     char * extension = Bstrrchr(testfn, '.');
     char * const fn_end = Bstrchr(testfn, '\0');
@@ -1110,8 +1110,8 @@ static int32_t S_TryExtensionReplacements(char * const testfn, char const search
     {
         *extension = '_';
 
-        int32_t const fp = S_TryFormats(testfn, fn_end, searchfirst);
-        if (fp >= 0)
+        auto fp = S_TryFormats(testfn, fn_end, searchfirst);
+        if (fp.isOpen())
             return fp;
     }
     else
@@ -1122,18 +1122,18 @@ static int32_t S_TryExtensionReplacements(char * const testfn, char const search
     // ex: grabbag.mid --> grabbag.*
     if (ismusic)
     {
-        int32_t const fp = S_TryFormats(testfn, extension, searchfirst);
-        if (fp >= 0)
-            return fp;
+        auto fp = S_TryFormats(testfn, extension, searchfirst);
+		if (fp.isOpen())
+			return fp;
     }
 
-    return -1;
+    return FileReader();
 }
 
-int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
+FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 {
-    int32_t const origfp = kopen4loadfrommod(fn, searchfirst);
-    char const * const origparent = origfp != -1 ? kfileparent(origfp) : NULL;
+    auto origfp = kopenFileReader(fn, searchfirst);
+    char const * const origparent = origfp.isOpen() ? kfileparent(origfp) : NULL;
     uint32_t const origparentlength = origparent != NULL ? Bstrlen(origparent) : 0;
 
     char * const testfn = (char *)Xmalloc(Bstrlen(fn) + 12 + origparentlength); // "music/" + overestimation of parent minus extension + ".flac" + '\0'
@@ -1142,11 +1142,10 @@ int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
     // ex: ./grabbag.mid
     {
         Bstrcpy(testfn, fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-        if (fp >= 0)
-        {
+        auto fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+		if (fp.isOpen())
+		{
             Bfree(testfn);
-            kclose(origfp);
             return fp;
         }
     }
@@ -1160,11 +1159,10 @@ int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
         uint32_t namelength = origparentextension != NULL ? (unsigned)(origparentextension - origparent) : origparentlength;
 
         Bsprintf(testfn, "music/%.*s/%s", namelength, origparent, fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-        if (fp >= 0)
-        {
+        auto fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+		if (fp.isOpen())
+		{
             Bfree(testfn);
-            kclose(origfp);
             return fp;
         }
     }
@@ -1173,11 +1171,10 @@ int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
     // ex: ./music/grabbag.mid
     {
         Bsprintf(testfn, "music/%s", fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-        if (fp >= 0)
-        {
+        auto fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+		if (fp.isOpen())
+		{
             Bfree(testfn);
-            kclose(origfp);
             return fp;
         }
     }

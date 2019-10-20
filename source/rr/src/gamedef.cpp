@@ -776,23 +776,23 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
 
 static void C_Include(const char *confile)
 {
-    int32_t fp = kopen4loadfrommod(confile,g_loadFromGroupOnly);
+	auto fp = kopenFileReader(confile,g_loadFromGroupOnly);
 
-    if (EDUKE32_PREDICT_FALSE(fp < 0))
+    if (!fp.isOpen())
     {
         g_errorCnt++;
         initprintf("%s:%d: error: could not find file `%s'.\n",g_scriptFileName,g_lineNumber,confile);
         return;
     }
 
-    int32_t j = kfilelength(fp);
+	int32_t j = fp.GetLength();
 
     char *mptr = (char *)Xmalloc(j+1);
 
     initprintf("Including: %s (%d bytes)\n",confile, j);
 
-    kread(fp, mptr, j);
-    kclose(fp);
+    fp.Read(mptr, j);
+    fp.Close();
     g_scriptcrc = Bcrc32(mptr, j, g_scriptcrc);
     mptr[j] = 0;
 
@@ -830,9 +830,8 @@ static void C_Include(const char *confile)
 #ifdef _WIN32
 static void check_filename_case(const char *fn)
 {
-    int32_t fp;
-    if ((fp = kopen4loadfrommod(fn, g_loadFromGroupOnly)) >= 0)
-        kclose(fp);
+	// WTF?!?
+	testkopen(fn, g_loadFromGroupOnly);
 }
 #else
 static void check_filename_case(const char *fn) { UNREFERENCED_PARAMETER(fn); }
@@ -2374,9 +2373,9 @@ void C_Compile(const char *fileName)
 
     C_InitHashes();
 
-    int kFile = kopen4loadfrommod(fileName,g_loadFromGroupOnly);
+    auto kFile = kopenFileReader(fileName,g_loadFromGroupOnly);
 
-    if (kFile == -1) // JBF: was 0
+	if (!kFile.isOpen())
     {
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
@@ -2395,7 +2394,7 @@ void C_Compile(const char *fileName)
         return; //Not there
     }
 
-    int const kFileLen = kfilelength(kFile);
+    int const kFileLen = kFile.GetLength();
 
     initprintf("Compiling: %s (%d bytes)\n", fileName, kFileLen);
 
@@ -2407,8 +2406,8 @@ void C_Compile(const char *fileName)
     mptr[kFileLen] = 0;
 
     textptr = (char *) mptr;
-    kread(kFile,(char *)textptr,kFileLen);
-    kclose(kFile);
+    kFile.Read((char *)textptr,kFileLen);
+	kFile.Close();
 
     g_scriptcrc = Bcrc32(NULL, 0, 0L);
     g_scriptcrc = Bcrc32(textptr, kFileLen, g_scriptcrc);

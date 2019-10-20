@@ -205,12 +205,11 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
 
-    if ((i = kopen4loadfrommod(filename,0)) < 0)
+    if (!testkopen(filename,0))
     {
         OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
     }
-    kclose(i);
 
     boardfilename[0] = '/';
     boardfilename[1] = 0;
