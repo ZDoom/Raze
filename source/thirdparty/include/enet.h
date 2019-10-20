@@ -13,7 +13,7 @@
  * Copyright (c) 2002-2016 Lee Salzman
  * Copyright (c) 2017-2018 Vladyslav Hrytsenko, Dominik Madarász
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * Permission is hereby granted, e_free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
@@ -221,9 +221,10 @@ extern "C" {
 
     typedef enet_uint32 ENetVersion;
 
+
     typedef struct _ENetCallbacks {
-        void *(ENET_CALLBACK *malloc) (size_t size);
-        void (ENET_CALLBACK *free) (void *memory);
+        void *(ENET_CALLBACK *e_malloc) (size_t size);
+        void (ENET_CALLBACK *e_free) (void *memory);
         void (ENET_CALLBACK *no_memory) (void);
     } ENetCallbacks;
 
@@ -1205,13 +1206,13 @@ extern "C" {
             return -1;
         }
 
-        if (inits->malloc != NULL || inits->free != NULL) {
-            if (inits->malloc == NULL || inits->free == NULL) {
+        if (inits->e_malloc != NULL || inits->e_free != NULL) {
+            if (inits->e_malloc == NULL || inits->e_free == NULL) {
                 return -1;
             }
 
-            callbacks.malloc = inits->malloc;
-            callbacks.free   = inits->free;
+            callbacks.e_malloc = inits->e_malloc;
+            callbacks.e_free   = inits->e_free;
         }
 
         if (inits->no_memory != NULL) {
@@ -1226,7 +1227,7 @@ extern "C" {
     }
 
     void * enet_malloc(size_t size) {
-        void *memory = callbacks.malloc(size);
+        void *memory = callbacks.e_malloc(size);
 
         if (memory == NULL) {
             callbacks.no_memory();
@@ -1236,7 +1237,7 @@ extern "C" {
     }
 
     void enet_free(void *memory) {
-        callbacks.free(memory);
+        callbacks.e_free(memory);
     }
 
 // =======================================================================//

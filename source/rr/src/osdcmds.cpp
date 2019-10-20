@@ -1092,6 +1092,7 @@ static int osdcmd_listplayers(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
+#if 0
 static int osdcmd_kick(osdcmdptr_t parm)
 {
     ENetPeer *currentPeer;
@@ -1173,6 +1174,7 @@ static int osdcmd_kickban(osdcmdptr_t parm)
 
     return OSDCMD_OK;
 }
+#endif
 #endif
 
 static int osdcmd_purgesaves(osdcmdptr_t UNUSED(parm))
@@ -1556,8 +1558,8 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
 #endif
 #if !defined NETCODE_DISABLE
-    OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
-    OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
+    //OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
+    //OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
 
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
 #endif

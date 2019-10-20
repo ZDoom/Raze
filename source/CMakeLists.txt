@@ -466,7 +466,7 @@ endif()
 
 # Ugh... These precompiled dependencies need to go.
 if (WIN32)
-	include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${ENET_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
+	include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
 else ()
 include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${ENET_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
 endif()
@@ -744,6 +744,7 @@ set (PCH_SOURCES
 	thirdparty/src/fix16.cpp
 	thirdparty/src/fix16_str.cpp
 	thirdparty/src/md4.cpp
+	thirdparty/src/enet.cpp
 	
 	# Todo: Split out the license-safe code from this.
 	build/src/2d.cpp
@@ -849,7 +850,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( demolition ${DEMOLITION_LIBS} enet gdtoa dumb lzma duke3d blood rr sw )
+target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr sw )
 
 include_directories(
     build/include
@@ -867,7 +868,6 @@ include_directories(
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
-	${CMAKE_BINARY_DIR}/libraries/enet
 
 	#${SYSTEM_SOURCES_DIR} 
 )

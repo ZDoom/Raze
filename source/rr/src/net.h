@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "windows_inc.h"
 #endif
 
-#include "enet/enet.h"
+#include "enet.h"
 
 BEGIN_RR_NS
 
