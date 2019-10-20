@@ -350,8 +350,7 @@ static void AL_SetVoiceVolume(int const voice)
             int const slot = slotVoice[voc][0];
 
             // amplitude
-            auto t2 = (uint32_t)VoiceLevel[slot][port] * (velocity + 0x80);
-            t2 = (Channel[channel].Volume * t2) >> 15;
+            auto t2 = (Channel[channel].Volume * t1) >> 15;
 
             volume = t2 ^ 63;
             volume |= (uint32_t)VoiceKsl[slot][port];
@@ -392,8 +391,7 @@ static void AL_SetVoiceVolume(int const voice)
     if (timbre->Feedback & 0x01)
     {
         // amplitude
-        auto t2 = (uint32_t)VoiceLevel[slot][port] * (velocity + 0x80);
-        t2 = (Channel[channel].Volume * t2) >> 15;
+        auto t2 = (Channel[channel].Volume * t1) >> 15;
 
         int const slot = slotVoice[voc][0];
 
