@@ -55,10 +55,9 @@ static int osdcmd_cvar_set_audiolib(osdcmdptr_t parm)
     if (r != OSDCMD_OK) return r;
 
     if (!Bstrcasecmp(parm->name, "mus_emidicard"))
-    {
         MIDI_Restart();
-        return r;
-    }
+    else if (!Bstrcasecmp(parm->name, "mus_adlibstereo"))
+        AL_SetStereo(AL_Stereo);
 
     return r;
 }

@@ -198,7 +198,7 @@ static AdLibChannel Channel[NUMADLIBCHANNELS];
 
 static int AL_LeftPort  = ADLIB_PORT;
 static int AL_RightPort = ADLIB_PORT;
-int        AL_Stereo;
+int        AL_Stereo    = TRUE;
 static int AL_SendStereo;
 static int AL_MaxMidiChannel = 16;
 
@@ -632,24 +632,6 @@ static void AL_FlushCard(int const port)
 }
 
 
-static void AL_StereoOn(void)
-{
-    if (AL_Stereo && !AL_SendStereo)
-        AL_SendStereo = TRUE;
-
-    AL_SendOutputToPort(AL_RightPort, 0x5, 1);
-}
-
-
-static void AL_StereoOff(void)
-{
-    if (AL_Stereo && AL_SendStereo)
-        AL_SendStereo = FALSE;
-
-    AL_SendOutputToPort(AL_RightPort, 0x5, 0);
-}
-
-
 static void AL_Reset(void)
 {
     AL_SendOutputToPort(ADLIB_PORT, 1, 0x20);
@@ -658,10 +640,21 @@ static void AL_Reset(void)
     // Set the values: AM Depth, VIB depth & Rhythm
     AL_SendOutputToPort(ADLIB_PORT, 0xBD, 0);
 
-    AL_StereoOn();
+    AL_SetStereo(AL_Stereo);
 
     AL_FlushCard(AL_LeftPort);
     AL_FlushCard(AL_RightPort);
+}
+
+
+void AL_SetStereo(int const stereo)
+{
+    if (stereo == AL_SendStereo)
+        return;
+
+    AL_SendStereo = stereo;
+    AL_SendOutputToPort(AL_RightPort, 0x5, AL_SendStereo);
+    AL_Reset();
 }
 
 
@@ -841,7 +834,7 @@ static void AL_SetPitchBend(int const channel, int const lsb, int const msb)
 
 static void AL_Shutdown(void)
 {
-    AL_StereoOff();
+    AL_SetStereo(FALSE);
     AL_ResetVoices();
     AL_Reset();
 }
@@ -851,7 +844,6 @@ static int AL_Init(int const rate)
 {
     OPL3_Reset(&chip, rate);
 
-    AL_Stereo    = TRUE;
     AL_LeftPort  = ADLIB_PORT;
     AL_RightPort = ADLIB_PORT + 2;
 
