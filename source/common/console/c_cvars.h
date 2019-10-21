@@ -434,6 +434,9 @@ void C_ForgetCVars (void);
 #define CVARD(type,name,def,flags, descr) \
 	F##type##CVar name (#name, def, flags, nullptr, descr);
 
+#define CVARD_NAMED(type,name,varname,def,flags, descr) \
+F##type##CVar varname (#name, def, flags, nullptr, descr);
+
 extern FBaseCVar *CVars;
 
 #endif //__C_CVARS_H__

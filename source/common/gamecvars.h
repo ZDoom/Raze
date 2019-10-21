@@ -16,5 +16,13 @@ EXTERN_CVAR(Bool, cl_idplayers)
 EXTERN_CVAR(Bool, cl_showcoords)
 EXTERN_CVAR(Bool, cl_viewbob)
 EXTERN_CVAR(Bool, cl_weaponsway)
+EXTERN_CVAR(Bool, demorec_diffcompress_cvar)
+EXTERN_CVAR(Bool, demorec_synccompress_cvar)
+EXTERN_CVAR(Bool, demorec_seeds_cvar)
+EXTERN_CVAR(Bool, demoplay_diffs)
+EXTERN_CVAR(Bool, demoplay_showsync)
+EXTERN_CVAR(Bool, demorec_diffs_cvar)
+EXTERN_CVAR(Bool, demorec_force_cvar)
+EXTERN_CVAR(Int, demorec_difftics_cvar)
 
 bool G_CheckAutorun(bool button);

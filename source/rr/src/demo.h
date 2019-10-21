@@ -36,14 +36,6 @@ BEGIN_RR_NS
 extern FILE *g_demo_filePtr;
 extern char g_firstDemoFile[BMAX_PATH];
 
-extern int32_t demoplay_diffs;
-extern int32_t demoplay_showsync;
-extern int32_t demorec_diffcompress_cvar;
-extern int32_t demorec_diffs_cvar;
-extern int32_t demorec_difftics_cvar;
-extern int32_t demorec_force_cvar;
-extern int32_t demorec_seeds_cvar;
-extern int32_t demorec_synccompress_cvar;
 extern int32_t g_demo_cnt;
 extern int32_t g_demo_goalCnt;
 extern int32_t g_demo_paused;

@@ -49,13 +49,6 @@ static int32_t g_demo_soundToggle;
 
 static int32_t demo_hasdiffs, demorec_diffs=1, demorec_difftics = 2*REALGAMETICSPERSEC;
 int32_t demoplay_diffs=1;
-int32_t demorec_diffs_cvar=1;
-int32_t demorec_force_cvar=0;
-int32_t demorec_difftics_cvar = 2*REALGAMETICSPERSEC;
-int32_t demorec_diffcompress_cvar=1;
-int32_t demorec_synccompress_cvar=1;
-int32_t demorec_seeds_cvar=1;
-int32_t demoplay_showsync=1;
 
 static int32_t demo_synccompress=1, demorec_seeds=1, demo_hasseeds;
 
