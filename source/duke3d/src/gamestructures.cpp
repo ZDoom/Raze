@@ -1418,7 +1418,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_COOP:                   labelNum = ud.coop;                         break;
         case USERDEFS_SCREEN_SIZE:            labelNum = ud.screen_size;                  break;
         case USERDEFS_LOCKOUT:                labelNum = ud.lockout;                      break;
-        case USERDEFS_CROSSHAIR:              labelNum = ud.crosshair;                    break;
+        case USERDEFS_CROSSHAIR:              labelNum = cl_crosshair;                    break;
         case USERDEFS_PLAYERAI:               labelNum = ud.playerai;                     break;
         case USERDEFS_RESPAWN_MONSTERS:       labelNum = ud.respawn_monsters;             break;
         case USERDEFS_RESPAWN_ITEMS:          labelNum = ud.respawn_items;                break;
@@ -1620,7 +1620,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
             }
             break;
         case USERDEFS_LOCKOUT:                      ud.lockout                       = iSet; break;
-        case USERDEFS_CROSSHAIR:                    ud.crosshair                     = iSet; break;
+        case USERDEFS_CROSSHAIR:                    cl_crosshair                     = iSet; break;
         case USERDEFS_PLAYERAI:                     ud.playerai                      = iSet; break;
         case USERDEFS_RESPAWN_MONSTERS:             ud.respawn_monsters              = iSet; break;
         case USERDEFS_RESPAWN_ITEMS:                ud.respawn_items                 = iSet; break;

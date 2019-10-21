@@ -90,7 +90,6 @@ int32_t gViewVBobbing;
 int32_t gFollowMap;
 int32_t gOverlayMap;
 int32_t gRotateMap;
-int32_t gAimReticle;
 int32_t gSlopeTilting;
 int32_t gMessageState;
 int32_t gMessageCount;
@@ -390,7 +389,6 @@ void CONFIG_SetDefaults(void)
     gFollowMap = 1;
     gOverlayMap = 0;
     gRotateMap = 0;
-    gAimReticle = 0;
     gSlopeTilting = 0;
     gMessageState = 1;
     gMessageCount = 4;

@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdfuncs.h"
 #include "demo.h"
 #include "mdsprite.h"
+#include "gamecvars.h"
 
 BEGIN_RR_NS
 
@@ -1144,7 +1145,7 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
+    if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         int32_t a = CROSSHAIR;
         if ((unsigned) a < MAXTILES)

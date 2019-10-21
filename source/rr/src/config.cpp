@@ -254,7 +254,6 @@ void CONFIG_SetDefaults(void)
 #endif
 
     ud.color = 0;
-    ud.crosshair = 1;
     ud.crosshairscale = 50;
     ud.obituaries = 1;
     ud.democams = 1;

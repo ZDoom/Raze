@@ -277,7 +277,7 @@ void ctrlGetInput(void)
     if (BUTTON(gamefunc_Toggle_Crosshair))
     {
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
-        gAimReticle = !gAimReticle;
+        cl_crosshair = !cl_crosshair;
     }
 
     if (BUTTON(gamefunc_Next_Weapon))

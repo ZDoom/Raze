@@ -227,7 +227,7 @@ CGameMenuItemSlider sliderMusic("MUSIC:", 3, 66, 70, 180, MusicVolume, 0, 256, 4
 CGameMenuItemSlider sliderSound("SOUND:", 3, 66, 80, 180, FXVolume, 0, 256, 48, SetSoundVol, -1, -1);
 CGameMenuItemSlider sliderCDAudio("CD AUDIO:", 3, 66, 90, 180, CDVolume, 0, 256, 48, SetCDVol, -1, -1);
 CGameMenuItemZBool bool3DAudio("3D AUDIO:", 3, 66, 100, 180, gDoppler, SetDoppler, NULL, NULL);
-CGameMenuItemZBool boolCrosshair("CROSSHAIR:", 3, 66, 110, 180, gAimReticle, SetCrosshair, NULL, NULL);
+CGameMenuItemZBool boolCrosshair("CROSSHAIR:", 3, 66, 110, 180, cl_crosshair, SetCrosshair, NULL, NULL);
 CGameMenuItemZBool boolShowWeapons("SHOW WEAPONS:", 3, 66, 120, 180, gShowWeapon, SetShowWeapons, NULL, NULL);
 CGameMenuItemZBool boolSlopeTilting("SLOPE TILTING:", 3, 66, 130, 180, gSlopeTilting, SetSlopeTilting, NULL, NULL);
 CGameMenuItemZBool boolViewBobbing("VIEW BOBBING:", 3, 66, 140, 180, gViewVBobbing, SetViewBobbing, NULL, NULL);
@@ -414,7 +414,7 @@ CGameMenuItemChain itemOptionsGameChainParentalLock("PARENTAL LOCK", 3, 0, 120, 
 CGameMenuItemTitle itemOptionsDisplayTitle("DISPLAY SETUP", 1, 160, 20, 2038);
 CGameMenuItemChain itemOptionsDisplayColor("COLOR CORRECTION", 3, 66, 60, 180, 0, &menuOptionsDisplayColor, -1, NULL, 0);
 CGameMenuItemChain itemOptionsDisplayMode("VIDEO MODE", 3, 66, 70, 180, 0, &menuOptionsDisplayMode, -1, SetupVideoModeMenu, 0);
-CGameMenuItemZBool itemOptionsDisplayBoolCrosshair("CROSSHAIR:", 3, 66, 80, 180, gAimReticle, SetCrosshair, NULL, NULL);
+CGameMenuItemZBool itemOptionsDisplayBoolCrosshair("CROSSHAIR:", 3, 66, 80, 180, cl_crosshair, SetCrosshair, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolCenterHoriz("CENTER HORIZON LINE:", 3, 66, 90, 180, gCenterHoriz, SetCenterHoriz, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolLevelStats("LEVEL STATS:", 3, 66, 100, 180, gLevelStats, SetLevelStats, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolPowerupDuration("POWERUP DURATION:", 3, 66, 110, 180, gPowerupDuration, SetPowerupDuration, NULL, NULL);
@@ -751,7 +751,7 @@ void SetupOptionsOldMenu(void)
     sliderMusic.nValue = ClipRange(MusicVolume, sliderMusic.nRangeLow, sliderMusic.nRangeHigh);
     sliderSound.nValue = ClipRange(FXVolume, sliderSound.nRangeLow, sliderSound.nRangeHigh);
     bool3DAudio.at20 = gDoppler;
-    boolCrosshair.at20 = gAimReticle;
+    boolCrosshair.at20 = cl_crosshair;
     boolShowWeapons.at20 = gShowWeapon;
     boolSlopeTilting.at20 = gSlopeTilting;
     boolViewBobbing.at20 = gViewVBobbing;
@@ -1144,7 +1144,7 @@ void SetupOptionsMenu(void)
     menuOptionsDisplay.Add(&itemOptionsDisplayPolymost, false);
 #endif
     menuOptionsDisplay.Add(&itemBloodQAV, false);
-    itemOptionsDisplayBoolCrosshair.at20 = gAimReticle;
+    itemOptionsDisplayBoolCrosshair.at20 = cl_crosshair;
     itemOptionsDisplayBoolCenterHoriz.at20 = gCenterHoriz;
     itemOptionsDisplayBoolLevelStats.at20 = gLevelStats;
     itemOptionsDisplayBoolPowerupDuration.at20 = gPowerupDuration;
@@ -1371,7 +1371,7 @@ void SetDoppler(CGameMenuItemZBool *pItem)
 
 void SetCrosshair(CGameMenuItemZBool *pItem)
 {
-    gAimReticle = pItem->at20;
+    cl_crosshair = pItem->at20;
 }
 
 void SetCenterHoriz(CGameMenuItemZBool *pItem)

@@ -7561,7 +7561,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case SE_27_DEMO_CAM:
         {
-            if (pSprite->extra < 1 && (ud.recstat == 0 || !ud.democams) && g_BenchmarkMode == BENCHMARKMODE_OFF) break;
+            if (pSprite->extra < 1 && (ud.recstat == 0 || !ud.democams)) break;
 
             if (klabs(pSprite->extra) == 2)
             {
@@ -7606,7 +7606,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     }
 
                     //if we are benchmarking, take a screenshot at each waypoint (camera start point/locator)
-                    benchmarkScreenshot = g_BenchmarkMode == BENCHMARKMODE_GENERATE_REFERENCE;
+					benchmarkScreenshot = false;
                 }
                 if (pSprite->owner == -1)
                 {

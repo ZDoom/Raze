@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mdsprite.h"
 #include "sbar.h"
 #include "screens.h"
+#include "gamecvars.h"
 
 BEGIN_DUKE_NS
 
@@ -1119,7 +1120,7 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
+    if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         ud.returnvar[0] = (160<<16) - (g_player[myconnectindex].ps->look_ang<<15);
         ud.returnvar[1] = 100<<16;

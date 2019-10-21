@@ -115,12 +115,6 @@ enum {
     STATUSBAR_NOMODERN  = 0x00000040,
 };
 
-enum {
-    BENCHMARKMODE_OFF = 0x0,
-    BENCHMARKMODE_PERFORMANCE = 0x1,
-    BENCHMARKMODE_GENERATE_REFERENCE = 0x2,
-};
-
 void A_DeleteSprite(int spriteNum);
 
 static inline int32_t G_GetLogoFlags(void)
@@ -193,7 +187,7 @@ typedef struct {
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
     int32_t entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
-    int32_t coords,showfps,levelstats,m_coop,coop,screen_size,lockout,crosshair;
+    int32_t coords,showfps,levelstats,m_coop,coop,screen_size,lockout;
     int32_t playerai,angleinterpolation,obituaries;
 
     int32_t respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
@@ -322,7 +316,6 @@ extern char ror_protectedsectors[MAXSECTORS];
 
 extern float r_ambientlight;
 
-extern int32_t g_BenchmarkMode;
 extern int32_t g_Debug;
 extern int32_t g_Shareware;
 #if !defined LUNATIC

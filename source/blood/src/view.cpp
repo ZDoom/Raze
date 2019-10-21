@@ -3451,7 +3451,7 @@ RORHACK:
 #endif
         if (gViewPos == 0)
         {
-            if (gAimReticle)
+            if (cl_crosshair)
             {
                 rotatesprite(160<<16, defaultHoriz<<16, 65536, 0, kCrosshairTile, 0, CROSSHAIR_PAL, 2, gViewX0, gViewY0, gViewX1, gViewY1);
             }

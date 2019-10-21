@@ -231,8 +231,10 @@ public:
 protected:
 	virtual void DoSet (UCVarValue value, ECVarType type);
 
-	bool Value;
-	bool DefaultValue;
+	// int is needed as long as this needs to connect to the menus
+public: // also for the menu code which still needs variable references. (Cannot change everything at once.)
+	int/*bool*/ Value;
+	int/*bool*/ DefaultValue;
 };
 
 class FIntCVar : public FBaseCVar
@@ -257,6 +259,7 @@ public:
 protected:
 	virtual void DoSet (UCVarValue value, ECVarType type);
 
+public: // for the menu code which still needs variable references. (Cannot change everything at once.)
 	int Value;
 	int DefaultValue;
 
@@ -286,6 +289,7 @@ public:
 protected:
 	virtual void DoSet (UCVarValue value, ECVarType type);
 
+public: // for the menu code which still needs variable references. (Cannot change everything at once.)
 	float Value;
 	float DefaultValue;
 };
@@ -428,8 +432,7 @@ void C_ForgetCVars (void);
 	static void cvarfunc_##name(F##type##CVar &self)
 
 #define CVARD(type,name,def,flags, descr) \
-	F##type##CVar name (#name, def, flags, descr);
-
+	F##type##CVar name (#name, def, flags, nullptr, descr);
 
 extern FBaseCVar *CVars;
 

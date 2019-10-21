@@ -787,6 +787,7 @@ set (PCH_SOURCES
 	
 	common/rts.cpp
 	common/gameconfigfile.cpp
+	common/gamecvars.cpp
 	
 	common/console/c_cvars.cpp
 	

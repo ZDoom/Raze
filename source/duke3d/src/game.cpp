@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screens.h"
 #include "cmdline.h"
 #include "palette.h"
+#include "gamecvars.h"
 
 #include "vfs.h"
 
@@ -87,8 +88,6 @@ char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
 
 int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
-
-int32_t g_BenchmarkMode = BENCHMARKMODE_OFF;
 
 int32_t g_Debug = 0;
 
@@ -4621,8 +4620,8 @@ void G_HandleLocalKeys(void)
     if (BUTTON(gamefunc_Toggle_Crosshair))
     {
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
-        ud.crosshair = !ud.crosshair;
-        P_DoQuote(QUOTE_CROSSHAIR_OFF-ud.crosshair, &myplayer);
+		cl_crosshair = !cl_crosshair;
+        P_DoQuote(QUOTE_CROSSHAIR_OFF-cl_crosshair, &myplayer);
     }
 
     if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode))

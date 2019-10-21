@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "control.h"
 #include "_control.h"
 #include "hash.h"
+#include "gamecvars.h"
 
 BEGIN_BLD_NS
 
@@ -70,7 +71,6 @@ extern int32_t gViewVBobbing;
 extern int32_t gFollowMap;
 extern int32_t gOverlayMap;
 extern int32_t gRotateMap;
-extern int32_t gAimReticle;
 extern int32_t gSlopeTilting;
 extern int32_t gMessageState;
 extern int32_t gMessageCount;
