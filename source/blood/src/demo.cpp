@@ -87,7 +87,6 @@ CDemo::CDemo()
     at0 = 0;
     at1 = 0;
     at3 = 0;
-    hPFile = -1;
     hRFile = NULL;
     atb = 0;
     pFirstDemo = NULL;
@@ -105,11 +104,6 @@ CDemo::~CDemo()
     at3 = 0;
     atb = 0;
     memset(&atf, 0, sizeof(atf));
-    if (hPFile >= 0)
-    {
-        kclose(hPFile);
-        hPFile = -1;
-    }
     if (hRFile != NULL)
     {
         fclose(hRFile);
@@ -199,10 +193,9 @@ void CDemo::Close(void)
         fwrite(&atf, sizeof(DEMOHEADER), 1, hRFile);
         fwrite(&m_gameOptions, sizeof(GAMEOPTIONS), 1, hRFile);
     }
-    if (hPFile >= 0)
+    if (hPFile.isOpen())
     {
-        kclose(hPFile);
-        hPFile = -1;
+        hPFile.Close();
     }
     if (hRFile != NULL)
     {

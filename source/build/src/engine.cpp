@@ -8141,15 +8141,7 @@ int32_t enginePreInit(void)
 //
 int32_t engineInit(void)
 {
-    int32_t i, j;
-
-#if !defined _WIN32 && defined DEBUGGINGAIDS && !defined GEKKO
-    struct sigaction sigact, oldact;
-    memset(&sigact, 0, sizeof(sigact));
-    sigact.sa_sigaction = &sighandler;
-    sigact.sa_flags = SA_SIGINFO;
-    sigaction(SIGFPE, &sigact, &oldact);
-#endif
+    int32_t i;
 
     if (!preinitcalled)
     {
@@ -10572,7 +10564,7 @@ void videoNextPage(void)
 
 int32_t qloadkvx(int32_t voxindex, const char *filename)
 {
-    autofil = kopenFileReader(filename, 0);
+    auto fil = kopenFileReader(filename, 0);
     if (!fil.isOpen())
         return -1;
 
@@ -10585,7 +10577,7 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
 
 		voxelmemory.Reserve(1);
 		voxelmemory.Last() = fil.Read(dasiz);
-		voxoff[voxindex][i] = (intptr)voxelmemoty.Last().Data();
+		voxoff[voxindex][i] = (intptr_t)voxelmemory.Last().Data();
 
         lengcnt += dasiz+4;
         if (lengcnt >= lengtot-768)

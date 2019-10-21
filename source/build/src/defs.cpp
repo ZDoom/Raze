@@ -2798,7 +2798,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (palookupbuf >= 256*32)
+                    if (palookupbuf.Size() >= 256*32)
                     {
                         didLoadShade = 1;
                         numshades = 32;
@@ -2813,7 +2813,7 @@ static int32_t defsparser(scriptfile *script)
                             break;
                         }
 
-                        paletteMakeLookupTable(id, palookupbuf, 0,0,0, g_noFloorPal[id]);
+                        paletteMakeLookupTable(id, (char*)palookupbuf.Data(), 0,0,0, g_noFloorPal[id]);
                     }
                     break;
                 }
@@ -3091,7 +3091,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    paletteSetBlendTable(id, blendbuf);
+                    paletteSetBlendTable(id, (char*)blendbuf.Data());
                     didLoadTransluc = 1;
                     break;
                 }
