@@ -1408,7 +1408,6 @@ void ParseOptions(void)
             bNoAutoLoad = true;
             break;
         case 33:
-            g_useCwd = true;
             break;
         case 34:
         {
@@ -1522,8 +1521,7 @@ int app_main(int argc, char const * const * argv)
     ParseOptions();
     G_ExtInit();
 
-    if (!g_useCwd)
-        G_AddSearchPaths();
+    G_AddSearchPaths();
 
     // used with binds for fast function lookup
     hash_init(&h_gamefuncs);
@@ -1570,9 +1568,6 @@ int app_main(int argc, char const * const * argv)
 #endif
 
     G_LoadGroups(!bNoAutoLoad && !gSetup.noautoload);
-
-    //if (!g_useCwd)
-    //    G_CleanupSearchPaths();
 
     initprintf("Initializing OSD...\n");
 

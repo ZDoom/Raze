@@ -515,7 +515,6 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 }
                 if (!Bstrcasecmp(c+1, "usecwd"))
                 {
-                    g_useCwd = 1;
                     i++;
                     continue;
                 }

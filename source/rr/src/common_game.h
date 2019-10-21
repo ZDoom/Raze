@@ -13,9 +13,6 @@
 BEGIN_RR_NS
 
 
-extern int g_useCwd;
-
-
 #define GAMEFLAG_DUKE       0x00000001
 #define GAMEFLAG_NAM        0x00000002
 #define GAMEFLAG_NAPALM     0x00000004

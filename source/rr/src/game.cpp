@@ -7715,20 +7715,6 @@ int app_main(int argc, char const * const * argv)
 
     G_ExtPreInit(argc, argv);
 
-#ifdef __APPLE__
-    if (!g_useCwd)
-    {
-        char cwd[BMAX_PATH];
-        char *homedir = Bgethomedir();
-        if (homedir)
-            Bsnprintf(cwd, sizeof(cwd), "%s/Library/Logs/" APPBASENAME ".log", homedir);
-        else
-            Bstrcpy(cwd, APPBASENAME ".log");
-        OSD_SetLogFile(cwd);
-        Bfree(homedir);
-    }
-    else
-#endif
     OSD_SetLogFile(APPBASENAME ".log");
 
     OSD_SetFunctions(GAME_drawosdchar,
@@ -7745,8 +7731,7 @@ int app_main(int argc, char const * const * argv)
     initprintf(HEAD2 " %s\n", s_buildRev);
     PrintBuildInfo();
 
-    if (!g_useCwd)
-        G_AddSearchPaths();
+    G_AddSearchPaths();
 
     g_skillCnt = 4;
     ud.multimode = 1;
@@ -7816,8 +7801,7 @@ int app_main(int argc, char const * const * argv)
     G_LoadGroups(!g_noAutoLoad && !ud.setup.noautoload);
 //    flushlogwindow = 1;
 
-    if (!g_useCwd)
-        G_CleanupSearchPaths();
+    G_CleanupSearchPaths();
 
     if (RR)
     {

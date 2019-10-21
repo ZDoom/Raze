@@ -247,15 +247,12 @@ static char g_rootDir[BMAX_PATH];
 //char g_modDir[BMAX_PATH] = "/";
 
 
-int g_useCwd;
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;
 struct strllist* CommandPaths, * CommandGrps;
 
 void G_ExtPreInit(int32_t argc,char const * const * argv)
 {
-    g_useCwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
-
 #ifdef _WIN32
     GetModuleFileNameA(NULL,g_rootDir,BMAX_PATH);
     Bcorrectfilename(g_rootDir,1);
@@ -304,11 +301,7 @@ void G_ExtInit(void)
         }
     }
 
-#if defined(_WIN32) && !defined(EDUKE32_STANDALONE)
     if (buildvfs_exists("user_profiles_enabled"))
-#else
-    if (g_useCwd == 0 && !buildvfs_exists("user_profiles_disabled"))
-#endif
     {
         char *homedir;
         int32_t asperr;

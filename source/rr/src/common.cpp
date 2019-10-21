@@ -212,15 +212,12 @@ void G_SetupGlobalPsky(void)
 //////////
 
 static char g_rootDir[BMAX_PATH];
-int g_useCwd;
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;
 struct strllist* CommandPaths, * CommandGrps;
 
 void G_ExtPreInit(int32_t argc,char const * const * argv)
 {
-    g_useCwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
-
 #ifdef _WIN32
     GetModuleFileNameA(NULL,g_rootDir,BMAX_PATH);
     Bcorrectfilename(g_rootDir,1);
@@ -264,11 +261,7 @@ void G_ExtInit(void)
         }
     }
 
-#if defined(_WIN32)
     if (!access("user_profiles_enabled", F_OK))
-#else
-    if (g_useCwd == 0 && access("user_profiles_disabled", F_OK))
-#endif
     {
         char *homedir;
         int32_t asperr;
