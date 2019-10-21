@@ -255,7 +255,6 @@ void CONFIG_SetDefaults(void)
     ud.althud                 = 1;
     ud.angleinterpolation     = 0;
     ud.auto_run               = 1;
-    ud.automsg                = 0;
     ud.autosave               = 1;
     ud.autosavedeletion       = 1;
     ud.autovote               = 0;

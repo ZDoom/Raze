@@ -1457,7 +1457,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_M_NOEXITS:              labelNum = ud.m_noexits;                    break;
         case USERDEFS_NOEXITS:                labelNum = ud.noexits;                      break;
         case USERDEFS_AUTOVOTE:               labelNum = ud.autovote;                     break;
-        case USERDEFS_AUTOMSG:                labelNum = ud.automsg;                      break;
+        case USERDEFS_AUTOMSG:                labelNum = cl_automsg;                      break;
         case USERDEFS_IDPLAYERS:              labelNum = ud.idplayers;                    break;
         case USERDEFS_TEAM:                   labelNum = ud.team;                         break;
         case USERDEFS_VIEWBOB:                labelNum = ud.viewbob;                      break;
@@ -1620,7 +1620,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
             }
             break;
         case USERDEFS_LOCKOUT:                      ud.lockout                       = iSet; break;
-        case USERDEFS_CROSSHAIR:                    cl_crosshair                     = iSet; break;
+        case USERDEFS_CROSSHAIR:                    cl_crosshair                     = iSet; break;	//!!!
         case USERDEFS_PLAYERAI:                     ud.playerai                      = iSet; break;
         case USERDEFS_RESPAWN_MONSTERS:             ud.respawn_monsters              = iSet; break;
         case USERDEFS_RESPAWN_ITEMS:                ud.respawn_items                 = iSet; break;
@@ -1658,7 +1658,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_M_NOEXITS:                    ud.m_noexits                     = iSet; break;
         case USERDEFS_NOEXITS:                      ud.noexits                       = iSet; break;
         case USERDEFS_AUTOVOTE:                     ud.autovote                      = iSet; break;
-        case USERDEFS_AUTOMSG:                      ud.automsg                       = iSet; break;
+        case USERDEFS_AUTOMSG:                      cl_automsg                       = iSet; break;	//!!!
         case USERDEFS_IDPLAYERS:                    ud.idplayers                     = iSet; break;
         case USERDEFS_TEAM:                         ud.team                          = iSet; break;
         case USERDEFS_VIEWBOB:                      ud.viewbob                       = iSet; break;

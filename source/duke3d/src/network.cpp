@@ -5139,7 +5139,7 @@ void Net_SendMessage(void)
                 g_player[myconnectindex].ps->gm &= ~(MODE_TYPE | MODE_SENDTOWHOM);
                 return;
             }
-            if (ud.automsg)
+            if (cl_automsg)
             {
                 if (SHIFTS_IS_PRESSED)
                     g_chatPlayer = -1;
