@@ -263,7 +263,6 @@ void Respawn(int nSprite) // 9
             pXSprite->burnTime = 0;
             pXSprite->isTriggered = 0;
             if (IsDudeSprite(pSprite)) {
-                
                 int nType = pSprite->type-kDudeBase;
                 pSprite->x = baseSprite[nSprite].x;
                 pSprite->y = baseSprite[nSprite].y;
@@ -275,12 +274,9 @@ void Respawn(int nSprite) // 9
                     seqSpawn(dudeInfo[nType].seqStartID, 3, pSprite->extra, -1);
                 aiInitSprite(pSprite);
                 pXSprite->key = 0;
-            
             } else if (pSprite->type == kThingTNTBarrel) {
-                
                 pSprite->cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN;
                 pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
-
             }
 
             gFX.fxSpawn(FX_29, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);

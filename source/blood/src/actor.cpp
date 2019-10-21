@@ -6456,7 +6456,7 @@ spritetype * actSpawnSprite(spritetype *pSource, int nStat);
 spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
 {
     XSPRITE* pXSource = &xsprite[pSource->extra];
-    spritetype *pSprite2 = actSpawnSprite(pSource, 6);
+    spritetype *pSprite2 = actSpawnSprite(pSource, kStatDude);
     if (!pSprite2) return NULL;
     XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
     int angle = pSource->ang;
@@ -6480,6 +6480,7 @@ spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
     pSprite2->cstat |= 0x1101;
     pSprite2->clipdist = dudeInfo[nDude].clipdist;
     pXSprite2->health = dudeInfo[nDude].startHealth<<4;
+    pXSprite2->respawn = 1;
     if (gSysRes.Lookup(dudeInfo[nDude].seqStartID, "SEQ"))
         seqSpawn(dudeInfo[nDude].seqStartID, 3, pSprite2->extra, -1);
     

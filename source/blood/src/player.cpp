@@ -688,11 +688,6 @@ int packItemToPowerup(int nPack)
 
 int powerupToPackItem(int nPowerUp)
 {
-    //const int jumpBoots = kPwUpJumpBoots;
-    //const int divingSuit = kPwUpDivingSuit;
-    //const int crystalBall = kPwUpCrystalBall;
-    //const int beastVision = 25;
-
     switch (nPowerUp) {
         case kPwUpDivingSuit:
             return 1;
@@ -868,11 +863,6 @@ void playerCorrectInertia(PLAYER* pPlayer, vec3_t const *oldpos)
 
 void playerResetPowerUps(PLAYER* pPlayer)
 {
-    //const int jumpBoots = kPwUpJumpBoots;
-    //const int divingSuit = kPwUpDivingSuit;
-    //const int crystalBall = kPwUpCrystalBall;
-    //const int beastVision = 25;
-
     for (int i = 0; i < kMaxPowerUps; i++) {
         if (!VanillaMode() && (i == kPwUpJumpBoots || i == kPwUpDivingSuit || i == kPwUpCrystalBall || i == kPwUpBeastVision))
             continue;
