@@ -158,7 +158,7 @@ void ReadGameSetup(int32_t scripthandle)
 
     dummy = -1;
     SCRIPT_GetNumber(scripthandle, "Options", "AutoAim",&dummy);
-    if (dummy != -1) gs.AutoAim = dummy;
+    if (dummy != -1) cl_autoaim = dummy;
 
     dummy = -1;
     SCRIPT_GetNumber(scripthandle, "Options", "Messages",&dummy);
@@ -292,7 +292,7 @@ void WriteGameSetup(int32_t scripthandle)
     SCRIPT_PutNumber(scripthandle, "Options", "AutoRun",dummy,FALSE,FALSE);
     dummy = gs.Crosshair;
     SCRIPT_PutNumber(scripthandle, "Options", "Crosshair",dummy,FALSE,FALSE);
-    dummy = gs.AutoAim;
+    dummy = cl_autoaim;
     SCRIPT_PutNumber(scripthandle, "Options", "AutoAim",dummy,FALSE,FALSE);
     dummy = gs.Messages;
     SCRIPT_PutNumber(scripthandle, "Options", "Messages",dummy,FALSE,FALSE);

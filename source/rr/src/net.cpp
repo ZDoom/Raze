@@ -3468,7 +3468,7 @@ void Net_SendClientInfo(void)
     tempbuf[l++] = 0;
 
     tempbuf[l++] = g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
-    tempbuf[l++] = g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
+    tempbuf[l++] = g_player[myconnectindex].ps->auto_aim = cl_autoaim;
     tempbuf[l++] = g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
     tempbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
 

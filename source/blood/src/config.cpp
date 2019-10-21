@@ -81,7 +81,6 @@ char szPlayerName[MAXPLAYERNAME];
 int32_t gTurnSpeed;
 int32_t gDetail;
 int32_t gMouseAim;
-int32_t gAutoAim;
 int32_t gWeaponSwitch;
 int32_t gAutoRun;
 int32_t gViewInterpolate;
@@ -401,7 +400,6 @@ void CONFIG_SetDefaults(void)
 
     gMouseAimingFlipped = 0;
     gMouseAim = 1;
-    gAutoAim = 1;
     gWeaponSwitch = 1;
 
     Bstrcpy(szPlayerName, "Player");

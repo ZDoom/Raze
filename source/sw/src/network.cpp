@@ -1532,7 +1532,7 @@ getpackets(void)
             //tempbuf[0] = PACKET_TYPE_DUMMY;
             //sendpacket(otherconnectindex, tempbuf, 1);
 
-            ////DSPRINTF(ds,"Level %d, Skill %d, AutoAim %d",Level, Skill, gs.AutoAim);
+            ////DSPRINTF(ds,"Level %d, Skill %d, AutoAim %d",Level, Skill, cl_autoaim);
             //MONO_PRINT(ds);
 
             break;

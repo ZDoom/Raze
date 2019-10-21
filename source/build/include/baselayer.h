@@ -245,6 +245,7 @@ struct GameInterface
 	int32_t (*startwin_run)(void);
 	const char* (*DefaultDefFile)();
 	const char* (*DefFile)();
+
 };
 
 extern GameInterface* gi;

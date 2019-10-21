@@ -1976,7 +1976,7 @@ MNU_StartNetGame(void)
 
     // need to set gNet vars for self
     // everone else gets a packet to set them
-    gNet.AutoAim            = gs.AutoAim;
+    gNet.AutoAim            = cl_autoaim;
     gNet.SpawnMarkers       = gs.NetSpawnMarkers;
     gNet.HurtTeammate       = gs.NetHurtTeammate;
     gNet.Nuke               = gs.NetNuke;
@@ -2011,7 +2011,7 @@ MNU_StartNetGame(void)
         p.Level = Level;
         p.Skill = Skill;
         p.GameType = gs.NetGameType;
-        p.AutoAim = gs.AutoAim;
+        p.AutoAim = cl_autoaim;
         p.HurtTeammate = gs.NetHurtTeammate;
         p.TeamPlay = gs.NetTeamPlay;
         p.SpawnMarkers = gs.NetSpawnMarkers;
@@ -2219,7 +2219,7 @@ MNU_InitMenus(void)
     }
 
     buttonsettings[btn_auto_run] = gs.AutoRun;
-    buttonsettings[btn_auto_aim] = gs.AutoAim;
+    buttonsettings[btn_auto_aim] = cl_autoaim;
     buttonsettings[btn_messages] = gs.Messages;
     buttonsettings[btn_crosshair] = gs.Crosshair;
     //    buttonsettings[btn_bobbing] = gs.Bobbing;
@@ -3397,9 +3397,9 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             gs.Crosshair = state = buttonsettings[item->button];
             break;
         case btn_auto_aim:
-            last_value = gs.AutoAim;
-            gs.AutoAim = state = buttonsettings[item->button];
-            if (gs.AutoAim != last_value)
+            last_value = cl_autoaim;
+            cl_autoaim = state = buttonsettings[item->button];
+            if (cl_autoaim != last_value)
                 MenuButtonAutoAim = TRUE;
             break;
         case btn_messages:

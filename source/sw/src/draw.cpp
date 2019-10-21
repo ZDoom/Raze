@@ -1820,7 +1820,7 @@ void DrawCrosshair(PLAYERp pp)
 //  wdx = 160;
 //  wdy = 100;
 #if 0
-    if (gs.AutoAim)
+    if (cl_autoaim)
     {
         int daz;
         short hit_sprite, daang;

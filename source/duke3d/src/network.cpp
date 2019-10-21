@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "premap.h"
 #include "savegame.h"
 #include "input.h"
+#include "gamecvars.h"
 
 #include "enet.h"
 #include "lz4.h"
@@ -4807,7 +4808,7 @@ void Net_SendClientInfo(void)
     tempnetbuf[l++] = 0;
 
     tempnetbuf[l++] = g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
-    tempnetbuf[l++] = g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
+    tempnetbuf[l++] = g_player[myconnectindex].ps->auto_aim = cl_autoaim;
     tempnetbuf[l++] = g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
     tempnetbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
 

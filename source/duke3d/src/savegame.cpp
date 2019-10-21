@@ -2207,7 +2207,7 @@ static void sv_restload()
 #undef CPDAT
 
     if (g_player[myconnectindex].ps)
-        g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
+        g_player[myconnectindex].ps->auto_aim = cl_autoaim;
 }
 
 #ifdef DEBUGGINGAIDS

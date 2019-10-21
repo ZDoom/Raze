@@ -1122,7 +1122,7 @@ void SetupOptionsMenu(void)
     itemOptionsGameBoolSlopeTilting.at20 = gSlopeTilting;
     itemOptionsGameBoolViewBobbing.at20 = gViewVBobbing;
     itemOptionsGameBoolViewSwaying.at20 = gViewHBobbing;
-    itemOptionsGameBoolAutoAim.m_nFocus = gAutoAim;
+    itemOptionsGameBoolAutoAim.m_nFocus = cl_autoaim;
     itemOptionsGameWeaponSwitch.m_nFocus = (gWeaponSwitch&1) ? ((gWeaponSwitch&2) ? 1 : 2) : 0;
 
     ///////
@@ -1469,10 +1469,10 @@ void SetTurnSpeed(CGameMenuItemSlider *pItem)
 
 void SetAutoAim(CGameMenuItemZCycle *pItem)
 {
-    gAutoAim = pItem->m_nFocus;
+    cl_autoaim = pItem->m_nFocus;
     if (!gDemo.at0 && !gDemo.at1)
     {
-        gProfile[myconnectindex].nAutoAim = gAutoAim;
+        gProfile[myconnectindex].nAutoAim = cl_autoaim;
         netBroadcastPlayerInfo(myconnectindex);
     }
 }

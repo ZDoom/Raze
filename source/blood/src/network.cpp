@@ -578,7 +578,7 @@ void netBroadcastPlayerInfo(int nPlayer)
     PROFILE *pProfile = &gProfile[nPlayer];
     strcpy(pProfile->name, szPlayerName);
     pProfile->skill = gSkill;
-    pProfile->nAutoAim = gAutoAim;
+    pProfile->nAutoAim = cl_autoaim;
     pProfile->nWeaponSwitch = gWeaponSwitch;
     if (numplayers < 2)
         return;

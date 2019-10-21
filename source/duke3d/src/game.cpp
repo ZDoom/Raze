@@ -6143,7 +6143,7 @@ static void P_SetupMiscInputSettings(void)
     auto ps = g_player[myconnectindex].ps;
 
     ps->aim_mode = ud.mouseaiming;
-    ps->auto_aim = ud.config.AutoAim;
+    ps->auto_aim = cl_autoaim;
     ps->weaponswitch = ud.weaponswitch;
 }
 

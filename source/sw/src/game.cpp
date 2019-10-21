@@ -3050,7 +3050,7 @@ void InitPlayerGameSettings(void)
     }
     else
     {
-        if (gs.AutoAim)
+        if (cl_autoaim)
             SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
         else
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
@@ -5263,7 +5263,7 @@ getinput(SW_PACKET *loc)
     if (MenuButtonAutoRun)
     {
         MenuButtonAutoRun = FALSE;
-        if ((!!TEST(pp->Flags, PF_LOCK_RUN)) != gs.AutoRun)
+        if ((!!TEST(pp->Flags, PF_LOCK_RUN)) != !!gs.AutoRun)
             SET_LOC_KEY(loc->bits, SK_RUN_LOCK, TRUE);
     }
 
@@ -5274,7 +5274,7 @@ getinput(SW_PACKET *loc)
         if (MenuButtonAutoAim)
         {
             MenuButtonAutoAim = FALSE;
-            if ((!!TEST(pp->Flags, PF_AUTO_AIM)) != gs.AutoAim)
+            if ((!!TEST(pp->Flags, PF_AUTO_AIM)) != !!cl_autoaim)
                 SET_LOC_KEY(loc->bits, SK_AUTO_AIM, TRUE);
         }
     }

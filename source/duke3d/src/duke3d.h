@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "keyboard.h"
 #include "pragmas.h"
 #include "polymost.h"
+#include "gamecvars.h"
 
 
 #define HEAD2                   APPNAME

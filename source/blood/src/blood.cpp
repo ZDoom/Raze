@@ -686,7 +686,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
             if (numplayers == 1)
             {
                 gProfile[i].skill = gSkill;
-                gProfile[i].nAutoAim = gAutoAim;
+                gProfile[i].nAutoAim = cl_autoaim;
                 gProfile[i].nWeaponSwitch = gWeaponSwitch;
             }
             playerInit(i,0);
@@ -1290,7 +1290,7 @@ void ParseOptions(void)
             strncpy(gNetAddress, OptArgv[0], sizeof(gNetAddress)-1);
             break;
         case 14:
-            gAutoAim = 0;
+            cl_autoaim = 0;
             break;
         case 22:
             bNoResend = 0;

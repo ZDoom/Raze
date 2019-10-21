@@ -263,7 +263,6 @@ void CONFIG_SetDefaults(void)
     ud.camerasprite           = -1;
     ud.color                  = 0;
     ud.config.AmbienceToggle  = 1;
-    ud.config.AutoAim         = 1;
     ud.config.CheckForUpdates = 1;
     ud.config.FXVolume        = 255;
     ud.config.MouseBias       = 0;

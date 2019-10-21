@@ -213,7 +213,6 @@ void CONFIG_SetDefaults(void)
 #endif
     ud.config.useprecache = 1;
     ud.config.AmbienceToggle = 1;
-    ud.config.AutoAim = 1;
     ud.config.FXVolume = 255;
 #if defined(_WIN32)
     ud.config.MixRate = 44100;
