@@ -1025,8 +1025,8 @@ static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int wall
 
     if (nsecs > (walldist + 8))
     {
-        OSD_Printf(EDUKE32_PRETTY_FUNCTION ":%d shortest distance between origin point (%d, %d) and sector %d is %d. Sector may be corrupt!\n",
-                   __LINE__, pos.x, pos.y, *sectnum, nsecs);
+        OSD_Printf("%s():%d shortest distance between origin point (%d, %d) and sector %d is %d. Sector may be corrupt!\n",
+                   EDUKE32_FUNCTION, __LINE__, pos.x, pos.y, *sectnum, nsecs);
         walldist = 0x7fff;
     }
 
