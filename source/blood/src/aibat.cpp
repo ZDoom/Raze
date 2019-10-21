@@ -128,7 +128,7 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pPlayer->at5b);
+                aiSetTarget(pXSprite, pPlayer->nSprite);
                 aiActivateDude(pSprite, pXSprite);
             }
             else if (nDist < pDudeInfo->hearDist)

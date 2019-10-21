@@ -263,7 +263,7 @@ void CalcGameChecksum(void)
     gChecksum[0] = wrand();
     for (int p = connecthead; p >= 0; p = connectpoint2[p])
     {
-        int *pBuffer = &gPlayer[p].at22;
+        int *pBuffer = &gPlayer[p].used1;
         int sum = 0;
         int length = ((char*)&gPlayer[p+1]-(char*)pBuffer)/4;
         while (length--)
@@ -1394,12 +1394,12 @@ void faketimerhandler(void)
 void netPlayerQuit(int nPlayer)
 {
     char buffer[128];
-    sprintf(buffer, "%s left the game with %d frags.", gProfile[nPlayer].name, gPlayer[nPlayer].at2c6);
+    sprintf(buffer, "%s left the game with %d frags.", gProfile[nPlayer].name, gPlayer[nPlayer].fragCount);
     viewSetMessage(buffer);
     if (gGameStarted)
     {
         seqKill(3, gPlayer[nPlayer].pSprite->extra);
-        actPostSprite(gPlayer[nPlayer].at5b, kStatFree);
+        actPostSprite(gPlayer[nPlayer].nSprite, kStatFree);
         if (nPlayer == gViewIndex)
             gViewIndex = myconnectindex;
         gView = &gPlayer[gViewIndex];

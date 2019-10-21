@@ -38,6 +38,7 @@ enum DAMAGE_TYPE {
     DAMAGE_TYPE_4,
     DAMAGE_TYPE_5,
     DAMAGE_TYPE_6, // Tesla
+    kDamageMax = 7,
 };
 
 enum VECTOR_TYPE {
@@ -69,101 +70,101 @@ enum VECTOR_TYPE {
 
 struct THINGINFO
 {
-    short health; // health
-    short mass; // mass
-    unsigned char clipdist; // clipdist
-    short flags; // flags
-    int at7; // elasticity
-    int atb; // damage resistance
-    short atf; // cstat
-    short at11; // picnum
-    char at13; // shade
-    unsigned char at14; // pal
-    unsigned char at15; // xrepeat
-    unsigned char at16; // yrepeat
-    int at17[7]; // damage
+    short startHealth;
+    short mass;
+    unsigned char clipdist;
+    short flags;
+    int elastic; // elasticity
+    int dmgResist; // damage resistance
+    short cstat;
+    short picnum;
+    char shade;
+    unsigned char pal;
+    unsigned char xrepeat; // xrepeat
+    unsigned char yrepeat; // yrepeat
+    int dmgControl[kDamageMax]; // damage
     bool allowThrow; // By NoOne: indicates if kDudeModernCustom can throw it
 };
 
 struct AMMOITEMDATA
 {
-    short at0;
-    short picnum; // startHealth
-    char shade; // mass
-    char at5;
-    unsigned char xrepeat; // at6
-    unsigned char yrepeat; // at7
-    short at8;
-    unsigned char ata;
-    unsigned char atb;
+    short cstat;
+    short picnum;
+    char shade;
+    char pal;
+    unsigned char xrepeat;
+    unsigned char yrepeat;
+    short count;
+    unsigned char type;
+    unsigned char weaponType;
 };
 
 struct WEAPONITEMDATA
 {
-    short at0;
-    short picnum; // startHealth
-    char shade; // mass
-    char at5;
-    unsigned char xrepeat; // at6
-    unsigned char yrepeat; // at7
-    short at8;
-    short ata;
-    short atc;
+    short cstat;
+    short picnum;
+    char shade;
+    char pal;
+    unsigned char xrepeat;
+    unsigned char yrepeat;
+    short type;
+    short ammoType;
+    short count;
 };
 
 struct ITEMDATA
 {
-    short at0; // unused?
-    short picnum; // startHealth
-    char shade; // mass
-    char at5; // unused?
-    unsigned char xrepeat; // at6
-    unsigned char yrepeat; // at7
-    short at8;
+    short cstat;
+    short picnum;
+    char shade;
+    char pal;
+    unsigned char xrepeat;
+    unsigned char yrepeat;
+    short packSlot;
 };
 
 struct MissileType
 {
     short picnum;
-    int at2; // speed
-    int at6; // angle
-    unsigned char ata; // xrepeat
-    unsigned char atb; // yrepeat
-    char atc; // shade
-    unsigned char atd; // clipdist
+    int velocity;
+    int angleOfs;
+    unsigned char xrepeat;
+    unsigned char yrepeat;
+    char shade;
+    unsigned char clipDist;
     int fireSound[2]; // By NoOne: predefined fire sounds. used by kDudeModernCustom, but can be used for something else.
 };
 
 struct EXPLOSION
 {
-    unsigned char at0;
-    char at1; // dmg
-    char at2; // dmg rnd
+    unsigned char repeat;
+    char dmg;
+    char dmgRng;
     int radius; // radius
     int dmgType;
-    int atb;
-    int atf;
-    int at13;
-    int at17;
+    int burnTime;
+    int ticks;
+    int quakeEffect;
+    int flashEffect;
 };
 
-struct VECTORDATA_at1d {
-    FX_ID at0;
-    FX_ID at1;
-    FX_ID at2;
-    int at3;
+struct SURFHIT {
+    FX_ID fx1;
+    FX_ID fx2;
+    FX_ID fx3;
+    int fxSnd;
 };
 
 struct VECTORDATA {
-    DAMAGE_TYPE at0;
-    int at1; // damage
-    int at5;
-    int maxDist; // range
-    int atd;
-    int at11; // burn
-    int at15; // blood splats
-    int at19; // blood splat chance
-    VECTORDATA_at1d at1d[15];
+    DAMAGE_TYPE dmgType;
+    int dmg; // damage
+    int impulse;
+    int maxDist;
+    int fxChance;
+    int burnTime; // burn
+    int bloodSplats; // blood splats
+    int splatChance; // blood splat chance
+    SURFHIT surfHit[15];
     int fireSound[2]; // By NoOne: predefined fire sounds. used by kDudeModernCustom, but can be used for something else.
 };
 

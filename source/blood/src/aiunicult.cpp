@@ -274,7 +274,7 @@ static void ThrowThing(int nXIndex, bool impact) {
             pThing = actFireThing(pSprite, 0, 0, (dz / 128) - zThrow, thingType, divscale(dist / 540, 120, 23));
             if (pThing == NULL) return;
 
-            if (pThinkInfo->at11 < 0 && pThing->type != kModernThingThrowableRock) pThing->picnum = 0;
+            if (pThinkInfo->picnum < 0 && pThing->type != kModernThingThrowableRock) pThing->picnum = 0;
             pThing->owner = pSprite->xvel;
             switch (thingType) {
             case kThingNapalmBall:
@@ -1031,17 +1031,17 @@ bool doExplosion(spritetype* pSprite, int nType) {
     spritetype* pExplosion = actSpawnSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 2, true);
     int nSeq = 4; int nSnd = 304; EXPLOSION* pExpl = &explodeInfo[nType];
 
-    pExplosion->yrepeat = pExpl->at0;
-    pExplosion->xrepeat = pExpl->at0;
+    pExplosion->yrepeat = pExpl->repeat;
+    pExplosion->xrepeat = pExpl->repeat;
     pExplosion->type = nType;
     pExplosion->cstat |= CSTAT_SPRITE_INVISIBLE | CSTAT_SPRITE_ALIGNMENT_SLAB;
     pExplosion->owner = pSprite->xvel;
 
     if (pExplosion->extra >= 0) {
         xsprite[pExplosion->extra].target = 0;
-        xsprite[pExplosion->extra].data1 = pExpl->atf;
-        xsprite[pExplosion->extra].data2 = pExpl->at13;
-        xsprite[pExplosion->extra].data3 = pExpl->at17;
+        xsprite[pExplosion->extra].data1 = pExpl->ticks;
+        xsprite[pExplosion->extra].data2 = pExpl->quakeEffect;
+        xsprite[pExplosion->extra].data3 = pExpl->flashEffect;
 
 
         if (nType == 0) { nSeq = 3; nSnd = 303; pExplosion->z = pSprite->z; }

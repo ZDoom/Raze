@@ -127,7 +127,7 @@ void LoadSave::LoadGame(char *pzFile)
     InitSectorFX();
     viewInitializePrediction();
     PreloadCache();
-    if (!bVanilla && !gMe->packInfo[1].at0) // if diving suit is not active, turn off reverb sound effect
+    if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
     ambInit();
 #ifdef YAX_ENABLE
@@ -150,7 +150,7 @@ void LoadSave::LoadGame(char *pzFile)
     gBufferJitter = 0;
     bOutOfSync = 0;
     for (int i = 0; i < gNetPlayers; i++)
-        playerSetRace(&gPlayer[i], gPlayer[i].at5f);
+        playerSetRace(&gPlayer[i], gPlayer[i].lifeMode);
     if (VanillaMode())
         viewSetMessage("");
     else

@@ -35,124 +35,136 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-enum LifeMode {
-    kModeHuman = 0,
-    kModeBeast,
-    kModeHumanShrink,
-    kModeHumanGrown,
+// life modes of the player
+enum {
+kModeHuman              = 0,
+kModeBeast              = 1,
+kModeHumanShrink        = 2,
+kModeHumanGrown         = 3,
+kModeMax                = 4,
+};
+
+// postures
+enum {
+kPostureStand           = 0,
+kPostureCrouch          = 1,
+kPostureSwim            = 2,
+kPostureMax             = 3,
 };
 
 struct PACKINFO {
-    char at0; // is active (0/1)
-    int at1 = 0; // remaining percent
+    bool isActive; // is active (0/1)
+    int curAmount = 0; // remaining percent
 };
 
 struct PLAYER {
     spritetype *pSprite;
     XSPRITE *pXSprite;
     DUDEINFO *pDudeInfo;
-    GINPUT atc;
-    //short atc; // INPUT
+    GINPUT input;
+    //short input;                      // INPUT
     //char at10; // forward
     //short at11; // turn
     //char hearDist; // strafe
-    //int at14; // buttonFlags
-    //unsigned int at18; // keyFlags
-    //char at1c; // useFlags;
-    //char at20; // newWeapon
+    //int bobV;                         // buttonFlags
+    //unsigned int bobH;                // keyFlags
+    //char swayV;                       // useFlags;
+    //char swayH;                       // newWeapon
     //char at21; // mlook
-    int at22;
-    int at26; // weapon qav
-    int at2a; // qav callback
-    char at2e; // run
-    int at2f; // state
-    int at33; // unused?
-    int at37;
-    int at3b;
-    int at3f; // bob height
-    int at43; // bob width
-    int at47;
-    int at4b;
-    int at4f; // bob sway y
-    int at53; // bob sway x
-    int at57; // Connect id
-    int at5b; // spritenum
-    int at5f; // life mode
-    int at63;
-    int at67; // view z
-    int at6b;
-    int at6f; // weapon z
-    int at73;
+    int used1;                          // something related to game checksum
+    int weaponQav;
+    int qavCallback;
+    bool isRunning;
+    int posture;                        // stand, crouch, swim
+    int unused1;                        // --> useless
+    int bobPhase;
+    int bobAmp;
+    int bobHeight;
+    int bobWidth;
+    int swayPhase;
+    int swayAmp;
+    int swayHeight;
+    int swayWidth;
+    int nPlayer;                        // Connect id
+    int nSprite;
+    int lifeMode;
+    int bloodlust;                      // ---> useless
+    int zView;
+    int zViewVel;
+    int zWeapon;
+    int zWeaponVel;
     fix16_t q16look;
     int q16horiz; // horiz
     int q16slopehoriz; // horizoff
-    int at83;
-    char at87; // underwater
-    char at88[8]; // keys
-    char at90; // flag capture
-    short at91[8];
-    int ata1[7];
-    char atbd; // weapon
-    char atbe; // pending weapon
-    int atbf, atc3, atc7;
-    char atcb[14]; // hasweapon
-    int atd9[14];
-    int at111[2][14];
+    int slope;
+    bool isUnderwater;
+    bool hasKey[8];
+    char hasFlag;
+    short used2[8];                     // ??
+    int damageControl[7];
+    char curWeapon;
+    char nextWeapon;
+    int weaponTimer;
+    int weaponState;
+    int weaponAmmo;
+    bool hasWeapon[14];
+    int weaponMode[14];
+    int weaponOrder[2][14];
     //int at149[14];
-    int at181[12]; // ammo
-    char at1b1;
-    int at1b2;
-    int at1b6;
-    int at1ba;
-    Aim at1be; // world
+    int ammCount[12];
+    bool qavLoop;
+    int fuseTime;
+    int throwTime;
+    int throwPower;
+    Aim aim;                            // world
     //int at1c6;
-    Aim at1ca; // relative
-    //int at1ca;
+    Aim relAim;                         // relative
+    //int relAim;
     //int at1ce;
     //int at1d2;
-    int at1d6; // aim target sprite
-    int at1da;
-    short at1de[16];
-    int at1fe;
-    int at202[kMaxPowerUps]; // [13]: cloak of invisibility, [14]: death mask (invulnerability), [15]: jump boots, [17]: guns akimbo, [18]: diving suit, [21]: crystal ball, [24]: reflective shots, [25]: beast vision, [26]: cloak of shadow
-    int at2c6; // frags
-    int at2ca[8];
-    int at2ea; // color (team)
-    int at2ee; // killer
-    int at2f2;
-    int at2f6;
-    int at2fa;
-    int at2fe;
-    int at302;
-    int at306;
-    int at30a;
-    int at30e;
-    int at312;
-    int at316;
-    char at31a; // God mode
-    char at31b; // Fall scream
-    char at31c;
-    int at31d; // pack timer
-    int at321; // pack id 1: diving suit, 2: crystal ball, 3: beast vision 4: jump boots
-    PACKINFO packInfo[5]; // at325 [1]: diving suit, [2]: crystal ball, [3]: beast vision [4]: jump boots
-    int at33e[3]; // armor
+    int aimTarget;                      // aim target sprite
+    int aimTargetsCount;
+    short aimTargets[16];
+    int deathTime;
+    int pwUpTime[kMaxPowerUps];
+    int fragCount;
+    int fragInfo[8];
+    int teamId;
+    int fraggerId;
+    int underwaterTime;
+    int bloodTime;                      // --> useless
+    int gooTime;                        // --> useless
+    int wetTime;                        // --> useless
+    int bubbleTime;
+    int at306;                          // --> useless
+    int restTime;
+    int kickPower;
+    int laughCount;
+    int spin;                           // turning around
+    bool godMode;
+    bool fallScream;
+    bool canJump;
+    int packItemTime;                   // pack timer
+    int packItemId;                     // pack id 1: diving suit, 2: crystal ball, 3: beast vision 4: jump boots
+    PACKINFO packSlots[5];              // at325 [1]: diving suit, [2]: crystal ball, [3]: beast vision [4]: jump boots
+    int armor[3];                       // armor
     //int at342;
     //int at346;
-    int voodooTarget; // at34a
-    int at34e;
-    int at352;
-    int at356;
-    int at35a; // quake
-    int at35e; // tilt
-    int at362; // light
-    int at366; // pain
-    int at36a; // blind
-    int at36e; // choke
-    int at372;
-    char at376; // hand
-    int at377;
-    char at37b; // weapon flash
-    int at37f; // quake2
+    int voodooTarget;
+    int voodooTargets;                  // --> useless
+    int voodooVar1;                     // --> useless
+    int vodooVar2;                      // --> useless
+    int flickerEffect;
+    int tiltEffect;
+    int visibility;
+    int painEffect;
+    int blindEffect;
+    int chokeEffect;
+    int handTime;
+    bool hand;                          // if true, there is hand start choking the player
+    int pickupEffect;
+    bool flashEffect;                   // if true, reduce pPlayer->visibility counter
+    int quakeEffect;
     fix16_t q16ang;
     int angold;
     int player_par;
@@ -161,21 +173,22 @@ struct PLAYER {
 
 // by NoOne: defaut player movement speeds of all move states for gPosture
 extern int gDefaultAccel[12];
-
 struct POSTURE {
-    int at0;
-    int at4;
-    int at8;
-    int atc[2];
-    int at14;
-    int at18;
-    int at1c;
-    int at20;
-    int at24;
-    int at28;
-    int at2c;
-    int at30;
+    int frontAccel;
+    int sideAccel;
+    int backAccel;
+    int pace[2];
+    int bobV;
+    int bobH;
+    int swayV;
+    int swayH;
+    int eyeAboveZ;
+    int weaponAboveZ;
+    int xOffset;
+    int zOffset;
 };
+
+extern POSTURE gPosture[kModeMax][kPostureMax];
 
 struct PROFILE {
     int nAutoAim;
@@ -185,19 +198,16 @@ struct PROFILE {
 };
 
 struct AMMOINFO {
-    int at0;
-    signed char at4;
+    int max;
+    signed char vectorType;
 };
 
-struct POWERUPINFO
-{
+struct POWERUPINFO {
     short picnum;
     bool pickupOnce;
     int bonusTime;
     int maxTime;
 };
-
-extern POSTURE gPosture[4][3];
 
 extern PLAYER gPlayer[kMaxPlayers];
 extern PLAYER *gMe, *gView;
@@ -225,7 +235,7 @@ inline bool IsTargetTeammate(PLAYER* pSourcePlayer, spritetype* pTargetSprite)
         {
             if (gGameOptions.nGameType == 1)
                 return true;
-            if (gGameOptions.nGameType == 3 && (pSourcePlayer->at2ea & 3) == (pTargetPlayer->at2ea & 3))
+            if (gGameOptions.nGameType == 3 && (pSourcePlayer->teamId & 3) == (pTargetPlayer->teamId & 3))
                 return true;
         }
     }

@@ -133,14 +133,14 @@ void sub_2541C(int x, int y, int z, short a)
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        if (gViewMap.bFollowMode || gView->at57 != i)
+        if (gViewMap.bFollowMode || gView->nPlayer != i)
         {
             PLAYER *pPlayer = &gPlayer[i];
             spritetype *pSprite = pPlayer->pSprite;
             int px = pSprite->x-x;
             int py = pSprite->y-y;
             int pa = (pSprite->ang-a)&2047;
-            if (i == gView->at57)
+            if (i == gView->nPlayer)
             {
                 px = 0;
                 py = 0;
@@ -148,7 +148,7 @@ void sub_2541C(int x, int y, int z, short a)
             }
             int x1 = dmulscale16(px, nCos, -py, nSin);
             int y1 = dmulscale16(py, nCos2, px, nSin2);
-            if (i == gView->at57 || gGameOptions.nGameType == 1)
+            if (i == gView->nPlayer || gGameOptions.nGameType == 1)
             {
                 int nTile = pSprite->picnum;
                 int ceilZ, ceilHit, floorZ, floorHit;

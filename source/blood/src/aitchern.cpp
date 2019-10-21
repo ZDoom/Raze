@@ -282,7 +282,7 @@ static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->at0 = 0;
-                aiSetTarget(pXSprite, pPlayer->at5b);
+                aiSetTarget(pXSprite, pPlayer->nSprite);
                 aiActivateDude(pSprite, pXSprite);
             }
             else if (nDist < pDudeInfo->hearDist)

@@ -700,14 +700,14 @@ void StartLevel(GAMEOPTIONS *gameOptions)
             PLAYER *pPlayer = &gPlayer[i];
             pPlayer->pXSprite->health &= 0xf000;
             pPlayer->pXSprite->health |= gHealthTemp[i];
-            pPlayer->at26 = gPlayerTemp[i].at26;
-            pPlayer->atbd = gPlayerTemp[i].atbd;
-            pPlayer->atc3 = gPlayerTemp[i].atc3;
-            pPlayer->atc7 = gPlayerTemp[i].atc7;
-            pPlayer->at2a = gPlayerTemp[i].at2a;
-            pPlayer->at1b1 = gPlayerTemp[i].at1b1;
-            pPlayer->atbf = gPlayerTemp[i].atbf;
-            pPlayer->atbe = gPlayerTemp[i].atbe;
+            pPlayer->weaponQav = gPlayerTemp[i].weaponQav;
+            pPlayer->curWeapon = gPlayerTemp[i].curWeapon;
+            pPlayer->weaponState = gPlayerTemp[i].weaponState;
+            pPlayer->weaponAmmo = gPlayerTemp[i].weaponAmmo;
+            pPlayer->qavCallback = gPlayerTemp[i].qavCallback;
+            pPlayer->qavLoop = gPlayerTemp[i].qavLoop;
+            pPlayer->weaponTimer = gPlayerTemp[i].weaponTimer;
+            pPlayer->nextWeapon = gPlayerTemp[i].nextWeapon;
         }
     }
     gameOptions->uGameFlags &= ~3;
@@ -716,7 +716,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     InitMirrors();
     gFrameClock = 0;
     trInit();
-    if (!bVanilla && !gMe->packInfo[1].at0) // if diving suit is not active, turn off reverb sound effect
+    if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
     ambInit();
     sub_79760();
@@ -835,7 +835,7 @@ void LocalKeys(void)
                 gViewIndex = connectpoint2[gViewIndex];
                 if (gViewIndex == -1)
                     gViewIndex = connecthead;
-                if (oldViewIndex == gViewIndex || gMe->at2ea == gPlayer[gViewIndex].at2ea)
+                if (oldViewIndex == gViewIndex || gMe->teamId == gPlayer[gViewIndex].teamId)
                     break;
             } while (oldViewIndex != gViewIndex);
             gView = &gPlayer[gViewIndex];
@@ -958,15 +958,15 @@ void ProcessFrame(void)
     char buffer[128];
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        gPlayer[i].atc.buttonFlags = gFifoInput[gNetFifoTail&255][i].buttonFlags;
-        gPlayer[i].atc.keyFlags.word |= gFifoInput[gNetFifoTail&255][i].keyFlags.word;
-        gPlayer[i].atc.useFlags.byte |= gFifoInput[gNetFifoTail&255][i].useFlags.byte;
+        gPlayer[i].input.buttonFlags = gFifoInput[gNetFifoTail&255][i].buttonFlags;
+        gPlayer[i].input.keyFlags.word |= gFifoInput[gNetFifoTail&255][i].keyFlags.word;
+        gPlayer[i].input.useFlags.byte |= gFifoInput[gNetFifoTail&255][i].useFlags.byte;
         if (gFifoInput[gNetFifoTail&255][i].newWeapon)
-            gPlayer[i].atc.newWeapon = gFifoInput[gNetFifoTail&255][i].newWeapon;
-        gPlayer[i].atc.forward = gFifoInput[gNetFifoTail&255][i].forward;
-        gPlayer[i].atc.q16turn = gFifoInput[gNetFifoTail&255][i].q16turn;
-        gPlayer[i].atc.strafe = gFifoInput[gNetFifoTail&255][i].strafe;
-        gPlayer[i].atc.q16mlook = gFifoInput[gNetFifoTail&255][i].q16mlook;
+            gPlayer[i].input.newWeapon = gFifoInput[gNetFifoTail&255][i].newWeapon;
+        gPlayer[i].input.forward = gFifoInput[gNetFifoTail&255][i].forward;
+        gPlayer[i].input.q16turn = gFifoInput[gNetFifoTail&255][i].q16turn;
+        gPlayer[i].input.strafe = gFifoInput[gNetFifoTail&255][i].strafe;
+        gPlayer[i].input.q16mlook = gFifoInput[gNetFifoTail&255][i].q16mlook;
     }
     gNetFifoTail++;
     if (!(gFrame&((gSyncRate<<3)-1)))
@@ -977,9 +977,9 @@ void ProcessFrame(void)
     }
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        if (gPlayer[i].atc.keyFlags.quit)
+        if (gPlayer[i].input.keyFlags.quit)
         {
-            gPlayer[i].atc.keyFlags.quit = 0;
+            gPlayer[i].input.keyFlags.quit = 0;
             netBroadcastPlayerLogoff(i);
             if (i == myconnectindex)
             {
@@ -991,15 +991,15 @@ void ProcessFrame(void)
                 return;
             }
         }
-        if (gPlayer[i].atc.keyFlags.restart)
+        if (gPlayer[i].input.keyFlags.restart)
         {
-            gPlayer[i].atc.keyFlags.restart = 0;
+            gPlayer[i].input.keyFlags.restart = 0;
             levelRestart();
             return;
         }
-        if (gPlayer[i].atc.keyFlags.pause)
+        if (gPlayer[i].input.keyFlags.pause)
         {
-            gPlayer[i].atc.keyFlags.pause = 0;
+            gPlayer[i].input.keyFlags.pause = 0;
             gPaused = !gPaused;
             if (gPaused && gGameOptions.nGameType > 0 && numplayers > 1)
             {
@@ -1033,7 +1033,7 @@ void ProcessFrame(void)
     viewUpdateDelirium();
     viewUpdateShake();
     sfxUpdate3DSounds();
-    if (gMe->at376 == 1)
+    if (gMe->hand == 1)
     {
 #define CHOKERATE 8
 #define TICRATE 30

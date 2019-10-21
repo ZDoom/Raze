@@ -396,7 +396,7 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
     UNREFERENCED_CONST_PARAMETER(parm);
     if (numplayers == 1 && gGameStarted)
     {
-        SetGodMode(!gMe->at31a);
+        SetGodMode(!gMe->godMode);
         gCheatMgr.m_bPlayerCheated = true;
     }
     else

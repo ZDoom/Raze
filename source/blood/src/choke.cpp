@@ -131,10 +131,10 @@ void CChoke::sub_84218()
 void sub_84230(PLAYER *pPlayer)
 {
     int t = gGameOptions.nDifficulty+2;
-    if (pPlayer->at372 < 64)
-        pPlayer->at372 = ClipHigh(pPlayer->at372+t, 64);
-    if (pPlayer->at372 > (7-gGameOptions.nDifficulty)*5)
-        pPlayer->at36a = ClipHigh(pPlayer->at36a+t*4, 128);
+    if (pPlayer->handTime < 64)
+        pPlayer->handTime = ClipHigh(pPlayer->handTime+t, 64);
+    if (pPlayer->handTime > (7-gGameOptions.nDifficulty)*5)
+        pPlayer->blindEffect = ClipHigh(pPlayer->blindEffect+t*4, 128);
 }
 
 CChoke gChoke;

@@ -296,12 +296,12 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
             PLAYER *pPlayer = &gPlayer[nPlayer];
             if (pPlayer->pXSprite->health > 0)
             {
-                pPlayer->at181[8] = ClipHigh(pPlayer->at181[8]+pXSprite->data3, gAmmoInfo[8].at0);
-                pPlayer->atcb[9] = 1;
-                if (pPlayer->atbd != 9)
+                pPlayer->ammCount[8] = ClipHigh(pPlayer->ammCount[8]+pXSprite->data3, gAmmoInfo[8].max);
+                pPlayer->hasWeapon[9] = 1;
+                if (pPlayer->curWeapon != 9)
                 {
-                    pPlayer->atc3 = 0;
-                    pPlayer->atbe = 9;
+                    pPlayer->weaponState = 0;
+                    pPlayer->nextWeapon = 9;
                 }
                 evKill(pSprite->index, 3);
             }
@@ -826,7 +826,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         case kCmdOff:
                             if (gQavPlayerIndex == nSprite) {
                                 pXSprite->sysData1 = 0;
-                                pPlayer->atc.newWeapon = pPlayer->atbd = pXSprite->data4;
+                                pPlayer->input.newWeapon = pPlayer->curWeapon = pXSprite->data4;
                                 gQavPlayerIndex = -1;
                                 WeaponRaise(pPlayer);
                             }
@@ -836,7 +836,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                             QAV* pQav = NULL; DICTNODE* hQav = gSysRes.Lookup(pXSprite->data2, "QAV");
                             if (hQav) {
                                 
-                                pXSprite->data4 = pPlayer->atbd;
+                                pXSprite->data4 = pPlayer->curWeapon;
                                 if (gQavPlayerIndex > -1 && gQavPlayerIndex != nSprite && sprite[gQavPlayerIndex].extra >= 0) {
                                     pXSprite->data4 = xsprite[sprite[gQavPlayerIndex].extra].data4;
                                     xsprite[sprite[gQavPlayerIndex].extra].data4 = 0;
@@ -845,7 +845,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                                 WeaponLower(pPlayer);
 
                                 pQav = (QAV*)gSysRes.Load(hQav); weaponQAV[kFreeQAVEntry] = pQav;
-                                pXSprite->busyTime = (((pQav->at10) / 12) * 120) / 10;
+                                pXSprite->busyTime = ((((pQav->at10) / 12) * 120) / 10) - 12;
                                 //pXSprite->busyTime = (((pQav->nFrames * pQav->ticksPerFrame) / 12) * 120) / 10;
                                 pXSprite->sysData1 = pXSprite->waitTime; // how many times animation should be played
                                 gQavPlayerIndex = nSprite;
@@ -863,7 +863,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         case kCmdNumberic: // player life form
                             if (pXSprite->data2 >= kModeHuman || pXSprite->data2 <= kModeHumanShrink) {
                                 playerSetRace(pPlayer, pXSprite->data2);
-                                switch (pPlayer->at5f) {
+                                switch (pPlayer->lifeMode) {
                                     case kModeHuman:
                                     case kModeBeast:
                                         resetPlayerSize(pPlayer);
@@ -878,42 +878,43 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                             }
                             break;
                         case kCmdNumberic + 1: // player movement speed (for all players ATM)
-                            for (int i = (pSprite->flags & kModernTypeFlag1) ? pPlayer->at5f : 0; i < 4; i++) {
+                            for (int i = (pSprite->flags & kModernTypeFlag1) ? pPlayer->lifeMode : 0; i < 4; i++) {
                                 for (int a = 0; a < 3; a++) {
 
                                     int speed = pXSprite->data2 << 1;
                                     if (speed > 0) speed = ClipRange(mulscale8(gDefaultAccel[a], speed), 0, 65535);
                                     else if (speed < 0) speed = gDefaultAccel[a];
 
-                                    gPosture[i][a].at0 = gPosture[i][a].at4 = gPosture[i][a].at8 = speed;
+                                    gPosture[i][a].frontAccel = gPosture[i][a].sideAccel = gPosture[i][a].backAccel = speed;
 
-                                    viewSetSystemMessage("%d", speed);
+                                    //viewSetSystemMessage("%d", speed);
                                 }
 
                                 if (pSprite->flags & kModernTypeFlag1) // for current lifeform only
                                     break;
                             }
+                            viewSetSystemMessage("MOVEMENT: %d", gPosture[0][0].frontAccel);
                             break;
                         case kCmdNumberic + 2: // player screen effects
                             if (pXSprite->data3 < 0) break;
                             switch (pXSprite->data2) {
                                 case 1: // tilting
-                                    pPlayer->at35e = pXSprite->data3;
+                                    pPlayer->tiltEffect = pXSprite->data3;
                                     break;
                                 case 2: // pain
-                                    pPlayer->at366 = pXSprite->data3;
+                                    pPlayer->painEffect = pXSprite->data3;
                                     break;
                                 case 3: // blind
-                                    pPlayer->at36a = pXSprite->data3;
+                                    pPlayer->blindEffect = pXSprite->data3;
                                     break;
                                 case 4: // pickup
-                                    pPlayer->at377 = pXSprite->data3;
+                                    pPlayer->pickupEffect = pXSprite->data3;
                                     break;
-                                case 5: // quake
-                                    pPlayer->at37f = pXSprite->data3;
+                                case 5: // quakeEffect
+                                    pPlayer->quakeEffect = pXSprite->data3;
                                     break;
                                 case 6: // visibility
-                                    pPlayer->at362 = pXSprite->data3;
+                                    pPlayer->visibility = pXSprite->data3;
                                     break;
                             }
                             break;
@@ -1120,7 +1121,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             int dy = (pSprite->y - pPlayerSprite->y)>>4;
             int dz = (pSprite->z - pPlayerSprite->z)>>8;
             int nDist = dx*dx+dy*dy+dz*dz+0x40000;
-            gPlayer[p].at37f = divscale16(pXSprite->data1, nDist);
+            gPlayer[p].quakeEffect = divscale16(pXSprite->data1, nDist);
         }
         break;
     case kThingTNTBarrel:
@@ -1209,7 +1210,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         break;
     case kSoundPlayer:
         if (gGameOptions.nGameType != 0 || gMe->pXSprite->health <= 0) break;
-        gMe->at30a = 0; sndStartSample(pXSprite->data1, -1, 1, 0);
+        gMe->restTime = 0; sndStartSample(pXSprite->data1, -1, 1, 0);
         break;
     case kThingObjectGib:
     case kThingObjectExplode:
@@ -1567,7 +1568,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
         playerResetInertia(pPlayer);
         
         if (pXSource->data2 == 1) {
-            pPlayer->at6b = pPlayer->at73 = 0;
+            pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
         }
     }
 }
@@ -2618,7 +2619,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 if (pPlayer)
                 {
                     playerResetInertia(pPlayer);
-                    pPlayer->at6b = pPlayer->at73 = 0;
+                    pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
                 }
             }
         }

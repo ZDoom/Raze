@@ -137,7 +137,7 @@ int gDefaultAccel[] = {
 };
 
 
-POSTURE gPosture[4][3] = {
+POSTURE gPosture[kModeMax][kPostureMax] = {
     
     // normal human
     {
@@ -442,7 +442,7 @@ int powerupCheck(PLAYER *pPlayer, int nPowerUp)
     int nPack = powerupToPackItem(nPowerUp);
     if (nPack >= 0 && !packItemActive(pPlayer, nPack))
         return 0;
-    return pPlayer->at202[nPowerUp];
+    return pPlayer->pwUpTime[nPowerUp];
 }
 
 bool isGrown(spritetype* pSprite) {
@@ -478,10 +478,10 @@ bool resetPlayerSize(PLAYER* pPlayer) {
 
 void deactivateSizeShrooms(PLAYER* pPlayer) {
     powerupDeactivate(pPlayer, kPwUpGrowShroom);
-    pPlayer->at202[kPwUpGrowShroom] = 0;
+    pPlayer->pwUpTime[kPwUpGrowShroom] = 0;
 
     powerupDeactivate(pPlayer, kPwUpShrinkShroom);
-    pPlayer->at202[kPwUpShrinkShroom] = 0;
+    pPlayer->pwUpTime[kPwUpShrinkShroom] = 0;
 }
 
 
@@ -503,11 +503,11 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
 {
     if (powerupCheck(pPlayer, nPowerUp) > 0 && gPowerUpInfo[nPowerUp].pickupOnce)
         return 0;
-    if (!pPlayer->at202[nPowerUp])
-        pPlayer->at202[nPowerUp] = gPowerUpInfo[nPowerUp].bonusTime;
+    if (!pPlayer->pwUpTime[nPowerUp])
+        pPlayer->pwUpTime[nPowerUp] = gPowerUpInfo[nPowerUp].bonusTime;
     int nPack = powerupToPackItem(nPowerUp);
     if (nPack >= 0)
-        pPlayer->packInfo[nPack].at0 = 1;
+        pPlayer->packSlots[nPack].isActive = 1;
     
     switch (nPowerUp + kItemBase) {
         case kItemModernMapLevel:
@@ -525,7 +525,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
                 growPlayerSize(pPlayer, 2);
                 if (powerupCheck(&gPlayer[pPlayer->pSprite->type - kDudePlayer1], kPwUpShadowCloak) > 0) {
                     powerupDeactivate(pPlayer, kPwUpShadowCloak);
-                    pPlayer->at202[kPwUpShadowCloak] = 0;
+                    pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 }
 
                 if (ceilIsTooLow(pPlayer->pSprite))
@@ -534,7 +534,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
             break;
         case kItemFeatherFall:
         case kItemJumpBoots:
-            pPlayer->ata1[0]++;
+            pPlayer->damageControl[0]++;
             break;
         case kItemReflectShots: // reflective shots
             if (pPlayer == gMe && gGameOptions.nGameType == 0)
@@ -542,21 +542,21 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
             break;
         case kItemDeathMask:
             for (int i = 0; i < 7; i++)
-                pPlayer->ata1[i]++;
+                pPlayer->damageControl[i]++;
             break;
         case kItemDivingSuit: // diving suit
-            pPlayer->ata1[4]++;
+            pPlayer->damageControl[4]++;
             if (pPlayer == gMe && gGameOptions.nGameType == 0)
                 sfxSetReverb(1);
             break;
         case kItemGasMask:
-            pPlayer->ata1[4]++;
+            pPlayer->damageControl[4]++;
             break;
         case kItemArmorAsbest:
-            pPlayer->ata1[1]++;
+            pPlayer->damageControl[1]++;
             break;
         case kItemTwoGuns:
-            pPlayer->atc.newWeapon = pPlayer->atbd;
+            pPlayer->input.newWeapon = pPlayer->curWeapon;
             WeaponRaise(pPlayer);
             break;
     }
@@ -568,7 +568,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
 {
     int nPack = powerupToPackItem(nPowerUp);
     if (nPack >= 0)
-        pPlayer->packInfo[nPack].at0 = 0;
+        pPlayer->packSlots[nPack].isActive = 0;
     
     switch (nPowerUp + kItemBase) {
         case kItemShroomShrink:
@@ -583,29 +583,29 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
             break;
         case kItemFeatherFall:
         case kItemJumpBoots:
-            pPlayer->ata1[0]--;
+            pPlayer->damageControl[0]--;
             break;
         case kItemDeathMask:
             for (int i = 0; i < 7; i++)
-                pPlayer->ata1[i]--;
+                pPlayer->damageControl[i]--;
             break;
         case kItemDivingSuit:
-            pPlayer->ata1[4]--;
-            if (pPlayer == gMe && VanillaMode() ? true : pPlayer->at202[24] == 0)
+            pPlayer->damageControl[4]--;
+            if (pPlayer == gMe && VanillaMode() ? true : pPlayer->pwUpTime[24] == 0)
                 sfxSetReverb(0);
             break;
         case kItemReflectShots:
-            if (pPlayer == gMe && VanillaMode() ? true : pPlayer->packInfo[1].at0 == 0)
+            if (pPlayer == gMe && VanillaMode() ? true : pPlayer->packSlots[1].isActive == 0)
                 sfxSetReverb(0);
             break;
         case kItemGasMask:
-            pPlayer->ata1[4]--;
+            pPlayer->damageControl[4]--;
             break;
         case kItemArmorAsbest:
-            pPlayer->ata1[1]--;
+            pPlayer->damageControl[1]--;
             break;
         case kItemTwoGuns:
-            pPlayer->atc.newWeapon = pPlayer->atbd;
+            pPlayer->input.newWeapon = pPlayer->curWeapon;
             WeaponRaise(pPlayer);
             break;
     }
@@ -621,29 +621,29 @@ void powerupSetState(PLAYER *pPlayer, int nPowerUp, char bState)
 
 void powerupProcess(PLAYER *pPlayer)
 {
-    pPlayer->at31d = ClipLow(pPlayer->at31d-4, 0);
+    pPlayer->packItemTime = ClipLow(pPlayer->packItemTime-4, 0);
     for (int i = kMaxPowerUps-1; i >= 0; i--)
     {
         int nPack = powerupToPackItem(i);
         if (nPack >= 0)
         {
-            if (pPlayer->packInfo[nPack].at0)
+            if (pPlayer->packSlots[nPack].isActive)
             {
-                pPlayer->at202[i] = ClipLow(pPlayer->at202[i]-4, 0);
-                if (pPlayer->at202[i])
-                    pPlayer->packInfo[nPack].at1 = (100*pPlayer->at202[i])/gPowerUpInfo[i].bonusTime;
+                pPlayer->pwUpTime[i] = ClipLow(pPlayer->pwUpTime[i]-4, 0);
+                if (pPlayer->pwUpTime[i])
+                    pPlayer->packSlots[nPack].curAmount = (100*pPlayer->pwUpTime[i])/gPowerUpInfo[i].bonusTime;
                 else
                 {
                     powerupDeactivate(pPlayer, i);
-                    if (pPlayer->at321 == nPack)
-                        pPlayer->at321 = 0;
+                    if (pPlayer->packItemId == nPack)
+                        pPlayer->packItemId = 0;
                 }
             }
         }
-        else if (pPlayer->at202[i] > 0)
+        else if (pPlayer->pwUpTime[i] > 0)
         {
-            pPlayer->at202[i] = ClipLow(pPlayer->at202[i]-4, 0);
-            if (!pPlayer->at202[i])
+            pPlayer->pwUpTime[i] = ClipLow(pPlayer->pwUpTime[i]-4, 0);
+            if (!pPlayer->pwUpTime[i])
                 powerupDeactivate(pPlayer, i);
         }
     }
@@ -653,7 +653,7 @@ void powerupClear(PLAYER *pPlayer)
 {
     for (int i = kMaxPowerUps-1; i >= 0; i--)
     {
-        pPlayer->at202[i] = 0;
+        pPlayer->pwUpTime[i] = 0;
     }
 }
 
@@ -705,16 +705,16 @@ char packAddItem(PLAYER *pPlayer, unsigned int nPack)
 {
     if (nPack <= 4)
     {
-        if (pPlayer->packInfo[nPack].at1 >= 100)
+        if (pPlayer->packSlots[nPack].curAmount >= 100)
             return 0;
-        pPlayer->packInfo[nPack].at1 = 100;
+        pPlayer->packSlots[nPack].curAmount = 100;
         int nPowerUp = packItemToPowerup(nPack);
         if (nPowerUp >= 0)
-            pPlayer->at202[nPowerUp] = gPowerUpInfo[nPowerUp].bonusTime;
-        if (pPlayer->at321 == -1)
-            pPlayer->at321 = nPack;
-        if (!pPlayer->packInfo[pPlayer->at321].at1)
-            pPlayer->at321 = nPack;
+            pPlayer->pwUpTime[nPowerUp] = gPowerUpInfo[nPowerUp].bonusTime;
+        if (pPlayer->packItemId == -1)
+            pPlayer->packItemId = nPack;
+        if (!pPlayer->packSlots[pPlayer->packItemId].curAmount)
+            pPlayer->packItemId = nPack;
     }
     else
         ThrowError("Unhandled pack item %d", nPack);
@@ -723,19 +723,19 @@ char packAddItem(PLAYER *pPlayer, unsigned int nPack)
 
 int packCheckItem(PLAYER *pPlayer, int nPack)
 {
-    return pPlayer->packInfo[nPack].at1;
+    return pPlayer->packSlots[nPack].curAmount;
 }
 
 char packItemActive(PLAYER *pPlayer, int nPack)
 {
-    return pPlayer->packInfo[nPack].at0;
+    return pPlayer->packSlots[nPack].isActive;
 }
 
 void packUseItem(PLAYER *pPlayer, int nPack)
 {
     char v4 = 0;
     int nPowerUp = -1;
-    if (pPlayer->packInfo[nPack].at1 > 0)
+    if (pPlayer->packSlots[nPack].curAmount > 0)
     {
         switch (nPack)
         {
@@ -745,9 +745,9 @@ void packUseItem(PLAYER *pPlayer, int nPack)
             unsigned int health = pXSprite->health>>4;
             if (health < 100)
             {
-                int heal = ClipHigh(100-health, pPlayer->packInfo[0].at1);
+                int heal = ClipHigh(100-health, pPlayer->packSlots[0].curAmount);
                 actHealDude(pXSprite, heal, 100);
-                pPlayer->packInfo[0].at1 -= heal;
+                pPlayer->packSlots[0].curAmount -= heal;
             }
             break;
         }
@@ -772,41 +772,41 @@ void packUseItem(PLAYER *pPlayer, int nPack)
             return;
         }
     }
-    pPlayer->at31d = 0;
+    pPlayer->packItemTime = 0;
     if (v4)
-        powerupSetState(pPlayer, nPowerUp, pPlayer->packInfo[nPack].at0);
+        powerupSetState(pPlayer, nPowerUp, pPlayer->packSlots[nPack].isActive);
 }
 
 void packPrevItem(PLAYER *pPlayer)
 {
-    if (pPlayer->at31d > 0)
+    if (pPlayer->packItemTime > 0)
     {
-        for (int nPrev = ClipLow(pPlayer->at321-1,0); nPrev >= 0; nPrev--)
+        for (int nPrev = ClipLow(pPlayer->packItemId-1,0); nPrev >= 0; nPrev--)
         {
-            if (pPlayer->packInfo[nPrev].at1)
+            if (pPlayer->packSlots[nPrev].curAmount)
             {
-                pPlayer->at321 = nPrev;
+                pPlayer->packItemId = nPrev;
                 break;
             }
         }
     }
-    pPlayer->at31d = 600;
+    pPlayer->packItemTime = 600;
 }
 
 void packNextItem(PLAYER *pPlayer)
 {
-    if (pPlayer->at31d > 0)
+    if (pPlayer->packItemTime > 0)
     {
-        for (int nNext = ClipHigh(pPlayer->at321+1,5); nNext < 5; nNext++)
+        for (int nNext = ClipHigh(pPlayer->packItemId+1,5); nNext < 5; nNext++)
         {
-            if (pPlayer->packInfo[nNext].at1)
+            if (pPlayer->packSlots[nNext].curAmount)
             {
-                pPlayer->at321 = nNext;
+                pPlayer->packItemId = nNext;
                 break;
             }
         }
     }
-    pPlayer->at31d = 600;
+    pPlayer->packItemTime = 600;
 }
 
 char playerSeqPlaying(PLAYER * pPlayer, int nSeq)
@@ -822,13 +822,13 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
     dassert(nLifeMode >= kModeHuman && nLifeMode <= kModeHumanGrown);
     DUDEINFO *pDudeInfo = pPlayer->pDudeInfo;
     *pDudeInfo = gPlayerTemplate[nLifeMode];
-    pPlayer->at5f = nLifeMode;
+    pPlayer->lifeMode = nLifeMode;
     
     // By NoOne: don't forget to change clipdist for grow and shrink modes
     pPlayer->pSprite->clipdist = pDudeInfo->clipdist;
     
     for (int i = 0; i < 7; i++)
-        pDudeInfo->at70[i] = mulscale8(Handicap[gProfile[pPlayer->at57].skill], pDudeInfo->startDamage[i]);
+        pDudeInfo->at70[i] = mulscale8(Handicap[gProfile[pPlayer->nPlayer].skill], pDudeInfo->startDamage[i]);
 }
 
 void playerSetGodMode(PLAYER *pPlayer, char bGodMode)
@@ -836,29 +836,29 @@ void playerSetGodMode(PLAYER *pPlayer, char bGodMode)
     if (bGodMode)
     {
         for (int i = 0; i < 7; i++)
-            pPlayer->ata1[i]++;
+            pPlayer->damageControl[i]++;
     }
     else
     {
         for (int i = 0; i < 7; i++)
-            pPlayer->ata1[i]--;
+            pPlayer->damageControl[i]--;
     }
-    pPlayer->at31a = bGodMode;
+    pPlayer->godMode = bGodMode;
 }
 
 void playerResetInertia(PLAYER *pPlayer)
 {
-    POSTURE *pPosture = &gPosture[pPlayer->at5f][pPlayer->at2f];
-    pPlayer->at67 = pPlayer->pSprite->z-pPosture->at24;
-    pPlayer->at6f = pPlayer->pSprite->z-pPosture->at28;
-    viewBackupView(pPlayer->at57);
+    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
+    pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
+    pPlayer->zWeapon = pPlayer->pSprite->z-pPosture->weaponAboveZ;
+    viewBackupView(pPlayer->nPlayer);
 }
 
 void playerCorrectInertia(PLAYER* pPlayer, vec3_t const *oldpos)
 {
-    pPlayer->at67 += pPlayer->pSprite->z-oldpos->z;
-    pPlayer->at6f += pPlayer->pSprite->z-oldpos->z;
-    viewCorrectViewOffsets(pPlayer->at57, oldpos);
+    pPlayer->zView += pPlayer->pSprite->z-oldpos->z;
+    pPlayer->zWeapon += pPlayer->pSprite->z-oldpos->z;
+    viewCorrectViewOffsets(pPlayer->nPlayer, oldpos);
 }
 
 void playerResetPowerUps(PLAYER* pPlayer)
@@ -866,14 +866,14 @@ void playerResetPowerUps(PLAYER* pPlayer)
     for (int i = 0; i < kMaxPowerUps; i++) {
         if (!VanillaMode() && (i == kPwUpJumpBoots || i == kPwUpDivingSuit || i == kPwUpCrystalBall || i == kPwUpBeastVision))
             continue;
-        pPlayer->at202[i] = 0;
+        pPlayer->pwUpTime[i] = 0;
     }
 }
 
 void playerStart(int nPlayer)
 {
     PLAYER* pPlayer = &gPlayer[nPlayer];
-    GINPUT* pInput = &pPlayer->atc;
+    GINPUT* pInput = &pPlayer->input;
     ZONE* pStartZone = NULL;
 
     // normal start position
@@ -885,7 +885,7 @@ void playerStart(int nPlayer)
     else if (gGameOptions.nGameType == 3 && gTeamsSpawnUsed == true) {
         int maxRetries = 5;
         while (maxRetries-- > 0) {
-            if (pPlayer->at2ea == 0) pStartZone = &gStartZoneTeam1[Random(3)];
+            if (pPlayer->teamId == 0) pStartZone = &gStartZoneTeam1[Random(3)];
             else pStartZone = &gStartZoneTeam2[Random(3)];
 
             if (maxRetries != 0) {
@@ -911,7 +911,7 @@ void playerStart(int nPlayer)
     XSPRITE *pXSprite = &xsprite[pSprite->extra];
     pPlayer->pSprite = pSprite;
     pPlayer->pXSprite = pXSprite;
-    pPlayer->at5b = pSprite->index;
+    pPlayer->nSprite = pSprite->index;
     DUDEINFO *pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
     pPlayer->pDudeInfo = pDudeInfo;
     playerSetRace(pPlayer, kModeHuman);
@@ -921,7 +921,7 @@ void playerStart(int nPlayer)
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z -= bottom - pSprite->z;
-    pSprite->pal = 11+(pPlayer->at2ea&3);
+    pSprite->pal = 11+(pPlayer->teamId&3);
     pPlayer->angold = pSprite->ang = pStartZone->ang;
     pPlayer->q16ang = fix16_from_int(pSprite->ang);
     pSprite->type = kDudePlayer1+nPlayer;
@@ -931,49 +931,49 @@ void playerStart(int nPlayer)
     pXSprite->burnSource = -1;
     pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
     pPlayer->pSprite->cstat &= (unsigned short)~32768;
-    pPlayer->at63 = 0;
+    pPlayer->bloodlust = 0;
     pPlayer->q16horiz = 0;
     pPlayer->q16slopehoriz = 0;
     pPlayer->q16look = 0;
-    pPlayer->at83 = 0;
-    pPlayer->at2ee = -1;
-    pPlayer->at2f2 = 1200;
-    pPlayer->at2f6 = 0;
-    pPlayer->at2fa = 0;
-    pPlayer->at2fe = 0;
-    pPlayer->at302 = 0;
+    pPlayer->slope = 0;
+    pPlayer->fraggerId = -1;
+    pPlayer->underwaterTime = 1200;
+    pPlayer->bloodTime = 0;
+    pPlayer->gooTime = 0;
+    pPlayer->wetTime = 0;
+    pPlayer->bubbleTime = 0;
     pPlayer->at306 = 0;
-    pPlayer->at30a = 0;
-    pPlayer->at30e = 0;
-    pPlayer->at312 = 0;
-    pPlayer->at316 = 0;
-    pPlayer->at2f = 0;
+    pPlayer->restTime = 0;
+    pPlayer->kickPower = 0;
+    pPlayer->laughCount = 0;
+    pPlayer->spin = 0;
+    pPlayer->posture = 0;
     pPlayer->voodooTarget = -1;
-    pPlayer->at34e = 0;
-    pPlayer->at352 = 0;
-    pPlayer->at356 = 0;
+    pPlayer->voodooTargets = 0;
+    pPlayer->voodooVar1 = 0;
+    pPlayer->vodooVar2 = 0;
     playerResetInertia(pPlayer);
-    pPlayer->at73 = 0;
-    pPlayer->at1ca.dx = 0x4000;
-    pPlayer->at1ca.dy = 0;
-    pPlayer->at1ca.dz = 0;
-    pPlayer->at1d6 = -1;
-    pPlayer->at6b = pPlayer->at73;
+    pPlayer->zWeaponVel = 0;
+    pPlayer->relAim.dx = 0x4000;
+    pPlayer->relAim.dy = 0;
+    pPlayer->relAim.dz = 0;
+    pPlayer->aimTarget = -1;
+    pPlayer->zViewVel = pPlayer->zWeaponVel;
     if (!(gGameOptions.nGameType == 1 && gGameOptions.bKeepKeysOnRespawn))
         for (int i = 0; i < 8; i++)
-            pPlayer->at88[i] = gGameOptions.nGameType >= 2;
-    pPlayer->at90 = 0;
+            pPlayer->hasKey[i] = gGameOptions.nGameType >= 2;
+    pPlayer->hasFlag = 0;
     for (int i = 0; i < 8; i++)
-        pPlayer->at91[i] = -1;
+        pPlayer->used2[i] = -1;
     for (int i = 0; i < 7; i++)
-        pPlayer->ata1[i] = 0;
-    if (pPlayer->at31a)
+        pPlayer->damageControl[i] = 0;
+    if (pPlayer->godMode)
         playerSetGodMode(pPlayer, 1);
     gInfiniteAmmo = 0;
     gFullMap = 0;
-    pPlayer->at1ba = 0;
-    pPlayer->at1fe = 0;
-    pPlayer->atbe = 0;
+    pPlayer->throwPower = 0;
+    pPlayer->deathTime = 0;
+    pPlayer->nextWeapon = 0;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
     pInput->q16turn = 0;
     pInput->keyFlags.word = 0;
@@ -982,18 +982,18 @@ void playerStart(int nPlayer)
     pInput->q16mlook = 0;
     pInput->buttonFlags.byte = 0;
     pInput->useFlags.byte = 0;
-    pPlayer->at35a = 0;
-    pPlayer->at37f = 0;
-    pPlayer->at35e = 0;
-    pPlayer->at362 = 0;
-    pPlayer->at366 = 0;
-    pPlayer->at36a = 0;
-    pPlayer->at36e = 0;
-    pPlayer->at372 = 0;
-    pPlayer->atbf = 0;
-    pPlayer->atc3 = 0;
-    pPlayer->at26 = -1;
-    pPlayer->at376 = 0;
+    pPlayer->flickerEffect = 0;
+    pPlayer->quakeEffect = 0;
+    pPlayer->tiltEffect = 0;
+    pPlayer->visibility = 0;
+    pPlayer->painEffect = 0;
+    pPlayer->blindEffect = 0;
+    pPlayer->chokeEffect = 0;
+    pPlayer->handTime = 0;
+    pPlayer->weaponTimer = 0;
+    pPlayer->weaponState = 0;
+    pPlayer->weaponQav = -1;
+    pPlayer->hand = 0;
     pPlayer->nWaterPal = 0;
     playerResetPowerUps(pPlayer);
 
@@ -1006,7 +1006,7 @@ void playerStart(int nPlayer)
     }
     if (IsUnderwaterSector(pSprite->sectnum))
     {
-        pPlayer->at2f = 1;
+        pPlayer->posture = 1;
         pPlayer->pXSprite->medium = kMediumWater;
     }
 }
@@ -1022,41 +1022,41 @@ void playerReset(PLAYER *pPlayer)
     dassert(pPlayer != NULL);
     for (int i = 0; i < 14; i++)
     {
-        pPlayer->atcb[i] = gInfiniteAmmo;
-        pPlayer->atd9[i] = 0;
+        pPlayer->hasWeapon[i] = gInfiniteAmmo;
+        pPlayer->weaponMode[i] = 0;
     }
-    pPlayer->atcb[1] = 1;
-    pPlayer->atbd = 0;
-    pPlayer->at2a = -1;
-    pPlayer->atc.newWeapon = 1;
+    pPlayer->hasWeapon[1] = 1;
+    pPlayer->curWeapon = 0;
+    pPlayer->qavCallback = -1;
+    pPlayer->input.newWeapon = 1;
     for (int i = 0; i < 14; i++)
     {
-        pPlayer->at111[0][i] = dword_136400[i];
-        pPlayer->at111[1][i] = dword_136438[i];
+        pPlayer->weaponOrder[0][i] = dword_136400[i];
+        pPlayer->weaponOrder[1][i] = dword_136438[i];
     }
     for (int i = 0; i < 12; i++)
     {
         if (gInfiniteAmmo)
-            pPlayer->at181[i] = gAmmoInfo[i].at0;
+            pPlayer->ammCount[i] = gAmmoInfo[i].max;
         else
-            pPlayer->at181[i] = 0;
+            pPlayer->ammCount[i] = 0;
     }
     for (int i = 0; i < 3; i++)
-        pPlayer->at33e[i] = 0;
-    pPlayer->atbf = 0;
-    pPlayer->atc3 = 0;
-    pPlayer->at26 = -1;
-    pPlayer->at1b1 = 0;
-    pPlayer->at321 = -1;
+        pPlayer->armor[i] = 0;
+    pPlayer->weaponTimer = 0;
+    pPlayer->weaponState = 0;
+    pPlayer->weaponQav = -1;
+    pPlayer->qavLoop = 0;
+    pPlayer->packItemId = -1;
     for (int i = 0; i < 5; i++)
     {
-        pPlayer->packInfo[i].at0 = 0;
-        pPlayer->packInfo[i].at1 = 0;
+        pPlayer->packSlots[i].isActive = 0;
+        pPlayer->packSlots[i].curAmount = 0;
     }
 
     for (int i = 0; i < 4; i++) {
         for (int a = 0; a < 3; a++)
-            gPosture[i][a].at0 = gPosture[i][a].at4 = gPosture[i][a].at8 = gDefaultAccel[a];
+            gPosture[i][a].frontAccel = gPosture[i][a].sideAccel = gPosture[i][a].backAccel = gDefaultAccel[a];
     }
 }
 
@@ -1068,14 +1068,14 @@ void playerInit(int nPlayer, unsigned int a2)
     PLAYER *pPlayer = &gPlayer[nPlayer];
     if (!(a2&1))
         memset(pPlayer, 0, sizeof(PLAYER));
-    pPlayer->at57 = nPlayer;
-    pPlayer->at2ea = nPlayer;
+    pPlayer->nPlayer = nPlayer;
+    pPlayer->teamId = nPlayer;
     if (gGameOptions.nGameType == 3)
-        pPlayer->at2ea = nPlayer&1;
-    pPlayer->at2c6 = 0;
+        pPlayer->teamId = nPlayer&1;
+    pPlayer->fragCount = 0;
     memset(dword_21EFB0, 0, sizeof(dword_21EFB0));
     memset(dword_21EFD0, 0, sizeof(dword_21EFD0));
-    memset(pPlayer->at2ca, 0, sizeof(pPlayer->at2ca));
+    memset(pPlayer->fragInfo, 0, sizeof(pPlayer->fragInfo));
     if (!(a2&1))
         playerReset(pPlayer);
 }
@@ -1087,7 +1087,7 @@ char sub_3A158(PLAYER *a1, spritetype *a2)
         if (a2 && a2->index == nSprite)
             continue;
         spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->type == kThingDroppedLifeLeech && actOwnerIdToSpriteId(pSprite->owner) == a1->at5b)
+        if (pSprite->type == kThingDroppedLifeLeech && actOwnerIdToSpriteId(pSprite->owner) == a1->nSprite)
             return 1;
     }
     return 0;
@@ -1122,35 +1122,35 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             if (gGameOptions.nGameType != 3 || pItem->extra <= 0) return 0;
             XSPRITE * pXItem = &xsprite[pItem->extra];
             if (pItem->type == kItemFlagABase) {
-                if (pPlayer->at2ea == 1) {
-                    if ((pPlayer->at90 & 1) == 0 && pXItem->state) {
-                        pPlayer->at90 |= 1;
-                        pPlayer->at91[0] = pItem->index;
+                if (pPlayer->teamId == 1) {
+                    if ((pPlayer->hasFlag & 1) == 0 && pXItem->state) {
+                        pPlayer->hasFlag |= 1;
+                        pPlayer->used2[0] = pItem->index;
                         trTriggerSprite(pItem->index, pXItem, kCmdOff);
-                        sprintf(buffer, "%s stole Blue Flag", gProfile[pPlayer->at57].name);
+                        sprintf(buffer, "%s stole Blue Flag", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8007, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
                 }
 
-                if (pPlayer->at2ea == 0) {
+                if (pPlayer->teamId == 0) {
 
-                    if ((pPlayer->at90 & 1) != 0 && !pXItem->state) {
-                        pPlayer->at90 &= ~1;
-                        pPlayer->at91[0] = -1;
+                    if ((pPlayer->hasFlag & 1) != 0 && !pXItem->state) {
+                        pPlayer->hasFlag &= ~1;
+                        pPlayer->used2[0] = -1;
                         trTriggerSprite(pItem->index, pXItem, kCmdOn);
-                        sprintf(buffer, "%s returned Blue Flag", gProfile[pPlayer->at57].name);
+                        sprintf(buffer, "%s returned Blue Flag", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8003, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
 
-                    if ((pPlayer->at90 & 2) != 0 && pXItem->state) {
-                        pPlayer->at90 &= ~2;
-                        pPlayer->at91[1] = -1;
-                        dword_21EFB0[pPlayer->at2ea] += 10;
-                        dword_21EFD0[pPlayer->at2ea] += 240;
+                    if ((pPlayer->hasFlag & 2) != 0 && pXItem->state) {
+                        pPlayer->hasFlag &= ~2;
+                        pPlayer->used2[1] = -1;
+                        dword_21EFB0[pPlayer->teamId] += 10;
+                        dword_21EFD0[pPlayer->teamId] += 240;
                         evSend(0, 0, 81, kCmdOn);
-                        sprintf(buffer, "%s captured Red Flag!", gProfile[pPlayer->at57].name);
+                        sprintf(buffer, "%s captured Red Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8001, 255, 2, 0);
                         viewSetMessage(buffer);
 #if 0
@@ -1166,35 +1166,35 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             }
             else if (pItem->type == kItemFlagBBase) {
 
-                if (pPlayer->at2ea == 0) {
-                    if ((pPlayer->at90 & 2) == 0 && pXItem->state) {
-                        pPlayer->at90 |= 2;
-                        pPlayer->at91[1] = pItem->index;
+                if (pPlayer->teamId == 0) {
+                    if ((pPlayer->hasFlag & 2) == 0 && pXItem->state) {
+                        pPlayer->hasFlag |= 2;
+                        pPlayer->used2[1] = pItem->index;
                         trTriggerSprite(pItem->index, pXItem, kCmdOff);
-                        sprintf(buffer, "%s stole Red Flag", gProfile[pPlayer->at57].name);
+                        sprintf(buffer, "%s stole Red Flag", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8006, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
                 }
 
-                if (pPlayer->at2ea == 1) {
-                    if ((pPlayer->at90 & 2) != 0 && !pXItem->state)
+                if (pPlayer->teamId == 1) {
+                    if ((pPlayer->hasFlag & 2) != 0 && !pXItem->state)
                     {
-                        pPlayer->at90 &= ~2;
-                        pPlayer->at91[1] = -1;
+                        pPlayer->hasFlag &= ~2;
+                        pPlayer->used2[1] = -1;
                         trTriggerSprite(pItem->index, pXItem, kCmdOn);
-                        sprintf(buffer, "%s returned Red Flag", gProfile[pPlayer->at57].name);
+                        sprintf(buffer, "%s returned Red Flag", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8002, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
-                    if ((pPlayer->at90 & 1) != 0 && pXItem->state)
+                    if ((pPlayer->hasFlag & 1) != 0 && pXItem->state)
                     {
-                        pPlayer->at90 &= ~1;
-                        pPlayer->at91[0] = -1;
-                        dword_21EFB0[pPlayer->at2ea] += 10;
-                        dword_21EFD0[pPlayer->at2ea] += 240;
+                        pPlayer->hasFlag &= ~1;
+                        pPlayer->used2[0] = -1;
+                        dword_21EFB0[pPlayer->teamId] += 10;
+                        dword_21EFD0[pPlayer->teamId] += 240;
                         evSend(0, 0, 80, kCmdOn);
-                        sprintf(buffer, "%s captured Blue Flag!", gProfile[pPlayer->at57].name);
+                        sprintf(buffer, "%s captured Blue Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8000, 255, 2, 0);
                         viewSetMessage(buffer);
 #if 0
@@ -1212,15 +1212,15 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemFlagA:
             if (gGameOptions.nGameType != 3) return 0;
             evKill(pItem->index, 3, kCallbackReturnFlag);
-            pPlayer->at90 |= 1;
-            pPlayer->at91[0] = pItem->index;
+            pPlayer->hasFlag |= 1;
+            pPlayer->used2[0] = pItem->index;
             gBlueFlagDropped = false;
             break;
         case kItemFlagB:
             if (gGameOptions.nGameType != 3) return 0;
             evKill(pItem->index, 3, kCallbackReturnFlag);
-            pPlayer->at90 |= 2;
-            pPlayer->at91[1] = pItem->index;
+            pPlayer->hasFlag |= 2;
+            pPlayer->used2[1] = pItem->index;
             gRedFlagDropped = false;
             break;
         case kItemArmorBasic:
@@ -1229,18 +1229,18 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemArmorSpirit:
         case kItemArmorSuper: {
             ARMORDATA *pArmorData = &armorData[pItem->type - kItemArmorBasic]; bool pickedUp = false;
-            if (pPlayer->at33e[1] < pArmorData->atc) {
-                pPlayer->at33e[1] = ClipHigh(pPlayer->at33e[1]+pArmorData->at8, pArmorData->atc);
+            if (pPlayer->armor[1] < pArmorData->atc) {
+                pPlayer->armor[1] = ClipHigh(pPlayer->armor[1]+pArmorData->at8, pArmorData->atc);
                 pickedUp = true;
             }
         
-            if (pPlayer->at33e[0] < pArmorData->at4) {
-                pPlayer->at33e[0] = ClipHigh(pPlayer->at33e[0]+pArmorData->at0, pArmorData->at4);
+            if (pPlayer->armor[0] < pArmorData->at4) {
+                pPlayer->armor[0] = ClipHigh(pPlayer->armor[0]+pArmorData->at0, pArmorData->at4);
                 pickedUp = true;
             }
 
-            if (pPlayer->at33e[2] < pArmorData->at14) {
-                pPlayer->at33e[2] = ClipHigh(pPlayer->at33e[2]+pArmorData->at10, pArmorData->at14);
+            if (pPlayer->armor[2] < pArmorData->at14) {
+                pPlayer->armor[2] = ClipHigh(pPlayer->armor[2]+pArmorData->at10, pArmorData->at14);
                 pickedUp = true;
             }
         
@@ -1249,7 +1249,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             break;
         }
         case kItemCrystalBall:
-            if (gGameOptions.nGameType == 0 || !packAddItem(pPlayer, gItemData[nType].at8)) return 0;
+            if (gGameOptions.nGameType == 0 || !packAddItem(pPlayer, gItemData[nType].packSlot)) return 0;
             break;
         case kItemKeySkull:
         case kItemKeyEye:
@@ -1258,8 +1258,8 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemKeySpider:
         case kItemKeyMoon:
         case kItemKeyKey7:
-            if (pPlayer->at88[pItem->type-99]) return 0;
-            pPlayer->at88[pItem->type-99] = 1;
+            if (pPlayer->hasKey[pItem->type-99]) return 0;
+            pPlayer->hasKey[pItem->type-99] = 1;
             pickupSnd = 781;
             break;
         case kItemHealthMedPouch:
@@ -1278,7 +1278,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemJumpBoots:
         case kItemDivingSuit:
         case kItemBeastVision:
-            if (!packAddItem(pPlayer, gItemData[nType].at8)) return 0;
+            if (!packAddItem(pPlayer, gItemData[nType].packSlot)) return 0;
             break;
         default:
             if (!powerupActivate(pPlayer, nType)) return 0;
@@ -1291,49 +1291,49 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
 
 char PickupAmmo(PLAYER* pPlayer, spritetype* pAmmo) {
     AMMOITEMDATA* pAmmoItemData = &gAmmoItemData[pAmmo->type - kItemAmmoBase];
-    int nAmmoType = pAmmoItemData->ata;
+    int nAmmoType = pAmmoItemData->type;
 
-    if (pPlayer->at181[nAmmoType] >= gAmmoInfo[nAmmoType].at0) return 0;
+    if (pPlayer->ammCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
     else if (!gModernMap || pAmmo->extra < 0 || xsprite[pAmmo->extra].data1 <= 0)
-        pPlayer->at181[nAmmoType] = ClipHigh(pPlayer->at181[nAmmoType]+pAmmoItemData->at8, gAmmoInfo[nAmmoType].at0);
+        pPlayer->ammCount[nAmmoType] = ClipHigh(pPlayer->ammCount[nAmmoType]+pAmmoItemData->count, gAmmoInfo[nAmmoType].max);
     // by NoOne: allow custom amount for item
     else
-        pPlayer->at181[nAmmoType] = ClipHigh(pPlayer->at181[nAmmoType] + xsprite[pAmmo->extra].data1, gAmmoInfo[nAmmoType].at0);
+        pPlayer->ammCount[nAmmoType] = ClipHigh(pPlayer->ammCount[nAmmoType] + xsprite[pAmmo->extra].data1, gAmmoInfo[nAmmoType].max);
 
-    if (pAmmoItemData->atb)  pPlayer->atcb[pAmmoItemData->atb] = 1;
+    if (pAmmoItemData->weaponType)  pPlayer->hasWeapon[pAmmoItemData->weaponType] = 1;
     sfxPlay3DSound(pPlayer->pSprite, 782, -1, 0);
     return 1;
 }
 
 char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) {
     WEAPONITEMDATA *pWeaponItemData = &gWeaponItemData[pWeapon->type - kItemWeaponBase];
-    int nWeaponType = pWeaponItemData->at8;
-    int nAmmoType = pWeaponItemData->ata;
-    if (!pPlayer->atcb[nWeaponType] || gGameOptions.nWeaponSettings == 2 || gGameOptions.nWeaponSettings == 3) {
+    int nWeaponType = pWeaponItemData->type;
+    int nAmmoType = pWeaponItemData->ammoType;
+    if (!pPlayer->hasWeapon[nWeaponType] || gGameOptions.nWeaponSettings == 2 || gGameOptions.nWeaponSettings == 3) {
         if (pWeapon->type == kItemWeaponLifeLeech && gGameOptions.nGameType > 1 && sub_3A158(pPlayer, NULL))
             return 0;
-        pPlayer->atcb[nWeaponType] = 1;
+        pPlayer->hasWeapon[nWeaponType] = 1;
         if (nAmmoType == -1) return 0;
         // By NoOne: allow to set custom ammo count for weapon pickups
         if (!gModernMap || pWeapon->extra < 0 || xsprite[pWeapon->extra].data1 <= 0)
-            pPlayer->at181[nAmmoType] = ClipHigh(pPlayer->at181[nAmmoType] + pWeaponItemData->atc, gAmmoInfo[nAmmoType].at0);
+            pPlayer->ammCount[nAmmoType] = ClipHigh(pPlayer->ammCount[nAmmoType] + pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
         else
-            pPlayer->at181[nAmmoType] = ClipHigh(pPlayer->at181[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].at0);
+            pPlayer->ammCount[nAmmoType] = ClipHigh(pPlayer->ammCount[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].max);
 
         int nNewWeapon = WeaponUpgrade(pPlayer, nWeaponType);
-        if (nNewWeapon != pPlayer->atbd) {
-            pPlayer->atc3 = 0;
-            pPlayer->atbe = nNewWeapon;
+        if (nNewWeapon != pPlayer->curWeapon) {
+            pPlayer->weaponState = 0;
+            pPlayer->nextWeapon = nNewWeapon;
         }
         sfxPlay3DSound(pPlayer->pSprite, 777, -1, 0);
         return 1;
     }
     
-    if (!actGetRespawnTime(pWeapon) || nAmmoType == -1 || pPlayer->at181[nAmmoType] >= gAmmoInfo[nAmmoType].at0) return 0;    
+    if (!actGetRespawnTime(pWeapon) || nAmmoType == -1 || pPlayer->ammCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;    
     else if (!gModernMap || pWeapon->extra < 0 || xsprite[pWeapon->extra].data1 <= 0)
-        pPlayer->at181[nAmmoType] = ClipHigh(pPlayer->at181[nAmmoType]+pWeaponItemData->atc, gAmmoInfo[nAmmoType].at0);
+        pPlayer->ammCount[nAmmoType] = ClipHigh(pPlayer->ammCount[nAmmoType]+pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
     else
-        pPlayer->at181[nAmmoType] = ClipHigh(pPlayer->at181[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].at0);
+        pPlayer->ammCount[nAmmoType] = ClipHigh(pPlayer->ammCount[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].max);
 
     sfxPlay3DSound(pPlayer->pSprite, 777, -1, 0);
     return 1;
@@ -1375,7 +1375,7 @@ void PickUp(PLAYER *pPlayer, spritetype *pSprite)
     if (!actCheckRespawn(pSprite)) 
         actPostSprite(pSprite->index, kStatFree);
 
-    pPlayer->at377 = 30;
+    pPlayer->pickupEffect = 30;
     if (pPlayer == gMe) {
         if (customMsg > 0) trTextOver(customMsg - 1);
         else viewSetMessage(buffer, 0, MESSAGE_PRIORITY_PICKUP);
@@ -1427,8 +1427,8 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     spritetype *pSprite = pPlayer->pSprite;
     int x = Cos(pSprite->ang)>>16;
     int y = Sin(pSprite->ang)>>16;
-    int z = pPlayer->at83;
-    int hit = HitScan(pSprite, pPlayer->at67, x, y, z, 0x10000040, 128);
+    int z = pPlayer->slope;
+    int hit = HitScan(pSprite, pPlayer->zView, x, y, z, 0x10000040, 128);
     int hitDist = approxDist(pSprite->x-gHitInfo.hitx, pSprite->y-gHitInfo.hity)>>4;
     if (hitDist < 64)
     {
@@ -1445,7 +1445,7 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
                 {
                     if (gGameOptions.nGameType > 1 && sub_3A158(pPlayer, pSprite))
                         return -1;
-                    pXSprite->data4 = pPlayer->at57;
+                    pXSprite->data4 = pPlayer->nPlayer;
                     pXSprite->isTriggered = 0;
                 }
             }
@@ -1501,45 +1501,45 @@ void ProcessInput(PLAYER *pPlayer)
 {
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
-    int nSprite = pPlayer->at5b;
-    POSTURE *pPosture = &gPosture[pPlayer->at5f][pPlayer->at2f];
-    GINPUT *pInput = &pPlayer->atc;
-    pPlayer->at2e = pInput->syncFlags.run;
+    int nSprite = pPlayer->nSprite;
+    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
+    GINPUT *pInput = &pPlayer->input;
+    pPlayer->isRunning = pInput->syncFlags.run;
     if (pInput->buttonFlags.byte || pInput->forward || pInput->strafe || pInput->q16turn)
-        pPlayer->at30a = 0;
-    else if (pPlayer->at30a >= 0)
-        pPlayer->at30a += 4;
+        pPlayer->restTime = 0;
+    else if (pPlayer->restTime >= 0)
+        pPlayer->restTime += 4;
     WeaponProcess(pPlayer);
     if (pXSprite->health == 0)
     {
         char bSeqStat = playerSeqPlaying(pPlayer, 16);
-        if (pPlayer->at2ee != -1)
+        if (pPlayer->fraggerId != -1)
         {
-            pPlayer->angold = pSprite->ang = getangle(sprite[pPlayer->at2ee].x - pSprite->x, sprite[pPlayer->at2ee].y - pSprite->y);
+            pPlayer->angold = pSprite->ang = getangle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
             pPlayer->q16ang = fix16_from_int(pSprite->ang);
         }
-        pPlayer->at1fe += 4;
+        pPlayer->deathTime += 4;
         if (!bSeqStat)
         {
             if (bVanilla)
-                pPlayer->q16horiz = fix16_from_int(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->at1fe*8, 1024))>>15), 120));
+                pPlayer->q16horiz = fix16_from_int(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), 120));
             else
-                pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->at1fe*8, 1024))>>15), F16(120));
+                pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), F16(120));
         }
-        if (pPlayer->atbd)
-            pInput->newWeapon = pPlayer->atbd;
+        if (pPlayer->curWeapon)
+            pInput->newWeapon = pPlayer->curWeapon;
         if (pInput->keyFlags.action)
         {
             if (bSeqStat)
             {
-                if (pPlayer->at1fe > 360)
+                if (pPlayer->deathTime > 360)
                     seqSpawn(pPlayer->pDudeInfo->seqStartID+14, 3, pPlayer->pSprite->extra, nPlayerSurviveClient);
             }
             else if (seqGetStatus(3, pPlayer->pSprite->extra) < 0)
             {
                 if (pPlayer->pSprite)
                     pPlayer->pSprite->type = kThingBloodChunks;
-                actPostSprite(pPlayer->at5b, kStatThing);
+                actPostSprite(pPlayer->nSprite, kStatThing);
                 seqSpawn(pPlayer->pDudeInfo->seqStartID+15, 3, pPlayer->pSprite->extra, -1);
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
@@ -1549,13 +1549,13 @@ void ProcessInput(PLAYER *pPlayer)
                     pInput->keyFlags.restart = 1;
                 }
                 else
-                    playerStart(pPlayer->at57);
+                    playerStart(pPlayer->nPlayer);
             }
             pInput->keyFlags.action = 0;
         }
         return;
     }
-    if (pPlayer->at2f == 1)
+    if (pPlayer->posture == 1)
     {
         int x = Cos(pSprite->ang);
         int y = Sin(pSprite->ang);
@@ -1563,16 +1563,16 @@ void ProcessInput(PLAYER *pPlayer)
         {
             int forward = pInput->forward;
             if (forward > 0)
-                forward = mulscale8(pPosture->at0, forward);
+                forward = mulscale8(pPosture->frontAccel, forward);
             else
-                forward = mulscale8(pPosture->at8, forward);
+                forward = mulscale8(pPosture->backAccel, forward);
             xvel[nSprite] += mulscale30(forward, x);
             yvel[nSprite] += mulscale30(forward, y);
         }
         if (pInput->strafe)
         {
             int strafe = pInput->strafe;
-            strafe = mulscale8(pPosture->at4, strafe);
+            strafe = mulscale8(pPosture->sideAccel, strafe);
             xvel[nSprite] += mulscale30(strafe, y);
             yvel[nSprite] -= mulscale30(strafe, x);
         }
@@ -1588,9 +1588,9 @@ void ProcessInput(PLAYER *pPlayer)
         {
             int forward = pInput->forward;
             if (forward > 0)
-                forward = mulscale8(pPosture->at0, forward);
+                forward = mulscale8(pPosture->frontAccel, forward);
             else
-                forward = mulscale8(pPosture->at8, forward);
+                forward = mulscale8(pPosture->backAccel, forward);
             if (pXSprite->height)
                 forward = mulscale16(forward, speed);
             xvel[nSprite] += mulscale30(forward, x);
@@ -1599,7 +1599,7 @@ void ProcessInput(PLAYER *pPlayer)
         if (pInput->strafe)
         {
             int strafe = pInput->strafe;
-            strafe = mulscale8(pPosture->at4, strafe);
+            strafe = mulscale8(pPosture->sideAccel, strafe);
             if (pXSprite->height)
                 strafe = mulscale16(strafe, speed);
             xvel[nSprite] += mulscale30(strafe, y);
@@ -1610,26 +1610,26 @@ void ProcessInput(PLAYER *pPlayer)
         pPlayer->q16ang = (pPlayer->q16ang+pInput->q16turn)&0x7ffffff;
     if (pInput->keyFlags.spin180)
     {
-        if (!pPlayer->at316)
-            pPlayer->at316 = -1024;
+        if (!pPlayer->spin)
+            pPlayer->spin = -1024;
         pInput->keyFlags.spin180 = 0;
     }
-    if (pPlayer->at316 < 0)
+    if (pPlayer->spin < 0)
     {
         int speed;
-        if (pPlayer->at2f == 1)
+        if (pPlayer->posture == 1)
             speed = 64;
         else
             speed = 128;
-        pPlayer->at316 = ClipLow(pPlayer->at316+speed, 0);
+        pPlayer->spin = ClipLow(pPlayer->spin+speed, 0);
         pPlayer->q16ang += fix16_from_int(speed);
     }
     pPlayer->q16ang = (pPlayer->q16ang+fix16_from_int(pSprite->ang-pPlayer->angold))&0x7ffffff;
     pPlayer->angold = pSprite->ang = fix16_to_int(pPlayer->q16ang);
     if (!pInput->buttonFlags.jump)
-        pPlayer->at31c = 0;
+        pPlayer->canJump = 0;
 
-    switch (pPlayer->at2f)
+    switch (pPlayer->posture)
     {
     case 1:
         if (pInput->buttonFlags.jump)
@@ -1639,10 +1639,10 @@ void ProcessInput(PLAYER *pPlayer)
         break;
     case 2:
         if (!pInput->buttonFlags.crouch)
-            pPlayer->at2f = 0;
+            pPlayer->posture = 0;
         break;
     default:
-        if (!pPlayer->at31c && pInput->buttonFlags.jump && pXSprite->height == 0)
+        if (!pPlayer->canJump && pInput->buttonFlags.jump && pXSprite->height == 0)
         {
             sfxPlay3DSound(pSprite, 700, 0, 0);
             if (packItemActive(pPlayer, 4))
@@ -1654,12 +1654,12 @@ void ProcessInput(PLAYER *pPlayer)
             if (isShrinked(pPlayer->pSprite)) zvel[nSprite] -= -200000;
             else if (isGrown(pPlayer->pSprite)) zvel[nSprite] += -250000;
             
-            pPlayer->at31c = 1;
+            pPlayer->canJump = 1;
         }
 
 
         if (pInput->buttonFlags.crouch)
-            pPlayer->at2f = 2;
+            pPlayer->posture = 2;
         break;
     }
     if (pInput->keyFlags.action)
@@ -1678,7 +1678,7 @@ void ProcessInput(PLAYER *pPlayer)
                     viewSetMessage("It's locked");
                     sndStartSample(3062, 255, 2, 0);
                 }
-                if (!key || pPlayer->at88[key])
+                if (!key || pPlayer->hasKey[key])
                     trTriggerSector(a2, pXSector, kCmdSpritePush);
                 else if (pPlayer == gMe)
                 {
@@ -1696,7 +1696,7 @@ void ProcessInput(PLAYER *pPlayer)
                 viewSetMessage("It's locked");
                 sndStartSample(3062, 255, 2, 0);
             }
-            if (!key || pPlayer->at88[key])
+            if (!key || pPlayer->hasKey[key])
                 trTriggerWall(a2, pXWall, kCmdWallPush);
             else if (pPlayer == gMe)
             {
@@ -1711,7 +1711,7 @@ void ProcessInput(PLAYER *pPlayer)
             int key = pXSprite->key;
             if (pXSprite->locked && pPlayer == gMe && pXSprite->lockMsg)
                 trTextOver(pXSprite->lockMsg);
-            if (!key || pPlayer->at88[key])
+            if (!key || pPlayer->hasKey[key])
                 trTriggerSprite(a2, pXSprite, kCmdSpritePush);
             else if (pPlayer == gMe)
             {
@@ -1721,9 +1721,9 @@ void ProcessInput(PLAYER *pPlayer)
             break;
         }
         }
-        if (pPlayer->at372 > 0)
-            pPlayer->at372 = ClipLow(pPlayer->at372-4*(6-gGameOptions.nDifficulty), 0);
-        if (pPlayer->at372 <= 0 && pPlayer->at376)
+        if (pPlayer->handTime > 0)
+            pPlayer->handTime = ClipLow(pPlayer->handTime-4*(6-gGameOptions.nDifficulty), 0);
+        if (pPlayer->handTime <= 0 && pPlayer->hand)
         {
             spritetype *pSprite2 = actSpawnDude(pPlayer->pSprite, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
             pSprite2->ang = (pPlayer->pSprite->ang+1024)&2047;
@@ -1733,7 +1733,7 @@ void ProcessInput(PLAYER *pPlayer)
             xvel[pSprite2->index] = xvel[nSprite] + mulscale14(0x155555, x);
             yvel[pSprite2->index] = yvel[nSprite] + mulscale14(0x155555, y);
             zvel[pSprite2->index] = zvel[nSprite];
-            pPlayer->at376 = 0;
+            pPlayer->hand = 0;
         }
         pInput->keyFlags.action = 0;
     }
@@ -1814,7 +1814,7 @@ void ProcessInput(PLAYER *pPlayer)
         if (klabs(pPlayer->q16slopehoriz) < 4)
             pPlayer->q16slopehoriz = 0;
     }
-    pPlayer->at83 = (-fix16_to_int(pPlayer->q16horiz))<<7;
+    pPlayer->slope = (-fix16_to_int(pPlayer->q16horiz))<<7;
     if (pInput->keyFlags.prevItem)
     {
         pInput->keyFlags.prevItem = 0;
@@ -1828,37 +1828,37 @@ void ProcessInput(PLAYER *pPlayer)
     if (pInput->keyFlags.useItem)
     {
         pInput->keyFlags.useItem = 0;
-        if (pPlayer->packInfo[pPlayer->at321].at1 > 0)
-            packUseItem(pPlayer, pPlayer->at321);
+        if (pPlayer->packSlots[pPlayer->packItemId].curAmount > 0)
+            packUseItem(pPlayer, pPlayer->packItemId);
     }
     if (pInput->useFlags.useBeastVision)
     {
         pInput->useFlags.useBeastVision = 0;
-        if (pPlayer->packInfo[3].at1 > 0)
+        if (pPlayer->packSlots[3].curAmount > 0)
             packUseItem(pPlayer, 3);
     }
     if (pInput->useFlags.useCrystalBall)
     {
         pInput->useFlags.useCrystalBall = 0;
-        if (pPlayer->packInfo[2].at1 > 0)
+        if (pPlayer->packSlots[2].curAmount > 0)
             packUseItem(pPlayer, 2);
     }
     if (pInput->useFlags.useJumpBoots)
     {
         pInput->useFlags.useJumpBoots = 0;
-        if (pPlayer->packInfo[4].at1 > 0)
+        if (pPlayer->packSlots[4].curAmount > 0)
             packUseItem(pPlayer, 4);
     }
     if (pInput->useFlags.useMedKit)
     {
         pInput->useFlags.useMedKit = 0;
-        if (pPlayer->packInfo[0].at1 > 0)
+        if (pPlayer->packSlots[0].curAmount > 0)
             packUseItem(pPlayer, 0);
     }
     if (pInput->keyFlags.holsterWeapon)
     {
         pInput->keyFlags.holsterWeapon = 0;
-        if (pPlayer->atbd)
+        if (pPlayer->curWeapon)
         {
             WeaponLower(pPlayer);
             viewSetMessage("Holstering weapon");
@@ -1870,10 +1870,10 @@ void ProcessInput(PLAYER *pPlayer)
 void playerProcess(PLAYER *pPlayer)
 {
     spritetype *pSprite = pPlayer->pSprite;
-    int nSprite = pPlayer->at5b;
+    int nSprite = pPlayer->nSprite;
     int nXSprite = pSprite->extra;
     XSPRITE *pXSprite = pPlayer->pXSprite;
-    POSTURE *pPosture = &gPosture[pPlayer->at5f][pPlayer->at2f];
+    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
     powerupProcess(pPlayer);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
@@ -1898,85 +1898,85 @@ void playerProcess(PLAYER *pPlayer)
     }
     ProcessInput(pPlayer);
     int nSpeed = approxDist(xvel[nSprite], yvel[nSprite]);
-    pPlayer->at6b = interpolate(pPlayer->at6b, zvel[nSprite], 0x7000);
-    int dz = pPlayer->pSprite->z-pPosture->at24-pPlayer->at67;
+    pPlayer->zViewVel = interpolate(pPlayer->zViewVel, zvel[nSprite], 0x7000);
+    int dz = pPlayer->pSprite->z-pPosture->eyeAboveZ-pPlayer->zView;
     if (dz > 0)
-        pPlayer->at6b += mulscale16(dz<<8, 0xa000);
+        pPlayer->zViewVel += mulscale16(dz<<8, 0xa000);
     else
-        pPlayer->at6b += mulscale16(dz<<8, 0x1800);
-    pPlayer->at67 += pPlayer->at6b>>8;
-    pPlayer->at73 = interpolate(pPlayer->at73, zvel[nSprite], 0x5000);
-    dz = pPlayer->pSprite->z-pPosture->at28-pPlayer->at6f;
+        pPlayer->zViewVel += mulscale16(dz<<8, 0x1800);
+    pPlayer->zView += pPlayer->zViewVel>>8;
+    pPlayer->zWeaponVel = interpolate(pPlayer->zWeaponVel, zvel[nSprite], 0x5000);
+    dz = pPlayer->pSprite->z-pPosture->weaponAboveZ-pPlayer->zWeapon;
     if (dz > 0)
-        pPlayer->at73 += mulscale16(dz<<8, 0x8000);
+        pPlayer->zWeaponVel += mulscale16(dz<<8, 0x8000);
     else
-        pPlayer->at73 += mulscale16(dz<<8, 0xc00);
-    pPlayer->at6f += pPlayer->at73>>8;
-    pPlayer->at37 = ClipLow(pPlayer->at37-4, 0);
+        pPlayer->zWeaponVel += mulscale16(dz<<8, 0xc00);
+    pPlayer->zWeapon += pPlayer->zWeaponVel>>8;
+    pPlayer->bobPhase = ClipLow(pPlayer->bobPhase-4, 0);
     nSpeed >>= 16;
-    if (pPlayer->at2f == 1)
+    if (pPlayer->posture == 1)
     {
-        pPlayer->at3b = (pPlayer->at3b+17)&2047;
-        pPlayer->at4b = (pPlayer->at4b+17)&2047;
-        pPlayer->at3f = mulscale30(pPosture->at14*10, Sin(pPlayer->at3b*2));
-        pPlayer->at43 = mulscale30(pPosture->at18*pPlayer->at37, Sin(pPlayer->at3b-256));
-        pPlayer->at4f = mulscale30(pPosture->at1c*pPlayer->at37, Sin(pPlayer->at4b*2));
-        pPlayer->at53 = mulscale30(pPosture->at20*pPlayer->at37, Sin(pPlayer->at4b-0x155));
+        pPlayer->bobAmp = (pPlayer->bobAmp+17)&2047;
+        pPlayer->swayAmp = (pPlayer->swayAmp+17)&2047;
+        pPlayer->bobHeight = mulscale30(pPosture->bobV*10, Sin(pPlayer->bobAmp*2));
+        pPlayer->bobWidth = mulscale30(pPosture->bobH*pPlayer->bobPhase, Sin(pPlayer->bobAmp-256));
+        pPlayer->swayHeight = mulscale30(pPosture->swayV*pPlayer->bobPhase, Sin(pPlayer->swayAmp*2));
+        pPlayer->swayWidth = mulscale30(pPosture->swayH*pPlayer->bobPhase, Sin(pPlayer->swayAmp-0x155));
     }
     else
     {
         if (pXSprite->height < 256)
         {
-            pPlayer->at3b = (pPlayer->at3b+pPosture->atc[pPlayer->at2e]*4) & 2047;
-            pPlayer->at4b = (pPlayer->at4b+(pPosture->atc[pPlayer->at2e]*4)/2) & 2047;
-            if (pPlayer->at2e)
+            pPlayer->bobAmp = (pPlayer->bobAmp+pPosture->pace[pPlayer->isRunning]*4) & 2047;
+            pPlayer->swayAmp = (pPlayer->swayAmp+(pPosture->pace[pPlayer->isRunning]*4)/2) & 2047;
+            if (pPlayer->isRunning)
             {
-                if (pPlayer->at37 < 60)
-                    pPlayer->at37 = ClipHigh(pPlayer->at37+nSpeed, 60);
+                if (pPlayer->bobPhase < 60)
+                    pPlayer->bobPhase = ClipHigh(pPlayer->bobPhase+nSpeed, 60);
             }
             else
             {
-                if (pPlayer->at37 < 30)
-                    pPlayer->at37 = ClipHigh(pPlayer->at37+nSpeed, 30);
+                if (pPlayer->bobPhase < 30)
+                    pPlayer->bobPhase = ClipHigh(pPlayer->bobPhase+nSpeed, 30);
             }
         }
-        pPlayer->at3f = mulscale30(pPosture->at14*pPlayer->at37, Sin(pPlayer->at3b*2));
-        pPlayer->at43 = mulscale30(pPosture->at18*pPlayer->at37, Sin(pPlayer->at3b-256));
-        pPlayer->at4f = mulscale30(pPosture->at1c*pPlayer->at37, Sin(pPlayer->at4b*2));
-        pPlayer->at53 = mulscale30(pPosture->at20*pPlayer->at37, Sin(pPlayer->at4b-0x155));
+        pPlayer->bobHeight = mulscale30(pPosture->bobV*pPlayer->bobPhase, Sin(pPlayer->bobAmp*2));
+        pPlayer->bobWidth = mulscale30(pPosture->bobH*pPlayer->bobPhase, Sin(pPlayer->bobAmp-256));
+        pPlayer->swayHeight = mulscale30(pPosture->swayV*pPlayer->bobPhase, Sin(pPlayer->swayAmp*2));
+        pPlayer->swayWidth = mulscale30(pPosture->swayH*pPlayer->bobPhase, Sin(pPlayer->swayAmp-0x155));
     }
-    pPlayer->at35a = 0;
-    pPlayer->at37f = ClipLow(pPlayer->at37f-4, 0);
-    pPlayer->at35e = ClipLow(pPlayer->at35e-4, 0);
-    pPlayer->at362 = ClipLow(pPlayer->at362-4, 0);
-    pPlayer->at366 = ClipLow(pPlayer->at366-4, 0);
-    pPlayer->at36a = ClipLow(pPlayer->at36a-4, 0);
-    pPlayer->at377 = ClipLow(pPlayer->at377-4, 0);
+    pPlayer->flickerEffect = 0;
+    pPlayer->quakeEffect = ClipLow(pPlayer->quakeEffect-4, 0);
+    pPlayer->tiltEffect = ClipLow(pPlayer->tiltEffect-4, 0);
+    pPlayer->visibility = ClipLow(pPlayer->visibility-4, 0);
+    pPlayer->painEffect = ClipLow(pPlayer->painEffect-4, 0);
+    pPlayer->blindEffect = ClipLow(pPlayer->blindEffect-4, 0);
+    pPlayer->pickupEffect = ClipLow(pPlayer->pickupEffect-4, 0);
     if (pPlayer == gMe && gMe->pXSprite->health == 0)
-        pPlayer->at376 = 0;
+        pPlayer->hand = 0;
     if (!pXSprite->health)
         return;
-    pPlayer->at87 = 0;
-    if (pPlayer->at2f == 1)
+    pPlayer->isUnderwater = 0;
+    if (pPlayer->posture == 1)
     {
-        pPlayer->at87 = 1;
+        pPlayer->isUnderwater = 1;
         int nSector = pSprite->sectnum;
         int nLink = gLowerLink[nSector];
         if (nLink > 0 && (sprite[nLink].type == kMarkerLowGoo || sprite[nLink].type == kMarkerLowWater))
         {
-            if (getceilzofslope(nSector, pSprite->x, pSprite->y) > pPlayer->at67)
-                pPlayer->at87 = 0;
+            if (getceilzofslope(nSector, pSprite->x, pSprite->y) > pPlayer->zView)
+                pPlayer->isUnderwater = 0;
         }
     }
-    if (!pPlayer->at87)
+    if (!pPlayer->isUnderwater)
     {
-        pPlayer->at2f2 = 1200;
-        pPlayer->at36e = 0;
+        pPlayer->underwaterTime = 1200;
+        pPlayer->chokeEffect = 0;
         if (packItemActive(pPlayer, 1))
             packUseItem(pPlayer, 1);
     }
     int nType = kDudePlayer1-kDudeBase;
-    switch (pPlayer->at2f)
+    switch (pPlayer->posture)
     {
     case 1:
         seqSpawn(dudeInfo[nType].seqStartID+9, 3, nXSprite, -1);
@@ -1995,13 +1995,13 @@ void playerProcess(PLAYER *pPlayer)
 
 spritetype *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6)
 {
-    return actFireMissile(pPlayer->pSprite, a2, pPlayer->at6f-pPlayer->pSprite->z, a3, a4, a5, a6);
+    return actFireMissile(pPlayer->pSprite, a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
 }
 
 spritetype * playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
     dassert(thingType >= kThingBase && thingType < kThingMax);
-    return actFireThing(pPlayer->pSprite, a2, pPlayer->at6f-pPlayer->pSprite->z, pPlayer->at83+a3, thingType, a5);
+    return actFireThing(pPlayer->pSprite, a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
 }
 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
@@ -2016,23 +2016,23 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
     dassert(nVictim >= 0 && nVictim < kMaxPlayers);
     if (myconnectindex == connecthead)
     {
-        sprintf(buffer, "frag %d killed %d\n", pKiller->at57+1, pVictim->at57+1);
+        sprintf(buffer, "frag %d killed %d\n", pKiller->nPlayer+1, pVictim->nPlayer+1);
         sub_7AC28(buffer);
         buffer[0] = 0;
     }
     if (nKiller == nVictim)
     {
-        pVictim->at2ee = -1;
+        pVictim->fraggerId = -1;
         if (VanillaMode() || gGameOptions.nGameType != 1)
         {
-            pVictim->at2c6--;
-            pVictim->at2ca[nVictim]--;
+            pVictim->fragCount--;
+            pVictim->fragInfo[nVictim]--;
         }
         if (gGameOptions.nGameType == 3)
-            dword_21EFB0[pVictim->at2ea]--;
+            dword_21EFB0[pVictim->teamId]--;
         int nMessage = Random(5);
         int nSound = gSuicide[nMessage].at4;
-        if (pVictim == gMe && gMe->at372 <= 0)
+        if (pVictim == gMe && gMe->handTime <= 0)
         {
             sprintf(buffer, "You killed yourself!");
             if (gGameOptions.nGameType > 0 && nSound >= 0)
@@ -2047,17 +2047,17 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
     {
         if (VanillaMode() || gGameOptions.nGameType != 1)
         {
-            pKiller->at2c6++;
-            pKiller->at2ca[nKiller]++;
+            pKiller->fragCount++;
+            pKiller->fragInfo[nKiller]++;
         }
         if (gGameOptions.nGameType == 3)
         {
-            if (pKiller->at2ea == pVictim->at2ea)
-                dword_21EFB0[pKiller->at2ea]--;
+            if (pKiller->teamId == pVictim->teamId)
+                dword_21EFB0[pKiller->teamId]--;
             else
             {
-                dword_21EFB0[pKiller->at2ea]++;
-                dword_21EFD0[pKiller->at2ea]+=120;
+                dword_21EFB0[pKiller->teamId]++;
+                dword_21EFD0[pKiller->teamId]+=120;
             }
         }
         int nMessage = Random(25);
@@ -2079,8 +2079,8 @@ void FragPlayer(PLAYER *pPlayer, int nSprite)
     {
         PLAYER *pKiller = &gPlayer[pSprite->type-kDudePlayer1];
         playerFrag(pKiller, pPlayer);
-        int nTeam1 = pKiller->at2ea&1;
-        int nTeam2 = pPlayer->at2ea&1;
+        int nTeam1 = pKiller->teamId&1;
+        int nTeam2 = pPlayer->teamId&1;
         if (nTeam1 == 0)
         {
             if (nTeam1 != nTeam2)
@@ -2102,7 +2102,7 @@ int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
 {
     DAMAGEINFO *pDamageInfo = &damageInfo[nType];
     int nArmorType = pDamageInfo->at0;
-    if (nArmorType >= 0 && pPlayer->at33e[nArmorType])
+    if (nArmorType >= 0 && pPlayer->armor[nArmorType])
     {
 #if 0
         int vbp = (nDamage*7)/8-nDamage/4;
@@ -2110,11 +2110,11 @@ int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
         int t = nDamage/4 + vbp * v8 / 3200;
         v8 -= t;
 #endif
-        int v8 = pPlayer->at33e[nArmorType];
+        int v8 = pPlayer->armor[nArmorType];
         int t = scale(v8, 0, 3200, nDamage/4, (nDamage*7)/8);
         v8 -= t;
         nDamage -= t;
-        pPlayer->at33e[nArmorType] = ClipLow(v8, 0);
+        pPlayer->armor[nArmorType] = ClipLow(v8, 0);
     }
     return nDamage;
 }
@@ -2126,22 +2126,22 @@ spritetype *sub_40A94(PLAYER *pPlayer, int a2)
     switch (a2)
     {
     case kItemFlagA:
-        pPlayer->at90 &= ~1;
+        pPlayer->hasFlag &= ~1;
         pSprite = actDropObject(pPlayer->pSprite, kItemFlagA);
         if (pSprite)
-            pSprite->owner = pPlayer->at91[0];
+            pSprite->owner = pPlayer->used2[0];
         gBlueFlagDropped = true;
-        sprintf(buffer, "%s dropped Blue Flag", gProfile[pPlayer->at57].name);
+        sprintf(buffer, "%s dropped Blue Flag", gProfile[pPlayer->nPlayer].name);
         sndStartSample(8005, 255, 2, 0);
         viewSetMessage(buffer);
         break;
     case kItemFlagB:
-        pPlayer->at90 &= ~2;
+        pPlayer->hasFlag &= ~2;
         pSprite = actDropObject(pPlayer->pSprite, kItemFlagB);
         if (pSprite)
-            pSprite->owner = pPlayer->at91[1];
+            pSprite->owner = pPlayer->used2[1];
         gRedFlagDropped = true;
-        sprintf(buffer, "%s dropped Red Flag", gProfile[pPlayer->at57].name);
+        sprintf(buffer, "%s dropped Red Flag", gProfile[pPlayer->nPlayer].name);
         sndStartSample(8004, 255, 2, 0);
         viewSetMessage(buffer);
         break;
@@ -2153,10 +2153,10 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
 {
     dassert(nSource < kMaxSprites);
     dassert(pPlayer != NULL);
-    if (pPlayer->ata1[nDamageType])
+    if (pPlayer->damageControl[nDamageType])
         return 0;
     nDamage = playerDamageArmor(pPlayer, nDamageType, nDamage);
-    pPlayer->at366 = ClipHigh(pPlayer->at366+(nDamage>>3), 600);
+    pPlayer->painEffect = ClipHigh(pPlayer->painEffect+(nDamage>>3), 600);
 
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
@@ -2217,21 +2217,21 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
                 nSound = pDamageInfo->at4[0];
             else
                 nSound = pDamageInfo->at4[Random(3)];
-            if (nDamageType == DAMAGE_TYPE_4 && pXSprite->medium == kMediumWater && !pPlayer->at376)
+            if (nDamageType == DAMAGE_TYPE_4 && pXSprite->medium == kMediumWater && !pPlayer->hand)
                 nSound = 714;
             sfxPlay3DSound(pSprite, nSound, 0, 6);
             return nDamage;
         }
         sfxKill3DSound(pPlayer->pSprite, -1, 441);
-        if (gGameOptions.nGameType == 3 && pPlayer->at90) {
-            if (pPlayer->at90&1) sub_40A94(pPlayer, kItemFlagA);
-            if (pPlayer->at90&2) sub_40A94(pPlayer, kItemFlagB);
+        if (gGameOptions.nGameType == 3 && pPlayer->hasFlag) {
+            if (pPlayer->hasFlag&1) sub_40A94(pPlayer, kItemFlagA);
+            if (pPlayer->hasFlag&2) sub_40A94(pPlayer, kItemFlagB);
         }
-        pPlayer->at1fe = 0;
-        pPlayer->at1b1 = 0;
-        pPlayer->atbd = 0;
-        pPlayer->at2ee = nSource;
-        pPlayer->at34e = 0;
+        pPlayer->deathTime = 0;
+        pPlayer->qavLoop = 0;
+        pPlayer->curWeapon = 0;
+        pPlayer->fraggerId = nSource;
+        pPlayer->voodooTargets = 0;
         if (nDamageType == DAMAGE_TYPE_3 && nDamage < (9<<4))
             nDamageType = DAMAGE_TYPE_0;
         switch (nDamageType)
@@ -2279,8 +2279,8 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
         pSprite->flags |= 7;
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
-            if (gPlayer[p].at2ee == nSprite && gPlayer[p].at1fe > 0)
-                gPlayer[p].at2ee = -1;
+            if (gPlayer[p].fraggerId == nSprite && gPlayer[p].deathTime > 0)
+                gPlayer[p].fraggerId = -1;
         }
         FragPlayer(pPlayer, nSource);
         trTriggerSprite(nSprite, pXSprite, kCmdOff);
@@ -2296,27 +2296,27 @@ int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec)
         return 9999;
     if (nAmmoType == -1)
         return 9999;
-    pPlayer->at181[nAmmoType] = ClipLow(pPlayer->at181[nAmmoType]-nDec, 0);
-    return pPlayer->at181[nAmmoType];
+    pPlayer->ammCount[nAmmoType] = ClipLow(pPlayer->ammCount[nAmmoType]-nDec, 0);
+    return pPlayer->ammCount[nAmmoType];
 }
 
 void sub_41250(PLAYER *pPlayer)
 {
-    int v4 = pPlayer->at1be.dz;
-    int dz = pPlayer->at6f-pPlayer->pSprite->z;
+    int v4 = pPlayer->aim.dz;
+    int dz = pPlayer->zWeapon-pPlayer->pSprite->z;
     if (UseAmmo(pPlayer, 9, 0) < 8)
     {
-        pPlayer->at34e = 0;
+        pPlayer->voodooTargets = 0;
         return;
     }
     for (int i = 0; i < 4; i++)
     {
-        int ang1 = (pPlayer->at352+pPlayer->at356)&2047;
+        int ang1 = (pPlayer->voodooVar1+pPlayer->vodooVar2)&2047;
         actFireVector(pPlayer->pSprite, 0, dz, Cos(ang1)>>16, Sin(ang1)>>16, v4, VECTOR_TYPE_21);
-        int ang2 = (pPlayer->at352+2048-pPlayer->at356)&2047;
+        int ang2 = (pPlayer->voodooVar1+2048-pPlayer->vodooVar2)&2047;
         actFireVector(pPlayer->pSprite, 0, dz, Cos(ang2)>>16, Sin(ang2)>>16, v4, VECTOR_TYPE_21);
     }
-    pPlayer->at34e = ClipLow(pPlayer->at34e-1, 0);
+    pPlayer->voodooTargets = ClipLow(pPlayer->voodooTargets-1, 0);
 }
 
 void playerLandingSound(PLAYER *pPlayer)
@@ -2367,10 +2367,10 @@ void PlayerSurvive(int, int nXSprite)
                 viewSetMessage("I LIVE...AGAIN!!");
             else
             {
-                sprintf(buffer, "%s lives again!", gProfile[pPlayer->at57].name);
+                sprintf(buffer, "%s lives again!", gProfile[pPlayer->nPlayer].name);
                 viewSetMessage(buffer);
             }
-            pPlayer->atc.newWeapon = 1;
+            pPlayer->input.newWeapon = 1;
         }
     }
 }
@@ -2383,7 +2383,7 @@ void PlayerKneelsOver(int, int nXSprite)
         if (gPlayer[p].pXSprite == pXSprite)
         {
             PLAYER *pPlayer = &gPlayer[p];
-            playerDamageSprite(pPlayer->at2ee, pPlayer, DAMAGE_TYPE_5, 500<<4);
+            playerDamageSprite(pPlayer->fraggerId, pPlayer, DAMAGE_TYPE_5, 500<<4);
             return;
         }
     }
@@ -2404,7 +2404,7 @@ void PlayerLoadSave::Load(void)
     Read(&gPlayer, sizeof(gPlayer));
     for (int i = 0; i < gNetPlayers; i++)
     {
-        gPlayer[i].pSprite = &sprite[gPlayer[i].at5b];
+        gPlayer[i].pSprite = &sprite[gPlayer[i].nSprite];
         gPlayer[i].pXSprite = &xsprite[gPlayer[i].pSprite->extra];
         gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].pSprite->type-kDudeBase];
     }

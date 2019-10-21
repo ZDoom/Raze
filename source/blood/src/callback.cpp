@@ -293,11 +293,11 @@ void PlayerBubble(int nSprite) // 10
     {
         PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
         dassert(pPlayer != NULL);
-        if (!pPlayer->at302)
+        if (!pPlayer->bubbleTime)
             return;
         int top, bottom;
         GetSpriteExtents(pSprite, &top, &bottom);
-        for (int i = 0; i < (pPlayer->at302>>6); i++)
+        for (int i = 0; i < (pPlayer->bubbleTime>>6); i++)
         {
             int nDist = (pSprite->xrepeat*(tilesiz[pSprite->picnum].x/2))>>2;
             int nAngle = Random(2048);
@@ -369,7 +369,7 @@ void FinishHim(int nSprite) // 13
     spritetype* pSprite = &sprite[nSprite];
     int nXSprite = pSprite->extra;
     XSPRITE* pXSprite = &xsprite[nXSprite];
-    if (playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && pXSprite->target == gMe->at5b)
+    if (playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && pXSprite->target == gMe->nSprite)
         sndStartSample(3313, -1, 1, 0);
 }
 
@@ -586,7 +586,7 @@ void sub_76A08(spritetype *pSprite, spritetype *pSprite2, PLAYER *pPlayer) // ??
     if (pPlayer)
     {
         playerResetInertia(pPlayer);
-        pPlayer->at6b = pPlayer->at73 = 0;
+        pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
     }
 }
 
@@ -642,11 +642,11 @@ void DropVoodoo(int nSprite) // unused
                     {
                         if (gGameOptions.nGameType == 1)
                             continue;
-                        if (gGameOptions.nGameType == 3 && pPlayer->at2ea == pPlayer2->at2ea)
+                        if (gGameOptions.nGameType == 3 && pPlayer->teamId == pPlayer2->teamId)
                             continue;
                         int t = 0x8000/ClipLow(gNetPlayers-1, 1);
                         if (!powerupCheck(pPlayer2, kPwUpDeathMask))
-                            t += ((3200-pPlayer2->at33e[2])<<15)/3200;
+                            t += ((3200-pPlayer2->armor[2])<<15)/3200;
                         if (Chance(t) || nNextSprite < 0)
                         {
                             int nDmg = actDamageSprite(nOwner, pSprite2, DAMAGE_TYPE_5, pXSprite->data1<<4);
@@ -732,7 +732,7 @@ void UniMissileBurst(int nSprite) // 22
         pBurst->flags = pSprite->flags;
         pBurst->xrepeat = pSprite->xrepeat / 2;
         pBurst->yrepeat = pSprite->yrepeat / 2;
-        pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].at6) & 2047);
+        pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].angleOfs) & 2047);
         pBurst->owner = pSprite->owner;
 
         actBuildMissile(pBurst, pBurst->extra, pSprite->xvel);
