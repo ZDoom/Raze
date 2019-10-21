@@ -2165,7 +2165,7 @@ void P_DisplayWeapon(void)
 
     P_DisplayKnee(weaponShade);
 
-    if (ud.weaponsway)
+    if (cl_weaponsway)
     {
         weaponX -= (sintable[((pPlayer->weapon_sway>>1)+512)&2047]/(1024+512));
         weaponYOffset -= (sprite[pPlayer->i].xrepeat < 32) ? klabs(sintable[(pPlayer->weapon_sway << 2) & 2047] >> 9)
@@ -3795,7 +3795,7 @@ void P_FragPlayer(int playerNum)
                 P_DoQuote(QUOTE_RESERVED2, g_player[pPlayer->frag_ps].ps);
             }
 
-            if (ud.obituaries)
+            if (cl_obituaries)
             {
                 Bsprintf(tempbuf, apStrings[OBITQUOTEINDEX + (krand() % g_numObituaries)],
                          &g_player[pPlayer->frag_ps].user_name[0], &g_player[playerNum].user_name[0]);
@@ -3824,7 +3824,7 @@ void P_FragPlayer(int playerNum)
             else
                 Bsprintf(tempbuf, "^02%s^02 switched to team %d", &g_player[playerNum].user_name[0], pPlayer->team + 1);
 
-            if (ud.obituaries)
+            if (vl_obituaries)
                 G_AddUserQuote(tempbuf);
         }
         pPlayer->frag_ps = playerNum;

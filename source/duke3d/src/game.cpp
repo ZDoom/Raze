@@ -963,7 +963,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
                              + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
 
-            if (ud.viewbob)
+            if (cl_viewbob)
             {
                 int zAdd = (pPlayer->opyoff + mulscale16(pPlayer->pyoff-pPlayer->opyoff, smoothRatio));
 
@@ -4534,10 +4534,10 @@ void G_HandleLocalKeys(void)
 
     if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
     {
-        if (KB_UnBoundKeyPressed(sc_F1) || KB_UnBoundKeyPressed(sc_F2) || ud.autovote)
+        if (KB_UnBoundKeyPressed(sc_F1) || KB_UnBoundKeyPressed(sc_F2) || cl_autovote)
         {
             G_AddUserQuote("Vote Cast");
-            Net_SendMapVote(KB_UnBoundKeyPressed(sc_F1) || ud.autovote ? ud.autovote-1 : 0);
+            Net_SendMapVote(KB_UnBoundKeyPressed(sc_F1) || cl_autovote ? cl_autovote-1 : 0);
             KB_ClearKeyDown(sc_F1);
             KB_ClearKeyDown(sc_F2);
         }
@@ -6968,7 +6968,7 @@ int G_DoMoveThings(void)
     }
 
     // Name display when aiming at opponents
-    if (ud.idplayers && (g_netServer || ud.multimode > 1)
+    if (cl_idplayers && (g_netServer || ud.multimode > 1)
 #ifdef SPLITSCREEN_MOD_HACKS
         && !g_fakeMultiMode
 #endif

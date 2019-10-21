@@ -41,8 +41,6 @@ BEGIN_DUKE_NS
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 
-uint32_t cl_cheatmask;
-
 static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);

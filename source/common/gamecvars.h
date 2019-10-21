@@ -8,12 +8,13 @@ EXTERN_CVAR(Bool, cl_runmode)
 EXTERN_CVAR(Bool, cl_autosave)
 EXTERN_CVAR(Bool, cl_autosavedeletion)
 EXTERN_CVAR(Int, cl_maxautosaves)
-
-CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE, "enable/disable weapon autoaim")
-{
-	if (self < 0 || self > (playing_blood? 2 : 3)) self = 1;	// Note: The Shadow Warrior backend only has a bool for this.
-	//UpdatePlayerFromMenu(); todo: networking (only operational in EDuke32 frontend anyway.)
-};
-
+EXTERN_CVAR(Int, cl_autovote)
+EXTERN_CVAR(Int, cl_cheatmask)
+EXTERN_CVAR(Bool, cl_obituaries)
+EXTERN_CVAR(Bool, cl_democams)
+EXTERN_CVAR(Bool, cl_idplayers)
+EXTERN_CVAR(Bool, cl_showcoords)
+EXTERN_CVAR(Bool, cl_viewbob)
+EXTERN_CVAR(Bool, cl_weaponsway)
 
 bool G_CheckAutorun(bool button);

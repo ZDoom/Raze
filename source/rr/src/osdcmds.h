@@ -45,8 +45,6 @@ typedef struct {
 
 extern const char *const ConsoleButtons[];
 
-extern uint32_t cl_cheatmask;
-
 END_RR_NS
 
 #endif	// osdcmds_h_

@@ -254,7 +254,6 @@ void CONFIG_SetDefaults(void)
 
     ud.althud                 = 1;
     ud.angleinterpolation     = 0;
-    ud.autovote               = 0;
     ud.brightness             = 8;
     ud.camerasprite           = -1;
     ud.color                  = 0;
@@ -276,13 +275,11 @@ void CONFIG_SetDefaults(void)
     ud.configversion          = 0;
     ud.crosshairscale         = 50;
     ud.default_skill          = 1;
-    ud.democams               = 1;
     ud.detail                 = 0;
     ud.display_bonus_screen   = 1;
     ud.drawweapon             = 1;
     ud.fov                    = 90;
     ud.hudontop               = 0;
-    ud.idplayers              = 1;
     ud.levelstats             = 0;
     ud.lockout                = 0;
     ud.m_marker               = 1;
@@ -296,7 +293,6 @@ void CONFIG_SetDefaults(void)
     ud.mouseaiming            = 0;
     ud.mouseflip              = 1;
     ud.msgdisptime            = 120;
-    ud.obituaries             = 1;
     ud.pwlockout[0]           = '\0';
     ud.runkey_mode            = 0;
     ud.screen_size            = 4;
@@ -311,9 +307,7 @@ void CONFIG_SetDefaults(void)
     ud.statusbarscale         = 100;
     ud.team                   = 0;
     ud.textscale              = 200;
-    ud.viewbob                = 1;
     ud.weaponscale            = 100;
-    ud.weaponsway             = 1;
     ud.weaponswitch           = 3;  // new+empty
 
     Bstrcpy(ud.rtsname, G_DefaultRtsFile());

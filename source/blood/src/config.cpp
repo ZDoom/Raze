@@ -333,12 +333,10 @@ void CONFIG_SetDefaults(void)
     //ud.crosshair              = 1;
     //ud.crosshairscale         = 50;
     //ud.default_skill          = 1;
-    //ud.democams               = 1;
     gUpscaleFactor = 0;
     //ud.display_bonus_screen   = 1;
     //ud.drawweapon             = 1;
-    //ud.hudontop               = 0;
-    //ud.idplayers              = 1;
+    //ud.hudontop               = 0;        = 1;
     gLevelStats = 0;
     gPowerupDuration = 1;
     gShowMapTitle = 1;
@@ -355,7 +353,6 @@ void CONFIG_SetDefaults(void)
     //ud.mouseaiming            = 0;
     //ud.mouseflip              = 1;
     //ud.msgdisptime            = 120;
-    //ud.obituaries             = 1;
     //ud.pwlockout[0]           = '\0';
     //ud.screen_size            = 4;
     //ud.screen_tilting         = 1;
@@ -369,9 +366,7 @@ void CONFIG_SetDefaults(void)
     //ud.statusbarscale         = 100;
     //ud.team                   = 0;
     //ud.textscale              = 200;
-    //ud.viewbob                = 1;
     //ud.weaponscale            = 100;
-    //ud.weaponsway             = 1;
     //ud.weaponswitch           = 3;  // new+empty
     gFov = 90;
     gCenterHoriz = 0;

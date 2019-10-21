@@ -33,6 +33,4 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows);
 
 extern const char *const ConsoleButtons[];
 
-extern uint32_t cl_cheatmask;
-
 END_BLD_NS

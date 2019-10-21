@@ -663,16 +663,6 @@ static void G_PrintCoords(int32_t snum)
     printext256(x, y+81, COLOR_WHITE, -1, tempbuf, 0);
     Bsprintf(tempbuf, "MOVEWORLD [ms]= %.3e", g_moveWorldTime);
     printext256(x, y+90, COLOR_WHITE, -1, tempbuf, 0);
-
-#ifdef USE_OPENGL
-    if (ud.coords == 2)
-    {
-        y=16;
-
-        printcoordsline("rendmode = %d", videoGetRenderMode());
-        printcoordsline("r_ambientlight = %.03f", r_ambientlight);
-    }
-#endif
 }
 
 static void G_ShowCacheLocks(void)
@@ -1198,7 +1188,7 @@ void G_DisplayRest(int32_t smoothratio)
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext_center(100, "Game Paused");
 
-    if (ud.coords)
+    if (cl_showcoords)
         G_PrintCoords(screenpeek);
 
 #ifdef YAX_DEBUG

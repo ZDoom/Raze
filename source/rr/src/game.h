@@ -157,17 +157,17 @@ typedef struct {
     int32_t reccnt,crosshairscale;
 
     int32_t runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
-    int32_t democams,color,msgdisptime,statusbarmode;
-    int32_t m_noexits,noexits,autovote,automsg,idplayers;
-    int32_t team, viewbob, weaponsway, althud, weaponscale, textscale;
+    int32_t color,msgdisptime,statusbarmode;
+	int32_t m_noexits,noexits,automsg;
+    int32_t team, althud, weaponscale, textscale;
     int32_t statusbarflags, statusbarrange, statusbarcustom;
     int32_t hudontop;
     int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
     int32_t entered_name,screen_tilting,shadows,fta_on,executions;
-    int32_t coords,showfps,levelstats,m_coop,coop,screen_size,lockout,crosshair;
-    int32_t playerai,angleinterpolation,obituaries;
+    int32_t showfps,levelstats,m_coop,coop,screen_size,lockout,crosshair;
+    int32_t playerai,angleinterpolation;
 
     int32_t respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
     int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;

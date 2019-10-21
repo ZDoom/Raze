@@ -723,7 +723,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     ud.m_volume_number = ud.volume_number = ((unsigned) (Batoi(c)-1))%MAXVOLUMES;
                     break;
                 case 'w':
-                    ud.coords = 1;
+                    cl_showcoords = 1;
                     break;
                 case 'x':
                     c++;

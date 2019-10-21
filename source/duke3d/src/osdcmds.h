@@ -40,7 +40,6 @@ extern float r_ambientlight,r_ambientlightrecip;
 
 extern const char *const ConsoleButtons[];
 
-extern uint32_t cl_cheatmask;
 
 END_DUKE_NS
 

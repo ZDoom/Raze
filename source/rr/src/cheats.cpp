@@ -590,11 +590,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_COORDS:
-#ifdef USE_OPENGL
-                    if (++ud.coords >= 3) ud.coords = 0;
-#else
-                    if (++ud.coords >= 2) ud.coords = 0;
-#endif
+					cl_showcoords = cl_showcoords + 1;
                     end_cheat(pPlayer);
                     return;
 

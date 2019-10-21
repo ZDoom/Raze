@@ -239,7 +239,6 @@ void CONFIG_SetDefaults(void)
     ud.config.SoundToggle = 1;
     ud.althud = 1;
     ud.automsg = 0;
-    ud.autovote = 0;
     ud.brightness = 8;
     ud.camerasprite = -1;
 
@@ -253,11 +252,8 @@ void CONFIG_SetDefaults(void)
 
     ud.color = 0;
     ud.crosshairscale = 50;
-    ud.obituaries = 1;
-    ud.democams = 1;
     ud.detail = 0;
     ud.drawweapon = 1;
-    ud.idplayers = 1;
     ud.levelstats = 0;
     ud.lockout = 0;
     ud.m_ffire = 1;
@@ -277,8 +273,6 @@ void CONFIG_SetDefaults(void)
     ud.statusbarmode = 1;
     ud.statusbarscale = 100;
     ud.team = 0;
-    ud.viewbob = 1;
-    ud.weaponsway = 1;
     ud.weaponswitch = 3;	// new+empty
     ud.angleinterpolation = 0;
 #ifdef GEKKO
