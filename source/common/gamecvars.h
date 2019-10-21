@@ -5,6 +5,9 @@ EXTERN_CVAR(Bool, cl_automsg)
 EXTERN_CVAR(Int, cl_autoaim)
 EXTERN_CVAR(Bool, cl_autorun)
 EXTERN_CVAR(Bool, cl_runmode)
+EXTERN_CVAR(Bool, cl_autosave)
+EXTERN_CVAR(Bool, cl_autosavedeletion)
+EXTERN_CVAR(Int, cl_maxautosaves)
 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE, "enable/disable weapon autoaim")
 {

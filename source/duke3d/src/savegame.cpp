@@ -276,7 +276,7 @@ void ReadSaveGameHeaders(void)
 {
     ReadSaveGameHeaders_Internal();
 
-    if (!ud.autosavedeletion)
+    if (!cl_autosavedeletion)
         return;
 
     bool didDelete = false;
@@ -286,7 +286,7 @@ void ReadSaveGameHeaders(void)
         menusave_t & msv = g_menusaves[x];
         if (!msv.isAutoSave)
             continue;
-        if (numautosaves >= ud.maxautosaves)
+        if (numautosaves >= cl_maxautosaves)
         {
             G_DeleteSave(msv.brief);
             didDelete = true;

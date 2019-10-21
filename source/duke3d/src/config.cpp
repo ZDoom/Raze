@@ -254,8 +254,6 @@ void CONFIG_SetDefaults(void)
 
     ud.althud                 = 1;
     ud.angleinterpolation     = 0;
-    ud.autosave               = 1;
-    ud.autosavedeletion       = 1;
     ud.autovote               = 0;
     ud.brightness             = 8;
     ud.camerasprite           = -1;
@@ -288,7 +286,6 @@ void CONFIG_SetDefaults(void)
     ud.levelstats             = 0;
     ud.lockout                = 0;
     ud.m_marker               = 1;
-    ud.maxautosaves           = 5;
     ud.menu_scrollbartilenum  = -1;
     ud.menu_scrollbarz        = 65536;
     ud.menu_scrollcursorz     = 65536;

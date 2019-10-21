@@ -1550,7 +1550,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
                 labelNum = ud.returnvar[lParm2 - 1];
             break;
         case USERDEFS_USERBYTEVERSION:        labelNum = ud.userbytever;                  break;
-        case USERDEFS_AUTOSAVE:               labelNum = ud.autosave;                     break;
+        case USERDEFS_AUTOSAVE:               labelNum = cl_autosave;                     break;
         case USERDEFS_DRAW_Y:                 labelNum = rotatesprite_y_offset;           break;
         case USERDEFS_DRAW_YXASPECT:          labelNum = rotatesprite_yxaspect;           break;
         case USERDEFS_FOV:                    labelNum = ud.fov;                          break;
@@ -1753,7 +1753,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
                 ud.returnvar[lParm2 - 1] = iSet;
             break;
         case USERDEFS_USERBYTEVERSION:              ud.userbytever                   = iSet; break;
-        case USERDEFS_AUTOSAVE:                     ud.autosave                      = iSet; break;
+        case USERDEFS_AUTOSAVE:                     cl_autosave                      = iSet; break; //!!!
         case USERDEFS_DRAW_Y:                       rotatesprite_y_offset            = iSet; break;
         case USERDEFS_DRAW_YXASPECT:                rotatesprite_yxaspect            = iSet; break;
         case USERDEFS_FOV:                          ud.fov                           = iSet; break;
