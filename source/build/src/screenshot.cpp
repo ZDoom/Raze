@@ -13,8 +13,6 @@
 
 buildvfs_FILE OutputFileCounter::opennextfile(char *fn, char *zeros)
 {
-    buildvfs_FILE file;
-
     do      // JBF 2004022: So we don't overwrite existing screenshots
     {
         if (count > 9999) return nullptr;
@@ -23,9 +21,14 @@ buildvfs_FILE OutputFileCounter::opennextfile(char *fn, char *zeros)
         zeros[1] = ((count/100)%10)+'0';
         zeros[2] = ((count/10)%10)+'0';
         zeros[3] = (count%10)+'0';
-
+#ifdef USE_PHYSFS
+        buildvfs_FILE file;
         if ((file = buildvfs_fopen_read(fn)) == nullptr) break;
         buildvfs_fclose(file);
+#else
+        struct Bstat st;
+        if (Bstat(fn, &st) == -1) break;
+#endif
         count++;
     } while (1);
 
