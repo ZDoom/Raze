@@ -69,10 +69,8 @@ IniFile *BloodINI;
 
 void levelInitINI(const char *pzIni)
 {
-    int fp = kopen4loadfrommod(pzIni, 0);
-    if (fp < 0)
+	if (!testkopen(pzIni, 0))
         ThrowError("Initialization: %s does not exist", pzIni);
-    kclose(fp);
     BloodINI = new IniFile(pzIni);
     Bstrncpy(BloodIniFile, pzIni, BMAX_PATH);
     Bstrncpy(BloodIniPre, pzIni, BMAX_PATH);

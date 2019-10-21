@@ -2601,29 +2601,26 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    buildvfs_kfd const fil = kopen4load(fn, 0);
-                    if (EDUKE32_PREDICT_FALSE(fil == buildvfs_kfd_invalid))
+                    FileReader fil = kopenFileReader(fn, 0);
+                    if (!fil.isOpen())
                     {
                         initprintf("Error: basepalette: Failed opening \"%s\" on line %s:%d\n", fn,
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
-                    if (klseek_and_test(fil, offset, BSEEK_SET))
+                    if (fil.Seek(offset, FileReader::SeekSet) < 0)
                     {
                         initprintf("Error: basepalette: Seek failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        kclose(fil);
                         break;
                     }
 
-                    uint8_t * const palbuf = (uint8_t *)Xmalloc(768);
-                    if (kread_and_test(fil,palbuf,768))
+					auto palbuf = fil.Read();
+                    if (palbuf.Size() < 768)
                     {
                         initprintf("Error: basepalette: Read failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        Xfree(palbuf);
-                        kclose(fil);
                         break;
                     }
 
@@ -2633,11 +2630,8 @@ static int32_t defsparser(scriptfile *script)
                             palbuf[k] <<= shiftleft;
                     }
 
-                    paletteSetColorTable(id, palbuf);
+                    paletteSetColorTable(id, palbuf.Data());
                     didLoadPal = 1;
-
-                    Xfree(palbuf);
-                    kclose(fil);
                     break;
                 }
                 case T_COPY:
@@ -2781,38 +2775,34 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    buildvfs_kfd const fil = kopen4load(fn, 0);
-                    if (EDUKE32_PREDICT_FALSE(fil == buildvfs_kfd_invalid))
+                    FileReader fil = kopenFileReader(fn, 0);
+                    if (!fil.isOpen())
                     {
                         initprintf("Error: palookup: Failed opening \"%s\" on line %s:%d\n", fn,
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
-                    if (klseek_and_test(fil, offset, BSEEK_SET))
+                    if (fil.Seek(offset, FileReader::SeekSet) < 0)
                     {
                         initprintf("Error: palookup: Seek failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        kclose(fil);
                         break;
                     }
 
-                    char * const palookupbuf = (char *)Xmalloc(length);
-                    int32_t bytesread = kread(fil, palookupbuf, length);
-                    if (bytesread < 256)
+					auto palookupbuf = fil.Read();
+                    if (palookupbuf.Size() < 256)
                     {
                         initprintf("Error: palookup: Read failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        Xfree(palookupbuf);
-                        kclose(fil);
                         break;
                     }
 
-                    if (bytesread == 256*32)
+                    if (palookupbuf >= 256*32)
                     {
                         didLoadShade = 1;
                         numshades = 32;
-                        paletteSetLookupTable(id, (uint8_t *)palookupbuf);
+                        paletteSetLookupTable(id, palookupbuf.Data());
                     }
                     else
                     {
@@ -2825,9 +2815,6 @@ static int32_t defsparser(scriptfile *script)
 
                         paletteMakeLookupTable(id, palookupbuf, 0,0,0, g_noFloorPal[id]);
                     }
-
-                    Xfree(palookupbuf);
-                    kclose(fil);
                     break;
                 }
                 case T_COPY:
@@ -3081,37 +3068,31 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    buildvfs_kfd const fil = kopen4load(fn, 0);
-                    if (EDUKE32_PREDICT_FALSE(fil == buildvfs_kfd_invalid))
+                    FileReader fil = kopenFileReader(fn, 0);
+                    if (!fil.isOpen())
                     {
                         initprintf("Error: blendtable: Failed opening \"%s\" on line %s:%d\n", fn,
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
-                    if (klseek_and_test(fil, offset, BSEEK_SET))
+                    if (fil.Seek(offset, FileReader::SeekSet) < 0)
                     {
                         initprintf("Error: blendtable: Seek failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        kclose(fil);
                         break;
                     }
 
-                    char * const blendbuf = (char *)Xmalloc(256*256);
-                    if (kread_and_test(fil,blendbuf,256*256))
+					auto blendbuf = fil.Read();
+                    if (blendbuf.Size() < 256*256)
                     {
                         initprintf("Error: blendtable: Read failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        Xfree(blendbuf);
-                        kclose(fil);
                         break;
                     }
 
                     paletteSetBlendTable(id, blendbuf);
                     didLoadTransluc = 1;
-
-                    Xfree(blendbuf);
-                    kclose(fil);
                     break;
                 }
                 case T_COPY:

@@ -130,14 +130,12 @@ void IniFile::Load()
 
     curNode = &head;
 
-    int fp = kopen4loadfrommod(fileName, 0);
-    if (fp >= 0)
+    auto fp = kopenFileReader(fileName, 0);
+    if (fp.isOpen())
     {
-        int nSize = kfilelength(fp);
-        void *pBuffer = Xcalloc(1, nSize + 1);
-        kread(fp, pBuffer, nSize);
-        LoadRes(pBuffer);
-        Bfree(pBuffer);
+        int nSize = fp.GetLength();
+		auto pBuffer = fp.Read();
+        LoadRes(pBuffer.Data());
     }
     else
         curNode->next = &head;

@@ -59,7 +59,7 @@ void *dword_27AA44 = NULL;
 
 LoadSave LoadSave::head(123);
 FILE *LoadSave::hSFile = NULL;
-int LoadSave::hLFile = -1;
+FileReader LoadSave::hLFile;
 
 short word_27AA54 = 0;
 
@@ -82,8 +82,8 @@ void LoadSave::Load(void)
 void LoadSave::Read(void *pData, int nSize)
 {
     dword_27AA38 += nSize;
-    dassert(hLFile != -1);
-    if (kread(hLFile, pData, nSize) != nSize)
+    dassert(hLFile.isOpen());
+    if (hLFile.Read(pData, nSize) != nSize)
         ThrowError("Error reading save file.");
 }
 
@@ -112,8 +112,8 @@ void LoadSave::LoadGame(char *pzFile)
         memset(sprite, 0, sizeof(spritetype)*kMaxSprites);
         automapping = 1;
     }
-    hLFile = kopen4load(pzFile, 0);
-    if (hLFile == -1)
+    hLFile = fopenFileReader(pzFile, 0);
+    if (!hLFile.isOpen())
         ThrowError("Error loading save file.");
     LoadSave *rover = head.next;
     while (rover != &head)
@@ -121,8 +121,7 @@ void LoadSave::LoadGame(char *pzFile)
         rover->Load();
         rover = rover->next;
     }
-    kclose(hLFile);
-    hLFile = -1;
+	hLFile.Close();
     if (!gGameStarted)
         scrLoadPLUs();
     InitSectorFX();
@@ -429,33 +428,29 @@ void LoadSavedInfo(void)
     int nCount = 0;
     for (auto pIterator = pList; pIterator != NULL && nCount < 10; pIterator = pIterator->next, nCount++)
     {
-        int hFile = kopen4loadfrommod(pIterator->name, 0);
-        if (hFile == -1)
+        auto hFile = kopenFileReader(pIterator->name, 0);
+        if (!hFile.isOpen())
             ThrowError("Error loading save file header.");
         int vc;
         short v4;
         vc = 0;
         v4 = word_27AA54;
-        if ((uint32_t)kread(hFile, &vc, sizeof(vc)) != sizeof(vc))
+        if ((uint32_t)hFile.Read(&vc, sizeof(vc)) != sizeof(vc))
         {
-            kclose(hFile);
             continue;
         }
         if (vc != 0x5653424e/*'VSBN'*/)
         {
-            kclose(hFile);
             continue;
         }
-        kread(hFile, &v4, sizeof(v4));
+        hFile.Read(&v4, sizeof(v4));
         if (v4 != BYTEVERSION)
         {
-            kclose(hFile);
             continue;
         }
-        if ((uint32_t)kread(hFile, &gSaveGameOptions[nCount], sizeof(gSaveGameOptions[0])) != sizeof(gSaveGameOptions[0]))
+        if ((uint32_t)hFile.Read(&gSaveGameOptions[nCount], sizeof(gSaveGameOptions[0])) != sizeof(gSaveGameOptions[0]))
             ThrowError("Error reading save file.");
         strcpy(strRestoreGameStrings[gSaveGameOptions[nCount].nSaveGameSlot], gSaveGameOptions[nCount].szUserGameName);
-        kclose(hFile);
     }
     klistfree(pList);
 }

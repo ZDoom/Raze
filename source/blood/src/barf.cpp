@@ -170,22 +170,20 @@ int RFS::Open(const char *fileName)
 {
     strcpy(_fileName, fileName);
 
-    buildvfs_fd hFile = kopen4loadfrommod(fileName, 0);
-    if (hFile == buildvfs_fd_invalid) {
+    auto hFile = kopenFileReader(fileName, 0);
+    if (!hFile.isOpen()) {
         initprintf("BARF: Error opening file %s", _fileName);
         return 1;
     }
 
-    int fileSize = kfilelength(hFile);
+	int fileSize = hFile.GetLength();
     _ptr = (char*)Resource::Alloc(fileSize);
     if (_ptr == NULL) {
         initprintf("BARF: Not enough memory to read %s", _fileName);
-        kclose(hFile);
         return 1;
     }
 
-    kread(hFile, _ptr, fileSize);
-    kclose(hFile);
+    hFile.Read(_ptr, fileSize);
 
     _curLine = 0;
     _pUnknown2 = _ptr;

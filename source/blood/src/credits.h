@@ -26,6 +26,6 @@ BEGIN_BLD_NS
 
 void credLogosDos(void);
 void credReset(void);
-void credPlaySmk(const char *pzSMK, const char *pzWAV, int nWAV);
+FileReader credPlaySmk(const char *pzSMK, const char *pzWAV, int nWAV);
 
 END_BLD_NS

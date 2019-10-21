@@ -97,7 +97,7 @@ public:
     bool m_bLegacy;
     char at2;
     int at3;
-    int hPFile;
+    FileReader hPFile;
     FILE *hRFile;
     int atb;
     DEMOHEADER atf;

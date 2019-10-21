@@ -547,6 +547,7 @@ void paletteSetBlendTable(int32_t blend, const char *tab)
         blendtable[blend] = (char *) Xmalloc(256*256);
 
     Bmemcpy(blendtable[blend], tab, 256*256);
+	// Todo: Calculate an alpha factor from the loaded data so that the hardware renderer uses the proper amount of tranlucency.
 }
 void paletteFreeBlendTable(int32_t const blend)
 {

@@ -219,19 +219,19 @@ bool CDemo::SetupPlayback(const char *pzFile)
     at1 = 0;
     if (pzFile)
     {
-        hPFile = kopen4loadfrommod(pzFile, 0);
-        if (hPFile == -1)
+        hPFile = fopenFileReader(pzFile, 0);
+        if (!hPFile.isOpen())
             return false;
     }
     else
     {
         if (!pCurrentDemo)
             return false;
-        hPFile = kopen4loadfrommod(pCurrentDemo->zName, 0);
-        if (hPFile == -1)
+        hPFile = fopenFileReader(pCurrentDemo->zName, 0);
+        if (hPFile.isOpen())
             return false;
     }
-    kread(hPFile, &atf, sizeof(DEMOHEADER));
+    hPFile.Read(&atf, sizeof(DEMOHEADER));
 #if B_BIG_ENDIAN == 1
     atf.signature = B_LITTLE32(atf.signature);
     atf.nVersion = B_LITTLE16(atf.nVersion);
@@ -253,14 +253,14 @@ bool CDemo::SetupPlayback(const char *pzFile)
         GAMEOPTIONSLEGACY gameOptions;
         if (BloodVersion != atf.nVersion)
             return 0;
-        kread(hPFile, &gameOptions, sizeof(GAMEOPTIONSLEGACY));
+        hPFile.Read(&gameOptions, sizeof(GAMEOPTIONSLEGACY));
         ReadGameOptionsLegacy(m_gameOptions, gameOptions);
     }
     else
     {
         if (BYTEVERSION != atf.nVersion)
             return 0;
-        kread(hPFile, &m_gameOptions, sizeof(GAMEOPTIONS));
+        hPFile.Read(&m_gameOptions, sizeof(GAMEOPTIONS));
     }
 #if B_BIG_ENDIAN == 1
     m_gameOptions.nEpisode = B_LITTLE32(m_gameOptions.nEpisode);
@@ -401,7 +401,7 @@ _DEMOPLAYBACK:
                     else
                     {
                         int const nOffset = sizeof(DEMOHEADER)+(m_bLegacy ? sizeof(GAMEOPTIONSLEGACY) : sizeof(GAMEOPTIONS));
-                        klseek(hPFile, nOffset, SEEK_SET);
+                        hPFile.Seek(nOffset, FileReader::SeekSet);
                         v4 = 0;
                     }
                 }
@@ -444,11 +444,10 @@ void CDemo::LoadDemoInfo(void)
     auto pIterator = pList;
     while (pIterator != NULL)
     {
-        int hFile = kopen4loadfrommod(pIterator->name, 0);
-        if (hFile == -1)
+        auto hFile = fopenFileReader(pIterator->name, 0);
+        if (!hFile.isOpen())
             ThrowError("Error loading demo file header.");
-        kread(hFile, &atf, sizeof(atf));
-        kclose(hFile);
+        hFile.Read(&atf, sizeof(atf));
 #if B_BIG_ENDIAN == 1
         atf.signature = B_LITTLE32(atf.signature);
         atf.nVersion = B_LITTLE16(atf.nVersion);
@@ -531,7 +530,7 @@ void CDemo::ReadInput(int nCount)
     if (m_bLegacy)
     {
         char pBuffer[nInputSizeLegacy*kInputBufferSize];
-        kread(hPFile, pBuffer, nInputSizeLegacy*nCount);
+        hPFile.Read(pBuffer, nInputSizeLegacy*nCount);
         BitReader bitReader(pBuffer, sizeof(pBuffer));
         memset(at1aa, 0, nCount * sizeof(GINPUT));
         for (int i = 0; i < nCount; i++)
@@ -583,7 +582,7 @@ void CDemo::ReadInput(int nCount)
     else
     {
         char pBuffer[nInputSize*kInputBufferSize];
-        kread(hPFile, pBuffer, nInputSize*nCount);
+        hPFile.Read(pBuffer, nInputSize*nCount);
         BitReader bitReader(pBuffer, sizeof(pBuffer));
         memset(at1aa, 0, nCount * sizeof(GINPUT));
         for (int i = 0; i < nCount; i++)

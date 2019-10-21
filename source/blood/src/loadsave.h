@@ -30,7 +30,7 @@ class LoadSave {
 public:
     static LoadSave head;
     static FILE *hSFile;
-    static int hLFile;
+    static FileReader hLFile;
     LoadSave *prev;
     LoadSave *next;
     LoadSave() {

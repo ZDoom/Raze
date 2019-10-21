@@ -151,7 +151,7 @@ void credReset(void)
     DoUnFade(1);
 }
 
-int credKOpen4Load(char *&pzFile)
+FileReader credKOpen4Load(char *&pzFile)
 {
     int nLen = strlen(pzFile);
     for (int i = 0; i < nLen; i++)
@@ -159,14 +159,14 @@ int credKOpen4Load(char *&pzFile)
         if (pzFile[i] == '\\')
             pzFile[i] = '/';
     }
-    int nHandle = kopen4loadfrommod(pzFile, 0);
-    if (nHandle == -1)
+    auto nHandle = kopenFileReader(pzFile, 0);
+    if (!nHandle.isOpen())
     {
         // Hack
         if (nLen >= 3 && isalpha(pzFile[0]) && pzFile[1] == ':' && pzFile[2] == '/')
         {
             pzFile += 3;
-            nHandle = kopen4loadfrommod(pzFile, 0);
+            nHandle = kopenFileReader(pzFile, 0);
         }
     }
     return nHandle;
@@ -197,14 +197,13 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     char *pzWAV = Xstrdup(_pzWAV);
     char *pzSMK_ = pzSMK;
     char *pzWAV_ = pzWAV;
-    int nHandleSMK = credKOpen4Load(pzSMK);
-    if (nHandleSMK == -1)
+    auto nHandleSMK = credKOpen4Load(pzSMK);
+    if (!nHandleSMK.isOpen())
     {
         Bfree(pzSMK_);
         Bfree(pzWAV_);
         return;
     }
-    kclose(nHandleSMK);
     SmackerHandle hSMK = Smacker_Open(pzSMK);
     if (!hSMK.isValid)
     {
@@ -242,10 +241,9 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
         sndStartWavID(nWav, FXVolume);
     else
     {
-        int nHandleWAV = credKOpen4Load(pzWAV);
-        if (nHandleWAV != -1)
+        auto nHandleWAV = credKOpen4Load(pzWAV);
+        if (nHandleWAV.isOpen())
         {
-            kclose(nHandleWAV);
             sndStartWavDisk(pzWAV, FXVolume);
         }
     }
