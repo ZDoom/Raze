@@ -3555,8 +3555,6 @@ void Net_SendUserMapName(void)
 
 void Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng)
 {
-    int32_t i;
-
     Bstrcpy(boardfilename,(char *)pbuf+1);
     boardfilename[packbufleng-1] = 0;
     Bcorrectfilename(boardfilename,0);

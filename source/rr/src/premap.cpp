@@ -2279,8 +2279,6 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
 
     for (auto & ext : exts)
     {
-        int32_t kFile;
-
         Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
         if (testkopen(nameBuf, 0))

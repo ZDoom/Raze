@@ -1724,8 +1724,6 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
 
     for (auto & ext : exts)
     {
-        buildvfs_kfd kFile;
-
         Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
 		if (testkopen(nameBuf, 0))

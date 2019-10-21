@@ -157,7 +157,6 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
 
 static int osdcmd_map(osdcmdptr_t parm)
 {
-    int32_t i;
     char filename[BMAX_PATH];
 
     const int32_t wildcardp = parm->numparms==1 &&

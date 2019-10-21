@@ -1,8 +1,8 @@
 /*
-** m_argv.h
+** gameconfigfile.h
 **
 **---------------------------------------------------------------------------
-** Copyright 1998-2006 Randy Heit
+** Copyright 1998-2008 Randy Heit
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -31,48 +31,46 @@
 **
 */
 
-#ifndef __M_ARGV_H__
-#define __M_ARGV_H__
+#ifndef __GAMECONFIGFILE_H__
+#define __GAMECONFIGFILE_H__
 
-#include "tarray.h"
-#include "zstring.h"
+#include "configfile.h"
 
-//
-// MISC
-//
-class FArgs
+class FArgs;
+class FileWriter;
+
+class FGameConfigFile : public FConfigFile
 {
 public:
-	FArgs();
-	FArgs(const FArgs &args);
-	FArgs(int argc, char **argv);
-	FArgs(int argc, const char** argv);
-	FArgs(int argc, FString *argv);
+	FGameConfigFile ();
+	~FGameConfigFile ();
 
-	FArgs &operator=(const FArgs &other);
+	void DoAutoloadSetup (/*FIWadManager *iwad_man*/);
+	void DoGlobalSetup ();
+	void DoGameSetup (const char *gamename);
+	void DoKeySetup (const char *gamename);
+	void DoModSetup (const char *gamename);
+	void ArchiveGlobalData ();
+	void ArchiveGameData (const char *gamename);
+	void AddAutoexec (FArgs *list, const char *gamename);
+	FString GetConfigPath (bool tryProg);
+	void ReadNetVars ();
 
-	void AppendArg(FString arg);
-	void AppendArgs(int argc, const FString *argv);
-	void RemoveArg(int argindex);
-	void RemoveArgs(const char *check);
-	void SetArgs(int argc, char **argv);
-	void CollectFiles(const char *param, const char *extension);
-	FArgs *GatherFiles(const char *param) const;
-	void SetArg(int argnum, const char *arg);
-
-	int CheckParm(const char *check, int start=1) const;	// Returns the position of the given parameter in the arg list (0 if not found).
-	int CheckParmList(const char *check, FString **strings, int start=1) const;
-	const char *CheckValue(const char *check) const;
-	const char *GetArg(int arg) const;
-	FString *GetArgList(int arg) const;
-	FString TakeValue(const char *check);
-	int NumArgs() const;
-	void FlushArgs();
+protected:
+	void WriteCommentHeader (FileWriter *file) const;
+	void CreateStandardAutoExec (const char *section, bool start);
 
 private:
-	TArray<FString> Argv;
+	void SetRavenDefaults (bool isHexen);
+	void ReadCVars (unsigned flags);
+
+	bool bModSetup;
+
+	char section[64];
+	char *subsection;
+	size_t sublen;
 };
 
-extern FArgs *Args;
+extern FGameConfigFile *GameConfig;
 
-#endif //__M_ARGV_H__
+#endif //__GAMECONFIGFILE_H__

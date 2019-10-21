@@ -500,6 +500,7 @@ set( PLAT_WIN32_SOURCES
 	audiolib/src/driver_directsound.cpp
 	glad/src/glad_wgl.c
 	platform/win32/winbits.cpp
+	platform/win32/i_specialpaths.cpp
 	
 	# This needs a rework anyway in order to consolidate the startup dialogs so don't bother to sort in properly.
 	#startgtk.game.cpp
@@ -519,11 +520,13 @@ set( PLAT_SDL_SOURCES
 set( PLAT_UNIX_SOURCES
 	platform/gtk/dynamicgtk.cpp
 	platform/gtk/gtkbits.cpp
+	platform/unix/i_specialpaths.cpp
 	)
 	
 set( PLAT_OSX_SOURCES
 	platform/macos/SDLMain.mm
 	platform/macos/osxbits.mm
+	platform/macos/i_specialpaths.mm
 	)
 	
 set( PLAT_COCOA_SOURCES
@@ -782,7 +785,9 @@ set (PCH_SOURCES
 	build/src/voxmodel.cpp
 	
 	common/rts.cpp
+	common/gameconfigfile.cpp
 	
+	common/utility/cmdlib.cpp
 	common/utility/m_argv.cpp
 	common/utility/files.cpp
 	common/utility/files_decompress.cpp

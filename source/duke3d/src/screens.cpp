@@ -1463,8 +1463,6 @@ void gameDisplay3DRScreen()
 		if (testkopen("3dr.ivf", 0) || testkopen("3dr.anm", 0))
 		{
 			Anim_Play("3dr.anm");
-			kclose(i);
-            Anim_Play("3dr.anm");
             G_FadePalette(0, 0, 0, 252);
             I_ClearAllInput();
         }

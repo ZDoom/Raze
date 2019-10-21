@@ -6332,7 +6332,7 @@ int G_FPSLimit(void)
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
-int app_main()
+int app_main(int argc, const char * const*argv)
 {
 #ifndef NETCODE_DISABLE
     if (enet_initialize() != 0)

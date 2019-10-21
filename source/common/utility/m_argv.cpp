@@ -34,6 +34,7 @@
 
 #include <string.h>
 #include "m_argv.h"
+#include "zstring.h"
 
 //===========================================================================
 //
@@ -84,7 +85,7 @@ FArgs::FArgs(int argc, const char** argv)
 //
 //===========================================================================
 
-FArgs::FArgs(int argc, const std::string *argv)
+FArgs::FArgs(int argc, FString *argv)
 {
 	AppendArgs(argc, argv);
 }
@@ -111,7 +112,7 @@ FArgs &FArgs::operator=(const FArgs &other)
 
 void FArgs::SetArgs(int argc, char **argv)
 {
-	Argv.resize(argc);
+	Argv.Resize(argc);
 	for (int i = 0; i < argc; ++i)
 	{
 		Argv[i] = argv[i];
@@ -126,7 +127,7 @@ void FArgs::SetArgs(int argc, char **argv)
 
 void FArgs::FlushArgs()
 {
-	Argv.clear();
+	Argv.Clear();
 }
 
 //===========================================================================
@@ -140,9 +141,9 @@ void FArgs::FlushArgs()
 
 int FArgs::CheckParm(const char *check, int start) const
 {
-	for (unsigned i = start; i < Argv.size(); ++i)
+	for (unsigned i = start; i < Argv.Size(); ++i)
 	{
-		if (0 == stricmp(check, Argv[i].c_str()))
+		if (0 == stricmp(check, Argv[i]))
 		{
 			return i;
 		}
@@ -159,7 +160,7 @@ int FArgs::CheckParm(const char *check, int start) const
 //
 //===========================================================================
 
-int FArgs::CheckParmList(const char *check, const std::string **strings, int start) const
+int FArgs::CheckParmList(const char *check, FString **strings, int start) const
 {
 	unsigned int i, parmat = CheckParm(check, start);
 
@@ -171,7 +172,7 @@ int FArgs::CheckParmList(const char *check, const std::string **strings, int sta
 		}
 		return 0;
 	}
-	for (i = ++parmat; i < Argv.size(); ++i)
+	for (i = ++parmat; i < Argv.Size(); ++i)
 	{
 		if (Argv[i][0] == '-' || Argv[i][1] == '+')
 		{
@@ -198,10 +199,10 @@ const char *FArgs::CheckValue(const char *check) const
 {
 	int i = CheckParm(check);
 
-	if (i > 0 && i < (int)Argv.size() - 1)
+	if (i > 0 && i < (int)Argv.Size() - 1)
 	{
 		i++;
-		return Argv[i][0] != '+' && Argv[i][0] != '-' ? Argv[i].c_str() : nullptr;
+		return Argv[i][0] != '+' && Argv[i][0] != '-' ? Argv[i].GetChars() : nullptr;
 	}
 	else
 	{
@@ -218,21 +219,21 @@ const char *FArgs::CheckValue(const char *check) const
 //
 //===========================================================================
 
-std::string FArgs::TakeValue(const char *check)
+FString FArgs::TakeValue(const char *check)
 {
 	int i = CheckParm(check);
-	std::string out;
+	FString out;
 
-	if (i > 0 && i < (int)Argv.size())
+	if (i > 0 && i < (int)Argv.Size())
 	{
-		if (i < (int)Argv.size() - 1 && Argv[i+1][0] != '+' && Argv[i+1][0] != '-')
+		if (i < (int)Argv.Size() - 1 && Argv[i+1][0] != '+' && Argv[i+1][0] != '-')
 		{
 			out = Argv[i+1];
-			Argv.erase(Argv.begin() + i, Argv.begin() + (i+2));	// Delete the parm and its value.
+			Argv.Delete(i, 2);	// Delete the parm and its value.
 		}
 		else
 		{
-			Argv.erase(Argv.begin() + i);		// Just delete the parm, since it has no value.
+			Argv.Delete(i);		// Just delete the parm, since it has no value.
 		}
 	}
 	return out;
@@ -248,13 +249,13 @@ void FArgs::RemoveArgs(const char *check)
 {
 	int i = CheckParm(check);
 
-	if (i > 0 && i < (int)Argv.size() - 1)
+	if (i > 0 && i < (int)Argv.Size() - 1)
 	{
 		do 
 		{
 			RemoveArg(i);
 		}
-		while (Argv[i][0] != '+' && Argv[i][0] != '-' && i < (int)Argv.size() - 1);
+		while (Argv[i][0] != '+' && Argv[i][0] != '-' && i < (int)Argv.Size() - 1);
 	}
 }
 
@@ -268,20 +269,20 @@ void FArgs::RemoveArgs(const char *check)
 
 const char *FArgs::GetArg(int arg) const
 {
-	return ((unsigned)arg < Argv.size()) ? Argv[arg].c_str() : nullptr;
+	return ((unsigned)arg < Argv.Size()) ? Argv[arg].GetChars() : nullptr;
 }
 
 //===========================================================================
 //
 // FArgs :: GetArgList
 //
-// Returns a pointer to the std::string at a particular position.
+// Returns a pointer to the FString at a particular position.
 //
 //===========================================================================
 
-const std::string *FArgs::GetArgList(int arg) const
+FString *FArgs::GetArgList(int arg) const
 {
-	return ((unsigned)arg < Argv.size()) ? &Argv[arg] : nullptr;
+	return ((unsigned)arg < Argv.Size()) ? &Argv[arg] : nullptr;
 }
 
 //===========================================================================
@@ -292,7 +293,7 @@ const std::string *FArgs::GetArgList(int arg) const
 
 int FArgs::NumArgs() const
 {
-	return (int)Argv.size();
+	return (int)Argv.Size();
 }
 
 //===========================================================================
@@ -304,26 +305,27 @@ int FArgs::NumArgs() const
 //
 //===========================================================================
 
-void FArgs::AppendArg(std::string arg)
+void FArgs::AppendArg(FString arg)
 {
-	Argv.push_back(arg);
+	Argv.Push(arg);
 }
 
 //===========================================================================
 //
 // FArgs :: AppendArgs
 //
-// Adds an array of std::strings to argv.
+// Adds an array of FStrings to argv.
 //
 //===========================================================================
 
-void FArgs::AppendArgs(int argc, const std::string *argv)
+void FArgs::AppendArgs(int argc, const FString *argv)
 {
-	if (argv != nullptr && argc > 0)
+	if (argv != NULL && argc > 0)
 	{
+		Argv.Grow(argc);
 		for (int i = 0; i < argc; ++i)
 		{
-			Argv.push_back(argv[i]);
+			Argv.Push(argv[i]);
 		}
 	}
 }
@@ -338,7 +340,7 @@ void FArgs::AppendArgs(int argc, const std::string *argv)
 
 void FArgs::RemoveArg(int argindex)
 {
-	Argv.erase(Argv.begin() + argindex);
+	Argv.Delete(argindex);
 }
 
 //===========================================================================
@@ -354,19 +356,19 @@ void FArgs::RemoveArg(int argindex)
 
 void FArgs::CollectFiles(const char *param, const char *extension)
 {
-	std::vector<std::string> work;
+	TArray<FString> work;
 	unsigned int i;
 	size_t extlen = extension == nullptr ? 0 : strlen(extension);
 
 	// Step 1: Find suitable arguments before the first switch.
 	i = 1;
-	while (i < Argv.size() && Argv[i][0] != '-' && Argv[i][0] != '+')
+	while (i < Argv.Size() && Argv[i][0] != '-' && Argv[i][0] != '+')
 	{
 		bool useit;
 
 		if (extlen > 0)
 		{ // Argument's extension must match.
-			size_t len = Argv[i].length();
+			size_t len = Argv[i].Len();
 			useit = (len >= extlen && stricmp(&Argv[i][len - extlen], extension) == 0);
 		}
 		else
@@ -375,8 +377,8 @@ void FArgs::CollectFiles(const char *param, const char *extension)
 		}
 		if (useit)
 		{
-			work.push_back(Argv[i]);
-			RemoveArg(i);
+			work.Push(Argv[i]);
+			Argv.Delete(i);
 		}
 		else
 		{
@@ -387,11 +389,11 @@ void FArgs::CollectFiles(const char *param, const char *extension)
 	// Step 2: Find each occurence of -param and add its arguments to work.
 	while ((i = CheckParm(param, i)) > 0)
 	{
-		RemoveArg(i);
-		while (i < Argv.size() && Argv[i][0] != '-' && Argv[i][0] != '+')
+		Argv.Delete(i);
+		while (i < Argv.Size() && Argv[i][0] != '-' && Argv[i][0] != '+')
 		{
-			work.push_back(Argv[i]);
-			RemoveArg(i);
+			work.Push(Argv[i]);
+			Argv.Delete(i);
 		}
 	}
 
@@ -404,10 +406,10 @@ void FArgs::CollectFiles(const char *param, const char *extension)
 #endif
 
 	// Step 3: Add work back to Argv, as long as it's non-empty.
-	if (work.size() > 0)
+	if (work.Size() > 0)
 	{
-		Argv.push_back(param);
-		AppendArgs(work.size(), &work[0]);
+		Argv.Push(param);
+		AppendArgs(work.Size(), &work[0]);
 	}
 }
 
@@ -423,7 +425,7 @@ void FArgs::CollectFiles(const char *param, const char *extension)
 
 FArgs *FArgs::GatherFiles(const char *param) const
 {
-	const std::string *files;
+	FString *files;
 	int filecount;
 
 	filecount = CheckParmList(param, &files);
