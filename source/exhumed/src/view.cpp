@@ -203,9 +203,9 @@ void RefreshBackground()
 
     MaskStatus();
 
-    for (int y = 0; y < xdim; y += tileY)
+    for (int y = 0; y < ydim; y += tileY)
     {
-        for (int x = 0; x < ydim; x += tileX)
+        for (int x = 0; x < xdim; x += tileX)
         {
             overwritesprite(x, y, nBackgroundPic + nTileOffset, -32, 0, kPalNormal);
             if (nTileOffset == 0) {
