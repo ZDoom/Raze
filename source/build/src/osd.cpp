@@ -10,6 +10,7 @@
 #include "osd.h"
 #include "scancodes.h"
 #include "common.h"
+#include "c_cvars.h"
 
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash.h"
@@ -125,6 +126,7 @@ static int OSD_CvarModified(const osdcvar_t * const pCvar)
 
     return rv || ((pCvar->pData->flags & CVAR_MODIFIED) == CVAR_MODIFIED);
 }
+
 
 // color code format is as follows:
 // ^## sets a color, where ## is the palette number
@@ -1864,6 +1866,51 @@ void OSD_Dispatch(const char *cmd)
 
         if (symbol == NULL)
         {
+			// Quick hack to make ZDoom CVARs accessible. This isn't fully functional and only meant as a transitional helper.
+			auto cv = FindCVar(token, nullptr);
+			if (cv)
+			{
+				token = osd_strtoken(NULL, &wtp, &restart);
+
+				if (token == nullptr)
+				{
+					if (cv->GetDescription())
+						OSD_Printf("%s: %s\n", cv->GetName(), cv->GetDescription());
+					ECVarType type;
+					auto val = cv->GetFavoriteRep(&type);
+					switch (type)
+					{
+					case CVAR_String:
+						OSD_Printf("%s is %s\n", cv->GetName(), val.String);
+						break;
+
+					case CVAR_Int:
+						OSD_Printf("%s is %d\n", cv->GetName(), val.Int);
+						break;
+
+					case CVAR_Float:
+						OSD_Printf("%s is %2.5f\n", cv->GetName(), val.Float);
+						break;
+
+					case CVAR_Bool:
+						OSD_Printf("%s is %s\n", cv->GetName(), val.Bool? "true" : "false");
+						break;
+
+					default:
+						break;
+					}
+				}
+				else
+				{
+					UCVarValue val;
+					val.String = token;
+					cv->SetGenericRep(val, CVAR_String);
+				}
+
+
+				return;
+			}
+
             static char const s_gamefunc_[]    = "gamefunc_";
             size_t constexpr  strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
             size_t const      strlen_token     = Bstrlen(token);

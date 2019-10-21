@@ -637,6 +637,7 @@ file( GLOB HEADER_FILES
 	mact/src/*.h
 	common/*.h
 	common/utility/*.h
+	common/console/*.h
 
 	build/src/*.h
 	thirdparty/include/*.h
@@ -786,6 +787,8 @@ set (PCH_SOURCES
 	
 	common/rts.cpp
 	common/gameconfigfile.cpp
+	
+	common/console/c_cvars.cpp
 	
 	common/utility/cmdlib.cpp
 	common/utility/m_argv.cpp
