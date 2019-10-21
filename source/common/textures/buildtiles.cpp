@@ -51,7 +51,7 @@ enum
 
 extern char* palookup[];
 
-BuildFiles TileFiles;
+BuildTiles TileFiles;
 
 //==========================================================================
 //
@@ -125,7 +125,7 @@ FArtTile* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, 
 //
 //==========================================================================
 
-void BuildFiles::AddTile(int tilenum, FTexture* tex, bool permap)
+void BuildTiles::AddTile(int tilenum, FTexture* tex, bool permap)
 {
 	assert(AllTiles.Find(tex) == AllTiles.Size() && AllMapTiles.Find(tex) == AllMapTiles.Size());
 	auto& array = permap ? AllMapTiles : AllTiles;
@@ -142,7 +142,7 @@ void BuildFiles::AddTile(int tilenum, FTexture* tex, bool permap)
 //
 //===========================================================================
 
-void BuildFiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, bool permap)
+void BuildTiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, bool permap)
 {
 
 	const uint8_t *tiles = RawData.Data();
@@ -218,7 +218,7 @@ int CountTiles (const char *fn, const uint8_t *RawData)
 //
 //===========================================================================
 
-void BuildFiles::CloseAllMapArt()
+void BuildTiles::CloseAllMapArt()
 {
 	AllMapTiles.DeleteAndClear();
 	PerMapArtFiles.DeleteAndClear();
@@ -232,7 +232,7 @@ void BuildFiles::CloseAllMapArt()
 //
 //===========================================================================
 
-void BuildFiles::ClearTextureCache(bool artonly)
+void BuildTiles::ClearTextureCache(bool artonly)
 {
 	for (auto tex : AllTiles)
 	{
@@ -254,7 +254,7 @@ void BuildFiles::ClearTextureCache(bool artonly)
 }
 
 
-void BuildFiles::InvalidateTile(int num)
+void BuildTiles::InvalidateTile(int num)
 {
 	if ((unsigned) num < MAXTILES)
 	{
@@ -282,7 +282,7 @@ void BuildFiles::InvalidateTile(int num)
 //
 //===========================================================================
 
-int BuildFiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
+int BuildTiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 {
 	auto old = FindFile(fn);
 	if (old >= ArtFiles.Size())	// Do not process if already loaded.
@@ -332,7 +332,7 @@ int BuildFiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 //
 //==========================================================================
 
-void BuildFiles::LoadArtSet(const char* filename)
+void BuildTiles::LoadArtSet(const char* filename)
 {
 	for (int index = 0; index < MAXARTFILES_BASE; index++)
 	{
@@ -352,7 +352,7 @@ void BuildFiles::LoadArtSet(const char* filename)
 //
 //==========================================================================
 
-FTexture* BuildFiles::ValidateCustomTile(int tilenum, int type)
+FTexture* BuildTiles::ValidateCustomTile(int tilenum, int type)
 {
 	if (tilenum < 0 || tilenum >= MAXTILES) return nullptr;
 	if (tiles[tilenum] != tilesbak[tilenum]) return nullptr;	// no mucking around with map tiles.
@@ -393,7 +393,7 @@ FTexture* BuildFiles::ValidateCustomTile(int tilenum, int type)
 //
 //==========================================================================
 
-int32_t BuildFiles::artLoadFiles(const char* filename)
+int32_t BuildTiles::artLoadFiles(const char* filename)
 {
 	TileFiles.LoadArtSet(filename);
 	memset(gotpic, 0, sizeof(gotpic));
@@ -407,7 +407,7 @@ int32_t BuildFiles::artLoadFiles(const char* filename)
 //
 //==========================================================================
 
-uint8_t* BuildFiles::tileCreate(int tilenum, int width, int height)
+uint8_t* BuildTiles::tileCreate(int tilenum, int width, int height)
 {
 	if (width <= 0 || height <= 0) return nullptr;
 	auto tex = ValidateCustomTile(tilenum, FTexture::Writable);
@@ -424,7 +424,7 @@ uint8_t* BuildFiles::tileCreate(int tilenum, int width, int height)
 //
 //==========================================================================
 
-uint8_t * BuildFiles::tileMakeWritable(int num)
+uint8_t * BuildTiles::tileMakeWritable(int num)
 {
 	auto tex = ValidateCustomTile(num, FTexture::Restorable);
 	return tex ? tex->GetWritableBuffer() : nullptr;
@@ -440,7 +440,7 @@ uint8_t * BuildFiles::tileMakeWritable(int num)
 // 
 //==========================================================================
 
-void BuildFiles::tileSetExternal(int tilenum, int width, int height, uint8_t* data)
+void BuildTiles::tileSetExternal(int tilenum, int width, int height, uint8_t* data)
 {
 	uint8_t* buffer = tileCreate(tilenum, width, height);
 	if (buffer) memcpy(buffer, data, width * height);
@@ -651,7 +651,7 @@ bool tileLoad(int tileNum)
 //
 //==========================================================================
 
-int BuildFiles::findUnusedTile(void)
+int BuildTiles::findUnusedTile(void)
 {
 	static int lastUnusedTile = MAXUSERTILES - 1;
 
@@ -663,7 +663,7 @@ int BuildFiles::findUnusedTile(void)
 	return -1;
 }
 
-int BuildFiles::tileCreateRotated(int tileNum)
+int BuildTiles::tileCreateRotated(int tileNum)
 {
 	if ((unsigned)tileNum >= MAXTILES) return tileNum;
 	auto tex = TileFiles.tiles[tileNum];
@@ -704,7 +704,7 @@ void tileSetAnim(int tile, const picanm_t& anm)
 //
 //==========================================================================
 
-FTexture* BuildFiles::GetTexture(const char* path)
+FTexture* BuildTiles::GetTexture(const char* path)
 {
 	auto res = textures.CheckKey(path);
 	if (res) return *res;
@@ -719,7 +719,7 @@ FTexture* BuildFiles::GetTexture(const char* path)
 //
 //==========================================================================
 
-void BuildFiles::CloseAll()
+void BuildTiles::CloseAll()
 {
 	decltype(textures)::Iterator it(textures);
 	decltype(textures)::Pair* pair;

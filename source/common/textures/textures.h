@@ -193,7 +193,7 @@ struct FTextureBuffer
 // Base texture class
 class FTexture
 {
-	friend struct BuildFiles;
+	friend struct BuildTiles;
 	friend bool tileLoad(int tileNum);
 	friend const uint8_t* tilePtr(int num);
 
@@ -310,7 +310,7 @@ protected:
 	TMap<int, FHardwareTexture*> HardwareTextures;	// Note: These must be deleted by the backend. When the texture manager is taken down it may already be too late to delete them.
 
 	FTexture (const char *name = NULL);
-	friend struct BuildFiles;
+	friend struct BuildTiles;
 };
 
 class FTileTexture : public FTexture
@@ -497,7 +497,7 @@ struct BuildArtFile
 //
 //==========================================================================
 
-struct BuildFiles
+struct BuildTiles
 {
 	FTexture* Placeholder;
 	TDeletingArray<BuildArtFile*> ArtFiles;
@@ -508,13 +508,13 @@ struct BuildFiles
 	FTexture* tilesbak[MAXTILES];
 	TMap<FString, FTexture*> textures;
 
-	BuildFiles()
+	BuildTiles()
 	{
 		Placeholder = new FDummyTile(0, 0);
 		for (auto& tile : tiles) tile = Placeholder;
 		for (auto& tile : tilesbak) tile = Placeholder;
 	}
-	~BuildFiles()
+	~BuildTiles()
 	{
 		CloseAll();
 	}
@@ -563,7 +563,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char *filen, float 
 int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags );
 int tileDeleteReplacement(int picnum, int palnum);
 
-extern BuildFiles TileFiles;
+extern BuildTiles TileFiles;
 inline bool tileCheck(int num)
 {
 	auto tex = TileFiles.tiles[num];
