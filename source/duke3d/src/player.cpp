@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "enet.h"
 #include "sjson.h"
+#include "gamcvars.h"
 
 BEGIN_DUKE_NS
 
@@ -2944,7 +2945,7 @@ void P_GetInput(int const playerNum)
     }
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
+    int const playerRunning = G_CheckAutorun(BUTTON(gamefunc_Run));
     int const turnAmount = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
     constexpr int const analogTurnAmount = (NORMALTURN << 1);
     int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;

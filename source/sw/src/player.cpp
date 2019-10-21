@@ -122,21 +122,6 @@ extern SWBOOL FinishedLevel;
 #define TANK_FRICTION (53248L)
 #define PLAYER_SLIDE_FRICTION (53248L)
 
-#define PLAYER_RUN_LOCK(pp)                                 \
-    if (TEST_SYNC_KEY((pp), SK_RUN_LOCK))               \
-    {                                               \
-        if (FLAG_KEY_PRESSED((pp), SK_RUN_LOCK))        \
-        {                                           \
-            FLAG_KEY_RELEASE((pp), SK_RUN_LOCK);        \
-            FLIP((pp)->Flags, PF_LOCK_RUN);             \
-            gs.AutoRun = !!TEST((pp)->Flags, PF_LOCK_RUN); \
-            sprintf(ds, "Run mode %s", TEST((pp)->Flags, PF_LOCK_RUN) ? "ON" : "OFF"); \
-            PutStringInfo((pp), ds);                    \
-        }                                           \
-    }                                               \
-    else                                                \
-        FLAG_KEY_RESET((pp), SK_RUN_LOCK)               \
-
 #define JUMP_STUFF 4
 
 // just like 2 except can jump higher - less gravity
@@ -2011,7 +1996,7 @@ DoPlayerBob(PLAYERp pp)
         dist = 0;
 
     // if running make a longer stride
-    if (TEST_SYNC_KEY(pp, SK_RUN) || TEST(pp->Flags, PF_LOCK_RUN))
+    if (G_CheckAutorun(TEST_SYNC_KEY(pp, SK_RUN)))
     {
         //amt = 10;
         amt = 12;
@@ -2457,7 +2442,7 @@ MoveScrollMode2D(PLAYERp pp)
         Follow_posy = pp->posy;
     }
 
-    running = BUTTON(gamefunc_Run) || TEST(pp->Flags, PF_LOCK_RUN);
+    running = G_CheckAutorun(BUTTON(gamefunc_Run));
 
     if (BUTTON(gamefunc_Strafe))
         mfsvel -= scrl_input.dyaw>>2;
@@ -2596,9 +2581,7 @@ DoPlayerMove(PLAYERp pp)
     void SlipSlope(PLAYERp pp);
 
     SlipSlope(pp);
-
-    PLAYER_RUN_LOCK(pp);
-
+	
     DoPlayerTurn(pp);
 
     pp->oldposx = pp->posx;
@@ -2862,8 +2845,6 @@ DoPlayerMoveBoat(PLAYERp pp)
         else if (!labs(pp->input.vel|pp->input.svel) && labs(last_input.vel|last_input.svel))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
-
-    PLAYER_RUN_LOCK(pp);
 
     DoPlayerTurnBoat(pp);
 
@@ -3270,8 +3251,6 @@ DoPlayerMoveTank(PLAYERp pp)
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
-    PLAYER_RUN_LOCK(pp);
-
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
     else
@@ -3449,8 +3428,6 @@ DoPlayerMoveTurret(PLAYERp pp)
     int ret;
     short save_sectnum;
     USERp u = User[pp->PlayerSprite];
-
-    PLAYER_RUN_LOCK(pp);
 
     DoPlayerTurnTurret(pp);
 
@@ -3903,9 +3880,6 @@ DoPlayerClimb(PLAYERp pp)
     dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->pang+512)], sintable[pp->pang]);
     if (dot < 0)
         climbvel = -climbvel;
-
-    // Run lock - routine doesn't call DoPlayerMove
-    PLAYER_RUN_LOCK(pp);
 
     // need to rewrite this for FAF stuff
 
@@ -6852,9 +6826,6 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     // allow turning
     if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.angvel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
     {
-        // Allow them to turn fast
-        PLAYER_RUN_LOCK(pp);
-
         DoPlayerTurn(pp);
         return;
     }

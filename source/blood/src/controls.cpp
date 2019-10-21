@@ -404,8 +404,8 @@ void ctrlGetInput(void)
         gInput.keyFlags.holsterWeapon = 1;
     }
 
-    char run = gRunKeyMode ? (BUTTON(gamefunc_Run) | gAutoRun) : (BUTTON(gamefunc_Run) ^ gAutoRun);
-    char run2 = BUTTON(gamefunc_Run);
+    char run = G_CheckAutorun(BUTTON(gamefunc_Run));
+	char run2 = false; // What??? BUTTON(gamefunc_Run);
 
     gInput.syncFlags.run = run;
 

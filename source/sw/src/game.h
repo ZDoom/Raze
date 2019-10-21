@@ -259,7 +259,6 @@ extern char MessageOutputString[256];
 #define SK_AUTO_AIM    7
 #define SK_CENTER_VIEW 8
 #define SK_PAUSE       9
-#define SK_RUN_LOCK   10
 
 #define SK_MESSAGE    11
 #define SK_LOOK_UP    12
@@ -1252,7 +1251,6 @@ extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
 #define PF_DIVING           (BIT(17))
 #define PF_DIVING_IN_LAVA   (BIT(18))
 #define PF_TWO_UZI          (BIT(19))
-#define PF_LOCK_RUN         (BIT(20))
 #define PF_TURN_180         (BIT(21))
 #define PF_DEAD_HEAD        (BIT(22)) // are your a dead head
 #define PF_HEAD_CONTROL     (BIT(23)) // have control of turning when a head?

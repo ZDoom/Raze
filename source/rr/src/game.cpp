@@ -1,4 +1,4 @@
-﻿//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -6560,11 +6560,11 @@ FAKE_F3:
         G_UpdateScreenArea();
     }
 
-    if (BUTTON(gamefunc_AutoRun) && (!RRRA || (!g_player[myconnectindex].ps->on_motorcycle && !g_player[myconnectindex].ps->on_boat)))
+    if (BUTTON(gamefunc_AutoRun))
     {
         CONTROL_ClearButton(gamefunc_AutoRun);
-        ud.auto_run = 1-ud.auto_run;
-        P_DoQuote(QUOTE_RUN_MODE_OFF+ud.auto_run,g_player[myconnectindex].ps);
+		cl_autorun = !cl_autorun;
+        P_DoQuote(QUOTE_RUN_MODE_OFF+cl_autorun,g_player[myconnectindex].ps);
     }
 
     if (BUTTON(gamefunc_Map))
@@ -8137,7 +8137,6 @@ MAIN_LOOP_RESTART:
 
 //    G_GameExit(" "); ///
 
-//    ud.auto_run = ud.config.RunMode;
     ud.showweapons = ud.config.ShowOpponentWeapons;
     P_SetupMiscInputSettings();
     g_player[myconnectindex].pteam = ud.team;

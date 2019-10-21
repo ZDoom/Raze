@@ -35,7 +35,7 @@
 #include <stdio.h>
 
 #include "gameconfigfile.h"
-//#include "c_cvars.h"
+#include "c_cvars.h"
 //#include "c_dispatch.h"
 //#include "c_bind.h"
 #include "m_argv.h"
@@ -258,7 +258,6 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 
 	// The NetServerInfo section will be read and override anything loaded
 	// here when it's determined that a netgame is being played.
-#if 0
 	strncpy (subsection, "LocalServerInfo", sublen);
 	if (SetSection (section))
 	{
@@ -270,7 +269,6 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 	{
 		ReadCVars (0);
 	}
-#endif
 	strncpy (subsection, "ConsoleAliases", sublen);
 	if (SetSection (section))
 	{
@@ -330,28 +328,17 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 
 void FGameConfigFile::ReadNetVars ()
 {
-#if 0
 	strncpy (subsection, "NetServerInfo", sublen);
 	if (SetSection (section))
 	{
 		ReadCVars (0);
 	}
-	if (bModSetup)
-	{
-		mysnprintf(subsection, sublen, "NetServerInfo.Mod");
-		if (SetSection(section))
-		{
-			ReadCVars(CVAR_MOD|CVAR_SERVERINFO|CVAR_IGNORE);
-		}
-	}
-#endif
 }
 
 // Read cvars from a cvar section of the ini. Flags are the flags to give
 // to newly-created cvars that were not already defined.
 void FGameConfigFile::ReadCVars (uint32_t flags)
 {
-	/*
 	const char *key, *value;
 	FBaseCVar *cvar;
 	UCVarValue val;
@@ -367,7 +354,6 @@ void FGameConfigFile::ReadCVars (uint32_t flags)
 		val.String = const_cast<char *>(value);
 		cvar->SetGenericRep (val, CVAR_String);
 	}
-	*/
 }
 
 void FGameConfigFile::ArchiveGameData (const char *gamename)
@@ -380,12 +366,12 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	strncpy (subsection, "Player", sublen);
 	SetSection (section, true);
 	ClearCurrentSection ();
-	//C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_USERINFO);
+	C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_USERINFO);
 
 	strncpy (subsection, "ConsoleVariables", sublen);
 	SetSection (section, true);
 	ClearCurrentSection ();
-	//C_ArchiveCVars (this, CVAR_ARCHIVE);
+	C_ArchiveCVars (this, CVAR_ARCHIVE);
 
 #if 0
 	// Do not overwrite the serverinfo section if playing a netgame, and
@@ -395,14 +381,14 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 		strncpy (subsection, netgame ? "NetServerInfo" : "LocalServerInfo", sublen);
 		SetSection (section, true);
 		ClearCurrentSection ();
-		//C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_SERVERINFO);
+		C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_SERVERINFO);
 	}
 #endif
 
 	strncpy (subsection, "UnknownConsoleVariables", sublen);
 	SetSection (section, true);
 	ClearCurrentSection ();
-	//C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_AUTO);
+	C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_AUTO);
 
 	strncpy (subsection, "ConsoleAliases", sublen);
 	SetSection (section, true);
@@ -432,11 +418,11 @@ void FGameConfigFile::ArchiveGlobalData ()
 
 	SetSection ("GlobalSettings", true);
 	ClearCurrentSection ();
-	//C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
+	C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
 
 	SetSection ("GlobalSettings.Unknown", true);
 	ClearCurrentSection ();
-	//C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_AUTO);
+	C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_AUTO);
 }
 
 FString FGameConfigFile::GetConfigPath (bool tryProg)

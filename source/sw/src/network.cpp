@@ -1562,12 +1562,6 @@ getpackets(void)
             pp = Player + otherconnectindex;
             p = (PACKET_OPTIONSp)packbuf;
 
-            // auto run
-            if (p->AutoRun)
-                SET(pp->Flags, PF_LOCK_RUN);
-            else
-                RESET(pp->Flags, PF_LOCK_RUN);
-
             // palette
             pp->TeamColor = p->Color;
             pp->SpriteP->pal = PALETTE_PLAYER0 + pp->TeamColor;

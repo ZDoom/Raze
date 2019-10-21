@@ -82,7 +82,6 @@ extern int32_t gShowWeapon;
 extern int32_t gMouseSensitivity;
 extern int32_t gMouseAiming;
 extern int32_t gMouseAimingFlipped;
-extern int32_t gRunKeyMode;
 extern bool gNoClip;
 extern bool gInfiniteAmmo;
 extern bool gFullMap;

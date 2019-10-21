@@ -2795,7 +2795,9 @@ void P_GetInput(int playerNum)
     }
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
+	int playerRunning = false;
+	
+	 int const playerRunning = G_CheckAutorun(BUTTON(gamefunc_Run));
     int const turnAmount = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
     constexpr int const analogTurnAmount = (NORMALTURN << 1);
     int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
@@ -3100,7 +3102,7 @@ void P_GetInputMotorcycle(int playerNum)
     }
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
+    int const playerRunning = G_CheckAutorun(BUTTON(gamefunc_Run));
     constexpr int const analogTurnAmount = (NORMALTURN << 1);
     int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
     constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
@@ -3398,7 +3400,7 @@ void P_GetInputBoat(int playerNum)
     }
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
+    int const playerRunning = G_CheckAutorun(BUTTON(gamefunc_Run));
     constexpr int const analogTurnAmount = (NORMALTURN << 1);
     int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
     constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp

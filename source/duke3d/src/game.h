@@ -186,7 +186,7 @@ typedef struct {
     int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
-    int32_t entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
+	int32_t entered_name,screen_tilting,shadows,fta_on,executions;
     int32_t coords,showfps,levelstats,m_coop,coop,screen_size,lockout;
     int32_t playerai,angleinterpolation,obituaries;
 

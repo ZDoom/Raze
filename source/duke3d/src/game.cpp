@@ -5049,8 +5049,8 @@ FAKE_F3:
     if (BUTTON(gamefunc_AutoRun))
     {
         CONTROL_ClearButton(gamefunc_AutoRun);
-        ud.auto_run = 1-ud.auto_run;
-        P_DoQuote(QUOTE_RUN_MODE_OFF + ud.auto_run, &myplayer);
+        cl_autorun= 1-cl_autorun;
+        P_DoQuote(QUOTE_RUN_MODE_OFF + cl_autorun, &myplayer);
     }
 
     if (BUTTON(gamefunc_Map))
@@ -6760,7 +6760,6 @@ MAIN_LOOP_RESTART:
 
 //    G_GameExit(" "); ///
 
-//    ud.auto_run = ud.config.RunMode;
     ud.showweapons = ud.config.ShowWeapons;
     P_SetupMiscInputSettings();
     g_player[myconnectindex].pteam = ud.team;

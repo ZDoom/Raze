@@ -3056,12 +3056,6 @@ void InitPlayerGameSettings(void)
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
     }
 
-    // everyone had their own Auto Run
-    if (gs.AutoRun)
-        SET(Player[myconnectindex].Flags, PF_LOCK_RUN);
-    else
-        RESET(Player[myconnectindex].Flags, PF_LOCK_RUN);
-
     if (gs.MouseAimingOn)
         SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
     else
@@ -5143,7 +5137,7 @@ getinput(SW_PACKET *loc)
 
     SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!KEY_PRESSED(KEYSC_SPACE)) | BUTTON(gamefunc_Open)));
 
-    running = BUTTON(gamefunc_Run) || TEST(pp->Flags, PF_LOCK_RUN);
+    running = G_CheckAutorun(BUTTON(gamefunc_Run));
 
     if (BUTTON(gamefunc_Strafe) && !pp->sop)
         svel = -info.dyaw;
@@ -5259,15 +5253,6 @@ getinput(SW_PACKET *loc)
     loc->svel = momy;
     loc->angvel = angvel;
     loc->aimvel = aimvel;
-
-    if (MenuButtonAutoRun)
-    {
-        MenuButtonAutoRun = FALSE;
-        if ((!!TEST(pp->Flags, PF_LOCK_RUN)) != !!gs.AutoRun)
-            SET_LOC_KEY(loc->bits, SK_RUN_LOCK, TRUE);
-    }
-
-    SET_LOC_KEY(loc->bits, SK_RUN_LOCK, BUTTON(gamefunc_AutoRun));
 
     if (!CommEnabled)
     {

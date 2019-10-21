@@ -1403,7 +1403,6 @@ static const dataspec_t svgm_udnetw[] =
     { DS_NOCHK, &ud.respawn_items, sizeof(ud.respawn_items), 1 },
     { DS_NOCHK, &ud.respawn_inventory, sizeof(ud.respawn_inventory), 1 },
     { 0, &ud.god, sizeof(ud.god), 1 },
-    { 0, &ud.auto_run, sizeof(ud.auto_run), 1 },
     { DS_NOCHK, &ud.monsters_off, sizeof(ud.monsters_off), 1 },
     { DS_NOCHK, &ud.last_level, sizeof(ud.last_level), 1 },
     { 0, &ud.eog, sizeof(ud.eog), 1 },

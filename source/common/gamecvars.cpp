@@ -1,8 +1,18 @@
 #include "c_cvars.h"
 #include "common.h"
 
+/* Notes
+ 
+ RedNukem has this for the toggle autorun command. Todo: Check what this is supposed to accomplish. The implementation makes no sense at all.
+ (!RRRA || (!g_player[myconnectindex].ps->on_motorcycle && !g_player[myconnectindex].ps->on_boat)))
+ 
+ 
+ */
+
 CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players")
+CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
+CVARD(Bool, cl_runmode, true, CVAR_ARCHIVE, "enable/disable modernized run key operation")
 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE, "enable/disable weapon autoaim")
 {
@@ -11,12 +21,19 @@ CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE, "enable/disable weapon autoaim")
 };
 
 
+bool G_CheckAutorun(bool button)
+{
+	if (cl_runmode) return button || cl_autorun;
+	else return button ^ !!cl_autorun;
+}
+
 
 #if 0
         { "cl_autorun", "enable/disable autorun", (void *)&ud.auto_run, CVAR_BOOL, 0, 1 },
         { "cl_autorun", "enable/disable autorun", (void *)&gAutoRun, CVAR_BOOL, 0, 1 },
         { "cl_runmode", "enable/disable modernized run key operation", (void *)&gRunKeyMode, CVAR_BOOL, 0, 1 },
         { "cl_runmode", "enable/disable modernized run key operation", (void *)&ud.runkey_mode, CVAR_BOOL, 0, 1 },
+
 
 
 // DN3D

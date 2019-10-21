@@ -101,7 +101,6 @@ int32_t gShowWeapon;
 int32_t gMouseSensitivity;
 int32_t gMouseAiming;
 int32_t gMouseAimingFlipped;
-int32_t gRunKeyMode;
 bool gNoClip;
 bool gInfiniteAmmo;
 bool gFullMap;
@@ -358,7 +357,6 @@ void CONFIG_SetDefaults(void)
     //ud.msgdisptime            = 120;
     //ud.obituaries             = 1;
     //ud.pwlockout[0]           = '\0';
-    gRunKeyMode            = 0;
     //ud.screen_size            = 4;
     //ud.screen_tilting         = 1;
     //ud.screenfade             = 1;

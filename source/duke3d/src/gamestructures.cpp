@@ -1411,7 +1411,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_SHADOWS:                labelNum = ud.shadows;                      break;
         case USERDEFS_FTA_ON:                 labelNum = ud.fta_on;                       break;
         case USERDEFS_EXECUTIONS:             labelNum = ud.executions;                   break;
-        case USERDEFS_AUTO_RUN:               labelNum = ud.auto_run;                     break;
+        case USERDEFS_AUTO_RUN:               labelNum = cl_autorun;                      break;
         case USERDEFS_COORDS:                 labelNum = ud.coords;                       break;
         case USERDEFS_TICKRATE:               labelNum = ud.showfps;                      break;
         case USERDEFS_M_COOP:                 labelNum = ud.m_coop;                       break;
@@ -1607,7 +1607,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_SHADOWS:                      ud.shadows                       = iSet; break;
         case USERDEFS_FTA_ON:                       ud.fta_on                        = iSet; break;
         case USERDEFS_EXECUTIONS:                   ud.executions                    = iSet; break;
-        case USERDEFS_AUTO_RUN:                     ud.auto_run                      = iSet; break;
+        case USERDEFS_AUTO_RUN:                     cl_autorun                       = iSet; break; //!!!
         case USERDEFS_COORDS:                       ud.coords                        = iSet; break;
         case USERDEFS_TICKRATE:                     ud.showfps                       = iSet; break;
         case USERDEFS_M_COOP:                       ud.m_coop                        = iSet; break;

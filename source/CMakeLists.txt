@@ -468,7 +468,7 @@ endif()
 if (WIN32)
 	include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
 else ()
-include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${ENET_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
+include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
 endif()
 
 
