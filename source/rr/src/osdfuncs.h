@@ -30,7 +30,6 @@ int32_t GAME_getrowheight(int32_t h);
 void GAME_onshowosd(int32_t shown);
 void GAME_clearbackground(int32_t numcols, int32_t numrows);
 
-extern int32_t osdhightile;
 extern int32_t osdshown;
 extern float osdscale, osdrscale;
 extern float osdscale2, osdrscale2;

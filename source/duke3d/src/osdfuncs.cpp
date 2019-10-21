@@ -32,14 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-int osdhightile = 1;
 int osdshown = 0;
 
-#ifdef EDUKE32_TOUCH_DEVICES
 float osdscale = 2.f, osdrscale = 0.5f;
-#else
-float osdscale = 1.f, osdrscale = 1.f;
-#endif
 
 #define OSD_SCALE(x) (osdscale != 1.f ? Blrintf(osdscale*(float)(x)) : (x))
 #define OSD_SCALEDIV(x) Blrintf((float)(x) * osdrscale)
@@ -61,30 +56,18 @@ static inline int GAME_getchartile(int ch)
 void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
     int ac;
-#ifndef USE_OPENGL
-    int usehightile = 0;
-#endif
-    int ht = usehightile;
-
     if (GAME_isspace(ch)) return;
     if ((ac = GAME_getchartile(ch)) == -1)
         return;
 
-    usehightile = (osdhightile && ht);
     rotatesprite_fs(OSD_SCALE((OSDCHAR_WIDTH*x)<<16),
         OSD_SCALE((y*OSDCHAR_HEIGHT)<<16),
         OSD_SCALE(65536.f), 0, ac, shade, pal, 8|16);
-    usehightile = ht;
 }
 
 void GAME_drawosdstr(int x, int y, const char *ch, int len, int shade, int pal)
 {
     int ac;
-#ifdef USE_OPENGL
-    const int ht = usehightile;
-    usehightile = (osdhightile && ht);
-#endif
-
     x *= OSDCHAR_WIDTH;
 
     do
@@ -101,10 +84,6 @@ void GAME_drawosdstr(int x, int y, const char *ch, int len, int shade, int pal)
         ch++;
     }
     while (--len);
-
-#ifdef USE_OPENGL
-    usehightile = ht;
-#endif
 }
 
 void GAME_drawosdcursor(int x, int y, int type, int32_t lastkeypress)
