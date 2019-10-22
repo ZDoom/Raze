@@ -2190,7 +2190,7 @@ void P_DisplayWeapon(void)
 #ifndef EDUKE32_STANDALONE
         int const quickKickFrame = 14 - pPlayer->quick_kick;
 
-        if (!FURY && (quickKickFrame != 14 || pPlayer->last_quick_kick) && ud.drawweapon == 1)
+        if (!FURY && (quickKickFrame != 14 || pPlayer->last_quick_kick) && r_drawweapon == 1)
         {
             int const weaponPal = P_GetKneePal(pPlayer);
 
@@ -2229,7 +2229,7 @@ void P_DisplayWeapon(void)
         else
 #endif
         {
-            switch (ud.drawweapon)
+            switch (r_drawweapon)
             {
                 case 1: break;
 #ifndef EDUKE32_STANDALONE

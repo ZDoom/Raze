@@ -103,7 +103,6 @@ extern int32_t r_maxfpsoffset;
 extern double g_frameDelay;
 extern float r_ambientlight, r_ambientlightrecip;
 extern int gLastPal;
-extern int32_t gShowFps, gFramePeriod;
 
 
 static inline double calcFrameDelay(int maxFPS) { return maxFPS ? ((double)timerGetFreqU64() / (double)(maxFPS)) : 0.0; }

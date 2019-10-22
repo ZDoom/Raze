@@ -57,6 +57,9 @@ EXTERN_CVAR(Bool, hud_showmapname)
 EXTERN_CVAR(Int, r_fov)
 
 EXTERN_CVAR(Bool, r_horizcenter)
+EXTERN_CVAR(Int, r_drawweapon)
+EXTERN_CVAR(Int, r_showfps)
+EXTERN_CVAR(Int, r_showfpsperiod)
 
 EXTERN_CVAR(Bool, in_joystick)
 EXTERN_CVAR(Bool, in_mouse)

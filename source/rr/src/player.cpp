@@ -1761,7 +1761,7 @@ void P_DisplayWeapon(void)
 
     quickKickFrame = 14 - pPlayer->quick_kick;
 
-    if (!RR && (quickKickFrame != 14 || pPlayer->last_quick_kick) && ud.drawweapon == 1)
+    if (!RR && (quickKickFrame != 14 || pPlayer->last_quick_kick) && r_drawweapon == 1)
     {
         int const weaponPal = P_GetKneePal(pPlayer);
 
@@ -1910,7 +1910,7 @@ void P_DisplayWeapon(void)
     }
     else
     {
-        switch (ud.drawweapon)
+        switch (r_drawweapon)
         {
             case 1: break;
             case 2:

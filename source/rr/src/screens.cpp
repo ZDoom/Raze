@@ -731,7 +731,7 @@ static void G_PrintFPS(void)
     {
         int32_t x = (xdim <= 640);
 
-        if (ud.showfps)
+        if (r_showfps)
         {
             int32_t chars = Bsprintf(tempbuf, "%.1f ms, %5.1f fps", frameDelay, lastFPS);
 
@@ -739,7 +739,7 @@ static void G_PrintFPS(void)
             printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+1+FPS_YOFFSET,
                 FPS_COLOR(lastFPS < LOW_FPS), -1, tempbuf, x);
 
-            if (ud.showfps > 1)
+            if (r_showfps > 1)
             {
                 chars = Bsprintf(tempbuf, "max: %5.1f fps", maxFPS);
 
@@ -753,7 +753,7 @@ static void G_PrintFPS(void)
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+20+FPS_YOFFSET,
                     FPS_COLOR(minFPS < LOW_FPS), -1, tempbuf, x);
             }
-            if (ud.showfps > 2)
+            if (r_showfps > 2)
             {
                 if (g_gameUpdateTime > maxGameUpdate) maxGameUpdate = g_gameUpdateTime;
                 if (g_gameUpdateTime < minGameUpdate) minGameUpdate = g_gameUpdateTime;
@@ -801,14 +801,14 @@ static void G_PrintFPS(void)
             frameCount = 0;
             cumulativeFrameDelay = 0.0;
 
-            if (ud.showfps > 1)
+            if (r_showfps > 1)
             {
                 if (lastFPS > maxFPS) maxFPS = lastFPS;
                 if (lastFPS < minFPS) minFPS = lastFPS;
 
                 static int secondCounter;
 
-                if (++secondCounter >= ud.frameperiod)
+                if (++secondCounter >= r_showfpsperiod)
                 {
                     maxFPS = (lastFPS + maxFPS) * .5f;
                     minFPS = (lastFPS + minFPS) * .5f;

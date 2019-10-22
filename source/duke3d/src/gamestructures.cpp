@@ -1413,7 +1413,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_EXECUTIONS:             labelNum = ud.executions;                   break;
         case USERDEFS_AUTO_RUN:               labelNum = cl_autorun;                      break;
         case USERDEFS_COORDS:                 labelNum = cl_showcoords;                   break;
-        case USERDEFS_TICKRATE:               labelNum = ud.showfps;                      break;
+        case USERDEFS_TICKRATE:               labelNum = r_showfps;                      break;
         case USERDEFS_M_COOP:                 labelNum = ud.m_coop;                       break;
         case USERDEFS_COOP:                   labelNum = ud.coop;                         break;
         case USERDEFS_SCREEN_SIZE:            labelNum = ud.screen_size;                  break;
@@ -1447,7 +1447,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_MARKER:                 labelNum = ud.marker;                       break;
         case USERDEFS_MOUSEFLIP:              labelNum = !in_mouseflip;                   break;
         case USERDEFS_STATUSBARSCALE:         labelNum = ud.statusbarscale;               break;
-        case USERDEFS_DRAWWEAPON:             labelNum = ud.drawweapon;                   break;
+        case USERDEFS_DRAWWEAPON:             labelNum = r_drawweapon;                    break;
         case USERDEFS_MOUSEAIMING:            labelNum = in_aimmode;                      break;
         case USERDEFS_WEAPONSWITCH:           labelNum = cl_weaponswitch;                 break;
         case USERDEFS_DEMOCAMS:               labelNum = cl_democams;                     break;
@@ -1609,7 +1609,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_EXECUTIONS:                   ud.executions                    = iSet; break;
         case USERDEFS_AUTO_RUN:                     cl_autorun                       = iSet; break; //!!!
         case USERDEFS_COORDS:                       cl_showcoords                    = iSet; break; //!!!
-        case USERDEFS_TICKRATE:                     ud.showfps                       = iSet; break;
+        case USERDEFS_TICKRATE:                     r_showfps                       = iSet; break;
         case USERDEFS_M_COOP:                       ud.m_coop                        = iSet; break;
         case USERDEFS_COOP:                         ud.coop                          = iSet; break;
         case USERDEFS_SCREEN_SIZE:
@@ -1648,7 +1648,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_MARKER:                       ud.marker                        = iSet; break;
         case USERDEFS_MOUSEFLIP:                    in_mouseflip                     = !iSet; break;//!!!
         case USERDEFS_STATUSBARSCALE:               ud.statusbarscale                = iSet; break;
-        case USERDEFS_DRAWWEAPON:                   ud.drawweapon                    = iSet; break;
+        case USERDEFS_DRAWWEAPON:                   r_drawweapon                     = iSet; break;//!!!
         case USERDEFS_MOUSEAIMING:                  in_aoimmode                      = iSet; break;//!!!
         case USERDEFS_WEAPONSWITCH:                 cl_weaponswitch                  = iSet; break; //!!!
         case USERDEFS_DEMOCAMS:                     cl_democams                      = iSet; break;

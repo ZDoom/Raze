@@ -220,17 +220,11 @@ void CONFIG_SetDefaults(void)
     ud.brightness = 8;
     ud.camerasprite = -1;
 
-#if defined GEKKO || defined __OPENDINGUX__
-    ud.camera_time = 11;
-#elif defined(__ANDROID__)
-    ud.camera_time = 7;
-#else
-    ud.camera_time = 4;
-#endif
+	ud.camera_time = 0;//4;
 
     ud.color = 0;
     ud.detail = 0;
-    ud.drawweapon = 1;
+    r_drawweapon = 1;
     ud.lockout = 0;
     ud.m_ffire = 1;
     ud.m_marker = 1;

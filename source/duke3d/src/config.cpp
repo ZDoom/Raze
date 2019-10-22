@@ -224,11 +224,8 @@ void CONFIG_SetDefaults(void)
     ud.setup.bpp = 8;
 #endif
 
-#if defined GEKKO || defined __OPENDINGUX__
-    ud.camera_time = 11;
-#else
-    ud.camera_time    = 4;
-#endif
+
+	ud.camera_time    = 0;//4;
 
     g_myAimMode = 1;
     g_player[0].ps->aim_mode = 1;
@@ -250,7 +247,7 @@ void CONFIG_SetDefaults(void)
     ud.default_skill          = 1;
     ud.detail                 = 0;
     ud.display_bonus_screen   = 1;
-    ud.drawweapon             = 1;
+
     ud.hudontop               = 0;
     ud.lockout                = 0;
     ud.m_marker               = 1;

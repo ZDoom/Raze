@@ -744,7 +744,7 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
     if (gDemo.at0) return;
     if (nCheatCode == kCheatRate)
     {
-        gShowFps = !gShowFps;
+        r_showfps = !r_showfps;
         return;
     }
     if (gGameOptions.nGameType != 0)

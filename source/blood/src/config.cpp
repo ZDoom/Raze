@@ -286,7 +286,6 @@ void CONFIG_SetDefaults(void)
     //ud.default_skill          = 1;
     gUpscaleFactor = 0;
     //ud.display_bonus_screen   = 1;
-    //ud.drawweapon             = 1;
     //ud.hudontop               = 0;        = 1;
     gPowerupDuration = 1;
     //ud.lockout                = 0;
