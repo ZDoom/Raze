@@ -2824,7 +2824,7 @@ void P_GetInput(int playerNum)
     else
         input.fvel = -(info.mousey >> 6);
 
-    if (ud.mouseflip) input.q16horz = -input.q16horz;
+    if (!in_mouseflip) input.q16horz = -input.q16horz;
 
     input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
     input.svel -= info.dx * keyMove / analogExtent;
@@ -3113,7 +3113,7 @@ void P_GetInputMotorcycle(int playerNum)
 
     input.q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
 
-    if (ud.mouseflip) input.q16horz = -input.q16horz;
+    if (!in_mouseflip) input.q16horz = -input.q16horz;
 
     input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
     input.svel -= info.dx * keyMove / analogExtent;
@@ -3411,7 +3411,7 @@ void P_GetInputBoat(int playerNum)
 
     input.q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
 
-    if (ud.mouseflip) input.q16horz = -input.q16horz;
+    if (!in_mouseflip) input.q16horz = -input.q16horz;
 
     input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
     input.svel -= info.dx * keyMove / analogExtent;

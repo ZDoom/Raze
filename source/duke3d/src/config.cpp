@@ -244,7 +244,7 @@ void CONFIG_SetDefaults(void)
     ud.color                  = 0;
     ud.config.CheckForUpdates = 1;
     ud.config.ShowWeapons     = 0;
-    ud.config.SmoothInput     = 1;
+    in_mousesmoothing     = 1;
     ud.config.useprecache     = 1;
     ud.configversion          = 0;
     ud.default_skill          = 1;
@@ -261,7 +261,6 @@ void CONFIG_SetDefaults(void)
     ud.menu_slidebarz         = 65536;
     ud.menu_slidecursorz      = 65536;
     ud.menubackground         = 1;
-    ud.mouseflip              = 1;
     ud.msgdisptime            = 120;
     ud.pwlockout[0]           = '\0';
     ud.runkey_mode            = 0;

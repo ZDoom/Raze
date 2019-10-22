@@ -213,9 +213,8 @@ void CONFIG_SetDefaults(void)
 #endif
     ud.config.useprecache = 1;
     in_mousebias = 0;
-    g_myAimMode = g_player[0].ps->aim_mode = 1;
+    g_player[0].ps->aim_mode = 1;
     ud.config.ShowOpponentWeapons = 0;
-    ud.config.SmoothInput = 1;
     ud.althud = 1;
     ud.automsg = 0;
     ud.brightness = 8;
@@ -238,7 +237,6 @@ void CONFIG_SetDefaults(void)
     ud.menu_slidebarz = 65536;
     ud.menu_slidebarmargin = RR ? 6 * 65536 : 65536;
     ud.menu_slidecursorz = RR ? 32768 : 65536;
-    ud.mouseflip = 1;
     ud.msgdisptime = 120;
     ud.pwlockout[0] = '\0';
     ud.runkey_mode = 0;

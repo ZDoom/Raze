@@ -38,7 +38,6 @@ BEGIN_BLD_NS
 #define MAXPLAYERNAME 16
 #define MAXMOUSEAXES 2
 
-extern int32_t SmoothInput;
 extern int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
 extern int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
 extern int32_t MouseAnalogueAxes[MAXMOUSEAXES];
@@ -71,7 +70,7 @@ extern int32_t gMessageFont;
 extern int32_t gbAdultContent;
 extern char gzAdultPassword[9];
 extern int32_t gMouseSensitivity;
-extern int32_t gMouseAimingFlipped;
+extern int32_t in_mouseflip;
 extern bool gNoClip;
 extern bool gInfiniteAmmo;
 extern bool gFullMap;

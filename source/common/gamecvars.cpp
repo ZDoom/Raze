@@ -231,29 +231,34 @@ CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCAL
 }
 
 CVARD(Bool, in_aimmode, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "0:toggle, 1:hold to aim")
+CVARD(Bool, in_mouseflip, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
-CUSTOM_CVARD(Int, in_mousebias, 0, CVAR_INT|CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time")
+CUSTOM_CVARD(Int, in_mousebias, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time")
 {
 	if (self < 0) self = 0;
 	else if (self > 32) self = 32;
 }
 
-CUSTOM_CVARD(Int, in_mousedeadzone, 0, CVAR_INT|CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "amount of mouse movement to filter out")
+CUSTOM_CVARD(Int, in_mousedeadzone, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "amount of mouse movement to filter out")
 {
 	if (self < 0) self = 0;
 	else if (self > 512) self = 512;
 }
 
+CUSTOM_CVARD(Bool, in_mousesmoothing, false, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "enable/disable mouse input smoothing")
+{
+	CONTROL_SmoothMouse = self;
+}
+
 #if 0
 
+{ "in_mousesmoothing", , (void *)&in_mousesmoothing.Value, CVAR_BOOL, 0, 1 },
+
+{ "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&in_mousesmoothing.Value, CVAR_BOOL, 0, 1 },
 
 // DN3D
     static osdcvardata_t cvars_game[] =
     {
-
-        { "in_mouseflip", "invert vertical mouse movement", (void *)&ud.mouseflip, CVAR_BOOL, 0, 1 },
-        { "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
-        { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
 
 		{ "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
@@ -296,10 +301,6 @@ CUSTOM_CVARD(Int, in_mousedeadzone, 0, CVAR_INT|CVAR_GLOBALCONFIG|CVAR_ARCHIVE, 
 
     static osdcvardata_t cvars_game[] =
     {
-        { "in_mouseflip", "invert vertical mouse movement", (void *)&ud.mouseflip, CVAR_BOOL, 0, 1 },
-        { "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
-        { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
-
         { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "show the frame rate counter", (void *)&ud.showfps, CVAR_INT, 0, 3 },
@@ -344,9 +345,6 @@ int32_t registerosdcommands(void)
     char buffer[256];
     static osdcvardata_t cvars_game[] =
     {
-        { "in_mouseflip", "invert vertical mouse movement", (void *)&gMouseAimingFlipped, CVAR_BOOL, 0, 1 },
-        { "in_mousemode", "toggles vertical mouse view", (void *)&gMouseAim, CVAR_BOOL, 0, 1 },
-        { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&SmoothInput, CVAR_BOOL, 0, 1 },
 //
 //        { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
 //        { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
@@ -409,6 +407,10 @@ int32_t registerosdcommands(void)
 
 	// This needs some serious internal cleanup first, the implementation is all over the place and prone to whacking the user setting.
 	{ "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
+
+	// This one gets changed at run time by the game code, so making it persistent does not work
+    { "in_mousemode", "toggles vertical mouse view", (void *)&in_mousemode.Value, CVAR_BOOL, 0, 1 },
+    { "in_mousemode", "toggles vertical mouse view", (void *)&gMouseAim, CVAR_BOOL, 0, 1 },
 
 */
 #endif

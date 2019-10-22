@@ -237,7 +237,6 @@ extern playerdata_t     *const g_player;
 extern int16_t          WeaponPickupSprites[MAX_WEAPONS];
 extern hudweapon_t      hudweap;
 extern int32_t          g_levelTextTime;
-extern int32_t          g_myAimMode;
 extern int32_t          g_numObituaries;
 extern int32_t          g_numSelfObituaries;
 extern int32_t          mouseyaxismode;

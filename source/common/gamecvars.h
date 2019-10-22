@@ -60,9 +60,12 @@ EXTERN_CVAR(Bool, r_horizcenter)
 
 EXTERN_CVAR(Bool, in_joystick)
 EXTERN_CVAR(Bool, in_mouse)
-EXTERN_CVAR(Int, in_aimmode)
+EXTERN_CVAR(Bool, in_aimmode)
 EXTERN_CVAR(Int, in_mousebias)
 EXTERN_CVAR(Int, in_mousedeadzone)
+EXTERN_CVAR(Bool, in_mouseflip)
+EXTERN_CVAR(Bool, in_mousemode)
+EXTERN_CVAR(Bool, in_mousesmoothing)
 
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.
 bool G_ChangeHudLayout(int direction);

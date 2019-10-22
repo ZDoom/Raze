@@ -56,7 +56,6 @@ BEGIN_BLD_NS
 
 hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
 
-int32_t SmoothInput;
 int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
 int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
 int32_t MouseAnalogueAxes[MAXMOUSEAXES];
@@ -92,7 +91,6 @@ int32_t gMessageFont;
 int32_t gbAdultContent;
 char gzAdultPassword[9];
 int32_t gMouseSensitivity;
-int32_t gMouseAimingFlipped;
 bool gNoClip;
 bool gInfiniteAmmo;
 bool gFullMap;
@@ -281,7 +279,6 @@ void CONFIG_SetDefaults(void)
     CheckForUpdates = 1;
     gBrightness = 8;
     //ud.config.ShowWeapons     = 0;
-    SmoothInput     = 1;
 
     useprecache     = 1;
     configversion          = 0;
@@ -301,8 +298,6 @@ void CONFIG_SetDefaults(void)
     //ud.menu_slidebarmargin    = 65536;
     //ud.menu_slidebarz         = 65536;
     //ud.menu_slidecursorz      = 65536;
-    //ud.menubackground         = 1;
-    //ud.mouseflip              = 1;
     //ud.msgdisptime            = 120;
     //ud.pwlockout[0]           = '\0';
     //ud.screen_size            = 4;
@@ -335,8 +330,6 @@ void CONFIG_SetDefaults(void)
     gbAdultContent = 0;
     gzAdultPassword[0] = 0;
 
-    gMouseAimingFlipped = 0;
-    gMouseAim = 1;
     cl_weaponswitch = 1;
 
     Bstrcpy(szPlayerName, "Player");

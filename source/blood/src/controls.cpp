@@ -79,7 +79,7 @@ void ctrlInit(void)
 
     CONTROL_JoystickEnabled = (in_joystick && CONTROL_JoyPresent);
     CONTROL_MouseEnabled = (in_mouse && CONTROL_MousePresent);
-    CONTROL_SmoothMouse = SmoothInput;
+    CONTROL_SmoothMouse = in_mousesmoothing;
 
     // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
     for (int i = 0; i < joystick.numAxes; i++)
@@ -492,7 +492,7 @@ void ctrlGetInput(void)
         gInput.q16mlook = fix16_clamp(fix16_div(fix16_from_int(info.mousey), F16(128)), F16(-127)>>2, F16(127)>>2);
     else
         forward = ClipRange(forward - info.mousey, -2048, 2048);
-    if (!gMouseAimingFlipped)
+    if (!in_mouseflip)
         gInput.q16mlook = -gInput.q16mlook;
 
     if (KB_KeyPressed(sc_Pause)) // 0xc5 in disassembly

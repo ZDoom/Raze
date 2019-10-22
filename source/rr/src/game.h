@@ -170,7 +170,7 @@ typedef struct {
     int32_t respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
     int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;
     int32_t m_ffire,ffire,m_player_skill,m_level_number,m_volume_number,multimode;
-    int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
+    int32_t player_skill,level_number,volume_number,m_marker,marker;
     int32_t music_episode, music_level;
 
     int32_t playerbest;
@@ -194,7 +194,6 @@ typedef struct {
     struct {
         int32_t AutoAim;
         int32_t ShowOpponentWeapons;
-        int32_t SmoothInput;
 
         // JBF 20031211: Store the input settings because
         // (currently) mact can't regurgitate them

@@ -237,7 +237,7 @@ CGameMenuItemChain itemChainParentalLock("PARENTAL LOCK", 3, 0, 170, 320, 1, &me
 
 CGameMenuItemTitle itemControlsTitle("CONTROLS", 1, 160, 20, 2038);
 CGameMenuItemSliderFloat sliderMouseSpeed("Mouse Sensitivity:", 1, 10, 70, 300, CONTROL_MouseSensitivity, 0.5f, 16.f, 0.5f, SetMouseSensitivity, -1,-1);
-CGameMenuItemZBool boolMouseFlipped("Invert Mouse Aim:", 1, 10, 90, 300, gMouseAimingFlipped, SetMouseAimFlipped, NULL, NULL);
+CGameMenuItemZBool boolMouseFlipped("Invert Mouse Aim:", 1, 10, 90, 300, in_mouseflip, SetMouseAimFlipped, NULL, NULL);
 CGameMenuItemSlider sliderTurnSpeed("Key Turn Speed:", 1, 10, 110, 300, gTurnSpeed, 64, 128, 4, SetTurnSpeed, -1, -1);
 CGameMenuItemChain itemChainKeyList("Configure Keys...", 1, 0, 130, 320, 1, &menuKeys, -1, NULL, 0);
 CGameMenuItemChain itemChainKeyReset("Reset Keys (default)...", 1, 0, 150, 320, 1, &menuKeys, -1, ResetKeys, 0);
@@ -733,7 +733,7 @@ void SetupControlsMenu(void)
 {
     sliderMouseSpeed.fValue = ClipRangeF(CONTROL_MouseSensitivity, sliderMouseSpeed.fRangeLow, sliderMouseSpeed.fRangeHigh);
     sliderTurnSpeed.nValue = ClipRange(gTurnSpeed, sliderTurnSpeed.nRangeLow, sliderTurnSpeed.nRangeHigh);
-    boolMouseFlipped.at20 = gMouseAimingFlipped;
+    boolMouseFlipped.at20 = in_mouseflip;
     menuControls.Add(&itemControlsTitle, false);
     menuControls.Add(&sliderMouseSpeed, true);
     menuControls.Add(&boolMouseFlipped, false);
@@ -1459,7 +1459,7 @@ void SetMouseSensitivity(CGameMenuItemSliderFloat *pItem)
 
 void SetMouseAimFlipped(CGameMenuItemZBool *pItem)
 {
-    gMouseAimingFlipped = pItem->at20;
+    in_mouseflip = pItem->at20;
 }
 
 void SetTurnSpeed(CGameMenuItemSlider *pItem)
@@ -1899,12 +1899,12 @@ void UpdatePlayerName(CGameMenuItemZEdit *pItem, CGameMenuEvent *pEvent)
 void SetMouseFilterInput(CGameMenuItemZBool *pItem)
 {
     CONTROL_SmoothMouse = pItem->at20;
-    SmoothInput = pItem->at20;
+    in_mousesmoothing = pItem->at20;
 }
 
 void SetMouseAimMode(CGameMenuItemZBool *pItem)
 {
-    gMouseAiming = pItem->at20;
+    in_aimmode = pItem->at20;
 }
 
 void SetMouseVerticalAim(CGameMenuItemZBool *pItem)
@@ -1970,16 +1970,16 @@ void SetupMouseMenu(CGameMenuItemChain *pItem)
             }
         }
     }
-    itemOptionsControlMouseAimFlipped.at20 = gMouseAimingFlipped;
-    itemOptionsControlMouseFilterInput.at20 = SmoothInput;
-    itemOptionsControlMouseAimMode.at20 = gMouseAiming;
+    itemOptionsControlMouseAimFlipped.at20 = in_mouseflip;
+    itemOptionsControlMouseFilterInput.at20 = in_mousesmoothing;
+    itemOptionsControlMouseAimMode.at20 = in_aimmode;
     itemOptionsControlMouseVerticalAim.at20 = gMouseAim;
 }
 
 void PreDrawControlMouse(CGameMenuItem *pItem)
 {
     if (pItem == &itemOptionsControlMouseVerticalAim)
-        pItem->bEnable = !gMouseAiming;
+        pItem->bEnable = !in_aimmode;
 }
 
 void SetMouseButton(CGameMenuItemZCycle *pItem)
