@@ -694,7 +694,7 @@ int BuildQueenHead(short nQueen)
 
     GrabTimeSlot(3);
 
-    QueenHead.nHealth = 20; // 800;
+    QueenHead.nHealth = 800;
     QueenHead.nAction = 0;
     QueenHead.nTarget = QueenList[nQueen].nTarget;
     QueenHead.field_2 = 0;
@@ -1206,7 +1206,7 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
     GrabTimeSlot(3);
 
     QueenList[nQueen].nAction = 0;
-    QueenList[nQueen].nHealth = 20; //4000;
+    QueenList[nQueen].nHealth = 4000;
     QueenList[nQueen].field_2 = 0;
     QueenList[nQueen].nSprite = nSprite;
     QueenList[nQueen].nTarget = -1;
