@@ -100,7 +100,6 @@ bool gInfiniteAmmo;
 bool gFullMap;
 int32_t gUpscaleFactor;
 int32_t gPowerupDuration;
-int32_t gCenterHoriz;
 int32_t gDeliriumBlur;
 
 //////////
@@ -332,7 +331,6 @@ void CONFIG_SetDefaults(void)
     //ud.textscale              = 200;
     //ud.weaponscale            = 100;
     //cl_weaponswitch           = 3;  // new+empty
-    gCenterHoriz = 0;
     gDeliriumBlur = 1;
     gViewSize = 2;
     gTurnSpeed = 92;

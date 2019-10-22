@@ -64,6 +64,11 @@ enum
 	//CVAR_IGNORE			= 16384,// do not send cvar across the network/inaccesible from ACS (dummy mod cvar)
 	//CVAR_CHEAT			= 32768,// can be set only when sv_cheats is enabled
 	//CVAR_UNSAFECONTEXT	= 65536,// cvar value came from unsafe context
+	CVAR_FRONTEND_BLOOD = 0x10000000,		// To mark frontend specific CVARs, so that the other ones can disable them.
+	CVAR_FRONTEND_EDUKE = 0x20000000,
+	CVAR_FRONTEND_DUKELIKE = 0x30000000,
+	CVAR_FRONTEND_REDNUKEM = 0x40000000,
+	CVAR_FRONTEND_SHADOWWARRIOR = 0x80000000,
 };
 
 union UCVarValue

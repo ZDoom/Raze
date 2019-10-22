@@ -415,7 +415,7 @@ CGameMenuItemTitle itemOptionsDisplayTitle("DISPLAY SETUP", 1, 160, 20, 2038);
 CGameMenuItemChain itemOptionsDisplayColor("COLOR CORRECTION", 3, 66, 60, 180, 0, &menuOptionsDisplayColor, -1, NULL, 0);
 CGameMenuItemChain itemOptionsDisplayMode("VIDEO MODE", 3, 66, 70, 180, 0, &menuOptionsDisplayMode, -1, SetupVideoModeMenu, 0);
 CGameMenuItemZBool itemOptionsDisplayBoolCrosshair("CROSSHAIR:", 3, 66, 80, 180, cl_crosshair, SetCrosshair, NULL, NULL);
-CGameMenuItemZBool itemOptionsDisplayBoolCenterHoriz("CENTER HORIZON LINE:", 3, 66, 90, 180, gCenterHoriz, SetCenterHoriz, NULL, NULL);
+CGameMenuItemZBool itemOptionsDisplayBoolCenterHoriz("CENTER HORIZON LINE:", 3, 66, 90, 180, r_horizcenter, SetCenterHoriz, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolLevelStats("LEVEL STATS:", 3, 66, 100, 180, hud_stats, SetLevelStats, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolPowerupDuration("POWERUP DURATION:", 3, 66, 110, 180, gPowerupDuration, SetPowerupDuration, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolShowMapTitle("MAP TITLE:", 3, 66, 120, 180, hud_showmapname, SetShowMapTitle, NULL, NULL);
@@ -1145,7 +1145,7 @@ void SetupOptionsMenu(void)
 #endif
     menuOptionsDisplay.Add(&itemBloodQAV, false);
     itemOptionsDisplayBoolCrosshair.at20 = cl_crosshair;
-    itemOptionsDisplayBoolCenterHoriz.at20 = gCenterHoriz;
+    itemOptionsDisplayBoolCenterHoriz.at20 = r_horizcenter;
 	itemOptionsDisplayBoolLevelStats.at20 = hud_stats;
     itemOptionsDisplayBoolPowerupDuration.at20 = gPowerupDuration;
     itemOptionsDisplayBoolShowMapTitle.at20 = hud_showmapname;
@@ -1376,7 +1376,7 @@ void SetCrosshair(CGameMenuItemZBool *pItem)
 
 void SetCenterHoriz(CGameMenuItemZBool *pItem)
 {
-    gCenterHoriz = pItem->at20;
+    r_horizcenter = pItem->at20;
 }
 
 void ResetKeys(CGameMenuItemChain *)

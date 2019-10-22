@@ -3043,7 +3043,7 @@ void viewDrawScreen(void)
 {
     int nPalette = 0;
     static ClockTicks lastUpdate;
-    int defaultHoriz = gCenterHoriz ? 100 : 90;
+    int defaultHoriz = r_horizcenter ? 100 : 90;
 
 #ifdef USE_OPENGL
     polymostcenterhoriz = defaultHoriz;

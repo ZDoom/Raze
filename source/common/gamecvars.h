@@ -56,6 +56,8 @@ EXTERN_CVAR(Bool, hud_stats)
 EXTERN_CVAR(Bool, hud_showmapname)
 EXTERN_CVAR(Int, r_fov)
 
+EXTERN_CVAR(r_horizcenter)
+
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.
 bool G_ChangeHudLayout(int direction);
 bool G_CheckAutorun(bool button);

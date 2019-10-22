@@ -47,9 +47,9 @@ CVARD(Bool, cl_showcoords, false, 0, "show your position in the game world") // 
 CVARD(Bool, cl_weaponsway, true, CVAR_ARCHIVE, "enable/disable player weapon swaying") // Not implemented for Blood
 
 // Todo: Consolidate these to be consistent across games?
-CVARD(Bool, cl_viewbob, true, CVAR_ARCHIVE, "enable/disable player head bobbing") // Not implemented for Blood
-CVARD(Bool, cl_viewhbob, true, CVAR_ARCHIVE, "enable/disable view horizontal bobbing") // Only implemented in Blood
-CVARD(Bool, cl_viewvbob, true, CVAR_ARCHIVE, "enable/disable view vertical bobbing") // Only implemented in Blood
+CVARD(Bool, cl_viewbob, true, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable player head bobbing") // Not implemented for Blood
+CVARD(Bool, cl_viewhbob, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable view horizontal bobbing") // Only implemented in Blood
+CVARD(Bool, cl_viewvbob, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable view vertical bobbing") // Only implemented in Blood
 
 CVARD(Bool, cl_interpolate, true, CVAR_ARCHIVE, "enable/disable view interpolation") // only implemented in Blood
 CVARD(Bool, cl_slopetilting, false, CVAR_ARCHIVE, "enable/disable slope tilting") // only implemented in Blood
@@ -108,7 +108,7 @@ CVARD(Bool, snd_doppler, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable 
 
 CVARD(Bool, mus_enabled, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables music")
 CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "restart the music when loading a saved game with the same map or not") // only implemented for Blood - todo: generalize
-CVARD(Bool, mus_redbook, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables redbook audio (Blood only!)") // only Blood has assets for this.
+CVARD(Bool, mus_redbook, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_FRONTEND_BLOOD, "enables/disables redbook audio (Blood only!)") // only Blood has assets for this.
 
 CUSTOM_CVARD(Bool, snd_reversestereo, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "reverses the stereo channels")
 {
@@ -153,8 +153,10 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
 
 // HUD
 
-// NBlood had this differently with an inverted scale of 0-7 with 0 having no HUD, For consistency all frontends now use the same scale, with 0 being the smallest and 11 being the largest.
-CUSTOM_CVARD(Int, r_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD layout")
+// This was particularly messy. EDuke and Rednukem had no consistent setting for this but a complex combination fo 4 CVARs and lots of mod flags controlling the HUD layout
+// NBlood had this differently with an inverted scale of 0-7 with 0 having no HUD.
+// For consistency all frontends now use the same scale, with 0 being the smallest and 11 being the largest, which get converted to the internal swrrings by the set_hud_layout callback.
+CUSTOM_CVARD(Int, hud_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD size and style")
 {
 	if (self < 0) self = 0;
 	else if (self > 11) self = 11;
@@ -163,37 +165,37 @@ CUSTOM_CVARD(Int, r_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD la
 		if (gi->validate_hud(self))
 			gi->set_hud_layout(self);
 		else
-			OSD_Printf("Hud size %d not available\n");
+			OSD_Printf("Hud size %d not available\n", *self);
 	}
 }
 
-CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the hud scale")//, (void*)&ud.statusbarscale, CVAR_INT | CVAR_FUNCPTR, 36, 100 },
+CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the hud scale")
 {
 	if (self < 36) self = 36;
 	else if (self > 100) self = 100;
-	else gi->set_hud_scale(r_size);
+	else gi->set_hud_scale(hud_size);
 }
 
 // This is to allow flattening the overly complicated HUD configuration to one single value and keep the complexity safely inside the HUD code.
 bool G_ChangeHudLayout(int direction)
 {
-	if (direction < 0 && r_size > 0)
+	if (direction < 0 && hud_size > 0)
 	{
-		int layout = r_size - 1;
+		int layout = hud_size - 1;
 		while (!gi->validate_hud(layout) && layout >= 0) layout--;
 		if (layout >= 0)
 		{
-			r_size = layout;
+			hud_size = layout;
 			return true;
 		}
 	}
-	else if (r_size < 11)
+	else if (hud_size < 11)
 	{
-		int layout = r_size + 1;
+		int layout = hud_size + 1;
 		while (!gi->validate_hud(layout) && layout <= 11) layout++;
 		if (layout <= 11)
 		{
-			r_size = layout;
+			hud_size = layout;
 			return true;
 		}
 	}
@@ -214,6 +216,8 @@ CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field o
 	if (self < 60) self = 60;
 	else if (self < 140) self = 140;
 }
+
+CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable centered horizon line") // only present in Blood, maybe add to others?
 
 #if 0
 
@@ -334,7 +338,6 @@ int32_t registerosdcommands(void)
     char buffer[256];
     static osdcvardata_t cvars_game[] =
     {
-        { "horizcenter", "enable/disable centered horizon line", (void *)&gCenterHoriz, CVAR_BOOL, 0, 1 },
         { "in_joystick","enables input from the joystick if it is present",(void *)&gSetup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","enables input from the mouse if it is present",(void *)&gSetup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 

@@ -80,7 +80,6 @@ extern bool gFullMap;
 extern hashtable_t h_gamefuncs;
 extern int32_t gUpscaleFactor;
 extern int32_t gPowerupDuration;
-extern int32_t gCenterHoriz;
 extern int32_t gDeliriumBlur;
 
 ///////
