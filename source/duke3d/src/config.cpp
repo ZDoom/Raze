@@ -254,7 +254,6 @@ void CONFIG_SetDefaults(void)
     ud.config.SmoothInput     = 1;
     ud.config.useprecache     = 1;
     ud.configversion          = 0;
-    ud.crosshairscale         = 50;
     ud.default_skill          = 1;
     ud.detail                 = 0;
     ud.display_bonus_screen   = 1;

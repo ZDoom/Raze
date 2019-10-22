@@ -1143,7 +1143,7 @@ void G_DisplayRest(int32_t smoothratio)
             vec2_t crosshairpos = { (160<<16) - (g_player[myconnectindex].ps->look_ang<<15), 100<<16 };
             uint8_t crosshair_pal = CROSSHAIR_PAL;
             uint32_t crosshair_o = 1|2;
-            uint32_t crosshair_scale = divscale16(ud.crosshairscale, 100);
+            uint32_t crosshair_scale = divscale16(cl.crosshairscale, 100);
             if (RR)
                 crosshair_scale >>= 1;
 

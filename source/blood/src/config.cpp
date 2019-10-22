@@ -301,7 +301,6 @@ void CONFIG_SetDefaults(void)
     useprecache     = 1;
     configversion          = 0;
     //ud.crosshair              = 1;
-    //ud.crosshairscale         = 50;
     //ud.default_skill          = 1;
     gUpscaleFactor = 0;
     //ud.display_bonus_screen   = 1;

@@ -1465,7 +1465,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_ANGLEINTERPOLATION:     labelNum = ud.angleinterpolation;           break;
         case USERDEFS_OBITUARIES:             labelNum = cl_obituaries;                   break;
         case USERDEFS_LEVELSTATS:             labelNum = ud.levelstats;                   break;
-        case USERDEFS_CROSSHAIRSCALE:         labelNum = ud.crosshairscale;               break;
+        case USERDEFS_CROSSHAIRSCALE:         labelNum = cl_crosshairscale;               break;
         case USERDEFS_ALTHUD:                 labelNum = ud.althud;                       break;
         case USERDEFS_DISPLAY_BONUS_SCREEN:   labelNum = ud.display_bonus_screen;         break;
         case USERDEFS_SHOW_LEVEL_TEXT:        labelNum = ud.show_level_text;              break;
@@ -1665,8 +1665,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_WEAPONSWAY:                   cl_weaponsway                    = iSet; break; //!!!
         case USERDEFS_ANGLEINTERPOLATION:           ud.angleinterpolation            = iSet; break;
         case USERDEFS_OBITUARIES:                   cl_obituaries                    = iSet; break; //!!!
-        case USERDEFS_LEVELSTATS:                   ud.levelstats                    = iSet; break;
-        case USERDEFS_CROSSHAIRSCALE:               ud.crosshairscale                = iSet; break;
+        case USERDEFS_LEVELSTATS:                   ud.levelstats                    = iSet; break; //!!!
+        case USERDEFS_CROSSHAIRSCALE:               cl_crosshairscale                = iSet; break;
         case USERDEFS_ALTHUD:                       ud.althud                        = iSet; break;
         case USERDEFS_DISPLAY_BONUS_SCREEN:         ud.display_bonus_screen          = iSet; break;
         case USERDEFS_SHOW_LEVEL_TEXT:              ud.show_level_text               = iSet; break;

@@ -1119,7 +1119,7 @@ void G_DisplayRest(int32_t smoothratio)
             vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
             uint8_t crosshair_pal = CROSSHAIR_PAL;
             uint32_t crosshair_o = 1|2;
-            uint32_t crosshair_scale = divscale16(ud.crosshairscale, 100);
+            uint32_t crosshair_scale = divscale16(cl.crosshairscale, 100);
 
             auto const oyxaspect = yxaspect;
             if (FURY)

@@ -231,7 +231,6 @@ void CONFIG_SetDefaults(void)
 #endif
 
     ud.color = 0;
-    ud.crosshairscale = 50;
     ud.detail = 0;
     ud.drawweapon = 1;
     ud.levelstats = 0;
