@@ -2011,14 +2011,6 @@ static void Menu_Pre(MenuID_t cm)
         }
         MenuEntry_HideOnCondition(&ME_SCREENSETUP_SCREENSIZE, (MEO_SCREENSETUP_SCREENSIZE.steps < 2));
 
-        vpsize = !(ud.statusbarflags & STATUSBAR_NONONE) +
-                 (ud.screen_size >= 4 && !(ud.statusbarflags & STATUSBAR_NOMODERN)) +
-                 (ud.screen_size >= 4 && ud.althud == 0 && !(ud.statusbarflags & STATUSBAR_NOMINI)) * (ud.statusbarcustom + 1) +
-                 (ud.screen_size >= 8 && !(ud.statusbarflags & STATUSBAR_NOOVERLAY)) +
-                 (ud.screen_size >= 8 && ud.statusbarmode == 0 && !(ud.statusbarflags & STATUSBAR_NOFULL)) +
-                 (ud.screen_size > 8 && !(ud.statusbarflags & STATUSBAR_NOSHRINK)) * ((ud.screen_size - 8) >> 2)
-                 -1;
-
 #ifndef EDUKE32_STANDALONE
 #ifdef TEXFILTER_MENU_OPTIONS
         if (videoGetRenderMode() != REND_CLASSIC)

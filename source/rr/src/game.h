@@ -160,7 +160,7 @@ typedef struct {
     int32_t color,msgdisptime,statusbarmode;
 	int32_t m_noexits,noexits,automsg;
     int32_t team, althud, weaponscale, textscale;
-    int32_t statusbarflags, statusbarrange, statusbarcustom;
+    int32_t statusbarflags, statusbarrange;
     int32_t hudontop;
     int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;

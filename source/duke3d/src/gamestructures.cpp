@@ -1506,7 +1506,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_MENUBACKGROUND:         labelNum = ud.menubackground;               break;
         case USERDEFS_STATUSBARFLAGS:         labelNum = 0/*ud.statusbarflags*/;          break;
         case USERDEFS_STATUSBARRANGE:         labelNum = ud.statusbarrange;               break;
-        case USERDEFS_STATUSBARCUSTOM:        labelNum = ud.statusbarcustom;              break;
+        case USERDEFS_STATUSBARCUSTOM:        labelNum = hud_custom;              break;
         case USERDEFS_HUDONTOP:               labelNum = ud.hudontop;                     break;
         case USERDEFS_MENU_SLIDEBARZ:         labelNum = ud.menu_slidebarz;               break;
         case USERDEFS_MENU_SLIDEBARMARGIN:    labelNum = ud.menu_slidebarmargin;          break;
@@ -1699,7 +1699,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_MENUBACKGROUND:               ud.menubackground                = iSet; break;
         case USERDEFS_STATUSBARFLAGS:               ud.statusbarflags                = iSet; break; // Sigh... Ion Fury needs this. :(
         case USERDEFS_STATUSBARRANGE:               ud.statusbarrange                = iSet; break;
-        case USERDEFS_STATUSBARCUSTOM:              ud.statusbarcustom               = iSet; break;
+        case USERDEFS_STATUSBARCUSTOM:              hud_custom				         = iSet; break; //!!!
         case USERDEFS_HUDONTOP:                     ud.hudontop                      = iSet; break;
         case USERDEFS_MENU_SLIDEBARZ:               ud.menu_slidebarz                = iSet; break;
         case USERDEFS_MENU_SLIDEBARMARGIN:          ud.menu_slidebarmargin           = iSet; break;
