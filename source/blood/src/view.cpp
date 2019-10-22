@@ -2208,7 +2208,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
 
         int nSprite = pTSprite->owner;
-        if (gViewInterpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->flags&512))
+        if (cl_interpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->flags&512))
         {
             LOCATION *pPrevLoc = &gPrevSpriteLoc[nSprite];
             pTSprite->x = interpolate(pPrevLoc->x, pTSprite->x, gInterpolate);
@@ -2514,7 +2514,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     viewAddEffect(nTSprite, VIEW_EFFECT_13);
                 }
                 
-                if (gShowWeapon && gGameOptions.nGameType > 0 && gView) {
+                if (cl_showweapon && gGameOptions.nGameType > 0 && gView) {
                     viewAddEffect(nTSprite, VIEW_EFFECT_12);
                 }
                 
@@ -3062,7 +3062,7 @@ void viewDrawScreen(void)
     {
         gInterpolate = ClipRange(gInterpolate, 0, 65536);
     }
-    if (gViewInterpolate)
+    if (cl_interpolate)
     {
         CalcInterpolations();
     }
@@ -3093,7 +3093,7 @@ void viewDrawScreen(void)
         int v4c = gView->at53;
         int v48 = gView->at4f;
         int nSectnum = gView->pSprite->sectnum;
-        if (gViewInterpolate)
+        if (cl_interpolate)
         {
             if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
             {
@@ -3137,16 +3137,16 @@ void viewDrawScreen(void)
         q16horiz += fix16_from_int(mulscale30(0x40000000-Cos(gView->at35e<<2), 30));
         if (gViewPos == 0)
         {
-            if (gViewHBobbing)
+            if (cl_viewhbob)
             {
                 cX -= mulscale30(v74, Sin(fix16_to_int(cA)))>>4;
                 cY += mulscale30(v74, Cos(fix16_to_int(cA)))>>4;
             }
-            if (gViewVBobbing)
+            if (cl_viewvbob)
             {
                 cZ += v8c;
             }
-            if (gSlopeTilting)
+            if (cl_slopetilting)
             {
                 q16horiz += q16slopehoriz;
             }
@@ -3581,7 +3581,7 @@ RORHACK:
     {
         viewDrawText(0, errMsg, 160, 20, 0, 0, 1, 0);
     }
-    if (gViewInterpolate)
+    if (cl_interpolate)
     {
         RestoreInterpolations();
     }

@@ -295,7 +295,7 @@ void ctrlGetInput(void)
     if (BUTTON(gamefunc_Show_Opponents_Weapon))
     {
         CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
-        gShowWeapon = !gShowWeapon;
+        cl_showweapon = !cl_showweapon;
     }
 
     if (BUTTON(gamefunc_Jump))
