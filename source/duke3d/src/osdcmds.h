@@ -36,7 +36,6 @@ extern struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 int32_t registerosdcommands(void);
 void onvideomodechange(int32_t newmode);
 
-extern float r_ambientlight,r_ambientlightrecip;
 
 extern const char *const ConsoleButtons[];
 

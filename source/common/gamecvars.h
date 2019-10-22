@@ -60,6 +60,9 @@ EXTERN_CVAR(Bool, r_horizcenter)
 EXTERN_CVAR(Int, r_drawweapon)
 EXTERN_CVAR(Int, r_showfps)
 EXTERN_CVAR(Int, r_showfpsperiod)
+EXTERN_CVAR(Int, r_ambientlight)
+EXTERN_CVAR(Int, r_shadows)
+
 
 EXTERN_CVAR(Bool, in_joystick)
 EXTERN_CVAR(Bool, in_mouse)
@@ -69,7 +72,10 @@ EXTERN_CVAR(Int, in_mousedeadzone)
 EXTERN_CVAR(Bool, in_mouseflip)
 EXTERN_CVAR(Bool, in_mousemode)
 EXTERN_CVAR(Bool, in_mousesmoothing)
+extern int32_t g_MyAimMode;
+EXTERN_CVAR(Bool, in_mousemode)
 
+extern float r_ambientlightrecip;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.
 bool G_ChangeHudLayout(int direction);
 bool G_CheckAutorun(bool button);

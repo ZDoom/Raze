@@ -105,7 +105,6 @@ struct GINPUT
 
 extern GINPUT gInput;
 extern bool bSilentAim;
-extern int32_t gMouseAim; // Should be an int32 due to being passed to OSD
 
 int32_t ctrlCheckAllInput(void);
 void ctrlClearAllInput(void);

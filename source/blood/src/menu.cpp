@@ -488,7 +488,7 @@ CGameMenuItemTitle itemOptionsDisplayColorTitle("COLOR CORRECTION", 1, 160, 20, 
 CGameMenuItemSliderFloat itemOptionsDisplayColorGamma("GAMMA:", 3, 66, 140, 180, &g_videoGamma, 0.3f, 4.f, 0.1f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
 CGameMenuItemSliderFloat itemOptionsDisplayColorContrast("CONTRAST:", 3, 66, 150, 180, &g_videoContrast, 0.1f, 2.7f, 0.05f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
 CGameMenuItemSliderFloat itemOptionsDisplayColorBrightness("BRIGHTNESS:", 3, 66, 160, 180, &g_videoBrightness, -0.8f, 0.8f, 0.05f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
-CGameMenuItemSliderFloat itemOptionsDisplayColorVisibility("VISIBILITY:", 3, 66, 170, 180, &r_ambientlight, 0.125f, 4.f, 0.125f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
+CGameMenuItemSliderFloat itemOptionsDisplayColorVisibility("VISIBILITY:", 3, 66, 170, 180, &r_ambientlight.Value, 0.125f, 4.f, 0.125f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
 CGameMenuItemChain itemOptionsDisplayColorReset("RESET TO DEFAULTS", 3, 66, 180, 180, 0, NULL, 0, ResetVideoColor, 0);
 
 const char *pzTextureModeStrings[] = {
@@ -1665,7 +1665,6 @@ void UpdateVideoColorMenu(CGameMenuItemSliderFloat *pItem)
     g_videoContrast = itemOptionsDisplayColorContrast.fValue;
     g_videoBrightness = itemOptionsDisplayColorBrightness.fValue;
     r_ambientlight = itemOptionsDisplayColorVisibility.fValue;
-    r_ambientlightrecip = 1.f/r_ambientlight;
     gBrightness = GAMMA_CALC<<2;
     videoSetPalette(gBrightness>>2, gLastPal, 0);
 }
@@ -1685,7 +1684,7 @@ void ResetVideoColor(CGameMenuItemChain *pItem)
     g_videoContrast = DEFAULT_CONTRAST;
     g_videoBrightness = DEFAULT_BRIGHTNESS;
     gBrightness = 0;
-    r_ambientlight = r_ambientlightrecip = 1.f;
+    r_ambientlight = 1.f;
     videoSetPalette(gBrightness>>2, gLastPal, 0);
 }
 
@@ -1909,7 +1908,7 @@ void SetMouseAimMode(CGameMenuItemZBool *pItem)
 
 void SetMouseVerticalAim(CGameMenuItemZBool *pItem)
 {
-    gMouseAim = pItem->at20;
+    in_mousemode = pItem->at20;
 }
 
 void SetMouseXScale(CGameMenuItemSlider *pItem)
@@ -1973,7 +1972,7 @@ void SetupMouseMenu(CGameMenuItemChain *pItem)
     itemOptionsControlMouseAimFlipped.at20 = in_mouseflip;
     itemOptionsControlMouseFilterInput.at20 = in_mousesmoothing;
     itemOptionsControlMouseAimMode.at20 = in_aimmode;
-    itemOptionsControlMouseVerticalAim.at20 = gMouseAim;
+	itemOptionsControlMouseVerticalAim.at20 = g_MyAimMode;
 }
 
 void PreDrawControlMouse(CGameMenuItem *pItem)

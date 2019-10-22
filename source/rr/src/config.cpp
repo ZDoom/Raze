@@ -235,8 +235,7 @@ void CONFIG_SetDefaults(void)
     ud.pwlockout[0] = '\0';
     ud.runkey_mode = 0;
     ud.screen_size = 4;
-    ud.screen_tilting = 1;
-    ud.shadows = 1;
+	ud.screen_tilting = 1;
     ud.statusbarflags = STATUSBAR_NOSHRINK;
     ud.statusbarmode = 1;
     ud.statusbarscale = 100;

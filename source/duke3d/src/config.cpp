@@ -227,7 +227,6 @@ void CONFIG_SetDefaults(void)
 
 	ud.camera_time    = 0;//4;
 
-    g_myAimMode = 1;
     g_player[0].ps->aim_mode = 1;
 
     ud.setup.forcesetup       = 1;
@@ -265,7 +264,6 @@ void CONFIG_SetDefaults(void)
     ud.screen_tilting         = 1;
     ud.screenfade             = 1;
     ud.shadow_pal             = 4;
-    ud.shadows                = 1;
     ud.show_level_text        = 1;
     ud.slidebar_paldisabled   = 1;
     ud.statusbarflags         = 0;//STATUSBAR_NOSHRINK;

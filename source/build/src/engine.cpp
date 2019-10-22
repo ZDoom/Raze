@@ -6871,7 +6871,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     int32_t ouryxaspect, ourxyaspect;
 
-    if (g_rotatespriteNoWidescreen)
+    if (r_rotatespritenowidescreen)
     {
         dastat |= RS_STRETCH;
         dastat &= ~RS_ALIGN_MASK;

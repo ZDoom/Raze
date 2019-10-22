@@ -101,7 +101,6 @@ extern bool g_isAlterDefaultCrosshair;
 extern int32_t r_maxfps;
 extern int32_t r_maxfpsoffset;
 extern double g_frameDelay;
-extern float r_ambientlight, r_ambientlightrecip;
 extern int gLastPal;
 
 

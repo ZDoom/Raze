@@ -78,7 +78,6 @@ char CommbatMacro[MAXRIDECULE][MAXRIDECULELENGTH];
 char szPlayerName[MAXPLAYERNAME];
 int32_t gTurnSpeed;
 int32_t gDetail;
-int32_t gMouseAim;
 int32_t cl_weaponswitch;
 int32_t gAutoRun;
 int32_t gFollowMap;
@@ -303,7 +302,6 @@ void CONFIG_SetDefaults(void)
     //ud.screen_tilting         = 1;
     //ud.screenfade             = 1;
     //ud.shadow_pal             = 4;
-    //ud.shadows                = 1;
     //ud.show_level_text        = 1;
     //ud.slidebar_paldisabled   = 1;
     //ud.statusbarflags         = STATUSBAR_NOSHRINK;

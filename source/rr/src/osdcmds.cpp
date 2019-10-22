@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_RR_NS
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
-float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 
 static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
 {
@@ -1238,12 +1237,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
         if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);
         g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
     }
-    else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
-    {
-        if (r_ambientlight == 0)
-            r_ambientlightrecip = 256.f;
-        else r_ambientlightrecip = 1.f/r_ambientlight;
-    }
     else if (!Bstrcasecmp(parm->name, "vid_gamma"))
     {
         ud.brightness = GAMMA_CALC;
@@ -1253,12 +1246,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
     else if (!Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
     {
         videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-    }
-    else if (!Bstrcasecmp(parm->name, "hud_scale")
-             || !Bstrcasecmp(parm->name, "hud_statusbarmode")
-             || !Bstrcasecmp(parm->name, "r_rotatespritenowidescreen"))
-    {
-        G_UpdateScreenArea();
     }
     else if (!Bstrcasecmp(parm->name, "skill"))
     {

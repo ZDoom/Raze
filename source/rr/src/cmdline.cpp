@@ -484,12 +484,6 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1, "rotatesprite-no-widescreen"))
-                {
-                    g_rotatespriteNoWidescreen = 1;
-                    i++;
-                    continue;
-                }
                 if (!Bstrcasecmp(c+1, "usecwd"))
                 {
                     i++;

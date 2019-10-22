@@ -163,7 +163,7 @@ typedef struct {
     int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
-    int32_t entered_name,screen_tilting,shadows,fta_on,executions;
+    int32_t entered_name,screen_tilting,fta_on,executions;
     int32_t m_coop,coop,screen_size,lockout,crosshair;
     int32_t playerai,angleinterpolation;
 
@@ -259,7 +259,6 @@ extern const char *G_DefaultRtsFile(void);
 extern char ror_protectedsectors[MAXSECTORS];
 #endif
 
-extern float r_ambientlight;
 
 extern int32_t g_Debug;
 extern int32_t g_Shareware;

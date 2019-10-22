@@ -1408,12 +1408,12 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_RECCNT:                 labelNum = ud.reccnt;                       break;
         case USERDEFS_ENTERED_NAME:           labelNum = ud.entered_name;                 break;
         case USERDEFS_SCREEN_TILTING:         labelNum = ud.screen_tilting;               break;
-        case USERDEFS_SHADOWS:                labelNum = ud.shadows;                      break;
+		case USERDEFS_SHADOWS:                labelNum = r_shadows;                       break;
         case USERDEFS_FTA_ON:                 labelNum = ud.fta_on;                       break;
         case USERDEFS_EXECUTIONS:             labelNum = ud.executions;                   break;
         case USERDEFS_AUTO_RUN:               labelNum = cl_autorun;                      break;
         case USERDEFS_COORDS:                 labelNum = cl_showcoords;                   break;
-        case USERDEFS_TICKRATE:               labelNum = r_showfps;                      break;
+        case USERDEFS_TICKRATE:               labelNum = r_showfps;                       break;
         case USERDEFS_M_COOP:                 labelNum = ud.m_coop;                       break;
         case USERDEFS_COOP:                   labelNum = ud.coop;                         break;
         case USERDEFS_SCREEN_SIZE:            labelNum = ud.screen_size;                  break;
@@ -1604,7 +1604,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_RECCNT:                       ud.reccnt                        = iSet; break;
         case USERDEFS_ENTERED_NAME:                 ud.entered_name                  = iSet; break;
         case USERDEFS_SCREEN_TILTING:               ud.screen_tilting                = iSet; break;
-        case USERDEFS_SHADOWS:                      ud.shadows                       = iSet; break;
+        case USERDEFS_SHADOWS:                      r_shadows                        = iSet; break;//!!!
         case USERDEFS_FTA_ON:                       ud.fta_on                        = iSet; break;
         case USERDEFS_EXECUTIONS:                   ud.executions                    = iSet; break;
         case USERDEFS_AUTO_RUN:                     cl_autorun                       = iSet; break; //!!!
@@ -1649,7 +1649,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_MOUSEFLIP:                    in_mouseflip                     = !iSet; break;//!!!
         case USERDEFS_STATUSBARSCALE:               ud.statusbarscale                = iSet; break;
         case USERDEFS_DRAWWEAPON:                   r_drawweapon                     = iSet; break;//!!!
-        case USERDEFS_MOUSEAIMING:                  in_aoimmode                      = iSet; break;//!!!
+        case USERDEFS_MOUSEAIMING:                  in_aimmode                      = iSet; break;//!!!
         case USERDEFS_WEAPONSWITCH:                 cl_weaponswitch                  = iSet; break; //!!!
         case USERDEFS_DEMOCAMS:                     cl_democams                      = iSet; break;
         case USERDEFS_COLOR:                        ud.color                         = iSet; break;

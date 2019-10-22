@@ -734,7 +734,6 @@ enum {
 
 EXTERN char showinvisibility;
 EXTERN int32_t g_visibility, parallaxvisibility;
-EXTERN int32_t g_rotatespriteNoWidescreen;
 
 // blendtable[1] to blendtable[numalphatabs] are considered to be
 // alpha-blending tables:

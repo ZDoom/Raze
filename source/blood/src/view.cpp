@@ -3033,7 +3033,6 @@ int viewFPSLimit(void)
     return 0;
 }
 
-float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 
 int gLastPal = 0;
 

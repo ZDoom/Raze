@@ -5648,7 +5648,7 @@ skip:
                 if (actor[i].flags & SFLAG_NOFLOORSHADOW)
                     continue;
 
-                if (ud.shadows && spritesortcnt < (maxspritesonscreen-2)
+                if (r_shadows && spritesortcnt < (maxspritesonscreen-2)
 #ifdef POLYMER
                     && !(videoGetRenderMode() == REND_POLYMER && pr_lighting != 0)
 #endif

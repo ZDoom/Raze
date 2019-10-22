@@ -2734,7 +2734,7 @@ enddisplayweapon:
 #define MAXANGVEL    1024
 #define MAXHORIZ     256
 
-int32_t g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
+int32_t g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
 
 void P_GetInput(int playerNum)
@@ -2758,7 +2758,7 @@ void P_GetInput(int playerNum)
     CONTROL_ProcessBinds();
 
     if (in_aimmode)
-        g_myAimMode = BUTTON(gamefunc_Mouse_Aiming);
+        g_MyAimMode = BUTTON(gamefunc_Mouse_Aiming);
     else
     {
         g_oldAimStat = g_myAimStat;
@@ -2766,8 +2766,8 @@ void P_GetInput(int playerNum)
 
         if (g_myAimStat > g_oldAimStat)
         {
-            g_myAimMode ^= 1;
-            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_myAimMode, pPlayer);
+            g_MyAimMode ^= 1;
+            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_MyAimMode, pPlayer);
         }
     }
 
@@ -2819,7 +2819,7 @@ void P_GetInput(int playerNum)
         input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
     }
 
-    if (g_myAimMode)
+    if (g_MyAimMode)
         input.q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
     else
         input.fvel = -(info.mousey >> 6);
@@ -2984,7 +2984,7 @@ void P_GetInput(int playerNum)
     localInput.bits |= BUTTON(gamefunc_Quick_Kick) << SK_QUICK_KICK;
     localInput.bits |= BUTTON(gamefunc_TurnAround) << SK_TURNAROUND;
 
-    localInput.bits |= (g_myAimMode << SK_AIMMODE);
+    localInput.bits |= (g_MyAimMode << SK_AIMMODE);
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
     localInput.bits |= KB_KeyPressed(sc_Pause) << SK_PAUSE;
     localInput.bits |= ((uint32_t)KB_KeyPressed(sc_Escape)) << SK_ESCAPE;
@@ -3064,7 +3064,7 @@ void P_GetInputMotorcycle(int playerNum)
     CONTROL_ProcessBinds();
 
     if (in_aimmode)
-        g_myAimMode = BUTTON(gamefunc_Mouse_Aiming);
+        g_MyAimMode = BUTTON(gamefunc_Mouse_Aiming);
     else
     {
         g_oldAimStat = g_myAimStat;
@@ -3072,8 +3072,8 @@ void P_GetInputMotorcycle(int playerNum)
 
         if (g_myAimStat > g_oldAimStat)
         {
-            g_myAimMode ^= 1;
-            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_myAimMode, pPlayer);
+            g_MyAimMode ^= 1;
+            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_MyAimMode, pPlayer);
         }
     }
 
@@ -3362,7 +3362,7 @@ void P_GetInputBoat(int playerNum)
     CONTROL_ProcessBinds();
 
     if (in_aimmode)
-        g_myAimMode = BUTTON(gamefunc_Mouse_Aiming);
+        g_MyAimMode = BUTTON(gamefunc_Mouse_Aiming);
     else
     {
         g_oldAimStat = g_myAimStat;
@@ -3370,8 +3370,8 @@ void P_GetInputBoat(int playerNum)
 
         if (g_myAimStat > g_oldAimStat)
         {
-            g_myAimMode ^= 1;
-            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_myAimMode, pPlayer);
+            g_MyAimMode ^= 1;
+            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_MyAimMode, pPlayer);
         }
     }
 

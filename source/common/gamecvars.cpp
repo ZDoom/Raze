@@ -230,6 +230,12 @@ CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCAL
 	CONTROL_MouseEnabled = (self && CONTROL_MousePresent);
 }
 
+int32_t g_MyAimMode = 1;
+CUSTOM_CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
+{
+	g_MyAimMode = self;	// Needs to be copied to a shadow variable because the input code messes around with this setting - but that should not affect the user's original choice.
+}
+
 CVARD(Bool, in_aimmode, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "0:toggle, 1:hold to aim")
 CVARD(Bool, in_mouseflip, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
@@ -265,19 +271,33 @@ CUSTOM_CVARD(Int, r_showfpsperiod, 0, 0, "time in seconds before averaging min a
 	if (self < 0 || self > 5) self = 1;
 }
 
+float r_ambientlightrecip;
+
+CUSTOM_CVARD(Float, r_ambientlight, 1.0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "sets the global map light level")
+{
+	if (self < 0.1f) self = 0.1f;
+	else if (self > 10.f) self = 10.f;
+	else r_ambientlightrecip = 1.f / self;
+}
+
+CVARD(Bool, r_shadows, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable sprite and model shadows")//, (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
+
+// Gross hack stuff. Only settable from the command line
+CVARD(Bool, r_rotatespritenowidescreen, false, CVAR_NOSET, "pass bit 1024 to all CON rotatesprite calls")
+
 #if 0
 
 // DN3D
     static osdcvardata_t cvars_game[] =
     {
-
-        { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
-        { "r_rotatespritenowidescreen", "pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "r_precache", "enable/disable the pre-level caching routine", (void *)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
+	{ "r_precache", "enable/disable the pre-level caching routine", (void *)&useprecache, CVAR_BOOL, 0, 1 },
 
-        { "r_ambientlight", "sets the global map light level",(void *)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+
         { "r_maxfps", "limit the frame rate",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
-        { "r_maxfpsoffset", "menu-controlled offset for r_maxfps",(void *)&r_maxfpsoffset, CVAR_INT|CVAR_FUNCPTR, -10, 10 },
+	{ "r_maxfps", "limit the frame rate",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
+		{ "r_maxfpsoffset", "menu-controlled offset for r_maxfps",(void *)&r_maxfpsoffset, CVAR_INT|CVAR_FUNCPTR, -10, 10 },
+	{ "r_maxfpsoffset", "menu-controlled offset for r_maxfps",(void *)&r_maxfpsoffset, CVAR_INT|CVAR_FUNCPTR, -10, 10 },
 
         { "sensitivity","changes the mouse sensitivity", (void *)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
 
@@ -287,99 +307,6 @@ CUSTOM_CVARD(Int, r_showfpsperiod, 0, 0, "time in seconds before averaging min a
 
         { "wchoice","sets weapon autoselection order", (void *)ud.wchoice, CVAR_STRING|CVAR_FUNCPTR, 0, MAX_WEAPONS },
     };
-
-    osdcmd_cheatsinfo_stat.cheatnum = -1;
-
-    for (auto & cv : cvars_game)
-    {
-        switch (cv.flags & (CVAR_FUNCPTR|CVAR_MULTI))
-        {
-            case CVAR_FUNCPTR:
-                OSD_RegisterCvar(&cv, osdcmd_cvar_set_game); break;
-            case CVAR_MULTI:
-            case CVAR_FUNCPTR|CVAR_MULTI:
-                OSD_RegisterCvar(&cv, osdcmd_cvar_set_multi); break;
-            default:
-                OSD_RegisterCvar(&cv, osdcmd_cvar_set); break;
-        }
-    }
-
-// RR
-
-    static osdcvardata_t cvars_game[] =
-    {
-        { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
-        { "r_rotatespritenowidescreen", "pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "r_precache", "enable/disable the pre-level caching routine", (void *)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
-
-        { "r_ambientlight", "sets the global map light level",(void *)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-        { "r_maxfps", "limit the frame rate",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
-        { "r_maxfpsoffset", "menu-controlled offset for r_maxfps",(void *)&r_maxfpsoffset, CVAR_INT|CVAR_FUNCPTR, -10, 10 },
-
-        { "sensitivity","changes the mouse sensitivity", (void *)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
-
-        { "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
-
-        { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
-
-		{ "wchoice","sets weapon autoselection order", (void *)ud.wchoice, CVAR_STRING|CVAR_FUNCPTR, 0, MAX_WEAPONS },
-    };
-
-    osdcmd_cheatsinfo_stat.cheatnum = -1;
-
-    for (auto & cv : cvars_game)
-    {
-        switch (cv.flags & (CVAR_FUNCPTR|CVAR_MULTI))
-        {
-            case CVAR_FUNCPTR:
-                OSD_RegisterCvar(&cv, osdcmd_cvar_set_game); break;
-            case CVAR_MULTI:
-            case CVAR_FUNCPTR|CVAR_MULTI:
-                OSD_RegisterCvar(&cv, osdcmd_cvar_set_multi); break;
-            default:
-                OSD_RegisterCvar(&cv, osdcmd_cvar_set); break;
-        }
-    }
-
-// Blood
-
-int32_t registerosdcommands(void)
-{
-    char buffer[256];
-    static osdcvardata_t cvars_game[] =
-    {
-
-//        { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
-//        { "r_rotatespritenowidescreen", "pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-},
-        { "r_precache", "enable/disable the pre-level caching routine", (void *)&useprecache, CVAR_BOOL, 0, 1 },
-//
-        { "r_ambientlight", "sets the global map light level",(void *)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-        { "r_maxfps", "limit the frame rate",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
-        { "r_maxfpsoffset", "menu-controlled offset for r_maxfps",(void *)&r_maxfpsoffset, CVAR_INT|CVAR_FUNCPTR, -10, 10 },
-
-        { "sensitivity","changes the mouse sensitivity", (void *)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
-//
-//        { "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
-//
-//        { "wchoice","sets weapon autoselection order", (void *)ud.wchoice, CVAR_STRING|CVAR_FUNCPTR, 0, MAX_WEAPONS },
-    };
-//
-//    osdcmd_cheatsinfo_stat.cheatnum = -1;
-//
-    for (auto & cv : cvars_game)
-    {
-        switch (cv.flags & (CVAR_FUNCPTR|CVAR_MULTI))
-        {
-            case CVAR_FUNCPTR:
-                OSD_RegisterCvar(&cv, osdcmd_cvar_set_game); break;
-            case CVAR_MULTI:
-            case CVAR_FUNCPTR|CVAR_MULTI:
-                OSD_RegisterCvar(&cv, osdcmd_cvar_set_multi); break;
-            default:
-                OSD_RegisterCvar(&cv, osdcmd_cvar_set); break;
-        }
-    }
 
 // These I don't care about.
 //{ "r_upscalefactor", "increase performance by rendering at upscalefactor less than the screen resolution and upscale to the full resolution in the software renderer", (void *)&ud.detail, CVAR_INT|CVAR_FUNCPTR, 1, 16 },
@@ -408,8 +335,6 @@ int32_t registerosdcommands(void)
 	{ "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
 
 	// This one gets changed at run time by the game code, so making it persistent does not work
-    { "in_mousemode", "toggles vertical mouse view", (void *)&in_mousemode.Value, CVAR_BOOL, 0, 1 },
-    { "in_mousemode", "toggles vertical mouse view", (void *)&gMouseAim, CVAR_BOOL, 0, 1 },
 
 	// This option is not really useful anymore
 	{ "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },

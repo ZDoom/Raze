@@ -784,12 +784,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
         if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);
         g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
     }
-    else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
-    {
-        if (r_ambientlight == 0)
-            r_ambientlightrecip = 256.f;
-        else r_ambientlightrecip = 1.f/r_ambientlight;
-    }
     else if (!Bstrcasecmp(parm->name, "vid_gamma"))
     {
         gBrightness = GAMMA_CALC;
@@ -801,12 +795,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
         videoSetPalette(gBrightness>>2,gLastPal,0);
     }
 #if 0
-    else if (!Bstrcasecmp(parm->name, "hud_scale")
-             || !Bstrcasecmp(parm->name, "hud_statusbarmode")
-             || !Bstrcasecmp(parm->name, "r_rotatespritenowidescreen"))
-    {
-        G_UpdateScreenArea();
-    }
     else if (!Bstrcasecmp(parm->name, "skill"))
     {
         if (numplayers > 1)

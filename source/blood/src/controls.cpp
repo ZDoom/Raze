@@ -188,18 +188,18 @@ void ctrlGetInput(void)
 
     CONTROL_ProcessBinds();
 
-    if (gMouseAiming)
-        gMouseAim = 0;
+    if (in_aimmode)
+        g_MyAimMode = 0;
 
     if (BUTTON(gamefunc_Mouse_Aiming))
     {
-        if (gMouseAiming)
-            gMouseAim = 1;
+        if (in_aimmode)
+            g_MyAimMode = 1;
         else
         {
             CONTROL_ClearButton(gamefunc_Mouse_Aiming);
-            gMouseAim = !gMouseAim;
-            if (gMouseAim)
+            g_MyAimMode = !g_MyAimMode;
+            if (g_MyAimMode)
             {
                 if (!bSilentAim)
                     viewSetMessage("Mouse aiming ON");
@@ -212,7 +212,7 @@ void ctrlGetInput(void)
             }
         }
     }
-    else if (gMouseAiming)
+    else if (in_aimmode)
         gInput.keyFlags.lookCenter = 1;
 
     CONTROL_GetInput(&info);
@@ -488,7 +488,7 @@ void ctrlGetInput(void)
     else
         gInput.mlook = ClipRange(info.dz>>7, -127, 127);
 #endif
-    if (gMouseAim)
+    if (g_MyAimMode)
         gInput.q16mlook = fix16_clamp(fix16_div(fix16_from_int(info.mousey), F16(128)), F16(-127)>>2, F16(127)>>2);
     else
         forward = ClipRange(forward - info.mousey, -2048, 2048);
