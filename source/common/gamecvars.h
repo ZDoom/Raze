@@ -21,6 +21,8 @@ EXTERN_CVAR(Bool, cl_viewvbob)
 EXTERN_CVAR(Bool, cl_interpolate)
 EXTERN_CVAR(Bool, cl_slopetilting)
 EXTERN_CVAR(Bool, cl_showweapon)
+EXTERN_CVAR(Int, cl_weaponswitch)
+EXTERN_CVAR(Int, cl_crosshairscale)
 
 EXTERN_CVAR(Bool, demorec_diffcompress_cvar)
 EXTERN_CVAR(Bool, demorec_synccompress_cvar)

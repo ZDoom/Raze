@@ -32,16 +32,20 @@ CVARD(Bool, cl_viewvbob, true, CVAR_ARCHIVE, "enable/disable view vertical bobbi
 CVARD(Bool, cl_interpolate, true, CVAR_ARCHIVE, "enable/disable view interpolation") // only implemented in Blood
 CVARD(Bool, cl_slopetilting, false, CVAR_ARCHIVE, "enable/disable slope tilting") // only implemented in Blood
 CVARD(Bool, cl_showweapon, true, CVAR_ARCHIVE, "enable/disable show weapons") // only implemented in Blood
-CVARD(Bool, cl_crosshairscale, 50, CVAR_ARCHIVE, "changes the size of the crosshair")
+CUSTOM_CVARD(Int, cl_crosshairscale, 50, CVAR_ARCHIVE, "changes the size of the crosshair")
+{
+	if (self < 1) self = 1;
+	else if (self > 100) self = 100;
+}
 
 
-CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE, "enable/disable weapon autoaim")
+CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable weapon autoaim")
 {
 	if (self < 0 || self > (playing_blood? 2 : 3)) self = 1;	// The Shadow Warrior backend only has a bool for this.
 	//UpdatePlayerFromMenu(); todo: networking (only operational in EDuke32 frontend anyway.)
 };
 
-CUSTOM_CVARD(Int, cl_weaponswitch, 3, CVAR_ARCHIVE, "enable/disable auto weapon switching")//, (void *)&cl_weaponswitch, CVAR_INT|CVAR_MULTI, 0, 7 },  (void *)&cl_weaponswitch, CVAR_INT|CVAR_MULTI, 0, 3 },
+CUSTOM_CVARD(Int, cl_weaponswitch, 3, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable auto weapon switching")
 
 {
 	if (self < 0) self = 0;

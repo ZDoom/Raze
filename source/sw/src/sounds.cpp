@@ -1802,7 +1802,7 @@ DoUpdateSounds3D(void)
                 //if (FX_SoundsPlaying() < snd_numvoices && dist <= 255)
                 if (dist <= 255)
                 {
-                    for (i=0; i<min((int)SIZ(TmpVocArray), snd_numvoices); i++)
+                    for (i=0; i<min((int)SIZ(TmpVocArray), *snd_numvoices); i++)
                     {
                         if (p->priority >= TmpVocArray[i].priority)
                         {
@@ -1830,7 +1830,7 @@ DoUpdateSounds3D(void)
     // Only update these sounds 5x per second!  Woo hoo!, aren't we optimized now?
     //if(MoveSkip8==0)
     //    {
-    for (i=0; i<min((int)SIZ(TmpVocArray), snd_numvoices); i++)
+    for (i=0; i<min((int)SIZ(TmpVocArray), *snd_numvoices); i++)
     {
         int handle;
 

@@ -8,6 +8,7 @@
 #include "build.h"
 #include "baselayer.h"
 #include "palette.h"
+#include "gamecvars.h"
 
 #include "grpscan.h"
 

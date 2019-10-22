@@ -214,11 +214,6 @@ const GAME_SET gs_defaults =
     TRUE, // crosshair
     TRUE, // auto aim
     TRUE, // messages
-    TRUE, // fx on
-    TRUE, // Music on
-    TRUE, // talking
-    TRUE, // ambient
-    FALSE, // Flip Stereo
 
 // Network game settings
     0, // GameType

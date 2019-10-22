@@ -225,7 +225,7 @@ CGameMenuItemSlider sliderDetail("DETAIL:", 3, 66, 50, 180, gDetail, 0, 4, 1, Se
 CGameMenuItemSlider sliderGamma("GAMMA:", 3, 66, 60, 180, gGamma, 0, 15, 2, SetGamma, -1, -1);
 CGameMenuItemSlider sliderMusic("MUSIC:", 3, 66, 70, 180, mus_volume, 0, 256, 48, SetMusicVol, -1, -1);
 CGameMenuItemSlider sliderSound("SOUND:", 3, 66, 80, 180, snd_fxvolume, 0, 256, 48, SetSoundVol, -1, -1);
-CGameMenuItemSlider sliderCDAudio("CD AUDIO:", 3, 66, 90, 180, CDVolume, 0, 256, 48, SetCDVol, -1, -1);
+//CGameMenuItemSlider sliderCDAudio("CD AUDIO:", 3, 66, 90, 180, CDVolume, 0, 256, 48, SetCDVol, -1, -1);
 CGameMenuItemZBool bool3DAudio("3D AUDIO:", 3, 66, 100, 180, snd_doppler, SetDoppler, NULL, NULL);
 CGameMenuItemZBool boolCrosshair("CROSSHAIR:", 3, 66, 110, 180, cl_crosshair, SetCrosshair, NULL, NULL);
 CGameMenuItemZBool boolShowWeapons("SHOW WEAPONS:", 3, 66, 120, 180, cl_showweapon, SetShowWeapons, NULL, NULL);
@@ -301,7 +301,7 @@ CGameMenuItemText itemLoadingText("LOADING...", 1, 160, 100, 1);
 CGameMenuItemTitle itemSoundsTitle("SOUNDS", 1, 160, 20, 2038);
 CGameMenuItemSlider itemSoundsMusic("MUSIC:", 3, 40, 60, 180, mus_volume, 0, 256, 48, SetMusicVol, -1, -1);
 CGameMenuItemSlider itemSoundsSound("SOUND:", 3, 40, 70, 180, snd_fxvolume, 0, 256, 48, SetSoundVol, -1, -1);
-CGameMenuItemSlider itemSoundsCDAudio("CD AUDIO:", 3, 40, 80, 180, CDVolume, 0, 256, 48, SetCDVol, -1, -1);
+//CGameMenuItemSlider itemSoundsCDAudio("CD AUDIO:", 3, 40, 80, 180, CDVolume, 0, 256, 48, SetCDVol, -1, -1);
 CGameMenuItemZBool itemSounds3DAudio("3D SOUND:", 3, 40, 90, 180, snd_doppler, SetDoppler, NULL, NULL);
 
 CGameMenuItemTitle itemQuitTitle("QUIT", 1, 160, 20, 2038);
@@ -763,7 +763,7 @@ void SetupOptionsOldMenu(void)
     menuOptionsOld.Add(&sliderGamma, false);
     menuOptionsOld.Add(&sliderMusic, false);
     menuOptionsOld.Add(&sliderSound, false);
-    menuOptionsOld.Add(&sliderCDAudio, false);
+    //menuOptionsOld.Add(&sliderCDAudio, false);
     menuOptionsOld.Add(&bool3DAudio, false);
     menuOptionsOld.Add(&boolCrosshair, false);
     menuOptionsOld.Add(&boolShowWeapons, false);
@@ -1011,7 +1011,7 @@ void SetupSoundsMenu(void)
     menuSounds.Add(&itemSoundsTitle, false);
     menuSounds.Add(&itemSoundsMusic, true);
     menuSounds.Add(&itemSoundsSound, false);
-    menuSounds.Add(&itemSoundsCDAudio, false);
+    //menuSounds.Add(&itemSoundsCDAudio, false);
     menuSounds.Add(&itemSounds3DAudio, false);
     menuSounds.Add(&itemBloodQAV, false);
 }
@@ -1853,7 +1853,7 @@ void SetSound(CGameMenuItemChain *pItem)
     UNREFERENCED_PARAMETER(pItem);
     snd_mixrate = nSoundRateValues[itemOptionsSoundSampleRate.m_nFocus];
     snd_numvoices = itemOptionsSoundNumVoices.nValue;
-    MusicDevice = itemOptionsSoundMusicDevice.m_nFocus;
+    //MusicDevice = itemOptionsSoundMusicDevice.m_nFocus;
     sfxTerm();
     sndTerm();
 
@@ -1886,7 +1886,7 @@ void SetupOptionsSound(CGameMenuItemChain *pItem)
         }
     }
     itemOptionsSoundNumVoices.nValue = snd_numvoices;
-    itemOptionsSoundMusicDevice.m_nFocus = MusicDevice;
+	itemOptionsSoundMusicDevice.m_nFocus = 1;// MusicDevice;
 }
 
 void UpdatePlayerName(CGameMenuItemZEdit *pItem, CGameMenuEvent *pEvent)

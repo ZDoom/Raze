@@ -72,8 +72,7 @@ void S_SoundStartup(void)
         return;
     }
 
-    initprintf("%d voices, %d channels, 16-bit %d Hz\n", snd_numvoices, snd_numchannels,
-        snd_mixrate);
+	initprintf("%d voices, %d channels, 16-bit %d Hz\n", *snd_numvoices, *snd_numchannels, *snd_mixrate);
 
     for (int i = 0; i <= g_highestSoundIdx; ++i)
     {

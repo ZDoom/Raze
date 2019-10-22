@@ -437,7 +437,7 @@ void DeinitSoundDevice(void)
 
 void InitMusicDevice(void)
 {
-    int nStatus = MUSIC_Init(MusicDevice, 0);
+    int nStatus = MUSIC_Init(1/*MusicDevice*/, 0);
     if (nStatus != 0)
     {
         initprintf("InitMusicDevice: %s\n", MUSIC_ErrorString(nStatus));

@@ -47,7 +47,7 @@ CVARS (console variables)
 enum
 {
 	CVAR_ARCHIVE		= 1,	// set to cause it to be saved to config
-	//CVAR_USERINFO		= 2,	// added to userinfo  when changed
+	CVAR_USERINFO		= 2,	// added to userinfo  when changed
 	CVAR_SERVERINFO		= 4,	// added to serverinfo when changed
 	CVAR_NOSET			= 8,	// don't allow change from console at all,
 								// but can be set from the command line

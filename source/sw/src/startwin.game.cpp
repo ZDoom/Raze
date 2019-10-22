@@ -18,6 +18,7 @@
 #include "config.h"
 
 #include "grpscan.h"
+#include "gamecvars.h"
 
 #include "startwin.game.h"
 
@@ -630,9 +631,9 @@ int startwin_run(void)
     settings.xdim = ScreenWidth;
     settings.ydim = ScreenHeight;
     settings.bpp = ScreenBPP;
-    settings.samplerate = MixRate;
-    settings.bitspersample = NumBits;
-    settings.channels = NumChannels;
+    settings.samplerate = snd_mixrate;
+    settings.bitspersample = 16;
+    settings.channels = snd_numchannels;
     settings.forcesetup = ForceSetup;
     settings.usemouse = UseMouse;
     settings.usejoy = UseJoystick;
@@ -661,9 +662,6 @@ int startwin_run(void)
         ScreenWidth = settings.xdim;
         ScreenHeight = settings.ydim;
         ScreenBPP = settings.bpp;
-        MixRate = settings.samplerate;
-        NumBits = settings.bitspersample;
-        NumChannels = settings.channels;
         ForceSetup = settings.forcesetup;
         UseMouse = settings.usemouse;
         UseJoystick = settings.usejoy;

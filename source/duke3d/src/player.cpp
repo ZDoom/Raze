@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "enet.h"
 #include "sjson.h"
-#include "gamcvars.h"
+#include "gamecvars.h"
 
 BEGIN_DUKE_NS
 
@@ -3824,7 +3824,7 @@ void P_FragPlayer(int playerNum)
             else
                 Bsprintf(tempbuf, "^02%s^02 switched to team %d", &g_player[playerNum].user_name[0], pPlayer->team + 1);
 
-            if (vl_obituaries)
+            if (cl_obituaries)
                 G_AddUserQuote(tempbuf);
         }
         pPlayer->frag_ps = playerNum;

@@ -1659,7 +1659,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_NOEXITS:                      ud.noexits                       = iSet; break;
         case USERDEFS_AUTOVOTE:                     cl_autovote                      = iSet; break; //!!!
         case USERDEFS_AUTOMSG:                      cl_automsg                       = iSet; break;	//!!!
-        case USERDEFS_IDPLAYERS:                    ud.idplayers                     = iSet; break; //!!!
+        case USERDEFS_IDPLAYERS:                    cl_idplayers                     = iSet; break; //!!!
         case USERDEFS_TEAM:                         ud.team                          = iSet; break;
         case USERDEFS_VIEWBOB:                      cl_viewbob                       = iSet; break; //!!!
         case USERDEFS_WEAPONSWAY:                   cl_weaponsway                    = iSet; break; //!!!
