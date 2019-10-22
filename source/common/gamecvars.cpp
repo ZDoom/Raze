@@ -1,6 +1,8 @@
 #include "c_cvars.h"
 #include "common.h"
 #include "fx_man.h"
+#include "baselayer.h"
+#include "gameconfigfile.h"
 
 /* Notes
  
@@ -9,6 +11,26 @@
  
  
  */
+
+FGameConfigFile* GameConfig;
+static FString GameName;
+
+void G_LoadConfig(const char *game)
+{
+	GameConfig = new FGameConfigFile();
+	GameConfig->DoGlobalSetup();
+	GameConfig->DoGameSetup(game);
+	FBaseCVar::EnableCallbacks();
+	GameName = game;
+}
+
+void G_SaveConfig()
+{
+	GameConfig->ArchiveGameData(GameName);
+	GameConfig->WriteConfigFile();
+	delete GameConfig;
+	GameConfig = nullptr;
+}
 
 CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
@@ -119,7 +141,7 @@ CUSTOM_CVARD(Int, snd_numvoices, 64, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "the number
 
 CUSTOM_CVARD(Int, snd_speech, 5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables player speech")
 {
-	if (self < 8) self = 0;
+	if (self < 0) self = 0;
 	else if (self > 5) self = 5;
 }
 
@@ -129,6 +151,68 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
 	if (self > 255) self = 255;
 }
 
+// HUD
+
+// NBlood had this differently with an inverted scale of 0-7 with 0 having no HUD, For consistency all frontends now use the same scale, with 0 being the smallest and 11 being the largest.
+CUSTOM_CVARD(Int, r_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD layout")
+{
+	if (self < 0) self = 0;
+	else if (self > 11) self = 11;
+	else
+	{
+		if (gi->validate_hud(self))
+			gi->set_hud_layout(self);
+		else
+			OSD_Printf("Hud size %d not available\n");
+	}
+}
+
+CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the hud scale")//, (void*)&ud.statusbarscale, CVAR_INT | CVAR_FUNCPTR, 36, 100 },
+{
+	if (self < 36) self = 36;
+	else if (self > 100) self = 100;
+	else gi->set_hud_scale(r_size);
+}
+
+// This is to allow flattening the overly complicated HUD configuration to one single value and keep the complexity safely inside the HUD code.
+bool G_ChangeHudLayout(int direction)
+{
+	if (direction < 0 && r_size > 0)
+	{
+		int layout = r_size - 1;
+		while (!gi->validate_hud(layout) && layout >= 0) layout--;
+		if (layout >= 0)
+		{
+			r_size = layout;
+			return true;
+		}
+	}
+	else if (r_size < 11)
+	{
+		int layout = r_size + 1;
+		while (!gi->validate_hud(layout) && layout <= 11) layout++;
+		if (layout <= 11)
+		{
+			r_size = layout;
+			return true;
+		}
+	}
+	return false;
+}
+
+int hud_statusbarrange;	// will be set by the game's configuration setup.
+CUSTOM_CVARD(Int, hud_custom, 0, CVAR_ARCHIVE|CVAR_NOINITCALL, "change the custom hud")// not implemented by Blood , (void*)&ud.statusbarcustom, CVAR_INT, 0, ud.statusbarrange },
+{
+	if (self < 0) self = 0;
+	else if (self >= hud_statusbarrange) self = hud_statusbarrange - 1;
+}
+
+//{ "hud_stats", "enable/disable level statistics display", (void*)&ud.levelstats, CVAR_BOOL, 0, 1 },
+//{ "hud_stats", "enable/disable level statistics display", (void*)&gLevelStats, CVAR_BOOL, 0, 1 },
+
+//{ "hud_showmapname", "enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 1 },
+//{ "hud_showmaptitle", "enable/disable displaying the map title at the beginning of the maps", (void*)&gShowMapTitle, CVAR_BOOL, 0, 1 },
+
 #if 0
 
 
@@ -137,26 +221,6 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
     {
  
         { "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
-
-
-        { "fov", "change the field of view", (void *)&ud.fov, CVAR_INT, 60, 140 },
-
-        { "hud_althud", "enable/disable alternate mini-hud", (void *)&ud.althud, CVAR_BOOL, 0, 1 },
-        { "hud_custom", "change the custom hud", (void *)&ud.statusbarcustom, CVAR_INT, 0, ud.statusbarrange },
-        { "hud_position", "aligns the status bar to the bottom/top", (void *)&ud.hudontop, CVAR_BOOL, 0, 1 },
-        { "hud_bgstretch", "enable/disable background image stretching in wide resolutions", (void *)&ud.bgstretch, CVAR_BOOL, 0, 1 },
-        { "hud_messagetime", "length of time to display multiplayer chat messages", (void *)&ud.msgdisptime, CVAR_INT, 0, 3600 },
-        { "hud_numbertile", "first tile in alt hud number set", (void *)&althud_numbertile, CVAR_INT, 0, MAXUSERTILES-10 },
-        { "hud_numberpal", "pal for alt hud numbers", (void *)&althud_numberpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "hud_shadows", "enable/disable althud shadows", (void *)&althud_shadows, CVAR_BOOL, 0, 1 },
-        { "hud_flashing", "enable/disable althud flashing", (void *)&althud_flashing, CVAR_BOOL, 0, 1 },
-        { "hud_glowingquotes", "enable/disable \"glowing\" quote text", (void *)&hud_glowingquotes, CVAR_BOOL, 0, 1 },
-        { "hud_scale","changes the hud scale", (void *)&ud.statusbarscale, CVAR_INT|CVAR_FUNCPTR, 50, 100 },
-        { "hud_showmapname", "enable/disable map name display on load", (void *)&hud_showmapname, CVAR_BOOL, 0, 1 },
-        { "hud_stats", "enable/disable level statistics display", (void *)&ud.levelstats, CVAR_BOOL, 0, 1 },
-        { "hud_textscale", "sets multiplayer chat message size", (void *)&ud.textscale, CVAR_INT, 100, 400 },
-        { "hud_weaponscale","changes the weapon scale", (void *)&ud.weaponscale, CVAR_INT, 10, 100 },
-        { "hud_statusbarmode", "change overlay mode of status bar", (void *)&ud.statusbarmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
         { "in_joystick","enables input from the joystick if it is present",(void *)&ud.setup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","enables input from the mouse if it is present",(void *)&ud.setup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
@@ -171,7 +235,8 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
         { "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
 
-        { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
+		{ "fov", "change the field of view", (void*)&ud.fov, CVAR_INT, 60, 140 },
+		{ "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "show the frame rate counter", (void *)&ud.showfps, CVAR_INT, 0, 3 },
         { "r_showfpsperiod", "time in seconds before averaging min and max stats for r_showfps 2+", (void *)&ud.frameperiod, CVAR_INT, 0, 5 },
@@ -216,23 +281,6 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
         { "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
 
         { "fov", "change the field of view", (void *)&ud.fov, CVAR_INT|CVAR_FUNCPTR, 75, 120 },
-
-        { "hud_althud", "enable/disable alternate mini-hud", (void *)&ud.althud, CVAR_BOOL, 0, 1 },
-        { "hud_custom", "change the custom hud", (void *)&ud.statusbarcustom, CVAR_INT, 0, ud.statusbarrange },
-        { "hud_position", "aligns the status bar to the bottom/top", (void *)&ud.hudontop, CVAR_BOOL, 0, 1 },
-        { "hud_bgstretch", "enable/disable background image stretching in wide resolutions", (void *)&ud.bgstretch, CVAR_BOOL, 0, 1 },
-        { "hud_messagetime", "length of time to display multiplayer chat messages", (void *)&ud.msgdisptime, CVAR_INT, 0, 3600 },
-        { "hud_numbertile", "first tile in alt hud number set", (void *)&althud_numbertile, CVAR_INT, 0, MAXUSERTILES-10 },
-        { "hud_numberpal", "pal for alt hud numbers", (void *)&althud_numberpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "hud_shadows", "enable/disable althud shadows", (void *)&althud_shadows, CVAR_BOOL, 0, 1 },
-        { "hud_flashing", "enable/disable althud flashing", (void *)&althud_flashing, CVAR_BOOL, 0, 1 },
-        { "hud_glowingquotes", "enable/disable \"glowing\" quote text", (void *)&hud_glowingquotes, CVAR_BOOL, 0, 1 },
-        { "hud_scale","changes the hud scale", (void *)&ud.statusbarscale, CVAR_INT|CVAR_FUNCPTR, 36, 100 },
-        { "hud_showmapname", "enable/disable map name display on load", (void *)&hud_showmapname, CVAR_BOOL, 0, 1 },
-        { "hud_stats", "enable/disable level statistics display", (void *)&ud.levelstats, CVAR_BOOL, 0, 1 },
-        { "hud_textscale", "sets multiplayer chat message size", (void *)&ud.textscale, CVAR_INT, 100, 400 },
-        { "hud_weaponscale","changes the weapon scale", (void *)&ud.weaponscale, CVAR_INT, 10, 100 },
-        { "hud_statusbarmode", "change overlay mode of status bar", (void *)&ud.statusbarmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
         { "in_joystick","enables input from the joystick if it is present",(void *)&ud.setup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","enables input from the mouse if it is present",(void *)&ud.setup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
@@ -296,26 +344,6 @@ int32_t registerosdcommands(void)
 //
 //        { "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
 
-//        { "hud_althud", "enable/disable alternate mini-hud", (void *)&ud.althud, CVAR_BOOL, 0, 1 },
-//        { "hud_custom", "change the custom hud", (void *)&ud.statusbarcustom, CVAR_INT, 0, ud.statusbarrange },
-//        { "hud_position", "aligns the status bar to the bottom/top", (void *)&ud.hudontop, CVAR_BOOL, 0, 1 },
-//        { "hud_bgstretch", "enable/disable background image stretching in wide resolutions", (void *)&ud.bgstretch, CVAR_BOOL, 0, 1 },
-        { "hud_messages", "enable/disable showing messages", (void *)&gMessageState, CVAR_BOOL, 0, 1 },
-//        { "hud_messagetime", "length of time to display multiplayer chat messages", (void *)&ud.msgdisptime, CVAR_INT, 0, 3600 },
-//        { "hud_numbertile", "first tile in alt hud number set", (void *)&althud_numbertile, CVAR_INT, 0, MAXUSERTILES-10 },
-//        { "hud_numberpal", "pal for alt hud numbers", (void *)&althud_numberpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-//        { "hud_shadows", "enable/disable althud shadows", (void *)&althud_shadows, CVAR_BOOL, 0, 1 },
-//        { "hud_flashing", "enable/disable althud flashing", (void *)&althud_flashing, CVAR_BOOL, 0, 1 },
-//        { "hud_glowingquotes", "enable/disable \"glowing\" quote text", (void *)&hud_glowingquotes, CVAR_BOOL, 0, 1 },
-//        { "hud_scale","changes the hud scale", (void *)&ud.statusbarscale, CVAR_INT|CVAR_FUNCPTR, 36, 100 },
-//        { "hud_showmapname", "enable/disable map name display on load", (void *)&hud_showmapname, CVAR_BOOL, 0, 1 },
-        { "hud_stats", "enable/disable level statistics display", (void *)&gLevelStats, CVAR_BOOL, 0, 1 },
-        { "hud_powerupduration", "enable/disable displaying the remaining seconds for power-ups", (void *)&gPowerupDuration, CVAR_BOOL, 0, 1 },
-        { "hud_showmaptitle", "enable/disable displaying the map title at the beginning of the maps", (void*)& gShowMapTitle, CVAR_BOOL, 0, 1 },
-//        { "hud_textscale", "sets multiplayer chat message size", (void *)&ud.textscale, CVAR_INT, 100, 400 },
-//        { "hud_weaponscale","changes the weapon scale", (void *)&ud.weaponscale, CVAR_INT, 10, 100 },
-//        { "hud_statusbarmode", "change overlay mode of status bar", (void *)&ud.statusbarmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-
         { "horizcenter", "enable/disable centered horizon line", (void *)&gCenterHoriz, CVAR_BOOL, 0, 1 },
         { "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },
         { "fov", "change the field of view", (void *)&gFov, CVAR_INT|CVAR_FUNCPTR, 75, 120 },
@@ -337,7 +365,6 @@ int32_t registerosdcommands(void)
         { "r_showfps", "show the frame rate counter", (void *)&gShowFps, CVAR_INT, 0, 3 },
         { "r_showfpsperiod", "time in seconds before averaging min and max stats for r_showfps 2+", (void *)&gFramePeriod, CVAR_INT, 0, 5 },
 //        { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
-        { "r_size", "change size of viewable area", (void *)&gViewSize, CVAR_INT|CVAR_FUNCPTR, 0, 7 },
 //        { "r_rotatespritenowidescreen", "pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 },
         { "r_precache", "enable/disable the pre-level caching routine", (void *)&useprecache, CVAR_BOOL, 0, 1 },
@@ -372,4 +399,21 @@ int32_t registerosdcommands(void)
 // These I don't care about.
 //{ "r_upscalefactor", "increase performance by rendering at upscalefactor less than the screen resolution and upscale to the full resolution in the software renderer", (void *)&ud.detail, CVAR_INT|CVAR_FUNCPTR, 1, 16 },
 //{ "r_upscalefactor", "increase performance by rendering at upscalefactor less than the screen resolution and upscale to the full resolution in the software renderer", (void *)&gUpscaleFactor, CVAR_INT|CVAR_FUNCPTR, 1, 16
+
+// These have to wait until the HUD code is cleaned up (no idea which may survive and which won't.)
+/*
+	{ "hud_position", "aligns the status bar to the bottom/top", (void*)&ud.hudontop, CVAR_BOOL, 0, 1 },
+	{ "hud_bgstretch", "enable/disable background image stretching in wide resolutions", (void*)&ud.bgstretch, CVAR_BOOL, 0, 1 },
+	{ "hud_messagetime", "length of time to display multiplayer chat messages", (void*)&ud.msgdisptime, CVAR_INT, 0, 3600 },
+	{ "hud_numbertile", "first tile in alt hud number set", (void*)&althud_numbertile, CVAR_INT, 0, MAXUSERTILES - 10 },
+	{ "hud_numberpal", "pal for alt hud numbers", (void*)&althud_numberpal, CVAR_INT, 0, MAXPALOOKUPS - 1 },
+	{ "hud_shadows", "enable/disable althud shadows", (void*)&althud_shadows, CVAR_BOOL, 0, 1 },
+	{ "hud_flashing", "enable/disable althud flashing", (void*)&althud_flashing, CVAR_BOOL, 0, 1 },
+	{ "hud_glowingquotes", "enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 1 },
+	{ "hud_textscale", "sets multiplayer chat message size", (void*)&ud.textscale, CVAR_INT, 100, 400 },
+	{ "hud_weaponscale","changes the weapon scale", (void*)&ud.weaponscale, CVAR_INT, 10, 100 },
+
+	{ "hud_messages", "enable/disable showing messages", (void*)&gMessageState, CVAR_BOOL, 0, 1 },
+	{ "hud_powerupduration", "enable/disable displaying the remaining seconds for power-ups", (void*)&gPowerupDuration, CVAR_BOOL, 0, 1 },
+*/
 #endif

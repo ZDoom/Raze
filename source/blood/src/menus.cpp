@@ -3285,8 +3285,6 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
             break;
         }
     }
-    else if (entry == &ME_SCREENSETUP_SCREENSIZE)
-        G_SetViewportShrink((newOption - vpsize) * 4);
     else if (entry == &ME_SOUND)
     {
         if (newOption == 0)
@@ -3451,8 +3449,6 @@ static void Menu_Custom2ColScreen(/*MenuEntry_t *entry*/)
 
 static int32_t Menu_EntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
 {
-    if (entry == &ME_SCREENSETUP_SCREENSIZE)
-        G_SetViewportShrink((newValue - vpsize) * 4);
     else if (entry == &ME_SCREENSETUP_SBARSIZE)
         G_SetStatusBarScale(newValue);
     else if (entry == &ME_SOUND_VOLUME_FX)

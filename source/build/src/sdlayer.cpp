@@ -22,6 +22,7 @@
 #include "mmulti.h"
 #include "scriptfile.h"
 #include "zstring.h"
+#include "gamecvars.h"
 #include "../../glbackend/glbackend.h"
 
 #ifdef USE_OPENGL
@@ -387,7 +388,11 @@ GameInterface *CheckFrontend()
 		f = fopen("redneck.grp", "rb");
 		if (f)
 		{
-			currentGame = "Redneck";	// RRRA is not separately covered
+			currentGame = "Redneck";
+			fseek(f, 0, SEEK_END);
+			auto pos = ftell(f);
+			// Quick hack to distinguish these two. This won't survive until production but for testing it's sufficient.
+			if (pos > 190'000'000) currentGame = "RedneckRides";
 			fclose(f);
 			return &Redneck::Interface;
 		}
@@ -403,10 +408,28 @@ GameInterface *CheckFrontend()
 			f = fopen("fury.grp", "rb");
 			if (f)
 			{
-				currentGame = "Fury";
+				currentGame = "IonFury";
 				fclose(f);
+				return &Duke::Interface;
 			}
-			else currentGame = "Duke"; // also covers Nam and WW2GI.
+			f = fopen("nam.grp", "rb");
+			if (f)
+			{
+				currentGame = "Nam";
+				fclose(f);
+				return &Duke::Interface;
+			}
+			f = fopen("ww2gi.grp", "rb");
+			if (f)
+			{
+				currentGame = "WW2GI";
+				fclose(f);
+				return &Duke::Interface;
+			}
+			else
+			{
+				currentGame = "Duke";
+			}
 			return &Duke::Interface;
 		}
 	}
@@ -482,6 +505,8 @@ void ChooseGame()
 	}
 }
 
+
+
 int WINAPI WinMain(HINSTANCE , HINSTANCE , LPSTR , int )
 #else
 int main(int argc, char *argv[])
@@ -550,6 +575,7 @@ int main(int argc, char *argv[])
 
     startwin_open();
 
+	G_LoadConfig(currentGame);
     r = gi->app_main(buildargc, (const char **)buildargv);
 
     startwin_close();
@@ -1355,7 +1381,7 @@ void sdlayer_setvideomode_opengl(void)
 	GLInterface.InitGLState(4, glmultisample);
 	// I have no idea how to get this info from the lookup tables. Fortunately it is consistent per game.
 	if (!currentGame.Compare("Blood")) GLInterface.SetShadeDiv(62);
-	else if (!currentGame.Compare("Fury")) GLInterface.SetShadeDiv(30);
+	else if (!currentGame.Compare("IonFury")) GLInterface.SetShadeDiv(30);
 	else GLInterface.SetShadeDiv(26);
 
 	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);

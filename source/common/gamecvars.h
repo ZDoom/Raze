@@ -1,3 +1,4 @@
+#pragma once;
 #include "c_cvars.h"
 
 EXTERN_CVAR(Bool, cl_crosshair)
@@ -48,4 +49,12 @@ EXTERN_CVAR(Int, snd_numvoices)
 EXTERN_CVAR(Int, snd_speech)
 EXTERN_CVAR(Int, mus_volume)
 
+EXTERN_CVAR(Int, hud_layout)
+EXTERN_CVAR(Int, hud_scale)
+EXTERN_CVAR(Int, hud_custom)
+
+extern int hud_statusbarrange;	// will be set by the game's configuration setup.
+bool G_ChangeHudLayout(int direction);
 bool G_CheckAutorun(bool button);
+void G_LoadConfig(const char*);
+void G_SaveConfig();

@@ -2008,7 +2008,7 @@ static void Menu_Pre(MenuID_t cm)
 
         MEO_SCREENSETUP_SCREENSIZE.steps = !(ud.statusbarflags & STATUSBAR_NONONE) +
                                            !(ud.statusbarflags & STATUSBAR_NOMODERN) +
-                                           !(ud.statusbarflags & STATUSBAR_NOMINI) * (ud.statusbarrange + 1) +
+                                           !(ud.statusbarflags & STATUSBAR_NOMINI) +
                                            !(ud.statusbarflags & STATUSBAR_NOOVERLAY) +
                                            !(ud.statusbarflags & STATUSBAR_NOFULL) +
                                            !(ud.statusbarflags & STATUSBAR_NOSHRINK) * 14;
@@ -3299,8 +3299,6 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
             break;
         }
     }
-    else if (entry == &ME_SCREENSETUP_SCREENSIZE)
-        G_SetViewportShrink((newOption - vpsize) * 4);
     else if (entry == &ME_SOUND)
     {
         if (newOption == 0)
@@ -3465,9 +3463,7 @@ static void Menu_Custom2ColScreen(/*MenuEntry_t *entry*/)
 
 static int32_t Menu_EntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
 {
-    if (entry == &ME_SCREENSETUP_SCREENSIZE)
-        G_SetViewportShrink((newValue - vpsize) * 4);
-    else if (entry == &ME_SCREENSETUP_SBARSIZE)
+    if (entry == &ME_SCREENSETUP_SBARSIZE)
         G_SetStatusBarScale(newValue);
     else if (entry == &ME_SOUND_VOLUME_FX)
         FX_SetVolume(newValue);

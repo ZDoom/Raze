@@ -354,13 +354,6 @@ int32_t baselayer_init(void)
         { "vid_gamma","adjusts gamma component of gamma ramp",(void *) &g_videoGamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
         { "vid_contrast","adjusts contrast component of gamma ramp",(void *) &g_videoContrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
         { "vid_brightness","adjusts brightness component of gamma ramp",(void *) &g_videoBrightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-#ifdef DEBUGGINGAIDS
-        { "debug1","debug counter",(void *) &debug1, CVAR_FLOAT, -100000, 100000 },
-        { "debug2","debug counter",(void *) &debug2, CVAR_FLOAT, -100000, 100000 },
-#endif
-#ifdef DEBUG_MASK_DRAWING
-        { "debug_maskdrawmode", "Show mask draw orders", (void *)&g_maskDrawMode, CVAR_BOOL, 0, 1 },
-#endif
     };
 
     for (auto & i : cvars_engine)
@@ -371,9 +364,6 @@ int32_t baselayer_init(void)
                          "Mode numbers are:\n"
                          "   0 - Classic Build software\n"
                          "   3 - Polygonal OpenGL\n"
-#ifdef POLYMER
-                         "   4 - Great justice renderer (Polymer)\n"
-#endif
                          ,
                          osdfunc_setrendermode);
 

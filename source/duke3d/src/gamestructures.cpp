@@ -1504,7 +1504,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_SCREENAREA_Y2:          labelNum = ud.returnvar[2];                 break;
         case USERDEFS_SCREENFADE:             labelNum = ud.screenfade;                   break;
         case USERDEFS_MENUBACKGROUND:         labelNum = ud.menubackground;               break;
-        case USERDEFS_STATUSBARFLAGS:         labelNum = ud.statusbarflags;               break;
+        case USERDEFS_STATUSBARFLAGS:         labelNum = 0/*ud.statusbarflags*/;          break;
         case USERDEFS_STATUSBARRANGE:         labelNum = ud.statusbarrange;               break;
         case USERDEFS_STATUSBARCUSTOM:        labelNum = ud.statusbarcustom;              break;
         case USERDEFS_HUDONTOP:               labelNum = ud.hudontop;                     break;
@@ -1697,7 +1697,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_SCREENAREA_Y2:                ud.returnvar[2]                  = iSet; break;
         case USERDEFS_SCREENFADE:                   ud.screenfade                    = iSet; break;
         case USERDEFS_MENUBACKGROUND:               ud.menubackground                = iSet; break;
-        case USERDEFS_STATUSBARFLAGS:               ud.statusbarflags                = iSet; break;
+        case USERDEFS_STATUSBARFLAGS:               ud.statusbarflags                = iSet; break; // Sigh... Ion Fury needs this. :(
         case USERDEFS_STATUSBARRANGE:               ud.statusbarrange                = iSet; break;
         case USERDEFS_STATUSBARCUSTOM:              ud.statusbarcustom               = iSet; break;
         case USERDEFS_HUDONTOP:                     ud.hudontop                      = iSet; break;

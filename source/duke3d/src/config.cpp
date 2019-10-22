@@ -282,7 +282,7 @@ void CONFIG_SetDefaults(void)
     ud.shadows                = 1;
     ud.show_level_text        = 1;
     ud.slidebar_paldisabled   = 1;
-    ud.statusbarflags         = STATUSBAR_NOSHRINK;
+    ud.statusbarflags         = 0;//STATUSBAR_NOSHRINK;
     ud.statusbarmode          = 1;
     ud.statusbarscale         = 100;
     ud.team                   = 0;
@@ -1086,7 +1086,8 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     OSD_Printf("Wrote %s\n",g_setupFileName);
     CONFIG_WriteSettings();
-    Bfflush(NULL);
+	G_SaveConfig();
+	Bfflush(NULL);
 }
 
 char const * CONFIG_GetGameFuncOnKeyboard(int gameFunc)

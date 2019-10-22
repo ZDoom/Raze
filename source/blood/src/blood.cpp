@@ -2590,10 +2590,16 @@ extern int32_t startwin_puts(const char*);
 extern int32_t startwin_settitle(const char*);
 extern int32_t startwin_idle(void*);
 extern int32_t startwin_run(void);
+bool validate_hud(int layout);
+void set_hud_layout(int layout);
+void set_hud_scale(int scale);
 
 GameInterface Interface = {
 	faketimerhandler,
 	app_main,
+	validate_hud,
+	set_hud_layout,
+	set_hud_scale,
 	app_crashhandler,
 	startwin_open,
 	startwin_close,

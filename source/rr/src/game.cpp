@@ -5950,50 +5950,6 @@ rrcoolexplosion1:
 #endif
 }
 
-void G_SetViewportShrink(int32_t dir)
-{
-    if (dir!=0)
-    {
-        if (dir > 0) // shrinking
-        {
-            if (ud.screen_size < 4 && (!(ud.statusbarflags & STATUSBAR_NOMINI) || !(ud.statusbarflags & STATUSBAR_NOMODERN)))
-                ud.screen_size = 4;
-            else if (ud.screen_size == 4 && ud.althud == 1 && !(ud.statusbarflags & STATUSBAR_NOMINI))
-                ud.althud = 0;
-            else if (ud.screen_size == 4 && ud.statusbarcustom < ud.statusbarrange && !(ud.statusbarflags & STATUSBAR_NOMINI))
-                ud.statusbarcustom += 1;
-            else if (ud.screen_size < 8 && (!(ud.statusbarflags & STATUSBAR_NOFULL) || !(ud.statusbarflags & STATUSBAR_NOOVERLAY)))
-                ud.screen_size = 8;
-            else if (ud.screen_size == 8 && ud.statusbarmode == 1 && !(ud.statusbarflags & STATUSBAR_NOFULL))
-                ud.statusbarmode = 0;
-            else if (RR && ud.screen_size == 8)
-                ud.screen_size = 12;
-            else if (ud.screen_size < 64 && !(ud.statusbarflags & STATUSBAR_NOSHRINK))
-                ud.screen_size += dir;
-        }
-        else // enlarging
-        {
-            if (ud.screen_size > (RR ? 16 : 12))
-               ud.screen_size += dir;
-            else if (RR && ud.screen_size > 12 && (!(ud.statusbarflags & STATUSBAR_NOFULL) || !(ud.statusbarflags & STATUSBAR_NOOVERLAY)))
-                ud.screen_size = 12;
-            else if (ud.screen_size > 8 && (!(ud.statusbarflags & STATUSBAR_NOFULL) || !(ud.statusbarflags & STATUSBAR_NOOVERLAY)))
-                ud.screen_size = 8;
-            else if (ud.screen_size == 8 && ud.statusbarmode == 0 && !(ud.statusbarflags & STATUSBAR_NOOVERLAY))
-                ud.statusbarmode = 1;
-            else if (ud.screen_size > 4 && (!(ud.statusbarflags & STATUSBAR_NOMINI) || !(ud.statusbarflags & STATUSBAR_NOMODERN)))
-                ud.screen_size = 4;
-            else if (ud.screen_size == 4 && ud.statusbarcustom > 0)
-                ud.statusbarcustom -= 1;
-            else if (ud.screen_size == 4 && ud.althud == 0 && !(ud.statusbarflags & STATUSBAR_NOMODERN))
-                ud.althud = 1;
-            else if (ud.screen_size > 0 && !(ud.statusbarflags & STATUSBAR_NONONE))
-                ud.screen_size = 0;
-        }
-    }
-    G_UpdateScreenArea();
-}
-
 void G_InitTimer(int32_t ticspersec)
 {
     if (g_timerTicsPerSecond != ticspersec)
@@ -6032,6 +5988,55 @@ void G_PrintCurrentMusic(void)
     P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
 }
 
+// Trying to sanitize the mess of options and the mess of variables the mess was stored in. (Did I say this was a total mess before...? >) )
+// Hopefully this is more comprehensible, at least it neatly stores everything useful in a single linear value...
+bool validate_hud(int layout)
+{
+	if (layout <= (RR? 5: 6))	// Status bar with border
+	{
+		return !(ud.statusbarflags & STATUSBAR_NOSHRINK);
+	}
+	else if (layout <= 7) // Status bar fullscreen
+	{
+		return (!(ud.statusbarflags & STATUSBAR_NOFULL) || !(ud.statusbarflags & STATUSBAR_NOOVERLAY));
+	}
+	else if (layout == 8)	// Status bar overlay
+	{
+		return !(ud.statusbarflags & STATUSBAR_NOOVERLAY);
+	}
+	else if (layout == 9)	// Fullscreen HUD
+	{
+		return (!(ud.statusbarflags & STATUSBAR_NOMINI) || !(ud.statusbarflags & STATUSBAR_NOMODERN));
+	}
+	else if (layout == 10)
+	{
+		return !(ud.statusbarflags & STATUSBAR_NOMODERN);
+	}
+	else if (layout == 11)
+	{
+		return !(ud.statusbarflags & STATUSBAR_NONONE);
+	}
+	return false;
+}
+
+void set_hud_layout(int layout)
+{
+	static const uint8_t screen_size_vals[] = { 60, 54, 48, 40, 32, 24, 16, 8, 8, 4, 4, 0 };
+	static const uint8_t screen_size_vals_rr[] = { 56, 48, 40, 32, 24, 16, 12, 8, 8, 4, 4, 0 };
+	if (validate_hud(layout))
+	{
+		ud.screen_size = RR? screen_size_vals_rr[layout] : screen_size_vals[layout];
+		ud.statusbarmode = layout >= 8;
+		ud.althud = layout >= 10;
+		G_UpdateScreenArea();
+	}
+}
+
+void set_hud_scale(int scale)
+{
+	G_UpdateScreenArea();
+}
+
 void G_HandleLocalKeys(void)
 {
 //    CONTROL_ProcessBinds();
@@ -6061,19 +6066,10 @@ void G_HandleLocalKeys(void)
 
             if (!SHIFTS_IS_PRESSED)
             {
-                // conditions copied from G_SetViewportShrink
-                if ((ud.screen_size > (RR ? 16 : 12)) ||
-                    (RR && ud.screen_size > 12 && (!(ud.statusbarflags & STATUSBAR_NOFULL) || !(ud.statusbarflags & STATUSBAR_NOOVERLAY))) ||
-                    (ud.screen_size > 8 && (!(ud.statusbarflags & STATUSBAR_NOFULL) || !(ud.statusbarflags & STATUSBAR_NOOVERLAY))) ||
-                    (ud.screen_size == 8 && ud.statusbarmode == 0 && !(ud.statusbarflags & STATUSBAR_NOOVERLAY)) ||
-                    (ud.screen_size > 4 && (!(ud.statusbarflags & STATUSBAR_NOMINI) || !(ud.statusbarflags & STATUSBAR_NOMODERN))) ||
-                    (ud.screen_size == 4 && ud.statusbarcustom > 0) ||
-                    (ud.screen_size == 4 && ud.althud == 0 && !(ud.statusbarflags & STATUSBAR_NOMODERN)) ||
-                    (ud.screen_size > 0 && !(ud.statusbarflags & STATUSBAR_NONONE)))
-                {
-                    S_PlaySound(RR ? 341 : THUD);
-                    G_SetViewportShrink(-4);
-                }
+				if (G_ChangeHudLayout(-1))
+				{
+					S_PlaySound(RR ? 341 : THUD);
+				}
             }
             else
             {
@@ -6089,18 +6085,10 @@ void G_HandleLocalKeys(void)
 
             if (!SHIFTS_IS_PRESSED)
             {
-                // conditions copied from G_SetViewportShrink
-                if ((ud.screen_size < 4 && (!(ud.statusbarflags & STATUSBAR_NOMINI) || !(ud.statusbarflags & STATUSBAR_NOMODERN))) ||
-                    (ud.screen_size == 4 && ud.althud == 1 && !(ud.statusbarflags & STATUSBAR_NOMINI)) ||
-                    (ud.screen_size == 4 && ud.statusbarcustom < ud.statusbarrange && !(ud.statusbarflags & STATUSBAR_NOMINI)) ||
-                    (ud.screen_size < 8 && (!(ud.statusbarflags & STATUSBAR_NOFULL) || !(ud.statusbarflags & STATUSBAR_NOOVERLAY))) ||
-                    (ud.screen_size == 8 && ud.statusbarmode == 1 && !(ud.statusbarflags & STATUSBAR_NOFULL)) ||
-                    (RR && ud.screen_size == 8) ||
-                    (ud.screen_size < 64 && !(ud.statusbarflags & STATUSBAR_NOSHRINK)))
-                {
-                    S_PlaySound(RR ? 341 : THUD);
-                    G_SetViewportShrink(+4);
-                }
+				if (G_ChangeHudLayout(-1))
+				{
+					S_PlaySound(RR ? 341 : THUD);
+				}
             }
             else
             {
@@ -8756,6 +8744,9 @@ extern int32_t startwin_run(void);
 GameInterface Interface = {
 	faketimerhandler,
 	app_main,
+	validate_hud,
+	set_hud_layout,
+	set_hud_scale,
 	app_crashhandler,
 	startwin_open,
 	startwin_close,

@@ -234,6 +234,9 @@ struct GameInterface
 {
 	void (*faketimerhandler)();
 	int (*app_main)(int, char const* const*);
+	bool (*validate_hud)(int);
+	void (*set_hud_layout)(int size);
+	void (*set_hud_scale)(int size);
 
 	// These will later be removed.
 	void (*app_crashhandler)();

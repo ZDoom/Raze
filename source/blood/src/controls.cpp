@@ -147,6 +147,32 @@ void ctrlTerm(void)
 
 int32_t mouseyaxismode = -1;
 
+
+
+// This is mainly here to account for the different implementation between Blood and the other games
+// and to allow unified handling and the same value range in the CVAR code.
+// Unlike EDuke's version, NBlood's was actually fine, it just had a too small value range to be chosen as the unified version.
+bool validate_hud(int layout)
+{
+	return layout > 3 && layout != 8;	// 8 is the status bar overlay which NBlood did not implement.
+}
+
+void set_hud_layout(int layout)
+{
+	static const uint8_t screen_size_vals[] = { 7, 7, 7, 7, 6, 5, 4, 3, 3, 2, 1, 0 };
+
+	if (validate_hud(layout))
+	{
+		viewResizeView(screen_size_vals[layout]);
+	}
+}
+
+void set_hud_scale(int scale)
+{
+	// Not implemented, only needed as a placeholder. Maybe implement it after all? The hud is a bit large at its default size.
+}
+
+
 void ctrlGetInput(void)
 {
     ControlInfo info;
@@ -251,8 +277,8 @@ void ctrlGetInput(void)
         if (gViewMode == 3)
         {
             CONTROL_ClearButton(gamefunc_Shrink_Screen);
-            viewResizeView(gViewSize + 1);
-        }
+			G_ChangeHudLayout(-1);
+		}
         if (gViewMode == 2 || gViewMode == 4)
         {
             gZoom = ClipLow(gZoom - (gZoom >> 4), 64);
@@ -265,7 +291,7 @@ void ctrlGetInput(void)
         if (gViewMode == 3)
         {
             CONTROL_ClearButton(gamefunc_Enlarge_Screen);
-            viewResizeView(gViewSize - 1);
+			G_ChangeHudLayout(1);
         }
         if (gViewMode == 2 || gViewMode == 4)
         {

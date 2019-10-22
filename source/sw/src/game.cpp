@@ -5924,10 +5924,15 @@ extern int32_t startwin_puts(const char*);
 extern int32_t startwin_settitle(const char*);
 extern int32_t startwin_idle(void*);
 extern int32_t startwin_run(void);
+/*extern*/ bool validate_hud(int requested_size) { return requested_size; }
+/*extern*/ void set_hud(int requested_size) {}
 
 GameInterface Interface = {
 	faketimerhandler,
 	app_main,
+	validate_hud,
+	set_hud,
+	set_hud,
 	app_crashhandler,
 	startwin_open,
 	startwin_close,

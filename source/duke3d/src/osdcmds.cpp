@@ -1480,9 +1480,7 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
     {
         videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
     }
-    else if (!Bstrcasecmp(parm->name, "hud_scale")
-             || !Bstrcasecmp(parm->name, "hud_statusbarmode")
-             || !Bstrcasecmp(parm->name, "r_rotatespritenowidescreen"))
+    else if (!Bstrcasecmp(parm->name, "r_rotatespritenowidescreen"))
     {
         G_UpdateScreenArea();
     }

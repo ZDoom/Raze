@@ -219,11 +219,11 @@ void FGameConfigFile::DoGlobalSetup ()
 {
 	if (SetSection ("GlobalSettings.Unknown"))
 	{
-		//ReadCVars (CVAR_GLOBALCONFIG);
+		ReadCVars (CVAR_GLOBALCONFIG);
 	}
 	if (SetSection ("GlobalSettings"))
 	{
-		//ReadCVars (CVAR_GLOBALCONFIG);
+		ReadCVars (CVAR_GLOBALCONFIG);
 	}
 	if (SetSection ("LastRun"))
 	{

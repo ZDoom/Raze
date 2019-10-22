@@ -925,7 +925,8 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     OSD_Printf("Wrote %s\n",g_setupFileName);
     CONFIG_WriteSettings();
-    Bfflush(NULL);
+	G_SaveConfig();
+	Bfflush(NULL);
 }
 
 static const char *CONFIG_GetMapEntryName(char m[], char const * const mapname)
