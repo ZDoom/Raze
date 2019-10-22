@@ -6066,7 +6066,7 @@ void G_HandleLocalKeys(void)
 
             if (!SHIFTS_IS_PRESSED)
             {
-				if (G_ChangeHudLayout(-1))
+				if (G_ChangeHudLayout(1))
 				{
 					S_PlaySound(RR ? 341 : THUD);
 				}
