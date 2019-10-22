@@ -258,9 +258,7 @@ void CONFIG_SetDefaults(void)
     ud.detail                 = 0;
     ud.display_bonus_screen   = 1;
     ud.drawweapon             = 1;
-    ud.fov                    = 90;
     ud.hudontop               = 0;
-    ud.levelstats             = 0;
     ud.lockout                = 0;
     ud.m_marker               = 1;
     ud.menu_scrollbartilenum  = -1;

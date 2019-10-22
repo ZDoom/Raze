@@ -1464,7 +1464,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_WEAPONSWAY:             labelNum = cl_weaponsway;                   break;
         case USERDEFS_ANGLEINTERPOLATION:     labelNum = ud.angleinterpolation;           break;
         case USERDEFS_OBITUARIES:             labelNum = cl_obituaries;                   break;
-        case USERDEFS_LEVELSTATS:             labelNum = ud.levelstats;                   break;
+        case USERDEFS_LEVELSTATS:             labelNum = hud_stats;                       break;
         case USERDEFS_CROSSHAIRSCALE:         labelNum = cl_crosshairscale;               break;
         case USERDEFS_ALTHUD:                 labelNum = ud.althud;                       break;
         case USERDEFS_DISPLAY_BONUS_SCREEN:   labelNum = ud.display_bonus_screen;         break;
@@ -1553,7 +1553,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_AUTOSAVE:               labelNum = cl_autosave;                     break;
         case USERDEFS_DRAW_Y:                 labelNum = rotatesprite_y_offset;           break;
         case USERDEFS_DRAW_YXASPECT:          labelNum = rotatesprite_yxaspect;           break;
-        case USERDEFS_FOV:                    labelNum = ud.fov;                          break;
+        case USERDEFS_FOV:                    labelNum = r_fov;                          break;
         case USERDEFS_GAMEPADACTIVE:          labelNum = (CONTROL_LastSeenInput == LastSeenInput::Joystick); break;
 
         default: EDUKE32_UNREACHABLE_SECTION(labelNum = -1; break);
@@ -1665,7 +1665,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_WEAPONSWAY:                   cl_weaponsway                    = iSet; break; //!!!
         case USERDEFS_ANGLEINTERPOLATION:           ud.angleinterpolation            = iSet; break;
         case USERDEFS_OBITUARIES:                   cl_obituaries                    = iSet; break; //!!!
-        case USERDEFS_LEVELSTATS:                   ud.levelstats                    = iSet; break; //!!!
+        case USERDEFS_LEVELSTATS:                 /*hud_stats                        = iSet;*/ break; //!!! No, the script should have no business whatsoever changing this one!
         case USERDEFS_CROSSHAIRSCALE:               cl_crosshairscale                = iSet; break;
         case USERDEFS_ALTHUD:                       ud.althud                        = iSet; break;
         case USERDEFS_DISPLAY_BONUS_SCREEN:         ud.display_bonus_screen          = iSet; break;
@@ -1756,7 +1756,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_AUTOSAVE:                     cl_autosave                      = iSet; break; //!!!
         case USERDEFS_DRAW_Y:                       rotatesprite_y_offset            = iSet; break;
         case USERDEFS_DRAW_YXASPECT:                rotatesprite_yxaspect            = iSet; break;
-        case USERDEFS_FOV:                          ud.fov                           = iSet; break;
+        case USERDEFS_FOV:                          r_fov                            = iSet; break; //!!!
         case USERDEFS_NEWGAMECUSTOMOPEN:
             for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
                 if (iSet & (1u<<b))

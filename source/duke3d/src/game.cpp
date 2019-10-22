@@ -105,8 +105,6 @@ int32_t ticrandomseed;
 
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop(void);
 
-int32_t hud_showmapname = 1;
-
 int32_t g_levelTextTime = 0;
 
 int32_t r_maxfps = 60;
@@ -836,7 +834,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
                                   )));
 
-        vr = Blrintf(float(vr) * tanf(ud.fov * (fPI/360.f)));
+        vr = Blrintf(float(vr) * tanf(r_fov * (fPI/360.f)));
 
         if (!r_usenewaspect)
             renderSetAspect(vr, yxaspect);

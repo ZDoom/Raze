@@ -207,11 +207,13 @@ CUSTOM_CVARD(Int, hud_custom, 0, CVAR_ARCHIVE|CVAR_NOINITCALL, "change the custo
 	else if (self >= hud_statusbarrange) self = hud_statusbarrange - 1;
 }
 
-//{ "hud_stats", "enable/disable level statistics display", (void*)&ud.levelstats, CVAR_BOOL, 0, 1 },
-//{ "hud_stats", "enable/disable level statistics display", (void*)&gLevelStats, CVAR_BOOL, 0, 1 },
-
-//{ "hud_showmapname", "enable/disable map name display on load", (void*)&hud_showmapname, CVAR_BOOL, 0, 1 },
-//{ "hud_showmaptitle", "enable/disable displaying the map title at the beginning of the maps", (void*)&gShowMapTitle, CVAR_BOOL, 0, 1 },
+CVARD(Bool, hud_stats, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable level statistics display")
+CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable map name display on load")
+CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field of view") //, (void*)r_fov.Value, CVAR_INT, 60, 140
+{
+	if (self < 60) self = 60;
+	else if (self < 140) self = 140;
+}
 
 #if 0
 
@@ -219,8 +221,6 @@ CUSTOM_CVARD(Int, hud_custom, 0, CVAR_ARCHIVE|CVAR_NOINITCALL, "change the custo
 // DN3D
     static osdcvardata_t cvars_game[] =
     {
- 
-        { "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
 
         { "in_joystick","enables input from the joystick if it is present",(void *)&ud.setup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","enables input from the mouse if it is present",(void *)&ud.setup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
@@ -235,13 +235,11 @@ CUSTOM_CVARD(Int, hud_custom, 0, CVAR_ARCHIVE|CVAR_NOINITCALL, "change the custo
         { "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
 
-		{ "fov", "change the field of view", (void*)&ud.fov, CVAR_INT, 60, 140 },
 		{ "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "show the frame rate counter", (void *)&ud.showfps, CVAR_INT, 0, 3 },
         { "r_showfpsperiod", "time in seconds before averaging min and max stats for r_showfps 2+", (void *)&ud.frameperiod, CVAR_INT, 0, 5 },
         { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
-        { "r_size", "change size of viewable area", (void *)&ud.screen_size, CVAR_INT|CVAR_FUNCPTR, 0, 64 },
         { "r_rotatespritenowidescreen", "pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "r_precache", "enable/disable the pre-level caching routine", (void *)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
 
@@ -278,9 +276,6 @@ CUSTOM_CVARD(Int, hud_custom, 0, CVAR_ARCHIVE|CVAR_NOINITCALL, "change the custo
 
     static osdcvardata_t cvars_game[] =
     {
-        { "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
-
-        { "fov", "change the field of view", (void *)&ud.fov, CVAR_INT|CVAR_FUNCPTR, 75, 120 },
 
         { "in_joystick","enables input from the joystick if it is present",(void *)&ud.setup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","enables input from the mouse if it is present",(void *)&ud.setup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
@@ -300,7 +295,6 @@ CUSTOM_CVARD(Int, hud_custom, 0, CVAR_ARCHIVE|CVAR_NOINITCALL, "change the custo
         { "r_showfps", "show the frame rate counter", (void *)&ud.showfps, CVAR_INT, 0, 3 },
         { "r_showfpsperiod", "time in seconds before averaging min and max stats for r_showfps 2+", (void *)&ud.frameperiod, CVAR_INT, 0, 5 },
         { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
-        { "r_size", "change size of viewable area", (void *)&ud.screen_size, CVAR_INT|CVAR_FUNCPTR, 0, 64 },
         { "r_rotatespritenowidescreen", "pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "r_precache", "enable/disable the pre-level caching routine", (void *)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
 
@@ -340,13 +334,7 @@ int32_t registerosdcommands(void)
     char buffer[256];
     static osdcvardata_t cvars_game[] =
     {
-
-//
-//        { "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
-
         { "horizcenter", "enable/disable centered horizon line", (void *)&gCenterHoriz, CVAR_BOOL, 0, 1 },
-        { "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },
-        { "fov", "change the field of view", (void *)&gFov, CVAR_INT|CVAR_FUNCPTR, 75, 120 },
         { "in_joystick","enables input from the joystick if it is present",(void *)&gSetup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","enables input from the mouse if it is present",(void *)&gSetup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
@@ -415,5 +403,12 @@ int32_t registerosdcommands(void)
 
 	{ "hud_messages", "enable/disable showing messages", (void*)&gMessageState, CVAR_BOOL, 0, 1 },
 	{ "hud_powerupduration", "enable/disable displaying the remaining seconds for power-ups", (void*)&gPowerupDuration, CVAR_BOOL, 0, 1 },
+
+	// Currently unavailable due to dependency on an obsolete OpenGL feature
+	{ "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },
+
+	// This needs some serious internal cleanup first, the implementation is all over the place and prone to whacking the user setting.
+	{ "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
+
 */
 #endif

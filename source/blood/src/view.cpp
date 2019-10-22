@@ -1170,7 +1170,7 @@ void viewDrawStats(PLAYER *pPlayer, int x, int y)
 {
     const int nFont = 3;
     char buffer[128];
-    if (!gLevelStats)
+    if (!hud_stats)
         return;
 
     int nHeight;
@@ -1185,7 +1185,7 @@ void viewDrawStats(PLAYER *pPlayer, int x, int y)
     if (gGameOptions.nGameType != 3)
         sprintf(buffer, "K:%d/%d", gKillMgr.at4, gKillMgr.at0);
     else
-        sprintf(buffer, "K:%d", pPlayer->fragCount);
+        sprintf(buffer, "F:%d", pPlayer->fragCount);
     viewDrawText(3, buffer, x, y, 20, 0, 0, true, 256);
     y += nHeight+1;
     sprintf(buffer, "S:%d/%d", gSecretMgr.at4+gSecretMgr.at8, gSecretMgr.at0);
@@ -1266,7 +1266,7 @@ void viewDrawPowerUps(PLAYER* pPlayer)
 
 void viewDrawMapTitle(void)
 {
-    if (!gShowMapTitle || gGameMenuMgr.m_bActive)
+    if (!hud_showmapname || gGameMenuMgr.m_bActive)
         return;
 
     int const fadeStartTic = int((videoGetRenderMode() == REND_CLASSIC ? 1.25f : 1.f)*kTicsPerSec);
@@ -3080,7 +3080,7 @@ void viewDrawScreen(void)
             newaspect_enable = 1;
             videoSetCorrectedAspect();
         }
-        renderSetAspect(Blrintf(float(viewingrange) * tanf(gFov * (PI/360.f))), yxaspect);
+        renderSetAspect(Blrintf(float(viewingrange) * tanf(r_fov * (PI/360.f))), yxaspect);
         int cX = gView->pSprite->x;
         int cY = gView->pSprite->y;
         int cZ = gView->zView;

@@ -1209,7 +1209,7 @@ void G_DisplayRest(int32_t smoothratio)
     G_PrintFPS();
 
     // JBF 20040124: display level stats in screen corner
-    if (ud.overhead_on != 2 && ud.levelstats && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)
+    if (ud.overhead_on != 2 && hud_stats && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)
     {
         auto const myps = g_player[myconnectindex].ps;
 

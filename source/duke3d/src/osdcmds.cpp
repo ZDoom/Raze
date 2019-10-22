@@ -1446,11 +1446,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
             videoSetGameMode(fullscreen, xres, yres, bpp, ud.detail);
         }
     }
-    else if (!Bstrcasecmp(parm->name, "r_size"))
-    {
-        ud.statusbarmode = (ud.screen_size < 8);
-        G_UpdateScreenArea();
-    }
     else if (!Bstrcasecmp(parm->name, "r_maxfps") || !Bstrcasecmp(parm->name, "r_maxfpsoffset"))
     {
         if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);

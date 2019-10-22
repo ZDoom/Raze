@@ -233,7 +233,6 @@ void CONFIG_SetDefaults(void)
     ud.color = 0;
     ud.detail = 0;
     ud.drawweapon = 1;
-    ud.levelstats = 0;
     ud.lockout = 0;
     ud.m_ffire = 1;
     ud.m_marker = 1;
@@ -280,7 +279,6 @@ void CONFIG_SetDefaults(void)
     ud.menu_scrollbartilenum = -1;
     ud.menu_scrollbarz = 65536;
     ud.menu_scrollcursorz = 65536;
-    ud.fov = 90;
 
     ud.config.CheckForUpdates = 1;
 

@@ -416,12 +416,12 @@ CGameMenuItemChain itemOptionsDisplayColor("COLOR CORRECTION", 3, 66, 60, 180, 0
 CGameMenuItemChain itemOptionsDisplayMode("VIDEO MODE", 3, 66, 70, 180, 0, &menuOptionsDisplayMode, -1, SetupVideoModeMenu, 0);
 CGameMenuItemZBool itemOptionsDisplayBoolCrosshair("CROSSHAIR:", 3, 66, 80, 180, cl_crosshair, SetCrosshair, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolCenterHoriz("CENTER HORIZON LINE:", 3, 66, 90, 180, gCenterHoriz, SetCenterHoriz, NULL, NULL);
-CGameMenuItemZBool itemOptionsDisplayBoolLevelStats("LEVEL STATS:", 3, 66, 100, 180, gLevelStats, SetLevelStats, NULL, NULL);
+CGameMenuItemZBool itemOptionsDisplayBoolLevelStats("LEVEL STATS:", 3, 66, 100, 180, hud_stats, SetLevelStats, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolPowerupDuration("POWERUP DURATION:", 3, 66, 110, 180, gPowerupDuration, SetPowerupDuration, NULL, NULL);
-CGameMenuItemZBool itemOptionsDisplayBoolShowMapTitle("MAP TITLE:", 3, 66, 120, 180, gShowMapTitle, SetShowMapTitle, NULL, NULL);
+CGameMenuItemZBool itemOptionsDisplayBoolShowMapTitle("MAP TITLE:", 3, 66, 120, 180, hud_showmapname, SetShowMapTitle, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolMessages("MESSAGES:", 3, 66, 130, 180, gMessageState, SetMessages, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolWidescreen("WIDESCREEN:", 3, 66, 140, 180, r_usenewaspect, SetWidescreen, NULL, NULL);
-CGameMenuItemSlider itemOptionsDisplayFOV("FOV:", 3, 66, 150, 180, &gFov, 75, 140, 5, SetFOV, -1, -1, kMenuSliderValue);
+CGameMenuItemSlider itemOptionsDisplayFOV("FOV:", 3, 66, 150, 180, &r_fov.Value, 75, 140, 5, SetFOV, -1, -1, kMenuSliderValue);
 #ifdef USE_OPENGL
 CGameMenuItemChain itemOptionsDisplayPolymost("POLYMOST SETUP", 3, 66, 160, 180, 0, &menuOptionsDisplayPolymost, -1, SetupVideoPolymostMenu, 0);
 #endif
@@ -1146,9 +1146,9 @@ void SetupOptionsMenu(void)
     menuOptionsDisplay.Add(&itemBloodQAV, false);
     itemOptionsDisplayBoolCrosshair.at20 = cl_crosshair;
     itemOptionsDisplayBoolCenterHoriz.at20 = gCenterHoriz;
-    itemOptionsDisplayBoolLevelStats.at20 = gLevelStats;
+	itemOptionsDisplayBoolLevelStats.at20 = hud_stats;
     itemOptionsDisplayBoolPowerupDuration.at20 = gPowerupDuration;
-    itemOptionsDisplayBoolShowMapTitle.at20 = gShowMapTitle;
+    itemOptionsDisplayBoolShowMapTitle.at20 = hud_showmapname;
     itemOptionsDisplayBoolMessages.at20 = gMessageState;
     itemOptionsDisplayBoolWidescreen.at20 = r_usenewaspect;
 
@@ -1479,7 +1479,7 @@ void SetAutoAim(CGameMenuItemZCycle *pItem)
 
 void SetLevelStats(CGameMenuItemZBool *pItem)
 {
-    gLevelStats = pItem->at20;
+    hud_stats = pItem->at20;
 }
 
 void SetPowerupDuration(CGameMenuItemZBool* pItem)
@@ -1489,7 +1489,7 @@ void SetPowerupDuration(CGameMenuItemZBool* pItem)
 
 void SetShowMapTitle(CGameMenuItemZBool* pItem)
 {
-    gShowMapTitle = pItem->at20;
+	hud_showmapname = pItem->at20;
 }
 
 void SetWeaponSwitch(CGameMenuItemZCycle *pItem)
@@ -1592,7 +1592,7 @@ void SetWidescreen(CGameMenuItemZBool *pItem)
 
 void SetFOV(CGameMenuItemSlider *pItem)
 {
-    gFov = pItem->nValue;
+    r_fov = pItem->nValue;
 }
 
 void SetupVideoModeMenu(CGameMenuItemChain *pItem)

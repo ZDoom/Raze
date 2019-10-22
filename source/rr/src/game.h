@@ -166,7 +166,7 @@ typedef struct {
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
     int32_t entered_name,screen_tilting,shadows,fta_on,executions;
-    int32_t showfps,levelstats,m_coop,coop,screen_size,lockout,crosshair;
+    int32_t showfps,m_coop,coop,screen_size,lockout,crosshair;
     int32_t playerai,angleinterpolation;
 
     int32_t respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
@@ -184,8 +184,6 @@ typedef struct {
     //int32_t returnvar[MAX_RETURN_VALUES-1];
 
     uint32_t userbytever;
-
-    int32_t fov;
 
     fix16_t cameraq16ang, cameraq16horiz;
     int16_t camerasect;
@@ -277,7 +275,6 @@ extern int32_t g_levelTextTime;
 extern int32_t g_quitDeadline;
 extern int32_t g_restorePalette;
 extern int32_t hud_glowingquotes;
-extern int32_t hud_showmapname;
 extern int32_t r_maxfps;
 extern int32_t r_maxfpsoffset;
 extern int32_t tempwallptr;

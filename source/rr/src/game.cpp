@@ -99,8 +99,6 @@ int32_t ticrandomseed;
 
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop(void);
 
-int32_t hud_showmapname = 1;
-
 int32_t g_levelTextTime = 0;
 
 int32_t r_maxfps = 60;
@@ -1020,7 +1018,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
                                                                   )));
 
-        viewingRange = Blrintf(float(vr) * tanf(ud.fov * (PI/360.f)));
+        viewingRange = Blrintf(float(vr) * tanf(r_fov * (PI/360.f)));
 
         if (!RRRA || !pPlayer->drug_mode)
         {
