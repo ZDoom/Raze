@@ -273,17 +273,10 @@ void CONFIG_SetDefaults(void)
 #else
     gSetup.bpp = 8;
 #endif
-
-#ifdef GEKKO
-    gSetup.usejoystick = 1;
-#else
-    gSetup.usejoystick = 0;
-#endif
-
+	
     gSetup.forcesetup       = 1;
     gSetup.noautoload       = 1;
     gSetup.fullscreen       = 1;
-    gSetup.usemouse         = 1;
 
     //snd_ambience  = 1;
     //ud.config.AutoAim         = 1;
@@ -829,7 +822,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(scripthandle, "Updates", "LastUpdateCheck", LastUpdateCheck, FALSE, FALSE);
 #endif
 
-    if (gSetup.usemouse)
+    if (in_mouse)
     {
         for (int i=0; i<MAXMOUSEBUTTONS; i++)
         {
@@ -876,7 +869,7 @@ void CONFIG_WriteSetup(uint32_t flags)
         }
     }
 
-    if (gSetup.usejoystick)
+    if (in_joystick)
     {
         for (int dummy=0; dummy<MAXJOYBUTTONSANDHATS; dummy++)
         {

@@ -2092,7 +2092,7 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_OPTIONS:
         MenuEntry_DisableOnCondition(&ME_OPTIONS_PLAYERSETUP, ud.recstat == 1);
-        MenuEntry_HideOnCondition(&ME_OPTIONS_JOYSTICKSETUP, !ud.setup.usejoystick || CONTROL_JoyPresent == 0);
+        MenuEntry_HideOnCondition(&ME_OPTIONS_JOYSTICKSETUP, !in_joystick || CONTROL_JoyPresent == 0);
         break;
 
     case MENU_COLCORR:

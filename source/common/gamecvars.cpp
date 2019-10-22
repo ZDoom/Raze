@@ -3,6 +3,7 @@
 #include "fx_man.h"
 #include "baselayer.h"
 #include "gameconfigfile.h"
+#include "control.h"
 
 /* Notes
  
@@ -219,15 +220,22 @@ CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field o
 
 CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable centered horizon line") // only present in Blood, maybe add to others?
 
+CUSTOM_CVARD(Bool, in_joystick, false, CVAR_ARCHIVE|CVAR_NOINITCALL, "enables input from the joystick if it is present")
+{
+	CONTROL_JoystickEnabled = (self && CONTROL_JoyPresent);
+}
+
+CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_NOINITCALL, "enables input from the mouse if it is present")
+{
+	CONTROL_MouseEnabled = (self && CONTROL_MousePresent);
+}
+
 #if 0
 
 
 // DN3D
     static osdcvardata_t cvars_game[] =
     {
-
-        { "in_joystick","enables input from the joystick if it is present",(void *)&ud.setup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "in_mouse","enables input from the mouse if it is present",(void *)&ud.setup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
         { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
         {
@@ -280,10 +288,6 @@ CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disa
 
     static osdcvardata_t cvars_game[] =
     {
-
-        { "in_joystick","enables input from the joystick if it is present",(void *)&ud.setup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "in_mouse","enables input from the mouse if it is present",(void *)&ud.setup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-
         { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
         {
             "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
@@ -338,9 +342,6 @@ int32_t registerosdcommands(void)
     char buffer[256];
     static osdcvardata_t cvars_game[] =
     {
-        { "in_joystick","enables input from the joystick if it is present",(void *)&gSetup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "in_mouse","enables input from the mouse if it is present",(void *)&gSetup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-
         { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&gMouseAiming, CVAR_BOOL, 0, 1 },
         {
             "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",

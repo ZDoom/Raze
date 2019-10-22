@@ -140,8 +140,6 @@ void A_DeleteSprite(int spriteNum);
 // KEEPINSYNC lunatic/_defs_game.lua
 
 typedef struct {
-    int32_t usejoystick;
-    int32_t usemouse;
     int32_t fullscreen;
     int32_t xdim;
     int32_t ydim;

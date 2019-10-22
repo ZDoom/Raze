@@ -1457,14 +1457,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
             r_ambientlightrecip = 256.f;
         else r_ambientlightrecip = 1.f/r_ambientlight;
     }
-    else if (!Bstrcasecmp(parm->name, "in_mouse"))
-    {
-        CONTROL_MouseEnabled = (ud.setup.usemouse && CONTROL_MousePresent);
-    }
-    else if (!Bstrcasecmp(parm->name, "in_joystick"))
-    {
-        CONTROL_JoystickEnabled = (ud.setup.usejoystick && CONTROL_JoyPresent);
-    }
     else if (!Bstrcasecmp(parm->name, "vid_gamma"))
     {
         ud.brightness = GAMMA_CALC;

@@ -952,7 +952,7 @@ static MenuEntry_t *MEL_TOUCHSENS [] = {
 };
 #endif
 
-static MenuOption_t MEO_JOYSTICK_ENABLE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.setup.usejoystick );
+static MenuOption_t MEO_JOYSTICK_ENABLE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &in_joystick.Value );
 static MenuEntry_t ME_JOYSTICK_ENABLE = MAKE_MENUENTRY( "Enable Gamepad:", &MF_Redfont, &MEF_BigOptionsRtSections, &MEO_JOYSTICK_ENABLE, Option );
 
 MAKE_MENU_TOP_ENTRYLINK( "Edit Buttons", MEF_BigOptionsRtSections, JOYSTICK_EDITBUTTONS, MENU_JOYSTICKBTNS );

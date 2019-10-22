@@ -253,16 +253,10 @@ void CONFIG_SetDefaults(void)
     ud.team = 0;
     cl_weaponswitch = 3;	// new+empty
     ud.angleinterpolation = 0;
-#ifdef GEKKO
-    ud.setup.usejoystick = 1;
-#else
-    ud.setup.usejoystick = 0;
-#endif
 
     ud.setup.forcesetup = 1;
     ud.setup.noautoload = 1;
     ud.setup.fullscreen = 1;
-    ud.setup.usemouse = 1;
 
     snd_speech = 5; // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
     ud.display_bonus_screen = 1;
@@ -801,7 +795,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", ud.config.LastUpdateCheck, FALSE, FALSE);
 #endif
 
-    if (ud.setup.usemouse)
+    if (in_mouse)
     {
         for (dummy=0; dummy<MAXMOUSEBUTTONS; dummy++)
         {
@@ -848,7 +842,7 @@ void CONFIG_WriteSetup(uint32_t flags)
         }
     }
 
-    if (ud.setup.usejoystick)
+    if (in_joystick)
     {
         for (dummy=0; dummy<MAXJOYBUTTONSANDHATS; dummy++)
         {

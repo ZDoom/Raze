@@ -230,17 +230,12 @@ void CONFIG_SetDefaults(void)
     ud.camera_time    = 4;
 #endif
 
-    // currently settings.cfg is only read after the startup window launches the game,
-    // and rereading binds might be fickle so just enable this
-    ud.setup.usejoystick = 1;
-
     g_myAimMode = 1;
     g_player[0].ps->aim_mode = 1;
 
     ud.setup.forcesetup       = 1;
     ud.setup.noautoload       = 1;
     ud.setup.fullscreen       = 1;
-    ud.setup.usemouse         = 1;
 
     ud.althud                 = 1;
     ud.angleinterpolation     = 0;
@@ -971,7 +966,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", ud.config.LastUpdateCheck, FALSE, FALSE);
 #endif
 
-    if (ud.setup.usemouse)
+    if (in_mouse)
     {
         for (int i=0; i<MAXMOUSEBUTTONS; i++)
         {
@@ -1015,7 +1010,7 @@ void CONFIG_WriteSetup(uint32_t flags)
         }
     }
 
-    if (ud.setup.usejoystick)
+    if (in_joystick)
     {
         for (int dummy=0; dummy<MAXJOYBUTTONSANDHATS; dummy++)
         {
