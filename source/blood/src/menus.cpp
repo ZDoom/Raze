@@ -3272,14 +3272,14 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
 #endif
     else if (entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
     {
-        ud.weaponswitch &= ~(1|4);
+        ud.weaponswitch = ud.weaponswitch & ~(1|4);
         switch (newOption)
         {
         case 2:
-            ud.weaponswitch |= 4;
+            ud.weaponswitch = ud.weaponswitch | 4;
             fallthrough__;
         case 1:
-            ud.weaponswitch |= 1;
+            ud.weaponswitch = ud.weaponswitch | 1;
             break;
         default:
             break;
@@ -3604,7 +3604,7 @@ This is polled when the menu code is populating the screen but for some reason d
 static int32_t Menu_EntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
 {
     if (entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
-        return (ud.weaponswitch & 1) ? ((ud.weaponswitch & 4) ? 2 : 1) : 0;
+        return (cl_weaponswitch & 1) ? ((cl_weaponswitch & 4) ? 2 : 1) : 0;
     else if (entry == &ME_SOUND_DUKETALK)
         return snd_speech & 1;
     else if (entry == &ME_NETOPTIONS_MONSTERS)

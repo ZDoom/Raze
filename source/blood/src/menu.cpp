@@ -1123,7 +1123,7 @@ void SetupOptionsMenu(void)
     itemOptionsGameBoolViewBobbing.at20 = cl_viewvbob;
     itemOptionsGameBoolViewSwaying.at20 = cl_viewhbob;
     itemOptionsGameBoolAutoAim.m_nFocus = cl_autoaim;
-    itemOptionsGameWeaponSwitch.m_nFocus = (gWeaponSwitch&1) ? ((gWeaponSwitch&2) ? 1 : 2) : 0;
+    itemOptionsGameWeaponSwitch.m_nFocus = (cl_weaponswitch&1) ? ((cl_weaponswitch&2) ? 1 : 2) : 0;
 
     ///////
     itemOptionsGameBoolWeaponsV10X.at20 = gWeaponsV10x;
@@ -1494,22 +1494,23 @@ void SetShowMapTitle(CGameMenuItemZBool* pItem)
 
 void SetWeaponSwitch(CGameMenuItemZCycle *pItem)
 {
-    gWeaponSwitch &= ~(1|2);
+
+    cl_weaponswitch = cl_weaponswitch & ~(1|2);
     switch (pItem->m_nFocus)
     {
     case 0:
         break;
     case 1:
-        gWeaponSwitch |= 2;
+        cl_weaponswitch = cl_weaponswitch | 2;
         fallthrough__;
     case 2:
     default:
-        gWeaponSwitch |= 1;
+        cl_weaponswitch = cl_weaponswitch | 1;
         break;
     }
     if (!gDemo.at0 && !gDemo.at1)
     {
-        gProfile[myconnectindex].nWeaponSwitch = gWeaponSwitch;
+        gProfile[myconnectindex].nWeaponSwitch = cl_weaponswitch;
         netBroadcastPlayerInfo(myconnectindex);
     }
 }

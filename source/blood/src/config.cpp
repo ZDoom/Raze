@@ -81,7 +81,7 @@ char szPlayerName[MAXPLAYERNAME];
 int32_t gTurnSpeed;
 int32_t gDetail;
 int32_t gMouseAim;
-int32_t gWeaponSwitch;
+int32_t cl_weaponswitch;
 int32_t gAutoRun;
 int32_t gFollowMap;
 int32_t gOverlayMap;
@@ -337,7 +337,7 @@ void CONFIG_SetDefaults(void)
     //ud.team                   = 0;
     //ud.textscale              = 200;
     //ud.weaponscale            = 100;
-    //ud.weaponswitch           = 3;  // new+empty
+    //cl_weaponswitch           = 3;  // new+empty
     gFov = 90;
     gCenterHoriz = 0;
     gDeliriumBlur = 1;
@@ -358,7 +358,7 @@ void CONFIG_SetDefaults(void)
 
     gMouseAimingFlipped = 0;
     gMouseAim = 1;
-    gWeaponSwitch = 1;
+    cl_weaponswitch = 1;
 
     Bstrcpy(szPlayerName, "Player");
 

@@ -253,7 +253,7 @@ void CONFIG_SetDefaults(void)
     ud.statusbarmode = 1;
     ud.statusbarscale = 100;
     ud.team = 0;
-    ud.weaponswitch = 3;	// new+empty
+    cl_weaponswitch = 3;	// new+empty
     ud.angleinterpolation = 0;
 #ifdef GEKKO
     ud.setup.usejoystick = 1;

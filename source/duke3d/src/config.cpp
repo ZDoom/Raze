@@ -289,7 +289,6 @@ void CONFIG_SetDefaults(void)
     ud.team                   = 0;
     ud.textscale              = 200;
     ud.weaponscale            = 100;
-    ud.weaponswitch           = 3;  // new+empty
 
     Bstrcpy(ud.rtsname, G_DefaultRtsFile());
 

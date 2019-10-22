@@ -579,7 +579,7 @@ void netBroadcastPlayerInfo(int nPlayer)
     strcpy(pProfile->name, szPlayerName);
     pProfile->skill = gSkill;
     pProfile->nAutoAim = cl_autoaim;
-    pProfile->nWeaponSwitch = gWeaponSwitch;
+    pProfile->nWeaponSwitch = cl_weaponswitch;
     if (numplayers < 2)
         return;
     char *pPacket = packet;

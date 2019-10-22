@@ -6145,7 +6145,7 @@ static void P_SetupMiscInputSettings(void)
 
     ps->aim_mode = ud.mouseaiming;
     ps->auto_aim = cl_autoaim;
-    ps->weaponswitch = ud.weaponswitch;
+    ps->weaponswitch = cl_weaponswitch;
 }
 
 void G_UpdatePlayerFromMenu(void)
