@@ -230,20 +230,27 @@ CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCAL
 	CONTROL_MouseEnabled = (self && CONTROL_MousePresent);
 }
 
-CVARD(Bool, in_aimmode, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "0:toggle, 1:hold to aim")// (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
+CVARD(Bool, in_aimmode, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "0:toggle, 1:hold to aim")
+
+CUSTOM_CVARD(Int, in_mousebias, 0, CVAR_INT|CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time")
+{
+	if (self < 0) self = 0;
+	else if (self > 32) self = 32;
+}
+
+CUSTOM_CVARD(Int, in_mousedeadzone, 0, CVAR_INT|CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "amount of mouse movement to filter out")
+{
+	if (self < 0) self = 0;
+	else if (self > 512) self = 512;
+}
 
 #if 0
-	{ "in_aimmode", "0:toggle, 1:hold to aim", (void *)&gMouseAiming, CVAR_BOOL, 0, 1 },
 
 
 // DN3D
     static osdcvardata_t cvars_game[] =
     {
 
-            "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
-            (void *)&ud.config.MouseBias, CVAR_INT, 0, 32
-        },
-        { "in_mousedeadzone", "amount of mouse movement to filter out", (void *)&ud.config.MouseDeadZone, CVAR_INT, 0, 512 },
         { "in_mouseflip", "invert vertical mouse movement", (void *)&ud.mouseflip, CVAR_BOOL, 0, 1 },
         { "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
@@ -289,11 +296,6 @@ CVARD(Bool, in_aimmode, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "0:toggle, 1:hold
 
     static osdcvardata_t cvars_game[] =
     {
-        {
-            "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
-            (void *)&ud.config.MouseBias, CVAR_INT, 0, 32
-        },
-        { "in_mousedeadzone", "amount of mouse movement to filter out", (void *)&ud.config.MouseDeadZone, CVAR_INT, 0, 512 },
         { "in_mouseflip", "invert vertical mouse movement", (void *)&ud.mouseflip, CVAR_BOOL, 0, 1 },
         { "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
@@ -342,11 +344,6 @@ int32_t registerosdcommands(void)
     char buffer[256];
     static osdcvardata_t cvars_game[] =
     {
-        {
-            "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
-            (void *)&MouseBias, CVAR_INT, 0, 32
-        },
-        { "in_mousedeadzone", "amount of mouse movement to filter out", (void *)&MouseDeadZone, CVAR_INT, 0, 512 },
         { "in_mouseflip", "invert vertical mouse movement", (void *)&gMouseAimingFlipped, CVAR_BOOL, 0, 1 },
         { "in_mousemode", "toggles vertical mouse view", (void *)&gMouseAim, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&SmoothInput, CVAR_BOOL, 0, 1 },

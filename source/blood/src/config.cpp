@@ -56,7 +56,6 @@ BEGIN_BLD_NS
 
 hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
 
-int32_t MouseDeadZone, MouseBias;
 int32_t SmoothInput;
 int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
 int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
@@ -280,8 +279,6 @@ void CONFIG_SetDefaults(void)
     //snd_ambience  = 1;
     //ud.config.AutoAim         = 1;
     CheckForUpdates = 1;
-    MouseBias       = 0;
-    MouseDeadZone   = 0;
     gBrightness = 8;
     //ud.config.ShowWeapons     = 0;
     SmoothInput     = 1;

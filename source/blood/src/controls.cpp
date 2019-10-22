@@ -217,25 +217,25 @@ void ctrlGetInput(void)
 
     CONTROL_GetInput(&info);
 
-    if (MouseDeadZone)
+    if (in_mousedeadzone)
     {
         if (info.mousey > 0)
-            info.mousey = max(info.mousey - MouseDeadZone, 0);
+            info.mousey = max(info.mousey - in_mousedeadzone, 0);
         else if (info.mousey < 0)
-            info.mousey = min(info.mousey + MouseDeadZone, 0);
+            info.mousey = min(info.mousey + in_mousedeadzone, 0);
 
         if (info.mousex > 0)
-            info.mousex = max(info.mousex - MouseDeadZone, 0);
+            info.mousex = max(info.mousex - in_mousedeadzone, 0);
         else if (info.mousex < 0)
-            info.mousex = min(info.mousex + MouseDeadZone, 0);
+            info.mousex = min(info.mousex + in_mousedeadzone, 0);
     }
 
-    if (MouseBias)
+    if (in_mousebias)
     {
         if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, MouseBias);
+            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
         else
-            info.mousex = tabledivide32_noinline(info.mousex, MouseBias);
+            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
     }
 
     if (gQuitRequest)

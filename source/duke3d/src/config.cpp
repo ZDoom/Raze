@@ -243,8 +243,6 @@ void CONFIG_SetDefaults(void)
     ud.camerasprite           = -1;
     ud.color                  = 0;
     ud.config.CheckForUpdates = 1;
-    ud.config.MouseBias       = 0;
-    ud.config.MouseDeadZone   = 0;
     ud.config.ShowWeapons     = 0;
     ud.config.SmoothInput     = 1;
     ud.config.useprecache     = 1;

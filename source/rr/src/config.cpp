@@ -212,8 +212,7 @@ void CONFIG_SetDefaults(void)
     ud.setup.bpp = 8;
 #endif
     ud.config.useprecache = 1;
-    ud.config.MouseBias = 0;
-    ud.config.MouseDeadZone = 0;
+    in_mousebias = 0;
     g_myAimMode = g_player[0].ps->aim_mode = 1;
     ud.config.ShowOpponentWeapons = 0;
     ud.config.SmoothInput = 1;

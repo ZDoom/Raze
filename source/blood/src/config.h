@@ -38,7 +38,6 @@ BEGIN_BLD_NS
 #define MAXPLAYERNAME 16
 #define MAXMOUSEAXES 2
 
-extern int32_t MouseDeadZone, MouseBias;
 extern int32_t SmoothInput;
 extern int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
 extern int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
