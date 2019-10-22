@@ -1448,7 +1448,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_MOUSEFLIP:              labelNum = ud.mouseflip;                    break;
         case USERDEFS_STATUSBARSCALE:         labelNum = ud.statusbarscale;               break;
         case USERDEFS_DRAWWEAPON:             labelNum = ud.drawweapon;                   break;
-        case USERDEFS_MOUSEAIMING:            labelNum = ud.mouseaiming;                  break;
+        case USERDEFS_MOUSEAIMING:            labelNum = in_aimmode;                      break;
         case USERDEFS_WEAPONSWITCH:           labelNum = cl_weaponswitch;                 break;
         case USERDEFS_DEMOCAMS:               labelNum = cl_democams;                     break;
         case USERDEFS_COLOR:                  labelNum = ud.color;                        break;
@@ -1649,7 +1649,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_MOUSEFLIP:                    ud.mouseflip                     = iSet; break;
         case USERDEFS_STATUSBARSCALE:               ud.statusbarscale                = iSet; break;
         case USERDEFS_DRAWWEAPON:                   ud.drawweapon                    = iSet; break;
-        case USERDEFS_MOUSEAIMING:                  ud.mouseaiming                   = iSet; break;
+        case USERDEFS_MOUSEAIMING:                  in_aoimmode                      = iSet; break;//!!!
         case USERDEFS_WEAPONSWITCH:                 cl_weaponswitch                  = iSet; break; //!!!
         case USERDEFS_DEMOCAMS:                     cl_democams                      = iSet; break;
         case USERDEFS_COLOR:                        ud.color                         = iSet; break;

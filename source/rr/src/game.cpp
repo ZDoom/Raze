@@ -7523,7 +7523,7 @@ static void P_SetupMiscInputSettings(void)
 {
     DukePlayer_t *ps = g_player[myconnectindex].ps;
 
-    ps->aim_mode = ud.mouseaiming;
+    ps->aim_mode = in_aimmode;
     ps->auto_aim = cl_autoaim;
     ps->weaponswitch = cl_weaponswitch;
 }

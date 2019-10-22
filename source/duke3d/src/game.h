@@ -175,7 +175,7 @@ typedef struct {
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
     int32_t reccnt;
 
-    int32_t runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
+    int32_t runkey_mode,statusbarscale,weaponswitch,drawweapon;   // JBF 20031125
     int32_t color,msgdisptime,statusbarmode;
     int32_t m_noexits,noexits;
     int32_t team, althud, weaponscale, textscale;

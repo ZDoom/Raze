@@ -93,7 +93,6 @@ int32_t gMessageFont;
 int32_t gbAdultContent;
 char gzAdultPassword[9];
 int32_t gMouseSensitivity;
-int32_t gMouseAiming;
 int32_t gMouseAimingFlipped;
 bool gNoClip;
 bool gInfiniteAmmo;
@@ -306,7 +305,6 @@ void CONFIG_SetDefaults(void)
     //ud.menu_slidebarz         = 65536;
     //ud.menu_slidecursorz      = 65536;
     //ud.menubackground         = 1;
-    //ud.mouseaiming            = 0;
     //ud.mouseflip              = 1;
     //ud.msgdisptime            = 120;
     //ud.pwlockout[0]           = '\0';

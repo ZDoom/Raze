@@ -2907,7 +2907,7 @@ void P_GetInput(int const playerNum)
 
     CONTROL_ProcessBinds();
 
-    if (ud.mouseaiming)
+    if (in_aimmode)
         g_myAimMode = BUTTON(gamefunc_Mouse_Aiming);
     else
     {

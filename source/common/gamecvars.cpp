@@ -220,25 +220,26 @@ CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field o
 
 CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable centered horizon line") // only present in Blood, maybe add to others?
 
-CUSTOM_CVARD(Bool, in_joystick, false, CVAR_ARCHIVE|CVAR_NOINITCALL, "enables input from the joystick if it is present")
+CUSTOM_CVARD(Bool, in_joystick, false, CVAR_ARCHIVE||CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the joystick if it is present")
 {
 	CONTROL_JoystickEnabled = (self && CONTROL_JoyPresent);
 }
 
-CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_NOINITCALL, "enables input from the mouse if it is present")
+CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the mouse if it is present")
 {
 	CONTROL_MouseEnabled = (self && CONTROL_MousePresent);
 }
 
+CVARD(Bool, in_aimmode, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "0:toggle, 1:hold to aim")// (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
+
 #if 0
+	{ "in_aimmode", "0:toggle, 1:hold to aim", (void *)&gMouseAiming, CVAR_BOOL, 0, 1 },
 
 
 // DN3D
     static osdcvardata_t cvars_game[] =
     {
 
-        { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
-        {
             "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
             (void *)&ud.config.MouseBias, CVAR_INT, 0, 32
         },
@@ -288,7 +289,6 @@ CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_NOINITCALL, "enables input 
 
     static osdcvardata_t cvars_game[] =
     {
-        { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
         {
             "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
             (void *)&ud.config.MouseBias, CVAR_INT, 0, 32
@@ -342,7 +342,6 @@ int32_t registerosdcommands(void)
     char buffer[256];
     static osdcvardata_t cvars_game[] =
     {
-        { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&gMouseAiming, CVAR_BOOL, 0, 1 },
         {
             "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
             (void *)&MouseBias, CVAR_INT, 0, 32

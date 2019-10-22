@@ -2757,7 +2757,7 @@ void P_GetInput(int playerNum)
 
     CONTROL_ProcessBinds();
 
-    if (ud.mouseaiming)
+    if (in_aimmode)
         g_myAimMode = BUTTON(gamefunc_Mouse_Aiming);
     else
     {
@@ -3063,7 +3063,7 @@ void P_GetInputMotorcycle(int playerNum)
 
     CONTROL_ProcessBinds();
 
-    if (ud.mouseaiming)
+    if (in_aimmode)
         g_myAimMode = BUTTON(gamefunc_Mouse_Aiming);
     else
     {
@@ -3361,7 +3361,7 @@ void P_GetInputBoat(int playerNum)
 
     CONTROL_ProcessBinds();
 
-    if (ud.mouseaiming)
+    if (in_aimmode)
         g_myAimMode = BUTTON(gamefunc_Mouse_Aiming);
     else
     {
