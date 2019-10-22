@@ -66,12 +66,7 @@ int32_t NumberPlayers,CommPort,PortSpeed,IrqNumber,UartAddress;
 //
 // Sound variables
 //
-int32_t FXDevice    = 0;
-int32_t MusicDevice = 0;
-int32_t NumVoices   = 32;
-int32_t NumChannels = 2;
-int32_t NumBits     = 16;
-int32_t MixRate     = 44100;
+
 
 int32_t UseMouse = 1, UseJoystick = 0;
 
@@ -231,12 +226,6 @@ void CONFIG_SetDefaults(void)
     }
 
     ScreenBPP = 32;
-    FXDevice = 0;
-    MusicDevice = 0;
-    NumVoices = 32;
-    NumChannels = 2;
-    NumBits = 16;
-    MixRate = 44100;
     memcpy(&gs, &gs_defaults, sizeof(gs));
 
     Bstrcpy(RTSName, DEFAULTRTSFILE);
@@ -591,46 +580,7 @@ int32_t CONFIG_ReadSetup(void)
 
     if (scripthandle < 0) return -1;
 
-    SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenMode",&ScreenMode);
-    SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenWidth",&ScreenWidth);
-    SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenHeight",&ScreenHeight);
-    SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenBPP", &ScreenBPP);
-    if (ScreenBPP < 8) ScreenBPP = 8;
-
-#ifdef RENDERTYPEWIN
-    SCRIPT_GetNumber(scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t *)&maxrefreshfreq);
-#endif
-
-    SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLTextureMode", &gltexfiltermode);
-    SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLAnisotropy", &glanisotropy);
-    //SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLUseTextureCompr", &glusetexcompr);
-
-    SCRIPT_GetNumber(scripthandle, "Sound Setup", "FXDevice",&FXDevice);
-    SCRIPT_GetNumber(scripthandle, "Sound Setup", "MusicDevice",&MusicDevice);
-    SCRIPT_GetNumber(scripthandle, "Sound Setup", "FXVolume",&dummy);
-    gs.SoundVolume = dummy;
-    SCRIPT_GetNumber(scripthandle, "Sound Setup", "MusicVolume",&dummy);
-    gs.MusicVolume = dummy;
-
-    SCRIPT_GetNumber(scripthandle, "Sound Setup", "NumVoices",&NumVoices);
-    SCRIPT_GetNumber(scripthandle, "Sound Setup", "NumChannels",&NumChannels);
-    SCRIPT_GetNumber(scripthandle, "Sound Setup", "NumBits",&NumBits);
-    SCRIPT_GetNumber(scripthandle, "Sound Setup", "MixRate",&MixRate);
-    SCRIPT_GetNumber(scripthandle, "Sound Setup", "ReverseStereo",&dummy);
-    gs.FlipStereo = dummy;
-    if (gs.FlipStereo) gs.FlipStereo = 1;
-
-    SCRIPT_GetString(scripthandle, "Sound Setup", "WaveformTrackName", waveformtrackname);
-    if (waveformtrackname[0] != '\0')
-        memcpy(gs.WaveformTrackName, waveformtrackname, MAXWAVEFORMTRACKLENGTH);
-
-    SCRIPT_GetNumber(scripthandle, "Setup", "ForceSetup",&ForceSetup);
-    SCRIPT_GetNumber(scripthandle, "Controls","UseMouse",&UseMouse);
-    SCRIPT_GetNumber(scripthandle, "Controls","UseJoystick",&UseJoystick);
-    SCRIPT_GetString(scripthandle, "Comm Setup", "RTSName",RTSName);
-
-    SCRIPT_GetString(scripthandle, "Comm Setup","PlayerName",CommPlayerName);
-
+	// What was here is no longer needed with a globally stored config that's being read automatically.
     ReadGameSetup(scripthandle);
 
     CONFIG_ReadKeys(scripthandle);
@@ -661,33 +611,8 @@ void CONFIG_WriteSetup(void)
     if (scripthandle < 0)
         scripthandle = SCRIPT_Init(setupfilename);
 
-    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenWidth", ScreenWidth,FALSE,FALSE);
-    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenHeight",ScreenHeight,FALSE,FALSE);
-    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenMode",ScreenMode,FALSE,FALSE);
-    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenBPP",ScreenBPP,FALSE,FALSE);
-#ifdef RENDERTYPEWIN
-    SCRIPT_PutNumber(scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,FALSE,FALSE);
-#endif
-    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,FALSE,FALSE);
-    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,FALSE,FALSE);
-    //SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,FALSE,FALSE);
+	// What was here is no longer needed with a globally stored config that's being written automatically.
 
-    SCRIPT_PutNumber(scripthandle, "Sound Setup", "FXDevice", FXDevice, FALSE, FALSE);
-    SCRIPT_PutNumber(scripthandle, "Sound Setup", "MusicDevice", MusicDevice, FALSE, FALSE);
-    SCRIPT_PutNumber(scripthandle, "Sound Setup", "NumVoices", NumVoices, FALSE, FALSE);
-    SCRIPT_PutNumber(scripthandle, "Sound Setup", "NumChannels", NumChannels, FALSE, FALSE);
-    SCRIPT_PutNumber(scripthandle, "Sound Setup", "NumBits", NumBits, FALSE, FALSE);
-    SCRIPT_PutNumber(scripthandle, "Sound Setup", "MixRate", MixRate, FALSE, FALSE);
-    SCRIPT_PutNumber(scripthandle, "Sound Setup", "FXVolume",gs.SoundVolume,FALSE,FALSE);
-    SCRIPT_PutNumber(scripthandle, "Sound Setup", "MusicVolume",gs.MusicVolume,FALSE,FALSE);
-    dummy = gs.FlipStereo;
-    SCRIPT_PutNumber(scripthandle, "Sound Setup", "ReverseStereo",dummy,FALSE,FALSE);
-    SCRIPT_PutString(scripthandle, "Sound Setup", "WaveformTrackName", gs.WaveformTrackName);
-
-    SCRIPT_PutNumber(scripthandle, "Setup", "ForceSetup",ForceSetup,FALSE,FALSE);
-    SCRIPT_PutNumber(scripthandle, "Controls","UseMouse",UseMouse,FALSE,FALSE);
-    SCRIPT_PutNumber(scripthandle, "Controls","UseJoystick",UseJoystick,FALSE,FALSE);
-    SCRIPT_PutNumber(scripthandle, "Controls","MouseSensitivity",gs.MouseSpeed,FALSE,FALSE);
 
     WriteGameSetup(scripthandle);
 

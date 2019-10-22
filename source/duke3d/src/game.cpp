@@ -4499,8 +4499,8 @@ static int32_t g_RTSPlaying;
 // Returns: started playing?
 extern int G_StartRTS(int lumpNum, int localPlayer)
 {
-    if (!ud.lockout && ud.config.SoundToggle &&
-        RTS_IsInitialized() && g_RTSPlaying == 0 && (ud.config.VoiceToggle & (localPlayer ? 1 : 4)))
+    if (!ud.lockout && snd_enabled &&
+        RTS_IsInitialized() && g_RTSPlaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
     {
         char *const pData = (char *)RTS_GetSound(lumpNum - 1);
 
@@ -4900,7 +4900,7 @@ FAKE_F3:
             Menu_Change(MENU_SOUND_INGAME);
         }
 
-        if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicToggle)
+        if (KB_UnBoundKeyPressed(sc_F5) && mus_enabled)
         {
             map_t *const pMapInfo    = &g_mapInfo[g_musicIndex];
             char *const  musicString = apStrings[QUOTE_MUSIC];
@@ -6056,8 +6056,9 @@ static void G_Startup(void)
 #endif
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 
-    if (g_noSound) ud.config.SoundToggle = 0;
-    if (g_noMusic) ud.config.MusicToggle = 0;
+	//errr... what??? Why does this clobber the user setting? Well, it needs to be redone anyway, preferably at a lower level.
+    //if (g_noSound) snd_enabled = 0;
+    //if (g_noMusic) mus_enabled = 0;
 
     if (CommandName)
     {

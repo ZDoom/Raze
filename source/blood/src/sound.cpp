@@ -35,19 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-int32_t SoundToggle;
-int32_t MusicToggle;
-int32_t CDAudioToggle;
-int32_t FXVolume;
-int32_t MusicVolume;
-int32_t CDVolume;
-int32_t NumVoices;
-int32_t NumChannels;
-int32_t NumBits;
-int32_t MixRate;
-int32_t ReverseStereo;
-int32_t MusicDevice;
-
 Resource gSoundRes;
 
 int soundRates[13] = {
@@ -93,7 +80,7 @@ int nWaveMusicHandle;
 
 int sndPlaySong(const char *songName, bool bLoop)
 {
-    if (!MusicToggle)
+    if (!mus_enabled)
         return 0;
     if (!songName || strlen(songName) == 0)
         return 1;
@@ -110,7 +97,7 @@ int sndPlaySong(const char *songName, bool bLoop)
         int nNewSongSize = hSong->size;
         char *pNewSongPtr = (char *)Xaligned_alloc(16, nNewSongSize);
         gSoundRes.Load(hSong, pNewSongPtr);
-        MUSIC_SetVolume(MusicVolume);
+        MUSIC_SetVolume(mus_volume);
         int32_t retval = MUSIC_PlaySong(pNewSongPtr, nNewSongSize, bLoop);
 
         if (retval != MUSIC_Ok)
@@ -174,7 +161,7 @@ int sndPlaySong(const char *songName, bool bLoop)
     }
     else
     {
-        int nNewWaveMusicHandle = FX_Play(pNewSongPtr, bLoop ? nNewSongSize : -1, 0, 0, 0, MusicVolume, MusicVolume, MusicVolume,
+        int nNewWaveMusicHandle = FX_Play(pNewSongPtr, bLoop ? nNewSongSize : -1, 0, 0, 0, mus_volume, mus_volume, mus_volume,
                                    FX_MUSIC_PRIORITY, 1.f, (intptr_t)&nWaveMusicHandle);
 
         if (nNewWaveMusicHandle <= FX_Ok)
@@ -207,12 +194,7 @@ bool sndIsSongPlaying(void)
 void sndFadeSong(int nTime)
 {
     UNREFERENCED_PARAMETER(nTime);
-    // NUKE-TODO:
-    //if (MusicDevice == -1)
-    //    return;
-    //if (gEightyTwoFifty && sndMultiPlayer)
-    //    return;
-    //MUSIC_FadeVolume(0, nTime);
+
     if (bWaveMusic && nWaveMusicHandle >= 0)
     {
         FX_StopSound(nWaveMusicHandle);
@@ -225,7 +207,7 @@ void sndFadeSong(int nTime)
 
 void sndSetMusicVolume(int nVolume)
 {
-    MusicVolume = nVolume;
+    mus_volume = nVolume;
     if (bWaveMusic && nWaveMusicHandle >= 0)
         FX_SetPan(nWaveMusicHandle, nVolume, nVolume, nVolume);
     MUSIC_SetVolume(nVolume);
@@ -233,7 +215,7 @@ void sndSetMusicVolume(int nVolume)
 
 void sndSetFXVolume(int nVolume)
 {
-    FXVolume = nVolume;
+    snd_fxvolume = nVolume;
     FX_SetVolume(nVolume);
 }
 
@@ -262,7 +244,7 @@ void sndKillSound(SAMPLE2D *pChannel);
 
 void sndStartSample(const char *pzSound, int nVolume, int nChannel)
 {
-    if (!SoundToggle)
+    if (!snd_enabled)
         return;
     if (!strlen(pzSound))
         return;
@@ -284,7 +266,7 @@ void sndStartSample(const char *pzSound, int nVolume, int nChannel)
 
 void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
 {
-    if (!SoundToggle)
+    if (!snd_enabled)
         return;
     dassert(nChannel >= -1 && nChannel < kMaxChannels);
     DICTNODE *hSfx = gSoundRes.Lookup(nSound, "SFX");
@@ -328,7 +310,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
 
 void sndStartWavID(unsigned int nSound, int nVolume, int nChannel)
 {
-    if (!SoundToggle)
+    if (!snd_enabled)
         return;
     dassert(nChannel >= -1 && nChannel < kMaxChannels);
     SAMPLE2D *pChannel;
@@ -435,15 +417,14 @@ void InitSoundDevice(void)
     void *initdata = NULL;
 #endif
     int nStatus;
-    nStatus = FX_Init(NumVoices, NumChannels, MixRate, initdata);
+    nStatus = FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata);
     if (nStatus != 0)
     {
         initprintf("InitSoundDevice: %s\n", FX_ErrorString(nStatus));
         return;
     }
-    if (ReverseStereo == 1)
-        FX_SetReverseStereo(!FX_GetReverseStereo());
-    FX_SetVolume(FXVolume);
+	snd_reversestereo.Callback();
+	snd_fxvolume.Callback();
     FX_SetCallBack(SoundCallback);
 }
 
@@ -462,7 +443,7 @@ void InitMusicDevice(void)
         initprintf("InitMusicDevice: %s\n", MUSIC_ErrorString(nStatus));
         return;
     }
-    MUSIC_SetVolume(MusicVolume);
+    MUSIC_SetVolume(mus_volume);
 }
 
 void DeinitMusicDevice(void)

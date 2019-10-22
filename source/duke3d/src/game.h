@@ -241,24 +241,6 @@ typedef struct {
         int32_t JoystickAnalogueSaturate[MAXJOYAXES];
         uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
-        //
-        // Sound variables
-        //
-        int32_t FXVolume;
-        int32_t MusicVolume;
-        int32_t SoundToggle;
-        int32_t MusicToggle;
-        int32_t VoiceToggle;
-        int32_t AmbienceToggle;
-
-        int32_t NumVoices;
-        int32_t NumChannels;
-        int32_t NumBits;
-        int32_t MixRate;
-
-        int32_t ReverseStereo;
-
-
         int32_t scripthandle;
         int32_t setupread;
 

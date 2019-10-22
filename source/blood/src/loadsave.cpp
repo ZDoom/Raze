@@ -170,7 +170,7 @@ void LoadSave::LoadGame(char *pzFile)
     gGameStarted = 1;
     bVanilla = false;
 
-    if (MusicRestartsOnLoadToggle
+    if (mus_restartonload
         || demoWasPlayed
         || (gMusicPrevLoadedEpisode != gGameOptions.nEpisode || gMusicPrevLoadedLevel != gGameOptions.nLevel))
     {

@@ -1050,7 +1050,6 @@ void G_LoadLookups(void)
 //////////
 
 #ifdef FORMAT_UPGRADE_ELIGIBLE
-int g_maybeUpgradeSoundFormats = 1;
 
 static FileReader S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
 {
@@ -1108,6 +1107,8 @@ static FileReader S_TryExtensionReplacements(char * const testfn, char const sea
 FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 {
 	auto origfp = kopenFileReader(fn, searchfirst);
+	if (!snd_tryformats) return origfp;
+	
 	char const* const origparent = origfp.isOpen() ? kfileparent(origfp) : NULL;
 	uint32_t const    parentlength = origparent != NULL ? Bstrlen(origparent) : 0;
 

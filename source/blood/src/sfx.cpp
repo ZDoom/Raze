@@ -119,7 +119,7 @@ void Calc3DValues(BONKLE *pBonkle)
 
 void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
 {
-    if (!SoundToggle || soundId < 0) return;
+    if (!snd_enabled || soundId < 0) return;
     
     DICTNODE *hRes = gSoundRes.Lookup(soundId, "SFX");
     if (!hRes)return;
@@ -153,7 +153,7 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
         priority = lVol;
     if (priority < rVol)
         priority = rVol;
-    if (gDoppler)
+    if (snd_doppler)
     {
         MV_Lock();
         pBonkle->at0 = FX_PlayRaw(pData + lPhase, size - lPhase, lPitch, 0, lVol, lVol, 0, priority, 1.f, (intptr_t)&pBonkle->at0);
@@ -169,7 +169,7 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
 
 void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3, int a4)
 {
-    if (!SoundToggle)
+    if (!snd_enabled)
         return;
     if (!pSprite)
         return;
@@ -252,7 +252,7 @@ void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3, int a4)
     char *pData = (char*)gSoundRes.Lock(hRes);
     if (loopStart >= 0)
     {
-        if (gDoppler)
+        if (snd_doppler)
         {
             pBonkle->at0 = FX_PlayLoopedRaw(pData + lPhase, size - lPhase, pData + loopStart, pData + loopEnd, lPitch, 0, lVol, lVol, 0, priority, 1.f, (intptr_t)&pBonkle->at0);
             pBonkle->at4 = FX_PlayLoopedRaw(pData + rPhase, size - rPhase, pData + loopStart, pData + loopEnd, rPitch, 0, rVol, 0, rVol, priority, 1.f, (intptr_t)&pBonkle->at4);
@@ -266,7 +266,7 @@ void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3, int a4)
     else
     {
         pData = (char*)gSoundRes.Lock(pBonkle->at8);
-        if (gDoppler)
+        if (snd_doppler)
         {
             pBonkle->at0 = FX_PlayRaw(pData + lPhase, size - lPhase, lPitch, 0, lVol, lVol, 0, priority, 1.f, (intptr_t)&pBonkle->at0);
             pBonkle->at4 = FX_PlayRaw(pData + rPhase, size - rPhase, rPitch, 0, rVol, 0, rVol, priority, 1.f, (intptr_t)&pBonkle->at4);
@@ -283,7 +283,7 @@ void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3, int a4)
 // By NoOne: same as previous, but allows to set custom pitch for sound AND volume. Used by SFX gen now.
 void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitch, int volume)
 {
-    if (!SoundToggle || !pSprite || soundId < 0) return;
+    if (!snd_enabled || !pSprite || soundId < 0) return;
     DICTNODE* hRes = gSoundRes.Lookup(soundId, "SFX");
     if (!hRes) return;
 
@@ -363,7 +363,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
     char* pData = (char*)gSoundRes.Lock(hRes);
     if (loopStart >= 0)
     {
-        if (gDoppler)
+        if (snd_doppler)
         {
             pBonkle->at0 = FX_PlayLoopedRaw(pData + lPhase, size - lPhase, pData + loopStart, pData + loopEnd, lPitch, 0, lVol, lVol, 0, priority, 1.f, (intptr_t)& pBonkle->at0);
             pBonkle->at4 = FX_PlayLoopedRaw(pData + rPhase, size - rPhase, pData + loopStart, pData + loopEnd, rPitch, 0, rVol, 0, rVol, priority, 1.f, (intptr_t)& pBonkle->at4);
@@ -377,7 +377,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
     else
     {
         pData = (char*)gSoundRes.Lock(pBonkle->at8);
-        if (gDoppler)
+        if (snd_doppler)
         {
             pBonkle->at0 = FX_PlayRaw(pData + lPhase, size - lPhase, lPitch, 0, lVol, lVol, 0, priority, 1.f, (intptr_t)& pBonkle->at0);
             pBonkle->at4 = FX_PlayRaw(pData + rPhase, size - rPhase, rPitch, 0, rVol, 0, rVol, priority, 1.f, (intptr_t)& pBonkle->at4);

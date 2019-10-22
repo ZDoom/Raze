@@ -224,19 +224,9 @@ void CONFIG_SetDefaults(void)
     ud.setup.bpp = 8;
 #endif
 
-#if defined(_WIN32)
-    ud.config.MixRate = 44100;
-#elif defined __ANDROID__
-    ud.config.MixRate = droidinfo.audio_sample_rate;
-#else
-    ud.config.MixRate = 48000;
-#endif
-
 #if defined GEKKO || defined __OPENDINGUX__
-    ud.config.NumVoices = 32;
     ud.camera_time = 11;
 #else
-    ud.config.NumVoices = 64;
     ud.camera_time    = 4;
 #endif
 
@@ -257,20 +247,11 @@ void CONFIG_SetDefaults(void)
     ud.brightness             = 8;
     ud.camerasprite           = -1;
     ud.color                  = 0;
-    ud.config.AmbienceToggle  = 1;
     ud.config.CheckForUpdates = 1;
-    ud.config.FXVolume        = 255;
     ud.config.MouseBias       = 0;
     ud.config.MouseDeadZone   = 0;
-    ud.config.MusicToggle     = 1;
-    ud.config.MusicVolume     = 195;
-    ud.config.NumBits         = 16;
-    ud.config.NumChannels     = 2;
-    ud.config.ReverseStereo   = 0;
     ud.config.ShowWeapons     = 0;
     ud.config.SmoothInput     = 1;
-    ud.config.SoundToggle     = 1;
-    ud.config.VoiceToggle     = 5;  // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
     ud.config.useprecache     = 1;
     ud.configversion          = 0;
     ud.crosshairscale         = 50;

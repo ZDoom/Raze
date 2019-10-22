@@ -818,7 +818,7 @@ int DoDeathSpecial(short SpriteNum)
 
     DoMatchEverything(NULL, sp->lotag, ON);
 
-    if (!SW_SHAREWARE && gs.MusicOn && !alreadydid)
+    if (!SW_SHAREWARE && mus_enabled && !alreadydid)
     {
         PlaySong(0, RedBookSong[Level], TRUE, TRUE);
         alreadydid = TRUE;

@@ -2113,7 +2113,7 @@ MenuLevel(void)
     DSPRINTF(ds,"MenuLevel...");
     MONO_PRINT(ds);
 
-    if (gs.MusicOn)
+    if (mus_enabled)
     {
         PlaySong(NULL, RedBookSong[0], TRUE, FALSE);
     }
@@ -2527,7 +2527,7 @@ BonusScreen(PLAYERp pp)
     totalclock = ototalclock = 0;
     limit = synctics;
 
-    if (gs.MusicOn)
+    if (mus_enabled)
     {
         PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
     }
@@ -2845,7 +2845,7 @@ StatScreen(PLAYERp mpp)
     KEY_PRESSED(KEYSC_SPACE) = 0;
     KEY_PRESSED(KEYSC_ENTER) = 0;
 
-    if (gs.MusicOn)
+    if (mus_enabled)
     {
         PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
     }
@@ -3075,7 +3075,7 @@ void InitRunLevel(void)
         extern int PlayClock;
         LoadGameOutsideMoveLoop = FALSE;
         // contains what is needed from calls below
-        if (gs.Ambient)
+        if (snd_ambience)
             StartAmbientSound();
         SetCrosshair();
         PlaySong(LevelSong, -1, TRUE, TRUE);
@@ -3144,9 +3144,11 @@ void InitRunLevel(void)
     InitTimingVars();
 
     SetRedrawScreen(Player + myconnectindex);
-
+	
+	snd_reversestereo.Callback();
+	snd_fxvolume.Callback();
     FX_SetVolume(gs.SoundVolume); // Turn volume back up
-    if (gs.Ambient)
+    if (snd_ambience)
         StartAmbientSound();
 }
 
@@ -3157,7 +3159,7 @@ RunLevel(void)
     InitRunLevel();
 
     FX_SetVolume(gs.SoundVolume);
-    SetSongVolume(gs.MusicVolume);
+    SetSongVolume(mus_volume);
 
 #if 0
     waitforeverybody();

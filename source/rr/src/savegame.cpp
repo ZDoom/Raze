@@ -1881,7 +1881,7 @@ static void postloadplayer(int32_t savegamep)
             S_PlayLevelMusicOrNothing(musicIdx);
         }
 
-        if (ud.config.MusicToggle)
+        if (mus_enabled)
             S_PauseMusic(false);
 
         g_player[myconnectindex].ps->gm = MODE_GAME;
@@ -1901,7 +1901,7 @@ static void postloadplayer(int32_t savegamep)
         for (SPRITES_OF(STAT_FX, i))
             if (sprite[i].picnum == MUSICANDSFX)
             {
-                T2(i) = ud.config.SoundToggle;
+                T2(i) = snd_enabled;
                 T1(i) = 0;
             }
 

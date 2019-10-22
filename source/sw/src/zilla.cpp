@@ -777,7 +777,7 @@ int DoZillaDeathMelt(short SpriteNum)
     RESET(u->Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);
 
     //DoMatchEverything(NULL, sp->lotag, ON);
-    if (!SW_SHAREWARE && gs.MusicOn && !alreadydid)
+    if (!SW_SHAREWARE && mus_enabled && !alreadydid)
     {
         PlaySong(0, RedBookSong[Level], TRUE, TRUE);
         alreadydid = TRUE;

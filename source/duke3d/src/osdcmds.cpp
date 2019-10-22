@@ -381,7 +381,7 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
-    if (ud.config.MusicToggle)
+    if (mus_enabled)
         S_RestartMusic();
 
     return OSDCMD_OK;

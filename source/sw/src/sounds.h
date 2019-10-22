@@ -86,7 +86,6 @@ void UnInitSound(void);
 void InitFX(void);
 void InitMusic(void);
 void StopFX(void);
-void FlipStereo(void);
 void StopSong(void);
 void PauseSong(SWBOOL pauseon);
 void StopSound(void);

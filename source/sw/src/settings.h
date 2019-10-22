@@ -32,7 +32,7 @@ BEGIN_SW_NS
 typedef struct
 {
     int MouseSpeed;
-    int MusicVolume;
+    int mus_volume;
     int SoundVolume;
     int8_t BorderNum;
     int8_t Brightness;
@@ -47,11 +47,6 @@ typedef struct
     SWBOOL Crosshair;
     SWBOOL AutoAim;
     SWBOOL Messages;
-    SWBOOL FxOn;
-    SWBOOL MusicOn;
-    SWBOOL Talking;
-    SWBOOL Ambient;
-    SWBOOL FlipStereo;
 // Net Options from Menus
     uint8_t NetGameType;   // 0=DeathMatch [spawn], 1=Cooperative 2=DeathMatch [no spawn]
     uint8_t NetLevel;      // 1-28

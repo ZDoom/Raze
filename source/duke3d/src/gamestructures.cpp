@@ -1475,7 +1475,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_M_ORIGIN_X:             labelNum = ud.returnvar[0];                 break;
         case USERDEFS_M_ORIGIN_Y:             labelNum = ud.returnvar[1];                 break;
         case USERDEFS_PLAYERBEST:             labelNum = ud.playerbest;                   break;
-        case USERDEFS_MUSICTOGGLE:            labelNum = ud.config.MusicToggle;           break;
+        case USERDEFS_MUSICTOGGLE:            labelNum = mus_enabled;           break;
         case USERDEFS_USEVOXELS:              labelNum = usevoxels;                       break;
         case USERDEFS_USEHIGHTILE:
 #ifdef USE_OPENGL
@@ -1494,7 +1494,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_VM_PLAYER:              labelNum = vm.playerNum;                    break;
         case USERDEFS_VM_SPRITE:              labelNum = vm.spriteNum;                    break;
         case USERDEFS_VM_DISTANCE:            labelNum = vm.playerDist;                   break;
-        case USERDEFS_SOUNDTOGGLE:            labelNum = ud.config.SoundToggle;           break;
+        case USERDEFS_SOUNDTOGGLE:            labelNum = snd_enabled;                     break;
         case USERDEFS_GAMETEXT_TRACKING:      labelNum = MF_Bluefont.between.x;           break;
         case USERDEFS_MENUTEXT_TRACKING:      labelNum = MF_Redfont.between.x;            break;
         case USERDEFS_MAXSPRITESONSCREEN:     labelNum = maxspritesonscreen;              break;

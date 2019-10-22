@@ -1,5 +1,6 @@
 #include "c_cvars.h"
 #include "common.h"
+#include "fx_man.h"
 
 /* Notes
  
@@ -35,16 +36,13 @@ CUSTOM_CVARD(Int, cl_autovote, 0, CVAR_ARCHIVE, "enable/disable automatic voting
 	if (self < 0 || self > 2) self = 0;
 }
 
-
-
-
 bool G_CheckAutorun(bool button)
 {
 	if (cl_runmode) return button || cl_autorun;
 	else return button ^ !!cl_autorun;
 }
 
-
+// Demos
 
 CVARD_NAMED(Bool, demorec_diffcompress, demorec_diffcompress_cvar, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "Compression for diffs")
 CVARD_NAMED(Bool, demorec_synccompress, demorec_synccompress_cvar, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "Compression for input")
@@ -55,6 +53,57 @@ CVARD_NAMED(Int, demorec_difftics, demorec_difftics_cvar, 60, CVAR_ARCHIVE|CVAR_
 CVARD(Bool, demoplay_diffs, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable application of diffs in demo playback")
 CVARD(Bool, demoplay_showsync, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable display of sync status")
 
+// Sound
+
+CVARD(Bool, snd_ambience, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables ambient sounds") // Not implemented for Blood
+CVARD(Bool, snd_enabled, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables sound effects")
+CVARD(Bool, snd_tryformats, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables automatic discovery of replacement sounds and music in .flac and .ogg formats")
+CVARD(Bool, snd_doppler, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable 3d sound")
+
+CVARD(Bool, mus_enabled, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables music")
+CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "restart the music when loading a saved game with the same map or not") // only implemented for Blood - todo: generalize
+CVARD(Bool, mus_redbook, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables redbook audio (Blood only!)") // only Blood has assets for this.
+
+CUSTOM_CVARD(Bool, snd_reversestereo, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "reverses the stereo channels")
+{
+	FX_SetReverseStereo(self);
+}
+
+CUSTOM_CVARD(Int, snd_fxvolume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls volume for sound effects")
+{
+	if (self < 0) self = 0;
+	if (self > 255) self = 255;
+}
+
+CUSTOM_CVARD(Int, snd_mixrate, 44100, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "sound mixing rate")
+{
+	if (self < 11025) self = 11025;
+	else if (self > 48000) self = 48000;
+}
+
+CUSTOM_CVARD(Int, snd_numchannels, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "the number of sound channels")
+{
+	if (self < 1) self = 1;
+	else if (self > 2) self = 2;
+}
+
+CUSTOM_CVARD(Int, snd_numvoices, 64, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "the number of concurrent sounds")
+{
+	if (self < 8) self = 8;
+	else if (self > 128) self = 128;
+}
+
+CUSTOM_CVARD(Int, snd_speech, 5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables player speech")
+{
+	if (self < 8) self = 0;
+	else if (self > 5) self = 5;
+}
+
+CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls music volume")
+{
+	if (self < 0) self = 0;
+	if (self > 255) self = 255;
+}
 
 #if 0
 
@@ -100,8 +149,6 @@ CVARD(Bool, demoplay_showsync, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/dis
         { "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
 
-        { "mus_volume", "controls music volume", (void *)&ud.config.MusicVolume, CVAR_INT, 0, 255 },
-
         { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "show the frame rate counter", (void *)&ud.showfps, CVAR_INT, 0, 3 },
@@ -120,15 +167,6 @@ CVARD(Bool, demoplay_showsync, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/dis
 
         { "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
 
-        { "snd_ambience", "enables/disables ambient sounds", (void *)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 1 },
-        { "snd_enabled", "enables/disables sound effects", (void *)&ud.config.SoundToggle, CVAR_BOOL, 0, 1 },
-        { "snd_fxvolume", "controls volume for sound effects", (void *)&ud.config.FXVolume, CVAR_INT, 0, 255 },
-        { "snd_mixrate", "sound mixing rate", (void *)&ud.config.MixRate, CVAR_INT, 0, 48000 },
-        { "snd_numchannels", "the number of sound channels", (void *)&ud.config.NumChannels, CVAR_INT, 0, 2 },
-        { "snd_numvoices", "the number of concurrent sounds", (void *)&ud.config.NumVoices, CVAR_INT, 1, 128 },
-        { "snd_reversestereo", "reverses the stereo channels", (void *)&ud.config.ReverseStereo, CVAR_BOOL, 0, 1 },
-        { "snd_speech", "enables/disables player speech", (void *)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
-        { "snd_tryformats", "enables/disables automatic discovery of replacement sounds and music in .flac and .ogg formats", (void *)&g_maybeUpgradeSoundFormats, CVAR_BOOL, 0, 1 },
         { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
         { "vid_gamma","adjusts gamma component of gamma ramp",(void *)&g_videoGamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
@@ -195,9 +233,6 @@ CVARD(Bool, demoplay_showsync, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/dis
         { "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&ud.config.SmoothInput, CVAR_BOOL, 0, 1 },
 
-        { "mus_enabled", "enables/disables music", (void *)&ud.config.MusicToggle, CVAR_BOOL, 0, 1 },
-        { "mus_volume", "controls music volume", (void *)&ud.config.MusicVolume, CVAR_INT, 0, 255 },
-
         { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
         { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "show the frame rate counter", (void *)&ud.showfps, CVAR_INT, 0, 3 },
@@ -215,15 +250,6 @@ CVARD(Bool, demoplay_showsync, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/dis
         { "sensitivity","changes the mouse sensitivity", (void *)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
 
         { "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
-
-        { "snd_ambience", "enables/disables ambient sounds", (void *)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 1 },
-        { "snd_enabled", "enables/disables sound effects", (void *)&ud.config.SoundToggle, CVAR_BOOL, 0, 1 },
-        { "snd_fxvolume", "controls volume for sound effects", (void *)&ud.config.FXVolume, CVAR_INT, 0, 255 },
-        { "snd_mixrate", "sound mixing rate", (void *)&ud.config.MixRate, CVAR_INT, 0, 48000 },
-        { "snd_numchannels", "the number of sound channels", (void *)&ud.config.NumChannels, CVAR_INT, 0, 2 },
-        { "snd_numvoices", "the number of concurrent sounds", (void *)&ud.config.NumVoices, CVAR_INT, 1, 128 },
-        { "snd_reversestereo", "reverses the stereo channels", (void *)&ud.config.ReverseStereo, CVAR_BOOL, 0, 1 },
-        { "snd_speech", "enables/disables player speech", (void *)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
 
         { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
@@ -303,12 +329,6 @@ int32_t registerosdcommands(void)
         { "in_mousemode", "toggles vertical mouse view", (void *)&gMouseAim, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&SmoothInput, CVAR_BOOL, 0, 1 },
 //
-        { "mus_enabled", "enables/disables music", (void *)&MusicToggle, CVAR_BOOL, 0, 1 },
-        { "mus_restartonload", "restart the music when loading a saved game with the same map or not", (void *)&MusicRestartsOnLoadToggle, CVAR_BOOL, 0, 1 },
-        { "mus_volume", "controls music volume", (void *)&MusicVolume, CVAR_INT, 0, 255 },
-        { "mus_device", "music device", (void *)&MusicDevice, CVAR_INT, 0, 1 },
-        { "mus_redbook", "enables/disables redbook audio", (void *)&CDAudioToggle, CVAR_BOOL, 0, 1 },
-
 //        { "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
 //        { "r_drawweapon", "enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "show the frame rate counter", (void *)&gShowFps, CVAR_INT, 0, 3 },
@@ -327,16 +347,6 @@ int32_t registerosdcommands(void)
 //
 //        { "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
 //
-//        { "snd_ambience", "enables/disables ambient sounds", (void *)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 1 },
-        { "snd_enabled", "enables/disables sound effects", (void *)&SoundToggle, CVAR_BOOL, 0, 1 },
-        { "snd_fxvolume", "controls volume for sound effects", (void *)&FXVolume, CVAR_INT, 0, 255 },
-        { "snd_mixrate", "sound mixing rate", (void *)&MixRate, CVAR_INT, 0, 48000 },
-        { "snd_numchannels", "the number of sound channels", (void *)&NumChannels, CVAR_INT, 0, 2 },
-        { "snd_numvoices", "the number of concurrent sounds", (void *)&NumVoices, CVAR_INT, 1, 128 },
-        { "snd_reversestereo", "reverses the stereo channels", (void *)&ReverseStereo, CVAR_BOOL, 0, 1 },
-        { "snd_doppler", "enable/disable 3d sound", (void *)&gDoppler, CVAR_BOOL, 0, 1 },
-//        { "snd_speech", "enables/disables player speech", (void *)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
-//        { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
         { "vid_gamma","adjusts gamma component of gamma ramp",(void *)&g_videoGamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
         { "vid_contrast","adjusts contrast component of gamma ramp",(void *)&g_videoContrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },

@@ -115,8 +115,7 @@ void CEndGameMgr::Finish(void)
 {
     levelSetupOptions(gGameOptions.nEpisode, gNextLevel);
     gInitialNetPlayers = numplayers;
-    //if (FXDevice != -1)
-        FX_StopAllSounds();
+	FX_StopAllSounds();
     sndKillAllSounds();
     gStartNewGame = 1;
     gInputMode = (INPUT_MODE)at1;

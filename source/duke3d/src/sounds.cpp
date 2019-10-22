@@ -66,14 +66,14 @@ void S_SoundStartup(void)
 
     initprintf("Initializing sound... ");
 
-    if (FX_Init(ud.config.NumVoices, ud.config.NumChannels, ud.config.MixRate, initdata) != FX_Ok)
+    if (FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata) != FX_Ok)
     {
         initprintf("failed! %s\n", FX_ErrorString(FX_Error));
         return;
     }
 
-    initprintf("%d voices, %d channels, %d-bit %d Hz\n", ud.config.NumVoices, ud.config.NumChannels,
-        ud.config.NumBits, ud.config.MixRate);
+    initprintf("%d voices, %d channels, 16-bit %d Hz\n", snd_numvoices, snd_numchannels,
+        snd_mixrate);
 
     for (int i = 0; i <= g_highestSoundIdx; ++i)
     {
@@ -90,10 +90,10 @@ void S_SoundStartup(void)
 
     cacheAllSounds();
 
-    FX_SetVolume(ud.config.FXVolume);
-    S_MusicVolume(ud.config.MusicVolume);
+	snd_fxvolume.Callback();
+    S_MusicVolume(mus_volume);
 
-    FX_SetReverseStereo(ud.config.ReverseStereo);
+	snd_reversestereo.Callback();
     FX_SetCallBack(S_Callback);
     FX_SetPrintf(OSD_Printf);
     mutex_init(&m_callback);
@@ -117,7 +117,7 @@ void S_MusicStartup(void)
 
     if (MUSIC_Init(0, 0) == MUSIC_Ok || MUSIC_Init(1, 0) == MUSIC_Ok)
     {
-        MUSIC_SetVolume(ud.config.MusicVolume);
+        MUSIC_SetVolume(mus_volume);
         return;
     }
 
@@ -206,7 +206,7 @@ void S_MenuSound(void)
 
 static int S_PlayMusic(const char *fn)
 {
-    if (!ud.config.MusicToggle)
+    if (!mus_enabled)
         return 0;
 
     if (fn == NULL)
@@ -261,7 +261,7 @@ static int S_PlayMusic(const char *fn)
     }
     else
     {
-        int MyMusicVoice = FX_Play(MyMusicPtr, MusicLen, 0, 0, 0, ud.config.MusicVolume, ud.config.MusicVolume, ud.config.MusicVolume,
+        int MyMusicVoice = FX_Play(MyMusicPtr, MusicLen, 0, 0, 0, mus_volume, mus_volume, mus_volume,
                                    FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
 
         if (MyMusicVoice <= FX_Ok)
@@ -640,7 +640,7 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 {
     int32_t j = VM_OnEventWithReturn(EVENT_SOUND, spriteNum, screenpeek, num);
 
-    if ((j == -1 && num != -1) || !ud.config.SoundToggle) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
+    if ((j == -1 && num != -1) || !snd_enabled) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
         return -1;
 
     int const sndNum = j;
@@ -663,10 +663,10 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
     {
         if ((g_netServer || ud.multimode > 1) && PN(spriteNum) == APLAYER && P_Get(spriteNum) != screenpeek) // other player sound
         {
-            if ((ud.config.VoiceToggle & 4) != 4)
+            if ((snd_speech & 4) != 4)
                 return -1;
         }
-        else if ((ud.config.VoiceToggle & 1) != 1)
+        else if ((snd_speech & 1) != 1)
             return -1;
 
         // don't play if any Duke talk sounds are already playing
@@ -780,7 +780,7 @@ int S_PlaySound(int num)
 {
     int sndnum = VM_OnEventWithReturn(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, num);
 
-    if ((sndnum == -1 && num != -1) || !ud.config.SoundToggle) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
+    if ((sndnum == -1 && num != -1) || !snd_enabled) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
         return -1;
 
     num = sndnum;
@@ -793,7 +793,7 @@ int S_PlaySound(int num)
         return -1;
     }
 
-    if ((!(ud.config.VoiceToggle & 1) && (snd.m & SF_TALK)) || ((snd.m & SF_ADULT) && ud.lockout) || !FX_VoiceAvailable(snd.pr))
+    if ((!(snd_speech & 1) && (snd.m & SF_TALK)) || ((snd.m & SF_ADULT) && ud.lockout) || !FX_VoiceAvailable(snd.pr))
         return -1;
 
     int const pitch = S_GetPitch(num);

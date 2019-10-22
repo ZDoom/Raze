@@ -2203,7 +2203,7 @@ void G_BonusScreen(int32_t bonusonly)
         videoClearScreen(0);
         G_DisplayMPResultsScreen();
 
-        if (ud.config.MusicToggle)
+        if (mus_enabled)
             S_PlaySound(BONUSMUSIC);
 
         videoNextPage();
@@ -2244,7 +2244,7 @@ void G_BonusScreen(int32_t bonusonly)
 
     gametext_center_shade(192, "Press any key or button to continue", quotepulseshade);
 
-    if (ud.config.MusicToggle)
+    if (mus_enabled)
         S_PlaySound(BONUSMUSIC);
 
     videoNextPage();

@@ -46,17 +46,6 @@ extern int32_t ScreenBufferMode;
 extern int32_t VesaBufferMode;
 extern int32_t ForceSetup;
 
-// sound externs
-extern int32_t FXDevice; // Sound FX Card number
-extern int32_t MusicDevice; // Music Card number
-extern int32_t FXVolume; // FX Volume
-extern int32_t MusicVolume; // Music Volume
-extern int32_t NumVoices; // Number of voices
-extern int32_t NumChannels; // Number of channels
-extern int32_t NumBits; // Number of bits
-extern int32_t MixRate; // Mixing rate
-extern int32_t MidiPort; // Midi Port
-extern int32_t ReverseStereo; // Reverse Stereo Channels
 
 // comm externs
 extern int32_t ComPort;

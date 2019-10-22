@@ -2196,7 +2196,7 @@ MNU_InitMenus(void)
     slidersettings[sldr_mouse] = gs.MouseSpeed/(MOUSE_SENS_MAX_VALUE/SLDR_MOUSESENSEMAX);
 
     slidersettings[sldr_sndfxvolume] = gs.SoundVolume / (FX_VOL_MAX_VALUE/SLDR_SNDFXVOLMAX);
-    slidersettings[sldr_musicvolume] = gs.MusicVolume / (MUSIC_VOL_MAX_VALUE/SLDR_MUSICVOLMAX);
+    slidersettings[sldr_musicvolume] = mus_volume / (MUSIC_VOL_MAX_VALUE/SLDR_MUSICVOLMAX);
     slidersettings[sldr_scrsize] = gs.BorderNum;
     slidersettings[sldr_brightness] = gs.Brightness;
     slidersettings[sldr_bordertile] = gs.BorderTile;
@@ -2227,14 +2227,14 @@ MNU_InitMenus(void)
 
     buttonsettings[btn_mouse_aim] = gs.MouseAimingType;
     buttonsettings[btn_mouse_invert] = gs.MouseInvert;
-    buttonsettings[btn_sound] = gs.FxOn;
-    buttonsettings[btn_music] = gs.MusicOn;
-    buttonsettings[btn_talking] = gs.Talking;
+    buttonsettings[btn_sound] = snd_enabled;
+    buttonsettings[btn_music] = mus_enabled;
+    buttonsettings[btn_talking] = snd_speech;
 
     buttonsettings[btn_voxels] = gs.Voxels;
-    buttonsettings[btn_ambience] = gs.Ambient;
+    buttonsettings[btn_ambience] = snd_ambience;
     buttonsettings[btn_playcd] = gs.PlayCD;
-    buttonsettings[btn_flipstereo] = gs.FlipStereo;
+    buttonsettings[btn_flipstereo] = snd_reversestereo;
     buttonsettings[btn_stats] = gs.Stats;
 
     slidersettings[sldr_gametype] = gs.NetGameType;
@@ -3286,61 +3286,21 @@ MNU_TryMusicInit(void)
 SWBOOL
 MNU_MusicCheck(MenuItem *item)
 {
-    if (SW_SHAREWARE)
-    {
-        if (MusicDevice < 0 || !MusicInitialized)
-        {
-            SET(item->flags, mf_disabled);
-        }
-        else
-        {
-            RESET(item->flags, mf_disabled);
-        }
-    }
-    else
-    {
-        // Redbook audio stuff
-        //JBF
-        //if (!cdvalid)
-        //    {
-        //    SET(item->flags, mf_disabled); // Just don't let CD Redbook ever be invalid!
-        //    }
-        //else
-        {
-            RESET(item->flags, mf_disabled);
-        }
-    }
-
+	RESET(item->flags, mf_disabled);
     return TRUE;
 }
 
 SWBOOL
 MNU_FxCheck(MenuItem *item)
 {
-    if (FXDevice < 0 || !FxInitialized)
-    {
-        SET(item->flags, mf_disabled);
-    }
-    else
-    {
-        RESET(item->flags, mf_disabled);
-    }
-
+	RESET(item->flags, mf_disabled);
     return TRUE;
 }
 
 SWBOOL
 MNU_MusicFxCheck(MenuItem *item)
 {
-    if (FXDevice < 0 && MusicDevice < 0)
-    {
-        SET(item->flags, mf_disabled);
-    }
-    else
-    {
-        RESET(item->flags, mf_disabled);
-    }
-
+	RESET(item->flags, mf_disabled);
     return TRUE;
 }
 
@@ -3432,22 +3392,22 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             if (!FxInitialized)
                 break;
 
-            last_value = gs.FxOn;
-            gs.FxOn = state = buttonsettings[item->button];
-            if (gs.FxOn != last_value)
+            last_value = snd_enabled;
+            snd_enabled = state = buttonsettings[item->button];
+            if (snd_enabled != last_value)
             {
-                if (!gs.FxOn)
+                if (!snd_enabled)
                     StopFX();
             }
             break;
         case btn_music:
-            last_value = gs.MusicOn;
-            gs.MusicOn = state = buttonsettings[item->button];
-            if (gs.MusicOn != last_value)
+            last_value = mus_enabled;
+            mus_enabled = state = buttonsettings[item->button];
+            if (mus_enabled != last_value)
             {
                 SWBOOL bak;
 
-                if (gs.MusicOn)
+                if (mus_enabled)
                 {
                     bak = DemoMode;
                     PlaySong(LevelSong, RedBookSong[Level], TRUE, TRUE);
@@ -3471,20 +3431,20 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             }
             break;
         case btn_talking:
-            gs.Talking = state = buttonsettings[item->button];
+            snd_speech = state = buttonsettings[item->button];
             break;
         case btn_playcd:
             last_value = gs.PlayCD;
             gs.PlayCD = state = buttonsettings[item->button];
             break;
         case btn_ambience:
-            last_value = gs.Ambient;
-            gs.Ambient = state = buttonsettings[item->button];
-            if (gs.Ambient != last_value)
+            last_value = snd_ambience;
+            snd_ambience = state = buttonsettings[item->button];
+            if (snd_ambience != last_value)
             {
                 if (!InMenuLevel)
                 {
-                    if (gs.Ambient)
+                    if (snd_ambience)
                         StartAmbientSound();
                     else
                         StopAmbientSound();
@@ -3492,10 +3452,8 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             }
             break;
         case btn_flipstereo:
-            last_value = gs.FlipStereo;
-            gs.FlipStereo = state = buttonsettings[item->button];
-            if (gs.FlipStereo != last_value)
-                FlipStereo();
+            last_value = snd_reversestereo;
+            snd_reversestereo = state = buttonsettings[item->button];
             break;
         case btn_shadows:
             gs.Shadows = state = buttonsettings[item->button];
@@ -3685,8 +3643,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         offset = min(offset, short(SLDR_MUSICVOLMAX-1));
 
         slidersettings[sldr_musicvolume] = offset;
-        gs.MusicVolume = MUSIC_MIN + (offset * VOL_MUL);
-        SetSongVolume(gs.MusicVolume);
+        mus_volume = MUSIC_MIN + (offset * VOL_MUL);
+        SetSongVolume(mus_volume);
         break;
 
     case sldr_scrsize:

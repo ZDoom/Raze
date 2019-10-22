@@ -223,10 +223,10 @@ CGameMenuItemTitle itemOptionsOldTitle("OPTIONS", 1, 160, 20, 2038);
 CGameMenuItemChain itemOption1("CONTROLS...", 3, 0, 40, 320, 1, &menuControls, -1, NULL, 0);
 CGameMenuItemSlider sliderDetail("DETAIL:", 3, 66, 50, 180, gDetail, 0, 4, 1, SetDetail, -1, -1);
 CGameMenuItemSlider sliderGamma("GAMMA:", 3, 66, 60, 180, gGamma, 0, 15, 2, SetGamma, -1, -1);
-CGameMenuItemSlider sliderMusic("MUSIC:", 3, 66, 70, 180, MusicVolume, 0, 256, 48, SetMusicVol, -1, -1);
-CGameMenuItemSlider sliderSound("SOUND:", 3, 66, 80, 180, FXVolume, 0, 256, 48, SetSoundVol, -1, -1);
+CGameMenuItemSlider sliderMusic("MUSIC:", 3, 66, 70, 180, mus_volume, 0, 256, 48, SetMusicVol, -1, -1);
+CGameMenuItemSlider sliderSound("SOUND:", 3, 66, 80, 180, snd_fxvolume, 0, 256, 48, SetSoundVol, -1, -1);
 CGameMenuItemSlider sliderCDAudio("CD AUDIO:", 3, 66, 90, 180, CDVolume, 0, 256, 48, SetCDVol, -1, -1);
-CGameMenuItemZBool bool3DAudio("3D AUDIO:", 3, 66, 100, 180, gDoppler, SetDoppler, NULL, NULL);
+CGameMenuItemZBool bool3DAudio("3D AUDIO:", 3, 66, 100, 180, snd_doppler, SetDoppler, NULL, NULL);
 CGameMenuItemZBool boolCrosshair("CROSSHAIR:", 3, 66, 110, 180, cl_crosshair, SetCrosshair, NULL, NULL);
 CGameMenuItemZBool boolShowWeapons("SHOW WEAPONS:", 3, 66, 120, 180, gShowWeapon, SetShowWeapons, NULL, NULL);
 CGameMenuItemZBool boolSlopeTilting("SLOPE TILTING:", 3, 66, 130, 180, gSlopeTilting, SetSlopeTilting, NULL, NULL);
@@ -299,10 +299,10 @@ CGameMenuItemChain itemNetStart12("START GAME", 1, 66, 175, 280, 0, 0, -1, Start
 CGameMenuItemText itemLoadingText("LOADING...", 1, 160, 100, 1);
 
 CGameMenuItemTitle itemSoundsTitle("SOUNDS", 1, 160, 20, 2038);
-CGameMenuItemSlider itemSoundsMusic("MUSIC:", 3, 40, 60, 180, MusicVolume, 0, 256, 48, SetMusicVol, -1, -1);
-CGameMenuItemSlider itemSoundsSound("SOUND:", 3, 40, 70, 180, FXVolume, 0, 256, 48, SetSoundVol, -1, -1);
+CGameMenuItemSlider itemSoundsMusic("MUSIC:", 3, 40, 60, 180, mus_volume, 0, 256, 48, SetMusicVol, -1, -1);
+CGameMenuItemSlider itemSoundsSound("SOUND:", 3, 40, 70, 180, snd_fxvolume, 0, 256, 48, SetSoundVol, -1, -1);
 CGameMenuItemSlider itemSoundsCDAudio("CD AUDIO:", 3, 40, 80, 180, CDVolume, 0, 256, 48, SetCDVol, -1, -1);
-CGameMenuItemZBool itemSounds3DAudio("3D SOUND:", 3, 40, 90, 180, gDoppler, SetDoppler, NULL, NULL);
+CGameMenuItemZBool itemSounds3DAudio("3D SOUND:", 3, 40, 90, 180, snd_doppler, SetDoppler, NULL, NULL);
 
 CGameMenuItemTitle itemQuitTitle("QUIT", 1, 160, 20, 2038);
 CGameMenuItemText itemQuitText1("Do you really want to quit?", 0, 160, 100, 1);
@@ -583,10 +583,10 @@ CGameMenuItemTitle itemOptionsSoundTitle("SOUND SETUP", 1, 160, 20, 2038);
 CGameMenuItemZBool itemOptionsSoundSoundToggle("SOUND:", 3, 66, 60, 180, false, UpdateSoundToggle, NULL, NULL);
 CGameMenuItemZBool itemOptionsSoundMusicToggle("MUSIC:", 3, 66, 70, 180, false, UpdateMusicToggle, NULL, NULL);
 CGameMenuItemZBool itemOptionsSound3DToggle("3D AUDIO:", 3, 66, 80, 180, false, Update3DToggle, NULL, NULL);
-CGameMenuItemSlider itemOptionsSoundSoundVolume("SOUND VOLUME:", 3, 66, 90, 180, &FXVolume, 0, 256, 48, UpdateSoundVolume, -1, -1, kMenuSliderPercent);
-CGameMenuItemSlider itemOptionsSoundMusicVolume("MUSIC VOLUME:", 3, 66, 100, 180, &MusicVolume, 0, 256, 48, UpdateMusicVolume, -1, -1, kMenuSliderPercent);
+CGameMenuItemSlider itemOptionsSoundSoundVolume("SOUND VOLUME:", 3, 66, 90, 180, &snd_fxvolume.Value, 0, 256, 48, UpdateSoundVolume, -1, -1, kMenuSliderPercent);
+CGameMenuItemSlider itemOptionsSoundMusicVolume("MUSIC VOLUME:", 3, 66, 100, 180, &mus_volume.Value, 0, 256, 48, UpdateMusicVolume, -1, -1, kMenuSliderPercent);
 CGameMenuItemZCycle itemOptionsSoundSampleRate("SAMPLE RATE:", 3, 66, 110, 180, 0, UpdateSoundRate, pzSoundRateStrings, 3, 0);
-CGameMenuItemSlider itemOptionsSoundNumVoices("VOICES:", 3, 66, 120, 180, NumVoices, 16, 256, 16, UpdateNumVoices, -1, -1, kMenuSliderValue);
+CGameMenuItemSlider itemOptionsSoundNumVoices("VOICES:", 3, 66, 120, 180, snd_numvoices, 16, 256, 16, UpdateNumVoices, -1, -1, kMenuSliderValue);
 CGameMenuItemZBool itemOptionsSoundCDToggle("REDBOOK AUDIO:", 3, 66, 130, 180, false, UpdateCDToggle, NULL, NULL);
 CGameMenuItemZCycle itemOptionsSoundMusicDevice("MUSIC DEVICE:", 3, 66, 140, 180, 0, UpdateMusicDevice, pzMusicDeviceStrings, 2, 0);
 CGameMenuItemChain itemOptionsSoundApplyChanges("APPLY CHANGES", 3, 66, 150, 180, 0, NULL, 0, SetSound, 0);
@@ -748,9 +748,9 @@ void SetupOptionsOldMenu(void)
 {
     sliderDetail.nValue = ClipRange(gDetail, sliderDetail.nRangeLow, sliderDetail.nRangeHigh);
     sliderGamma.nValue = ClipRange(gGamma, sliderGamma.nRangeLow, sliderGamma.nRangeHigh);
-    sliderMusic.nValue = ClipRange(MusicVolume, sliderMusic.nRangeLow, sliderMusic.nRangeHigh);
-    sliderSound.nValue = ClipRange(FXVolume, sliderSound.nRangeLow, sliderSound.nRangeHigh);
-    bool3DAudio.at20 = gDoppler;
+    sliderMusic.nValue = ClipRange(mus_volume, sliderMusic.nRangeLow, sliderMusic.nRangeHigh);
+    sliderSound.nValue = ClipRange(snd_fxvolume, sliderSound.nRangeLow, sliderSound.nRangeHigh);
+    bool3DAudio.at20 = snd_doppler;
     boolCrosshair.at20 = cl_crosshair;
     boolShowWeapons.at20 = gShowWeapon;
     boolSlopeTilting.at20 = gSlopeTilting;
@@ -1006,8 +1006,8 @@ void SetupLoadGameMenu(void)
 
 void SetupSoundsMenu(void)
 {
-    itemSoundsMusic.nValue = ClipRange(MusicVolume, itemSoundsMusic.nRangeLow, itemSoundsMusic.nRangeHigh);
-    itemSoundsSound.nValue = ClipRange(FXVolume, itemSoundsSound.nRangeLow, itemSoundsSound.nRangeHigh);
+    itemSoundsMusic.nValue = ClipRange(mus_volume, itemSoundsMusic.nRangeLow, itemSoundsMusic.nRangeHigh);
+    itemSoundsSound.nValue = ClipRange(snd_fxvolume, itemSoundsSound.nRangeLow, itemSoundsSound.nRangeHigh);
     menuSounds.Add(&itemSoundsTitle, false);
     menuSounds.Add(&itemSoundsMusic, true);
     menuSounds.Add(&itemSoundsSound, false);
@@ -1366,7 +1366,7 @@ void UpdateNetworkMenus(void)
 
 void SetDoppler(CGameMenuItemZBool *pItem)
 {
-    gDoppler = pItem->at20;
+    snd_doppler = pItem->at20;
 }
 
 void SetCrosshair(CGameMenuItemZBool *pItem)
@@ -1793,15 +1793,15 @@ void PreDrawDisplayPolymost(CGameMenuItem *pItem)
 
 void UpdateSoundToggle(CGameMenuItemZBool *pItem)
 {
-    SoundToggle = pItem->at20;
-    if (!SoundToggle)
+    snd_enabled = pItem->at20;
+    if (!snd_enabled)
         FX_StopAllSounds();
 }
 
 void UpdateMusicToggle(CGameMenuItemZBool *pItem)
 {
-    MusicToggle = pItem->at20;
-    if (!MusicToggle)
+    mus_enabled = pItem->at20;
+    if (!mus_enabled)
         sndStopSong();
     else
     {
@@ -1812,12 +1812,12 @@ void UpdateMusicToggle(CGameMenuItemZBool *pItem)
 
 void Update3DToggle(CGameMenuItemZBool *pItem)
 {
-    gDoppler = pItem->at20;
+    snd_doppler = pItem->at20;
 }
 
 void UpdateCDToggle(CGameMenuItemZBool *pItem)
 {
-    CDAudioToggle = pItem->at20;
+    mus_redbook = pItem->at20;
     if (gGameStarted || gDemo.at1)
         levelTryPlayMusicOrNothing(gGameOptions.nEpisode, gGameOptions.nLevel);
 }
@@ -1850,8 +1850,8 @@ void UpdateMusicDevice(CGameMenuItemZCycle *pItem)
 void SetSound(CGameMenuItemChain *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
-    MixRate = nSoundRateValues[itemOptionsSoundSampleRate.m_nFocus];
-    NumVoices = itemOptionsSoundNumVoices.nValue;
+    snd_mixrate = nSoundRateValues[itemOptionsSoundSampleRate.m_nFocus];
+    snd_numvoices = itemOptionsSoundNumVoices.nValue;
     MusicDevice = itemOptionsSoundMusicDevice.m_nFocus;
     sfxTerm();
     sndTerm();
@@ -1859,7 +1859,7 @@ void SetSound(CGameMenuItemChain *pItem)
     sndInit();
     sfxInit();
 
-    if (MusicToggle && (gGameStarted || gDemo.at1))
+    if (mus_enabled && (gGameStarted || gDemo.at1))
         sndPlaySong(gGameOptions.zLevelSong, true);
 }
 
@@ -1871,20 +1871,20 @@ void PreDrawSound(CGameMenuItem *pItem)
 void SetupOptionsSound(CGameMenuItemChain *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
-    itemOptionsSoundSoundToggle.at20 = SoundToggle;
-    itemOptionsSoundMusicToggle.at20 = MusicToggle;
-    itemOptionsSound3DToggle.at20 = gDoppler;
-    itemOptionsSoundCDToggle.at20 = CDAudioToggle;
+    itemOptionsSoundSoundToggle.at20 = snd_enabled;
+    itemOptionsSoundMusicToggle.at20 = mus_enabled;
+    itemOptionsSound3DToggle.at20 = snd_doppler;
+    itemOptionsSoundCDToggle.at20 = mus_redbook;
     itemOptionsSoundSampleRate.m_nFocus = 0;
     for (int i = 0; i < 3; i++)
     {
-        if (nSoundRateValues[i] == MixRate)
+        if (nSoundRateValues[i] == snd_mixrate)
         {
             itemOptionsSoundSampleRate.m_nFocus = i;
             break;
         }
     }
-    itemOptionsSoundNumVoices.nValue = NumVoices;
+    itemOptionsSoundNumVoices.nValue = snd_numvoices;
     itemOptionsSoundMusicDevice.m_nFocus = MusicDevice;
 }
 

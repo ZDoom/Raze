@@ -63,12 +63,13 @@ static void Demo_RestoreModes(int32_t menu)
     g_player[myconnectindex].ps->gm |= MODE_DEMO;
 }
 
+// This is utterly gross. Global configuration should not be manipulated like this.
 void Demo_PrepareWarp(void)
 {
     if (!g_demo_paused)
     {
-        g_demo_soundToggle = ud.config.SoundToggle;
-        ud.config.SoundToggle = 0;
+        g_demo_soundToggle = snd_enabled;
+        snd_enabled = 0;
     }
 
     FX_StopAllSounds();
@@ -401,8 +402,8 @@ static void Demo_SetupProfile(void)
 {
     g_demo_profile *= -1;  // now >0: profile for real
 
-    g_demo_soundToggle = ud.config.SoundToggle;
-    ud.config.SoundToggle = 0;  // restored by Demo_FinishProfile()
+    g_demo_soundToggle = snd_enabled;
+    snd_enabled = 0;  // restored by Demo_FinishProfile()
 
     Bmemset(&g_prof, 0, sizeof(g_prof));
 
@@ -418,7 +419,7 @@ static void Demo_FinishProfile(void)
         double gms=g_prof.totalgamems;
         double dms1=g_prof.totalroomsdrawms, dms2=g_prof.totalrestdrawms;
 
-        ud.config.SoundToggle = g_demo_soundToggle;
+        snd_enabled = g_demo_soundToggle;
 
         if (nt > 0)
         {
@@ -687,7 +688,7 @@ nextdemo_nomenu:
                         if (g_demo_goalCnt>0)
                         {
                             g_demo_goalCnt=0;
-                            ud.config.SoundToggle = g_demo_soundToggle;
+                            snd_enabled = g_demo_soundToggle;
                         }
 
                         if (Demo_IsProfiling())  // don't reset g_demo_profile if it's < 0
@@ -729,10 +730,10 @@ nextdemo_nomenu:
                 }
                 else
                 {
-                    int32_t k = ud.config.SoundToggle;
-                    ud.config.SoundToggle = 0;
+                    int32_t k = snd_enabled;
+                    snd_enabled = 0;
                     G_DoMoveThings();
-                    ud.config.SoundToggle = k;
+                    snd_enabled = k;
                 }
 
                 ototalclock += TICSPERFRAME;
@@ -747,7 +748,7 @@ nextdemo_nomenu:
                     if (g_demo_cnt>=g_demo_goalCnt)
                     {
                         g_demo_goalCnt = 0;
-                        ud.config.SoundToggle = g_demo_soundToggle;
+                        snd_enabled = g_demo_soundToggle;
                     }
                 }
             }

@@ -71,7 +71,7 @@ int32_t JoystickAnalogueSaturate[MAXJOYAXES];
 uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 int32_t scripthandle;
 int32_t setupread;
-int32_t MusicRestartsOnLoadToggle;
+int32_t mus_restartonload;
 int32_t configversion;
 int32_t CheckForUpdates;
 int32_t LastUpdateCheck;
@@ -96,7 +96,6 @@ int32_t gMessageTime;
 int32_t gMessageFont;
 int32_t gbAdultContent;
 char gzAdultPassword[9];
-int32_t gDoppler;
 int32_t gShowWeapon;
 int32_t gMouseSensitivity;
 int32_t gMouseAiming;
@@ -284,20 +283,6 @@ void CONFIG_SetDefaults(void)
     gSetup.bpp = 8;
 #endif
 
-#if defined(_WIN32)
-    MixRate = 44100;
-#elif defined __ANDROID__
-    MixRate = droidinfo.audio_sample_rate;
-#else
-    MixRate = 48000;
-#endif
-
-#if defined GEKKO || defined __OPENDINGUX__
-    NumVoices = 32;
-#else
-    NumVoices = 64;
-#endif
-
 #ifdef GEKKO
     gSetup.usejoystick = 1;
 #else
@@ -309,25 +294,15 @@ void CONFIG_SetDefaults(void)
     gSetup.fullscreen       = 1;
     gSetup.usemouse         = 1;
 
-    //ud.config.AmbienceToggle  = 1;
+    //snd_ambience  = 1;
     //ud.config.AutoAim         = 1;
     CheckForUpdates = 1;
-    FXVolume        = 255;
     MouseBias       = 0;
     MouseDeadZone   = 0;
-    MusicToggle     = 1;
-    MusicRestartsOnLoadToggle = 0;
-    MusicVolume     = 195;
-    NumBits         = 16;
-    NumChannels     = 2;
-    ReverseStereo   = 0;
     gBrightness = 8;
     //ud.config.ShowWeapons     = 0;
     SmoothInput     = 1;
-    SoundToggle     = 1;
-    CDAudioToggle = 0;
-    MusicDevice = 0;
-    //ud.config.VoiceToggle     = 5;  // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
+
     useprecache     = 1;
     configversion          = 0;
     //ud.crosshair              = 1;
@@ -387,7 +362,6 @@ void CONFIG_SetDefaults(void)
     gMessageTime = 5;
     gMessageFont = 0;
     gbAdultContent = 0;
-    gDoppler = 1;
     gShowWeapon = 0;
     gzAdultPassword[0] = 0;
 

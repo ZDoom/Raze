@@ -2605,7 +2605,7 @@ void P_HandleSharedKeys(int playerNum)
             }
             else
             {
-                if (ud.config.MusicToggle) S_PauseMusic(false);
+                if (mus_enabled) S_PauseMusic(false);
 
                 S_PauseSounds(false);
 

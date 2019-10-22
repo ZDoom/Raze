@@ -1168,20 +1168,7 @@ int LoadGame(short save_num)
     MREAD(palette,sizeof(palette),1,fil);
     MREAD(palette_data,sizeof(palette_data),1,fil);
 
-    {
-        SWBOOL AmbBak = gs.Ambient;
-        SWBOOL MusicBak = gs.MusicOn;
-        SWBOOL FxBak = gs.FxOn;
-        short SndVolBak = gs.SoundVolume;
-        short MusVolBak = gs.MusicVolume;
-        MREAD(&gs,sizeof(gs),1,fil);
-        gs.MusicOn = MusicBak;
-        gs.FxOn = FxBak;
-        gs.Ambient = AmbBak;
-        gs.SoundVolume = SndVolBak;
-        gs.MusicVolume = MusVolBak;
-    }
-
+	MREAD(&gs,sizeof(gs),1,fil);
 
     //COVERsetbrightness(gs.Brightness,(char *)palette_data);
 
@@ -1292,10 +1279,10 @@ int LoadGame(short save_num)
     PlayingLevel = Level;
 
     PlaySong(LevelSong, RedBookSong[Level], TRUE, TRUE);
-    if (gs.Ambient)
+    if (snd_ambience)
         StartAmbientSound();
     FX_SetVolume(gs.SoundVolume);
-    SetSongVolume(gs.MusicVolume);
+    SetSongVolume(mus_volume);
 
     TRAVERSE_CONNECT(i)
     {

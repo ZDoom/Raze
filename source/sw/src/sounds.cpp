@@ -410,7 +410,7 @@ extern short Level;
 SWBOOL
 PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
 {
-    if (!gs.MusicOn)
+    if (!mus_enabled)
     {
         return FALSE;
     }
@@ -553,7 +553,7 @@ StopSong(void)
 void
 PauseSong(SWBOOL pauseon)
 {
-    if (!gs.MusicOn) return;
+    if (!mus_enabled) return;
 
     if (SongType == SongTypeWave && SongVoice >= 0)
     {
@@ -818,7 +818,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     if (Prediction)
         return -1;
 
-    if (!gs.FxOn)
+    if (!snd_enabled)
         return -1;
 
     PRODUCTION_ASSERT(num >= 0 && num < DIGI_MAX);
@@ -833,7 +833,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
         sp = &sprite[SoundSpriteNum];
     }
 
-    if (gs.Ambient && TEST(flags,v3df_ambient) && !TEST(flags,v3df_nolookup))  // Look for invalid ambient numbers
+    if (snd_ambience && TEST(flags,v3df_ambient) && !TEST(flags,v3df_nolookup))  // Look for invalid ambient numbers
     {
         if (num < 0 || num > MAX_AMBIENT_SOUNDS)
         {
@@ -856,7 +856,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     v3p->priority = 0;
     v3p->FX_Ok = FALSE; // Hasn't played yet
 
-    if (gs.Ambient && TEST(flags,v3df_ambient) && !TEST(flags,v3df_nolookup))
+    if (snd_ambience && TEST(flags,v3df_ambient) && !TEST(flags,v3df_nolookup))
     {
         v3p->maxtics = STD_RANDOM_RANGE(ambarray[num].maxtics);
         flags |= ambarray[num].ambient_flags;   // Add to flags if any
@@ -949,7 +949,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     }
 
     // Assign ambient priorities based on distance
-    if (gs.Ambient && TEST(flags, v3df_ambient))
+    if (snd_ambience && TEST(flags, v3df_ambient))
     {
         v3p->priority = v3p->vp->priority - (sound_dist / 26);
         priority = v3p->priority;
@@ -1047,7 +1047,7 @@ void PlaySoundRTS(int rts_num)
     char *rtsptr;
     int voice=-1;
 
-    if (!RTS_IsInitialized() || !gs.FxOn)
+    if (!RTS_IsInitialized() || !snd_enabled)
         return;
 
     rtsptr = (char *)RTS_GetSound(rts_num - 1);
@@ -1117,39 +1117,25 @@ LoadSong(const char *filename)
     return TRUE;
 }
 
-
-void FlipStereo(void)
-{
-    FX_SetReverseStereo(gs.FlipStereo);
-}
-
 void
 SoundStartup(void)
 {
     int32_t status;
     void *initdata = 0;
 
-    // if they chose None lets return
-    if (FXDevice < 0)
-    {
-        gs.FxOn = FALSE;
-        return;
-    }
 
 #ifdef MIXERTYPEWIN
     initdata = (void *) win_gethwnd();
 #endif
 
-    //gs.FxOn = TRUE;
+    //snd_enabled = TRUE;
 
-    status = FX_Init(NumVoices, NumChannels, MixRate, initdata);
+    status = FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata);
     if (status == FX_Ok)
     {
         FxInitialized = TRUE;
-        FX_SetVolume(gs.SoundVolume);
-
-        if (gs.FlipStereo)
-            FX_SetReverseStereo(!FX_GetReverseStereo());
+		snd_fxvolume.Callback();
+		snd_reversestereo.Callback();
     }
     if (status != FX_Ok)
     {
@@ -1171,12 +1157,6 @@ void
 SoundShutdown(void)
 {
     int32_t status;
-
-    // if they chose None lets return
-    if (FXDevice < 0)
-    {
-        return;
-    }
 
     if (!FxInitialized)
         return;
@@ -1216,21 +1196,16 @@ void loadtmb(void)
 void MusicStartup(void)
 {
     // if they chose None lets return
-    if (MusicDevice < 0)
-    {
-        gs.MusicOn = FALSE;
-        return;
-    }
 
     if (MUSIC_Init(0, 0) == MUSIC_Ok || MUSIC_Init(1, 0) == MUSIC_Ok)
     {
         MusicInitialized = TRUE;
-        MUSIC_SetVolume(gs.MusicVolume);
+        MUSIC_SetVolume(mus_volume);
     }
     else
     {
         buildprintf("Music error: %s\n",MUSIC_ErrorString(MUSIC_ErrorCode));
-        gs.MusicOn = FALSE;
+        mus_enabled = FALSE;
     }
 
 #if 0
@@ -1256,13 +1231,6 @@ void
 MusicShutdown(void)
 {
     int32_t status;
-
-    // if they chose None lets return
-    if (MusicDevice < 0)
-        return;
-
-    if (!MusicInitialized)
-        return;
 
     StopSong();
 
@@ -1580,7 +1548,7 @@ DoTimedSound(VOC3D_INFOp p)
 
             // Sound was bumped from active sounds list, try to play again.
             // Don't bother if voices are already maxed out.
-            if (FX_SoundsPlaying() < NumVoices)
+            if (FX_SoundsPlaying() < snd_numvoices)
             {
                 if (p->flags & v3df_follow)
                 {
@@ -1831,10 +1799,10 @@ DoUpdateSounds3D(void)
                 // again.
                 // Don't bother if voices are already maxed out.
                 // Sort looping vocs in order of priority and distance
-                //if (FX_SoundsPlaying() < NumVoices && dist <= 255)
+                //if (FX_SoundsPlaying() < snd_numvoices && dist <= 255)
                 if (dist <= 255)
                 {
-                    for (i=0; i<min((int)SIZ(TmpVocArray), NumVoices); i++)
+                    for (i=0; i<min((int)SIZ(TmpVocArray), snd_numvoices); i++)
                     {
                         if (p->priority >= TmpVocArray[i].priority)
                         {
@@ -1862,13 +1830,13 @@ DoUpdateSounds3D(void)
     // Only update these sounds 5x per second!  Woo hoo!, aren't we optimized now?
     //if(MoveSkip8==0)
     //    {
-    for (i=0; i<min((int)SIZ(TmpVocArray), NumVoices); i++)
+    for (i=0; i<min((int)SIZ(TmpVocArray), snd_numvoices); i++)
     {
         int handle;
 
         p = TmpVocArray[i].p;
 
-        //if (FX_SoundsPlaying() >= NumVoices || !p) break;
+        //if (FX_SoundsPlaying() >= snd_numvoices || !p) break;
         if (!p) break;
 
         ASSERT(p->num >= 0 && p->num < DIGI_MAX);

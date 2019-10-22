@@ -1141,18 +1141,18 @@ static MenuEntry_t *ME_SAVE;
 static MenuEntry_t **MEL_SAVE;
 
 static int32_t soundrate, soundvoices;
-static MenuOption_t MEO_SOUND = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.config.SoundToggle );
+static MenuOption_t MEO_SOUND = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &snd_enabled.Value );
 static MenuEntry_t ME_SOUND = MAKE_MENUENTRY( "Sound:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND, Option );
 
-static MenuOption_t MEO_SOUND_MUSIC = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.config.MusicToggle );
+static MenuOption_t MEO_SOUND_MUSIC = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, mus_enabled.Value );
 static MenuEntry_t ME_SOUND_MUSIC = MAKE_MENUENTRY( "Music:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_MUSIC, Option );
 
 static char const s_Volume[] = "Volume:";
 
-static MenuRangeInt32_t MEO_SOUND_VOLUME_FX = MAKE_MENURANGE( &ud.config.FXVolume, &MF_Redfont, 0, 255, 0, 33, 2 );
+static MenuRangeInt32_t MEO_SOUND_VOLUME_FX = MAKE_MENURANGE( &snd_fxvolume.Value, &MF_Redfont, 0, 255, 0, 33, 2 );
 static MenuEntry_t ME_SOUND_VOLUME_FX = MAKE_MENUENTRY( s_Volume, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SOUND_VOLUME_FX, RangeInt32 );
 
-static MenuRangeInt32_t MEO_SOUND_VOLUME_MUSIC = MAKE_MENURANGE( &ud.config.MusicVolume, &MF_Redfont, 0, 255, 0, 33, 2 );
+static MenuRangeInt32_t MEO_SOUND_VOLUME_MUSIC = MAKE_MENURANGE( &mus_volume.Value, &MF_Redfont, 0, 255, 0, 33, 2 );
 static MenuEntry_t ME_SOUND_VOLUME_MUSIC = MAKE_MENUENTRY( s_Volume, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SOUND_VOLUME_MUSIC, RangeInt32 );
 
 #ifndef EDUKE32_STANDALONE
@@ -2119,15 +2119,15 @@ static void Menu_Pre(MenuID_t cm)
     case MENU_SOUND:
     case MENU_SOUND_INGAME:
     case MENU_ADVSOUND:
-        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_FX, !ud.config.SoundToggle);
-        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MUSIC, !ud.config.MusicToggle);
-        MenuEntry_DisableOnCondition(&ME_SOUND_DUKETALK, !ud.config.SoundToggle);
-        MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLINGRATE, !ud.config.SoundToggle && !ud.config.MusicToggle);
+        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_FX, !snd_enabled);
+        MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MUSIC, !mus_enabled);
+        MenuEntry_DisableOnCondition(&ME_SOUND_DUKETALK, !snd_enabled);
+        MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLINGRATE, !snd_enabled && !mus_enabled);
 #ifndef EDUKE32_SIMPLE_MENU
-        MenuEntry_DisableOnCondition(&ME_SOUND_NUMVOICES, !ud.config.SoundToggle);
+        MenuEntry_DisableOnCondition(&ME_SOUND_NUMVOICES, !snd_enabled);
 #endif
-        MenuEntry_DisableOnCondition(&ME_SOUND_RESTART, soundrate == ud.config.MixRate &&
-                                                        soundvoices == ud.config.NumVoices);
+        MenuEntry_DisableOnCondition(&ME_SOUND_RESTART, soundrate == snd_mixrate &&
+                                                        soundvoices == snd_numvoices);
         break;
 
     case MENU_SAVESETUP:
@@ -3233,8 +3233,8 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     }
     else if (entry == &ME_SOUND_RESTART)
     {
-        ud.config.MixRate = soundrate;
-        ud.config.NumVoices = soundvoices;
+        snd_mixrate = soundrate;
+        snd_numvoices = soundvoices;
 
         S_SoundShutdown();
         S_MusicShutdown();
@@ -3245,7 +3245,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        if (ud.config.MusicToggle)
+        if (mus_enabled)
             S_RestartMusic();
     }
     else if (entry == &ME_SAVESETUP_CLEANUP)
@@ -3311,7 +3311,7 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     }
     else if (entry == &ME_SOUND_MUSIC)
     {
-        ud.config.MusicToggle = newOption;
+        mus_enabled = newOption;
 
         if (newOption == 0)
             S_PauseMusic(true);
@@ -3322,7 +3322,7 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         }
     }
     else if (entry == &ME_SOUND_DUKETALK)
-        ud.config.VoiceToggle = (ud.config.VoiceToggle&~1) | newOption;
+        snd_speech = (snd_speech&~1) | newOption;
     else if (entry == &ME_MOUSESETUP_SMOOTH)
         CONTROL_SmoothMouse = ud.config.SmoothInput;
     else if (entry == &ME_JOYSTICK_ENABLE)
@@ -3620,7 +3620,7 @@ static int32_t Menu_EntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
     if (entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
         return (ud.weaponswitch & 1) ? ((ud.weaponswitch & 4) ? 2 : 1) : 0;
     else if (entry == &ME_SOUND_DUKETALK)
-        return ud.config.VoiceToggle & 1;
+        return snd_speech & 1;
     else if (entry == &ME_NETOPTIONS_MONSTERS)
         return (ud.m_monsters_off ? g_skillCnt : ud.m_player_skill);
 
@@ -4263,8 +4263,8 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
         break;
 
     case MENU_ADVSOUND:
-        soundrate = ud.config.MixRate;
-        soundvoices = ud.config.NumVoices;
+        soundrate = snd_mixrate;
+        soundvoices = snd_numvoices;
         break;
 
     default:

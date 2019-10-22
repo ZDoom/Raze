@@ -237,7 +237,7 @@ static int osdcmd_music(osdcmdptr_t parm)
 
         if (!levelTryPlayMusic(nEpisode, nLevel))
         {
-            if (CDAudioToggle)
+            if (mus_redbook)
                 snprintf(buffer, sizeof(buffer), "Playing %i track", gEpisodeInfo[nEpisode].at28[nLevel].ate0);
             else
                 snprintf(buffer, sizeof(buffer), "Playing %s", gEpisodeInfo[nEpisode].at28[nLevel].atd0);
@@ -431,7 +431,7 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
     sndInit();
     sfxInit();
 
-    if (MusicToggle && (gGameStarted || gDemo.at1))
+    if (mus_enabled && (gGameStarted || gDemo.at1))
         sndPlaySong(gGameOptions.zLevelSong, true);
 
     return OSDCMD_OK;

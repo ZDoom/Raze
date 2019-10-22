@@ -54,7 +54,7 @@ int nAmbChannels = 0;
 
 void ambProcess(void)
 {
-    if (!SoundToggle)
+    if (!snd_enabled)
         return;
     for (int nSprite = headspritestat[kStatAmbience]; nSprite >= 0; nSprite = nextspritestat[nSprite])
     {

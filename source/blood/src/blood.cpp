@@ -400,7 +400,7 @@ void PreloadCache(void)
     gSoundRes.PurgeCache();
     gSysRes.PrecacheSounds();
     gSoundRes.PrecacheSounds();
-    if (MusicRestartsOnLoadToggle)
+    if (mus_restartonload)
         sndTryPlaySpecialMusic(MUS_LOADING);
     PreloadTiles();
     ClockTicks clock = totalclock;

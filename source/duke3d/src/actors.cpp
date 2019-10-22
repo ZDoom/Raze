@@ -1457,10 +1457,10 @@ ACTOR_STATIC void G_MoveFX(void)
             int32_t const spriteHitag = (uint16_t)pSprite->hitag;
             auto const    pPlayer     = g_player[screenpeek].ps;
 
-            if (T2(spriteNum) != ud.config.SoundToggle)
+            if (T2(spriteNum) != snd_enabled)
             {
                 // If sound playback was toggled, restart.
-                T2(spriteNum) = ud.config.SoundToggle;
+                T2(spriteNum) = snd_enabled;
                 T1(spriteNum) = 0;
             }
 
@@ -1490,7 +1490,7 @@ ACTOR_STATIC void G_MoveFX(void)
                 }
             }
             else if (pSprite->lotag < 999 && (unsigned)sector[pSprite->sectnum].lotag < 9 &&  // ST_9_SLIDING_ST_DOOR
-                         ud.config.AmbienceToggle && sector[SECT(spriteNum)].floorz != sector[SECT(spriteNum)].ceilingz)
+                         snd_ambience && sector[SECT(spriteNum)].floorz != sector[SECT(spriteNum)].ceilingz)
             {
                 if (g_sounds[pSprite->lotag].m & SF_MSFX)
                 {
@@ -1510,7 +1510,7 @@ ACTOR_STATIC void G_MoveFX(void)
                         // Start playing an ambience sound.
 
                         char om = g_sounds[pSprite->lotag].m;
-                        if (g_numEnvSoundsPlaying == ud.config.NumVoices)
+                        if (g_numEnvSoundsPlaying == snd_numvoices)
                         {
                             int32_t j;
 

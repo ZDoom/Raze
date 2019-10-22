@@ -1870,7 +1870,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     G_HandleAsync();
 
-    if (g_skillSoundVoice >= 0 && ud.config.SoundToggle)
+    if (g_skillSoundVoice >= 0 && snd_enabled)
     {
         while (FX_SoundActive(g_skillSoundVoice))
             G_HandleAsync();
