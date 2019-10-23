@@ -27,16 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
-int32_t althud_flashing = 1;
-int32_t althud_numbertile = 2930;
-int32_t althud_numberpal = 0;
-
-#ifdef EDUKE32_TOUCH_DEVICES
-int32_t althud_shadows = 0;
-#else
-int32_t althud_shadows = 1;
-#endif
-
 static int32_t sbarx(int32_t x)
 {
     if (ud.screen_size == 4) return sbarsc(x<<16);
@@ -51,7 +41,7 @@ static int32_t sbarxr(int32_t x)
 
 static int32_t sbary(int32_t y)
 {
-    if (ud.hudontop == 1 && ud.screen_size == 4 && ud.althud == 1) return sbarsc(y << 16);
+    if (hud_position == 1 && ud.screen_size == 4 && ud.althud == 1) return sbarsc(y << 16);
     else return (200<<16) - sbarsc(200<<16) + sbarsc(y<<16);
 }
 
@@ -688,7 +678,7 @@ void G_DrawStatusBar(int32_t snum)
 
             if (RR)
             {
-                int32_t hudoffset = ud.hudontop == 1 ? 32 : 200;
+                int32_t hudoffset = hud_position == 1 ? 32 : 200;
                 static int32_t ammo_sprites[MAX_WEAPONS];
 
                 if (EDUKE32_PREDICT_FALSE(ammo_sprites[0] == 0))
@@ -775,7 +765,7 @@ void G_DrawStatusBar(int32_t snum)
                     }
                 }
 
-                if (ud.hudontop == 1)
+                if (hud_position == 1)
                     hudoffset += 40;
 
                 if (p->keys[1]) rotatesprite_althudr(39, hudoffset-43, sb15, 0, ACCESSCARD, 0, 0, 10+16+512);
@@ -784,7 +774,7 @@ void G_DrawStatusBar(int32_t snum)
             }
             else
             {
-                int32_t hudoffset = ud.hudontop == 1 ? 32 : 200;
+                int32_t hudoffset = hud_position == 1 ? 32 : 200;
                 static int32_t ammo_sprites[MAX_WEAPONS];
 
                 if (EDUKE32_PREDICT_FALSE(ammo_sprites[0] == 0))
@@ -875,7 +865,7 @@ void G_DrawStatusBar(int32_t snum)
                     }
                 }
 
-                if (ud.hudontop == 1)
+                if (hud_position == 1)
                     hudoffset += 40;
 
                 if (p->got_access&1) rotatesprite_althudr(39, hudoffset-43, sb15, 0, ACCESSCARD, 0, 0, 10+16+512);

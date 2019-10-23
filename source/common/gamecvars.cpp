@@ -214,7 +214,29 @@ CUSTOM_CVARD(Int, hud_custom, 0, CVAR_ARCHIVE|CVAR_NOINITCALL, "change the custo
 
 CVARD(Bool, hud_stats, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable level statistics display")
 CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable map name display on load")
-CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field of view") //, (void*)r_fov.Value, CVAR_INT, 60, 140
+CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bottom/top")
+CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable background image stretching in wide resolutions")
+CVARD(Int, hud_messagetime, 120, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "length of time to display multiplayer chat messages")
+
+CVARD_NAMED(Int, hud_numbertile, althud_numbertile, 2930, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "first tile in alt hud number set")
+CVARD_NAMED(Int, hud_numberpal, althud_numberpal, 0, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "pal for alt hud numbers")
+CVARD_NAMED(Int, hud_shadows, althud_shadows, true, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable althud shadows")
+CVARD_NAMED(Int, hud_flashing, althud_flashing, true, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable althud flashing")
+CVARD(Bool, hud_glowingquotes, true, CVAR_ARCHIVE, "enable/disable \"glowing\" quote text")
+
+CUSTOM_CVARD(Int, hud_textscale, 200, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "sets multiplayer chat message size")
+{
+	if (self < 100) self = 100;
+	else if (self > 400) self = 400;
+}
+
+CUSTOM_CVARD(Int, hud_weaponscale, 100, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "changes the weapon scale")
+{
+	if (self < 30) self = 30;
+	else if (self > 100) self = 100;
+}
+
+CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field of view")
 {
 	if (self < 60) self = 60;
 	else if (self < 140) self = 140;
@@ -374,16 +396,6 @@ CVARD(Bool, r_voxels, true, CVAR_ARCHIVE, "enable/disable automatic sprite->voxe
 
 // These have to wait until the HUD code is cleaned up (no idea which may survive and which won't.)
 /*
-	{ "hud_position", "aligns the status bar to the bottom/top", (void*)&ud.hudontop, CVAR_BOOL, 0, 1 },
-	{ "hud_bgstretch", "enable/disable background image stretching in wide resolutions", (void*)&ud.bgstretch, CVAR_BOOL, 0, 1 },
-	{ "hud_messagetime", "length of time to display multiplayer chat messages", (void*)&ud.msgdisptime, CVAR_INT, 0, 3600 },
-	{ "hud_numbertile", "first tile in alt hud number set", (void*)&althud_numbertile, CVAR_INT, 0, MAXUSERTILES - 10 },
-	{ "hud_numberpal", "pal for alt hud numbers", (void*)&althud_numberpal, CVAR_INT, 0, MAXPALOOKUPS - 1 },
-	{ "hud_shadows", "enable/disable althud shadows", (void*)&althud_shadows, CVAR_BOOL, 0, 1 },
-	{ "hud_flashing", "enable/disable althud flashing", (void*)&althud_flashing, CVAR_BOOL, 0, 1 },
-	{ "hud_glowingquotes", "enable/disable \"glowing\" quote text", (void*)&hud_glowingquotes, CVAR_BOOL, 0, 1 },
-	{ "hud_textscale", "sets multiplayer chat message size", (void*)&ud.textscale, CVAR_INT, 100, 400 },
-	{ "hud_weaponscale","changes the weapon scale", (void*)&ud.weaponscale, CVAR_INT, 10, 100 },
 
 	{ "hud_messages", "enable/disable showing messages", (void*)&gMessageState, CVAR_BOOL, 0, 1 },
 	{ "hud_powerupduration", "enable/disable displaying the remaining seconds for power-ups", (void*)&gPowerupDuration, CVAR_BOOL, 0, 1 },

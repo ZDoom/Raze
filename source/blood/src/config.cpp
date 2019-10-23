@@ -283,7 +283,6 @@ void CONFIG_SetDefaults(void)
     //ud.default_skill          = 1;
     gUpscaleFactor = 0;
     //ud.display_bonus_screen   = 1;
-    //ud.hudontop               = 0;        = 1;
     gPowerupDuration = 1;
     //ud.lockout                = 0;
     //ud.m_marker               = 1;
@@ -294,7 +293,6 @@ void CONFIG_SetDefaults(void)
     //ud.menu_slidebarmargin    = 65536;
     //ud.menu_slidebarz         = 65536;
     //ud.menu_slidecursorz      = 65536;
-    //ud.msgdisptime            = 120;
     //ud.pwlockout[0]           = '\0';
     //ud.screen_size            = 4;
     //ud.screen_tilting         = 1;
@@ -306,8 +304,6 @@ void CONFIG_SetDefaults(void)
     //ud.statusbarmode          = 1;
     //ud.statusbarscale         = 100;
     //ud.team                   = 0;
-    //ud.textscale              = 200;
-    //ud.weaponscale            = 100;
     //cl_weaponswitch           = 3;  // new+empty
     gDeliriumBlur = 1;
     gViewSize = 2;

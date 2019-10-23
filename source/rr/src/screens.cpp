@@ -253,7 +253,7 @@ static void G_FadePalaccum(const palaccum_t *pa)
 
 static int32_t gtextsc(int32_t sc)
 {
-    return scale(sc, ud.textscale, 400);
+    return scale(sc, hud_textscale, 400);
 }
 
 ////////// DISPLAYREST //////////
@@ -1212,7 +1212,7 @@ void G_DisplayRest(int32_t smoothratio)
 
         if (ud.screen_size == 4)
         {
-            if (ud.althud == 0 || ud.hudontop == 0)
+            if (ud.althud == 0 || hud_position == 0)
                 i -= sbarsc(ud.althud ? ((tilesiz[BIGALPHANUM].y<<sbarshift)+(8<<16)) : tilesiz[INVENTORYBOX].y<<sbarshift);
         }
         else if (RR && ud.screen_size == 12)

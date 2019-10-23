@@ -228,7 +228,6 @@ void CONFIG_SetDefaults(void)
     ud.menu_slidebarz = 65536;
     ud.menu_slidebarmargin = RR ? 6 * 65536 : 65536;
     ud.menu_slidecursorz = RR ? 32768 : 65536;
-    ud.msgdisptime = 120;
     ud.pwlockout[0] = '\0';
     ud.runkey_mode = 0;
     ud.screen_size = 4;
@@ -246,11 +245,8 @@ void CONFIG_SetDefaults(void)
     ud.display_bonus_screen = 1;
     ud.show_level_text = 1;
     ud.configversion = 0;
-    ud.weaponscale = 100;
-    ud.textscale = 200;
     ud.screenfade = 1;
     ud.menubackground = 1;
-    ud.hudontop = 0;
     ud.default_skill = 1;
     ud.slidebar_paldisabled = 1;
     ud.shadow_pal = 4;

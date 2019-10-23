@@ -245,7 +245,7 @@ void CONFIG_SetDefaults(void)
     ud.detail                 = 0;
     ud.display_bonus_screen   = 1;
 
-    ud.hudontop               = 0;
+    hud_position               = 0;
     ud.lockout                = 0;
     ud.m_marker               = 1;
     ud.menu_scrollbartilenum  = -1;
@@ -255,7 +255,6 @@ void CONFIG_SetDefaults(void)
     ud.menu_slidebarz         = 65536;
     ud.menu_slidecursorz      = 65536;
     ud.menubackground         = 1;
-    ud.msgdisptime            = 120;
     ud.pwlockout[0]           = '\0';
     ud.runkey_mode            = 0;
     ud.screen_size            = 4;
@@ -268,8 +267,6 @@ void CONFIG_SetDefaults(void)
     ud.statusbarmode          = 1;
     ud.statusbarscale         = 100;
     ud.team                   = 0;
-    ud.textscale              = 200;
-    ud.weaponscale            = 100;
 
     Bstrcpy(ud.rtsname, G_DefaultRtsFile());
 

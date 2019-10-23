@@ -938,16 +938,15 @@ void G_AddUserQuote(const char *daquote)
     Bstrcpy(user_quote[0], daquote);
     OSD_Printf("%s\n", daquote);
 
-    user_quote_time[0] = ud.msgdisptime;
+    user_quote_time[0] = hud_messagetime;
     pub = NUMPAGES;
 }
 
 int32_t textsc(int32_t sc)
 {
-    return scale(sc, ud.textscale, 400);
+    return scale(sc, hud_textscale, 400);
 }
 
-int32_t hud_glowingquotes = 1;
 
 #define FTAOPAQUETIME 30
 
@@ -981,7 +980,7 @@ static inline int32_t texta(int32_t t)
 
 static FORCE_INLINE int32_t text_ypos(void)
 {
-    if (ud.hudontop == 1 && ud.screen_size == 4 && ud.althud == 1)
+    if (hud_position == 1 && ud.screen_size == 4 && ud.althud == 1)
         return 32<<16;
 
 #ifdef GEKKO

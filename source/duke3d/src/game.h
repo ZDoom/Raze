@@ -176,11 +176,10 @@ typedef struct {
     int32_t reccnt;
 
     int32_t runkey_mode,statusbarscale,weaponswitch;   // JBF 20031125
-    int32_t color,msgdisptime,statusbarmode;
+    int32_t color,statusbarmode;
     int32_t m_noexits,noexits;
-    int32_t team, althud, weaponscale, textscale;
+    int32_t team, althud;
     int32_t statusbarflags, statusbarrange;
-    int32_t hudontop;
     int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
@@ -196,7 +195,7 @@ typedef struct {
 
     int32_t playerbest;
 
-    int32_t configversion, bgstretch;
+    int32_t configversion;
 
     int32_t default_volume, default_skill;
 
@@ -296,7 +295,6 @@ extern int32_t g_doQuickSave;
 extern int32_t g_levelTextTime;
 extern int32_t g_quitDeadline;
 extern int32_t g_restorePalette;
-extern int32_t hud_glowingquotes;
 extern int32_t tempwallptr;
 extern int32_t ticrandomseed;
 extern int32_t vote_map;

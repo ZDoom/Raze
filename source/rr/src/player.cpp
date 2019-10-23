@@ -1427,7 +1427,7 @@ static int P_DisplayFist(int const fistShade)
 }
 
 #define DRAWEAP_CENTER 262144
-#define weapsc(sc) scale(sc, ud.weaponscale, 100)
+#define weapsc(sc) scale(sc, hud_weaponscale, 100)
 
 static int32_t g_dts_yadd;
 

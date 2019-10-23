@@ -1257,7 +1257,7 @@ const memberlabel_t UserdefsLabels[]=
     { "weaponswitch",           USERDEFS_WEAPONSWITCH,           0, 0, -1 },
     { "democams",               USERDEFS_DEMOCAMS,               0, 0, -1 },
     { "color",                  USERDEFS_COLOR,                  0, 0, -1 },
-    { "msgdisptime",            USERDEFS_MSGDISPTIME,            0, 0, -1 },
+    { "hud_messagetime",            USERDEFS_MSGDISPTIME,            0, 0, -1 },
     { "statusbarmode",          USERDEFS_STATUSBARMODE,          0, 0, -1 },
     { "m_noexits",              USERDEFS_M_NOEXITS,              0, 0, -1 },
     { "noexits",                USERDEFS_NOEXITS,                0, 0, -1 },
@@ -1452,7 +1452,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_WEAPONSWITCH:           labelNum = cl_weaponswitch;                 break;
         case USERDEFS_DEMOCAMS:               labelNum = cl_democams;                     break;
         case USERDEFS_COLOR:                  labelNum = ud.color;                        break;
-        case USERDEFS_MSGDISPTIME:            labelNum = ud.msgdisptime;                  break;
+        case USERDEFS_MSGDISPTIME:            labelNum = hud_messagetime;                  break;
         case USERDEFS_STATUSBARMODE:          labelNum = ud.statusbarmode;                break;
         case USERDEFS_M_NOEXITS:              labelNum = ud.m_noexits;                    break;
         case USERDEFS_NOEXITS:                labelNum = ud.noexits;                      break;
@@ -1469,8 +1469,8 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_ALTHUD:                 labelNum = ud.althud;                       break;
         case USERDEFS_DISPLAY_BONUS_SCREEN:   labelNum = ud.display_bonus_screen;         break;
         case USERDEFS_SHOW_LEVEL_TEXT:        labelNum = ud.show_level_text;              break;
-        case USERDEFS_WEAPONSCALE:            labelNum = ud.weaponscale;                  break;
-        case USERDEFS_TEXTSCALE:              labelNum = ud.textscale;                    break;
+        case USERDEFS_WEAPONSCALE:            labelNum = hud_weaponscale;                  break;
+        case USERDEFS_TEXTSCALE:              labelNum = hud_textscale;                    break;
         case USERDEFS_RUNKEY_MODE:            labelNum = ud.runkey_mode;                  break;
         case USERDEFS_M_ORIGIN_X:             labelNum = ud.returnvar[0];                 break;
         case USERDEFS_M_ORIGIN_Y:             labelNum = ud.returnvar[1];                 break;
@@ -1499,7 +1499,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_STATUSBARFLAGS:         labelNum = ud.statusbarflags;               break;
         case USERDEFS_STATUSBARRANGE:         labelNum = ud.statusbarrange;               break;
         case USERDEFS_STATUSBARCUSTOM:        labelNum = hud_custom;              break;
-        case USERDEFS_HUDONTOP:               labelNum = ud.hudontop;                     break;
+        case USERDEFS_HUDONTOP:               labelNum = hud_position;                     break;
         case USERDEFS_MENU_SLIDEBARZ:         labelNum = ud.menu_slidebarz;               break;
         case USERDEFS_MENU_SLIDEBARMARGIN:    labelNum = ud.menu_slidebarmargin;          break;
         case USERDEFS_MENU_SLIDECURSORZ:      labelNum = ud.menu_slidecursorz;            break;
@@ -1645,7 +1645,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_WEAPONSWITCH:                 cl_weaponswitch                  = iSet; break; //!!!
         case USERDEFS_DEMOCAMS:                     cl_democams                      = iSet; break;
         case USERDEFS_COLOR:                        ud.color                         = iSet; break;
-        case USERDEFS_MSGDISPTIME:                  ud.msgdisptime                   = iSet; break;
+        case USERDEFS_MSGDISPTIME:                  hud_messagetime                  = iSet; break; //!!!
         case USERDEFS_STATUSBARMODE:                ud.statusbarmode                 = iSet; break;
         case USERDEFS_M_NOEXITS:                    ud.m_noexits                     = iSet; break;
         case USERDEFS_NOEXITS:                      ud.noexits                       = iSet; break;
@@ -1662,8 +1662,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_ALTHUD:                       ud.althud                        = iSet; break;
         case USERDEFS_DISPLAY_BONUS_SCREEN:         ud.display_bonus_screen          = iSet; break;
         case USERDEFS_SHOW_LEVEL_TEXT:              ud.show_level_text               = iSet; break;
-        case USERDEFS_WEAPONSCALE:                  ud.weaponscale                   = iSet; break;
-        case USERDEFS_TEXTSCALE:                    ud.textscale                     = iSet; break;
+        case USERDEFS_WEAPONSCALE:                  hud_weaponscale                  = iSet; break; //!!!
+        case USERDEFS_TEXTSCALE:                    hud_textscale                     = iSet; break; //!!!
         case USERDEFS_RUNKEY_MODE:                  ud.runkey_mode                   = iSet; break;
         case USERDEFS_M_ORIGIN_X:                   ud.returnvar[0]                  = iSet; break;
         case USERDEFS_M_ORIGIN_Y:                   ud.returnvar[1]                  = iSet; break;
@@ -1692,7 +1692,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_STATUSBARFLAGS:               ud.statusbarflags                = iSet; break; // Sigh... Ion Fury needs this. :(
         case USERDEFS_STATUSBARRANGE:               ud.statusbarrange                = iSet; break;
         case USERDEFS_STATUSBARCUSTOM:              hud_custom				         = iSet; break; //!!!
-        case USERDEFS_HUDONTOP:                     ud.hudontop                      = iSet; break;
+        case USERDEFS_HUDONTOP:                     hud_position                      = iSet; break; //!!!
         case USERDEFS_MENU_SLIDEBARZ:               ud.menu_slidebarz                = iSet; break;
         case USERDEFS_MENU_SLIDEBARMARGIN:          ud.menu_slidebarmargin           = iSet; break;
         case USERDEFS_MENU_SLIDECURSORZ:            ud.menu_slidecursorz             = iSet; break;

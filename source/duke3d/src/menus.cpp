@@ -603,7 +603,7 @@ static int32_t vpsize;
 static MenuRangeInt32_t MEO_SCREENSETUP_SCREENSIZE = MAKE_MENURANGE( &vpsize, &MF_Redfont, 0, 0, 0, 1, EnforceIntervals );
 static MenuOption_t MEO_SCREENSETUP_SCREENSIZE_TWO = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &vpsize );
 static MenuEntry_t ME_SCREENSETUP_SCREENSIZE = MAKE_MENUENTRY( "Status bar:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_SCREENSIZE, RangeInt32 );
-static MenuRangeInt32_t MEO_SCREENSETUP_TEXTSIZE = MAKE_MENURANGE( &ud.textscale, &MF_Redfont, 100, 400, 0, 16, 2 );
+static MenuRangeInt32_t MEO_SCREENSETUP_TEXTSIZE = MAKE_MENURANGE( &hud_textscale.Value, &MF_Redfont, 100, 400, 0, 16, 2 );
 static MenuEntry_t ME_SCREENSETUP_TEXTSIZE = MAKE_MENUENTRY( s_Scale, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SCREENSETUP_TEXTSIZE, RangeInt32 );
 static MenuOption_t MEO_SCREENSETUP_LEVELSTATS = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &hud_stats.Value);
 static MenuEntry_t ME_SCREENSETUP_LEVELSTATS = MAKE_MENUENTRY( "Level stats:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_LEVELSTATS, Option );
@@ -618,7 +618,7 @@ static MenuEntry_t ME_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUENTRY( "Game mes
 static char const *MEOSN_SCREENSETUP_STATUSBARONTOP[] = { "Bottom", "Top" };
 static int32_t MEOSV_SCREENSETUP_STATUSBARONTOP[] = { 0, 1 };
 static MenuOptionSet_t MEOS_SCREENSETUP_STATUSBARONTOP = MAKE_MENUOPTIONSET( MEOSN_SCREENSETUP_STATUSBARONTOP, MEOSV_SCREENSETUP_STATUSBARONTOP, 0x2 );
-static MenuOption_t MEO_SCREENSETUP_STATUSBARONTOP = MAKE_MENUOPTION(&MF_Redfont, &MEOS_SCREENSETUP_STATUSBARONTOP, &ud.hudontop);
+static MenuOption_t MEO_SCREENSETUP_STATUSBARONTOP = MAKE_MENUOPTION(&MF_Redfont, &MEOS_SCREENSETUP_STATUSBARONTOP, &hud_position.Value);
 static MenuEntry_t ME_SCREENSETUP_STATUSBARONTOP = MAKE_MENUENTRY( "Status bar:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_STATUSBARONTOP, Option );
 #endif
 

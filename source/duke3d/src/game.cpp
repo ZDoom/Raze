@@ -6921,8 +6921,8 @@ int G_DoMoveThings(void)
     {
         if (i)
         {
-            if (--i > ud.msgdisptime)
-                i = ud.msgdisptime;
+            if (--i > hud_messagetime)
+                i = hud_messagetime;
             if (!i) pub = NUMPAGES;
         }
     }

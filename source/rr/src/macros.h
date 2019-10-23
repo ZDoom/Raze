@@ -35,7 +35,7 @@ static FORCE_INLINE int32_t krand2(void)
     return ((uint32_t) randomseed)>>16;
 }
 
-#define BGSTRETCH (ud.bgstretch ? 1024 : 0)
+#define BGSTRETCH (hud_bgstretch ? 1024 : 0)
 
 #define WIN_IS_PRESSED ( KB_KeyPressed( sc_RightWin ) || KB_KeyPressed( sc_LeftWin ) )
 #define ALT_IS_PRESSED ( KB_KeyPressed( sc_RightAlt ) || KB_KeyPressed( sc_LeftAlt ) )

@@ -30,7 +30,7 @@ BEGIN_DUKE_NS
 
 // Macros, some from SW source
 
-#define BGSTRETCH (ud.bgstretch ? 1024 : 0)
+#define BGSTRETCH (hud_bgstretch ? 1024 : 0)
 
 #define WIN_IS_PRESSED ( KB_KeyPressed( sc_RightWin ) || KB_KeyPressed( sc_LeftWin ) )
 #define ALT_IS_PRESSED ( KB_KeyPressed( sc_RightAlt ) || KB_KeyPressed( sc_LeftAlt ) )

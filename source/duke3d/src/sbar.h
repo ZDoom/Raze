@@ -24,11 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-extern int32_t althud_flashing;
-extern int32_t althud_numberpal;
-extern int32_t althud_numbertile;
-extern int32_t althud_shadows;
-
 static FORCE_INLINE int32_t sbarsc(int32_t sc)
 {
     return scale(sc, ud.statusbarscale, 100);
