@@ -369,14 +369,6 @@ CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE | CVAR_NOINITCALL | CVA
 
 #if 0
 
-// DN3D
-    static osdcvardata_t cvars_game[] =
-    {
-
-
-
-    };
-
 // These I don't care about.
 //{ "r_upscalefactor", "increase performance by rendering at upscalefactor less than the screen resolution and upscale to the full resolution in the software renderer", (void *)&ud.detail, CVAR_INT|CVAR_FUNCPTR, 1, 16 },
 //{ "r_upscalefactor", "increase performance by rendering at upscalefactor less than the screen resolution and upscale to the full resolution in the software renderer", (void *)&gUpscaleFactor, CVAR_INT|CVAR_FUNCPTR, 1, 16
@@ -402,6 +394,11 @@ CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE | CVAR_NOINITCALL | CVA
 
 	// This needs some serious internal cleanup first, the implementation is all over the place and prone to whacking the user setting.
 	{ "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
+	if (!Bstrcasecmp(parm->name, "color"))
+	{
+		ud.color = G_CheckPlayerColor(ud.color);
+		g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
+	}
 
 	// This one gets changed at run time by the game code, so making it persistent does not work
 
@@ -413,4 +410,19 @@ CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE | CVAR_NOINITCALL | CVA
 
 	// requires cleanup first
 	//{ "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
+
+	// just as a reminder:
+	/*
+	else if (!Bstrcasecmp(parm->name, "vid_gamma"))
+	{
+	gBrightness = GAMMA_CALC;
+	gBrightness <<= 2;
+	videoSetPalette(gBrightness >> 2, gLastPal, 0);
+	}
+	else if (!Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
+	{
+	videoSetPalette(gBrightness >> 2, gLastPal, 0);
+	}
+	*/
+
 #endif

@@ -575,16 +575,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_addpath(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    addsearchpath(parm->parms[0]);
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_initgroupfile(osdcmdptr_t parm)
 {
     if (parm->numparms != 1)
@@ -1219,54 +1209,6 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_cvar_set_game(osdcmdptr_t parm)
-{
-    int const r = osdcmd_cvar_set(parm);
-
-    if (r != OSDCMD_OK) return r;
-
-    if (!Bstrcasecmp(parm->name, "r_upscalefactor"))
-    {
-        if (in3dmode())
-        {
-            videoSetGameMode(fullscreen, xres, yres, bpp, ud.detail);
-        }
-    }
-    else if (!Bstrcasecmp(parm->name, "vid_gamma"))
-    {
-        ud.brightness = GAMMA_CALC;
-        ud.brightness <<= 2;
-        videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-    }
-    else if (!Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
-    {
-        videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-    }
-    else if (!Bstrcasecmp(parm->name, "color"))
-    {
-        ud.color = G_CheckPlayerColor(ud.color);
-        g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
-    }
-    else if (!Bstrcasecmp(parm->name, "osdscale"))
-    {
-        osdrscale = 1.f/osdscale;
-
-        if (xdim && ydim)
-            OSD_ResizeDisplay(xdim, ydim);
-    }
-    return r;
-}
-
-static int osdcmd_cvar_set_multi(osdcmdptr_t parm)
-{
-    int const r = osdcmd_cvar_set_game(parm);
-
-    if (r != OSDCMD_OK) return r;
-
-    G_UpdatePlayerFromMenu();
-
-    return r;
-}
 
 int32_t registerosdcommands(void)
 {
@@ -1280,7 +1222,6 @@ int32_t registerosdcommands(void)
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
 
-    OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
     OSD_RegisterFunction("bind",R"(bind <key> <string>: associates a keypress with a string of console input. Type "bind showkeys" for a list of keys and "listsymbols" for a list of valid console commands.)", osdcmd_bind);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
