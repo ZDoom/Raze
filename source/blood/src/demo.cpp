@@ -404,7 +404,7 @@ _DEMOPLAYBACK:
                 ProcessFrame();
             ready2send = 0;
         }
-        if (viewFPSLimit())
+        if (G_FPSLimit())
         {
             viewDrawScreen();
             if (gInputMode == kInputMenu && CGameMenuMgr::m_bActive)

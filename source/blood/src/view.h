@@ -98,13 +98,8 @@ extern int gViewX0, gViewY0, gViewX1, gViewY1;
 extern int gViewX0S, gViewY0S, gViewX1S, gViewY1S;
 extern palette_t CrosshairColors;
 extern bool g_isAlterDefaultCrosshair;
-extern int32_t r_maxfps;
-extern int32_t r_maxfpsoffset;
-extern double g_frameDelay;
 extern int gLastPal;
 
-
-static inline double calcFrameDelay(int maxFPS) { return maxFPS ? ((double)timerGetFreqU64() / (double)(maxFPS)) : 0.0; }
 
 void viewGetFontInfo(int id, const char *unk1, int *pXSize, int *pYSize);
 void viewUpdatePages(void);
@@ -148,7 +143,6 @@ void viewDisplayMessage(void);
 void viewSetErrorMessage(const char *pMessage);
 void DoLensEffect(void);
 void UpdateDacs(int nPalette, bool bNoTint = false);
-int viewFPSLimit(void);
 void viewDrawScreen(void);
 void viewLoadingScreenWide(void);
 void viewLoadingScreenUpdate(const char *pzText4 = NULL, int nPercent = -1);

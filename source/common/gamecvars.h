@@ -62,7 +62,8 @@ EXTERN_CVAR(Int, r_showfps)
 EXTERN_CVAR(Int, r_showfpsperiod)
 EXTERN_CVAR(Int, r_ambientlight)
 EXTERN_CVAR(Int, r_shadows)
-
+EXTERN_CVAR(Bool, r_rotatespritenowidescreen)
+EXTERN_CVAR(Bool, r_precache)
 
 EXTERN_CVAR(Bool, in_joystick)
 EXTERN_CVAR(Bool, in_mouse)
@@ -81,3 +82,4 @@ bool G_ChangeHudLayout(int direction);
 bool G_CheckAutorun(bool button);
 void G_LoadConfig(const char*);
 void G_SaveConfig();
+int G_FPSLimit(void);

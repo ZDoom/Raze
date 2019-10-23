@@ -101,10 +101,6 @@ GAME_STATIC GAME_INLINE int32_t G_MoveLoop(void);
 
 int32_t g_levelTextTime = 0;
 
-int32_t r_maxfps = 60;
-int32_t r_maxfpsoffset = 0;
-double g_frameDelay = 0.0;
-
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
 #endif
@@ -7655,30 +7651,6 @@ void G_MaybeAllocPlayer(int32_t pnum)
 }
 
 
-int G_FPSLimit(void)
-{
-	if (!r_maxfps)
-		return 1;
-
-    static double nextPageDelay;
-    static double lastFrameTicks;
-
-    double const frameTicks  = timerGetTicksU64();
-    double const elapsedTime = frameTicks-lastFrameTicks;
-
-    if (elapsedTime >= nextPageDelay)
-    {
-        if (elapsedTime <= nextPageDelay+g_frameDelay)
-            nextPageDelay += g_frameDelay-elapsedTime;
-
-        lastFrameTicks = frameTicks;
-
-        return 1;
-    }
-
-    return 0;
-}
-
 
 // TODO: reorder (net)actor_t to eliminate slop and update assertion
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
@@ -8020,7 +7992,6 @@ int app_main(int argc, char const * const * argv)
             ud.setup.bpp  = bpp;
         }
 
-        g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
         videoSetPalette(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
         S_MusicStartup();
         S_SoundStartup();

@@ -76,8 +76,6 @@ void SetupVideoModeMenu(CGameMenuItemChain *);
 void SetVideoMode(CGameMenuItemChain *);
 void SetWidescreen(CGameMenuItemZBool *);
 void SetFOV(CGameMenuItemSlider *);
-void UpdateVideoModeMenuFrameLimit(CGameMenuItemZCycle *pItem);
-void UpdateVideoModeMenuFPSOffset(CGameMenuItemSlider *pItem);
 void UpdateVideoColorMenu(CGameMenuItemSliderFloat *);
 void ResetVideoColor(CGameMenuItemChain *);
 void SetWeaponsV10X(CGameMenuItemZBool* pItem);
@@ -478,8 +476,6 @@ CGameMenuItemZCycle itemOptionsDisplayModeResolution("RESOLUTION:", 3, 66, 60, 1
 CGameMenuItemZCycle itemOptionsDisplayModeRenderer("RENDERER:", 3, 66, 70, 180, 0, NULL, pzRendererStrings, 2, 0);
 CGameMenuItemZBool itemOptionsDisplayModeFullscreen("FULLSCREEN:", 3, 66, 80, 180, 0, NULL, NULL, NULL);
 CGameMenuItemZCycle itemOptionsDisplayModeVSync("VSYNC:", 3, 66, 90, 180, 0, NULL, pzVSyncStrings, 3, 0);
-CGameMenuItemZCycle itemOptionsDisplayModeFrameLimit("FRAMERATE LIMIT:", 3, 66, 100, 180, 0, UpdateVideoModeMenuFrameLimit, pzFrameLimitStrings, 8, 0);
-CGameMenuItemSlider itemOptionsDisplayModeFPSOffset("FPS OFFSET:", 3, 66, 110, 180, 0, -10, 10, 1, UpdateVideoModeMenuFPSOffset, -1, -1, kMenuSliderValue);
 CGameMenuItemChain itemOptionsDisplayModeApply("APPLY CHANGES", 3, 66, 125, 180, 0, NULL, 0, SetVideoMode, 0);
 
 void PreDrawDisplayColor(CGameMenuItem *);
@@ -1625,15 +1621,6 @@ void SetupVideoModeMenu(CGameMenuItemChain *pItem)
             break;
         }
     }
-    for (int i = 0; i < 8; i++)
-    {
-        if (r_maxfps == nFrameLimitValues[i])
-        {
-            itemOptionsDisplayModeFrameLimit.m_nFocus = i;
-            break;
-        }
-    }
-    itemOptionsDisplayModeFPSOffset.nValue = r_maxfpsoffset;
 }
 
 void PreDrawVideoModeMenu(CGameMenuItem *pItem)
@@ -1644,18 +1631,6 @@ void PreDrawVideoModeMenu(CGameMenuItem *pItem)
     else if (pItem == &itemOptionsDisplayModeRenderer)
         pItem->bEnable = gResolution[itemOptionsDisplayModeResolution.m_nFocus].bppmax > 8;
 #endif
-}
-
-void UpdateVideoModeMenuFrameLimit(CGameMenuItemZCycle *pItem)
-{
-    r_maxfps = nFrameLimitValues[pItem->m_nFocus];
-    g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
-}
-
-void UpdateVideoModeMenuFPSOffset(CGameMenuItemSlider *pItem)
-{
-    r_maxfpsoffset = pItem->nValue;
-    g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
 }
 
 void UpdateVideoColorMenu(CGameMenuItemSliderFloat *pItem)

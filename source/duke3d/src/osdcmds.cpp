@@ -1445,11 +1445,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
             videoSetGameMode(fullscreen, xres, yres, bpp, ud.detail);
         }
     }
-    else if (!Bstrcasecmp(parm->name, "r_maxfps") || !Bstrcasecmp(parm->name, "r_maxfpsoffset"))
-    {
-        if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);
-        g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
-    }
     else if (!Bstrcasecmp(parm->name, "vid_gamma"))
     {
         ud.brightness = GAMMA_CALC;

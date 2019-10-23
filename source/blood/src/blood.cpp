@@ -1773,7 +1773,7 @@ RESTART:
                     g_gameUpdateAvgTime = g_gameUpdateTime;
                 g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
             }
-            bDraw = viewFPSLimit() != 0;
+            bDraw = G_FPSLimit() != 0;
             if (gQuitRequest && gQuitGame)
                 videoClearScreen(0);
             else
@@ -1788,7 +1788,7 @@ RESTART:
         }
         else
         {
-            bDraw = viewFPSLimit() != 0;
+            bDraw = G_FPSLimit() != 0;
             if (bDraw)
             {
                 videoClearScreen(0);

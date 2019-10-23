@@ -1769,9 +1769,6 @@ void viewInit(void)
         dword_172CE0[i][2] = mulscale16(wrand(), 2048);
     }
     gViewMap.sub_25C38(0, 0, gZoom, 0, gFollowMap);
-
-    g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
-
     bLoadScreenCrcMatch = tileCRC(kLoadScreen) == kLoadScreenCRC;
 }
 
@@ -3002,35 +2999,6 @@ void viewUpdateShake(void)
         shakeBobX += QRandom2(nValue);
         shakeBobY += QRandom2(nValue);
     }
-}
-
-int32_t r_maxfps = 60;
-int32_t r_maxfpsoffset = 0;
-double g_frameDelay = 0.0;
-
-int viewFPSLimit(void)
-{
-    if (!r_maxfps)
-        return 1;
-
-    static double   nextPageDelay;
-    static uint64_t lastFrameTicks;
-
-    uint64_t const frameTicks   = timerGetTicksU64();
-    uint64_t const elapsedTime  = frameTicks - lastFrameTicks;
-    double const   dElapsedTime = elapsedTime;
-
-    if (dElapsedTime >= floor(nextPageDelay))
-    {
-        if (dElapsedTime <= nextPageDelay+g_frameDelay)
-            nextPageDelay += g_frameDelay-dElapsedTime;
-
-        lastFrameTicks = frameTicks;
-
-        return 1;
-    }
-
-    return 0;
 }
 
 
