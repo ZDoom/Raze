@@ -5,6 +5,7 @@
 #include <CommCtrl.h>
 #include <signal.h>
 #include <string>
+#include <stdexcept>
 # include "glad/glad.h"
 
 #include "a.h"
@@ -123,6 +124,32 @@ static mutex_t m_initprintf;
 // Joystick dead and saturation zones
 uint16_t joydead[9], joysatur[9];
 
+#define MAX_ERRORTEXT 4096
+
+//==========================================================================
+//
+// I_Error
+//
+// Throw an error that will send us to the console if we are far enough
+// along in the startup process.
+//
+//==========================================================================
+
+void I_Error(const char *error, ...)
+{
+	va_list argptr;
+	char errortext[MAX_ERRORTEXT];
+
+	va_start(argptr, error);
+	snprintf(errortext, MAX_ERRORTEXT, error, argptr);
+	va_end(argptr);
+	#ifdef _WIN32
+	OutputDebugStringA(errortext);
+	#endif
+
+	throw std::runtime_error(errortext);
+}
+ 
 #ifdef _WIN32
 # if SDL_MAJOR_VERSION != 1
 //
@@ -511,6 +538,8 @@ int WINAPI WinMain(HINSTANCE , HINSTANCE , LPSTR , int )
 int main(int argc, char *argv[])
 #endif
 {
+	try
+	{
 
 #ifdef _WIN32
 	char* argvbuf;
@@ -576,8 +605,14 @@ int main(int argc, char *argv[])
 #if defined(HAVE_GTK2)
     gtkbuild_exit(r);
 #endif
+	return r;
+	}
+	catch(std::runtime_error &err)
+	{
+		wm_msgbox("Error", "%s", err.what());
+		return 3;
+	}
 
-    return r;
 }
 
 

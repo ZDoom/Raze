@@ -1447,7 +1447,6 @@ void gameDisplay3DRScreen()
 {
     if (!I_GeneralTrigger() && g_noLogoAnim == 0)
     {
-        buildvfs_kfd i;
         Net_GetPackets();
 
 		if (testkopen("3dr.ivf", 0) || testkopen("3dr.anm", 0))

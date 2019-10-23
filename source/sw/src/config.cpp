@@ -566,7 +566,6 @@ void CONFIG_SetupJoystick(void)
 
 int32_t CONFIG_ReadSetup(void)
 {
-    int32_t dummy;
     //char ret;
     extern char ds[];
     extern char PlayerNameArg[32];

@@ -580,12 +580,10 @@ else()
 	endif( NOT NO_OPENMP )
 endif()
 
-if (FALSE)	# for later
 add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h
-	COMMAND re2c --no-generation-date -s -o ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h ${CMAKE_CURRENT_SOURCE_DIR}/utility/sc_man_scanner.re
-	DEPENDS re2c ${CMAKE_CURRENT_SOURCE_DIR}/utility/sc_man_scanner.re )
+	COMMAND re2c --no-generation-date -s -o ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h ${CMAKE_CURRENT_SOURCE_DIR}/common/utility/sc_man_scanner.re
+	DEPENDS re2c ${CMAKE_CURRENT_SOURCE_DIR}/common/utility/sc_man_scanner.re )
 	
-endif ()
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
@@ -637,6 +635,7 @@ file( GLOB HEADER_FILES
 	mact/src/*.h
 	common/*.h
 	common/2d/*.h
+	common/fonts/*.h
 	common/utility/*.h
 	common/console/*.h
 
@@ -653,8 +652,8 @@ file( GLOB HEADER_FILES
 set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
 	build/src/sdlkeytrans.cpp
-		#sc_man_scanner.h
-	#utility/sc_man_scanner.re
+	sc_man_scanner.h
+	common/utility/sc_man_scanner.re
 )
 
 
@@ -795,8 +794,16 @@ set (PCH_SOURCES
 	common/2d/v_drawtext.cpp
 	common/2d/renderstyle.cpp
 	
+	common/fonts/font.cpp
+	common/fonts/hexfont.cpp
+	common/fonts/singlelumpfont.cpp
+	common/fonts/v_font.cpp
+	common/fonts/v_text.cpp
+	common/fonts/fontchars.cpp
+	
 	common/console/c_cvars.cpp
 	
+	common/utility/name.cpp
 	common/utility/cmdlib.cpp
 	common/utility/m_argv.cpp
 	common/utility/files.cpp
@@ -811,6 +818,7 @@ set (PCH_SOURCES
 	common/utility/matrix.cpp
 	common/utility/m_png.cpp
 	common/utility/memarena.cpp
+	common/utility/sc_man.cpp
 
 	common/textures/bitmap.cpp
 	common/textures/buildtiles.cpp

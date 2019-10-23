@@ -1024,9 +1024,11 @@ OperateWall(short wallnum, short player_is_operating)
 {
     WALLp wallp = &wall[wallnum];
 
+	/*
     switch (LOW_TAG_WALL(wallnum))
     {
     }
+	*/
 
     return FALSE;
 }

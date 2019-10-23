@@ -104,11 +104,6 @@ FBitmap FTexture::GetBgraBitmap(const PalEntry *remap, int *ptrans)
 //
 //===========================================================================
 
-#define APART(c)			(((c)>>24)&0xff)
-#define RPART(c)			(((c)>>16)&0xff)
-#define GPART(c)			(((c)>>8)&0xff)
-#define BPART(c)			((c)&0xff) 
-
 PalEntry FTexture::averageColor(const uint32_t *data, int size, int maxout)
 {
 	int				i;

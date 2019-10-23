@@ -1,5 +1,6 @@
 #pragma once
 
+#include "drawparms.h"
 struct ScreenDummy
 {
 	static int GetWidth() { return 1360; }

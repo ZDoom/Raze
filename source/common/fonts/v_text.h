@@ -35,7 +35,7 @@
 #define __V_TEXT_H__
 
 #include "zstring.h"
-class FFont;
+#include "v_font.h"
 
 struct FBrokenLines
 {
@@ -80,9 +80,6 @@ struct FBrokenLines
 #define TEXTCOLOR_CHAT			"\034*"
 #define TEXTCOLOR_TEAMCHAT		"\034!"
 
-
-extern int NumTextColors;
- 
 TArray<FBrokenLines> V_BreakLines (FFont *font, int maxwidth, const uint8_t *str, bool preservecolor = false);
 inline TArray<FBrokenLines> V_BreakLines (FFont *font, int maxwidth, const char *str, bool preservecolor = false)
  { return V_BreakLines (font, maxwidth, (const uint8_t *)str, preservecolor); }

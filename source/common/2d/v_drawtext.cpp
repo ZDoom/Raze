@@ -44,9 +44,10 @@
 #include "v_draw.h"
 #include "image.h"
 #include "v_2ddrawer.h"
+#include "../fonts/v_font.h"
 
 class FFont;
-int NumTextColors;	
+
 //==========================================================================
 //
 // Internal texture drawing function
@@ -88,7 +89,6 @@ void DrawChar (F2DDrawer* drawer, FFont *font, int normalcolor, double x, double
 	int dummy;
 	bool redirected;
 
-#if 0
 	if (NULL != (pic = font->GetChar (character, normalcolor, &dummy, &redirected)))
 	{
 		DrawParms parms;
@@ -101,11 +101,9 @@ void DrawChar (F2DDrawer* drawer, FFont *font, int normalcolor, double x, double
 			return;
 		}
 		PalEntry color = 0xffffffff;
-		parms.remap = redirected? nullptr : font->GetColorTranslation((EColorRange)normalcolor, &color);
 		parms.color = PalEntry((color.a * parms.color.a) / 255, (color.r * parms.color.r) / 255, (color.g * parms.color.g) / 255, (color.b * parms.color.b) / 255);
 		drawer->AddTexture(pic, parms);
 	}
-#endif
 }
 
 //==========================================================================
@@ -122,7 +120,6 @@ EColorRange V_ParseFontColor(const char32_t *&color_value, int normalcolor, int 
 template<class chartype>
 void DrawTextCommon(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, const chartype *string, DrawParms &parms)
 {
-#if 0
 	int 		w;
 	const chartype *ch;
 	int 		c;
@@ -186,7 +183,6 @@ void DrawTextCommon(F2DDrawer* drawer, FFont *font, int normalcolor, double x, d
 		bool redirected = false;
 		if (NULL != (pic = font->GetChar(c, currentcolor, &w, &redirected)))
 		{
-			parms.remap = redirected? nullptr : range;
 			SetTextureParms(&parms, pic, cx, cy);
 			if (parms.cellx)
 			{
@@ -211,9 +207,7 @@ void DrawTextCommon(F2DDrawer* drawer, FFont *font, int normalcolor, double x, d
 		{
 			cx += (parms.spacing) * parms.scalex;
 		}
-
 	}
-#endif
 }
 
 void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, const char *string, int tag_first, ...)
