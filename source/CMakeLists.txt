@@ -636,6 +636,7 @@ file( GLOB HEADER_FILES
 	mact/include/*.h
 	mact/src/*.h
 	common/*.h
+	common/2d/*.h
 	common/utility/*.h
 	common/console/*.h
 
@@ -788,6 +789,11 @@ set (PCH_SOURCES
 	common/rts.cpp
 	common/gameconfigfile.cpp
 	common/gamecvars.cpp
+
+	common/2d/v_2ddrawer.cpp
+	common/2d/v_draw.cpp
+	common/2d/v_drawtext.cpp
+	common/2d/renderstyle.cpp
 	
 	common/console/c_cvars.cpp
 	
