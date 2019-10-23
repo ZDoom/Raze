@@ -397,8 +397,6 @@ CVARD(Bool, r_voxels, true, CVAR_ARCHIVE, "enable/disable automatic sprite->voxe
 // These have to wait until the HUD code is cleaned up (no idea which may survive and which won't.)
 /*
 
-	{ "hud_messages", "enable/disable showing messages", (void*)&gMessageState, CVAR_BOOL, 0, 1 },
-	{ "hud_powerupduration", "enable/disable displaying the remaining seconds for power-ups", (void*)&gPowerupDuration, CVAR_BOOL, 0, 1 },
 
 	// Currently unavailable due to dependency on an obsolete OpenGL feature
 	{ "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },

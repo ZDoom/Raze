@@ -62,7 +62,6 @@ extern int32_t gAutoRun;
 extern int32_t gFollowMap;
 extern int32_t gOverlayMap;
 extern int32_t gRotateMap;
-extern int32_t gMessageState;
 extern int32_t gMessageCount;
 extern int32_t gMessageTime;
 extern int32_t gMessageFont;
@@ -74,7 +73,6 @@ extern bool gInfiniteAmmo;
 extern bool gFullMap;
 extern hashtable_t h_gamefuncs;
 extern int32_t gUpscaleFactor;
-extern int32_t gPowerupDuration;
 extern int32_t gDeliriumBlur;
 
 ///////

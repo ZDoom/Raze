@@ -42,6 +42,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "view.h"
 
+EXTERN_CVAR(Bool, hud_messages)
+EXTERN_CVAR(Bool, hud_powerupduration)
+
 BEGIN_BLD_NS
 
 void SaveGame(CGameMenuItemZEditBitmap *, CGameMenuEvent *);
@@ -415,9 +418,9 @@ CGameMenuItemChain itemOptionsDisplayMode("VIDEO MODE", 3, 66, 70, 180, 0, &menu
 CGameMenuItemZBool itemOptionsDisplayBoolCrosshair("CROSSHAIR:", 3, 66, 80, 180, cl_crosshair, SetCrosshair, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolCenterHoriz("CENTER HORIZON LINE:", 3, 66, 90, 180, r_horizcenter, SetCenterHoriz, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolLevelStats("LEVEL STATS:", 3, 66, 100, 180, hud_stats, SetLevelStats, NULL, NULL);
-CGameMenuItemZBool itemOptionsDisplayBoolPowerupDuration("POWERUP DURATION:", 3, 66, 110, 180, gPowerupDuration, SetPowerupDuration, NULL, NULL);
+CGameMenuItemZBool itemOptionsDisplayBoolPowerupDuration("POWERUP DURATION:", 3, 66, 110, 180, hud_powerupduration, SetPowerupDuration, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolShowMapTitle("MAP TITLE:", 3, 66, 120, 180, hud_showmapname, SetShowMapTitle, NULL, NULL);
-CGameMenuItemZBool itemOptionsDisplayBoolMessages("MESSAGES:", 3, 66, 130, 180, gMessageState, SetMessages, NULL, NULL);
+CGameMenuItemZBool itemOptionsDisplayBoolMessages("MESSAGES:", 3, 66, 130, 180, hud_messages, SetMessages, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayBoolWidescreen("WIDESCREEN:", 3, 66, 140, 180, r_usenewaspect, SetWidescreen, NULL, NULL);
 CGameMenuItemSlider itemOptionsDisplayFOV("FOV:", 3, 66, 150, 180, &r_fov.Value, 75, 140, 5, SetFOV, -1, -1, kMenuSliderValue);
 #ifdef USE_OPENGL
@@ -1143,9 +1146,9 @@ void SetupOptionsMenu(void)
     itemOptionsDisplayBoolCrosshair.at20 = cl_crosshair;
     itemOptionsDisplayBoolCenterHoriz.at20 = r_horizcenter;
 	itemOptionsDisplayBoolLevelStats.at20 = hud_stats;
-    itemOptionsDisplayBoolPowerupDuration.at20 = gPowerupDuration;
+    itemOptionsDisplayBoolPowerupDuration.at20 = hud_powerupduration;
     itemOptionsDisplayBoolShowMapTitle.at20 = hud_showmapname;
-    itemOptionsDisplayBoolMessages.at20 = gMessageState;
+    itemOptionsDisplayBoolMessages.at20 = hud_messages;
     itemOptionsDisplayBoolWidescreen.at20 = r_usenewaspect;
 
     menuOptionsDisplayMode.Add(&itemOptionsDisplayModeTitle, false);
@@ -1441,8 +1444,7 @@ void SetCDVol(CGameMenuItemSlider *pItem)
 
 void SetMessages(CGameMenuItemZBool *pItem)
 {
-    gMessageState = pItem->at20;
-    gGameMessageMgr.SetState(gMessageState);
+    hud_messages = pItem->at20;
 }
 
 void SetMouseSensitivity(CGameMenuItemSliderFloat *pItem)
@@ -1477,7 +1479,7 @@ void SetLevelStats(CGameMenuItemZBool *pItem)
 
 void SetPowerupDuration(CGameMenuItemZBool* pItem)
 {
-    gPowerupDuration = pItem->at20;
+    hud_powerupduration = pItem->at20;
 }
 
 void SetShowMapTitle(CGameMenuItemZBool* pItem)

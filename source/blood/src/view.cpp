@@ -61,6 +61,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "warp.h"
 #include "weapon.h"
 
+CUSTOM_CVARD(Bool, hud_messages, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable showing messages")
+{
+    Blood::gGameMessageMgr.SetState(self);
+}
+
+CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable displaying the remaining seconds for power-ups")
+
+
 BEGIN_BLD_NS
 
 struct VIEW {
@@ -1224,7 +1232,7 @@ void sortPowerUps(POWERUPDISPLAY* powerups) {
 
 void viewDrawPowerUps(PLAYER* pPlayer)
 {
-    if (!gPowerupDuration)
+    if (!hud_powerupduration)
         return;
 
     // NoOne to author: the following powerups can be safely added in this list:
@@ -1750,7 +1758,7 @@ void viewInit(void)
 #endif
     uint8_t *data = tileAllocTile(4077, kLensSize, kLensSize, 0, 0);
     memset(data, 255, kLensSize*kLensSize);
-    gGameMessageMgr.SetState(gMessageState);
+    gGameMessageMgr.SetState(hud_messages);
     gGameMessageMgr.SetCoordinates(1, 1);
     char nFont;
     if (gMessageFont == 0)

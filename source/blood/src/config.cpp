@@ -82,7 +82,6 @@ int32_t gAutoRun;
 int32_t gFollowMap;
 int32_t gOverlayMap;
 int32_t gRotateMap;
-int32_t gMessageState;
 int32_t gMessageCount;
 int32_t gMessageTime;
 int32_t gMessageFont;
@@ -93,7 +92,6 @@ bool gNoClip;
 bool gInfiniteAmmo;
 bool gFullMap;
 int32_t gUpscaleFactor;
-int32_t gPowerupDuration;
 int32_t gDeliriumBlur;
 
 //////////
@@ -283,7 +281,6 @@ void CONFIG_SetDefaults(void)
     //ud.default_skill          = 1;
     gUpscaleFactor = 0;
     //ud.display_bonus_screen   = 1;
-    gPowerupDuration = 1;
     //ud.lockout                = 0;
     //ud.m_marker               = 1;
     //ud.maxautosaves           = 5;
@@ -314,7 +311,6 @@ void CONFIG_SetDefaults(void)
     gOverlayMap = 0;
     gRotateMap = 0;
 
-    gMessageState = 1;
     gMessageCount = 4;
     gMessageTime = 5;
     gMessageFont = 0;
