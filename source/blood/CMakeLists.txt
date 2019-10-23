@@ -87,7 +87,6 @@ set( PCH_SOURCES
 	src/loadsave.cpp
 	src/map2d.cpp
 	src/menu.cpp
-	src/menus.cpp
 	src/messages.cpp
 	src/mirrors.cpp
 	src/misc.cpp
