@@ -4,6 +4,7 @@
 #include "baselayer.h"
 #include "gameconfigfile.h"
 #include "control.h"
+#include "_control.h"
 
 /* Notes
  
@@ -257,6 +258,14 @@ CUSTOM_CVARD(Bool, in_mousesmoothing, false, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "en
 	CONTROL_SmoothMouse = self;
 }
 
+CUSTOM_CVARD(Float, in_mousesensitivity, DEFAULTMOUSESENSITIVITY, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
+{
+	if (self < 0) self = 0;
+	else if (self > 25) self = 25;
+	else CONTROL_MouseSensitivity = self;
+}
+
+
 CUSTOM_CVARD(Int, r_drawweapon, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable weapon drawing")
 {
 	if (self < 0 || self > 2) self = 1;
@@ -323,19 +332,48 @@ int G_FPSLimit(void)
     return 0;
 }
 
+CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE|CVAR_NOINITCALL|CVAR_FRONTEND_DUKELIKE, "sets weapon autoselection order")
+{
+	char dest[11];
+	char const *c = self;
+	if (*c)
+	{
+		int j = 0;
+
+		while (*c && j < 10)
+		{
+			dest[j] = *c - '0';
+			c++;
+			j++;
+		}
+
+		while (j < 10)
+		{
+			if (j == 9)
+				dest[9] = 1;
+			else
+				dest[j] = 2;
+
+			j++;
+		}
+		// if (!gi->SetWeaponChoice(dest)) OSD_Printf("Weapon ordering not supported\n");
+	}
+	else
+	{
+		OSD_Printf("Using default weapon orders.\n");
+		self = "3457860291";
+	}
+
+
 
 #if 0
 
 // DN3D
     static osdcvardata_t cvars_game[] =
     {
-         { "sensitivity","changes the mouse sensitivity", (void *)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
 
-        { "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
 
-        { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
-        { "wchoice","sets weapon autoselection order", (void *)ud.wchoice, CVAR_STRING|CVAR_FUNCPTR, 0, MAX_WEAPONS },
     };
 
 // These I don't care about.
@@ -369,5 +407,9 @@ int G_FPSLimit(void)
 	// This option is not really useful anymore
 	{ "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
 
-*/
+	// This requires a different approach, because it got used like a CCMD, not a CVAR.
+	{ "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
+
+	// requires cleanup first
+	//{ "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 #endif

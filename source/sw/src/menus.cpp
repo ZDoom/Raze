@@ -3615,7 +3615,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         slidersettings[sldr_mouse] = offset;
 
         gs.MouseSpeed = offset * (MOUSE_SENS_MAX_VALUE/SLDR_MOUSESENSEMAX);
-        CONTROL_MouseSensitivity = float(gs.MouseSpeed); // [JM] Will need to verify this. !CHECKME!
+        in_mousesensitivity = float(gs.MouseSpeed); // [JM] Will need to verify this. !CHECKME!
         break;
 
     case sldr_sndfxvolume:

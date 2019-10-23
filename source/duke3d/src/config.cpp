@@ -295,8 +295,6 @@ void CONFIG_SetDefaults(void)
     memset(ud.config.JoystickFunctions, -1, sizeof(ud.config.JoystickFunctions));
     memset(ud.config.JoystickDigitalFunctions, -1, sizeof(ud.config.JoystickDigitalFunctions));
 
-    CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
-
     for (int i=0; i<MAXMOUSEBUTTONS; i++)
     {
         ud.config.MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);

@@ -37,7 +37,6 @@ int32_t g_noSound = 0;
 int32_t g_noMusic = 0;
 const char *CommandMap = NULL;
 const char *CommandName = NULL;
-int32_t g_forceWeaponChoice = 0;
 int32_t g_fakeMultiMode = 0;
 
 void G_ShowParameterHelp(void)
@@ -160,17 +159,9 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
     ud.warp_on = 0;
     ud.cashman = 0;
     ud.m_player_skill = ud.player_skill = 2;
-    g_player[0].wchoice[0] = 3;
-    g_player[0].wchoice[1] = 4;
-    g_player[0].wchoice[2] = 5;
-    g_player[0].wchoice[3] = 7;
-    g_player[0].wchoice[4] = 8;
-    g_player[0].wchoice[5] = 6;
-    g_player[0].wchoice[6] = 0;
-    g_player[0].wchoice[7] = 2;
-    g_player[0].wchoice[8] = 9;
-    g_player[0].wchoice[9] = 1;
-    Bsprintf(ud.wchoice, "3457860291");
+	memcpy(g_player[0].wchoice, "\3\4\5\7\0x8\6\0\2\0x9\1", 10);
+   	wchoice.Callback();
+
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
     // pre-form the default 10 clipmaps
@@ -664,52 +655,6 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     initprintf("Respawn on.\n");
                     break;
                 case 'u':
-                    g_forceWeaponChoice = 1;
-                    c++;
-                    j = 0;
-                    if (*c)
-                    {
-                        initprintf("Using favorite weapon order(s).\n");
-                        while (*c)
-                        {
-                            g_player[0].wchoice[j] = *c-'0';
-                            ud.wchoice[j] = *c;
-                            c++;
-                            j++;
-                        }
-
-                        while (j < 10)
-                        {
-                            if (j == 9)
-                            {
-                                g_player[0].wchoice[9] = 1;
-                                ud.wchoice[9] = '1';
-                            }
-                            else
-                            {
-                                g_player[0].wchoice[j] = 2;
-                                ud.wchoice[j] = '2';
-                            }
-
-                            j++;
-                        }
-                    }
-                    else
-                    {
-                        initprintf("Using default weapon orders.\n");
-                        g_player[0].wchoice[0] = 3;
-                        g_player[0].wchoice[1] = 4;
-                        g_player[0].wchoice[2] = 5;
-                        g_player[0].wchoice[3] = 7;
-                        g_player[0].wchoice[4] = 8;
-                        g_player[0].wchoice[5] = 6;
-                        g_player[0].wchoice[6] = 0;
-                        g_player[0].wchoice[7] = 2;
-                        g_player[0].wchoice[8] = 9;
-                        g_player[0].wchoice[9] = 1;
-
-                        Bsprintf(ud.wchoice, "3457860291");
-                    }
                     break;
                 case 'v':
                     c++;

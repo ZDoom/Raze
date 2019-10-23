@@ -1242,13 +1242,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
     {
         videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
     }
-    else if (!Bstrcasecmp(parm->name, "skill"))
-    {
-        if (numplayers > 1)
-            return r;
-
-        ud.player_skill = ud.m_player_skill;
-    }
     else if (!Bstrcasecmp(parm->name, "color"))
     {
         ud.color = G_CheckPlayerColor(ud.color);
@@ -1261,55 +1254,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
         if (xdim && ydim)
             OSD_ResizeDisplay(xdim, ydim);
     }
-    else if (!Bstrcasecmp(parm->name, "wchoice"))
-    {
-        if (parm->numparms == 1)
-        {
-            if (g_forceWeaponChoice) // rewrite ud.wchoice because osdcmd_cvar_set already changed it
-            {
-                int j = 0;
-
-                while (j < 10)
-                {
-                    ud.wchoice[j] = g_player[myconnectindex].wchoice[j] + '0';
-                    j++;
-                }
-
-                ud.wchoice[j] = 0;
-            }
-            else
-            {
-                char const *c = parm->parms[0];
-
-                if (*c)
-                {
-                    int j = 0;
-
-                    while (*c && j < 10)
-                    {
-                        g_player[myconnectindex].wchoice[j] = *c - '0';
-                        c++;
-                        j++;
-                    }
-
-                    while (j < 10)
-                    {
-                        if (j == 9)
-                            g_player[myconnectindex].wchoice[9] = 1;
-                        else
-                            g_player[myconnectindex].wchoice[j] = 2;
-
-                        j++;
-                    }
-                }
-            }
-
-            g_forceWeaponChoice = 0;
-        }
-
-        /*    Net_SendClientInfo();*/
-    }
-
     return r;
 }
 

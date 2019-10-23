@@ -38,7 +38,6 @@ extern int32_t g_noSound;
 extern int32_t g_noMusic;
 extern const char *CommandMap;
 extern const char *CommandName;
-extern int32_t g_forceWeaponChoice;
 extern int32_t g_fakeMultiMode;
 
 END_RR_NS

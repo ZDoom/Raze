@@ -337,8 +337,6 @@ void CONFIG_SetDefaults(void)
         ud.config.MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
         CONTROL_MapAnalogAxis(i, ud.config.MouseAnalogueAxes[i], controldevice_mouse);
     }
-    CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
-
     memset(ud.config.JoystickFunctions, -1, sizeof(ud.config.JoystickFunctions));
     for (i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
@@ -467,7 +465,7 @@ void CONFIG_SetupMouse(void)
     {
         tempbuf[0] = 0;
         SCRIPT_GetString(ud.config.scripthandle, "Controls","Mouse_Sensitivity",&tempbuf[0]);
-        if (tempbuf[0]) CONTROL_MouseSensitivity = atof(tempbuf);
+        if (tempbuf[0]) in_mousesensitivity = atof(tempbuf);
     }
 
     for (i=0; i<MAXMOUSEBUTTONS; i++)

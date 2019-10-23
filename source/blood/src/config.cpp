@@ -346,9 +346,6 @@ void CONFIG_SetDefaults(void)
     memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
     memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
     memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
-
-    CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
-
     for (int i=0; i<MAXMOUSEBUTTONS; i++)
     {
         MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);

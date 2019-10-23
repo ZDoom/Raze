@@ -251,7 +251,6 @@ typedef struct {
     char pwlockout[MAXPWLOCKOUT],rtsname[MAXRTSNAME];
     char display_bonus_screen;
     char show_level_text;
-    char wchoice[MAX_WEAPONS];
 
     uint8_t user_map;
     uint8_t screenfade, menubackground;
