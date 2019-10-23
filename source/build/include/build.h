@@ -30,6 +30,7 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 #include "vfs.h"
 #include "cache1d.h"
 #include "textures.h"
+#include "c_cvars.h"
 
 enum rendmode_t {
     REND_CLASSIC,
@@ -850,11 +851,10 @@ extern float debug1, debug2;
 #endif
 
 extern int16_t tiletovox[MAXTILES];
-extern int32_t usevoxels, voxscale[MAXVOXELS];
+extern int32_t voxscale[MAXVOXELS];
 extern char g_haveVoxels;
 
 #ifdef USE_OPENGL
-extern int32_t usemodels, usehightile;
 extern int32_t rendmode;
 #endif
 extern uint8_t globalr, globalg, globalb;
@@ -1290,9 +1290,6 @@ enum cutsceneflags {
 extern int32_t benchmarkScreenshot;
 
 #ifdef USE_OPENGL
-extern int32_t glanisotropy;
-extern int32_t gltexfiltermode;
-extern int32_t r_useindexedcolortextures;
 
 enum {
     TEXFILTER_OFF = 0, // GL_NEAREST
@@ -1305,17 +1302,20 @@ extern int32_t gltexmaxsize;
 void gltexapplyprops (void);
 void texcache_invalidate(void);
 
-# ifdef USE_GLEXT
-extern int32_t r_detailmapping;
-extern int32_t r_glowmapping;
-# endif
+EXTERN_CVAR(Bool, hw_detailmapping)
+EXTERN_CVAR(Bool, hw_glowmapping)
+EXTERN_CVAR(Bool, hw_animsmoothing)
+EXTERN_CVAR(Bool, hw_hightile)
+EXTERN_CVAR(Bool, hw_models)
+EXTERN_CVAR(Float, hw_shadescale)
+EXTERN_CVAR(Int, vid_vsync)
+EXTERN_CVAR(Int, hw_anisotropy)
+EXTERN_CVAR(Int, hw_texfilter)
+EXTERN_CVAR(Bool, hw_useindexedcolortextures)
+EXTERN_CVAR(Bool, hw_parallaxskypanning)
+EXTERN_CVAR(Bool, r_voxels)
 
-# ifdef USE_GLEXT
-extern int32_t r_vbocount;
-# endif
-extern int32_t r_animsmoothing;
 extern int32_t r_parallaxskyclamping;
-extern int32_t r_parallaxskypanning;
 extern int32_t r_downsize;
 extern int32_t r_downsizevar;
 extern int32_t mdtims, omdtims;
@@ -1379,9 +1379,9 @@ static FORCE_INLINE bool tilehasmodelorvoxel(int const tilenume, int pal)
     UNREFERENCED_PARAMETER(pal);
     return
 #ifdef USE_OPENGL
-    (videoGetRenderMode() >= REND_POLYMOST && mdinited && usemodels && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
+    (videoGetRenderMode() >= REND_POLYMOST && mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
 #endif
-    (videoGetRenderMode() <= REND_POLYMOST && usevoxels && tiletovox[tilenume] != -1);
+    (videoGetRenderMode() <= REND_POLYMOST && r_voxels && tiletovox[tilenume] != -1);
 }
 
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,

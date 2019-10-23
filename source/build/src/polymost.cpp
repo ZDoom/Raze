@@ -16,20 +16,71 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "textures.h"
 #include "bitmap.h"
 #include "../../glbackend/glbackend.h"
+#include "c_cvars.h"
+#include "gamecvars.h"
 
+CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CVAR(Bool, hw_polygonmode, 0, 0)
+CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model animation smoothing")
+CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
+CVARD(Bool, hw_models, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
+CVARD(Bool, hw_parallaxskypanning, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky")
+//{ "r_projectionhack", "enable/disable projection hack", (void*)&glprojectionhacks, CVAR_INT, 0, 2 }, What is this?
+CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
+CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier for shading")
+CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
+
+CUSTOM_CVAR(Int, vid_vsync, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	static bool recursion;
+	if (!recursion)
+	{
+		recursion = true;
+		self = videoSetVsync(self);
+		recursion = false;
+	}
+}
+
+CUSTOM_CVARD(Int, hw_texfilter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the texture filtering settings")
+{
+	static const char* const glfiltermodes[] =
+	{
+		"NEAREST",
+		"LINEAR",
+		"NEAREST_MIPMAP_NEAREST",
+		"LINEAR_MIPMAP_NEAREST",
+		"NEAREST_MIPMAP_LINEAR",
+		"LINEAR_MIPMAP_LINEAR",
+		"LINEAR_MIPMAP_LINEAR with NEAREST mag"
+	};
+
+	if (self < 0 || self > 6) self = 0;
+	else
+	{
+		gltexapplyprops();
+		OSD_Printf("Texture filtering mode changed to %s\n", glfiltermodes[hw_texfilter]);
+	}
+}
+
+CUSTOM_CVARD(Int, hw_anisotropy, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the OpenGL texture anisotropy setting")
+{
+	gltexapplyprops();
+}
+
+
+//{ "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_BOOL, 0, 1 }, disabled because not fully functional 
+
+// For testing - will be removed later.
+CVAR(Int, skytile, 0, 0)
 
 extern char textfont[2048], smalltextfont[2048];
 
 bool playing_rr;
 bool playing_blood;
 
-int skytile;
 
 int32_t rendmode=0;
-int32_t usemodels=1;
-int32_t usehightile=1;
-
-int fixpalette = 0, fixpalswap = 0;
 
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 2048 //<- careful!
@@ -53,9 +104,6 @@ static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define SCISDIST 1.f  //close plane clipping distance
 
 #define SOFTROTMAT 0
-
-float shadescale = 1.0f;
-int32_t shadescale_unbounded = 0;
 
 int32_t r_pogoDebug = 0;
 int32_t polymostcenterhoriz = 100;
@@ -81,34 +129,16 @@ int psectnum, pwallnum, pbottomwall, pisbottomwall, psearchstat;
 static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 #define MAX_DRAWPOLY_VERTS 8
 
-struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
-{
-    {"NEAREST"},
-    {"LINEAR"},
-    {"NEAREST_MIPMAP_NEAREST"},
-    {"LINEAR_MIPMAP_NEAREST"},
-    {"NEAREST_MIPMAP_LINEAR"},
-    {"LINEAR_MIPMAP_LINEAR"}
-};
-
-int32_t glanisotropy = 0;            // 0 = maximum supported by card
-int32_t gltexfiltermode = TEXFILTER_OFF;
-
-int32_t r_polygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 static int32_t lastglpolygonmode = 0; //FUK
 
 #ifdef USE_GLEXT
 int32_t glmultisample = 0, glnvmultisamplehint = 0;
-int32_t r_detailmapping = 1;
-int32_t r_glowmapping = 1;
 #endif
 
 int32_t glprojectionhacks = 2;
 static FHardwareTexture *polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
-int32_t r_shadeinterpolate = 1;
 
-int32_t r_animsmoothing = 1;
 int32_t r_downsize = 0;
 int32_t r_downsizevar = -1;
 int32_t r_scenebrightness = 0;
@@ -121,8 +151,6 @@ int32_t r_yshearing = 0;
 
 // used for fogcalc
 static float fogresult, fogresult2;
-
-int32_t r_useindexedcolortextures = -1;
 
 static inline float float_trans(uint32_t maskprops, uint8_t blend)
 {
@@ -140,7 +168,6 @@ char ptempbuf[MAXWALLSB<<1];
 
 // polymost ART sky control
 int32_t r_parallaxskyclamping = 1;
-int32_t r_parallaxskypanning = 1;
 
 #define MIN_CACHETIME_PRINT 10
 
@@ -166,11 +193,11 @@ void gltexapplyprops(void)
 
 	if (GLInterface.glinfo.maxanisotropy > 1.f)
 	{
-		if (glanisotropy <= 0 || glanisotropy > GLInterface.glinfo.maxanisotropy)
-			glanisotropy = (int32_t)GLInterface.glinfo.maxanisotropy;
+		if (hw_anisotropy <= 0 || hw_anisotropy > GLInterface.glinfo.maxanisotropy)
+			hw_anisotropy = (int32_t)GLInterface.glinfo.maxanisotropy;
 	}
 
-	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
+	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
 	// do not force switch indexed textures with the filter. 
 }
 
@@ -308,12 +335,12 @@ static float get_projhack_ratio(void)
 static void resizeglcheck(void)
 {
     //FUK
-    if (lastglpolygonmode != r_polygonmode)
+    if (lastglpolygonmode != hw_polygonmode)
     {
-        lastglpolygonmode = r_polygonmode;
-		GLInterface.SetWireframe(r_polygonmode == 1);
+        lastglpolygonmode = hw_polygonmode;
+		GLInterface.SetWireframe(hw_polygonmode == 1);
     }
-    if (r_polygonmode) //FUK
+    if (hw_polygonmode) //FUK
     {
 		GLInterface.ClearScreen(1, 1, 1, true);
     }
@@ -403,7 +430,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
 
 	auto tex = TileFiles.tiles[wall->picnum];
 	auto si = tex->FindReplacement(wall->pal);
-	if (si && usehightile) tex = si->faces[0];
+	if (si && hw_hightile) tex = si->faces[0];
 	if (tex->Get8BitPixels()) return false;
 	return tex && tex->GetTranslucency();
 }
@@ -416,7 +443,7 @@ int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr)
 
 	auto tex = TileFiles.tiles[tspr->picnum];
 	auto si = tex->FindReplacement(tspr->shade, 0);
-	if (si && usehightile) tex = si->faces[0];
+	if (si && hw_hightile) tex = si->faces[0];
 	if (tex->Get8BitPixels()) return false;
 	return tex && tex->GetTranslucency();
 }
@@ -2017,7 +2044,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     xtex.u = otex.d * (t * double(((uint64_t)xdimscale * yxaspect) * viewingrange)) *
                         (1.0 / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
     ytex.v = vv[1];
-    otex.v = r_parallaxskypanning ? vv[0] + dd*(float)global_cf_ypanning*(float)ti*(1.f/256.f) : vv[0];
+    otex.v = hw_parallaxskypanning ? vv[0] + dd*(float)global_cf_ypanning*(float)ti*(1.f/256.f) : vv[0];
 
     float x0 = xys[0].x, x1 = xys[0].x;
 
@@ -2028,7 +2055,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     }
 
     int const npot = (1<<(picsiz[globalpicnum]&15)) != tilesiz.x;
-    int const xpanning = (r_parallaxskypanning?global_cf_xpanning:0);
+    int const xpanning = (hw_parallaxskypanning?global_cf_xpanning:0);
 
 	GLInterface.SetClamp((npot || xpanning != 0) ? 0 : 2);
 
@@ -2322,7 +2349,7 @@ static void polymost_drawalls(int32_t const bunch)
 
             skyzbufferhack = 1;
 
-            //if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
+            //if (!hw_hightile || !hicfindskybox(globalpicnum, globalpal))
             {
                 float const ghorizbak = ghoriz;
 				pow2xsplit = 0;
@@ -2580,7 +2607,7 @@ static void polymost_drawalls(int32_t const bunch)
 
             skyzbufferhack = 1;
 
-			//if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
+			//if (!hw_hightile || !hicfindskybox(globalpicnum, globalpal))
 			{
 				float const ghorizbak = ghoriz;
 				pow2xsplit = 0;
@@ -3046,11 +3073,11 @@ void polymost_scansector(int32_t sectnum)
             vec2_t const s = { spr->x-globalposx, spr->y-globalposy };
 
             if ((spr->cstat&48) ||
-                (usemodels && tile2model[spr->picnum].modelid>=0) ||
+                (hw_models && tile2model[spr->picnum].modelid>=0) ||
                 ((s.x * gcosang) + (s.y * gsinang) > 0))
             {
                 if ((spr->cstat&(64+48))!=(64+16) ||
-                    (usevoxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
+                    (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
                     dmulscale6(sintable[(spr->ang+512)&2047],-s.x, sintable[spr->ang&2047],-s.y) > 0)
                     if (renderAddTsprite(z, sectnum))
                         break;
@@ -3319,7 +3346,7 @@ void polymost_drawrooms()
     ghoriz = fix16_to_float(qglobalhoriz);
     ghorizcorrect = fix16_to_float((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
 
-    GLInterface.SetShadeInterpolate(r_shadeinterpolate);
+    GLInterface.SetShadeInterpolate(hw_shadeinterpolate);
 
     //global cos/sin height angle
     if (r_yshearing)
@@ -3945,7 +3972,7 @@ void polymost_drawsprite(int32_t snum)
 
     if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
     {
-        int const flag = usehightile && h_xsize[globalpicnum];
+        int const flag = hw_hightile && h_xsize[globalpicnum];
         off = { (int32_t)tspr->xoffset + (flag ? h_xoffs[globalpicnum] : picanm[globalpicnum].xofs),
                 (int32_t)tspr->yoffset + (flag ? h_yoffs[globalpicnum] : picanm[globalpicnum].yofs) };
     }
@@ -3964,14 +3991,14 @@ void polymost_drawsprite(int32_t snum)
 
     while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
     {
-        if (usemodels && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
+        if (hw_models && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
             tile2model[Ptile2tile(tspr->picnum, tspr->pal)].framenum >= 0)
         {
             if (polymost_mddraw(tspr)) return;
             break;  // else, render as flat sprite
         }
 
-        if (usevoxels && (tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
+        if (r_voxels && (tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
         {
             if (polymost_voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
             break;  // else, render as flat sprite
@@ -4002,7 +4029,7 @@ void polymost_drawsprite(int32_t snum)
     vec2_16_t const oldsiz = tilesiz[globalpicnum];
     vec2_t tsiz = { oldsiz.x, oldsiz.y };
 
-    if (usehightile && h_xsize[globalpicnum])
+    if (hw_hightile && h_xsize[globalpicnum])
         tsiz = { h_xsize[globalpicnum], h_ysize[globalpicnum] };
 
     if (tsiz.x <= 0 || tsiz.y <= 0)
@@ -4723,7 +4750,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                              int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                              int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
 {
-    if (usemodels && tile2model[picnum].hudmem[(dastat&4)>>2])
+    if (hw_models && tile2model[picnum].hudmem[(dastat&4)>>2])
     {
         polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, uniqid);
         return;
@@ -5346,229 +5373,10 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     return 0;
 }
 
-// This is for testing the shade map calculator needed for true color shading.
-void palookupinfo()
-{
-	auto pal = basepaltable[0];
-	int black = -1, white = -1;
 
-	int brightness = 0;
-	int brightest = -1, darkest = -1;
-	int brightlum = 0, darklum = 255;
-	for (int i = 0; i < 765; i += 3)
-	{
-		if (pal[i] == 0 && pal[i + 1] == 0 && pal[i + 2] == 0) black = i;
-		if (pal[i] == 255 && pal[i + 1] == 255 && pal[i + 2] == 255) white = i/3;
-		int lumi = Luminance(pal[i], pal[i + 1], pal[i + 2]);
-		brightness += lumi;
-		if (lumi < darklum)
-		{
-			darklum = lumi;
-			darkest = i;
-		}
-		if (lumi > brightlum)
-		{
-			brightlum = lumi;
-			brightest = i;
-		}
-	}
-	brightness /= 255;
-	OSD_Printf("Black at index %d, white at index %d, avg. luminance %d\n", black, white, brightness);
-	if (black == -1)
-	{
-		OSD_Printf("No black found - using nearest color %02x %02x %02x\n", pal[darkest], pal[darkest + 1], pal[darkest + 2]);
-		black = darkest;
-	}
-	if (white == -1)
-	{
-		OSD_Printf("No white found - using nearest color %02x %02x %02x\n", pal[brightest], pal[brightest + 1], pal[brightest + 2]);
-		white = brightest;
-	}
-
-
-	for (int i = 0; i < 256; i++)
-	{
-		if (palookup[i] == nullptr || (i > 0 && palookup[i] == palookup[0]))
-		{
-			// Either the same as the base of not present.
-			continue;
-		}
-		OSD_Printf("palookup[%d]:\n", i);
-
-		float lum0 = 0;
-		TArray<PalEntry> blacks, whites;
-		TArray<float> abslum, rellum, fadelum;
-		for (int j = 0; j < numshades - 1; j++)	// do not count the last one, it doesn't look correct in most lookups - this value needs to be extrapolated from the rest.
-		{
-			int map = palookup[i][j * 256 + black] * 3;
-			PalEntry blackmap(pal[map], pal[map + 1], pal[map + 2]);
-			map = palookup[i][j * 256 + white] * 3;
-			PalEntry whitemap(pal[map], pal[map + 1], pal[map + 2]);
-
-			blacks.Push(blackmap);
-			whites.Push(whitemap);
-
-			float mylum = 0;
-			int palcnt = 0;
-			for (int k = 0; k < 255; k++)
-			{
-				if (!IsPaletteIndexFullbright(i))
-				{
-					map = palookup[i][j * 256 + k] * 3;
-					mylum += Luminance(pal[map], pal[map + 1], pal[map + 2]);
-					palcnt++;
-				}
-			}
-			mylum /= 255 * palcnt;
-			if (j == 0)
-			{
-				lum0 = mylum;
-				if (lum0 == 0) lum0 = 1;	// for always-black palettes.
-			}
-			abslum.Push(mylum);
-			rellum.Push(mylum / lum0);
-			fadelum.Push((mylum - blackmap.Luminance() / 255.f) / lum0);
-		}
-		TArray<float> interlum;
-		auto lastblack = blacks.Last();
-		auto& array = (lastblack.r < 6 && lastblack.g < 6 && lastblack.b < 6) ? rellum : fadelum;
-		float range = array[0] - array.Last();
-		for (int i = 0; i < numshades - 1; i++)
-		{
-			float interval = array[0] - i * range / (numshades-2);
-			interlum.Push(interval);
-		}
-		OSD_Printf("    fades to %02x %02x %02x\n", lastblack.r, lastblack.g, lastblack.b);
-		for (int i = 0; i < numshades - 1; i++)
-		{
-			OSD_Printf("        Shade %d: relative luminance = %2.4f, interpolated luminance: %2.4f\n", i, array[i], interlum[i]);
-		}
-		OSD_Printf("-------------------------\n");
-	}
-}
-
-// Console commands by JBF
-static int32_t gltexturemode(osdcmdptr_t parm)
-{
-    int32_t m;
-    char *p;
-
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("Current texturing mode is %s\n", glfiltermodes[gltexfiltermode].name);
-        OSD_Printf("  Vaild modes are:\n");
-        for (m = 0; m < NUMGLFILTERMODES; m++)
-            OSD_Printf("     %d - %s\n", m, glfiltermodes[m].name);
-
-        return OSDCMD_OK;
-    }
-
-    m = Bstrtoul(parm->parms[0], &p, 10);
-    if (p == parm->parms[0])
-    {
-        // string
-        for (m = 0; m < NUMGLFILTERMODES; m++)
-        {
-            if (!Bstrcasecmp(parm->parms[0], glfiltermodes[m].name))
-                break;
-        }
-
-        if (m == NUMGLFILTERMODES)
-            m = gltexfiltermode;   // no change
-    }
-    else
-    {
-        m = clamp(m, 0, NUMGLFILTERMODES-1);
-    }
-
-    gltexfiltermode = m;
-    gltexapplyprops();
-
-    OSD_Printf("Texture filtering mode changed to %s\n", glfiltermodes[gltexfiltermode].name);
-
-    return OSDCMD_OK;
-}
-
-static int osdcmd_cvar_set_polymost(osdcmdptr_t parm)
-{
-    int32_t r = osdcmd_cvar_set(parm);
-
-    if (xdim == 0 || ydim == 0 || bpp == 0) // video not set up yet
-    {
-
-        return r;
-    }
-
-    if (r == OSDCMD_OK)
-    {
-		if (!Bstrcasecmp(parm->name, "r_palookupinfo"))
-			palookupinfo();
-
-        else if (!Bstrcasecmp(parm->name, "r_swapinterval"))
-            vsync = videoSetVsync(vsync);
-        else if (!Bstrcasecmp(parm->name, "r_downsize"))
-        {
-            if (r_downsizevar == -1)
-                r_downsizevar = r_downsize;
-
-            if (in3dmode() && r_downsize != r_downsizevar)
-            {
-                videoResetMode();
-                if (videoSetGameMode(fullscreen,xres,yres,bpp,upscalefactor))
-                    OSD_Printf("restartvid: Reset failed...\n");
-            }
-
-            r_downsizevar = r_downsize;
-        }
-        else if (!Bstrcasecmp(parm->name, "r_anisotropy"))
-            gltexapplyprops();
-        else if (!Bstrcasecmp(parm->name, "r_texfilter"))
-            gltexturemode(parm);
-    }
-
-    return r;
-}
-
-int r_palookupinfo;
 
 void polymost_initosdfuncs(void)
 {
-    uint32_t i;
-
-    static osdcvardata_t cvars_polymost[] =
-    {
-#ifdef USE_GLEXT
-        { "r_detailmapping","enable/disable detail mapping",(void *) &r_detailmapping, CVAR_BOOL, 0, 1 },
-        { "r_glowmapping","enable/disable glow mapping",(void *) &r_glowmapping, CVAR_BOOL, 0, 1 },
-#endif
-        { "r_polygonmode","debugging feature",(void *) &r_polygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
-
-        { "r_animsmoothing","enable/disable model animation smoothing",(void *) &r_animsmoothing, CVAR_BOOL, 0, 1 },
-        { "r_anisotropy", "changes the OpenGL texture anisotropy setting", (void *) &glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
-        { "r_hightile","enable/disable hightile texture rendering",(void *) &usehightile, CVAR_BOOL, 0, 1 },
-        { "r_models", "enable/disable model rendering", (void *)&usemodels, CVAR_BOOL, 0, 1 },
-        { "r_nofog", "enable/disable GL fog", (void *)&nofog, CVAR_BOOL, 0, 1},
-        { "r_parallaxskyclamping","enable/disable parallaxed floor/ceiling sky texture clamping", (void *) &r_parallaxskyclamping, CVAR_BOOL, 0, 1 },
-        { "r_parallaxskypanning","enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky", (void *) &r_parallaxskypanning, CVAR_BOOL, 0, 1 },
-        { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 2 },
-        { "r_shadeinterpolate", "enable/disable shade interpolation", (void *) &r_shadeinterpolate, CVAR_BOOL, 0, 1 },
-        { "r_shadescale","multiplier for shading",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
-        { "r_shadescale_unbounded","enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },
-        { "r_swapinterval","sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
-        { "r_texfilter", "changes the texture filtering settings (may require restart)", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
-        { "r_useindexedcolortextures", "enable/disable indexed color texture rendering", (void *) &r_useindexedcolortextures, CVAR_INT, 0, 1 },
-		{ "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_BOOL, 0, 1 },
-
-		// For testing - will be removed later.
-		{ "r_palookupinfo", "", (void*)&r_palookupinfo, CVAR_INT|CVAR_FUNCPTR, 0, 1 },
-		{ "fixpalette", "", (void*)& fixpalette, CVAR_INT, 0, 256 },
-		{ "fixpalswap", "", (void*)& fixpalswap, CVAR_INT, 0, 256 },
-		{ "skytile", "", (void*)&skytile, CVAR_INT, 0, 30720 },
-
-    };
-
-    for (i=0; i<ARRAY_SIZE(cvars_polymost); i++)
-        OSD_RegisterCvar(&cvars_polymost[i], (cvars_polymost[i].flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_polymost : osdcmd_cvar_set);
 }
 
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
@@ -5586,7 +5394,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     GLInterface.SetTexture(dapicnum, TileFiles.tiles[dapicnum], dapalnum, 0, -1);
     hicprecaching = 0;
 
-    if (datype == 0 || !usemodels) return;
+    if (datype == 0 || !hw_models) return;
 
     int const mid = md_tilehasmodel(dapicnum, dapalnum);
 

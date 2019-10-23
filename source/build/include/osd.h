@@ -5,6 +5,7 @@
 #ifndef osd_h_
 #define osd_h_
 
+#include <functional>
 #include "vfs.h"
 
 #include "mutex.h"

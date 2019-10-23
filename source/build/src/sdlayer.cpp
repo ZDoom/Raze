@@ -99,7 +99,6 @@ int32_t lockcount=0;
 char modechange=1;
 char offscreenrendering=0;
 char videomodereset = 0;
-int32_t nofog=0;
 static uint16_t sysgamma[3][256];
 #ifdef USE_OPENGL
 // OpenGL stuff
@@ -541,15 +540,9 @@ int main(int argc, char *argv[])
 
     int32_t r;
 
-#ifdef USE_OPENGL
-    char *argp;
-
-    if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)
-        nofog = Batol(argp);
-
+    
 #ifndef _WIN32
     setenv("__GL_THREADED_OPTIMIZATIONS", "1", 0);
-#endif
 #endif
 
     buildkeytranslationtable();
@@ -753,7 +746,7 @@ void uninitsystem(void)
 //
 void system_getcvars(void)
 {
-    vsync = videoSetVsync(vsync);
+    vid_vsync = videoSetVsync(vid_vsync);
 }
 
 //
@@ -1384,7 +1377,7 @@ void sdlayer_setvideomode_opengl(void)
 	else if (!currentGame.Compare("IonFury")) GLInterface.SetShadeDiv(30);
 	else GLInterface.SetShadeDiv(26);
 
-	GLInterface.mSamplers->SetTextureFilterMode(gltexfiltermode, glanisotropy);
+	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
 
 }
 

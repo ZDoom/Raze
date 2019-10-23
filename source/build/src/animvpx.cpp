@@ -362,7 +362,7 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
 
 	texture = GLInterface.NewTexture();
 
-    if ((animvpx_flags & CUTSCENE_TEXTUREFILTER && gltexfiltermode == TEXFILTER_ON) || animvpx_flags & CUTSCENE_FORCEFILTER ||
+    if ((animvpx_flags & CUTSCENE_TEXTUREFILTER && hw_texfilter == TEXFILTER_ON) || animvpx_flags & CUTSCENE_FORCEFILTER ||
     (!(animvpx_flags & CUTSCENE_TEXTUREFILTER) && !(animvpx_flags & CUTSCENE_FORCENOFILTER))) // if no flags, then use filter for IVFs
     {
 		sampler = SamplerClampXY;

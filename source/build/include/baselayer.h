@@ -21,7 +21,6 @@ extern char quitevent, appactive;
 extern char modechange;
 extern char nogl;
 
-extern int32_t vsync;
 extern int32_t swapcomplete;
 extern int32_t r_borderless;
 extern int32_t r_displayindex;
@@ -34,7 +33,6 @@ extern uint32_t r_screenxy;
 extern int32_t xres, yres, bpp, fullscreen, bytesperline, refreshfreq;
 extern intptr_t frameplace;
 extern char offscreenrendering;
-extern int32_t nofog;
 
 void calc_ylookup(int32_t bpl, int32_t lastyidx);
 

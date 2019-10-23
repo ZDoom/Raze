@@ -533,7 +533,7 @@ void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         OSD_Printf("1: c > n\n");
 #endif
 
-    int32_t const smoothdurationp = (r_animsmoothing && (tile2model[tile].smoothduration != 0));
+    int32_t const smoothdurationp = (hw_animsmoothing && (tile2model[tile].smoothduration != 0));
     spritesmooth_t * const smooth = &spritesmooth[((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? tspr->owner : MAXSPRITES+MAXUNIQHUDID-1];
     spriteext_t * const sprext = &spriteext[((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? tspr->owner : MAXSPRITES+MAXUNIQHUDID-1];
 
@@ -630,7 +630,7 @@ void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         { if (i > j-65536) i = j-65536; }
     else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
 
-    if (r_animsmoothing && smooth->mdsmooth)
+    if (hw_animsmoothing && smooth->mdsmooth)
     {
         m->nframe = anim ? anim->startframe : smooth->mdcurframe;
         m->cframe = smooth->mdoldframe;
@@ -665,7 +665,7 @@ void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
 #endif
         m->nframe = m->cframe+1;
 
-        if (anim && m->nframe > anim->endframe)  // VERIFY: (!(r_animsmoothing && smooth->mdsmooth)) implies (anim!=NULL) ?
+        if (anim && m->nframe > anim->endframe)  // VERIFY: (!(hw_animsmoothing && smooth->mdsmooth)) implies (anim!=NULL) ?
             m->nframe = anim->startframe;
 
         smooth->mdoldframe = m->cframe;
@@ -1617,7 +1617,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 	GLInterface.SetCull(Cull_Back, winding);
 
     // tinting
-    pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
+    pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * hw_shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
 	auto h = hictinting[globalpal];
 	GLInterface.SetTinting(h.f, PalEntry(h.sr, h.sg, h.sb), PalEntry(h.r, h.g, h.b));
 
@@ -1740,14 +1740,14 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 		// The data lookup here is one incredible mess. Thanks to whoever cooked this up... :(
         if (!(tspr->extra&TSPR_EXTRA_MDHACK))
         {
-			det = tex = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi, nullptr) : nullptr;
+			det = tex = hw_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi, nullptr) : nullptr;
 			if (det)
 			{
                 for (auto sk = m->skinmap; sk; sk = sk->next)
                     if ((int32_t) sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum && sk->surfnum == surfi)
                         detscale = sk->param;
 			}
-			glow = r_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi, nullptr) : 0;
+			glow = hw_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi, nullptr) : 0;
 		}
 		GLInterface.SetModelTexture(tex, globalpal, xpanning, ypanning, det, detscale, glow);
 

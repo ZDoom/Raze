@@ -41,9 +41,9 @@
 #include "bitmap.h"
 #include "../../glbackend/glbackend.h"
 
-// External CVARs.
-extern int r_detailmapping, r_glowmapping, usehightile, r_useindexedcolortextures;
-extern int fixpalette, fixpalswap;
+// Test CVARs.
+CVAR(Int, fixpalette, 0, 0)
+CVAR(Int, fixpalswap, 0, 0)
 
 
 template<class T>
@@ -165,12 +165,12 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	GLInterface.SetPalette(usepalette);
 	GLInterface.SetPalswap(usepalswap);
 
-	TextureType = r_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
+	TextureType = hw_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
 
 	int lookuppal = 0;
 	VSMatrix texmat;
 
-	auto rep = usehightile? tex->FindReplacement(palette) : nullptr;
+	auto rep = hw_hightile? tex->FindReplacement(palette) : nullptr;
 	if (rep)
 	{
 		// Hightile replacements have only one texture representation and it is always the base.
@@ -180,7 +180,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	else
 	{
 		// Only look up the palette if we really want to use it (i.e. when creating a true color texture of an ART tile.)
-		if (!r_useindexedcolortextures) lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false);
+		if (!hw_useindexedcolortextures) lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false);
 	}
 
 	// Load the main texture
@@ -206,7 +206,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 		}
 
 		// Also load additional layers needed for this texture.
-		if (r_detailmapping && usehightile)
+		if (hw_detailmapping && hw_hightile)
 		{
 			float detscalex = detscale, detscaley = detscale;
 			if (!(method & DAMETH_MODEL))
@@ -237,7 +237,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				if (MatrixChange & 2) GLInterface.SetMatrix(Matrix_Detail, &texmat);
 			}
 		}
-		if (r_glowmapping && usehightile)
+		if (hw_glowmapping && hw_hightile)
 		{
 			if (!(method & DAMETH_MODEL))
 			{

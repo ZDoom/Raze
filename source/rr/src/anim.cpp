@@ -449,7 +449,7 @@ int32_t Anim_Play(const char *fn)
 // ANM playback --- v v v ---
 
 #ifdef USE_OPENGL
-    int32_t ogltexfiltermode = gltexfiltermode;
+    int32_t ogltexfiltermode = hw_texfilter;
 #endif
 	auto fr = kopenFileReader(fn, 0);
 
@@ -579,7 +579,7 @@ int32_t Anim_Play(const char *fn)
 
 end_anim_restore_gl:
 #ifdef USE_OPENGL
-    gltexfiltermode = ogltexfiltermode;
+    hw_texfilter = ogltexfiltermode;
     gltexapplyprops();
 #endif
 end_anim:

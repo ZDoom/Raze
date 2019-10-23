@@ -1799,7 +1799,7 @@ static void G_DrawTileScaled(int drawX, int drawY, int tileNum, int drawShade, i
 #endif
 
 #ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(tileNum,drawPal) >= 0)
+    if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(tileNum,drawPal) >= 0)
         drawYOffset += (224<<16)-weapsc(224<<16);
 #endif
     rotatesprite(weapsc(drawX<<16) + (drawXOffset-weapsc(drawXOffset)),
@@ -1831,7 +1831,7 @@ static void G_DrawWeaponTile(int weaponX, int weaponY, int weaponTile, int weapo
     {
         if (weaponTile >= CHAINGUN + 1 && weaponTile <= CHAINGUN + 4)
         {
-            if (!usemodels || md_tilehasmodel(weaponTile, weaponPal) < 0)
+            if (!hw_models || md_tilehasmodel(weaponTile, weaponPal) < 0)
             {
                 // HACK: Draw the upper part of the chaingun two screen
                 // pixels (not texels; multiplied by weapon scale) lower

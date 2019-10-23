@@ -4788,7 +4788,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
                 continue;
             case CHAIR3__STATIC:
 #ifdef USE_OPENGL
-                if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     t->cstat &= ~4;
                     break;
@@ -5098,7 +5098,7 @@ default_case1:
                 else if (sprite[pSprite->owner].picnum == MAMA)
                 {
 #ifdef USE_OPENGL
-                    if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0 &&
+                    if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0 &&
                         !(spriteext[i].flags & SPREXT_NOTMD))
                     {
                         int32_t v = getangle(t->xvel, t->zvel >> 4);
@@ -5117,7 +5117,7 @@ default_case1:
         case EMPTYBIKE__STATICRR:
             if (!RRRA) goto default_case2;
 #ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -5129,7 +5129,7 @@ default_case1:
         case EMPTYBOAT__STATICRR:
             if (!RRRA) goto default_case2;
 #ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -5140,7 +5140,7 @@ default_case1:
             break;
         case RPG__STATIC:
 #ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
+            if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
                     !(spriteext[i].flags & SPREXT_NOTMD))
             {
                 int32_t v = getangle(t->xvel, t->zvel>>4);
@@ -5156,7 +5156,7 @@ default_case1:
         case RPG2__STATICRR:
             if (!RRRA) goto default_case2;
 #ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
+            if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
                     !(spriteext[i].flags & SPREXT_NOTMD))
             {
                 int32_t v = getangle(t->xvel, t->zvel>>4);
@@ -5172,7 +5172,7 @@ default_case1:
 
         case RECON__STATIC:
 #ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -5198,7 +5198,7 @@ default_case1:
                 g_player[playerNum].ps->q16ang
                 + mulscale16((((g_player[playerNum].ps->q16ang + 1024 - g_player[playerNum].ps->oq16ang) & 2047) - 1024), smoothratio));
 #ifdef USE_OPENGL
-                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
+                if (bpp > 8 && hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
                 {
                     static int32_t targetang = 0;
 
@@ -5295,7 +5295,7 @@ default_case1:
             if (pSprite->owner == -1)
             {
 #ifdef USE_OPENGL
-                if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     frameOffset = 0;
                     t->cstat &= ~4;
@@ -5349,7 +5349,7 @@ default_case1:
                         }
 
 #ifdef USE_OPENGL
-                        if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                        if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                         {
                             frameOffset = 0;
                             t->cstat &= ~4;
@@ -5391,7 +5391,7 @@ PALONLY:
                     scrofs_action = 0;
                     curframe = 0;
 #ifdef USE_OPENGL
-                    if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                    if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                     {
                         frameOffset = 0;
                         t->cstat &= ~4;
@@ -5418,7 +5418,7 @@ PALONLY:
                     scrofs_action = 0;
                     curframe = 0;
 #ifdef USE_OPENGL
-                    if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                    if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                     {
                         frameOffset = 0;
                         t->cstat &= ~4;
@@ -5537,7 +5537,7 @@ default_case2:
             l = klabs(l);
 
 #ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 frameOffset = 0;
                 t->cstat &= ~4;
@@ -5676,7 +5676,7 @@ skip:
 #ifdef USE_OPENGL
                         if (videoGetRenderMode() >= REND_POLYMOST)
                         {
-                            if (usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
+                            if (hw_models && md_tilehasmodel(t->picnum,t->pal) >= 0)
                             {
                                 tsprShadow->yrepeat = 0;
                                 // 512:trans reverse
@@ -5859,7 +5859,7 @@ rrcoolexplosion1:
             break;
         case PLAYERONWATER__STATIC:
 #ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 frameOffset = 0;
                 t->cstat &= ~4;
@@ -5920,7 +5920,7 @@ rrcoolexplosion1:
         case CAMERA1__STATIC:
         case RAT__STATIC:
 #ifdef USE_OPENGL
-            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;

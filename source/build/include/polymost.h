@@ -21,12 +21,6 @@ extern float gcosang, gsinang, gcosang2, gsinang2;
 extern float gchang, gshang, gctang, gstang;
 extern float gvrcorrection;
 
-struct glfiltermodes {
-    const char *name;
-};
-#define NUMGLFILTERMODES 6
-extern struct glfiltermodes glfiltermodes[NUMGLFILTERMODES];
-
 extern void Polymost_prepare_loadboard(void);
 
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...);
@@ -63,8 +57,6 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
 extern float curpolygonoffset;
 
-extern float shadescale;
-extern int32_t shadescale_unbounded;
 extern uint8_t alphahackarray[MAXTILES];
 
 extern int32_t r_scenebrightness;

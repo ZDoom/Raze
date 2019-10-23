@@ -1546,7 +1546,7 @@ void SetVideoMode(CGameMenuItemChain *pItem)
     UNREFERENCED_PARAMETER(pItem);
     resolution_t p = { xres, yres, fullscreen, bpp, 0 };
     int32_t prend = videoGetRenderMode();
-    int32_t pvsync = vsync;
+    int32_t pvsync = vid_vsync;
 
     int32_t nResolution = itemOptionsDisplayModeResolution.m_nFocus;
     resolution_t n = { gResolution[nResolution].xdim, gResolution[nResolution].ydim,
@@ -1565,13 +1565,13 @@ void SetVideoMode(CGameMenuItemChain *pItem)
         else
         {
             onvideomodechange(p.bppmax > 8);
-            vsync = videoSetVsync(pvsync);
+            vid_vsync = videoSetVsync(pvsync);
         }
     }
     else onvideomodechange(n.bppmax > 8);
 
     viewResizeView(gViewSize);
-    vsync = videoSetVsync(nvsync);
+    vid_vsync = videoSetVsync(nvsync);
     gSetup.fullscreen = fullscreen;
     gSetup.xdim = xres;
     gSetup.ydim = yres;
@@ -1612,7 +1612,7 @@ void SetupVideoModeMenu(CGameMenuItemChain *pItem)
 #endif
     for (int i = 0; i < 3; i++)
     {
-        if (vsync == nVSyncValues[i])
+        if (vid_vsync == nVSyncValues[i])
         {
             itemOptionsDisplayModeVSync.m_nFocus = i;
             break;
@@ -1667,7 +1667,7 @@ void SetupVideoPolymostMenu(CGameMenuItemChain *pItem)
     itemOptionsDisplayPolymostTextureMode.m_nFocus = 0;
     for (int i = 0; i < 2; i++)
     {
-        if (nTextureModeValues[i] == gltexfiltermode)
+        if (nTextureModeValues[i] == hw_texfilter)
         {
             itemOptionsDisplayPolymostTextureMode.m_nFocus = i;
             break;
@@ -1676,36 +1676,36 @@ void SetupVideoPolymostMenu(CGameMenuItemChain *pItem)
     itemOptionsDisplayPolymostAnisotropy.m_nFocus = 0;
     for (int i = 0; i < 6; i++)
     {
-        if (nAnisotropyValues[i] == glanisotropy)
+        if (nAnisotropyValues[i] == hw_anisotropy)
         {
             itemOptionsDisplayPolymostAnisotropy.m_nFocus = i;
             break;
         }
     }
-    itemOptionsDisplayPolymostTrueColorTextures.at20 = usehightile;
+    itemOptionsDisplayPolymostTrueColorTextures.at20 = hw_hightile;
     itemOptionsDisplayPolymostTexQuality.m_nFocus = r_downsize;
     itemOptionsDisplayPolymostPreloadCache.at20 = r_precache;
-    itemOptionsDisplayPolymostDetailTex.at20 = r_detailmapping;
-    itemOptionsDisplayPolymostGlowTex.at20 = r_glowmapping;
-    itemOptionsDisplayPolymost3DModels.at20 = usemodels;
+    itemOptionsDisplayPolymostDetailTex.at20 = hw_detailmapping;
+    itemOptionsDisplayPolymostGlowTex.at20 = hw_glowmapping;
+    itemOptionsDisplayPolymost3DModels.at20 = hw_models;
     itemOptionsDisplayPolymostDeliriumBlur.at20 = gDeliriumBlur;
 }
 
 void UpdateTextureMode(CGameMenuItemZCycle *pItem)
 {
-    gltexfiltermode = nTextureModeValues[pItem->m_nFocus];
+    hw_texfilter = nTextureModeValues[pItem->m_nFocus];
     gltexapplyprops();
 }
 
 void UpdateAnisotropy(CGameMenuItemZCycle *pItem)
 {
-    glanisotropy = nAnisotropyValues[pItem->m_nFocus];
+    hw_anisotropy = nAnisotropyValues[pItem->m_nFocus];
     gltexapplyprops();
 }
 
 void UpdateTrueColorTextures(CGameMenuItemZBool *pItem)
 {
-    usehightile = pItem->at20;
+    hw_hightile = pItem->at20;
 }
 #endif
 
@@ -1732,17 +1732,17 @@ void UpdatePreloadCache(CGameMenuItemZBool *pItem)
 
 void UpdateDetailTex(CGameMenuItemZBool *pItem)
 {
-    r_detailmapping = pItem->at20;
+    hw_detailmapping = pItem->at20;
 }
 
 void UpdateGlowTex(CGameMenuItemZBool *pItem)
 {
-    r_glowmapping = pItem->at20;
+    hw_glowmapping = pItem->at20;
 }
 
 void Update3DModels(CGameMenuItemZBool *pItem)
 {
-    usemodels = pItem->at20;
+    hw_models = pItem->at20;
 }
 
 void UpdateDeliriumBlur(CGameMenuItemZBool *pItem)
@@ -1753,13 +1753,13 @@ void UpdateDeliriumBlur(CGameMenuItemZBool *pItem)
 void PreDrawDisplayPolymost(CGameMenuItem *pItem)
 {
     if (pItem == &itemOptionsDisplayPolymostTexQuality)
-        pItem->bEnable = usehightile;
+        pItem->bEnable = hw_hightile;
     else if (pItem == &itemOptionsDisplayPolymostPreloadCache)
-        pItem->bEnable = usehightile;
+        pItem->bEnable = hw_hightile;
     else if (pItem == &itemOptionsDisplayPolymostDetailTex)
-        pItem->bEnable = usehightile;
+        pItem->bEnable = hw_hightile;
     else if (pItem == &itemOptionsDisplayPolymostGlowTex)
-        pItem->bEnable = usehightile;
+        pItem->bEnable = hw_hightile;
 }
 #endif
 

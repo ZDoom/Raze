@@ -96,7 +96,6 @@ static TArray<TArray<uint8_t>> voxelmemory;
 
 void (*loadvoxel_replace)(int32_t voxindex) = NULL;
 int16_t tiletovox[MAXTILES];
-int32_t usevoxels = 1;
 #ifdef USE_OPENGL
 static char *voxfilenames[MAXVOXELS];
 #endif
@@ -5176,7 +5175,7 @@ static void classicDrawSprite(int32_t snum)
 
     if ((cstat&48)==48)
         vtilenum = tilenum; // if the game wants voxels, it gets voxels
-    else if ((cstat & 48) != 32 && usevoxels && tiletovox[tilenum] != -1 && spritenum != -1 && !(spriteext[spritenum].flags&SPREXT_NOTMD))
+    else if ((cstat & 48) != 32 && r_voxels && tiletovox[tilenum] != -1 && spritenum != -1 && !(spriteext[spritenum].flags&SPREXT_NOTMD))
     {
         vtilenum = tiletovox[tilenum];
         cstat |= 48;
@@ -8876,7 +8875,7 @@ void renderDrawMasks(void)
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
 #ifdef USE_OPENGL
-        const int32_t modelp = (usemodels && tile2model[tspriteptr[i]->picnum].modelid >= 0);
+        const int32_t modelp = (hw_models && tile2model[tspriteptr[i]->picnum].modelid >= 0);
 #endif
 
         if (yp > (4<<8))

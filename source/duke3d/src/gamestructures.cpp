@@ -1281,9 +1281,9 @@ const memberlabel_t UserdefsLabels[]=
     { "m_origin_y",             USERDEFS_M_ORIGIN_Y,             0, 0, -1 },
     { "playerbest",             USERDEFS_PLAYERBEST,             0, 0, -1 },
     { "musictoggle",            USERDEFS_MUSICTOGGLE,            0, 0, -1 },
-    { "usevoxels",              USERDEFS_USEVOXELS,              0, 0, -1 },
-    { "usehightile",            USERDEFS_USEHIGHTILE,            0, 0, -1 },
-    { "usemodels",              USERDEFS_USEMODELS,              0, 0, -1 },
+    { "r_voxels",              USERDEF_USEVOXELS,              0, 0, -1 },
+    { "hw_hightile",            USERDEFS_USEHIGHTILE,            0, 0, -1 },
+    { "hw_models",              USERDEFS_USEMODELS,              0, 0, -1 },
     { "gametypeflags",          USERDEFS_GAMETYPEFLAGS,          0, 0, -1 },
     { "m_gametypeflags",        USERDEFS_M_GAMETYPEFLAGS,        0, 0, -1 },
     { "globalflags",            USERDEFS_GLOBALFLAGS,            0, 0, -1 },
@@ -1475,18 +1475,10 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_M_ORIGIN_X:             labelNum = ud.returnvar[0];                 break;
         case USERDEFS_M_ORIGIN_Y:             labelNum = ud.returnvar[1];                 break;
         case USERDEFS_PLAYERBEST:             labelNum = ud.playerbest;                   break;
-        case USERDEFS_MUSICTOGGLE:            labelNum = mus_enabled;           break;
-        case USERDEFS_USEVOXELS:              labelNum = usevoxels;                       break;
-        case USERDEFS_USEHIGHTILE:
-#ifdef USE_OPENGL
-                                              labelNum = usehightile;                     break;
-#endif
-        case USERDEFS_USEMODELS:
-#ifdef USE_OPENGL
-                                              labelNum = usemodels;                       break;
-#else
-                                              labelNum = 0;                               break;
-#endif
+        case USERDEFS_MUSICTOGGLE:            labelNum = mus_enabled;		              break;
+        case USERDEF_USEVOXELS:              labelNum = r_voxels;                        break;
+        case USERDEFS_USEHIGHTILE:            labelNum = hw_hightile;                     break;
+        case USERDEFS_USEMODELS:              labelNum = hw_models;                       break;
         case USERDEFS_GAMETYPEFLAGS:          labelNum = g_gametypeFlags[ud.coop];        break;
         case USERDEFS_M_GAMETYPEFLAGS:        labelNum = g_gametypeFlags[ud.m_coop];      break;
         case USERDEFS_GLOBALFLAGS:            labelNum = globalflags;                     break;
@@ -1504,7 +1496,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_SCREENAREA_Y2:          labelNum = ud.returnvar[2];                 break;
         case USERDEFS_SCREENFADE:             labelNum = ud.screenfade;                   break;
         case USERDEFS_MENUBACKGROUND:         labelNum = ud.menubackground;               break;
-        case USERDEFS_STATUSBARFLAGS:         labelNum = 0/*ud.statusbarflags*/;          break;
+        case USERDEFS_STATUSBARFLAGS:         labelNum = ud.statusbarflags;               break;
         case USERDEFS_STATUSBARRANGE:         labelNum = ud.statusbarrange;               break;
         case USERDEFS_STATUSBARCUSTOM:        labelNum = hud_custom;              break;
         case USERDEFS_HUDONTOP:               labelNum = ud.hudontop;                     break;

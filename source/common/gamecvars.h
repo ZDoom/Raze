@@ -64,6 +64,8 @@ EXTERN_CVAR(Float, r_ambientlight)
 EXTERN_CVAR(Bool, r_shadows)
 EXTERN_CVAR(Bool, r_rotatespritenowidescreen)
 EXTERN_CVAR(Bool, r_precache)
+EXTERN_CVAR(Bool, r_voxels)
+
 
 EXTERN_CVAR(Bool, in_joystick)
 EXTERN_CVAR(Bool, in_mouse)

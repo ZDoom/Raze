@@ -4786,7 +4786,7 @@ unsigned char palette_data[256][3];     // Global palette array
 
 // V E R T I C A L   R E T R A C E   V A R I A B L E S //////////////////////////////////////////
 
-#define VGA_INPUT_STATUS_1      0x3DA   // VGA status register 1, bit 3 is the vsync
+#define VGA_INPUT_STATUS_1      0x3DA   // VGA status register 1, bit 3 is the vid_vsync
 // 1 = retrace in progress
 // 0 = no retrace
 #define VGA_VSYNC_MASK          0x08    // Masks off unwanted bits of status register.
@@ -4805,7 +4805,7 @@ WaitForVsync(void)
     while (inp(VGA_INPUT_STATUS_1) & VGA_VSYNC_MASK) ;
     // Retrace in progress, wait.
 
-    // Wait for vsync, and exit.
+    // Wait for vid_vsync, and exit.
     while (!inp(VGA_INPUT_STATUS_1) & VGA_VSYNC_MASK) ;
 }
 
