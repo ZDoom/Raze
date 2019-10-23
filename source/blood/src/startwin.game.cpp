@@ -183,41 +183,6 @@ static void PopulateForm(int32_t pgs)
         }
     }
 
-    if (pgs & POPULATE_CONFIG)
-    {
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.shared.forcesetup ? BST_CHECKED : BST_UNCHECKED));
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCAUTOLOAD), (!(settings.shared.noautoload) ? BST_CHECKED : BST_UNCHECKED));
-
-        HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCINPUT);
-
-        (void)ComboBox_ResetContent(hwnd);
-        (void)ComboBox_SetCurSel(hwnd, 0);
-
-        int j = 4;
-
-#ifdef RENDERTYPEWIN
-        if (di_disabled) j = 2;
-#endif
-
-        for (int i=0; i<j; i++)
-        {
-            (void)ComboBox_InsertString(hwnd, i, controlstrings[i]);
-            (void)ComboBox_SetItemData(hwnd, i, i);
-
-            switch (i)
-            {
-            case INPUT_MOUSE:
-                if (settings.shared.usemouse && !settings.shared.usejoystick)(void)ComboBox_SetCurSel(hwnd, i);
-                break;
-            case INPUT_JOYSTICK:
-                if (!settings.shared.usemouse && settings.shared.usejoystick)(void)ComboBox_SetCurSel(hwnd, i);
-                break;
-            case INPUT_ALL:
-                if (settings.shared.usemouse && settings.shared.usejoystick)(void)ComboBox_SetCurSel(hwnd, i);
-                break;
-            }
-        }
-    }
 
     if (pgs & POPULATE_GAME)
     {
@@ -271,33 +236,6 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             return TRUE;
         case IDCAUTOLOAD:
             settings.shared.noautoload = (IsDlgButtonChecked(hwndDlg, IDCAUTOLOAD) != BST_CHECKED);
-            return TRUE;
-        case IDCINPUT:
-            if (HIWORD(wParam) == CBN_SELCHANGE)
-            {
-                int i = ComboBox_GetCurSel((HWND)lParam);
-                if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
-                if (i != CB_ERR)
-                {
-                    switch (i)
-                    {
-                    case INPUT_KB:
-                        settings.shared.usemouse = settings.shared.usejoystick = 0;
-                        break;
-                    case INPUT_MOUSE:
-                        settings.shared.usemouse = 1;
-                        settings.shared.usejoystick = 0;
-                        break;
-                    case INPUT_JOYSTICK:
-                        settings.shared.usemouse = 0;
-                        settings.shared.usejoystick = 1;
-                        break;
-                    case INPUT_ALL:
-                        settings.shared.usemouse = settings.shared.usejoystick = 1;
-                        break;
-                    }
-                }
-            }
             return TRUE;
 
         case IDCGAMEDIR:

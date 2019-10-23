@@ -1850,7 +1850,7 @@ RESTART:
         {
             gGameMenuMgr.Process();
             G_HandleAsync();
-            if (viewFPSLimit())
+            if (G_FPSLimit())
             {
                 videoClearScreen(0);
                 gGameMenuMgr.Draw();

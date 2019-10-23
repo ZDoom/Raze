@@ -3,6 +3,7 @@
 #include "fx_man.h"
 #include "baselayer.h"
 #include "gameconfigfile.h"
+#include "keyboard.h"
 #include "control.h"
 #include "_control.h"
 
@@ -332,10 +333,10 @@ int G_FPSLimit(void)
     return 0;
 }
 
-CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE|CVAR_NOINITCALL|CVAR_FRONTEND_DUKELIKE, "sets weapon autoselection order")
+CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_FRONTEND_DUKELIKE, "sets weapon autoselection order")
 {
 	char dest[11];
-	char const *c = self;
+	char const* c = self;
 	if (*c)
 	{
 		int j = 0;
@@ -363,7 +364,7 @@ CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE|CVAR_NOINITCALL|CVAR_FR
 		OSD_Printf("Using default weapon orders.\n");
 		self = "3457860291";
 	}
-
+}
 
 
 #if 0

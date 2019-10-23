@@ -1184,8 +1184,6 @@ void SetupOptionsMenu(void)
 #endif
     menuOptionsDisplayMode.Add(&itemOptionsDisplayModeFullscreen, false);
     menuOptionsDisplayMode.Add(&itemOptionsDisplayModeVSync, false);
-    menuOptionsDisplayMode.Add(&itemOptionsDisplayModeFrameLimit, false);
-    menuOptionsDisplayMode.Add(&itemOptionsDisplayModeFPSOffset, false);
     menuOptionsDisplayMode.Add(&itemOptionsDisplayModeApply, false);
     menuOptionsDisplayMode.Add(&itemBloodQAV, false);
 
@@ -1193,7 +1191,6 @@ void SetupOptionsMenu(void)
     itemOptionsDisplayModeRenderer.pPreDrawCallback = PreDrawVideoModeMenu;
 #endif
     itemOptionsDisplayModeFullscreen.pPreDrawCallback = PreDrawVideoModeMenu;
-    itemOptionsDisplayModeFPSOffset.pPreDrawCallback = PreDrawVideoModeMenu;
 
     menuOptionsDisplayColor.Add(&itemOptionsDisplayColorTitle, false);
     menuOptionsDisplayColor.Add(&itemOptionsDisplayColorGamma, true);

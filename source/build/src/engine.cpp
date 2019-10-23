@@ -23,6 +23,7 @@
 #include "pragmas.h"
 #include "scriptfile.h"
 #include "softsurface.h"
+#include "gamecvars.h"
 
 #ifdef USE_OPENGL
 # include "glsurface.h"

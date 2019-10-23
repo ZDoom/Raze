@@ -69,7 +69,6 @@ extern int32_t gMessageFont;
 extern int32_t gbAdultContent;
 extern char gzAdultPassword[9];
 extern int32_t gMouseSensitivity;
-extern int32_t in_mouseflip;
 extern bool gNoClip;
 extern bool gInfiniteAmmo;
 extern bool gFullMap;
