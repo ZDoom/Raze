@@ -416,7 +416,7 @@ void PreloadCache(void)
 				tileLoad(i);
 
 #ifdef USE_OPENGL
-            if (useprecache) PrecacheHardwareTextures(i);
+            if (r_precache) PrecacheHardwareTextures(i);
 #endif
 
             MUSIC_Update();

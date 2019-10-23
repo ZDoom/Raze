@@ -618,7 +618,7 @@ void G_CacheMapData(void)
 				tileLoad(i);
 
 #ifdef USE_OPENGL
-			if (ud.config.useprecache) PrecacheHardwareTextures(i);
+			if (r_precache) PrecacheHardwareTextures(i);
 #endif
 			j++;
             pc++;

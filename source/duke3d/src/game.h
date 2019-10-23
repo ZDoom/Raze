@@ -240,7 +240,6 @@ typedef struct {
 
         int32_t CheckForUpdates;
         int32_t LastUpdateCheck;
-        int32_t useprecache;
     } config;
 
     ud_setup_t setup;

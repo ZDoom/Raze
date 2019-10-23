@@ -73,7 +73,6 @@ int32_t mus_restartonload;
 int32_t configversion;
 int32_t CheckForUpdates;
 int32_t LastUpdateCheck;
-int32_t useprecache;
 char CommbatMacro[MAXRIDECULE][MAXRIDECULELENGTH];
 char szPlayerName[MAXPLAYERNAME];
 int32_t gTurnSpeed;
@@ -279,7 +278,6 @@ void CONFIG_SetDefaults(void)
     gBrightness = 8;
     //ud.config.ShowWeapons     = 0;
 
-    useprecache     = 1;
     configversion          = 0;
     //ud.crosshair              = 1;
     //ud.default_skill          = 1;

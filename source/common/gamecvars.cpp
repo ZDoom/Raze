@@ -230,6 +230,7 @@ CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCAL
 	CONTROL_MouseEnabled = (self && CONTROL_MousePresent);
 }
 
+// Does it even make sense to have this configurable? It is in the menu but can be switched around at will by the mouse input code.
 int32_t g_MyAimMode = 1;
 CUSTOM_CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
 {
@@ -284,18 +285,20 @@ CVARD(Bool, r_shadows, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable spr
 
 // Gross hack stuff. Only settable from the command line
 CVARD(Bool, r_rotatespritenowidescreen, false, CVAR_NOSET, "pass bit 1024 to all CON rotatesprite calls")
+CVARD(Bool, r_precache, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable the pre-level caching routine")
+
+CUSTOM_CVAR(Int, r_maxfps, 200, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "limit the frame rate")
+{
+	if (self < 30) self = 30;
+	else if (self > 1000) self = 1000;
+}
 
 #if 0
 
 // DN3D
     static osdcvardata_t cvars_game[] =
     {
-        { "r_precache", "enable/disable the pre-level caching routine", (void *)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
-	{ "r_precache", "enable/disable the pre-level caching routine", (void *)&useprecache, CVAR_BOOL, 0, 1 },
-
-
         { "r_maxfps", "limit the frame rate",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
-	{ "r_maxfps", "limit the frame rate",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
 		{ "r_maxfpsoffset", "menu-controlled offset for r_maxfps",(void *)&r_maxfpsoffset, CVAR_INT|CVAR_FUNCPTR, -10, 10 },
 	{ "r_maxfpsoffset", "menu-controlled offset for r_maxfps",(void *)&r_maxfpsoffset, CVAR_INT|CVAR_FUNCPTR, -10, 10 },
 

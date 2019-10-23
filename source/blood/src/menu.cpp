@@ -1712,7 +1712,7 @@ void SetupVideoPolymostMenu(CGameMenuItemChain *pItem)
     }
     itemOptionsDisplayPolymostTrueColorTextures.at20 = usehightile;
     itemOptionsDisplayPolymostTexQuality.m_nFocus = r_downsize;
-    itemOptionsDisplayPolymostPreloadCache.at20 = useprecache;
+    itemOptionsDisplayPolymostPreloadCache.at20 = r_precache;
     itemOptionsDisplayPolymostDetailTex.at20 = r_detailmapping;
     itemOptionsDisplayPolymostGlowTex.at20 = r_glowmapping;
     itemOptionsDisplayPolymost3DModels.at20 = usemodels;
@@ -1755,7 +1755,7 @@ void UpdateTexQuality(CGameMenuItemZCycle *pItem)
 
 void UpdatePreloadCache(CGameMenuItemZBool *pItem)
 {
-    useprecache = pItem->at20;
+    r_precache = pItem->at20;
 }
 
 void UpdateDetailTex(CGameMenuItemZBool *pItem)

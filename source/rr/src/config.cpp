@@ -211,8 +211,6 @@ void CONFIG_SetDefaults(void)
 #else
     ud.setup.bpp = 8;
 #endif
-    ud.config.useprecache = 1;
-    in_mousebias = 0;
     g_player[0].ps->aim_mode = 1;
     ud.config.ShowOpponentWeapons = 0;
     ud.althud = 1;
@@ -224,7 +222,6 @@ void CONFIG_SetDefaults(void)
 
     ud.color = 0;
     ud.detail = 0;
-    r_drawweapon = 1;
     ud.lockout = 0;
     ud.m_ffire = 1;
     ud.m_marker = 1;
@@ -240,14 +237,12 @@ void CONFIG_SetDefaults(void)
     ud.statusbarmode = 1;
     ud.statusbarscale = 100;
     ud.team = 0;
-    cl_weaponswitch = 3;	// new+empty
     ud.angleinterpolation = 0;
 
     ud.setup.forcesetup = 1;
     ud.setup.noautoload = 1;
     ud.setup.fullscreen = 1;
 
-    snd_speech = 5; // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
     ud.display_bonus_screen = 1;
     ud.show_level_text = 1;
     ud.configversion = 0;

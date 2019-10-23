@@ -637,7 +637,7 @@ void DoTheCache(void)
 			if (videoGetRenderMode() < REND_POLYMOST)
 				tileLoad(i);
 #ifdef USE_OPENGL
-			/*if (useprecache)*/ PrecacheHardwareTextures(i);
+			if (r_precache) PrecacheHardwareTextures(i);
 #endif
 
 			cnt++;

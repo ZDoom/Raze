@@ -240,8 +240,6 @@ void CONFIG_SetDefaults(void)
     ud.color                  = 0;
     ud.config.CheckForUpdates = 1;
     ud.config.ShowWeapons     = 0;
-    in_mousesmoothing     = 1;
-    ud.config.useprecache     = 1;
     ud.configversion          = 0;
     ud.default_skill          = 1;
     ud.detail                 = 0;
