@@ -775,7 +775,9 @@ void Resource::Read(DICTNODE *n, void *p)
                 swapFrame.at6_3 = bitReader.readBit();
                 swapFrame.at6_4 = bitReader.readBit();
                 swapFrame.tile2 = bitReader.readUnsigned(4);
-                swapFrame.pad = bitReader.readUnsigned(7);
+                swapFrame.soundRange = bitReader.readUnsigned(4);
+                swapFrame.surfaceSound = bitReader.readBit();
+                swapFrame.reserved = bitReader.readUnsigned(2);
                 *pFrame = swapFrame;
             }
         }
