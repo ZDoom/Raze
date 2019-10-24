@@ -115,10 +115,13 @@ void S_MusicStartup(void)
 {
     initprintf("Initializing MIDI driver... ");
 
-    if (MUSIC_Init(ud.config.MusicDevice) == MUSIC_Ok || MUSIC_Init(0) == MUSIC_Ok || MUSIC_Init(1) == MUSIC_Ok)
+    if (MUSIC_Init(ud.config.MusicDevice) != MUSIC_Ok && MUSIC_Init(0) != MUSIC_Ok && MUSIC_Init(1) != MUSIC_Ok)
     {
-        MUSIC_SetVolume(mus_volume);
+        initprintf("S_MusicStartup(): failed initializing\n");
+        return;
+    }
 
+        MUSIC_SetVolume(mus_volume);
         auto const fil = kopen4load("d3dtimbr.tmb", 0);
 
         if (fil != buildvfs_kfd_invalid)
@@ -130,11 +133,6 @@ void S_MusicStartup(void)
             Xfree(tmb);
             kclose(fil);
         }
-
-        return;
-    }
-
-    initprintf("S_MusicStartup(): failed initializing\n");
 }
 
 void S_MusicShutdown(void)
