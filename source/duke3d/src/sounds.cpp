@@ -67,9 +67,10 @@ void S_SoundStartup(void)
 
     initprintf("Initializing sound... ");
 
-    if (FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata) != FX_Ok)
+    int status = FX_Init(ud.config.NumVoices, ud.config.NumChannels, ud.config.MixRate, initdata);
+    if (status != FX_Ok)
     {
-        initprintf("failed! %s\n", FX_ErrorString(FX_Error));
+        initprintf("failed! %s\n", FX_ErrorString(status));
         return;
     }
 
@@ -104,9 +105,10 @@ void S_SoundShutdown(void)
     if (MusicVoice >= 0)
         S_MusicShutdown();
 
-    if (FX_Shutdown() != FX_Ok)
+    int status = FX_Shutdown();
+    if (status != FX_Ok)
     {
-        Bsprintf(tempbuf, "S_SoundShutdown(): error: %s", FX_ErrorString(FX_Error));
+        Bsprintf(tempbuf, "S_SoundShutdown(): error: %s", FX_ErrorString(status));
         G_GameExit(tempbuf);
     }
 }
@@ -115,9 +117,10 @@ void S_MusicStartup(void)
 {
     initprintf("Initializing MIDI driver... ");
 
-    if (MUSIC_Init(ud.config.MusicDevice) != MUSIC_Ok && MUSIC_Init(0) != MUSIC_Ok && MUSIC_Init(1) != MUSIC_Ok)
+    int status;
+    if ((status = MUSIC_Init(ud.config.MusicDevice)) != MUSIC_Ok && (status = MUSIC_Init(0)) != MUSIC_Ok && (status = MUSIC_Init(1)) != MUSIC_Ok)
     {
-        initprintf("S_MusicStartup(): failed initializing\n");
+        initprintf("S_MusicStartup(): failed initializing: %s\n", MUSIC_ErrorString(status));
         return;
     }
 
@@ -139,8 +142,9 @@ void S_MusicShutdown(void)
 {
     S_StopMusic();
 
-    if (MUSIC_Shutdown() != MUSIC_Ok)
-        initprintf("%s\n", MUSIC_ErrorString(MUSIC_ErrorCode));
+    int status = MUSIC_Shutdown();
+    if (status != MUSIC_Ok)
+        initprintf("S_MusicShutdown(): %s\n", MUSIC_ErrorString(status));
 }
 
 void S_PauseMusic(bool paused)
