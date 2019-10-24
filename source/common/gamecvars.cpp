@@ -154,12 +154,12 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
 	if (self > 255) self = 255;
 }
 
-int MusicDevice = 1;
+int MusicDevice = ASS_WinMM;
 CUSTOM_CVARD(Int, mus_device, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "selects music device")
 {
 	if (self < 0) self = 0;
 	else if (self > 1) self = 1;
-	else MusicDevice = self;	// must be copied because it gets altered by the music code.
+	else MusicDevice = self? ASS_WinMM : ASS_OPL3;	// must be copied because it gets altered by the music code.
 }
 
 

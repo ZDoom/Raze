@@ -712,6 +712,7 @@ set (PCH_SOURCES
 	audiolib/src/driver_adlib.cpp
 	audiolib/src/driver_nosound.cpp
 	audiolib/src/driver_sdl.cpp
+	audiolib/src/driver_winmm.cpp
 	audiolib/src/flac.cpp
 	audiolib/src/formats.cpp
 	audiolib/src/fx_man.cpp
