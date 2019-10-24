@@ -110,7 +110,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (parm->numparms != 1 || wildcardp)
     {
-        CACHE1D_FIND_REC *r;
+        BUILDVFS_FIND_REC *r;
         fnlist_t fnlist = FNLIST_INITIALIZER;
         int32_t maxwidth = 0;
 

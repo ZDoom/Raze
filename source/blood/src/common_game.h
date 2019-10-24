@@ -532,10 +532,10 @@ extern void G_SetupGlobalPsky(void);
 #define G_ModDirSnprintfLite(buf, size, basename) \
     ((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/%s", g_modDir, basename) : Bsnprintf(buf, size, "%s", basename))
 
-static inline void G_HandleAsync(void)
+static inline int gameHandleEvents(void)
 {
-    handleevents();
     netGetPackets();
+    return handleevents();
 }
 
 # define FORMAT_UPGRADE_ELIGIBLE

@@ -643,7 +643,7 @@ void G_LoadGroupsInDir(const char *dirname)
 
     for (auto & extension : extensions)
     {
-        CACHE1D_FIND_REC *rec;
+        BUILDVFS_FIND_REC *rec;
 
         fnlist_getnames(&fnlist, dirname, extension, -1, 0);
 

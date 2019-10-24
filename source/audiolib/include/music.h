@@ -53,7 +53,6 @@ typedef struct
     uint32_t tick;
 } songposition;
 
-
 #define MUSIC_LoopSong ( 1 == 1 )
 #define MUSIC_PlayOnce ( !MUSIC_LoopSong )
 

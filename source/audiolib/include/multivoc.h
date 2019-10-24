@@ -99,9 +99,9 @@ int  MV_GetReverbDelay(void);
 void MV_SetReverbDelay(int delay);
 
 int MV_PlayVOC3D(char *ptr, uint32_t length, int loophow, int pitchoffset, int angle, int distance,
-                 int priority, float volume, uint32_t callbackval);
+                 int priority, float volume, intptr_t callbackval);
 int MV_PlayVOC(char *ptr, uint32_t length, int loopstart, int loopend, int pitchoffset, int vol,
-               int left, int right, int priority, float volume, uint32_t callbackval);
+               int left, int right, int priority, float volume, intptr_t callbackval);
 
 decltype(MV_PlayVOC3D) MV_PlayWAV3D;
 decltype(MV_PlayVOC)   MV_PlayWAV;
@@ -114,12 +114,15 @@ decltype(MV_PlayVOC)   MV_PlayXA;
 decltype(MV_PlayVOC3D) MV_PlayXMP3D;
 decltype(MV_PlayVOC)   MV_PlayXMP;
 
+int MV_PlayRAW(char *ptr, uint32_t length, int rate, char *loopstart, char *loopend, int pitchoffset, int vol,
+               int left, int right, int priority, float volume, intptr_t callbackval);
+
 int  MV_IdentifyXMP(char const *ptr, uint32_t length);
 int  MV_GetPosition(int handle, int *position);
 int  MV_SetPosition(int handle, int position);
 void MV_SetVolume(int volume);
 int  MV_GetVolume(void);
-void MV_SetCallBack(void (*function)(uint32_t));
+void MV_SetCallBack(void (*function)(intptr_t));
 void MV_SetReverseStereo(int setting);
 int  MV_GetReverseStereo(void);
 int  MV_Init(int soundcard, int MixRate, int Voices, int numchannels, void *initdata);

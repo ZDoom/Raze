@@ -370,7 +370,7 @@ from listener.
 ---------------------------------------------------------------------*/
 
 int MV_PlayXA3D(char *ptr, uint32_t length, int loophow, int pitchoffset, int angle, int distance, int priority, float volume,
-                    uint32_t callbackval)
+                    intptr_t callbackval)
 {
     int left;
     int right;
@@ -410,7 +410,7 @@ priority.
 ---------------------------------------------------------------------*/
 
 int MV_PlayXA(char *ptr, uint32_t length, int loopstart, int loopend, int pitchoffset, int vol, int left, int right,
-                  int priority, float volume, uint32_t callbackval)
+                  int priority, float volume, intptr_t callbackval)
 {
    VoiceNode   *voice;
    xa_data * xad = 0;

@@ -380,7 +380,7 @@ Begin playback of sound data at specified angle and distance
 from listener.
 ---------------------------------------------------------------------*/
 
-int MV_PlayFLAC3D(char *ptr, uint32_t length, int loophow, int pitchoffset, int angle, int distance, int priority, float volume, uint32_t callbackval)
+int MV_PlayFLAC3D(char *ptr, uint32_t length, int loophow, int pitchoffset, int angle, int distance, int priority, float volume, intptr_t callbackval)
 {
     int left;
     int right;
@@ -419,7 +419,7 @@ Begin playback of sound data with the given sound levels and
 priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayFLAC(char *ptr, uint32_t length, int loopstart, int loopend, int pitchoffset, int vol, int left, int right, int priority, float volume, uint32_t callbackval)
+int MV_PlayFLAC(char *ptr, uint32_t length, int loopstart, int loopend, int pitchoffset, int vol, int left, int right, int priority, float volume, intptr_t callbackval)
 {
     VoiceNode *voice;
     flac_data *fd = 0;
@@ -658,7 +658,7 @@ void MV_ReleaseFLACVoice(VoiceNode *voice)
 #include "_multivc.h"
 
 int MV_PlayFLAC(char *ptr, uint32_t ptrlength, int loopstart, int loopend, int pitchoffset,
-    int vol, int left, int right, int priority, float volume, uint32_t callbackval)
+    int vol, int left, int right, int priority, float volume, intptr_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);
@@ -677,7 +677,7 @@ int MV_PlayFLAC(char *ptr, uint32_t ptrlength, int loopstart, int loopend, int p
 }
 
 int MV_PlayFLAC3D(char *ptr, uint32_t ptrlength, int loophow, int pitchoffset, int angle,
-    int distance, int priority, float volume, uint32_t callbackval)
+    int distance, int priority, float volume, intptr_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);

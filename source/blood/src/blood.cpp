@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "compat.h"
 #include "renderlayer.h"
+#include "vfs.h"
 #include "fx_man.h"
 #include "common.h"
 #include "common_game.h"
@@ -387,7 +388,7 @@ void PreloadTiles(void)
         for (int i = 1; i < gSkyCount; i++)
             tilePrecacheTile(skyTile+i, 0);
     }
-    G_HandleAsync();
+    gameHandleEvents();
 }
 
 
@@ -422,7 +423,7 @@ void PreloadCache(void)
             MUSIC_Update();
 
             if ((++cnt & 7) == 0)
-                G_HandleAsync();
+                gameHandleEvents();
 
             if (videoGetRenderMode() != REND_CLASSIC && totalclock - clock > (kTicRate>>2))
             {
@@ -431,10 +432,10 @@ void PreloadCache(void)
                 // this just prevents the loading screen percentage bar from making large jumps
                 while (percentDisplayed < percentComplete)
                 {
+                    gameHandleEvents();
                     Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", percentDisplayed, cnt, nPrecacheCount);
                     viewLoadingScreenUpdate(tempbuf, percentDisplayed);
                     videoNextPage();
-                    timerUpdate();
 
                     if (totalclock - clock >= 1)
                     {
@@ -1054,7 +1055,7 @@ void ProcessFrame(void)
         {
             while (gNetFifoMasterTail < gNetFifoTail)
             {
-                G_HandleAsync();
+                gameHandleEvents();
                 netMasterUpdate();
             }
         }
@@ -1492,6 +1493,7 @@ int app_main(int argc, char const * const * argv)
     margc = argc;
     margv = argv;
 #ifdef _WIN32
+#endif
 
     G_ExtPreInit(argc, argv);
 
@@ -1740,7 +1742,7 @@ RESTART:
         {
             char gameUpdate = false;
             double const gameUpdateStartTime = timerGetHiTicks();
-            G_HandleAsync();
+            gameHandleEvents();
             while (gPredictTail < gNetFifoHead[myconnectindex] && !gPaused)
             {
                 viewUpdatePrediction(&gFifoInput[gPredictTail&255][myconnectindex]);
@@ -1761,10 +1763,10 @@ RESTART:
                         break;
                     faketimerhandler();
                     ProcessFrame();
-                    timerUpdate();
+                    timerUpdateClock();
                     gameUpdate = true;
                 }
-                timerUpdate();
+                timerUpdateClock();
             }
             if (gameUpdate)
             {
@@ -1794,7 +1796,7 @@ RESTART:
                 videoClearScreen(0);
                 rotatesprite(160<<16,100<<16,65536,0,2518,0,0,0x4a,0,0,xdim-1,ydim-1);
             }
-            G_HandleAsync();
+            gameHandleEvents();
             if (gQuitRequest && !gQuitGame)
                 netBroadcastMyLogoff(gQuitRequest == 2);
         }
@@ -1849,7 +1851,7 @@ RESTART:
         while (gGameMenuMgr.m_bActive)
         {
             gGameMenuMgr.Process();
-            G_HandleAsync();
+            gameHandleEvents();
             if (G_FPSLimit())
             {
                 videoClearScreen(0);
@@ -2512,7 +2514,7 @@ bool AddINIFile(const char *pzFile, bool bForce = false)
 void ScanINIFiles(void)
 {
     nINICount = 0;
-    CACHE1D_FIND_REC *pINIList = klistpath("/", "*.ini", CACHE1D_FIND_FILE);
+    BUILDVFS_FIND_REC *pINIList = klistpath("/", "*.ini", BUILDVFS_FIND_FILE);
     pINIChain = NULL;
 
     if (bINIOverride || !pINIList)

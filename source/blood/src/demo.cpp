@@ -433,7 +433,7 @@ void CDemo::LoadDemoInfo(void)
     pathsearchmode = 0;
     char zFN[BMAX_PATH];
     Bsnprintf(zFN, BMAX_PATH, "%s*.dem", BloodIniPre);
-    auto pList = klistpath("/", zFN, CACHE1D_FIND_FILE);
+    auto pList = klistpath("/", zFN, BUILDVFS_FIND_FILE);
     auto pIterator = pList;
     while (pIterator != NULL)
     {

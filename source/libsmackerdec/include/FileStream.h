@@ -21,7 +21,7 @@
 #define _SmackerFileStream_h_
 
 #include <string>
-#include "cache1d.h"
+#include "vfs.h"
 #include "compat.h"
 #include <stdint.h>
 

@@ -437,13 +437,16 @@ void DeinitSoundDevice(void)
 
 void InitMusicDevice(void)
 {
-    int nStatus = MUSIC_Init(1/*MusicDevice*/, 0);
+    int nStatus = MUSIC_Init(MusicDevice);
     if (nStatus != 0)
     {
         initprintf("InitMusicDevice: %s\n", MUSIC_ErrorString(nStatus));
         return;
     }
-    MUSIC_SetVolume(mus_volume);
+    DICTNODE *hTmb = gSoundRes.Lookup("GMTIMBRE", "TMB");
+    if (hTmb)
+        AL_RegisterTimbreBank((unsigned char*)gSoundRes.Load(hTmb));
+    MUSIC_SetVolume(MusicVolume);
 }
 
 void DeinitMusicDevice(void)

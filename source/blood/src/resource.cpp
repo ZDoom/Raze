@@ -895,7 +895,7 @@ void Resource::FNAddFiles(fnlist_t * fnlist, const char *pattern)
         sprintf(filename, "%s.%s", pNode->name, pNode->type);
         if (!Bwildmatch(filename, pattern))
             continue;
-        switch (klistaddentry(&fnlist->findfiles, filename, CACHE1D_FIND_FILE, CACHE1D_SOURCE_GRP))
+        switch (klistaddentry(&fnlist->findfiles, filename, BUILDVFS_FIND_FILE, BUILDVFS_SOURCE_GRP))
         {
         case -1:
             return;
@@ -932,7 +932,7 @@ void Resource::PrecacheSounds(void)
         if ((!strcmp(pNode->type, "RAW") || !strcmp(pNode->type, "SFX")) && !pNode->ptr)
         {
             Load(pNode);
-            G_HandleAsync();
+            gameHandleEvents();
         }
     }
 }

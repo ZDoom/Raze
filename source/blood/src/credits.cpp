@@ -47,7 +47,7 @@ char Wait(int nTicks)
     totalclock = 0;
     while (totalclock < nTicks)
     {
-        timerUpdate();
+        timerUpdateClock();
         char key = keyGetScan();
         if (key)
         {
@@ -67,7 +67,7 @@ char DoFade(char r, char g, char b, int nTicks)
     totalclock = gFrameClock = 0;
     do
     {
-        while (totalclock < gFrameClock) { timerUpdate();};
+        while (totalclock < gFrameClock) { timerUpdateClock();};
         gFrameClock += 2;
         scrNextPage();
         scrFadeAmount(divscale16(ClipHigh((int)totalclock, nTicks), nTicks));
@@ -86,7 +86,7 @@ char DoUnFade(int nTicks)
     totalclock = gFrameClock = 0;
     do
     {
-        while (totalclock < gFrameClock) { timerUpdate(); };
+        while (totalclock < gFrameClock) { timerUpdateClock(); };
         scrNextPage();
         scrFadeAmount(0x10000-divscale16(ClipHigh((int)totalclock, nTicks), nTicks));
         if (keyGetScan())
@@ -250,7 +250,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
     UpdateDacs(0, true);
 
-    timerUpdate();
+    timerUpdateClock();
     ClockTicks nStartTime = totalclock;
 
     ctrlClearAllInput();
@@ -258,7 +258,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     int nFrame = 0;
     do
     {
-        G_HandleAsync();
+        gameHandleEvents();
         if (scale((int)(totalclock-nStartTime), nFrameRate, kTicRate) < nFrame)
             continue;
 
