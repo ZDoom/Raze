@@ -48,6 +48,7 @@ EXTERN_CVAR(Int, snd_numchannels)
 EXTERN_CVAR(Int, snd_numvoices)
 EXTERN_CVAR(Int, snd_speech)
 EXTERN_CVAR(Int, mus_volume)
+EXTERN_CVAR(Int, mus_device)
 extern int MusicDevice;
 
 EXTERN_CVAR(Int, hud_layout)

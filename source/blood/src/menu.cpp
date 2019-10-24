@@ -1835,7 +1835,7 @@ void SetSound(CGameMenuItemChain *pItem)
     UNREFERENCED_PARAMETER(pItem);
     snd_mixrate = nSoundRateValues[itemOptionsSoundSampleRate.m_nFocus];
     snd_numvoices = itemOptionsSoundNumVoices.nValue;
-    MusicDevice = nMusicDeviceValues[itemOptionsSoundMusicDevice.m_nFocus];
+    mus_device = nMusicDeviceValues[itemOptionsSoundMusicDevice.m_nFocus];
     sfxTerm();
     sndTerm();
 

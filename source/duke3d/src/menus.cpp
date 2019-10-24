@@ -3237,7 +3237,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     {
         snd_mixrate = soundrate;
         snd_numvoices = soundvoices;
-        MusicDevice = musicdevice;
+        mus_device = musicdevice;
 
         S_SoundShutdown();
         S_MusicShutdown();
