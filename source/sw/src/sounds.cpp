@@ -34,6 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "mytypes.h"
 #include "fx_man.h"
 #include "music.h"
+#include "al_midi.h"
 #include "gamedefs.h"
 #include "config.h"
 
@@ -1174,22 +1175,6 @@ SoundShutdown(void)
 ===================
 */
 
-#if 0
-void loadtmb(void)
-{
-    char tmb[8000];
-    int fil, l;
-
-	auto fil = kopenFileReader("swtimbr.tmb",0);
-    if (!fil.isOpen())
-        return;
-
-	auto tmb = fil.Read();
-	if(tmb.Size())
-		MUSIC_RegisterTimbreBank(tmb.Data());
-}
-#endif
-
 void MusicStartup(void)
 {
     // if they chose None lets return
@@ -1216,10 +1201,14 @@ void MusicStartup(void)
     MusicInitialized = TRUE;
     MUSIC_SetVolume(gs.MusicVolume);
 
-#if 0
-    if (MusicInitialized)
-        loadtmb();
-#endif
+    auto fil = kopenFileReader("swtimbr.tmb", 0);
+
+    if (fil.isOpem())
+    {
+        auto tmb = fil.Read();
+		if (tmb.Size())
+        	AL_RegisterTimbreBank(tmb.Data());
+    }
 }
 
 void COVER_SetReverb(int amt)
