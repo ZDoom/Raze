@@ -201,7 +201,7 @@ void sndFadeSong(int nTime)
         nWaveMusicHandle = -1;
         bWaveMusic = false;
     }
-    MUSIC_SetVolume(0);
+    // MUSIC_SetVolume(0);
     MUSIC_StopSong();
 }
 
