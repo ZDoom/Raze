@@ -3023,8 +3023,7 @@ void viewDrawScreen(void)
 #ifdef USE_OPENGL
     polymostcenterhoriz = defaultHoriz;
 #endif
-
-    timerUpdateClock();
+    gameHandleEvents();
     ClockTicks delta = totalclock - lastUpdate;
     if (delta < 0)
         delta = 0;
