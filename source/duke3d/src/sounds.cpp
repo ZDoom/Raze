@@ -113,7 +113,7 @@ void S_SoundShutdown(void)
 
 void S_MusicStartup(void)
 {
-    initprintf("Initializing music... ");
+    initprintf("Initializing MIDI driver... ");
 
     if (MUSIC_Init(ud.config.MusicDevice) == MUSIC_Ok || MUSIC_Init(0) == MUSIC_Ok || MUSIC_Init(1) == MUSIC_Ok)
     {

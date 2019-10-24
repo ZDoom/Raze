@@ -1165,22 +1165,22 @@ static MenuRangeInt32_t MEO_SOUND_NUMVOICES = MAKE_MENURANGE( &soundvoices, &MF_
 static MenuEntry_t ME_SOUND_NUMVOICES = MAKE_MENUENTRY( "Voices:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_NUMVOICES, RangeInt32 );
 #endif
 
-static char const *MEOSN_SOUND_MUSICDEVICE[] = {
+static char const *MEOSN_SOUND_MIDIDRIVER[] = {
     "OPL3",
 #ifdef _WIN32
     "Windows",
 #endif
 };
-static int32_t MEOSV_SOUND_MUSICDEVICE[] = {
+static int32_t MEOSV_SOUND_MIDIDRIVER[] = {
     ASS_OPL3,
 #ifdef _WIN32
     ASS_WinMM,
 #endif
 };
 
-static MenuOptionSet_t MEOS_SOUND_MUSICDEVICE = MAKE_MENUOPTIONSET( MEOSN_SOUND_MUSICDEVICE, MEOSV_SOUND_MUSICDEVICE, 0x2 );
-static MenuOption_t MEO_SOUND_MUSICDEVICE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_SOUND_MUSICDEVICE, &musicdevice );
-static MenuEntry_t ME_SOUND_MUSICDEVICE = MAKE_MENUENTRY( "Music device:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_MUSICDEVICE, Option );
+static MenuOptionSet_t MEOS_SOUND_MIDIDRIVER = MAKE_MENUOPTIONSET( MEOSN_SOUND_MIDIDRIVER, MEOSV_SOUND_MIDIDRIVER, 0x2 );
+static MenuOption_t MEO_SOUND_MIDIDRIVER = MAKE_MENUOPTION( &MF_Redfont, &MEOS_SOUND_MIDIDRIVER, &musicdevice );
+static MenuEntry_t ME_SOUND_MIDIDRIVER = MAKE_MENUENTRY( "MIDI driver:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_MIDIDRIVER, Option );
 
 static MenuEntry_t ME_SOUND_RESTART = MAKE_MENUENTRY( "Apply Changes", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_NULL, Link );
 
@@ -1207,7 +1207,7 @@ static MenuEntry_t *MEL_ADVSOUND[] = {
     &ME_SOUND_NUMVOICES,
     &ME_Space2_Redfont,
 #endif
-    &ME_SOUND_MUSICDEVICE,
+    &ME_SOUND_MIDIDRIVER,
     &ME_SOUND_RESTART,
 };
 

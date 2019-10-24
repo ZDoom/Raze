@@ -1130,7 +1130,9 @@ SoundStartup(void)
 
     //snd_enabled = TRUE;
 
-    status = FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata);
+
+
+    status = FX_Init(NumVoices, NumChannels, MixRate, initdata);
     if (status == FX_Ok)
     {
         FxInitialized = TRUE;
@@ -1196,6 +1198,8 @@ void loadtmb(void)
 void MusicStartup(void)
 {
     // if they chose None lets return
+
+    buildprintf("Initializing MIDI driver... ");
 
     if (MUSIC_Init(MusicDevice) == MUSIC_Ok || MUSIC_Init(0) == MUSIC_Ok || MUSIC_Init(1) == MUSIC_Ok)
     {
