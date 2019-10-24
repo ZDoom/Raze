@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "build.h"
 #include "cache1d.h"
+#include "sndcards.h"
 #include "hash.h"
 #include "scriplib.h"
 #include "renderlayer.h"

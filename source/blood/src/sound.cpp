@@ -437,8 +437,13 @@ void DeinitSoundDevice(void)
 
 void InitMusicDevice(void)
 {
-    int nStatus = MUSIC_Init(MusicDevice);
-    if (nStatus != 0)
+    int nStatus;
+    if ((nStatus = MUSIC_Init(MusicDevice)) == MUSIC_Ok)
+    {
+        if (MusicDevice == ASS_AutoDetect)
+            MusicDevice = MIDI_GetDevice();
+    }
+    else if ((nStatus = MUSIC_Init(ASS_AutoDetect)) == MUSIC_Ok)
     {
         initprintf("InitMusicDevice: %s\n", MUSIC_ErrorString(nStatus));
         return;
