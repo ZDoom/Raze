@@ -98,9 +98,7 @@ static int MV_MixMusic = FALSE;
 
 static bool MV_Mix(VoiceNode * const voice, int const buffer)
 {
-    /* cheap fix for a crash under 64-bit linux */
-    /*                            v  v  v  v    */
-    if (voice->length == 0 && (voice->GetSound == NULL || voice->GetSound(voice) != KeepPlaying))
+    if (voice->length == 0 && voice->GetSound(voice) != KeepPlaying)
         return false;
 
     float const gv = MV_GlobalVolume;
@@ -288,7 +286,7 @@ static VoiceNode *MV_GetVoice(int handle)
 {
     if (handle < MV_MINVOICEHANDLE || handle > MV_MaxVoices)
     {
-            MV_Printf("MV_GetVoice(): bad handle (%d)!\n", handle);
+        MV_Printf("MV_GetVoice(): bad handle (%d)!\n", handle);
         return nullptr;
     }
 

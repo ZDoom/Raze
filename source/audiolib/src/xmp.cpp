@@ -8,6 +8,7 @@
 #include "pitch.h"
 #include "pragmas.h"
 
+#define BUILDING_STATIC
 #include "libxmp-lite/xmp.h"
 
 typedef struct {

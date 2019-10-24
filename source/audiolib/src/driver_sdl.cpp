@@ -212,9 +212,9 @@ int SDLDrv_PCM_Init(int *mixrate, int *numchannels, void * initdata)
     if (actual.freq == 0 || actual.channels == 0) {
         // hack for when SDL said it opened the audio, but clearly didn't
         SDL_CloseAudio();
-            ErrorCode = SDLErr_OpenAudio;
-            return SDLErr_Error;
-        }
+        ErrorCode = SDLErr_OpenAudio;
+        return SDLErr_Error;
+    }
 #endif
     err = 0;
 
