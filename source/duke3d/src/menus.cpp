@@ -3223,8 +3223,8 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         S_SoundShutdown();
         S_MusicShutdown();
 
-        S_MusicStartup();
         S_SoundStartup();
+        S_MusicStartup();
 
         FX_StopAllSounds();
         S_ClearSoundLocks();

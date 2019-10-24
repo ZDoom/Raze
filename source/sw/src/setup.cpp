@@ -331,8 +331,8 @@ void main()
     CONTROL_Startup(1, &GetTime, 1500);
     SetupGameButtons();
 
-    MusicStartup();
     SoundStartup();
+    MusicStartup();
     RTS_Init(RTSName);
 
     // load in some test data

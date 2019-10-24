@@ -6611,8 +6611,8 @@ int app_main(int argc, const char * const*argv)
         }
 
         videoSetPalette(ud.brightness>>2, myplayer.palette, 0);
-        S_MusicStartup();
         S_SoundStartup();
+        S_MusicStartup();
     }
 
     // check if the minifont will support lowercase letters (3136-3161)
