@@ -46,6 +46,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern int MV_MixRate;
 extern int ASS_MIDISoundDriver;
 
+int MIDI_GetDevice()
+{
+    return ASS_MIDISoundDriver;
+}
+
 static const int _MIDI_CommandLengths[NUM_MIDI_CHANNELS] = { 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 2, 0 };
 
 static track * _MIDI_TrackPtr;

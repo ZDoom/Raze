@@ -56,6 +56,7 @@ enum FX_LOOP_HOW
 const char *FX_ErrorString(int ErrorNumber);
 int FX_Init(int numvoices, int numchannels, int mixrate, void *initdata);
 int FX_Shutdown(void);
+int FX_GetDevice(void);
 
 
 

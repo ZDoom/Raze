@@ -141,6 +141,11 @@ int FX_Shutdown(void)
     return status;
 }
 
+int FX_GetDevice()
+{
+    return ASS_PCMSoundDriver;
+}
+
 static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
 {
     if (length < 12)

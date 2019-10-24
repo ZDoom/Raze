@@ -1197,7 +1197,16 @@ void MusicStartup(void)
     buildprintf("Initializing MIDI driver... ");
 
     int status;
-    if ((status = MUSIC_Init(MusicDevice)) != MUSIC_Ok && (status = MUSIC_Init(0)) != MUSIC_Ok && (status = MUSIC_Init(1)) != MUSIC_Ok)
+    if ((status = MUSIC_Init(MusicDevice)) == MUSIC_Ok)
+    {
+        if (MusicDevice == ASS_AutoDetect)
+            MusicDevice = MIDI_GetDevice();
+    }
+    else if ((status = MUSIC_Init(ASS_AutoDetect)) == MUSIC_Ok)
+    {
+        MusicDevice = MIDI_GetDevice();
+    }
+    else
     {
         buildprintf("Music error: %s\n", MUSIC_ErrorString(status));
         mus_enabled = FALSE;

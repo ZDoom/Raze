@@ -63,6 +63,7 @@ extern const char *MUSIC_ErrorString(int ErrorNumber);
 
 int  MUSIC_Init(int SoundCard);
 int  MUSIC_Shutdown(void);
+int  MIDI_GetDevice(void);
 void MUSIC_SetVolume(int volume);
 int  MUSIC_GetVolume(void);
 void MUSIC_SetLoopFlag(int loopflag);

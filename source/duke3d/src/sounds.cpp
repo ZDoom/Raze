@@ -118,7 +118,16 @@ void S_MusicStartup(void)
     initprintf("Initializing MIDI driver... ");
 
     int status;
-    if ((status = MUSIC_Init(ud.config.MusicDevice)) != MUSIC_Ok && (status = MUSIC_Init(0)) != MUSIC_Ok && (status = MUSIC_Init(1)) != MUSIC_Ok)
+    if ((status = MUSIC_Init(ud.config.MusicDevice)) == MUSIC_Ok)
+    {
+        if (ud.config.MusicDevice == ASS_AutoDetect)
+            ud.config.MusicDevice = MIDI_GetDevice();
+    }
+    else if ((status = MUSIC_Init(ASS_AutoDetect)) == MUSIC_Ok)
+    {
+        ud.config.MusicDevice = MIDI_GetDevice();
+    }
+    else
     {
         initprintf("S_MusicStartup(): failed initializing: %s\n", MUSIC_ErrorString(status));
         return;
