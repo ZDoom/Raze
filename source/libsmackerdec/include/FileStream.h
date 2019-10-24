@@ -24,6 +24,7 @@
 #include "vfs.h"
 #include "compat.h"
 #include <stdint.h>
+#include "files.h"
 
 namespace SmackerCommon {
 

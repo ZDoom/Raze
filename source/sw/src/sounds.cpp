@@ -1131,7 +1131,7 @@ SoundStartup(void)
     //snd_enabled = TRUE;
 
 
-    int status = FX_Init(NumVoices, NumChannels, MixRate, initdata);
+    int status = FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata);
     if (status != FX_Ok)
     {
         buildprintf("Sound error: %s\n", FX_ErrorString(status));
@@ -1199,11 +1199,11 @@ void MusicStartup(void)
     }
 
     MusicInitialized = TRUE;
-    MUSIC_SetVolume(gs.MusicVolume);
+    MUSIC_SetVolume(mus_volume);
 
     auto fil = kopenFileReader("swtimbr.tmb", 0);
 
-    if (fil.isOpem())
+    if (fil.isOpen())
     {
         auto tmb = fil.Read();
 		if (tmb.Size())

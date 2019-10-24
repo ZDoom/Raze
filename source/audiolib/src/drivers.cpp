@@ -34,7 +34,6 @@
 
 #ifdef _WIN32
 # include "driver_directsound.h"
-# include "driver_winmm.h"
 #endif
 
 int ASS_PCMSoundDriver  = ASS_AutoDetect;
@@ -140,6 +139,7 @@ static struct {
         nullptr,
     },
 
+#if 0
     // Windows MultiMedia system
     {
         "WinMM",
@@ -160,6 +160,7 @@ static struct {
         UNSUPPORTED_COMPLETELY
     #endif
     },
+#endif
 };
 
 

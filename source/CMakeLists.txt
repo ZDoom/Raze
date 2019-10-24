@@ -510,8 +510,8 @@ set( PLAT_WIN32_SOURCES
 	)
 
 set( PLAT_POSIX_SOURCES
-	audiolib/src/driver_sdl.cpp
-	audiolib/src/sdlmusic.cpp
+	#audiolib/src/driver_sdl.cpp
+	#audiolib/src/sdlmusic.cpp
 	)
 	
 set( PLAT_SDL_SOURCES
@@ -702,11 +702,6 @@ set( FASTMATH_SOURCES
 	thirdparty/src/lz4.c
 	thirdparty/src/xxhash.c
 
-	# Will we need this anymore with ZLib being available?
-	#thirdparty/src/miniz.c
-	#thirdparty/src/miniz_tdef.c
-	#thirdparty/src/miniz_tinfl.c
-	
 	# Another bit of cruft just to make S(hit)DL happy...
 	sdlappicon.cpp
 )
@@ -714,7 +709,9 @@ set( FASTMATH_SOURCES
 
 set (PCH_SOURCES
 	audiolib/src/drivers.cpp
+	audiolib/src/driver_adlib.cpp
 	audiolib/src/driver_nosound.cpp
+	audiolib/src/driver_sdl.cpp
 	audiolib/src/flac.cpp
 	audiolib/src/formats.cpp
 	audiolib/src/fx_man.cpp
@@ -722,14 +719,14 @@ set (PCH_SOURCES
 	audiolib/src/midi.cpp
 	audiolib/src/mix.cpp
 	audiolib/src/mixst.cpp
-	audiolib/src/mpu401.cpp
 	audiolib/src/multivoc.cpp
 	audiolib/src/music.cpp
+	audiolib/src/opl3.cpp
 	audiolib/src/pitch.cpp
 	audiolib/src/vorbis.cpp
 	audiolib/src/xa.cpp
 	audiolib/src/xmp.cpp
-	
+
 	glbackend/gl_hwtexture.cpp
 	glbackend/gl_samplers.cpp
 	glbackend/gl_shader.cpp

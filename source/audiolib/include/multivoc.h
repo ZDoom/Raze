@@ -132,6 +132,4 @@ void MV_UnhookMusicRoutine(void);
 
 static inline void MV_SetPrintf(void (*function)(const char *, ...)) { if (function) MV_Printf = function; }
 
-#ifdef __cplusplus
-}
 #endif

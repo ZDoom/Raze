@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "sound.h"
 #include "renderlayer.h"
+#include "al_midi.h"
 
 BEGIN_BLD_NS
 
@@ -451,7 +452,7 @@ void InitMusicDevice(void)
     DICTNODE *hTmb = gSoundRes.Lookup("GMTIMBRE", "TMB");
     if (hTmb)
         AL_RegisterTimbreBank((unsigned char*)gSoundRes.Load(hTmb));
-    MUSIC_SetVolume(MusicVolume);
+    MUSIC_SetVolume(mus_volume);
 }
 
 void DeinitMusicDevice(void)

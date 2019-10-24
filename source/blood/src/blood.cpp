@@ -1501,7 +1501,6 @@ int app_main(int argc, char const * const * argv)
     extern int32_t (*check_filename_casing_fn)(void);
     check_filename_casing_fn = check_filename_casing;
 #endif
-#endif
 
     OSD_SetLogFile(APPBASENAME ".log");
 

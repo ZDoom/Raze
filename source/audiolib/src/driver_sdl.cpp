@@ -189,7 +189,7 @@ int SDLDrv_PCM_Init(int *mixrate, int *numchannels, void * initdata)
     auto drivername = Xstrdup(SDL_GetCurrentAudioDriver());
 
     for (int i=0;drivername[i] != 0;++i)
-        drivername[i] = toupperlookup[drivername[i]];
+        drivername[i] = toupper(drivername[i]);
 
     auto devname = Xstrdup(SDL_GetAudioDeviceName(0, 0));
     auto pdevname = Bstrchr(devname, '(');

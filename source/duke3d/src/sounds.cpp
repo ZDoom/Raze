@@ -67,7 +67,7 @@ void S_SoundStartup(void)
 
     initprintf("Initializing sound... ");
 
-    int status = FX_Init(ud.config.NumVoices, ud.config.NumChannels, ud.config.MixRate, initdata);
+    int status = FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata);
     if (status != FX_Ok)
     {
         initprintf("failed! %s\n", FX_ErrorString(status));
@@ -118,14 +118,14 @@ void S_MusicStartup(void)
     initprintf("Initializing MIDI driver... ");
 
     int status;
-    if ((status = MUSIC_Init(ud.config.MusicDevice)) == MUSIC_Ok)
+    if ((status = MUSIC_Init(MusicDevice)) == MUSIC_Ok)
     {
-        if (ud.config.MusicDevice == ASS_AutoDetect)
-            ud.config.MusicDevice = MIDI_GetDevice();
+        if (MusicDevice == ASS_AutoDetect)
+            MusicDevice = MIDI_GetDevice();
     }
     else if ((status = MUSIC_Init(ASS_AutoDetect)) == MUSIC_Ok)
     {
-        ud.config.MusicDevice = MIDI_GetDevice();
+        MusicDevice = MIDI_GetDevice();
     }
     else
     {

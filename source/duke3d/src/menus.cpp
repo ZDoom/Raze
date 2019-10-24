@@ -3237,7 +3237,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     {
         snd_mixrate = soundrate;
         snd_numvoices = soundvoices;
-        ud.config.MusicDevice = musicdevice;
+        MusicDevice = musicdevice;
 
         S_SoundShutdown();
         S_MusicShutdown();
@@ -4260,7 +4260,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
     case MENU_ADVSOUND:
         soundrate = snd_mixrate;
         soundvoices = snd_numvoices;
-        musicdevice = ud.config.MusicDevice;
+        musicdevice = MusicDevice;
         break;
 
     default:

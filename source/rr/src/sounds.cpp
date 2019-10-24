@@ -98,7 +98,7 @@ void S_MusicStartup(void)
 {
     initprintf("Initializing music...\n");
 
-    if (MUSIC_Init(0, 0) == MUSIC_Ok || MUSIC_Init(1, 0) == MUSIC_Ok)
+    if (MUSIC_Init(MusicDevice) == MUSIC_Ok)
     {
         MUSIC_SetVolume(mus_volume);
         return;

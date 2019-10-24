@@ -154,6 +154,15 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
 	if (self > 255) self = 255;
 }
 
+int MusicDevice;
+CUSTOM_CVARD(Int, mus_device, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "selects music device")
+{
+	if (self < 0) self = 0;
+	else if (self > 1) self = 1;
+	else MusicDevice = self;	// must be copied because it gets altered by the music code.
+}
+
+
 // HUD
 
 // This was particularly messy. EDuke and Rednukem had no consistent setting for this but a complex combination fo 4 CVARs and lots of mod flags controlling the HUD layout
