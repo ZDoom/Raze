@@ -263,60 +263,6 @@ static const char * mousedigitaldefaults[MAXMOUSEDIGITAL] =
    };
 
 #if defined(GEKKO)
-static const char * joystickdefaults[MAXJOYBUTTONSANDHATS] =
-   {
-   "Open", // A
-   "Fire", // B
-   "Run", // 1
-   "Map", // 2
-   "Previous_Weapon", // -
-   "Next_Weapon", // +
-   "", // Home
-   "Jump", // Z
-   "Crouch", // C
-   "Map", // X
-   "Run", // Y
-   "Jump", // L
-   "Quick_Kick", // R
-   "Crouch", // ZL
-   "Fire", // ZR
-   "Quick_Kick", // D-Pad Up
-   "Inventory_Right", // D-Pad Right
-   "Inventory", // D-Pad Down
-   "Inventory_Left", // D-Pad Left
-   };
-
-
-static const char * joystickclickeddefaults[MAXJOYBUTTONSANDHATS] =
-   {
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "Inventory",
-   };
-
-
-static const char * joystickanalogdefaults[MAXJOYAXES] =
-   {
-   "analog_strafing",
-   "analog_moving",
-   "analog_turning",
-   "analog_lookingupanddown",
-   };
-
-
-static const char * joystickdigitaldefaults[MAXJOYDIGITAL] =
-   {
-   };
 #else
 static const char * joystickdefaults[MAXJOYBUTTONSANDHATS] =
    {

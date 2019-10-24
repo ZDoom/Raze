@@ -145,12 +145,13 @@ public:
 
 };
 
+FileReader openFromBaseResource(const char* name);
 // Wrappers for the handle based API to get rid of the direct  calls without any actual changes to the implementation.
 inline FileReader kopenFileReader(const char* name, int where)
 {
 	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
-	KFileReaderInterface *fri = handle == buildvfs_kfd_invalid? nullptr : new KFileReaderInterface(handle);
-	return FileReader(fri);
+	if (handle != buildvfs_kfd_invalid) FileReader(new KFileReaderInterface(handle));
+	return openFromBaseResource(name);
 }
 
 // This is only here to mark a file as not being part of the game assets (e.g. savegames)

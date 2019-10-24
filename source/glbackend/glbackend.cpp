@@ -65,15 +65,28 @@ void InitBaseRes()
 	}
 }
 
-FileReader GetBaseResource(const char* fn)
+extern FString currentGame;
+FileReader openFromBaseResource(const char* fn)
 {
 	auto lump = engine_res->FindLump(fn);
-	if (!lump)
+	if (lump) return lump->NewReader(); 
+	// Also look in game filtered directories.
+	FStringf filtername("filter/%s/%s", currentGame.GetChars(), fn);
+	lump = engine_res->FindLump(fn);
+	if (lump) return lump->NewReader();
+	return FileReader(nullptr);
+	
+}
+
+FileReader GetResource(const char* fn)
+{
+	auto fr = kopenFileReader(fn, 0);
+	if (!fr.isOpen())
 	{
 		wm_msgbox("Fatal error", "Base resource '%s' not found", fn);
 		exit(-1);
 	}
-	return lump->NewReader();
+	return fr;
 }
 
 GLInstance GLInterface;
@@ -122,9 +135,9 @@ void GLInstance::Init()
 
 void GLInstance::LoadPolymostShader()
 {
-	auto fr1 = GetBaseResource("demolition/shaders/glsl/polymost.vp");
+	auto fr1 = GetResource("demolition/shaders/glsl/polymost.vp");
 	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetBaseResource("demolition/shaders/glsl/polymost.fp");
+	fr1 = GetResource("demolition/shaders/glsl/polymost.fp");
 	TArray<uint8_t> Frag = fr1.Read();
 	// Zero-terminate both strings.
 	Vert.Push(0);
@@ -136,9 +149,9 @@ void GLInstance::LoadPolymostShader()
 
 void GLInstance::LoadVPXShader()
 {
-	auto fr1 = GetBaseResource("demolition/shaders/glsl/animvpx.vp");
+	auto fr1 = GetResource("demolition/shaders/glsl/animvpx.vp");
 	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetBaseResource("demolition/shaders/glsl/animvpx.fp");
+	fr1 = GetResource("demolition/shaders/glsl/animvpx.fp");
 	TArray<uint8_t> Frag = fr1.Read();
 	// Zero-terminate both strings.
 	Vert.Push(0);
@@ -149,9 +162,9 @@ void GLInstance::LoadVPXShader()
 
 void GLInstance::LoadSurfaceShader()
 {
-	auto fr1 = GetBaseResource("demolition/shaders/glsl/glsurface.vp");
+	auto fr1 = GetResource("demolition/shaders/glsl/glsurface.vp");
 	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetBaseResource("demolition/shaders/glsl/glsurface.fp");
+	fr1 = GetResource("demolition/shaders/glsl/glsurface.fp");
 	TArray<uint8_t> Frag = fr1.Read();
 	// Zero-terminate both strings.
 	Vert.Push(0);
