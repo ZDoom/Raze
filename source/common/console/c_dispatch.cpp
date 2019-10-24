@@ -1027,3 +1027,26 @@ bool C_ExecFile (const char *file)
 	return exec != NULL;
 }
 
+#include "osd.h"
+
+static TArray<FConsoleCommand*> dynccmds; // This needs to be explicitly deleted before shutdown - the names in here may not be valid during the exit handler.
+//
+// OSD_RegisterFunction() -- Reroutes a Bulid-style CCMD to the new console.
+//
+int OSD_RegisterFunction(const char* pszName, const char* pszDesc, int (*func)(osdcmdptr_t))
+{
+	FString nname = pszName;
+	auto callback = [nname, pszDesc, func](FCommandLine& args, int key)
+	{
+		if (args.argc() > 0) args.operator[](0);
+		osdfuncparm_t param = { args.argc(), nname.GetChars(), (const char**)args._argv + 1, args.cmd };
+		if (func(&param) != OSDCMD_OK)
+		{
+			Printf("%s\n", pszDesc);
+		}
+	};
+	auto ccmd = new FConsoleCommand(pszName, callback);
+	dynccmds.Push(ccmd);
+	return 0;
+}
+

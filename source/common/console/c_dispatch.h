@@ -37,6 +37,7 @@
 #include "printf.h"
 #include "zstring.h"
 #include "c_commandline.h"
+#include "zstring.h"
 
 class FConfigFile;
 
@@ -78,7 +79,7 @@ void C_ClearAliases ();
 // build a single string out of multiple strings
 FString BuildString (int argc, FString *argv);
 
-typedef void (*CCmdRun) (FCommandLine &argv, void *instigator, int key);
+typedef std::function<void(FCommandLine & argv, void *, int key)> CCmdRun;;
 
 class FConsoleCommand
 {
@@ -86,7 +87,7 @@ public:
 	FConsoleCommand (const char *name, CCmdRun RunFunc);
 	virtual ~FConsoleCommand ();
 	virtual bool IsAlias ();
-	void PrintCommand () { Printf ("%s\n", m_Name); }
+	void PrintCommand () { Printf ("%s\n", m_Name.GetChars()); }
 
 	virtual void Run (FCommandLine &args, void *instigator, int key);
 	static FConsoleCommand* FindByName (const char* name);

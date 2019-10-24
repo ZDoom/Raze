@@ -1518,15 +1518,7 @@ void OSD_Puts(const char *tmpstr)
 //
 void OSD_DispatchQueued(void)
 {
-    if (!osd->history.exec)
-        return;
-
-    int cmd = osd->history.exec - 1;
-
-    osd->history.exec = 0;
-
-    for (; cmd >= 0; cmd--)
-        OSD_Dispatch((const char *)osd->history.buf[cmd]);
+	C_RunDelayedCommands();
 }
 
 
@@ -1537,6 +1529,7 @@ void OSD_Dispatch(const char *cmd)
 }
 
 
+#if 0
 //
 // OSD_RegisterFunction() -- Registers a new function
 //
@@ -1558,6 +1551,7 @@ int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int (*func)(o
 
     return 0;
 }
+#endif
 
 //
 // OSD_SetVersionString()
