@@ -37,6 +37,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "midi.h"
 #include "midifuncs.h"
 #include "opl3.h"
+#include "c_cvars.h"
+
+CUSTOM_CVARD(Bool, mus_al_stereo, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable OPL3 stereo mode")
+{
+	AL_Stereo = self;
+	AL_SetStereo(AL_Stereo);
+}
+
+CVARD(Bool, mus_al_additivemode, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable alternate additive AdLib timbre mode")
+
 
 enum
 {
@@ -200,7 +210,6 @@ static int AL_LeftPort  = ADLIB_PORT;
 static int AL_RightPort = ADLIB_PORT;
 int        AL_Stereo    = TRUE;
 static int AL_MaxMidiChannel = 16;
-int        AL_AdditiveMode;
 
 // TODO: clean up this shit...
 #define OFFSET(structure, offset) (*((char **)&(structure)[offset]))
@@ -335,7 +344,7 @@ static void AL_SetVoiceVolume(int const voice)
         uint32_t t2;
 
         // amplitude
-        if (AL_AdditiveMode)
+        if (mus_al_additivemode)
             t1 = (uint32_t)VoiceLevel[slot][port] * (velocity + 0x80);
 
         t2 = (Channel[channel].Volume * t1) >> 15;

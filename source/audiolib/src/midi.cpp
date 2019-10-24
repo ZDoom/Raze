@@ -42,6 +42,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "pragmas.h"
 #include "sndcards.h"
 #include "driver_adlib.h"
+#include "c_cvars.h"
+
+CUSTOM_CVARD(Int, mus_emidicard, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "force a specific EMIDI instrument set")
+{
+	ASS_EMIDICard = clamp(*self, -1, 10);
+}
+
 
 extern int MV_MixRate;
 extern int ASS_MIDISoundDriver;
