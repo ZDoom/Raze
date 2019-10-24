@@ -52,7 +52,7 @@ const char *MUSIC_ErrorString(int ErrorNumber)
 }
 
 
-int MUSIC_Init(int SoundCard, int EMIDICard /*= -1*/)
+int MUSIC_Init(int SoundCard)
 {
     int detected = 0;
 
@@ -82,7 +82,6 @@ failed:
     }
 
     ASS_MIDISoundDriver = SoundCard;
-    ASS_EMIDICard       = EMIDICard;
 
     int status = SoundDriver_MIDI_Init(&MUSIC_MidiFunctions);
 
