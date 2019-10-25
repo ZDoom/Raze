@@ -368,8 +368,8 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
 {
     spritetype *pSprite = &sprite[nSprite];
     
-    if (pSprite->type != 706 && pSprite->type != 707 && pSprite->type != 37)
-        viewSetSystemMessage("SPRITE %d (TYPE %d), EVENT INITED BY: %d", nSprite, pSprite->type, event.causedBy);
+    //if (pSprite->type != 706 && pSprite->type != 707 && pSprite->type != 37)
+        //viewSetSystemMessage("SPRITE %d (TYPE %d), EVENT INITED BY: %d", nSprite, pSprite->type, event.causedBy);
     
     if (gModernMap) {
         switch (event.cmd) {
