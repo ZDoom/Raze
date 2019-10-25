@@ -259,7 +259,7 @@ void viewInitializePrediction(void)
 	predict.at24 = gMe->q16horiz;
 	predict.at28 = gMe->q16slopehoriz;
 	predict.at2c = gMe->slope;
-	predict.at6f = gMe->canJump;
+	predict.at6f = gMe->cantJump;
 	predict.at70 = gMe->isRunning;
 	predict.at72 = gMe->isUnderwater;
 	predict.at71 = gMe->input.buttonFlags.jump;
@@ -1532,7 +1532,7 @@ void UpdateStatusBar(ClockTicks arg)
 
         if (pPlayer->curWeapon && pPlayer->weaponAmmo != -1)
         {
-            int num = pPlayer->ammCount[pPlayer->weaponAmmo];
+            int num = pPlayer->ammoCount[pPlayer->weaponAmmo];
             if (pPlayer->weaponAmmo == 6)
                 num /= 10;
             if ((unsigned int)gAmmoIcons[pPlayer->weaponAmmo].nTile < kMaxTiles)
@@ -1570,7 +1570,7 @@ void UpdateStatusBar(ClockTicks arg)
         }
         if (pPlayer->curWeapon && pPlayer->weaponAmmo != -1)
         {
-            int num = pPlayer->ammCount[pPlayer->weaponAmmo];
+            int num = pPlayer->ammoCount[pPlayer->weaponAmmo];
             if (pPlayer->weaponAmmo == 6)
                 num /= 10;
             DrawStatNumber("%3d", num, 2240, 42, 183, 0, 0, 256);
@@ -1629,7 +1629,7 @@ void UpdateStatusBar(ClockTicks arg)
         }
         if (pPlayer->curWeapon && pPlayer->weaponAmmo != -1)
         {
-            int num = pPlayer->ammCount[pPlayer->weaponAmmo];
+            int num = pPlayer->ammoCount[pPlayer->weaponAmmo];
             if (pPlayer->weaponAmmo == 6)
                 num /= 10;
             DrawStatNumber("%3d", num, 2240, 216, 183, 0, 0);
@@ -1638,7 +1638,7 @@ void UpdateStatusBar(ClockTicks arg)
         {
             int x = 135+((i-1)/3)*23;
             int y = 182+((i-1)%3)*6;
-            int num = pPlayer->ammCount[i];
+            int num = pPlayer->ammoCount[i];
             if (i == 6)
                 num /= 10;
             if (i == pPlayer->weaponAmmo)
@@ -1653,20 +1653,20 @@ void UpdateStatusBar(ClockTicks arg)
 
         if (pPlayer->weaponAmmo == 10)
         {
-            DrawStatNumber("%2d", pPlayer->ammCount[10], 2230, 291, 194, -128, 10);
+            DrawStatNumber("%2d", pPlayer->ammoCount[10], 2230, 291, 194, -128, 10);
         }
         else
         {
-            DrawStatNumber("%2d", pPlayer->ammCount[10], 2230, 291, 194, 32, 10);
+            DrawStatNumber("%2d", pPlayer->ammoCount[10], 2230, 291, 194, 32, 10);
         }
 
         if (pPlayer->weaponAmmo == 11)
         {
-            DrawStatNumber("%2d", pPlayer->ammCount[11], 2230, 309, 194, -128, 10);
+            DrawStatNumber("%2d", pPlayer->ammoCount[11], 2230, 309, 194, -128, 10);
         }
         else
         {
-            DrawStatNumber("%2d", pPlayer->ammCount[11], 2230, 309, 194, 32, 10);
+            DrawStatNumber("%2d", pPlayer->ammoCount[11], 2230, 309, 194, 32, 10);
         }
 
         if (pPlayer->armor[1])

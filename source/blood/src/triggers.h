@@ -35,7 +35,7 @@ void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command);
 void trMessageSector(unsigned int nSector, EVENT event);
 void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command);
 void trMessageWall(unsigned int nWall, EVENT event);
-void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command);
+void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command, int causedBy);
 void trMessageSprite(unsigned int nSprite, EVENT event);
 void trProcessBusy(void);
 void trInit(void);

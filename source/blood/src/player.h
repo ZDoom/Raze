@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "dude.h"
 #include "levels.h"
+#include "qav.h"
 
 BEGIN_BLD_NS
 
@@ -106,12 +107,12 @@ struct PLAYER {
     char nextWeapon;
     int weaponTimer;
     int weaponState;
-    int weaponAmmo;
+    int weaponAmmo; //rename
     bool hasWeapon[14];
     int weaponMode[14];
     int weaponOrder[2][14];
     //int at149[14];
-    int ammCount[12];
+    int ammoCount[12];
     bool qavLoop;
     int fuseTime;
     int throwTime;
@@ -143,7 +144,7 @@ struct PLAYER {
     int spin;                           // turning around
     bool godMode;
     bool fallScream;
-    bool canJump;
+    bool cantJump;
     int packItemTime;                   // pack timer
     int packItemId;                     // pack id 1: diving suit, 2: crystal ball, 3: beast vision 4: jump boots
     PACKINFO packSlots[5];              // at325 [1]: diving suit, [2]: crystal ball, [3]: beast vision [4]: jump boots
@@ -208,6 +209,13 @@ struct POWERUPINFO {
     int bonusTime;
     int maxTime;
 };
+
+
+struct QAVSCENE {
+    short index;
+    QAV* qavId;
+};
+extern QAVSCENE gQavScene[kMaxPlayers];
 
 extern PLAYER gPlayer[kMaxPlayers];
 extern PLAYER *gMe, *gView;
@@ -302,5 +310,7 @@ bool growPlayerSize(PLAYER* pPlayer, int multiplier);
 bool resetPlayerSize(PLAYER* pPlayer);
 void deactivateSizeShrooms(PLAYER* pPlayer);
 PLAYER* getPlayerById(short id);
+void startQavScene(PLAYER* pPlayer, int qavId, int a3, char a4);
+void playQavScene(PLAYER* pPlayer);
 
 END_BLD_NS

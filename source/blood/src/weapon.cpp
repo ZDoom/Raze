@@ -174,7 +174,7 @@ char sub_4B1FC(PLAYER *pPlayer, int a2, int a3, int a4)
         return 1;
     if (a2 == 9 && pPlayer->pXSprite->health > 0)
         return 1;
-    return pPlayer->ammCount[a3] >= a4;
+    return pPlayer->ammoCount[a3] >= a4;
 }
 
 char CheckAmmo(PLAYER *pPlayer, int a2, int a3)
@@ -187,7 +187,7 @@ char CheckAmmo(PLAYER *pPlayer, int a2, int a3)
         return 1;
     if (pPlayer->curWeapon == 9 && pPlayer->pXSprite->health >= (a3<<4))
         return 1;
-    return pPlayer->ammCount[a2] >= a3;
+    return pPlayer->ammoCount[a2] >= a3;
 }
 
 char sub_4B2C8(PLAYER *pPlayer, int a2, int a3)
@@ -196,7 +196,7 @@ char sub_4B2C8(PLAYER *pPlayer, int a2, int a3)
         return 1;
     if (a2 == -1)
         return 1;
-    return pPlayer->ammCount[a2] >= a3;
+    return pPlayer->ammoCount[a2] >= a3;
 }
 
 void SpawnBulletEject(PLAYER *pPlayer, int a2, int a3)
@@ -518,24 +518,24 @@ void WeaponRaise(PLAYER *pPlayer)
     case 3: // sawed off
         if (powerupCheck(pPlayer, kPwUpTwoGuns))
         {
-            if (gInfiniteAmmo || pPlayer->ammCount[2] >= 4)
+            if (gInfiniteAmmo || pPlayer->ammoCount[2] >= 4)
                 StartQAV(pPlayer, 59, -1, 0);
             else
                 StartQAV(pPlayer, 50, -1, 0);
-            if (gInfiniteAmmo || pPlayer->ammCount[2] >= 4)
+            if (gInfiniteAmmo || pPlayer->ammoCount[2] >= 4)
                 pPlayer->weaponState = 7;
-            else if (pPlayer->ammCount[2] > 1)
+            else if (pPlayer->ammoCount[2] > 1)
                 pPlayer->weaponState = 3;
-            else if (pPlayer->ammCount[2] > 0)
+            else if (pPlayer->ammoCount[2] > 0)
                 pPlayer->weaponState = 2;
             else
                 pPlayer->weaponState = 1;
         }
         else
         {
-            if (gInfiniteAmmo || pPlayer->ammCount[2] > 1)
+            if (gInfiniteAmmo || pPlayer->ammoCount[2] > 1)
                 pPlayer->weaponState = 3;
-            else if (pPlayer->ammCount[2] > 0)
+            else if (pPlayer->ammoCount[2] > 0)
                 pPlayer->weaponState = 2;
             else
                 pPlayer->weaponState = 1;
@@ -815,7 +815,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             StartQAV(pPlayer, 5, -1, 0);
             break;
         case 2:
-            if (pPlayer->ammCount[5] > 0)
+            if (pPlayer->ammoCount[5] > 0)
             {
                 pPlayer->weaponState = 3;
                 StartQAV(pPlayer, 16, -1, 0);
@@ -850,7 +850,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             pPlayer->weaponQav = 37;
             break;
         case 12:
-            if (pPlayer->ammCount[11] > 0)
+            if (pPlayer->ammoCount[11] > 0)
             {
                 pPlayer->weaponState = 10;
                 StartQAV(pPlayer, 31, -1, 0);
@@ -877,7 +877,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             {
                 sfxPlay3DSound(pPlayer->pSprite, 410, 3, 2);
                 StartQAV(pPlayer, 57, nClientEjectShell, 0);
-                if (gInfiniteAmmo || pPlayer->ammCount[2] > 1)
+                if (gInfiniteAmmo || pPlayer->ammoCount[2] > 1)
                     pPlayer->weaponState = 3;
                 else
                     pPlayer->weaponState = 2;
@@ -1397,7 +1397,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
         // by NoOne: trying to simulate v1.0x voodoo here.
         // dunno how exactly it works, but at least it not spend all the ammo on alt fire
         if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) {
-            int nCount = ClipHigh(pPlayer->ammCount[9], pPlayer->aimTargetsCount);
+            int nCount = ClipHigh(pPlayer->ammoCount[9], pPlayer->aimTargetsCount);
             if (nCount > 0)
             {
                 for (int i = 0; i < pPlayer->aimTargetsCount; i++)
@@ -1409,8 +1409,8 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                     int nDist = approxDist(pTarget->x - pPlayer->pSprite->x, pTarget->y - pPlayer->pSprite->y);
                     if (nDist > 0 && nDist < 51200)
                     {
-                        int vc = pPlayer->ammCount[9] >> 3;
-                        int v8 = pPlayer->ammCount[9] << 1;
+                        int vc = pPlayer->ammoCount[9] >> 3;
+                        int v8 = pPlayer->ammoCount[9] << 1;
                         int nDamage = (v8 + Random(vc)) << 4;
                         nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
                         nDamage = actDamageSprite(pPlayer->nSprite, pTarget, DAMAGE_TYPE_5, nDamage);
@@ -1432,10 +1432,10 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
         }
 
         //int nAmmo = pPlayer->ammCount[9];
-        int nCount = ClipHigh(pPlayer->ammCount[9], pPlayer->aimTargetsCount);
+        int nCount = ClipHigh(pPlayer->ammoCount[9], pPlayer->aimTargetsCount);
         if (nCount > 0)
         {
-            int v4 = pPlayer->ammCount[9] - (pPlayer->ammCount[9] / nCount) * nCount;
+            int v4 = pPlayer->ammoCount[9] - (pPlayer->ammoCount[9] / nCount) * nCount;
             for (int i = 0; i < pPlayer->aimTargetsCount; i++)
             {
                 int nTarget = pPlayer->aimTargets[i];
@@ -1447,8 +1447,8 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                 int nDist = approxDist(pTarget->x - pPlayer->pSprite->x, pTarget->y - pPlayer->pSprite->y);
                 if (nDist > 0 && nDist < 51200)
                 {
-                    int vc = pPlayer->ammCount[9] >> 3;
-                    int v8 = pPlayer->ammCount[9] << 1;
+                    int vc = pPlayer->ammoCount[9] >> 3;
+                    int v8 = pPlayer->ammoCount[9] << 1;
                     int nDamage = (v8 + Random2(vc)) << 4;
                     nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
                     nDamage = actDamageSprite(pPlayer->nSprite, pTarget, DAMAGE_TYPE_5, nDamage);
@@ -1463,7 +1463,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                 }
             }
         }
-        UseAmmo(pPlayer, 9, pPlayer->ammCount[9]);
+        UseAmmo(pPlayer, 9, pPlayer->ammoCount[9]);
         pPlayer->hasWeapon[10] = 0;
         pPlayer->weaponState = -1;
     }
@@ -1478,10 +1478,10 @@ void DropVoodoo(int nTrigger, PLAYER *pPlayer)
     {
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
-        pXSprite->data1 = pPlayer->ammCount[9];
+        pXSprite->data1 = pPlayer->ammoCount[9];
         evPost(pSprite->index, 3, 90, kCallbackDropVoodoo);
         UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
-        UseAmmo(pPlayer, 9, pPlayer->ammCount[9]);
+        UseAmmo(pPlayer, 9, pPlayer->ammoCount[9]);
         pPlayer->hasWeapon[10] = 0;
     }
 }
@@ -1581,7 +1581,7 @@ void AltFireNapalm(int nTrigger, PLAYER *pPlayer)
     if (pMissile)
     {
         XSPRITE *pXSprite = &xsprite[pMissile->extra];
-        pXSprite->data4 = ClipHigh(pPlayer->ammCount[4], 12);
+        pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
         UseAmmo(pPlayer, 4, pXSprite->data4);
         seqSpawn(22, 3, pMissile->extra, -1);
         actBurnSprite(actSpriteIdToOwnerId(pPlayer->pSprite->index), pXSprite, 600);
@@ -1625,12 +1625,12 @@ void AltFireLifeLeech(int nTrigger, PLAYER *pPlayer)
         pXSprite->Push = 1;
         pXSprite->Proximity = 1;
         pXSprite->DudeLockout = 1;
-        pXSprite->data4 = ClipHigh(pPlayer->ammCount[4], 12);
+        pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
         pXSprite->stateTimer = 1;
         evPost(pMissile->index, 3, 120, kCallbackLeechStateTimer);
         if (gGameOptions.nGameType <= 1)
         {
-            int nAmmo = pPlayer->ammCount[8];
+            int nAmmo = pPlayer->ammoCount[8];
             if (nAmmo < 25 && pPlayer->pXSprite->health > ((25-nAmmo)<<4))
             {
                 actDamageSprite(pPlayer->nSprite, pPlayer->pSprite, DAMAGE_TYPE_5, ((25-nAmmo)<<4));
@@ -1641,8 +1641,8 @@ void AltFireLifeLeech(int nTrigger, PLAYER *pPlayer)
         }
         else
         {
-            pXSprite->data3 = pPlayer->ammCount[8];
-            pPlayer->ammCount[8] = 0;
+            pXSprite->data3 = pPlayer->ammoCount[8];
+            pPlayer->ammoCount[8] = 0;
         }
         pPlayer->hasWeapon[9] = 0;
     }
@@ -1924,9 +1924,31 @@ char sub_4F484(PLAYER *pPlayer)
     return 0;
 }
 
-void WeaponProcess(PLAYER *pPlayer)
-{
-    pPlayer->flashEffect = ClipLow(pPlayer->flashEffect-1, 0);
+void WeaponProcess(PLAYER *pPlayer) {
+
+    pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
+
+    if (gQavScene[pPlayer->nPlayer].index >= 0) {
+
+        int nIndex = gQavScene[pPlayer->nPlayer].index;
+        if (sprite[nIndex].extra >= 0 && pPlayer->pXSprite->health > 0) {
+            XSPRITE* pXSprite = &xsprite[sprite[nIndex].extra];
+            //viewSetSystemMessage("%d", pXSprite->sysData1);
+            if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) {
+                evSend(nIndex, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command, pPlayer->nSprite);
+                evPost(nIndex, 3, 0, kCmdOff, pPlayer->nSprite);
+            } else  {
+                playQavScene(pPlayer);
+                pPlayer->weaponTimer = ClipLow(pPlayer->weaponTimer -= 4, 0);
+            }
+        } else {
+            gQavScene[pPlayer->nPlayer].index = -1;
+            gQavScene[pPlayer->nPlayer].qavId = NULL;
+        }
+
+        return;
+    }
+
     if (pPlayer->pXSprite->health == 0)
     {
         pPlayer->qavLoop = 0;
@@ -2321,7 +2343,7 @@ void WeaponProcess(PLAYER *pPlayer)
                 StartQAV(pPlayer, 38, nClientDropRemote, 0);
                 return;
             case 11:
-                if (pPlayer->ammCount[11] > 0)
+                if (pPlayer->ammoCount[11] > 0)
                 {
                     pPlayer->weaponState = 10;
                     StartQAV(pPlayer, 30, -1, 0);
@@ -2346,7 +2368,7 @@ void WeaponProcess(PLAYER *pPlayer)
                 StartQAV(pPlayer, 38, nClientDropRemote, 0);
                 return;
             case 11:
-                if (pPlayer->ammCount[11] > 0)
+                if (pPlayer->ammoCount[11] > 0)
                 {
                     pPlayer->weaponState = 10;
                     StartQAV(pPlayer, 30, -1, 0);

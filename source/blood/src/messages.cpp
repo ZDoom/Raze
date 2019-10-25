@@ -104,13 +104,13 @@ void SetAmmo(bool stat)
     if (stat)
     {
         for (int i = 0; i < 12; i++)
-            gMe->ammCount[i] = gAmmoInfo[i].max;
+            gMe->ammoCount[i] = gAmmoInfo[i].max;
         viewSetMessage("You have full ammo.");
     }
     else
     {
         for (int i = 0; i < 12; i++)
-            gMe->ammCount[i] = 0;
+            gMe->ammoCount[i] = 0;
         viewSetMessage("You have no ammo.");
     }
 }

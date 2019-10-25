@@ -53,7 +53,7 @@ int soundRates[13] = {
     44100,
     44100,
 };
-#define kMaxChannels 32
+#define kChannelMax 32
 
 int sndGetRate(int format)
 {
@@ -62,11 +62,11 @@ int sndGetRate(int format)
     return 11025;
 }
 
-SAMPLE2D Channel[kMaxChannels];
+SAMPLE2D Channel[kChannelMax];
 
 SAMPLE2D * FindChannel(void)
 {
-    for (int i = kMaxChannels - 1; i >= 0; i--)
+    for (int i = kChannelMax - 1; i >= 0; i--)
         if (Channel[i].at5 == 0) return &Channel[i];
     consoleSysMsg("No free channel available for sample");
     //ThrowError("No free channel available for sample");
@@ -249,7 +249,7 @@ void sndStartSample(const char *pzSound, int nVolume, int nChannel)
         return;
     if (!strlen(pzSound))
         return;
-    dassert(nChannel >= -1 && nChannel < kMaxChannels);
+    dassert(nChannel >= -1 && nChannel < kChannelMax);
     SAMPLE2D *pChannel;
     if (nChannel == -1)
         pChannel = FindChannel();
@@ -269,7 +269,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
 {
     if (!snd_enabled)
         return;
-    dassert(nChannel >= -1 && nChannel < kMaxChannels);
+    dassert(nChannel >= -1 && nChannel < kChannelMax);
     DICTNODE *hSfx = gSoundRes.Lookup(nSound, "SFX");
     if (!hSfx)
         return;
@@ -313,7 +313,7 @@ void sndStartWavID(unsigned int nSound, int nVolume, int nChannel)
 {
     if (!snd_enabled)
         return;
-    dassert(nChannel >= -1 && nChannel < kMaxChannels);
+    dassert(nChannel >= -1 && nChannel < kChannelMax);
     SAMPLE2D *pChannel;
     if (nChannel == -1)
         pChannel = FindChannel();
@@ -340,7 +340,7 @@ void sndKillSound(SAMPLE2D *pChannel)
 
 void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel)
 {
-    dassert(nChannel >= -1 && nChannel < kMaxChannels);
+    dassert(nChannel >= -1 && nChannel < kChannelMax);
     SAMPLE2D *pChannel;
     if (nChannel == -1)
         pChannel = FindChannel();
@@ -365,7 +365,7 @@ void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel)
 
 void sndKillAllSounds(void)
 {
-    for (int i = 0; i < kMaxChannels; i++)
+    for (int i = 0; i < kChannelMax; i++)
     {
         SAMPLE2D *pChannel = &Channel[i];
         if (pChannel->at0 > 0)
@@ -392,7 +392,7 @@ void sndKillAllSounds(void)
 
 void sndProcess(void)
 {
-    for (int i = 0; i < kMaxChannels; i++)
+    for (int i = 0; i < kChannelMax; i++)
     {
         if (Channel[i].at0 <= 0 && Channel[i].at5)
         {

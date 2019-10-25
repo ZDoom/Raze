@@ -281,8 +281,8 @@ void DoSectorPanning(void)
             if (pXSector->panFloor) // Floor
             {
                 int nTile = pSector->floorpicnum;
-                int px = (pSector->floorxpanning<<8)+pXSector->at32_1;
-                int py = (pSector->floorypanning<<8)+pXSector->at34_0;
+                int px = (pSector->floorxpanning<<8)+pXSector->floorXPanFrac;
+                int py = (pSector->floorypanning<<8)+pXSector->floorYPanFrac;
                 if (pSector->floorstat&64)
                     angle -= 512;
                 int xBits = (picsiz[nTile]&15)-((pSector->floorstat&8)!=0);
@@ -291,14 +291,14 @@ void DoSectorPanning(void)
                 py -= mulscale30(speed<<2, Sin(angle))>>yBits;
                 pSector->floorxpanning = px>>8;
                 pSector->floorypanning = py>>8;
-                pXSector->at32_1 = px&255;
-                pXSector->at34_0 = py&255;
+                pXSector->floorXPanFrac = px&255;
+                pXSector->floorYPanFrac = py&255;
             }
             if (pXSector->panCeiling) // Ceiling
             {
                 int nTile = pSector->ceilingpicnum;
-                int px = (pSector->ceilingxpanning<<8)+pXSector->at30_1;
-                int py = (pSector->ceilingypanning<<8)+pXSector->at31_1;
+                int px = (pSector->ceilingxpanning<<8)+pXSector->ceilXPanFrac;
+                int py = (pSector->ceilingypanning<<8)+pXSector->ceilYPanFrac;
                 if (pSector->ceilingstat&64)
                     angle -= 512;
                 int xBits = (picsiz[nTile]&15)-((pSector->ceilingstat&8)!=0);
@@ -307,8 +307,8 @@ void DoSectorPanning(void)
                 py -= mulscale30(speed<<2, Sin(angle))>>yBits;
                 pSector->ceilingxpanning = px>>8;
                 pSector->ceilingypanning = py>>8;
-                pXSector->at30_1 = px&255;
-                pXSector->at31_1 = py&255;
+                pXSector->ceilXPanFrac = px&255;
+                pXSector->ceilYPanFrac = py&255;
             }
         }
     }

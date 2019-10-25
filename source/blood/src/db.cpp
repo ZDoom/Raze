@@ -906,20 +906,20 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSector->busy = bitReader.readUnsigned(17);
             pXSector->data = bitReader.readUnsigned(16);
             pXSector->txID = bitReader.readUnsigned(10);
-            pXSector->at7_2 = bitReader.readUnsigned(3);
-            pXSector->at7_5 = bitReader.readUnsigned(3);
+            pXSector->busyWaveA = bitReader.readUnsigned(3);
+            pXSector->busyWaveB = bitReader.readUnsigned(3);
             pXSector->rxID = bitReader.readUnsigned(10);
             pXSector->command = bitReader.readUnsigned(8);
             pXSector->triggerOn = bitReader.readUnsigned(1);
             pXSector->triggerOff = bitReader.readUnsigned(1);
             pXSector->busyTimeA = bitReader.readUnsigned(12);
             pXSector->waitTimeA = bitReader.readUnsigned(12);
-            pXSector->atd_4 = bitReader.readUnsigned(1);
+            pXSector->restState = bitReader.readUnsigned(1);
             pXSector->interruptable = bitReader.readUnsigned(1);
             pXSector->amplitude = bitReader.readSigned(8);
             pXSector->freq = bitReader.readUnsigned(8);
-            pXSector->atf_6 = bitReader.readUnsigned(1);
-            pXSector->atf_7 = bitReader.readUnsigned(1);
+            pXSector->reTriggerA = bitReader.readUnsigned(1);
+            pXSector->reTriggerB = bitReader.readUnsigned(1);
             pXSector->phase = bitReader.readUnsigned(8);
             pXSector->wave = bitReader.readUnsigned(4);
             pXSector->shadeAlways = bitReader.readUnsigned(1);
@@ -935,7 +935,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSector->Depth = bitReader.readUnsigned(3);
             pXSector->panVel = bitReader.readUnsigned(8);
             pXSector->panAngle = bitReader.readUnsigned(11);
-            pXSector->at16_3 = bitReader.readUnsigned(1);
+            pXSector->unused1 = bitReader.readUnsigned(1);
             pXSector->decoupled = bitReader.readUnsigned(1);
             pXSector->triggerOnce = bitReader.readUnsigned(1);
             pXSector->isTriggered = bitReader.readUnsigned(1);
@@ -947,30 +947,30 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSector->Exit = bitReader.readUnsigned(1);
             pXSector->Wallpush = bitReader.readUnsigned(1);
             pXSector->color = bitReader.readUnsigned(1);
-            pXSector->at18_1 = bitReader.readUnsigned(1);
+            pXSector->unused2 = bitReader.readUnsigned(1);
             pXSector->busyTimeB = bitReader.readUnsigned(12);
             pXSector->waitTimeB = bitReader.readUnsigned(12);
             pXSector->stopOn = bitReader.readUnsigned(1);
             pXSector->stopOff = bitReader.readUnsigned(1);
             pXSector->ceilpal = bitReader.readUnsigned(4);
-            pXSector->at1c_0 = bitReader.readSigned(32);
-            pXSector->at20_0 = bitReader.readSigned(32);
-            pXSector->at24_0 = bitReader.readSigned(32);
-            pXSector->at28_0 = bitReader.readSigned(32);
+            pXSector->offCeilZ = bitReader.readSigned(32);
+            pXSector->onCeilZ = bitReader.readSigned(32);
+            pXSector->offFloorZ = bitReader.readSigned(32);
+            pXSector->onFloorZ = bitReader.readSigned(32);
             pXSector->marker0 = bitReader.readUnsigned(16);
             pXSector->marker1 = bitReader.readUnsigned(16);
             pXSector->Crush = bitReader.readUnsigned(1);
-            pXSector->at30_1 = bitReader.readUnsigned(8);
-            pXSector->at31_1 = bitReader.readUnsigned(8);
-            pXSector->at32_1 = bitReader.readUnsigned(8);
+            pXSector->ceilXPanFrac = bitReader.readUnsigned(8);
+            pXSector->ceilYPanFrac = bitReader.readUnsigned(8);
+            pXSector->floorXPanFrac = bitReader.readUnsigned(8);
             pXSector->damageType = bitReader.readUnsigned(3);
             pXSector->floorpal = bitReader.readUnsigned(4);
-            pXSector->at34_0 = bitReader.readUnsigned(8);
+            pXSector->floorYPanFrac = bitReader.readUnsigned(8);
             pXSector->locked = bitReader.readUnsigned(1);
             pXSector->windVel = bitReader.readUnsigned(10);
             pXSector->windAng = bitReader.readUnsigned(11);
             pXSector->windAlways = bitReader.readUnsigned(1);
-            pXSector->at37_7 = bitReader.readUnsigned(1);
+            pXSector->dudeLockout = bitReader.readUnsigned(1);
             pXSector->bobTheta = bitReader.readUnsigned(11);
             pXSector->bobZRange = bitReader.readUnsigned(5);
             pXSector->bobSpeed = bitReader.readSigned(12);
@@ -1031,7 +1031,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXWall->busy = bitReader.readUnsigned(17);
             pXWall->data = bitReader.readSigned(16);
             pXWall->txID = bitReader.readUnsigned(10);
-            pXWall->at7_2 = bitReader.readUnsigned(6);
+            pXWall->unused1 = bitReader.readUnsigned(6);
             pXWall->rxID = bitReader.readUnsigned(10);
             pXWall->command = bitReader.readUnsigned(8);
             pXWall->triggerOn = bitReader.readUnsigned(1);
@@ -1050,13 +1050,13 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXWall->triggerPush = bitReader.readUnsigned(1);
             pXWall->triggerVector = bitReader.readUnsigned(1);
             pXWall->triggerTouch = bitReader.readUnsigned(1);
-            pXWall->at11_0 = bitReader.readUnsigned(2);
+            pXWall->unused2 = bitReader.readUnsigned(2);
             pXWall->xpanFrac = bitReader.readUnsigned(8);
             pXWall->ypanFrac = bitReader.readUnsigned(8);
             pXWall->locked = bitReader.readUnsigned(1);
             pXWall->dudeLockout = bitReader.readUnsigned(1);
-            pXWall->at13_4 = bitReader.readUnsigned(4);
-            pXWall->at14_0 = bitReader.readUnsigned(32);
+            pXWall->unused3 = bitReader.readUnsigned(4);
+            pXWall->unused4 = bitReader.readUnsigned(32);
             xwall[wall[i].extra].reference = i;
             xwall[wall[i].extra].busy = xwall[wall[i].extra].state << 16;
 
@@ -1130,9 +1130,9 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSprite->waitTime = bitReader.readUnsigned(12);
             pXSprite->restState = bitReader.readUnsigned(1);
             pXSprite->Interrutable = bitReader.readUnsigned(1);
-            pXSprite->atb_2 = bitReader.readUnsigned(2);
+            pXSprite->unused1 = bitReader.readUnsigned(2);
             pXSprite->respawnPending = bitReader.readUnsigned(2);
-            pXSprite->atb_6 = bitReader.readUnsigned(1);
+            pXSprite->unused2 = bitReader.readUnsigned(1);
             pXSprite->lT = bitReader.readUnsigned(1);
             pXSprite->dropMsg = bitReader.readUnsigned(8);
             pXSprite->Decoupled = bitReader.readUnsigned(1);
@@ -1146,7 +1146,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSprite->Touch = bitReader.readUnsigned(1);
             pXSprite->Sight = bitReader.readUnsigned(1);
             pXSprite->Proximity = bitReader.readUnsigned(1);
-            pXSprite->ate_5 = bitReader.readUnsigned(2);
+            pXSprite->unused3 = bitReader.readUnsigned(2);
             pXSprite->lSkill = bitReader.readUnsigned(5);
             pXSprite->lS = bitReader.readUnsigned(1);
             pXSprite->lB = bitReader.readUnsigned(1);
@@ -1161,7 +1161,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSprite->medium = bitReader.readUnsigned(2);
             pXSprite->respawn = bitReader.readUnsigned(2);
             pXSprite->data4 = bitReader.readUnsigned(16);
-            pXSprite->at1a_2 = bitReader.readUnsigned(6);
+            pXSprite->unused4 = bitReader.readUnsigned(6);
             pXSprite->lockMsg = bitReader.readUnsigned(8);
             pXSprite->health = bitReader.readUnsigned(12);
             pXSprite->dudeDeaf = bitReader.readUnsigned(1);
@@ -1252,15 +1252,15 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
                     pXSector->busyTimeB = pXSector->busyTimeA;
                     if (pXSector->busyTimeA > 0)
                     {
-                        if (!pXSector->atd_4)
+                        if (!pXSector->restState)
                         {
-                            pXSector->atf_6 = 1;
+                            pXSector->reTriggerA = 1;
                         }
                         else
                         {
                             pXSector->waitTimeB = pXSector->busyTimeA;
                             pXSector->waitTimeA = 0;
-                            pXSector->atf_7 = 1;
+                            pXSector->reTriggerB = 1;
                         }
                     }
                 }
@@ -1425,20 +1425,20 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
             bitWriter.write(pXSector->busy, 17);
             bitWriter.write(pXSector->data, 16);
             bitWriter.write(pXSector->txID, 10);
-            bitWriter.write(pXSector->at7_2, 3);
-            bitWriter.write(pXSector->at7_5, 3);
+            bitWriter.write(pXSector->busyWaveA, 3);
+            bitWriter.write(pXSector->busyWaveB, 3);
             bitWriter.write(pXSector->rxID, 10);
             bitWriter.write(pXSector->command, 8);
             bitWriter.write(pXSector->triggerOn, 1);
             bitWriter.write(pXSector->triggerOff, 1);
             bitWriter.write(pXSector->busyTimeA, 12);
             bitWriter.write(pXSector->waitTimeA, 12);
-            bitWriter.write(pXSector->atd_4, 1);
+            bitWriter.write(pXSector->restState, 1);
             bitWriter.write(pXSector->interruptable, 1);
             bitWriter.write(pXSector->amplitude, 8);
             bitWriter.write(pXSector->freq, 8);
-            bitWriter.write(pXSector->atf_6, 1);
-            bitWriter.write(pXSector->atf_7, 1);
+            bitWriter.write(pXSector->reTriggerA, 1);
+            bitWriter.write(pXSector->reTriggerB, 1);
             bitWriter.write(pXSector->phase, 8);
             bitWriter.write(pXSector->wave, 4);
             bitWriter.write(pXSector->shadeAlways, 1);
@@ -1454,7 +1454,7 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
             bitWriter.write(pXSector->Depth, 3);
             bitWriter.write(pXSector->panVel, 8);
             bitWriter.write(pXSector->panAngle, 11);
-            bitWriter.write(pXSector->at16_3, 1);
+            bitWriter.write(pXSector->unused1, 1);
             bitWriter.write(pXSector->decoupled, 1);
             bitWriter.write(pXSector->triggerOnce, 1);
             bitWriter.write(pXSector->isTriggered, 1);
@@ -1466,30 +1466,30 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
             bitWriter.write(pXSector->Exit, 1);
             bitWriter.write(pXSector->Wallpush, 1);
             bitWriter.write(pXSector->color, 1);
-            bitWriter.write(pXSector->at18_1, 1);
+            bitWriter.write(pXSector->unused2, 1);
             bitWriter.write(pXSector->busyTimeB, 12);
             bitWriter.write(pXSector->waitTimeB, 12);
             bitWriter.write(pXSector->stopOn, 1);
             bitWriter.write(pXSector->stopOff, 1);
             bitWriter.write(pXSector->ceilpal, 4);
-            bitWriter.write(pXSector->at1c_0, 32);
-            bitWriter.write(pXSector->at20_0, 32);
-            bitWriter.write(pXSector->at24_0, 32);
-            bitWriter.write(pXSector->at28_0, 32);
+            bitWriter.write(pXSector->offCeilZ, 32);
+            bitWriter.write(pXSector->onCeilZ, 32);
+            bitWriter.write(pXSector->offFloorZ, 32);
+            bitWriter.write(pXSector->onFloorZ, 32);
             bitWriter.write(pXSector->marker0, 16);
             bitWriter.write(pXSector->marker1, 16);
             bitWriter.write(pXSector->Crush, 1);
-            bitWriter.write(pXSector->at30_1, 8);
-            bitWriter.write(pXSector->at31_1, 8);
-            bitWriter.write(pXSector->at32_1, 8);
+            bitWriter.write(pXSector->ceilXPanFrac, 8);
+            bitWriter.write(pXSector->ceilYPanFrac, 8);
+            bitWriter.write(pXSector->floorXPanFrac, 8);
             bitWriter.write(pXSector->damageType, 3);
             bitWriter.write(pXSector->floorpal, 4);
-            bitWriter.write(pXSector->at34_0, 8);
+            bitWriter.write(pXSector->floorYPanFrac, 8);
             bitWriter.write(pXSector->locked, 1);
             bitWriter.write(pXSector->windVel, 10);
             bitWriter.write(pXSector->windAng, 11);
             bitWriter.write(pXSector->windAlways, 1);
-            bitWriter.write(pXSector->at37_7, 1);
+            bitWriter.write(pXSector->dudeLockout, 1);
             bitWriter.write(pXSector->bobTheta, 11);
             bitWriter.write(pXSector->bobZRange, 5);
             bitWriter.write(pXSector->bobSpeed, 12);
@@ -1521,7 +1521,7 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
             bitWriter.write(pXWall->busy, 17);
             bitWriter.write(pXWall->data, 16);
             bitWriter.write(pXWall->txID, 10);
-            bitWriter.write(pXWall->at7_2, 6);
+            bitWriter.write(pXWall->unused1, 6);
             bitWriter.write(pXWall->rxID, 10);
             bitWriter.write(pXWall->command, 8);
             bitWriter.write(pXWall->triggerOn, 1);
@@ -1540,13 +1540,13 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
             bitWriter.write(pXWall->triggerPush, 1);
             bitWriter.write(pXWall->triggerVector, 1);
             bitWriter.write(pXWall->triggerTouch, 1);
-            bitWriter.write(pXWall->at11_0, 2);
+            bitWriter.write(pXWall->unused2, 2);
             bitWriter.write(pXWall->xpanFrac, 8);
             bitWriter.write(pXWall->ypanFrac, 8);
             bitWriter.write(pXWall->locked, 1);
             bitWriter.write(pXWall->dudeLockout, 1);
-            bitWriter.write(pXWall->at13_4, 4);
-            bitWriter.write(pXWall->at14_0, 32);
+            bitWriter.write(pXWall->unused3, 4);
+            bitWriter.write(pXWall->unused4, 32);
             IOBuffer1.Write(pBuffer, nXWallSize);
         }
     }
@@ -1581,9 +1581,9 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
                 bitWriter.write(pXSprite->waitTime, 12);
                 bitWriter.write(pXSprite->restState, 1);
                 bitWriter.write(pXSprite->Interrutable, 1);
-                bitWriter.write(pXSprite->atb_2, 2);
+                bitWriter.write(pXSprite->unused1, 2);
                 bitWriter.write(pXSprite->respawnPending, 2);
-                bitWriter.write(pXSprite->atb_6, 1);
+                bitWriter.write(pXSprite->unused2, 1);
                 bitWriter.write(pXSprite->lT, 1);
                 bitWriter.write(pXSprite->dropMsg, 8);
                 bitWriter.write(pXSprite->Decoupled, 1);
@@ -1597,7 +1597,7 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
                 bitWriter.write(pXSprite->Touch, 1);
                 bitWriter.write(pXSprite->Sight, 1);
                 bitWriter.write(pXSprite->Proximity, 1);
-                bitWriter.write(pXSprite->ate_5, 2);
+                bitWriter.write(pXSprite->unused3, 2);
                 bitWriter.write(pXSprite->lSkill, 5);
                 bitWriter.write(pXSprite->lS, 1);
                 bitWriter.write(pXSprite->lB, 1);
@@ -1612,7 +1612,7 @@ int dbSaveMap(const char *pPath, int nX, int nY, int nZ, short nAngle, short nSe
                 bitWriter.write(pXSprite->medium, 2);
                 bitWriter.write(pXSprite->respawn, 2);
                 bitWriter.write(pXSprite->data4, 16);
-                bitWriter.write(pXSprite->at1a_2, 6);
+                bitWriter.write(pXSprite->unused4, 6);
                 bitWriter.write(pXSprite->lockMsg, 8);
                 bitWriter.write(pXSprite->health, 12);
                 bitWriter.write(pXSprite->dudeDeaf, 1);

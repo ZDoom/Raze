@@ -180,6 +180,7 @@ struct SPRITEMASS {
     int fraction; // mainly needs for moving debris
 };
 
+
 extern AMMOITEMDATA gAmmoItemData[];
 extern WEAPONITEMDATA gWeaponItemData[];
 extern ITEMDATA gItemData[];
@@ -287,6 +288,4 @@ extern short gPhysSpritesList[kMaxSuperXSprites];
 extern short gProxySpritesCount;
 extern short gSightSpritesCount;
 extern short gPhysSpritesCount;
-extern short gQavPlayerIndex;
-
-END_BLD_NS
+//extern short gQavPlayerIndex;

@@ -189,7 +189,7 @@ enum {
     kModernEffectSpawner = 38,
     kModernWindGenerator = 39,
     kModernConcussSprite = 712, /// WIP
-    kModernPlayerControl = 713, /// WIP
+    kModernPlayerControl = 500, /// WIP
 
     // decorations
     kDecorationTorch = 30,

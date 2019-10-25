@@ -51,7 +51,7 @@ enum CALLBACK_ID {
     kCallbackDropVoodoo = 21, // unused
     kCallbackMissileBurst = 22, // by NoOne
     kCallbackMissileSpriteBlock = 23, // by NoOne
-    kCallbackMax = 24,
+    kCallbackMax,
 };
 
 extern void (*gCallback[kCallbackMax])(int);
