@@ -1,3 +1,39 @@
+/*
+** gamecvars.cpp
+**
+** most of the game CVARs from the frontend consolidated to only have one instance
+**
+**---------------------------------------------------------------------------
+** Copyright 2019 Christoph Oelckers
+** All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+**    notice, this list of conditions and the following disclaimer.
+** 2. Redistributions in binary form must reproduce the above copyright
+**    notice, this list of conditions and the following disclaimer in the
+**    documentation and/or other materials provided with the distribution.
+** 3. The name of the author may not be used to endorse or promote products
+**    derived from this software without specific prior written permission.
+**
+** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+** OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+** IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+** NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**---------------------------------------------------------------------------
+**
+**
+*/ 
+
 #include "c_cvars.h"
 #include "common.h"
 #include "fx_man.h"
@@ -165,9 +201,9 @@ CUSTOM_CVARD(Int, mus_device, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "selects musi
 
 // HUD
 
-// This was particularly messy. EDuke and Rednukem had no consistent setting for this but a complex combination fo 4 CVARs and lots of mod flags controlling the HUD layout
+// This was particularly messy. EDuke and Rednukem had no consistent setting for this but a complex combination of 4 CVARs and lots of mod flags controlling the HUD layout
 // NBlood had this differently with an inverted scale of 0-7 with 0 having no HUD.
-// For consistency all frontends now use the same scale, with 0 being the smallest and 11 being the largest, which get converted to the internal swrrings by the set_hud_layout callback.
+// For consistency all frontends now use the same scale, with 0 being the smallest and 11 being the largest, which get converted to the internal settings by the set_hud_layout callback.
 CUSTOM_CVARD(Int, hud_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD size and style")
 {
 	if (self < 0) self = 0;
