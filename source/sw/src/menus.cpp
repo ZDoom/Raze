@@ -44,7 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "demo.h"
 
-#include "function.h"
+#include "gamecontrol.h"
 #include "gamedefs.h"
 #include "config.h"
 #include "network.h"
@@ -829,7 +829,8 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         for (i=0; i<(int)SIZ(strs); i++)
         {
             w = 0;
-            sprintf(ds,strs[i],gamefunctions[currentkey],col[currentcol]);
+			auto c = CONFIG_FunctionNumToName(currentkey);
+            sprintf(ds,strs[i],c,col[currentcol]);
             for (j=0; ds[j]; j++) if (ds[j] == '_') ds[j] = ' ';
             MNU_MeasureString(ds, &w, &h);
             MNU_DrawString((XDIM - w)/2, y, ds, 0, 16);
@@ -925,10 +926,11 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 
         for (i = topitem; i <= botitem; i++)
         {
-            for (j = 0; gamefunctions[i][j]; j++)
+			auto c = CONFIG_FunctionNumToName(i);
+            for (j = 0; c[j]; j++)
             {
-                if (gamefunctions[i][j] == '_') ds[j] = ' ';
-                else ds[j] = gamefunctions[i][j];
+                if (c[j] == '_') ds[j] = ' ';
+                else ds[j] = c[j];
             }
             ds[j] = 0;
 
@@ -1047,10 +1049,11 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
         }
         else
         {
-            for (j = 0; gamefunctions[i-1][j]; j++)
+			auto c = CONFIG_FunctionNumToName(i-1);
+			for (j = 0; c[j]; j++)
             {
-                if (gamefunctions[i-1][j] == '_') ds[j] = ' ';
-                else ds[j] = gamefunctions[i-1][j];
+                if (c[j] == '_') ds[j] = ' ';
+                else ds[j] = c[j];
             }
             ds[j] = 0;
         }
@@ -4657,10 +4660,9 @@ void MNU_DoMenu(CTLType type, PLAYERp pp)
         MNU_DoSlider(1, &currentmenu->items[currentmenu->cursor], FALSE);
         resetitem = TRUE;
     }
-    else if (mnu_input.button1 || BUTTON(gamefunc_Show_Menu))
+    else if (mnu_input.button1)
     {
         static int handle3=0;
-        CONTROL_ClearButton(gamefunc_Show_Menu);
         if (!FX_SoundActive(handle3))
             handle3 = PlaySound(DIGI_SWORDSWOOSH,&zero,&zero,&zero,v3df_dontpan);
         MNU_UpLevel();
@@ -4704,10 +4706,9 @@ MNU_CheckForMenus(void)
     }
     else
     {
-        if ((KEY_PRESSED(KEYSC_ESC) || BUTTON(gamefunc_Show_Menu)) && dimensionmode == 3 && !ConPanel)
+        if ((KEY_PRESSED(KEYSC_ESC)) && dimensionmode == 3 && !ConPanel)
         {
             KEY_PRESSED(KEYSC_ESC) = 0;
-            CONTROL_ClearButton(gamefunc_Show_Menu);
             KB_ClearKeysDown();
             // setup sliders/buttons
             MNU_InitMenus();

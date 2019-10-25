@@ -83,8 +83,6 @@ extern intptr_t const * insptr;
 void VM_ScriptInfo(intptr_t const * const ptr, int const range);
 #endif
 
-extern hashtable_t h_gamefuncs;
-
 extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;
 extern hashtable_t h_labels;
@@ -552,7 +550,7 @@ enum UserdefsLabel_t
     USERDEFS_M_ORIGIN_Y,
     USERDEFS_PLAYERBEST,
     USERDEFS_MUSICTOGGLE,
-    USERDEF_USEVOXELS,
+    USERDEFS_USEVOXELS,
     USERDEFS_USEHIGHTILE,
     USERDEFS_USEMODELS,
     USERDEFS_GAMETYPEFLAGS,

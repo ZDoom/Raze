@@ -35,7 +35,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "scriplib.h"
 #include "gamedefs.h"
 #include "keyboard.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "control.h"
 #include "fx_man.h"
 #include "sounds.h"
@@ -71,7 +71,6 @@ int32_t NumberPlayers,CommPort,PortSpeed,IrqNumber,UartAddress;
 
 int32_t UseMouse = 1, UseJoystick = 0;
 
-uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 int32_t MouseButtons[MAXMOUSEBUTTONS];
 int32_t MouseButtonsClicked[MAXMOUSEBUTTONS];
 int32_t MouseDigitalAxes[MAXMOUSEAXES][2];
@@ -100,49 +99,6 @@ char  RTSName[MAXRTSNAMELENGTH];
 static int32_t scripthandle = -1;
 
 
-
-/*
-===================
-=
-= CONFIG_FunctionNameToNum
-=
-===================
-*/
-
-int32_t CONFIG_FunctionNameToNum(const char *func)
-{
-    int32_t i;
-
-    if (!func) return -1;
-    for (i=0; i<NUMGAMEFUNCTIONS; i++)
-    {
-        if (!Bstrcasecmp(func,gamefunctions[i]))
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-/*
-===================
-=
-= CONFIG_FunctionNumToName
-=
-===================
-*/
-
-const char *CONFIG_FunctionNumToName(int32_t func)
-{
-    if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
-    {
-        return NULL;
-    }
-    else
-    {
-        return gamefunctions[func];
-    }
-}
 
 /*
 ===================
@@ -283,36 +239,7 @@ void CONFIG_SetDefaults(void)
 
 void SetDefaultKeyDefinitions(int style)
 {
-    int numkeydefaults;
-    const char **keydefaultset;
-    int i, f, k1, k2;
-
-    if (style)
-    {
-        numkeydefaults = sizeof(keydefaults_modern) / sizeof(char *) / 3;
-        keydefaultset = keydefaults_modern;
-    }
-    else
-    {
-        numkeydefaults = sizeof(keydefaults) / sizeof(char *) / 3;
-        keydefaultset = keydefaults;
-    }
-
-    memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
-    for (i=0; i < numkeydefaults; i++)
-    {
-        f = CONFIG_FunctionNameToNum(keydefaultset[3*i+0]);
-        if (f == -1) continue;
-        k1 = KB_StringToScanCode(keydefaultset[3*i+1]);
-        k2 = KB_StringToScanCode(keydefaultset[3*i+2]);
-// [JM] Needs to be rewritten, I think. !CHECKME!
-#if 0
-        CONTROL_MapKey(i, k1, k2);
-#endif
-
-        KeyboardKeys[f][0] = k1;
-        KeyboardKeys[f][1] = k2;
-    }
+	CONFIG_SetDefaultKeys(style ? "demolition/defbinds.txt" : "demolition/origbinds.txt");
 }
 
 void SetMouseDefaults(int style)

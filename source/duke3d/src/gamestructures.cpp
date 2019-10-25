@@ -1476,7 +1476,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_M_ORIGIN_Y:             labelNum = ud.returnvar[1];                 break;
         case USERDEFS_PLAYERBEST:             labelNum = ud.playerbest;                   break;
         case USERDEFS_MUSICTOGGLE:            labelNum = mus_enabled;		              break;
-        case USERDEF_USEVOXELS:              labelNum = r_voxels;                        break;
+        case USERDEFS_USEVOXELS:              labelNum = r_voxels;                        break;
         case USERDEFS_USEHIGHTILE:            labelNum = hw_hightile;                     break;
         case USERDEFS_USEMODELS:              labelNum = hw_models;                       break;
         case USERDEFS_GAMETYPEFLAGS:          labelNum = g_gametypeFlags[ud.coop];        break;

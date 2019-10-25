@@ -1395,9 +1395,15 @@ public:
 	{
 	}
 
-	BitArray(const BitArray & arr)
+	BitArray(unsigned elem)
+		: bytes((elem + 7) / 8, true)
 	{
-		bytes = arr.bytes;
+
+	}
+
+	BitArray(const BitArray & arr)
+		: bytes(arr.bytes)
+	{
 		size = arr.size;
 	}
 
@@ -1409,8 +1415,8 @@ public:
 	}
 
 	BitArray(BitArray && arr)
+		: bytes(std::move(arr.bytes))
 	{
-		bytes = std::move(arr.bytes);
 		size = arr.size;
 		arr.size = 0;
 	}
@@ -1428,9 +1434,10 @@ public:
 		return !!(bytes[index >> 3] & (1 << (index & 7)));
 	}
 
-	void Set(size_t index)
+	void Set(size_t index, bool set = true)
 	{
-		bytes[index >> 3] |= (1 << (index & 7));
+		if (!set) Clear(index);
+		else bytes[index >> 3] |= (1 << (index & 7));
 	}
 
 	void Clear(size_t index)

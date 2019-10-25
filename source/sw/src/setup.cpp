@@ -39,7 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "control.h"
 #include "config.h"
 #include "sounds.h"
-#include "function.h"
+#include "gamecontrol.h"
 
 #include "rts.h"
 
@@ -56,8 +56,6 @@ BEGIN_SW_NS
 
 void SetupGameButtons(void)
 {
-    // processes array from function.h - char * gamefunctions[];
-
     short gamefunc;
 
     for (gamefunc = 0; gamefunc < NUMGAMEFUNCTIONS; gamefunc++)
@@ -163,7 +161,7 @@ void TermSetup(void)
 #include "control.h"
 #include "config.h"
 #include "sounds.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "rts.h"
 #include "timer.h"
 
@@ -370,13 +368,6 @@ void main()
             printf("x=%6ld y=%6ld z=%6ld yaw=%6ld pitch=%6ld roll=%6ld\n",
                    info.dx,info.dy,info.dz,info.dyaw,info.dpitch,info.droll);
         // Get Keyboard input and set appropiate game function states
-        for (i=0; i<NUMGAMEFUNCTIONS; i++)
-        {
-            if (BUTTON(i) && !BUTTONHELD(i))
-            {
-                printf("%s\n",gamefunctions[i]);
-            }
-        }
         for (i=0; i<10; i++)
         {
             if (KB_KeyPressed(sc_F1+i))

@@ -35,7 +35,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "text.h"
 
 #include "control.h"
-#include "function.h"
+#include "gamecontrol.h"
 //#include "inv.h"
 
 BEGIN_SW_NS

@@ -38,6 +38,7 @@
 #include <wctype.h>
 
 #include "v_text.h"
+#include "v_font.h"
 #include "utf8.h"
 
 

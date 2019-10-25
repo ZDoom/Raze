@@ -78,9 +78,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 // NORMAL axis scale
 #define NORMALAXISSCALE 65536
 
-#define BUTTONSET(x, value) (CONTROL_ButtonState |= ((uint64_t)value << ((uint64_t)(x))))
-#define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1 << ((uint64_t)(x))))
-#define BUTTONHELDSET(x, value) (CONTROL_ButtonHeldState |= (uint64_t)(value << ((uint64_t)(x))))
 #define LIMITCONTROL(x) (*x = clamp(*x, -MAXCONTROLVALUE, MAXCONTROLVALUE))
 
 //****************************************************************************

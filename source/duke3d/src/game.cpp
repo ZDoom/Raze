@@ -5778,7 +5778,6 @@ static void G_Cleanup(void)
     hash_free(&h_gamevars);
     hash_free(&h_arrays);
     hash_free(&h_labels);
-    hash_free(&h_gamefuncs);
 #endif
 
     hash_loop(&h_dukeanim, G_FreeHashAnim);
@@ -6341,16 +6340,6 @@ int app_main(int argc, const char * const*argv)
     if (forcegl) initprintf("GL driver blacklist disabled.\n");
 #endif
 
-    // used with binds for fast function lookup
-    hash_init(&h_gamefuncs);
-    for (bssize_t i=NUMGAMEFUNCTIONS-1; i>=0; i--)
-    {
-        if (gamefunctions[i][0] == '\0')
-            continue;
-
-        hash_add(&h_gamefuncs,gamefunctions[i],i,0);
-    }
-
 #ifdef STARTUP_SETUP_WINDOW
     int const readSetup =
 #endif
@@ -6516,7 +6505,7 @@ int app_main(int argc, const char * const*argv)
 
     Bsprintf(tempbuf, HEAD2 " %s", s_buildRev);
     OSD_SetVersion(tempbuf, 10,0);
-    OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, /*gamefunctions[gamefunc_Show_Console][0] == '\0' ? OSD_PROTECTED :*/ 0);
+    OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, 0);
     registerosdcommands();
 
     if (g_networkMode != NET_DEDICATED_SERVER)
@@ -6563,7 +6552,7 @@ int app_main(int argc, const char * const*argv)
     OSD_Exec(tempbuf);
     OSD_Exec("autoexec.cfg");
 
-    CONFIG_SetDefaultKeys(keydefaults, true);
+    //CONFIG_SetDefaultKeys("demolition/defbinds.txt", true);
 
     system_getcvars();
 

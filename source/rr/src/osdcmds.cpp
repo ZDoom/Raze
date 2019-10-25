@@ -739,19 +739,6 @@ static int osdcmd_name(osdcmdptr_t parm)
 }
 #endif
 
-static int osdcmd_button(osdcmdptr_t parm)
-{
-    static char const s_gamefunc_[] = "gamefunc_";
-    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
-
-    char const *p = parm->name + strlen_gamefunc_;
-
-//    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
-    CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
-
-    return OSDCMD_OK;
-}
-
 const char *const ConsoleButtons[] =
 {
     "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup",
@@ -890,9 +877,9 @@ static int osdcmd_bind(osdcmdptr_t parm)
 
         if (j != -1)
         {
-            ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
-            ud.config.KeyboardKeys[j][0] = sctokeylut[i].sc;
-//            CONTROL_MapKey(j, sctokeylut[i].sc, ud.config.KeyboardKeys[j][0]);
+            KeyboardKeys[j][1] = KeyboardKeys[j][0];
+            KeyboardKeys[j][0] = sctokeylut[i].sc;
+//            CONTROL_MapKey(j, sctokeylut[i].sc, KeyboardKeys[j][0]);
 
             if (j == gamefunc_Show_Console)
                 OSD_CaptureKey(sctokeylut[i].sc);
@@ -915,7 +902,7 @@ static int osdcmd_unbindall(osdcmdptr_t UNUSED(parm))
     for (int i = 0; i < MAXMOUSEBUTTONS; ++i)
         CONTROL_FreeMouseBind(i);
 
-    for (auto &KeyboardKey : ud.config.KeyboardKeys)
+    for (auto &KeyboardKey : KeyboardKeys)
         KeyboardKey[0] = KeyboardKey[1] = 0xff;
 
     if (!OSD_ParsingScript())
@@ -1230,22 +1217,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
     OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
 #endif
-
-    for (auto & func : gamefunctions)
-    {
-        if (func[0] == '\0')
-            continue;
-
-//        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
-
-        Bsprintf(tempbuf, "gamefunc_%s", func);
-
-        char *const t = Bstrtolower(Xstrdup(tempbuf));
-
-        Bstrcat(tempbuf, ": game button");
-
-        OSD_RegisterFunction(t, Xstrdup(tempbuf), osdcmd_button);
-    }
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);

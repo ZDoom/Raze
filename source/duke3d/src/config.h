@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef config_public_h_
 #define config_public_h_
 
-#include "function.h"
+#include "gamecontrol.h"
 
 BEGIN_DUKE_NS
 
@@ -33,7 +33,6 @@ void CONFIG_WriteSetup(uint32_t flags);
 void CONFIG_SetDefaults(void);
 void CONFIG_SetupMouse(void);
 void CONFIG_SetupJoystick(void);
-void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy=false);
 
 void CONFIG_SetGameControllerDefaultsStandard(void);
 void CONFIG_SetGameControllerDefaultsPro(void);
@@ -42,11 +41,7 @@ void CONFIG_SetGameControllerDefaultsClear(void);
 int32_t CONFIG_GetMapBestTime(char const *mapname, uint8_t const *mapmd4);
 int     CONFIG_SetMapBestTime(uint8_t const *mapmd4, int32_t tm);
 
-int32_t CONFIG_FunctionNameToNum(const char *func);
-
 int32_t     CONFIG_AnalogNameToNum(const char *func);
-
-void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 
 const char * CONFIG_GetGameFuncOnKeyboard(int gameFunc);
 const char * CONFIG_GetGameFuncOnJoystick(int gameFunc);

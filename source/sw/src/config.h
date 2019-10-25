@@ -29,7 +29,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "compat.h"
 
-#include "function.h"
+#include "gamecontrol.h"
 #include "keyboard.h"
 #include "control.h"
 
@@ -78,8 +78,6 @@ extern int32_t MouseSensitivity;
 extern int32_t MouseAiming;
 extern int32_t MouseAimingFlipped;
 
-extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
-
 extern int32_t MouseButtons[MAXMOUSEBUTTONS];
 extern int32_t MouseButtonsClicked[MAXMOUSEBUTTONS];
 
@@ -114,8 +112,6 @@ void CONFIG_WriteSetup(void);
 void WriteCommitFile(int32_t gametype);
 void CONFIG_GetSetupFilename(void);
 
-const char *CONFIG_FunctionNumToName(int32_t func);
-int32_t CONFIG_FunctionNameToNum(const char *func);
 const char *CONFIG_AnalogNumToName(int32_t func);
 int32_t CONFIG_AnalogNameToNum(const char *func);
 

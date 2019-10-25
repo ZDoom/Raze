@@ -232,7 +232,6 @@ typedef struct {
         int32_t JoystickAnalogueInvert[MAXJOYAXES];
         int32_t JoystickAnalogueDead[MAXJOYAXES];
         int32_t JoystickAnalogueSaturate[MAXJOYAXES];
-        uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
         int32_t scripthandle;
         int32_t setupread;

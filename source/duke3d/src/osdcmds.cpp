@@ -857,19 +857,6 @@ void onvideomodechange(int32_t newmode)
     g_crosshairSum = -1;
 }
 
-static int osdcmd_button(osdcmdptr_t parm)
-{
-    static char const s_gamefunc_[] = "gamefunc_";
-    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
-
-    char const *p = parm->name + strlen_gamefunc_;
-
-//    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
-    CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
-
-    return OSDCMD_OK;
-}
-
 const char *const ConsoleButtons[] =
 {
     "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup",
@@ -1008,9 +995,9 @@ static int osdcmd_bind(osdcmdptr_t parm)
 
         if (j != -1)
         {
-            ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
-            ud.config.KeyboardKeys[j][0] = sctokeylut[i].sc;
-//            CONTROL_MapKey(j, sctokeylut[i].sc, ud.config.KeyboardKeys[j][0]);
+            KeyboardKeys[j][1] = KeyboardKeys[j][0];
+            KeyboardKeys[j][0] = sctokeylut[i].sc;
+//            CONTROL_MapKey(j, sctokeylut[i].sc, KeyboardKeys[j][0]);
 
             if (j == gamefunc_Show_Console)
                 OSD_CaptureKey(sctokeylut[i].sc);
@@ -1033,7 +1020,7 @@ static int osdcmd_unbindall(osdcmdptr_t UNUSED(parm))
     for (int i = 0; i < MAXMOUSEBUTTONS; ++i)
         CONTROL_FreeMouseBind(i);
 
-    for (auto &KeyboardKey : ud.config.KeyboardKeys)
+    for (auto &KeyboardKey : KeyboardKeys)
         KeyboardKey[0] = KeyboardKey[1] = 0xff;
 
     if (!OSD_ParsingScript())
@@ -1078,7 +1065,7 @@ static int osdcmd_unbound(osdcmdptr_t parm)
     int const gameFunc = CONFIG_FunctionNameToNum(parm->parms[0]);
 
     if (gameFunc != -1)
-        ud.config.KeyboardKeys[gameFunc][0] = 0;
+        KeyboardKeys[gameFunc][0] = 0;
 
     return OSDCMD_OK;
 }
@@ -1451,22 +1438,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("bind",R"(bind <key> <string>: associates a keypress with a string of console input. Type "bind showkeys" for a list of keys and "listsymbols" for a list of valid console commands.)", osdcmd_bind);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
-
-    for (auto & func : gamefunctions)
-    {
-        if (func[0] == '\0')
-            continue;
-
-//        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
-
-        Bsprintf(tempbuf, "gamefunc_%s", func);
-
-        char *const t = Bstrtolower(Xstrdup(tempbuf));
-
-        Bstrcat(tempbuf, ": game button");
-
-        OSD_RegisterFunction(t, Xstrdup(tempbuf), osdcmd_button);
-    }
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);

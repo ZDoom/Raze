@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mouse.h"
 #include "joystick.h"
 #include "control.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "common_game.h"
 #include "blood.h"
 #include "config.h"
@@ -88,7 +88,6 @@ void ctrlInit(void)
     CONTROL_DefineFlag(gamefunc_Move_Backward, false);
     CONTROL_DefineFlag(gamefunc_Turn_Left, false);
     CONTROL_DefineFlag(gamefunc_Turn_Right, false);
-    CONTROL_DefineFlag(gamefunc_Turn_Around, false);
     CONTROL_DefineFlag(gamefunc_Strafe, false);
     CONTROL_DefineFlag(gamefunc_Strafe_Left, false);
     CONTROL_DefineFlag(gamefunc_Strafe_Right, false);
@@ -97,16 +96,11 @@ void ctrlInit(void)
     CONTROL_DefineFlag(gamefunc_Run, false);
     CONTROL_DefineFlag(gamefunc_AutoRun, false);
     CONTROL_DefineFlag(gamefunc_Open, false);
-    CONTROL_DefineFlag(gamefunc_Weapon_Fire, false);
-    CONTROL_DefineFlag(gamefunc_Weapon_Special_Fire, false);
-    CONTROL_DefineFlag(gamefunc_Aim_Up, false);
+	CONTROL_DefineFlag(gamefunc_Aim_Up, false);
     CONTROL_DefineFlag(gamefunc_Aim_Down, false);
-    CONTROL_DefineFlag(gamefunc_Aim_Center, false);
-    CONTROL_DefineFlag(gamefunc_Look_Up, false);
+	CONTROL_DefineFlag(gamefunc_Look_Up, false);
     CONTROL_DefineFlag(gamefunc_Look_Down, false);
-    CONTROL_DefineFlag(gamefunc_Tilt_Left, false);
-    CONTROL_DefineFlag(gamefunc_Tilt_Right, false);
-    CONTROL_DefineFlag(gamefunc_Weapon_1, false);
+	CONTROL_DefineFlag(gamefunc_Weapon_1, false);
     CONTROL_DefineFlag(gamefunc_Weapon_2, false);
     CONTROL_DefineFlag(gamefunc_Weapon_3, false);
     CONTROL_DefineFlag(gamefunc_Weapon_4, false);
@@ -116,15 +110,12 @@ void ctrlInit(void)
     CONTROL_DefineFlag(gamefunc_Weapon_8, false);
     CONTROL_DefineFlag(gamefunc_Weapon_9, false);
     CONTROL_DefineFlag(gamefunc_Weapon_10, false);
-    CONTROL_DefineFlag(gamefunc_Inventory_Use, false);
-    CONTROL_DefineFlag(gamefunc_Inventory_Left, false);
+	CONTROL_DefineFlag(gamefunc_Inventory_Left, false);
     CONTROL_DefineFlag(gamefunc_Inventory_Right, false);
-    CONTROL_DefineFlag(gamefunc_Map_Toggle, false);
-    CONTROL_DefineFlag(gamefunc_Map_Follow_Mode, false);
+	CONTROL_DefineFlag(gamefunc_Map_Follow_Mode, false);
     CONTROL_DefineFlag(gamefunc_Shrink_Screen, false);
     CONTROL_DefineFlag(gamefunc_Enlarge_Screen, false);
-    CONTROL_DefineFlag(gamefunc_Send_Message, false);
-    CONTROL_DefineFlag(gamefunc_See_Coop_View, false);
+	CONTROL_DefineFlag(gamefunc_See_Coop_View, false);
     CONTROL_DefineFlag(gamefunc_See_Chase_View, false);
     CONTROL_DefineFlag(gamefunc_Mouse_Aiming, false);
     CONTROL_DefineFlag(gamefunc_Toggle_Crosshair, false);
@@ -132,11 +123,20 @@ void ctrlInit(void)
     CONTROL_DefineFlag(gamefunc_Previous_Weapon, false);
     CONTROL_DefineFlag(gamefunc_Holster_Weapon, false);
     CONTROL_DefineFlag(gamefunc_Show_Opponents_Weapon, false);
-    CONTROL_DefineFlag(gamefunc_BeastVision, false);
-    CONTROL_DefineFlag(gamefunc_CrystalBall, false);
-    CONTROL_DefineFlag(gamefunc_JumpBoots, false);
-    CONTROL_DefineFlag(gamefunc_MedKit, false);
-    CONTROL_DefineFlag(gamefunc_ProximityBombs, false);
+	CONTROL_DefineFlag(gamefunc_MedKit, false);
+	CONTROL_DefineFlag(gamefunc_Turn_Around, false);
+	CONTROL_DefineFlag(gamefunc_Weapon_Fire, false);
+	CONTROL_DefineFlag(gamefunc_Weapon_Special_Fire, false);
+	CONTROL_DefineFlag(gamefunc_Aim_Center, false);
+	CONTROL_DefineFlag(gamefunc_Tilt_Left, false);
+	CONTROL_DefineFlag(gamefunc_Tilt_Right, false);
+	CONTROL_DefineFlag(gamefunc_Inventory_Use, false);
+	CONTROL_DefineFlag(gamefunc_Map_Toggle, false);
+	CONTROL_DefineFlag(gamefunc_Send_Message, false);
+	CONTROL_DefineFlag(gamefunc_BeastVision, false);
+	CONTROL_DefineFlag(gamefunc_CrystalBall, false);
+	CONTROL_DefineFlag(gamefunc_JumpBoots, false);
+	CONTROL_DefineFlag(gamefunc_ProximityBombs, false);
     CONTROL_DefineFlag(gamefunc_RemoteBombs, false);
 }
 

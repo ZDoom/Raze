@@ -7130,7 +7130,6 @@ static void G_Cleanup(void)
 //    Bfree(MusicPtr);
 
     hash_free(&h_labels);
-    hash_free(&h_gamefuncs);
 
     hash_loop(&h_dukeanim, G_FreeHashAnim);
     hash_free(&h_dukeanim);
@@ -7714,19 +7713,6 @@ int app_main(int argc, char const * const * argv)
     if (forcegl) initprintf("GL driver blacklist disabled.\n");
 #endif
 
-    // used with binds for fast function lookup
-    hash_init(&h_gamefuncs);
-    for (bssize_t i=NUMGAMEFUNCTIONS-1; i>=0; i--)
-    {
-        if (gamefunctions[i][0] == '\0')
-            continue;
-
-        char *str = Bstrtolower(Xstrdup(gamefunctions[i]));
-        hash_add(&h_gamefuncs,gamefunctions[i],i,0);
-        hash_add(&h_gamefuncs,str,i,0);
-        Bfree(str);
-    }
-
 #ifdef STARTUP_SETUP_WINDOW
     int const readSetup =
 #endif
@@ -7900,7 +7886,7 @@ int app_main(int argc, char const * const * argv)
 
     Bsprintf(tempbuf, HEAD2 " %s", s_buildRev);
     OSD_SetVersion(tempbuf, 10,0);
-    OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, gamefunctions[gamefunc_Show_Console][0] == '\0' ? OSD_PROTECTED : 0);
+    OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, 0);
     registerosdcommands();
 
     //if (g_networkMode != NET_DEDICATED_SERVER)
@@ -7947,7 +7933,7 @@ int app_main(int argc, char const * const * argv)
     OSD_Exec(tempbuf);
     OSD_Exec("autoexec.cfg");
 
-    CONFIG_SetDefaultKeys(keydefaults, true);
+    //CONFIG_SetDefaultKeys(keydefaults, true);
 
     system_getcvars();
 

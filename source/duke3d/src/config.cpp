@@ -42,26 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-
-hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
-
-int32_t CONFIG_FunctionNameToNum(const char *func)
-{
-    if (!func)
-        return -1;
-
-    return hash_findcase(&h_gamefuncs, func);
-}
-
-
-static char const * CONFIG_FunctionNumToName(int32_t func)
-{
-    if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
-        return "";
-    return gamefunctions[func];
-}
-
-
 int32_t CONFIG_AnalogNameToNum(const char *func)
 {
     if (!func)
@@ -127,56 +107,6 @@ static void CONFIG_SetJoystickAnalogAxisFunction(int i, int function)
 {
     ud.config.JoystickAnalogueAxes[i] = function;
     CONTROL_MapAnalogAxis(i, function, controldevice_joystick);
-}
-
-
-void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy/*=false*/)
-{
-    static char const s_gamefunc_[] = "gamefunc_";
-    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
-
-    if (!lazy)
-    {
-        Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
-        CONTROL_ClearAllBinds();
-    }
-
-    for (int i=0; i < ARRAY_SSIZE(gamefunctions); ++i)
-    {
-        if (gamefunctions[i][0] == '\0')
-            continue;
-
-        auto &key = ud.config.KeyboardKeys[i];
-
-        int const default0 = KB_StringToScanCode(keyptr[i<<1]);
-        int const default1 = KB_StringToScanCode(keyptr[(i<<1)+1]);
-
-        // skip the function if the default key is already used
-        // or the function is assigned to another key
-        if (lazy && (key[0] != 0xff || (CONTROL_KeyIsBound(default0) && Bstrlen(CONTROL_KeyBinds[default0].cmdstr) > strlen_gamefunc_
-                        && CONFIG_FunctionNameToNum(CONTROL_KeyBinds[default0].cmdstr + strlen_gamefunc_) >= 0)))
-        {
-#if 0 // defined(DEBUGGINGAIDS)
-            if (key[0] != 0xff)
-                initprintf("Skipping %s bound to %s\n", keyptr[i<<1], CONTROL_KeyBinds[default0].cmdstr);
-#endif
-            continue;
-        }
-
-        key[0] = default0;
-        key[1] = default1;
-
-        if (key[0])
-            CONTROL_FreeKeyBind(key[0]);
-
-        if (key[1])
-            CONTROL_FreeKeyBind(key[1]);
-
-        if (i == gamefunc_Show_Console)
-            OSD_CaptureKey(key[0]);
-        else
-            CONFIG_MapKey(i, key[0], 0, key[1], 0);
-    }
 }
 
 
@@ -285,7 +215,7 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 #endif
 
-    CONFIG_SetDefaultKeys(keydefaults);
+    CONFIG_SetDefaultKeys("demolition/defbinds.txt");
 
     memset(ud.config.MouseFunctions, -1, sizeof(ud.config.MouseFunctions));
     memset(ud.config.MouseDigitalFunctions, -1, sizeof(ud.config.MouseDigitalFunctions));
@@ -349,52 +279,6 @@ void CONFIG_SetDefaults(void)
 }
 
 
-// wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
-void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
-{
-    int const keys[] = { key1, key2, oldkey1, oldkey2 };
-    char buf[2*MAXGAMEFUNCLEN];
-
-    if (which == gamefunc_Show_Console)
-        OSD_CaptureKey(key1);
-
-    for (int k = 0; (unsigned)k < ARRAY_SIZE(keys); k++)
-    {
-        if (keys[k] == 0xff || !keys[k])
-            continue;
-
-        int match = 0;
-
-        for (; match < ARRAY_SSIZE(sctokeylut); ++match)
-        {
-            if (keys[k] == sctokeylut[match].sc)
-                break;
-        }
-
-        tempbuf[0] = 0;
-
-        for (int i=NUMGAMEFUNCTIONS-1; i>=0; i--)
-        {
-            if (ud.config.KeyboardKeys[i][0] == keys[k] || ud.config.KeyboardKeys[i][1] == keys[k])
-            {
-                Bsprintf(buf, "gamefunc_%s; ", CONFIG_FunctionNumToName(i));
-                Bstrcat(tempbuf,buf);
-            }
-        }
-
-        int const len = Bstrlen(tempbuf);
-
-        if (len >= 2)
-        {
-            tempbuf[len-2] = 0;  // cut off the trailing "; "
-            CONTROL_BindKey(keys[k], tempbuf, 1, sctokeylut[match].key ? sctokeylut[match].key : "<?>");
-        }
-        else
-        {
-            CONTROL_FreeKeyBind(keys[k]);
-        }
-    }
-}
 
 
 void CONFIG_SetupMouse(void)
@@ -866,7 +750,7 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
         for (int i=0; i<NUMGAMEFUNCTIONS; ++i)
         {
             char const * name = CONFIG_FunctionNumToName(i);
-            if (name && name[0] != '\0' && (ud.config.KeyboardKeys[i][0] == 0xff || !ud.config.KeyboardKeys[i][0]))
+            if (name && name[0] != '\0' && (KeyboardKeys[i][0] == 0xff || !KeyboardKeys[i][0]))
             {
                 buildvfs_fputstr(fp, "unbound ");
                 buildvfs_fputstrptr(fp, name);
@@ -1069,8 +953,8 @@ void CONFIG_WriteSetup(uint32_t flags)
 
 char const * CONFIG_GetGameFuncOnKeyboard(int gameFunc)
 {
-    const char * string0 = KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][0]);
-    return string0[0] == '\0' ? KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][1]) : string0;
+    const char * string0 = KB_ScanCodeToString(KeyboardKeys[gameFunc][0]);
+    return string0[0] == '\0' ? KB_ScanCodeToString(KeyboardKeys[gameFunc][1]) : string0;
 }
 
 char const * CONFIG_GetGameFuncOnMouse(int gameFunc)

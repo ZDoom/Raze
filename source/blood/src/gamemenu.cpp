@@ -1127,7 +1127,6 @@ void CGameMenuItemKeyList::Scan(void)
     bScan = true;
 }
 
-extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 void CGameMenuItemKeyList::Draw(void)
 {
     char buffer[40], buffer2[40];

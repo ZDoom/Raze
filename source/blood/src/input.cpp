@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 //#include "global.h"
 //#include "game.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "keyboard.h"
 #include "mouse.h"
 #include "joystick.h"

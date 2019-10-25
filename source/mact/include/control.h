@@ -36,6 +36,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #ifndef control_public_h_
 #define control_public_h_
 
+#include "tarray.h"
 
 //***************************************************************************
 //
@@ -43,14 +44,35 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 //
 //***************************************************************************
 
-#define MAXGAMEBUTTONS      64
+#define MAXGAMEBUTTONS      80
 
-#define BUTTON(x) ((CONTROL_ButtonState >> ((uint64_t)(x))) & 1)
-#define BUTTONHELD(x) ((CONTROL_ButtonHeldState >> ((uint64_t)(x))) & 1)
+extern BitArray CONTROL_ButtonState, CONTROL_ButtonHeldState;
 
-#define BUTTONJUSTPRESSED(x) (BUTTON(x) && !BUTTONHELD(x))
-#define BUTTONRELEASED(x) (!BUTTON(x) && BUTTONHELD(x))
-#define BUTTONSTATECHANGED(x) (BUTTON(x) != BUTTONHELD(x))
+inline bool BUTTON(int x)
+{
+	return CONTROL_ButtonState[x];
+}
+
+inline bool BUTTONHELD(int x)
+{
+	return CONTROL_ButtonHeldState[x];
+}
+
+inline bool BUTTONJUSTPRESSED(int x)
+{
+	return (BUTTON(x) && !BUTTONHELD(x));
+}
+
+inline bool BUTTONRELEASED(int x)
+{
+	return (!BUTTON(x) && BUTTONHELD(x));
+}
+
+inline bool BUTTONSTATECHANGED(int x)
+{
+	return (BUTTON(x) != BUTTONHELD(x));
+}
+
 
 
 //***************************************************************************
@@ -174,9 +196,6 @@ extern bool CONTROL_JoyPresent;
 extern bool CONTROL_MouseEnabled;
 extern bool CONTROL_JoystickEnabled;
 
-extern uint64_t CONTROL_ButtonState;
-extern uint64_t CONTROL_ButtonHeldState;
-
 extern LastSeenInput CONTROL_LastSeenInput;
 
 
@@ -253,7 +272,7 @@ void CONTROL_ProcessBinds(void);
 
 ////////////////////
 
-#define CONTROL_NUM_FLAGS   64
+#define CONTROL_NUM_FLAGS   80
 extern int32_t CONTROL_ButtonFlags[CONTROL_NUM_FLAGS];
 extern bool CONTROL_SmoothMouse;
 

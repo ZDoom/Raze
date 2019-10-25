@@ -262,7 +262,7 @@ static char const *MEOSN_YesNo[] = { "Yes", "No", };
 static MenuOptionSet_t MEOS_YesNo = MAKE_MENUOPTIONSET( MEOSN_YesNo, NULL, 0x3 );
 
 
-static char MenuGameFuncs[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN];
+static FString MenuGameFuncs[NUMGAMEFUNCTIONS];
 static char const *MenuGameFuncNone = "  -None-";
 static char const *MEOSN_Gamefuncs[NUMGAMEFUNCTIONS+1];
 static int32_t MEOSV_Gamefuncs[NUMGAMEFUNCTIONS+1];
@@ -1614,28 +1614,28 @@ void Menu_Init(void)
     k = 1;
     for (i = 0; i < NUMGAMEFUNCTIONS; ++i)
     {
-        Bstrcpy(MenuGameFuncs[i], gamefunctions[i]);
-
-        for (j = 0; j < MAXGAMEFUNCLEN; ++j)
-            if (MenuGameFuncs[i][j] == '_')
-                MenuGameFuncs[i][j] = ' ';
-
-        if (gamefunctions[i][0] != '\0')
-        {
-            MEOSN_Gamefuncs[k] = MenuGameFuncs[i];
-            MEOSV_Gamefuncs[k] = i;
-            ++k;
-        }
+		MenuGameFuncs[i] = CONFIG_FunctionNumToName(i);
+		MenuGameFuncs[i].Substitute('_', ' ');
     }
     if (RR)
     {
-        Bstrcpy(MenuGameFuncs[gamefunc_Holo_Duke], "Beer");
-        Bstrcpy(MenuGameFuncs[gamefunc_Jetpack], "CowPie");
-        Bstrcpy(MenuGameFuncs[gamefunc_NightVision], "Yeehaa");
-        Bstrcpy(MenuGameFuncs[gamefunc_MedKit], "Whiskey");
-        Bstrcpy(MenuGameFuncs[gamefunc_Steroids], "Moonshine");
-        Bstrcpy(MenuGameFuncs[gamefunc_Quick_Kick], "Pee");
+        MenuGameFuncs[gamefunc_Holo_Duke] = "Beer";
+        MenuGameFuncs[gamefunc_Jetpack] = "CowPie";
+        MenuGameFuncs[gamefunc_NightVision] = "Yeehaa";
+        MenuGameFuncs[gamefunc_MedKit] = "Whiskey";
+        MenuGameFuncs[gamefunc_Steroids] = "Moonshine";
+        MenuGameFuncs[gamefunc_Quick_Kick] = "Pee";
     }
+	for (i = 0; i < NUMGAMEFUNCTIONS; ++i)
+	{
+		if (MenuGameFuncs[i][0] != '\0')
+		{
+			MEOSN_Gamefuncs[k] = MenuGameFuncs[i];
+			MEOSV_Gamefuncs[k] = i;
+			++k;
+		}
+	}
+
     MEOS_Gamefuncs.numOptions = k;
 
     for (i = 0; i < NUMKEYS; ++i)
@@ -1752,8 +1752,8 @@ void Menu_Init(void)
         ME_KEYBOARDSETUPFUNCS[i].name = MenuGameFuncs[i];
         ME_KEYBOARDSETUPFUNCS[i].entry = &MEO_KEYBOARDSETUPFUNCS[i];
         MEO_KEYBOARDSETUPFUNCS[i] = MEO_KEYBOARDSETUPFUNCS_TEMPLATE;
-        MEO_KEYBOARDSETUPFUNCS[i].column[0] = &ud.config.KeyboardKeys[i][0];
-        MEO_KEYBOARDSETUPFUNCS[i].column[1] = &ud.config.KeyboardKeys[i][1];
+        MEO_KEYBOARDSETUPFUNCS[i].column[0] = &KeyboardKeys[i][0];
+        MEO_KEYBOARDSETUPFUNCS[i].column[1] = &KeyboardKeys[i][1];
     }
     M_KEYBOARDKEYS.numEntries = NUMGAMEFUNCTIONS;
     for (i = 0; i < MENUMOUSEFUNCTIONS; ++i)
@@ -3275,10 +3275,10 @@ static void Menu_PreInput(MenuEntry_t *entry)
         {
             auto *column = (MenuCustom2Col_t*)entry->entry;
             char key[2];
-            key[0] = ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0];
-            key[1] = ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1];
+            key[0] = KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0];
+            key[1] = KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1];
             *column->column[M_KEYBOARDKEYS.currentColumn] = 0xff;
-            CONFIG_MapKey(M_KEYBOARDKEYS.currentEntry, ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0], key[0], ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1], key[1]);
+            CONFIG_MapKey(M_KEYBOARDKEYS.currentEntry, KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0], key[0], KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1], key[1]);
             S_PlaySound(RR ? 335 : KICK_HIT);
             KB_ClearKeyDown(sc_Delete);
         }
@@ -3335,14 +3335,14 @@ static int32_t Menu_PreCustom2ColScreen(MenuEntry_t *entry)
         if (sc != sc_None)
         {
             char key[2];
-            key[0] = ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0];
-            key[1] = ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1];
+            key[0] = KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0];
+            key[1] = KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1];
 
             S_PlaySound(RR ? 341 : PISTOL_BODYHIT);
 
             *column->column[M_KEYBOARDKEYS.currentColumn] = KB_GetLastScanCode();
 
-            CONFIG_MapKey(M_KEYBOARDKEYS.currentEntry, ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0], key[0], ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1], key[1]);
+            CONFIG_MapKey(M_KEYBOARDKEYS.currentEntry, KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0], key[0], KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1], key[1]);
 
             KB_ClearKeyDown(sc);
 
@@ -3640,9 +3640,9 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
     }
     else if (entry == &ME_KEYBOARDSETUP_RESET)
-        CONFIG_SetDefaultKeys(keydefaults);
+        CONFIG_SetDefaultKeys("demolition/defbinds.txt");
     else if (entry == &ME_KEYBOARDSETUP_RESETCLASSIC)
-        CONFIG_SetDefaultKeys(oldkeydefaults);
+        CONFIG_SetDefaultKeys("demolition/origbinds.txt");
     else if (entry == &ME_NETHOST_LAUNCH)
     {
         // master does whatever it wants

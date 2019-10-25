@@ -3655,13 +3655,13 @@ badindex:
                     VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
 
                     if (funcPos < 2)
-                        Bstrcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][funcPos]));
+                        Bstrcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[gameFunc][funcPos]));
                     else
                     {
-                        Bstrcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][0]));
+                        Bstrcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[gameFunc][0]));
 
                         if (!*tempbuf)
-                            Bstrcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[gameFunc][1]));
+                            Bstrcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[gameFunc][1]));
                     }
 
                     if (*tempbuf)

@@ -66,8 +66,6 @@ enum
 extern intptr_t const * insptr;
 extern void VM_ScriptInfo(intptr_t const *ptr, int range);
 
-extern hashtable_t h_gamefuncs;
-
 extern hashtable_t h_labels;
 
 extern char g_scriptFileName[BMAX_PATH];

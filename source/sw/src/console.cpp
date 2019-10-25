@@ -44,7 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "quake.h"
 
 #include "common_game.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "control.h"
 #include "trigger.h"
 

@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "keyboard.h"
 #include "control.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "common_game.h"
 #include "blood.h"
 #include "config.h"
@@ -53,7 +53,6 @@ void sub_5A928(void)
         CONTROL_ClearButton(i);
 }
 
-extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 void sub_5A944(char key)
 {
     for (int i = 0; i < NUMGAMEFUNCTIONS-1; i++)

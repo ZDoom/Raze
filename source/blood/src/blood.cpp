@@ -1524,18 +1524,6 @@ int app_main(int argc, char const * const * argv)
 
     G_AddSearchPaths();
 
-    // used with binds for fast function lookup
-    hash_init(&h_gamefuncs);
-    for (bssize_t i=NUMGAMEFUNCTIONS-1; i>=0; i--)
-    {
-        if (gamefunctions[i][0] == '\0')
-            continue;
-
-        char *str = Bstrtolower(Xstrdup(gamefunctions[i]));
-        hash_add(&h_gamefuncs,gamefunctions[i],i,0);
-        hash_add(&h_gamefuncs,str,i,0);
-        Bfree(str);
-    }
     
 #ifdef STARTUP_SETUP_WINDOW
     int const readSetup =
@@ -1574,7 +1562,7 @@ int app_main(int argc, char const * const * argv)
 
     //Bsprintf(tempbuf, HEAD2 " %s", s_buildRev);
     OSD_SetVersion("Blood", 10, 0);
-    OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, gamefunctions[gamefunc_Show_Console][0] == '\0' ? OSD_PROTECTED : 0);
+    OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, 0);
     registerosdcommands();
 
     char *const setupFileName = Xstrdup(SetupFilename);

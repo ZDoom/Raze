@@ -22,8 +22,8 @@ bool CONTROL_MousePresent    = false;
 bool CONTROL_JoyPresent      = false;
 bool CONTROL_JoystickEnabled = false;
 
-uint64_t CONTROL_ButtonState     = 0;
-uint64_t CONTROL_ButtonHeldState = 0;
+BitArray CONTROL_ButtonState(MAXGAMEBUTTONS);
+BitArray CONTROL_ButtonHeldState(MAXGAMEBUTTONS);
 
 LastSeenInput CONTROL_LastSeenInput;
 
@@ -743,14 +743,14 @@ void CONTROL_ClearButton(int whichbutton)
     CONTROL_Android_ClearButton(whichbutton);
 #endif
 
-    BUTTONCLEAR(whichbutton);
+    CONTROL_ButtonState.Clear(whichbutton);
     CONTROL_Flags[whichbutton].cleared = TRUE;
 }
 
 void CONTROL_ClearAllButtons(void)
 {
-    CONTROL_ButtonHeldState = 0;
-    CONTROL_ButtonState = 0;
+    CONTROL_ButtonHeldState.Zero();
+    CONTROL_ButtonState.Zero();
 
     for (auto & c : CONTROL_Flags)
         c.cleared = TRUE;
@@ -816,8 +816,8 @@ static void CONTROL_GetFunctionInput(void)
     CONTROL_ButtonFunctionState(CONTROL_ButtonFlags);
     CONTROL_AxisFunctionState(CONTROL_ButtonFlags);
 
-    CONTROL_ButtonHeldState = CONTROL_ButtonState;
-    CONTROL_ButtonState = 0;
+    std::swap(CONTROL_ButtonHeldState, CONTROL_ButtonState);
+    CONTROL_ButtonState.Zero();
 
     int i = CONTROL_NUM_FLAGS-1;
 
@@ -825,7 +825,7 @@ static void CONTROL_GetFunctionInput(void)
     {
         CONTROL_SetFlag(i, /*CONTROL_KeyboardFunctionPressed(i) | */CONTROL_ButtonFlags[i]);
 
-        if (CONTROL_Flags[i].cleared == FALSE) BUTTONSET(i, CONTROL_Flags[i].active);
+        if (CONTROL_Flags[i].cleared == FALSE) CONTROL_ButtonState.Set(i, CONTROL_Flags[i].active);
         else if (CONTROL_Flags[i].active == FALSE) CONTROL_Flags[i].cleared = 0;
     }
     while (i--);
@@ -889,8 +889,8 @@ bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ti
         initprintf("CONTROL_Startup: Joystick Present\n");
 #endif
 
-    CONTROL_ButtonState     = 0;
-    CONTROL_ButtonHeldState = 0;
+	CONTROL_ButtonState.Zero();
+	CONTROL_ButtonHeldState.Zero();
 
     for (auto & CONTROL_Flag : CONTROL_Flags)
         CONTROL_Flag.used = FALSE;

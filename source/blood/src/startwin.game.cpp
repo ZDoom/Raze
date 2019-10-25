@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "control.h"
 #include "config.h"
-//#include "function.h"
+//#include "gamecontrol.h"
 //#include "game.h"
 //#include "grpscan.h"
 //#include "inv.h"

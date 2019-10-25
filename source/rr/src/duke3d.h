@@ -116,7 +116,7 @@ END_RR_NS
 #include "common_game.h"
 #include "config.h"
 #include "control.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "game.h"
 #include "gamedef.h"
 #include "gamedefs.h"

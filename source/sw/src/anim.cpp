@@ -39,7 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "control.h"
 #include "config.h"
 #include "sounds.h"
-#include "function.h"
+#include "gamecontrol.h"
 
 #include "game.h"
 #include "colormap.h"

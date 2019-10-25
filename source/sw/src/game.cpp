@@ -70,7 +70,7 @@ Things required to make savegames work:
 #include "menus.h"
 
 #include "control.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "gamedefs.h"
 #include "config.h"
 

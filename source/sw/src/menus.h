@@ -74,13 +74,6 @@ void ResetPalette(PLAYERp pp);
 void ExitMenus(void);
 void ResetMenuInput(void);
 
-#define BUTTONSET(x,value) \
-    ( \
-        ((x)>31) ? \
-        (CONTROL_ButtonState2 |= (value<<((x)-32)))  : \
-        (CONTROL_ButtonState1 |= (value<<(x))) \
-    )
-
 extern SWBOOL BorderAdjust;
 extern SWBOOL MultiPlayQuitFlag;
 

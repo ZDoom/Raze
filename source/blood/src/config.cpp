@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "hash.h"
 #include "scriplib.h"
 #include "renderlayer.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "blood.h"
 #include "config.h"
 #include "gamedefs.h"
@@ -55,8 +55,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
-
 int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
 int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
 int32_t MouseAnalogueAxes[MAXMOUSEAXES];
@@ -67,7 +65,6 @@ int32_t JoystickAnalogueAxes[MAXJOYAXES];
 int32_t JoystickAnalogueScale[MAXJOYAXES];
 int32_t JoystickAnalogueDead[MAXJOYAXES];
 int32_t JoystickAnalogueSaturate[MAXJOYAXES];
-uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 int32_t scripthandle;
 int32_t setupread;
 int32_t mus_restartonload;
@@ -99,34 +96,6 @@ int32_t gDeliriumBlur;
 int gWeaponsV10x;
 /////////
 
-int32_t CONFIG_FunctionNameToNum(const char *func)
-{
-    int32_t i;
-
-    if (!func)
-        return -1;
-
-    i = hash_find(&h_gamefuncs,func);
-
-    if (i < 0)
-    {
-        char *str = Bstrtolower(Xstrdup(func));
-        i = hash_find(&h_gamefuncs,str);
-        Bfree(str);
-
-        return i;
-    }
-
-    return i;
-}
-
-
-char *CONFIG_FunctionNumToName(int32_t func)
-{
-    if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
-        return NULL;
-    return gamefunctions[func];
-}
 
 
 int32_t CONFIG_AnalogNameToNum(const char *func)
@@ -173,54 +142,6 @@ const char *CONFIG_AnalogNumToName(int32_t func)
 }
 
 
-void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy/*=false*/)
-{
-    static char const s_gamefunc_[] = "gamefunc_";
-    int constexpr strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
-
-    if (!lazy)
-    {
-        Bmemset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
-        CONTROL_ClearAllBinds();
-    }
-
-    for (int i=0; i < ARRAY_SSIZE(gamefunctions); ++i)
-    {
-        if (gamefunctions[i][0] == '\0')
-            continue;
-
-        auto &key = KeyboardKeys[i];
-
-        int const default0 = KB_StringToScanCode(keyptr[i<<1]);
-        int const default1 = KB_StringToScanCode(keyptr[(i<<1)+1]);
-
-        // skip the function if the default key is already used
-        // or the function is assigned to another key
-        if (lazy && (key[0] != 0xff || (CONTROL_KeyIsBound(default0) && Bstrlen(CONTROL_KeyBinds[default0].cmdstr) > strlen_gamefunc_
-                        && CONFIG_FunctionNameToNum(CONTROL_KeyBinds[default0].cmdstr + strlen_gamefunc_) >= 0)))
-        {
-#if 0 // defined(DEBUGGINGAIDS)
-            if (key[0] != 0xff)
-                initprintf("Skipping %s bound to %s\n", keyptr[i<<1], CONTROL_KeyBinds[default0].cmdstr);
-#endif
-            continue;
-        }
-
-        key[0] = default0;
-        key[1] = default1;
-
-        if (key[0])
-            CONTROL_FreeKeyBind(key[0]);
-
-        if (key[1])
-            CONTROL_FreeKeyBind(key[1]);
-
-        if (i == gamefunc_Show_Console)
-            OSD_CaptureKey(key[0]);
-        else
-            CONFIG_MapKey(i, key[0], 0, key[1], 0);
-    }
-}
 
 
 void CONFIG_SetDefaults(void)
@@ -333,7 +254,7 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(CommbatMacro[8], "Amateurs!");
     Bstrcpy(CommbatMacro[9], "Fool! You are already dead.");
 
-    CONFIG_SetDefaultKeys(keydefaults);
+    CONFIG_SetDefaultKeys("demolition/defbinds.txt");
 
     memset(MouseFunctions, -1, sizeof(MouseFunctions));
     memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
@@ -387,54 +308,6 @@ void CONFIG_SetDefaults(void)
     }
 }
 
-
-// wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
-void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
-{
-    int const keys[] = { key1, key2, oldkey1, oldkey2 };
-    char buf[2*MAXGAMEFUNCLEN];
-    char tempbuf[128];
-
-    if (which == gamefunc_Show_Console)
-        OSD_CaptureKey(key1);
-
-    for (int k = 0; (unsigned)k < ARRAY_SIZE(keys); k++)
-    {
-        if (keys[k] == 0xff || !keys[k])
-            continue;
-
-        int match = 0;
-
-        for (; sctokeylut[match].key; match++)
-        {
-            if (keys[k] == sctokeylut[match].sc)
-                break;
-        }
-
-        tempbuf[0] = 0;
-
-        for (int i=NUMGAMEFUNCTIONS-1; i>=0; i--)
-        {
-            if (KeyboardKeys[i][0] == keys[k] || KeyboardKeys[i][1] == keys[k])
-            {
-                Bsprintf(buf, "gamefunc_%s; ", CONFIG_FunctionNumToName(i));
-                Bstrcat(tempbuf,buf);
-            }
-        }
-
-        int const len = Bstrlen(tempbuf);
-
-        if (len >= 2)
-        {
-            tempbuf[len-2] = 0;  // cut off the trailing "; "
-            CONTROL_BindKey(keys[k], tempbuf, 1, sctokeylut[match].key ? sctokeylut[match].key : "<?>");
-        }
-        else
-        {
-            CONTROL_FreeKeyBind(keys[k]);
-        }
-    }
-}
 
 
 void CONFIG_SetupMouse(void)

@@ -38,7 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "mytypes.h"
 #include "control.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "demo.h"
 
 #include "player.h"
@@ -478,9 +478,9 @@ DemoPlayBack(void)
                 }
 #endif
 
-                if (BUTTON(gamefunc_See_Co_Op_View))
+                if (BUTTON(gamefunc_See_Coop_View))
                 {
-                    CONTROL_ClearButton(gamefunc_See_Co_Op_View);
+                    CONTROL_ClearButton(gamefunc_See_Coop_View);
 
                     screenpeek = connectpoint2[screenpeek];
 

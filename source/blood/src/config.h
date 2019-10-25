@@ -25,12 +25,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define config_public_h_
 
 #include "keyboard.h"
-#include "function.h"
+#include "gamecontrol.h"
 #include "control.h"
 #include "_control.h"
 #include "gamedefs.h"
 #include "hash.h"
 #include "gamecvars.h"
+#include "gamecontrol.h"
 
 BEGIN_BLD_NS
 
@@ -49,7 +50,6 @@ extern int32_t JoystickAnalogueAxes[MAXJOYAXES];
 extern int32_t JoystickAnalogueScale[MAXJOYAXES];
 extern int32_t JoystickAnalogueDead[MAXJOYAXES];
 extern int32_t JoystickAnalogueSaturate[MAXJOYAXES];
-extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 extern int32_t scripthandle;
 extern int32_t setupread;
 extern int32_t configversion;
@@ -72,7 +72,6 @@ extern int32_t gMouseSensitivity;
 extern bool gNoClip;
 extern bool gInfiniteAmmo;
 extern bool gFullMap;
-extern hashtable_t h_gamefuncs;
 extern int32_t gUpscaleFactor;
 extern int32_t gDeliriumBlur;
 
@@ -85,18 +84,13 @@ void CONFIG_WriteSetup(uint32_t flags);
 void CONFIG_SetDefaults(void);
 void CONFIG_SetupMouse(void);
 void CONFIG_SetupJoystick(void);
-void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN], bool lazy=false);
 
 int32_t CONFIG_GetMapBestTime(char const *mapname, uint8_t const *mapmd4);
 int     CONFIG_SetMapBestTime(uint8_t const *mapmd4, int32_t tm);
 
-int32_t CONFIG_FunctionNameToNum(const char *func);
-char *  CONFIG_FunctionNumToName(int32_t func);
 
 int32_t     CONFIG_AnalogNameToNum(const char *func);
 const char *CONFIG_AnalogNumToName(int32_t func);
-
-void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 
 END_BLD_NS
 

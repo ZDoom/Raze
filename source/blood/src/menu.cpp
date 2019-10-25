@@ -150,7 +150,7 @@ char zUserMapName[16];
 const char *zEpisodeNames[6];
 const char *zLevelNames[6][16];
 
-static char MenuGameFuncs[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN];
+static FString MenuGameFuncs[NUMGAMEFUNCTIONS];
 static char const *MenuGameFuncNone = "  -None-";
 static char const *pzGamefuncsStrings[NUMGAMEFUNCTIONS + 1];
 static int nGamefuncsValues[NUMGAMEFUNCTIONS + 1];
@@ -1304,13 +1304,10 @@ void SetupMenus(void)
     int k = 1;
     for (int i = 0; i < NUMGAMEFUNCTIONS; ++i)
     {
-        Bstrcpy(MenuGameFuncs[i], gamefunctions[i]);
+        MenuGameFuncs[i] = CONFIG_FunctionNumToName(i);
+		MenuGameFuncs[i].Substitute('_', ' ');
 
-        for (int j = 0; j < MAXGAMEFUNCLEN; ++j)
-            if (MenuGameFuncs[i][j] == '_')
-                MenuGameFuncs[i][j] = ' ';
-
-        if (gamefunctions[i][0] != '\0')
+        if (MenuGameFuncs[i][0] != '\0')
         {
             pzGamefuncsStrings[k] = MenuGameFuncs[i];
             nGamefuncsValues[k] = i;
@@ -1386,12 +1383,12 @@ void SetCenterHoriz(CGameMenuItemZBool *pItem)
 
 void ResetKeys(CGameMenuItemChain *)
 {
-    CONFIG_SetDefaultKeys(keydefaults);
+    CONFIG_SetDefaultKeys("demolition/defbinds.txt");
 }
 
 void ResetKeysClassic(CGameMenuItemChain *)
 {
-    CONFIG_SetDefaultKeys(oldkeydefaults);
+    CONFIG_SetDefaultKeys("demolition/origbinds.txt");
 }
 
 ////

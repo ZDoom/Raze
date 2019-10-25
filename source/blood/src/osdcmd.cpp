@@ -476,20 +476,6 @@ void onvideomodechange(int32_t newmode)
     UpdateDacs(gLastPal, false);
 }
 
-static int osdcmd_button(osdcmdptr_t parm)
-{
-    static char const s_gamefunc_[] = "gamefunc_";
-    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
-
-    char const *p = parm->name + strlen_gamefunc_;
-
-//    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
-    if (gInputMode == kInputGame)
-        CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
-
-    return OSDCMD_OK;
-}
-
 const char *const ConsoleButtons[] =
 {
     "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup",
@@ -631,7 +617,7 @@ static int osdcmd_bind(osdcmdptr_t parm)
         {
             KeyboardKeys[j][1] = KeyboardKeys[j][0];
             KeyboardKeys[j][0] = sctokeylut[i].sc;
-//            CONTROL_MapKey(j, sctokeylut[i].sc, ud.config.KeyboardKeys[j][0]);
+//            CONTROL_MapKey(j, sctokeylut[i].sc, KeyboardKeys[j][0]);
 
             if (j == gamefunc_Show_Console)
                 OSD_CaptureKey(sctokeylut[i].sc);
@@ -769,8 +755,6 @@ static int osdcmd_inittimer(osdcmdptr_t parm)
 
 int32_t registerosdcommands(void)
 {
-    char buffer[256];
-
     OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
     OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
     OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
@@ -780,22 +764,6 @@ int32_t registerosdcommands(void)
 //    OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
     OSD_RegisterFunction("crosshairreset", "crosshairreset: restores the original crosshair", osdcmd_resetcrosshair);
-
-    for (auto & func : gamefunctions)
-    {
-        if (func[0] == '\0')
-            continue;
-
-//        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
-
-        Bsprintf(buffer, "gamefunc_%s", func);
-
-        char *const t = Bstrtolower(Xstrdup(buffer));
-
-        Bstrcat(buffer, ": game button");
-
-        OSD_RegisterFunction(t, Xstrdup(buffer), osdcmd_button);
-    }
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);

@@ -2039,92 +2039,6 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName)
     check_filename_case(pMapInfo->musicfn);
 }
 
-#ifdef LUNATIC
-void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
-{
-    Bassert((unsigned)sndidx < MAXSOUNDS);
-
-    {
-        sound_t *const snd = &g_sounds[sndidx];
-
-        Xfree(snd->filename);
-        snd->filename = dup_filename(fn);
-        check_filename_case(snd->filename);
-
-        snd->ps = args[0];
-        snd->pe = args[1];
-        snd->pr = args[2];
-        snd->m = args[3] & ~SF_ONEINST_INTERNAL;
-        if (args[3] & SF_LOOP)
-            snd->m |= SF_ONEINST_INTERNAL;
-        snd->vo = args[4];
-
-        if (sndidx > g_highestSoundIdx)
-            g_highestSoundIdx = sndidx;
-    }
-}
-
-void C_DefineQuote(int32_t qnum, const char *qstr)
-{
-    C_AllocQuote(qnum);
-    Bstrncpyz(apStrings[qnum], qstr, MAXQUOTELEN);
-}
-
-void C_DefineVolumeName(int32_t vol, const char *name)
-{
-    Bassert((unsigned)vol < MAXVOLUMES);
-    Bstrncpyz(g_volumeNames[vol], name, sizeof(g_volumeNames[vol]));
-    g_volumeCnt = vol+1;
-}
-
-void C_DefineSkillName(int32_t skill, const char *name)
-{
-    Bassert((unsigned)skill < MAXSKILLS);
-    Bstrncpyz(g_skillNames[skill], name, sizeof(g_skillNames[skill]));
-    g_skillCnt = max(g_skillCnt, skill+1);  // TODO: bring in line with C-CON?
-}
-
-void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
-                       int32_t partime, int32_t designertime,
-                       const char *levelname)
-{
-    Bassert((unsigned)vol < MAXVOLUMES);
-    Bassert((unsigned)lev < MAXLEVELS);
-
-    {
-        map_t *const map = &g_mapInfo[(MAXLEVELS*vol)+lev];
-
-        Xfree(map->filename);
-        map->filename = dup_filename(fn);
-
-        // TODO: truncate to 32 chars?
-        Xfree(map->name);
-        map->name = Xstrdup(levelname);
-
-        map->partime = REALGAMETICSPERSEC * partime;
-        map->designertime = REALGAMETICSPERSEC * designertime;
-    }
-}
-
-void C_DefineGameFuncName(int32_t idx, const char *name)
-{
-    assert((unsigned)idx < NUMGAMEFUNCTIONS);
-
-    Bstrncpyz(gamefunctions[idx], name, MAXGAMEFUNCLEN);
-
-    hash_add(&h_gamefuncs, gamefunctions[idx], idx, 0);
-}
-
-void C_DefineGameType(int32_t idx, int32_t flags, const char *name)
-{
-    Bassert((unsigned)idx < MAXGAMETYPES);
-
-    g_gametypeFlags[idx] = flags;
-    Bstrncpyz(g_gametypeNames[idx], name, sizeof(g_gametypeNames[idx]));
-    g_gametypeCnt = idx+1;
-}
-#endif
-
 void C_DefineVolumeFlags(int32_t vol, int32_t flags)
 {
     Bassert((unsigned)vol < MAXVOLUMES);
@@ -2296,7 +2210,8 @@ void C_InitQuotes(void)
 #ifdef EDUKE32_TOUCH_DEVICES
     apStrings[QUOTE_DEAD] = 0;
 #else
-    char const * const OpenGameFunc = gamefunctions[gamefunc_Open];
+	// WTF ?!?
+    char const * const OpenGameFunc = CONFIG_FunctionNumToName(gamefunc_Open);
     C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
     C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
     C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);
@@ -5218,33 +5133,24 @@ repeatcase:
             }
 
             i = 0;
-
-            hash_delete(&h_gamefuncs, gamefunctions[j]);
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                gamefunctions[j][i] = *textptr;
-                textptr++,i++;
-                if (EDUKE32_PREDICT_FALSE(*textptr != 0x0a && *textptr != 0x0d && ispecial(*textptr)))
-                {
-                    initprintf("%s:%d: warning: invalid character in function name.\n",
-                        g_scriptFileName,g_lineNumber);
-                    g_warningCnt++;
-                    scriptSkipLine();
-                    break;
-                }
-                if (EDUKE32_PREDICT_FALSE(i >= MAXGAMEFUNCLEN-1))
-                {
-                    initprintf("%s:%d: warning: truncating function name to %d characters.\n",
-                        g_scriptFileName,g_lineNumber,MAXGAMEFUNCLEN);
-                    g_warningCnt++;
-                    scriptSkipLine();
-                    break;
-                }
-            }
-            gamefunctions[j][i] = '\0';
-            hash_add(&h_gamefuncs,gamefunctions[j],j,0);
-
+			{
+				TArray<char> build;
+				while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+				{
+					build.Push(*textptr);
+					textptr++, i++;
+					if (EDUKE32_PREDICT_FALSE(*textptr != 0x0a && *textptr != 0x0d && ispecial(*textptr)))
+					{
+						initprintf("%s:%d: warning: invalid character in function name.\n",
+							g_scriptFileName, g_lineNumber);
+						g_warningCnt++;
+						scriptSkipLine();
+						break;
+					}
+				}
+				build.Push(0);
+				CONFIG_ReplaceButtonName(j, build.Data());
+			}
             continue;
 
         case CON_UNDEFINEGAMEFUNC:
@@ -5262,10 +5168,7 @@ repeatcase:
                 continue;
             }
 
-            hash_delete(&h_gamefuncs, gamefunctions[j]);
-
-            gamefunctions[j][0] = '\0';
-
+			CONFIG_DeleteButtonName(j);
             continue;
 
         case CON_DEFINESKILLNAME:
@@ -5995,25 +5898,6 @@ static void C_AddDefaultDefinitions(void)
 {
     for (int i=0; i<MAXEVENTS; i++)
         C_AddDefinition(EventNames[i], i, LABEL_DEFINE|LABEL_EVENT);
-
-#if 0
-    for (int i=0; i<NUMGAMEFUNCTIONS; i++)
-    {
-        int32_t j;
-
-        if (gamefunctions[i][0] == '\0')
-            continue;
-
-        // if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
-
-        j = Bsprintf(tempbuf,"GAMEFUNC_%s", gamefunctions[i]);
-
-        for (; j>=0; j--)
-            tempbuf[j] = Btoupper(tempbuf[j]);
-
-        C_AddDefinition(tempbuf, i, LABEL_DEFINE);
-    }
-#endif
 
     static tokenmap_t predefined[] =
     {
