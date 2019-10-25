@@ -44,7 +44,7 @@
 #include "v_draw.h"
 #include "image.h"
 #include "v_2ddrawer.h"
-#include "../fonts/v_font.h"
+#include "v_font.h"
 
 class FFont;
 

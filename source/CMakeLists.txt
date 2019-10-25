@@ -885,6 +885,8 @@ include_directories(
 	libsmackerdec/include
 	thirdparty/include
 	common
+	common/2d
+	common/fonts
 	common/utility
 	common/console
 	common/textures

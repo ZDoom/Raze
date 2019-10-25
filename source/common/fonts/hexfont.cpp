@@ -38,7 +38,7 @@
 #include "utf8.h"
 #include "sc_man.h"
 #include "imagehelpers.h"
-#include "../2d/v_draw.h"
+#include "v_draw.h"
 
 #include "fontinternals.h"
 
