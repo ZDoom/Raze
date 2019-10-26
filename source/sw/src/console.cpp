@@ -1149,8 +1149,6 @@ void CON_LoadSetup(void)
     }
     initkeys();
     CONFIG_ReadSetup();
-    CONTROL_Startup( ControllerType, &GetTime, 120 );
-    SetupGameButtons();
 
     if (CONTROL_JoystickEnabled)
     {

@@ -230,6 +230,7 @@ int32_t baselayer_init();
 
 struct GameInterface
 {
+	int TicRate;
 	void (*faketimerhandler)();
 	int (*app_main)(int, char const* const*);
 	bool (*validate_hud)(int);

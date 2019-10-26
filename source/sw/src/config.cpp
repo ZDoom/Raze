@@ -199,7 +199,6 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(WangBangMacro[8], MACRO9);
     Bstrcpy(WangBangMacro[9], MACRO10);
 
-    SetDefaultKeyDefinitions(0);
     SetMouseDefaults(0);
 
     memset(MouseDigitalAxes, -1, sizeof(MouseDigitalAxes));
@@ -532,6 +531,7 @@ int32_t CONFIG_ReadSetup(void)
 
 void CONFIG_WriteSetup(void)
 {
+#if 0
     int32_t dummy;
     char buf[80];
 
@@ -607,6 +607,7 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_Save(scripthandle, setupfilename);
     SCRIPT_Free(scripthandle);
+#endif
 }
 
 END_SW_NS

@@ -43,6 +43,7 @@
 #include "control.h"
 #include "_control.h"
 #include "gamecontrol.h"
+#include "build.h"
 
 /* Notes
  
@@ -52,14 +53,20 @@
  
  */
 
-CVAR(Bool, cl_defaultconfiguration, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 FGameConfigFile* GameConfig;
 static FString GameName;
 
 void G_LoadConfig(const char *game)
 {
-	CONFIG_SetDefaultKeys(cl_defaultconfiguration? "demolition/origbinds.txt" : "demolition/defbinds.txt")
+	// This must be done before initializing any data, so doing it late in the startup process won't work.
+	if (CONTROL_Startup(controltype_keyboardandmouse, BGetTime, gi->TicRate ))
+	{
+		exit(1);
+	}
+
+	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 	GameConfig = new FGameConfigFile();
 	GameConfig->DoGlobalSetup();
 	GameConfig->DoGameSetup(game);

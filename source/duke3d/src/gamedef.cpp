@@ -2298,52 +2298,6 @@ void C_InitQuotes(void)
     }
 }
 
-LUNATIC_EXTERN void C_SetCfgName(const char *cfgname)
-{
-    if (Bstrcmp(g_setupFileName, cfgname) == 0) // no need to do anything if name is the same
-        return;
-
-    if (Bstrcmp(g_setupFileName, SETUPFILENAME) != 0) // set to something else via -cfg
-        return;
-
-    ud_setup_t const config = ud.setup;
-#ifdef POLYMER
-    int const renderMode = glrendmode;
-#endif
-
-    if (!buildvfs_isdir(g_modDir))
-    {
-        if (buildvfs_mkdir(g_modDir, S_IRWXU) != 0)
-        {
-            OSD_Printf("Failed to create directory \"%s\"!\n", g_modDir);
-            return;
-        }
-        else
-            OSD_Printf("Created configuration file directory %s\n", g_modDir);
-    }
-
-    // XXX: Back up 'cfgname' as it may be the global 'tempbuf'.
-    char *temp = Xstrdup(cfgname);
-
-    CONFIG_WriteSetup(1);
-
-    if (g_modDir[0] != '/')
-        Bsnprintf(g_setupFileName, sizeof(g_setupFileName), "%s/%s", g_modDir, temp);
-    else
-        Bstrncpyz(g_setupFileName, temp, sizeof(g_setupFileName));
-
-    DO_FREE_AND_NULL(temp);
-
-    initprintf("Using config file \"%s\".\n", g_setupFileName);
-
-    CONFIG_ReadSetup();
-
-    ud.setup = config;
-#ifdef POLYMER
-    glrendmode = renderMode;
-#endif
-}
-
 #if !defined LUNATIC
 static inline void C_BitOrNextValue(int32_t *valptr)
 {
@@ -5271,8 +5225,7 @@ repeatcase:
                     j++;
                 }
                 tempbuf[j] = '\0';
-
-                C_SetCfgName(tempbuf);
+				// This depends on Build's original configuration file format and setup which no longer exists.
             }
             continue;
 

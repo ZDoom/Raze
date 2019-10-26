@@ -45,25 +45,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-/*
-===================
-
-=
-= SetupGameButtons
-=
-===================
-*/
-
-void SetupGameButtons(void)
-{
-    short gamefunc;
-
-    for (gamefunc = 0; gamefunc < NUMGAMEFUNCTIONS; gamefunc++)
-    {
-        CONTROL_DefineFlag(gamefunc,FALSE);
-    }
-}
-
 void CenterCenter(void)
 {
     printf("\nCenter the joystick and press a button\n");
@@ -115,8 +96,6 @@ void InitSetup(void)
     //CONFIG_GetSetupFilename();
     //InitializeKeyDefList();
     //CONFIG_ReadSetup();
-    if (CONTROL_Startup(controltype_keyboardandmouse, &GetTime, /*120*/ 140)) exit(1);
-    SetupGameButtons();
     CONFIG_SetupMouse();
     CONFIG_SetupJoystick();
 
@@ -182,59 +161,6 @@ void ShutDown(void)
     SoundShutdown();
     MusicShutdown();
     CONFIG_WriteSetup();
-}
-
-/*
-===================
-
-=
-= SetupGameButtons
-=
-===================
-*/
-
-void SetupGameButtons(void)
-{
-    CONTROL_DefineFlag(gamefunc_Move_Forward,      FALSE);
-    CONTROL_DefineFlag(gamefunc_Move_Backward,     FALSE);
-    CONTROL_DefineFlag(gamefunc_Turn_Left,         FALSE);
-    CONTROL_DefineFlag(gamefunc_Turn_Right,        FALSE);
-    CONTROL_DefineFlag(gamefunc_Strafe,            FALSE);
-    CONTROL_DefineFlag(gamefunc_Strafe_Left,       FALSE);
-    CONTROL_DefineFlag(gamefunc_Strafe_Right,      FALSE);
-    CONTROL_DefineFlag(gamefunc_TurnAround,        FALSE);
-    CONTROL_DefineFlag(gamefunc_Jump,              FALSE);
-    CONTROL_DefineFlag(gamefunc_Crouch,            FALSE);
-    CONTROL_DefineFlag(gamefunc_Fire,              FALSE);
-    CONTROL_DefineFlag(gamefunc_Open,              FALSE);
-    CONTROL_DefineFlag(gamefunc_Look_Up,           FALSE);
-    CONTROL_DefineFlag(gamefunc_Look_Down,         FALSE);
-    CONTROL_DefineFlag(gamefunc_Aim_Up,            FALSE);
-    CONTROL_DefineFlag(gamefunc_Aim_Down,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Run,               FALSE);
-    CONTROL_DefineFlag(gamefunc_SendMessage,       FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_1,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_2,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_3,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_4,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_5,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_6,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_7,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_8,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_9,          FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_10,         FALSE);
-    CONTROL_DefineFlag(gamefunc_Map,               FALSE);
-    CONTROL_DefineFlag(gamefunc_Look_Left,         FALSE);
-    CONTROL_DefineFlag(gamefunc_Look_Right,        FALSE);
-    CONTROL_DefineFlag(gamefunc_Shrink_Screen,     FALSE);
-    CONTROL_DefineFlag(gamefunc_Enlarge_Screen,    FALSE);
-    CONTROL_DefineFlag(gamefunc_AutoRun,           FALSE);
-    CONTROL_DefineFlag(gamefunc_Center_View,       FALSE);
-    CONTROL_DefineFlag(gamefunc_Holster_Weapon,    FALSE);
-    CONTROL_DefineFlag(gamefunc_Inventory_Left,    FALSE);
-    CONTROL_DefineFlag(gamefunc_Inventory_Right,   FALSE);
-    CONTROL_DefineFlag(gamefunc_Inventory,         FALSE);
-
 }
 
 /*
@@ -326,8 +252,6 @@ void main()
     timerhandle = TIME_AddTimer(40, &timer);
     //CONFIG_GetSetupFilename();
     CONFIG_ReadSetup();
-    CONTROL_Startup(1, &GetTime, 1500);
-    SetupGameButtons();
 
     SoundStartup();
     MusicStartup();

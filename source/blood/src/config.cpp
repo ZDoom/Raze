@@ -254,8 +254,6 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(CommbatMacro[8], "Amateurs!");
     Bstrcpy(CommbatMacro[9], "Fool! You are already dead.");
 
-    CONFIG_SetDefaultKeys("demolition/defbinds.txt");
-
     memset(MouseFunctions, -1, sizeof(MouseFunctions));
     memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
     memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
@@ -616,6 +614,7 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
 
 void CONFIG_WriteSetup(uint32_t flags)
 {
+#if 0
     char buf[128];
     if (!setupread) return;
 
@@ -796,6 +795,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     CONFIG_WriteSettings();
 	G_SaveConfig();
     Bfflush(NULL);
+#endif
 }
 
 

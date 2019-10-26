@@ -2580,8 +2580,10 @@ extern int32_t startwin_run(void);
 bool validate_hud(int layout);
 void set_hud_layout(int layout);
 void set_hud_scale(int scale);
+int32_t GetTime();
 
 GameInterface Interface = {
+	TICRATE,
 	faketimerhandler,
 	app_main,
 	validate_hud,

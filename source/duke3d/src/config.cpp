@@ -215,8 +215,6 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 #endif
 
-    CONFIG_SetDefaultKeys("demolition/defbinds.txt");
-
     memset(ud.config.MouseFunctions, -1, sizeof(ud.config.MouseFunctions));
     memset(ud.config.MouseDigitalFunctions, -1, sizeof(ud.config.MouseDigitalFunctions));
     memset(ud.config.JoystickFunctions, -1, sizeof(ud.config.JoystickFunctions));
@@ -782,6 +780,7 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
 
 void CONFIG_WriteSetup(uint32_t flags)
 {
+#if 0
     if (!ud.config.setupread) return;
 
     if (ud.config.scripthandle < 0)
@@ -949,6 +948,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     CONFIG_WriteSettings();
 	G_SaveConfig();
 	Bfflush(NULL);
+#endif
 }
 
 char const * CONFIG_GetGameFuncOnKeyboard(int gameFunc)

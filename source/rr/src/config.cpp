@@ -210,9 +210,6 @@ void CONFIG_SetDefaults(void)
 
     // JBF 20031211
 
-
-    CONFIG_SetDefaultKeys("demolition/defbinds.txt");
-
     memset(ud.config.MouseFunctions, -1, sizeof(ud.config.MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++)
     {
@@ -577,6 +574,7 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
 
 void CONFIG_WriteSetup(uint32_t flags)
 {
+#if 0
     int32_t dummy;
 
     if (!ud.config.setupread) return;
@@ -752,6 +750,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     CONFIG_WriteSettings();
 	G_SaveConfig();
 	Bfflush(NULL);
+#endif
 }
 
 static const char *CONFIG_GetMapEntryName(char m[], char const * const mapname)

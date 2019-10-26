@@ -7374,8 +7374,6 @@ static void A_InitEnemyFlags(void)
 }
 #undef SETFLAG
 
-static void G_SetupGameButtons(void);
-
 // Throw in everything here that needs to be called after a Lua game state
 // recreation (or on initial startup in a non-Lunatic build.)
 void G_PostCreateGameState(void)
@@ -7874,8 +7872,8 @@ int app_main(int argc, char const * const * argv)
     g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
 
     ++ud.executions;
-    CONFIG_WriteSetup(1);
-    CONFIG_ReadSetup();
+    //CONFIG_WriteSetup(1);
+    //CONFIG_ReadSetup();
 
     char const * rtsname = g_rtsNamePtr ? g_rtsNamePtr : ud.rtsname;
     RTS_Init(rtsname);
@@ -7891,14 +7889,6 @@ int app_main(int argc, char const * const * argv)
 
     //if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (CONTROL_Startup(controltype_keyboardandmouse, &BGetTime, TICRATE))
-        {
-            ERRprintf("There was an error initializing the CONTROL system.\n");
-            engineUnInit();
-            Bexit(5);
-        }
-
-        G_SetupGameButtons();
         CONFIG_SetupMouse();
         CONFIG_SetupJoystick();
 
@@ -7932,8 +7922,6 @@ int app_main(int argc, char const * const * argv)
 
     OSD_Exec(tempbuf);
     OSD_Exec("autoexec.cfg");
-
-    //CONFIG_SetDefaultKeys(keydefaults, true);
 
     system_getcvars();
 
@@ -8623,67 +8611,6 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
     }
 }
 
-static void G_SetupGameButtons(void)
-{
-    CONTROL_DefineFlag(gamefunc_Move_Forward,FALSE);
-    CONTROL_DefineFlag(gamefunc_Move_Backward,FALSE);
-    CONTROL_DefineFlag(gamefunc_Turn_Left,FALSE);
-    CONTROL_DefineFlag(gamefunc_Turn_Right,FALSE);
-    CONTROL_DefineFlag(gamefunc_Strafe,FALSE);
-    CONTROL_DefineFlag(gamefunc_Fire,FALSE);
-    CONTROL_DefineFlag(gamefunc_Open,FALSE);
-    CONTROL_DefineFlag(gamefunc_Run,FALSE);
-    CONTROL_DefineFlag(gamefunc_AutoRun,FALSE);
-    CONTROL_DefineFlag(gamefunc_Jump,FALSE);
-    CONTROL_DefineFlag(gamefunc_Crouch,FALSE);
-    CONTROL_DefineFlag(gamefunc_Look_Up,FALSE);
-    CONTROL_DefineFlag(gamefunc_Look_Down,FALSE);
-    CONTROL_DefineFlag(gamefunc_Look_Left,FALSE);
-    CONTROL_DefineFlag(gamefunc_Look_Right,FALSE);
-    CONTROL_DefineFlag(gamefunc_Strafe_Left,FALSE);
-    CONTROL_DefineFlag(gamefunc_Strafe_Right,FALSE);
-    CONTROL_DefineFlag(gamefunc_Aim_Up,FALSE);
-    CONTROL_DefineFlag(gamefunc_Aim_Down,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_1,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_2,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_3,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_4,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_5,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_6,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_7,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_8,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_9,FALSE);
-    CONTROL_DefineFlag(gamefunc_Weapon_10,FALSE);
-    CONTROL_DefineFlag(gamefunc_Inventory,FALSE);
-    CONTROL_DefineFlag(gamefunc_Inventory_Left,FALSE);
-    CONTROL_DefineFlag(gamefunc_Inventory_Right,FALSE);
-    CONTROL_DefineFlag(gamefunc_Holo_Duke,FALSE);
-    CONTROL_DefineFlag(gamefunc_Jetpack,FALSE);
-    CONTROL_DefineFlag(gamefunc_NightVision,FALSE);
-    CONTROL_DefineFlag(gamefunc_MedKit,FALSE);
-    CONTROL_DefineFlag(gamefunc_TurnAround,FALSE);
-    CONTROL_DefineFlag(gamefunc_SendMessage,FALSE);
-    CONTROL_DefineFlag(gamefunc_Map,FALSE);
-    CONTROL_DefineFlag(gamefunc_Shrink_Screen,FALSE);
-    CONTROL_DefineFlag(gamefunc_Enlarge_Screen,FALSE);
-    CONTROL_DefineFlag(gamefunc_Center_View,FALSE);
-    CONTROL_DefineFlag(gamefunc_Holster_Weapon,FALSE);
-    CONTROL_DefineFlag(gamefunc_Show_Opponents_Weapon,FALSE);
-    CONTROL_DefineFlag(gamefunc_Map_Follow_Mode,FALSE);
-    CONTROL_DefineFlag(gamefunc_See_Coop_View,FALSE);
-    CONTROL_DefineFlag(gamefunc_Mouse_Aiming,FALSE);
-    CONTROL_DefineFlag(gamefunc_Toggle_Crosshair,FALSE);
-    CONTROL_DefineFlag(gamefunc_Steroids,FALSE);
-    CONTROL_DefineFlag(gamefunc_Quick_Kick,FALSE);
-    CONTROL_DefineFlag(gamefunc_Next_Weapon,FALSE);
-    CONTROL_DefineFlag(gamefunc_Previous_Weapon,FALSE);
-    CONTROL_DefineFlag(gamefunc_Alt_Weapon,FALSE);
-    CONTROL_DefineFlag(gamefunc_Last_Weapon,FALSE);
-    CONTROL_DefineFlag(gamefunc_Quick_Save, FALSE);
-    CONTROL_DefineFlag(gamefunc_Quick_Load, FALSE);
-    CONTROL_DefineFlag(gamefunc_Third_Person_View, FALSE);
-    CONTROL_DefineFlag(gamefunc_Toggle_Crouch, FALSE);
-}
 
 
 extern void faketimerhandler();
@@ -8697,6 +8624,7 @@ extern int32_t startwin_idle(void*);
 extern int32_t startwin_run(void);
 
 GameInterface Interface = {
+	TICRATE,
 	faketimerhandler,
 	app_main,
 	validate_hud,

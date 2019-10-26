@@ -5928,6 +5928,7 @@ extern int32_t startwin_run(void);
 /*extern*/ void set_hud(int requested_size) {}
 
 GameInterface Interface = {
+	140, // Huh?
 	faketimerhandler,
 	app_main,
 	validate_hud,
