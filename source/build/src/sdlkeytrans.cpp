@@ -45,7 +45,7 @@ static int32_t buildkeytranslationtable(void)
     MAP(SDLK_9,		0xa);
     MAP(SDLK_COLON,		0x27);
     MAP(SDLK_SEMICOLON,	0x27);
-    MAP(SDLK_LESS,		0x33);
+    MAP(SDLK_LESS,		0x56);
     MAP(SDLK_EQUALS,	0xd);
     MAP(SDLK_GREATER,	0x34);
     MAP(SDLK_QUESTION,	0x35);
@@ -153,7 +153,7 @@ static int32_t buildkeytranslationtable(void)
     MAP(SDL_SCANCODE_ESCAPE,	0x1);
     MAP(SDL_SCANCODE_SPACE,		0x39);
     MAP(SDL_SCANCODE_COMMA,		0x33);
-    MAP(SDL_SCANCODE_NONUSBACKSLASH, 0x33);
+    MAP(SDL_SCANCODE_NONUSBACKSLASH, 0x56);
     MAP(SDL_SCANCODE_MINUS,		0xc);
     MAP(SDL_SCANCODE_PERIOD,	0x34);
     MAP(SDL_SCANCODE_SLASH,		0x35);

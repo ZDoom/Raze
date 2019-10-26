@@ -52,10 +52,10 @@ static struct
     { "Space", 0x39 },     { "CapLck", 0x3a }, { "F1", 0x3b },     { "F2", 0x3c },    { "F3", 0x3d },     { "F4", 0x3e },     { "F5", 0x3f },
     { "F6", 0x40 },        { "F7", 0x41 },     { "F8", 0x42 },     { "F9", 0x43 },    { "F10", 0x44 },    { "NumLck", 0x45 }, { "ScrLck", 0x46 },
     { "Kpad7", 0x47 },     { "Kpad8", 0x48 },  { "Kpad9", 0x49 },  { "Kpad-", 0x4a }, { "Kpad4", 0x4b },  { "Kpad5", 0x4c },  { "Kpad6", 0x4d },
-    { "Kpad+", 0x4e },     { "Kpad1", 0x4f },  { "Kpad2", 0x50 },  { "Kpad3", 0x51 }, { "Kpad0", 0x52 },  { "Kpad.", 0x53 },  { "F11", 0x57 },
-    { "F12", 0x58 },       { "KpdEnt", 0x9c }, { "RCtrl", 0x9d },  { "Kpad/", 0xb5 }, { "RAlt", 0xb8 },   { "PrtScn", 0xb7 }, { "Pause", 0xc5 },
-    { "Home", 0xc7 },      { "Up", 0xc8 },     { "PgUp", 0xc9 },   { "Left", 0xcb },  { "Right", 0xcd },  { "End", 0xcf },    { "Down", 0xd0 },
-    { "PgDn", 0xd1 },      { "Insert", 0xd2 }, { "Delete", 0xd3 },
+    { "Kpad+", 0x4e },     { "Kpad1", 0x4f },  { "Kpad2", 0x50 },  { "Kpad3", 0x51 }, { "Kpad0", 0x52 },  { "Kpad.", 0x53 },  { "LessThan", 0x56 },
+    { "F11", 0x57 },       { "F12", 0x58 },    { "KpdEnt", 0x9c }, { "RCtrl", 0x9d }, { "Kpad/", 0xb5 },  { "RAlt", 0xb8 },   { "PrtScn", 0xb7 },
+    { "Pause", 0xc5 },     { "Home", 0xc7 },   { "Up", 0xc8 },     { "PgUp", 0xc9 },  { "Left", 0xcb },   { "Right", 0xcd },  { "End", 0xcf },
+    { "Down", 0xd0 },      { "PgDn", 0xd1 },   { "Insert", 0xd2 }, { "Delete", 0xd3 },
 };
 
 #define MAXKEYBOARDSCAN  256
