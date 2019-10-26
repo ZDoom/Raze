@@ -658,7 +658,6 @@ void InitBaseRes()
 	}
 }
 
-extern FString currentGame;
 FileReader openFromBaseResource(const char* fn)
 {
 	InitBaseRes();

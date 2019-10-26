@@ -76,7 +76,13 @@ union UCVarValue
 	bool Bool;
 	int Int;
 	float Float;
-	const char *String;
+	const char* String;
+
+	UCVarValue() = default;
+	UCVarValue(bool v) { Bool = v; }
+	UCVarValue(int v) { Int = v; }
+	UCVarValue(float v) { Float = v; }
+	UCVarValue(const char * v) { String = v; }
 };
 
 enum ECVarType

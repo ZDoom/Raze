@@ -473,8 +473,6 @@ long FileWriter::Seek(long offset, int mode)
 
 size_t FileWriter::Printf(const char *fmt, ...)
 {
-	// fix me later
-#if 0
 	va_list ap;
 	FString out;
 
@@ -482,9 +480,6 @@ size_t FileWriter::Printf(const char *fmt, ...)
 	out.VFormat(fmt, ap);
 	va_end(ap);
 	return Write(out.GetChars(), out.Len());
-#else
-	return 0;
-#endif
 }
 
 size_t BufferWriter::Write(const void *buffer, size_t len)

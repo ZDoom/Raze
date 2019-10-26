@@ -46,6 +46,9 @@
 //#include "doomstat.h"
 //#include "gi.h"
 //#include "d_main.h"
+#include "keyboard.h"
+#include "control.h"
+#include "osd.h"
 
 #define GAMENAME "Demolition"
 #define LASTRUNVERSION "1"
@@ -275,15 +278,8 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 		const char *name = NULL;
 		while (NextInSection (key, value))
 		{
-			if (stricmp (key, "Name") == 0)
-			{
-				name = value;
-			}
-			else if (stricmp (key, "Command") == 0 && name != NULL)
-			{
-				//C_SetAlias (name, value); does not exist yet but will.
-				name = NULL;
-			}
+			FStringf cmd("alias %s \"%s\"", key, value);
+			OSD_Dispatch(cmd);
 		}
 	}
 }
@@ -308,7 +304,7 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 
 	//C_SetDefaultBindings ();
 
-			/*
+#if 0
 	for (int i = 0; binders[i].label != NULL; ++i)
 	{
 		strncpy(subsection, binders[i].label, sublen);
@@ -322,8 +318,25 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 			}
 		}
 	}
+#else
+	strncpy(subsection, "Bindings", sublen);
+	if (SetSection(section))
+	{
+		const char* key;
+		const char* value;
+		while (NextInSection(key, value))
+		{
+			// The unbind here is necessary because the Build console can do multiple assignments and would not lose the original binding.
+			FStringf cmd("unbind %s", key);
+			OSD_Dispatch(cmd);
+
+			cmd.Format("bind %s \"%s\"", key, value);
+			OSD_Dispatch(cmd);
+		}
+	}
+
+#endif
 	OkayToWrite = true;
-			*/
 }
 
 void FGameConfigFile::ReadNetVars ()
@@ -390,6 +403,7 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	ClearCurrentSection ();
 	C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_AUTO);
 
+#if 0
 	strncpy (subsection, "ConsoleAliases", sublen);
 	SetSection (section, true);
 	ClearCurrentSection ();
@@ -408,6 +422,31 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	strncpy (subsection, "AutomapBindings", sublen);
 	SetSection (section, true);
 	//AutomapBindings.ArchiveBindings (this);
+#else
+	strcpy(subsection, "Bindings");
+	if (SetSection(section))
+	{
+		for (int i = 0; i < MAXBOUNDKEYS + MAXMOUSEBUTTONS; i++)
+		{
+			if (CONTROL_KeyIsBound(i))
+			{
+				SetValueForKey(CONTROL_KeyBinds[i].key, CONTROL_KeyBinds[i].cmdstr);
+			}
+		}
+	}
+
+	strncpy(subsection, "ConsoleAliases", sublen);
+	if (SetSection(section))
+	{
+		for (auto& symb : osd->symbptrs)
+		{
+			if (symb == NULL)
+				break;
+
+			SetValueForKey(symb->name, symb->help);
+		}
+	}
+#endif
 }
 
 void FGameConfigFile::ArchiveGlobalData ()
@@ -495,12 +534,14 @@ void G_LoadConfig(const char* game)
 	GameConfig = new FGameConfigFile();
 	GameConfig->DoGlobalSetup();
 	GameConfig->DoGameSetup(game);
+	GameConfig->DoKeySetup(game);
 	FBaseCVar::EnableCallbacks();
 	GameName = game;
 }
 
 void G_SaveConfig()
 {
+	GameConfig->ArchiveGlobalData();
 	GameConfig->ArchiveGameData(GameName);
 	GameConfig->WriteConfigFile();
 	delete GameConfig;

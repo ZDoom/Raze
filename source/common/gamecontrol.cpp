@@ -6,6 +6,7 @@
 #include "keyboard.h"
 #include "sc_man.h"
 #include "c_cvars.h"
+#include "gameconfigfile.h"
 #include "build.h"
 
 struct GameFuncNameDesc
@@ -98,6 +99,8 @@ static const GameFuncNameDesc gamefuncs[] = {
 
 };
 
+extern FString currentGame;
+
 static TMap<FName, int> GF_NameToNum;
 static FString GF_NumToName[NUMGAMEFUNCTIONS];	// This one will preserve the original name for writing to the config (which must be loaded before CON scripts can hack around with the alias array.)
 static FString GF_NumToAlias[NUMGAMEFUNCTIONS];	// This is for CON scripts to hack apart.
@@ -120,10 +123,15 @@ static int osdcmd_button(osdcmdptr_t parm)
 	return OSDCMD_OK;
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void SetupButtonFunctions()
 {
 	unsigned index = 0;
-	// Note: This must run after the CON scripts had a chance to mess around with the game function name array.
 	for (auto& func : GF_NumToAlias)
 	{
 		if (func[0] == '\0')
@@ -132,6 +140,12 @@ void SetupButtonFunctions()
 	}
 
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 void CONFIG_Init()
 {
@@ -155,9 +169,16 @@ void CONFIG_Init()
 		index += 2;
 
 	}
+	SetupButtonFunctions();
 	CONTROL_ClearAssignments();
 	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 int32_t CONFIG_FunctionNameToNum(const char *func)
 {
@@ -201,7 +222,12 @@ void CONFIG_DeleteButtonName(int num)
 	GF_NumToAlias[num] = "";
 }
 
+//==========================================================================
+//
 // wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
+//
+//==========================================================================
+
 void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
 {
 	int const keys[] = { key1, key2, oldkey1, oldkey2 };
@@ -245,6 +271,12 @@ void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode
 		}
 	}
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy/*=false*/)
 {
@@ -304,3 +336,4 @@ void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy/*=false*/)
 
 	}
 }
+

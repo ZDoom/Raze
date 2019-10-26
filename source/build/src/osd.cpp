@@ -2211,22 +2211,6 @@ int osdcmd_cvar_set(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-void OSD_WriteAliases(buildvfs_FILE fp)
-{
-    for (auto &symb : osd->symbptrs)
-    {
-        if (symb == NULL)
-            break;
-        else if (symb->func == (void *)OSD_ALIAS)
-        {
-            buildvfs_fputstr(fp, "alias \"");
-            buildvfs_fputstrptr(fp, symb->name);
-            buildvfs_fputstr(fp, "\" \"");
-            buildvfs_fputstrptr(fp, symb->help);
-            buildvfs_fputstr(fp, "\"\n");
-        }
-    }
-}
 
 void OSD_WriteCvars(buildvfs_FILE fp)
 {
