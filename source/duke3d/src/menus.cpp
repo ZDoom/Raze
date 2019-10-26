@@ -887,9 +887,9 @@ static MenuEntry_t ME_MOUSESETUP_SMOOTH = MAKE_MENUENTRY( "Filter input:", &MF_R
 static MenuLink_t MEO_MOUSESETUP_ADVANCED = { MENU_MOUSEADVANCED, MA_Advance, };
 static MenuEntry_t ME_MOUSESETUP_ADVANCED = MAKE_MENUENTRY( "Advanced setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_ADVANCED, Link );
 #endif
-static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEX = MAKE_MENURANGE(&ud.config.MouseAnalogueScale[0], &MF_Redfont, -262144, 262144, 65536, 161, 3);
+static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEX = MAKE_MENURANGE(&MouseAnalogueScale[0], &MF_Redfont, -262144, 262144, 65536, 161, 3);
 static MenuEntry_t ME_MOUSEADVANCED_SCALEX = MAKE_MENUENTRY("X-Scale:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSEADVANCED_SCALEX, RangeInt32);
-static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEY = MAKE_MENURANGE(&ud.config.MouseAnalogueScale[1], &MF_Redfont, -262144, 262144, 65536, 161, 3);
+static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEY = MAKE_MENURANGE(&MouseAnalogueScale[1], &MF_Redfont, -262144, 262144, 65536, 161, 3);
 static MenuEntry_t ME_MOUSEADVANCED_SCALEY = MAKE_MENUENTRY("Y-Scale:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSEADVANCED_SCALEY, RangeInt32);
 
 static MenuEntry_t *MEL_MOUSESETUP[] = {
@@ -1868,7 +1868,7 @@ void Menu_Init(void)
         ME_MOUSESETUPBTNS[i].name = MenuMouseNames[i];
         ME_MOUSESETUPBTNS[i].entry = &MEO_MOUSESETUPBTNS[i];
         MEO_MOUSESETUPBTNS[i] = MEO_MOUSEJOYSETUPBTNS_TEMPLATE;
-        MEO_MOUSESETUPBTNS[i].data = &ud.config.MouseFunctions[MenuMouseDataIndex[i][0]][MenuMouseDataIndex[i][1]];
+        MEO_MOUSESETUPBTNS[i].data = &MouseFunctions[MenuMouseDataIndex[i][0]][MenuMouseDataIndex[i][1]];
     }
     for (i = 0; i < 2*joystick.numButtons + 8*joystick.numHats; ++i)
     {
@@ -1889,7 +1889,7 @@ void Menu_Init(void)
         ME_JOYSTICKBTNS[i].name = MenuJoystickNames[i];
         ME_JOYSTICKBTNS[i].entry = &MEO_JOYSTICKBTNS[i];
         MEO_JOYSTICKBTNS[i] = MEO_MOUSEJOYSETUPBTNS_TEMPLATE;
-        MEO_JOYSTICKBTNS[i].data = &ud.config.JoystickFunctions[i>>1][i&1];
+        MEO_JOYSTICKBTNS[i].data = &JoystickFunctions[i>>1][i&1];
     }
     M_JOYSTICKBTNS.numEntries = 2*joystick.numButtons + 8*joystick.numHats;
     for (i = 0; i < joystick.numAxes; ++i)
@@ -3157,13 +3157,13 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 
     case MENU_JOYSTICKAXES:
         M_JOYSTICKAXIS.title = joyGetName(0, M_JOYSTICKAXES.currentEntry);
-        MEO_JOYSTICKAXIS_ANALOG.data = &ud.config.JoystickAnalogueAxes[M_JOYSTICKAXES.currentEntry];
-        MEO_JOYSTICKAXIS_SCALE.variable = &ud.config.JoystickAnalogueScale[M_JOYSTICKAXES.currentEntry];
-        MEO_JOYSTICKAXIS_INVERT.data = &ud.config.JoystickAnalogueInvert[M_JOYSTICKAXES.currentEntry];
-        MEO_JOYSTICKAXIS_DEAD.variable = &ud.config.JoystickAnalogueDead[M_JOYSTICKAXES.currentEntry];
-        MEO_JOYSTICKAXIS_SATU.variable = &ud.config.JoystickAnalogueSaturate[M_JOYSTICKAXES.currentEntry];
-        MEO_JOYSTICKAXIS_DIGITALNEGATIVE.data = &ud.config.JoystickDigitalFunctions[M_JOYSTICKAXES.currentEntry][0];
-        MEO_JOYSTICKAXIS_DIGITALPOSITIVE.data = &ud.config.JoystickDigitalFunctions[M_JOYSTICKAXES.currentEntry][1];
+        MEO_JOYSTICKAXIS_ANALOG.data = &JoystickAnalogueAxes[M_JOYSTICKAXES.currentEntry];
+        MEO_JOYSTICKAXIS_SCALE.variable = &JoystickAnalogueScale[M_JOYSTICKAXES.currentEntry];
+        MEO_JOYSTICKAXIS_INVERT.data = &JoystickAnalogueInvert[M_JOYSTICKAXES.currentEntry];
+        MEO_JOYSTICKAXIS_DEAD.variable = &JoystickAnalogueDead[M_JOYSTICKAXES.currentEntry];
+        MEO_JOYSTICKAXIS_SATU.variable = &JoystickAnalogueSaturate[M_JOYSTICKAXES.currentEntry];
+        MEO_JOYSTICKAXIS_DIGITALNEGATIVE.data = &JoystickDigitalFunctions[M_JOYSTICKAXES.currentEntry][0];
+        MEO_JOYSTICKAXIS_DIGITALPOSITIVE.data = &JoystickDigitalFunctions[M_JOYSTICKAXES.currentEntry][1];
         break;
 
     case MENU_CHEATS:

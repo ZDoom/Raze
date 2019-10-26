@@ -55,17 +55,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //#define MAXPLAYERS 8
 //#endif
 
-// Number of Mouse buttons
-
-//#define MAXMOUSEBUTTONS 6
-
-// Number of JOY buttons
-
-#define MAXJOYBUTTONS (32+4)
-
-// Number of EXTERNAL buttons
-
-//#define MAXEXTERNALBUTTONS 6
 
 // max path+track length for waveform music files
 #define MAXWAVEFORMTRACKLENGTH 256
@@ -118,16 +107,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 // Number of Mouse Axes
 
-#define MAXMOUSEAXES 2
-
-// Number of JOY axes
-
-#define MAXJOYAXES 6
-
-// Number of GAMEPAD axes
-
-#define MAXGAMEPADAXES 2
-
 #ifdef __FLAT__
 #define CONTROLSHIFT 0
 #else
@@ -152,10 +131,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // mouse sensitivity base
 
 #define MOUSECONTROLBASE ((1<<(15-CONTROLSHIFT))-1)
-
-// DEFAULT mouse sensitivity scale
-
-#define DEFAULTMOUSESENSITIVITY (1<<(15-CONTROLSHIFT))
 
 enum
 {

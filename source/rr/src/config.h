@@ -38,8 +38,6 @@ void CONFIG_SetupJoystick( void );
 int32_t CONFIG_GetMapBestTime(char const * mapname, uint8_t const * mapmd4);
 int32_t CONFIG_SetMapBestTime(uint8_t const * mapmd4, int32_t tm);
 
-int32_t CONFIG_AnalogNameToNum(const char *func);
-const char *CONFIG_AnalogNumToName(int32_t func);
 void CONFIG_SetDefaults(void);
 
 END_RR_NS

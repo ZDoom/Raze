@@ -42,70 +42,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-int32_t CONFIG_AnalogNameToNum(const char *func)
-{
-    if (!func)
-        return -1;
-    else if (!Bstrcasecmp(func, "analog_turning"))
-        return analog_turning;
-    else if (!Bstrcasecmp(func, "analog_strafing"))
-        return analog_strafing;
-    else if (!Bstrcasecmp(func, "analog_moving"))
-        return analog_moving;
-    else if (!Bstrcasecmp(func, "analog_lookingupanddown"))
-        return analog_lookingupanddown;
-    else
-        return -1;
-}
-
-
-static char const * CONFIG_AnalogNumToName(int32_t func)
-{
-    switch (func)
-    {
-    case analog_turning:
-        return "analog_turning";
-    case analog_strafing:
-        return "analog_strafing";
-    case analog_moving:
-        return "analog_moving";
-    case analog_lookingupanddown:
-        return "analog_lookingupanddown";
-    }
-
-    return "";
-}
-
 
 static void CONFIG_SetJoystickButtonFunction(int i, int j, int function)
 {
-    ud.config.JoystickFunctions[i][j] = function;
+    JoystickFunctions[i][j] = function;
     CONTROL_MapButton(function, i, j, controldevice_joystick);
 }
 static void CONFIG_SetJoystickAnalogAxisScale(int i, int scale)
 {
-    ud.config.JoystickAnalogueScale[i] = scale;
+    JoystickAnalogueScale[i] = scale;
     CONTROL_SetAnalogAxisScale(i, scale, controldevice_joystick);
 }
 static void CONFIG_SetJoystickAnalogAxisInvert(int i, int invert)
 {
-    ud.config.JoystickAnalogueInvert[i] = invert;
+    JoystickAnalogueInvert[i] = invert;
     CONTROL_SetAnalogAxisInvert(i, invert, controldevice_joystick);
 }
 static void CONFIG_SetJoystickAnalogAxisDeadSaturate(int i, int dead, int saturate)
 {
-    ud.config.JoystickAnalogueDead[i] = dead;
-    ud.config.JoystickAnalogueSaturate[i] = saturate;
+    JoystickAnalogueDead[i] = dead;
+    JoystickAnalogueSaturate[i] = saturate;
     joySetDeadZone(i, dead, saturate);
 }
 static void CONFIG_SetJoystickDigitalAxisFunction(int i, int j, int function)
 {
-    ud.config.JoystickDigitalFunctions[i][j] = function;
+    JoystickDigitalFunctions[i][j] = function;
     CONTROL_MapDigitalAxis(i, function, j, controldevice_joystick);
 }
 static void CONFIG_SetJoystickAnalogAxisFunction(int i, int function)
 {
-    ud.config.JoystickAnalogueAxes[i] = function;
+    JoystickAnalogueAxes[i] = function;
     CONTROL_MapAnalogAxis(i, function, controldevice_joystick);
 }
 
@@ -215,32 +181,32 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 #endif
 
-    memset(ud.config.MouseFunctions, -1, sizeof(ud.config.MouseFunctions));
-    memset(ud.config.MouseDigitalFunctions, -1, sizeof(ud.config.MouseDigitalFunctions));
-    memset(ud.config.JoystickFunctions, -1, sizeof(ud.config.JoystickFunctions));
-    memset(ud.config.JoystickDigitalFunctions, -1, sizeof(ud.config.JoystickDigitalFunctions));
+    memset(MouseFunctions, -1, sizeof(MouseFunctions));
+    memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
+    memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
+    memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
 
     for (int i=0; i<MAXMOUSEBUTTONS; i++)
     {
-        ud.config.MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);
-        CONTROL_MapButton(ud.config.MouseFunctions[i][0], i, 0, controldevice_mouse);
+        MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);
+        CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
         if (i>=4) continue;
-        ud.config.MouseFunctions[i][1] = CONFIG_FunctionNameToNum(mouseclickeddefaults[i]);
-        CONTROL_MapButton(ud.config.MouseFunctions[i][1], i, 1, controldevice_mouse);
+        MouseFunctions[i][1] = CONFIG_FunctionNameToNum(mouseclickeddefaults[i]);
+        CONTROL_MapButton(MouseFunctions[i][1], i, 1, controldevice_mouse);
     }
 
     for (int i=0; i<MAXMOUSEAXES; i++)
     {
-        ud.config.MouseAnalogueScale[i] = DEFAULTMOUSEANALOGUESCALE;
-        CONTROL_SetAnalogAxisScale(i, ud.config.MouseAnalogueScale[i], controldevice_mouse);
+        MouseAnalogueScale[i] = DEFAULTMOUSEANALOGUESCALE;
+        CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
 
-        ud.config.MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i*2]);
-        ud.config.MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i*2+1]);
-        CONTROL_MapDigitalAxis(i, ud.config.MouseDigitalFunctions[i][0], 0, controldevice_mouse);
-        CONTROL_MapDigitalAxis(i, ud.config.MouseDigitalFunctions[i][1], 1, controldevice_mouse);
+        MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i*2]);
+        MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i*2+1]);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0, controldevice_mouse);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1, controldevice_mouse);
 
-        ud.config.MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
-        CONTROL_MapAnalogAxis(i, ud.config.MouseAnalogueAxes[i], controldevice_mouse);
+        MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
+        CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
     }
 
 #if !defined GEKKO
@@ -248,28 +214,28 @@ void CONFIG_SetDefaults(void)
 #else
     for (int i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
-        ud.config.JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdefaults[i]);
-        ud.config.JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(joystickclickeddefaults[i]);
-        CONTROL_MapButton(ud.config.JoystickFunctions[i][0], i, 0, controldevice_joystick);
-        CONTROL_MapButton(ud.config.JoystickFunctions[i][1], i, 1, controldevice_joystick);
+        JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdefaults[i]);
+        JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(joystickclickeddefaults[i]);
+        CONTROL_MapButton(JoystickFunctions[i][0], i, 0, controldevice_joystick);
+        CONTROL_MapButton(JoystickFunctions[i][1], i, 1, controldevice_joystick);
     }
 
     for (int i=0; i<MAXJOYAXES; i++)
     {
-        ud.config.JoystickAnalogueScale[i] = DEFAULTJOYSTICKANALOGUESCALE;
-        ud.config.JoystickAnalogueInvert[i] = 0;
-        ud.config.JoystickAnalogueDead[i] = DEFAULTJOYSTICKANALOGUEDEAD;
-        ud.config.JoystickAnalogueSaturate[i] = DEFAULTJOYSTICKANALOGUESATURATE;
-        CONTROL_SetAnalogAxisScale(i, ud.config.JoystickAnalogueScale[i], controldevice_joystick);
+        JoystickAnalogueScale[i] = DEFAULTJOYSTICKANALOGUESCALE;
+        JoystickAnalogueInvert[i] = 0;
+        JoystickAnalogueDead[i] = DEFAULTJOYSTICKANALOGUEDEAD;
+        JoystickAnalogueSaturate[i] = DEFAULTJOYSTICKANALOGUESATURATE;
+        CONTROL_SetAnalogAxisScale(i, JoystickAnalogueScale[i], controldevice_joystick);
         CONTROL_SetAnalogAxisInvert(i, 0, controldevice_joystick);
 
-        ud.config.JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdigitaldefaults[i*2]);
-        ud.config.JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(joystickdigitaldefaults[i*2+1]);
-        CONTROL_MapDigitalAxis(i, ud.config.JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
-        CONTROL_MapDigitalAxis(i, ud.config.JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
+        JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdigitaldefaults[i*2]);
+        JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(joystickdigitaldefaults[i*2+1]);
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
 
-        ud.config.JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(joystickanalogdefaults[i]);
-        CONTROL_MapAnalogAxis(i, ud.config.JoystickAnalogueAxes[i], controldevice_joystick);
+        JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(joystickanalogdefaults[i]);
+        CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
     }
 #endif
 
@@ -292,12 +258,12 @@ void CONFIG_SetupMouse(void)
         Bsprintf(str,"MouseButton%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle,"Controls", str,temp))
-            ud.config.MouseFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
+            MouseFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseButtonClicked%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle,"Controls", str,temp))
-            ud.config.MouseFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+            MouseFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
 
     // map over the axes
@@ -306,35 +272,35 @@ void CONFIG_SetupMouse(void)
         Bsprintf(str,"MouseAnalogAxes%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            ud.config.MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
+            MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
         Bsprintf(str,"MouseDigitalAxes%d_0",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            ud.config.MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
+            MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseDigitalAxes%d_1",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            ud.config.MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+            MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseAnalogScale%d",i);
-        int32_t scale = ud.config.MouseAnalogueScale[i];
+        int32_t scale = MouseAnalogueScale[i];
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str, &scale);
-        ud.config.MouseAnalogueScale[i] = scale;
+        MouseAnalogueScale[i] = scale;
     }
 
     for (int i=0; i<MAXMOUSEBUTTONS; i++)
     {
-        CONTROL_MapButton(ud.config.MouseFunctions[i][0], i, 0, controldevice_mouse);
-        CONTROL_MapButton(ud.config.MouseFunctions[i][1], i, 1,  controldevice_mouse);
+        CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
+        CONTROL_MapButton(MouseFunctions[i][1], i, 1,  controldevice_mouse);
     }
     for (int i=0; i<MAXMOUSEAXES; i++)
     {
-        CONTROL_MapAnalogAxis(i, ud.config.MouseAnalogueAxes[i], controldevice_mouse);
-        CONTROL_MapDigitalAxis(i, ud.config.MouseDigitalFunctions[i][0], 0,controldevice_mouse);
-        CONTROL_MapDigitalAxis(i, ud.config.MouseDigitalFunctions[i][1], 1,controldevice_mouse);
-        CONTROL_SetAnalogAxisScale(i, ud.config.MouseAnalogueScale[i], controldevice_mouse);
+        CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0,controldevice_mouse);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1,controldevice_mouse);
+        CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
     }
 }
 
@@ -353,12 +319,12 @@ void CONFIG_SetupJoystick(void)
         Bsprintf(str,"ControllerButton%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle,"Controls", str,temp))
-            ud.config.JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
+            JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"ControllerButtonClicked%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle,"Controls", str,temp))
-            ud.config.JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+            JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
 
     // map over the axes
@@ -367,51 +333,51 @@ void CONFIG_SetupJoystick(void)
         Bsprintf(str,"ControllerAnalogAxes%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            ud.config.JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
+            JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
         Bsprintf(str,"ControllerDigitalAxes%d_0",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            ud.config.JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
+            JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"ControllerDigitalAxes%d_1",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle, "Controls", str,temp))
-            ud.config.JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+            JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"ControllerAnalogScale%d",i);
-        scale = ud.config.JoystickAnalogueScale[i];
+        scale = JoystickAnalogueScale[i];
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
-        ud.config.JoystickAnalogueScale[i] = scale;
+        JoystickAnalogueScale[i] = scale;
 
         Bsprintf(str,"ControllerAnalogInvert%d",i);
-        scale = ud.config.JoystickAnalogueInvert[i];
+        scale = JoystickAnalogueInvert[i];
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
-        ud.config.JoystickAnalogueInvert[i] = scale;
+        JoystickAnalogueInvert[i] = scale;
 
         Bsprintf(str,"ControllerAnalogDead%d",i);
-        scale = ud.config.JoystickAnalogueDead[i];
+        scale = JoystickAnalogueDead[i];
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
-        ud.config.JoystickAnalogueDead[i] = scale;
+        JoystickAnalogueDead[i] = scale;
 
         Bsprintf(str,"ControllerAnalogSaturate%d",i);
-        scale = ud.config.JoystickAnalogueSaturate[i];
+        scale = JoystickAnalogueSaturate[i];
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls", str,&scale);
-        ud.config.JoystickAnalogueSaturate[i] = scale;
+        JoystickAnalogueSaturate[i] = scale;
     }
 
     for (i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
-        CONTROL_MapButton(ud.config.JoystickFunctions[i][0], i, 0, controldevice_joystick);
-        CONTROL_MapButton(ud.config.JoystickFunctions[i][1], i, 1,  controldevice_joystick);
+        CONTROL_MapButton(JoystickFunctions[i][0], i, 0, controldevice_joystick);
+        CONTROL_MapButton(JoystickFunctions[i][1], i, 1,  controldevice_joystick);
     }
     for (i=0; i<MAXJOYAXES; i++)
     {
-        CONTROL_MapAnalogAxis(i, ud.config.JoystickAnalogueAxes[i], controldevice_joystick);
-        CONTROL_MapDigitalAxis(i, ud.config.JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
-        CONTROL_MapDigitalAxis(i, ud.config.JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
-        CONTROL_SetAnalogAxisScale(i, ud.config.JoystickAnalogueScale[i], controldevice_joystick);
-        CONTROL_SetAnalogAxisInvert(i, ud.config.JoystickAnalogueInvert[i], controldevice_joystick);
+        CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
+        CONTROL_SetAnalogAxisScale(i, JoystickAnalogueScale[i], controldevice_joystick);
+        CONTROL_SetAnalogAxisInvert(i, JoystickAnalogueInvert[i], controldevice_joystick);
     }
 }
 
@@ -777,43 +743,43 @@ void CONFIG_WriteSetup(uint32_t flags)
     {
         for (int i=0; i<MAXMOUSEBUTTONS; i++)
         {
-            if (CONFIG_FunctionNumToName(ud.config.MouseFunctions[i][0]))
+            if (CONFIG_FunctionNumToName(MouseFunctions[i][0]))
             {
                 Bsprintf(buf, "MouseButton%d", i);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseFunctions[i][0]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(MouseFunctions[i][0]));
             }
 
             if (i >= (MAXMOUSEBUTTONS-2)) continue;
 
-            if (CONFIG_FunctionNumToName(ud.config.MouseFunctions[i][1]))
+            if (CONFIG_FunctionNumToName(MouseFunctions[i][1]))
             {
                 Bsprintf(buf, "MouseButtonClicked%d", i);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseFunctions[i][1]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(MouseFunctions[i][1]));
             }
         }
 
         for (int i=0; i<MAXMOUSEAXES; i++)
         {
-            if (CONFIG_AnalogNumToName(ud.config.MouseAnalogueAxes[i]))
+            if (CONFIG_AnalogNumToName(MouseAnalogueAxes[i]))
             {
                 Bsprintf(buf, "MouseAnalogAxes%d", i);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_AnalogNumToName(ud.config.MouseAnalogueAxes[i]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_AnalogNumToName(MouseAnalogueAxes[i]));
             }
 
-            if (CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[i][0]))
+            if (CONFIG_FunctionNumToName(MouseDigitalFunctions[i][0]))
             {
                 Bsprintf(buf, "MouseDigitalAxes%d_0", i);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[i][0]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(MouseDigitalFunctions[i][0]));
             }
 
-            if (CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[i][1]))
+            if (CONFIG_FunctionNumToName(MouseDigitalFunctions[i][1]))
             {
                 Bsprintf(buf, "MouseDigitalAxes%d_1", i);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[i][1]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(MouseDigitalFunctions[i][1]));
             }
 
             Bsprintf(buf, "MouseAnalogScale%d", i);
-            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.MouseAnalogueScale[i], FALSE, FALSE);
+            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, MouseAnalogueScale[i], FALSE, FALSE);
         }
     }
 
@@ -821,49 +787,49 @@ void CONFIG_WriteSetup(uint32_t flags)
     {
         for (int dummy=0; dummy<MAXJOYBUTTONSANDHATS; dummy++)
         {
-            if (CONFIG_FunctionNumToName(ud.config.JoystickFunctions[dummy][0]))
+            if (CONFIG_FunctionNumToName(JoystickFunctions[dummy][0]))
             {
                 Bsprintf(buf, "ControllerButton%d", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.JoystickFunctions[dummy][0]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][0]));
             }
 
-            if (CONFIG_FunctionNumToName(ud.config.JoystickFunctions[dummy][1]))
+            if (CONFIG_FunctionNumToName(JoystickFunctions[dummy][1]))
             {
                 Bsprintf(buf, "ControllerButtonClicked%d", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.JoystickFunctions[dummy][1]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][1]));
             }
         }
         for (int dummy=0; dummy<MAXJOYAXES; dummy++)
         {
-            if (CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[dummy]))
+            if (CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]))
             {
                 Bsprintf(buf, "ControllerAnalogAxes%d", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[dummy]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]));
             }
 
-            if (CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[dummy][0]))
+            if (CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][0]))
             {
                 Bsprintf(buf, "ControllerDigitalAxes%d_0", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[dummy][0]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][0]));
             }
 
-            if (CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[dummy][1]))
+            if (CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][1]))
             {
                 Bsprintf(buf, "ControllerDigitalAxes%d_1", dummy);
-                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[dummy][1]));
+                SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][1]));
             }
 
             Bsprintf(buf, "ControllerAnalogScale%d", dummy);
-            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueScale[dummy], FALSE, FALSE);
+            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, JoystickAnalogueScale[dummy], FALSE, FALSE);
 
             Bsprintf(buf, "ControllerAnalogInvert%d", dummy);
-            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueInvert[dummy], FALSE, FALSE);
+            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, JoystickAnalogueInvert[dummy], FALSE, FALSE);
 
             Bsprintf(buf, "ControllerAnalogDead%d", dummy);
-            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueDead[dummy], FALSE, FALSE);
+            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, JoystickAnalogueDead[dummy], FALSE, FALSE);
 
             Bsprintf(buf, "ControllerAnalogSaturate%d", dummy);
-            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueSaturate[dummy], FALSE, FALSE);
+            SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, JoystickAnalogueSaturate[dummy], FALSE, FALSE);
         }
     }
 
@@ -900,12 +866,12 @@ char const * CONFIG_GetGameFuncOnMouse(int gameFunc)
 {
     for (int j = 0; j < 2; ++j)
         for (int i = 0; i < joystick.numButtons; ++i)
-            if (ud.config.JoystickFunctions[i][j] == gameFunc)
+            if (JoystickFunctions[i][j] == gameFunc)
                 return joyGetName(1, i);
 
     for (int i = 0; i < joystick.numAxes; ++i)
         for (int j = 0; j < 2; ++j)
-            if (ud.config.JoystickDigitalFunctions[i][j] == gameFunc)
+            if (JoystickDigitalFunctions[i][j] == gameFunc)
                 return joyGetName(0, i);
 
     return "";
@@ -915,12 +881,12 @@ char const * CONFIG_GetGameFuncOnJoystick(int gameFunc)
 {
     for (int j = 0; j < 2; ++j)
         for (int i = 0; i < joystick.numButtons; ++i)
-            if (ud.config.JoystickFunctions[i][j] == gameFunc)
+            if (JoystickFunctions[i][j] == gameFunc)
                 return joyGetName(1, i);
 
     for (int i = 0; i < joystick.numAxes; ++i)
         for (int j = 0; j < 2; ++j)
-            if (ud.config.JoystickDigitalFunctions[i][j] == gameFunc)
+            if (JoystickDigitalFunctions[i][j] == gameFunc)
                 return joyGetName(0, i);
 
     return "";

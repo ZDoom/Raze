@@ -41,8 +41,6 @@ void CONFIG_SetGameControllerDefaultsClear(void);
 int32_t CONFIG_GetMapBestTime(char const *mapname, uint8_t const *mapmd4);
 int     CONFIG_SetMapBestTime(uint8_t const *mapmd4, int32_t tm);
 
-int32_t     CONFIG_AnalogNameToNum(const char *func);
-
 const char * CONFIG_GetGameFuncOnKeyboard(int gameFunc);
 const char * CONFIG_GetGameFuncOnJoystick(int gameFunc);
 

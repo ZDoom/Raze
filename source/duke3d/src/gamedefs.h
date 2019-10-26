@@ -34,18 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // config file name
 #define SETUPFILENAME APPBASENAME ".cfg"
 
-// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
-#define MAXJOYBUTTONS 32
-#define MAXJOYBUTTONSANDHATS (MAXJOYBUTTONS+4)
-
-// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
-#define MAXMOUSEAXES 2
-#define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
-
-// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
-#define MAXJOYAXES 9
-#define MAXJOYDIGITAL (MAXJOYAXES*2)
-
 // default mouse scale
 #define DEFAULTMOUSEANALOGUESCALE           65536
 

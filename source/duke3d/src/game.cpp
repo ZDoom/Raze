@@ -6513,7 +6513,7 @@ int app_main(int argc, const char * const*argv)
 
         // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
         for (int i=0; i<joystick.numAxes; i++)
-            joySetDeadZone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
+            joySetDeadZone(i,JoystickAnalogueDead[i],JoystickAnalogueSaturate[i]);
     }
 
 #ifdef HAVE_CLIPSHAPE_FEATURE

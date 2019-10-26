@@ -194,19 +194,6 @@ typedef struct {
         int32_t AutoAim;
         int32_t ShowOpponentWeapons;
 
-        // JBF 20031211: Store the input settings because
-        // (currently) mact can't regurgitate them
-        int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
-        int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
-        int32_t MouseAnalogueAxes[MAXMOUSEAXES];
-        int32_t MouseAnalogueScale[MAXMOUSEAXES];
-        int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
-        int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
-        int32_t JoystickAnalogueAxes[MAXJOYAXES];
-        int32_t JoystickAnalogueScale[MAXJOYAXES];
-        int32_t JoystickAnalogueDead[MAXJOYAXES];
-        int32_t JoystickAnalogueSaturate[MAXJOYAXES];
-        
         int32_t scripthandle;
         int32_t setupread;
 

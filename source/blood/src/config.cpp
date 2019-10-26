@@ -55,16 +55,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
-int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
-int32_t MouseAnalogueAxes[MAXMOUSEAXES];
-int32_t MouseAnalogueScale[MAXMOUSEAXES];
-int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
-int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
-int32_t JoystickAnalogueAxes[MAXJOYAXES];
-int32_t JoystickAnalogueScale[MAXJOYAXES];
-int32_t JoystickAnalogueDead[MAXJOYAXES];
-int32_t JoystickAnalogueSaturate[MAXJOYAXES];
 int32_t scripthandle;
 int32_t setupread;
 int32_t mus_restartonload;
@@ -97,49 +87,6 @@ int gWeaponsV10x;
 /////////
 
 
-
-int32_t CONFIG_AnalogNameToNum(const char *func)
-{
-    if (!func)
-        return -1;
-
-    if (!Bstrcasecmp(func,"analog_turning"))
-    {
-        return analog_turning;
-    }
-    if (!Bstrcasecmp(func,"analog_strafing"))
-    {
-        return analog_strafing;
-    }
-    if (!Bstrcasecmp(func,"analog_moving"))
-    {
-        return analog_moving;
-    }
-    if (!Bstrcasecmp(func,"analog_lookingupanddown"))
-    {
-        return analog_lookingupanddown;
-    }
-
-    return -1;
-}
-
-
-const char *CONFIG_AnalogNumToName(int32_t func)
-{
-    switch (func)
-    {
-    case analog_turning:
-        return "analog_turning";
-    case analog_strafing:
-        return "analog_strafing";
-    case analog_moving:
-        return "analog_moving";
-    case analog_lookingupanddown:
-        return "analog_lookingupanddown";
-    }
-
-    return NULL;
-}
 
 
 

@@ -42,10 +42,6 @@ BEGIN_RR_NS
 #define MAXJOYBUTTONSANDHATS (MAXJOYBUTTONS+4)
 
 // KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
-#define MAXMOUSEAXES 2
-#define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
-
-// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
 #define MAXJOYAXES 9
 #define MAXJOYDIGITAL (MAXJOYAXES*2)
 

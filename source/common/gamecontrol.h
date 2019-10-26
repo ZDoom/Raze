@@ -1,6 +1,8 @@
 #pragma once
 
 #include "keyboard.h"
+#include "control.h"
+#include "_control.h"
 
 // Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
 enum GameFunction_t
@@ -104,3 +106,24 @@ const char* CONFIG_FunctionNumToRealName(int32_t func);
 void CONFIG_ReplaceButtonName(int num, const char* text);
 void CONFIG_DeleteButtonName(int num);
 void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
+
+// I am not sure if anything below will survive for long...
+
+#define MAXMOUSEAXES 2
+#define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
+
+
+extern int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
+extern int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
+extern int32_t MouseAnalogueAxes[MAXMOUSEAXES];
+extern int32_t MouseAnalogueScale[MAXMOUSEAXES];
+extern int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
+extern int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
+extern int32_t JoystickAnalogueAxes[MAXJOYAXES];
+extern int32_t JoystickAnalogueScale[MAXJOYAXES];
+extern int32_t JoystickAnalogueDead[MAXJOYAXES];
+extern int32_t JoystickAnalogueSaturate[MAXJOYAXES];
+extern int32_t JoystickAnalogueInvert[MAXJOYAXES];
+
+int32_t CONFIG_AnalogNameToNum(const char* func);
+const char* CONFIG_AnalogNumToName(int32_t func);

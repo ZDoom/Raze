@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define config_public_h_
 
 #include "keyboard.h"
-#include "gamecontrol.h"
 #include "control.h"
 #include "_control.h"
 #include "gamedefs.h"
@@ -38,18 +37,7 @@ BEGIN_BLD_NS
 #define MAXRIDECULE 10
 #define MAXRIDECULELENGTH 40
 #define MAXPLAYERNAME 16
-#define MAXMOUSEAXES 2
 
-extern int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
-extern int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
-extern int32_t MouseAnalogueAxes[MAXMOUSEAXES];
-extern int32_t MouseAnalogueScale[MAXMOUSEAXES];
-extern int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
-extern int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
-extern int32_t JoystickAnalogueAxes[MAXJOYAXES];
-extern int32_t JoystickAnalogueScale[MAXJOYAXES];
-extern int32_t JoystickAnalogueDead[MAXJOYAXES];
-extern int32_t JoystickAnalogueSaturate[MAXJOYAXES];
 extern int32_t scripthandle;
 extern int32_t setupread;
 extern int32_t configversion;
@@ -87,10 +75,6 @@ void CONFIG_SetupJoystick(void);
 
 int32_t CONFIG_GetMapBestTime(char const *mapname, uint8_t const *mapmd4);
 int     CONFIG_SetMapBestTime(uint8_t const *mapmd4, int32_t tm);
-
-
-int32_t     CONFIG_AnalogNameToNum(const char *func);
-const char *CONFIG_AnalogNumToName(int32_t func);
 
 END_BLD_NS
 

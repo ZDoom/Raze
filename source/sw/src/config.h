@@ -112,8 +112,6 @@ void CONFIG_WriteSetup(void);
 void WriteCommitFile(int32_t gametype);
 void CONFIG_GetSetupFilename(void);
 
-const char *CONFIG_AnalogNumToName(int32_t func);
-int32_t CONFIG_AnalogNameToNum(const char *func);
 
 END_SW_NS
 #endif
