@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "scriplib.h"
 #include "gamecvars.h"
+#include "gameconfigfile.h"
 
 #include "vfs.h"
 
@@ -4258,16 +4259,25 @@ badindex:
                     insptr++;
                     dispatch();
                 }
+				extern FString currentGame;
+				FString section = currentGame + ".Gamevars";
+				GameConfig->SetSection(section);
                 switch (VM_DECODE_INST(tw))
                 {
                     case CON_SAVEGAMEVAR:
-                        nValue = Gv_GetVar(*insptr);
-                        SCRIPT_PutNumber(ud.config.scripthandle, "Gamevars", aGameVars[*insptr++].szLabel, nValue, FALSE, FALSE);
-                        break;
+					{
+						nValue = Gv_GetVar(*insptr);
+						FStringf vs("%d", nValue);
+						GameConfig->SetValueForKey(aGameVars[*insptr++].szLabel, vs);
+						break;
+					}
                     case CON_READGAMEVAR:
-                        SCRIPT_GetNumber(ud.config.scripthandle, "Gamevars", aGameVars[*insptr].szLabel, &nValue);
-                        Gv_SetVar(*insptr++, nValue);
-                        break;
+					{
+						auto str = GameConfig->GetValueForKey(aGameVars[*insptr].szLabel);
+						if (str) nValue = (int)strtoll(str, nullptr, 0);
+						Gv_SetVar(*insptr++, nValue);
+						break;
+					}
                 }
                 dispatch();
             }
