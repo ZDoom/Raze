@@ -793,7 +793,6 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     OSD_Printf("Wrote %s\n",SetupFilename);
     CONFIG_WriteSettings();
-	G_SaveConfig();
     Bfflush(NULL);
 #endif
 }

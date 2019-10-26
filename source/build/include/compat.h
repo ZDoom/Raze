@@ -652,11 +652,18 @@ static FORCE_INLINE int32_t Blrintf(const float x)
 # define ERRprintf(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__)
 #endif
 
-#ifdef DEBUGGINGAIDS
-# define Bexit(status) do { initprintf("exit(%d) at %s:%d in %s()\n", status, __FILE__, __LINE__, EDUKE32_FUNCTION); exit(status); } while (0)
-#else
-# define Bexit(a) exit(a)// throw(1)
-#endif
+class ExitEvent : public std::exception
+{
+	int reason;
+public:
+	ExitEvent(int a) { reason = a; }
+	int Reason() const { return reason; }
+};
+
+inline void Bexit(int a)
+{
+	throw ExitEvent(a);
+}
 
 
 ////////// Standard library monkey patching //////////

@@ -538,9 +538,6 @@ int WINAPI WinMain(HINSTANCE , HINSTANCE , LPSTR , int )
 int main(int argc, char *argv[])
 #endif
 {
-	try
-	{
-
 #ifdef _WIN32
 	char* argvbuf;
 	int32_t buildargc =  win_buildargs(&argvbuf);
@@ -597,8 +594,23 @@ int main(int argc, char *argv[])
 
     startwin_open();
 
-	G_LoadConfig(currentGame);
-    r = gi->app_main(buildargc, (const char **)buildargv);
+	try
+	{
+
+		G_LoadConfig(currentGame);
+		r = gi->app_main(buildargc, (const char**)buildargv);
+	}
+	catch (const std::runtime_error & err)
+	{
+		wm_msgbox("Error", "%s", err.what());
+		return 3;
+	}
+	catch (const ExitEvent & exit)
+	{
+		// Just let the rest of the function execute.
+		r = exit.Reason();
+	}
+	G_SaveConfig();
 
     startwin_close();
 
@@ -606,13 +618,6 @@ int main(int argc, char *argv[])
     gtkbuild_exit(r);
 #endif
 	return r;
-	}
-	catch(std::runtime_error &err)
-	{
-		wm_msgbox("Error", "%s", err.what());
-		return 3;
-	}
-
 }
 
 

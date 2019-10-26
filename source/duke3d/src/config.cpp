@@ -946,7 +946,6 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     OSD_Printf("Wrote %s\n",g_setupFileName);
     CONFIG_WriteSettings();
-	G_SaveConfig();
 	Bfflush(NULL);
 #endif
 }
