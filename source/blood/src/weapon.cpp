@@ -204,7 +204,7 @@ void SpawnBulletEject(PLAYER *pPlayer, int a2, int a3)
     POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int dz = pPlayer->zWeapon-(pPlayer->zWeapon-pPlayer->zView)/2;
-    sub_74818(pPlayer->pSprite, dz, a2, a3);
+    fxSpawnEjectingBrass(pPlayer->pSprite, dz, a2, a3);
 }
 
 void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
@@ -213,7 +213,7 @@ void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int t = pPlayer->zWeapon - pPlayer->zView;
     int dz = pPlayer->zWeapon-t+(t>>2);
-    sub_74A18(pPlayer->pSprite, dz, a2, a3);
+    fxSpawnEjectingShell(pPlayer->pSprite, dz, a2, a3);
 }
 
 void WeaponInit(void)

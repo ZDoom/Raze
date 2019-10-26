@@ -317,24 +317,26 @@ void sub_746D4(spritetype *pSprite, int a2)
     }
 }
 
-void sub_74818(spritetype *pSprite, int z, int a3, int a4)
+void fxSpawnEjectingBrass(spritetype *pSprite, int z, int a3, int a4)
 {
     int x = pSprite->x+mulscale28(pSprite->clipdist-4, Cos(pSprite->ang));
     int y = pSprite->y+mulscale28(pSprite->clipdist-4, Sin(pSprite->ang));
     x += mulscale30(a3, Cos(pSprite->ang+512));
     y += mulscale30(a3, Sin(pSprite->ang+512));
-    spritetype *pShell = gFX.fxSpawn((FX_ID)(FX_37+Random(3)), pSprite->sectnum, x, y, z, 0);
-    if (pShell)
+    spritetype *pBrass = gFX.fxSpawn((FX_ID)(FX_37+Random(3)), pSprite->sectnum, x, y, z, 0);
+    if (pBrass)
     {
+        if (!VanillaMode())
+            pBrass->ang = Random(2047);
         int nDist = (a4<<18)/120+Random2(((a4/4)<<18)/120);
         int nAngle = pSprite->ang+Random2(56)+512;
-        xvel[pShell->index] = mulscale30(nDist, Cos(nAngle));
-        yvel[pShell->index] = mulscale30(nDist, Sin(nAngle));
-        zvel[pShell->index] = zvel[pSprite->index]-(0x20000+(Random2(40)<<18)/120);
+        xvel[pBrass->index] = mulscale30(nDist, Cos(nAngle));
+        yvel[pBrass->index] = mulscale30(nDist, Sin(nAngle));
+        zvel[pBrass->index] = zvel[pSprite->index]-(0x20000+(Random2(40)<<18)/120);
     }
 }
 
-void sub_74A18(spritetype *pSprite, int z, int a3, int a4)
+void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4)
 {
     int x = pSprite->x+mulscale28(pSprite->clipdist-4, Cos(pSprite->ang));
     int y = pSprite->y+mulscale28(pSprite->clipdist-4, Sin(pSprite->ang));
@@ -343,6 +345,8 @@ void sub_74A18(spritetype *pSprite, int z, int a3, int a4)
     spritetype *pShell = gFX.fxSpawn((FX_ID)(FX_40+Random(3)), pSprite->sectnum, x, y, z, 0);
     if (pShell)
     {
+        if (!VanillaMode())
+            pShell->ang = Random(2047);
         int nDist = (a4<<18)/120+Random2(((a4/4)<<18)/120);
         int nAngle = pSprite->ang+Random2(56)+512;
         xvel[pShell->index] = mulscale30(nDist, Cos(nAngle));
