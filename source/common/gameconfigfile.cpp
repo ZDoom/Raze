@@ -443,7 +443,8 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 			if (symb == NULL || symb->name == nullptr ||symb->help == nullptr)
 				break;
 
-			SetValueForKey(symb->name, symb->help);
+			if (symb->func == (void*)OSD_ALIAS)
+				SetValueForKey(symb->name, symb->help);
 		}
 	}
 #endif

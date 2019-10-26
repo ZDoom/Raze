@@ -305,33 +305,32 @@ void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy/*=false*/)
 			{
 				sc.MustGetToken(TK_StringConst);
 				default1 = KB_StringToScanCode(sc.String);
-				if (num >= 0 && num < NUMGAMEFUNCTIONS)
-				{
-					auto& key = KeyboardKeys[num];
-#if 0
-					// skip the function if the default key is already used
-					// or the function is assigned to another key
-					if (lazy && (key[0] != 0xff || (CONTROL_KeyIsBound(default0) && Bstrlen(CONTROL_KeyBinds[default0].cmdstr) > strlen_gamefunc_
-						&& CONFIG_FunctionNameToNum(CONTROL_KeyBinds[default0].cmdstr + strlen_gamefunc_) >= 0)))
-					{
-						continue;
-					}
-#endif
-					key[0] = default0;
-					key[1] = default1;
-
-					if (key[0]) CONTROL_FreeKeyBind(key[0]);
-					if (key[1])	CONTROL_FreeKeyBind(key[1]);
-
-					if (num == gamefunc_Show_Console)
-						OSD_CaptureKey(key[0]);
-					else
-						CONFIG_MapKey(num, key[0], 0, key[1], 0);
-
-					CONTROL_DefineFlag(num, false);
-
-				}
 			}
+			if (num >= 0 && num < NUMGAMEFUNCTIONS)
+			{
+				auto& key = KeyboardKeys[num];
+#if 0
+				// skip the function if the default key is already used
+				// or the function is assigned to another key
+				if (lazy && (key[0] != 0xff || (CONTROL_KeyIsBound(default0) && Bstrlen(CONTROL_KeyBinds[default0].cmdstr) > strlen_gamefunc_
+					&& CONFIG_FunctionNameToNum(CONTROL_KeyBinds[default0].cmdstr + strlen_gamefunc_) >= 0)))
+				{
+					continue;
+				}
+#endif
+				key[0] = default0;
+				key[1] = default1;
+
+				if (key[0]) CONTROL_FreeKeyBind(key[0]);
+				if (key[1])	CONTROL_FreeKeyBind(key[1]);
+
+				if (num == gamefunc_Show_Console)
+					OSD_CaptureKey(key[0]);
+				else
+					CONFIG_MapKey(num, key[0], 0, key[1], 0);
+
+			}
+			CONTROL_DefineFlag(num, false);
 		}
 
 	}
