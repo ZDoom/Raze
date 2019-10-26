@@ -34,14 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // config file name
 #define SETUPFILENAME APPBASENAME ".cfg"
 
-// default mouse scale
-#define DEFAULTMOUSEANALOGUESCALE           65536
-
-// default joystick settings
-
-#define DEFAULTJOYSTICKANALOGUESCALE        65536
-#define DEFAULTJOYSTICKANALOGUEDEAD         2000
-#define DEFAULTJOYSTICKANALOGUESATURATE     9500
 
 #endif
 

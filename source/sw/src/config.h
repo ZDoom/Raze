@@ -47,11 +47,13 @@ extern int32_t VesaBufferMode;
 extern int32_t ForceSetup;
 
 
+#if 0
 // comm externs
 extern int32_t ComPort;
 extern int32_t IrqNumber;
 extern int32_t UartAddress;
 extern int32_t PortSpeed;
+
 
 extern int32_t ToneDial;
 extern char  ModemName[MAXMODEMSTRING];
@@ -71,44 +73,17 @@ extern char  UserLevel[MAXUSERLEVELNAMELENGTH];
 extern char  RTSPath[MAXRTSPATHLENGTH];
 extern char  UserPath[MAXUSERLEVELPATHLENGTH];
 
+#endif
 // controller externs
 extern int32_t UseMouse, UseJoystick;
-extern int32_t JoystickPort;
-extern int32_t MouseSensitivity;
-extern int32_t MouseAiming;
-extern int32_t MouseAimingFlipped;
-
-extern int32_t MouseButtons[MAXMOUSEBUTTONS];
-extern int32_t MouseButtonsClicked[MAXMOUSEBUTTONS];
-
-extern int32_t JoystickButtons[MAXJOYBUTTONS];
-extern int32_t JoystickButtonsClicked[MAXJOYBUTTONS];
-
-extern int32_t MouseAnalogAxes[MAXMOUSEAXES];
-extern int32_t JoystickAnalogAxes[MAXJOYAXES];
-extern int32_t MouseAnalogScale[MAXMOUSEAXES];
-extern int32_t JoystickAnalogScale[MAXJOYAXES];
-extern int32_t JoystickAnalogDead[MAXJOYAXES];
-extern int32_t JoystickAnalogSaturate[MAXJOYAXES];
 
 extern int32_t EnableRudder;
-
-extern int32_t MouseDigitalAxes[MAXMOUSEAXES][2];
-extern int32_t JoystickDigitalAxes[MAXJOYAXES][2];
 
 extern char setupfilename[BMAX_PATH];
 extern char ExternalControlFilename[64];
 
-//style=0: classic
-//style=1: modern
-void SetMouseDefaults(int style);
-void SetJoystickDefaults(void);
-void SetDefaultKeyDefinitions(int style);
 
 int32_t CONFIG_ReadSetup(void);
-void CONFIG_SetupMouse(void);
-void CONFIG_SetupJoystick(void);
-void CONFIG_WriteSetup(void);
 void WriteCommitFile(int32_t gametype);
 void CONFIG_GetSetupFilename(void);
 

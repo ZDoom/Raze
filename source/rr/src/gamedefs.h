@@ -37,29 +37,6 @@ BEGIN_RR_NS
 // config file name
 #define SETUPFILENAME APPBASENAME ".cfg"
 
-// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
-#define MAXJOYBUTTONS 32
-#define MAXJOYBUTTONSANDHATS (MAXJOYBUTTONS+4)
-
-// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
-#define MAXJOYAXES 9
-#define MAXJOYDIGITAL (MAXJOYAXES*2)
-
-// default mouse scale
-#define DEFAULTMOUSEANALOGUESCALE           65536
-
-// default joystick settings
-
-#if defined(GEKKO)
-#define DEFAULTJOYSTICKANALOGUESCALE        16384
-#define DEFAULTJOYSTICKANALOGUEDEAD         1000
-#define DEFAULTJOYSTICKANALOGUESATURATE     9500
-#else
-#define DEFAULTJOYSTICKANALOGUESCALE        65536
-#define DEFAULTJOYSTICKANALOGUEDEAD         1000
-#define DEFAULTJOYSTICKANALOGUESATURATE     9500
-#endif
-
 END_RR_NS
 
 #endif

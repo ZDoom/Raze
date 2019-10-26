@@ -7,6 +7,7 @@
 #include "sc_man.h"
 #include "c_cvars.h"
 #include "gameconfigfile.h"
+#include "gamecvars.h"
 #include "build.h"
 
 struct GameFuncNameDesc
@@ -172,6 +173,8 @@ void CONFIG_Init()
 	SetupButtonFunctions();
 	CONTROL_ClearAssignments();
 	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
+	CONFIG_InitMouseAndController();
+	CONFIG_SetGameControllerDefaultsStandard();
 }
 
 //==========================================================================
@@ -355,6 +358,103 @@ int32_t JoystickAnalogueDead[MAXJOYAXES];
 int32_t JoystickAnalogueSaturate[MAXJOYAXES];
 int32_t JoystickAnalogueInvert[MAXJOYAXES];
 
+static const char* mousedefaults[MAXMOUSEBUTTONS] =
+{
+"Weapon_Fire",
+"Weapon_Special_Fire",
+"",
+"",
+"Previous_Weapon",
+"Next_Weapon",
+};
+
+
+static const char* mouseclickeddefaults[MAXMOUSEBUTTONS] =
+{
+};
+
+
+static const char* mouseanalogdefaults[MAXMOUSEAXES] =
+{
+"analog_turning",
+"analog_moving",
+};
+
+
+static const char* mousedigitaldefaults[MAXMOUSEDIGITAL] =
+{
+};
+
+static const char* joystickdefaults[MAXJOYBUTTONSANDHATS] =
+{
+"Fire",
+"Strafe",
+"Run",
+"Open",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"Aim_Down",
+"Look_Right",
+"Aim_Up",
+"Look_Left",
+};
+
+
+static const char* joystickclickeddefaults[MAXJOYBUTTONSANDHATS] =
+{
+"",
+"Inventory",
+"Jump",
+"Crouch",
+};
+
+
+static const char* joystickanalogdefaults[MAXJOYAXES] =
+{
+"analog_turning",
+"analog_moving",
+"analog_strafing",
+};
+
+
+static const char* joystickdigitaldefaults[MAXJOYDIGITAL] =
+{
+"",
+"",
+"",
+"",
+"",
+"",
+"Run",
+};
+
+
 //==========================================================================
 //
 //
@@ -410,3 +510,604 @@ const char* CONFIG_AnalogNumToName(int32_t func)
 	return NULL;
 }
 
+void CONFIG_SetupMouse(void)
+{
+	const char* val;
+	FString section = currentGame + ".MouseSettings";
+	if (!GameConfig->SetSection(section)) return;
+
+	for (int i = 0; i < MAXMOUSEBUTTONS; i++)
+	{
+		section.Format("MouseButton%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			MouseFunctions[i][0] = CONFIG_FunctionNameToNum(val);
+
+		section.Format("MouseButtonClicked%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			MouseFunctions[i][1] = CONFIG_FunctionNameToNum(val);
+	}
+
+	// map over the axes
+	for (int i = 0; i < MAXMOUSEAXES; i++)
+	{
+		section.Format("MouseAnalogAxes%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(val);
+
+		section.Format("MouseDigitalAxes%d_0", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(val);
+
+		section.Format("MouseDigitalAxes%d_1", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(val);
+
+		section.Format("MouseAnalogScale%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			MouseAnalogueScale[i] = (int32_t)strtoull(val, nullptr, 0);
+	}
+
+	for (int i = 0; i < MAXMOUSEBUTTONS; i++)
+	{
+		CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
+		CONTROL_MapButton(MouseFunctions[i][1], i, 1, controldevice_mouse);
+	}
+	for (int i = 0; i < MAXMOUSEAXES; i++)
+	{
+		CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
+		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0, controldevice_mouse);
+		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1, controldevice_mouse);
+		CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
+	}
+}
+
+
+void CONFIG_SetupJoystick(void)
+{
+	const char* val;
+	FString section = currentGame + ".ControllerSettings";
+	if (!GameConfig->SetSection(section)) return;
+
+	for (int i = 0; i < MAXJOYBUTTONSANDHATS; i++)
+	{
+		section.Format("ControllerButton%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(val);
+
+		section.Format("ControllerButtonClicked%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(val);
+	}
+
+	// map over the axes
+	for (int i = 0; i < MAXJOYAXES; i++)
+	{
+		section.Format("ControllerAnalogAxes%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(val);
+
+		section.Format("ControllerDigitalAxes%d_0", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(val);
+
+		section.Format("ControllerDigitalAxes%d_1", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(val);
+
+		section.Format("ControllerAnalogScale%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			JoystickAnalogueScale[i] = (int32_t)strtoull(val, nullptr, 0);
+
+		section.Format("ControllerAnalogInvert%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			JoystickAnalogueInvert[i] = (int32_t)strtoull(val, nullptr, 0);
+
+		section.Format("ControllerAnalogDead%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			JoystickAnalogueDead[i] = (int32_t)strtoull(val, nullptr, 0);
+
+		section.Format("ControllerAnalogSaturate%d", i);
+		val = GameConfig->GetValueForKey(section);
+		if (val)
+			JoystickAnalogueSaturate[i] = (int32_t)strtoull(val, nullptr, 0);
+	}
+
+	for (int i = 0; i < MAXJOYBUTTONSANDHATS; i++)
+	{
+		CONTROL_MapButton(JoystickFunctions[i][0], i, 0, controldevice_joystick);
+		CONTROL_MapButton(JoystickFunctions[i][1], i, 1, controldevice_joystick);
+	}
+	for (int i = 0; i < MAXJOYAXES; i++)
+	{
+		CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
+		CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
+		CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
+		CONTROL_SetAnalogAxisScale(i, JoystickAnalogueScale[i], controldevice_joystick);
+		CONTROL_SetAnalogAxisInvert(i, JoystickAnalogueInvert[i], controldevice_joystick);
+	}
+}
+
+static void CONFIG_SetJoystickButtonFunction(int i, int j, int function)
+{
+	JoystickFunctions[i][j] = function;
+	CONTROL_MapButton(function, i, j, controldevice_joystick);
+}
+static void CONFIG_SetJoystickAnalogAxisScale(int i, int scale)
+{
+	JoystickAnalogueScale[i] = scale;
+	CONTROL_SetAnalogAxisScale(i, scale, controldevice_joystick);
+}
+static void CONFIG_SetJoystickAnalogAxisInvert(int i, int invert)
+{
+	JoystickAnalogueInvert[i] = invert;
+	CONTROL_SetAnalogAxisInvert(i, invert, controldevice_joystick);
+}
+static void CONFIG_SetJoystickAnalogAxisDeadSaturate(int i, int dead, int saturate)
+{
+	JoystickAnalogueDead[i] = dead;
+	JoystickAnalogueSaturate[i] = saturate;
+	joySetDeadZone(i, dead, saturate);
+}
+static void CONFIG_SetJoystickDigitalAxisFunction(int i, int j, int function)
+{
+	JoystickDigitalFunctions[i][j] = function;
+	CONTROL_MapDigitalAxis(i, function, j, controldevice_joystick);
+}
+static void CONFIG_SetJoystickAnalogAxisFunction(int i, int function)
+{
+	JoystickAnalogueAxes[i] = function;
+	CONTROL_MapAnalogAxis(i, function, controldevice_joystick);
+}
+
+struct GameControllerButtonSetting
+{
+	GameControllerButton button;
+	int function;
+
+	void apply() const
+	{
+		CONFIG_SetJoystickButtonFunction(button, 0, function);
+	}
+};
+struct GameControllerAnalogAxisSetting
+{
+	GameControllerAxis axis;
+	int function;
+
+	void apply() const
+	{
+		CONFIG_SetJoystickAnalogAxisFunction(axis, function);
+	}
+};
+struct GameControllerDigitalAxisSetting
+{
+	GameControllerAxis axis;
+	int polarity;
+	int function;
+
+	void apply() const
+	{
+		CONFIG_SetJoystickDigitalAxisFunction(axis, polarity, function);
+	}
+};
+
+
+void CONFIG_SetGameControllerDefaultsClear()
+{
+	for (int i = 0; i < MAXJOYBUTTONSANDHATS; i++)
+	{
+		CONFIG_SetJoystickButtonFunction(i, 0, -1);
+		CONFIG_SetJoystickButtonFunction(i, 1, -1);
+	}
+
+	for (int i = 0; i < MAXJOYAXES; i++)
+	{
+		CONFIG_SetJoystickAnalogAxisScale(i, DEFAULTJOYSTICKANALOGUESCALE);
+		CONFIG_SetJoystickAnalogAxisInvert(i, 0);
+		CONFIG_SetJoystickAnalogAxisDeadSaturate(i, DEFAULTJOYSTICKANALOGUEDEAD, DEFAULTJOYSTICKANALOGUESATURATE);
+
+		CONFIG_SetJoystickDigitalAxisFunction(i, 0, -1);
+		CONFIG_SetJoystickDigitalAxisFunction(i, 1, -1);
+
+		CONFIG_SetJoystickAnalogAxisFunction(i, -1);
+	}
+}
+
+static void CONFIG_SetGameControllerAxesModern()
+{
+	static GameControllerAnalogAxisSetting const analogAxes[] =
+	{
+		{ GAMECONTROLLER_AXIS_LEFTX, analog_strafing },
+		{ GAMECONTROLLER_AXIS_LEFTY, analog_moving },
+		{ GAMECONTROLLER_AXIS_RIGHTX, analog_turning },
+		{ GAMECONTROLLER_AXIS_RIGHTY, analog_lookingupanddown },
+	};
+
+	CONFIG_SetJoystickAnalogAxisScale(GAMECONTROLLER_AXIS_RIGHTX, 32768 + 16384);
+	CONFIG_SetJoystickAnalogAxisScale(GAMECONTROLLER_AXIS_RIGHTY, 32768 + 16384);
+
+	for (auto const& analogAxis : analogAxes)
+		analogAxis.apply();
+}
+
+void CONFIG_SetGameControllerDefaultsStandard()
+{
+	CONFIG_SetGameControllerDefaultsClear();
+	CONFIG_SetGameControllerAxesModern();
+
+	static GameControllerButtonSetting const buttons[] =
+	{
+		{ GAMECONTROLLER_BUTTON_A, gamefunc_Jump },
+		{ GAMECONTROLLER_BUTTON_B, gamefunc_Toggle_Crouch },
+		{ GAMECONTROLLER_BUTTON_BACK, gamefunc_Map },
+		{ GAMECONTROLLER_BUTTON_LEFTSTICK, gamefunc_Run },
+		{ GAMECONTROLLER_BUTTON_RIGHTSTICK, gamefunc_Quick_Kick },
+		{ GAMECONTROLLER_BUTTON_LEFTSHOULDER, gamefunc_Crouch },
+		{ GAMECONTROLLER_BUTTON_RIGHTSHOULDER, gamefunc_Jump },
+		{ GAMECONTROLLER_BUTTON_DPAD_UP, gamefunc_Previous_Weapon },
+		{ GAMECONTROLLER_BUTTON_DPAD_DOWN, gamefunc_Next_Weapon },
+	};
+
+	static GameControllerButtonSetting const buttonsDuke[] =
+	{
+		{ GAMECONTROLLER_BUTTON_X, gamefunc_Open },
+		{ GAMECONTROLLER_BUTTON_Y, gamefunc_Inventory },
+		{ GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_Inventory_Left },
+		{ GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_Inventory_Right },
+	};
+
+	static GameControllerButtonSetting const buttonsFury[] =
+	{
+		{ GAMECONTROLLER_BUTTON_X, gamefunc_Steroids }, // Reload
+		{ GAMECONTROLLER_BUTTON_Y, gamefunc_Open },
+		{ GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_MedKit },
+		{ GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_NightVision }, // Radar
+	};
+
+	static GameControllerDigitalAxisSetting const digitalAxes[] =
+	{
+		{ GAMECONTROLLER_AXIS_TRIGGERLEFT, 1, gamefunc_Alt_Fire },
+		{ GAMECONTROLLER_AXIS_TRIGGERRIGHT, 1, gamefunc_Fire },
+	};
+
+	for (auto const& button : buttons)
+		button.apply();
+
+	/*
+	if (FURY)
+	{
+		for (auto const& button : buttonsFury)
+			button.apply();
+	}
+	else
+	*/
+	{
+		for (auto const& button : buttonsDuke)
+			button.apply();
+	}
+
+	for (auto const& digitalAxis : digitalAxes)
+		digitalAxis.apply();
+}
+
+void CONFIG_SetGameControllerDefaultsPro()
+{
+	CONFIG_SetGameControllerDefaultsClear();
+	CONFIG_SetGameControllerAxesModern();
+
+	static GameControllerButtonSetting const buttons[] =
+	{
+		{ GAMECONTROLLER_BUTTON_A, gamefunc_Open },
+		{ GAMECONTROLLER_BUTTON_B, gamefunc_Third_Person_View },
+		{ GAMECONTROLLER_BUTTON_Y, gamefunc_Quick_Kick },
+		{ GAMECONTROLLER_BUTTON_BACK, gamefunc_Map },
+		{ GAMECONTROLLER_BUTTON_LEFTSTICK, gamefunc_Run },
+		{ GAMECONTROLLER_BUTTON_RIGHTSTICK, gamefunc_Crouch },
+		{ GAMECONTROLLER_BUTTON_DPAD_UP, gamefunc_Previous_Weapon },
+		{ GAMECONTROLLER_BUTTON_DPAD_DOWN, gamefunc_Next_Weapon },
+	};
+
+	static GameControllerButtonSetting const buttonsDuke[] =
+	{
+		{ GAMECONTROLLER_BUTTON_X, gamefunc_Inventory },
+		{ GAMECONTROLLER_BUTTON_LEFTSHOULDER, gamefunc_Previous_Weapon },
+		{ GAMECONTROLLER_BUTTON_RIGHTSHOULDER, gamefunc_Next_Weapon },
+		{ GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_Inventory_Left },
+		{ GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_Inventory_Right },
+	};
+
+	static GameControllerButtonSetting const buttonsFury[] =
+	{
+		{ GAMECONTROLLER_BUTTON_X, gamefunc_Steroids }, // Reload
+		{ GAMECONTROLLER_BUTTON_LEFTSHOULDER, gamefunc_Crouch },
+		{ GAMECONTROLLER_BUTTON_RIGHTSHOULDER, gamefunc_Alt_Fire },
+		{ GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_MedKit },
+		{ GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_NightVision }, // Radar
+	};
+
+	static GameControllerDigitalAxisSetting const digitalAxes[] =
+	{
+		{ GAMECONTROLLER_AXIS_TRIGGERLEFT, 1, gamefunc_Jump },
+		{ GAMECONTROLLER_AXIS_TRIGGERRIGHT, 1, gamefunc_Fire },
+	};
+
+	for (auto const& button : buttons)
+		button.apply();
+
+#if 0 // ouch...
+	if (FURY)
+	{
+		for (auto const& button : buttonsFury)
+			button.apply();
+	}
+	else
+#endif
+	{
+		for (auto const& button : buttonsDuke)
+			button.apply();
+	}
+
+	for (auto const& digitalAxis : digitalAxes)
+		digitalAxis.apply();
+}
+
+char const* CONFIG_GetGameFuncOnKeyboard(int gameFunc)
+{
+	const char* string0 = KB_ScanCodeToString(KeyboardKeys[gameFunc][0]);
+	return string0[0] == '\0' ? KB_ScanCodeToString(KeyboardKeys[gameFunc][1]) : string0;
+}
+
+char const* CONFIG_GetGameFuncOnMouse(int gameFunc)
+{
+	for (int j = 0; j < 2; ++j)
+		for (int i = 0; i < joystick.numButtons; ++i)
+			if (JoystickFunctions[i][j] == gameFunc)
+				return joyGetName(1, i);
+
+	for (int i = 0; i < joystick.numAxes; ++i)
+		for (int j = 0; j < 2; ++j)
+			if (JoystickDigitalFunctions[i][j] == gameFunc)
+				return joyGetName(0, i);
+
+	return "";
+}
+
+char const* CONFIG_GetGameFuncOnJoystick(int gameFunc)
+{
+	for (int j = 0; j < 2; ++j)
+		for (int i = 0; i < joystick.numButtons; ++i)
+			if (JoystickFunctions[i][j] == gameFunc)
+				return joyGetName(1, i);
+
+	for (int i = 0; i < joystick.numAxes; ++i)
+		for (int j = 0; j < 2; ++j)
+			if (JoystickDigitalFunctions[i][j] == gameFunc)
+				return joyGetName(0, i);
+
+	return "";
+}
+
+
+void CONFIG_InitMouseAndController()
+{
+	memset(MouseFunctions, -1, sizeof(MouseFunctions));
+	memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
+	memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
+	memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
+
+	for (int i = 0; i < MAXMOUSEBUTTONS; i++)
+	{
+		MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);
+		CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
+		if (i >= 4) continue;
+		MouseFunctions[i][1] = CONFIG_FunctionNameToNum(mouseclickeddefaults[i]);
+		CONTROL_MapButton(MouseFunctions[i][1], i, 1, controldevice_mouse);
+	}
+
+	for (int i = 0; i < MAXMOUSEAXES; i++)
+	{
+		MouseAnalogueScale[i] = DEFAULTMOUSEANALOGUESCALE;
+		CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
+
+		MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i * 2]);
+		MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i * 2 + 1]);
+		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0, controldevice_mouse);
+		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1, controldevice_mouse);
+
+		MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
+		CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
+	}
+	CONFIG_SetupMouse();
+	CONFIG_SetupJoystick();
+}
+
+void CONFIG_PutNumber(const char* key, int number)
+{
+	FStringf str("%d", number);
+	GameConfig->SetValueForKey(key, str);
+}
+
+void CONFIG_WriteControllerSettings()
+{
+	FString buf;
+	if (in_mouse)
+	{
+		FString section = currentGame + ".MouseSettings";
+		GameConfig->SetSection(section);
+		for (int i = 0; i < MAXMOUSEBUTTONS; i++)
+		{
+			if (CONFIG_FunctionNumToName(MouseFunctions[i][0]))
+			{
+				buf.Format("MouseButton%d", i);
+				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(MouseFunctions[i][0]));
+			}
+
+			if (i >= (MAXMOUSEBUTTONS - 2)) continue;
+
+			if (CONFIG_FunctionNumToName(MouseFunctions[i][1]))
+			{
+				buf.Format("MouseButtonClicked%d", i);
+				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(MouseFunctions[i][1]));
+			}
+		}
+
+		for (int i = 0; i < MAXMOUSEAXES; i++)
+		{
+			if (CONFIG_AnalogNumToName(MouseAnalogueAxes[i]))
+			{
+				buf.Format("MouseAnalogAxes%d", i);
+				GameConfig->SetValueForKey(buf, CONFIG_AnalogNumToName(MouseAnalogueAxes[i]));
+			}
+
+			if (CONFIG_FunctionNumToName(MouseDigitalFunctions[i][0]))
+			{
+				buf.Format("MouseDigitalAxes%d_0", i);
+				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(MouseDigitalFunctions[i][0]));
+			}
+
+			if (CONFIG_FunctionNumToName(MouseDigitalFunctions[i][1]))
+			{
+				buf.Format("MouseDigitalAxes%d_1", i);
+				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(MouseDigitalFunctions[i][1]));
+			}
+
+			buf.Format("MouseAnalogScale%d", i);
+			CONFIG_PutNumber(buf, MouseAnalogueScale[i]);
+		}
+	}
+
+	if (in_joystick)
+	{
+		FString section = currentGame + ".ControllerSettings";
+		GameConfig->SetSection(section);
+		for (int dummy = 0; dummy < MAXJOYBUTTONSANDHATS; dummy++)
+		{
+			if (CONFIG_FunctionNumToName(JoystickFunctions[dummy][0]))
+			{
+				buf.Format("ControllerButton%d", dummy);
+				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][0]));
+			}
+
+			if (CONFIG_FunctionNumToName(JoystickFunctions[dummy][1]))
+			{
+				buf.Format("ControllerButtonClicked%d", dummy);
+				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][1]));
+			}
+		}
+		for (int dummy = 0; dummy < MAXJOYAXES; dummy++)
+		{
+			if (CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]))
+			{
+				buf.Format("ControllerAnalogAxes%d", dummy);
+				GameConfig->SetValueForKey(buf, CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]));
+			}
+
+			if (CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][0]))
+			{
+				buf.Format("ControllerDigitalAxes%d_0", dummy);
+				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][0]));
+			}
+
+			if (CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][1]))
+			{
+				buf.Format("ControllerDigitalAxes%d_1", dummy);
+				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][1]));
+			}
+
+			buf.Format("ControllerAnalogScale%d", dummy);
+			CONFIG_PutNumber(buf, JoystickAnalogueScale[dummy]);
+
+			buf.Format("ControllerAnalogInvert%d", dummy);
+			CONFIG_PutNumber(buf, JoystickAnalogueInvert[dummy]);
+
+			buf.Format("ControllerAnalogDead%d", dummy);
+			CONFIG_PutNumber(buf, JoystickAnalogueDead[dummy]);
+
+			buf.Format("ControllerAnalogSaturate%d", dummy);
+			CONFIG_PutNumber(buf, JoystickAnalogueSaturate[dummy]);
+		}
+	}
+}
+
+#if 0
+// todo
+
+	CONFIG_PutNumber("Misc", "Executions", ud.executions);
+
+	CONFIG_PutNumber("Setup", "ConfigVersion", BYTEVERSION_EDUKE32);
+	CONFIG_PutNumber("Setup", "ForceSetup", ud.setup.forcesetup);
+	CONFIG_PutNumber("Setup", "NoAutoLoad", ud.setup.noautoload);
+
+	CONFIG_PutNumber("Screen Setup", "ScreenBPP", ud.setup.bpp);
+	CONFIG_PutNumber("Screen Setup", "ScreenDisplay", r_displayindex);
+	CONFIG_PutNumber("Screen Setup", "ScreenHeight", ud.setup.ydim);
+	CONFIG_PutNumber("Screen Setup", "ScreenMode", ud.setup.fullscreen);
+	CONFIG_PutNumber("Screen Setup", "ScreenWidth", ud.setup.xdim);
+
+	if (g_grpNamePtr && !g_addonNum)
+		GameConfig->SetValueForKey("Setup", "SelectedGRP", g_grpNamePtr);
+
+#ifdef STARTUP_SETUP_WINDOW
+	if (g_noSetup == 0)
+		GameConfig->SetValueForKey("Setup", "ModDir", &g_modDir[0]);
+#endif
+	// exit early after only updating the values that can be changed from the startup window
+	if (flags & 1)
+	{
+		SCRIPT_Save(g_setupFileName);
+		SCRIPT_Free(ud.config.scripthandle);
+		return;
+	}
+
+	CONFIG_PutNumber("Screen Setup", "MaxRefreshFreq", maxrefreshfreq);
+	CONFIG_PutNumber("Screen Setup", "WindowPosX", windowx);
+	CONFIG_PutNumber("Screen Setup", "WindowPosY", windowy);
+	CONFIG_PutNumber("Screen Setup", "WindowPositioning", windowpos);
+
+	if (!NAM_WW2GI)
+	{
+		CONFIG_PutNumber("Screen Setup", "Out", ud.lockout);
+		GameConfig->SetValueForKey("Screen Setup", "Password", ud.pwlockout);
+	}
+
+#ifdef _WIN32
+	CONFIG_PutNumber("Updates", "CheckForUpdates", ud.config.CheckForUpdates);
+	CONFIG_PutNumber("Updates", "LastUpdateCheck", ud.config.LastUpdateCheck);
+#endif
+
+	GameConfig->SetValueForKey("Comm Setup", "PlayerName", &szPlayerName[0]);
+
+	GameConfig->SetValueForKey("Comm Setup", "RTSName", &ud.rtsname[0]);
+
+	char commmacro[] = "CommbatMacro# ";
+
+	for (int dummy = 0; dummy < MAXRIDECULE; dummy++)
+	{
+		commmacro[13] = dummy + '0';
+		GameConfig->SetValueForKey("Comm Setup", commmacro, &ud.ridecule[dummy][0]);
+	}
+
+	SCRIPT_Save(g_setupFileName);
+
+	if ((flags & 2) == 0)
+		SCRIPT_Free(ud.config.scripthandle);
+
+	OSD_Printf("Wrote %s\n", g_setupFileName);
+	CONFIG_WriteSettings();
+	Bfflush(NULL);
+
+#endif

@@ -29,20 +29,10 @@ BEGIN_DUKE_NS
 
 
 int  CONFIG_ReadSetup(void);
-void CONFIG_WriteSetup(uint32_t flags);
 void CONFIG_SetDefaults(void);
-void CONFIG_SetupMouse(void);
-void CONFIG_SetupJoystick(void);
-
-void CONFIG_SetGameControllerDefaultsStandard(void);
-void CONFIG_SetGameControllerDefaultsPro(void);
-void CONFIG_SetGameControllerDefaultsClear(void);
 
 int32_t CONFIG_GetMapBestTime(char const *mapname, uint8_t const *mapmd4);
 int     CONFIG_SetMapBestTime(uint8_t const *mapmd4, int32_t tm);
-
-const char * CONFIG_GetGameFuncOnKeyboard(int gameFunc);
-const char * CONFIG_GetGameFuncOnJoystick(int gameFunc);
 
 END_DUKE_NS
 #endif

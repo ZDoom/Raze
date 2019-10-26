@@ -1087,6 +1087,7 @@ static SWBOOL MNU_MouseButtonPostProcess(MenuItem_p item)
 
 SWBOOL MNU_MouseButtonSetupCustom(UserCall call, MenuItem_p item)
 {
+#if 0
     static int currentfunc = 0;
 
     if (call == uc_touchup)
@@ -1144,12 +1145,13 @@ SWBOOL MNU_MouseButtonSetupCustom(UserCall call, MenuItem_p item)
         break;
     default: break;
     }
-
+#endif
     return TRUE;
 }
 
 static SWBOOL MNU_SetMouseButtonFunctions(MenuItem_p item)
 {
+#if 0
     int button, clicked, function;
     char *p;
 
@@ -1179,6 +1181,7 @@ static SWBOOL MNU_SetMouseButtonFunctions(MenuItem_p item)
                 *p = ' ';
         }
     }
+#endif
     return TRUE;
 }
 
@@ -1193,6 +1196,7 @@ static SWBOOL MNU_MouseDigitalPostProcess(MenuItem_p item)
 
 static SWBOOL MNU_MouseDigitalSetupCustom(UserCall call, MenuItem_p item)
 {
+#if 0
     static int currentfunc = 0;
 
     if (call == uc_touchup)
@@ -1235,12 +1239,13 @@ static SWBOOL MNU_MouseDigitalSetupCustom(UserCall call, MenuItem_p item)
         break;
     default: break;
     }
-
+#endif
     return TRUE;
 }
 
 static SWBOOL MNU_SetAdvancedMouseFunctions(MenuItem_p item)
 {
+#if 0
     int axis;
     char *p;
 
@@ -1260,6 +1265,7 @@ static SWBOOL MNU_SetAdvancedMouseFunctions(MenuItem_p item)
                 *p = ' ';
         }
     }
+#endif
     return TRUE;
 }
 
@@ -1384,6 +1390,7 @@ static SWBOOL MNU_JoystickButtonPostProcess(MenuItem_p item)
 
 static SWBOOL MNU_JoystickButtonSetupCustom(UserCall call, MenuItem *item)
 {
+#if 0
     static int currentfunc = 0;
 
     if (call == uc_touchup)
@@ -1442,7 +1449,7 @@ static SWBOOL MNU_JoystickButtonSetupCustom(UserCall call, MenuItem *item)
         break;
     default: break;
     }
-
+#endif
     return TRUE;
 }
 
@@ -1457,6 +1464,7 @@ static SWBOOL MNU_JoystickButtonNextPage(void)
 
 static SWBOOL MNU_SetJoystickButtonFunctions(MenuItem_p item)
 {
+#if 0
     int button, clicked, function;
     char *p;
 
@@ -1485,6 +1493,7 @@ static SWBOOL MNU_SetJoystickButtonFunctions(MenuItem_p item)
                 *p = ' ';
         }
     }
+#endif
     return TRUE;
 }
 
@@ -1493,6 +1502,7 @@ static MenuItem_p joystick_axis_item = NULL;
 
 static SWBOOL MNU_JoystickAxesInitialise(MenuItem_p mitem)
 {
+#if 0
     if (!CONTROL_JoyPresent)
     {
         return TRUE;
@@ -1508,7 +1518,7 @@ static SWBOOL MNU_JoystickAxesInitialise(MenuItem_p mitem)
     slidersettings[sldr_joyaxisscale] = JoystickAnalogScale[JoystickAxisPage] >> 13;
     slidersettings[sldr_joyaxisdead] = JoystickAnalogDead[JoystickAxisPage] >> 10;
     slidersettings[sldr_joyaxissatur] = JoystickAnalogSaturate[JoystickAxisPage] >> 10;
-
+#endif
     return TRUE;
 }
 
@@ -1520,6 +1530,7 @@ static SWBOOL MNU_JoystickAxisPostProcess(MenuItem_p item)
 
 static SWBOOL MNU_JoystickAxisSetupCustom(UserCall call, MenuItem *item)
 {
+#if 0
     static int currentfunc = 0;
 
     if (call == uc_touchup)
@@ -1563,7 +1574,7 @@ static SWBOOL MNU_JoystickAxisSetupCustom(UserCall call, MenuItem *item)
         break;
     default: break;
     }
-
+#endif
     return TRUE;
 }
 
@@ -1578,6 +1589,7 @@ static SWBOOL MNU_JoystickAxisNextPage(void)
 
 static SWBOOL MNU_SetJoystickAxisFunctions(MenuItem_p item)
 {
+#if 0
     int function;
     char *p;
 
@@ -1595,6 +1607,7 @@ static SWBOOL MNU_SetJoystickAxisFunctions(MenuItem_p item)
                 *p = ' ';
         }
     }
+#endif
     return TRUE;
 }
 
@@ -1872,15 +1885,15 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
 
 SWBOOL MNU_LoadModernDefaults(void)
 {
-    SetDefaultKeyDefinitions(1);
-    SetMouseDefaults(1);
+    //SetDefaultKeyDefinitions(1);
+    //SetMouseDefaults(1);
     return TRUE;
 }
 
 SWBOOL MNU_LoadClassicDefaults(void)
 {
-    SetDefaultKeyDefinitions(0);
-    SetMouseDefaults(0);
+    //SetDefaultKeyDefinitions(0);
+    //SetMouseDefaults(0);
     return TRUE;
 }
 
@@ -2253,8 +2266,8 @@ MNU_InitMenus(void)
     buttonsettings[btn_friendlyfire] = gs.NetHurtTeammate;
     buttonsettings[btn_parental] = gs.ParentalLock;
 
-    slidersettings[sldr_mousescalex] = MouseAnalogScale[0]>>13;
-    slidersettings[sldr_mousescaley] = MouseAnalogScale[1]>>13;
+    //slidersettings[sldr_mousescalex] = MouseAnalogScale[0]>>13;
+    //slidersettings[sldr_mousescaley] = MouseAnalogScale[1]>>13;
 
     slidersettings[sldr_joyaxisscale] = 0;
     slidersettings[sldr_joyaxisanalog] = 0;
@@ -3895,7 +3908,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (slidersettings[item->slider] != offset)
         {
             slidersettings[item->slider] = offset;
-            MouseAnalogScale[item->slider - sldr_mousescalex] = offset<<13;
+            //MouseAnalogScale[item->slider - sldr_mousescalex] = offset<<13;
             CONTROL_SetAnalogAxisScale(item->slider - sldr_mousescalex, offset<<13, controldevice_mouse);
         }
 
@@ -3916,7 +3929,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (slidersettings[item->slider] != offset)
         {
             slidersettings[item->slider] = offset;
-            JoystickAnalogScale[JoystickAxisPage] = offset<<13;
+            //JoystickAnalogScale[JoystickAxisPage] = offset<<13;
             CONTROL_SetAnalogAxisScale(JoystickAxisPage, offset<<13, controldevice_joystick);
         }
 
@@ -3940,7 +3953,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (slidersettings[item->slider] != offset)
         {
             slidersettings[item->slider] = offset;
-            JoystickAnalogAxes[JoystickAxisPage] = MNU_ControlAxisNum(offset);
+            //JoystickAnalogAxes[JoystickAxisPage] = MNU_ControlAxisNum(offset);
             CONTROL_MapAnalogAxis(JoystickAxisPage, MNU_ControlAxisNum(offset), controldevice_joystick);
         }
 
@@ -3967,16 +3980,16 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
             slidersettings[item->slider] = offset;
             if (item->slider == sldr_joyaxisdead)
             {
-                JoystickAnalogDead[JoystickAxisPage] = min((offset<<10), 32767);
+                //JoystickAnalogDead[JoystickAxisPage] = min((offset<<10), 32767);
                 //CONTROL_SetJoyAxisDead(JoystickAxisPage, JoystickAnalogDead[JoystickAxisPage]);
             }
             else
             {
-                JoystickAnalogSaturate[JoystickAxisPage] = min((offset<<10), 32767);
+                //JoystickAnalogSaturate[JoystickAxisPage] = min((offset<<10), 32767);
                 //CONTROL_SetJoyAxisSaturate(JoystickAxisPage, JoystickAnalogSaturate[JoystickAxisPage]);
             }
 
-            joySetDeadZone(JoystickAxisPage, JoystickAnalogDead[JoystickAxisPage], JoystickAnalogSaturate[JoystickAxisPage]); // [JM] !CHECKME!
+            //joySetDeadZone(JoystickAxisPage, JoystickAnalogDead[JoystickAxisPage], JoystickAnalogSaturate[JoystickAxisPage]); // [JM] !CHECKME!
         }
 
         sprintf(tmp_text, "%.2f%%", (float)(slidersettings[item->slider]<<10) / 32767.f);

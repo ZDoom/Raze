@@ -865,8 +865,6 @@ int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv)
 
 void G_SavePlayerMaybeMulti(savebrief_t & sv, bool isAutoSave)
 {
-    CONFIG_WriteSetup(2);
-
     if (g_netServer || ud.multimode > 1)
     {
         Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");

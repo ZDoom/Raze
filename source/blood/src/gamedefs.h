@@ -37,14 +37,6 @@ BEGIN_BLD_NS
 // config file name
 #define SETUPFILENAME APPBASENAME ".cfg"
 
-// default mouse scale
-#define DEFAULTMOUSEANALOGUESCALE           65536
-
-// default joystick settings
-
-#define DEFAULTJOYSTICKANALOGUESCALE        65536
-#define DEFAULTJOYSTICKANALOGUEDEAD         1000
-#define DEFAULTJOYSTICKANALOGUESATURATE     9500
 
 END_BLD_NS
 

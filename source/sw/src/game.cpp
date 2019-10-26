@@ -5018,6 +5018,7 @@ getinput(SW_PACKET *loc)
     // MAKE SURE THIS WILL GET SET
     SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
 
+#if 0 // What kind of crap is this...?
     if (gs.MouseAimingType == 1) // while held
     {
         if (BUTTON(gamefunc_Mouse_Aiming))
@@ -5066,6 +5067,7 @@ getinput(SW_PACKET *loc)
         CONTROL_MapAnalogAxis(1, mouseaxis, controldevice_mouse);
         MouseYAxisMode = mouseaxis;
     }
+#endif
 
     CONTROL_GetInput(&info);
 

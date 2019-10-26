@@ -109,7 +109,7 @@ void InitSetup(void)
     CONTROL_PrintAxes();
     }*/
 
-    RTS_Init(RTSName);
+    //RTS_Init(RTSName);
 }
 
 #if 0

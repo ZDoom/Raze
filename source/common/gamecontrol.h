@@ -112,6 +112,15 @@ void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode
 #define MAXMOUSEAXES 2
 #define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
 
+// default mouse scale
+#define DEFAULTMOUSEANALOGUESCALE           65536
+
+// default joystick settings
+
+#define DEFAULTJOYSTICKANALOGUESCALE        65536
+#define DEFAULTJOYSTICKANALOGUEDEAD         1000
+#define DEFAULTJOYSTICKANALOGUESATURATE     9500
+
 
 extern int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
 extern int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
@@ -127,3 +136,13 @@ extern int32_t JoystickAnalogueInvert[MAXJOYAXES];
 
 int32_t CONFIG_AnalogNameToNum(const char* func);
 const char* CONFIG_AnalogNumToName(int32_t func);
+void CONFIG_SetupMouse(void);
+void CONFIG_SetupJoystick(void);
+void CONFIG_WriteControllerSettings();
+void CONFIG_InitMouseAndController();
+
+void CONFIG_SetGameControllerDefaultsStandard();
+void CONFIG_SetGameControllerDefaultsPro();
+void CONFIG_SetGameControllerDefaultsClear();
+char const* CONFIG_GetGameFuncOnJoystick(int gameFunc);
+char const* CONFIG_GetGameFuncOnKeyboard(int gameFunc);

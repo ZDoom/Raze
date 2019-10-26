@@ -49,6 +49,7 @@
 #include "keyboard.h"
 #include "control.h"
 #include "osd.h"
+#include "gamecontrol.h"
 
 #define GAMENAME "Demolition"
 #define LASTRUNVERSION "1"
@@ -544,6 +545,7 @@ void G_SaveConfig()
 {
 	GameConfig->ArchiveGlobalData();
 	GameConfig->ArchiveGameData(GameName);
+	CONFIG_WriteControllerSettings();
 	GameConfig->WriteConfigFile();
 	delete GameConfig;
 	GameConfig = nullptr;
