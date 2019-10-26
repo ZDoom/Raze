@@ -42,6 +42,7 @@
 #include "keyboard.h"
 #include "control.h"
 #include "_control.h"
+#include "gamecontrol.h"
 
 /* Notes
  
@@ -51,11 +52,14 @@
  
  */
 
+CVAR(Bool, cl_defaultconfiguration, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+
 FGameConfigFile* GameConfig;
 static FString GameName;
 
 void G_LoadConfig(const char *game)
 {
+	CONFIG_SetDefaultKeys(cl_defaultconfiguration? "demolition/origbinds.txt" : "demolition/defbinds.txt")
 	GameConfig = new FGameConfigFile();
 	GameConfig->DoGlobalSetup();
 	GameConfig->DoGameSetup(game);
