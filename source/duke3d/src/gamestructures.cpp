@@ -1596,11 +1596,11 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_RECCNT:                       ud.reccnt                        = iSet; break;
         case USERDEFS_ENTERED_NAME:                 ud.entered_name                  = iSet; break;
         case USERDEFS_SCREEN_TILTING:               ud.screen_tilting                = iSet; break;
-        case USERDEFS_SHADOWS:                      r_shadows                        = iSet; break;//!!!
+        case USERDEFS_SHADOWS:                      r_shadows.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_FTA_ON:                       ud.fta_on                        = iSet; break;
         case USERDEFS_EXECUTIONS:                   ud.executions                    = iSet; break;
-        case USERDEFS_AUTO_RUN:                     cl_autorun                       = iSet; break; //!!!
-        case USERDEFS_COORDS:                       cl_showcoords                    = iSet; break; //!!!
+        case USERDEFS_AUTO_RUN:                     cl_autorun.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_COORDS:                       cl_showcoords.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_TICKRATE:                     r_showfps                       = iSet; break;
         case USERDEFS_M_COOP:                       ud.m_coop                        = iSet; break;
         case USERDEFS_COOP:                         ud.coop                          = iSet; break;
@@ -1612,7 +1612,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
             }
             break;
         case USERDEFS_LOCKOUT:                      ud.lockout                       = iSet; break;
-        case USERDEFS_CROSSHAIR:                    cl_crosshair                     = iSet; break;	//!!!
+        case USERDEFS_CROSSHAIR:                    cl_crosshair.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_PLAYERAI:                     ud.playerai                      = iSet; break;
         case USERDEFS_RESPAWN_MONSTERS:             ud.respawn_monsters              = iSet; break;
         case USERDEFS_RESPAWN_ITEMS:                ud.respawn_items                 = iSet; break;
@@ -1638,32 +1638,32 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_VOLUME_NUMBER:                ud.volume_number                 = iSet; break;
         case USERDEFS_M_MARKER:                     ud.m_marker                      = iSet; break;
         case USERDEFS_MARKER:                       ud.marker                        = iSet; break;
-        case USERDEFS_MOUSEFLIP:                    in_mouseflip                     = !iSet; break;//!!!
+        case USERDEFS_MOUSEFLIP:                    in_mouseflip.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_STATUSBARSCALE:               ud.statusbarscale                = iSet; break;
-        case USERDEFS_DRAWWEAPON:                   r_drawweapon                     = iSet; break;//!!!
-        case USERDEFS_MOUSEAIMING:                  in_aimmode                      = iSet; break;//!!!
-        case USERDEFS_WEAPONSWITCH:                 cl_weaponswitch                  = iSet; break; //!!!
+        case USERDEFS_DRAWWEAPON:                   r_drawweapon.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_MOUSEAIMING:                  in_aimmode.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_WEAPONSWITCH:                 cl_weaponswitch.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_DEMOCAMS:                     cl_democams                      = iSet; break;
         case USERDEFS_COLOR:                        ud.color                         = iSet; break;
-        case USERDEFS_MSGDISPTIME:                  hud_messagetime                  = iSet; break; //!!!
+        case USERDEFS_MSGDISPTIME:                  hud_messagetime.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_STATUSBARMODE:                ud.statusbarmode                 = iSet; break;
         case USERDEFS_M_NOEXITS:                    ud.m_noexits                     = iSet; break;
         case USERDEFS_NOEXITS:                      ud.noexits                       = iSet; break;
-        case USERDEFS_AUTOVOTE:                     cl_autovote                      = iSet; break; //!!!
-        case USERDEFS_AUTOMSG:                      cl_automsg                       = iSet; break;	//!!!
-        case USERDEFS_IDPLAYERS:                    cl_idplayers                     = iSet; break; //!!!
+        case USERDEFS_AUTOVOTE:                     cl_autovote.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_AUTOMSG:                      cl_automsg.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_IDPLAYERS:                    cl_idplayers.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_TEAM:                         ud.team                          = iSet; break;
-        case USERDEFS_VIEWBOB:                      cl_viewbob                       = iSet; break; //!!!
-        case USERDEFS_WEAPONSWAY:                   cl_weaponsway                    = iSet; break; //!!!
+        case USERDEFS_VIEWBOB:                      cl_viewbob.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_WEAPONSWAY:                   cl_weaponsway.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_ANGLEINTERPOLATION:           ud.angleinterpolation            = iSet; break;
-        case USERDEFS_OBITUARIES:                   cl_obituaries                    = iSet; break; //!!!
-        case USERDEFS_LEVELSTATS:                 /*hud_stats                        = iSet;*/ break; //!!! No, the script should have no business whatsoever changing this one!
+        case USERDEFS_OBITUARIES:                   cl_obituaries.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_LEVELSTATS:                   hud_stats.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_CROSSHAIRSCALE:               cl_crosshairscale                = iSet; break;
         case USERDEFS_ALTHUD:                       ud.althud                        = iSet; break;
         case USERDEFS_DISPLAY_BONUS_SCREEN:         ud.display_bonus_screen          = iSet; break;
         case USERDEFS_SHOW_LEVEL_TEXT:              ud.show_level_text               = iSet; break;
-        case USERDEFS_WEAPONSCALE:                  hud_weaponscale                  = iSet; break; //!!!
-        case USERDEFS_TEXTSCALE:                    hud_textscale                     = iSet; break; //!!!
+        case USERDEFS_WEAPONSCALE:                  hud_weaponscale.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_TEXTSCALE:                    hud_textscale.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_RUNKEY_MODE:                  ud.runkey_mode                   = iSet; break;
         case USERDEFS_M_ORIGIN_X:                   ud.returnvar[0]                  = iSet; break;
         case USERDEFS_M_ORIGIN_Y:                   ud.returnvar[1]                  = iSet; break;
@@ -1691,8 +1691,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_MENUBACKGROUND:               ud.menubackground                = iSet; break;
         case USERDEFS_STATUSBARFLAGS:               ud.statusbarflags                = iSet; break; // Sigh... Ion Fury needs this. :(
         case USERDEFS_STATUSBARRANGE:               ud.statusbarrange                = iSet; break;
-        case USERDEFS_STATUSBARCUSTOM:              hud_custom				         = iSet; break; //!!!
-        case USERDEFS_HUDONTOP:                     hud_position                      = iSet; break; //!!!
+        case USERDEFS_STATUSBARCUSTOM:              hud_custom.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_HUDONTOP:                     hud_position.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_MENU_SLIDEBARZ:               ud.menu_slidebarz                = iSet; break;
         case USERDEFS_MENU_SLIDEBARMARGIN:          ud.menu_slidebarmargin           = iSet; break;
         case USERDEFS_MENU_SLIDECURSORZ:            ud.menu_slidecursorz             = iSet; break;
@@ -1745,10 +1745,10 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
                 ud.returnvar[lParm2 - 1] = iSet;
             break;
         case USERDEFS_USERBYTEVERSION:              ud.userbytever                   = iSet; break;
-        case USERDEFS_AUTOSAVE:                     cl_autosave                      = iSet; break; //!!!
+        case USERDEFS_AUTOSAVE:                     cl_autosave.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_DRAW_Y:                       rotatesprite_y_offset            = iSet; break;
         case USERDEFS_DRAW_YXASPECT:                rotatesprite_yxaspect            = iSet; break;
-        case USERDEFS_FOV:                          r_fov                            = iSet; break; //!!!
+        case USERDEFS_FOV:                          r_fov.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_NEWGAMECUSTOMOPEN:
             for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
                 if (iSet & (1u<<b))
