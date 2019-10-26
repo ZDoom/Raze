@@ -627,7 +627,6 @@ int main(int argc, char *argv[])
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
-	G_SaveConfig();
 
     startwin_close();
 
@@ -1571,6 +1570,16 @@ int called = 0;
 int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     int32_t regrab = 0, ret;
+
+	// SDL's fullscreen is a deadly trap in the debugger.
+#ifdef _DEBUG
+	if (fs)
+	{
+		fs = false;
+		x -= 10;
+		y -= 10;
+	}
+#endif
 
 	if (called++)
 	{

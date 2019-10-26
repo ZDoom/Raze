@@ -69,6 +69,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "warp.h"
 #include "weapon.h"
+#include "gameconfigfile.h"
 
 #ifdef _WIN32
 # include <shellapi.h>
@@ -187,8 +188,8 @@ void ShutDown(void)
 {
     if (!in3dmode())
         return;
-    CONFIG_WriteSetup(0);
-    netDeinitialize();
+	G_SaveConfig();
+	netDeinitialize();
     sndTerm();
     sfxTerm();
     scrUnInit();
@@ -211,7 +212,7 @@ void ShutDown(void)
 void QuitGame(void)
 {
     ShutDown();
-    exit(0);
+    Bexit(0);
 }
 
 void PrecacheDude(spritetype *pSprite)
@@ -2584,7 +2585,7 @@ GameInterface Interface = {
 	startwin_idle,
 	startwin_run,
 	G_DefaultDefFile,
-	G_DefFile
+	G_DefFile,
 };
 
 END_BLD_NS

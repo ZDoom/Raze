@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdline.h"
 #include "palette.h"
 #include "gamecvars.h"
+#include "gameconfigfile.h"
 
 #include "vfs.h"
 
@@ -5796,8 +5797,8 @@ static void G_Cleanup(void)
 
 void G_Shutdown(void)
 {
-    CONFIG_WriteSetup(0);
-    S_SoundShutdown();
+	G_SaveConfig();
+	S_SoundShutdown();
     S_MusicShutdown();
     CONTROL_Shutdown();
     KB_Shutdown();
@@ -7176,7 +7177,9 @@ GameInterface Interface = {
 	startwin_puts,
 	startwin_settitle,
 	startwin_idle,
-	startwin_run
+	startwin_run,
+	G_DefaultDefFile,
+	G_DefFile,
 };
 
 END_DUKE_NS

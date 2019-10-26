@@ -5936,7 +5936,9 @@ GameInterface Interface = {
 	startwin_puts,
 	startwin_settitle,
 	startwin_idle,
-	startwin_run
+	startwin_run,
+	G_DefFile,
+	G_DefFile,
 };
 
 // vim:ts=4:sw=4:expandtab:

@@ -424,7 +424,7 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	//AutomapBindings.ArchiveBindings (this);
 #else
 	strcpy(subsection, "Bindings");
-	if (SetSection(section))
+	if (SetSection(section, true))
 	{
 		for (int i = 0; i < MAXBOUNDKEYS + MAXMOUSEBUTTONS; i++)
 		{
@@ -436,11 +436,11 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	}
 
 	strncpy(subsection, "ConsoleAliases", sublen);
-	if (SetSection(section))
+	if (SetSection(section, true))
 	{
 		for (auto& symb : osd->symbptrs)
 		{
-			if (symb == NULL)
+			if (symb == NULL || symb->name == nullptr ||symb->help == nullptr)
 				break;
 
 			SetValueForKey(symb->name, symb->help);
