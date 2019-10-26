@@ -40,12 +40,12 @@ BEGIN_BLD_NS
 
 static const char * mousedefaults[MAXMOUSEBUTTONS] =
    {
-   "Weapon_Fire"
-   "Weapon_Special_Fire"
-   ""
-   ""
-   "Previous_Weapon"
-   "Next_Weapon"
+   "Weapon_Fire",
+   "Weapon_Special_Fire",
+   "",
+   "",
+   "Previous_Weapon",
+   "Next_Weapon",
    };
 
 
@@ -56,8 +56,8 @@ static const char * mouseclickeddefaults[MAXMOUSEBUTTONS] =
 
 static const char * mouseanalogdefaults[MAXMOUSEAXES] =
    {
-   "analog_turning"
-   "analog_moving"
+   "analog_turning",
+   "analog_moving",
    };
 
 
@@ -67,71 +67,71 @@ static const char * mousedigitaldefaults[MAXMOUSEDIGITAL] =
 
 static const char * joystickdefaults[MAXJOYBUTTONSANDHATS] =
    {
-   "Fire"
-   "Strafe"
-   "Run"
-   "Open"
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   "Aim_Down"
-   "Look_Right"
-   "Aim_Up"
-   "Look_Left"
+   "Fire",
+   "Strafe",
+   "Run",
+   "Open",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "Aim_Down",
+   "Look_Right",
+   "Aim_Up",
+   "Look_Left",
    };
 
 
 static const char * joystickclickeddefaults[MAXJOYBUTTONSANDHATS] =
    {
-   ""
-   "Inventory"
-   "Jump"
-   "Crouch"
+   "",
+   "Inventory",
+   "Jump",
+   "Crouch",
    };
 
 
 static const char * joystickanalogdefaults[MAXJOYAXES] =
    {
-   "analog_turning"
-   "analog_moving"
-   "analog_strafing"
+   "analog_turning",
+   "analog_moving",
+   "analog_strafing",
    };
 
 
 static const char * joystickdigitaldefaults[MAXJOYDIGITAL] =
    {
-   ""
-   ""
-   ""
-   ""
-   ""
-   ""
-   "Run"
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "Run",
    };
 
 #endif
