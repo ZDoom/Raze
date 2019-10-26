@@ -516,7 +516,6 @@ extern int loaddefinitions_game(const char *fn, int32_t preload);
 extern void G_AddSearchPaths(void);
 extern void G_CleanupSearchPaths(void);
 
-extern void G_ExtPreInit(int32_t argc, char const * const * argv);
 extern void G_ExtInit(void);
 
 void G_LoadGroupsInDir(const char *dirname);

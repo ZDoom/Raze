@@ -527,48 +527,6 @@ int32_t CONFIG_ReadSetup(void)
 
 void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.cfg
 {
-    int32_t i;
-    BFILE *fp;
-    char *ptr = Xstrdup(g_setupFileName);
-    char tempbuf[128];
-
-    if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
-        Bsprintf(tempbuf, "settings.cfg");
-    else Bsprintf(tempbuf, "%s_settings.cfg", strtok(ptr, "."));
-
-    fp = Bfopen(tempbuf, "wt");
-
-    if (fp)
-    {
-        Bfprintf(fp,"unbindall\n");
-
-        for (i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
-            if (CONTROL_KeyIsBound(i))
-                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_KeyBinds[i].key,
-                CONTROL_KeyBinds[i].repeat?"":" norepeat",CONTROL_KeyBinds[i].cmdstr);
-
-        OSD_WriteAliases(fp);
-
-        if (g_crosshairSum != -1 && g_crosshairSum != DefaultCrosshairColors.r+(DefaultCrosshairColors.g<<8)+(DefaultCrosshairColors.b<<16))
-            Bfprintf(fp, "crosshaircolor %d %d %d\n", CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
-
-        OSD_WriteCvars(fp);
-
-        Bfclose(fp);
-
-        if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
-            OSD_Printf("Wrote settings.cfg\n");
-        else OSD_Printf("Wrote %s_settings.cfg\n",ptr);
-
-        Bfree(ptr);
-        return;
-    }
-
-    if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
-        OSD_Printf("Error writing settings.cfg: %s\n", strerror(errno));
-    else OSD_Printf("Error writing %s_settings.cfg: %s\n",ptr,strerror(errno));
-
-    Bfree(ptr);
 }
 
 void CONFIG_WriteSetup(uint32_t flags)

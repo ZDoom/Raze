@@ -6297,10 +6297,6 @@ int app_main(int argc, const char * const*argv)
     else atexit(enet_deinitialize);
 #endif
 
-    G_ExtPreInit(argc, argv);
-
-    OSD_SetLogFile(APPBASENAME ".log");
-
     OSD_SetFunctions(GAME_drawosdchar,
                      GAME_drawosdstr,
                      GAME_drawosdcursor,
@@ -6529,18 +6525,9 @@ int app_main(int argc, const char * const*argv)
     g_clipMapFiles.clear();
 #endif
 
-    char *const setupFileName = Xstrdup(g_setupFileName);
-    char *const p = strtok(setupFileName, ".");
-
-    if (!p || !Bstrcmp(g_setupFileName, SETUPFILENAME))
-        Bsprintf(tempbuf, "settings.cfg");
-    else
-        Bsprintf(tempbuf, "%s_settings.cfg", p);
-
-    Xfree(setupFileName);
-
-    OSD_Exec(tempbuf);
+#if 0
     OSD_Exec("autoexec.cfg");
+#endif
 
     system_getcvars();
 

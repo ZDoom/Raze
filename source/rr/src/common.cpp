@@ -7,7 +7,7 @@
 #include "build.h"
 #include "baselayer.h"
 #include "palette.h"
-
+#include "cmdlib.h"
 #include "grpscan.h"
 
 #ifdef _WIN32
@@ -211,22 +211,9 @@ void G_SetupGlobalPsky(void)
 
 //////////
 
-static char g_rootDir[BMAX_PATH];
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;
 struct strllist* CommandPaths, * CommandGrps;
-
-void G_ExtPreInit(int32_t argc,char const * const * argv)
-{
-#ifdef _WIN32
-    GetModuleFileNameA(NULL,g_rootDir,BMAX_PATH);
-    Bcorrectfilename(g_rootDir,1);
-    //chdir(g_rootDir);
-#else
-    getcwd(g_rootDir,BMAX_PATH);
-    strcat(g_rootDir,"/");
-#endif
-}
 
 void G_ExtInit(void)
 {
@@ -357,8 +344,8 @@ void G_LoadGroups(int32_t autoload)
     {
         char cwd[BMAX_PATH];
 
-        Bstrcat(g_rootDir, g_modDir);
-        addsearchpath(g_rootDir);
+		FString g_rootDir = progdir + g_modDir;
+		addsearchpath(g_rootDir);
         //        addsearchpath(mod_dir);
 
         char path[BMAX_PATH];

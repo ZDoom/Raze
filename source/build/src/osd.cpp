@@ -766,14 +766,8 @@ void OSD_SetLogFile(const char *fn)
 
     if (osdlog)
     {
-#ifndef USE_PHYSFS
-#ifdef DEBUGGINGAIDS
-        const int bufmode = _IONBF;
-#else
         const int bufmode = _IOLBF;
-#endif
         setvbuf(osdlog, (char *)NULL, bufmode, BUFSIZ);
-#endif
         osdlogfn = fn;
     }
 }

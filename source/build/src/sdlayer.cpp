@@ -27,6 +27,7 @@
 #include "gamecontrol.h"
 #include "resourcefile.h"
 #include "sc_man.h"
+#include "i_specialpaths.h"
 #include "../../glbackend/glbackend.h"
 
 #ifdef USE_OPENGL
@@ -606,6 +607,11 @@ int main(int argc, char *argv[])
 
 	try
 	{
+		// Write to the DOCUMENTS directory, not the game directory
+		
+		FString logpath = M_GetDocumentsPath() + "demolition.log";
+		OSD_SetLogFile(logpath);
+
 		// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
 		G_LoadConfig(currentGame);
 		CONFIG_Init();

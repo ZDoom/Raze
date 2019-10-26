@@ -716,65 +716,6 @@ int CONFIG_ReadSetup(void)
 
 void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.cfg
 {
-    char filename[BMAX_PATH];
-
-    if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
-        Bsprintf(filename, "settings.cfg");
-    else
-        Bsprintf(filename, "%s_settings.cfg", strtok(g_setupFileName, "."));
-
-    buildvfs_FILE fp = buildvfs_fopen_write(filename);
-
-    if (fp)
-    {
-        buildvfs_fputstr(fp,"\nunbindall\n");
-
-        for (int i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
-        {
-            if (CONTROL_KeyIsBound(i))
-            {
-                buildvfs_fputstr(fp, "bind \"");
-                buildvfs_fputstrptr(fp, CONTROL_KeyBinds[i].key);
-                if (CONTROL_KeyBinds[i].repeat)
-                    buildvfs_fputstr(fp, "\" \"");
-                else
-                    buildvfs_fputstr(fp, "\" norepeat \"");
-                buildvfs_fputstrptr(fp, CONTROL_KeyBinds[i].cmdstr);
-                buildvfs_fputstr(fp, "\"\n");
-            }
-        }
-
-        for (int i=0; i<NUMGAMEFUNCTIONS; ++i)
-        {
-            char const * name = CONFIG_FunctionNumToName(i);
-            if (name && name[0] != '\0' && (KeyboardKeys[i][0] == 0xff || !KeyboardKeys[i][0]))
-            {
-                buildvfs_fputstr(fp, "unbound ");
-                buildvfs_fputstrptr(fp, name);
-                buildvfs_fputstr(fp, "\n");
-            }
-        }
-
-        OSD_WriteAliases(fp);
-
-        if (g_crosshairSum != -1 && g_crosshairSum != DefaultCrosshairColors.r+(DefaultCrosshairColors.g<<8)+(DefaultCrosshairColors.b<<16))
-        {
-            buildvfs_fputstr(fp, "crosshaircolor ");
-            char buf[64];
-            snprintf(buf, sizeof(buf), "%d %d %d\n", CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
-            buildvfs_fputstrptr(fp, buf);
-        }
-
-        OSD_WriteCvars(fp);
-
-        buildvfs_fclose(fp);
-
-        OSD_Printf("Wrote %s\n", filename);
-
-        return;
-    }
-
-    OSD_Printf("Error writing %s: %s\n", filename, strerror(errno));
 }
 
 void CONFIG_WriteSetup(uint32_t flags)

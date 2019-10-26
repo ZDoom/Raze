@@ -127,7 +127,6 @@ extern void G_SetupGlobalPsky(void);
 extern void G_AddSearchPaths(void);
 extern void G_CleanupSearchPaths(void);
 
-extern void G_ExtPreInit(int32_t argc,char const * const * argv);
 extern void G_ExtInit(void);
 extern void G_ScanGroups(void);
 extern void G_LoadGroups(int32_t autoload);

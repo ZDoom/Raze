@@ -1498,17 +1498,6 @@ int app_main(int argc, char const * const * argv)
     char buffer[BMAX_PATH];
     margc = argc;
     margv = argv;
-#ifdef _WIN32
-#endif
-
-    G_ExtPreInit(argc, argv);
-
-#ifdef DEBUGGINGAIDS
-    extern int32_t (*check_filename_casing_fn)(void);
-    check_filename_casing_fn = check_filename_casing;
-#endif
-
-    OSD_SetLogFile(APPBASENAME ".log");
 
     OSD_SetFunctions(NULL,
                      NULL,
@@ -1571,18 +1560,10 @@ int app_main(int argc, char const * const * argv)
     OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, 0);
     registerosdcommands();
 
-    char *const setupFileName = Xstrdup(SetupFilename);
-    char *const p = strtok(setupFileName, ".");
-
-    if (!p || !Bstrcmp(SetupFilename, SETUPFILENAME))
-        Bsprintf(buffer, "settings.cfg");
-    else
-        Bsprintf(buffer, "%s_settings.cfg", p);
-
-    Bfree(setupFileName);
-
-    OSD_Exec(buffer);
+#if 0
+	// todo: Handle more intelligently.
     OSD_Exec("autoexec.cfg");
+#endif
 
     // Not neccessary ?
     // CONFIG_SetDefaultKeys(keydefaults, true);
