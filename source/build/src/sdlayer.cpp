@@ -23,7 +23,10 @@
 #include "mmulti.h"
 #include "scriptfile.h"
 #include "zstring.h"
-#include "gamecvars.h"
+#include "gameconfigfile.h"
+#include "gamecontrol.h"
+#include "resourcefile.h"
+#include "sc_man.h"
 #include "../../glbackend/glbackend.h"
 
 #ifdef USE_OPENGL
@@ -474,21 +477,28 @@ void ChooseGame()
 	std::vector<std::wstring> wgames;
 	TArray<TASKDIALOG_BUTTON> buttons;
 	char* token;
-	auto script = scriptfile_fromfile("./games.list");
-	int id = 1000;
-	while (!scriptfile_eof(script))
+	
+	FileReader fr;
+	if (fr.OpenFile("./games.list"))
 	{
-		scriptfile_getstring(script, &token);
-		if (scriptfile_eof(script))
+		auto filedata = fr.ReadPadded(1);
+
+		auto script = scriptfile_fromstring((char*)filedata.Data());
+		int id = 1000;
+		while (!scriptfile_eof(script))
 		{
-			break;
+			scriptfile_getstring(script, &token);
+			if (scriptfile_eof(script))
+			{
+				break;
+			}
+			FString game = token;
+			scriptfile_getstring(script, &token);
+			paths.Push(token);
+			FStringf display("%s\n%s", game.GetChars(), token);
+			wgames.push_back(display.WideString());
+			buttons.Push({ id++, wgames.back().c_str() });
 		}
-		FString game = token;
-		scriptfile_getstring(script, &token);
-		paths.Push(token);
-		FStringf display("%s\n%s", game.GetChars(), token);
-		wgames.push_back(display.WideString());
-		buttons.Push({ id++, wgames.back().c_str() });
 	}
 	if (paths.Size() == 0)
 	{
@@ -596,8 +606,9 @@ int main(int argc, char *argv[])
 
 	try
 	{
-
+		// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
 		G_LoadConfig(currentGame);
+		CONFIG_Init();
 		r = gi->app_main(buildargc, (const char**)buildargv);
 	}
 	catch (const std::runtime_error & err)
@@ -618,6 +629,41 @@ int main(int argc, char *argv[])
     gtkbuild_exit(r);
 #endif
 	return r;
+}
+
+
+std::unique_ptr<FResourceFile> engine_res;
+
+// The resourge manager in cache1d is far too broken to add some arbitrary file without some adjustment.
+// For now, keep this file here, until the resource management can be redone in a more workable fashion.
+extern FString progdir;
+
+void InitBaseRes()
+{
+	if (!engine_res)
+	{
+		// If we get here for the first time, load the engine-internal data.
+		FString baseres = progdir + "demolition.pk3";
+		engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
+		if (!engine_res)
+		{
+			I_Error("Engine resources (%s) not found", baseres.GetChars());
+		}
+	}
+}
+
+extern FString currentGame;
+FileReader openFromBaseResource(const char* fn)
+{
+	InitBaseRes();
+	auto lump = engine_res->FindLump(fn);
+	if (lump) return lump->NewReader();
+	// Also look in game filtered directories.
+	FStringf filtername("filter/game-%s/%s", currentGame.GetChars(), fn);
+	lump = engine_res->FindLump(filtername);
+	if (lump) return lump->NewReader();
+	return FileReader(nullptr);
+
 }
 
 

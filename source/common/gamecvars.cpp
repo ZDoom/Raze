@@ -43,7 +43,6 @@
 #include "control.h"
 #include "_control.h"
 #include "gamecontrol.h"
-#include "build.h"
 
 /* Notes
  
@@ -52,35 +51,6 @@
  
  
  */
-
-CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
-
-FGameConfigFile* GameConfig;
-static FString GameName;
-
-void G_LoadConfig(const char *game)
-{
-	// This must be done before initializing any data, so doing it late in the startup process won't work.
-	if (CONTROL_Startup(controltype_keyboardandmouse, BGetTime, gi->TicRate ))
-	{
-		exit(1);
-	}
-
-	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
-	GameConfig = new FGameConfigFile();
-	GameConfig->DoGlobalSetup();
-	GameConfig->DoGameSetup(game);
-	FBaseCVar::EnableCallbacks();
-	GameName = game;
-}
-
-void G_SaveConfig()
-{
-	GameConfig->ArchiveGameData(GameName);
-	GameConfig->WriteConfigFile();
-	delete GameConfig;
-	GameConfig = nullptr;
-}
 
 CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
@@ -295,7 +265,7 @@ CUSTOM_CVARD(Int, hud_weaponscale, 100, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "ch
 CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field of view")
 {
 	if (self < 60) self = 60;
-	else if (self < 140) self = 140;
+	else if (self > 140) self = 140;
 }
 
 CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable centered horizon line") // only present in Blood, maybe add to others?

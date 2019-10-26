@@ -411,7 +411,6 @@ int32_t CONFIG_ReadSetup(void)
     char commmacro[] = "CommbatMacro# ";
     char tempbuf[1024];
 
-    CONTROL_ClearAssignments();
     CONFIG_SetDefaults();
 
     ud.config.setupread = 1;

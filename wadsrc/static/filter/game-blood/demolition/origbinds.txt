@@ -33,7 +33,7 @@
 "Inventory", "Enter", "KpdEnt"
 "Inventory_Left", "["
 "Inventory_Right", "]"
-"Map_Toggle", "Tab"
+"Map", "Tab"
 "Map_Follow_Mode", "F"
 "Shrink_Screen", "-", "Kpad-"
 "Enlarge_Screen", "=", "Kpad+"

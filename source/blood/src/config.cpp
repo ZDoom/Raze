@@ -449,7 +449,6 @@ int CONFIG_ReadSetup(void)
 {
     char tempbuf[1024];
 
-    CONTROL_ClearAssignments();
     CONFIG_SetDefaults();
 
     setupread = 1;

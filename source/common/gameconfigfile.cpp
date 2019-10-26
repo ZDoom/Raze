@@ -486,3 +486,24 @@ CCMD (whereisini)
 	Printf ("%s\n", path.GetChars());
 }
 */
+
+FGameConfigFile* GameConfig;
+static FString GameName;
+
+void G_LoadConfig(const char* game)
+{
+	GameConfig = new FGameConfigFile();
+	GameConfig->DoGlobalSetup();
+	GameConfig->DoGameSetup(game);
+	FBaseCVar::EnableCallbacks();
+	GameName = game;
+}
+
+void G_SaveConfig()
+{
+	GameConfig->ArchiveGameData(GameName);
+	GameConfig->WriteConfigFile();
+	delete GameConfig;
+	GameConfig = nullptr;
+}
+

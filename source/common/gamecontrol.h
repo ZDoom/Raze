@@ -2,7 +2,7 @@
 
 #include "keyboard.h"
 
-// Order is that of EDuke32 by necessity because it exposes this array to scripting.
+// Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
 enum GameFunction_t
 {
 	gamefunc_Move_Forward,
@@ -35,6 +35,7 @@ enum GameFunction_t
 	gamefunc_Weapon_9,
 	gamefunc_Weapon_10,
 	gamefunc_Inventory,
+	gamefunc_Inventory_Use = gamefunc_Inventory,
 	gamefunc_Inventory_Left,
 	gamefunc_Inventory_Right,
 	gamefunc_Holo_Duke,
@@ -46,6 +47,7 @@ enum GameFunction_t
 	gamefunc_TurnAround,
 	gamefunc_SendMessage,
 	gamefunc_Map,
+	gamefunc_Map_Toggle = gamefunc_Map,
 	gamefunc_Shrink_Screen,
 	gamefunc_Enlarge_Screen,
 	gamefunc_Center_View,
@@ -78,15 +80,13 @@ enum GameFunction_t
 	gamefunc_Aim_Center,
 	gamefunc_Tilt_Left,
 	gamefunc_Tilt_Right,
-	gamefunc_Inventory_Use,
-	gamefunc_Map_Toggle,
 	gamefunc_Send_Message,
 	gamefunc_BeastVision,
 	gamefunc_CrystalBall,
 	gamefunc_JumpBoots,
 	gamefunc_ProximityBombs,
     gamefunc_RemoteBombs,
-	gamefunc_Smoke_Bomb,
+	gamefunc_Smoke_Bomb,			// and these by ShadowWarrior (todo: There's quite a bit of potential for consolidation here - is it worth it?)
 	gamefunc_Gas_Bomb,
 	gamefunc_Flash_Bomb,
 	gamefunc_Caltrops,
@@ -96,6 +96,7 @@ enum GameFunction_t
 
 extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
+void CONFIG_Init();
 void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy=false);
 int32_t CONFIG_FunctionNameToNum(const char* func);
 const char* CONFIG_FunctionNumToName(int32_t func);

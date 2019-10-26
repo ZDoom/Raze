@@ -606,7 +606,6 @@ int CONFIG_ReadSetup(void)
 {
     char tempbuf[1024];
 
-    CONTROL_ClearAssignments();
     CONFIG_SetDefaults();
 
     ud.config.setupread = 1;

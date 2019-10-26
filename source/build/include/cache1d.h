@@ -150,7 +150,7 @@ FileReader openFromBaseResource(const char* name);
 inline FileReader kopenFileReader(const char* name, int where)
 {
 	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
-	if (handle != buildvfs_kfd_invalid) FileReader(new KFileReaderInterface(handle));
+	if (handle != buildvfs_kfd_invalid) return FileReader(new KFileReaderInterface(handle));
 	return openFromBaseResource(name);
 }
 

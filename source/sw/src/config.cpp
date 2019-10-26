@@ -498,7 +498,6 @@ int32_t CONFIG_ReadSetup(void)
 
     char waveformtrackname[MAXWAVEFORMTRACKLENGTH] = {0};
 
-    CONTROL_ClearAssignments();
     CONFIG_SetDefaults();
 
     if (buildvfs_exists(setupfilename))

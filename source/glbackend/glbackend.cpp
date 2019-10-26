@@ -41,42 +41,7 @@
 #include "palette.h"
 
 #include "baselayer.h"
-#include "resourcefile.h"
 
-std::unique_ptr<FResourceFile> engine_res;
-
-// The resourge manager in cache1d is far too broken to add some arbitrary file without some adjustment.
-// For now, keep this file here, until the resource management can be redone in a more workable fashion.
-extern FString progdir;
-
-void InitBaseRes()
-{
-	if (!engine_res)
-	{
-		// If we get here for the first time, load the engine-internal data.
-		FString baseres = progdir + "demolition.pk3";
-		engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
-		if (!engine_res)
-		{
-			FStringf msg("Engine resources (%s) not found", baseres.GetChars());
-			wm_msgbox("Fatal error", msg.GetChars());
-			exit(-1); 
-		}
-	}
-}
-
-extern FString currentGame;
-FileReader openFromBaseResource(const char* fn)
-{
-	auto lump = engine_res->FindLump(fn);
-	if (lump) return lump->NewReader(); 
-	// Also look in game filtered directories.
-	FStringf filtername("filter/%s/%s", currentGame.GetChars(), fn);
-	lump = engine_res->FindLump(fn);
-	if (lump) return lump->NewReader();
-	return FileReader(nullptr);
-	
-}
 
 FileReader GetResource(const char* fn)
 {
@@ -99,7 +64,6 @@ GLInstance::GLInstance()
 
 void GLInstance::Init()
 {
-	InitBaseRes();
 	if (!mSamplers)
 	{
 		mSamplers = new FSamplerManager;

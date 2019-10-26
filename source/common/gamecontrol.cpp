@@ -5,6 +5,8 @@
 #include "control.h"
 #include "keyboard.h"
 #include "sc_man.h"
+#include "c_cvars.h"
+#include "build.h"
 
 struct GameFuncNameDesc
 {
@@ -73,8 +75,7 @@ static const GameFuncNameDesc gamefuncs[] = {
 	{ gamefunc_Last_Weapon, "Last_Used_Weapon"},
 	{ gamefunc_Quick_Save, "Quick_Save"},
 	{ gamefunc_Quick_Load, "Quick_Load"},
-	{ gamefunc_Alt_Weapon, "Alternate_Weapon"},	// Name in RedNukem
-	{ gamefunc_Alt_Weapon, "Alt_Weapon"},	// Name in EDuke32
+	{ gamefunc_Alt_Weapon, "Alt_Weapon"},
 	{ gamefunc_Third_Person_View, "Third_Person_View"},
 	{ gamefunc_Toggle_Crouch, "Toggle_Crouch"},
 	{ gamefunc_See_Chase_View, "See_Chase_View"},	// the following were added by Blood
@@ -84,31 +85,78 @@ static const GameFuncNameDesc gamefuncs[] = {
 	{ gamefunc_Aim_Center, "Aim_Center"},
 	{ gamefunc_Tilt_Left, "Tilt_Left"},
 	{ gamefunc_Tilt_Right, "Tilt_Right"},
-	{ gamefunc_Inventory_Use, "Inventory_Use"},
-	{ gamefunc_Map_Toggle, "Map_Toggle"},
 	{ gamefunc_Send_Message, "Send_Message"},
 	{ gamefunc_BeastVision, "BeastVision"},
 	{ gamefunc_CrystalBall, "CrystalBall"},
 	{ gamefunc_JumpBoots, "JumpBoots"},
 	{ gamefunc_ProximityBombs, "ProximityBombs"},
 	{ gamefunc_RemoteBombs, "RemoteBombs"},
+	{ gamefunc_Smoke_Bomb, "Smoke_Bomb" },
+	{ gamefunc_Gas_Bomb, "Gas_Bomb" },
+	{ gamefunc_Flash_Bomb, "Flash_Bomb" },
+	{ gamefunc_Caltrops, "Calitrops" },
+
 };
 
 static TMap<FName, int> GF_NameToNum;
-static TArray<FString> GF_NumToName;	// This one will preserve the original name for writing to the config (which must be loaded before CON scripts can hack around with the alias array.)
-static TArray<FString> GF_NumToAlias;	// This is for CON scripts to hack apart.
+static FString GF_NumToName[NUMGAMEFUNCTIONS];	// This one will preserve the original name for writing to the config (which must be loaded before CON scripts can hack around with the alias array.)
+static FString GF_NumToAlias[NUMGAMEFUNCTIONS];	// This is for CON scripts to hack apart.
 
 uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
+static FString stringStore[2 * NUMGAMEFUNCTIONS];	// toss all persistent strings from the OSDCMDs in here so that they stick around until shutdown.
 
-static void InitNameToNum()
+CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+static int osdcmd_button(osdcmdptr_t parm)
 {
-	GF_NumToName.Resize(NUMGAMEFUNCTIONS);
-	GF_NumToAlias.Resize(NUMGAMEFUNCTIONS);
+	static char const s_gamefunc_[] = "gamefunc_";
+	int constexpr strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
+
+	char const* p = parm->name + strlen_gamefunc_;
+
+	//if (gInputMode == kInputGame) // only trigger these if in game (fixme: Ensure it works for all games!)
+	CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
+
+	return OSDCMD_OK;
+}
+
+void SetupButtonFunctions()
+{
+	unsigned index = 0;
+	// Note: This must run after the CON scripts had a chance to mess around with the game function name array.
+	for (auto& func : GF_NumToAlias)
+	{
+		if (func[0] == '\0')
+			continue;
+
+	}
+
+}
+
+void CONFIG_Init()
+{
+	// This must be done before initializing any data, so doing it late in the startup process won't work.
+	if (CONTROL_Startup(controltype_keyboardandmouse, BGetTime, gi->TicRate))
+	{
+		exit(1);
+	}
+
+	int index = 0;
 	for(auto &gf : gamefuncs)
 	{
 		GF_NameToNum.Insert(gf.name, gf.index);
 		GF_NumToAlias[gf.index] = GF_NumToName[gf.index] = gf.name;
+
+		stringStore[index].Format("gamefunc_%s", gf.name);
+		stringStore[index].ToLower();
+		stringStore[index + 1] = stringStore[index];
+		stringStore[index + 1] += ": game button";
+		OSD_RegisterFunction(stringStore[index], stringStore[index + 1], osdcmd_button);
+		index += 2;
+
 	}
+	CONTROL_ClearAssignments();
+	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 }
 
 int32_t CONFIG_FunctionNameToNum(const char *func)
@@ -255,37 +303,4 @@ void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy/*=false*/)
 		}
 
 	}
-}
-
-static int osdcmd_button(osdcmdptr_t parm)
-{
-    static char const s_gamefunc_[] = "gamefunc_";
-    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
-
-    char const *p = parm->name + strlen_gamefunc_;
-
-    //if (gInputMode == kInputGame) // only trigger these if in game (fixme: Ensure it works for all games!)
-        CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
-
-    return OSDCMD_OK;
-}
-
-static FString stringStore[2*NUMGAMEFUNCTIONS];	// toss all persistent strings in here so that they stick around until shutdown.
-void SetupButtonFunctions()
-{
-	unsigned index = 0;
-	// Note: This must run after the CON scripts had a chance to mess around with the game function name array.
-    for (auto & func : GF_NumToAlias)
-    {
-        if (func[0] == '\0')
-            continue;
-		
-		stringStore[index].Format("gamefunc_%s", func);
-		stringStore[index].ToLower();
-		stringStore[index+1] = stringStore[index];
-		stringStore[index+1] += ": game button";
-        OSD_RegisterFunction(stringStore[index], stringStore[index+1], osdcmd_button);
-		index += 2;
-    }
-
 }
