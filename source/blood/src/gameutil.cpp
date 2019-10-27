@@ -386,7 +386,7 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
     return 1;
 }
 
-int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8)
+int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
 {
     dassert(pSprite != NULL);
     dassert(dx != 0 || dy != 0);
@@ -398,10 +398,10 @@ int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMa
     int nSector = pSprite->sectnum;
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
-    if (a8)
+    if (nRange)
     {
-        hitscangoal.x = x + mulscale30(a8 << 4, Cos(pSprite->ang));
-        hitscangoal.y = y + mulscale30(a8 << 4, Sin(pSprite->ang));
+        hitscangoal.x = x + mulscale30(nRange << 4, Cos(pSprite->ang));
+        hitscangoal.y = y + mulscale30(nRange << 4, Sin(pSprite->ang));
     }
     else
     {

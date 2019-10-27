@@ -58,6 +58,7 @@ void SetCDVol(CGameMenuItemSlider *);
 void SetDoppler(CGameMenuItemZBool *);
 void SetCrosshair(CGameMenuItemZBool *);
 void SetCenterHoriz(CGameMenuItemZBool *);
+void SetShowPlayerNames(CGameMenuItemZBool *);
 void SetShowWeapons(CGameMenuItemZCycle *);
 void SetSlopeTilting(CGameMenuItemZBool *);
 void SetViewBobbing(CGameMenuItemZBool *);
@@ -409,6 +410,7 @@ CGameMenuItemTitle itemOptionsGameTitle("GAME SETUP", 1, 160, 20, 2038);
 CGameMenuItemZBool itemOptionsGameBoolWeaponsV10X("V1.0x WEAPONS BALANCE:", 3, 66, 130, 180, gWeaponsV10x, SetWeaponsV10X, NULL, NULL);
 ///////////////////
 
+CGameMenuItemZBool itemOptionsGameBoolShowPlayerNames("SHOW PLAYER NAMES:", 3, 66, 60, 180, gShowPlayerNames, SetShowPlayerNames, NULL, NULL);
 CGameMenuItemZCycle itemOptionsGameShowWeapons("SHOW WEAPONS:", 3, 66, 70, 180, 0, SetShowWeapons, pzShowWeaponStrings, ARRAY_SSIZE(pzShowWeaponStrings), 0);
 CGameMenuItemZBool itemOptionsGameBoolSlopeTilting("SLOPE TILTING:", 3, 66, 80, 180, cl_slopetilting, SetSlopeTilting, NULL, NULL);
 CGameMenuItemZBool itemOptionsGameBoolViewBobbing("VIEW BOBBING:", 3, 66, 90, 180, cl_viewvbob, SetViewBobbing, NULL, NULL);
@@ -1117,7 +1119,8 @@ void SetupOptionsMenu(void)
     menuOptions.Add(&itemBloodQAV, false);
 
     menuOptionsGame.Add(&itemOptionsGameTitle, false);
-    menuOptionsGame.Add(&itemOptionsGameShowWeapons, true);
+    menuOptionsGame.Add(&itemOptionsGameBoolShowPlayerNames, true);
+    menuOptionsGame.Add(&itemOptionsGameShowWeapons, false);
     menuOptionsGame.Add(&itemOptionsGameBoolSlopeTilting, false);
     menuOptionsGame.Add(&itemOptionsGameBoolViewBobbing, false);
     menuOptionsGame.Add(&itemOptionsGameBoolViewSwaying, false);
@@ -1406,6 +1409,11 @@ void SetWeaponsV10X(CGameMenuItemZBool* pItem)
     }
 }
 ////
+
+void SetShowPlayerNames(CGameMenuItemZBool *pItem)
+{
+    cl_idplayers = pItem->at20;
+}
 
 void SetShowWeapons(CGameMenuItemZCycle *pItem)
 {
