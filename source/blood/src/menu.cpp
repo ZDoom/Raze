@@ -410,7 +410,7 @@ CGameMenuItemTitle itemOptionsGameTitle("GAME SETUP", 1, 160, 20, 2038);
 CGameMenuItemZBool itemOptionsGameBoolWeaponsV10X("V1.0x WEAPONS BALANCE:", 3, 66, 130, 180, gWeaponsV10x, SetWeaponsV10X, NULL, NULL);
 ///////////////////
 
-CGameMenuItemZBool itemOptionsGameBoolShowPlayerNames("SHOW PLAYER NAMES:", 3, 66, 60, 180, gShowPlayerNames, SetShowPlayerNames, NULL, NULL);
+CGameMenuItemZBool itemOptionsGameBoolShowPlayerNames("SHOW PLAYER NAMES:", 3, 66, 60, 180, cl_idplayers, SetShowPlayerNames, NULL, NULL);
 CGameMenuItemZCycle itemOptionsGameShowWeapons("SHOW WEAPONS:", 3, 66, 70, 180, 0, SetShowWeapons, pzShowWeaponStrings, ARRAY_SSIZE(pzShowWeaponStrings), 0);
 CGameMenuItemZBool itemOptionsGameBoolSlopeTilting("SLOPE TILTING:", 3, 66, 80, 180, cl_slopetilting, SetSlopeTilting, NULL, NULL);
 CGameMenuItemZBool itemOptionsGameBoolViewBobbing("VIEW BOBBING:", 3, 66, 90, 180, cl_viewvbob, SetViewBobbing, NULL, NULL);

@@ -786,7 +786,6 @@ set (PCH_SOURCES
 	common/gameconfigfile.cpp
 	common/gamecvars.cpp
 	common/gamecontrol.cpp
-	common/inputstate.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp

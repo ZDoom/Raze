@@ -36,9 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // we load this in to get default button and key assignments
 // as well as setting up function mappings
 
-#define __SETUP__   // JBF 20031211
-#include "_functio.h"
-
 BEGIN_DUKE_NS
 
 
