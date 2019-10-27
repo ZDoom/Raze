@@ -37,43 +37,13 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #define control_public_h_
 
 #include "tarray.h"
+#include "inputstate.h"
 
 //***************************************************************************
 //
 // DEFINES
 //
 //***************************************************************************
-
-#define MAXGAMEBUTTONS      80
-
-extern BitArray CONTROL_ButtonState, CONTROL_ButtonHeldState;
-
-inline bool BUTTON(int x)
-{
-	return CONTROL_ButtonState[x];
-}
-
-inline bool BUTTONHELD(int x)
-{
-	return CONTROL_ButtonHeldState[x];
-}
-
-inline bool BUTTONJUSTPRESSED(int x)
-{
-	return (BUTTON(x) && !BUTTONHELD(x));
-}
-
-inline bool BUTTONRELEASED(int x)
-{
-	return (!BUTTON(x) && BUTTONHELD(x));
-}
-
-inline bool BUTTONSTATECHANGED(int x)
-{
-	return (BUTTON(x) != BUTTONHELD(x));
-}
-
-
 
 //***************************************************************************
 //

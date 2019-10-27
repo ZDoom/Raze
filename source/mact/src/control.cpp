@@ -22,9 +22,6 @@ bool CONTROL_MousePresent    = false;
 bool CONTROL_JoyPresent      = false;
 bool CONTROL_JoystickEnabled = false;
 
-BitArray CONTROL_ButtonState(MAXGAMEBUTTONS);
-BitArray CONTROL_ButtonHeldState(MAXGAMEBUTTONS);
-
 LastSeenInput CONTROL_LastSeenInput;
 
 float          CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
@@ -614,10 +611,6 @@ static void CONTROL_PollDevices(ControlInfo *info)
 {
     memset(info, 0, sizeof(ControlInfo));
 
-#ifdef __ANDROID__
-    CONTROL_Android_PollDevices(info);
-#endif
-
     if (CONTROL_MouseEnabled)
         CONTROL_GetMouseDelta(info);
 
@@ -743,14 +736,13 @@ void CONTROL_ClearButton(int whichbutton)
     CONTROL_Android_ClearButton(whichbutton);
 #endif
 
-    CONTROL_ButtonState.Clear(whichbutton);
+	inputState.ClearButton(whichbutton);
     CONTROL_Flags[whichbutton].cleared = TRUE;
 }
 
 void CONTROL_ClearAllButtons(void)
 {
-    CONTROL_ButtonHeldState.Zero();
-    CONTROL_ButtonState.Zero();
+	inputState.ClearButtonState();
 
     for (auto & c : CONTROL_Flags)
         c.cleared = TRUE;
@@ -816,8 +808,7 @@ static void CONTROL_GetFunctionInput(void)
     CONTROL_ButtonFunctionState(CONTROL_ButtonFlags);
     CONTROL_AxisFunctionState(CONTROL_ButtonFlags);
 
-    std::swap(CONTROL_ButtonHeldState, CONTROL_ButtonState);
-    CONTROL_ButtonState.Zero();
+	inputState.PrepareState();
 
     int i = CONTROL_NUM_FLAGS-1;
 
@@ -825,7 +816,7 @@ static void CONTROL_GetFunctionInput(void)
     {
         CONTROL_SetFlag(i, /*CONTROL_KeyboardFunctionPressed(i) | */CONTROL_ButtonFlags[i]);
 
-        if (CONTROL_Flags[i].cleared == FALSE) CONTROL_ButtonState.Set(i, CONTROL_Flags[i].active);
+        if (CONTROL_Flags[i].cleared == FALSE) inputState.SetButton(i, CONTROL_Flags[i].active);
         else if (CONTROL_Flags[i].active == FALSE) CONTROL_Flags[i].cleared = 0;
     }
     while (i--);
@@ -835,9 +826,6 @@ static void CONTROL_GetFunctionInput(void)
 
 void CONTROL_GetInput(ControlInfo *info)
 {
-#ifdef __ANDROID__
-    CONTROL_Android_PollDevices(info);
-#endif
     CONTROL_PollDevices(info);
     CONTROL_GetFunctionInput();
     inputchecked = 1;
@@ -881,16 +869,7 @@ bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ti
 
     CONTROL_ResetJoystickValues();
 
-#ifdef GEKKO
-    if (CONTROL_MousePresent)
-        initprintf("CONTROL_Startup: Mouse Present\n");
-
-    if (CONTROL_JoyPresent)
-        initprintf("CONTROL_Startup: Joystick Present\n");
-#endif
-
-	CONTROL_ButtonState.Zero();
-	CONTROL_ButtonHeldState.Zero();
+	inputState.ClearButtonState();
 
     for (auto & CONTROL_Flag : CONTROL_Flags)
         CONTROL_Flag.used = FALSE;

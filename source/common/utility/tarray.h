@@ -1457,6 +1457,40 @@ public:
 };
 
 
+template<int size>
+class FixedBitArray
+{
+	uint8_t bytes[(size + 7) / 8];
+
+public:
+
+	bool operator[](size_t index) const
+	{
+		return !!(bytes[index >> 3] & (1 << (index & 7)));
+	}
+
+	void Set(size_t index, bool set = true)
+	{
+		if (!set) Clear(index);
+		else bytes[index >> 3] |= (1 << (index & 7));
+	}
+
+	void Clear(size_t index)
+	{
+		bytes[index >> 3] &= ~(1 << (index & 7));
+	}
+
+	constexpr unsigned Size() const
+	{
+		return size;
+	}
+
+	void Zero()
+	{
+		memset(&bytes[0], 0, sizeof(bytes));
+	}
+};
+
 // A wrapper to externally stored data.
 // I would have expected something for this in the stl, but std::span is only in C++20.
 template <class T>

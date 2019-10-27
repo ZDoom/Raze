@@ -10,6 +10,9 @@
 #include "gamecvars.h"
 #include "build.h"
 
+InputState inputState;
+
+
 struct GameFuncNameDesc
 {
 	int index;
