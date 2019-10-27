@@ -739,7 +739,6 @@ set (PCH_SOURCES
 	mact/src/control.cpp
 	mact/src/joystick.cpp
 	mact/src/keyboard.cpp
-	mact/src/scriplib.cpp
 	
 	thirdparty/src/sjson.cpp
 	thirdparty/src/crc32.cpp
@@ -787,6 +786,7 @@ set (PCH_SOURCES
 	common/gameconfigfile.cpp
 	common/gamecvars.cpp
 	common/gamecontrol.cpp
+	common/inputstate.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp
