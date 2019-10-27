@@ -4,6 +4,7 @@
 #include "exhumed.h"
 #include "view.h"
 #include "cd.h"
+#include "lighting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +29,7 @@ const char *GradList[kMaxGrads] = {
 int rtint = 0;
 int gtint = 0;
 int btint = 0;
-char *origpalookup[kMaxPalookups];
+//char *origpalookup[kMaxPalookups];
 //unsigned char curpal[768];
 //unsigned char kenpal[768];
 palette_t *fadedestpal;
@@ -36,6 +37,7 @@ palette_t *fadecurpal;
 short nPalDelay;
 short nPalDiff;
 short overscanindex;
+int bGreenPal = 0;
 
 // keep a local copy of the palette that would have been sent to the VGA display adapter
 uint8_t vgaPalette[768];
@@ -77,7 +79,8 @@ int LoadPaletteLookups()
         paletteSetLookupTable(i, buffer);
         kclose(hFile);
 
-        origpalookup[i] = palookup[i];
+        // origpalookup[i] = palookup[i];
+        bGreenPal = 0;
     }
 
     return 1;
@@ -85,20 +88,56 @@ int LoadPaletteLookups()
 
 void SetGreenPal()
 {
-    for (int i = 0; i < 12; i++)
-    {
-        palookup[i] = palookup[6];
-    }
-
-    palookup[5] = origpalookup[5];
+    bGreenPal = 1;
+    // for (int i = 0; i < kMaxGrads; i++)
+    // {
+    //     palookup[i] = palookup[6];
+    // }
+    // 
+    // palookup[5] = origpalookup[5];
 }
 
 void RestoreGreenPal()
 {
-    for (int i = 0; i < 12; i++)
+    bGreenPal = 0;
+    // for (int i = 0; i < kMaxGrads; i++)
+    // {
+    //     palookup[i] = origpalookup[i];
+    // }
+}
+
+int HavePLURemap()
+{
+    return bGreenPal || bTorch;
+}
+
+uint8_t RemapPLU(uint8_t pal)
+{
+    if (bGreenPal)
     {
-        palookup[i] = origpalookup[i];
+        if (pal != kPalRedBrite)
+            pal = kPalGreenBrite;
+        return pal;
     }
+    else if (bTorch)
+    {
+        switch (pal)
+        {
+        case kPalTorch:
+            pal = kPalNoTorch;
+            break;
+        case kPalNoTorch:
+            pal = kPalTorch;
+            break;
+        case kPalTorch2:
+            pal = kPalNoTorch2;
+            break;
+        case kPalNoTorch2:
+            pal = kPalTorch2;
+            break;
+        }
+    }
+    return pal;
 }
 
 void WaitVBL()

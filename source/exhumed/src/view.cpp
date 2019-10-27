@@ -104,6 +104,8 @@ static void analyzesprites()
             pTSprite->shade = clamp(nShade, -128, 127);
         }
 
+        pTSprite->pal = RemapPLU(pTSprite->pal);
+
         if (pSprite->statnum > 0)
         {
             runlist_SignalRun(pSprite->lotag - 1, nTSprite | 0x90000);
@@ -371,6 +373,9 @@ void DrawView()
 
     if (nFreeze != 3)
     {
+        static uint8_t sectorFloorPal[MAXSECTORS];
+        static uint8_t sectorCeilingPal[MAXSECTORS];
+        static uint8_t wallPal[MAXWALLS];
         int const viewingRange = viewingrange;
 
         if (r_usenewaspect)
@@ -379,9 +384,41 @@ void DrawView()
             videoSetCorrectedAspect();
         }
 
+        if (HavePLURemap())
+        {
+            for (int i = 0; i < numsectors; i++)
+            {
+                sectorFloorPal[i] = sector[i].floorpal;
+                sectorCeilingPal[i] = sector[i].ceilingpal;
+                if (sector[i].floorpal != kPalRedBrite)
+                    sector[i].floorpal = kPalGreenBrite;
+                if (sector[i].ceilingpal != kPalRedBrite)
+                    sector[i].ceilingpal = kPalGreenBrite;
+            }
+            for (int i = 0; i < numwalls; i++)
+            {
+                wallPal[i] = wall[i].pal;
+                if (wall[i].pal != kPalRedBrite)
+                    wall[i].pal = kPalGreenBrite;
+            }
+        }
+
         drawrooms(nCamerax, nCameray, viewz, nCameraa, nCamerapan, nSector);
         analyzesprites();
         renderDrawMasks();
+
+        if (HavePLURemap())
+        {
+            for (int i = 0; i < numsectors; i++)
+            {
+                sector[i].floorpal = sectorFloorPal[i];
+                sector[i].ceilingpal = sectorCeilingPal[i];
+            }
+            for (int i = 0; i < numwalls; i++)
+            {
+                wall[i].pal = wallPal[i];
+            }
+        }
 
         if (r_usenewaspect)
         {

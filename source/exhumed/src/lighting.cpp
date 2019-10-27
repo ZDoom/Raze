@@ -712,24 +712,24 @@ void SetTorch(int nPlayer, int bTorchOnOff)
         return;
     }
 
-    char *pTempPal = origpalookup[kPalTorch];
-    palookup[kPalTorch] = palookup[kPalNoTorch];
-    palookup[kPalNoTorch] = pTempPal;
-
-    pTempPal = origpalookup[kPalTorch];
-    origpalookup[kPalTorch] = origpalookup[kPalNoTorch];
-    origpalookup[kPalNoTorch] = pTempPal;
-
-    pTempPal = origpalookup[kPalTorch2];
-    origpalookup[kPalTorch2] = origpalookup[kPalNoTorch2];
-    origpalookup[kPalNoTorch2] = pTempPal;
-
-    pTempPal = palookup[kPalTorch2];
-    palookup[kPalNoTorch2] = palookup[kPalTorch2];
-    palookup[kPalTorch2] = pTempPal;
+    // char *pTempPal = origpalookup[kPalTorch];
+    // palookup[kPalTorch] = palookup[kPalNoTorch];
+    // palookup[kPalNoTorch] = pTempPal;
+    // 
+    // pTempPal = origpalookup[kPalTorch];
+    // origpalookup[kPalTorch] = origpalookup[kPalNoTorch];
+    // origpalookup[kPalNoTorch] = pTempPal;
+    // 
+    // pTempPal = origpalookup[kPalTorch2];
+    // origpalookup[kPalTorch2] = origpalookup[kPalNoTorch2];
+    // origpalookup[kPalNoTorch2] = pTempPal;
+    // 
+    // pTempPal = palookup[kPalTorch2];
+    // palookup[kPalNoTorch2] = palookup[kPalTorch2];
+    // palookup[kPalTorch2] = pTempPal;
 
     if (bTorchOnOff == 2) {
-        bTorch = bTorch == 0;
+        bTorch = !bTorch;
     }
     else {
         bTorch = bTorchOnOff;

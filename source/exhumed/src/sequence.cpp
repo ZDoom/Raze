@@ -9,6 +9,7 @@
 #include "move.h"
 #include "view.h"
 #include "init.h"
+#include "light.h"
 #ifndef __WATCOMC__
 #include <cstring>
 #include <cstdio> // for printf
@@ -333,6 +334,8 @@ void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx)
     short nFrameBase = FrameBase[edx];
     int16_t nFrameSize = FrameSize[edx];
 
+    int const nPal = RemapPLU(kPalNormal);
+
     while (1)
     {
         nFrameSize--;
@@ -360,7 +363,7 @@ void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx)
             nStat |= 0x2; // scale and clip to viewing window
         }
 
-        overwritesprite(laststatusx, laststatusy, laststatustile, 0, nStat, kPalNormal);
+        overwritesprite(laststatusx, laststatusy, laststatustile, 0, nStat, nPal);
         nFrameBase++;
     }
 }

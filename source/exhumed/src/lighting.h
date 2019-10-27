@@ -14,4 +14,6 @@ void BuildFlash(short nPlayer, short nSector, int nVal);
 void AddGlow(short nSector, int nVal);
 void AddFlicker(short nSector, int nVal);
 
+extern short bTorch;
+
 #endif

@@ -14,6 +14,7 @@
 #include "snake.h"
 #include "grenade.h"
 #include "lighting.h"
+#include "light.h"
 #include "input.h"
 #include "util.h"
 #include "anims.h"
@@ -931,16 +932,18 @@ void DrawWeapons()
 	int8_t nShade = sector[initsect].ceilingshade;
 
 	int nDouble = nPlayerDouble[nLocalPlayer];
-	int nPal = 0;
+	int nPal = kPalNormal;
 
 	if (nDouble)
 	{
 		if (word_96E26) {
-			nPal = 5;
+            nPal = kPalRedBrite;
 		}
 
 		word_96E26 = word_96E26 == 0;
 	}
+
+    nPal = RemapPLU(nPal);
 
 	int nVal = totalvel[nLocalPlayer] >> 1;
 
