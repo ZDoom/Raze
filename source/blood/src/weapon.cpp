@@ -1928,7 +1928,7 @@ void WeaponProcess(PLAYER *pPlayer) {
 
     pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
 
-    if (gQavScene[pPlayer->nPlayer].index >= 0) {
+    if (gModernMap && gQavScene[pPlayer->nPlayer].index >= 0) {
 
         int nIndex = gQavScene[pPlayer->nPlayer].index;
         if (sprite[nIndex].extra >= 0 && pPlayer->pXSprite->health > 0) {
