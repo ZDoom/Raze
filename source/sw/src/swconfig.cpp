@@ -33,7 +33,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 //#include "settings.h"
 #include "mytypes.h"
-#include "scriplib.h"
 #include "fx_man.h"
 #include "gamedefs.h"
 #include "common_game.h"
