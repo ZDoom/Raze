@@ -898,6 +898,12 @@ void playerStart(int nPlayer)
     PLAYER* pPlayer = &gPlayer[nPlayer];
     GINPUT* pInput = &pPlayer->input;
     ZONE* pStartZone = NULL;
+    
+    // reset qav player index
+    if (gModernMap) {
+        gQavScene[pPlayer->nPlayer].index = -1;
+        gQavScene[pPlayer->nPlayer].qavId = NULL;
+    }
 
     // normal start position
     if (gGameOptions.nGameType <= 1)

@@ -2551,12 +2551,6 @@ void actInit(bool bSaveLoad) {
         // reset counters
         gProxySpritesCount = gSightSpritesCount = gPhysSpritesCount = 0;
 
-        // reset qav player index
-        for (int i = 0; i < kMaxPlayers; i++) {
-            gQavScene[i].index = -1;
-            gQavScene[i].qavId = NULL;
-        }
-
         // fill arrays with negative values to avoid xvel 0 situation
         memset(gSightSpritesList, -1, sizeof(gSightSpritesList));
         memset(gProxySpritesList, -1, sizeof(gProxySpritesList));

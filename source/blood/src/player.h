@@ -212,8 +212,8 @@ struct POWERUPINFO {
 
 
 struct QAVSCENE {
-    short index;
-    QAV* qavId;
+    short index = -1;
+    QAV* qavId = NULL;
 };
 extern QAVSCENE gQavScene[kMaxPlayers];
 
