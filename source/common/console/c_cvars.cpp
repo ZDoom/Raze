@@ -1400,7 +1400,7 @@ void C_ArchiveCVars (FConfigFile *f, uint32_t filter)
 	while (cvar)
 	{
 		if ((cvar->Flags &
-			(CVAR_GLOBALCONFIG|CVAR_ARCHIVE|CVAR_AUTO|CVAR_SERVERINFO|CVAR_USERINFO|CVAR_NOSAVE))
+			(CVAR_GLOBALCONFIG|CVAR_ARCHIVE|CVAR_AUTO|CVAR_SERVERINFO|CVAR_USERINFO|CVAR_NOSAVE|CVAR_VIDEOCONFIG))
 			== filter)
 		{
 			cvarlist.Push(cvar);

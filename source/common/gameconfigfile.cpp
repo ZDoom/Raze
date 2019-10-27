@@ -388,6 +388,11 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	ClearCurrentSection ();
 	C_ArchiveCVars (this, CVAR_ARCHIVE);
 
+	strncpy(subsection, "VideoSettings", sublen);
+	SetSection(section, true);
+	ClearCurrentSection();
+	C_ArchiveCVars(this, CVAR_ARCHIVE|CVAR_VIDEOCONFIG);
+
 #if 0
 	// Do not overwrite the serverinfo section if playing a netgame, and
 	// this machine was not the initial host.

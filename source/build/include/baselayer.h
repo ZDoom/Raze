@@ -10,6 +10,7 @@
 #include "compat.h"
 #include "osd.h"
 #include "timer.h"
+#include "c_cvars.h"
 
 
 #ifdef DEBUGGINGAIDS
@@ -22,8 +23,7 @@ extern char modechange;
 extern char nogl;
 
 extern int32_t swapcomplete;
-extern int32_t r_borderless;
-extern int32_t r_displayindex;
+EXTERN_CVAR(Int, r_borderless);
 
 // video
 extern int32_t r_usenewaspect, newaspect_enable;
