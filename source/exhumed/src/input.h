@@ -23,7 +23,7 @@ struct PlayerInput
     short nAngle;
     uint16_t buttons;
     short nTarget;
-    int8_t horizon;
+    uint8_t horizon;
     int8_t nItem;
     int h;
     char i;
