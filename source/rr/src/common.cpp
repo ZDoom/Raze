@@ -10,6 +10,7 @@
 #include "cmdlib.h"
 #include "grpscan.h"
 #include "gamecvars.h"
+#include "rts.h"
 
 #ifdef _WIN32
 # define NEED_SHLWAPI_H
@@ -50,8 +51,6 @@ static const char *defaultgameconfilename[GAMECOUNT] = { "GAME.CON", "GAME.CON",
 char *g_grpNamePtr = NULL;
 // g_scriptNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
 char *g_scriptNamePtr = NULL;
-// g_rtsNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
-char *g_rtsNamePtr = NULL;
 
 void clearGrpNamePtr(void)
 {
@@ -388,8 +387,8 @@ void G_LoadGroups()
         if (type->defname && g_defNamePtr == NULL)
             g_defNamePtr = dup_filename(type->defname);
 
-        if (type->rtsname && g_rtsNamePtr == NULL)
-            g_rtsNamePtr = dup_filename(type->rtsname);
+		if (type->rtsname)
+			RTS_Init(type->rtsname);
     }
     else
     {
@@ -1166,7 +1165,6 @@ void Duke_CommonCleanup(void)
 {
     DO_FREE_AND_NULL(g_grpNamePtr);
     DO_FREE_AND_NULL(g_scriptNamePtr);
-    DO_FREE_AND_NULL(g_rtsNamePtr);
 }
 
 #endif

@@ -113,18 +113,6 @@ void ReadGameSetup(int32_t scripthandle)
     int dummy;
     int ret;
 
-    SCRIPT_GetString(scripthandle, "Options","Rooster",gs.Password);
-    DecodePassword(gs.Password);
-
-    // option stuff
-    dummy = -1;
-    ret = SCRIPT_GetNumber(scripthandle, "Options", "BorderNum",&dummy);
-    if (dummy != -1) gs.BorderNum = dummy;
-
-    dummy = -1;
-    SCRIPT_GetNumber(scripthandle, "Options", "Brightness",&dummy);
-    if (dummy != -1) gs.Brightness = dummy;
-
     dummy = -1;
     SCRIPT_GetNumber(scripthandle, "Options", "BorderTile",&dummy);
     if (dummy != -1) gs.BorderTile = dummy;
@@ -148,10 +136,6 @@ void ReadGameSetup(int32_t scripthandle)
     dummy = -1;
     SCRIPT_GetNumber(scripthandle, "Options", "Crosshair",&dummy);
     if (dummy != -1) gs.Crosshair = dummy;
-
-    dummy = -1;
-    SCRIPT_GetNumber(scripthandle, "Options", "AutoAim",&dummy);
-    if (dummy != -1) cl_autoaim = dummy;
 
     dummy = -1;
     SCRIPT_GetNumber(scripthandle, "Options", "Messages",&dummy);
@@ -213,32 +197,6 @@ void ReadGameSetup(int32_t scripthandle)
     SCRIPT_GetNumber(scripthandle, "Options", "MouseInvert",&dummy);
     if (dummy != -1) gs.MouseInvert = dummy;
 
-    dummy = -1;
-    SCRIPT_GetNumber(scripthandle, "Options", "Kiwi",&dummy);
-    if (dummy != -1) gs.ParentalLock = dummy;
-
-    dummy = -1;
-    SCRIPT_GetNumber(scripthandle, "Options", "PlayCD",&dummy);
-    if (dummy != -1) gs.PlayCD = dummy;
-
-    dummy = -1;
-    SCRIPT_GetNumber(scripthandle, "Options", "CDDevice",&dummy);
-    if (dummy < 0) dummy = -1;
-
-    if (SW_SHAREWARE)
-    {
-        dummy = -1;
-        SCRIPT_GetNumber(scripthandle, "Options", "Chickens",&dummy);
-        if (dummy != -1) GamePlays = dummy;
-
-        buildprintf(
-            "\n"
-            "You have played Shadow Warrior %d times.  Please call and order the full\n"
-            "version at 1(800)-3DREALMS or see the ORDER.FRM file.\n\n"
-            ,GamePlays);
-
-        GamePlays++;
-    }
 }
 
 /*
@@ -251,72 +209,6 @@ void ReadGameSetup(int32_t scripthandle)
 
 void WriteGameSetup(int32_t scripthandle)
 {
-    int dummy;
-
-    dummy = gs.BorderNum;
-    SCRIPT_PutNumber(scripthandle, "Options", "BorderNum",dummy,FALSE,FALSE);
-    dummy = gs.Brightness;
-    SCRIPT_PutNumber(scripthandle, "Options", "Brightness",dummy,FALSE,FALSE);
-    dummy = gs.BorderTile;
-    SCRIPT_PutNumber(scripthandle, "Options", "BorderTile",dummy,FALSE,FALSE);
-    dummy = gs.Bobbing;
-    SCRIPT_PutNumber(scripthandle, "Options", "Bobbing",dummy,FALSE,FALSE);
-    dummy = gs.Tilting;
-    SCRIPT_PutNumber(scripthandle, "Options", "Tilting",dummy,FALSE,FALSE);
-    dummy = gs.Shadows;
-    SCRIPT_PutNumber(scripthandle, "Options", "Shadows",dummy,FALSE,FALSE);
-    dummy = gs.AutoRun;
-    SCRIPT_PutNumber(scripthandle, "Options", "AutoRun",dummy,FALSE,FALSE);
-    dummy = gs.Crosshair;
-    SCRIPT_PutNumber(scripthandle, "Options", "Crosshair",dummy,FALSE,FALSE);
-    dummy = gs.Messages;
-    SCRIPT_PutNumber(scripthandle, "Options", "Messages",dummy,FALSE,FALSE);
-    dummy = gs.MouseAimingType;
-    SCRIPT_PutNumber(scripthandle, "Controls", "MouseAiming",dummy,FALSE,FALSE);
-
-    dummy = gs.NetGameType;
-    SCRIPT_PutNumber(scripthandle, "Options", "NetGameType",dummy,FALSE,FALSE);
-    dummy = gs.NetLevel;
-    SCRIPT_PutNumber(scripthandle, "Options", "NetLevel",dummy,FALSE,FALSE);
-    dummy = gs.NetMonsters;
-    SCRIPT_PutNumber(scripthandle, "Options", "NetMonsters",dummy,FALSE,FALSE);
-    dummy = gs.NetHurtTeammate;
-    SCRIPT_PutNumber(scripthandle, "Options", "NetHurtTeammate",dummy,FALSE,FALSE);
-    dummy = gs.NetSpawnMarkers;
-    SCRIPT_PutNumber(scripthandle, "Options", "NetSpawnMarkers",dummy,FALSE,FALSE);
-    dummy = gs.NetTeamPlay;
-    SCRIPT_PutNumber(scripthandle, "Options", "NetTeamPlay",dummy,FALSE,FALSE);
-    dummy = gs.NetKillLimit;
-    SCRIPT_PutNumber(scripthandle, "Options", "NetKillLimit",dummy,FALSE,FALSE);
-    dummy = gs.NetTimeLimit;
-    SCRIPT_PutNumber(scripthandle, "Options", "NetTimeLimit",dummy,FALSE,FALSE);
-    dummy = gs.NetColor;
-    SCRIPT_PutNumber(scripthandle, "Options", "NetColor",dummy,FALSE,FALSE);
-    dummy = gs.Voxels;
-    SCRIPT_PutNumber(scripthandle, "Options", "Voxels",dummy,FALSE,FALSE);
-    dummy = gs.MouseAimingOn;
-    SCRIPT_PutNumber(scripthandle, "Options", "MouseAimingOn",dummy,FALSE,FALSE);
-    dummy = gs.MouseInvert;
-    SCRIPT_PutNumber(scripthandle, "Options", "MouseInvert",dummy,FALSE,FALSE);
-    dummy = gs.Stats;
-    SCRIPT_PutNumber(scripthandle, "Options", "Stats",dummy,FALSE,FALSE);
-
-    EncodePassword(gs.Password);
-    SCRIPT_PutString(scripthandle, "Options","Rooster",gs.Password);
-    DecodePassword(gs.Password);
-
-    dummy = gs.ParentalLock;
-    SCRIPT_PutNumber(scripthandle, "Options", "Kiwi",dummy,FALSE,FALSE);
-
-    dummy = gs.PlayCD;
-    SCRIPT_PutNumber(scripthandle, "Options", "PlayCD",dummy,FALSE,FALSE);
-    SCRIPT_PutNumber(scripthandle, "Options", "CDDevice",0,FALSE,FALSE);
-
-    if (SW_SHAREWARE)
-    {
-        dummy = GamePlays;
-        SCRIPT_PutNumber(scripthandle, "Options", "Chickens",dummy,FALSE,FALSE);
-    }
 }
 
 void TermSetup(void)

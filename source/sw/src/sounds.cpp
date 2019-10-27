@@ -446,7 +446,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
 
     if (!SW_SHAREWARE)
     {
-        if (cdaudio_track >= 0)
+        if (cdaudio_track >= 0 && mus_redbook)
         {
             char waveformtrack[MAXWAVEFORMTRACKLENGTH];
             Bstrncpy(waveformtrack, gs.WaveformTrackName, MAXWAVEFORMTRACKLENGTH - 1);
@@ -805,7 +805,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     //if (UsingMenus && (*x!=0 || *y!=0 || *z!=0)) return(-1);
 
     // Weed out parental lock sounds if PLock is active
-    if (gs.ParentalLock || Global_PLock)
+    if (adult_lockout || Global_PLock)
     {
         unsigned i;
 

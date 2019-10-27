@@ -563,53 +563,6 @@ StopInventoryEnvironSuit(PLAYERp pp, short InventoryNum)
 
 static char sectorfloorpals[MAXSECTORS], sectorceilingpals[MAXSECTORS], wallpals[MAXWALLS];
 
-#if 0
-void
-DoPlayerNightVisionPalette(PLAYERp pp)
-{
-    short i;
-
-    if (pp->InventoryActive[INVENTORY_NIGHT_VISION] && (pp - Player == screenpeek))
-    {
-        if (NightVision)
-            return;                     // Already using night vision, don't
-        // bother.
-        g_visibility = 0;
-        for (i = 0; i < numsectors; i++)
-        {
-            sectorfloorpals[i] = sector[i].floorpal;
-            sectorceilingpals[i] = sector[i].ceilingpal;
-            sector[i].floorpal = PALETTE_GREEN_LIGHTING;
-            sector[i].ceilingpal = PALETTE_GREEN_LIGHTING;
-        }
-        for (i = 0; i < numwalls; i++)
-        {
-            wallpals[i] = wall[i].pal;
-            wall[i].pal = PALETTE_GREEN_LIGHTING;
-        }
-
-
-        NightVision = TRUE;
-        COVERsetbrightness(4, (char *) &palette_data[0][0]);
-    }
-    else
-    {
-        g_visibility = NormalVisibility;
-        for (i = 0; i < numsectors; i++)
-        {
-            sector[i].floorpal = sectorfloorpals[i];
-            sector[i].ceilingpal = sectorceilingpals[i];
-        }
-        for (i = 0; i < numwalls; i++)
-        {
-            wall[i].pal = wallpals[i];
-        }
-        DoPlayerDivePalette(pp);  // Check again to see if its a water palette
-        NightVision = FALSE;
-        COVERsetbrightness(gs.Brightness, (char *) &palette_data[0][0]);
-    }
-}
-#endif
 
 void
 DoPlayerNightVisionPalette(PLAYERp pp)
@@ -631,10 +584,7 @@ DoPlayerNightVisionPalette(PLAYERp pp)
             memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
             memcpy(palookup[PALETTE_DEFAULT], DefaultPalette, 256 * 32);
             pp->FadeAmt = 0;
-            if (videoGetRenderMode() < REND_POLYMOST)
-                COVERsetbrightness(gs.Brightness, &palette_data[0][0]);
-            else
-                videoFadePalette(0,0,0,0);
+            videoFadePalette(0,0,0,0);
         }
         pp->NightVision = FALSE;
     }

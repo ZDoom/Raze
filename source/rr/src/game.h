@@ -138,13 +138,6 @@ void A_DeleteSprite(int spriteNum);
 // KEEPINSYNC lunatic/_defs_game.lua
 
 typedef struct {
-    int32_t fullscreen;
-    int32_t xdim;
-    int32_t ydim;
-    int32_t bpp;
-} ud_setup_t;
-
-typedef struct {
     vec3_t camerapos;
     int32_t const_visibility,uw_framerate;
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
@@ -188,16 +181,12 @@ typedef struct {
         int32_t AutoAim;
         int32_t ShowOpponentWeapons;
 
-        int32_t scripthandle;
         int32_t setupread;
     } config;
-
-    ud_setup_t setup;
 
     char overhead_on,last_overhead,showweapons;
     char god,warp_on,cashman,eog,showallmap;
     char show_help,scrollmode,noclip;
-    char pwlockout[MAXPWLOCKOUT],rtsname[MAXRTSNAME];
     char display_bonus_screen;
     char show_level_text;
 

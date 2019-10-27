@@ -155,14 +155,6 @@ extern camera_t g_camera;
 
 #define MAX_RETURN_VALUES 6
 
-// KEEPINSYNC lunatic/_defs_game.lua
-typedef struct {
-    int32_t fullscreen;
-    int32_t xdim;
-    int32_t ydim;
-    int32_t bpp;
-} ud_setup_t;
-
 typedef struct {
 #if !defined LUNATIC
     vec3_t camerapos;
@@ -180,7 +172,7 @@ typedef struct {
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
 	int32_t entered_name,screen_tilting,fta_on;
-    int32_t m_coop,coop,screen_size,lockout;
+    int32_t m_coop,coop,screen_size;
     int32_t playerai,angleinterpolation;
 
     int32_t respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
@@ -227,17 +219,13 @@ typedef struct {
         int32_t JoystickAnalogueDead[MAXJOYAXES];
         int32_t JoystickAnalogueSaturate[MAXJOYAXES];
 
-        int32_t scripthandle;
         int32_t setupread;
 
     } config;
 
-    ud_setup_t setup;
-
     char overhead_on,last_overhead,showweapons;
     char god,warp_on,cashman,eog,showallmap;
     char show_help,scrollmode,noclip;
-    char pwlockout[MAXPWLOCKOUT],rtsname[MAXRTSNAME];
     char display_bonus_screen;
     char show_level_text;
 

@@ -307,7 +307,7 @@ playanm(short anim_num)
     videoClearViewableArea(0L);
 
     paletteSetColorTable(0, ANIMvesapal, true);
-    videoSetPalette(gs.Brightness,0,2);
+    videoSetPalette(0,0,2);
     if (ANIMnum == 1)
     {
         // draw the first frame
@@ -379,7 +379,7 @@ ENDOFANIMLOOP:
     palookup[0] = palook_bak;
 
     paletteSetColorTable(0, (unsigned char *)palette_data);
-    videoSetPalette(gs.Brightness, 0, 2);
+    videoSetPalette(0, 0, 2);
 
     KB_FlushKeyboardQueue();
     KB_ClearKeysDown();

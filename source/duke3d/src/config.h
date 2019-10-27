@@ -31,8 +31,5 @@ BEGIN_DUKE_NS
 int  CONFIG_ReadSetup(void);
 void CONFIG_SetDefaults(void);
 
-int32_t CONFIG_GetMapBestTime(char const *mapname, uint8_t const *mapmd4);
-int     CONFIG_SetMapBestTime(uint8_t const *mapmd4, int32_t tm);
-
 END_DUKE_NS
 #endif

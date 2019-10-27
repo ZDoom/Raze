@@ -38,10 +38,6 @@ BEGIN_SW_NS
 #define SETUPNAMEPARM "SETUPFILE"
 
 // screen externs
-extern int32_t ScreenMode; // Screen mode
-extern int32_t ScreenWidth;
-extern int32_t ScreenHeight;
-extern int32_t ScreenBPP;
 extern int32_t ScreenBufferMode;
 extern int32_t VesaBufferMode;
 

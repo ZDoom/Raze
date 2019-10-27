@@ -75,11 +75,6 @@ int32_t UseMouse = 1, UseJoystick = 0;
 // Screen variables
 //
 
-int32_t ScreenMode = 1;
-int32_t ScreenWidth = 640;
-int32_t ScreenHeight = 480;
-int32_t ScreenBPP = 8;
-
 char  RTSName[MAXRTSNAMELENGTH];
 static int32_t scripthandle = -1;
 
@@ -96,10 +91,6 @@ static int32_t scripthandle = -1;
 
 void CONFIG_SetDefaults(void)
 {
-    // JBF 20031211
-	int32_t i;// , f;
-    //uint8_t k1,k2;
-
     ScreenMode = 1;
 
 #if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
@@ -153,18 +144,6 @@ int32_t CONFIG_ReadSetup(void)
 
     CONFIG_SetDefaults();
 
-    if (buildvfs_exists(setupfilename))
-        scripthandle = SCRIPT_Load(setupfilename);
-
-    if (scripthandle < 0) return -1;
-
-	// What was here is no longer needed with a globally stored config that's being read automatically.
-    ReadGameSetup(scripthandle);
-
-    if (PlayerNameArg[0] != '\0')
-    {
-        strcpy(CommPlayerName, PlayerNameArg);
-    }
     return 0;
 }
 

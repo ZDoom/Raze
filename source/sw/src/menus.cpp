@@ -181,7 +181,6 @@ static SWBOOL ApplyModeSettings(void)
         videoSetGameMode(lastfs, lastx, lasty, lastbpp, upscalefactor);
     else
     {
-        extern int32_t ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP; // Because I'm too lazy to include config.h
         ScreenMode = newfs;
         ScreenWidth = newx;
         ScreenHeight = newy;
@@ -216,11 +215,10 @@ MenuGroup soundgroup = {110,5,"^Sound",sound_i,pic_optionstitl,0,m_defshade, NUL
 MenuItem parental_i[] =
 {
     {DefButton(btn_parental, 0, "Kid Mode"), OPT_XS, OPT_LINE(0), 1, m_defshade, 0, NULL, NULL, NULL},
-    {DefOption(KEYSC_P, "Change Password"),              OPT_XS, OPT_LINE(1), 1, m_defshade, 0, MNU_ParentalCustom, NULL, NULL},
     {DefNone}
 };
 
-MenuGroup parentalgroup = {65, 5, "^Kid Mode", parental_i, pic_newgametitl, 0, m_defshade, MNU_DoParentalPassword,NULL,0};
+MenuGroup parentalgroup = {65, 5, "^Kid Mode", parental_i, pic_newgametitl, 0, m_defshade, NULL,NULL,0};
 
 MenuItem screen_i[] =
 {
@@ -606,128 +604,6 @@ MNU_DoEpisodeSelect(UserCall call, MenuItem *item)
     extra_text = EpisodeSubtitles[1];
     MNU_MeasureString(extra_text, &w, &h);
     MNU_DrawString(30, 96, extra_text, 1, 16);
-
-    return TRUE;
-}
-
-SWBOOL
-MNU_DoParentalPassword(UserCall call, MenuItem_p item)
-{
-    short w,h;
-    static SWBOOL cur_show;
-    char TempString[80];
-    const char *extra_text;
-
-
-    extra_text = "This mode should remove most of the";
-    MNU_MeasureString(extra_text, &w, &h);
-    MNU_DrawString(TEXT_XCENTER(w), 60, extra_text, 1, 16);
-    extra_text = "offensive content.  We still recommend";
-    MNU_MeasureString(extra_text, &w, &h);
-    MNU_DrawString(TEXT_XCENTER(w), 70, extra_text, 1, 16);
-    extra_text = "you review the game prior to play.";
-    MNU_MeasureString(extra_text, &w, &h);
-    MNU_DrawString(TEXT_XCENTER(w), 80, extra_text, 1, 16);
-
-    // get input
-    if (MenuInputMode)
-    {
-        switch (MNU_InputString(MessageInputString, 80))
-        {
-        case -1: // Cancel Input (pressed ESC) or Err
-            KB_ClearKeysDown();
-            KB_FlushKeyboardQueue();
-            MenuInputMode = FALSE;
-            memset(MessageInputString, '\0', sizeof(MessageInputString));
-            break;
-        case FALSE: // Input finished (RETURN)
-            if (MessageInputString[0] == '\0')
-            {
-                MenuInputMode = FALSE;
-                KB_ClearKeysDown();
-                KB_FlushKeyboardQueue();
-                memset(MessageInputString, '\0', sizeof(MessageInputString));
-            }
-            else
-            {
-                MenuInputMode = FALSE;
-                KB_ClearKeysDown();
-                KB_FlushKeyboardQueue();
-
-                if (gs.Password[0] != '\0' && passwordvalid == FALSE)
-                {
-                    if (!Bstrcasecmp(gs.Password,MessageInputString))
-                    {
-                        passwordvalid = TRUE;
-                        if (currentmenu->cursor == 0 && gs.ParentalLock == TRUE)
-                        {
-                            buttonsettings[btn_parental] = gs.ParentalLock = FALSE;
-                            if (!InMenuLevel)
-                                JS_ToggleLockouts();
-                        }
-
-                        if (currentmenu->cursor == 1) // Is it on the password line?
-                        {
-                            MenuInputMode = TRUE;
-                            KB_ClearKeysDown();
-                            KB_FlushKeyboardQueue();
-                        }
-                        //memset(gs.Password, '\0', sizeof(gs.Password));
-                    }
-                }
-                else
-                {
-                    if (currentmenu->cursor == 1) // Is it on the password line?
-                    {
-                        strcpy(gs.Password,MessageInputString);
-                        passwordvalid = FALSE;
-                    }
-                }
-
-                memset(MessageInputString, '\0', sizeof(MessageInputString));
-            }
-            break;
-        case TRUE: // Got input
-            break;
-        }
-
-        //CON_Message("Password = '%s'",gs.Password);
-        //CON_Message("Passwordvalid = %d",passwordvalid);
-
-        if (gs.Password[0] != '\0' && passwordvalid == FALSE && currentmenu->cursor == 1)
-        {
-            sprintf(TempString,"Enter Old Password");
-            MNU_MeasureString(TempString, &w, &h);
-            MNU_DrawString(TEXT_XCENTER(w), MESSAGE_LINE-10, TempString,1,16);
-        }
-        else if (passwordvalid == TRUE && currentmenu->cursor == 1)
-        {
-            sprintf(TempString,"Enter New Password");
-            MNU_MeasureString(TempString, &w, &h);
-            MNU_DrawString(TEXT_XCENTER(w), MESSAGE_LINE-10, TempString,1,16);
-        }
-        else
-        {
-            sprintf(TempString,"Enter Password");
-            MNU_MeasureString(TempString, &w, &h);
-            MNU_DrawString(TEXT_XCENTER(w), MESSAGE_LINE-10, TempString,1,16);
-        }
-
-        MNU_MeasureString(MessageInputString, &w, &h);
-
-        cur_show ^= 1;
-        if (cur_show)
-        {
-            MNU_DrawString(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,1,16);
-            rotatesprite((TEXT_XCENTER(w)+w+7)<<16,(MESSAGE_LINE+3)<<16,64<<9,0,COINCURSOR+(((int32_t) totalclock>>3)%7),0,0,MenuDrawFlags,0,0,xdim-1,ydim-1);
-        }
-        else
-        {
-            MNU_DrawString(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,1,16);
-            rotatesprite((TEXT_XCENTER(w)+w+7)<<16,(MESSAGE_LINE+3)<<16,64<<9,0,COINCURSOR+(((int32_t) totalclock>>3)%7),0,0,MenuDrawFlags,0,0,xdim-1,ydim-1);
-        }
-
-    }
 
     return TRUE;
 }
@@ -2214,7 +2090,7 @@ MNU_InitMenus(void)
     slidersettings[sldr_sndfxvolume] = gs.SoundVolume / (FX_VOL_MAX_VALUE/SLDR_SNDFXVOLMAX);
     slidersettings[sldr_musicvolume] = mus_volume / (MUSIC_VOL_MAX_VALUE/SLDR_MUSICVOLMAX);
     slidersettings[sldr_scrsize] = gs.BorderNum;
-    slidersettings[sldr_brightness] = gs.Brightness;
+    slidersettings[sldr_brightness] = 10;
     slidersettings[sldr_bordertile] = gs.BorderTile;
 
     {
@@ -2249,7 +2125,7 @@ MNU_InitMenus(void)
 
     buttonsettings[btn_voxels] = gs.Voxels;
     buttonsettings[btn_ambience] = snd_ambience;
-    buttonsettings[btn_playcd] = gs.PlayCD;
+	buttonsettings[btn_playcd] = true;// gs.PlayCD;
     buttonsettings[btn_flipstereo] = snd_reversestereo;
     buttonsettings[btn_stats] = gs.Stats;
 
@@ -2264,7 +2140,7 @@ MNU_InitMenus(void)
     buttonsettings[btn_markers] = gs.NetSpawnMarkers;
     buttonsettings[btn_teamplay] = gs.NetTeamPlay;
     buttonsettings[btn_friendlyfire] = gs.NetHurtTeammate;
-    buttonsettings[btn_parental] = gs.ParentalLock;
+    buttonsettings[btn_parental] = adult_lockout;
 
     //slidersettings[sldr_mousescalex] = MouseAnalogScale[0]>>13;
     //slidersettings[sldr_mousescaley] = MouseAnalogScale[1]>>13;
@@ -3450,8 +3326,8 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             snd_speech = state = buttonsettings[item->button];
             break;
         case btn_playcd:
-            last_value = gs.PlayCD;
-            gs.PlayCD = state = buttonsettings[item->button];
+            last_value = true;
+            state = buttonsettings[item->button];
             break;
         case btn_ambience:
             last_value = snd_ambience;
@@ -3476,29 +3352,9 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             break;
 
         case btn_parental:
-            if (gs.Password[0] != '\0' && gs.ParentalLock == TRUE)
-            {
-                if (passwordvalid)
-                {
-                    state = buttonsettings[btn_parental] = gs.ParentalLock = FALSE;
-                    if (!InMenuLevel)
-                        JS_ToggleLockouts();
-                }
-                else
-                {
-                    state = buttonsettings[btn_parental] = gs.ParentalLock = TRUE;
-                    MenuInputMode = TRUE;
-                    memset(MessageInputString, '\0', sizeof(MessageInputString));
-                    KB_ClearKeysDown();
-                    KB_FlushKeyboardQueue();
-                }
-            }
-            else
-            {
-                gs.ParentalLock = state = buttonsettings[item->button];
-                if (!InMenuLevel)
-                    JS_ToggleLockouts();
-            }
+            state = buttonsettings[btn_parental] = adult_lockout = FALSE;
+            if (!InMenuLevel)
+                JS_ToggleLockouts();
             break;
 
         case btn_videofs:
@@ -3705,11 +3561,6 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         offset = min(offset, short(SLDR_BRIGHTNESSMAX - 1));
         slidersettings[sldr_brightness] = offset;
 
-        if (gs.Brightness != offset)
-        {
-            gs.Brightness = offset;
-            COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
-        }
         break;
 
     case sldr_bordertile:
@@ -5047,10 +4898,7 @@ SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
     // Reset the palette
     if (pp == Player + screenpeek)
     {
-        if (videoGetRenderMode() < REND_POLYMOST)
-            COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
-        else
-            videoFadePalette(0,0,0,0);
+        videoFadePalette(0,0,0,0);
         if (pp->FadeAmt <= 0)
             GetPaletteFromVESA(&ppalette[screenpeek][0]);
     }
@@ -5164,10 +5012,7 @@ DoPaletteFlash(PLAYERp pp)
         pp->StartColor = 0;
         if (pp == Player + screenpeek)
         {
-            if (videoGetRenderMode() < REND_POLYMOST)
-                COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
-            else
-                videoFadePalette(0,0,0,0);
+            videoFadePalette(0,0,0,0);
             memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
             DoPlayerDivePalette(pp);  // Check Dive again
             DoPlayerNightVisionPalette(pp);  // Check Night Vision again
@@ -5203,10 +5048,7 @@ DoPaletteFlash(PLAYERp pp)
         pp->StartColor = 0;
         if (pp == Player + screenpeek)
         {
-            if (videoGetRenderMode() < REND_POLYMOST)
-                COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
-            else
-                videoFadePalette(0,0,0,0);
+            videoFadePalette(0,0,0,0);
             memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
             DoPlayerDivePalette(pp);  // Check Dive again
             DoPlayerNightVisionPalette(pp);  // Check Night Vision again
@@ -5257,10 +5099,7 @@ DoPaletteFlash(PLAYERp pp)
 
 void ResetPalette(PLAYERp pp)
 {
-    if (videoGetRenderMode() < REND_POLYMOST)
-        COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
-    else
-        videoFadePalette(0,0,0,0);
+    videoFadePalette(0,0,0,0);
     memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
     //DoPlayerDivePalette(pp);  // Check Dive again
     //DoPlayerNightVisionPalette(pp);  // Check Night Vision again

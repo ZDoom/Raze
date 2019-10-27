@@ -3281,7 +3281,7 @@ void P_CheckSectors(int playerNum)
             case STALL__STATIC:
                 if (pPlayer->last_pissed_time == 0)
                 {
-                    if (ud.lockout == 0)
+                    if (adult_lockout == 0)
                         A_PlaySound(DUKE_URINATE, pPlayer->i);
 
                     pPlayer->last_pissed_time = GAMETICSPERSEC * 220;

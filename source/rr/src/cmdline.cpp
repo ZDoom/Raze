@@ -366,9 +366,8 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 {
                     if (argc > i+1)
                     {
-                        free(g_rtsNamePtr);
-                        g_rtsNamePtr = dup_filename(argv[i+1]);
-                        initprintf("Using RTS file \"%s\".\n", g_rtsNamePtr);
+                        RTS_Init(argv[i+1]);
+                        initprintf("Using RTS file \"%s\".\n", argv[i + 1]);
                         i++;
                     }
                     i++;
@@ -696,9 +695,9 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     }
                     if (!Bstrcasecmp(k, ".rts"))
                     {
-                        free(g_rtsNamePtr);
-                        g_rtsNamePtr = dup_filename(argv[i++]);
-                        initprintf("Using RTS file \"%s\".\n", g_rtsNamePtr);
+                        RTS_Init(argv[i]);
+                        initprintf("Using RTS file \"%s\".\n", argv[i]);
+						i++;
                         continue;
                     }
                 }

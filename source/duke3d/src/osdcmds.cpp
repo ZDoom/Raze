@@ -420,9 +420,9 @@ int osdcmd_restartvid(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     videoResetMode();
-    if (videoSetGameMode(ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail))
+    if (videoSetGameMode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,ud.detail))
         G_GameExit("restartvid: Reset failed...\n");
-    onvideomodechange(ud.setup.bpp>8);
+    onvideomodechange(ScreenBPP>8);
     G_UpdateScreenArea();
 
     return OSDCMD_OK;
@@ -440,8 +440,8 @@ int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
 
 static int osdcmd_vidmode(osdcmdptr_t parm)
 {
-    int32_t newbpp = ud.setup.bpp, newwidth = ud.setup.xdim,
-            newheight = ud.setup.ydim, newfs = ud.setup.fullscreen;
+    int32_t newbpp = ScreenBPP, newwidth = ScreenWidth,
+            newheight = ScreenHeight, newfs = ScreenMode;
     int32_t tmp;
 
     if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
@@ -474,14 +474,14 @@ static int osdcmd_vidmode(osdcmdptr_t parm)
     if (videoSetGameMode(newfs,newwidth,newheight,newbpp,upscalefactor))
     {
         initprintf("vidmode: Mode change failed!\n");
-        if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, upscalefactor))
+        if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, upscalefactor))
             G_GameExit("vidmode: Reset failed!\n");
     }
-    ud.setup.bpp = newbpp;
-    ud.setup.xdim = newwidth;
-    ud.setup.ydim = newheight;
-    ud.setup.fullscreen = newfs;
-    onvideomodechange(ud.setup.bpp>8);
+    ScreenBPP = newbpp;
+    ScreenWidth = newwidth;
+    ScreenHeight = newheight;
+    ScreenMode = newfs;
+    onvideomodechange(ScreenBPP>8);
     G_UpdateScreenArea();
     return OSDCMD_OK;
 }
@@ -852,7 +852,7 @@ void onvideomodechange(int32_t newmode)
     }
 #endif
 
-    videoSetPalette(ud.brightness>>2, palid, 0);
+    videoSetPalette(0, palid, 0);
     g_restorePalette = -1;
     g_crosshairSum = -1;
 }

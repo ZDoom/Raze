@@ -200,15 +200,15 @@ void G_HandleSpecialKeys(void)
 
     if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
-        if (videoSetGameMode(!ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail))
+        if (videoSetGameMode(!ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ud.detail))
         {
             OSD_Printf(OSD_ERROR "Failed setting video mode!\n");
 
-            if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail))
+            if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ud.detail))
                 G_GameExit("Fatal error: unable to recover from failure setting video mode!\n");
         }
         else
-            ud.setup.fullscreen = !ud.setup.fullscreen;
+            ScreenMode = !ScreenMode;
 
         KB_ClearKeyDown(sc_Enter);
         g_restorePalette = 1;
@@ -296,7 +296,7 @@ void G_GameExit(const char *msg)
            g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
-            videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail);
+            videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ud.detail);
         }
 
         // shareware and TEN screens
@@ -3667,7 +3667,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
             case BLOODSPLAT2__STATIC:
             case BLOODSPLAT3__STATIC:
             case BLOODSPLAT4__STATIC:
-                if (ud.lockout) t->xrepeat = t->yrepeat = 0;
+                if (adult_lockout) t->xrepeat = t->yrepeat = 0;
                 else if (t->pal == 6)
                 {
                     t->shade = -127;
@@ -3729,7 +3729,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
         auto const pSprite = (i < 0) ? (uspriteptr_t)&tsprite[j] : (uspriteptr_t)&sprite[i];
 
 #ifndef EDUKE32_STANDALONE
-        if (ud.lockout && G_CheckAdultTile(DYNAMICTILEMAP(pSprite->picnum)))
+        if (adult_lockout && G_CheckAdultTile(DYNAMICTILEMAP(pSprite->picnum)))
         {
             t->xrepeat = t->yrepeat = 0;
             continue;
@@ -3802,7 +3802,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
             //case MAIL+1__STATIC:
         case PAPER__STATIC:
             //case PAPER+1__STATIC:
-            if (ud.lockout && pSprite->pal == 2)
+            if (adult_lockout && pSprite->pal == 2)
             {
                 t->xrepeat = t->yrepeat = 0;
                 continue;
@@ -4090,7 +4090,7 @@ PALONLY:
         case DUKELEG__STATIC:
         case DUKEGUN__STATIC:
         case DUKETORSO__STATIC:
-            if (ud.lockout)
+            if (adult_lockout)
             {
                 t->xrepeat = t->yrepeat = 0;
                 continue;
@@ -4454,7 +4454,7 @@ static int32_t g_RTSPlaying;
 // Returns: started playing?
 extern int G_StartRTS(int lumpNum, int localPlayer)
 {
-    if (!ud.lockout && snd_enabled &&
+    if (!adult_lockout && snd_enabled &&
         RTS_IsInitialized() && g_RTSPlaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
     {
         char *const pData = (char *)RTS_GetSound(lumpNum - 1);
@@ -6487,9 +6487,6 @@ int app_main(int argc, const char * const*argv)
 
     g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
 
-    char const * rtsname = g_rtsNamePtr ? g_rtsNamePtr : ud.rtsname;
-    RTS_Init(rtsname);
-
     ud.last_level = -1;
 
     initprintf("Initializing OSD...\n");
@@ -6532,16 +6529,16 @@ int app_main(int argc, const char * const*argv)
 
     if (g_networkMode != NET_DEDICATED_SERVER && validmodecnt > 0)
     {
-        if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail) < 0)
+        if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ud.detail) < 0)
         {
-            initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", ud.setup.xdim, ud.setup.ydim,
-                       ud.setup.bpp, ud.setup.fullscreen ? "fullscreen" : "windowed");
+            initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", *ScreenWidth, *ScreenHeight,
+                       *ScreenBPP, *ScreenMode ? "fullscreen" : "windowed");
 
             int resIdx = 0;
 
             for (int i=0; i < validmodecnt; i++)
             {
-                if (validmode[i].xdim == ud.setup.xdim && validmode[i].ydim == ud.setup.ydim)
+                if (validmode[i].xdim == ScreenWidth && validmode[i].ydim == ScreenHeight)
                 {
                     resIdx = i;
                     break;
@@ -6549,7 +6546,7 @@ int app_main(int argc, const char * const*argv)
             }
 
             int const savedIdx = resIdx;
-            int bpp = ud.setup.bpp;
+            int bpp = ScreenBPP;
 
             while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, ud.detail) < 0)
             {
@@ -6566,12 +6563,12 @@ int app_main(int argc, const char * const*argv)
                 }
             }
 
-            ud.setup.xdim = validmode[resIdx].xdim;
-            ud.setup.ydim = validmode[resIdx].ydim;
-            ud.setup.bpp  = bpp;
+            ScreenWidth = validmode[resIdx].xdim;
+            ScreenHeight = validmode[resIdx].ydim;
+            ScreenBPP  = bpp;
         }
 
-        videoSetPalette(ud.brightness>>2, myplayer.palette, 0);
+        videoSetPalette(0, myplayer.palette, 0);
         S_SoundStartup();
         S_MusicStartup();
     }

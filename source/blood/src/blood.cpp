@@ -1631,7 +1631,7 @@ int app_main(int argc, char const * const * argv)
 
     initprintf("Initializing network users\n");
     netInitialize(true);
-    scrSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp);
+    scrSetGameMode( ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP);
     scrSetGamma(gGamma);
     viewResizeView(gViewSize);
     initprintf("Initializing sound system\n");

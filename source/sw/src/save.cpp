@@ -1170,8 +1170,6 @@ int LoadGame(short save_num)
 
 	MREAD(&gs,sizeof(gs),1,fil);
 
-    //COVERsetbrightness(gs.Brightness,(char *)palette_data);
-
 	for (int i = 0; i < MAXTILES; i++)
 	{
 		MREAD(&picanm[i], sizeof(picanm[i]), 1, fil);
@@ -1273,7 +1271,7 @@ int LoadGame(short save_num)
     SetupAspectRatio();
     SetRedrawScreen(Player + myconnectindex);
 
-    COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
+    COVERsetbrightness(0,&palette_data[0][0]);
 
     screenpeek = myconnectindex;
     PlayingLevel = Level;

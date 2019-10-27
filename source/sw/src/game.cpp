@@ -202,7 +202,6 @@ const GAME_SET gs_defaults =
     128, // music vol
     192, // fx vol
     2, // border
-    0, // brightness
     0, // border tile
     FALSE, // mouse aiming
     FALSE, // mouse look
@@ -225,13 +224,10 @@ const GAME_SET gs_defaults =
     0, // Kill Limit
     0, // Time Limit
     0, // Color
-    0, // Parental Lock
-    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // Password
     TRUE, // nuke
     TRUE, // voxels
     FALSE, // stats
     FALSE, // mouse aiming on
-    FALSE, // play cd
     "Track??", // waveform track name
 };
 GAME_SET gs;
@@ -792,7 +788,6 @@ void DisplayDemoText(void)
 
 void Set_GameMode(void)
 {
-    extern int ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP;
     int result;
     char ch;
 
@@ -803,7 +798,7 @@ void Set_GameMode(void)
     if (result < 0)
     {
         buildprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...",
-                    ScreenWidth,ScreenHeight,ScreenBPP,ScreenMode ? "fullscreen" : "windowed");
+                    *ScreenWidth,*ScreenHeight,*ScreenBPP,*ScreenMode ? "fullscreen" : "windowed");
         ScreenMode = 0;
         ScreenWidth = 640;
         ScreenHeight = 480;
@@ -1077,7 +1072,7 @@ InitGame(int32_t argc, char const * const * argv)
     GraphicsMode = TRUE;
     SetupAspectRatio();
 
-    COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
+    COVERsetbrightness(0, &palette_data[0][0]);
 
     InitFX();   // JBF: do it down here so we get a hold of the window handle
     InitMusic();
@@ -1752,7 +1747,7 @@ LogoLevel(void)
 	if (pal.Size() >= 768)
     {
         paletteSetColorTable(1, pal.Data());
-        videoSetPalette(gs.Brightness, 1, 2);
+        videoSetPalette(0, 1, 2);
     }
     DSPRINTF(ds,"Just read in 3drealms.pal...");
     MONO_PRINT(ds);
@@ -1797,7 +1792,7 @@ LogoLevel(void)
     videoNextPage();
     //SetPaletteToVESA(backup_pal);
     paletteSetColorTable(0, &palette_data[0][0]);
-    videoSetPalette(gs.Brightness, 0, 2);
+    videoSetPalette(0, 0, 2);
 
     // put up a blank screen while loading
 
@@ -2640,7 +2635,7 @@ void EndGameSequence(void)
     SWBOOL anim_ok = TRUE;
     FadeOut(0, 5);
 
-    if ((gs.ParentalLock || Global_PLock) && FinishAnim == ANIM_SUMO)
+    if ((adult_lockout || Global_PLock) && FinishAnim == ANIM_SUMO)
         anim_ok = FALSE;
 
     if (anim_ok)
@@ -4191,10 +4186,7 @@ SinglePlayInput(PLAYERp pp)
 
             tp = Player + screenpeek;
             PlayerUpdatePanelInfo(tp);
-            if (getrendermode() < 3)
-                COVERsetbrightness(gs.Brightness,(char *)palette_data);
-            else
-                setpalettefade(0,0,0,0);
+            setpalettefade(0,0,0,0);
             memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
             DoPlayerDivePalette(tp);
             DoPlayerNightVisionPalette(tp);
@@ -4285,7 +4277,7 @@ SinglePlayInput(PLAYERp pp)
         // This sets the palette to whatever it is of the player you
         // just chose to view the game through.
 //      printf("SingPlayInput ALT+1-9 set_pal: pp->PlayerSprite = %d\n",pp->PlayerSprite);
-        COVERsetbrightness(gs.Brightness,(char *)palette_data); // JBF: figure out what's going on here
+        //COVERsetbrightness(0,(char *)palette_data); // JBF: figure out what's going on here
 
         DoPlayerNightVisionPalette(pp);
 
@@ -4446,7 +4438,7 @@ FunctionKeys(PLAYERp pp)
 
     if (KEY_PRESSED(KEYSC_ALT) || KEY_PRESSED(KEYSC_RALT))
     {
-        if (rts_delay > 16 && fn_key && CommEnabled && !gs.ParentalLock && !Global_PLock)
+        if (rts_delay > 16 && fn_key && CommEnabled && !adult_lockout && !Global_PLock)
         {
             KEY_PRESSED(sc_F1 + fn_key - 1) = 0;
 
@@ -4615,21 +4607,7 @@ FunctionKeys(PLAYERp pp)
     if (KEY_PRESSED(KEYSC_F11) > 0)
     {
         KEY_PRESSED(KEYSC_F11) = 0;
-
-        gs.Brightness++;
-        if (gs.Brightness >= SLDR_BRIGHTNESSMAX)
-            gs.Brightness = 0;
-
-        sprintf(ds,"Brightness level (%d)",gs.Brightness+1);
-        PutStringInfoLine(pp, ds);
-
-        if (!pp->NightVision && pp->FadeAmt <= 0)
-        {
-            COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
-        }
-
-        //DoPlayerDivePalette(pp);
-        //DoPlayerNightVisionPalette(pp);
+		// Do this entirely in the video backend.
     }
 
 }
@@ -5408,7 +5386,6 @@ getinput(SW_PACKET *loc)
             if (dimensionmode != 2 && screenpeek == myconnectindex)
             {
                 // JBF: figure out what's going on here
-                COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
                 memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
                 DoPlayerDivePalette(pp);  // Check Dive again
                 DoPlayerNightVisionPalette(pp);  // Check Night Vision again
@@ -5421,7 +5398,6 @@ getinput(SW_PACKET *loc)
                     memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
                 else
                     memcpy(pp->temp_pal, tp->temp_pal, sizeof(tp->temp_pal));
-                COVERsetbrightness(gs.Brightness,&palette_data[0][0]);
                 DoPlayerDivePalette(tp);
                 DoPlayerNightVisionPalette(tp);
             }
@@ -5921,7 +5897,7 @@ extern int32_t startwin_settitle(const char*);
 extern int32_t startwin_idle(void*);
 extern int32_t startwin_run(void);
 /*extern*/ bool validate_hud(int requested_size) { return requested_size; }
-/*extern*/ void set_hud(int requested_size) {}
+/*extern*/ void set_hud(int requested_size) { /* the relevant setting is gs.BorderNum */}
 
 GameInterface Interface = {
 	140, // Huh?

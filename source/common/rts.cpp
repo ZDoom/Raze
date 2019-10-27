@@ -72,6 +72,7 @@ void RTS_Init(const char *filename)
 {
 	// Don't do anything before actually requesting some data from it.
 	// In most cases this is never ever used, so just remember the file name for later.
+	// This also simplifies initialization a lot because everything can just call this function and the last one wins.
 	RTSName = filename;
 }
 

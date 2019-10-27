@@ -810,8 +810,6 @@ static CONSTEXPR const int32_t pow2long[32] =
     268435456, 536870912, 1073741824, 2147483647
 };
 
-EXTERN int32_t windowpos, windowx, windowy;
-
     //These variables are for auto-mapping with the draw2dscreen function.
     //When you load a new board, these bits are all set to 0 - since
     //you haven't mapped out anything yet.  Note that these arrays are

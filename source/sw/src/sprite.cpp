@@ -5788,7 +5788,7 @@ KeyMain:
                 // Say something witty
                 if (pp == Player+myconnectindex && gs.Messages)
                 {
-                    if (gs.ParentalLock || Global_PLock)
+                    if (adult_lockout || Global_PLock)
                         sprintf(ds,"Fortune Say: %s\n",ReadFortune[STD_RANDOM_RANGE(10)]);
                     else
                         sprintf(ds,"Fortune Say: %s\n",ReadFortune[STD_RANDOM_RANGE(MAX_FORTUNES)]);

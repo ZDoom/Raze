@@ -44,6 +44,7 @@
 #include "_control.h"
 #include "gamecontrol.h"
 #include "m_argv.h"
+#include "rts.h"
 
 /* Notes
  
@@ -435,30 +436,31 @@ bool G_AllowAutoload()
 	return true;
 }
 
-#if 0
-//CONFIG_PutNumber("Screen Setup", "ScreenBPP", ud.setup.bpp);
-CONFIG_PutNumber("Screen Setup", "ScreenHeight", ud.setup.ydim);
-CONFIG_PutNumber("Screen Setup", "ScreenMode", ud.setup.fullscreen);
-CONFIG_PutNumber("Screen Setup", "ScreenWidth", ud.setup.xdim);
+CVAR(Int, ScreenMode, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
+CVAR(Int, ScreenWidth, 1024, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
+CVAR(Int, ScreenHeight, 768, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
+CVAR(Int, ScreenBPP, 32, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
 
-//GameConfig->SetValueForKey("Setup", "SelectedGRP", g_grpNamePtr);
-//GameConfig->SetValueForKey("Setup", "ModDir", &g_modDir[0]);
-
-
-CONFIG_PutNumber("Screen Setup", "MaxRefreshFreq", maxrefreshfreq);
-CONFIG_PutNumber("Screen Setup", "WindowPosX", windowx);
-CONFIG_PutNumber("Screen Setup", "WindowPosY", windowy);
-CONFIG_PutNumber("Screen Setup", "WindowPositioning", windowpos);
-
-if (!NAM_WW2GI)
+CVAR(Bool, adult_lockout, false, CVAR_ARCHIVE)
+CUSTOM_CVAR(String, playername, "Player", CVAR_ARCHIVE | CVAR_USERINFO)
 {
-	CONFIG_PutNumber("Screen Setup", "Out", ud.lockout);
-	GameConfig->SetValueForKey("Screen Setup", "Password", ud.pwlockout);
+	TArray<char> buffer(strlen(self)+1, 1);
+	OSD_StripColors(buffer.Data(), self);
+	if (buffer.Size() < strlen(self))
+	{
+		self = buffer.Data();
+	}
 }
 
-GameConfig->SetValueForKey("Comm Setup", "PlayerName", &szPlayerName[0]);
+CUSTOM_CVAR(String, rtsname, "", CVAR_ARCHIVE | CVAR_USERINFO)
+{
+	RTS_Init(self);
+}
+#if 0
 
-GameConfig->SetValueForKey("Comm Setup", "RTSName", &ud.rtsname[0]);
+// These will be redone once the resource management has been swapped out.
+//GameConfig->SetValueForKey("Setup", "SelectedGRP", g_grpNamePtr);
+//GameConfig->SetValueForKey("Setup", "ModDir", &g_modDir[0]);
 
 #endif
 
@@ -495,13 +497,9 @@ GameConfig->SetValueForKey("Comm Setup", "RTSName", &ud.rtsname[0]);
 	/*
 	else if (!Bstrcasecmp(parm->name, "vid_gamma"))
 	{
-	gBrightness = GAMMA_CALC;
-	gBrightness <<= 2;
-	videoSetPalette(gBrightness >> 2, gLastPal, 0);
 	}
 	else if (!Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
 	{
-	videoSetPalette(gBrightness >> 2, gLastPal, 0);
 	}
 	*/
 
@@ -512,7 +510,6 @@ GameConfig->SetValueForKey("Comm Setup", "RTSName", &ud.rtsname[0]);
 		{ "r_usenewaspect","enable/disable new screen aspect ratio determination code",(void *) &r_usenewaspect, CVAR_BOOL, 0, 1 },
 		{ "r_screenaspect","if using r_usenewaspect and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",
 		  (void *) &r_screenxy, SCREENASPECT_CVAR_TYPE, 0, 9999 },
-		{ "r_windowpositioning", "enable/disable window position memory", (void *) &windowpos, CVAR_BOOL, 0, 1 },
 		//{ "vid_gamma","adjusts gamma component of gamma ramp",(void *) &g_videoGamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
 		//{ "vid_contrast","adjusts contrast component of gamma ramp",(void *) &g_videoContrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
 		//{ "vid_brightness","adjusts brightness component of gamma ramp",(void *) &g_videoBrightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },

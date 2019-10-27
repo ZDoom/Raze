@@ -11,6 +11,7 @@
 #include "gamecvars.h"
 #include "cmdlib.h"
 #include "grpscan.h"
+#include "rts.h"
 
 #include "vfs.h"
 
@@ -56,8 +57,6 @@ static const char *defaultgameconfilename[GAMECOUNT] = { "EDUKE.CON", "NAM.CON",
 char *g_grpNamePtr = NULL;
 // g_scriptNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
 char *g_scriptNamePtr = NULL;
-// g_rtsNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
-char *g_rtsNamePtr = NULL;
 
 void clearGrpNamePtr(void)
 {
@@ -430,8 +429,8 @@ void G_LoadGroups()
         if (type->defname && g_defNamePtr == NULL)
             g_defNamePtr = dup_filename(type->defname);
 
-        if (type->rtsname && g_rtsNamePtr == NULL)
-            g_rtsNamePtr = dup_filename(type->rtsname);
+		if (type->rtsname)
+			RTS_Init(type->rtsname);
     }
     else
     {
@@ -1149,7 +1148,6 @@ void Duke_CommonCleanup(void)
 {
     DO_FREE_AND_NULL(g_grpNamePtr);
     DO_FREE_AND_NULL(g_scriptNamePtr);
-    DO_FREE_AND_NULL(g_rtsNamePtr);
 }
 
 #endif

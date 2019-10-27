@@ -408,10 +408,8 @@ static MenuOptionSet_t MEOS_DemoRec = MAKE_MENUOPTIONSET( MEOSN_DemoRec, NULL, 0
 static MenuOption_t MEO_GAMESETUP_DEMOREC = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.m_recstat );
 static MenuEntry_t ME_GAMESETUP_DEMOREC = MAKE_MENUENTRY( "Record demo:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_DEMOREC, Option );
 
-static MenuOption_t MEO_ADULTMODE = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &ud.lockout);
+static MenuOption_t MEO_ADULTMODE = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &adult_lockout.Value);
 static MenuEntry_t ME_ADULTMODE = MAKE_MENUENTRY( "Parental lock:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_ADULTMODE, Option );
-// static MenuLink_t MEO_ADULTMODE_PASSWORD = { MENU_ADULTPASSWORD, MA_None, };
-// static MenuEntry_t ME_ADULTMODE_PASSWORD = MAKE_MENUENTRY( "Enter Password", &MF_Redfont, &, &MEO_ADULTMODE_PASSWORD, Link );
 
 #if defined(EDUKE32_ANDROID_MENU) || !defined(EDUKE32_SIMPLE_MENU)
 static MenuLink_t MEO_GAMESETUP_CHEATS = { MENU_CHEATS, MA_Advance, };
@@ -3197,10 +3195,10 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 
         g_restorePalette = -1;
         G_UpdateScreenArea();
-        ud.setup.fullscreen = fullscreen;
-        ud.setup.xdim = xres;
-        ud.setup.ydim = yres;
-        ud.setup.bpp = bpp;
+        ScreenMode = fullscreen;
+        ScreenWidth = xres;
+        ScreenHeight = yres;
+        ScreenBPP = bpp;
     }
     else if (entry == &ME_SOUND_RESTART)
     {
@@ -3327,30 +3325,10 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
                     wall[animwall[x].wallnum].picnum = SCREENBREAK6;
                     break;
                 }
-
-            ud.pwlockout[0] = 0;
-            Menu_Change(MENU_ADULTPASSWORD);
-//            return -1;
         }
         else
         {
-            if (ud.pwlockout[0] == 0)
-            {
-                ud.lockout = 0;
-#if 0
-                for (x=0; x<g_numAnimWalls; x++)
-                    if (wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
-                            wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
-                            wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
-                        if (wall[animwall[x].wallnum].extra >= 0)
-                            wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
-#endif
-            }
-            else
-            {
-                Menu_Change(MENU_ADULTPASSWORD);
-                return -1;
-            }
+            adult_lockout = 0;
         }
     }
 
@@ -3412,7 +3390,7 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
         videoResetMode();
         if (videoSetGameMode(fullscreen, xres, yres, bpp, upscalefactor))
             OSD_Printf("restartvid: Reset failed...\n");
-        onvideomodechange(ud.setup.bpp>8);
+        onvideomodechange(ScreenBPP>8);
         G_RefreshLights();
     }
 #endif
@@ -3464,16 +3442,6 @@ static int32_t Menu_EntryRangeFloatModify(MenuEntry_t *entry, float newValue)
 
 static int32_t Menu_EntryRangeFloatDidModify(MenuEntry_t *entry)
 {
-    if (entry == &ME_COLCORR_GAMMA)
-    {
-        ud.brightness = GAMMA_CALC<<2;
-        videoSetPalette(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
-    }
-    else if (entry == &ME_COLCORR_CONTRAST || entry == &ME_COLCORR_BRIGHTNESS)
-    {
-        videoSetPalette(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
-    }
-
     return 0;
 }
 
@@ -3685,9 +3653,8 @@ static void Menu_Verify(int32_t input)
             g_videoGamma = DEFAULT_GAMMA;
             g_videoContrast = DEFAULT_CONTRAST;
             g_videoBrightness = DEFAULT_BRIGHTNESS;
-            ud.brightness = 0;
             r_ambientlight = 1.f;
-            videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
+            videoSetPalette(0,g_player[myconnectindex].ps->palette,0);
         }
         break;
 
@@ -3762,21 +3729,6 @@ static void Menu_TextFormSubmit(char *input)
     switch (g_currentMenu)
     {
     case MENU_ADULTPASSWORD:
-        if (Bstrlen(input) && (ud.pwlockout[0] == 0 || ud.lockout == 0))
-            Bstrcpy(&ud.pwlockout[0], input);
-        else if (Bstrcmp(input, &ud.pwlockout[0]) == 0)
-        {
-            for (int x=0; x<g_animWallCnt; x++)
-                if ((unsigned) animwall[x].wallnum < (unsigned)numwalls && wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
-                        wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
-                        wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
-                    if (wall[animwall[x].wallnum].extra >= 0)
-                        wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
-            ud.lockout = 0;
-        }
-
-        S_PlaySound(PISTOL_BODYHIT);
-        Menu_Change(MENU_GAMESETUP);
         break;
 
     case MENU_CHEATENTRY:

@@ -56,6 +56,14 @@ BEGIN_RR_NS
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1
 
+typedef struct {
+	int32_t fullscreen;
+	int32_t xdim;
+	int32_t ydim;
+	int32_t bpp;
+} ud_setup_t;
+
+
 static struct
 {
     struct grpfile_t const * grp;
@@ -618,8 +626,8 @@ int32_t startwin_run(void)
     settings.polymer = 0;
 #endif
 
-    settings.shared = ud.setup;
-    settings.grp = g_selectedGrp;
+	settings.shared = { ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP };
+	settings.grp = g_selectedGrp;
     settings.gamedir = g_modDir;
 
     PopulateForm(-1);
@@ -650,8 +658,11 @@ int32_t startwin_run(void)
 
     if (done)
     {
-        ud.setup = settings.shared;
-        glrendmode = (settings.polymer) ? REND_POLYMER : REND_POLYMOST;
+		ScreenWidth = settings.shared.xdim;
+		ScreenHeight = settings.shared.ydim;
+		ScreenMode = settings.shared.fullscreen;
+		ScreenBPP = settings.shared.bpp;
+		glrendmode = REND_POLYMOST;
         g_selectedGrp = settings.grp;
         Bstrcpy(g_modDir, (g_noSetup == 0 && settings.gamedir != NULL) ? settings.gamedir : "/");
     }

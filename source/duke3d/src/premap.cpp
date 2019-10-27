@@ -1065,7 +1065,7 @@ static void G_SetupSpecialWalls(void)
             case FEMPIC3__STATIC:
                 w.extra = w.picnum;
 
-                if (ud.lockout)
+                if (adult_lockout)
                     w.picnum = (w.picnum == FEMPIC1) ? BLANKSCREEN : SCREENBREAK6;
 
                 aw.tag     = w.picnum;
@@ -1349,7 +1349,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     // we don't want the intro to play after the multiplayer setup screen
     if ((!g_netServer && ud.multimode < 2) && !Menu_HaveUserMap()
         && !VM_OnEventWithReturn(EVENT_NEWGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)
-        && !levelNum && volumeNum == 3 && !ud.lockout && !(G_GetLogoFlags() & LOGO_NOE4CUTSCENE))
+        && !levelNum && volumeNum == 3 && !adult_lockout && !(G_GetLogoFlags() & LOGO_NOE4CUTSCENE))
         G_PlayE4Cutscene();
 
 #ifdef EDUKE32_TOUCH_DEVICES
@@ -1794,7 +1794,7 @@ int G_EnterLevel(int gameMode)
         FX_StopAllSounds();
         S_ClearSoundLocks();
         FX_SetReverb(0);
-        videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, upscalefactor);
+        videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, upscalefactor);
     }
 
     if (Menu_HaveUserMap())

@@ -3754,7 +3754,7 @@ static int32_t P_DoCounters(int playerNum)
             if (pPlayer->drink_amt > 66 && (pPlayer->last_pissed_time % GAMETICSPERSEC) == 0)
                 pPlayer->drink_amt--;
 
-            if (!ud.lockout)
+            if (!adult_lockout)
             {
                 switch (pPlayer->last_pissed_time)
                 {

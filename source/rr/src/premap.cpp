@@ -1804,7 +1804,7 @@ static void prelevel(char g)
                 pWall->extra                 = pWall->picnum;
                 animwall[g_animWallCnt].tag = -1;
 
-                if (ud.lockout)
+                if (adult_lockout)
                     pWall->picnum = (pWall->picnum == FEMPIC1) ? BLANKSCREEN : SCREENBREAK6;
 
                 animwall[g_animWallCnt].wallnum = i;
@@ -1852,7 +1852,7 @@ static void prelevel(char g)
 
     if (RR && !g_thunderOn)
     {
-        videoSetPalette(ud.brightness >> 2,BASEPAL,0);
+        videoSetPalette(0,BASEPAL,0);
         g_visibility = g_player[screenpeek].ps->visibility;
     }
     if (RR)
@@ -1910,7 +1910,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     // we don't want the intro to play after the multiplayer setup screen
     if (!RR && (!g_netServer && ud.multimode < 2) && UserMap == 0 &&
-        levelNum == 0 && volumeNum == 3 && ud.lockout == 0)
+        levelNum == 0 && volumeNum == 3 && adult_lockout == 0)
     {
         S_PlaySpecialMusicOrNothing(MUS_BRIEFING);
 
@@ -2320,7 +2320,7 @@ int G_EnterLevel(int gameMode)
         FX_StopAllSounds();
         S_ClearSoundLocks();
         FX_SetReverb(0);
-        videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, upscalefactor);
+        videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, upscalefactor);
     }
 
     if (Menu_HaveUserMap())

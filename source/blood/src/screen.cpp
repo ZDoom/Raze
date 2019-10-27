@@ -73,7 +73,6 @@ static int curPalette;
 static int curGamma;
 int gGammaLevels;
 bool gFogMode = false;
-int32_t gBrightness;
 
 void scrResetPalette(void)
 {
@@ -87,7 +86,7 @@ void gSetDacRange(int start, int end, RGB *pPal)
     if (videoGetRenderMode() == REND_CLASSIC)
     {
         memcpy(palette, pPal, sizeof(palette));
-        videoSetPalette(gBrightness>>2, 0, 0);
+        videoSetPalette(0, 0, 0);
     }
 }
 
@@ -278,9 +277,9 @@ void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits)
             }
         }
 
-        gSetup.xdim = validmode[resIdx].xdim;
-        gSetup.ydim = validmode[resIdx].ydim;
-        gSetup.bpp  = bpp;
+        ScreenWidth = validmode[resIdx].xdim;
+        ScreenHeight = validmode[resIdx].ydim;
+        ScreenBPP  = bpp;
     }
     videoClearViewableArea(0);
     scrNextPage();

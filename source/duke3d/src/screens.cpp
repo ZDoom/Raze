@@ -90,7 +90,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set)
     if (player != g_player[screenpeek].ps)
         return;
 
-    videoSetPalette(ud.brightness>>2, palid, set);
+    videoSetPalette(0, palid, set);
 }
 
 void G_GetCrosshairColor(void)
@@ -1719,7 +1719,7 @@ static void G_BonusCutscenes(void)
         if ((G_GetLogoFlags() & LOGO_NOE1BONUSSCENE) && (G_GetLogoFlags() & LOGO_NOE1ENDSCREEN))
             return;
 
-        if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE1BONUSSCENE))
+        if (adult_lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE1BONUSSCENE))
         {
             int bonuscnt=0;
             int const bossmove [] =
@@ -1832,7 +1832,7 @@ static void G_BonusCutscenes(void)
         videoClearScreen(0L);
         videoNextPage();
 
-        if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE2BONUSSCENE))
+        if (adult_lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE2BONUSSCENE))
         {
             fadepal(0, 0, 0, 252, 0, -4);
             Anim_Play("cineov2.anm");
@@ -1866,7 +1866,7 @@ static void G_BonusCutscenes(void)
         videoClearScreen(0L);
         videoNextPage();
 
-        if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE4BONUSSCENE))
+        if (adult_lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE4BONUSSCENE))
         {
             fadepal(0, 0, 0, 252, 0, -4);
 
@@ -1947,7 +1947,7 @@ static void G_BonusCutscenes(void)
         S_StopMusic();
         videoClearScreen(0L);
         videoNextPage();
-        if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE3BONUSSCENE))
+        if (adult_lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE3BONUSSCENE))
         {
             fadepal(0, 0, 0, 252, 0, -4);
             Anim_Play("cineov3.anm");
@@ -1967,7 +1967,7 @@ static void G_BonusCutscenes(void)
 
         Anim_Play("RADLOGO.ANM");
 
-        if (ud.lockout == 0 && !I_GeneralTrigger())
+        if (adult_lockout == 0 && !I_GeneralTrigger())
         {
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND5)) goto ENDANM;
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND6)) goto ENDANM;

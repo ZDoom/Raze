@@ -1417,7 +1417,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_M_COOP:                 labelNum = ud.m_coop;                       break;
         case USERDEFS_COOP:                   labelNum = ud.coop;                         break;
         case USERDEFS_SCREEN_SIZE:            labelNum = ud.screen_size;                  break;
-        case USERDEFS_LOCKOUT:                labelNum = ud.lockout;                      break;
+        case USERDEFS_LOCKOUT:                labelNum = adult_lockout;                   break;
         case USERDEFS_CROSSHAIR:              labelNum = cl_crosshair;                    break;
         case USERDEFS_PLAYERAI:               labelNum = ud.playerai;                     break;
         case USERDEFS_RESPAWN_MONSTERS:       labelNum = ud.respawn_monsters;             break;
@@ -1425,7 +1425,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_RESPAWN_INVENTORY:      labelNum = ud.respawn_inventory;            break;
         case USERDEFS_RECSTAT:                labelNum = ud.recstat;                      break;
         case USERDEFS_MONSTERS_OFF:           labelNum = ud.monsters_off;                 break;
-        case USERDEFS_BRIGHTNESS:             labelNum = ud.brightness;                   break;
+		case USERDEFS_BRIGHTNESS:             labelNum = 8;/*ud.brightness;*/                   break;
         case USERDEFS_M_RESPAWN_ITEMS:        labelNum = ud.m_respawn_items;              break;
         case USERDEFS_M_RESPAWN_MONSTERS:     labelNum = ud.m_respawn_monsters;           break;
         case USERDEFS_M_RESPAWN_INVENTORY:    labelNum = ud.m_respawn_inventory;          break;
@@ -1611,7 +1611,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
                 G_UpdateScreenArea();
             }
             break;
-        case USERDEFS_LOCKOUT:                      ud.lockout                       = iSet; break;
+        case USERDEFS_LOCKOUT:                      adult_lockout                       = iSet; break;
         case USERDEFS_CROSSHAIR:                    cl_crosshair.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_PLAYERAI:                     ud.playerai                      = iSet; break;
         case USERDEFS_RESPAWN_MONSTERS:             ud.respawn_monsters              = iSet; break;
@@ -1619,7 +1619,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_RESPAWN_INVENTORY:            ud.respawn_inventory             = iSet; break;
         case USERDEFS_RECSTAT:                      ud.recstat                       = iSet; break;
         case USERDEFS_MONSTERS_OFF:                 ud.monsters_off                  = iSet; break;
-        case USERDEFS_BRIGHTNESS:                   ud.brightness                    = iSet; break;
+        case USERDEFS_BRIGHTNESS:                   /*ud.brightness                    = iSet;*/ break; //Oh, no, I won't give modding access to this at all!
         case USERDEFS_M_RESPAWN_ITEMS:              ud.m_respawn_items               = iSet; break;
         case USERDEFS_M_RESPAWN_MONSTERS:           ud.m_respawn_monsters            = iSet; break;
         case USERDEFS_M_RESPAWN_INVENTORY:          ud.m_respawn_inventory           = iSet; break;

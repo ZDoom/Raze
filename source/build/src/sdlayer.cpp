@@ -28,6 +28,7 @@
 #include "resourcefile.h"
 #include "sc_man.h"
 #include "i_specialpaths.h"
+#include "c_cvars.h"
 #include "../../glbackend/glbackend.h"
 
 #ifdef USE_OPENGL
@@ -48,6 +49,13 @@
 #endif
 
 #include "vfs.h"
+
+CVAR(Int, r_displayindex, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
+CVAR(Int, r_borderless, 2, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
+CVAR(Int, maxrefreshfreq, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
+CVAR(Int, windowpos, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
+CVAR(Int, windowx, -1, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
+CVAR(Int, windowy, -1, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
 
 #if SDL_MAJOR_VERSION != 1
 static SDL_version linked;
@@ -110,7 +118,6 @@ static uint16_t sysgamma[3][256];
 char nogl=0;
 #endif
 static int32_t vsync_renderlayer;
-int32_t maxrefreshfreq=0;
 
 // last gamma, contrast, brightness
 
@@ -1580,12 +1587,14 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 		x -= 10;
 		y -= 10;
 	}
-#endif
-
 	if (called++)
 	{
-		assert(0);
+		//assert(0);
+		return 0;
 	}
+#endif
+
+
     ret = setvideomode_sdlcommon(&x, &y, c, fs, &regrab);
     if (ret != 1)
     {

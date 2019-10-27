@@ -284,7 +284,6 @@ typedef struct MenuGroup
 SWBOOL MNU_QuitCustom(UserCall call, MenuItem *item);
 SWBOOL MNU_QuickLoadCustom(UserCall call, MenuItem *item);
 SWBOOL MNU_LoadSaveTouchupCustom(UserCall call, MenuItem *item);
-SWBOOL MNU_DoParentalPassword(UserCall call, MenuItem *item);
 SWBOOL MNU_OrderCustom(UserCall call, MenuItem *item);
 SWBOOL MNU_DoEpisodeSelect(UserCall call, MenuItem *item);
 

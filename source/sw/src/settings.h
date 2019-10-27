@@ -35,7 +35,6 @@ typedef struct
     int mus_volume;
     int SoundVolume;
     int8_t BorderNum;
-    int8_t Brightness;
     int8_t BorderTile;
     SWBOOL MouseAimingType;
     SWBOOL MouseLook;
@@ -57,13 +56,11 @@ typedef struct
     uint8_t NetKillLimit;  // Number of frags at which game ends
     uint8_t NetTimeLimit;  // Limit time of game
     uint8_t NetColor;      // Chosen color for player
-    uint8_t ParentalLock;  // Parental Lock on/off
-    char Password[20];  // Parental Lock password
     SWBOOL NetNuke;
     SWBOOL Voxels;
     SWBOOL Stats;
     SWBOOL MouseAimingOn; // whether it was on or off - NOT the type of mouse aiming
-    SWBOOL PlayCD;
+    //SWBOOL PlayCD;	// Not implemented and no idea how to support it without the music assets.
     char WaveformTrackName[MAXWAVEFORMTRACKLENGTH];
 } GAME_SET, *GAME_SETp;
 

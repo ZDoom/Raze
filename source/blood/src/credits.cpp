@@ -229,7 +229,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
     Smacker_GetPalette(hSMK, palette);
     paletteSetColorTable(kSMKPal, palette, true);
-    videoSetPalette(gBrightness>>2, kSMKPal, 8+2);
+    videoSetPalette(0, kSMKPal, 8+2);
 
     int nScale;
 
@@ -269,7 +269,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
         videoClearScreen(0);
         Smacker_GetPalette(hSMK, palette);
         paletteSetColorTable(kSMKPal, palette, true);
-        videoSetPalette(gBrightness >> 2, kSMKPal, 0);
+        videoSetPalette(0, kSMKPal, 0);
         tileInvalidate(kSMKTile, 0, 1 << 4);  // JBF 20031228
         Smacker_GetFrame(hSMK, pFrame);
         rotatesprite_fs(160<<16, 100<<16, nScale, 512, kSMKTile, 0, 0, 2|4|8|64);
@@ -284,7 +284,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     Smacker_Close(hSMK);
     ctrlClearAllInput();
     FX_StopAllSounds();
-    videoSetPalette(gBrightness >> 2, 0, 8+2);
+    videoSetPalette(0, 0, 8+2);
 	tileDelete(kSMKTile);
     Bfree(pzSMK_);
     Bfree(pzWAV_);

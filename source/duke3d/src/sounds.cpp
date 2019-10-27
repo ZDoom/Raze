@@ -678,7 +678,7 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 
     auto const pPlayer = g_player[myconnectindex].ps;
 
-    if (((snd.m & SF_ADULT) && ud.lockout) || (unsigned)spriteNum >= MAXSPRITES || (pPlayer->gm & MODE_MENU) || !FX_VoiceAvailable(snd.pr)
+    if (((snd.m & SF_ADULT) && adult_lockout) || (unsigned)spriteNum >= MAXSPRITES || (pPlayer->gm & MODE_MENU) || !FX_VoiceAvailable(snd.pr)
         || (pPlayer->timebeforeexit > 0 && pPlayer->timebeforeexit <= GAMETICSPERSEC * 3))
         return -1;
 
@@ -817,7 +817,7 @@ int S_PlaySound(int num)
         return -1;
     }
 
-    if ((!(snd_speech & 1) && (snd.m & SF_TALK)) || ((snd.m & SF_ADULT) && ud.lockout) || !FX_VoiceAvailable(snd.pr))
+    if ((!(snd_speech & 1) && (snd.m & SF_TALK)) || ((snd.m & SF_ADULT) && adult_lockout) || !FX_VoiceAvailable(snd.pr))
         return -1;
 
     int const pitch = S_GetPitch(num);

@@ -1337,7 +1337,7 @@ JS_ToggleLockouts(void)
     {
         short picnum;
 
-        if (gs.ParentalLock)
+        if (adult_lockout)
         {
             picnum = wall[i].picnum;
             ASSERT(aVoxelArray[picnum].Parental < INVISTILE);   // Invalid, walls can't
@@ -1351,7 +1351,7 @@ JS_ToggleLockouts(void)
             wall[i].picnum = tp->orgpicnum;     // Restore them
 
 
-        if (gs.ParentalLock)
+        if (adult_lockout)
         {
             picnum = wall[i].overpicnum;
             ASSERT(aVoxelArray[picnum].Parental < INVISTILE);   // Invalid, walls can't
@@ -1370,7 +1370,7 @@ JS_ToggleLockouts(void)
     {
         short picnum;
 
-        if (gs.ParentalLock)
+        if (adult_lockout)
         {
             picnum = sector[i].ceilingpicnum;
             ASSERT(aVoxelArray[picnum].Parental < INVISTILE);   // Invalid, walls can't
@@ -1384,7 +1384,7 @@ JS_ToggleLockouts(void)
             sector[i].ceilingpicnum = tp->orgpicnum;    // Restore them
 
 
-        if (gs.ParentalLock)
+        if (adult_lockout)
         {
             picnum = sector[i].floorpicnum;
             ASSERT(aVoxelArray[picnum].Parental < INVISTILE);   // Invalid, walls can't

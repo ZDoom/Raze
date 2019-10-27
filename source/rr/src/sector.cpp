@@ -3609,7 +3609,7 @@ void P_HandleSharedKeys(int playerNum)
             && (!RRRA || sprite[pPlayer->i].extra > 0))
         {
             pPlayer->last_pissed_time = 4000;
-            if (!ud.lockout)
+            if (!adult_lockout)
                 A_PlaySound(437, pPlayer->i);
             if (sprite[pPlayer->i].extra <= pPlayer->max_player_health - pPlayer->max_player_health / 10)
             {
@@ -4576,7 +4576,7 @@ void P_CheckSectors(int playerNum)
             case RRTILE2122__STATICRR:
                 if (pPlayer->last_pissed_time == 0)
                 {
-                    if (ud.lockout == 0)
+                    if (adult_lockout == 0)
                         A_PlaySound(RR ? 435 : DUKE_URINATE, pPlayer->i);
 
                     pPlayer->last_pissed_time = GAMETICSPERSEC * 220;
@@ -5223,7 +5223,7 @@ void G_Thunder(void)
         }
         else
         {
-            brightness = ud.brightness>>2;
+            brightness = 0;
             g_visibility = g_player[screenpeek].ps->visibility;
         }
     }
@@ -5232,9 +5232,9 @@ void G_Thunder(void)
         g_thunderTime -= 4;
         if (g_thunderTime < 0)
         {
-            brightness = ud.brightness>>2;
+            brightness = 0;
             g_thunderFlash = 0;
-            videoSetPalette(brightness,g_player[screenpeek].ps->palette,32);
+            videoSetPalette(0,g_player[screenpeek].ps->palette,32);
             g_visibility = g_player[screenpeek].ps->visibility;
         }
     }

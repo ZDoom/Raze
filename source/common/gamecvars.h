@@ -97,6 +97,15 @@ EXTERN_CVAR(String, wchoice)
 EXTERN_CVAR(Bool, displaysetup)
 EXTERN_CVAR(Bool, noautoload)
 
+EXTERN_CVAR(Int, ScreenMode)
+EXTERN_CVAR(Int, ScreenWidth)
+EXTERN_CVAR(Int, ScreenHeight)
+EXTERN_CVAR(Int, ScreenBPP)
+
+EXTERN_CVAR(Bool, adult_lockout)
+EXTERN_CVAR(String, playername)
+EXTERN_CVAR(String, rtsname)
+
 extern bool gNoAutoLoad;
 extern float r_ambientlightrecip;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.

@@ -455,7 +455,6 @@ int32_t Anim_Play(const char *fn)
     paletteSetColorTable(ANIMPAL, ANIM_GetPalette(), true);
 
     // setpalette(0L,256L,tempbuf);
-    // setbrightness(ud.brightness>>2,tempbuf,2);
     P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8 + 2);
 
 #ifdef USE_OPENGL

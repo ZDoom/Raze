@@ -32,9 +32,6 @@ BEGIN_RR_NS
 int32_t CONFIG_ReadSetup( void );
 void CONFIG_GetSetupFilename( void );
 
-int32_t CONFIG_GetMapBestTime(char const * mapname, uint8_t const * mapmd4);
-int32_t CONFIG_SetMapBestTime(uint8_t const * mapmd4, int32_t tm);
-
 void CONFIG_SetDefaults(void);
 
 END_RR_NS

@@ -140,8 +140,6 @@ int32_t r_usenewaspect = 1, newaspect_enable=0;
 uint32_t r_screenxy = 0;
 
 int32_t r_fpgrouscan = 1;
-CVAR(int, r_displayindex, 0, CVAR_ARCHIVE|CVAR_VIDEOCONFIG)
-CVAR(Int, r_borderless, 2, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
 int32_t globalflags;
 
 float g_videoGamma = DEFAULT_GAMMA;

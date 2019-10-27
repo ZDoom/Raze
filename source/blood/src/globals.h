@@ -27,14 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-typedef struct {
-    int32_t fullscreen;
-    int32_t xdim;
-    int32_t ydim;
-    int32_t bpp;
-} ud_setup_t;
-
-extern ud_setup_t gSetup;
 extern ClockTicks gFrameClock;
 extern ClockTicks gFrameTicks;
 extern int gFrame;

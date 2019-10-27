@@ -1534,17 +1534,17 @@ void SetVideoModeOld(CGameMenuItemChain *pItem)
 {
     if (pItem->at30 == validmodecnt)
     {
-        gSetup.fullscreen = 0;
-        gSetup.xdim = 640;
-        gSetup.ydim = 480;
+        ScreenMode = 0;
+        ScreenWidth = 640;
+        ScreenHeight = 480;
     }
     else
     {
-        gSetup.fullscreen = 0;
-        gSetup.xdim = validmode[pItem->at30].xdim;
-        gSetup.ydim = validmode[pItem->at30].ydim;
+        ScreenMode = 0;
+        ScreenWidth = validmode[pItem->at30].xdim;
+        ScreenHeight = validmode[pItem->at30].ydim;
     }
-    scrSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp);
+    scrSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP);
     scrSetDac();
     viewResizeView(gViewSize);
 }
@@ -1580,10 +1580,10 @@ void SetVideoMode(CGameMenuItemChain *pItem)
 
     viewResizeView(gViewSize);
     vid_vsync = videoSetVsync(nvsync);
-    gSetup.fullscreen = fullscreen;
-    gSetup.xdim = xres;
-    gSetup.ydim = yres;
-    gSetup.bpp = bpp;
+    ScreenMode = fullscreen;
+    ScreenWidth = xres;
+    ScreenHeight = yres;
+    ScreenBPP = bpp;
 }
 
 void SetWidescreen(CGameMenuItemZBool *pItem)
@@ -1601,13 +1601,13 @@ void SetupVideoModeMenu(CGameMenuItemChain *pItem)
     UNREFERENCED_PARAMETER(pItem);
     for (int i = 0; i < gResolutionNum; i++)
     {
-        if (gSetup.xdim == gResolution[i].xdim && gSetup.ydim == gResolution[i].ydim)
+        if (ScreenWidth == gResolution[i].xdim && ScreenHeight == gResolution[i].ydim)
         {
             itemOptionsDisplayModeResolution.m_nFocus = i;
             break;
         }
     }
-    itemOptionsDisplayModeFullscreen.at20 = gSetup.fullscreen;
+    itemOptionsDisplayModeFullscreen.at20 = ScreenMode;
 #ifdef USE_OPENGL
     for (int i = 0; i < 2; i++)
     {
@@ -1645,8 +1645,6 @@ void UpdateVideoColorMenu(CGameMenuItemSliderFloat *pItem)
     g_videoContrast = itemOptionsDisplayColorContrast.fValue;
     g_videoBrightness = itemOptionsDisplayColorBrightness.fValue;
     r_ambientlight = itemOptionsDisplayColorVisibility.fValue;
-    gBrightness = GAMMA_CALC<<2;
-    videoSetPalette(gBrightness>>2, gLastPal, 0);
 }
 
 void PreDrawDisplayColor(CGameMenuItem *pItem)
@@ -1663,9 +1661,7 @@ void ResetVideoColor(CGameMenuItemChain *pItem)
     g_videoGamma = DEFAULT_GAMMA;
     g_videoContrast = DEFAULT_CONTRAST;
     g_videoBrightness = DEFAULT_BRIGHTNESS;
-    gBrightness = 0;
     r_ambientlight = 1.f;
-    videoSetPalette(gBrightness>>2, gLastPal, 0);
 }
 
 #ifdef USE_OPENGL
@@ -1722,7 +1718,7 @@ void DoModeChange(void)
     videoResetMode();
     if (videoSetGameMode(fullscreen, xres, yres, bpp, upscalefactor))
         OSD_Printf("restartvid: Reset failed...\n");
-    onvideomodechange(gSetup.bpp > 8);
+    onvideomodechange(ScreenBPP > 8);
 }
 
 #ifdef USE_OPENGL

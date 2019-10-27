@@ -36,7 +36,6 @@ BEGIN_BLD_NS
 
 #define MAXPLAYERNAME 16
 
-extern int32_t scripthandle;
 extern int32_t setupread;
 extern char szPlayerName[MAXPLAYERNAME];
 extern int32_t gTurnSpeed;
@@ -63,9 +62,6 @@ extern int gWeaponsV10x;
 
 int  CONFIG_ReadSetup(void);
 void CONFIG_SetDefaults(void);
-
-int32_t CONFIG_GetMapBestTime(char const *mapname, uint8_t const *mapmd4);
-int     CONFIG_SetMapBestTime(uint8_t const *mapmd4, int32_t tm);
 
 END_BLD_NS
 

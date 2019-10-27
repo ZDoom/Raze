@@ -1910,7 +1910,7 @@ static void postloadplayer(int32_t savegamep)
     //4
     if (savegamep)
     {
-        if (ud.lockout)
+        if (adult_lockout)
         {
             for (i=0; i<g_animWallCnt; i++)
                 switch (DYNAMICTILEMAP(wall[animwall[i].wallnum].picnum))

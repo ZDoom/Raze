@@ -764,19 +764,18 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 
 	dapal = basepaltable[curbasepal];
 
-	if (!(flags & 4))
-	{
-		curbrightness = clamp(dabrightness, 0, 15);
-	}
-
 	// In-scene brightness mode for RR's thunderstorm. This shouldn't affect the global gamma ramp.
 	if ((videoGetRenderMode() >= REND_POLYMOST) && (flags & 32))
 	{
+		if (!(flags & 4))
+		{
+			curbrightness = clamp(dabrightness, 0, 15);
+		}
+
 		r_scenebrightness = curbrightness;
 	}
 	else
 	{
-		videoSetGamma();
 		r_scenebrightness = 0;
 	}
 	j = 0;	// Assume that the backend can do it.

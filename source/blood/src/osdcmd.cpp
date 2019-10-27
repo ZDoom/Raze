@@ -209,9 +209,9 @@ int osdcmd_restartvid(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     videoResetMode();
-    if (videoSetGameMode(gSetup.fullscreen,gSetup.xdim,gSetup.ydim,gSetup.bpp,0))
+    if (videoSetGameMode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,0))
         ThrowError("restartvid: Reset failed...\n");
-    onvideomodechange(gSetup.bpp>8);
+    onvideomodechange(ScreenBPP>8);
     viewResizeView(gViewSize);
 
     return OSDCMD_OK;
@@ -257,8 +257,8 @@ static int osdcmd_music(osdcmdptr_t parm)
 
 static int osdcmd_vidmode(osdcmdptr_t parm)
 {
-    int32_t newbpp = gSetup.bpp, newwidth = gSetup.xdim,
-            newheight = gSetup.ydim, newfs = gSetup.fullscreen;
+    int32_t newbpp = ScreenBPP, newwidth = ScreenWidth,
+            newheight = ScreenHeight, newfs = ScreenMode;
     int32_t tmp;
 
     if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
@@ -291,14 +291,14 @@ static int osdcmd_vidmode(osdcmdptr_t parm)
     if (videoSetGameMode(newfs,newwidth,newheight,newbpp,upscalefactor))
     {
         initprintf("vidmode: Mode change failed!\n");
-        if (videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, upscalefactor))
+        if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, upscalefactor))
             ThrowError("vidmode: Reset failed!\n");
     }
-    gSetup.bpp = newbpp;
-    gSetup.xdim = newwidth;
-    gSetup.ydim = newheight;
-    gSetup.fullscreen = newfs;
-    onvideomodechange(gSetup.bpp>8);
+    ScreenBPP = newbpp;
+    ScreenWidth = newwidth;
+    ScreenHeight = newheight;
+    ScreenMode = newfs;
+    onvideomodechange(ScreenBPP>8);
     viewResizeView(gViewSize);
     return OSDCMD_OK;
 }
@@ -468,7 +468,7 @@ void onvideomodechange(int32_t newmode)
     }
 #endif
 
-    videoSetPalette(ud.brightness>>2, palid, 0);
+    videoSetPalette(0, palid, 0);
     g_restorePalette = -1;
 #endif
     if (newmode)

@@ -1092,7 +1092,7 @@ DoBunnyQuickJump(short SpriteNum)
 
                 NewStateGroup(SpriteNum, sg_BunnyScrew);
                 NewStateGroup(hit_sprite, sg_BunnyScrew);
-                if (gs.ParentalLock || Global_PLock)
+                if (adult_lockout || Global_PLock)
                 {
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' invisible
                     SET(tsp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' invisible
@@ -1487,7 +1487,7 @@ DoBunnyScrew(short SpriteNum)
 
     if (RANDOM_RANGE(1000) > 990) // Bunny sex sounds
     {
-        if (!gs.ParentalLock && !Global_PLock)
+        if (!adult_lockout && !Global_PLock)
             PlaySound(DIGI_BUNNYATTACK, &sp->x, &sp->y, &sp->z, v3df_follow);
     }
 

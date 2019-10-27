@@ -4255,11 +4255,6 @@ badindex:
             {
                 int32_t nValue = 0;
                 insptr++;
-                if (ud.config.scripthandle < 0)
-                {
-                    insptr++;
-                    dispatch();
-                }
 				FString section = currentGame + ".Gamevars";
 				GameConfig->SetSection(section);
                 switch (VM_DECODE_INST(tw))
@@ -6802,7 +6797,7 @@ void G_RestoreMapState(void)
         screenpeek = myconnectindex;
 
 #ifndef EDUKE32_STANDALONE
-        if (ud.lockout)
+        if (adult_lockout)
         {
             for (native_t x=g_animWallCnt-1; x>=0; x--)
                 switch (DYNAMICTILEMAP(wall[animwall[x].wallnum].picnum))

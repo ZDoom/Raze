@@ -61,12 +61,18 @@ BEGIN_BLD_NS
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1
 
+typedef struct {
+	int32_t fullscreen;
+	int32_t xdim;
+	int32_t ydim;
+	int32_t bpp;
+} ud_setup_t;
+
 static struct
 {
+	ud_setup_t shared;
     INICHAIN const * ini;
     char *gamedir;
-    ud_setup_t shared;
-    int polymer;
 }
 settings;
 
@@ -146,7 +152,7 @@ static void PopulateForm(int32_t pgs)
         HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
         int mode = videoCheckMode(&settings.shared.xdim, &settings.shared.ydim, settings.shared.bpp, settings.shared.fullscreen, 1);
 
-        if (mode < 0 || (settings.shared.bpp < 15 && (settings.polymer)))
+        if (mode < 0 || (settings.shared.bpp < 15))
         {
             int CONSTEXPR cd[] = { 32, 24, 16, 15, 8, 0 };
             int i;
@@ -173,7 +179,7 @@ static void PopulateForm(int32_t pgs)
         for (int i=0; i<validmodecnt; i++)
         {
             if (validmode[i].fs != (settings.shared.fullscreen)) continue;
-            if ((validmode[i].bpp < 15) && (settings.polymer)) continue;
+            if ((validmode[i].bpp < 15)) continue;
 
             // all modes get added to the 3D mode list
             Bsprintf(buf, "%dx%d %s", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp == 8 ? "software" : "OpenGL");
@@ -619,13 +625,7 @@ int32_t startwin_run(void)
     SetPage(TAB_CONFIG);
     EnableConfig(1);
 
-#ifdef POLYMER
-    settings.polymer = (glrendmode == REND_POLYMER);
-#else
-    settings.polymer = 0;
-#endif
-
-    settings.shared = gSetup;
+	settings.shared = { ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP };
     settings.ini = pINISelected;
     settings.gamedir = g_modDir;
 
@@ -657,8 +657,11 @@ int32_t startwin_run(void)
 
     if (done)
     {
-        gSetup = settings.shared;
-        pINISelected = settings.ini;
+		ScreenWidth = settings.shared.xdim;
+		ScreenHeight = settings.shared.ydim;
+		ScreenMode = settings.shared.fullscreen;
+		ScreenBPP = settings.shared.bpp;
+		pINISelected = settings.ini;
         Bstrcpy(g_modDir, (gNoSetup == 0 && settings.gamedir != NULL) ? settings.gamedir : "/");
     }
 
