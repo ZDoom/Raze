@@ -75,7 +75,7 @@ CVARD(Bool, cl_viewvbob, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable
 
 CVARD(Bool, cl_interpolate, true, CVAR_ARCHIVE, "enable/disable view interpolation") // only implemented in Blood
 CVARD(Bool, cl_slopetilting, false, CVAR_ARCHIVE, "enable/disable slope tilting") // only implemented in Blood
-CVARD(Bool, cl_showweapon, true, CVAR_ARCHIVE, "enable/disable show weapons") // only implemented in Blood
+CVARD(Int, cl_showweapon, 1, CVAR_ARCHIVE, "enable/disable show weapons") // only implemented in Blood
 CUSTOM_CVARD(Int, cl_crosshairscale, 50, CVAR_ARCHIVE, "changes the size of the crosshair")
 {
 	if (self < 1) self = 1;
