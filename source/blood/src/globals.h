@@ -32,8 +32,6 @@ typedef struct {
     int32_t xdim;
     int32_t ydim;
     int32_t bpp;
-    int32_t forcesetup;
-    int32_t noautoload;
 } ud_setup_t;
 
 extern ud_setup_t gSetup;

@@ -79,7 +79,6 @@ int32_t ScreenMode = 1;
 int32_t ScreenWidth = 640;
 int32_t ScreenHeight = 480;
 int32_t ScreenBPP = 8;
-int32_t ForceSetup = 1;
 
 char  RTSName[MAXRTSNAMELENGTH];
 static int32_t scripthandle = -1;

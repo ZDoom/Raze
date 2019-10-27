@@ -9,6 +9,7 @@
 #include "palette.h"
 #include "cmdlib.h"
 #include "grpscan.h"
+#include "gamecvars.h"
 
 #ifdef _WIN32
 # define NEED_SHLWAPI_H
@@ -338,7 +339,7 @@ static int32_t G_LoadGrpDependencyChain(grpfile_t const * const grp)
     return i;
 }
 
-void G_LoadGroups(int32_t autoload)
+void G_LoadGroups()
 {
     if (g_modDir[0] != '/')
     {
@@ -396,7 +397,7 @@ void G_LoadGroups(int32_t autoload)
         i = G_TryLoadingGrp(grpfile);
     }
 
-    if (autoload)
+    if (G_AllowAutoload())
     {
         G_LoadGroupsInDir("autoload");
 
@@ -437,7 +438,7 @@ void G_LoadGroups(int32_t autoload)
         {
             g_groupFileHandle = j;
             initprintf("Using file \"%s\" as game data.\n", CommandGrps->str);
-            if (autoload)
+            if (G_AllowAutoload())
                 G_DoAutoload(CommandGrps->str);
         }
 

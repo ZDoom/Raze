@@ -3558,7 +3558,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
     i = CONFIG_ReadSetup();
 
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && (defined __APPLE__ || defined HAVE_GTK2))
-    if (i < 0 || ForceSetup || CommandSetup)
+    if (i < 0 || displaysetup || CommandSetup)
     {
         if (quitevent || !startwin_run())
         {

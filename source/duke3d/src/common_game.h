@@ -121,7 +121,7 @@ extern void G_CleanupSearchPaths(void);
 
 extern void G_ExtInit(void);
 extern void G_ScanGroups(void);
-extern void G_LoadGroups(int32_t autoload);
+extern void G_LoadGroups();
 
 extern const char * G_GetInstallPath(int32_t insttype);
 

@@ -5340,7 +5340,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 else
                 {
                     initprintf("Using file \"%s\" as game data.\n", fileName);
-                    if (!g_noAutoLoad && !ud.setup.noautoload)
+                    if (G_AllowAutoload())
                         G_DoAutoload(fileName);
                 }
             }
@@ -5372,7 +5372,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         }
         case T_NOAUTOLOAD:
             if (firstPass)
-                g_noAutoLoad = 1;
+                gNoAutoLoad = 1;
             break;
         case T_MUSIC:
         {
@@ -6354,7 +6354,7 @@ int app_main(int argc, const char * const*argv)
     G_ScanGroups();
 
 #ifdef STARTUP_SETUP_WINDOW
-    if (readSetup < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.setup.forcesetup)) || g_commandSetup)
+    if (readSetup < 0 || (!g_noSetup && (displaysetup)) || g_commandSetup)
     {
         if (quitevent || !gi->startwin_run())
         {
@@ -6365,7 +6365,7 @@ int app_main(int argc, const char * const*argv)
 #endif
 
     g_logFlushWindow = 0;
-    G_LoadGroups(!g_noAutoLoad && !ud.setup.noautoload);
+    G_LoadGroups();
 //    flushlogwindow = 1;
 
     G_CleanupSearchPaths();
@@ -6486,10 +6486,6 @@ int app_main(int argc, const char * const*argv)
     }
 
     g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
-
-    ++ud.executions;
-    //CONFIG_WriteSetup(1);
-    //CONFIG_ReadSetup();
 
     char const * rtsname = g_rtsNamePtr ? g_rtsNamePtr : ud.rtsname;
     RTS_Init(rtsname);

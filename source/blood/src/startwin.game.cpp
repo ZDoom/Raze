@@ -232,10 +232,10 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             }
             return TRUE;
         case IDCALWAYSSHOW:
-            settings.shared.forcesetup = IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
+            displaysetup = !!IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
             return TRUE;
         case IDCAUTOLOAD:
-            settings.shared.noautoload = (IsDlgButtonChecked(hwndDlg, IDCAUTOLOAD) != BST_CHECKED);
+            noautoload = (IsDlgButtonChecked(hwndDlg, IDCAUTOLOAD) != BST_CHECKED);
             return TRUE;
 
         case IDCGAMEDIR:

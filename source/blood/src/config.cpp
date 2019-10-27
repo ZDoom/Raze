@@ -58,9 +58,6 @@ BEGIN_BLD_NS
 int32_t scripthandle;
 int32_t setupread;
 int32_t mus_restartonload;
-int32_t configversion;
-int32_t CheckForUpdates;
-int32_t LastUpdateCheck;
 char szPlayerName[MAXPLAYERNAME];
 int32_t gTurnSpeed;
 int32_t gDetail;
@@ -134,17 +131,13 @@ void CONFIG_SetDefaults(void)
     gSetup.bpp = 8;
 #endif
 	
-    gSetup.forcesetup       = 1;
-    gSetup.noautoload       = 1;
     gSetup.fullscreen       = 1;
 
     //snd_ambience  = 1;
     //ud.config.AutoAim         = 1;
-    CheckForUpdates = 1;
     gBrightness = 8;
     //ud.config.ShowWeapons     = 0;
 
-    configversion          = 0;
     //ud.crosshair              = 1;
     //ud.default_skill          = 1;
     gUpscaleFactor = 0;
@@ -241,12 +234,6 @@ int CONFIG_ReadSetup(void)
 
     Bstrncpyz(szPlayerName, tempbuf, sizeof(szPlayerName));
 
-    //SCRIPT_GetString(scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
-
-    SCRIPT_GetNumber(scripthandle, "Setup", "ConfigVersion", &configversion);
-    SCRIPT_GetNumber(scripthandle, "Setup", "ForceSetup", &gSetup.forcesetup);
-    SCRIPT_GetNumber(scripthandle, "Setup", "NoAutoLoad", &gSetup.noautoload);
-
     if (gNoSetup == 0 && g_modDir[0] == '/')
     {
         struct Bstat st;
@@ -288,19 +275,6 @@ int CONFIG_ReadSetup(void)
     SCRIPT_GetNumber(scripthandle, "Screen Setup", "WindowPositioning", (int32_t *)&windowpos);
 
     if (gSetup.bpp < 8) gSetup.bpp = 32;
-
-#ifdef POLYMER
-    int32_t rendmode = 0;
-    SCRIPT_GetNumber(scripthandle, "Screen Setup", "Polymer", &rendmode);
-    glrendmode = (rendmode > 0) ? REND_POLYMER : REND_POLYMOST;
-#endif
-
-    //SCRIPT_GetNumber(scripthandle, "Misc", "Executions", &ud.executions);
-
-#ifdef _WIN32
-    SCRIPT_GetNumber(scripthandle, "Updates", "CheckForUpdates", &CheckForUpdates);
-    SCRIPT_GetNumber(scripthandle, "Updates", "LastUpdateCheck", &LastUpdateCheck);
-#endif
 
     setupread = 1;
     return 0;

@@ -32,7 +32,6 @@ BEGIN_RR_NS
 
 int32_t g_commandSetup = 0;
 int32_t g_noSetup = 0;
-int32_t g_noAutoLoad = 0;
 int32_t g_noSound = 0;
 int32_t g_noMusic = 0;
 const char *CommandMap = NULL;
@@ -282,22 +281,6 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 {
                     g_noSetup = 1;
                     g_commandSetup = 0;
-                    i++;
-                    continue;
-                }
-#if defined RENDERTYPEWIN
-                if (!Bstrcasecmp(c+1, "nodinput"))
-                {
-                    initprintf("DirectInput (joystick) support disabled\n");
-                    di_disabled = 1;
-                    i++;
-                    continue;
-                }
-#endif
-                if (!Bstrcasecmp(c+1, "noautoload"))
-                {
-                    initprintf("Autoload disabled\n");
-                    g_noAutoLoad = 1;
                     i++;
                     continue;
                 }

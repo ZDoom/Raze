@@ -44,7 +44,6 @@ extern int32_t ScreenHeight;
 extern int32_t ScreenBPP;
 extern int32_t ScreenBufferMode;
 extern int32_t VesaBufferMode;
-extern int32_t ForceSetup;
 
 
 #if 0

@@ -99,13 +99,10 @@ void CONFIG_SetDefaults(void)
     ud.team = 0;
     ud.angleinterpolation = 0;
 
-    ud.setup.forcesetup = 1;
-    ud.setup.noautoload = 1;
     ud.setup.fullscreen = 1;
 
     ud.display_bonus_screen = 1;
     ud.show_level_text = 1;
-    ud.configversion = 0;
     ud.screenfade = 1;
     ud.menubackground = 1;
     ud.default_skill = 1;
@@ -114,8 +111,6 @@ void CONFIG_SetDefaults(void)
     ud.menu_scrollbartilenum = -1;
     ud.menu_scrollbarz = 65536;
     ud.menu_scrollcursorz = 65536;
-
-    ud.config.CheckForUpdates = 1;
 
     Bstrcpy(ud.rtsname, G_DefaultRtsFile());
 
@@ -172,10 +167,6 @@ int32_t CONFIG_ReadSetup(void)
 
     SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ConfigVersion", &ud.configversion);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.setup.forcesetup);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.setup.noautoload);
-
     if (g_noSetup == 0 && g_modDir[0] == '/')
     {
         SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
@@ -209,19 +200,6 @@ int32_t CONFIG_ReadSetup(void)
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", (int32_t *)&windowpos);
 
     if (ud.setup.bpp < 8) ud.setup.bpp = 32;
-
-#ifdef POLYMER
-    int32_t rendmode = 0;
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &rendmode);
-    glrendmode = (rendmode > 0) ? REND_POLYMER : REND_POLYMOST;
-#endif
-
-    SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions", &ud.executions);
-
-#ifdef _WIN32
-    SCRIPT_GetNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", &ud.config.CheckForUpdates);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", &ud.config.LastUpdateCheck);
-#endif
 
     ud.config.setupread = 1;
     return 0;

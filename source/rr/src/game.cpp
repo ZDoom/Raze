@@ -6825,7 +6825,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 else
                 {
                     initprintf("Using file \"%s\" as game data.\n", fileName);
-                    if (!g_noAutoLoad && !ud.setup.noautoload)
+                    if (G_AllowAutoload())
                         G_DoAutoload(fileName);
                 }
             }
@@ -6857,7 +6857,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         }
         case T_NOAUTOLOAD:
             if (firstPass)
-                g_noAutoLoad = 1;
+                gNoAutoLoad = 1;
             break;
         case T_MUSIC:
         {
@@ -7479,11 +7479,6 @@ static void G_Startup(void)
         }
     }
 
-    if (VOLUMEONE)
-    {
-        initprintf("*** You have run Duke Nukem 3D %d times. ***\n\n",ud.executions);
-    }
-
     for (i=0; i<MAXPLAYERS; i++)
         g_player[i].playerreadyflag = 0;
 
@@ -7728,7 +7723,7 @@ int app_main(int argc, char const * const * argv)
     G_ScanGroups();
 
 #ifdef STARTUP_SETUP_WINDOW
-    if (readSetup < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.setup.forcesetup)) || g_commandSetup)
+    if (readSetup < 0 || (!g_noSetup && (displaysetup)) || g_commandSetup)
     {
         if (quitevent || !gi->startwin_run())
         {
@@ -7739,7 +7734,7 @@ int app_main(int argc, char const * const * argv)
 #endif
 
     g_logFlushWindow = 0;
-    G_LoadGroups(!g_noAutoLoad && !ud.setup.noautoload);
+    G_LoadGroups();
 //    flushlogwindow = 1;
 
     G_CleanupSearchPaths();
@@ -7867,10 +7862,6 @@ int app_main(int argc, char const * const * argv)
     }
 
     g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
-
-    ++ud.executions;
-    //CONFIG_WriteSetup(1);
-    //CONFIG_ReadSetup();
 
     char const * rtsname = g_rtsNamePtr ? g_rtsNamePtr : ud.rtsname;
     RTS_Init(rtsname);

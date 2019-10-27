@@ -43,6 +43,7 @@
 #include "control.h"
 #include "_control.h"
 #include "gamecontrol.h"
+#include "m_argv.h"
 
 /* Notes
  
@@ -416,6 +417,51 @@ CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE | CVAR_NOINITCALL | CVA
 
 
 CVARD(Bool, r_voxels, true, CVAR_ARCHIVE, "enable/disable automatic sprite->voxel rendering")
+
+
+//==========================================================================
+//
+// Global setup that formerly wasn't CVARs but merely global stuff saved in the config.
+//
+//==========================================================================
+
+CVAR(Bool, displaysetup, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+bool gNoAutoLoad;	// for overrides from the def files
+CVAR(Bool, noautoload, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+bool G_AllowAutoload()
+{
+	if (noautoload || gNoAutoLoad || Args->CheckParm("-noautoload")) return false;
+	return true;
+}
+
+#if 0
+//CONFIG_PutNumber("Screen Setup", "ScreenBPP", ud.setup.bpp);
+CONFIG_PutNumber("Screen Setup", "ScreenDisplay", r_displayindex); 
+CONFIG_PutNumber("Screen Setup", "ScreenHeight", ud.setup.ydim);
+CONFIG_PutNumber("Screen Setup", "ScreenMode", ud.setup.fullscreen);
+CONFIG_PutNumber("Screen Setup", "ScreenWidth", ud.setup.xdim);
+
+//GameConfig->SetValueForKey("Setup", "SelectedGRP", g_grpNamePtr);
+//GameConfig->SetValueForKey("Setup", "ModDir", &g_modDir[0]);
+
+
+CONFIG_PutNumber("Screen Setup", "MaxRefreshFreq", maxrefreshfreq);
+CONFIG_PutNumber("Screen Setup", "WindowPosX", windowx);
+CONFIG_PutNumber("Screen Setup", "WindowPosY", windowy);
+CONFIG_PutNumber("Screen Setup", "WindowPositioning", windowpos);
+
+if (!NAM_WW2GI)
+{
+	CONFIG_PutNumber("Screen Setup", "Out", ud.lockout);
+	GameConfig->SetValueForKey("Screen Setup", "Password", ud.pwlockout);
+}
+
+GameConfig->SetValueForKey("Comm Setup", "PlayerName", &szPlayerName[0]);
+
+GameConfig->SetValueForKey("Comm Setup", "RTSName", &ud.rtsname[0]);
+
+#endif
 
 
 #if 0

@@ -100,7 +100,6 @@ bool bCustomName = false;
 char bAddUserMap = false;
 bool bNoDemo = false;
 bool bQuickStart = true;
-bool bNoAutoLoad = false;
 
 int gMusicPrevLoadedEpisode = -1;
 int gMusicPrevLoadedLevel = -1;
@@ -1222,8 +1221,9 @@ void ParseOptions(void)
         switch (option)
         {
         case -3:
-            ThrowError("Invalid argument: %s", OptFull);
-            fallthrough__;
+            //ThrowError("Invalid argument: %s", OptFull);
+            //fallthrough__;
+			break;	// do not error out - this isn't the only code reading the args anymore.
         case 29:
 #ifdef USE_QHEAP
             if (OptArgc < 1)
@@ -1412,8 +1412,6 @@ void ParseOptions(void)
             //bNoCDAudio = 1;
             break;
         case 32:
-            initprintf("Autoload disabled\n");
-            bNoAutoLoad = true;
             break;
         case 33:
             break;
@@ -1542,7 +1540,7 @@ int app_main(int argc, char const * const * argv)
     ScanINIFiles();
 
 #ifdef STARTUP_SETUP_WINDOW
-    if (readSetup < 0 || (!gNoSetup && (configversion != BYTEVERSION || gSetup.forcesetup)) || gCommandSetup)
+    if (readSetup < 0 || (!gNoSetup && (displaysetup)) || gCommandSetup)
     {
         if (quitevent || !gi->startwin_run())
         {
@@ -1552,7 +1550,7 @@ int app_main(int argc, char const * const * argv)
     }
 #endif
 
-    G_LoadGroups(!bNoAutoLoad && !gSetup.noautoload);
+	G_LoadGroups();
 
     initprintf("Initializing OSD...\n");
 
@@ -2077,7 +2075,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 else
                 {
                     initprintf("Using file \"%s\" as game data.\n", fileName);
-                    if (!bNoAutoLoad && !gSetup.noautoload)
+                    if (G_AllowAutoload())
                         G_DoAutoload(fileName);
                 }
             }
@@ -2109,7 +2107,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         }
         case T_NOAUTOLOAD:
             if (firstPass)
-                bNoAutoLoad = true;
+                gNoAutoLoad = true;
             break;
         case T_MUSIC:
         {

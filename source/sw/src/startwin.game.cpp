@@ -32,7 +32,6 @@ static struct
 {
     int fullscreen;
     int xdim, ydim, bpp;
-    int forcesetup;
     int usemouse, usejoy;
     char selectedgrp[BMAX_PATH+1];
     int samplerate, bitspersample, channels;
@@ -119,7 +118,7 @@ static void PopulateForm(int pgs)
     {
         int curidx = -1;
 
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (displaysetup ? BST_CHECKED : BST_UNCHECKED));
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), (settings.usemouse ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), (settings.usejoy ? BST_CHECKED : BST_UNCHECKED));
@@ -216,7 +215,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             }
             return TRUE;
         case IDCALWAYSSHOW:
-            settings.forcesetup = IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
+            displaysetup = IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
             return TRUE;
         case IDCINPUTMOUSE:
             settings.usemouse = IsDlgButtonChecked(hwndDlg, IDCINPUTMOUSE) == BST_CHECKED;
@@ -634,7 +633,6 @@ int startwin_run(void)
     settings.samplerate = snd_mixrate;
     settings.bitspersample = 16;
     settings.channels = snd_numchannels;
-    settings.forcesetup = ForceSetup;
     settings.usemouse = UseMouse;
     settings.usejoy = UseJoystick;
     Bstrncpyz(settings.selectedgrp, G_GrpFile(), BMAX_PATH);
@@ -662,7 +660,6 @@ int startwin_run(void)
         ScreenWidth = settings.xdim;
         ScreenHeight = settings.ydim;
         ScreenBPP = settings.bpp;
-        ForceSetup = settings.forcesetup;
         UseMouse = settings.usemouse;
         UseJoystick = settings.usejoy;
         clearGrpNamePtr();

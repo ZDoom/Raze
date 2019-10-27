@@ -32,7 +32,6 @@ BEGIN_DUKE_NS
 
 int32_t g_commandSetup = 0;
 int32_t g_noSetup = 0;
-int32_t g_noAutoLoad = 0;
 int32_t g_noSound = 0;
 int32_t g_noMusic = 0;
 const char *CommandMap = NULL;
@@ -310,13 +309,6 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     continue;
                 }
 #endif
-                if (!Bstrcasecmp(c+1, "noautoload"))
-                {
-                    initprintf("Autoload disabled\n");
-                    g_noAutoLoad = 1;
-                    i++;
-                    continue;
-                }
 #ifndef NETCODE_DISABLE
                 if (!Bstrcasecmp(c+1, "net"))
                 {

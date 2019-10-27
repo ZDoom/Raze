@@ -520,7 +520,7 @@ extern void G_ExtInit(void);
 
 void G_LoadGroupsInDir(const char *dirname);
 void G_DoAutoload(const char *dirname);
-extern void G_LoadGroups(int32_t autoload);
+extern void G_LoadGroups();
 
 extern void G_SetupGlobalPsky(void);
 

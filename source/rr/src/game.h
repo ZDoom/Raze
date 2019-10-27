@@ -142,8 +142,6 @@ typedef struct {
     int32_t xdim;
     int32_t ydim;
     int32_t bpp;
-    int32_t forcesetup;
-    int32_t noautoload;
 } ud_setup_t;
 
 typedef struct {
@@ -160,7 +158,7 @@ typedef struct {
     int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
-    int32_t entered_name,screen_tilting,fta_on,executions;
+    int32_t entered_name,screen_tilting,fta_on;
     int32_t m_coop,coop,screen_size,lockout,crosshair;
     int32_t playerai,angleinterpolation;
 
@@ -171,8 +169,6 @@ typedef struct {
     int32_t music_episode, music_level;
 
     int32_t playerbest;
-
-    int32_t configversion;
 
     int32_t default_volume, default_skill;
 
@@ -194,9 +190,6 @@ typedef struct {
 
         int32_t scripthandle;
         int32_t setupread;
-
-        int32_t CheckForUpdates;
-        int32_t LastUpdateCheck;
     } config;
 
     ud_setup_t setup;

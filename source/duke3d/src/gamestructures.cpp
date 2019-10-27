@@ -1410,7 +1410,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_SCREEN_TILTING:         labelNum = ud.screen_tilting;               break;
 		case USERDEFS_SHADOWS:                labelNum = r_shadows;                       break;
         case USERDEFS_FTA_ON:                 labelNum = ud.fta_on;                       break;
-        case USERDEFS_EXECUTIONS:             labelNum = ud.executions;                   break;
+        case USERDEFS_EXECUTIONS:             labelNum = 1;                               break;
         case USERDEFS_AUTO_RUN:               labelNum = cl_autorun;                      break;
         case USERDEFS_COORDS:                 labelNum = cl_showcoords;                   break;
         case USERDEFS_TICKRATE:               labelNum = r_showfps;                       break;
@@ -1598,7 +1598,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_SCREEN_TILTING:               ud.screen_tilting                = iSet; break;
         case USERDEFS_SHADOWS:                      r_shadows.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_FTA_ON:                       ud.fta_on                        = iSet; break;
-        case USERDEFS_EXECUTIONS:                   ud.executions                    = iSet; break;
+        case USERDEFS_EXECUTIONS:                                                            break; // what was this supposed to accomplish?
         case USERDEFS_AUTO_RUN:                     cl_autorun.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_COORDS:                       cl_showcoords.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_TICKRATE:                     r_showfps                       = iSet; break;

@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "keyboard.h"
 #include "startwin.game.h"
 #include "windows_inc.h"
+#include "gamecvars.h"
 
 #pragma warning(disable:4244) // There's just a bit too much of these in here...
 
@@ -225,10 +226,10 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             }
             return TRUE;
         case IDCALWAYSSHOW:
-            settings.shared.forcesetup = IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
+            displaysetup = IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
             return TRUE;
         case IDCAUTOLOAD:
-            settings.shared.noautoload = (IsDlgButtonChecked(hwndDlg, IDCAUTOLOAD) != BST_CHECKED);
+            noautoload = (IsDlgButtonChecked(hwndDlg, IDCAUTOLOAD) != BST_CHECKED);
             return TRUE;
         case IDCGAMEDIR:
             if (HIWORD(wParam) == CBN_SELCHANGE)

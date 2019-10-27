@@ -374,25 +374,9 @@ static MenuEntry_t ME_SKILL_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_C
 static MenuEntry_t ME_SKILL[MAXSKILLS];
 static MenuEntry_t *MEL_SKILL[MAXSKILLS];
 
-#ifdef EDUKE32_SIMPLE_MENU
-static MenuLink_t MEO_GAMESETUP_SAVESETUP = { MENU_SAVESETUP, MA_Advance, };
-static MenuEntry_t ME_GAMESETUP_SAVESETUP = MAKE_MENUENTRY( "Save setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_SAVESETUP, Link );
-#endif
-
-#if defined STARTUP_SETUP_WINDOW && !defined EDUKE32_SIMPLE_MENU
-static MenuOption_t MEO_GAMESETUP_STARTWIN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.setup.forcesetup );
-static MenuEntry_t ME_GAMESETUP_STARTWIN = MAKE_MENUENTRY( "Startup window:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_STARTWIN, Option );
-#endif
-
 static char const *MEOSN_GAMESETUP_AIM_AUTO[] = { "Never", "Always", "Hitscan only",
-#ifdef EDUKE32_ANDROID_MENU
-"Extra wide"
-#endif
 };
 static int32_t MEOSV_GAMESETUP_AIM_AUTO[] = { 0, 1, 2,
-#ifdef EDUKE32_ANDROID_MENU
-3,
-#endif
 };
 
 static MenuOptionSet_t MEOS_GAMESETUP_AIM_AUTO = MAKE_MENUOPTIONSET( MEOSN_GAMESETUP_AIM_AUTO, MEOSV_GAMESETUP_AIM_AUTO, 0x2 );
@@ -408,11 +392,6 @@ static char const *MEOSN_DemoRec[] = { "Off", "Running", };
 static MenuOptionSet_t MEOS_DemoRec = MAKE_MENUOPTIONSET( MEOSN_DemoRec, NULL, 0x3 );
 static MenuOption_t MEO_GAMESETUP_DEMOREC = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.m_recstat );
 static MenuEntry_t ME_GAMESETUP_DEMOREC = MAKE_MENUENTRY( "Record demo:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_DEMOREC, Option );
-
-#ifdef _WIN32
-static MenuOption_t MEO_GAMESETUP_UPDATES = MAKE_MENUOPTION( &MF_Redfont, &MEOS_NoYes, &ud.config.CheckForUpdates );
-static MenuEntry_t ME_GAMESETUP_UPDATES = MAKE_MENUENTRY( "Online updates:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_UPDATES, Option );
-#endif
 
 static MenuOption_t MEO_ADULTMODE = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &ud.lockout);
 static MenuEntry_t ME_ADULTMODE = MAKE_MENUENTRY( "Parental lock:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_ADULTMODE, Option );
@@ -443,9 +422,6 @@ static MenuEntry_t *MEL_GAMESETUP[] = {
     &ME_GAMESETUP_CROUCHLOCK,
 #else
     &ME_GAMESETUP_DEMOREC,
-#ifdef _WIN32
-    //&ME_GAMESETUP_UPDATES,
-#endif
 #endif
     &ME_GAMESETUP_CHEATS,
 };
@@ -3673,10 +3649,6 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         if ((ps->gm&MODE_GAME))
             G_CloseDemoWrite();
     }
-#ifdef _WIN32
-    else if (entry == &ME_GAMESETUP_UPDATES)
-        ud.config.LastUpdateCheck = 0;
-#endif
     else if (entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
     {
         ud.weaponswitch = ud.weaponswitch & ~(1|4);

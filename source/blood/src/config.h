@@ -38,9 +38,6 @@ BEGIN_BLD_NS
 
 extern int32_t scripthandle;
 extern int32_t setupread;
-extern int32_t configversion;
-extern int32_t CheckForUpdates;
-extern int32_t LastUpdateCheck;
 extern char szPlayerName[MAXPLAYERNAME];
 extern int32_t gTurnSpeed;
 extern int32_t gDetail;

@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "baselayer.h"
 #include "cmdlib.h"
 #include "palette.h"
+#include "gamecvars.h"
 
 #ifdef _WIN32
 # define NEED_SHLWAPI_H
@@ -179,7 +180,7 @@ static int32_t G_TryLoadingGrp(char const * const grpfile)
     return i;
 }
 
-void G_LoadGroups(int32_t autoload)
+void G_LoadGroups()
 {
     if (g_modDir[0] != '/')
     {
@@ -206,7 +207,7 @@ void G_LoadGroups(int32_t autoload)
     const char *grpfile = G_GrpFile();
     G_TryLoadingGrp(grpfile);
 
-    if (autoload)
+    if (G_AllowAutoload())
     {
         G_LoadGroupsInDir("autoload");
 
@@ -248,7 +249,7 @@ void G_LoadGroups(int32_t autoload)
         {
             g_groupFileHandle = j;
             initprintf("Using file \"%s\" as game data.\n", CommandGrps->str);
-            if (autoload)
+            if (G_AllowAutoload())
                 G_DoAutoload(CommandGrps->str);
         }
 

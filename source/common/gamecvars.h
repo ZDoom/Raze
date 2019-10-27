@@ -94,8 +94,13 @@ extern int32_t g_MyAimMode;
 EXTERN_CVAR(Bool, in_mousemode)
 EXTERN_CVAR(String, wchoice)
 
+EXTERN_CVAR(Bool, displaysetup)
+EXTERN_CVAR(Bool, noautoload)
+
+extern bool gNoAutoLoad;
 extern float r_ambientlightrecip;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.
 bool G_ChangeHudLayout(int direction);
 bool G_CheckAutorun(bool button);
 int G_FPSLimit(void);
+bool G_AllowAutoload();
