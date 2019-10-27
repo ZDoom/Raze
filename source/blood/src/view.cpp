@@ -1852,6 +1852,8 @@ void viewDrawInterface(ClockTicks arg)
     UpdateStatusBar(arg);
 }
 
+static fix16_t gCameraAng;
+
 uspritetype *viewInsertTSprite(int nSector, int nStatnum, uspritetype *pSprite)
 {
     int nTSprite = spritesortcnt;
@@ -1876,9 +1878,8 @@ uspritetype *viewInsertTSprite(int nSector, int nStatnum, uspritetype *pSprite)
     }
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        int nAngle = getangle(pTSprite->x-gView->pSprite->x, pTSprite->y-gView->pSprite->y);
-        pTSprite->x += Cos(nAngle)>>25;
-        pTSprite->y += Sin(nAngle)>>25;
+        pTSprite->x += Cos(gCameraAng)>>25;
+        pTSprite->y += Sin(gCameraAng)>>25;
     }
     return &tsprite[nTSprite];
 }
@@ -2195,11 +2196,11 @@ static void viewApplyDefaultPal(uspritetype *pTSprite, sectortype const *pSector
 
 void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth)
 {
-    UNREFERENCED_PARAMETER(cA);
     UNREFERENCED_PARAMETER(smooth);
     dassert(spritesortcnt <= kMaxViewSprites);
+    gCameraAng = cA;
     int nViewSprites = spritesortcnt;
-    for (int nTSprite = nViewSprites-1; nTSprite >= 0; nTSprite--)
+    for (int nTSprite = spritesortcnt-1; nTSprite >= 0; nTSprite--)
     {
         uspritetype *pTSprite = &tsprite[nTSprite];
         //int nXSprite = pTSprite->extra;
