@@ -382,7 +382,12 @@ MOVEEND:
         {
             vec3_t startPos = { x, y, z };
             hitdata_t hitData;
-            hitscan(&startPos, pSprite->sectnum, Cos(pSprite->ang), Sin(pSprite->ang), (-Sin(pBullet->field_C)) << 3, &hitData, CLIPMASK1);
+            int dz;
+            if (bVanilla)
+                dz = -Sin(pBullet->field_C) * 8;
+            else
+                dz = -pBullet->field_C * 512;
+            hitscan(&startPos, pSprite->sectnum, Cos(pSprite->ang), Sin(pSprite->ang), dz, &hitData, CLIPMASK1);
             x2 = hitData.pos.x;
             y2 = hitData.pos.y;
             z2 = hitData.pos.z;
@@ -633,7 +638,7 @@ int BuildBullet(short nSprite, int nType, int ebx, int ecx, int val1, int nAngle
         sprite[nBulletSprite].cstat |= 0x8000;
     }
 
-    pBullet->field_C = val2 & 0x7FF; // TODO - anglemask?
+    pBullet->field_C = val2;
     pBullet->nType = nType;
     pBullet->nSprite = nBulletSprite;
     pBullet->field_6 = runlist_AddRunRec(sprite[nBulletSprite].lotag - 1, nBullet | 0xB0000);

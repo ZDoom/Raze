@@ -628,6 +628,8 @@ short scan_char = 0;
 int nStartLevel;
 int nTimeLimit;
 
+int bVanilla = 0;
+
 char debugBuffer[256];
 
 short wConsoleNode; // TODO - move me into network file

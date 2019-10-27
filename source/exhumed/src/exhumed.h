@@ -184,6 +184,8 @@ extern const char *gString[];
 
 extern short bNoSound;
 
+extern int bVanilla;
+
 extern char g_modDir[BMAX_PATH];
 enum {
     kPalNormal = 0,
