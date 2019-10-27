@@ -31,21 +31,8 @@ BEGIN_SW_NS
 
 typedef struct
 {
-    int MouseSpeed;
-    int mus_volume;
-    int SoundVolume;
     int8_t BorderNum;
-    int8_t BorderTile;
-    SWBOOL MouseAimingType;
-    SWBOOL MouseLook;
-    SWBOOL MouseInvert;
-    SWBOOL Bobbing;
-    SWBOOL Tilting;
-    SWBOOL Shadows;
-    SWBOOL AutoRun;
-    SWBOOL Crosshair;
-    SWBOOL AutoAim;
-    SWBOOL Messages;
+    int8_t BorderTile;	// Network only - disabled
 // Net Options from Menus
     uint8_t NetGameType;   // 0=DeathMatch [spawn], 1=Cooperative 2=DeathMatch [no spawn]
     uint8_t NetLevel;      // 1-28
@@ -57,9 +44,6 @@ typedef struct
     uint8_t NetTimeLimit;  // Limit time of game
     uint8_t NetColor;      // Chosen color for player
     SWBOOL NetNuke;
-    SWBOOL Voxels;
-    SWBOOL Stats;
-    SWBOOL MouseAimingOn; // whether it was on or off - NOT the type of mouse aiming
     //SWBOOL PlayCD;	// Not implemented and no idea how to support it without the music assets.
     char WaveformTrackName[MAXWAVEFORMTRACKLENGTH];
 } GAME_SET, *GAME_SETp;

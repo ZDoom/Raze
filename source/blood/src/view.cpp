@@ -61,11 +61,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "warp.h"
 #include "weapon.h"
 
-CUSTOM_CVARD(Bool, hud_messages, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable showing messages")
-{
-    Blood::gGameMessageMgr.SetState(self);
-}
-
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable displaying the remaining seconds for power-ups")
 
 

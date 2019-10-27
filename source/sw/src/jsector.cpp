@@ -1082,7 +1082,7 @@ JAnalyzeSprites(uspritetype * tspr)
 
     // Check for voxels
     //if (bVoxelsOn)
-    if (gs.Voxels)
+    if (r_voxels)
     {
         if (aVoxelArray[tspr->picnum].Voxel >= 0)
         {

@@ -2330,8 +2330,6 @@ void SetupMirrorTiles(void);    // rooms.c
 SWBOOL FAF_Sector(short sectnum); // rooms.c
 int GetZadjustment(short sectnum,short hitag);  // rooms.c
 
-void TermSetup(void);   // swconfig.c
-
 void InitSetup(void);   // setup.c
 
 void LoadKVXFromScript(const char *filename); // scrip2.c

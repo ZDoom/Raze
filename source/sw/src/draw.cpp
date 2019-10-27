@@ -756,7 +756,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                 }
             }
 
-            if (gs.Shadows && TEST(tu->Flags, SPR_SHADOW))
+            if (r_shadows && TEST(tu->Flags, SPR_SHADOW))
             {
                 DoShadows(tsp, viewz);
             }
@@ -1432,7 +1432,7 @@ void SecretInfo(PLAYERp pp)
     x = x / (xdim/320.0);
     y = y / (ydim/200.0);
 
-    if (gs.Stats)
+    if (hud_stats)
     {
         sprintf(ds, "Kills %d/%d", Player->Kills, TotalKillable);
         DisplayMiniBarSmString(pp, x, y, PAL_XLAT_BROWN, ds);
@@ -1805,7 +1805,7 @@ void DrawCrosshair(PLAYERp pp)
     extern int CrosshairX, CrosshairY;
     extern SWBOOL DemoMode,CameraTestMode;
 
-    if (!gs.Crosshair)
+    if (!cl_crosshair)
         return;
 
     if (DemoMode || CameraTestMode)

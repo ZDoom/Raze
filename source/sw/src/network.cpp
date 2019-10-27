@@ -466,7 +466,7 @@ InitNetPlayerOptions(void)
     if (CommEnabled)
     {
         p.PacketType = PACKET_TYPE_PLAYER_OPTIONS;
-        p.AutoRun = gs.AutoRun;
+        p.AutoRun = cl_autorun;
         p.Color = gs.NetColor;
         strncpy(p.PlayerName, playername, 32);
 

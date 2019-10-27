@@ -251,10 +251,7 @@ void pSetSuicide(PANEL_SPRITEp psp)
 
 void pToggleCrosshair(PLAYERp pp)
 {
-    if (gs.Crosshair)
-        gs.Crosshair = FALSE;
-    else
-        gs.Crosshair = TRUE;
+	cl_crosshair = !cl_crosshair;
 }
 
 // Player has a chance of yelling out during combat, when firing a weapon.

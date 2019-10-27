@@ -1819,7 +1819,7 @@ PlayerAutoLook(PLAYERp pp)
 
     if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
     {
-        if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
+        if (!g_MyAimMode && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
             // Get a point, 512 units ahead of player's position
             x = pp->posx + (sintable[(pp->pang + 512) & 2047] >> 5);
@@ -1876,6 +1876,7 @@ DoPlayerHorizon(PLAYERp pp)
 //    //DSPRINTF(ds,"pp->horizoff, %d", pp->horizoff);
 //    MONO_PRINT(ds);
 
+	// Fixme: This should probably be made optional.
     PlayerAutoLook(pp);
 
     if (pp->input.aimvel)
@@ -1886,17 +1887,8 @@ DoPlayerHorizon(PLAYERp pp)
 
     if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
     {
-//        if (TEST(pp->Flags, PF_MOUSE_AIMING_ON))
-        {
-            pp->horiz = pp->horizbase = 100;
-            pp->horizoff = 0;
-        }
-//        else
-        {
-            //gs.MouseAimingOn = FALSE;
-//            RESET(pp->Flags, PF_LOCK_HORIZ);
-//            SET(pp->Flags, PF_LOOKING);
-        }
+        pp->horiz = pp->horizbase = 100;
+        pp->horizoff = 0;
     }
 
     // this is the locked type

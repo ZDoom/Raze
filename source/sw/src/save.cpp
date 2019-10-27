@@ -1279,7 +1279,7 @@ int LoadGame(short save_num)
     PlaySong(LevelSong, RedBookSong[Level], TRUE, TRUE);
     if (snd_ambience)
         StartAmbientSound();
-    FX_SetVolume(gs.SoundVolume);
+    FX_SetVolume(snd_fxvolume);
     SetSongVolume(mus_volume);
 
     TRAVERSE_CONNECT(i)

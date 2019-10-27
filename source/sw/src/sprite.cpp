@@ -5786,7 +5786,7 @@ KeyMain:
                 PlayerUpdateHealth(pp, InventoryDecls[InvDecl_Booster].amount);       // This is for health
                 // over 100%
                 // Say something witty
-                if (pp == Player+myconnectindex && gs.Messages)
+                if (pp == Player+myconnectindex && hud_messages)
                 {
                     if (adult_lockout || Global_PLock)
                         sprintf(ds,"Fortune Say: %s\n",ReadFortune[STD_RANDOM_RANGE(10)]);

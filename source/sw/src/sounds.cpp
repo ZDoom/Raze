@@ -343,9 +343,6 @@ InitFX(void)
     // Select which cards to use
     SoundStartup();
 
-    // Get the current volume of the music and sound fx
-    gs.SoundVolume = FX_GetVolume();
-
     for (vp = voc; vp < &voc[SIZ(voc)]; vp++)
     {
         vp->playing = 0;

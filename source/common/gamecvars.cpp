@@ -245,6 +245,11 @@ CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disab
 CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bottom/top")
 CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable background image stretching in wide resolutions")
 CVARD(Int, hud_messagetime, 120, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "length of time to display multiplayer chat messages")
+// Should be available to all games - the message handling should also be consolidated into a game independent feature.
+/*CUSTOM_*/CVARD(Bool, hud_messages, true, CVAR_ARCHIVE | CVAR_FRONTEND_BLOOD|CVAR_FRONTEND_SHADOWWARRIOR, "enable/disable showing messages")
+//{
+	//Blood::gGameMessageMgr.SetState(self); // this is for terminaing an active message. Cannot be done like this because CVARs are global.
+//}
 
 CVARD_NAMED(Int, hud_numbertile, althud_numbertile, 2930, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "first tile in alt hud number set")
 CVARD_NAMED(Int, hud_numberpal, althud_numberpal, 0, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "pal for alt hud numbers")

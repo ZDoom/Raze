@@ -461,7 +461,7 @@ void PutStringInfo(PLAYERp pp, const char *string)
     if (pp-Player != myconnectindex)
         return;
 
-    if (!gs.Messages)
+    if (!hud_messages)
         return;
 
     CON_ConMessage("%s", string); // Put it in the console too
@@ -526,7 +526,7 @@ void PutStringPlayerInfo(PLAYERp pp, const char *string)
     if (pp-Player != myconnectindex)
         return;
 
-    if (!gs.Messages)
+    if (!hud_messages)
         return;
 
     MNU_MeasureString(string, &w, &h);

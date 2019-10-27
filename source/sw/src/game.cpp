@@ -92,6 +92,7 @@ Things required to make savegames work:
 
 #include "common.h"
 #include "common_game.h"
+#include "gameconfigfile.h"
 
 //#include "crc32.h"
 
@@ -198,21 +199,8 @@ uint8_t AutoColor;
 
 const GAME_SET gs_defaults =
 {
-    32768, // mouse speed
-    128, // music vol
-    192, // fx vol
     2, // border
     0, // border tile
-    FALSE, // mouse aiming
-    FALSE, // mouse look
-    FALSE, // mouse invert
-    TRUE, // bobbing
-    FALSE, // tilting
-    TRUE, // shadows
-    FALSE, // auto run
-    TRUE, // crosshair
-    TRUE, // auto aim
-    TRUE, // messages
 
 // Network game settings
     0, // GameType
@@ -225,9 +213,6 @@ const GAME_SET gs_defaults =
     0, // Time Limit
     0, // Color
     TRUE, // nuke
-    TRUE, // voxels
-    FALSE, // stats
-    FALSE, // mouse aiming on
     "Track??", // waveform track name
 };
 GAME_SET gs;
@@ -685,7 +670,7 @@ TerminateGame(void)
     KB_Shutdown();
 
     engineUnInit();
-    TermSetup();
+	G_SaveConfig();
 
     //Terminate3DSounds();                // Kill the sounds linked list
     UnInitSound();
@@ -795,30 +780,6 @@ void Set_GameMode(void)
     //MONO_PRINT(ds);
     result = COVERsetgamemode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP);
 
-    if (result < 0)
-    {
-        buildprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...",
-                    *ScreenWidth,*ScreenHeight,*ScreenBPP,*ScreenMode ? "fullscreen" : "windowed");
-        ScreenMode = 0;
-        ScreenWidth = 640;
-        ScreenHeight = 480;
-        ScreenBPP = 8;
-
-        result = COVERsetgamemode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP);
-        if (result < 0)
-        {
-            //uninitmultiplayers();
-            //uninitkeys();
-            KB_Shutdown();
-            engineUnInit();
-            TermSetup();
-            UnInitSound();
-            timerUninit();
-            DosScreen();
-            uninitgroupfile();
-            exit(0);
-        }
-    }
 }
 
 void MultiSharewareCheck(void)
@@ -836,13 +797,13 @@ void MultiSharewareCheck(void)
 #endif
         //uninitmultiplayers();
         //uninitkeys();
+		G_SaveConfig();
         KB_Shutdown();
         engineUnInit();
-        TermSetup();
         UnInitSound();
         timerUninit();
         uninitgroupfile();
-        exit(0);
+        Bexit(0);
     }
 }
 
@@ -1448,10 +1409,10 @@ InitLevel(void)
 
     if (ArgCheat)
     {
-        SWBOOL bak = gs.Messages;
-        gs.Messages = FALSE;
+        SWBOOL bak = hud_messages;
+        hud_messages = FALSE;
         EveryCheatToggle(&Player[0],NULL);
-        gs.Messages = bak;
+        hud_messages = bak;
         GodMode = TRUE;
     }
 
@@ -3046,10 +3007,7 @@ void InitPlayerGameSettings(void)
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
     }
 
-    if (gs.MouseAimingOn)
-        SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
-    else
-        RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+	g_MyAimMode = in_aimmode;
 }
 
 
@@ -3137,7 +3095,7 @@ void InitRunLevel(void)
 	
 	snd_reversestereo.Callback();
 	snd_fxvolume.Callback();
-    FX_SetVolume(gs.SoundVolume); // Turn volume back up
+    FX_SetVolume(snd_fxvolume); // Turn volume back up
     if (snd_ambience)
         StartAmbientSound();
 }
@@ -3148,7 +3106,7 @@ RunLevel(void)
     int i;
     InitRunLevel();
 
-    FX_SetVolume(gs.SoundVolume);
+    FX_SetVolume(snd_fxvolume);
     SetSongVolume(mus_volume);
 
 #if 0
@@ -4587,9 +4545,9 @@ FunctionKeys(PLAYERp pp)
     {
         KEY_PRESSED(KEYSC_F8) = 0;
 
-        gs.Messages ^= 1;
+        hud_messages = !hud_messages;
 
-        if (gs.Messages)
+        if (hud_messages)
             PutStringInfoLine(pp, "Messages ON");
         else
             PutStringInfoLine(pp, "Messages OFF");
@@ -4994,56 +4952,28 @@ getinput(SW_PACKET *loc)
     // MAKE SURE THIS WILL GET SET
     SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
 
-#if 0 // What kind of crap is this...?
-    if (gs.MouseAimingType == 1) // while held
-    {
-        if (BUTTON(gamefunc_Mouse_Aiming))
-        {
-            SET(pp->Flags, PF_MOUSE_AIMING_ON);
-            gs.MouseAimingOn = TRUE;
-        }
-        else
-        {
-            if (TEST(pp->Flags, PF_MOUSE_AIMING_ON))
-            {
-                SET_LOC_KEY(loc->bits, SK_LOOK_UP, TRUE);
-                RESET(pp->Flags, PF_MOUSE_AIMING_ON);
-                gs.MouseAimingOn = FALSE;
-            }
-        }
-    }
-    else if (gs.MouseAimingType == 0) // togglable button
-    {
-        if (BUTTON(gamefunc_Mouse_Aiming) && !BUTTONHELD(gamefunc_Mouse_Aiming))
-        {
-            FLIP(pp->Flags, PF_MOUSE_AIMING_ON);
-            gs.MouseAimingOn = !gs.MouseAimingOn;
-            if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON))
-            {
-                SET_LOC_KEY(loc->bits, SK_LOOK_UP, TRUE);
-                PutStringInfo(pp, "Mouse Aiming Off");
-            }
-            else
-            {
-                PutStringInfo(pp, "Mouse Aiming On");
-            }
-        }
-    }
+	if (in_aimmode)
+		g_MyAimMode = 0;
 
-    if (TEST(pp->Flags, PF_MOUSE_AIMING_ON))
-    {
-        mouseaxis = analog_lookingupanddown;
-    }
-    else
-    {
-        mouseaxis = MouseAnalogAxes[1];
-    }
-    if (mouseaxis != MouseYAxisMode)
-    {
-        CONTROL_MapAnalogAxis(1, mouseaxis, controldevice_mouse);
-        MouseYAxisMode = mouseaxis;
-    }
-#endif
+	if (BUTTON(gamefunc_Mouse_Aiming))
+	{
+		if (in_aimmode)
+			g_MyAimMode = 1;
+		else
+		{
+			CONTROL_ClearButton(gamefunc_Mouse_Aiming);
+			g_MyAimMode = !g_MyAimMode;
+			if (g_MyAimMode)
+			{
+				PutStringInfo(pp, "Mouse Aiming Off");
+			}
+			else
+			{
+				PutStringInfo(pp, "Mouse Aiming On");
+			}
+		}
+	}
+
 
     CONTROL_GetInput(&info);
 
@@ -5123,7 +5053,7 @@ getinput(SW_PACKET *loc)
     aimvel = info.dpitch;
     aimvel = min(127, aimvel);
     aimvel = max(-128, aimvel);
-    if (gs.MouseInvert)
+    if (in_mouseflip)
         aimvel = -aimvel;
 
     svel -= info.dx;

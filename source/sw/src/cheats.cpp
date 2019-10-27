@@ -68,7 +68,7 @@ void RoomCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 
 void SecretCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))
 {
-    gs.Stats = !gs.Stats;
+    hud_stats = !hud_stats;
 }
 
 void NextCheat(PLAYERp UNUSED(pp), char *UNUSED(cheat_string))

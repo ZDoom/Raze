@@ -2085,9 +2085,9 @@ MNU_InitMenus(void)
 {
     pClearTextLine(Player + myconnectindex, TEXT_INFO_LINE(0));
 
-    slidersettings[sldr_mouse] = gs.MouseSpeed/(MOUSE_SENS_MAX_VALUE/SLDR_MOUSESENSEMAX);
+	slidersettings[sldr_mouse] = in_mousesensitivity; // (MOUSE_SENS_MAX_VALUE / SLDR_MOUSESENSEMAX);
 
-    slidersettings[sldr_sndfxvolume] = gs.SoundVolume / (FX_VOL_MAX_VALUE/SLDR_SNDFXVOLMAX);
+    slidersettings[sldr_sndfxvolume] = snd_fxvolume / (FX_VOL_MAX_VALUE/SLDR_SNDFXVOLMAX);
     slidersettings[sldr_musicvolume] = mus_volume / (MUSIC_VOL_MAX_VALUE/SLDR_MUSICVOLMAX);
     slidersettings[sldr_scrsize] = gs.BorderNum;
     slidersettings[sldr_brightness] = 10;
@@ -2110,24 +2110,24 @@ MNU_InitMenus(void)
                     slidersettings[sldr_videores] = i;
     }
 
-    buttonsettings[btn_auto_run] = gs.AutoRun;
+    buttonsettings[btn_auto_run] = cl_autorun;
     buttonsettings[btn_auto_aim] = cl_autoaim;
-    buttonsettings[btn_messages] = gs.Messages;
-    buttonsettings[btn_crosshair] = gs.Crosshair;
-    //    buttonsettings[btn_bobbing] = gs.Bobbing;
-    buttonsettings[btn_shadows] = gs.Shadows;
+    buttonsettings[btn_messages] = hud_messages;
+    buttonsettings[btn_crosshair] = cl_crosshair;
+	buttonsettings[btn_bobbing] = cl_viewbob;
+    buttonsettings[btn_shadows] = r_shadows;
 
-    buttonsettings[btn_mouse_aim] = gs.MouseAimingType;
-    buttonsettings[btn_mouse_invert] = gs.MouseInvert;
+    buttonsettings[btn_mouse_aim] = in_aimmode;
+    buttonsettings[btn_mouse_invert] = in_mouseflip;
     buttonsettings[btn_sound] = snd_enabled;
     buttonsettings[btn_music] = mus_enabled;
     buttonsettings[btn_talking] = snd_speech;
 
-    buttonsettings[btn_voxels] = gs.Voxels;
+    buttonsettings[btn_voxels] = r_voxels;
     buttonsettings[btn_ambience] = snd_ambience;
 	buttonsettings[btn_playcd] = true;// gs.PlayCD;
     buttonsettings[btn_flipstereo] = snd_reversestereo;
-    buttonsettings[btn_stats] = gs.Stats;
+    buttonsettings[btn_stats] = hud_stats;
 
     slidersettings[sldr_gametype] = gs.NetGameType;
     slidersettings[sldr_netlevel] = gs.NetLevel;
@@ -3231,10 +3231,10 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             gs.NetNuke = state = buttonsettings[item->button];
             break;
         case btn_voxels:
-            gs.Voxels = state = buttonsettings[item->button];
+            r_voxels = state = buttonsettings[item->button];
             break;
         case btn_stats:
-            gs.Stats = state = buttonsettings[item->button];
+            hud_stats = state = buttonsettings[item->button];
             break;
         case btn_markers:
             gs.NetSpawnMarkers = state = buttonsettings[item->button];
@@ -3246,7 +3246,7 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             gs.NetHurtTeammate = state = buttonsettings[item->button];
             break;
         case btn_crosshair:
-            gs.Crosshair = state = buttonsettings[item->button];
+            cl_crosshair = state = buttonsettings[item->button];
             break;
         case btn_auto_aim:
             last_value = cl_autoaim;
@@ -3255,30 +3255,24 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
                 MenuButtonAutoAim = TRUE;
             break;
         case btn_messages:
-            gs.Messages = state = buttonsettings[item->button];
+            hud_messages = state = buttonsettings[item->button];
             break;
         case btn_auto_run:
-            last_value = gs.AutoRun;
-            gs.AutoRun = state = buttonsettings[item->button];
-            if (gs.AutoRun != last_value)
+            last_value = cl_autorun;
+            cl_autorun = state = buttonsettings[item->button];
+            if (cl_autorun != last_value)
                 MenuButtonAutoRun = TRUE;
             break;
         case btn_mouse_aim:
-            last_value = gs.MouseAimingType;
-            gs.MouseAimingType = state = buttonsettings[item->button];
-            if (gs.MouseAimingType != last_value)
-            {
-                //RESET(pp->Flags, PF_MOUSE_AIMING_ON);
-                //gs.MouseAimingOn = FALSE;
-            }
-            //extra_text = gs.MouseAimingType ? "Momentary" : "Toggle";
+            last_value = in_aimmode;
+            in_aimmode = state = buttonsettings[item->button];
             break;
         case btn_mouse_invert:
-            gs.MouseInvert = state = buttonsettings[item->button];
+            in_mouseflip = state = buttonsettings[item->button];
             break;
-//        case btn_bobbing:
-//            gs.Bobbing = state = buttonsettings[item->button];
-//            break;
+        case btn_bobbing:
+            cl_viewbob = state = buttonsettings[item->button];
+            break;
         case btn_sound:
 
             if (!FxInitialized)
@@ -3348,7 +3342,7 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             snd_reversestereo = state = buttonsettings[item->button];
             break;
         case btn_shadows:
-            gs.Shadows = state = buttonsettings[item->button];
+            r_shadows = state = buttonsettings[item->button];
             break;
 
         case btn_parental:
@@ -3406,7 +3400,7 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
     switch (item->button)
     {
     case btn_mouse_aim:
-        extra_text = gs.MouseAimingType ? "Momentary" : "Toggle";
+        extra_text = in_aimmode ? "Momentary" : "Toggle";
         break;
     default: break;
     }
@@ -3486,8 +3480,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
 
         slidersettings[sldr_mouse] = offset;
 
-        gs.MouseSpeed = offset * (MOUSE_SENS_MAX_VALUE/SLDR_MOUSESENSEMAX);
-        in_mousesensitivity = float(gs.MouseSpeed); // [JM] Will need to verify this. !CHECKME!
+		in_mousesensitivity = float(offset * (MOUSE_SENS_MAX_VALUE/SLDR_MOUSESENSEMAX));// [JM] Will need to verify this. !CHECKME!
         break;
 
     case sldr_sndfxvolume:
@@ -3501,8 +3494,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         offset = min(offset, short(SLDR_SNDFXVOLMAX-1));
 
         slidersettings[sldr_sndfxvolume] = offset;
-        gs.SoundVolume = FX_MIN + (offset * VOL_MUL);
-        FX_SetVolume(gs.SoundVolume);
+        snd_fxvolume = FX_MIN + (offset * VOL_MUL);
+        FX_SetVolume(snd_fxvolume);
         break;
 
     case sldr_musicvolume:

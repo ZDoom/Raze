@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "view.h"
 
-EXTERN_CVAR(Bool, hud_messages)
 EXTERN_CVAR(Bool, hud_powerupduration)
 
 BEGIN_BLD_NS
