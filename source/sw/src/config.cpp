@@ -44,16 +44,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // we load this in to get default button and key assignments
 // as well as setting up function mappings
 
-#include "_functio.h"
-#include "_config.h"
-
 #if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
 # include "sdl_inc.h"
 #endif
 
 BEGIN_SW_NS
-
-extern void ReadGameSetup(int32_t scripthandle);
 
 //
 // Comm variables
