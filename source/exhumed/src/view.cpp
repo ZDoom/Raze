@@ -63,6 +63,9 @@ short nEnemyPal = 0;
 void InitView()
 {
     screensize = (short)xdim;
+#ifdef USE_OPENGL
+    polymostcenterhoriz = 92;
+#endif
 }
 
 // NOTE - not to be confused with Ken's analyzesprites()

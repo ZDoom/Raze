@@ -117,7 +117,6 @@ uint8_t RemapPLU(uint8_t pal)
     {
         if (pal != kPalRedBrite)
             pal = kPalGreenBrite;
-        return pal;
     }
     else if (bTorch)
     {
