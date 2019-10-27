@@ -6047,14 +6047,7 @@ static void G_Startup(void)
 
     if (CommandName)
     {
-        //        Bstrncpy(szPlayerName, CommandName, 9);
-        //        szPlayerName[10] = '\0';
-        Bstrcpy(tempbuf,CommandName);
-
-        while (Bstrlen(OSD_StripColors(tempbuf,tempbuf)) > 10)
-            tempbuf[Bstrlen(tempbuf)-1] = '\0';
-
-        Bstrncpyz(szPlayerName, tempbuf, sizeof(szPlayerName));
+		playername = CommandName;
     }
 
     if (CommandMap)

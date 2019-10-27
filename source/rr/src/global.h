@@ -81,7 +81,6 @@ G_EXTERN char g_skillCnt;
 G_EXTERN char pus,pub;
 G_EXTERN char ready2send;
 #define MAXPLAYERNAME 32
-G_EXTERN char szPlayerName[MAXPLAYERNAME];
 G_EXTERN char tempbuf[MAXSECTORS<<1],buf[1024];
 G_EXTERN uint8_t packbuf[PACKBUF_SIZE];
 #define TYPEBUFSIZE 141

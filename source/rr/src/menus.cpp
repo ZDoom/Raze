@@ -1164,8 +1164,8 @@ static MenuEntry_t *MEL_NETWORK[] = {
     &ME_NETWORK_HOSTGAME,
 };
 
-static MenuString_t MEO_PLAYER_NAME = MAKE_MENUSTRING( szPlayerName, &MF_Bluefont, MAXPLAYERNAME, 0 );
-static MenuEntry_t ME_PLAYER_NAME = MAKE_MENUENTRY( "Name", &MF_Bluefont, &MEF_PlayerNarrow, &MEO_PLAYER_NAME, String );
+//static MenuString_t MEO_PLAYER_NAME = MAKE_MENUSTRING( playername, &MF_Bluefont, MAXPLAYERNAME, 0 );
+//static MenuEntry_t ME_PLAYER_NAME = MAKE_MENUENTRY( "Name", &MF_Bluefont, &MEF_PlayerNarrow, &MEO_PLAYER_NAME, String );
 static char const *MEOSN_PLAYER_COLOR[] = { "Auto", "Blue", "Red", "Green", "Gray", "Dark gray", "Dark green", "Brown", "Dark blue", "Bright red", "Yellow", };
 static int32_t MEOSV_PLAYER_COLOR[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
 static MenuOptionSet_t MEOS_PLAYER_COLOR = MAKE_MENUOPTIONSET( MEOSN_PLAYER_COLOR, MEOSV_PLAYER_COLOR, 0x2 );
@@ -1181,7 +1181,7 @@ static MenuEntry_t ME_PLAYER_MACROS = MAKE_MENUENTRY( "Multiplayer macros", &MF_
 #endif
 
 static MenuEntry_t *MEL_PLAYER[] = {
-    &ME_PLAYER_NAME,
+    //&ME_PLAYER_NAME,
     &ME_Space4_Bluefont,
     &ME_PLAYER_COLOR,
     &ME_Space4_Bluefont,
@@ -3757,7 +3757,7 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
 
     if (entry == &ME_GAMESETUP_AIM_AUTO ||
         entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP ||
-        entry == &ME_PLAYER_NAME ||
+        //entry == &ME_PLAYER_NAME ||
         entry == &ME_PLAYER_COLOR ||
         entry == &ME_PLAYER_TEAM)
         G_UpdatePlayerFromMenu();

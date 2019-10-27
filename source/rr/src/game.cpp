@@ -7431,17 +7431,10 @@ static void G_Startup(void)
     //if (g_noSound) snd_enabled = 0;
     //if (g_noMusic) mus_enabled = 0;
 
-    if (CommandName)
-    {
-        //        Bstrncpy(szPlayerName, CommandName, 9);
-        //        szPlayerName[10] = '\0';
-        Bstrcpy(tempbuf,CommandName);
-
-        while (Bstrlen(OSD_StripColors(tempbuf,tempbuf)) > 10)
-            tempbuf[Bstrlen(tempbuf)-1] = '\0';
-
-        Bstrncpyz(szPlayerName, tempbuf, sizeof(szPlayerName));
-    }
+	if (CommandName)
+	{
+		playername = CommandName;
+	}
 
     if (CommandMap)
     {

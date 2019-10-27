@@ -2167,7 +2167,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         pNSprite->xrepeat = 32;
         pNSprite->yrepeat = 32;
         const int nVoxel = voxelIndex[nTile];
-        if (gShowWeapon == 2 && usevoxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && nVoxel != -1)
+        if (cl_showweapon == 2 && r_voxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && nVoxel != -1)
         {
             pNSprite->cstat |= 48;
             pNSprite->cstat &= ~8;

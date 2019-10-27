@@ -57,7 +57,6 @@ BEGIN_BLD_NS
 
 int32_t setupread;
 int32_t mus_restartonload;
-char szPlayerName[MAXPLAYERNAME];
 int32_t gTurnSpeed;
 int32_t gDetail;
 int32_t cl_weaponswitch;
@@ -108,42 +107,7 @@ void CONFIG_SetDefaults(void)
     }
 #endif
 
-#ifdef USE_OPENGL
-    ScreenBPP = 32;
-#else
-    ScreenBPP = 8;
-#endif
-	
-    ScreenMode       = 1;
-
-    //snd_ambience  = 1;
-    //ud.config.AutoAim         = 1;
-    //ud.config.ShowWeapons     = 0;
-
-    //ud.crosshair              = 1;
-    //ud.default_skill          = 1;
     gUpscaleFactor = 0;
-    //ud.display_bonus_screen   = 1;
-    //adult_lockout                = 0;
-    //ud.m_marker               = 1;
-    //ud.maxautosaves           = 5;
-    //ud.menu_scrollbartilenum  = -1;
-    //ud.menu_scrollbarz        = 65536;
-    //ud.menu_scrollcursorz     = 65536;
-    //ud.menu_slidebarmargin    = 65536;
-    //ud.menu_slidebarz         = 65536;
-    //ud.menu_slidecursorz      = 65536;
-    //ud.screen_size            = 4;
-    //ud.screen_tilting         = 1;
-    //ud.screenfade             = 1;
-    //ud.shadow_pal             = 4;
-    //ud.show_level_text        = 1;
-    //ud.slidebar_paldisabled   = 1;
-    //ud.statusbarflags         = STATUSBAR_NOSHRINK;
-    //ud.statusbarmode          = 1;
-    //ud.statusbarscale         = 100;
-    //ud.team                   = 0;
-    //cl_weaponswitch           = 3;  // new+empty
     gDeliriumBlur = 1;
     gViewSize = 2;
     gTurnSpeed = 92;
@@ -158,10 +122,6 @@ void CONFIG_SetDefaults(void)
     gMessageFont = 0;
     gbAdultContent = 0;
     gzAdultPassword[0] = 0;
-
-    cl_weaponswitch = 1;
-
-    Bstrcpy(szPlayerName, "Player");
 }
 
 

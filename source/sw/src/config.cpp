@@ -60,7 +60,6 @@ extern void ReadGameSetup(int32_t scripthandle);
 // Comm variables
 //
 
-char CommPlayerName[32];
 int32_t NumberPlayers,CommPort,PortSpeed,IrqNumber,UartAddress;
 
 //
@@ -75,8 +74,6 @@ int32_t UseMouse = 1, UseJoystick = 0;
 // Screen variables
 //
 
-char  RTSName[MAXRTSNAMELENGTH];
-static int32_t scripthandle = -1;
 
 
 
@@ -113,11 +110,7 @@ void CONFIG_SetDefaults(void)
         ScreenHeight = 768;
     }
 
-    ScreenBPP = 32;
     memcpy(&gs, &gs_defaults, sizeof(gs));
-
-    Bstrcpy(RTSName, DEFAULTRTSFILE);
-    Bstrcpy(CommPlayerName, DEFAULTPLAYERNAME);
 }
 
 

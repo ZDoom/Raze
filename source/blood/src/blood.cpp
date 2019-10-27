@@ -96,7 +96,6 @@ INPUT_MODE gInputMode;
 unsigned int nMaxAlloc = 0x4000000;
 #endif
 
-bool bCustomName = false;
 char bAddUserMap = false;
 bool bNoDemo = false;
 bool bQuickStart = true;
@@ -105,7 +104,6 @@ int gMusicPrevLoadedEpisode = -1;
 int gMusicPrevLoadedLevel = -1;
 
 char gUserMapFilename[BMAX_PATH];
-char gPName[MAXPLAYERNAME];
 
 short BloodVersion = 0x115;
 
@@ -1261,10 +1259,6 @@ void ParseOptions(void)
             gPacketMode = PACKETMODE_2;
             break;
         case 21:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            strcpy(gPName, OptArgv[0]);
-            bCustomName = 1;
             break;
         case 2:
             if (OptArgc < 1)
@@ -1523,8 +1517,6 @@ int app_main(int argc, char const * const * argv)
     int const readSetup =
 #endif
     CONFIG_ReadSetup();
-    if (bCustomName)
-        strcpy(szPlayerName, gPName);
 
     if (enginePreInit())
     {

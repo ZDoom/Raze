@@ -1136,31 +1136,6 @@ static int osdcmd_inittimer(osdcmdptr_t parm)
 }
 #endif
 
-#if !defined NETCODE_DISABLE
-static int osdcmd_name(osdcmdptr_t parm)
-{
-    char namebuf[32];
-
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"name\" is \"%s\"\n",szPlayerName);
-        return OSDCMD_SHOWHELP;
-    }
-
-    Bstrcpy(tempbuf,parm->parms[0]);
-
-    while (Bstrlen(OSD_StripColors(namebuf,tempbuf)) > 10)
-        tempbuf[Bstrlen(tempbuf)-1] = '\0';
-
-    Bstrncpy(szPlayerName,tempbuf,sizeof(szPlayerName)-1);
-    szPlayerName[sizeof(szPlayerName)-1] = '\0';
-
-    OSD_Printf("name %s\n",szPlayerName);
-
-    Net_SendClientInfo();
-
-    return OSDCMD_OK;
-}
 
 static int osdcmd_dumpmapstate(osdfuncparm_t const * const)
 {
@@ -1333,7 +1308,6 @@ static int osdcmd_kickban(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 #endif
-#endif
 
 static int osdcmd_purgesaves(osdcmdptr_t UNUSED(parm))
 {
@@ -1421,7 +1395,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
 #endif
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
-    OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
     OSD_RegisterFunction("playerinfo", "Prints information about the current player", osdcmd_playerinfo);
 #endif

@@ -712,32 +712,6 @@ void onvideomodechange(int32_t newmode)
     g_crosshairSum = -1;
 }
 
-#if !defined NETCODE_DISABLE
-static int osdcmd_name(osdcmdptr_t parm)
-{
-    char namebuf[32];
-
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"name\" is \"%s\"\n",szPlayerName);
-        return OSDCMD_SHOWHELP;
-    }
-
-    Bstrcpy(tempbuf,parm->parms[0]);
-
-    while (Bstrlen(OSD_StripColors(namebuf,tempbuf)) > 10)
-        tempbuf[Bstrlen(tempbuf)-1] = '\0';
-
-    Bstrncpy(szPlayerName,tempbuf,sizeof(szPlayerName)-1);
-    szPlayerName[sizeof(szPlayerName)-1] = '\0';
-
-    OSD_Printf("name %s\n",szPlayerName);
-
-    Net_SendClientInfo();
-
-    return OSDCMD_OK;
-}
-#endif
 
 const char *const ConsoleButtons[] =
 {
@@ -1233,10 +1207,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
 #endif
     OSD_RegisterFunction("music","music E<ep>L<lev>: change music", osdcmd_music);
-
-#if !defined NETCODE_DISABLE
-    OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
-#endif
 
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 

@@ -109,7 +109,6 @@ void InitSetup(void)
     CONTROL_PrintAxes();
     }*/
 
-    //RTS_Init(RTSName);
 }
 
 #if 0
@@ -255,7 +254,6 @@ void main()
 
     SoundStartup();
     MusicStartup();
-    RTS_Init(RTSName);
 
     // load in some test data
 

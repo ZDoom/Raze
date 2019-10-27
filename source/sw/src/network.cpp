@@ -70,7 +70,6 @@ SYNC BUG NOTES:
 static uint8_t tempbuf[576], packbuf[576];
 int PlayClock;
 extern SWBOOL PauseKeySet;
-extern char CommPlayerName[32];
 
 gNET gNet;
 extern short PlayerQuitMenuLevel;
@@ -457,12 +456,7 @@ InitNetPlayerOptions(void)
     PLAYERp pp = Player + myconnectindex;
     PACKET_OPTIONS p;
 
-    // if you don't have a name :(
-    if (!CommPlayerName[0])
-        sprintf(CommPlayerName, "PLAYER %d", myconnectindex + 1);
-
-    Bstrupr(CommPlayerName);
-    strcpy(pp->PlayerName, CommPlayerName);
+    strncpy(pp->PlayerName, playername, 32);
 
     // myconnectindex palette
     pp->TeamColor = gs.NetColor;
@@ -474,7 +468,7 @@ InitNetPlayerOptions(void)
         p.PacketType = PACKET_TYPE_PLAYER_OPTIONS;
         p.AutoRun = gs.AutoRun;
         p.Color = gs.NetColor;
-        strcpy(p.PlayerName, CommPlayerName);
+        strncpy(p.PlayerName, playername, 32);
 
         //TRAVERSE_CONNECT(pnum)
         {
@@ -499,7 +493,7 @@ SendMulitNameChange(char *new_name)
 
     Bstrupr(new_name);
     strcpy(pp->PlayerName, new_name);
-    strcpy(CommPlayerName, new_name);
+    playername = new_name;
     SetRedrawScreen(pp);
 
     //TRAVERSE_CONNECT(pnum)
@@ -1585,7 +1579,6 @@ getpackets(void)
             MONO_PRINT(ds);
 
             strcpy(pp->PlayerName, p->PlayerName);
-            //strcpy(CommPlayerName, p->PlayerName);
             SetRedrawScreen(Player+myconnectindex);
             break;
         }

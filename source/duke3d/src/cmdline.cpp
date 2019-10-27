@@ -367,7 +367,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     continue;
                 }
 #endif
-                if (!Bstrcasecmp(c+1, "name"))
+                if (!Bstrcasecmp(c+1, "name")) // pname in Blood
                 {
                     if (argc > i+1)
                     {

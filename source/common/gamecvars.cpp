@@ -450,6 +450,7 @@ CUSTOM_CVAR(String, playername, "Player", CVAR_ARCHIVE | CVAR_USERINFO)
 	{
 		self = buffer.Data();
 	}
+	//Net_SendClientInfo();	This is in the client code. Todo.
 }
 
 CUSTOM_CVAR(String, rtsname, "", CVAR_ARCHIVE | CVAR_USERINFO)

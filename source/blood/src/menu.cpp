@@ -609,7 +609,8 @@ CGameMenuItemChain itemOptionsSoundApplyChanges("APPLY CHANGES", 3, 66, 150, 180
 void UpdatePlayerName(CGameMenuItemZEdit *pItem, CGameMenuEvent *pEvent);
 
 CGameMenuItemTitle itemOptionsPlayerTitle("PLAYER SETUP", 1, 160, 20, 2038);
-CGameMenuItemZEdit itemOptionsPlayerName("PLAYER NAME:", 3, 66, 60, 180, szPlayerName, MAXPLAYERNAME, 0, UpdatePlayerName, 0);
+// This won't work without messing around with stuff. So it'll have to wait for the new options menu.
+//CGameMenuItemZEdit itemOptionsPlayerName("PLAYER NAME:", 3, 66, 60, 180, *playername, MAXPLAYERNAME, 0, UpdatePlayerName, 0);
 
 CGameMenu menuOptionsControlKeyboard;
 CGameMenu menuOptionsControlMouse;
@@ -1254,7 +1255,7 @@ void SetupOptionsMenu(void)
     menuOptionsSound.Add(&itemBloodQAV, false);
 
     menuOptionsPlayer.Add(&itemOptionsPlayerTitle, false);
-    menuOptionsPlayer.Add(&itemOptionsPlayerName, true);
+    //menuOptionsPlayer.Add(&itemOptionsPlayerName, true);
     menuOptionsPlayer.Add(&itemBloodQAV, false);
 
     menuOptionsControl.Add(&itemOptionsControlTitle, false);

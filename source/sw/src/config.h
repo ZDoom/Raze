@@ -62,7 +62,6 @@ extern char  PhoneNumber[PHONENUMBERLENGTH];
 extern int32_t NumberPlayers;
 extern int32_t ConnectType;
 extern char  PlayerName[MAXPLAYERNAMELENGTH];
-extern char  RTSName[MAXRTSNAMELENGTH];
 extern char  UserLevel[MAXUSERLEVELNAMELENGTH];
 extern char  RTSPath[MAXRTSPATHLENGTH];
 extern char  UserPath[MAXUSERLEVELPATHLENGTH];

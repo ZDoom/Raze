@@ -2167,7 +2167,6 @@ extern SWBOOL ExitLevel;
 extern SWBOOL Warping;
 extern uint8_t CommPlayers;
 extern SWBOOL CommEnabled;
-extern char CommPlayerName[];
 extern short Level;
 extern short Episode;
 

@@ -4792,7 +4792,7 @@ void Net_SendClientInfo(void)
 {
     int32_t i, l;
 
-    for (l = 0; (unsigned)l < sizeof(szPlayerName) - 1; l++) g_player[myconnectindex].user_name[l] = szPlayerName[l];
+	 strncpy(g_player[myconnectindex].user_name, playername, 32);
 
     if (numplayers < 2)
         return;
@@ -4801,10 +4801,8 @@ void Net_SendClientInfo(void)
     l             = 1;
 
     // null terminated player name to send
-    for (i = 0; szPlayerName[i]; i++)
-    {
-        tempnetbuf[l++] = szPlayerName[i];
-    }
+	strncpy(tempbuf + l, playername, 32);
+	l += 32;
     tempnetbuf[l++] = 0;
 
     tempnetbuf[l++] = g_player[myconnectindex].ps->aim_mode = in_aimmode;
