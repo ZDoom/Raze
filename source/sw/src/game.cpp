@@ -4423,8 +4423,6 @@ ConKey(void)
 #endif
 }
 
-char WangBangMacro[10][64];
-
 void
 FunctionKeys(PLAYERp pp)
 {
@@ -4481,14 +4479,14 @@ FunctionKeys(PLAYERp pp)
             {
                 short pnum;
 
-                sprintf(ds,"SENT: %s",WangBangMacro[fn_key-1]);
+                sprintf(ds,"SENT: %s",**CombatMacros[fn_key-1]);
                 adduserquote(ds);
 
                 TRAVERSE_CONNECT(pnum)
                 {
                     if (pnum != myconnectindex)
                     {
-                        sprintf(ds,"%s: %s",pp->PlayerName, WangBangMacro[fn_key-1]);
+                        sprintf(ds,"%s: %s",pp->PlayerName, **CombatMacros[fn_key - 1]);
                         SW_SendMessage(pnum, ds);
                     }
                 }

@@ -61,7 +61,6 @@ extern char  InitString[MAXMODEMSTRING];
 extern char  HangupString[MAXMODEMSTRING];
 extern char  DialoutString[MAXMODEMSTRING];
 extern int32_t SocketNumber;
-extern char  CommbatMacro[MAXMACROS][MAXMACROLENGTH];
 extern char  PhoneNames[MAXPHONEENTRIES][PHONENAMELENGTH];
 extern char  PhoneNumbers[MAXPHONEENTRIES][PHONENUMBERLENGTH];
 extern char  PhoneNumber[PHONENUMBERLENGTH];

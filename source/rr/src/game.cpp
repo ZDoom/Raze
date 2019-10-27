@@ -6260,15 +6260,15 @@ void G_HandleLocalKeys(void)
                     return;
                 }
 
-                G_AddUserQuote(ud.ridecule[ridiculeNum-1]);
+                G_AddUserQuote(*CombatMacros[ridiculeNum-1]);
 
 #ifndef NETCODE_DISABLE
                 tempbuf[0] = PACKET_MESSAGE;
                 tempbuf[1] = 255;
                 tempbuf[2] = 0;
-                Bstrcat(tempbuf+2,ud.ridecule[ridiculeNum-1]);
+                Bstrcat(tempbuf+2,*CombatMacros[ridiculeNum-1]);
 
-                ridiculeNum = 2+strlen(ud.ridecule[ridiculeNum-1]);
+				ridiculeNum = 2 + strlen(*CombatMacros[ridiculeNum - 1]);
 
                 tempbuf[ridiculeNum++] = myconnectindex;
 

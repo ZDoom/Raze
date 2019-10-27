@@ -51,8 +51,6 @@
 //#include "menu/menu.h"
 //#include "vm.h"
 
-#define CVAR_NOSAVE 0x100 // duplicate name, put in header later
-
 struct FLatchedValue
 {
 	FBaseCVar *Variable;
@@ -1387,22 +1385,35 @@ void C_SetCVarsToDefaults (void)
 	}
 }
 
+static int cvarcmp(const void* a, const void* b)
+{
+	FBaseCVar** A = (FBaseCVar**)a;
+	FBaseCVar** B = (FBaseCVar**)b;
+	return strcmp((*A)->GetName(), (*B)->GetName());
+}
+
 void C_ArchiveCVars (FConfigFile *f, uint32_t filter)
 {
 	FBaseCVar *cvar = CVars;
+	TArray<FBaseCVar*> cvarlist;
 
 	while (cvar)
 	{
 		if ((cvar->Flags &
-			(CVAR_GLOBALCONFIG|CVAR_ARCHIVE|CVAR_AUTO|CVAR_SERVERINFO|CVAR_NOSAVE))
+			(CVAR_GLOBALCONFIG|CVAR_ARCHIVE|CVAR_AUTO|CVAR_SERVERINFO|CVAR_USERINFO|CVAR_NOSAVE))
 			== filter)
 		{
-			const char *const value = (cvar->Flags & CVAR_ISDEFAULT)
-				? cvar->GetGenericRep(CVAR_String).String
-				: cvar->SafeValue.GetChars();
-			f->SetValueForKey(cvar->GetName(), value);
+			cvarlist.Push(cvar);
 		}
 		cvar = cvar->m_Next;
+	}
+	qsort(cvarlist.Data(), cvarlist.Size(), sizeof(FBaseCVar*), cvarcmp);
+	for (auto cvar : cvarlist)
+	{
+		const char* const value = (cvar->Flags & CVAR_ISDEFAULT)
+			? cvar->GetGenericRep(CVAR_String).String
+			: cvar->SafeValue.GetChars();
+		f->SetValueForKey(cvar->GetName(), value);
 	}
 }
 

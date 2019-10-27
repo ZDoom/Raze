@@ -252,13 +252,6 @@ int osdcmd_glinfo(osdcmdptr_t UNUSED(parm))
 
 int32_t baselayer_init(void)
 {
-#ifdef _WIN32
-// on Windows, don't save the "r_screenaspect" cvar because the physical screen size is
-// determined at startup
-# define SCREENASPECT_CVAR_TYPE (CVAR_UINT|CVAR_NOSAVE)
-#else
-# define SCREENASPECT_CVAR_TYPE (CVAR_UINT)
-#endif
 
 #ifdef USE_OPENGL
 

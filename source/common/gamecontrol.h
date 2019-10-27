@@ -3,6 +3,10 @@
 #include "keyboard.h"
 #include "control.h"
 #include "_control.h"
+#include "c_cvars.h"
+#include "zstring.h"
+
+extern FString currentGame;
 
 // Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
 enum GameFunction_t
@@ -146,3 +150,7 @@ void CONFIG_SetGameControllerDefaultsPro();
 void CONFIG_SetGameControllerDefaultsClear();
 char const* CONFIG_GetGameFuncOnJoystick(int gameFunc);
 char const* CONFIG_GetGameFuncOnKeyboard(int gameFunc);
+
+
+extern FStringCVar* const CombatMacros[];
+void CONFIG_ReadCombatMacros();

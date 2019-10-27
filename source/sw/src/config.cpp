@@ -81,7 +81,6 @@ int32_t ScreenHeight = 480;
 int32_t ScreenBPP = 8;
 int32_t ForceSetup = 1;
 
-extern char WangBangMacro[10][64];
 char  RTSName[MAXRTSNAMELENGTH];
 static int32_t scripthandle = -1;
 
@@ -129,20 +128,6 @@ void CONFIG_SetDefaults(void)
 
     Bstrcpy(RTSName, DEFAULTRTSFILE);
     Bstrcpy(CommPlayerName, DEFAULTPLAYERNAME);
-
-    Bstrcpy(WangBangMacro[0], MACRO1);
-    Bstrcpy(WangBangMacro[1], MACRO2);
-    Bstrcpy(WangBangMacro[2], MACRO3);
-    Bstrcpy(WangBangMacro[3], MACRO4);
-    Bstrcpy(WangBangMacro[4], MACRO5);
-    Bstrcpy(WangBangMacro[5], MACRO6);
-    Bstrcpy(WangBangMacro[6], MACRO7);
-    Bstrcpy(WangBangMacro[7], MACRO8);
-    Bstrcpy(WangBangMacro[8], MACRO9);
-    Bstrcpy(WangBangMacro[9], MACRO10);
-
-    //SetMouseDefaults(0);
-
 }
 
 

@@ -61,7 +61,6 @@ int32_t mus_restartonload;
 int32_t configversion;
 int32_t CheckForUpdates;
 int32_t LastUpdateCheck;
-char CommbatMacro[MAXRIDECULE][MAXRIDECULELENGTH];
 char szPlayerName[MAXPLAYERNAME];
 int32_t gTurnSpeed;
 int32_t gDetail;
@@ -189,18 +188,6 @@ void CONFIG_SetDefaults(void)
     cl_weaponswitch = 1;
 
     Bstrcpy(szPlayerName, "Player");
-
-    Bstrcpy(CommbatMacro[0], "I love the smell of napalm...");
-    Bstrcpy(CommbatMacro[1], "Is that gasoline I smell?");
-    Bstrcpy(CommbatMacro[2], "Ta da!");
-    Bstrcpy(CommbatMacro[3], "Who wants some, huh? Who's next?");
-    Bstrcpy(CommbatMacro[4], "I have something for you.");
-    Bstrcpy(CommbatMacro[5], "You just gonna stand there...");
-    Bstrcpy(CommbatMacro[6], "That'll teach ya!");
-    Bstrcpy(CommbatMacro[7], "Ooh, that wasn't a bit nice.");
-    Bstrcpy(CommbatMacro[8], "Amateurs!");
-    Bstrcpy(CommbatMacro[9], "Fool! You are already dead.");
-
 }
 
 
@@ -243,14 +230,6 @@ int CONFIG_ReadSetup(void)
     ///////
     SCRIPT_GetNumber(scripthandle, "Game Options", "WeaponsV10x", &gWeaponsV10x);
     ///////
-
-    char commmacro[] = "CommbatMacro# ";
-
-    for (int i = 0; i < MAXRIDECULE; i++)
-    {
-        commmacro[13] = i+'0';
-        SCRIPT_GetString(scripthandle, "Comm Setup",commmacro,&CommbatMacro[i][0]);
-    }
 
     Bmemset(tempbuf, 0, sizeof(tempbuf));
     SCRIPT_GetString(scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);

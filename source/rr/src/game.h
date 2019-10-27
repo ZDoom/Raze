@@ -128,8 +128,6 @@ void A_DeleteSprite(int spriteNum);
 
 #endif
 
-#define MAXRIDECULE 10
-#define MAXRIDECULELENGTH 40
 #define MAXSAVEGAMENAMESTRUCT 32
 #define MAXSAVEGAMENAME (MAXSAVEGAMENAMESTRUCT-1)
 #define MAXPWLOCKOUT 128
@@ -206,7 +204,6 @@ typedef struct {
     char overhead_on,last_overhead,showweapons;
     char god,warp_on,cashman,eog,showallmap;
     char show_help,scrollmode,noclip;
-    char ridecule[MAXRIDECULE][MAXRIDECULELENGTH];
     char pwlockout[MAXPWLOCKOUT],rtsname[MAXRTSNAME];
     char display_bonus_screen;
     char show_level_text;

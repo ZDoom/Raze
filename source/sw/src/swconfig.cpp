@@ -112,13 +112,6 @@ void ReadGameSetup(int32_t scripthandle)
 {
     int dummy;
     int ret;
-    extern char WangBangMacro[10][64];
-
-    for (dummy = 0; dummy < 10; dummy++)
-    {
-        sprintf(ds,"CommbatMacro#%d",dummy);
-        SCRIPT_GetString(scripthandle, "Comm Setup",ds,WangBangMacro[dummy]);
-    }
 
     SCRIPT_GetString(scripthandle, "Options","Rooster",gs.Password);
     DecodePassword(gs.Password);
@@ -163,22 +156,6 @@ void ReadGameSetup(int32_t scripthandle)
     dummy = -1;
     SCRIPT_GetNumber(scripthandle, "Options", "Messages",&dummy);
     if (dummy != -1) gs.Messages = dummy;
-
-    dummy = -1;
-    SCRIPT_GetNumber(scripthandle, "Options", "Talking",&dummy);
-    if (dummy != -1) snd_speech = dummy;
-
-    dummy = -1;
-    SCRIPT_GetNumber(scripthandle, "Options", "Ambient",&dummy);
-    if (dummy != -1) snd_ambience = dummy;
-
-    dummy = -1;
-    SCRIPT_GetNumber(scripthandle, "Options", "FxOn",&dummy);
-    if (dummy != -1) snd_enabled = dummy;
-
-    dummy = -1;
-    SCRIPT_GetNumber(scripthandle, "Options", "MusicOn",&dummy);
-    if (dummy != -1) mus_enabled = dummy;
 
     dummy = -1;
     SCRIPT_GetNumber(scripthandle, "Controls", "MouseAiming",&dummy);
@@ -292,21 +269,10 @@ void WriteGameSetup(int32_t scripthandle)
     SCRIPT_PutNumber(scripthandle, "Options", "AutoRun",dummy,FALSE,FALSE);
     dummy = gs.Crosshair;
     SCRIPT_PutNumber(scripthandle, "Options", "Crosshair",dummy,FALSE,FALSE);
-    dummy = cl_autoaim;
-    SCRIPT_PutNumber(scripthandle, "Options", "AutoAim",dummy,FALSE,FALSE);
     dummy = gs.Messages;
     SCRIPT_PutNumber(scripthandle, "Options", "Messages",dummy,FALSE,FALSE);
-    dummy = snd_speech;
-    SCRIPT_PutNumber(scripthandle, "Options", "Talking",dummy,FALSE,FALSE);
-    dummy = snd_ambience;
-    SCRIPT_PutNumber(scripthandle, "Options", "Ambient",dummy,FALSE,FALSE);
-    dummy = snd_enabled;
-    SCRIPT_PutNumber(scripthandle, "Options", "FxOn",dummy,FALSE,FALSE);
     dummy = gs.MouseAimingType;
     SCRIPT_PutNumber(scripthandle, "Controls", "MouseAiming",dummy,FALSE,FALSE);
-
-    dummy = mus_enabled;
-    SCRIPT_PutNumber(scripthandle, "Options", "MusicOn",dummy,FALSE,FALSE);
 
     dummy = gs.NetGameType;
     SCRIPT_PutNumber(scripthandle, "Options", "NetGameType",dummy,FALSE,FALSE);

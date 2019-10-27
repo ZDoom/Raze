@@ -239,6 +239,7 @@ void FGameConfigFile::DoGlobalSetup ()
 	}
 }
 
+
 void FGameConfigFile::DoGameSetup (const char *gamename)
 {
 	const char *key;
@@ -297,7 +298,6 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 		{ NULL, NULL }
 	};
 	*/
-	const char *key, *value;
 
 	sublen = countof(section) - 1 - snprintf(section, countof(section), "%s.", gamename);
 	subsection = section + countof(section) - sublen - 1;
@@ -306,6 +306,7 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 	//C_SetDefaultBindings ();
 
 #if 0
+	const char* key, * value;
 	for (int i = 0; binders[i].label != NULL; ++i)
 	{
 		strncpy(subsection, binders[i].label, sublen);
@@ -533,6 +534,7 @@ static FString GameName;
 
 void G_LoadConfig(const char* game)
 {
+	OSD_Init();
 	GameConfig = new FGameConfigFile();
 	GameConfig->DoGlobalSetup();
 	GameConfig->DoGameSetup(game);

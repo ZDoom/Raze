@@ -876,7 +876,7 @@ void LocalKeys(void)
             }
             else
             {
-                gPlayerMsg.Set(CommbatMacro[fk]);
+                gPlayerMsg.Set(*CombatMacros[fk]);
                 gPlayerMsg.Send();
             }
             keyFlushScans();

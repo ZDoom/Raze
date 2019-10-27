@@ -614,7 +614,7 @@ void CPlayerMsg::ProcessKeys(void)
         case sc_F9:
         case sc_F10:
             CONTROL_ClearButton(gamefunc_See_Chase_View);
-            Set(CommbatMacro[key-sc_F1]);
+            Set(*CombatMacros[key-sc_F1]);
             Send();
             keystatus[key] = 0;
             break;

@@ -55,7 +55,7 @@ enum
 	CVAR_UNSETTABLE		= 32,	// can unset this var from console
 	CVAR_DEMOSAVE		= 64,	// save the value of this cvar in a demo
 	CVAR_ISDEFAULT		= 128,	// is cvar unchanged since creation?
-	//CVAR_NOSAVE			= 256,  // when used with CVAR_SERVERINFO, do not save var to savegame
+	CVAR_NOSAVE			= 256,  // when used with CVAR_SERVERINFO, do not save var to savegame
 	CVAR_NOINITCALL		= 512,	// don't call callback at game start
 	CVAR_GLOBALCONFIG	= 1024,	// cvar is saved to global config section
 	CVAR_VIDEOCONFIG	= 2048, // cvar is saved to video config section (not implemented)

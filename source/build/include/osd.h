@@ -41,7 +41,6 @@ enum cvartype_t
     CVAR_DOUBLE        = 0x00000020,
     CVAR_READONLY      = 0x00000040,
     CVAR_MULTI         = 0x00000080,
-    CVAR_NOSAVE        = 0x00000100,
     CVAR_FUNCPTR       = 0x00000200,
     CVAR_RESTARTVID    = 0x00000400,
     CVAR_INVALIDATEALL = 0x00000800,
@@ -291,7 +290,6 @@ int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int (*func)(o
 int osdcmd_cvar_set(osdcmdptr_t parm);
 void OSD_RegisterCvar(osdcvardata_t * cvar, int (*func)(osdcmdptr_t));
 void OSD_WriteAliases(buildvfs_FILE fp);
-void OSD_WriteCvars(buildvfs_FILE fp);
 
 static inline void OSD_SetHistory(int idx, const char *src)
 {

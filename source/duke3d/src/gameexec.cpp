@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "scriplib.h"
 #include "gamecvars.h"
+#include "gamecontrol.h"
 #include "gameconfigfile.h"
 
 #include "vfs.h"
@@ -4259,7 +4260,6 @@ badindex:
                     insptr++;
                     dispatch();
                 }
-				extern FString currentGame;
 				FString section = currentGame + ".Gamevars";
 				GameConfig->SetSection(section);
                 switch (VM_DECODE_INST(tw))

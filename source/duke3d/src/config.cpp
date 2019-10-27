@@ -118,20 +118,6 @@ void CONFIG_SetDefaults(void)
 
     Bstrcpy(szPlayerName, "Player");
 
-#ifndef EDUKE32_STANDALONE
-    Bstrcpy(ud.ridecule[0], "An inspiration for birth control.");
-    Bstrcpy(ud.ridecule[1], "You're gonna die for that!");
-    Bstrcpy(ud.ridecule[2], "It hurts to be you.");
-    Bstrcpy(ud.ridecule[3], "Lucky son of a bitch.");
-    Bstrcpy(ud.ridecule[4], "Hmmm... payback time.");
-    Bstrcpy(ud.ridecule[5], "You bottom dwelling scum sucker.");
-    Bstrcpy(ud.ridecule[6], "Damn, you're ugly.");
-    Bstrcpy(ud.ridecule[7], "Ha ha ha... wasted!");
-    Bstrcpy(ud.ridecule[8], "You suck!");
-    Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
-#endif
-
-
     VM_OnEvent(EVENT_SETDEFAULTS, g_player[myconnectindex].ps->i, myconnectindex);
 }
 
@@ -168,14 +154,6 @@ int CONFIG_ReadSetup(void)
 
     if (ud.config.scripthandle < 0)
         return -1;
-
-    char commmacro[] = "CommbatMacro# ";
-
-    for (int i = 0; i < MAXRIDECULE; i++)
-    {
-        commmacro[13] = i+'0';
-        SCRIPT_GetString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[i][0]);
-    }
 
     Bmemset(tempbuf, 0, sizeof(tempbuf));
     SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);

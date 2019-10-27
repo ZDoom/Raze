@@ -111,6 +111,7 @@ static FString stringStore[2 * NUMGAMEFUNCTIONS];	// toss all persistent strings
 
 CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
+
 static int osdcmd_button(osdcmdptr_t parm)
 {
 	static char const s_gamefunc_[] = "gamefunc_";
@@ -339,6 +340,35 @@ void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy/*=false*/)
 	}
 }
 
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+CVAR(String, combatmacro0, "", CVAR_ARCHIVE | CVAR_USERINFO)
+CVAR(String, combatmacro1, "", CVAR_ARCHIVE | CVAR_USERINFO)
+CVAR(String, combatmacro2, "", CVAR_ARCHIVE | CVAR_USERINFO)
+CVAR(String, combatmacro3, "", CVAR_ARCHIVE | CVAR_USERINFO)
+CVAR(String, combatmacro4, "", CVAR_ARCHIVE | CVAR_USERINFO)
+CVAR(String, combatmacro5, "", CVAR_ARCHIVE | CVAR_USERINFO)
+CVAR(String, combatmacro6, "", CVAR_ARCHIVE | CVAR_USERINFO)
+CVAR(String, combatmacro7, "", CVAR_ARCHIVE | CVAR_USERINFO)
+CVAR(String, combatmacro8, "", CVAR_ARCHIVE | CVAR_USERINFO)
+CVAR(String, combatmacro9, "", CVAR_ARCHIVE | CVAR_USERINFO)
+FStringCVar* const CombatMacros[] = { &combatmacro0, &combatmacro1, &combatmacro2, &combatmacro3, &combatmacro4, &combatmacro5, &combatmacro6, &combatmacro7, &combatmacro8, &combatmacro9};
+
+void CONFIG_ReadCombatMacros()
+{
+	FScanner sc;
+	sc.Open("demolition/combatmacros.txt");
+	for (auto s : CombatMacros)
+	{
+		sc.MustGetToken(TK_StringConst);
+		if (strlen(*s) == 0)
+			*s = sc.String;
+	}
+}
 
 //==========================================================================
 //
@@ -1093,14 +1123,6 @@ void CONFIG_WriteControllerSettings()
 
 	GameConfig->SetValueForKey("Comm Setup", "RTSName", &ud.rtsname[0]);
 
-	char commmacro[] = "CommbatMacro# ";
-
-	for (int dummy = 0; dummy < MAXRIDECULE; dummy++)
-	{
-		commmacro[13] = dummy + '0';
-		GameConfig->SetValueForKey("Comm Setup", commmacro, &ud.ridecule[dummy][0]);
-	}
-
 	SCRIPT_Save(g_setupFileName);
 
 	if ((flags & 2) == 0)
@@ -1111,3 +1133,4 @@ void CONFIG_WriteControllerSettings()
 	Bfflush(NULL);
 
 #endif
+

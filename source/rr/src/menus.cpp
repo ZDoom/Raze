@@ -1218,8 +1218,11 @@ static MenuEntry_t *MEL_PLAYER[] = {
 #endif
 };
 
+#define MAXRIDECULE 10
+#define MAXRIDECULELENGTH 40
 static MenuString_t MEO_MACROS_TEMPLATE = MAKE_MENUSTRING( NULL, &MF_Bluefont, MAXRIDECULELENGTH, 0 );
 static MenuString_t MEO_MACROS[10];
+static char sink[50];
 static MenuEntry_t ME_MACROS_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_Bluefont, &MEF_Macros, &MEO_MACROS_TEMPLATE, String );
 static MenuEntry_t ME_MACROS[MAXRIDECULE];
 static MenuEntry_t *MEL_MACROS[MAXRIDECULE];
@@ -1735,8 +1738,8 @@ void Menu_Init(void)
         ME_MACROS[i].entry = &MEO_MACROS[i];
         MEO_MACROS[i] = MEO_MACROS_TEMPLATE;
 
-        MEO_MACROS[i].variable = ud.ridecule[i];
-    }
+		MEO_MACROS[i].variable = sink;// ud.ridecule[i];	temporarily disabled
+	}
 
     // prepare input
     for (i = 0; i < NUMGAMEFUNCTIONS; ++i)

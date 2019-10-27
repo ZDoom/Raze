@@ -145,7 +145,7 @@ void I_Error(const char *error, ...)
 	char errortext[MAX_ERRORTEXT];
 
 	va_start(argptr, error);
-	snprintf(errortext, MAX_ERRORTEXT, error, argptr);
+	vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
 	va_end(argptr);
 	#ifdef _WIN32
 	OutputDebugStringA(errortext);
@@ -611,6 +611,7 @@ int main(int argc, char *argv[])
 		
 		FString logpath = M_GetDocumentsPath() + "demolition.log";
 		OSD_SetLogFile(logpath);
+		CONFIG_ReadCombatMacros();
 
 		// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
 		G_LoadConfig(currentGame);
