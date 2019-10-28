@@ -739,6 +739,7 @@ set (PCH_SOURCES
 	mact/src/control.cpp
 	mact/src/joystick.cpp
 	mact/src/keyboard.cpp
+	mact/src/input.cpp
 	
 	thirdparty/src/sjson.cpp
 	thirdparty/src/crc32.cpp

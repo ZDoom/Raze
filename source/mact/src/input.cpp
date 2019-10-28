@@ -20,20 +20,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "ns.h"	// Must come before everything else!
-
-#include "global.h"
-#include "game.h"
 #include "gamecontrol.h"
 #include "keyboard.h"
 #include "mouse.h"
 #include "joystick.h"
 #include "control.h"
 #include "input.h"
-#include "menus.h"
 #include "inputstate.h"
 
-BEGIN_DUKE_NS
+char typebuf[TYPEBUFSIZE];
+
 
 
 int32_t I_CheckAllInput(void)
@@ -41,11 +37,7 @@ int32_t I_CheckAllInput(void)
     return
         KB_KeyWaiting()
         || MOUSE_GetButtons()
-        || JOYSTICK_GetButtons()
-#if defined EDUKE32_IOS
-        || g_mouseClickState == MOUSE_PRESSED
-#endif
-        ;
+        || JOYSTICK_GetButtons();
 }
 void I_ClearAllInput(void)
 {
@@ -54,9 +46,6 @@ void I_ClearAllInput(void)
     MOUSE_ClearAllButtons();
     JOYSTICK_ClearAllButtons();
     inputState.ClearAllButtons();
-#if defined EDUKE32_IOS
-    mouseAdvanceClickState();
-#endif
 }
 
 
@@ -65,14 +54,8 @@ int32_t I_TextSubmit(void)
     return
         KB_KeyPressed(sc_Enter)
         || KB_KeyPressed(sc_kpad_Enter)
-#if !defined EDUKE32_TOUCH_DEVICES
-        || MOUSEINACTIVECONDITIONAL(MOUSE_GetButtons()&LEFT_MOUSE)
-#endif
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_A))
-#if defined(GEKKO)
-        || MOUSEINACTIVECONDITIONAL(JOYSTICK_GetButtons()&WII_A)
-#endif
-        ;
+        //|| MOUSEINACTIVECONDITIONAL(MOUSE_GetButtons()&LEFT_MOUSE)
+        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_A));
 }
 
 void I_TextSubmitClear(void)
@@ -82,9 +65,6 @@ void I_TextSubmitClear(void)
     KB_ClearKeyDown(sc_Enter);
     MOUSE_ClearButton(LEFT_MOUSE);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_A);
-#if defined(GEKKO)
-    JOYSTICK_ClearButton(WII_A);
-#endif
 }
 
 int32_t I_AdvanceTrigger(void)
@@ -105,11 +85,7 @@ int32_t I_ReturnTrigger(void)
     return
         KB_KeyPressed(sc_Escape)
         || (MOUSE_GetButtons()&RIGHT_MOUSE)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_B))
-#if defined(GEKKO)
-        || (JOYSTICK_GetButtons()&(WII_B|WII_HOME))
-#endif
-        ;
+        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_B));
 }
 
 void I_ReturnTriggerClear(void)
@@ -118,10 +94,6 @@ void I_ReturnTriggerClear(void)
     KB_ClearKeyDown(sc_Escape);
     MOUSE_ClearButton(RIGHT_MOUSE);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_B);
-#if defined(GEKKO)
-    JOYSTICK_ClearButton(WII_B);
-    JOYSTICK_ClearButton(WII_HOME);
-#endif
 }
 
 int32_t I_GeneralTrigger(void)
@@ -129,27 +101,18 @@ int32_t I_GeneralTrigger(void)
     return
         I_AdvanceTrigger()
         || I_ReturnTrigger()
-#if !defined GEKKO
         || BUTTON(gamefunc_Open)
-# if !defined EDUKE32_TOUCH_DEVICES
-        || MOUSEINACTIVECONDITIONAL(BUTTON(gamefunc_Fire))
-# else
-        || BUTTON(gamefunc_Fire)
-# endif
-#endif
+        //|| MOUSEINACTIVECONDITIONAL(BUTTON(gamefunc_Fire))
         || BUTTON(gamefunc_Crouch)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START))
-        ;
+        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
 }
 
 void I_GeneralTriggerClear(void)
 {
     I_AdvanceTriggerClear();
     I_ReturnTriggerClear();
-#if !defined GEKKO
     inputState.ClearButton(gamefunc_Open);
     inputState.ClearButton(gamefunc_Fire);
-#endif
     inputState.ClearButton(gamefunc_Crouch);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
 }
@@ -159,11 +122,7 @@ int32_t I_EscapeTrigger(void)
 {
     return
         KB_KeyPressed(sc_Escape)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START))
-#if defined(GEKKO)
-        || (JOYSTICK_GetButtons()&WII_HOME)
-#endif
-        ;
+        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
 }
 
 void I_EscapeTriggerClear(void)
@@ -171,9 +130,6 @@ void I_EscapeTriggerClear(void)
     KB_FlushKeyboardQueue();
     KB_ClearKeyDown(sc_Escape);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
-#if defined(GEKKO)
-    JOYSTICK_ClearButton(WII_HOME);
-#endif
 }
 
 
@@ -186,8 +142,7 @@ int32_t I_MenuUp(void)
         || BUTTON(gamefunc_Move_Forward)
         || (JOYSTICK_GetHat(0)&HAT_UP)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_UP))
-        || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY)
-        ;
+        || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY);
 }
 
 void I_MenuUpClear(void)
@@ -211,8 +166,7 @@ int32_t I_MenuDown(void)
         || BUTTON(gamefunc_Move_Backward)
         || (JOYSTICK_GetHat(0)&HAT_DOWN)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_DOWN))
-        || CONTROL_GetGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY)
-        ;
+        || CONTROL_GetGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY);
 }
 
 void I_MenuDownClear(void)
@@ -233,13 +187,12 @@ int32_t I_MenuLeft(void)
     return
         KB_KeyPressed(sc_LeftArrow)
         || KB_KeyPressed(sc_kpad_4)
-        || (SHIFTS_IS_PRESSED && KB_KeyPressed(sc_Tab))
+        || (inputState.ShiftPressed() && KB_KeyPressed(sc_Tab))
         || BUTTON(gamefunc_Turn_Left)
         || BUTTON(gamefunc_Strafe_Left)
         || (JOYSTICK_GetHat(0)&HAT_LEFT)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_LEFT))
-        || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX)
-        ;
+        || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX);
 }
 
 void I_MenuLeftClear(void)
@@ -260,7 +213,7 @@ int32_t I_MenuRight(void)
     return
         KB_KeyPressed(sc_RightArrow)
         || KB_KeyPressed(sc_kpad_6)
-        || (!SHIFTS_IS_PRESSED && KB_KeyPressed(sc_Tab))
+        || (!inputState.ShiftPressed() && KB_KeyPressed(sc_Tab))
         || BUTTON(gamefunc_Turn_Right)
         || BUTTON(gamefunc_Strafe_Right)
         || (MOUSE_GetButtons()&MIDDLE_MOUSE)
@@ -325,7 +278,7 @@ int32_t I_SliderLeft(void)
     return
         I_MenuLeft()
 #if !defined EDUKE32_TOUCH_DEVICES
-        || MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELUP_MOUSE))
+        //|| MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELUP_MOUSE))
 #endif
         ;
 }
@@ -342,7 +295,7 @@ int32_t I_SliderRight(void)
     return
         I_MenuRight()
 #if !defined EDUKE32_TOUCH_DEVICES
-        || MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELDOWN_MOUSE))
+        //|| MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELDOWN_MOUSE))
 #endif
         ;
 }
@@ -357,7 +310,7 @@ void I_SliderRightClear(void)
 int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
 {
     char ch;
-    int32_t inputloc = Bstrlen(typebuf);
+    int32_t inputloc = strlen(typebuf);
 
     while ((ch = KB_GetCh()) != 0)
     {
@@ -408,4 +361,3 @@ int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
     return 0;
 }
 
-END_DUKE_NS

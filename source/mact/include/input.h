@@ -23,19 +23,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef input_h_
 #define input_h_
 
-BEGIN_RR_NS
+
+enum {
+	TYPEBUFSIZE = 141
+};
+extern char typebuf[TYPEBUFSIZE];
+
 
 extern int32_t I_CheckAllInput(void);
 extern void I_ClearAllInput(void);
 
 // Advance = Selecting a menu option || Saying "Yes" || Going forward in Help/Credits
 // Return = Closing a sub-menu || Saying "No"
+// General = Advance + Return = Skipping screens
 // Escape = Opening the menu in-game (should not be any gamefuncs)
 
 extern int32_t I_AdvanceTrigger(void);
 extern void I_AdvanceTriggerClear(void);
 extern int32_t I_ReturnTrigger(void);
 extern void I_ReturnTriggerClear(void);
+extern int32_t I_GeneralTrigger(void);
+extern void I_GeneralTriggerClear(void);
 extern int32_t I_EscapeTrigger(void);
 extern void I_EscapeTriggerClear(void);
 
@@ -64,7 +72,5 @@ enum EnterTextFlags_t {
 };
 
 extern int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags);
-
-END_RR_NS
 
 #endif

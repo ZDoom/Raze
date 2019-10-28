@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "sector.h"  // mapstate_t
 #include "gamedef.h"  // vmstate_t
-#include "events_defs.h"
 
 BEGIN_RR_NS
 

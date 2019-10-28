@@ -67,8 +67,6 @@ double g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
 
 GAMEEXEC_STATIC void VM_Execute(native_t loop);
 
-# include "gamestructures.cpp"
-
 #define VM_CONDITIONAL(xxx)                                                                                            \
     {                                                                                                                  \
         if ((xxx) || ((insptr = (intptr_t *)*(insptr + 1)) && (((*insptr) & VM_INSTMASK) == CON_ELSE)))                \

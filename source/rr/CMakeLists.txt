@@ -37,7 +37,6 @@ set( PLAT_SOURCES
 endif()
 	
 set( NOT_COMPILED_SOURCE_FILES
-	src/gamestructures.cpp
 )
 	
 set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
@@ -53,10 +52,8 @@ set( PCH_SOURCES
 	src/game.cpp
 	src/gamedef.cpp
 	src/gameexec.cpp
-	src/gamevars.cpp
 	src/global.cpp
 	src/grpscan.cpp
-	src/input.cpp
 	src/menus.cpp
 	src/namesdyn.cpp
 	src/net.cpp

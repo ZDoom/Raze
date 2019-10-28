@@ -81,7 +81,6 @@ set( PCH_SOURCES
 	src/gib.cpp
 	src/globals.cpp
 	src/inifile.cpp
-	src/input.cpp
 	src/iob.cpp
 	src/levels.cpp
 	src/loadsave.cpp

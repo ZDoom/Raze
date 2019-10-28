@@ -76,8 +76,6 @@ G_EXTERN char pus,pub;
 G_EXTERN char ready2send;
 #define MAXPLAYERNAME 32
 G_EXTERN char tempbuf[MAXSECTORS<<1],packbuf[PACKBUF_SIZE],buf[1024];
-#define TYPEBUFSIZE 141
-G_EXTERN char typebuf[TYPEBUFSIZE];
 
 
 G_EXTERN input_t localInput;
