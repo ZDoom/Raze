@@ -6482,12 +6482,6 @@ int app_main(int argc, const char * const*argv)
     OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, 0);
     registerosdcommands();
 
-    if (g_networkMode != NET_DEDICATED_SERVER)
-    {
-        CONFIG_SetupMouse();
-        CONFIG_SetupJoystick();
-    }
-
 #ifdef HAVE_CLIPSHAPE_FEATURE
     int const clipMapError = engineLoadClipMaps();
     if (clipMapError > 0)

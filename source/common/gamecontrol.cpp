@@ -10,6 +10,8 @@
 #include "gamecvars.h"
 #include "build.h"
 #include "inputstate.h"
+#include "_control.h"
+#include "control.h"
 
 InputState inputState;
 
@@ -343,41 +345,6 @@ void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy/*=false*/)
 	}
 }
 
-// FIXME: Consider the mouse as well!
-FString CONFIG_GetBoundKeyForLastInput(int gameFunc)
-{
-	if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
-	{
-		char const * joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
-		if (joyname != nullptr && joyname[0] != '\0')
-		{
-			return joyname;
-		}
-
-		char const * keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
-		if (keyname != nullptr && keyname[0] != '\0')
-		{
-			return keyname;
-		}
-	}
-	else
-	{
-		char const * keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
-		if (keyname != nullptr && keyname[0] != '\0')
-		{
-			return keyname;
-		}
-
-		char const * joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
-		if (joyname != nullptr && joyname[0] != '\0')
-		{
-			return joyname;
-		}
-
-		return "UNBOUND";
-	}
-
-}
 //==========================================================================
 //
 // 
@@ -1007,8 +974,47 @@ char const* CONFIG_GetGameFuncOnJoystick(int gameFunc)
 	for (int i = 0; i < joystick.numAxes; ++i)
 		for (int j = 0; j < 2; ++j)
 			if (JoystickDigitalFunctions[i][j] == gameFunc)
+				return joyGetName(0, i);
 
-				
+	return "";
+}
+
+// FIXME: Consider the mouse as well!
+FString CONFIG_GetBoundKeyForLastInput(int gameFunc)
+{
+	if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
+	{
+		char const* joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
+		if (joyname != nullptr && joyname[0] != '\0')
+		{
+			return joyname;
+		}
+
+		char const* keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
+		if (keyname != nullptr && keyname[0] != '\0')
+		{
+			return keyname;
+		}
+	}
+	else
+	{
+		char const* keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
+		if (keyname != nullptr && keyname[0] != '\0')
+		{
+			return keyname;
+		}
+
+		char const* joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
+		if (joyname != nullptr && joyname[0] != '\0')
+		{
+			return joyname;
+		}
+
+		return "UNBOUND";
+	}
+
+}
+
 
 void CONFIG_InitMouseAndController()
 {
@@ -1041,7 +1047,11 @@ void CONFIG_InitMouseAndController()
 	}
 	CONFIG_SetupMouse();
 	CONFIG_SetupJoystick();
+	KB_ClearKeysDown();
+	KB_FlushKeyboardQueue();
+	KB_FlushKeyboardQueueScans();
 }
+
 
 void CONFIG_PutNumber(const char* key, int number)
 {

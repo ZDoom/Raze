@@ -85,18 +85,5 @@ int32_t GetTime(void)
     //return timert++;
 }
 
-void InitSetup(void)
-{
-    CONFIG_SetupMouse();
-    CONFIG_SetupJoystick();
-}
-
-#if 0
-void TermSetup(void)
-{
-    //FreeKeyDefList();
-}
-#endif
-
 
 END_SW_NS

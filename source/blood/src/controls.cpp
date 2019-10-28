@@ -70,11 +70,6 @@ int32_t GetTime(void)
 
 void ctrlInit(void)
 {
-    KB_ClearKeysDown();
-    KB_FlushKeyboardQueue();
-    KB_FlushKeyboardQueueScans();
-    CONFIG_SetupMouse();
-    CONFIG_SetupJoystick();
 }
 
 void ctrlTerm(void)

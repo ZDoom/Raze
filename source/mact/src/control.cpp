@@ -59,12 +59,12 @@ static int32_t(*ExtGetTime)(void);
 //static int32_t ticrate;
 static uint8_t CONTROL_DoubleClickSpeed;
 
-int32_t CONTROL_ButtonFlags[CONTROL_NUM_FLAGS];
+int32_t CONTROL_ButtonFlags[NUMKEYS];
 consolekeybind_t CONTROL_KeyBinds[NUMKEYS + MAXMOUSEBUTTONS];
 bool CONTROL_BindsEnabled = 0;
 bool CONTROL_SmoothMouse  = 0;
 
-#define CONTROL_CheckRange(which) ((unsigned)which >= (unsigned)CONTROL_NUM_FLAGS)
+#define CONTROL_CheckRange(which) ((unsigned)which >= (unsigned)NUMKEYS)
 #define BIND(x, s, r, k) do { Xfree(x.cmdstr); x.cmdstr = s; x.repeat = r; x.key = k; } while (0)
 
 void CONTROL_ClearAllBinds(void)
@@ -613,18 +613,6 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
         if (retval)
             CONTROL_LastSeenInput = LastSeenInput::Joystick;
     }
-}
-
-void CONTROL_ClearButton(int whichbutton)
-{
-    if (CONTROL_CheckRange(whichbutton)) return;
-
-#ifdef __ANDROID__
-    CONTROL_Android_ClearButton(whichbutton);
-#endif
-
-	inputState.ClearButton(whichbutton);
-    CONTROL_Flags[whichbutton].cleared = TRUE;
 }
 
 int32_t CONTROL_GetGameControllerDigitalAxisPos(int32_t axis)

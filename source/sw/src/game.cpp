@@ -888,8 +888,6 @@ InitGame(int32_t argc, char const * const * argv)
         SW_FatalEngineError();
 
     //initgroupfile(G_GrpFile());  // JBF: moving this close to start of program to detect shareware
-    InitSetup();
-
     InitAutoNet();
 
     timerInit(120);

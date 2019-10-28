@@ -27,6 +27,7 @@ enum
 };
 
 extern consolekeybind_t CONTROL_KeyBinds[NUMKEYS + MAXMOUSEBUTTONS];
+extern int32_t CONTROL_ButtonFlags[NUMKEYS];
 extern bool CONTROL_BindsEnabled;
 
 // Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
@@ -130,7 +131,7 @@ class InputState
 	struct ButtonStateFlags
 	{
 		bool ButtonActive;	// Button currently reports being active to the client
-		bool ButtonCleared;,	// Button has been cleared by the client, i.e. do not set to active until no input for this button is active anymore.
+		bool ButtonCleared;	// Button has been cleared by the client, i.e. do not set to active until no input for this button is active anymore.
 	};
 
 	ButtonStateFlags ButtonState[NUMGAMEFUNCTIONS];
