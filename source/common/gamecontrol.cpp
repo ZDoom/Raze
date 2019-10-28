@@ -109,6 +109,7 @@ static const GameFuncNameDesc gamefuncs[] = {
 };
 
 extern FString currentGame;
+FString LumpFilter;
 
 static TMap<FName, int> GF_NameToNum;
 static FString GF_NumToName[NUMGAMEFUNCTIONS];	// This one will preserve the original name for writing to the config (which must be loaded before CON scripts can hack around with the alias array.)
@@ -294,6 +295,9 @@ void UserConfig::ProcessOptions()
 
 void CONFIG_Init()
 {
+	LumpFilter = currentGame;
+	if (LumpFilter.Compare("Redneck") == 0) LumpFilter = "Redneck.Redneck";
+	else if (LumpFilter.Compare("RedneckRides") == 0) LumpFilter = "Redneck.RidesAgain";
 	SetClipshapes();
 
 	// This must be done before initializing any data, so doing it late in the startup process won't work.

@@ -187,28 +187,36 @@ void FGameConfigFile::DoAutoloadSetup (/*FIWadManager *iwad_man*/)
 	CreateSectionAtStart("Global.Autoload");
 
 	// The same goes for auto-exec files.
-	CreateStandardAutoExec("ShadowWarrior.AutoExec", true);
-	CreateStandardAutoExec("IonFury.AutoExec", true);
-	CreateStandardAutoExec("RedneckRides.AutoExec", true);
-	CreateStandardAutoExec("Redneck.AutoExec", true);
-	CreateStandardAutoExec("WW2GI.AutoExec", true);
-	CreateStandardAutoExec("Nam.AutoExec", true);
-	CreateStandardAutoExec("DukeNukem3D.AutoExec", true);
-
 	CreateStandardAutoExec("ShadowWarrior.AutoLoad", true);
 	CreateStandardAutoExec("IonFury.AutoLoad", true);
-	CreateStandardAutoExec("RedneckRides.AutoLoad", true);
-	CreateStandardAutoExec("Redneck.AutoLoad", true);
+	CreateStandardAutoExec("Redneck.RidesAgain.AutoLoad", true);
+	CreateStandardAutoExec("Redneck.Redneck.AutoLoad", true);
 	CreateStandardAutoExec("WW2GI.AutoLoad", true);
 	CreateStandardAutoExec("Nam.AutoLoad", true);
 	CreateStandardAutoExec("DukeNukem3D.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.DN3D.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.DukeDC.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.NWinter.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.Vacation.AutoLoad", true);
+
+	CreateStandardAutoExec("ShadowWarrior.AutoLoad", true);
+	CreateStandardAutoExec("IonFury.AutoLoad", true);
+	CreateStandardAutoExec("Redneck.RidesAgain.AutoLoad", true);
+	CreateStandardAutoExec("Redneck.Redneck.AutoLoad", true);
+	CreateStandardAutoExec("WW2GI.AutoLoad", true);
+	CreateStandardAutoExec("Nam.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.DN3D.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.DukeDC.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.NWinter.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.Vacation.AutoLoad", true);
 
 	// Move search paths back to the top.
 	MoveSectionToStart("SoundfontSearch.Directories");
 	MoveSectionToStart("FileSearch.Directories");
 	MoveSectionToStart("IWADSearch.Directories");
 
-	SetSectionNote("DukeNukem3D.AutoExec",
+	SetSectionNote("DukeNukem3D.AutoLoad",
 		"# Files to automatically execute when running the corresponding game.\n"
 		"# Each file should be on its own line, preceded by Path=\n\n");
 	SetSectionNote("Global.Autoload",
@@ -504,12 +512,12 @@ void FGameConfigFile::AddAutoexec (FArgs *list, const char *game)
 	const char *key;
 	const char *value;
 
-	snprintf (section, countof(section), "%s.AutoExec", game);
+	snprintf (section, countof(section), "%s.AutoLoad", game);
 
-	// If <game>.AutoExec section does not exist, create it
+	// If <game>.AutoLoad section does not exist, create it
 	// with a default autoexec.cfg file present.
 	CreateStandardAutoExec(section, false);
-	// Run any files listed in the <game>.AutoExec section
+	// Run any files listed in the <game>.AutoLoad section
 	if (!SectionIsEmpty())
 	{
 		while (NextInSection (key, value))

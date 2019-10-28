@@ -638,6 +638,7 @@ file( GLOB HEADER_FILES
 	common/fonts/*.h
 	common/utility/*.h
 	common/console/*.h
+	common/filesystem/*.h
 
 	build/src/*.h
 	thirdparty/include/*.h
@@ -813,12 +814,20 @@ set (PCH_SOURCES
 	common/utility/utf8.cpp
 	common/utility/superfasthash.cpp
 	common/utility/configfile.cpp
-	common/utility/file_zip.cpp
-	common/utility/resourcefile.cpp
 	common/utility/matrix.cpp
 	common/utility/m_png.cpp
 	common/utility/memarena.cpp
 	common/utility/sc_man.cpp
+
+	common/filesystem/ancientzip.cpp
+	common/filesystem/file_zip.cpp
+	common/filesystem/file_7z.cpp
+	common/filesystem/file_grp.cpp
+	common/filesystem/file_rff.cpp
+	common/filesystem/file_pak.cpp
+	common/filesystem/file_lump.cpp
+	common/filesystem/file_directory.cpp
+	common/filesystem/resourcefile.cpp
 
 	common/textures/bitmap.cpp
 	common/textures/buildtiles.cpp
@@ -892,6 +901,7 @@ include_directories(
 	common/utility
 	common/console
 	common/textures
+	common/filesystem
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
