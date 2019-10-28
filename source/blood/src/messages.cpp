@@ -616,7 +616,6 @@ void CPlayerMsg::ProcessKeys(void)
             Set(*CombatMacros[key-sc_F1]);
             Send();
 			inputState.ClearKeyStatus(key);
-		}
 		break;
         case sc_BackSpace:
             if (ctrl)

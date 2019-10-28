@@ -433,7 +433,7 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	strcpy(subsection, "Bindings");
 	if (SetSection(section, true))
 	{
-		for (int i = 0; i < MAXBOUNDKEYS + MAXMOUSEBUTTONS; i++)
+		for (int i = 0; i < NUMKEYS + MAXMOUSEBUTTONS; i++)
 		{
 			if (CONTROL_KeyIsBound(i))
 			{

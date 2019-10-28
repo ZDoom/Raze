@@ -1,4 +1,4 @@
-
+#pragma once
 #define  sc_None         0
 #define  sc_Bad          0xff
 #define  sc_Comma        0x33

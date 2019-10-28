@@ -1560,8 +1560,8 @@ NewLevel(void)
             if (DemoModeMenuInit)
             {
                 DemoModeMenuInit = FALSE;
-                KEY_PRESSED(KEYSC_ESC) = TRUE;
-            }
+				inputState.ClearKeyStatus(sc_Escape);
+			}
         }
 
         DemoPlayBack();
@@ -1620,10 +1620,7 @@ ResetKeys(void)
 {
     int i;
 
-    for (i = 0; i < MAXKEYBOARDSCAN; i++)
-    {
-        KEY_PRESSED(i) = 0;
-    }
+	inputState.ClearAllKeyStatus();
 }
 
 SWBOOL
@@ -1631,7 +1628,7 @@ KeyPressed(void)
 {
     int i;
 
-    for (i = 0; i < MAXKEYBOARDSCAN; i++)
+    for (i = 0; i < NUMKEYS; i++)
     {
         if (KEY_PRESSED(i))
             return TRUE;
@@ -2152,8 +2149,8 @@ MenuLevel(void)
         // go to ordering menu only if shareware
         if (FinishAnim)
         {
-            KEY_PRESSED(KEYSC_ESC) = 1;
-            ControlPanelType = ct_ordermenu;
+			inputState.ClearKeyStatus(sc_Escape);
+			ControlPanelType = ct_ordermenu;
             FinishAnim = 0;
         }
     }
@@ -2214,7 +2211,7 @@ MenuLevel(void)
         // force the use of menus at all time
         if (!UsingMenus && !ConPanel)
         {
-            KEY_PRESSED(KEYSC_ESC) = TRUE;
+			inputState.SetKeyStatus(sc_Escape);
             MNU_CheckForMenusAnyKey();
         }
 
@@ -2232,8 +2229,8 @@ MenuLevel(void)
 
     BorderAdjust = TRUE;
     //LoadGameOutsideMoveLoop = FALSE;
-    KEY_PRESSED(KEYSC_ESC) = FALSE;
-    KB_ClearKeysDown();
+	inputState.ClearKeyStatus(sc_Escape);
+	KB_ClearKeysDown();
     //ExitMenus();
     UsingMenus = FALSE;
     InMenuLevel = FALSE;
@@ -2793,8 +2790,8 @@ StatScreen(PLAYERp mpp)
         while (KeyPressed()) ;
     }
 
-    KEY_PRESSED(KEYSC_SPACE) = 0;
-    KEY_PRESSED(KEYSC_ENTER) = 0;
+	inputState.ClearKeyStatus(KEYSC_SPACE);
+	inputState.ClearKeyStatus(KEYSC_ENTER);
 
     if (mus_enabled)
     {
@@ -4398,7 +4395,7 @@ FunctionKeys(PLAYERp pp)
     {
         if (rts_delay > 16 && fn_key && CommEnabled && !adult_lockout && !Global_PLock)
         {
-            KEY_PRESSED(sc_F1 + fn_key - 1) = 0;
+			inputState.ClearKeyStatus(sc_F1 + fn_key - 1);
 
             rts_delay = 0;
 
@@ -4423,7 +4420,8 @@ FunctionKeys(PLAYERp pp)
     {
         if (fn_key && CommEnabled)
         {
-            KEY_PRESSED(sc_F1 + fn_key - 1) = 0;
+			inputState.ClearKeyStatus(sc_Escape);
+			inputState.ClearKeyStatus(sc_F1 + fn_key - 1);
 
             if (CommEnabled)
             {
@@ -4452,22 +4450,22 @@ FunctionKeys(PLAYERp pp)
         // F2 save menu
         if (KEY_PRESSED(KEYSC_F2))
         {
-            KEY_PRESSED(KEYSC_F2) = 0;
+			inputState.ClearKeyStatus(KEYSC_F2);
             if (!TEST(pp->Flags, PF_DEAD))
             {
-                KEY_PRESSED(KEYSC_ESC) = 1;
-                ControlPanelType = ct_savemenu;
+				inputState.SetKeyStatus(sc_Escape);
+				ControlPanelType = ct_savemenu;
             }
         }
 
         // F3 load menu
         if (KEY_PRESSED(KEYSC_F3))
         {
-            KEY_PRESSED(KEYSC_F3) = 0;
-            if (!TEST(pp->Flags, PF_DEAD))
+			inputState.ClearKeyStatus(KEYSC_F3);
+			if (!TEST(pp->Flags, PF_DEAD))
             {
-                KEY_PRESSED(KEYSC_ESC) = 1;
-                ControlPanelType = ct_loadmenu;
+				inputState.SetKeyStatus(sc_Escape);
+				ControlPanelType = ct_loadmenu;
             }
         }
 
@@ -4475,11 +4473,11 @@ FunctionKeys(PLAYERp pp)
         if (KEY_PRESSED(KEYSC_F6))
         {
             extern SWBOOL QuickSaveMode;
-            KEY_PRESSED(KEYSC_F6) = 0;
-            if (!TEST(pp->Flags, PF_DEAD))
+			inputState.ClearKeyStatus(KEYSC_F6);
+			if (!TEST(pp->Flags, PF_DEAD))
             {
-                KEY_PRESSED(KEYSC_ESC) = 1;
-                ControlPanelType = ct_savemenu;
+				inputState.SetKeyStatus(sc_Escape);
+				ControlPanelType = ct_savemenu;
                 QuickSaveMode = TRUE;
             }
         }
@@ -4487,7 +4485,7 @@ FunctionKeys(PLAYERp pp)
         // F9 quick load
         if (KEY_PRESSED(KEYSC_F9))
         {
-            KEY_PRESSED(KEYSC_F9) = 0;
+			inputState.ClearKeyStatus(KEYSC_F9);
 
             if (!TEST(pp->Flags, PF_DEAD))
             {
@@ -4498,8 +4496,8 @@ FunctionKeys(PLAYERp pp)
                 else
                 {
                     KB_ClearKeysDown();
-                    KEY_PRESSED(KEYSC_ESC) = 1;
-                    ControlPanelType = ct_quickloadmenu;
+					inputState.SetKeyStatus(sc_Escape);
+					ControlPanelType = ct_quickloadmenu;
                 }
             }
         }
@@ -4510,16 +4508,16 @@ FunctionKeys(PLAYERp pp)
     // F4 sound menu
     if (KEY_PRESSED(KEYSC_F4))
     {
-        KEY_PRESSED(KEYSC_F4) = 0;
-        KEY_PRESSED(KEYSC_ESC) = 1;
-        ControlPanelType = ct_soundmenu;
+		inputState.ClearKeyStatus(KEYSC_F4);
+		inputState.SetKeyStatus(sc_Escape);
+		ControlPanelType = ct_soundmenu;
     }
 
 
     // F7 VIEW control
     if (KEY_PRESSED(KEYSC_F7))
     {
-        KEY_PRESSED(KEYSC_F7) = 0;
+		inputState.ClearKeyStatus(KEYSC_F7);
 
         if (KEY_PRESSED(KEYSC_LSHIFT) || KEY_PRESSED(KEYSC_RSHIFT))
         {
@@ -4543,7 +4541,7 @@ FunctionKeys(PLAYERp pp)
     // F8 toggle messages
     if (KEY_PRESSED(KEYSC_F8))
     {
-        KEY_PRESSED(KEYSC_F8) = 0;
+		inputState.ClearKeyStatus(KEYSC_F8);
 
         hud_messages = !hud_messages;
 
@@ -4556,15 +4554,15 @@ FunctionKeys(PLAYERp pp)
     // F10 quit menu
     if (KEY_PRESSED(KEYSC_F10))
     {
-        KEY_PRESSED(KEYSC_F10) = 0;
-        KEY_PRESSED(KEYSC_ESC) = 1;
-        ControlPanelType = ct_quitmenu;
+		inputState.ClearKeyStatus(KEYSC_F10);
+		inputState.SetKeyStatus(sc_Escape);
+		ControlPanelType = ct_quitmenu;
     }
 
     // F11 gamma correction
     if (KEY_PRESSED(KEYSC_F11) > 0)
     {
-        KEY_PRESSED(KEYSC_F11) = 0;
+		inputState.ClearKeyStatus(KEYSC_F11);
 		// Do this entirely in the video backend.
     }
 
@@ -4578,7 +4576,7 @@ void PauseKey(PLAYERp pp)
 
     if (KEY_PRESSED(sc_Pause) && !CommEnabled && !InputMode && !UsingMenus && !CheatInputMode && !ConPanel)
     {
-        KEY_PRESSED(sc_Pause) = 0;
+		inputState.ClearKeyStatus(sc_Pause);
 
         PauseKeySet ^= 1;
 
@@ -4612,8 +4610,8 @@ void PauseKey(PLAYERp pp)
             }
             else
             {
-                KEY_PRESSED(KEYSC_ESC) = 1;
-                ControlPanelType = ct_quickloadmenu;
+				inputState.SetKeyStatus(sc_Escape);
+				ControlPanelType = ct_quickloadmenu;
             }
         }
     }
@@ -4844,8 +4842,8 @@ void GetHelpInput(PLAYERp pp)
     {
         if (KEY_PRESSED(KEYSC_F1))
         {
-            KEY_PRESSED(KEYSC_F1) = FALSE;
-            HelpPage = 0;
+			inputState.ClearKeyStatus(KEYSC_F11);
+			HelpPage = 0;
             HelpInputMode = TRUE;
             PanelUpdateMode = FALSE;
             InputMode = TRUE;
@@ -4857,8 +4855,8 @@ void GetHelpInput(PLAYERp pp)
     {
         if (KEY_PRESSED(KEYSC_ESC))
         {
-            KEY_PRESSED(KEYSC_ESC) = 0;
-            KB_ClearKeysDown();
+			inputState.ClearKeyStatus(sc_Escape);
+			KB_ClearKeysDown();
             PanelUpdateMode = TRUE;
             HelpInputMode = FALSE;
             InputMode = FALSE;
@@ -4869,13 +4867,14 @@ void GetHelpInput(PLAYERp pp)
 
         if (KEY_PRESSED(KEYSC_SPACE) || KEY_PRESSED(KEYSC_ENTER) || KEY_PRESSED(KEYSC_PGDN) || KEY_PRESSED(KEYSC_DOWN) || KEY_PRESSED(KEYSC_RIGHT) || KEY_PRESSED(sc_kpad_3) || KEY_PRESSED(sc_kpad_2) || KEY_PRESSED(sc_kpad_6))
         {
-            KEY_PRESSED(KEYSC_SPACE) = KEY_PRESSED(KEYSC_ENTER) = 0;
-            KEY_PRESSED(KEYSC_PGDN) = 0;
-            KEY_PRESSED(KEYSC_DOWN) = 0;
-            KEY_PRESSED(KEYSC_RIGHT) = 0;
-            KEY_PRESSED(sc_kpad_3) = 0;
-            KEY_PRESSED(sc_kpad_2) = 0;
-            KEY_PRESSED(sc_kpad_6) = 0;
+			inputState.ClearKeyStatus(KEYSC_SPACE);
+			inputState.ClearKeyStatus(KEYSC_ENTER);
+			inputState.ClearKeyStatus(KEYSC_PGDN);
+			inputState.ClearKeyStatus(KEYSC_DOWN);
+			inputState.ClearKeyStatus(KEYSC_RIGHT);
+			inputState.ClearKeyStatus(sc_kpad_3);
+			inputState.ClearKeyStatus(sc_kpad_2);
+			inputState.ClearKeyStatus(sc_kpad_6);
 
             HelpPage++;
             if (HelpPage >= (int)SIZ(HelpPagePic))
@@ -4888,12 +4887,12 @@ void GetHelpInput(PLAYERp pp)
 
         if (KEY_PRESSED(KEYSC_PGUP) || KEY_PRESSED(KEYSC_UP) || KEY_PRESSED(KEYSC_LEFT) || KEY_PRESSED(sc_kpad_9) || KEY_PRESSED(sc_kpad_8) || KEY_PRESSED(sc_kpad_4))
         {
-            KEY_PRESSED(KEYSC_PGUP) = 0;
-            KEY_PRESSED(KEYSC_UP) = 0;
-            KEY_PRESSED(KEYSC_LEFT) = 0;
-            KEY_PRESSED(sc_kpad_8) = 0;
-            KEY_PRESSED(sc_kpad_9) = 0;
-            KEY_PRESSED(sc_kpad_4) = 0;
+			inputState.ClearKeyStatus(KEYSC_PGUP);
+			inputState.ClearKeyStatus(KEYSC_UP);
+			inputState.ClearKeyStatus(KEYSC_LEFT);
+			inputState.ClearKeyStatus(sc_kpad_8);
+			inputState.ClearKeyStatus(sc_kpad_9);
+			inputState.ClearKeyStatus(sc_kpad_4);
 
             HelpPage--;
             if (HelpPage < 0)
@@ -5167,8 +5166,8 @@ getinput(SW_PACKET *loc)
     else if (KEY_PRESSED(sc_Pause))
     {
         SET_LOC_KEY(loc->bits, SK_PAUSE, KEY_PRESSED(sc_Pause));
-        KEY_PRESSED(sc_Pause) = 0;
-    }
+		inputState.ClearKeyStatus(sc_Pause);
+	}
 
     SET_LOC_KEY(loc->bits, SK_CENTER_VIEW, BUTTON(gamefunc_Center_View));
 

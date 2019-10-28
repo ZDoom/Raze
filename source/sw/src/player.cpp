@@ -4117,8 +4117,8 @@ SWBOOL PlayerFlyKey(PLAYERp pp)
 
     key = KEY_PRESSED(KEYSC_J);
 
-    if (key)
-        KEY_PRESSED(KEYSC_J) = 0;
+	if (key)
+		inputState.ClearKeyStatus(KEYSC_J);
 
     return key;
 }

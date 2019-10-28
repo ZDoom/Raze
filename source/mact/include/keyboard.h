@@ -33,8 +33,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "baselayer.h"	// for the keyboard stuff
 #include "scancodes.h"
 
-typedef uint8_t kb_scancode;
-
 // translation table for taking key names to scancodes and back again
 static struct
 {
@@ -57,8 +55,6 @@ static struct
     { "Pause", 0xc5 },     { "Home", 0xc7 },   { "Up", 0xc8 },     { "PgUp", 0xc9 },  { "Left", 0xcb },   { "Right", 0xcd },  { "End", 0xcf },
     { "Down", 0xd0 },      { "PgDn", 0xd1 },   { "Insert", 0xd2 }, { "Delete", 0xd3 },
 };
-
-#define MAXKEYBOARDSCAN  256
 
 extern kb_scancode KB_LastScan;
 

@@ -728,7 +728,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 
         if (KEY_PRESSED(KEYSC_ESC) || inpt.button1)
         {
-            KEY_PRESSED(KEYSC_ESC) = FALSE;
+			inputState.ClearKeyStatus(sc_Escape);
             cust_callback = NULL;
             CONTROL_ClearUserInput(&inpt);
             return TRUE;
@@ -1576,8 +1576,8 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         // Support a few other keys too
         if (KEY_PRESSED(KEYSC_SPACE)||KEY_PRESSED(KEYSC_ENTER))
         {
-            KEY_PRESSED(KEYSC_SPACE) = FALSE;
-            KEY_PRESSED(KEYSC_ENTER) = FALSE;
+			inputState.ClearKeyStatus(KEYSC_SPACE);
+			inputState.ClearKeyStatus(KEYSC_ENTER);
             tst_input.dir = dir_South;
         }
     }
@@ -1622,7 +1622,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
     }
     else
     {
-        KEY_PRESSED(KEYSC_ESC) = FALSE;
+		inputState.ClearKeyStatus(sc_Escape);
         cust_callback = NULL;
         DidOrderSound = FALSE;
         on_screen = 0;
@@ -4395,8 +4395,8 @@ SetupMenu(void)
         MNU_SetupMenu();
 
         // Clear the previous ESC key press
-        KEY_PRESSED(KEYSC_ESC) = FALSE;
-        UsingMenus = TRUE;
+		inputState.ClearKeyStatus(sc_Escape);
+		UsingMenus = TRUE;
     }
 }
 
@@ -4565,8 +4565,8 @@ MNU_CheckForMenus(void)
     {
         if ((KEY_PRESSED(KEYSC_ESC)) && dimensionmode == 3 && !ConPanel)
         {
-            KEY_PRESSED(KEYSC_ESC) = 0;
-            KB_ClearKeysDown();
+			inputState.ClearKeyStatus(sc_Escape);
+			KB_ClearKeysDown();
             // setup sliders/buttons
             MNU_InitMenus();
             MNU_DoMenu(ct_mainmenu, Player + myconnectindex);

@@ -207,20 +207,8 @@ void CONTROL_ClearGameControllerDigitalAxisNeg(int32_t axis);
 
 ////////// KEY/MOUSE BIND STUFF //////////
 
-#define MAXBOUNDKEYS MAXKEYBOARDSCAN
-#define MAXMOUSEBUTTONS 10
-
-typedef struct
-{
-    const char *key;
-    char *cmdstr;
-    char repeat;
-    char laststate;
-}
-consolekeybind_t;
 
 // Direct use DEPRECATED:
-extern consolekeybind_t CONTROL_KeyBinds[MAXBOUNDKEYS+MAXMOUSEBUTTONS];
 extern bool CONTROL_BindsEnabled;
 
 void CONTROL_ClearAllBinds(void);

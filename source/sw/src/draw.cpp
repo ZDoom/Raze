@@ -1058,7 +1058,7 @@ ResizeView(PLAYERp pp)
         {
             extern SWBOOL ScrollMode2D;
 
-            KEY_PRESSED(KEYSC_ESC) = 0;
+			inputState.ClearKeyStatus(sc_Escape);
             dimensionmode = 3;
             ScrollMode2D = FALSE;
             SetRedrawScreen(pp);
@@ -1676,7 +1676,7 @@ void ScreenCaptureKeys(void)
     // screen capture
     if (KEY_PRESSED(KEYSC_F12))
     {
-        KEY_PRESSED(KEYSC_F12) = 0;
+		inputState.ClearKeyStatus(KEYSC_F12);
         PauseAction();
         videoCaptureScreenTGA("swcpxxxx.tga", KEY_PRESSED(KEYSC_LSHIFT) | KEY_PRESSED(KEYSC_RSHIFT));
         ResumeAction();

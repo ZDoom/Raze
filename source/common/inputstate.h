@@ -1,17 +1,32 @@
 #pragma once
 
-#include "keyboard.h"
-#include "control.h"
+#include <stdint.h>
+#include "tarray.h"
 #include "scancodes.h"
 
+typedef uint8_t kb_scancode;
+
 extern kb_scancode KB_LastScan;
+
+typedef struct
+{
+	const char* key;
+	char* cmdstr;
+	char repeat;
+	char laststate;
+}
+consolekeybind_t;
 
 // This encapsulates the entire game-readable input state which previously was spread out across several files.
 
 enum
 {
 	NUMKEYS = 256,
+	MAXMOUSEBUTTONS = 10,
+
 };
+
+extern consolekeybind_t CONTROL_KeyBinds[NUMKEYS + MAXMOUSEBUTTONS];
 
 
 // Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
@@ -164,7 +179,7 @@ public:
 		return KeyStatus[key];
 	}
 	
-	void SetKeyStatus(int key, int state)
+	void SetKeyStatus(int key, int state = 1)
 	{
 		KeyStatus[key] = (uint8_t)state;
 	}
@@ -186,7 +201,7 @@ public:
 	
 	bool CtrlPressed()
 	{
-		KeyStatus[sc_LeftControl] || KeyStatus[sc_RightControl];
+		return KeyStatus[sc_LeftControl] || KeyStatus[sc_RightControl];
 	}
 	
 	bool ShiftPressed()

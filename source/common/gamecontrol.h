@@ -61,6 +61,10 @@ void CONFIG_SetGameControllerDefaultsClear();
 char const* CONFIG_GetGameFuncOnJoystick(int gameFunc);
 char const* CONFIG_GetGameFuncOnKeyboard(int gameFunc);
 
+int osdcmd_bind(osdcmdptr_t parm);
+int osdcmd_unbindall(osdcmdptr_t);
+int osdcmd_unbind(osdcmdptr_t parm);
+
 
 extern FStringCVar* const CombatMacros[];
 void CONFIG_ReadCombatMacros();
