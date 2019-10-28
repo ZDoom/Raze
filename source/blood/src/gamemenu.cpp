@@ -240,7 +240,7 @@ void CGameMenuMgr::Process(void)
             event.at0 = kMenuEventEscape;
             break;
         case sc_Tab:
-            if (keystatus[sc_LeftShift] || keystatus[sc_RightShift])
+            if (inputState.ShiftPressed())
                 event.at0 = kMenuEventUp;
             else
                 event.at0 = kMenuEventDown;
@@ -1906,7 +1906,7 @@ bool CGameMenuItemZEdit::Event(CGameMenuEvent &event)
         char key;
         if (event.at2 < 128)
         {
-            if (keystatus[sc_LeftShift] || keystatus[sc_RightShift])
+            if (inputState.ShiftPressed())
                 key = g_keyAsciiTableShift[event.at2];
             else
                 key = g_keyAsciiTable[event.at2];
@@ -2099,7 +2099,7 @@ bool CGameMenuItemZEditBitmap::Event(CGameMenuEvent &event)
         char key;
         if (bScan && event.at2 < 128)
         {
-            if (keystatus[sc_LeftShift] || keystatus[sc_RightShift])
+            if (inputState.ShiftPressed())
                 key = g_keyAsciiTableShift[event.at2];
             else
                 key = g_keyAsciiTable[event.at2];

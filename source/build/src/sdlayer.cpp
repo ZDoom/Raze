@@ -28,6 +28,7 @@
 #include "resourcefile.h"
 #include "sc_man.h"
 #include "i_specialpaths.h"
+#include "inputstate.h"
 #include "c_cvars.h"
 #include "../../glbackend/glbackend.h"
 
@@ -2223,7 +2224,7 @@ int32_t handleevents_pollsdl(void)
                     {
                         for (j = 0; j < NUMKEYS; ++j)
                         {
-                            if (keyGetState(j))
+                            if (inputState.GetKeyStatus(j))
                             {
                                 if (keypresscallback)
                                     keypresscallback(j, 0);
@@ -2236,7 +2237,7 @@ int32_t handleevents_pollsdl(void)
 
                 if (ev.key.type == SDL_KEYDOWN)
                 {
-                    if (!keyGetState(code))
+                    if (!inputState.GetKeyStatus(code))
                     {
                         if (keypresscallback)
                             keypresscallback(code, 1);

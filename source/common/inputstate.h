@@ -1,6 +1,18 @@
 #pragma once
 
+#include "keyboard.h"
+#include "control.h"
+#include "scancodes.h"
+
+extern kb_scancode KB_LastScan;
+
 // This encapsulates the entire game-readable input state which previously was spread out across several files.
+
+enum
+{
+	NUMKEYS = 256,
+};
+
 
 // Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
 enum GameFunction_t
@@ -99,6 +111,8 @@ class InputState
 {
 
 	FixedBitArray<NUMGAMEFUNCTIONS> ButtonState, ButtonHeldState;
+	uint8_t KeyStatus[NUMKEYS];
+
 public:
 
 	bool BUTTON(int x)
@@ -145,6 +159,45 @@ public:
 		ButtonState.Zero();
 	}
 	
+	uint8_t GetKeyStatus(int key)
+	{
+		return KeyStatus[key];
+	}
+	
+	void SetKeyStatus(int key, int state)
+	{
+		KeyStatus[key] = (uint8_t)state;
+	}
+	
+	void ClearKeyStatus(int key)
+	{
+		KeyStatus[key] = 0;
+	}
+	
+	void ClearAllKeyStatus()
+	{
+		memset(KeyStatus, 0, sizeof(KeyStatus));
+	}
+
+	bool AltPressed()
+	{
+		return KeyStatus[sc_LeftAlt] || KeyStatus[sc_RightAlt];
+	}
+	
+	bool CtrlPressed()
+	{
+		KeyStatus[sc_LeftControl] || KeyStatus[sc_RightControl];
+	}
+	
+	bool ShiftPressed()
+	{
+		return KeyStatus[sc_LeftShift] || KeyStatus[sc_RightShift];
+	}
+
+	bool EscapePressed()
+	{
+		return !!KeyStatus[sc_Escape];
+	}
 	
 };
 
@@ -174,4 +227,30 @@ inline bool BUTTONRELEASED(int x)
 inline bool BUTTONSTATECHANGED(int x)
 {
 	return (BUTTON(x) != BUTTONHELD(x));
+}
+
+inline uint8_t KB_KeyPressed(int scan) 
+{
+	return inputState.GetKeyStatus(scan);
+}
+
+inline void KB_ClearKeyDown(int scan) 
+{
+	inputState.ClearKeyStatus(scan);
+}
+
+inline bool KB_UnBoundKeyPressed(int scan) 
+{
+	return (inputState.GetKeyStatus(scan) != 0 && !CONTROL_KeyBinds[scan].cmdstr);
+}
+
+inline uint8_t KEY_PRESSED(int scan) // Shadow Warrior uses different names for many things.
+{
+	return inputState.GetKeyStatus(scan);
+}
+
+inline void KB_ClearKeysDown(void)
+{
+	KB_LastScan = 0;
+	inputState.ClearAllKeyStatus();
 }

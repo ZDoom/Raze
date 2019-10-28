@@ -57,3 +57,6 @@ kb_scancode KB_StringToScanCode(const char * string)
 
     return 0;
 }
+
+void KB_Startup(void) { keySetCallback(KB_KeyEvent); }
+void KB_Shutdown(void) { keySetCallback((void (*)(int32_t, int32_t))NULL); }

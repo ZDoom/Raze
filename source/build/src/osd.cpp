@@ -11,6 +11,7 @@
 #include "scancodes.h"
 #include "common.h"
 #include "c_cvars.h"
+#include "inputstate.h"
 
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash.h"
@@ -1217,7 +1218,7 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
 
     osddraw_t &draw = osd->draw;
 
-    if (scanCode == osd->keycode && (keystatus[sc_LeftShift] || (osd->flags & OSD_CAPTURE) || (osd->flags & OSD_PROTECTED) != OSD_PROTECTED))
+    if (scanCode == osd->keycode && (inputState.ShiftPressed() || (osd->flags & OSD_CAPTURE) || (osd->flags & OSD_PROTECTED) != OSD_PROTECTED))
     {
         if (keyDown)
         {

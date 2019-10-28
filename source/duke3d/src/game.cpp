@@ -6684,7 +6684,7 @@ MAIN_LOOP_RESTART:
     }
 
     ud.warp_on = 0;
-    KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
+	inputState.ClearKeyStatus(sc_Pause);   // JBF: I hate the pause key
 
     if(g_netClient)
     {
@@ -6695,8 +6695,8 @@ MAIN_LOOP_RESTART:
     {
         if (gameHandleEvents() && quitevent)
         {
-            KB_KeyDown[sc_Escape] = 1;
-            quitevent = 0;
+			inputState.SetKeyStatus(sc_Escape, 1);
+			quitevent = 0;
         }
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo

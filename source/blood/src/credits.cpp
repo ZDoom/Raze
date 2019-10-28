@@ -99,7 +99,7 @@ char DoUnFade(int nTicks)
 
 void credLogosDos(void)
 {
-    char bShift = keystatus[sc_LeftShift] | keystatus[sc_RightShift];
+    char bShift = inputState.ShiftPressed();
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
     DoUnFade(1);
     videoClearScreen(0);

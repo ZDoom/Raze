@@ -289,8 +289,6 @@ void CDemo::ProcessKeys(void)
         char nKey;
         while ((nKey = keyGetScan()) != 0)
         {
-	        char UNUSED(alt) = keystatus[0x38] | keystatus[0xb8];
-	        char UNUSED(ctrl) = keystatus[0x1d] | keystatus[0x9d];
             switch (nKey)
             {
             case 1:
@@ -333,8 +331,8 @@ _DEMOPLAYBACK:
     {
         if (handleevents() && quitevent)
         {
-            KB_KeyDown[sc_Escape] = 1;
-            quitevent = 0;
+			inputState.SetKeyStatus(sc_Escape, 1);
+			quitevent = 0;
         }
         MUSIC_Update();
         while (totalclock >= gNetFifoClock && !gQuitGame)

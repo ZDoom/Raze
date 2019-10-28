@@ -842,7 +842,8 @@ void GAME_onshowosd(int shown)
 
     // XXX: it's weird to fake a keypress like this.
 //    if (numplayers == 1 && ((shown && !ud.pause_on) || (!shown && ud.pause_on)))
-//        KB_KeyDown[sc_Pause] = 1;
+//        	inputState.SetKeyStatus(sc_Escape, 1);
+
 }
 
 void GAME_clearbackground(int numcols, int numrows)

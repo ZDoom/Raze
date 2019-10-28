@@ -139,37 +139,6 @@ static void CONTROL_SetFlag(int which, int active)
     }
 }
 
-#if 0
-int32_t CONTROL_KeyboardFunctionPressed(int32_t which)
-{
-    int32_t key1 = 0, key2 = 0;
-
-    if (CONTROL_CheckRange(which)) return FALSE;
-
-    if (!CONTROL_Flags[which].used) return FALSE;
-
-    if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED && !KeyBindings[CONTROL_KeyMapping[which].key1].cmdstr)
-        key1 = KB_KeyDown[ CONTROL_KeyMapping[which].key1 ] ? TRUE : FALSE;
-
-    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !KeyBindings[CONTROL_KeyMapping[which].key2].cmdstr)
-        key2 = KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] ? TRUE : FALSE;
-
-    return key1 | key2;
-}
-
-void CONTROL_ClearKeyboardFunction(int32_t which)
-{
-    if (CONTROL_CheckRange(which)) return;
-
-    if (!CONTROL_Flags[which].used) return;
-
-    if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED)
-        KB_KeyDown[ CONTROL_KeyMapping[which].key1 ] = 0;
-
-    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED)
-        KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] = 0;
-}
-#endif
 
 void CONTROL_DefineFlag(int which, int toggle)
 {

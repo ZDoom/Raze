@@ -126,10 +126,6 @@ void GAME_onshowosd(int32_t shown)
     mouseLockToWindow((!shown) + 2);
 
     osdshown = shown;
-
-    // XXX: it's weird to fake a keypress like this.
-//    if (numplayers == 1 && ((shown && !ud.pause_on) || (!shown && ud.pause_on)))
-//        KB_KeyDown[sc_Pause] = 1;
 }
 
 

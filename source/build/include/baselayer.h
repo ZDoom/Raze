@@ -11,6 +11,7 @@
 #include "osd.h"
 #include "timer.h"
 #include "c_cvars.h"
+#include "inputstate.h"
 
 
 #ifdef DEBUGGINGAIDS
@@ -88,7 +89,6 @@ vec2_t CONSTEXPR const g_defaultVideoModes []
 extern char inputdevices;
 
 // keys
-#define NUMKEYS 256
 #define KEYFIFOSIZ 64
 
 char CONSTEXPR const g_keyAsciiTable[128] = {
@@ -107,7 +107,6 @@ char CONSTEXPR const g_keyAsciiTableShift[128] = {
     0  ,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,
 };
 
-extern char    keystatus[NUMKEYS];
 extern char    g_keyFIFO[KEYFIFOSIZ];
 extern char    g_keyAsciiFIFO[KEYFIFOSIZ];
 extern uint8_t g_keyAsciiPos;
@@ -116,7 +115,6 @@ extern uint8_t g_keyFIFOend;
 extern char    g_keyRemapTable[NUMKEYS];
 extern char    g_keyNameTable[NUMKEYS][24];
 
-extern int32_t keyGetState(int32_t key);
 extern void keySetState(int32_t key, int32_t state);
 
 // mouse

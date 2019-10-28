@@ -168,8 +168,6 @@ void Net_WaitForEverybody(void)
 
     do
     {
-        //if (quitevent || keystatus[sc_Escape]) G_GameExit("");
-
         if (G_FPSLimit())
         {
             display_betascreen();

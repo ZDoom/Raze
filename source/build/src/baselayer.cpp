@@ -8,6 +8,7 @@
 #include "a.h"
 #include "polymost.h"
 #include "cache1d.h"
+#include "inputstate.h"
 #include "../../glbackend/glbackend.h"
 
 // video
@@ -24,7 +25,6 @@ int32_t g_borderless=2;
 // input
 char    inputdevices = 0;
 
-char    keystatus[NUMKEYS];
 char    g_keyFIFO[KEYFIFOSIZ];
 char    g_keyAsciiFIFO[KEYFIFOSIZ];
 uint8_t g_keyFIFOpos;
@@ -38,11 +38,10 @@ void (*keypresscallback)(int32_t, int32_t);
 
 void keySetCallback(void (*callback)(int32_t, int32_t)) { keypresscallback = callback; }
 
-int32_t keyGetState(int32_t key) { return keystatus[g_keyRemapTable[key]]; }
-
 void keySetState(int32_t key, int32_t state)
 {
-    keystatus[g_keyRemapTable[key]] = state;
+	inputState.SetKeyStatus(g_keyRemapTable[key], state);
+    //keystatus[g_keyRemapTable[key]] = state;
 
     if (state)
     {

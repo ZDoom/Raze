@@ -8051,14 +8051,14 @@ MAIN_LOOP_RESTART:
     }
 
     ud.warp_on = 0;
-    KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
+	inputState.ClearKeyStatus(sc_Pause);   // JBF: I hate the pause key
 
     do //main loop
     {
         if (handleevents() && quitevent)
         {
-            KB_KeyDown[sc_Escape] = 1;
-            quitevent = 0;
+			inputState.SetKeyStatus(sc_Escape, 1);
+			quitevent = 0;
         }
 
         Net_GetPackets();

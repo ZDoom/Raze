@@ -811,9 +811,9 @@ static void DoQuickSave(void)
 
 void LocalKeys(void)
 {
-    char alt = keystatus[sc_LeftAlt] | keystatus[sc_RightAlt];
-    char ctrl = keystatus[sc_LeftControl] | keystatus[sc_RightControl];
-    char shift = keystatus[sc_LeftShift] | keystatus[sc_RightShift];
+    bool alt = inputState.AltPressed();
+    bool ctrl = inputState.CtrlPressed();
+    bool shift = inputState.ShiftPressed();
     if (BUTTON(gamefunc_See_Chase_View) && !alt && !shift)
     {
         CONTROL_ClearButton(gamefunc_See_Chase_View);
@@ -877,7 +877,7 @@ void LocalKeys(void)
                 gPlayerMsg.Send();
             }
             keyFlushScans();
-            keystatus[key] = 0;
+			inputState.ClearKeyStatus(key);
             CONTROL_ClearButton(gamefunc_See_Chase_View);
             return;
         }
@@ -1679,7 +1679,7 @@ RESTART:
     {
         if (handleevents() && quitevent)
         {
-            KB_KeyDown[sc_Escape] = 1;
+			inputState.SetKeyStatus(sc_Escape, 1);
             quitevent = 0;
         }
         netUpdate();

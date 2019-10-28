@@ -595,9 +595,8 @@ void CPlayerMsg::ProcessKeys(void)
     char ch;
     if (key != 0)
     {
-        bool UNUSED(alt) = keystatus[sc_LeftAlt] || keystatus[sc_RightAlt];
-        bool ctrl = keystatus[sc_LeftControl] || keystatus[sc_RightControl];
-        bool shift = keystatus[sc_LeftShift] || keystatus[sc_RightShift];
+        bool ctrl = (inputState.CtrlPressed());
+		bool shift = (inputState.ShiftPressed());
         switch (key)
         {
         case sc_Escape:
@@ -616,8 +615,9 @@ void CPlayerMsg::ProcessKeys(void)
             CONTROL_ClearButton(gamefunc_See_Chase_View);
             Set(*CombatMacros[key-sc_F1]);
             Send();
-            keystatus[key] = 0;
-            break;
+			inputState.ClearKeyStatus(key);
+		}
+		break;
         case sc_BackSpace:
             if (ctrl)
                 Clear();

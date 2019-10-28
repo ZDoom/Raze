@@ -231,12 +231,6 @@ extern char MessageOutputString[256];
 #define KEYSC_EPGUP      sc_PgUp
 #define KEYSC_EPGDN      sc_PgDn
 
-#undef KB_KeyPressed
-#define KB_KeyPressed( scan ) \
-    ( KB_KeyDown[( scan )])
-#define KEY_PRESSED(sc) KB_KeyPressed((sc))
-#define PKEY_PRESSED(sc) KB_KeyPressed((sc))
-
 //
 // NETWORK - REDEFINABLE SHARED (SYNC) KEYS BIT POSITIONS
 //

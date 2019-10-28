@@ -540,7 +540,7 @@ void netGetPackets(void)
             gStartNewGame = 1;
             break;
         case 255:
-            keystatus[1] = 1;
+			inputState.SetKeyStatus(sc_Escape, 1);
             break;
         }
     }
@@ -637,8 +637,8 @@ void netWaitForEveryone(char a1)
     int p;
     do
     {
-        if (keystatus[sc_Escape] && a1)
-            exit(0);
+        if (inputState.EscapePressed() && a1)
+            Bexit(0);
         gameHandleEvents();
         faketimerhandler();
         for (p = connecthead; p >= 0; p = connectpoint2[p])
