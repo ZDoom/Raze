@@ -270,7 +270,7 @@ void UseItem(short nPlayer, short nItem)
 
     if (nPlayer == nLocalPlayer)
     {
-        BuildStatusAnim(nItemCount * 2 + 156, 0);
+        BuildStatusAnim(156 + (nItemCount * 2), 0);
     }
 
     if (!nItemCount)

@@ -67,18 +67,18 @@ short nCounterBullet = -1;
 // 8 bytes
 struct statusAnim
 {
-    short s1;
-    short s2;	
-    int16_t nPage;
-    int8_t c1;
-    int8_t c2;
+    int16_t s1;
+    int16_t s2;
+//    int16_t nPage;
+    int8_t nPrevAnim;
+    int8_t nNextAnim;
 };
 
 #define kMaxStatusAnims		50
 
 statusAnim StatusAnim[kMaxStatusAnims];
 uint8_t StatusAnimsFree[kMaxStatusAnims];
-char StatusAnimFlags[kMaxStatusAnims];
+uint8_t StatusAnimFlags[kMaxStatusAnims];
 
 short nItemSeqOffset[] = {91, 72, 76, 79, 68, 87, 83};
 
@@ -88,10 +88,20 @@ int dword_9AD64[kMaxPlayers] = {0, 0, 0, 0, 0, 0, 0, 0};
 void SetCounterDigits();
 void SetItemSeq();
 void SetItemSeq2(int nSeqOffset);
+void DestroyStatusAnim(short nAnim);
 
 
 int BuildStatusAnim(int val, int nFlags)
 {
+    // destroy this anim if it already exists
+    for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
+    {
+        if (StatusAnim[i].s1 == val) {
+            DestroyStatusAnim(i);
+            break;
+        }
+    }
+
     if (nAnimsFree <= 0) {
         return -1;
     }
@@ -100,14 +110,14 @@ int BuildStatusAnim(int val, int nFlags)
 
     uint8_t nStatusAnim = StatusAnimsFree[nAnimsFree];
 
-    StatusAnim[nStatusAnim].c1 = -1;
-    StatusAnim[nStatusAnim].c2 = nLastAnim;
+    StatusAnim[nStatusAnim].nPrevAnim = -1;
+    StatusAnim[nStatusAnim].nNextAnim = nLastAnim;
 
     if (nLastAnim < 0) {
         nFirstAnim = nStatusAnim;
     }
     else {
-        StatusAnim[nLastAnim].c1 = nStatusAnim;
+        StatusAnim[nLastAnim].nPrevAnim = nStatusAnim;
     }
 
     nLastAnim = nStatusAnim;
@@ -115,7 +125,7 @@ int BuildStatusAnim(int val, int nFlags)
     StatusAnim[nStatusAnim].s1 = val;
     StatusAnim[nStatusAnim].s2 = 0;
     StatusAnimFlags[nStatusAnim] = nFlags;
-    StatusAnim[nStatusAnim].nPage = numpages;
+//    StatusAnim[nStatusAnim].nPage = numpages;
     return nStatusAnim;
 }
 
@@ -127,7 +137,7 @@ void RefreshStatus()
     }
 
     // draws the red dots that indicate the lives amount
-    BuildStatusAnim(2 * nLives + 145, 0);
+    BuildStatusAnim(145 + (2 * nLives), 0);
 
     uint16_t nKeys = PlayerList[nLocalPlayer].keys;
 
@@ -189,9 +199,7 @@ void InitStatus()
 
 void MoveStatusAnims()
 {
-//	int16_t nAnim = nFirstAnim;
-
-    for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].c1)
+    for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
     {
         seq_MoveSequence(-1, nStatusSeqOffset + StatusAnim[i].s1, StatusAnim[i].s2);
 
@@ -205,52 +213,31 @@ void MoveStatusAnims()
                 StatusAnim[i].s2 = 0;
             }
             else {
-                StatusAnim[i].s2 = nSize - 1;
+                StatusAnim[i].s2 = nSize - 1; // restart it
             }
         }
     }
-
-#if 0
-    while (nAnim != -1)
-    {
-        seq_MoveSequence(-1, nStatusSeqOffset + StatusAnim[nAnim].s1, StatusAnim[nAnim].s2);
-
-        StatusAnim[nAnim].s2++;
-
-        short nSize = SeqSize[nStatusSeqOffset + StatusAnim[nAnim].s1];
-
-        if (StatusAnim[nAnim].s2 >= nSize)
-        {
-            if (StatusAnimFlags[nAnim] & 0x10)
-                StatusAnim[nAnim].s2 = 0;
-            else
-                StatusAnim[nAnim].s2 = nSize - 1;
-        }
-
-        nAnim = StatusAnim[nAnim].c1;
-    }
-#endif
 }
 
 void DestroyStatusAnim(short nAnim)
 {
-    short c1 = StatusAnim[nAnim].c1;
-    short c2 = StatusAnim[nAnim].c2;
+    int8_t nPrev = StatusAnim[nAnim].nPrevAnim;
+    int8_t nNext = StatusAnim[nAnim].nNextAnim;
 
-    if (c2 >= 0) {
-        StatusAnim[c2].c1 = c1;
+    if (nNext >= 0) {
+        StatusAnim[nNext].nPrevAnim = nPrev;
     }
 
-    if (c1 >= 0) {
-        StatusAnim[c1].c2 = c2;
+    if (nPrev >= 0) {
+        StatusAnim[nPrev].nNextAnim = nNext;
     }
 
     if (nAnim == nFirstAnim) {
-        nFirstAnim = c1;
+        nFirstAnim = nPrev;
     }
 
     if (nAnim == nLastAnim) {
-        nLastAnim = c2;
+        nLastAnim = nNext;
     }
 
     StatusAnimsFree[nAnimsFree] = (uint8_t)nAnim;
@@ -259,16 +246,13 @@ void DestroyStatusAnim(short nAnim)
 
 void DrawStatusAnims()
 {
-    int16_t nAnim = nFirstAnim;
-
-    while (nAnim != -1)
+    for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
     {
-        int nextAnim = StatusAnim[nAnim].c1;
+        int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
 
-        int nSequence = nStatusSeqOffset + StatusAnim[nAnim].s1;
+        seq_DrawStatusSequence(nSequence, StatusAnim[i].s2, 0);
 
-        seq_DrawStatusSequence(nSequence, StatusAnim[nAnim].s2, 0);
-
+/*
         if (StatusAnim[nAnim].s2 >= (SeqSize[nSequence] - 1))
         {
             if (!(StatusAnimFlags[nAnim] & 0x10))
@@ -279,8 +263,7 @@ void DrawStatusAnims()
                 }
             }
         }
-
-        nAnim = nextAnim;
+*/
     }
 }
 
@@ -402,7 +385,7 @@ void SetPlayerItem(short nPlayer, short nItem)
     {
         SetItemSeq();
         if (nItem >= 0) {
-            BuildStatusAnim((2 * PlayerList[nLocalPlayer].items[nItem]) + 156, 0);
+            BuildStatusAnim(156 + (2 * PlayerList[nLocalPlayer].items[nItem]), 0);
         }
     }
 }
@@ -705,16 +688,17 @@ void DrawStatus()
             seq_DrawStatusSequence(nItemSeq + nStatusSeqOffset, nItemFrame, 0);
         }
 
-        // draws health level dots and other things
+        // draws health level dots, animates breathing lungs and other things
         DrawStatusAnims();
 
+        // draw the blue air level meter when underwater (but not responsible for animating the breathing lungs otherwise)
         if (airpages)
         {
             seq_DrawStatusSequence(nStatusSeqOffset + 133, airframe, 0);
             airpages--;
         }
 
-        // Draw compass
+        // draw compass
         seq_DrawStatusSequence(nStatusSeqOffset + 35, ((inita + 128) & kAngleMask) >> 8, 0);
 
         if (bCoordinates)
@@ -723,6 +707,7 @@ void DrawStatus()
             printext(xdim - 20, nViewTop, cFPS, kTile159, -1);
         }
 
+        // draw ammo count
         seq_DrawStatusSequence(nStatusSeqOffset + 44, nDigit[2], 0);
         seq_DrawStatusSequence(nStatusSeqOffset + 45, nDigit[1], 0);
         seq_DrawStatusSequence(nStatusSeqOffset + 46, nDigit[0], 0);

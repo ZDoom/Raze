@@ -1604,6 +1604,7 @@ loc_1AB8E:
                         nBreathTimer[nPlayer] = 90;
                         if (nPlayer == nLocalPlayer)
                         {
+                            // animate lungs
                             BuildStatusAnim(132, 0);
                         }
                     }
@@ -2113,7 +2114,7 @@ do_default_b:
                                 nPlayerLives[nPlayer]++;
 
                                 if (nPlayer == nLocalPlayer) {
-                                    BuildStatusAnim(((nPlayerLives[nPlayer] - 1) * 2) + 146, 0);
+                                    BuildStatusAnim(146 + ((nPlayerLives[nPlayer] - 1) * 2), 0);
                                 }
 
                                 var_8C = 32;
