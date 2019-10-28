@@ -25,9 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define WIN_IS_PRESSED ( KB_KeyPressed( sc_RightWin ) || KB_KeyPressed( sc_LeftWin ) )
-#define ALT_IS_PRESSED ( KB_KeyPressed( sc_RightAlt ) || KB_KeyPressed( sc_LeftAlt ) )
-#define SHIFTS_IS_PRESSED ( KB_KeyPressed( sc_RightShift ) || KB_KeyPressed( sc_LeftShift ) )
+#define WIN_IS_PRESSED ( inputState.WinPressed() )
+#define ALT_IS_PRESSED ( inputState.AltPressed() )
+#define SHIFTS_IS_PRESSED ( inputState.ShiftPressed() )
 
 extern int32_t I_CheckAllInput(void);
 extern void I_ClearAllInput(void);

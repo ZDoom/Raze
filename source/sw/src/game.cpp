@@ -4149,115 +4149,7 @@ SinglePlayInput(PLAYERp pp)
         }
     }
 
-    if (!(KB_KeyPressed(KEYSC_ALT) | KB_KeyPressed(KEYSC_RALT)))
-        return;
 
-
-    if (!SW_SHAREWARE && KB_KeyPressed(KEYSC_M))
-    {
-        extern SWBOOL DebugActorFreeze;
-
-        KB_KeyPressed(KEYSC_M) = 0;
-        DebugActorFreeze++;
-        if (DebugActorFreeze > 2)
-            DebugActorFreeze = 0;
-
-        if (DebugActorFreeze == 2)
-        {
-            short i, nexti;
-
-            TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
-            {
-                SET(sprite[i].cstat, CSTAT_SPRITE_INVISIBLE);
-                if (TEST(sprite[i].cstat, CSTAT_SPRITE_BLOCK))
-                {
-                    SET(sprite[i].extra, SPRX_BLOCK);
-                    RESET(sprite[i].cstat, CSTAT_SPRITE_BLOCK);
-                }
-            }
-        }
-
-        if (DebugActorFreeze == 0)
-        {
-            short i, nexti;
-
-            TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
-            {
-                RESET(sprite[i].cstat, CSTAT_SPRITE_INVISIBLE);
-                if (TEST(sprite[i].extra, SPRX_BLOCK))
-                    SET(sprite[i].cstat, CSTAT_SPRITE_BLOCK);
-            }
-        }
-    }
-
-
-    // Insert a player
-    if (KB_KeyPressed(KEYSC_INS))
-    // player
-    {
-        KB_KeyPressed(KEYSC_INS) = 0;
-        ManualPlayerInsert(pp);
-        // comes back looking through screenpeek
-        InitPlayerSprite(Player + screenpeek);
-        PlayerDeathReset(Player + screenpeek);
-        SetFragBar(pp);
-    }
-
-
-    // Delete a player
-    if (KB_KeyPressed(KEYSC_DEL))
-    {
-        KB_KeyPressed(KEYSC_DEL) = 0;
-        ManualPlayerDelete(pp);
-    }
-
-    // Move control to numbered player
-
-    if ((kp = KeyPressedRange(&KB_KeyPressed(KEYSC_1), &KB_KeyPressed(KEYSC_9))) && numplayers > 1)
-    {
-        short save_myconnectindex;
-
-        save_myconnectindex = myconnectindex;
-
-        myconnectindex = (intptr_t)kp - (intptr_t)(&KB_KeyPressed(KEYSC_1));
-
-        if (myconnectindex >= numplayers)
-            myconnectindex = save_myconnectindex;
-
-        screenpeek = myconnectindex;
-
-        DoPlayerDivePalette(pp);
-
-        // Now check for item or pain palette stuff
-        // This sets the palette to whatever it is of the player you
-        // just chose to view the game through.
-//      printf("SingPlayInput ALT+1-9 set_pal: pp->PlayerSprite = %d\n",pp->PlayerSprite);
-        //COVERsetbrightness(0,(char *)palette_data); // JBF: figure out what's going on here
-
-        DoPlayerNightVisionPalette(pp);
-
-        ResetKeyRange(&KB_KeyPressed(KEYSC_1), &KB_KeyPressed(KEYSC_9));
-    }
-
-#if 0
-    if (KB_KeyPressed(KEYSC_T))
-    {
-        KB_KeyPressed(KEYSC_T) = 0;
-        PlayerTrackingMode ^= 1;
-    }
-#endif
-
-    if (KB_KeyPressed(KEYSC_H))
-    {
-        short pnum;
-
-        KB_KeyPressed(KEYSC_H) = 0;
-
-        TRAVERSE_CONNECT(pnum)
-        {
-            User[Player[pnum].PlayerSprite]->Health = 100;
-        }
-    }
 }
 
 void
@@ -4391,7 +4283,7 @@ FunctionKeys(PLAYERp pp)
     if (KB_KeyPressed(sc_F9))   { fn_key = 9; }
     if (KB_KeyPressed(sc_F10))  { fn_key = 10; }
 
-    if (KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT))
+    if (inputState.AltPressed())
     {
         if (rts_delay > 16 && fn_key && CommEnabled && !adult_lockout && !Global_PLock)
         {
@@ -4403,7 +4295,6 @@ FunctionKeys(PLAYERp pp)
 
             if (CommEnabled)
             {
-                short pnum;
                 PACKET_RTS p;
 
                 p.PacketType = PACKET_TYPE_RTS;
@@ -4416,7 +4307,7 @@ FunctionKeys(PLAYERp pp)
         return;
     }
 
-    if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
+    if (inputState.ShiftPressed())
     {
         if (fn_key && CommEnabled)
         {

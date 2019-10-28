@@ -32,9 +32,9 @@ BEGIN_DUKE_NS
 
 #define BGSTRETCH (hud_bgstretch ? 1024 : 0)
 
-#define WIN_IS_PRESSED ( KB_KeyPressed( sc_RightWin ) || KB_KeyPressed( sc_LeftWin ) )
-#define ALT_IS_PRESSED ( KB_KeyPressed( sc_RightAlt ) || KB_KeyPressed( sc_LeftAlt ) )
-#define SHIFTS_IS_PRESSED ( KB_KeyPressed( sc_RightShift ) || KB_KeyPressed( sc_LeftShift ) )
+#define WIN_IS_PRESSED ( inputState.WinPressed() )
+#define ALT_IS_PRESSED ( inputState.AltPressed() )
+#define SHIFTS_IS_PRESSED ( inputState.ShiftPressed() )
 
 #ifndef EDUKE32_STANDALONE
 #define RANDOMSCRAP(s, i) A_InsertSprite(s->sectnum,s->x+(krand()&255)-128,s->y+(krand()&255)-128,s->z-ZOFFSET3-(krand()&8191),\

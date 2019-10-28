@@ -470,13 +470,6 @@ DemoPlayBack(void)
             }
             else
             {
-#if DEBUG
-                if (KB_KeyPressed(KEYSC_ALT) && KB_KeyPressed(KEYSC_CTRL) && KB_KeyPressed(KEYSC_S))
-                {
-                    KB_KeyPressed(KEYSC_ALT) = KB_KeyPressed(KEYSC_CTRL) = KB_KeyPressed(KEYSC_S) = 0;
-                    saveboard("demosave.map", (vec3_t *)Player, &Player->pang, &Player->cursectnum);
-                }
-#endif
 
                 if (BUTTON(gamefunc_See_Coop_View))
                 {
@@ -487,19 +480,6 @@ DemoPlayBack(void)
                     if (screenpeek < 0)
                         screenpeek = connecthead;
                 }
-
-#if DEBUG
-                if (KB_KeyPressed(KEYSC_RIGHT) || KB_KeyPressed(KEYSC_UP))
-                {
-                    if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
-                        totalclock += synctics;
-                    else
-                        totalclock += synctics-1;
-                }
-
-                if (KB_KeyPressed(KEYSC_LEFT) || KB_KeyPressed(KEYSC_DOWN))
-                    totalclock += 1-synctics;
-#endif
             }
 
 

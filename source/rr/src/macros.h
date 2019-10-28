@@ -37,9 +37,9 @@ static FORCE_INLINE int32_t krand2(void)
 
 #define BGSTRETCH (hud_bgstretch ? 1024 : 0)
 
-#define WIN_IS_PRESSED ( KB_KeyPressed( sc_RightWin ) || KB_KeyPressed( sc_LeftWin ) )
-#define ALT_IS_PRESSED ( KB_KeyPressed( sc_RightAlt ) || KB_KeyPressed( sc_LeftAlt ) )
-#define SHIFTS_IS_PRESSED ( KB_KeyPressed( sc_RightShift ) || KB_KeyPressed( sc_LeftShift ) )
+#define WIN_IS_PRESSED ( inputState.WinPressed() )
+#define ALT_IS_PRESSED ( inputState.AltPressed() )
+#define SHIFTS_IS_PRESSED ( inputState.ShiftPressed() )
 
 #define RANDOMSCRAP(s, i) \
 { \

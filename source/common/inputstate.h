@@ -196,12 +196,17 @@ public:
 	{
 		return KeyStatus[sc_LeftControl] || KeyStatus[sc_RightControl];
 	}
+
+	bool WinPressed()
+	{
+		return KeyStatus[sc_LeftWin] || KeyStatus[sc_RightWin];
+	}
 	
 	bool ShiftPressed()
 	{
 		return KeyStatus[sc_LeftShift] || KeyStatus[sc_RightShift];
 	}
-
+	
 	bool EscapePressed()
 	{
 		return !!KeyStatus[sc_Escape];

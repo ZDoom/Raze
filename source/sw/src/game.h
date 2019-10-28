@@ -498,8 +498,6 @@ int StdRandomRange(int range);
 // just determine if the player is moving
 #define PLAYER_MOVING(pp) ((pp)->xvect|(pp)->yvect)
 
-#define KEY_EXT(scan) (KB_KeyPressed(scan) | KB_KeyPressed(scan+128))
-
 #define TEST_GOTSECTOR(sect_num) (TEST(gotsector[(sect_num) >> 3], 1 << ((sect_num) & 7)))
 #define RESET_GOTSECTOR(sect_num) (RESET(gotsector[(sect_num) >> 3], 1 << ((sect_num) & 7)))
 #define SET_GOTSECTOR(sect_num) (SET(gotsector[(sect_num) >> 3], 1 << ((sect_num) & 7)))

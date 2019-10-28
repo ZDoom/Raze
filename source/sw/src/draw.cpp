@@ -1686,14 +1686,6 @@ void DrawCheckKeys(PLAYERp pp)
     extern SWBOOL ResCheat;
     extern SWBOOL PauseKeySet;
 
-    /* JonoF: Who really needs this now?
-    if (KB_KeyPressed(KEYSC_F5) && !(KB_KeyPressed(KEYSC_RSHIFT) || KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT)) && !PauseKeySet)
-        {
-        KB_KeyPressed(KEYSC_F5) = 0;
-        ResChange();
-        }
-    */
-
     if (ResCheat)
     {
         ResCheat = FALSE;
