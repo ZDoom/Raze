@@ -142,7 +142,7 @@ void ctrlGetInput(void)
             g_MyAimMode = 1;
         else
         {
-            CONTROL_ClearButton(gamefunc_Mouse_Aiming);
+            inputState.ClearButton(gamefunc_Mouse_Aiming);
             g_MyAimMode = !g_MyAimMode;
             if (g_MyAimMode)
             {
@@ -189,14 +189,14 @@ void ctrlGetInput(void)
     if (gGameStarted && gInputMode != kInputMessage && gInputMode != kInputMenu
         && BUTTON(gamefunc_Send_Message))
     {
-        CONTROL_ClearButton(gamefunc_Send_Message);
+        inputState.ClearButton(gamefunc_Send_Message);
         keyFlushScans();
         gInputMode = kInputMessage;
     }
 
     if (BUTTON(gamefunc_AutoRun))
     {
-        CONTROL_ClearButton(gamefunc_AutoRun);
+        inputState.ClearButton(gamefunc_AutoRun);
         gAutoRun = !gAutoRun;
         if (gAutoRun)
             viewSetMessage("Auto run ON");
@@ -206,13 +206,13 @@ void ctrlGetInput(void)
 
     if (BUTTON(gamefunc_Map_Toggle))
     {
-        CONTROL_ClearButton(gamefunc_Map_Toggle);
+        inputState.ClearButton(gamefunc_Map_Toggle);
         viewToggle(gViewMode);
     }
 
     if (BUTTON(gamefunc_Map_Follow_Mode))
     {
-        CONTROL_ClearButton(gamefunc_Map_Follow_Mode);
+        inputState.ClearButton(gamefunc_Map_Follow_Mode);
         gFollowMap = !gFollowMap;
         gViewMap.FollowMode(gFollowMap);
     }
@@ -221,7 +221,7 @@ void ctrlGetInput(void)
     {
         if (gViewMode == 3)
         {
-            CONTROL_ClearButton(gamefunc_Shrink_Screen);
+            inputState.ClearButton(gamefunc_Shrink_Screen);
 			G_ChangeHudLayout(-1);
 		}
         if (gViewMode == 2 || gViewMode == 4)
@@ -235,7 +235,7 @@ void ctrlGetInput(void)
     {
         if (gViewMode == 3)
         {
-            CONTROL_ClearButton(gamefunc_Enlarge_Screen);
+            inputState.ClearButton(gamefunc_Enlarge_Screen);
 			G_ChangeHudLayout(1);
         }
         if (gViewMode == 2 || gViewMode == 4)
@@ -247,25 +247,25 @@ void ctrlGetInput(void)
 
     if (BUTTON(gamefunc_Toggle_Crosshair))
     {
-        CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
+        inputState.ClearButton(gamefunc_Toggle_Crosshair);
         cl_crosshair = !cl_crosshair;
     }
 
     if (BUTTON(gamefunc_Next_Weapon))
     {
-        CONTROL_ClearButton(gamefunc_Next_Weapon);
+        inputState.ClearButton(gamefunc_Next_Weapon);
         gInput.keyFlags.nextWeapon = 1;
     }
 
     if (BUTTON(gamefunc_Previous_Weapon))
     {
-        CONTROL_ClearButton(gamefunc_Previous_Weapon);
+        inputState.ClearButton(gamefunc_Previous_Weapon);
         gInput.keyFlags.prevWeapon = 1;
     }
 
     if (BUTTON(gamefunc_Show_Opponents_Weapon))
     {
-        CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
+        inputState.ClearButton(gamefunc_Show_Opponents_Weapon);
         cl_showweapon = (cl_showweapon + 1) & 3;
     }
 
@@ -283,7 +283,7 @@ void ctrlGetInput(void)
 
     if (BUTTON(gamefunc_Open))
     {
-        CONTROL_ClearButton(gamefunc_Open);
+        inputState.ClearButton(gamefunc_Open);
         gInput.keyFlags.action = 1;
     }
 
@@ -300,7 +300,7 @@ void ctrlGetInput(void)
 
     if (BUTTON(gamefunc_Aim_Center))
     {
-        CONTROL_ClearButton(gamefunc_Aim_Center);
+        inputState.ClearButton(gamefunc_Aim_Center);
         gInput.keyFlags.lookCenter = 1;
     }
 
@@ -308,43 +308,43 @@ void ctrlGetInput(void)
 
     if (BUTTON(gamefunc_Inventory_Left))
     {
-        CONTROL_ClearButton(gamefunc_Inventory_Left);
+        inputState.ClearButton(gamefunc_Inventory_Left);
         gInput.keyFlags.prevItem = 1;
     }
 
     if (BUTTON(gamefunc_Inventory_Right))
     {
-        CONTROL_ClearButton(gamefunc_Inventory_Right);
+        inputState.ClearButton(gamefunc_Inventory_Right);
         gInput.keyFlags.nextItem = 1;
     }
 
     if (BUTTON(gamefunc_Inventory_Use))
     {
-        CONTROL_ClearButton(gamefunc_Inventory_Use);
+        inputState.ClearButton(gamefunc_Inventory_Use);
         gInput.keyFlags.useItem = 1;
     }
 
     if (BUTTON(gamefunc_BeastVision))
     {
-        CONTROL_ClearButton(gamefunc_BeastVision);
+        inputState.ClearButton(gamefunc_BeastVision);
         gInput.useFlags.useBeastVision = 1;
     }
 
     if (BUTTON(gamefunc_CrystalBall))
     {
-        CONTROL_ClearButton(gamefunc_CrystalBall);
+        inputState.ClearButton(gamefunc_CrystalBall);
         gInput.useFlags.useCrystalBall = 1;
     }
 
     if (BUTTON(gamefunc_JumpBoots))
     {
-        CONTROL_ClearButton(gamefunc_JumpBoots);
+        inputState.ClearButton(gamefunc_JumpBoots);
         gInput.useFlags.useJumpBoots = 1;
     }
 
     if (BUTTON(gamefunc_MedKit))
     {
-        CONTROL_ClearButton(gamefunc_MedKit);
+        inputState.ClearButton(gamefunc_MedKit);
         gInput.useFlags.useMedKit = 1;
     }
 
@@ -352,26 +352,26 @@ void ctrlGetInput(void)
     {
         if (BUTTON(gamefunc_Weapon_1 + i))
         {
-            CONTROL_ClearButton(gamefunc_Weapon_1 + i);
+            inputState.ClearButton(gamefunc_Weapon_1 + i);
             gInput.newWeapon = 1 + i;
         }
     }
 
     if (BUTTON(gamefunc_ProximityBombs))
     {
-        CONTROL_ClearButton(gamefunc_ProximityBombs);
+        inputState.ClearButton(gamefunc_ProximityBombs);
         gInput.newWeapon = 11;
     }
 
     if (BUTTON(gamefunc_RemoteBombs))
     {
-        CONTROL_ClearButton(gamefunc_RemoteBombs);
+        inputState.ClearButton(gamefunc_RemoteBombs);
         gInput.newWeapon = 12;
     }
 
     if (BUTTON(gamefunc_Holster_Weapon))
     {
-        CONTROL_ClearButton(gamefunc_Holster_Weapon);
+        inputState.ClearButton(gamefunc_Holster_Weapon);
         gInput.keyFlags.holsterWeapon = 1;
     }
 

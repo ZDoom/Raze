@@ -2426,8 +2426,9 @@ MoveScrollMode2D(PLAYERp pp)
     }
 
     // Toggle follow map mode on/off
-    if (BUTTON(gamefunc_Map_Follow_Mode) && !BUTTONHELD(gamefunc_Map_Follow_Mode))
+    if (BUTTON(gamefunc_Map_Follow_Mode))
     {
+		inputState.ClearButton(gamefunc_Map_Follow_Mode);
         ScrollMode2D = !ScrollMode2D;
         // Reset coords
         Follow_posx = pp->posx;

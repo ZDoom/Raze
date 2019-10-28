@@ -2953,7 +2953,7 @@ void P_GetInput(int playerNum)
         pPlayer->crouch_toggle = !pPlayer->crouch_toggle && crouchable;
 
         if (crouchable)
-            CONTROL_ClearButton(gamefunc_Toggle_Crouch);
+            inputState.ClearButton(gamefunc_Toggle_Crouch);
     }
 
     if (BUTTON(gamefunc_Crouch) || BUTTON(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))

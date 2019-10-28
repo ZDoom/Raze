@@ -177,13 +177,11 @@ extern LastSeenInput CONTROL_LastSeenInput;
 
 //void CONTROL_MapKey( int32_t which, kb_scancode key1, kb_scancode key2 );
 void CONTROL_MapButton(int whichfunction, int whichbutton, int doubleclicked, controldevice device);
-void CONTROL_DefineFlag( int which, int toggle );
 int CONTROL_FlagActive( int which );
 void CONTROL_ClearAssignments( void );
 // void CONTROL_GetFunctionInput( void );
 void CONTROL_GetInput( ControlInfo *info );
 void CONTROL_ClearButton( int whichbutton );
-void CONTROL_ClearAllButtons( void );
 extern float CONTROL_MouseSensitivity;
 bool CONTROL_Startup(controltype which, int32_t ( *TimeFunction )( void ), int32_t ticspersecond);
 void CONTROL_Shutdown( void );
@@ -230,8 +228,6 @@ void CONTROL_ProcessBinds(void);
 
 ////////////////////
 
-#define CONTROL_NUM_FLAGS   80
-extern int32_t CONTROL_ButtonFlags[CONTROL_NUM_FLAGS];
 extern bool CONTROL_SmoothMouse;
 
 #endif

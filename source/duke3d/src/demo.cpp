@@ -909,7 +909,7 @@ nextdemo_nomenu:
                     if (BUTTON(gamefunc_SendMessage))
                     {
                         KB_FlushKeyboardQueue();
-                        CONTROL_ClearButton(gamefunc_SendMessage);
+                        inputState.ClearButton(gamefunc_SendMessage);
                         g_player[myconnectindex].ps->gm = MODE_TYPE;
                         typebuf[0] = 0;
                     }

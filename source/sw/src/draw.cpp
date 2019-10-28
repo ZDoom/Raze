@@ -1067,18 +1067,15 @@ ResizeView(PLAYERp pp)
     else
     {
         if (BUTTON(gamefunc_Shrink_Screen))      // &&
-        // !BUTTONHELD(gamefunc_SizeVi
-        // ewDown))
         {
-            CONTROL_ClearButton(gamefunc_Shrink_Screen);
+            inputState.ClearButton(gamefunc_Shrink_Screen);
             SetBorder(pp, gs.BorderNum + 1);
             SetRedrawScreen(pp);
         }
 
         if (BUTTON(gamefunc_Enlarge_Screen)) // &&
-        // !BUTTONHELD(gamefunc_SizeViewUp))
         {
-            CONTROL_ClearButton(gamefunc_Enlarge_Screen);
+            inputState.ClearButton(gamefunc_Enlarge_Screen);
             SetBorder(pp, gs.BorderNum - 1);
             SetRedrawScreen(pp);
         }

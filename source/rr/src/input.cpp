@@ -87,8 +87,8 @@ void I_AdvanceTriggerClear(void)
 #if defined(GEKKO)
     JOYSTICK_ClearButton(WII_A);
 #else
-    CONTROL_ClearButton(gamefunc_Open);
-    CONTROL_ClearButton(gamefunc_Fire);
+    inputState.ClearButton(gamefunc_Open);
+    inputState.ClearButton(gamefunc_Fire);
 #endif
 }
 
@@ -109,7 +109,7 @@ void I_ReturnTriggerClear(void)
     KB_FlushKeyboardQueue();
     KB_ClearKeyDown(sc_Escape);
     MOUSE_ClearButton(RIGHT_MOUSE);
-    CONTROL_ClearButton(gamefunc_Crouch);
+    inputState.ClearButton(gamefunc_Crouch);
 #if defined(GEKKO)
     JOYSTICK_ClearButton(WII_B);
     JOYSTICK_ClearButton(WII_HOME);
@@ -153,7 +153,7 @@ void I_MenuUpClear(void)
     KB_ClearKeyDown(sc_UpArrow);
     KB_ClearKeyDown(sc_kpad_8);
     MOUSE_ClearButton(WHEELUP_MOUSE);
-    CONTROL_ClearButton(gamefunc_Move_Forward);
+    inputState.ClearButton(gamefunc_Move_Forward);
     JOYSTICK_ClearHat(0);
 }
 
@@ -175,7 +175,7 @@ void I_MenuDownClear(void)
     KB_ClearKeyDown(sc_kpad_2);
     KB_ClearKeyDown(sc_PgDn);
     MOUSE_ClearButton(WHEELDOWN_MOUSE);
-    CONTROL_ClearButton(gamefunc_Move_Backward);
+    inputState.ClearButton(gamefunc_Move_Backward);
     JOYSTICK_ClearHat(0);
 }
 
@@ -197,8 +197,8 @@ void I_MenuLeftClear(void)
     KB_ClearKeyDown(sc_LeftArrow);
     KB_ClearKeyDown(sc_kpad_4);
     KB_ClearKeyDown(sc_Tab);
-    CONTROL_ClearButton(gamefunc_Turn_Left);
-    CONTROL_ClearButton(gamefunc_Strafe_Left);
+    inputState.ClearButton(gamefunc_Turn_Left);
+    inputState.ClearButton(gamefunc_Strafe_Left);
     JOYSTICK_ClearHat(0);
 }
 
@@ -221,8 +221,8 @@ void I_MenuRightClear(void)
     KB_ClearKeyDown(sc_RightArrow);
     KB_ClearKeyDown(sc_kpad_6);
     KB_ClearKeyDown(sc_Tab);
-    CONTROL_ClearButton(gamefunc_Turn_Right);
-    CONTROL_ClearButton(gamefunc_Strafe_Right);
+    inputState.ClearButton(gamefunc_Turn_Right);
+    inputState.ClearButton(gamefunc_Strafe_Right);
     MOUSE_ClearButton(MIDDLE_MOUSE);
     JOYSTICK_ClearHat(0);
 }
@@ -339,7 +339,7 @@ int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
     }
 
     // All gamefuncs (and *only* _gamefuncs_) in I_ReturnTriggerClear() should be replicated here.
-    CONTROL_ClearButton(gamefunc_Crouch);
+    inputState.ClearButton(gamefunc_Crouch);
     if (I_ReturnTrigger())
     {
         I_ReturnTriggerClear();

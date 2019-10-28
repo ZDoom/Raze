@@ -4550,7 +4550,7 @@ void G_HandleLocalKeys(void)
     {
         if (BUTTON(gamefunc_Enlarge_Screen))
         {
-            CONTROL_ClearButton(gamefunc_Enlarge_Screen);
+            inputState.ClearButton(gamefunc_Enlarge_Screen);
 
             if (!SHIFTS_IS_PRESSED)
             {
@@ -4569,7 +4569,7 @@ void G_HandleLocalKeys(void)
 
         if (BUTTON(gamefunc_Shrink_Screen))
         {
-            CONTROL_ClearButton(gamefunc_Shrink_Screen);
+            inputState.ClearButton(gamefunc_Shrink_Screen);
 
             if (!SHIFTS_IS_PRESSED)
             {
@@ -4592,7 +4592,7 @@ void G_HandleLocalKeys(void)
 
     if (BUTTON(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
     {
-        CONTROL_ClearButton(gamefunc_See_Coop_View);
+        inputState.ClearButton(gamefunc_See_Coop_View);
         screenpeek = connectpoint2[screenpeek];
         if (screenpeek == -1) screenpeek = 0;
         g_restorePalette = -1;
@@ -4600,21 +4600,21 @@ void G_HandleLocalKeys(void)
 
     if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_Show_Opponents_Weapon))
     {
-        CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
+        inputState.ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.config.ShowWeapons = ud.showweapons = 1-ud.showweapons;
         P_DoQuote(QUOTE_WEAPON_MODE_OFF-ud.showweapons, &myplayer);
     }
 
     if (BUTTON(gamefunc_Toggle_Crosshair))
     {
-        CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
+        inputState.ClearButton(gamefunc_Toggle_Crosshair);
 		cl_crosshair = !cl_crosshair;
         P_DoQuote(QUOTE_CROSSHAIR_OFF-cl_crosshair, &myplayer);
     }
 
     if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode))
     {
-        CONTROL_ClearButton(gamefunc_Map_Follow_Mode);
+        inputState.ClearButton(gamefunc_Map_Follow_Mode);
         ud.scrollmode = 1-ud.scrollmode;
         if (ud.scrollmode)
         {
@@ -4806,7 +4806,7 @@ void G_HandleLocalKeys(void)
         if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_SendMessage))
         {
             KB_FlushKeyboardQueue();
-            CONTROL_ClearButton(gamefunc_SendMessage);
+            inputState.ClearButton(gamefunc_SendMessage);
             myplayer.gm |= MODE_TYPE;
             typebuf[0] = 0;
         }
@@ -4905,7 +4905,7 @@ FAKE_F3:
 
         if ((BUTTON(gamefunc_Quick_Save) || g_doQuickSave == 1) && (myplayer.gm & MODE_GAME))
         {
-            CONTROL_ClearButton(gamefunc_Quick_Save);
+            inputState.ClearButton(gamefunc_Quick_Save);
 
             g_doQuickSave = 0;
 
@@ -4942,7 +4942,7 @@ FAKE_F3:
 
         if (BUTTON(gamefunc_Third_Person_View))
         {
-            CONTROL_ClearButton(gamefunc_Third_Person_View);
+            inputState.ClearButton(gamefunc_Third_Person_View);
 
             myplayer.over_shoulder_on = !myplayer.over_shoulder_on;
 
@@ -4964,7 +4964,7 @@ FAKE_F3:
 
         if ((BUTTON(gamefunc_Quick_Load) || g_doQuickSave == 2) && (myplayer.gm & MODE_GAME))
         {
-            CONTROL_ClearButton(gamefunc_Quick_Load);
+            inputState.ClearButton(gamefunc_Quick_Load);
 
             g_doQuickSave = 0;
 
@@ -5036,14 +5036,14 @@ FAKE_F3:
 
     if (BUTTON(gamefunc_AutoRun))
     {
-        CONTROL_ClearButton(gamefunc_AutoRun);
+        inputState.ClearButton(gamefunc_AutoRun);
         cl_autorun= 1-cl_autorun;
         P_DoQuote(QUOTE_RUN_MODE_OFF + cl_autorun, &myplayer);
     }
 
     if (BUTTON(gamefunc_Map))
     {
-        CONTROL_ClearButton(gamefunc_Map);
+        inputState.ClearButton(gamefunc_Map);
         if (ud.last_overhead != ud.overhead_on && ud.last_overhead)
         {
             ud.overhead_on = ud.last_overhead;

@@ -29,8 +29,6 @@ static int32_t CONTROL_NumMouseButtons  = 0;
 static int32_t CONTROL_NumJoyButtons    = 0;
 static int32_t CONTROL_NumJoyAxes       = 0;
 
-static controlflags      CONTROL_Flags[CONTROL_NUM_FLAGS];
-
 // static controlkeymaptype  CONTROL_KeyMapping[CONTROL_NUM_FLAGS];
 
 static int32_t            CONTROL_MouseAxesScale[2];
@@ -121,86 +119,6 @@ static int32_t CONTROL_GetTime(void)
     t += 5;
     return t;
 }
-
-static void CONTROL_SetFlag(int which, int active)
-{
-    if (CONTROL_CheckRange(which)) return;
-
-    controlflags &flags = CONTROL_Flags[which];
-
-    if (flags.toggle == INSTANT_ONOFF)
-        flags.active = active;
-    else if (active)
-        flags.buttonheld = FALSE;
-    else if (flags.buttonheld == FALSE)
-    {
-        flags.buttonheld = TRUE;
-        flags.active = (flags.active ? FALSE : TRUE);
-    }
-}
-
-
-void CONTROL_DefineFlag(int which, int toggle)
-{
-    if (CONTROL_CheckRange(which)) return;
-
-    controlflags &flags = CONTROL_Flags[which];
-
-    flags.active     = FALSE;
-    flags.buttonheld = FALSE;
-    flags.cleared    = 0;
-    flags.toggle     = toggle;
-    flags.used       = TRUE;
-}
-
-int CONTROL_FlagActive(int which)
-{
-    if (CONTROL_CheckRange(which)) return FALSE;
-
-    return CONTROL_Flags[which].used;
-}
-
-#if 0
-void CONTROL_MapKey(int32_t which, kb_scancode key1, kb_scancode key2)
-{
-    if (CONTROL_CheckRange(which)) return;
-
-    CONTROL_KeyMapping[which].key1 = key1 ? key1 : KEYUNDEFINED;
-    CONTROL_KeyMapping[which].key2 = key2 ? key2 : KEYUNDEFINED;
-}
-
-void CONTROL_PrintKeyMap(void)
-{
-    int32_t i;
-
-    for (i=0; i<CONTROL_NUM_FLAGS; i++)
-    {
-        initprintf("function %2d key1=%3x key2=%3x\n",
-                   i, CONTROL_KeyMapping[i].key1, CONTROL_KeyMapping[i].key2);
-    }
-}
-
-void CONTROL_PrintControlFlag(int32_t which)
-{
-    initprintf("function %2d active=%d used=%d toggle=%d buttonheld=%d cleared=%d\n",
-               which, CONTROL_Flags[which].active, CONTROL_Flags[which].used,
-               CONTROL_Flags[which].toggle, CONTROL_Flags[which].buttonheld,
-               CONTROL_Flags[which].cleared);
-}
-
-void CONTROL_PrintAxes(void)
-{
-    int32_t i;
-
-    initprintf("numjoyaxes=%d\n", CONTROL_NumJoyAxes);
-    for (i=0; i<CONTROL_NumJoyAxes; i++)
-    {
-        initprintf("axis=%d analog=%d digital1=%d digital2=%d\n",
-                   i, CONTROL_JoyAxesMap[i].analogmap,
-                   CONTROL_JoyAxesMap[i].minmap, CONTROL_JoyAxesMap[i].maxmap);
-    }
-}
-#endif
 
 void CONTROL_MapButton(int whichfunction, int whichbutton, int doubleclicked, controldevice device)
 {
@@ -709,14 +627,6 @@ void CONTROL_ClearButton(int whichbutton)
     CONTROL_Flags[whichbutton].cleared = TRUE;
 }
 
-void CONTROL_ClearAllButtons(void)
-{
-	inputState.ClearButtonState();
-
-    for (auto & c : CONTROL_Flags)
-        c.cleared = TRUE;
-}
-
 int32_t CONTROL_GetGameControllerDigitalAxisPos(int32_t axis)
 {
     if (!joystick.isGameController)
@@ -777,18 +687,10 @@ static void CONTROL_GetFunctionInput(void)
     CONTROL_ButtonFunctionState(CONTROL_ButtonFlags);
     CONTROL_AxisFunctionState(CONTROL_ButtonFlags);
 
-	inputState.PrepareState();
-
-    int i = CONTROL_NUM_FLAGS-1;
-
-    do
+	for (int i = 0; i < NUMGAMEFUNCTIONS; i++ )
     {
-        CONTROL_SetFlag(i, /*CONTROL_KeyboardFunctionPressed(i) | */CONTROL_ButtonFlags[i]);
-
-        if (CONTROL_Flags[i].cleared == FALSE) inputState.SetButton(i, CONTROL_Flags[i].active);
-        else if (CONTROL_Flags[i].active == FALSE) CONTROL_Flags[i].cleared = 0;
+		inputState.UpdateButton(i, CONTROL_ButtonFlags[i]);
     }
-    while (i--);
 
     memset(CONTROL_ButtonFlags, 0, sizeof(CONTROL_ButtonFlags));
 }
@@ -837,11 +739,6 @@ bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ti
     CONTROL_MouseEnabled    = CONTROL_MousePresent;
 
     CONTROL_ResetJoystickValues();
-
-	inputState.ClearButtonState();
-
-    for (auto & CONTROL_Flag : CONTROL_Flags)
-        CONTROL_Flag.used = FALSE;
 
     CONTROL_Started = TRUE;
 

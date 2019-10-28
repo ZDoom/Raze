@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "input.h"
 #include "menus.h"
 #include "gamemenu.h"
+#include "inputstate.h"
 
 BEGIN_BLD_NS
 
@@ -52,7 +53,7 @@ void I_ClearAllInput(void)
     KB_ClearKeysDown();
     MOUSE_ClearAllButtons();
     JOYSTICK_ClearAllButtons();
-    CONTROL_ClearAllButtons();
+    inputState.ClearAllButtons();
 #if defined EDUKE32_IOS
     mouseAdvanceClickState();
 #endif
@@ -146,10 +147,10 @@ void I_GeneralTriggerClear(void)
     I_AdvanceTriggerClear();
     I_ReturnTriggerClear();
 #if !defined GEKKO
-    CONTROL_ClearButton(gamefunc_Open);
-    CONTROL_ClearButton(gamefunc_Weapon_Fire);
+    inputState.ClearButton(gamefunc_Open);
+    inputState.ClearButton(gamefunc_Weapon_Fire);
 #endif
-    CONTROL_ClearButton(gamefunc_Crouch);
+    inputState.ClearButton(gamefunc_Crouch);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
 }
 
@@ -194,7 +195,7 @@ void I_MenuUpClear(void)
     KB_ClearKeyDown(sc_UpArrow);
     KB_ClearKeyDown(sc_kpad_8);
     MOUSE_ClearButton(WHEELUP_MOUSE);
-    CONTROL_ClearButton(gamefunc_Move_Forward);
+    inputState.ClearButton(gamefunc_Move_Forward);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_UP);
     CONTROL_ClearGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY);
@@ -220,7 +221,7 @@ void I_MenuDownClear(void)
     KB_ClearKeyDown(sc_kpad_2);
     KB_ClearKeyDown(sc_PgDn);
     MOUSE_ClearButton(WHEELDOWN_MOUSE);
-    CONTROL_ClearButton(gamefunc_Move_Backward);
+    inputState.ClearButton(gamefunc_Move_Backward);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_DOWN);
     CONTROL_ClearGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY);
@@ -246,8 +247,8 @@ void I_MenuLeftClear(void)
     KB_ClearKeyDown(sc_LeftArrow);
     KB_ClearKeyDown(sc_kpad_4);
     KB_ClearKeyDown(sc_Tab);
-    CONTROL_ClearButton(gamefunc_Turn_Left);
-    CONTROL_ClearButton(gamefunc_Strafe_Left);
+    inputState.ClearButton(gamefunc_Turn_Left);
+    inputState.ClearButton(gamefunc_Strafe_Left);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_LEFT);
     CONTROL_ClearGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX);
@@ -274,8 +275,8 @@ void I_MenuRightClear(void)
     KB_ClearKeyDown(sc_RightArrow);
     KB_ClearKeyDown(sc_kpad_6);
     KB_ClearKeyDown(sc_Tab);
-    CONTROL_ClearButton(gamefunc_Turn_Right);
-    CONTROL_ClearButton(gamefunc_Strafe_Right);
+    inputState.ClearButton(gamefunc_Turn_Right);
+    inputState.ClearButton(gamefunc_Strafe_Right);
     MOUSE_ClearButton(MIDDLE_MOUSE);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_RIGHT);

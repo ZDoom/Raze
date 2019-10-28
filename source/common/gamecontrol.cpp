@@ -338,7 +338,6 @@ void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy/*=false*/)
 					CONFIG_MapKey(num, key[0], 0, key[1], 0);
 
 			}
-			CONTROL_DefineFlag(num, false);
 		}
 
 	}

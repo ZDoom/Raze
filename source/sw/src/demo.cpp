@@ -480,7 +480,7 @@ DemoPlayBack(void)
 
                 if (BUTTON(gamefunc_See_Coop_View))
                 {
-                    CONTROL_ClearButton(gamefunc_See_Coop_View);
+                    inputState.ClearButton(gamefunc_See_Coop_View);
 
                     screenpeek = connectpoint2[screenpeek];
 

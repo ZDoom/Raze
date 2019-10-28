@@ -4125,7 +4125,7 @@ SinglePlayInput(PLAYERp pp)
     {
         short oldscreenpeek = screenpeek;
 
-        CONTROL_ClearButton(gamefunc_See_Co_Op_View);
+        inputState.ClearButton(gamefunc_See_Co_Op_View);
 
         screenpeek = connectpoint2[screenpeek];
 
@@ -4633,7 +4633,7 @@ void GetMessageInput(PLAYERp pp)
     {
         if (BUTTON(gamefunc_SendMessage))
         {
-            CONTROL_ClearButton(gamefunc_SendMessage);
+            inputState.ClearButton(gamefunc_SendMessage);
             KB_FlushKeyboardQueue();
             MessageInputMode = TRUE;
             InputMode = TRUE;
@@ -4668,7 +4668,7 @@ void GetMessageInput(PLAYERp pp)
                 InputMode = FALSE;
                 KB_ClearKeysDown();
                 KB_FlushKeyboardQueue();
-                CONTROL_ClearButton(gamefunc_Inventory);
+                inputState.ClearButton(gamefunc_Inventory);
             }
             else
             {
@@ -4702,11 +4702,11 @@ SEND_MESSAGE:
                 InputMode = FALSE;
                 KB_ClearKeysDown();
                 KB_FlushKeyboardQueue();
-                CONTROL_ClearButton(gamefunc_Inventory);
+                inputState.ClearButton(gamefunc_Inventory);
                 CON_ProcessUserCommand();     // Check to see if it's a cheat or command
 
                 for (i = 0; i < NUMGAMEFUNCTIONS; i++)
-                    CONTROL_ClearButton(i);
+                    inputState.ClearButton(i);
 
                 // Put who sent this
                 sprintf(ds,"%s: %s",pp->PlayerName,MessageInputString);
@@ -4798,7 +4798,7 @@ void GetConInput(PLAYERp pp)
                 InputMode = FALSE;
                 KB_ClearKeysDown();
                 KB_FlushKeyboardQueue();
-                CONTROL_ClearButton(gamefunc_Inventory);
+                inputState.ClearButton(gamefunc_Inventory);
                 memset(MessageInputString, '\0', sizeof(MessageInputString));
             }
             else
@@ -4806,7 +4806,7 @@ void GetConInput(PLAYERp pp)
                 InputMode = FALSE;
                 KB_ClearKeysDown();
                 KB_FlushKeyboardQueue();
-                CONTROL_ClearButton(gamefunc_Inventory);
+                inputState.ClearButton(gamefunc_Inventory);
                 CON_ConMessage("%s", MessageInputString);
                 CON_ProcessUserCommand();     // Check to see if it's a cheat or command
 
@@ -4960,7 +4960,7 @@ getinput(SW_PACKET *loc)
 			g_MyAimMode = 1;
 		else
 		{
-			CONTROL_ClearButton(gamefunc_Mouse_Aiming);
+			inputState.ClearButton(gamefunc_Mouse_Aiming);
 			g_MyAimMode = !g_MyAimMode;
 			if (g_MyAimMode)
 			{
@@ -4994,7 +4994,7 @@ getinput(SW_PACKET *loc)
     // MAP KEY
     if (BUTTON(gamefunc_Map))
     {
-        CONTROL_ClearButton(gamefunc_Map);
+        inputState.ClearButton(gamefunc_Map);
 
         // Init follow coords
         Follow_posx = pp->posx;
@@ -5017,8 +5017,9 @@ getinput(SW_PACKET *loc)
     // Toggle follow map mode on/off
     if (dimensionmode == 5 || dimensionmode == 6)
     {
-        if (BUTTON(gamefunc_Map_Follow_Mode) && !BUTTONHELD(gamefunc_Map_Follow_Mode))
+        if (BUTTON(gamefunc_Map_Follow_Mode))
         {
+			inputState.ClearButton(gamefunc_Map_Follow_Mode);
             ScrollMode2D = !ScrollMode2D;
             Follow_posx = pp->posx;
             Follow_posy = pp->posy;
@@ -5198,7 +5199,7 @@ getinput(SW_PACKET *loc)
         short next_weapon = u->WeaponNum + 1;
         short start_weapon;
 
-        CONTROL_ClearButton(gamefunc_Next_Weapon);
+        inputState.ClearButton(gamefunc_Next_Weapon);
 
         start_weapon = u->WeaponNum + 1;
 
@@ -5238,7 +5239,7 @@ getinput(SW_PACKET *loc)
         short prev_weapon = u->WeaponNum - 1;
         short start_weapon;
 
-        CONTROL_ClearButton(gamefunc_Previous_Weapon);
+        inputState.ClearButton(gamefunc_Previous_Weapon);
 
         start_weapon = u->WeaponNum - 1;
 
@@ -5305,7 +5306,7 @@ getinput(SW_PACKET *loc)
     {
         if (BUTTON(gamefunc_See_Co_Op_View))
         {
-            CONTROL_ClearButton(gamefunc_See_Co_Op_View);
+            inputState.ClearButton(gamefunc_See_Co_Op_View);
 
             screenpeek = connectpoint2[screenpeek];
 
@@ -5344,7 +5345,7 @@ getinput(SW_PACKET *loc)
 
     if (BUTTON(gamefunc_Toggle_Crosshair))
     {
-        CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
+        inputState.ClearButton(gamefunc_Toggle_Crosshair);
         pToggleCrosshair(pp);
     }
 }

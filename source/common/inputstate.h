@@ -124,54 +124,47 @@ enum GameFunction_t
 
 class InputState
 {
+	// NOTE: This entire thing is mostly a band-aid to wrap something around MACT so that replacing it with a true event-driven system later
+	// won't result in a total disaster. None of this is meant to live for long because the input method at use here is fundamentally flawed
+	// because it does not track what triggered the button.
+	struct ButtonStateFlags
+	{
+		bool ButtonActive;	// Button currently reports being active to the client
+		bool ButtonCleared;,	// Button has been cleared by the client, i.e. do not set to active until no input for this button is active anymore.
+	};
 
-	FixedBitArray<NUMGAMEFUNCTIONS> ButtonState, ButtonHeldState;
+	ButtonStateFlags ButtonState[NUMGAMEFUNCTIONS];
 	uint8_t KeyStatus[NUMKEYS];
 
 public:
 
 	bool BUTTON(int x)
 	{
-		return ButtonState[x];
+		return ButtonState[x].ButtonActive;
 	}
 
-	bool BUTTONHELD(int x)
+	// Receive a status update
+	void UpdateButton(int x, bool set)
 	{
-		return ButtonHeldState[x];
-	}
+		auto &b = ButtonState[x];
+		if (!b.ButtonCleared) b.ButtonActive = set;
+		else if (!set) b.ButtonCleared = false;
 
-	void SetButton(int x, bool set = true)
-	{
-		if (set) ButtonState.Set(x);
-		else ButtonState.Clear(x);
-	}
-	
-	void SetButtonHeld(int x, bool set = true)
-	{
-		if (set) ButtonHeldState.Set(x);
-		else ButtonHeldState.Clear(x);
 	}
 	
 	void ClearButton(int x)
 	{
-		ButtonState.Clear(x);
+		ButtonState[x].ButtonActive = false;
+		ButtonState[x].ButtonCleared = true;
 	}
 	
-	void ClearButtonHeld(int x)
+	void ClearAllButtons()
 	{
-		ButtonHeldState.Clear(x);
-	}
-	
-	void ClearButtonState()
-	{
-		ButtonState.Zero();
-		ButtonHeldState.Zero();
-	}
-	
-	void PrepareState()
-	{
-		ButtonHeldState = ButtonState;
-		ButtonState.Zero();
+		for (auto & b : ButtonState)
+		{
+			b.ButtonActive = false;
+			b.ButtonCleared = true;
+		}
 	}
 	
 	uint8_t GetKeyStatus(int key)
@@ -222,26 +215,6 @@ extern InputState inputState;
 inline bool BUTTON(int x)
 {
 	return inputState.BUTTON(x);
-}
-
-inline bool BUTTONHELD(int x)
-{
-	return inputState.BUTTONHELD(x);
-}
-
-inline bool BUTTONJUSTPRESSED(int x)
-{
-	return (BUTTON(x) && !BUTTONHELD(x));
-}
-
-inline bool BUTTONRELEASED(int x)
-{
-	return (!BUTTON(x) && BUTTONHELD(x));
-}
-
-inline bool BUTTONSTATECHANGED(int x)
-{
-	return (BUTTON(x) != BUTTONHELD(x));
 }
 
 inline uint8_t KB_KeyPressed(int scan) 

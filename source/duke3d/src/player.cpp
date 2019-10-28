@@ -3060,7 +3060,7 @@ void P_GetInput(int const playerNum)
         pPlayer->crouch_toggle = !pPlayer->crouch_toggle && crouchable;
 
         if (crouchable)
-            CONTROL_ClearButton(gamefunc_Toggle_Crouch);
+            inputState.ClearButton(gamefunc_Toggle_Crouch);
     }
 
     if (BUTTON(gamefunc_Crouch) || BUTTON(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
@@ -3106,7 +3106,7 @@ void P_GetInput(int const playerNum)
         input.fvel = 0;
 
     if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
-        CONTROL_ClearButton(gamefunc_Fire);
+        inputState.ClearButton(gamefunc_Fire);
 
     localInput.extbits = (BUTTON(gamefunc_Move_Forward) || (input.fvel > 0));
     localInput.extbits |= (BUTTON(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
@@ -5142,7 +5142,7 @@ void P_ProcessInput(int playerNum)
                             pPlayer->jumping_toggle = 2;
 
                             if (myconnectindex == playerNum)
-                                CONTROL_ClearButton(gamefunc_Jump);
+                                inputState.ClearButton(gamefunc_Jump);
                         }
                     }
                 }
