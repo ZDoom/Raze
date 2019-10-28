@@ -75,14 +75,6 @@ void ctrlInit(void)
     KB_FlushKeyboardQueueScans();
     CONFIG_SetupMouse();
     CONFIG_SetupJoystick();
-
-    CONTROL_JoystickEnabled = (in_joystick && CONTROL_JoyPresent);
-    CONTROL_MouseEnabled = (in_mouse && CONTROL_MousePresent);
-    CONTROL_SmoothMouse = in_mousesmoothing;
-
-    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-    for (int i = 0; i < joystick.numAxes; i++)
-        joySetDeadZone(i, JoystickAnalogueDead[i], JoystickAnalogueSaturate[i]);
 }
 
 void ctrlTerm(void)

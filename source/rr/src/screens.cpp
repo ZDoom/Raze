@@ -1030,16 +1030,12 @@ void G_DisplayRest(int32_t smoothratio)
             }
             else
             {
-#ifdef __ANDROID__
-                CONTROL_Android_ScrollMap(&ud.fola, &ud.folx, &ud.foly, &pp->zoom);
-#else
                 if (!ud.pause_on)
                 {
                     ud.fola += ud.folavel>>3;
                     ud.folx += (ud.folfvel*sintable[(512+2048-ud.fola)&2047])>>14;
                     ud.foly += (ud.folfvel*sintable[(512+1024-512-ud.fola)&2047])>>14;
                 }
-#endif
                 cposx = ud.folx;
                 cposy = ud.foly;
                 cang = ud.fola;

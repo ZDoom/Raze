@@ -87,27 +87,8 @@ int32_t GetTime(void)
 
 void InitSetup(void)
 {
-    int i;
-    //RegisterShutdownFunction( ShutDown );
-
-    //StartWindows();
-    //initkeys();
-    //CONFIG_GetSetupFilename();
-    //InitializeKeyDefList();
-    //CONFIG_ReadSetup();
     CONFIG_SetupMouse();
     CONFIG_SetupJoystick();
-
-    CONTROL_JoystickEnabled = (UseJoystick && CONTROL_JoyPresent);
-    CONTROL_MouseEnabled = (UseMouse && CONTROL_MousePresent);
-
-    /*{
-    int i;
-    CONTROL_PrintKeyMap();
-    for(i=0;i<NUMGAMEFUNCTIONS;i++) CONTROL_PrintControlFlag(i);
-    CONTROL_PrintAxes();
-    }*/
-
 }
 
 #if 0

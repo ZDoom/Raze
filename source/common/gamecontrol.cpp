@@ -343,6 +343,41 @@ void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy/*=false*/)
 	}
 }
 
+// FIXME: Consider the mouse as well!
+FString CONFIG_GetBoundKeyForLastInput(int gameFunc)
+{
+	if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
+	{
+		char const * joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
+		if (joyname != nullptr && joyname[0] != '\0')
+		{
+			return joyname;
+		}
+
+		char const * keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
+		if (keyname != nullptr && keyname[0] != '\0')
+		{
+			return keyname;
+		}
+	}
+	else
+	{
+		char const * keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
+		if (keyname != nullptr && keyname[0] != '\0')
+		{
+			return keyname;
+		}
+
+		char const * joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
+		if (joyname != nullptr && joyname[0] != '\0')
+		{
+			return joyname;
+		}
+
+		return "UNBOUND";
+	}
+
+}
 //==========================================================================
 //
 // 
@@ -633,6 +668,7 @@ void CONFIG_SetupMouse(void)
 		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1, controldevice_mouse);
 		CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
 	}
+	CONTROL_MouseEnabled    = (in_mouse && CONTROL_MousePresent);
 }
 
 
@@ -707,6 +743,13 @@ void CONFIG_SetupJoystick(void)
 		CONTROL_SetAnalogAxisScale(i, JoystickAnalogueScale[i], controldevice_joystick);
 		CONTROL_SetAnalogAxisInvert(i, JoystickAnalogueInvert[i], controldevice_joystick);
 	}
+	
+	CONTROL_JoystickEnabled = (in_joystick && CONTROL_JoyPresent);
+
+	// JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
+	for (int i=0; i<joystick.numAxes; i++)
+		joySetDeadZone(i,JoystickAnalogueDead[i],JoystickAnalogueSaturate[i]);
+
 }
 
 static void CONFIG_SetJoystickButtonFunction(int i, int j, int function)
@@ -964,11 +1007,8 @@ char const* CONFIG_GetGameFuncOnJoystick(int gameFunc)
 	for (int i = 0; i < joystick.numAxes; ++i)
 		for (int j = 0; j < 2; ++j)
 			if (JoystickDigitalFunctions[i][j] == gameFunc)
-				return joyGetName(0, i);
 
-	return "";
-}
-
+				
 
 void CONFIG_InitMouseAndController()
 {

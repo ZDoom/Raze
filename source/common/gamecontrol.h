@@ -58,8 +58,8 @@ void CONFIG_InitMouseAndController();
 void CONFIG_SetGameControllerDefaultsStandard();
 void CONFIG_SetGameControllerDefaultsPro();
 void CONFIG_SetGameControllerDefaultsClear();
-char const* CONFIG_GetGameFuncOnJoystick(int gameFunc);
-char const* CONFIG_GetGameFuncOnKeyboard(int gameFunc);
+
+FString CONFIG_GetBoundKeyForLastInput(int gameFunc);
 
 int osdcmd_bind(osdcmdptr_t parm);
 int osdcmd_unbindall(osdcmdptr_t);

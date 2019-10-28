@@ -3682,46 +3682,10 @@ badindex:
 
                     static char const s_KeyboardFormat[] = "[%s]";
                     static char const s_JoystickFormat[] = "(%s)";
-                    static char const s_Unbound[] = "UNBOUND";
 
-                    if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
-                    {
-                        char const * joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
-                        if (joyname != nullptr && joyname[0] != '\0')
-                        {
-                            snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_JoystickFormat, joyname);
-                            dispatch();
-                        }
-
-                        char const * keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
-                        if (keyname != nullptr && keyname[0] != '\0')
-                        {
-                            snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_KeyboardFormat, keyname);
-                            dispatch();
-                        }
-
-                        snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_JoystickFormat, s_Unbound);
-                    }
-                    else
-                    {
-                        char const * keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
-                        if (keyname != nullptr && keyname[0] != '\0')
-                        {
-                            snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_KeyboardFormat, keyname);
-                            dispatch();
-                        }
-
-                        char const * joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
-                        if (joyname != nullptr && joyname[0] != '\0')
-                        {
-                            snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_JoystickFormat, joyname);
-                            dispatch();
-                        }
-
-                        snprintf(apStrings[quoteIndex], MAXQUOTELEN, s_KeyboardFormat, s_Unbound);
-                    }
-
-                    dispatch();
+					auto binding = CONFIG_GetBoundKeyForLastInput(gameFunc);
+					if (binding.Len()) snprintf(apStrings[quoteIndex], MAXQUOTELEN, "(%s)", binding.GetChars());
+					dispatch();
                 }
 
             vInstruction(CON_QSUBSTR):

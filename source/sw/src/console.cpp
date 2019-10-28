@@ -1128,35 +1128,6 @@ void CON_MultiNameChange(void)
 
 void CON_LoadSetup(void)
 {
-    /*
-    char base[80],command[80];
-
-    // Format: showuser [SpriteNum]
-    if (sscanf(MessageInputString,"%s %s",base,command) < 2)
-    {
-    strcpy(MessageInputString,"help config");
-    CON_GetHelp();
-    return;
-    }
-
-    if (!SafeFileExists(command))
-    {
-    CON_ConMessage("CON_LoadSetup: %s does not exist.",command);
-    return;
-    } else
-    {
-    strcpy(setupfilename,command);
-    }
-    initkeys();
-    CONFIG_ReadSetup();
-
-    if (CONTROL_JoystickEnabled)
-    {
-    CONTROL_CenterJoystick(CenterCenter, UpperLeft, LowerRight, CenterThrottle,
-      CenterRudder);
-    }
-    CON_ConMessage("Loaded new config file.");
-    */
     CON_ConMessage("JonoF: Maybe later");
 }
 
@@ -1194,8 +1165,6 @@ void CON_DamageData(void)
     char base[80],field[80];
     int16_t op1=0;
     unsigned int op2, i;
-    SPRITEp sp;
-    USERp u;
 
     // Format: damage [field] [item] [value]
     if (sscanf(MessageInputString,"%s %s %hd %u",base,field,&op1,&op2) < 3)

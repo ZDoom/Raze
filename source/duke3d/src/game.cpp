@@ -6486,13 +6486,6 @@ int app_main(int argc, const char * const*argv)
     {
         CONFIG_SetupMouse();
         CONFIG_SetupJoystick();
-
-        CONTROL_JoystickEnabled = (in_joystick && CONTROL_JoyPresent);
-        CONTROL_MouseEnabled    = (in_mouse && CONTROL_MousePresent);
-
-        // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-        for (int i=0; i<joystick.numAxes; i++)
-            joySetDeadZone(i,JoystickAnalogueDead[i],JoystickAnalogueSaturate[i]);
     }
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
