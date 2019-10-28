@@ -3215,7 +3215,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        if (mus_enabled)
+        if (MusicEnabled())
             S_RestartMusic();
     }
     else if (entry == &ME_SAVESETUP_CLEANUP)

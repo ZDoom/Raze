@@ -186,7 +186,7 @@ void S_MenuSound(void)
 
 static int S_PlayMusic(const char *fn, int loop)
 {
-    if (!mus_enabled)
+    if (!MusicEnabled())
         return 0;
 
     if (fn == NULL)
@@ -602,7 +602,7 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 {
     int32_t j;
 
-    if (!snd_enabled) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
+    if (!SoundEnabled()) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
         return -1;
 
     int const sndNum = num;
@@ -741,7 +741,7 @@ int S_PlaySound(int num)
 {
     int sndnum;
 
-    if (!snd_enabled) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
+    if (!SoundEnabled()) // check that the user returned -1, but only if -1 wasn't playing already (in which case, warn)
         return -1;
 
     sound_t & snd = g_sounds[num];

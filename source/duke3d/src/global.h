@@ -163,7 +163,6 @@ extern double g_gameUpdateAvgTime;
 #ifndef global_c_
 extern char CheatKeys[2];
 extern char g_gametypeNames[MAXGAMETYPES][33];
-extern char g_setupFileName[BMAX_PATH];
 extern char g_skillNames[MAXSKILLS][33];
 extern char g_volumeNames[MAXVOLUMES][33];
 

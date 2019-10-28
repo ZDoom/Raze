@@ -134,7 +134,4 @@ int16_t g_blimpSpawnItems[15] =
 
 char CheatKeys[2]       = { sc_D, sc_N };
 
-char g_setupFileName[BMAX_PATH] = SETUPFILENAME;
-
-
 END_DUKE_NS

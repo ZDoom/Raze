@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fx_man.h"
 #include "common.h"
 #include "common_game.h"
-#include "gamedefs.h"
 
 #include "asound.h"
 #include "db.h"
@@ -87,7 +86,6 @@ BEGIN_BLD_NS
 extern const char* G_DefaultDefFile(void);
 extern const char* G_DefFile(void);
 
-char SetupFilename[BMAX_PATH] = SETUPFILENAME;
 int32_t gNoSetup = 0, gCommandSetup = 0;
 
 INPUT_MODE gInputMode;
@@ -1088,167 +1086,36 @@ void ProcessFrame(void)
     }
 }
 
+
+#if 0
 SWITCH switches[] = {
-    { "?", 0, 0 },
-    { "help", 0, 0 },
     { "broadcast", 1, 0 },
-    { "map", 2, 1 },
     { "masterslave", 3, 0 },
-    //{ "net", 4, 1 },
-    { "nodudes", 5, 1 },
-    { "playback", 6, 1 },
     { "record", 7, 1 },
     { "robust", 8, 0 },
-    { "setupfile", 9, 1 },
     { "skill", 10, 1 },
-    //{ "nocd", 11, 0 },
-    //{ "8250", 12, 0 },
     { "ini", 13, 1 },
-    { "noaim", 14, 0 },
     { "f", 15, 1 },
     { "control", 16, 1 },
     { "vector", 17, 1 },
-    { "quick", 18, 0 },
-    //{ "getopt", 19, 1 },
-    //{ "auto", 20, 1 },
-    { "pname", 21, 1 },
     { "noresend", 22, 0 },
     { "silentaim", 23, 0 },
-    { "nodemo", 25, 0 },
     { "art", 26, 1 },
-    { "snd", 27, 1 },
-    { "rff", 28, 1 },
-#ifdef USE_QHEAP
-    { "maxalloc", 29, 1 },
-#endif
-    { "server", 30, 1 },
     { "client", 31, 1 },
     { "noautoload", 32, 0 },
-    { "usecwd", 33, 0 },
-    { "cachesize", 34, 1 },
-    { "g", 35, 1 },
-    { "grp", 35, 1 },
-    { "game_dir", 36, 1 },
-    { "cfg", 9, 1 },
-    { "setup", 37, 0 },
-    { "nosetup", 38, 0 },
-    { "port", 39, 1 },
-    { "h", 40, 1 },
-    { "mh", 41, 1 },
-    { "j", 42, 1 },
-    { "c", 43, 1 },
-    { "conf", 43, 1 },
-	{ "game", 44, 1 },
-	{ "noconsole", 43, 0 },
     { NULL, 0, 0 }
 };
-
-void PrintHelp(void)
-{
-    char tempbuf[128];
-    static char const s[] = "Usage: " APPBASENAME " [files] [options]\n"
-        "Example: " APPBASENAME " -usecwd -cfg myconfig.cfg -map nukeland.map\n\n"
-        "Files can be of type [grp|zip|map|def]\n"
-        "\n"
-        "-art [file.art]\tSpecify an art base file name\n"
-        "-cachesize #\tSet cache size in kB\n"
-        "-cfg [file.cfg]\tUse an alternate configuration file\n"
-        "-client [host]\tConnect to a multiplayer game\n"
-        "-game_dir [dir]\tSpecify game data directory\n"
-        "-g [file.grp]\tLoad additional game data\n"
-        "-h [file.def]\tLoad an alternate definitions file\n"
-        "-ini [file.ini]\tSpecify an INI file name (default is blood.ini)\n"
-        "-j [dir]\t\tAdd a directory to " APPNAME "'s search list\n"
-        "-map [file.map]\tLoad an external map file\n"
-        "-mh [file.def]\tInclude an additional definitions module\n"
-        "-noautoload\tDisable loading from autoload directory\n"
-        "-nodemo\t\tNo Demos\n"
-        "-nodudes\tNo monsters\n"
-        "-playback\tPlay back a demo\n"
-        "-pname\t\tOverride player name setting from config file\n"
-        "-record\t\tRecord demo\n"
-        "-rff\t\tSpecify an RFF file for Blood game resources\n"
-        "-server [players]\tStart a multiplayer server\n"
-#ifdef STARTUP_SETUP_WINDOW
-        "-setup/nosetup\tEnable or disable startup window\n"
 #endif
-        "-skill\t\tSet player handicap; Range:0..4; Default:2; (NOT difficulty level.)\n"
-        "-snd\t\tSpecify an RFF Sound file name\n"
-        "-usecwd\t\tRead data and configuration from current directory\n"
-        ;
-#ifdef WM_MSGBOX_WINDOW
-    Bsnprintf(tempbuf, sizeof(tempbuf), APPNAME " %s", s_buildRev);
-    wm_msgbox(tempbuf, s);
-#else
-    initprintf("%s\n", s);
-#endif
-#if 0
-    puts("Blood Command-line Options:");
-    // NUKE-TODO:
-    puts("-?            This help");
-    //puts("-8250         Enforce obsolete UART I/O");
-    //puts("-auto         Automatic Network start. Implies -quick");
-    //puts("-getopt       Use network game options from file.  Implies -auto");
-    puts("-broadcast    Set network to broadcast packet mode");
-    puts("-masterslave  Set network to master/slave packet mode");
-    //puts("-net          Net mode game");
-    //puts("-noaim        Disable auto-aiming");
-    //puts("-nocd         Disable CD audio");
-    puts("-nodudes      No monsters");
-    puts("-nodemo       No Demos");
-    puts("-robust       Robust network sync checking");
-    puts("-skill        Set player handicap; Range:0..4; Default:2; (NOT difficulty level.)");
-    puts("-quick        Skip Intro screens and get right to the game");
-    puts("-pname        Override player name setting from config file");
-    puts("-map          Specify a user map");
-    puts("-playback     Play back a demo");
-    puts("-record       Record a demo");
-    puts("-art          Specify an art base file name");
-    puts("-snd          Specify an RFF Sound file name");
-    puts("-RFF          Specify an RFF file for Blood game resources");
-    puts("-ini          Specify an INI file name (default is blood.ini)");
-#endif
-    exit(0);
-}
 
 void ParseOptions(void)
 {
+	// Stuff for later.
+#if 0
     int option;
     while ((option = GetOptions(switches)) != -1)
     {
         switch (option)
         {
-        case -3:
-            //ThrowError("Invalid argument: %s", OptFull);
-            //fallthrough__;
-			break;	// do not error out - this isn't the only code reading the args anymore.
-        case 29:
-#ifdef USE_QHEAP
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            nMaxAlloc = atoi(OptArgv[0]);
-            if (!nMaxAlloc)
-                nMaxAlloc = 0x2000000;
-            break;
-#endif
-        case 0:
-            PrintHelp();
-            break;
-        //case 19:
-        //    byte_148eec = 1;
-        //case 20:
-        //    if (OptArgc < 1)
-        //        ThrowError("Missing argument");
-        //    strncpy(byte_148ef0, OptArgv[0], 13);
-        //    byte_148ef0[12] = 0;
-        //    bQuickStart = 1;
-        //    byte_148eeb = 1;
-        //    if (gGameOptions.gameType == 0)
-        //        gGameOptions.gameType = 2;
-        //    break;
-        case 25:
-            bNoDemo = 1;
-            break;
         case 18:
             bQuickStart = 1;
             break;
@@ -1273,12 +1140,6 @@ void ParseOptions(void)
             else
                 gPacketMode = PACKETMODE_1;
             break;
-        case 4:
-            //if (OptArgc < 1)
-            //    ThrowError("Missing argument");
-            //if (gGameOptions.nGameType == 0)
-            //    gGameOptions.nGameType = 2;
-            break;
         case 30:
             if (OptArgc < 1)
                 ThrowError("Missing argument");
@@ -1290,9 +1151,6 @@ void ParseOptions(void)
                 ThrowError("Missing argument");
             gNetMode = NETWORK_CLIENT;
             strncpy(gNetAddress, OptArgv[0], sizeof(gNetAddress)-1);
-            break;
-        case 14:
-            cl_autoaim = 0;
             break;
         case 22:
             bNoResend = 0;
@@ -1318,41 +1176,6 @@ void ParseOptions(void)
         case 8:
             gRobust = 1;
             break;
-        case 13:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            levelOverrideINI(OptArgv[0]);
-            bNoDemo = 1;
-            break;
-        case 26:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            pUserTiles = (char*)malloc(strlen(OptArgv[0])+1);
-            if (!pUserTiles)
-                return;
-            strcpy(pUserTiles, OptArgv[0]);
-            break;
-        case 27:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            pUserSoundRFF = (char*)malloc(strlen(OptArgv[0])+1);
-            if (!pUserSoundRFF)
-                return;
-            strcpy(pUserSoundRFF, OptArgv[0]);
-            break;
-        case 28:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            pUserRFF = (char*)malloc(strlen(OptArgv[0])+1);
-            if (!pUserRFF)
-                return;
-            strcpy(pUserRFF, OptArgv[0]);
-            break;
-        case 9:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            strcpy(SetupFilename, OptArgv[0]);
-            break;
         case 10:
             if (OptArgc < 1)
                 ThrowError("Missing argument");
@@ -1371,94 +1194,9 @@ void ParseOptions(void)
             else if (gPacketMode == PACKETMODE_3)
                 gSyncRate = 1;
             break;
-        case -2:
-        {
-            const char *k = strrchr(OptFull, '.');
-            if (k)
-            {
-                if (!Bstrcasecmp(k, ".map"))
-                {
-                    strcpy(gUserMapFilename, OptFull);
-                    bAddUserMap = 1;
-                    bNoDemo = 1;
-                }
-                else if (!Bstrcasecmp(k, ".grp") || !Bstrcasecmp(k, ".zip") || !Bstrcasecmp(k, ".pk3") || !Bstrcasecmp(k, ".pk4"))
-                {
-                    G_AddGroup(OptFull);
-                }
-                else if (!Bstrcasecmp(k, ".def"))
-                {
-                    clearDefNamePtr();
-                    g_defNamePtr = dup_filename(OptFull);
-                    initprintf("Using DEF file \"%s\".\n", g_defNamePtr);
-                    continue;
-                }
-            }
-            else
-            {
-                strcpy(gUserMapFilename, OptFull);
-                bAddUserMap = 1;
-                bNoDemo = 1;
-            }
-            break;
-        }
-        case 11:
-            //bNoCDAudio = 1;
-            break;
-        case 32:
-            break;
-        case 33:
-            break;
-        case 34:
-        {
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-			// No longer supported.
-			break;
-        }
-        case 35:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            G_AddGroup(OptArgv[0]);
-            break;
-        case 36:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            Bstrncpyz(g_modDir, OptArgv[0], sizeof(g_modDir));
-            G_AddPath(OptArgv[0]);
-            break;
-        case 37:
-            gCommandSetup = true;
-            break;
-        case 38:
-            gNoSetup = true;
-            gCommandSetup = false;
-            break;
-        case 39:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            gNetPort = strtoul(OptArgv[0], NULL, 0);
-            break;
-        case 40:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            G_AddDef(OptArgv[0]);
-            break;
-        case 41:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            G_AddDefModule(OptArgv[0]);
-            break;
-        case 42:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            G_AddPath(OptArgv[0]);
-            break;
-        case 43: // conf, noconsole
-		case 44:
-            break;
         }
     }
+#endif
 #if 0
     if (bAddUserMap)
     {
@@ -1507,6 +1245,8 @@ int app_main(int argc, char const * const * argv)
     PrintBuildInfo();
 
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
+	gGameOptions.nMonsterSettings = userConfig.nomonsters;
+	bQuickStart = userConfig.nologo;
     ParseOptions();
     G_ExtInit();
 
@@ -1525,9 +1265,6 @@ int app_main(int argc, char const * const * argv)
         ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
         Bexit(2);
     }
-
-    if (Bstrcmp(SetupFilename, SETUPFILENAME))
-        initprintf("Using config file \"%s\".\n", SetupFilename);
 
     ScanINIFiles();
 

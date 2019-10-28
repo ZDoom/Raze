@@ -1784,14 +1784,14 @@ void PreDrawDisplayPolymost(CGameMenuItem *pItem)
 void UpdateSoundToggle(CGameMenuItemZBool *pItem)
 {
     snd_enabled = pItem->at20;
-    if (!snd_enabled)
+    if (!SoundEnabled())
         FX_StopAllSounds();
 }
 
 void UpdateMusicToggle(CGameMenuItemZBool *pItem)
 {
     mus_enabled = pItem->at20;
-    if (!mus_enabled)
+    if (!MusicEnabled())
         sndStopSong();
     else
     {

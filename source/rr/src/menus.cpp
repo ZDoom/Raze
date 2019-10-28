@@ -3591,7 +3591,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        if (mus_enabled)
+        if (MusicEnabled())
             S_RestartMusic();
     }
     else if (entry == &ME_SAVESETUP_CLEANUP)
@@ -5705,7 +5705,7 @@ static void M_RunMenu_CdPlayer(Menu_t *cm, MenuMenu_t *menu, const vec2_t origin
 
                     S_PlaySound(RR ? 341 : PISTOL_BODYHIT);
 
-                    if (mus_enabled)
+                    if (MusicEnabled())
                     {
                         S_StopMusic();
                         S_PlayRRMusic(2+menu->currentEntry);
@@ -7041,7 +7041,7 @@ static void Menu_RunInput(Menu_t *cm)
 
                 currentry = Menu_RunInput_Menu_Movement(menu, MM_Up);
 
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);
@@ -7056,7 +7056,7 @@ static void Menu_RunInput(Menu_t *cm)
 
                 currentry = Menu_RunInput_Menu_Movement(menu, MM_Down);
 
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);
@@ -7068,7 +7068,7 @@ static void Menu_RunInput(Menu_t *cm)
                 menu->currentEntry = 0;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);
@@ -7080,7 +7080,7 @@ static void Menu_RunInput(Menu_t *cm)
                 menu->currentEntry = 1;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);
@@ -7092,7 +7092,7 @@ static void Menu_RunInput(Menu_t *cm)
                 menu->currentEntry = 2;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);
@@ -7104,7 +7104,7 @@ static void Menu_RunInput(Menu_t *cm)
                 menu->currentEntry = 3;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);
@@ -7116,7 +7116,7 @@ static void Menu_RunInput(Menu_t *cm)
                 menu->currentEntry = 4;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);
@@ -7128,7 +7128,7 @@ static void Menu_RunInput(Menu_t *cm)
                 menu->currentEntry = 5;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);
@@ -7140,7 +7140,7 @@ static void Menu_RunInput(Menu_t *cm)
                 menu->currentEntry = 6;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);
@@ -7152,7 +7152,7 @@ static void Menu_RunInput(Menu_t *cm)
                 menu->currentEntry = 7;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     S_StopMusic();
                     S_PlayRRMusic(2+menu->currentEntry);

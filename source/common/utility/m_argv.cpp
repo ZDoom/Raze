@@ -139,7 +139,22 @@ void FArgs::FlushArgs()
 //
 //===========================================================================
 
-int FArgs::CheckParm(const char *check, int start) const
+int stricmp(const char** check, const char* str)
+{
+	for (auto c = *check; c; c++)
+	{
+		if (!stricmp(c, str)) return 0;
+	}
+	return 1;	// we do not care about order here.
+}
+
+int FArgs::CheckParm(const char* check, int start) const
+{
+	const char* array[] = { check, nullptr };
+	return CheckParm(array, start);
+}
+
+int FArgs::CheckParm(const char** check, int start) const
 {
 	for (unsigned i = start; i < Argv.Size(); ++i)
 	{
@@ -354,7 +369,13 @@ void FArgs::RemoveArg(int argindex)
 //
 //===========================================================================
 
-void FArgs::CollectFiles(const char *param, const char *extension)
+void FArgs::CollectFiles(const char* param, const char* extension)
+{
+	const char* array[] = { param, nullptr };
+	CollectFiles(param, array, extension);
+}
+
+void FArgs::CollectFiles(const char *finalname, const char **param, const char *extension)
 {
 	TArray<FString> work;
 	unsigned int i;
@@ -408,7 +429,7 @@ void FArgs::CollectFiles(const char *param, const char *extension)
 	// Step 3: Add work back to Argv, as long as it's non-empty.
 	if (work.Size() > 0)
 	{
-		Argv.Push(param);
+		Argv.Push(finalname);
 		AppendArgs(work.Size(), &work[0]);
 	}
 }

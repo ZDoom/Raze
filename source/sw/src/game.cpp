@@ -109,8 +109,6 @@ const char* G_DefFile(void);
 const char* AppProperName = "VoidSW";
 const char* AppTechnicalName = "voidsw";
 
-#define SETUPFILENAME "voidsw.cfg"
-char setupfilename[BMAX_PATH] = SETUPFILENAME;
 
 #if DEBUG
 #define BETA 0
@@ -2059,7 +2057,7 @@ MenuLevel(void)
     DSPRINTF(ds,"MenuLevel...");
     MONO_PRINT(ds);
 
-    if (mus_enabled)
+    if (MusicEnabled())
     {
         PlaySong(NULL, RedBookSong[0], TRUE, FALSE);
     }
@@ -2473,7 +2471,7 @@ BonusScreen(PLAYERp pp)
     totalclock = ototalclock = 0;
     limit = synctics;
 
-    if (mus_enabled)
+    if (MusicEnabled())
     {
         PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
     }
@@ -2791,7 +2789,7 @@ StatScreen(PLAYERp mpp)
 	inputState.ClearKeyStatus(KEYSC_SPACE);
 	inputState.ClearKeyStatus(KEYSC_ENTER);
 
-    if (mus_enabled)
+    if (MusicEnabled())
     {
         PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
     }
@@ -3571,6 +3569,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
     }
 #endif
 
+#if 0
     for (cnt = 1; cnt < argc; cnt++)
     {
         char const *arg = argv[cnt];
@@ -4007,7 +4006,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
                 G_AddDefModule(arg+1);
         }
     }
-
+#endif
     Control(argc, argv);
 
     return 0;

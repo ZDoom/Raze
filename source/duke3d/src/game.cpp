@@ -4447,7 +4447,7 @@ static int32_t g_RTSPlaying;
 // Returns: started playing?
 extern int G_StartRTS(int lumpNum, int localPlayer)
 {
-    if (!adult_lockout && snd_enabled &&
+    if (!adult_lockout && SoundEnabled() &&
         RTS_IsInitialized() && g_RTSPlaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
     {
         char *const pData = (char *)RTS_GetSound(lumpNum - 1);
@@ -4881,7 +4881,7 @@ FAKE_F3:
             Menu_Change(MENU_SOUND_INGAME);
         }
 
-        if (KB_UnBoundKeyPressed(sc_F5) && mus_enabled)
+        if (KB_UnBoundKeyPressed(sc_F5) && MusicEnabled())
         {
             map_t *const pMapInfo    = &g_mapInfo[g_musicIndex];
             char *const  musicString = apStrings[QUOTE_MUSIC];
@@ -6034,16 +6034,7 @@ static void G_Startup(void)
 #endif
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 
-	//errr... what??? Why does this clobber the user setting? Well, it needs to be redone anyway, preferably at a lower level.
-    //if (g_noSound) snd_enabled = 0;
-    //if (g_noMusic) mus_enabled = 0;
-
-    if (CommandName)
-    {
-		playername = CommandName;
-    }
-
-    if (CommandMap)
+    if (userConfig.CommandMap.IsNotEmpty())
     {
         if (VOLUMEONE)
         {
@@ -6056,7 +6047,7 @@ static void G_Startup(void)
 
             boardfilename[0] = '/';
             boardfilename[1] = 0;
-            Bstrcat(boardfilename, CommandMap);
+            Bstrcat(boardfilename, userConfig.CommandMap);
 
             dot = Bstrrchr(boardfilename,'.');
             slash = Bstrrchr(boardfilename,'/');
@@ -6302,6 +6293,7 @@ int app_main(int argc, const char * const*argv)
 
     g_skillCnt = 4;
     ud.multimode = 1;
+	ud.m_monsters_off = userConfig.nomonsters;
 
     // This needs to happen before G_CheckCommandLine() because G_GameExit()
     // accesses g_player[0].
@@ -6333,9 +6325,6 @@ int app_main(int argc, const char * const*argv)
         ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
         Bexit(2);
     }
-
-    if (Bstrcmp(g_setupFileName, SETUPFILENAME))
-        initprintf("Using config file \"%s\".\n",g_setupFileName);
 
     G_ScanGroups();
 

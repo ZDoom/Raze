@@ -408,7 +408,7 @@ extern short Level;
 SWBOOL
 PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
 {
-    if (!mus_enabled)
+    if (!MusicEnabled())
     {
         return FALSE;
     }
@@ -551,7 +551,7 @@ StopSong(void)
 void
 PauseSong(SWBOOL pauseon)
 {
-    if (!mus_enabled) return;
+    if (!MusicEnabled()) return;
 
     if (SongType == SongTypeWave && SongVoice >= 0)
     {
@@ -816,7 +816,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     if (Prediction)
         return -1;
 
-    if (!snd_enabled)
+    if (!SoundEnabled())
         return -1;
 
     PRODUCTION_ASSERT(num >= 0 && num < DIGI_MAX);
@@ -1045,7 +1045,7 @@ void PlaySoundRTS(int rts_num)
     char *rtsptr;
     int voice=-1;
 
-    if (!RTS_IsInitialized() || !snd_enabled)
+    if (!RTS_IsInitialized() || !SoundEnabled())
         return;
 
     rtsptr = (char *)RTS_GetSound(rts_num - 1);

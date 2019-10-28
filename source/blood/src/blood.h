@@ -52,7 +52,6 @@ enum INPUT_MODE {
 };
 
 extern INPUT_MODE gInputMode;
-extern char SetupFilename[BMAX_PATH];
 extern int32_t gNoSetup;
 extern short BloodVersion;
 extern int gNetPlayers;

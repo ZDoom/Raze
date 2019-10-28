@@ -2224,7 +2224,7 @@ void G_BonusScreen(int32_t bonusonly)
         videoClearScreen(0);
         G_DisplayMPResultsScreen();
 
-        if (mus_enabled)
+        if (MusicEnabled())
             S_PlaySound(BONUSMUSIC);
 
         videoNextPage();
@@ -2268,7 +2268,7 @@ void G_BonusScreen(int32_t bonusonly)
 
         gametext_center_shade(192, "Press any key or button to continue", quotepulseshade);
 
-        if (mus_enabled)
+        if (MusicEnabled())
             S_PlaySound(BONUSMUSIC);
     }
     else
@@ -2818,7 +2818,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         videoClearScreen(0);
         G_DisplayMPResultsScreen();
 
-        if (mus_enabled)
+        if (MusicEnabled())
             S_PlaySound(BONUSMUSIC);
 
         videoNextPage();

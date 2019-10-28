@@ -6,8 +6,10 @@
 #include "c_cvars.h"
 #include "zstring.h"
 #include "inputstate.h"
+#include "gamecvars.h"
 
 extern FString currentGame;
+class FArgs;
 
 
 extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
@@ -71,3 +73,44 @@ void CONFIG_ReadCombatMacros();
 
 int32_t CONFIG_GetMapBestTime(char const* const mapname, uint8_t const* const mapmd4);
 int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm);
+
+struct UserConfig
+{
+	FString gamegrp;
+	FString CommandMap;
+	FString DefaultDef;
+	FString DefaultCon;
+	FString CommandDemo;
+	FString CommandName;
+	FString CommandIni;
+	std::unique_ptr<FArgs> AddDefs;
+	std::unique_ptr<FArgs> AddCons;
+	std::unique_ptr<FArgs> AddFiles;
+	std::unique_ptr<FArgs> AddFilesPre;	//To be added before the main directory. Only for legacy options.
+	std::unique_ptr<FArgs> AddArt;
+
+	bool nomonsters = false;
+	bool nosound = false;
+	bool nomusic = false;
+	bool nologo = false;
+	int setupstate = -1;
+
+	int netPort = 0;			// g_netPort = Batoi(argv[i + 1]);
+	int netServerMode = -1;		// g_networkMode = NET_SERVER;	g_noSetup = g_noLogo = TRUE;
+	FString netServerAddress;	// Net_Connect(argv[i + 1]); g_noSetup = g_noLogo = TRUE;
+	FString netPassword;		// Bstrncpyz(g_netPassword, argv[i + 1], sizeof(g_netPassword));
+
+	void ProcessOptions();
+};
+
+extern UserConfig userConfig;
+
+inline bool MusicEnabled()
+{
+	return mus_enabled && !userConfig.nomusic;
+}
+
+inline bool SoundEnabled()
+{
+	return snd_enabled && !userConfig.nosound;
+}

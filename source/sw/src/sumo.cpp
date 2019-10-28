@@ -37,6 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "weapon.h"
 #include "sector.h"
+#include "gamecontrol.h"
 
 BEGIN_SW_NS
 
@@ -802,7 +803,7 @@ int DoSumoDeathMelt(short SpriteNum)
     u->ID = 0;
 
     DoMatchEverything(NULL, sp->lotag, ON);
-    if (!SW_SHAREWARE && mus_enabled && !alreadydid)
+    if (!SW_SHAREWARE && MusicEnabled() && !alreadydid)
     {
         PlaySong(0, RedBookSong[Level], TRUE, TRUE);
         alreadydid = TRUE;
@@ -881,7 +882,7 @@ BossHealthMeter(void)
                     if (i == 0 && !serpwasseen)
                     {
                         serpwasseen = TRUE;
-                        if (!SW_SHAREWARE && mus_enabled)
+                        if (!SW_SHAREWARE && MusicEnabled())
                         {
                             PlaySong(0, 13, TRUE, TRUE);
                         }
@@ -889,7 +890,7 @@ BossHealthMeter(void)
                     else if (i == 1 && !sumowasseen)
                     {
                         sumowasseen = TRUE;
-                        if (!SW_SHAREWARE && mus_enabled)
+                        if (!SW_SHAREWARE && MusicEnabled())
                         {
                             PlaySong(0, 13, TRUE, TRUE);
                         }
@@ -897,7 +898,7 @@ BossHealthMeter(void)
                     else if (i == 2 && !zillawasseen)
                     {
                         zillawasseen = TRUE;
-                        if (!SW_SHAREWARE && mus_enabled)
+                        if (!SW_SHAREWARE && MusicEnabled())
                         {
                             PlaySong(0, 13, TRUE, TRUE);
                         }

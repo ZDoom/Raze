@@ -3282,7 +3282,7 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             snd_enabled = state = buttonsettings[item->button];
             if (snd_enabled != last_value)
             {
-                if (!snd_enabled)
+                if (!SoundEnabled())
                     StopFX();
             }
             break;
@@ -3293,7 +3293,7 @@ MNU_DoButton(MenuItem_p item, SWBOOL draw)
             {
                 SWBOOL bak;
 
-                if (mus_enabled)
+                if (MusicEnabled())
                 {
                     bak = DemoMode;
                     PlaySong(LevelSong, RedBookSong[Level], TRUE, TRUE);

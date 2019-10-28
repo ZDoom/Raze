@@ -1319,7 +1319,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     gameHandleEvents();
 
-    if (ud.skill_voice > 0 && snd_enabled)
+    if (ud.skill_voice > 0 && SoundEnabled())
     {
         while (FX_SoundActive(ud.skill_voice))
             gameHandleEvents();

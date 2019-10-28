@@ -34,6 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "actor.h"
 #include "track.h"
 #include "sector.h"
+#include "gamecontrol.h"
 
 BEGIN_SW_NS
 
@@ -818,7 +819,7 @@ int DoDeathSpecial(short SpriteNum)
 
     DoMatchEverything(NULL, sp->lotag, ON);
 
-    if (!SW_SHAREWARE && mus_enabled && !alreadydid)
+    if (!SW_SHAREWARE && MusicEnabled() && !alreadydid)
     {
         PlaySong(0, RedBookSong[Level], TRUE, TRUE);
         alreadydid = TRUE;

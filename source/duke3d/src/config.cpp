@@ -102,6 +102,19 @@ void CONFIG_SetDefaults(void)
     ud.statusbarscale         = 100;
     ud.team                   = 0;
 
+	ud.fta_on = 1;
+	ud.god = 0;
+	ud.m_respawn_items = 0;
+	ud.m_respawn_monsters = 0;
+	ud.m_respawn_inventory = 0;
+	ud.warp_on = 0;
+	ud.cashman = 0;
+	ud.m_ffire = 1;
+	ud.m_player_skill = ud.player_skill = 2;
+	memcpy(g_player[0].wchoice, "\3\4\5\7\0x8\6\0\2\0x9\1", 10);
+	wchoice.Callback();
+
+
     VM_OnEvent(EVENT_SETDEFAULTS, g_player[myconnectindex].ps->i, myconnectindex);
 }
 

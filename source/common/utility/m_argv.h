@@ -56,11 +56,13 @@ public:
 	void RemoveArg(int argindex);
 	void RemoveArgs(const char *check);
 	void SetArgs(int argc, char **argv);
+	void CollectFiles(const char *finalname, const char** param, const char* extension);
 	void CollectFiles(const char *param, const char *extension);
 	FArgs *GatherFiles(const char *param) const;
 	void SetArg(int argnum, const char *arg);
 
 	int CheckParm(const char *check, int start=1) const;	// Returns the position of the given parameter in the arg list (0 if not found).
+	int CheckParm(const char** check, int start = 1) const;	// Returns the position of the given parameter in the arg list (0 if not found). Allows checking for multiple switches
 	int CheckParmList(const char *check, FString **strings, int start=1) const;
 	const char *CheckValue(const char *check) const;
 	const char *GetArg(int arg) const;

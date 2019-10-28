@@ -119,7 +119,7 @@ void Calc3DValues(BONKLE *pBonkle)
 
 void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
 {
-    if (!snd_enabled || soundId < 0) return;
+    if (!SoundEnabled() || soundId < 0) return;
     
     DICTNODE *hRes = gSoundRes.Lookup(soundId, "SFX");
     if (!hRes)return;
@@ -169,7 +169,7 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
 
 void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3, int a4)
 {
-    if (!snd_enabled)
+    if (!SoundEnabled())
         return;
     if (!pSprite)
         return;
@@ -283,7 +283,7 @@ void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3, int a4)
 // By NoOne: same as previous, but allows to set custom pitch for sound AND volume. Used by SFX gen now.
 void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitch, int volume)
 {
-    if (!snd_enabled || !pSprite || soundId < 0) return;
+    if (!SoundEnabled() || !pSprite || soundId < 0) return;
     DICTNODE* hRes = gSoundRes.Lookup(soundId, "SFX");
     if (!hRes) return;
 

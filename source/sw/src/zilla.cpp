@@ -36,6 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "actor.h"
 #include "track.h"
 #include "fx_man.h"
+#include "gamecontrol.h"
 
 BEGIN_SW_NS
 
@@ -777,7 +778,7 @@ int DoZillaDeathMelt(short SpriteNum)
     RESET(u->Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);
 
     //DoMatchEverything(NULL, sp->lotag, ON);
-    if (!SW_SHAREWARE && mus_enabled && !alreadydid)
+    if (!SW_SHAREWARE && MusicEnabled() && !alreadydid)
     {
         PlaySong(0, RedBookSong[Level], TRUE, TRUE);
         alreadydid = TRUE;

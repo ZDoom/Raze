@@ -2448,7 +2448,7 @@ static void postloadplayer(int32_t savegamep)
         else
             S_ContinueLevelMusic();
 
-        if (mus_enabled)
+        if (MusicEnabled())
             S_PauseMusic(false);
 
         g_player[myconnectindex].ps->gm = MODE_GAME;

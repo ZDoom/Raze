@@ -12,9 +12,11 @@
 #include "inputstate.h"
 #include "_control.h"
 #include "control.h"
+#include "m_argv.h"
+#include "rts.h"
 
 InputState inputState;
-
+void SetClipshapes();
 
 struct GameFuncNameDesc
 {
@@ -149,6 +151,141 @@ void SetupButtonFunctions()
 
 }
 
+UserConfig userConfig;
+
+void UserConfig::ProcessOptions()
+{
+	// -help etc are omitted
+
+	// -cfg / -setupfile refer to Build style config which are not supported.
+	if (Args->CheckParm("-cfg") || Args->CheckParm("-setupfile"))
+	{
+		initprintf("Build-format config files not supported and will be ignored\n");
+	}
+
+	auto v = Args->CheckValue("-port");
+	if (v) netPort = strtol(v, nullptr, 0);
+
+	netServerMode = Args->CheckParm("-server");
+	netServerAddress = Args->CheckValue("-connect");
+	netPassword = Args->CheckValue("-password");
+
+	v = Args->CheckValue("-addon");
+	if (v)
+	{
+		auto val = strtol(v, nullptr, 0);
+		static const char* const addons[] = { "DUKE3D.GRP", "DUKEDC.GRP", "NWINTER.GRP", "VACATION.GRP" };
+		if (val > 0 && val < 4) gamegrp = addons[val];
+		else initprintf("%s: Unknown Addon\n", v);
+	}
+	else if (Args->CheckParm("-nam"))
+	{
+		gamegrp = "NAM.GRP";
+	}
+	else if (Args->CheckParm("-napalm"))
+	{
+		gamegrp = "NAPALM.GRP";
+	}
+	else if (Args->CheckParm("-ww2gi"))
+	{
+		gamegrp = "WW2GI.GRP";
+	}
+
+	v = Args->CheckValue("-gamegrp");	// Although it says 'grp', this will take a directory as well
+	if (v)
+	{
+		gamegrp = v;
+	}
+	else
+	{
+		// This is to enable the use of Doom launchers. that are limited to -iwad for specifying the game's main resource.
+		v = Args->CheckValue("-iwad");
+		if (v)
+		{
+			gamegrp = v;
+		}
+	}
+
+	Args->CollectFiles("-rts", ".rts");
+	auto rts = Args->CheckValue("-rts");
+	if (rts) RTS_Init(rts);
+
+	Args->CollectFiles("-map", ".map");
+	CommandMap = Args->CheckValue("-map");
+
+	static const char* defs[] = { "-def", "-h", nullptr };
+	Args->CollectFiles("-def", defs, ".def");
+	DefaultDef = Args->CheckValue("-def");
+
+	static const char* cons[] = { "-con", "-x", nullptr };
+	Args->CollectFiles("-con", cons, ".con");
+	DefaultCon = Args->CheckValue("-con");
+
+	static const char* demos[] = { "-playback", "-d", "-demo", nullptr };
+	Args->CollectFiles("-demo", demos, ".dmo");
+	CommandDemo = Args->CheckValue("-demo");
+
+	static const char* names[] = { "-pname", "-name", nullptr };
+	Args->CollectFiles("-name", names, ".---");	// this shouldn't collect any file names at all so use a nonsense extension
+	CommandName = Args->CheckValue("-name");
+
+	static const char* nomos[] = { "-nomonsters", "-nodudes", nullptr };
+	Args->CollectFiles("-nomonsters", nomos, ".---");	// this shouldn't collect any file names at all so use a nonsense extension
+	nomonsters = Args->CheckParm("-nomonsters");
+
+	static const char* acons[] = { "-addcon", "-mx", nullptr };
+	Args->CollectFiles("-addcon", acons, ".con");
+	AddCons.reset(Args->GatherFiles("-addcon"));
+
+	static const char* adefs[] = { "-adddef", "-mh", nullptr };
+	Args->CollectFiles("-adddef", adefs, ".def");
+	AddDefs.reset(Args->GatherFiles("-adddef"));
+
+	Args->CollectFiles("-art", ".art");
+	AddArt.reset(Args->GatherFiles("-art"));
+
+	CommandIni = Args->CheckValue("-ini");
+
+	nologo = Args->CheckParm("-nologo") || Args->CheckParm("-quick");
+	nomusic = Args->CheckParm("-nomusic");
+	nosound = Args->CheckParm("-nosfx");
+	if (Args->CheckParm("-nosound")) nomusic = nosound = true;
+	if (Args->CheckParm("-setup")) setupstate = 1;
+	else if (Args->CheckParm("-nosetup")) setupstate = 0;
+
+
+	if (Args->CheckParm("-file"))
+	{
+		// For file loading there's two modes:
+		// If -file is given, all content will be processed in order and the legacy options be ignored entirely.
+		//This allows mixing directories and GRP files in arbitrary order.
+		Args->CollectFiles("-file", NULL);
+		AddFiles.reset(Args->GatherFiles("-file"));
+	}
+	else
+	{
+		// Trying to emulate Build. This means to treat RFF special as lowest priority, then all GRPs and then all directories. 
+		// This is only for people depending on lauchers. Since the semantics are so crappy it is strongly recommended to
+		// use -file instead which gives the user full control about the order in which things are added.
+		// For single mods this is no problem but don't even think about loading more stuff consistently...
+
+		static const char* grps[] = { "-g", "-grp", nullptr };
+		static const char* dirs[] = { "-game_dir", "-j",  nullptr };
+		static const char* rffs[] = { "-rff", "-snd",  nullptr };
+		static const char* twostep[] = { "-rff", "-grp",  nullptr };
+
+		// Abuse the inner workings to get the files into proper order. This is not 100% accurate but should work fine for everything that doesn't intentionally fuck things up.
+		Args->CollectFiles("-rff", rffs, ".rff");
+		Args->CollectFiles("-grp", grps, nullptr);
+		Args->CollectFiles("-grp", twostep, nullptr);	// The two previous calls have already brought the content in order so collecting it again gives us one list with everything.
+		AddFilesPre.reset(Args->GatherFiles("-grp"));
+		Args->CollectFiles("-game_dir", dirs, nullptr);
+		AddFiles.reset(Args->GatherFiles("-game_dir"));
+	}
+
+
+}
+
 //==========================================================================
 //
 //
@@ -157,11 +294,26 @@ void SetupButtonFunctions()
 
 void CONFIG_Init()
 {
+	SetClipshapes();
+
 	// This must be done before initializing any data, so doing it late in the startup process won't work.
 	if (CONTROL_Startup(controltype_keyboardandmouse, BGetTime, gi->TicRate))
 	{
 		exit(1);
 	}
+	userConfig.ProcessOptions();
+
+	CONFIG_ReadCombatMacros();
+
+	// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
+	G_LoadConfig(currentGame);
+
+	if (userConfig.CommandName.IsNotEmpty())
+	{
+		playername = userConfig.CommandName;
+	}
+
+
 
 	int index = 0;
 	for(auto &gf : gamefuncs)
@@ -1009,10 +1161,8 @@ FString CONFIG_GetBoundKeyForLastInput(int gameFunc)
 		{
 			return joyname;
 		}
-
-		return "UNBOUND";
 	}
-
+	return "UNBOUND";
 }
 
 

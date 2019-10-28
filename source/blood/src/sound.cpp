@@ -81,7 +81,7 @@ int nWaveMusicHandle;
 
 int sndPlaySong(const char *songName, bool bLoop)
 {
-    if (!mus_enabled)
+    if (!MusicEnabled())
         return 0;
     if (!songName || strlen(songName) == 0)
         return 1;
@@ -245,7 +245,7 @@ void sndKillSound(SAMPLE2D *pChannel);
 
 void sndStartSample(const char *pzSound, int nVolume, int nChannel)
 {
-    if (!snd_enabled)
+    if (!SoundEnabled())
         return;
     if (!strlen(pzSound))
         return;
@@ -267,7 +267,7 @@ void sndStartSample(const char *pzSound, int nVolume, int nChannel)
 
 void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
 {
-    if (!snd_enabled)
+    if (!SoundEnabled())
         return;
     dassert(nChannel >= -1 && nChannel < kChannelMax);
     DICTNODE *hSfx = gSoundRes.Lookup(nSound, "SFX");
@@ -311,7 +311,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
 
 void sndStartWavID(unsigned int nSound, int nVolume, int nChannel)
 {
-    if (!snd_enabled)
+    if (!SoundEnabled())
         return;
     dassert(nChannel >= -1 && nChannel < kChannelMax);
     SAMPLE2D *pChannel;

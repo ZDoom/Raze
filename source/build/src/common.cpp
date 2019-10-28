@@ -77,6 +77,20 @@ void clearDefNamePtr(void)
 GrowArray<char *> g_clipMapFiles;
 #endif
 
+void SetClipshapes()
+{
+#ifdef HAVE_CLIPSHAPE_FEATURE
+	// pre-form the default 10 clipmaps
+	for (int j = '0'; j <= '9'; ++j)
+	{
+		char clipshape[16] = "_clipshape0.map";
+
+		clipshape[10] = j;
+		g_clipMapFiles.append(Xstrdup(clipshape));
+	}
+#endif
+}
+
 void G_AddDef(const char *buffer)
 {
     clearDefNamePtr();

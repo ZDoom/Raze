@@ -619,10 +619,6 @@ int main(int argc, char *argv[])
 		
 		FString logpath = M_GetDocumentsPath() + "demolition.log";
 		OSD_SetLogFile(logpath);
-		CONFIG_ReadCombatMacros();
-
-		// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
-		G_LoadConfig(currentGame);
 		CONFIG_Init();
 		r = gi->app_main(buildargc, (const char**)buildargv);
 	}
