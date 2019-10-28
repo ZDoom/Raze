@@ -457,23 +457,23 @@ DemoPlayBack(void)
             // fast forward and slow mo
             if (DemoEdit)
             {
-                if (KEY_PRESSED(KEYSC_F))
+                if (KB_KeyPressed(KEYSC_F))
                 {
-                    if (KEY_PRESSED(KEYSC_LSHIFT) || KEY_PRESSED(KEYSC_RSHIFT))
+                    if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
                         totalclock += synctics;
                     else
                         totalclock += synctics-1;
                 }
 
-                if (KEY_PRESSED(KEYSC_S))
+                if (KB_KeyPressed(KEYSC_S))
                     totalclock += 1-synctics;
             }
             else
             {
 #if DEBUG
-                if (KEY_PRESSED(KEYSC_ALT) && KEY_PRESSED(KEYSC_CTRL) && KEY_PRESSED(KEYSC_S))
+                if (KB_KeyPressed(KEYSC_ALT) && KB_KeyPressed(KEYSC_CTRL) && KB_KeyPressed(KEYSC_S))
                 {
-                    KEY_PRESSED(KEYSC_ALT) = KEY_PRESSED(KEYSC_CTRL) = KEY_PRESSED(KEYSC_S) = 0;
+                    KB_KeyPressed(KEYSC_ALT) = KB_KeyPressed(KEYSC_CTRL) = KB_KeyPressed(KEYSC_S) = 0;
                     saveboard("demosave.map", (vec3_t *)Player, &Player->pang, &Player->cursectnum);
                 }
 #endif
@@ -489,15 +489,15 @@ DemoPlayBack(void)
                 }
 
 #if DEBUG
-                if (KEY_PRESSED(KEYSC_RIGHT) || KEY_PRESSED(KEYSC_UP))
+                if (KB_KeyPressed(KEYSC_RIGHT) || KB_KeyPressed(KEYSC_UP))
                 {
-                    if (KEY_PRESSED(KEYSC_LSHIFT) || KEY_PRESSED(KEYSC_RSHIFT))
+                    if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
                         totalclock += synctics;
                     else
                         totalclock += synctics-1;
                 }
 
-                if (KEY_PRESSED(KEYSC_LEFT) || KEY_PRESSED(KEYSC_DOWN))
+                if (KB_KeyPressed(KEYSC_LEFT) || KB_KeyPressed(KEYSC_DOWN))
                     totalclock += 1-synctics;
 #endif
             }

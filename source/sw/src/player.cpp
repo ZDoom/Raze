@@ -4116,7 +4116,7 @@ SWBOOL PlayerFlyKey(PLAYERp pp)
     if (InputMode)
         return FALSE;
 
-    key = KEY_PRESSED(KEYSC_J);
+    key = KB_KeyPressed(KEYSC_J);
 
 	if (key)
 		inputState.ClearKeyStatus(KEYSC_J);
@@ -7398,7 +7398,7 @@ DoPlayerRun(PLAYERp pp)
     }
 
     // Crawl lock
-    // if (KEY_PRESSED(KEYSC_NUM))
+    // if (KB_KeyPressed(KEYSC_NUM))
     if (TEST_SYNC_KEY(pp, SK_CRAWL_LOCK))
     {
         if (FLAG_KEY_PRESSED(pp, SK_CRAWL_LOCK))
@@ -7983,9 +7983,9 @@ domovethings(void)
 #if 0
     {
         extern SWBOOL PauseKeySet;
-        if (KEY_PRESSED(KEYSC_F5) && !(KEY_PRESSED(KEYSC_ALT) || KEY_PRESSED(KEYSC_RALT)) && !PauseKeySet)
+        if (KB_KeyPressed(KEYSC_F5) && !(KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT)) && !PauseKeySet)
         {
-            KEY_PRESSED(KEYSC_F5) = 0;
+            KB_KeyPressed(KEYSC_F5) = 0;
             ResChange();
         }
     }

@@ -637,7 +637,7 @@ waitforeverybody(void)
     }
 #endif
 
-    //KEY_PRESSED(KEYSC_ESC) = FALSE;
+    //KB_KeyPressed(KEYSC_ESC) = FALSE;
     Player[myconnectindex].playerreadyflag++;
 
     while (TRUE)
@@ -657,7 +657,7 @@ waitforeverybody(void)
         if (quitevent || (wfe_ExitCallback && wfe_ExitCallback()))
         {
             // allow exit
-            //if (KEY_PRESSED(KEYSC_ESC))
+            //if (KB_KeyPressed(KEYSC_ESC))
             {
                 short pnum;
                 //TRAVERSE_CONNECT(pnum)
@@ -940,7 +940,7 @@ faketimerhandler(void)
     extern SWBOOL BotMode;
 
 #if 0
-    if (KEY_PRESSED(KEYSC_PERIOD))
+    if (KB_KeyPressed(KEYSC_PERIOD))
     {
         extern unsigned int MoveThingsCount;
         MoveThingsCount++;

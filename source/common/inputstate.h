@@ -232,11 +232,6 @@ inline bool KB_UnBoundKeyPressed(int scan)
 	return (inputState.GetKeyStatus(scan) != 0 && !CONTROL_KeyBinds[scan].cmdstr);
 }
 
-inline uint8_t KEY_PRESSED(int scan) // Shadow Warrior uses different names for many things.
-{
-	return inputState.GetKeyStatus(scan);
-}
-
 inline void KB_ClearKeysDown(void)
 {
 	KB_LastScan = 0;

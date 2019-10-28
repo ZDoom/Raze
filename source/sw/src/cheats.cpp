@@ -399,9 +399,9 @@ void CheatInput(void)
 
     if (!CheatInputMode)
         {
-        if (KEY_PRESSED(KEYSC_S))
+        if (KB_KeyPressed(KEYSC_S))
             {
-            //KEY_PRESSED(KEYSC_S) = FALSE;
+            //KB_KeyPressed(KEYSC_S) = FALSE;
             CheatInputMode = TRUE;
             strcpy(CheatInputString,"s");
             }

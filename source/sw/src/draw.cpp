@@ -1044,17 +1044,17 @@ ResizeView(PLAYERp pp)
 
     if (dimensionmode == 2 || dimensionmode == 5 || dimensionmode == 6)
     {
-        if (KEY_PRESSED(KEYSC_DASH)||KEY_PRESSED(KEYSC_GMINUS))
+        if (KB_KeyPressed(KEYSC_DASH)||KB_KeyPressed(KEYSC_GMINUS))
         {
             if ((zoom -= (zoom >> 4)) < 48) zoom = 48;
         }
 
-        if (KEY_PRESSED(KEYSC_EQUAL)||KEY_PRESSED(KEYSC_GPLUS))
+        if (KB_KeyPressed(KEYSC_EQUAL)||KB_KeyPressed(KEYSC_GPLUS))
         {
             if ((zoom += (zoom >> 4)) > 4096) zoom = 4096;
         }
 
-        if (KEY_PRESSED(KEYSC_ESC))
+        if (KB_KeyPressed(KEYSC_ESC))
         {
             extern SWBOOL ScrollMode2D;
 
@@ -1671,11 +1671,11 @@ void ScreenCaptureKeys(void)
         return;
 
     // screen capture
-    if (KEY_PRESSED(KEYSC_F12))
+    if (KB_KeyPressed(KEYSC_F12))
     {
 		inputState.ClearKeyStatus(KEYSC_F12);
         PauseAction();
-        videoCaptureScreenTGA("swcpxxxx.tga", KEY_PRESSED(KEYSC_LSHIFT) | KEY_PRESSED(KEYSC_RSHIFT));
+        videoCaptureScreenTGA("swcpxxxx.tga", KB_KeyPressed(KEYSC_LSHIFT) | KB_KeyPressed(KEYSC_RSHIFT));
         ResumeAction();
         PutStringInfo(Player + myconnectindex, "Screen Captured");
     }
@@ -1687,9 +1687,9 @@ void DrawCheckKeys(PLAYERp pp)
     extern SWBOOL PauseKeySet;
 
     /* JonoF: Who really needs this now?
-    if (KEY_PRESSED(KEYSC_F5) && !(KEY_PRESSED(KEYSC_RSHIFT) || KEY_PRESSED(KEYSC_LSHIFT) || KEY_PRESSED(KEYSC_ALT) || KEY_PRESSED(KEYSC_RALT)) && !PauseKeySet)
+    if (KB_KeyPressed(KEYSC_F5) && !(KB_KeyPressed(KEYSC_RSHIFT) || KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT)) && !PauseKeySet)
         {
-        KEY_PRESSED(KEYSC_F5) = 0;
+        KB_KeyPressed(KEYSC_F5) = 0;
         ResChange();
         }
     */

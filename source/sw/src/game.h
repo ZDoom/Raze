@@ -303,8 +303,6 @@ extern char MessageOutputString[256];
 #define PK_ZOOM_OUT     17
 #define PK_MESSAGE      18
 
-//    #define PKEY(num) KEY_PRESSED(keys[num])
-
 #define MK_FIXED(msw,lsw) (((int32_t)(msw)<<16)|(lsw))
 #define FIXED(msw,lsw) MK_FIXED(msw,lsw)
 
@@ -500,7 +498,7 @@ int StdRandomRange(int range);
 // just determine if the player is moving
 #define PLAYER_MOVING(pp) ((pp)->xvect|(pp)->yvect)
 
-#define KEY_EXT(scan) (KEY_PRESSED(scan) | KEY_PRESSED(scan+128))
+#define KEY_EXT(scan) (KB_KeyPressed(scan) | KB_KeyPressed(scan+128))
 
 #define TEST_GOTSECTOR(sect_num) (TEST(gotsector[(sect_num) >> 3], 1 << ((sect_num) & 7)))
 #define RESET_GOTSECTOR(sect_num) (RESET(gotsector[(sect_num) >> 3], 1 << ((sect_num) & 7)))

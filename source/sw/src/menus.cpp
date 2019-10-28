@@ -672,7 +672,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         short w, h = 8;
         int i, j, y;
 
-        if (KEY_PRESSED(KEYSC_ESC))
+        if (KB_KeyPressed(KEYSC_ESC))
         {
             KB_ClearKeyDown(sc_Escape);
             currentmode = 0;
@@ -726,7 +726,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         UserInput inpt = {FALSE,FALSE,dir_None};
         CONTROL_GetUserInput(&inpt);
 
-        if (KEY_PRESSED(KEYSC_ESC) || inpt.button1)
+        if (KB_KeyPressed(KEYSC_ESC) || inpt.button1)
         {
 			inputState.ClearKeyStatus(sc_Escape);
             cust_callback = NULL;
@@ -1574,7 +1574,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         CONTROL_GetUserInput(&tst_input);
         //order_input_buffered.dir = tst_input.dir;
         // Support a few other keys too
-        if (KEY_PRESSED(KEYSC_SPACE)||KEY_PRESSED(KEYSC_ENTER))
+        if (KB_KeyPressed(KEYSC_SPACE)||KB_KeyPressed(KEYSC_ENTER))
         {
 			inputState.ClearKeyStatus(KEYSC_SPACE);
 			inputState.ClearKeyStatus(KEYSC_ENTER);
@@ -1614,7 +1614,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         order_input_buffered.dir = tst_input.dir;
     }
 
-    if (!KEY_PRESSED(KEYSC_ESC) && !order_input_buffered.button1)
+    if (!KB_KeyPressed(KEYSC_ESC) && !order_input_buffered.button1)
     {
         cust_callback = MNU_OrderCustom;
         cust_callback_call = call;
@@ -4372,7 +4372,7 @@ MNU_DoHotkey(void)
     index = 0;
     for (item = currentmenu->items; item->type != mt_none; item++)
     {
-        if (KEY_PRESSED(item->hotkey) && item->hotkey != 0)
+        if (KB_KeyPressed(item->hotkey) && item->hotkey != 0)
         {
             MNU_SelectItem(currentmenu, index, FALSE);
             return TRUE;
@@ -4563,7 +4563,7 @@ MNU_CheckForMenus(void)
     }
     else
     {
-        if ((KEY_PRESSED(KEYSC_ESC)) && dimensionmode == 3 && !ConPanel)
+        if ((KB_KeyPressed(KEYSC_ESC)) && dimensionmode == 3 && !ConPanel)
         {
 			inputState.ClearKeyStatus(sc_Escape);
 			KB_ClearKeysDown();

@@ -333,7 +333,7 @@ playanm(short anim_num)
                     goto ENDOFANIMLOOP;
                 break;
             case ANIM_SERP:
-                if (KEY_PRESSED(KEYSC_ESC) || uinfo.button1 || quitevent)
+                if (KB_KeyPressed(KEYSC_ESC) || uinfo.button1 || quitevent)
                     goto ENDOFANIMLOOP;
                 break;
             }

@@ -1630,7 +1630,7 @@ KeyPressed(void)
 
     for (i = 0; i < NUMKEYS; i++)
     {
-        if (KEY_PRESSED(i))
+        if (KB_KeyPressed(i))
             return TRUE;
     }
 
@@ -1838,7 +1838,7 @@ CreditsLevel(void)
         if (!SongIsPlaying())
             break;
 
-        if (KEY_PRESSED(KEYSC_ESC))
+        if (KB_KeyPressed(KEYSC_ESC))
             break;
     }
 
@@ -2504,7 +2504,7 @@ BonusScreen(PLAYERp pp)
 
         CONTROL_GetUserInput(&uinfo);
         CONTROL_ClearUserInput(&uinfo);
-        if (KEY_PRESSED(KEYSC_SPACE) || KEY_PRESSED(KEYSC_ENTER) || uinfo.button0 || uinfo.button1)
+        if (KB_KeyPressed(KEYSC_SPACE) || KB_KeyPressed(KEYSC_ENTER) || uinfo.button0 || uinfo.button1)
         {
             if (State >= s_BonusRest && State < &s_BonusRest[SIZ(s_BonusRest)])
             {
@@ -2798,7 +2798,7 @@ StatScreen(PLAYERp mpp)
         PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
     }
 
-    while (!KEY_PRESSED(KEYSC_SPACE) && !KEY_PRESSED(KEYSC_ENTER))
+    while (!KB_KeyPressed(KEYSC_SPACE) && !KB_KeyPressed(KEYSC_ENTER))
     {
         handleevents();
 
@@ -4149,15 +4149,15 @@ SinglePlayInput(PLAYERp pp)
         }
     }
 
-    if (!(KEY_PRESSED(KEYSC_ALT) | KEY_PRESSED(KEYSC_RALT)))
+    if (!(KB_KeyPressed(KEYSC_ALT) | KB_KeyPressed(KEYSC_RALT)))
         return;
 
 
-    if (!SW_SHAREWARE && KEY_PRESSED(KEYSC_M))
+    if (!SW_SHAREWARE && KB_KeyPressed(KEYSC_M))
     {
         extern SWBOOL DebugActorFreeze;
 
-        KEY_PRESSED(KEYSC_M) = 0;
+        KB_KeyPressed(KEYSC_M) = 0;
         DebugActorFreeze++;
         if (DebugActorFreeze > 2)
             DebugActorFreeze = 0;
@@ -4192,10 +4192,10 @@ SinglePlayInput(PLAYERp pp)
 
 
     // Insert a player
-    if (KEY_PRESSED(KEYSC_INS))
+    if (KB_KeyPressed(KEYSC_INS))
     // player
     {
-        KEY_PRESSED(KEYSC_INS) = 0;
+        KB_KeyPressed(KEYSC_INS) = 0;
         ManualPlayerInsert(pp);
         // comes back looking through screenpeek
         InitPlayerSprite(Player + screenpeek);
@@ -4205,21 +4205,21 @@ SinglePlayInput(PLAYERp pp)
 
 
     // Delete a player
-    if (KEY_PRESSED(KEYSC_DEL))
+    if (KB_KeyPressed(KEYSC_DEL))
     {
-        KEY_PRESSED(KEYSC_DEL) = 0;
+        KB_KeyPressed(KEYSC_DEL) = 0;
         ManualPlayerDelete(pp);
     }
 
     // Move control to numbered player
 
-    if ((kp = KeyPressedRange(&KEY_PRESSED(KEYSC_1), &KEY_PRESSED(KEYSC_9))) && numplayers > 1)
+    if ((kp = KeyPressedRange(&KB_KeyPressed(KEYSC_1), &KB_KeyPressed(KEYSC_9))) && numplayers > 1)
     {
         short save_myconnectindex;
 
         save_myconnectindex = myconnectindex;
 
-        myconnectindex = (intptr_t)kp - (intptr_t)(&KEY_PRESSED(KEYSC_1));
+        myconnectindex = (intptr_t)kp - (intptr_t)(&KB_KeyPressed(KEYSC_1));
 
         if (myconnectindex >= numplayers)
             myconnectindex = save_myconnectindex;
@@ -4236,22 +4236,22 @@ SinglePlayInput(PLAYERp pp)
 
         DoPlayerNightVisionPalette(pp);
 
-        ResetKeyRange(&KEY_PRESSED(KEYSC_1), &KEY_PRESSED(KEYSC_9));
+        ResetKeyRange(&KB_KeyPressed(KEYSC_1), &KB_KeyPressed(KEYSC_9));
     }
 
 #if 0
-    if (KEY_PRESSED(KEYSC_T))
+    if (KB_KeyPressed(KEYSC_T))
     {
-        KEY_PRESSED(KEYSC_T) = 0;
+        KB_KeyPressed(KEYSC_T) = 0;
         PlayerTrackingMode ^= 1;
     }
 #endif
 
-    if (KEY_PRESSED(KEYSC_H))
+    if (KB_KeyPressed(KEYSC_H))
     {
         short pnum;
 
-        KEY_PRESSED(KEYSC_H) = 0;
+        KB_KeyPressed(KEYSC_H) = 0;
 
         TRAVERSE_CONNECT(pnum)
         {
@@ -4265,7 +4265,7 @@ DebugKeys(PLAYERp pp)
 {
     short w, h;
 
-    if (!(KEY_PRESSED(KEYSC_ALT) || KEY_PRESSED(KEYSC_RALT)))
+    if (!(KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT)))
         return;
 
     if (InputMode)
@@ -4278,9 +4278,9 @@ DebugKeys(PLAYERp pp)
     // visiblity adjust
     //
 
-    if (KEY_PRESSED(KEYSC_L) > 0)
+    if (KB_KeyPressed(KEYSC_L) > 0)
     {
-        if (KEY_PRESSED(KEYSC_LSHIFT) | KEY_PRESSED(KEYSC_RSHIFT))      // SHIFT
+        if (KB_KeyPressed(KEYSC_LSHIFT) | KB_KeyPressed(KEYSC_RSHIFT))      // SHIFT
         {
             g_visibility = g_visibility - (g_visibility >> 3);
 
@@ -4292,7 +4292,7 @@ DebugKeys(PLAYERp pp)
         }
         else
         {
-            KEY_PRESSED(KEYSC_L) = 0;
+            KB_KeyPressed(KEYSC_L) = 0;
 
             g_visibility = g_visibility - (g_visibility >> 3);
 
@@ -4305,12 +4305,12 @@ DebugKeys(PLAYERp pp)
     // parallax changes
     //
 
-    if (KEY_PRESSED(KEYSC_X))
+    if (KB_KeyPressed(KEYSC_X))
     {
-        if (KEY_PRESSED(KEYSC_LSHIFT))
+        if (KB_KeyPressed(KEYSC_LSHIFT))
         {
-            KEY_PRESSED(KEYSC_LSHIFT) = FALSE;
-            KEY_PRESSED(KEYSC_X) = 0;
+            KB_KeyPressed(KEYSC_LSHIFT) = FALSE;
+            KB_KeyPressed(KEYSC_X) = 0;
 
             parallaxyoffs_override += 10;
 
@@ -4319,7 +4319,7 @@ DebugKeys(PLAYERp pp)
         }
         else
         {
-            KEY_PRESSED(KEYSC_X) = 0;
+            KB_KeyPressed(KEYSC_X) = 0;
             parallaxtype++;
             if (parallaxtype > 2)
                 parallaxtype = 0;
@@ -4336,11 +4336,11 @@ ConKey(void)
     // Console Input Panel
     if (!ConPanel && dimensionmode == 3)
     {
-        //if (KEY_PRESSED(KEYSC_TILDE) && KEY_PRESSED(KEYSC_LSHIFT))
-        if (KEY_PRESSED(KEYSC_TILDE))
+        //if (KB_KeyPressed(KEYSC_TILDE) && KB_KeyPressed(KEYSC_LSHIFT))
+        if (KB_KeyPressed(KEYSC_TILDE))
         {
-            KEY_PRESSED(KEYSC_TILDE) = FALSE;
-            //KEY_PRESSED(KEYSC_LSHIFT) = FALSE;
+            KB_KeyPressed(KEYSC_TILDE) = FALSE;
+            //KB_KeyPressed(KEYSC_LSHIFT) = FALSE;
             KB_FlushKeyboardQueue();
             ConPanel = TRUE;
             InputMode = TRUE;
@@ -4352,11 +4352,11 @@ ConKey(void)
     }
     else if (ConPanel)
     {
-        //if (KEY_PRESSED(KEYSC_TILDE) && KEY_PRESSED(KEYSC_LSHIFT))
-        if (KEY_PRESSED(KEYSC_TILDE))
+        //if (KB_KeyPressed(KEYSC_TILDE) && KB_KeyPressed(KEYSC_LSHIFT))
+        if (KB_KeyPressed(KEYSC_TILDE))
         {
-            KEY_PRESSED(KEYSC_TILDE) = FALSE;
-            //KEY_PRESSED(KEYSC_LSHIFT) = FALSE;
+            KB_KeyPressed(KEYSC_TILDE) = FALSE;
+            //KB_KeyPressed(KEYSC_LSHIFT) = FALSE;
             KB_FlushKeyboardQueue();
             ConPanel = FALSE;
             ConInputMode = FALSE;
@@ -4380,18 +4380,18 @@ FunctionKeys(PLAYERp pp)
 
     rts_delay++;
 
-    if (KEY_PRESSED(sc_F1))   { fn_key = 1; }
-    if (KEY_PRESSED(sc_F2))   { fn_key = 2; }
-    if (KEY_PRESSED(sc_F3))   { fn_key = 3; }
-    if (KEY_PRESSED(sc_F4))   { fn_key = 4; }
-    if (KEY_PRESSED(sc_F5))   { fn_key = 5; }
-    if (KEY_PRESSED(sc_F6))   { fn_key = 6; }
-    if (KEY_PRESSED(sc_F7))   { fn_key = 7; }
-    if (KEY_PRESSED(sc_F8))   { fn_key = 8; }
-    if (KEY_PRESSED(sc_F9))   { fn_key = 9; }
-    if (KEY_PRESSED(sc_F10))  { fn_key = 10; }
+    if (KB_KeyPressed(sc_F1))   { fn_key = 1; }
+    if (KB_KeyPressed(sc_F2))   { fn_key = 2; }
+    if (KB_KeyPressed(sc_F3))   { fn_key = 3; }
+    if (KB_KeyPressed(sc_F4))   { fn_key = 4; }
+    if (KB_KeyPressed(sc_F5))   { fn_key = 5; }
+    if (KB_KeyPressed(sc_F6))   { fn_key = 6; }
+    if (KB_KeyPressed(sc_F7))   { fn_key = 7; }
+    if (KB_KeyPressed(sc_F8))   { fn_key = 8; }
+    if (KB_KeyPressed(sc_F9))   { fn_key = 9; }
+    if (KB_KeyPressed(sc_F10))  { fn_key = 10; }
 
-    if (KEY_PRESSED(KEYSC_ALT) || KEY_PRESSED(KEYSC_RALT))
+    if (KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT))
     {
         if (rts_delay > 16 && fn_key && CommEnabled && !adult_lockout && !Global_PLock)
         {
@@ -4416,7 +4416,7 @@ FunctionKeys(PLAYERp pp)
         return;
     }
 
-    if (KEY_PRESSED(KEYSC_LSHIFT) || KEY_PRESSED(KEYSC_RSHIFT))
+    if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
     {
         if (fn_key && CommEnabled)
         {
@@ -4448,7 +4448,7 @@ FunctionKeys(PLAYERp pp)
     if (numplayers <= 1)
     {
         // F2 save menu
-        if (KEY_PRESSED(KEYSC_F2))
+        if (KB_KeyPressed(KEYSC_F2))
         {
 			inputState.ClearKeyStatus(KEYSC_F2);
             if (!TEST(pp->Flags, PF_DEAD))
@@ -4459,7 +4459,7 @@ FunctionKeys(PLAYERp pp)
         }
 
         // F3 load menu
-        if (KEY_PRESSED(KEYSC_F3))
+        if (KB_KeyPressed(KEYSC_F3))
         {
 			inputState.ClearKeyStatus(KEYSC_F3);
 			if (!TEST(pp->Flags, PF_DEAD))
@@ -4470,7 +4470,7 @@ FunctionKeys(PLAYERp pp)
         }
 
         // F6 option menu
-        if (KEY_PRESSED(KEYSC_F6))
+        if (KB_KeyPressed(KEYSC_F6))
         {
             extern SWBOOL QuickSaveMode;
 			inputState.ClearKeyStatus(KEYSC_F6);
@@ -4483,7 +4483,7 @@ FunctionKeys(PLAYERp pp)
         }
 
         // F9 quick load
-        if (KEY_PRESSED(KEYSC_F9))
+        if (KB_KeyPressed(KEYSC_F9))
         {
 			inputState.ClearKeyStatus(KEYSC_F9);
 
@@ -4506,7 +4506,7 @@ FunctionKeys(PLAYERp pp)
 
 
     // F4 sound menu
-    if (KEY_PRESSED(KEYSC_F4))
+    if (KB_KeyPressed(KEYSC_F4))
     {
 		inputState.ClearKeyStatus(KEYSC_F4);
 		inputState.SetKeyStatus(sc_Escape);
@@ -4515,11 +4515,11 @@ FunctionKeys(PLAYERp pp)
 
 
     // F7 VIEW control
-    if (KEY_PRESSED(KEYSC_F7))
+    if (KB_KeyPressed(KEYSC_F7))
     {
 		inputState.ClearKeyStatus(KEYSC_F7);
 
-        if (KEY_PRESSED(KEYSC_LSHIFT) || KEY_PRESSED(KEYSC_RSHIFT))
+        if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
         {
             if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
                 pp->view_outside_dang = NORM_ANGLE(pp->view_outside_dang + 256);
@@ -4539,7 +4539,7 @@ FunctionKeys(PLAYERp pp)
     }
 
     // F8 toggle messages
-    if (KEY_PRESSED(KEYSC_F8))
+    if (KB_KeyPressed(KEYSC_F8))
     {
 		inputState.ClearKeyStatus(KEYSC_F8);
 
@@ -4552,7 +4552,7 @@ FunctionKeys(PLAYERp pp)
     }
 
     // F10 quit menu
-    if (KEY_PRESSED(KEYSC_F10))
+    if (KB_KeyPressed(KEYSC_F10))
     {
 		inputState.ClearKeyStatus(KEYSC_F10);
 		inputState.SetKeyStatus(sc_Escape);
@@ -4560,7 +4560,7 @@ FunctionKeys(PLAYERp pp)
     }
 
     // F11 gamma correction
-    if (KEY_PRESSED(KEYSC_F11) > 0)
+    if (KB_KeyPressed(KEYSC_F11) > 0)
     {
 		inputState.ClearKeyStatus(KEYSC_F11);
 		// Do this entirely in the video backend.
@@ -4574,7 +4574,7 @@ void PauseKey(PLAYERp pp)
     extern short QuickLoadNum;
     extern SWBOOL enabled;
 
-    if (KEY_PRESSED(sc_Pause) && !CommEnabled && !InputMode && !UsingMenus && !CheatInputMode && !ConPanel)
+    if (KB_KeyPressed(sc_Pause) && !CommEnabled && !InputMode && !UsingMenus && !CheatInputMode && !ConPanel)
     {
 		inputState.ClearKeyStatus(sc_Pause);
 
@@ -4828,10 +4828,10 @@ void GetHelpInput(PLAYERp pp)
 {
     extern SWBOOL GamePaused;
 
-    if (KEY_PRESSED(KEYSC_ALT) || KEY_PRESSED(KEYSC_RALT))
+    if (KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT))
         return;
 
-    if (KEY_PRESSED(KEYSC_LSHIFT) || KEY_PRESSED(KEYSC_RSHIFT))
+    if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
         return;
 
     if (MessageInputMode || ConInputMode)
@@ -4840,7 +4840,7 @@ void GetHelpInput(PLAYERp pp)
     // F1 help menu
     if (!HelpInputMode)
     {
-        if (KEY_PRESSED(KEYSC_F1))
+        if (KB_KeyPressed(KEYSC_F1))
         {
 			inputState.ClearKeyStatus(KEYSC_F11);
 			HelpPage = 0;
@@ -4853,7 +4853,7 @@ void GetHelpInput(PLAYERp pp)
     }
     else if (HelpInputMode)
     {
-        if (KEY_PRESSED(KEYSC_ESC))
+        if (KB_KeyPressed(KEYSC_ESC))
         {
 			inputState.ClearKeyStatus(sc_Escape);
 			KB_ClearKeysDown();
@@ -4865,7 +4865,7 @@ void GetHelpInput(PLAYERp pp)
             SetRedrawScreen(pp);
         }
 
-        if (KEY_PRESSED(KEYSC_SPACE) || KEY_PRESSED(KEYSC_ENTER) || KEY_PRESSED(KEYSC_PGDN) || KEY_PRESSED(KEYSC_DOWN) || KEY_PRESSED(KEYSC_RIGHT) || KEY_PRESSED(sc_kpad_3) || KEY_PRESSED(sc_kpad_2) || KEY_PRESSED(sc_kpad_6))
+        if (KB_KeyPressed(KEYSC_SPACE) || KB_KeyPressed(KEYSC_ENTER) || KB_KeyPressed(KEYSC_PGDN) || KB_KeyPressed(KEYSC_DOWN) || KB_KeyPressed(KEYSC_RIGHT) || KB_KeyPressed(sc_kpad_3) || KB_KeyPressed(sc_kpad_2) || KB_KeyPressed(sc_kpad_6))
         {
 			inputState.ClearKeyStatus(KEYSC_SPACE);
 			inputState.ClearKeyStatus(KEYSC_ENTER);
@@ -4885,7 +4885,7 @@ void GetHelpInput(PLAYERp pp)
             // CTW MODIFICATION END
         }
 
-        if (KEY_PRESSED(KEYSC_PGUP) || KEY_PRESSED(KEYSC_UP) || KEY_PRESSED(KEYSC_LEFT) || KEY_PRESSED(sc_kpad_9) || KEY_PRESSED(sc_kpad_8) || KEY_PRESSED(sc_kpad_4))
+        if (KB_KeyPressed(KEYSC_PGUP) || KB_KeyPressed(KEYSC_UP) || KB_KeyPressed(KEYSC_LEFT) || KB_KeyPressed(sc_kpad_9) || KB_KeyPressed(sc_kpad_8) || KB_KeyPressed(sc_kpad_4))
         {
 			inputState.ClearKeyStatus(KEYSC_PGUP);
 			inputState.ClearKeyStatus(KEYSC_UP);
@@ -5036,7 +5036,7 @@ getinput(SW_PACKET *loc)
     if (MenuInputMode || UsingMenus || ScrollMode2D || InputMode)
         return;
 
-    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!KEY_PRESSED(KEYSC_SPACE)) | BUTTON(gamefunc_Open)));
+    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!KB_KeyPressed(KEYSC_SPACE)) | BUTTON(gamefunc_Open)));
 
     running = G_CheckAutorun(BUTTON(gamefunc_Run));
 
@@ -5164,9 +5164,9 @@ getinput(SW_PACKET *loc)
                 SET_LOC_KEY(loc->bits, SK_AUTO_AIM, TRUE);
         }
     }
-    else if (KEY_PRESSED(sc_Pause))
+    else if (KB_KeyPressed(sc_Pause))
     {
-        SET_LOC_KEY(loc->bits, SK_PAUSE, KEY_PRESSED(sc_Pause));
+        SET_LOC_KEY(loc->bits, SK_PAUSE, KB_KeyPressed(sc_Pause));
 		inputState.ClearKeyStatus(sc_Pause);
 	}
 
@@ -5300,7 +5300,7 @@ getinput(SW_PACKET *loc)
     SET_LOC_KEY(loc->bits, SK_HIDE_WEAPON, BUTTON(gamefunc_Holster_Weapon));
 
     // need BUTTON
-    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, KEY_PRESSED(KEYSC_NUM));
+    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, KB_KeyPressed(KEYSC_NUM));
 
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {
