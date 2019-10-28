@@ -819,6 +819,7 @@ set (PCH_SOURCES
 	common/utility/memarena.cpp
 	common/utility/sc_man.cpp
 
+	common/filesystem/filesystem.cpp
 	common/filesystem/ancientzip.cpp
 	common/filesystem/file_zip.cpp
 	common/filesystem/file_7z.cpp

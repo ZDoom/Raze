@@ -74,8 +74,11 @@ bool FLumpFile::Open(bool quiet)
 	Lumps[0].LumpSize = (int)Reader.GetLength();
 	Lumps[0].Flags = 0;
 	Lumps[0].FullName = FileName;
-	Lumps[0].BaseName = ExtractFileBase(FileName);
+	auto p = FileName.LastIndexOf('/');
+	Lumps[0].PathLen = FileName.LastIndexOf('/') + 1;
+	Lumps[0].ExtStart = FileName.LastIndexOf('.');
 	NumLumps = 1;
+	if (Lumps[0].ExtStart < Lumps[0].PathLen) Lumps[0].ExtStart = -1;
 	/*
 	if (!quiet)
 	{

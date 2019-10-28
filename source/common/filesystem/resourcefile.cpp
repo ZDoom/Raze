@@ -84,11 +84,9 @@ FResourceLump::~FResourceLump()
 
 void FResourceLump::LumpNameSetup(FString iname)
 {
-	long slash = iname.LastIndexOf('/');
-	FString base = (slash >= 0) ? iname.Mid(slash + 1) : iname;
-	auto dot = base.LastIndexOf('.');
-	if (dot >= 0) base.Truncate(dot);
-	BaseName = base;
+	PathLen = iname.LastIndexOf('/') + 1;
+	ExtStart = iname.LastIndexOf('.');
+	if (ExtStart <= PathLen) ExtStart = -1;
 	FullName = iname;
 }
 
@@ -373,7 +371,6 @@ void FResourceFile::JunkLeftoverFilters(void *lumps, size_t lumpsize, uint32_t m
 		{
 			FResourceLump *lump = (FResourceLump *)p;
 			lump->FullName = "";
-			lump->BaseName = "";
 		}
 	}
 }

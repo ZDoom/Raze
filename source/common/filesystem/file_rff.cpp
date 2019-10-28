@@ -104,11 +104,10 @@ void BloodCrypt (void *data, int key, int len)
 
 class FRFFFile : public FResourceFile
 {
-	FRFFLump *Lumps;
+	TArray<FRFFLump> Lumps;
 
 public:
 	FRFFFile(const char * filename, FileReader &file);
-	virtual ~FRFFFile();
 	virtual bool Open(bool quiet);
 	virtual FResourceLump *GetLump(int no) { return ((unsigned)no < NumLumps)? &Lumps[no] : NULL; }
 };
@@ -123,7 +122,6 @@ public:
 FRFFFile::FRFFFile(const char *filename, FileReader &file)
 : FResourceFile(filename, file)
 {
-	Lumps = NULL;
 }
 
 //==========================================================================
@@ -146,19 +144,22 @@ bool FRFFFile::Open(bool quiet)
 	Reader.Read (lumps, header.NumLumps * sizeof(RFFLump));
 	BloodCrypt (lumps, header.DirOfs, header.NumLumps * sizeof(RFFLump));
 
-	Lumps = new FRFFLump[NumLumps];
+	Lumps.Grow(NumLumps);
 
 	//if (!quiet) Printf(", %d lumps\n", NumLumps);
 	for (uint32_t i = 0; i < NumLumps; ++i)
 	{
-		Lumps[i].Position = LittleLong(lumps[i].FilePos);
-		Lumps[i].LumpSize = LittleLong(lumps[i].Size);
-		Lumps[i].Owner = this;
+		Lumps.Reserve(1);
+		auto& Lump = Lumps.Last();
+		
+		Lump.Position = LittleLong(lumps[i].FilePos);
+		Lump.LumpSize = LittleLong(lumps[i].Size);
+		Lump.Owner = this;
 		if (lumps[i].Flags & 0x10)
 		{
-			Lumps[i].Flags |= LUMPF_BLOODCRYPT;
+			Lump.Flags |= LUMPF_BLOODCRYPT;
 		}
-		Lumps[i].IndexNum = LittleLong(lumps[i].IndexNum);
+		Lump.IndexNum = LittleLong(lumps[i].IndexNum);
 		// Rearrange the name and extension to construct the fullname.
 		char name[13];
 		strncpy(name, lumps[i].Name, 8);
@@ -170,18 +171,18 @@ bool FRFFFile::Open(bool quiet)
 		name[len+2] = lumps[i].Extension[1];
 		name[len+3] = lumps[i].Extension[2];
 		name[len+4] = 0;
-		Lumps[i].LumpNameSetup(name);
+		Lump.LumpNameSetup(name);
+		if (Lump.IndexNum > 0)
+		{
+			// Create a second entry for looking up by index.
+			Lumps.Reserve(1);
+			auto& l = Lumps.Last();
+			l = Lumps[Lumps.Size() - 2];
+			snprintf(name, 13, "{%d}.%c%c%c", l.IndexNum, lumps[i].Extension[0], lumps[i].Extension[1], lumps[i].Extension[2]);
+		}
 	}
 	delete[] lumps;
 	return true;
-}
-
-FRFFFile::~FRFFFile()
-{
-	if (Lumps != NULL)
-	{
-		delete[] Lumps;
-	}
 }
 
 

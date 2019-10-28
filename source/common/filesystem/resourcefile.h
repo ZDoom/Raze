@@ -49,8 +49,9 @@ struct FResourceLump
 	int				LumpSize = 0;
 	int				RefCount = 0;
 	int				Flags = 0;
+	int				PathLen = 0;
+	int				ExtStart = -1;
 	FString			FullName;	// Name with extension and path
-	FString			BaseName;	// Name without extension and path
 	FResourceFile *	Owner = nullptr;
 	TArray<uint8_t> Cache;
 
