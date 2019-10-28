@@ -1038,9 +1038,14 @@ void CheckKeys()
                 {
                     char *pToken = strtok(sHollyStr, " ");
 
-                    // move player to X, Y coordinates
-                    if (!strcmp(pToken, "GOTO"))
+                    if (nStringLen == 0) // bjd - added this check. watcom allows passing NULL to strcmp so the below checks will all fail OK on DOS but will cause a crash on Windows
                     {
+                        bHolly = kFalse;
+                        StatusMessage(1, " ");
+                    } 
+                    else if (!strcmp(pToken, "GOTO"))
+                    {
+                        // move player to X, Y coordinates
                         int nSprite = PlayerList[0].nSprite;
 
                         pToken = strtok(NULL, ",");
@@ -2423,8 +2428,9 @@ MENU2:
                     CONTROL_ClearButton(gamefunc_Inventory);
                 }
             }
-            else
+            else {
                 SetAirFrame();
+            }
         }
         if (record_mode == 3 && movefifopos == movefifoend) {
             levelnew = 0;
