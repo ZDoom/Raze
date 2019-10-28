@@ -192,7 +192,7 @@ void G_HandleSpecialKeys(void)
     auto &myplayer = *g_player[myconnectindex].ps;
 
     // we need CONTROL_GetInput in order to pick up joystick button presses
-    if (CONTROL_Started && (!(myplayer.gm & MODE_GAME) || (myplayer.gm & MODE_MENU)))
+    if ((!(myplayer.gm & MODE_GAME) || (myplayer.gm & MODE_MENU)))
     {
         ControlInfo noshareinfo;
         CONTROL_GetInput(&noshareinfo);
@@ -6686,7 +6686,7 @@ MAIN_LOOP_RESTART:
         }
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
-        CONTROL_BindsEnabled = !!(myplayer.gm & (MODE_GAME|MODE_DEMO));
+        inputState.SetBindsEnabled(!!(myplayer.gm & (MODE_GAME|MODE_DEMO)));
 
 #ifndef _WIN32
         // stdin -> OSD input for dedicated server

@@ -2176,7 +2176,7 @@ void G_BonusScreen(int32_t bonusonly)
     FX_StopAllSounds();
     S_ClearSoundLocks();
     FX_SetReverb(0L);
-    CONTROL_BindsEnabled = 1; // so you can use your screenshot bind on the score screens
+    inputState.SetBindsEnabled(1); // so you can use your screenshot bind on the score screens
 
 #ifndef EDUKE32_STANDALONE
     if (!bonusonly)

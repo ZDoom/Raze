@@ -2204,7 +2204,7 @@ void G_BonusScreen(int32_t bonusonly)
     FX_StopAllSounds();
     S_ClearSoundLocks();
     FX_SetReverb(0L);
-    CONTROL_BindsEnabled = 1; // so you can use your screenshot bind on the score screens
+    inputState.SetBindsEnabled(1); // so you can use your screenshot bind on the score screens
 
     if (!bonusonly)
         G_BonusCutscenes();
@@ -2783,7 +2783,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     FX_StopAllSounds();
     S_ClearSoundLocks();
     FX_SetReverb(0L);
-    CONTROL_BindsEnabled = 1; // so you can use your screenshot bind on the score screens
+    inputState.SetBindsEnabled(1); // so you can use your screenshot bind on the score screens
 
     if (boardfilename[0] == 0 && numplayers < 2)
     {

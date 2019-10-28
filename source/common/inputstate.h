@@ -27,7 +27,7 @@ enum
 };
 
 extern consolekeybind_t CONTROL_KeyBinds[NUMKEYS + MAXMOUSEBUTTONS];
-
+extern bool CONTROL_BindsEnabled;
 
 // Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
 enum GameFunction_t
@@ -210,6 +210,12 @@ public:
 	bool EscapePressed()
 	{
 		return !!KeyStatus[sc_Escape];
+	}
+	
+	void SetBindsEnabled(bool on)
+	{
+		// This just forwards the setting
+		CONTROL_BindsEnabled = on;
 	}
 	
 };

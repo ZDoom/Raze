@@ -167,7 +167,7 @@ enum gametokens
 void G_HandleSpecialKeys(void)
 {
     // we need CONTROL_GetInput in order to pick up joystick button presses
-    if (CONTROL_Started && !(g_player[myconnectindex].ps->gm & MODE_GAME))
+    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
     {
         ControlInfo noshareinfo;
         CONTROL_GetInput(&noshareinfo);
@@ -8057,7 +8057,7 @@ MAIN_LOOP_RESTART:
         Net_GetPackets();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
-        CONTROL_BindsEnabled = !!(g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO));
+        inputState.SetBindsEnabled(!!(g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO)));
 
 #if 0
 //#ifndef _WIN32

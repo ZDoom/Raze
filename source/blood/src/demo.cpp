@@ -316,7 +316,7 @@ void CDemo::ProcessKeys(void)
 
 void CDemo::Playback(void)
 {
-    CONTROL_BindsEnabled = false;
+    inputState.SetBindsEnabled(false);
     ready2send = 0;
     int v4 = 0;
     if (!CGameMenuMgr::m_bActive)

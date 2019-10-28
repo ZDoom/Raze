@@ -1684,7 +1684,7 @@ RESTART:
         }
         netUpdate();
         MUSIC_Update();
-        CONTROL_BindsEnabled = gInputMode == kInputGame;
+        inputState.SetBindsEnabled(gInputMode == kInputGame);
         switch (gInputMode)
         {
         case kInputMenu:
