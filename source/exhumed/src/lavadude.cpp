@@ -400,21 +400,21 @@ void FuncLava(int a, int nDamage, int nRun)
 
                 case 3:
                 {
-                    if (nFlag & 0x80 && nTarget > -1)
+                    if ((nFlag & 0x80) && nTarget > -1)
                     {
                         int nHeight = GetSpriteHeight(nSprite);
                         GetUpAngle(nSprite, 0x0FFFF0600, nTarget, (-(nHeight >> 1)));
 
                         BuildBullet(nSprite, 10, Sin(sprite[nSprite].ang + 512) << 8, Sin(sprite[nSprite].ang) << 8, -1, sprite[nSprite].ang, nTarget + 10000, 1);
-                        break;
                     }
                     else if (var_1C)
                     {
                         PlotCourseToSprite(nSprite, nTarget);
                         LavaList[nLava].nAction = 7;
                         LavaList[nLava].field_10 = 0;
-                        break;
                     }
+
+                    break;
                 }
 
                 case 4:
