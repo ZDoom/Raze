@@ -1229,12 +1229,8 @@ int myloadconfig()
     fread(&nGamma,       sizeof(nGamma), 1, fp);
     fread(&lMouseSens,   sizeof(lMouseSens), 1, fp);
 
-    if (bHiRes) {
-        screensize *= 2;
-    }
-
-    if (screensize > xdim || screensize < xdim >> 2) {
-        screensize = xdim;
+    if (screensize < 0 || screensize > 15) {
+        screensize = 0;
     }
 
     fclose(fp);
@@ -1261,11 +1257,6 @@ int mysaveconfig()
     fwrite(&gMusicVolume, sizeof(gMusicVolume), 1, fp);
 
     short nSize = screensize;
-
-    if (bHiRes)
-    {
-        nSize = screensize / 2;
-    }
 
     fwrite(&nSize,       sizeof(nSize), 1, fp);
     fwrite(&bFullScreen, sizeof(bFullScreen), 1, fp);

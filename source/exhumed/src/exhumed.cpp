@@ -752,14 +752,15 @@ int MyGetStringWidth(const char *str)
 
 void UpdateScreenSize()
 {
-    int v0 = ydim * screensize / xdim;
-    int y1 = ((ydim >> 1) - (v0 >> 1));
+    int xsize = xdim - scale(screensize*16, xdim, 320);
+    int ysize = scale(ydim, xsize, xdim);
+    int y1 = ((ydim >> 1) - (ysize >> 1));
 
     MySetView(
-        (xdim >> 1) - (screensize >> 1),
+        (xdim >> 1) - (xsize >> 1),
         y1,
-        (xdim >> 1) - (screensize >> 1) + screensize - 1,
-        (y1 + v0 - 1));
+        (xdim >> 1) - (xsize >> 1) + xsize - 1,
+        (y1 + ysize - 1));
 
     RefreshStatus();
 }
@@ -894,14 +895,7 @@ void CheckKeys()
 
     if (BUTTON(gamefunc_Enlarge_Screen))
     {
-        if (bHiRes) {
-            eax = 32;
-        }
-        else {
-            eax = 16;
-        }
-
-        if (screensize == xdim)
+        if (screensize == 0)
         {
             if (!bFullScreen)
             {
@@ -911,9 +905,9 @@ void CheckKeys()
         }
         else
         {
-            screensize += eax;
-            if (screensize > xdim) {
-                screensize = xdim;
+            screensize--;
+            if (screensize < 0) {
+                screensize = 0;
             }
 
             UpdateScreenSize();
@@ -955,19 +949,14 @@ void CheckKeys()
 
     if (BUTTON(gamefunc_Shrink_Screen))
     {
-        if (bHiRes)
-            eax = 32;
-        else
-            eax = 16;
-
         if (bFullScreen)
         {
             bFullScreen = kFalse;
         }
         else
         {
-            if ((screensize - eax) > (xdim >> 2))
-                screensize -= eax;
+            if ((screensize + 1) < 15)
+                screensize++;
         }
 
         UpdateScreenSize();

@@ -62,7 +62,7 @@ short nEnemyPal = 0;
 
 void InitView()
 {
-    screensize = (short)xdim;
+    screensize = 0;
 #ifdef USE_OPENGL
     polymostcenterhoriz = 92;
 #endif

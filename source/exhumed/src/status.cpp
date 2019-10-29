@@ -473,7 +473,7 @@ void MoveStatus()
         message_timer -= 4;
         if (message_timer <= 0)
         {
-            if (screensize < xdim) {
+            if (screensize > 0) {
                 textpages = numpages;
             }
 
@@ -644,7 +644,7 @@ void StatusMessage(int messageTime, const char *fmt, ...)
 
     vsprintf(message_text, fmt, args);
 
-    if (screensize < xdim) {
+    if (screensize > 0) {
         textpages = numpages;
     }
 }
