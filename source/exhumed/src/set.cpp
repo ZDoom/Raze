@@ -504,24 +504,21 @@ void FuncSet(int a, int nDamage, int nRun)
                     {
                         SetList[nSet].nAction = 0;
                         SetList[nSet].field_A = 50;
-                        break;
                     }
                     else
                     {
                         if (PlotCourseToSprite(nSprite, nTarget) >= 768)
                         {
                             SetList[nSet].nAction = 3;
-                            break;
                         }
-                        else
+                        else if (nFlag & 0x80)
                         {
-                            if (nFlag & 0x80)
-                            {
-                                runlist_DamageEnemy(nTarget, nSprite, 5);
-                                break;
-                            }
+                            runlist_DamageEnemy(nTarget, nSprite, 5);
+                            
                         }
                     }
+
+                    break;
                 }
 
                 case 5:
