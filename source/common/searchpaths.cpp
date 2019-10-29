@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameconfigfile.h"
 #include "cmdlib.h"
 #include "utf8.h"
+#include "sc_man.h"
+#include "resourcefile.h"
+#include "printf.h"
 //
 // Search path management
 //
@@ -54,7 +57,7 @@ void AddSearchPath(TArray<FString>& searchpaths, const char* path)
 				searchpaths.Push(apath);
 		}
 	}
-	catch (fs::filesystem_error & err)
+	catch (fs::filesystem_error &)
 	{
 	}
 }
@@ -569,3 +572,121 @@ TArray<FString> CollectSearchPaths()
 	return searchpaths;
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+struct FileEntry
+{
+	FString FileName;
+	uintmax_t FileLength;
+	uint64_t FileTime;
+	uint32_t CRCValue;
+};
+
+TArray<FileEntry> CollectAllFilesInSearchPath()
+{
+	TArray<FileEntry> filelist;
+	auto paths = CollectSearchPaths();
+	for(auto &path : paths)
+	{
+		auto fpath = fs::u8path(path.GetChars());
+		if (fs::exists(fpath) && fs::is_directory(fpath))
+		{
+			for (const auto& entry : fs::directory_iterator(fpath))
+			{
+				if (fs::is_regular_file(entry.status()))
+				{
+					filelist.Reserve(1);
+					auto& flentry = filelist.Last();
+					flentry.FileName = absolute(entry.path()).u8string().c_str();
+					flentry.FileLength = entry.file_size();
+					flentry.FileTime = entry.last_write_time().time_since_epoch().count();
+					filelist.Push(flentry);
+				}
+			}
+		}
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static TArray<FileEntry> LoadGroupsCache(void)
+{
+	auto cachepath = M_GetAppDataPath(false) + "/grpcrccache.txt";
+	FScanner sc;
+	TArray<FileEntry> crclist;
+
+	try
+	{
+		sc.OpenFile(cachepath);
+		while (sc.GetString())
+		{
+			crclist.Reserve(1);
+			auto flentry = crclist.Last();
+			flentry.FileName = sc.String;
+			sc.MustGetString();
+			flentry.FileLength = strtoull(sc.String, nullptr, 0);	// Cannot use sc.Number because that's only 32 bit.
+			sc.MustGetString();
+			flentry.FileTime = strtoull(sc.String, nullptr, 0);	// Cannot use sc.Number because that's only 32 bit.
+			sc.MustGetString();
+			flentry.CRCValue = strtoull(sc.String, nullptr, 0);	// Cannot use sc.Number because that's only 32 bit.
+		}
+	}
+	catch (std::runtime_error & err)
+	{
+		// If there's a parsing error, return what we got and discard the rest.
+	}
+	return crclist;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void ParseAllGrpInfos(TArray<FileEntry>& filelist, FResourceFile *baseres)
+{
+	auto basegrp = baseres->FindLump("demolition/demolition.grpinfo");
+	if (basegrp)
+	{
+		auto fr = basegrp->NewReader();
+	}
+	for (auto& entry : filelist)
+	{
+		auto lowerstr = entry.FileName.MakeLower();
+		if (lowerstr.Len() >= 8)
+		{
+			const char* exten = lowerstr.GetChars() + lowerstr.Len() - 8;
+			if (!stricmp(exten, ".grpinfo"))
+			{
+				// parse it.
+				FileReader fr;
+				if (fr.OpenFile(entry.FileName))
+				{
+				}
+			}
+		}
+	}
+}
+
+
+extern FString progdir;
+void GrpGet()
+{
+	std::unique_ptr<FResourceFile> engine_res;
+	// If we get here for the first time, load the engine-internal data.
+	FString baseres = progdir + "demolition.pk3";
+	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
+	if (!engine_res)
+	{
+		I_Error("Engine resources (%s) not found", baseres.GetChars());
+	}
+}
