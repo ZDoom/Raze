@@ -1525,7 +1525,7 @@ int app_main(int argc, char const* const* argv)
 
     //int esi = 1;
     //int edi = esi;
-    int doTitle = kTrue;
+    int doTitle = kFalse; // REVERT kTrue;
     int stopTitle = kFalse;
     int tclocks, tclocks2;
     levelnew = 1;
@@ -1902,7 +1902,7 @@ int app_main(int argc, char const* const* argv)
     // no forcelevel specified...
     if (!bPlayback)
     {
-        goto STARTGAME1;
+        goto MENU;
     }
 MENU:
     SavePosition = -1;
@@ -2516,8 +2516,6 @@ short word_10010[] = {6, 25, 43, 50, 68, 78, 101, 111, 134, 158, 173, 230, 6000}
 
 void DoTitle()
 {
-    return; // REVERT
-
     short theArray[13];
     memcpy(theArray, word_10010, sizeof(word_10010));
 
