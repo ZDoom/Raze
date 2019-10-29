@@ -126,7 +126,7 @@ int FDirectory::AddDirectory(const char *dirpath)
 
 	dirmatch += '*';
 	
-	if ((handle = _wfindfirst(wdirmatch, &fileinfo)) == -1)
+	if ((handle = _wfindfirst(dirmatch.c_str(), &fileinfo)) == -1)
 	{
 		Printf("Could not scan '%s': %s\n", dirpath, strerror(errno));
 	}
@@ -157,7 +157,7 @@ int FDirectory::AddDirectory(const char *dirpath)
 			}
 			else
 			{
-				if (strstr(fileinfo.name, ".orig") || strstr(fileinfo.name, ".bak"))
+				if (strstr(fi, ".orig") || strstr(fi, ".bak"))
 				{
 					// We shouldn't add backup files to the lump directory
 					continue;

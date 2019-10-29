@@ -36,6 +36,7 @@
 #include <windows.h>
 #include <lmcons.h>
 #include <shlobj.h>
+#include <Shlwapi.h>
 
 #include "i_specialpaths.h"
 #include "printf.h"
@@ -333,4 +334,36 @@ FString M_GetDocumentsPath()
 		path = progdir;
 	}
 	return path;
+}
+
+//===========================================================================
+//
+// ReadRegistryValue												Windows
+//
+// Reads a value from the registry
+//
+//===========================================================================
+
+int ReadRegistryValue(char const* const SubKey, char const* const Value, char* const Output, unsigned long* OutputSize)
+{
+	// KEY_WOW64_32KEY gets us around Wow6432Node on 64-bit builds
+	REGSAM const wow64keys[] = { KEY_WOW64_32KEY, KEY_WOW64_64KEY };
+
+	for (auto& wow64key : wow64keys)
+	{
+		HKEY hkey;
+		LONG keygood = RegOpenKeyExA(HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ | wow64key, &hkey);
+
+		if (keygood != ERROR_SUCCESS)
+			continue;
+
+		LONG retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, OutputSize);
+
+		RegCloseKey(hkey);
+
+		if (retval == ERROR_SUCCESS)
+			return 1;
+	}
+
+	return 0;
 }

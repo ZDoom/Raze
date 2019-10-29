@@ -21,42 +21,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include <filesystem>
+#include "i_specialpaths.h"
+#include "compat.h"
+#include "gameconfigfile.h"
+#include "cmdlib.h"
+#include "utf8.h"
 //
 // Search path management
 //
 
+namespace fs = std::filesystem;
 
-#if defined _WIN32
-//-------------------------------------------------------------------------
-//
-//
-//
-//-------------------------------------------------------------------------
 
-static int G_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, DWORD * OutputSize)
-{
-    // KEY_WOW64_32KEY gets us around Wow6432Node on 64-bit builds
-    REGSAM const wow64keys[] = { KEY_WOW64_32KEY, KEY_WOW64_64KEY };
-
-    for (auto &wow64key : wow64keys)
-    {
-        HKEY hkey;
-        LONG keygood = RegOpenKeyEx(HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ | wow64key, &hkey);
-
-        if (keygood != ERROR_SUCCESS)
-            continue;
-
-        LONG retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, OutputSize);
-
-        RegCloseKey(hkey);
-
-        if (retval == ERROR_SUCCESS)
-            return 1;
-    }
-
-    return 0;
-}
-#elif defined (__APPLE__) || defined (__FreeBSD__) || defined(__OpenBSD__) || defined (__linux__)
+#ifndef _WIN32
 //-------------------------------------------------------------------------
 //
 //
@@ -346,14 +324,14 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Duke Nukem 3D: 20th Anniversary World Tour (Steam)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 434050)", "InstallLocation", buf, &bufsize))
+    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 434050)", "InstallLocation", buf, &bufsize))
     {
 		searchpaths.Push(buf);
     }
 
     // Duke Nukem 3D: Megaton Edition (Steam)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225140)", "InstallLocation", buf, &bufsize))
+    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225140)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -370,7 +348,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 359850)", "InstallLocation", buf, &bufsize))
+    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 359850)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -381,25 +359,25 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Duke Nukem 3D: Atomic Edition (GOG.com)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", buf, &bufsize))
+    if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", buf, &bufsize))
     {
 		searchpaths.Push(buf);
     }
 
     // Duke Nukem 3D (3D Realms Anthology)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\3DRealms\\Duke Nukem 3D", NULL, buf, &bufsize))
+    if (ReadRegistryValue("SOFTWARE\\3DRealms\\Duke Nukem 3D", NULL, buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
 
-        Bstrncpy(suffix, "/Duke Nukem 3D", remaining);
+        strncpy(suffix, "/Duke Nukem 3D", remaining);
 		searchpaths.Push(buf);
     }
 
     // 3D Realms Anthology
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\3DRealms\\Anthology", NULL, buf, &bufsize))
+    if (ReadRegistryValue("SOFTWARE\\3DRealms\\Anthology", NULL, buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -410,7 +388,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // NAM (Steam)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 329650)", "InstallLocation", buf, &bufsize))
+    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 329650)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -421,7 +399,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // WWII GI (Steam)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 376750)", "InstallLocation", buf, &bufsize))
+    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 376750)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -432,35 +410,35 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Redneck Rampage (GOG.com)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGREDNECKRAMPAGE", "PATH", buf, &bufsize))
+    if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGREDNECKRAMPAGE", "PATH", buf, &bufsize))
     {
 		searchpaths.Push(buf);
     }
 
     // Redneck Rampage Rides Again (GOG.com)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGCREDNECKRIDESAGAIN", "PATH", buf, &bufsize))
+    if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGCREDNECKRIDESAGAIN", "PATH", buf, &bufsize))
     {
 		searchpaths.Push(buf);
     }
 	
     // Blood: One Unit Whole Blood (Steam)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 299030)", "InstallLocation", buf, &bufsize))
+    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 299030)", "InstallLocation", buf, &bufsize))
     {
 		searchpaths.Push(buf);
     }
 
     // Blood: One Unit Whole Blood (GOG.com)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGONEUNITONEBLOOD", "PATH", buf, &bufsize))
+    if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGONEUNITONEBLOOD", "PATH", buf, &bufsize))
     {
 		searchpaths.Push(buf);
     }
 
     // Blood: Fresh Supply (Steam)
     bufsize = sizeof(buf);
-    if (!found && G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1010750)", "InstallLocation", buf, &bufsize))
+    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1010750)", "InstallLocation", buf, &bufsize))
     {
 		searchpaths.Push(buf);
         strncat(buf, R"(\addons\Cryptic Passage)", 23);
@@ -469,7 +447,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Blood: Fresh Supply (GOG.com)
     bufsize = sizeof(buf);
-    if (!found && G_ReadRegistryValue(R"(SOFTWARE\Wow6432Node\GOG.com\Games\1374469660)", "path", buf, &bufsize))
+    if (ReadRegistryValue(R"(SOFTWARE\Wow6432Node\GOG.com\Games\1374469660)", "path", buf, &bufsize))
     {
 		searchpaths.Push(buf);
         strncat(buf, R"(\addons\Cryptic Passage)", 23);
@@ -478,18 +456,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 }
 #endif
 
-//-------------------------------------------------------------------------
-//
-//
-//
-//-------------------------------------------------------------------------
 
-void AddExpandedPath(TArray<FString> &searchpaths, const char *basepath)
-{
-	
-}
-
-#ifdef _WIN32
 //==========================================================================
 //
 // Windows version
@@ -498,109 +465,29 @@ void AddExpandedPath(TArray<FString> &searchpaths, const char *basepath)
 
 void CollectSubdirectories(TArray<FString> &searchpath, const char *dirmatch)
 {
-	struct _wfinddata_t fileinfo;
-	intptr_t handle;
-	FString dirpath;
-	int count = 0;
-	auto wdirmatch = WideString(dirmatch);
-
-	dirpath.Truncate(dirpath.Len()-1); // remove the '*'
-	
-	if ((handle = _wfindfirst(wdirmatch, &fileinfo)) == -1)
+	try
 	{
-		// silently ignore non-existent paths
-		return;
-	}
-	else
-	{
-		do
+		FString dirpath = MakeUTF8(dirmatch);	// convert into clean UTF-8
+		dirpath.Truncate(dirpath.Len() - 1);	// remove the '*'
+		fs::path path = fs::u8path(dirpath.GetChars());
+		if (fs::exists(path) && fs::is_directory(path))
 		{
-			if (fileinfo.attrib & _A_HIDDEN)
+			for (const auto& entry : fs::directory_iterator(path))
 			{
-				// Skip hidden files and directories. (Prevents SVN bookkeeping
-				// info from being included.)
-				continue;
-			}
-			FString fi = FString(fileinfo.name);
-			if (fileinfo.attrib & _A_SUBDIR)
-			{
-
-				if (fi[0] == '.' &&
-					(fi[1] == '\0' ||
-					 (fi[1] == '.' && fi[2] == '\0')))
+				if (fs::is_directory(entry.status()))
 				{
-					// Do not record . and .. directories.
-					continue;
+					auto filename = entry.path().filename().u8string();
+					FString newdir = dirpath + filename.c_str();
+					searchpath.Push(newdir);
 				}
-				FString newdir = dirpath + fi;
-				count += AddDirectory(newdir);
 			}
-		} while (_wfindnext(handle, &fileinfo) == 0);
-		_findclose(handle);
+		}
 	}
-	return count;
-}
-
-#else
-
-//==========================================================================
-//
-// add_dirs
-// 4.4BSD version
-//
-//==========================================================================
-
-void FDirectory::AddDirectory(const char *dirpath)
-{
-	char *argv [2] = { NULL, NULL };
-	argv[0] = new char[strlen(dirpath)+1];
-	strcpy(argv[0], dirpath);
-	FTS *fts;
-	FTSENT *ent;
-
-	fts = fts_open(argv, FTS_LOGICAL, NULL);
-	if (fts == NULL)
+	catch (fs::filesystem_error &)
 	{
-		return 0;
+		// Just ignore this path if it caused an error.
 	}
-
-	const size_t namepos = strlen(dirpath);
-	FString pathfix;
-
-	while ((ent = fts_read(fts)) != NULL)
-	{
-		if (ent->fts_info != FTS_D)
-		{
-			// We're only interested in getting directories.
-			continue;
-		}
-		fts_set(fts, ent, FTS_SKIP);
-		if (ent->fts_name[0] == '.')
-		{
-			// Skip hidden directories. (Prevents SVN bookkeeping
-			// info from being included.)
-		}
-
-		// Some implementations add an extra separator between
-		// root of the hierarchy and entity's path.
-		// It needs to be removed in order to resolve
-		// lumps' relative paths properly.
-		const char* path = ent->fts_path;
-
-		if ('/' == path[namepos])
-		{
-			pathfix = FString(path, namepos);
-			pathfix.AppendCStrPart(&path[namepos + 1], ent->fts_pathlen - namepos - 1);
-
-			path = pathfix.GetChars();
-		}
-
-		searchpaths.Push(path);
-	}
-	fts_close(fts);
-	delete[] argv[0];
 }
-#endif
 
 //==========================================================================
 //
@@ -612,7 +499,7 @@ void FDirectory::AddDirectory(const char *dirpath)
 
 TArray<FString> CollectSearchPaths()
 {
-	TArray<FString> searchpths;
+	TArray<FString> searchpaths;
 	
 	if (GameConfig->SetSection("GameSearch.Directories"))
 	{
@@ -627,31 +514,33 @@ TArray<FString> CollectSearchPaths()
 				if (nice.Len() > 0)
 				{
 #ifdef _WIN32
-					if (isalpha(nice[0] && nice[1] == ':' && nice[2] != '/') continue;	// ignore drive relative paths because they are meaningless.
+					if (isalpha(nice[0] && nice[1] == ':' && nice[2] != '/')) continue;	// ignore drive relative paths because they are meaningless.
 #endif
 					// A path ending with "/*" means to add all subdirectories.
 					if (nice[nice.Len()-2] == '/' && nice[nice.Len()-1] == '*')
 					{
-						AddExpandedPath(searchpaths, nice);
+						CollectSubdirectories(searchpaths, nice);
 					}
 					// Checking Steam via a list entry allows easy removal if not wanted.
-					else if (nice.CompareNoCase("$STEAM"))
+					else if (nice.CompareNoCase("$STEAM") == 0)
 					{
 						G_AddExternalSearchPaths(searchpaths);
 					}
 					else
 					{
-						mSearchPaths.Push(nice);
+						searchpaths.Push(nice);
 					}
 				}
 			}
 		}
 	}
 	// Unify and remove trailing slashes
-	for (auto &str : mSearchPaths)
+	for (auto &str : searchpaths)
 	{
 		str.Substitute("\\", "/");
+		str.Substitute("//", "/");	// Double slashes can happen when constructing paths so just get rid of them here.
 		if (str.Back() == '/') str.Truncate(str.Len() - 1);
 	}
+	return searchpaths;
 }
 

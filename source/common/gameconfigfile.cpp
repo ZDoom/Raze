@@ -554,10 +554,14 @@ CCMD (whereisini)
 FGameConfigFile* GameConfig;
 static FString GameName;
 
-void G_LoadConfig(const char* game)
+void G_LoadConfig()
 {
 	OSD_Init();
 	GameConfig = new FGameConfigFile();
+}
+
+void G_ReadConfig(const char* game)
+{
 	GameConfig->DoGlobalSetup();
 	GameConfig->DoGameSetup(game);
 	GameConfig->DoKeySetup(game);

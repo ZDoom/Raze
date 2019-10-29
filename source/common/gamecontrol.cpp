@@ -17,6 +17,7 @@
 
 InputState inputState;
 void SetClipshapes();
+TArray<FString> CollectSearchPaths();
 
 struct GameFuncNameDesc
 {
@@ -295,9 +296,6 @@ void UserConfig::ProcessOptions()
 
 void CONFIG_Init()
 {
-	LumpFilter = currentGame;
-	if (LumpFilter.Compare("Redneck") == 0) LumpFilter = "Redneck.Redneck";
-	else if (LumpFilter.Compare("RedneckRides") == 0) LumpFilter = "Redneck.RidesAgain";
 	SetClipshapes();
 
 	// This must be done before initializing any data, so doing it late in the startup process won't work.
@@ -307,16 +305,27 @@ void CONFIG_Init()
 	}
 	userConfig.ProcessOptions();
 
-	CONFIG_ReadCombatMacros();
-
+	G_LoadConfig();
 	// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
-	G_LoadConfig(currentGame);
+
+	TArray<FString> paths = CollectSearchPaths();
+	for (auto& path : paths)
+	{
+		OutputDebugStringA(path);
+		OutputDebugStringA("\r\n");
+	}
+	LumpFilter = currentGame;
+	if (LumpFilter.Compare("Redneck") == 0) LumpFilter = "Redneck.Redneck";
+	else if (LumpFilter.Compare("RedneckRides") == 0) LumpFilter = "Redneck.RidesAgain";
+
+	CONFIG_ReadCombatMacros();
+	G_ReadConfig(currentGame);
+
 
 	if (userConfig.CommandName.IsNotEmpty())
 	{
 		playername = userConfig.CommandName;
 	}
-
 
 
 	int index = 0;

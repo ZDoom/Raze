@@ -72,7 +72,8 @@ private:
 };
 
 extern FGameConfigFile *GameConfig;
-void G_LoadConfig(const char*);
+void G_LoadConfig();
+void G_ReadConfig(const char*);
 void G_SaveConfig();
 
 #endif //__GAMECONFIGFILE_H__

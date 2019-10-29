@@ -475,6 +475,9 @@ GameInterface *CheckFrontend()
 
 void ChooseGame()
 {
+	gi = CheckFrontend();
+	return;
+#if 0
 	auto dir = Args->CheckValue("-game");
 	if (dir && !chdir(dir))
 	{
@@ -548,6 +551,7 @@ void ChooseGame()
 		}
 		if (gi == nullptr) exit(1);
 	}
+#endif
 }
 
 
