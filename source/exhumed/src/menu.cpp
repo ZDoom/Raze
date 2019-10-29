@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #endif
 
+#define kSaveFileName       "savgamea.sav"
 #define kMaxSaveSlots		5
 #define kMaxSaveSlotChars	25
 
@@ -1003,13 +1004,13 @@ int menu_NewGameMenu()
 
     int nSlot = 0;
 
-    FILE *fp = fopen("savgamea.sav", "rb");
+    FILE *fp = fopen(kSaveFileName, "rb");
     if (fp == NULL)
     {
         memset(nameList, 0, nNameLen);
         memset(&GameStats, 0, sizeof(GameStat));
 
-        fp = fopen("savgamea.sav", "wb+");
+        fp = fopen(kSaveFileName, "wb+");
         if (fp != NULL)
         {
             fwrite(nameList, nNameLen, 1, fp);
@@ -1189,7 +1190,7 @@ check_keys:
                     }
                 }
 
-                FILE *fp = fopen("savgamea.sav", "rb+");
+                FILE *fp = fopen(kSaveFileName, "rb+");
                 if (fp == NULL) {
                     return -1;
                 }
@@ -1286,7 +1287,7 @@ int menu_LoadGameMenu()
 
     int nSlot = 0;
 
-    FILE *fp = fopen("savgamea.sav", "rb");
+    FILE *fp = fopen(kSaveFileName, "rb");
     if (fp == NULL)
     {
         memset(nameList, 0, sizeof(nameList));
@@ -1410,7 +1411,7 @@ short menu_GameLoad(int nSlot)
 {
     memset(&GameStats, 0, sizeof(GameStats));
     
-    FILE *fp = fopen("savegamea.sav", "rb");
+    FILE *fp = fopen(kSaveFileName, "rb");
     if (fp == NULL) {
         return 0;
     }
@@ -1446,7 +1447,7 @@ void menu_GameSave(int nSaveSlot)
         return;
     }
 
-    FILE *fp = fopen("savgamea.sav", "rb+");
+    FILE *fp = fopen(kSaveFileName, "rb+");
     if (fp != NULL)
     {
         fseek(fp, 125, SEEK_SET); // skip save slot names
