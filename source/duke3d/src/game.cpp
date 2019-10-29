@@ -6289,7 +6289,7 @@ int app_main(int argc, const char * const*argv)
     initprintf(HEAD2 " %s\n", s_buildRev);
     PrintBuildInfo();
 
-    G_AddSearchPaths();
+    //G_AddSearchPaths();
 
     g_skillCnt = 4;
     ud.multimode = 1;

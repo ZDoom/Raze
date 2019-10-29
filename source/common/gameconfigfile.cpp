@@ -87,12 +87,15 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", "./*", true);
 #ifdef __APPLE__
 		SetValueForKey ("Path", user_docs + "/*", true);
-		SetValueForKey ("Path", user_app_support + "/*", true);
+		SetValueForKey ("Path", user_app_support + "/EDuke32", true);
+		SetValueForKey ("Path", user_app_support + "/JFDuke32", true);
+		SetValueForKey ("Path", user_app_support + "/NBlood", true);
 		SetValueForKey ("Path", "$PROGDIR", true);
 		SetValueForKey ("Path", "$PROGDIR/*", true);
-		SetValueForKey ("Path", local_app_support + "/*", true);
+		SetValueForKey ("Path", local_app_support + "/EDuke32", true);
+		SetValueForKey ("Path", local_app_support + "/JFDuke32", true);
+		SetValueForKey ("Path", local_app_support + "/NBlood", true);
 #elif !defined(__unix__)
-		SetValueForKey ("Path", "$HOME/*", true);
 		SetValueForKey ("Path", "$PROGDIR", true);
 		SetValueForKey ("Path", "$PROGDIR/*", true);
 #else
@@ -100,11 +103,15 @@ FGameConfigFile::FGameConfigFile ()
 		// Arch Linux likes them in /usr/share/doom
 		// Debian likes them in /usr/share/games/doom
 		// I assume other distributions don't do anything radically different
-		SetValueForKey ("Path", "/usr/local/share", true);
-		SetValueForKey ("Path", "/usr/local/share/games", true);
-		SetValueForKey ("Path", "/usr/share/doom", true);
-		SetValueForKey ("Path", "/usr/share/games", true);
+		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
+		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
+		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
+		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
+		SetValueForKey ("Path", "/usr/share/games/nblood", true);
+		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
+
 #endif
+		SetValueForKey ("Path", "$STEAM", true); // also covers GOG.
 	}
 
 	// Set default search paths if none present
@@ -122,10 +129,12 @@ FGameConfigFile::FGameConfigFile ()
 #else
 		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
 		SetValueForKey ("Path", SHARE_DIR, true);
-		SetValueForKey ("Path", "/usr/local/share/doom", true);
-		SetValueForKey ("Path", "/usr/local/share/games/doom", true);
-		SetValueForKey ("Path", "/usr/share/doom", true);
-		SetValueForKey ("Path", "/usr/share/games/doom", true);
+		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
+		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
+		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
+		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
+		SetValueForKey ("Path", "/usr/share/games/nblood", true);
+		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
 #endif
 	}
 

@@ -1250,7 +1250,7 @@ int app_main(int argc, char const * const * argv)
     ParseOptions();
     G_ExtInit();
 
-    G_AddSearchPaths();
+    //G_AddSearchPaths();
 
     
 #ifdef STARTUP_SETUP_WINDOW

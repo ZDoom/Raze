@@ -119,15 +119,14 @@ FDirectory::FDirectory(const char * directory)
 
 int FDirectory::AddDirectory(const char *dirpath)
 {
-	struct _finddata_t fileinfo;
+	auto dirmatch = WideString(dirpath);
+	struct _wfinddata_t fileinfo;
 	intptr_t handle;
-	FString dirmatch;
 	int count = 0;
 
-	dirmatch = dirpath;
 	dirmatch += '*';
 	
-	if ((handle = _findfirst(dirmatch, &fileinfo)) == -1)
+	if ((handle = _wfindfirst(wdirmatch, &fileinfo)) == -1)
 	{
 		Printf("Could not scan '%s': %s\n", dirpath, strerror(errno));
 	}
@@ -141,18 +140,19 @@ int FDirectory::AddDirectory(const char *dirpath)
 				// info from being included.)
 				continue;
 			}
+			FString fi = FString(fileinfo.name);
 			if (fileinfo.attrib & _A_SUBDIR)
 			{
 
-				if (fileinfo.name[0] == '.' &&
-					(fileinfo.name[1] == '\0' ||
-					 (fileinfo.name[1] == '.' && fileinfo.name[2] == '\0')))
+				if (fi[0] == '.' &&
+					(fi[1] == '\0' ||
+					 (fi[1] == '.' && fi[2] == '\0')))
 				{
 					// Do not record . and .. directories.
 					continue;
 				}
 				FString newdir = dirpath;
-				newdir << fileinfo.name << '/';
+				newdir << fi << '/';
 				count += AddDirectory(newdir);
 			}
 			else
@@ -163,10 +163,10 @@ int FDirectory::AddDirectory(const char *dirpath)
 					continue;
 				}
 
-				AddEntry(FString(dirpath) + fileinfo.name, fileinfo.size);
+				AddEntry(FString(dirpath) + fi, fileinfo.size);
 				count++;
 			}
-		} while (_findnext(handle, &fileinfo) == 0);
+		} while (_wfindnext(handle, &fileinfo) == 0);
 		_findclose(handle);
 	}
 	return count;
