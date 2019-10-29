@@ -1717,6 +1717,8 @@ do_default:
                             default:
                             {
                                 // loc_1B3C7
+
+                                // CHECKME - is order of evaluation correct?
                                 if (levelnum <= 20 || var_70 >= 25 && (var_70 <= 25 || var_70 == 50))
                                 {
                                     DestroyItemAnim(nValB);
@@ -2542,22 +2544,12 @@ do_default_b:
                                 break;
                             }
 
-                            // Lots of repeated code for key handling
+                            // Lots of repeated code for door key handling
                             case 39: // Power key
                             {
-                                int eax = 0;
-                                int ecx;
+                                int ecx = 4096;
 
                                 var_88 = -1;
-
-                                if (!eax)
-                                {
-                                    ecx = 4096;
-                                }
-                                else
-                                {
-                                    ecx = 4096 << eax;
-                                }
 
                                 if (PlayerList[nPlayer].keys != ecx)
                                 {
@@ -2575,42 +2567,15 @@ do_default_b:
                                     {
                                         goto do_default;
                                     }
-#if 0
-                                    // loc_1BA74:
-                                    if (nPlayer == nLocalPlayer)
-                                    {
-                                        if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                        {
-                                            StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
-                                        }
-
-                                        TintPalette(var_44*4, var_8C*4, 0);
-
-                                        if (var_88 > -1)
-                                        {
-                                            PlayLocalSound(var_88, 0);
-                                        }
-                                    }
-#endif
                                 }
 
                                 break;
                             }
                             case 40: // Time key
                             {
-                                int eax = 1;
-                                int ecx;
+                                int ecx = 4096 << 1;
 
                                 var_88 = -1;
-
-                                if (!eax)
-                                {
-                                    ecx = 4096;
-                                }
-                                else
-                                {
-                                    ecx = 4096 << eax;
-                                }
 
                                 if (PlayerList[nPlayer].keys != ecx)
                                 {
@@ -2628,45 +2593,15 @@ do_default_b:
                                     {
                                         goto do_default;
                                     }
-#if 0
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        // loc_1BA74:
-                                        if (nPlayer == nLocalPlayer)
-                                        {
-                                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                            {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
-                                            }
-
-                                            TintPalette(var_44*4, var_8C*4, 0);
-
-                                            if (var_88 > -1)
-                                            {
-                                                PlayLocalSound(var_88, 0);
-                                            }
-                                        }
-                                    }
-#endif
                                 }
 
                                 break;
                             }
                             case 41: // War key
                             {
-                                int eax = 2;
-                                int ecx;
+                                int ecx = 4096 << 2;
 
                                 var_88 = -1;
-
-                                if (!eax)
-                                {
-                                    ecx = 4096;
-                                }
-                                else
-                                {
-                                    ecx = 4096 << eax;
-                                }
 
                                 if (PlayerList[nPlayer].keys != ecx)
                                 {
@@ -2684,45 +2619,15 @@ do_default_b:
                                     {
                                         goto do_default;
                                     }
-#if 0
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        // loc_1BA74:
-                                        if (nPlayer == nLocalPlayer)
-                                        {
-                                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                            {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
-                                            }
-
-                                            TintPalette(var_44*4, var_8C*4, 0);
-
-                                            if (var_88 > -1)
-                                            {
-                                                PlayLocalSound(var_88, 0);
-                                            }
-                                        }
-                                    }
-#endif
                                 }
 
                                 break;
                             }
                             case 42: // Earth key
                             {
-                                int eax = 3;
-                                int ecx;
+                                int ecx = 4096 << 3;
 
                                 var_88 = -1;
-
-                                if (!eax)
-                                {
-                                    ecx = 4096;
-                                }
-                                else
-                                {
-                                    ecx = 4096 << eax;
-                                }
 
                                 if (PlayerList[nPlayer].keys != ecx)
                                 {
@@ -2740,26 +2645,6 @@ do_default_b:
                                     {
                                         goto do_default;
                                     }
-#if 0
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        // loc_1BA74:
-                                        if (nPlayer == nLocalPlayer)
-                                        {
-                                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                            {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
-                                            }
-
-                                            TintPalette(var_44*4, var_8C*4, 0);
-
-                                            if (var_88 > -1)
-                                            {
-                                                PlayLocalSound(var_88, 0);
-                                            }
-                                        }
-                                    }
-#endif
                                 }
 
                                 break;
