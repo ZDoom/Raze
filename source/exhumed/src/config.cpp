@@ -397,6 +397,12 @@ void CONFIG_SetDefaults()
     NumBits = 16;
     NumVoices = 32;
 
+    mouseaiming = 0;
+    aimmode = 1;
+    mouseflip = 0;
+    runkey_mode = 0;
+    auto_run = 1;
+
     CONFIG_SetDefaultKeys(keydefaults);
 
     memset(MouseFunctions, -1, sizeof(MouseFunctions));

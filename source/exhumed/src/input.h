@@ -20,10 +20,12 @@ struct PlayerInput
 {
     int xVel;
     int yVel;
-    short nAngle;
+    // short nAngle;
+    fix16_t nAngle;
     uint16_t buttons;
     short nTarget;
-    uint8_t horizon;
+    // uint8_t horizon;
+    fix16_t horizon;
     int8_t nItem;
     int h;
     char i;

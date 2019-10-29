@@ -186,6 +186,9 @@ extern short bNoSound;
 
 extern int bVanilla;
 
+extern int mouseaiming, aimmode, mouseflip;
+extern int runkey_mode, auto_run;
+
 extern char g_modDir[BMAX_PATH];
 enum {
     kPalNormal = 0,

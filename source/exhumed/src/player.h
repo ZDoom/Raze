@@ -52,6 +52,8 @@ struct Player
     short field_3A;
     short field_3C;
     short nRun;
+
+    fix16_t q16angle;
 };
 
 extern short PlayerCount;

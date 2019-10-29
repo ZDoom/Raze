@@ -525,7 +525,7 @@ int32_t registerosdcommands(void)
 
         //{ "cl_autoaim", "enable/disable weapon autoaim", (void *)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 3 },
         //{ "cl_automsg", "enable/disable automatically sending messages to all players", (void *)&ud.automsg, CVAR_BOOL, 0, 1 },
-        //{ "cl_autorun", "enable/disable autorun", (void *)&ud.auto_run, CVAR_BOOL, 0, 1 },
+        { "cl_autorun", "enable/disable autorun", (void *)&auto_run, CVAR_BOOL, 0, 1 },
 
         //{ "cl_autosave", "enable/disable autosaves", (void *) &ud.autosave, CVAR_BOOL, 0, 1 },
         //{ "cl_autosavedeletion", "enable/disable automatic deletion of autosaves", (void *) &ud.autosavedeletion, CVAR_BOOL, 0, 1 },
@@ -540,7 +540,7 @@ int32_t registerosdcommands(void)
 
         //{ "cl_idplayers", "enable/disable name display when aiming at opponents", (void *)&ud.idplayers, CVAR_BOOL, 0, 1 },
 
-        //{ "cl_runmode", "enable/disable modernized run key operation", (void *)&ud.runkey_mode, CVAR_BOOL, 0, 1 },
+        { "cl_runmode", "enable/disable modernized run key operation", (void *)&runkey_mode, CVAR_BOOL, 0, 1 },
 
 //        { "cl_showcoords", "show your position in the game world", (void *)&ud.coords, CVAR_INT, 0,
 //#ifdef USE_OPENGL
@@ -597,14 +597,14 @@ int32_t registerosdcommands(void)
         { "in_joystick","enables input from the joystick if it is present",(void *)&gSetup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "in_mouse","enables input from the mouse if it is present",(void *)&gSetup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
-        //{ "in_aimmode", "0:toggle, 1:hold to aim", (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
+        { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&mouseaiming, CVAR_BOOL, 0, 1 },
         {
             "in_mousebias", "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time",
             (void *)&MouseBias, CVAR_INT, 0, 32
         },
         { "in_mousedeadzone", "amount of mouse movement to filter out", (void *)&MouseDeadZone, CVAR_INT, 0, 512 },
-        //{ "in_mouseflip", "invert vertical mouse movement", (void *)&ud.mouseflip, CVAR_BOOL, 0, 1 },
-        //{ "in_mousemode", "toggles vertical mouse view", (void *)&g_myAimMode, CVAR_BOOL, 0, 1 },
+        { "in_mouseflip", "invert vertical mouse movement", (void *)&mouseflip, CVAR_BOOL, 0, 1 },
+        { "in_mousemode", "toggles vertical mouse view", (void *)&aimmode, CVAR_BOOL, 0, 1 },
         { "in_mousesmoothing", "enable/disable mouse input smoothing", (void *)&SmoothInput, CVAR_BOOL, 0, 1 },
 
         //{ "mus_enabled", "enables/disables music", (void *)&ud.config.MusicToggle, CVAR_BOOL, 0, 1 },

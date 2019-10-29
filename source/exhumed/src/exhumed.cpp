@@ -634,6 +634,9 @@ char debugBuffer[256];
 
 short wConsoleNode; // TODO - move me into network file
 
+int mouseaiming, aimmode, mouseflip;
+int runkey_mode, auto_run;
+
 
 void DebugOut(const char *fmt, ...)
 {
@@ -915,25 +918,25 @@ void CheckKeys()
         CONTROL_ClearButton(gamefunc_Enlarge_Screen);
     }
 
-    if (BUTTON(gamefunc_Mouse_Sensitivity_Up))
-    {
-        if (lMouseSens < 64)
-            lMouseSens++;
-
-        CONTROL_ClearButton(gamefunc_Mouse_Sensitivity_Up);
-        StatusMessage(500, "MOUSE SENSITIVITY SET TO %d", lMouseSens);
-    }
-    else
-    {
-        if (BUTTON(gamefunc_Mouse_Sensitivity_Down))
-        {
-            if (lMouseSens >= 1)
-                lMouseSens -= 1;
-
-            CONTROL_ClearButton(gamefunc_Mouse_Sensitivity_Down);
-            StatusMessage(500, "MOUSE SENSITIVITY SET TO %d", lMouseSens);
-        }
-    }
+    // if (BUTTON(gamefunc_Mouse_Sensitivity_Up))
+    // {
+    //     if (lMouseSens < 64)
+    //         lMouseSens++;
+    // 
+    //     CONTROL_ClearButton(gamefunc_Mouse_Sensitivity_Up);
+    //     StatusMessage(500, "MOUSE SENSITIVITY SET TO %d", lMouseSens);
+    // }
+    // else
+    // {
+    //     if (BUTTON(gamefunc_Mouse_Sensitivity_Down))
+    //     {
+    //         if (lMouseSens >= 1)
+    //             lMouseSens -= 1;
+    // 
+    //         CONTROL_ClearButton(gamefunc_Mouse_Sensitivity_Down);
+    //         StatusMessage(500, "MOUSE SENSITIVITY SET TO %d", lMouseSens);
+    //     }
+    // }
 
     // F11?
     if (BUTTON(gamefunc_Gamma_Correction))
@@ -2197,7 +2200,7 @@ LOOP3:
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
             sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
             sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
-            sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
+            sPlayerInput[nLocalPlayer].nAngle = fix16_from_int(nPlayerDAng)<<2;
             sPlayerInput[nLocalPlayer].nTarget = besttarget;
 
             Ra[nLocalPlayer].nTarget = besttarget;

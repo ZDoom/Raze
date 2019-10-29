@@ -144,6 +144,27 @@ void PlayerInterruptKeys()
     memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
     CONTROL_GetInput(&info);
 
+    if (MouseDeadZone)
+    {
+        if (info.mousey > 0)
+            info.mousey = max(info.mousey - MouseDeadZone, 0);
+        else if (info.mousey < 0)
+            info.mousey = min(info.mousey + MouseDeadZone, 0);
+
+        if (info.mousex > 0)
+            info.mousex = max(info.mousex - MouseDeadZone, 0);
+        else if (info.mousex < 0)
+            info.mousex = min(info.mousex + MouseDeadZone, 0);
+    }
+
+    if (MouseBias)
+    {
+        if (klabs(info.mousex) > klabs(info.mousey))
+            info.mousey = tabledivide32_noinline(info.mousey, MouseBias);
+        else
+            info.mousex = tabledivide32_noinline(info.mousex, MouseBias);
+    }
+
     if (PlayerList[nLocalPlayer].nHealth == 0)
     {
         lPlayerYVel = 0;
@@ -151,6 +172,13 @@ void PlayerInterruptKeys()
         nPlayerDAng = 0;
         return;
     }
+
+    // JBF: Run key behaviour is selectable
+    int const playerRunning = (runkey_mode) ? (BUTTON(gamefunc_Run) | auto_run) : (auto_run ^ BUTTON(gamefunc_Run));
+    int const turnAmount = playerRunning ? 12 : 8;
+    constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
+
+    int fvel = 0;
 
     info.dyaw *= (lMouseSens >> 1) + 1;
 
@@ -160,13 +188,13 @@ void PlayerInterruptKeys()
 
     if (BUTTON(gamefunc_Run))
     {
-        nXVel = Sin(inita + 512) * 12;
-        nYVel = sintable[inita] * 12;
+        nXVel = Cos(inita) * 12;
+        nYVel = Sin(inita) * 12;
     }
     else
     {
-        nXVel = Sin(inita + 512) * 6;
-        nYVel = sintable[inita] * 6;
+        nXVel = Cos(inita) * 6;
+        nYVel = Sin(inita) * 6;
     }
 
     // loc_18E60
@@ -180,44 +208,52 @@ void PlayerInterruptKeys()
         lPlayerXVel -= nXVel;
         lPlayerYVel -= nYVel;
     }
-    else if (info.dz)
+    if (info.mousey)
     {
-        if (info.dz < -6400)
+        if (info.mousey < -6400)
         {
-            info.dz = -6400;
+            info.mousey = -6400;
         }
-        else if (info.dz > 6400)
+        else if (info.mousey > 6400)
         {
-            info.dz = 6400;
+            info.mousey = 6400;
+        }
+
+        if (mouseaiming)
+            aimmode = BUTTON(gamefunc_Mouseview);
+        else
+        {
+            CONTROL_ClearButton(gamefunc_Mouseview);
+            aimmode = !aimmode;
         }
 
         // loc_18EE4
-        if (BUTTON(gamefunc_Mouseview))
+        if (aimmode)
         {
-            int nVPan = nVertPan[nLocalPlayer] - (info.dz >> 7);
-
-            if (nVPan < 0)
+            fix16_t nVPan = nVertPan[nLocalPlayer] - fix16_from_int((info.mousey >> 7));
+        
+            if (nVPan < F16(0))
             {
-                nVPan = 0;
+                nVPan = F16(0);
             }
-            else if (nVPan > 184)
+            else if (nVPan > F16(184))
             {
-                nVPan = 184;
+                nVPan = F16(184);
             }
-
+        
             nVertPan[nLocalPlayer] = nVPan;
         }
         else
         {
             if (BUTTON(gamefunc_Run))
             {
-                lPlayerXVel += Sin(inita + 512) * ((-info.dz) >> 7);
-                lPlayerYVel += Sin(inita) * ((-info.dz) >> 7);
+                lPlayerXVel += Cos(inita) * ((-info.mousey) >> 7);
+                lPlayerYVel += Sin(inita) * ((-info.mousey) >> 7);
             }
             else
             {
-                lPlayerXVel += Sin(inita + 512) * ((-info.dz) >> 8);
-                lPlayerYVel += Sin(inita) * ((-info.dz) >> 8);
+                lPlayerXVel += Cos(inita) * ((-info.mousey) >> 8);
+                lPlayerYVel += Sin(inita) * ((-info.mousey) >> 8);
             }
         }
     }
@@ -509,7 +545,8 @@ void RestartPlayer(short nPlayer)
         sprite[nSprite].y = sprite[nNStartSprite].y;
         sprite[nSprite].z = sprite[nNStartSprite].z;
         mychangespritesect(nSprite, sprite[nNStartSprite].sectnum);
-        sprite[nSprite].ang = sprite[nNStartSprite].ang;
+        PlayerList[nPlayer].q16angle = fix16_from_int(sprite[nNStartSprite].ang&kAngleMask);
+        sprite[nSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
 
         floorspr = insertsprite(sprite[nSprite].sectnum, 0);
         assert(floorspr >= 0 && floorspr < kMaxSprites);
@@ -527,7 +564,8 @@ void RestartPlayer(short nPlayer)
         sprite[nSprite].x = sPlayerSave[nPlayer].x;
         sprite[nSprite].y = sPlayerSave[nPlayer].y;
         sprite[nSprite].z = sector[sPlayerSave[nPlayer].nSector].floorz;
-        sprite[nSprite].ang = sPlayerSave[nPlayer].nAngle;
+        PlayerList[nPlayer].q16angle = fix16_from_int(sPlayerSave[nPlayer].nAngle&kAngleMask);
+        sprite[nSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
 
         floorspr = -1;
     }
@@ -630,8 +668,8 @@ void RestartPlayer(short nPlayer)
     nYDamage[nPlayer] = 0;
     nXDamage[nPlayer] = 0;
 
-    nVertPan[nPlayer] = 92;
-    nDestVertPan[nPlayer] = 92;
+    nVertPan[nPlayer] = F16(92);
+    nDestVertPan[nPlayer] = F16(92);
     nBreathTimer[nPlayer] = 90;
 
     nTauntTimer[nPlayer] = RandomSize(3) + 3;
@@ -732,7 +770,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    nVertPan[nPlayer] = 92;
+    nVertPan[nPlayer] = F16(92);
     eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
@@ -1109,7 +1147,8 @@ void FuncPlayer(int pA, int nDamage, int nRun)
             }
 
             // loc_1A494:
-            sprite[nPlayerSprite].ang = ((sPlayerInput[nPlayer].nAngle << 2) + sprite[nPlayerSprite].ang) & kAngleMask;
+            PlayerList[nPlayer].q16angle = (PlayerList[nPlayer].q16angle + sPlayerInput[nPlayer].nAngle) & 0x7FFFFFF;
+            sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
 
             // sprite[nPlayerSprite].zvel is modified within Gravity()
             short zVel = sprite[nPlayerSprite].zvel;
@@ -1204,7 +1243,8 @@ void FuncPlayer(int pA, int nDamage, int nRun)
             {
                 if (nTotalPlayers <= 1)
                 {
-                    sprite[nPlayerSprite].ang = GetAngleToSprite(nPlayerSprite, nSpiritSprite);
+                    PlayerList[nPlayer].q16angle = fix16_from_int(GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask);
+                    sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
@@ -1222,15 +1262,15 @@ void FuncPlayer(int pA, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
-                        nDestVertPan[nPlayer] = 92;
+                        nDestVertPan[nPlayer] = F16(92);
 
                         if (levelnum == 11)
                         {
-                            nDestVertPan[nPlayer] += 46;
+                            nDestVertPan[nPlayer] += F16(46);
                         }
                         else
                         {
-                            nDestVertPan[nPlayer] += 11;
+                            nDestVertPan[nPlayer] += F16(11);
                         }
                     }
                 }
@@ -1258,8 +1298,8 @@ void FuncPlayer(int pA, int nDamage, int nRun)
                             zVelB = -zVelB;
                         }
 
-                        if (zVelB > 512) {
-                            nDestVertPan[nPlayer] = 92;
+                        if (zVelB > 512 && !bLockPan) {
+                            nDestVertPan[nPlayer] = F16(92);
                         }
                     }
 
@@ -1360,14 +1400,14 @@ void FuncPlayer(int pA, int nDamage, int nRun)
 loc_1AB8E:
             if (!bPlayerPan && !bLockPan)
             {
-                int nPanVal = ((spr_z - sprite[nPlayerSprite].z) / 32) + 92;
+                fix16_t nPanVal = fix16_from_int(spr_z - sprite[nPlayerSprite].z) / 32 + F16(92);
 
-                if (nPanVal < 0) {
-                    nPanVal = 0;
+                if (nPanVal < F16(0)) {
+                    nPanVal = F16(0);
                 }
-                else if (nPanVal > 183)
+                else if (nPanVal > F16(183))
                 {
-                    nPanVal = 183;
+                    nPanVal = F16(183);
                 }
 
                 nDestVertPan[nPlayer] = nPanVal;
@@ -3006,8 +3046,8 @@ do_default_b:
                     if (BUTTON(gamefunc_Look_Up))
                     {
                         bLockPan = kFalse;
-                        if (nVertPan[nPlayer] < 180) {
-                            nVertPan[nPlayer] += 4;
+                        if (nVertPan[nPlayer] < F16(180)) {
+                            nVertPan[nPlayer] += F16(4);
                         }
 
                         bPlayerPan = kTrue;
@@ -3016,8 +3056,8 @@ do_default_b:
                     else if (BUTTON(gamefunc_Look_Down))
                     {
                         bLockPan = kFalse;
-                        if (nVertPan[nPlayer] > 4) {
-                            nVertPan[nPlayer] -= 4;
+                        if (nVertPan[nPlayer] > F16(4)) {
+                            nVertPan[nPlayer] -= F16(4);
                         }
 
                         bPlayerPan = kTrue;
@@ -3027,14 +3067,14 @@ do_default_b:
                     {
                         bLockPan = kFalse;
                         bPlayerPan = kFalse;
-                        nVertPan[nPlayer] = 92;
-                        nDestVertPan[nPlayer] = 92;
+                        nVertPan[nPlayer] = F16(92);
+                        nDestVertPan[nPlayer] = F16(92);
                     }
                     else if (BUTTON(gamefunc_Aim_Up))
                     {
                         bLockPan = kTrue;
-                        if (nVertPan[nPlayer] < 180) {
-                            nVertPan[nPlayer] += 4;
+                        if (nVertPan[nPlayer] < F16(180)) {
+                            nVertPan[nPlayer] += F16(4);
                         }
 
                         bPlayerPan = kTrue;
@@ -3043,8 +3083,8 @@ do_default_b:
                     else if (BUTTON(gamefunc_Aim_Down))
                     {
                         bLockPan = kTrue;
-                        if (nVertPan[nPlayer] > 4) {
-                            nVertPan[nPlayer] -= 4;
+                        if (nVertPan[nPlayer] > F16(4)) {
+                            nVertPan[nPlayer] -= F16(4);
                         }
 
                         bPlayerPan = kTrue;
@@ -3056,19 +3096,20 @@ do_default_b:
                         bPlayerPan = kFalse;
                     }
 
+                    if (aimmode)
+                        bLockPan = kTrue;
+
                     // loc_1C05E
-                    short ecx = nDestVertPan[nPlayer] - nVertPan[nPlayer];
+                    fix16_t ecx = nDestVertPan[nPlayer] - nVertPan[nPlayer];
                     
-                    if (BUTTON(gamefunc_Mouseview))
+                    if (aimmode)
                     {
                         ecx = 0;
                     }
 
                     if (ecx)
                     {
-                        int eax = ecx / 4;
-
-                        if (!eax)
+                        if (ecx / 4 == 0)
                         {
                             if (ecx >= 0) {
                                 ecx = 1;
@@ -3080,16 +3121,15 @@ do_default_b:
                         }
                         else
                         {
-                            ecx = ecx / 4;
-                            eax = ecx;
+                            ecx /= 4;
 
-                            if (eax > 4)
+                            if (ecx > F16(4))
                             {
-                                ecx = 4;
+                                ecx = F16(4);
                             }
-                            else if (eax < -4)
+                            else if (ecx < -F16(4))
                             {
-                                ecx = -4;
+                                ecx = -F16(4);
                             }
                         }
 
@@ -3228,19 +3268,19 @@ do_default_b:
                 }
                 else
                 {
-                    if (nVertPan[nPlayer] < 92)
+                    if (nVertPan[nPlayer] < F16(92))
                     {
-                        nVertPan[nPlayer] = 91;
+                        nVertPan[nPlayer] = F16(91);
                         eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
                     }
                     else
                     {
-                        nVertPan[nPlayer] += dVertPan[nPlayer];
-                        if (nVertPan[nPlayer] >= 200)
+                        nVertPan[nPlayer] += fix16_from_int(dVertPan[nPlayer]);
+                        if (nVertPan[nPlayer] >= F16(200))
                         {
-                            nVertPan[nPlayer] = 199;
+                            nVertPan[nPlayer] = F16(199);
                         }
-                        else if (nVertPan[nPlayer] <= 92)
+                        else if (nVertPan[nPlayer] <= F16(92))
                         {
                             if (!(SectFlag[sprite[nPlayerSprite].sectnum] & kSectUnderwater))
                             {

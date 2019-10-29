@@ -20,9 +20,9 @@ void ResetView();
 void NoClip();
 void Clip();
 
-extern short nDestVertPan[];
+extern fix16_t nDestVertPan[];
 extern short dVertPan[];
-extern short nVertPan[];
+extern fix16_t nVertPan[];
 extern short nQuake[];
 
 extern int nCamerax;

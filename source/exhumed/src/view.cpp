@@ -28,9 +28,9 @@ short bSubTitles = kTrue;
 
 int zbob;
 
-short nDestVertPan[kMaxPlayers] = { 0 };
+fix16_t nDestVertPan[kMaxPlayers] = { 0 };
 short dVertPan[kMaxPlayers];
-short nVertPan[kMaxPlayers];
+fix16_t nVertPan[kMaxPlayers];
 int nCamerax;
 int nCameray;
 int nCameraz;
@@ -41,8 +41,8 @@ short nQuake[kMaxPlayers] = { 0 };
 
 short nChunkTotal = 0;
 
-short nCameraa;
-short nCamerapan;
+fix16_t nCameraa;
+fix16_t nCamerapan;
 short nViewTop;
 short bClip = kFalse;
 short nViewBottom;
@@ -277,8 +277,8 @@ void DrawView()
     int playerY;
     int playerZ;
     short nSector;
-    int nAngle;
-    short pan;
+    fix16_t nAngle;
+    fix16_t pan;
 
 #if 0
     if (bgpages <= 0)
@@ -315,7 +315,7 @@ void DrawView()
         playerY = sprite[nSprite].y;
         playerZ = sprite[nSprite].z;
         nSector = sprite[nSprite].sectnum;
-        nAngle = sprite[nSprite].ang;
+        nAngle = fix16_from_int(sprite[nSprite].ang);
 
         SetGreenPal();
         UnMaskStatus();
@@ -338,7 +338,7 @@ void DrawView()
         playerY = sprite[nPlayerSprite].y;
         playerZ = sprite[nPlayerSprite].z + eyelevel[nLocalPlayer];
         nSector = nPlayerViewSect[nLocalPlayer];
-        nAngle = sprite[nPlayerSprite].ang;
+        nAngle = PlayerList[nLocalPlayer].q16angle;
     }
 
     nCameraa = nAngle;
@@ -347,7 +347,7 @@ void DrawView()
     {
         if (nSnakeCam >= 0)
         {
-            pan = 92;
+            pan = F16(92);
             viewz = playerZ;
         }
         else
@@ -360,7 +360,8 @@ void DrawView()
             if (viewz > floorZ)
                 viewz = floorZ;
 
-            nCameraa += (nQuake[nLocalPlayer] >> 7) % 31;
+            nCameraa += fix16_from_int((nQuake[nLocalPlayer] >> 7) % 31);
+            nCameraa &= 0x7FFFFFF;
         }
     }
     else
@@ -370,7 +371,7 @@ void DrawView()
             -2000 * Sin(inita),
             4, 0, 0, CLIPMASK1);
 
-        pan = 92;
+        pan = F16(92);
         viewz = playerZ;
     }
 
@@ -428,7 +429,7 @@ void DrawView()
             }
         }
 
-        drawrooms(nCamerax, nCameray, viewz, nCameraa, nCamerapan, nSector);
+        renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa, nCamerapan, nSector);
         analyzesprites();
         renderDrawMasks();
 
@@ -463,7 +464,7 @@ void DrawView()
 
                     sprite[nPlayerSprite].cstat |= 0x8000;
 
-                    int ang2 = nCameraa - sprite[nPlayerSprite].ang;
+                    int ang2 = fix16_to_int(nCameraa) - sprite[nPlayerSprite].ang;
                     if (ang2 < 0)
                         ang2 = -ang2;
                     
