@@ -200,6 +200,8 @@ void FlushMessageLine()
 
 void RefreshBackground()
 {
+    if (screensize <= 0)
+        return;
     int nTileOffset = 0;
     int tileX = tilesiz[nBackgroundPic].x;
     int tileY = tilesiz[nBackgroundPic].y;
@@ -208,17 +210,40 @@ void RefreshBackground()
 
     MaskStatus();
 
-    for (int y = 0; y < ydim; y += tileY)
+    for (int y = 0; y < nViewTop; y += tileY)
     {
+        nTileOffset = (y/tileY)&1;
         for (int x = 0; x < xdim; x += tileX)
         {
-            overwritesprite(x, y, nBackgroundPic + nTileOffset, -32, 0, kPalNormal);
-            if (nTileOffset == 0) {
-                nTileOffset = 1;
-            }
-            else {
-                nTileOffset = 0;
-            }
+            rotatesprite(x<<16, y<<16, 65536L, 0, nBackgroundPic + nTileOffset, -32, kPalNormal, 8 + 16 + 64, 0, 0, xdim-1, nViewTop-1);
+            nTileOffset ^= 1;
+        }
+    }
+    for (int y = (nViewTop/tileY)*tileY; y <= nViewBottom; y += tileY)
+    {
+        nTileOffset = (y/tileY)&1;
+        for (int x = 0; x < nViewLeft; x += tileX)
+        {
+            rotatesprite(x<<16, y<<16, 65536L, 0, nBackgroundPic + nTileOffset, -32, kPalNormal, 8 + 16 + 64, 0, nViewTop, nViewLeft-1, nViewBottom);
+            nTileOffset ^= 1;
+        }
+    }
+    for (int y = (nViewTop/tileY)*tileY; y <= nViewBottom; y += tileY)
+    {
+        nTileOffset = ((y/tileY)^((nViewRight+1)/tileX))&1;
+        for (int x = ((nViewRight+1)/tileX)*tileX; x < xdim; x += tileX)
+        {
+            rotatesprite(x<<16, y<<16, 65536L, 0, nBackgroundPic + nTileOffset, -32, kPalNormal, 8 + 16 + 64, nViewRight+1, nViewTop, xdim-1, nViewBottom);
+            nTileOffset ^= 1;
+        }
+    }
+    for (int y = ((nViewBottom+1)/tileY)*tileY; y < ydim; y += tileY)
+    {
+        nTileOffset = (y/tileY)&1;
+        for (int x = 0; x < xdim; x += tileX)
+        {
+            rotatesprite(x<<16, y<<16, 65536L, 0, nBackgroundPic + nTileOffset, -32, kPalNormal, 8 + 16 + 64, 0, nViewBottom+1, xdim-1, ydim-1);
+            nTileOffset ^= 1;
         }
     }
 
