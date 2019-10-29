@@ -81,6 +81,29 @@ int LoadPaletteLookups()
 
         // origpalookup[i] = palookup[i];
         bGreenPal = 0;
+
+#ifdef USE_OPENGL
+		/*
+        // Very rough approximation...
+        palookupfogfactor[kPalNormal] = 1.f;
+        palookupfogfactor[kPalNoDim] = 0.f;
+        palookupfogfactor[kPalTorch] = 0.36f;
+        palookupfogfactor[kPalNoTorch] = 0.15f;
+        palookupfogfactor[kPalBrite] = 2.f;
+        palookupfogfactor[kPalRedBrite] = 0.36f;
+        palookupfog[kPalRedBrite] = { 248, 32, 0, 0 };
+        hicsetpalettetint(kPalRedBrite, 255, 255, 255, 248, 32, 0, 0);
+        palookupfog[kPalGreenBrite] = { 248, 32, 0, 0 };
+        palookupfogfactor[kPalGreenBrite] = 0.f;
+        hicsetpalettetint(kPalGreenBrite, 100, 200, 100, 0, 0, 0, 0);
+        palookupfogfactor[kPalNormal2] = 1.f;
+        palookupfogfactor[kPalNoDim2] = 0.f;
+        palookupfogfactor[kPalTorch2] = 0.36f;
+        palookupfogfactor[kPalNoTorch2] = 0.15f;
+        palookupfogfactor[kPalBrite2] = 2.f;
+		*/
+#endif
+
     }
 
     return 1;
