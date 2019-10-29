@@ -34,6 +34,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace fs = std::filesystem;
 
 
+fs::path AbsolutePath(const char* path)
+{
+	FString dirpath = MakeUTF8(path);	// convert into clean UTF-8 - the input here may easily be 8 bit encoded.
+	fs::path fpath = fs::u8path(dirpath.GetChars());
+	return fs::absolute(fpath);
+}
+
+
+void AddSearchPath(TArray<FString>& searchpaths, const char* path)
+{
+	try
+	{
+		auto fpath = AbsolutePath(path);
+		if (fs::is_directory(fpath))
+		{
+			FString apath = fpath.u8string().c_str();
+			if (searchpaths.Find(apath) == searchpaths.Size())
+				searchpaths.Push(apath);
+		}
+	}
+	catch (fs::filesystem_error & err)
+	{
+	}
+}
+
 #ifndef _WIN32
 //-------------------------------------------------------------------------
 //
@@ -47,18 +72,18 @@ static void G_AddSteamPaths(TArray<FString> &searchpaths, const char *basepath)
 
     // Duke Nukem 3D: Megaton Edition (Steam)
     path.Format("%s/steamapps/common/Duke Nukem 3D/gameroot", basepath);
-	searchpaths.Push(path);
+	AddSearchPath(searchpaths, path);
     path.Format("%s/steamapps/common/Duke Nukem 3D/gameroot/addons/dc", basepath);
-	searchpaths.Push(path);
+	AddSearchPath(searchpaths, path);
     path.Format("%s/steamapps/common/Duke Nukem 3D/gameroot/addons/nw", basepath);
-	searchpaths.Push(path);
+	AddSearchPath(searchpaths, path);
     path.Format("%s/steamapps/common/Duke Nukem 3D/gameroot/addons/vacation", basepath);
-	searchpaths.Push(path);
+	AddSearchPath(searchpaths, path);
 
     // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
 #ifdef __APPLE__
     path.Format("%s/steamapps/common/Duke Nukem 3D/Duke Nukem 3D.app/drive_c/Program Files/Duke Nukem 3D", basepath);
-	searchpaths.Push(path);
+	AddSearchPath(searchpaths, path);
 #endif
 
     // NAM (Steam)
@@ -67,11 +92,11 @@ static void G_AddSteamPaths(TArray<FString> &searchpaths, const char *basepath)
 #else
     path.Format("%s/steamapps/common/Nam/NAM", basepath);
 #endif
-	searchpaths.Push(path);
+	AddSearchPath(searchpaths, path);
 
     // WWII GI (Steam)
     path.Format("%s/steamapps/common/World War II GI/WW2GI", basepath);
-	searchpaths.Push(path);
+	AddSearchPath(searchpaths, path);
 }
 
 //-------------------------------------------------------------------------
@@ -298,7 +323,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
         // Duke Nukem 3D: Atomic Edition (GOG.com)
         path.Format("%s/Duke Nukem 3D.app/Contents/Resources/Duke Nukem 3D.boxer/C.harddisk", applications[i]);
-		searchpaths.Push(path);
+		AddSearchPath(searchpaths, path);
     }
 
     for (i = 0; i < 2; i++)
@@ -326,7 +351,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
     bufsize = sizeof(buf);
     if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 434050)", "InstallLocation", buf, &bufsize))
     {
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // Duke Nukem 3D: Megaton Edition (Steam)
@@ -337,13 +362,13 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         size_t const remaining = sizeof(buf) - bufsize;
 
         strncpy(suffix, "/gameroot", remaining);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
         strncpy(suffix, "/gameroot/addons/dc", remaining);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
         strncpy(suffix, "/gameroot/addons/nw", remaining);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
         strncpy(suffix, "/gameroot/addons/vacation", remaining);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
@@ -354,14 +379,14 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         size_t const remaining = sizeof(buf) - bufsize;
 
         strncpy(suffix, "/Duke Nukem 3D", remaining);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // Duke Nukem 3D: Atomic Edition (GOG.com)
     bufsize = sizeof(buf);
     if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", buf, &bufsize))
     {
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // Duke Nukem 3D (3D Realms Anthology)
@@ -372,7 +397,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         size_t const remaining = sizeof(buf) - bufsize;
 
         strncpy(suffix, "/Duke Nukem 3D", remaining);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // 3D Realms Anthology
@@ -383,7 +408,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         size_t const remaining = sizeof(buf) - bufsize;
 
         Bstrncpy(suffix, "/Duke Nukem 3D", remaining);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // NAM (Steam)
@@ -394,7 +419,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         size_t const remaining = sizeof(buf) - bufsize;
 
         Bstrncpy(suffix, "/NAM", remaining);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // WWII GI (Steam)
@@ -405,53 +430,53 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         size_t const remaining = sizeof(buf) - bufsize;
 
         Bstrncpy(suffix, "/WW2GI", remaining);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // Redneck Rampage (GOG.com)
     bufsize = sizeof(buf);
     if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGREDNECKRAMPAGE", "PATH", buf, &bufsize))
     {
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // Redneck Rampage Rides Again (GOG.com)
     bufsize = sizeof(buf);
     if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGCREDNECKRIDESAGAIN", "PATH", buf, &bufsize))
     {
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 	
     // Blood: One Unit Whole Blood (Steam)
     bufsize = sizeof(buf);
     if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 299030)", "InstallLocation", buf, &bufsize))
     {
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // Blood: One Unit Whole Blood (GOG.com)
     bufsize = sizeof(buf);
     if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGONEUNITONEBLOOD", "PATH", buf, &bufsize))
     {
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // Blood: Fresh Supply (Steam)
     bufsize = sizeof(buf);
     if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1010750)", "InstallLocation", buf, &bufsize))
     {
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
         strncat(buf, R"(\addons\Cryptic Passage)", 23);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 
     // Blood: Fresh Supply (GOG.com)
     bufsize = sizeof(buf);
     if (ReadRegistryValue(R"(SOFTWARE\Wow6432Node\GOG.com\Games\1374469660)", "path", buf, &bufsize))
     {
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
         strncat(buf, R"(\addons\Cryptic Passage)", 23);
-		searchpaths.Push(buf);
+		AddSearchPath(searchpaths, buf);
     }
 }
 #endif
@@ -459,7 +484,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
 //==========================================================================
 //
-// Windows version
+//
 //
 //==========================================================================
 
@@ -468,17 +493,17 @@ void CollectSubdirectories(TArray<FString> &searchpath, const char *dirmatch)
 	try
 	{
 		FString dirpath = MakeUTF8(dirmatch);	// convert into clean UTF-8
-		dirpath.Truncate(dirpath.Len() - 1);	// remove the '*'
-		fs::path path = fs::u8path(dirpath.GetChars());
+		dirpath.Truncate(dirpath.Len() - 2);	// remove the '/*'
+		fs::path path = AbsolutePath(dirpath.GetChars());
 		if (fs::exists(path) && fs::is_directory(path))
 		{
 			for (const auto& entry : fs::directory_iterator(path))
 			{
 				if (fs::is_directory(entry.status()))
 				{
-					auto filename = entry.path().filename().u8string();
-					FString newdir = dirpath + filename.c_str();
-					searchpath.Push(newdir);
+					FString newdir = absolute(entry.path()).u8string().c_str();
+					if (searchpath.Find(newdir) == searchpath.Size())
+						searchpath.Push(newdir);
 				}
 			}
 		}
@@ -528,7 +553,7 @@ TArray<FString> CollectSearchPaths()
 					}
 					else
 					{
-						searchpaths.Push(nice);
+						AddSearchPath(searchpaths, nice);
 					}
 				}
 			}
