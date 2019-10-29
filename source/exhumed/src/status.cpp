@@ -303,18 +303,14 @@ void SetAirFrame()
 {
     airframe = PlayerList[nLocalPlayer].nAir / airperline;
 
-    if (airframe < nAirFrames)
-    {
-        if (airframe < 0) {
-            airframe = 0;
-        }
-    }
-    else
+    if (airframe >= nAirFrames)
     {
         airframe = nAirFrames - 1;
     }
-
-    airpages = numpages;
+    else if (airframe < 0)
+    {
+        airframe = 0;
+    }
 }
 
 void SetCounter(short nVal)
@@ -695,7 +691,7 @@ void DrawStatus()
         if (airpages)
         {
             seq_DrawStatusSequence(nStatusSeqOffset + 133, airframe, 0);
-            airpages--;
+            // airpages--;
         }
 
         // draw compass

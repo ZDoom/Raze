@@ -609,6 +609,7 @@ void RestartPlayer(short nPlayer)
 
     PlayerList[nPlayer].field_3C = 0;
     PlayerList[nPlayer].nAir = 100;
+    airpages = 0;
 
     if (levelnum <= kMap20)
     {
@@ -1503,19 +1504,16 @@ loc_1AB8E:
                         // if underwater
                         if (var_5C)
                         {
+                            airpages = 1;
                             if (PlayerList[nPlayer].nMaskAmount > 0)
                             {
                                 if (nPlayer == nLocalPlayer) {
                                     BuildStatusAnim(132, 0);
                                 }
 
-                                airpages = 0;
                                 D3PlayFX(StaticSound[kSound30], nPlayerSprite);
 
                                 PlayerList[nPlayer].nAir = 100;
-                                            
-                                DoBubbles(nPlayer);
-                                SetAirFrame();
                             }
                             else
                             {
@@ -1523,9 +1521,6 @@ loc_1AB8E:
                                 if (PlayerList[nPlayer].nAir > 0)
                                 {
                                     D3PlayFX(StaticSound[kSound25], nPlayerSprite);
-                                                
-                                    DoBubbles(nPlayer);
-                                    SetAirFrame();
                                 }
                                 else
                                 {
@@ -1553,6 +1548,9 @@ loc_1AB8E:
                                     }
                                 }
                             }
+
+                            DoBubbles(nPlayer);
+                            SetAirFrame();
                         }
                         else
                         {
@@ -1597,6 +1595,8 @@ loc_1AB8E:
 
                         nBreathTimer[nPlayer] = 1;
                     }
+
+                    airpages = 0;
 
                     nBreathTimer[nPlayer]--;
                     if (nBreathTimer[nPlayer] <= 0)
