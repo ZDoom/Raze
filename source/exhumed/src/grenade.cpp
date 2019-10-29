@@ -293,7 +293,7 @@ void FuncGrenade(int a, int nDamage, int nRun)
                 if (GrenadeList[nGrenade].field_10 < 0)
                 {
                     PlayerList[nPlayer].field_3A = 0;
-                    PlayerList[nPlayer].field_34 = 0;
+                    PlayerList[nPlayer].field_3FOUR = 0;
 
                     if (PlayerList[nPlayer].nAmmo[kWeaponGrenade])
                     {

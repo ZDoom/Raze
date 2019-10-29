@@ -46,7 +46,7 @@ struct Player
     short pad[2];
 
     short nCurrentWeapon;
-    short field_34;
+    short field_3FOUR;
     short bIsFiring;
     short field_38;
     short field_3A;

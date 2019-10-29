@@ -629,7 +629,7 @@ void RestartPlayer(short nPlayer)
     nPlayerInvisible[nPlayer] = 0;
 
     PlayerList[nPlayer].bIsFiring = 0;
-    PlayerList[nPlayer].field_34 = 0;
+    PlayerList[nPlayer].field_3FOUR = 0;
     nPlayerViewSect[nPlayer] = sPlayerSave[nPlayer].nSector;
     PlayerList[nPlayer].field_3A = 0;
 
