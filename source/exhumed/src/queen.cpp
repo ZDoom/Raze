@@ -553,7 +553,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                         return;
                     }
 
-                    if (nMov == 0x20000)
+                    if (nMov != 0x20000)
                     {
                         short nAngle;
 
@@ -564,6 +564,9 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                         else if ((nMov & 0xC000) == 0xC000)
                         {
                             nAngle = sprite[nMov & 0x3FFF].ang;
+                        }
+                        else {
+                            return;
                         }
 
                         sprite[nSprite].ang = nAngle;
