@@ -393,16 +393,13 @@ void DrawView()
             {
                 sectorFloorPal[i] = sector[i].floorpal;
                 sectorCeilingPal[i] = sector[i].ceilingpal;
-                if (sector[i].floorpal != kPalRedBrite)
-                    sector[i].floorpal = kPalGreenBrite;
-                if (sector[i].ceilingpal != kPalRedBrite)
-                    sector[i].ceilingpal = kPalGreenBrite;
+                sector[i].floorpal = RemapPLU(sectorFloorPal[i]);
+                sector[i].ceilingpal = RemapPLU(sectorCeilingPal[i]);
             }
             for (int i = 0; i < numwalls; i++)
             {
                 wallPal[i] = wall[i].pal;
-                if (wall[i].pal != kPalRedBrite)
-                    wall[i].pal = kPalGreenBrite;
+                wall[i].pal = RemapPLU(wallPal[i]);
             }
         }
 
