@@ -12,9 +12,6 @@ FString M_GetScreenshotsPath();
 FString M_GetSavegamesPath();
 FString M_GetDocumentsPath();
 
-#ifdef _WIN32
-int ReadRegistryValue(char const* const SubKey, char const* const Value, char* const Output, unsigned long* OutputSize);
-#endif
 
 #ifdef __APPLE__
 FString M_GetMacAppSupportPath(const bool create = true);

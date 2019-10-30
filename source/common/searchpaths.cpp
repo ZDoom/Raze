@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sc_man.h"
 #include "resourcefile.h"
 #include "printf.h"
+#include "common.h"
 #include "gamecontrol.h"
 
 
@@ -201,8 +202,8 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
     }
 }
 
-#elif defined (_WIN32)
-
+#endif
+#else
 //-------------------------------------------------------------------------
 //
 //
@@ -217,14 +218,14 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Duke Nukem 3D: 20th Anniversary World Tour (Steam)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 434050)", "InstallLocation", buf, &bufsize))
+    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 434050)", "InstallLocation", buf, &bufsize))
     {
 		AddSearchPath(searchpaths, buf);
     }
 
     // Duke Nukem 3D: Megaton Edition (Steam)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225140)", "InstallLocation", buf, &bufsize))
+    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225140)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -241,7 +242,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 359850)", "InstallLocation", buf, &bufsize))
+    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 359850)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -252,14 +253,14 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Duke Nukem 3D: Atomic Edition (GOG.com)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", buf, &bufsize))
+    if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", buf, &bufsize))
     {
 		AddSearchPath(searchpaths, buf);
     }
 
     // Duke Nukem 3D (3D Realms Anthology)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue("SOFTWARE\\3DRealms\\Duke Nukem 3D", NULL, buf, &bufsize))
+    if (Paths_ReadRegistryValue("SOFTWARE\\3DRealms\\Duke Nukem 3D", NULL, buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -270,7 +271,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // 3D Realms Anthology
     bufsize = sizeof(buf);
-    if (ReadRegistryValue("SOFTWARE\\3DRealms\\Anthology", NULL, buf, &bufsize))
+    if (Paths_ReadRegistryValue("SOFTWARE\\3DRealms\\Anthology", NULL, buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -281,7 +282,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // NAM (Steam)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 329650)", "InstallLocation", buf, &bufsize))
+    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 329650)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -292,7 +293,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // WWII GI (Steam)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 376750)", "InstallLocation", buf, &bufsize))
+    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 376750)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
@@ -303,35 +304,35 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Redneck Rampage (GOG.com)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGREDNECKRAMPAGE", "PATH", buf, &bufsize))
+    if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGREDNECKRAMPAGE", "PATH", buf, &bufsize))
     {
 		AddSearchPath(searchpaths, buf);
     }
 
     // Redneck Rampage Rides Again (GOG.com)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGCREDNECKRIDESAGAIN", "PATH", buf, &bufsize))
+    if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGCREDNECKRIDESAGAIN", "PATH", buf, &bufsize))
     {
 		AddSearchPath(searchpaths, buf);
     }
 	
     // Blood: One Unit Whole Blood (Steam)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 299030)", "InstallLocation", buf, &bufsize))
+    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 299030)", "InstallLocation", buf, &bufsize))
     {
 		AddSearchPath(searchpaths, buf);
     }
 
     // Blood: One Unit Whole Blood (GOG.com)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue("SOFTWARE\\GOG.com\\GOGONEUNITONEBLOOD", "PATH", buf, &bufsize))
+    if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGONEUNITONEBLOOD", "PATH", buf, &bufsize))
     {
 		AddSearchPath(searchpaths, buf);
     }
 
     // Blood: Fresh Supply (Steam)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1010750)", "InstallLocation", buf, &bufsize))
+    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1010750)", "InstallLocation", buf, &bufsize))
     {
 		AddSearchPath(searchpaths, buf);
         strncat(buf, R"(\addons\Cryptic Passage)", 23);
@@ -340,7 +341,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
     // Blood: Fresh Supply (GOG.com)
     bufsize = sizeof(buf);
-    if (ReadRegistryValue(R"(SOFTWARE\Wow6432Node\GOG.com\Games\1374469660)", "path", buf, &bufsize))
+    if (Paths_ReadRegistryValue(R"(SOFTWARE\Wow6432Node\GOG.com\Games\1374469660)", "path", buf, &bufsize))
     {
 		AddSearchPath(searchpaths, buf);
         strncat(buf, R"(\addons\Cryptic Passage)", 23);
@@ -348,7 +349,6 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
     }
 }
 #endif
-
 
 //==========================================================================
 //
