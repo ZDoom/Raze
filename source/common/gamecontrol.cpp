@@ -17,7 +17,6 @@
 
 InputState inputState;
 void SetClipshapes();
-TArray<FString> CollectSearchPaths();
 
 struct GameFuncNameDesc
 {
@@ -308,11 +307,11 @@ void CONFIG_Init()
 	G_LoadConfig();
 	// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
 
-	TArray<FString> paths = CollectSearchPaths();
-	for (auto& path : paths)
+	auto groups = GrpScan();
+	for (auto& grp : groups)
 	{
-		OutputDebugStringA(path);
-		OutputDebugStringA("\r\n");
+		FStringf grpinfo("%s: %s, %s, %s, %s\r\n", grp.FileInfo.name.GetChars(), grp.FileName.GetChars(), grp.FileInfo.scriptname.GetChars(), grp.FileInfo.rtsname.GetChars(), grp.FileInfo.defname.GetChars());
+		OutputDebugStringA(grpinfo);
 	}
 	LumpFilter = currentGame;
 	if (LumpFilter.Compare("Redneck") == 0) LumpFilter = "Redneck.Redneck";

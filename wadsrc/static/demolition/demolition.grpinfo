@@ -340,7 +340,6 @@ grpinfo
 	scriptname "GAME66.CON"
 	flags GAMEFLAG_RR|GAMEFLAG_ADDON
 	dependency RR_CRC
-	loaddirectory
 	loadart "TILESA66.ART", "TILESB66.ART"
 	gamefilter "Redneck.Route66"
 }
@@ -359,7 +358,7 @@ grpinfo
 
 grpinfo
 {
-	name "BlOOD: Cryptic Passage"
+	name "BLOOD: Cryptic Passage"
 	crc 0x2144DF1C // tests CP01.MAP
 	size 327015
 	loaddirectory "CP01.MAP"

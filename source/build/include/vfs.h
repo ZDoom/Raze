@@ -61,7 +61,7 @@ static inline int64_t buildvfs_flength(FILE * f)
     return buildvfs_length(fileno(f));
 #endif
 }
-#define buildvfs_exists(fn) (access((fn), F_OK) == 0)
+#define buildvfs_exists(fn) (access((fn), 0) == 0)
 static inline int buildvfs_isdir(char const *path)
 {
     struct Bstat st;

@@ -138,34 +138,6 @@ void G_ExtInit(void)
             CommandPaths = s;
         }
     }
-
-    if (!access("user_profiles_enabled", F_OK))
-    {
-        char *homedir;
-        int32_t asperr;
-
-        if ((homedir = Bgethomedir()))
-        {
-            Bsnprintf(cwd,sizeof(cwd),"%s/"
-#if defined(_WIN32)
-                      APPNAME
-#elif defined(GEKKO)
-                      "apps/" APPBASENAME
-#else
-                      ".config/" APPBASENAME
-#endif
-                      ,homedir);
-            asperr = addsearchpath(cwd);
-            if (asperr == -2)
-            {
-                if (Bmkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
-                else asperr = -1;
-            }
-            if (asperr == 0)
-                Bchdir(cwd);
-            Bfree(homedir);
-        }
-    }
 }
 
 static int32_t G_TryLoadingGrp(char const * const grpfile)

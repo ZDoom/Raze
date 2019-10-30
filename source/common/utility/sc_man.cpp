@@ -167,8 +167,8 @@ void FScanner::Open (const char *name)
 void FScanner::OpenFile (const char *name)
 {
 	Close ();
-	auto fr = fopenFileReader(name, 0);
-	if (!fr.isOpen()) return;
+	FileReader fr;
+	if (!fr.OpenFile(name)) return;
 	auto data = fr.ReadPadded(1);
 	ScriptBuffer = data;
 	ScriptName = name;	// This is used for error messages so the full file name is preferable
@@ -631,7 +631,8 @@ bool FScanner::GetNumber ()
 		}
 		else
 		{
-			Number = strtol (String, &stopper, 0);
+			BigNumber = strtoll(String, &stopper, 0);
+			Number = (int)clamp(BigNumber, INT_MIN, INT_MAX);
 			if (*stopper != 0)
 			{
 				ScriptError ("SC_GetNumber: Bad numeric constant \"%s\".", String);
@@ -682,11 +683,13 @@ bool FScanner::CheckNumber ()
 		}
 		else if (strcmp (String, "MAXINT") == 0)
 		{
+			BigNumber = INT64_MAX;
 			Number = INT_MAX;
 		}
 		else
 		{
-			Number = strtol (String, &stopper, 0);
+			BigNumber = strtoll (String, &stopper, 0);
+			Number = (int)clamp(BigNumber, INT_MIN, INT_MAX);
 			if (*stopper != 0)
 			{
 				UnGet();

@@ -133,3 +133,31 @@ enum
 	GAMEFLAGMASK        = 0x000007FF, // flags allowed from grpinfo
 
 };
+
+
+struct GrpInfo
+{
+	FString name;
+	FString scriptname;
+	FString dirname;
+	FString defname;
+	FString rtsname;
+	FString gamefilter;
+	uint32_t CRC = 0;
+	uint32_t dependencyCRC = 0;
+	size_t size = 0;
+	int flags = 0;
+	TArray<FString> loadfiles;
+	TArray<FString> loadart;
+};
+
+
+
+struct GrpEntry
+{
+	FString FileName;
+	GrpInfo FileInfo;
+	uint32_t FileIndex;
+};
+
+TArray<GrpEntry> GrpScan();

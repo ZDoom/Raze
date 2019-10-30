@@ -247,46 +247,6 @@ void G_ExtInit(void)
             CommandPaths = s;
         }
     }
-
-    if (!access("user_profiles_enabled", F_OK))
-    {
-        char *homedir;
-        int32_t asperr;
-
-        if ((homedir = Bgethomedir()))
-        {
-            Bsnprintf(cwd,sizeof(cwd),"%s/"
-#if defined(_WIN32)
-                      APPNAME
-#elif defined(GEKKO)
-                      "apps/" APPBASENAME
-#else
-                      ".config/" APPBASENAME
-#endif
-                      ,homedir);
-            asperr = addsearchpath(cwd);
-            if (asperr == -2)
-            {
-                if (Bmkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
-                else asperr = -1;
-            }
-            if (asperr == 0)
-                Bchdir(cwd);
-            Bfree(homedir);
-        }
-    }
-
-    // JBF 20031220: Because it's annoying renaming GRP files whenever I want to test different game data
-    if (g_grpNamePtr == NULL)
-    {
-        const char *cp = getenv("DUKE3DGRP");
-        if (cp)
-        {
-            clearGrpNamePtr();
-            g_grpNamePtr = dup_filename(cp);
-            initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
-        }
-    }
 }
 
 void G_ScanGroups(void)

@@ -39,32 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
 
-
-// These two structs need to be expoted
-struct GrpInfo
-{
-	FString name;
-	FString scriptname;
-	FString dirname;
-	FString defname;
-	FString rtsname;
-	uint32_t CRC = 0;
-	uint32_t dependencyCRC = 0;
-	size_t size = 0;
-	int flags = 0;
-	TArray<FString> loadfiles;
-	TArray<FString> loadart;
-};
-
-				
-struct GrpEntry
-{
-	FString FileName;
-	GrpInfo FileInfo;
-	uint32_t FileIndex;
-};
-
-
 namespace fs = std::filesystem;
 
 
@@ -578,7 +552,6 @@ TArray<FileEntry> CollectAllFilesInSearchPath()
 					flentry.FileLength = entry.file_size();
 					flentry.FileTime = entry.last_write_time().time_since_epoch().count();
 					flentry.Index = index++; // to preserve order when working on the list.
-					filelist.Push(flentry);
 				}
 			}
 		}
@@ -604,19 +577,20 @@ static TArray<FileEntry> LoadCRCCache(void)
 		while (sc.GetString())
 		{
 			crclist.Reserve(1);
-			auto flentry = crclist.Last();
+			auto &flentry = crclist.Last();
 			flentry.FileName = sc.String;
-			sc.MustGetString();
-			flentry.FileLength = strtoull(sc.String, nullptr, 0);	// Cannot use sc.Number because that's only 32 bit.
-			sc.MustGetString();
-			flentry.FileTime = strtoull(sc.String, nullptr, 0);	// Cannot use sc.Number because that's only 32 bit.
-			sc.MustGetString();
-			flentry.CRCValue = strtoull(sc.String, nullptr, 0);	// Cannot use sc.Number because that's only 32 bit.
+			sc.MustGetNumber();
+			flentry.FileLength = sc.BigNumber;
+			sc.MustGetNumber();
+			flentry.FileTime = sc.BigNumber;
+			sc.MustGetNumber();
+			flentry.CRCValue = (unsigned)sc.BigNumber;
 		}
 	}
-	catch (std::runtime_error &)
+	catch (std::runtime_error &err)
 	{
 		// If there's a parsing error, return what we got and discard the rest.
+		OutputDebugStringA(err.what());
 	}
 	return crclist;
 }
@@ -627,10 +601,31 @@ static TArray<FileEntry> LoadCRCCache(void)
 //
 //==========================================================================
 
-static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr)
+void SaveCRCs(TArray<FileEntry>& crclist)
+{
+	auto cachepath = M_GetAppDataPath(true) + "/grpcrccache.txt";
+
+	FileWriter* fw = FileWriter::Open(cachepath);
+	if (fw)
+	{
+		for (auto& crc : crclist)
+		{
+			FStringf line("\"%s\" %llu %llu %u\n", crc.FileName.GetChars(), (long long)crc.FileLength, (long long)crc.FileTime, crc.CRCValue);
+			fw->Write(line.GetChars(), line.Len());
+		}
+		delete fw;
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString, uint32_t> &CRCMap)
 {
 	TArray<GrpInfo> groups;
-	TMap<FString, uint32_t> CRCMap;
 	TMap<FString, int> FlagMap;
 	
 	FlagMap.Insert("GAMEFLAG_DUKE", GAMEFLAG_DUKE);
@@ -667,10 +662,10 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr)
 				CRCMap.Insert(key, (uint32_t)sc.BigNumber);
 			}
 		}
-		if (sc.Compare("grpinfo"))
+		else if (sc.Compare("grpinfo"))
 		{
 			groups.Reserve(1);
-			auto grp = groups.Last();
+			auto& grp = groups.Last();
 			sc.MustGetToken('{');
 			while (!sc.CheckToken('}'))
 			{
@@ -700,12 +695,22 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr)
 					sc.MustGetToken(TK_StringConst);
 					grp.rtsname = sc.String;
 				}
+				else if (sc.Compare("gamefilter"))
+				{
+					sc.MustGetToken(TK_StringConst);
+					grp.gamefilter = sc.String;
+				}
 				else if (sc.Compare("crc"))
 				{
 					sc.MustGetAnyToken();
 					if (sc.TokenType == TK_IntConst)
 					{
 						grp.CRC = (uint32_t)sc.BigNumber;
+					}
+					else if (sc.TokenType == '-')
+					{
+						sc.MustGetToken(TK_IntConst);
+						grp.CRC = (uint32_t)-sc.BigNumber;
 					}
 					else if (sc.TokenType == TK_Identifier)
 					{
@@ -721,6 +726,11 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr)
 					if (sc.TokenType == TK_IntConst)
 					{
 						grp.dependencyCRC = (uint32_t)sc.BigNumber;
+					}
+					else if (sc.TokenType == '-')
+					{
+						sc.MustGetToken(TK_IntConst);
+						grp.dependencyCRC = (uint32_t)-sc.BigNumber;
 					}
 					else if (sc.TokenType == TK_Identifier)
 					{
@@ -789,6 +799,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr)
 TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 {
 	TArray<GrpInfo> groups;
+	TMap<FString, uint32_t> CRCMap;
 	extern FString progdir;
 	// This opens the base resource only for reading the grpinfo from it.
 	std::unique_ptr<FResourceFile> engine_res;
@@ -802,7 +813,7 @@ TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 			auto fr = basegrp->NewReader();
 			if (fr.isOpen())
 			{
-				groups = ParseGrpInfo("demolition/demolition.grpinfo", fr);
+				groups = ParseGrpInfo("demolition/demolition.grpinfo", fr, CRCMap);
 			}
 		}
 	}
@@ -818,7 +829,7 @@ TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 				FileReader fr;
 				if (fr.OpenFile(entry.FileName))
 				{
-					auto g = ParseGrpInfo(entry.FileName, fr);
+					auto g = ParseGrpInfo(entry.FileName, fr, CRCMap);
 					groups.Append(g);
 				}
 			}
@@ -838,7 +849,7 @@ void GetCRC(FileEntry *entry, TArray<FileEntry> &CRCCache)
 	for (auto &ce : CRCCache)
 	{
 		// File size, modification date snd name all must match exactly to pick an entry.
-		if (entry->FileLength == ce.FileLength && entry->FileTime == ce.FileTime && entry->FileName.Compare(ce.FileName))
+		if (entry->FileLength == ce.FileLength && entry->FileTime == ce.FileTime && entry->FileName.Compare(ce.FileName) == 0)
 		{
 			entry->CRCValue = ce.CRCValue;
 			return;
@@ -880,28 +891,29 @@ GrpInfo *IdentifyGroup(FileEntry *entry, TArray<GrpInfo *> &groups)
 TArray<GrpEntry> GrpScan()
 {
 	TArray<GrpEntry> foundGames;
-	
-	TArray<FileEntry *> sortedFileList;
-	TArray<GrpInfo *> sortedGroupList;
-	
+
+	TArray<FileEntry*> sortedFileList;
+	TArray<GrpInfo*> sortedGroupList;
+
 	auto allFiles = CollectAllFilesInSearchPath();
 	auto allGroups = ParseAllGrpInfos(allFiles);
+
 	auto cachedCRCs = LoadCRCCache();
-	
+	auto numCRCs = cachedCRCs.Size();
+
 	// Remove all unnecessary content from the file list. Since this contains all data from the search path's directories it can be quite large.
 	// Sort both lists by file size so that we only need to pass over each list once to weed out all unrelated content. Go backward to avoid too much item movement
 	// (most will be deleted anyway.)
-	for (auto &f : allFiles) sortedFileList.Push(&f);
-	for (auto &g : allGroups) sortedGroupList.Push(&g);
-	
+	for (auto& f : allFiles) sortedFileList.Push(&f);
+	for (auto& g : allGroups) sortedGroupList.Push(&g);
+
 	std::sort(sortedFileList.begin(), sortedFileList.end(), [](FileEntry* lhs, FileEntry* rhs) { return lhs->FileLength < rhs->FileLength; });
 	std::sort(sortedGroupList.begin(), sortedGroupList.end(), [](GrpInfo* lhs, GrpInfo* rhs) { return lhs->size < rhs->size; });
 
-	int findex = sortedFileList.Size();
-	int gindex = sortedGroupList.Size();
-	int cindex = sortedGroupList.Size();
+	int findex = sortedFileList.Size() - 1;
+	int gindex = sortedGroupList.Size() - 1;
 
-	while (findex > 0 || gindex > 0)
+	while (findex > 0 && gindex > 0)
 	{
 		if (sortedFileList[findex]->FileLength > sortedGroupList[gindex]->size)
 		{
@@ -915,12 +927,19 @@ TArray<GrpEntry> GrpScan()
 		}
 		else
 		{
+			findex--;
+			gindex--;
 			// We found a matching file. Skip over all other entries of the same size so we can analyze those later as well
-			while (findex > 0 && sortedFileList[findex]->FileLength == sortedFileList[findex-1]->FileLength) findex--;
-			while (gindex > 0 && sortedGroupList[gindex]->size == sortedGroupList[gindex-1]->size) gindex--;
+			while (findex > 0 && sortedFileList[findex]->FileLength == sortedFileList[findex + 1]->FileLength) findex--;
+			while (gindex > 0 && sortedGroupList[gindex]->size == sortedGroupList[gindex + 1]->size) gindex--;
 		}
 	}
+	sortedFileList.Delete(0, findex + 1);
+	sortedGroupList.Delete(0, gindex + 1);
+
 	if (sortedGroupList.Size() == 0 || sortedFileList.Size() == 0)
+		return foundGames;
+
 	for (auto entry : sortedFileList)
 	{
 		GetCRC(entry, cachedCRCs);
@@ -928,21 +947,21 @@ TArray<GrpEntry> GrpScan()
 		if (grp)
 		{
 			foundGames.Reserve(1);
-			auto fg = foundGames.Last();
+			auto& fg = foundGames.Last();
 			fg.FileInfo = *grp;
 			fg.FileName = entry->FileName;
 			fg.FileIndex = entry->Index;
 		}
 	}
-	
-	// One last thing: We must check for all addons if their dependency is present.
-	for( int i = foundGames.Size()-1; i >= 0; i--)
+
+	// We must check for all addons if their dependency is present.
+	for (int i = foundGames.Size() - 1; i >= 0; i--)
 	{
 		auto crc = foundGames[i].FileInfo.dependencyCRC;
 		if (crc != 0)
 		{
 			bool found = false;
-			for (auto fg : foundGames)
+			for (auto& fg : foundGames)
 			{
 				if (fg.FileInfo.CRC == crc)
 				{
@@ -952,6 +971,31 @@ TArray<GrpEntry> GrpScan()
 			}
 			if (!found) foundGames.Delete(i); // Dependent add-on without dependency cannot be played.
 		}
+	}
+
+	// return everything to its proper order (using qsort because sorting an array of complex structs with std::sort is a messy affair.)
+	qsort(foundGames.Data(), foundGames.Size(), sizeof(foundGames[0]), [](const void* a, const void* b)->int
+		{
+			auto A = (const GrpEntry*)a;
+			auto B = (const GrpEntry*)b;
+			return (int)A->FileIndex - (int)B->FileIndex;
+		});
+
+	// Finally, scan the list for duplicstes. Only the first occurence should count.
+
+	for (unsigned i = 0; i < foundGames.Size(); i++)
+	{
+		for (unsigned j = foundGames.Size(); j > i; j--)
+		{
+			if (foundGames[i].FileInfo.CRC == foundGames[j].FileInfo.CRC)
+				foundGames.Delete(j);
+		}
+	}
+
+	// new CRCs got added so save the list.
+	if (cachedCRCs.Size() > numCRCs)
+	{
+		SaveCRCs(cachedCRCs);
 	}
 	
 	// Do we have anything left? If not, error out
