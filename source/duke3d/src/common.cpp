@@ -279,34 +279,6 @@ void G_ExtInit(void)
             CommandPaths = s;
         }
     }
-
-    if (buildvfs_exists("user_profiles_enabled"))
-    {
-        char *homedir;
-        int32_t asperr;
-
-        if ((homedir = Bgethomedir()))
-        {
-            Bsnprintf(cwd, ARRAY_SIZE(cwd), "%s/"
-#if defined(_WIN32)
-                      APPNAME
-#elif defined(GEKKO)
-                      "apps/" APPBASENAME
-#else
-                      ".config/" APPBASENAME
-#endif
-                      ,homedir);
-            asperr = addsearchpath(cwd);
-            if (asperr == -2)
-            {
-                if (buildvfs_mkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
-                else asperr = -1;
-            }
-            if (asperr == 0)
-                buildvfs_chdir(cwd);
-            Xfree(homedir);
-        }
-    }
 }
 
 void G_ScanGroups(void)
@@ -375,9 +347,7 @@ void G_LoadGroups()
             Bsnprintf(path, sizeof(path), "%s/%s", cwd, g_modDir);
             if (!Bstrcmp(g_rootDir, path))
             {
-                if (addsearchpath(path) == -2)
-                    if (buildvfs_mkdir(path, S_IRWXU) == 0)
-                        addsearchpath(path);
+                 addsearchpath(path);
             }
         }
 

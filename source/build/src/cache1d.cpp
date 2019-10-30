@@ -100,17 +100,7 @@ int32_t kpzbufload(char const * const filnam)
 //           After calling uninitcache, it is still ok to call allocache
 //           without first calling initcache.
 
-#define MAXCACHEOBJECTS 16384
 
-#if !defined DEBUG_ALLOCACHE_AS_MALLOC
-static uint8_t zerochar = 0;
-static TArray<uint8_t> cache;
-static intptr_t cachestart = 0;
-static int32_t lockrecip[200];
-
-int32_t cacnum = 0;
-cactype cac[MAXCACHEOBJECTS];
-#endif
 
 uint8_t toupperlookup[256] =
 {
@@ -132,231 +122,21 @@ uint8_t toupperlookup[256] =
     0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff
 };
 
-static void reportandexit(const char *errormessage);
 
 
-void cacheInitBuffer(int32_t dacachesize)
+// Only the sound code still uses this - but it never frees the data.
+// So we may just toss out the cache and do regular allocations.
+// The TArray is merely for taking down the data before shutdown.
+static TArray<TArray<uint8_t>> pseudocache;
+
+void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, uint8_t *)
 {
-#ifndef DEBUG_ALLOCACHE_AS_MALLOC
-    int32_t i;
-
-    for (i=1; i<200; i++)
-        lockrecip[i] = tabledivide32_noinline(1<<28, 200-i);
-
-	cache.Resize(dacachesize);
-
-	cac[0].leng = cache.Size();
-    cac[0].lock = &zerochar;
-	cachestart = (intptr_t)cache.Data();
-    cacnum = 1;
-
-    initprintf("Initialized %.1fM cache\n", (float)(dacachesize/1024.f/1024.f));
-#else
-    UNREFERENCED_PARAMETER(dacachestart);
-    UNREFERENCED_PARAMETER(dacachesize);
-#endif
+	pseudocache.Reserve(1);
+	auto& buffer = pseudocache.Last();
+	buffer.Resize(newbytes);
+	*newhandle = reinterpret_cast<intptr_t>(buffer.Data());
 }
 
-#ifdef DEBUG_ALLOCACHE_AS_MALLOC
-void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, uint8_t *newlockptr)
-{
-    UNREFERENCED_PARAMETER(newlockptr);
-
-    *newhandle = (intptr_t)Xmalloc(newbytes);
-}
-#else
-static inline void inc_and_check_cacnum(void)
-{
-    if (EDUKE32_PREDICT_FALSE(++cacnum > MAXCACHEOBJECTS))
-        reportandexit("Too many objects in cache! (cacnum > MAXCACHEOBJECTS)");
-}
-
-int32_t cacheFindBlock(int32_t newbytes, int32_t *besto, int32_t *bestz)
-{
-    int32_t bestval = 0x7fffffff;
-
-    for (native_t z=cacnum-1, o1=cache.Size(); z>=0; z--)
-    {
-        o1 -= cac[z].leng;
-
-        int32_t const o2 = o1 + newbytes;
-
-        if (o2 > cache.Size())
-            continue;
-
-        int32_t daval = 0;
-
-        for (native_t i=o1, zz=z; i<o2; i+=cac[zz++].leng)
-        {
-            if (*cac[zz].lock == 0)
-                continue;
-            else if (*cac[zz].lock >= 200)
-            {
-                daval = 0x7fffffff;
-                break;
-            }
-
-            // Potential for eviction increases with
-            //  - smaller item size
-            //  - smaller lock byte value (but in [1 .. 199])
-            daval += mulscale32(cac[zz].leng + 65536, lockrecip[*cac[zz].lock]);
-
-            if (daval >= bestval)
-                break;
-        }
-
-        if (daval < bestval)
-        {
-            bestval = daval;
-            *besto  = o1;
-            *bestz  = z;
-
-            if (bestval == 0)
-                break;
-        }
-    }
-
-    return bestval;
-}
-
-void cacheAllocateBlock(intptr_t* newhandle, int32_t newbytes, uint8_t* newlockptr)
-{
-    // Make all requests a multiple of the system page size
-	// No, no, no! This wastes exorbitant amounts of memory for precisely nothing!
-	//int const pageSize = Bgetpagesize();
-    //newbytes = (newbytes + pageSize-1) & ~(pageSize-1);
-
-#ifdef DEBUGGINGAIDS
-    if (EDUKE32_PREDICT_FALSE(!newlockptr || *newlockptr == 0))
-        reportandexit("ALLOCACHE CALLED WITH LOCK OF 0!");
-#endif
-
-    if ((unsigned)newbytes > (unsigned)cache.Size())
-    {
-        initprintf("Cachesize: %u\n", cache.Size());
-        initprintf("*Newhandle: 0x%" PRIxPTR ", Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
-        reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
-    }
-
-    int32_t bestz = 0;
-    int32_t besto = 0;
-    int cnt = cacnum-1;
-
-    // if we can't find a block, try to age the cache until we can
-    // it's better than the alternative of aborting the entire program
-    while (cacheFindBlock(newbytes, &besto, &bestz) == 0x7fffffff)
-    {
-        cacheAgeEntries();
-        if (!cnt--) reportandexit("CACHE SPACE ALL LOCKED UP!");
-    }
-
-    //printf("%d %d %d\n",besto,newbytes,*newlockptr);
-
-    //Suck things out
-    int32_t sucklen = -newbytes;
-    int32_t suckz = bestz;
-
-    for (;sucklen<0; sucklen+=cac[suckz++].leng)
-        if (*cac[suckz].lock)
-            *cac[suckz].hand = 0;
-
-    //Remove all blocks except 1
-    suckz -= bestz+1;
-    cacnum -= suckz;
-
-    Bmemmove(&cac[bestz], &cac[bestz + suckz], (cacnum - bestz) * sizeof(cactype));
-
-    cac[bestz].hand = newhandle;
-    *newhandle      = cachestart + besto;
-    cac[bestz].leng = newbytes;
-    cac[bestz].lock = newlockptr;
-
-    //Add new empty block if necessary
-    if (sucklen <= 0)
-        return;
-
-    if (++bestz == cacnum)
-    {
-        inc_and_check_cacnum();
-        cac[bestz].leng = sucklen;
-        cac[bestz].lock = &zerochar;
-        return;
-    }
-
-    if (*cac[bestz].lock == 0)
-    {
-        cac[bestz].leng += sucklen;
-        return;
-    }
-
-    inc_and_check_cacnum();
-
-    for (native_t z=cacnum-1; z>bestz; z--)
-        cac[z] = cac[z-1];
-
-    cac[bestz].leng = sucklen;
-    cac[bestz].lock = &zerochar;
-}
-#endif
-
-void cacheAgeEntries(void)
-{
-#ifndef DEBUG_ALLOCACHE_AS_MALLOC
-    static int agecount;
-
-    if (agecount >= cacnum)
-        agecount = cacnum-1;
-
-    int cnt = min(MAXCACHEOBJECTS >> 5, cacnum-1);
-
-    while(cnt--)
-    {
-        // If we have pointer to lock char and it's in [2 .. 199], decrease.
-        if (cac[agecount].lock)
-        {
-             if ((((*cac[agecount].lock)-2)&255) < 198)
-                (*cac[agecount].lock)--;
-             else if (*cac[agecount].lock == 255)
-                 cnt++;
-        }
-
-        if (--agecount < 0)
-            agecount = cacnum-1;
-    }
-#endif
-}
-
-static void reportandexit(const char *errormessage)
-{
-#ifndef DEBUG_ALLOCACHE_AS_MALLOC
-    //setvmode(0x3);
-    int32_t j = 0;
-    for (native_t i = 0; i < cacnum; i++)
-    {
-        buildprint(i, "- ");
-
-        if (cac[i].hand)
-            initprintf("ptr: 0x%" PRIxPTR ", ", *cac[i].hand);
-        else
-            initprintf("ptr: NULL, ");
-
-        initprintf("leng: %d, ", cac[i].leng);
-
-        if (cac[i].lock)
-            initprintf("lock: %d\n", *cac[i].lock);
-        else
-            initprintf("lock: NULL\n");
-
-        j += cac[i].leng;
-    }
-
-    initprintf("Cachesize = %u\n", cache.Size());
-    initprintf("Cacnum = %d\n", cacnum);
-    initprintf("Cache length sum = %d\n", j);
-#endif
-    initprintf("ERROR: %s\n", errormessage);
-    Bexit(1);
-}
 
 #include <errno.h>
 
@@ -1319,7 +1099,6 @@ int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, in
 
         for (attach = *rec; attach; last = attach, attach = attach->next)
         {
-            if (type == CACHE1D_FIND_DRIVE) continue;	// we just want to get to the end for drives
 #ifdef _WIN32
             insensitive = 1;
 #else
@@ -1633,24 +1412,6 @@ next:
         }
     }
 #endif
-
-    if (pathsearchmode && (type & CACHE1D_FIND_DRIVE))
-    {
-        char *drives, *drp;
-        drives = Bgetsystemdrives();
-        if (drives)
-        {
-            for (drp=drives; *drp; drp+=strlen(drp)+1)
-            {
-                if (klistaddentry(&rec, drp, CACHE1D_FIND_DRIVE, CACHE1D_SOURCE_DRIVE) < 0)
-                {
-                    Xfree(drives);
-                    goto failure;
-                }
-            }
-            Xfree(drives);
-        }
-    }
 
     Xfree(path);
     // XXX: may be NULL if no file was listed, and thus indistinguishable from

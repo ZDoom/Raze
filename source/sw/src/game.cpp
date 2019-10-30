@@ -2808,9 +2808,7 @@ GameIntro(void)
 void
 Control(int32_t argc, char const * const * argv)
 {
-	cacheInitBuffer(50'000'000);
-
-    InitGame(argc, argv);
+	InitGame(argc, argv);
 
     MONO_PRINT("InitGame done");
     MNU_InitMenus();

@@ -10539,7 +10539,6 @@ void videoNextPage(void)
     }
 
     faketimerhandler();
-    cacheAgeEntries();
 
 #ifdef USE_OPENGL
     omdtims = mdtims;

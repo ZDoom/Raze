@@ -895,6 +895,7 @@ void ParseScript(const char *scriptFileName)
 
 void sub_11C10(char *pzScriptDir, char *fileName, char flags, int ID)
 {
+#if 0 // This needs a more sophisticated approach inside the file system backend if it ever gets activated
     char zDirectory[BMAX_PATH];
     char zFilename[BMAX_PATH];
     char zType[BMAX_PATH];
@@ -934,11 +935,13 @@ void sub_11C10(char *pzScriptDir, char *fileName, char flags, int ID)
         }
         Bclosedir(dirr);
     }
+#endif
 }
 
 void sub_11DF0(char *filePath, char flags, int ID)
 {
-    char zDirectory[BMAX_PATH];
+#if 0 // This needs a more sophisticated approach inside the file system backend if it ever gets activated
+	char zDirectory[BMAX_PATH];
     char zFilename[BMAX_PATH];
     char zType[BMAX_PATH];
 
@@ -948,6 +951,7 @@ void sub_11DF0(char *filePath, char flags, int ID)
         gSoundRes.AddFromBuffer(zFilename, zType, buffer, nBytes, ID, flags);
     else
         gSysRes.AddFromBuffer(zFilename, zType, buffer, nBytes, ID, flags);
+#endif
 }
 
 END_BLD_NS

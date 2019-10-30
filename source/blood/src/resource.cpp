@@ -172,53 +172,6 @@ void Resource::Init(const char *filename)
         memset(dict, 0, buffSize * sizeof(DICTNODE));
     }
     Reindex();
-#if 0
-    if (external)
-    {
-        char fname[BMAX_PATH];
-        char type[BMAX_PATH];
-        BDIR *dirr;
-        struct Bdirent *dirent;
-        dirr = Bopendir("./");
-        if (dirr)
-        {
-            while (dirent = Breaddir(dirr))
-            {
-                if (!Bwildmatch(dirent->name, external))
-                    continue;
-                _splitpath(dirent->name, NULL, NULL, fname, type);
-                if (type[0] == '.')
-                {
-                    AddExternalResource(fname, &type[1], dirent->size);
-                }
-                else
-                {
-                    AddExternalResource(fname, "", dirent->size);
-                }
-            }
-            Bclosedir(dirr);
-        }
-#if 0
-        _splitpath2(external, out, &dir, &node, NULL, NULL);
-        _makepath(ext, dir, node, NULL, NULL);
-        int status = _dos_findfirst(external, 0, &info);
-        while (!status)
-        {
-            _splitpath2(info.name, out, NULL, NULL, &fname, &type);
-            if (*type == '.')
-            {
-                AddExternalResource(*fname, (char*)(type + 1), info.size);
-            }
-            else
-            {
-                AddExternalResource(*fname, "", info.size);
-            }
-            status = _dos_findnext(&info);
-        }
-        _dos_findclose(&info);
-#endif
-    }
-#endif
     for (unsigned int i = 0; i < count; i++)
     {
         if (dict[i].flags & DICT_LOCK)
@@ -886,24 +839,6 @@ void Resource::RemoveMRU(CACHENODE *h)
 
 void Resource::FNAddFiles(fnlist_t * fnlist, const char *pattern)
 {
-    char filename[BMAX_PATH];
-    for (unsigned int i = 0; i < count; i++)
-    {
-        DICTNODE *pNode = &dict[i];
-        if (pNode->flags & DICT_EXTERNAL)
-            continue;
-        sprintf(filename, "%s.%s", pNode->name, pNode->type);
-        if (!Bwildmatch(filename, pattern))
-            continue;
-        switch (klistaddentry(&fnlist->findfiles, filename, BUILDVFS_FIND_FILE, BUILDVFS_SOURCE_GRP))
-        {
-        case -1:
-            return;
-        case 0:
-            fnlist->numfiles++;
-            break;
-        }
-    }
 }
 
 void Resource::PurgeCache(void)

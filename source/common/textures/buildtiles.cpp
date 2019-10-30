@@ -397,7 +397,6 @@ int32_t BuildTiles::artLoadFiles(const char* filename)
 {
 	TileFiles.LoadArtSet(filename);
 	memset(gotpic, 0, sizeof(gotpic));
-	cacheInitBuffer(MAXCACHE1DSIZE);
 	return 0;
 }
 
