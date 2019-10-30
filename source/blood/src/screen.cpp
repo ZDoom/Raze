@@ -108,7 +108,7 @@ void scrLoadPLUs(void)
         DICTNODE *pPlu = gSysRes.Lookup(PLU[i].name, "PLU");
         if (!pPlu)
             ThrowError("%s.PLU not found", PLU[i].name);
-        if (pPlu->size / 256 != 64)
+        if (pPlu->Size() / 256 != 64)
             ThrowError("Incorrect PLU size");
         palookup[PLU[i].id] = (char*)gSysRes.Lock(pPlu);
     }
@@ -227,7 +227,7 @@ void scrInit(void)
     DICTNODE *pGamma = gSysRes.Lookup("gamma", "DAT");
     if (!pGamma)
         ThrowError("Gamma table not found");
-    gGammaLevels = pGamma->size / 256;
+    gGammaLevels = pGamma->Size() / 256;
     gammaTable = (char(*)[256])gSysRes.Lock(pGamma);
 }
 

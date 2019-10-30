@@ -46,11 +46,12 @@ struct FResourceLump
 {
 	friend class FResourceFile;
 
-	int				LumpSize = 0;
+	unsigned 		LumpSize = 0;
 	int				RefCount = 0;
 	int				Flags = 0;
 	int				PathLen = 0;
 	int				ExtStart = -1;
+	int				ResourceId = -1;
 	FString			FullName;	// Name with extension and path
 	FResourceFile *	Owner = nullptr;
 	TArray<uint8_t> Cache;
@@ -67,11 +68,19 @@ struct FResourceLump
 
 	void *CacheLump();
 	int ReleaseCache();
+	
+	unsigned Size() const{ return LumpSize; }
+	int LockCount() const { return RefCount; }
+	FString BaseName(); // don't know if these will be needed
+	FString Type();
 
 protected:
 	virtual int FillCache() { return -1; }
 
 };
+
+// Map NBlood's resource system to our own.
+using DICTNODE = FResourceLump;
 
 class FResourceFile
 {

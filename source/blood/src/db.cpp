@@ -650,11 +650,7 @@ unsigned int dbReadMapCRC(const char *pPath)
 
     Bstrncpy(name2, pPath, BMAX_PATH);
     Bstrupr(name2);
-    DICTNODE* pNode = *gSysRes.Probe(name2, "MAP");
-    if (pNode && pNode->flags & DICT_EXTERNAL)
-    {
-        gSysRes.RemoveNode(pNode);
-    }
+	DICTNODE* pNode;
     pNode = gSysRes.Lookup(pPath, "MAP");
     if (!pNode)
     {
@@ -673,7 +669,7 @@ unsigned int dbReadMapCRC(const char *pPath)
     char *pData = (char*)gSysRes.Lock(pNode);
     pathsearchmode = bakpathsearchmode;
 
-    int nSize = pNode->size;
+    int nSize = pNode->Size();
     MAPSIGNATURE header;
     IOBuffer(nSize, pData).Read(&header, 6);
 #if B_BIG_ENDIAN == 1
@@ -721,11 +717,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
     Bstrncpy(name2, pPath, BMAX_PATH);
     Bstrupr(name2);
-    DICTNODE* pNode = *gSysRes.Probe(name2, "MAP");
-    if (pNode && pNode->flags & DICT_EXTERNAL)
-    {
-        gSysRes.RemoveNode(pNode);
-    }
+	DICTNODE* pNode;
 
     pNode = gSysRes.Lookup(pPath, "MAP");
     if (!pNode)
@@ -744,7 +736,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     }
     char *pData = (char*)gSysRes.Lock(pNode);
     pathsearchmode = bakpathsearchmode;
-    int nSize = pNode->size;
+    int nSize = pNode->Size();
     MAPSIGNATURE header;
     IOBuffer IOBuffer1 = IOBuffer(nSize, pData);
     IOBuffer1.Read(&header, 6);

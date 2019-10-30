@@ -95,7 +95,7 @@ int sndPlaySong(const char *songName, bool bLoop)
             OSD_Printf(OSD_ERROR "sndPlaySong(): error: can't open \"%s\" for playback!\n", songName);
             return 2;
         }
-        int nNewSongSize = hSong->size;
+        int nNewSongSize = hSong->Size();
         char *pNewSongPtr = (char *)Xaligned_alloc(16, nNewSongSize);
         gSoundRes.Load(hSong, pNewSongPtr);
         MUSIC_SetVolume(mus_volume);
@@ -260,7 +260,7 @@ void sndStartSample(const char *pzSound, int nVolume, int nChannel)
     pChannel->at5 = gSoundRes.Lookup(pzSound, "RAW");
     if (!pChannel->at5)
         return;
-    int nSize = pChannel->at5->size;
+    int nSize = pChannel->at5->Size();
     char *pData = (char*)gSoundRes.Lock(pChannel->at5);
     pChannel->at0 = FX_PlayRaw(pData, nSize, sndGetRate(1), 0, nVolume, nVolume, nVolume, nVolume, 1.f, (intptr_t)&pChannel->at0);
 }
@@ -287,7 +287,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
         return;
     if (nVolume < 0)
         nVolume = pEffect->relVol;
-    int nSize = pChannel->at5->size;
+    int nSize = pChannel->at5->Size();
     int nLoopEnd = nSize - 1;
     if (nLoopEnd < 0)
         nLoopEnd = 0;
@@ -325,7 +325,7 @@ void sndStartWavID(unsigned int nSound, int nVolume, int nChannel)
     if (!pChannel->at5)
         return;
     char *pData = (char*)gSoundRes.Lock(pChannel->at5);
-    pChannel->at0 = FX_Play(pData, pChannel->at5->size, 0, -1, 0, nVolume, nVolume, nVolume, nVolume, 1.f, (intptr_t)&pChannel->at0);
+    pChannel->at0 = FX_Play(pData, pChannel->at5->Size(), 0, -1, 0, nVolume, nVolume, nVolume, nVolume, 1.f, (intptr_t)&pChannel->at0);
 }
 
 void sndKillSound(SAMPLE2D *pChannel)

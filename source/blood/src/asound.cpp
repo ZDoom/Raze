@@ -150,11 +150,11 @@ void ambInit(void)
                 continue;
             }
             
-            if (pRAWNode->size > 0) {
-                pChannel->at14 = pRAWNode->size;
+            if (pRAWNode->Size() > 0) {
+                pChannel->at14 = pRAWNode->Size();
                 pChannel->at8 = nSFX;
                 pChannel->atc = pRAWNode;
-                pChannel->at14 = pRAWNode->size;
+                pChannel->at14 = pRAWNode->Size();
                 pChannel->at10 = (char*)gSoundRes.Lock(pRAWNode);
                 pChannel->at18 = pSFX->format;
                 nAmbChannels++;

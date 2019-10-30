@@ -428,7 +428,7 @@ void LoadSavedInfo(void)
     int nCount = 0;
     for (auto pIterator = pList; pIterator != NULL && nCount < 10; pIterator = pIterator->next, nCount++)
     {
-        auto hFile = kopenFileReader(pIterator->name, 0);
+        auto hFile = fopenFileReader(pIterator->name, 0);
         if (!hFile.isOpen())
             ThrowError("Error loading save file header.");
         int vc;

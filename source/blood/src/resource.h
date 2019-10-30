@@ -82,6 +82,9 @@ struct DICTNODE : CACHENODE
     char *path;
     char *buffer;
     unsigned int id;
+	
+	unsigned int Size() const { return size; }
+	int LockCount() const { return lockCount; }
 };
 
 class Resource

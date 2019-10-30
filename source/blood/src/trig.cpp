@@ -64,9 +64,9 @@ void trigInit(Resource &Res)
     DICTNODE *pTable = Res.Lookup("cosine","dat");
     if (!pTable)
         ThrowError("Cosine table not found");
-    if (pTable->size != 2048)
+    if (pTable->Size() != 2048)
         ThrowError("Cosine table incorrect size");
-    memcpy(costable, Res.Load(pTable), pTable->size);
+    memcpy(costable, Res.Load(pTable), pTable->Size());
 #if B_BIG_ENDIAN == 1
     for (int i = 0; i < 512; i++)
     {

@@ -145,7 +145,7 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
     pBonkle->at1c = pEffect->relVol;
     pBonkle->at18 = v18;
     pBonkle->at3c = pEffect->format;
-    int size = hRes->size;
+    int size = hRes->Size();
     char *pData = (char*)gSoundRes.Lock(hRes);
     Calc3DValues(pBonkle);
     int priority = 1;
@@ -183,7 +183,7 @@ void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3, int a4)
     hRes = gSoundRes.Lookup(pEffect->rawName, "RAW");
     if (!hRes)
         return;
-    int size = hRes->size;
+    int size = hRes->Size();
     if (size <= 0)
         return;
     int v14;
@@ -290,7 +290,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
     SFX* pEffect = (SFX*)gSoundRes.Load(hRes);
     hRes = gSoundRes.Lookup(pEffect->rawName, "RAW");
     if (!hRes) return;
-    int size = hRes->size;
+    int size = hRes->Size();
     if (size <= 0) return;
     
     if (pitch <= 0) pitch = pEffect->pitch;

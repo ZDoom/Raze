@@ -48,7 +48,7 @@ void qloadvoxel(int32_t nVoxel)
         return;
     }
 
-    if (!hVox->lockCount)
+    if (!hVox->LockCount())
         voxoff[nLastVoxel][0] = 0;
     nLastVoxel = nVoxel;
     char *pVox = (char*)gSysRes.Lock(hVox);
@@ -135,7 +135,7 @@ void tileProcessGLVoxels(void)
         if (!hVox)
             continue;
         char *pVox = (char*)gSysRes.Load(hVox);
-        voxmodels[i] = loadkvxfrombuf(pVox, hVox->size);
+        voxmodels[i] = loadkvxfrombuf(pVox, hVox->Size());
     }
 }
 #endif
