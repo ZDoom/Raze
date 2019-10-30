@@ -42,6 +42,7 @@ BEGIN_SW_NS
 //
 //****************************************************************************
 
+#define APPNAME "VoidSW"
 #ifndef APPBASENAME
 #define APPBASENAME         "voidsw"
 #endif
@@ -131,6 +132,7 @@ BEGIN_SW_NS
 #define MACRO9  "Hope you were paying attention."
 #define MACRO10 "ITTAIIIUUU!!!"
 
+extern int g_useCwd;
 
 extern char *g_grpNamePtr;
 
@@ -140,6 +142,11 @@ const char *G_GrpFile(void);
 void clearGrpNamePtr(void);
 
 void SW_InitMultiPsky(void);
+
+void SW_ExtPreInit(int32_t argc, char const * const * argv);
+void SW_ExtInit(void);
+
+
 
 END_SW_NS
 #endif

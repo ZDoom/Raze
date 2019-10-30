@@ -47,7 +47,6 @@ enum
 
 
 //// EXTERN DECLS
-extern struct strllist *CommandPaths, *CommandGrps;
 
 extern const char *s_buildRev;
 extern const char *s_buildTimestamp;

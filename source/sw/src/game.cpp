@@ -46,9 +46,7 @@ Things required to make savegames work:
 #include "baselayer.h"
 #include "cache1d.h"
 #include "osd.h"
-#ifdef RENDERTYPEWIN
-# include "winlayer.h"
-#endif
+#include "renderlayer.h"
 
 #include "keys.h"
 #include "names2.h"
@@ -3408,92 +3406,17 @@ int32_t app_main(int32_t argc, char const * const * argv)
     }
 #endif
 
-    {
-        //char *supportdir = Bgetsupportdir(TRUE);
-        char *appdir = Bgetappdir();
-        char dirpath[BMAX_PATH+1];
 
-        // the OSX app bundle, or on Windows the directory where the EXE was launched
-        if (appdir)
-        {
-            addsearchpath(appdir);
-            free(appdir);
-        }
-
-        // the global support files directory
-#if 0 // [JM] ifdef'd out for now. !CHECKME!
-        if (supportdir)
-        {
-            Bsnprintf(dirpath, sizeof(dirpath), "%s/JFShadowWarrior", supportdir);
-            addsearchpath(dirpath);
-            free(supportdir);
-        }
-#endif
-    }
-
-    // default behaviour is to write to the user profile directory, but
-    // creating a 'user_profiles_disabled' file in the current working
-    // directory where the game was launched makes the installation
-    // "portable" by writing into the working directory
-#if 0 // [JM] ifdef'd out for now. !CHECKME!
-    if (access("user_profiles_disabled", F_OK) == 0)
-#endif
-    {
-        char cwd[BMAX_PATH+1];
-        if (getcwd(cwd, sizeof(cwd)))
-        {
-            addsearchpath(cwd);
-        }
-    }
-#if 0 // [JM] ifdef'd out for now. !CHECKME!
-    else
-    {
-        char *supportdir;
-        char dirpath[BMAX_PATH+1];
-        int asperr;
-
-        if ((supportdir = Bgetsupportdir(FALSE)))
-        {
-            Bsnprintf(dirpath, sizeof(dirpath), "%s/"
-#if defined(_WIN32) || defined(__APPLE__)
-                      "JFShadowWarrior"
-#else
-                      ".jfsw"
-#endif
-                      , supportdir);
-            asperr = addsearchpath(dirpath);
-            if (asperr == -2)
-            {
-                if (Bmkdir(dirpath, S_IRWXU) == 0)
-                {
-                    asperr = addsearchpath(dirpath);
-                }
-                else
-                {
-                    asperr = -1;
-                }
-            }
-            if (asperr == 0)
-            {
-                chdir(dirpath);
-            }
-            free(supportdir);
-        }
-    }
 #endif
 
-    if (g_grpNamePtr == NULL)
-    {
-        const char *cp = getenv("SWGRP");
-        if (cp)
-        {
-            clearGrpNamePtr();
-            g_grpNamePtr = dup_filename(cp);
-            initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
-        }
-    }
 
-    wm_setapptitle("Shadow Warrior");
+    initprintf(APPNAME " %s\n", s_buildRev);
+    PrintBuildInfo();
+
+    SW_ExtInit();
+
+    i = CONFIG_ReadSetup();
+
     if (enginePreInit())
     {
         wm_msgbox("Build Engine Initialisation Error",
@@ -3501,9 +3424,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
         exit(1);
     }
 
-    i = CONFIG_ReadSetup();
-
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && (defined __APPLE__ || defined HAVE_GTK2))
+#ifdef STARTUP_SETUP_WINDOW
     if (i < 0 || displaysetup || CommandSetup)
     {
         if (quitevent || !startwin_run())
@@ -3523,7 +3444,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
 
     if (SW_SHAREWARE)
     {
-        wm_setapptitle("Shadow Warrior Shareware");
+        wm_setapptitle(APPNAME " Shareware");
 
         // Zero out the maps that aren't in shareware version
         memset(&LevelInfo[MAX_LEVELS_SW+1], 0, sizeof(LEVEL_INFO)*(MAX_LEVELS_REG-MAX_LEVELS_SW));
@@ -3531,7 +3452,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
     }
     else
     {
-        wm_setapptitle("Shadow Warrior");
+        wm_setapptitle(APPNAME);
     }
 
     for (i = 0; i < MAX_SW_PLAYERS; i++)

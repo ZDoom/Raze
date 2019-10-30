@@ -245,14 +245,13 @@ struct strllist* CommandPaths, * CommandGrps;
 
 void G_ExtInit(void)
 {
-    char cwd[BMAX_PATH];
-
 #ifdef EDUKE32_OSX
     char *appdir = Bgetappdir();
     addsearchpath(appdir);
     Xfree(appdir);
 #endif
 
+    char cwd[BMAX_PATH];
 #ifdef USE_PHYSFS
     strncpy(cwd, PHYSFS_getBaseDir(), ARRAY_SIZE(cwd));
     cwd[ARRAY_SIZE(cwd)-1] = '\0';
