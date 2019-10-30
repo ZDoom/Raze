@@ -31,6 +31,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "game.h"
 
+#include "common_game.h"
+
 BEGIN_SW_NS
 
 short f_c = 3;
@@ -435,8 +437,8 @@ void SetPaletteToVESA(unsigned char *pal)
 
     VBE_setPalette(0, 256, pal_buff);
     */
-    paletteSetColorTable(0, pal);
-    videoSetPalette(0,0,4|2);
+    paletteSetColorTable(BASEPAL, pal);
+    videoSetPalette(0, BASEPAL, 4|2);
     //  fprintf(stderr,"SetPaletteToVESA() called\n");
 }
 

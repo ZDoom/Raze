@@ -148,5 +148,15 @@ void SW_ExtInit(void);
 
 
 
+
+typedef enum basepal_ {
+    BASEPAL = 0,
+    DREALMSPAL,
+    TITLEPAL,
+    TENPAL,
+    ANIMPAL,
+    BASEPALCOUNT
+} basepal_t;
+
 END_SW_NS
 #endif
