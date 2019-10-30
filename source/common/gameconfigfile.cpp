@@ -95,6 +95,9 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", local_app_support + "/EDuke32", true);
 		SetValueForKey ("Path", local_app_support + "/JFDuke32", true);
 		SetValueForKey ("Path", local_app_support + "/NBlood", true);
+		SetValueForKey("Path", local_app_support + "/JFSW", true);
+		SetValueForKey("Path", local_app_support + "/VoidSW", true);
+
 #elif !defined(__unix__)
 		SetValueForKey ("Path", "$PROGDIR", true);
 		SetValueForKey ("Path", "$PROGDIR/*", true);
@@ -109,6 +112,10 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
 		SetValueForKey ("Path", "/usr/share/games/nblood", true);
 		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
+		SetValueForKey("Path", "/usr/share/games/jfsw", true);
+		SetValueForKey("Path", "/usr/local/share/games/jfsw", true);
+		SetValueForKey("Path", "/usr/share/games/voidsw", true);
+		SetValueForKey("Path", "/usr/local/share/games/voidsw", true);
 
 #endif
 		SetValueForKey ("Path", "$STEAM", true); // also covers GOG.

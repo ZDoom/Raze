@@ -1695,7 +1695,7 @@ LogoLevel(void)
         for (auto & c : pal)
             c <<= 2;
 
-        paletteSetColorTable(DREALMSPAL, pal);
+        paletteSetColorTable(DREALMSPAL, pal.Data());
         videoSetPalette(0, DREALMSPAL, 2);
     }
     DSPRINTF(ds,"Just read in 3drealms.pal...");
@@ -3363,41 +3363,6 @@ int32_t app_main(int32_t argc, char const * const * argv)
     void gameinput(void);
     int cnt = 0;
     uint32_t TotalMemory;
-
-    for (i=1; i<argc; i++)
-    {
-        if (argv[i][0] != '-'
-#ifdef _WIN32
-            && argv[i][0] != '/'
-#endif
-            )
-        {
-            continue;
-        }
-        if (!Bstrcasecmp(argv[i]+1, "setup"))
-        {
-            CommandSetup = TRUE;
-        }
-        else if (!Bstrcasecmp(argv[i]+1, "?"))
-        {
-            CommandLineHelp(argv);
-            return 0;
-        }
-    }
-
-#if defined(PREFIX)
-    {
-        const char *prefixdir = PREFIX;
-        if (prefixdir && prefixdir[0])
-        {
-            addsearchpath(prefixdir);
-        }
-    }
-#endif
-
-
-#endif
-
 
     initprintf(APPNAME " %s\n", s_buildRev);
     PrintBuildInfo();

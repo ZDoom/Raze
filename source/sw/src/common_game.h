@@ -42,11 +42,6 @@ BEGIN_SW_NS
 //
 //****************************************************************************
 
-#define APPNAME "VoidSW"
-#ifndef APPBASENAME
-#define APPBASENAME         "voidsw"
-#endif
-
 //
 // Color Defines
 //

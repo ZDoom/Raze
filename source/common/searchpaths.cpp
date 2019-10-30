@@ -131,6 +131,29 @@ static void G_AddSteamPaths(TArray<FString> &searchpaths, const char *basepath)
     // WWII GI (Steam)
     path.Format("%s/steamapps/common/World War II GI/WW2GI", basepath);
 	AddSearchPath(searchpaths, path);
+
+	// Shadow Warrior Classic Redux - Steam
+	static char const s_SWCR_Steam[] = "steamapps/common/Shadow Warrior Classic/gameroot";
+	path.Format("%s/%s", basepath, s_SWCR_Steam);
+	AddSearchPath(searchpaths, path);
+	//path.Format("%s/%s/addons", basepath, s_SWCR_Steam);
+	//AddSearchPath(searchpaths, path);
+	//path.Format("%s/%s/classic/MUSIC", basepath, s_SWCR_Steam);
+	//AddSearchPath(searchpaths, path);
+
+	// Shadow Warrior Classic (1997) - Steam
+	static char const s_SWC_Steam[] = "steamapps/common/Shadow Warrior Original/gameroot";
+	path.Format("%s/%s", basepath, s_SWC_Steam);
+	AddSearchPath(searchpaths, path);
+	//path.Format("%s/%s/MUSIC", basepath, s_SWC_Steam);
+	//AddSearchPath(searchpaths, path);
+
+	// Shadow Warrior (Classic) - 3D Realms Anthology - Steam
+#if defined EDUKE32_OSX
+	path.Format("%s/steamapps/common/Shadow Warrior DOS/Shadow Warrior.app/Contents/Resources/sw", basepath);
+	AddSearchPath(searchpaths, path);
+#endif
+
 }
 
 
@@ -193,6 +216,21 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         // Duke Nukem 3D: Atomic Edition (GOG.com)
         path.Format("%s/Duke Nukem 3D.app/Contents/Resources/Duke Nukem 3D.boxer/C.harddisk", applications[i]);
 		AddSearchPath(searchpaths, path);
+
+		// Shadow Warrior Classic Complete - GOG.com
+		static char const s_SWC_GOG[] = "Shadow Warrior Complete/Shadow Warrior.app/Contents/Resources/Shadow Warrior.boxer/C swarrior_files.harddisk";
+		path.Format("%s/%s", applications[i], s_SWC_GOG);
+		AddSearchPath(searchpaths, path);
+		//path.Format("%s/%s/MUSIC", applications[i], s_SWC_GOG);
+		//addsearchpath(buf);
+
+		// Shadow Warrior Classic Redux - GOG.com
+		static char const s_SWCR_GOG[] = "Shadow Warrior Classic Redux/Shadow Warrior Classic Redux.app/Contents/Resources/gameroot";
+		path.Format("%s/%s", applications[i], s_SWCR_GOG);
+		AddSearchPath(searchpaths, path);
+		//path.Format("%s/%s/music", applications[i], s_SWCR_GOG);
+		//addsearchpath(buf);
+
     }
 
     for (i = 0; i < 2; i++)
@@ -276,7 +314,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
 
-        Bstrncpy(suffix, "/Duke Nukem 3D", remaining);
+        strncpy(suffix, "/Duke Nukem 3D", remaining);
 		AddSearchPath(searchpaths, buf);
     }
 
@@ -287,7 +325,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
 
-        Bstrncpy(suffix, "/NAM", remaining);
+        strncpy(suffix, "/NAM", remaining);
 		AddSearchPath(searchpaths, buf);
     }
 
@@ -298,7 +336,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         char * const suffix = buf + bufsize - 1;
         size_t const remaining = sizeof(buf) - bufsize;
 
-        Bstrncpy(suffix, "/WW2GI", remaining);
+        strncpy(suffix, "/WW2GI", remaining);
 		AddSearchPath(searchpaths, buf);
     }
 
@@ -347,6 +385,74 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
         strncat(buf, R"(\addons\Cryptic Passage)", 23);
 		AddSearchPath(searchpaths, buf);
     }
+
+	bufsize = sizeof(buf);
+	if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225160)", "InstallLocation", buf, &bufsize))
+	{
+		char* const suffix = buf + bufsize - 1;
+		size_t const remaining = sizeof(buf) - bufsize;
+
+		strncpy(suffix, "/gameroot", remaining);
+		AddSearchPath(searchpaths, buf);
+		//strncpy(suffix, "/gameroot/addons", remaining);
+		//addsearchpath_user(buf, SEARCHPATH_REMOVE);
+		//strncpy(suffix, "/gameroot/classic/MUSIC", remaining);
+		//addsearchpath(buf);
+	}
+
+	// Shadow Warrior Classic (1997) - Steam
+	bufsize = sizeof(buf);
+	if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 238070)", "InstallLocation", buf, &bufsize))
+	{
+		char* const suffix = buf + bufsize - 1;
+		DWORD const remaining = sizeof(buf) - bufsize;
+
+		strncpy(suffix, "/gameroot", remaining);
+		AddSearchPath(searchpaths, buf);
+		//strncpy(suffix, "/gameroot/MUSIC", remaining);
+		//addsearchpath(buf);
+	}
+
+	// Shadow Warrior (Classic) - 3D Realms Anthology - Steam
+	bufsize = sizeof(buf);
+	if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 358400)", "InstallLocation", buf, &bufsize))
+	{
+		char* const suffix = buf + bufsize - 1;
+		DWORD const remaining = sizeof(buf) - bufsize;
+
+		strncpy(suffix, "/Shadow Warrior", remaining);
+		AddSearchPath(searchpaths, buf);
+	}
+
+	// Shadow Warrior Classic Complete - GOG.com
+	bufsize = sizeof(buf);
+	if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGSHADOWARRIOR", "PATH", buf, &bufsize))
+	{
+		AddSearchPath(searchpaths, buf);
+	}
+
+	// Shadow Warrior - 3D Realms Anthology
+	bufsize = sizeof(buf);
+	if (Paths_ReadRegistryValue("SOFTWARE\\3DRealms\\Shadow Warrior", NULL, buf, &bufsize))
+	{
+		char* const suffix = buf + bufsize - 1;
+		DWORD const remaining = sizeof(buf) - bufsize;
+
+		strncpy(suffix, "/Shadow Warrior", remaining);
+		AddSearchPath(searchpaths, buf);
+	}
+
+	// 3D Realms Anthology
+	bufsize = sizeof(buf);
+	if (Paths_ReadRegistryValue("SOFTWARE\\3DRealms\\Anthology", NULL, buf, &bufsize))
+	{
+		char* const suffix = buf + bufsize - 1;
+		DWORD const remaining = sizeof(buf) - bufsize;
+
+		strncpy(suffix, "/Shadow Warrior", remaining);
+		AddSearchPath(searchpaths, buf);
+	}
+
 }
 #endif
 
