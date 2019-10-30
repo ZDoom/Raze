@@ -44,9 +44,9 @@ struct PlayerSave
     short nAngle;
 };
 
-int lPlayerXVel = 0;
-int lPlayerYVel = 0;
-int nPlayerDAng = 0;
+fix16_t lPlayerXVel = 0;
+fix16_t lPlayerYVel = 0;
+fix16_t nPlayerDAng = 0;
 short bobangle  = 0;
 short bPlayerPan = 0;
 short bLockPan  = 0;
@@ -176,10 +176,116 @@ void PlayerInterruptKeys()
     // JBF: Run key behaviour is selectable
     int const playerRunning = (runkey_mode) ? (BUTTON(gamefunc_Run) | auto_run) : (auto_run ^ BUTTON(gamefunc_Run));
     int const turnAmount = playerRunning ? 12 : 8;
+    int const keyMove    = playerRunning ? 12 : 6;
+    constexpr int const analogTurnAmount = 12;
     constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
+    int fvel = 0, svel = 0;
+    fix16_t q16avel = 0, q16horz = 0;
 
-    int fvel = 0;
+    if (BUTTON(gamefunc_Strafe))
+    {
+        static int strafeyaw;
 
+        svel = -(info.mousex + strafeyaw) >> 6;
+        strafeyaw  = (info.mousex + strafeyaw) % 64;
+
+        svel -= info.dyaw * keyMove / analogExtent;
+    }
+    else
+    {
+        q16avel = fix16_div(fix16_from_int(info.mousex), F16(32));
+        q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
+    }
+
+    if (aimmode)
+        q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
+    else
+        fvel = -(info.mousey >> 6);
+
+    if (mouseflip) q16horz = -q16horz;
+
+    q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
+    svel -= info.dx * keyMove / analogExtent;
+    fvel -= info.dz * keyMove / analogExtent;
+
+    if (BUTTON(gamefunc_Strafe))
+    {
+        if (BUTTON(gamefunc_Turn_Left))
+            svel -= -keyMove;
+
+        if (BUTTON(gamefunc_Turn_Right))
+            svel -= keyMove;
+    }
+    else
+    {
+        static int turn = 0;
+        static int counter = 0;
+        // normal, non strafing movement
+        if (BUTTON(gamefunc_Turn_Left))
+        {
+            turn -= 2;
+
+            if (turn < -turnAmount)
+                turn = -turnAmount;
+        }
+        else if (BUTTON(gamefunc_Turn_Right))
+        {
+            turn += 2;
+
+            if (turn > turnAmount)
+                turn = turnAmount;
+        }
+
+        if (turn < 0)
+        {
+            turn++;
+            if (turn > 0)
+                turn = 0;
+        }
+
+        if (turn > 0)
+        {
+            turn--;
+            if (turn < 0)
+                turn = 0;
+        }
+
+        if ((counter++) % 4 == 0)
+            q16avel += fix16_from_int(turn<<2);
+    }
+
+    if (BUTTON(gamefunc_Strafe_Left))
+        svel += keyMove;
+
+    if (BUTTON(gamefunc_Strafe_Right))
+        svel += -keyMove;
+
+    if (BUTTON(gamefunc_Move_Forward))
+        fvel += keyMove;
+
+    if (BUTTON(gamefunc_Move_Backward))
+        fvel += -keyMove;
+
+    fvel = clamp(fvel, -12, 12);
+    svel = clamp(svel, -12, 12);
+
+    nPlayerDAng += q16avel;
+
+    inita &= kAngleMask;
+
+    lPlayerXVel += fvel * Cos(inita) + svel * Sin(inita);
+    lPlayerYVel += fvel * Sin(inita) - svel * Cos(inita);
+
+    lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
+    lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
+
+    // A horiz diff of 128 equal 45 degrees,
+    // so we convert horiz to 1024 angle units
+
+    float horizAngle = atan2f(nVertPan[nLocalPlayer] - F16(92), F16(128)) * (512.f / fPI) + fix16_to_float(q16horz);
+    nVertPan[nLocalPlayer] = fix16_clamp(F16(92) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f))), F16(0), F16(184));
+
+#if 0
     info.dyaw *= (lMouseSens >> 1) + 1;
 
     int nXVel, nYVel;
@@ -370,6 +476,7 @@ void PlayerInterruptKeys()
 
     lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
     lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
+#endif
 }
 
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle)
@@ -668,7 +775,7 @@ void RestartPlayer(short nPlayer)
     nYDamage[nPlayer] = 0;
     nXDamage[nPlayer] = 0;
 
-    nVertPan[nPlayer] = F16(92);
+    PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
     nDestVertPan[nPlayer] = F16(92);
     nBreathTimer[nPlayer] = 90;
 
@@ -770,7 +877,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    nVertPan[nPlayer] = F16(92);
+    PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
     eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
@@ -1148,6 +1255,7 @@ void FuncPlayer(int pA, int nDamage, int nRun)
 
             // loc_1A494:
             PlayerList[nPlayer].q16angle = (PlayerList[nPlayer].q16angle + sPlayerInput[nPlayer].nAngle) & 0x7FFFFFF;
+            PlayerList[nPlayer].q16horiz = sPlayerInput[nPlayer].horizon;
             sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
 
             // sprite[nPlayerSprite].zvel is modified within Gravity()

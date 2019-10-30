@@ -62,6 +62,50 @@ static const char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen] =
 
 static const char keydefaults[kMaxGameFunctions * 2][kMaxGameFuncLen] =
 {
+   "W", "Kpad8",
+   "S", "Kpad2",
+   "Left", "Kpad4",
+   "Right", "KPad6",
+   "LAlt", "RAlt",
+   "A", "",
+   "D", "",
+   "LShift", "RShift",
+   "Space", "",
+   "LCtrl", "",
+   "RCtrl", "",
+   "E", "",
+   "PgUp", "",
+   "PgDn", "",
+   "Home", "",
+   "Insert", "",
+   "Delete", "",
+   "T", "",
+   "1", "",
+   "2", "",
+   "3", "",
+   "4", "",
+   "5", "",
+   "6", "",
+   "7", "",
+   "/", "",
+   "Pause", "",
+   "Tab", "",
+   "=", "",
+   "-", "",
+   "F11", "",
+   "Escape", "",
+   "Kpad-", "",
+   "Kpad+", "",
+   "Enter", "",
+   "[", "",
+   "]", "",
+   "F7", "",
+   "F8", "",
+   "`", "",
+};
+
+static const char oldkeydefaults[kMaxGameFunctions * 2][kMaxGameFuncLen] =
+{
    "Up", "Kpad8",
    "Down", "Kpad2",
    "Left", "Kpad4",
@@ -399,7 +443,7 @@ void CONFIG_SetDefaults()
 
     mouseaiming = 0;
     aimmode = 1;
-    mouseflip = 0;
+    mouseflip = 1;
     runkey_mode = 0;
     auto_run = 1;
 

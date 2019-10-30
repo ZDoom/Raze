@@ -355,7 +355,8 @@ void DrawView()
             viewz = playerZ + nQuake[nLocalPlayer];
             int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
 
-            pan = nVertPan[nLocalPlayer];
+            // pan = nVertPan[nLocalPlayer];
+            pan = PlayerList[nLocalPlayer].q16horiz;
 
             if (viewz > floorZ)
                 viewz = floorZ;

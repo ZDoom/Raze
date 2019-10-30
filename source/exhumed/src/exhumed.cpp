@@ -2200,12 +2200,13 @@ LOOP3:
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
             sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
             sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
-            sPlayerInput[nLocalPlayer].nAngle = fix16_from_int(nPlayerDAng)<<2;
+            sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
             sPlayerInput[nLocalPlayer].nTarget = besttarget;
 
             Ra[nLocalPlayer].nTarget = besttarget;
 
             lLocalCodes = 0;
+            nPlayerDAng = 0;
 
             sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
         }

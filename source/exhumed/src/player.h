@@ -54,6 +54,7 @@ struct Player
     short nRun;
 
     fix16_t q16angle;
+    fix16_t q16horiz;
 };
 
 extern short PlayerCount;
