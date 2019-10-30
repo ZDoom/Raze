@@ -288,3 +288,170 @@ void COMMON_clearbackground(int numcols, int numrows)
 {
 	COMMON_doclearbackground(numcols, 8 * numrows + 8);
 }
+
+// A bare-bones "parser" for Valve's KeyValues VDF format.
+// There is no guarantee this will function properly with ill-formed files.
+static void KeyValues_SkipWhitespace(char **vdfbuf, char * const vdfbufend)
+{
+    while (((*vdfbuf)[0] == ' ' || (*vdfbuf)[0] == '\n' || (*vdfbuf)[0] == '\r' || (*vdfbuf)[0] == '\t' || (*vdfbuf)[0] == '\0') && *vdfbuf < vdfbufend)
+        (*vdfbuf)++;
+
+    // comments
+    if ((*vdfbuf) + 2 < vdfbufend && (*vdfbuf)[0] == '/' && (*vdfbuf)[1] == '/')
+    {
+        while ((*vdfbuf)[0] != '\n' && (*vdfbuf)[0] != '\r' && *vdfbuf < vdfbufend)
+            (*vdfbuf)++;
+
+        KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+    }
+}
+static void KeyValues_SkipToEndOfQuotedToken(char **vdfbuf, char * const vdfbufend)
+{
+    (*vdfbuf)++;
+    while ((*vdfbuf)[0] != '\"' && (*vdfbuf)[-1] != '\\' && *vdfbuf < vdfbufend)
+        (*vdfbuf)++;
+}
+static void KeyValues_SkipToEndOfUnquotedToken(char **vdfbuf, char * const vdfbufend)
+{
+    while ((*vdfbuf)[0] != ' ' && (*vdfbuf)[0] != '\n' && (*vdfbuf)[0] != '\r' && (*vdfbuf)[0] != '\t' && (*vdfbuf)[0] != '\0' && *vdfbuf < vdfbufend)
+        (*vdfbuf)++;
+}
+static void KeyValues_SkipNextWhatever(char **vdfbuf, char * const vdfbufend)
+{
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+
+    if (*vdfbuf == vdfbufend)
+        return;
+
+    if ((*vdfbuf)[0] == '{')
+    {
+        (*vdfbuf)++;
+        do
+        {
+            KeyValues_SkipNextWhatever(vdfbuf, vdfbufend);
+        }
+        while ((*vdfbuf)[0] != '}');
+        (*vdfbuf)++;
+    }
+    else if ((*vdfbuf)[0] == '\"')
+        KeyValues_SkipToEndOfQuotedToken(vdfbuf, vdfbufend);
+    else if ((*vdfbuf)[0] != '}')
+        KeyValues_SkipToEndOfUnquotedToken(vdfbuf, vdfbufend);
+
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+}
+static char* KeyValues_NormalizeToken(char **vdfbuf, char * const vdfbufend)
+{
+    char *token = *vdfbuf;
+
+    if ((*vdfbuf)[0] == '\"' && *vdfbuf < vdfbufend)
+    {
+        token++;
+
+        KeyValues_SkipToEndOfQuotedToken(vdfbuf, vdfbufend);
+        (*vdfbuf)[0] = '\0';
+
+        // account for escape sequences
+        char *writeseeker = token, *readseeker = token;
+        while (readseeker <= *vdfbuf)
+        {
+            if (readseeker[0] == '\\')
+                readseeker++;
+
+            writeseeker[0] = readseeker[0];
+
+            writeseeker++;
+            readseeker++;
+        }
+
+        return token;
+    }
+
+    KeyValues_SkipToEndOfUnquotedToken(vdfbuf, vdfbufend);
+    (*vdfbuf)[0] = '\0';
+
+    return token;
+}
+static void KeyValues_FindKey(char **vdfbuf, char * const vdfbufend, const char *token)
+{
+    char *ParentKey = KeyValues_NormalizeToken(vdfbuf, vdfbufend);
+    if (token != NULL) // pass in NULL to find the next key instead of a specific one
+        while (Bstrcmp(ParentKey, token) != 0 && *vdfbuf < vdfbufend)
+        {
+            KeyValues_SkipNextWhatever(vdfbuf, vdfbufend);
+            ParentKey = KeyValues_NormalizeToken(vdfbuf, vdfbufend);
+        }
+
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+}
+static int32_t KeyValues_FindParentKey(char **vdfbuf, char * const vdfbufend, const char *token)
+{
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+
+    // end of scope
+    if ((*vdfbuf)[0] == '}')
+        return 0;
+
+    KeyValues_FindKey(vdfbuf, vdfbufend, token);
+
+    // ignore the wrong type
+    while ((*vdfbuf)[0] != '{' && *vdfbuf < vdfbufend)
+    {
+        KeyValues_SkipNextWhatever(vdfbuf, vdfbufend);
+        KeyValues_FindKey(vdfbuf, vdfbufend, token);
+    }
+
+    if (*vdfbuf == vdfbufend)
+        return 0;
+
+    return 1;
+}
+static char* KeyValues_FindKeyValue(char **vdfbuf, char * const vdfbufend, const char *token)
+{
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+
+    // end of scope
+    if ((*vdfbuf)[0] == '}')
+        return NULL;
+
+    KeyValues_FindKey(vdfbuf, vdfbufend, token);
+
+    // ignore the wrong type
+    while ((*vdfbuf)[0] == '{' && *vdfbuf < vdfbufend)
+    {
+        KeyValues_SkipNextWhatever(vdfbuf, vdfbufend);
+        KeyValues_FindKey(vdfbuf, vdfbufend, token);
+    }
+
+    KeyValues_SkipWhitespace(vdfbuf, vdfbufend);
+
+    if (*vdfbuf == vdfbufend)
+        return NULL;
+
+    return KeyValues_NormalizeToken(vdfbuf, vdfbufend);
+}
+
+void Paths_ParseSteamKeyValuesForPaths(const char *vdf, SteamPathParseFunc func)
+{
+    buildvfs_fd fd = buildvfs_open_read(vdf);
+    int32_t size = buildvfs_length(fd);
+    char *vdfbufstart, *vdfbuf, *vdfbufend;
+
+    if (size <= 0)
+        return;
+
+    vdfbufstart = vdfbuf = (char*)Xmalloc(size);
+    size = (int32_t)buildvfs_read(fd, vdfbuf, size);
+    buildvfs_close(fd);
+    vdfbufend = vdfbuf + size;
+
+    if (KeyValues_FindParentKey(&vdfbuf, vdfbufend, "LibraryFolders"))
+    {
+        char *result;
+        vdfbuf++;
+        while ((result = KeyValues_FindKeyValue(&vdfbuf, vdfbufend, NULL)) != NULL)
+            func(result);
+    }
+
+    Xfree(vdfbufstart);
+}
