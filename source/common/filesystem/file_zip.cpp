@@ -218,7 +218,6 @@ bool FZipFile::Open(bool quiet)
 
 		int len = LittleShort(zip_fh->NameLength);
 		FString name(dirptr + sizeof(FZipCentralDirectoryInfo), len);
-		if (name.IsNotEmpty()) name = name.Mid(name.Len());
 		dirptr += sizeof(FZipCentralDirectoryInfo) + 
 				  LittleShort(zip_fh->NameLength) + 
 				  LittleShort(zip_fh->ExtraLength) + 

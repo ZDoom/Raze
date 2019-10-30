@@ -475,9 +475,10 @@ GameInterface *CheckFrontend()
 
 void ChooseGame()
 {
+#if 0
 	gi = CheckFrontend();
 	return;
-#if 0
+#else
 	auto dir = Args->CheckValue("-game");
 	if (dir && !chdir(dir))
 	{
@@ -646,20 +647,21 @@ int main(int argc, char *argv[])
 }
 
 
-std::unique_ptr<FResourceFile> engine_res;
+static std::unique_ptr<FResourceFile> demolition_pk3;
 
 // The resourge manager in cache1d is far too broken to add some arbitrary file without some adjustment.
 // For now, keep this file here, until the resource management can be redone in a more workable fashion.
 extern FString progdir;
+extern FString LumpFilter;
 
 void InitBaseRes()
 {
-	if (!engine_res)
+	if (!demolition_pk3)
 	{
 		// If we get here for the first time, load the engine-internal data.
 		FString baseres = progdir + "demolition.pk3";
-		engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
-		if (!engine_res)
+		demolition_pk3.reset(FResourceFile::OpenResourceFile(baseres, true, true));
+		if (!demolition_pk3)
 		{
 			I_Error("Engine resources (%s) not found", baseres.GetChars());
 		}
@@ -669,11 +671,11 @@ void InitBaseRes()
 FileReader openFromBaseResource(const char* fn)
 {
 	InitBaseRes();
-	auto lump = engine_res->FindLump(fn);
+	auto lump = demolition_pk3->FindLump(fn);
 	if (lump) return lump->NewReader();
 	// Also look in game filtered directories.
-	FStringf filtername("filter/game-%s/%s", currentGame.GetChars(), fn);
-	lump = engine_res->FindLump(filtername);
+	FStringf filtername("filter/%s/%s", LumpFilter.GetChars(), fn);
+	lump = demolition_pk3->FindLump(filtername);
 	if (lump) return lump->NewReader();
 	return FileReader(nullptr);
 

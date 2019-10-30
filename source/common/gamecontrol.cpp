@@ -318,7 +318,8 @@ void CONFIG_Init()
 	if (LumpFilter.Compare("Redneck") == 0) LumpFilter = "Redneck.Redneck";
 	else if (LumpFilter.Compare("RedneckRides") == 0) LumpFilter = "Redneck.RidesAgain";
 
-	CONFIG_ReadCombatMacros();
+	//CONFIG_ReadCombatMacros();
+	//CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 	G_ReadConfig(currentGame);
 
 
@@ -344,7 +345,6 @@ void CONFIG_Init()
 	}
 	SetupButtonFunctions();
 	CONTROL_ClearAssignments();
-	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 	CONFIG_InitMouseAndController();
 	CONFIG_SetGameControllerDefaultsStandard();
 }
