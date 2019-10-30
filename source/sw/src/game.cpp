@@ -701,26 +701,6 @@ LoadLevel(const char *filename)
     }
 }
 
-void
-LoadImages(const char *filename)
-{
-    short ndx;
-    FILE *fin;
-
-    if (TileFiles.LoadArtFile(filename) == -1)
-    {
-        TerminateGame();
-#ifdef RENDERTYPEWIN
-        {
-            wm_msgbox(apptitle, "Art not found. Please check your GRP file.");
-        }
-#else
-        printf("Art not found. Please check your GRP file.\n");
-#endif
-        exit(-1);
-    }
-}
-
 void LoadDemoRun(void)
 {
     short i;
@@ -968,7 +948,7 @@ InitGame(int32_t argc, char const * const * argv)
     //_outtext("\n\n\n\n\n\n\n\n");
     //AnimateCacheCursor();
     buildputs("Loading sound and graphics...\n");
-    LoadImages("tiles%03d.art");
+	TileFiles.LoadArtSet("tiles%03d.art");
 
     // Now free it up for later use
     /*
@@ -2828,6 +2808,7 @@ GameIntro(void)
 void
 Control(int32_t argc, char const * const * argv)
 {
+	cacheInitBuffer(50'000'000);
 
     InitGame(argc, argv);
 
