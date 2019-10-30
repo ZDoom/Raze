@@ -140,6 +140,10 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 #define EDUKE32_TMRTIC t[ti++]=timerGetTicks()
 #define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
 
+#if defined _WIN32 && !defined EDUKE32_STANDALONE
+int Paths_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, DWORD * OutputSize);
+#endif
+
 using SteamPathParseFunc = void(*)(const char *);
 void Paths_ParseSteamKeyValuesForPaths(const char *vdf, SteamPathParseFunc func);
 
