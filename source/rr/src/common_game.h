@@ -9,22 +9,10 @@
 
 #include "collections.h"
 #include "grpscan.h"
+#include "gamecontrol.h"
 
 BEGIN_RR_NS
 
-
-#define GAMEFLAG_DUKE       0x00000001
-#define GAMEFLAG_NAM        0x00000002
-#define GAMEFLAG_NAPALM     0x00000004
-//#define GAMEFLAG_WW2GI      0x00000008
-#define GAMEFLAG_ADDON      0x00000010
-#define GAMEFLAG_SHAREWARE  0x00000020
-#define GAMEFLAG_RR         0x00000040
-#define GAMEFLAG_RRRA       0x00000080
-//#define GAMEFLAG_DUKEBETA   0x00000060 // includes 0x20 since it's a shareware beta
-//#define GAMEFLAG_IONMAIDEN  0x00000080
-//#define GAMEFLAG_STANDALONE 0x00000100
-#define GAMEFLAGMASK        0x000000FF // flags allowed from grpinfo
 
 extern struct grpfile_t const *g_selectedGrp;
 

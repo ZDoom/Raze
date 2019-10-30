@@ -20,8 +20,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+//
+// Search path management. Scan all directories for potential game content and return a list with all proper matches
+//
 
 #include <filesystem>
+#include "m_crc32.h"
 #include "i_specialpaths.h"
 #include "compat.h"
 #include "gameconfigfile.h"
@@ -30,9 +34,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sc_man.h"
 #include "resourcefile.h"
 #include "printf.h"
-//
-// Search path management
-//
+#include "gamecontrol.h"
+
+
+
+
+// These two structs need to be expoted
+struct GrpInfo
+{
+	FString name;
+	FString scriptname;
+	FString dirname;
+	FString defname;
+	FString rtsname;
+	uint32_t CRC = 0;
+	uint32_t dependencyCRC = 0;
+	size_t size = 0;
+	int flags = 0;
+	TArray<FString> loadfiles;
+	TArray<FString> loadart;
+};
+
+				
+struct GrpEntry
+{
+	FString FileName;
+	GrpInfo FileInfo;
+	uint32_t FileIndex;
+};
+
 
 namespace fs = std::filesystem;
 
@@ -584,12 +614,14 @@ struct FileEntry
 	uintmax_t FileLength;
 	uint64_t FileTime;
 	uint32_t CRCValue;
+	uint32_t Index;
 };
 
 TArray<FileEntry> CollectAllFilesInSearchPath()
 {
 	TArray<FileEntry> filelist;
 	auto paths = CollectSearchPaths();
+	int index = 0;
 	for(auto &path : paths)
 	{
 		auto fpath = fs::u8path(path.GetChars());
@@ -604,11 +636,13 @@ TArray<FileEntry> CollectAllFilesInSearchPath()
 					flentry.FileName = absolute(entry.path()).u8string().c_str();
 					flentry.FileLength = entry.file_size();
 					flentry.FileTime = entry.last_write_time().time_since_epoch().count();
+					flentry.Index = index++; // to preserve order when working on the list.
 					filelist.Push(flentry);
 				}
 			}
 		}
 	}
+	return filelist;
 }
 
 //==========================================================================
@@ -617,7 +651,7 @@ TArray<FileEntry> CollectAllFilesInSearchPath()
 //
 //==========================================================================
 
-static TArray<FileEntry> LoadGroupsCache(void)
+static TArray<FileEntry> LoadCRCCache(void)
 {
 	auto cachepath = M_GetAppDataPath(false) + "/grpcrccache.txt";
 	FScanner sc;
@@ -639,7 +673,7 @@ static TArray<FileEntry> LoadGroupsCache(void)
 			flentry.CRCValue = strtoull(sc.String, nullptr, 0);	// Cannot use sc.Number because that's only 32 bit.
 		}
 	}
-	catch (std::runtime_error & err)
+	catch (std::runtime_error &)
 	{
 		// If there's a parsing error, return what we got and discard the rest.
 	}
@@ -652,12 +686,184 @@ static TArray<FileEntry> LoadGroupsCache(void)
 //
 //==========================================================================
 
-void ParseAllGrpInfos(TArray<FileEntry>& filelist, FResourceFile *baseres)
+static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr)
 {
-	auto basegrp = baseres->FindLump("demolition/demolition.grpinfo");
-	if (basegrp)
+	TArray<GrpInfo> groups;
+	TMap<FString, uint32_t> CRCMap;
+	TMap<FString, int> FlagMap;
+	
+	FlagMap.Insert("GAMEFLAG_DUKE", GAMEFLAG_DUKE);
+	FlagMap.Insert("GAMEFLAG_NAM", GAMEFLAG_NAM);
+	FlagMap.Insert("GAMEFLAG_NAPALM", GAMEFLAG_NAPALM);
+	FlagMap.Insert("GAMEFLAG_WW2GI", GAMEFLAG_WW2GI);
+	FlagMap.Insert("GAMEFLAG_ADDON", GAMEFLAG_ADDON);
+	FlagMap.Insert("GAMEFLAG_SHAREWARE", GAMEFLAG_SHAREWARE);
+	FlagMap.Insert("GAMEFLAG_DUKEBETA", GAMEFLAG_DUKEBETA); // includes 0x20 since it's a shareware beta
+	FlagMap.Insert("GAMEFLAG_FURY", GAMEFLAG_FURY);
+	FlagMap.Insert("GAMEFLAG_RR", GAMEFLAG_RR);
+	FlagMap.Insert("GAMEFLAG_RRRA", GAMEFLAG_RRRA);
+	FlagMap.Insert("GAMEFLAG_BLOOD", GAMEFLAG_BLOOD);
+	
+	FScanner sc;
+	auto mem = fr.Read();
+	sc.OpenMem(fn, (const char *)mem.Data(), mem.Size());
+	
+	while (sc.GetToken())
 	{
-		auto fr = basegrp->NewReader();
+		sc.TokenMustBe(TK_Identifier);
+		if (sc.Compare("CRC"))
+		{
+			sc.MustGetToken('{');
+			while (!sc.CheckToken('}'))
+			{
+				sc.MustGetToken(TK_Identifier);
+				FString key = sc.String;
+				sc.MustGetToken(TK_IntConst);
+				if (sc.BigNumber < 0 || sc.BigNumber >= UINT_MAX)
+				{
+					sc.ScriptError("CRC hash %s out of range", sc.String);
+				}
+				CRCMap.Insert(key, (uint32_t)sc.BigNumber);
+			}
+		}
+		if (sc.Compare("grpinfo"))
+		{
+			groups.Reserve(1);
+			auto grp = groups.Last();
+			sc.MustGetToken('{');
+			while (!sc.CheckToken('}'))
+			{
+				sc.MustGetToken(TK_Identifier);
+				if (sc.Compare("name"))
+				{
+					sc.MustGetToken(TK_StringConst);
+					grp.name = sc.String;
+				}
+				else if (sc.Compare("scriptname"))
+				{
+					sc.MustGetToken(TK_StringConst);
+					grp.scriptname = sc.String;
+				}
+				else if (sc.Compare("loaddirectory"))
+				{
+					sc.MustGetToken(TK_StringConst);
+					grp.dirname = sc.String;
+				}
+				else if (sc.Compare("defname"))
+				{
+					sc.MustGetToken(TK_StringConst);
+					grp.defname = sc.String;
+				}
+				else if (sc.Compare("rtsname"))
+				{
+					sc.MustGetToken(TK_StringConst);
+					grp.rtsname = sc.String;
+				}
+				else if (sc.Compare("crc"))
+				{
+					sc.MustGetAnyToken();
+					if (sc.TokenType == TK_IntConst)
+					{
+						grp.CRC = (uint32_t)sc.BigNumber;
+					}
+					else if (sc.TokenType == TK_Identifier)
+					{
+						auto ip = CRCMap.CheckKey(sc.String);
+						if (ip) grp.CRC = *ip;
+						else sc.ScriptError("Unknown CRC value %s", sc.String);
+					}
+					else sc.TokenMustBe(TK_IntConst);
+				}
+				else if (sc.Compare("dependency"))
+				{
+					sc.MustGetAnyToken();
+					if (sc.TokenType == TK_IntConst)
+					{
+						grp.dependencyCRC = (uint32_t)sc.BigNumber;
+					}
+					else if (sc.TokenType == TK_Identifier)
+					{
+						auto ip = CRCMap.CheckKey(sc.String);
+						if (ip) grp.dependencyCRC = *ip;
+						else sc.ScriptError("Unknown CRC value %s", sc.String);
+					}
+					else sc.TokenMustBe(TK_IntConst);
+				}
+				else if (sc.Compare("size"))
+				{
+					sc.MustGetToken(TK_IntConst);
+					grp.size = sc.BigNumber;
+				}
+				else if (sc.Compare("flags"))
+				{
+					do
+					{
+						sc.MustGetAnyToken();
+						if (sc.TokenType == TK_IntConst)
+						{
+							grp.flags |= sc.Number;
+						}
+						else if (sc.TokenType == TK_Identifier)
+						{
+							auto ip = FlagMap.CheckKey(sc.String);
+							if (ip) grp.dependencyCRC |= *ip;
+							else sc.ScriptError("Unknown flag value %s", sc.String);
+						}
+						else sc.TokenMustBe(TK_IntConst);
+					}
+					while (sc.CheckToken('|'));
+				}
+				else if (sc.Compare("load"))
+				{
+					do
+					{
+						sc.MustGetToken(TK_StringConst);
+						grp.loadfiles.Push(sc.String);
+					}
+					while (sc.CheckToken(','));
+				}
+				else if (sc.Compare("loadart"))
+				{
+					do
+					{
+						sc.MustGetToken(TK_StringConst);
+						grp.loadfiles.Push(sc.String);
+					}
+					while (sc.CheckToken(','));
+				}
+				else sc.ScriptError(nullptr);
+			}
+		}
+		else sc.ScriptError(nullptr);
+	}
+	return groups;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
+{
+	TArray<GrpInfo> groups;
+	extern FString progdir;
+	// This opens the base resource only for reading the grpinfo from it.
+	std::unique_ptr<FResourceFile> engine_res;
+	FString baseres = progdir + "demolition.pk3";
+	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
+	if (engine_res)
+	{
+		auto basegrp = engine_res->FindLump("demolition/demolition.grpinfo");
+		if (basegrp)
+		{
+			auto fr = basegrp->NewReader();
+			if (fr.isOpen())
+			{
+				groups = ParseGrpInfo("demolition/demolition.grpinfo", fr);
+			}
+		}
 	}
 	for (auto& entry : filelist)
 	{
@@ -671,22 +877,146 @@ void ParseAllGrpInfos(TArray<FileEntry>& filelist, FResourceFile *baseres)
 				FileReader fr;
 				if (fr.OpenFile(entry.FileName))
 				{
+					auto g = ParseGrpInfo(entry.FileName, fr);
+					groups.Append(g);
 				}
 			}
 		}
 	}
+	return groups;
 }
 
-
-extern FString progdir;
-void GrpGet()
+//==========================================================================
+//
+//
+//
+//==========================================================================
+					
+void GetCRC(FileEntry *entry, TArray<FileEntry> &CRCCache)
 {
-	std::unique_ptr<FResourceFile> engine_res;
-	// If we get here for the first time, load the engine-internal data.
-	FString baseres = progdir + "demolition.pk3";
-	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
-	if (!engine_res)
+	for (auto &ce : CRCCache)
 	{
-		I_Error("Engine resources (%s) not found", baseres.GetChars());
+		// File size, modification date snd name all must match exactly to pick an entry.
+		if (entry->FileLength == ce.FileLength && entry->FileTime == ce.FileTime && entry->FileName.Compare(ce.FileName))
+		{
+			entry->CRCValue = ce.CRCValue;
+			return;
+		}
 	}
+	FileReader f;
+	if (f.OpenFile(entry->FileName))
+	{
+		TArray<uint8_t> buffer(65536, 1);
+		uint32_t crcval = 0;
+		size_t b;
+		do
+		{
+			b = f.Read(buffer.Data(), buffer.Size());
+			if (b > 0) crcval = AddCRC32(crcval, buffer.Data(), b);
+		}
+		while (b == buffer.Size());
+		entry->CRCValue = crcval;
+		CRCCache.Push(*entry);
+	}
+}
+
+GrpInfo *IdentifyGroup(FileEntry *entry, TArray<GrpInfo *> &groups)
+{
+	for (auto g : groups)
+	{
+		if (entry->FileLength == g->size && entry->CRCValue == g->CRC)
+			return g;
+	}
+	return nullptr;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+TArray<GrpEntry> GrpScan()
+{
+	TArray<GrpEntry> foundGames;
+	
+	TArray<FileEntry *> sortedFileList;
+	TArray<GrpInfo *> sortedGroupList;
+	
+	auto allFiles = CollectAllFilesInSearchPath();
+	auto allGroups = ParseAllGrpInfos(allFiles);
+	auto cachedCRCs = LoadCRCCache();
+	
+	// Remove all unnecessary content from the file list. Since this contains all data from the search path's directories it can be quite large.
+	// Sort both lists by file size so that we only need to pass over each list once to weed out all unrelated content. Go backward to avoid too much item movement
+	// (most will be deleted anyway.)
+	for (auto &f : allFiles) sortedFileList.Push(&f);
+	for (auto &g : allGroups) sortedGroupList.Push(&g);
+	
+	std::sort(sortedFileList.begin(), sortedFileList.end(), [](FileEntry* lhs, FileEntry* rhs) { return lhs->FileLength < rhs->FileLength; });
+	std::sort(sortedGroupList.begin(), sortedGroupList.end(), [](GrpInfo* lhs, GrpInfo* rhs) { return lhs->size < rhs->size; });
+
+	int findex = sortedFileList.Size();
+	int gindex = sortedGroupList.Size();
+	int cindex = sortedGroupList.Size();
+
+	while (findex > 0 || gindex > 0)
+	{
+		if (sortedFileList[findex]->FileLength > sortedGroupList[gindex]->size)
+		{
+			// File is larger than the largest known group so it cannot be a candidate.
+			sortedFileList.Delete(findex--);
+		}
+		else if (sortedFileList[findex]->FileLength < sortedGroupList[gindex]->size)
+		{
+			// The largest available file is smaller than this group so we cannot possibly have it.
+			sortedGroupList.Delete(gindex--);
+		}
+		else
+		{
+			// We found a matching file. Skip over all other entries of the same size so we can analyze those later as well
+			while (findex > 0 && sortedFileList[findex]->FileLength == sortedFileList[findex-1]->FileLength) findex--;
+			while (gindex > 0 && sortedGroupList[gindex]->size == sortedGroupList[gindex-1]->size) gindex--;
+		}
+	}
+	if (sortedGroupList.Size() == 0 || sortedFileList.Size() == 0)
+	for (auto entry : sortedFileList)
+	{
+		GetCRC(entry, cachedCRCs);
+		auto grp = IdentifyGroup(entry, sortedGroupList);
+		if (grp)
+		{
+			foundGames.Reserve(1);
+			auto fg = foundGames.Last();
+			fg.FileInfo = *grp;
+			fg.FileName = entry->FileName;
+			fg.FileIndex = entry->Index;
+		}
+	}
+	
+	// One last thing: We must check for all addons if their dependency is present.
+	for( int i = foundGames.Size()-1; i >= 0; i--)
+	{
+		auto crc = foundGames[i].FileInfo.dependencyCRC;
+		if (crc != 0)
+		{
+			bool found = false;
+			for (auto fg : foundGames)
+			{
+				if (fg.FileInfo.CRC == crc)
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found) foundGames.Delete(i); // Dependent add-on without dependency cannot be played.
+		}
+	}
+	
+	// Do we have anything left? If not, error out
+	if (foundGames.Size() == 0)
+	{
+		I_Error("No supported games found. Please check your search paths.");
+	}
+	return foundGames;
 }

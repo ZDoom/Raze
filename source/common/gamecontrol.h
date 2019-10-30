@@ -114,3 +114,22 @@ inline bool SoundEnabled()
 {
 	return snd_enabled && !userConfig.nosound;
 }
+
+
+enum
+{
+	GAMEFLAG_DUKE       = 0x00000001,
+	GAMEFLAG_NAM        = 0x00000002,
+	GAMEFLAG_NAPALM     = 0x00000004,
+	GAMEFLAG_WW2GI      = 0x00000008,
+	GAMEFLAG_ADDON      = 0x00000010,
+	GAMEFLAG_SHAREWARE  = 0x00000020,
+	GAMEFLAG_DUKEBETA   = 0x00000060, // includes 0x20 since it's a shareware beta
+	GAMEFLAG_FURY       = 0x00000080,
+	GAMEFLAG_RR         = 0x00000100,
+	GAMEFLAG_RRRA       = 0x00000200,
+	GAMEFLAG_BLOOD      = 0x00000400,
+	GAMEFLAG_STANDALONE = 0x00000800,
+	GAMEFLAGMASK        = 0x000007FF, // flags allowed from grpinfo
+
+};

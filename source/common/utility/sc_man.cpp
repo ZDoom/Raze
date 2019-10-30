@@ -523,12 +523,14 @@ bool FScanner::GetToken ()
 				String[StringLen - 2] == 'u' || String[StringLen - 2] == 'U')
 			{
 				TokenType = TK_UIntConst;
-				Number = strtoul(String, &stopper, 0);
+				BigNumber = (int64_t)strtoull(String, &stopper, 0);
+				Number = (int)clamp(BigNumber, 0, UINT_MAX);
 				Float = (unsigned)Number;
 			}
 			else
 			{
-				Number = strtol(String, &stopper, 0);
+				BigNumber = strtoll(String, &stopper, 0);
+				Number = (int)clamp(BigNumber, INT_MIN, INT_MAX);
 				Float = Number;
 			}
 		}

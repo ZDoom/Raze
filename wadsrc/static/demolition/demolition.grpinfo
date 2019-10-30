@@ -1,0 +1,372 @@
+CRC
+{
+	DUKE13_CRC 0xBBC9CE44
+	DUKEKR_CRC 0xAA4F6A40
+	DUKE15_CRC 0xFD3DCFF1
+	DUKEPP_CRC 0xF514A6AC
+	DUKEWT_CRC 0x982AFE4A
+	DUKE099_CRC 0x02F18900
+	DUKE10_CRC 0xA28AA589
+	DUKE11_CRC 0x912E1E8D
+	DUKESW_CRC 0x983AD923
+	DUKEMD_CRC 0xC5F71561
+	DUKEMD2_CRC 0x73A15EE7
+	DUKEDC13_CRC 0xA9242158
+	DUKEDCPP_CRC 0xB79D997F
+	DUKEDC_CRC 0xA8CF80DA
+	VACA13_CRC 0x4A2DBB62
+	VACAPP_CRC 0x2F4FCCEE
+	VACA15_CRC 0xB62B42FD
+	DUKECB_CRC 0x18F01C5B
+	DUKENW_CRC 0xF1CAE8E4
+	DZ2_13_CRC 0x82C1B47F
+	DZ2_PP_CRC 0x7FB6117C
+	NAM_CRC	 0x75C1F07B
+	NAPALM_CRC  0x3DE1589A
+	WW2GI_CRC 0x907B82BF
+	PLATOONL_CRC 0xD1ED8C0C
+	RR_CRC 0x19D9BC79
+	RRRA_CRC 0x958018C6
+	BLOOD_CRC 0xA8FDDA84
+}
+
+
+
+//static const char *defaultconfilename				= "GAME.CON";
+//static const char *defaultgamegrp[GAMECOUNT]		 = { "DUKE3D.GRP", "REDNECK.GRP", "REDNECK.GRP", "NAM.GRP", "NAPALM.GRP" };
+//static const char *defaultdeffilename[GAMECOUNT]	 = { "duke3d.def", "rr.def", "rrra.def", "nam.def", "napalm.grp" };
+//static const char *defaultgameconfilename[GAMECOUNT] = { "GAME.CON", "GAME.CON", "GAME.CON", "NAM.CON", "NAPALM.CON" };
+
+
+grpinfo
+{
+	name "Duke Nukem 3D"
+	size 26524524
+	crc DUKE13_CRC
+	flags GAMEFLAG_DUKE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D (South Korean Censored)"
+	size 26385383
+	crc DUKEKR_CRC
+	flags GAMEFLAG_DUKE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D: Atomic Edition"
+	size 44356548
+	crc DUKE15_CRC
+	flags GAMEFLAG_DUKE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D: Atomic Edition (WT)"
+	size 44356548
+	crc DUKEWT_CRC
+	flags GAMEFLAG_DUKE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D: Plutonium Pak"
+	size 44348015
+	crc DUKEPP_CRC
+	flags GAMEFLAG_DUKE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D Shareware 0.99"
+	size 9690241
+	crc DUKE099_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_DUKEBETA
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D Shareware 1.0"
+	size 10429258
+	crc DUKE10_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D Shareware 1.1"
+	size 10442980
+	crc DUKE11_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D Shareware 1.3D"
+	size 11035779
+	crc DUKESW_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D Mac Demo"
+	size 10444391
+	crc DUKEMD_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke Nukem 3D MacUser Demo"
+	size 10628573
+	crc DUKEMD2_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
+grpinfo
+{
+	name "Duke it out in D.C. (1.3D)"
+	size 7926624
+	crc DUKEDC13_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE13_CRC
+	gamefilter "Duke.DukeDC"
+}
+
+grpinfo
+{
+	name "Duke it out in D.C."
+	size 8225517
+	crc DUKEDCPP_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.DukeDC"
+}
+
+grpinfo
+{
+	name "Duke it out in D.C."
+	size 8410183
+	crc DUKEDC_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.DukeDC"
+}
+
+grpinfo
+{
+	name "Duke it out in D.C."
+	scriptname "DUKEDC.CON"
+	size 8410187
+	crc 0x39A692BF
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.DukeDC"
+}
+
+
+//   { "Duke Caribbean: Life's a Beach (1.3D)", VACA13_CRC,  23559381, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE13_CRC, NULL, process_vaca13},
+//   { "Duke Caribbean: Life's a Beach (PPak)", VACAPP_CRC,  22551333, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKEPP_CRC, NULL, process_vacapp15},
+//   { "Duke Caribbean: Life's a Beach",		VACA15_CRC,  22521880, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, process_vacapp15},
+
+grpinfo
+{
+	name "Duke Caribbean: Life's a Beach"
+	size 22213819
+	crc DUKECB_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.Vacation"
+}
+
+grpinfo
+{
+	name "Duke Caribbean: Life's a Beach"
+	scriptname "VACARION.CON"
+	size 22397273
+	crc 0x65B5F690
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.Vacation"
+}
+
+grpinfo
+{
+	name "Duke: Nuclear Winter"
+	scriptname "NWINTER.CON"
+	size 16169365
+	crc DUKENW_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.NWinter"
+}
+
+grpinfo
+{
+	name "Duke: Nuclear Winter Demo"
+	scriptname "NWINTER.CON"
+	size 10965909
+	crc 0xC7EFBFA9
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.NWinter"
+}
+
+grpinfo
+{
+	name "Duke!ZONE II (1.3D)"
+	scriptname "DZ-GAME.CON"
+	size 26135388
+	crc 0xC7EFBFA9
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE13_CRC
+	gamefilter "Duke.Zone"
+}
+
+grpinfo
+{
+	name "Duke!ZONE II"
+	scriptname "DZ-GAME.CON"
+	size 44100411
+	crc DZ2_PP_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.Zone"
+}
+
+grpinfo
+{
+	name "Duke!ZONE II"
+	scriptname "DZ-GAME.CON"
+	size 3186656
+	crc 0x1E9516F1
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE13_CRC
+	gamefilter "Duke.Zone"
+}
+
+grpinfo
+{
+	name "NAM"
+	size 43448927
+	crc NAM_CRC
+	flags GAMEFLAG_NAM
+	dependency 0
+	gamefilter "Nam.Nam"
+}
+
+grpinfo
+{
+	name "NAPALM"
+	size 44365728
+	crc NAPALM_CRC
+	flags GAMEFLAG_NAM|GAMEFLAG_NAPALM
+	dependency 0
+	gamefilter "Nam.Napalm"
+}
+
+grpinfo
+{
+	name "WWII GI"
+	size 77939508
+	crc WW2GI_CRC
+	flags GAMEFLAG_WW2GI
+	dependency 0
+	gamefilter "WW2GI.WW2GI"
+}
+
+grpinfo
+{
+	name "Platoon Leader"
+	scriptname "PLATOONL.CON"
+	size 37852572
+	crc PLATOONL_CRC
+	flags GAMEFLAG_WW2GI|GAMEFLAG_ADDON
+	dependency WW2GI_CRC
+	gamefilter "WW2GI.Platoon"
+}
+
+grpinfo
+{
+	name "Redneck Rampage"
+	size 141174222
+	crc RR_CRC
+	flags GAMEFLAG_RR
+	dependency 0
+	gamefilter "Redneck.Redneck"
+}
+
+grpinfo
+{
+	name "Redneck Rampage Rides Again"
+	size 191798609
+	crc RRRA_CRC
+	flags GAMEFLAG_RRRA
+	dependency 0
+	gamefilter "Redneck.RidesAgain"
+}
+
+grpinfo
+{
+	name "Redneck Rampage: Suckin' Grits on Route 66"
+	crc 0x30C49F26	// tests carnival.map
+	size 234898
+	loaddirectory "CARNIVAL.MAP"
+	scriptname "GAME66.CON"
+	flags GAMEFLAG_RR|GAMEFLAG_ADDON
+	dependency RR_CRC
+	loaddirectory
+	loadart "TILESA66.ART", "TILESB66.ART"
+	gamefilter "Redneck.Route66"
+}
+
+grpinfo
+{
+	name "BLOOD: One Unit Whole Blood"
+	size 9570681
+	crc 0xA8FDDA84
+	scriptname "BLOOD.INI"
+	flags GAMEFLAG_BLOOD
+	dependency 0
+	loadgrp "SOUNDS.RFF", "GUI.RFF"
+	gamefilter "Blood.Blood"
+}
+
+grpinfo
+{
+	name "BlOOD: Cryptic Passage"
+	crc 0x2144DF1C // tests CP01.MAP
+	size 327015
+	loaddirectory "CP01.MAP"
+	scriptname "CRYPTIC.INI"
+	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
+	dependency BLOOD_CRC
+	loadart "CPART07.AR_", "CPART15.AR_"
+	gamefilter "Blood.Cryptic"
+}
+
