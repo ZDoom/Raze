@@ -273,6 +273,7 @@ void BOT_DeleteAllBots(void);
 void BotPlayerInsert(PLAYERp pp);
 void SybexScreen(void);
 void DosScreen(void);
+void PlayTheme(void);
 void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
 void InitRunLevel(void);
@@ -1599,12 +1600,18 @@ NewLevel(void)
     if (SW_SHAREWARE)
     {
         if (FinishAnim)
+        {
+            PlayTheme();
             MenuLevel();
+    }
     }
     else
     {
         if (FinishAnim == ANIM_ZILLA || FinishAnim == ANIM_SERP)
+        {
+            PlayTheme();
             MenuLevel();
+    }
     }
     FinishAnim = 0;
 }
@@ -1656,6 +1663,15 @@ ResetKeyRange(uint8_t* kb, uint8_t* ke)
     }
 }
 
+void PlayTheme()
+{
+    // start music at logo
+    strcpy(LevelSong,"theme.mid");
+    PlaySong(LevelSong, RedBookSong[0], TRUE, TRUE);
+
+    DSPRINTF(ds,"After music stuff...");
+    MONO_PRINT(ds);
+}
 
 void
 LogoLevel(void)
@@ -1677,13 +1693,6 @@ LogoLevel(void)
     palookup[0] = tempbuf;
 
     DSPRINTF(ds,"Created palookup...");
-    MONO_PRINT(ds);
-
-    // start music at logo
-    strcpy(LevelSong,"theme.mid");
-    PlaySong(LevelSong, RedBookSong[0], TRUE, TRUE);
-
-    DSPRINTF(ds,"After music stuff...");
     MONO_PRINT(ds);
 
     //GetPaletteFromVESA(pal);
@@ -2054,11 +2063,6 @@ MenuLevel(void)
 
     DSPRINTF(ds,"MenuLevel...");
     MONO_PRINT(ds);
-
-    if (MusicEnabled())
-    {
-        PlaySong(NULL, RedBookSong[0], TRUE, FALSE);
-    }
 
     if (AutoNet)
     {
@@ -2822,6 +2826,7 @@ GameIntro(void)
 
 
 
+    PlayTheme();
 
     if (!AutoNet)
     {
