@@ -130,6 +130,13 @@ int  MV_Shutdown(void);
 void MV_HookMusicRoutine(void (*callback)(void));
 void MV_UnhookMusicRoutine(void);
 
+struct MV_MusicRoutineBuffer
+{
+    char * buffer;
+    int32_t size;
+};
+struct MV_MusicRoutineBuffer MV_GetMusicRoutineBuffer(void);
+
 static inline void MV_SetPrintf(void (*function)(const char *, ...)) { if (function) MV_Printf = function; }
 
 #endif

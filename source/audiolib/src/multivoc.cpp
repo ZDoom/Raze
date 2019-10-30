@@ -270,10 +270,10 @@ static void MV_ServiceVoc(void)
         MV_MusicCallback();
         int16_t *source = (int16_t*)MV_MusicBuffer;
         int16_t *dest = (int16_t*)MV_MixBuffer[MV_MixPage+MV_NumberOfBuffers];
-        for (int i = 0; i < MV_BufferSize>>2; i++)
+        for (int32_t i = 0; i < MV_BufferSize>>2; i++)
         {
-            int sl = *source++;
-            int sr = *source++;
+            int32_t sl = *source++;
+            int32_t sr = *source++;
             *dest = clamp(*dest+sl,INT16_MIN, INT16_MAX);
             dest++;
             *dest = clamp(*dest+sr,INT16_MIN, INT16_MAX);
@@ -787,7 +787,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, void *initd
     MV_SetErrorCode(MV_Ok);
 
     // MV_TotalMemory + 2: FIXME, see valgrind_errors.log
-    int const totalmem = Voices * sizeof(VoiceNode) + (MV_TOTALBUFFERSIZE<<1) + (MV_MIXBUFFERSIZE<<2);
+    int const totalmem = Voices * sizeof(VoiceNode) + (MV_TOTALBUFFERSIZE<<1) + (MV_MIXBUFFERSIZE<<2) + 2;
 
     char *ptr = (char *) Xaligned_alloc(16, totalmem);
 
@@ -911,6 +911,11 @@ void MV_UnhookMusicRoutine(void)
         MV_MixMusic      = FALSE;
         MV_Unlock();
     }
+}
+
+MV_MusicRoutineBuffer MV_GetMusicRoutineBuffer()
+{
+    return MV_MusicRoutineBuffer{ MV_MusicBuffer, MV_BufferSize };
 }
 
 const char *loopStartTags[loopStartTagCount] = { "LOOP_START", "LOOPSTART", "LOOP" };
