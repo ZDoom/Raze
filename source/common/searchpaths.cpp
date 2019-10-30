@@ -813,7 +813,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr)
 					}
 					while (sc.CheckToken('|'));
 				}
-				else if (sc.Compare("load"))
+				else if (sc.Compare("loadgrp"))
 				{
 					do
 					{
