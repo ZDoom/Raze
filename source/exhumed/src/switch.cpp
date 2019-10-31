@@ -24,7 +24,7 @@ struct Switch
     short field_C;
     short nWall;
     short field_10;
-    short field_12;
+    uint16_t field_12;
     short field_14;
     char pad[10];
 };
