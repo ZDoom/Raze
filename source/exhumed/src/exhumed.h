@@ -189,7 +189,6 @@ extern int bVanilla;
 extern int mouseaiming, aimmode, mouseflip;
 extern int runkey_mode, auto_run;
 
-extern char g_modDir[BMAX_PATH];
 enum {
     kPalNormal = 0,
     kPalNoDim,
@@ -204,5 +203,13 @@ enum {
     kPalNoTorch2,
     kPalBrite2
 };
+
+extern char g_modDir[BMAX_PATH];
+
+extern struct grpfile_t const* g_selectedGrp;
+
+extern int loaddefinitions_game(const char* fn, int32_t preload);
+void G_LoadGroupsInDir(const char* dirname);
+void G_DoAutoload(const char* dirname);
 
 #endif

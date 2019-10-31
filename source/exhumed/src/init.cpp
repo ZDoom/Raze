@@ -426,7 +426,7 @@ void ResetEngine()
 
 void InstallEngine()
 {
-    initgroupfile("stuff.dat");
+    // initgroupfile("stuff.dat");
 
     char *cwd;
 
