@@ -642,7 +642,8 @@ int ShowStartupWindow(TArray<GrpEntry> &groups)
 		auto choice = startwin_run();
 		if (choice == 0)
 		{
-			Bexit(EXIT_SUCCESS);
+			startwin_close();
+			return - 1;
 		}
 	}
 	startwin_close();

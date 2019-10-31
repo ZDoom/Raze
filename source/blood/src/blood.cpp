@@ -1235,11 +1235,9 @@ static int32_t check_filename_casing(void)
 }
 #endif
 
-int app_main(int argc, char const * const * argv)
+int app_main()
 {
     char buffer[BMAX_PATH];
-    margc = argc;
-    margv = argv;
 
     OSD_SetFunctions(NULL,
                      NULL,
@@ -2277,7 +2275,7 @@ void sndPlaySpecialMusicOrNothing(int nMusic)
 }
 
 extern void faketimerhandler();
-extern int app_main(int argc, char const* const* argv);
+extern int app_main();
 extern void app_crashhandler(void);
 bool validate_hud(int layout);
 void set_hud_layout(int layout);

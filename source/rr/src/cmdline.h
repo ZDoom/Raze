@@ -27,12 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
-extern void G_CheckCommandLine(int32_t argc, char const * const * argv);
+extern void G_CheckCommandLine();
 extern void G_ShowParameterHelp(void);
 extern void G_ShowDebugHelp(void);
 
-extern int32_t g_commandSetup;
-extern int32_t g_noSetup;
 extern int32_t g_fakeMultiMode;
 
 END_RR_NS

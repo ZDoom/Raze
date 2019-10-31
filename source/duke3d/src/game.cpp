@@ -5705,23 +5705,6 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
 
 
 
-void G_UpdateAppTitle(void)
-{
-    if (g_gameNamePtr)
-    {
-#ifdef EDUKE32_STANDALONE
-        Bstrcpy(tempbuf, g_gameNamePtr);
-#else
-        Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
-#endif
-        wm_setapptitle(tempbuf);
-    }
-    else
-    {
-        wm_setapptitle(APPNAME);
-    }
-}
-
 static void G_FreeHashAnim(const char * /*string*/, intptr_t key)
 {
     Xfree((void *)key);
@@ -6140,7 +6123,6 @@ void G_BackToMenu(void)
     Menu_Open(myconnectindex);
     Menu_Change(MENU_MAIN);
     KB_FlushKeyboardQueue();
-    G_UpdateAppTitle();
 }
 
 static int G_EndOfLevel(void)
@@ -6261,7 +6243,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
-int app_main(int argc, const char * const*argv)
+int app_main()
 {
 #ifndef NETCODE_DISABLE
     if (enet_initialize() != 0)
@@ -6277,8 +6259,6 @@ int app_main(int argc, const char * const*argv)
                      GAME_clearbackground,
                      BGetTime,
                      GAME_onshowosd);
-
-    wm_setapptitle(APPNAME);
 
     initprintf(HEAD2 " %s\n", s_buildRev);
     PrintBuildInfo();
@@ -6297,7 +6277,7 @@ int app_main(int argc, const char * const*argv)
     G_DeleteOldSaves();
 #endif
 
-    G_CheckCommandLine(argc,argv);
+    G_CheckCommandLine();
 
     // This needs to happen afterwards, as G_CheckCommandLine() is where we set
     // up the command-line-provided search paths (duh).
@@ -6335,8 +6315,6 @@ int app_main(int argc, const char * const*argv)
 #endif
 
     // gotta set the proper title after we compile the CONs if this is the full version
-
-    G_UpdateAppTitle();
 
     if (g_scriptDebug)
         initprintf("CON debugging activated (level %d).\n",g_scriptDebug);
@@ -7085,7 +7063,7 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
 #endif
 
 extern void faketimerhandler();
-extern int app_main(int argc, char const* const* argv);
+extern int app_main();
 extern void app_crashhandler(void);
 
 GameInterface Interface = {

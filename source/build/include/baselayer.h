@@ -230,7 +230,7 @@ struct GameInterface
 {
 	int TicRate;
 	void (*faketimerhandler)();
-	int (*app_main)(int, char const* const*);
+	int (*app_main)();
 	bool (*validate_hud)(int);
 	void (*set_hud_layout)(int size);
 	void (*set_hud_scale)(int size);

@@ -198,6 +198,7 @@ void FGameConfigFile::DoAutoloadSetup (/*FIWadManager *iwad_man*/)
 	{
 		const char *lastver = GetValueForKey ("Version");
 		if (lastver != NULL) last = atof(lastver);
+		isInitialized = true;
 	}
 
 	CreateSectionAtStart("Global.Autoload");

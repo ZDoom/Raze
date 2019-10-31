@@ -110,7 +110,7 @@ static const GameFuncNameDesc gamefuncs[] = {
 
 };
 
-extern FString currentGame;
+FString currentGame;
 FString LumpFilter;
 
 static TMap<FName, int> GF_NameToNum;
@@ -349,14 +349,14 @@ void CheckFrontend(int flags)
 //
 //==========================================================================
 
-void CONFIG_Init()
+int CONFIG_Init()
 {
 	SetClipshapes();
 
 	// This must be done before initializing any data, so doing it late in the startup process won't work.
 	if (CONTROL_Startup(controltype_keyboardandmouse, BGetTime, gi->TicRate))
 	{
-		exit(1);
+		return 1;
 	}
 	userConfig.ProcessOptions();
 
@@ -366,14 +366,33 @@ void CONFIG_Init()
 
 	auto groups = GrpScan();
 	int groupno = ShowStartupWindow(groups);
-	LumpFilter = currentGame;
-	if (LumpFilter.Compare("Redneck") == 0) LumpFilter = "Redneck.Redneck";
-	else if (LumpFilter.Compare("RedneckRides") == 0) LumpFilter = "Redneck.RidesAgain";
+	if (groupno == -1) return 0;
+	auto &group = groups[groupno];
+	GrpEntry* dependency = nullptr;
+	if (group.FileInfo.dependencyCRC != 0)
+	{
+		for (auto& dep : groups)
+		{
+			if (dep.FileInfo.CRC == group.FileInfo.dependencyCRC)
+			{
+				dependency = &dep;
+				break;
+			}
+		}
+	}
 
-	//CONFIG_ReadCombatMacros();
-	//CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
+	LumpFilter = group.FileInfo.gamefilter;
+	if (LumpFilter.IsEmpty() && dependency) LumpFilter = dependency->FileInfo.gamefilter;
+	currentGame = LumpFilter;
+	currentGame.Truncate(currentGame.IndexOf("."));
+	CheckFrontend(group.FileInfo.flags);
+
 	G_ReadConfig(currentGame);
-
+	if (!GameConfig->IsInitialized())
+	{
+		CONFIG_ReadCombatMacros();
+		CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
+	}
 
 	if (userConfig.CommandName.IsNotEmpty())
 	{
@@ -399,6 +418,7 @@ void CONFIG_Init()
 	CONTROL_ClearAssignments();
 	CONFIG_InitMouseAndController();
 	CONFIG_SetGameControllerDefaultsStandard();
+	return gi->app_main();
 }
 
 //==========================================================================

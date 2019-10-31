@@ -14,7 +14,7 @@ class FArgs;
 
 extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
-void CONFIG_Init();
+int CONFIG_Init();
 void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy=false);
 int32_t CONFIG_FunctionNameToNum(const char* func);
 const char* CONFIG_FunctionNumToName(int32_t func);

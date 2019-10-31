@@ -5194,7 +5194,7 @@ repeatcase:
                 }
                 gamename[i] = '\0';
                 g_gameNamePtr = Xstrdup(gamename);
-                G_UpdateAppTitle();
+               // G_UpdateAppTitle();
             }
             continue;
 

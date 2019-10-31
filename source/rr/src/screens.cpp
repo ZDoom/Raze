@@ -1444,8 +1444,6 @@ void G_DisplayLogo(void)
     renderFlushPerms();
     videoNextPage();
 
-    G_UpdateAppTitle();
-
     S_StopMusic();
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
@@ -2171,8 +2169,6 @@ void G_BonusScreen(int32_t bonusonly)
     //if (g_networkMode == NET_DEDICATED_SERVER)
     //    return;
 
-    G_UpdateAppTitle();
-
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
     {
         lastmapname = Bstrrchr(boardfilename, '\\');
@@ -2753,8 +2749,6 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     //if (g_networkMode == NET_DEDICATED_SERVER)
     //    return;
 
-    G_UpdateAppTitle();
-
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
     {
         lastmapname = Bstrrchr(boardfilename, '\\');
@@ -2771,7 +2765,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     if ((g_lastLevel && ud.volume_number == 2) || g_vixenLevel)
         lastmapname = "CLOSE ENCOUNTERS";
     else if (g_turdLevel)
-        lastmapname = "SMELTING PLANT";
+        lastmapname = "SMELTIN' PLANT";
 
 
     fadepal(0, 0, 0, 0, 252, 4);

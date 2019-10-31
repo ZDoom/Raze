@@ -1609,8 +1609,6 @@ void G_DisplayLogo(void)
     renderFlushPerms();
     videoNextPage();
 
-    G_UpdateAppTitle();
-
     S_StopMusic();
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
@@ -2150,8 +2148,6 @@ void G_BonusScreen(int32_t bonusonly)
 
     if (g_networkMode == NET_DEDICATED_SERVER)
         return;
-
-    G_UpdateAppTitle();
 
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
     {

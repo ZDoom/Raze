@@ -55,6 +55,7 @@ public:
 	void AddAutoexec (FArgs *list, const char *gamename);
 	FString GetConfigPath (bool tryProg);
 	void ReadNetVars ();
+	bool IsInitialized() const { return isInitialized; }
 
 protected:
 	void WriteCommentHeader (FileWriter *file) const;
@@ -65,6 +66,7 @@ private:
 	void ReadCVars (unsigned flags);
 
 	bool bModSetup;
+	bool isInitialized;
 
 	char section[64];
 	char *subsection;

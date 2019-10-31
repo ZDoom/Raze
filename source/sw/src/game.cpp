@@ -851,7 +851,7 @@ static void SW_FatalEngineError(void)
 }
 
 void
-InitGame(int32_t argc, char const * const * argv)
+InitGame()
 {
     extern int MovesPerPacket;
     //void *ReserveMem=NULL;
@@ -2805,9 +2805,9 @@ GameIntro(void)
 }
 
 void
-Control(int32_t argc, char const * const * argv)
+Control()
 {
-	InitGame(argc, argv);
+	InitGame();
 
     MONO_PRINT("InitGame done");
     MNU_InitMenus();
@@ -3331,7 +3331,7 @@ void CommandLineHelp(char const * const * argv)
 #endif
 }
 
-int32_t app_main(int32_t argc, char const * const * argv)
+int32_t app_main()
 {
     int i;
     int stat, nexti;
@@ -3365,15 +3365,9 @@ int32_t app_main(int32_t argc, char const * const * argv)
 
     if (SW_SHAREWARE)
     {
-        wm_setapptitle(APPNAME " Shareware");
-
         // Zero out the maps that aren't in shareware version
         memset(&LevelInfo[MAX_LEVELS_SW+1], 0, sizeof(LEVEL_INFO)*(MAX_LEVELS_REG-MAX_LEVELS_SW));
         GameVersion++;
-    }
-    else
-    {
-        wm_setapptitle(APPNAME);
     }
 
     for (i = 0; i < MAX_SW_PLAYERS; i++)
@@ -3849,7 +3843,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
         }
     }
 #endif
-    Control(argc, argv);
+    Control();
 
     return 0;
 }
@@ -5548,7 +5542,7 @@ saveable_module saveable_build =
 };
 
 extern void faketimerhandler();
-extern int app_main(int argc, char const* const* argv);
+extern int app_main();
 extern void app_crashhandler(void);
 /*extern*/ bool validate_hud(int requested_size) { return requested_size; }
 /*extern*/ void set_hud(int requested_size) { /* the relevant setting is gs.BorderNum */}

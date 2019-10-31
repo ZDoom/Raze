@@ -385,9 +385,6 @@ static void sighandler(int signum)
 
 #ifdef _WIN32
 
-FString currentGame;	// Currently there is no global state for the current game. This is a temporary workaround because the video init code needs to do a few things based on the active game.
-
-
 int WINAPI WinMain(HINSTANCE , HINSTANCE , LPSTR , int )
 #else
 int main(int argc, char *argv[])
@@ -452,8 +449,7 @@ int main(int argc, char *argv[])
 		
 		FString logpath = M_GetDocumentsPath() + "demolition.log";
 		OSD_SetLogFile(logpath);
-		CONFIG_Init();
-		r = gi->app_main(buildargc, (const char**)buildargv);
+		r = CONFIG_Init();
 	}
 	catch (const std::runtime_error & err)
 	{
@@ -636,7 +632,6 @@ int32_t initsystem(void)
         if (drvname)
             initprintf("Using \"%s\" video driver\n", drvname);
 #endif
-        wm_setapptitle(apptitle);
     }
 
     return 0;
@@ -1351,7 +1346,6 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
 
 void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int32_t regrab)
 {
-    wm_setapptitle(apptitle);
 
 #ifdef USE_OPENGL
     if (!nogl)

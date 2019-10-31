@@ -2376,24 +2376,6 @@ int G_EnterLevel(int gameMode)
 
     ud.screen_size = i;
 
-    if (Menu_HaveUserMap())
-    {
-        if (g_gameNamePtr)
-            Bsnprintf(apptitle, sizeof(apptitle), "%s - %s - " APPNAME, boardfilename, g_gameNamePtr);
-        else
-            Bsnprintf(apptitle, sizeof(apptitle), "%s - " APPNAME, boardfilename);
-    }
-    else
-    {
-        if (g_gameNamePtr)
-            Bsprintf(apptitle, "%s - %s - " APPNAME, g_mapInfo[mii].name, g_gameNamePtr);
-        else
-            Bsprintf(apptitle,"%s - " APPNAME,g_mapInfo[mii].name);
-    }
-
-    Bstrcpy(tempbuf,apptitle);
-    wm_setapptitle(tempbuf);
-
     DukePlayer_t *const pPlayer = g_player[0].ps;
     int16_t lbang;
 
