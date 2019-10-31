@@ -49,6 +49,11 @@ struct FolderEntry
 	unsigned lumpnum;
 };
 
+enum DICTFLAGS {
+    DICT_LOAD = 4,
+    DICT_LOCK = 8,
+};
+
 enum class ELookupMode // Todo: Merge with FResourceLump::ENameType
 {
 	FullName,
@@ -94,6 +99,8 @@ public:
 	int FindResource (int resid, const char *type, int filenum = -1) const noexcept;
 	int GetResource (int resid, const char *type, int filenum = -1) const;	// Like FindFile, but throws an exception when it cannot find what it looks for.
 
+	void AddFromBuffer(const char* name, const char* type, char* data, int size, int id, int flags);
+
 
 	TArray<uint8_t> GetFileData(int file, int pad = 0);	// reads file into a writable buffer and optionally adds some padding at the end. (FileData isn't writable!)
 	FileData ReadFile (int file);
@@ -102,6 +109,16 @@ public:
 	const void *Lock(int lump);
 	void Unlock(bool mayfree = false);
 	void *Get(int lump);
+	
+	// These are designed to be stand-ins for Blood's resource class.
+	static void *Lock(FResourceLump *lump);
+	static void Unlock(FResourceLump *lump);
+	static void *Load(FResourceLump *lump);
+	static void Read(FResourceLump *lump) { Load(lump); }
+	static void Read(FResourceLump *n, void *p);
+	FResourceLump *Lookup(const char *name, const char *type);
+	FResourceLump *Lookup(unsigned int id, const char *type);
+	void AddExternalResource(const char *name, const char *type, int id, int flags, const char *pzDirectory);
 
 	FileReader OpenFileReader(int file);		// opens a reader that redirects to the containing file's one.
 	FileReader ReopenFileReader(int file, bool alwayscache = false);		// opens an independent reader.
@@ -138,7 +155,7 @@ protected:
 	uint32_t *NextFileIndex[NumLookupModes];
 
 	uint32_t NumFiles = 0;					// Not necessarily the same as FileInfo.Size()
-	uint32_t NumEntries;
+	uint32_t NumEntries;					// Hash modulus. Can be smaller than NumFiles if things get added at run time.
 
 	void InitHashChains ();								// [RH] Set up the lumpinfo hashing
 

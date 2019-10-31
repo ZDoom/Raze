@@ -64,8 +64,6 @@ void qloadvoxel(int32_t nVoxel)
     }
 }
 
-CACHENODE tileNode[kMaxTiles];
-
 bool artLoaded = false;
 int nTileFiles = 0;
 

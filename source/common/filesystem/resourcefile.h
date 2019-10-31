@@ -74,9 +74,9 @@ struct FResourceLump
 	void LumpNameSetup(FString iname);
 	virtual FCompressedBuffer GetRawData();
 
-	void *Lock(); // validates the cache and increases the refcount.
-	void Unlock(bool freeunrefd = false); // recreases the refcount and optionally frees the buffer
-	void *Get(); // validates the cache and returns a pointer without locking
+	virtual void *Lock(); // validates the cache and increases the refcount.
+	virtual void Unlock(bool freeunrefd = false); // recreases the refcount and optionally frees the buffer
+	virtual void *Get(); // validates the cache and returns a pointer without locking
 	
 	// Wrappers for emulating Blood's resource system
 	unsigned Size() const{ return LumpSize; }
@@ -164,6 +164,33 @@ struct FExternalLump : public FResourceLump
 	virtual int ValidateCache() override;
 
 };
+
+struct FMemoryLump : public FResourceLump
+{
+	FMemoryLump(const void *data, int length)
+	{
+		Cache.Resize(length);
+		memcpy(Cache.Data(), data, length);
+	}
+	virtual int ValidateCache() override
+	{
+		RefCount = INT_MAX / 2; // Make sure it never counts down to 0 by resetting it to something high each time it is used.
+		return 1;
+	}
+}
+
+struct FClonedLump : public FResourceLump
+{
+	FResourceLump *parent;
+	FClonedLump(FResourceLump *lump)
+	{
+		parent = lump;
+	}
+	void *Lock() { return parent->Lock(); }
+	void Unlock(bool mayfree) override { parent->Unlock(mayfree); }
+	void *Get() { return parent->Get(); }
+	void ValidateCache() override { parent->ValidateCache(); }
+}
 
 
 

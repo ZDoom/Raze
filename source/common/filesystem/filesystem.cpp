@@ -79,9 +79,14 @@ FileSystem::~FileSystem ()
 
 void FileSystem::DeleteAll ()
 {
-	FileInfo.Clear();
 	NumEntries = 0;
 
+	// explicitly delete all manually added lumps.
+	for (auto &frec : FileInfo)
+	{
+		if (frec.rfnum == -1) delete frec.lump;
+	}
+	FileInfo.Clear();
 	for (int i = Files.Size() - 1; i >= 0; --i)
 	{
 		delete Files[i];
@@ -428,6 +433,26 @@ void FileSystem::InitHashChains (void)
 	}
 }
 
+void FileSystem::AddLump(FResourceLump *lump)
+{
+	FileRecord rec = { -1, lump};
+	FileInfo.Push(rec);
+
+	for (int l = 0; l < NumLookupModes; l++)
+	{
+		int hash;
+		if (l != (int)ELookupMode::IdWithType && lump->LumpName[l] != NAME_None)
+		{
+			hash = int(lump->LumpName[l]) % NumEntries;
+		}
+		else if (lump->ResourceId > 0)
+		{
+			hash = int(lump->ResourceId) % NumEntries;
+		}
+		NextFileIndex[l][hash] = FirstFileIndex[l][hash];
+		FirstFileIndex[l][hash] = i;
+	}
+}
 
 //==========================================================================
 //
@@ -651,6 +676,27 @@ const void *FileSystem::Get(int lump)
 
 //==========================================================================
 //
+// Stand-ins for Blood's resource class
+//
+//==========================================================================
+
+void *FileSystem::Lock(FResourceLump *lump)
+{
+	if (lump) return lump->Lock();
+}
+
+void FileSystem::Unlock(FResourceLump *lump)
+{
+	if (lump) return lump->Unlock();
+}
+
+void FileSystem::Load(FResourceLump *lump)
+{
+	if (lump) return lump->Get();
+}
+
+//==========================================================================
+//
 // ReadFile - variant 2
 //
 // Loads the lump into a newly created buffer and returns it.
@@ -801,6 +847,95 @@ const char *FileSystem::GetResourceFileFullName (int rfnum) const noexcept
 	return Files[rfnum]->FileName;
 }
 
+//==========================================================================
+//
+// AddFromBuffer
+//
+// Adds an in-memory resource to the virtual directory
+//
+//==========================================================================
+
+void FileSystem::AddFromBuffer(const char* name, const char* type, char* data, int size, int id, int flags)
+{
+	FStringf fullname("%s.%s", name, type);
+	auto newlump = new FMemoryLump(data, size);
+	newlump->LumpNameSetup(fullname);
+	newlump->ResourceId = id;
+	AddLump(newlump);
+}
+
+//==========================================================================
+//
+// Read
+//
+// Reads lump into buffer (simulate Blood interface)
+//
+//==========================================================================
+
+void FileSystem::Read(FResourceLump *n, void *p)
+{
+	if (!n || !p) return;
+	auto r = n->Get();
+	memcpy(p, r, n->Size());
+}
+
+//==========================================================================
+//
+// Blood style lookup functions
+//
+//==========================================================================
+
+FResourceLump *FileSystem::Lookup(const char *name, const char *type)
+{
+	FStringf fname("%s.%s", name, type);
+	auto lump = FindFile(fname);
+	if (lump >= 0) return FileInfo[lump].lump;
+}
+
+FResourceLump *FileSystem::Lookup(unsigned int id, const char *type)
+{
+	auto lump = FindResource(id, type);
+	auto lump = FindFile(fname);
+	if (lump >= 0) return FileInfo[lump].lump;
+}
+
+//==========================================================================
+//
+// Clones an existing resource with different properties
+//
+//==========================================================================
+
+void FileSystem::AddExternalResource(const char *name, const char *type, int id, int flags, const char *pzDirectory)
+{
+	FString name2, type2, filename, path;
+
+    if (strlen(type) > 0)
+        filename.Format("%s.%s", name, type);
+    else
+        filename.Format("%s", name);
+
+    if (pzDirectory)
+        path.Format("%s/%s", pzDirectory, filename);
+    else
+		path = filename;
+
+	// The old code said 'filename' and ignored the path, this looked like a bug.
+	auto lump = FindFile(path);
+	if (lump < 0) return;		// Does not exist.
+	
+	// Check if a lump with this name already exists.
+	// Blood does not allow re-replacing external resources.
+	auto prevlump = FindFile(filename);
+	if (prevlump >= 0 && FileInfo[prevlump].rfnum == -1) return;
+	
+	// Create a clone of the resource to give it new lookup properties.
+	auto newlump = new FClonedLump(FileInfo[lump].lump);
+	newlump->LumpNameSetup(filename);
+	newlump->ResourceId = id;
+	if (flags & DICT_LOCK) newlump->Lock();
+	else if (flags & DICT_LOAD) newlump->Get();
+	AddLump(newlump);
+}
 
 //==========================================================================
 //
