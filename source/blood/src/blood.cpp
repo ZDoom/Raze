@@ -1259,10 +1259,6 @@ int app_main(int argc, char const * const * argv)
 	gGameOptions.nMonsterSettings = userConfig.nomonsters;
 	bQuickStart = userConfig.nologo;
     ParseOptions();
-    G_ExtInit();
-
-    //G_AddSearchPaths();
-
     
 #ifdef STARTUP_SETUP_WINDOW
     int const readSetup =
@@ -1278,17 +1274,6 @@ int app_main(int argc, char const * const * argv)
     }
 
     ScanINIFiles();
-
-#ifdef STARTUP_SETUP_WINDOW
-    if (readSetup < 0 || (!gNoSetup && (displaysetup)) || gCommandSetup)
-    {
-        if (quitevent || !gi->startwin_run())
-        {
-            engineUnInit();
-            Bexit(0);
-        }
-    }
-#endif
 
 	G_LoadGroups();
 
@@ -2294,12 +2279,6 @@ void sndPlaySpecialMusicOrNothing(int nMusic)
 extern void faketimerhandler();
 extern int app_main(int argc, char const* const* argv);
 extern void app_crashhandler(void);
-extern int32_t startwin_open(void);
-extern int32_t startwin_close(void);
-extern int32_t startwin_puts(const char*);
-extern int32_t startwin_settitle(const char*);
-extern int32_t startwin_idle(void*);
-extern int32_t startwin_run(void);
 bool validate_hud(int layout);
 void set_hud_layout(int layout);
 void set_hud_scale(int scale);
@@ -2313,12 +2292,6 @@ GameInterface Interface = {
 	set_hud_layout,
 	set_hud_scale,
 	app_crashhandler,
-	startwin_open,
-	startwin_close,
-	startwin_puts,
-	startwin_settitle,
-	startwin_idle,
-	startwin_run,
 	G_DefaultDefFile,
 	G_DefFile,
 };

@@ -352,30 +352,6 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 		set( CMAKE_CXX_FLAGS "-DNO_SSE ${CMAKE_CXX_FLAGS}" )
 	endif()
 
-	# Use the highest C++ standard available since VS2015 compiles with C++14
-	# but we only require C++11.  The recommended way to do this in CMake is to
-	# probably to use target_compile_features, but I don't feel like maintaining
-	# a list of features we use.
-	CHECK_CXX_COMPILER_FLAG( "-std=gnu++14" CAN_DO_CPP14 )
-	if ( CAN_DO_CPP14 )
-		set ( CMAKE_CXX_FLAGS "-std=gnu++14 ${CMAKE_CXX_FLAGS}" )
-	else ()
-		CHECK_CXX_COMPILER_FLAG( "-std=gnu++1y" CAN_DO_CPP1Y )
-		if ( CAN_DO_CPP1Y )
-			set ( CMAKE_CXX_FLAGS "-std=gnu++1y ${CMAKE_CXX_FLAGS}" )
-		else ()
-			CHECK_CXX_COMPILER_FLAG( "-std=gnu++11" CAN_DO_CPP11 )
-			if ( CAN_DO_CPP11 )
-				set ( CMAKE_CXX_FLAGS "-std=gnu++11 ${CMAKE_CXX_FLAGS}" )
-			else ()
-				CHECK_CXX_COMPILER_FLAG( "-std=gnu++0x" CAN_DO_CPP0X )
-				if ( CAN_DO_CPP0X )
-					set ( CMAKE_CXX_FLAGS "-std=gnu++0x ${CMAKE_CXX_FLAGS}" )
-				endif ()
-			endif ()
-		endif ()
-	endif ()
-
 	# Remove extra warnings when using the official DirectX headers.
 	# Also, TDM-GCC 4.4.0 no longer accepts glibc-style printf formats as valid,
 	# which is a royal pain. The previous version I had been using was fine with them.
@@ -501,9 +477,9 @@ set( PLAT_WIN32_SOURCES
 	glad/src/glad_wgl.c
 	platform/win32/winbits.cpp
 	platform/win32/i_specialpaths.cpp
+	platform/win32/startwin.game.cpp
 	
 	# This needs a rework anyway in order to consolidate the startup dialogs so don't bother to sort in properly.
-	#startgtk.game.cpp
 	#startosx.game.mm
 	#sw/src/startgtk.game.cpp
 	
@@ -512,6 +488,7 @@ set( PLAT_WIN32_SOURCES
 set( PLAT_POSIX_SOURCES
 	#audiolib/src/driver_sdl.cpp
 	#audiolib/src/sdlmusic.cpp
+	#platform/gtk/startgtk.game.cpp
 	)
 	
 set( PLAT_SDL_SOURCES
@@ -530,6 +507,9 @@ set( PLAT_OSX_SOURCES
 	)
 	
 set( PLAT_COCOA_SOURCES
+	#platform/macos/startosx.game.mm
+	#platform/macos/GrpFile.game.mm
+	#platform/macos/GameListSource.game.mm
 	)
 	
 

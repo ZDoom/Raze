@@ -64,7 +64,7 @@ void clearGrpNamePtr(void)
 
 const char *G_DefaultGrpFile(void)
 {
-    return "nblood.pk3";
+    return "blood.rff";
 }
 
 const char *G_DefaultDefFile(void)
@@ -104,41 +104,8 @@ void G_SetupGlobalPsky(void)
 
 
 int32_t g_groupFileHandle;
-struct strllist* CommandPaths, * CommandGrps;
+struct strllist* CommandGrps;
 
-void G_ExtInit(void)
-{
-    char cwd[BMAX_PATH];
-
-#ifdef EDUKE32_OSX
-    char *appdir = Bgetappdir();
-    addsearchpath(appdir);
-    Bfree(appdir);
-#endif
-
-    if (getcwd(cwd,BMAX_PATH) && Bstrcmp(cwd,"/") != 0)
-        addsearchpath(cwd);
-
-    if (CommandPaths)
-    {
-        int32_t i;
-        struct strllist *s;
-        while (CommandPaths)
-        {
-            s = CommandPaths->next;
-            i = addsearchpath(CommandPaths->str);
-            if (i < 0)
-            {
-                initprintf("Failed adding %s for game data: %s\n", CommandPaths->str,
-                           i==-1 ? "not a directory" : "no such directory");
-            }
-
-            Bfree(CommandPaths->str);
-            Bfree(CommandPaths);
-            CommandPaths = s;
-        }
-    }
-}
 
 static int32_t G_TryLoadingGrp(char const * const grpfile)
 {
@@ -230,52 +197,6 @@ void G_LoadGroups()
         CommandGrps = s;
     }
     pathsearchmode = bakpathsearchmode;
-}
-
-void G_CleanupSearchPaths(void)
-{
-    removesearchpaths_withuser(SEARCHPATH_REMOVE);
-}
-
-//////////
-
-
-void G_AddGroup(const char *buffer)
-{
-    char buf[BMAX_PATH];
-
-    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
-
-    Bstrcpy(buf, buffer);
-
-    if (Bstrchr(buf,'.') == 0)
-        Bstrcat(buf,".grp");
-
-    s->str = Xstrdup(buf);
-
-    if (CommandGrps)
-    {
-        struct strllist *t;
-        for (t = CommandGrps; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandGrps = s;
-}
-
-void G_AddPath(const char *buffer)
-{
-    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
-    s->str = Xstrdup(buffer);
-
-    if (CommandPaths)
-    {
-        struct strllist *t;
-        for (t = CommandPaths; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandPaths = s;
 }
 
 //////////

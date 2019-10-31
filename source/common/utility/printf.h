@@ -13,5 +13,3 @@ void OSD_Printf(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 
 void I_Error(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 
-
-#include "v_text.h"

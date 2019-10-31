@@ -67,22 +67,11 @@ typedef enum basepal_ {
 
 extern const char *g_gameNamePtr;
 
-extern char *g_grpNamePtr;
-extern char *g_scriptNamePtr;
-
 extern const char *G_DefaultGrpFile(void);
 extern const char *G_GrpFile(void);
 
 extern const char *G_DefaultConFile(void);
 extern const char *G_ConFile(void);
-
-extern GrowArray<char *> g_scriptModules;
-
-extern void G_AddCon(const char *buffer);
-extern void G_AddConModule(const char *buffer);
-
-extern void clearGrpNamePtr(void);
-extern void clearScriptNamePtr(void);
 
 extern int loaddefinitions_game(const char *fn, int32_t preload);
 extern int32_t g_groupFileHandle;
@@ -95,10 +84,7 @@ extern void G_SetupGlobalPsky(void);
 //////////
 
 extern void G_AddSearchPaths(void);
-extern void G_CleanupSearchPaths(void);
 
-extern void G_ExtInit(void);
-extern void G_ScanGroups(void);
 extern void G_LoadGroups();
 
 extern const char * G_GetInstallPath(int32_t insttype);
@@ -116,9 +102,6 @@ extern void G_LoadLookups(void);
 
 # define FORMAT_UPGRADE_ELIGIBLE
 extern FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
-
-void G_AddGroup(const char* buffer);
-void G_AddPath(const char* buffer);
 
 END_DUKE_NS
 #endif

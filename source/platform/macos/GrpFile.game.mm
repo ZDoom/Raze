@@ -6,7 +6,6 @@
  *  Copyright 2009 __MyCompanyName__. All rights reserved.
  *
  */
-
 #include "ns.h"	// Must come before everything else!
 
 #include "GrpFile.game.h"

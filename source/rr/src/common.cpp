@@ -11,20 +11,8 @@
 #include "grpscan.h"
 #include "gamecvars.h"
 #include "rts.h"
+#include "gamecontrol.h"
 
-#ifdef _WIN32
-# define NEED_SHLWAPI_H
-# include "windows_inc.h"
-# include "win32/winbits.h"
-# ifndef KEY_WOW64_64KEY
-#  define KEY_WOW64_64KEY 0x0100
-# endif
-# ifndef KEY_WOW64_32KEY
-#  define KEY_WOW64_32KEY 0x0200
-# endif
-#elif defined __APPLE__
-# include "osxbits.h"
-#endif
 
 #include "common.h"
 #include "common_game.h"
@@ -47,24 +35,7 @@ static const char *defaultgamegrp[GAMECOUNT]         = { "DUKE3D.GRP", "REDNECK.
 static const char *defaultdeffilename[GAMECOUNT]     = { "duke3d.def", "rr.def", "rrra.def", "nam.def", "napalm.grp" };
 static const char *defaultgameconfilename[GAMECOUNT] = { "GAME.CON", "GAME.CON", "GAME.CON", "NAM.CON", "NAPALM.CON" };
 
-// g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
-char *g_grpNamePtr = NULL;
-// g_scriptNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
-char *g_scriptNamePtr = NULL;
-
-void clearGrpNamePtr(void)
-{
-    Bfree(g_grpNamePtr);
-    // g_grpNamePtr assumed to be assigned to right after
-}
-
-void clearScriptNamePtr(void)
-{
-    Bfree(g_scriptNamePtr);
-    // g_scriptNamePtr assumed to be assigned to right after
-}
-
-const char *G_DefaultGrpFile(void)
+const char* G_DefaultGrpFile(void)
 {
     if (DUKE)
         return defaultgamegrp[GAME_DUKE];
@@ -73,7 +44,8 @@ const char *G_DefaultGrpFile(void)
 
     return defaultgamegrp[0];
 }
-const char *G_DefaultDefFile(void)
+
+const char* G_DefaultDefFile(void)
 {
     if (DUKE)
         return defaultdeffilename[GAME_DUKE];
@@ -115,17 +87,17 @@ const char *G_DefaultConFile(void)
 
 const char *G_GrpFile(void)
 {
-    return (g_grpNamePtr == NULL) ? G_DefaultGrpFile() : g_grpNamePtr;
+    return userConfig.gamegrp.IsNotEmpty()? userConfig.gamegrp.GetChars() : G_DefaultGrpFile();
 }
 
 const char *G_DefFile(void)
 {
-    return (g_defNamePtr == NULL) ? G_DefaultDefFile() : g_defNamePtr;
+	return userConfig.DefaultDef.IsNotEmpty() ? userConfig.DefaultDef.GetChars() : G_DefaultDefFile();
 }
 
 const char *G_ConFile(void)
 {
-    return (g_scriptNamePtr == NULL) ? G_DefaultConFile() : g_scriptNamePtr;
+	return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : G_DefaultConFile();
 }
 
 //////////
@@ -213,62 +185,7 @@ void G_SetupGlobalPsky(void)
 
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;
-struct strllist* CommandPaths, * CommandGrps;
-
-void G_ExtInit(void)
-{
-    char cwd[BMAX_PATH];
-
-#ifdef EDUKE32_OSX
-    char *appdir = Bgetappdir();
-    addsearchpath(appdir);
-    Bfree(appdir);
-#endif
-
-    if (getcwd(cwd,BMAX_PATH) && Bstrcmp(cwd,"/") != 0)
-        addsearchpath(cwd);
-
-    if (CommandPaths)
-    {
-        int32_t i;
-        struct strllist *s;
-        while (CommandPaths)
-        {
-            s = CommandPaths->next;
-            i = addsearchpath(CommandPaths->str);
-            if (i < 0)
-            {
-                initprintf("Failed adding %s for game data: %s\n", CommandPaths->str,
-                           i==-1 ? "not a directory" : "no such directory");
-            }
-
-            Bfree(CommandPaths->str);
-            Bfree(CommandPaths);
-            CommandPaths = s;
-        }
-    }
-}
-
-void G_ScanGroups(void)
-{
-    ScanGroups();
-
-    g_selectedGrp = NULL;
-
-    char const * const currentGrp = G_GrpFile();
-
-    for (grpfile_t const *fg = foundgrps; fg; fg=fg->next)
-    {
-        if (!Bstrcasecmp(fg->filename, currentGrp))
-        {
-            g_selectedGrp = fg;
-            break;
-        }
-    }
-
-    if (g_selectedGrp == NULL)
-        g_selectedGrp = foundgrps;
-}
+struct strllist* CommandGrps;
 
 static int32_t G_TryLoadingGrp(char const * const grpfile)
 {
@@ -333,16 +250,16 @@ void G_LoadGroups()
     {
         grpfile = g_selectedGrp->filename;
 
-        clearGrpNamePtr();
-        g_grpNamePtr = dup_filename(grpfile);
+        //clearGrpNamePtr();
+        //g_grpNamePtr = dup_filename(grpfile);
 
         grpinfo_t const * const type = g_selectedGrp->type;
 
         g_gameType = type->game;
         g_gameNamePtr = type->name;
 
-        if (type->scriptname && g_scriptNamePtr == NULL)
-            g_scriptNamePtr = dup_filename(type->scriptname);
+        //if (type->scriptname && g_scriptNamePtr == NULL)
+          //  g_scriptNamePtr = dup_filename(type->scriptname);
 
         if (type->defname && g_defNamePtr == NULL)
             g_defNamePtr = dup_filename(type->defname);
@@ -437,76 +354,8 @@ static void G_LoadAddon(void)
 
 
 
-void G_CleanupSearchPaths(void)
-{
-    removesearchpaths_withuser(SEARCHPATH_REMOVE);
-
-    if (!NAM)
-        removesearchpaths_withuser(SEARCHPATH_NAM);
-
-    if (!RRRA)
-        removesearchpaths_withuser(SEARCHPATH_RRRA);
-
-    if (!RR || RRRA)
-        removesearchpaths_withuser(SEARCHPATH_RR);
-}
-
 //////////
 
-
-GrowArray<char *> g_scriptModules;
-
-void G_AddGroup(const char *buffer)
-{
-    char buf[BMAX_PATH];
-
-    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
-
-    Bstrcpy(buf, buffer);
-
-    if (Bstrchr(buf,'.') == 0)
-        Bstrcat(buf,".grp");
-
-    s->str = Xstrdup(buf);
-
-    if (CommandGrps)
-    {
-        struct strllist *t;
-        for (t = CommandGrps; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandGrps = s;
-}
-
-void G_AddPath(const char *buffer)
-{
-    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
-    s->str = Xstrdup(buffer);
-
-    if (CommandPaths)
-    {
-        struct strllist *t;
-        for (t = CommandPaths; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandPaths = s;
-}
-
-void G_AddCon(const char *buffer)
-{
-    clearScriptNamePtr();
-    g_scriptNamePtr = dup_filename(buffer);
-    initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
-}
-
-void G_AddConModule(const char *buffer)
-{
-    g_scriptModules.append(Xstrdup(buffer));
-}
-
-//////////
 
 // loads all group (grp, zip, pk3/4) files in the given directory
 void G_LoadGroupsInDir(const char *dirname)
@@ -731,12 +580,6 @@ FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 
     Bfree(testfn);
     return origfp;
-}
-
-void Duke_CommonCleanup(void)
-{
-    DO_FREE_AND_NULL(g_grpNamePtr);
-    DO_FREE_AND_NULL(g_scriptNamePtr);
 }
 
 #endif

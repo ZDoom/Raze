@@ -19,7 +19,7 @@
 #include "templates.h"
 #include "printf.h"
 #include "name.h"
-//#include "v_text.h"
+#include "v_text.h"
 #include "cache1d.h"
 
 // MACROS ------------------------------------------------------------------

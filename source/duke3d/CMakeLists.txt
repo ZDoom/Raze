@@ -26,12 +26,7 @@ include_directories(
 )
 
 
-if (WIN32)
-set( PLAT_SOURCES
-	src/startwin.game.cpp
-	)
-endif()
-	
+
 set( NOT_COMPILED_SOURCE_FILES
 	src/gamestructures.cpp
 )
@@ -84,7 +79,6 @@ file( GLOB HEADER_FILES
 add_library( duke3d STATIC
 	${HEADER_FILES}
 	${PCH_SOURCES}
-	${PLAT_SOURCES}
 	${NOT_COMPILED_SOURCE_FILES}
 	)
 

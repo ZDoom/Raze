@@ -12,15 +12,10 @@
 #include "cmdlib.h"
 #include "grpscan.h"
 #include "rts.h"
+#include "gamecontrol.h"
 
 #include "vfs.h"
 
-#ifdef _WIN32
-# include "windows_inc.h"
-# include "win32/winbits.h"
-#elif defined __APPLE__
-# include "osxbits.h"
-#endif
 
 #include "common.h"
 #include "common_game.h"
@@ -46,69 +41,19 @@ static const char *defaultdeffilename[GAMECOUNT]     = { "duke3d.def", "nam.def"
 static const char *defaultgameconfilename[GAMECOUNT] = { "EDUKE.CON", "NAM.CON", "NAPALM.CON", "WW2GI.CON" };
 #endif
 
-// g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
-char *g_grpNamePtr = NULL;
-// g_scriptNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
-char *g_scriptNamePtr = NULL;
-
-void clearGrpNamePtr(void)
-{
-    Xfree(g_grpNamePtr);
-    // g_grpNamePtr assumed to be assigned to right after
-}
-
-void clearScriptNamePtr(void)
-{
-    Xfree(g_scriptNamePtr);
-    // g_scriptNamePtr assumed to be assigned to right after
-}
-
 const char *G_DefaultGrpFile(void)
 {
-#ifndef EDUKE32_STANDALONE
-    if (DUKE)
-        return defaultgamegrp[GAME_DUKE];
-    else if (NAPALM)
-        return defaultgamegrp[GAME_NAPALM];
-    else if (WW2GI)
-        return defaultgamegrp[GAME_WW2GI];
-    else if (NAM)
-        return defaultgamegrp[GAME_NAM];
-
-    return defaultgamegrp[0];
-#else
-    return "(none)";
-#endif
+	return "(none)";	// must be define in GRPINFO.
 }
+
 const char *G_DefaultDefFile(void)
 {
-#ifndef EDUKE32_STANDALONE
-    if (DUKE)
-        return defaultdeffilename[GAME_DUKE];
-    else if (WW2GI)
-        return defaultdeffilename[GAME_WW2GI];
-    else if (NAPALM)
-    {
-        if (!testkopen(defaultdeffilename[GAME_NAPALM],0) && testkopen(defaultdeffilename[GAME_NAM],0))
-            return defaultdeffilename[GAME_NAM]; // NAM/NAPALM Sharing
-        else
-            return defaultdeffilename[GAME_NAPALM];
-    }
-    else if (NAM)
-    {
-        if (!testkopen(defaultdeffilename[GAME_NAM],0) && testkopen(defaultdeffilename[GAME_NAPALM],0))
-            return defaultdeffilename[GAME_NAPALM]; // NAM/NAPALM Sharing
-        else
-            return defaultdeffilename[GAME_NAM];
-    }
-
-    return defaultdeffilename[0];
-#else
-    return "(none)";
-#endif
+	// Todo: Get from the selected game record.
+	return "DUKE3D.DEF";
 }
 const char *G_DefaultConFile(void)
 {
+	// Todo: Get from the selected game record.
 #ifndef EDUKE32_STANDALONE
     if (DUKE && testkopen(defaultgameconfilename[GAME_DUKE],0))
         return defaultgameconfilename[GAME_DUKE];
@@ -138,19 +83,19 @@ const char *G_DefaultConFile(void)
     return defaultconfilename;
 }
 
-const char *G_GrpFile(void)
+const char* G_GrpFile(void)
 {
-    return (g_grpNamePtr == NULL) ? G_DefaultGrpFile() : g_grpNamePtr;
+	return userConfig.gamegrp.IsNotEmpty() ? userConfig.gamegrp.GetChars() : G_DefaultGrpFile();
 }
 
-const char *G_DefFile(void)
+const char* G_DefFile(void)
 {
-    return (g_defNamePtr == NULL) ? G_DefaultDefFile() : g_defNamePtr;
+	return userConfig.DefaultDef.IsNotEmpty() ? userConfig.DefaultDef.GetChars() : G_DefaultDefFile();
 }
 
-const char *G_ConFile(void)
+const char* G_ConFile(void)
 {
-    return (g_scriptNamePtr == NULL) ? G_DefaultConFile() : g_scriptNamePtr;
+	return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : G_DefaultConFile();
 }
 
 //////////
@@ -241,66 +186,7 @@ void G_SetupGlobalPsky(void)
 
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;
-struct strllist* CommandPaths, * CommandGrps;
-
-void G_ExtInit(void)
-{
-#ifdef EDUKE32_OSX
-    char *appdir = Bgetappdir();
-    addsearchpath(appdir);
-    Xfree(appdir);
-#endif
-
-    char cwd[BMAX_PATH];
-#ifdef USE_PHYSFS
-    strncpy(cwd, PHYSFS_getBaseDir(), ARRAY_SIZE(cwd));
-    cwd[ARRAY_SIZE(cwd)-1] = '\0';
-#else
-    if (buildvfs_getcwd(cwd, ARRAY_SIZE(cwd)) && Bstrcmp(cwd, "/") != 0)
-#endif
-        addsearchpath(cwd);
-
-    if (CommandPaths)
-    {
-        int32_t i;
-        struct strllist *s;
-        while (CommandPaths)
-        {
-            s = CommandPaths->next;
-            i = addsearchpath(CommandPaths->str);
-            if (i < 0)
-            {
-                initprintf("Failed adding %s for game data: %s\n", CommandPaths->str,
-                           i==-1 ? "not a directory" : "no such directory");
-            }
-
-            Xfree(CommandPaths->str);
-            Xfree(CommandPaths);
-            CommandPaths = s;
-        }
-    }
-}
-
-void G_ScanGroups(void)
-{
-    ScanGroups();
-
-    g_selectedGrp = NULL;
-
-    char const * const currentGrp = G_GrpFile();
-
-    for (grpfile_t const *fg = foundgrps; fg; fg=fg->next)
-    {
-        if (!Bstrcasecmp(fg->filename, currentGrp))
-        {
-            g_selectedGrp = fg;
-            break;
-        }
-    }
-
-    if (g_selectedGrp == NULL)
-        g_selectedGrp = foundgrps;
-}
+struct strllist* CommandGrps;
 
 static int32_t G_TryLoadingGrp(char const * const grpfile)
 {
@@ -363,16 +249,16 @@ void G_LoadGroups()
     {
         grpfile = g_selectedGrp->filename;
 
-        clearGrpNamePtr();
-        g_grpNamePtr = dup_filename(grpfile);
+        //clearGrpNamePtr();
+        //g_grpNamePtr = dup_filename(grpfile);
 
         grpinfo_t const * const type = g_selectedGrp->type;
 
         g_gameType = type->game;
         g_gameNamePtr = type->name;
 
-        if (type->scriptname && g_scriptNamePtr == NULL)
-            g_scriptNamePtr = dup_filename(type->scriptname);
+        //if (type->scriptname && g_scriptNamePtr == NULL)
+           // g_scriptNamePtr = dup_filename(type->scriptname);
 
         if (type->defname && g_defNamePtr == NULL)
             g_defNamePtr = dup_filename(type->defname);
@@ -397,18 +283,6 @@ void G_LoadGroups()
     if (g_modDir[0] != '/')
         G_LoadGroupsInDir(g_modDir);
 
-#ifndef EDUKE32_STANDALONE
-    if (g_defNamePtr == NULL)
-    {
-        const char *tmpptr = getenv("DUKE3DDEF");
-        if (tmpptr)
-        {
-            clearDefNamePtr();
-            g_defNamePtr = dup_filename(tmpptr);
-            initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
-        }
-    }
-#endif
 
     loaddefinitions_game(G_DefFile(), TRUE);
 
@@ -469,72 +343,6 @@ static void G_LoadAddon(void)
 #endif
 }
 
-
-void G_CleanupSearchPaths(void)
-{
-    removesearchpaths_withuser(SEARCHPATH_REMOVE);
-
-    if (!NAM)
-        removesearchpaths_withuser(SEARCHPATH_NAM);
-
-    if (!WW2GI)
-        removesearchpaths_withuser(SEARCHPATH_WW2GI);
-}
-
-//////////
-
-
-GrowArray<char *> g_scriptModules;
-
-void G_AddGroup(const char *buffer)
-{
-    char buf[BMAX_PATH];
-
-    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
-
-    Bstrcpy(buf, buffer);
-
-    if (Bstrchr(buf,'.') == 0)
-        Bstrcat(buf,".grp");
-
-    s->str = Xstrdup(buf);
-
-    if (CommandGrps)
-    {
-        struct strllist *t;
-        for (t = CommandGrps; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandGrps = s;
-}
-
-void G_AddPath(const char *buffer)
-{
-    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
-    s->str = Xstrdup(buffer);
-
-    if (CommandPaths)
-    {
-        struct strllist *t;
-        for (t = CommandPaths; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandPaths = s;
-}
-
-void G_AddCon(const char *buffer)
-{
-    clearScriptNamePtr();
-    g_scriptNamePtr = dup_filename(buffer);
-    initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
-}
-
-void G_AddConModule(const char *buffer)
-{
-    g_scriptModules.append(Xstrdup(buffer));
-}
 
 //////////
 
@@ -715,12 +523,6 @@ FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 
 	Bfree(testfn);
 	return origfp;
-}
-
-void Duke_CommonCleanup(void)
-{
-    DO_FREE_AND_NULL(g_grpNamePtr);
-    DO_FREE_AND_NULL(g_scriptNamePtr);
 }
 
 #endif

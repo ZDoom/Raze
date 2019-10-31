@@ -237,12 +237,6 @@ struct GameInterface
 
 	// These will later be removed.
 	void (*app_crashhandler)();
-	int32_t(*startwin_open)();
-	int32_t(*startwin_close)();
-	int32_t(*startwin_puts)(const char*);
-	int32_t(*startwin_settitle)(const char*);
-	int32_t (*startwin_idle)(void*);
-	int32_t (*startwin_run)(void);
 	const char* (*DefaultDefFile)();
 	const char* (*DefFile)();
 

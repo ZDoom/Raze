@@ -26,12 +26,7 @@ include_directories(
 )
 
 
-if (WIN32)
-set( PLAT_SOURCES
-	src/startwin.game.cpp
-	)
-endif()
-	
+
 set( PCH_SOURCES
 	src/actor.cpp
 	src/ai.cpp
@@ -125,7 +120,6 @@ file( GLOB HEADER_FILES
 add_library( sw STATIC
 	${HEADER_FILES}
 	${PCH_SOURCES}
-	${PLAT_SOURCES}
 	)
 
 

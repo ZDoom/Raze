@@ -127,10 +127,11 @@ enum
 	GAMEFLAG_DUKEBETA   = 0x00000060, // includes 0x20 since it's a shareware beta
 	GAMEFLAG_FURY       = 0x00000080,
 	GAMEFLAG_RR         = 0x00000100,
-	GAMEFLAG_RRRA       = 0x00000200,
+	GAMEFLAG_RRRA       = 0x00000300,
 	GAMEFLAG_BLOOD      = 0x00000400,
-	GAMEFLAG_STANDALONE = 0x00000800,
-	GAMEFLAGMASK        = 0x000007FF, // flags allowed from grpinfo
+	GAMEFLAG_SW			= 0x00000800,
+	GAMEFLAG_STANDALONE = 0x00001000,
+	GAMEFLAGMASK        = 0x00000FFF, // flags allowed from grpinfo
 
 };
 

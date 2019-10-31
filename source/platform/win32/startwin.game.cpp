@@ -19,6 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+
 #include "ns.h"	// Must come before everything else!
 
 #ifndef _WIN32
@@ -36,22 +37,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "_control.h"
 #include "build.h"
 #include "cache1d.h"
-#include "cmdline.h"
-#include "common_game.h"
 #include "compat.h"
 #include "control.h"
-#include "gamecontrol.h"
-#include "game.h"
-#include "grpscan.h"
-#include "inv.h"
 #include "keyboard.h"
-#include "gamecvars.h"
 #include "startwin.game.h"
 #include "windows_inc.h"
+#include "gamecontrol.h"
 
 #pragma warning(disable:4244) // There's just a bit too much of these in here...
 
-BEGIN_RR_NS
+
 
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1
@@ -63,11 +58,9 @@ typedef struct {
 	int32_t bpp;
 } ud_setup_t;
 
-
 static struct
 {
-    struct grpfile_t const * grp;
-    char *gamedir;
+    int grp;
     ud_setup_t shared;
     int polymer;
 }
@@ -77,6 +70,8 @@ static HWND startupdlg;
 static HWND pages[3];
 static int done = -1;
 static int mode = TAB_CONFIG;
+
+static TArray<GrpEntry> *gamedata;
 
 static CACHE1D_FIND_REC *finddirs;
 
@@ -120,6 +115,7 @@ static void PopulateForm(int32_t pgs)
     {
         HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR);
 
+#if 0 // This doesn't currently work and in its current form is useless anyway. It should offer a real directory picker.
         getfilenames("/");
         (void)ComboBox_ResetContent(hwnd);
         int const r = ComboBox_AddString(hwnd, "None");
@@ -136,12 +132,11 @@ static void PopulateForm(int32_t pgs)
 
             (void)ComboBox_AddString(hwnd, dirs->name);
             (void)ComboBox_SetItemData(hwnd, i, j);
-            if (Bstrcasecmp(dirs->name, settings.gamedir) == 0)
-                (void)ComboBox_SetCurSel(hwnd, i);
 
             i++;
             j++;
         }
+#endif
     }
 
     if (pgs & POPULATE_VIDEO)
@@ -149,7 +144,7 @@ static void PopulateForm(int32_t pgs)
         HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
         int mode = videoCheckMode(&settings.shared.xdim, &settings.shared.ydim, settings.shared.bpp, settings.shared.fullscreen, 1);
 
-        if (mode < 0 || (settings.shared.bpp < 15 && (settings.polymer)))
+        if (mode < 0 || (settings.shared.bpp < 15))
         {
             int CONSTEXPR cd[] = { 32, 24, 16, 15, 8, 0 };
             int i;
@@ -176,7 +171,7 @@ static void PopulateForm(int32_t pgs)
         for (int i=0; i<validmodecnt; i++)
         {
             if (validmode[i].fs != (settings.shared.fullscreen)) continue;
-            if ((validmode[i].bpp < 15) && (settings.polymer)) continue;
+            if ((validmode[i].bpp < 15)) continue;
 
             // all modes get added to the 3D mode list
             Bsprintf(buf, "%dx%d %s", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp == 8 ? "software" : "OpenGL");
@@ -186,17 +181,18 @@ static void PopulateForm(int32_t pgs)
         }
     }
 
+
     if (pgs & POPULATE_GAME)
     {
         HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCDATA);
 
-        for (auto fg = foundgrps; fg; fg=fg->next)
-        {
-            Bsprintf(buf, "%s\t%s", fg->type->name, fg->filename);
-            int const j = ListBox_AddString(hwnd, buf);
-            (void)ListBox_SetItemData(hwnd, j, (LPARAM)fg);
-            if (settings.grp == fg)
-                (void)ListBox_SetCurSel(hwnd, j);
+		int i=0;
+		for (auto& grp : *gamedata)
+		{
+			FStringf grpinfo("%s %s", grp.FileInfo.name.GetChars(), grp.FileName.GetChars());
+            int const j = ListBox_AddString(hwnd, grpinfo.GetChars());
+            (void)ListBox_SetItemData(hwnd, j, i);
+			i++;
         }
     }
 }
@@ -236,32 +232,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         case IDCAUTOLOAD:
             noautoload = (IsDlgButtonChecked(hwndDlg, IDCAUTOLOAD) != BST_CHECKED);
             return TRUE;
-        case IDCINPUT:
-            return TRUE;
-
         case IDCGAMEDIR:
-            if (HIWORD(wParam) == CBN_SELCHANGE)
-            {
-                int i = ComboBox_GetCurSel((HWND)lParam);
-                if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
-                if (i != CB_ERR)
-                {
-                    if (i==0)
-                        settings.gamedir = NULL;
-                    else
-                    {
-                        CACHE1D_FIND_REC *dir = finddirs;
-                        for (int j = 1; dir != NULL; dir = dir->next, j++)
-                        {
-                            if (j == i)
-                            {
-                                settings.gamedir = dir->name;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
             return TRUE;
         case IDCDATA:
         {
@@ -270,7 +241,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
             if (i != CB_ERR)
             {
-                settings.grp = (grpfile_t const *)i;
+                settings.grp = i;
             }
             return TRUE;
         }
@@ -620,15 +591,8 @@ int32_t startwin_run(void)
     SetPage(TAB_CONFIG);
     EnableConfig(1);
 
-#ifdef POLYMER
-    settings.polymer = (glrendmode == REND_POLYMER);
-#else
-    settings.polymer = 0;
-#endif
-
 	settings.shared = { ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP };
-	settings.grp = g_selectedGrp;
-    settings.gamedir = g_modDir;
+	settings.grp = 0;
 
     PopulateForm(-1);
 
@@ -662,15 +626,29 @@ int32_t startwin_run(void)
 		ScreenHeight = settings.shared.ydim;
 		ScreenMode = settings.shared.fullscreen;
 		ScreenBPP = settings.shared.bpp;
-		glrendmode = REND_POLYMOST;
-        g_selectedGrp = settings.grp;
-        Bstrcpy(g_modDir, (g_noSetup == 0 && settings.gamedir != NULL) ? settings.gamedir : "/");
     }
 
     return done;
 }
 
-END_RR_NS
+int ShowStartupWindow(TArray<GrpEntry> &groups)
+{
+	gamedata = &groups;
+	startwin_open();
+	startwin_settitle("Demolition");
+
+	if (1)//readSetup < 0 || (!g_noSetup && (displaysetup)) || g_commandSetup)
+	{
+		auto choice = startwin_run();
+		if (choice == 0)
+		{
+			Bexit(EXIT_SUCCESS);
+		}
+	}
+	startwin_close();
+	return settings.grp;
+}
 
 #endif // STARTUP_SETUP_WINDOW
+
 

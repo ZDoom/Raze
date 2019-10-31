@@ -17,6 +17,8 @@
 
 InputState inputState;
 void SetClipshapes();
+int ShowStartupWindow(TArray<GrpEntry> &);
+int globalShadeDiv;
 
 struct GameFuncNameDesc
 {
@@ -287,6 +289,60 @@ void UserConfig::ProcessOptions()
 
 }
 
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+namespace Duke
+{
+	extern GameInterface Interface;
+}
+namespace Redneck
+{
+	extern GameInterface Interface;
+}
+namespace Blood
+{
+	extern GameInterface Interface;
+}
+namespace ShadowWarrior
+{
+	extern GameInterface Interface;
+}
+
+void CheckFrontend(int flags)
+{
+	if (flags & GAMEFLAG_BLOOD)
+	{
+		gi = &Blood::Interface;
+		globalShadeDiv = 62;
+	}
+	else if (flags & GAMEFLAG_RR)
+	{
+		gi = &Redneck::Interface;
+		globalShadeDiv = 30;
+	}
+	else if (flags & GAMEFLAG_FURY)
+	{
+		gi = &Duke::Interface;
+		globalShadeDiv = 26;	// This is different from all other games which need a value two less than the amount of shades.
+	}
+	else if (flags & GAMEFLAG_SW)
+	{
+		gi = &ShadowWarrior::Interface;
+		globalShadeDiv = 30;
+	}
+	else
+	{
+		gi = &Duke::Interface;
+		globalShadeDiv = 30;
+	}
+}
+
+
 //==========================================================================
 //
 //
@@ -305,14 +361,11 @@ void CONFIG_Init()
 	userConfig.ProcessOptions();
 
 	G_LoadConfig();
+
 	// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
 
 	auto groups = GrpScan();
-	for (auto& grp : groups)
-	{
-		FStringf grpinfo("%s: %s, %s, %s, %s\r\n", grp.FileInfo.name.GetChars(), grp.FileName.GetChars(), grp.FileInfo.scriptname.GetChars(), grp.FileInfo.rtsname.GetChars(), grp.FileInfo.defname.GetChars());
-		OutputDebugStringA(grpinfo);
-	}
+	int groupno = ShowStartupWindow(groups);
 	LumpFilter = currentGame;
 	if (LumpFilter.Compare("Redneck") == 0) LumpFilter = "Redneck.Redneck";
 	else if (LumpFilter.Compare("RedneckRides") == 0) LumpFilter = "Redneck.RidesAgain";

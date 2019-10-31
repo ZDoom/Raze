@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"
 #include "common_game.h"
 #include "cheats.h"
+#include "m_argv.h"
 
 #include "osd.h"
 #include "crc32_.h"
@@ -2430,13 +2431,12 @@ void C_Compile(const char *fileName)
 
     C_ParseCommand(1);
 
-    for (char * m : g_scriptModules)
+	for (FString & m : *userConfig.AddCons.get())
     {
-        C_Include(m);
-        free(m);
+		C_Include(m);
     }
-    g_scriptModules.clear();
-
+	userConfig.AddCons.reset();
+    
     g_logFlushWindow = 1;
 
     if (g_errorCnt > 63)

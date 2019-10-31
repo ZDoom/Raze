@@ -514,7 +514,6 @@ extern char *g_grpNamePtr;
 extern int loaddefinitions_game(const char *fn, int32_t preload);
 
 extern void G_AddSearchPaths(void);
-extern void G_CleanupSearchPaths(void);
 
 extern void G_ExtInit(void);
 
@@ -960,8 +959,5 @@ public:
             writeBit((nValue>>i)&1);
     }
 };
-
-void G_AddGroup(const char* buffer);
-void G_AddPath(const char* buffer);
 
 END_BLD_NS

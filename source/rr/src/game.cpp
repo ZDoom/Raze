@@ -71,7 +71,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_RR_NS
 
 
-void Duke_CommonCleanup(void);
 extern const char* G_DefaultDefFile(void);
 extern const char* G_DefFile(void);
 
@@ -7134,8 +7133,6 @@ static void G_Cleanup(void)
 
     hash_loop(&h_dukeanim, G_FreeHashAnim);
     hash_free(&h_dukeanim);
-
-    Duke_CommonCleanup();
 }
 
 /*
@@ -7177,9 +7174,6 @@ static void G_CompileScripts(void)
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (int32_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
-
-    if (g_scriptNamePtr != NULL)
-        Bcorrectfilename(g_scriptNamePtr,0);
 
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
     pathsearchmode = 1;
@@ -7682,12 +7676,7 @@ int app_main(int argc, char const * const * argv)
 
     // This needs to happen afterwards, as G_CheckCommandLine() is where we set
     // up the command-line-provided search paths (duh).
-    G_ExtInit();
-
-#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
-    if (forcegl) initprintf("GL driver blacklist disabled.\n");
-#endif
-
+    
 #ifdef STARTUP_SETUP_WINDOW
     int const readSetup =
 #endif
@@ -7702,24 +7691,10 @@ int app_main(int argc, char const * const * argv)
         Bexit(2);
     }
 
-    G_ScanGroups();
-
-#ifdef STARTUP_SETUP_WINDOW
-    if (readSetup < 0 || (!g_noSetup && (displaysetup)) || g_commandSetup)
-    {
-        if (quitevent || !gi->startwin_run())
-        {
-            engineUnInit();
-            Bexit(0);
-        }
-    }
-#endif
-
+    
     g_logFlushWindow = 0;
     G_LoadGroups();
 //    flushlogwindow = 1;
-
-    G_CleanupSearchPaths();
 
     if (RR)
     {
@@ -8561,12 +8536,6 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
 extern void faketimerhandler();
 extern int app_main(int argc, char const* const* argv);
 extern void app_crashhandler(void);
-extern int32_t startwin_open(void);
-extern int32_t startwin_close(void);
-extern int32_t startwin_puts(const char*);
-extern int32_t startwin_settitle(const char*);
-extern int32_t startwin_idle(void*);
-extern int32_t startwin_run(void);
 
 GameInterface Interface = {
 	TICRATE,
@@ -8576,12 +8545,6 @@ GameInterface Interface = {
 	set_hud_layout,
 	set_hud_scale,
 	app_crashhandler,
-	startwin_open,
-	startwin_close,
-	startwin_puts,
-	startwin_settitle,
-	startwin_idle,
-	startwin_run,
 	G_DefaultDefFile,
 	G_DefFile,
 

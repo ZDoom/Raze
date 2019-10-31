@@ -1217,7 +1217,6 @@ int32_t Bclosedir(BDIR *dir);
 ////////// Paths //////////
 
 char *Bgethomedir(void);
-char *Bgetappdir(void);
 
 int32_t Bcorrectfilename(char *filename, int32_t removefn);
 int32_t Bcanonicalisefilename(char *filename, int32_t removefn);

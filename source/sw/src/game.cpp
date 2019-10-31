@@ -842,7 +842,6 @@ void COVERsetbrightness(int bright, unsigned char *pal)
 static int firstnet = 0;    // JBF
 int nextvoxid = 0;  // JBF
 
-extern int startwin_run(void);
 
 static void SW_FatalEngineError(void)
 {
@@ -3357,17 +3356,6 @@ int32_t app_main(int32_t argc, char const * const * argv)
         exit(1);
     }
 
-#ifdef STARTUP_SETUP_WINDOW
-    if (i < 0 || displaysetup || CommandSetup)
-    {
-        if (quitevent || !startwin_run())
-        {
-            engineUnInit();
-            exit(0);
-        }
-    }
-#endif
-
     initgroupfile(G_GrpFile());
     if (!DetectShareware())
     {
@@ -5562,12 +5550,6 @@ saveable_module saveable_build =
 extern void faketimerhandler();
 extern int app_main(int argc, char const* const* argv);
 extern void app_crashhandler(void);
-extern int32_t startwin_open(void);
-extern int32_t startwin_close(void);
-extern int32_t startwin_puts(const char*);
-extern int32_t startwin_settitle(const char*);
-extern int32_t startwin_idle(void*);
-extern int32_t startwin_run(void);
 /*extern*/ bool validate_hud(int requested_size) { return requested_size; }
 /*extern*/ void set_hud(int requested_size) { /* the relevant setting is gs.BorderNum */}
 
@@ -5579,12 +5561,6 @@ GameInterface Interface = {
 	set_hud,
 	set_hud,
 	app_crashhandler,
-	startwin_open,
-	startwin_close,
-	startwin_puts,
-	startwin_settitle,
-	startwin_idle,
-	startwin_run,
 	G_DefFile,
 	G_DefFile,
 };

@@ -98,55 +98,6 @@ char *Bgethomedir(void)
 #endif
 }
 
-char *Bgetappdir(void)
-{
-    char *dir = NULL;
-
-#ifdef _WIN32
-    char appdir[MAX_PATH];
-
-    if (GetModuleFileNameA(NULL, appdir, MAX_PATH) > 0) {
-        // trim off the filename
-        char *slash = Bstrrchr(appdir, '\\');
-        if (slash) slash[0] = 0;
-        dir = Xstrdup(appdir);
-    }
-
-#elif defined EDUKE32_OSX
-    dir = osx_getappdir();
-#elif defined __FreeBSD__
-    // the sysctl should also work when /proc/ is not mounted (which seems to
-    // be common on FreeBSD), so use it..
-    char   buf[PATH_MAX] = {0};
-    int    name[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1 };
-    size_t len     = sizeof(buf) - 1;
-    int    ret     = sysctl(name, ARRAY_SIZE(name), buf, &len, NULL, 0);
-
-    if (ret == 0 && buf[0] != '\0')
-    {
-        // again, remove executable name with dirname()
-        // on FreeBSD dirname() seems to use some internal buffer
-        dir = Xstrdup(dirname(buf));
-    }
-#elif defined __linux || defined EDUKE32_BSD
-    char buf[PATH_MAX] = {0};
-    char buf2[PATH_MAX] = {0};
-#  ifdef __linux
-    Bsnprintf(buf, sizeof(buf), "/proc/%d/exe", getpid());
-#  else // the BSDs.. except for FreeBSD which has a sysctl
-    Bsnprintf(buf, sizeof(buf), "/proc/%d/file", getpid());
-#  endif
-    int len = readlink(buf, buf2, sizeof(buf2));
-    if (len != -1) {
-        // remove executable name with dirname(3)
-        // on Linux, dirname() will modify buf2 (cutting off executable name) and return it
-        // on FreeBSD it seems to use some internal buffer instead.. anyway, just strdup()
-        dir = Xstrdup(dirname(buf2));
-    }
-#endif
-
-    return dir;
-}
 
 int32_t Bcorrectfilename(char *filename, int32_t removefn)
 {

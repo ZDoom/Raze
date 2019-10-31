@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "namesdyn.h"
 #include "osd.h"
 #include "savegame.h"
+#include "printf.h"
+#include "m_argv.h"
 
 #include "vfs.h"
 
@@ -6104,9 +6106,7 @@ void C_Compile(const char *fileName)
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
 #ifndef EDUKE32_STANDALONE
-            char const *gf = G_GrpFile();
-            Bsprintf(tempbuf,"Required game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
-                     "You must copy \"%s\" to your game directory before continuing!", gf, gf);
+            I_Error("Required game data was not found.");
             G_GameExit(tempbuf);
 #else
             G_GameExit(" ");
@@ -6157,13 +6157,11 @@ void C_Compile(const char *fileName)
     C_AddDefaultDefinitions();
     C_ParseCommand(true);
 
-    for (char * m : g_scriptModules)
-    {
-        C_Include(m);
-        free(m);
-    }
-    g_scriptModules.clear();
-
+	for (FString& m : *userConfig.AddCons.get())
+	{
+		C_Include(m);
+	}
+	
     g_logFlushWindow = 1;
 
     if (g_errorCnt > 63)

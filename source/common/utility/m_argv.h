@@ -43,6 +43,37 @@
 class FArgs
 {
 public:
+
+	typedef TIterator<FString>                  iterator;
+	typedef TIterator<const FString>            const_iterator;
+	typedef FString								value_type;
+
+	iterator begin()
+	{
+		return &Argv[0];
+	}
+	const_iterator begin() const
+	{
+		return &Argv[0];
+	}
+	const_iterator cbegin() const
+	{
+		return &Argv[0];
+	}
+
+	iterator end()
+	{
+		return &Argv[Argv.Size()];
+	}
+	const_iterator end() const
+	{
+		return &Argv[Argv.Size()];
+	}
+	const_iterator cend() const
+	{
+		return &Argv[Argv.Size()];
+	}
+
 	FArgs();
 	FArgs(const FArgs &args);
 	FArgs(int argc, char **argv);

@@ -42,6 +42,7 @@
 #include "image.h"
 #include "cache1d.h"
 #include "imagehelpers.h"
+#include "v_text.h"
 
 extern "C"
 {

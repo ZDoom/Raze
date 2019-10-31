@@ -72,13 +72,6 @@ int32_t startwin_puts(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_idle(void *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_settitle(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
 int32_t startwin_run(void) { return 0; }
-#else
-int32_t startwin_open(void) { return gi->startwin_open(); }
-int32_t startwin_close(void) { return gi->startwin_close(); }
-int32_t startwin_puts(const char* s) { return gi->startwin_puts(s); }
-int32_t startwin_idle(void* s) { return gi->startwin_idle(s); }
-int32_t startwin_settitle(const char* s) { return gi->startwin_settitle(s); }
-int32_t startwin_run(void) { return gi->startwin_run(); }
 #endif
 
 int myconnectindex, numplayers;
@@ -338,7 +331,6 @@ void wm_setapptitle(const char *name)
     }
 #endif
 
-    startwin_settitle(apptitle);
 #else
     UNREFERENCED_PARAMETER(name);
 #endif
@@ -395,167 +387,6 @@ static void sighandler(int signum)
 
 FString currentGame;	// Currently there is no global state for the current game. This is a temporary workaround because the video init code needs to do a few things based on the active game.
 
-namespace Duke
-{
-	extern GameInterface Interface;
-}
-namespace Redneck
-{
-	extern GameInterface Interface;
-}
-namespace Blood
-{
-	extern GameInterface Interface;
-}
-namespace ShadowWarrior
-{
-	extern GameInterface Interface;
-}
-
-GameInterface *CheckFrontend()
-{
-	FILE* f = fopen("blood.rff", "rb");
-	if (f)
-	{
-		currentGame = "Blood";
-		fclose(f);
-		return &Blood::Interface;
-	}
-	else
-	{
-		f = fopen("redneck.grp", "rb");
-		if (f)
-		{
-			currentGame = "Redneck";
-			fseek(f, 0, SEEK_END);
-			auto pos = ftell(f);
-			// Quick hack to distinguish these two. This won't survive until production but for testing it's sufficient.
-			if (pos > 190'000'000) currentGame = "RedneckRides";
-			fclose(f);
-			return &Redneck::Interface;
-		}
-		else
-		{
-			f = fopen("sw.grp", "rb");
-			if (f)
-			{
-				currentGame = "ShadowWarrior";
-				fclose(f);
-				return &ShadowWarrior::Interface;
-			}
-			f = fopen("fury.grp", "rb");
-			if (f)
-			{
-				currentGame = "IonFury";
-				fclose(f);
-				return &Duke::Interface;
-			}
-			f = fopen("nam.grp", "rb");
-			if (f)
-			{
-				currentGame = "Nam";
-				fclose(f);
-				return &Duke::Interface;
-			}
-			f = fopen("ww2gi.grp", "rb");
-			if (f)
-			{
-				currentGame = "WW2GI";
-				fclose(f);
-				return &Duke::Interface;
-			}
-			else
-			{
-				currentGame = "Duke";
-			}
-			return &Duke::Interface;
-		}
-	}
-}
-
-void ChooseGame()
-{
-#if 0
-	gi = CheckFrontend();
-	return;
-#else
-	auto dir = Args->CheckValue("-game");
-	if (dir && !chdir(dir))
-	{
-		gi = CheckFrontend();
-		return;
-	}
-
-	TArray<FString> paths;
-	std::vector<std::wstring> wgames;
-	TArray<TASKDIALOG_BUTTON> buttons;
-	char* token;
-	
-	FileReader fr;
-	if (fr.OpenFile("./games.list"))
-	{
-		auto filedata = fr.ReadPadded(1);
-
-		auto script = scriptfile_fromstring((char*)filedata.Data());
-		int id = 1000;
-		while (!scriptfile_eof(script))
-		{
-			scriptfile_getstring(script, &token);
-			if (scriptfile_eof(script))
-			{
-				break;
-			}
-			FString game = token;
-			scriptfile_getstring(script, &token);
-			paths.Push(token);
-			FStringf display("%s\n%s", game.GetChars(), token);
-			wgames.push_back(display.WideString());
-			buttons.Push({ id++, wgames.back().c_str() });
-		}
-	}
-	if (paths.Size() == 0)
-	{
-		exit(1);
-	}
-
-	int nResult = 0;
-
-	TASKDIALOGCONFIG stTaskConfig;
-	ZeroMemory(&stTaskConfig, sizeof(stTaskConfig));
-
-	stTaskConfig.cbSize = sizeof(TASKDIALOGCONFIG);
-	stTaskConfig.hwndParent = NULL;
-	stTaskConfig.hInstance = NULL;
-
-	stTaskConfig.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION| TDF_USE_COMMAND_LINKS;
-
-	if (!gi)
-	{
-		// Open a popup to select the game.
-		// The entire startup code just doesn't work right if this isn't checked as the very first thing.
-		stTaskConfig.pszWindowTitle = L"Demolition";
-		stTaskConfig.pszMainInstruction = L"Choose your game";
-		stTaskConfig.pszContent = L"";
-		stTaskConfig.cButtons = buttons.Size();
-
-		stTaskConfig.pButtons = buttons.Data();
-		stTaskConfig.nDefaultButton = 1000;
-
-		if (SUCCEEDED(TaskDialogIndirect(&stTaskConfig, &nResult, NULL, NULL)))
-		{
-			if (nResult >= 1000 && nResult < 1000 +(int)buttons.Size())
-			{
-				nResult -= 1000;
-				chdir(paths[nResult]);
-				gi = CheckFrontend();
-			}
-		}
-		if (gi == nullptr) exit(1);
-	}
-#endif
-}
-
-
 
 int WINAPI WinMain(HINSTANCE , HINSTANCE , LPSTR , int )
 #else
@@ -580,8 +411,6 @@ int main(int argc, char *argv[])
 #endif
 
 	Args = new FArgs(buildargc, buildargv);
-
-	ChooseGame();
 
 #if defined _WIN32 && defined SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING
     // Thread naming interferes with debugging using MinGW-w64's GDB.
@@ -616,7 +445,6 @@ int main(int argc, char *argv[])
     gtkbuild_init(&argc, &argv);
 #endif
 
-    startwin_open();
 
 	try
 	{
@@ -637,8 +465,6 @@ int main(int argc, char *argv[])
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
-
-    startwin_close();
 
 #if defined(HAVE_GTK2)
     gtkbuild_exit(r);
@@ -884,6 +710,7 @@ void initputs(const char *buf)
     OSD_Puts(buf);
 //    Bprintf("%s", buf);
 
+#if 0
     mutex_lock(&m_initprintf);
     if (Bstrlen(dabuf) + Bstrlen(buf) > 1022)
     {
@@ -904,6 +731,7 @@ void initputs(const char *buf)
         Bmemset(dabuf, 0, sizeof(dabuf));
     }
     mutex_unlock(&m_initprintf);
+#endif
 }
 
 //
@@ -1465,6 +1293,7 @@ static void destroy_window_resources()
 #endif
 }
 
+extern int globalShadeDiv;
 void sdlayer_setvideomode_opengl(void)
 {
     glsurface_destroy();
@@ -1474,9 +1303,7 @@ void sdlayer_setvideomode_opengl(void)
 	GLInterface.Init();
 	GLInterface.InitGLState(4, glmultisample);
 	// I have no idea how to get this info from the lookup tables. Fortunately it is consistent per game.
-	if (!currentGame.Compare("Blood")) GLInterface.SetShadeDiv(62);
-	else if (!currentGame.Compare("IonFury")) GLInterface.SetShadeDiv(30);
-	else GLInterface.SetShadeDiv(26);
+	GLInterface.SetShadeDiv(globalShadeDiv);
 
 	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
 
@@ -1493,8 +1320,6 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
 
     if (videoCheckMode(x, y, c, fs, 0) < 0)
         return -1;
-
-    startwin_close();
 
     if (g_mouseGrabbed)
     {
@@ -2341,11 +2166,6 @@ int32_t handleevents(void)
 
     inputchecked = 0;
     timerUpdateClock();
-
-#ifndef _WIN32
-    startwin_idle(NULL);
-#endif
-
     return rv;
 }
 
