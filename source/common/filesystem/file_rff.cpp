@@ -60,7 +60,6 @@ struct RFFLump
 	uint8_t		Flags;
 	char		Extension[3];
 	char		Name[8];
-	uint32_t		IndexNum;	// Used by .sfx, possibly others
 };
 
 //==========================================================================
@@ -72,11 +71,9 @@ struct RFFLump
 struct FRFFLump : public FUncompressedLump
 {
 	virtual FileReader *GetReader();
-	virtual int FillCache();
+	int ValidataCache() override;
 
 	uint32_t		IndexNum;
-
-	int GetIndexNum() const { return IndexNum; }
 };
 
 //==========================================================================
@@ -159,7 +156,7 @@ bool FRFFFile::Open(bool quiet)
 		{
 			Lump.Flags |= LUMPF_BLOODCRYPT;
 		}
-		Lump.IndexNum = LittleLong(lumps[i].IndexNum);
+		Lump.ResourceId = LittleLong(lumps[i].ResourceId);
 		// Rearrange the name and extension to construct the fullname.
 		char name[13];
 		strncpy(name, lumps[i].Name, 8);
@@ -172,14 +169,6 @@ bool FRFFFile::Open(bool quiet)
 		name[len+3] = lumps[i].Extension[2];
 		name[len+4] = 0;
 		Lump.LumpNameSetup(name);
-		if (Lump.IndexNum > 0)
-		{
-			// Create a second entry for looking up by index.
-			Lumps.Reserve(1);
-			auto& l = Lumps.Last();
-			l = Lumps[Lumps.Size() - 2];
-			snprintf(name, 13, "{%d}.%c%c%c", l.IndexNum, lumps[i].Extension[0], lumps[i].Extension[1], lumps[i].Extension[2]);
-		}
 	}
 	delete[] lumps;
 	return true;
@@ -212,11 +201,11 @@ FileReader *FRFFLump::GetReader()
 //
 //==========================================================================
 
-int FRFFLump::FillCache()
+int FRFFLump::ValidateCache()
 {
-	int res = FUncompressedLump::FillCache();
+	int res = FUncompressedLump::ValidateCache();
 
-	if (Flags & LUMPF_BLOODCRYPT)
+	if (res && )(Flags & LUMPF_BLOODCRYPT))
 	{
 		int cryptlen = std::min<int> (LumpSize, 256);
 		uint8_t *data = Cache.Data();

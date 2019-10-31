@@ -356,14 +356,13 @@ FileReader *FZipLump::GetReader()
 //
 //==========================================================================
 
-int FZipLump::FillCache()
+int FZipLump::ValidataCache()
 {
 	if (Flags & LUMPFZIP_NEEDFILESTART) SetLumpAddress();
 
 	Owner->Reader.Seek(Position, FileReader::SeekSet);
 	Cache.Resize(LumpSize);
 	UncompressZipLump((char*)Cache.Data(), Owner->Reader, Method, LumpSize, CompressedSize, GPFlags);
-	RefCount = 1;
 	return 1;
 }
 

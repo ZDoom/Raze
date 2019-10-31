@@ -171,7 +171,7 @@ struct F7ZLump : public FResourceLump
 {
 	int		Position;
 
-	virtual int FillCache();
+	int ValidateCache() override;
 
 };
 
@@ -344,11 +344,10 @@ F7ZFile::~F7ZFile()
 //
 //==========================================================================
 
-int F7ZLump::FillCache()
+int F7ZLump::ValidateCache()
 {
 	Cache.Resize(LumpSize);
 	static_cast<F7ZFile*>(Owner)->Archive->Extract(Position, (char*)Cache.Data());
-	RefCount = 1;
 	return 1;
 }
 

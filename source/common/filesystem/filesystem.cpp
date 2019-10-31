@@ -43,6 +43,7 @@
 #include "m_argv.h"
 #include "cmdlib.h"
 #include "printf.h"
+#include "name.h"
 //#include "c_dispatch.h"
 #include "filesystem.h"
 #include "superfasthash.h"
@@ -120,15 +121,12 @@ int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FStr
 	}
 
 	// [RH] Set up hash table
-	Hashes.Resize(8 * NumEntries);
-	FirstFileIndex_BaseName = &Hashes[0];
-	NextFileIndex_BaseName = &Hashes[NumEntries];
-	FirstFileIndex_FullName = &Hashes[NumEntries*2];
-	NextFileIndex_FullName = &Hashes[NumEntries*3];
-	FirstFileIndex_NoExt = &Hashes[NumEntries*4];
-	NextFileIndex_NoExt = &Hashes[NumEntries*5];
-	FirstFileIndex_BaseExt = &Hashes[NumEntries*6];
-	NextFileIndex_BaseExt = &Hashes[NumEntries*7];
+	Hashes.Resize(NumLookupModes * 2 * NumEntries);
+	for (int i = 0; i < NumLookupModes; i++)
+	{
+		FirstFileIndex[i] = &Hashes[i * 2 * NumEntries];
+		NextFileIndex[i] = &Hashes[(i+1) * 2 * NumEntries];
+	}
 	InitHashChains ();
 	FileInfo.ShrinkToFit();
 	Files.ShrinkToFit();
@@ -199,12 +197,12 @@ void FileSystem::AddFile (const char *filename, FileReader *filer)
 
 //==========================================================================
 //
-// GetFileRecordCheckIfWadLoaded
+// CheckIfResourceFileLoaded
 //
-// Returns true if the specified wad is loaded, false otherwise.
-// If a fully-qualified path is specified, then the wad must match exactly.
-// Otherwise, any wad with that name will work, whatever its path.
-// Returns the wads index if found, or -1 if not.
+// Returns true if the specified file is loaded, false otherwise.
+// If a fully-qualified path is specified, then the file must match exactly.
+// Otherwise, any file with that name will work, whatever its path.
+// Returns the file's index if found, or -1 if not.
 //
 //==========================================================================
 
@@ -237,11 +235,9 @@ int FileSystem::CheckIfResourceFileLoaded (const char *name) noexcept
 
 //==========================================================================
 //
-// GetFileRecordFindFile
+// FindFile
 //
-// Same as above but looks for a fully qualified name from a .zip
-// These don't care about namespaces though because those are part
-// of the path.
+// Looks up a file by name, either eith or without path and extension
 //
 //==========================================================================
 
@@ -253,62 +249,28 @@ int FileSystem::FindFile (const char *name, ELookupMode lookupmode, int filenum)
 	{
 		return -1;
 	}
-	uint32_t* fli;
-	uint32_t* nli;
+	FName lname(name, true);
+	if (lname == NAME_None) return -1;
 
-	switch (lookupmode)
+	if (lookupmode == ELookupMode::IdWithType) return -1;
+	int lookupindex = (int)lookupmode;
+	uint32_t* fli = FirstFileIndex[lookupindex];
+	uint32_t* nli = NextFileIndex[lookupindex];
+	
+	for (i = fli[int(lname) % NumEntries]; i != NULL_INDEX; i = nli[i])
 	{
-	case ELookupMode::FullName:
-		fli = FirstFileIndex_FullName;
-		nli = NextFileIndex_FullName;
-		break;
-
-	case ELookupMode::NoExtension:
-		fli = FirstFileIndex_NoExt;
-		nli = NextFileIndex_NoExt;
-		break;
-
-	case ELookupMode::BaseName:
-		fli = FirstFileIndex_BaseName;
-		nli = NextFileIndex_BaseName;
-		break;
-
-	case ELookupMode::BaseWithExtension:
-		fli = FirstFileIndex_BaseExt;
-		nli = NextFileIndex_BaseExt;
-		break;
-
-	}
-	auto len = strlen(name);
-
-	for (i = fli[MakeKey(name) % NumEntries]; i != NULL_INDEX; i = nli[i])
-	{
+		if (filenum > 0 && FileInfo[i].rfnum != filenum) continue;
 		auto lump = FileInfo[i].lump;
-		if (FileInfo[i].rfnum != filenum) continue;
-		const char* fn = lump->FullName.GetChars();
-		const char* fnstart, * fnend;
-		if (lookupmode == ELookupMode::BaseName || lookupmode == ELookupMode::BaseWithExtension) fnstart = fn + lump->PathLen;
-		else fnstart = fn;
-
-		if ((lookupmode == ELookupMode::NoExtension || lookupmode == ELookupMode::BaseName) && lump->ExtStart >= 0) fnend = fn + lump->ExtStart;
-		else fnend = fn + lump->FullName.Len();
-
-		if ((fnend - fnstart) == (ptrdiff_t)len)
-		{
-			if (!strnicmp(name, fnstart, len))
-			{
-				return i;
-			}
-		}
+		if (lump->LumpName[lookupindex] == lname) return i;
 	}
 	return -1;
 }
 
 //==========================================================================
 //
-// GetFileRecordGetFile
+// GetFile
 //
-// Calls GetFileRecordFindFile, but bombs out if not found.
+// Calls FindFile, but bombs out if not found.
 //
 //==========================================================================
 
@@ -328,7 +290,61 @@ int FileSystem::GetFile (const char *name, ELookupMode lookupmode, int filenum) 
 
 //==========================================================================
 //
-// GetFileRecordLumpLength
+// FindResource
+//
+// Looks for content based on Blood resource IDs.
+//
+//==========================================================================
+
+int FileSystem::FindResource (int resid, const char *type, int filenum) const noexcept
+{
+	uint32_t i;
+
+	if (type == NULL)
+	{
+		return -1;
+	}
+	FName lname(type, true);
+	if (lname == NAME_None) return -1;
+
+	const int lookuptype = (int)ELookupMode::IdWithType
+	uint32_t* fli = FirstFileIndex[lookuptype];
+	uint32_t* nli = NextFileIndex[lookuptype];
+	
+	for (i = fli[int(resid) % NumEntries]; i != NULL_INDEX; i = nli[i])
+	{
+		if (filenum > 0 && FileInfo[i].rfnum != filenum) continue;
+		auto lump = FileInfo[i].lump;
+		if (lump->LumpName[lookuptype] == lname) return i;
+	}
+	return -1;
+}
+
+//==========================================================================
+//
+// GetResource
+//
+// Calls GetResource, but bombs out if not found.
+//
+//==========================================================================
+
+int FileSystem::GetResource (int resid, const char *type, int filenum) const
+{
+	int	i;
+
+	i = FindResource (resid, type, lookupmode, filenum);
+
+	if (i == -1)
+	{
+		FStringf error("GetResource: %d of type %s not found!", resid, type);
+		throw FileSystemError(error.GetChars());
+	}
+	return i;
+}
+
+//==========================================================================
+//
+// LumpLength
 //
 // Returns the buffer size needed to load the given lump.
 //
@@ -379,7 +395,7 @@ int FileSystem::GetFileFlags (int lump)
 
 //==========================================================================
 //
-// GetFileRecordInitHashChains
+// InitHashChains
 //
 // Prepares the lumpinfos for hashing.
 // (Hey! This looks suspiciously like something from Boom! :-)
@@ -388,68 +404,26 @@ int FileSystem::GetFileFlags (int lump)
 
 void FileSystem::InitHashChains (void)
 {
-	char name[8];
-	unsigned int i, j;
-
 	// Mark all buckets as empty
-	memset(FirstFileIndex_BaseExt, 255, NumEntries * sizeof(FirstFileIndex_BaseExt[0]));
-	memset(NextFileIndex_BaseExt, 255, NumEntries * sizeof(NextFileIndex_BaseExt[0]));
-	memset (FirstFileIndex_BaseName, 255, NumEntries*sizeof(FirstFileIndex_BaseName[0]));
-	memset (NextFileIndex_BaseName, 255, NumEntries*sizeof(NextFileIndex_BaseName[0]));
-	memset (FirstFileIndex_FullName, 255, NumEntries*sizeof(FirstFileIndex_FullName[0]));
-	memset (NextFileIndex_FullName, 255, NumEntries*sizeof(NextFileIndex_FullName[0]));
-	memset(FirstFileIndex_NoExt, 255, NumEntries * sizeof(FirstFileIndex_NoExt[0]));
-	memset(NextFileIndex_NoExt, 255, NumEntries * sizeof(NextFileIndex_NoExt[0]));
+	memset(Hashes.Data(), 255, Hashes.Size() * sizeof(Hashes[0]));
 
 	// Now set up the chains
-	for (i = 0; i < (unsigned)NumEntries; i++)
+	for (int i = 0; i < (unsigned)NumEntries; i++)
 	{
-
-		// Do the same for the full paths
 		auto lump = FileInfo[i].lump;
-		auto& Name = lump->FullName;
-		if (Name.IsNotEmpty())
+		for (int l = 0; l < NumLookupModes; l++)
 		{
-			j = MakeKey(Name) % NumEntries;
-			NextFileIndex_FullName[i] = FirstFileIndex_FullName[j];
-			FirstFileIndex_FullName[j] = i;
-
-			j = MakeKey(Name + lump->PathLen) % NumEntries;
-			NextFileIndex_BaseExt[i] = FirstFileIndex_BaseExt[j];
-			FirstFileIndex_BaseExt[j] = i;
-
-			j = MakeKey(Name, lump->ExtStart) % NumEntries;
-			NextFileIndex_NoExt[i] = FirstFileIndex_NoExt[j];
-			FirstFileIndex_NoExt[j] = i;
-
-			if (lump->ExtStart > lump->PathLen)
+			int hash;
+			if (l != (int)ELookupMode::IdWithType && lump->LumpName[l] != NAME_None)
 			{
-				j = MakeKey(Name, lump->ExtStart) % NumEntries;
-				NextFileIndex_NoExt[i] = FirstFileIndex_NoExt[j];
-				FirstFileIndex_NoExt[j] = i;
-
-				j = MakeKey(Name + lump->PathLen, lump->ExtStart - lump->PathLen) % NumEntries;
-				NextFileIndex_BaseName[i] = FirstFileIndex_BaseName[j];
-				FirstFileIndex_BaseName[j] = i;
+				hash = int(lump->LumpName[l]) % NumEntries;
 			}
-			else
+			else if (lump->ResourceId > 0)
 			{
-				NextFileIndex_NoExt[i] = NextFileIndex_FullName[i];
-				FirstFileIndex_NoExt[i] = FirstFileIndex_FullName[i];
-
-				NextFileIndex_BaseName[i] = NextFileIndex_BaseExt[i];
-				FirstFileIndex_BaseName[j] = FirstFileIndex_BaseExt[i];
+				hash = int(lump->ResourceId) % NumEntries;
 			}
-
-			FString nameNoExt = Name;
-			auto dot = nameNoExt.LastIndexOf('.');
-			auto slash = nameNoExt.LastIndexOf('/');
-			if (dot > slash) nameNoExt.Truncate(dot);
-
-			j = MakeKey(nameNoExt) % NumEntries;
-			NextFileIndex_NoExt[i] = FirstFileIndex_NoExt[j];
-			FirstFileIndex_NoExt[j] = i;
-
+			NextFileIndex[l][hash] = FirstFileIndex[l][hash];
+			FirstFileIndex[l][hash] = i;
 		}
 	}
 }
@@ -466,36 +440,26 @@ void FileSystem::InitHashChains (void)
 
 int FileSystem::Iterate (const char *name, int *lastlump, ELookupMode lookupmode)
 {
-	union
-	{
-		char name8[8];
-		uint64_t qname;
-	};
 	FileRecord *lump_p;
 
-
+	int lookupindex = static_cast<int>(lookupmode);
+	FName lname(name, true);
 	assert(lastlump != NULL && *lastlump >= 0);
+	if (lname == NAME_None)
+	{
+		*lastlump = NumEntries;
+		return -1;
+	}
+
 	lump_p = &FileInfo[*lastlump];
-	auto len = strlen(name);
 	while (lump_p < &FileInfo[NumEntries])
 	{
 		auto lump = lump_p->lump;
-		const char* fn = lump->FullName.GetChars();
-		const char* fnstart, * fnend;
-		if (lookupmode == ELookupMode::BaseName || lookupmode == ELookupMode::BaseWithExtension) fnstart = fn + lump->PathLen;
-		else fnstart = fn;
-
-		if ((lookupmode == ELookupMode::NoExtension || lookupmode == ELookupMode::BaseName) && lump->ExtStart >= 0) fnend = fn + lump->ExtStart;
-		else fnend = fn + lump->FullName.Len();
-
-		if ((fnend - fnstart) == (ptrdiff_t)len)
+		if (lump->LumpName[lookupindex] == lname)
 		{
-			if (!strnicmp(name, fnstart, len))
-			{
-				int lump = int(lump_p - &FileInfo[0]);
-				*lastlump = lump + 1;
-				return lump;
-			}
+			int lump = int(lump_p - &FileInfo[0]);
+			*lastlump = lump + 1;
+			return lump;
 		}
 		lump_p++;
 	}
@@ -505,7 +469,7 @@ int FileSystem::Iterate (const char *name, int *lastlump, ELookupMode lookupmode
 
 //==========================================================================
 //
-// GetFileRecordGetLumpName
+// GetLumpName
 //
 //==========================================================================
 
@@ -514,12 +478,12 @@ const char *FileSystem::GetFileName (int lump) const
 	if ((size_t)lump >= NumEntries)
 		return nullptr;
 	else
-		return FileInfo[lump].lump->FullName;
+		return FileInfo[lump].lump->FullName();
 }
 
 //==========================================================================
 //
-// FileSystem :: GetLumpFullPath
+// FileSystem :: GetFilrFullPath
 //
 // Returns the name of the lump's wad prefixed to the lump's full name.
 //
@@ -542,21 +506,21 @@ FString FileSystem::GetFileFullPath(int lump) const
 //
 // Returns the index number for this lump. This is *not* the lump's position
 // in the lump directory, but rather a special value that RFF can associate
-// with files. Other archive types will return 0, since they don't have it.
+// with files. Other archive types will return -1, since they don't have it.
 //
 //==========================================================================
 
-int FileSystem::GetRFFIndexNum(int lump) const
+int FileSystem::GetResourceId(int lump) const
 {
 	if ((size_t)lump >= NumEntries)
-		return 0;
+		return -1;
 	else
-		return FileInfo[lump].lump->GetIndexNum();
+		return FileInfo[lump].lump->ResourceId;
 }
 
 //==========================================================================
 //
-// GetFileRecordGetLumpFile
+// GetLumpFile
 //
 //==========================================================================
 
@@ -599,12 +563,12 @@ unsigned FileSystem::GetFilesInFolder(const char *inpath, TArray<FolderEntry> &r
 	result.Clear();
 	for (unsigned i = 0; i < FileInfo.Size(); i++)
 	{
-		if (FileInfo[i].lump->FullName.IndexOf(path) == 0)
+		if (!strncmp(FileInfo[i].lump->FullName(), path, path.Len()))
 		{
 			// Only if it hasn't been replaced.
-			if ((unsigned)FindFile(FileInfo[i].lump->FullName) == i)
+			if ((unsigned)FindFile(FileInfo[i].lump->FullName()) == i)
 			{
-				result.Push({ FileInfo[i].lump->FullName.GetChars(), i });
+				result.Push({ FileInfo[i].lump->FullName(), i });
 			}
 		}
 	}
@@ -633,7 +597,7 @@ unsigned FileSystem::GetFilesInFolder(const char *inpath, TArray<FolderEntry> &r
 
 //==========================================================================
 //
-// GetFileRecordReadFile
+// ReadFile
 //
 // Loads the lump into a TArray and returns it.
 //
@@ -641,6 +605,9 @@ unsigned FileSystem::GetFilesInFolder(const char *inpath, TArray<FolderEntry> &r
 
 TArray<uint8_t> FileSystem::GetFileData(int lump, int pad)
 {
+	if ((size_t)lump >= FileInfo.Size())
+		return TArray<<uint8_t>();
+
 	auto lumpr = OpenFileReader(lump);
 	auto size = lumpr.GetLength();
 	TArray<uint8_t> data(size + pad, true);
@@ -653,6 +620,33 @@ TArray<uint8_t> FileSystem::GetFileData(int lump, int pad)
 	}
 	if (pad > 0) memset(&data[size], 0, pad);
 	return data;
+}
+
+//==========================================================================
+//
+// Interface to the lump cache
+//
+//==========================================================================
+
+const void *FileSystem::Lock(int lump)
+{
+	if ((size_t)lump >= FileInfo.Size()) return nullptr;
+	auto lump = FileInfo[lump].lump;
+	return lump->Lock();
+}
+
+void FileSystem::Unlock(bool mayfree)
+{
+	if ((size_t)lump >= FileInfo.Size()) return;
+	auto lump = FileInfo[lump].lump;
+	lump->Unlock(maxfree);
+}
+
+const void *FileSystem::Get(int lump)
+{
+	if ((size_t)lump >= FileInfo.Size()) return nullptr;
+	auto lump = FileInfo[lump].lump;
+	return lump->Get();
 }
 
 //==========================================================================
@@ -723,7 +717,7 @@ FileReader FileSystem::ReopenFileReader(int lump, bool alwayscache)
 
 //==========================================================================
 //
-// GetFileRecordGetResourceFileName
+// GetResourceFileName
 //
 // Returns the name of the given wad.
 //
@@ -791,7 +785,7 @@ int FileSystem::GetEntryCount (int rfnum) const noexcept
 
 //==========================================================================
 //
-// GetFileRecordGetResourceFileFullName
+// GetResourceFileFullName
 //
 // Returns the name of the given wad, including any path
 //

@@ -57,7 +57,7 @@
 struct FDirectoryLump : public FResourceLump
 {
 	virtual FileReader NewReader();
-	virtual int FillCache();
+	int ValidateCache() override;
 
 	FString mFullPath;
 };
@@ -300,7 +300,7 @@ FileReader FDirectoryLump::NewReader()
 //
 //==========================================================================
 
-int FDirectoryLump::FillCache()
+int FDirectoryLump::ValidateCache()
 {
 	FileReader fr;
 	if (!fr.OpenFile(mFullPath))
@@ -311,7 +311,6 @@ int FDirectoryLump::FillCache()
 	LumpSize = fr.GetLength();	// keep this updated
 	Cache.Resize(LumpSize);
 	fr.Read(Cache.Data(), LumpSize);
-	RefCount = 1;
 	return 1;
 }
 

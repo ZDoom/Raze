@@ -42,17 +42,26 @@ struct FCompressedBuffer
 	}
 };
 
+
 struct FResourceLump
 {
+	enum ENameType
+	{
+		FullNameType,
+		FullNameNoExtType,
+		BaseNameType,
+		BaseNameNoExtType,
+		ExtensionType,
+		NUMNAMETYPES
+	};
+	
 	friend class FResourceFile;
 
 	unsigned 		LumpSize = 0;
 	int				RefCount = 0;
 	int				Flags = 0;
-	int				PathLen = 0;
-	int				ExtStart = -1;
 	int				ResourceId = -1;
-	FString			FullName;	// Name with extension and path
+	FName			LumpName[NUMNAMETYPES] = {};
 	FResourceFile *	Owner = nullptr;
 	TArray<uint8_t> Cache;
 
@@ -62,20 +71,22 @@ struct FResourceLump
 	virtual FileReader *GetReader();
 	virtual FileReader NewReader();
 	virtual int GetFileOffset() { return -1; }
-	virtual int GetIndexNum() const { return 0; }
 	void LumpNameSetup(FString iname);
 	virtual FCompressedBuffer GetRawData();
 
-	void *CacheLump();
-	int ReleaseCache();
+	void *Lock(); // validates the cache and increases the refcount.
+	void Unlock(bool freeunrefd = false); // recreases the refcount and optionally frees the buffer
+	void *Get(); // validates the cache and returns a pointer without locking
 	
+	// Wrappers for emulating Blood's resource system
 	unsigned Size() const{ return LumpSize; }
 	int LockCount() const { return RefCount; }
-	FString BaseName(); // don't know if these will be needed
-	FString Type();
+	const char *ResName() const { return LumpName[BaseNameNoExtType]; }  needed
+	const char *ResType() { return LumpName[ExtensionType]; }
+	const char *FullName() const { return LumpName[FullNameType]; }  needed
 
 protected:
-	virtual int FillCache() { return -1; }
+	virtual int ValidateCache() { return -1; }
 
 };
 
@@ -127,7 +138,7 @@ struct FUncompressedLump : public FResourceLump
 	int				Position;
 
 	virtual FileReader *GetReader();
-	virtual int FillCache();
+	int ValidateCache() override;
 	virtual int GetFileOffset() { return Position; }
 
 };
@@ -150,7 +161,7 @@ struct FExternalLump : public FResourceLump
 	FString Filename;
 
 	FExternalLump(const char *_filename, int filesize = -1);
-	virtual int FillCache();
+	virtual int ValidateCache() override;
 
 };
 

@@ -49,13 +49,21 @@ struct FolderEntry
 	unsigned lumpnum;
 };
 
-enum class ELookupMode
+enum class ELookupMode // Todo: Merge with FResourceLump::ENameType
 {
-	FullName = 0,
-	NoExtension = 1,
-	BaseName = 2,
-	BaseWithExtension = 3
+	FullName,
+	NoExtension,
+	BaseName,
+	BaseWithExtension,
+	IdWithType,
+	NumLookupModes
 };
+
+enum
+{
+	NumLookupModes = (int)ELookupMode::NumLookupModes + 1
+};
+
 
 class FileSystem
 {
@@ -83,9 +91,17 @@ public:
 	int FindFile (const std::string &name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const noexcept { return FindFile(name.c_str(), lookupmode, filenum); }
 	int GetFile (const std::string &name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const { return GetFile(name.c_str(), lookupmode, filenum); }
 
+	int FindResource (int resid, const char *type, int filenum = -1) const noexcept;
+	int GetResource (int resid, const char *type, int filenum = -1) const;	// Like FindFile, but throws an exception when it cannot find what it looks for.
+
+
 	TArray<uint8_t> GetFileData(int file, int pad = 0);	// reads file into a writable buffer and optionally adds some padding at the end. (FileData isn't writable!)
 	FileData ReadFile (int file);
 	FileData ReadFile (const char *name) { return ReadFile (GetFile (name)); }
+	
+	const void *Lock(int lump);
+	void Unlock(bool mayfree = false);
+	void *Get(int lump);
 
 	FileReader OpenFileReader(int file);		// opens a reader that redirects to the containing file's one.
 	FileReader ReopenFileReader(int file, bool alwayscache = false);		// opens an independent reader.
@@ -105,6 +121,7 @@ public:
 	unsigned GetFilesInFolder(const char *path, TArray<FolderEntry> &result, bool atomic) const;
 
 	bool IsEncryptedFile(int file) const noexcept;
+	int GetResourceId(int file) const;
 
 	int GetNumResourceFiles() const { return NumFiles; }
 	int GetNumEntries () const { return NumEntries; }
@@ -117,17 +134,8 @@ protected:
 	TArray<FileRecord> FileInfo;
 
 	TArray<uint32_t> Hashes;			// one allocation for all hash lists.
-	uint32_t *FirstFileIndex_BaseName;	// Hash information for the base name (no path and no extension)
-	uint32_t *NextFileIndex_BaseName;
-
-	uint32_t* FirstFileIndex_BaseExt;	// Hash information for the base name (no path and no extension)
-	uint32_t* NextFileIndex_BaseExt;
-
-	uint32_t *FirstFileIndex_FullName;	// The same information for fully qualified paths
-	uint32_t *NextFileIndex_FullName;
-
-	uint32_t *FirstFileIndex_NoExt;		// The same information for fully qualified paths but without the extension
-	uint32_t *NextFileIndex_NoExt;
+	uint32_t *FirstFileIndex[NumLookupModes];	// Hash information for the base name (no path and no extension)
+	uint32_t *NextFileIndex[NumLookupModes];
 
 	uint32_t NumFiles = 0;					// Not necessarily the same as FileInfo.Size()
 	uint32_t NumEntries;
