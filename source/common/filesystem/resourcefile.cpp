@@ -54,13 +54,13 @@ public:
 	FLumpReader(FResourceLump *src)
 		: MemoryReader(NULL, src->LumpSize), source(src)
 	{
-		src->CacheLump();
-		bufptr = (const char*)src->Cache.Data();
+		bufptr = (const char*)src->Lock();
+		src->Cache.Data();
 	}
 
 	~FLumpReader()
 	{
-		source->ReleaseCache();
+		source->Unlock(true);
 	}
 };
 
@@ -154,7 +154,7 @@ void *FResourceLump::Lock()
 	}
 	else if (LumpSize > 0)
 	{
-		ValidateCache()
+		ValidateCache();
 		RefCount++;
 	}
 	return Cache.Data();
@@ -170,7 +170,7 @@ void *FResourceLump::Get()
 {
 	if (Cache.Size() == 0)
 	{
-		ValidateCache()
+		ValidateCache();
 	}
 	return Cache.Data();
 }
@@ -181,7 +181,7 @@ void *FResourceLump::Get()
 //
 //==========================================================================
 
-int FResourceLump::Unlock(bool mayfree)
+void FResourceLump::Unlock(bool mayfree)
 {
 	if (LumpSize > 0 && RefCount > 0)
 	{
@@ -190,7 +190,6 @@ int FResourceLump::Unlock(bool mayfree)
 			if (mayfree) Cache.Reset();
 		}
 	}
-	return RefCount;
 }
 
 //==========================================================================

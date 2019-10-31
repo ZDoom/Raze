@@ -60,6 +60,7 @@ struct RFFLump
 	uint8_t		Flags;
 	char		Extension[3];
 	char		Name[8];
+	uint32_t	ResourceId;
 };
 
 //==========================================================================
@@ -71,7 +72,7 @@ struct RFFLump
 struct FRFFLump : public FUncompressedLump
 {
 	virtual FileReader *GetReader();
-	int ValidataCache() override;
+	int ValidateCache() override;
 
 	uint32_t		IndexNum;
 };
@@ -205,7 +206,7 @@ int FRFFLump::ValidateCache()
 {
 	int res = FUncompressedLump::ValidateCache();
 
-	if (res && )(Flags & LUMPF_BLOODCRYPT))
+	if (res && (Flags & LUMPF_BLOODCRYPT))
 	{
 		int cryptlen = std::min<int> (LumpSize, 256);
 		uint8_t *data = Cache.Data();

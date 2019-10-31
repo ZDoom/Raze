@@ -312,7 +312,7 @@ int FileSystem::FindResource (int resid, const char *type, int filenum) const no
 	FName lname(type, true);
 	if (lname == NAME_None) return -1;
 
-	const int lookuptype = (int)ELookupMode::IdWithType
+	const int lookuptype = (int)ELookupMode::IdWithType;
 	uint32_t* fli = FirstFileIndex[lookuptype];
 	uint32_t* nli = NextFileIndex[lookuptype];
 	
@@ -337,7 +337,7 @@ int FileSystem::GetResource (int resid, const char *type, int filenum) const
 {
 	int	i;
 
-	i = FindResource (resid, type, lookupmode, filenum);
+	i = FindResource (resid, type, filenum);
 
 	if (i == -1)
 	{
@@ -450,7 +450,7 @@ void FileSystem::AddLump(FResourceLump *lump)
 			hash = int(lump->ResourceId) % NumEntries;
 		}
 		NextFileIndex[l][hash] = FirstFileIndex[l][hash];
-		FirstFileIndex[l][hash] = i;
+		FirstFileIndex[l][hash] = FileInfo.Size() - 1;
 	}
 }
 
@@ -631,7 +631,7 @@ unsigned FileSystem::GetFilesInFolder(const char *inpath, TArray<FolderEntry> &r
 TArray<uint8_t> FileSystem::GetFileData(int lump, int pad)
 {
 	if ((size_t)lump >= FileInfo.Size())
-		return TArray<<uint8_t>();
+		return TArray<uint8_t>();
 
 	auto lumpr = OpenFileReader(lump);
 	auto size = lumpr.GetLength();
@@ -656,22 +656,22 @@ TArray<uint8_t> FileSystem::GetFileData(int lump, int pad)
 const void *FileSystem::Lock(int lump)
 {
 	if ((size_t)lump >= FileInfo.Size()) return nullptr;
-	auto lump = FileInfo[lump].lump;
-	return lump->Lock();
+	auto lumpp = FileInfo[lump].lump;
+	return lumpp->Lock();
 }
 
-void FileSystem::Unlock(bool mayfree)
+void FileSystem::Unlock(int lump, bool mayfree)
 {
 	if ((size_t)lump >= FileInfo.Size()) return;
-	auto lump = FileInfo[lump].lump;
-	lump->Unlock(maxfree);
+	auto lumpp = FileInfo[lump].lump;
+	lumpp->Unlock(mayfree);
 }
 
 const void *FileSystem::Get(int lump)
 {
 	if ((size_t)lump >= FileInfo.Size()) return nullptr;
-	auto lump = FileInfo[lump].lump;
-	return lump->Get();
+	auto lumpp = FileInfo[lump].lump;
+	return lumpp->Get();
 }
 
 //==========================================================================
@@ -680,9 +680,10 @@ const void *FileSystem::Get(int lump)
 //
 //==========================================================================
 
-void *FileSystem::Lock(FResourceLump *lump)
+const void *FileSystem::Lock(FResourceLump *lump)
 {
 	if (lump) return lump->Lock();
+	else return nullptr;
 }
 
 void FileSystem::Unlock(FResourceLump *lump)
@@ -690,9 +691,10 @@ void FileSystem::Unlock(FResourceLump *lump)
 	if (lump) return lump->Unlock();
 }
 
-void FileSystem::Load(FResourceLump *lump)
+const void *FileSystem::Load(FResourceLump *lump)
 {
 	if (lump) return lump->Get();
+	else return nullptr;
 }
 
 //==========================================================================
@@ -890,13 +892,14 @@ FResourceLump *FileSystem::Lookup(const char *name, const char *type)
 	FStringf fname("%s.%s", name, type);
 	auto lump = FindFile(fname);
 	if (lump >= 0) return FileInfo[lump].lump;
+	else return nullptr;
 }
 
 FResourceLump *FileSystem::Lookup(unsigned int id, const char *type)
 {
 	auto lump = FindResource(id, type);
-	auto lump = FindFile(fname);
 	if (lump >= 0) return FileInfo[lump].lump;
+	else return nullptr;
 }
 
 //==========================================================================

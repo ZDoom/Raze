@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "files.h"
 #include "zstring.h"
+#include "name.h"
 
 class FResourceFile;
 class FTexture;
@@ -56,6 +57,7 @@ struct FResourceLump
 	};
 	
 	friend class FResourceFile;
+	friend struct FClonedLump;
 
 	unsigned 		LumpSize = 0;
 	int				RefCount = 0;
@@ -81,9 +83,9 @@ struct FResourceLump
 	// Wrappers for emulating Blood's resource system
 	unsigned Size() const{ return LumpSize; }
 	int LockCount() const { return RefCount; }
-	const char *ResName() const { return LumpName[BaseNameNoExtType]; }  needed
+	const char *ResName() const { return LumpName[BaseNameNoExtType]; }
 	const char *ResType() { return LumpName[ExtensionType]; }
-	const char *FullName() const { return LumpName[FullNameType]; }  needed
+	const char *FullName() const { return LumpName[FullNameType]; }
 
 protected:
 	virtual int ValidateCache() { return -1; }
@@ -167,7 +169,7 @@ struct FExternalLump : public FResourceLump
 
 struct FMemoryLump : public FResourceLump
 {
-	FMemoryLump(const void *data, int length)
+	FMemoryLump(const void* data, int length)
 	{
 		Cache.Resize(length);
 		memcpy(Cache.Data(), data, length);
@@ -177,20 +179,20 @@ struct FMemoryLump : public FResourceLump
 		RefCount = INT_MAX / 2; // Make sure it never counts down to 0 by resetting it to something high each time it is used.
 		return 1;
 	}
-}
+};
 
 struct FClonedLump : public FResourceLump
 {
-	FResourceLump *parent;
-	FClonedLump(FResourceLump *lump)
+	FResourceLump* parent;
+	FClonedLump(FResourceLump* lump)
 	{
 		parent = lump;
 	}
-	void *Lock() { return parent->Lock(); }
+	void* Lock() { return parent->Lock(); }
 	void Unlock(bool mayfree) override { parent->Unlock(mayfree); }
-	void *Get() { return parent->Get(); }
-	void ValidateCache() override { parent->ValidateCache(); }
-}
+	void* Get() { return parent->Get(); }
+	int ValidateCache() override { return parent->ValidateCache(); }
+};
 
 
 

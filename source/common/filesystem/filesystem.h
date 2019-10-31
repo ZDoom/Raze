@@ -12,6 +12,10 @@
 #include "tarray.h"
 #include "zstring.h"
 
+#ifdef FindResource
+#undef FindResource
+#endif
+
 // We do not want to expose the resource file interface here.
 class FResourceFile;
 struct FResourceLump;
@@ -107,13 +111,13 @@ public:
 	FileData ReadFile (const char *name) { return ReadFile (GetFile (name)); }
 	
 	const void *Lock(int lump);
-	void Unlock(bool mayfree = false);
-	void *Get(int lump);
+	void Unlock(int lump, bool mayfree = false);
+	const void *Get(int lump);
 	
 	// These are designed to be stand-ins for Blood's resource class.
-	static void *Lock(FResourceLump *lump);
+	static const void *Lock(FResourceLump *lump);
 	static void Unlock(FResourceLump *lump);
-	static void *Load(FResourceLump *lump);
+	static const void *Load(FResourceLump *lump);
 	static void Read(FResourceLump *lump) { Load(lump); }
 	static void Read(FResourceLump *n, void *p);
 	FResourceLump *Lookup(const char *name, const char *type);
@@ -158,6 +162,7 @@ protected:
 	uint32_t NumEntries;					// Hash modulus. Can be smaller than NumFiles if things get added at run time.
 
 	void InitHashChains ();								// [RH] Set up the lumpinfo hashing
+	void AddLump(FResourceLump* lump);
 
 private:
 	void DeleteAll();

@@ -356,7 +356,7 @@ FileReader *FZipLump::GetReader()
 //
 //==========================================================================
 
-int FZipLump::ValidataCache()
+int FZipLump::ValidateCache()
 {
 	if (Flags & LUMPFZIP_NEEDFILESTART) SetLumpAddress();
 
