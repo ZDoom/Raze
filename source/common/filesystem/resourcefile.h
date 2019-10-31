@@ -84,7 +84,7 @@ struct FResourceLump
 	unsigned Size() const{ return LumpSize; }
 	int LockCount() const { return RefCount; }
 	const char *ResName() const { return LumpName[BaseNameNoExtType]; }
-	const char *ResType() { return LumpName[ExtensionType]; }
+	const FName ResType() { return LumpName[ExtensionType]; }
 	const char *FullName() const { return LumpName[FullNameType]; }
 
 protected:

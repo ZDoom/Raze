@@ -194,11 +194,13 @@ void ShutDown(void)
     // PORT_TODO: Check argument
     if (syncstate)
         printf("A packet was lost! (syncstate)\n");
+#if 0 // never used anywhere.
     for (int i = 0; i < 10; i++)
     {
         if (gSaveGamePic[i])
             Resource::Free(gSaveGamePic[i]);
     }
+#endif
     DO_FREE_AND_NULL(pUserTiles);
     DO_FREE_AND_NULL(pUserSoundRFF);
     DO_FREE_AND_NULL(pUserRFF);
@@ -387,16 +389,25 @@ void PreloadTiles(void)
     gameHandleEvents();
 }
 
+static void PrecacheSounds(void)
+{
+	for (unsigned int i = 0; i < fileSystem.GetNumEntries(); i++)
+	{
+		DICTNODE* pNode = fileSystem.GetFileAt(i);
+		if (pNode->ResType() == NAME_RAW || pNode->ResType() == NAME_SFX)
+		{
+			pNode->Get();
+			if ((i&15) == 15) gameHandleEvents();	// don't do this too often. That made sense in 1996 but not in 2019
+		}
+	}
+}
 
 void PreloadCache(void)
 {
     char tempbuf[128];
     if (gDemo.at1)
         return;
-    gSysRes.PurgeCache();
-    gSoundRes.PurgeCache();
-    gSysRes.PrecacheSounds();
-    gSoundRes.PrecacheSounds();
+    PrecacheSounds();
     if (mus_restartonload)
         sndTryPlaySpecialMusic(MUS_LOADING);
     PreloadTiles();
@@ -1301,9 +1312,9 @@ int app_main(int argc, char const * const * argv)
 #ifdef USE_QHEAP
     Resource::heap = new QHeap(nMaxAlloc);
 #endif
-    gSysRes.Init(pUserRFF ? pUserRFF : "BLOOD.RFF");
+    //gSysRes.Init(pUserRFF ? pUserRFF : "BLOOD.RFF");
     //gGuiRes.Init("GUI.RFF");
-    gSoundRes.Init(pUserSoundRFF ? pUserSoundRFF : "SOUNDS.RFF");
+    //gSoundRes.Init(pUserSoundRFF ? pUserSoundRFF : "SOUNDS.RFF");
 
     HookReplaceFunctions();
 
@@ -1896,10 +1907,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
             if (!firstPass)
             {
-                if (!Bstrcasecmp(rffName, "SYSTEM"))
-                    gSysRes.AddExternalResource(resName, resType, resID);
-                else if (!Bstrcasecmp(rffName, "SOUND"))
-                    gSoundRes.AddExternalResource(resName, resType, resID);
+                gSysRes.AddExternalResource(resName, resType, resID);
             }
         }
         break;

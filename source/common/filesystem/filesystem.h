@@ -118,23 +118,18 @@ public:
 	static const void *Lock(FResourceLump *lump);
 	static void Unlock(FResourceLump *lump);
 	static const void *Load(FResourceLump *lump);
-	static void Read(FResourceLump *lump) { Load(lump); }
-	static void Read(FResourceLump *n, void *p);
 	FResourceLump *Lookup(const char *name, const char *type);
 	FResourceLump *Lookup(unsigned int id, const char *type);
-	void AddExternalResource(const char *name, const char *type, int id, int flags, const char *pzDirectory);
+	void AddExternalResource(const char *name, const char *type, int id, int flags = 0, const char *pzDirectory = nullptr);
 
 	FileReader OpenFileReader(int file);		// opens a reader that redirects to the containing file's one.
 	FileReader ReopenFileReader(int file, bool alwayscache = false);		// opens an independent reader.
 
 	int Iterate (const char *name, int *lastfile, ELookupMode lookupmode = ELookupMode::FullName);		// [RH] Find files with duplication
 
-	static uint32_t FileNameHash (const char *name);		// [RH] Create hash key from a given name
-
 	int FileLength (int file) const;
 	int GetFileOffset (int file);					// [RH] Returns offset of file in the wadfile
 	int GetFileFlags (int file);					// Return the flags for this file
-	void GetFileName (char *to, int file) const;	// [RH] Copies the file name to to using uppercopy
 	const char *GetFileName (int file) const;
 	FString GetFileFullPath (int file) const;		// [RH] Returns wad's name + file's full name
 	int GetFileContainer (int file) const;			// [RH] Returns filenum for a specified file
@@ -146,10 +141,18 @@ public:
 
 	int GetNumResourceFiles() const { return NumFiles; }
 	int GetNumEntries () const { return NumEntries; }
+	FResourceLump* GetFileAt(int lump) const
+	{
+		return FileInfo[lump].lump;
+	}
 
 protected:
 
-	struct FileRecord;
+	struct FileRecord
+	{
+		int			rfnum;
+		FResourceLump* lump;
+	};
 
 	TArray<FResourceFile *> Files;
 	TArray<FileRecord> FileInfo;
@@ -168,5 +171,5 @@ private:
 	void DeleteAll();
 };
 
-extern FileSystem Files;
+extern FileSystem fileSystem;
 

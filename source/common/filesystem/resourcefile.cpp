@@ -37,6 +37,7 @@
 #include <zlib.h>
 #include "resourcefile.h"
 #include "name.h"
+#include "m_swap.h"
 
 extern FString LumpFilter;
 
@@ -155,6 +156,8 @@ void *FResourceLump::Lock()
 	else if (LumpSize > 0)
 	{
 		ValidateCache();
+		// NBlood has some endian conversion right in here which is extremely dangerous and needs to be handled differently.
+		// Fortunately Big Endian platforms are mostly irrelevant so this is something to be sorted out later (if ever)
 		RefCount++;
 	}
 	return Cache.Data();

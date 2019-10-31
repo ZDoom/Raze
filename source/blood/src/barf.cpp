@@ -55,7 +55,7 @@ char scriptBuffer[256];
 
 struct define_t
 {
-    char *_text;
+    FString _text;
     int   _value;
 };
 
@@ -132,9 +132,7 @@ void AddCmdDefine(char *text, int value)
 {
     dassert(nCmdDefines < kMaxCmdLineDefines);
 
-    gCmdDefines[nCmdDefines]._text = (char*)Resource::Alloc(strlen(text) + 1);
-
-    strcpy(gCmdDefines[nCmdDefines]._text, text);
+	gCmdDefines[nCmdDefines]._text = text;
     gCmdDefines[nCmdDefines]._value = value;
 
     nCmdDefines++;
@@ -144,6 +142,7 @@ void AddCmdDefine(char *text, int value)
 struct RFS
 {
 private:
+	TArray<char> buffer;
     char *_ptr;         // [0]
     char _curChar;      // [4]
     char *_pUnknown2;   // [5]  - some sort of pointer into _ptr?
@@ -177,7 +176,8 @@ int RFS::Open(const char *fileName)
     }
 
 	int fileSize = hFile.GetLength();
-    _ptr = (char*)Resource::Alloc(fileSize);
+	buffer.Resize(fileSize);
+    _ptr = buffer.Data();
     if (_ptr == NULL) {
         initprintf("BARF: Not enough memory to read %s", _fileName);
         return 1;
@@ -195,12 +195,6 @@ int RFS::Open(const char *fileName)
 
 void RFS::Close()
 {
-    if (_ptr) {
-/* BUG - the original code called nfree but this should be a Resource::Free()
-        _nfree(_ptr);
-*/
-        Resource::Free(_ptr);
-    }
 }
 
 void RFS::Increment()
@@ -586,7 +580,6 @@ void ParseScript(const char *scriptFileName)
                     }
 
                     ID = scriptValue;
-                    nFlags |= DICT_ID;
                     tag = rfs.GetNextTag();
                 }
 
@@ -767,7 +760,6 @@ void ParseScript(const char *scriptFileName)
                         //    AddDefine(fileName, scriptValue);
                         //}
 
-                        nFlags |= DICT_ID;
                         ID = scriptValue;
                         tag = rfs.GetNextTag();
                     }

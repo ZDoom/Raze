@@ -123,16 +123,3 @@ void Resource::RemoveMRU(CACHENODE *h)
     h->next->prev = h->prev;
 }
 
-
-void Resource::PrecacheSounds(void)
-{
-    for (unsigned int i = 0; i < count; i++)
-    {
-        DICTNODE *pNode = &dict[i];
-        if ((!strcmp(pNode->type, "RAW") || !strcmp(pNode->type, "SFX")) && !pNode->ptr)
-        {
-            Load(pNode);
-            gameHandleEvents();
-        }
-    }
-}

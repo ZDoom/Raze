@@ -2241,7 +2241,7 @@ bool CGameMenuItemQAV::Event(CGameMenuEvent &event)
         if (at20 && at28)
         {
             gSysRes.Unlock(at24);
-            if (at24->lockCount == 0)
+            if (at24->LockCount() == 0)
                 at28 = NULL;
         }
         return false;

@@ -65,8 +65,10 @@ short word_27AA54 = 0;
 
 void sub_76FD4(void)
 {
+#if 0
     if (!dword_27AA44)
         dword_27AA44 = Resource::Alloc(0x186a0);
+#endif
 }
 
 void LoadSave::Save(void)

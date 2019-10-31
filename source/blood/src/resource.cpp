@@ -45,9 +45,9 @@ BEGIN_BLD_NS
 
 
 
-
+// Code left here for documentation. 
+// It's unlikely to be needed by today's systems so unless needed I rather leave such hacks out of the file system.
 #if B_BIG_ENDIAN == 1
-// Todo: Hook these up with the resource loader
 void ByteSwapQAV(void *p)
 {
 	QAV *qav = (QAV*)p;

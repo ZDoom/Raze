@@ -1758,7 +1758,7 @@ void viewInit(void)
 
     DICTNODE *hLens = gSysRes.Lookup("LENS", "DAT");
     dassert(hLens != NULL);
-    dassert(gSysRes.Size(hLens) == kLensSize * kLensSize * sizeof(int));
+    dassert(hLens->Size() == kLensSize * kLensSize * sizeof(int));
 
     lensTable = (int*)gSysRes.Lock(hLens);
 #if B_BIG_ENDIAN == 1

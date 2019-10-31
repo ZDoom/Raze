@@ -55,19 +55,13 @@
 
 #define NULL_INDEX		(0xffffffff)
 
-struct FileSystem::FileRecord
-{
-	int			rfnum;
-	FResourceLump *lump;
-};
-
 // PRIVATE FUNCTION PROTOTYPES ---------------------------------------------
 
 static void PrintLastError ();
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 
-FileSystem Files;
+FileSystem fileSystem;
 
 // CODE --------------------------------------------------------------------
 
@@ -868,21 +862,6 @@ void FileSystem::AddFromBuffer(const char* name, const char* type, char* data, i
 
 //==========================================================================
 //
-// Read
-//
-// Reads lump into buffer (simulate Blood interface)
-//
-//==========================================================================
-
-void FileSystem::Read(FResourceLump *n, void *p)
-{
-	if (!n || !p) return;
-	auto r = n->Get();
-	memcpy(p, r, n->Size());
-}
-
-//==========================================================================
-//
 // Blood style lookup functions
 //
 //==========================================================================
@@ -986,7 +965,7 @@ FileData::~FileData ()
 
 FString::FString (ELumpNum lumpnum)
 {
-	auto lumpr = Files.OpenFileReader ((int)lumpnum);
+	auto lumpr = fileSystem.OpenFileReader ((int)lumpnum);
 	auto size = lumpr.GetLength ();
 	AllocBuffer (1 + size);
 	auto numread = lumpr.Read (&Chars[0], size);
@@ -995,7 +974,7 @@ FString::FString (ELumpNum lumpnum)
 	if (numread != size)
 	{
 		FStringf err("ConstructStringFromLump: Only read %ld of %ld bytes on lump %i (%s)\n",
-			numread, size, lumpnum, Files.GetFileName((int)lumpnum));
+			numread, size, lumpnum, fileSystem.GetFileName((int)lumpnum));
 	}
 }
 

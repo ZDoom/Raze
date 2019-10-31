@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-Resource gSoundRes;
+Resource& gSoundRes = fileSystem;
 
 int soundRates[13] = {
     11025,
@@ -97,7 +97,8 @@ int sndPlaySong(const char *songName, bool bLoop)
         }
         int nNewSongSize = hSong->Size();
         char *pNewSongPtr = (char *)Xaligned_alloc(16, nNewSongSize);
-        gSoundRes.Load(hSong, pNewSongPtr);
+		memcpy(pNewSongPtr, hSong->Lock(), nNewSongSize);
+		hSong->Unlock(true);
         MUSIC_SetVolume(mus_volume);
         int32_t retval = MUSIC_PlaySong(pNewSongPtr, nNewSongSize, bLoop);
 
@@ -352,7 +353,8 @@ void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel)
     if (!hFile.isOpen())
         return;
     int nLength = hFile.GetLength();
-    char *pData = (char*)gSoundRes.Alloc(nLength);
+	char* pData = nullptr;
+	cacheAllocateBlock((intptr_t*)pData, nLength, nullptr);	// use this obsolete call to indicate that some work is needed here!
     if (!pData)
     {
         return;
@@ -374,14 +376,9 @@ void sndKillAllSounds(void)
         {
             if (pChannel->at4 & 2)
             {
-#if 0
-                free(pChannel->at5);
-#else
-                gSoundRes.Free(pChannel->at5);
-#endif
                 pChannel->at4 &= ~2;
             }
-            else
+            else // This 'else' needs to be removed once the file system is up (when cacheAllocateBlock gets replaced.)
             {
                 gSoundRes.Unlock(pChannel->at5);
             }
@@ -398,10 +395,9 @@ void sndProcess(void)
         {
             if (Channel[i].at4 & 2)
             {
-                gSoundRes.Free(Channel[i].at5);
                 Channel[i].at4 &= ~2;
             }
-            else
+            else // This 'else' needs to be removed once the file system is up (when cacheAllocateBlock gets replaced.)
             {
                 gSoundRes.Unlock(Channel[i].at5);
             }

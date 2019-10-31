@@ -44,7 +44,7 @@ int gGamma;
 char *gVersionString;
 char gVersionStringBuf[16];
 
-Resource gSysRes;
+Resource& gSysRes = fileSystem;
 
 static const char *_module;
 static int _line;

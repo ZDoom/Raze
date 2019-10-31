@@ -35,7 +35,7 @@ extern int gFrameRate;
 extern int gGamma;
 extern bool bVanilla;
 
-extern Resource gSysRes;
+extern Resource &gSysRes;
 const char *GetVersionString(void);
 
 END_BLD_NS
