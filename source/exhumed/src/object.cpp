@@ -1276,14 +1276,15 @@ void FuncTrap(int a, int b, int c)
                     }
 
                     int nBullet = BuildBullet(nSprite, nType, 0, 0, 0, sprite[nSprite].ang, 0, 1);
+                    short nBulletSprite = nBullet & 0xFFFF; // isolate the sprite index (disregard top 16 bits)
+
                     if (nType == 15)
                     {
-                        sprite[nSprite].ang = Sin(sprite[nSprite].ang - 512);
+                        sprite[nBulletSprite].ang = (sprite[nBulletSprite].ang - 512) & kAngleMask;
                         D3PlayFX(StaticSound[kSound32], nSprite);
                     }
                     else
                     {
-                        short nBulletSprite = nBullet & 0xFFFF; // isolate the sprite index (disregard top 16 bits)
                         sprite[nBulletSprite].clipdist = 50;
 
                         short nWall = sTrap[nTrap].field_6;
@@ -1309,7 +1310,7 @@ void FuncTrap(int a, int b, int c)
         case 0x30000:
         case 0x90000:
         case 0x80000:
-        case 0x0A0000:
+        case 0xA0000:
             return;
 
         default:
