@@ -459,9 +459,6 @@ void ParseScript(const char *scriptFileName)
     char inp[BMAX_PATH];
     char zScriptDirectory[BMAX_PATH], zTemp1[BMAX_PATH], zTemp2[BMAX_PATH];
 
-    int const bakpathsearchmode = pathsearchmode;
-    pathsearchmode = 1;
-
     SplitPath(scriptFileName, zScriptDirectory, zTemp1, zTemp2);
 
     RFS rfs;
@@ -469,7 +466,6 @@ void ParseScript(const char *scriptFileName)
     // AddExtension(name, ".RFS");
     if (rfs.Open(scriptFileName))
     {
-        pathsearchmode = bakpathsearchmode;
         return;
     }
 
@@ -882,7 +878,6 @@ void ParseScript(const char *scriptFileName)
 
     //CreateHeader();
     rfs.Close();
-    pathsearchmode = bakpathsearchmode;
 }
 
 void sub_11C10(char *pzScriptDir, char *fileName, char flags, int ID)

@@ -82,6 +82,7 @@ public:
 
 	int InitMultipleFiles (TArray<FString> &filenames, const TArray<FString> &todelete);
 	void AddFile (const char *filename, FileReader *wadinfo = NULL);
+	void AddAdditionalFile(const char* filename, FileReader* wadinfo = NULL) {}
 	int CheckIfResourceFileLoaded (const char *name) noexcept;
 
 	const char *GetResourceFileName (int filenum) const noexcept;

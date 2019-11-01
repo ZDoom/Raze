@@ -1253,17 +1253,11 @@ int app_main()
 	bQuickStart = userConfig.nologo;
     ParseOptions();
     
-#ifdef STARTUP_SETUP_WINDOW
-    int const readSetup =
-#endif
     CONFIG_ReadSetup();
 
     if (enginePreInit())
     {
-        wm_msgbox("Build Engine Initialization Error",
-                  "There was a problem initializing the Build engine: %s", engineerrstr);
-        ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
-        Bexit(2);
+        I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
     }
 
     ScanINIFiles();
@@ -1784,20 +1778,10 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         {
             char *fileName;
 
-            pathsearchmode = 1;
             if (!scriptfile_getstring(pScript,&fileName) && firstPass)
             {
-                if (initgroupfile(fileName) == -1)
-                    initprintf("Could not find file \"%s\".\n", fileName);
-                else
-                {
-                    initprintf("Using file \"%s\" as game data.\n", fileName);
-                    if (G_AllowAutoload())
-                        G_DoAutoload(fileName);
-                }
+				fileSystem.AddAdditionalFile(fileName);
             }
-
-            pathsearchmode = 0;
         }
         break;
         case T_CACHESIZE:

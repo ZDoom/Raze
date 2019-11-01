@@ -102,16 +102,7 @@ void CONFIG_SetDefaults(void)
 int32_t CONFIG_ReadSetup(void)
 {
     CONFIG_SetDefaults();
-
-    ud.config.setupread = 1;
-    pathsearchmode = 1;
-
-    pathsearchmode = 0;
-
-
     if (ScreenBPP < 8) ScreenBPP = 32;
-
-    ud.config.setupread = 1;
     return 0;
 }
 

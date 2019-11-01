@@ -180,8 +180,6 @@ typedef struct {
     struct {
         int32_t AutoAim;
         int32_t ShowOpponentWeapons;
-
-        int32_t setupread;
     } config;
 
     char overhead_on,last_overhead,showweapons;

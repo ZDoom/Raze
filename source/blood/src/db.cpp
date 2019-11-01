@@ -645,9 +645,6 @@ unsigned int dbReadMapCRC(const char *pPath)
     byte_1A76C7 = 0;
     byte_1A76C8 = 0;
 
-    int const bakpathsearchmode = pathsearchmode;
-    pathsearchmode = 1;
-
     Bstrncpy(name2, pPath, BMAX_PATH);
     Bstrupr(name2);
 	DICTNODE* pNode;
@@ -663,11 +660,9 @@ unsigned int dbReadMapCRC(const char *pPath)
     if (!pNode)
     {
         initprintf("Error opening map file %s", pPath);
-        pathsearchmode = bakpathsearchmode;
         return -1;
     }
     char *pData = (char*)gSysRes.Lock(pNode);
-    pathsearchmode = bakpathsearchmode;
 
     int nSize = pNode->Size();
     MAPSIGNATURE header;
@@ -712,9 +707,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     Polymost_prepare_loadboard();
 #endif
 
-    int const bakpathsearchmode = pathsearchmode;
-    pathsearchmode = 1;
-
     Bstrncpy(name2, pPath, BMAX_PATH);
     Bstrupr(name2);
 	DICTNODE* pNode;
@@ -731,11 +723,9 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     if (!pNode)
     {
         initprintf("Error opening map file %s", pPath);
-        pathsearchmode = bakpathsearchmode;
         return -1;
     }
     char *pData = (char*)gSysRes.Lock(pNode);
-    pathsearchmode = bakpathsearchmode;
     int nSize = pNode->Size();
     MAPSIGNATURE header;
     IOBuffer IOBuffer1 = IOBuffer(nSize, pData);

@@ -50,7 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-int32_t setupread;
 int32_t mus_restartonload;
 int32_t gTurnSpeed;
 int32_t gDetail;
@@ -127,15 +126,7 @@ void CONFIG_SetDefaults(void)
 int CONFIG_ReadSetup(void)
 {
     CONFIG_SetDefaults();
-
-    setupread = 1;
-    pathsearchmode = 1;
-
-    pathsearchmode = 0;
-
     if (ScreenBPP < 8) ScreenBPP = 32;
-
-    setupread = 1;
     return 0;
 }
 

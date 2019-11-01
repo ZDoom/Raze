@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 #include "gameconfigfile.h"
 #include "printf.h"
+#include "filesystem/filesystem.h"
 
 #include "vfs.h"
 
@@ -5297,20 +5298,10 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         {
             char *fileName;
 
-            pathsearchmode = 1;
             if (!scriptfile_getstring(pScript,&fileName) && firstPass)
             {
-                if (initgroupfile(fileName) == -1)
-                    initprintf("Could not find file \"%s\".\n", fileName);
-                else
-                {
-                    initprintf("Using file \"%s\" as game data.\n", fileName);
-                    if (G_AllowAutoload())
-                        G_DoAutoload(fileName);
-                }
+				fileSystem.AddAdditionalFile(fileName);
             }
-
-            pathsearchmode = 0;
         }
         break;
         case T_CACHESIZE:
@@ -5767,8 +5758,6 @@ void G_Shutdown(void)
 static void G_CompileScripts(void)
 {
 #if !defined LUNATIC
-    int32_t psm = pathsearchmode;
-
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (int32_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
@@ -5778,15 +5767,12 @@ static void G_CompileScripts(void)
     Gv_Init();
     C_InitProjectiles();
 #else
-    // if we compile for a V7 engine wall[] should be used for label names since it's bigger
-    pathsearchmode = 1;
-
     C_Compile(G_ConFile());
 
-    if (g_loadFromGroupOnly) // g_loadFromGroupOnly is true only when compiling fails and internal defaults are utilized
-        C_Compile(G_ConFile());
+	if (g_loadFromGroupOnly) // g_loadFromGroupOnly is true only when compiling fails and internal defaults are utilized
+		C_Compile(G_ConFile());
 
-    if ((uint32_t)g_labelCnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
+	if ((uint32_t)g_labelCnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");
 
     auto newlabel     = (char *)Xmalloc(g_labelCnt << 6);
@@ -5806,7 +5792,6 @@ static void G_CompileScripts(void)
     Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
 
     VM_OnEvent(EVENT_INIT);
-    pathsearchmode = psm;
 #endif
 }
 
@@ -6173,30 +6158,6 @@ void app_crashhandler(void)
     G_GameQuit();
 }
 
-#if defined(_WIN32) && defined(DEBUGGINGAIDS)
-// See FILENAME_CASE_CHECK in cache1d.c
-static int32_t check_filename_casing(void)
-{
-    return !(g_player[myconnectindex].ps->gm & MODE_GAME);
-}
-#endif
-
-#ifdef LUNATIC
-const char *g_sizes_of_what[] = {
-    "sectortype", "walltype", "spritetype", "spriteext_t",
-    "actor_t", "DukePlayer_t", "playerdata_t",
-    "user_defs", "tiledata_t", "weapondata_t",
-    "projectile_t",
-};
-int32_t g_sizes_of[] = {
-    sizeof(sectortype), sizeof(walltype), sizeof(spritetype), sizeof(spriteext_t),
-    sizeof(actor_t), sizeof(DukePlayer_t), sizeof(playerdata_t),
-    sizeof(user_defs), sizeof(tiledata_t), sizeof(weapondata_t),
-    sizeof(projectile_t)
-};
-
-DukePlayer_t *g_player_ps[MAXPLAYERS];
-#endif
 
 void G_MaybeAllocPlayer(int32_t pnum)
 {
@@ -6204,11 +6165,6 @@ void G_MaybeAllocPlayer(int32_t pnum)
         g_player[pnum].ps = (DukePlayer_t *)Xcalloc(1, sizeof(DukePlayer_t));
     if (g_player[pnum].input == NULL)
         g_player[pnum].input = (input_t *)Xcalloc(1, sizeof(input_t));
-
-#ifdef LUNATIC
-    g_player_ps[pnum] = g_player[pnum].ps;
-    g_player[pnum].ps->wa.idx = pnum;
-#endif
 }
 
 
@@ -6237,20 +6193,11 @@ int app_main()
 
     G_CheckCommandLine();
 
-    // This needs to happen afterwards, as G_CheckCommandLine() is where we set
-    // up the command-line-provided search paths (duh).
-
-#ifdef STARTUP_SETUP_WINDOW
-    int const readSetup =
-#endif
     CONFIG_ReadSetup();
 
     if (enginePreInit())
     {
-        wm_msgbox("Build Engine Initialization Error",
-                  "There was a problem initializing the Build engine: %s", engineerrstr);
-        ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
-        Bexit(2);
+        I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
     }
 
     
@@ -6374,6 +6321,8 @@ int app_main()
     g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
 
     ud.last_level = -1;
+
+	VM_OnEvent(EVENT_SETDEFAULTS, g_player[myconnectindex].ps->i, myconnectindex);
 
     initprintf("Initializing OSD...\n");
 

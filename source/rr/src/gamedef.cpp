@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "osd.h"
 #include "crc32_.h"
+#include "printf.h"
 
 BEGIN_RR_NS
 
@@ -2378,22 +2379,11 @@ void C_Compile(const char *fileName)
 
 	if (!kFile.isOpen())
     {
-        if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
-        {
-            char const *gf = G_GrpFile();
-            Bsprintf(tempbuf,"Required game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
-                     "You must copy \"%s\" to your game directory before continuing!", gf, gf);
-            G_GameExit(tempbuf);
-        }
-        else
-        {
-            Bsprintf(tempbuf,"CON file `%s' missing.", fileName);
-            G_GameExit(tempbuf);
-        }
-
-        //g_loadFromGroupOnly = 1;
-        return; //Not there
-    }
+		if (!kFile.isOpen())
+		{
+			I_Error(tempbuf, "CON file `%s' missing.", fileName);
+		}
+	}
 
     int const kFileLen = kFile.GetLength();
 

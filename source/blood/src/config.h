@@ -35,7 +35,6 @@ BEGIN_BLD_NS
 
 #define MAXPLAYERNAME 16
 
-extern int32_t setupread;
 extern int32_t gTurnSpeed;
 extern int32_t gDetail;
 extern int32_t gAutoRun;

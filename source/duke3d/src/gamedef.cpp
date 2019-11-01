@@ -4603,8 +4603,8 @@ ifvar:
 
                         if (n != i)
                         {
-                            swapptr(&tempscrptr[i],   &tempscrptr[n]);
-                            swapptr(&tempscrptr[i+1], &tempscrptr[n+1]);
+                            std::swap(&tempscrptr[i],   &tempscrptr[n]);
+							std::swap(&tempscrptr[i+1], &tempscrptr[n+1]);
                         }
                     }
                     //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
@@ -6103,23 +6103,7 @@ void C_Compile(const char *fileName)
 
 	if (!kFile.isOpen())
     {
-        if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
-        {
-#ifndef EDUKE32_STANDALONE
-            I_Error("Required game data was not found.");
-            G_GameExit(tempbuf);
-#else
-            G_GameExit(" ");
-#endif
-        }
-        else
-        {
-            Bsprintf(tempbuf,"CON file `%s' missing.", fileName);
-            G_GameExit(tempbuf);
-        }
-
-        //g_loadFromGroupOnly = 1;
-        return; //Not there
+        I_Error(tempbuf,"CON file `%s' missing.", fileName);
     }
 
 	int const kFileLen = kFile.GetLength();

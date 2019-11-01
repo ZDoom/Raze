@@ -296,33 +296,6 @@ void G_LoadGroups()
     }
 
     loaddefinitions_game(G_DefFile(), TRUE);
-
-    struct strllist *s;
-
-    int const bakpathsearchmode = pathsearchmode;
-    pathsearchmode = 1;
-
-    while (CommandGrps)
-    {
-        int32_t j;
-
-        s = CommandGrps->next;
-
-        if ((j = initgroupfile(CommandGrps->str)) == -1)
-            initprintf("Could not find file \"%s\".\n", CommandGrps->str);
-        else
-        {
-            g_groupFileHandle = j;
-            initprintf("Using file \"%s\" as game data.\n", CommandGrps->str);
-            if (G_AllowAutoload())
-                G_DoAutoload(CommandGrps->str);
-        }
-
-        Bfree(CommandGrps->str);
-        Bfree(CommandGrps);
-        CommandGrps = s;
-    }
-    pathsearchmode = bakpathsearchmode;
 }
 
 

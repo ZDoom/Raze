@@ -3343,7 +3343,7 @@ int32_t app_main()
 
     SW_ExtInit();
 
-    i = CONFIG_ReadSetup();
+    CONFIG_ReadSetup();
 
     if (enginePreInit())
     {

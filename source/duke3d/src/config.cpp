@@ -113,9 +113,6 @@ void CONFIG_SetDefaults(void)
 	ud.m_player_skill = ud.player_skill = 2;
 	memcpy(g_player[0].wchoice, "\3\4\5\7\0x8\6\0\2\0x9\1", 10);
 	wchoice.Callback();
-
-
-    VM_OnEvent(EVENT_SETDEFAULTS, g_player[myconnectindex].ps->i, myconnectindex);
 }
 
 
@@ -124,13 +121,7 @@ void CONFIG_SetDefaults(void)
 int CONFIG_ReadSetup(void)
 {
     CONFIG_SetDefaults();
-
-    ud.config.setupread = 1;
-    pathsearchmode = 0;
-
     if (ScreenBPP < 8) ScreenBPP = 32;
-
-    ud.config.setupread = 1;
     return 0;
 }
 

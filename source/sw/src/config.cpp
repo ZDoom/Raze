@@ -123,14 +123,7 @@ void SetDefaultKeyDefinitions(int style)
 
 int32_t CONFIG_ReadSetup(void)
 {
-    //char ret;
-    extern char ds[];
-    extern char PlayerNameArg[32];
-
-    char waveformtrackname[MAXWAVEFORMTRACKLENGTH] = {0};
-
     CONFIG_SetDefaults();
-
     return 0;
 }
 

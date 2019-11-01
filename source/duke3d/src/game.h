@@ -203,7 +203,6 @@ typedef struct {
     struct {
         int32_t AutoAim;
         int32_t ShowWeapons;
-        int32_t setupread;
 
     } config;
 

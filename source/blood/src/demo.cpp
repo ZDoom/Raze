@@ -426,9 +426,7 @@ void CDemo::StopPlayback(void)
 void CDemo::LoadDemoInfo(void)
 {
     auto pDemo = &pFirstDemo;
-    const int opsm = pathsearchmode;
     at59ef = 0;
-    pathsearchmode = 0;
     char zFN[BMAX_PATH];
     Bsnprintf(zFN, BMAX_PATH, "%s*.dem", BloodIniPre);
     auto pList = klistpath("/", zFN, BUILDVFS_FIND_FILE);
@@ -455,7 +453,6 @@ void CDemo::LoadDemoInfo(void)
         pIterator = pIterator->next;
     }
     klistfree(pList);
-    pathsearchmode = opsm;
     pCurrentDemo = pFirstDemo;
 }
 
