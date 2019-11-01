@@ -296,6 +296,9 @@ void DumpMapStateHistory();
 
 void Net_WaitForInitialSnapshot();
 
+void Net_SendTaunt(int ridiculeNum);
+void Net_SendRTS(int ridiculeNum);
+
 #else
 
 // note: don't include faketimerhandler in this
@@ -344,6 +347,9 @@ void Net_WaitForInitialSnapshot();
 #define Net_InitMapStateHistory(...) ((void)0)
 #define Net_AddWorldToInitialSnapshot(...) ((void)0)
 #define DumpMapStateHistory(...) ((void)0)
+
+#define Net_SendTaunt(...) ((void)0)
+#define Net_SendRTS(...) ((void)0)
 
 
 

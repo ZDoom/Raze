@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "view.h"
 
+extern bool gHaveNetworking;
+
 BEGIN_BLD_NS
 
 char packet[576];
@@ -972,7 +974,7 @@ void netInitialize(bool bConsole)
         netResetToSinglePlayer();
         return;
     }
-    if (enet_initialize() != 0)
+    if (!gHaveNetworking)
     {
         initprintf("An error occurred while initializing ENet.\n");
         netResetToSinglePlayer();

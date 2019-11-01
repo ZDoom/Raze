@@ -4747,22 +4747,8 @@ void G_HandleLocalKeys(void)
                 }
 
                 G_AddUserQuote(*CombatMacros[ridiculeNum-1]);
+				Net_SendTaunt(ridiculeNum);
 
-#ifndef NETCODE_DISABLE
-                tempbuf[0] = PACKET_MESSAGE;
-                tempbuf[1] = 255;
-                tempbuf[2] = 0;
-                Bstrcat(tempbuf+2,*CombatMacros[ridiculeNum-1]);
-
-                ridiculeNum = 2+ strlen(*CombatMacros[ridiculeNum-1]);
-
-                tempbuf[ridiculeNum++] = myconnectindex;
-
-                if (g_netClient)
-                    enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(&tempbuf[0], ridiculeNum, 0));
-                else if (g_netServer)
-                    enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(&tempbuf[0], ridiculeNum, 0));
-#endif
                 pus = NUMPAGES;
                 pub = NUMPAGES;
 
@@ -4772,19 +4758,7 @@ void G_HandleLocalKeys(void)
             // Not SHIFT -- that is, either some ALT or WIN.
             if (G_StartRTS(ridiculeNum, 1))
             {
-#ifndef NETCODE_DISABLE
-                if ((g_netServer || ud.multimode > 1))
-                {
-                    tempbuf[0] = PACKET_RTS;
-                    tempbuf[1] = ridiculeNum;
-                    tempbuf[2] = myconnectindex;
-
-                    if (g_netClient)
-                        enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(&tempbuf[0], 3, 0));
-                    else if (g_netServer)
-                        enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(&tempbuf[0], 3, 0));
-                }
-#endif
+				Net_SendRTS(ridiculeNum);
                 pus = NUMPAGES;
                 pub = NUMPAGES;
 
@@ -6245,12 +6219,6 @@ EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
 int app_main()
 {
-#ifndef NETCODE_DISABLE
-    if (enet_initialize() != 0)
-        initprintf("An error occurred while initializing ENet.\n");
-    else atexit(enet_deinitialize);
-#endif
-
     OSD_SetFunctions(GAME_drawosdchar,
                      GAME_drawosdstr,
                      GAME_drawosdcursor,

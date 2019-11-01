@@ -306,6 +306,9 @@ void    Net_Update(void);
 void    Net_PostPacket(ENetPacket *packet);
 void    faketimerhandler(void);
 
+void Net_SendTaunt(int ridiculeNum);
+void Net_SendRTS(int ridiculeNum);
+
 #else
 
 /* NETCODE_ENABLE is not defined */
@@ -391,6 +394,9 @@ void    faketimerhandler(void);
 #define Net_DeleteSprite(...) ((void)0)
 
 #define Net_NotifyNewGame(...) ((void)0)
+
+#define Net_SendTaunt(...) ((void)0)
+#define Net_SendRTS(...) ((void)0)
 
 #endif
 

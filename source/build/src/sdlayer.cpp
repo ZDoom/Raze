@@ -30,7 +30,12 @@
 #include "i_specialpaths.h"
 #include "inputstate.h"
 #include "c_cvars.h"
+#ifndef NETCODE_DISABLE
+#include "enet.h"
+#endif
 #include "../../glbackend/glbackend.h"
+
+bool gHaveNetworking;
 
 #ifdef USE_OPENGL
 # include "glbuild.h"
@@ -446,7 +451,14 @@ int main(int argc, char *argv[])
 	try
 	{
 		// Write to the DOCUMENTS directory, not the game directory
-		
+
+		// Initialize the netcode here, because enet pulls in a lot of headers that pollute the namespace.
+#ifndef NETCODE_DISABLE
+		gHaveNetworking = !enet_initialize();
+		if (!gHaveNetworking)
+			initprintf("An error occurred while initializing ENet.\n");
+#endif
+
 		FString logpath = M_GetDocumentsPath() + "demolition.log";
 		OSD_SetLogFile(logpath);
 		r = CONFIG_Init();
@@ -461,6 +473,9 @@ int main(int argc, char *argv[])
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
+#ifndef NETCODE_DISABLE
+	if (gHaveNetworking) enet_deinitialize();
+#endif
 
 #if defined(HAVE_GTK2)
     gtkbuild_exit(r);

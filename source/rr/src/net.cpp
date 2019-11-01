@@ -4062,6 +4062,39 @@ void Net_ReceiveMapVoteCancel(uint8_t *pbuf)
     voting = -1;
 }
 
+void Net_SendTaunt(int ridiculeNum)
+{
+	tempbuf[0] = PACKET_MESSAGE;
+	tempbuf[1] = 255;
+	tempbuf[2] = 0;
+	Bstrcat(tempbuf + 2, *CombatMacros[ridiculeNum - 1]);
+
+	ridiculeNum = 2 + strlen(*CombatMacros[ridiculeNum - 1]);
+
+	tempbuf[ridiculeNum++] = myconnectindex;
+
+	if (g_netClient)
+		enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(&tempbuf[0], ridiculeNum, 0));
+	else if (g_netServer)
+		enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(&tempbuf[0], ridiculeNum, 0));
+
+}
+
+void Net_SendRTS(int ridiculeNum)
+{
+	if ((g_netServer || ud.multimode > 1))
+	{
+		tempbuf[0] = PACKET_RTS;
+		tempbuf[1] = ridiculeNum;
+		tempbuf[2] = myconnectindex;
+
+		if (g_netClient)
+			enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(&tempbuf[0], 3, 0));
+		else if (g_netServer)
+			enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(&tempbuf[0], 3, 0));
+	}
+}
+
 #endif  // !defined NETCODE_DISABLE
 
 END_RR_NS
