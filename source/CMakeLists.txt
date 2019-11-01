@@ -722,6 +722,7 @@ set (PCH_SOURCES
 	mact/src/keyboard.cpp
 	mact/src/input.cpp
 	
+	thirdparty/src/base64.cpp
 	thirdparty/src/sjson.cpp
 	thirdparty/src/crc32.cpp
 	thirdparty/src/fix16.cpp

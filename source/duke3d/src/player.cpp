@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "enet.h"
 #include "sjson.h"
 #include "gamecvars.h"
+#include "i_specialpaths.h"
 
 BEGIN_DUKE_NS
 
@@ -5631,7 +5632,7 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
 
     char fn[BMAX_PATH];
 
-    if (G_ModDirSnprintf(fn, sizeof(fn), "%s.ext", path))
+    if (snprintf(fn, sizeof(fn), "%s%s.ext", M_GetSavegamesPath().GetChars(), path))
     {
         return 1;
     }

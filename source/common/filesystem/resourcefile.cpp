@@ -38,8 +38,7 @@
 #include "resourcefile.h"
 #include "name.h"
 #include "m_swap.h"
-
-extern FString LumpFilter;
+#include "gamecontrol.h"
 
 //==========================================================================
 //

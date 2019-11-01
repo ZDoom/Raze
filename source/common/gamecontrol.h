@@ -9,8 +9,10 @@
 #include "gamecvars.h"
 
 extern FString currentGame;
+extern FString LumpFilter;
 class FArgs;
 
+void D_AddWildFile(TArray<FString>& wadfiles, const char* value);
 
 extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 

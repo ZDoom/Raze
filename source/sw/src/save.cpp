@@ -55,6 +55,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "cache.h"
 #include "colormap.h"
 #include "player.h"
+#include "i_specialpaths.h"
 
 //void TimerFunc(task * Task);
 BEGIN_SW_NS
@@ -240,13 +241,13 @@ int SaveGame(short save_num)
     PANEL_SPRITE tpanel_sprite;
     PANEL_SPRITEp psp,cur,next;
     SECTOR_OBJECTp sop;
-    char game_name[80];
+    char game_name[256];
     int cnt = 0, saveisshot=0;
     OrgTileP otp, next_otp;
 
     Saveable_Init();
 
-    sprintf(game_name,"game%d.sav",save_num);
+    snprintf(game_name, 256, "%sgame%d.sav", M_GetSavegamesPath().GetChars(), save_num);
     if ((fil = MOPEN_WRITE(game_name)) == MOPEN_WRITE_ERR)
         return -1;
 
@@ -702,12 +703,12 @@ int SaveGame(short save_num)
 int LoadGameFullHeader(short save_num, char *descr, short *level, short *skill)
 {
     MFILE_READ fil;
-    char game_name[80];
+    char game_name[256];
     short tile;
     int ver;
 
-    sprintf(game_name,"game%d.sav",save_num);
-    if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
+	snprintf(game_name, 256, "%sgame%d.sav", M_GetSavegamesPath().GetChars(), save_num);
+	if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
         return -1;
 
     MREAD(&ver,sizeof(ver),1,fil);
@@ -733,12 +734,12 @@ int LoadGameFullHeader(short save_num, char *descr, short *level, short *skill)
 void LoadGameDescr(short save_num, char *descr)
 {
     MFILE_READ fil;
-    char game_name[80];
+    char game_name[256];
     short tile;
     int ver;
 
-    sprintf(game_name,"game%d.sav",save_num);
-    if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
+	snprintf(game_name, 256, "%sgame%d.sav", M_GetSavegamesPath().GetChars(), save_num);
+	if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
         return;
 
     MREAD(&ver,sizeof(ver),1,fil);
@@ -770,7 +771,7 @@ int LoadGame(short save_num)
     int16_t data_ndx;
     PANEL_SPRITEp psp,next,cur;
     PANEL_SPRITE tpanel_sprite;
-    char game_name[80];
+    char game_name[256];
     OrgTileP otp, next_otp;
 
     int RotNdx;
@@ -781,8 +782,8 @@ int LoadGame(short save_num)
 
     Saveable_Init();
 
-    sprintf(game_name,"game%d.sav",save_num);
-    if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
+	snprintf(game_name, 256, "%sgame%d.sav", M_GetSavegamesPath().GetChars(), save_num);
+	if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
         return -1;
 
     MREAD(&i,sizeof(i),1,fil);

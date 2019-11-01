@@ -42,6 +42,8 @@
 #include "printf.h"
 #include "cmdlib.h"
 #include "i_findfile.h"
+#include "gamecontrol.h"
+#include "m_argv.h"
 //#include "version.h"	// for GAMENAME
 
 // Stuff that needs to be set up later.
@@ -245,19 +247,19 @@ FString M_GetScreenshotsPath()
 
 	if (!UseKnownFolders())
 	{
-		return progdir;
+		path << progdir << "/Screenshots/";
 	}
 	else if (GetKnownFolder(-1, MyFOLDERID_Screenshots, true, path))
 	{
-		path << "/" GAMENAME;
+		path << "/" GAMENAME "/";
 	}
 	else if (GetKnownFolder(CSIDL_MYPICTURES, FOLDERID_Pictures, true, path))
 	{
-		path << "/Screenshots/" GAMENAME;
+		path << "/Screenshots/" GAMENAME "/";
 	}
 	else
 	{
-		return progdir;
+		path << progdir << "/Screenshots/";
 	}
 	CreatePath(path);
 	return path;
@@ -270,32 +272,47 @@ FString M_GetScreenshotsPath()
 // Returns the path to the default save games directory.
 //
 //===========================================================================
+CVAR(String, cl_savedir, "", CVAR_ARCHIVE)
 
 FString M_GetSavegamesPath()
 {
 	FString path;
 
-	if (!UseKnownFolders())
+	auto dir = Args->CheckValue("-savedir");
+	if (dir)
 	{
-		return progdir;
+		path = dir;
+		path.Substitute("\\", "/");
+		if (path[path.Len() - 1] != '/') path << '/';
+	}
+	else if (*cl_savedir)
+	{
+		path = cl_savedir;
+		path.Substitute("\\", "/");
+		if (path[path.Len() - 1] != '/') path << '/';
+		path << LumpFilter << '/';
+	}
+	else if (!UseKnownFolders())
+	{
+		path << progdir << "Save/" << LumpFilter << "/";
 	}
 	// Try standard Saved Games folder
 	else if (GetKnownFolder(-1, FOLDERID_SavedGames, true, path))
 	{
-		path << "/" GAMENAME;
+		path << "/" GAMENAME "/" << LumpFilter << "/";
 	}
 	// Try defacto My Documents/My Games folder
 	else if (GetKnownFolder(CSIDL_PERSONAL, FOLDERID_Documents, true, path))
 	{
 		// I assume since this isn't a standard folder, it doesn't have
 		// a localized name either.
-		path << "/My Games/" GAMENAME;
-		CreatePath(path);
+		path << "/My Games/" GAMENAME "/" << LumpFilter << "/";
 	}
 	else
 	{
-		path = progdir;
+		path << progdir << "Save/" << LumpFilter << "/";
 	}
+	CreatePath(path);
 	return path;
 }
 
@@ -327,13 +344,47 @@ FString M_GetDocumentsPath()
 	{
 		// I assume since this isn't a standard folder, it doesn't have
 		// a localized name either.
-		path << "/My Games/" GAMENAME;
+		path << "/My Games/" GAMENAME "/";
 		CreatePath(path);
 	}
 	else
 	{
 		path = progdir;
 	}
+	return path;
+}
+
+//===========================================================================
+//
+// M_GetDocumentsPath												Windows
+//
+// Returns the path to the default documents directory.
+//
+//===========================================================================
+
+FString M_GetDemoPath()
+{
+	FString path;
+
+	// A portable INI means that this storage location should also be portable.
+	path.Format("%s" GAMENAME "_portable.ini", progdir.GetChars());
+	if (FileExists(path) || !UseKnownFolders())
+	{
+		path << progdir << "Demos/" << LumpFilter << '/';
+	}
+	else
+	// Try defacto My Documents/My Games folder
+	 if (GetKnownFolder(CSIDL_PERSONAL, FOLDERID_Documents, true, path))
+	{
+		// I assume since this isn't a standard folder, it doesn't have
+		// a localized name either.
+		path << "/My Games/" GAMENAME "/" << LumpFilter << '/';
+	}
+	else
+	{
+		path << progdir << "Demos/" << LumpFilter << '/';
+	}
+	CreatePath(path);
 	return path;
 }
 

@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "seq.h"
 #include "sfx.h"
 #include "sound.h"
+#include "i_specialpaths.h"
 #include "view.h"
 
 BEGIN_BLD_NS
@@ -426,11 +427,13 @@ void MyLoadSave::Save(void)
 
 void LoadSavedInfo(void)
 {
-    auto pList = klistpath("./", "game*.sav", BUILDVFS_FIND_FILE);
+	FString path = M_GetSavegamesPath() + "%sgame*.sav";
+	TArray<FString> saves;
+	D_AddWildFile(saves, path);
     int nCount = 0;
-    for (auto pIterator = pList; pIterator != NULL && nCount < 10; pIterator = pIterator->next, nCount++)
+    for (auto & savename : saves)
     {
-        auto hFile = fopenFileReader(pIterator->name, 0);
+        auto hFile = fopenFileReader(savename, 0);
         if (!hFile.isOpen())
             ThrowError("Error loading save file header.");
         int vc;
@@ -453,8 +456,8 @@ void LoadSavedInfo(void)
         if ((uint32_t)hFile.Read(&gSaveGameOptions[nCount], sizeof(gSaveGameOptions[0])) != sizeof(gSaveGameOptions[0]))
             ThrowError("Error reading save file.");
         strcpy(strRestoreGameStrings[gSaveGameOptions[nCount].nSaveGameSlot], gSaveGameOptions[nCount].szUserGameName);
+		nCount++;
     }
-    klistfree(pList);
 }
 
 void UpdateSavedInfo(int nSlot)

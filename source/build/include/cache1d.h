@@ -22,8 +22,6 @@ using buildvfs_kfd = int32_t;
 
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
 
-extern char g_modDir[BMAX_PATH];
-
 
 enum {
     CACHE1D_FIND_FILE = 1,

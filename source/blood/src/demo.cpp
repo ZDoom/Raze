@@ -46,7 +46,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "network.h"
 #include "player.h"
 #include "screen.h"
+#include "i_specialpaths.h"
 #include "view.h"
+#include "gamecontrol.h"
 
 BEGIN_BLD_NS
 
@@ -131,7 +133,7 @@ bool CDemo::Create(const char *pzFile)
     {
         for (int i = 0; i < 8 && !vc; i++)
         {
-            G_ModDirSnprintf(buffer, BMAX_PATH, "%s0%02d.dem", BloodIniPre, i);
+			snprintf(buffer, BMAX_PATH, "%s%s0%02d.dem", M_GetDemoPath().GetChars(), BloodIniPre, i);
             if (access(buffer, 0) != -1)
                 vc = 1;
         }
@@ -144,7 +146,7 @@ bool CDemo::Create(const char *pzFile)
     }
     else
     {
-        G_ModDirSnprintfLite(buffer, BMAX_PATH, pzFile);
+		snprintf(buffer, BMAX_PATH, "%s%s", M_GetDemoPath().GetChars(), pzFile);
         hRFile = fopen(buffer, "wb");
         if (hRFile == NULL)
             return false;
@@ -428,12 +430,12 @@ void CDemo::LoadDemoInfo(void)
     auto pDemo = &pFirstDemo;
     at59ef = 0;
     char zFN[BMAX_PATH];
-    Bsnprintf(zFN, BMAX_PATH, "%s*.dem", BloodIniPre);
-    auto pList = klistpath("/", zFN, BUILDVFS_FIND_FILE);
-    auto pIterator = pList;
-    while (pIterator != NULL)
+    Bsnprintf(zFN, BMAX_PATH, "%s%s*.dem", M_GetDemoPath().GetChars(), BloodIniPre);
+	TArray<FString> demos;
+	D_AddWildFile(demos, zFN);
+	for (auto &filename : demos)
     {
-        auto hFile = fopenFileReader(pIterator->name, 0);
+        auto hFile = fopenFileReader(filename, 0);
         if (!hFile.isOpen())
             ThrowError("Error loading demo file header.");
         hFile.Read(&atf, sizeof(atf));
@@ -446,13 +448,11 @@ void CDemo::LoadDemoInfo(void)
         {
             *pDemo = new DEMOCHAIN;
             (*pDemo)->pNext = NULL;
-            Bstrncpy((*pDemo)->zName, pIterator->name, BMAX_PATH);
+            Bstrncpy((*pDemo)->zName, filename, BMAX_PATH);
             at59ef++;
             pDemo = &(*pDemo)->pNext;
         }
-        pIterator = pIterator->next;
     }
-    klistfree(pList);
     pCurrentDemo = pFirstDemo;
 }
 

@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 #include "gamecontrol.h"
 #include "gameconfigfile.h"
+#include "files.h"
+#include "base64.h"
 
 #include "vfs.h"
 
@@ -5615,13 +5617,21 @@ badindex:
                     int const quoteFilename = *insptr++;
 
                     VM_ASSERT((unsigned)quoteFilename < MAXQUOTES && apStrings[quoteFilename], "invalid quote %d\n", quoteFilename);
+					FStringf IniSection("UserStrings.%s", LumpFilter.GetChars());
+					auto IniKey = apStrings[quoteFilename];
+					if (!GameConfig->SetSection(IniSection))
+					{
+						dispatch();
+					}
+					auto base64 = GameConfig->GetValueForKey(IniKey);
+					if (base64 == nullptr)
+					{
+						dispatch();
+					}
+					auto decoded = base64_decode(base64);
+					FileReader fr;
 
-                    auto kFile = kopenFileReader(apStrings[quoteFilename], 0);
-
-                    if (!kFile.isOpen())
-                        dispatch();
-
-					size_t const filelength = kFile.GetLength();
+					size_t const filelength = decoded.length();
                     size_t const numElements = Gv_GetArrayCountForAllocSize(arrayNum, filelength);
 
                     if (numElements > 0)
@@ -5649,7 +5659,7 @@ badindex:
                             {
                                 void *const pArray = Xcalloc(1, newBytes);
 
-                                kFile.Read(pArray, readBytes);
+								memcpy(pArray, decoded.c_str(), readBytes);
 
                                 if (flags & GAMEARRAY_UNSIGNED)
                                 {
@@ -5668,12 +5678,11 @@ badindex:
 #endif
                             default:
                                 memset((char *)pValues + readBytes, 0, newBytes - readBytes);
-								kFile.Read(pValues, readBytes);
+								memcpy(pValues, decoded.c_str(), readBytes);
                                 break;
                         }
                     }
 
-					kFile.Close();
                     dispatch();
                 }
 
@@ -5684,22 +5693,12 @@ badindex:
                     int const quoteFilename = *insptr++;
 
                     VM_ASSERT((unsigned)quoteFilename < MAXQUOTES && apStrings[quoteFilename], "invalid quote %d\n", quoteFilename);
-
-                    char temp[BMAX_PATH];
-
-                    if (EDUKE32_PREDICT_FALSE(G_ModDirSnprintf(temp, sizeof(temp), "%s", apStrings[quoteFilename])))
-                    {
-                        CON_ERRPRINTF("file name too long\n");
-                        abort_after_error();
-                    }
-
-                    buildvfs_FILE const fil = buildvfs_fopen_write(temp);
-
-                    if (EDUKE32_PREDICT_FALSE(fil == NULL))
-                    {
-                        CON_ERRPRINTF("couldn't open file \"%s\"\n", temp);
-                        abort_after_error();
-                    }
+					// No, we are not writing stuff to an arbitrary file on the hard drive! This is a first grade exploit for doing serious damage.
+					// Instead, encode the data as BASE64 and write it to the config file, 
+					// which doesn't create a wide open door for exploits.
+					FStringf IniSection("UserStrings.%s", LumpFilter.GetChars());
+					auto IniKey = apStrings[quoteFilename];
+					BufferWriter bw;
 
                     switch (aGameArrays[arrayNum].flags & GAMEARRAY_SIZE_MASK)
                     {
@@ -5713,15 +5712,19 @@ badindex:
                             for (unative_t k = 0; k < numElements; ++k)
                                 pArray[k]    = Gv_GetArrayValue(arrayNum, k);
 
-                            buildvfs_fwrite(pArray, 1, numDiskBytes, fil);
+							bw.Write(pArray, numDiskBytes);
                             Xfree(pArray);
                             break;
                         }
 #endif
-                        default: buildvfs_fwrite(aGameArrays[arrayNum].pValues, 1, Gv_GetArrayAllocSize(arrayNum), fil); break;
+                        default: bw.Write(aGameArrays[arrayNum].pValues, Gv_GetArrayAllocSize(arrayNum)); break;
                     }
+					auto base64 = base64_encode(bw.GetBuffer()->Data(), bw.GetBuffer()->Size());
+					if (GameConfig->SetSection(IniSection))
+					{
+						GameConfig->SetValueForKey(IniKey, base64.c_str());
+					}
 
-                    buildvfs_fclose(fil);
                     dispatch();
                 }
 

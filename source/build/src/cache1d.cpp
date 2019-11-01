@@ -122,9 +122,6 @@ static size_t maxsearchpathlen = 0;
 int32_t pathsearchmode = 0;
 
 
-char g_modDir[BMAX_PATH] = "/";
-
-
 
 int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, int32_t source)
 {

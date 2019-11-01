@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "premap.h"
 #include "prlights.h"
 #include "savegame.h"
+#include "i_specialpaths.h"
+#include "gamecontrol.h"
 
 BEGIN_RR_NS
 
@@ -144,14 +146,14 @@ uint16_t g_nummenusaves;
 static menusave_t * g_internalsaves;
 static uint16_t g_numinternalsaves;
 
-static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
+static void ReadSaveGameHeaders_CACHE1D(TArray<FString>& saves)
 {
     savehead_t h;
 
-    for (; f != nullptr; f = f->next)
-    {
-        char const * fn = f->name;
-        auto fil = fopenFileReader(fn, 0);
+	for (auto& save : saves)
+	{
+		char const* fn = save;
+		auto fil = fopenFileReader(fn, 0);
         if (!fil.isOpen())
             continue;
 
@@ -181,23 +183,15 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
     }
 }
 
-static int countcache1dfind(CACHE1D_FIND_REC *f)
-{
-    int x = 0;
-    for (; f != nullptr; f = f->next)
-        ++x;
-    return x;
-}
-
 static void ReadSaveGameHeaders_Internal(void)
 {
-    static char const DefaultPath[] = "/", SavePattern[] = "*.esv";
-
-    CACHE1D_FIND_REC *findfiles_default = klistpath(DefaultPath, SavePattern, CACHE1D_FIND_FILE);
+	FString pattern = M_GetSavegamesPath() + "*.esv";
+	TArray<FString> saves;
+	D_AddWildFile(saves, pattern);
 
     // potentially overallocating but programmatically simple
-    int const numfiles = countcache1dfind(findfiles_default);
-    size_t const internalsavesize = sizeof(menusave_t) * numfiles;
+	int const numfiles = saves.Size();
+	size_t const internalsavesize = sizeof(menusave_t) * numfiles;
 
     g_internalsaves = (menusave_t *)Xrealloc(g_internalsaves, internalsavesize);
 
@@ -205,8 +199,7 @@ static void ReadSaveGameHeaders_Internal(void)
         g_internalsaves[x].clear();
 
     g_numinternalsaves = 0;
-    ReadSaveGameHeaders_CACHE1D(findfiles_default);
-    klistfree(findfiles_default);
+    ReadSaveGameHeaders_CACHE1D(saves);
 
     g_nummenusaves = 0;
     for (int x = g_numinternalsaves-1; x >= 0; --x)
@@ -439,7 +432,7 @@ void G_DeleteSave(savebrief_t const & sv)
 
     char temp[BMAX_PATH];
 
-    if (G_ModDirSnprintf(temp, sizeof(temp), "%s", sv.path))
+    if (snprintf(temp, sizeof(temp), "%s%s", M_GetSavegamesPath().GetChars(), sv.path))
     {
         OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
         return;
@@ -493,7 +486,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
     if (sv.isValid())
     {
-        if (G_ModDirSnprintf(temp, sizeof(temp), "%s", sv.path))
+        if (snprintf(temp, sizeof(temp), "%s%s", M_GetSavegamesPath().GetChars(), sv.path))
         {
             OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
             goto saveproblem;
@@ -503,7 +496,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     else
     {
         static char const SaveName[] = "save0000.esv";
-        int const len = G_ModDirSnprintfLite(temp, ARRAY_SIZE(temp), SaveName);
+        int const len = snprintf(temp, ARRAY_SIZE(temp), "%s%s", M_GetSavegamesPath().GetChars(), SaveName);
         if (len >= ARRAY_SSIZE(temp)-1)
         {
             OSD_Printf("G_SavePlayer: could not form automatic save path\n");

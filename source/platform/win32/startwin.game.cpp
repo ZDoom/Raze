@@ -83,8 +83,6 @@ static inline void clearfilenames(void)
 
 static inline void getfilenames(char const *path)
 {
-    clearfilenames();
-    finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
 }
 
 #define POPULATE_VIDEO 1

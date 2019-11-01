@@ -515,12 +515,6 @@ extern void G_ExtInit(void);
 
 extern void G_SetupGlobalPsky(void);
 
-#define G_ModDirSnprintf(buf, size, basename, ...)                                                                                          \
-    (((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/" basename, g_modDir, ##__VA_ARGS__) : Bsnprintf(buf, size, basename, ##__VA_ARGS__)) \
-     >= ((int32_t)size) - 1)
-
-#define G_ModDirSnprintfLite(buf, size, basename) \
-    ((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/%s", g_modDir, basename) : Bsnprintf(buf, size, "%s", basename))
 
 static inline int gameHandleEvents(void)
 {

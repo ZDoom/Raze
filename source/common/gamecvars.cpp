@@ -462,12 +462,6 @@ CUSTOM_CVAR(String, rtsname, "", CVAR_ARCHIVE | CVAR_USERINFO)
 {
 	RTS_Init(self);
 }
-#if 0
-
-// These will be redone once the resource management has been swapped out.
-//GameConfig->SetValueForKey("Setup", "ModDir", &g_modDir[0]);
-
-#endif
 
 
 #if 0

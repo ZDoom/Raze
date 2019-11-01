@@ -11,6 +11,7 @@ FString M_GetConfigPath(bool for_reading);
 FString M_GetScreenshotsPath();
 FString M_GetSavegamesPath();
 FString M_GetDocumentsPath();
+FString M_GetDemoPath();
 
 
 #ifdef __APPLE__

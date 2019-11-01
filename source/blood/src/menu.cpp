@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screen.h"
 #include "sound.h"
 #include "view.h"
+#include "i_specialpaths.h"
 
 EXTERN_CVAR(Bool, hud_powerupduration)
 
@@ -2102,7 +2103,7 @@ void SaveGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
         gGameMenuMgr.Deactivate();
         return;
     }
-    G_ModDirSnprintf(strSaveGameName, BMAX_PATH, "game00%02d.sav", nSlot);
+	snprintf(strSaveGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), nSlot);
     strcpy(gGameOptions.szUserGameName, strRestoreGameStrings[nSlot]);
     sprintf(gGameOptions.szSaveGameName, "%s", strSaveGameName);
     gGameOptions.nSaveGameSlot = nSlot;
@@ -2124,7 +2125,7 @@ void QuickSaveGame(void)
         gGameMenuMgr.Deactivate();
         return;
     }*/
-    G_ModDirSnprintf(strSaveGameName, BMAX_PATH, "game00%02d.sav", gQuickSaveSlot);
+    snprintf(strSaveGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), gQuickSaveSlot);
     strcpy(gGameOptions.szUserGameName, strRestoreGameStrings[gQuickSaveSlot]);
     sprintf(gGameOptions.szSaveGameName, "%s", strSaveGameName);
     gGameOptions.nSaveGameSlot = gQuickSaveSlot;
@@ -2144,7 +2145,7 @@ void LoadGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
     int nSlot = pItem->at28;
     if (gGameOptions.nGameType > 0)
         return;
-    G_ModDirSnprintf(strLoadGameName, BMAX_PATH, "game00%02d.sav", nSlot);
+    snprintf(strLoadGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), nSlot);
     if (!testkopen(strLoadGameName, 0))
         return;
     viewLoadingScreen(2518, "Loading", "Loading Saved Game", strRestoreGameStrings[nSlot]);
@@ -2159,7 +2160,7 @@ void QuickLoadGame(void)
     char strLoadGameName[BMAX_PATH];
     if (gGameOptions.nGameType > 0)
         return;
-    G_ModDirSnprintf(strLoadGameName, BMAX_PATH, "game00%02d.sav", gQuickLoadSlot);
+    snprintf(strLoadGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), gQuickLoadSlot);
     if (!testkopen(strLoadGameName, 0))
         return;
     viewLoadingScreen(2518, "Loading", "Loading Saved Game", strRestoreGameStrings[gQuickLoadSlot]);

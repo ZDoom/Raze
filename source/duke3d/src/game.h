@@ -460,13 +460,6 @@ enum
 };
 
 
-#define G_ModDirSnprintf(buf, size, basename, ...)                                                                                          \
-    (((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/" basename, g_modDir, ##__VA_ARGS__) : Bsnprintf(buf, size, basename, ##__VA_ARGS__)) \
-     >= ((int32_t)size) - 1)
-
-#define G_ModDirSnprintfLite(buf, size, basename) \
-    ((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/%s", g_modDir, basename) : Bsnprintf(buf, size, basename))
-
 static inline void G_NewGame_EnterLevel(void)
 {
     G_NewGame(ud.m_volume_number, ud.m_level_number, ud.m_player_skill);
