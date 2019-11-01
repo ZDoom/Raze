@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
+#include <algorithm>
 #include "gamedef.h"
 
 #include "cheats.h"
@@ -2100,11 +2101,6 @@ void C_UndefineLevel(int32_t vol, int32_t lev)
 
 LUNATIC_EXTERN int32_t C_SetDefName(const char *name)
 {
-    clearDefNamePtr();
-    g_defNamePtr = dup_filename(name);
-    if (g_defNamePtr)
-        initprintf("Using DEF file: %s.\n", g_defNamePtr);
-    return (g_defNamePtr==NULL);
 }
 
 defaultprojectile_t DefaultProjectile;
@@ -4603,8 +4599,8 @@ ifvar:
 
                         if (n != i)
                         {
-                            std::swap(&tempscrptr[i],   &tempscrptr[n]);
-							std::swap(&tempscrptr[i+1], &tempscrptr[n+1]);
+                            std::swap(tempscrptr[i],   tempscrptr[n]);
+							std::swap(tempscrptr[i+1], tempscrptr[n+1]);
                         }
                     }
                     //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
@@ -5193,7 +5189,7 @@ repeatcase:
                     }
                 }
                 gamename[i] = '\0';
-                g_gameNamePtr = Xstrdup(gamename);
+                //g_gameName = gamename; never used.
                // G_UpdateAppTitle();
             }
             continue;
@@ -5211,7 +5207,7 @@ repeatcase:
                 }
                 tempbuf[j] = '\0';
 
-                C_SetDefName(tempbuf);
+                //C_SetDefName(tempbuf); Uh, what? We're inside the DEF here!
             }
             continue;
 

@@ -1332,10 +1332,6 @@ int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
-extern char *g_defNamePtr;
-
-extern GrowArray<char *> g_defModules;
-
 #ifdef HAVE_CLIPSHAPE_FEATURE
 extern GrowArray<char *> g_clipMapFiles;
 #endif

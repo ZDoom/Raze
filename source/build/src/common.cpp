@@ -11,18 +11,7 @@
 #include "vfs.h"
 #include "../../glbackend/glbackend.h"
 
-GrowArray<char*> g_defModules;
-
 // def/clipmap handling
-
-// g_defNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
-char *g_defNamePtr = NULL;
-
-void clearDefNamePtr(void)
-{
-    Xfree(g_defNamePtr);
-    // g_defNamePtr assumed to be assigned to right after
-}
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 GrowArray<char *> g_clipMapFiles;
@@ -40,18 +29,6 @@ void SetClipshapes()
 		g_clipMapFiles.append(Xstrdup(clipshape));
 	}
 #endif
-}
-
-void G_AddDef(const char *buffer)
-{
-    clearDefNamePtr();
-    g_defNamePtr = dup_filename(buffer);
-    initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
-}
-
-void G_AddDefModule(const char *buffer)
-{
-    g_defModules.append(Xstrdup(buffer));
 }
 
 #ifdef HAVE_CLIPSHAPE_FEATURE

@@ -81,6 +81,7 @@ public:
 	FArgs(int argc, FString *argv);
 
 	FArgs &operator=(const FArgs &other);
+	const FString& operator[](size_t index) { return Argv[index]; }
 
 	void AppendArg(FString arg);
 	void AppendArgs(int argc, const FString *argv);

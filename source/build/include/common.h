@@ -52,7 +52,6 @@ extern const char *s_buildRev;
 extern const char *s_buildTimestamp;
 
 //// FUNCTIONS
-extern void clearDefNamePtr(void);
 
 void G_AddDef(const char *buffer);
 void G_AddDefModule(const char *buffer);

@@ -129,13 +129,6 @@ BEGIN_SW_NS
 
 extern int g_useCwd;
 
-extern char *g_grpNamePtr;
-
-const char *G_DefaultGrpFile(void);
-const char *G_GrpFile(void);
-
-void clearGrpNamePtr(void);
-
 void SW_InitMultiPsky(void);
 
 void SW_ExtPreInit(int32_t argc, char const * const * argv);

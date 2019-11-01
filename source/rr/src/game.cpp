@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 #include "gameconfigfile.h"
 #include "printf.h"
+#include "m_argv.h"
 #include "filesystem/filesystem.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
@@ -70,10 +71,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif /* _WIN32 */
 
 BEGIN_RR_NS
-
-
-extern const char* G_DefaultDefFile(void);
-extern const char* G_DefFile(void);
 
 
 int32_t g_quitDeadline = 0;
@@ -7022,7 +7019,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (char const * m : g_defModules)
+    for (auto& m : *userConfig.AddDefs)
         parsedefinitions_game_include(m, NULL, "null", firstPass);
 
     if (pScript)
@@ -7148,8 +7145,6 @@ static void G_CompileScripts(void)
     Bmemset(sprite, 0, MAXSPRITES*sizeof(spritetype));
     Bmemset(sector, 0, MAXSECTORS*sizeof(sectortype));
     Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
-
-    pathsearchmode = psm;
 }
 
 static inline void G_CheckGametype(void)
@@ -7539,12 +7534,6 @@ static int G_EndOfLevel(void)
     return 1;
 }
 
-void app_crashhandler(void)
-{
-    G_CloseDemoWrite();
-    G_GameQuit();
-}
-
 #if defined(_WIN32) && defined(DEBUGGINGAIDS)
 // See FILENAME_CASE_CHECK in cache1d.c
 static int32_t check_filename_casing(void)
@@ -7603,8 +7592,6 @@ int app_main()
 
     
     g_logFlushWindow = 0;
-    G_LoadGroups();
-//    flushlogwindow = 1;
 
     if (RR)
     {
@@ -7693,9 +7680,7 @@ int app_main()
     }
     loaddefinitions_game(defsfile, FALSE);
 
-    for (char * m : g_defModules)
-        free(m);
-    g_defModules.clear();
+	userConfig.AddDefs.reset();
 
     if (enginePostInit())
         G_FatalEngineError();
@@ -8442,18 +8427,12 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
 
 extern void faketimerhandler();
 extern int app_main();
-extern void app_crashhandler(void);
 
 GameInterface Interface = {
-	TICRATE,
 	faketimerhandler,
 	app_main,
 	validate_hud,
 	set_hud_layout,
 	set_hud_scale,
-	app_crashhandler,
-	G_DefaultDefFile,
-	G_DefFile,
-
 };
 END_RR_NS

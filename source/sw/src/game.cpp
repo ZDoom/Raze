@@ -92,6 +92,7 @@ Things required to make savegames work:
 #include "common_game.h"
 #include "gameconfigfile.h"
 #include "printf.h"
+#include "m_argv.h"
 
 //#include "crc32.h"
 
@@ -102,8 +103,6 @@ signed char MNU_InputSmallString(char*, short);
 signed char MNU_InputString(char*, short);
 SWBOOL IsCommand(char* str);
 SWBOOL MNU_StartNetGame(void);
-
-const char* G_DefFile(void);
 
 const char* AppProperName = "VoidSW";
 const char* AppTechnicalName = "voidsw";
@@ -862,7 +861,6 @@ InitGame()
     if (engineInit())
         SW_FatalEngineError();
 
-    //initgroupfile(G_GrpFile());  // JBF: moving this close to start of program to detect shareware
     InitAutoNet();
 
     timerInit(120);
@@ -976,9 +974,7 @@ InitGame()
 
     if (!loaddefinitionsfile(G_DefFile())) buildputs("Definitions file loaded.\n");
 
-    for (char * m : g_defModules)
-        free(m);
-    g_defModules.clear();
+	userConfig.AddDefs.reset();
 
     if (enginePostInit())
         SW_FatalEngineError();
@@ -3350,7 +3346,6 @@ int32_t app_main()
 		I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
     }
 
-    initgroupfile(G_GrpFile());
     if (!DetectShareware())
     {
         if (SW_SHAREWARE) buildputs("Detected shareware GRP\n");
@@ -3375,468 +3370,6 @@ int32_t app_main()
 
     UserMapName[0] = '\0';
 
-    //LocationInfo = TRUE;
-
-#if 0
-    //#if DEBUG && SYNC_TEST
-    // automatically record a demo
-    DemoRecording = TRUE;
-    DemoPlaying = FALSE;
-    PreCaching = TRUE;
-    DemoRecCnt = 0;
-    strcpy(DemoFileName, "DMOTEST.DMO");
-    //DemoSyncRecord = TRUE;
-#endif
-
-#if DEBUG
-    {
-        FILE *fout;
-        if ((fout = fopen("dbg.foo", "wb")) != NULL)
-        {
-            fprintf(fout, "Whoo-oo-ooooo wants some wang?\n");
-            fclose(fout);
-        }
-    }
-#endif
-
-#if 0
-    for (cnt = 1; cnt < argc; cnt++)
-    {
-        char const *arg = argv[cnt];
-
-        if (*arg != '/' && *arg != '-') continue;
-
-        if (firstnet > 0)
-        {
-            arg++;
-            switch (arg[0])
-            {
-            case 'n':
-            case 'N':
-                if (arg[1] == '0')
-                {
-                    NetBroadcastMode = FALSE;
-                    buildputs("Network mode: master/slave\n");
-                    wm_msgbox("Multiplayer Option Error",
-                              "This release unfortunately does not support a master-slave networking "
-                              "mode because of certain bugs we have not been able to locate and fix "
-                              "at this time. However, peer-to-peer networking has been found to be "
-                              "playable, so we suggest attempting to use that for now. Details can be "
-                              "found in the release notes. Sorry for the inconvenience.");
-                    return 0;
-                }
-                else if (arg[1] == '1')
-                {
-                    NetBroadcastMode = TRUE;
-                    buildputs("Network mode: peer-to-peer\n");
-                }
-                break;
-            default:
-                break;
-            }
-            continue;
-        }
-
-        // Store arg in command line array!
-        CON_StoreArg(arg);
-        arg++;
-
-        if (Bstrncasecmp(arg, "autonet",7) == 0)
-        {
-            AutoNet = TRUE;
-            cnt++;
-            sscanf(argv[cnt],"%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",&Auto.Rules,&Auto.Level,&Auto.Enemy,&Auto.Markers,
-                   &Auto.Team,&Auto.HurtTeam,&Auto.Kill,&Auto.Time,&Auto.Color,&Auto.Nuke);
-        }
-        else if (Bstrncasecmp(arg, "turnscale",9) == 0)
-        {
-            if (cnt <= argc-2)
-            {
-                cnt++;
-                sscanf(argv[cnt], "%d",&turn_scale);
-            }
-        }
-        else if (Bstrncasecmp(arg, "movescale",9) == 0)
-        {
-            if (cnt <= argc-2)
-            {
-                cnt++;
-                sscanf(argv[cnt], "%d",&move_scale);
-            }
-        }
-        else if (Bstrncasecmp(arg, "extcompat",9) == 0)
-        {
-            move_scale *= 5;
-            turn_scale *= 5;
-        }
-        else if (Bstrncasecmp(arg, "setupfile",8) == 0)
-        {
-            // Passed by setup.exe
-            // skip setupfile name
-            cnt++;
-        }
-        else if (Bstrncasecmp(arg, "net",3) == 0)
-        {
-            if (cnt+1 < argc)
-            {
-                firstnet = cnt+1;
-            }
-        }
-#if DEBUG
-        else if (Bstrncasecmp(arg, "debug",5) == 0)
-        {
-#ifdef RENDERTYPEWIN
-            char *str;
-            int strl;
-
-            strl = 24 + 70;
-            for (i=0; i < (int)SIZ(cli_dbg_arg); i++)
-                strl += strlen(cli_dbg_arg[i].arg_fmt) + 1 + strlen(cli_dbg_arg[i].arg_descr) + 1;
-
-            str = (char *)malloc(strl);
-            if (str)
-            {
-                strcpy(str,
-                       "Usage: sw [options]\n"
-                       "options:  ('/' may be used instead of '-', <> text is optional)\n\n"
-                       );
-                for (i=0; i < (int)SIZ(cli_dbg_arg); i++)
-                {
-                    strcat(str, cli_dbg_arg[i].arg_fmt);
-                    strcat(str, "\t");
-                    strcat(str, cli_dbg_arg[i].arg_descr);
-                    strcat(str, "\n");
-                }
-                wm_msgbox("Shadow Warrior Debug Help",str);
-                free(str);
-            }
-#else
-            printf("Usage: %s [options]\n", argv[0]);
-            printf("options:  ('/' may be used instead of '-', <> text is optional)\n\n");
-            for (i = 0; i < (int)SIZ(cli_dbg_arg); i++)
-            {
-                if (cli_dbg_arg[i].arg_fmt)
-                {
-                    printf(" %-20s   %-30s\n",cli_dbg_arg[i].arg_fmt, cli_dbg_arg[i].arg_descr);
-                }
-            }
-#endif
-            swexit(0);
-        }
-#endif
-        else if (Bstrncasecmp(arg, "short",5) == 0)
-        {
-            ShortGameMode = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "nodemo",6) == 0)
-        {
-            NoDemoStartup = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "allsync",3) == 0)
-        {
-            NumSyncBytes = 8;
-        }
-        else if (Bstrncasecmp(arg, "name",4) == 0)
-        {
-            if (cnt <= argc-2)
-            {
-                strncpy(PlayerNameArg, argv[++cnt], SIZ(PlayerNameArg)-1);
-                PlayerNameArg[SIZ(PlayerNameArg)-1] = '\0';
-            }
-        }
-        else if (Bstrncasecmp(arg, "f8",2) == 0)
-        {
-            MovesPerPacket = 8;
-        }
-        else if (Bstrncasecmp(arg, "f4",2) == 0)
-        {
-            MovesPerPacket = 4;
-        }
-        else if (Bstrncasecmp(arg, "f2",2) == 0)
-        {
-            MovesPerPacket = 2;
-        }
-        else if (Bstrncasecmp(arg, "monst", 5) == 0)
-        {
-            DebugActor = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "nopredict",6) == 0)
-        {
-            extern SWBOOL PredictionOn;
-            PredictionOn = FALSE;
-        }
-        else if (Bstrncasecmp(arg, "col", 3) == 0)
-        // provides a way to force the player color for joiners
-        // since -autonet does not seem to work for them
-        {
-            int temp;
-            cnt++;
-            sscanf(argv[cnt],"%d",&temp);
-            AutoColor = temp;
-            HasAutoColor = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "level", 5) == 0)
-        {
-            if (strlen(arg) > 5)
-            {
-                strcpy(UserMapName,LevelInfo[atoi(&arg[5])].LevelName);
-            }
-        }
-        else if (Bstrncasecmp(arg, "s", 1) == 0)
-        {
-            if (strlen(arg) > 1)
-                Skill = atoi(&arg[1])-1;
-
-            Skill = max(Skill,short(0));
-            Skill = min(Skill,short(3));
-        }
-        else if (Bstrncasecmp(arg, "commbat", 7) == 0)
-        {
-            if (strlen(arg) > 7)
-            {
-                FakeMultiNumPlayers = atoi(&arg[7]);
-                gNet.MultiGameType = MULTI_GAME_COMMBAT;
-            }
-        }
-        else
-        /* bots suck, bye bye!
-        #ifndef SW_SHAREWARE
-                if (memcmp(argv[cnt], "-bots", 5) == 0)
-            {
-            if (strlen(argv[cnt]) > 5)
-                {
-                FakeMultiNumPlayers = atoi(&argv[cnt][5]);
-                printf("Adding %d BOT(s) to the game!\n",FakeMultiNumPlayers);
-                gNet.MultiGameType = MULTI_GAME_AI_BOTS;
-                BotMode = TRUE;
-                }
-            }
-        else
-        #endif
-        */
-        if (Bstrncasecmp(arg, "nometers", 8) == 0)
-        {
-            NoMeters = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "coop", 4) == 0)
-        {
-            if (strlen(arg) > 4)
-            {
-                FakeMultiNumPlayers = atoi(&arg[4]);
-                gNet.MultiGameType = MULTI_GAME_COOPERATIVE;
-            }
-        }
-        else if (FALSE && Bstrncasecmp(arg, "ddr", 3) == 0)
-        {
-            //NumSyncBytes = 8;
-            DemoRecording = TRUE;
-            DemoPlaying = FALSE;
-            DemoRecCnt = 0;
-            DemoDebugMode = TRUE;
-
-            if (strlen(arg) > 3)
-            {
-                strcpy(DemoFileName, &arg[2]);
-                if (strchr(DemoFileName, '.') == 0)
-                    strcat(DemoFileName, ".dmo");
-            }
-        }
-        else if (FALSE && Bstrncasecmp(arg, "dr", 2) == 0)
-        {
-            //NumSyncBytes = 8;
-            DemoRecording = TRUE;
-            DemoPlaying = FALSE;
-            DemoRecCnt = 0;
-
-            if (strlen(arg) > 2)
-            {
-                strcpy(DemoFileName, &arg[2]);
-                if (strchr(DemoFileName, '.') == 0)
-                    strcat(DemoFileName, ".dmo");
-            }
-        }
-        else if (FALSE && Bstrncasecmp(arg, "dp", 2) == 0)
-        {
-            DemoPlaying = TRUE;
-            DemoRecording = FALSE;
-            PreCaching = TRUE;
-
-            if (strlen(arg) > 2)
-            {
-                strcpy(DemoFileName, &arg[2]);
-                if (strchr(DemoFileName, '.') == 0)
-                    strcat(DemoFileName, ".dmo");
-            }
-        }
-
-#if 0 //def NET_MODE_MASTER_SLAVE
-        else if (Bstrncasecmp(arg, "masterslave",6) == 0)
-        {
-            NetModeOverride = TRUE;
-            NetBroadcastMode = FALSE;
-        }
-        else if (Bstrncasecmp(arg, "broadcast",5) == 0)
-        {
-            NetModeOverride = TRUE;
-            NetBroadcastMode = TRUE;
-        }
-#endif
-
-        else if (Bstrncasecmp(arg, "cheat",5) == 0)
-        {
-            ArgCheat = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "demosynctest",12) == 0)
-        {
-            NumSyncBytes = 8;
-            DemoSyncTest = TRUE;
-            DemoSyncRecord = FALSE;
-        }
-        else if (Bstrncasecmp(arg, "demosyncrecord",12) == 0)
-        {
-            NumSyncBytes = 8;
-            DemoSyncTest = FALSE;
-            DemoSyncRecord = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "cam",3) == 0)
-        {
-            CameraTestMode = TRUE;
-        }
-
-#if DEBUG
-        else if (FALSE && Bstrncasecmp(arg, "de", 2) == 0)
-        {
-#if DEMO_FILE_TYPE == DEMO_FILE_GROUP
-            DemoPlaying = TRUE;
-            DemoRecording = FALSE;
-
-            if (strlen(arg) > 2)
-            {
-                strcpy(DemoFileName, &arg[2]);
-                if (strchr(DemoFileName, '.') == 0)
-                    strcat(DemoFileName, ".dmo");
-            }
-#else
-            DemoEdit = TRUE;
-            DemoPlaying = TRUE;
-            DemoRecording = FALSE;
-
-            if (strlen(arg) > 2)
-            {
-                strcpy(DemoFileName, &arg[2]);
-                if (strchr(DemoFileName, '.') == 0)
-                    strcat(DemoFileName, ".dmo");
-            }
-#endif
-        }
-        else if (Bstrncasecmp(arg, "randprint",5) == 0)
-        {
-            RandomPrint = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "level", 5) == 0)
-        {
-            if (strlen(arg) > 5)
-            {
-                strcpy(UserMapName,LevelInfo[atoi(&arg[5])].LevelName);
-            }
-        }
-        else if (Bstrncasecmp(arg, "debugsecret", 10) == 0)
-        {
-            extern SWBOOL DebugSecret;
-            DebugSecret = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "debugactor", 10) == 0)
-        {
-            DebugActor = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "mono", 4) == 0)
-        {
-            DispMono = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "debugso", 7) == 0)
-        {
-            DebugSO = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "nosyncprint",10) == 0)
-        {
-            extern SWBOOL SyncPrintMode;
-            SyncPrintMode = FALSE;
-        }
-        else if (Bstrncasecmp(arg, "debuganim", 9) == 0)
-        {
-            DebugAnim = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "debugsector", 11) == 0)
-        {
-            DebugSector = TRUE;
-        }
-        else if (Bstrncasecmp(arg, "debugpanel", 10) == 0)
-        {
-            DebugPanel = TRUE;
-        }
-        else if (FALSE && Bstrncasecmp(arg, "dt", 2) == 0)
-        {
-            if (strlen(arg) > 2)
-            {
-                strcpy(DemoTmpName, &arg[2]);
-                if (strchr(DemoFileName, '.') == 0)
-                    strcat(DemoFileName, ".dmo");
-            }
-        }
-        else if (Bstrncasecmp(arg, "nodemo", 6) == 0)
-        {
-            DemoRecording = FALSE;
-            DemoPlaying = FALSE;
-            PreCaching = TRUE;
-            DemoRecCnt = 0;
-
-            DemoSyncTest = FALSE;
-            DemoSyncRecord = FALSE;
-        }
-
-#endif
-
-        else if (Bstrncasecmp(arg, "map", 3) == 0 && !SW_SHAREWARE)
-        {
-            int fil;
-
-            strcpy(UserMapName, argv[++cnt]);
-            if (strchr(UserMapName, '.') == 0)
-                strcat(UserMapName, ".map");
-
-            if (!testkopen(UserMapName,0))
-            {
-#ifdef RENDERTYPEWIN
-                char msg[256];
-                Bsnprintf(msg, 256, "ERROR: Could not find user map %s!",UserMapName);
-                wm_msgbox(apptitle, msg);
-#else
-                printf("ERROR: Could not find user map %s!\n\n",UserMapName);
-#endif
-                swexit(0);
-            }
-        }
-
-        else if (Bstrncasecmp(arg, "g", 1) == 0 && !SW_SHAREWARE)
-        {
-            if (strlen(arg) > 1)
-            {
-                if (initgroupfile(arg+1) >= 0)
-                    buildprintf("Added %s\n", arg+1);
-            }
-        }
-        else if (Bstrncasecmp(arg, "h", 1) == 0 && !SW_SHAREWARE)
-        {
-            if (strlen(arg) > 1)
-                G_AddDef(arg+1);
-        }
-        else if (Bstrncasecmp(arg, "mh", 1) == 0 && !SW_SHAREWARE)
-        {
-            if (strlen(arg) > 1)
-                G_AddDefModule(arg+1);
-        }
-    }
-#endif
     Control();
 
     return 0;
@@ -5502,7 +5035,6 @@ StdRandomRange(int range)
 // [JM] Probably will need some doing over. !CHECKME!
 void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); }
 void G_Polymer_UnInit(void) { }
-void app_crashhandler(void) { }
 
 int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
@@ -5537,20 +5069,15 @@ saveable_module saveable_build =
 
 extern void faketimerhandler();
 extern int app_main();
-extern void app_crashhandler(void);
 /*extern*/ bool validate_hud(int requested_size) { return requested_size; }
 /*extern*/ void set_hud(int requested_size) { /* the relevant setting is gs.BorderNum */}
 
 GameInterface Interface = {
-	140, // Huh?
 	faketimerhandler,
 	app_main,
 	validate_hud,
 	set_hud,
 	set_hud,
-	app_crashhandler,
-	G_DefFile,
-	G_DefFile,
 };
 
 // vim:ts=4:sw=4:expandtab:

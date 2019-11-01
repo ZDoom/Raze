@@ -41,6 +41,7 @@
 #include "i_specialpaths.h"
 #include "printf.h"
 #include "cmdlib.h"
+#include "i_findfile.h"
 //#include "version.h"	// for GAMENAME
 
 // Stuff that needs to be set up later.
@@ -336,3 +337,61 @@ FString M_GetDocumentsPath()
 	return path;
 }
 
+//==========================================================================
+//
+// I_FindFirst
+//
+// Start a pattern matching sequence.
+//
+//==========================================================================
+
+
+void *I_FindFirst(const char *filespec, findstate_t *fileinfo)
+{
+	static_assert(sizeof(WIN32_FIND_DATAW) == sizeof(fileinfo->FindData), "Findata size mismatch");
+	auto widespec = WideString(filespec);
+	fileinfo->UTF8Name = "";
+	return FindFirstFileW(widespec.c_str(), (LPWIN32_FIND_DATAW)&fileinfo->FindData);
+}
+
+//==========================================================================
+//
+// I_FindNext
+//
+// Return the next file in a pattern matching sequence.
+//
+//==========================================================================
+
+int I_FindNext(void *handle, findstate_t *fileinfo)
+{
+	fileinfo->UTF8Name = "";
+	return !FindNextFileW((HANDLE)handle, (LPWIN32_FIND_DATAW)&fileinfo->FindData);
+}
+
+//==========================================================================
+//
+// I_FindClose
+//
+// Finish a pattern matching sequence.
+//
+//==========================================================================
+
+int I_FindClose(void *handle)
+{
+	return FindClose((HANDLE)handle);
+}
+
+//==========================================================================
+//
+// I_FindName
+//
+// Returns the name for an entry
+//
+//==========================================================================
+
+const char *I_FindName(findstate_t *fileinfo)
+{
+	if (fileinfo->UTF8Name.IsEmpty()) fileinfo->UTF8Name = fileinfo->FindData.Name;
+	return fileinfo->UTF8Name.GetChars();
+}
+ 

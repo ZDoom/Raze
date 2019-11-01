@@ -140,7 +140,6 @@ struct GrpInfo
 {
 	FString name;
 	FString scriptname;
-	FString dirname;
 	FString defname;
 	FString rtsname;
 	FString gamefilter;
@@ -148,6 +147,8 @@ struct GrpInfo
 	uint32_t dependencyCRC = 0;
 	size_t size = 0;
 	int flags = 0;
+	bool loaddirectory = false;
+	TArray<FString> mustcontain;
 	TArray<FString> loadfiles;
 	TArray<FString> loadart;
 };
@@ -160,5 +161,10 @@ struct GrpEntry
 	GrpInfo FileInfo;
 	uint32_t FileIndex;
 };
+extern int g_gameType;
+const char* G_DefaultDefFile(void);
+const char* G_DefFile(void);
+const char* G_DefaultConFile(void);
+const char* G_ConFile(void);
 
 TArray<GrpEntry> GrpScan();

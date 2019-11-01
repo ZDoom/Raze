@@ -69,6 +69,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "warp.h"
 #include "weapon.h"
 #include "gameconfigfile.h"
+#include "gamecontrol.h"
+#include "m_argv.h"
 
 #ifdef _WIN32
 # include <shellapi.h>
@@ -82,9 +84,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-
-extern const char* G_DefaultDefFile(void);
-extern const char* G_DefFile(void);
 
 int32_t gNoSetup = 0, gCommandSetup = 0;
 
@@ -163,11 +162,6 @@ enum gametokens
 };
 
 int blood_globalflags;
-
-void app_crashhandler(void)
-{
-    // NUKE-TODO:
-}
 
 void G_Polymer_UnInit(void)
 {
@@ -1262,8 +1256,6 @@ int app_main()
 
     ScanINIFiles();
 
-	G_LoadGroups();
-
     initprintf("Initializing OSD...\n");
 
     OSD_SetVersion("Blood", 10, 0);
@@ -2116,7 +2108,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (char const * m : g_defModules)
+    for (auto & m : *userConfig.AddDefs)
         parsedefinitions_game_include(m, NULL, "null", firstPass);
 
     if (pScript)
@@ -2254,22 +2246,17 @@ void sndPlaySpecialMusicOrNothing(int nMusic)
 
 extern void faketimerhandler();
 extern int app_main();
-extern void app_crashhandler(void);
 bool validate_hud(int layout);
 void set_hud_layout(int layout);
 void set_hud_scale(int scale);
 int32_t GetTime();
 
 GameInterface Interface = {
-	TICRATE,
 	faketimerhandler,
 	app_main,
 	validate_hud,
 	set_hud_layout,
 	set_hud_scale,
-	app_crashhandler,
-	G_DefaultDefFile,
-	G_DefFile,
 };
 
 END_BLD_NS

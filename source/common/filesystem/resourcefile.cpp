@@ -219,7 +219,7 @@ FResourceFile *FResourceFile::DoOpenResourceFile(const char *filename, FileReade
 	for(size_t i = 0; i < countof(funcs) - containeronly; i++)
 	{
 		FResourceFile *resfile = funcs[i](filename, file, quiet);
-		if (resfile != NULL && resfile->Open(quiet)) return resfile;
+		if (resfile != NULL) return resfile;
 	}
 	return NULL;
 }

@@ -36,10 +36,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "printf.h"
 #include "common.h"
 #include "gamecontrol.h"
+#include "filesystem/filesystem.h"
 
 
 
 namespace fs = std::filesystem;
+int g_gameType;
 
 
 fs::path AbsolutePath(const char* path)
@@ -534,9 +536,21 @@ struct FileEntry
 
 TArray<FileEntry> CollectAllFilesInSearchPath()
 {
+	uint32_t index = 0;
 	TArray<FileEntry> filelist;
+
+	if (userConfig.gamegrp.IsNotEmpty())
+	{
+		// If the user specified a file on the command line, insert that first, if found.
+		FileReader fr;
+		if (fr.OpenFile(userConfig.gamegrp))
+		{
+			FileEntry fe = { userConfig.gamegrp, (uintmax_t)fr.GetLength(), 0, 0, index++ };
+			filelist.Push(fe);
+		}
+	}
+
 	auto paths = CollectSearchPaths();
-	int index = 0;
 	for(auto &path : paths)
 	{
 		auto fpath = fs::u8path(path.GetChars());
@@ -682,8 +696,8 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 				}
 				else if (sc.Compare("loaddirectory"))
 				{
-					sc.MustGetToken(TK_StringConst);
-					grp.dirname = sc.String;
+					// Only load the directory, but not the file.
+					grp.loaddirectory = true;
 				}
 				else if (sc.Compare("defname"))
 				{
@@ -764,14 +778,22 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 					}
 					while (sc.CheckToken('|'));
 				}
-				else if (sc.Compare("loadgrp"))
+				else if (sc.Compare("mustcontain"))
 				{
 					do
 					{
 						sc.MustGetToken(TK_StringConst);
-						grp.loadfiles.Push(sc.String);
+						grp.mustcontain.Push(sc.String);
 					}
 					while (sc.CheckToken(','));
+				}
+				else if (sc.Compare("loadgrp"))
+				{
+				do
+				{
+					sc.MustGetToken(TK_StringConst);
+					grp.loadfiles.Push(sc.String);
+				} while (sc.CheckToken(','));
 				}
 				else if (sc.Compare("loadart"))
 				{
@@ -1005,3 +1027,90 @@ TArray<GrpEntry> GrpScan()
 	}
 	return foundGames;
 }
+
+
+//==========================================================================
+//
+// Fallback in case nothing got defined.
+// Also used by 'includedefault' which forces this to be statically defined
+// (and which shouldn't be used to begin with because there are no default DEFs!)
+//
+//==========================================================================
+
+const char* G_DefaultDefFile(void)
+{
+	if (g_gameType & GAMEFLAG_BLOOD) 
+		return "blood.def";
+
+	if (g_gameType & GAMEFLAG_DUKE)
+		return "duke3d.def";
+
+	if (g_gameType & GAMEFLAG_RRRA)
+		return "rrra.def";
+
+	if (g_gameType & GAMEFLAG_RR)
+		return "rr.def";
+
+	if (g_gameType & GAMEFLAG_WW2GI)
+		return "ww2gi.def";
+
+	if (g_gameType & GAMEFLAG_SW)
+		return "sw.def";
+
+	if (g_gameType & GAMEFLAG_NAM)
+		return fileSystem.FindFile("nam.def") ? "nam.def" : "napalm.def";
+
+	if (g_gameType & GAMEFLAG_NAPALM)
+		return fileSystem.FindFile("napalm.def") ? "napalm.def" : "nam.def";
+
+	return "duke3d.def";
+}
+
+const char* G_DefFile(void)
+{
+	return userConfig.DefaultDef.IsNotEmpty() ? userConfig.DefaultDef.GetChars() : G_DefaultDefFile();
+}
+
+
+//==========================================================================
+//
+// Fallback in case nothing got defined.
+// Also used by 'includedefault' which forces this to be statically defined
+//
+//==========================================================================
+
+const char* G_DefaultConFile(void)
+{
+	if (g_gameType & GAMEFLAG_BLOOD)
+		return "blood.ini";	// Blood doesn't have CON files but the common code treats its INI files the same, so return that here.
+
+	if (g_gameType & GAMEFLAG_WW2GI)
+	{
+		if (fileSystem.FindFile("ww2gi.con")) return "ww2gi.con";
+	}
+
+	if (g_gameType & GAMEFLAG_SW)
+		return nullptr;	// SW has no scripts of any kind (todo: Make Blood's INI files usable here for map definitions)
+
+	if (g_gameType & GAMEFLAG_NAM)
+	{
+		if (fileSystem.FindFile("nam.def")) return "nam.def";
+		if (fileSystem.FindFile("napalm.def")) return "napalm.def";
+	}
+
+	if (g_gameType & GAMEFLAG_NAPALM)
+	{
+		if (fileSystem.FindFile("napalm.def")) return "napalm.def";
+		if (fileSystem.FindFile("nam.def")) return "nam.def";
+	}
+
+	// the other games only use game.con.
+	return "game.con";
+}
+
+const char* G_ConFile(void)
+{
+	return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : G_DefaultConFile();
+}
+
+

@@ -125,7 +125,7 @@ int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FStr
 	for (int i = 0; i < NumLookupModes; i++)
 	{
 		FirstFileIndex[i] = &Hashes[i * 2 * NumEntries];
-		NextFileIndex[i] = &Hashes[(i+1) * 2 * NumEntries];
+		NextFileIndex[i] = &Hashes[(i * 2 + 1) * NumEntries];
 	}
 	InitHashChains ();
 	FileInfo.ShrinkToFit();
@@ -418,10 +418,11 @@ void FileSystem::InitHashChains (void)
 			{
 				hash = int(lump->LumpName[l]) % NumEntries;
 			}
-			else if (lump->ResourceId > 0)
+			else if (l == (int)ELookupMode::IdWithType && lump->ResourceId > 0)
 			{
 				hash = int(lump->ResourceId) % NumEntries;
 			}
+			else continue;
 			NextFileIndex[l][hash] = FirstFileIndex[l][hash];
 			FirstFileIndex[l][hash] = i;
 		}

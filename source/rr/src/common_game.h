@@ -14,11 +14,6 @@
 BEGIN_RR_NS
 
 
-extern struct grpfile_t const *g_selectedGrp;
-
-extern int32_t g_gameType;
-extern int     g_addonNum;
-
 #define DUKE                (g_gameType & GAMEFLAG_DUKE)
 #define RR                  (g_gameType & GAMEFLAG_RR)
 #define RRRA                (g_gameType & GAMEFLAG_RRRA)
@@ -38,26 +33,6 @@ enum Games_t {
     GAME_NAPALM,
     //GAME_WW2GI,
     GAMECOUNT
-};
-
-enum instpath_t {
-    INSTPATH_STEAM_DUKE3D_MEGATON,
-    INSTPATH_STEAM_DUKE3D_3DR,
-    INSTPATH_GOG_DUKE3D,
-    INSTPATH_3DR_DUKE3D,
-    INSTPATH_3DR_ANTH,
-    //INSTPATH_STEAM_NAM,
-    //INSTPATH_STEAM_WW2GI,
-    INSTPATH_GOG_RR,
-    INSTPATH_GOG_RRRA,
-    NUMINSTPATHS
-};
-
-enum searchpathtypes_t {
-    SEARCHPATH_REMOVE = 1<<0,
-    SEARCHPATH_NAM    = 1<<1,
-    SEARCHPATH_RR     = 1<<2,
-    SEARCHPATH_RRRA   = 1<<3,
 };
 
 typedef enum basepal_ {
@@ -82,34 +57,12 @@ typedef enum basepal_ {
 
 #define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
 
-extern const char *g_gameNamePtr;
-
-extern const char *G_DefaultGrpFile(void);
-extern const char *G_GrpFile(void);
-
-extern const char *G_DefaultConFile(void);
-extern const char *G_ConFile(void);
-
 extern int loaddefinitions_game(const char *fn, int32_t preload);
-extern int32_t g_groupFileHandle;
 
 //////////
 
 extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
 extern void G_SetupGlobalPsky(void);
-
-//////////
-
-extern void G_AddSearchPaths(void);
-
-extern void G_LoadGroups();
-
-extern const char * G_GetInstallPath(int32_t insttype);
-
-//////////
-
-void G_LoadGroupsInDir(const char *dirname);
-void G_DoAutoload(const char *dirname);
 
 //////////
 

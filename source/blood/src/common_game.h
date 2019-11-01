@@ -509,17 +509,9 @@ enum searchpathtypes_t {
     if (alpha < 0) { blend = -alpha; alpha = 0; orientation |= RS_TRANS1; } \
 } while (0)
 
-extern char *g_grpNamePtr;
-
 extern int loaddefinitions_game(const char *fn, int32_t preload);
 
-extern void G_AddSearchPaths(void);
-
 extern void G_ExtInit(void);
-
-void G_LoadGroupsInDir(const char *dirname);
-void G_DoAutoload(const char *dirname);
-extern void G_LoadGroups();
 
 extern void G_SetupGlobalPsky(void);
 

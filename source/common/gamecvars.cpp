@@ -465,7 +465,6 @@ CUSTOM_CVAR(String, rtsname, "", CVAR_ARCHIVE | CVAR_USERINFO)
 #if 0
 
 // These will be redone once the resource management has been swapped out.
-//GameConfig->SetValueForKey("Setup", "SelectedGRP", g_grpNamePtr);
 //GameConfig->SetValueForKey("Setup", "ModDir", &g_modDir[0]);
 
 #endif

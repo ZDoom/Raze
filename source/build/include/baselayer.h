@@ -228,18 +228,11 @@ int32_t baselayer_init();
 
 struct GameInterface
 {
-	int TicRate;
 	void (*faketimerhandler)();
 	int (*app_main)();
 	bool (*validate_hud)(int);
 	void (*set_hud_layout)(int size);
 	void (*set_hud_scale)(int size);
-
-	// These will later be removed.
-	void (*app_crashhandler)();
-	const char* (*DefaultDefFile)();
-	const char* (*DefFile)();
-
 };
 
 extern GameInterface* gi;

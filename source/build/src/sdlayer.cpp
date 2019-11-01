@@ -380,9 +380,11 @@ static void sighandler(int signum)
         //        usleep(15000000);
 #endif
         attach_debugger_here();
-        gi->app_crashhandler();
-        uninitsystem();
-        Bexit(EXIT_FAILURE);
+		std::terminate();
+		// NOTE: It is not safe to call any of this from a signal handler!
+		//gi->app_crashhandler();
+        //uninitsystem();
+        //Bexit(EXIT_FAILURE);
     }
 }
 #endif

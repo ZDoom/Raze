@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 #include "gameconfigfile.h"
 #include "printf.h"
+#include "m_argv.h"
 #include "filesystem/filesystem.h"
 
 #include "vfs.h"
@@ -73,17 +74,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-extern const char* G_DefaultDefFile(void);
-extern const char* G_DefFile(void);
-
-
 int32_t g_quitDeadline = 0;
 
-#ifdef LUNATIC
-camera_t g_camera;
-#else
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
-#endif
 static int32_t g_quickExit;
 
 char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
@@ -5656,7 +5649,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (char const * m : g_defModules)
+    for (auto& m : *userConfig.AddDefs)
         parsedefinitions_game_include(m, NULL, "null", firstPass);
 
     if (pScript)
@@ -6146,16 +6139,6 @@ static int G_EndOfLevel(void)
     return 1;
 }
 
-void app_crashhandler(void)
-{
-    G_CloseDemoWrite();
-#if !defined LUNATIC
-    VM_ScriptInfo(insptr, 64);
-#endif
-    G_GameQuit();
-}
-
-
 void G_MaybeAllocPlayer(int32_t pnum)
 {
     if (g_player[pnum].ps == NULL)
@@ -6199,8 +6182,6 @@ int app_main()
 
     
     g_logFlushWindow = 0;
-    G_LoadGroups();
-//    flushlogwindow = 1;
 
 #ifndef EDUKE32_STANDALONE
     G_SetupCheats();
@@ -6284,9 +6265,7 @@ int app_main()
     }
     loaddefinitions_game(defsfile, FALSE);
 
-    for (char * m : g_defModules)
-        free(m);
-    g_defModules.clear();
+	userConfig.AddDefs.reset();
 
     if (enginePostInit())
         G_FatalEngineError();
@@ -6966,18 +6945,13 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
 #endif
 
 extern void faketimerhandler();
-extern void app_crashhandler(void);
 
 GameInterface Interface = {
-	TICRATE,
 	faketimerhandler,
 	app_main,
 	validate_hud,
 	set_hud_layout,
 	set_hud_scale,
-	app_crashhandler,
-	G_DefaultDefFile,
-	G_DefFile,
 };
 
 END_DUKE_NS

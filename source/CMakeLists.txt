@@ -770,6 +770,7 @@ set (PCH_SOURCES
 	common/gamecontrol.cpp
 	common/inputstate.cpp
 	common/searchpaths.cpp
+	common/initfs.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp

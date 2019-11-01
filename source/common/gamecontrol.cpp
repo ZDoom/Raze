@@ -1,3 +1,4 @@
+#include <filesystem>
 #include "gamecontrol.h"
 #include "tarray.h"
 #include "zstring.h"
@@ -14,10 +15,12 @@
 #include "control.h"
 #include "m_argv.h"
 #include "rts.h"
+#include "printf.h"
 
 InputState inputState;
 void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
+void InitFileSystem(TArray<GrpEntry>&);
 int globalShadeDiv;
 
 struct GameFuncNameDesc
@@ -194,7 +197,7 @@ void UserConfig::ProcessOptions()
 		gamegrp = "WW2GI.GRP";
 	}
 
-	v = Args->CheckValue("-gamegrp");	// Although it says 'grp', this will take a directory as well
+	v = Args->CheckValue("-gamegrp");
 	if (v)
 	{
 		gamegrp = v;
@@ -267,9 +270,9 @@ void UserConfig::ProcessOptions()
 	}
 	else
 	{
-		// Trying to emulate Build. This means to treat RFF special as lowest priority, then all GRPs and then all directories. 
+		// Trying to emulate Build. This means to treat RFF files as lowest priority, then all GRPs and then all directories. 
 		// This is only for people depending on lauchers. Since the semantics are so crappy it is strongly recommended to
-		// use -file instead which gives the user full control about the order in which things are added.
+		// use -file instead which gives the user full control over the order in which things are added.
 		// For single mods this is no problem but don't even think about loading more stuff consistently...
 
 		static const char* grps[] = { "-g", "-grp", nullptr };
@@ -354,7 +357,7 @@ int CONFIG_Init()
 	SetClipshapes();
 
 	// This must be done before initializing any data, so doing it late in the startup process won't work.
-	if (CONTROL_Startup(controltype_keyboardandmouse, BGetTime, gi->TicRate))
+	if (CONTROL_Startup(controltype_keyboardandmouse, BGetTime, 120))
 	{
 		return 1;
 	}
@@ -365,27 +368,84 @@ int CONFIG_Init()
 	// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
 
 	auto groups = GrpScan();
-	int groupno = ShowStartupWindow(groups);
-	if (groupno == -1) return 0;
-	auto &group = groups[groupno];
-	GrpEntry* dependency = nullptr;
-	if (group.FileInfo.dependencyCRC != 0)
+	if (groups.Size() == 0)
 	{
-		for (auto& dep : groups)
-		{
-			if (dep.FileInfo.CRC == group.FileInfo.dependencyCRC)
-			{
-				dependency = &dep;
-				break;
-			}
-		}
+		// Abort if no game data found.
+		I_Error("Unable to find any game data. Please verify your settings.");
 	}
 
-	LumpFilter = group.FileInfo.gamefilter;
-	if (LumpFilter.IsEmpty() && dependency) LumpFilter = dependency->FileInfo.gamefilter;
+	decltype(groups) usedgroups;
+
+	int groupno = -1;
+
+	// If the user has specified a file name, let's see if we know it.
+	//
+	if (userConfig.gamegrp)
+	{
+		std::filesystem::path gpath = std::filesystem::u8path(userConfig.gamegrp.GetChars());
+
+		int g = 0;
+		for (auto& grp : groups)
+		{
+			std::filesystem::path fpath = std::filesystem::u8path(grp.FileName.GetChars());
+			std::error_code err;
+			if (std::filesystem::equivalent(gpath, fpath, err))
+			{
+				break;
+			}
+			g++;
+		}
+		groupno = g;
+	}
+	if (groupno == -1 || userConfig.setupstate == 1)
+		groupno = ShowStartupWindow(groups);
+
+	if (groupno == -1) return 0;
+	auto &group = groups[groupno];
+
+	// Now filter out the data we actually need and delete the rest.
+
+	usedgroups.Push(group);
+
+	auto crc = group.FileInfo.dependencyCRC;
+	for (auto& dep : groups)
+	{
+		if (dep.FileInfo.CRC == crc)
+		{
+			usedgroups.Insert(0, dep);	// Order from least dependent to most dependent, which is the loading order of data.
+		}
+	}
+	groups.Reset();
+
+	FString selectedScript;
+	FString selectedDef;
+	for (auto& ugroup : usedgroups)
+	{
+		// For CONs the command line has priority, aside from that, the last one wins. For Blood this handles INIs - the rules are the same.
+		if (ugroup.FileInfo.scriptname.IsNotEmpty()) selectedScript = ugroup.FileInfo.scriptname;
+		if (ugroup.FileInfo.defname.IsNotEmpty()) selectedDef = ugroup.FileInfo.defname;
+
+		// CVAR has priority. This also overwrites the global variable each time. Init here is lazy so this is ok.
+		if (ugroup.FileInfo.rtsname.IsNotEmpty() && **rtsname == 0) RTS_Init(ugroup.FileInfo.rtsname); 
+		
+		// For the game filter the last non-empty one wins.
+		if (ugroup.FileInfo.gamefilter.IsNotEmpty()) LumpFilter = ugroup.FileInfo.gamefilter;
+		g_gameType |= ugroup.FileInfo.flags;
+	}
+	if (userConfig.DefaultCon.IsEmpty()) userConfig.DefaultCon = selectedScript;
+	if (userConfig.DefaultDef.IsEmpty()) userConfig.DefaultDef = selectedDef;
+
+	// This can only happen with a custom game that does not define any filter.
+	// In this case take the display name and strip all whitespace and invaliid path characters from it.
+	if (LumpFilter.IsEmpty())
+	{
+		LumpFilter = usedgroups.Last().FileInfo.name;
+		LumpFilter.StripChars(".:/\\<>?\"*| \t\r\n");
+	}
+
 	currentGame = LumpFilter;
 	currentGame.Truncate(currentGame.IndexOf("."));
-	CheckFrontend(group.FileInfo.flags);
+	CheckFrontend(g_gameType);
 
 	G_ReadConfig(currentGame);
 	if (!GameConfig->IsInitialized())
@@ -418,6 +478,7 @@ int CONFIG_Init()
 	CONTROL_ClearAssignments();
 	CONFIG_InitMouseAndController();
 	CONFIG_SetGameControllerDefaultsStandard();
+	InitFileSystem(usedgroups);
 	return gi->app_main();
 }
 
@@ -1598,4 +1659,5 @@ int osdcmd_unbind(osdcmdptr_t parm)
 
 	return OSDCMD_SHOWHELP;
 }
+
 
