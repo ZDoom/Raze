@@ -7118,19 +7118,11 @@ void G_Shutdown(void)
 
 static void G_CompileScripts(void)
 {
-    int32_t psm = pathsearchmode;
-
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (int32_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
 
-    // if we compile for a V7 engine wall[] should be used for label names since it's bigger
-    pathsearchmode = 1;
-
     C_Compile(G_ConFile());
-
-    if (g_loadFromGroupOnly) // g_loadFromGroupOnly is true only when compiling fails and internal defaults are utilized
-        C_Compile(G_ConFile());
 
     if ((uint32_t)g_labelCnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");

@@ -5769,9 +5769,6 @@ static void G_CompileScripts(void)
 #else
     C_Compile(G_ConFile());
 
-	if (g_loadFromGroupOnly) // g_loadFromGroupOnly is true only when compiling fails and internal defaults are utilized
-		C_Compile(G_ConFile());
-
 	if ((uint32_t)g_labelCnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");
 
