@@ -267,8 +267,8 @@ void FuncLion(int a, int nDamage, int nRun)
                             }
                             else
                             {
-                                sprite[nSprite].yvel = 0;
                                 sprite[nSprite].xvel = 0;
+                                sprite[nSprite].yvel = 0;            
                             }
 
                             LionList[nLion]._g = 100;
@@ -314,7 +314,7 @@ void FuncLion(int a, int nDamage, int nRun)
                     {
                         if ((nVal & 0x3FFF) == nTarget)
                         {
-                            if (sprite[nSprite].cstat == 0x8000)
+                            if (sprite[nSprite].cstat != 0x8000)
                             {
                                 int nAng = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
 
@@ -327,8 +327,8 @@ void FuncLion(int a, int nDamage, int nRun)
                             {
                                 LionList[nLion].nAction = 9;
                                 sprite[nSprite].cstat &= 0x7FFF;
-                                sprite[nSprite].yvel = 0;
                                 sprite[nSprite].xvel = 0;
+                                sprite[nSprite].yvel = 0;
                             }
 
                             LionList[nLion]._b = 0;
