@@ -1952,6 +1952,12 @@ void DoCinemaText(short nVal)
         WaitVBL();
         videoNextPage();
 
+        // TEMP
+        int time = (int)totalclock + 4;
+        while ((int)totalclock < time) {
+            HandleAsync();
+        }
+
         if (!bContinue) {
             return;
         }
@@ -2021,7 +2027,7 @@ void GoToTheCinema(int nVal)
     StopAllSounds();
     NoClip();
 
-    overwritesprite(0, 0, 764, 100, 2, kPalNormal);
+    overwritesprite(0, 0, kMovieTile, 100, 2, kPalNormal);
     videoNextPage();
 
 //	int386(16, (const union REGS *)&val, (union REGS *)&val)
@@ -2099,7 +2105,7 @@ void GoToTheCinema(int nVal)
 }
 
 
-short nBeforeScene[] = { 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+short nBeforeScene[] = { 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 
 void CheckBeforeScene(int nLevel)
@@ -2110,12 +2116,14 @@ void CheckBeforeScene(int nLevel)
         return;
     }
 
-    if (nBeforeScene[nLevel])
+    short nScene = nBeforeScene[nLevel];
+
+    if (nScene)
     {
-        if (!nCinemaSeen[nLevel])
+        if (!nCinemaSeen[nScene])
         {
-            GoToTheCinema(nLevel);
-            nCinemaSeen[nLevel] = 1;
+            GoToTheCinema(nScene);
+            nCinemaSeen[nScene] = 1;
         }
     }
 }
