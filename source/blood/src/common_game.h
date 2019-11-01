@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "pragmas.h"
 #include "misc.h"
 #include "network.h"
+#include "printf.h"
 
 BEGIN_BLD_NS
 
@@ -37,7 +38,6 @@ BEGIN_BLD_NS
 #define EXEVERSION 101
 
 void _SetErrorLoc(const char *pzFile, int nLine);
-void _ThrowError(const char *pzFormat, ...);
 void __dassert(const char *pzExpr, const char *pzFile, int nLine);
 void QuitGame(void);
 void _consoleSysMsg(const char* pMessage, ...);
@@ -45,7 +45,7 @@ void _consoleSysMsg(const char* pMessage, ...);
 #define ThrowError(...) \
 	{ \
 		_SetErrorLoc(__FILE__,__LINE__); \
-		_ThrowError(__VA_ARGS__); \
+		I_Error(__VA_ARGS__); \
 	}
 
 // print error to console only
@@ -55,7 +55,7 @@ void _consoleSysMsg(const char* pMessage, ...);
 		_consoleSysMsg(__VA_ARGS__); \
 	}
 
-#define dassert(x) if (!(x)) __dassert(#x,__FILE__,__LINE__)
+#define dassert(x) assert(x)
 
 
 #define kMaxSectors MAXSECTORS

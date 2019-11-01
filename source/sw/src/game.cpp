@@ -91,6 +91,7 @@ Things required to make savegames work:
 #include "common.h"
 #include "common_game.h"
 #include "gameconfigfile.h"
+#include "printf.h"
 
 //#include "crc32.h"
 
@@ -845,9 +846,7 @@ int nextvoxid = 0;  // JBF
 
 static void SW_FatalEngineError(void)
 {
-    wm_msgbox("Build Engine Initialisation Error",
-              "There was a problem initialising the Build engine: %s", engineerrstr);
-    exit(1);
+    I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
 }
 
 void
@@ -3342,18 +3341,13 @@ int32_t app_main()
     int cnt = 0;
     uint32_t TotalMemory;
 
-    initprintf(APPNAME " %s\n", s_buildRev);
-    PrintBuildInfo();
-
     SW_ExtInit();
 
     i = CONFIG_ReadSetup();
 
     if (enginePreInit())
     {
-        wm_msgbox("Build Engine Initialisation Error",
-                  "There was a problem initialising the Build engine: %s", engineerrstr);
-        exit(1);
+		I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
     }
 
     initgroupfile(G_GrpFile());

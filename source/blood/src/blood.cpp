@@ -1248,11 +1248,6 @@ int app_main()
                      BGetTime,
                      GAME_onshowosd);
 
-    wm_setapptitle(APPNAME);
-
-    initprintf(APPNAME " %s\n", s_buildRev);
-    PrintBuildInfo();
-
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = userConfig.nomonsters;
 	bQuickStart = userConfig.nologo;
@@ -1277,7 +1272,6 @@ int app_main()
 
     initprintf("Initializing OSD...\n");
 
-    //Bsprintf(tempbuf, HEAD2 " %s", s_buildRev);
     OSD_SetVersion("Blood", 10, 0);
     OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, 0);
     registerosdcommands();

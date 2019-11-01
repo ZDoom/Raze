@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "palette.h"
 #include "gamecvars.h"
 #include "gameconfigfile.h"
+#include "printf.h"
 
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
@@ -393,19 +394,17 @@ void G_GameExit(const char *msg)
     if (in3dmode())
         G_Shutdown();
 
-    if (*msg != 0)
-    {
-        if (!(msg[0] == ' ' && msg[1] == 0))
-        {
-            char titlebuf[256];
-            Bsprintf(titlebuf,HEAD2 " %s",s_buildRev);
-            wm_msgbox(titlebuf, "%s", msg);
-        }
-    }
+	if (*msg != 0)
+	{
+		if (!(msg[0] == ' ' && msg[1] == 0))
+		{
+			I_Error(msg);
+		}
+	}
 
-    Bfflush(NULL);
+	Bfflush(NULL);
 
-    exit(0);
+	throw ExitEvent(0);
 }
 
 
@@ -7598,11 +7597,6 @@ int app_main()
                      BGetTime,
                      GAME_onshowosd);
 
-    initprintf(HEAD2 " %s\n", s_buildRev);
-    PrintBuildInfo();
-
-    //G_AddSearchPaths();
-
     g_skillCnt = 4;
     ud.multimode = 1;
 	ud.m_monsters_off = userConfig.nomonsters;
@@ -7765,7 +7759,6 @@ int app_main()
 
     initprintf("Initializing OSD...\n");
 
-    Bsprintf(tempbuf, HEAD2 " %s", s_buildRev);
     OSD_SetVersion(tempbuf, 10,0);
     OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, 0);
     registerosdcommands();

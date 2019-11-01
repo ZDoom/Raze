@@ -52,8 +52,6 @@ extern const char *s_buildRev;
 extern const char *s_buildTimestamp;
 
 //// FUNCTIONS
-extern void PrintBuildInfo(void);
-
 extern void clearDefNamePtr(void);
 
 void G_AddDef(const char *buffer);
