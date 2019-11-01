@@ -31,13 +31,6 @@ CRC
 }
 
 
-
-//static const char *defaultconfilename				= "GAME.CON";
-//static const char *defaultgamegrp[GAMECOUNT]		 = { "DUKE3D.GRP", "REDNECK.GRP", "REDNECK.GRP", "NAM.GRP", "NAPALM.GRP" };
-//static const char *defaultdeffilename[GAMECOUNT]	 = { "duke3d.def", "rr.def", "rrra.def", "nam.def", "napalm.grp" };
-//static const char *defaultgameconfilename[GAMECOUNT] = { "GAME.CON", "GAME.CON", "GAME.CON", "NAM.CON", "NAPALM.CON" };
-
-
 grpinfo
 {
 	name "Duke Nukem 3D"
@@ -189,7 +182,7 @@ grpinfo
 	gamefilter "Duke.DukeDC"
 }
 
-
+// These are a bit strange but without anything to check I do not know in what way.
 //   { "Duke Caribbean: Life's a Beach (1.3D)", VACA13_CRC,  23559381, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE13_CRC, NULL, process_vaca13},
 //   { "Duke Caribbean: Life's a Beach (PPak)", VACAPP_CRC,  22551333, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKEPP_CRC, NULL, process_vacapp15},
 //   { "Duke Caribbean: Life's a Beach",		VACA15_CRC,  22521880, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, process_vacapp15},
@@ -275,6 +268,8 @@ grpinfo
 	name "NAM"
 	size 43448927
 	crc NAM_CRC
+	defname "nam.def" //, "napalm.def"
+	//scriptname "nam.con", "napalm.con"
 	flags GAMEFLAG_NAM
 	dependency 0
 	gamefilter "Nam.Nam"
@@ -285,6 +280,8 @@ grpinfo
 	name "NAPALM"
 	size 44365728
 	crc NAPALM_CRC
+	defname "napalm.def" //, "nam.def"
+	//scriptname "napalm.con", "nam.con"
 	flags GAMEFLAG_NAM|GAMEFLAG_NAPALM
 	dependency 0
 	gamefilter "Nam.Napalm"
@@ -295,6 +292,8 @@ grpinfo
 	name "WWII GI"
 	size 77939508
 	crc WW2GI_CRC
+	defname "ww2gi.def"
+	//scriptname "ww2gi.con"
 	flags GAMEFLAG_WW2GI
 	dependency 0
 	gamefilter "WW2GI.WW2GI"
@@ -316,6 +315,7 @@ grpinfo
 	name "Redneck Rampage"
 	size 141174222
 	crc RR_CRC
+	defname "rr.def"
 	flags GAMEFLAG_RR
 	dependency 0
 	gamefilter "Redneck.Redneck"
@@ -326,6 +326,7 @@ grpinfo
 	name "Redneck Rampage Rides Again"
 	size 191798609
 	crc RRRA_CRC
+	defname "rrra.def"
 	flags GAMEFLAG_RRRA
 	dependency 0
 	gamefilter "Redneck.RidesAgain"
@@ -349,6 +350,7 @@ grpinfo
 	name "BLOOD: One Unit Whole Blood"
 	size 9570681
 	crc 0xA8FDDA84
+	defname "blood.def"
 	scriptname "BLOOD.INI"
 	flags GAMEFLAG_BLOOD
 	dependency 0
