@@ -77,8 +77,6 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
 int32_t G_CheckCmdSwitch(int32_t argc, char const * const * argv, const char *str);
 
-int32_t check_file_exist(const char *fn);  // findfrompath with pathsearchmode=1 / search in zips
-
 void fnlist_clearnames(fnlist_t *fnl);
 int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
                         int32_t dirflags, int32_t fileflags);

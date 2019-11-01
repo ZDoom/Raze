@@ -250,7 +250,7 @@ void paletteLoadFromDisk(void)
     int32_t lamedukep = 0;
     if (numshades >= 256)
     {
-        static char const * const seekfail = "Warning: klseek() failed in loadpalette()!\n";
+        static char const * const seekfail = "Warning: seek failed in loadpalette()!\n";
 
         uint16_t temp;
         if (read_and_test(fil, &temp, 2))

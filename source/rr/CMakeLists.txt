@@ -43,7 +43,6 @@ set( PCH_SOURCES
 	src/gamedef.cpp
 	src/gameexec.cpp
 	src/global.cpp
-	src/grpscan.cpp
 	src/menus.cpp
 	src/namesdyn.cpp
 	src/net.cpp

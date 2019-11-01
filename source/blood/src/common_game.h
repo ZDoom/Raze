@@ -528,9 +528,6 @@ static inline int gameHandleEvents(void)
     return handleevents();
 }
 
-# define FORMAT_UPGRADE_ELIGIBLE
-extern FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
-
 #pragma pack(push,1)
 
 #if 0

@@ -1114,3 +1114,71 @@ const char* G_ConFile(void)
 }
 
 
+#if 0
+// Should this be added to the game data collector?
+bool AddINIFile(const char* pzFile, bool bForce = false)
+{
+	char* pzFN;
+	struct Bstat st;
+	static INICHAIN* pINIIter = NULL;
+	if (!bForce)
+	{
+		if (findfrompath(pzFile, &pzFN)) return false; // failed to resolve the filename
+		if (Bstat(pzFN, &st))
+		{
+			Bfree(pzFN);
+			return false;
+		} // failed to stat the file
+		Bfree(pzFN);
+		IniFile* pTempIni = new IniFile(pzFile);
+		if (!pTempIni->FindSection("Episode1"))
+		{
+			delete pTempIni;
+			return false;
+		}
+		delete pTempIni;
+	}
+	if (!pINIChain)
+		pINIIter = pINIChain = new INICHAIN;
+	else
+		pINIIter = pINIIter->pNext = new INICHAIN;
+	pINIIter->pNext = NULL;
+	pINIIter->pDescription = NULL;
+	Bstrncpy(pINIIter->zName, pzFile, BMAX_PATH);
+	for (int i = 0; i < ARRAY_SSIZE(gINIDescription); i++)
+	{
+		if (!Bstrncasecmp(pINIIter->zName, gINIDescription[i].pzFilename, BMAX_PATH))
+		{
+			pINIIter->pDescription = &gINIDescription[i];
+			break;
+		}
+	}
+	return true;
+}
+
+void ScanINIFiles(void)
+{
+	nINICount = 0;
+	BUILDVFS_FIND_REC* pINIList = klistpath("/", "*.ini", BUILDVFS_FIND_FILE);
+	pINIChain = NULL;
+
+	if (bINIOverride || !pINIList)
+	{
+		AddINIFile(BloodIniFile, true);
+	}
+
+	for (auto pIter = pINIList; pIter; pIter = pIter->next)
+	{
+		AddINIFile(pIter->name);
+	}
+	klistfree(pINIList);
+	pINISelected = pINIChain;
+	for (auto pIter = pINIChain; pIter; pIter = pIter->pNext)
+	{
+		if (!Bstrncasecmp(BloodIniFile, pIter->zName, BMAX_PATH))
+		{
+			pINISelected = pIter;
+			break;
+		}
+	}
+#endif

@@ -8,7 +8,6 @@
 #define EDUKE32_COMMON_GAME_H_
 
 #include "collections.h"
-#include "grpscan.h"
 #include "gamecontrol.h"
 
 BEGIN_RR_NS
@@ -69,9 +68,6 @@ extern void G_SetupGlobalPsky(void);
 extern void G_LoadLookups(void);
 
 //////////
-
-# define FORMAT_UPGRADE_ELIGIBLE
-extern FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
 
 END_RR_NS
 

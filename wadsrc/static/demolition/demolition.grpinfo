@@ -268,8 +268,6 @@ grpinfo
 	name "NAM"
 	size 43448927
 	crc NAM_CRC
-	defname "nam.def" //, "napalm.def"
-	//scriptname "nam.con", "napalm.con"
 	flags GAMEFLAG_NAM
 	dependency 0
 	gamefilter "Nam.Nam"
@@ -280,8 +278,6 @@ grpinfo
 	name "NAPALM"
 	size 44365728
 	crc NAPALM_CRC
-	defname "napalm.def" //, "nam.def"
-	//scriptname "napalm.con", "nam.con"
 	flags GAMEFLAG_NAM|GAMEFLAG_NAPALM
 	dependency 0
 	gamefilter "Nam.Napalm"
@@ -292,8 +288,6 @@ grpinfo
 	name "WWII GI"
 	size 77939508
 	crc WW2GI_CRC
-	defname "ww2gi.def"
-	//scriptname "ww2gi.con"
 	flags GAMEFLAG_WW2GI
 	dependency 0
 	gamefilter "WW2GI.WW2GI"
@@ -335,13 +329,12 @@ grpinfo
 grpinfo
 {
 	name "Redneck Rampage: Suckin' Grits on Route 66"
-	crc 0x30C49F26	// tests carnival.map
-	size 234898
-	loaddirectory "CARNIVAL.MAP"
+	loaddirectory
 	scriptname "GAME66.CON"
+	mustcontain "TILESA66.ART", "TILESB66.ART", "CARNIVAL.MAP", "TRUCKSTP.MAP", "GAME66.CON"
 	flags GAMEFLAG_RR|GAMEFLAG_ADDON
 	dependency RR_CRC
-	loadart "TILESA66.ART", "TILESB66.ART"
+	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
 	gamefilter "Redneck.Route66"
 }
 
@@ -361,13 +354,12 @@ grpinfo
 grpinfo
 {
 	name "BLOOD: Cryptic Passage"
-	crc 0x2144DF1C // tests CP01.MAP
-	size 327015
-	loaddirectory "CP01.MAP"
+	loaddirectory
 	scriptname "CRYPTIC.INI"
+	mustcontain "CRYPTIC.INI", "CP01.MAP", "CP02.MAP"
 	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
 	dependency BLOOD_CRC
-	loadart "CPART07.AR_", "CPART15.AR_"
+	loadart "CPART07.AR_", "CPART15.AR_" // some versions have these file names, some have the real ones instead so these must be listed but cannot be used for checking.
 	gamefilter "Blood.Cryptic"
 }
 

@@ -1254,8 +1254,6 @@ int app_main()
         I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
     }
 
-    ScanINIFiles();
-
     initprintf("Initializing OSD...\n");
 
     OSD_SetVersion("Blood", 10, 0);
@@ -1297,8 +1295,6 @@ int app_main()
         if (!tileInit(0,NULL))
             ThrowError("TILES###.ART files not found");
     }
-
-    LoadExtraArts();
 
     levelLoadDefaults();
 
@@ -2117,96 +2113,6 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     scriptfile_clearsymbols();
 
     return 0;
-}
-
-INICHAIN *pINIChain;
-INICHAIN const*pINISelected;
-int nINICount = 0;
-
-const char *pzCrypticArts[] = {
-    "CPART07.AR_", "CPART15.AR_"
-};
-
-INIDESCRIPTION gINIDescription[] = {
-    { "BLOOD: One Unit Whole Blood", "BLOOD.INI", NULL, 0 },
-    { "Cryptic passage", "CRYPTIC.INI", pzCrypticArts, ARRAY_SSIZE(pzCrypticArts) },
-};
-
-bool AddINIFile(const char *pzFile, bool bForce = false)
-{
-    char *pzFN;
-    struct Bstat st;
-    static INICHAIN *pINIIter = NULL;
-    if (!bForce)
-    {
-        if (findfrompath(pzFile, &pzFN)) return false; // failed to resolve the filename
-        if (Bstat(pzFN, &st))
-        {
-            Bfree(pzFN);
-            return false;
-        } // failed to stat the file
-        Bfree(pzFN);
-        IniFile *pTempIni = new IniFile(pzFile);
-        if (!pTempIni->FindSection("Episode1"))
-        {
-            delete pTempIni;
-            return false;
-        }
-        delete pTempIni;
-    }
-    if (!pINIChain)
-        pINIIter = pINIChain = new INICHAIN;
-    else
-        pINIIter = pINIIter->pNext = new INICHAIN;
-    pINIIter->pNext = NULL;
-    pINIIter->pDescription = NULL;
-    Bstrncpy(pINIIter->zName, pzFile, BMAX_PATH);
-    for (int i = 0; i < ARRAY_SSIZE(gINIDescription); i++)
-    {
-        if (!Bstrncasecmp(pINIIter->zName, gINIDescription[i].pzFilename, BMAX_PATH))
-        {
-            pINIIter->pDescription = &gINIDescription[i];
-            break;
-        }
-    }
-    return true;
-}
-
-void ScanINIFiles(void)
-{
-    nINICount = 0;
-    BUILDVFS_FIND_REC *pINIList = klistpath("/", "*.ini", BUILDVFS_FIND_FILE);
-    pINIChain = NULL;
-
-    if (bINIOverride || !pINIList)
-    {
-        AddINIFile(BloodIniFile, true);
-    }
-
-    for (auto pIter = pINIList; pIter; pIter = pIter->next)
-    {
-        AddINIFile(pIter->name);
-    }
-    klistfree(pINIList);
-    pINISelected = pINIChain;
-    for (auto pIter = pINIChain; pIter; pIter = pIter->pNext)
-    {
-        if (!Bstrncasecmp(BloodIniFile, pIter->zName, BMAX_PATH))
-        {
-            pINISelected = pIter;
-            break;
-        }
-    }
-}
-
-void LoadExtraArts(void)
-{
-    if (!pINISelected->pDescription)
-        return;
-    for (int i = 0; i < pINISelected->pDescription->nArts; i++)
-    {
-        TileFiles.LoadArtFile(pINISelected->pDescription->pzArts[i]);
-    }
 }
 
 bool DemoRecordStatus(void) {

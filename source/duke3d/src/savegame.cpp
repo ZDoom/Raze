@@ -1017,7 +1017,7 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
                 OSD_Printf("rsd: spec=%s, idx=%d:\n", (char *)sptr->ptr, (int32_t)(spec-sptr));
 
                 if (ksiz!=siz)
-                    OSD_Printf("    kread returned %d, expected %d.\n", ksiz, siz);
+                    OSD_Printf("    file read returned %d, expected %d.\n", ksiz, siz);
                 else
                     OSD_Printf("    sp->ptr and cmpstrbuf not identical!\n");
 
@@ -2268,67 +2268,6 @@ static uint8_t *dosaveplayer2(buildvfs_FILE fil, uint8_t *mem)
     return mem;
 }
 
-#ifdef LUNATIC
-char *g_elSavecode = NULL;
-
-static int32_t El_ReadSaveCode(buildvfs_kfd fil)
-{
-    // Read Lua code to restore gamevar values from the savegame.
-    // It will be run from Lua with its state creation later on.
-
-    char header[12];
-    int32_t slen;
-
-    if (kread(fil, header, 12) != 12)
-    {
-        OSD_Printf("doloadplayer2: failed reading Lunatic gamevar header.\n");
-        return -100;
-    }
-
-    if (Bmemcmp(header, "\0\1LunaGVAR\3\4", 12))
-    {
-        OSD_Printf("doloadplayer2: Lunatic gamevar header doesn't match.\n");
-        return -101;
-    }
-
-    if (kread(fil, &slen, sizeof(slen)) != sizeof(slen))
-    {
-        OSD_Printf("doloadplayer2: failed reading Lunatic gamevar string size.\n");
-        return -102;
-    }
-
-    slen = B_LITTLE32(slen);
-    if (slen < 0)
-    {
-        OSD_Printf("doloadplayer2: invalid Lunatic gamevar string size %d.\n", slen);
-        return -103;
-    }
-
-    if (slen > 0)
-    {
-        char *svcode = (char *)Xmalloc(slen+1);
-
-        if (kdfread_LZ4(svcode, 1, slen, fil) != slen)  // cnt and sz swapped
-        {
-            OSD_Printf("doloadplayer2: failed reading Lunatic gamevar restoration code.\n");
-            Xfree(svcode);
-            return -104;
-        }
-
-        svcode[slen] = 0;
-        g_elSavecode = svcode;
-    }
-
-    return 0;
-}
-
-void El_FreeSaveCode(void)
-{
-    // Free Lunatic gamevar savegame restoration Lua code.
-    Xfree(g_elSavecode);
-    g_elSavecode = NULL;
-}
-#endif
 
 static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr)
 {

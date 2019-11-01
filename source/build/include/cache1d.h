@@ -15,55 +15,15 @@
 #include "vfs.h"
 
 extern char *kpzbuf;
-extern int32_t kpzbufsiz;
-extern int32_t kpzbufload(const char *);
 
-void	cacheInitBuffer(int32_t dacachesize);
 void	cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, uint8_t *newlockptr);
-void	cacheAgeEntries(void);
 
 using buildvfs_kfd = int32_t;
-#define buildvfs_kfd_invalid (-1)
 
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
-char *listsearchpath(int32_t initp);
-int32_t     addsearchpath_user(const char *p, int32_t user);
-#define addsearchpath(a) addsearchpath_user(a, 0)
-int32_t     removesearchpath(const char *p);
-void     removesearchpaths_withuser(int32_t usermask);
-int32_t		findfrompath(const char *fn, char **where);
-buildvfs_kfd     openfrompath(const char *fn, int32_t flags, int32_t mode);
-buildvfs_FILE fopenfrompath(const char *fn, const char *mode);
 
 extern char g_modDir[BMAX_PATH];
-extern int32_t numgroupfiles;
-int initgroupfile(const char *filename);
-void	uninitgroupfile(void);
-buildvfs_kfd	kopen4load(const char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
-buildvfs_kfd	kopen4loadfrommod(const char *filename, char searchfirst);
-int32_t	kread(buildvfs_kfd handle, void *buffer, int32_t leng);
-#define kread_and_test(handle, buffer, leng) EDUKE32_PREDICT_FALSE(kread((handle), (buffer), (leng)) != (leng))
-int32_t	klseek(buildvfs_kfd handle, int32_t offset, int32_t whence);
-#define klseek_and_test(handle, offset, whence) EDUKE32_PREDICT_FALSE(klseek((handle), (offset), (whence)) < 0)
-int32_t	kfilelength(buildvfs_kfd handle);
-int32_t	ktell(buildvfs_kfd handle);
-void	kclose(buildvfs_kfd handle);
 
-void krename(int32_t crcval, int32_t filenum, const char *newname);
-char const * kfileparent(int32_t handle);
-
-extern int32_t kpzbufloadfil(buildvfs_kfd);
-
-#ifdef WITHKPLIB
-int32_t cache1d_file_fromzip(buildvfs_kfd fil);
-#endif
-
-typedef struct
-{
-    intptr_t *hand;
-    int32_t   leng;
-    uint8_t *    lock;
-} cactype;
 
 enum {
     CACHE1D_FIND_FILE = 1,
@@ -95,101 +55,64 @@ int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, in
 void klistfree(CACHE1D_FIND_REC *rec);
 CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
 
-extern int32_t lz4CompressionLevel;
-int32_t kdfread_LZ4(void *buffer, int dasizeof, int count, buildvfs_kfd fil);
-int32_t kdfread_LZ4(void* buffer, int dasizeof, int count, FileReader& fil);
-void dfwrite_LZ4(const void *buffer, int dasizeof, int count, buildvfs_FILE fil);
+// compression disabled pending a better process for saving. Per-block compression as done here was not that great.
+int32_t kdfread_LZ4(void* buffer, int dasizeof, int count, buildvfs_kfd fil) = delete;
 
-class KFileReaderInterface : public FileReaderInterface
+inline int32_t kdfread_LZ4(void* buffer, int dasizeof, int count, FileReader& fil)
 {
-	buildvfs_kfd khandle = buildvfs_kfd_invalid;
-public:
+	return fil.Read(buffer, dasizeof * count);
+}
 
-	KFileReaderInterface(int handle)
-	{
-		khandle = handle;
-		Length = 0;
-		if (khandle != buildvfs_kfd_invalid)
-		{
-			klseek(khandle, 0, SEEK_END);
-			Length = ktell(khandle);
-			klseek(khandle, 0, SEEK_SET);
-		}
-	}
-	~KFileReaderInterface() 
-	{
-		if (khandle != buildvfs_kfd_invalid)
-		{
-			kclose(khandle);
-		}
-	}
-	virtual long Tell() const
-	{
-		return ktell(khandle);
-	}
-	virtual long Seek(long offset, int origin)
-	{
-		return klseek(khandle, offset, origin);
-	}
-	virtual long Read(void* buffer, long len)
-	{
-		return kread(khandle, buffer, (int32_t)len);
-	}
-	virtual char* Gets(char* strbuf, int len)
-	{
-		// Not supported by the underlying system, so we do not need it anyway.
-		// Gross hack alert: Abuse this function to return the container's name until we have a better resource management in place.
-		// Right now there is no way to cleanly pass this through and this function is the most convenient workaround.
-		return (char*)kfileparent(khandle);
-	}
+inline void dfwrite_LZ4(const void* buffer, int dasizeof, int count, buildvfs_FILE fil)
+{
+	fwrite(buffer, dasizeof, count, fil);
+}
 
-};
 
-FileReader openFromBaseResource(const char* name);
+#include "filesystem/filesystem.h"
+
 // Wrappers for the handle based API to get rid of the direct  calls without any actual changes to the implementation.
+// These are now getting redirected to the file system so that the implementation here can be gutted without making changes to the calling code.
 inline FileReader kopenFileReader(const char* name, int where)
 {
-	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
-	if (handle != buildvfs_kfd_invalid) return FileReader(new KFileReaderInterface(handle));
-	return openFromBaseResource(name);
+	auto lump = fileSystem.FindFile(name);
+	if (lump < 0) return FileReader();
+	else return fileSystem.OpenFileReader(lump);
 }
 
 // This is only here to mark a file as not being part of the game assets (e.g. savegames)
 // These should be handled differently (e.g read from a userdata directory or similar things.)
 inline FileReader fopenFileReader(const char* name, int where)
 {
-	return kopenFileReader(name, 0);
+	FileReader fr;
+	fr.OpenFile(name);
+	return fr;
 }
 
 inline bool testkopen(const char* name, int where)
 {
-	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
-	if (handle != buildvfs_kfd_invalid) kclose(handle);
-	return handle != buildvfs_kfd_invalid;
+	// todo: if backed by a single file, we must actually open it to make sure.
+	return fileSystem.FindFile(name) >= 0;
 }
 
 inline TArray<uint8_t> kloadfile(const char* name, int where)
 {
-	auto fr = kopenFileReader(name, where);
-	return fr.isOpen() ? fr.Read() : TArray <uint8_t>();
+	auto lump = fileSystem.FindFile(name);
+	if (lump < 0) return TArray<uint8_t>();
+	return fileSystem.GetFileData(lump);
 }
 
 inline int32_t kfilesize(const char* name, int where)
 {
-	int handle = where == 0 ? kopen4loadfrommod(name, 0) : kopen4load(name, where);
-	if (handle != buildvfs_kfd_invalid)
-	{
-		auto fs = kfilelength(handle);
-		kclose(handle);
-		return fs;
-	}
-	return -1;
+	auto lump = fileSystem.FindFile(name);
+	if (lump < 0) return -1;
+	return fileSystem.FileLength(lump);
 }
 
-inline char const* kfileparent(FileReader &fr)
+// checks from path and in ZIPs, returns 1 if NOT found
+inline int32_t check_file_exist(const char* fn)
 {
-	// This is by no means a good implementation. Its only advantage is that it can be done without hacking in something more invasive.
-	return fr.Gets(nullptr, 0);
+	return fileSystem.FindFile(fn) >= 0;
 }
 
 #endif // cache1d_h_

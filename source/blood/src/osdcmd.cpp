@@ -524,7 +524,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
 //    OSD_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
 //
-//    OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
 //#ifdef DEBUGGINGAIDS
 //    OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
 //#endif

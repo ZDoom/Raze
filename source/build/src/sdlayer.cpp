@@ -485,41 +485,8 @@ int main(int argc, char *argv[])
 	return r;
 }
 
-
-static std::unique_ptr<FResourceFile> demolition_pk3;
-
 // The resourge manager in cache1d is far too broken to add some arbitrary file without some adjustment.
 // For now, keep this file here, until the resource management can be redone in a more workable fashion.
-extern FString progdir;
-extern FString LumpFilter;
-
-void InitBaseRes()
-{
-	if (!demolition_pk3)
-	{
-		// If we get here for the first time, load the engine-internal data.
-		FString baseres = progdir + "demolition.pk3";
-		demolition_pk3.reset(FResourceFile::OpenResourceFile(baseres, true, true));
-		if (!demolition_pk3)
-		{
-			I_Error("Engine resources (%s) not found", baseres.GetChars());
-		}
-	}
-}
-
-FileReader openFromBaseResource(const char* fn)
-{
-	InitBaseRes();
-	auto lump = demolition_pk3->FindLump(fn);
-	if (lump) return lump->NewReader();
-	// Also look in game filtered directories.
-	FStringf filtername("filter/%s/%s", LumpFilter.GetChars(), fn);
-	lump = demolition_pk3->FindLump(filtername);
-	if (lump) return lump->NewReader();
-	return FileReader(nullptr);
-
-}
-
 
 #if SDL_MAJOR_VERSION != 1
 int32_t videoSetVsync(int32_t newSync)

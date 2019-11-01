@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "renderlayer.h"
 #include "al_midi.h"
+#include "openaudio.h"
 
 BEGIN_BLD_NS
 

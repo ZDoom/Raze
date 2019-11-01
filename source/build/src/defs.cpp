@@ -1808,10 +1808,6 @@ static int32_t defsparser(scriptfile *script)
             int32_t basepal=-1, pal=-1;
             char *fn = NULL;
             char *highpalend;
-#ifdef POLYMER
-            buildvfs_kfd fd;
-            char *highpaldata;
-#endif
             static const tokenlist highpaltokens[] =
             {
                 { "basepal",   T_BASEPAL },

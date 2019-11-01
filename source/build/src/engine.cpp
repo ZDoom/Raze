@@ -7619,11 +7619,11 @@ static int32_t engineLoadTables(void)
         }
 #endif
         // TABLES.DAT format:
-        //kread(fil,sintable,2048*2);
-        //kread(fil,radarang,640*2);
-        //kread(fil,textfont,1024);
-        //kread(fil,smalltextfont,1024);
-        //kread(fil,britable,1024);
+        //fr.Read(sintable,2048*2);
+        //fr.Read(radarang,640*2);
+        //fr.Read(textfont,1024);
+        //fr.Read(smalltextfont,1024);
+        //fr.Read(britable,1024);
 
         calcbritable();
 
@@ -8262,7 +8262,6 @@ void engineUnInit(void)
     basepaltable[0] = palette;
 
     DO_FREE_AND_NULL(kpzbuf);
-    kpzbufsiz = 0;
 
     uninitsystem();
 
@@ -9476,7 +9475,7 @@ static FORCE_INLINE int32_t have_maptext(void)
     return (mapversion >= 10);
 }
 
-static void enginePrepareLoadBoard(buildvfs_kfd fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
+static void enginePrepareLoadBoard(FileReader & fr, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     initspritelists();
 
@@ -9496,11 +9495,11 @@ static void enginePrepareLoadBoard(buildvfs_kfd fil, vec3_t *dapos, int16_t *daa
 
     if (!have_maptext())
     {
-        kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
-        kread(fil,&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
-        kread(fil,&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
-        kread(fil,daang,2);  *daang  = B_LITTLE16(*daang) & 2047;
-        kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
+        fr.Read(&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
+        fr.Read(&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
+        fr.Read(&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
+        fr.Read(daang,2);  *daang  = B_LITTLE16(*daang) & 2047;
+        fr.Read(dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
     }
 }
 
@@ -9636,10 +9635,6 @@ static void check_sprite(int32_t i)
     }
 }
 
-#ifdef NEW_MAP_FORMAT
-// Returns the number of sprites, or <0 on error.
-LUNATIC_CB int32_t (*loadboard_maptext)(buildvfs_kfd fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
-#endif
 
 #include "md4.h"
 
@@ -9663,13 +9658,12 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 
     flags &= 3;
 
-    buildvfs_kfd fil;
-    if ((fil = kopen4load(filename,flags)) == buildvfs_kfd_invalid)
+	FileReader fr = kopenFileReader(filename, 0);
+	if (!fr.isOpen())
         { mapversion = 7; return -1; }
 
-    if (kread(fil, &mapversion, 4) != 4)
+    if (fr.Read(&mapversion, 4) != 4)
     {
-        kclose(fil);
         return -2;
     }
 
@@ -9700,53 +9694,29 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 
         if (!ok)
         {
-            kclose(fil);
             return -2;
         }
     }
 
-    enginePrepareLoadBoard(fil, dapos, daang, dacursectnum);
+    enginePrepareLoadBoard(fr, dapos, daang, dacursectnum);
 
-#ifdef NEW_MAP_FORMAT
-    if (have_maptext())
-    {
-        int32_t ret = klseek(fil, 0, SEEK_SET);
-
-        if (ret == 0)
-            ret = loadboard_maptext(fil, dapos, daang, dacursectnum);
-
-        if (ret < 0)
-        {
-            kclose(fil);
-            return ret;
-        }
-
-        numsprites = ret;
-        goto skip_reading_mapbin;
-    }
-#endif
 
     ////////// Read sectors //////////
 
-    kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
+    fr.Read(&numsectors,2); numsectors = B_LITTLE16(numsectors);
     if ((unsigned)numsectors >= MYMAXSECTORS() + 1)
     {
     error:
         numsectors = 0;
         numwalls   = 0;
         numsprites = 0;
-        kclose(fil);
         return -3;
     }
 
-    kread(fil, sector, sizeof(sectortypev7)*numsectors);
+    fr.Read(sector, sizeof(sectortypev7)*numsectors);
 
     for (i=numsectors-1; i>=0; i--)
     {
-#ifdef NEW_MAP_FORMAT
-        Bmemmove(&sector[i], &(((sectortypev7 *)sector)[i]), sizeof(sectortypevx));
-        inplace_vx_from_v7_sector(&sector[i]);
-#endif
         sector[i].wallptr       = B_LITTLE16(sector[i].wallptr);
         sector[i].wallnum       = B_LITTLE16(sector[i].wallnum);
         sector[i].ceilingz      = B_LITTLE32(sector[i].ceilingz);
@@ -9760,25 +9730,18 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
         sector[i].lotag         = B_LITTLE16(sector[i].lotag);
         sector[i].hitag         = B_LITTLE16(sector[i].hitag);
         sector[i].extra         = B_LITTLE16(sector[i].extra);
-#ifdef NEW_MAP_FORMAT
-        inplace_vx_tweak_sector(&sector[i], mapversion==9);
-#endif
     }
 
 
     ////////// Read walls //////////
 
-    kread(fil,&numwalls,2); numwalls = B_LITTLE16(numwalls);
+    fr.Read(&numwalls,2); numwalls = B_LITTLE16(numwalls);
     if ((unsigned)numwalls >= MYMAXWALLS()+1) goto error;
 
-    kread(fil, wall, sizeof(walltypev7)*numwalls);
+    fr.Read( wall, sizeof(walltypev7)*numwalls);
 
     for (i=numwalls-1; i>=0; i--)
     {
-#ifdef NEW_MAP_FORMAT
-        Bmemmove(&wall[i], &(((walltypev7 *)wall)[i]), sizeof(walltypevx));
-        inplace_vx_from_v7_wall(&wall[i]);
-#endif
         wall[i].x          = B_LITTLE32(wall[i].x);
         wall[i].y          = B_LITTLE32(wall[i].y);
         wall[i].point2     = B_LITTLE16(wall[i].point2);
@@ -9790,31 +9753,23 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
         wall[i].lotag      = B_LITTLE16(wall[i].lotag);
         wall[i].hitag      = B_LITTLE16(wall[i].hitag);
         wall[i].extra      = B_LITTLE16(wall[i].extra);
-#ifdef NEW_MAP_FORMAT
-        inplace_vx_tweak_wall(&wall[i], mapversion==9);
-#endif
     }
 
 
     ////////// Read sprites //////////
 
-    kread(fil,&numsprites,2); numsprites = B_LITTLE16(numsprites);
+    fr.Read(&numsprites,2); numsprites = B_LITTLE16(numsprites);
     if ((unsigned)numsprites >= MYMAXSPRITES()+1) goto error;
 
-    kread(fil, sprite, sizeof(spritetype)*numsprites);
+    fr.Read( sprite, sizeof(spritetype)*numsprites);
 
-#ifdef NEW_MAP_FORMAT
-skip_reading_mapbin:
-#endif
-
-    klseek(fil, 0, SEEK_SET);
-    int32_t boardsize = kfilelength(fil);
+    fr.Seek(0, FileReader::SeekSet);
+    int32_t boardsize = fr.GetLength();
     uint8_t *fullboard = (uint8_t*)Xmalloc(boardsize);
-    kread(fil, fullboard, boardsize);
+    fr.Read( fullboard, boardsize);
     md4once(fullboard, boardsize, g_loadedMapHack.md4);
     Xfree(fullboard);
 
-    kclose(fil);
     // Done reading file.
 
     if (!have_maptext())
@@ -9856,13 +9811,14 @@ skip_reading_mapbin:
 
     if ((myflags&8)==0)
     {
+#if 0	// No, no! This is absolutely unacceptable. I won't support mods that require this kind of access.
         char fn[BMAX_PATH];
 
         Bstrcpy(fn, filename);
         append_ext_UNSAFE(fn, ".cfg");
 
         OSD_Exec(fn);
-
+#endif
         system_getcvars();
 
         // Per-map ART
@@ -9894,23 +9850,23 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
     struct walltypev6   v6wall;
     struct spritetypev6 v6spr;
 
-    buildvfs_kfd fil;
-    if ((fil = kopen4load(filename,fromwhere)) == buildvfs_kfd_invalid)
+	FileReader fr = kopenFileReader(filename, fromwhere);
+    if (!fr.isOpen())
         { mapversion = 5L; return -1; }
 
-    kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
-    if (mapversion != 5L && mapversion != 6L) { kclose(fil); return -2; }
+    fr.Read(&mapversion,4); mapversion = B_LITTLE32(mapversion);
+    if (mapversion != 5L && mapversion != 6L) { return -2; }
 
-    enginePrepareLoadBoard(fil, dapos, daang, dacursectnum);
+    enginePrepareLoadBoard(fr, dapos, daang, dacursectnum);
 
-    kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
-    if (numsectors > MAXSECTORS) { kclose(fil); return -1; }
+    fr.Read(&numsectors,2); numsectors = B_LITTLE16(numsectors);
+    if (numsectors > MAXSECTORS) { return -1; }
     for (i=0; i<numsectors; i++)
     {
         switch (mapversion)
         {
         case 5:
-            kread(fil,&v5sect,sizeof(struct sectortypev5));
+            fr.Read(&v5sect,sizeof(struct sectortypev5));
             v5sect.wallptr = B_LITTLE16(v5sect.wallptr);
             v5sect.wallnum = B_LITTLE16(v5sect.wallnum);
             v5sect.ceilingpicnum = B_LITTLE16(v5sect.ceilingpicnum);
@@ -9924,7 +9880,7 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
             v5sect.extra = B_LITTLE16(v5sect.extra);
             break;
         case 6:
-            kread(fil,&v6sect,sizeof(struct sectortypev6));
+            fr.Read(&v6sect,sizeof(struct sectortypev6));
             v6sect.wallptr = B_LITTLE16(v6sect.wallptr);
             v6sect.wallnum = B_LITTLE16(v6sect.wallnum);
             v6sect.ceilingpicnum = B_LITTLE16(v6sect.ceilingpicnum);
@@ -9950,14 +9906,14 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
         }
     }
 
-    kread(fil,&numwalls,2); numwalls = B_LITTLE16(numwalls);
-    if (numwalls > MAXWALLS) { kclose(fil); return -1; }
+    fr.Read(&numwalls,2); numwalls = B_LITTLE16(numwalls);
+    if (numwalls > MAXWALLS) { return -1; }
     for (i=0; i<numwalls; i++)
     {
         switch (mapversion)
         {
         case 5:
-            kread(fil,&v5wall,sizeof(struct walltypev5));
+            fr.Read(&v5wall,sizeof(struct walltypev5));
             v5wall.x = B_LITTLE32(v5wall.x);
             v5wall.y = B_LITTLE32(v5wall.y);
             v5wall.point2 = B_LITTLE16(v5wall.point2);
@@ -9973,7 +9929,7 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
             v5wall.extra = B_LITTLE16(v5wall.extra);
             break;
         case 6:
-            kread(fil,&v6wall,sizeof(struct walltypev6));
+            fr.Read(&v6wall,sizeof(struct walltypev6));
             v6wall.x = B_LITTLE32(v6wall.x);
             v6wall.y = B_LITTLE32(v6wall.y);
             v6wall.point2 = B_LITTLE16(v6wall.point2);
@@ -9999,14 +9955,14 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
         }
     }
 
-    kread(fil,&numsprites,2); numsprites = B_LITTLE16(numsprites);
-    if (numsprites > MAXSPRITES) { kclose(fil); return -1; }
+    fr.Read(&numsprites,2); numsprites = B_LITTLE16(numsprites);
+    if (numsprites > MAXSPRITES) { return -1; }
     for (i=0; i<numsprites; i++)
     {
         switch (mapversion)
         {
         case 5:
-            kread(fil,&v5spr,sizeof(struct spritetypev5));
+            fr.Read(&v5spr,sizeof(struct spritetypev5));
             v5spr.x = B_LITTLE32(v5spr.x);
             v5spr.y = B_LITTLE32(v5spr.y);
             v5spr.z = B_LITTLE32(v5spr.z);
@@ -10023,7 +9979,7 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
             v5spr.extra = B_LITTLE16(v5spr.extra);
             break;
         case 6:
-            kread(fil,&v6spr,sizeof(struct spritetypev6));
+            fr.Read(&v6spr,sizeof(struct spritetypev6));
             v6spr.x = B_LITTLE32(v6spr.x);
             v6spr.y = B_LITTLE32(v6spr.y);
             v6spr.z = B_LITTLE32(v6spr.z);
@@ -10055,7 +10011,6 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
         check_sprite(i);
     }
 
-    kclose(fil);
     // Done reading file.
 
     return engineFinishLoadBoard(dapos, dacursectnum, numsprites, 0);

@@ -51,7 +51,6 @@ set( PCH_SOURCES
 	src/game.cpp
 	src/girlninj.cpp
 	src/goro.cpp
-	src/grpscan.cpp
 	src/hornet.cpp
 	src/interp.cpp
 	src/interpsh.cpp

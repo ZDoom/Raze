@@ -725,7 +725,7 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
                 OSD_Printf("rsd: spec=%s, idx=%d:\n", (char *)sptr->ptr, (int32_t)(spec-sptr));
 
                 if (ksiz!=siz)
-                    OSD_Printf("    kread returned %d, expected %d.\n", ksiz, siz);
+                    OSD_Printf("    file read returned %d, expected %d.\n", ksiz, siz);
                 else
                     OSD_Printf("    sp->ptr and cmpstrbuf not identical!\n");
 

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "renderlayer.h" // for win_gethwnd()
 #include "al_midi.h"
+#include "openaudio.h"
 #include <atomic>
 
 #include "vfs.h"
@@ -134,16 +135,12 @@ void S_MusicStartup(void)
     }
 
         MUSIC_SetVolume(mus_volume);
-        auto const fil = kopen4load("d3dtimbr.tmb", 0);
+		auto fr = kopenFileReader("d3dtimbr.tmb", 0);
 
-        if (fil != buildvfs_kfd_invalid)
+        if (fr.isOpen())
         {
-            int l = kfilelength(fil);
-            auto tmb = (uint8_t *)Xmalloc(l);
-            kread(fil, tmb, l);
-            AL_RegisterTimbreBank(tmb);
-            Xfree(tmb);
-            kclose(fil);
+			auto tmb = fr.Read();
+            AL_RegisterTimbreBank(tmb.Data());
         }
 }
 
@@ -470,7 +467,7 @@ int32_t S_LoadSound(int num)
 
     auto &snd = g_sounds[num];
 
-    auto fp = S_OpenAudio(snd.filename, g_loadFromGroupOnly, 0);
+    auto fp = S_OpenAudio(snd.filename, 0, 0);
 
     if (!fp.isOpen())
     {

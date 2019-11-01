@@ -778,7 +778,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
 
 static void C_Include(const char *confile)
 {
-	auto fp = kopenFileReader(confile,g_loadFromGroupOnly);
+	auto fp = kopenFileReader(confile,0);
 
     if (!fp.isOpen())
     {
@@ -828,16 +828,6 @@ static void C_Include(const char *confile)
 
     Bfree(mptr);
 }
-
-#ifdef _WIN32
-static void check_filename_case(const char *fn)
-{
-	// WTF?!?
-	testkopen(fn, g_loadFromGroupOnly);
-}
-#else
-static void check_filename_case(const char *fn) { UNREFERENCED_PARAMETER(fn); }
-#endif
 
 void G_DoGameStartup(const int32_t *params)
 {
@@ -898,7 +888,6 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName)
 
     Bfree(pMapInfo->musicfn);
     pMapInfo->musicfn = dup_filename(fileName);
-    check_filename_case(pMapInfo->musicfn);
 }
 
 void C_DefineVolumeFlags(int32_t vol, int32_t flags)
@@ -2160,8 +2149,6 @@ static int32_t C_ParseCommand(int32_t loop)
             }
             g_sounds[k].filename[i] = '\0';
 
-            check_filename_case(g_sounds[k].filename);
-
             C_GetNextValue(LABEL_DEFINE);
             g_sounds[k].ps = *(g_scriptPtr-1);
             C_GetNextValue(LABEL_DEFINE);
@@ -2375,7 +2362,7 @@ void C_Compile(const char *fileName)
 
     C_InitHashes();
 
-    auto kFile = kopenFileReader(fileName,g_loadFromGroupOnly);
+    auto kFile = kopenFileReader(fileName,0);
 
 	if (!kFile.isOpen())
     {

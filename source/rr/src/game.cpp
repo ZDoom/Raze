@@ -6203,21 +6203,6 @@ void G_HandleLocalKeys(void)
 
             Demo_PrepareWarp();
         }
-
-#if 0
-        // Enter a game from within a demo.
-        if (KB_KeyPressed(sc_Return) && ud.multimode==1)
-        {
-            KB_ClearKeyDown(sc_Return);
-            g_demo_cnt = g_demo_goalCnt = ud.reccnt = ud.pause_on = ud.recstat = ud.m_recstat = 0;
-            // XXX: probably redundant; this stuff needs an API anyway:
-            kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
-            g_player[myconnectindex].ps->gm = MODE_GAME;
-            ready2send=1;  // TODO: research this weird variable
-            screenpeek=myconnectindex;
-//            g_demo_paused=0;
-        }
-#endif
     }
 
     if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED || WIN_IS_PRESSED)
@@ -7099,9 +7084,7 @@ void G_Shutdown(void)
     G_SetFog(0);
     engineUnInit();
     G_Cleanup();
-    FreeGroups();
     OSD_Cleanup();
-    uninitgroupfile();
     Bfflush(NULL);
 }
 

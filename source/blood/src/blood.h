@@ -42,7 +42,7 @@ struct INICHAIN {
 };
 
 extern INICHAIN *pINIChain;
-extern INICHAIN const*pINISelected;
+
 
 enum INPUT_MODE {
     kInputGame = 0,
@@ -77,7 +77,6 @@ void PreloadCache(void);
 void StartLevel(GAMEOPTIONS *gameOptions);
 void ProcessFrame(void);
 void ScanINIFiles(void);
-void LoadExtraArts(void);
 bool DemoRecordStatus(void);
 bool VanillaMode(void);
 bool fileExistsRFF(int id, const char* ext);

@@ -226,7 +226,7 @@ void levelLoadDefaults(void)
 {
     char buffer[64];
     char buffer2[16];
-    levelInitINI(pINISelected->zName);
+    levelInitINI(G_ConFile());	// This doubles for the INI in the global code.
     memset(gEpisodeInfo, 0, sizeof(gEpisodeInfo));
     strncpy(gEpisodeInfo[MUS_INTRO/kMaxLevels].at28[MUS_INTRO%kMaxLevels].atd0, "PESTIS", BMAX_PATH);
     int i;
@@ -275,7 +275,6 @@ void levelLoadDefaults(void)
 void levelAddUserMap(const char *pzMap)
 {
     char buffer[BMAX_PATH];
-    //strcpy(buffer, g_modDir);
     strncpy(buffer, pzMap, BMAX_PATH);
     ChangeExtension(buffer, ".DEF");
 

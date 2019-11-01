@@ -6085,8 +6085,6 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                         if (dir == object->findhigh[i] && object->currentList == i)
                             status |= MT_Selected;
 
-                        // pal = dir->source==CACHE1D_SOURCE_ZIP ? 8 : 2
-
                         Menu_Run_AbbreviateNameIntoBuffer(dir->name, USERMAPENTRYLENGTH);
 
                         const int32_t thisx = object->format[i]->pos.x;

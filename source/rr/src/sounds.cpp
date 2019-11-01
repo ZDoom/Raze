@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "renderlayer.h" // for win_gethwnd()
+#include "openaudio.h"
 #include <atomic>
 
 BEGIN_RR_NS
@@ -432,7 +433,7 @@ int32_t S_LoadSound(int num)
 
     auto &snd = g_sounds[num];
 
-    auto fp = S_OpenAudio(snd.filename, g_loadFromGroupOnly, 0);
+    auto fp = S_OpenAudio(snd.filename, 0, 0);
 
     if (!fp.isOpen())
     {

@@ -677,7 +677,6 @@ TerminateGame(void)
     if (CleanExit)
         DosScreen();
 
-    uninitgroupfile();
 }
 
 void
@@ -779,7 +778,6 @@ void MultiSharewareCheck(void)
         engineUnInit();
         UnInitSound();
         timerUninit();
-        uninitgroupfile();
         Bexit(0);
     }
 }
@@ -1859,8 +1857,8 @@ TenScreen(void)
 
     if ((fin = k open4load("ten.pal", 0)) != -1)
         {
-        kread(fin, pal, PAL_SIZE);
-        kclose(fin);
+        k read(fin, pal, PAL_SIZE);
+        k close(fin);
         }
 
     // palette to black
@@ -1912,24 +1910,10 @@ TitleLevel(void)
         tempbuf[i] = i;
     palookup[0] = tempbuf;
 
-    //GetPaletteFromVESA(pal);
-    //memcpy(backup_pal, pal, PAL_SIZE);
-
     videoClearViewableArea(0L);
     videoNextPage();
 
-//    if ((fin = k open4load("title.pal", 0)) != -1)
-//        {
-//        kread(fin, pal, PAL_SIZE);
-//        kclose(fin);
-//        SetPaletteToVESA(pal);
-//        }
-
-//    clearview(0);
-//    nextpage();
-
-    //FadeOut(0, 0);
-    ready2send = 0;
+	ready2send = 0;
     totalclock = 0;
     ototalclock = 0;
 
@@ -3101,28 +3085,6 @@ void swexit(int exitval)
 
 void DosScreen(void)
 {
-#if 0
-#ifdef SW_SHAREWARE
-#define DOS_SCREEN_NAME "SHADSW.BIN"
-#else
-#define DOS_SCREEN_NAME "SWREG.BIN"
-#endif
-
-#define DOS_SCREEN_SIZE (4000-(80*2))
-#define DOS_SCREEN_PTR ((void *)(0xB8000))
-    int i;
-    char buffer[DOS_SCREEN_SIZE];
-
-    fin = k open4load(DOS_SCREEN_NAME,0);
-    if (fin == -1)
-        return;
-
-    kread(fin, buffer, sizeof(buffer));
-    memcpy(DOS_SCREEN_PTR, buffer, DOS_SCREEN_SIZE);
-    kclose(fin);
-    move_cursor(23,0);
-    _displaycursor(_GCURSORON);
-#endif
 }
 
 #if 0 //PLOCK_VERSION

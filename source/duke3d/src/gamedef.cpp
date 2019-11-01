@@ -1904,7 +1904,7 @@ static int C_CountCaseStatements()
 
 static void C_Include(const char *confile)
 {
-	auto fp = kopenFileReader(confile,g_loadFromGroupOnly);
+	auto fp = kopenFileReader(confile,0);
 
     if (!fp.isOpen())
     {
@@ -1955,16 +1955,6 @@ static void C_Include(const char *confile)
     Xfree(mptr);
 }
 #endif  // !defined LUNATIC
-
-#ifdef _WIN32
-static void check_filename_case(const char *fn)
-{
-	// WTF?!?
-	testkopen(fn, g_loadFromGroupOnly);
-}
-#else
-static void check_filename_case(const char *fn) { UNREFERENCED_PARAMETER(fn); }
-#endif
 
 void G_DoGameStartup(const int32_t *params)
 {
@@ -2039,7 +2029,6 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName)
 
     Xfree(pMapInfo->musicfn);
     pMapInfo->musicfn = dup_filename(fileName);
-    check_filename_case(pMapInfo->musicfn);
 }
 
 void C_DefineVolumeFlags(int32_t vol, int32_t flags)
@@ -5593,8 +5582,6 @@ repeatcase:
             }
             g_sounds[k].filename[i] = '\0';
 
-            check_filename_case(g_sounds[k].filename);
-
             C_GetNextValue(LABEL_DEFINE);
             g_sounds[k].ps = g_scriptPtr[-1];
             C_GetNextValue(LABEL_DEFINE);
@@ -6095,7 +6082,7 @@ void C_Compile(const char *fileName)
     Gv_Init();
     C_InitProjectiles();
 
-    auto kFile = kopenFileReader(fileName,g_loadFromGroupOnly);
+    auto kFile = kopenFileReader(fileName,0);
 
 	if (!kFile.isOpen())
     {
