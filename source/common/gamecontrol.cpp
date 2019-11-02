@@ -391,11 +391,11 @@ int CONFIG_Init()
 			std::error_code err;
 			if (std::filesystem::equivalent(gpath, fpath, err))
 			{
+				groupno = g;
 				break;
 			}
 			g++;
 		}
-		groupno = g;
 	}
 	if (groupno == -1 || userConfig.setupstate == 1)
 		groupno = ShowStartupWindow(groups);
@@ -408,7 +408,7 @@ int CONFIG_Init()
 	usedgroups.Push(group);
 
 	auto crc = group.FileInfo.dependencyCRC;
-	for (auto& dep : groups)
+	if (crc != 0) for (auto& dep : groups)
 	{
 		if (dep.FileInfo.CRC == crc)
 		{

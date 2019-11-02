@@ -6086,7 +6086,7 @@ void C_Compile(const char *fileName)
 
 	if (!kFile.isOpen())
     {
-        I_Error(tempbuf,"CON file `%s' missing.", fileName);
+        I_Error("CON file `%s' missing.", fileName);
     }
 
 	int const kFileLen = kFile.GetLength();
