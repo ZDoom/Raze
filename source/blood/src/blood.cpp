@@ -1856,7 +1856,8 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
             if (!firstPass)
             {
-                gSysRes.AddExternalResource(resName, resType, resID);
+				FStringf name("%s.%s", resName, resType);
+				fileSystem.CreatePathlessCopy(resName, resID, 0);
             }
         }
         break;

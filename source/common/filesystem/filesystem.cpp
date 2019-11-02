@@ -911,36 +911,39 @@ FResourceLump *FileSystem::Lookup(unsigned int id, const char *type)
 //
 //==========================================================================
 
-void FileSystem::AddExternalResource(const char *name, const char *type, int id, int flags, const char *pzDirectory)
+bool FileSystem::CreatePathlessCopy(const char *name, int id, int flags)
 {
-	FString name2, type2, filename, path;
-
-    if (strlen(type) > 0)
-        filename.Format("%s.%s", name, type);
-    else
-        filename.Format("%s", name);
-
-    if (pzDirectory)
-        path.Format("%s/%s", pzDirectory, filename);
-    else
-		path = filename;
+	FString name2, type2, path;
 
 	// The old code said 'filename' and ignored the path, this looked like a bug.
-	auto lump = FindFile(path);
-	if (lump < 0) return;		// Does not exist.
+	auto lump = FindFile(name);
+	if (lump < 0) return false;		// Does not exist.
+
+	auto oldlump = FileInfo[lump].lump;
+	FName filename = oldlump->LumpName[FResourceLump::BaseNameType];
+	FName fullname = oldlump->LumpName[FResourceLump::FullNameType];
+
+	// If the lump we are about to add already got the right properties, do nothing, aside from loading/locking as requested
+	if (filename == fullname && (id == 0 || id == oldlump->ResourceId))
+	{
+		if (flags & DICT_LOCK) oldlump->Lock();
+		else if (flags & DICT_LOAD) oldlump->Get();
+		return true;
+	}
 	
 	// Check if a lump with this name already exists.
 	// Blood does not allow re-replacing external resources.
 	auto prevlump = FindFile(filename);
-	if (prevlump >= 0 && FileInfo[prevlump].rfnum == -1) return;
+	if (prevlump >= 0 && FileInfo[prevlump].rfnum == -1) return true;
 	
 	// Create a clone of the resource to give it new lookup properties.
 	auto newlump = new FClonedLump(FileInfo[lump].lump);
-	newlump->LumpNameSetup(filename);
+	newlump->LumpNameSetup(filename.GetChars());
 	newlump->ResourceId = id;
 	if (flags & DICT_LOCK) newlump->Lock();
 	else if (flags & DICT_LOAD) newlump->Get();
 	AddLump(newlump);
+	return true;
 }
 
 //==========================================================================

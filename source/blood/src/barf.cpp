@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "misc.h"
 #include "globals.h"
 #include "sound.h"
+#include "filesystem/resourcefile.h"
 
 BEGIN_BLD_NS
 
@@ -61,8 +62,7 @@ struct define_t
 
 define_t gCmdDefines[kMaxCmdLineDefines];
 
-void sub_11DF0(char *fileName, char flags, int ID);
-void sub_11C10(char *pzScriptDir, char *fileName, char flags, int ID);
+void addMemoryResource(char *fileName, char flags, int ID);
 
 struct tag_t {
     const char *_value;
@@ -609,8 +609,15 @@ void ParseScript(const char *scriptFileName)
                     break;
                 }
 
-                if (dword_44CE0[gParseLevel] == 0) {
-                    sub_11C10(zScriptDirectory, inp, nFlags, ID);
+                if (dword_44CE0[gParseLevel] == 0) 
+				{
+					// In the RFS files I have seen the outermost directory is not part of what goes into the file system.
+					auto inp1 = strchr(inp, '\\');
+					if (!inp1 || !fileSystem.CreatePathlessCopy(inp1 + 1, ID, nFlags))
+					{
+						// I'll activate this when I find evidence that it is needed. Otherwise the risk of picking up unwanted data is too high.
+						//fileSystem.CreatePathlessCopy(inp, ID, nFlags);
+					}
                 }
 
                 break;
@@ -868,7 +875,7 @@ void ParseScript(const char *scriptFileName)
                 else
                 {
                     if (dword_44CE0[gParseLevel] == 0) {
-                        sub_11DF0(fileName, nFlags, ID);
+                        addMemoryResource(fileName, nFlags, ID);
                     }
                 }
                 break;
@@ -880,65 +887,15 @@ void ParseScript(const char *scriptFileName)
     rfs.Close();
 }
 
-void sub_11C10(char *pzScriptDir, char *fileName, char flags, int ID)
+void addMemoryResource(char *filePath, char flags, int ID)
 {
-#if 0 // This needs a more sophisticated approach inside the file system backend if it ever gets activated
-    char zDirectory[BMAX_PATH];
-    char zFilename[BMAX_PATH];
-    char zType[BMAX_PATH];
-    BDIR* dirr;
-    struct Bdirent* dirent;
-    dirr = Bopendir("./");
-    if (dirr)
-    {
-        while ((dirent = Breaddir(dirr)))
-        {
-            if (!Bwildmatch(dirent->name, fileName))
-                continue;
-
-            SplitPath(dirent->name, zDirectory, zFilename, zType);
-
-            if (!Bstrcasecmp(zType, "RAW") || !Bstrcasecmp(zType, "SFX") || !Bstrcasecmp(zType, "MID") || !Bstrcasecmp(zType, "TMB"))
-                gSoundRes.AddExternalResource(zFilename, zType, ID, flags, dirent->name);
-            else
-                gSysRes.AddExternalResource(zFilename, zType, ID, flags, dirent->name);
-        }
-        Bclosedir(dirr);
-    }
-    dirr = Bopendir(pzScriptDir);
-    if (dirr)
-    {
-        while ((dirent = Breaddir(dirr)))
-        {
-            if (!Bwildmatch(dirent->name, fileName))
-                continue;
-
-            SplitPath(dirent->name, zDirectory, zFilename, zType);
-
-            if (!Bstrcasecmp(zType, "RAW") || !Bstrcasecmp(zType, "SFX") || !Bstrcasecmp(zType, "MID") || !Bstrcasecmp(zType, "TMB"))
-                gSoundRes.AddExternalResource(zFilename, zType, ID, flags, dirent->name);
-            else
-                gSysRes.AddExternalResource(zFilename, zType, ID, flags, dirent->name);
-        }
-        Bclosedir(dirr);
-    }
-#endif
-}
-
-void sub_11DF0(char *filePath, char flags, int ID)
-{
-#if 0 // This needs a more sophisticated approach inside the file system backend if it ever gets activated
 	char zDirectory[BMAX_PATH];
     char zFilename[BMAX_PATH];
     char zType[BMAX_PATH];
 
     SplitPath(filePath, zDirectory, zFilename, zType);
 
-    if (!Bstrcasecmp(zType, "RAW") || !Bstrcasecmp(zType, "SFX") || !Bstrcasecmp(zType, "MID") || !Bstrcasecmp(zType, "TMB"))
-        gSoundRes.AddFromBuffer(zFilename, zType, buffer, nBytes, ID, flags);
-    else
-        gSysRes.AddFromBuffer(zFilename, zType, buffer, nBytes, ID, flags);
-#endif
+    fileSystem.AddFromBuffer(zFilename, zType, buffer, nBytes, ID, flags);
 }
 
 END_BLD_NS

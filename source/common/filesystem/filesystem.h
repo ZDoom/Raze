@@ -123,7 +123,7 @@ public:
 	static const void *Load(FResourceLump *lump);
 	FResourceLump *Lookup(const char *name, const char *type);
 	FResourceLump *Lookup(unsigned int id, const char *type);
-	void AddExternalResource(const char *name, const char *type, int id, int flags = 0, const char *pzDirectory = nullptr);
+	bool CreatePathlessCopy(const char *name, int id, int flags);
 
 	FileReader OpenFileReader(int file);		// opens a reader that redirects to the containing file's one.
 	FileReader ReopenFileReader(int file, bool alwayscache = false);		// opens an independent reader.
