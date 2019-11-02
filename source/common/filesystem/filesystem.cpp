@@ -423,7 +423,7 @@ void FileSystem::InitHashChains (void)
 				hash = int(lump->ResourceId) % NumEntries;
 			}
 			else continue;
-			NextFileIndex[l][hash] = FirstFileIndex[l][hash];
+			NextFileIndex[l][i] = FirstFileIndex[l][hash];
 			FirstFileIndex[l][hash] = i;
 		}
 	}
@@ -445,8 +445,9 @@ void FileSystem::AddLump(FResourceLump *lump)
 		{
 			hash = int(lump->ResourceId) % NumEntries;
 		}
-		NextFileIndex[l][hash] = FirstFileIndex[l][hash];
-		FirstFileIndex[l][hash] = FileInfo.Size() - 1;
+		auto nh = FileInfo.Size() - 1;
+		NextFileIndex[l][nh] = FirstFileIndex[l][hash];
+		FirstFileIndex[l][hash] = nh;
 	}
 }
 
@@ -1055,3 +1056,28 @@ static void PrintLastError ()
 }
 #endif
 
+#if 0
+void FileSystem::HashDump()
+{
+	FILE* f = fopen("fs_hash.txt", "wb");
+	for (int list = 0; list < 5; list++)
+	{
+		fprintf(f, "List %d\n------------\n", list);
+		auto fli = FirstFileIndex[list];
+		auto nli = NextFileIndex[list];
+		for (int hash = 0; hash < NumEntries; hash++)
+		{
+			if (fli[hash] != NULL_INDEX)
+			{
+				fprintf(f, "\tHash %d\n", hash);
+				for (uint32_t i = fli[hash]; i != NULL_INDEX; i = nli[i])
+				{
+					auto lump = FileInfo[i].lump;
+					fprintf(f, "\t\t%s (%d)\t%d, %d\n", lump->LumpName[list].GetChars(), lump->LumpName[list].GetIndex(), lump->Size(), i);
+				}
+			}
+		}
+	}
+	fclose(f);
+}
+#endif
