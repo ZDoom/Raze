@@ -249,6 +249,7 @@ int FileSystem::FindFile (const char *name, ELookupMode lookupmode, int filenum)
 	{
 		return -1;
 	}
+	if (*name == '/') name++;	// maps get a '/' prepended to their name. No idea what's the point, but this must be removed here.
 	FName lname(name, true);
 	if (lname == NAME_None) return -1;
 
