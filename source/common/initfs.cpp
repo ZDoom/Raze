@@ -320,13 +320,14 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 			FString newname = fn + fname;
 			D_AddFile(Files, newname);
 		}
+		bool insert = (!insertdirectoriesafter && &grp == &groups[0]) || (insertdirectoriesafter && &grp == &groups.Last());
 
 		// Add the game's main directory in the proper spot.
-		if ((i == (insertdirectoriesafter ? 0 : dependencies.Size() - 1)) || grp.FileInfo.loaddirectory)
+		if (insert)
 		{
 			// Build's original 'file system' loads all GRPs before the first external directory.
 			// Do this only if explicitly requested because this severely limits the usability of GRP files.
-			if (insertdirectoriesafter && i == 0) for (auto& file : *userConfig.AddFilesPre)
+			if (insertdirectoriesafter) for (auto& file : *userConfig.AddFilesPre)
 			{
 				D_AddFile(Files, file);
 			}

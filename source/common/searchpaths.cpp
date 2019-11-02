@@ -1086,7 +1086,7 @@ const char* G_DefaultConFile(void)
 
 	if (g_gameType & GAMEFLAG_WW2GI)
 	{
-		if (fileSystem.FindFile("ww2gi.con")) return "ww2gi.con";
+		if (fileSystem.FindFile("ww2gi.con") >= 0) return "ww2gi.con";
 	}
 
 	if (g_gameType & GAMEFLAG_SW)
@@ -1094,14 +1094,14 @@ const char* G_DefaultConFile(void)
 
 	if (g_gameType & GAMEFLAG_NAM)
 	{
-		if (fileSystem.FindFile("nam.def")) return "nam.def";
-		if (fileSystem.FindFile("napalm.def")) return "napalm.def";
+		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
+		if (fileSystem.FindFile("napalm.con") >= 0) return "napalm.con";
 	}
 
 	if (g_gameType & GAMEFLAG_NAPALM)
 	{
-		if (fileSystem.FindFile("napalm.def")) return "napalm.def";
-		if (fileSystem.FindFile("nam.def")) return "nam.def";
+		if (fileSystem.FindFile("napalm.con") >= 0) return "napalm.con";
+		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
 	}
 
 	// the other games only use game.con.
