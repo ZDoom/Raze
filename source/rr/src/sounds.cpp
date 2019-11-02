@@ -441,7 +441,7 @@ int32_t S_LoadSound(int num)
         return 0;
     }
 
-	int32_t l = fp.Tell();
+	int32_t l = fp.GetLength();
     g_soundlocks[num] = 200;
     snd.siz = l;
     cacheAllocateBlock((intptr_t *)&snd.ptr, l, &g_soundlocks[num]);
