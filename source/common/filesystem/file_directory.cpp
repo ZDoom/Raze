@@ -72,12 +72,13 @@ struct FDirectoryLump : public FResourceLump
 class FDirectory : public FResourceFile
 {
 	TArray<FDirectoryLump> Lumps;
+	const bool nosubdir;
 
 	int AddDirectory(const char *dirpath);
 	void AddEntry(const char *fullpath, int size);
 
 public:
-	FDirectory(const char * dirname);
+	FDirectory(const char * dirname, bool nosubdirflag);
 	bool Open(bool quiet);
 	virtual FResourceLump *GetLump(int no) { return ((unsigned)no < NumLumps)? &Lumps[no] : NULL; }
 };
@@ -90,8 +91,8 @@ public:
 //
 //==========================================================================
 
-FDirectory::FDirectory(const char * directory)
-: FResourceFile(NULL)
+FDirectory::FDirectory(const char * directory, bool nosubdirflag)
+: FResourceFile(NULL), nosubdir(nosubdirflag)
 {
 	FString dirname;
 
@@ -144,11 +145,11 @@ int FDirectory::AddDirectory(const char *dirpath)
 			if (fileinfo.attrib & _A_SUBDIR)
 			{
 
-				if (fi[0] == '.' &&
+				if (nosubdir || (fi[0] == '.' &&
 					(fi[1] == '\0' ||
-					 (fi[1] == '.' && fi[2] == '\0')))
+					 (fi[1] == '.' && fi[2] == '\0'))))
 				{
-					// Do not record . and .. directories.
+					// Skip if requested and do not record . and .. directories.
 					continue;
 				}
 				FString newdir = dirpath;
@@ -320,9 +321,9 @@ int FDirectoryLump::ValidateCache()
 //
 //==========================================================================
 
-FResourceFile *CheckDir(const char *filename, bool quiet)
+FResourceFile *CheckDir(const char *filename, bool quiet, bool nosubdirflag)
 {
-	FResourceFile *rf = new FDirectory(filename);
+	FResourceFile *rf = new FDirectory(filename, nosubdirflag);
 	if (rf->Open(quiet)) return rf;
 	delete rf;
 	return NULL;

@@ -209,7 +209,7 @@ FResourceFile *CheckPak(const char *filename, FileReader &file, bool quiet);
 FResourceFile *CheckZip(const char *filename, FileReader &file, bool quiet);
 FResourceFile *Check7Z(const char *filename,  FileReader &file, bool quiet);
 FResourceFile *CheckLump(const char *filename,FileReader &file, bool quiet);
-FResourceFile *CheckDir(const char *filename, bool quiet);
+FResourceFile *CheckDir(const char *filename, bool quiet, bool nosubdirflag);
 
 static CheckFunc funcs[] = { CheckGRP, CheckRFF, CheckZip, Check7Z, CheckPak, CheckLump };
 
@@ -244,9 +244,9 @@ FResourceFile *FResourceFile::OpenResourceFileFromLump(int lumpnum, bool quiet, 
 }
 */
 
-FResourceFile *FResourceFile::OpenDirectory(const char *filename, bool quiet)
+FResourceFile *FResourceFile::OpenDirectory(const char *filename, bool quiet, bool nosubdirflag)
 {
-	return CheckDir(filename, quiet);
+	return CheckDir(filename, quiet, nosubdirflag);
 }
 
 //==========================================================================

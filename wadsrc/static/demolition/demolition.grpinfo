@@ -321,7 +321,7 @@ grpinfo
 	size 191798609
 	crc RRRA_CRC
 	defname "rrra.def"
-	flags GAMEFLAG_RRRA
+	flags GAMEFLAG_RRRA|GAMEFLAG_RR
 	dependency 0
 	gamefilter "Redneck.RidesAgain"
 }

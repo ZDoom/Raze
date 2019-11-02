@@ -82,7 +82,7 @@ public:
 	~FileSystem ();
 
 	int InitMultipleFiles (TArray<FString> &filenames, const TArray<FString> &todelete);
-	void AddFile (const char *filename, FileReader *wadinfo = NULL);
+	void AddFile (const char *filename, FileReader *wadinfo = NULL, bool nosubdirflag = false);
 	void AddAdditionalFile(const char* filename, FileReader* wadinfo = NULL) {}
 	int CheckIfResourceFileLoaded (const char *name) noexcept;
 

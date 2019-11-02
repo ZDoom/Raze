@@ -329,7 +329,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 			// Do this only if explicitly requested because this severely limits the usability of GRP files.
 			if (insertdirectoriesafter) for (auto& file : *userConfig.AddFilesPre)
 			{
-				D_AddFile(Files, file);
+				D_AddFile(Files, '*' + file);	// The * tells the file system not to pull in all subdirectories.
 			}
 
 			D_AddFile(Files, fn);

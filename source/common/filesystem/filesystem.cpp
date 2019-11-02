@@ -111,7 +111,14 @@ int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FStr
 	for(unsigned i=0;i<filenames.Size(); i++)
 	{
 		int baselump = NumEntries;
-		AddFile (filenames[i]);
+		bool nosubdirflag = false;
+		const char* fn = filenames[i];
+		if (*fn == '*')
+		{
+			fn++;
+			nosubdirflag = true;
+		}
+		AddFile (filenames[i], nullptr, nosubdirflag);
 	}
 	
 	NumEntries = FileInfo.Size();
@@ -139,7 +146,7 @@ int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FStr
 //
 //==========================================================================
 
-void FileSystem::AddFile (const char *filename, FileReader *filer)
+void FileSystem::AddFile (const char *filename, FileReader *filer, bool nosubdirflag)
 {
 	int startlump;
 	bool isdir = false;
@@ -175,7 +182,7 @@ void FileSystem::AddFile (const char *filename, FileReader *filer)
 	if (!isdir)
 		resfile = FResourceFile::OpenResourceFile(filename, fr);
 	else
-		resfile = FResourceFile::OpenDirectory(filename);
+		resfile = FResourceFile::OpenDirectory(filename, false, nosubdirflag);
 
 	if (resfile != NULL)
 	{
