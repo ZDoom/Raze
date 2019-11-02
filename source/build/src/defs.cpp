@@ -11,7 +11,6 @@
 #include "baselayer.h"
 #include "scriptfile.h"
 #include "cache1d.h"
-#include "kplib.h"
 #include "lz4.h"
 #include "common.h"
 #include "mdsprite.h"  // md3model_t

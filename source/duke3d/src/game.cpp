@@ -212,14 +212,7 @@ void G_HandleSpecialKeys(void)
     if (KB_UnBoundKeyPressed(sc_F12))
     {
         KB_ClearKeyDown(sc_F12);
-        videoCaptureScreen(
-#ifndef EDUKE32_STANDALONE
-        "duke0000.tga"
-#else
-        "capt0000.tga"
-#endif
-        ,
-        0);
+        videoCaptureScreen();
         P_DoQuote(QUOTE_SCREEN_SAVED, &myplayer);
     }
 

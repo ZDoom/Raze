@@ -3,7 +3,6 @@
 #include "build.h"
 #include "scriptfile.h"
 #include "cache1d.h"
-#include "kplib.h"
 #include "baselayer.h"
 
 #include "common.h"

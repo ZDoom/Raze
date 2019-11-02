@@ -131,8 +131,6 @@ static int32_t distrecipagecnt = 0;
 static int32_t *lookups = NULL;
 static int32_t beforedrawrooms = 1;
 
-int32_t benchmarkScreenshot = 0;
-
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
 // r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
@@ -4654,8 +4652,7 @@ static void classicDrawBunches(int32_t bunch)
                      yax_globalbunch, sectnum, wallnum);
             printext256(8,8, whitecol,0, tmpbuf, 0);
 
-            Bsprintf(fn, "engshot%04d.png", engine_screenshot);
-            videoCaptureScreen(fn, 0);
+            videoCaptureScreen();
             engine_screenshot++;
 
             Bmemcpy((char *)frameplace, bakframe, xdim*ydim);
@@ -10463,12 +10460,6 @@ void videoNextPage(void)
                                per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
         }
         videoEndDrawing();   //}}}
-
-        if (benchmarkScreenshot)
-        {
-            videoCaptureScreen("reference0000.png", 0);
-            benchmarkScreenshot = 0;
-        }
 
         OSD_Draw();
         videoShowFrame(0);

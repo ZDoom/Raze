@@ -7604,9 +7604,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             pData[8] = (((int32_t) getangle(-ksqrt(cameraDirection.x*cameraDirection.x+cameraDirection.y*cameraDirection.y), cameraDirection.z)*(400.f/1024.f)))-300;
                         }
                     }
-
-                    //if we are benchmarking, take a screenshot at each waypoint (camera start point/locator)
-					benchmarkScreenshot = false;
                 }
                 if (pSprite->owner == -1)
                 {

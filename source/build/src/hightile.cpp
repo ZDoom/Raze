@@ -6,7 +6,6 @@
 
 #include "build.h"
 #include "compat.h"
-#include "kplib.h"
 #include "hightile.h"
 #include "baselayer.h"
 

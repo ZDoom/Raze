@@ -1675,7 +1675,7 @@ void ScreenCaptureKeys(void)
     {
 		inputState.ClearKeyStatus(KEYSC_F12);
         PauseAction();
-        videoCaptureScreenTGA("swcpxxxx.tga", KB_KeyPressed(KEYSC_LSHIFT) | KB_KeyPressed(KEYSC_RSHIFT));
+        videoCaptureScreen();
         ResumeAction();
         PutStringInfo(Player + myconnectindex, "Screen Captured");
     }

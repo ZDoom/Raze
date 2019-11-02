@@ -11,7 +11,6 @@
 #include "polymost.h"
 #include "mdsprite.h"
 #include "cache1d.h"
-#include "kplib.h"
 #include "palette.h"
 #include "../../glbackend/glbackend.h"
 

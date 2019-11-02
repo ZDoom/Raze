@@ -9,7 +9,6 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "build.h"
 #include "common.h"
 #include "engine_priv.h"
-#include "kplib.h"
 #include "mdsprite.h"
 #include "polymost.h"
 #include "files.h"

@@ -1232,8 +1232,7 @@ static FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t 
     return spriteheightofsptr((uspriteptr_t)&sprite[i], height, alsotileyofs);
 }
 
-int videoCaptureScreen(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
-int videoCaptureScreenTGA(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
+int videoCaptureScreen();
 
 struct OutputFileCounter {
     uint16_t count = 0;
@@ -1284,8 +1283,6 @@ enum cutsceneflags {
     CUTSCENE_FORCENOFILTER = 2,
     CUTSCENE_TEXTUREFILTER = 4,
 };
-
-extern int32_t benchmarkScreenshot;
 
 #ifdef USE_OPENGL
 

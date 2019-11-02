@@ -50,6 +50,7 @@
 #include "cache1d.h"
 #include "m_png.h"
 #include "printf.h"
+#include "filesystem.h"
 
 #include "fontinternals.h"
 
@@ -403,8 +404,7 @@ void V_InitFontColors ()
 	TranslationColors.Clear();
 
 	FScanner sc;
-	sc.Open("textcolors.txt");
-	//while ((lump = Wads.FindLump ("TEXTCOLO", &lastlump)) != -1)
+	while ((lump = fileSystem.Iterate("textcolors.txt", &lastlump)) != -1)
 	{
 		while (sc.GetString())
 		{

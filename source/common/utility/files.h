@@ -309,11 +309,11 @@ class FileWriter
 protected:
 	bool OpenDirect(const char *filename);
 
-	FileWriter()
-	{
-		File = NULL;
-	}
 public:
+	FileWriter(FILE *f = nullptr) // if passed, this writer will take over the file.
+	{
+		File = f;
+	}
 	virtual ~FileWriter()
 	{
 		if (File != NULL) fclose(File);

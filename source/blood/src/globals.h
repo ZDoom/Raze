@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "build.h"
 #include "resource.h"
+#include "version.h"
 
 BEGIN_BLD_NS
 
@@ -36,6 +37,5 @@ extern int gGamma;
 extern bool bVanilla;
 
 extern Resource &gSysRes;
-const char *GetVersionString(void);
 
 END_BLD_NS

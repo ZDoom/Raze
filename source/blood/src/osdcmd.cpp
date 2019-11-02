@@ -465,11 +465,7 @@ static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
 
 static int osdcmd_screenshot(osdcmdptr_t parm)
 {
-    static const char *fn = "blud0000.png";
-
-    if (parm->numparms == 1 && !Bstrcasecmp(parm->parms[0], "tga"))
-        videoCaptureScreenTGA(fn, 0);
-    else videoCaptureScreen(fn, 0);
+    videoCaptureScreen();
 
     return OSDCMD_OK;
 }

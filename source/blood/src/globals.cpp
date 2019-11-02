@@ -67,17 +67,4 @@ void _consoleSysMsg(const char* pzFormat, ...) {
     OSD_Printf(OSDTEXT_RED "%s(%i): %s\n", _module, _line, buffer);
 }
 
-
-const char *GetVersionString(void)
-{
-    if (!gVersionString)
-    {
-        gVersionString = gVersionStringBuf;
-        if (!gVersionString)
-            return NULL;
-        sprintf(gVersionString, "%d.%02d", EXEVERSION / 100, EXEVERSION % 100);
-    }
-    return gVersionString;
-}
-
 END_BLD_NS

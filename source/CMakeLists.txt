@@ -685,6 +685,7 @@ set( FASTMATH_SOURCES
 
 	# Another bit of cruft just to make S(hit)DL happy...
 	sdlappicon.cpp
+	gitinfo.cpp
 )
 
 
@@ -745,13 +746,11 @@ set (PCH_SOURCES
 	build/src/glsurface.cpp
 	build/src/hash.cpp
 	build/src/hightile.cpp
-	build/src/kplib.cpp
 	build/src/mdsprite.cpp
 	build/src/mhk.cpp
 	build/src/mutex.cpp
 	build/src/osd.cpp
 	build/src/palette.cpp
-	build/src/pngwrite.cpp
 	build/src/polymost.cpp
 	build/src/pragmas.cpp
 	build/src/rev.cpp
@@ -872,6 +871,7 @@ endif()
 target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr sw )
 
 include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}
     build/include
 	mact/include
 	audiolib/include

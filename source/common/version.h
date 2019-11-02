@@ -41,66 +41,23 @@ const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "4.3pre"
+#define VERSIONSTR "0.0.1"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 0,1,9999,0
-#define RC_PRODUCTVERSION 0,1,9999,0
+#define RC_FILEVERSION 0,0,1,0
+#define RC_PRODUCTVERSION 0,0,1,0
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 0
-#define VER_MINOR 1
-#define VER_REVISION 0
-
-// This should always refer to the version a derived port is based on and not reflect the derived port's version number!
-#define ENG_MAJOR 0
-#define ENG_MINOR 1
-#define ENG_REVISION 0
-
-// Version identifier for network games.
-// Bump it every time you do a release unless you're certain you
-// didn't change anything that will affect sync.
-#define NETGAMEVERSION 235
-
-// Version stored in the ini's [LastRun] section.
-// Bump it if you made some configuration change that you want to
-// be able to migrate in FGameConfigFile::DoGlobalSetup().
-#define LASTRUNVERSION "218"
-
-// Protocol version used in demos.
-// Bump it if you change existing DEM_ commands or add new ones.
-// Otherwise, it should be safe to leave it alone.
-#define DEMOGAMEVERSION 0x221
-
-// Minimum demo version we can play.
-// Bump it whenever you change or remove existing DEM_ commands.
-#define MINDEMOVERSION 0x21F
-
-// SAVEVER is the version of the information stored in level snapshots.
-// Note that SAVEVER is not directly comparable to VERSION.
-// SAVESIG should match SAVEVER.
-
-// extension for savegames
-#define SAVEGAME_EXT "des"
-
-// MINSAVEVER is the minimum level snapshot version that can be loaded.
-#define MINSAVEVER	1
-
-// Use 4500 as the base git save version, since it's higher than the
-// SVN revision ever got.
-#define SAVEVER 1
-
-// This is so that derivates can use the same savegame versions without worrying about engine compatibility
-#define GAMESIG "DEMOLITION"
-#define BASEWAD "demolition.pk3"
-//#define OPTIONALWAD "game_support.pk3"
+#define VER_MINOR 0
+#define VER_REVISION 1
 
 // More stuff that needs to be different for derivatives.
 #define GAMENAME "Demolition"
 #define WGAMENAME L"Demolition"
 #define GAMENAMELOWERCASE "demolition"
 #define FORUM_URL "http://forum.zdoom.org/"
-#define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"
+//#define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"
 
 #if defined(__APPLE__) || defined(_WIN32)
 #define GAME_DIR GAMENAME

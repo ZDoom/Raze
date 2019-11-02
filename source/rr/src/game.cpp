@@ -189,10 +189,7 @@ void G_HandleSpecialKeys(void)
     if (KB_UnBoundKeyPressed(sc_F12))
     {
         KB_ClearKeyDown(sc_F12);
-        videoCaptureScreen(
-        "duke0000.tga"
-        ,
-        0);
+        videoCaptureScreen();
         P_DoQuote(QUOTE_SCREEN_SAVED, g_player[myconnectindex].ps);
     }
 

@@ -953,7 +953,7 @@ void LocalKeys(void)
         case sc_F11:
             break;
         case sc_F12:
-            videoCaptureScreen("blud0000.tga", 0);
+            videoCaptureScreen();
             break;
         }
     }
