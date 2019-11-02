@@ -771,7 +771,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 						else if (sc.TokenType == TK_Identifier)
 						{
 							auto ip = FlagMap.CheckKey(sc.String);
-							if (ip) grp.dependencyCRC |= *ip;
+							if (ip) grp.flags |= *ip;
 							else sc.ScriptError("Unknown flag value %s", sc.String);
 						}
 						else sc.TokenMustBe(TK_IntConst);
