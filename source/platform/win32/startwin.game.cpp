@@ -184,7 +184,10 @@ static void PopulateForm(int32_t pgs)
 		int i=0;
 		for (auto& grp : *gamedata)
 		{
-			FStringf grpinfo("%s %s", grp.FileInfo.name.GetChars(), grp.FileName.GetChars());
+			auto p = grp.FileName.LastIndexOfAny("/\\");
+			auto c = grp.FileName.GetChars();
+			if (p > 0) c += p+1;
+			FStringf grpinfo("%s\t%s", grp.FileInfo.name.GetChars(), c);
             int const j = ListBox_AddString(hwnd, grpinfo.GetChars());
             (void)ListBox_SetItemData(hwnd, j, i);
 			i++;
