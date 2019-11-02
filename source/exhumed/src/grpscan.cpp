@@ -41,6 +41,7 @@ static void process_vacapp15(int32_t crcval);
 static internalgrpinfo_t const internalgrpfiles[] =
 {
     { "Powerslave", POWERSLAVE_CRC, 27020745, GAMEFLAG_POWERSLAVE,  0 },
+    { "Exhumed",    EXHUMED_CRC,    27108170, GAMEFLAG_EXHUMED,     0 },
 };
 #endif
 
@@ -57,6 +58,7 @@ static void LoadList(const char * filename)
 #ifndef EDUKE32_STANDALONE
     scriptfile_addsymbolvalue("GAMEFLAG_POWERSLAVE", GAMEFLAG_POWERSLAVE);
     scriptfile_addsymbolvalue("POWERSLAVE_CRC", POWERSLAVE_CRC);
+    scriptfile_addsymbolvalue("EXHUMED_CRC", EXHUMED_CRC);
 #endif
 
     while (!scriptfile_eof(script))

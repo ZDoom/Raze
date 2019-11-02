@@ -32,7 +32,7 @@ extern "C" {
 // List of internally-known GRP files
 #define POWERSLAVE_CRC  (int32_t)0x303CBD89
 // TODO:
-#define EXHUMED_CRC     (int32_t)0x00000000
+#define EXHUMED_CRC     (int32_t)0xE3B172F1
 
 #define GAMEFLAG_POWERSLAVE 0x00000001
 #define GAMEFLAG_EXHUMED    0x00000002
