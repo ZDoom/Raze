@@ -1134,7 +1134,18 @@ CONSTEXPR size_t logbasenegative(T n)
 
 ////////// Bitfield manipulation //////////
 
+#if 0
+// Behold the probably most useless (de)optimization I ever discovered. 
+// Replacing a simple bit shift with a memory access through a global pointer is surely going to improve matters... >(
+// Constexpr means shit here if the index is not a constant!
 static CONSTEXPR const char pow2char[8] = {1,2,4,8,16,32,64,128u};
+#else
+// Revert the above to a real bit shift through some C++ operator magic. That saves me from reverting all the code that uses this construct.
+struct 
+{
+	constexpr uint8_t operator[](int index) const { return 1 << index; };
+} pow2char;
+#endif
 
 static FORCE_INLINE void bitmap_set(uint8_t *const ptr, int const n) { ptr[n>>3] |= pow2char[n&7]; }
 static FORCE_INLINE void bitmap_clear(uint8_t *const ptr, int const n) { ptr[n>>3] &= ~pow2char[n&7]; }
