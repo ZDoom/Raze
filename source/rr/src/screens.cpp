@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "anim.h"
 #include "sbar.h"
 #include "menus.h"
-#include "osdfuncs.h"
 #include "demo.h"
 #include "mdsprite.h"
 #include "gamecvars.h"

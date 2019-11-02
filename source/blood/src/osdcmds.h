@@ -26,9 +26,5 @@ BEGIN_BLD_NS
 
 int32_t registerosdcommands(void);
 void onvideomodechange(int32_t newmode);
-void GAME_onshowosd(int32_t shown);
-void GAME_clearbackground(int32_t numcols, int32_t numrows);
-
-extern const char *const ConsoleButtons[];
 
 END_BLD_NS

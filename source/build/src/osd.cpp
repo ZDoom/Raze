@@ -12,11 +12,18 @@
 #include "common.h"
 #include "c_cvars.h"
 #include "inputstate.h"
+#include "keyboard.h"
+#include "control.h"
+#include "gamecontrol.h"
 
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash.h"
 
 #include "vfs.h"
+
+int osdcmd_bind(osdcmdptr_t parm);
+int osdcmd_unbindall(osdcmdptr_t);
+int osdcmd_unbind(osdcmdptr_t parm);
 
 static osdsymbol_t *osd_addsymbol(const char *name);
 static osdsymbol_t *osd_findsymbol(const char *pszName, osdsymbol_t *pSymbol);
@@ -68,65 +75,6 @@ static int32_t (*_getrowheight)(int32_t) = _internal_getrowheight;
 
 static hashtable_t h_cvars      = { OSDMAXSYMBOLS >> 1, NULL };
 bool m32_osd_tryscript = false;  // whether to try executing m32script on unkown command in the osd
-
-void OSD_RegisterCvar(osdcvardata_t * const cvar, int (*func)(osdcmdptr_t))
-{
-    if (!osd)
-        OSD_Init();
-
-    osd->cvars = (osdcvar_t *)Xrealloc(osd->cvars, (osd->numcvars + 1) * sizeof(osdcvar_t));
-
-    hash_add(&h_cvars, cvar->name, osd->numcvars, 1);
-
-    switch (cvar->flags & CVAR_TYPEMASK)
-    {
-    case CVAR_FLOAT:
-#if defined __POWERPC__ || defined GEKKO
-        osd->cvars[osd->numcvars].defaultValue.f = *cvar->f;
-        break;
-#endif
-    case CVAR_BOOL:
-    case CVAR_INT:
-    case CVAR_UINT:
-        osd->cvars[osd->numcvars].defaultValue.u32 = *cvar->u32;
-        break;
-    case CVAR_DOUBLE:
-        osd->cvars[osd->numcvars].defaultValue.d = *cvar->d;
-        break;
-    }
-
-    osd->cvars[osd->numcvars++].pData = cvar;
-
-    OSD_RegisterFunction(cvar->name, cvar->desc, func);
-}
-
-static int OSD_CvarModified(const osdcvar_t * const pCvar)
-{
-    if (!osd || !pCvar->pData->ptr)
-        return 0;
-
-    int rv = 0;
-
-    switch (pCvar->pData->flags & CVAR_TYPEMASK)
-    {
-        case CVAR_FLOAT:
-#if defined __POWERPC__ || defined GEKKO
-            rv = (pCvar->defaultValue.f != *pCvar->pData->f); break;
-#endif
-        case CVAR_BOOL:
-        case CVAR_INT:
-        case CVAR_UINT:
-            rv = (pCvar->defaultValue.u32 != *pCvar->pData->u32); break;
-        case CVAR_DOUBLE:
-            rv = (pCvar->defaultValue.d != *pCvar->pData->d); break;
-        case CVAR_STRING:
-            rv = 1; break;
-        default:
-            EDUKE32_UNREACHABLE_SECTION(break);
-    }
-
-    return rv || ((pCvar->pData->flags & CVAR_MODIFIED) == CVAR_MODIFIED);
-}
 
 
 // color code format is as follows:
@@ -241,7 +189,7 @@ static inline void swaposdptrs(void)
 
 void OSD_SetTextMode(int mode)
 {
-    osd->draw.mode = (mode != 0);
+	osd->draw.mode = 1;// (mode != 0);
 
     if ((osd->draw.mode && drawosdchar != _internal_drawosdchar) ||
         (!osd->draw.mode && drawosdchar == _internal_drawosdchar))
@@ -392,15 +340,16 @@ static int _internal_getrowheight(int w)
     return w/8;
 }
 
+void COMMON_doclearbackground(int numcols, int height);
+
 static void _internal_clearbackground(int cols, int rows)
 {
-    UNREFERENCED_PARAMETER(cols);
-    UNREFERENCED_PARAMETER(rows);
+	COMMON_doclearbackground(cols, rows);
 }
 
 static int32_t _internal_gettime(void)
 {
-    return 0;
+    return BGetTime();
 }
 
 static void _internal_onshowosd(int a)
@@ -497,59 +446,6 @@ static int osdfunc_unalias(osdcmdptr_t parm)
 
 static int osdfunc_listsymbols(osdcmdptr_t parm)
 {
-    if (parm->numparms > 1)
-        return OSDCMD_SHOWHELP;
-
-    int maxwidth = 0;
-
-    for (auto symb=osd->symbols; symb!=NULL; symb=symb->next)
-        if (symb->func != OSD_UNALIASED && symb->help != NULL)
-            maxwidth = max<int>(maxwidth, Bstrlen(symb->name));
-
-    if (maxwidth > 0)
-    {
-        int width = 0;
-        int count = 0;
-
-        maxwidth += 3;
-
-        if (parm->numparms > 0)
-            OSD_Printf("%sSymbol listing for %s:\n", osd->draw.highlight, parm->parms[0]);
-        else
-            OSD_Printf("%sSymbol listing:\n", osd->draw.highlight);
-
-        int const parmlen = parm->numparms ? Bstrlen(parm->parms[0]) : 0;
-
-        for (auto symb=osd->symbols; symb!=NULL; symb=symb->next)
-        {
-            if (symb->func == OSD_UNALIASED || symb->help == NULL || (parm->numparms == 1 && Bstrncmp(parm->parms[0], symb->name, parmlen)))
-                continue;
-
-            int const var = hash_find(&h_cvars, symb->name);
-
-            if ((unsigned)var < OSDMAXSYMBOLS && OSD_CvarModified(&osd->cvars[var]))
-            {
-                OSD_Printf("%s*", osd->draw.highlight);
-                OSD_Printf("%-*s", maxwidth-1, symb->name);
-            }
-            else
-                OSD_Printf("%-*s", maxwidth, symb->name);
-
-            width += maxwidth;
-            count++;
-
-            if (width > osd->draw.cols - maxwidth)
-            {
-                width = 0;
-                OSD_Printf("\n");
-            }
-        }
-
-        if (width)
-            OSD_Printf("\n");
-
-        OSD_Printf("%sFound %d symbols\n", osd->draw.highlight, count);
-    }
     return OSDCMD_OK;
 }
 
@@ -632,60 +528,6 @@ void OSD_Cleanup(void)
 }
 
 
-static int osdcmd_cvar_set_osd(osdcmdptr_t parm)
-{
-    int const r = osdcmd_cvar_set(parm);
-
-    if (r != OSDCMD_OK)
-        return r;
-
-    if (!Bstrcasecmp(parm->name, "osdrows"))
-    {
-        if (osd->draw.rows > osdmaxrows)
-            osd->draw.rows = osdmaxrows;
-
-        if (osdrowscur != -1)
-            osdrowscur = osd->draw.rows;
-    }
-    else if (!Bstrcasecmp(parm->name, "osdtextmode"))
-        OSD_SetTextMode(osd->draw.mode);
-    else if (!Bstrcasecmp(parm->name, "osdhistorydepth"))
-    {
-        for (auto &i : osd->history.buf)
-            DO_FREE_AND_NULL(i);
-    }
-
-    return OSDCMD_OK;
-}
-
-static int osdfunc_toggle(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    int i = hash_find(&h_cvars, parm->parms[0]);
-
-    if (i == -1)
-    {
-        for (i = osd->numcvars-1; i>=0; i--)
-        {
-            if (!Bstrcasecmp(parm->parms[0], osd->cvars[i].pData->name))
-                break;
-        }
-    }
-
-    if (i == -1 || (osd->cvars[i].pData->flags & CVAR_TYPEMASK) != CVAR_BOOL)
-    {
-        OSD_Printf("Bad cvar name or cvar not boolean\n");
-        return OSDCMD_OK;
-    }
-
-    *osd->cvars[i].pData->i32 = 1 - *osd->cvars[i].pData->i32;
-    osd->cvars[i].pData->flags |= CVAR_MODIFIED;
-
-    return OSDCMD_OK;
-}
-
 //
 // OSD_Init() -- Initializes the on-screen display
 //
@@ -714,28 +556,11 @@ void OSD_Init(void)
     osd->draw.rows     = OSDDEFAULTROWS;
     osd->draw.cols     = OSDDEFAULTCOLS;
     osd->log.cutoff    = OSDLOGCUTOFF;
-
+	OSD_SetTextMode(1);
     osd->history.maxlines = OSDMINHISTORYDEPTH;
 
     hash_init(&h_osd);
     hash_init(&h_cvars);
-
-    static osdcvardata_t cvars_osd [] =
-    {
-        { "osdeditpal", "sets the palette of the OSD input text", (void *) &osd->draw.editpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "osdpromptpal", "sets the palette of the OSD prompt", (void *) &osd->draw.promptpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "osdtextpal", "sets the palette of the OSD text", (void *) &osd->draw.textpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "osdeditshade", "sets the shade of the OSD input text", (void *) &osd->draw.editshade, CVAR_INT, 0, 7 },
-        { "osdtextshade", "sets the shade of the OSD text", (void *) &osd->draw.textshade, CVAR_INT, 0, 7 },
-        { "osdpromptshade", "sets the shade of the OSD prompt", (void *) &osd->draw.promptshade, CVAR_INT, INT8_MIN, INT8_MAX },
-        { "osdrows", "sets the number of visible lines of the OSD", (void *) &osd->draw.rows, CVAR_INT|CVAR_FUNCPTR, 1, 400 },
-        { "osdtextmode", "set OSD text mode (0:graphical, 1:fast)", (void *) &osd->draw.mode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "osdlogcutoff", "sets the maximal line count of the log file", (void *) &osd->log.cutoff, CVAR_INT, 0, 262144 },
-        { "osdhistorydepth", "sets the history depth, in lines", (void *) &osd->history.maxlines, CVAR_INT|CVAR_FUNCPTR, OSDMINHISTORYDEPTH, OSDMAXHISTORYDEPTH },
-    };
-
-    for (auto & i : cvars_osd)
-        OSD_RegisterCvar(&i, (i.flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_osd : osdcmd_cvar_set);
 
     OSD_RegisterFunction("alias", "alias: creates an alias for calling multiple commands", osdfunc_alias);
     OSD_RegisterFunction("clear", "clear: clears the console text buffer", osdfunc_clear);
@@ -745,8 +570,10 @@ void OSD_Init(void)
     OSD_RegisterFunction("help", "help: displays help for a cvar or command; \"listsymbols\" to show all commands", osdfunc_help);
     OSD_RegisterFunction("history", "history: displays the console command history", osdfunc_history);
     OSD_RegisterFunction("listsymbols", "listsymbols: lists all registered functions, cvars and aliases", osdfunc_listsymbols);
-    OSD_RegisterFunction("toggle", "toggle: toggles the value of a boolean cvar", osdfunc_toggle);
     OSD_RegisterFunction("unalias", "unalias: removes a command alias", osdfunc_unalias);
+	OSD_RegisterFunction("bind", R"(bind <key> <string>: associates a keypress with a string of console input. Type "bind showkeys" for a list of keys and "listsymbols" for a list of valid console commands.)", osdcmd_bind);
+	OSD_RegisterFunction("unbind", "unbind <key>: unbinds a key", osdcmd_unbind);
+	OSD_RegisterFunction("unbindall", "unbindall: unbinds all keys", osdcmd_unbindall);
 
     //    atexit(OSD_Cleanup);
 }
@@ -772,30 +599,6 @@ void OSD_SetLogFile(const char *fn)
         osdlogfn = fn;
     }
 }
-
-
-//
-// OSD_SetFunctions() -- Sets some callbacks which the OSD uses to understand its world
-//
-void OSD_SetFunctions(void (*drawchar)(int, int, char, int, int),
-                      void (*drawstr)(int, int, const char *, int, int, int),
-                      void (*drawcursor)(int, int, int, int),
-                      int (*colwidth)(int),
-                      int (*rowheight)(int),
-                      void (*clearbg)(int, int),
-                      int32_t (*gtime)(void),
-                      void (*showosd)(int))
-{
-    drawosdchar     = drawchar   ? drawchar   : _internal_drawosdchar;
-    drawosdstr      = drawstr    ? drawstr    : _internal_drawosdstr;
-    drawosdcursor   = drawcursor ? drawcursor : _internal_drawosdcursor;
-    getcolumnwidth  = colwidth   ? colwidth   : _internal_getcolumnwidth;
-    getrowheight    = rowheight  ? rowheight  : _internal_getrowheight;
-    clearbackground = clearbg    ? clearbg    : _internal_clearbackground;
-    gettime         = gtime      ? gtime      : _internal_gettime;
-    onshowosd       = showosd    ? showosd    : _internal_onshowosd;
-}
-
 
 //
 // OSD_SetParameters() -- Sets the parameters for presenting the text
@@ -2078,138 +1881,207 @@ static osdsymbol_t * osd_findexactsymbol(const char *pszName)
     return (symbolNum >= 0) ? osd->symbptrs[symbolNum] : NULL;
 }
 
-int osdcmd_cvar_set(osdcmdptr_t parm)
+const char* const ConsoleButtons[] =
 {
-    int const printValue = (parm->numparms == 0);
-    int const cvaridx    = hash_findcase(&h_cvars, parm->name);
+	"mouse1", "mouse2", "mouse3", "mouse4", "mwheelup",
+	"mwheeldn", "mouse5", "mouse6", "mouse7", "mouse8"
+};
 
-#if 0
-    if (i < 0)
-        for (i = osd->numcvars-1; i >= 0; i--)
-            if (!Bstrcasecmp(parm->name, pData.name)) break;
-#endif
 
-    Bassert(cvaridx >= 0);
+int osdcmd_bind(osdcmdptr_t parm)
+{
+	char tempbuf[256];
 
-    auto pData = *osd->cvars[cvaridx].pData;
+	if (parm->numparms == 1 && !Bstrcasecmp(parm->parms[0], "showkeys"))
+	{
+		for (auto& s : sctokeylut)
+			OSD_Printf("%s\n", s.key);
+		for (auto ConsoleButton : ConsoleButtons)
+			OSD_Printf("%s\n", ConsoleButton);
+		return OSDCMD_OK;
+	}
 
-    if (pData.flags & CVAR_READONLY)
-    {
-        OSD_Printf("Cvar \"%s\" is read only.\n", pData.name);
-        return OSDCMD_OK;
-    }
+	if (parm->numparms == 0)
+	{
+		int j = 0;
 
-    switch (pData.flags & CVAR_TYPEMASK)
-    {
-        case CVAR_FLOAT:
-        {
-            if (printValue)
-            {
-                OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n", pData.name, *pData.f, pData.name, pData.desc);
-                return OSDCMD_OK;
-            }
+		OSD_Printf("Current key bindings:\n");
 
-            Bsscanf(parm->parms[0], "%f", pData.f);
-            *pData.f = clamp(*pData.f, pData.min, pData.max);
-            pData.flags |= CVAR_MODIFIED;
+		for (int i = 0; i < NUMKEYS + MAXMOUSEBUTTONS; i++)
+			if (CONTROL_KeyIsBound(i))
+			{
+				j++;
+				OSD_Printf("%-9s %s\"%s\"\n", CONTROL_KeyBinds[i].key, CONTROL_KeyBinds[i].repeat ? "" : "norepeat ",
+					CONTROL_KeyBinds[i].cmdstr);
+			}
 
-            if (!OSD_ParsingScript())
-                OSD_Printf("%s %f",pData.name, *pData.f);
-        }
-        break;
-        case CVAR_DOUBLE:
-        {
-            if (printValue)
-            {
-                OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n", pData.name, *pData.d, pData.name, pData.desc);
-                return OSDCMD_OK;
-            }
+		if (j == 0)
+			OSD_Printf("No binds found.\n");
 
-            Bsscanf(parm->parms[0], "%lf", pData.d);
-            *pData.d = clamp(*pData.d, pData.min, pData.max);
-            pData.flags |= CVAR_MODIFIED;
+		return OSDCMD_OK;
+	}
 
-            if (!OSD_ParsingScript())
-                OSD_Printf("%s %f",pData.name, *pData.d);
-        }
-        break;
-        case CVAR_INT:
-        case CVAR_BOOL:
-        {
-            if (printValue)
-            {
-                OSD_Printf("\"%s\" is \"%d\"\n%s: %s\n", pData.name, *pData.i32, pData.name, pData.desc);
-                return OSDCMD_OK;
-            }
+	int i, j, repeat;
 
-            *pData.i32 = clamp(Batoi(parm->parms[0]), pData.min, pData.max);
-
-            if ((pData.flags & CVAR_TYPEMASK) == CVAR_BOOL)
-                *pData.i32 = (*pData.i32 != 0);
-
-            pData.flags |= CVAR_MODIFIED;
-
-            if (!OSD_ParsingScript())
-                OSD_Printf("%s %d",pData.name, *pData.i32);
-        }
-        break;
-        case CVAR_UINT:
-        {
-            if (printValue)
-            {
-                OSD_Printf("\"%s\" is \"%u\"\n%s: %s\n", pData.name, *pData.u32, pData.name, pData.desc);
-                return OSDCMD_OK;
-            }
-
-            *pData.u32 = clamp(Bstrtoul(parm->parms[0], NULL, 0), pData.min, pData.max);
-            pData.flags |= CVAR_MODIFIED;
-
-            if (!OSD_ParsingScript())
-                OSD_Printf("%s %d", pData.name, *pData.u32);
-        }
-        break;
-        case CVAR_STRING:
-        {
-            if (printValue)
-            {
-                OSD_Printf("\"%s\" is \"%s\"\n%s: %s\n", pData.name, pData.string, pData.name, pData.desc);
-                return OSDCMD_OK;
-            }
-
-            Bstrncpy(pData.string, parm->parms[0], pData.max-1);
-            (pData.string)[pData.max-1] = 0;
-            pData.flags |= CVAR_MODIFIED;
-
-            if (!OSD_ParsingScript())
-                OSD_Printf("%s %s",pData.name, pData.string);
-        }
-        break;
-        default:
-            EDUKE32_UNREACHABLE_SECTION(break);
-    }
-
-#ifdef USE_OPENGL
-    if (!OSD_ParsingScript())
-    {
-        switch (pData.flags & (CVAR_RESTARTVID|CVAR_INVALIDATEALL|CVAR_INVALIDATEART))
-        {
-        case CVAR_RESTARTVID:
-            //osdcmd_restartvid(NULL);
-            break;
-        case CVAR_INVALIDATEALL:
-			TileFiles.ClearTextureCache(false);
+	for (i = 0; i < ARRAY_SSIZE(sctokeylut); i++)
+	{
+		if (!Bstrcasecmp(parm->parms[0], sctokeylut[i].key))
 			break;
-        case CVAR_INVALIDATEART:
-			TileFiles.ClearTextureCache(true);
-            break;
-        }
-    }
-#endif
+	}
 
-    if (!OSD_ParsingScript())
-        OSD_Printf("\n");
+	// didn't find the key
+	if (i == ARRAY_SSIZE(sctokeylut))
+	{
+		for (i = 0; i < MAXMOUSEBUTTONS; i++)
+			if (!Bstrcasecmp(parm->parms[0], ConsoleButtons[i]))
+				break;
 
-    return OSDCMD_OK;
+		if (i >= MAXMOUSEBUTTONS)
+			return OSDCMD_SHOWHELP;
+
+		if (parm->numparms < 2)
+		{
+			if (CONTROL_KeyBinds[NUMKEYS + i].cmdstr && CONTROL_KeyBinds[NUMKEYS + i].key)
+				OSD_Printf("%-9s %s\"%s\"\n", ConsoleButtons[i], CONTROL_KeyBinds[NUMKEYS + i].repeat ? "" : "norepeat ",
+					CONTROL_KeyBinds[NUMKEYS + i].cmdstr);
+			else OSD_Printf("%s is unbound\n", ConsoleButtons[i]);
+			return OSDCMD_OK;
+		}
+
+		j = 1;
+
+		repeat = 1;
+		if (!Bstrcasecmp(parm->parms[j], "norepeat"))
+		{
+			repeat = 0;
+			j++;
+		}
+
+		Bstrcpy(tempbuf, parm->parms[j++]);
+		for (; j < parm->numparms; j++)
+		{
+			Bstrcat(tempbuf, " ");
+			Bstrcat(tempbuf, parm->parms[j++]);
+		}
+
+		CONTROL_BindMouse(i, tempbuf, repeat, ConsoleButtons[i]);
+
+		if (!OSD_ParsingScript())
+			OSD_Printf("%s\n", parm->raw);
+		return OSDCMD_OK;
+	}
+
+	if (parm->numparms < 2)
+	{
+		if (CONTROL_KeyIsBound(sctokeylut[i].sc))
+			OSD_Printf("%-9s %s\"%s\"\n", sctokeylut[i].key, CONTROL_KeyBinds[sctokeylut[i].sc].repeat ? "" : "norepeat ",
+				CONTROL_KeyBinds[sctokeylut[i].sc].cmdstr);
+		else OSD_Printf("%s is unbound\n", sctokeylut[i].key);
+
+		return OSDCMD_OK;
+	}
+
+	j = 1;
+
+	repeat = 1;
+	if (!Bstrcasecmp(parm->parms[j], "norepeat"))
+	{
+		repeat = 0;
+		j++;
+	}
+
+	Bstrcpy(tempbuf, parm->parms[j++]);
+	for (; j < parm->numparms; j++)
+	{
+		Bstrcat(tempbuf, " ");
+		Bstrcat(tempbuf, parm->parms[j++]);
+	}
+
+	CONTROL_BindKey(sctokeylut[i].sc, tempbuf, repeat, sctokeylut[i].key);
+
+	char* cp = tempbuf;
+
+	// Populate the keyboard config menu based on the bind.
+	// Take care of processing one-to-many bindings properly, too.
+	static char const s_gamefunc_[] = "gamefunc_";
+	int constexpr strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
+
+	while ((cp = Bstrstr(cp, s_gamefunc_)))
+	{
+		cp += strlen_gamefunc_;
+
+		char* semi = Bstrchr(cp, ';');
+
+		if (semi)
+			*semi = 0;
+
+		j = CONFIG_FunctionNameToNum(cp);
+
+		if (semi)
+			cp = semi + 1;
+
+		if (j != -1)
+		{
+			KeyboardKeys[j][1] = KeyboardKeys[j][0];
+			KeyboardKeys[j][0] = sctokeylut[i].sc;
+			//            CONTROL_MapKey(j, sctokeylut[i].sc, KeyboardKeys[j][0]);
+
+			if (j == gamefunc_Show_Console)
+				OSD_CaptureKey(sctokeylut[i].sc);
+		}
+	}
+
+	if (!OSD_ParsingScript())
+		OSD_Printf("%s\n", parm->raw);
+
+	return OSDCMD_OK;
+}
+
+int osdcmd_unbindall(osdcmdptr_t UNUSED(parm))
+{
+	UNREFERENCED_CONST_PARAMETER(parm);
+
+	for (int i = 0; i < NUMKEYS; ++i)
+		CONTROL_FreeKeyBind(i);
+
+	for (int i = 0; i < MAXMOUSEBUTTONS; ++i)
+		CONTROL_FreeMouseBind(i);
+
+	for (auto& KeyboardKey : KeyboardKeys)
+		KeyboardKey[0] = KeyboardKey[1] = 0xff;
+
+	if (!OSD_ParsingScript())
+		OSD_Printf("unbound all controls\n");
+
+	return OSDCMD_OK;
+}
+
+int osdcmd_unbind(osdcmdptr_t parm)
+{
+	if (parm->numparms != 1)
+		return OSDCMD_SHOWHELP;
+
+	for (auto& ConsoleKey : sctokeylut)
+	{
+		if (ConsoleKey.key && !Bstrcasecmp(parm->parms[0], ConsoleKey.key))
+		{
+			CONTROL_FreeKeyBind(ConsoleKey.sc);
+			OSD_Printf("unbound key %s\n", ConsoleKey.key);
+			return OSDCMD_OK;
+		}
+	}
+
+	for (int i = 0; i < MAXMOUSEBUTTONS; i++)
+	{
+		if (!Bstrcasecmp(parm->parms[0], ConsoleButtons[i]))
+		{
+			CONTROL_FreeMouseBind(i);
+			OSD_Printf("unbound %s\n", ConsoleButtons[i]);
+			return OSDCMD_OK;
+		}
+	}
+
+	return OSDCMD_SHOWHELP;
 }
 
 

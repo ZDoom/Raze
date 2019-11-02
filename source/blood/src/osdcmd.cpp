@@ -511,7 +511,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
 //    }
 //
-    OSD_RegisterFunction("bind",R"(bind <key> <string>: associates a keypress with a string of console input. Type "bind showkeys" for a list of keys and "listsymbols" for a list of valid console commands.)", osdcmd_bind);
 //    OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
     OSD_RegisterFunction("crosshairreset", "crosshairreset: restores the original crosshair", osdcmd_resetcrosshair);
@@ -565,8 +564,6 @@ int32_t registerosdcommands(void)
 //
 //    OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
-    OSD_RegisterFunction("unbind","unbind <key>: unbinds a key", osdcmd_unbind);
-    OSD_RegisterFunction("unbindall","unbindall: unbinds all keys", osdcmd_unbindall);
     OSD_RegisterFunction("unbound", NULL, osdcmd_unbound);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
@@ -580,25 +577,6 @@ int32_t registerosdcommands(void)
 //#endif
 
     return 0;
-}
-
-void GAME_onshowosd(int shown)
-{
-    // G_UpdateScreenArea();
-
-    mouseLockToWindow((!shown) + 2);
-
-    //osdshown = shown;
-
-    // XXX: it's weird to fake a keypress like this.
-//    if (numplayers == 1 && ((shown && !ud.pause_on) || (!shown && ud.pause_on)))
-//        	inputState.SetKeyStatus(sc_Escape, 1);
-
-}
-
-void GAME_clearbackground(int numcols, int numrows)
-{
-    COMMON_clearbackground(numcols, numrows);
 }
 
 END_BLD_NS

@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "compat.h"
 #include "renderlayer.h"
-#include "osdfuncs.h"
 #include "osdcmds.h"
 #include "crc32_.h"
 #include "network.h"
@@ -6131,15 +6130,6 @@ EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
 int app_main()
 {
-    OSD_SetFunctions(GAME_drawosdchar,
-                     GAME_drawosdstr,
-                     GAME_drawosdcursor,
-                     GAME_getcolumnwidth,
-                     GAME_getrowheight,
-                     GAME_clearbackground,
-                     BGetTime,
-                     GAME_onshowosd);
-
     g_skillCnt = 4;
     ud.multimode = 1;
 	ud.m_monsters_off = userConfig.nomonsters;

@@ -47,7 +47,6 @@ set( PCH_SOURCES
 	src/namesdyn.cpp
 	src/net.cpp
 	src/osdcmds.cpp
-	src/osdfuncs.cpp
 	src/player.cpp
 	src/premap.cpp
 	src/savegame.cpp

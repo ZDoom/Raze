@@ -1231,17 +1231,6 @@ static int32_t check_filename_casing(void)
 
 int app_main()
 {
-    char buffer[BMAX_PATH];
-
-    OSD_SetFunctions(NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     GAME_clearbackground,
-                     BGetTime,
-                     GAME_onshowosd);
-
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = userConfig.nomonsters;
 	bQuickStart = userConfig.nologo;
@@ -1285,8 +1274,7 @@ int app_main()
     initprintf("Loading tiles\n");
     if (pUserTiles)
     {
-        strcpy(buffer,pUserTiles);
-        strcat(buffer,"%03i.ART");
+		FStringf buffer("%s%%03i.ART", pUserTiles);
         if (!tileInit(0,buffer))
             ThrowError("User specified ART files not found");
     }

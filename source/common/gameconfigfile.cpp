@@ -467,6 +467,7 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 		}
 	}
 
+#if 0 // This somehow does not work. The Build console sucks.
 	strncpy(subsection, "ConsoleAliases", sublen);
 	if (SetSection(section, true))
 	{
@@ -479,6 +480,7 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 				SetValueForKey(symb->name, symb->help);
 		}
 	}
+#endif
 #endif
 }
 

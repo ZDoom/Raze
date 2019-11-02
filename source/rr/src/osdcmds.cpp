@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "menus.h"
 #include "osdcmds.h"
-#include "osdfuncs.h"
 #include "savegame.h"
 #include "sbar.h"
 
@@ -933,7 +932,6 @@ int32_t registerosdcommands(void)
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
 
-    OSD_RegisterFunction("bind",R"(bind <key> <string>: associates a keypress with a string of console input. Type "bind showkeys" for a list of keys and "listsymbols" for a list of valid console commands.)", osdcmd_bind);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
 
@@ -979,9 +977,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
-
-    OSD_RegisterFunction("unbind","unbind <key>: unbinds a key", osdcmd_unbind);
-    OSD_RegisterFunction("unbindall","unbindall: unbinds all keys", osdcmd_unbindall);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
 #ifdef USE_OPENGL

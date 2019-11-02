@@ -232,16 +232,6 @@ void OSD_Cleanup(void);
 // sets the file to echo output to
 void OSD_SetLogFile(const char *fn);
 
-// sets the functions the OSD will call to interrogate the environment
-void OSD_SetFunctions(void (*drawchar)(int, int, char, int, int),
-                      void (*drawstr)(int, int, const char *, int, int, int),
-                      void (*drawcursor)(int, int, int, int),
-                      int (*colwidth)(int),
-                      int (*rowheight)(int),
-                      void (*clearbg)(int, int),
-                      int32_t (*gtime)(void),
-                      void (*showosd)(int));
-
 // sets the parameters for presenting the text
 void OSD_SetParameters(int promptShade, int promptPal, int editShade, int editPal, int textShade, int textPal,
                        char const *errorStr, char const *highlight, uint32_t flags);

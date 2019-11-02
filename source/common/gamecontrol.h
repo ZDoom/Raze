@@ -65,11 +65,6 @@ void CONFIG_SetGameControllerDefaultsClear();
 
 FString CONFIG_GetBoundKeyForLastInput(int gameFunc);
 
-int osdcmd_bind(osdcmdptr_t parm);
-int osdcmd_unbindall(osdcmdptr_t);
-int osdcmd_unbind(osdcmdptr_t parm);
-
-
 extern FStringCVar* const CombatMacros[];
 void CONFIG_ReadCombatMacros();
 
