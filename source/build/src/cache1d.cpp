@@ -16,7 +16,6 @@
 #include "cache1d.h"
 #include "pragmas.h"
 #include "baselayer.h"
-#include "lz4.h"
 
 #include "vfs.h"
 
