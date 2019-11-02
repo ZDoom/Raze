@@ -449,6 +449,7 @@ int main(int argc, char *argv[])
     gtkbuild_init(&argc, &argv);
 #endif
 
+	if (initsystem()) Bexit(9);
 
 	try
 	{

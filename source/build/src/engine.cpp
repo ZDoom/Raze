@@ -8100,7 +8100,6 @@ int32_t enginePreInit(void)
 {
     baselayer_init();
     initdivtables();
-    if (initsystem()) Bexit(9);
 
 #if !defined DEBUG_MAIN_ARRAYS
     sector = sector_s;
@@ -8114,12 +8113,6 @@ int32_t enginePreInit(void)
     spritesmooth = spritesmooth_s;
 #endif
 
-#if !defined ENGINE_USING_A_C
-    mmxoverlay();
-#endif
-
-    validmodecnt = 0;
-    videoGetModes();
 
     initcrc32table();
 
