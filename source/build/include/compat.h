@@ -213,31 +213,10 @@
     extern void EDUKE32_ASSERT_NAME(EDUKE32_UNIQUE_SRC_ID)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
 #endif
 
-#ifdef _MSC_VER
-# define longlong(x) x##i64
-#else
-# define longlong(x) x##ll
-#endif
-
 #ifndef FP_OFF
 # define FP_OFF(__p) ((uintptr_t)(__p))
 #endif
 
-#ifdef UNDERSCORES
-# define ASMSYM(x) "_" x
-#else
-# define ASMSYM(x) x
-#endif
-
-#if defined __cplusplus
-# define STATIC_CAST_OP(t) static_cast<t>
-# define REINTERPRET_CAST_OP(t) reinterpret_cast<t>
-#else
-# define STATIC_CAST_OP(t) (t)
-# define REINTERPRET_CAST_OP(t) (t)
-#endif
-#define STATIC_CAST(t, v) (STATIC_CAST_OP(t)(v))
-#define REINTERPRET_CAST(t, v) (REINTERPRET_CAST_OP(t)(v))
 
 #if defined __cplusplus && (__cplusplus >= 201103L || __has_feature(cxx_constexpr) || EDUKE32_MSVC_PREREQ(1900))
 # define HAVE_CONSTEXPR
