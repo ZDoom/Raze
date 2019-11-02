@@ -1190,28 +1190,6 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
         Bstrcpy(p, ext);
 }
 
-/* Begin dependence on compat.o object. */
-
-
-
-#ifndef USE_PHYSFS
-////////// Directory enumeration //////////
-
-struct Bdirent
-{
-    char *name;
-    uint32_t mode;
-    uint32_t size;
-    uint32_t mtime;
-    uint16_t namlen;
-};
-
-typedef void BDIR;
-
-BDIR *Bopendir(const char *name);
-struct Bdirent *Breaddir(BDIR *dir);
-int32_t Bclosedir(BDIR *dir);
-#endif
 
 
 ////////// Paths //////////
@@ -1219,17 +1197,11 @@ int32_t Bclosedir(BDIR *dir);
 char *Bgethomedir(void);
 
 int32_t Bcorrectfilename(char *filename, int32_t removefn);
-int32_t Bcanonicalisefilename(char *filename, int32_t removefn);
-
-char *Bgetsystemdrives(void);
-
 
 ////////// String manipulation //////////
 
 char *Bstrtoken(char *s, const char *delim, char **ptrptr, int chop);
 char *Bstrtolower(char *str);
-
-#define Bwildmatch wildmatch
 
 #ifdef _WIN32
 # ifdef _MSC_VER
