@@ -69,8 +69,8 @@ void Demo_PrepareWarp(void)
 {
     if (!g_demo_paused)
     {
-        g_demo_soundToggle = snd_enabled;
-        snd_enabled = 0;
+		g_demo_soundToggle = userConfig.nosound;
+        userConfig.nosound = true;
     }
 
     FX_StopAllSounds();
@@ -403,8 +403,8 @@ static void Demo_SetupProfile(void)
 {
     g_demo_profile *= -1;  // now >0: profile for real
 
-    g_demo_soundToggle = snd_enabled;
-    snd_enabled = 0;  // restored by Demo_FinishProfile()
+    g_demo_soundToggle = userConfig.nosound;
+	userConfig.nosound = true;  // restored by Demo_FinishProfile()
 
     Bmemset(&g_prof, 0, sizeof(g_prof));
 
@@ -420,7 +420,7 @@ static void Demo_FinishProfile(void)
         double gms=g_prof.totalgamems;
         double dms1=g_prof.totalroomsdrawms, dms2=g_prof.totalrestdrawms;
 
-        snd_enabled = g_demo_soundToggle;
+		userConfig.nosound = g_demo_soundToggle;
 
         if (nt > 0)
         {
@@ -689,7 +689,7 @@ nextdemo_nomenu:
                         if (g_demo_goalCnt>0)
                         {
                             g_demo_goalCnt=0;
-                            snd_enabled = g_demo_soundToggle;
+							userConfig.nosound = g_demo_soundToggle;
                         }
 
                         if (Demo_IsProfiling())  // don't reset g_demo_profile if it's < 0
@@ -731,10 +731,10 @@ nextdemo_nomenu:
                 }
                 else
                 {
-                    int32_t k = snd_enabled;
-                    snd_enabled = 0;
+                    int32_t k = userConfig.nosound;
+					userConfig.nosound = true;
                     G_DoMoveThings();
-                    snd_enabled = k;
+					userConfig.nosound = k;
                 }
 
                 ototalclock += TICSPERFRAME;
@@ -749,7 +749,7 @@ nextdemo_nomenu:
                     if (g_demo_cnt>=g_demo_goalCnt)
                     {
                         g_demo_goalCnt = 0;
-                        snd_enabled = g_demo_soundToggle;
+						userConfig.nosound = g_demo_soundToggle;
                     }
                 }
             }

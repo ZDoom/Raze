@@ -39,6 +39,7 @@
 #include "configfile.h"
 
 #include "c_console.h"
+#include "gamecvars.h"
 
 //#include "cmdlib.h"
 //#include "c_dispatch.h"
@@ -1410,9 +1411,10 @@ void C_ArchiveCVars (FConfigFile *f, uint32_t filter)
 	qsort(cvarlist.Data(), cvarlist.Size(), sizeof(FBaseCVar*), cvarcmp);
 	for (auto cvar : cvarlist)
 	{
-		const char* const value = (cvar->Flags & CVAR_ISDEFAULT)
-			? cvar->GetGenericRep(CVAR_String).String
-			: cvar->SafeValue.GetChars();
+		// This does not work with the menus at use here.
+		const char* const value = //(cvar->Flags & CVAR_ISDEFAULT)
+			/*?*/ cvar->GetGenericRep(CVAR_String).String
+			/*: cvar->SafeValue.GetChars()*/;
 		f->SetValueForKey(cvar->GetName(), value);
 	}
 }

@@ -1486,7 +1486,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_VM_PLAYER:              labelNum = vm.playerNum;                    break;
         case USERDEFS_VM_SPRITE:              labelNum = vm.spriteNum;                    break;
         case USERDEFS_VM_DISTANCE:            labelNum = vm.playerDist;                   break;
-        case USERDEFS_SOUNDTOGGLE:            labelNum = snd_enabled;                     break;
+        case USERDEFS_SOUNDTOGGLE:            labelNum = SoundEnabled();                     break;
         case USERDEFS_GAMETEXT_TRACKING:      labelNum = MF_Bluefont.between.x;           break;
         case USERDEFS_MENUTEXT_TRACKING:      labelNum = MF_Redfont.between.x;            break;
         case USERDEFS_MAXSPRITESONSCREEN:     labelNum = maxspritesonscreen;              break;

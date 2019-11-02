@@ -1892,7 +1892,7 @@ static void postloadplayer(int32_t savegamep)
         for (SPRITES_OF(STAT_FX, i))
             if (sprite[i].picnum == MUSICANDSFX)
             {
-                T2(i) = snd_enabled;
+                T2(i) = SoundEnabled();
                 T1(i) = 0;
             }
 

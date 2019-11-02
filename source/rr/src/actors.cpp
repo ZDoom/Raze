@@ -1324,10 +1324,10 @@ ACTOR_STATIC void G_MoveFX(void)
             int32_t const       spriteHitag = (uint16_t)pSprite->hitag;
             DukePlayer_t *const pPlayer     = g_player[screenpeek].ps;
 
-            if (T2(spriteNum) != snd_enabled)
+            if (T2(spriteNum) != (int)SoundEnabled())
             {
                 // If sound playback was toggled, restart.
-                T2(spriteNum) = snd_enabled;
+                T2(spriteNum) = SoundEnabled();
                 T1(spriteNum) = 0;
             }
 
