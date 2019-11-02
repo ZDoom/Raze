@@ -680,7 +680,6 @@ set( FASTMATH_SOURCES
 	# The rest is only here because it is C, not C++
 	glad/src/glad.c
 	
-	thirdparty/src/lz4.c
 	thirdparty/src/xxhash.c
 
 	# Another bit of cruft just to make S(hit)DL happy...

@@ -39,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 
 #include "enet.h"
-#include "lz4.h"
 #include "m_crc32.h"
 
 #include "vfs.h"
