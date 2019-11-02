@@ -2293,8 +2293,8 @@ void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
         sTrail[nTrail].field_0 = nPoint;
         sTrail[nTrail].field_4 = nPoint;
 
-        nTrailPointNext[nTrail] = -1;
-        nTrailPointPrev[nTrail] = -1;
+        nTrailPointNext[nPoint] = -1;
+        nTrailPointPrev[nPoint] = -1;
     }
     else
     {
