@@ -463,6 +463,7 @@ CUSTOM_CVAR(String, rtsname, "", CVAR_ARCHIVE | CVAR_USERINFO)
 	RTS_Init(self);
 }
 
+CVAR(String, usermapfolder, "", CVAR_ARCHIVE);
 
 #if 0
 

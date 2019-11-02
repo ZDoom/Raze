@@ -14,44 +14,12 @@
 
 #include "vfs.h"
 
-extern char *kpzbuf;
-
 void	cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, uint8_t *newlockptr);
 
 using buildvfs_kfd = int32_t;
 
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
 
-
-enum {
-    CACHE1D_FIND_FILE = 1,
-    CACHE1D_FIND_DIR = 2,
-    CACHE1D_FIND_DRIVE = 4,
-    CACHE1D_FIND_NOCURDIR = 8,
-
-	BUILDVFS_FIND_FILE = 1,
-	BUILDVFS_FIND_DIR = 2,
-	BUILDVFS_FIND_DRIVE = 4,
-	BUILDVFS_FIND_NOCURDIR = 8,
-
-    CACHE1D_OPT_NOSTACK = 0x100,
-
-    // the lower the number, the higher the priority
-    CACHE1D_SOURCE_DRIVE = 0,
-    CACHE1D_SOURCE_CURDIR = 1,
-    CACHE1D_SOURCE_PATH = 2,	// + path stack depth
-    CACHE1D_SOURCE_ZIP = 0x7ffffffe,
-    CACHE1D_SOURCE_GRP = 0x7fffffff,
-	BUILDVFS_SOURCE_GRP = 0x7fffffff,
-};
-typedef struct _CACHE1D_FIND_REC {
-    char *name;
-    int32_t type, source;
-    struct _CACHE1D_FIND_REC *next, *prev, *usera, *userb;
-} CACHE1D_FIND_REC, BUILDVFS_FIND_REC;
-int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, int32_t source);
-void klistfree(CACHE1D_FIND_REC *rec);
-CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
 
 // compression disabled pending a better process for saving. Per-block compression as done here was not that great.
 int32_t kdfread_LZ4(void* buffer, int dasizeof, int count, buildvfs_kfd fil) = delete;

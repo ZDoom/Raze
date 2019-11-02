@@ -1380,16 +1380,16 @@ static MenuTextForm_t M_CHEATENTRY = { NULL, "Enter Cheat Code:", MAXCHEATLEN, 0
 static MenuTextForm_t M_CHEAT_WARP = { NULL, "Enter Warp #:", 3, 0 };
 static MenuTextForm_t M_CHEAT_SKILL = { NULL, "Enter Skill #:", 1, 0 };
 
-#define MAKE_MENUFILESELECT(a, b, c) { a, { &MMF_FileSelectLeft, &MMF_FileSelectRight }, { &MF_Minifont, &MF_Minifont }, b, c, { NULL, NULL }, { 0, 0 }, { 3<<16, 3<<16 }, FNLIST_INITIALIZER, 0 }
+//#define MAKE_MENUFILESELECT(a, b, c) { a, { &MMF_FileSelectLeft, &MMF_FileSelectRight }, { &MF_Minifont, &MF_Minifont }, b, c, { NULL, NULL }, { 0, 0 }, { 3<<16, 3<<16 }, FNLIST_INITIALIZER, 0 }
 
-static MenuFileSelect_t M_USERMAP = MAKE_MENUFILESELECT( "Select A User Map", "*.map", boardfilename );
+//static MenuFileSelect_t M_USERMAP = MAKE_MENUFILESELECT( "Select A User Map", "*.map", boardfilename );
 
 // MUST be in ascending order of MenuID enum values due to binary search
 static Menu_t Menus[] = {
     { &M_MAIN, MENU_MAIN, MENU_CLOSE, MA_None, Menu },
     { &M_MAIN_INGAME, MENU_MAIN_INGAME, MENU_CLOSE, MA_None, Menu },
     { &M_EPISODE, MENU_EPISODE, MENU_MAIN, MA_Return, Menu },
-    { &M_USERMAP, MENU_USERMAP, MENU_EPISODE, MA_Return, FileSelect },
+    //{ &M_USERMAP, MENU_USERMAP, MENU_EPISODE, MA_Return, FileSelect },
     { &M_SKILL, MENU_SKILL, MENU_EPISODE, MA_Return, Menu },
 #ifndef EDUKE32_SIMPLE_MENU
     { &M_GAMESETUP, MENU_GAMESETUP, MENU_OPTIONS, MA_Return, Menu },
@@ -1492,7 +1492,7 @@ static Menu_t Menus[] = {
     { &M_MACROS, MENU_MACROS, MENU_PLAYER, MA_Return, Menu },
     { &M_NETHOST, MENU_NETHOST, MENU_NETWORK, MA_Return, Menu },
     { &M_NETOPTIONS, MENU_NETOPTIONS, MENU_NETWORK, MA_Return, Menu },
-    { &M_USERMAP, MENU_NETUSERMAP, MENU_NETOPTIONS, MA_Return, FileSelect },
+    //{ &M_USERMAP, MENU_NETUSERMAP, MENU_NETOPTIONS, MA_Return, FileSelect },
     { &M_NETJOIN, MENU_NETJOIN, MENU_NETWORK, MA_Return, Menu },
 };
 
@@ -4169,33 +4169,18 @@ static void Menu_TextFormSubmit(char *input)
     }
 }
 
-void klistbookends(CACHE1D_FIND_REC *start)
-{
-    auto end = start;
-
-    if (!start)
-        return;
-
-    while (start->prev)
-        start = start->prev;
-
-    while (end->next)
-        end = end->next;
-
-    int i = 0;
-
-    for (auto n = start; n; n = n->next)
-    {
-        n->type = i; // overload this...
-        n->usera = start;
-        n->userb = end;
-        i++;
-    }
-}
-
 static void Menu_FileSelectInit(MenuFileSelect_t *object)
 {
-    fnlist_clearnames(&object->fnlist);
+	// Same crap as everywhere - it expects the user to dump all the shit in the game directory so that it gets in the way of everything.
+	// Needs to be redone - or removed.
+	if (usermapfolder)
+	{
+	}
+	else
+	{
+	}
+#if 0
+	fnlist_clearnames(&object->fnlist);
 
     if (object->destination[0] == 0)
         Bstrcpy(object->destination, "./");
@@ -4215,11 +4200,13 @@ static void Menu_FileSelectInit(MenuFileSelect_t *object)
     if (object->findhigh[1])
         object->currentList = 1;
 
-    KB_FlushKeyboardQueue();
+#endif
+	KB_FlushKeyboardQueue();
 }
 
 static void Menu_FileSelect(int32_t input)
 {
+#if 0
     switch (g_currentMenu)
     {
     case MENU_NETUSERMAP:
@@ -4242,6 +4229,7 @@ static void Menu_FileSelect(int32_t input)
     default:
         break;
     }
+#endif
 }
 
 
@@ -6028,6 +6016,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
         case FileSelect:
         {
+#if 0
             auto *object = (MenuFileSelect_t*)cm->object;
             const int32_t MenuFileSelect_scrollbar_rightedge[2] = { 160<<16, 284<<16 };
             int32_t i, selected = 0;
@@ -6144,7 +6133,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
                 m_mousecaught = 1;
             }
-
+#endif
             break;
         }
 
@@ -6656,6 +6645,7 @@ static void Menu_RunInput_EntryString_Cancel(/*MenuEntry_t *entry, */MenuString_
 
 static void Menu_RunInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
 {
+#if 0
     const int32_t listytop = object->format[object->currentList]->pos.y;
     const int32_t listybottom = klabs(object->format[object->currentList]->bottomcutoff);
     const int32_t ytop = listytop + object->findhigh[object->currentList]->type * (object->font[object->currentList]->get_yline() + object->getMarginBottom(object->currentList));
@@ -6665,10 +6655,12 @@ static void Menu_RunInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
         object->scrollPos[object->currentList] = ybottom - listybottom;
     else if (ytop - object->scrollPos[object->currentList] < listytop)
         object->scrollPos[object->currentList] = ytop - listytop;
+#endif
 }
 
 static void Menu_RunInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMovement_t direction)
 {
+#if 0
     switch (direction)
     {
         case MM_Up:
@@ -6706,10 +6698,12 @@ static void Menu_RunInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMove
     }
 
     Menu_RunInput_FileSelect_MovementVerify(object);
+#endif
 }
 
 static void Menu_RunInput_FileSelect_Select(MenuFileSelect_t *object)
 {
+#if 0
     if (!object->findhigh[object->currentList])
         return;
 
@@ -6726,6 +6720,7 @@ static void Menu_RunInput_FileSelect_Select(MenuFileSelect_t *object)
     {
         Menu_FileSelect(1);
     }
+#endif
 }
 
 static void Menu_RunInput(Menu_t *cm)
@@ -6793,6 +6788,7 @@ static void Menu_RunInput(Menu_t *cm)
 
         case FileSelect:
         {
+#if 0
             auto *object = (MenuFileSelect_t*)cm->object;
 
             if (I_ReturnTrigger() || Menu_RunInput_MouseReturn())
@@ -6935,7 +6931,7 @@ static void Menu_RunInput(Menu_t *cm)
                     }
                 }
             }
-
+#endif
             Menu_PreInput(NULL);
             break;
         }

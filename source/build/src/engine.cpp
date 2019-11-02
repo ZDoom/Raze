@@ -8261,8 +8261,6 @@ void engineUnInit(void)
     Bmemset(basepaltable, 0, sizeof(basepaltable));
     basepaltable[0] = palette;
 
-    DO_FREE_AND_NULL(kpzbuf);
-
     uninitsystem();
 
     for (bssize_t i = 0; i < num_usermaphacks; i++)

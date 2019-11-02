@@ -439,14 +439,14 @@ typedef struct MenuFileSelect_t
     char *destination;
 
     // state
-    CACHE1D_FIND_REC *findhigh[2];
+    //CACHE1D_FIND_REC *findhigh[2];
     int32_t scrollPos[2];
 
     // appearance
     int32_t marginBottom[2];
 
     // state
-    fnlist_t fnlist;
+    //fnlist_t fnlist;
     int32_t currentList;
 
     int32_t getMarginBottom(size_t index) const { return mulscale16(marginBottom[index], font[index]->zoom); }

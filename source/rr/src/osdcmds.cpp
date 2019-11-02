@@ -161,41 +161,6 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (parm->numparms != 1 || wildcardp)
     {
-        CACHE1D_FIND_REC *r;
-        fnlist_t fnlist = FNLIST_INITIALIZER;
-        int32_t maxwidth = 0;
-
-        if (wildcardp)
-            maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
-        else
-            Bstrcpy(filename, "*.MAP");
-
-        fnlist_getnames(&fnlist, "/", filename, -1, 0);
-
-        for (r=fnlist.findfiles; r; r=r->next)
-            maxwidth = max<int>(maxwidth, Bstrlen(r->name));
-
-        if (maxwidth > 0)
-        {
-            int32_t x = 0;
-            maxwidth += 3;
-            OSD_Printf(OSDTEXT_RED "Map listing:\n");
-            for (r=fnlist.findfiles; r; r=r->next)
-            {
-                OSD_Printf("%-*s",maxwidth,r->name);
-                x += maxwidth;
-                if (x > OSD_GetCols() - maxwidth)
-                {
-                    x = 0;
-                    OSD_Printf("\n");
-                }
-            }
-            if (x) OSD_Printf("\n");
-            OSD_Printf(OSDTEXT_RED "Found %d maps\n", fnlist.numfiles);
-        }
-
-        fnlist_clearnames(&fnlist);
-
         return OSDCMD_SHOWHELP;
     }
 

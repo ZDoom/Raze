@@ -73,12 +73,9 @@ static int mode = TAB_CONFIG;
 
 static TArray<GrpEntry> *gamedata;
 
-static CACHE1D_FIND_REC *finddirs;
 
 static inline void clearfilenames(void)
 {
-    klistfree(finddirs);
-    finddirs = NULL;
 }
 
 static inline void getfilenames(char const *path)

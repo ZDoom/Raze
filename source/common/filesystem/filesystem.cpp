@@ -761,6 +761,28 @@ FileReader FileSystem::ReopenFileReader(int lump, bool alwayscache)
 
 //==========================================================================
 //
+// GetAllFilesOfType
+//
+//==========================================================================
+
+TArray<FString> FileSystem::GetAllFilesOfType(FName type, bool withsubdirs)
+{
+	TArray<FString> found;
+	for (unsigned i = 0; i < FileInfo.Size(); i++)
+	{
+		auto& fi = FileInfo[i];
+		if (fi.lump->ResType() == type)
+		{
+			if (!withsubdirs && fi.lump->LumpName[FResourceLump::BaseNameNoExtType] != fi.lump->LumpName[FResourceLump::FullNameNoExtType]) continue;
+			auto check = FindFile(fi.lump->FullName());
+			if (check == i) found.Push(fi.lump->FullName());
+		}
+	}
+	return found;
+}
+
+//==========================================================================
+//
 // GetResourceFileName
 //
 // Returns the name of the given wad.

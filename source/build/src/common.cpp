@@ -72,40 +72,6 @@ int32_t G_CheckCmdSwitch(int32_t argc, char const * const * argv, const char *st
 }
 
 
-//// FILE NAME / DIRECTORY LISTS ////
-void fnlist_clearnames(fnlist_t *fnl)
-{
-    klistfree(fnl->finddirs);
-    klistfree(fnl->findfiles);
-
-    fnl->finddirs = fnl->findfiles = NULL;
-    fnl->numfiles = fnl->numdirs = 0;
-}
-
-// dirflags, fileflags:
-//  -1 means "don't get dirs/files",
-//  otherwise ORed to flags for respective klistpath
-int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
-                        int32_t dirflags, int32_t fileflags)
-{
-    CACHE1D_FIND_REC *r;
-
-    fnlist_clearnames(fnl);
-
-    if (dirflags != -1)
-        fnl->finddirs = klistpath(dirname, "*", CACHE1D_FIND_DIR|dirflags);
-    if (fileflags != -1)
-        fnl->findfiles = klistpath(dirname, pattern, CACHE1D_FIND_FILE|fileflags);
-
-    for (r=fnl->finddirs; r; r=r->next)
-        fnl->numdirs++;
-    for (r=fnl->findfiles; r; r=r->next)
-        fnl->numfiles++;
-
-    return 0;
-}
-
-
 ////
 
 // Copy FN to WBUF and append an extension if it's not there, which is checked

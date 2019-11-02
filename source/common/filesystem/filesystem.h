@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include "files.h"
 #include "tarray.h"
+#include "name.h"
 #include "zstring.h"
 
 #ifdef FindResource
@@ -107,6 +108,7 @@ public:
 	void AddFromBuffer(const char* name, const char* type, char* data, int size, int id, int flags);
 
 
+	TArray<FString> GetAllFilesOfType(FName type, bool withsubdirs = false);
 	TArray<uint8_t> GetFileData(int file, int pad = 0);	// reads file into a writable buffer and optionally adds some padding at the end. (FileData isn't writable!)
 	FileData ReadFile (int file);
 	FileData ReadFile (const char *name) { return ReadFile (GetFile (name)); }

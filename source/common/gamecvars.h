@@ -106,6 +106,7 @@ EXTERN_CVAR(Int, ScreenBPP)
 EXTERN_CVAR(Bool, adult_lockout)
 EXTERN_CVAR(String, playername)
 EXTERN_CVAR(String, rtsname)
+EXTERN_CVAR(String, usermapfolder)
 
 extern bool gNoAutoLoad;
 extern float r_ambientlightrecip;
