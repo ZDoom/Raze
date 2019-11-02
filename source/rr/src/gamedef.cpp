@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_argv.h"
 
 #include "osd.h"
-#include "crc32_.h"
+#include "m_crc32.h"
 #include "printf.h"
 
 BEGIN_RR_NS

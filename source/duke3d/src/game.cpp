@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "renderlayer.h"
 #include "osdcmds.h"
-#include "crc32_.h"
 #include "network.h"
 #include "menus.h"
 #include "savegame.h"
@@ -5908,8 +5907,6 @@ static void G_Startup(void)
 
     timerInit(TICRATE);
     timerSetCallback(gameTimerHandler);
-
-    initcrc32table();
 
     G_CompileScripts();
 

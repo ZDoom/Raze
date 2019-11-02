@@ -15,7 +15,6 @@
 #include "colmatch.h"
 #include "common.h"
 #include "compat.h"
-#include "crc32_.h"
 #include "engine_priv.h"
 #include "lz4.h"
 #include "osd.h"
@@ -7600,21 +7599,6 @@ static int32_t engineLoadTables(void)
         for (i=0; i<5120; i++)
             qradarang[10239-i] = -qradarang[i];
 
-#ifdef B_LITTLE_ENDIAN
-        i = 0;
-        if (Bcrc32((uint8_t *)sintable, sizeof(sintable), 0) != 0xee1e7aba)
-            i |= 1;
-        if (Bcrc32((uint8_t *)radarang, 640*sizeof(radarang[0]), 0) != 0xee893d92)
-            i |= 2;
-
-        if (i != 0)
-        {
-            static const char *str[3] = { "sine table", "arctangent table",
-                                          "sine and arctangent tables" };
-            initprintf("WARNING: Calculated %s differ%s from original!\n",
-                       str[i-1], i==3 ? "" : "s");
-        }
-#endif
         // TABLES.DAT format:
         //fr.Read(sintable,2048*2);
         //fr.Read(radarang,640*2);
@@ -8113,8 +8097,6 @@ int32_t enginePreInit(void)
     spritesmooth = spritesmooth_s;
 #endif
 
-
-    initcrc32table();
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
     engineInitClipMaps();

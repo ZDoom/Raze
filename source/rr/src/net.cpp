@@ -28,10 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "premap.h"
 #include "savegame.h"
 #include "input.h"
+#include "m_crc32.h"
 
 #include "enet.h"
 #include "lz4.h"
-#include "crc32_.h"
 
 BEGIN_RR_NS
 

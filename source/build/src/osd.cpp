@@ -4,7 +4,6 @@
 
 #include "build.h"
 #include "cache1d.h"
-#include "crc32_.h"
 #include "compat.h"
 #include "baselayer.h"
 #include "osd.h"
@@ -15,6 +14,7 @@
 #include "keyboard.h"
 #include "control.h"
 #include "gamecontrol.h"
+#include "m_crc32.h"
 
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash.h"
