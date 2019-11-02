@@ -5617,7 +5617,7 @@ badindex:
                     int const quoteFilename = *insptr++;
 
                     VM_ASSERT((unsigned)quoteFilename < MAXQUOTES && apStrings[quoteFilename], "invalid quote %d\n", quoteFilename);
-					FStringf IniSection("UserStrings.%s", LumpFilter.GetChars());
+					FStringf IniSection("%s.UserStrings", LumpFilter.GetChars());
 					auto IniKey = apStrings[quoteFilename];
 					if (!GameConfig->SetSection(IniSection))
 					{
@@ -5696,7 +5696,7 @@ badindex:
 					// No, we are not writing stuff to an arbitrary file on the hard drive! This is a first grade exploit for doing serious damage.
 					// Instead, encode the data as BASE64 and write it to the config file, 
 					// which doesn't create a wide open door for exploits.
-					FStringf IniSection("UserStrings.%s", LumpFilter.GetChars());
+					FStringf IniSection("%s.UserStrings", LumpFilter.GetChars());
 					auto IniKey = apStrings[quoteFilename];
 					BufferWriter bw;
 
@@ -5720,7 +5720,7 @@ badindex:
                         default: bw.Write(aGameArrays[arrayNum].pValues, Gv_GetArrayAllocSize(arrayNum)); break;
                     }
 					auto base64 = base64_encode(bw.GetBuffer()->Data(), bw.GetBuffer()->Size());
-					if (GameConfig->SetSection(IniSection))
+					if (GameConfig->SetSection(IniSection, true))
 					{
 						GameConfig->SetValueForKey(IniKey, base64.c_str());
 					}

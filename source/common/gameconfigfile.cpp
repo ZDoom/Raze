@@ -351,13 +351,10 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 	{
 		const char* key;
 		const char* value;
+		OSD_Dispatch("unbindall");
 		while (NextInSection(key, value))
 		{
-			// The unbind here is necessary because the Build console can do multiple assignments and would not lose the original binding.
-			FStringf cmd("unbind %s", key);
-			OSD_Dispatch(cmd);
-
-			cmd.Format("bind %s \"%s\"", key, value);
+			FStringf cmd("bind %s \"%s\"", key, value);
 			OSD_Dispatch(cmd);
 		}
 	}

@@ -448,19 +448,6 @@ int CONFIG_Init()
 	currentGame.Truncate(currentGame.IndexOf("."));
 	CheckFrontend(g_gameType);
 
-	G_ReadConfig(currentGame);
-	if (!GameConfig->IsInitialized())
-	{
-		CONFIG_ReadCombatMacros();
-		CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
-	}
-
-	if (userConfig.CommandName.IsNotEmpty())
-	{
-		playername = userConfig.CommandName;
-	}
-
-
 	int index = 0;
 	for(auto &gf : gamefuncs)
 	{
@@ -475,11 +462,27 @@ int CONFIG_Init()
 		index += 2;
 
 	}
-	SetupButtonFunctions();
+	InitFileSystem(usedgroups);
+
 	CONTROL_ClearAssignments();
 	CONFIG_InitMouseAndController();
 	CONFIG_SetGameControllerDefaultsStandard();
-	InitFileSystem(usedgroups);
+	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
+	SetupButtonFunctions();
+
+	G_ReadConfig(currentGame);
+	if (!GameConfig->IsInitialized())
+	{
+		CONFIG_ReadCombatMacros();
+	}
+
+	if (userConfig.CommandName.IsNotEmpty())
+	{
+		playername = userConfig.CommandName;
+	}
+
+
+
 	return gi->app_main();
 }
 
