@@ -14,7 +14,7 @@
 #include "cache1d.h"
 #include "palette.h"
 #include "a.h"
-#include "xxhash.h"
+#include "superfasthash.h"
 #include "common.h"
 #include "../../glbackend/glbackend.h"
 
@@ -798,17 +798,21 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 	if ((flags & 16) && palfadedelta)  // keep the fade
 		paletteSetFade(palfadedelta >> 2);
 
-	static uint32_t lastpalettesum = 0;
-	uint32_t newpalettesum = XXH32((uint8_t*)curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
-
-	palsumdidchange = (newpalettesum != lastpalettesum);
-
-	if (palsumdidchange || newpalettesum != g_lastpalettesum)
+	// Don't waste time on this palette voodoo if we are hardware rendering. videoUpdatePalette is a strictly software rendering function.
+	if (videoGetRenderMode() < REND_POLYMOST)
 	{
-		videoUpdatePalette(0, 256);
-	}
+		static uint32_t lastpalettesum = 0;
+		uint32_t newpalettesum = SuperFastHash((char*)curpalettefaded, sizeof(curpalettefaded));
 
-	g_lastpalettesum = lastpalettesum = newpalettesum;
+		palsumdidchange = (newpalettesum != lastpalettesum);
+
+		if (palsumdidchange || newpalettesum != g_lastpalettesum)
+		{
+			videoUpdatePalette(0, 256);
+		}
+
+		g_lastpalettesum = lastpalettesum = newpalettesum;
+	}
 
 	if ((flags & 16) == 0)
 	{
@@ -853,15 +857,19 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
 
     paletteSetFade(offset);
 
-    static uint32_t lastpalettesum=0;
-    uint32_t newpalettesum = XXH32((uint8_t *) curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
+	// Don't waste time on this palette voodoo if we are hardware rendering. videoUpdatePalette is a strictly software rendering function.
+	if (videoGetRenderMode() < REND_POLYMOST)
+	{
+		static uint32_t lastpalettesum = 0;
+		uint32_t newpalettesum = SuperFastHash((char*)curpalettefaded, sizeof(curpalettefaded));
 
-    if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
-    {
-        videoUpdatePalette(0, 256);
-    }
+		if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
+		{
+			videoUpdatePalette(0, 256);
+		}
 
-    g_lastpalettesum = lastpalettesum = newpalettesum;
+		g_lastpalettesum = lastpalettesum = newpalettesum;
+	}
 }
 
 #ifdef USE_OPENGL

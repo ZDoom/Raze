@@ -16,9 +16,6 @@
 #include "gamecontrol.h"
 #include "m_crc32.h"
 
-#define XXH_STATIC_LINKING_ONLY
-#include "xxhash.h"
-
 #include "vfs.h"
 
 int osdcmd_bind(osdcmdptr_t parm);
@@ -245,32 +242,13 @@ static int osdfunc_fileinfo(osdcmdptr_t parm)
 
     crctime = timerGetHiTicks() - crctime;
 
-    h.Seek(0, FileReader::SeekSet);
-
-    double xxhtime = timerGetHiTicks();
-
-    XXH32_state_t xxh;
-    XXH32_reset(&xxh, 0x1337);
-
-    do
-    {
-        siz = h.Read(buf, ReadSize);
-        XXH32_update(&xxh, (uint8_t *)buf, siz);
-    }
-    while (siz == ReadSize);
-
-    uint32_t const xxhash = XXH32_digest(&xxh);
-    xxhtime = timerGetHiTicks() - xxhtime;
-
     Xfree(buf);
 
     OSD_Printf("fileinfo: %s\n"
                "  File size: %d bytes\n"
-               "  CRC-32:    %08X (%.1fms)\n"
-               "  xxHash:    %08X (%.1fms)\n",
+               "  CRC-32:    %08X (%.1fms)\n",
                parm->parms[0], (int)h.GetLength(),
-               crcval, crctime,
-               xxhash, xxhtime);
+               crcval, crctime);
 
     return OSDCMD_OK;
 }

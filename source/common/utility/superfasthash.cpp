@@ -125,17 +125,3 @@ uint32_t SuperFastHashI (const char *data, size_t len)
 
 /* ======================================================================== */
 
-unsigned int MakeKey (const char *s)
-{
-	if (s == NULL)
-	{
-		return 0;
-	}
-	return SuperFastHashI (s, strlen (s));
-}
-
-unsigned int MakeKey (const char *s, size_t len)
-{
-	return SuperFastHashI (s, len);
-}
-

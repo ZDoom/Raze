@@ -46,7 +46,6 @@
 #include "name.h"
 //#include "c_dispatch.h"
 #include "filesystem.h"
-#include "superfasthash.h"
 #include "resourcefile.h"
 #include "v_text.h"
 //#include "md5.h"

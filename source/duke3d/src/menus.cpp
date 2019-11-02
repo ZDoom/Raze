@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "osdcmds.h"
 #include "savegame.h"
-#include "xxhash.h"
+#include "superfasthash.h"
 #include "gamecvars.h"
 #include "gamecontrol.h"
 #include "../../glbackend/glbackend.h"
@@ -3464,7 +3464,7 @@ static void Menu_EntryStringActivate(/*MenuEntry_t *entry*/)
         {
             savebrief_t & sv = g_menusaves[M_SAVE.currentEntry-1].brief;
             if (!save_xxh)
-                save_xxh = XXH32((uint8_t *)sv.name, MAXSAVEGAMENAME, 0xDEADBEEF);
+                save_xxh = SuperFastHash(sv.name, MAXSAVEGAMENAME);
             if (sv.isValid())
                 Menu_Change(MENU_SAVEVERIFY);
         }
@@ -3496,7 +3496,7 @@ static int32_t Menu_EntryStringSubmit(/*MenuEntry_t *entry, */char *input)
 #else
         if (input[0] == 0 || (sv.name[MAXSAVEGAMENAME] == 127 &&
             strncmp(sv.name, input, MAXSAVEGAMENAME) == 0 &&
-            save_xxh == XXH32((uint8_t *)sv.name, MAXSAVEGAMENAME, 0xDEADBEEF)))
+            save_xxh == SuperFastHash(sv.name, MAXSAVEGAMENAME)))
 #endif
         {
             strncpy(sv.name, g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
