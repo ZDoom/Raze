@@ -426,7 +426,7 @@ void FileSystem::InitHashChains (void)
 			{
 				hash = int(lump->LumpName[l]) % NumEntries;
 			}
-			else if (l == (int)ELookupMode::IdWithType && lump->ResourceId > 0)
+			else if (l == (int)ELookupMode::IdWithType && lump->ResourceId >= 0)
 			{
 				hash = int(lump->ResourceId) % NumEntries;
 			}
@@ -449,7 +449,7 @@ void FileSystem::AddLump(FResourceLump *lump)
 		{
 			hash = int(lump->LumpName[l]) % NumEntries;
 		}
-		else if (lump->ResourceId > 0)
+		else if (lump->ResourceId >= 0)
 		{
 			hash = int(lump->ResourceId) % NumEntries;
 		}
@@ -933,7 +933,7 @@ bool FileSystem::CreatePathlessCopy(const char *name, int id, int flags)
 	FName fullname = oldlump->LumpName[FResourceLump::FullNameType];
 
 	// If the lump we are about to add already got the right properties, do nothing, aside from loading/locking as requested
-	if (filename == fullname && (id == 0 || id == oldlump->ResourceId))
+	if (filename == fullname && (id == -1 || id == oldlump->ResourceId))
 	{
 		if (flags & DICT_LOCK) oldlump->Lock();
 		else if (flags & DICT_LOAD) oldlump->Get();
