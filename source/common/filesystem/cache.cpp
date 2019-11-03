@@ -1,125 +1,129 @@
-CACHENODE Resource::purgeHead = { NULL, &purgeHead, &purgeHead, 0 };
 
 
-void *Resource::Lock(DICTNODE *h)
+struct CacheNode
 {
-    dassert(h != NULL);
-    if (h->ptr)
-    {
-        if (h->lockCount == 0)
-        {
-            RemoveMRU(h);
-        }
-    }
-    else
-    {
-        h->ptr = Alloc(h->size);
-        Read(h);
-    }
+	size_t size;
+	CacheNode *next, *prev;
+	int lockCount;
+	int lastusetick;	// This is to ensure that a node lives for the duration of the frame it is last axxessed on
+	
+	virtual ~CacheNode();
+	virtual void Purge() = 0;	// needs to be implemented by the child class to allow different types of menory to be used.
+};
 
-    h->lockCount++;
-    return h->ptr;
-}
-
-void Resource::Unlock(DICTNODE *h)
+class Cache
 {
-    dassert(h != NULL);
-    dassert(h->ptr != NULL);
-    if (h->lockCount > 0)
-    {
-        h->lockCount--;
-        if (h->lockCount == 0)
-        {
-            h->prev = purgeHead.prev;
-            purgeHead.prev->next = h;
-            h->next = &purgeHead;
-            purgeHead.prev = h;
-        }
-    }
-}
+	size_t maxSize;
+	size_t currentSize;
+	CacheNode purgeHead;
+	int currenttick;
+
+public:
+	Cache()
+	{
+		maxSize = 100'000'000;
+		currentSize = 0;
+		purgeHead = { 0, &purgeHead, &purgeHead, 0 };
+	}
+	
+	SetSize(size_t newsize)
+	{
+		if (newsize < maxSize) Purge();
+		maxSize = newsize;
+	}
+	
+	void AddToPurgeList(CacheNode *h)
+	{
+		h->prev = purgeHead.prev;
+		purgeHead.prev->next = h;
+		h->next = &purgeHead;
+		purgeHead.prev = h;
+	}
+	
+	void RemoveFromPurgeList(CacheNode *h)
+	{
+		h->prev->next = h->next;
+		h->next->prev = h->prev;
+	}
+	
+	void Alloc(CacheNode *h)
+	{
+		currentSize += h->size;
+		if (currentSize > maxSize)
+		{
+			Purge();
+		}
+		AddToPurgeList(h);
+	}
+	
+	void Release(CacheNode *h)
+	{
+		currentSize -= h->size;
+		RemoveFromPurgeList(h);
+	}
+	
+	void Validata(CacheNode *h)
+	{
+		if (h->LockCount == 0)
+		{
+			// Move node to the top of the linked list.
+			RemoveFromPurgeList(h);
+			AddToPurgeList(h);
+		}
+	}
+	
+	void *Lock(CacheNode *h)
+	{
+		// This merely locks the node. Allocation must be reported separately.
+		assert(h != NULL);
+		if (h->lockCount == 0)
+		{
+			RemoveFromPurgeList(h);
+		}
+
+		h->lockCount++;
+		return h->ptr;
+	}
+
+	void Unlock(CacheNode *h)
+	{
+		assert(h != NULL);
+		if (h->lockCount > 0)
+		{
+			h->lockCount--;
+			if (h->lockCount == 0)
+			{
+				AddToPurgeList();
+				if (currentSize > maxSize)
+				{	
+					Release(h);
+					h->Purge();
+				}
+			}
+		}
+	}
+	
+	void PurgeCache(bool all = false)
+	{
+		// Do not delete from the list while it's being iterated. Better store in a temporary list and delete from there.
+		TArray<CacheNode *> nodesToPurge(10);
+		int purgeSize = 0;
+		for (CacheNode *node = purgeHead.next; node != &purgeHead; node = node->next)
+		{
+			if (node->lastusetick < currenttick)
+			{
+				nodesToPurge.Push(npde);
+				purgeSize += node->size;
+				if (currentSize - purgeSize < maxSize && !all) break;
+			}
+		}
+		for (auto h : nodesToPurge)
+		{
+			Release(h);
+			h->Purge();
+		}			
+	}
+};
 
 
-void Resource::Flush(CACHENODE *h)
-{
-    if (h->ptr)
-    {
-#ifdef USE_QHEAP
-        heap->Free(h->ptr);
-#else
-        delete[] (char*)h->ptr;
-#endif
-        
-        h->ptr = NULL;
-        if (h->lockCount == 0)
-        {
-            RemoveMRU(h);
-            return;
-        }
-        h->lockCount = 0;
-    }
-}
-
-void Resource::Purge(void)
-{
-    for (unsigned int i = 0; i < count; i++)
-    {
-        if (dict[i].ptr)
-        {
-            Flush((CACHENODE *)&dict[i]);
-        }
-    }
-}
-
-void Resource::PurgeCache(void)
-{
-#ifndef USE_QHEAP
-    for (CACHENODE *node = purgeHead.next; node != &purgeHead; node = node->next)
-    {
-        DICTNODE *pDict = (DICTNODE*)node;
-        if (!(pDict->flags & DICT_LOAD))
-        {
-            dassert(pDict->lockCount == 0);
-            dassert(pDict->ptr != NULL);
-            Free(pDict->ptr);
-            pDict->ptr = NULL;
-            RemoveMRU(pDict);
-        }
-    }
-#endif
-}
-
-void *Resource::Load(DICTNODE *h)
-{
-    dassert(h != NULL);
-    if (h->ptr)
-    {
-        if (!h->lockCount)
-        {
-            RemoveMRU(h);
-
-            h->prev = purgeHead.prev;
-            purgeHead.prev->next = h;
-            h->next = &purgeHead;
-            purgeHead.prev = h;
-        }
-    }
-    else
-    {
-        h->ptr = Alloc(h->size);
-        Read(h);
-
-        h->prev = purgeHead.prev;
-        purgeHead.prev->next = h;
-        h->next = &purgeHead;
-        purgeHead.prev = h;
-    }
-    return h->ptr;
-}
-
-
-void Resource::RemoveMRU(CACHENODE *h)
-{
-    h->prev->next = h->next;
-    h->next->prev = h->prev;
-}
 
