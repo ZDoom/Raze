@@ -2594,7 +2594,7 @@ void P_HandleSharedKeys(int playerNum)
     {
         if (TEST_SYNC_KEY(playerBits, SK_PAUSE))
         {
-            KB_ClearKeyDown(sc_Pause);
+            inputState.ClearKeyStatus(sc_Pause);
             if (ud.pause_on)
                 ud.pause_on = 0;
             else ud.pause_on = 1+SHIFTS_IS_PRESSED;

@@ -96,8 +96,6 @@ static const GameFuncNameDesc gamefuncs[] = {
 	{ gamefunc_Toggle_Crouch, "Toggle_Crouch"},
 	{ gamefunc_See_Chase_View, "See_Chase_View"},	// the following were added by Blood
 	{ gamefunc_Turn_Around, "Turn_Around"},
-	{ gamefunc_Weapon_Fire,	"Weapon_Fire"},
-	{ gamefunc_Weapon_Special_Fire,	"Weapon_Special_Fire"},
 	{ gamefunc_Aim_Center, "Aim_Center"},
 	{ gamefunc_Tilt_Left, "Tilt_Left"},
 	{ gamefunc_Tilt_Right, "Tilt_Right"},
@@ -621,7 +619,7 @@ int32_t JoystickAnalogueInvert[MAXJOYAXES];
 
 static const char* mousedefaults[MAXMOUSEBUTTONS] =
 {
-"Weapon_Fire",
+"Fire",
 "Weapon_Special_Fire",
 "",
 "",
@@ -1156,7 +1154,7 @@ FString CONFIG_GetGameFuncOnMouse(int gameFunc)
 	auto keys = Bindings.GetKeysForCommand(binding);
 	for (auto key : keys)
 	{
-		if (key >= KEY_FIRSTMOUSEBUTTON && key < KEY_FIRSTJOYBUTTON)
+		if ((key >= KEY_FIRSTMOUSEBUTTON && key < KEY_FIRSTJOYBUTTON) || (key >= KEY_MWHEELUP && key <= KEY_MWHEELLEFT))
 		{
 			auto scan = KB_ScanCodeToString(key);
 			if (scan) return scan;
@@ -1172,7 +1170,7 @@ char const* CONFIG_GetGameFuncOnJoystick(int gameFunc)
 	auto keys = Bindings.GetKeysForCommand(binding);
 	for (auto key : keys)
 	{
-		if (key >= KEY_FIRSTJOYBUTTON)
+		if (key >= KEY_FIRSTJOYBUTTON && !(key >= KEY_MWHEELUP && key <= KEY_MWHEELLEFT))
 		{
 			auto scan = KB_ScanCodeToString(key);
 			if (scan) return scan;
@@ -1245,9 +1243,9 @@ void CONFIG_InitMouseAndController()
 	}
 	CONFIG_SetupMouse();
 	CONFIG_SetupJoystick();
-	KB_ClearKeysDown();
-	KB_FlushKeyboardQueue();
-	KB_FlushKeyboardQueueScans();
+	inputState.ClearKeysDown();
+	inputState.keyFlushChars();
+	inputState.keyFlushScans();
 }
 
 

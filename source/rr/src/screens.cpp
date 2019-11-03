@@ -1253,7 +1253,7 @@ void G_DisplayRest(int32_t smoothratio)
         gametext_center(70, "Press F1 to Accept, F2 to Decline");
     }
 
-    if (BUTTON(gamefunc_Show_DukeMatch_Scores))
+    if (inputState.BUTTON(gamefunc_Show_DukeMatch_Scores))
         G_ShowScores();
 
     if (g_Debug)
@@ -1321,9 +1321,9 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
     // (end-start)/step + 1 iterations
     do
     {
-        if (KB_KeyPressed(sc_Space))
+        if (inputState.GetKeyStatus(sc_Space))
         {
-            KB_ClearKeyDown(sc_Space);
+            inputState.ClearKeyStatus(sc_Space);
             videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
@@ -1350,9 +1350,9 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
 #ifdef __ANDROID__ //Needed for N7 2013 to stop corruption while fading video
         videoClearViewableArea(0);
 #endif
-        if (KB_KeyPressed(sc_Space))
+        if (inputState.GetKeyStatus(sc_Space))
         {
-            KB_ClearKeyDown(sc_Space);
+            inputState.ClearKeyStatus(sc_Space);
             videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
@@ -1579,7 +1579,7 @@ void G_DisplayLogo(void)
         P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);   // JBF 20040308
         renderFlushPerms();
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BETASCREEN, 0, 0, 2+8+64+BGSTRETCH);
-        KB_FlushKeyboardQueue();
+        inputState.keyFlushChars();
         fadepaltile(0, 0, 0, 252, 0, -28, BETASCREEN);
         totalclock = 0;
 
@@ -2206,7 +2206,7 @@ void G_BonusScreen(int32_t bonusonly)
 
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
     G_FadePalette(0, 0, 0, 252);   // JBF 20031228
-    KB_FlushKeyboardQueue();
+    inputState.keyFlushChars();
     totalclock = 0;
     bonuscnt = 0;
 
@@ -2594,7 +2594,7 @@ void G_BonusScreen(int32_t bonusonly)
                     I_ClearAllInput();
                     if (totalclock < (60*13))
                     {
-                        KB_FlushKeyboardQueue();
+                        inputState.keyFlushChars();
                         totalclock = (60*13);
                     }
                     else if (totalclock < 1000000000)
@@ -2784,7 +2784,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         {
             showMap = 1;
             MUSIC_StopSong();
-            KB_FlushKeyboardQueue();
+            inputState.keyFlushChars();
 
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);
             G_ShowMapFrame();
@@ -2798,7 +2798,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
 
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
     //G_FadePalette(0, 0, 0, 252);   // JBF 20031228
-    KB_FlushKeyboardQueue();
+    inputState.keyFlushChars();
     totalclock = 0;
     bonuscnt = 0;
 
@@ -3104,7 +3104,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
 
                     if (totalclock < (60*13))
                     {
-                        KB_FlushKeyboardQueue();
+                        inputState.keyFlushChars();
                         totalclock = (60*13);
                     }
                     else if (totalclock < 1000000000)

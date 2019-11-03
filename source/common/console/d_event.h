@@ -65,9 +65,12 @@ void D_ProcessEvents(void);
 //
 // GLOBAL VARIABLES
 //
-#define MAXEVENTS		128
+enum
+{
+	NUM_EVENTS = 128
+};
 
-extern	event_t 		events[MAXEVENTS];
+extern	event_t 		events[NUM_EVENTS];
 
 
 #endif

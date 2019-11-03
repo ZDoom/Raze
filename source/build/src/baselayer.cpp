@@ -26,68 +26,11 @@ int32_t g_borderless=2;
 // input
 char    inputdevices = 0;
 
-char    g_keyFIFO[KEYFIFOSIZ];
-char    g_keyAsciiFIFO[KEYFIFOSIZ];
-uint8_t g_keyFIFOpos;
-uint8_t g_keyFIFOend;
-uint8_t g_keyAsciiPos;
-uint8_t g_keyAsciiEnd;
 
 void (*keypresscallback)(int32_t, int32_t);
 
 void keySetCallback(void (*callback)(int32_t, int32_t)) { keypresscallback = callback; }
 
-void keySetState(int32_t key, int32_t state)
-{
-	inputState.SetKeyStatus(key, state);
-	event_t ev = { (uint8_t)(state ? EV_KeyDown : EV_KeyUp), 0, (uint16_t)key };
-
-	D_PostEvent(&ev);
-
-    if (state)
-    {
-        g_keyFIFO[g_keyFIFOend] = key;
-        g_keyFIFO[(g_keyFIFOend+1)&(KEYFIFOSIZ-1)] = state;
-        g_keyFIFOend = ((g_keyFIFOend+2)&(KEYFIFOSIZ-1));
-    }
-}
-
-char keyGetScan(void)
-{
-    if (g_keyFIFOpos == g_keyFIFOend)
-        return 0;
-
-    char const c    = g_keyFIFO[g_keyFIFOpos];
-    g_keyFIFOpos = ((g_keyFIFOpos + 2) & (KEYFIFOSIZ - 1));
-
-    return c;
-}
-
-void keyFlushScans(void)
-{
-    Bmemset(&g_keyFIFO,0,sizeof(g_keyFIFO));
-    g_keyFIFOpos = g_keyFIFOend = 0;
-}
-
-//
-// character-based input functions
-//
-char keyGetChar(void)
-{
-    if (g_keyAsciiPos == g_keyAsciiEnd)
-        return 0;
-
-    char const c    = g_keyAsciiFIFO[g_keyAsciiPos];
-    g_keyAsciiPos = ((g_keyAsciiPos + 1) & (KEYFIFOSIZ - 1));
-
-    return c;
-}
-
-void keyFlushChars(void)
-{
-    Bmemset(&g_keyAsciiFIFO,0,sizeof(g_keyAsciiFIFO));
-    g_keyAsciiPos = g_keyAsciiEnd = 0;
-}
 
 vec2_t  g_mousePos;
 vec2_t  g_mouseAbs;

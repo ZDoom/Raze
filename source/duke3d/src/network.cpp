@@ -5077,9 +5077,9 @@ void Net_SendMessage(void)
 
             mpgametext(mpgametext_x, ud.screen_size > 0 ? (200 - 45) << 16 : (200 - 8) << 16, typebuf, 0, 0, 0, 0);
 
-            if (KB_KeyWaiting())
+            if (inputState.keyBufferWaiting())
             {
-                i = KB_GetCh();
+                i = inputState.keyGetChar();
 
                 if (i == 'A' || i == 'a' || i == 13)
                     g_chatPlayer = ud.multimode;
@@ -5097,17 +5097,17 @@ void Net_SendMessage(void)
                         typebuf[0] = 0;
                 }
 
-                KB_ClearKeyDown(sc_1);
-                KB_ClearKeyDown(sc_2);
-                KB_ClearKeyDown(sc_3);
-                KB_ClearKeyDown(sc_4);
-                KB_ClearKeyDown(sc_5);
-                KB_ClearKeyDown(sc_6);
-                KB_ClearKeyDown(sc_7);
-                KB_ClearKeyDown(sc_8);
-                KB_ClearKeyDown(sc_A);
-                KB_ClearKeyDown(sc_Escape);
-                KB_ClearKeyDown(sc_Enter);
+                inputState.ClearKeyStatus(sc_1);
+                inputState.ClearKeyStatus(sc_2);
+                inputState.ClearKeyStatus(sc_3);
+                inputState.ClearKeyStatus(sc_4);
+                inputState.ClearKeyStatus(sc_5);
+                inputState.ClearKeyStatus(sc_6);
+                inputState.ClearKeyStatus(sc_7);
+                inputState.ClearKeyStatus(sc_8);
+                inputState.ClearKeyStatus(sc_A);
+                inputState.ClearKeyStatus(sc_Escape);
+                inputState.ClearKeyStatus(sc_Enter);
             }
         }
     }
@@ -5127,7 +5127,7 @@ void Net_SendMessage(void)
 
         if (hitstate == 1)
         {
-            KB_ClearKeyDown(sc_Enter);
+            inputState.ClearKeyStatus(sc_Enter);
             if (Bstrlen(typebuf) == 0)
             {
                 g_player[myconnectindex].ps->gm &= ~(MODE_TYPE | MODE_SENDTOWHOM);

@@ -32,31 +32,9 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #include "baselayer.h"	// for the keyboard stuff
 #include "scancodes.h"
+#include "inputstate.h"
+#include "c_bind.h"
 
-extern kb_scancode KB_LastScan;
-
-#define KB_GetLastScanCode() (KB_LastScan)
-#define KB_SetLastScanCode(scancode) \
-    {                                \
-        KB_LastScan = (scancode);    \
-    }
-#define KB_ClearLastScanCode()       \
-    {                                \
-        KB_SetLastScanCode(sc_None); \
-    }
-#define KB_GetCh keyGetChar
-#define KB_KeyWaiting keyBufferWaiting
-#define KB_FlushKeyboardQueue keyFlushChars
-#define KB_FlushKeyboardQueueScans keyFlushScans
-
-static inline void KB_KeyEvent(int32_t scancode, int32_t keypressed)
-{
-    if (keypressed)
-        KB_LastScan = scancode;
-}
-
-void KB_Startup(void);
-void KB_Shutdown(void);
 const char *  KB_ScanCodeToString( int scancode ); // convert scancode into a string
 int KB_StringToScanCode( const char * string );  // convert a string into a scancode
 

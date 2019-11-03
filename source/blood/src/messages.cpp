@@ -580,14 +580,14 @@ void CPlayerMsg::Send(void)
     }
 
     Term();
-    keyFlushScans();
+    inputState.keyFlushScans();
 }
 
 void CPlayerMsg::ProcessKeys(void)
 {
-	if (KB_KeyPressed(sc_Escape)) Term();
+	if (inputState.GetKeyStatus(sc_Escape)) Term();
 #if 0
-    int key = keyGetScan();
+    int key = inputState.keyGetScan();
     int ch;
     if (key != 0)
     {

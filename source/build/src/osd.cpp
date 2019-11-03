@@ -1249,7 +1249,7 @@ void OSD_CaptureInput(int cap)
     mouseGrabInput(cap == 0 ? g_mouseLockedToWindow : 0);
     onshowosd(cap);
 
-    keyFlushChars();
+    inputState.keyFlushChars();
 }
 
 

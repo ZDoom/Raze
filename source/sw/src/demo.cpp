@@ -457,21 +457,21 @@ DemoPlayBack(void)
             // fast forward and slow mo
             if (DemoEdit)
             {
-                if (KB_KeyPressed(KEYSC_F))
+                if (inputState.GetKeyStatus(KEYSC_F))
                 {
-                    if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
+                    if (inputState.GetKeyStatus(KEYSC_LSHIFT) || inputState.GetKeyStatus(KEYSC_RSHIFT))
                         totalclock += synctics;
                     else
                         totalclock += synctics-1;
                 }
 
-                if (KB_KeyPressed(KEYSC_S))
+                if (inputState.GetKeyStatus(KEYSC_S))
                     totalclock += 1-synctics;
             }
             else
             {
 
-                if (BUTTON(gamefunc_See_Coop_View))
+                if (inputState.BUTTON(gamefunc_See_Coop_View))
                 {
                     inputState.ClearButton(gamefunc_See_Coop_View);
 
@@ -497,16 +497,16 @@ DemoPlayBack(void)
 
             // if a key is pressed, start recording from the point the key
             // was pressed
-            if (BUTTON(gamefunc_Move_Forward) ||
-                BUTTON(gamefunc_Move_Backward) ||
-                BUTTON(gamefunc_Turn_Left) ||
-                BUTTON(gamefunc_Turn_Right) ||
-                BUTTON(gamefunc_Fire) ||
-                BUTTON(gamefunc_Open) ||
-                BUTTON(gamefunc_Jump) ||
-                BUTTON(gamefunc_Crouch) ||
-                BUTTON(gamefunc_Look_Up) ||
-                BUTTON(gamefunc_Look_Down))
+            if (inputState.BUTTON(gamefunc_Move_Forward) ||
+                inputState.BUTTON(gamefunc_Move_Backward) ||
+                inputState.BUTTON(gamefunc_Turn_Left) ||
+                inputState.BUTTON(gamefunc_Turn_Right) ||
+                inputState.BUTTON(gamefunc_Fire) ||
+                inputState.BUTTON(gamefunc_Open) ||
+                inputState.BUTTON(gamefunc_Jump) ||
+                inputState.BUTTON(gamefunc_Crouch) ||
+                inputState.BUTTON(gamefunc_Look_Up) ||
+                inputState.BUTTON(gamefunc_Look_Down))
             {
                 DemoBackupBuffer();
 
@@ -517,7 +517,7 @@ DemoPlayBack(void)
             }
         }
 
-        if (BUTTON(gamefunc_See_Co_Op_View))
+        if (inputState.BUTTON(gamefunc_See_Co_Op_View))
         {
             screenpeek += 1;
             if (screenpeek > numplayers-1)

@@ -170,7 +170,7 @@ void G_HandleSpecialKeys(void)
 
 //    CONTROL_ProcessBinds();
 
-    if (/*g_networkMode != NET_DEDICATED_SERVER && */ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
+    if (/*g_networkMode != NET_DEDICATED_SERVER && */ALT_IS_PRESSED && inputState.GetKeyStatus(sc_Enter))
     {
         if (videoSetGameMode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,ud.detail))
         {
@@ -179,14 +179,14 @@ void G_HandleSpecialKeys(void)
                 G_GameExit("Failed to recover from failure to set fullscreen video mode.\n");
         }
         else ScreenMode = !ScreenMode;
-        KB_ClearKeyDown(sc_Enter);
+        inputState.ClearKeyStatus(sc_Enter);
         g_restorePalette = 1;
         G_UpdateScreenArea();
     }
 
-    if (KB_UnBoundKeyPressed(sc_F12))
+    if (inputState.UnboundKeyPressed(sc_F12))
     {
-        KB_ClearKeyDown(sc_F12);
+        inputState.ClearKeyStatus(sc_F12);
         videoCaptureScreen();
         P_DoQuote(QUOTE_SCREEN_SAVED, g_player[myconnectindex].ps);
     }
@@ -195,7 +195,7 @@ void G_HandleSpecialKeys(void)
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         OSD_DispatchQueued();
 
-    if (g_quickExit == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && (KB_KeyPressed(sc_Delete)||KB_KeyPressed(sc_End)))
+    if (g_quickExit == 0 && inputState.GetKeyStatus(sc_LeftControl) && inputState.GetKeyStatus(sc_LeftAlt) && (inputState.GetKeyStatus(sc_Delete)||inputState.GetKeyStatus(sc_End)))
     {
         g_quickExit = 1;
         G_GameExit("Quick Exit.");
@@ -6034,18 +6034,18 @@ void G_HandleLocalKeys(void)
 
     if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
     {
-        if (KB_UnBoundKeyPressed(sc_F1) || KB_UnBoundKeyPressed(sc_F2) || cl_autovote)
+        if (inputState.UnboundKeyPressed(sc_F1) || inputState.UnboundKeyPressed(sc_F2) || cl_autovote)
         {
             G_AddUserQuote("Vote Cast");
-            Net_SendMapVote(KB_UnBoundKeyPressed(sc_F1) || cl_autovote ? cl_autovote-1 : 0);
-            KB_ClearKeyDown(sc_F1);
-            KB_ClearKeyDown(sc_F2);
+            Net_SendMapVote(inputState.UnboundKeyPressed(sc_F1) || cl_autovote ? cl_autovote-1 : 0);
+            inputState.ClearKeyStatus(sc_F1);
+            inputState.ClearKeyStatus(sc_F2);
         }
     }
 
     if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (g_player[myconnectindex].ps->gm & MODE_TYPE) == 0)
     {
-        if (BUTTON(gamefunc_Enlarge_Screen))
+        if (inputState.BUTTON(gamefunc_Enlarge_Screen))
         {
             inputState.ClearButton(gamefunc_Enlarge_Screen);
 
@@ -6064,7 +6064,7 @@ void G_HandleLocalKeys(void)
             G_UpdateScreenArea();
         }
 
-        if (BUTTON(gamefunc_Shrink_Screen))
+        if (inputState.BUTTON(gamefunc_Shrink_Screen))
         {
             inputState.ClearButton(gamefunc_Shrink_Screen);
 
@@ -6087,7 +6087,7 @@ void G_HandleLocalKeys(void)
     if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)))
         return;
 
-    if (BUTTON(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
+    if (inputState.BUTTON(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
     {
         inputState.ClearButton(gamefunc_See_Coop_View);
         screenpeek = connectpoint2[screenpeek];
@@ -6095,21 +6095,21 @@ void G_HandleLocalKeys(void)
         g_restorePalette = -1;
     }
 
-    if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_Show_Opponents_Weapon))
+    if ((g_netServer || ud.multimode > 1) && inputState.BUTTON(gamefunc_Show_Opponents_Weapon))
     {
         inputState.ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.config.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
         P_DoQuote(QUOTE_WEAPON_MODE_OFF-ud.showweapons,g_player[screenpeek].ps);
     }
 
-    if (BUTTON(gamefunc_Toggle_Crosshair))
+    if (inputState.BUTTON(gamefunc_Toggle_Crosshair))
     {
         inputState.ClearButton(gamefunc_Toggle_Crosshair);
         cl_crosshair = !cl_crosshair;
         P_DoQuote(QUOTE_CROSSHAIR_OFF-cl_crosshair,g_player[screenpeek].ps);
     }
 
-    if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode))
+    if (ud.overhead_on && inputState.BUTTON(gamefunc_Map_Follow_Mode))
     {
         inputState.ClearButton(gamefunc_Map_Follow_Mode);
         ud.scrollmode = 1-ud.scrollmode;
@@ -6122,9 +6122,9 @@ void G_HandleLocalKeys(void)
         P_DoQuote(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
     }
 
-    if (KB_UnBoundKeyPressed(sc_ScrollLock))
+    if (inputState.UnboundKeyPressed(sc_ScrollLock))
     {
-        KB_ClearKeyDown(sc_ScrollLock);
+        inputState.ClearKeyStatus(sc_ScrollLock);
 
         switch (ud.recstat)
         {
@@ -6140,9 +6140,9 @@ void G_HandleLocalKeys(void)
 
     if (ud.recstat == 2)
     {
-        if (KB_KeyPressed(sc_Space))
+        if (inputState.GetKeyStatus(sc_Space))
         {
-            KB_ClearKeyDown(sc_Space);
+            inputState.ClearKeyStatus(sc_Space);
 
             g_demo_paused = !g_demo_paused;
             g_demo_rewind = 0;
@@ -6151,18 +6151,18 @@ void G_HandleLocalKeys(void)
                 FX_StopAllSounds();
         }
 
-        if (KB_KeyPressed(sc_Tab))
+        if (inputState.GetKeyStatus(sc_Tab))
         {
-            KB_ClearKeyDown(sc_Tab);
+            inputState.ClearKeyStatus(sc_Tab);
             g_demo_showStats = !g_demo_showStats;
         }
 
 #if 0
-        if (KB_KeyPressed(sc_kpad_Plus))
+        if (inputState.GetKeyStatus(sc_kpad_Plus))
         {
             G_InitTimer(240);
         }
-        else if (KB_KeyPressed(sc_kpad_Minus))
+        else if (inputState.GetKeyStatus(sc_kpad_Minus))
         {
             G_InitTimer(60);
         }
@@ -6172,9 +6172,9 @@ void G_HandleLocalKeys(void)
         }
 #endif
 
-        if (KB_KeyPressed(sc_kpad_6))
+        if (inputState.GetKeyStatus(sc_kpad_6))
         {
-            KB_ClearKeyDown(sc_kpad_6);
+            inputState.ClearKeyStatus(sc_kpad_6);
 
             int const fwdTics = (15 << (int)ALT_IS_PRESSED) << (2 * (int)SHIFTS_IS_PRESSED);
             g_demo_goalCnt    = g_demo_paused ? g_demo_cnt + 1 : g_demo_cnt + REALGAMETICSPERSEC * fwdTics;
@@ -6185,9 +6185,9 @@ void G_HandleLocalKeys(void)
             else
                 Demo_PrepareWarp();
         }
-        else if (KB_KeyPressed(sc_kpad_4))
+        else if (inputState.GetKeyStatus(sc_kpad_4))
         {
-            KB_ClearKeyDown(sc_kpad_4);
+            inputState.ClearKeyStatus(sc_kpad_4);
 
             int const rewindTics = (15 << (int)ALT_IS_PRESSED) << (2 * (int)SHIFTS_IS_PRESSED);
             g_demo_goalCnt       = g_demo_paused ? g_demo_cnt - 1 : g_demo_cnt - REALGAMETICSPERSEC * rewindTics;
@@ -6206,9 +6206,9 @@ void G_HandleLocalKeys(void)
 
         // NOTE: sc_F1 .. sc_F10 are contiguous. sc_F11 is not sc_F10+1.
         for (bssize_t j=sc_F1; j<=sc_F10; j++)
-            if (KB_UnBoundKeyPressed(j))
+            if (inputState.UnboundKeyPressed(j))
             {
-                KB_ClearKeyDown(j);
+                inputState.ClearKeyStatus(j);
                 ridiculeNum = j - sc_F1 + 1;
                 break;
             }
@@ -6257,17 +6257,17 @@ void G_HandleLocalKeys(void)
 
     if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED && !WIN_IS_PRESSED)
     {
-        if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_SendMessage))
+        if ((g_netServer || ud.multimode > 1) && inputState.BUTTON(gamefunc_SendMessage))
         {
-            KB_FlushKeyboardQueue();
+            inputState.keyFlushChars();
             inputState.ClearButton(gamefunc_SendMessage);
             g_player[myconnectindex].ps->gm |= MODE_TYPE;
             typebuf[0] = 0;
         }
 
-        if (KB_UnBoundKeyPressed(sc_F1)/* || (ud.show_help && I_AdvanceTrigger())*/)
+        if (inputState.UnboundKeyPressed(sc_F1)/* || (ud.show_help && I_AdvanceTrigger())*/)
         {
-            KB_ClearKeyDown(sc_F1);
+            inputState.ClearKeyStatus(sc_F1);
 
             Menu_Change(MENU_STORY);
             S_PauseSounds(true);
@@ -6283,9 +6283,9 @@ void G_HandleLocalKeys(void)
 
         //        if((!net_server && ud.multimode < 2))
         {
-            if (ud.recstat != 2 && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && KB_UnBoundKeyPressed(sc_F2))
+            if (ud.recstat != 2 && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && inputState.UnboundKeyPressed(sc_F2))
             {
-                KB_ClearKeyDown(sc_F2);
+                inputState.ClearKeyStatus(sc_F2);
 
 FAKE_F2:
                 if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
@@ -6307,9 +6307,9 @@ FAKE_F2:
                 }
             }
 
-            if ((!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && KB_UnBoundKeyPressed(sc_F3))
+            if ((!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && inputState.UnboundKeyPressed(sc_F3))
             {
-                KB_ClearKeyDown(sc_F3);
+                inputState.ClearKeyStatus(sc_F3);
 
 FAKE_F3:
                 Menu_Change(MENU_LOAD);
@@ -6326,9 +6326,9 @@ FAKE_F3:
             }
         }
 
-        if (KB_UnBoundKeyPressed(sc_F4))
+        if (inputState.UnboundKeyPressed(sc_F4))
         {
-            KB_ClearKeyDown(sc_F4);
+            inputState.ClearKeyStatus(sc_F4);
 
             S_PauseSounds(true);
             Menu_Open(myconnectindex);
@@ -6342,12 +6342,12 @@ FAKE_F3:
             Menu_Change(MENU_SOUND_INGAME);
         }
 
-        if (KB_UnBoundKeyPressed(sc_F5) && MusicEnabled())
+        if (inputState.UnboundKeyPressed(sc_F5) && MusicEnabled())
         {
             map_t *const pMapInfo    = &g_mapInfo[g_musicIndex];
             char *const  musicString = apStrings[QUOTE_MUSIC];
 
-            KB_ClearKeyDown(sc_F5);
+            inputState.ClearKeyStatus(sc_F5);
 
             if (pMapInfo->musicfn != NULL)
                 Bsnprintf(musicString, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.", pMapInfo->musicfn);
@@ -6357,7 +6357,7 @@ FAKE_F3:
             P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
         }
 
-        if ((BUTTON(gamefunc_Quick_Save) || g_doQuickSave == 1) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((inputState.BUTTON(gamefunc_Quick_Save) || g_doQuickSave == 1) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
             inputState.ClearButton(gamefunc_Quick_Save);
 
@@ -6366,7 +6366,7 @@ FAKE_F3:
             if (!g_lastusersave.isValid())
                 goto FAKE_F2;
 
-            KB_FlushKeyboardQueue();
+            inputState.keyFlushChars();
 
             if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
             {
@@ -6394,7 +6394,7 @@ FAKE_F3:
             }
         }
         
-        if (BUTTON(gamefunc_Third_Person_View))
+        if (inputState.BUTTON(gamefunc_Third_Person_View))
         {
             inputState.ClearButton(gamefunc_Third_Person_View);
 
@@ -6409,9 +6409,9 @@ FAKE_F3:
             }
         }
 
-        if (KB_UnBoundKeyPressed(sc_F8))
+        if (inputState.UnboundKeyPressed(sc_F8))
         {
-            KB_ClearKeyDown(sc_F8);
+            inputState.ClearKeyStatus(sc_F8);
 
             int const fta = !ud.fta_on;
             ud.fta_on     = 1;
@@ -6419,7 +6419,7 @@ FAKE_F3:
             ud.fta_on     = fta;
         }
 
-        if ((BUTTON(gamefunc_Quick_Load) || g_doQuickSave == 2) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((inputState.BUTTON(gamefunc_Quick_Load) || g_doQuickSave == 2) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
             inputState.ClearButton(gamefunc_Quick_Load);
 
@@ -6429,17 +6429,17 @@ FAKE_F3:
                 goto FAKE_F3;
             else if (g_quickload->isValid())
             {
-                KB_FlushKeyboardQueue();
-                KB_ClearKeysDown();
+                inputState.keyFlushChars();
+                inputState.ClearKeysDown();
                 S_PauseSounds(true);
                 if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
                     g_quickload->reset();
             }
         }
 
-        if (KB_UnBoundKeyPressed(sc_F10))
+        if (inputState.UnboundKeyPressed(sc_F10))
         {
-            KB_ClearKeyDown(sc_F10);
+            inputState.ClearKeyStatus(sc_F10);
 
             Menu_Change(MENU_QUIT_INGAME);
             S_PauseSounds(true);
@@ -6452,9 +6452,9 @@ FAKE_F3:
             }
         }
 
-        if (KB_UnBoundKeyPressed(sc_F11))
+        if (inputState.UnboundKeyPressed(sc_F11))
         {
-            KB_ClearKeyDown(sc_F11);
+            inputState.ClearKeyStatus(sc_F11);
 
             Menu_Change(MENU_COLCORR_INGAME);
             S_PauseSounds(true);
@@ -6472,10 +6472,10 @@ FAKE_F3:
             int const timerOffset = ((int) totalclock - nonsharedtimer);
             nonsharedtimer += timerOffset;
 
-            if (BUTTON(gamefunc_Enlarge_Screen))
+            if (inputState.BUTTON(gamefunc_Enlarge_Screen))
                 g_player[myconnectindex].ps->zoom += mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
 
-            if (BUTTON(gamefunc_Shrink_Screen))
+            if (inputState.BUTTON(gamefunc_Shrink_Screen))
                 g_player[myconnectindex].ps->zoom -= mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
 
             g_player[myconnectindex].ps->zoom = clamp(g_player[myconnectindex].ps->zoom, 48, 2048);
@@ -6491,14 +6491,14 @@ FAKE_F3:
         G_UpdateScreenArea();
     }
 
-    if (BUTTON(gamefunc_AutoRun))
+    if (inputState.BUTTON(gamefunc_AutoRun))
     {
         inputState.ClearButton(gamefunc_AutoRun);
 		cl_autorun = !cl_autorun;
         P_DoQuote(QUOTE_RUN_MODE_OFF+cl_autorun,g_player[myconnectindex].ps);
     }
 
-    if (BUTTON(gamefunc_Map))
+    if (inputState.BUTTON(gamefunc_Map))
     {
         inputState.ClearButton(gamefunc_Map);
         if (ud.last_overhead != ud.overhead_on && ud.last_overhead)
@@ -7440,7 +7440,7 @@ void G_BackToMenu(void)
     g_player[myconnectindex].ps->gm = 0;
     Menu_Open(myconnectindex);
     Menu_Change(MENU_MAIN);
-    KB_FlushKeyboardQueue();
+    inputState.keyFlushChars();
 }
 
 static int G_EndOfLevel(void)
@@ -8003,7 +8003,7 @@ MAIN_LOOP_RESTART:
         // handle CON_SAVE and CON_SAVENN
         if (g_saveRequested)
         {
-            KB_FlushKeyboardQueue();
+            inputState.keyFlushChars();
             videoNextPage();
 
             g_screenCapture = 1;

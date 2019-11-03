@@ -2894,7 +2894,7 @@ void P_GetInput(int const playerNum)
     auto const pPlayer = g_player[playerNum].ps;
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !KB_KeyPressed(sc_Pause)))
+    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -2910,11 +2910,11 @@ void P_GetInput(int const playerNum)
     D_ProcessEvents();
 
     if (in_aimmode)
-        g_MyAimMode = BUTTON(gamefunc_Mouse_Aiming);
+        g_MyAimMode = inputState.BUTTON(gamefunc_Mouse_Aiming);
     else
     {
         g_oldAimStat = g_myAimStat;
-        g_myAimStat  = BUTTON(gamefunc_Mouse_Aiming);
+        g_myAimStat  = inputState.BUTTON(gamefunc_Mouse_Aiming);
 
         if (g_myAimStat > g_oldAimStat)
         {
@@ -2947,7 +2947,7 @@ void P_GetInput(int const playerNum)
     }
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = G_CheckAutorun(BUTTON(gamefunc_Run));
+    int const playerRunning = G_CheckAutorun(inputState.BUTTON(gamefunc_Run));
     int const turnAmount = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
     constexpr int const analogTurnAmount = (NORMALTURN << 1);
     int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
@@ -2955,7 +2955,7 @@ void P_GetInput(int const playerNum)
 
     input_t input {};
 
-    if (BUTTON(gamefunc_Strafe))
+    if (inputState.BUTTON(gamefunc_Strafe))
     {
         static int strafeyaw;
 
@@ -2981,12 +2981,12 @@ void P_GetInput(int const playerNum)
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    if (BUTTON(gamefunc_Strafe))
+    if (inputState.BUTTON(gamefunc_Strafe))
     {
-        if (BUTTON(gamefunc_Turn_Left) && !(pPlayer->movement_lock&4))
+        if (inputState.BUTTON(gamefunc_Turn_Left) && !(pPlayer->movement_lock&4))
             input.svel -= -keyMove;
 
-        if (BUTTON(gamefunc_Turn_Right) && !(pPlayer->movement_lock&8))
+        if (inputState.BUTTON(gamefunc_Turn_Right) && !(pPlayer->movement_lock&8))
             input.svel -= keyMove;
     }
     else
@@ -2997,12 +2997,12 @@ void P_GetInput(int const playerNum)
 
         lastInputClock = (int32_t) totalclock;
 
-        if (BUTTON(gamefunc_Turn_Left))
+        if (inputState.BUTTON(gamefunc_Turn_Left))
         {
             turnHeldTime += elapsedTics;
             input.q16avel -= fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
         }
-        else if (BUTTON(gamefunc_Turn_Right))
+        else if (inputState.BUTTON(gamefunc_Turn_Right))
         {
             turnHeldTime += elapsedTics;
             input.q16avel += fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
@@ -3011,16 +3011,16 @@ void P_GetInput(int const playerNum)
             turnHeldTime=0;
     }
 
-    if (BUTTON(gamefunc_Strafe_Left) && !(pPlayer->movement_lock & 4))
+    if (inputState.BUTTON(gamefunc_Strafe_Left) && !(pPlayer->movement_lock & 4))
         input.svel += keyMove;
 
-    if (BUTTON(gamefunc_Strafe_Right) && !(pPlayer->movement_lock & 8))
+    if (inputState.BUTTON(gamefunc_Strafe_Right) && !(pPlayer->movement_lock & 8))
         input.svel += -keyMove;
 
-    if (BUTTON(gamefunc_Move_Forward) && !(pPlayer->movement_lock & 1))
+    if (inputState.BUTTON(gamefunc_Move_Forward) && !(pPlayer->movement_lock & 1))
         input.fvel += keyMove;
 
-    if (BUTTON(gamefunc_Move_Backward) && !(pPlayer->movement_lock & 2))
+    if (inputState.BUTTON(gamefunc_Move_Backward) && !(pPlayer->movement_lock & 2))
         input.fvel += -keyMove;
 
     input.fvel = clamp(input.fvel, -MAXVEL, MAXVEL);
@@ -3033,31 +3033,31 @@ void P_GetInput(int const playerNum)
 
     for (weaponSelection = gamefunc_Weapon_10; weaponSelection >= gamefunc_Weapon_1; --weaponSelection)
     {
-        if (BUTTON(weaponSelection))
+        if (inputState.BUTTON(weaponSelection))
         {
             weaponSelection -= (gamefunc_Weapon_1 - 1);
             break;
         }
     }
 
-    if (BUTTON(gamefunc_Last_Weapon))
+    if (inputState.BUTTON(gamefunc_Last_Weapon))
         weaponSelection = 14;
-    else if (BUTTON(gamefunc_Alt_Weapon))
+    else if (inputState.BUTTON(gamefunc_Alt_Weapon))
         weaponSelection = 13;
-    else if (BUTTON(gamefunc_Next_Weapon) || (BUTTON(gamefunc_Dpad_Select) && input.fvel > 0))
+    else if (inputState.BUTTON(gamefunc_Next_Weapon) || (inputState.BUTTON(gamefunc_Dpad_Select) && input.fvel > 0))
         weaponSelection = 12;
-    else if (BUTTON(gamefunc_Previous_Weapon) || (BUTTON(gamefunc_Dpad_Select) && input.fvel < 0))
+    else if (inputState.BUTTON(gamefunc_Previous_Weapon) || (inputState.BUTTON(gamefunc_Dpad_Select) && input.fvel < 0))
         weaponSelection = 11;
     else if (weaponSelection == gamefunc_Weapon_1-1)
         weaponSelection = 0;
 
-    localInput.bits = (weaponSelection << SK_WEAPON_BITS) | (BUTTON(gamefunc_Fire) << SK_FIRE);
-    localInput.bits |= (BUTTON(gamefunc_Open) << SK_OPEN);
+    localInput.bits = (weaponSelection << SK_WEAPON_BITS) | (inputState.BUTTON(gamefunc_Fire) << SK_FIRE);
+    localInput.bits |= (inputState.BUTTON(gamefunc_Open) << SK_OPEN);
 
     int const sectorLotag = pPlayer->cursectnum != -1 ? sector[pPlayer->cursectnum].lotag : 0;
     int const crouchable = sectorLotag != 2 && (sectorLotag != 1 || pPlayer->spritebridge);
 
-    if (pPlayer->cheat_phase == 0 && BUTTON(gamefunc_Toggle_Crouch))
+    if (pPlayer->cheat_phase == 0 && inputState.BUTTON(gamefunc_Toggle_Crouch))
     {
         pPlayer->crouch_toggle = !pPlayer->crouch_toggle && crouchable;
 
@@ -3065,58 +3065,58 @@ void P_GetInput(int const playerNum)
             inputState.ClearButton(gamefunc_Toggle_Crouch);
     }
 
-    if (BUTTON(gamefunc_Crouch) || BUTTON(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
+    if (inputState.BUTTON(gamefunc_Crouch) || inputState.BUTTON(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
         pPlayer->crouch_toggle = 0;
 
-    int const crouching = BUTTON(gamefunc_Crouch) || BUTTON(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle;
+    int const crouching = inputState.BUTTON(gamefunc_Crouch) || inputState.BUTTON(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle;
 
-    localInput.bits |= (BUTTON(gamefunc_Jump) << SK_JUMP) | (crouching << SK_CROUCH);
+    localInput.bits |= (inputState.BUTTON(gamefunc_Jump) << SK_JUMP) | (crouching << SK_CROUCH);
 
-    localInput.bits |= (BUTTON(gamefunc_Aim_Up) || (BUTTON(gamefunc_Dpad_Aiming) && input.fvel > 0)) << SK_AIM_UP;
-    localInput.bits |= (BUTTON(gamefunc_Aim_Down) || (BUTTON(gamefunc_Dpad_Aiming) && input.fvel < 0)) << SK_AIM_DOWN;
-    localInput.bits |= (BUTTON(gamefunc_Center_View) << SK_CENTER_VIEW);
+    localInput.bits |= (inputState.BUTTON(gamefunc_Aim_Up) || (inputState.BUTTON(gamefunc_Dpad_Aiming) && input.fvel > 0)) << SK_AIM_UP;
+    localInput.bits |= (inputState.BUTTON(gamefunc_Aim_Down) || (inputState.BUTTON(gamefunc_Dpad_Aiming) && input.fvel < 0)) << SK_AIM_DOWN;
+    localInput.bits |= (inputState.BUTTON(gamefunc_Center_View) << SK_CENTER_VIEW);
 
-    localInput.bits |= (BUTTON(gamefunc_Look_Left) << SK_LOOK_LEFT) | (BUTTON(gamefunc_Look_Right) << SK_LOOK_RIGHT);
-    localInput.bits |= (BUTTON(gamefunc_Look_Up) << SK_LOOK_UP) | (BUTTON(gamefunc_Look_Down) << SK_LOOK_DOWN);
+    localInput.bits |= (inputState.BUTTON(gamefunc_Look_Left) << SK_LOOK_LEFT) | (inputState.BUTTON(gamefunc_Look_Right) << SK_LOOK_RIGHT);
+    localInput.bits |= (inputState.BUTTON(gamefunc_Look_Up) << SK_LOOK_UP) | (inputState.BUTTON(gamefunc_Look_Down) << SK_LOOK_DOWN);
 
     localInput.bits |= (playerRunning << SK_RUN);
 
-    localInput.bits |= (BUTTON(gamefunc_Inventory_Left) || (BUTTON(gamefunc_Dpad_Select) && (input.svel > 0 || input.q16avel < 0))) << SK_INV_LEFT;
-    localInput.bits |= (BUTTON(gamefunc_Inventory_Right) || (BUTTON(gamefunc_Dpad_Select) && (input.svel < 0 || input.q16avel > 0))) << SK_INV_RIGHT;
-    localInput.bits |= (BUTTON(gamefunc_Inventory) << SK_INVENTORY);
+    localInput.bits |= (inputState.BUTTON(gamefunc_Inventory_Left) || (inputState.BUTTON(gamefunc_Dpad_Select) && (input.svel > 0 || input.q16avel < 0))) << SK_INV_LEFT;
+    localInput.bits |= (inputState.BUTTON(gamefunc_Inventory_Right) || (inputState.BUTTON(gamefunc_Dpad_Select) && (input.svel < 0 || input.q16avel > 0))) << SK_INV_RIGHT;
+    localInput.bits |= (inputState.BUTTON(gamefunc_Inventory) << SK_INVENTORY);
 
-    localInput.bits |= (BUTTON(gamefunc_Steroids) << SK_STEROIDS) | (BUTTON(gamefunc_NightVision) << SK_NIGHTVISION);
-    localInput.bits |= (BUTTON(gamefunc_MedKit) << SK_MEDKIT) | (BUTTON(gamefunc_Holo_Duke) << SK_HOLODUKE);
-    localInput.bits |= (BUTTON(gamefunc_Jetpack) << SK_JETPACK);
+    localInput.bits |= (inputState.BUTTON(gamefunc_Steroids) << SK_STEROIDS) | (inputState.BUTTON(gamefunc_NightVision) << SK_NIGHTVISION);
+    localInput.bits |= (inputState.BUTTON(gamefunc_MedKit) << SK_MEDKIT) | (inputState.BUTTON(gamefunc_Holo_Duke) << SK_HOLODUKE);
+    localInput.bits |= (inputState.BUTTON(gamefunc_Jetpack) << SK_JETPACK);
 
-    localInput.bits |= BUTTON(gamefunc_Holster_Weapon) << SK_HOLSTER;
-    localInput.bits |= BUTTON(gamefunc_Quick_Kick) << SK_QUICK_KICK;
-    localInput.bits |= BUTTON(gamefunc_TurnAround) << SK_TURNAROUND;
+    localInput.bits |= inputState.BUTTON(gamefunc_Holster_Weapon) << SK_HOLSTER;
+    localInput.bits |= inputState.BUTTON(gamefunc_Quick_Kick) << SK_QUICK_KICK;
+    localInput.bits |= inputState.BUTTON(gamefunc_TurnAround) << SK_TURNAROUND;
 
     localInput.bits |= (g_MyAimMode << SK_AIMMODE);
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
-    localInput.bits |= KB_KeyPressed(sc_Pause) << SK_PAUSE;
-    localInput.bits |= ((uint32_t)KB_KeyPressed(sc_Escape)) << SK_ESCAPE;
+    localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
+    localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE;
 
-    if (BUTTON(gamefunc_Dpad_Select))
+    if (inputState.BUTTON(gamefunc_Dpad_Select))
     {
         input.fvel = 0;
         input.svel = 0;
         input.q16avel = 0;
     }
-    else if (BUTTON(gamefunc_Dpad_Aiming))
+    else if (inputState.BUTTON(gamefunc_Dpad_Aiming))
         input.fvel = 0;
 
-    if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
+    if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_SEMIAUTO && inputState.BUTTON(gamefunc_Fire))
         inputState.ClearButton(gamefunc_Fire);
 
-    localInput.extbits = (BUTTON(gamefunc_Move_Forward) || (input.fvel > 0));
-    localInput.extbits |= (BUTTON(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
-    localInput.extbits |= (BUTTON(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
-    localInput.extbits |= (BUTTON(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
-    localInput.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
-    localInput.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
-    localInput.extbits |= BUTTON(gamefunc_Alt_Fire)<<6;
+    localInput.extbits = (inputState.BUTTON(gamefunc_Move_Forward) || (input.fvel > 0));
+    localInput.extbits |= (inputState.BUTTON(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
+    localInput.extbits |= (inputState.BUTTON(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
+    localInput.extbits |= (inputState.BUTTON(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
+    localInput.extbits |= inputState.BUTTON(gamefunc_Turn_Left)<<4;
+    localInput.extbits |= inputState.BUTTON(gamefunc_Turn_Right)<<5;
+    localInput.extbits |= inputState.BUTTON(gamefunc_Alt_Fire)<<6;
 
     if (ud.scrollmode && ud.overhead_on)
     {

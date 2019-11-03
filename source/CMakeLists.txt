@@ -717,7 +717,6 @@ set (PCH_SOURCES
 	mact/src/animlib.cpp
 	mact/src/control.cpp
 	mact/src/joystick.cpp
-	mact/src/keyboard.cpp
 	mact/src/input.cpp
 	
 	thirdparty/src/base64.cpp

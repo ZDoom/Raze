@@ -528,7 +528,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
 
         if (!statustext)
         {
-            KB_FlushKeyboardQueue();
+            inputState.keyFlushChars();
             ud.screen_size = i;
         }
     }
@@ -2205,9 +2205,9 @@ static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t e
             sampletimer();
         nexttic += ticwait;
 
-        if (KB_KeyPressed(sc_Space))
+        if (inputState.GetKeyStatus(sc_Space))
         {
-            KB_ClearKeyDown(sc_Space);
+            inputState.ClearKeyStatus(sc_Space);
             return;
         }
 

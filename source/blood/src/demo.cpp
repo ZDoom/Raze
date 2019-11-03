@@ -289,7 +289,7 @@ void CDemo::ProcessKeys(void)
     case kInputGame:
     {
         char nKey;
-        while ((nKey = keyGetScan()) != 0)
+        while ((nKey = inputState.keyGetScan()) != 0)
         {
             switch (nKey)
             {

@@ -409,7 +409,7 @@ void PreloadCache(void)
     int cnt = 0;
     int percentDisplayed = -1;
 
-    for (int i=0; i<kMaxTiles && !KB_KeyPressed(sc_Space); i++)
+    for (int i=0; i<kMaxTiles && !inputState.GetKeyStatus(sc_Space); i++)
     {
         if (TestBitString(gotpic, i))
         {
@@ -817,7 +817,7 @@ void LocalKeys(void)
     bool alt = inputState.AltPressed();
     bool ctrl = inputState.CtrlPressed();
     bool shift = inputState.ShiftPressed();
-    if (BUTTON(gamefunc_See_Chase_View) && !alt && !shift)
+    if (inputState.BUTTON(gamefunc_See_Chase_View) && !alt && !shift)
     {
         inputState.ClearButton(gamefunc_See_Chase_View);
         if (gViewPos > VIEWPOS_0)
@@ -825,7 +825,7 @@ void LocalKeys(void)
         else
             gViewPos = VIEWPOS_1;
     }
-    if (BUTTON(gamefunc_See_Coop_View))
+    if (inputState.BUTTON(gamefunc_See_Coop_View))
     {
         inputState.ClearButton(gamefunc_See_Coop_View);
         if (gGameOptions.nGameType == 1)
@@ -851,7 +851,7 @@ void LocalKeys(void)
     }
     if (gDoQuickSave)
     {
-        keyFlushScans();
+        inputState.keyFlushScans();
         switch (gDoQuickSave)
         {
         case 1:
@@ -865,7 +865,7 @@ void LocalKeys(void)
         return;
     }
     char key;
-    if ((key = keyGetScan()) != 0)
+    if ((key = inputState.keyGetScan()) != 0)
     {
         if ((alt || shift) && gGameOptions.nGameType > 0 && key >= sc_F1 && key <= sc_F10)
         {
@@ -879,7 +879,7 @@ void LocalKeys(void)
                 gPlayerMsg.Set(*CombatMacros[fk]);
                 gPlayerMsg.Send();
             }
-            keyFlushScans();
+            inputState.keyFlushScans();
 			inputState.ClearKeyStatus(key);
             inputState.ClearButton(gamefunc_See_Chase_View);
             return;
@@ -895,7 +895,7 @@ void LocalKeys(void)
             }
             break;
         case sc_Escape:
-            keyFlushScans();
+            inputState.keyFlushScans();
             if (gGameStarted && gPlayer[myconnectindex].pXSprite->health != 0)
             {
                 if (!gGameMenuMgr.m_bActive)
@@ -908,45 +908,45 @@ void LocalKeys(void)
             }
             return;
         case sc_F1:
-            keyFlushScans();
+            inputState.keyFlushScans();
             if (gGameOptions.nGameType == 0)
                 gGameMenuMgr.Push(&menuOrder,-1);
             break;
         case sc_F2:
-            keyFlushScans();
+            inputState.keyFlushScans();
             if (!gGameMenuMgr.m_bActive && gGameOptions.nGameType == 0)
                 gGameMenuMgr.Push(&menuSaveGame,-1);
             break;
         case sc_F3:
-            keyFlushScans();
+            inputState.keyFlushScans();
             if (!gGameMenuMgr.m_bActive && gGameOptions.nGameType == 0)
                 gGameMenuMgr.Push(&menuLoadGame,-1);
             break;
         case sc_F4:
-            keyFlushScans();
+            inputState.keyFlushScans();
             if (!gGameMenuMgr.m_bActive)
                 gGameMenuMgr.Push(&menuOptionsSound,-1);
             return;
         case sc_F5:
-            keyFlushScans();
+            inputState.keyFlushScans();
             if (!gGameMenuMgr.m_bActive)
                 gGameMenuMgr.Push(&menuOptions,-1);
             return;
         case sc_F6:
-            keyFlushScans();
+            inputState.keyFlushScans();
             DoQuickSave();
             break;
         case sc_F8:
-            keyFlushScans();
+            inputState.keyFlushScans();
             if (!gGameMenuMgr.m_bActive)
                 gGameMenuMgr.Push(&menuOptionsDisplayMode, -1);
             return;
         case sc_F9:
-            keyFlushScans();
+            inputState.keyFlushScans();
             DoQuickLoad();
             break;
         case sc_F10:
-            keyFlushScans();
+            inputState.keyFlushScans();
             if (!gGameMenuMgr.m_bActive)
                 gGameMenuMgr.Push(&menuQuit,-1);
             break;
@@ -1359,9 +1359,9 @@ RESTART:
     gRestartGame = 0;
     if (gGameOptions.nGameType > 0)
     {
-        KB_ClearKeysDown();
-        KB_FlushKeyboardQueue();
-        keyFlushScans();
+        inputState.ClearKeysDown();
+        inputState.keyFlushChars();
+        inputState.keyFlushScans();
     }
     else if (gDemo.at1 && !bAddUserMap && !bNoDemo)
         gDemo.Playback();

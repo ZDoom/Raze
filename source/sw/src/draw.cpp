@@ -1044,17 +1044,17 @@ ResizeView(PLAYERp pp)
 
     if (dimensionmode == 2 || dimensionmode == 5 || dimensionmode == 6)
     {
-        if (KB_KeyPressed(KEYSC_DASH)||KB_KeyPressed(KEYSC_GMINUS))
+        if (inputState.GetKeyStatus(KEYSC_DASH)||inputState.GetKeyStatus(KEYSC_GMINUS))
         {
             if ((zoom -= (zoom >> 4)) < 48) zoom = 48;
         }
 
-        if (KB_KeyPressed(KEYSC_EQUAL)||KB_KeyPressed(KEYSC_GPLUS))
+        if (inputState.GetKeyStatus(KEYSC_EQUAL)||inputState.GetKeyStatus(KEYSC_GPLUS))
         {
             if ((zoom += (zoom >> 4)) > 4096) zoom = 4096;
         }
 
-        if (KB_KeyPressed(KEYSC_ESC))
+        if (inputState.GetKeyStatus(KEYSC_ESC))
         {
             extern SWBOOL ScrollMode2D;
 
@@ -1066,14 +1066,14 @@ ResizeView(PLAYERp pp)
     }
     else
     {
-        if (BUTTON(gamefunc_Shrink_Screen))      // &&
+        if (inputState.BUTTON(gamefunc_Shrink_Screen))      // &&
         {
             inputState.ClearButton(gamefunc_Shrink_Screen);
             SetBorder(pp, gs.BorderNum + 1);
             SetRedrawScreen(pp);
         }
 
-        if (BUTTON(gamefunc_Enlarge_Screen)) // &&
+        if (inputState.BUTTON(gamefunc_Enlarge_Screen)) // &&
         {
             inputState.ClearButton(gamefunc_Enlarge_Screen);
             SetBorder(pp, gs.BorderNum - 1);
@@ -1671,7 +1671,7 @@ void ScreenCaptureKeys(void)
         return;
 
     // screen capture
-    if (KB_KeyPressed(KEYSC_F12))
+    if (inputState.GetKeyStatus(KEYSC_F12))
     {
 		inputState.ClearKeyStatus(KEYSC_F12);
         PauseAction();

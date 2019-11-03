@@ -238,7 +238,7 @@ static void G_CheatGetInv(DukePlayer_t *pPlayer)
 static void end_cheat(DukePlayer_t * const pPlayer)
 {
     pPlayer->cheat_phase = 0;
-    KB_FlushKeyboardQueue();
+    inputState.keyFlushChars();
 }
 
 static int32_t cheatbuflen;
@@ -303,9 +303,9 @@ void G_DoCheats(void)
     {
         int ch;
 
-        while (KB_KeyWaiting())
+        while (inputState.keyBufferWaiting())
         {
-            ch = Btolower(KB_GetCh());
+            ch = Btolower(inputState.keyGetChar());
 
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
@@ -319,7 +319,7 @@ void G_DoCheats(void)
             // cheat string matching logic below.
             Bassert(cheatbuflen < (signed)sizeof(cheatbuf));
             cheatbuf[cheatbuflen] = 0;
-            //            KB_ClearKeysDown();
+            //            inputState.ClearKeysDown();
 
             for (cheatNum=0; cheatNum < NUMCHEATCODES; cheatNum++)
             {
@@ -415,7 +415,7 @@ void G_DoCheats(void)
                     if (RR)
                         for (int key = 0; key < 5; key++)
                             pPlayer->keys[key] = 1;
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     P_DoQuote(QUOTE_CHEAT_ALL_KEYS, pPlayer);
                     end_cheat(pPlayer);
                     return;
@@ -441,7 +441,7 @@ void G_DoCheats(void)
                     if (RR)
                     {
                         P_DoQuote(QUOTE_JETPACK_ON, pPlayer);
-                        KB_FlushKeyboardQueue();
+                        inputState.keyFlushChars();
                     }
                     else
                     {
@@ -454,7 +454,7 @@ void G_DoCheats(void)
                 case CHEAT_ALLEN:
                     P_DoQuote(QUOTE_CHEAT_ALLEN, pPlayer);
                     pPlayer->cheat_phase = 0;
-                    KB_ClearKeyDown(sc_N);
+                    inputState.ClearKeyStatus(sc_N);
                     return;
 
                 case CHEAT_CORNHOLIO:
@@ -632,7 +632,7 @@ void G_DoCheats(void)
 
                 case CHEAT_CASHMAN:
                     ud.cashman = 1-ud.cashman;
-                    KB_ClearKeyDown(sc_N);
+                    inputState.ClearKeyStatus(sc_N);
                     pPlayer->cheat_phase = 0;
                     return;
 
@@ -682,7 +682,7 @@ void G_DoCheats(void)
 
                 case CHEAT_BETA:
                     P_DoQuote(QUOTE_CHEAT_BETA, pPlayer);
-                    KB_ClearKeyDown(sc_H);
+                    inputState.ClearKeyStatus(sc_H);
                     end_cheat(pPlayer);
                     return;
 
@@ -721,7 +721,7 @@ void G_DoCheats(void)
                         pPlayer->player_par = 0;
                         pPlayer->gm |= MODE_EOL;
                     }
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAJOSEPH:
@@ -729,25 +729,25 @@ void G_DoCheats(void)
                     pPlayer->ammo_amount[MOTORCYCLE_WEAPON] = pPlayer->max_ammo_amount[MOTORCYCLE_WEAPON];
                     P_DoQuote(126, pPlayer);
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAMRBILL:
                     P_QuickKill(pPlayer);
                     P_DoQuote(127, pPlayer);
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAGARY:
                     S_PlayRRMusic(10);
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RANOAH:
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RARHETT:
@@ -758,33 +758,33 @@ void G_DoCheats(void)
                     sprite[pPlayer->i].extra = 1;
                     P_DoQuote(128, pPlayer);
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAAARON:
                     pPlayer->drug_mode = pPlayer->drug_mode ? 0 : 5;
                     pPlayer->drug_timer = (int32_t) totalclock;
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RANOCHEAT:
                     pPlayer->nocheat = 1;
                     P_DoQuote(130, pPlayer);
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RATONY:
                     g_changeEnemySize = 2;
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAVAN:
                     g_changeEnemySize = 3;
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAKFC:
@@ -797,7 +797,7 @@ void G_DoCheats(void)
                     }
                     P_DoQuote(139, pPlayer);
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAWOLESLAGLE:
@@ -812,7 +812,7 @@ void G_DoCheats(void)
                         P_DoQuote(131, pPlayer);
                     }
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAMIKAEL:
@@ -830,7 +830,7 @@ void G_DoCheats(void)
                         pPlayer->keys[key] = 1;
                     P_DoQuote(5, pPlayer);
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAGREG:
@@ -845,7 +845,7 @@ void G_DoCheats(void)
                         P_DoQuote(137, pPlayer);
                     }
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAARIJIT:
@@ -854,7 +854,7 @@ void G_DoCheats(void)
                     pPlayer->ammo_amount[BOAT_WEAPON] = pPlayer->max_ammo_amount[BOAT_WEAPON];
                     P_DoQuote(136, pPlayer);
                     end_cheat(pPlayer);
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 default:
@@ -866,17 +866,17 @@ void G_DoCheats(void)
     }
     else
     {
-        if (KB_KeyPressed((uint8_t) CheatKeys[0]))
+        if (inputState.GetKeyStatus((uint8_t) CheatKeys[0]))
         {
             if (pPlayer->cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
             {
                 if (CheatKeys[0] == CheatKeys[1])
-                    KB_ClearKeyDown((uint8_t) CheatKeys[0]);
+                    inputState.ClearKeyStatus((uint8_t) CheatKeys[0]);
                 pPlayer->cheat_phase = -1;
             }
         }
 
-        if (KB_KeyPressed((uint8_t) CheatKeys[1]))
+        if (inputState.GetKeyStatus((uint8_t) CheatKeys[1]))
         {
             if (pPlayer->cheat_phase == -1)
             {
@@ -891,13 +891,13 @@ void G_DoCheats(void)
                     //                    P_DoQuote(QUOTE_25,pPlayer);
                     cheatbuflen = 0;
                 }
-                KB_FlushKeyboardQueue();
+                inputState.keyFlushChars();
             }
             else if (pPlayer->cheat_phase != 0)
             {
                 pPlayer->cheat_phase = 0;
-                KB_ClearKeyDown((uint8_t) CheatKeys[0]);
-                KB_ClearKeyDown((uint8_t) CheatKeys[1]);
+                inputState.ClearKeyStatus((uint8_t) CheatKeys[0]);
+                inputState.ClearKeyStatus((uint8_t) CheatKeys[1]);
             }
         }
     }

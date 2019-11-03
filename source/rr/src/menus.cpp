@@ -46,8 +46,8 @@ int32_t g_skillSoundVoice = -1;
 
 static FORCE_INLINE void Menu_StartTextInput()
 {
-    KB_FlushKeyboardQueue();
-    KB_ClearKeysDown();
+    inputState.keyFlushChars();
+    inputState.ClearKeysDown();
 #if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
 # if defined __ANDROID__
     AndroidShowKeyboard(1);
@@ -3237,26 +3237,26 @@ static void Menu_PreInput(MenuEntry_t *entry)
     {
 
     case MENU_KEYBOARDKEYS:
-        if (KB_KeyPressed(sc_Delete))
+        if (inputState.GetKeyStatus(sc_Delete))
         {
 			Bindings.UnbindACommand(CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
 			S_PlaySound(RR ? 335 : KICK_HIT);
-            KB_ClearKeyDown(sc_Delete);
+            inputState.ClearKeyStatus(sc_Delete);
         }
         break;
 
     case MENU_LOAD:
-        if (KB_KeyPressed(sc_Delete))
+        if (inputState.GetKeyStatus(sc_Delete))
         {
-            KB_ClearKeyDown(sc_Delete);
+            inputState.ClearKeyStatus(sc_Delete);
             if (M_LOAD.currentEntry < g_nummenusaves)
                 Menu_Change(MENU_LOADDELVERIFY);
         }
         break;
     case MENU_SAVE:
-        if (KB_KeyPressed(sc_Delete))
+        if (inputState.GetKeyStatus(sc_Delete))
         {
-            KB_ClearKeyDown(sc_Delete);
+            inputState.ClearKeyStatus(sc_Delete);
             if (0 < M_SAVE.currentEntry && M_SAVE.currentEntry <= (int32_t)g_nummenusaves)
                 Menu_Change(MENU_SAVEDELVERIFY);
         }
@@ -3292,13 +3292,13 @@ static int32_t Menu_PreCustom2ColScreen(MenuEntry_t *entry)
     {
         auto *column = (MenuCustom2Col_t*)entry->entry;
 
-        int32_t sc = KB_GetLastScanCode();
+        int32_t sc = inputState.GetLastScanCode();
 		if (sc != sc_None)
 		{
 			S_PlaySound(PISTOL_BODYHIT);
 			*column->column[M_KEYBOARDKEYS.currentColumn] = sc;
 			Bindings.SetBind(sc, CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
-			KB_ClearKeyDown(sc);
+			inputState.ClearKeyStatus(sc);
 
 			return -1;
 		}
@@ -3766,8 +3766,8 @@ static void Menu_Custom2ColScreen(/*MenuEntry_t *entry*/)
 {
     if (g_currentMenu == MENU_KEYBOARDKEYS)
     {
-        KB_FlushKeyboardQueue();
-        KB_ClearLastScanCode();
+        inputState.keyFlushChars();
+        inputState.ClearLastScanCode();
     }
 }
 
@@ -3936,8 +3936,8 @@ static void Menu_Verify(int32_t input)
         switch (input)
         {
         default:
-            KB_FlushKeyboardQueue();
-            KB_ClearKeysDown();
+            inputState.keyFlushChars();
+            inputState.ClearKeysDown();
             FX_StopAllSounds();
 
             if (G_LoadPlayerMaybeMulti(*g_quickload) == 0)
@@ -3976,8 +3976,8 @@ static void Menu_Verify(int32_t input)
                 g_quickload = &g_lastusersave;
             }
 
-            KB_FlushKeyboardQueue();
-            KB_ClearKeysDown();
+            inputState.keyFlushChars();
+            inputState.ClearKeysDown();
 
             Menu_Change(MENU_CLOSE);
 
@@ -4183,7 +4183,7 @@ static void Menu_FileSelectInit(MenuFileSelect_t *object)
         object->currentList = 1;
 
 #endif
-	KB_FlushKeyboardQueue();
+	inputState.keyFlushChars();
 }
 
 static void Menu_FileSelect(int32_t input)
@@ -6794,29 +6794,29 @@ static void Menu_RunInput(Menu_t *cm)
 
                 S_PlaySound(RR ? 341 : PISTOL_BODYHIT);
             }
-            else if (KB_KeyPressed(sc_Home))
+            else if (inputState.GetKeyStatus(sc_Home))
             {
-                KB_ClearKeyDown(sc_Home);
+                inputState.ClearKeyStatus(sc_Home);
 
                 Menu_RunInput_FileSelect_Movement(object, MM_Home);
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
             }
-            else if (KB_KeyPressed(sc_End))
+            else if (inputState.GetKeyStatus(sc_End))
             {
-                KB_ClearKeyDown(sc_End);
+                inputState.ClearKeyStatus(sc_End);
 
                 Menu_RunInput_FileSelect_Movement(object, MM_End);
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
             }
-            else if (KB_KeyPressed(sc_PgUp))
+            else if (inputState.GetKeyStatus(sc_PgUp))
             {
                 int32_t i;
 
                 CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList];
 
-                KB_ClearKeyDown(sc_PgUp);
+                inputState.ClearKeyStatus(sc_PgUp);
 
                 for (i = 0; i < 6; ++i)
                 {
@@ -6833,13 +6833,13 @@ static void Menu_RunInput(Menu_t *cm)
                     S_PlaySound(RR ? 335 : KICK_HIT);
                 }
             }
-            else if (KB_KeyPressed(sc_PgDn))
+            else if (inputState.GetKeyStatus(sc_PgDn))
             {
                 int32_t i;
 
                 CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList];
 
-                KB_ClearKeyDown(sc_PgDn);
+                inputState.ClearKeyStatus(sc_PgDn);
 
                 for (i = 0; i < 6; ++i)
                 {
@@ -6888,7 +6888,7 @@ static void Menu_RunInput(Menu_t *cm)
             {
                 // JBF 20040208: seek to first name matching pressed character
                 char ch2, ch;
-                ch = KB_GetCh();
+                ch = inputState.keyGetChar();
                 if (ch > 0 && ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')))
                 {
                     CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList]->usera;
@@ -6944,10 +6944,10 @@ static void Menu_RunInput(Menu_t *cm)
             break;
 
         case Verify:
-            if (I_ReturnTrigger() || KB_KeyPressed(sc_N) || Menu_RunInput_MouseReturn())
+            if (I_ReturnTrigger() || inputState.GetKeyStatus(sc_N) || Menu_RunInput_MouseReturn())
             {
                 I_ReturnTriggerClear();
-                KB_ClearKeyDown(sc_N);
+                inputState.ClearKeyStatus(sc_N);
                 m_mousecaught = 1;
 
                 Menu_Verify(0);
@@ -6957,12 +6957,12 @@ static void Menu_RunInput(Menu_t *cm)
                 S_PlaySound(EXITMENUSOUND);
             }
 
-            if (I_AdvanceTrigger() || KB_KeyPressed(sc_Y) || Menu_RunInput_MouseAdvance())
+            if (I_AdvanceTrigger() || inputState.GetKeyStatus(sc_Y) || Menu_RunInput_MouseAdvance())
             {
                 auto *verify = (MenuVerify_t*)cm->object;
 
                 I_AdvanceTriggerClear();
-                KB_ClearKeyDown(sc_Y);
+                inputState.ClearKeyStatus(sc_Y);
                 m_mousecaught = 1;
 
                 Menu_Verify(1);
@@ -7038,9 +7038,9 @@ static void Menu_RunInput(Menu_t *cm)
                     S_PlayRRMusic(2+menu->currentEntry);
                 }
             }
-            else if (KB_KeyPressed(sc_1))
+            else if (inputState.GetKeyStatus(sc_1))
             {
-                KB_ClearKeyDown(sc_1);
+                inputState.ClearKeyStatus(sc_1);
                 menu->currentEntry = 0;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
@@ -7050,9 +7050,9 @@ static void Menu_RunInput(Menu_t *cm)
                     S_PlayRRMusic(2+menu->currentEntry);
                 }
             }
-            else if (KB_KeyPressed(sc_2))
+            else if (inputState.GetKeyStatus(sc_2))
             {
-                KB_ClearKeyDown(sc_2);
+                inputState.ClearKeyStatus(sc_2);
                 menu->currentEntry = 1;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
@@ -7062,9 +7062,9 @@ static void Menu_RunInput(Menu_t *cm)
                     S_PlayRRMusic(2+menu->currentEntry);
                 }
             }
-            else if (KB_KeyPressed(sc_3))
+            else if (inputState.GetKeyStatus(sc_3))
             {
-                KB_ClearKeyDown(sc_3);
+                inputState.ClearKeyStatus(sc_3);
                 menu->currentEntry = 2;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
@@ -7074,9 +7074,9 @@ static void Menu_RunInput(Menu_t *cm)
                     S_PlayRRMusic(2+menu->currentEntry);
                 }
             }
-            else if (KB_KeyPressed(sc_4))
+            else if (inputState.GetKeyStatus(sc_4))
             {
-                KB_ClearKeyDown(sc_4);
+                inputState.ClearKeyStatus(sc_4);
                 menu->currentEntry = 3;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
@@ -7086,9 +7086,9 @@ static void Menu_RunInput(Menu_t *cm)
                     S_PlayRRMusic(2+menu->currentEntry);
                 }
             }
-            else if (KB_KeyPressed(sc_5))
+            else if (inputState.GetKeyStatus(sc_5))
             {
-                KB_ClearKeyDown(sc_5);
+                inputState.ClearKeyStatus(sc_5);
                 menu->currentEntry = 4;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
@@ -7098,9 +7098,9 @@ static void Menu_RunInput(Menu_t *cm)
                     S_PlayRRMusic(2+menu->currentEntry);
                 }
             }
-            else if (KB_KeyPressed(sc_6))
+            else if (inputState.GetKeyStatus(sc_6))
             {
-                KB_ClearKeyDown(sc_6);
+                inputState.ClearKeyStatus(sc_6);
                 menu->currentEntry = 5;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
@@ -7110,9 +7110,9 @@ static void Menu_RunInput(Menu_t *cm)
                     S_PlayRRMusic(2+menu->currentEntry);
                 }
             }
-            else if (KB_KeyPressed(sc_7))
+            else if (inputState.GetKeyStatus(sc_7))
             {
-                KB_ClearKeyDown(sc_7);
+                inputState.ClearKeyStatus(sc_7);
                 menu->currentEntry = 6;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
@@ -7122,9 +7122,9 @@ static void Menu_RunInput(Menu_t *cm)
                     S_PlayRRMusic(2+menu->currentEntry);
                 }
             }
-            else if (KB_KeyPressed(sc_8))
+            else if (inputState.GetKeyStatus(sc_8))
             {
-                KB_ClearKeyDown(sc_8);
+                inputState.ClearKeyStatus(sc_8);
                 menu->currentEntry = 7;
 
                 S_PlaySound(RR ? 335 : KICK_HIT);
@@ -7334,17 +7334,17 @@ static void Menu_RunInput(Menu_t *cm)
 
                     Menu_AnimateChange(cm->parentID, cm->parentAnimation);
                 }
-                else if (KB_KeyPressed(sc_Home))
+                else if (inputState.GetKeyStatus(sc_Home))
                 {
-                    KB_ClearKeyDown(sc_Home);
+                    inputState.ClearKeyStatus(sc_Home);
 
                     S_PlaySound(RR ? 335 : KICK_HIT);
 
                     currentry = Menu_RunInput_Menu_Movement(menu, MM_Home);
                 }
-                else if (KB_KeyPressed(sc_End))
+                else if (inputState.GetKeyStatus(sc_End))
                 {
-                    KB_ClearKeyDown(sc_End);
+                    inputState.ClearKeyStatus(sc_End);
 
                     S_PlaySound(RR ? 335 : KICK_HIT);
 
@@ -7416,17 +7416,17 @@ static void Menu_RunInput(Menu_t *cm)
                         if (!Menu_RunInput_EntryOptionList_Activate(currentry, object))
                             S_PlaySound(RR ? 341 : PISTOL_BODYHIT);
                     }
-                    else if (KB_KeyPressed(sc_Home))
+                    else if (inputState.GetKeyStatus(sc_Home))
                     {
-                        KB_ClearKeyDown(sc_Home);
+                        inputState.ClearKeyStatus(sc_Home);
 
                         S_PlaySound(RR ? 335 : KICK_HIT);
 
                         Menu_RunInput_EntryOptionList_Movement(object, MM_Home);
                     }
-                    else if (KB_KeyPressed(sc_End))
+                    else if (inputState.GetKeyStatus(sc_End))
                     {
-                        KB_ClearKeyDown(sc_End);
+                        inputState.ClearKeyStatus(sc_End);
 
                         S_PlaySound(RR ? 335 : KICK_HIT);
 
@@ -7482,7 +7482,7 @@ void M_DisplayMenus(void)
         return;
     }
 
-    if (!Menu_IsTextInput(m_currentMenu) && KB_KeyPressed(sc_Q))
+    if (!Menu_IsTextInput(m_currentMenu) && inputState.GetKeyStatus(sc_Q))
         Menu_AnimateChange(MENU_QUIT, MA_Advance);
 
     int32_t mousestatus = mouseReadAbs(&m_mousepos, &g_mouseAbs);

@@ -85,7 +85,7 @@ void CEndGameMgr::ProcessKeys(void)
     //}
     //else
     {
-        char ch = keyGetScan();
+        char ch = inputState.keyGetScan();
         if (!ch)
             return;
         if (gGameOptions.nGameType > 0 || numplayers > 1)
@@ -103,7 +103,7 @@ void CEndGameMgr::Setup(void)
     at0 = 1;
     EndLevel();
     sndStartSample(268, 128, -1, 1);
-    keyFlushScans();
+    inputState.keyFlushScans();
 }
 
 //int gNextLevel;

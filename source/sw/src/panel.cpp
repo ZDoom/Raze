@@ -1580,17 +1580,17 @@ pSwordRest(PANEL_SPRITEp psp)
     SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
 #if 0
-    if (KB_KeyPressed(KEYSC_SEMI))
+    if (inputState.GetKeyStatus(KEYSC_SEMI))
     {
-        KB_KeyPressed(KEYSC_SEMI) = 0;
+        inputState.GetKeyStatus(KEYSC_SEMI) = 0;
         SwordAng -= 4;
         //DSPRINTF(ds,"SwordAng %d", SwordAng);
         MONO_PRINT(ds);
     }
 
-    if (KB_KeyPressed(KEYSC_QUOTE))
+    if (inputState.GetKeyStatus(KEYSC_QUOTE))
     {
-        KB_KeyPressed(KEYSC_QUOTE) = 0;
+        inputState.GetKeyStatus(KEYSC_QUOTE) = 0;
         SwordAng += 4;
         //DSPRINTF(ds,"SwordAng %d", SwordAng);
         MONO_PRINT(ds);

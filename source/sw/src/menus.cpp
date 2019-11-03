@@ -621,10 +621,10 @@ MNU_ParentalCustom(void)
     else
     {
         // clear keyboard buffer
-        while (KB_KeyWaiting())
+        while (inputState.keyBufferWaiting())
         {
-            if (KB_GetCh() == 0)
-                KB_GetCh();
+            if (inputState.keyGetChar() == 0)
+                inputState.keyGetChar();
         }
 
         // toggle edit mode
@@ -672,14 +672,14 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         short w, h = 8;
         int i, j, y;
 
-        if (KB_KeyPressed(KEYSC_ESC))
+        if (inputState.GetKeyStatus(KEYSC_ESC))
         {
-            KB_ClearKeyDown(sc_Escape);
+            inputState.ClearKeyStatus(sc_Escape);
             currentmode = 0;
         }
-        else if (KB_GetLastScanCode() > 0)
+        else if (inputState.GetLastScanCode() > 0)
         {
-            KB_ClearKeyDown(KB_GetLastScanCode());
+            inputState.ClearKeyStatus(inputState.GetLastScanCode());
 
             //KeyboardKeys[currentkey][currentcol] = KB_GetLastScanCode();
             if (currentkey != gamefunc_Show_Console)
@@ -692,7 +692,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             }
             else
             {
-                OSD_CaptureKey(KB_GetLastScanCode());
+                OSD_CaptureKey(inputState.GetLastScanCode());
             }
 
             currentmode = 0;
@@ -726,48 +726,48 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         UserInput inpt = {FALSE,FALSE,dir_None};
         CONTROL_GetUserInput(&inpt);
 
-        if (KB_KeyPressed(KEYSC_ESC) || inpt.button1)
+        if (inputState.GetKeyStatus(KEYSC_ESC) || inpt.button1)
         {
 			inputState.ClearKeyStatus(sc_Escape);
             cust_callback = NULL;
             CONTROL_ClearUserInput(&inpt);
             return TRUE;
         }
-        else if (KB_KeyPressed(sc_Delete))
+        else if (inputState.GetKeyStatus(sc_Delete))
         {
-            KB_ClearKeyDown(sc_Delete);
+            inputState.ClearKeyStatus(sc_Delete);
             if (currentkey != gamefunc_Show_Console)
             {
 				//Bindings.UnbindACommand(CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
 			}
         }
-        else if (KB_KeyPressed(sc_Home))
+        else if (inputState.GetKeyStatus(sc_Home))
         {
             currentkey = 0;
-            KB_ClearKeyDown(sc_Home);
+            inputState.ClearKeyStatus(sc_Home);
         }
-        else if (KB_KeyPressed(sc_End))
+        else if (inputState.GetKeyStatus(sc_End))
         {
             currentkey = NUMGAMEFUNCTIONS-1;
-            KB_ClearKeyDown(sc_End);
+            inputState.ClearKeyStatus(sc_End);
         }
-        else if (KB_KeyPressed(sc_PgDn))
+        else if (inputState.GetKeyStatus(sc_PgDn))
         {
             currentkey += PGSIZ;
             if (currentkey >= NUMGAMEFUNCTIONS) currentkey = NUMGAMEFUNCTIONS-1;
-            KB_ClearKeyDown(sc_PgDn);
+            inputState.ClearKeyStatus(sc_PgDn);
         }
-        else if (KB_KeyPressed(sc_PgUp))
+        else if (inputState.GetKeyStatus(sc_PgUp))
         {
             currentkey -= PGSIZ;
             if (currentkey < 0) currentkey = 0;
-            KB_ClearKeyDown(sc_PgUp);
+            inputState.ClearKeyStatus(sc_PgUp);
         }
         else if (inpt.button0)
         {
             currentmode = 1;
-            KB_ClearLastScanCode();
-            KB_ClearKeysDown();
+            inputState.ClearLastScanCode();
+            inputState.ClearKeysDown();
         }
         else if (inpt.dir == dir_North) currentkey = max(0,currentkey-1);
         else if (inpt.dir == dir_South) currentkey = min(NUMGAMEFUNCTIONS-1,currentkey+1);
@@ -852,30 +852,30 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
 
     if (inpt.button1)
     {
-        KB_ClearKeyDown(sc_Escape);
+        inputState.ClearKeyStatus(sc_Escape);
         returnval = -1;
     }
-    else if (KB_KeyPressed(sc_Home))
+    else if (inputState.GetKeyStatus(sc_Home))
     {
         *currentfunc = 0;
-        KB_ClearKeyDown(sc_Home);
+        inputState.ClearKeyStatus(sc_Home);
     }
-    else if (KB_KeyPressed(sc_End))
+    else if (inputState.GetKeyStatus(sc_End))
     {
         *currentfunc = NUMGAMEFUNCTIONS-1;   // -1 because the last one is the console and the top is 'none'
-        KB_ClearKeyDown(sc_End);
+        inputState.ClearKeyStatus(sc_End);
     }
-    else if (KB_KeyPressed(sc_PgDn))
+    else if (inputState.GetKeyStatus(sc_PgDn))
     {
         *currentfunc += PGSIZ;
         if (*currentfunc >= NUMGAMEFUNCTIONS) *currentfunc = NUMGAMEFUNCTIONS-1;
-        KB_ClearKeyDown(sc_PgDn);
+        inputState.ClearKeyStatus(sc_PgDn);
     }
-    else if (KB_KeyPressed(sc_PgUp))
+    else if (inputState.GetKeyStatus(sc_PgUp))
     {
         *currentfunc -= PGSIZ;
         if (*currentfunc < 0) *currentfunc = 0;
-        KB_ClearKeyDown(sc_PgUp);
+        inputState.ClearKeyStatus(sc_PgUp);
     }
     else if (inpt.button0)
     {
@@ -1571,7 +1571,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         CONTROL_GetUserInput(&tst_input);
         //order_input_buffered.dir = tst_input.dir;
         // Support a few other keys too
-        if (KB_KeyPressed(KEYSC_SPACE)||KB_KeyPressed(KEYSC_ENTER))
+        if (inputState.GetKeyStatus(KEYSC_SPACE)||inputState.GetKeyStatus(KEYSC_ENTER))
         {
 			inputState.ClearKeyStatus(KEYSC_SPACE);
 			inputState.ClearKeyStatus(KEYSC_ENTER);
@@ -1611,7 +1611,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         order_input_buffered.dir = tst_input.dir;
     }
 
-    if (!KB_KeyPressed(KEYSC_ESC) && !order_input_buffered.button1)
+    if (!inputState.GetKeyStatus(KEYSC_ESC) && !order_input_buffered.button1)
     {
         cust_callback = MNU_OrderCustom;
         cust_callback_call = call;
@@ -1751,7 +1751,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         }
     }
 
-    //KB_ClearKeysDown();
+    //inputState.ClearKeysDown();
 
     return TRUE;
 }
@@ -1952,7 +1952,7 @@ MNU_QuitCustom(UserCall call, MenuItem_p item)
 
     if (!ret)
     {
-        if (!mnu_input.button1 && !KB_KeyPressed(sc_N))
+        if (!mnu_input.button1 && !inputState.GetKeyStatus(sc_N))
         {
             cust_callback = MNU_QuitCustom;
             cust_callback_call = call;
@@ -1970,7 +1970,7 @@ MNU_QuitCustom(UserCall call, MenuItem_p item)
         ExitMenus();
     }
 
-    if (KB_KeyPressed(sc_Y) || KB_KeyPressed(sc_Enter) || mnu_input.button0)
+    if (inputState.GetKeyStatus(sc_Y) || inputState.GetKeyStatus(sc_Enter) || mnu_input.button0)
     {
         if (CommPlayers >= 2)
             MultiPlayQuitFlag = TRUE;
@@ -1980,7 +1980,7 @@ MNU_QuitCustom(UserCall call, MenuItem_p item)
         ExitMenus();
     }
 
-    KB_ClearKeysDown();
+    inputState.ClearKeysDown();
 
     return TRUE;
 }
@@ -2021,7 +2021,7 @@ MNU_QuickLoadCustom(UserCall call, MenuItem_p item)
 
     if (ret == FALSE)
     {
-        if (KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter))
+        if (inputState.GetKeyStatus(sc_N) || inputState.GetKeyStatus(sc_Space) || inputState.GetKeyStatus(sc_Enter))
         {
             cust_callback = NULL;
             if (ReloadPrompt)
@@ -2033,7 +2033,7 @@ MNU_QuickLoadCustom(UserCall call, MenuItem_p item)
                 GlobInfoStringTime = bak;
             }
 
-            KB_ClearKeysDown();
+            inputState.ClearKeysDown();
             ExitMenus();
         }
         else
@@ -2048,7 +2048,7 @@ MNU_QuickLoadCustom(UserCall call, MenuItem_p item)
         // Y pressed
         cust_callback = NULL;
 
-        KB_ClearKeysDown();
+        inputState.ClearKeysDown();
         LoadSaveMsg("Loading...");
 
         PauseAction();
@@ -2064,11 +2064,11 @@ MNU_QuickLoadCustom(UserCall call, MenuItem_p item)
         LastSaveNum = -1;
 
         // do a load game here
-        KB_ClearKeysDown();
+        inputState.ClearKeysDown();
         ExitMenus();
     }
 
-    KB_ClearKeysDown();
+    inputState.ClearKeysDown();
 
     return TRUE;
 }
@@ -2448,14 +2448,14 @@ MNU_InputSmallString(char *name, short pix_width)
         }
     }
 
-    while (KB_KeyWaiting())
+    while (inputState.keyBufferWaiting())
     {
-        ch = KB_GetCh();
+        ch = inputState.keyGetChar();
 
         // skip any extended key
         if (ch == 0)
         {
-            ch = KB_GetCh();
+            ch = inputState.keyGetChar();
             if (ch == 104) // extended enter
                 ch = ascii_return;
             else
@@ -2525,7 +2525,7 @@ MNU_Dialog(void)
     CONTROL_ClearUserInput(&mnu_input);
     CONTROL_GetUserInput(&mnu_input);
 
-    if (KB_KeyPressed(sc_Y) || KB_KeyPressed(sc_Enter) || mnu_input.button0)
+    if (inputState.GetKeyStatus(sc_Y) || inputState.GetKeyStatus(sc_Enter) || mnu_input.button0)
         return TRUE;
     else
         return FALSE;
@@ -2545,9 +2545,9 @@ MNU_InputString(char *name, short pix_width)
 #define ascii_esc 27
 #define ascii_return 13
 
-    while (KB_KeyWaiting())
+    while (inputState.keyBufferWaiting())
     {
-        ch = KB_GetCh();
+        ch = inputState.keyGetChar();
 
         ////DSPRINTF(ds, "%c %d", ch, ch);
         //MONO_PRINT(ds);
@@ -2555,7 +2555,7 @@ MNU_InputString(char *name, short pix_width)
         // skip most extended keys
         if (ch == 0)
         {
-            ch = KB_GetCh();
+            ch = inputState.keyGetChar();
 
             ////DSPRINTF(ds, "extended key %c %d", ch, ch);
             //MONO_PRINT(ds);
@@ -2723,10 +2723,10 @@ MNU_GetSaveCustom(void)
         strcpy(BackupSaveGameDescr, SaveGameDescr[save_num]);
 
         // clear keyboard buffer
-        while (KB_KeyWaiting())
+        while (inputState.keyBufferWaiting())
         {
-            if (KB_GetCh() == 0)
-                KB_GetCh();
+            if (inputState.keyGetChar() == 0)
+                inputState.keyGetChar();
         }
 
         // toggle edit mode
@@ -2800,8 +2800,8 @@ MNU_LoadSaveMove(UserCall call, MenuItem_p item)
         QuickSaveMode = FALSE;
         MenuInputMode = TRUE;
         strcpy(BackupSaveGameDescr, SaveGameDescr[game_num]);
-        KB_ClearKeysDown();
-        KB_FlushKeyboardQueue();
+        inputState.ClearKeysDown();
+        inputState.keyFlushChars();
     }
 
     LastSaveNum = game_num;
@@ -2813,17 +2813,17 @@ MNU_LoadSaveMove(UserCall call, MenuItem_p item)
 
         if (SavePrompt)
         {
-            if (KB_KeyPressed(sc_Y) || KB_KeyPressed(sc_Enter))
+            if (inputState.GetKeyStatus(sc_Y) || inputState.GetKeyStatus(sc_Enter))
             {
-                KB_ClearKeyDown(sc_Y);
-                KB_ClearKeyDown(sc_Enter);
+                inputState.ClearKeyStatus(sc_Y);
+                inputState.ClearKeyStatus(sc_Enter);
                 SavePrompt = FALSE;
                 // use input
                 item->custom();
             }
-            else if (KB_KeyPressed(sc_N))
+            else if (inputState.GetKeyStatus(sc_N))
             {
-                KB_ClearKeyDown(sc_N);
+                inputState.ClearKeyStatus(sc_N);
                 strcpy(SaveGameDescr[game_num], BackupSaveGameDescr);
                 SavePrompt = FALSE;
                 MenuInputMode = FALSE;
@@ -2836,7 +2836,7 @@ MNU_LoadSaveMove(UserCall call, MenuItem_p item)
             case -1:                        // Cancel Input (pressed ESC) or Err
                 strcpy(SaveGameDescr[game_num], BackupSaveGameDescr);
                 MenuInputMode = FALSE;
-                KB_ClearKeysDown();
+                inputState.ClearKeysDown();
                 break;
             case FALSE:                     // Input finished (RETURN)
                 // no input
@@ -2849,7 +2849,7 @@ MNU_LoadSaveMove(UserCall call, MenuItem_p item)
                 {
                     GotInput = TRUE;
                 }
-                KB_ClearKeyDown(sc_Enter);
+                inputState.ClearKeyStatus(sc_Enter);
                 break;
             case TRUE:                      // Got input
                 break;
@@ -4369,7 +4369,7 @@ MNU_DoHotkey(void)
     index = 0;
     for (item = currentmenu->items; item->type != mt_none; item++)
     {
-        if (KB_KeyPressed(item->hotkey) && item->hotkey != 0)
+        if (inputState.GetKeyStatus(item->hotkey) && item->hotkey != 0)
         {
             MNU_SelectItem(currentmenu, index, FALSE);
             return TRUE;
@@ -4498,7 +4498,7 @@ void MNU_DoMenu(CTLType type, PLAYERp pp)
         static int handle5=0;
         if (!FX_SoundActive(handle5))
             handle5 = PlaySound(DIGI_SWORDSWOOSH,&zero,&zero,&zero,v3df_dontpan);
-        KB_ClearKeysDown();
+        inputState.ClearKeysDown();
         MNU_DoItem();
         resetitem = TRUE;
     }
@@ -4540,7 +4540,7 @@ void MNU_DoMenu(CTLType type, PLAYERp pp)
 
     if (resetitem)
     {
-        KB_ClearKeysDown();
+        inputState.ClearKeysDown();
         ResetKeys();
     }
 }
@@ -4560,10 +4560,10 @@ MNU_CheckForMenus(void)
     }
     else
     {
-        if ((KB_KeyPressed(KEYSC_ESC)) && dimensionmode == 3 && !ConPanel)
+        if ((inputState.GetKeyStatus(KEYSC_ESC)) && dimensionmode == 3 && !ConPanel)
         {
 			inputState.ClearKeyStatus(sc_Escape);
-			KB_ClearKeysDown();
+			inputState.ClearKeysDown();
             // setup sliders/buttons
             MNU_InitMenus();
             MNU_DoMenu(ct_mainmenu, Player + myconnectindex);
@@ -4586,7 +4586,7 @@ MNU_CheckForMenusAnyKey(void)
         if (KeyPressed())
         {
             ResetKeys();
-            KB_ClearKeysDown();
+            inputState.ClearKeysDown();
             MNU_InitMenus();
             MNU_DoMenu(ct_mainmenu, Player + myconnectindex);
             pMenuClearTextLine(Player + myconnectindex);

@@ -107,14 +107,6 @@ char CONSTEXPR const g_keyAsciiTableShift[128] = {
     0  ,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,
 };
 
-extern char    g_keyFIFO[KEYFIFOSIZ];
-extern char    g_keyAsciiFIFO[KEYFIFOSIZ];
-extern uint8_t g_keyAsciiPos;
-extern uint8_t g_keyAsciiEnd;
-extern uint8_t g_keyFIFOend;
-
-extern void keySetState(int32_t key, int32_t state);
-
 // mouse
 extern vec2_t  g_mousePos;
 extern vec2_t  g_mouseAbs;
@@ -178,24 +170,6 @@ void mouseSetCallback(void (*callback)(int32_t,int32_t));
 void joySetCallback(void (*callback)(int32_t,int32_t));
 const char *joyGetName(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=hat
 void joyScanDevices(void);
-
-char keyGetScan(void);
-char keyGetChar(void);
-#define keyBufferWaiting() (g_keyAsciiPos != g_keyAsciiEnd)
-
-static FORCE_INLINE int keyBufferFull(void)
-{
-    return ((g_keyAsciiEnd+1)&(KEYFIFOSIZ-1)) == g_keyAsciiPos;
-}
-
-static FORCE_INLINE void keyBufferInsert(char code)
-{
-    g_keyAsciiFIFO[g_keyAsciiEnd] = code;
-    g_keyAsciiEnd = ((g_keyAsciiEnd+1)&(KEYFIFOSIZ-1));
-}
-
-void keyFlushScans(void);
-void keyFlushChars(void);
 
 void mouseInit(void);
 void mouseUninit(void);

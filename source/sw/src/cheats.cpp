@@ -399,9 +399,9 @@ void CheatInput(void)
 
     if (!CheatInputMode)
         {
-        if (KB_KeyPressed(KEYSC_S))
+        if (inputState.GetKeyStatus(KEYSC_S))
             {
-            //KB_KeyPressed(KEYSC_S) = FALSE;
+            //inputState.GetKeyStatus(KEYSC_S) = FALSE;
             CheatInputMode = TRUE;
             strcpy(CheatInputString,"s");
             }
@@ -418,7 +418,7 @@ void CheatInput(void)
             case FALSE: // Input finished (RETURN)
             case -1: // Cancel Input (pressed ESC) or Err
                 CheatInputMode = FALSE;
-                KB_FlushKeyboardQueue();
+                inputState.keyFlushChars();
                 return;
 
             case TRUE: // Got input
@@ -446,7 +446,7 @@ void CheatInput(void)
                     match = TRUE;
 
                     CheatInputMode = FALSE;
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
 
                     if (ci[i].CheatInputFunc)
                         (*ci[i].CheatInputFunc)(Player, CheatInputString);
@@ -467,7 +467,7 @@ void CheatInput(void)
             //MONO_PRINT(ds);
 
             CheatInputMode = FALSE;
-            KB_FlushKeyboardQueue();
+            inputState.keyFlushChars();
             }
         }
     }

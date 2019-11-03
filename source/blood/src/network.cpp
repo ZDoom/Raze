@@ -1012,7 +1012,7 @@ void netInitialize(bool bConsole)
                 netServerDisconnect();
                 QuitGame();
             }
-            if (!bConsole && KB_KeyPressed(sc_Escape))
+            if (!bConsole && inputState.GetKeyStatus(sc_Escape))
             {
                 netServerDisconnect();
                 netDeinitialize();
@@ -1173,7 +1173,7 @@ void netInitialize(bool bConsole)
                 netClientDisconnect();
                 QuitGame();
             }
-            if (!bConsole && KB_KeyPressed(sc_Escape))
+            if (!bConsole && inputState.GetKeyStatus(sc_Escape))
             {
                 netClientDisconnect();
                 netDeinitialize();

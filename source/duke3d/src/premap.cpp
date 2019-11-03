@@ -407,7 +407,7 @@ static void G_DoLoadScreen(const char *statustext, int percent)
 
     if (!statustext)
     {
-        KB_FlushKeyboardQueue();
+        inputState.keyFlushChars();
         ud.screen_size = screenSize;
     }
 }
@@ -449,7 +449,7 @@ void G_CacheMapData(void)
     int cnt = 0;
     int percentDisplayed = -1;
 
-    for (int i=0; i<MAXTILES && !KB_KeyPressed(sc_Space); i++)
+    for (int i=0; i<MAXTILES && !inputState.GetKeyStatus(sc_Space); i++)
     {
         if (!(i&7) && !gotpic[i>>3])
         {
@@ -1652,9 +1652,9 @@ static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t e
             sampletimer();
         nexttic += ticwait;
 
-        if (KB_KeyPressed(sc_Space))
+        if (inputState.GetKeyStatus(sc_Space))
         {
-            KB_ClearKeyDown(sc_Space);
+            inputState.ClearKeyStatus(sc_Space);
             return;
         }
 

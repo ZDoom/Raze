@@ -4,10 +4,9 @@
 #include "tarray.h"
 #include "scancodes.h"
 #include "c_bind.h"
+#include "d_event.h"
 
 typedef uint8_t kb_scancode;
-
-extern kb_scancode KB_LastScan;
 
 typedef struct
 {
@@ -103,8 +102,6 @@ enum GameFunction_t
 	gamefunc_Toggle_Crouch,
 	gamefunc_See_Chase_View,	// this was added by Blood
 	gamefunc_Turn_Around,
-	gamefunc_Weapon_Fire,
-	gamefunc_Weapon_Special_Fire,
 	gamefunc_Aim_Center,
 	gamefunc_Tilt_Left,
 	gamefunc_Tilt_Right,
@@ -125,6 +122,10 @@ enum GameFunction_t
 
 class InputState
 {
+	enum
+	{
+		KEYFIFOSIZ = 64,
+	};
 	// NOTE: This entire thing is mostly a band-aid to wrap something around MACT so that replacing it with a true event-driven system later
 	// won't result in a total disaster. None of this is meant to live for long because the input method at use here is fundamentally flawed
 	// because it does not track what triggered the button.
@@ -136,6 +137,15 @@ class InputState
 
 	ButtonStateFlags ButtonState[NUMGAMEFUNCTIONS];
 	uint8_t KeyStatus[NUMKEYS];
+
+	char    g_keyFIFO[KEYFIFOSIZ];
+	char    g_keyAsciiFIFO[KEYFIFOSIZ];
+	uint8_t g_keyFIFOpos;
+	uint8_t g_keyFIFOend;
+	uint8_t g_keyAsciiPos;
+	uint8_t g_keyAsciiEnd;
+
+	kb_scancode KB_LastScan;
 
 public:
 
@@ -219,33 +229,113 @@ public:
 		CONTROL_BindsEnabled = on;
 	}
 	
+	bool keyBufferWaiting()
+	{
+		return (g_keyAsciiPos != g_keyAsciiEnd);
+	}
+
+	int keyBufferFull(void)
+	{
+		return ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1)) == g_keyAsciiPos;
+	}
+
+	void keyBufferInsert(char code)
+	{
+		g_keyAsciiFIFO[g_keyAsciiEnd] = code;
+		g_keyAsciiEnd = ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1));
+	}
+
+	void keySetState(int32_t key, int32_t state)
+	{
+		SetKeyStatus(key, state);
+		event_t ev = { (uint8_t)(state ? EV_KeyDown : EV_KeyUp), 0, (int16_t)key };
+
+		D_PostEvent(&ev);
+
+		if (state)
+		{
+			g_keyFIFO[g_keyFIFOend] = key;
+			g_keyFIFO[(g_keyFIFOend + 1) & (KEYFIFOSIZ - 1)] = state;
+			g_keyFIFOend = ((g_keyFIFOend + 2) & (KEYFIFOSIZ - 1));
+		}
+	}
+
+	char keyGetScan(void)
+	{
+		if (g_keyFIFOpos == g_keyFIFOend)
+			return 0;
+
+		char const c = g_keyFIFO[g_keyFIFOpos];
+		g_keyFIFOpos = ((g_keyFIFOpos + 2) & (KEYFIFOSIZ - 1));
+
+		return c;
+	}
+
+	void keyFlushScans(void)
+	{
+		Bmemset(&g_keyFIFO, 0, sizeof(g_keyFIFO));
+		g_keyFIFOpos = g_keyFIFOend = 0;
+	}
+
+	//
+	// character-based input functions
+	//
+	char keyGetChar(void)
+	{
+		if (g_keyAsciiPos == g_keyAsciiEnd)
+			return 0;
+
+		char const c = g_keyAsciiFIFO[g_keyAsciiPos];
+		g_keyAsciiPos = ((g_keyAsciiPos + 1) & (KEYFIFOSIZ - 1));
+
+		return c;
+	}
+
+	void keyFlushChars(void)
+	{
+		Bmemset(&g_keyAsciiFIFO, 0, sizeof(g_keyAsciiFIFO));
+		g_keyAsciiPos = g_keyAsciiEnd = 0;
+	}
+
+	inline bool UnboundKeyPressed(int scan)
+	{
+		return (GetKeyStatus(scan) != 0 && Bindings.GetBind(scan) == nullptr);
+	}
+
+
+	kb_scancode GetLastScanCode()
+	{
+		return (KB_LastScan);
+	}
+
+	void SetLastScanCode(kb_scancode scancode)
+    {
+        KB_LastScan = (scancode);  
+    }
+
+	void ClearLastScanCode()
+    {
+        KB_LastScan = sc_None;
+    }
+
+	void ClearKeysDown(void)
+	{
+		KB_LastScan = 0;
+		ClearAllKeyStatus();
+	}
+
 };
 
 
 extern InputState inputState;
 
-inline bool BUTTON(int x)
+static inline void KB_KeyEvent(int32_t scancode, int32_t keypressed)
 {
-	return inputState.BUTTON(x);
+	if (keypressed) inputState.SetLastScanCode(scancode);
 }
 
-inline uint8_t KB_KeyPressed(int scan) 
-{
-	return inputState.GetKeyStatus(scan);
-}
+void keySetCallback(void (*callback)(int32_t, int32_t));
+inline void KB_Startup(void) { keySetCallback(KB_KeyEvent); }
+inline void KB_Shutdown(void) { keySetCallback((void (*)(int32_t, int32_t))NULL); }
 
-inline void KB_ClearKeyDown(int scan) 
-{
-	inputState.ClearKeyStatus(scan);
-}
 
-inline bool KB_UnBoundKeyPressed(int scan) 
-{
-	return (inputState.GetKeyStatus(scan) != 0 && Bindings.GetBind(scan) == nullptr);
-}
-
-inline void KB_ClearKeysDown(void)
-{
-	KB_LastScan = 0;
-	inputState.ClearAllKeyStatus();
-}

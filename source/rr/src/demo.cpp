@@ -915,9 +915,9 @@ nextdemo_nomenu:
                 {
                     ControlInfo noshareinfo;
                     CONTROL_GetInput(&noshareinfo);
-                    if (BUTTON(gamefunc_SendMessage))
+                    if (inputState.BUTTON(gamefunc_SendMessage))
                     {
-                        KB_FlushKeyboardQueue();
+                        inputState.keyFlushChars();
                         inputState.ClearButton(gamefunc_SendMessage);
                         g_player[myconnectindex].ps->gm = MODE_TYPE;
                         typebuf[0] = 0;

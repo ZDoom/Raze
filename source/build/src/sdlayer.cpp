@@ -1889,10 +1889,10 @@ int32_t handleevents_pollsdl(void)
                 {
                     code = ev.text.text[j];
 
-                    if (code != g_keyAsciiTable[OSD_OSDKey()] && !keyBufferFull())
+                    if (code != g_keyAsciiTable[OSD_OSDKey()] && !inputState.keyBufferFull())
                     {
                         if (OSD_HandleChar(code))
-                            keyBufferInsert(code);
+                            inputState.keyBufferInsert(code);
                     }
                 } while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE-1 && ev.text.text[++j]);
                 break;
@@ -1910,7 +1910,7 @@ int32_t handleevents_pollsdl(void)
                     KMOD_LALT|KMOD_RALT|KMOD_LGUI|KMOD_RGUI;
 
                 // XXX: see osd.c, OSD_HandleChar(), there are more...
-                if (ev.key.type == SDL_KEYDOWN && !keyBufferFull() &&
+                if (ev.key.type == SDL_KEYDOWN && !inputState.keyBufferFull() &&
                     (sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER ||
                      sc == SDL_SCANCODE_ESCAPE ||
                      sc == SDL_SCANCODE_BACKSPACE ||
@@ -1928,10 +1928,10 @@ int32_t handleevents_pollsdl(void)
                         default: keyvalue = sc - SDL_SCANCODE_A + 1; break;  // Ctrl+A --> 1, etc.
                     }
                     if (OSD_HandleChar(keyvalue))
-                        keyBufferInsert(keyvalue);
+                        inputState.keyBufferInsert(keyvalue);
                 }
                 else if (ev.key.type == SDL_KEYDOWN &&
-                         ev.key.keysym.sym != g_keyAsciiTable[OSD_OSDKey()] && !keyBufferFull() &&
+                         ev.key.keysym.sym != g_keyAsciiTable[OSD_OSDKey()] && !inputState.keyBufferFull() &&
                          !SDL_IsTextInputActive())
                 {
                     /*
@@ -2007,7 +2007,7 @@ int32_t handleevents_pollsdl(void)
                     if ((unsigned)keyvalue <= 0x7Fu)
                     {
                         if (OSD_HandleChar(keyvalue))
-                            keyBufferInsert(keyvalue);
+                            inputState.keyBufferInsert(keyvalue);
                     }
                 }
 
@@ -2025,7 +2025,7 @@ int32_t handleevents_pollsdl(void)
                                 if (keypresscallback)
                                     keypresscallback(j, 0);
                             }
-                            keySetState(j, 0);
+                            inputState.keySetState(j, 0);
                         }
                     }
                     break;
@@ -2038,7 +2038,7 @@ int32_t handleevents_pollsdl(void)
                         if (keypresscallback)
                             keypresscallback(code, 1);
                     }
-                    keySetState(code, 1);
+                    inputState.keySetState(code, 1);
                 }
                 else
                 {
@@ -2049,7 +2049,7 @@ int32_t handleevents_pollsdl(void)
                     if (code == 0x59)  // pause
                         break;
 # endif
-                    keySetState(code, 0);
+                    inputState.keySetState(code, 0);
                     if (keypresscallback)
                         keypresscallback(code, 0);
                 }

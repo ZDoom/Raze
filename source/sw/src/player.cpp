@@ -2419,14 +2419,14 @@ MoveScrollMode2D(PLAYERp pp)
         return;
 
     // Recenter view if told
-    if (BUTTON(gamefunc_Center_View))
+    if (inputState.BUTTON(gamefunc_Center_View))
     {
         Follow_posx = pp->posx;
         Follow_posy = pp->posy;
     }
 
     // Toggle follow map mode on/off
-    if (BUTTON(gamefunc_Map_Follow_Mode))
+    if (inputState.BUTTON(gamefunc_Map_Follow_Mode))
     {
 		inputState.ClearButton(gamefunc_Map_Follow_Mode);
         ScrollMode2D = !ScrollMode2D;
@@ -2435,9 +2435,9 @@ MoveScrollMode2D(PLAYERp pp)
         Follow_posy = pp->posy;
     }
 
-    running = G_CheckAutorun(BUTTON(gamefunc_Run));
+    running = G_CheckAutorun(inputState.BUTTON(gamefunc_Run));
 
-    if (BUTTON(gamefunc_Strafe))
+    if (inputState.BUTTON(gamefunc_Strafe))
         mfsvel -= scrl_input.dyaw>>2;
     mfsvel -= scrl_input.dx>>2;
     mfvel = -scrl_input.dz>>2;
@@ -2454,11 +2454,11 @@ MoveScrollMode2D(PLAYERp pp)
 
     if (!HelpInputMode && !ConPanel)
     {
-        if (BUTTON(gamefunc_Turn_Left))
+        if (inputState.BUTTON(gamefunc_Turn_Left))
         {
             mfsvel -= -keymove;
         }
-        if (BUTTON(gamefunc_Turn_Right))
+        if (inputState.BUTTON(gamefunc_Turn_Right))
         {
             mfsvel -= keymove;
         }
@@ -2466,12 +2466,12 @@ MoveScrollMode2D(PLAYERp pp)
 
     if (!InputMode && !ConPanel)
     {
-        if (BUTTON(gamefunc_Strafe_Left))
+        if (inputState.BUTTON(gamefunc_Strafe_Left))
         {
             mfsvel += keymove;
         }
 
-        if (BUTTON(gamefunc_Strafe_Right))
+        if (inputState.BUTTON(gamefunc_Strafe_Right))
         {
             mfsvel += -keymove;
         }
@@ -2479,12 +2479,12 @@ MoveScrollMode2D(PLAYERp pp)
 
     if (!UsingMenus && !HelpInputMode && !ConPanel)
     {
-        if (BUTTON(gamefunc_Move_Forward))
+        if (inputState.BUTTON(gamefunc_Move_Forward))
         {
             mfvel += keymove;
         }
 
-        if (BUTTON(gamefunc_Move_Backward))
+        if (inputState.BUTTON(gamefunc_Move_Backward))
         {
             mfvel += -keymove;
         }
@@ -4116,7 +4116,7 @@ SWBOOL PlayerFlyKey(PLAYERp pp)
     if (InputMode)
         return FALSE;
 
-    key = KB_KeyPressed(KEYSC_J);
+    key = inputState.GetKeyStatus(KEYSC_J);
 
 	if (key)
 		inputState.ClearKeyStatus(KEYSC_J);
@@ -7398,7 +7398,7 @@ DoPlayerRun(PLAYERp pp)
     }
 
     // Crawl lock
-    // if (KB_KeyPressed(KEYSC_NUM))
+    // if (inputState.GetKeyStatus(KEYSC_NUM))
     if (TEST_SYNC_KEY(pp, SK_CRAWL_LOCK))
     {
         if (FLAG_KEY_PRESSED(pp, SK_CRAWL_LOCK))
@@ -7983,9 +7983,9 @@ domovethings(void)
 #if 0
     {
         extern SWBOOL PauseKeySet;
-        if (KB_KeyPressed(KEYSC_F5) && !(KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT)) && !PauseKeySet)
+        if (inputState.GetKeyStatus(KEYSC_F5) && !(inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT)) && !PauseKeySet)
         {
-            KB_KeyPressed(KEYSC_F5) = 0;
+            inputState.GetKeyStatus(KEYSC_F5) = 0;
             ResChange();
         }
     }

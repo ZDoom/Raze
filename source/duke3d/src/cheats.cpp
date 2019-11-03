@@ -248,7 +248,7 @@ static void G_CheatGetInv(DukePlayer_t *pPlayer)
 static void end_cheat(DukePlayer_t * const pPlayer)
 {
     pPlayer->cheat_phase = 0;
-    KB_FlushKeyboardQueue();
+    inputState.keyFlushChars();
 }
 
 static int32_t cheatbuflen;
@@ -310,9 +310,9 @@ void G_DoCheats(void)
     {
         int ch;
 
-        while (KB_KeyWaiting())
+        while (inputState.keyBufferWaiting())
         {
-            ch = Btolower(KB_GetCh());
+            ch = Btolower(inputState.keyGetChar());
 
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
@@ -326,7 +326,7 @@ void G_DoCheats(void)
             // cheat string matching logic below.
             Bassert(cheatbuflen < (signed)sizeof(cheatbuf));
             cheatbuf[cheatbuflen] = 0;
-            //            KB_ClearKeysDown();
+            //            inputState.ClearKeysDown();
 
             for (cheatNum=0; cheatNum < NUMCHEATCODES; cheatNum++)
             {
@@ -434,7 +434,7 @@ void G_DoCheats(void)
 
                 case CHEAT_KEYS:
                     pPlayer->got_access =  7;
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     P_DoQuote(QUOTE_CHEAT_ALL_KEYS, pPlayer);
                     end_cheat(pPlayer);
                     return;
@@ -465,7 +465,7 @@ void G_DoCheats(void)
                 case CHEAT_ALLEN:
                     P_DoQuote(QUOTE_CHEAT_ALLEN, pPlayer);
                     pPlayer->cheat_phase = 0;
-                    KB_ClearKeyDown(sc_N);
+                    inputState.ClearKeyStatus(sc_N);
                     return;
 
                 case CHEAT_CORNHOLIO:
@@ -628,7 +628,7 @@ void G_DoCheats(void)
 
                 case CHEAT_CASHMAN:
                     ud.cashman = 1-ud.cashman;
-                    KB_ClearKeyDown(sc_N);
+                    inputState.ClearKeyStatus(sc_N);
                     pPlayer->cheat_phase = 0;
                     return;
 
@@ -675,7 +675,7 @@ void G_DoCheats(void)
 
                 case CHEAT_BETA:
                     P_DoQuote(QUOTE_CHEAT_BETA, pPlayer);
-                    KB_ClearKeyDown(sc_H);
+                    inputState.ClearKeyStatus(sc_H);
                     end_cheat(pPlayer);
                     return;
 
@@ -705,7 +705,7 @@ void G_DoCheats(void)
                     ud.eog = 1;
                     pPlayer->player_par = 0;
                     pPlayer->gm |= MODE_EOL;
-                    KB_FlushKeyboardQueue();
+                    inputState.keyFlushChars();
                     return;
 
                 default:
@@ -717,17 +717,17 @@ void G_DoCheats(void)
     }
     else
     {
-        if (KB_KeyPressed((uint8_t) CheatKeys[0]))
+        if (inputState.GetKeyStatus((uint8_t) CheatKeys[0]))
         {
             if (pPlayer->cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
             {
                 if (CheatKeys[0] == CheatKeys[1])
-                    KB_ClearKeyDown((uint8_t) CheatKeys[0]);
+                    inputState.ClearKeyStatus((uint8_t) CheatKeys[0]);
                 pPlayer->cheat_phase = -1;
             }
         }
 
-        if (KB_KeyPressed((uint8_t) CheatKeys[1]))
+        if (inputState.GetKeyStatus((uint8_t) CheatKeys[1]))
         {
             if (pPlayer->cheat_phase == -1)
             {
@@ -742,13 +742,13 @@ void G_DoCheats(void)
                     //                    P_DoQuote(QUOTE_25,pPlayer);
                     cheatbuflen = 0;
                 }
-                KB_FlushKeyboardQueue();
+                inputState.keyFlushChars();
             }
             else if (pPlayer->cheat_phase != 0)
             {
                 pPlayer->cheat_phase = 0;
-                KB_ClearKeyDown((uint8_t) CheatKeys[0]);
-                KB_ClearKeyDown((uint8_t) CheatKeys[1]);
+                inputState.ClearKeyStatus((uint8_t) CheatKeys[0]);
+                inputState.ClearKeyStatus((uint8_t) CheatKeys[1]);
             }
         }
     }

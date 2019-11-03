@@ -230,10 +230,10 @@ void CGameMenuMgr::Process(void)
     event.at0 = 0;
     event.at2 = 0;
     char key;
-    if (!pActiveMenu->MouseEvent(event) && (key = keyGetScan()) != 0 )
+    if (!pActiveMenu->MouseEvent(event) && (key = inputState.keyGetScan()) != 0 )
     {
-        keyFlushScans();
-        keyFlushChars();
+        inputState.keyFlushScans();
+        inputState.keyFlushChars();
         event.at2 = key;
         switch (key)
         {
@@ -293,8 +293,8 @@ void CGameMenuMgr::Process(void)
 void CGameMenuMgr::Deactivate(void)
 {
     Clear();
-    keyFlushScans();
-    keyFlushChars();
+    inputState.keyFlushScans();
+    inputState.keyFlushChars();
     m_bActive = false;
 
     mouseLockToWindow(1);
@@ -1121,10 +1121,9 @@ CGameMenuItemKeyList::CGameMenuItemKeyList(const char *a1, int a2, int a3, int a
 
 void CGameMenuItemKeyList::Scan(void)
 {
-    KB_FlushKeyboardQueue();
-    KB_FlushKeyboardQueueScans();
-    KB_ClearKeysDown();
-    KB_LastScan = 0;
+    inputState.keyFlushChars();
+    inputState.keyFlushScans();
+    inputState.ClearKeysDown();
     bScan = true;
 }
 
@@ -1199,17 +1198,17 @@ bool CGameMenuItemKeyList::Event(CGameMenuEvent &event)
 {
     if (bScan)
     {
-        if (KB_LastScan && KB_LastScan != sc_Pause)
+        if (inputState.GetLastScanCode() && inputState.GetLastScanCode() != sc_Pause)
         {
-            if (KB_KeyWaiting())
-                KB_GetCh();
+            if (inputState.keyBufferWaiting())
+                inputState.keyGetChar();
 
-			Bindings.SetBind(KB_LastScan, CONFIG_FunctionNumToName(nFocus));
-            KB_FlushKeyboardQueue();
-            KB_FlushKeyboardQueueScans();
-            KB_ClearKeysDown();
-            keyFlushScans();
-            keyFlushChars();
+			Bindings.SetBind(inputState.GetLastScanCode(), CONFIG_FunctionNumToName(nFocus));
+            inputState.keyFlushChars();
+            inputState.keyFlushScans();
+            inputState.ClearKeysDown();
+            inputState.keyFlushScans();
+            inputState.keyFlushChars();
             bScan = 0;
         }
         return false;
@@ -2049,8 +2048,8 @@ bool CGameMenuItemZEditBitmap::Event(CGameMenuEvent &event)
                 gGameMenuMgr.m_bScanning = false;
             }
             gSaveGameActive = false;
-            KB_ClearKeyDown(sc_Enter);
-            KB_ClearKeyDown(sc_kpad_Enter);
+            inputState.ClearKeyStatus(sc_Enter);
+            inputState.ClearKeyStatus(sc_kpad_Enter);
             return false;
         }
         strncpy(buffer, at20, at24);

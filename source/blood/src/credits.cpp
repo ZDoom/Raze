@@ -48,7 +48,7 @@ char Wait(int nTicks)
     while (totalclock < nTicks)
     {
         gameHandleEvents();
-        char key = keyGetScan();
+        char key = inputState.keyGetScan();
         if (key)
         {
             if (key == sc_Escape) // sc_Escape
@@ -71,7 +71,7 @@ char DoFade(char r, char g, char b, int nTicks)
         gFrameClock += 2;
         scrNextPage();
         scrFadeAmount(divscale16(ClipHigh((int)totalclock, nTicks), nTicks));
-        if (keyGetScan())
+        if (inputState.keyGetScan())
             return 0;
     } while (totalclock <= nTicks);
 #endif
@@ -90,7 +90,7 @@ char DoUnFade(int nTicks)
         gFrameClock += 2;
         scrNextPage();
         scrFadeAmount(0x10000-divscale16(ClipHigh((int)totalclock, nTicks), nTicks));
-        if (keyGetScan())
+        if (inputState.keyGetScan())
             return 0;
     } while (totalclock <= nTicks);
 #endif

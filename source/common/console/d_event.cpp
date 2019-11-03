@@ -26,7 +26,7 @@
 
 int eventhead;
 int eventtail;
-event_t events[MAXEVENTS];
+event_t events[NUM_EVENTS];
 
 //==========================================================================
 //
@@ -138,7 +138,7 @@ bool G_Responder (event_t *ev)
 void D_ProcessEvents (void)
 {
 	event_t *ev;
-	for (; eventtail != eventhead ; eventtail = (eventtail+1)&(MAXEVENTS-1))
+	for (; eventtail != eventhead ; eventtail = (eventtail+1)&(NUM_EVENTS-1))
 	{
 		ev = &events[eventtail];
 		if (ev->type == EV_None)
@@ -193,7 +193,7 @@ void D_PostEvent (const event_t *ev)
 		}
 	}
 #endif
-	eventhead = (eventhead+1)&(MAXEVENTS-1);
+	eventhead = (eventhead+1)&(NUM_EVENTS-1);
 }
 
 //==========================================================================
@@ -213,7 +213,7 @@ void D_PostEvent (const event_t *ev)
 void D_RemoveNextCharEvent()
 {
 	assert(events[eventtail].type == EV_GUI_Event && events[eventtail].subtype == EV_GUI_KeyDown);
-	for (int evnum = eventtail; evnum != eventhead; evnum = (evnum+1) & (MAXEVENTS-1))
+	for (int evnum = eventtail; evnum != eventhead; evnum = (evnum+1) & (NUM_EVENTS-1))
 	{
 		event_t *ev = &events[evnum];
 		if (ev->type != EV_GUI_Event)

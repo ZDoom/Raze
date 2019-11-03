@@ -1067,8 +1067,8 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
         {
             if (resetFlags & 4)
             {
-                KB_FlushKeyboardQueue();
-                KB_ClearKeysDown();
+                inputState.keyFlushChars();
+                inputState.ClearKeysDown();
                 FX_StopAllSounds();
                 S_ClearSoundLocks();
                 if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
@@ -1080,7 +1080,7 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
             else if (!(resetFlags & 1))
             {
                 Menu_Open(playerNum);
-                KB_ClearKeyDown(sc_Space);
+                inputState.ClearKeyStatus(sc_Space);
                 I_AdvanceTriggerClear();
                 Menu_Change(MENU_RESETPLAYER);
             }

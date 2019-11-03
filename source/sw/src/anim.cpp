@@ -271,8 +271,8 @@ playanm(short anim_num)
 
     ANIMnum = anim_num;
 
-    KB_FlushKeyboardQueue();
-    KB_ClearKeysDown();
+    inputState.keyFlushChars();
+    inputState.ClearKeysDown();
 
     DSPRINTF(ds,"PlayAnm");
     MONO_PRINT(ds);
@@ -322,11 +322,11 @@ playanm(short anim_num)
             switch (ANIMnum)
             {
             case ANIM_INTRO:
-                if (KB_KeyWaiting() || uinfo.button0 || uinfo.button1 || quitevent)
+                if (inputState.keyBufferWaiting() || uinfo.button0 || uinfo.button1 || quitevent)
                     goto ENDOFANIMLOOP;
                 break;
             case ANIM_SERP:
-                if (KB_KeyPressed(KEYSC_ESC) || uinfo.button1 || quitevent)
+                if (inputState.GetKeyStatus(KEYSC_ESC) || uinfo.button1 || quitevent)
                     goto ENDOFANIMLOOP;
                 break;
             }
@@ -371,8 +371,8 @@ ENDOFANIMLOOP:
 
     videoSetPalette(0, BASEPAL, 2);
 
-    KB_FlushKeyboardQueue();
-    KB_ClearKeysDown();
+    inputState.keyFlushChars();
+    inputState.ClearKeysDown();
     ANIM_FreeAnim();
 }
 END_SW_NS

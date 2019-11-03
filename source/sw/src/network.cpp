@@ -637,7 +637,7 @@ waitforeverybody(void)
     }
 #endif
 
-    //KB_KeyPressed(KEYSC_ESC) = FALSE;
+    //inputState.GetKeyStatus(KEYSC_ESC) = FALSE;
     Player[myconnectindex].playerreadyflag++;
 
     while (TRUE)
@@ -657,7 +657,7 @@ waitforeverybody(void)
         if (quitevent || (wfe_ExitCallback && wfe_ExitCallback()))
         {
             // allow exit
-            //if (KB_KeyPressed(KEYSC_ESC))
+            //if (inputState.GetKeyStatus(KEYSC_ESC))
             {
                 short pnum;
                 //TRAVERSE_CONNECT(pnum)
@@ -940,7 +940,7 @@ faketimerhandler(void)
     extern SWBOOL BotMode;
 
 #if 0
-    if (KB_KeyPressed(KEYSC_PERIOD))
+    if (inputState.GetKeyStatus(KEYSC_PERIOD))
     {
         extern unsigned int MoveThingsCount;
         MoveThingsCount++;

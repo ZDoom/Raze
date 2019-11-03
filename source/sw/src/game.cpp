@@ -1603,7 +1603,7 @@ KeyPressed(void)
 
     for (i = 0; i < NUMKEYS; i++)
     {
-        if (KB_KeyPressed(i))
+        if (inputState.GetKeyStatus(i))
             return TRUE;
     }
 
@@ -1797,7 +1797,7 @@ CreditsLevel(void)
         if (!SongIsPlaying())
             break;
 
-        if (KB_KeyPressed(KEYSC_ESC))
+        if (inputState.GetKeyStatus(KEYSC_ESC))
             break;
     }
 
@@ -2170,7 +2170,7 @@ MenuLevel(void)
     BorderAdjust = TRUE;
     //LoadGameOutsideMoveLoop = FALSE;
 	inputState.ClearKeyStatus(sc_Escape);
-	KB_ClearKeysDown();
+	inputState.ClearKeysDown();
     //ExitMenus();
     UsingMenus = FALSE;
     InMenuLevel = FALSE;
@@ -2410,7 +2410,7 @@ BonusScreen(PLAYERp pp)
     videoClearViewableArea(0L);
     videoNextPage();
 
-    KB_ClearKeysDown();
+    inputState.ClearKeysDown();
 
     totalclock = ototalclock = 0;
     limit = synctics;
@@ -2444,7 +2444,7 @@ BonusScreen(PLAYERp pp)
 
         CONTROL_GetUserInput(&uinfo);
         CONTROL_ClearUserInput(&uinfo);
-        if (KB_KeyPressed(KEYSC_SPACE) || KB_KeyPressed(KEYSC_ENTER) || uinfo.button0 || uinfo.button1)
+        if (inputState.GetKeyStatus(KEYSC_SPACE) || inputState.GetKeyStatus(KEYSC_ENTER) || uinfo.button0 || uinfo.button1)
         {
             if (State >= s_BonusRest && State < &s_BonusRest[SIZ(s_BonusRest)])
             {
@@ -2738,7 +2738,7 @@ StatScreen(PLAYERp mpp)
         PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
     }
 
-    while (!KB_KeyPressed(KEYSC_SPACE) && !KB_KeyPressed(KEYSC_ENTER))
+    while (!inputState.GetKeyStatus(KEYSC_SPACE) && !inputState.GetKeyStatus(KEYSC_ENTER))
     {
         handleevents();
 
@@ -3443,7 +3443,7 @@ SinglePlayInput(PLAYERp pp)
     int pnum = myconnectindex;
     uint8_t* kp;
 
-    if (BUTTON(gamefunc_See_Co_Op_View) && !UsingMenus && !ConPanel && dimensionmode == 3)
+    if (inputState.BUTTON(gamefunc_See_Co_Op_View) && !UsingMenus && !ConPanel && dimensionmode == 3)
     {
         short oldscreenpeek = screenpeek;
 
@@ -3479,7 +3479,7 @@ DebugKeys(PLAYERp pp)
 {
     short w, h;
 
-    if (!(KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT)))
+    if (!(inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT)))
         return;
 
     if (InputMode)
@@ -3492,9 +3492,9 @@ DebugKeys(PLAYERp pp)
     // visiblity adjust
     //
 
-    if (KB_KeyPressed(KEYSC_L) > 0)
+    if (inputState.GetKeyStatus(KEYSC_L) > 0)
     {
-        if (KB_KeyPressed(KEYSC_LSHIFT) | KB_KeyPressed(KEYSC_RSHIFT))      // SHIFT
+        if (inputState.GetKeyStatus(KEYSC_LSHIFT) | inputState.GetKeyStatus(KEYSC_RSHIFT))      // SHIFT
         {
             g_visibility = g_visibility - (g_visibility >> 3);
 
@@ -3506,7 +3506,7 @@ DebugKeys(PLAYERp pp)
         }
         else
         {
-            KB_KeyPressed(KEYSC_L) = 0;
+            inputState.GetKeyStatus(KEYSC_L) = 0;
 
             g_visibility = g_visibility - (g_visibility >> 3);
 
@@ -3519,12 +3519,12 @@ DebugKeys(PLAYERp pp)
     // parallax changes
     //
 
-    if (KB_KeyPressed(KEYSC_X))
+    if (inputState.GetKeyStatus(KEYSC_X))
     {
-        if (KB_KeyPressed(KEYSC_LSHIFT))
+        if (inputState.GetKeyStatus(KEYSC_LSHIFT))
         {
-            KB_KeyPressed(KEYSC_LSHIFT) = FALSE;
-            KB_KeyPressed(KEYSC_X) = 0;
+            inputState.GetKeyStatus(KEYSC_LSHIFT) = FALSE;
+            inputState.GetKeyStatus(KEYSC_X) = 0;
 
             parallaxyoffs_override += 10;
 
@@ -3533,7 +3533,7 @@ DebugKeys(PLAYERp pp)
         }
         else
         {
-            KB_KeyPressed(KEYSC_X) = 0;
+            inputState.GetKeyStatus(KEYSC_X) = 0;
             parallaxtype++;
             if (parallaxtype > 2)
                 parallaxtype = 0;
@@ -3550,12 +3550,12 @@ ConKey(void)
     // Console Input Panel
     if (!ConPanel && dimensionmode == 3)
     {
-        //if (KB_KeyPressed(KEYSC_TILDE) && KB_KeyPressed(KEYSC_LSHIFT))
-        if (KB_KeyPressed(KEYSC_TILDE))
+        //if (inputState.GetKeyStatus(KEYSC_TILDE) && inputState.GetKeyStatus(KEYSC_LSHIFT))
+        if (inputState.GetKeyStatus(KEYSC_TILDE))
         {
-            KB_KeyPressed(KEYSC_TILDE) = FALSE;
-            //KB_KeyPressed(KEYSC_LSHIFT) = FALSE;
-            KB_FlushKeyboardQueue();
+            inputState.GetKeyStatus(KEYSC_TILDE) = FALSE;
+            //inputState.GetKeyStatus(KEYSC_LSHIFT) = FALSE;
+            inputState.keyFlushChars();
             ConPanel = TRUE;
             InputMode = TRUE;
             ConInputMode = TRUE;
@@ -3566,12 +3566,12 @@ ConKey(void)
     }
     else if (ConPanel)
     {
-        //if (KB_KeyPressed(KEYSC_TILDE) && KB_KeyPressed(KEYSC_LSHIFT))
-        if (KB_KeyPressed(KEYSC_TILDE))
+        //if (inputState.GetKeyStatus(KEYSC_TILDE) && inputState.GetKeyStatus(KEYSC_LSHIFT))
+        if (inputState.GetKeyStatus(KEYSC_TILDE))
         {
-            KB_KeyPressed(KEYSC_TILDE) = FALSE;
-            //KB_KeyPressed(KEYSC_LSHIFT) = FALSE;
-            KB_FlushKeyboardQueue();
+            inputState.GetKeyStatus(KEYSC_TILDE) = FALSE;
+            //inputState.GetKeyStatus(KEYSC_LSHIFT) = FALSE;
+            inputState.keyFlushChars();
             ConPanel = FALSE;
             ConInputMode = FALSE;
             InputMode = FALSE;
@@ -3594,16 +3594,16 @@ FunctionKeys(PLAYERp pp)
 
     rts_delay++;
 
-    if (KB_KeyPressed(sc_F1))   { fn_key = 1; }
-    if (KB_KeyPressed(sc_F2))   { fn_key = 2; }
-    if (KB_KeyPressed(sc_F3))   { fn_key = 3; }
-    if (KB_KeyPressed(sc_F4))   { fn_key = 4; }
-    if (KB_KeyPressed(sc_F5))   { fn_key = 5; }
-    if (KB_KeyPressed(sc_F6))   { fn_key = 6; }
-    if (KB_KeyPressed(sc_F7))   { fn_key = 7; }
-    if (KB_KeyPressed(sc_F8))   { fn_key = 8; }
-    if (KB_KeyPressed(sc_F9))   { fn_key = 9; }
-    if (KB_KeyPressed(sc_F10))  { fn_key = 10; }
+    if (inputState.GetKeyStatus(sc_F1))   { fn_key = 1; }
+    if (inputState.GetKeyStatus(sc_F2))   { fn_key = 2; }
+    if (inputState.GetKeyStatus(sc_F3))   { fn_key = 3; }
+    if (inputState.GetKeyStatus(sc_F4))   { fn_key = 4; }
+    if (inputState.GetKeyStatus(sc_F5))   { fn_key = 5; }
+    if (inputState.GetKeyStatus(sc_F6))   { fn_key = 6; }
+    if (inputState.GetKeyStatus(sc_F7))   { fn_key = 7; }
+    if (inputState.GetKeyStatus(sc_F8))   { fn_key = 8; }
+    if (inputState.GetKeyStatus(sc_F9))   { fn_key = 9; }
+    if (inputState.GetKeyStatus(sc_F10))  { fn_key = 10; }
 
     if (inputState.AltPressed())
     {
@@ -3661,7 +3661,7 @@ FunctionKeys(PLAYERp pp)
     if (numplayers <= 1)
     {
         // F2 save menu
-        if (KB_KeyPressed(KEYSC_F2))
+        if (inputState.GetKeyStatus(KEYSC_F2))
         {
 			inputState.ClearKeyStatus(KEYSC_F2);
             if (!TEST(pp->Flags, PF_DEAD))
@@ -3672,7 +3672,7 @@ FunctionKeys(PLAYERp pp)
         }
 
         // F3 load menu
-        if (KB_KeyPressed(KEYSC_F3))
+        if (inputState.GetKeyStatus(KEYSC_F3))
         {
 			inputState.ClearKeyStatus(KEYSC_F3);
 			if (!TEST(pp->Flags, PF_DEAD))
@@ -3683,7 +3683,7 @@ FunctionKeys(PLAYERp pp)
         }
 
         // F6 option menu
-        if (KB_KeyPressed(KEYSC_F6))
+        if (inputState.GetKeyStatus(KEYSC_F6))
         {
             extern SWBOOL QuickSaveMode;
 			inputState.ClearKeyStatus(KEYSC_F6);
@@ -3696,7 +3696,7 @@ FunctionKeys(PLAYERp pp)
         }
 
         // F9 quick load
-        if (KB_KeyPressed(KEYSC_F9))
+        if (inputState.GetKeyStatus(KEYSC_F9))
         {
 			inputState.ClearKeyStatus(KEYSC_F9);
 
@@ -3708,7 +3708,7 @@ FunctionKeys(PLAYERp pp)
                 }
                 else
                 {
-                    KB_ClearKeysDown();
+                    inputState.ClearKeysDown();
 					inputState.SetKeyStatus(sc_Escape);
 					ControlPanelType = ct_quickloadmenu;
                 }
@@ -3719,7 +3719,7 @@ FunctionKeys(PLAYERp pp)
 
 
     // F4 sound menu
-    if (KB_KeyPressed(KEYSC_F4))
+    if (inputState.GetKeyStatus(KEYSC_F4))
     {
 		inputState.ClearKeyStatus(KEYSC_F4);
 		inputState.SetKeyStatus(sc_Escape);
@@ -3728,11 +3728,11 @@ FunctionKeys(PLAYERp pp)
 
 
     // F7 VIEW control
-    if (KB_KeyPressed(KEYSC_F7))
+    if (inputState.GetKeyStatus(KEYSC_F7))
     {
 		inputState.ClearKeyStatus(KEYSC_F7);
 
-        if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
+        if (inputState.GetKeyStatus(KEYSC_LSHIFT) || inputState.GetKeyStatus(KEYSC_RSHIFT))
         {
             if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
                 pp->view_outside_dang = NORM_ANGLE(pp->view_outside_dang + 256);
@@ -3752,7 +3752,7 @@ FunctionKeys(PLAYERp pp)
     }
 
     // F8 toggle messages
-    if (KB_KeyPressed(KEYSC_F8))
+    if (inputState.GetKeyStatus(KEYSC_F8))
     {
 		inputState.ClearKeyStatus(KEYSC_F8);
 
@@ -3765,7 +3765,7 @@ FunctionKeys(PLAYERp pp)
     }
 
     // F10 quit menu
-    if (KB_KeyPressed(KEYSC_F10))
+    if (inputState.GetKeyStatus(KEYSC_F10))
     {
 		inputState.ClearKeyStatus(KEYSC_F10);
 		inputState.SetKeyStatus(sc_Escape);
@@ -3773,7 +3773,7 @@ FunctionKeys(PLAYERp pp)
     }
 
     // F11 gamma correction
-    if (KB_KeyPressed(KEYSC_F11) > 0)
+    if (inputState.GetKeyStatus(KEYSC_F11) > 0)
     {
 		inputState.ClearKeyStatus(KEYSC_F11);
 		// Do this entirely in the video backend.
@@ -3787,7 +3787,7 @@ void PauseKey(PLAYERp pp)
     extern short QuickLoadNum;
     extern SWBOOL enabled;
 
-    if (KB_KeyPressed(sc_Pause) && !CommEnabled && !InputMode && !UsingMenus && !CheatInputMode && !ConPanel)
+    if (inputState.GetKeyStatus(sc_Pause) && !CommEnabled && !InputMode && !UsingMenus && !CheatInputMode && !ConPanel)
     {
 		inputState.ClearKeyStatus(sc_Pause);
 
@@ -3844,10 +3844,10 @@ void GetMessageInput(PLAYERp pp)
 
     if (!MessageInputMode && !ConInputMode)
     {
-        if (BUTTON(gamefunc_SendMessage))
+        if (inputState.BUTTON(gamefunc_SendMessage))
         {
             inputState.ClearButton(gamefunc_SendMessage);
-            KB_FlushKeyboardQueue();
+            inputState.keyFlushChars();
             MessageInputMode = TRUE;
             InputMode = TRUE;
             TeamSendTeam = FALSE;
@@ -3870,8 +3870,8 @@ void GetMessageInput(PLAYERp pp)
         case -1: // Cancel Input (pressed ESC) or Err
             MessageInputMode = FALSE;
             InputMode = FALSE;
-            KB_ClearKeysDown();
-            KB_FlushKeyboardQueue();
+            inputState.ClearKeysDown();
+            inputState.keyFlushChars();
             break;
         case FALSE: // Input finished (RETURN)
             if (MessageInputString[0] == '\0')
@@ -3879,8 +3879,8 @@ void GetMessageInput(PLAYERp pp)
                 // no input
                 MessageInputMode = FALSE;
                 InputMode = FALSE;
-                KB_ClearKeysDown();
-                KB_FlushKeyboardQueue();
+                inputState.ClearKeysDown();
+                inputState.keyFlushChars();
                 inputState.ClearButton(gamefunc_Inventory);
             }
             else
@@ -3913,8 +3913,8 @@ SEND_MESSAGE:
                 // broadcast message
                 MessageInputMode = FALSE;
                 InputMode = FALSE;
-                KB_ClearKeysDown();
-                KB_FlushKeyboardQueue();
+                inputState.ClearKeysDown();
+                inputState.keyFlushChars();
                 inputState.ClearButton(gamefunc_Inventory);
                 CON_ProcessUserCommand();     // Check to see if it's a cheat or command
 
@@ -4001,24 +4001,24 @@ void GetConInput(PLAYERp pp)
         {
         case -1: // Cancel Input (pressed ESC) or Err
             InputMode = FALSE;
-            KB_ClearKeysDown();
-            KB_FlushKeyboardQueue();
+            inputState.ClearKeysDown();
+            inputState.keyFlushChars();
             memset(MessageInputString, '\0', sizeof(MessageInputString));
             break;
         case FALSE: // Input finished (RETURN)
             if (MessageInputString[0] == '\0')
             {
                 InputMode = FALSE;
-                KB_ClearKeysDown();
-                KB_FlushKeyboardQueue();
+                inputState.ClearKeysDown();
+                inputState.keyFlushChars();
                 inputState.ClearButton(gamefunc_Inventory);
                 memset(MessageInputString, '\0', sizeof(MessageInputString));
             }
             else
             {
                 InputMode = FALSE;
-                KB_ClearKeysDown();
-                KB_FlushKeyboardQueue();
+                inputState.ClearKeysDown();
+                inputState.keyFlushChars();
                 inputState.ClearButton(gamefunc_Inventory);
                 CON_ConMessage("%s", MessageInputString);
                 CON_ProcessUserCommand();     // Check to see if it's a cheat or command
@@ -4041,10 +4041,10 @@ void GetHelpInput(PLAYERp pp)
 {
     extern SWBOOL GamePaused;
 
-    if (KB_KeyPressed(KEYSC_ALT) || KB_KeyPressed(KEYSC_RALT))
+    if (inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT))
         return;
 
-    if (KB_KeyPressed(KEYSC_LSHIFT) || KB_KeyPressed(KEYSC_RSHIFT))
+    if (inputState.GetKeyStatus(KEYSC_LSHIFT) || inputState.GetKeyStatus(KEYSC_RSHIFT))
         return;
 
     if (MessageInputMode || ConInputMode)
@@ -4053,7 +4053,7 @@ void GetHelpInput(PLAYERp pp)
     // F1 help menu
     if (!HelpInputMode)
     {
-        if (KB_KeyPressed(KEYSC_F1))
+        if (inputState.GetKeyStatus(KEYSC_F1))
         {
 			inputState.ClearKeyStatus(KEYSC_F11);
 			HelpPage = 0;
@@ -4066,10 +4066,10 @@ void GetHelpInput(PLAYERp pp)
     }
     else if (HelpInputMode)
     {
-        if (KB_KeyPressed(KEYSC_ESC))
+        if (inputState.GetKeyStatus(KEYSC_ESC))
         {
 			inputState.ClearKeyStatus(sc_Escape);
-			KB_ClearKeysDown();
+			inputState.ClearKeysDown();
             PanelUpdateMode = TRUE;
             HelpInputMode = FALSE;
             InputMode = FALSE;
@@ -4078,7 +4078,7 @@ void GetHelpInput(PLAYERp pp)
             SetRedrawScreen(pp);
         }
 
-        if (KB_KeyPressed(KEYSC_SPACE) || KB_KeyPressed(KEYSC_ENTER) || KB_KeyPressed(KEYSC_PGDN) || KB_KeyPressed(KEYSC_DOWN) || KB_KeyPressed(KEYSC_RIGHT) || KB_KeyPressed(sc_kpad_3) || KB_KeyPressed(sc_kpad_2) || KB_KeyPressed(sc_kpad_6))
+        if (inputState.GetKeyStatus(KEYSC_SPACE) || inputState.GetKeyStatus(KEYSC_ENTER) || inputState.GetKeyStatus(KEYSC_PGDN) || inputState.GetKeyStatus(KEYSC_DOWN) || inputState.GetKeyStatus(KEYSC_RIGHT) || inputState.GetKeyStatus(sc_kpad_3) || inputState.GetKeyStatus(sc_kpad_2) || inputState.GetKeyStatus(sc_kpad_6))
         {
 			inputState.ClearKeyStatus(KEYSC_SPACE);
 			inputState.ClearKeyStatus(KEYSC_ENTER);
@@ -4098,7 +4098,7 @@ void GetHelpInput(PLAYERp pp)
             // CTW MODIFICATION END
         }
 
-        if (KB_KeyPressed(KEYSC_PGUP) || KB_KeyPressed(KEYSC_UP) || KB_KeyPressed(KEYSC_LEFT) || KB_KeyPressed(sc_kpad_9) || KB_KeyPressed(sc_kpad_8) || KB_KeyPressed(sc_kpad_4))
+        if (inputState.GetKeyStatus(KEYSC_PGUP) || inputState.GetKeyStatus(KEYSC_UP) || inputState.GetKeyStatus(KEYSC_LEFT) || inputState.GetKeyStatus(sc_kpad_9) || inputState.GetKeyStatus(sc_kpad_8) || inputState.GetKeyStatus(sc_kpad_4))
         {
 			inputState.ClearKeyStatus(KEYSC_PGUP);
 			inputState.ClearKeyStatus(KEYSC_UP);
@@ -4167,7 +4167,7 @@ getinput(SW_PACKET *loc)
 	if (in_aimmode)
 		g_MyAimMode = 0;
 
-	if (BUTTON(gamefunc_Mouse_Aiming))
+	if (inputState.BUTTON(gamefunc_Mouse_Aiming))
 	{
 		if (in_aimmode)
 			g_MyAimMode = 1;
@@ -4205,7 +4205,7 @@ getinput(SW_PACKET *loc)
     }
 
     // MAP KEY
-    if (BUTTON(gamefunc_Map))
+    if (inputState.BUTTON(gamefunc_Map))
     {
         inputState.ClearButton(gamefunc_Map);
 
@@ -4230,7 +4230,7 @@ getinput(SW_PACKET *loc)
     // Toggle follow map mode on/off
     if (dimensionmode == 5 || dimensionmode == 6)
     {
-        if (BUTTON(gamefunc_Map_Follow_Mode))
+        if (inputState.BUTTON(gamefunc_Map_Follow_Mode))
         {
 			inputState.ClearButton(gamefunc_Map_Follow_Mode);
             ScrollMode2D = !ScrollMode2D;
@@ -4249,11 +4249,11 @@ getinput(SW_PACKET *loc)
     if (MenuInputMode || UsingMenus || ScrollMode2D || InputMode)
         return;
 
-    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!KB_KeyPressed(KEYSC_SPACE)) | BUTTON(gamefunc_Open)));
+    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | inputState.BUTTON(gamefunc_Open)));
 
-    running = G_CheckAutorun(BUTTON(gamefunc_Run));
+    running = G_CheckAutorun(inputState.BUTTON(gamefunc_Run));
 
-    if (BUTTON(gamefunc_Strafe) && !pp->sop)
+    if (inputState.BUTTON(gamefunc_Strafe) && !pp->sop)
         svel = -info.dyaw;
     else
     {
@@ -4291,16 +4291,16 @@ getinput(SW_PACKET *loc)
         keymove = NORMALKEYMOVE;
     }
 
-    if (BUTTON(gamefunc_Strafe) && !pp->sop)
+    if (inputState.BUTTON(gamefunc_Strafe) && !pp->sop)
     {
-        if (BUTTON(gamefunc_Turn_Left))
+        if (inputState.BUTTON(gamefunc_Turn_Left))
             svel -= -keymove;
-        if (BUTTON(gamefunc_Turn_Right))
+        if (inputState.BUTTON(gamefunc_Turn_Right))
             svel -= keymove;
     }
     else
     {
-        if (BUTTON(gamefunc_Turn_Left))
+        if (inputState.BUTTON(gamefunc_Turn_Left))
         {
             turnheldtime += synctics;
             if (turnheldtime >= TURBOTURNTIME)
@@ -4308,7 +4308,7 @@ getinput(SW_PACKET *loc)
             else
                 angvel -= PREAMBLETURN;
         }
-        else if (BUTTON(gamefunc_Turn_Right))
+        else if (inputState.BUTTON(gamefunc_Turn_Right))
         {
             turnheldtime += synctics;
             if (turnheldtime >= TURBOTURNTIME)
@@ -4322,13 +4322,13 @@ getinput(SW_PACKET *loc)
         }
     }
 
-    if (BUTTON(gamefunc_Strafe_Left) && !pp->sop)
+    if (inputState.BUTTON(gamefunc_Strafe_Left) && !pp->sop)
         svel += keymove;
 
-    if (BUTTON(gamefunc_Strafe_Right) && !pp->sop)
+    if (inputState.BUTTON(gamefunc_Strafe_Right) && !pp->sop)
         svel += -keymove;
 
-    if (BUTTON(gamefunc_Move_Forward))
+    if (inputState.BUTTON(gamefunc_Move_Forward))
     {
         vel += keymove;
         //DSPRINTF(ds,"vel key %d",vel);
@@ -4340,7 +4340,7 @@ getinput(SW_PACKET *loc)
         //DebugWriteString(ds);
     }
 
-    if (BUTTON(gamefunc_Move_Backward))
+    if (inputState.BUTTON(gamefunc_Move_Backward))
         vel += -keymove;
 
 
@@ -4377,36 +4377,36 @@ getinput(SW_PACKET *loc)
                 SET_LOC_KEY(loc->bits, SK_AUTO_AIM, TRUE);
         }
     }
-    else if (KB_KeyPressed(sc_Pause))
+    else if (inputState.GetKeyStatus(sc_Pause))
     {
-        SET_LOC_KEY(loc->bits, SK_PAUSE, KB_KeyPressed(sc_Pause));
+        SET_LOC_KEY(loc->bits, SK_PAUSE, inputState.GetKeyStatus(sc_Pause));
 		inputState.ClearKeyStatus(sc_Pause);
 	}
 
-    SET_LOC_KEY(loc->bits, SK_CENTER_VIEW, BUTTON(gamefunc_Center_View));
+    SET_LOC_KEY(loc->bits, SK_CENTER_VIEW, inputState.BUTTON(gamefunc_Center_View));
 
-    SET_LOC_KEY(loc->bits, SK_RUN, BUTTON(gamefunc_Run));
-    SET_LOC_KEY(loc->bits, SK_SHOOT, BUTTON(gamefunc_Fire));
+    SET_LOC_KEY(loc->bits, SK_RUN, inputState.BUTTON(gamefunc_Run));
+    SET_LOC_KEY(loc->bits, SK_SHOOT, inputState.BUTTON(gamefunc_Fire));
 
     // actually snap
-    SET_LOC_KEY(loc->bits, SK_SNAP_UP, BUTTON(gamefunc_Aim_Up));
-    SET_LOC_KEY(loc->bits, SK_SNAP_DOWN, BUTTON(gamefunc_Aim_Down));
+    SET_LOC_KEY(loc->bits, SK_SNAP_UP, inputState.BUTTON(gamefunc_Aim_Up));
+    SET_LOC_KEY(loc->bits, SK_SNAP_DOWN, inputState.BUTTON(gamefunc_Aim_Down));
 
     // actually just look
-    SET_LOC_KEY(loc->bits, SK_LOOK_UP, BUTTON(gamefunc_Look_Up));
-    SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, BUTTON(gamefunc_Look_Down));
+    SET_LOC_KEY(loc->bits, SK_LOOK_UP, inputState.BUTTON(gamefunc_Look_Up));
+    SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, inputState.BUTTON(gamefunc_Look_Down));
 
 
     for (i = 0; i < MAX_WEAPONS_KEYS; i++)
     {
-        if (BUTTON(gamefunc_Weapon_1 + i))
+        if (inputState.BUTTON(gamefunc_Weapon_1 + i))
         {
             SET(loc->bits, i + 1);
             break;
         }
     }
 
-    if (BUTTON(gamefunc_Next_Weapon))
+    if (inputState.BUTTON(gamefunc_Next_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short next_weapon = u->WeaponNum + 1;
@@ -4446,7 +4446,7 @@ getinput(SW_PACKET *loc)
     }
 
 
-    if (BUTTON(gamefunc_Previous_Weapon))
+    if (inputState.BUTTON(gamefunc_Previous_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short prev_weapon = u->WeaponNum - 1;
@@ -4484,40 +4484,40 @@ getinput(SW_PACKET *loc)
     }
 
     inv_hotkey = 0;
-    if (BUTTON(gamefunc_Med_Kit))
+    if (inputState.BUTTON(gamefunc_Med_Kit))
         inv_hotkey = INVENTORY_MEDKIT+1;
-    if (BUTTON(gamefunc_Smoke_Bomb))
+    if (inputState.BUTTON(gamefunc_Smoke_Bomb))
         inv_hotkey = INVENTORY_CLOAK+1;
-    if (BUTTON(gamefunc_Night_Vision))
+    if (inputState.BUTTON(gamefunc_Night_Vision))
         inv_hotkey = INVENTORY_NIGHT_VISION+1;
-    if (BUTTON(gamefunc_Gas_Bomb))
+    if (inputState.BUTTON(gamefunc_Gas_Bomb))
         inv_hotkey = INVENTORY_CHEMBOMB+1;
-    if (BUTTON(gamefunc_Flash_Bomb) && dimensionmode == 3)
+    if (inputState.BUTTON(gamefunc_Flash_Bomb) && dimensionmode == 3)
         inv_hotkey = INVENTORY_FLASHBOMB+1;
-    if (BUTTON(gamefunc_Caltrops))
+    if (inputState.BUTTON(gamefunc_Caltrops))
         inv_hotkey = INVENTORY_CALTROPS+1;
 
     SET(loc->bits, inv_hotkey<<SK_INV_HOTKEY_BIT0);
 
-    SET_LOC_KEY(loc->bits, SK_INV_USE, BUTTON(gamefunc_Inventory));
+    SET_LOC_KEY(loc->bits, SK_INV_USE, inputState.BUTTON(gamefunc_Inventory));
 
-    SET_LOC_KEY(loc->bits, SK_OPERATE, BUTTON(gamefunc_Open));
-    SET_LOC_KEY(loc->bits, SK_JUMP, BUTTON(gamefunc_Jump));
-    SET_LOC_KEY(loc->bits, SK_CRAWL, BUTTON(gamefunc_Crouch));
+    SET_LOC_KEY(loc->bits, SK_OPERATE, inputState.BUTTON(gamefunc_Open));
+    SET_LOC_KEY(loc->bits, SK_JUMP, inputState.BUTTON(gamefunc_Jump));
+    SET_LOC_KEY(loc->bits, SK_CRAWL, inputState.BUTTON(gamefunc_Crouch));
 
-    SET_LOC_KEY(loc->bits, SK_TURN_180, BUTTON(gamefunc_TurnAround));
+    SET_LOC_KEY(loc->bits, SK_TURN_180, inputState.BUTTON(gamefunc_TurnAround));
 
-    SET_LOC_KEY(loc->bits, SK_INV_LEFT, BUTTON(gamefunc_Inventory_Left));
-    SET_LOC_KEY(loc->bits, SK_INV_RIGHT, BUTTON(gamefunc_Inventory_Right));
+    SET_LOC_KEY(loc->bits, SK_INV_LEFT, inputState.BUTTON(gamefunc_Inventory_Left));
+    SET_LOC_KEY(loc->bits, SK_INV_RIGHT, inputState.BUTTON(gamefunc_Inventory_Right));
 
-    SET_LOC_KEY(loc->bits, SK_HIDE_WEAPON, BUTTON(gamefunc_Holster_Weapon));
+    SET_LOC_KEY(loc->bits, SK_HIDE_WEAPON, inputState.BUTTON(gamefunc_Holster_Weapon));
 
     // need BUTTON
-    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, KB_KeyPressed(KEYSC_NUM));
+    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, inputState.GetKeyStatus(KEYSC_NUM));
 
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {
-        if (BUTTON(gamefunc_See_Co_Op_View))
+        if (inputState.BUTTON(gamefunc_See_Co_Op_View))
         {
             inputState.ClearButton(gamefunc_See_Co_Op_View);
 
@@ -4556,7 +4556,7 @@ getinput(SW_PACKET *loc)
 
     FunctionKeys(pp);
 
-    if (BUTTON(gamefunc_Toggle_Crosshair))
+    if (inputState.BUTTON(gamefunc_Toggle_Crosshair))
     {
         inputState.ClearButton(gamefunc_Toggle_Crosshair);
         pToggleCrosshair(pp);

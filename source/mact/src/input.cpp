@@ -35,14 +35,14 @@ char typebuf[TYPEBUFSIZE];
 int32_t I_CheckAllInput(void)
 {
     return
-        KB_KeyWaiting()
+        inputState.keyBufferWaiting()
         || MOUSE_GetButtons()
         || JOYSTICK_GetButtons();
 }
 void I_ClearAllInput(void)
 {
-    KB_FlushKeyboardQueue();
-    KB_ClearKeysDown();
+    inputState.keyFlushChars();
+    inputState.ClearKeysDown();
     MOUSE_ClearAllButtons();
     JOYSTICK_ClearAllButtons();
     inputState.ClearAllButtons();
@@ -52,17 +52,17 @@ void I_ClearAllInput(void)
 int32_t I_TextSubmit(void)
 {
     return
-        KB_KeyPressed(sc_Enter)
-        || KB_KeyPressed(sc_kpad_Enter)
+        inputState.GetKeyStatus(sc_Enter)
+        || inputState.GetKeyStatus(sc_kpad_Enter)
         //|| MOUSEINACTIVECONDITIONAL(MOUSE_GetButtons()&LEFT_MOUSE)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_A));
 }
 
 void I_TextSubmitClear(void)
 {
-    KB_FlushKeyboardQueue();
-    KB_ClearKeyDown(sc_kpad_Enter);
-    KB_ClearKeyDown(sc_Enter);
+    inputState.keyFlushChars();
+    inputState.ClearKeyStatus(sc_kpad_Enter);
+    inputState.ClearKeyStatus(sc_Enter);
     MOUSE_ClearButton(LEFT_MOUSE);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_A);
 }
@@ -71,27 +71,27 @@ int32_t I_AdvanceTrigger(void)
 {
     return
         I_TextSubmit()
-        || KB_KeyPressed(sc_Space);
+        || inputState.GetKeyStatus(sc_Space);
 }
 
 void I_AdvanceTriggerClear(void)
 {
     I_TextSubmitClear();
-    KB_ClearKeyDown(sc_Space);
+    inputState.ClearKeyStatus(sc_Space);
 }
 
 int32_t I_ReturnTrigger(void)
 {
     return
-        KB_KeyPressed(sc_Escape)
+        inputState.GetKeyStatus(sc_Escape)
         || (MOUSE_GetButtons()&RIGHT_MOUSE)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_B));
 }
 
 void I_ReturnTriggerClear(void)
 {
-    KB_FlushKeyboardQueue();
-    KB_ClearKeyDown(sc_Escape);
+    inputState.keyFlushChars();
+    inputState.ClearKeyStatus(sc_Escape);
     MOUSE_ClearButton(RIGHT_MOUSE);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_B);
 }
@@ -101,9 +101,9 @@ int32_t I_GeneralTrigger(void)
     return
         I_AdvanceTrigger()
         || I_ReturnTrigger()
-        || BUTTON(gamefunc_Open)
-        //|| MOUSEINACTIVECONDITIONAL(BUTTON(gamefunc_Fire))
-        || BUTTON(gamefunc_Crouch)
+        || inputState.BUTTON(gamefunc_Open)
+        //|| MOUSEINACTIVECONDITIONAL(inputState.BUTTON(gamefunc_Fire))
+        || inputState.BUTTON(gamefunc_Crouch)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
 }
 
@@ -121,14 +121,14 @@ void I_GeneralTriggerClear(void)
 int32_t I_EscapeTrigger(void)
 {
     return
-        KB_KeyPressed(sc_Escape)
+        inputState.GetKeyStatus(sc_Escape)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
 }
 
 void I_EscapeTriggerClear(void)
 {
-    KB_FlushKeyboardQueue();
-    KB_ClearKeyDown(sc_Escape);
+    inputState.keyFlushChars();
+    inputState.ClearKeyStatus(sc_Escape);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
 }
 
@@ -136,10 +136,10 @@ void I_EscapeTriggerClear(void)
 int32_t I_MenuUp(void)
 {
     return
-        KB_KeyPressed(sc_UpArrow)
-        || KB_KeyPressed(sc_kpad_8)
+        inputState.GetKeyStatus(sc_UpArrow)
+        || inputState.GetKeyStatus(sc_kpad_8)
         || (MOUSE_GetButtons()&WHEELUP_MOUSE)
-        || BUTTON(gamefunc_Move_Forward)
+        || inputState.BUTTON(gamefunc_Move_Forward)
         || (JOYSTICK_GetHat(0)&HAT_UP)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_UP))
         || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY);
@@ -147,8 +147,8 @@ int32_t I_MenuUp(void)
 
 void I_MenuUpClear(void)
 {
-    KB_ClearKeyDown(sc_UpArrow);
-    KB_ClearKeyDown(sc_kpad_8);
+    inputState.ClearKeyStatus(sc_UpArrow);
+    inputState.ClearKeyStatus(sc_kpad_8);
     MOUSE_ClearButton(WHEELUP_MOUSE);
     inputState.ClearButton(gamefunc_Move_Forward);
     JOYSTICK_ClearHat(0);
@@ -160,10 +160,10 @@ void I_MenuUpClear(void)
 int32_t I_MenuDown(void)
 {
     return
-        KB_KeyPressed(sc_DownArrow)
-        || KB_KeyPressed(sc_kpad_2)
+        inputState.GetKeyStatus(sc_DownArrow)
+        || inputState.GetKeyStatus(sc_kpad_2)
         || (MOUSE_GetButtons()&WHEELDOWN_MOUSE)
-        || BUTTON(gamefunc_Move_Backward)
+        || inputState.BUTTON(gamefunc_Move_Backward)
         || (JOYSTICK_GetHat(0)&HAT_DOWN)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_DOWN))
         || CONTROL_GetGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY);
@@ -171,9 +171,9 @@ int32_t I_MenuDown(void)
 
 void I_MenuDownClear(void)
 {
-    KB_ClearKeyDown(sc_DownArrow);
-    KB_ClearKeyDown(sc_kpad_2);
-    KB_ClearKeyDown(sc_PgDn);
+    inputState.ClearKeyStatus(sc_DownArrow);
+    inputState.ClearKeyStatus(sc_kpad_2);
+    inputState.ClearKeyStatus(sc_PgDn);
     MOUSE_ClearButton(WHEELDOWN_MOUSE);
     inputState.ClearButton(gamefunc_Move_Backward);
     JOYSTICK_ClearHat(0);
@@ -185,11 +185,11 @@ void I_MenuDownClear(void)
 int32_t I_MenuLeft(void)
 {
     return
-        KB_KeyPressed(sc_LeftArrow)
-        || KB_KeyPressed(sc_kpad_4)
-        || (inputState.ShiftPressed() && KB_KeyPressed(sc_Tab))
-        || BUTTON(gamefunc_Turn_Left)
-        || BUTTON(gamefunc_Strafe_Left)
+        inputState.GetKeyStatus(sc_LeftArrow)
+        || inputState.GetKeyStatus(sc_kpad_4)
+        || (inputState.ShiftPressed() && inputState.GetKeyStatus(sc_Tab))
+        || inputState.BUTTON(gamefunc_Turn_Left)
+        || inputState.BUTTON(gamefunc_Strafe_Left)
         || (JOYSTICK_GetHat(0)&HAT_LEFT)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_LEFT))
         || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX);
@@ -197,9 +197,9 @@ int32_t I_MenuLeft(void)
 
 void I_MenuLeftClear(void)
 {
-    KB_ClearKeyDown(sc_LeftArrow);
-    KB_ClearKeyDown(sc_kpad_4);
-    KB_ClearKeyDown(sc_Tab);
+    inputState.ClearKeyStatus(sc_LeftArrow);
+    inputState.ClearKeyStatus(sc_kpad_4);
+    inputState.ClearKeyStatus(sc_Tab);
     inputState.ClearButton(gamefunc_Turn_Left);
     inputState.ClearButton(gamefunc_Strafe_Left);
     JOYSTICK_ClearHat(0);
@@ -211,11 +211,11 @@ void I_MenuLeftClear(void)
 int32_t I_MenuRight(void)
 {
     return
-        KB_KeyPressed(sc_RightArrow)
-        || KB_KeyPressed(sc_kpad_6)
-        || (!inputState.ShiftPressed() && KB_KeyPressed(sc_Tab))
-        || BUTTON(gamefunc_Turn_Right)
-        || BUTTON(gamefunc_Strafe_Right)
+        inputState.GetKeyStatus(sc_RightArrow)
+        || inputState.GetKeyStatus(sc_kpad_6)
+        || (!inputState.ShiftPressed() && inputState.GetKeyStatus(sc_Tab))
+        || inputState.BUTTON(gamefunc_Turn_Right)
+        || inputState.BUTTON(gamefunc_Strafe_Right)
         || (MOUSE_GetButtons()&MIDDLE_MOUSE)
         || (JOYSTICK_GetHat(0)&HAT_RIGHT)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_RIGHT))
@@ -225,9 +225,9 @@ int32_t I_MenuRight(void)
 
 void I_MenuRightClear(void)
 {
-    KB_ClearKeyDown(sc_RightArrow);
-    KB_ClearKeyDown(sc_kpad_6);
-    KB_ClearKeyDown(sc_Tab);
+    inputState.ClearKeyStatus(sc_RightArrow);
+    inputState.ClearKeyStatus(sc_kpad_6);
+    inputState.ClearKeyStatus(sc_Tab);
     inputState.ClearButton(gamefunc_Turn_Right);
     inputState.ClearButton(gamefunc_Strafe_Right);
     MOUSE_ClearButton(MIDDLE_MOUSE);
@@ -242,7 +242,7 @@ int32_t I_PanelUp(void)
     return
         I_MenuUp()
         || I_MenuLeft()
-        || KB_KeyPressed(sc_PgUp)
+        || inputState.GetKeyStatus(sc_PgUp)
         ;
 }
 
@@ -250,7 +250,7 @@ void I_PanelUpClear(void)
 {
     I_MenuUpClear();
     I_MenuLeftClear();
-    KB_ClearKeyDown(sc_PgUp);
+    inputState.ClearKeyStatus(sc_PgUp);
 }
 
 
@@ -259,7 +259,7 @@ int32_t I_PanelDown(void)
     return
         I_MenuDown()
         || I_MenuRight()
-        || KB_KeyPressed(sc_PgDn)
+        || inputState.GetKeyStatus(sc_PgDn)
         || I_AdvanceTrigger()
         ;
 }
@@ -268,7 +268,7 @@ void I_PanelDownClear(void)
 {
     I_MenuDownClear();
     I_MenuRightClear();
-    KB_ClearKeyDown(sc_PgDn);
+    inputState.ClearKeyStatus(sc_PgDn);
     I_AdvanceTriggerClear();
 }
 
@@ -312,7 +312,7 @@ int32_t I_EnterText(char *t, int32_t maxlength, int32_t flags)
     char ch;
     int32_t inputloc = strlen(typebuf);
 
-    while ((ch = KB_GetCh()) != 0)
+    while ((ch = inputState.keyGetChar()) != 0)
     {
         if (ch == asc_BackSpace)
         {

@@ -45,7 +45,7 @@ BEGIN_BLD_NS
 int32_t ctrlCheckAllInput(void)
 {
     return (
-        KB_KeyWaiting() ||
+        inputState.keyBufferWaiting() ||
         MOUSE_GetButtons() ||
         JOYSTICK_GetButtons()
         );
@@ -53,8 +53,8 @@ int32_t ctrlCheckAllInput(void)
 
 void ctrlClearAllInput(void)
 {
-    KB_FlushKeyboardQueue();
-    KB_ClearKeysDown();
+    inputState.keyFlushChars();
+    inputState.ClearKeysDown();
     MOUSE_ClearAllButtons();
     JOYSTICK_ClearAllButtons();
 }
@@ -124,7 +124,7 @@ void ctrlGetInput(void)
     if (in_aimmode)
         g_MyAimMode = 0;
 
-    if (BUTTON(gamefunc_Mouse_Aiming))
+    if (inputState.BUTTON(gamefunc_Mouse_Aiming))
     {
         if (in_aimmode)
             g_MyAimMode = 1;
@@ -175,14 +175,14 @@ void ctrlGetInput(void)
         gInput.keyFlags.quit = 1;
 
     if (gGameStarted && gInputMode != kInputMessage && gInputMode != kInputMenu
-        && BUTTON(gamefunc_Send_Message))
+        && inputState.BUTTON(gamefunc_Send_Message))
     {
         inputState.ClearButton(gamefunc_Send_Message);
-        keyFlushScans();
+        inputState.keyFlushScans();
         gInputMode = kInputMessage;
     }
 
-    if (BUTTON(gamefunc_AutoRun))
+    if (inputState.BUTTON(gamefunc_AutoRun))
     {
         inputState.ClearButton(gamefunc_AutoRun);
         gAutoRun = !gAutoRun;
@@ -192,20 +192,20 @@ void ctrlGetInput(void)
             viewSetMessage("Auto run OFF");
     }
 
-    if (BUTTON(gamefunc_Map_Toggle))
+    if (inputState.BUTTON(gamefunc_Map_Toggle))
     {
         inputState.ClearButton(gamefunc_Map_Toggle);
         viewToggle(gViewMode);
     }
 
-    if (BUTTON(gamefunc_Map_Follow_Mode))
+    if (inputState.BUTTON(gamefunc_Map_Follow_Mode))
     {
         inputState.ClearButton(gamefunc_Map_Follow_Mode);
         gFollowMap = !gFollowMap;
         gViewMap.FollowMode(gFollowMap);
     }
 
-    if (BUTTON(gamefunc_Shrink_Screen))
+    if (inputState.BUTTON(gamefunc_Shrink_Screen))
     {
         if (gViewMode == 3)
         {
@@ -219,7 +219,7 @@ void ctrlGetInput(void)
         }
     }
 
-    if (BUTTON(gamefunc_Enlarge_Screen))
+    if (inputState.BUTTON(gamefunc_Enlarge_Screen))
     {
         if (gViewMode == 3)
         {
@@ -233,104 +233,104 @@ void ctrlGetInput(void)
         }
     }
 
-    if (BUTTON(gamefunc_Toggle_Crosshair))
+    if (inputState.BUTTON(gamefunc_Toggle_Crosshair))
     {
         inputState.ClearButton(gamefunc_Toggle_Crosshair);
         cl_crosshair = !cl_crosshair;
     }
 
-    if (BUTTON(gamefunc_Next_Weapon))
+    if (inputState.BUTTON(gamefunc_Next_Weapon))
     {
         inputState.ClearButton(gamefunc_Next_Weapon);
         gInput.keyFlags.nextWeapon = 1;
     }
 
-    if (BUTTON(gamefunc_Previous_Weapon))
+    if (inputState.BUTTON(gamefunc_Previous_Weapon))
     {
         inputState.ClearButton(gamefunc_Previous_Weapon);
         gInput.keyFlags.prevWeapon = 1;
     }
 
-    if (BUTTON(gamefunc_Show_Opponents_Weapon))
+    if (inputState.BUTTON(gamefunc_Show_Opponents_Weapon))
     {
         inputState.ClearButton(gamefunc_Show_Opponents_Weapon);
         cl_showweapon = (cl_showweapon + 1) & 3;
     }
 
-    if (BUTTON(gamefunc_Jump))
+    if (inputState.BUTTON(gamefunc_Jump))
         gInput.buttonFlags.jump = 1;
 
-    if (BUTTON(gamefunc_Crouch))
+    if (inputState.BUTTON(gamefunc_Crouch))
         gInput.buttonFlags.crouch = 1;
 
-    if (BUTTON(gamefunc_Weapon_Fire))
+    if (inputState.BUTTON(gamefunc_Fire))
         gInput.buttonFlags.shoot = 1;
 
-    if (BUTTON(gamefunc_Weapon_Special_Fire))
+    if (inputState.BUTTON(gamefunc_Alt_Fire))
         gInput.buttonFlags.shoot2 = 1;
 
-    if (BUTTON(gamefunc_Open))
+    if (inputState.BUTTON(gamefunc_Open))
     {
         inputState.ClearButton(gamefunc_Open);
         gInput.keyFlags.action = 1;
     }
 
-    gInput.buttonFlags.lookUp = BUTTON(gamefunc_Look_Up);
-    gInput.buttonFlags.lookDown = BUTTON(gamefunc_Look_Down);
+    gInput.buttonFlags.lookUp = inputState.BUTTON(gamefunc_Look_Up);
+    gInput.buttonFlags.lookDown = inputState.BUTTON(gamefunc_Look_Down);
 
     if (gInput.buttonFlags.lookUp || gInput.buttonFlags.lookDown)
         gInput.keyFlags.lookCenter = 1;
     else
     {
-        gInput.buttonFlags.lookUp = BUTTON(gamefunc_Aim_Up);
-        gInput.buttonFlags.lookDown = BUTTON(gamefunc_Aim_Down);
+        gInput.buttonFlags.lookUp = inputState.BUTTON(gamefunc_Aim_Up);
+        gInput.buttonFlags.lookDown = inputState.BUTTON(gamefunc_Aim_Down);
     }
 
-    if (BUTTON(gamefunc_Aim_Center))
+    if (inputState.BUTTON(gamefunc_Aim_Center))
     {
         inputState.ClearButton(gamefunc_Aim_Center);
         gInput.keyFlags.lookCenter = 1;
     }
 
-    gInput.keyFlags.spin180 = BUTTON(gamefunc_Turn_Around);
+    gInput.keyFlags.spin180 = inputState.BUTTON(gamefunc_Turn_Around);
 
-    if (BUTTON(gamefunc_Inventory_Left))
+    if (inputState.BUTTON(gamefunc_Inventory_Left))
     {
         inputState.ClearButton(gamefunc_Inventory_Left);
         gInput.keyFlags.prevItem = 1;
     }
 
-    if (BUTTON(gamefunc_Inventory_Right))
+    if (inputState.BUTTON(gamefunc_Inventory_Right))
     {
         inputState.ClearButton(gamefunc_Inventory_Right);
         gInput.keyFlags.nextItem = 1;
     }
 
-    if (BUTTON(gamefunc_Inventory_Use))
+    if (inputState.BUTTON(gamefunc_Inventory_Use))
     {
         inputState.ClearButton(gamefunc_Inventory_Use);
         gInput.keyFlags.useItem = 1;
     }
 
-    if (BUTTON(gamefunc_BeastVision))
+    if (inputState.BUTTON(gamefunc_BeastVision))
     {
         inputState.ClearButton(gamefunc_BeastVision);
         gInput.useFlags.useBeastVision = 1;
     }
 
-    if (BUTTON(gamefunc_CrystalBall))
+    if (inputState.BUTTON(gamefunc_CrystalBall))
     {
         inputState.ClearButton(gamefunc_CrystalBall);
         gInput.useFlags.useCrystalBall = 1;
     }
 
-    if (BUTTON(gamefunc_JumpBoots))
+    if (inputState.BUTTON(gamefunc_JumpBoots))
     {
         inputState.ClearButton(gamefunc_JumpBoots);
         gInput.useFlags.useJumpBoots = 1;
     }
 
-    if (BUTTON(gamefunc_MedKit))
+    if (inputState.BUTTON(gamefunc_MedKit))
     {
         inputState.ClearButton(gamefunc_MedKit);
         gInput.useFlags.useMedKit = 1;
@@ -338,60 +338,60 @@ void ctrlGetInput(void)
 
     for (int i = 0; i < 10; i++)
     {
-        if (BUTTON(gamefunc_Weapon_1 + i))
+        if (inputState.BUTTON(gamefunc_Weapon_1 + i))
         {
             inputState.ClearButton(gamefunc_Weapon_1 + i);
             gInput.newWeapon = 1 + i;
         }
     }
 
-    if (BUTTON(gamefunc_ProximityBombs))
+    if (inputState.BUTTON(gamefunc_ProximityBombs))
     {
         inputState.ClearButton(gamefunc_ProximityBombs);
         gInput.newWeapon = 11;
     }
 
-    if (BUTTON(gamefunc_RemoteBombs))
+    if (inputState.BUTTON(gamefunc_RemoteBombs))
     {
         inputState.ClearButton(gamefunc_RemoteBombs);
         gInput.newWeapon = 12;
     }
 
-    if (BUTTON(gamefunc_Holster_Weapon))
+    if (inputState.BUTTON(gamefunc_Holster_Weapon))
     {
         inputState.ClearButton(gamefunc_Holster_Weapon);
         gInput.keyFlags.holsterWeapon = 1;
     }
 
-    char run = G_CheckAutorun(BUTTON(gamefunc_Run));
-	char run2 = false; // What??? BUTTON(gamefunc_Run);
+    char run = G_CheckAutorun(inputState.BUTTON(gamefunc_Run));
+	char run2 = false; // What??? inputState.BUTTON(gamefunc_Run);
 
     gInput.syncFlags.run = run;
 
-    if (BUTTON(gamefunc_Move_Forward))
+    if (inputState.BUTTON(gamefunc_Move_Forward))
         forward += (1+run)<<10;
 
-    if (BUTTON(gamefunc_Move_Backward))
+    if (inputState.BUTTON(gamefunc_Move_Backward))
         forward -= (1+run)<<10;
 
     char turnLeft = 0, turnRight = 0;
 
-    if (BUTTON(gamefunc_Strafe))
+    if (inputState.BUTTON(gamefunc_Strafe))
     {
-        if (BUTTON(gamefunc_Turn_Left))
+        if (inputState.BUTTON(gamefunc_Turn_Left))
             strafe += (1 + run) << 10;
-        if (BUTTON(gamefunc_Turn_Right))
+        if (inputState.BUTTON(gamefunc_Turn_Right))
             strafe -= (1 + run) << 10;
     }
     else
     {
-        if (BUTTON(gamefunc_Strafe_Left))
+        if (inputState.BUTTON(gamefunc_Strafe_Left))
             strafe += (1 + run) << 10;
-        if (BUTTON(gamefunc_Strafe_Right))
+        if (inputState.BUTTON(gamefunc_Strafe_Right))
             strafe -= (1 + run) << 10;
-        if (BUTTON(gamefunc_Turn_Left))
+        if (inputState.BUTTON(gamefunc_Turn_Left))
             turnLeft = 1;
-        if (BUTTON(gamefunc_Turn_Right))
+        if (inputState.BUTTON(gamefunc_Turn_Right))
             turnRight = 1;
     }
 
@@ -408,7 +408,7 @@ void ctrlGetInput(void)
     if ((run2 || run) && iTurnCount > 24)
         turn <<= 1;
 
-    if (BUTTON(gamefunc_Strafe))
+    if (inputState.BUTTON(gamefunc_Strafe))
         strafe = ClipRange(strafe - info.mousex, -2048, 2048);
     else
         turn = fix16_clamp(turn + fix16_div(fix16_from_int(info.mousex), F16(32)), F16(-1024)>>2, F16(1024)>>2);
@@ -428,10 +428,10 @@ void ctrlGetInput(void)
     if (!in_mouseflip)
         gInput.q16mlook = -gInput.q16mlook;
 
-    if (KB_KeyPressed(sc_Pause)) // 0xc5 in disassembly
+    if (inputState.GetKeyStatus(sc_Pause)) // 0xc5 in disassembly
     {
         gInput.keyFlags.pause = 1;
-        KB_ClearKeyDown(sc_Pause);
+        inputState.ClearKeyStatus(sc_Pause);
     }
 
     if (!gViewMap.bFollowMode && gViewMode == 4)
