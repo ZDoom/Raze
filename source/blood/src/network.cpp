@@ -1392,6 +1392,11 @@ void faketimerhandler(void)
     //    enet_host_service(gNetMode == NETWORK_SERVER ? gNetENetServer : gNetENetClient, NULL, 0);
 }
 
+void GameInterface::faketimerhandler()
+{
+	::Blood::faketimerhandler();
+}
+
 void netPlayerQuit(int nPlayer)
 {
     char buffer[128];

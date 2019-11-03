@@ -4454,7 +4454,7 @@ void G_PrintCurrentMusic(void)
 
 // Trying to sanitize the mess of options and the mess of variables the mess was stored in. (Did I say this was a total mess before...? >) )
 // Hopefully this is more comprehensible, at least it neatly stores everything useful in a single linear value...
-bool validate_hud(int layout)
+bool GameInterface::validate_hud(int layout)
 {
 	if (layout <= 6)	// Status bar with border
 	{
@@ -4483,7 +4483,7 @@ bool validate_hud(int layout)
 	return false;
 }
 
-void set_hud_layout(int layout)
+void GameInterface::set_hud_layout(int layout)
 {
 	static const uint8_t screen_size_vals[] = { 60, 54, 48, 40, 32, 24, 16, 8, 8, 4, 4, 0 };
 	if (validate_hud(layout))
@@ -4495,7 +4495,7 @@ void set_hud_layout(int layout)
 	}
 }
 
-void set_hud_scale(int scale)
+void GameInterface::set_hud_scale(int scale)
 {
 	G_UpdateScreenArea();
 }
@@ -6125,7 +6125,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
-int app_main()
+int GameInterface::app_main()
 {
     g_skillCnt = 4;
     ud.multimode = 1;
@@ -6908,14 +6908,9 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
 }
 #endif
 
-extern void faketimerhandler();
-
-GameInterface Interface = {
-	faketimerhandler,
-	app_main,
-	validate_hud,
-	set_hud_layout,
-	set_hud_scale,
-};
+::GameInterface* CreateInterface()
+{
+	return new GameInterface;
+}
 
 END_DUKE_NS

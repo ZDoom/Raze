@@ -2374,6 +2374,15 @@ int COVERinsertsprite(short sectnum, short statnum);   //returns (short)spritenu
 
 void AudioUpdate(void); // stupid
 
+struct GameInterface : ::GameInterface
+{
+	int app_main() override;
+	bool validate_hud(int) override;
+	void set_hud_layout(int size) override;
+	void set_hud_scale(int size) override;
+};
+
+
 END_SW_NS
 #endif
 

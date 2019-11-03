@@ -83,4 +83,13 @@ bool fileExistsRFF(int id, const char* ext);
 int sndTryPlaySpecialMusic(int nMusic);
 void sndPlaySpecialMusicOrNothing(int nMusic);
 
+struct GameInterface : ::GameInterface
+{
+	void faketimerhandler() override;
+	int app_main() override;
+	bool validate_hud(int) override;
+	void set_hud_layout(int size) override;
+	void set_hud_scale(int size) override;
+};
+
 END_BLD_NS

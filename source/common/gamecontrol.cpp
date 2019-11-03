@@ -301,46 +301,46 @@ void UserConfig::ProcessOptions()
 
 namespace Duke
 {
-	extern GameInterface Interface;
+	::GameInterface* CreateInterface();
 }
 namespace Redneck
 {
-	extern GameInterface Interface;
+	::GameInterface* CreateInterface();
 }
 namespace Blood
 {
-	extern GameInterface Interface;
+	::GameInterface* CreateInterface();
 }
 namespace ShadowWarrior
 {
-	extern GameInterface Interface;
+	::GameInterface* CreateInterface();
 }
 
 void CheckFrontend(int flags)
 {
 	if (flags & GAMEFLAG_BLOOD)
 	{
-		gi = &Blood::Interface;
+		gi = Blood::CreateInterface();
 		globalShadeDiv = 62;
 	}
 	else if (flags & GAMEFLAG_RR)
 	{
-		gi = &Redneck::Interface;
+		gi = Redneck::CreateInterface();
 		globalShadeDiv = 30;
 	}
 	else if (flags & GAMEFLAG_FURY)
 	{
-		gi = &Duke::Interface;
+		gi = Duke::CreateInterface();
 		globalShadeDiv = 26;	// This is different from all other games which need a value two less than the amount of shades.
 	}
 	else if (flags & GAMEFLAG_SW)
 	{
-		gi = &ShadowWarrior::Interface;
+		gi = ShadowWarrior::CreateInterface();
 		globalShadeDiv = 30;
 	}
 	else
 	{
-		gi = &Duke::Interface;
+		gi = Duke::CreateInterface();
 		globalShadeDiv = 30;
 	}
 }

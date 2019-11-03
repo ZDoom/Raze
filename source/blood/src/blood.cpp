@@ -1229,10 +1229,10 @@ static int32_t check_filename_casing(void)
 }
 #endif
 
-int app_main()
+int GameInterface::app_main()
 {
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
-	gGameOptions.nMonsterSettings = userConfig.nomonsters;
+	gGameOptions.nMonsterSettings = !userConfig.nomonsters;
 	bQuickStart = userConfig.nologo;
     ParseOptions();
     
@@ -2139,19 +2139,10 @@ void sndPlaySpecialMusicOrNothing(int nMusic)
     }
 }
 
-extern void faketimerhandler();
-extern int app_main();
-bool validate_hud(int layout);
-void set_hud_layout(int layout);
-void set_hud_scale(int scale);
-int32_t GetTime();
 
-GameInterface Interface = {
-	faketimerhandler,
-	app_main,
-	validate_hud,
-	set_hud_layout,
-	set_hud_scale,
-};
+::GameInterface* CreateInterface()
+{
+	return new GameInterface;
+}
 
 END_BLD_NS

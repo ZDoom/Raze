@@ -3288,7 +3288,7 @@ void CommandLineHelp(char const * const * argv)
 #endif
 }
 
-int32_t app_main()
+int32_t GameInterface::app_main()
 {
     int i;
     int stat, nexti;
@@ -5029,18 +5029,15 @@ saveable_module saveable_build =
     NUM_SAVEABLE_ITEMS(saveable_build_data)
 };
 
-extern void faketimerhandler();
-extern int app_main();
-/*extern*/ bool validate_hud(int requested_size) { return requested_size; }
-/*extern*/ void set_hud(int requested_size) { /* the relevant setting is gs.BorderNum */}
+/*extern*/ bool GameInterface::validate_hud(int requested_size) { return requested_size; }
+/*extern*/ void GameInterface::set_hud_layout(int requested_size) { /* the relevant setting is gs.BorderNum */}
+/*extern*/ void GameInterface::set_hud_scale(int requested_size) { /* the relevant setting is gs.BorderNum */ }
 
-GameInterface Interface = {
-	faketimerhandler,
-	app_main,
-	validate_hud,
-	set_hud,
-	set_hud,
-};
+::GameInterface* CreateInterface()
+{
+	return new GameInterface;
+}
+
 
 // vim:ts=4:sw=4:expandtab:
 END_SW_NS

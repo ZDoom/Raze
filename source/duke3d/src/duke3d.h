@@ -144,6 +144,15 @@ static inline int32_t G_DefaultActorHealth(int spriteNum)
     return G_HaveActor(spriteNum) ? g_tile[spriteNum].execPtr[0] : 0;
 }
 
+
+struct GameInterface : ::GameInterface
+{
+	int app_main() override;
+	bool validate_hud(int) override;
+	void set_hud_layout(int size) override;
+	void set_hud_scale(int size) override;
+};
+
 END_DUKE_NS
 
 #endif
