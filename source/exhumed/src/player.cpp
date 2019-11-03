@@ -677,6 +677,9 @@ void RestartPlayer(short nPlayer)
         floorspr = -1;
     }
 
+    PlayerList[nPlayer].opos = sprite[nSprite].pos;
+    PlayerList[nPlayer].q16oangle = PlayerList[nPlayer].q16angle;
+
     nPlayerFloorSprite[nPlayer] = floorspr;
 
     sprite[nSprite].cstat = 0x101;
@@ -775,7 +778,7 @@ void RestartPlayer(short nPlayer)
     nYDamage[nPlayer] = 0;
     nXDamage[nPlayer] = 0;
 
-    PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
+    PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
     nDestVertPan[nPlayer] = F16(92);
     nBreathTimer[nPlayer] = 90;
 
@@ -877,7 +880,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
+    PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
     eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
@@ -1043,6 +1046,10 @@ void FuncPlayer(int pA, int nDamage, int nRun)
     int nMessage = pA & 0x7F0000;
 
     short nSprite2;
+
+    PlayerList[nPlayer].opos = sprite[nPlayerSprite].pos;
+    PlayerList[nPlayer].q16oangle = PlayerList[nPlayer].q16angle;
+    PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz;
 
     switch (nMessage)
     {

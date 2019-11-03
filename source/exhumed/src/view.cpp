@@ -59,6 +59,65 @@ short enemy;
 
 short nEnemyPal = 0;
 
+#define MAXINTERPOLATIONS MAXSPRITES
+int32_t g_interpolationCnt;
+int32_t oldipos[MAXINTERPOLATIONS];
+int32_t* curipos[MAXINTERPOLATIONS];
+int32_t bakipos[MAXINTERPOLATIONS];
+
+int viewSetInterpolation(int32_t *const posptr)
+{
+    if (g_interpolationCnt >= MAXINTERPOLATIONS)
+        return 1;
+
+    for (bssize_t i = 0; i < g_interpolationCnt; ++i)
+        if (curipos[i] == posptr)
+            return 0;
+
+    curipos[g_interpolationCnt] = posptr;
+    oldipos[g_interpolationCnt] = *posptr;
+    g_interpolationCnt++;
+    return 0;
+}
+
+void viewStopInterpolation(const int32_t * const posptr)
+{
+    for (bssize_t i = 0; i < g_interpolationCnt; ++i)
+        if (curipos[i] == posptr)
+        {
+            g_interpolationCnt--;
+            oldipos[i] = oldipos[g_interpolationCnt];
+            bakipos[i] = bakipos[g_interpolationCnt];
+            curipos[i] = curipos[g_interpolationCnt];
+        }
+}
+
+void viewDoInterpolations(int smoothRatio)
+{
+    int32_t ndelta = 0;
+
+    for (bssize_t i = 0, j = 0; i < g_interpolationCnt; ++i)
+    {
+        int32_t const odelta = ndelta;
+        bakipos[i] = *curipos[i];
+        ndelta = (*curipos[i]) - oldipos[i];
+        if (odelta != ndelta)
+            j = mulscale16(ndelta, smoothRatio);
+        *curipos[i] = oldipos[i] + j;
+    }
+}
+
+void viewUpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
+{
+    for (bssize_t i=g_interpolationCnt-1; i>=0; i--) oldipos[i] = *curipos[i];
+}
+
+void viewRestoreInterpolations(void)  //Stick at end of drawscreen
+{
+    int32_t i=g_interpolationCnt-1;
+
+    for (; i>=0; i--) *curipos[i] = bakipos[i];
+}
 
 void InitView()
 {
@@ -271,7 +330,17 @@ void TestLava()
 {
 }
 
-void DrawView()
+static inline int interpolate16(int a, int b, int smooth)
+{
+    return a + mulscale16(b - a, smooth);
+}
+
+static inline fix16_t q16angle_interpolate16(fix16_t a, fix16_t b, int smooth)
+{
+    return a + mulscale16(((b+F16(1024)-a)&0x7FFFFFF)-F16(1024), smooth);
+}
+
+void DrawView(int smoothRatio)
 {
     int playerX;
     int playerY;
@@ -306,6 +375,7 @@ void DrawView()
     zbob = Sin(2 * bobangle) >> 3;
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
+    int nPlayerOldCstat = sprite[nPlayerSprite].cstat;
 
     if (nSnakeCam >= 0)
     {
@@ -334,11 +404,13 @@ void DrawView()
     }
     else
     {
-        playerX = sprite[nPlayerSprite].x;
-        playerY = sprite[nPlayerSprite].y;
-        playerZ = sprite[nPlayerSprite].z + eyelevel[nLocalPlayer];
+        playerX = interpolate16(PlayerList[nLocalPlayer].opos.x, sprite[nPlayerSprite].x, smoothRatio);
+        playerY = interpolate16(PlayerList[nLocalPlayer].opos.y, sprite[nPlayerSprite].y, smoothRatio);
+        playerZ = interpolate16(PlayerList[nLocalPlayer].opos.z, sprite[nPlayerSprite].z, smoothRatio) + eyelevel[nLocalPlayer];
         nSector = nPlayerViewSect[nLocalPlayer];
-        nAngle = PlayerList[nLocalPlayer].q16angle;
+        nAngle = q16angle_interpolate16(PlayerList[nLocalPlayer].q16oangle, PlayerList[nLocalPlayer].q16angle, smoothRatio);
+
+        sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
     }
 
     nCameraa = nAngle;
@@ -356,7 +428,7 @@ void DrawView()
             int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
 
             // pan = nVertPan[nLocalPlayer];
-            pan = PlayerList[nLocalPlayer].q16horiz;
+            pan = interpolate16(PlayerList[nLocalPlayer].q16ohoriz, PlayerList[nLocalPlayer].q16horiz, smoothRatio);
 
             if (viewz > floorZ)
                 viewz = floorZ;
@@ -522,6 +594,8 @@ void DrawView()
         videoClearScreen(overscanindex);
         DrawStatus();
     }
+
+    sprite[nPlayerSprite].cstat = nPlayerOldCstat;
 
     flash = 0;
 }

@@ -1817,7 +1817,7 @@ void FinishLevel()
         WaitVBL();
         RefreshBackground();
         RefreshStatus();
-        DrawView();
+        DrawView(65536);
         videoNextPage();
     }
 
@@ -1979,6 +1979,153 @@ void app_crashhandler(void)
 
 void G_Polymer_UnInit(void) { }
 
+static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
+{
+    // if (!((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && ((g_player[myconnectindex].ps->gm & MODE_MENU) == 0)) ||
+    //       (g_netServer || ud.multimode > 1) ||
+    //       ud.recstat == 2) ||
+    //     ud.pause_on)
+    // {
+    //     return 65536;
+    // }
+    if (bRecord || bPlayback)
+        return 65536;
+    int32_t rfreq = (refreshfreq != -1 ? refreshfreq : 60);
+    uint64_t elapsedFrames = tabledivide64(((uint64_t) (totalclk - ototalclk).toScale16()) * rfreq, 65536*120);
+#if 0
+    //POGO: additional debug info for testing purposes
+    OSD_Printf("Elapsed frames: %" PRIu64 ", smoothratio: %" PRIu64 "\n", elapsedFrames, tabledivide64(65536*elapsedFrames*30, rfreq));
+#endif
+    return clamp(tabledivide64(65536*elapsedFrames*30, rfreq), 0, 65536);
+}
+
+ClockTicks tclocks, tclocks2;
+
+static void GameDisplay(void)
+{
+    // End Section B
+
+    SetView1();
+
+    if (levelnum == kMap20)
+    {
+        LockEnergyTiles();
+        DoEnergyTile();
+        DrawClock();
+    }
+
+    auto smoothRatio = calc_smoothratio(totalclock, tclocks);
+
+    DrawView(smoothRatio);
+    UpdateMap();
+
+    if (bMapMode)
+    {
+#if 0
+        if (bHiRes && nViewBottom > nMaskY)
+        {
+            videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nMaskY);
+            DrawMap();
+            videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
+        }
+        else
+        {
+            DrawMap();
+        }
+#else
+        // TODO: Map should not be drawn on top of status bar. Redraw status bar?
+        DrawMap();
+#endif
+    }
+
+    videoNextPage();
+}
+
+static void GameMove(void)
+{
+    FixPalette();
+
+    if (levelnum == kMap20)
+    {
+        if (lCountDown <= 0)
+        {
+            for (int i = 0; i < nTotalPlayers; i++) {
+                nPlayerLives[i] = 0;
+            }
+
+            DoFailedFinalScene();
+            levelnew = 100;
+
+            return;
+        }
+        // Pink section
+        lCountDown--;
+        DrawClock();
+
+        if (nRedTicks)
+        {
+            nRedTicks--;
+
+            if (nRedTicks <= 0) {
+                DoRedAlert(0);
+            }
+
+            nAlarmTicks--;
+            nButtonColor--;
+
+            if (nAlarmTicks <= 0) {
+                DoRedAlert(1);
+            }
+        }
+    }
+
+    // YELLOW SECTION
+    MoveThings();
+
+    if (totalvel[nLocalPlayer] == 0)
+    {
+        bobangle = 0;
+    }
+    else
+    {
+        bobangle += 56;
+        bobangle &= kAngleMask;
+    }
+
+    // loc_120E9:
+    totalmoves++;
+    moveframes--;
+}
+
+int32_t r_maxfps = 60;
+int32_t r_maxfpsoffset = 0;
+double g_frameDelay = 0.0;
+
+int G_FPSLimit(void)
+{
+    if (!r_maxfps)
+        return 1;
+
+    static double   nextPageDelay;
+    static uint64_t lastFrameTicks;
+
+    uint64_t const frameTicks   = timerGetTicksU64();
+    uint64_t const elapsedTime  = frameTicks - lastFrameTicks;
+    double const   dElapsedTime = elapsedTime;
+
+    if (dElapsedTime >= floor(nextPageDelay))
+    {
+        if (dElapsedTime <= nextPageDelay+g_frameDelay)
+            nextPageDelay += g_frameDelay-dElapsedTime;
+
+        lastFrameTicks = frameTicks;
+
+        return 1;
+    }
+
+    return 0;
+}
+
 int app_main(int argc, char const* const* argv)
 {
     char tempbuf[256];
@@ -2031,7 +2178,6 @@ int app_main(int argc, char const* const* argv)
     //int edi = esi;
     int doTitle = kFalse; // REVERT kTrue;
     int stopTitle = kFalse;
-    int tclocks, tclocks2;
     levelnew = 1;
 
     // REVERT - change back to kTrue
@@ -2358,6 +2504,8 @@ int app_main(int argc, char const* const* argv)
     if (enginePostInit())
         ShutDown();
 
+    g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
+
     // loc_11745:
     FadeOut(0);
 //	InstallEngine();
@@ -2590,7 +2738,7 @@ LOOP3:
     ResetMoveFifo();
     moveframes = 0;
     bInMove = kFalse;
-    tclocks = (int)totalclock;
+    tclocks = totalclock;
     nPlayerDAng = 0;
     lPlayerXVel = 0;
     lPlayerYVel = 0;
@@ -2604,7 +2752,7 @@ LOOP3:
 
     mysetbrightness((uint8_t)nGamma);
     //int edi = totalclock;
-    tclocks2 = (int)totalclock;
+    tclocks2 = totalclock;
     CONTROL_BindsEnabled = 1;
     // Game Loop
     while (1)
@@ -2631,209 +2779,168 @@ LOOP3:
                 nCDTrackLength = -1;
             }
         }
-        // End Section B
-
-        SetView1();
-
-        if (levelnum == kMap20)
-        {
-            LockEnergyTiles();
-            DoEnergyTile();
-            DrawClock();
-        }
-
-        DrawView();
-        UpdateMap();
-
-        if (bMapMode)
-        {
-#if 0
-            if (bHiRes && nViewBottom > nMaskY)
-            {
-                videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nMaskY);
-                DrawMap();
-                videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
-            }
-            else
-            {
-                DrawMap();
-            }
-#else
-            // TODO: Map should not be drawn on top of status bar. Redraw status bar?
-            DrawMap();
-#endif
-        }
-
-        videoNextPage();
 
 // TODO		CONTROL_GetButtonInput();
         CheckKeys();
         UpdateSounds();
 
-        bInMove = kTrue;
-
-        moveframes = ((int)totalclock - tclocks2) / 4;
-
-        if (moveframes > 4)
-            moveframes = 4;
-
-        if (moveframes != 0)
-            tclocks2 = (int)totalclock;
-
-        if (bPlayback)
+        if (bRecord || bPlayback)
         {
-            // YELLOW
-            if ((bInDemo && KB_KeyWaiting() || !ReadPlaybackInputs()) && KB_GetCh())
+            bInMove = kTrue;
+
+            moveframes = ((int)totalclock - (int)tclocks2) / 4;
+
+            if (moveframes > 4)
+                moveframes = 4;
+
+            if (moveframes != 0)
+                tclocks2 = totalclock;
+
+            if (bPlayback)
             {
-                KB_FlushKeyboardQueue();
-                KB_ClearKeysDown();
+                // YELLOW
+                if ((bInDemo && KB_KeyWaiting() || !ReadPlaybackInputs()) && KB_GetCh())
+                {
+                    KB_FlushKeyboardQueue();
+                    KB_ClearKeysDown();
 
-                bPlayback = kFalse;
-                bInDemo = kFalse;
+                    bPlayback = kFalse;
+                    bInDemo = kFalse;
 
-                if (vcrfp) {
-                    fclose(vcrfp);
+                    if (vcrfp) {
+                        fclose(vcrfp);
+                    }
+
+                    CONTROL_BindsEnabled = 0;
+                    goto MENU;
                 }
-
-                CONTROL_BindsEnabled = 0;
-                goto MENU;
             }
-        }
-        else if (bRecord || moveframes)
-        {
-            GetLocalInput();
-
-            sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
-            sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
-            sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
-            sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
-            sPlayerInput[nLocalPlayer].nTarget = besttarget;
-
-            Ra[nLocalPlayer].nTarget = besttarget;
-
-            lLocalCodes = 0;
-            nPlayerDAng = 0;
-
-            sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
-        }
-
-        // loc_11F72:
-        if (bRecord && !bInDemo) {
-            WritePlaybackInputs();
-        }
-
-        if (nNetPlayerCount)
-        {
-            if (moveframes)
+            else if (bRecord || moveframes)
             {
-                UpdateInputs();
-                moveframes = nNetMoveFrames;
+                GetLocalInput();
+
+                sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
+                sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+                sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
+                sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
+                sPlayerInput[nLocalPlayer].nTarget = besttarget;
+
+                Ra[nLocalPlayer].nTarget = besttarget;
+
+                lLocalCodes = 0;
+                nPlayerDAng = 0;
+
+                sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
+            }
+
+            // loc_11F72:
+            if (bRecord && !bInDemo) {
+                WritePlaybackInputs();
+            }
+
+            if (nNetPlayerCount)
+            {
+                if (moveframes)
+                {
+                    UpdateInputs();
+                    moveframes = nNetMoveFrames;
+                }
+            }
+            else
+            {
+                // loc_11FBC:
+                while (bPause)
+                {
+                    ClearAllKeys();
+                    if (WaitAnyKey(-1) != sc_Pause)
+                    {
+                        bPause = kFalse;
+                    }
+                }
+            }
+
+            // loc_11FEE:
+            tclocks += moveframes * 4;
+            while (moveframes && levelnew < 0)
+            {
+                GameMove();
+                // if (nNetTime > 0)
+                // {
+                //     nNetTime--;
+                // 
+                //     if (!nNetTime) {
+                //         nFreeze = 3;
+                //     }
+                // }
+                // else if (nNetTime == 0)
+                // {
+                //     if (BUTTON(gamefunc_Open))
+                //     {
+                //         CONTROL_ClearButton(gamefunc_Open);
+                //         goto MENU2;
+                //     }
+                // }
+            }
+
+            bInMove = kFalse;
+
+            // END YELLOW SECTION
+
+            // loc_12149:
+            if (bInDemo)
+            {
+                while (tclocks > totalclock) { HandleAsync(); }
+                tclocks = totalclock;
+            }
+
+            if (G_FPSLimit())
+            {
+                GameDisplay();
             }
         }
         else
         {
-            // loc_11FBC:
-            while (bPause)
+            bInMove = kTrue;
+            if (!bPause && totalclock >= tclocks + 4)
             {
-                ClearAllKeys();
-                if (WaitAnyKey(-1) != sc_Pause)
+                GetLocalInput();
+
+                sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
+                sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+                sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
+                sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
+                sPlayerInput[nLocalPlayer].nTarget = besttarget;
+
+                Ra[nLocalPlayer].nTarget = besttarget;
+
+                lLocalCodes = 0;
+                nPlayerDAng = 0;
+
+                sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
+
+                do
                 {
-                    bPause = kFalse;
-                }
+                    timerUpdate();
+                    tclocks += 4;
+                    GameMove();
+                    timerUpdate();
+                } while (levelnew < 0 && totalclock >= tclocks + 4);
+            }
+            bInMove = kFalse;
+
+            faketimerhandler();
+
+            if (G_FPSLimit())
+            {
+                GameDisplay();
             }
         }
-
-        // loc_11FEE:
-        tclocks += moveframes * 4;
-        while (moveframes&& levelnew < 0)
-        {
-            FixPalette();
-
-            if (levelnum == kMap20)
-            {
-                if (lCountDown <= 0)
-                {
-                    for (int i = 0; i < nTotalPlayers; i++) {
-                        nPlayerLives[i] = 0;
-                    }
-
-                    DoFailedFinalScene();
-                    levelnew = 100;
-
-                    break;
-                }
-                // Pink section
-                lCountDown--;
-                DrawClock();
-
-                if (nRedTicks)
-                {
-                    nRedTicks--;
-
-                    if (nRedTicks <= 0) {
-                        DoRedAlert(0);
-                    }
-
-                    nAlarmTicks--;
-                    nButtonColor--;
-
-                    if (nAlarmTicks <= 0) {
-                        DoRedAlert(1);
-                    }
-                }
-            }
-
-            // YELLOW SECTION
-            MoveThings();
-
-            if (totalvel[nLocalPlayer] == 0)
-            {
-                bobangle = 0;
-            }
-            else
-            {
-                bobangle += 56;
-                bobangle &= kAngleMask;
-            }
-
-            // loc_120E9:
-            totalmoves++;
-            moveframes--;
-
-            if (nNetTime > 0)
-            {
-                nNetTime--;
-
-                if (!nNetTime) {
-                    nFreeze = 3;
-                }
-            }
-            else if (nNetTime == 0)
-            {
-                if (BUTTON(gamefunc_Open))
-                {
-                    CONTROL_ClearButton(gamefunc_Open);
-                    goto MENU2;
-                }
-            }
-        }
-        // END YELLOW SECTION
-
-        // loc_12149:
-        if (bInDemo)
-        {
-            while (tclocks > (int)totalclock) { HandleAsync(); }
-            tclocks = (int)totalclock;
-        }
-
-        bInMove = kFalse;
-
         if (!bInDemo)
         {
             if (BUTTON(gamefunc_Escape))
             {
                 CONTROL_ClearButton(gamefunc_Escape);
-MENU2:
+// MENU2:
                 CONTROL_BindsEnabled = 0;
                 nMenu = menu_Menu(1);
 
