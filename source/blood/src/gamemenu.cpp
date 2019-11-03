@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "qav.h"
 #include "resource.h"
 #include "view.h"
+#include "c_bind.h"
 
 BEGIN_BLD_NS
 
@@ -1129,7 +1130,7 @@ void CGameMenuItemKeyList::Scan(void)
 
 void CGameMenuItemKeyList::Draw(void)
 {
-    char buffer[40], buffer2[40];
+    char buffer[40];
     int width, height;
     int shade;
     gMenuTextMgr.GetFontInfo(m_nFont, NULL, NULL, &height);
@@ -1139,21 +1140,9 @@ void CGameMenuItemKeyList::Draw(void)
     bool bClick = false;
     for (int i = 0; i < nRows; i++, y += height, k++)
     {
-        char key1, key2;
-        key1 = KeyboardKeys[k][0];
-        key2 = KeyboardKeys[k][1];
-        const char *sKey1 = key1 == sc_Tilde ? "Tilde" : KB_ScanCodeToString(key1);
-        const char *sKey2 = key2 == sc_Tilde ? "Tilde" : KB_ScanCodeToString(key2);
+		auto keys = Bindings.GetKeysForCommand(CONFIG_FunctionNumToName(k));
+		FString text = C_NameKeys(keys.Data(), std::min(keys.Size(), 2u));
         sprintf(buffer, "%s", CONFIG_FunctionNumToName(k));
-        if (key2 == 0 || key2 == 0xff)
-        {
-            if (key1 == 0 || key1 == 0xff)
-                sprintf(buffer2, "????");
-            else
-                sprintf(buffer2, "%s", sKey1);
-        }
-        else
-            sprintf(buffer2, "%s or %s", sKey1, sKey2);
         
         if (k == nFocus)
         {
@@ -1165,15 +1154,15 @@ void CGameMenuItemKeyList::Draw(void)
             if (bScan && ((int)totalclock & 32))
                 sVal = "____";
             else
-                sVal = buffer2;
+                sVal = text;
             gMenuTextMgr.GetFontInfo(m_nFont, sVal, &width, 0);
             viewDrawText(m_nFont, sVal, m_nX+m_nWidth-1-width, y, shade, 0, 0, false);
         }
         else
         {
             viewDrawText(3, buffer, m_nX, y, 24, 0, 0, false);
-            gMenuTextMgr.GetFontInfo(m_nFont, buffer2, &width, 0);
-            viewDrawText(m_nFont, buffer2, m_nX+m_nWidth-1-width, y, 24, 0, 0, false);
+            gMenuTextMgr.GetFontInfo(m_nFont, text, &width, 0);
+            viewDrawText(m_nFont, text, m_nX+m_nWidth-1-width, y, 24, 0, 0, false);
         }
         int mx = m_nX<<16;
         int my = y<<16;

@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "superfasthash.h"
 #include "gamecvars.h"
 #include "gamecontrol.h"
+#include "c_bind.h"
 #include "../../glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
@@ -768,7 +769,7 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL_POLYMER[] = {
 static char const *MenuKeyNone = "  -";
 static char const *MEOSN_Keys[NUMKEYS];
 
-static MenuCustom2Col_t MEO_KEYBOARDSETUPFUNCS_TEMPLATE = { { NULL, NULL, }, MEOSN_Keys, &MF_Minifont, NUMKEYS, 54<<16, 0 };
+static MenuCustom2Col_t MEO_KEYBOARDSETUPFUNCS_TEMPLATE = { 0, &MF_Minifont, NUMKEYS, 54<<16, 0 };
 static MenuCustom2Col_t MEO_KEYBOARDSETUPFUNCS[NUMGAMEFUNCTIONS];
 static MenuEntry_t ME_KEYBOARDSETUPFUNCS_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_Minifont, &MEF_KBFuncList, &MEO_KEYBOARDSETUPFUNCS_TEMPLATE, Custom2Col );
 static MenuEntry_t ME_KEYBOARDSETUPFUNCS[NUMGAMEFUNCTIONS];
@@ -1826,8 +1827,6 @@ void Menu_Init(void)
         ME_KEYBOARDSETUPFUNCS[i].name = MenuGameFuncs[i];
         ME_KEYBOARDSETUPFUNCS[i].entry = &MEO_KEYBOARDSETUPFUNCS[i];
         MEO_KEYBOARDSETUPFUNCS[i] = MEO_KEYBOARDSETUPFUNCS_TEMPLATE;
-        MEO_KEYBOARDSETUPFUNCS[i].column[0] = &KeyboardKeys[i][0];
-        MEO_KEYBOARDSETUPFUNCS[i].column[1] = &KeyboardKeys[i][1];
     }
     M_KEYBOARDKEYS.numEntries = NUMGAMEFUNCTIONS;
     for (i = 0; i < MENUMOUSEFUNCTIONS; ++i)
@@ -2921,7 +2920,6 @@ static int32_t Menu_PreCustom2ColScreen(MenuEntry_t *entry)
         if (sc != sc_None)
         {
             S_PlaySound(PISTOL_BODYHIT);
-            *column->column[M_KEYBOARDKEYS.currentColumn] = sc;
 			Bindings.SetBind(sc, CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
             KB_ClearKeyDown(sc);
 
@@ -4885,8 +4883,14 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         int32_t columnx[2] = { origin.x + x - ((status & MT_XRight) ? object->columnWidth : 0), origin.x + x + ((status & MT_XRight) ? 0 : object->columnWidth) };
                         const int32_t columny = origin.y + y_upper + y - menu->scrollPos;
 
-                        const vec2_t column0textsize = Menu_Text(columnx[0], columny + ((height>>17)<<16), object->font, object->key[*object->column[0]], menu->currentColumn == 0 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
-                        const vec2_t column1textsize = Menu_Text(columnx[1], columny + ((height>>17)<<16), object->font, object->key[*object->column[1]], menu->currentColumn == 1 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
+						// Beware of hack job!
+						auto keys = Bindings.GetKeysForCommand(CONFIG_FunctionNumToName(object->buttonindex));
+						FString text1;
+						FString text2;
+						if (keys.Size() > 0) text1 = C_NameKeys(&keys[0], 1);
+						if (keys.Size() > 1) text2 = C_NameKeys(&keys[1], 1);
+						const vec2_t column0textsize = Menu_Text(columnx[0], columny + ((height >> 17) << 16), object->font, text1, menu->currentColumn == 0 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
+                        const vec2_t column1textsize = Menu_Text(columnx[1], columny + ((height>>17)<<16), object->font, text2, menu->currentColumn == 1 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
 
                         if (entry->format->width > 0)
                             mousewidth += object->columnWidth + column1textsize.x;

@@ -214,9 +214,7 @@ typedef struct MenuOption_t
 } MenuOption_t;
 typedef struct MenuCustom2Col_t
 {
-    // effect
-    uint8_t *column[2];
-    char const **key;
+	int buttonindex;
 
     // appearance
     MenuFont_t *font;

@@ -16,8 +16,6 @@ class FArgs;
 
 void D_AddWildFile(TArray<FString>& wadfiles, const char* value);
 
-extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
-
 int CONFIG_Init();
 void CONFIG_SetDefaultKeys(const char *defbinds);
 int32_t CONFIG_FunctionNameToNum(const char* func);
@@ -25,7 +23,6 @@ const char* CONFIG_FunctionNumToName(int32_t func);
 const char* CONFIG_FunctionNumToRealName(int32_t func);
 void CONFIG_ReplaceButtonName(int num, const char* text);
 void CONFIG_DeleteButtonName(int num);
-void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 
 // I am not sure if anything below will survive for long...
 

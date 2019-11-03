@@ -803,19 +803,6 @@ void onvideomodechange(int32_t newmode)
     g_crosshairSum = -1;
 }
 
-static int osdcmd_unbound(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_OK;
-
-    int const gameFunc = CONFIG_FunctionNameToNum(parm->parms[0]);
-
-    if (gameFunc != -1)
-        KeyboardKeys[gameFunc][0] = 0;
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_quicksave(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -1173,8 +1160,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
-
-    OSD_RegisterFunction("unbound", NULL, osdcmd_unbound);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
 #ifdef USE_OPENGL

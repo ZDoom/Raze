@@ -681,7 +681,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         {
             KB_ClearKeyDown(KB_GetLastScanCode());
 
-            KeyboardKeys[currentkey][currentcol] = KB_GetLastScanCode();
+            //KeyboardKeys[currentkey][currentcol] = KB_GetLastScanCode();
             if (currentkey != gamefunc_Show_Console)
             {
 #if 0 // [JM] Re-do this shit !CHECKME!
@@ -738,13 +738,8 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             KB_ClearKeyDown(sc_Delete);
             if (currentkey != gamefunc_Show_Console)
             {
-                KeyboardKeys[currentkey][currentcol] = 0xff;
-#if 0 // [JM] Re-do this shit !CHECKME!
-                CONTROL_MapKey(currentkey,
-                               KeyboardKeys[currentkey][0],
-                               KeyboardKeys[currentkey][1]);
-#endif
-            }
+				//Bindings.UnbindACommand(CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
+			}
         }
         else if (KB_KeyPressed(sc_Home))
         {
@@ -810,6 +805,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             }
             ds[j] = 0;
 
+#if 0
             j = OPT_LINE(0)+(i-topitem)*8;
             MNU_DrawSmallString(OPT_XS, j, ds, (i==currentkey) ? 0 : 12, 16);
 
@@ -824,6 +820,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             if (!p || KeyboardKeys[i][1]==0xff) p = "  -";
             MNU_DrawSmallString(OPT_XSIDE + 4*14, j, p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==1) ? 14 : 16);
+#endif
         }
 
         {

@@ -424,19 +424,6 @@ void onvideomodechange(int32_t newmode)
     UpdateDacs(gLastPal, false);
 }
 
-static int osdcmd_unbound(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_OK;
-
-    int const gameFunc = CONFIG_FunctionNameToNum(parm->parms[0]);
-
-    if (gameFunc != -1)
-        KeyboardKeys[gameFunc][0] = 0;
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_quicksave(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -513,7 +500,6 @@ int32_t registerosdcommands(void)
 	OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
     OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
-    OSD_RegisterFunction("unbound", NULL, osdcmd_unbound);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
 #ifdef USE_OPENGL

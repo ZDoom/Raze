@@ -53,16 +53,10 @@ void sub_5A928(void)
         inputState.ClearButton(i);
 }
 
-void sub_5A944(char key)
+void sub_5A944(int key)
 {
-    for (int i = 0; i < NUMGAMEFUNCTIONS-1; i++)
-    {
-        char key1, key2;
-        key1 = KeyboardKeys[i][0];
-        key2 = KeyboardKeys[i][1];
-        if (key1 == key || key2 == key)
-            inputState.ClearButton(i);
-    }
+	auto binding = Bindings.GetBind(key);
+#pragma message("todo: reset the bound button here")
 }
 
 void SetGodMode(bool god)
@@ -592,7 +586,7 @@ void CPlayerMsg::Send(void)
 void CPlayerMsg::ProcessKeys(void)
 {
     int key = keyGetScan();
-    char ch;
+    int ch;
     if (key != 0)
     {
         bool ctrl = (inputState.CtrlPressed());

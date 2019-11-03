@@ -1720,8 +1720,6 @@ void Menu_Init(void)
         ME_KEYBOARDSETUPFUNCS[i].name = MenuGameFuncs[i];
         ME_KEYBOARDSETUPFUNCS[i].entry = &MEO_KEYBOARDSETUPFUNCS[i];
         MEO_KEYBOARDSETUPFUNCS[i] = MEO_KEYBOARDSETUPFUNCS_TEMPLATE;
-        MEO_KEYBOARDSETUPFUNCS[i].column[0] = &KeyboardKeys[i][0];
-        MEO_KEYBOARDSETUPFUNCS[i].column[1] = &KeyboardKeys[i][1];
     }
     M_KEYBOARDKEYS.numEntries = NUMGAMEFUNCTIONS;
     for (i = 0; i < MENUMOUSEFUNCTIONS; ++i)
