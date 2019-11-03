@@ -110,6 +110,14 @@ const char * OSD_StripColors(char *outBuf, const char *inBuf)
     return ptr;
 }
 
+static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
+{
+	UNREFERENCED_CONST_PARAMETER(parm);
+	throw ExitEvent(0);
+	return OSDCMD_OK;
+}
+
+
 int OSD_Exec(const char *szScript)
 {
     int err = 0;
@@ -552,8 +560,10 @@ void OSD_Init(void)
 	OSD_RegisterFunction("bind", R"(bind <key> <string>: associates a keypress with a string of console input. Type "bind showkeys" for a list of keys and "listsymbols" for a list of valid console commands.)", osdcmd_bind);
 	OSD_RegisterFunction("unbind", "unbind <key>: unbinds a key", osdcmd_unbind);
 	OSD_RegisterFunction("unbindall", "unbindall: unbinds all keys", osdcmd_unbindall);
-
-    //    atexit(OSD_Cleanup);
+	OSD_RegisterFunction("quit", "quit: exits the game immediately", osdcmd_quit);
+	OSD_RegisterFunction("exit", "exit: exits the game immediately", osdcmd_quit);
+	OSD_RegisterFunction("changelevel", "changelevel <level>: warps to the given level", osdcmd_changelevel);
+	//    atexit(OSD_Cleanup);
 }
 
 

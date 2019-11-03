@@ -53,7 +53,7 @@ enum rendmode_t {
 
 #define MAXVOXMIPS 5
 
-#if !defined GEKKO && !defined __OPENDINGUX__
+
 # define MAXSECTORS MAXSECTORSV8
 # define MAXWALLS MAXWALLSV8
 # define MAXSPRITES MAXSPRITESV8
@@ -66,39 +66,9 @@ enum rendmode_t {
 // additional space beyond wall, in walltypes:
 # define M32_FIXME_WALLS 512
 # define M32_FIXME_SECTORS 2
-#else
-# define MAXSECTORS MAXSECTORSV7
-# define MAXWALLS MAXWALLSV7
-# define MAXSPRITES MAXSPRITESV7
 
-#ifdef GEKKO
-#  define MAXXDIM 860
-#  define MAXYDIM 490
-# else
-#  define MAXXDIM 320
-#  define MAXYDIM 200
-# endif
-
-# define MINXDIM MAXXDIM
-# define MINYDIM MAXYDIM
-# define M32_FIXME_WALLS 0
-# define M32_FIXME_SECTORS 0
-#endif
-
-#ifdef LUNATIC
-# define NEW_MAP_FORMAT
-// A marker for LuaJIT C function callbacks, but not merely:
-# define LUNATIC_CB ATTRIBUTE((used))
-// Used for variables and functions referenced from Lua:
-# define LUNATIC_EXTERN ATTRIBUTE((used))
-# define LUNATIC_FASTCALL
-#else
-# ifdef NEW_MAP_FORMAT
-#  error "New map format can only be used with Lunatic"
-# endif
 # define LUNATIC_EXTERN static
 # define LUNATIC_FASTCALL __fastcall
-#endif
 
 #define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
 
@@ -150,34 +120,25 @@ enum rendmode_t {
 #define YAX_CEILING 0  // don't change!
 #define YAX_FLOOR 1  // don't change!
 
-# ifdef NEW_MAP_FORMAT
-#  define YAX_MAXBUNCHES 512
-#  define YAX_BIT__COMPAT 1024
-#  define YAX_NEXTWALLBIT__COMPAT(Cf) (1<<(10+Cf))
-#  define YAX_NEXTWALLBITS__COMPAT (YAX_NEXTWALLBIT__COMPAT(0)|YAX_NEXTWALLBIT__COMPAT(1))
-# else
+
 #  define YAX_MAXBUNCHES 256
 #  define YAX_BIT 1024
    // "has next wall when constrained"-bit (1<<10: ceiling, 1<<11: floor)
 #  define YAX_NEXTWALLBIT(Cf) (1<<(10+Cf))
 #  define YAX_NEXTWALLBITS (YAX_NEXTWALLBIT(0)|YAX_NEXTWALLBIT(1))
-# endif
+
 
 int32_t get_alwaysshowgray(void);  // editor only
 void yax_updategrays(int32_t posze);
 
 #ifdef YAX_ENABLE
-# ifdef NEW_MAP_FORMAT
-   // New map format -- no hijacking of otherwise used members.
-#  define YAX_PTRNEXTWALL(Ptr, Wall, Cf) (*(&Ptr[Wall].upwall + Cf))
-#  define YAX_NEXTWALLDEFAULT(Cf) (-1)
-# else
+
    // More user tag hijacking: lotag/extra. :/
 #  define YAX_PTRNEXTWALL(Ptr, Wall, Cf) (*(int16_t *)(&Ptr[Wall].lotag + (playing_blood ? 1 : 2)*Cf))
 #  define YAX_NEXTWALLDEFAULT(Cf) (playing_blood ? 0 : ((Cf)==YAX_CEILING) ? 0 : -1)
    extern int16_t yax_bunchnum[MAXSECTORS][2];
    extern int16_t yax_nextwall[MAXWALLS][2];
-# endif
+
 
 # define YAX_NEXTWALL(Wall, Cf) YAX_PTRNEXTWALL(wall, Wall, Cf)
 
@@ -190,9 +151,7 @@ void yax_updategrays(int32_t posze);
 
 extern int32_t r_tror_nomaskpass;
 
-# ifdef NEW_MAP_FORMAT
-// Moved below declarations of sector, wall, sprite.
-# else
+
 int16_t yax_getbunch(int16_t i, int16_t cf);
 static FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
 {
@@ -201,7 +160,7 @@ static FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
 }
 int16_t yax_getnextwall(int16_t wal, int16_t cf);
 void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall);
-# endif
+
 
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
 void yax_setbunches(int16_t i, int16_t cb, int16_t fb);
@@ -364,156 +323,6 @@ EDUKE32_STATIC_ASSERT(sizeof(sectortype) == sizeof(usectortype));
 EDUKE32_STATIC_ASSERT(sizeof(walltype) == sizeof(uwalltype));
 EDUKE32_STATIC_ASSERT(sizeof(spritetype) == sizeof(uspritetype));
 
-#ifdef NEW_MAP_FORMAT
-
-# define SECTORVX_SZ1 offsetof(sectortypevx, ceilingpicnum)
-# define SECTORVX_SZ4 sizeof(sectortypevx)-offsetof(sectortypevx, visibility)
-
-static inline void copy_v7_from_vx_sector(usectortypev7 *v7sec, const sectortypevx *vxsec)
-{
-    /* [wallptr..wallnum] */
-    Bmemcpy(v7sec, vxsec, SECTORVX_SZ1);
-
-    /* ceiling* */
-    v7sec->ceilingpicnum = vxsec->ceilingpicnum;
-    v7sec->ceilingheinum = vxsec->ceilingheinum;
-    v7sec->ceilingstat = vxsec->ceilingstat;
-    v7sec->ceilingz = vxsec->ceilingz;
-    v7sec->ceilingshade = vxsec->ceilingshade;
-    v7sec->ceilingpal = vxsec->ceilingpal;
-    v7sec->ceilingxpanning = vxsec->ceilingxpanning;
-    v7sec->ceilingypanning = vxsec->ceilingypanning;
-
-    /* floor* */
-    v7sec->floorpicnum = vxsec->floorpicnum;
-    v7sec->floorheinum = vxsec->floorheinum;
-    v7sec->floorstat = vxsec->floorstat;
-    v7sec->floorz = vxsec->floorz;
-    v7sec->floorshade = vxsec->floorshade;
-    v7sec->floorpal = vxsec->floorpal;
-    v7sec->floorxpanning = vxsec->floorxpanning;
-    v7sec->floorypanning = vxsec->floorypanning;
-
-    /* [visibility..extra] */
-    Bmemcpy(&v7sec->visibility, &vxsec->visibility, SECTORVX_SZ4);
-
-    /* Clear YAX_BIT of ceiling and floor. (New-map format build saves TROR
-     * maps as map-text.) */
-    v7sec->ceilingstat &= ~YAX_BIT__COMPAT;
-    v7sec->floorstat &= ~YAX_BIT__COMPAT;
-}
-
-static inline void inplace_vx_from_v7_sector(sectortypevx *vxsec)
-{
-    const sectortypev7 *v7sec = (sectortypev7 *)vxsec;
-    usectortypev7 bakv7sec;
-
-    // Can't do this in-place since the members were rearranged.
-    Bmemcpy(&bakv7sec, v7sec, sizeof(sectortypev7));
-
-    /* [wallptr..wallnum] is already at the right place */
-
-    /* ceiling* */
-    vxsec->ceilingpicnum = bakv7sec.ceilingpicnum;
-    vxsec->ceilingheinum = bakv7sec.ceilingheinum;
-    vxsec->ceilingstat = bakv7sec.ceilingstat;
-    vxsec->ceilingz = bakv7sec.ceilingz;
-    vxsec->ceilingshade = bakv7sec.ceilingshade;
-    vxsec->ceilingpal = bakv7sec.ceilingpal;
-    vxsec->ceilingxpanning = bakv7sec.ceilingxpanning;
-    vxsec->ceilingypanning = bakv7sec.ceilingypanning;
-
-    /* floor* */
-    vxsec->floorpicnum = bakv7sec.floorpicnum;
-    vxsec->floorheinum = bakv7sec.floorheinum;
-    vxsec->floorstat = bakv7sec.floorstat;
-    vxsec->floorz = bakv7sec.floorz;
-    vxsec->floorshade = bakv7sec.floorshade;
-    vxsec->floorpal = bakv7sec.floorpal;
-    vxsec->floorxpanning = bakv7sec.floorxpanning;
-    vxsec->floorypanning = bakv7sec.floorypanning;
-
-    /* [visibility..extra] */
-    Bmemmove(&vxsec->visibility, &bakv7sec.visibility, SECTORVX_SZ4);
-}
-
-static inline void inplace_vx_tweak_sector(sectortypevx *vxsec, int32_t yaxp)
-{
-    if (yaxp)
-    {
-        int32_t cisext = (vxsec->ceilingstat&YAX_BIT__COMPAT);
-        int32_t fisext = (vxsec->floorstat&YAX_BIT__COMPAT);
-
-        vxsec->ceilingbunch = cisext ? vxsec->ceilingxpanning : -1;
-        vxsec->floorbunch = fisext ? vxsec->floorxpanning : -1;
-
-        if (cisext)
-            vxsec->ceilingxpanning = 0;
-        if (fisext)
-            vxsec->floorxpanning = 0;
-    }
-    else
-    {
-        vxsec->ceilingbunch = vxsec->floorbunch = -1;
-    }
-
-    /* Clear YAX_BIT of ceiling and floor (map-int VX doesn't use it). */
-    vxsec->ceilingstat &= ~YAX_BIT__COMPAT;
-    vxsec->floorstat &= ~YAX_BIT__COMPAT;
-}
-
-# undef SECTORVX_SZ1
-# undef SECTORVX_SZ4
-
-# define WALLVX_SZ2 offsetof(walltypevx, blend)-offsetof(walltypevx, cstat)
-
-static inline void copy_v7_from_vx_wall(uwalltypev7 *v7wal, const walltypevx *vxwal)
-{
-    /* [x..nextsector] */
-    Bmemcpy(v7wal, vxwal, offsetof(walltypevx, upwall));
-    /* [cstat..extra] */
-    Bmemcpy(&v7wal->cstat, &vxwal->cstat, WALLVX_SZ2);
-    /* Clear YAX_NEXTWALLBITS. */
-    v7wal->cstat &= ~YAX_NEXTWALLBITS__COMPAT;
-}
-
-static inline void inplace_vx_from_v7_wall(walltypevx *vxwal)
-{
-    const walltypev7 *v7wal = (walltypev7 *)vxwal;
-
-    /* [cstat..extra] */
-    Bmemmove(&vxwal->cstat, &v7wal->cstat, WALLVX_SZ2);
-
-    vxwal->blend = vxwal->filler_ = 0;
-}
-
-static inline void inplace_vx_tweak_wall(walltypevx *vxwal, int32_t yaxp)
-{
-    if (yaxp)
-    {
-        int32_t haveupwall = (vxwal->cstat & YAX_NEXTWALLBIT__COMPAT(YAX_CEILING));
-        int32_t havednwall = (vxwal->cstat & YAX_NEXTWALLBIT__COMPAT(YAX_FLOOR));
-
-        vxwal->upwall = haveupwall ? vxwal->lotag : -1;
-        vxwal->dnwall = havednwall ? vxwal->extra : -1;
-
-        if (haveupwall)
-            vxwal->lotag = 0;
-        if (havednwall)
-            vxwal->extra = -1;
-    }
-    else
-    {
-        vxwal->upwall = vxwal->dnwall = -1;
-    }
-
-    /* Clear YAX_NEXTWALLBITS (map-int VX doesn't use it). */
-    vxwal->cstat &= ~YAX_NEXTWALLBITS__COMPAT;
-}
-
-# undef WALLVX_SZ2
-
-#endif
 
 #include "clip.h"
 
@@ -607,28 +416,7 @@ EXTERN uint32_t wallchanged[MAXWALLS + M32_FIXME_WALLS];
 EXTERN uint32_t spritechanged[MAXSPRITES];
 #endif
 
-#ifdef NEW_MAP_FORMAT
-static FORCE_INLINE int16_t yax_getbunch(int16_t i, int16_t cf)
-{
-    return cf ? sector[i].floorbunch : sector[i].ceilingbunch;
-}
 
-static FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
-{
-    *cb = yax_getbunch(i, YAX_CEILING);
-    *fb = yax_getbunch(i, YAX_FLOOR);
-}
-
-static FORCE_INLINE int16_t yax_getnextwall(int16_t wal, int16_t cf)
-{
-    return cf ? wall[wal].dnwall : wall[wal].upwall;
-}
-
-static FORCE_INLINE void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
-{
-    YAX_NEXTWALL(wal, cf) = thenextwall;
-}
-#endif
 
 #ifdef USE_STRUCT_TRACKERS
 static FORCE_INLINE void sector_tracker_hook__(intptr_t const address)
@@ -996,7 +784,7 @@ typedef struct {
 typedef struct artheader_t {
     int32_t tilestart, tileend, numtiles;
 } artheader_t;
-#define ARTv1_UNITOFFSET 24 // using siseof does not work because picanm_t is not the in-file format.
+#define ARTv1_UNITOFFSET 24 // using sizeof does not work because picanm_t is not the in-file format.
 
 int32_t    enginePreInit(void);	// a partial setup of the engine used for launch windows
 int32_t    engineInit(void);

@@ -34,14 +34,6 @@ BEGIN_RR_NS
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
-static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    OSD_ShowDisplay(0);
-    G_GameQuit();
-    return OSDCMD_OK;
-}
-
 static int osdcmd_changelevel(osdcmdptr_t parm)
 {
     int32_t volume=0,level;
@@ -923,11 +915,9 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 int32_t registerosdcommands(void)
 {
 
-    if (VOLUMEONE)
-        OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
+    if (!VOLUMEONE)
     else
     {
-        OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
@@ -967,8 +957,6 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
     OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
-    OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
-    OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
 
     OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
