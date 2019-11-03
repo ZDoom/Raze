@@ -60,40 +60,10 @@ static int32_t(*ExtGetTime)(void);
 static uint8_t CONTROL_DoubleClickSpeed;
 
 int32_t CONTROL_ButtonFlags[NUMKEYS];
-consolekeybind_t CONTROL_KeyBinds[NUMKEYS + MAXMOUSEBUTTONS];
 bool CONTROL_BindsEnabled = 0;
 bool CONTROL_SmoothMouse  = 0;
 
 #define CONTROL_CheckRange(which) ((unsigned)which >= (unsigned)NUMKEYS)
-#define BIND(x, s, r, k) do { Xfree(x.cmdstr); x.cmdstr = s; x.repeat = r; x.key = k; } while (0)
-
-void CONTROL_ClearAllBinds(void)
-{
-    for (int i=0; i<NUMKEYS; i++)
-        CONTROL_FreeKeyBind(i);
-    for (int i=0; i<MAXMOUSEBUTTONS; i++)
-        CONTROL_FreeMouseBind(i);
-}
-
-void CONTROL_BindKey(int i, char const * const cmd, int repeat, char const * const keyname)
-{
-    BIND(CONTROL_KeyBinds[i], Xstrdup(cmd), repeat, keyname);
-}
-
-void CONTROL_BindMouse(int i, char const * const cmd, int repeat, char const * const keyname)
-{
-    BIND(CONTROL_KeyBinds[NUMKEYS + i], Xstrdup(cmd), repeat, keyname);
-}
-
-void CONTROL_FreeKeyBind(int i)
-{
-    BIND(CONTROL_KeyBinds[i], NULL, 0, NULL);
-}
-
-void CONTROL_FreeMouseBind(int i)
-{
-    BIND(CONTROL_KeyBinds[NUMKEYS + i], NULL, 0, NULL);
-}
 
 static void CONTROL_GetMouseDelta(ControlInfo * info)
 {
@@ -555,36 +525,6 @@ static void CONTROL_AxisFunctionState(int32_t *p1)
 
 static void CONTROL_ButtonFunctionState(int32_t *p1)
 {
-    if (CONTROL_NumMouseButtons)
-    {
-        int i = CONTROL_NumMouseButtons-1, j;
-
-        do
-        {
-            if (!CONTROL_KeyBinds[NUMKEYS + i].cmdstr)
-            {
-                j = CONTROL_MouseButtonMapping[i].doubleclicked;
-                if (j != KEYUNDEFINED)
-                    p1[j] |= CONTROL_MouseButtonClickedState[i];
-
-                j = CONTROL_MouseButtonMapping[i].singleclicked;
-                if (j != KEYUNDEFINED)
-                    p1[j] |= CONTROL_MouseButtonState[i];
-            }
-
-            if (!CONTROL_BindsEnabled)
-                continue;
-
-            if (CONTROL_KeyBinds[NUMKEYS + i].cmdstr && CONTROL_MouseButtonState[i])
-            {
-                if (CONTROL_KeyBinds[NUMKEYS + i].repeat || (CONTROL_KeyBinds[NUMKEYS + i].laststate == 0))
-                    OSD_Dispatch(CONTROL_KeyBinds[NUMKEYS + i].cmdstr);
-            }
-            CONTROL_KeyBinds[NUMKEYS + i].laststate = CONTROL_MouseButtonState[i];
-        }
-        while (i--);
-    }
-
     if (CONTROL_NumJoyButtons)
     {
         int i=CONTROL_NumJoyButtons-1, j;
@@ -645,30 +585,6 @@ void CONTROL_ClearGameControllerDigitalAxisNeg(int32_t axis)
     CONTROL_JoyAxes[axis].digitalClearedN = 1;
 }
 
-void CONTROL_ProcessBinds(void)
-{
-    if (!CONTROL_BindsEnabled)
-        return;
-
-    int i = NUMKEYS-1;
-
-    do
-    {
-        if (CONTROL_KeyBinds[i].cmdstr)
-        {
-            auto const keyPressed = KB_KeyPressed(i);
-
-            if (keyPressed && (CONTROL_KeyBinds[i].repeat || (CONTROL_KeyBinds[i].laststate == 0)))
-            {
-                CONTROL_LastSeenInput = LastSeenInput::Keyboard;
-                OSD_Dispatch(CONTROL_KeyBinds[i].cmdstr);
-            }
-
-            CONTROL_KeyBinds[i].laststate = keyPressed;
-        }
-    }
-    while (i--);
-}
 
 static void CONTROL_GetFunctionInput(void)
 {
@@ -737,8 +653,6 @@ void CONTROL_Shutdown(void)
 {
     if (!CONTROL_Started)
         return;
-
-    CONTROL_ClearAllBinds();
 
     MOUSE_Shutdown();
     uninitinput();

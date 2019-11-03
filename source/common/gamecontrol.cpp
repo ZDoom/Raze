@@ -16,6 +16,7 @@
 #include "m_argv.h"
 #include "rts.h"
 #include "printf.h"
+#include "c_bind.h"
 
 InputState inputState;
 void SetClipshapes();
@@ -533,119 +534,6 @@ void CONFIG_DeleteButtonName(int num)
     if ((unsigned)num >= (unsigned)NUMGAMEFUNCTIONS)
         return;
 	GF_NumToAlias[num] = "";
-}
-
-//==========================================================================
-//
-// wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
-//
-//==========================================================================
-
-void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
-{
-	int const keys[] = { key1, key2, oldkey1, oldkey2 };
-
-	if (which == gamefunc_Show_Console)
-		OSD_CaptureKey(key1);
-
-	for (int k = 0; (unsigned)k < ARRAY_SIZE(keys); k++)
-	{
-		if (keys[k] == 0xff || !keys[k])
-			continue;
-
-		int match = 0;
-
-		for (; sctokeylut[match].key; match++)
-		{
-			if (keys[k] == sctokeylut[match].sc)
-				break;
-		}
-
-		FString tempbuf;
-
-		for (int i = NUMGAMEFUNCTIONS - 1; i >= 0; i--)
-		{
-			if (KeyboardKeys[i][0] == keys[k] || KeyboardKeys[i][1] == keys[k])
-			{
-				tempbuf.AppendFormat("gamefunc_%s; ", CONFIG_FunctionNumToName(i));
-			}
-		}
-
-		auto len = tempbuf.Len();
-
-		if (len >= 2)
-		{
-			tempbuf.Truncate(len - 2); // cut off the trailing "; "
-			CONTROL_BindKey(keys[k], tempbuf, 1, sctokeylut[match].key ? sctokeylut[match].key : "<?>");
-		}
-		else
-		{
-			CONTROL_FreeKeyBind(keys[k]);
-		}
-	}
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy/*=false*/)
-{
-	FScanner sc;
-
-	sc.Open(defbinds);
-
-	if (!lazy)
-	{
-		memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
-		CONTROL_ClearAllBinds();
-	}
-
-	while (sc.GetToken())
-	{
-		sc.TokenMustBe(TK_StringConst);
-		int num = CONFIG_FunctionNameToNum(sc.String);
-		int default0 = -1;
-		int default1 = -1;
-
-		if (sc.CheckToken(','))
-		{
-			sc.MustGetToken(TK_StringConst);
-			default0 = KB_StringToScanCode(sc.String);
-			if (sc.CheckToken(','))
-			{
-				sc.MustGetToken(TK_StringConst);
-				default1 = KB_StringToScanCode(sc.String);
-			}
-			if (num >= 0 && num < NUMGAMEFUNCTIONS)
-			{
-				auto& key = KeyboardKeys[num];
-#if 0
-				// skip the function if the default key is already used
-				// or the function is assigned to another key
-				if (lazy && (key[0] != 0xff || (CONTROL_KeyIsBound(default0) && Bstrlen(CONTROL_KeyBinds[default0].cmdstr) > strlen_gamefunc_
-					&& CONFIG_FunctionNameToNum(CONTROL_KeyBinds[default0].cmdstr + strlen_gamefunc_) >= 0)))
-				{
-					continue;
-				}
-#endif
-				key[0] = default0;
-				key[1] = default1;
-
-				if (key[0]) CONTROL_FreeKeyBind(key[0]);
-				if (key[1])	CONTROL_FreeKeyBind(key[1]);
-
-				if (num == gamefunc_Show_Console)
-					OSD_CaptureKey(key[0]);
-				else
-					CONFIG_MapKey(num, key[0], 0, key[1], 0);
-
-			}
-		}
-
-	}
 }
 
 //==========================================================================
@@ -1246,39 +1134,50 @@ void CONFIG_SetGameControllerDefaultsPro()
 		digitalAxis.apply();
 }
 
-char const* CONFIG_GetGameFuncOnKeyboard(int gameFunc)
+FString CONFIG_GetGameFuncOnKeyboard(int gameFunc)
 {
-	const char* string0 = KB_ScanCodeToString(KeyboardKeys[gameFunc][0]);
-	return string0[0] == '\0' ? KB_ScanCodeToString(KeyboardKeys[gameFunc][1]) : string0;
+	auto binding = CONFIG_FunctionNumToRealName(gameFunc);
+	auto keys = Bindings.GetKeysForCommand(binding);
+	for(auto key : keys)
+	{
+		if (key < KEY_FIRSTMOUSEBUTTON)
+		{
+			auto scan = KB_ScanCodeToString(key);
+			if (scan) return scan;
+
+		}
+	}
+	return "";
 }
 
-char const* CONFIG_GetGameFuncOnMouse(int gameFunc)
+FString CONFIG_GetGameFuncOnMouse(int gameFunc)
 {
-	for (int j = 0; j < 2; ++j)
-		for (int i = 0; i < joystick.numButtons; ++i)
-			if (JoystickFunctions[i][j] == gameFunc)
-				return joyGetName(1, i);
+	auto binding = CONFIG_FunctionNumToRealName(gameFunc);
+	auto keys = Bindings.GetKeysForCommand(binding);
+	for (auto key : keys)
+	{
+		if (key >= KEY_FIRSTMOUSEBUTTON && key < KEY_FIRSTJOYBUTTON)
+		{
+			auto scan = KB_ScanCodeToString(key);
+			if (scan) return scan;
 
-	for (int i = 0; i < joystick.numAxes; ++i)
-		for (int j = 0; j < 2; ++j)
-			if (JoystickDigitalFunctions[i][j] == gameFunc)
-				return joyGetName(0, i);
-
+		}
+	}
 	return "";
 }
 
 char const* CONFIG_GetGameFuncOnJoystick(int gameFunc)
 {
-	for (int j = 0; j < 2; ++j)
-		for (int i = 0; i < joystick.numButtons; ++i)
-			if (JoystickFunctions[i][j] == gameFunc)
-				return joyGetName(1, i);
-
-	for (int i = 0; i < joystick.numAxes; ++i)
-		for (int j = 0; j < 2; ++j)
-			if (JoystickDigitalFunctions[i][j] == gameFunc)
-				return joyGetName(0, i);
-
+	auto binding = CONFIG_FunctionNumToRealName(gameFunc);
+	auto keys = Bindings.GetKeysForCommand(binding);
+	for (auto key : keys)
+	{
+		if (key >= KEY_FIRSTJOYBUTTON)
+		{
+			auto scan = KB_ScanCodeToString(key);
+			if (scan) return scan;
+		}
+	}
 	return "";
 }
 
@@ -1287,31 +1186,29 @@ FString CONFIG_GetBoundKeyForLastInput(int gameFunc)
 {
 	if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
 	{
-		char const* joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
-		if (joyname != nullptr && joyname[0] != '\0')
+		FString name = CONFIG_GetGameFuncOnJoystick(gameFunc);
+		if (name.IsNotEmpty())
 		{
-			return joyname;
-		}
-
-		char const* keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
-		if (keyname != nullptr && keyname[0] != '\0')
-		{
-			return keyname;
+			return name;
 		}
 	}
-	else
-	{
-		char const* keyname = CONFIG_GetGameFuncOnKeyboard(gameFunc);
-		if (keyname != nullptr && keyname[0] != '\0')
-		{
-			return keyname;
-		}
 
-		char const* joyname = CONFIG_GetGameFuncOnJoystick(gameFunc);
-		if (joyname != nullptr && joyname[0] != '\0')
-		{
-			return joyname;
-		}
+	FString name = CONFIG_GetGameFuncOnKeyboard(gameFunc);
+	if (name.IsNotEmpty())
+	{
+		return name;
+	}
+
+	name = CONFIG_GetGameFuncOnMouse(gameFunc);
+	if (name.IsNotEmpty())
+	{
+		return name;
+	}
+
+	name = CONFIG_GetGameFuncOnJoystick(gameFunc);
+	if (name.IsNotEmpty())
+	{
+		return name;
 	}
 	return "UNBOUND";
 }

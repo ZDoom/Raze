@@ -3652,24 +3652,13 @@ badindex:
                 {
                     int const quoteIndex = Gv_GetVar(*insptr++);
                     int const gameFunc   = Gv_GetVar(*insptr++);
-                    int const funcPos    = Gv_GetVar(*insptr++);
+                    int funcPos    = Gv_GetVar(*insptr++);
+					VM_ASSERT((unsigned)quoteIndex < MAXQUOTES && apStrings[quoteIndex], "invalid quote %d\n", quoteIndex);
+					VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
 
-                    VM_ASSERT((unsigned)quoteIndex < MAXQUOTES && apStrings[quoteIndex], "invalid quote %d\n", quoteIndex);
-                    VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
-
-                    if (funcPos < 2)
-                        Bstrcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[gameFunc][funcPos]));
-                    else
-                    {
-                        Bstrcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[gameFunc][0]));
-
-                        if (!*tempbuf)
-                            Bstrcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[gameFunc][1]));
-                    }
-
-                    if (*tempbuf)
-                        Bstrcpy(apStrings[quoteIndex], tempbuf);
-
+					auto bindings = Bindings.GetKeysForCommand(CONFIG_FunctionNumToRealName(gameFunc));
+					if ((unsigned)funcPos >= bindings.Size()) funcPos = 0;
+					Bstrcpy(apStrings[quoteIndex], KB_ScanCodeToString(bindings[funcPos]));
                     dispatch();
                 }
 

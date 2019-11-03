@@ -8,6 +8,8 @@
 #include "inputstate.h"
 #include "gamecvars.h"
 
+EXTERN_CVAR(Int, cl_defaultconfiguration)
+
 extern FString currentGame;
 extern FString LumpFilter;
 class FArgs;
@@ -17,7 +19,7 @@ void D_AddWildFile(TArray<FString>& wadfiles, const char* value);
 extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
 int CONFIG_Init();
-void CONFIG_SetDefaultKeys(const char *defbinds, bool lazy=false);
+void CONFIG_SetDefaultKeys(const char *defbinds);
 int32_t CONFIG_FunctionNameToNum(const char* func);
 const char* CONFIG_FunctionNumToName(int32_t func);
 const char* CONFIG_FunctionNumToRealName(int32_t func);

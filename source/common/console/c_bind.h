@@ -90,6 +90,10 @@ bool C_DoKey (event_t *ev, FKeyBindings *binds, FKeyBindings *doublebinds);
 void C_SetDefaultBindings ();
 void C_UnbindAll ();
 
+const char* KB_ScanCodeToString(int scancode); // convert scancode into a string
+int KB_StringToScanCode(const char* string);  // convert a string into a scancode
+
+
 extern const char *KeyNames[];
 
 struct FKeyAction

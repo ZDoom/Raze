@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "demo.h"
 #include "enet.h"
+#include "d_event.h"
 
 BEGIN_RR_NS
 
@@ -2755,7 +2756,7 @@ void P_GetInput(int playerNum)
         return;
     }
 
-    CONTROL_ProcessBinds();
+	D_ProcessEvents();
 
     if (in_aimmode)
         g_MyAimMode = BUTTON(gamefunc_Mouse_Aiming);
@@ -3061,7 +3062,7 @@ void P_GetInputMotorcycle(int playerNum)
         return;
     }
 
-    CONTROL_ProcessBinds();
+    D_ProcessEvents();
 
     if (in_aimmode)
         g_MyAimMode = BUTTON(gamefunc_Mouse_Aiming);
@@ -3359,7 +3360,7 @@ void P_GetInputBoat(int playerNum)
         return;
     }
 
-    CONTROL_ProcessBinds();
+    D_ProcessEvents();
 
     if (in_aimmode)
         g_MyAimMode = BUTTON(gamefunc_Mouse_Aiming);

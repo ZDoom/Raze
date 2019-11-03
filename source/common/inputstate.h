@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "tarray.h"
 #include "scancodes.h"
+#include "c_bind.h"
 
 typedef uint8_t kb_scancode;
 
@@ -26,7 +27,6 @@ enum
 
 };
 
-extern consolekeybind_t CONTROL_KeyBinds[NUMKEYS + MAXMOUSEBUTTONS];
 extern int32_t CONTROL_ButtonFlags[NUMKEYS];
 extern bool CONTROL_BindsEnabled;
 
@@ -241,7 +241,7 @@ inline void KB_ClearKeyDown(int scan)
 
 inline bool KB_UnBoundKeyPressed(int scan) 
 {
-	return (inputState.GetKeyStatus(scan) != 0 && !CONTROL_KeyBinds[scan].cmdstr);
+	return (inputState.GetKeyStatus(scan) != 0 && Bindings.GetBind(scan) == nullptr);
 }
 
 inline void KB_ClearKeysDown(void)

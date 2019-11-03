@@ -49,14 +49,13 @@
 #include "printf.h"
 #include "v_text.h"
 #include "d_event.h"
+#include "sc_man.h"
+#include "gamecontrol.h"
 
 
 const char *KeyNames[NUM_KEYS] =
 {
-	// This array is dependant on the particular keyboard input
-	// codes generated in i_input.c. If they change there, they
-	// also need to change here. In this case, we use the
-	// DirectInput codes and assume a qwerty keyboard layout.
+	// We use the DirectInput codes and assume a qwerty keyboard layout.
 	// See <dinput.h> for the DIK_* codes
 
 	nullptr,	"Escape",	"1",		"2",		"3",		"4",		"5",		"6",		//00
@@ -618,20 +617,20 @@ CCMD (defaultbind)
 //
 //=============================================================================
 
-CCMD (rebind)
+CCMD(rebind)
 {
-	FKeyBindings *bindings;
+	FKeyBindings* bindings;
 
 	if (key == 0)
 	{
-		Printf ("Rebind cannot be used from the console\n");
+		Printf("Rebind cannot be used from the console\n");
 		return;
 	}
 
 	if (key & KEY_DBLCLICKED)
 	{
 		bindings = &DoubleBindings;
-		key &= KEY_DBLCLICKED-1;
+		key &= KEY_DBLCLICKED - 1;
 	}
 	else
 	{
@@ -651,54 +650,83 @@ CCMD (rebind)
 //
 //=============================================================================
 
-void C_BindDefaults ()
+void ReadBindings(int lump)
 {
-#if 0
-	int lump, lastlump = 0;
+	FScanner sc(lump);
 
-	while ((lump = Wads.FindLump("DEFBINDS", &lastlump)) != -1)
+	while (sc.GetString())
 	{
-		FScanner sc(lump);
+		FKeyBindings* dest = &Bindings;
+		int key;
 
-		while (sc.GetString())
+		// bind destination is optional and is the same as the console command
+		if (sc.Compare("bind"))
 		{
-			FKeyBindings *dest = &Bindings;
-			int key;
-
-			// bind destination is optional and is the same as the console command
-			if (sc.Compare("bind"))
-			{
-				sc.MustGetString();
-			}
-			else if (sc.Compare("doublebind"))
-			{
-				dest = &DoubleBindings;
-				sc.MustGetString();
-			}
-			else if (sc.Compare("mapbind"))
-			{
-				dest = &AutomapBindings;
-				sc.MustGetString();
-			}
-			key = GetConfigKeyFromName(sc.String);
 			sc.MustGetString();
-			dest->SetBind(key, sc.String);
 		}
+		else if (sc.Compare("doublebind"))
+		{
+			dest = &DoubleBindings;
+			sc.MustGetString();
+		}
+		else if (sc.Compare("mapbind"))
+		{
+			dest = &AutomapBindings;
+			sc.MustGetString();
+		}
+		key = GetConfigKeyFromName(sc.String);
+		sc.MustGetString();
+		dest->SetBind(key, sc.String);
 	}
-#endif
+}
+
+
+void CONFIG_SetDefaultKeys(const char* baseconfig)
+{
+	auto lump = fileSystem.GetFile(baseconfig);
+	ReadBindings(lump);
+	int lastlump = 0;
+
+	while ((lump = fileSystem.Iterate("defbinds.txt", &lastlump)) != -1)
+	{
+		ReadBindings(lump);
+	}
+}
+
+void C_BindDefaults()
+{
+	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 }
 
 #if 0
 CCMD(binddefaults)
 {
-	C_BindDefaults ();
+	C_BindDefaults();
 }
 #endif
 
-void C_SetDefaultBindings ()
+void C_SetDefaultBindings()
 {
-	C_UnbindAll ();
-	C_BindDefaults ();
+	C_UnbindAll();
+	C_BindDefaults();
+}
+
+// this is horrible!
+const char* KB_ScanCodeToString(int scancode)
+{
+	if (scancode >= 0 && scancode < NUM_KEYS)
+		return KeyNames[scancode];
+
+	return "";
+}
+
+int KB_StringToScanCode(const char* string)
+{
+	for (int i = 0; i < NUM_KEYS; i++)
+	{
+		if (KeyNames[i] && !stricmp(string, KeyNames[i])) return i;
+	}
+	return 0;
 }
 
 void AddCommandString (const char *copy, int keynum);

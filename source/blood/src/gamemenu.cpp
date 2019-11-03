@@ -1214,21 +1214,8 @@ bool CGameMenuItemKeyList::Event(CGameMenuEvent &event)
         {
             if (KB_KeyWaiting())
                 KB_GetCh();
-            char key1, key2;
-            extern uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
-            key1 = KeyboardKeys[nFocus][0];
-            key2 = KeyboardKeys[nFocus][1];
-            if (key1 > 0 && key2 != KB_LastScan)
-                key2 = key1;
-            key1 = KB_LastScan;
-            if (key1 == key2)
-                key2 = 0;
-            uint8_t oldKey[2];
-            oldKey[0] = KeyboardKeys[nFocus][0];
-            oldKey[1] = KeyboardKeys[nFocus][1];
-            KeyboardKeys[nFocus][0] = key1;
-            KeyboardKeys[nFocus][1] = key2;
-            CONFIG_MapKey(nFocus, key1, oldKey[0], key2, oldKey[1]);
+
+			Bindings.SetBind(KB_LastScan, CONFIG_FunctionNumToName(nFocus));
             KB_FlushKeyboardQueue();
             KB_FlushKeyboardQueueScans();
             KB_ClearKeysDown();
@@ -1267,12 +1254,7 @@ bool CGameMenuItemKeyList::Event(CGameMenuEvent &event)
         return false;
     case kMenuEventBackSpace:
     case kMenuEventDelete:
-        uint8_t oldKey[2];
-        oldKey[0] = KeyboardKeys[nFocus][0];
-        oldKey[1] = KeyboardKeys[nFocus][1];
-        KeyboardKeys[nFocus][0] = 0;
-        KeyboardKeys[nFocus][1] = 0;
-        CONFIG_MapKey(nFocus, 0, oldKey[0], 0, oldKey[1]);
+		Bindings.UnbindACommand(CONFIG_FunctionNumToName(nFocus));
         return false;
     case kMenuEventScrollUp:
         if (nFocus-nTopDelta > 0)

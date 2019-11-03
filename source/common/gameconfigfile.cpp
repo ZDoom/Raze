@@ -37,7 +37,7 @@
 #include "gameconfigfile.h"
 #include "c_cvars.h"
 //#include "c_dispatch.h"
-//#include "c_bind.h"
+#include "c_bind.h"
 #include "m_argv.h"
 #include "cmdlib.h"
 //#include "version.h"
@@ -432,7 +432,6 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	ClearCurrentSection ();
 	C_ArchiveCVars (this, CVAR_ARCHIVE|CVAR_AUTO);
 
-#if 0
 	strncpy (subsection, "ConsoleAliases", sublen);
 	SetSection (section, true);
 	ClearCurrentSection ();
@@ -442,43 +441,16 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 
 	strcpy (subsection, "Bindings");
 	SetSection (section, true);
-	//Bindings.ArchiveBindings (this);
+	Bindings.ArchiveBindings (this);
 
 	strncpy (subsection, "DoubleBindings", sublen);
 	SetSection (section, true);
-	//DoubleBindings.ArchiveBindings (this);
+	DoubleBindings.ArchiveBindings (this);
 
 	strncpy (subsection, "AutomapBindings", sublen);
 	SetSection (section, true);
-	//AutomapBindings.ArchiveBindings (this);
-#else
-	strcpy(subsection, "Bindings");
-	if (SetSection(section, true))
-	{
-		for (int i = 0; i < NUMKEYS + MAXMOUSEBUTTONS; i++)
-		{
-			if (CONTROL_KeyIsBound(i))
-			{
-				SetValueForKey(CONTROL_KeyBinds[i].key, CONTROL_KeyBinds[i].cmdstr);
-			}
-		}
-	}
+	AutomapBindings.ArchiveBindings (this);
 
-#if 0 // This somehow does not work. The Build console sucks.
-	strncpy(subsection, "ConsoleAliases", sublen);
-	if (SetSection(section, true))
-	{
-		for (auto& symb : osd->symbptrs)
-		{
-			if (symb == NULL || symb->name == nullptr ||symb->help == nullptr)
-				break;
-
-			if (symb->func == (void*)OSD_ALIAS)
-				SetValueForKey(symb->name, symb->help);
-		}
-	}
-#endif
-#endif
 }
 
 void FGameConfigFile::ArchiveGlobalData ()

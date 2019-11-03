@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "map2d.h"
 #include "view.h"
+#include "d_event.h"
 
 BEGIN_BLD_NS
 
@@ -118,7 +119,7 @@ void ctrlGetInput(void)
         return;
     }
 
-    CONTROL_ProcessBinds();
+    D_ProcessEvents();
 
     if (in_aimmode)
         g_MyAimMode = 0;

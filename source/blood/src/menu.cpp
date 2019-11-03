@@ -1982,17 +1982,6 @@ void PreDrawControlMouse(CGameMenuItem *pItem)
 
 void SetMouseButton(CGameMenuItemZCycle *pItem)
 {
-    for (int i = 0; i < MENUMOUSEFUNCTIONS; i++)
-    {
-        if (pItem == pItemOptionsControlMouseButton[i])
-        {
-            int nFunc = nGamefuncsValues[pItem->m_nFocus];
-            MouseFunctions[MenuMouseDataIndex[i][0]][MenuMouseDataIndex[i][1]] = nFunc;
-            CONTROL_MapButton(nFunc, MenuMouseDataIndex[i][0], MenuMouseDataIndex[i][1], controldevice_mouse);
-            CONTROL_FreeMouseBind(MenuMouseDataIndex[i][0]);
-            break;
-        }
-    }
 }
 
 void SetupMouseButtonMenu(CGameMenuItemChain *pItem)

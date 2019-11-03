@@ -158,6 +158,26 @@ void FScanner::Open (const char *name)
 
 //==========================================================================
 //
+// FScanner :: Open
+//
+//==========================================================================
+
+FScanner::FScanner(int lump)
+{
+	if ((unsigned)lump >= fileSystem.GetNumEntries())
+	{
+		I_Error("Invalid file index %d\n", lump);
+	}
+	Close();
+	auto data = fileSystem.GetFileData(lump, 1);
+	ScriptBuffer = data;
+	ScriptName = fileSystem.GetFileName(lump);
+	LumpNum = lump;
+	PrepareScript();
+}
+
+//==========================================================================
+//
 // FScanner :: OpenFile
 //
 // Loads a script from a file. Uses new/delete for memory allocation.

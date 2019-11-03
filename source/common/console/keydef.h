@@ -53,6 +53,7 @@ enum EKeyCodes
 	KEY_PGUP				= 0xc9,	// DIK_PRIOR
 	KEY_PGDN				= 0xd1,	// DIK_NEXT
 
+	KEY_FIRSTMOUSEBUTTON	= 0x100,
 	KEY_MOUSE1				= 0x100,
 	KEY_MOUSE2				= 0x101,
 	KEY_MOUSE3				= 0x102,

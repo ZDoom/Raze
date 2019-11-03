@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "enet.h"
 #include "sjson.h"
 #include "gamecvars.h"
+#include "d_event.h"
 #include "i_specialpaths.h"
 
 BEGIN_DUKE_NS
@@ -2906,7 +2907,7 @@ void P_GetInput(int const playerNum)
         return;
     }
 
-    CONTROL_ProcessBinds();
+    D_ProcessEvents();
 
     if (in_aimmode)
         g_MyAimMode = BUTTON(gamefunc_Mouse_Aiming);

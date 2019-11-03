@@ -205,23 +205,6 @@ void CONTROL_ClearGameControllerDigitalAxisNeg(int32_t axis);
 ////////// KEY/MOUSE BIND STUFF //////////
 
 
-// Direct use DEPRECATED:
-extern bool CONTROL_BindsEnabled;
-
-void CONTROL_ClearAllBinds(void);
-void CONTROL_BindKey(int i, char const * cmd, int repeat, char const * keyname);
-void CONTROL_BindMouse(int i, char const * cmd, int repeat, char const * keyname);
-void CONTROL_FreeKeyBind(int i);
-void CONTROL_FreeMouseBind(int i);
-
-static inline int CONTROL_KeyIsBound(int const key)
-{
-    auto &bind = CONTROL_KeyBinds[key];
-    return bind.cmdstr && bind.key;
-}
-
-void CONTROL_ProcessBinds(void);
-
 #define CONTROL_GetUserInput(...)
 #define CONTROL_ClearUserInput(...)
 

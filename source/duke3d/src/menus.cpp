@@ -2864,12 +2864,7 @@ static void Menu_PreInput(MenuEntry_t *entry)
     case MENU_KEYBOARDKEYS:
         if (KB_KeyPressed(sc_Delete))
         {
-            auto column = (MenuCustom2Col_t*)entry->entry;
-            char key[2];
-            key[0] = KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0];
-            key[1] = KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1];
-            *column->column[M_KEYBOARDKEYS.currentColumn] = 0xff;
-            CONFIG_MapKey(M_KEYBOARDKEYS.currentEntry, KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0], key[0], KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1], key[1]);
+			Bindings.UnbindACommand(CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
             S_PlaySound(KICK_HIT);
             KB_ClearKeyDown(sc_Delete);
         }
@@ -2925,16 +2920,9 @@ static int32_t Menu_PreCustom2ColScreen(MenuEntry_t *entry)
         int32_t sc = KB_GetLastScanCode();
         if (sc != sc_None)
         {
-            char key[2];
-            key[0] = KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0];
-            key[1] = KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1];
-
             S_PlaySound(PISTOL_BODYHIT);
-
-            *column->column[M_KEYBOARDKEYS.currentColumn] = KB_GetLastScanCode();
-
-            CONFIG_MapKey(M_KEYBOARDKEYS.currentEntry, KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0], key[0], KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1], key[1]);
-
+            *column->column[M_KEYBOARDKEYS.currentColumn] = sc;
+			Bindings.SetBind(sc, CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
             KB_ClearKeyDown(sc);
 
             return -1;
@@ -3335,11 +3323,8 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     switch (g_currentMenu)
     {
     case MENU_MOUSEBTNS:
-        CONTROL_MapButton(newOption, MenuMouseDataIndex[M_MOUSEBTNS.currentEntry][0], MenuMouseDataIndex[M_MOUSEBTNS.currentEntry][1], controldevice_mouse);
-        CONTROL_FreeMouseBind(MenuMouseDataIndex[M_MOUSEBTNS.currentEntry][0]);
         break;
     case MENU_JOYSTICKBTNS:
-        CONTROL_MapButton(newOption, M_JOYSTICKBTNS.currentEntry>>1, M_JOYSTICKBTNS.currentEntry&1, controldevice_joystick);
         break;
     case MENU_JOYSTICKAXIS:
     {
