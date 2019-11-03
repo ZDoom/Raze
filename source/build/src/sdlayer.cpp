@@ -907,16 +907,6 @@ int32_t initinput(void)
     inputdevices = 1 | 2;  // keyboard (1) and mouse (2)
     g_mouseGrabbed = 0;
 
-    memset(g_keyNameTable, 0, sizeof(g_keyNameTable));
-
-    for (i = SDL_NUM_SCANCODES - 1; i >= 0; i--)
-    {
-        if (!keytranslation[i])
-            continue;
-
-        Bstrncpyz(g_keyNameTable[keytranslation[i]], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(g_keyNameTable[0]));
-    }
-
     if (!SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER))
     {
         LoadSDLControllerDB();

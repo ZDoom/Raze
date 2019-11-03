@@ -585,6 +585,8 @@ void CPlayerMsg::Send(void)
 
 void CPlayerMsg::ProcessKeys(void)
 {
+	if (KB_KeyPressed(sc_Escape)) Term();
+#if 0
     int key = keyGetScan();
     int ch;
     if (key != 0)
@@ -635,6 +637,7 @@ void CPlayerMsg::ProcessKeys(void)
         }
         sub_5A944(key);
     }
+#endif
 }
 
 bool CPlayerMsg::IsWhitespaceOnly(const char * const pzString)

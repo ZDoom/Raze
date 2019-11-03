@@ -112,8 +112,6 @@ extern char    g_keyAsciiFIFO[KEYFIFOSIZ];
 extern uint8_t g_keyAsciiPos;
 extern uint8_t g_keyAsciiEnd;
 extern uint8_t g_keyFIFOend;
-extern char    g_keyRemapTable[NUMKEYS];
-extern char    g_keyNameTable[NUMKEYS][24];
 
 extern void keySetState(int32_t key, int32_t state);
 
@@ -178,7 +176,6 @@ void uninitinput(void);
 void keySetCallback(void (*callback)(int32_t,int32_t));
 void mouseSetCallback(void (*callback)(int32_t,int32_t));
 void joySetCallback(void (*callback)(int32_t,int32_t));
-const char *keyGetName(int32_t num);
 const char *joyGetName(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=hat
 void joyScanDevices(void);
 

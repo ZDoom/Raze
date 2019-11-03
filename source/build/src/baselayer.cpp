@@ -9,6 +9,7 @@
 #include "polymost.h"
 #include "cache1d.h"
 #include "inputstate.h"
+#include "d_event.h"
 #include "../../glbackend/glbackend.h"
 
 // video
@@ -31,8 +32,6 @@ uint8_t g_keyFIFOpos;
 uint8_t g_keyFIFOend;
 uint8_t g_keyAsciiPos;
 uint8_t g_keyAsciiEnd;
-char    g_keyRemapTable[NUMKEYS];
-char    g_keyNameTable[NUMKEYS][24];
 
 void (*keypresscallback)(int32_t, int32_t);
 
@@ -40,12 +39,14 @@ void keySetCallback(void (*callback)(int32_t, int32_t)) { keypresscallback = cal
 
 void keySetState(int32_t key, int32_t state)
 {
-	inputState.SetKeyStatus(g_keyRemapTable[key], state);
-    //keystatus[g_keyRemapTable[key]] = state;
+	inputState.SetKeyStatus(key, state);
+	event_t ev = { (uint8_t)(state ? EV_KeyDown : EV_KeyUp), 0, (uint16_t)key };
+
+	D_PostEvent(&ev);
 
     if (state)
     {
-        g_keyFIFO[g_keyFIFOend] = g_keyRemapTable[key];
+        g_keyFIFO[g_keyFIFOend] = key;
         g_keyFIFO[(g_keyFIFOend+1)&(KEYFIFOSIZ-1)] = state;
         g_keyFIFOend = ((g_keyFIFOend+2)&(KEYFIFOSIZ-1));
     }
@@ -87,8 +88,6 @@ void keyFlushChars(void)
     Bmemset(&g_keyAsciiFIFO,0,sizeof(g_keyAsciiFIFO));
     g_keyAsciiPos = g_keyAsciiEnd = 0;
 }
-
-const char *keyGetName(int32_t num) { return ((unsigned)num >= NUMKEYS) ? NULL : g_keyNameTable[num]; }
 
 vec2_t  g_mousePos;
 vec2_t  g_mouseAbs;
@@ -262,8 +261,6 @@ int32_t baselayer_init(void)
 
     polymost_initosdfuncs();
 #endif
-
-    for (native_t i = 0; i < NUMKEYS; i++) g_keyRemapTable[i] = i;
 
     return 0;
 }
