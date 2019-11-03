@@ -303,7 +303,11 @@ void FResourceFile::PostProcessArchive(void *lumps, size_t lumpsize)
 	int lastpos = -1;
 	FString file;
 
-	while ((len = LumpFilter.IndexOf('.', lastpos+1)) > 0)
+	if (LumpFilter.IndexOf('.') < 0)
+	{
+		max -= FilterLumps(LumpFilter, lumps, lumpsize, max);
+	}
+	else while ((len = LumpFilter.IndexOf('.', lastpos+1)) > 0)
 	{
 		max -= FilterLumps(LumpFilter.Left(len), lumps, lumpsize, max);
 		lastpos = len;

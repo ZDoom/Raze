@@ -915,8 +915,11 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 int32_t registerosdcommands(void)
 {
 
-    if (!VOLUMEONE)
+    if (VOLUMEONE)
+        OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
+    else
     {
+        OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
