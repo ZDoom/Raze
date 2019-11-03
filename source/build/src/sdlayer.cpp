@@ -136,6 +136,7 @@ uint16_t joydead[9], joysatur[9];
 
 #define MAX_ERRORTEXT 4096
 
+
 //==========================================================================
 //
 // I_Error
@@ -1871,6 +1872,85 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
     return 0;
 }
 
+// So this is how the engine handles text input?
+// Argh. This is just gross.
+int scancodetoasciihack(SDL_Event &ev)
+{
+	SDL_Keycode keyvalue = ev.key.keysym.sym;
+	// Modifiers that have to be held down to be effective
+	// (excludes KMOD_NUM, for example).
+	static const int MODIFIERS =
+		KMOD_LSHIFT|KMOD_RSHIFT|KMOD_LCTRL|KMOD_RCTRL|
+		KMOD_LALT|KMOD_RALT|KMOD_LGUI|KMOD_RGUI;
+
+	// XXX: see osd.c, OSD_HandleChar(), there are more...
+	if (
+		(sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER ||
+		 sc == SDL_SCANCODE_ESCAPE ||
+		 sc == SDL_SCANCODE_BACKSPACE ||
+		 sc == SDL_SCANCODE_TAB ||
+		 (((ev.key.keysym.mod) & MODIFIERS) == KMOD_LCTRL &&
+		  (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_Z))))
+	{
+		char keyvalue;
+		switch (sc)
+		{
+			case SDL_SCANCODE_RETURN: case SDL_SCANCODE_KP_ENTER: keyvalue = '\r'; break;
+			case SDL_SCANCODE_ESCAPE: keyvalue = 27; break;
+			case SDL_SCANCODE_BACKSPACE: keyvalue = '\b'; break;
+			case SDL_SCANCODE_TAB: keyvalue = '\t'; break;
+			default: keyvalue = sc - SDL_SCANCODE_A + 1; break;  // Ctrl+A --> 1, etc.
+		}
+	}
+	else if (
+			 ev.key.keysym.sym != g_keyAsciiTable[OSD_OSDKey()] && !SDL_IsTextInputActive()) // What is this? Preventing key repeat or what? :?
+	{
+		/*
+		Necessary for Duke 3D's method of entering cheats to work without showing IMEs.
+		SDL_TEXTINPUT is preferable overall, but with bitmap fonts it has no advantage.
+		*/
+		// Note that this is not how text input is supposed to be handled!
+
+		if ('a' <= keyvalue && keyvalue <= 'z')
+		{
+			if (!!(ev.key.keysym.mod & KMOD_SHIFT) ^ !!(ev.key.keysym.mod & KMOD_CAPS))
+				keyvalue -= 'a'-'A';
+		}
+		else if (ev.key.keysym.mod & KMOD_SHIFT)
+		{
+			keyvalue = g_keyAsciiTableShift[code];
+		}
+		else if (ev.key.keysym.mod & KMOD_NUM) // && !(ev.key.keysym.mod & KMOD_SHIFT)
+		{
+			switch (keyvalue)
+			{
+				case SDLK_KP_1: keyvalue = '1'; break;
+				case SDLK_KP_2: keyvalue = '2'; break;
+				case SDLK_KP_3: keyvalue = '3'; break;
+				case SDLK_KP_4: keyvalue = '4'; break;
+				case SDLK_KP_5: keyvalue = '5'; break;
+				case SDLK_KP_6: keyvalue = '6'; break;
+				case SDLK_KP_7: keyvalue = '7'; break;
+				case SDLK_KP_8: keyvalue = '8'; break;
+				case SDLK_KP_9: keyvalue = '9'; break;
+				case SDLK_KP_0: keyvalue = '0'; break;
+				case SDLK_KP_PERIOD: keyvalue = '.'; break;
+				case SDLK_KP_COMMA: keyvalue = ','; break;
+			}
+		}
+
+		switch (keyvalue)
+		{
+			case SDLK_KP_DIVIDE: keyvalue = '/'; break;
+			case SDLK_KP_MULTIPLY: keyvalue = '*'; break;
+			case SDLK_KP_MINUS: keyvalue = '-'; break;
+			case SDLK_KP_PLUS: keyvalue = '+'; break;
+		}
+	}
+	if (keyvalue >= 0x80) keyvalue = 0; // Sadly ASCII only...
+	return keyvalue;
+}
+
 int32_t handleevents_pollsdl(void);
 #if SDL_MAJOR_VERSION != 1
 // SDL 2.0 specific event handling
@@ -1901,158 +1981,33 @@ int32_t handleevents_pollsdl(void)
             case SDL_KEYUP:
             {
                 auto const &sc = ev.key.keysym.scancode;
+
                 code = keytranslation[sc];
 
-                // Modifiers that have to be held down to be effective
-                // (excludes KMOD_NUM, for example).
-                static const int MODIFIERS =
-                    KMOD_LSHIFT|KMOD_RSHIFT|KMOD_LCTRL|KMOD_RCTRL|
-                    KMOD_LALT|KMOD_RALT|KMOD_LGUI|KMOD_RGUI;
+				// The pause key generates a release event right after
+				// the pressing one. As a result, it gets unseen
+				// by the game most of the time.
+				if (code == 0x59 && ev.type == SDL_KEYUP)  // pause
+					break;
+				
 
-                // XXX: see osd.c, OSD_HandleChar(), there are more...
-                if (ev.key.type == SDL_KEYDOWN && !inputState.keyBufferFull() &&
-                    (sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER ||
-                     sc == SDL_SCANCODE_ESCAPE ||
-                     sc == SDL_SCANCODE_BACKSPACE ||
-                     sc == SDL_SCANCODE_TAB ||
-                     (((ev.key.keysym.mod) & MODIFIERS) == KMOD_LCTRL &&
-                      (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_Z))))
-                {
-                    char keyvalue;
-                    switch (sc)
-                    {
-                        case SDL_SCANCODE_RETURN: case SDL_SCANCODE_KP_ENTER: keyvalue = '\r'; break;
-                        case SDL_SCANCODE_ESCAPE: keyvalue = 27; break;
-                        case SDL_SCANCODE_BACKSPACE: keyvalue = '\b'; break;
-                        case SDL_SCANCODE_TAB: keyvalue = '\t'; break;
-                        default: keyvalue = sc - SDL_SCANCODE_A + 1; break;  // Ctrl+A --> 1, etc.
-                    }
-                    if (OSD_HandleChar(keyvalue))
-                        inputState.keyBufferInsert(keyvalue);
-                }
-                else if (ev.key.type == SDL_KEYDOWN &&
-                         ev.key.keysym.sym != g_keyAsciiTable[OSD_OSDKey()] && !inputState.keyBufferFull() &&
-                         !SDL_IsTextInputActive())
-                {
-                    /*
-                    Necessary for Duke 3D's method of entering cheats to work without showing IMEs.
-                    SDL_TEXTINPUT is preferable overall, but with bitmap fonts it has no advantage.
-                    */
-                    SDL_Keycode keyvalue = ev.key.keysym.sym;
+				int keyvalue = ev.type == SDL_KEYDOWN? scancodetoasciihack(ev) : 0;
+				if (keyvalue > 0)
+				{
+					keyvalue = OSD_HandleChar(keyvalue); // returns the char if it doesn't process it.
+					if (keyvalue == 0) break;
+				}
+				j = OSD_HandleScanCode(code, (ev.type == SDL_KEYDOWN));
+				// returns are:
+				// j == -1: Console was opened
+				// j == 0: Console is active and used the key
+				// j == 2: Console is inactive and did not use the key
+				
+				if (j == -1) inputState.ClearKeysDown(); // Flush the entire keyboard state for the game when the console opens.
+				if (j <= 0) break;	// Do not pass on to the game
 
-                    if ('a' <= keyvalue && keyvalue <= 'z')
-                    {
-                        if (!!(ev.key.keysym.mod & KMOD_SHIFT) ^ !!(ev.key.keysym.mod & KMOD_CAPS))
-                            keyvalue -= 'a'-'A';
-                    }
-                    else if (ev.key.keysym.mod & KMOD_SHIFT)
-                    {
-                        switch (keyvalue)
-                        {
-                            case '\'': keyvalue = '"'; break;
-
-                            case ',': keyvalue = '<'; break;
-                            case '-': keyvalue = '_'; break;
-                            case '.': keyvalue = '>'; break;
-                            case '/': keyvalue = '?'; break;
-                            case '0': keyvalue = ')'; break;
-                            case '1': keyvalue = '!'; break;
-                            case '2': keyvalue = '@'; break;
-                            case '3': keyvalue = '#'; break;
-                            case '4': keyvalue = '$'; break;
-                            case '5': keyvalue = '%'; break;
-                            case '6': keyvalue = '^'; break;
-                            case '7': keyvalue = '&'; break;
-                            case '8': keyvalue = '*'; break;
-                            case '9': keyvalue = '('; break;
-
-                            case ';': keyvalue = ':'; break;
-
-                            case '=': keyvalue = '+'; break;
-
-                            case '[': keyvalue = '{'; break;
-                            case '\\': keyvalue = '|'; break;
-                            case ']': keyvalue = '}'; break;
-
-                            case '`': keyvalue = '~'; break;
-                        }
-                    }
-                    else if (ev.key.keysym.mod & KMOD_NUM) // && !(ev.key.keysym.mod & KMOD_SHIFT)
-                    {
-                        switch (keyvalue)
-                        {
-                            case SDLK_KP_1: keyvalue = '1'; break;
-                            case SDLK_KP_2: keyvalue = '2'; break;
-                            case SDLK_KP_3: keyvalue = '3'; break;
-                            case SDLK_KP_4: keyvalue = '4'; break;
-                            case SDLK_KP_5: keyvalue = '5'; break;
-                            case SDLK_KP_6: keyvalue = '6'; break;
-                            case SDLK_KP_7: keyvalue = '7'; break;
-                            case SDLK_KP_8: keyvalue = '8'; break;
-                            case SDLK_KP_9: keyvalue = '9'; break;
-                            case SDLK_KP_0: keyvalue = '0'; break;
-                            case SDLK_KP_PERIOD: keyvalue = '.'; break;
-                            case SDLK_KP_COMMA: keyvalue = ','; break;
-                        }
-                    }
-
-                    switch (keyvalue)
-                    {
-                        case SDLK_KP_DIVIDE: keyvalue = '/'; break;
-                        case SDLK_KP_MULTIPLY: keyvalue = '*'; break;
-                        case SDLK_KP_MINUS: keyvalue = '-'; break;
-                        case SDLK_KP_PLUS: keyvalue = '+'; break;
-                    }
-
-                    if ((unsigned)keyvalue <= 0x7Fu)
-                    {
-                        if (OSD_HandleChar(keyvalue))
-                            inputState.keyBufferInsert(keyvalue);
-                    }
-                }
-
-                // initprintf("SDL2: got key %d, %d, %u\n", ev.key.keysym.scancode, code, ev.key.type);
-
-                // hook in the osd
-                if ((j = OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN))) <= 0)
-                {
-                    if (j == -1)  // osdkey
-                    {
-                        for (j = 0; j < NUMKEYS; ++j)
-                        {
-                            if (inputState.GetKeyStatus(j))
-                            {
-                                if (keypresscallback)
-                                    keypresscallback(j, 0);
-                            }
-                            inputState.keySetState(j, 0);
-                        }
-                    }
-                    break;
-                }
-
-                if (ev.key.type == SDL_KEYDOWN)
-                {
-                    if (!inputState.GetKeyStatus(code))
-                    {
-                        if (keypresscallback)
-                            keypresscallback(code, 1);
-                    }
-                    inputState.keySetState(code, 1);
-                }
-                else
-                {
-# if 1
-                    // The pause key generates a release event right after
-                    // the pressing one. As a result, it gets unseen
-                    // by the game most of the time.
-                    if (code == 0x59)  // pause
-                        break;
-# endif
-                    inputState.keySetState(code, 0);
-                    if (keypresscallback)
-                        keypresscallback(code, 0);
-                }
+				event_t ev = { (uint8_t)ev.type == SDL_KEYUP? EV_KeyUp : EV_KeyDown, 0, (int16_t)code, (int16_t)keyvalue };
+				D_PostEvent(&ev);
                 break;
             }
 

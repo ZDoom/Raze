@@ -26,12 +26,6 @@ int32_t g_borderless=2;
 // input
 char    inputdevices = 0;
 
-
-void (*keypresscallback)(int32_t, int32_t);
-
-void keySetCallback(void (*callback)(int32_t, int32_t)) { keypresscallback = callback; }
-
-
 vec2_t  g_mousePos;
 vec2_t  g_mouseAbs;
 int32_t g_mouseBits;

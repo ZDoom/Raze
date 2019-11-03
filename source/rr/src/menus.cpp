@@ -48,24 +48,10 @@ static FORCE_INLINE void Menu_StartTextInput()
 {
     inputState.keyFlushChars();
     inputState.ClearKeysDown();
-#if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
-# if defined __ANDROID__
-    AndroidShowKeyboard(1);
-# else
-    SDL_StartTextInput();
-# endif
-#endif
 }
 
 static FORCE_INLINE void Menu_StopTextInput()
 {
-#if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
-# if defined __ANDROID__
-    AndroidShowKeyboard(0);
-# else
-    SDL_StopTextInput();
-# endif
-#endif
 }
 
 static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)

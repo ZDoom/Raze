@@ -23,6 +23,7 @@
 #include "c_bind.h"
 #include "d_event.h"
 #include "d_gui.h"
+#include "inputstate.h"
 
 int eventhead;
 int eventtail;
@@ -193,6 +194,15 @@ void D_PostEvent (const event_t *ev)
 		}
 	}
 #endif
+	
+	// Add the key to the global keyboard state.
+	// This is probably the biggest roadblock with the input system as it undermines a proper event driven approach.
+	// Too much code depends on just checking this instead of waiting for events to happen.
+	// Here's also definitely not the best place to maintain the keyboard state but right now it's unavoidable to do this outside the event processing because so much code depends on it.
+	// Once all those busy waiting loops can poll the event queue for a proper skip event, this will mostly go away.
+	inputState.AddEvent(ev);
+	
+	// Also add it to the event queue - this is where everything should transition to eventually.
 	eventhead = (eventhead+1)&(NUM_EVENTS-1);
 }
 

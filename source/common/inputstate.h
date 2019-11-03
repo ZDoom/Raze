@@ -247,10 +247,13 @@ public:
 
 	void keySetState(int32_t key, int32_t state)
 	{
+		if (state && !GetKeyStatus(key))
+		{
+			KB_LastScan = key;
+		}
+
 		SetKeyStatus(key, state);
 		event_t ev = { (uint8_t)(state ? EV_KeyDown : EV_KeyUp), 0, (int16_t)key };
-
-		D_PostEvent(&ev);
 
 		if (state)
 		{
@@ -290,6 +293,12 @@ public:
 
 		return c;
 	}
+	
+	void keySetChar(int key)
+	{
+		g_keyAsciiFIFO[g_keyAsciiEnd] = key;
+		g_keyAsciiEnd = ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1));
+	}
 
 	void keyFlushChars(void)
 	{
@@ -323,19 +332,15 @@ public:
 		KB_LastScan = 0;
 		ClearAllKeyStatus();
 	}
+	
+	void AddEvent(const event_t *ev)
+	{
+		keySetState(ev->data1, ev->type == EV_KeyDown);
+		if (ev->data2) keySetChar(ev->data2);
+	}
 
 };
 
 
 extern InputState inputState;
-
-static inline void KB_KeyEvent(int32_t scancode, int32_t keypressed)
-{
-	if (keypressed) inputState.SetLastScanCode(scancode);
-}
-
-void keySetCallback(void (*callback)(int32_t, int32_t));
-inline void KB_Startup(void) { keySetCallback(KB_KeyEvent); }
-inline void KB_Shutdown(void) { keySetCallback((void (*)(int32_t, int32_t))NULL); }
-
 
