@@ -782,7 +782,11 @@ set (PCH_SOURCES
 	common/fonts/fontchars.cpp
 	
 	common/console/c_cvars.cpp
+	common/console/c_bind.cpp
+	common/console/c_commandline.cpp
+	common/console/d_event.cpp
 	
+	common/utility/i_time.cpp
 	common/utility/name.cpp
 	common/utility/cmdlib.cpp
 	common/utility/m_argv.cpp
