@@ -2092,6 +2092,8 @@ static void GameMove(void)
         bobangle &= kAngleMask;
     }
 
+    UpdateCreepySounds();
+
     // loc_120E9:
     totalmoves++;
     moveframes--;

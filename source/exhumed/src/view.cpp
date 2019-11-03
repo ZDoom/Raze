@@ -213,7 +213,7 @@ static void analyzesprites()
     {
         spritetype *pTarget = &sprite[besttarget];
 
-        nCreepyTimer = 450;
+        nCreepyTimer = kCreepyCount;
 
         if (!cansee(x, y, z, nSector, pTarget->x, pTarget->y, pTarget->z - GetSpriteHeight(besttarget), pTarget->sectnum))
         {

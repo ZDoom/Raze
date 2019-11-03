@@ -7,6 +7,8 @@
 #define kMaxSoundNameLen    8
 #define kMaxActiveSounds    8
 
+#define kCreepyCount 150
+
 enum {
     kSound0 = 0,
     kSound1,
@@ -91,6 +93,7 @@ extern short StaticSound[];
 
 
 void UpdateSounds();
+void UpdateCreepySounds();
 
 void InitFX();
 void UnInitFX();

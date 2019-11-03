@@ -345,7 +345,7 @@ void InitFX(void)
 
     nTotalSoundBytes = 0;
     nSoundCount = 0;
-    nCreepyTimer = 450;
+    nCreepyTimer = kCreepyCount;
 
 #if 0
     int status = FX_Init(FXDevice, NumVoices, NumChannels, NumBits, MixRate);
@@ -817,29 +817,32 @@ void UpdateSounds()
             }
         }
     }
+}
 
-    if (!nFreeze && levelnum != 20)
+void UpdateCreepySounds()
+{
+    if (levelnum == 20)
+        return;
+    spritetype *pSprite = &sprite[PlayerList[nLocalPlayer].nSprite];
+    nCreepyTimer--;
+    if (nCreepyTimer <= 0)
     {
-        nCreepyTimer--;
-        if (nCreepyTimer <= 0)
+        if (nCreaturesLeft > 0 && !(SectFlag[nPlayerViewSect[nLocalPlayer]]&0x2000))
         {
-            if (nCreaturesLeft > 0 && !(SectFlag[nPlayerViewSect[nLocalPlayer]]&0x2000))
+            int vsi = seq_GetFrameSound(SeqOffsets[kSeqCreepy], totalmoves%SeqSize[SeqOffsets[kSeqCreepy]]);
+            if (vsi >= 0 && (vsi&0x1ff) < kMaxSounds)
             {
-                int vsi = seq_GetFrameSound(SeqOffsets[kSeqCreepy], totalmoves%SeqSize[SeqOffsets[kSeqCreepy]]);
-                if (vsi >= 0 && (vsi&0x1ff) < kMaxSounds)
-                {
-                    int vdx = (totalmoves+32)&31;
-                    if (totalmoves & 1)
-                        vdx = -vdx;
-                    int vax = (totalmoves+32)&63;
-                    if (totalmoves & 2)
-                        vax = -vax;
+                int vdx = (totalmoves+32)&31;
+                if (totalmoves & 1)
+                    vdx = -vdx;
+                int vax = (totalmoves+32)&63;
+                if (totalmoves & 2)
+                    vax = -vax;
 
-                    PlayFXAtXYZ(vsi, pSprite->x+vdx, pSprite->y+vax, pSprite->z, pSprite->sectnum);
-                }
+                PlayFXAtXYZ(vsi, pSprite->x+vdx, pSprite->y+vax, pSprite->z, pSprite->sectnum);
             }
-            nCreepyTimer = 450;
         }
+        nCreepyTimer = kCreepyCount;
     }
 }
 
@@ -1153,7 +1156,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
 
         // Nuke: added nSprite >= 0 check
         if (nSprite != nLocalSpr && nSprite >= 0 && (sprite[nSprite].cstat&257))
-            nCreepyTimer = 450;
+            nCreepyTimer = kCreepyCount;
 
         return v14;
     }
