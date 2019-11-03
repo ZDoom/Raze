@@ -916,7 +916,6 @@ int32_t registerosdcommands(void)
 {
 
     if (!VOLUMEONE)
-    else
     {
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);

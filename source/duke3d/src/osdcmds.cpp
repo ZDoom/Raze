@@ -44,7 +44,7 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
     int32_t volume=0,level;
     char *p;
 
-    if ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE))
+    if (!VOLUMEONE)
     {
         if (parm->numparms != 2) return OSDCMD_SHOWHELP;
 
@@ -1135,9 +1135,11 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("playerinfo", "Prints information about the current player", osdcmd_playerinfo);
 #endif
 
-    if (!VOLUMEONE)
+    if (VOLUMEONE)
+        OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
     else
     {
+        OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }

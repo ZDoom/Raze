@@ -562,7 +562,7 @@ void OSD_Init(void)
 	OSD_RegisterFunction("unbindall", "unbindall: unbinds all keys", osdcmd_unbindall);
 	OSD_RegisterFunction("quit", "quit: exits the game immediately", osdcmd_quit);
 	OSD_RegisterFunction("exit", "exit: exits the game immediately", osdcmd_quit);
-	OSD_RegisterFunction("changelevel", "changelevel <level>: warps to the given level", osdcmd_changelevel);
+	//OSD_RegisterFunction("changelevel", "changelevel <level>: warps to the given level", osdcmd_changelevel);
 	//    atexit(OSD_Cleanup);
 }
 

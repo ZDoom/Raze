@@ -130,7 +130,10 @@ int32_t win_buildargs(char **argvbuf)
     }
 
 	// Figure out what directory the program resides in.
-	progdir = argvbuf[0];
+
+	wchar_t buffer[256];
+	GetModuleFileNameW(0, buffer, 256);
+	progdir = buffer;
 	progdir.Substitute("\\", "/");
 	auto lastsep = progdir.LastIndexOf('/');
 	if (lastsep != -1)
