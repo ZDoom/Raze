@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
-struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
+struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
 static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
 {
