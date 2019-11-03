@@ -130,6 +130,14 @@ static void G_AddSteamPaths(TArray<FString> &searchpaths, const char *basepath)
 	AddSearchPath(searchpaths, path);
 #endif
 
+	path.Format("%s/steamapps/common/Blood", basepath);
+	AddSearchPath(searchpaths, path);
+
+	// Blood: One Unit Whole Blood
+	path.Format("%s/steamapps/common/One Unit Whole Blood", basepath);
+	AddSearchPath(searchpaths, path);
+
+
 }
 
 
@@ -1020,11 +1028,6 @@ TArray<GrpEntry> GrpScan()
 		SaveCRCs(cachedCRCs);
 	}
 	
-	// Do we have anything left? If not, error out
-	if (foundGames.Size() == 0)
-	{
-		I_Error("No supported games found. Please check your search paths.");
-	}
 	return foundGames;
 }
 

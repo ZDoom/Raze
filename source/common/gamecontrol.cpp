@@ -372,6 +372,7 @@ int CONFIG_Init()
 	if (groups.Size() == 0)
 	{
 		// Abort if no game data found.
+		G_SaveConfig();
 		I_Error("Unable to find any game data. Please verify your settings.");
 	}
 
