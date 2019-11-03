@@ -1607,7 +1607,7 @@ void Menu_Init(void)
     MEOS_Gamefuncs.numOptions = k;
 
     for (i = 0; i < NUMKEYS; ++i)
-        MEOSN_Keys[i] = g_keyNameTable[i];
+        MEOSN_Keys[i] = KB_ScanCodeToString(i);
     MEOSN_Keys[NUMKEYS-1] = MenuKeyNone;
 
 
