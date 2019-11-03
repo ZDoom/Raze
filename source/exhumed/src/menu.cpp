@@ -1781,6 +1781,10 @@ int LoadCinemaPalette(int nPal)
     }
 
     kread(hFile, cinemapal, sizeof(cinemapal));
+
+    for (auto &c : cinemapal)
+        c <<= 2;
+
     kclose(hFile);
 
     return nPal;

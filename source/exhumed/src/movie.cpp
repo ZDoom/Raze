@@ -70,6 +70,9 @@ int ReadFrame(FILE *fp)
                 fread(palette, sizeof(palette[0]), sizeof(palette) / sizeof(palette[0]), fp);
                 fread(&var_1C, sizeof(var_1C), 1, fp);
 
+                for (auto &c : palette)
+                    c <<= 2;
+
                 paletteSetColorTable(ANIMPAL, palette);
                 videoSetPalette(0, ANIMPAL, 2+8);
 
