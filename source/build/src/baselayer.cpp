@@ -28,27 +28,13 @@ char    inputdevices = 0;
 
 vec2_t  g_mousePos;
 vec2_t  g_mouseAbs;
-int32_t g_mouseBits;
-uint8_t g_mouseClickState;
+
 
 bool g_mouseEnabled;
 bool g_mouseGrabbed;
 bool g_mouseInsideWindow   = 1;
 bool g_mouseLockedToWindow = 1;
 
-void (*g_mouseCallback)(int32_t, int32_t);
-void mouseSetCallback(void(*callback)(int32_t, int32_t)) { g_mouseCallback = callback; }
-
-int32_t mouseAdvanceClickState(void)
-{
-    switch (g_mouseClickState)
-    {
-        case MOUSE_PRESSED: g_mouseClickState  = MOUSE_HELD; return 1;
-        case MOUSE_RELEASED: g_mouseClickState = MOUSE_IDLE; return 1;
-        case MOUSE_HELD: return 1;
-    }
-    return 0;
-}
 
 void mouseReadPos(int32_t *x, int32_t *y)
 {
@@ -76,11 +62,6 @@ int32_t mouseReadAbs(vec2_t * const pResult, vec2_t const * const pInput)
     pResult->y = divscale16(pResult->y - (200<<15), rotatesprite_yxaspect) + (200<<15) - rotatesprite_y_offset;
 
     return 1;
-}
-
-int32_t mouseReadButtons(void)
-{
-    return (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || (osd && osd->flags & OSD_CAPTURE)) ? 0 : g_mouseBits;
 }
 
 controllerinput_t joystick;

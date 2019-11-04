@@ -899,8 +899,6 @@ int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = n
 extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
-void   mouseGetValues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
-
 #if !KRANDDEBUG && !defined LUNATIC
 static FORCE_INLINE int32_t krand(void)
 {

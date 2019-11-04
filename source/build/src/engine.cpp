@@ -11656,16 +11656,6 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * con
 }
 
 
-//
-// getmousevalues
-//
-
-void mouseGetValues(int32_t *mousx, int32_t *mousy, int32_t *bstatus)
-{
-    mouseReadPos(mousx, mousy);
-    *bstatus = mouseReadButtons();
-}
-
 
 #if KRANDDEBUG
 # include <execinfo.h>

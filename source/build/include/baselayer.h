@@ -111,20 +111,11 @@ char CONSTEXPR const g_keyAsciiTableShift[128] = {
 extern vec2_t  g_mousePos;
 extern vec2_t  g_mouseAbs;
 extern int32_t g_mouseBits;
-extern uint8_t g_mouseClickState;
+extern uint8_t inputState.mouseClickState();
 extern bool    g_mouseGrabbed;
 extern bool    g_mouseEnabled;
 extern bool    g_mouseInsideWindow;
 extern bool    g_mouseLockedToWindow;
-
-enum
-{
-    MOUSE_IDLE = 0,
-    MOUSE_PRESSED,
-    MOUSE_HELD,
-    MOUSE_RELEASED,
-};
-extern int32_t mouseAdvanceClickState(void);
 
 // joystick
 
@@ -160,13 +151,8 @@ void debugprintf(const char *,...) ATTRIBUTE((format(printf,1,2)));
 int32_t handleevents(void);
 int32_t handleevents_peekkeys(void);
 
-extern void (*keypresscallback)(int32_t,int32_t);
-extern void (*g_mouseCallback)(int32_t,int32_t);
-
 int32_t initinput(void);
 void uninitinput(void);
-void keySetCallback(void (*callback)(int32_t,int32_t));
-void mouseSetCallback(void (*callback)(int32_t,int32_t));
 void joySetCallback(void (*callback)(int32_t,int32_t));
 const char *joyGetName(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=hat
 void joyScanDevices(void);
@@ -177,8 +163,6 @@ int32_t mouseReadAbs(vec2_t *pResult, vec2_t const *pInput);
 void mouseGrabInput(bool grab);
 void mouseLockToWindow(char a);
 void mouseMoveToCenter(void);
-int32_t mouseReadButtons(void);
-void mouseReadPos(int32_t *x, int32_t *y);
 
 void joyReadButtons(int32_t *pResult);
 void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur);

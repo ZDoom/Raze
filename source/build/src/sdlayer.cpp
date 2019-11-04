@@ -1733,10 +1733,6 @@ int32_t handleevents_peekkeys(void)
     return SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, SDL_KEYDOWN, SDL_KEYDOWN);
 }
 
-void handleevents_updatemousestate(uint8_t state)
-{
-    g_mouseClickState = state == SDL_RELEASED ? MOUSE_RELEASED : MOUSE_PRESSED;
-}
 
 
 //
@@ -1773,27 +1769,22 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             switch (ev->button.button)
             {
                 default: j = -1; break;
-                case SDL_BUTTON_LEFT: j = 0; handleevents_updatemousestate(ev->button.state); break;
-                case SDL_BUTTON_RIGHT: j = 1; break;
-                case SDL_BUTTON_MIDDLE: j = 2; break;
+                case SDL_BUTTON_LEFT: j = KEY_MOUSE1; break;
+                case SDL_BUTTON_RIGHT: j = KEY_MOUSE2; break;
+                case SDL_BUTTON_MIDDLE: j = KEY_MOUSE3; break;
 
                 /* Thumb buttons. */
                 // On SDL2/Windows and SDL >= 2.0.?/Linux, everything is as it should be.
                 // If anyone cares about old versions of SDL2 on Linux, patches welcome.
-                case SDL_BUTTON_X1: j = 3; break;
-                case SDL_BUTTON_X2: j = 6; break;
+                case SDL_BUTTON_X1: j = KEY_MOUSE4; break;
+                case SDL_BUTTON_X2: j = KEY_MOUSE5; break;
             }
 
             if (j < 0)
                 break;
 
-            if (ev->button.state == SDL_PRESSED)
-                g_mouseBits |= (1 << j);
-            else
-            g_mouseBits &= ~(1 << j);
-
-            if (g_mouseCallback)
-                g_mouseCallback(j+1, ev->button.state == SDL_PRESSED);
+			event_t ev = { (ev->button.state == SDL_PRESSED)? EV_KeyDown : EV_KeyUp, 0, j};
+			D_PostEvent(ev);
             break;
         }
 
@@ -2013,17 +2004,17 @@ int32_t handleevents_pollsdl(void)
 
             case SDL_MOUSEWHEEL:
                 // initprintf("wheel y %d\n",ev.wheel.y);
+	
+				// This never sends keyup events. For the current code that should suffice
                 if (ev.wheel.y > 0)
                 {
-                    g_mouseBits |= 16;
-                    if (g_mouseCallback)
-                        g_mouseCallback(5, 1);
+					event_t ev = { EV_KeyDown, 0, (int16_t)KEY_MWHEELUP };
+					D_PostEvent(&ev);
                 }
                 if (ev.wheel.y < 0)
                 {
-                    g_mouseBits |= 32;
-                    if (g_mouseCallback)
-                        g_mouseCallback(6, 1);
+					event_t ev = { EV_KeyDown, 0, (int16_t)KEY_MWHEELDOWN };
+					D_PostEvent(&ev);
                 }
                 break;
 
@@ -2076,13 +2067,6 @@ int32_t handleevents(void)
 
     if (inputchecked && g_mouseEnabled)
     {
-        if (g_mouseCallback)
-        {
-            if (g_mouseBits & 16)
-                g_mouseCallback(5, 0);
-            if (g_mouseBits & 32)
-                g_mouseCallback(6, 0);
-        }
         g_mouseBits &= ~(16 | 32);
     }
 

@@ -4897,7 +4897,7 @@ static void Menu_RunScrollbar(Menu_t *cm, MenuMenuFormat_t const * const format,
 
         rotatesprite_fs(scrollx + (scrollwidth>>1) - ((tilesiz[scrollTileCursor].x*ud.menu_scrollcursorz)>>1), scrollregionstart + scale(scrollregionheight, *scrollPos, scrollPosMax), ud.menu_scrollcursorz, 0, scrollTileCursor, 0, 0, 26);
 
-        if (cm == m_currentMenu && !m_mousecaught && MOUSEACTIVECONDITIONAL(g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
+        if (cm == m_currentMenu && !m_mousecaught && MOUSEACTIVECONDITIONAL(inputState.mouseClickState() == MOUSE_PRESSED || inputState.mouseClickState() == MOUSE_HELD))
         {
             const int32_t scrolltilehalfheight = (tilesiz[scrollTileCursor].y*ud.menu_scrollcursorz)>>1;
             const int32_t scrollregiony = scrollregionstart + scrolltilehalfheight;
@@ -5106,7 +5106,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
+                            if (!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
@@ -5151,7 +5151,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
+                            if (!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
@@ -5201,7 +5201,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     menu->currentColumn = 1;
                                 }
 
-                                if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
+                                if (!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
                                 {
                                     menu->currentEntry = e;
                                     Menu_RunInput_Menu_MovementVerify(menu);
@@ -5224,7 +5224,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     menu->currentColumn = 0;
                                 }
 
-                                if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
+                                if (!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
                                 {
                                     menu->currentEntry = e;
                                     Menu_RunInput_Menu_MovementVerify(menu);
@@ -5310,7 +5310,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
+                            if (!m_mousecaught && (inputState.mouseClickState() == MOUSE_PRESSED || inputState.mouseClickState() == MOUSE_HELD))
                             {
                                 const int32_t slidepointhalfwidth = mulscale16((((tilesiz[cursorTile].x)*ud.menu_slidecursorz)>>2) + ud.menu_slidebarmargin, z);
                                 const int32_t slideregionx = slidebarx + slidepointhalfwidth;
@@ -5410,7 +5410,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
+                            if (!m_mousecaught && (inputState.mouseClickState() == MOUSE_PRESSED || inputState.mouseClickState() == MOUSE_HELD))
                             {
                                 const int32_t slidepointhalfwidth = mulscale16((2+tilesiz[cursorTile].x)<<15, z);
                                 const int32_t slideregionx = slidebarx + slidepointhalfwidth;
@@ -5511,7 +5511,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
+                            if (!m_mousecaught && (inputState.mouseClickState() == MOUSE_PRESSED || inputState.mouseClickState() == MOUSE_HELD))
                             {
                                 const int32_t slidepointhalfwidth = mulscale16((2+tilesiz[cursorTile].x)<<15, z);
                                 const int32_t slideregionx = slidebarx + slidepointhalfwidth;
@@ -5584,7 +5584,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             }
 
     #ifndef EDUKE32_TOUCH_DEVICES
-                            if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h) && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
+                            if (!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h) && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
     #endif
                             {
                                 if (entry == currentry && object->editfield != NULL)
@@ -5655,7 +5655,7 @@ static void M_RunMenu_CdPlayer(Menu_t *cm, MenuMenu_t *menu, const vec2_t origin
             
             if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, 8<<16, 8<<16)))
             {
-                if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED)
+                if (!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED)
                 {
                     menu->currentEntry = e;
 
@@ -5692,7 +5692,7 @@ static void M_RunMenu_CdPlayer(Menu_t *cm, MenuMenu_t *menu, const vec2_t origin
     const int32_t mousey = origin.y+(113<<16)-(8<<16);
     if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, 16<<16, 16<<16)))
     {
-        if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED)
+        if (!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED)
         {
             mus_enabled = !mus_enabled;
 
@@ -5798,7 +5798,7 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
                     object->options->currentEntry = e;
                 }
 
-                if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->get_yline()))
+                if (!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->get_yline()))
                 {
                     object->options->currentEntry = e;
 
@@ -5821,7 +5821,7 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
 
 static int32_t Menu_RunInput_MouseAdvance(void)
 {
-    return MOUSEACTIVECONDITIONAL(!m_mousecaught && g_mouseClickState == MOUSE_RELEASED);
+    return MOUSEACTIVECONDITIONAL(!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED);
 }
 
 static int32_t Menu_RunInput_MouseReturn_status;
@@ -5866,10 +5866,10 @@ static int32_t Menu_RunInput_MouseReturn(void)
 #if !defined EDUKE32_TOUCH_DEVICES
         Menu_RunInput_MouseReturn_status = 1;
 #else
-        Menu_RunInput_MouseReturn_status = (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD);
+        Menu_RunInput_MouseReturn_status = (inputState.mouseClickState() == MOUSE_PRESSED || inputState.mouseClickState() == MOUSE_HELD);
 #endif
 
-        return !m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, MouseReturnRegionX, 0, backbuttonbound.x, backbuttonbound.y);
+        return !m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, MouseReturnRegionX, 0, backbuttonbound.x, backbuttonbound.y);
     }
 
     Menu_RunInput_MouseReturn_status = 0;
@@ -6068,7 +6068,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                                     Menu_RunInput_FileSelect_MovementVerify(object);
                                 }
 
-                                if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->get_yline()))
+                                if (!m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->get_yline()))
                                 {
                                     object->findhigh[i] = dir;
                                     object->currentList = i;
@@ -7472,7 +7472,7 @@ void M_DisplayMenus(void)
         Menu_AnimateChange(MENU_QUIT, MA_Advance);
 
     int32_t mousestatus = mouseReadAbs(&m_mousepos, &g_mouseAbs);
-    if (mousestatus && g_mouseClickState == MOUSE_PRESSED)
+    if (mousestatus && inputState.mouseClickState() == MOUSE_PRESSED)
         m_mousedownpos = m_mousepos;
 
     Menu_RunInput(m_currentMenu);
@@ -7580,7 +7580,8 @@ void M_DisplayMenus(void)
         }
     }
     else
-        g_mouseClickState = MOUSE_IDLE;
+		inputState.clearMouseClickState();
+
 #endif
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)

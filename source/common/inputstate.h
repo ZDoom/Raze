@@ -23,7 +23,6 @@ enum
 {
 	NUMKEYS = 256,
 	MAXMOUSEBUTTONS = 10,
-
 };
 
 extern int32_t CONTROL_ButtonFlags[NUMKEYS];
@@ -120,6 +119,26 @@ enum GameFunction_t
 };
 
 
+enum EMouseBits
+{
+	LEFT_MOUSE     = 1,
+	RIGHT_MOUSE    = 2,
+	MIDDLE_MOUSE   = 4,
+	THUMB_MOUSE    = 8,
+	WHEELUP_MOUSE  = 16,
+	WHEELDOWN_MOUSE= 32,
+	THUMB2_MOUSE    = 64,
+};
+
+enum
+{
+    MOUSE_IDLE = 0,
+    MOUSE_PRESSED,
+    MOUSE_HELD,
+    MOUSE_RELEASED,
+};
+
+
 class InputState
 {
 	enum
@@ -146,7 +165,9 @@ class InputState
 	uint8_t g_keyAsciiEnd;
 
 	kb_scancode KB_LastScan;
-
+	
+	int g_mouseBits;
+	uint8_t g_mouseClickState;
 public:
 
 	bool BUTTON(int x)
@@ -333,12 +354,67 @@ public:
 		ClearAllKeyStatus();
 	}
 	
+	void mouseSetBit(int val, int state)
+	{
+		if (state) g_mouseBits |= val;
+		else g_mouseBits &=~val;
+	}
+	
+	void handleevents_updatemousestate(uint8_t state)
+	{
+		g_mouseClickState = state == EV_KeyUp ? MOUSE_RELEASED : MOUSE_PRESSED;
+	}
+
 	void AddEvent(const event_t *ev)
 	{
+		// Set the old mouseBits. Yet another piece of cruft that needs to go away.
+		if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
+		{
+			switch (ev->data1)
+			{
+				case KEY_MOUSE1	: mouseSetBit(LEFT_MOUSE, ev->type == EV_KeyDown); handleevents_updatemousestate(ev->type); break;
+				case KEY_MOUSE2	: mouseSetBit(RIGHT_MOUSE, ev->type == EV_KeyDown); break;
+				case KEY_MOUSE3	: mouseSetBit(MIDDLE_MOUSE, ev->type == EV_KeyDown); break;
+				case KEY_MOUSE4	: mouseSetBit(THUMB_MOUSE, ev->type == EV_KeyDown); break;
+				case KEY_MWHEELUP: mouseSetBit(WHEELUP_MOUSE, ev->type == EV_KeyDown); break;
+				case KEY_MWHEELDOWN: mouseSetBit(WHEELDOWN_MOUSE, ev->type == EV_KeyDown); break;
+				case KEY_MOUSE5: mouseSetBit(THUMB2_MOUSE, ev->type == EV_KeyDown); break;
+				default: break;
+			}
+		}
 		keySetState(ev->data1, ev->type == EV_KeyDown);
 		if (ev->data2) keySetChar(ev->data2);
 	}
 
+	int32_t mouseReadButtons(void)
+	{
+		return (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || (osd && osd->flags & OSD_CAPTURE)) ? 0 : g_mouseBits;
+	}
+	
+	int mouseClickState()
+	{
+		return g_mouseClickState;
+	}
+	
+	void clearMouseClickState()
+	{
+		g_mouseClickState = MOUSE_IDLE;
+	}
+	
+
+	int32_t mouseAdvanceClickState(void)
+	{
+		switch (g_mouseClickState)
+		{
+			case MOUSE_PRESSED: g_mouseClickState  = MOUSE_HELD; return 1;
+			case MOUSE_RELEASED: g_mouseClickState = MOUSE_IDLE; return 1;
+			case MOUSE_HELD: return 1;
+		}
+		return 0;
+	}
+	static inline int32_t MouseGetButtons(void) { return mouseReadButtons(); }
+	static inline void MouseClearButton(int32_t b) { g_mouseBits &= ~b; }
+	static inline void MouseClearAllButtonss(void) { g_mouseBits = 0; }
 };
 
 

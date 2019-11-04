@@ -46,7 +46,7 @@ int32_t ctrlCheckAllInput(void)
 {
     return (
         inputState.keyBufferWaiting() ||
-        MOUSE_GetButtons() ||
+        inputState.MouseGetButtons() ||
         JOYSTICK_GetButtons()
         );
 }
@@ -55,7 +55,7 @@ void ctrlClearAllInput(void)
 {
     inputState.keyFlushChars();
     inputState.ClearKeysDown();
-    MOUSE_ClearAllButtons();
+    inputState.MouseClearAllButtonss();
     JOYSTICK_ClearAllButtons();
 }
 

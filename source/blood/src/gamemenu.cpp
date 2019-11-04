@@ -166,7 +166,7 @@ void CGameMenuMgr::Draw(void)
     }
 
     int32_t mousestatus = mouseReadAbs(&m_mousepos, &g_mouseAbs);
-    if (mousestatus && g_mouseClickState == MOUSE_PRESSED)
+    if (mousestatus && inputState.mouseClickState() == MOUSE_PRESSED)
         m_mousedownpos = m_mousepos;
 
     int16_t mousetile = 1043; // red arrow
@@ -207,7 +207,8 @@ void CGameMenuMgr::Draw(void)
         }
     }
     else
-        g_mouseClickState = MOUSE_IDLE;
+		inputState.clearMouseClickState();
+
 }
 
 void CGameMenuMgr::Clear(void)
@@ -480,36 +481,24 @@ bool CGameMenuItem::Event(CGameMenuEvent &event)
 bool CGameMenuItem::MouseEvent(CGameMenuEvent &event)
 {
     event.at0 = kMenuEventNone;
-    if (MOUSEINACTIVECONDITIONAL(MOUSE_GetButtons()&LEFT_MOUSE))
+    if (MOUSEINACTIVECONDITIONAL(inputState.MouseGetButtons()&LEFT_MOUSE))
     {
         event.at0 = kMenuEventEnter;
-        MOUSE_ClearButton(LEFT_MOUSE);
+        inputState.MouseClearButton(LEFT_MOUSE);
     }
-    else if (MOUSE_GetButtons()&RIGHT_MOUSE)
+    else if (inputState.MouseGetButtons()&RIGHT_MOUSE)
     {
         event.at0 = kMenuEventEscape;
-        MOUSE_ClearButton(RIGHT_MOUSE);
+        inputState.MouseClearButton(RIGHT_MOUSE);
     }
-#if 0
-    else if (MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELUP_MOUSE)))
+    else if (inputState.MouseGetButtons()&WHEELUP_MOUSE)
     {
-        MOUSE_ClearButton(WHEELUP_MOUSE);
-        event.bAutoAim = kMenuEventScrollLeft;
-    }
-    else if (MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELDOWN_MOUSE)))
-    {
-        MOUSE_ClearButton(WHEELDOWN_MOUSE);
-        event.bAutoAim = kMenuEventScrollRight;
-    }
-#endif
-    else if (MOUSE_GetButtons()&WHEELUP_MOUSE)
-    {
-        MOUSE_ClearButton(WHEELUP_MOUSE);
+        inputState.MouseClearButton(WHEELUP_MOUSE);
         event.at0 = kMenuEventUp;
     }
-    else if (MOUSE_GetButtons()&WHEELDOWN_MOUSE)
+    else if (inputState.MouseGetButtons()&WHEELDOWN_MOUSE)
     {
-        MOUSE_ClearButton(WHEELDOWN_MOUSE);
+        inputState.MouseClearButton(WHEELDOWN_MOUSE);
         event.at0 = kMenuEventDown;
     }
     return event.at0 != kMenuEventNone;
@@ -632,7 +621,7 @@ void CGameMenuItemZBool::Draw(void)
             pMenu->SetFocusItem(this);
         }
 
-        if (!gGameMenuMgr.m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
+        if (!gGameMenuMgr.m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
         {
             pMenu->SetFocusItem(this);
 
@@ -714,7 +703,7 @@ void CGameMenuItemChain::Draw(void)
             pMenu->SetFocusItem(this);
         }
 
-        if (!gGameMenuMgr.m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, x<<16, y<<16, width<<16, height<<16))
+        if (!gGameMenuMgr.m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, x<<16, y<<16, width<<16, height<<16))
         {
             pMenu->SetFocusItem(this);
 
@@ -1174,7 +1163,7 @@ void CGameMenuItemKeyList::Draw(void)
                 nNewFocus = k;
             }
 
-            if (!gGameMenuMgr.m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
+            if (!gGameMenuMgr.m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
             {
                 nNewFocus = k;
                 bClick = true;
@@ -1273,16 +1262,16 @@ bool CGameMenuItemKeyList::Event(CGameMenuEvent &event)
 bool CGameMenuItemKeyList::MouseEvent(CGameMenuEvent &event)
 {
     event.at0 = kMenuEventNone;
-    if (MOUSEACTIVECONDITIONAL(MOUSE_GetButtons()&WHEELUP_MOUSE))
+    if (MOUSEACTIVECONDITIONAL(inputState.MouseGetButtons()&WHEELUP_MOUSE))
     {
         gGameMenuMgr.m_mouselastactivity = (int)totalclock;
-        MOUSE_ClearButton(WHEELUP_MOUSE);
+        inputState.MouseClearButton(WHEELUP_MOUSE);
         event.at0 = kMenuEventScrollUp;
     }
-    else if (MOUSEACTIVECONDITIONAL(MOUSE_GetButtons()&WHEELDOWN_MOUSE))
+    else if (MOUSEACTIVECONDITIONAL(inputState.MouseGetButtons()&WHEELDOWN_MOUSE))
     {
         gGameMenuMgr.m_mouselastactivity = (int)totalclock;
-        MOUSE_ClearButton(WHEELDOWN_MOUSE);
+        inputState.MouseClearButton(WHEELDOWN_MOUSE);
         event.at0 = kMenuEventScrollDown;
     }
     else
@@ -1413,7 +1402,7 @@ void CGameMenuItemSlider::Draw(void)
             pMenu->SetFocusItem(this);
         }
 
-        if (!gGameMenuMgr.m_mousecaught && (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
+        if (!gGameMenuMgr.m_mousecaught && (inputState.mouseClickState() == MOUSE_PRESSED || inputState.mouseClickState() == MOUSE_HELD))
         {
             pMenu->SetFocusItem(this);
 
@@ -1491,31 +1480,31 @@ bool CGameMenuItemSlider::Event(CGameMenuEvent &event)
 bool CGameMenuItemSlider::MouseEvent(CGameMenuEvent &event)
 {
     event.at0 = kMenuEventNone;
-    if (MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELUP_MOUSE)))
+    if (MOUSEINACTIVECONDITIONAL((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELUP_MOUSE)))
     {
-        MOUSE_ClearButton(WHEELUP_MOUSE);
+        inputState.MouseClearButton(WHEELUP_MOUSE);
         event.at0 = kMenuEventLeft;
     }
-    else if (MOUSEINACTIVECONDITIONAL((MOUSE_GetButtons()&LEFT_MOUSE) && (MOUSE_GetButtons()&WHEELDOWN_MOUSE)))
+    else if (MOUSEINACTIVECONDITIONAL((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELDOWN_MOUSE)))
     {
-        MOUSE_ClearButton(WHEELDOWN_MOUSE);
+        inputState.MouseClearButton(WHEELDOWN_MOUSE);
         event.at0 = kMenuEventRight;
     }
-    else if (MOUSE_GetButtons()&RIGHT_MOUSE)
+    else if (inputState.MouseGetButtons()&RIGHT_MOUSE)
     {
-        MOUSE_ClearButton(RIGHT_MOUSE);
+        inputState.MouseClearButton(RIGHT_MOUSE);
         event.at0 = kMenuEventEscape;
     }
-    else if (MOUSE_GetButtons()&WHEELUP_MOUSE)
+    else if (inputState.MouseGetButtons()&WHEELUP_MOUSE)
     {
-        MOUSE_ClearButton(WHEELUP_MOUSE);
-        MOUSE_ClearButton(LEFT_MOUSE);
+        inputState.MouseClearButton(WHEELUP_MOUSE);
+        inputState.MouseClearButton(LEFT_MOUSE);
         event.at0 = kMenuEventUp;
     }
-    else if (MOUSE_GetButtons()&WHEELDOWN_MOUSE)
+    else if (inputState.MouseGetButtons()&WHEELDOWN_MOUSE)
     {
-        MOUSE_ClearButton(WHEELDOWN_MOUSE);
-        MOUSE_ClearButton(LEFT_MOUSE);
+        inputState.MouseClearButton(WHEELDOWN_MOUSE);
+        inputState.MouseClearButton(LEFT_MOUSE);
         event.at0 = kMenuEventDown;
     }
     return event.at0 != kMenuEventNone;
@@ -1642,7 +1631,7 @@ void CGameMenuItemSliderFloat::Draw(void)
             pMenu->SetFocusItem(this);
         }
 
-        if (!gGameMenuMgr.m_mousecaught && (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
+        if (!gGameMenuMgr.m_mousecaught && (inputState.mouseClickState() == MOUSE_PRESSED || inputState.mouseClickState() == MOUSE_HELD))
         {
             pMenu->SetFocusItem(this);
 
@@ -1817,7 +1806,7 @@ void CGameMenuItemZEdit::Draw(void)
             pMenu->SetFocusItem(this);
         }
 
-        if (!gGameMenuMgr.m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
+        if (!gGameMenuMgr.m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
         {
             pMenu->SetFocusItem(this);
 
@@ -2003,7 +1992,7 @@ void CGameMenuItemZEditBitmap::Draw(void)
             pMenu->SetFocusItem(this);
         }
 
-        if (!gGameMenuMgr.m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
+        if (!gGameMenuMgr.m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
         {
             pMenu->SetFocusItem(this);
 
@@ -2161,7 +2150,7 @@ void CGameMenuItemQAV::Draw(void)
         gFrameClock = backFC;
     }
 
-    if (bEnable && !gGameMenuMgr.m_mousecaught && g_mouseClickState == MOUSE_RELEASED)
+    if (bEnable && !gGameMenuMgr.m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED)
     {
         pMenu->SetFocusItem(this);
 
@@ -2288,7 +2277,7 @@ void CGameMenuItemZCycleSelect::Draw(void)
                 nNewFocus = k;
             }
 
-            if (!gGameMenuMgr.m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
+            if (!gGameMenuMgr.m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, mx, my, mw, mh))
             {
                 nNewFocus = k;
                 bClick = true;
@@ -2366,16 +2355,16 @@ bool CGameMenuItemZCycleSelect::Event(CGameMenuEvent &event)
 bool CGameMenuItemZCycleSelect::MouseEvent(CGameMenuEvent &event)
 {
     event.at0 = kMenuEventNone;
-    if (MOUSEACTIVECONDITIONAL(MOUSE_GetButtons()&WHEELUP_MOUSE))
+    if (MOUSEACTIVECONDITIONAL(inputState.MouseGetButtons()&WHEELUP_MOUSE))
     {
         gGameMenuMgr.m_mouselastactivity = (int)totalclock;
-        MOUSE_ClearButton(WHEELUP_MOUSE);
+        inputState.MouseClearButton(WHEELUP_MOUSE);
         event.at0 = kMenuEventScrollUp;
     }
-    else if (MOUSEACTIVECONDITIONAL(MOUSE_GetButtons()&WHEELDOWN_MOUSE))
+    else if (MOUSEACTIVECONDITIONAL(inputState.MouseGetButtons()&WHEELDOWN_MOUSE))
     {
         gGameMenuMgr.m_mouselastactivity = (int)totalclock;
-        MOUSE_ClearButton(WHEELDOWN_MOUSE);
+        inputState.MouseClearButton(WHEELDOWN_MOUSE);
         event.at0 = kMenuEventScrollDown;
     }
     else
@@ -2480,7 +2469,7 @@ void CGameMenuItemZCycle::Draw(void)
             pMenu->SetFocusItem(this);
         }
 
-        if (!gGameMenuMgr.m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, x<<16, y<<16, m_nWidth<<16, height<<16))
+        if (!gGameMenuMgr.m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED && !gGameMenuMgr.MouseOutsideBounds(&gGameMenuMgr.m_mousedownpos, x<<16, y<<16, m_nWidth<<16, height<<16))
         {
             pMenu->SetFocusItem(this);
 
@@ -2657,7 +2646,7 @@ void CGameMenuItemYesNoQuit::Draw(void)
     }
     gMenuTextMgr.DrawText(m_pzText, m_nFont, x, m_nY, shade, 0, true);
 
-    if (bEnable && !gGameMenuMgr.m_mousecaught && g_mouseClickState == MOUSE_RELEASED)
+    if (bEnable && !gGameMenuMgr.m_mousecaught && inputState.mouseClickState() == MOUSE_RELEASED)
     {
         pMenu->SetFocusItem(this);
 

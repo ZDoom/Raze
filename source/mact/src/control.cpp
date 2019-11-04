@@ -342,7 +342,7 @@ static void CONTROL_GetDeviceButtons(void)
     if (CONTROL_MouseEnabled)
     {
         DoGetDeviceButtons(
-            MOUSE_GetButtons(), t,
+            inputState.MouseGetButtons(), t,
             CONTROL_NumMouseButtons,
             CONTROL_MouseButtonState,
             CONTROL_MouseButtonClickedTime,
@@ -636,10 +636,9 @@ bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ti
     if (initinput())
         return true;
 
-    KB_Startup();
-
     CONTROL_NumMouseButtons = MAXMOUSEBUTTONS;
-    CONTROL_MousePresent    = Mouse_Init();
+    mouseInit();
+    CONTROL_MousePresent = ((inputdevices & 2) == 2);
     CONTROL_MouseEnabled    = CONTROL_MousePresent;
 
     CONTROL_ResetJoystickValues();
@@ -654,7 +653,7 @@ void CONTROL_Shutdown(void)
     if (!CONTROL_Started)
         return;
 
-    MOUSE_Shutdown();
+    mouseUninit();
     uninitinput();
 
     CONTROL_Started = FALSE;

@@ -31,27 +31,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #define mouse_h_
 
 #include "baselayer.h"
+#include "inputstate.h"
 
-#define LEFT_MOUSE      1
-#define RIGHT_MOUSE     2
-#define MIDDLE_MOUSE    4
-#define THUMB_MOUSE     8
-#define WHEELUP_MOUSE   16
-#define WHEELDOWN_MOUSE 32
 
-#define LEFT_MOUSE_PRESSED(button)      (((button)&LEFT_MOUSE) != 0)
-#define RIGHT_MOUSE_PRESSED(button)     (((button)&RIGHT_MOUSE) != 0)
-#define MIDDLE_MOUSE_PRESSED(button)    (((button)&MIDDLE_MOUSE) != 0)
-
-static inline bool Mouse_Init(void)
-{
-    mouseInit();
-    return ((inputdevices & 2) == 2);
-}
-
-static inline void MOUSE_Shutdown(void) { mouseUninit(); }
-static inline int32_t MOUSE_GetButtons(void) { return mouseReadButtons(); }
-static inline void MOUSE_ClearButton(int32_t b) { g_mouseBits &= ~b; }
-static inline void MOUSE_ClearAllButtons(void) { g_mouseBits = 0; }
 
 #endif /* __mouse_h */
