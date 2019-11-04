@@ -1135,51 +1135,6 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-#ifdef GEKKO
-    // like the mouse cursor, the pointer doesn't use the crosshair enabled / scale options
-    if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.camerasprite == -1 &&
-        (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && mouseReadAbs((vec2_t *)&ud.returnvar[0], &g_mouseAbs))
-    {
-        int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYPOINTER, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
-        if ((unsigned) a < MAXTILES)
-        {
-            vec2_t pointerpos = { tabledivide32(ud.returnvar[0], upscalefactor), tabledivide32(ud.returnvar[1], upscalefactor) };
-            uint8_t pointer_pal = CROSSHAIR_PAL;
-            uint32_t pointer_o = 1|2;
-            uint32_t pointer_scale = 65536;
-
-            auto const oyxaspect = yxaspect;
-            if (FURY)
-            {
-                pointerpos.x = scale(pointerpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
-                pointerpos.y = scale(pointerpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
-                pointer_scale = scale(pointer_scale, ydim << 2, xdim * 3) >> 1;
-                pointer_pal = 0;
-                pointer_o |= 1024;
-                renderSetAspect(viewingrange, 65536);
-            }
-
-            rotatesprite_win(pointerpos.x, pointerpos.y, pointer_scale, 0, a, 0, pointer_pal, pointer_o);
-
-            if (FURY)
-                renderSetAspect(viewingrange, oyxaspect);
-        }
-    }
-#endif
-#if 0
-    if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
-    {
-        for (i=0; i<ud.multimode; i++)
-        {
-            if (g_player[i].ps->team == g_player[myconnectindex].ps->team)
-            {
-                j = min(max((G_GetAngleDelta(getangle(g_player[i].ps->pos.x-g_player[myconnectindex].ps->pos.x,
-                    g_player[i].ps->pos.y-g_player[myconnectindex].ps->pos.y), g_player[myconnectindex].ps->ang))>>1, -160), 160);
-                rotatesprite_win((160-j)<<16, 100L<<16, 65536L, 0, DUKEICON, 0, 0, 2+1);
-            }
-        }
-    }
-#endif
 
     if (VM_HaveEvent(EVENT_DISPLAYREST))
     {

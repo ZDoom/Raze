@@ -26,28 +26,11 @@ int32_t g_borderless=2;
 // input
 char    inputdevices = 0;
 
-vec2_t  g_mousePos;
-vec2_t  g_mouseAbs;
-
 
 bool g_mouseEnabled;
 bool g_mouseGrabbed;
 bool g_mouseInsideWindow   = 1;
 bool g_mouseLockedToWindow = 1;
-
-
-void mouseReadPos(int32_t *x, int32_t *y)
-{
-    if (!g_mouseEnabled || !g_mouseGrabbed || !appactive)
-    {
-        *x = *y = 0;
-        return;
-    }
-
-    *x = g_mousePos.x;
-    *y = g_mousePos.y;
-    g_mousePos.x = g_mousePos.y = 0;
-}
 
 int32_t mouseReadAbs(vec2_t * const pResult, vec2_t const * const pInput)
 {

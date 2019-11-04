@@ -65,10 +65,20 @@ bool CONTROL_SmoothMouse  = 0;
 
 #define CONTROL_CheckRange(which) ((unsigned)which >= (unsigned)NUMKEYS)
 
+vec2_t  g_mousePos; // Written to directly by the message pump. 
+vec2_t  g_mouseAbs; // Used by the menus for some coodinate voodoo. Will be removed anyway so no need to refactor.
+
 static void CONTROL_GetMouseDelta(ControlInfo * info)
 {
     vec2_t input;
-    mouseReadPos(&input.x, &input.y);
+    if (!g_mouseEnabled || !g_mouseGrabbed || !appactive)
+    {
+		input = {0,0};
+        return;
+    }
+
+    input = g_mousePos;
+	g_mousePos = {};
 
     vec2f_t finput = { float(input.x), float(input.y) };
 
