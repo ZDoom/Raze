@@ -1314,7 +1314,7 @@ void SetupMenus(void)
     int k = 1;
     for (int i = 0; i < NUMGAMEFUNCTIONS; ++i)
     {
-        MenuGameFuncs[i] = CONFIG_FunctionNumToName(i);
+        MenuGameFuncs[i] = buttonMap.GetButtonName(i);
 		MenuGameFuncs[i].Substitute('_', ' ');
 
         if (MenuGameFuncs[i][0] != '\0')
@@ -1987,19 +1987,7 @@ void SetMouseButton(CGameMenuItemZCycle *pItem)
 void SetupMouseButtonMenu(CGameMenuItemChain *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
-    for (int i = 0; i < MENUMOUSEFUNCTIONS; i++)
-    {
-        auto pItem = pItemOptionsControlMouseButton[i];
-        pItem->m_nFocus = 0;
-        for (int j = 0; j < NUMGAMEFUNCTIONS+1; j++)
-        {
-            if (MouseFunctions[MenuMouseDataIndex[i][0]][MenuMouseDataIndex[i][1]] == nGamefuncsValues[j])
-            {
-                pItem->m_nFocus = j;
-                break;
-            }
-        }
-    }
+	// This functionality no longer exists as a separate item.
 }
 
 void SetupNetworkMenu(void)

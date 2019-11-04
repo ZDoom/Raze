@@ -471,9 +471,9 @@ DemoPlayBack(void)
             else
             {
 
-                if (inputState.BUTTON(gamefunc_See_Coop_View))
+                if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
                 {
-                    inputState.ClearButton(gamefunc_See_Coop_View);
+                    buttonMap.ClearButton(gamefunc_See_Coop_View);
 
                     screenpeek = connectpoint2[screenpeek];
 
@@ -497,16 +497,16 @@ DemoPlayBack(void)
 
             // if a key is pressed, start recording from the point the key
             // was pressed
-            if (inputState.BUTTON(gamefunc_Move_Forward) ||
-                inputState.BUTTON(gamefunc_Move_Backward) ||
-                inputState.BUTTON(gamefunc_Turn_Left) ||
-                inputState.BUTTON(gamefunc_Turn_Right) ||
-                inputState.BUTTON(gamefunc_Fire) ||
-                inputState.BUTTON(gamefunc_Open) ||
-                inputState.BUTTON(gamefunc_Jump) ||
-                inputState.BUTTON(gamefunc_Crouch) ||
-                inputState.BUTTON(gamefunc_Look_Up) ||
-                inputState.BUTTON(gamefunc_Look_Down))
+            if (buttonMap.ButtonDown(gamefunc_Move_Forward) ||
+                buttonMap.ButtonDown(gamefunc_Move_Backward) ||
+                buttonMap.ButtonDown(gamefunc_Turn_Left) ||
+                buttonMap.ButtonDown(gamefunc_Turn_Right) ||
+                buttonMap.ButtonDown(gamefunc_Fire) ||
+                buttonMap.ButtonDown(gamefunc_Open) ||
+                buttonMap.ButtonDown(gamefunc_Jump) ||
+                buttonMap.ButtonDown(gamefunc_Crouch) ||
+                buttonMap.ButtonDown(gamefunc_Look_Up) ||
+                buttonMap.ButtonDown(gamefunc_Look_Down))
             {
                 DemoBackupBuffer();
 
@@ -517,7 +517,7 @@ DemoPlayBack(void)
             }
         }
 
-        if (inputState.BUTTON(gamefunc_See_Co_Op_View))
+        if (buttonMap.ButtonDown(gamefunc_See_Co_Op_View))
         {
             screenpeek += 1;
             if (screenpeek > numplayers-1)

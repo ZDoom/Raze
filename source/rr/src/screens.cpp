@@ -1220,7 +1220,7 @@ void G_DisplayRest(int32_t smoothratio)
         gametext_center(70, "Press F1 to Accept, F2 to Decline");
     }
 
-    if (inputState.BUTTON(gamefunc_Show_DukeMatch_Scores))
+    if (buttonMap.ButtonDown(gamefunc_Show_DukeMatch_Scores))
         G_ShowScores();
 
     if (g_Debug)

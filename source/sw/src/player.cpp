@@ -2419,25 +2419,25 @@ MoveScrollMode2D(PLAYERp pp)
         return;
 
     // Recenter view if told
-    if (inputState.BUTTON(gamefunc_Center_View))
+    if (buttonMap.ButtonDown(gamefunc_Center_View))
     {
         Follow_posx = pp->posx;
         Follow_posy = pp->posy;
     }
 
     // Toggle follow map mode on/off
-    if (inputState.BUTTON(gamefunc_Map_Follow_Mode))
+    if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
     {
-		inputState.ClearButton(gamefunc_Map_Follow_Mode);
+		buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
         ScrollMode2D = !ScrollMode2D;
         // Reset coords
         Follow_posx = pp->posx;
         Follow_posy = pp->posy;
     }
 
-    running = G_CheckAutorun(inputState.BUTTON(gamefunc_Run));
+    running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
 
-    if (inputState.BUTTON(gamefunc_Strafe))
+    if (buttonMap.ButtonDown(gamefunc_Strafe))
         mfsvel -= scrl_input.dyaw>>2;
     mfsvel -= scrl_input.dx>>2;
     mfvel = -scrl_input.dz>>2;
@@ -2454,11 +2454,11 @@ MoveScrollMode2D(PLAYERp pp)
 
     if (!HelpInputMode && !ConPanel)
     {
-        if (inputState.BUTTON(gamefunc_Turn_Left))
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             mfsvel -= -keymove;
         }
-        if (inputState.BUTTON(gamefunc_Turn_Right))
+        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             mfsvel -= keymove;
         }
@@ -2466,12 +2466,12 @@ MoveScrollMode2D(PLAYERp pp)
 
     if (!InputMode && !ConPanel)
     {
-        if (inputState.BUTTON(gamefunc_Strafe_Left))
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
         {
             mfsvel += keymove;
         }
 
-        if (inputState.BUTTON(gamefunc_Strafe_Right))
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
         {
             mfsvel += -keymove;
         }
@@ -2479,12 +2479,12 @@ MoveScrollMode2D(PLAYERp pp)
 
     if (!UsingMenus && !HelpInputMode && !ConPanel)
     {
-        if (inputState.BUTTON(gamefunc_Move_Forward))
+        if (buttonMap.ButtonDown(gamefunc_Move_Forward))
         {
             mfvel += keymove;
         }
 
-        if (inputState.BUTTON(gamefunc_Move_Backward))
+        if (buttonMap.ButtonDown(gamefunc_Move_Backward))
         {
             mfvel += -keymove;
         }

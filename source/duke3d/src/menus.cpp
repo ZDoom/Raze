@@ -1643,7 +1643,7 @@ void Menu_Init(void)
     k = 1;
     for (i = 0; i < NUMGAMEFUNCTIONS; ++i)
     {
-		MenuGameFuncs[i] = CONFIG_FunctionNumToName(i);
+		MenuGameFuncs[i] = buttonMap.GetButtonName(i);
 		MenuGameFuncs[i].Substitute('_', ' ');
 
 		if (MenuGameFuncs[i][0] != '\0')
@@ -1836,7 +1836,8 @@ void Menu_Init(void)
         ME_MOUSESETUPBTNS[i].name = MenuMouseNames[i];
         ME_MOUSESETUPBTNS[i].entry = &MEO_MOUSESETUPBTNS[i];
         MEO_MOUSESETUPBTNS[i] = MEO_MOUSEJOYSETUPBTNS_TEMPLATE;
-        MEO_MOUSESETUPBTNS[i].data = &MouseFunctions[MenuMouseDataIndex[i][0]][MenuMouseDataIndex[i][1]];
+		static int32_t sink;
+        MEO_MOUSESETUPBTNS[i].data = &sink;
     }
     for (i = 0; i < 2*joystick.numButtons + 8*joystick.numHats; ++i)
     {
@@ -2863,7 +2864,7 @@ static void Menu_PreInput(MenuEntry_t *entry)
     case MENU_KEYBOARDKEYS:
         if (inputState.GetKeyStatus(sc_Delete))
         {
-			Bindings.UnbindACommand(CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
+			Bindings.UnbindACommand(buttonMap.GetButtonName(M_KEYBOARDKEYS.currentEntry));
             S_PlaySound(KICK_HIT);
             inputState.ClearKeyStatus(sc_Delete);
         }
@@ -2920,7 +2921,7 @@ static int32_t Menu_PreCustom2ColScreen(MenuEntry_t *entry)
         if (sc != sc_None)
         {
             S_PlaySound(PISTOL_BODYHIT);
-			Bindings.SetBind(sc, CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
+			Bindings.SetBind(sc, buttonMap.GetButtonName(M_KEYBOARDKEYS.currentEntry));
             inputState.ClearKeyStatus(sc);
 
             return -1;
@@ -4884,7 +4885,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         const int32_t columny = origin.y + y_upper + y - menu->scrollPos;
 
 						// Beware of hack job!
-						auto keys = Bindings.GetKeysForCommand(CONFIG_FunctionNumToName(object->buttonindex));
+						auto keys = Bindings.GetKeysForCommand(buttonMap.GetButtonName(object->buttonindex));
 						FString text1;
 						FString text2;
 						if (keys.Size() > 0) text1 = C_NameKeys(&keys[0], 1);

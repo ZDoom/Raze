@@ -45,7 +45,7 @@ void I_ClearAllInput(void)
     inputState.ClearKeysDown();
     inputState.MouseClearAllButtonss();
     JOYSTICK_ClearAllButtons();
-    inputState.ClearAllButtons();
+    buttonMap.ResetButtonStates();
 }
 
 
@@ -101,9 +101,9 @@ int32_t I_GeneralTrigger(void)
     return
         I_AdvanceTrigger()
         || I_ReturnTrigger()
-        || inputState.BUTTON(gamefunc_Open)
-        //|| MOUSEINACTIVECONDITIONAL(inputState.BUTTON(gamefunc_Fire))
-        || inputState.BUTTON(gamefunc_Crouch)
+        || buttonMap.ButtonDown(gamefunc_Open)
+        //|| MOUSEINACTIVECONDITIONAL(buttonMap.ButtonDown(gamefunc_Fire))
+        || buttonMap.ButtonDown(gamefunc_Crouch)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
 }
 
@@ -111,9 +111,9 @@ void I_GeneralTriggerClear(void)
 {
     I_AdvanceTriggerClear();
     I_ReturnTriggerClear();
-    inputState.ClearButton(gamefunc_Open);
-    inputState.ClearButton(gamefunc_Fire);
-    inputState.ClearButton(gamefunc_Crouch);
+    buttonMap.ClearButton(gamefunc_Open);
+    buttonMap.ClearButton(gamefunc_Fire);
+    buttonMap.ClearButton(gamefunc_Crouch);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
 }
 
@@ -139,7 +139,7 @@ int32_t I_MenuUp(void)
         inputState.GetKeyStatus(sc_UpArrow)
         || inputState.GetKeyStatus(sc_kpad_8)
         || (inputState.MouseGetButtons()&WHEELUP_MOUSE)
-        || inputState.BUTTON(gamefunc_Move_Forward)
+        || buttonMap.ButtonDown(gamefunc_Move_Forward)
         || (JOYSTICK_GetHat(0)&HAT_UP)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_UP))
         || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY);
@@ -150,7 +150,7 @@ void I_MenuUpClear(void)
     inputState.ClearKeyStatus(sc_UpArrow);
     inputState.ClearKeyStatus(sc_kpad_8);
     inputState.MouseClearButton(WHEELUP_MOUSE);
-    inputState.ClearButton(gamefunc_Move_Forward);
+    buttonMap.ClearButton(gamefunc_Move_Forward);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_UP);
     CONTROL_ClearGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY);
@@ -163,7 +163,7 @@ int32_t I_MenuDown(void)
         inputState.GetKeyStatus(sc_DownArrow)
         || inputState.GetKeyStatus(sc_kpad_2)
         || (inputState.MouseGetButtons()&WHEELDOWN_MOUSE)
-        || inputState.BUTTON(gamefunc_Move_Backward)
+        || buttonMap.ButtonDown(gamefunc_Move_Backward)
         || (JOYSTICK_GetHat(0)&HAT_DOWN)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_DOWN))
         || CONTROL_GetGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY);
@@ -175,7 +175,7 @@ void I_MenuDownClear(void)
     inputState.ClearKeyStatus(sc_kpad_2);
     inputState.ClearKeyStatus(sc_PgDn);
     inputState.MouseClearButton(WHEELDOWN_MOUSE);
-    inputState.ClearButton(gamefunc_Move_Backward);
+    buttonMap.ClearButton(gamefunc_Move_Backward);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_DOWN);
     CONTROL_ClearGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY);
@@ -188,8 +188,8 @@ int32_t I_MenuLeft(void)
         inputState.GetKeyStatus(sc_LeftArrow)
         || inputState.GetKeyStatus(sc_kpad_4)
         || (inputState.ShiftPressed() && inputState.GetKeyStatus(sc_Tab))
-        || inputState.BUTTON(gamefunc_Turn_Left)
-        || inputState.BUTTON(gamefunc_Strafe_Left)
+        || buttonMap.ButtonDown(gamefunc_Turn_Left)
+        || buttonMap.ButtonDown(gamefunc_Strafe_Left)
         || (JOYSTICK_GetHat(0)&HAT_LEFT)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_LEFT))
         || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX);
@@ -200,8 +200,8 @@ void I_MenuLeftClear(void)
     inputState.ClearKeyStatus(sc_LeftArrow);
     inputState.ClearKeyStatus(sc_kpad_4);
     inputState.ClearKeyStatus(sc_Tab);
-    inputState.ClearButton(gamefunc_Turn_Left);
-    inputState.ClearButton(gamefunc_Strafe_Left);
+    buttonMap.ClearButton(gamefunc_Turn_Left);
+    buttonMap.ClearButton(gamefunc_Strafe_Left);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_LEFT);
     CONTROL_ClearGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX);
@@ -214,8 +214,8 @@ int32_t I_MenuRight(void)
         inputState.GetKeyStatus(sc_RightArrow)
         || inputState.GetKeyStatus(sc_kpad_6)
         || (!inputState.ShiftPressed() && inputState.GetKeyStatus(sc_Tab))
-        || inputState.BUTTON(gamefunc_Turn_Right)
-        || inputState.BUTTON(gamefunc_Strafe_Right)
+        || buttonMap.ButtonDown(gamefunc_Turn_Right)
+        || buttonMap.ButtonDown(gamefunc_Strafe_Right)
         || (inputState.MouseGetButtons()&MIDDLE_MOUSE)
         || (JOYSTICK_GetHat(0)&HAT_RIGHT)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_RIGHT))
@@ -228,8 +228,8 @@ void I_MenuRightClear(void)
     inputState.ClearKeyStatus(sc_RightArrow);
     inputState.ClearKeyStatus(sc_kpad_6);
     inputState.ClearKeyStatus(sc_Tab);
-    inputState.ClearButton(gamefunc_Turn_Right);
-    inputState.ClearButton(gamefunc_Strafe_Right);
+    buttonMap.ClearButton(gamefunc_Turn_Right);
+    buttonMap.ClearButton(gamefunc_Strafe_Right);
     inputState.MouseClearButton(MIDDLE_MOUSE);
     JOYSTICK_ClearHat(0);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_RIGHT);

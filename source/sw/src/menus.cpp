@@ -705,7 +705,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         for (i=0; i<(int)SIZ(strs); i++)
         {
             w = 0;
-			auto c = CONFIG_FunctionNumToName(currentkey);
+			auto c = buttonMap.GetButtonName(currentkey);
             sprintf(ds,strs[i],c,col[currentcol]);
             for (j=0; ds[j]; j++) if (ds[j] == '_') ds[j] = ' ';
             MNU_MeasureString(ds, &w, &h);
@@ -738,7 +738,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             inputState.ClearKeyStatus(sc_Delete);
             if (currentkey != gamefunc_Show_Console)
             {
-				//Bindings.UnbindACommand(CONFIG_FunctionNumToName(M_KEYBOARDKEYS.currentEntry));
+				//Bindings.UnbindACommand(buttonMap.GetButtonName(M_KEYBOARDKEYS.currentEntry));
 			}
         }
         else if (inputState.GetKeyStatus(sc_Home))
@@ -797,7 +797,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 
         for (i = topitem; i <= botitem; i++)
         {
-			auto c = CONFIG_FunctionNumToName(i);
+			auto c = buttonMap.GetButtonName(i);
             for (j = 0; c[j]; j++)
             {
                 if (c[j] == '_') ds[j] = ' ';
@@ -922,7 +922,7 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
         }
         else
         {
-			auto c = CONFIG_FunctionNumToName(i-1);
+			auto c = buttonMap.GetButtonName(i-1);
 			for (j = 0; c[j]; j++)
             {
                 if (c[j] == '_') ds[j] = ' ';
@@ -1047,7 +1047,7 @@ static SWBOOL MNU_SetMouseButtonFunctions(MenuItem_p item)
     }
     else
     {
-        strcpy(MouseButtonFunctions[item->tics], CONFIG_FunctionNumToName(function));
+        strcpy(MouseButtonFunctions[item->tics], buttonMap.GetButtonName(function));
         for (p = MouseButtonFunctions[item->tics]; *p; p++)
         {
             if (*p == '_')
@@ -1131,7 +1131,7 @@ static SWBOOL MNU_SetAdvancedMouseFunctions(MenuItem_p item)
     }
     else
     {
-        strcpy(AdvancedMouseAxisFunctions[axis], CONFIG_FunctionNumToName(MouseDigitalAxes[axis/2][axis%2]));
+        strcpy(AdvancedMouseAxisFunctions[axis], buttonMap.GetButtonName(MouseDigitalAxes[axis/2][axis%2]));
         for (p = AdvancedMouseAxisFunctions[axis]; *p; p++)
         {
             if (*p == '_')
@@ -1359,7 +1359,7 @@ static SWBOOL MNU_SetJoystickButtonFunctions(MenuItem_p item)
     }
     else
     {
-        strcpy(JoystickButtonFunctions[button + clicked*MAXJOYBUTTONS], CONFIG_FunctionNumToName(function));
+        strcpy(JoystickButtonFunctions[button + clicked*MAXJOYBUTTONS], buttonMap.GetButtonName(function));
         for (p = JoystickButtonFunctions[button + clicked*MAXJOYBUTTONS]; *p; p++)
         {
             if (*p == '_')
@@ -1473,7 +1473,7 @@ static SWBOOL MNU_SetJoystickAxisFunctions(MenuItem_p item)
     }
     else
     {
-        strcpy(JoystickAxisFunctions[item->tics], CONFIG_FunctionNumToName(function));
+        strcpy(JoystickAxisFunctions[item->tics], buttonMap.GetButtonName(function));
         for (p = JoystickAxisFunctions[item->tics]; *p; p++)
         {
             if (*p == '_')

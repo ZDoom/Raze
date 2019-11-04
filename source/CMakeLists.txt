@@ -782,7 +782,9 @@ set (PCH_SOURCES
 	
 	common/console/c_cvars.cpp
 	common/console/c_bind.cpp
+	common/console/c_buttons.cpp
 	common/console/c_commandline.cpp
+	common/console/c_dispatch.cpp
 	common/console/d_event.cpp
 	
 	common/utility/i_time.cpp

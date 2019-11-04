@@ -18,11 +18,6 @@ void D_AddWildFile(TArray<FString>& wadfiles, const char* value);
 
 int CONFIG_Init();
 void CONFIG_SetDefaultKeys(const char *defbinds);
-int32_t CONFIG_FunctionNameToNum(const char* func);
-const char* CONFIG_FunctionNumToName(int32_t func);
-const char* CONFIG_FunctionNumToRealName(int32_t func);
-void CONFIG_ReplaceButtonName(int num, const char* text);
-void CONFIG_DeleteButtonName(int num);
 
 // I am not sure if anything below will survive for long...
 
@@ -39,7 +34,6 @@ void CONFIG_DeleteButtonName(int num);
 #define DEFAULTJOYSTICKANALOGUESATURATE     9500
 
 
-extern int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
 extern int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
 extern int32_t MouseAnalogueAxes[MAXMOUSEAXES];
 extern int32_t MouseAnalogueScale[MAXMOUSEAXES];

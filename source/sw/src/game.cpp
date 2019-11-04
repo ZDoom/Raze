@@ -3438,11 +3438,11 @@ SinglePlayInput(PLAYERp pp)
     int pnum = myconnectindex;
     uint8_t* kp;
 
-    if (inputState.BUTTON(gamefunc_See_Co_Op_View) && !UsingMenus && !ConPanel && dimensionmode == 3)
+    if (buttonMap.ButtonDown(gamefunc_See_Co_Op_View) && !UsingMenus && !ConPanel && dimensionmode == 3)
     {
         short oldscreenpeek = screenpeek;
 
-        inputState.ClearButton(gamefunc_See_Co_Op_View);
+        buttonMap.ClearButton(gamefunc_See_Co_Op_View);
 
         screenpeek = connectpoint2[screenpeek];
 
@@ -3839,9 +3839,9 @@ void GetMessageInput(PLAYERp pp)
 
     if (!MessageInputMode && !ConInputMode)
     {
-        if (inputState.BUTTON(gamefunc_SendMessage))
+        if (buttonMap.ButtonDown(gamefunc_SendMessage))
         {
-            inputState.ClearButton(gamefunc_SendMessage);
+            buttonMap.ClearButton(gamefunc_SendMessage);
             inputState.keyFlushChars();
             MessageInputMode = TRUE;
             InputMode = TRUE;
@@ -3876,7 +3876,7 @@ void GetMessageInput(PLAYERp pp)
                 InputMode = FALSE;
                 inputState.ClearKeysDown();
                 inputState.keyFlushChars();
-                inputState.ClearButton(gamefunc_Inventory);
+                buttonMap.ClearButton(gamefunc_Inventory);
             }
             else
             {
@@ -3910,11 +3910,11 @@ SEND_MESSAGE:
                 InputMode = FALSE;
                 inputState.ClearKeysDown();
                 inputState.keyFlushChars();
-                inputState.ClearButton(gamefunc_Inventory);
+                buttonMap.ClearButton(gamefunc_Inventory);
                 CON_ProcessUserCommand();     // Check to see if it's a cheat or command
 
                 for (i = 0; i < NUMGAMEFUNCTIONS; i++)
-                    inputState.ClearButton(i);
+                    buttonMap.ClearButton(i);
 
                 // Put who sent this
                 sprintf(ds,"%s: %s",pp->PlayerName,MessageInputString);
@@ -4006,7 +4006,7 @@ void GetConInput(PLAYERp pp)
                 InputMode = FALSE;
                 inputState.ClearKeysDown();
                 inputState.keyFlushChars();
-                inputState.ClearButton(gamefunc_Inventory);
+                buttonMap.ClearButton(gamefunc_Inventory);
                 memset(MessageInputString, '\0', sizeof(MessageInputString));
             }
             else
@@ -4014,7 +4014,7 @@ void GetConInput(PLAYERp pp)
                 InputMode = FALSE;
                 inputState.ClearKeysDown();
                 inputState.keyFlushChars();
-                inputState.ClearButton(gamefunc_Inventory);
+                buttonMap.ClearButton(gamefunc_Inventory);
                 CON_ConMessage("%s", MessageInputString);
                 CON_ProcessUserCommand();     // Check to see if it's a cheat or command
 
@@ -4162,13 +4162,13 @@ getinput(SW_PACKET *loc)
 	if (in_aimmode)
 		g_MyAimMode = 0;
 
-	if (inputState.BUTTON(gamefunc_Mouse_Aiming))
+	if (buttonMap.ButtonDown(gamefunc_Mouse_Aiming))
 	{
 		if (in_aimmode)
 			g_MyAimMode = 1;
 		else
 		{
-			inputState.ClearButton(gamefunc_Mouse_Aiming);
+			buttonMap.ClearButton(gamefunc_Mouse_Aiming);
 			g_MyAimMode = !g_MyAimMode;
 			if (g_MyAimMode)
 			{
@@ -4200,9 +4200,9 @@ getinput(SW_PACKET *loc)
     }
 
     // MAP KEY
-    if (inputState.BUTTON(gamefunc_Map))
+    if (buttonMap.ButtonDown(gamefunc_Map))
     {
-        inputState.ClearButton(gamefunc_Map);
+        buttonMap.ClearButton(gamefunc_Map);
 
         // Init follow coords
         Follow_posx = pp->posx;
@@ -4225,9 +4225,9 @@ getinput(SW_PACKET *loc)
     // Toggle follow map mode on/off
     if (dimensionmode == 5 || dimensionmode == 6)
     {
-        if (inputState.BUTTON(gamefunc_Map_Follow_Mode))
+        if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
         {
-			inputState.ClearButton(gamefunc_Map_Follow_Mode);
+			buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
             ScrollMode2D = !ScrollMode2D;
             Follow_posx = pp->posx;
             Follow_posy = pp->posy;
@@ -4244,11 +4244,11 @@ getinput(SW_PACKET *loc)
     if (MenuInputMode || UsingMenus || ScrollMode2D || InputMode)
         return;
 
-    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | inputState.BUTTON(gamefunc_Open)));
+    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
 
-    running = G_CheckAutorun(inputState.BUTTON(gamefunc_Run));
+    running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
 
-    if (inputState.BUTTON(gamefunc_Strafe) && !pp->sop)
+    if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
         svel = -info.dyaw;
     else
     {
@@ -4286,16 +4286,16 @@ getinput(SW_PACKET *loc)
         keymove = NORMALKEYMOVE;
     }
 
-    if (inputState.BUTTON(gamefunc_Strafe) && !pp->sop)
+    if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
-        if (inputState.BUTTON(gamefunc_Turn_Left))
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
             svel -= -keymove;
-        if (inputState.BUTTON(gamefunc_Turn_Right))
+        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
             svel -= keymove;
     }
     else
     {
-        if (inputState.BUTTON(gamefunc_Turn_Left))
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             turnheldtime += synctics;
             if (turnheldtime >= TURBOTURNTIME)
@@ -4303,7 +4303,7 @@ getinput(SW_PACKET *loc)
             else
                 angvel -= PREAMBLETURN;
         }
-        else if (inputState.BUTTON(gamefunc_Turn_Right))
+        else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             turnheldtime += synctics;
             if (turnheldtime >= TURBOTURNTIME)
@@ -4317,13 +4317,13 @@ getinput(SW_PACKET *loc)
         }
     }
 
-    if (inputState.BUTTON(gamefunc_Strafe_Left) && !pp->sop)
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
         svel += keymove;
 
-    if (inputState.BUTTON(gamefunc_Strafe_Right) && !pp->sop)
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
         svel += -keymove;
 
-    if (inputState.BUTTON(gamefunc_Move_Forward))
+    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
     {
         vel += keymove;
         //DSPRINTF(ds,"vel key %d",vel);
@@ -4335,7 +4335,7 @@ getinput(SW_PACKET *loc)
         //DebugWriteString(ds);
     }
 
-    if (inputState.BUTTON(gamefunc_Move_Backward))
+    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
         vel += -keymove;
 
 
@@ -4378,36 +4378,36 @@ getinput(SW_PACKET *loc)
 		inputState.ClearKeyStatus(sc_Pause);
 	}
 
-    SET_LOC_KEY(loc->bits, SK_CENTER_VIEW, inputState.BUTTON(gamefunc_Center_View));
+    SET_LOC_KEY(loc->bits, SK_CENTER_VIEW, buttonMap.ButtonDown(gamefunc_Center_View));
 
-    SET_LOC_KEY(loc->bits, SK_RUN, inputState.BUTTON(gamefunc_Run));
-    SET_LOC_KEY(loc->bits, SK_SHOOT, inputState.BUTTON(gamefunc_Fire));
+    SET_LOC_KEY(loc->bits, SK_RUN, buttonMap.ButtonDown(gamefunc_Run));
+    SET_LOC_KEY(loc->bits, SK_SHOOT, buttonMap.ButtonDown(gamefunc_Fire));
 
     // actually snap
-    SET_LOC_KEY(loc->bits, SK_SNAP_UP, inputState.BUTTON(gamefunc_Aim_Up));
-    SET_LOC_KEY(loc->bits, SK_SNAP_DOWN, inputState.BUTTON(gamefunc_Aim_Down));
+    SET_LOC_KEY(loc->bits, SK_SNAP_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
+    SET_LOC_KEY(loc->bits, SK_SNAP_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
 
     // actually just look
-    SET_LOC_KEY(loc->bits, SK_LOOK_UP, inputState.BUTTON(gamefunc_Look_Up));
-    SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, inputState.BUTTON(gamefunc_Look_Down));
+    SET_LOC_KEY(loc->bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
+    SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
 
 
     for (i = 0; i < MAX_WEAPONS_KEYS; i++)
     {
-        if (inputState.BUTTON(gamefunc_Weapon_1 + i))
+        if (buttonMap.ButtonDown(gamefunc_Weapon_1 + i))
         {
             SET(loc->bits, i + 1);
             break;
         }
     }
 
-    if (inputState.BUTTON(gamefunc_Next_Weapon))
+    if (buttonMap.ButtonDown(gamefunc_Next_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short next_weapon = u->WeaponNum + 1;
         short start_weapon;
 
-        inputState.ClearButton(gamefunc_Next_Weapon);
+        buttonMap.ClearButton(gamefunc_Next_Weapon);
 
         start_weapon = u->WeaponNum + 1;
 
@@ -4441,13 +4441,13 @@ getinput(SW_PACKET *loc)
     }
 
 
-    if (inputState.BUTTON(gamefunc_Previous_Weapon))
+    if (buttonMap.ButtonDown(gamefunc_Previous_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short prev_weapon = u->WeaponNum - 1;
         short start_weapon;
 
-        inputState.ClearButton(gamefunc_Previous_Weapon);
+        buttonMap.ClearButton(gamefunc_Previous_Weapon);
 
         start_weapon = u->WeaponNum - 1;
 
@@ -4479,42 +4479,42 @@ getinput(SW_PACKET *loc)
     }
 
     inv_hotkey = 0;
-    if (inputState.BUTTON(gamefunc_Med_Kit))
+    if (buttonMap.ButtonDown(gamefunc_Med_Kit))
         inv_hotkey = INVENTORY_MEDKIT+1;
-    if (inputState.BUTTON(gamefunc_Smoke_Bomb))
+    if (buttonMap.ButtonDown(gamefunc_Smoke_Bomb))
         inv_hotkey = INVENTORY_CLOAK+1;
-    if (inputState.BUTTON(gamefunc_Night_Vision))
+    if (buttonMap.ButtonDown(gamefunc_Night_Vision))
         inv_hotkey = INVENTORY_NIGHT_VISION+1;
-    if (inputState.BUTTON(gamefunc_Gas_Bomb))
+    if (buttonMap.ButtonDown(gamefunc_Gas_Bomb))
         inv_hotkey = INVENTORY_CHEMBOMB+1;
-    if (inputState.BUTTON(gamefunc_Flash_Bomb) && dimensionmode == 3)
+    if (buttonMap.ButtonDown(gamefunc_Flash_Bomb) && dimensionmode == 3)
         inv_hotkey = INVENTORY_FLASHBOMB+1;
-    if (inputState.BUTTON(gamefunc_Caltrops))
+    if (buttonMap.ButtonDown(gamefunc_Caltrops))
         inv_hotkey = INVENTORY_CALTROPS+1;
 
     SET(loc->bits, inv_hotkey<<SK_INV_HOTKEY_BIT0);
 
-    SET_LOC_KEY(loc->bits, SK_INV_USE, inputState.BUTTON(gamefunc_Inventory));
+    SET_LOC_KEY(loc->bits, SK_INV_USE, buttonMap.ButtonDown(gamefunc_Inventory));
 
-    SET_LOC_KEY(loc->bits, SK_OPERATE, inputState.BUTTON(gamefunc_Open));
-    SET_LOC_KEY(loc->bits, SK_JUMP, inputState.BUTTON(gamefunc_Jump));
-    SET_LOC_KEY(loc->bits, SK_CRAWL, inputState.BUTTON(gamefunc_Crouch));
+    SET_LOC_KEY(loc->bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
+    SET_LOC_KEY(loc->bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
+    SET_LOC_KEY(loc->bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
 
-    SET_LOC_KEY(loc->bits, SK_TURN_180, inputState.BUTTON(gamefunc_TurnAround));
+    SET_LOC_KEY(loc->bits, SK_TURN_180, buttonMap.ButtonDown(gamefunc_TurnAround));
 
-    SET_LOC_KEY(loc->bits, SK_INV_LEFT, inputState.BUTTON(gamefunc_Inventory_Left));
-    SET_LOC_KEY(loc->bits, SK_INV_RIGHT, inputState.BUTTON(gamefunc_Inventory_Right));
+    SET_LOC_KEY(loc->bits, SK_INV_LEFT, buttonMap.ButtonDown(gamefunc_Inventory_Left));
+    SET_LOC_KEY(loc->bits, SK_INV_RIGHT, buttonMap.ButtonDown(gamefunc_Inventory_Right));
 
-    SET_LOC_KEY(loc->bits, SK_HIDE_WEAPON, inputState.BUTTON(gamefunc_Holster_Weapon));
+    SET_LOC_KEY(loc->bits, SK_HIDE_WEAPON, buttonMap.ButtonDown(gamefunc_Holster_Weapon));
 
     // need BUTTON
     SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, inputState.GetKeyStatus(KEYSC_NUM));
 
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {
-        if (inputState.BUTTON(gamefunc_See_Co_Op_View))
+        if (buttonMap.ButtonDown(gamefunc_See_Co_Op_View))
         {
-            inputState.ClearButton(gamefunc_See_Co_Op_View);
+            buttonMap.ClearButton(gamefunc_See_Co_Op_View);
 
             screenpeek = connectpoint2[screenpeek];
 
@@ -4551,9 +4551,9 @@ getinput(SW_PACKET *loc)
 
     FunctionKeys(pp);
 
-    if (inputState.BUTTON(gamefunc_Toggle_Crosshair))
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
     {
-        inputState.ClearButton(gamefunc_Toggle_Crosshair);
+        buttonMap.ClearButton(gamefunc_Toggle_Crosshair);
         pToggleCrosshair(pp);
     }
 }

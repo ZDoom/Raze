@@ -1128,9 +1128,9 @@ void CGameMenuItemKeyList::Draw(void)
     bool bClick = false;
     for (int i = 0; i < nRows; i++, y += height, k++)
     {
-		auto keys = Bindings.GetKeysForCommand(CONFIG_FunctionNumToName(k));
+		auto keys = Bindings.GetKeysForCommand(buttonMap.GetButtonName(k));
 		FString text = C_NameKeys(keys.Data(), std::min(keys.Size(), 2u));
-        sprintf(buffer, "%s", CONFIG_FunctionNumToName(k));
+        sprintf(buffer, "%s", buttonMap.GetButtonName(k));
         
         if (k == nFocus)
         {
@@ -1192,7 +1192,7 @@ bool CGameMenuItemKeyList::Event(CGameMenuEvent &event)
             if (inputState.keyBufferWaiting())
                 inputState.keyGetChar();
 
-			Bindings.SetBind(inputState.GetLastScanCode(), CONFIG_FunctionNumToName(nFocus));
+			Bindings.SetBind(inputState.GetLastScanCode(), buttonMap.GetButtonName(nFocus));
             inputState.keyFlushChars();
             inputState.keyFlushScans();
             inputState.ClearKeysDown();
@@ -1231,7 +1231,7 @@ bool CGameMenuItemKeyList::Event(CGameMenuEvent &event)
         return false;
     case kMenuEventBackSpace:
     case kMenuEventDelete:
-		Bindings.UnbindACommand(CONFIG_FunctionNumToName(nFocus));
+		Bindings.UnbindACommand(buttonMap.GetButtonName(nFocus));
         return false;
     case kMenuEventScrollUp:
         if (nFocus-nTopDelta > 0)

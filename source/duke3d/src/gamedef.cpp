@@ -2198,7 +2198,7 @@ void C_InitQuotes(void)
     apStrings[QUOTE_DEAD] = 0;
 #else
 	// WTF ?!?
-    char const * const OpenGameFunc = CONFIG_FunctionNumToName(gamefunc_Open);
+    char const * const OpenGameFunc = buttonMap.GetButtonName(gamefunc_Open);
     C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
     C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
     C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);
@@ -5090,7 +5090,7 @@ repeatcase:
 					}
 				}
 				build.Push(0);
-				CONFIG_ReplaceButtonName(j, build.Data());
+				buttonMap.SetButtonAlias(j, build.Data());
 			}
             continue;
 
@@ -5109,7 +5109,7 @@ repeatcase:
                 continue;
             }
 
-			CONFIG_DeleteButtonName(j);
+			buttonMap.ClearButtonAlias(j);
             continue;
 
         case CON_DEFINESKILLNAME:

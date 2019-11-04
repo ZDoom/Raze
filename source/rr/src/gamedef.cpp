@@ -935,7 +935,7 @@ void C_InitQuotes(void)
 #ifdef EDUKE32_TOUCH_DEVICES
     apStrings[QUOTE_DEAD] = 0;
 #else
-    char const * OpenGameFunc = CONFIG_FunctionNumToName(gamefunc_Open);
+    char const * OpenGameFunc = buttonMap.GetButtonName(gamefunc_Open);
     C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
     C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
     C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);

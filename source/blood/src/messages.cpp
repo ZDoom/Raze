@@ -50,7 +50,7 @@ CCheatMgr gCheatMgr;
 void sub_5A928(void)
 {
     for (int i = 0; i < NUMGAMEFUNCTIONS-1; i++)
-        inputState.ClearButton(i);
+        buttonMap.ClearButton(i);
 }
 
 void sub_5A944(int key)
@@ -608,7 +608,7 @@ void CPlayerMsg::ProcessKeys(void)
         case sc_F8:
         case sc_F9:
         case sc_F10:
-            inputState.ClearButton(gamefunc_See_Chase_View);
+            buttonMap.ClearButton(gamefunc_See_Chase_View);
             Set(*CombatMacros[key-sc_F1]);
             Send();
 			inputState.ClearKeyStatus(key);

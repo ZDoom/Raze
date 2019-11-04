@@ -38,6 +38,7 @@
 #include "keydef.h"
 #include "c_commandline.h"
 #include "c_bind.h"
+#include "c_dispatch.h"
 //#include "g_level.h"
 //#include "hu_stuff.h"
 #include "configfile.h"
@@ -802,22 +803,4 @@ bool C_DoKey (event_t *ev, FKeyBindings *binds, FKeyBindings *doublebinds)
 		return true;
 	}
 	return false;
-}
-
-
-#include "osd.h"
-void AddCommandString(const char* copy, int keynum)
-{
-	// For the time being this still needs a bit of glue code to work as expected.
-	if (*copy == '+')
-	{
-		auto num = CONFIG_FunctionNameToNum(copy + 1);
-		if (num >= 0) inputState.UpdateButton(num, true);
-	}
-	else if (*copy == '-')
-	{
-		auto num = CONFIG_FunctionNameToNum(copy + 1);
-		if (num >= 0) inputState.UpdateButton(num, false);
-	}
-	else OSD_Dispatch(copy);
 }

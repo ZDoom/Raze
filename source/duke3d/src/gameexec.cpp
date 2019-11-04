@@ -3656,7 +3656,7 @@ badindex:
 					VM_ASSERT((unsigned)quoteIndex < MAXQUOTES && apStrings[quoteIndex], "invalid quote %d\n", quoteIndex);
 					VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
 
-					auto bindings = Bindings.GetKeysForCommand(CONFIG_FunctionNumToRealName(gameFunc));
+					auto bindings = Bindings.GetKeysForCommand(buttonMap.GetButtonAlias(gameFunc));
 					if ((unsigned)funcPos >= bindings.Size()) funcPos = 0;
 					Bstrcpy(apStrings[quoteIndex], KB_ScanCodeToString(bindings[funcPos]));
                     dispatch();

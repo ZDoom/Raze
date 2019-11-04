@@ -24,123 +24,13 @@ int ShowStartupWindow(TArray<GrpEntry> &);
 void InitFileSystem(TArray<GrpEntry>&);
 int globalShadeDiv;
 
-struct GameFuncNameDesc
-{
-	int index;
-	const char *name;
-};
-
-static const GameFuncNameDesc gamefuncs[] = {
-	{ gamefunc_Move_Forward, "Move_Forward"},
-	{ gamefunc_Move_Backward, "Move_Backward"},
-	{ gamefunc_Turn_Left, "Turn_Left"},
-	{ gamefunc_Turn_Right, "Turn_Right"},
-	{ gamefunc_Strafe, "Strafe"},
-	{ gamefunc_Fire, "Fire"},
-	{ gamefunc_Open, "Open"},
-	{ gamefunc_Run, "Run"},
-	{ gamefunc_Alt_Fire, "Alt_Fire"},
-	{ gamefunc_Jump, "Jump"},
-	{ gamefunc_Crouch, "Crouch"},
-	{ gamefunc_Look_Up, "Look_Up"},
-	{ gamefunc_Look_Down, "Look_Down"},
-	{ gamefunc_Look_Left, "Look_Left"},
-	{ gamefunc_Look_Right, "Look_Right"},
-	{ gamefunc_Strafe_Left, "Strafe_Left"},
-	{ gamefunc_Strafe_Right, "Strafe_Right"},
-	{ gamefunc_Aim_Up, "Aim_Up"},
-	{ gamefunc_Aim_Down, "Aim_Down"},
-	{ gamefunc_Weapon_1, "Weapon_1"},
-	{ gamefunc_Weapon_2, "Weapon_2"},
-	{ gamefunc_Weapon_3, "Weapon_3"},
-	{ gamefunc_Weapon_4, "Weapon_4"},
-	{ gamefunc_Weapon_5, "Weapon_5"},
-	{ gamefunc_Weapon_6, "Weapon_6"},
-	{ gamefunc_Weapon_7, "Weapon_7"},
-	{ gamefunc_Weapon_8, "Weapon_8"},
-	{ gamefunc_Weapon_9, "Weapon_9"},
-	{ gamefunc_Weapon_10, "Weapon_10"},
-	{ gamefunc_Inventory, "Inventory"},
-	{ gamefunc_Inventory_Left, "Inventory_Left"},
-	{ gamefunc_Inventory_Right, "Inventory_Right"},
-	{ gamefunc_Holo_Duke, "Holo_Duke"},
-	{ gamefunc_Jetpack, "Jetpack"},
-	{ gamefunc_NightVision, "NightVision"},
-	{ gamefunc_MedKit, "MedKit"},
-	{ gamefunc_TurnAround, "TurnAround"},
-	{ gamefunc_SendMessage, "SendMessage"},
-	{ gamefunc_Map, "Map"},
-	{ gamefunc_Shrink_Screen, "Shrink_Screen"},
-	{ gamefunc_Enlarge_Screen, "Enlarge_Screen"},
-	{ gamefunc_Center_View, "Center_View"},
-	{ gamefunc_Holster_Weapon, "Holster_Weapon"},
-	{ gamefunc_Show_Opponents_Weapon, "Show_Opponents_Weapon"},
-	{ gamefunc_Map_Follow_Mode, "Map_Follow_Mode"},
-	{ gamefunc_See_Coop_View, "See_Coop_View"},
-	{ gamefunc_Mouse_Aiming, "Mouse_Aiming"},
-	{ gamefunc_Toggle_Crosshair, "Toggle_Crosshair"},
-	{ gamefunc_Steroids, "Steroids"},
-	{ gamefunc_Quick_Kick, "Quick_Kick"},
-	{ gamefunc_Next_Weapon, "Next_Weapon"},
-	{ gamefunc_Previous_Weapon, "Previous_Weapon"},
-	{ gamefunc_Show_Console, "Show_Console"},
-	{ gamefunc_Show_DukeMatch_Scores, "Show_DukeMatch_Scores"},
-	{ gamefunc_Dpad_Select, "Dpad_Select"},
-	{ gamefunc_Dpad_Aiming, "Dpad_Aiming"},
-	{ gamefunc_AutoRun, "AutoRun"},
-	{ gamefunc_Last_Weapon, "Last_Used_Weapon"},
-	{ gamefunc_Quick_Save, "Quick_Save"},
-	{ gamefunc_Quick_Load, "Quick_Load"},
-	{ gamefunc_Alt_Weapon, "Alt_Weapon"},
-	{ gamefunc_Third_Person_View, "Third_Person_View"},
-	{ gamefunc_Toggle_Crouch, "Toggle_Crouch"},
-	{ gamefunc_See_Chase_View, "See_Chase_View"},	// the following were added by Blood
-	{ gamefunc_Turn_Around, "Turn_Around"},
-	{ gamefunc_Aim_Center, "Aim_Center"},
-	{ gamefunc_Tilt_Left, "Tilt_Left"},
-	{ gamefunc_Tilt_Right, "Tilt_Right"},
-	{ gamefunc_Send_Message, "Send_Message"},
-	{ gamefunc_BeastVision, "BeastVision"},
-	{ gamefunc_CrystalBall, "CrystalBall"},
-	{ gamefunc_JumpBoots, "JumpBoots"},
-	{ gamefunc_ProximityBombs, "ProximityBombs"},
-	{ gamefunc_RemoteBombs, "RemoteBombs"},
-	{ gamefunc_Smoke_Bomb, "Smoke_Bomb" },
-	{ gamefunc_Gas_Bomb, "Gas_Bomb" },
-	{ gamefunc_Flash_Bomb, "Flash_Bomb" },
-	{ gamefunc_Caltrops, "Calitrops" },
-
-};
-
 FString currentGame;
 FString LumpFilter;
 
-static TMap<FName, int> GF_NameToNum;
-static FString GF_NumToName[NUMGAMEFUNCTIONS];	// This one will preserve the original name for writing to the config (which must be loaded before CON scripts can hack around with the alias array.)
-static FString GF_NumToAlias[NUMGAMEFUNCTIONS];	// This is for CON scripts to hack apart.
-
-uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
 CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void SetupButtonFunctions()
-{
-	unsigned index = 0;
-	for (auto& func : GF_NumToAlias)
-	{
-		if (func[0] == '\0')
-			continue;
-
-	}
-
-}
 
 UserConfig userConfig;
 
@@ -435,22 +325,13 @@ int CONFIG_Init()
 	CheckFrontend(g_gameType);
 
 	int index = 0;
-	for(auto &gf : gamefuncs)
-	{
-		GF_NameToNum.Insert(gf.name, gf.index);
-		GF_NumToAlias[gf.index] = GF_NumToName[gf.index] = gf.name;
-
-		index += 2;
-
-	}
 	InitFileSystem(usedgroups);
 
 	CONTROL_ClearAssignments();
 	CONFIG_InitMouseAndController();
 	CONFIG_SetGameControllerDefaultsStandard();
 	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
-	SetupButtonFunctions();
-
+	
 	G_ReadConfig(currentGame);
 	if (!GameConfig->IsInitialized())
 	{
@@ -465,54 +346,6 @@ int CONFIG_Init()
 
 
 	return gi->app_main();
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-int32_t CONFIG_FunctionNameToNum(const char *func)
-{
-    if (!func) return -1;
-	
-	FName name(func, true);
-	if (name == NAME_None) return -1;
-	
-	auto res = GF_NameToNum.CheckKey(name);
-	if (!res) return -1;
-	
-	return *res;
-}
-
-const char *CONFIG_FunctionNumToName(int32_t func)
-{
-    if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
-        return NULL;
-    return GF_NumToAlias[func];
-}
-
-const char *CONFIG_FunctionNumToRealName(int32_t func)
-{
-    if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
-        return NULL;
-    return GF_NumToName[func];
-}
-
-void CONFIG_ReplaceButtonName(int num, const char *text)
-{
-    if ((unsigned)num >= (unsigned)NUMGAMEFUNCTIONS)
-        return;
-	GF_NumToAlias[num] = text;
-	GF_NameToNum.Insert(text, num);
-}
-
-void CONFIG_DeleteButtonName(int num)
-{
-    if ((unsigned)num >= (unsigned)NUMGAMEFUNCTIONS)
-        return;
-	GF_NumToAlias[num] = "";
 }
 
 //==========================================================================
@@ -586,7 +419,6 @@ int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm)
 //
 //==========================================================================
 
-int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
 int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
 int32_t MouseAnalogueAxes[MAXMOUSEAXES];
 int32_t MouseAnalogueScale[MAXMOUSEAXES];
@@ -756,19 +588,6 @@ void CONFIG_SetupMouse(void)
 	FString section = currentGame + ".MouseSettings";
 	if (!GameConfig->SetSection(section)) return;
 
-	for (int i = 0; i < MAXMOUSEBUTTONS; i++)
-	{
-		section.Format("MouseButton%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			MouseFunctions[i][0] = CONFIG_FunctionNameToNum(val);
-
-		section.Format("MouseButtonClicked%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			MouseFunctions[i][1] = CONFIG_FunctionNameToNum(val);
-	}
-
 	// map over the axes
 	for (int i = 0; i < MAXMOUSEAXES; i++)
 	{
@@ -780,12 +599,12 @@ void CONFIG_SetupMouse(void)
 		section.Format("MouseDigitalAxes%d_0", i);
 		val = GameConfig->GetValueForKey(section);
 		if (val)
-			MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(val);
+			MouseDigitalFunctions[i][0] = buttonMap.FindButtonIndex(val);
 
 		section.Format("MouseDigitalAxes%d_1", i);
 		val = GameConfig->GetValueForKey(section);
 		if (val)
-			MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(val);
+			MouseDigitalFunctions[i][1] = buttonMap.FindButtonIndex(val);
 
 		section.Format("MouseAnalogScale%d", i);
 		val = GameConfig->GetValueForKey(section);
@@ -793,11 +612,6 @@ void CONFIG_SetupMouse(void)
 			MouseAnalogueScale[i] = (int32_t)strtoull(val, nullptr, 0);
 	}
 
-	for (int i = 0; i < MAXMOUSEBUTTONS; i++)
-	{
-		CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
-		CONTROL_MapButton(MouseFunctions[i][1], i, 1, controldevice_mouse);
-	}
 	for (int i = 0; i < MAXMOUSEAXES; i++)
 	{
 		CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
@@ -820,12 +634,12 @@ void CONFIG_SetupJoystick(void)
 		section.Format("ControllerButton%d", i);
 		val = GameConfig->GetValueForKey(section);
 		if (val)
-			JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(val);
+			JoystickFunctions[i][0] = buttonMap.FindButtonIndex(val);
 
 		section.Format("ControllerButtonClicked%d", i);
 		val = GameConfig->GetValueForKey(section);
 		if (val)
-			JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(val);
+			JoystickFunctions[i][1] = buttonMap.FindButtonIndex(val);
 	}
 
 	// map over the axes
@@ -839,12 +653,12 @@ void CONFIG_SetupJoystick(void)
 		section.Format("ControllerDigitalAxes%d_0", i);
 		val = GameConfig->GetValueForKey(section);
 		if (val)
-			JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(val);
+			JoystickDigitalFunctions[i][0] = buttonMap.FindButtonIndex(val);
 
 		section.Format("ControllerDigitalAxes%d_1", i);
 		val = GameConfig->GetValueForKey(section);
 		if (val)
-			JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(val);
+			JoystickDigitalFunctions[i][1] = buttonMap.FindButtonIndex(val);
 
 		section.Format("ControllerAnalogScale%d", i);
 		val = GameConfig->GetValueForKey(section);
@@ -1115,7 +929,7 @@ void CONFIG_SetGameControllerDefaultsPro()
 
 FString CONFIG_GetGameFuncOnKeyboard(int gameFunc)
 {
-	auto binding = CONFIG_FunctionNumToRealName(gameFunc);
+	auto binding = buttonMap.GetButtonAlias(gameFunc);
 	auto keys = Bindings.GetKeysForCommand(binding);
 	for(auto key : keys)
 	{
@@ -1131,7 +945,7 @@ FString CONFIG_GetGameFuncOnKeyboard(int gameFunc)
 
 FString CONFIG_GetGameFuncOnMouse(int gameFunc)
 {
-	auto binding = CONFIG_FunctionNumToRealName(gameFunc);
+	auto binding = buttonMap.GetButtonAlias(gameFunc);
 	auto keys = Bindings.GetKeysForCommand(binding);
 	for (auto key : keys)
 	{
@@ -1147,7 +961,7 @@ FString CONFIG_GetGameFuncOnMouse(int gameFunc)
 
 char const* CONFIG_GetGameFuncOnJoystick(int gameFunc)
 {
-	auto binding = CONFIG_FunctionNumToRealName(gameFunc);
+	auto binding = buttonMap.GetButtonAlias(gameFunc);
 	auto keys = Bindings.GetKeysForCommand(binding);
 	for (auto key : keys)
 	{
@@ -1195,27 +1009,17 @@ FString CONFIG_GetBoundKeyForLastInput(int gameFunc)
 
 void CONFIG_InitMouseAndController()
 {
-	memset(MouseFunctions, -1, sizeof(MouseFunctions));
 	memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
 	memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
 	memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
-
-	for (int i = 0; i < MAXMOUSEBUTTONS; i++)
-	{
-		MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);
-		CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
-		if (i >= 4) continue;
-		MouseFunctions[i][1] = CONFIG_FunctionNameToNum(mouseclickeddefaults[i]);
-		CONTROL_MapButton(MouseFunctions[i][1], i, 1, controldevice_mouse);
-	}
 
 	for (int i = 0; i < MAXMOUSEAXES; i++)
 	{
 		MouseAnalogueScale[i] = DEFAULTMOUSEANALOGUESCALE;
 		CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
 
-		MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i * 2]);
-		MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i * 2 + 1]);
+		MouseDigitalFunctions[i][0] = buttonMap.FindButtonIndex(mousedigitaldefaults[i * 2]);
+		MouseDigitalFunctions[i][1] = buttonMap.FindButtonIndex(mousedigitaldefaults[i * 2 + 1]);
 		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0, controldevice_mouse);
 		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1, controldevice_mouse);
 
@@ -1243,23 +1047,6 @@ void CONFIG_WriteControllerSettings()
 	{
 		FString section = currentGame + ".MouseSettings";
 		GameConfig->SetSection(section);
-		for (int i = 0; i < MAXMOUSEBUTTONS; i++)
-		{
-			if (CONFIG_FunctionNumToName(MouseFunctions[i][0]))
-			{
-				buf.Format("MouseButton%d", i);
-				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(MouseFunctions[i][0]));
-			}
-
-			if (i >= (MAXMOUSEBUTTONS - 2)) continue;
-
-			if (CONFIG_FunctionNumToName(MouseFunctions[i][1]))
-			{
-				buf.Format("MouseButtonClicked%d", i);
-				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(MouseFunctions[i][1]));
-			}
-		}
-
 		for (int i = 0; i < MAXMOUSEAXES; i++)
 		{
 			if (CONFIG_AnalogNumToName(MouseAnalogueAxes[i]))
@@ -1268,16 +1055,16 @@ void CONFIG_WriteControllerSettings()
 				GameConfig->SetValueForKey(buf, CONFIG_AnalogNumToName(MouseAnalogueAxes[i]));
 			}
 
-			if (CONFIG_FunctionNumToName(MouseDigitalFunctions[i][0]))
+			if (buttonMap.GetButtonName(MouseDigitalFunctions[i][0]))
 			{
 				buf.Format("MouseDigitalAxes%d_0", i);
-				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(MouseDigitalFunctions[i][0]));
+				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(MouseDigitalFunctions[i][0]));
 			}
 
-			if (CONFIG_FunctionNumToName(MouseDigitalFunctions[i][1]))
+			if (buttonMap.GetButtonName(MouseDigitalFunctions[i][1]))
 			{
 				buf.Format("MouseDigitalAxes%d_1", i);
-				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(MouseDigitalFunctions[i][1]));
+				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(MouseDigitalFunctions[i][1]));
 			}
 
 			buf.Format("MouseAnalogScale%d", i);
@@ -1291,16 +1078,16 @@ void CONFIG_WriteControllerSettings()
 		GameConfig->SetSection(section);
 		for (int dummy = 0; dummy < MAXJOYBUTTONSANDHATS; dummy++)
 		{
-			if (CONFIG_FunctionNumToName(JoystickFunctions[dummy][0]))
+			if (buttonMap.GetButtonName(JoystickFunctions[dummy][0]))
 			{
 				buf.Format("ControllerButton%d", dummy);
-				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][0]));
+				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickFunctions[dummy][0]));
 			}
 
-			if (CONFIG_FunctionNumToName(JoystickFunctions[dummy][1]))
+			if (buttonMap.GetButtonName(JoystickFunctions[dummy][1]))
 			{
 				buf.Format("ControllerButtonClicked%d", dummy);
-				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][1]));
+				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickFunctions[dummy][1]));
 			}
 		}
 		for (int dummy = 0; dummy < MAXJOYAXES; dummy++)
@@ -1311,16 +1098,16 @@ void CONFIG_WriteControllerSettings()
 				GameConfig->SetValueForKey(buf, CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]));
 			}
 
-			if (CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][0]))
+			if (buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][0]))
 			{
 				buf.Format("ControllerDigitalAxes%d_0", dummy);
-				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][0]));
+				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][0]));
 			}
 
-			if (CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][1]))
+			if (buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][1]))
 			{
 				buf.Format("ControllerDigitalAxes%d_1", dummy);
-				GameConfig->SetValueForKey(buf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][1]));
+				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][1]));
 			}
 
 			buf.Format("ControllerAnalogScale%d", dummy);

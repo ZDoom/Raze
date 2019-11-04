@@ -6045,9 +6045,9 @@ void G_HandleLocalKeys(void)
 
     if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (g_player[myconnectindex].ps->gm & MODE_TYPE) == 0)
     {
-        if (inputState.BUTTON(gamefunc_Enlarge_Screen))
+        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
         {
-            inputState.ClearButton(gamefunc_Enlarge_Screen);
+            buttonMap.ClearButton(gamefunc_Enlarge_Screen);
 
             if (!SHIFTS_IS_PRESSED)
             {
@@ -6064,9 +6064,9 @@ void G_HandleLocalKeys(void)
             G_UpdateScreenArea();
         }
 
-        if (inputState.BUTTON(gamefunc_Shrink_Screen))
+        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
         {
-            inputState.ClearButton(gamefunc_Shrink_Screen);
+            buttonMap.ClearButton(gamefunc_Shrink_Screen);
 
             if (!SHIFTS_IS_PRESSED)
             {
@@ -6087,31 +6087,31 @@ void G_HandleLocalKeys(void)
     if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)))
         return;
 
-    if (inputState.BUTTON(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
+    if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
     {
-        inputState.ClearButton(gamefunc_See_Coop_View);
+        buttonMap.ClearButton(gamefunc_See_Coop_View);
         screenpeek = connectpoint2[screenpeek];
         if (screenpeek == -1) screenpeek = 0;
         g_restorePalette = -1;
     }
 
-    if ((g_netServer || ud.multimode > 1) && inputState.BUTTON(gamefunc_Show_Opponents_Weapon))
+    if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
     {
-        inputState.ClearButton(gamefunc_Show_Opponents_Weapon);
+        buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.config.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
         P_DoQuote(QUOTE_WEAPON_MODE_OFF-ud.showweapons,g_player[screenpeek].ps);
     }
 
-    if (inputState.BUTTON(gamefunc_Toggle_Crosshair))
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
     {
-        inputState.ClearButton(gamefunc_Toggle_Crosshair);
+        buttonMap.ClearButton(gamefunc_Toggle_Crosshair);
         cl_crosshair = !cl_crosshair;
         P_DoQuote(QUOTE_CROSSHAIR_OFF-cl_crosshair,g_player[screenpeek].ps);
     }
 
-    if (ud.overhead_on && inputState.BUTTON(gamefunc_Map_Follow_Mode))
+    if (ud.overhead_on && buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
     {
-        inputState.ClearButton(gamefunc_Map_Follow_Mode);
+        buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
         ud.scrollmode = 1-ud.scrollmode;
         if (ud.scrollmode)
         {
@@ -6257,10 +6257,10 @@ void G_HandleLocalKeys(void)
 
     if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED && !WIN_IS_PRESSED)
     {
-        if ((g_netServer || ud.multimode > 1) && inputState.BUTTON(gamefunc_SendMessage))
+        if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_SendMessage))
         {
             inputState.keyFlushChars();
-            inputState.ClearButton(gamefunc_SendMessage);
+            buttonMap.ClearButton(gamefunc_SendMessage);
             g_player[myconnectindex].ps->gm |= MODE_TYPE;
             typebuf[0] = 0;
         }
@@ -6357,9 +6357,9 @@ FAKE_F3:
             P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
         }
 
-        if ((inputState.BUTTON(gamefunc_Quick_Save) || g_doQuickSave == 1) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((buttonMap.ButtonDown(gamefunc_Quick_Save) || g_doQuickSave == 1) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
-            inputState.ClearButton(gamefunc_Quick_Save);
+            buttonMap.ClearButton(gamefunc_Quick_Save);
 
             g_doQuickSave = 0;
 
@@ -6394,9 +6394,9 @@ FAKE_F3:
             }
         }
         
-        if (inputState.BUTTON(gamefunc_Third_Person_View))
+        if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
         {
-            inputState.ClearButton(gamefunc_Third_Person_View);
+            buttonMap.ClearButton(gamefunc_Third_Person_View);
 
             if (!RRRA || (!g_player[myconnectindex].ps->on_motorcycle && !g_player[myconnectindex].ps->on_boat))
             {
@@ -6419,9 +6419,9 @@ FAKE_F3:
             ud.fta_on     = fta;
         }
 
-        if ((inputState.BUTTON(gamefunc_Quick_Load) || g_doQuickSave == 2) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((buttonMap.ButtonDown(gamefunc_Quick_Load) || g_doQuickSave == 2) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
-            inputState.ClearButton(gamefunc_Quick_Load);
+            buttonMap.ClearButton(gamefunc_Quick_Load);
 
             g_doQuickSave = 0;
 
@@ -6472,10 +6472,10 @@ FAKE_F3:
             int const timerOffset = ((int) totalclock - nonsharedtimer);
             nonsharedtimer += timerOffset;
 
-            if (inputState.BUTTON(gamefunc_Enlarge_Screen))
+            if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
                 g_player[myconnectindex].ps->zoom += mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
 
-            if (inputState.BUTTON(gamefunc_Shrink_Screen))
+            if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
                 g_player[myconnectindex].ps->zoom -= mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
 
             g_player[myconnectindex].ps->zoom = clamp(g_player[myconnectindex].ps->zoom, 48, 2048);
@@ -6491,16 +6491,16 @@ FAKE_F3:
         G_UpdateScreenArea();
     }
 
-    if (inputState.BUTTON(gamefunc_AutoRun))
+    if (buttonMap.ButtonDown(gamefunc_AutoRun))
     {
-        inputState.ClearButton(gamefunc_AutoRun);
+        buttonMap.ClearButton(gamefunc_AutoRun);
 		cl_autorun = !cl_autorun;
         P_DoQuote(QUOTE_RUN_MODE_OFF+cl_autorun,g_player[myconnectindex].ps);
     }
 
-    if (inputState.BUTTON(gamefunc_Map))
+    if (buttonMap.ButtonDown(gamefunc_Map))
     {
-        inputState.ClearButton(gamefunc_Map);
+        buttonMap.ClearButton(gamefunc_Map);
         if (ud.last_overhead != ud.overhead_on && ud.last_overhead)
         {
             ud.overhead_on = ud.last_overhead;

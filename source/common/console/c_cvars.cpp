@@ -41,8 +41,8 @@
 #include "c_console.h"
 #include "gamecvars.h"
 
-//#include "cmdlib.h"
-//#include "c_dispatch.h"
+#include "cmdlib.h"
+#include "c_dispatch.h"
 
 //#include "g_game.h"
 //#include "d_player.h"
@@ -1419,7 +1419,6 @@ void C_ArchiveCVars (FConfigFile *f, uint32_t filter)
 	}
 }
 
-#if 0
 EXTERN_CVAR(Bool, sv_cheats);
 
 void FBaseCVar::CmdSet (const char *newval)
@@ -1543,7 +1542,7 @@ void FBaseCVar::ListVars (const char *filter, bool plain)
 			else
 			{
 				++count;
-				Printf ("%c%c%c%c%c %s = %s\n",
+				Printf ("%c%c%c %s = %s\n",
 					flags & CVAR_ARCHIVE ? 'A' : ' ',
 					flags & CVAR_USERINFO ? 'U' :
 						flags & CVAR_SERVERINFO ? 'S' :
@@ -1551,8 +1550,6 @@ void FBaseCVar::ListVars (const char *filter, bool plain)
 					flags & CVAR_NOSET ? '-' :
 						flags & CVAR_LATCH ? 'L' :
 						flags & CVAR_UNSETTABLE ? '*' : ' ',
-					flags & CVAR_MOD ? 'M' : ' ',
-					flags & CVAR_IGNORE ? 'X' : ' ',
 					var->GetName(),
 					var->GetHumanString());
 			}
@@ -1596,4 +1593,3 @@ CCMD (archivecvar)
 		}
 	}
 }
-#endif

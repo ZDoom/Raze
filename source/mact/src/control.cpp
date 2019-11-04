@@ -590,8 +590,6 @@ static void CONTROL_GetFunctionInput(void)
 {
     CONTROL_ButtonFunctionState(CONTROL_ButtonFlags);
     CONTROL_AxisFunctionState(CONTROL_ButtonFlags);
-
-    memset(CONTROL_ButtonFlags, 0, sizeof(CONTROL_ButtonFlags));
 }
 
 void CONTROL_GetInput(ControlInfo *info)

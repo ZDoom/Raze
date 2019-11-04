@@ -1,3 +1,4 @@
+#pragma once
 /*
 ** c_dispatch.h
 **
@@ -31,12 +32,9 @@
 **
 */
 
-#ifndef __C_DISPATCH_H__
-#define __C_DISPATCH_H__
 
 class FConfigFile;
 
-const int KEY_DBLCLICKED = 0x8000;
 // Class that can parse command lines
 class FCommandLine
 {
@@ -56,5 +54,3 @@ private:
 	bool noescapes;
 };
 
-
-#endif //__C_DISPATCH_H__

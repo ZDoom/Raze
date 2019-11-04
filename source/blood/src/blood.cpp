@@ -809,17 +809,17 @@ void LocalKeys(void)
     bool alt = inputState.AltPressed();
     bool ctrl = inputState.CtrlPressed();
     bool shift = inputState.ShiftPressed();
-    if (inputState.BUTTON(gamefunc_See_Chase_View) && !alt && !shift)
+    if (buttonMap.ButtonDown(gamefunc_See_Chase_View) && !alt && !shift)
     {
-        inputState.ClearButton(gamefunc_See_Chase_View);
+        buttonMap.ClearButton(gamefunc_See_Chase_View);
         if (gViewPos > VIEWPOS_0)
             gViewPos = VIEWPOS_0;
         else
             gViewPos = VIEWPOS_1;
     }
-    if (inputState.BUTTON(gamefunc_See_Coop_View))
+    if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
     {
-        inputState.ClearButton(gamefunc_See_Coop_View);
+        buttonMap.ClearButton(gamefunc_See_Coop_View);
         if (gGameOptions.nGameType == 1)
         {
             gViewIndex = connectpoint2[gViewIndex];
@@ -873,7 +873,7 @@ void LocalKeys(void)
             }
             inputState.keyFlushScans();
 			inputState.ClearKeyStatus(key);
-            inputState.ClearButton(gamefunc_See_Chase_View);
+            buttonMap.ClearButton(gamefunc_See_Chase_View);
             return;
         }
         switch (key)
