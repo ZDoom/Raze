@@ -74,7 +74,6 @@ extern float g_videoGamma, g_videoContrast, g_videoBrightness;
 #define GAMMA_CALC ((int32_t)(min(max((float)((g_videoGamma - 1.0f) * 10.0f), 0.f), 15.f)))
 
 #ifdef USE_OPENGL
-extern int32_t (*baselayer_osdcmd_vidmode_func)(osdcmdptr_t parm);
 extern int osdcmd_glinfo(osdcmdptr_t parm);
 
 
@@ -110,8 +109,6 @@ char CONSTEXPR const g_keyAsciiTableShift[128] = {
 // mouse
 extern vec2_t  g_mousePos;
 extern vec2_t  g_mouseAbs;
-extern int32_t g_mouseBits;
-extern uint8_t inputState.mouseClickState();
 extern bool    g_mouseGrabbed;
 extern bool    g_mouseEnabled;
 extern bool    g_mouseInsideWindow;
@@ -175,9 +172,6 @@ void getScreen(uint8_t* imgBuf);
 int32_t wm_msgbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
 int32_t wm_ynbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
 void wm_setapptitle(const char *name);
-
-// baselayer.c
-int32_t baselayer_init();
 
 #include "print.h"
 

@@ -69,13 +69,6 @@ controllerinput_t joystick;
 void joySetCallback(void (*callback)(int32_t, int32_t)) { joystick.pCallback = callback; }
 void joyReadButtons(int32_t *pResult) { *pResult = appactive ? joystick.bits : 0; }
 
-#if defined __linux || defined EDUKE32_BSD || defined __APPLE__
-# include <sys/mman.h>
-#endif
-
-
-
-
 // Calculate ylookup[] and call setvlinebpl()
 void calc_ylookup(int32_t bpl, int32_t lastyidx)
 {
@@ -113,73 +106,5 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx)
 }
 
 
-void makeasmwriteable(void)
-{
-}
-
 int32_t g_logFlushWindow = 1;
-
-#ifdef USE_OPENGL
-struct glinfo_t glinfo =
-{
-    "Unknown",  // vendor
-    "Unknown",  // renderer
-    "0.0.0",    // version
-    "",         // extensions
-
-    1.0,        // max anisotropy
-};
-
-// Used to register the game's / editor's osdcmd_vidmode() functions here.
-int32_t (*baselayer_osdcmd_vidmode_func)(osdcmdptr_t parm);
-
-
-#ifdef DEBUGGINGAIDS
-static int osdcmd_hicsetpalettetint(osdcmdptr_t parm)
-{
-    int32_t parms[8];
-
-    if (parm->numparms < 1 || (int32_t)ARRAY_SIZE(parms) < parm->numparms) return OSDCMD_SHOWHELP;
-
-    size_t i;
-    for (i = 0; (int32_t)i < parm->numparms; ++i)
-        parms[i] = Batol(parm->parms[i]);
-    for (; i < ARRAY_SIZE(parms); ++i)
-        parms[i] = 0;
-
-    // order is intentional
-    hicsetpalettetint(parms[0],parms[1],parms[2],parms[3],parms[5],parms[6],parms[7],parms[4]);
-
-    return OSDCMD_OK;
-}
-#endif
-
-int osdcmd_glinfo(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-
-    initprintf("OpenGL information\n %s %s %s\n",
-               GLInterface.glinfo.vendor, GLInterface.glinfo.renderer, GLInterface.glinfo.version);
-
-    return OSDCMD_OK;
-}
-#endif
-
-
-int32_t baselayer_init(void)
-{
-
-#ifdef USE_OPENGL
-
-# ifdef DEBUGGINGAIDS
-    OSD_RegisterFunction("hicsetpalettetint","hicsetpalettetint: sets palette tinting values",osdcmd_hicsetpalettetint);
-# endif
-
-    OSD_RegisterFunction("glinfo","glinfo: shows OpenGL information about the current OpenGL mode",osdcmd_glinfo);
-
-    polymost_initosdfuncs();
-#endif
-
-    return 0;
-}
 

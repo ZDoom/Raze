@@ -8081,7 +8081,7 @@ static tspritetype tsprite_s[MAXSPRITESONSCREEN];
 
 int32_t enginePreInit(void)
 {
-    baselayer_init();
+	polymost_initosdfuncs();
     initdivtables();
 
 #if !defined DEBUG_MAIN_ARRAYS

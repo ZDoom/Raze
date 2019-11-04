@@ -502,9 +502,7 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
-#ifdef USE_OPENGL
-    baselayer_osdcmd_vidmode_func = osdcmd_vidmode;
-#endif
+
 
     return 0;
 }

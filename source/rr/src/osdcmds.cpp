@@ -969,9 +969,7 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
-#ifdef USE_OPENGL
-    baselayer_osdcmd_vidmode_func = osdcmd_vidmode;
-#endif
+
     return 0;
 }
 
