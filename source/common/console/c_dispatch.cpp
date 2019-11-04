@@ -1050,3 +1050,12 @@ int OSD_RegisterFunction(const char* pszName, const char* pszDesc, int (*func)(o
 	return 0;
 }
 
+CCMD (quit)
+{
+	throw ExitEvent(0);
+}
+
+CCMD (exit)
+{
+	throw ExitEvent(0);
+}

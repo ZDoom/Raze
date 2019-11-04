@@ -21,14 +21,6 @@
 
 #include "vfs.h"
 
-int osdcmd_bind(osdcmdptr_t parm);
-int osdcmd_unbindall(osdcmdptr_t);
-int osdcmd_unbind(osdcmdptr_t parm);
-
-static osdsymbol_t *osd_addsymbol(const char *name);
-static osdsymbol_t *osd_findsymbol(const char *pszName, osdsymbol_t *pSymbol);
-static osdsymbol_t *osd_findexactsymbol(const char *pszName);
-
 static int32_t whiteColorIdx=-1;            // colour of white (used by default display routines)
 static void _internal_drawosdchar(int32_t, int32_t, char, int32_t, int32_t);
 static void _internal_drawosdstr(int32_t, int32_t, const char *, int32_t, int32_t, int32_t);
@@ -113,55 +105,6 @@ const char * OSD_StripColors(char *outBuf, const char *inBuf)
     return ptr;
 }
 
-static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
-{
-	UNREFERENCED_CONST_PARAMETER(parm);
-	throw ExitEvent(0);
-	return OSDCMD_OK;
-}
-
-
-int OSD_Exec(const char *szScript)
-{
-    int err = 0;
-    int32_t len = 0;
-    FileReader handle;
-
-    if (!(handle = fopenFileReader(szScript, 0)).isOpen())
-        err = 1;
-    else if ((len = handle.GetLength()) <= 0)
-        err = 2; // blank file
-
-    if (!err)
-        OSD_Printf("Executing \"%s\"\n", szScript);
-
-    auto buf = (char *) Xmalloc(len + 1);
-
-    if (err || handle.Read(buf, len) != len)
-    {
-        if (!err) // no error message for blank file
-            OSD_Printf("Error executing \"%s\"!\n", szScript);
-
-        Xfree(buf);
-        return 1;
-    }
-
-    buf[len] = '\0';
-
-    char const *cp = strtok(buf, "\r\n");
-
-    ++osd->execdepth;
-    while (cp != NULL)
-    {
-        OSD_Dispatch(cp);
-        cp = strtok(NULL, "\r\n");
-    }
-    --osd->execdepth;
-
-    Xfree(buf);
-    return 0;
-}
-
 int OSD_ParsingScript(void) { return osd->execdepth; }
 int OSD_OSDKey(void)        { return osd->keycode; }
 int OSD_GetCols(void)       { return osd->draw.cols; }
@@ -205,63 +148,6 @@ void OSD_SetTextMode(int mode)
 
     if (in3dmode())
         OSD_ResizeDisplay(xdim, ydim);
-}
-
-static int osdfunc_exec(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    if (OSD_Exec(parm->parms[0]))
-        OSD_Printf("%sexec: file \"%s\" not found.\n", osd->draw.errorfmt, parm->parms[0]);
-
-    return OSDCMD_OK;
-}
-
-static int osdfunc_echo(osdcmdptr_t parm)
-{
-    OSD_Printf("%s\n", parm->raw + 5);
-
-    return OSDCMD_OK;
-}
-
-static int osdfunc_fileinfo(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    FileReader h;
-
-    if (!(h = kopenFileReader(parm->parms[0],0)).isOpen())
-    {
-        OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
-        return OSDCMD_OK;
-    }
-
-    double   crctime = timerGetHiTicks();
-    uint32_t crcval  = 0;
-    int32_t  siz     = 0;
-
-    static constexpr int ReadSize = 65536;
-    auto buf = (uint8_t *)Xmalloc(ReadSize);
-
-    do
-    {
-        siz   = h.Read(buf, ReadSize);
-        crcval = Bcrc32((uint8_t *)buf, siz, crcval);
-    }
-    while (siz == ReadSize);
-
-    crctime = timerGetHiTicks() - crctime;
-
-    Xfree(buf);
-
-    OSD_Printf("fileinfo: %s\n"
-               "  File size: %d bytes\n"
-               "  CRC-32:    %08X (%.1fms)\n",
-               parm->parms[0], (int)h.GetLength(),
-               crcval, crctime);
-
-    return OSDCMD_OK;
 }
 
 static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
@@ -346,145 +232,6 @@ static void _internal_onshowosd(int a)
     UNREFERENCED_PARAMETER(a);
 }
 
-////////////////////////////
-
-static int osdfunc_alias(osdcmdptr_t parm)
-{
-    if (parm->numparms < 1)
-    {
-        int cnt = 0;
-
-        OSD_Printf("Alias listing:\n");
-
-        for (auto &symb : osd->symbptrs)
-        {
-            if (symb == NULL)
-                break;
-            else if (symb->func == OSD_ALIAS)
-            {
-                cnt++;
-                OSD_Printf("     %s \"%s\"\n", symb->name, symb->help);
-            }
-        }
-
-        if (cnt == 0)
-            OSD_Printf("No aliases found.\n");
-
-        return OSDCMD_OK;
-    }
-
-    for (auto &symb : osd->symbptrs)
-    {
-        if (symb == NULL)
-            break;
-        else if (!Bstrcasecmp(parm->parms[0], symb->name))
-        {
-            if (parm->numparms < 2)
-            {
-                if (symb->func == OSD_ALIAS)
-                    OSD_Printf("alias %s \"%s\"\n", symb->name, symb->help);
-                else
-                    OSD_Printf("%s is not an alias\n", symb->name);
-
-                return OSDCMD_OK;
-            }
-            else if (symb->func != OSD_ALIAS && symb->func != OSD_UNALIASED)
-            {
-                OSD_Printf("Cannot override a function or cvar with an alias\n");
-
-                return OSDCMD_OK;
-            }
-        }
-    }
-
-    OSD_RegisterFunction(Xstrdup(parm->parms[0]), Xstrdup(parm->parms[1]), OSD_ALIAS);
-
-    if (!osd->execdepth)
-        OSD_Printf("%s\n", parm->raw);
-
-    return OSDCMD_OK;
-}
-
-static int osdfunc_unalias(osdcmdptr_t parm)
-{
-    if (parm->numparms < 1)
-        return OSDCMD_SHOWHELP;
-
-    for (auto symb=osd->symbols; symb!=NULL; symb=symb->next)
-    {
-        if (!Bstrcasecmp(parm->parms[0], symb->name))
-        {
-            if (parm->numparms < 2)
-            {
-                if (symb->func == OSD_ALIAS)
-                {
-                    OSD_Printf("Removed alias %s (\"%s\")\n", symb->name, symb->help);
-                    symb->func = OSD_UNALIASED;
-                }
-                else
-                    OSD_Printf("Invalid alias %s\n", symb->name);
-
-                return OSDCMD_OK;
-            }
-        }
-    }
-
-    OSD_Printf("Invalid alias %s\n", parm->parms[0]);
-    return OSDCMD_OK;
-}
-
-static int osdfunc_listsymbols(osdcmdptr_t parm)
-{
-    return OSDCMD_OK;
-}
-
-static int osdfunc_help(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    auto symb = osd_findexactsymbol(parm->parms[0]);
-
-    if (!symb)
-        OSD_Printf("Error: no help for undefined symbol \"%s\"\n", parm->parms[0]);
-    else
-        OSD_Printf("%s\n", symb->help);
-
-    return OSDCMD_OK;
-}
-
-static int osdfunc_clear(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-
-    auto &t = osd->text;
-
-    Bmemset(t.buf, 0, OSDBUFFERSIZE);
-    Bmemset(t.fmt, osd->draw.textpal + (osd->draw.textshade<<5), OSDBUFFERSIZE);
-    t.lines = 1;
-
-    return OSDCMD_OK;
-}
-
-static int osdfunc_history(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-
-    OSD_Printf("%sCommand history:\n", osd->draw.highlight);
-
-    auto &h = osd->history;
-
-    for (int i=osd->history.maxlines-1, j=0; i>=0; i--)
-    {
-        if (h.buf[i])
-            OSD_Printf("%4d \"%s\"\n", h.total - h.lines + (++j), h.buf[i]);
-    }
-
-    return OSDCMD_OK;
-}
-
-////////////////////////////
-
 
 //
 // OSD_Cleanup() -- Cleans up the on-screen display
@@ -550,23 +297,6 @@ void OSD_Init(void)
 
     hash_init(&h_osd);
     hash_init(&h_cvars);
-
-    OSD_RegisterFunction("alias", "alias: creates an alias for calling multiple commands", osdfunc_alias);
-    OSD_RegisterFunction("clear", "clear: clears the console text buffer", osdfunc_clear);
-    OSD_RegisterFunction("echo", "echo [text]: echoes text to the console", osdfunc_echo);
-    OSD_RegisterFunction("exec", "exec <scriptfile>: executes a script", osdfunc_exec);
-    OSD_RegisterFunction("fileinfo", "fileinfo <file>: gets a file's information", osdfunc_fileinfo);
-    OSD_RegisterFunction("help", "help: displays help for a cvar or command; \"listsymbols\" to show all commands", osdfunc_help);
-    OSD_RegisterFunction("history", "history: displays the console command history", osdfunc_history);
-    OSD_RegisterFunction("listsymbols", "listsymbols: lists all registered functions, cvars and aliases", osdfunc_listsymbols);
-    OSD_RegisterFunction("unalias", "unalias: removes a command alias", osdfunc_unalias);
-	OSD_RegisterFunction("bind", R"(bind <key> <string>: associates a keypress with a string of console input. Type "bind showkeys" for a list of keys and "listsymbols" for a list of valid console commands.)", osdcmd_bind);
-	OSD_RegisterFunction("unbind", "unbind <key>: unbinds a key", osdcmd_unbind);
-	OSD_RegisterFunction("unbindall", "unbindall: unbinds all keys", osdcmd_unbindall);
-	OSD_RegisterFunction("quit", "quit: exits the game immediately", osdcmd_quit);
-	OSD_RegisterFunction("exit", "exit: exits the game immediately", osdcmd_quit);
-	//OSD_RegisterFunction("changelevel", "changelevel <level>: warps to the given level", osdcmd_changelevel);
-	//    atexit(OSD_Cleanup);
 }
 
 
@@ -618,20 +348,6 @@ void OSD_SetParameters(int promptShade, int promptPal, int editShade, int editPa
 void OSD_CaptureKey(uint8_t scanCode)
 {
     osd->keycode = scanCode;
-}
-
-//
-// OSD_FindDiffPoint() -- Finds the length of the longest common prefix of 2 strings, stolen from ZDoom
-//
-static int OSD_FindDiffPoint(const char *str1, const char *str2)
-{
-    int i;
-
-    for (i = 0; Btolower(str1[i]) == Btolower(str2[i]); i++)
-        if (str1[i] == 0 || str2[i] == 0)
-            break;
-
-    return i;
 }
 
 static void OSD_AdjustEditorPosition(osdedit_t &e)
@@ -783,117 +499,7 @@ int OSD_HandleChar(char ch)
 
         case asc_Tab:  // tab
         {
-            int commonsize = INT_MAX;
-
-            if (!lastmatch)
-            {
-                int editPos, iter;
-
-                for (editPos = ed.pos; editPos > 0; editPos--)
-                    if (ed.buf[editPos - 1] == ' ')
-                        break;
-
-                for (iter = 0; editPos < ed.len && ed.buf[editPos] != ' '; iter++, editPos++)
-                    ed.tmp[iter] = ed.buf[editPos];
-
-                ed.tmp[iter] = 0;
-
-                if (iter > 0)
-                {
-                    tabc = osd_findsymbol(ed.tmp, NULL);
-
-                    if (tabc && tabc->next && osd_findsymbol(ed.tmp, tabc->next))
-                    {
-                        auto symb     = tabc;
-                        int  maxwidth = 0, x = 0, num = 0, diffpt;
-
-                        while (symb && symb != lastmatch)
-                        {
-                            num++;
-
-                            if (lastmatch)
-                            {
-                                diffpt = OSD_FindDiffPoint(symb->name, lastmatch->name);
-
-                                if (diffpt < commonsize)
-                                    commonsize = diffpt;
-                            }
-
-                            maxwidth  = max<int>(maxwidth, Bstrlen(symb->name));
-                            lastmatch = symb;
-
-                            if (!lastmatch->next)
-                                break;
-
-                            symb = osd_findsymbol(ed.tmp, lastmatch->next);
-                        }
-
-                        OSD_Printf("%sFound %d possible completions for \"%s\":\n", osd->draw.highlight, num, ed.tmp);
-                        maxwidth += 3;
-                        symb = tabc;
-                        OSD_Printf("  ");
-
-                        while (symb && (symb != lastmatch))
-                        {
-                            tabc = lastmatch = symb;
-                            OSD_Printf("%-*s", maxwidth, symb->name);
-
-                            if (!lastmatch->next)
-                                break;
-
-                            symb = osd_findsymbol(ed.tmp, lastmatch->next);
-                            x += maxwidth;
-
-                            if (x > (osd->draw.cols - maxwidth))
-                            {
-                                x = 0;
-                                OSD_Printf("\n");
-
-                                if (symb && (symb != lastmatch))
-                                    OSD_Printf("  ");
-                            }
-                        }
-
-                        if (x)
-                            OSD_Printf("\n");
-
-                        OSD_Printf("%sPress TAB again to cycle through matches\n", osd->draw.highlight);
-                    }
-                }
-            }
-            else
-            {
-                tabc = osd_findsymbol(ed.tmp, lastmatch->next);
-
-                if (!tabc)
-                    tabc = osd_findsymbol(ed.tmp, NULL);  // wrap */
-            }
-
-            if (tabc)
-            {
-                int editPos;
-
-                for (editPos = ed.pos; editPos > 0; editPos--)
-                    if (ed.buf[editPos - 1] == ' ')
-                        break;
-
-                ed.len = editPos;
-
-                for (int iter = 0; tabc->name[iter] && ed.len <= OSDEDITLENGTH - 1 && (ed.len < commonsize); editPos++, iter++, ed.len++)
-                    ed.buf[editPos] = tabc->name[iter];
-
-                ed.pos   = ed.len;
-                ed.end   = ed.pos;
-                ed.start = ed.end - OSD_EDIT_LINE_WIDTH;
-
-                if (ed.start < 0)
-                {
-                    ed.start = 0;
-                    ed.end   = OSD_EDIT_LINE_WIDTH;
-                }
-
-                lastmatch = tabc;
-            }
+			// Todo: redirect to the new dispatcher
             return 0;
         }
 
@@ -1528,31 +1134,6 @@ void OSD_Dispatch(const char *cmd)
 	AddCommandString(cmd);
 }
 
-
-#if 0
-//
-// OSD_RegisterFunction() -- Registers a new function
-//
-int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int (*func)(osdcmdptr_t))
-{
-    if (!osd)
-        OSD_Init();
-
-    auto symb = osd_findexactsymbol(pszName);
-
-    if (!symb) // allow reusing an alias name
-    {
-        symb = osd_addsymbol(pszName);
-        symb->name = pszName;
-    }
-
-    symb->help = pszDesc;
-    symb->func = func;
-
-    return 0;
-}
-#endif
-
 //
 // OSD_SetVersionString()
 //
@@ -1564,123 +1145,4 @@ void OSD_SetVersion(const char *pszVersion, int osdShade, int osdPal)
     osd->version.shade = osdShade;
     osd->version.pal   = osdPal;
 }
-
-//
-// addnewsymbol() -- Allocates space for a new symbol and attaches it
-//   appropriately to the lists, sorted.
-//
-
-static osdsymbol_t *osd_addsymbol(const char *pszName)
-{
-    if (osd->numsymbols >= OSDMAXSYMBOLS)
-        return NULL;
-
-    auto const newsymb = (osdsymbol_t *)Xcalloc(1, sizeof(osdsymbol_t));
-
-    if (!osd->symbols)
-        osd->symbols = newsymb;
-    else
-    {
-        if (!Bstrcasecmp(pszName, osd->symbols->name))
-        {
-            auto t = osd->symbols;
-            osd->symbols = newsymb;
-            osd->symbols->next = t;
-        }
-        else
-        {
-            auto s = osd->symbols;
-
-            while (s->next)
-            {
-                if (Bstrcasecmp(s->next->name, pszName))
-                    break;
-
-                s = s->next;
-            }
-
-            auto t = s->next;
-
-            s->next = newsymb;
-            newsymb->next = t;
-        }
-    }
-
-    char * const lowercase = Bstrtolower(Xstrdup(pszName));
-
-    hash_add(&h_osd, pszName, osd->numsymbols, 1);
-    hash_add(&h_osd, lowercase, osd->numsymbols, 1);
-    Xfree(lowercase);
-
-    osd->symbptrs[osd->numsymbols++] = newsymb;
-
-    return newsymb;
-}
-
-
-//
-// findsymbol() -- Finds a symbol, possibly partially named
-//
-static osdsymbol_t * osd_findsymbol(const char * const pszName, osdsymbol_t *pSymbol)
-{
-    if (osd->symbols == NULL)
-        return NULL;
-
-    if (!pSymbol) pSymbol = osd->symbols;
-
-    int const nameLen = Bstrlen(pszName);
-
-    for (; pSymbol; pSymbol=pSymbol->next)
-    {
-        if (pSymbol->func != OSD_UNALIASED && pSymbol->help != NULL && !Bstrncasecmp(pszName, pSymbol->name, nameLen))
-            return pSymbol;
-    }
-
-    return NULL;
-}
-
-//
-// findexactsymbol() -- Finds a symbol, complete named
-//
-static osdsymbol_t * osd_findexactsymbol(const char *pszName)
-{
-    if (osd->symbols == NULL)
-        return NULL;
-
-    int symbolNum = hash_find(&h_osd, pszName);
-
-    if (symbolNum < 0)
-    {
-        char *const lname = Xstrdup(pszName);
-        Bstrtolower(lname);
-        symbolNum = hash_find(&h_osd, lname);
-        Xfree(lname);
-    }
-
-    return (symbolNum >= 0) ? osd->symbptrs[symbolNum] : NULL;
-}
-
-int osdcmd_bind(osdcmdptr_t parm)
-{
-	FCommandLine args(parm->raw);
-	Bindings.PerformBind(args, "Bind");
-	
-	return OSDCMD_OK;
-}
-
-int osdcmd_unbindall(osdcmdptr_t)
-{
-	C_UnbindAll();
-	return OSDCMD_OK;
-}
-
-int osdcmd_unbind(osdcmdptr_t parm)
-{
-	if (parm->numparms != 1)
-		return OSDCMD_SHOWHELP;
-
-	Bindings.UnbindKey(parm->parms[0]);
-	return OSDCMD_OK;
-}
-
 
