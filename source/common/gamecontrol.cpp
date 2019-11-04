@@ -120,23 +120,9 @@ static FString GF_NumToName[NUMGAMEFUNCTIONS];	// This one will preserve the ori
 static FString GF_NumToAlias[NUMGAMEFUNCTIONS];	// This is for CON scripts to hack apart.
 
 uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
-static FString stringStore[2 * NUMGAMEFUNCTIONS];	// toss all persistent strings from the OSDCMDs in here so that they stick around until shutdown.
 
 CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
-
-static int osdcmd_button(osdcmdptr_t parm)
-{
-	static char const s_gamefunc_[] = "gamefunc_";
-	int constexpr strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
-
-	char const* p = parm->name + strlen_gamefunc_;
-
-	//if (gInputMode == kInputGame) // only trigger these if in game (fixme: Ensure it works for all games!)
-	CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
-
-	return OSDCMD_OK;
-}
 
 //==========================================================================
 //
@@ -454,11 +440,6 @@ int CONFIG_Init()
 		GF_NameToNum.Insert(gf.name, gf.index);
 		GF_NumToAlias[gf.index] = GF_NumToName[gf.index] = gf.name;
 
-		stringStore[index].Format("gamefunc_%s", gf.name);
-		stringStore[index].ToLower();
-		stringStore[index + 1] = stringStore[index];
-		stringStore[index + 1] += ": game button";
-		OSD_RegisterFunction(stringStore[index], stringStore[index + 1], osdcmd_button);
 		index += 2;
 
 	}

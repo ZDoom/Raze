@@ -141,9 +141,9 @@ void FArgs::FlushArgs()
 
 int stricmp(const char** check, const char* str)
 {
-	for (auto c = *check; c; c++)
+	for (int i = 0; check[i]; i++)
 	{
-		if (!stricmp(c, str)) return 0;
+		if (!stricmp(check[i], str)) return 0;
 	}
 	return 1;	// we do not care about order here.
 }

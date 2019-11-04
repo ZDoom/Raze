@@ -199,7 +199,7 @@ public:
 	void ClearButton(int x)
 	{
 		ButtonState[x].ButtonActive = false;
-		ButtonState[x].ButtonCleared = true;
+		//ButtonState[x].ButtonCleared = true;
 	}
 	
 	void ClearAllButtons()
@@ -207,7 +207,7 @@ public:
 		for (auto & b : ButtonState)
 		{
 			b.ButtonActive = false;
-			b.ButtonCleared = true;
+			//b.ButtonCleared = true;
 		}
 	}
 	

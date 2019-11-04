@@ -591,11 +591,6 @@ static void CONTROL_GetFunctionInput(void)
     CONTROL_ButtonFunctionState(CONTROL_ButtonFlags);
     CONTROL_AxisFunctionState(CONTROL_ButtonFlags);
 
-	for (int i = 0; i < NUMGAMEFUNCTIONS; i++ )
-    {
-		inputState.UpdateButton(i, CONTROL_ButtonFlags[i]);
-    }
-
     memset(CONTROL_ButtonFlags, 0, sizeof(CONTROL_ButtonFlags));
 }
 

@@ -30,6 +30,7 @@
 #include "i_specialpaths.h"
 #include "inputstate.h"
 #include "c_cvars.h"
+#include "i_time.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -893,8 +894,6 @@ void joyScanDevices()
 //
 int32_t initinput(void)
 {
-    int32_t i;
-
 
 #if defined EDUKE32_OSX
     // force OS X to operate in >1 button mouse mode so that LMB isn't adulterated
@@ -1783,7 +1782,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             if (j < 0)
                 break;
 
-			event_t evt = { (ev->button.state == SDL_PRESSED)? EV_KeyDown : EV_KeyUp, 0, j};
+			event_t evt = { uint8_t((ev->button.state == SDL_PRESSED)? EV_KeyDown : EV_KeyUp), 0, (int16_t)j};
 			D_PostEvent(&evt);
             break;
         }
@@ -1999,8 +1998,8 @@ int32_t handleevents_pollsdl(void)
 				if (j == -1) inputState.ClearKeysDown(); // Flush the entire keyboard state for the game when the console opens.
 				if (j <= 0) break;	// Do not pass on to the game
 
-				event_t ev = { (uint8_t)ev.type == SDL_KEYUP? EV_KeyUp : EV_KeyDown, 0, (int16_t)code, (int16_t)keyvalue };
-				D_PostEvent(&ev);
+				event_t evt = { (uint8_t)(ev.type == SDL_KEYUP? EV_KeyUp : EV_KeyDown), 0, (int16_t)code, (int16_t)keyvalue };
+				D_PostEvent(&evt);
                 break;
             }
 
@@ -2010,13 +2009,13 @@ int32_t handleevents_pollsdl(void)
 				// This never sends keyup events. For the current code that should suffice
                 if (ev.wheel.y > 0)
                 {
-					event_t ev = { EV_KeyDown, 0, (int16_t)KEY_MWHEELUP };
-					D_PostEvent(&ev);
+					event_t evt = { EV_KeyDown, 0, (int16_t)KEY_MWHEELUP };
+					D_PostEvent(&evt);
                 }
                 if (ev.wheel.y < 0)
                 {
-					event_t ev = { EV_KeyDown, 0, (int16_t)KEY_MWHEELDOWN };
-					D_PostEvent(&ev);
+					event_t evt = { EV_KeyDown, 0, (int16_t)KEY_MWHEELDOWN };
+					D_PostEvent(&evt);
                 }
                 break;
 
