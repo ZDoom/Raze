@@ -432,6 +432,8 @@ FConsoleCommand* FConsoleCommand::FindByName (const char* name)
 	return FindNameInHashTable (Commands, name, strlen (name));
 }
 
+const char* StaticGetButtonName(int32_t func);
+
 FConsoleCommand::FConsoleCommand (const char *name, CCmdRun runFunc)
 	: m_RunFunc (runFunc)
 {
@@ -446,7 +448,7 @@ FConsoleCommand::FConsoleCommand (const char *name, CCmdRun runFunc)
 		// Add all the action commands for tab completion
 		for (i = 0; i < buttonMap.NumButtons(); i++)
 		{
-			FString tname = "+"; tname << buttonMap.GetButtonName(i);
+			FString tname = "+"; tname << StaticGetButtonName(i);
 			C_AddTabCommand (tname);
 			tname.Substitute('+', '-');
 			C_AddTabCommand (tname);

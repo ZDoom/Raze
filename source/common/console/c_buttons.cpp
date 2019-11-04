@@ -128,6 +128,15 @@ static const ButtonDesc gamefuncs[] = {
 
 };
 
+// This is for use by the tab command builder which can run before the optimized tables are initialized.
+const char* StaticGetButtonName(int32_t func)
+{
+	for (auto& entry : gamefuncs)
+		if (entry.index == func) return entry.name;
+	return "";
+}
+
+
 
 //=============================================================================
 //
