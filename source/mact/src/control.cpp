@@ -108,16 +108,6 @@ void CONTROL_MapButton(int whichfunction, int whichbutton, int doubleclicked, co
 
     switch (device)
     {
-    case controldevice_mouse:
-        if ((unsigned)whichbutton >= (unsigned)MAXMOUSEBUTTONS)
-        {
-            //Error("CONTROL_MapButton: button %d out of valid range for %d mouse buttons.",
-            //		whichbutton, CONTROL_NumMouseButtons);
-            return;
-        }
-        set = CONTROL_MouseButtonMapping;
-        break;
-
     case controldevice_joystick:
         if ((unsigned)whichbutton >= (unsigned)MAXJOYBUTTONS)
         {
