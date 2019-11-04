@@ -36,7 +36,7 @@
 
 #include "gameconfigfile.h"
 #include "c_cvars.h"
-//#include "c_dispatch.h"
+#include "c_dispatch.h"
 #include "c_bind.h"
 #include "m_argv.h"
 #include "cmdlib.h"
@@ -51,6 +51,10 @@
 #include "osd.h"
 #include "gamecontrol.h"
 #include "version.h"
+
+#ifdef Printf
+#undef Printf
+#endif
 
 #define LASTRUNVERSION "1"
 
@@ -522,13 +526,11 @@ void FGameConfigFile::AddAutoexec (FArgs *list, const char *game)
 	}
 }
 
-/*
 CCMD (whereisini)
 {
 	FString path = M_GetConfigPath(false);
-	Printf ("%s\n", path.GetChars());
+	OSD_Printf ("%s\n", path.GetChars());
 }
-*/
 
 FGameConfigFile* GameConfig;
 static FString GameName;

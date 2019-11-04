@@ -534,7 +534,6 @@ void C_UnbindAll ()
 	AutomapBindings.UnbindAll();
 }
 
-#if 0
 CCMD (unbindall)
 {
 	C_UnbindAll ();
@@ -643,7 +642,6 @@ CCMD(rebind)
 		bindings->SetBind(key, argv[1]);
 	}
 }
-#endif
 
 //=============================================================================
 //
