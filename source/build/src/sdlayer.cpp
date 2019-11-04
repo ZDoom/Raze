@@ -2064,10 +2064,20 @@ int32_t handleevents_pollsdl(void)
 int32_t handleevents(void)
 {
     int32_t rv;
-
-    if (inputchecked && g_mouseEnabled)
-    {
-        g_mouseBits &= ~(16 | 32);
+	
+	if (inputchecked && g_mouseEnabled)
+	{
+		// This is a horrible crutch
+		if (inputState.mouseReadButtons() & WHEELUP_MOUSE)
+		{
+			event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELUP };
+			D_PostEvent(&ev);
+		}
+		if (inputState.mouseReadButtons() & WHEELDOWN_MOUSE)
+		{
+			event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELDOWN };
+			D_PostEvent(&ev);
+		}
     }
 
     rv = handleevents_pollsdl();
