@@ -310,7 +310,7 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 		while (NextInSection (key, value))
 		{
 			FStringf cmd("alias %s \"%s\"", key, value);
-			OSD_Dispatch(cmd);
+			C_DoCommand(cmd);
 		}
 	}
 }
@@ -355,11 +355,11 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 	{
 		const char* key;
 		const char* value;
-		OSD_Dispatch("unbindall");
+		C_DoCommand("unbindall");
 		while (NextInSection(key, value))
 		{
 			FStringf cmd("bind %s \"%s\"", key, value);
-			OSD_Dispatch(cmd);
+			C_DoCommand(cmd);
 		}
 	}
 

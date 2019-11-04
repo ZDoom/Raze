@@ -430,22 +430,6 @@ int32_t JoystickAnalogueDead[MAXJOYAXES];
 int32_t JoystickAnalogueSaturate[MAXJOYAXES];
 int32_t JoystickAnalogueInvert[MAXJOYAXES];
 
-static const char* mousedefaults[MAXMOUSEBUTTONS] =
-{
-"Fire",
-"Weapon_Special_Fire",
-"",
-"",
-"Previous_Weapon",
-"Next_Weapon",
-};
-
-
-static const char* mouseclickeddefaults[MAXMOUSEBUTTONS] =
-{
-};
-
-
 static const char* mouseanalogdefaults[MAXMOUSEAXES] =
 {
 "analog_turning",
