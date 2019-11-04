@@ -183,18 +183,10 @@ void ShutDown(void)
     sfxTerm();
     scrUnInit();
     CONTROL_Shutdown();
-    KB_Shutdown();
     OSD_Cleanup();
     // PORT_TODO: Check argument
     if (syncstate)
         printf("A packet was lost! (syncstate)\n");
-#if 0 // never used anywhere.
-    for (int i = 0; i < 10; i++)
-    {
-        if (gSaveGamePic[i])
-            Resource::Free(gSaveGamePic[i]);
-    }
-#endif
     DO_FREE_AND_NULL(pUserTiles);
     DO_FREE_AND_NULL(pUserSoundRFF);
     DO_FREE_AND_NULL(pUserRFF);

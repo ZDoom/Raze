@@ -78,7 +78,7 @@ void GLInstance::Init()
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 	if (!glinfo.dumped)
 	{
-		osdcmd_glinfo(NULL);
+		//osdcmd_glinfo(NULL);
 		glinfo.dumped = 1;
 	}
 	new(&renderState) PolymostRenderState;	// reset to defaults.

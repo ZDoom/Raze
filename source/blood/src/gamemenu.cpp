@@ -175,7 +175,7 @@ void CGameMenuMgr::Draw(void)
         if (!MOUSEACTIVECONDITION)
             m_mousewake_watchpoint = 1;
 
-        if (MOUSEACTIVECONDITIONAL(mouseAdvanceClickState()) || m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
+        if (MOUSEACTIVECONDITIONAL(inputState.mouseAdvanceClickState()) || m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
         {
             m_prevmousepos = m_mousepos;
             m_mouselastactivity = (int)totalclock;

@@ -5,8 +5,12 @@
 #include "scancodes.h"
 #include "c_bind.h"
 #include "d_event.h"
+#include "osd.h"
+
+extern char appactive;
 
 typedef uint8_t kb_scancode;
+
 
 typedef struct
 {
@@ -27,6 +31,14 @@ enum
 
 extern int32_t CONTROL_ButtonFlags[NUMKEYS];
 extern bool CONTROL_BindsEnabled;
+
+extern vec2_t  g_mousePos;
+extern vec2_t  g_mouseAbs;
+extern bool    g_mouseGrabbed;
+extern bool    g_mouseEnabled;
+extern bool    g_mouseInsideWindow;
+extern bool    g_mouseLockedToWindow;
+
 
 // Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
 enum GameFunction_t
@@ -297,7 +309,7 @@ public:
 
 	void keyFlushScans(void)
 	{
-		Bmemset(&g_keyFIFO, 0, sizeof(g_keyFIFO));
+		memset(&g_keyFIFO, 0, sizeof(g_keyFIFO));
 		g_keyFIFOpos = g_keyFIFOend = 0;
 	}
 
@@ -323,7 +335,7 @@ public:
 
 	void keyFlushChars(void)
 	{
-		Bmemset(&g_keyAsciiFIFO, 0, sizeof(g_keyAsciiFIFO));
+		memset(&g_keyAsciiFIFO, 0, sizeof(g_keyAsciiFIFO));
 		g_keyAsciiPos = g_keyAsciiEnd = 0;
 	}
 
@@ -412,9 +424,10 @@ public:
 		}
 		return 0;
 	}
-	static inline int32_t MouseGetButtons(void) { return mouseReadButtons(); }
-	static inline void MouseClearButton(int32_t b) { g_mouseBits &= ~b; }
-	static inline void MouseClearAllButtonss(void) { g_mouseBits = 0; }
+
+	int32_t MouseGetButtons(void) { return mouseReadButtons(); }
+	inline void MouseClearButton(int32_t b) { g_mouseBits &= ~b; }
+	inline void MouseClearAllButtonss(void) { g_mouseBits = 0; }
 };
 
 

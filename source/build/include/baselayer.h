@@ -107,12 +107,6 @@ char CONSTEXPR const g_keyAsciiTableShift[128] = {
 };
 
 // mouse
-extern vec2_t  g_mousePos;
-extern vec2_t  g_mouseAbs;
-extern bool    g_mouseGrabbed;
-extern bool    g_mouseEnabled;
-extern bool    g_mouseInsideWindow;
-extern bool    g_mouseLockedToWindow;
 
 // joystick
 

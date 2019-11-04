@@ -7075,7 +7075,6 @@ void G_Shutdown(void)
 	S_SoundShutdown();
     S_MusicShutdown();
     CONTROL_Shutdown();
-    KB_Shutdown();
     G_SetFog(0);
     engineUnInit();
     G_Cleanup();

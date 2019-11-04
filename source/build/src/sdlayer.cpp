@@ -1783,8 +1783,8 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             if (j < 0)
                 break;
 
-			event_t ev = { (ev->button.state == SDL_PRESSED)? EV_KeyDown : EV_KeyUp, 0, j};
-			D_PostEvent(ev);
+			event_t evt = { (ev->button.state == SDL_PRESSED)? EV_KeyDown : EV_KeyUp, 0, j};
+			D_PostEvent(&evt);
             break;
         }
 
@@ -1867,7 +1867,9 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
 // Argh. This is just gross.
 int scancodetoasciihack(SDL_Event &ev)
 {
+	int sc = ev.key.keysym.scancode;
 	SDL_Keycode keyvalue = ev.key.keysym.sym;
+	int code = keytranslation[sc];
 	// Modifiers that have to be held down to be effective
 	// (excludes KMOD_NUM, for example).
 	static const int MODIFIERS =

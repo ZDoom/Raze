@@ -662,10 +662,6 @@ TerminateGame(void)
         //TenScreen();
     }
 
-    ////--->>>> sound stuff was there
-    //uninitkeys();
-    KB_Shutdown();
-
     engineUnInit();
 	G_SaveConfig();
 
@@ -774,7 +770,6 @@ void MultiSharewareCheck(void)
         //uninitmultiplayers();
         //uninitkeys();
 		G_SaveConfig();
-        KB_Shutdown();
         engineUnInit();
         UnInitSound();
         timerUninit();
