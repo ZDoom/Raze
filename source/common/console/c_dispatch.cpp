@@ -1036,7 +1036,7 @@ static TArray<FConsoleCommand*> dynccmds; // This needs to be explicitly deleted
 int OSD_RegisterFunction(const char* pszName, const char* pszDesc, int (*func)(osdcmdptr_t))
 {
 	FString nname = pszName;
-	auto callback = [nname, pszDesc, func](FCommandLine& args, int key)
+	auto callback = [nname, pszDesc, func](FCommandLine& args, void *, int key)
 	{
 		if (args.argc() > 0) args.operator[](0);
 		osdfuncparm_t param = { args.argc(), nname.GetChars(), (const char**)args._argv + 1, args.cmd };

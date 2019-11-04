@@ -6,16 +6,17 @@
 #define osd_h_
 
 #include <functional>
-#include "vfs.h"
 
+#include "compat.h"
 #include "mutex.h"
 
-typedef struct {
-    int32_t numparms;
-    const char *name;
-    const char **parms;
-    const char *raw;
-} osdfuncparm_t;
+struct osdfuncparm_t
+{
+	int32_t numparms;
+	const char* name;
+	const char** parms;
+	const char* raw;
+};
 
 using osdcmdptr_t = osdfuncparm_t const * const;
 
@@ -156,7 +157,7 @@ typedef struct
 
 typedef struct
 {
-    buildvfs_FILE fp;
+    FILE *fp;
     int32_t cutoff;
     int32_t errors;
     int32_t lines;
@@ -187,7 +188,7 @@ typedef struct
 
 extern osdmain_t *osd;
 
-extern buildvfs_FILE osdlog;
+extern FILE * osdlog;
 extern const char* osdlogfn;
 
 enum osdflags_t
@@ -279,12 +280,11 @@ int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int (*func)(o
 
 int osdcmd_cvar_set(osdcmdptr_t parm);
 void OSD_RegisterCvar(osdcvardata_t * cvar, int (*func)(osdcmdptr_t));
-void OSD_WriteAliases(buildvfs_FILE fp);
 
 static inline void OSD_SetHistory(int idx, const char *src)
 {
-    osd->history.buf[idx] = (char *)Xmalloc(OSDEDITLENGTH);
-    Bstrncpyz(osd->history.buf[idx], src, OSDEDITLENGTH);
+    osd->history.buf[idx] = (char *)malloc(OSDEDITLENGTH);
+    strncpy(osd->history.buf[idx], src, OSDEDITLENGTH);
 }
 
 extern int osdcmd_restartvid(osdcmdptr_t parm);
