@@ -34,7 +34,7 @@
 #ifndef __C_DISPATCH_H__
 #define __C_DISPATCH_H__
 
-#include "printf.h"
+#include "c_console.h"
 #include "zstring.h"
 #include "c_commandline.h"
 #include "zstring.h"
@@ -87,7 +87,7 @@ public:
 	FConsoleCommand (const char *name, CCmdRun RunFunc);
 	virtual ~FConsoleCommand ();
 	virtual bool IsAlias ();
-	void PrintCommand () { Printf ("%s\n", m_Name.GetChars()); }
+	void PrintCommand();
 
 	virtual void Run (FCommandLine &args, void *instigator, int key);
 	static FConsoleCommand* FindByName (const char* name);

@@ -35,7 +35,7 @@
 
 #include <time.h>
 #include <algorithm>
-#include "osd.h"
+#include "printf.h"
 #include "file_zip.h"
 #include "ancientzip.h"
 #include "templates.h"
@@ -96,7 +96,7 @@ static bool UncompressZipLump(char *Cache, FileReader &Reader, int Method, int L
 	}
 	catch (const std::runtime_error &err)
 	{
-		OSD_Printf("%s\n", err.what());
+		Printf("%s\n", err.what());
 		return false;
 	}
 	return true;
@@ -181,7 +181,7 @@ bool FZipFile::Open(bool quiet)
 
 	if (centraldir == 0)
 	{
-		if (!quiet) OSD_Printf("\n%s: ZIP file corrupt!\n", FileName.GetChars());
+		if (!quiet) Printf("\n%s: ZIP file corrupt!\n", FileName.GetChars());
 		return false;
 	}
 
@@ -193,7 +193,7 @@ bool FZipFile::Open(bool quiet)
 	if (info.NumEntries != info.NumEntriesOnAllDisks ||
 		info.FirstDisk != 0 || info.DiskNumber != 0)
 	{
-		if (!quiet) OSD_Printf("\n%s: Multipart Zip files are not supported.\n", FileName.GetChars());
+		if (!quiet) Printf("\n%s: Multipart Zip files are not supported.\n", FileName.GetChars());
 		return false;
 	}
 
@@ -226,7 +226,7 @@ bool FZipFile::Open(bool quiet)
 		if (dirptr > ((char*)directory) + dirsize)	// This directory entry goes beyond the end of the file.
 		{
 			free(directory);
-			if (!quiet) OSD_Printf("\n%s: Central directory corrupted.", FileName.GetChars());
+			if (!quiet) Printf("\n%s: Central directory corrupted.", FileName.GetChars());
 			return false;
 		}
 		
@@ -246,7 +246,7 @@ bool FZipFile::Open(bool quiet)
 			zip_fh->Method != METHOD_IMPLODE &&
 			zip_fh->Method != METHOD_SHRINK)
 		{
-			if (!quiet) OSD_Printf("\n%s: '%s' uses an unsupported compression algorithm (#%d).\n", FileName.GetChars(), name.GetChars(), zip_fh->Method);
+			if (!quiet) Printf("\n%s: '%s' uses an unsupported compression algorithm (#%d).\n", FileName.GetChars(), name.GetChars(), zip_fh->Method);
 			skipped++;
 			continue;
 		}
@@ -254,7 +254,7 @@ bool FZipFile::Open(bool quiet)
 		zip_fh->Flags = LittleShort(zip_fh->Flags);
 		if (zip_fh->Flags & ZF_ENCRYPTED)
 		{
-			if (!quiet) OSD_Printf("\n%s: '%s' is encrypted. Encryption is not supported.\n", FileName.GetChars(), name.GetChars());
+			if (!quiet) Printf("\n%s: '%s' is encrypted. Encryption is not supported.\n", FileName.GetChars(), name.GetChars());
 			skipped++;
 			continue;
 		}

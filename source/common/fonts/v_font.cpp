@@ -713,16 +713,18 @@ void V_InitFonts()
 	FFont *CreateHexLumpFont(const char *fontname, const char* lump);
 	FFont *CreateHexLumpFont2(const char *fontname, const char * lump);
 
-	auto lump = kopenFileReader("newconsolefont.hex", 0);	// This is always loaded from gzdoom.pk3 to prevent overriding it with incomplete replacements.
-	if (!lump.isOpen()) I_Error("newconsolefont.hex not found");	// This font is needed - do not start up without it.
-	NewConsoleFont = CreateHexLumpFont("NewConsoleFont", "newconsolefont.hex");
-	NewSmallFont = CreateHexLumpFont2("NewSmallFont", "newconsolefont.hex");
+	if (fileSystem.FindFile("demolition/newconsolefont.hex") < 0)
+		I_Error("newconsolefont.hex not found");	// This font is needed - do not start up without it.
+	NewConsoleFont = CreateHexLumpFont("NewConsoleFont", "demolition/newconsolefont.hex");
+	NewSmallFont = CreateHexLumpFont2("NewSmallFont", "demolition/newconsolefont.hex");
 	CurrentConsoleFont = NewConsoleFont;
 
+	/*
 	ConFont = V_GetFont("ConsoleFont", "CONFONT");
 	{
 		ConFont = SmallFont;
 	}
+	*/
 }
 
 void V_ClearFonts()

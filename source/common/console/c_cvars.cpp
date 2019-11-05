@@ -43,14 +43,8 @@
 
 #include "cmdlib.h"
 #include "c_dispatch.h"
+#include "printf.h"
 
-//#include "g_game.h"
-//#include "d_player.h"
-//#include "v_video.h"
-//#include "d_netinf.h"
-
-//#include "menu/menu.h"
-//#include "vm.h"
 
 struct FLatchedValue
 {

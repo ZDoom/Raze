@@ -54,8 +54,7 @@ int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
 } while (0)
 
 #define CON_CRITICALERRPRINTF(Text, ...) do { \
-    OSD_Printf("Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
-    wm_msgbox(APPNAME, "Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
+    I_Error("Line %d, %s: " Text, VM_DECODE_LINE_NUMBER(g_tw), VM_GetKeywordForID(VM_DECODE_INST(g_tw)), ## __VA_ARGS__); \
 } while (0)
 
 void G_GetTimeDate(int32_t * pValues);

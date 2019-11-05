@@ -7078,7 +7078,6 @@ void G_Shutdown(void)
     G_SetFog(0);
     engineUnInit();
     G_Cleanup();
-    OSD_Cleanup();
     Bfflush(NULL);
 }
 
@@ -7878,26 +7877,6 @@ MAIN_LOOP_RESTART:
         // stdin -> OSD input for dedicated server
         if (g_networkMode == NET_DEDICATED_SERVER)
         {
-            int32_t nb;
-            char ch;
-            static uint32_t bufpos = 0;
-            static char buf[128];
-#ifndef GEKKO
-            int32_t flag = 1;
-            ioctl(0, FIONBIO, &flag);
-#endif
-            if ((nb = read(0, &ch, 1)) > 0 && bufpos < sizeof(buf))
-            {
-                if (ch != '\n')
-                    buf[bufpos++] = ch;
-
-                if (ch == '\n' || bufpos >= sizeof(buf)-1)
-                {
-                    buf[bufpos] = 0;
-                    OSD_Dispatch(buf);
-                    bufpos = 0;
-                }
-            }
         }
         else
 #endif

@@ -17,12 +17,21 @@
 #include "rts.h"
 #include "printf.h"
 #include "c_bind.h"
+#include "v_font.h"
+#include "c_console.h"
+#include "c_dispatch.h"
+#include "i_specialpaths.h"
+#ifndef NETCODE_DISABLE
+#include "enet.h"
+#endif
 
 InputState inputState;
 void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
 void InitFileSystem(TArray<GrpEntry>&);
 int globalShadeDiv;
+bool gHaveNetworking;
+
 
 FString currentGame;
 FString LumpFilter;
@@ -221,6 +230,40 @@ void CheckFrontend(int flags)
 }
 
 
+int GameMain()
+{
+	// Set up the console before anything else so that it can receive text.
+	C_InitConsole(1024, 768, true);
+	FStringf logpath("logfile %sdemolition.log", M_GetDocumentsPath());
+	C_DoCommand(logpath);
+
+#ifndef NETCODE_DISABLE
+	gHaveNetworking = !enet_initialize();
+	if (!gHaveNetworking)
+		initprintf("An error occurred while initializing ENet.\n");
+#endif
+
+	int r;
+	try
+	{
+		r = CONFIG_Init();
+	}
+	catch (const std::runtime_error & err)
+	{
+		wm_msgbox("Error", "%s", err.what());
+		return 3;
+	}
+	catch (const ExitEvent & exit)
+	{
+		// Just let the rest of the function execute.
+		r = exit.Reason();
+	}
+#ifndef NETCODE_DISABLE
+	if (gHaveNetworking) enet_deinitialize();
+#endif
+	return r;
+}
+
 //==========================================================================
 //
 //
@@ -342,6 +385,7 @@ int CONFIG_Init()
 	{
 		playername = userConfig.CommandName;
 	}
+	V_InitFonts();
 
 
 

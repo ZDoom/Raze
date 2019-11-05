@@ -289,7 +289,6 @@ void G_PrintGameQuotes(int32_t snum);
 void G_SetCrosshairColor(int32_t r,int32_t g,int32_t b);
 void G_Shutdown(void);
 void G_UpdatePlayerFromMenu(void);
-void M32RunScript(const char *s);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
 void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set);
 void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum);

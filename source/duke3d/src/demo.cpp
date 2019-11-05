@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "screens.h"
 #include "i_specialpaths.h"
+#include "printf.h"
 
 #include "vfs.h"
 
@@ -104,7 +105,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     i = sv_loadsnapshot(g_demo_recFilePtr, -g_whichDemo, &saveh);
     if (i)
     {
-        OSD_Printf(OSD_ERROR "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
+        Printf(OSD_ERROR "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
         g_demo_recFilePtr.Close();
         return 0;
     }
@@ -183,7 +184,7 @@ void G_OpenDemoWrite(void)
     {
         MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
 error_wopen_demo:
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
+        Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE CONSOLE FOR DETAILS.");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
         ud.recstat = ud.m_recstat = 0;
         return;

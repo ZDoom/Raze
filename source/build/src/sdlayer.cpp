@@ -31,12 +31,11 @@
 #include "inputstate.h"
 #include "c_cvars.h"
 #include "i_time.h"
+#include "c_dispatch.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
 #include "../../glbackend/glbackend.h"
-
-bool gHaveNetworking;
 
 #ifdef USE_OPENGL
 # include "glbuild.h"
@@ -129,8 +128,6 @@ static SDL_Surface *appicon = NULL;
 #if !defined __APPLE__ && !defined EDUKE32_TOUCH_DEVICES
 static SDL_Surface *loadappicon(void);
 #endif
-
-static mutex_t m_initprintf;
 
 // Joystick dead and saturation zones
 uint16_t joydead[9], joysatur[9];
@@ -391,6 +388,7 @@ static void sighandler(int signum)
 }
 #endif
 
+int GameMain();
 
 #ifdef _WIN32
 
@@ -453,34 +451,7 @@ int main(int argc, char *argv[])
 
 	if (initsystem()) Bexit(9);
 
-	try
-	{
-		// Write to the DOCUMENTS directory, not the game directory
-
-		// Initialize the netcode here, because enet pulls in a lot of headers that pollute the namespace.
-#ifndef NETCODE_DISABLE
-		gHaveNetworking = !enet_initialize();
-		if (!gHaveNetworking)
-			initprintf("An error occurred while initializing ENet.\n");
-#endif
-
-		FString logpath = M_GetDocumentsPath() + "demolition.log";
-		OSD_SetLogFile(logpath);
-		r = CONFIG_Init();
-	}
-	catch (const std::runtime_error & err)
-	{
-		wm_msgbox("Error", "%s", err.what());
-		return 3;
-	}
-	catch (const ExitEvent & exit)
-	{
-		// Just let the rest of the function execute.
-		r = exit.Reason();
-	}
-#ifndef NETCODE_DISABLE
-	if (gHaveNetworking) enet_deinitialize();
-#endif
+	r = GameMain();
 
 #if defined(HAVE_GTK2)
     gtkbuild_exit(r);
@@ -539,6 +510,7 @@ int32_t sdlayer_checkversion(void);
 #if SDL_MAJOR_VERSION != 1
 int32_t sdlayer_checkversion(void)
 {
+#if 0
     SDL_version compiled;
 
     SDL_GetVersion(&linked);
@@ -559,6 +531,7 @@ int32_t sdlayer_checkversion(void)
         return -1;
     }
 
+#endif
     return 0;
 }
 
@@ -568,12 +541,6 @@ int32_t sdlayer_checkversion(void)
 int32_t initsystem(void)
 {
     const int sdlinitflags = SDL_INIT_VIDEO;
-
-    mutex_init(&m_initprintf);
-
-#ifdef _WIN32
-    win_init();
-#endif
 
     if (sdlayer_checkversion())
         return -1;

@@ -865,6 +865,11 @@ FExecList *C_ParseCmdLineParams(FExecList *exec)
 	return exec;
 }
 
+void FConsoleCommand::PrintCommand() 
+{ 
+	Printf("%s\n", m_Name.GetChars()); 
+}
+
 bool FConsoleCommand::IsAlias ()
 {
 	return false;

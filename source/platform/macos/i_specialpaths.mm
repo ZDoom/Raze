@@ -36,9 +36,9 @@
 #import <Foundation/NSFileManager.h>
 
 #include "cmdlib.h"
-#include "m_misc.h"
 #include "version.h"	// for GAMENAME
 
+FString M_GetMacAppSupportPath(const bool create);
 
 static FString GetSpecialPath(const NSSearchPathDirectory kind, const BOOL create = YES, const NSSearchPathDomainMask domain = NSUserDomainMask)
 {

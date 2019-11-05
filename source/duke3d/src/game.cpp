@@ -5710,7 +5710,6 @@ void G_Shutdown(void)
     CONTROL_Shutdown();
     engineUnInit();
     G_Cleanup();
-    OSD_Cleanup();
     Bfflush(NULL);
 }
 
@@ -6469,33 +6468,8 @@ MAIN_LOOP_RESTART:
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         inputState.SetBindsEnabled(!!(myplayer.gm & (MODE_GAME|MODE_DEMO)));
 
-#ifndef _WIN32
-        // stdin -> OSD input for dedicated server
-        if (g_networkMode == NET_DEDICATED_SERVER)
-        {
-            int32_t nb;
-            char ch;
-            static uint32_t bufpos = 0;
-            static char buf[128];
-#ifndef GEKKO
-            int32_t flag = 1;
-            ioctl(0, FIONBIO, &flag);
-#endif
-            if ((nb = read(0, &ch, 1)) > 0 && bufpos < sizeof(buf))
-            {
-                if (ch != '\n')
-                    buf[bufpos++] = ch;
 
-                if (ch == '\n' || bufpos >= sizeof(buf)-1)
-                {
-                    buf[bufpos] = 0;
-                    OSD_Dispatch(buf);
-                    bufpos = 0;
-                }
-            }
-        }
-        else
-#endif
+        if (g_networkMode != NET_DEDICATED_SERVER)
             G_HandleLocalKeys();
 
         OSD_DispatchQueued();

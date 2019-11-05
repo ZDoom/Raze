@@ -14,50 +14,6 @@ FString progdir;
 // CheckWinVersion() -- check to see what version of Windows we happen to be running under (stripped down to what is actually still supported.)
 //
 
-void win_init(void)
-{
-    const char *ver = "";
-	OSVERSIONINFOEXA osv;
-
-	osv.dwOSVersionInfoSize  = sizeof(osv);
-	GetVersionExA((LPOSVERSIONINFOA)&osv);
-	
-    switch (osv.dwPlatformId)
-    {
-        case VER_PLATFORM_WIN32_NT:
-            switch (osv.dwMajorVersion)
-            {
-                case 6:
-                    switch (osv.dwMinorVersion)
-                    {
-                        case 0: ver = osv.wProductType == VER_NT_WORKSTATION ? "Vista" : "Server 2008"; break;
-                        case 1: ver = osv.wProductType == VER_NT_WORKSTATION ? "7" : "Server 2008 R2"; break;
-                        case 2: ver = osv.wProductType == VER_NT_WORKSTATION ? "8" : "Server 2012"; break;
-                        case 3: ver = osv.wProductType == VER_NT_WORKSTATION ? "8.1" : "Server 2012 R2"; break;
-                    }
-                    break;
-
-                case 10:
-                    switch (osv.dwMinorVersion)
-                    {
-                        case 0: ver = osv.wProductType == VER_NT_WORKSTATION ? "10" : "Server 2016"; break;
-                    }
-                    break;
-            }
-            break;
-    }
-
-	FStringf str("Windows %s", ver);
-
-    // service packs
-    if (osv.szCSDVersion[0])
-    {
-		str.AppendFormat(" %s", osv.szCSDVersion);
-    }
-
-    initprintf("Running on %s (build %lu.%lu.%lu)\n", str.GetChars(), osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
-}
-
 //==========================================================================
 //
 // win_buildargs
