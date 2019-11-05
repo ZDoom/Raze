@@ -403,9 +403,9 @@ void V_InitFontColors ()
 	TranslationLookup.Clear();
 	TranslationColors.Clear();
 
-	FScanner sc;
 	while ((lump = fileSystem.Iterate("textcolors.txt", &lastlump)) != -1)
 	{
+		FScanner sc(lump);
 		while (sc.GetString())
 		{
 			names.Clear();
@@ -708,6 +708,7 @@ EColorRange V_ParseFontColor (const uint8_t *&color_value, int normalcolor, int 
 
 void V_InitFonts()
 {
+	V_InitFontColors();
 	V_InitCustomFonts();
 
 	FFont *CreateHexLumpFont(const char *fontname, const char* lump);

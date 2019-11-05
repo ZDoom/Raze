@@ -39,6 +39,7 @@
 #include "sc_man.h"
 #include "imagehelpers.h"
 #include "v_draw.h"
+#include "glbackend/glbackend.h"
 
 #include "fontinternals.h"
 
@@ -405,6 +406,7 @@ public:
 			}
 		}
 		forceremap = true;
+		Ranges[CR_UNTRANSLATED] = GLInterface.GetPaletteIndex(remap.Palette);
 
 	}
 
