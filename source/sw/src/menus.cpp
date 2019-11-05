@@ -690,10 +690,6 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
                                KeyboardKeys[currentkey][1]);
 #endif
             }
-            else
-            {
-                OSD_CaptureKey(inputState.GetLastScanCode());
-            }
 
             currentmode = 0;
         }

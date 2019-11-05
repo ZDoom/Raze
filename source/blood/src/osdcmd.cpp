@@ -153,18 +153,6 @@ static int osdcmd_demo(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_restartvid(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    videoResetMode();
-    if (videoSetGameMode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,0))
-        ThrowError("restartvid: Reset failed...\n");
-    onvideomodechange(ScreenBPP>8);
-    viewResizeView(gViewSize);
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_music(osdcmdptr_t parm)
 {
     char buffer[128];
@@ -266,8 +254,7 @@ static int osdcmd_crosshaircolor(osdcmdptr_t parm)
     g_isAlterDefaultCrosshair = true;
     viewSetCrosshairColor(r,g,b);
 
-    if (!OSD_ParsingScript())
-        OSD_Printf("%s\n", parm->raw);
+	OSD_Printf("%s\n", parm->raw);
 
     return OSDCMD_OK;
 }
@@ -498,7 +485,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
     OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
 	OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
-    OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
     OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);

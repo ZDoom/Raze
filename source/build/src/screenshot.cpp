@@ -7,6 +7,7 @@
 #include "m_argv.h"
 #include "cmdlib.h"
 #include "gamecontrol.h"
+#include "printf.h"
 
 #include "vfs.h"
 #include "../../glbackend/glbackend.h"
@@ -75,7 +76,7 @@ void WritePNGfile(FileWriter* file, const uint8_t* buffer, const PalEntry* palet
 		!M_AppendPNGText(file, "Software", software) ||
 		!M_FinishPNG(file))
 	{
-		OSD_Printf("Failed writing screenshot\n");
+		Printf("Failed writing screenshot\n");
 	}
 }
 
@@ -159,7 +160,7 @@ int videoCaptureScreen()
 
 	WritePNGfile(&writer, imgBuf, Palette, HICOLOR ? SS_RGB : SS_PAL, xdim, ydim, HICOLOR? xdim*3 : xdim, png_gamma);
     Xfree(imgBuf);
-	OSD_Printf("Saved screenshot to %s\n", fn);
+	Printf("Saved screenshot to %s\n", fn);
 	capturecounter.count++;
 
     return 0;

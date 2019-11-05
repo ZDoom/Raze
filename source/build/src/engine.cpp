@@ -9574,13 +9574,13 @@ static void check_sprite(int32_t i)
 {
     if ((unsigned)sprite[i].statnum >= MAXSTATUS)
     {
-        initprintf("%sMap error: sprite #%d (%d,%d) with illegal statnum (%d) REMOVED.\n", osd->draw.errorfmt,
+        initprintf("Map error: sprite #%d (%d,%d) with illegal statnum (%d) REMOVED.\n",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].statnum));
         remove_sprite(i);
     }
     else if ((unsigned)sprite[i].picnum >= MAXTILES)
     {
-        initprintf("%sMap error: sprite #%d (%d,%d) with illegal picnum (%d) REMOVED.\n", osd->draw.errorfmt,
+        initprintf("Map error: sprite #%d (%d,%d) with illegal picnum (%d) REMOVED.\n",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].sectnum));
         remove_sprite(i);
     }
@@ -9594,7 +9594,7 @@ static void check_sprite(int32_t i)
         if (sprite[i].sectnum < 0)
             remove_sprite(i);
 
-        initprintf("%sMap error: sprite #%d (%d,%d) with illegal sector (%d) ", osd->draw.errorfmt,
+        initprintf("Map error: sprite #%d (%d,%d) with illegal sector (%d) ",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), osectnum);
 
         if (sprite[i].statnum != MAXSTATUS)
@@ -12773,35 +12773,6 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 }
 
 
-#ifdef POLYMER
-static void PolymerProcessModels(void)
-{
-    // potentially deferred MD3 postprocessing
-    for (bssize_t i=0; i<nextmodelid; i++)
-    {
-        if (models[i]->mdnum==3 && ((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
-        {
-            static int32_t warned=0;
-
-            if (!warned)
-            {
-                OSD_Printf("Post-processing MD3 models for Polymer. This may take a while...\n");
-                videoNextPage();
-                warned = 1;
-            }
-
-            if (!md3postload_polymer((md3model_t *)models[i]))
-                OSD_Printf("INTERNAL ERROR: mdmodel %s failed postprocessing!\n",
-                           ((md3model_t *)models[i])->head.nam);
-
-            if (((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
-                OSD_Printf("INTERNAL ERROR: wtf?\n");
-        }
-//        else
-//            OSD_Printf("mdmodel %d already postprocessed.\n", i);
-    }
-}
-#endif
 
 //
 // setrendermode
@@ -12817,26 +12788,8 @@ int32_t videoSetRenderMode(int32_t renderer)
         GLInterface.EnableAlphaTest(false);
         renderer = REND_CLASSIC;
     }
-# ifdef POLYMER
-    else
-        renderer = clamp(renderer, REND_POLYMOST, REND_POLYMER);
 
-    if (renderer == REND_POLYMER)
-    {
-        PolymerProcessModels();
-
-        if (!polymer_init())
-            renderer = REND_POLYMOST;
-    }
-    else if (videoGetRenderMode() == REND_POLYMER)  // going from Polymer to another renderer
-    {
-        engineClearLightsFromMHK();
-        G_Polymer_UnInit();
-        polymer_uninit();
-    }
-# else
     else renderer = REND_POLYMOST;
-# endif
 
     basepalreset = 1;
 

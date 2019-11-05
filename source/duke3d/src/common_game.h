@@ -43,15 +43,7 @@ typedef enum basepal_ {
     BASEPALCOUNT
 } basepal_t;
 
-#define OSDTEXT_DEFAULT   "^00"
-#define OSDTEXT_DARKRED   "^10"
-#define OSDTEXT_GREEN     "^11"
-#define OSDTEXT_RED       "^21"
-#define OSDTEXT_YELLOW    "^23"
-
-#define OSDTEXT_BRIGHT    "^S0"
-
-#define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
+#include "v_text.h"
 
 extern int loaddefinitions_game(const char *fn, int32_t preload);
 

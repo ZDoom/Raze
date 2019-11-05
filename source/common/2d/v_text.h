@@ -82,6 +82,16 @@ struct FBrokenLines
 #define TEXTCOLOR_CHAT			"\034*"
 #define TEXTCOLOR_TEAMCHAT		"\034!"
 
+#define OSDTEXT_DEFAULT   TEXTCOLOR_GRAY
+#define OSDTEXT_DARKRED   TEXTCOLOR_DARKRED
+#define OSDTEXT_GREEN     TEXTCOLOR_GREEN
+#define OSDTEXT_RED       TEXTCOLOR_RED
+#define OSDTEXT_YELLOW    TEXTCOLOR_GOLD
+
+#define OSDTEXT_BRIGHT    ""
+
+#define OSD_ERROR TEXTCOLOR_RED
+
 
 extern int NumTextColors;
  

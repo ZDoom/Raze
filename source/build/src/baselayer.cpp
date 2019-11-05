@@ -22,6 +22,7 @@ extern "C"
 #endif // _WIN32
 
 int32_t g_borderless=2;
+bool GUICapture = false;
 
 // input
 char    inputdevices = 0;
@@ -34,7 +35,7 @@ bool g_mouseLockedToWindow = 1;
 
 int32_t mouseReadAbs(vec2_t * const pResult, vec2_t const * const pInput)
 {
-    if (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || (osd && osd->flags & OSD_CAPTURE))
+    if (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || GUICapture)
         return 0;
 
     int32_t const xwidth = max(scale(240<<16, xdim, ydim), 320<<16);

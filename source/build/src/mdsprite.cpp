@@ -593,19 +593,13 @@ void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         if (!smoothdurationp)
         {
             m->cframe = m->nframe = anim->startframe;
-#ifdef DEBUGGINGAIDS
-            if (m->cframe >= m->numframes)
-                OSD_Printf("2: c > n\n");
-#endif
+
             goto prep_return;
         }
 
         m->nframe = anim->startframe;
         m->cframe = smooth->mdoldframe;
-#ifdef DEBUGGINGAIDS
-        if (m->cframe >= m->numframes)
-            OSD_Printf("3: c > n\n");
-#endif
+
         smooth->mdsmooth = 1;
         goto prep_return;
     }
@@ -633,10 +627,7 @@ void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
     {
         m->nframe = anim ? anim->startframe : smooth->mdcurframe;
         m->cframe = smooth->mdoldframe;
-#ifdef DEBUGGINGAIDS
-        if (m->cframe >= m->numframes)
-            OSD_Printf("4: c > n\n");
-#endif
+
         //OSD_Printf("smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
         if (k > 65535)
         {
@@ -644,10 +635,7 @@ void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
             m->interpol = 0;
             smooth->mdsmooth = 0;
             m->cframe = m->nframe; // = anim ? anim->startframe : smooth->mdcurframe;
-#ifdef DEBUGGINGAIDS
-            if (m->cframe >= m->numframes)
-                OSD_Printf("5: c > n\n");
-#endif
+
             smooth->mdoldframe = m->cframe;
             //OSD_Printf("smooth stopped !\n");
             goto prep_return;
@@ -658,10 +646,7 @@ void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         if (anim)
             m->cframe = (i>>16)+anim->startframe;
 
-#ifdef DEBUGGINGAIDS
-        if (m->cframe >= m->numframes)
-            OSD_Printf("6: c > n\n");
-#endif
+
         m->nframe = m->cframe+1;
 
         if (anim && m->nframe > anim->endframe)  // VERIFY: (!(hw_animsmoothing && smooth->mdsmooth)) implies (anim!=NULL) ?

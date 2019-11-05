@@ -487,15 +487,9 @@ enum {
 // -------------------------------
 
 // NUKE-TODO:
-#define OSDTEXT_DEFAULT   "^00"
-#define OSDTEXT_DARKRED   "^00"
-#define OSDTEXT_GREEN     "^00"
-#define OSDTEXT_RED       "^00"
-#define OSDTEXT_YELLOW    "^00"
+#include "v_text.h"
 
-#define OSDTEXT_BRIGHT    "^S0"
 
-#define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
 
 enum BLOOD_GLOBALFLAGS {
     BLOOD_FORCE_WIDELOADSCREEN = 1<<0,

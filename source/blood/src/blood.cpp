@@ -168,11 +168,6 @@ void G_Polymer_UnInit(void)
     // NUKE-TODO:
 }
 
-void M32RunScript(const char *s)
-{
-    UNREFERENCED_PARAMETER(s);
-}
-
 void ShutDown(void)
 {
     if (!in3dmode())
@@ -183,7 +178,6 @@ void ShutDown(void)
     sfxTerm();
     scrUnInit();
     CONTROL_Shutdown();
-    OSD_Cleanup();
     // PORT_TODO: Check argument
     if (syncstate)
         printf("A packet was lost! (syncstate)\n");

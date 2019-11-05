@@ -372,18 +372,6 @@ static int osdcmd_music(osdcmdptr_t parm)
     return OSDCMD_SHOWHELP;
 }
 
-int osdcmd_restartvid(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    videoResetMode();
-    if (videoSetGameMode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,ud.detail))
-        G_GameExit("restartvid: Reset failed...\n");
-    onvideomodechange(ScreenBPP>8);
-    G_UpdateScreenArea();
-
-    return OSDCMD_OK;
-}
-
 int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -712,8 +700,7 @@ static int osdcmd_crosshaircolor(osdcmdptr_t parm)
 
     G_SetCrosshairColor(r,g,b);
 
-    if (!OSD_ParsingScript())
-        OSD_Printf("%s\n", parm->raw);
+	OSD_Printf("%s\n", parm->raw);
 
     return OSDCMD_OK;
 }
@@ -1152,8 +1139,7 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
-    OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
-    OSD_RegisterFunction("addlogvar","addlogvar <gamevar>: prints the value of a gamevar", osdcmd_addlogvar);
+	OSD_RegisterFunction("addlogvar","addlogvar <gamevar>: prints the value of a gamevar", osdcmd_addlogvar);
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setvarvar","setvarvar <gamevar1> <gamevar2>: sets the value of <gamevar1> to <gamevar2>", osdcmd_setvar);
     OSD_RegisterFunction("setactorvar","setactorvar <actor#> <gamevar> <value>: sets the value of <actor#>'s <gamevar> to <value>", osdcmd_setactorvar);
