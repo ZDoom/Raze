@@ -713,6 +713,8 @@ set (PCH_SOURCES
 	glbackend/glbackend.cpp
 	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
+	glbackend/gl_buffers.cpp
+	glbackend/hw_draw2d.cpp
 	
 	mact/src/animlib.cpp
 	mact/src/control.cpp

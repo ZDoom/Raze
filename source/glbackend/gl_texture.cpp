@@ -39,6 +39,7 @@
 #include "polymost.h"
 #include "textures.h"
 #include "bitmap.h"
+#include "v_font.h"
 #include "../../glbackend/glbackend.h"
 
 // Test CVARs.
@@ -155,10 +156,6 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 
 bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow)
 {
-	if (picnum == 3692)
-	{
-		int a = 0;
-	}
 	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return false;
 	int usepalette = fixpalette >= 1 ? fixpalette - 1 : curbasepal;
 	int usepalswap = fixpalswap >= 1 ? fixpalswap - 1 : palette;
@@ -180,7 +177,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	else
 	{
 		// Only look up the palette if we really want to use it (i.e. when creating a true color texture of an ART tile.)
-		if (!hw_useindexedcolortextures) lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false);
+		if (TextureType == TT_TRUECOLOR) lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false);
 	}
 
 	// Load the main texture
@@ -287,6 +284,24 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			(tex->alphaThreshold >= 0.f ? tex->alphaThreshold : 0.f);
 	}
 	GLInterface.SetAlphaThreshold(al);
+	return true;
+}
+
+
+//===========================================================================
+// 
+// Sets a named texture for 2D rendering. In this case the palette is
+// a direct index into the palette map.
+//
+//===========================================================================
+
+bool GLInstance::SetNamedTexture(FTexture* tex, int palette, int sampler)
+{
+	auto mtex = LoadTexture(tex, palette>= 0? TT_TRUECOLOR : TT_HICREPLACE, palette);
+	if (!mtex) return false;
+
+	renderState.Flags &= ~RF_UsePalette;
+	BindTexture(0, mtex, sampler);
 	return true;
 }
 

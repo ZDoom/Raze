@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PalEntry.h"
+#include "gl_buffers.h"
 class PolymostShader;
 
 enum PRSFlags
@@ -34,6 +35,10 @@ struct PolymostRenderState
     float NPOTEmulationXOffset;
     float Brightness = 1.f;
 	PalEntry FogColor;
+
+	IVertexBuffer* VertexBuffer = nullptr;
+	int VB_Offset[2] = {};
+	IIndexBuffer* IndexBuffer = nullptr;
  	
 	void Apply(PolymostShader *shader);
 };

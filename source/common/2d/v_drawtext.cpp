@@ -126,7 +126,7 @@ void DrawTextCommon(F2DDrawer* drawer, FFont *font, int normalcolor, double x, d
 	double 		cx;
 	double 		cy;
 	int			boldcolor;
-	FRemapTable *range;
+	int range;
 	int			kerning;
 	FTexture *pic;
 

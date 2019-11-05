@@ -208,15 +208,33 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	if (activeShader == polymostShader)
 	{
 		renderState.Apply(polymostShader);
+		if (renderState.VertexBuffer != LastVertexBuffer || LastVB_Offset[0] != renderState.VB_Offset[0] || LastVB_Offset[1] != renderState.VB_Offset[1])
+		{
+			static_cast<OpenGLRenderer::GLVertexBuffer*>(renderState.VertexBuffer)->Bind(renderState.VB_Offset);
+			LastVertexBuffer = renderState.VertexBuffer;
+			LastVB_Offset[0] = renderState.VB_Offset[0];
+			LastVB_Offset[1] = renderState.VB_Offset[1];
+		}
+		if (renderState.IndexBuffer != LastIndexBuffer)
+		{
+			static_cast<OpenGLRenderer::GLIndexBuffer*>(renderState.IndexBuffer)->Bind();
+		}
 	}
-	glBegin(primtypes[type]);
-	auto p = &Buffer[start];
-	for (size_t i = 0; i < count; i++, p++)
+	if (!LastVertexBuffer)
 	{
-		glVertexAttrib2f(1, p->u, p->v);
-		glVertexAttrib3f(0, p->x, p->y, p->z);
+		glBegin(primtypes[type]);
+		auto p = &Buffer[start];
+		for (size_t i = 0; i < count; i++, p++)
+		{
+			glVertexAttrib2f(1, p->u, p->v);
+			glVertexAttrib3f(0, p->x, p->y, p->z);
+		}
+		glEnd();
 	}
-	glEnd();
+	else
+	{
+		glDrawElements(primtypes[type], count, GL_UNSIGNED_INT, (void*)(intptr_t)(start * sizeof(uint32_t)));
+	}
 	if (MatrixChange) RestoreTextureProps();
 }
 
@@ -279,6 +297,12 @@ void GLInstance::EnableDepthTest(bool on)
 {
 	if (on) glEnable (GL_DEPTH_TEST);
 	else glDisable (GL_DEPTH_TEST);
+}
+
+void GLInstance::EnableMultisampling(bool on)
+{
+	if (on) glEnable(GL_MULTISAMPLE);
+	else glDisable(GL_MULTISAMPLE);
 }
 
 void GLInstance::SetMatrix(int num, const VSMatrix *mat)

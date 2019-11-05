@@ -40,6 +40,7 @@
 #include "baselayer.h"
 #include "resourcefile.h"
 #include "imagehelpers.h"
+#include "v_font.h"
 
 //===========================================================================
 //

@@ -8,6 +8,7 @@
 #include "gl_renderstate.h"
 #include "matrix.h"
 #include "palentry.h"
+#include "renderstyle.h"
 
 class FSamplerManager;
 class FShader;
@@ -64,7 +65,6 @@ class PaletteManager
 
 	//OpenGLRenderer::GLDataBuffer* palswapBuffer = nullptr;
 
-	unsigned FindPalette(const uint8_t* paldata);
 	unsigned FindPalswap(const uint8_t* paldata);
 
 public:
@@ -80,6 +80,8 @@ public:
 	int ActivePalswap() const { return lastsindex; }
 	int LookupPalette(int palette, int palswap, bool brightmap);
 	const PalEntry *GetPaletteData(int palid) const { return palettes[palid].colors; }
+	unsigned FindPalette(const uint8_t* paldata);
+
 };
 
 
@@ -157,27 +159,6 @@ enum EDepthFunc
 	Depth_LessEqual
 };
 
-enum ERenderAlpha
-{
-	STYLEALPHA_Zero,		// Blend factor is 0.0
-	STYLEALPHA_One,			// Blend factor is 1.0
-	STYLEALPHA_Src,			// Blend factor is alpha
-	STYLEALPHA_InvSrc,		// Blend factor is 1.0 - alpha
-	STYLEALPHA_SrcCol,		// Blend factor is color (HWR only)
-	STYLEALPHA_InvSrcCol,	// Blend factor is 1.0 - color (HWR only)
-	STYLEALPHA_DstCol,		// Blend factor is dest. color (HWR only)
-	STYLEALPHA_InvDstCol,	// Blend factor is 1.0 - dest. color (HWR only)
-	STYLEALPHA_Dst,			// Blend factor is dest. alpha
-	STYLEALPHA_InvDst,		// Blend factor is 1.0 - dest. alpha
-	STYLEALPHA_MAX
-};
-
-enum ERenderOp
-{
-	STYLEOP_Add,			// Add source to destination
-	STYLEOP_Sub,			// Subtract source from destination
-	STYLEOP_RevSub,			// Subtract destination from source
-};
 
 enum EWinding
 {
@@ -211,6 +192,10 @@ class GLInstance
 	FTexture* currentTexture = nullptr;
 	int TextureType;
 	int MatrixChange = 0;
+
+	IVertexBuffer* LastVertexBuffer = nullptr;
+	int LastVB_Offset[2] = {};
+	IIndexBuffer* LastIndexBuffer = nullptr;
 
 
 	VSMatrix matrices[NUMMATRICES];
@@ -251,6 +236,17 @@ public:
 	void EnableBlend(bool on);
 	void EnableAlphaTest(bool on);
 	void EnableDepthTest(bool on);
+	void EnableMultisampling(bool on);
+	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
+	{
+		renderState.VertexBuffer = vb;
+		renderState.VB_Offset[0] = offset1;
+		renderState.VB_Offset[1] = offset2;
+	}
+	void SetIndexBuffer(IIndexBuffer* vb)
+	{
+		renderState.IndexBuffer = vb;
+	}
 	const VSMatrix &GetMatrix(int num)
 	{
 		return matrices[num];
@@ -396,12 +392,18 @@ public:
 	{
 		// not yet implemented - only relevant for hires replacements.
 	}
+
+	int GetPaletteIndex(PalEntry* palette)
+	{
+		return palmanager.FindPalette((uint8_t*)palette);
+	}
 	
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
 	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
 	FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
 	bool SetTextureInternal(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow);
 
+	bool SetNamedTexture(FTexture* tex, int palette, int sampleroverride);
 
 	bool SetTexture(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride)
 	{

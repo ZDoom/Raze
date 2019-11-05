@@ -99,7 +99,7 @@ public:
 
 	virtual FTexture *GetChar (int code, int translation, int *const width, bool *redirected = nullptr) const;
 	virtual int GetCharWidth (int code) const;
-	FRemapTable *GetColorTranslation (EColorRange range, PalEntry *color = nullptr) const;
+	int GetColorTranslation (EColorRange range, PalEntry *color = nullptr) const;
 	int GetSpaceWidth () const { return SpaceWidth; }
 	int GetHeight () const { return FontHeight; }
 	int GetDefaultKerning () const { return GlobalKerning; }
@@ -164,7 +164,7 @@ protected:
 	};
 	TArray<CharData> Chars;
 	int ActiveColors;
-	TArray<FRemapTable> Ranges;
+	TArray<int> Ranges;
 	uint8_t PatchRemap[256];
 
 	FName FontName = NAME_None;
@@ -192,17 +192,7 @@ char* CleanseString(char* str);
 
 struct FRemapTable
 {
-	FRemapTable(int count = 256) {}
-	~FRemapTable() { delete Palette; }
-
-	PalEntry *Palette = nullptr;			// The ideal palette this maps to
-	int PalIndex;
-	int NumEntries;				// # of elements in this table (usually 256)
-	bool Inactive;				// This table is inactive and should be treated as if it was passed as NULL
-
-private:
-	void Free();
-	void Alloc(int count);
+	PalEntry Palette[256] = { };			// The ideal palette this maps to
 };
 
 

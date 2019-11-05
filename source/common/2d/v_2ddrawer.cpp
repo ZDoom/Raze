@@ -247,7 +247,7 @@ void F2DDrawer::AddTexture(FTexture *img, DrawParms &parms)
 	dg.mVertCount = 4;
 	dg.mTexture = img;
 
-	dg.mTranslation = 0;
+	dg.mRemapIndex = parms.remap;
 	SetStyle(img, parms, vertexcolor, dg);
 
 	u1 = parms.srcx;

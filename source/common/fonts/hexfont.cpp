@@ -376,8 +376,8 @@ public:
 
 		SimpleTranslation(colors, othertranslation, otherreverse, otherluminosity);
 
-		FRemapTable remap(ActiveColors);
-		remap.Palette[255] = 0;
+		FRemapTable remap;
+		remap.Palette[0] = 0;
 
 		for (unsigned l = 1; l < 18; l++)
 		{

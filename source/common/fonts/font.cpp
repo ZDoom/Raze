@@ -52,6 +52,7 @@
 #include "myiswalpha.h"
 #include "fontchars.h"
 #include "imagehelpers.h"
+#include "glbackend/glbackend.h"
 
 #include "fontinternals.h"
 
@@ -219,7 +220,7 @@ void FFont::SetDefaultTranslation(uint32_t *othercolors)
 	SimpleTranslation(mycolors, mytranslation, myreverse, myluminosity);
 	SimpleTranslation(othercolors, othertranslation, otherreverse, otherluminosity);
 
-	FRemapTable remap(ActiveColors);
+	FRemapTable remap;
 	remap.Palette[0] = 0;
 
 	for (unsigned l = 1; l < myluminosity.Size(); l++)
@@ -247,7 +248,7 @@ void FFont::SetDefaultTranslation(uint32_t *othercolors)
 			}
 		}
 	}
-	Ranges[CR_UNTRANSLATED] = remap;
+	Ranges[CR_UNTRANSLATED] = GLInterface.GetPaletteIndex(remap.Palette);
 	forceremap = true;
 }
 
@@ -355,7 +356,7 @@ void FFont::BuildTranslations (const double *luminosity, const uint8_t *identity
 	int i, j;
 	const TranslationParm *parmstart = (const TranslationParm *)ranges;
 
-	FRemapTable remap(total_colors);
+	FRemapTable remap;
 
 	// Create different translations for different color ranges
 	Ranges.Clear();
@@ -380,15 +381,14 @@ void FFont::BuildTranslations (const double *luminosity, const uint8_t *identity
 			}
 			else
 			{
-				remap = Ranges[0];
 			}
-			Ranges.Push(remap);
+			Ranges.Push(GLInterface.GetPaletteIndex(remap.Palette));
 			continue;
 		}
 
 		assert(parmstart->RangeStart >= 0);
 
-		remap.Palette[255] = 0;
+		remap.Palette[0] = 0;
 
 		for (j = 0; j < ActiveColors; j++)
 		{
@@ -414,7 +414,8 @@ void FFont::BuildTranslations (const double *luminosity, const uint8_t *identity
 			b = clamp(b, 0, 255);
 			remap.Palette[j] = PalEntry(255,r,g,b);
 		}
-		Ranges.Push(remap);
+
+		Ranges.Push(GLInterface.GetPaletteIndex(remap.Palette));
 
 		// Advance to the next color range.
 		while (parmstart[1].RangeStart > parmstart[0].RangeEnd)
@@ -431,7 +432,7 @@ void FFont::BuildTranslations (const double *luminosity, const uint8_t *identity
 //
 //==========================================================================
 
-FRemapTable *FFont::GetColorTranslation (EColorRange range, PalEntry *color) const
+int FFont::GetColorTranslation (EColorRange range, PalEntry *color) const
 {
 	if (noTranslate)
 	{
@@ -444,11 +445,11 @@ FRemapTable *FFont::GetColorTranslation (EColorRange range, PalEntry *color) con
 		if (color != nullptr) *color = retcolor;
 	}
 	if (ActiveColors == 0)
-		return nullptr;
+		return -1;
 	else if (range >= NumTextColors)
 		range = CR_UNTRANSLATED;
 	//if (range == CR_UNTRANSLATED && !translateUntranslated) return nullptr;
-	return &Ranges[range];
+	return Ranges[range];
 }
 
 //==========================================================================
