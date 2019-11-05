@@ -10433,7 +10433,7 @@ void videoNextPage(void)
         }
         videoEndDrawing();   //}}}
 
-        OSD_Draw();
+        //OSD_Draw();
         videoShowFrame(0);
 
         videoBeginDrawing(); //{{{

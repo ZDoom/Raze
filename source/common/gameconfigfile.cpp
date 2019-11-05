@@ -533,7 +533,6 @@ static FString GameName;
 
 void G_LoadConfig()
 {
-	OSD_Init();
 	GameConfig = new FGameConfigFile();
 }
 

@@ -743,8 +743,6 @@ set (PCH_SOURCES
 	build/src/hightile.cpp
 	build/src/mdsprite.cpp
 	build/src/mhk.cpp
-	build/src/mutex.cpp
-	build/src/osd.cpp
 	build/src/palette.cpp
 	build/src/polymost.cpp
 	build/src/pragmas.cpp
