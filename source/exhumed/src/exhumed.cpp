@@ -3320,6 +3320,8 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
         // reset pDestB
         pDestB = pDest;
     }
+
+    tileInvalidate(nDestTile, -1, -1);
 }
 
 int CopyCharToBitmap(char nChar, int nTile, int xPos, int yPos)
@@ -3542,6 +3544,7 @@ void InitSpiritHead()
     nHeadTimeStart = (int)totalclock;
 
     memset(worktile, -1, sizeof(worktile));
+    tileInvalidate(kTileRamsesWorkTile, -1, -1);
 
     nPixelsToShow = 0;
 
@@ -3620,6 +3623,8 @@ int DoSpiritHead()
     static short word_964E6 = 0;
 
     nVertPan[0] += (nDestVertPan[0] - nVertPan[0]) / 4;
+
+    tileInvalidate(kTileRamsesWorkTile, -1, -1);
 
     if (nHeadStage < 2)
     {

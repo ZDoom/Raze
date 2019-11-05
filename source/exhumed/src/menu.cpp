@@ -150,6 +150,8 @@ void DoEnergyTile()
         }
     }
 
+    tileInvalidate(kEnergy1, -1, -1);
+
     if (nSmokeSparks)
     {
         uint8_t *c = &energytile[67]; // TODO - checkme
@@ -274,6 +276,7 @@ void DoEnergyTile()
             energytile[val] = 195;
             word_9AB5B = 1;
         }
+        tileInvalidate(kEnergy2, -1, -1);
     }
 }
 
