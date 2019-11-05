@@ -781,6 +781,8 @@ set (PCH_SOURCES
 	common/fonts/fontchars.cpp
 	
 	common/console/c_cvars.cpp
+	common/console/c_console.cpp
+	common/console/c_consolebuffer.cpp
 	common/console/c_bind.cpp
 	common/console/c_buttons.cpp
 	common/console/c_commandline.cpp

@@ -9,6 +9,7 @@
 
 #include "compat.h"
 #include "mutex.h"
+#include "printf.h"
 
 struct osdfuncparm_t
 {

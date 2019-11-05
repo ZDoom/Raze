@@ -35,6 +35,8 @@
 #define __V_TEXT_H__
 
 #include "zstring.h"
+#include "tarray.h"
+
 class FFont;
 
 struct FBrokenLines

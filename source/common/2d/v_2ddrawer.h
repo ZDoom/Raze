@@ -115,12 +115,9 @@ public:
 		DAngle rotation, int colormap, PalEntry flatcolor, int lightlevel, uint32_t *indices, size_t indexcount);
 	void AddFlatFill(int left, int top, int right, int bottom, FTexture *src, bool local_origin);
 
-	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style);
+	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style = nullptr);
 
-	void AddDim(PalEntry color, float damount, int x1, int y1, int w, int h);
-	void AddClear(int left, int top, int right, int bottom, int palcolor, uint32_t color);
-	
-		
+			
 	void AddLine(int x1, int y1, int x2, int y2, uint32_t color, uint8_t alpha = 255);
 	void AddThickLine(int x1, int y1, int x2, int y2, double thickness, uint32_t color, uint8_t alpha = 255);
 	void AddPixel(int x1, int y1, uint32_t color);
@@ -130,5 +127,6 @@ public:
 	bool mIsFirstPass = true;
 };
 
+extern F2DDrawer twod;
 
 #endif

@@ -80,7 +80,7 @@ void S_SoundStartup(void)
 
 	snd_reversestereo.Callback();
     FX_SetCallBack(S_Callback);
-    FX_SetPrintf(initprintf);
+    FX_SetPrintf(OSD_Printf);
 }
 
 void S_SoundShutdown(void)

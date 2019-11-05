@@ -1,8 +1,10 @@
 /*
-** c_console.h
+** consolebuffer.h
+**
+** manages the text for the console
 **
 **---------------------------------------------------------------------------
-** Copyright 1998-2006 Randy Heit
+** Copyright 2014 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -31,59 +33,46 @@
 **
 */
 
-#ifndef __C_CONSOLE__
-#define __C_CONSOLE__
+#include <limits.h>
+#include <stdio.h>
+#include "zstring.h"
+#include "tarray.h"
+#include "v_text.h"
 
-#include <stdarg.h>
-#include "basics.h"
-
-struct event_t;
-
-typedef enum cstate_t 
+enum EAddType
 {
-	c_up=0, c_down=1, c_falling=2, c_rising=3
-} 
-constate_e;
-
-enum
-{
-	PRINTLEVELS = 5
+	NEWLINE,
+	APPENDLINE,
+	REPLACELINE
 };
-extern int PrintColors[PRINTLEVELS + 2];
 
-extern constate_e ConsoleState;
+class FConsoleBuffer
+{
+	TArray<FString> mConsoleText;
+	TArray<TArray<FBrokenLines>> m_BrokenConsoleText;	// This holds the structures returned by V_BreakLines and is used for memory management.
+	TArray<unsigned int> mBrokenStart;		
+	TArray<FBrokenLines> mBrokenLines;		// This holds the single lines, indexed by mBrokenStart and is used for printing.
+	FILE * mLogFile;
+	EAddType mAddType;
+	int mTextLines;
+	bool mBufferWasCleared;
+	
+	FFont *mLastFont;
+	int mLastDisplayWidth;
+	bool mLastLineNeedsUpdate;
 
-// Initialize the console
-void C_InitConsole (int width, int height, bool ingame);
-void C_DeinitConsole ();
-void C_InitConback();
+	
+public:
+	FConsoleBuffer();
+	void AddText(int printlevel, const char *string);
+	void FormatText(FFont *formatfont, int displaywidth);
+	void ResizeBuffer(unsigned newsize);
+	void Clear()
+	{
+		mBufferWasCleared = true;
+		mConsoleText.Clear();
+	}
+	int GetFormattedLineCount() { return mTextLines; }
+	FBrokenLines *GetLines() { return &mBrokenLines[0]; }
+};
 
-// Adjust the console for a new screen mode
-void C_NewModeAdjust (void);
-
-void C_Ticker (void);
-
-void AddToConsole (int printlevel, const char *string);
-int PrintString (int printlevel, const char *string);
-int PrintStringHigh (const char *string);
-int VPrintf (int printlevel, const char *format, va_list parms) GCCFORMAT(2);
-
-void C_DrawConsole ();
-void C_ToggleConsole (void);
-void C_FullConsole (void);
-void C_HideConsole (void);
-void C_AdjustBottom (void);
-void C_FlushDisplay (void);
-
-class FFont;
-void C_MidPrint (FFont *font, const char *message, bool bold = false);
-
-bool C_Responder (event_t *ev);
-
-void C_AddTabCommand (const char *name);
-void C_RemoveTabCommand (const char *name);
-void C_ClearTabCommands();		// Removes all tab commands
-
-extern const char *console_bar;
-
-#endif

@@ -69,42 +69,6 @@ static hashtable_t h_cvars      = { OSDMAXSYMBOLS >> 1, NULL };
 bool m32_osd_tryscript = false;  // whether to try executing m32script on unkown command in the osd
 
 
-// color code format is as follows:
-// ^## sets a color, where ## is the palette number
-// ^S# sets a shade, range is 0-7 equiv to shades 0-14
-// ^O resets formatting to defaults
-
-const char * OSD_StripColors(char *outBuf, const char *inBuf)
-{
-    const char *ptr = outBuf;
-
-    while (*inBuf)
-    {
-        if (*inBuf == '^')
-        {
-            if (isdigit(*(inBuf+1)))
-            {
-                inBuf += 2 + !!isdigit(*(inBuf+2));
-                continue;
-            }
-            else if ((Btoupper(*(inBuf+1)) == 'O'))
-            {
-                inBuf += 2;
-                continue;
-            }
-            else if ((Btoupper(*(inBuf+1)) == 'S') && isdigit(*(inBuf+2)))
-            {
-                inBuf += 3;
-                continue;
-            }
-        }
-        *(outBuf++) = *(inBuf++);
-    }
-
-    *outBuf = '\0';
-    return ptr;
-}
-
 int OSD_ParsingScript(void) { return osd->execdepth; }
 int OSD_OSDKey(void)        { return osd->keycode; }
 int OSD_GetCols(void)       { return osd->draw.cols; }
@@ -972,18 +936,6 @@ void OSD_Draw(void)
 // OSD_Printf() -- Print a formatted string to the onscreen display
 //   and write it to the log file
 //
-
-void OSD_Printf(const char *fmt, ...)
-{
-    static char tmpstr[8192];
-    va_list va;
-
-    va_start(va, fmt);
-    Bvsnprintf(tmpstr, sizeof(tmpstr), fmt, va);
-    va_end(va);
-
-    OSD_Puts(tmpstr);
-}
 
 
 //

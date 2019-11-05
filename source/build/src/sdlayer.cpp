@@ -658,79 +658,7 @@ void system_getcvars(void)
     vid_vsync = videoSetVsync(vid_vsync);
 }
 
-//
-// initprintf() -- prints a formatted string to the intitialization window
-//
-void initprintf(const char *f, ...)
-{
-    va_list va;
-    char buf[2048];
 
-    va_start(va, f);
-    Bvsnprintf(buf, sizeof(buf), f, va);
-    va_end(va);
-
-#ifdef _WIN32
-	if (IsDebuggerPresent())
-		OutputDebugStringA(buf);
-#endif
-
-    initputs(buf);
-}
-
-
-//
-// initputs() -- prints a string to the intitialization window
-//
-void initputs(const char *buf)
-{
-    static char dabuf[2048];
-
-#ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_INFO,"DUKE", "%s",buf);
-#endif
-    OSD_Puts(buf);
-//    Bprintf("%s", buf);
-
-#if 0
-    mutex_lock(&m_initprintf);
-    if (Bstrlen(dabuf) + Bstrlen(buf) > 1022)
-    {
-        startwin_puts(dabuf);
-        Bmemset(dabuf, 0, sizeof(dabuf));
-    }
-
-    Bstrcat(dabuf,buf);
-
-    if (g_logFlushWindow || Bstrlen(dabuf) > 768)
-    {
-        startwin_puts(dabuf);
-#ifndef _WIN32
-        startwin_idle(NULL);
-#else
-        handleevents();
-#endif
-        Bmemset(dabuf, 0, sizeof(dabuf));
-    }
-    mutex_unlock(&m_initprintf);
-#endif
-}
-
-//
-// debugprintf() -- prints a formatted debug string to stderr
-//
-void debugprintf(const char *f, ...)
-{
-#if defined DEBUGGINGAIDS && !(defined __APPLE__ && defined __BIG_ENDIAN__)
-    va_list va;
-
-    va_start(va,f);
-    Bvfprintf(stderr, f, va);
-    va_end(va);
-#else
-    UNREFERENCED_PARAMETER(f);
-#endif
-}
 
 
 //

@@ -1,10 +1,16 @@
 #pragma once
 
 #include "drawparms.h"
+
+#ifdef DrawText
+#undef DrawText
+#endif
+
+extern int32_t xdim, ydim;
 struct ScreenDummy
 {
-	static int GetWidth() { return 1360; }
-	static int GetHeight() { return 768; }
+	static int GetWidth() { return xdim; }
+	static int GetHeight() { return ydim; }
 };
 extern ScreenDummy* screen;
 
@@ -34,3 +40,8 @@ double AspectPspriteOffset(float aspect);
 int AspectMultiplier(float aspect);
 bool AspectTallerThanWide(float aspect);
 void ScaleWithAspect(int& w, int& h, int Width, int Height);
+
+void DrawTexture(F2DDrawer *drawer, FTexture* img, double x, double y, int tags_first, ...);
+void DrawChar (F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, int character, int tag_first, ...);
+void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, const char *string, int tag_first, ...);
+void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, const char32_t *string, int tag_first, ...);
