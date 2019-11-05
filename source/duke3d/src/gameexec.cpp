@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameconfigfile.h"
 #include "files.h"
 #include "base64.h"
+#include "version.h"
 
 #include "vfs.h"
 
@@ -3805,7 +3806,7 @@ badindex:
                                     Bstrcpy(apStrings[q], g_player[vm.playerNum].user_name);
                                     break;
                                 case STR_VERSION:
-                                    Bsprintf(tempbuf, HEAD2 " %s", s_buildRev);
+                                    Bsprintf(tempbuf, HEAD2 " %s", GetGitDescription());
                                     Bstrcpy(apStrings[q], tempbuf);
                                     break;
                                 case STR_GAMETYPE: Bstrcpy(apStrings[q], g_gametypeNames[ud.coop]); break;

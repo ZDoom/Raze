@@ -746,7 +746,6 @@ set (PCH_SOURCES
 	build/src/palette.cpp
 	build/src/polymost.cpp
 	build/src/pragmas.cpp
-	build/src/rev.cpp
 	build/src/screenshot.cpp
 	build/src/scriptfile.cpp
 	build/src/sdlayer.cpp

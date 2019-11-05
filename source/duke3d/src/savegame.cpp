@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sjson.h"
 #include "i_specialpaths.h"
 #include "gamecontrol.h"
+#include "version.h"
 
 #include "vfs.h"
 
@@ -1708,7 +1709,7 @@ int32_t sv_saveandmakesnapshot(buildvfs_FILE fil, char const *name, int8_t spot,
         Bstrncpyz(h.savename, "EDuke32 demo", sizeof(h.savename));
         if (t>=0 && (st = localtime(&t)))
             Bsnprintf(h.savename, sizeof(h.savename), "Demo %04d%02d%02d %s",
-                      st->tm_year+1900, st->tm_mon+1, st->tm_mday, s_buildRev);
+                      st->tm_year+1900, st->tm_mon+1, st->tm_mday, GetGitDescription());
     }
 
 
