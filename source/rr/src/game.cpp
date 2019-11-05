@@ -101,8 +101,6 @@ int32_t g_levelTextTime = 0;
 extern char forcegl;
 #endif
 
-void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); };  // needed for linking since it's referenced from build/src/osd.c
-
 const char *G_DefaultRtsFile(void)
 {
     if (DUKE)
@@ -7677,11 +7675,6 @@ int GameInterface::app_main()
     g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
 
     ud.last_level = -1;
-
-    initprintf("Initializing OSD...\n");
-
-    OSD_SetVersion(tempbuf, 10,0);
-    OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, 0);
     registerosdcommands();
 
 #ifdef HAVE_CLIPSHAPE_FEATURE

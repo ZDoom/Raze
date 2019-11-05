@@ -235,9 +235,7 @@ void OSD_Init(void)
 {
     osd = (osdmain_t *)Xcalloc(1, sizeof(osdmain_t));
 
-    mutex_init(&osd->mutex);
-
-    if (!osd->keycode)
+	if (!osd->keycode)
         osd->keycode = sc_Tilde;
 
     osd->text.buf   = (char *)Xmalloc(OSDBUFFERSIZE);

@@ -1228,11 +1228,6 @@ int GameInterface::app_main()
     {
         I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
     }
-
-    initprintf("Initializing OSD...\n");
-
-    OSD_SetVersion("Blood", 10, 0);
-    OSD_SetParameters(0, 0, 0, 12, 2, 12, OSD_ERROR, OSDTEXT_RED, 0);
     registerosdcommands();
 
 #if 0

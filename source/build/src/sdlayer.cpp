@@ -484,7 +484,7 @@ int32_t videoSetVsync(int32_t newSync)
             if (result == -1)
             {
                 newSync = 0;
-                OSD_Printf("Unable to enable VSync!\n");
+                Printf("Unable to enable VSync!\n");
             }
         }
 
@@ -678,11 +678,6 @@ static void LoadSDLControllerDB()
 
     int i = SDL_GameControllerAddMappingsFromRW(rwops, 1);
 
-    if (i == -1)
-        buildprintf("Failed loading game controller database: %s\n", SDL_GetError());
-    else
-        buildputs("Loaded game controller database\n");
-
     free(dbuf);
 }
 #endif
@@ -705,11 +700,11 @@ void joyScanDevices()
     int numjoysticks = SDL_NumJoysticks();
     if (numjoysticks < 1)
     {
-        buildputs("No game controllers found\n");
+        initprintf("No game controllers found\n");
     }
     else
     {
-        buildputs("Game controllers:\n");
+        initprintf("Game controllers:\n");
         for (int i = 0; i < numjoysticks; i++)
         {
             const char * name;
@@ -780,7 +775,7 @@ void joyScanDevices()
             }
         }
 
-        buildputs("No controllers are usable\n");
+        initprintf("No controllers are usable\n");
     }
 }
 
@@ -957,7 +952,8 @@ void mouseLockToWindow(char a)
         g_mouseLockedToWindow = g_mouseGrabbed;
     }
 
-    SDL_ShowCursor((osd && osd->flags & OSD_CAPTURE) ? SDL_ENABLE : SDL_DISABLE);
+	// Fixme
+    SDL_ShowCursor(GUICapture ? SDL_ENABLE : SDL_DISABLE);
 }
 
 void mouseMoveToCenter(void)
@@ -1789,8 +1785,7 @@ int scancodetoasciihack(SDL_Event &ev)
 			default: keyvalue = sc - SDL_SCANCODE_A + 1; break;  // Ctrl+A --> 1, etc.
 		}
 	}
-	else if (
-			 ev.key.keysym.sym != g_keyAsciiTable[OSD_OSDKey()] && !SDL_IsTextInputActive()) // What is this? Preventing key repeat or what? :?
+	else
 	{
 		/*
 		Necessary for Duke 3D's method of entering cheats to work without showing IMEs.
@@ -1855,12 +1850,11 @@ int32_t handleevents_pollsdl(void)
                 do
                 {
                     code = ev.text.text[j];
-
-                    if (code != g_keyAsciiTable[OSD_OSDKey()] && !inputState.keyBufferFull())
-                    {
-                        if (OSD_HandleChar(code))
-                            inputState.keyBufferInsert(code);
-                    }
+					// Fixme: Send an EV_GUI_Event instead and properly deal with Unicode.
+#if 0
+					if (OSD_HandleChar(code))
+						inputState.keyBufferInsert(code);
+#endif
                 } while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE-1 && ev.text.text[++j]);
                 break;
 
@@ -1879,6 +1873,7 @@ int32_t handleevents_pollsdl(void)
 				
 
 				int keyvalue = ev.type == SDL_KEYDOWN? scancodetoasciihack(ev) : 0;
+#if 0
 				if (keyvalue > 0)
 				{
 					keyvalue = OSD_HandleChar(keyvalue); // returns the char if it doesn't process it.
@@ -1889,9 +1884,10 @@ int32_t handleevents_pollsdl(void)
 				// j == -1: Console was opened
 				// j == 0: Console is active and used the key
 				// j == 2: Console is inactive and did not use the key
-				
 				if (j == -1) inputState.ClearKeysDown(); // Flush the entire keyboard state for the game when the console opens.
 				if (j <= 0) break;	// Do not pass on to the game
+#endif
+				
 
 				event_t evt = { (uint8_t)(ev.type == SDL_KEYUP? EV_KeyUp : EV_KeyDown), 0, (int16_t)code, (int16_t)keyvalue };
 				D_PostEvent(&evt);

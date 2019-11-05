@@ -48,13 +48,9 @@
 //#include "d_main.h"
 #include "keyboard.h"
 #include "control.h"
-#include "osd.h"
+#include "printf.h"
 #include "gamecontrol.h"
 #include "version.h"
-
-#ifdef Printf
-#undef Printf
-#endif
 
 #define LASTRUNVERSION "1"
 
@@ -529,7 +525,7 @@ void FGameConfigFile::AddAutoexec (FArgs *list, const char *game)
 CCMD (whereisini)
 {
 	FString path = M_GetConfigPath(false);
-	OSD_Printf ("%s\n", path.GetChars());
+	Printf ("%s\n", path.GetChars());
 }
 
 FGameConfigFile* GameConfig;

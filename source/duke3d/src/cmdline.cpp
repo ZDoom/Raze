@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h"
 #include "cmdline.h"
 #include "m_argv.h"
+#include "printf.h"
 
 BEGIN_DUKE_NS
 
@@ -71,7 +72,7 @@ void G_CheckCommandLine()
 	if (Args->CheckParm("-altai"))
 	{
 		ud.playerai = 1;
-		OSD_Printf("Other player AI.\n");
+		Printf("Other player AI.\n");
 	}
 	auto val = Args->CheckValue("-skill");
 	if (val)
@@ -91,7 +92,7 @@ void G_CheckCommandLine()
 			ud.m_respawn_items = 1;
 			ud.m_respawn_inventory = 1;
 		}
-		OSD_Printf("Respawn on.\n");
+		Printf("Respawn on.\n");
 	}
 	if (Args->CheckParm("-showcoords") || Args->CheckParm("-w"))
 	{

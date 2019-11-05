@@ -346,7 +346,7 @@ CUSTOM_CVARD(Float, r_ambientlight, 1.0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "sets t
 	else r_ambientlightrecip = 1.f / self;
 }
 
-CVARD(Bool, r_shadows, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable sprite and model shadows")//, (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
+CVARD(Bool, r_shadows, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable sprite and model shadows")
 
 // Gross hack stuff. Only settable from the command line
 CVARD(Bool, r_rotatespritenowidescreen, false, CVAR_NOSET, "pass bit 1024 to all CON rotatesprite calls")

@@ -263,8 +263,6 @@ int DirectSoundDrv_PCM_Init(int *mixrate, int *numchannels, void * initdata)
     if (FAILED(err = IDirectSoundBuffer_Play(lpdsbprimary, 0, 0, DSBPLAY_LOOPING)))
         return DirectSound_Error(err, DSErr_Play);
 
-    mutex_init(&mutex);
-
     Initialised = 1;
 
     return DSErr_Ok;

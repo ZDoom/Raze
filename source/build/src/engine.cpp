@@ -10365,8 +10365,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     fydim = (float) ydim;
 #endif
 
-    OSD_ResizeDisplay(xdim, ydim);
-
     videoAllocateBuffers();
 
 #ifdef HIGH_PRECISION_SPRITE
@@ -12523,9 +12521,6 @@ void videoSet2dMode(int32_t daxdim, int32_t daydim)
 
         rendmode = REND_CLASSIC;
 #endif
-
-        OSD_ResizeDisplay(xdim, ydim);
-
         videoAllocateBuffers();
 
         ydim16 = ydim - STATUS2DSIZ2;

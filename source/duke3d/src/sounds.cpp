@@ -98,7 +98,6 @@ void S_SoundStartup(void)
 	snd_reversestereo.Callback();
     FX_SetCallBack(S_Callback);
     FX_SetPrintf(OSD_Printf);
-    mutex_init(&m_callback);
 }
 
 void S_SoundShutdown(void)

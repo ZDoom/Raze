@@ -11,16 +11,7 @@
 extern char appactive;
 
 typedef uint8_t kb_scancode;
-
-
-typedef struct
-{
-	const char* key;
-	char* cmdstr;
-	char repeat;
-	char laststate;
-}
-consolekeybind_t;
+extern bool GUICapture;
 
 // This encapsulates the entire game-readable input state which previously was spread out across several files.
 
@@ -272,7 +263,7 @@ public:
 
 	int32_t mouseReadButtons(void)
 	{
-		return (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || (osd && osd->flags & OSD_CAPTURE)) ? 0 : g_mouseBits;
+		return (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || GUICapture) ? 0 : g_mouseBits;
 	}
 	
 	int mouseClickState()
