@@ -7973,8 +7973,6 @@ MAIN_LOOP_RESTART:
             goto MAIN_LOOP_RESTART;
     }
     while (1);
-
-    return 0;  // not reached (duh)
 }
 
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop()

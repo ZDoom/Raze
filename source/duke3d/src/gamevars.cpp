@@ -141,7 +141,7 @@ int Gv_ReadSave(FileReader &kFile)
         if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
         {
             aGameVars[i].pValues = (intptr_t*)Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-            if (kFile.Read(aGameVars[i].pValues,sizeof(intptr_t) * MAXPLAYERS) != sizeof(intptr_t) * MAXPLAYERS)) goto corrupt;
+            if (kFile.Read(aGameVars[i].pValues,sizeof(intptr_t) * MAXPLAYERS) != sizeof(intptr_t) * MAXPLAYERS) goto corrupt;
         }
         else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
         {
