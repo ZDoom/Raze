@@ -22,6 +22,8 @@
 #include "scriptfile.h"
 #include "softsurface.h"
 #include "gamecvars.h"
+#include "c_console.h"
+#include "v_2ddrawer.h"
 
 #ifdef USE_OPENGL
 # include "glsurface.h"
@@ -10422,6 +10424,7 @@ void videoNextPage(void)
 
     if (in3dmode())
     {
+		// software rendering only
         videoBeginDrawing(); //{{{
         for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
@@ -10433,10 +10436,13 @@ void videoNextPage(void)
         }
         videoEndDrawing();   //}}}
 
-        //OSD_Draw();
-        videoShowFrame(0);
+		C_DrawConsole();
+		GLInterface.Draw2D(&twod);
 
-        videoBeginDrawing(); //{{{
+		videoShowFrame(0);
+
+		// software rendering only
+		videoBeginDrawing(); //{{{
         for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
             per = &permfifo[i];

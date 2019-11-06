@@ -35,6 +35,8 @@ int timerInit(int const tickspersecond)
     return 0;
 }
 
+TArray<void(*)(void)> callbacks;
+
 ATTRIBUTE((flatten)) void timerUpdateClock(void)
 {
     auto time = steady_clock::now();
@@ -50,16 +52,14 @@ ATTRIBUTE((flatten)) void timerUpdateClock(void)
     totalclock += n;
     timerlastsample += n*nanoseconds(1000000000/timerticspersec);
 
-    if (usertimercallback)
-        for (; n > 0; n--) usertimercallback();
+	for (; n > 0; n--)
+	{
+		for (auto cb : callbacks) cb();
+	}
 }
 
 void(*timerSetCallback(void(*callback)(void)))(void)
 {
-    void(*oldtimercallback)(void);
-
-    oldtimercallback = usertimercallback;
-    usertimercallback = callback;
-
-    return oldtimercallback;
+	callbacks.Push(callback);
+    return nullptr;
 }

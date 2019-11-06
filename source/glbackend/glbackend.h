@@ -16,6 +16,7 @@ class PolymostShader;
 class SurfaceShader;
 class FTexture;
 class GLInstance;
+class F2DDrawer;
 
 struct PaletteData
 {
@@ -72,6 +73,7 @@ public:
 	{}
 	~PaletteManager();
 	void DeleteAll();
+	void DeleteAllTextures();
 	void SetPalette(int index, const uint8_t *data);
 	void SetPalswapData(int index, const uint8_t* data, int numshades);
 
@@ -215,6 +217,7 @@ public:
 	void LoadPolymostShader();
 	void LoadSurfaceShader();
 	void LoadVPXShader();
+	void Draw2D(F2DDrawer* drawer);
 
 	void Deinit();
 	

@@ -390,7 +390,7 @@ void FFont::BuildTranslations (const double *luminosity, const uint8_t *identity
 
 		remap.Palette[0] = 0;
 
-		for (j = 0; j < ActiveColors; j++)
+		for (j = 1; j < ActiveColors; j++)
 		{
 			int v = int(luminosity[j] * 256.0);
 

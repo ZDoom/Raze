@@ -11,7 +11,7 @@
 extern char appactive;
 
 typedef uint8_t kb_scancode;
-extern bool GUICapture;
+extern int GUICapture;
 
 // This encapsulates the entire game-readable input state which previously was spread out across several files.
 

@@ -52,6 +52,7 @@
 #include "v_draw.h"
 #include "v_font.h"
 #include "printf.h"
+#include "inputstate.h"
 
 
 #define LEFTMARGIN 8
@@ -634,6 +635,8 @@ void C_InitConsole (int width, int height, bool ingame)
 	ConCols = ConWidth / cwidth;
 
 	if (conbuffer == NULL) conbuffer = new FConsoleBuffer;
+
+	timerSetCallback(C_Ticker);
 }
 
 //==========================================================================
@@ -1011,6 +1014,11 @@ void C_NewModeAdjust ()
 int consoletic = 0;
 void C_Ticker()
 {
+	// The engine timer ticks at 120 fps which is 4x too fast for this.
+	static int delay = 0;
+	if (++delay < 4) return;
+	delay = 0;
+
 	static int lasttic = 0;
 	consoletic++;
 
@@ -1193,7 +1201,6 @@ void C_DrawConsole ()
 		else
 		{
 			PalEntry pe((uint8_t)(con_alpha * 255), 0, 0, 0);
-			0, (/*gamestate != GS_FULLCONSOLE*/true) ? (double)con_alpha : 1,
 			twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), visheight, pe);
 		}
 		if (conline && visheight < screen->GetHeight())
@@ -1319,11 +1326,13 @@ void C_ToggleConsole ()
 		HistPos = NULL;
 		TabbedLast = false;
 		TabbedList = false;
+		GUICapture++;
 	}
 	else //if (gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
 	{
 		ConsoleState = c_rising;
 		C_FlushDisplay ();
+		GUICapture--;
 	}
 }
 
@@ -1766,6 +1775,11 @@ CCMD (echo)
 		FString formatted = strbin1 (argv[i]);
 		Printf ("%s%s", formatted.GetChars(), i!=last ? " " : "\n");
 	}
+}
+
+CCMD(toggleconsole)
+{
+	C_ToggleConsole();
 }
 
 #if 0 // The Build engine cannot do this at the moment. Q: Implement and redirect some messages here?

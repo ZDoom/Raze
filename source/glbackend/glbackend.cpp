@@ -171,7 +171,7 @@ void GLInstance::Deinit()
 	if (vpxShader) delete vpxShader;
 	vpxShader = nullptr;
 	activeShader = nullptr;
-	palmanager.DeleteAll();
+	palmanager.DeleteAllTextures();
 	lastPalswapIndex = -1;
 }
 	
@@ -210,14 +210,23 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 		renderState.Apply(polymostShader);
 		if (renderState.VertexBuffer != LastVertexBuffer || LastVB_Offset[0] != renderState.VB_Offset[0] || LastVB_Offset[1] != renderState.VB_Offset[1])
 		{
-			static_cast<OpenGLRenderer::GLVertexBuffer*>(renderState.VertexBuffer)->Bind(renderState.VB_Offset);
+			if (renderState.VertexBuffer)
+			{
+				static_cast<OpenGLRenderer::GLVertexBuffer*>(renderState.VertexBuffer)->Bind(renderState.VB_Offset);
+			}
+			else glBindBuffer(GL_ARRAY_BUFFER, 0);
 			LastVertexBuffer = renderState.VertexBuffer;
 			LastVB_Offset[0] = renderState.VB_Offset[0];
 			LastVB_Offset[1] = renderState.VB_Offset[1];
 		}
 		if (renderState.IndexBuffer != LastIndexBuffer)
 		{
-			static_cast<OpenGLRenderer::GLIndexBuffer*>(renderState.IndexBuffer)->Bind();
+			if (renderState.IndexBuffer)
+			{
+				static_cast<OpenGLRenderer::GLIndexBuffer*>(renderState.IndexBuffer)->Bind();
+			}
+			else glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			LastIndexBuffer = renderState.IndexBuffer;
 		}
 	}
 	if (!LastVertexBuffer)

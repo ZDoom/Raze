@@ -82,17 +82,18 @@ public:
 //
 //===========================================================================
 
-void Draw2D(F2DDrawer *drawer, FRenderState &state)
+void GLInstance::Draw2D(F2DDrawer *drawer)
 {
 	VSMatrix mat(0);
-	GLInterface.SetMatrix(Matrix_View, mat.get());
-	GLInterface.SetMatrix(Matrix_ModelView, mat.get());
-	GLInterface.SetMatrix(Matrix_Detail, mat.get());
+	SetMatrix(Matrix_View, mat.get());
+	SetMatrix(Matrix_ModelView, mat.get());
+	SetMatrix(Matrix_Detail, mat.get());
 	mat.ortho(0, xdim, ydim, 0, -1, 1);
-	GLInterface.SetMatrix(Matrix_Projection, mat.get());
-	GLInterface.SetViewport(0, 0, xdim, ydim);
-	GLInterface.EnableDepthTest(false);
-	GLInterface.EnableMultisampling(false);
+	SetMatrix(Matrix_Projection, mat.get());
+	SetViewport(0, 0, xdim, ydim);
+	EnableDepthTest(false);
+	EnableMultisampling(false);
+	EnableBlend(true);
 
 	auto &vertices = drawer->mVertices;
 	auto &indices = drawer->mIndices;
@@ -113,9 +114,9 @@ void Draw2D(F2DDrawer *drawer, FRenderState &state)
 	}
 	F2DVertexBuffer vb;
 	vb.UploadData(&vertices[0], vertices.Size(), &indices[0], indices.Size());
-	GLInterface.SetVertexBuffer(vb.GetBufferObjects().first, 0, 0);
-	GLInterface.SetIndexBuffer(vb.GetBufferObjects().second);
-	GLInterface.SetFadeDisable(true);
+	SetVertexBuffer(vb.GetBufferObjects().first, 0, 0);
+	SetIndexBuffer(vb.GetBufferObjects().second);
+	SetFadeDisable(true);
 
 	for(auto &cmd : commands)
 	{
@@ -139,37 +140,37 @@ void Draw2D(F2DDrawer *drawer, FRenderState &state)
 		{
 			sciX = sciY = sciW = sciH = -1;
 		}
-		//GLInterface.SetScissor(sciX, sciY, sciW, sciH);
+		//SetScissor(sciX, sciY, sciW, sciH);
 
 		//state.SetFog(cmd.mColor1, 0);
-		GLInterface.SetColor(1, 1, 1);
+		SetColor(1, 1, 1);
 		//state.SetColor(1, 1, 1, 1, cmd.mDesaturate); 
 
-		GLInterface.SetAlphaThreshold(0.0f);
+		SetAlphaThreshold(0.0f);
 
 		if (cmd.mTexture != nullptr)
 		{
 			auto tex = cmd.mTexture;
-			GLInterface.SetNamedTexture(cmd.mTexture, cmd.mRemapIndex, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
-			GLInterface.UseColorOnly(false);
+			SetNamedTexture(cmd.mTexture, cmd.mRemapIndex, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
+			UseColorOnly(false);
 		}
 		else
 		{
-			GLInterface.UseColorOnly(true);
+			UseColorOnly(true);
 		}
 
 		switch (cmd.mType)
 		{
 		case F2DDrawer::DrawTypeTriangles:
-			GLInterface.Draw(DT_TRIANGLES, cmd.mIndexIndex, cmd.mIndexCount);
+			Draw(DT_TRIANGLES, cmd.mIndexIndex, cmd.mIndexCount);
 			break;
 
 		case F2DDrawer::DrawTypeLines:
-			GLInterface.Draw(DT_LINES, cmd.mVertIndex, cmd.mVertCount);
+			//Draw(DT_LINES, cmd.mVertIndex, cmd.mVertCount);
 			break;
 
 		case F2DDrawer::DrawTypePoints:
-			//GLInterface.Draw(DT_POINTS, cmd.mVertIndex, cmd.mVertCount);
+			//Draw(DT_POINTS, cmd.mVertIndex, cmd.mVertCount);
 			break;
 
 		}
@@ -185,12 +186,13 @@ void Draw2D(F2DDrawer *drawer, FRenderState &state)
 	//state.SetScissor(-1, -1, -1, -1);
 
 	//state.SetRenderStyle(STYLE_Translucent);
-	GLInterface.SetVertexBuffer(nullptr, 0, 0);
-	GLInterface.SetIndexBuffer(nullptr);
-	GLInterface.UseColorOnly(false);
+	SetVertexBuffer(nullptr, 0, 0);
+	SetIndexBuffer(nullptr);
+	UseColorOnly(false);
 	//state.EnableBrightmap(true);
 	//state.SetTextureMode(TM_NORMAL);
-	GLInterface.SetFadeDisable(false);
-	GLInterface.SetColor(1, 1, 1);
+	SetFadeDisable(false);
+	SetColor(1, 1, 1);
 	//drawer->mIsFirstPass = false;
+	twod.Clear();
 }

@@ -6488,7 +6488,7 @@ MAIN_LOOP_RESTART:
 
                     int const moveClock = (int)totalclock;
 
-                    if (((ud.show_help == 0 && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
+                    if (((ud.show_help == 0 && !GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
                         && (myplayer.gm & MODE_GAME))
                     {
                         G_MoveLoop();

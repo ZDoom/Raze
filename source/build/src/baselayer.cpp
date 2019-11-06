@@ -22,7 +22,7 @@ extern "C"
 #endif // _WIN32
 
 int32_t g_borderless=2;
-bool GUICapture = false;
+int GUICapture = false;
 
 // input
 char    inputdevices = 0;

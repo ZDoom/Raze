@@ -61,18 +61,25 @@ PaletteManager::~PaletteManager()
 //
 //===========================================================================
 
-void PaletteManager::DeleteAll()
+void PaletteManager::DeleteAllTextures()
 {
 	for (auto& pal : palettes)
 	{
 		if (pal.paltexture) delete pal.paltexture;
+		pal.paltexture = nullptr;
 	}
 	for (auto& pal : palswaps)
 	{
 		if (pal.swaptexture) delete pal.swaptexture;
+		pal.swaptexture = nullptr;
 	}
 	if (palswapTexture) delete palswapTexture;
 	palswapTexture = nullptr;
+}
+
+void PaletteManager::DeleteAll()
+{
+	DeleteAllTextures();
 	palettes.Reset();
 	palswaps.Reset();
 	lastindex = ~0u;
@@ -144,7 +151,7 @@ unsigned PaletteManager::FindPalswap(const uint8_t* paldata)
 	for (int i = 0; i < 255; i++)
 	{
 		int map = paldata[i];
-		PalEntry color = palettes[0].colors[map];
+		PalEntry color = palettes[palettemap[0]].colors[map];
 		if (color.Luminance() < foundColor.Luminance())
 		{
 			foundColor = color;
@@ -154,7 +161,7 @@ unsigned PaletteManager::FindPalswap(const uint8_t* paldata)
 
 	// Determine the fade color. We pick what black, or the darkest color, maps to in the lowest shade level.
 	int map = paldata[(numshades - 2) * 256 + found]; // do not look in the latest shade level because it doesn't always contain useful data for this.
-	pd.fadeColor = palettes[0].colors[map];
+	pd.fadeColor = palettes[palettemap[0]].colors[map];
 	if (pd.fadeColor.Luminance() < 10) pd.fadeColor = 0;	// Account for the inability to check the last fade level by using a higher threshold for determining black fog.
 
 	return palswaps.Push(pd);

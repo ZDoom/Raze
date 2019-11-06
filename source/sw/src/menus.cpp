@@ -683,14 +683,11 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             inputState.ClearKeyStatus(inputState.GetLastScanCode());
 
             //KeyboardKeys[currentkey][currentcol] = KB_GetLastScanCode();
-            if (currentkey != gamefunc_Show_Console)
-            {
 #if 0 // [JM] Re-do this shit !CHECKME!
                 CONTROL_MapKey(currentkey,
                                KeyboardKeys[currentkey][0],
                                KeyboardKeys[currentkey][1]);
 #endif
-            }
 
             currentmode = 0;
         }
@@ -733,10 +730,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         else if (inputState.GetKeyStatus(sc_Delete))
         {
             inputState.ClearKeyStatus(sc_Delete);
-            if (currentkey != gamefunc_Show_Console)
-            {
-				//Bindings.UnbindACommand(buttonMap.GetButtonName(M_KEYBOARDKEYS.currentEntry));
-			}
+			//Bindings.UnbindACommand(buttonMap.GetButtonName(M_KEYBOARDKEYS.currentEntry));
         }
         else if (inputState.GetKeyStatus(sc_Home))
         {
@@ -787,8 +781,6 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 			currentcol = 0;
 		}
 
-        if (currentkey == gamefunc_Show_Console) currentcol = 0;
-
         CONTROL_ClearUserInput(&inpt);
 
         if (NUMGAMEFUNCTIONS > PGSIZ)
@@ -826,8 +818,6 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             if (!p || KeyboardKeys[i][0]==0xff) p = "  -";
             MNU_DrawSmallString(OPT_XSIDE, j, p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==0) ? 14 : 16);
-
-            if (i == gamefunc_Show_Console) continue;
 
             p = keyGetName(KeyboardKeys[i][1]);
             if (!p || KeyboardKeys[i][1]==0xff) p = "  -";

@@ -88,7 +88,7 @@ struct HexDataSource
 static HexDataSource hexdata;
 
 // This is a font character that reads RLE compressed data.
-class FHexFontChar : public FTexture
+class FHexFontChar : public FTileTexture
 {
 public:
 	FHexFontChar(uint8_t *sourcedata, int swidth, int width, int height);
