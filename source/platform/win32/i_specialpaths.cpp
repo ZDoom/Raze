@@ -285,7 +285,7 @@ FString M_GetSavegamesPath()
 		path.Substitute("\\", "/");
 		if (path[path.Len() - 1] != '/') path << '/';
 	}
-	else if (*cl_savedir)
+	else if (**cl_savedir)
 	{
 		path = cl_savedir;
 		path.Substitute("\\", "/");
