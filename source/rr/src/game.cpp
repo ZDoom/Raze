@@ -7522,7 +7522,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
         g_player[pnum].inputBits = (input_t *)Xcalloc(1, sizeof(input_t));
 }
 
-
+void app_loop();
 
 // TODO: reorder (net)actor_t to eliminate slop and update assertion
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
@@ -7753,28 +7753,14 @@ int GameInterface::app_main()
 
     ReadSaveGameHeaders();
 
-#if 0
-    // previously, passing -0 through -9 on the command line would load the save in that slot #
-    // this code should be reusable for a new parameter that takes a filename, if desired
-    if (/* havesavename */ && (!g_netServer && ud.multimode < 2))
-    {
-        clearview(0L);
-        //g_player[myconnectindex].ps->palette = palette;
-        //G_FadePalette(0,0,0,0);
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-        rotatesprite_fs(160<<16,100<<16,65536L,0,LOADSCREEN,0,0,2+8+64+BGSTRETCH);
-        menutext_center(105,"Loading saved game...");
-        nextpage();
-
-        if (G_LoadPlayer(/* savefile */))
-            /* havesavename = false; */
-    }
-#endif
-
     FX_StopAllSounds();
     S_ClearSoundLocks();
-
-    //    getpackets();
+	app_loop();
+}
+	
+void app_loop()
+{
+	auto &myplayer = g_player[myconnectindex].ps;
 
 MAIN_LOOP_RESTART:
     totalclock = 0;
@@ -7913,12 +7899,6 @@ MAIN_LOOP_RESTART:
                         (g_player[myconnectindex].ps->gm&MODE_GAME))
                 {
                     G_MoveLoop();
-#ifdef __ANDROID__
-                    inputfifo[0][myconnectindex].fvel = 0;
-                    inputfifo[0][myconnectindex].svel = 0;
-                    inputfifo[0][myconnectindex].avel = 0;
-                    inputfifo[0][myconnectindex].horz = 0;
-#endif
                 }
 
                 timerUpdate();

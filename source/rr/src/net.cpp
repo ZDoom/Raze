@@ -1816,29 +1816,6 @@ void Net_GetInput(void)
     avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
     g_player[myconnectindex].movefifoend++;
 
-#if 0
-    if (numplayers < 2)
-    {
-        if (ud.multimode > 1)
-        {
-            for (int TRAVERSE_CONNECT(i))
-            {
-                if (i != myconnectindex)
-                {
-                    //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
-                    if (ud.playerai)
-                    {
-                        computergetinput(i, &inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ - 1)][i]);
-                        inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ - 1)][i].svel++;
-                        inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ - 1)][i].fvel++;
-                    }
-                    g_player[i].movefifoend++;
-                }
-            }
-        }
-        return;
-    }
-#endif
 
     for (int TRAVERSE_CONNECT(i))
     if (i != myconnectindex)
@@ -1847,24 +1824,13 @@ void Net_GetInput(void)
         g_player[i].myminlag = min(g_player[i].myminlag,k);
         mymaxlag = max(mymaxlag,k);
     }
-#if 0
-    if (((g_player[myconnectindex].movefifoend - 1) & (TIMERUPDATESIZ - 1)) == 0)
-    {
-        i = mymaxlag - bufferjitter;
-        mymaxlag = 0;
-        if (i > 0)
-            bufferjitter += ((2 + i) >> 2);
-        else if (i < 0)
-            bufferjitter -= ((2 - i) >> 2);
-    }
-#else
+
     if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
     {
         int i = mymaxlag-bufferjitter; mymaxlag = 0;
         if (i > 0) bufferjitter += ((3+i)>>2);
         else if (i < 0) bufferjitter -= ((1-i)>>2);
     }
-#endif
 
     if (g_networkBroadcastMode == 1)
     {

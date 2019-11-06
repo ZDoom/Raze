@@ -290,7 +290,7 @@ void G_GameExit(const char *msg)
     {
         if (!(msg[0] == ' ' && msg[1] == 0))
         {
-			I_Error(msg);
+			I_Error("%s", msg);
         }
     }
 
@@ -6121,6 +6121,8 @@ void G_MaybeAllocPlayer(int32_t pnum)
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
+void app_loop();
+
 int GameInterface::app_main()
 {
     g_skillCnt = 4;
@@ -6143,7 +6145,7 @@ int GameInterface::app_main()
     
     g_logFlushWindow = 0;
 
-#ifndef EDUKE32_STANDALONE
+
     G_SetupCheats();
 
     if (SHAREWARE)
@@ -6155,7 +6157,6 @@ int GameInterface::app_main()
 			g_Shareware = 1;
 		}
 	}
-#endif
 
     // gotta set the proper title after we compile the CONs if this is the full version
 
@@ -6340,30 +6341,19 @@ int GameInterface::app_main()
 
     ReadSaveGameHeaders();
 
-#if 0
-    // previously, passing -0 through -9 on the command line would load the save in that slot #
-    // this code should be reusable for a new parameter that takes a filename, if desired
-    if (/* havesavename */ && (!g_netServer && ud.multimode < 2))
-    {
-        clearview(0L);
-        //psmy.palette = palette;
-        //G_FadePalette(0,0,0,0);
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-        rotatesprite_fs(160<<16,100<<16,65536L,0,LOADSCREEN,0,0,2+8+64+BGSTRETCH);
-        menutext_center(105,"Loading saved game...");
-        nextpage();
-
-        if (G_LoadPlayer(/* savefile */))
-            /* havesavename = false; */
-    }
-#endif
-
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
     //    getpackets();
 
     VM_OnEvent(EVENT_INITCOMPLETE);
+	
+	app_loop();
+}
+
+void app_loop()
+{
+	auto &myplayer = *g_player[myconnectindex].ps;
 
 MAIN_LOOP_RESTART:
     totalclock = 0;
@@ -6501,13 +6491,6 @@ MAIN_LOOP_RESTART:
                     {
                         G_MoveLoop();
                         S_Update();
-
-#ifdef __ANDROID__
-                        inputfifo[0][myconnectindex].fvel = 0;
-                        inputfifo[0][myconnectindex].svel = 0;
-                        inputfifo[0][myconnectindex].avel = 0;
-                        inputfifo[0][myconnectindex].horz = 0;
-#endif
                     }
 
                     if (totalclock - moveClock >= (TICSPERFRAME>>1))
@@ -6581,8 +6564,6 @@ MAIN_LOOP_RESTART:
             goto MAIN_LOOP_RESTART;
     }
     while (1);
-
-    return 0;  // not reached (duh)
 }
 
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
