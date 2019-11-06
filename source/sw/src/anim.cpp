@@ -46,6 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "animlib.h"
 #include "anim.h"
+#include "input.h"
 
 #include "common_game.h"
 
@@ -322,11 +323,13 @@ playanm(short anim_num)
             switch (ANIMnum)
             {
             case ANIM_INTRO:
-                if (inputState.keyBufferWaiting() || uinfo.button0 || uinfo.button1 || quitevent)
+				if (I_GeneralTrigger() || quitevent)
+					I_GeneralTriggerClear();
                     goto ENDOFANIMLOOP;
                 break;
             case ANIM_SERP:
-                if (inputState.GetKeyStatus(KEYSC_ESC) || uinfo.button1 || quitevent)
+				if (I_EscapeTrigger() || quitevent)
+					I_EscapeTriggerClear();
                     goto ENDOFANIMLOOP;
                 break;
             }

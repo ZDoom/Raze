@@ -7756,6 +7756,7 @@ int GameInterface::app_main()
     FX_StopAllSounds();
     S_ClearSoundLocks();
 	app_loop();
+	return 0;
 }
 	
 void app_loop()

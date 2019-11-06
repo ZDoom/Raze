@@ -173,6 +173,7 @@ struct GameInterface
 	virtual bool validate_hud(int) = 0;
 	virtual void set_hud_layout(int size) = 0;
 	virtual void set_hud_scale(int size) = 0;
+	virtual bool mouseInactiveConditional(bool condition) { return condition; }
 };
 
 extern GameInterface* gi;

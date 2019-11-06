@@ -488,6 +488,7 @@ extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 # define MOUSEWATCHPOINTCONDITIONAL(condition) ((condition) || m_mousewake_watchpoint || m_menuchange_watchpoint == 3)
 #endif
 
+
 #define MAXMENUGAMEPLAYENTRIES 7
 
 enum MenuGameplayEntryFlags

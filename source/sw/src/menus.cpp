@@ -43,6 +43,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sw_strs.h"
 #include "pal.h"
 #include "demo.h"
+#include "input.h"
 
 #include "gamecontrol.h"
 #include "gamedefs.h"
@@ -759,16 +760,32 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             if (currentkey < 0) currentkey = 0;
             inputState.ClearKeyStatus(sc_PgUp);
         }
-        else if (inpt.button0)
+        else if (I_EscapeTrigger())
         {
             currentmode = 1;
             inputState.ClearLastScanCode();
             inputState.ClearKeysDown();
         }
-        else if (inpt.dir == dir_North) currentkey = max(0,currentkey-1);
-        else if (inpt.dir == dir_South) currentkey = min(NUMGAMEFUNCTIONS-1,currentkey+1);
-        else if (inpt.dir == dir_East) currentcol = 1;
-        else if (inpt.dir == dir_West) currentcol = 0;
+		else if (I_MenuUp())
+		{
+			I_MenuUpClear();
+			currentkey = max(0, currentkey - 1);
+		}
+		else if (I_MenuDown())
+		{
+			I_MenuDownClear();
+			currentkey = min(NUMGAMEFUNCTIONS - 1, currentkey + 1);
+		}
+		else if (I_MenuRight())
+		{
+			I_MenuRightClear();
+			currentcol = 1;
+		}
+		else if (I_MenuLeft())
+		{
+			I_MenuLeftClear();
+			currentcol = 0;
+		}
 
         if (currentkey == gamefunc_Show_Console) currentcol = 0;
 
@@ -873,12 +890,21 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
         if (*currentfunc < 0) *currentfunc = 0;
         inputState.ClearKeyStatus(sc_PgUp);
     }
-    else if (inpt.button0)
+    else if (I_GeneralTrigger())
     {
+		I_GeneralTriggerClear();
         returnval = 1;
     }
-    else if (inpt.dir == dir_North) *currentfunc = max(0, *currentfunc-1);
-    else if (inpt.dir == dir_South) *currentfunc = min(NUMGAMEFUNCTIONS-1, *currentfunc+1);
+	else if (I_MenuUp())
+	{
+		I_MenuUpClear();
+		*currentfunc = max(0, *currentfunc - 1);
+	}
+	else if (inpt.dir == dir_South)
+	{
+		I_MenuDownClear();
+		*currentfunc = min(NUMGAMEFUNCTIONS - 1, *currentfunc + 1);
+	}
 
     CONTROL_ClearUserInput(&inpt);
 
@@ -1622,20 +1648,24 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         ExitMenus();
     }
 
-    if (order_input.dir == dir_North)
+    if (I_MenuUp())
     {
+		I_MenuUpClear();
         on_screen--;
     }
-    else if (order_input.dir == dir_South)
+    else if (I_MenuDown())
     {
+		I_MenuDownClear();
         on_screen++;
     }
-    else if (order_input.dir == dir_West)
+    else if (I_MenuLeft())
     {
+		I_MenuLeftClear();
         on_screen--;
     }
-    else if (order_input.dir == dir_East)
+    else if (I_MenuRight())
     {
+		I_MenuRightClear();
         on_screen++;
     }
 
@@ -4427,91 +4457,46 @@ void MNU_DoMenu(CTLType type, PLAYERp pp)
 
     // should not get input if you are editing a save game slot
     if (totalclock < limitmove) limitmove = (int32_t) totalclock;
-    if (!MenuInputMode)
+
+    if (I_MenuUp())
     {
-        UserInput tst_input;
-        SWBOOL select_held = FALSE;
-
-
-        // Zero out the input structure
-        tst_input.button0 = tst_input.button1 = FALSE;
-        tst_input.dir = dir_None;
-
-        if (!select_held)
-        {
-            CONTROL_GetUserInput(&tst_input);
-            mnu_input_buffered.dir = tst_input.dir;
-        }
-
-        if (mnu_input_buffered.button0 || mnu_input_buffered.button1)
-        {
-            if (tst_input.button0 == mnu_input_buffered.button0 &&
-                tst_input.button1 == mnu_input_buffered.button1)
-            {
-                select_held = TRUE;
-            }
-            else if (totalclock - limitmove > 7)
-            {
-                mnu_input.button0 = mnu_input_buffered.button0;
-                mnu_input.button1 = mnu_input_buffered.button1;
-
-                mnu_input_buffered.button0 = tst_input.button0;
-                mnu_input_buffered.button1 = tst_input.button1;
-            }
-        }
-        else
-        {
-            select_held = FALSE;
-            mnu_input_buffered.button0 = tst_input.button0;
-            mnu_input_buffered.button1 = tst_input.button1;
-        }
-
-        if (totalclock - limitmove > 7 && !select_held)
-        {
-            mnu_input.dir = mnu_input_buffered.dir;
-
-            if (mnu_input.dir != dir_None)
-                if (!FX_SoundActive(handle2))
-                    handle2 = PlaySound(DIGI_STAR,&zero,&zero,&zero,v3df_dontpan);
-
-            limitmove = (int32_t) totalclock;
-            mnu_input_buffered.dir = dir_None;
-        }
-    }
-
-    if (mnu_input.dir == dir_North)
-    {
+		I_MenuUpClear();
         MNU_PrevItem();
         resetitem = TRUE;
     }
-    else if (mnu_input.dir == dir_South)
+    else if (I_MenuDown())
     {
+		I_MenuDownClear();
         MNU_NextItem();
         resetitem = TRUE;
     }
-    else if (mnu_input.button0)
+    else if (I_GeneralTrigger())
     {
         static int handle5=0;
+		I_GeneralTriggerClear();
         if (!FX_SoundActive(handle5))
             handle5 = PlaySound(DIGI_SWORDSWOOSH,&zero,&zero,&zero,v3df_dontpan);
         inputState.ClearKeysDown();
         MNU_DoItem();
         resetitem = TRUE;
     }
-    else if (mnu_input.dir == dir_West
+    else if (I_MenuLeft()
              && currentmenu->items[currentmenu->cursor].type == mt_slider)
     {
+		I_MenuLeftClear();
         MNU_DoSlider(-1, &currentmenu->items[currentmenu->cursor], FALSE);
         resetitem = TRUE;
     }
-    else if (mnu_input.dir == dir_East
+    else if (I_MenuRight()
              && currentmenu->items[currentmenu->cursor].type == mt_slider)
     {
+		I_MenuRightClear();
         MNU_DoSlider(1, &currentmenu->items[currentmenu->cursor], FALSE);
         resetitem = TRUE;
     }
-    else if (mnu_input.button1)
+    else if (I_ReturnTrigger())
     {
+		I_ReturnTriggerClear();
         static int handle3=0;
         if (!FX_SoundActive(handle3))
             handle3 = PlaySound(DIGI_SWORDSWOOSH,&zero,&zero,&zero,v3df_dontpan);

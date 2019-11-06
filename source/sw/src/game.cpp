@@ -61,6 +61,7 @@ Things required to make savegames work:
 #include "network.h"
 #include "pal.h"
 #include "fx_man.h"
+#include "input.h"
 
 #include "mytypes.h"
 //#include "config.h"
@@ -1696,8 +1697,9 @@ LogoLevel(void)
             ototalclock += synctics;
         }
 
-        if (totalclock > 5*120 || KeyPressed() || uinfo.button0 || uinfo.button1)
+        if (totalclock > 5*120 || I_GeneralTrigger())
         {
+			I_GeneralTriggerClear();
             break;
         }
     }
@@ -2439,8 +2441,9 @@ BonusScreen(PLAYERp pp)
 
         CONTROL_GetUserInput(&uinfo);
         CONTROL_ClearUserInput(&uinfo);
-        if (inputState.GetKeyStatus(KEYSC_SPACE) || inputState.GetKeyStatus(KEYSC_ENTER) || uinfo.button0 || uinfo.button1)
+        if (I_GeneralTrigger())
         {
+			I_GeneralTriggerClear();
             if (State >= s_BonusRest && State < &s_BonusRest[SIZ(s_BonusRest)])
             {
                 State = s_BonusAnim[STD_RANDOM_RANGE(SIZ(s_BonusAnim))];
@@ -5016,6 +5019,12 @@ saveable_module saveable_build =
 /*extern*/ bool GameInterface::validate_hud(int requested_size) { return requested_size; }
 /*extern*/ void GameInterface::set_hud_layout(int requested_size) { /* the relevant setting is gs.BorderNum */}
 /*extern*/ void GameInterface::set_hud_scale(int requested_size) { /* the relevant setting is gs.BorderNum */ }
+
+bool GameInterface::mouseInactiveConditional(bool condition) 
+{
+	return condition;
+}
+
 
 ::GameInterface* CreateInterface()
 {

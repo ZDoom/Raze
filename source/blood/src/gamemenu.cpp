@@ -2963,4 +2963,9 @@ bool CGameMenuItemPassword::Event(CGameMenuEvent &event)
     return CGameMenuItem::Event(event);
 }
 
+bool GameInterface::mouseInactiveConditional(bool condition)
+{
+	return MOUSEINACTIVECONDITIONAL(condition);
+}
+
 END_BLD_NS

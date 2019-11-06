@@ -363,3 +363,12 @@ grpinfo
 	gamefilter "Blood.Cryptic"
 }
 
+grpinfo
+{
+	name "Shadow Warrior"
+	flags GAMEFLAG_SW
+	crc 0x7545319F
+	size 47536148
+	defname "sw.def"
+	gamefilter "ShadowWarrior.ShadowWarrior"
+}

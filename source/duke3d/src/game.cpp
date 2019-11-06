@@ -4806,7 +4806,8 @@ FAKE_F3:
             }
         }
 
-        if (inputState.UnboundKeyPressed(sc_F4))
+		if (inputState.GetKeyStatus(sc_F4))
+			if (inputState.UnboundKeyPressed(sc_F4))
         {
             inputState.ClearKeyStatus(sc_F4);
 
@@ -6349,6 +6350,7 @@ int GameInterface::app_main()
     VM_OnEvent(EVENT_INITCOMPLETE);
 	
 	app_loop();
+	return 0;
 }
 
 void app_loop()

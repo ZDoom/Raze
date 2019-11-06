@@ -56,7 +56,11 @@ void sub_5A928(void)
 void sub_5A944(int key)
 {
 	auto binding = Bindings.GetBind(key);
-#pragma message("todo: reset the bound button here")
+	if (binding)
+	{
+		auto index = buttonMap.FindButtonIndex(binding);
+		if (index >= 0) buttonMap.ClearButton(index);
+	}
 }
 
 void SetGodMode(bool god)

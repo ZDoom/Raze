@@ -72,8 +72,12 @@ public:
 
 	const char *GetBind(unsigned int index) const
 	{
-		if (index < NUM_KEYS) return Binds[index].GetChars();
-		else return NULL;
+		if (index < NUM_KEYS)
+		{
+			auto c = Binds[index].GetChars();
+			if (*c) return c;
+		}
+		return NULL;
 	}
 
 };

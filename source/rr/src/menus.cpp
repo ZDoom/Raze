@@ -7592,4 +7592,10 @@ void M_DisplayMenus(void)
         CAMERADIST = 65536;
     }
 }
+
+bool GameInterface::mouseInactiveConditional(bool condition)
+{
+	return MOUSEINACTIVECONDITIONAL(condition);
+}
+
 END_RR_NS

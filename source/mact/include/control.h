@@ -69,25 +69,6 @@ typedef enum
    analog_maxtype
    } analogcontrol;
 
-typedef enum
-   {
-   dir_North,
-   dir_NorthEast,
-   dir_East,
-   dir_SouthEast,
-   dir_South,
-   dir_SouthWest,
-   dir_West,
-   dir_NorthWest,
-   dir_None
-   } direction;
-
-typedef struct
-   {
-   int32_t   button0;
-   int32_t   button1;
-   direction dir;
-   } UserInput;
 
 typedef struct
    {
@@ -204,9 +185,6 @@ void CONTROL_ClearGameControllerDigitalAxisNeg(int32_t axis);
 
 ////////// KEY/MOUSE BIND STUFF //////////
 
-
-#define CONTROL_GetUserInput(...)
-#define CONTROL_ClearUserInput(...)
 
 ////////////////////
 

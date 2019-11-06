@@ -54,7 +54,7 @@ int32_t I_TextSubmit(void)
     return
         inputState.GetKeyStatus(sc_Enter)
         || inputState.GetKeyStatus(sc_kpad_Enter)
-        //|| MOUSEINACTIVECONDITIONAL(inputState.MouseGetButtons()&LEFT_MOUSE)
+        || gi->mouseInactiveConditional(inputState.MouseGetButtons()&LEFT_MOUSE)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_A));
 }
 
@@ -102,7 +102,7 @@ int32_t I_GeneralTrigger(void)
         I_AdvanceTrigger()
         || I_ReturnTrigger()
         || buttonMap.ButtonDown(gamefunc_Open)
-        //|| MOUSEINACTIVECONDITIONAL(buttonMap.ButtonDown(gamefunc_Fire))
+        || gi->mouseInactiveConditional(buttonMap.ButtonDown(gamefunc_Fire))
         || buttonMap.ButtonDown(gamefunc_Crouch)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
 }
@@ -278,7 +278,7 @@ int32_t I_SliderLeft(void)
     return
         I_MenuLeft()
 #if !defined EDUKE32_TOUCH_DEVICES
-        //|| MOUSEINACTIVECONDITIONAL((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELUP_MOUSE))
+        || gi->mouseInactiveConditional((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELUP_MOUSE))
 #endif
         ;
 }
@@ -295,7 +295,7 @@ int32_t I_SliderRight(void)
     return
         I_MenuRight()
 #if !defined EDUKE32_TOUCH_DEVICES
-        //|| MOUSEINACTIVECONDITIONAL((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELDOWN_MOUSE))
+        || gi->mouseInactiveConditional((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELDOWN_MOUSE))
 #endif
         ;
 }
