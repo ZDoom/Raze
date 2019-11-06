@@ -114,44 +114,6 @@ int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
 }
 
 
-// Clear OSD background
-void COMMON_doclearbackground(int numcols, int height)
-{
-	GLInterface.UseColorOnly(true);
-
-	polymostSet2dView();
-
-	VSMatrix identity(0);
-	GLInterface.SetMatrix(Matrix_ModelView, &identity);
-	auto vert = GLInterface.AllocVertices(8);
-	auto vt = vert.second;
-
-	auto h4 = height - 4;
-
-	GLInterface.EnableBlend(true);
-
-	vt[0].Set(0, 0); //top-left
-	vt[1].Set(0, h4); //bottom-left
-	vt[2].Set(xdim, 0); //top-right
-	vt[3].Set(xdim, h4);  //bottom-right
-	GLInterface.SetColor(0.f, 0.f, 0.f, 0.67f);
-	GLInterface.Draw(DT_TRIANGLE_STRIP, vert.first, 4);
-
-	vt[0].Set(0, h4); //top-left
-	vt[1].Set(0, height); //bottom-left
-	vt[2].Set(xdim, h4); //top-right
-	vt[3].Set(xdim, height);  //bottom-right
-	GLInterface.SetColor(0.f, 0.f, 0.f, 1.f);
-	GLInterface.Draw(DT_TRIANGLE_STRIP, vert.first+4, 4);
-
-	GLInterface.UseColorOnly(false);
-}
-
-void COMMON_clearbackground(int numcols, int numrows)
-{
-	COMMON_doclearbackground(numcols, 8 * numrows + 8);
-}
-
 #if defined _WIN32 && !defined EDUKE32_STANDALONE
 # define NEED_SHLWAPI_H
 # include "windows_inc.h"

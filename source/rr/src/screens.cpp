@@ -664,44 +664,6 @@ static void G_PrintCoords(int32_t snum)
     printext256(x, y+90, COLOR_WHITE, -1, tempbuf, 0);
 }
 
-static void G_ShowCacheLocks(void)
-{
-    int16_t i, k;
-
-    if (offscreenrendering)
-        return;
-
-    k = 0;
-
-    if (k < ydim-12)
-        k += 6;
-
-    if (k >= ydim-12 && k<ydim-6)
-        printext256(0, k, COLOR_WHITE, -1, "(MORE . . .)", 1);
-
-    // sounds
-    if (xdim < 640)
-        return;
-
-    k = 18;
-    for (i=0; i<=g_highestSoundIdx; i++)
-        if (g_sounds[i].num > 0)
-        {
-            int32_t j, n=g_sounds[i].num;
-
-            for (j=0; j<n; j++)
-            {
-                if (k >= ydim-12)
-                    break;
-
-                Bsprintf(tempbuf, "snd #%d inst %d: voice %d, ow %d", i, j,
-                    g_sounds[i].voices[j].id, g_sounds[i].voices[j].owner);
-                printext256(240, k, COLOR_WHITE, -1, tempbuf, 0);
-
-                k += 9;
-            }
-        }
-}
 
 #define LOW_FPS 30
 #define SLOW_FRAME_TIME 33
@@ -1222,10 +1184,7 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (buttonMap.ButtonDown(gamefunc_Show_DukeMatch_Scores))
         G_ShowScores();
-
-    if (g_Debug)
-        G_ShowCacheLocks();
-
+	
     Net_DisplaySyncMsg();
 
 #ifndef EDUKE32_TOUCH_DEVICES

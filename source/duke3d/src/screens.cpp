@@ -669,44 +669,6 @@ static void G_PrintCoords(int32_t snum)
     printext256(x, y+72, COLOR_WHITE, -1, tempbuf, 0);
 }
 
-
-static void G_ShowCacheLocks(void)
-{
-    if (offscreenrendering)
-        return;
-
-    int k = 0;
-
-    if (k < ydim-12)
-        k += 6;
-
-    if (k >= ydim-12 && k<ydim-6)
-        printext256(0, k, COLOR_WHITE, -1, "(MORE . . .)", 1);
-
-    // sounds
-    if (xdim < 640)
-        return;
-
-    k = 0;
-
-    for (int i=0; i<=g_highestSoundIdx; i++)
-    {
-        if (g_sounds[i].num > 0)
-        {
-            for (int j = 0, n = g_sounds[i].num; j < n; j++)
-            {
-                if (k >= ydim-12)
-                    return;
-
-                Bsprintf(tempbuf, "snd %d_%d: voice %d, ow %d", i, j, g_sounds[i].voices[j].id, g_sounds[i].voices[j].owner);
-                printext256(160, k, COLOR_WHITE, -1, tempbuf, 1);
-
-                k += 6;
-            }
-        }
-    }
-}
-
 #define LOW_FPS ((videoGetRenderMode() == REND_CLASSIC) ? 35 : 50)
 #define SLOW_FRAME_TIME 20
 
@@ -1213,8 +1175,6 @@ void G_DisplayRest(int32_t smoothratio)
     if (buttonMap.ButtonDown(gamefunc_Show_DukeMatch_Scores))
         G_ShowScores();
 
-    if (g_Debug)
-        G_ShowCacheLocks();
 
 #ifdef LUNATIC
     El_DisplayErrors();
