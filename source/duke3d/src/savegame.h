@@ -154,6 +154,7 @@ enum
 void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode);
 void G_Util_PtrToIdx2(void *ptr, int32_t count, size_t stride, const void *base, int32_t mode);
 
+
 END_DUKE_NS
 
 #endif

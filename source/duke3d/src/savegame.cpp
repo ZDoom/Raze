@@ -313,17 +313,6 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
             OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
             goto corrupt;
         }
-
-#if 0
-        // debug code to dump the screenshot
-        char scrbuf[BMAX_PATH];
-        if (G_ModDirSnprintf(scrbuf, sizeof(scrbuf), "%s.raw", fn) == 0)
-        {
-            buildvfs_FILE scrfil = buildvfs_fopen_write(scrbuf);
-            buildvfs_fwrite(tileData(TILE_LOADSHOT), 320, 200, scrfil);
-            buildvfs_fclose(scrfil);
-        }
-#endif
     }
     else
     {

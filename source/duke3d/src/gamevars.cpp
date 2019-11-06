@@ -114,6 +114,7 @@ void Gv_Clear(void)
         hash_free(i);
 }
 
+// Note that this entire function is totally architecture dependent and needs to be fixed (which won't be easy...)
 int Gv_ReadSave(FileReader &kFile)
 {
     char tbuf[12];
@@ -234,6 +235,7 @@ corrupt:
     return -7;
 }
 
+// Note that this entire function is totally architecture dependent and needs to be fixed (which won't be easy...)
 void Gv_WriteSave(buildvfs_FILE fil)
 {
     //   AddLog("Saving Game Vars to File");
