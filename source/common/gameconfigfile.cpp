@@ -314,7 +314,6 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 // Moved from DoGameSetup so that it can happen after wads are loaded
 void FGameConfigFile::DoKeySetup(const char *gamename)
 {
-	/*
 	static const struct { const char *label; FKeyBindings *bindings; } binders[] =
 	{
 		{ "Bindings", &Bindings },
@@ -322,7 +321,6 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 		{ "AutomapBindings", &AutomapBindings },
 		{ NULL, NULL }
 	};
-	*/
 
 	sublen = countof(section) - 1 - snprintf(section, countof(section), "%s.", gamename);
 	subsection = section + countof(section) - sublen - 1;
@@ -330,7 +328,6 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 
 	//C_SetDefaultBindings ();
 
-#if 0
 	const char* key, * value;
 	for (int i = 0; binders[i].label != NULL; ++i)
 	{
@@ -345,21 +342,6 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 			}
 		}
 	}
-#else
-	strncpy(subsection, "Bindings", sublen);
-	if (SetSection(section))
-	{
-		const char* key;
-		const char* value;
-		C_DoCommand("unbindall");
-		while (NextInSection(key, value))
-		{
-			FStringf cmd("bind %s \"%s\"", key, value);
-			C_DoCommand(cmd);
-		}
-	}
-
-#endif
 	OkayToWrite = true;
 }
 
