@@ -289,7 +289,7 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 	TileFiles.tileCreate(TILE_LOADSHOT, 200, 320);
     if (screenshotofs)
     {
-        if (kdfread_LZ4(tileData(TILE_LOADSHOT), 320, 200, fil) != 200)
+        if (fil.Read(tileData(TILE_LOADSHOT), 320 * 200) != 320 * 200)
         {
             OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
             goto corrupt;
@@ -672,10 +672,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 
         if (fil)
         {
-            if ((spec->flags & DS_CMP) || ((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres))
-                fwrite(ptr, spec->size, cnt, fil);
-            else
-                dfwrite_LZ4((void *)ptr, spec->size, cnt, fil);
+			fwrite(ptr, spec->size, cnt, fil);
         }
 
         if (dump && (spec->flags & (DS_NOCHK|DS_CMP)) == 0)
@@ -745,9 +742,8 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
         if (fil->isOpen())
         {
             auto const mem  = (dump && (spec->flags & DS_NOCHK) == 0) ? dump : (uint8_t *)ptr;
-            bool const comp = !((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres);
-            int const  siz  = comp ? cnt : cnt * spec->size;
-            int const  ksiz = comp ? kdfread_LZ4(mem, spec->size, siz, *fil) : fil->Read(mem, siz);
+            int const  siz  = cnt * spec->size;
+            int const  ksiz = fil->Read(mem, siz);
 
             if (ksiz != siz)
             {
@@ -1381,7 +1377,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
         int32_t ofs;
 
         // write the screenshot compressed
-        dfwrite_LZ4(tileData(TILE_SAVESHOT), 320, 200, fil);
+        fwrite(tileData(TILE_SAVESHOT), 320, 200, fil);
 
         // write the current file offset right after the header
         ofs = ftell(fil);
@@ -1576,10 +1572,7 @@ uint32_t sv_writediff(FILE *fil)
     fwrite("dIfF",4,1,fil);
     fwrite(&diffsiz, sizeof(diffsiz), 1, fil);
 
-    if (savegame_diffcompress)
-        dfwrite_LZ4(svdiff, 1, diffsiz, fil);  // cnt and sz swapped
-    else
-        fwrite(svdiff, 1, diffsiz, fil);
+	fwrite(svdiff, 1, diffsiz, fil);
 
     return diffsiz;
 }
@@ -1591,16 +1584,8 @@ int32_t sv_readdiff(FileReader &fil)
     if (fil.Read(&diffsiz, sizeof(uint32_t)) != sizeof(uint32_t))
         return -1;
 
-    if (savegame_diffcompress)
-    {
-        if (kdfread_LZ4(svdiff, 1, diffsiz, fil) != diffsiz)  // cnt and sz swapped
+	if (fil.Read(svdiff, diffsiz) != diffsiz)
             return -2;
-    }
-    else
-    {
-        if (fil.Read(svdiff, diffsiz) != diffsiz)
-            return -2;
-    }
 
     uint8_t *p = svsnapshot;
     uint8_t *d = svdiff;

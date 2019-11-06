@@ -308,7 +308,7 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 	TileFiles.tileCreate(TILE_LOADSHOT, 200, 320);
     if (screenshotofs)
     {
-        if (kdfread_LZ4(tileData(TILE_LOADSHOT), 320, 200, fil) != 200)
+        if (fil.Read(tileData(TILE_LOADSHOT), 320 * 200) != 320 * 200)
         {
             OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
             goto corrupt;
@@ -963,10 +963,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, buildvfs_FILE fil, uint8_t
 
         if (fil)
         {
-            if ((spec->flags & DS_CMP) || ((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres))
-                buildvfs_fwrite(ptr, spec->size, cnt, fil);
-            else
-                dfwrite_LZ4((void *)ptr, spec->size, cnt, fil);
+			buildvfs_fwrite(ptr, spec->size, cnt, fil);
         }
 
         if (dump && (spec->flags & (DS_NOCHK|DS_CMP)) == 0)
@@ -1036,9 +1033,8 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
         if (fil != nullptr)
         {
             auto const mem  = (dump && (spec->flags & DS_NOCHK) == 0) ? dump : (uint8_t *)ptr;
-            bool const comp = !((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres);
-            int const  siz  = comp ? cnt : cnt * spec->size;
-            int const  ksiz = comp ? kdfread_LZ4(mem, spec->size, siz, *fil) : fil->Read(mem, siz);
+            int const  siz  = cnt * spec->size;
+            int const  ksiz = fil->Read(mem, siz);
 
             if (ksiz != siz)
             {
@@ -1724,7 +1720,7 @@ int32_t sv_saveandmakesnapshot(buildvfs_FILE fil, char const *name, int8_t spot,
         int32_t ofs;
 
         // write the screenshot compressed
-        dfwrite_LZ4(tileData(TILE_SAVESHOT), 320, 200, fil);
+        buildvfs_fwrite(tileData(TILE_SAVESHOT), 320, 200, fil);
 
         // write the current file offset right after the header
         ofs = buildvfs_ftell(fil);
@@ -1919,10 +1915,7 @@ uint32_t sv_writediff(buildvfs_FILE fil)
     buildvfs_fwrite("dIfF",4,1,fil);
     buildvfs_fwrite(&diffsiz, sizeof(diffsiz), 1, fil);
 
-    if (savegame_diffcompress)
-        dfwrite_LZ4(svdiff, 1, diffsiz, fil);  // cnt and sz swapped
-    else
-        buildvfs_fwrite(svdiff, 1, diffsiz, fil);
+	buildvfs_fwrite(svdiff, 1, diffsiz, fil);
 
     return diffsiz;
 }
@@ -1934,16 +1927,8 @@ int32_t sv_readdiff(FileReader &fil)
     if (fil.Read(&diffsiz, sizeof(uint32_t)) != sizeof(uint32_t))
         return -1;
 
-    if (savegame_diffcompress)
-    {
-        if (kdfread_LZ4(svdiff, 1, diffsiz, fil) != diffsiz)  // cnt and sz swapped
+	if (fil.Read(svdiff, diffsiz) != diffsiz)
             return -2;
-    }
-    else
-    {
-        if (fil.Read(svdiff, diffsiz) != diffsiz)
-            return -2;
-    }
 
     uint8_t *p = svsnapshot;
     uint8_t *d = svdiff;
@@ -2204,30 +2189,6 @@ static uint8_t *dosaveplayer2(buildvfs_FILE fil, uint8_t *mem)
     PRINTSIZE("ud");
     mem=writespecdata(svgm_secwsp, fil, mem);  // sector, wall, sprite
     PRINTSIZE("sws");
-#ifdef LUNATIC
-    {
-        // Serialize Lunatic gamevars. When loading, the restoration code must
-        // be present before Lua state creation in svgm_script, so save it
-        // right before, too.
-        int32_t slen, slen_ext;
-        const char *svcode = El_SerializeGamevars(&slen, -1);
-
-        if (slen < 0)
-        {
-            // Serialization failed.
-            g_savedOK = 0;
-            g_failedVarname = svcode;
-            return mem;
-        }
-
-        buildvfs_fwrite("\0\1LunaGVAR\3\4", 12, 1, fil);
-        slen_ext = B_LITTLE32(slen);
-        buildvfs_fwrite(&slen_ext, sizeof(slen_ext), 1, fil);
-        dfwrite_LZ4(svcode, 1, slen, fil);  // cnt and sz swapped
-
-        g_savedOK = 1;
-    }
-#endif
     mem=writespecdata(svgm_script, fil, mem);  // script
     PRINTSIZE("script");
     mem=writespecdata(svgm_anmisc, fil, mem);  // animates, quotes & misc.

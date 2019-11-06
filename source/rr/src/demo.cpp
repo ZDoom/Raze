@@ -51,11 +51,10 @@ static int32_t g_demo_soundToggle;
 static int32_t demo_hasdiffs, demorec_diffs=1, demorec_difftics = 2*REALGAMETICSPERSEC;
 int32_t demoplay_diffs=1;
 int32_t demorec_diffcompress_cvar=1;
-int32_t demorec_synccompress_cvar=1;
 int32_t demorec_seeds_cvar=1;
 int32_t demoplay_showsync=1;
 
-static int32_t demo_synccompress=1, demorec_seeds=1, demo_hasseeds;
+static int32_t demorec_seeds=1, demo_hasseeds;
 
 static void Demo_RestoreModes(int32_t menu)
 {
@@ -114,10 +113,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 
     demo_hasdiffs = saveh.recdiffsp;
     g_demo_totalCnt = saveh.reccnt;
-    demo_synccompress = saveh.synccompress;
-
-    demo_hasseeds = demo_synccompress&2;
-    demo_synccompress &= 1;
+    demo_hasseeds = saveh.synccompress&2;
 
     i = g_demo_totalCnt/REALGAMETICSPERSEC;
     OSD_Printf("demo %d duration: %d min %d sec\n", g_whichDemo, i/60, i%60);
@@ -181,7 +177,7 @@ void G_OpenDemoWrite(void)
         return;
 
     i=sv_saveandmakesnapshot(g_demo_filePtr, nullptr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
-                             demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
+                             (demorec_seeds_cvar<<1));
     if (i)
     {
         MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
@@ -194,7 +190,6 @@ error_wopen_demo:
 
     demorec_seeds = demorec_seeds_cvar;
     demorec_diffs = demorec_diffs_cvar;
-    demo_synccompress = demorec_synccompress_cvar;
     demorec_difftics = demorec_difftics_cvar;
 
     Bsprintf(apStrings[QUOTE_RESERVED4], "DEMO %d RECORDING STARTED", demonum-1);
@@ -244,10 +239,7 @@ static void Demo_WriteSync()
     if (demorec_seeds)
         buildvfs_fwrite(g_demo_seedbuf, 1, ud.reccnt, g_demo_filePtr);
 
-    if (demo_synccompress)
-        dfwrite_LZ4(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
-    else //if (demo_synccompress==0)
-        buildvfs_fwrite(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
+	buildvfs_fwrite(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
 
     ud.reccnt = 0;
 }
@@ -336,18 +328,11 @@ static int32_t Demo_ReadSync(int32_t errcode)
             return errcode;
     }
 
-    if (demo_synccompress)
-    {
-        if (kdfread_LZ4(recsync, sizeof(input_t), i, g_demo_recFilePtr) != i)
-            return errcode+1;
-    }
-    else
-    {
-        int32_t bytes = sizeof(input_t)*i;
 
-        if (g_demo_recFilePtr.Read(recsync, bytes) != bytes)
-            return errcode+2;
-    }
+	int32_t bytes = sizeof(input_t)*i;
+
+	if (g_demo_recFilePtr.Read(recsync, bytes) != bytes)
+		return errcode+2;
 
     ud.reccnt = i;
     return 0;

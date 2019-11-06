@@ -20,21 +20,6 @@ using buildvfs_kfd = int32_t;
 
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
 
-
-// compression disabled pending a better process for saving. Per-block compression as done here was not that great.
-int32_t kdfread_LZ4(void* buffer, int dasizeof, int count, buildvfs_kfd fil) = delete;
-
-inline int32_t kdfread_LZ4(void* buffer, int dasizeof, int count, FileReader& fil)
-{
-	return fil.Read(buffer, dasizeof * count);
-}
-
-inline void dfwrite_LZ4(const void* buffer, int dasizeof, int count, buildvfs_FILE fil)
-{
-	fwrite(buffer, dasizeof, count, fil);
-}
-
-
 #include "filesystem/filesystem.h"
 
 // Wrappers for the handle based API to get rid of the direct  calls without any actual changes to the implementation.
