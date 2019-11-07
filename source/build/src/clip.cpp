@@ -797,7 +797,7 @@ int32_t getceilzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
     dx = wall[wall[j].point2].x-wall[j].x;
     dy = wall[wall[j].point2].y-wall[j].y;
     i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return(sector[sectnum].ceilingz);
-    i = divscale20(sector[sectnum].ceilingheinum,i);
+    i = divscale15(sector[sectnum].ceilingheinum,i);
     dx *= i; dy *= i;
     return(sector[sectnum].ceilingz+dmulscale23(dx,day-wall[j].y,-dy,dax-wall[j].x));
 }
@@ -811,7 +811,7 @@ int32_t getflorzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
     dx = wall[wall[j].point2].x-wall[j].x;
     dy = wall[wall[j].point2].y-wall[j].y;
     i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return sector[sectnum].floorz;
-    i = divscale20(sector[sectnum].floorheinum,i);
+    i = divscale15(sector[sectnum].floorheinum,i);
     dx *= i; dy *= i;
     return(sector[sectnum].floorz+dmulscale23(dx,day-wall[j].y,-dy,dax-wall[j].x));
 }
