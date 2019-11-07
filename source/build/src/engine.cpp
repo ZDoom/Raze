@@ -10490,7 +10490,7 @@ int32_t cansee_old(int32_t xs, int32_t ys, int32_t zs, int16_t sectnums, int32_t
 int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2)
 {
     if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-        return cansee_old(x1, y1, z2, sect1, x2, y2, z2, sect2);
+        return cansee_old(x1, y1, z1, sect1, x2, y2, z2, sect2);
     int32_t dacnt, danum;
     const int32_t x21 = x2-x1, y21 = y2-y1, z21 = z2-z1;
 
