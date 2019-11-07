@@ -92,8 +92,7 @@ bool FShader::Load(const char * name, const char * vert_prog, const char * frag_
 	if (linked == 0)
 	{
 		// only print message if there's an error.
-		FStringf err("Init Shader '%s':\n%s\n", name, error.GetChars());
-		throw std::runtime_error(err);	// Failing to compile a shader is fatal.
+		I_Error("Init Shader '%s':\n%s\n", name, error.GetChars());
 	}
 	return true;
 }

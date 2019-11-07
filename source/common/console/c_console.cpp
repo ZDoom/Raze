@@ -1326,13 +1326,13 @@ void C_ToggleConsole ()
 		HistPos = NULL;
 		TabbedLast = false;
 		TabbedList = false;
-		GUICapture++;
+		GUICapture |= 1;
 	}
 	else //if (gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
 	{
 		ConsoleState = c_rising;
 		C_FlushDisplay ();
-		GUICapture--;
+		GUICapture &= ~1;
 	}
 }
 
