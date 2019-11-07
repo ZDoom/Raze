@@ -236,34 +236,34 @@ corrupt:
 }
 
 // Note that this entire function is totally architecture dependent and needs to be fixed (which won't be easy...)
-void Gv_WriteSave(buildvfs_FILE fil)
+void Gv_WriteSave(FileWriter &fil)
 {
     //   AddLog("Saving Game Vars to File");
-    buildvfs_fwrite("BEG: EDuke32", 12, 1, fil);
+    fil.Write("BEG: EDuke32", 12);
 
-    buildvfs_fwrite(&g_gameVarCount,sizeof(g_gameVarCount),1,fil);
+	fil.Write(&g_gameVarCount,sizeof(g_gameVarCount));
 
     for (bssize_t i = 0; i < g_gameVarCount; i++)
     {
-        buildvfs_fwrite(&(aGameVars[i]), sizeof(gamevar_t), 1, fil);
-        buildvfs_fwrite(aGameVars[i].szLabel, sizeof(uint8_t) * MAXVARLABEL, 1, fil);
+		fil.Write(&(aGameVars[i]), sizeof(gamevar_t));
+		fil.Write(aGameVars[i].szLabel, sizeof(uint8_t) * MAXVARLABEL);
 
         if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
-            buildvfs_fwrite(aGameVars[i].pValues, sizeof(intptr_t) * MAXPLAYERS, 1, fil);
+			fil.Write(aGameVars[i].pValues, sizeof(intptr_t) * MAXPLAYERS);
         else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
-            buildvfs_fwrite(aGameVars[i].pValues, sizeof(intptr_t) * MAXSPRITES, 1, fil);
+			fil.Write(aGameVars[i].pValues, sizeof(intptr_t) * MAXSPRITES);
     }
 
-    buildvfs_fwrite(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil);
+	fil.Write(&g_gameArrayCount,sizeof(g_gameArrayCount));
 
     for (bssize_t i = 0; i < g_gameArrayCount; i++)
     {
         // write for .size and .dwFlags (the rest are pointers):
-        buildvfs_fwrite(&aGameArrays[i], sizeof(gamearray_t), 1, fil);
-        buildvfs_fwrite(aGameArrays[i].szLabel, sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
+		fil.Write(&aGameArrays[i], sizeof(gamearray_t));
+		fil.Write(aGameArrays[i].szLabel, sizeof(uint8_t) * MAXARRAYLABEL);
 
         if ((aGameArrays[i].flags & GAMEARRAY_SYSTEM) != GAMEARRAY_SYSTEM)
-            buildvfs_fwrite(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i), 1, fil);
+			fil.Write(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i));
     }
 
     uint8_t savedstate[MAXVOLUMES * MAXLEVELS];
@@ -273,7 +273,7 @@ void Gv_WriteSave(buildvfs_FILE fil)
         if (g_mapInfo[i].savedstate != NULL)
             savedstate[i] = 1;
 
-    buildvfs_fwrite(savedstate, sizeof(savedstate), 1, fil);
+	fil.Write(savedstate, sizeof(savedstate));
 
     for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
     {
@@ -281,27 +281,27 @@ void Gv_WriteSave(buildvfs_FILE fil)
 
         mapstate_t &sv = *g_mapInfo[i].savedstate;
 
-        buildvfs_fwrite(g_mapInfo[i].savedstate, sizeof(mapstate_t), 1, fil);
+		fil.Write(g_mapInfo[i].savedstate, sizeof(mapstate_t));
 
         for (bssize_t j = 0; j < g_gameVarCount; j++)
         {
             if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
             if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
-                buildvfs_fwrite(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS, 1, fil);
+				fil.Write(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS);
             else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
-                buildvfs_fwrite(sv.vars[j], sizeof(intptr_t) * MAXSPRITES, 1, fil);
+				fil.Write(sv.vars[j], sizeof(intptr_t) * MAXSPRITES);
         }
 
-        buildvfs_fwrite(sv.arraysiz, sizeof(sv.arraysiz), 1, fil);
+		fil.Write(sv.arraysiz, sizeof(sv.arraysiz));
 
         for (bssize_t j = 0; j < g_gameArrayCount; j++)
             if (aGameArrays[j].flags & GAMEARRAY_RESTORE)
             {
-                buildvfs_fwrite(sv.arrays[j], Gv_GetArrayAllocSizeForCount(j, sv.arraysiz[j]), 1, fil);
+				fil.Write(sv.arrays[j], Gv_GetArrayAllocSizeForCount(j, sv.arraysiz[j]));
             }
     }
 
-    buildvfs_fwrite("EOF: EDuke32", 12, 1, fil);
+	fil.Write("EOF: EDuke32", 12);
 }
 
 void Gv_DumpValues(void)

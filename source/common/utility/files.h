@@ -325,6 +325,11 @@ public:
 	virtual long Tell();
 	virtual long Seek(long offset, int mode);
 	size_t Printf(const char *fmt, ...) GCCPRINTF(2,3);
+	void Close()
+	{
+		if (File != NULL) fclose(File);
+		File = nullptr;
+	}
 
 protected:
 
@@ -343,6 +348,7 @@ public:
 	BufferWriter() {}
 	virtual size_t Write(const void *buffer, size_t len) override;
 	TArray<unsigned char> *GetBuffer() { return &mBuffer; }
+	TArray<unsigned char>&& TakeBuffer() { return std::move(mBuffer); }
 };
 
 #endif

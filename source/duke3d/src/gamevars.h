@@ -159,7 +159,7 @@ void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
 void Gv_ResetVars(void);
 int Gv_ReadSave(FileReader &kFile);
-void Gv_WriteSave(buildvfs_FILE fil);
+void Gv_WriteSave(FileWriter &fil);
 void Gv_Clear(void);
 #else
 extern int32_t g_noResetVars;
