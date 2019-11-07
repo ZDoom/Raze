@@ -176,6 +176,8 @@ enum ETexType
 	TT_BRIGHTMAP
 };
 
+struct ImDrawData;
+
 class GLInstance
 {
 	enum
@@ -212,12 +214,13 @@ public:
 	glinfo_t glinfo;
 	FSamplerManager *mSamplers;
 	
-	void Init();
+	void Init(int y);
 	void InitGLState(int fogmode, int multisample);
 	void LoadPolymostShader();
 	void LoadSurfaceShader();
 	void LoadVPXShader();
 	void Draw2D(F2DDrawer* drawer);
+	void DrawImGui(ImDrawData*);
 
 	void Deinit();
 	

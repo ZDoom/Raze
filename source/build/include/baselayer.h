@@ -178,5 +178,8 @@ struct GameInterface
 
 extern GameInterface* gi;
 
+void ImGui_Begin_Frame();
+
+
 #endif // baselayer_h_
 

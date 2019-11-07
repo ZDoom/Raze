@@ -623,6 +623,7 @@ file( GLOB HEADER_FILES
 	build/src/*.h
 	thirdparty/include/*.h
 	thirdparty/include/*.hpp
+	thirdparty/imgui/*.h
 	common/textures/*.h
 	common/textures/formats/*.h
 )
@@ -727,6 +728,12 @@ set (PCH_SOURCES
 	thirdparty/src/fix16_str.cpp
 	thirdparty/src/md4.cpp
 	thirdparty/src/enet.cpp
+	thirdparty/imgui/imgui.cpp
+	thirdparty/imgui/imgui_demo.cpp
+	thirdparty/imgui/imgui_draw.cpp
+	thirdparty/imgui/imgui_impl_opengl3.cpp
+	thirdparty/imgui/imgui_impl_sdl.cpp
+	thirdparty/imgui/imgui_widgets.cpp
 	
 	# Todo: Split out the license-safe code from this.
 	build/src/2d.cpp
@@ -882,6 +889,7 @@ include_directories(
 	libxmp-lite/include/libxmp-lite
 	libsmackerdec/include
 	thirdparty/include
+	thirdparty/imgui
 	common
 	common/2d
 	common/fonts

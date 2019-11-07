@@ -24,6 +24,7 @@
 #include "gamecvars.h"
 #include "c_console.h"
 #include "v_2ddrawer.h"
+#include "imgui.h"
 
 #ifdef USE_OPENGL
 # include "glsurface.h"
@@ -10436,8 +10437,17 @@ void videoNextPage(void)
         }
         videoEndDrawing();   //}}}
 
+		// Draw the ImGui menu on top of the game content, but below the console (if open.)
+		if (GUICapture & 2)
+		{
+			ImGui::Render();
+			GLInterface.DrawImGui(ImGui::GetDrawData());
+		}
+
+		// Draw the console plus debug output on top of everything else.
 		C_DrawConsole();
 		GLInterface.Draw2D(&twod);
+
 
 		videoShowFrame(0);
 

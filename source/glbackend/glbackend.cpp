@@ -39,17 +39,19 @@
 #include "gl_shader.h"
 #include "textures.h"
 #include "palette.h"
-
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_opengl3.h"
 #include "baselayer.h"
 
+extern int ydim;
 
 FileReader GetResource(const char* fn)
 {
 	auto fr = kopenFileReader(fn, 0);
 	if (!fr.isOpen())
 	{
-		wm_msgbox("Fatal error", "Base resource '%s' not found", fn);
-		exit(-1);
+		I_Error("Fatal: '%s' not found", fn);
 	}
 	return fr;
 }
@@ -62,7 +64,11 @@ GLInstance::GLInstance()
 
 }
 
-void GLInstance::Init()
+void ImGui_Init_Backend();
+ImGuiContext* im_ctx;
+TArray<uint8_t> ttf;
+
+void GLInstance::Init(int ydim)
 {
 	if (!mSamplers)
 	{
@@ -82,19 +88,21 @@ void GLInstance::Init()
 		glinfo.dumped = 1;
 	}
 	new(&renderState) PolymostRenderState;	// reset to defaults.
-	try
-	{
-		LoadSurfaceShader();
-		LoadVPXShader();
-		LoadPolymostShader();
-	}
-	catch (const std::runtime_error& err)
-	{
-		// This is far from an optimal solution but at this point the only way to get the error out.
-		wm_msgbox(nullptr, "Shader compilation failed: %s", err.what());
-		exit(1);
-	}
+	LoadSurfaceShader();
+	LoadVPXShader();
+	LoadPolymostShader();
+	IMGUI_CHECKVERSION();
+	im_ctx = ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	ImGui_Init_Backend();
+	ImGui_ImplOpenGL3_Init();
+	if (!ttf.Size()) ttf = kloadfile("demolition/Roboto-Regular.ttf", 0);
+	if (ttf.Size()) io.Fonts->AddFontFromMemoryTTF(ttf.Data(), ttf.Size(), std::clamp(ydim / 40, 10, 30));
 }
 
 void GLInstance::LoadPolymostShader()
@@ -162,6 +170,12 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 
 void GLInstance::Deinit()
 {
+	if (im_ctx)
+	{
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplSDL2_Shutdown();
+		ImGui::DestroyContext(im_ctx);
+	}
 	if (mSamplers) delete mSamplers;
 	mSamplers = nullptr;
 	if (polymostShader) delete polymostShader;
@@ -487,6 +501,12 @@ void GLInstance::SetPalswap(int index)
 {
 	palmanager.BindPalswap(index);
 }
+
+void GLInstance::DrawImGui(ImDrawData* data)
+{
+	ImGui_ImplOpenGL3_RenderDrawData(data);
+}
+
 
 
 void PolymostRenderState::Apply(PolymostShader* shader)

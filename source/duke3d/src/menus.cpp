@@ -3941,6 +3941,12 @@ int32_t Menu_Anim_SinInLeft(MenuAnimation_t *animdata)
 
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype)
 {
+	if (cm == MENU_OPTIONS)
+	{
+		GUICapture |= 2;
+		return;
+	}
+
     if (FURY)
     {
         m_animation.start  = 0;
@@ -6904,7 +6910,17 @@ static void Menu_RunInput(Menu_t *cm)
     }
 }
 
-// This function MUST NOT RECURSE. That is why Menu_Run is separate.
+END_DUKE_NS
+
+namespace ImGui
+{
+	void ShowAboutWindow(bool*);
+	void ShowDemoWindow(bool*);
+	void ShowUserGuide();
+}
+
+BEGIN_DUKE_NS
+
 void M_DisplayMenus(void)
 {
     vec2_t origin = { 0, 0 }, previousOrigin = { 0, 0 };
@@ -7049,6 +7065,15 @@ void M_DisplayMenus(void)
             ud.returnvar[3] = M_NEWGAMECUSTOM.currentEntry;
     }
     VM_OnEventWithReturn(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
+
+	if (GUICapture & 2)
+	{
+		ImGui_Begin_Frame();
+		bool b;
+		ImGui::ShowDemoWindow(&b);
+		return;
+	}
+
 
 #if !defined EDUKE32_TOUCH_DEVICES
     if (tilesiz[CROSSHAIR].x > 0 && mousestatus)

@@ -32,6 +32,11 @@
 #include "c_cvars.h"
 #include "i_time.h"
 #include "c_dispatch.h"
+#include "d_gui.h"
+#include "utf8.h"
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_opengl3.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -101,9 +106,21 @@ char quitevent=0, appactive=1, novideo=0;
 static SDL_Surface *sdl_surface/*=NULL*/;
 
 #if SDL_MAJOR_VERSION==2
-static SDL_Window *sdl_window=NULL;
-static SDL_GLContext sdl_context=NULL;
+SDL_Window *sdl_window=NULL;
+SDL_GLContext sdl_context=NULL;
 #endif
+
+void ImGui_Init_Backend()
+{
+	ImGui_ImplSDL2_InitForOpenGL(sdl_window, sdl_context);
+}
+
+void ImGui_Begin_Frame()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame(sdl_window);
+	ImGui::NewFrame();
+}
 
 int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, refreshfreq=-1;
 intptr_t frameplace=0;
@@ -1155,13 +1172,13 @@ static void destroy_window_resources()
 }
 
 extern int globalShadeDiv;
-void sdlayer_setvideomode_opengl(void)
+void sdlayer_setvideomode_opengl(int y)
 {
     glsurface_destroy();
     polymost_glreset();
 
 	GLInterface.Deinit();
-	GLInterface.Init();
+	GLInterface.Init(y);
 	GLInterface.InitGLState(4, glmultisample);
 	// I have no idea how to get this info from the lookup tables. Fortunately it is consistent per game.
 	GLInterface.SetShadeDiv(globalShadeDiv);
@@ -1215,7 +1232,7 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
 
 #ifdef USE_OPENGL
     if (!nogl)
-        sdlayer_setvideomode_opengl();
+        sdlayer_setvideomode_opengl(y);
 #endif
 
     xres = x;
@@ -1843,54 +1860,101 @@ int32_t handleevents_pollsdl(void)
 
     while (SDL_PollEvent(&ev))
     {
+		if (GUICapture & 2)
+		{
+			if (ImGui_ImplSDL2_ProcessEvent(&ev)) return 0;
+		}
         switch (ev.type)
         {
             case SDL_TEXTINPUT:
-                j = 0;
-                do
-                {
-                    code = ev.text.text[j];
+			{
+				j = 0;
+				const uint8_t* text = (uint8_t*)ev.text.text;
+				while ((j =  GetCharFromString(text)))
+				{
+					code = ev.text.text[j];
 					// Fixme: Send an EV_GUI_Event instead and properly deal with Unicode.
-#if 0
-					if (OSD_HandleChar(code))
-						inputState.keyBufferInsert(code);
-#endif
-                } while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE-1 && ev.text.text[++j]);
-                break;
+					if (GUICapture & 1)
+					{
+						event_t ev = { EV_GUI_Event, EV_GUI_Char, int16_t(j), !!(SDL_GetModState() & KMOD_ALT) };
+						D_PostEvent(&ev);
+					}
+				}
+				break;
+			}
 
             case SDL_KEYDOWN:
             case SDL_KEYUP:
             {
-                auto const &sc = ev.key.keysym.scancode;
-
-                code = keytranslation[sc];
-
-				// The pause key generates a release event right after
-				// the pressing one. As a result, it gets unseen
-				// by the game most of the time.
-				if (code == 0x59 && ev.type == SDL_KEYUP)  // pause
-					break;
-				
-
-				int keyvalue = ev.type == SDL_KEYDOWN? scancodetoasciihack(ev) : 0;
-#if 0
-				if (keyvalue > 0)
+				if (GUICapture & 1)
 				{
-					keyvalue = OSD_HandleChar(keyvalue); // returns the char if it doesn't process it.
-					if (keyvalue == 0) break;
-				}
-				j = OSD_HandleScanCode(code, (ev.type == SDL_KEYDOWN));
-				// returns are:
-				// j == -1: Console was opened
-				// j == 0: Console is active and used the key
-				// j == 2: Console is inactive and did not use the key
-				if (j == -1) inputState.ClearKeysDown(); // Flush the entire keyboard state for the game when the console opens.
-				if (j <= 0) break;	// Do not pass on to the game
-#endif
-				
+					event_t event;
+					event.type = EV_GUI_Event;
+					event.subtype = ev.type == SDL_KEYDOWN ? EV_GUI_KeyDown : EV_GUI_KeyUp;
+					SDL_Keymod kmod = SDL_GetModState();
+					event.data3 = ((kmod & KMOD_SHIFT) ? GKM_SHIFT : 0) |
+						((kmod & KMOD_CTRL) ? GKM_CTRL : 0) |
+						((kmod & KMOD_ALT) ? GKM_ALT : 0);
 
-				event_t evt = { (uint8_t)(ev.type == SDL_KEYUP? EV_KeyUp : EV_KeyDown), 0, (int16_t)code, (int16_t)keyvalue };
-				D_PostEvent(&evt);
+					if (event.subtype == EV_GUI_KeyDown && ev.key.repeat)
+					{
+						event.subtype = EV_GUI_KeyRepeat;
+					}
+
+					switch (ev.key.keysym.sym)
+					{
+					case SDLK_KP_ENTER:	event.data1 = GK_RETURN;	break;
+					case SDLK_PAGEUP:	event.data1 = GK_PGUP;		break;
+					case SDLK_PAGEDOWN:	event.data1 = GK_PGDN;		break;
+					case SDLK_END:		event.data1 = GK_END;		break;
+					case SDLK_HOME:		event.data1 = GK_HOME;		break;
+					case SDLK_LEFT:		event.data1 = GK_LEFT;		break;
+					case SDLK_RIGHT:	event.data1 = GK_RIGHT;		break;
+					case SDLK_UP:		event.data1 = GK_UP;		break;
+					case SDLK_DOWN:		event.data1 = GK_DOWN;		break;
+					case SDLK_DELETE:	event.data1 = GK_DEL;		break;
+					case SDLK_ESCAPE:	event.data1 = GK_ESCAPE;	break;
+					case SDLK_F1:		event.data1 = GK_F1;		break;
+					case SDLK_F2:		event.data1 = GK_F2;		break;
+					case SDLK_F3:		event.data1 = GK_F3;		break;
+					case SDLK_F4:		event.data1 = GK_F4;		break;
+					case SDLK_F5:		event.data1 = GK_F5;		break;
+					case SDLK_F6:		event.data1 = GK_F6;		break;
+					case SDLK_F7:		event.data1 = GK_F7;		break;
+					case SDLK_F8:		event.data1 = GK_F8;		break;
+					case SDLK_F9:		event.data1 = GK_F9;		break;
+					case SDLK_F10:		event.data1 = GK_F10;		break;
+					case SDLK_F11:		event.data1 = GK_F11;		break;
+					case SDLK_F12:		event.data1 = GK_F12;		break;
+					default:
+						if (ev.key.keysym.sym < 256)
+						{
+							event.data1 = ev.key.keysym.sym;
+						}
+						break;
+					}
+					if (event.data1 < 128)
+					{
+						event.data1 = toupper(event.data1);
+						D_PostEvent(&event);
+					}
+				}
+				else
+				{
+					auto const& sc = ev.key.keysym.scancode;
+					code = keytranslation[sc];
+
+					// The pause key generates a release event right after
+					// the pressing one. As a result, it gets unseen
+					// by the game most of the time.
+					if (code == 0x59 && ev.type == SDL_KEYUP)  // pause
+						break;
+
+					int keyvalue = ev.type == SDL_KEYDOWN ? scancodetoasciihack(ev) : 0;
+					event_t evt = { (uint8_t)(ev.type == SDL_KEYUP ? EV_KeyUp : EV_KeyDown), 0, (int16_t)code, (int16_t)keyvalue };
+					D_PostEvent(&evt);
+				}
+
                 break;
             }
 
