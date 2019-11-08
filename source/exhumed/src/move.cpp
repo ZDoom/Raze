@@ -381,7 +381,7 @@ int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
                 // Path A
                 short nFloorSprite = lohit & 0x3FFF;
 
-                if (pSprite->statnum == 100 && sprite[nFloorSprite].statnum != 0 || sprite[nFloorSprite].statnum < 100)
+                if (pSprite->statnum == 100 && sprite[nFloorSprite].statnum != 0 && sprite[nFloorSprite].statnum < 100)
                 {
                     short nDamage = (z >> 9);
                     if (nDamage)
