@@ -147,14 +147,37 @@ uint16_t g_nummenusaves;
 static menusave_t * g_internalsaves;
 static uint16_t g_numinternalsaves;
 
+static FileReader OpenSavegame(const char *fn)
+{
+	auto file = fopenFileReader(fn, 0);
+	if (!file.isOpen())
+		return file;
+
+	char buffer[13];
+	file.Read(buffer, 13);
+	if (memcmp(buffer, "DEMOLITION_RN", 13))
+		return FileReader();
+	
+	FileReader fr;
+	try
+	{
+		fr.OpenDecompressor(file, file.GetLength()-13, METHOD_DEFLATE|METHOD_TRANSFEROWNER, false, nullptr);
+	}
+	catch(std::runtime_error & err)
+	{
+		Printf("%s: %s\n", fn, err.what());
+	}
+	return fr;
+}
+
 static void ReadSaveGameHeaders_CACHE1D(TArray<FString>& saves)
 {
     savehead_t h;
 
-	for (auto& save : saves)
+	for (FString& save : saves)
 	{
 		char const* fn = save;
-		auto fil = fopenFileReader(fn, 0);
+		auto fil = OpenSavegame(fn);
         if (!fil.isOpen())
             continue;
 
@@ -274,7 +297,7 @@ void ReadSaveGameHeaders(void)
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 {
-    auto fil = fopenFileReader(fn, 0);
+    auto fil = OpenSavegame(fn);
     if (!fil.isOpen())
         return -1;
 
@@ -316,7 +339,7 @@ static int different_user_map;
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(savebrief_t & sv)
 {
-    auto fil = fopenFileReader(sv.path, 0);
+    auto fil = OpenSavegame(sv.path);
 
     if (!fil.isOpen())
         return -1;
@@ -504,11 +527,10 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 		Bstrcpy(sv.path, fn + (fn.Len() - (ARRAY_SIZE(SaveName) - 1)));
 	}
 
-	FileWriter fw(fil);
 	if (!fil)
 	{
 		OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
-			fn, strerror(errno));
+			fn.GetChars(), strerror(errno));
 		ready2send = 1;
 		Net_WaitForEverybody();
 
@@ -518,6 +540,9 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	}
 	else
 	{
+		fwrite("DEMOLITION_RN", 13, 1, fil);
+		CompressedFileWriter fw(fil);
+
 		// temporary hack
 		ud.user_map = G_HaveUserMap();
 
@@ -527,19 +552,20 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
 		fw.Close();
 
-    if (!g_netServer && ud.multimode < 2)
-    {
-            Bstrcpy(apStrings[QUOTE_RESERVED4], "Game Saved");
-        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-    }
-
-    ready2send = 1;
-    Net_WaitForEverybody();
-
-    G_RestoreTimers();
-    ototalclock = totalclock;
-
-    return 0;
+		if (!g_netServer && ud.multimode < 2)
+		{
+			OSD_Printf("Saved: %s\n", fn.GetChars());
+			Bstrcpy(apStrings[QUOTE_RESERVED4], "Game Saved");
+			P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+		}
+		
+		ready2send = 1;
+		Net_WaitForEverybody();
+		
+		G_RestoreTimers();
+		ototalclock = totalclock;
+		
+		return 0;
 	}
 }
 

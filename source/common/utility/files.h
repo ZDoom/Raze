@@ -56,6 +56,7 @@ enum
 	METHOD_PPMD = 98,
 	METHOD_LZSS = 1337,	// not used in Zips - this is for Console Doom compression
 	METHOD_ZLIB = 1338,	// Zlib stream with header, used by compressed nodes.
+	METHOD_TRANSFEROWNER = 0x8000,
 };
 
 class FileReaderInterface
@@ -85,6 +86,11 @@ public:
 	{
 		ErrorCallback = cb;
 	}
+	void SetOwnsReader();
+
+protected:
+	FileReader *File = nullptr;
+	FileReader OwnedFile;
 };
 
 class MemoryReader : public FileReaderInterface
@@ -316,7 +322,7 @@ public:
 	}
 	virtual ~FileWriter()
 	{
-		if (File != NULL) fclose(File);
+		Close();
 	}
 
 	static FileWriter *Open(const char *filename);
@@ -325,7 +331,7 @@ public:
 	virtual long Tell();
 	virtual long Seek(long offset, int mode);
 	size_t Printf(const char *fmt, ...) GCCPRINTF(2,3);
-	void Close()
+	virtual void Close()
 	{
 		if (File != NULL) fclose(File);
 		File = nullptr;
@@ -349,6 +355,25 @@ public:
 	virtual size_t Write(const void *buffer, size_t len) override;
 	TArray<unsigned char> *GetBuffer() { return &mBuffer; }
 	TArray<unsigned char>&& TakeBuffer() { return std::move(mBuffer); }
+};
+
+class CompressedFileWriter : public FileWriter
+{
+	FileWriter *target;
+	struct z_stream_s *zipstream;
+	uint8_t outbuf[1024];
+	size_t compressedSize;
+	bool ownsWriter;
+	
+	size_t WriteBlock(const void *buffer, size_t bytes);
+
+public:
+	CompressedFileWriter(FileWriter *wr, bool transfer = false);
+	CompressedFileWriter(FILE *wr);
+	~CompressedFileWriter() { Close(); }
+	virtual size_t Write(const void *buffer, size_t len) override;
+	virtual void Close() override;
+
 };
 
 #endif

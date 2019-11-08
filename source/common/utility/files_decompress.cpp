@@ -63,7 +63,7 @@ void DecompressorBase::DecompressionError(const char *error, ...) const
 	va_end(argptr);
 
 	if (ErrorCallback != nullptr) ErrorCallback(errortext);
-	else std::terminate();
+	else throw std::runtime_error(errortext);
 }
 
 long DecompressorBase::Tell () const
@@ -80,6 +80,12 @@ char *DecompressorBase::Gets(char *strbuf, int len)
 {
 	DecompressionError("Cannot use Gets on decompressor stream");
 	return nullptr;
+}
+
+void DecompressorBase::SetOwnsReader()
+{
+	OwnedFile = std::move(*File);
+	File = &OwnedFile;
 }
 
 //
@@ -125,17 +131,17 @@ class DecompressorZ : public DecompressorBase
 {
 	enum { BUFF_SIZE = 4096 };
 
-	FileReader &File;
 	bool SawEOF;
 	z_stream Stream;
 	uint8_t InBuff[BUFF_SIZE];
 	
 public:
-	DecompressorZ (FileReader &file, bool zip, const std::function<void(const char*)>& cb)
-	: File(file), SawEOF(false)
+	DecompressorZ (FileReader *file, bool zip, const std::function<void(const char*)>& cb)
+	: SawEOF(false)
 	{
 		int err;
 
+		File = file;
 		SetErrorCallback(cb);
 		FillBuffer ();
 
@@ -187,7 +193,7 @@ public:
 
 	void FillBuffer ()
 	{
-		auto numread = File.Read (InBuff, BUFF_SIZE);
+		auto numread = File->Read (InBuff, BUFF_SIZE);
 
 		if (numread < BUFF_SIZE)
 		{
@@ -216,17 +222,17 @@ class DecompressorBZ2 : public DecompressorBase
 {
 	enum { BUFF_SIZE = 4096 };
 
-	FileReader &File;
 	bool SawEOF;
 	bz_stream Stream;
 	uint8_t InBuff[BUFF_SIZE];
 	
 public:
-	DecompressorBZ2 (FileReader &file, const std::function<void(const char*)>& cb)
-	: File(file), SawEOF(false)
+	DecompressorBZ2 (FileReader *file, const std::function<void(const char*)>& cb)
+	: SawEOF(false)
 	{
 		int err;
 
+		File = file;
 		SetErrorCallback(cb);
 		stupidGlobal = this;
 		FillBuffer ();
@@ -281,7 +287,7 @@ public:
 
 	void FillBuffer ()
 	{
-		auto numread = File.Read(InBuff, BUFF_SIZE);
+		auto numread = File->Read(InBuff, BUFF_SIZE);
 
 		if (numread < BUFF_SIZE)
 		{
@@ -325,7 +331,6 @@ class DecompressorLZMA : public DecompressorBase
 {
 	enum { BUFF_SIZE = 4096 };
 
-	FileReader &File;
 	bool SawEOF;
 	CLzmaDec Stream;
 	size_t Size;
@@ -335,18 +340,19 @@ class DecompressorLZMA : public DecompressorBase
 
 public:
 
-	DecompressorLZMA (FileReader &file, size_t uncompressed_size, const std::function<void(const char*)>& cb)
-	: File(file), SawEOF(false)
+	DecompressorLZMA (FileReader *file, size_t uncompressed_size, const std::function<void(const char*)>& cb)
+	: SawEOF(false)
 	{
 		uint8_t header[4 + LZMA_PROPS_SIZE];
 		int err;
+		File = file;
 		SetErrorCallback(cb);
 
 		Size = uncompressed_size;
 		OutProcessed = 0;
 
 		// Read zip LZMA properties header
-		if (File.Read(header, sizeof(header)) < (long)sizeof(header))
+		if (File->Read(header, sizeof(header)) < (long)sizeof(header))
 		{
 			DecompressionError("DecompressorLZMA: File too short\n");
 		}
@@ -423,7 +429,7 @@ public:
 
 	void FillBuffer ()
 	{
-		auto numread = File.Read(InBuff, BUFF_SIZE);
+		auto numread = File->Read(InBuff, BUFF_SIZE);
 
 		if (numread < BUFF_SIZE)
 		{
@@ -445,7 +451,6 @@ class DecompressorLZSS : public DecompressorBase
 {
 	enum { BUFF_SIZE = 4096, WINDOW_SIZE = 4096, INTERNAL_BUFFER_SIZE = 128 };
 
-	FileReader &File;
 	bool SawEOF;
 	uint8_t InBuff[BUFF_SIZE];
 
@@ -476,7 +481,7 @@ class DecompressorLZSS : public DecompressorBase
 		if(Stream.AvailIn)
 			memmove(InBuff, Stream.In, Stream.AvailIn);
 
-		auto numread = File.Read(InBuff+Stream.AvailIn, BUFF_SIZE-Stream.AvailIn);
+		auto numread = File->Read(InBuff+Stream.AvailIn, BUFF_SIZE-Stream.AvailIn);
 
 		if (numread < BUFF_SIZE)
 		{
@@ -563,8 +568,9 @@ class DecompressorLZSS : public DecompressorBase
 	}
 
 public:
-	DecompressorLZSS(FileReader &file, const std::function<void(const char*)>& cb) : File(file), SawEOF(false)
+	DecompressorLZSS(FileReader *file, const std::function<void(const char*)>& cb) : File(file), SawEOF(false)
 	{
+		File = file;
 		SetErrorCallback(cb);
 		Stream.State = STREAM_EMPTY;
 		Stream.WindowData = Stream.InternalBuffer = Stream.Window+WINDOW_SIZE;
@@ -629,29 +635,35 @@ public:
 bool FileReader::OpenDecompressor(FileReader &parent, Size length, int method, bool seekable, const std::function<void(const char*)>& cb)
 {
 	DecompressorBase *dec = nullptr;
-	switch (method)
+	FileReader *p = &parent;
+	switch (method & ~METHOD_TRANSFEROWNER)
 	{
 		case METHOD_DEFLATE:
 		case METHOD_ZLIB:
-			dec = new DecompressorZ(parent, method == METHOD_DEFLATE, cb);
+			dec = new DecompressorZ(p, method == METHOD_DEFLATE, cb);
 			break;
 
 		case METHOD_BZIP2:
-			dec = new DecompressorBZ2(parent, cb);
+			dec = new DecompressorBZ2(p, cb);
 			break;
 
 		case METHOD_LZMA:
-			dec = new DecompressorLZMA(parent, length, cb);
+			dec = new DecompressorLZMA(p, length, cb);
 			break;
 
 		case METHOD_LZSS:
-			dec = new DecompressorLZSS(parent, cb);
+			dec = new DecompressorLZSS(p, cb);
 			break;
 			
 		// todo: METHOD_IMPLODE, METHOD_SHRINK
 		default:
 			return false;
 	}
+	if (method & METHOD_TRANSFEROWNER)
+	{
+		dec->SetOwnsReader();
+	}
+
 	dec->Length = (long)length;
 	if (!seekable)
 	{
@@ -665,4 +677,118 @@ bool FileReader::OpenDecompressor(FileReader &parent, Size length, int method, b
 		delete dec;
 		return false;
 	}
+}
+
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+						
+CompressedFileWriter::CompressedFileWriter(FileWriter *targ, bool transfer)
+{
+	target = targ;
+	zipstream = new z_stream;
+
+	compressedSize = 0;
+	zipstream->next_in = Z_NULL;
+	zipstream->avail_in = 0;
+	zipstream->zalloc = Z_NULL;
+	zipstream->zfree = Z_NULL;
+	int err = deflateInit2 (zipstream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, 8, Z_DEFAULT_STRATEGY);
+	if (err != Z_OK)
+	{
+		delete zipstream;
+		zipstream = nullptr;
+		return;
+	}
+	zipstream->next_out = outbuf;
+	zipstream->avail_out = sizeof(outbuf);
+	ownsWriter = transfer;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+						
+CompressedFileWriter::CompressedFileWriter(FILE *targ)
+ : CompressedFileWriter(new FileWriter(targ), true)
+{
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+size_t CompressedFileWriter::Write(const void *buffer, size_t bytes)
+{
+	size_t wrote = 0;
+	size_t towrite = bytes;
+	
+	zipstream->next_in = (Bytef *)buffer;
+	while (bytes > 0)
+	{
+		auto chunk = std::min(towrite, (size_t)0x40000000);
+		zipstream->avail_in = chunk;
+		buffer = ((char*)buffer) + chunk;
+		towrite -= chunk;
+		
+		while (zipstream->avail_in != 0)
+		{
+			if (zipstream->avail_out == 0)
+			{
+				zipstream->next_out = outbuf;
+				zipstream->avail_out = 1024;
+				wrote += 1024;
+				target->Write(outbuf, 1024);
+			}
+			deflate (zipstream, Z_NO_FLUSH);
+		}
+	}
+	compressedSize += wrote;
+	return bytes;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void CompressedFileWriter::Close()
+{
+	if (!zipstream) return;
+	// Flush the zlib stream buffer.
+	
+	for (bool done = false;;)
+	{
+		auto len = sizeof(outbuf) - zipstream->avail_out;
+		if (len != 0)
+		{
+			compressedSize += len;
+			
+			target->Write(outbuf, len);
+			zipstream->next_out = outbuf;
+			zipstream->avail_out = sizeof(outbuf);
+		}
+		if (done)
+		{
+			break;
+		}
+		auto err = deflate (zipstream, Z_FINISH);
+		done = stream.avail_out != 0 || err == Z_STREAM_END;
+		if (err != Z_STREAM_END && err != Z_OK)
+		{
+			break;
+		}
+	}
+	deflateEnd (zipstream);
+	delete zipstream;
+	zipstream = nullptr;
 }

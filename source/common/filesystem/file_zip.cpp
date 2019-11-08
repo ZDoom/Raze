@@ -68,7 +68,7 @@ static bool UncompressZipLump(char *Cache, FileReader &Reader, int Method, int L
 		case METHOD_LZMA:
 		{
 			FileReader frz;
-			if (frz.OpenDecompressor(Reader, LumpSize, Method, false, [](const char* err) { I_Error("%s", err); }))
+			if (frz.OpenDecompressor(Reader, LumpSize, Method, false, nullptr))
 			{
 				frz.Read(Cache, LumpSize);
 			}
