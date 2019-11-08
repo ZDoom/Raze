@@ -623,6 +623,7 @@ file( GLOB HEADER_FILES
 	common/console/*.h
 	common/filesystem/*.h
 	common/music/*.h
+	common/dobject/*.h
 
 	build/src/*.h
 	thirdparty/include/*.h
@@ -664,6 +665,8 @@ set( FASTMATH_SOURCES
 
 
 set (PCH_SOURCES
+	common/dobject/__autostart.cpp # must be first
+	
 	audiolib/src/drivers.cpp
 	audiolib/src/driver_adlib.cpp
 	audiolib/src/driver_nosound.cpp
@@ -825,6 +828,10 @@ set (PCH_SOURCES
 	common/music/backend/i_sound.cpp
 
 
+	common/dobject/dobject.cpp
+	common/dobject/dobjtype.cpp
+	
+	common/dobject/zzautozend.cpp #must be last
 )
 
 if( MSVC )
@@ -887,6 +894,7 @@ include_directories(
 	common/textures
 	common/filesystem
 	common/music
+	common/dobject
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -995,6 +1003,7 @@ source_group("Code\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Code\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Code\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Code\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/music/.+")
+source_group("Code\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/dobject/.+")
 source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
 source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
 source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")
