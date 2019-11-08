@@ -99,7 +99,7 @@ SWBOOL LoadScriptFile(const char *filename)
 
 
     // Convert filebuffer to all upper case
-    //strupr(scriptbuffer);
+    //Bstrupr(scriptbuffer);
 
     script_p = scriptbuffer;
     scriptend_p = script_p + size;

@@ -424,7 +424,7 @@ void CheatInput(void)
             }
 
         // make sure string is lower cased
-        strlwr(CheatInputString);
+        Bstrlwr(CheatInputString);
 
         // check for at least one single match
         for (i = 0; i < SIZ(ci); i++)
