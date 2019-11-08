@@ -778,10 +778,8 @@ static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32
 {
     int32_t daz;
 
-    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-        return;
-
-    if (rintersect(pos->x, pos->y, 0, gx, gy, 0, x1, y1, x2, y2, daxptr, dayptr, &daz) == -1)
+    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 ||
+        rintersect(pos->x, pos->y, 0, gx, gy, 0, x1, y1, x2, y2, daxptr, dayptr, &daz) == -1)
     {
         *daxptr = pos->x;
         *dayptr = pos->y;
@@ -1454,7 +1452,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             if (templl > 0)
             {
                 int64_t const templl2 = compat_maybe_truncate_to_int32((int64_t)(goal.x-vec.x)*clipr.x + (int64_t)(goal.y-vec.y)*clipr.y);
-                int32_t const i = enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || ((llabs(templl2)>>11) < templl) ?
+                int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (llabs(templl2)>>11) < templl) ?
                     divscale64(templl2, templl, 20) : 0;
 
                 goal = { mulscale20(clipr.x, i)+vec.x, mulscale20(clipr.y, i)+vec.y };
