@@ -376,6 +376,7 @@ void DrawView(int smoothRatio)
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
     int nPlayerOldCstat = sprite[nPlayerSprite].cstat;
+    int nDoppleOldCstat = sprite[nDoppleSprite[nLocalPlayer]].cstat;
 
     if (nSnakeCam >= 0)
     {
@@ -412,6 +413,7 @@ void DrawView(int smoothRatio)
         nAngle = q16angle_interpolate16(PlayerList[nLocalPlayer].q16oangle, PlayerList[nLocalPlayer].q16angle, smoothRatio);
 
         sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
+        sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
     }
 
     nCameraa = nAngle;
@@ -597,6 +599,7 @@ void DrawView(int smoothRatio)
     }
 
     sprite[nPlayerSprite].cstat = nPlayerOldCstat;
+    sprite[nDoppleSprite[nLocalPlayer]].cstat = nDoppleOldCstat;
 
     flash = 0;
 }
