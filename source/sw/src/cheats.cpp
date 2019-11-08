@@ -250,8 +250,6 @@ void EveryCheatToggle(PLAYERp pp, char *cheat_string)
 
 void SaveCheat(PLAYERp pp, char *UNUSED(cheat_string))
 {
-    saveboard("swsave.map", (vec3_t *)pp,
-              pp->pang, pp->cursectnum);
 }
 
 void GeorgeFunc(PLAYERp pp, char *UNUSED(cheat_string))

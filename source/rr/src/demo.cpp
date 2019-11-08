@@ -30,9 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screens.h"
 #include "i_specialpaths.h"
 
-#include "vfs.h"
-
-
 BEGIN_RR_NS
 
 char g_firstDemoFile[BMAX_PATH];

@@ -14,8 +14,6 @@
 #include "palette.h"
 #include "../../glbackend/glbackend.h"
 
-#include "vfs.h"
-
 
 //For loading/conversion only
 static vec3_t voxsiz;

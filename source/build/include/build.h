@@ -27,7 +27,6 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 #include "palette.h"
 #include "pragmas.h"
 
-#include "vfs.h"
 #include "cache1d.h"
 #include "textures.h"
 #include "c_cvars.h"
@@ -1020,8 +1019,8 @@ int videoCaptureScreen();
 
 struct OutputFileCounter {
     uint16_t count = 0;
-    buildvfs_FILE opennextfile(char *, char *);
-    buildvfs_FILE opennextfile_withext(char *, const char *);
+    FileWriter *opennextfile(char *, char *);
+    FileWriter *opennextfile_withext(char *, const char *);
 };
 
 // PLAG: line utility functions
@@ -1270,7 +1269,6 @@ extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum)
 extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum);
 extern void(*loadvoxel_replace)(int32_t voxel);
 extern int32_t(*loadboard_replace)(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
-extern int32_t(*saveboard_replace)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 #ifdef USE_OPENGL
 extern void(*PolymostProcessVoxels_Callback)(void);
 #endif

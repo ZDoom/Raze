@@ -31,8 +31,6 @@
 
 #include "baselayer.h"
 
-#include "vfs.h"
-
 ////////// PANICKING ALLOCATION FUNCTIONS //////////
 
 static void (*g_MemErrHandler)(int32_t line, const char *file, const char *func);

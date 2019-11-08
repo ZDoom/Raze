@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fix16.hpp"
 #include "gamedef.h"
 
-#include "vfs.h"
-
 BEGIN_DUKE_NS
 
 

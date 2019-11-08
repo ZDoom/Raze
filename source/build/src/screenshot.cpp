@@ -9,7 +9,6 @@
 #include "gamecontrol.h"
 #include "printf.h"
 
-#include "vfs.h"
 #include "../../glbackend/glbackend.h"
 
 EXTERN_CVAR(Float, png_gamma)
@@ -17,7 +16,7 @@ EXTERN_CVAR(Float, png_gamma)
 // screencapture
 //
 
-buildvfs_FILE OutputFileCounter::opennextfile(char *fn, char *zeros)
+FileWriter *OutputFileCounter::opennextfile(char *fn, char *zeros)
 {
     do      // JBF 2004022: So we don't overwrite existing screenshots
     {
@@ -27,25 +26,18 @@ buildvfs_FILE OutputFileCounter::opennextfile(char *fn, char *zeros)
         zeros[1] = ((count/100)%10)+'0';
         zeros[2] = ((count/10)%10)+'0';
         zeros[3] = (count%10)+'0';
-#ifdef USE_PHYSFS
-        buildvfs_FILE file;
-        if ((file = buildvfs_fopen_read(fn)) == nullptr) break;
-        buildvfs_fclose(file);
-#else
-        struct Bstat st;
-        if (Bstat(fn, &st) == -1) break;
-#endif
+		if (!FileExists(fn)) break;
         count++;
     } while (1);
 
-    return buildvfs_fopen_write(fn);
+    return FileWriter::Open(fn);
 }
 
-buildvfs_FILE OutputFileCounter::opennextfile_withext(char *fn, const char *ext)
+FileWriter *OutputFileCounter::opennextfile_withext(char *fn, const char *ext)
 {
     char *dot = strrchr(fn, '.');
     strcpy(dot+1, ext);
-    return opennextfile(fn, dot-4);
+	return opennextfile(fn, dot-4);
 }
 
 static OutputFileCounter capturecounter;
@@ -111,20 +103,18 @@ int videoCaptureScreen()
 	else autoname << currentGame;
 	autoname << "_0000";
 	char* fn = autoname.LockBuffer();
-    buildvfs_FILE fp = capturecounter.opennextfile_withext(fn, "png");
+    FileWriter *fil = capturecounter.opennextfile_withext(fn, "png");
 	autoname.UnlockBuffer();
 
-	if (fp == nullptr)
+	if (fil == nullptr)
     {
         return -1;
     }
-	FileWriter writer(fp);
 
     uint8_t * const imgBuf = (uint8_t *) Xmalloc(xdim * ydim * (HICOLOR ? 3 : 1));
 
     videoBeginDrawing(); //{{{
 
-#ifdef USE_OPENGL
     if (HICOLOR)
     {
         getScreen(imgBuf);
@@ -135,15 +125,14 @@ int videoCaptureScreen()
 
         for (int i = 0, numRows = ydim >> 1; i < numRows; ++i)
         {
-            Bmemcpy(rowBuf, imgBuf + i * bytesPerLine, bytesPerLine);
-            Bmemcpy(imgBuf + i * bytesPerLine, imgBuf + (ydim - i - 1) * bytesPerLine, bytesPerLine);
-            Bmemcpy(imgBuf + (ydim - i - 1) * bytesPerLine, rowBuf, bytesPerLine);
+            memcpy(rowBuf, imgBuf + i * bytesPerLine, bytesPerLine);
+            memcpy(imgBuf + i * bytesPerLine, imgBuf + (ydim - i - 1) * bytesPerLine, bytesPerLine);
+            memcpy(imgBuf + (ydim - i - 1) * bytesPerLine, rowBuf, bytesPerLine);
         }
 
         Xfree(rowBuf);
     }
     else
-#endif
     {
 		for (bssize_t i = 0; i < 256; ++i)
 		{
@@ -158,7 +147,8 @@ int videoCaptureScreen()
 
     videoEndDrawing(); //}}}
 
-	WritePNGfile(&writer, imgBuf, Palette, HICOLOR ? SS_RGB : SS_PAL, xdim, ydim, HICOLOR? xdim*3 : xdim, png_gamma);
+	WritePNGfile(fil, imgBuf, Palette, HICOLOR ? SS_RGB : SS_PAL, xdim, ydim, HICOLOR? xdim*3 : xdim, png_gamma);
+	delete fil;
     Xfree(imgBuf);
 	Printf("Saved screenshot to %s\n", fn);
 	capturecounter.count++;

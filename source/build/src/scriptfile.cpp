@@ -11,8 +11,6 @@
 #include "compat.h"
 #include "cache1d.h"
 
-#include "vfs.h"
-
 
 #define ISWS(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))
 static inline void skipoverws(scriptfile *sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }

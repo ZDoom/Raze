@@ -31,8 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "version.h"
 
-#include "vfs.h"
-
 BEGIN_DUKE_NS
 
 
@@ -717,9 +715,9 @@ void G_DeleteSave(savebrief_t const & sv)
         return;
     }
 
-    buildvfs_unlink(temp);
+    remove(temp);
     Bstrcat(temp, ".ext");
-    buildvfs_unlink(temp);
+    remove(temp);
 }
 
 void G_DeleteOldSaves(void)
@@ -763,12 +761,12 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	FString fn;
 
 	errno = 0;
-	buildvfs_FILE fil;
+	FileWriter *fil;
 
 	if (sv.isValid())
 	{
 		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), sv.path);
-		fil = fopen(fn, "wb");
+		fil = FileWriter::Open(fn);
 	}
 	else
 	{
@@ -797,8 +795,8 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	}
 	else
 	{
-		fwrite("DEMOLITION_ED", 13, 1, fil);
-		CompressedFileWriter fw(fil);
+		fil->Write("DEMOLITION_ED", 13);
+		CompressedFileWriter fw(fil, true);
 
 		sv.isExt = 0;
 

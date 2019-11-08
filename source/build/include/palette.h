@@ -12,7 +12,6 @@
 #define palette_h_
 
 #include "cache1d.h"
-#include "vfs.h"
 
 #define MAXBASEPALS 256
 #define MAXPALOOKUPS 256

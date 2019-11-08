@@ -31,8 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "printf.h"
 
-#include "vfs.h"
-
 
 BEGIN_DUKE_NS
 

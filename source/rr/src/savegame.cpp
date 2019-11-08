@@ -506,12 +506,12 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	FString fn;
 
 	errno = 0;
-	buildvfs_FILE fil;
+	FileWriter *fil;
 
 	if (sv.isValid())
 	{
 		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), sv.path);
-		fil = fopen(fn, "wb");
+		fil = FileWriter::Open(fn);
 	}
 	else
 	{
@@ -540,8 +540,8 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	}
 	else
 	{
-		fwrite("DEMOLITION_RN", 13, 1, fil);
-		CompressedFileWriter fw(fil);
+		fil->Write("DEMOLITION_RN", 13);
+		CompressedFileWriter fw(fil, true);
 
 		// temporary hack
 		ud.user_map = G_HaveUserMap();

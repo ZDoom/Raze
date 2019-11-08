@@ -41,8 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "enet.h"
 #include "m_crc32.h"
 
-#include "vfs.h"
-
 BEGIN_DUKE_NS
 
 // Data needed even if netcode is disabled

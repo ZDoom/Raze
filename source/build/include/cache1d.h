@@ -12,11 +12,7 @@
 #include "compat.h"
 #include "files.h"
 
-#include "vfs.h"
-
 void	cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, uint8_t *newlockptr);
-
-using buildvfs_kfd = int32_t;
 
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
 

@@ -12,9 +12,6 @@
 #include "engine_priv.h"
 #include "cache1d.h"
 
-#include "vfs.h"
-
-
 //
 // copytilepiece
 //

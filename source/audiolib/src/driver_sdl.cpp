@@ -28,7 +28,6 @@
 #include "multivoc.h"
 #include "mutex.h"
 #include "sdl_inc.h"
-#include "vfs.h"
 
 enum {
    SDLErr_Warning = -2,

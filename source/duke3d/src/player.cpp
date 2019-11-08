@@ -5729,15 +5729,15 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
 
     char * encoded = sjson_stringify(ctx, root, "  ");
 
-    buildvfs_FILE fil = buildvfs_fopen_write(fn);
+	FileWriter *fil = FileWriter::Open(fn);
     if (!fil)
     {
         sjson_destroy_context(ctx);
         return 1;
     }
 
-    buildvfs_fwrite(encoded, strlen(encoded), 1, fil);
-    buildvfs_fclose(fil);
+	fil->Write(encoded, strlen(encoded));
+	delete fil;
 
     sjson_free_string(ctx, encoded);
     sjson_destroy_context(ctx);
