@@ -504,7 +504,7 @@ void InstallEngine()
 
     LoadPaletteLookups();
 
-    // enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }
 
 void RemoveEngine()
