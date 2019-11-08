@@ -568,7 +568,7 @@ class DecompressorLZSS : public DecompressorBase
 	}
 
 public:
-	DecompressorLZSS(FileReader *file, const std::function<void(const char*)>& cb) : File(file), SawEOF(false)
+	DecompressorLZSS(FileReader *file, const std::function<void(const char*)>& cb) : SawEOF(false)
 	{
 		File = file;
 		SetErrorCallback(cb);
@@ -782,7 +782,7 @@ void CompressedFileWriter::Close()
 			break;
 		}
 		auto err = deflate (zipstream, Z_FINISH);
-		done = stream.avail_out != 0 || err == Z_STREAM_END;
+		done = zipstream->avail_out != 0 || err == Z_STREAM_END;
 		if (err != Z_STREAM_END && err != Z_OK)
 		{
 			break;

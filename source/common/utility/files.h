@@ -59,6 +59,8 @@ enum
 	METHOD_TRANSFEROWNER = 0x8000,
 };
 
+class FileReader;
+
 class FileReaderInterface
 {
 public:
@@ -70,27 +72,6 @@ public:
 	virtual char *Gets(char *strbuf, int len) = 0;
 	virtual const char *GetBuffer() const { return nullptr; }
 	long GetLength () const { return Length; }
-};
-
-class DecompressorBase : public FileReaderInterface
-{
-	std::function<void(const char*)> ErrorCallback = nullptr;
-public:
-	// These do not work but need to be defined to satisfy the FileReaderInterface.
-	// They will just error out when called.
-	long Tell() const override;
-	long Seek(long offset, int origin) override;
-	char *Gets(char *strbuf, int len) override;
-	void DecompressionError(const char* error, ...) const;
-	void SetErrorCallback(const std::function<void(const char*)>& cb)
-	{
-		ErrorCallback = cb;
-	}
-	void SetOwnsReader();
-
-protected:
-	FileReader *File = nullptr;
-	FileReader OwnedFile;
 };
 
 class MemoryReader : public FileReaderInterface
@@ -306,6 +287,28 @@ public:
 
 	friend class FWadCollection;
 };
+
+class DecompressorBase : public FileReaderInterface
+{
+	std::function<void(const char*)> ErrorCallback = nullptr;
+public:
+	// These do not work but need to be defined to satisfy the FileReaderInterface.
+	// They will just error out when called.
+	long Tell() const override;
+	long Seek(long offset, int origin) override;
+	char* Gets(char* strbuf, int len) override;
+	void DecompressionError(const char* error, ...) const;
+	void SetErrorCallback(const std::function<void(const char*)>& cb)
+	{
+		ErrorCallback = cb;
+	}
+	void SetOwnsReader();
+
+protected:
+	FileReader* File = nullptr;
+	FileReader OwnedFile;
+};
+
 
 
 
