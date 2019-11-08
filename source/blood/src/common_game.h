@@ -88,6 +88,15 @@ void _consoleSysMsg(const char* pMessage, ...);
 #define kMaxPAL 5
 #define kFreeQAVEntry 108
 
+#define kDmgFall 0
+#define kDmgBurn 1
+#define kDmgBullet 2
+#define kDmgExplode 3
+#define kDmgChoke 4
+#define kDmgSpirit 5
+#define kDmgElectric 6
+#define kDmgMax 7
+
 // MEDIUM /////////////////////////////////////////////////////
 enum {
 kMediumNormal                   = 0,
@@ -368,8 +377,8 @@ enum {
     kThingBloodChunks = 426,
     kThingZombieHead = 427,
     kThingNapalmBall = 428,
-    kThingPodGreenBall = 429,
-    kThingPodFireBall = 430,
+    kThingPodFireBall = 429,
+    kThingPodGreenBall = 430,
     kThingDroppedLifeLeech = 431,
     kThingVoodooHead = 432, // unused
     kModernThingTNTProx = 433, // gModernMap only - detects only players

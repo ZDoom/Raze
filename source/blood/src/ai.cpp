@@ -65,6 +65,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "trig.h"
 #include "triggers.h"
+#include "view.h"
 
 BEGIN_BLD_NS
 
@@ -421,12 +422,12 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
             else {
                 aiNewState(pSprite, pXSprite, &GDXGenDudeSearchL);
                 if (Chance(0x4000))
-                    sfxPlayGDXGenDudeSound(pSprite, 0);
+                    sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndTargetSpot);
             }
         }
         else {
             if (Chance(0x4000))
-                sfxPlayGDXGenDudeSound(pSprite, 0);
+                sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndTargetSpot);
 
             if (spriteIsUnderwater(pSprite, false))
                 aiNewState(pSprite, pXSprite, &GDXGenDudeChaseW);
@@ -1025,7 +1026,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
             break;
         case kDudeModernCustomBurning:
             if (Chance(0x2000) && gDudeExtra[pSprite->extra].at0 < (int)gFrameClock) {
-                sfxPlayGDXGenDudeSound(pSprite, 3);
+                sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndBurning);
                 gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
             }
             if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
@@ -1058,7 +1059,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                             && gSysRes.Lookup(pXSprite->data2 + 3, "SEQ")) {
                             
                             aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                            sfxPlayGDXGenDudeSound(pSprite, 3);
+                            sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndBurning);
                             pSprite->type = kDudeModernCustomBurning;
 
                             if (pXSprite->data2 == kDefaultAnimationBase) // don't inherit palette for burning if using default animation
@@ -1083,7 +1084,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                         else aiNewState(pSprite, pXSprite, &GDXGenDudeDodgeDmgD);
 
                         if (Chance(0x0200))
-                            sfxPlayGDXGenDudeSound(pSprite, 1);
+                            sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndGotHit);
                     }
                     else if (sub_5BDA8(pSprite, 13))
                         aiNewState(pSprite, pXSprite, &GDXGenDudeDodgeDmgW);
@@ -1132,7 +1133,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
             int mass = getSpriteMassBySize(pSprite); int chance4 = getRecoilChance(pSprite);  bool chance3 = Chance(chance4);
             if (pDudeExtra->at4 && (inIdle(pXSprite->aiState) || mass < 155 || (mass >= 155 && chance3)) && !spriteIsUnderwater(pSprite, false))
             {
-                sfxPlayGDXGenDudeSound(pSprite, 1);
+                sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndGotHit);
                 
                 if (gSysRes.Lookup(pXSprite->data2 + 4, "SEQ")) {
                     GDXGenDudeRTesla.at18 = (Chance(chance4 * 2) ? &GDXGenDudeDodgeL : &GDXGenDudeDodgeDmgL);
@@ -1145,13 +1146,13 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
             }
 
             if (inDodge(pXSprite->aiState)) {
-                sfxPlayGDXGenDudeSound(pSprite, 1);
+                sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndGotHit);
                 break;
             }
 
             if (inIdle(pXSprite->aiState) || chance3 || Chance(getRecoilChance(pSprite)) || (!dudeIsMelee(pXSprite) && mass < 155)) {
 
-                sfxPlayGDXGenDudeSound(pSprite, 1);
+                sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndGotHit);
 
                 if (canDuck(pSprite) && (Chance(chance4) || gGameOptions.nDifficulty == 0)) aiNewState(pSprite, pXSprite, &GDXGenDudeRecoilD);
                 else if (canSwim(pSprite) && spriteIsUnderwater(pSprite, false)) aiNewState(pSprite, pXSprite, &GDXGenDudeRecoilW);
@@ -1454,32 +1455,43 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
 
 void aiProcessDudes(void)
 {
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
-    {
+    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->flags&32)
-            continue;
+        if (pSprite->flags & 32) continue;
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
         DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
         if (IsPlayerSprite(pSprite) || pXSprite->health == 0) continue;
+
         pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
         if (pXSprite->aiState->at10)
             pXSprite->aiState->at10(pSprite, pXSprite);
         if (pXSprite->aiState->at14 && (gFrame&3) == (nSprite&3))
             pXSprite->aiState->at14(pSprite, pXSprite);
-        if (pXSprite->stateTimer == 0 && pXSprite->aiState->at18)
-        {
+        if (pXSprite->stateTimer == 0 && pXSprite->aiState->at18) {
             if (pXSprite->aiState->at8 > 0)
                 aiNewState(pSprite, pXSprite, pXSprite->aiState->at18);
             else if (seqGetStatus(3, nXSprite) < 0)
                 aiNewState(pSprite, pXSprite, pXSprite->aiState->at18);
         }
-        if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage<<4) <= cumulDamage[nXSprite]))
-        {
+
+        if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= cumulDamage[nXSprite])) {
             pXSprite->data3 = cumulDamage[nXSprite];
             RecoilDude(pSprite, pXSprite);
         }
+        
+        if (pSprite->type >= kDudeVanillaMax) {
+            switch (pSprite->type) {
+                case kDudeModernCustom:
+                case kDudeModernCustomBurning:
+                    GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
+                    if (pExtra->slaveCount > 0) updateTargetOfSlaves(pSprite);
+                    if (pExtra->nLifeLeech >= 0) updateTargetOfLeech(pSprite);
+                    break;
+            }
+        }
+
+
     }
     memset(cumulDamage, 0, sizeof(cumulDamage));
 }
@@ -1505,13 +1517,11 @@ void aiInitSprite(spritetype *pSprite)
     pDudeExtra->at4 = 0;
     pDudeExtra->at0 = 0;
     switch (pSprite->type) {
-    case kDudeModernCustom:
-    {
+    case kDudeModernCustom: {
         DUDEEXTRA_at6_u1* pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->at0 = 0;
-        pDudeExtraE->at4 = 0;
+        pDudeExtraE->at8 = pDudeExtraE->at0 = 0;
         aiNewState(pSprite, pXSprite, &GDXGenDudeIdleL);
+        genDudePrepare(pSprite);
         break;
     }
     case kDudeModernCustomBurning:

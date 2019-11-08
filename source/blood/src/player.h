@@ -77,7 +77,7 @@ struct PLAYER {
     int qavCallback;
     bool isRunning;
     int posture;                        // stand, crouch, swim
-    int unused1;                        // --> useless
+    int sceneQav;                       // by NoOne: used to keep qav id
     int bobPhase;
     int bobAmp;
     int bobHeight;
@@ -174,6 +174,10 @@ struct PLAYER {
 
 // by NoOne: defaut player movement speeds of all move states for gPosture
 extern int gDefaultAccel[12];
+
+// by NoOne: defaut player jump heights of all move states for gPosture
+extern int gDefaultJumpZ[24];
+
 struct POSTURE {
     int frontAccel;
     int sideAccel;
@@ -187,6 +191,8 @@ struct POSTURE {
     int weaponAboveZ;
     int xOffset;
     int zOffset;
+    int normalJumpZ; 
+    int pwupJumpZ; 
 };
 
 extern POSTURE gPosture[kModeMax][kPostureMax];
@@ -210,12 +216,19 @@ struct POWERUPINFO {
     int maxTime;
 };
 
-
+// by NoOne: this one stores qavs anims that can be played by trigger
 struct QAVSCENE {
-    short index = -1;
-    QAV* qavId = NULL;
+    short index = -1; // index of sprite which triggered qav scene
+    QAV* qavResrc = NULL;
+    short causedBy = -1;
 };
-extern QAVSCENE gQavScene[kMaxPlayers];
+
+// by NoOne: this one for controlling the player using triggers (movement speed, jumps and other stuff)
+struct TRPLAYERCTRL {
+    QAVSCENE qavScene;
+};
+
+extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
 
 extern PLAYER gPlayer[kMaxPlayers];
 extern PLAYER *gMe, *gView;
@@ -310,7 +323,10 @@ bool growPlayerSize(PLAYER* pPlayer, int multiplier);
 bool resetPlayerSize(PLAYER* pPlayer);
 void deactivateSizeShrooms(PLAYER* pPlayer);
 PLAYER* getPlayerById(short id);
-void startQavScene(PLAYER* pPlayer, int qavId, int a3, char a4);
-void playQavScene(PLAYER* pPlayer);
+QAV* qavSceneLoad(int qavId);
+void qavScenePlay(PLAYER* pPlayer);
+void qavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5);
+void playerResetMoveSpeed(PLAYER* pPlayer);
+void playerResetJumpHeight(PLAYER* pPlayer);
 
 END_BLD_NS

@@ -126,13 +126,26 @@ int Handicap[] = {
 int gDefaultAccel[] = {
     
     // normal human
-    0x4000, 0x1200, 0x2000, // stand (front, side, back) / crouch (front, side, back) / swim (front, side, back)
+    0x4000, 0x1200, 0x2000, // stand (front, side, back)  / swim (front, side, back)  / crouch (front, side, back)
     // normal beast
-    0x4000, 0x1200, 0x2000, // stand (front, side, back) / crouch (front, side, back) / swim (front, side, back)
+    0x4000, 0x1200, 0x2000, // stand (front, side, back)  / swim (front, side, back)  / crouch (front, side, back)
     // shrink human
-    10384,  2108,  2192,    // stand (front, side, back) / crouch (front, side, back) / swim (front, side, back)
+    10384,  2108,  2192,    // stand (front, side, back)  / swim (front, side, back)  / crouch (front, side, back)
     // grown human
-    19384,  5608,  11192    // stand (front, side, back) / crouch (front, side, back) / swim (front, side, back)
+    19384,  5608,  11192    // stand (front, side, back)  / swim (front, side, back) / crouch (front, side, back) 
+
+};
+
+int gDefaultJumpZ[] = {
+
+    // normal human
+    -0xbaaaa, -0x175555, 0x5b05, 0, 0, 0 // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
+    // normal beast
+    -0xbaaaa, -0x175555, 0x5b05, 0, 0, 0 // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
+    // shrink human
+    -200000, -0x175555, 0x5b05, 0, 0, 0 // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
+    // grown human
+    -250000, -0x175555, 0x5b05, 0, 0, 0 // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
 
 };
 
@@ -154,7 +167,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             0x1600,
             0x1200,
             0xc00,
-            0x90
+            0x90,
+            gDefaultJumpZ[0],
+            gDefaultJumpZ[1],
         },
         {
             gDefaultAccel[1],
@@ -169,7 +184,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             0x1400,
             0x1000,
             -0x600,
-            0xb0
+            0xb0,
+            gDefaultJumpZ[2],
+            gDefaultJumpZ[3],
         },
         {
             gDefaultAccel[2],
@@ -184,7 +201,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             0x800,
             0x600,
             -0x600,
-            0xb0
+            0xb0,
+            gDefaultJumpZ[4],
+            gDefaultJumpZ[5],
         },
     },
 
@@ -203,7 +222,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             0x1600,
             0x1200,
             0xc00,
-            0x90
+            0x90,
+            gDefaultJumpZ[6],
+            gDefaultJumpZ[7],
         },
         {
             gDefaultAccel[4],
@@ -218,7 +239,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             0x1400,
             0x1000,
             -0x600,
-            0xb0
+            0xb0,
+            gDefaultJumpZ[8],
+            gDefaultJumpZ[9],
         },
         {
             gDefaultAccel[5],
@@ -233,7 +256,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             0x800,
             0x600,
             -0x600,
-            0xb0
+            0xb0,
+            gDefaultJumpZ[10],
+            gDefaultJumpZ[11],
         },
     },
 
@@ -252,7 +277,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             5632, 
             4608, 
             3072, 
-            144
+            144,
+            gDefaultJumpZ[12],
+            gDefaultJumpZ[13],
         },
         {
             gDefaultAccel[7],
@@ -267,7 +294,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             5120, 
             4096, 
             -1536, 
-            176
+            176,
+            gDefaultJumpZ[14],
+            gDefaultJumpZ[15],
         },
         {
             gDefaultAccel[8],
@@ -282,7 +311,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             2048, 
             1536, 
             -1536,
-            176
+            176,
+            gDefaultJumpZ[16],
+            gDefaultJumpZ[17],
         },
     },
 
@@ -300,8 +331,10 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             80, 
             5632, 
             4608, 
-            3072, 
-            144
+            3072,
+            144,
+            gDefaultJumpZ[18],
+            gDefaultJumpZ[19],
         },
         {
             gDefaultAccel[10],
@@ -316,7 +349,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             5120, 
             4096, 
             -1536, 
-            176
+            176,
+            gDefaultJumpZ[20],
+            gDefaultJumpZ[21],
         },
         {
             gDefaultAccel[11],
@@ -331,7 +366,9 @@ POSTURE gPosture[kModeMax][kPostureMax] = {
             2048, 
             1536, 
             -1536, 
-            176
+            176,
+            gDefaultJumpZ[22],
+            gDefaultJumpZ[23],
         },
     },
 };
@@ -435,27 +472,48 @@ DAMAGEINFO damageInfo[7] = {
     { 0, 0, 0, 0, 0, 0, 0 }
 };
 
+TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
 
-QAVSCENE gQavScene[kMaxPlayers];
+QAV* qavSceneLoad(int qavId) {
+    QAV* pQav = NULL; DICTNODE* hQav = gSysRes.Lookup(qavId, "QAV");
+   
+    if (hQav) pQav = (QAV*)gSysRes.Lock(hQav);
+    else viewSetSystemMessage("Failed to load QAV animation #%d", qavId);
 
-void playQavScene(PLAYER* pPlayer) {
-    dassert(pPlayer != NULL);
-    if (pPlayer->weaponQav == -1)
-        return;
-    QAV * pQAV = gQavScene[pPlayer->nPlayer].qavId;
-    pQAV->nSprite = pPlayer->pSprite->index;
-    int nTicks = pQAV->at10 - pPlayer->weaponTimer;
-    pQAV->Play(nTicks - 4, nTicks, pPlayer->qavCallback, pPlayer);
+    return pQav;
 }
 
-void startQavScene(PLAYER * pPlayer, int qavId, int a3, char a4) {
-    pPlayer->weaponQav = qavId;
-    pPlayer->weaponTimer = gQavScene[pPlayer->nPlayer].qavId->at10;
-    pPlayer->qavCallback = a3;
-    pPlayer->qavLoop = a4;
-    gQavScene[pPlayer->nPlayer].qavId->Preload();
-    playQavScene(pPlayer);
-    pPlayer->weaponTimer -= 4;
+void qavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5) {
+    if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
+    
+    QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+    if (pQavScene->qavResrc != NULL) {
+
+        QAV* pQAV = pQavScene->qavResrc;
+        int v4 = (pPlayer->weaponTimer == 0) ? (int)totalclock % pQAV->at10 : pQAV->at10 - pPlayer->weaponTimer;
+
+        pQAV->x = a3; pQAV->y = a4; int flags = 2;
+        int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
+        if (nInv >= 120 * 8 || (nInv != 0 && ((int)totalclock & 32))) {
+            a2 = -128;
+            flags |= 1;
+        }
+
+        pQAV->Draw(v4, flags, a2, a5);
+    }
+
+}
+
+void qavScenePlay(PLAYER* pPlayer) {
+    if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
+    
+    QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+    if (pQavScene->qavResrc != NULL) {
+        QAV* pQAV = pQavScene->qavResrc;
+        pQAV->nSprite = pPlayer->pSprite->index;
+        int nTicks = pQAV->at10 - pPlayer->weaponTimer;
+        pQAV->Play(nTicks - 4, nTicks, pPlayer->qavCallback, pPlayer);
+    }
 }
 
 int powerupCheck(PLAYER *pPlayer, int nPowerUp)
@@ -489,7 +547,6 @@ bool shrinkPlayerSize(PLAYER* pPlayer, int divider) {
 bool growPlayerSize(PLAYER* pPlayer, int multiplier) {
     pPlayer->pXSprite->scale = 256*multiplier;
     playerSetRace(pPlayer, kModeHumanGrown);
-    viewSetSystemMessage("%d", pPlayer->pXSprite->scale);
     return true;
 }
 
@@ -514,9 +571,10 @@ PLAYER* getPlayerById(short id) {
             if (id < kMaxPlayers && id == i + 1) return &gPlayer[i]; // relative to connected players
             else if (id >= kDudePlayer1 && id <= kDudePlayer8 && id == gPlayer[i].pSprite->type) // absolute type
                 return &gPlayer[i];
-
-
         }
+
+        if (id >= kDudePlayer1 && id <= kDudePlayer8) viewSetSystemMessage("There is no player #%d", (kDudePlayer8 - id) + kMaxPlayers);
+        else  viewSetSystemMessage("There is no player #%d", id);
     }
     return NULL;
 }
@@ -899,19 +957,13 @@ void playerStart(int nPlayer)
     GINPUT* pInput = &pPlayer->input;
     ZONE* pStartZone = NULL;
     
-    // reset qav player index
-    if (gModernMap) {
-        gQavScene[pPlayer->nPlayer].index = -1;
-        gQavScene[pPlayer->nPlayer].qavId = NULL;
-    }
-
     // normal start position
     if (gGameOptions.nGameType <= 1)
         pStartZone = &gStartZone[nPlayer];
     
     // By NoOne: let's check if there is positions of teams is specified
     // if no, pick position randomly, just like it works in vanilla.
-    else if (gGameOptions.nGameType == 3 && gTeamsSpawnUsed == true) {
+    else if (gModernMap && gGameOptions.nGameType == 3 && gTeamsSpawnUsed == true) {
         int maxRetries = 5;
         while (maxRetries-- > 0) {
             if (pPlayer->teamId == 0) pStartZone = &gStartZoneTeam1[Random(3)];
@@ -1077,15 +1129,39 @@ void playerReset(PLAYER *pPlayer)
     pPlayer->weaponQav = -1;
     pPlayer->qavLoop = 0;
     pPlayer->packItemId = -1;
-    for (int i = 0; i < 5; i++)
-    {
+
+    for (int i = 0; i < 5; i++) {
         pPlayer->packSlots[i].isActive = 0;
         pPlayer->packSlots[i].curAmount = 0;
     }
 
-    for (int i = 0; i < 4; i++) {
-        for (int a = 0; a < 3; a++)
-            gPosture[i][a].frontAccel = gPosture[i][a].sideAccel = gPosture[i][a].backAccel = gDefaultAccel[a];
+    ///////////////// 
+    // reset qav scene
+    QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+    pQavScene->index = pQavScene->causedBy = pPlayer->sceneQav = -1;
+    pQavScene->qavResrc = NULL;
+
+    // restore default movement speed
+    playerResetMoveSpeed(pPlayer);
+
+    // restore default jump height
+    playerResetJumpHeight(pPlayer);
+    /////////////////
+}
+
+void playerResetMoveSpeed(PLAYER* pPlayer) {
+    for (int i = 0, k = 0; i < 4; i++) {
+        for (int a = 0; a < 3; a++, k++)
+            gPosture[i][a].frontAccel = gPosture[i][a].sideAccel = gPosture[i][a].backAccel = gDefaultAccel[k];
+    }
+}
+
+void playerResetJumpHeight(PLAYER* pPlayer) {
+    for (int i = 0, k = 0; i < 4; i++) {
+        for (int a = 0; a < 3; a++) {
+            gPosture[i][a].normalJumpZ = gDefaultJumpZ[k++];
+            gPosture[i][a].pwupJumpZ = gDefaultJumpZ[k++];
+        }
     }
 }
 
@@ -1178,7 +1254,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->used2[1] = -1;
                         dword_21EFB0[pPlayer->teamId] += 10;
                         dword_21EFD0[pPlayer->teamId] += 240;
-                        evSend(0, 0, 81, kCmdOn);
+                        evSend(0, 0, 81, kCmdOn, pPlayer->nSprite);
                         sprintf(buffer, "%s captured Red Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8001, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -1222,7 +1298,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->used2[0] = -1;
                         dword_21EFB0[pPlayer->teamId] += 10;
                         dword_21EFD0[pPlayer->teamId] += 240;
-                        evSend(0, 0, 80, kCmdOn);
+                        evSend(0, 0, 80, kCmdOn, pPlayer->nSprite);
                         sprintf(buffer, "%s captured Blue Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8000, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -1383,7 +1459,7 @@ void PickUp(PLAYER *pPlayer, spritetype *pSprite)
 
     if (nType >= kItemBase && nType <= kItemMax) {
         pickedUp = PickupItem(pPlayer, pSprite);
-        if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gItemText[nType - 100]);
+        if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gItemText[nType - kItemBase]);
     
     } else if (nType >= kItemAmmoBase && nType < kItemAmmoMax) {
         pickedUp = PickupAmmo(pPlayer, pSprite);
@@ -1658,30 +1734,26 @@ void ProcessInput(PLAYER *pPlayer)
     if (!pInput->buttonFlags.jump)
         pPlayer->cantJump = 0;
 
-    switch (pPlayer->posture)
-    {
+    switch (pPlayer->posture) {
     case 1:
         if (pInput->buttonFlags.jump)
-            zvel[nSprite] -= 0x5b05;
+            zvel[nSprite] -= pPosture->normalJumpZ;//0x5b05;
         if (pInput->buttonFlags.crouch)
-            zvel[nSprite] += 0x5b05;
+            zvel[nSprite] += pPosture->normalJumpZ;//0x5b05;
         break;
     case 2:
         if (!pInput->buttonFlags.crouch)
             pPlayer->posture = 0;
         break;
     default:
-        if (!pPlayer->cantJump && pInput->buttonFlags.jump && pXSprite->height == 0)
-        {
+        if (!pPlayer->cantJump && pInput->buttonFlags.jump && pXSprite->height == 0) {
             sfxPlay3DSound(pSprite, 700, 0, 0);
-            if (packItemActive(pPlayer, 4))
-                zvel[nSprite] = -0x175555;
-            else
-                zvel[nSprite] = -0xbaaaa;
-            
+            if (packItemActive(pPlayer, 4)) zvel[nSprite] = pPosture->pwupJumpZ;// -0x175555;
+            else zvel[nSprite] = pPosture->normalJumpZ;//-0xbaaaa;
 
-            if (isShrinked(pPlayer->pSprite)) zvel[nSprite] -= -200000;
-            else if (isGrown(pPlayer->pSprite)) zvel[nSprite] += -250000;
+
+            if (isShrinked(pPlayer->pSprite)) zvel[nSprite] -= gPosture[kModeHumanShrink][pPlayer->posture].normalJumpZ;//-200000;
+            else if (isGrown(pPlayer->pSprite)) zvel[nSprite] += gPosture[kModeHumanGrown][pPlayer->posture].normalJumpZ; //-250000;
             
             pPlayer->cantJump = 1;
         }
@@ -1708,7 +1780,7 @@ void ProcessInput(PLAYER *pPlayer)
                     sndStartSample(3062, 255, 2, 0);
                 }
                 if (!key || pPlayer->hasKey[key])
-                    trTriggerSector(a2, pXSector, kCmdSpritePush);
+                    trTriggerSector(a2, pXSector, kCmdSpritePush, nSprite);
                 else if (pPlayer == gMe)
                 {
                     viewSetMessage("That requires a key.");
@@ -1726,7 +1798,7 @@ void ProcessInput(PLAYER *pPlayer)
                 sndStartSample(3062, 255, 2, 0);
             }
             if (!key || pPlayer->hasKey[key])
-                trTriggerWall(a2, pXWall, kCmdWallPush);
+                trTriggerWall(a2, pXWall, kCmdWallPush, pPlayer->nSprite);
             else if (pPlayer == gMe)
             {
                 viewSetMessage("That requires a key.");
@@ -2106,23 +2178,23 @@ void FragPlayer(PLAYER *pPlayer, int nSprite)
         pSprite = &sprite[nSprite];
     if (pSprite && IsPlayerSprite(pSprite))
     {
-        PLAYER *pKiller = &gPlayer[pSprite->type-kDudePlayer1];
+        PLAYER *pKiller = &gPlayer[pSprite->type - kDudePlayer1];
         playerFrag(pKiller, pPlayer);
         int nTeam1 = pKiller->teamId&1;
         int nTeam2 = pPlayer->teamId&1;
         if (nTeam1 == 0)
         {
             if (nTeam1 != nTeam2)
-                evSend(0, 0, 15, kCmdToggle);
+                evSend(0, 0, 15, kCmdToggle, pKiller->nSprite);
             else
-                evSend(0, 0, 16, kCmdToggle);
+                evSend(0, 0, 16, kCmdToggle, pKiller->nSprite);
         }
         else
         {
             if (nTeam1 == nTeam2)
-                evSend(0, 0, 16, kCmdToggle);
+                evSend(0, 0, 16, kCmdToggle, pKiller->nSprite);
             else
-                evSend(0, 0, 15, kCmdToggle);
+                evSend(0, 0, 15, kCmdToggle, pKiller->nSprite);
         }
     }
 }
@@ -2304,7 +2376,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
     {
         powerupClear(pPlayer);
         if (nXSector > 0 && xsector[nXSector].Exit)
-            trTriggerSector(pSprite->sectnum, &xsector[nXSector], kCmdSectorExit);
+            trTriggerSector(pSprite->sectnum, &xsector[nXSector], kCmdSectorExit, nSprite);
         pSprite->flags |= 7;
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
@@ -2427,15 +2499,43 @@ public:
 
 void PlayerLoadSave::Load(void)
 {
+    
+    const char buffer[2048] = "";
     Read(dword_21EFB0, sizeof(dword_21EFB0));
     Read(&gNetPlayers, sizeof(gNetPlayers));
     Read(&gProfile, sizeof(gProfile));
     Read(&gPlayer, sizeof(gPlayer));
-    for (int i = 0; i < gNetPlayers; i++)
-    {
+    
+    Read((void*)&buffer, sizeof(kPlayerCtrlSigStart));
+    Read(&gPlayerCtrl, sizeof(gPlayerCtrl));
+    Read((void*)&buffer, sizeof(kPlayerCtrlSigEnd));
+
+    for (int i = 0; i < gNetPlayers; i++) {
         gPlayer[i].pSprite = &sprite[gPlayer[i].nSprite];
         gPlayer[i].pXSprite = &xsprite[gPlayer[i].pSprite->extra];
         gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].pSprite->type-kDudeBase];
+        
+        // by NoOne: load qav scene
+        if (gPlayer[i].sceneQav != -1) {
+            if (gPlayerCtrl[i].qavScene.qavResrc == NULL) 
+                gPlayer[i].sceneQav = -1;
+            else {
+                QAV* pQav = qavSceneLoad(gPlayer[i].sceneQav);
+                if (pQav) {
+                    gPlayerCtrl[i].qavScene.qavResrc = pQav;
+                    gPlayerCtrl[i].qavScene.qavResrc->Preload();
+                } else {
+                    gPlayer[i].sceneQav = -1;
+                }
+            }
+        }
+        
+        // by NoOne: load posture info
+        /*for (int a = 0; a < kModeMax; a++) {
+            for (int b = 0; b < kPostureMax; b++) {
+                gPosture[a][b] = gPlayerCtrl[i].posture[a][b];
+            }
+        }*/
     }
 }
 
@@ -2445,6 +2545,20 @@ void PlayerLoadSave::Save(void)
     Write(&gNetPlayers, sizeof(gNetPlayers));
     Write(&gProfile, sizeof(gProfile));
     Write(&gPlayer, sizeof(gPlayer));
+    
+
+    ////// by NoOne: copy posture to TRPLAYERCTRL before saving the game
+    /*for (int i = 0; i < gNetPlayers; i++) {
+        for (int a = 0; a < kModeMax; a++) {
+            for (int b = 0; b < kPostureMax; b++) {
+                gPlayerCtrl[i].posture[a][b] = gPosture[a][b];
+            }
+        }
+    }*/
+    Write((void*)kPlayerCtrlSigStart, sizeof(kPlayerCtrlSigStart));
+    Write(&gPlayerCtrl, sizeof(gPlayerCtrl));
+    Write((void*)kPlayerCtrlSigEnd, sizeof(kPlayerCtrlSigEnd));
+    //////
 }
 
 static PlayerLoadSave *myLoadSave;

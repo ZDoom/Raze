@@ -315,6 +315,7 @@ void MyLoadSave::Load(void)
     Read(&gMapRev, sizeof(gMapRev));
     Read(&gSongId, sizeof(gSkyCount));
     Read(&gFogMode, sizeof(gFogMode));
+    Read(&gModernMap, sizeof(gModernMap));
 #ifdef YAX_ENABLE
     Read(&numyaxbunches, sizeof(numyaxbunches));
 #endif
@@ -420,6 +421,7 @@ void MyLoadSave::Save(void)
     Write(&gMapRev, sizeof(gMapRev));
     Write(&gSongId, sizeof(gSkyCount));
     Write(&gFogMode, sizeof(gFogMode));
+    Write(&gModernMap, sizeof(gModernMap));
 #ifdef YAX_ENABLE
     Write(&numyaxbunches, sizeof(numyaxbunches));
 #endif

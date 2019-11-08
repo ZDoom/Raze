@@ -126,7 +126,7 @@ static void sub_6FFA0(int, int nXSprite)
                 sfxPlay3DSound(pSprite, 2474, -1, 0);
             else
                 sfxPlay3DSound(pSprite, 2475, -1, 0);
-            pMissile = actFireThing(pSprite, 0, -8000, dz/128-14500, kThingPodFireBall, (nDist2<<23)/120);
+            pMissile = actFireThing(pSprite, 0, -8000, dz/128-14500, kThingPodGreenBall, (nDist2<<23)/120);
         }
         if (pMissile)
             seqSpawn(68, 3, pMissile->extra, -1);
@@ -136,7 +136,7 @@ static void sub_6FFA0(int, int nXSprite)
         if (pDudeInfo->seeDist*0.1 < nDist)
         {
             sfxPlay3DSound(pSprite, 2454, -1, 0);
-            pMissile = actFireThing(pSprite, 0, -8000, dz/128-14500, kThingPodGreenBall, (nDist2<<23)/120);
+            pMissile = actFireThing(pSprite, 0, -8000, dz/128-14500, kThingPodFireBall, (nDist2<<23)/120);
         }
         if (pMissile)
             seqSpawn(22, 3, pMissile->extra, -1);

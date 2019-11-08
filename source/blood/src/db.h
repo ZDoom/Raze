@@ -31,6 +31,19 @@ BEGIN_BLD_NS
 // by NoOne additional non-thing proximity, sight and physics sprites 
 #define kMaxSuperXSprites 128
 
+// by NoOne: functions to quckly check range of specifical arrays
+inline bool xsprRangeIsFine(int nXindex) {
+    return (nXindex >= 0 && nXindex < kMaxXSprites);
+}
+
+inline bool xsectRangeIsFine(int nXindex) {
+    return (nXindex >= 0 && nXindex < kMaxXSectors);
+}
+
+inline bool xwallRangeIsFine(int nXindex) {
+    return (nXindex >= 0 && nXindex < kMaxXWalls);
+}
+
 extern bool gModernMap;
 
 #pragma pack(push, 1)
@@ -58,7 +71,7 @@ struct XSPRITE {
 
     unsigned int respawnPending : 2;    // respawnPending
 
-    signed int dropMsg : 8;             // Drop Item
+    unsigned int dropMsg : 8;           // Drop Item
     unsigned int Decoupled : 1;         // Decoupled
     unsigned int triggerOnce : 1;       // 1-shot
     unsigned int isTriggered : 1;       // works in case if triggerOnce selected

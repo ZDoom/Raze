@@ -387,21 +387,22 @@ void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     {
     case 1:
         if (predict.at71)
-            predict.at64 -= 0x5b05;
+            predict.at64 -= pPosture->normalJumpZ;//0x5b05;
         if (pInput->buttonFlags.crouch)
-            predict.at64 += 0x5b05;
+            predict.at64 += pPosture->normalJumpZ;//0x5b05;
         break;
     case 2:
         if (!pInput->buttonFlags.crouch)
             predict.at48 = 0;
         break;
     default:
-        if (!predict.at6f && predict.at71 && predict.at6a == 0)
-        {
-            if (packItemActive(pPlayer, 4))
-                predict.at64 = -0x175555;
-            else
-                predict.at64 = -0xbaaaa;
+        if (!predict.at6f && predict.at71 && predict.at6a == 0) {
+            if (packItemActive(pPlayer, 4)) predict.at64 = pPosture->pwupJumpZ;//-0x175555;
+            else predict.at64 = pPosture->normalJumpZ;//-0xbaaaa;
+            
+            if (isShrinked(pPlayer->pSprite)) zvel[pPlayer->nSprite] -= gPosture[kModeHumanShrink][pPlayer->posture].normalJumpZ;//-200000;
+            else if (isGrown(pPlayer->pSprite)) zvel[pPlayer->nSprite] += gPosture[kModeHumanGrown][pPlayer->posture].normalJumpZ; //-250000;
+
             predict.at6f = 1;
         }
         if (pInput->buttonFlags.crouch)
@@ -3458,18 +3459,22 @@ RORHACK:
             }
             cX = (v4c>>8)+160;
             cY = (v48>>8)+220+(zDelta>>7);
-            int nShade = sector[nSectnum].floorshade;
-            int nPalette = 0;
-            if (sector[gView->pSprite->sectnum].extra > 0)
-            {
+            int nShade = sector[nSectnum].floorshade; int nPalette = 0;
+            if (sector[gView->pSprite->sectnum].extra > 0) {
                 sectortype *pSector = &sector[gView->pSprite->sectnum];
                 XSECTOR *pXSector = &xsector[pSector->extra];
                 if (pXSector->color)
-                {
                     nPalette = pSector->floorpal;
-                }
             }
-            WeaponDraw(gView, nShade, cX, cY, nPalette);
+            
+            if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette);
+            else if (gView->pXSprite->health > 0) qavSceneDraw(gView, nShade, cX, cY, nPalette);
+            else {
+                gView->sceneQav = gView->weaponQav = -1;
+                gView->weaponTimer = gView->curWeapon = 0;
+            }
+           
+
         }
         if (gViewPos == 0 && gView->pXSprite->burnTime > 60)
         {

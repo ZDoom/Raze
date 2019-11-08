@@ -2547,7 +2547,7 @@ void actInit(bool bSaveLoad) {
     
     // by NoOne: init code for all my stuff
     if (gModernMap) {
-        
+
         // reset counters
         gProxySpritesCount = gSightSpritesCount = gPhysSpritesCount = 0;
 
@@ -3092,6 +3092,25 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     int nXSprite = pSprite->extra;
     dassert(nXSprite > 0);
     XSPRITE *pXSprite = &xsprite[pSprite->extra];
+
+    // kMaxSprites - 1 = custom dude had once life leech
+    if (pSprite->owner >= 0 && pSprite->owner != (kMaxSprites - 1)) {
+        switch (sprite[pSprite->owner].type) {
+            case kDudeModernCustom:
+            case kDudeModernCustomBurning:
+                for (int i = 0; i <= gGameOptions.nDifficulty; i++) {
+                    if (!IsDudeSprite(pSprite) || gGenDudeExtra[pSprite->owner].slave[i] == pSprite->index || pXSprite->health <= 0) {
+                        gGenDudeExtra[pSprite->owner].slave[i] = -1;
+                        gGenDudeExtra[pSprite->owner].slaveCount = ClipRange(gGenDudeExtra[pSprite->owner].slaveCount - 1, 0, gGameOptions.nDifficulty + 1);
+                        //viewSetSystemMessage("REMOVING %d FROM %d, COUNT: %d", pSprite->index, sprite[pSprite->owner].type, gGenDudeExtra[pSprite->owner].slaveCount);
+                        break;
+                    }
+                }
+                break;
+        }
+    }
+
+
     switch (pSprite->type) {
     case kDudeModernCustom: {
         removeDudeStuff(pSprite);
@@ -3143,7 +3162,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             int seqId = pXSprite->data2 + 18;
             if (!gSysRes.Lookup(seqId, "SEQ")) {
                 seqKill(3, nXSprite);
-                sfxPlayGDXGenDudeSound(pSprite, 10);
+                sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndTransforming);
                 spritetype* pEffect = gFX.fxSpawn((FX_ID)52, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, pSprite->ang);
                 if (pEffect != NULL) {
                     pEffect->cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
@@ -3168,7 +3187,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
                 return;
             }
             seqSpawn(seqId, 3, nXSprite, -1);
-            sfxPlayGDXGenDudeSound(pSprite, 10);
+            sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndTransforming);
             return;
         }
         break;
@@ -3268,7 +3287,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         switch (pSprite->type) {
             case kDudeModernCustom:
             case kDudeModernCustomBurning:
-                sfxPlayGDXGenDudeSound(pSprite, 4);
+                sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndDeathExplode);
                 break;
             case kDudeCultistTommy:
             case kDudeCultistShotgun:
@@ -3387,7 +3406,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             seqSpawn(dudeInfo[nType].seqStartID+15, 3, nXSprite, nDudeToGibClient2);
         break;
     case kDudeModernCustom:
-        sfxPlayGDXGenDudeSound(pSprite, 2);
+        sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndDeathNormal);
         if (nSeq == 3) {
             
             bool seq15 = gSysRes.Lookup(pXSprite->data2 + 15, "SEQ"); bool seq16 = gSysRes.Lookup(pXSprite->data2 + 16, "SEQ");
@@ -3406,7 +3425,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
 
     case kDudeModernCustomBurning:
     {
-        sfxPlayGDXGenDudeSound(pSprite, 4);
+        sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndDeathExplode);
         damageType = DAMAGE_TYPE_3;
 
         if (Chance(0x4000)) {
@@ -3628,21 +3647,6 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     }
     
-                                    // kMaxSprites - 1 = custom dude had once life leech
-    if (pSprite->owner != -1 && pSprite->owner != (kMaxSprites - 1)) {
-        //int owner = actSpriteIdToOwnerId(pSprite->xvel);
-        int owner = pSprite->owner;
-
-        switch (sprite[owner].type) {
-        case kDudeModernCustom:
-        case kDudeModernCustomBurning:
-            if (owner != -1) gDudeExtra[sprite[owner].extra].at6.u1.at4--;
-            break;
-        default:
-            break;
-        }
-    }
-    
     if (damageType == DAMAGE_TYPE_3)
     {
         DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
@@ -3672,7 +3676,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
         nSource = pSprite->index;
     
     PLAYER *pSourcePlayer = NULL;
-    if (IsPlayerSprite(&sprite[nSource]))  pSourcePlayer = &gPlayer[sprite[nSource].type - kDudePlayer1];
+    if (IsPlayerSprite(&sprite[nSource])) pSourcePlayer = &gPlayer[sprite[nSource].type - kDudePlayer1];
     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pSourcePlayer, pSprite)) return 0;
     
     switch (pSprite->statnum) {
@@ -3684,7 +3688,9 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
             }
 
             int nType = pSprite->type - kDudeBase; int nDamageFactor = dudeInfo[nType].at70[damageType];
-        
+            if (pSprite->type == kDudeModernCustom)
+                nDamageFactor = gGenDudeExtra[pSprite->index].dmgControl[damageType];
+
             if (!nDamageFactor) return 0;
             else if (nDamageFactor != 256)
                 damage = mulscale8(damage, nDamageFactor);
@@ -4493,7 +4499,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
             if ((nHWall = gSpriteHit[nXSprite].hit & 0x3fff) >= 0 && wall[nHWall].extra >= 0) {
                 XWALL* pXHWall = &xwall[wall[nHWall].extra];
                 if (pXHWall->triggerTouch && !pXHWall->isTriggered && (!pXHWall->dudeLockout || IsPlayerSprite(pSprite)))
-                    trTriggerWall(nHWall, pXHWall, kCmdWallTouch);
+                    trTriggerWall(nHWall, pXHWall, kCmdWallTouch, nSprite);
             }
         }
     }
@@ -4794,7 +4800,7 @@ void MoveDude(spritetype *pSprite)
             if (pHitWall->extra > 0)
                 pHitXWall = &xwall[pHitWall->extra];
             if (pDudeInfo->lockOut && pHitXWall && pHitXWall->triggerPush && !pHitXWall->key && !pHitXWall->dudeLockout && !pHitXWall->state && !pHitXWall->busy && !pPlayer)
-                trTriggerWall(nHitWall, pHitXWall, kCmdWallPush);
+                trTriggerWall(nHitWall, pHitXWall, kCmdWallPush, nSprite);
             if (pHitWall->nextsector != -1)
             {
                 sectortype *pHitSector = &sector[pHitWall->nextsector];
@@ -4802,7 +4808,7 @@ void MoveDude(spritetype *pSprite)
                 if (pHitSector->extra > 0)
                     pHitXSector = &xsector[pHitSector->extra];
                 if (pDudeInfo->lockOut && pHitXSector && pHitXSector->Wallpush && !pHitXSector->Key && !pHitXSector->dudeLockout && !pHitXSector->state && !pHitXSector->busy && !pPlayer)
-                    trTriggerSector(pHitWall->nextsector, pHitXSector, kCmdSectorPush);
+                    trTriggerSector(pHitWall->nextsector, pHitXSector, kCmdSectorPush, nSprite);
                 if (top < pHitSector->ceilingz || bottom > pHitSector->floorz)
                 {
                     // ???
@@ -4828,7 +4834,7 @@ void MoveDude(spritetype *pSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Exit && (pPlayer || !pXSector->dudeLockout))
-            trTriggerSector(pSprite->sectnum, pXSector, kCmdSectorExit);
+            trTriggerSector(pSprite->sectnum, pXSector, kCmdSectorExit, nSprite);
         ChangeSpriteSect(nSprite, nSector);
         
         nXSector = sector[nSector].extra;
@@ -4837,7 +4843,7 @@ void MoveDude(spritetype *pSprite)
 
             if (sector[nSector].type == kSectorTeleport)
                 pXSector->data = pPlayer ? nSprite : -1;
-            trTriggerSector(nSector, pXSector, kCmdSectorEnter);
+            trTriggerSector(nSector, pXSector, kCmdSectorEnter, nSprite);
         }
 
         nSector = pSprite->sectnum;
@@ -5340,7 +5346,7 @@ int MoveMissile(spritetype *pSprite)
                 XWALL *pXWall = &xwall[pWall->extra];
                 if (pXWall->triggerVector)
                 {
-                    trTriggerWall(gHitInfo.hitwall, pXWall, kCmdWallImpact);
+                    trTriggerWall(gHitInfo.hitwall, pXWall, kCmdWallImpact, nSprite);
                     if (!(pWall->cstat&64))
                     {
                         vdi = -1;
@@ -5514,7 +5520,7 @@ void actExplodeSprite(spritetype *pSprite)
 		sfxPlay3DSound(pSprite, nSnd, -1, 0);
 	}
         break;
-    case kThingPodGreenBall:
+    case kThingPodFireBall:
         nType = 3;
         seqSpawn(9, 3, nXSprite, -1);
         sfxPlay3DSound(pSprite, 307, -1, 0);
@@ -5890,7 +5896,7 @@ void actProcessSprites(void)
                                 actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, 12);
                             }
                             break;
-                        case kThingPodFireBall:
+                        case kThingPodGreenBall:
                             if ((hit&0xc000) == 0x4000)
                             {
                                 sub_2A620(actSpriteOwnerToSpriteId(pSprite), pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, DAMAGE_TYPE_3, 6, 0, 0, 0);
@@ -5907,7 +5913,7 @@ void actProcessSprites(void)
                                 evPost(pSprite->index, 3, 0, kCallbackFXPodBloodSplat);
                             }
                             break;
-                        case kThingPodGreenBall:
+                        case kThingPodFireBall:
                         {
                             int nObject = hit & 0x3fff;
                             if ((hit&0xc000) != 0xc000 && (nObject < 0 || nObject >= 4096))
@@ -5969,7 +5975,7 @@ void actProcessSprites(void)
             if (nWall == -1)
                 break;
             XWALL *pXWall = &xwall[wall[nWall].extra];
-            trTriggerWall(nWall, pXWall, kCmdWallImpact);
+            trTriggerWall(nWall, pXWall, kCmdWallImpact, nSprite);
         }
         
         for (int nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
@@ -6172,7 +6178,7 @@ void actProcessSprites(void)
                     pXSprite->burnSource = -1;
 
                     pXSprite->data1 = pXIncarnation->data1;
-                    short oldData2 = pXSprite->data2; pXSprite->data2 = pXIncarnation->data2; // seq new seqId and save old one.
+                    pXSprite->data2 = pXIncarnation->data2;
                    
                     // if incarnation is active dude, it's sndStartId will be stored in sysData1, otherwise it will be data3
                     if (pIncarnation->statnum == kStatDude && pIncarnation->type == kDudeModernCustom) pXSprite->sysData1 = pXIncarnation->sysData1;
@@ -6206,8 +6212,7 @@ void actProcessSprites(void)
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
                             seqId = getSeqStartId(pXSprite);
-                            if (seqId != oldData2)
-                                getSpriteMassBySize(pSprite); // create or refresh mass cache 
+                            getSpriteMassBySize(pSprite); // create or refresh mass cache 
                             fallthrough__; // go below
                         default:
                             seqSpawn(seqId, 3, nXSprite, -1);
@@ -6946,7 +6951,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
             {
                 XWALL *pXWall = &xwall[nXWall];
                 if (pXWall->triggerVector)
-                    trTriggerWall(nWall, pXWall, kCmdWallImpact);
+                    trTriggerWall(nWall, pXWall, kCmdWallImpact, nShooter);
             }
             break;
         }
@@ -7553,7 +7558,6 @@ int getSpriteMassBySize(spritetype* pSprite) {
     int mass = 0; int seqId = -1; Seq* pSeq = NULL;
     if (IsDudeSprite(pSprite)) {
 
-
         switch (pSprite->type) {
             case kDudePodMother: // fake dude, no seq
                 break;
@@ -7562,7 +7566,6 @@ int getSpriteMassBySize(spritetype* pSprite) {
                 seqId = xsprite[pSprite->extra].data2;
                 break;
             default:
-
                 seqId = dudeInfo[pSprite->type - kDudeBase].seqStartID;
                 break;
         }
@@ -7647,6 +7650,7 @@ int getSpriteMassBySize(spritetype* pSprite) {
     cached->picnum = pSprite->picnum;               cached->seqId = seqId;
     cached->clipdist = pSprite->clipdist;
 
+    viewSetSystemMessage("MASS: %d", cached->mass);
     return cached->mass;
 }
 

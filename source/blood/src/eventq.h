@@ -27,32 +27,47 @@ BEGIN_BLD_NS
 
 
 enum {
-    kChannelZero = 0,
-    kChannelSetTotalSecrets,
-    kChannelSecretFound,
-    kChannelTextOver,
-    kChannelLevelExitNormal,
-    kChannelLevelExitSecret,
-    kChannelModernEndLevelCustom, // // custom level end
-    kChannelLevelStart,
-    kChannelLevelStartMatch, // DM and TEAMS
-    kChannelLevelStartCoop,
-    kChannelLevelStartTeamsOnly,
-    kChannelPlayerDeathTeamA = 15,
-    kChannelPlayerDeathTeamB,
-    kChannelMapExtended = 60, // map requires modern features to work properly
-    kChannelTeamAFlagCaptured = 80,
-    kChannelTeamBFlagCaptured,
-    kChannelRemoteBomb0 = 90,
-    kChannelRemoteBomb1,
-    kChannelRemoteBomb2,
-    kChannelRemoteBomb3,
-    kChannelRemoteBomb4,
-    kChannelRemoteBomb5,
-    kChannelRemoteBomb6,
-    kChannelRemoteBomb7,
-    kChannelUser = 100,
-    kChannelMax = 4096,
+kChannelZero                        = 0,
+kChannelSetTotalSecrets,
+kChannelSecretFound,
+kChannelTextOver,
+kChannelLevelExitNormal,
+kChannelLevelExitSecret,
+kChannelModernEndLevelCustom, // custom level end
+kChannelLevelStart,
+kChannelLevelStartMatch, // DM and TEAMS
+kChannelLevelStartCoop,
+kChannelLevelStartTeamsOnly,
+kChannelPlayerDeathTeamA            = 15,
+kChannelPlayerDeathTeamB,
+
+// by NoOne: RX channels of players to send commands on
+/////////////////////////////
+kChannelPlayer0                     = 30,
+kChannelPlayer1,
+kChannelPlayer2,
+kChannelPlayer3,
+kChannelPlayer4,
+kChannelPlayer5,
+kChannelPlayer6,
+kChannelPlayer7,
+kChannelAllPlayers                  = kChannelPlayer0 + kMaxPlayers,
+/////////////////////////////
+
+kChannelMapModernize                = 60, // map requires modern features to work properly
+
+kChannelTeamAFlagCaptured           = 80,
+kChannelTeamBFlagCaptured,
+kChannelRemoteBomb0                 = 90,
+kChannelRemoteBomb1,
+kChannelRemoteBomb2,
+kChannelRemoteBomb3,
+kChannelRemoteBomb4,
+kChannelRemoteBomb5,
+kChannelRemoteBomb6,
+kChannelRemoteBomb7,
+kChannelUser                        = 100,
+kChannelMax                         = 4096,
 };
 
 struct RXBUCKET
@@ -79,7 +94,7 @@ enum COMMAND_ID {
     kCmdCounterSector = 12,
     kCmdCallback = 20,
     kCmdRepeat = 21,
-    
+
     kCmdSpritePush = 30,
     kCmdSpriteImpact = 31,
     kCmdSpritePickup = 32,
@@ -87,7 +102,7 @@ enum COMMAND_ID {
     kCmdSpriteSight = 34,
     kCmdSpriteProximity = 35,
     kCmdSpriteExplode = 36,
-    
+
     kCmdSectorPush = 40,
     kCmdSectorImpact = 41,
     kCmdSectorEnter = 42,
@@ -99,10 +114,14 @@ enum COMMAND_ID {
 
     kCmdModernUse = 53, // used by most of modern types
     kCmdNumberic = 64, // 64: 0, 65: 1 and so on up to 255
-    kCmdModernFeaturesEnable = 100, // must be in object with kChannelMapExtended RX / TX
-    kCmdModernFeaturesDisable = 200, // must be in object with kChannelMapExtended RX / TX
+    kCmdModernFeaturesEnable = 100, // must be in object with kChannelMapModernize RX / TX
+    kCmdModernFeaturesDisable = 200, // must be in object with kChannelMapModernize RX / TX
     kCmdNumbericMax = 255,
 };
+
+inline bool playerRXRngIsFine(int rx) {
+    return (rx >= kChannelPlayer0 && rx < kChannelPlayer7);
+}
 
 struct EVENT {
     unsigned int index:     14; // index
@@ -114,8 +133,8 @@ struct EVENT {
 
 void evInit(void);
 char evGetSourceState(int nType, int nIndex);
-void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy = -1);
-void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command, short causedBy = -1);
+void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy);
+void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command, short causedBy);
 void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback, short causedBy = -1);
 void evProcess(unsigned int nTime);
 void evKill(int a1, int a2);

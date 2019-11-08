@@ -349,80 +349,96 @@ char evGetSourceState(int nType, int nIndex)
 void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
 {
     EVENT event; event.index = nIndex; event.type = nType; event.cmd = command; event.causedBy = causedBy;
-    
+
     switch (command) {
-        case kCmdState:
-            command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
-            break;
-        case kCmdNotState:
-            command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
-            break;
+    case kCmdState:
+        command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
+        break;
+    case kCmdNotState:
+        command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
+        break;
     }
-    
+
     switch (rxId) {
-        case kChannelTextOver:
-            if (command >= kCmdNumberic) trTextOver(command - kCmdNumberic);
-            else viewSetSystemMessage("Invalid TextOver command by xobject #%d (object type %d)", nIndex, nType);
-            return;
-        case kChannelLevelExitNormal:
-            levelEndLevel(0);
-            return;
-        case kChannelLevelExitSecret:
-            levelEndLevel(1);
-            return;
+    case kChannelTextOver:
+        if (command >= kCmdNumberic) trTextOver(command - kCmdNumberic);
+        else viewSetSystemMessage("Invalid TextOver command by xobject #%d (object type %d)", nIndex, nType);
+        return;
+    case kChannelLevelExitNormal:
+        levelEndLevel(0);
+        return;
+    case kChannelLevelExitSecret:
+        levelEndLevel(1);
+        return;
         // By NoOne: finished level and load custom level ¹ via numbered command.
-        case kChannelModernEndLevelCustom:
-            if (command >= kCmdNumberic) levelEndLevelCustom(command - kCmdNumberic);
-            else viewSetSystemMessage("Invalid Level-Exit# command by xobject #%d (object type %d)", nIndex, nType);
-            return;
-        case kChannelSetTotalSecrets:
-            if (command >= kCmdNumberic) levelSetupSecret(command - kCmdNumberic);
-            else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
-            break;
-        case kChannelSecretFound:
-            if (command >= kCmdNumberic) levelTriggerSecret(command - kCmdNumberic);
-            else viewSetSystemMessage("Invalid Trigger-Secret command by xobject #%d (object type %d)", nIndex, nType);
-            break;
-        case kChannelRemoteBomb0:
-        case kChannelRemoteBomb1:
-        case kChannelRemoteBomb2:
-        case kChannelRemoteBomb3:
-        case kChannelRemoteBomb4:
-        case kChannelRemoteBomb5:
-        case kChannelRemoteBomb6:
-        case kChannelRemoteBomb7:
-            for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    case kChannelModernEndLevelCustom:
+        if (command >= kCmdNumberic) levelEndLevelCustom(command - kCmdNumberic);
+        else viewSetSystemMessage("Invalid Level-Exit# command by xobject #%d (object type %d)", nIndex, nType);
+        return;
+    case kChannelSetTotalSecrets:
+        if (command >= kCmdNumberic) levelSetupSecret(command - kCmdNumberic);
+        else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
+        break;
+    case kChannelSecretFound:
+        if (command >= kCmdNumberic) levelTriggerSecret(command - kCmdNumberic);
+        else viewSetSystemMessage("Invalid Trigger-Secret command by xobject #%d (object type %d)", nIndex, nType);
+        break;
+    case kChannelRemoteBomb0:
+    case kChannelRemoteBomb1:
+    case kChannelRemoteBomb2:
+    case kChannelRemoteBomb3:
+    case kChannelRemoteBomb4:
+    case kChannelRemoteBomb5:
+    case kChannelRemoteBomb6:
+    case kChannelRemoteBomb7:
+        for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+        {
+            spritetype* pSprite = &sprite[nSprite];
+            if (pSprite->flags & 32)
+                continue;
+            int nXSprite = pSprite->extra;
+            if (nXSprite > 0)
             {
-                spritetype *pSprite = &sprite[nSprite];
-                if (pSprite->flags&32)
-                    continue;
-                int nXSprite = pSprite->extra;
-                if (nXSprite > 0)
-                {
-                    XSPRITE *pXSprite = &xsprite[nXSprite];
-                    if (pXSprite->rxID == rxId)
-                        trMessageSprite(nSprite, event);
-                }
+                XSPRITE* pXSprite = &xsprite[nXSprite];
+                if (pXSprite->rxID == rxId)
+                    trMessageSprite(nSprite, event);
             }
-            return;
-        case kChannelTeamAFlagCaptured:
-        case kChannelTeamBFlagCaptured:
-            for (int nSprite = headspritestat[kStatItem]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+        }
+        return;
+    case kChannelTeamAFlagCaptured:
+    case kChannelTeamBFlagCaptured:
+        for (int nSprite = headspritestat[kStatItem]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+        {
+            spritetype* pSprite = &sprite[nSprite];
+            if (pSprite->flags & 32)
+                continue;
+            int nXSprite = pSprite->extra;
+            if (nXSprite > 0)
             {
-                spritetype *pSprite = &sprite[nSprite];
-                if (pSprite->flags&32)
-                    continue;
-                int nXSprite = pSprite->extra;
-                if (nXSprite > 0)
-                {
-                    XSPRITE *pXSprite = &xsprite[nXSprite];
-                    if (pXSprite->rxID == rxId)
-                        trMessageSprite(nSprite, event);
-                }
+                XSPRITE* pXSprite = &xsprite[nXSprite];
+                if (pXSprite->rxID == rxId)
+                    trMessageSprite(nSprite, event);
             }
-            return;
-        default:
-            break;
+        }
+        return;
+    default:
+        break;
+    }
+
+    //by NoOne: allow to send commands on player sprites
+    if (gModernMap) {
+        
+        PLAYER* pPlayer = NULL;
+        if (rxId >= kChannelPlayer0 && rxId <= kChannelPlayer7) {
+            if ((pPlayer = getPlayerById((kChannelPlayer0 - kChannelPlayer7) + kMaxPlayers)) != NULL)
+                trMessageSprite(pPlayer->nSprite, event);
+        } else if (rxId == kChannelAllPlayers) {
+            for (int i = 0; i < kMaxPlayers; i++) {
+                if ((pPlayer = getPlayerById(i)) != NULL)
+                    trMessageSprite(pPlayer->nSprite, event);
+            }
+        }
+
     }
 
     for (int i = bucketHead[rxId]; i < bucketHead[rxId+1]; i++) {

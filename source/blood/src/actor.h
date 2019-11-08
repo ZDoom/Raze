@@ -288,6 +288,6 @@ extern short gPhysSpritesList[kMaxSuperXSprites];
 extern short gProxySpritesCount;
 extern short gSightSpritesCount;
 extern short gPhysSpritesCount;
-//extern short gQavPlayerIndex;
+extern int DudeDifficulty[];
 
 END_BLD_NS

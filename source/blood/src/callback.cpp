@@ -358,7 +358,7 @@ void CounterCheck(int nSector) // 12
         return;
     } else {
         //pXSector->waitTimeA = 0; //do not reset necessary objects counter to zero
-        trTriggerSector(nSector, pXSector, kCmdOn);
+        trTriggerSector(nSector, pXSector, kCmdOn, -1);
         pXSector->locked = 1; //lock sector, so it can be opened again later
     }
 }
@@ -539,9 +539,9 @@ void fxPodBloodSplat(int nSprite) // 19
         sfxPlay3DSound(pSprite, 385, nChannel, 1);
     }
     spritetype *pFX = NULL;
-    if (pSprite->type == 53 || pSprite->type == kThingPodFireBall)
+    if (pSprite->type == 53 || pSprite->type == kThingPodGreenBall)
     {
-        if (Chance(0x500) || pSprite->type == kThingPodFireBall)
+        if (Chance(0x500) || pSprite->type == kThingPodGreenBall)
             pFX = gFX.fxSpawn(FX_55, pSprite->sectnum, x, y, floorZ-64, 0);
         if (pFX)
             pFX->ang = nAngle;

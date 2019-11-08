@@ -233,17 +233,17 @@ void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5)
     dassert(pPlayer != NULL);
     if (pPlayer->weaponQav == -1)
         return;
-    QAV *pQAV = weaponQAV[pPlayer->weaponQav];
+    QAV * pQAV = weaponQAV[pPlayer->weaponQav];
     int v4;
     if (pPlayer->weaponTimer == 0)
-        v4 = (int)totalclock%pQAV->at10;
+        v4 = (int)totalclock % pQAV->at10;
     else
-        v4 = pQAV->at10-pPlayer->weaponTimer;
+        v4 = pQAV->at10 - pPlayer->weaponTimer;
     pQAV->x = a3;
     pQAV->y = a4;
     int flags = 2;
     int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
-    if (nInv >= 120*8 || (nInv != 0 && ((int)totalclock&32)))
+    if (nInv >= 120 * 8 || (nInv != 0 && ((int)totalclock & 32)))
     {
         a2 = -128;
         flags |= 1;
@@ -996,7 +996,7 @@ void ThrowCan(int, PLAYER *pPlayer)
     if (pSprite)
     {
         sfxPlay3DSound(pSprite, 441, 0, 0);
-        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn, pPlayer->nSprite);
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
         pXSprite->Impact = 1;
@@ -1011,7 +1011,7 @@ void DropCan(int, PLAYER *pPlayer)
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
     if (pSprite)
     {
-        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn, pPlayer->nSprite);
         UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
     }
 }
@@ -1020,7 +1020,7 @@ void ExplodeCan(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, -1, 441);
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
-    evPost(pSprite->index, 3, 0, kCmdOn);
+    evPost(pSprite->index, 3, 0, kCmdOn, pPlayer->nSprite);
     UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
     StartQAV(pPlayer, 15, -1);
     pPlayer->curWeapon = 0;
@@ -1038,7 +1038,7 @@ void ThrowBundle(int, PLAYER *pPlayer)
     if (pPlayer->fuseTime < 0)
         pXSprite->Impact = 1;
     else
-        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn, pPlayer->nSprite);
     UseAmmo(pPlayer, 5, 1);
     pPlayer->throwPower = 0;
 }
@@ -1047,7 +1047,7 @@ void DropBundle(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
-    evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+    evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn, pPlayer->nSprite);
     UseAmmo(pPlayer, 5, 1);
 }
 
@@ -1055,7 +1055,7 @@ void ExplodeBundle(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
-    evPost(pSprite->index, 3, 0, kCmdOn);
+    evPost(pSprite->index, 3, 0, kCmdOn, pPlayer->nSprite);
     UseAmmo(pPlayer, 5, 1);
     StartQAV(pPlayer, 24, -1, 0);
     pPlayer->curWeapon = 0;
@@ -1067,7 +1067,7 @@ void ThrowProx(int, PLAYER *pPlayer)
     int nSpeed = mulscale16(pPlayer->throwPower, 0x177777)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
     spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedProxBomb, nSpeed);
-    evPost(pSprite->index, 3, 240, kCmdOn);
+    evPost(pSprite->index, 3, 240, kCmdOn, pPlayer->nSprite);
     UseAmmo(pPlayer, 10, 1);
     pPlayer->throwPower = 0;
 }
@@ -1075,7 +1075,7 @@ void ThrowProx(int, PLAYER *pPlayer)
 void DropProx(int, PLAYER *pPlayer)
 {
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedProxBomb, 0);
-    evPost(pSprite->index, 3, 240, kCmdOn);
+    evPost(pSprite->index, 3, 240, kCmdOn, pPlayer->nSprite);
     UseAmmo(pPlayer, 10, 1);
 }
 
@@ -1102,7 +1102,7 @@ void DropRemote(int, PLAYER *pPlayer)
 
 void FireRemote(int, PLAYER *pPlayer)
 {
-    evSend(0, 0, 90+(pPlayer->pSprite->type-kDudePlayer1), kCmdOn);
+    evSend(0, 0, 90+(pPlayer->pSprite->type-kDudePlayer1), kCmdOn, pPlayer->nSprite);
 }
 
 #define kMaxShotgunBarrels 4
@@ -1927,23 +1927,25 @@ char sub_4F484(PLAYER *pPlayer)
 void WeaponProcess(PLAYER *pPlayer) {
 
     pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
-
-    if (gModernMap && gQavScene[pPlayer->nPlayer].index >= 0) {
-
-        int nIndex = gQavScene[pPlayer->nPlayer].index;
-        if (sprite[nIndex].extra >= 0 && pPlayer->pXSprite->health > 0) {
+    
+    if (gPlayerCtrl[pPlayer->nPlayer].qavScene.index >= 0 && pPlayer->pXSprite->health > 0) {
+        
+        QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+        
+        int nIndex = pQavScene->index;
+        if (sprite[nIndex].extra >= 0) {
             XSPRITE* pXSprite = &xsprite[sprite[nIndex].extra];
-            //viewSetSystemMessage("%d", pXSprite->sysData1);
             if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) {
-                evSend(nIndex, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command, pPlayer->nSprite);
-                evPost(nIndex, 3, 0, kCmdOff, pPlayer->nSprite);
+                if (pXSprite->txID > 0)
+                    evSend(nIndex, 3, pXSprite->txID, (COMMAND_ID) pXSprite->command, pQavScene->causedBy);
+                evPost(nIndex, 3, 0, (COMMAND_ID) (kCmdNumberic + 4), pQavScene->causedBy);
             } else  {
-                playQavScene(pPlayer);
+                qavScenePlay(pPlayer);
                 pPlayer->weaponTimer = ClipLow(pPlayer->weaponTimer -= 4, 0);
             }
         } else {
-            gQavScene[pPlayer->nPlayer].index = -1;
-            gQavScene[pPlayer->nPlayer].qavId = NULL;
+            pQavScene->index = pPlayer->sceneQav = -1;
+            pQavScene->qavResrc = NULL;
         }
 
         return;

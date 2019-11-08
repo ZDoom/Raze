@@ -696,13 +696,14 @@ const int nXSectorSize = 60;
 const int nXSpriteSize = 56;
 const int nXWallSize = 24;
 
-int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC)
-{
-    char name2[BMAX_PATH];
-    int16_t tpskyoff[256];
+int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC) {
+    char name2[BMAX_PATH]; int16_t tpskyoff[256];
     memset(show2dsector, 0, sizeof(show2dsector));
     memset(show2dwall, 0, sizeof(show2dwall));
     memset(show2dsprite, 0, sizeof(show2dsprite));
+
+    gModernMap = false;
+
 #ifdef USE_OPENGL
     Polymost_prepare_loadboard();
 #endif
@@ -747,7 +748,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         // for maps wich created in PMAPEDIT BETA13 or higher versions. Since only minor version changed,
         // the map is still can be loaded with vanilla BLOOD / MAPEDIT and should work in other ports too.
         if ((header.version & 0x00ff) == 0x001) gModernMap = true;
-        else gModernMap = false;
 
     } else {
         initprintf("Map file is wrong version");
@@ -963,10 +963,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             xsector[sector[i].extra].reference = i;
             xsector[sector[i].extra].busy = xsector[sector[i].extra].state<<16;
 
-            // by NoOne: indicate if the map requires modern features to work properly
-            // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
-            if (pXSector->rxID == kChannelMapExtended && pXSector->rxID == pXSector->txID && pXSector->command == kCmdModernFeaturesEnable)
-                gModernMap = true;
         }
     }
     for (int i = 0; i < numwalls; i++)
@@ -1042,10 +1038,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             xwall[wall[i].extra].reference = i;
             xwall[wall[i].extra].busy = xwall[wall[i].extra].state << 16;
 
-            // by NoOne: indicate if the map requires modern features to work properly
-            // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
-            if (pXWall->rxID == kChannelMapExtended && pXWall->rxID == pXWall->txID && pXWall->command == kCmdModernFeaturesEnable)
-                gModernMap = true;
         }
     }
     initspritelists();
@@ -1168,7 +1160,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
             // by NoOne: indicate if the map requires modern features to work properly
             // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
-            if (pXSprite->rxID == kChannelMapExtended && pXSprite->rxID == pXSprite->txID && pXSprite->command == kCmdModernFeaturesEnable)
+            if (!gModernMap && pXSprite->rxID == kChannelMapModernize && pXSprite->rxID == pXSprite->txID && pXSprite->command == kCmdModernFeaturesEnable)
                 gModernMap = true;
         }
         if ((sprite[i].cstat & 0x30) == 0x30)

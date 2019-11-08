@@ -103,6 +103,7 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite);
 void aiProcessDudes(void);
 void aiInit(void);
 void aiInitSprite(spritetype *pSprite);
+bool CanMove(spritetype* pSprite, int a2, int nAngle, int nRange);
 
 // By NoOne: this function required for kModernDudeTargetChanger
 void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite);

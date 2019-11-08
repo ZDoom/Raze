@@ -70,11 +70,11 @@ struct ACTIVE
 struct SEQINST
 {
     DICTNODE *hSeq;
-    Seq *pSequence; // mass
+    Seq *pSequence;
     int at8;
     int atc;
     short at10;
-    unsigned char frameIndex; // at12
+    unsigned char frameIndex;
     char at13;
     void Update(ACTIVE *pActive);
 };

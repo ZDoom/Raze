@@ -48,7 +48,7 @@ void warpInit(void)
         gUpperLink[i] = -1;
         gLowerLink[i] = -1;
     }
-    int team1 = 0; int team2 = 0; // increment if team start positions specified.
+    int team1 = 0; int team2 = 0; gTeamsSpawnUsed = false; // increment if team start positions specified.
     for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
     {
         if (sprite[nSprite].statnum < kMaxStatus) {
@@ -134,11 +134,14 @@ void warpInit(void)
             }
         }
     }
+    
     // check if there is enough start positions for teams, if any used
     if (team1 > 0 || team2 > 0) {
         gTeamsSpawnUsed = true;
-        //if (team1 < kMaxPlayers / 2 || team2 < kMaxPlayers / 2)
-           //_ShowMessageWindow("At least 4 spawn positions for each team is recommended.");
+        if (team1 < kMaxPlayers / 2 || team2 < kMaxPlayers / 2) {
+            viewSetSystemMessage("At least 4 spawn positions for each team is recommended.");
+            viewSetSystemMessage("Team A positions: %d, Team B positions: %d.", team1, team2);
+        }
     }
 
     for (int i = 0; i < kMaxSectors; i++)

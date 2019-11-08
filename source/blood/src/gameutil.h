@@ -50,6 +50,21 @@ enum {
     PARALLAXCLIP_FLOOR = 2,
 };
 
+
+// by NoOne: functions to quckly check range of specifical arrays
+inline bool spriRangeIsFine(int nIndex) {
+    return (nIndex >= 0 && nIndex < kMaxSprites);
+}
+
+inline bool sectRangeIsFine(int nIndex) {
+    return (nIndex >= 0 && nIndex < kMaxSectors);
+}
+
+inline bool wallRangeIsFine(int nIndex) {
+    return (nIndex >= 0 && nIndex < kMaxWalls);
+}
+///
+
 bool AreSectorsNeighbors(int sect1, int sect2);
 bool FindSector(int nX, int nY, int nZ, int *nSector);
 bool FindSector(int nX, int nY, int *nSector);

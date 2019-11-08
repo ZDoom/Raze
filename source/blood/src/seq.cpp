@@ -113,12 +113,12 @@ void UpdateSprite(int nXSprite, SEQFRAME *pFrame)
     
     int scale = xsprite[nXSprite].scale; // SEQ size scaling
     if (pFrame->at2_0) {
-        if (scale) pSprite->xrepeat = mulscale8(pFrame->at2_0, scale);
+        if (scale) pSprite->xrepeat = ClipRange(mulscale8(pFrame->at2_0, scale), 0, 255);
         else pSprite->xrepeat = pFrame->at2_0;
     }
 
     if (pFrame->at3_0) {
-        if (scale) pSprite->yrepeat = mulscale8(pFrame->at3_0, scale);
+        if (scale) pSprite->yrepeat = ClipRange(mulscale8(pFrame->at3_0, scale), 0, 255);
         else pSprite->yrepeat = pFrame->at3_0;
     }
 
