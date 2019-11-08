@@ -720,12 +720,10 @@ void V_InitFonts()
 	NewSmallFont = CreateHexLumpFont2("NewSmallFont", "demolition/newconsolefont.hex");
 	CurrentConsoleFont = NewConsoleFont;
 
-	/*
-	ConFont = V_GetFont("ConsoleFont", "CONFONT");
+	ConFont = V_GetFont("ConsoleFont", "confont");	// The con font is needed for the slider graphics
 	{
 		ConFont = SmallFont;
 	}
-	*/
 }
 
 void V_ClearFonts()

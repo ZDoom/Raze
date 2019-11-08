@@ -2060,6 +2060,18 @@ int32_t handleevents(void)
     return rv;
 }
 
+void I_SetMouseCapture()
+{
+	// Clear out any mouse movement.
+	SDL_GetRelativeMouseState(NULL, NULL);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+}
+
+void I_ReleaseMouseCapture()
+{
+	SDL_SetRelativeMouseMode(SDL_FALSE);
+}
+
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
 
 //

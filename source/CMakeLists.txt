@@ -624,6 +624,7 @@ file( GLOB HEADER_FILES
 	common/filesystem/*.h
 	common/music/*.h
 	common/dobject/*.h
+	common/menu/*.h
 
 	build/src/*.h
 	thirdparty/include/*.h
@@ -791,6 +792,7 @@ set (PCH_SOURCES
 	common/utility/m_png.cpp
 	common/utility/memarena.cpp
 	common/utility/sc_man.cpp
+	common/utility/stringtable.cpp
 	common/utility/stats.cpp
 
 	common/filesystem/filesystem.cpp
@@ -830,6 +832,16 @@ set (PCH_SOURCES
 
 	common/dobject/dobject.cpp
 	common/dobject/dobjtype.cpp
+	
+	common/menu/joystickmenu.cpp
+	common/menu/listmenu.cpp
+	common/menu/loadsavemenu.cpp
+	common/menu/menu.cpp
+	common/menu/menudef.cpp
+	common/menu/menuinput.cpp
+	common/menu/messagebox.cpp
+	common/menu/optionmenu.cpp
+	common/menu/readthis.cpp
 	
 	common/dobject/zzautozend.cpp #must be last
 )
@@ -895,6 +907,7 @@ include_directories(
 	common/filesystem
 	common/music
 	common/dobject
+	common/menu
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -1004,6 +1017,7 @@ source_group("Code\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/comm
 source_group("Code\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Code\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/music/.+")
 source_group("Code\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/dobject/.+")
+source_group("Code\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
 source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
 source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
 source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")

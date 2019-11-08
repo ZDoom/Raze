@@ -24,6 +24,7 @@
 #include "gamecvars.h"
 #include "c_console.h"
 #include "v_2ddrawer.h"
+#include "v_draw.h"
 #include "imgui.h"
 #include "stats.h"
 
@@ -9984,6 +9985,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     }
     xdim = daupscaledxdim/scalefactor;
     ydim = daupscaledydim/scalefactor;
+	V_UpdateModeSize(xdim, ydim);
 
 #ifdef USE_OPENGL
     fxdim = (float) xdim;
@@ -12066,42 +12068,6 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     Xfree(tmpwall);
 }
 
-//
-// qsetmodeany
-//
-void videoSet2dMode(int32_t daxdim, int32_t daydim)
-{
-    if (daxdim < 640) daxdim = 640;
-    if (daydim < 480) daydim = 480;
-
-    if (qsetmode != ((daxdim<<16)|(daydim&0xffff)))
-    {
-        g_lastpalettesum = 0;
-        if (videoSetMode(daxdim, daydim, 8, fullscreen) < 0)
-            return;
-
-        xdim = xres;
-        ydim = yres;
-
-#ifdef USE_OPENGL
-        fxdim = (float) xdim;
-        fydim = (float) ydim;
-
-        rendmode = REND_CLASSIC;
-#endif
-        videoAllocateBuffers();
-
-        ydim16 = ydim - STATUS2DSIZ2;
-        halfxdim16 = xdim >> 1;
-        midydim16 = ydim16 >> 1; // scale(200,ydim,480);
-
-        videoBeginDrawing(); //{{{
-        Bmemset((char *)frameplace, 0, ydim*bytesperline);
-        videoEndDrawing();   //}}}
-    }
-
-    qsetmode = ((daxdim<<16)|(daydim&0xffff));
-}
 
 static int32_t printext_checkypos(int32_t ypos, int32_t *yminptr, int32_t *ymaxptr)
 {

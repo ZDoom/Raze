@@ -42,6 +42,7 @@ double AspectPspriteOffset(float aspect);
 int AspectMultiplier(float aspect);
 bool AspectTallerThanWide(float aspect);
 void ScaleWithAspect(int& w, int& h, int Width, int Height);
+void V_UpdateModeSize(int width, int height);
 
 void DrawTexture(F2DDrawer *drawer, FTexture* img, double x, double y, int tags_first, ...);
 void DrawChar (F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, int character, int tag_first, ...);

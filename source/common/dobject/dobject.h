@@ -140,6 +140,16 @@ public:
 		Class = inClass;
 	}
 
+	void* operator new(size_t p)
+	{
+		return malloc(p);
+	}
+
+	void operator delete (void* mem)
+	{
+		free(mem);
+	}
+
 protected:
 	// This form of placement new and delete is for use *only* by PClass's
 	// CreateNew() method. Do not use them for some other purpose.
