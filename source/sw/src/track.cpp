@@ -1428,7 +1428,7 @@ PostSetupSectorObject(void)
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == MAXLONG)
+        if (sop->xmid == INT32_MAX)
             continue;
         FindMainSector(sop);
     }
@@ -1442,7 +1442,7 @@ PlayerOnObject(short sectnum_match)
     SECTOR_OBJECTp sop;
 
     // place each sector object on the track
-    //for (i = 0; (SectorObject[i].xmid != MAXLONG) && (i < MAX_SECTOR_OBJECTS); i++)
+    //for (i = 0; (SectorObject[i].xmid != INT32_MAX) && (i < MAX_SECTOR_OBJECTS); i++)
     for (i = 0; (i < MAX_SECTOR_OBJECTS); i++)
     {
         sop = &SectorObject[i];
@@ -1477,7 +1477,7 @@ PlaceSectorObjectsOnTracks(void)
         TRACK_POINTp tpoint = NULL;
         short spnum, next_spnum;
 
-        if (sop->xmid == MAXLONG)
+        if (sop->xmid == INT32_MAX)
             continue;
 
 
@@ -1693,14 +1693,14 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
     short i, nexti, rot_ang;
     SWBOOL PlayerMove = TRUE;
 
-    if (sop->xmid >= (int)MAXSO)
+    if (sop->xmid >= MAXSO)
         PlayerMove = FALSE;
 
     // move along little midpoint
     sop->xmid += BOUND_4PIX(nx);
     sop->ymid += BOUND_4PIX(ny);
 
-    if (sop->xmid >= (int)MAXSO)
+    if (sop->xmid >= MAXSO)
         PlayerMove = FALSE;
 
     // move child sprite along also
@@ -1882,7 +1882,7 @@ PlayerPart:
 
             // Does not necessarily move with the sector so must accout for
             // moving across sectors
-            if (sop->xmid < (int)MAXSO) // special case for operating SO's
+            if (sop->xmid < MAXSO) // special case for operating SO's
                 setspritez(sop->sp_num[i], (vec3_t *)sp);
         }
 
@@ -1902,7 +1902,7 @@ PlayerPart:
             // update here AFTER sectors/player has been manipulated
             // prevents you from falling into map HOLEs created by moving
             // Sectors and sprites around.
-            //if (sop->xmid < (int)MAXSO)
+            //if (sop->xmid < MAXSO)
             COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
 
             // in case you are in a whirlpool
@@ -2077,7 +2077,7 @@ DetectSectorObject(SECTORp sectph)
     // move all points to nx,ny
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == MAXLONG /*|| sop->xmid == MAXSO*/)
+        if (sop->xmid == INT32_MAX /*|| sop->xmid == MAXSO*/)
             continue;
 
         for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
@@ -2105,7 +2105,7 @@ DetectSectorObjectByWall(WALLp wph)
     // move all points to nx,ny
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == MAXLONG /*|| sop->xmid == MAXSO*/)
+        if (sop->xmid == INT32_MAX /*|| sop->xmid == MAXSO*/)
             continue;
 
         for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
