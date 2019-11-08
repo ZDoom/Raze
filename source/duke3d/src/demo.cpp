@@ -65,7 +65,6 @@ static void Demo_RestoreModes(int32_t menu)
     g_player[myconnectindex].ps->gm |= MODE_DEMO;
 }
 
-// This is utterly gross. Global configuration should not be manipulated like this.
 void Demo_PrepareWarp(void)
 {
     if (!g_demo_paused)
@@ -279,10 +278,7 @@ void G_CloseDemoWrite(void)
 		g_demo_filePtr->Write("EnD!", 4);
 
         // lastly, we need to write the number of written recsyncs to the demo file
-        if (g_demo_filePtr->Write(g_demo_filePtr, offsetof(savehead_t, reccnt)))
-            Printf("G_CloseDemoWrite: final fseek\n");
-        else
-			g_demo_filePtr->Write(&g_demo_cnt, sizeof(g_demo_cnt));
+		g_demo_filePtr->Write(&g_demo_cnt, sizeof(g_demo_cnt));
 
         ud.recstat = ud.m_recstat = 0;
         delete g_demo_filePtr;
@@ -418,7 +414,8 @@ static void Demo_FinishProfile(void)
                        dn, gms, (gms*1000.0)/nt);
         }
 
-        if (nf > 0)       {
+        if (nf > 0)
+        {
             OSD_Printf("== demo %d: %d frames (%d frames/gametic)\n", dn, nf, g_demo_profile-1);
             OSD_Printf("== demo %d drawrooms times: %.03f s (%.03f ms/frame)\n",
                        dn, dms1/1000.0, dms1/nf);

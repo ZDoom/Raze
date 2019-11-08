@@ -37,8 +37,8 @@ BEGIN_RR_NS
 
 char g_firstDemoFile[BMAX_PATH];
 
-buildvfs_FILE g_demo_filePtr{};  // write
-FileReader g_demo_recFilePtr;
+FileWriter *g_demo_filePtr{};  // write
+FileReader g_demo_recFilePtr;  // read
 
 int32_t g_demo_cnt;
 int32_t g_demo_goalCnt=0;
@@ -156,7 +156,7 @@ void G_OpenDemoWrite(void)
         if (demonum == MAXDEMOS)
             return;
 
-        if (snprintf(demofn, sizeof(demofn), "%s" DEMOFN_FMT, M_GetSavegamesPath().GetChars(), demonum))
+        if (snprintf(demofn, sizeof(demofn), "%s" DEMOFN_FMT, M_GetDemoPath().GetChars(), demonum))
         {
             initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
             goto error_wopen_demo;
@@ -164,25 +164,26 @@ void G_OpenDemoWrite(void)
 
         demonum++;
 
-        g_demo_filePtr = buildvfs_fopen_read(demofn);
+		g_demo_filePtr = FileWriter::Open(demofn);
         if (g_demo_filePtr == NULL)
             break;
 
-        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+        delete g_demo_filePtr;
     }
     while (1);
 
-    g_demo_filePtr = buildvfs_fopen_write(demofn);
+    g_demo_filePtr = FileWriter::Open(demofn);
     if (g_demo_filePtr == NULL)
         return;
 
-    i=sv_saveandmakesnapshot(g_demo_filePtr, nullptr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
+    i=sv_saveandmakesnapshot(*g_demo_filePtr, nullptr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
                              (demorec_seeds_cvar<<1));
     if (i)
     {
-        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+        delete g_demo_filePtr;
+		g_demo_filePtr = nullptr;
 error_wopen_demo:
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
+        Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE CONSOLE FOR DETAILS.");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
         ud.recstat = ud.m_recstat = 0;
         return;
@@ -233,13 +234,13 @@ static void Demo_WriteSync()
 {
     int16_t tmpreccnt;
 
-    buildvfs_fwrite("sYnC", 4, 1, g_demo_filePtr);
+	g_demo_filePtr->Write("sYnC", 4);
     tmpreccnt = (int16_t)ud.reccnt;
-    buildvfs_fwrite(&tmpreccnt, sizeof(int16_t), 1, g_demo_filePtr);
+	g_demo_filePtr->Write(&tmpreccnt, sizeof(int16_t));
     if (demorec_seeds)
-        buildvfs_fwrite(g_demo_seedbuf, 1, ud.reccnt, g_demo_filePtr);
+		g_demo_filePtr->Write(g_demo_seedbuf, ud.reccnt);
 
-	buildvfs_fwrite(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
+	g_demo_filePtr->Write(recsync, sizeof(input_t)* ud.reccnt);
 
     ud.reccnt = 0;
 }
@@ -276,16 +277,14 @@ void G_CloseDemoWrite(void)
         if (ud.reccnt > 0)
             Demo_WriteSync();
 
-        buildvfs_fwrite("EnD!", 4, 1, g_demo_filePtr);
+		g_demo_filePtr->Write("EnD!", 4);
 
         // lastly, we need to write the number of written recsyncs to the demo file
-        if (buildvfs_fseek_abs(g_demo_filePtr, offsetof(savehead_t, reccnt)))
-            perror("G_CloseDemoWrite: final fseek");
-        else
-            buildvfs_fwrite(&g_demo_cnt, sizeof(g_demo_cnt), 1, g_demo_filePtr);
+		g_demo_filePtr->Write(&g_demo_cnt, sizeof(g_demo_cnt));
 
         ud.recstat = ud.m_recstat = 0;
-        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+        delete g_demo_filePtr;
+		g_demo_filePtr = nullptr;
 
         sv_freemem();
 

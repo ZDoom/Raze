@@ -361,8 +361,11 @@ void G_GameExit(const char *msg)
 
     if (ud.recstat == 1)
         G_CloseDemoWrite();
-    else if (ud.recstat == 2)
-        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+	else if (ud.recstat == 2)
+	{
+		delete g_demo_filePtr;
+		g_demo_filePtr = nullptr;
+	}
     // JBF: fixes crash on demo playback
     // PK: modified from original
 

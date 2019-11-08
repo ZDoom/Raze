@@ -206,7 +206,7 @@ static void ReadSaveGameHeaders_CACHE1D(TArray<FString> &saves)
 
 static void ReadSaveGameHeaders_Internal(void)
 {
-	FString pattern = M_GetSavegamesPath() + "*.esv";
+	FString pattern = M_GetSavegamesPath() + "*.bsv";
 	TArray<FString> saves;
 	D_AddWildFile(saves, pattern);
     // potentially overallocating but programmatically simple
@@ -750,7 +750,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	}
 	else
 	{
-		static char const SaveName[] = "save0000.svz";
+		static char const SaveName[] = "save0000.bsv";
 		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), SaveName);
 
 		auto fnp = fn.LockBuffer();
@@ -1002,7 +1002,7 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
         if (!ptr || !cnt)
             continue;
 
-        if (fil != nullptr)
+        if (fil != nullptr && fil->isOpen())
         {
             auto const mem  = (dump && (spec->flags & DS_NOCHK) == 0) ? dump : (uint8_t *)ptr;
             int const  siz  = cnt * spec->size;
@@ -1376,11 +1376,6 @@ static const dataspec_t svgm_udnetw[] =
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
-#ifdef LUNATIC
-    // Save game tic count for Lunatic because it is exposed to userland. See
-    // test/helixspawner.lua for an example.
-    { 0, &g_moveThingsCount, sizeof(g_moveThingsCount), 1 },
-#endif
 //    { 0, &lockclock_dummy, sizeof(lockclock), 1 },
     { DS_END, 0, 0, 0 }
 };
@@ -1695,7 +1690,7 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
     }
 	else
 	{
-		int v = 64000;
+		int v = 0;
 	    fil.Write(&v, 4);
 	}
 
@@ -1810,7 +1805,7 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
     }
     if (i > 0)
     {
-        if (fil.Seek(i, FileReader::SeekSet) != i)
+        if (fil.Seek(i, FileReader::SeekCur) < 0)
         {
             OSD_Printf("sv_snapshot: failed skipping over the screenshot.\n");
             return 8;
@@ -2185,13 +2180,6 @@ static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr)
     PRINTSIZE("ud");
     if (readspecdata(svgm_secwsp, &fil, &mem)) return -4;
     PRINTSIZE("sws");
-#ifdef LUNATIC
-    {
-        int32_t ret = El_ReadSaveCode(fil);
-        if (ret < 0)
-            return ret;
-    }
-#endif
     if (readspecdata(svgm_script, &fil, &mem)) return -5;
     PRINTSIZE("script");
     if (readspecdata(svgm_anmisc, &fil, &mem)) return -6;
