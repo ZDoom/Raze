@@ -732,7 +732,7 @@ size_t CompressedFileWriter::Write(const void *buffer, size_t bytes)
 	size_t towrite = bytes;
 	
 	zipstream->next_in = (Bytef *)buffer;
-	while (bytes > 0)
+	while (towrite > 0)
 	{
 		auto chunk = std::min(towrite, (size_t)0x40000000);
 		zipstream->avail_in = chunk;
