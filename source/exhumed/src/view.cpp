@@ -406,7 +406,8 @@ void DrawView(int smoothRatio)
     {
         playerX = interpolate16(PlayerList[nLocalPlayer].opos.x, sprite[nPlayerSprite].x, smoothRatio);
         playerY = interpolate16(PlayerList[nLocalPlayer].opos.y, sprite[nPlayerSprite].y, smoothRatio);
-        playerZ = interpolate16(PlayerList[nLocalPlayer].opos.z, sprite[nPlayerSprite].z, smoothRatio) + eyelevel[nLocalPlayer];
+        playerZ = interpolate16(PlayerList[nLocalPlayer].opos.z, sprite[nPlayerSprite].z, smoothRatio)
+                + interpolate16(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
         nSector = nPlayerViewSect[nLocalPlayer];
         nAngle = q16angle_interpolate16(PlayerList[nLocalPlayer].q16oangle, PlayerList[nLocalPlayer].q16angle, smoothRatio);
 

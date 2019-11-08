@@ -109,7 +109,7 @@ short nPlayerViewSect[kMaxPlayers];
 short nPlayerFloorSprite[kMaxPlayers];
 PlayerSave sPlayerSave[kMaxPlayers];
 int totalvel[kMaxPlayers] = { 0 };
-int16_t eyelevel[kMaxPlayers];
+int16_t eyelevel[kMaxPlayers], oeyelevel[kMaxPlayers];
 short nNetStartSprite[kMaxPlayers] = { 0 };
 
 short nStandHeight;
@@ -770,7 +770,7 @@ void RestartPlayer(short nPlayer)
     }
 
     nPlayerGrenade[nPlayer] = -1;
-    eyelevel[nPlayer] = -14080;
+    oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
     dVertPan[nPlayer] = 0;
 
     nTemperature[nPlayer] = 0;
@@ -881,7 +881,7 @@ void StartDeathSeq(int nPlayer, int nVal)
     StopFiringWeapon(nPlayer);
 
     PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
-    eyelevel[nPlayer] = -14080;
+    oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
 
@@ -1050,6 +1050,7 @@ void FuncPlayer(int pA, int nDamage, int nRun)
     PlayerList[nPlayer].opos = sprite[nPlayerSprite].pos;
     PlayerList[nPlayer].q16oangle = PlayerList[nPlayer].q16angle;
     PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz;
+    oeyelevel[nPlayer] = eyelevel[nPlayer];
 
     switch (nMessage)
     {
