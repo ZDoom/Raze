@@ -662,7 +662,7 @@ loc_flag:
 			}
 
 			if (nPlayer == nLocalPlayer) {
-				bobangle = 512;
+				obobangle = bobangle = 512;
 			}
 
 			if (nWeapon == kWeaponFlamer && (!(nSectFlag & kSectUnderwater)))
@@ -911,7 +911,7 @@ loc_flag:
 	}
 }
 
-void DrawWeapons()
+void DrawWeapons(int smooth)
 {
 	if (bCamera) {
 		return;
@@ -947,18 +947,19 @@ void DrawWeapons()
 	int nVal = totalvel[nLocalPlayer] >> 1;
 
 	// CHECKME - not & 0x7FF?
-	int	yOffset = (nVal * (sintable[bobangle & 0x3FF] >> 8)) >> 9;
+    int nBobAngle = angle_interpolate16(obobangle, bobangle, smooth);
+	int	yOffset = (nVal * (sintable[nBobAngle & 0x3FF] >> 8)) >> 9;
 
 	int xOffset = 0;
 
 	if (var_34 == 1)
 	{
-		xOffset = ((Sin(bobangle + 512) >> 8) * nVal) >> 8;
+		xOffset = ((Sin(nBobAngle + 512) >> 8) * nVal) >> 8;
 	}
 	else
 	{
 		xOffset = 0;
-		bobangle = 512;
+		obobangle = bobangle = 512;
 	}
 
 	if (nWeapon == 3 && var_34 == 1) {

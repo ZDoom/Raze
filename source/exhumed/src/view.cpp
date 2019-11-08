@@ -574,7 +574,7 @@ void DrawView(int smoothRatio)
         {
             if (nSnakeCam < 0)
             {
-                DrawWeapons();
+                DrawWeapons(smoothRatio);
                 DrawStatus();
             }
             else

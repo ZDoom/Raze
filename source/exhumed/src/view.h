@@ -2,6 +2,8 @@
 #ifndef __view_h__
 #define __view_h__
 
+#include "build.h"
+
 extern short bSubTitles;
 extern short nViewTop;
 extern short bClip;
@@ -38,5 +40,10 @@ extern int nCameraz;
 extern short bTouchFloor;
 
 extern short nChunkTotal;
+
+static inline int angle_interpolate16(int a, int b, int smooth)
+{
+    return a + mulscale16(((b+1024-a)&2047)-1024, smooth);
+}
 
 #endif

@@ -47,7 +47,7 @@ struct PlayerSave
 fix16_t lPlayerXVel = 0;
 fix16_t lPlayerYVel = 0;
 fix16_t nPlayerDAng = 0;
-short bobangle  = 0;
+short obobangle = 0, bobangle  = 0;
 short bPlayerPan = 0;
 short bLockPan  = 0;
 

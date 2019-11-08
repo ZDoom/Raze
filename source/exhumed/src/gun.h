@@ -45,6 +45,6 @@ void StopFiringWeapon(short nPlayer);
 void FireWeapon(short nPlayer);
 void CheckClip(short nPlayer);
 void MoveWeapons(short nPlayer);
-void DrawWeapons();
+void DrawWeapons(int smooth);
 
 #endif

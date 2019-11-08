@@ -86,7 +86,7 @@ extern short nPlayerScore[];
 
 extern short nPlayerClip[];
 
-extern short bobangle;
+extern short obobangle, bobangle;
 
 extern int totalvel[];
 extern int16_t eyelevel[], oeyelevel[];
