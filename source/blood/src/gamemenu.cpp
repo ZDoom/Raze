@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "c_bind.h"
 
+bool ShowOptionMenu();
+
 BEGIN_BLD_NS
 
 CMenuTextMgr gMenuTextMgr;
@@ -155,6 +157,26 @@ void CGameMenuMgr::Draw(void)
 {
     if (pActiveMenu)
     {
+		if (GUICapture & 2)
+		{
+			ImGui_Begin_Frame();
+			bool b = true;
+			videoFadeToBlack(1);
+#if 0
+			ImGui::ShowDemoWindow(&b);
+			if (!b)
+#else
+			if (!ShowOptionMenu())
+#endif
+			{
+				GUICapture &= ~2;
+				GUICapture |= 4;
+				Pop();
+			}
+			return;
+		}
+
+
         pActiveMenu->Draw();
         viewUpdatePages();
     }
