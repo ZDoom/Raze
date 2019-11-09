@@ -163,6 +163,7 @@ void D_ProcessEvents (void)
 // Called by the I/O functions when input is detected.
 //
 //==========================================================================
+void sendKeyForBinding(int key);
 
 void D_PostEvent (const event_t *ev)
 {
@@ -194,6 +195,13 @@ void D_PostEvent (const event_t *ev)
 		}
 	}
 #endif
+
+	if ((GUICapture & 8) && ev->type == EV_KeyDown)
+	{
+		// This must bypass the entire event management 
+		sendKeyForBinding(ev->data1);
+		return;
+	}
 	
 	// Add the key to the global keyboard state.
 	// This is probably the biggest roadblock with the input system as it undermines a proper event driven approach.

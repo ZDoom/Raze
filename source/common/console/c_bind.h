@@ -42,8 +42,9 @@ struct event_t;
 class FConfigFile;
 class FCommandLine;
 
+const char* KeyName(int key);
 void C_NameKeys (char *str, int first, int second);
-FString C_NameKeys (int *keys, int count);
+FString C_NameKeys (int *keys, int count, bool colors = false);
 
 class FKeyBindings
 {

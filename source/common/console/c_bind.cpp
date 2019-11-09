@@ -224,7 +224,7 @@ static int GetConfigKeyFromName (const char *key)
 //
 //=============================================================================
 
-static const char *KeyName (int key)
+const char *KeyName (int key)
 {
 	static char name[5];
 
@@ -294,14 +294,14 @@ void C_NameKeys (char *str, int first, int second)
 //
 //=============================================================================
 
-FString C_NameKeys (int *keys, int count)
+FString C_NameKeys (int *keys, int count, bool colors)
 {
 	FString result;
 	for (int i = 0; i < count; i++)
 	{
 		int key = keys[i];
 		if (key == 0) continue;
-		for (int j = 0; j < count; j++)
+		for (int j = 0; j < i; j++)
 		{
 			if (key == keys[j])
 			{
@@ -310,7 +310,7 @@ FString C_NameKeys (int *keys, int count)
 			}
 		}
 		if (key == 0) continue;
-		if (result.IsNotEmpty()) result += TEXTCOLOR_BLACK ", " TEXTCOLOR_NORMAL;
+		if (result.IsNotEmpty()) result += colors? TEXTCOLOR_BLACK ", " TEXTCOLOR_NORMAL : ", ";
 		result += KeyName(key);
 	}
 	return result;

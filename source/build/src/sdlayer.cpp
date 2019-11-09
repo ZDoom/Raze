@@ -1858,7 +1858,7 @@ int32_t handleevents_pollsdl(void)
 
     while (SDL_PollEvent(&ev))
     {
-		if (GUICapture & 2)
+		if ((GUICapture & 10) == 2)
 		{
 			if (ImGui_ImplSDL2_ProcessEvent(&ev)) return 0;
 		}

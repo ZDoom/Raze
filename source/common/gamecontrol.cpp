@@ -386,6 +386,7 @@ int CONFIG_Init()
 		playername = userConfig.CommandName;
 	}
 	V_InitFonts();
+	buttonMap.SetGameAliases();
 
 
 

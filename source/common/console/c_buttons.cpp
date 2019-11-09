@@ -37,6 +37,7 @@
 #include "printf.h"
 #include "cmdlib.h"
 #include "c_dispatch.h"
+#include "gamecontrol.h"
 
 ButtonMap buttonMap;
 
@@ -83,8 +84,8 @@ static const ButtonDesc gamefuncs[] = {
 	{ gamefunc_Jetpack, "Jetpack"},
 	{ gamefunc_NightVision, "NightVision"},
 	{ gamefunc_MedKit, "MedKit"},
-	{ gamefunc_TurnAround, "TurnAround"},
-	{ gamefunc_SendMessage, "SendMessage"},
+	{ gamefunc_TurnAround, "Turn_Around"},
+	{ gamefunc_SendMessage, "Send_Message"},
 	{ gamefunc_Map, "Map"},
 	{ gamefunc_Shrink_Screen, "Shrink_Screen"},
 	{ gamefunc_Enlarge_Screen, "Enlarge_Screen"},
@@ -111,11 +112,6 @@ static const ButtonDesc gamefuncs[] = {
 	{ gamefunc_Third_Person_View, "Third_Person_View"},
 	{ gamefunc_Toggle_Crouch, "Toggle_Crouch"},
 	{ gamefunc_See_Chase_View, "See_Chase_View"},	// the following were added by Blood
-	{ gamefunc_Turn_Around, "Turn_Around"},
-	{ gamefunc_Aim_Center, "Aim_Center"},
-	{ gamefunc_Tilt_Left, "Tilt_Left"},
-	{ gamefunc_Tilt_Right, "Tilt_Right"},
-	{ gamefunc_Send_Message, "Send_Message"},
 	{ gamefunc_BeastVision, "BeastVision"},
 	{ gamefunc_CrystalBall, "CrystalBall"},
 	{ gamefunc_JumpBoots, "JumpBoots"},
@@ -125,6 +121,97 @@ static const ButtonDesc gamefuncs[] = {
 	{ gamefunc_Gas_Bomb, "Gas_Bomb" },
 	{ gamefunc_Flash_Bomb, "Flash_Bomb" },
 	{ gamefunc_Caltrops, "Calitrops" },
+
+};
+
+static const ButtonDesc gamealiases_Duke3D[] = {
+	{ gamefunc_BeastVision, ""},
+	{ gamefunc_CrystalBall, ""},
+	{ gamefunc_ProximityBombs, ""},
+	{ gamefunc_RemoteBombs, ""},
+	{ gamefunc_Smoke_Bomb, "" },
+	{ gamefunc_Gas_Bomb, "" },
+	{ gamefunc_Flash_Bomb, "" },
+	{ gamefunc_Caltrops, "" },
+
+};
+
+static const ButtonDesc gamealiases_Nam[] = {
+	{ gamefunc_Holo_Duke, "Holo_Soldier"},
+	{ gamefunc_Jetpack, "Huey"},
+	{ gamefunc_Steroids, "Tank_Mode"},
+	{ gamefunc_Show_DukeMatch_Scores, "Show_GruntMatch_Scores"},
+	{ gamefunc_BeastVision, ""},
+	{ gamefunc_CrystalBall, ""},
+	{ gamefunc_ProximityBombs, ""},
+	{ gamefunc_RemoteBombs, ""},
+	{ gamefunc_Smoke_Bomb, "" },
+	{ gamefunc_Gas_Bomb, "" },
+	{ gamefunc_Flash_Bomb, "" },
+	{ gamefunc_Caltrops, "" },
+
+};
+
+static const ButtonDesc gamealiases_WW2GI[] = {
+	{ gamefunc_Holo_Duke, "Fire Mission"},
+	{ gamefunc_Jetpack, ""},
+	{ gamefunc_Steroids, "Smokes"},
+	{ gamefunc_Show_DukeMatch_Scores, "Show_GIMatch_Scores"},
+	{ gamefunc_BeastVision, ""},
+	{ gamefunc_CrystalBall, ""},
+	{ gamefunc_ProximityBombs, ""},
+	{ gamefunc_RemoteBombs, ""},
+	{ gamefunc_Smoke_Bomb, "" },
+	{ gamefunc_Gas_Bomb, "" },
+	{ gamefunc_Flash_Bomb, "" },
+	{ gamefunc_Caltrops, "" },
+};
+
+static const ButtonDesc gamealiases_RR[] = {
+	{ gamefunc_Holo_Duke, "Beer"},
+	{ gamefunc_Jetpack, "Cow Pie"},
+	{ gamefunc_NightVision, "Yeehaa"},
+	{ gamefunc_MedKit, "Whiskey"},
+	{ gamefunc_Steroids, "Moonshine"},
+	{ gamefunc_Quick_Kick, "Pee"},
+	{ gamefunc_Show_DukeMatch_Scores, "Show_Scores"},
+	{ gamefunc_Alt_Fire, ""},
+	{ gamefunc_BeastVision, ""},
+	{ gamefunc_CrystalBall, ""},
+	{ gamefunc_ProximityBombs, ""},
+	{ gamefunc_RemoteBombs, ""},
+	{ gamefunc_Smoke_Bomb, "" },
+	{ gamefunc_Gas_Bomb, "" },
+	{ gamefunc_Flash_Bomb, "" },
+	{ gamefunc_Caltrops, "" },
+};
+
+static const ButtonDesc gamealiases_Blood[] = {
+	{ gamefunc_Holo_Duke, ""},
+	{ gamefunc_JumpBoots, "JumpBoots"},
+	{ gamefunc_Steroids, ""},
+	{ gamefunc_Quick_Kick, ""},
+	{ gamefunc_Show_DukeMatch_Scores, ""},
+	{ gamefunc_Alt_Weapon, ""},
+	{ gamefunc_Smoke_Bomb, "" },
+	{ gamefunc_Gas_Bomb, "" },
+	{ gamefunc_Flash_Bomb, "" },
+	{ gamefunc_Caltrops, "" },
+
+};
+
+static const ButtonDesc gamealiases_SW[] = {
+	{ gamefunc_Holo_Duke, ""},
+	{ gamefunc_Jetpack, ""},
+	{ gamefunc_NightVision, ""},
+	{ gamefunc_MedKit, ""},
+	{ gamefunc_Steroids, ""},
+	{ gamefunc_Quick_Kick, ""},
+	{ gamefunc_Show_DukeMatch_Scores, ""},
+	{ gamefunc_Smoke_Bomb, "" },
+	{ gamefunc_Gas_Bomb, "" },
+	{ gamefunc_Flash_Bomb, "" },
+	{ gamefunc_Caltrops, "" },
 
 };
 
@@ -150,6 +237,59 @@ ButtonMap::ButtonMap()
 	{
 		NameToNum.Insert(gf.name, gf.index);
 		NumToAlias[gf.index] = NumToName[gf.index] = gf.name;
+	}
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void ButtonMap::SetGameAliases()
+{
+	// Ion Fury hacks this together from the CON script and uses the same table as Duke Nukem
+	if (g_gameType & (GAMEFLAG_DUKE|GAMEFLAG_FURY))
+	{
+		for (auto& gf : gamealiases_Duke3D)
+		{
+			NumToAlias[gf.index] = gf.name;
+		}
+	}
+	if (g_gameType & GAMEFLAG_NAM)
+	{
+		for (auto& gf : gamealiases_Nam)
+		{
+			NumToAlias[gf.index] = gf.name;
+		}
+	}
+	if (g_gameType & GAMEFLAG_WW2GI)
+	{
+		for (auto& gf : gamealiases_WW2GI)
+		{
+			NumToAlias[gf.index] = gf.name;
+		}
+	}
+	if (g_gameType & (GAMEFLAG_RR|GAMEFLAG_RRRA))
+	{
+		for (auto& gf : gamealiases_RR)
+		{
+			NumToAlias[gf.index] = gf.name;
+		}
+	}
+	if (g_gameType & GAMEFLAG_BLOOD)
+	{
+		for (auto& gf : gamealiases_Blood)
+		{
+			NumToAlias[gf.index] = gf.name;
+		}
+	}
+	if (g_gameType & GAMEFLAG_SW)
+	{
+		for (auto& gf : gamealiases_SW)
+		{
+			NumToAlias[gf.index] = gf.name;
+		}
 	}
 }
 

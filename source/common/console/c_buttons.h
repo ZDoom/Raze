@@ -16,7 +16,7 @@ enum GameFunction_t
 	gamefunc_Fire,
 	gamefunc_Open,
 	gamefunc_Run,
-	gamefunc_Alt_Fire,
+	gamefunc_Alt_Fire,	// Duke3D, Blood
 	gamefunc_Jump,
 	gamefunc_Crouch,
 	gamefunc_Look_Up,
@@ -41,8 +41,9 @@ enum GameFunction_t
 	gamefunc_Inventory_Use = gamefunc_Inventory,
 	gamefunc_Inventory_Left,
 	gamefunc_Inventory_Right,
-	gamefunc_Holo_Duke,
+	gamefunc_Holo_Duke,			// Duke3D, RR
 	gamefunc_Jetpack,
+	gamefunc_JumpBoots = gamefunc_Jetpack,
 	gamefunc_NightVision,
 	gamefunc_Night_Vision = gamefunc_NightVision,
 	gamefunc_MedKit,
@@ -75,16 +76,10 @@ enum GameFunction_t
 	gamefunc_Quick_Load,
 	gamefunc_Alt_Weapon,
 	gamefunc_Third_Person_View,
+	gamefunc_See_Chase_View = gamefunc_Third_Person_View,	// this was added by Blood
 	gamefunc_Toggle_Crouch,
-	gamefunc_See_Chase_View,	// this was added by Blood
-	gamefunc_Turn_Around,
-	gamefunc_Aim_Center,
-	gamefunc_Tilt_Left,
-	gamefunc_Tilt_Right,
-	gamefunc_Send_Message,
 	gamefunc_BeastVision,
 	gamefunc_CrystalBall,
-	gamefunc_JumpBoots,
 	gamefunc_ProximityBombs,
     gamefunc_RemoteBombs,
 	gamefunc_Smoke_Bomb,			// and these by ShadowWarrior (todo: There's quite a bit of potential for consolidation here - is it worth it?)
@@ -123,6 +118,7 @@ class ButtonMap
 	
 public:
 	ButtonMap();
+	void SetGameAliases();
 	
 	constexpr int NumButtons() const
 	{

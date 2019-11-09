@@ -175,9 +175,9 @@ void ctrlGetInput(void)
         gInput.keyFlags.quit = 1;
 
     if (gGameStarted && gInputMode != kInputMessage && gInputMode != kInputMenu
-        && buttonMap.ButtonDown(gamefunc_Send_Message))
+        && buttonMap.ButtonDown(gamefunc_SendMessage))
     {
-        buttonMap.ClearButton(gamefunc_Send_Message);
+        buttonMap.ClearButton(gamefunc_SendMessage);
         inputState.keyFlushScans();
         gInputMode = kInputMessage;
     }
@@ -286,13 +286,13 @@ void ctrlGetInput(void)
         gInput.buttonFlags.lookDown = buttonMap.ButtonDown(gamefunc_Aim_Down);
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Aim_Center))
+    if (buttonMap.ButtonDown(gamefunc_Center_View))
     {
-        buttonMap.ClearButton(gamefunc_Aim_Center);
+        buttonMap.ClearButton(gamefunc_Center_View);
         gInput.keyFlags.lookCenter = 1;
     }
 
-    gInput.keyFlags.spin180 = buttonMap.ButtonDown(gamefunc_Turn_Around);
+    gInput.keyFlags.spin180 = buttonMap.ButtonDown(gamefunc_TurnAround);
 
     if (buttonMap.ButtonDown(gamefunc_Inventory_Left))
     {
