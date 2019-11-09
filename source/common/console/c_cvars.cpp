@@ -81,17 +81,17 @@ FBaseCVar::FBaseCVar (const char *var_name, uint32_t flags, void (*callback)(FBa
 		*/
 	}
 
-	FBaseCVar *var;
 
-	var = FindCVar (var_name, NULL);
 
 	m_Callback = callback;
 	Flags = 0;
 	VarName = "";
 	Description = descr;
 
+	FBaseCVar* var = nullptr;
 	if (var_name)
 	{
+		var = FindCVar(var_name, NULL);
 		C_AddTabCommand (var_name);
 		VarName = var_name;
 		m_Next = CVars;

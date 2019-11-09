@@ -382,7 +382,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     // non-"m_" fields will be loaded from svgm_udnetw
     ud.m_volume_number = h.volnum;
-    ud.m_level_number = h.levnum;
+    m_level_number = h.levnum;
     ud.m_player_skill = h.skill;
 
     // NOTE: Bmemcpy needed for SAVEGAME_MUSIC.
@@ -1620,17 +1620,17 @@ static void sv_postudload()
 {
 //    Bmemcpy(&boardfilename[0], &currentboardfilename[0], BMAX_PATH);  // DON'T do this in demos!
 #if 1
-    ud.m_level_number      = ud.level_number;
+    m_level_number      = ud.level_number;
     ud.m_volume_number     = ud.volume_number;
     ud.m_player_skill      = ud.player_skill;
     ud.m_respawn_monsters  = ud.respawn_monsters;
     ud.m_respawn_items     = ud.respawn_items;
     ud.m_respawn_inventory = ud.respawn_inventory;
     ud.m_monsters_off      = ud.monsters_off;
-    ud.m_coop              = ud.coop;
-    ud.m_marker            = ud.marker;
-    ud.m_ffire             = ud.ffire;
-    ud.m_noexits           = ud.noexits;
+    m_coop              = ud.coop;
+    m_marker            = ud.marker;
+    m_ffire             = ud.ffire;
+    m_noexits           = ud.noexits;
 #endif
 }
 //static int32_t lockclock_dummy;

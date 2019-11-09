@@ -144,7 +144,7 @@ void G_OpenDemoWrite(void)
     {
         Bstrcpy(apStrings[QUOTE_RESERVED4], "CANNOT START DEMO RECORDING WHEN DEAD!");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-        ud.recstat = ud.m_recstat = 0;
+        ud.recstat = m_recstat = 0;
         return;
     }
     do
@@ -181,7 +181,7 @@ void G_OpenDemoWrite(void)
 error_wopen_demo:
         Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE CONSOLE FOR DETAILS.");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-        ud.recstat = ud.m_recstat = 0;
+        ud.recstat = m_recstat = 0;
         return;
     }
 
@@ -193,7 +193,7 @@ error_wopen_demo:
     P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
     ud.reccnt = 0;
-    ud.recstat = ud.m_recstat = 1;  //
+    ud.recstat = m_recstat = 1;  //
 
 # if KRANDDEBUG
     krd_enable(1);
@@ -278,7 +278,7 @@ void G_CloseDemoWrite(void)
         // lastly, we need to write the number of written recsyncs to the demo file
 		g_demo_filePtr->Write(&g_demo_cnt, sizeof(g_demo_cnt));
 
-        ud.recstat = ud.m_recstat = 0;
+        ud.recstat = m_recstat = 0;
         delete g_demo_filePtr;
 		g_demo_filePtr = nullptr;
 

@@ -25,10 +25,12 @@ extern char modechange;
 extern char nogl;
 
 extern int32_t swapcomplete;
+
 EXTERN_CVAR(Int, r_borderless);
+EXTERN_CVAR(Bool, r_usenewaspect)
 
 // video
-extern int32_t r_usenewaspect, newaspect_enable;
+extern int32_t newaspect_enable;
 extern int32_t r_fpgrouscan;
 extern int32_t setaspect_new_use_dimen;
 extern uint32_t r_screenxy;
@@ -66,13 +68,7 @@ extern int32_t lockcount;
 } while(0)
 #endif
 
-extern float g_videoGamma, g_videoContrast, g_videoBrightness;
-
-#define DEFAULT_GAMMA 1.0f
-#define DEFAULT_CONTRAST 1.0f
-#define DEFAULT_BRIGHTNESS 0.0f
-
-#define GAMMA_CALC ((int32_t)(min(max((float)((g_videoGamma - 1.0f) * 10.0f), 0.f), 15.f)))
+#define GAMMA_CALC ((int32_t)(min(max((float)((vid_gamma - 1.0f) * 10.0f), 0.f), 15.f)))
 
 #ifdef USE_OPENGL
 extern int osdcmd_glinfo(osdcmdptr_t parm);

@@ -773,6 +773,7 @@ set (PCH_SOURCES
 	common/searchpaths.cpp
 	common/initfs.cpp
 	common/openaudio.cpp
+	common/optionmenu/optionmenu.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp

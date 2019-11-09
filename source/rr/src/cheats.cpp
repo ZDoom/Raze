@@ -361,13 +361,13 @@ void G_DoCheats(void)
                     levnume--;
 
                     ud.m_volume_number = volnume;
-                    ud.m_level_number = levnume;
+                    m_level_number = levnume;
                 }
                 else
                 {
                     // JBF 20030914
                     ud.m_volume_number = osdcmd_cheatsinfo_stat.volume;
-                    ud.m_level_number = osdcmd_cheatsinfo_stat.level;
+                    m_level_number = osdcmd_cheatsinfo_stat.level;
                 }
             }
             else if (cheatNum == CHEAT_SKILL)
@@ -554,7 +554,7 @@ void G_DoCheats(void)
                 {
                     if (RR)
                         g_lastLevel = 0;
-                    int32_t const volnume = ud.m_volume_number, levnume = ud.m_level_number;
+                    int32_t const volnume = ud.m_volume_number, levnume = m_level_number;
 
                     if ((!VOLUMEONE || volnume == 0) && (unsigned)volnume < (unsigned)g_volumeCnt &&
                         (unsigned)levnume < MAXLEVELS && g_mapInfo[volnume*MAXLEVELS + levnume].filename != NULL)
@@ -581,7 +581,7 @@ void G_DoCheats(void)
 
 #if 0
                     if (numplayers > 1 && g_netServer)
-                        Net_NewGame(ud.m_volume_number, ud.m_level_number);
+                        Net_NewGame(ud.m_volume_number, m_level_number);
                     else
 #endif
                         pPlayer->gm |= MODE_RESTART;

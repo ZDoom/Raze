@@ -4297,7 +4297,7 @@ void P_CheckSectors(int playerNum)
                     if (ud.from_bonus)
                     {
                         ud.level_number = ud.from_bonus;
-                        ud.m_level_number = ud.level_number;
+                        m_level_number = ud.level_number;
                         ud.from_bonus = 0;
                     }
                     else
@@ -4305,7 +4305,7 @@ void P_CheckSectors(int playerNum)
                         if (RRRA && ud.level_number == 6 && ud.volume_number == 0)
                             g_RAendEpisode = 1;
                         ud.level_number = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
-                        ud.m_level_number = ud.level_number;
+                        m_level_number = ud.level_number;
                     }
                     g_RAendLevel = 1;
                 }

@@ -5874,13 +5874,13 @@ void P_EndLevel(void)
     if (ud.from_bonus)
     {
         ud.level_number   = ud.from_bonus;
-        ud.m_level_number = ud.level_number;
+        m_level_number = ud.level_number;
         ud.from_bonus     = 0;
     }
     else
     {
         ud.level_number   = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
-        ud.m_level_number = ud.level_number;
+        m_level_number = ud.level_number;
     }
 }
 
@@ -5909,7 +5909,7 @@ static int P_DoFist(DukePlayer_t *pPlayer)
             if ((unsigned)ud.secretlevel <= MAXLEVELS)
                 ud.level_number = ud.secretlevel - 1;
 
-            ud.m_level_number = ud.level_number;
+            m_level_number = ud.level_number;
         }
         else
             P_EndLevel();
@@ -6935,13 +6935,13 @@ check_enemy_sprite:
             if (!RR && ud.from_bonus)
             {
                 ud.level_number   = ud.from_bonus;
-                ud.m_level_number = ud.level_number;
+                m_level_number = ud.level_number;
                 ud.from_bonus     = 0;
             }
             else
             {
                 ud.level_number   = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
-                ud.m_level_number = ud.level_number;
+                m_level_number = ud.level_number;
             }
             return;
         }

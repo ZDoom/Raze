@@ -465,7 +465,6 @@ int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm)
 
 int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
 int32_t MouseAnalogueAxes[MAXMOUSEAXES];
-int32_t MouseAnalogueScale[MAXMOUSEAXES];
 int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
 int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
 int32_t JoystickAnalogueAxes[MAXJOYAXES];
@@ -612,41 +611,6 @@ const char* CONFIG_AnalogNumToName(int32_t func)
 
 void CONFIG_SetupMouse(void)
 {
-	const char* val;
-	FString section = currentGame + ".MouseSettings";
-	if (!GameConfig->SetSection(section)) return;
-
-	// map over the axes
-	for (int i = 0; i < MAXMOUSEAXES; i++)
-	{
-		section.Format("MouseAnalogAxes%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(val);
-
-		section.Format("MouseDigitalAxes%d_0", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			MouseDigitalFunctions[i][0] = buttonMap.FindButtonIndex(val);
-
-		section.Format("MouseDigitalAxes%d_1", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			MouseDigitalFunctions[i][1] = buttonMap.FindButtonIndex(val);
-
-		section.Format("MouseAnalogScale%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			MouseAnalogueScale[i] = (int32_t)strtoull(val, nullptr, 0);
-	}
-
-	for (int i = 0; i < MAXMOUSEAXES; i++)
-	{
-		CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
-		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0, controldevice_mouse);
-		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1, controldevice_mouse);
-		CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
-	}
 	CONTROL_MouseEnabled    = (in_mouse && CONTROL_MousePresent);
 }
 
@@ -1043,9 +1007,6 @@ void CONFIG_InitMouseAndController()
 
 	for (int i = 0; i < MAXMOUSEAXES; i++)
 	{
-		MouseAnalogueScale[i] = DEFAULTMOUSEANALOGUESCALE;
-		CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
-
 		MouseDigitalFunctions[i][0] = buttonMap.FindButtonIndex(mousedigitaldefaults[i * 2]);
 		MouseDigitalFunctions[i][1] = buttonMap.FindButtonIndex(mousedigitaldefaults[i * 2 + 1]);
 		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0, controldevice_mouse);
@@ -1071,34 +1032,7 @@ void CONFIG_PutNumber(const char* key, int number)
 void CONFIG_WriteControllerSettings()
 {
 	FString buf;
-	if (in_mouse)
-	{
-		FString section = currentGame + ".MouseSettings";
-		GameConfig->SetSection(section);
-		for (int i = 0; i < MAXMOUSEAXES; i++)
-		{
-			if (CONFIG_AnalogNumToName(MouseAnalogueAxes[i]))
-			{
-				buf.Format("MouseAnalogAxes%d", i);
-				GameConfig->SetValueForKey(buf, CONFIG_AnalogNumToName(MouseAnalogueAxes[i]));
-			}
 
-			if (buttonMap.GetButtonName(MouseDigitalFunctions[i][0]))
-			{
-				buf.Format("MouseDigitalAxes%d_0", i);
-				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(MouseDigitalFunctions[i][0]));
-			}
-
-			if (buttonMap.GetButtonName(MouseDigitalFunctions[i][1]))
-			{
-				buf.Format("MouseDigitalAxes%d_1", i);
-				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(MouseDigitalFunctions[i][1]));
-			}
-
-			buf.Format("MouseAnalogScale%d", i);
-			CONFIG_PutNumber(buf, MouseAnalogueScale[i]);
-		}
-	}
 
 	if (in_joystick)
 	{

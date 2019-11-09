@@ -138,8 +138,6 @@ int32_t glprojectionhacks = 2;
 static FHardwareTexture *polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
 
-int32_t r_downsize = 0;
-int32_t r_downsizevar = -1;
 int32_t r_scenebrightness = 0;
 
 int32_t r_rortexture = 0;

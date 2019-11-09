@@ -3765,8 +3765,8 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         if (slidersettings[item->slider] != offset)
         {
             slidersettings[item->slider] = offset;
-            //MouseAnalogScale[item->slider - sldr_mousescalex] = offset<<13;
-            CONTROL_SetAnalogAxisScale(item->slider - sldr_mousescalex, offset<<13, controldevice_mouse);
+			if (item->slider == sldr_mousescalex) in_mousescalex = offset<<13;
+			else in_mousescaley = offset<13;
         }
 
         sprintf(tmp_text, "%.2f", (float)(slidersettings[item->slider]<<13) / 65535.f);

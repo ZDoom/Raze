@@ -1324,7 +1324,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     ready2send = 0;
 
-    if (ud.m_recstat != 2 && ud.last_level != -1 && !VM_OnEventWithReturn(EVENT_EXITGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)
+    if (m_recstat != 2 && ud.last_level != -1 && !VM_OnEventWithReturn(EVENT_EXITGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)
         && (g_netServer || ud.multimode > 1) && (ud.coop & GAMETYPE_SCORESHEET))
         G_BonusScreen(1);
 
@@ -1368,7 +1368,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     for (int i=0; i < (MAXVOLUMES*MAXLEVELS); i++)
         G_FreeMapState(i);
 
-    if (ud.m_coop != 1)
+    if (m_coop != 1)
     {
         for (int weaponNum = 0; weaponNum < MAX_WEAPONS; weaponNum++)
         {
@@ -1775,13 +1775,13 @@ int G_EnterLevel(int gameMode)
     ud.respawn_items     = ud.m_respawn_items;
     ud.respawn_inventory = ud.m_respawn_inventory;
     ud.monsters_off      = ud.m_monsters_off;
-    ud.coop              = ud.m_coop;
-    ud.marker            = ud.m_marker;
-    ud.ffire             = ud.m_ffire;
-    ud.noexits           = ud.m_noexits;
+    ud.coop              = m_coop;
+    ud.marker            = m_marker;
+    ud.ffire             = m_ffire;
+    ud.noexits           = m_noexits;
 
     if ((gameMode & MODE_DEMO) != MODE_DEMO)
-        ud.recstat = ud.m_recstat;
+        ud.recstat = m_recstat;
     if ((gameMode & MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
 
@@ -1807,7 +1807,7 @@ int G_EnterLevel(int gameMode)
             levelNum &= MAXLEVELS-1;
             volumeNum = (volumeNum - levelNum) / MAXLEVELS;
 
-            ud.level_number = ud.m_level_number = levelNum;
+            ud.level_number = m_level_number = levelNum;
             ud.volume_number = ud.m_volume_number = volumeNum;
 
             boardfilename[0] = 0;

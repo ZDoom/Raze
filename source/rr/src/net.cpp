@@ -2403,7 +2403,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             if (vote_map != -1 || vote_episode != -1 || voting != -1)
                 G_AddUserQuote("VOTE SUCCEEDED");
 
-            ud.m_level_number = ud.level_number = packbuf[1];
+            m_level_number = ud.level_number = packbuf[1];
             ud.m_volume_number = ud.volume_number = packbuf[2];
             ud.m_player_skill = ud.player_skill = packbuf[3];
 
@@ -2412,10 +2412,10 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             ud.m_respawn_monsters = packbuf[5];
             ud.m_respawn_items = packbuf[6];
             ud.m_respawn_inventory = packbuf[7];
-            ud.m_coop = packbuf[8];
-            ud.m_marker = packbuf[9];
-            ud.m_ffire = packbuf[10];
-            ud.m_noexits = packbuf[11];
+            m_coop = packbuf[8];
+            m_marker = packbuf[9];
+            m_ffire = packbuf[10];
+            m_noexits = packbuf[11];
             //ud.m_weaponstay = packbuf[12];
 
             for (int TRAVERSE_CONNECT(i))
@@ -2437,7 +2437,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
                 for (i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i])
                     if (i != other) Net_SendPacket(i, packbuf, packbufleng);
 
-            ud.m_level_number = ud.level_number = packbuf[1];
+            m_level_number = ud.level_number = packbuf[1];
             ud.m_volume_number = ud.volume_number = packbuf[2];
             ud.m_player_skill = ud.player_skill = packbuf[3];
 
@@ -2446,10 +2446,10 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             ud.m_respawn_monsters = packbuf[5];
             ud.m_respawn_items = packbuf[6];
             ud.m_respawn_inventory = packbuf[7];
-            ud.m_coop = packbuf[8];
-            ud.m_marker = packbuf[9];
-            ud.m_ffire = packbuf[10];
-            ud.m_noexits = packbuf[11];
+            m_coop = packbuf[8];
+            m_marker = packbuf[9];
+            m_ffire = packbuf[10];
+            m_noexits = packbuf[11];
             //ud.m_weaponstay = packbuf[12];
             break;
 
@@ -2518,7 +2518,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
             g_player[i].ps->gm = MODE_EOL;
 
             ud.level_number = packbuf[1];
-            ud.m_level_number = ud.level_number;
+            m_level_number = ud.level_number;
             ud.from_bonus = packbuf[2];
             break;
 
@@ -2601,8 +2601,8 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
                 }
             }
 
-            if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
-                ud.m_level_number = 0;
+            if (m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
+                m_level_number = 0;
 
             break;
 
@@ -3430,9 +3430,9 @@ void Net_SendClientInfo(void)
     tempbuf[l++] = g_player[myconnectindex].ps->aim_mode = in_aimmode;
     tempbuf[l++] = g_player[myconnectindex].ps->auto_aim = cl_autoaim;
     tempbuf[l++] = g_player[myconnectindex].ps->weaponswitch = cl_weaponswitch;
-    tempbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
+    tempbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = playercolor;
 
-    tempbuf[l++] = g_player[myconnectindex].pteam = ud.team;
+    tempbuf[l++] = g_player[myconnectindex].pteam = playerteam;
 
     for (i=0; i<10; i++)
     {
@@ -3527,8 +3527,8 @@ void Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng)
         }
     }
 
-    if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
-        ud.m_level_number = 0;
+    if (m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
+        m_level_number = 0;
 }
 
 void Net_SendMessage(void)
@@ -3707,7 +3707,7 @@ void Net_StartNewGame()
 
     Net_ExtractNewGame(&pendingnewgame, 0);
     G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
-    ud.coop = ud.m_coop;
+    ud.coop = m_coop;
 
     //g_netMapRevision = 0;
 
@@ -3762,16 +3762,16 @@ void Net_FillNewGame(newgame_t *newgame, int32_t frommenu)
 {
     if (frommenu)
     {
-        newgame->level_number = ud.m_level_number;
+        newgame->level_number = m_level_number;
         newgame->volume_number = ud.m_volume_number;
         newgame->player_skill = ud.m_player_skill;
         newgame->monsters_off = ud.m_monsters_off;
         newgame->respawn_monsters = ud.m_respawn_monsters;
         newgame->respawn_items = ud.m_respawn_items;
         newgame->respawn_inventory = ud.m_respawn_inventory;
-        newgame->ffire = ud.m_ffire;
-        newgame->noexits = ud.m_noexits;
-        newgame->coop = ud.m_coop;
+        newgame->ffire = m_ffire;
+        newgame->noexits = m_noexits;
+        newgame->coop = m_coop;
     }
     else
     {
@@ -3790,16 +3790,16 @@ void Net_FillNewGame(newgame_t *newgame, int32_t frommenu)
 
 void Net_ExtractNewGame(newgame_t *newgame, int32_t menuonly)
 {
-    ud.m_level_number = newgame->level_number;
+    m_level_number = newgame->level_number;
     ud.m_volume_number = newgame->volume_number;
     ud.m_player_skill = newgame->player_skill;
     ud.m_monsters_off = newgame->monsters_off;
     ud.m_respawn_monsters = newgame->respawn_monsters;
     ud.m_respawn_items = newgame->respawn_items;
     ud.m_respawn_inventory = newgame->respawn_inventory;
-    ud.m_ffire = newgame->ffire;
-    ud.m_noexits = newgame->noexits;
-    ud.m_coop = newgame->coop;
+    m_ffire = newgame->ffire;
+    m_noexits = newgame->noexits;
+    m_coop = newgame->coop;
 
     if (!menuonly)
     {

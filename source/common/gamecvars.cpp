@@ -317,7 +317,18 @@ CUSTOM_CVARD(Float, in_mousesensitivity, DEFAULTMOUSESENSITIVITY, CVAR_ARCHIVE|C
 {
 	if (self < 0) self = 0;
 	else if (self > 25) self = 25;
-	else CONTROL_MouseSensitivity = self;
+}
+
+CUSTOM_CVARD(Int, in_mousescalex, 65536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
+{
+	if (self < -4) self = 4;
+	else if (self > 4) self = 4;
+}
+
+CUSTOM_CVARD(Int, in_mousescaley, 65536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
+{
+	if (self < -4) self = 4;
+	else if (self > 4) self = 4;
 }
 
 
@@ -457,12 +468,48 @@ CUSTOM_CVAR(String, playername, "Player", CVAR_ARCHIVE | CVAR_USERINFO)
 	//Net_SendClientInfo();	This is in the client code. Todo.
 }
 
+CUSTOM_CVARD(Float, vid_gamma, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts gamma component of gamma ramp")
+{
+	if (self < 0) self = 0;
+	else if (self > 5) self = 5;
+	// todo: tell the system to update
+}
+
+CUSTOM_CVARD(Float, vid_contrast, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts contrast component of gamma ramp")
+{
+	if (self < 0) self = 0;
+	else if (self > 5) self = 5;
+	// todo: tell the system to update
+}
+
+CUSTOM_CVARD(Float, vid_brightness, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts brightness component of gamma ramp")
+{
+	if (self < 0) self = 0;
+	else if (self > 5) self = 5;
+	// todo: tell the system to update
+}
+
+//{ "vid_contrast","adjusts contrast component of gamma ramp",(void *) &vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+//{ "vid_brightness","adjusts brightness component of gamma ramp",(void *) &vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+
+
 CUSTOM_CVAR(String, rtsname, "", CVAR_ARCHIVE | CVAR_USERINFO)
 {
 	RTS_Init(self);
 }
 
 CVAR(String, usermapfolder, "", CVAR_ARCHIVE);
+
+
+// Internal settings for demo recording and the multiplayer menu. These won't get saved and only are CVARs so that the menu code can use them.
+CVAR(Bool, m_recstat, false, CVAR_NOSET)
+CVAR(Int, m_coop, 0, CVAR_NOSET)
+CVAR(Int, m_ffire, 1, CVAR_NOSET)
+CVAR(Int, m_marker, 1, CVAR_NOSET)
+CVAR(Int, m_level_number, 0, CVAR_NOSET)
+CVAR(Int, m_noexits, 0, CVAR_NOSET)
+CVAR(Int, playercolor, 0, CVAR_NOSET)
+CVAR(Int, playerteam, 0, CVAR_NOSET)
 
 #if 0
 
@@ -473,12 +520,10 @@ CVAR(String, usermapfolder, "", CVAR_ARCHIVE);
 	// Currently unavailable due to dependency on an obsolete OpenGL feature
 	{ "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },
 
-	// This needs some serious internal cleanup first, the implementation is all over the place and prone to whacking the user setting.
-	{ "color", "changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, MAXPALOOKUPS-1 },
 	if (!Bstrcasecmp(parm->name, "color"))
 	{
-		ud.color = G_CheckPlayerColor(ud.color);
-		g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
+		playercolor = G_CheckPlayerColor(playercolor);
+		g_player[0].ps->palookup = g_player[0].pcolor = playercolor;
 	}
 
 	// This one gets changed at run time by the game code, so making it persistent does not work
@@ -490,7 +535,7 @@ CVAR(String, usermapfolder, "", CVAR_ARCHIVE);
 	{ "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
 
 	// requires cleanup first
-	//{ "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
+	//{ "team","change team in multiplayer", (void *)&playerteam, CVAR_INT|CVAR_MULTI, 0, 3 },
 
 	// just as a reminder:
 	/*
@@ -505,12 +550,8 @@ CVAR(String, usermapfolder, "", CVAR_ARCHIVE);
 	/* Baselayer CVARs. Some are pointless, some not worth bothering before the backend is swappewd out, the only relevant one was r_voxels.
 	static osdcvardata_t cvars_engine[] =
 	{
-		{ "r_usenewaspect","enable/disable new screen aspect ratio determination code",(void *) &r_usenewaspect, CVAR_BOOL, 0, 1 },
 		{ "r_screenaspect","if using r_usenewaspect and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",
 		  (void *) &r_screenxy, SCREENASPECT_CVAR_TYPE, 0, 9999 },
-		//{ "vid_gamma","adjusts gamma component of gamma ramp",(void *) &g_videoGamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-		//{ "vid_contrast","adjusts contrast component of gamma ramp",(void *) &g_videoContrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-		//{ "vid_brightness","adjusts brightness component of gamma ramp",(void *) &g_videoBrightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
 	};
 	*/
 

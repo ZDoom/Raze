@@ -1632,7 +1632,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         g_player[playerNum].ps->gm = MODE_EOL;
                     if (++ud.level_number > 6)
                         ud.level_number = 0;
-                    ud.m_level_number = ud.level_number;
+                    m_level_number = ud.level_number;
                 }
                 continue;
 

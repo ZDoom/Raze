@@ -244,7 +244,7 @@ CGameMenuItem7EE34 itemOption2("VIDEO MODE...", 3, 0, 160, 320, 1);
 CGameMenuItemChain itemChainParentalLock("PARENTAL LOCK", 3, 0, 170, 320, 1, &menuParentalLock, -1, NULL, 0);
 
 CGameMenuItemTitle itemControlsTitle("CONTROLS", 1, 160, 20, 2038);
-CGameMenuItemSliderFloat sliderMouseSpeed("Mouse Sensitivity:", 1, 10, 70, 300, CONTROL_MouseSensitivity, 0.5f, 16.f, 0.5f, SetMouseSensitivity, -1,-1);
+CGameMenuItemSliderFloat sliderMouseSpeed("Mouse Sensitivity:", 1, 10, 70, 300, in_mousesensitivity, 0.5f, 16.f, 0.5f, SetMouseSensitivity, -1,-1);
 CGameMenuItemZBool boolMouseFlipped("Invert Mouse Aim:", 1, 10, 90, 300, in_mouseflip, SetMouseAimFlipped, NULL, NULL);
 CGameMenuItemSlider sliderTurnSpeed("Key Turn Speed:", 1, 10, 110, 300, gTurnSpeed, 64, 128, 4, SetTurnSpeed, -1, -1);
 CGameMenuItemChain itemChainKeyList("Configure Keys...", 1, 0, 130, 320, 1, &menuKeys, -1, NULL, 0);
@@ -492,9 +492,9 @@ CGameMenuItemChain itemOptionsDisplayModeApply("APPLY CHANGES", 3, 66, 125, 180,
 void PreDrawDisplayColor(CGameMenuItem *);
 
 CGameMenuItemTitle itemOptionsDisplayColorTitle("COLOR CORRECTION", 1, 160, 20, -1);
-CGameMenuItemSliderFloat itemOptionsDisplayColorGamma("GAMMA:", 3, 66, 140, 180, &g_videoGamma, 0.3f, 4.f, 0.1f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
-CGameMenuItemSliderFloat itemOptionsDisplayColorContrast("CONTRAST:", 3, 66, 150, 180, &g_videoContrast, 0.1f, 2.7f, 0.05f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
-CGameMenuItemSliderFloat itemOptionsDisplayColorBrightness("BRIGHTNESS:", 3, 66, 160, 180, &g_videoBrightness, -0.8f, 0.8f, 0.05f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
+CGameMenuItemSliderFloat itemOptionsDisplayColorGamma("GAMMA:", 3, 66, 140, 180, &vid_gamma.Value, 0.3f, 4.f, 0.1f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
+CGameMenuItemSliderFloat itemOptionsDisplayColorContrast("CONTRAST:", 3, 66, 150, 180, &vid_contrast.Value, 0.1f, 2.7f, 0.05f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
+CGameMenuItemSliderFloat itemOptionsDisplayColorBrightness("BRIGHTNESS:", 3, 66, 160, 180, &vid_brightness.Value, -0.8f, 0.8f, 0.05f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
 CGameMenuItemSliderFloat itemOptionsDisplayColorVisibility("VISIBILITY:", 3, 66, 170, 180, &r_ambientlight.Value, 0.125f, 4.f, 0.125f, UpdateVideoColorMenu, -1, -1, kMenuSliderValue);
 CGameMenuItemChain itemOptionsDisplayColorReset("RESET TO DEFAULTS", 3, 66, 180, 180, 0, NULL, 0, ResetVideoColor, 0);
 
@@ -550,7 +550,6 @@ CGameMenuItemTitle itemOptionsDisplayPolymostTitle("POLYMOST SETUP", 1, 160, 20,
 CGameMenuItemZCycle itemOptionsDisplayPolymostTextureMode("TEXTURE MODE:", 3, 66, 60, 180, 0, UpdateTextureMode, pzTextureModeStrings, 2, 0);
 CGameMenuItemZCycle itemOptionsDisplayPolymostAnisotropy("ANISOTROPY:", 3, 66, 70, 180, 0, UpdateAnisotropy, pzAnisotropyStrings, 6, 0);
 CGameMenuItemZBool itemOptionsDisplayPolymostTrueColorTextures("TRUE COLOR TEXTURES:", 3, 66, 80, 180, 0, UpdateTrueColorTextures, NULL, NULL);
-CGameMenuItemZCycle itemOptionsDisplayPolymostTexQuality("GL TEXTURE QUALITY:", 3, 66, 90, 180, 0, UpdateTexQuality, pzTexQualityStrings, 3, 0);
 CGameMenuItemZBool itemOptionsDisplayPolymostPreloadCache("PRE-LOAD MAP TEXTURES:", 3, 66, 100, 180, 0, UpdatePreloadCache, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayPolymostDetailTex("DETAIL TEXTURES:", 3, 66, 120, 180, 0, UpdateDetailTex, NULL, NULL);
 CGameMenuItemZBool itemOptionsDisplayPolymostGlowTex("GLOW TEXTURES:", 3, 66, 130, 180, 0, UpdateGlowTex, NULL, NULL);
@@ -642,13 +641,13 @@ void SetupMouseButtonMenu(CGameMenuItemChain *pItem);
 
 CGameMenuItemTitle itemOptionsControlMouseTitle("MOUSE SETUP", 1, 160, 20, 2038);
 CGameMenuItemChain itemOptionsControlMouseButton("BUTTON ASSIGNMENT", 3, 66, 60, 180, 0, &menuOptionsControlMouseButtonAssignment, 0, SetupMouseButtonMenu, 0);
-CGameMenuItemSliderFloat itemOptionsControlMouseSensitivity("SENSITIVITY:", 3, 66, 70, 180, &CONTROL_MouseSensitivity, 0.5f, 16.f, 0.5f, SetMouseSensitivity, -1, -1, kMenuSliderValue);
+CGameMenuItemSliderFloat itemOptionsControlMouseSensitivity("SENSITIVITY:", 3, 66, 70, 180, &in_mousesensitivity.Value, 0.5f, 16.f, 0.5f, SetMouseSensitivity, -1, -1, kMenuSliderValue);
 CGameMenuItemZBool itemOptionsControlMouseAimFlipped("INVERT AIMING:", 3, 66, 80, 180, false, SetMouseAimFlipped, NULL, NULL);
 CGameMenuItemZBool itemOptionsControlMouseFilterInput("FILTER INPUT:", 3, 66, 90, 180, false, SetMouseFilterInput, NULL, NULL);
 CGameMenuItemZBool itemOptionsControlMouseAimMode("AIMING TYPE:", 3, 66, 100, 180, false, SetMouseAimMode, "HOLD", "TOGGLE");
 CGameMenuItemZBool itemOptionsControlMouseVerticalAim("VERTICAL AIMING:", 3, 66, 110, 180, false, SetMouseVerticalAim, NULL, NULL);
-CGameMenuItemSlider itemOptionsControlMouseXScale("X-SCALE:", 3, 66, 120, 180, (int*)&MouseAnalogueScale[0], 0, 65536, 1024, SetMouseXScale, -1, -1, kMenuSliderQ16);
-CGameMenuItemSlider itemOptionsControlMouseYScale("Y-SCALE:", 3, 66, 130, 180, (int*)&MouseAnalogueScale[1], 0, 65536, 1024, SetMouseYScale, -1, -1, kMenuSliderQ16);
+CGameMenuItemSlider itemOptionsControlMouseXScale("X-SCALE:", 3, 66, 120, 180, (int*)&in_mousescalex, 0, 65536, 1024, SetMouseXScale, -1, -1, kMenuSliderQ16);
+CGameMenuItemSlider itemOptionsControlMouseYScale("Y-SCALE:", 3, 66, 130, 180, (int*)&in_mousescaley, 0, 65536, 1024, SetMouseYScale, -1, -1, kMenuSliderQ16);
 CGameMenuItemZCycle itemOptionsControlMouseDigitalUp("DIGITAL UP", 3, 66, 140, 180, 0, SetMouseDigitalAxis, NULL, 0, 0, true);
 CGameMenuItemZCycle itemOptionsControlMouseDigitalDown("DIGITAL DOWN", 3, 66, 150, 180, 0, SetMouseDigitalAxis, NULL, 0, 0, true);
 CGameMenuItemZCycle itemOptionsControlMouseDigitalLeft("DIGITAL LEFT", 3, 66, 160, 180, 0, SetMouseDigitalAxis, NULL, 0, 0, true);
@@ -748,7 +747,7 @@ void SetupMessagesMenu(void)
 
 void SetupControlsMenu(void)
 {
-    sliderMouseSpeed.fValue = ClipRangeF(CONTROL_MouseSensitivity, sliderMouseSpeed.fRangeLow, sliderMouseSpeed.fRangeHigh);
+    sliderMouseSpeed.fValue = ClipRangeF(in_mousesensitivity, sliderMouseSpeed.fRangeLow, sliderMouseSpeed.fRangeHigh);
     sliderTurnSpeed.nValue = ClipRange(gTurnSpeed, sliderTurnSpeed.nRangeLow, sliderTurnSpeed.nRangeHigh);
     boolMouseFlipped.at20 = in_mouseflip;
     menuControls.Add(&itemControlsTitle, false);
@@ -1230,7 +1229,6 @@ void SetupOptionsMenu(void)
     //menuOptionsDisplayPolymost.Add(&itemOptionsDisplayPolymostTextureMode, true);
     //menuOptionsDisplayPolymost.Add(&itemOptionsDisplayPolymostAnisotropy, false);
     menuOptionsDisplayPolymost.Add(&itemOptionsDisplayPolymostTrueColorTextures, true);
-    menuOptionsDisplayPolymost.Add(&itemOptionsDisplayPolymostTexQuality, false);
     menuOptionsDisplayPolymost.Add(&itemOptionsDisplayPolymostPreloadCache, false);
     menuOptionsDisplayPolymost.Add(&itemOptionsDisplayPolymostDetailTex, false);
     menuOptionsDisplayPolymost.Add(&itemOptionsDisplayPolymostGlowTex, false);
@@ -1238,7 +1236,6 @@ void SetupOptionsMenu(void)
     menuOptionsDisplayPolymost.Add(&itemOptionsDisplayPolymostDeliriumBlur, false);
     menuOptionsDisplayPolymost.Add(&itemBloodQAV, false);
 
-    itemOptionsDisplayPolymostTexQuality.pPreDrawCallback = PreDrawDisplayPolymost;
     itemOptionsDisplayPolymostPreloadCache.pPreDrawCallback = PreDrawDisplayPolymost;
     itemOptionsDisplayPolymostDetailTex.pPreDrawCallback = PreDrawDisplayPolymost;
     itemOptionsDisplayPolymostGlowTex.pPreDrawCallback = PreDrawDisplayPolymost;
@@ -1656,9 +1653,9 @@ void PreDrawVideoModeMenu(CGameMenuItem *pItem)
 void UpdateVideoColorMenu(CGameMenuItemSliderFloat *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
-    g_videoGamma = itemOptionsDisplayColorGamma.fValue;
-    g_videoContrast = itemOptionsDisplayColorContrast.fValue;
-    g_videoBrightness = itemOptionsDisplayColorBrightness.fValue;
+    vid_gamma = itemOptionsDisplayColorGamma.fValue;
+    vid_contrast = itemOptionsDisplayColorContrast.fValue;
+    vid_brightness = itemOptionsDisplayColorBrightness.fValue;
     r_ambientlight = itemOptionsDisplayColorVisibility.fValue;
 }
 
@@ -1673,9 +1670,9 @@ void PreDrawDisplayColor(CGameMenuItem *pItem)
 void ResetVideoColor(CGameMenuItemChain *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
-    g_videoGamma = DEFAULT_GAMMA;
-    g_videoContrast = DEFAULT_CONTRAST;
-    g_videoBrightness = DEFAULT_BRIGHTNESS;
+    vid_gamma = 1.f;
+    vid_contrast = 1.f;
+    vid_brightness = 0.f;
     r_ambientlight = 1.f;
 }
 
@@ -1702,7 +1699,6 @@ void SetupVideoPolymostMenu(CGameMenuItemChain *pItem)
         }
     }
     itemOptionsDisplayPolymostTrueColorTextures.at20 = hw_hightile;
-    itemOptionsDisplayPolymostTexQuality.m_nFocus = r_downsize;
     itemOptionsDisplayPolymostPreloadCache.at20 = r_precache;
     itemOptionsDisplayPolymostDetailTex.at20 = hw_detailmapping;
     itemOptionsDisplayPolymostGlowTex.at20 = hw_glowmapping;
@@ -1737,13 +1733,6 @@ void DoModeChange(void)
 }
 
 #ifdef USE_OPENGL
-void UpdateTexQuality(CGameMenuItemZCycle *pItem)
-{
-    r_downsize = pItem->m_nFocus;
-    r_downsizevar = r_downsize;
-    DoModeChange();
-}
-
 void UpdatePreloadCache(CGameMenuItemZBool *pItem)
 {
     r_precache = pItem->at20;
@@ -1771,9 +1760,7 @@ void UpdateDeliriumBlur(CGameMenuItemZBool *pItem)
 
 void PreDrawDisplayPolymost(CGameMenuItem *pItem)
 {
-    if (pItem == &itemOptionsDisplayPolymostTexQuality)
-        pItem->bEnable = hw_hightile;
-    else if (pItem == &itemOptionsDisplayPolymostPreloadCache)
+    if (pItem == &itemOptionsDisplayPolymostPreloadCache)
         pItem->bEnable = hw_hightile;
     else if (pItem == &itemOptionsDisplayPolymostDetailTex)
         pItem->bEnable = hw_hightile;
@@ -1912,14 +1899,12 @@ void SetMouseVerticalAim(CGameMenuItemZBool *pItem)
 
 void SetMouseXScale(CGameMenuItemSlider *pItem)
 {
-    MouseAnalogueScale[0] = pItem->nValue;
-    CONTROL_SetAnalogAxisScale(0, pItem->nValue, controldevice_mouse);
+    in_mousescalex = pItem->nValue;
 }
 
 void SetMouseYScale(CGameMenuItemSlider *pItem)
 {
-    MouseAnalogueScale[1] = pItem->nValue;
-    CONTROL_SetAnalogAxisScale(1, pItem->nValue, controldevice_mouse);
+    in_mousescaley = pItem->nValue;
 }
 
 void SetMouseDigitalAxis(CGameMenuItemZCycle *pItem)

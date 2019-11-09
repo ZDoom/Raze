@@ -68,10 +68,6 @@ void CONFIG_SetDefaults(void)
 
 	ud.camera_time = 0;//4;
 
-    ud.color = 0;
-    ud.detail = 0;
-    ud.m_ffire = 1;
-    ud.m_marker = 1;
     ud.menu_slidebarz = 65536;
     ud.menu_slidebarmargin = RR ? 6 * 65536 : 65536;
     ud.menu_slidecursorz = RR ? 32768 : 65536;
@@ -81,7 +77,7 @@ void CONFIG_SetDefaults(void)
     ud.statusbarflags = STATUSBAR_NOSHRINK;
     ud.statusbarmode = 1;
     ud.statusbarscale = 100;
-    ud.team = 0;
+    playerteam = 0;
     ud.angleinterpolation = 0;
 
     ScreenMode = 1;

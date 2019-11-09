@@ -14,6 +14,7 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include "osd.h"
+#include "gamecvars.h"
 #include "pragmas.h"
 
 bool CONTROL_Started         = false;
@@ -24,14 +25,11 @@ bool CONTROL_JoystickEnabled = false;
 
 LastSeenInput CONTROL_LastSeenInput;
 
-float          CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 static int32_t CONTROL_NumMouseButtons  = 0;
 static int32_t CONTROL_NumJoyButtons    = 0;
 static int32_t CONTROL_NumJoyAxes       = 0;
 
 // static controlkeymaptype  CONTROL_KeyMapping[CONTROL_NUM_FLAGS];
-
-static int32_t            CONTROL_MouseAxesScale[2];
 
 static controlaxismaptype CONTROL_JoyAxesMap[MAXJOYAXES];
 static controlaxistype    CONTROL_JoyAxes[MAXJOYAXES];
@@ -89,8 +87,8 @@ static void CONTROL_GetMouseDelta(ControlInfo * info)
         last = input;
     }
 
-    info->mousex = mulscale16(Blrintf(finput.x * 4.f * CONTROL_MouseSensitivity), CONTROL_MouseAxesScale[0]);
-    info->mousey = mulscale16(Blrintf(finput.y * 4.f * CONTROL_MouseSensitivity), CONTROL_MouseAxesScale[1]);
+    info->mousex = mulscale16(Blrintf(finput.x * 4.f * in_mousesensitivity), in_mousescalex);
+    info->mousey = mulscale16(Blrintf(finput.y * 4.f * in_mousesensitivity), in_mousescaley);
 }
 
 static int32_t CONTROL_GetTime(void)
@@ -167,17 +165,6 @@ void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldev
 
     switch (device)
     {
-    case controldevice_mouse:
-        if ((unsigned) whichaxis >= ARRAY_SIZE(CONTROL_MouseAxesScale))
-        {
-            //Error("CONTROL_SetAnalogAxisScale: axis %d out of valid range for %d mouse axes.",
-            //		whichaxis, MAXMOUSEAXES);
-            return;
-        }
-
-        set = CONTROL_MouseAxesScale;
-        break;
-
     case controldevice_joystick:
         if ((unsigned) whichaxis >= (unsigned) MAXJOYAXES)
         {
@@ -270,12 +257,6 @@ void CONTROL_ClearAssignments(void)
 //    memset(CONTROL_KeyMapping,          KEYUNDEFINED,    sizeof(CONTROL_KeyMapping));
     memset(CONTROL_LastJoyAxes,         0,               sizeof(CONTROL_LastJoyAxes));
     memset(CONTROL_MouseButtonMapping,  BUTTONUNDEFINED, sizeof(CONTROL_MouseButtonMapping));
-
-    for (int & i : CONTROL_MouseAxesScale)
-        i = NORMALAXISSCALE;
-
-    for (int & i : CONTROL_JoyAxesScale)
-        i = NORMALAXISSCALE;
 }
 
 static int DoGetDeviceButtons(

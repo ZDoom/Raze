@@ -82,7 +82,7 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
         else if (voting == -1)
         {
             ud.m_volume_number = volume;
-            ud.m_level_number = level;
+            m_level_number = level;
 
             if (g_player[myconnectindex].ps->i)
             {
@@ -101,12 +101,12 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
                 tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
                 tempbuf[1] = myconnectindex;
                 tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = ud.m_level_number;
+                tempbuf[3] = m_level_number;
 
                 enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
             }
-            if ((g_gametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[ud.m_coop] & GAMETYPE_TDM))
-                ud.m_noexits = 0;
+            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
+                m_noexits = 0;
 
             M_OpenMenu(myconnectindex);
             Menu_Change(MENU_NETWAITVOTES);
@@ -127,7 +127,7 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
         osdcmd_cheatsinfo_stat.cheatnum = -1;
 
         ud.m_volume_number     = volume;
-        ud.m_level_number      = level;
+        m_level_number      = level;
 
         ud.m_monsters_off      = 0;
         ud.monsters_off        = 0;
@@ -174,15 +174,15 @@ static int osdcmd_map(osdcmdptr_t parm)
         {
             Net_SendUserMapName();
             ud.m_volume_number = 0;
-            ud.m_level_number = 7;
-            Net_NewGame(ud.m_volume_number, ud.m_level_number);
+            m_level_number = 7;
+            Net_NewGame(ud.m_volume_number, m_level_number);
         }
         else if (voting == -1)
         {
             Net_SendUserMapName();
 
             ud.m_volume_number = 0;
-            ud.m_level_number = 7;
+            m_level_number = 7;
 
             if (g_player[myconnectindex].ps->i)
             {
@@ -200,12 +200,12 @@ static int osdcmd_map(osdcmdptr_t parm)
                 tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
                 tempbuf[1] = myconnectindex;
                 tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = ud.m_level_number;
+                tempbuf[3] = m_level_number;
 
                 enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
             }
-            if ((g_gametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[ud.m_coop] & GAMETYPE_TDM))
-                ud.m_noexits = 0;
+            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
+                m_noexits = 0;
 
             M_OpenMenu(myconnectindex);
             Menu_Change(MENU_NETWAITVOTES);
@@ -216,7 +216,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;
     ud.m_volume_number = 0;
-    ud.m_level_number = 7;
+    m_level_number = 7;
 
     ud.m_monsters_off = ud.monsters_off = 0;
 
@@ -227,7 +227,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
     {
-        G_NewGame(ud.m_volume_number, ud.m_level_number, ud.m_player_skill);
+        G_NewGame(ud.m_volume_number, m_level_number, ud.m_player_skill);
         g_player[myconnectindex].ps->gm = MODE_RESTART;
     }
     else G_NewGame_EnterLevel();

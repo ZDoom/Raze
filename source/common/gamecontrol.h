@@ -36,7 +36,6 @@ void CONFIG_SetDefaultKeys(const char *defbinds);
 
 extern int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
 extern int32_t MouseAnalogueAxes[MAXMOUSEAXES];
-extern int32_t MouseAnalogueScale[MAXMOUSEAXES];
 extern int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
 extern int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
 extern int32_t JoystickAnalogueAxes[MAXJOYAXES];

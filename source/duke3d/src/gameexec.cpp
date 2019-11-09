@@ -3936,7 +3936,7 @@ badindex:
                     }
 
                     ud.m_volume_number = ud.volume_number = volumeNum;
-                    ud.m_level_number = ud.level_number = levelNum;
+                    m_level_number = ud.level_number = levelNum;
                     // if (numplayers > 1 && g_netServer)
                     //    Net_NewGame(volnume,levnume);
                      //else

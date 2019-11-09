@@ -120,6 +120,13 @@ public:
 	void SetArchiveBit () { Flags |= CVAR_ARCHIVE; }
 	void MarkUnsafe();
 
+	int ToInt()
+	{
+		ECVarType vt;
+		auto val = GetFavoriteRep(&vt);
+		return ToInt(val, vt);
+	}
+
 	virtual ECVarType GetRealType () const = 0;
 
 	virtual const char *GetHumanString(int precision=-1) const;
@@ -447,6 +454,9 @@ void C_ForgetCVars (void);
 
 #define CVARD_NAMED(type,name,varname,def,flags, descr) \
 F##type##CVar varname (#name, def, flags, nullptr, descr);
+
+#define CVAR_UNAMED(type,varname) \
+F##type##CVar varname (nullptr, 0, 0, nullptr, nullptr);
 
 extern FBaseCVar *CVars;
 

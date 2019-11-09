@@ -1993,22 +1993,22 @@ static void Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng)
         }
     }
 
-    if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
-        ud.m_level_number = 0;
+    if (m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
+        m_level_number = 0;
 }
 
 static void Net_ExtractNewGame(newgame_t *newgame, int32_t menuonly)
 {
-    ud.m_level_number      = newgame->level_number;
+    m_level_number      = newgame->level_number;
     ud.m_volume_number     = newgame->volume_number;
     ud.m_player_skill      = newgame->player_skill;
     ud.m_monsters_off      = newgame->monsters_off;
     ud.m_respawn_monsters  = newgame->respawn_monsters;
     ud.m_respawn_items     = newgame->respawn_items;
     ud.m_respawn_inventory = newgame->respawn_inventory;
-    ud.m_ffire             = newgame->ffire;
-    ud.m_noexits           = newgame->noexits;
-    ud.m_coop              = newgame->coop;
+    m_ffire             = newgame->ffire;
+    m_noexits           = newgame->noexits;
+    m_coop              = newgame->coop;
 
     if (!menuonly)
     {
@@ -4536,16 +4536,16 @@ void Net_FillNewGame(newgame_t *newgame, int32_t frommenu)
 {
     if (frommenu)
     {
-        newgame->level_number      = ud.m_level_number;
+        newgame->level_number      = m_level_number;
         newgame->volume_number     = ud.m_volume_number;
         newgame->player_skill      = ud.m_player_skill;
         newgame->monsters_off      = ud.m_monsters_off;
         newgame->respawn_monsters  = ud.m_respawn_monsters;
         newgame->respawn_items     = ud.m_respawn_items;
         newgame->respawn_inventory = ud.m_respawn_inventory;
-        newgame->ffire             = ud.m_ffire;
-        newgame->noexits           = ud.m_noexits;
-        newgame->coop              = ud.m_coop;
+        newgame->ffire             = m_ffire;
+        newgame->noexits           = m_noexits;
+        newgame->coop              = m_coop;
     }
     else
     {
@@ -4802,9 +4802,9 @@ void Net_SendClientInfo(void)
     tempnetbuf[l++] = g_player[myconnectindex].ps->aim_mode = in_aimmode;
     tempnetbuf[l++] = g_player[myconnectindex].ps->auto_aim = cl_autoaim;
     tempnetbuf[l++] = g_player[myconnectindex].ps->weaponswitch = cl_weaponswitch;
-    tempnetbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
+    tempnetbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = playercolor;
 
-    tempnetbuf[l++] = g_player[myconnectindex].pteam = ud.team;
+    tempnetbuf[l++] = g_player[myconnectindex].pteam = playerteam;
 
     for (i = 0; i < 10; i++)
     {
@@ -5176,7 +5176,7 @@ void Net_StartNewGame()
 
     Net_ExtractNewGame(&pendingnewgame, 0);
     G_NewGame(ud.volume_number, ud.level_number, ud.player_skill);
-    ud.coop = ud.m_coop;
+    ud.coop = m_coop;
 
     if (G_EnterLevel(MODE_GAME))
     {

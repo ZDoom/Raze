@@ -3083,7 +3083,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     {
         g_RAendEpisode = 0;
         ud.m_volume_number = ud.volume_number = 1;
-        ud.m_level_number = ud.level_number = 0;
+        m_level_number = ud.level_number = 0;
         ud.eog = 0;
     }
     if (g_turdLevel)

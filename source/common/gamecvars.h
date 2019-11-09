@@ -52,6 +52,8 @@ extern int MusicDevice;
 
 EXTERN_CVAR(Int, hud_layout)
 EXTERN_CVAR(Int, hud_scale)
+EXTERN_CVAR(Int, hud_size)
+
 EXTERN_CVAR(Int, hud_custom)
 EXTERN_CVAR(Bool, hud_stats)
 EXTERN_CVAR(Bool, hud_showmapname)
@@ -79,6 +81,11 @@ EXTERN_CVAR(Bool, r_shadows)
 EXTERN_CVAR(Bool, r_rotatespritenowidescreen)
 EXTERN_CVAR(Bool, r_precache)
 EXTERN_CVAR(Bool, r_voxels)
+EXTERN_CVAR(Int, r_upscalefactor)
+
+EXTERN_CVAR(Float, vid_gamma)
+EXTERN_CVAR(Float, vid_contrast)
+EXTERN_CVAR(Float, vid_brightness)
 
 
 EXTERN_CVAR(Bool, in_joystick)
@@ -90,6 +97,8 @@ EXTERN_CVAR(Bool, in_mouseflip)
 EXTERN_CVAR(Bool, in_mousemode)
 EXTERN_CVAR(Bool, in_mousesmoothing)
 EXTERN_CVAR(Float, in_mousesensitivity)
+EXTERN_CVAR(Int, in_mousescalex)
+EXTERN_CVAR(Int, in_mousescaley)
 extern int32_t g_MyAimMode;
 EXTERN_CVAR(Bool, in_mousemode)
 EXTERN_CVAR(String, wchoice)
@@ -106,6 +115,16 @@ EXTERN_CVAR(Bool, adult_lockout)
 EXTERN_CVAR(String, playername)
 EXTERN_CVAR(String, rtsname)
 EXTERN_CVAR(String, usermapfolder)
+
+EXTERN_CVAR(Bool, m_recstat)
+EXTERN_CVAR(Int, m_coop)
+EXTERN_CVAR(Int, m_marker)
+EXTERN_CVAR(Int, m_level_number)
+EXTERN_CVAR(Int, m_ffire)
+EXTERN_CVAR(Int, m_noexits)
+EXTERN_CVAR(Int, m_levelnumber)
+EXTERN_CVAR(Int, playercolor)
+EXTERN_CVAR(Int, playerteam)
 
 extern bool gNoAutoLoad;
 extern float r_ambientlightrecip;

@@ -144,21 +144,21 @@ typedef struct {
     int32_t reccnt;
 
     int32_t runkey_mode,statusbarscale,weaponswitch;   // JBF 20031125
-    int32_t color,statusbarmode;
-	int32_t m_noexits,noexits,automsg;
-    int32_t team, althud;
+    int32_t statusbarmode;
+	int32_t noexits,automsg;
+    int32_t althud;
     int32_t statusbarflags, statusbarrange;
     int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
-    int32_t entered_name,screen_tilting,fta_on;
-    int32_t m_coop,coop,screen_size,lockout,crosshair;
+    int32_t entered_name,screen_tilting;
+    int32_t coop,screen_size,lockout,crosshair;
     int32_t playerai,angleinterpolation;
 
     int32_t respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
-    int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;
-    int32_t m_ffire,ffire,m_player_skill,m_level_number,m_volume_number,multimode;
-    int32_t player_skill,level_number,volume_number,m_marker,marker;
+    int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off;
+    int32_t ffire,m_player_skill,m_level_number,m_volume_number,multimode;
+    int32_t player_skill,level_number,volume_number,marker;
     int32_t music_episode, music_level;
 
     int32_t playerbest;
@@ -209,7 +209,7 @@ static inline int G_HaveUserMap(void)
 
 static inline int Menu_HaveUserMap(void)
 {
-    return (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0);
+    return (boardfilename[0] != 0 && m_level_number == 7 && ud.m_volume_number == 0);
 }
 
 extern const char *defaultrtsfilename[GAMECOUNT];
@@ -437,7 +437,7 @@ enum
 
 static inline void G_NewGame_EnterLevel(void)
 {
-    G_NewGame(ud.m_volume_number, ud.m_level_number, ud.m_player_skill);
+    G_NewGame(ud.m_volume_number, m_level_number, ud.m_player_skill);
 
     if (G_EnterLevel(MODE_GAME))
         G_BackToMenu();

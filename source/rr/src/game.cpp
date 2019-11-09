@@ -170,10 +170,10 @@ void G_HandleSpecialKeys(void)
 
     if (/*g_networkMode != NET_DEDICATED_SERVER && */ALT_IS_PRESSED && inputState.GetKeyStatus(sc_Enter))
     {
-        if (videoSetGameMode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,ud.detail))
+        if (videoSetGameMode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,1))
         {
             OSD_Printf(OSD_ERROR "Failed setting fullscreen video mode.\n");
-            if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ud.detail))
+            if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1))
                 G_GameExit("Failed to recover from failure to set fullscreen video mode.\n");
         }
         else ScreenMode = !ScreenMode;
@@ -374,7 +374,7 @@ void G_GameExit(const char *msg)
         if (g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
-            videoSetGameMode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,ud.detail);
+            videoSetGameMode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,1);
         }
 
         // shareware and TEN screens
@@ -6014,7 +6014,7 @@ void GameInterface::set_hud_layout(int layout)
 
 void GameInterface::set_hud_scale(int scale)
 {
-	G_UpdateScreenArea();
+	G_SetStatusBarScale(scale);
 }
 
 void G_HandleLocalKeys(void)
@@ -6408,10 +6408,10 @@ FAKE_F3:
         {
             inputState.ClearKeyStatus(sc_F8);
 
-            int const fta = !ud.fta_on;
-            ud.fta_on     = 1;
+            int const fta = !hud_messages;
+            hud_messages     = 1;
             P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, g_player[myconnectindex].ps);
-            ud.fta_on     = fta;
+            hud_messages     = fta;
         }
 
         if ((buttonMap.ButtonDown(gamefunc_Quick_Load) || g_doQuickSave == 2) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
@@ -7119,9 +7119,9 @@ static void G_CompileScripts(void)
 
 static inline void G_CheckGametype(void)
 {
-    ud.m_coop = clamp(ud.m_coop, 0, g_gametypeCnt-1);
-    initprintf("%s\n",g_gametypeNames[ud.m_coop]);
-    if (g_gametypeFlags[ud.m_coop] & GAMETYPE_ITEMRESPAWN)
+    m_coop = clamp(*m_coop, 0, g_gametypeCnt-1);
+    initprintf("%s\n",g_gametypeNames[m_coop]);
+    if (g_gametypeFlags[m_coop] & GAMETYPE_ITEMRESPAWN)
         ud.m_respawn_items = ud.m_respawn_inventory = 1;
 }
 
@@ -7413,9 +7413,9 @@ void G_UpdatePlayerFromMenu(void)
         /*int32_t j = g_player[myconnectindex].ps->team;*/
 
         P_SetupMiscInputSettings();
-        g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
+        g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = playercolor;
 
-        g_player[myconnectindex].pteam = ud.team;
+        g_player[myconnectindex].pteam = playerteam;
 
         if (sprite[g_player[myconnectindex].ps->i].picnum == APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
             sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
@@ -7478,7 +7478,7 @@ static int G_EndOfLevel(void)
             }
             else
             {
-                ud.m_level_number = 0;
+                m_level_number = 0;
                 ud.level_number = 0;
             }
         }
@@ -7650,7 +7650,7 @@ int GameInterface::app_main()
 
     if (numplayers == 1 && boardfilename[0] != 0)
     {
-        ud.m_level_number  = 7;
+        m_level_number  = 7;
         ud.m_volume_number = 0;
         ud.warp_on         = 1;
     }
@@ -7689,7 +7689,7 @@ int GameInterface::app_main()
 
     //if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ud.detail) < 0)
+        if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1) < 0)
         {
             initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", *ScreenWidth, *ScreenHeight,
                        *ScreenBPP, *ScreenMode ? "fullscreen" : "windowed");
@@ -7708,7 +7708,7 @@ int GameInterface::app_main()
             int const savedIdx = resIdx;
             int bpp = ScreenBPP;
 
-            while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, ud.detail) < 0)
+            while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, 1) < 0)
             {
                 initprintf("Failure setting video mode %dx%dx%d windowed! Trying next mode...\n",
                            validmode[resIdx].xdim, validmode[resIdx].ydim, bpp);
@@ -7784,7 +7784,7 @@ MAIN_LOOP_RESTART:
     {
         if ((g_netServer || ud.multimode > 1) && boardfilename[0] != 0)
         {
-            ud.m_level_number = 7;
+            m_level_number = 7;
             ud.m_volume_number = 0;
 
             if (ud.m_player_skill == 4)
@@ -7820,13 +7820,13 @@ MAIN_LOOP_RESTART:
 
     ud.showweapons = ud.config.ShowOpponentWeapons;
     P_SetupMiscInputSettings();
-    g_player[myconnectindex].pteam = ud.team;
+    g_player[myconnectindex].pteam = playerteam;
 
     if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
         g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_GetTeamPalette(g_player[myconnectindex].pteam);
     else
     {
-        if (ud.color) g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
+        if (playercolor) g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = playercolor;
         else g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor;
     }
 

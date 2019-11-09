@@ -132,15 +132,12 @@ static int32_t beforedrawrooms = 1;
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
 // r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
-int32_t r_usenewaspect = 1, newaspect_enable=0;
+CVAR(Bool, r_usenewaspect, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+int32_t newaspect_enable=0;
 uint32_t r_screenxy = 0;
 
 int32_t r_fpgrouscan = 1;
 int32_t globalflags;
-
-float g_videoGamma = DEFAULT_GAMMA;
-float g_videoContrast = DEFAULT_CONTRAST;
-float g_videoBrightness = DEFAULT_BRIGHTNESS;
 
 //Textured Map variables
 static char globalpolytype;
