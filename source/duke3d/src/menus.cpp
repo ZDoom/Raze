@@ -1553,7 +1553,7 @@ void Menu_Init(void)
     k = 1;
     for (i = 0; i < NUMGAMEFUNCTIONS; ++i)
     {
-		MenuGameFuncs[i] = buttonMap.GetButtonName(i);
+		MenuGameFuncs[i] = buttonMap.GetButtonAlias(i);
 		MenuGameFuncs[i].Substitute('_', ' ');
 
 		if (MenuGameFuncs[i][0] != '\0')

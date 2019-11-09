@@ -229,7 +229,7 @@ typedef struct MenuOption_t
     MenuOptionSet_t *options; // so that common sets such as Yes/No, On/Off can be reused
 
     // effect
-    int32_t *data;
+    FBaseCVar *cVar;
 
     // state
     int32_t currentOption;
@@ -265,7 +265,7 @@ enum MenuRangeFlags_t
 typedef struct MenuRangeInt32_t
 {
     // effect
-    int32_t *variable;
+    FIntCVar *cVar;
 
     // appearance
     MenuFont_t *font;
@@ -281,7 +281,7 @@ typedef struct MenuRangeInt32_t
 typedef struct MenuRangeFloat_t
 {
     // effect
-    float *variable;
+    FFloatCVar *cVar;
 
     // appearance
     MenuFont_t *font;
