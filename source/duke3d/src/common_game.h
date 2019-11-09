@@ -10,8 +10,6 @@
 #include "collections.h"
 #include "gamecontrol.h"
 
-#include "vfs.h"
-
 BEGIN_DUKE_NS
 
 

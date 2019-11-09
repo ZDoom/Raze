@@ -33,7 +33,7 @@ BEGIN_RR_NS
 #define LDEMOFN_FMT "demo%d.dmo"
 #define MAXDEMOS 1000
 
-extern FILE *g_demo_filePtr;
+extern FileWriter * g_demo_filePtr;
 extern char g_firstDemoFile[BMAX_PATH];
 
 extern int32_t g_demo_cnt;

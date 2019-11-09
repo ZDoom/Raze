@@ -31,8 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "version.h"
 
-#include "vfs.h"
-
 BEGIN_DUKE_NS
 
 
@@ -152,14 +150,36 @@ uint16_t g_nummenusaves;
 static menusave_t * g_internalsaves;
 static uint16_t g_numinternalsaves;
 
+static FileReader OpenSavegame(const char *fn)
+{
+	auto file = fopenFileReader(fn, 0);
+	if (!file.isOpen())
+		return file;
+
+	char buffer[13];
+	file.Read(buffer, 13);
+	if (memcmp(buffer, "DEMOLITION_ED", 13))
+		return FileReader();
+	
+	FileReader fr;
+	try
+	{
+		fr.OpenDecompressor(file, file.GetLength()-13, METHOD_DEFLATE, false, nullptr);
+	}
+	catch(std::runtime_error & err)
+	{
+		Printf("%s: %s\n", fn, err.what());
+	}
+	return fr;
+}
+
 static void ReadSaveGameHeaders_CACHE1D(TArray<FString> &saves)
 {
     savehead_t h;
 
-	for (auto &save : saves)
+	for (FString &save : saves)
     {
-        char const * fn = save;
-        auto fil = fopenFileReader(fn, 0);
+		auto fil = OpenSavegame(save);
         if (!fil.isOpen())
             continue;
 
@@ -176,7 +196,7 @@ static void ReadSaveGameHeaders_CACHE1D(TArray<FString> &saves)
             {
                 if (FURY)
                 {
-					FStringf extfn("%s.ext", fn);
+					FStringf extfn("%s.ext", save.GetChars());
 					auto extfil = fopenFileReader(extfn, 0);
 					if (extfil.isOpen())
 					{
@@ -191,7 +211,7 @@ static void ReadSaveGameHeaders_CACHE1D(TArray<FString> &saves)
 
         msv.isAutoSave = h.isAutoSave();
 
-        strncpy(msv.brief.path, fn, ARRAY_SIZE(msv.brief.path));
+        strncpy(msv.brief.path, save.GetChars(), ARRAY_SIZE(msv.brief.path));
         ++g_numinternalsaves;
 
         if (k >= 0 && h.savename[0] != '\0')
@@ -206,7 +226,7 @@ static void ReadSaveGameHeaders_CACHE1D(TArray<FString> &saves)
 
 static void ReadSaveGameHeaders_Internal(void)
 {
-	FString pattern = M_GetSavegamesPath() + "*.esv";
+	FString pattern = M_GetSavegamesPath() + "*.bsv";
 	TArray<FString> saves;
 	D_AddWildFile(saves, pattern);
     // potentially overallocating but programmatically simple
@@ -293,7 +313,7 @@ void ReadSaveGameHeaders(void)
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 {
-    auto fil = fopenFileReader(fn, 0);
+    auto fil = OpenSavegame(fn);
     if (!fil.isOpen())
         return -1;
 
@@ -342,7 +362,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         int level = -1;
         int skill = -1;
 
-		auto fil = fopenFileReader(sv.path, 0);
+		auto fil = OpenSavegame(sv.path);
 
         if (fil.isOpen())
         {
@@ -569,7 +589,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         return 0;
     }
 
-    auto fil = fopenFileReader(sv.path, 0);
+    auto fil = OpenSavegame(sv.path);
 
     if (!fil.isOpen())
         return -1;
@@ -695,9 +715,9 @@ void G_DeleteSave(savebrief_t const & sv)
         return;
     }
 
-    buildvfs_unlink(temp);
+    remove(temp);
     Bstrcat(temp, ".ext");
-    buildvfs_unlink(temp);
+    remove(temp);
 }
 
 void G_DeleteOldSaves(void)
@@ -738,92 +758,77 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     Net_WaitForServer();
     ready2send = 0;
 
-    char fn[BMAX_PATH];
+	FString fn;
 
-    errno = 0;
-    buildvfs_FILE fil;
+	errno = 0;
+	FileWriter *fil;
 
-    if (sv.isValid())
-    {
-        if (snprintf(fn, sizeof(fn), "%s%s", M_GetSavegamesPath().GetChars(), sv.path))
-        {
-            OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
-            goto saveproblem;
-        }
-        fil = buildvfs_fopen_write(fn);
-    }
-    else
-    {
-        static char const SaveName[] = "save0000.esv";
-        int const len = snprintf(fn, ARRAY_SIZE(fn), "%s%s", M_GetSavegamesPath().GetChars(), SaveName);
-        if (len >= ARRAY_SSIZE(fn)-1)
-        {
-            OSD_Printf("G_SavePlayer: could not form automatic save path\n");
-            goto saveproblem;
-        }
-        char * zeros = fn + (len-8);
-        fil = savecounter.opennextfile(fn, zeros);
-        savecounter.count++;
-        // don't copy the mod dir into sv.path
-        Bstrcpy(sv.path, fn + (len-(ARRAY_SIZE(SaveName)-1)));
-    }
+	if (sv.isValid())
+	{
+		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), sv.path);
+		fil = FileWriter::Open(fn);
+	}
+	else
+	{
+		static char const SaveName[] = "save0000.bsv";
+		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), SaveName);
 
-    if (!fil)
-    {
-        OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
-                   fn, strerror(errno));
-        goto saveproblem;
-    }
+		auto fnp = fn.LockBuffer();
+		char* zeros = fnp + (fn.Len() - 8);
+		fil = savecounter.opennextfile(fnp, zeros);
+		fn.UnlockBuffer();
+		savecounter.count++;
+		// don't copy the mod dir into sv.path
+		Bstrcpy(sv.path, fn + (fn.Len() - (ARRAY_SIZE(SaveName) - 1)));
+	}
 
-    sv.isExt = 0;
+	if (!fil)
+	{
+		OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
+			fn.GetChars(), strerror(errno));
+		ready2send = 1;
+		Net_WaitForServer();
 
-    // temporary hack
-    ud.user_map = G_HaveUserMap();
+		G_RestoreTimers();
+		ototalclock = totalclock;
+		return -1;
+	}
+	else
+	{
+		fil->Write("DEMOLITION_ED", 13);
+		CompressedFileWriter fw(fil, true);
 
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-        polymer_resetlights();
-#endif
+		sv.isExt = 0;
 
-    VM_OnEvent(EVENT_SAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
+		// temporary hack
+		ud.user_map = G_HaveUserMap();
 
-    portableBackupSave(sv.path, sv.name, ud.last_stateless_volume, ud.last_stateless_level);
+		VM_OnEvent(EVENT_SAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
 
-    // SAVE!
-    sv_saveandmakesnapshot(fil, sv.name, 0, 0, 0, 0, isAutoSave);
+        portableBackupSave(sv.path, sv.name, ud.last_stateless_volume, ud.last_stateless_level);
 
-    buildvfs_fclose(fil);
+        // SAVE!
+        sv_saveandmakesnapshot(fw, sv.name, 0, 0, 0, 0, isAutoSave);
 
-    if (!g_netServer && ud.multimode < 2)
-    {
-        OSD_Printf("Saved: %s\n", fn);
-#ifdef LUNATIC
-        if (!g_savedOK)
-            Bstrcpy(apStrings[QUOTE_RESERVED4], "^10Failed Saving Game");
-        else
-#endif
-            Bstrcpy(apStrings[QUOTE_RESERVED4], "Game Saved");
-        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-    }
+		fw.Close();
 
-    ready2send = 1;
-    Net_WaitForServer();
+		if (!g_netServer && ud.multimode < 2)
+		{
+			OSD_Printf("Saved: %s\n", fn.GetChars());
+			strcpy(apStrings[QUOTE_RESERVED4], "Game Saved");
+			P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+		}
 
-    G_RestoreTimers();
-    ototalclock = totalclock;
+		ready2send = 1;
+		Net_WaitForServer();
 
-    VM_OnEvent(EVENT_POSTSAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
+		G_RestoreTimers();
+		ototalclock = totalclock;
 
-    return 0;
+		VM_OnEvent(EVENT_POSTSAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
 
-saveproblem:
-    ready2send = 1;
-    Net_WaitForServer();
-
-    G_RestoreTimers();
-    ototalclock = totalclock;
-
-    return -1;
+		return 0;
+	}
 }
 
 int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv)
@@ -917,7 +922,7 @@ static inline void ds_get(const dataspec_t *spec, void **ptr, int32_t *cnt)
 }
 
 // write state to file and/or to dump
-static uint8_t *writespecdata(const dataspec_t *spec, buildvfs_FILE fil, uint8_t *dump)
+static uint8_t *writespecdata(const dataspec_t *spec, FileWriter *fil, uint8_t *dump)
 {
     for (; spec->flags != DS_END; spec++)
     {
@@ -932,7 +937,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, buildvfs_FILE fil, uint8_t
             continue;
         else if (spec->flags & DS_STRING)
         {
-            buildvfs_fwrite(spec->ptr, Bstrlen((const char *)spec->ptr), 1, fil);  // not null-terminated!
+            fil->Write(spec->ptr, Bstrlen((const char *)spec->ptr));  // not null-terminated!
             continue;
         }
 
@@ -952,7 +957,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, buildvfs_FILE fil, uint8_t
 
         if (fil)
         {
-			buildvfs_fwrite(ptr, spec->size, cnt, fil);
+			fil->Write(ptr, spec->size * cnt);
         }
 
         if (dump && (spec->flags & (DS_NOCHK|DS_CMP)) == 0)
@@ -1019,7 +1024,7 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
         if (!ptr || !cnt)
             continue;
 
-        if (fil != nullptr)
+        if (fil != nullptr && fil->isOpen())
         {
             auto const mem  = (dump && (spec->flags & DS_NOCHK) == 0) ? dump : (uint8_t *)ptr;
             int const  siz  = cnt * spec->size;
@@ -1393,11 +1398,6 @@ static const dataspec_t svgm_udnetw[] =
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
-#ifdef LUNATIC
-    // Save game tic count for Lunatic because it is exposed to userland. See
-    // test/helixspawner.lua for an example.
-    { 0, &g_moveThingsCount, sizeof(g_moveThingsCount), 1 },
-#endif
 //    { 0, &lockclock_dummy, sizeof(lockclock), 1 },
     { DS_END, 0, 0, 0 }
 };
@@ -1522,10 +1522,8 @@ static const dataspec_t svgm_anmisc[] =
     { DS_END, 0, 0, 0 }
 };
 
-#if !defined LUNATIC
 static dataspec_gv_t *svgm_vars=NULL;
-#endif
-static uint8_t *dosaveplayer2(buildvfs_FILE fil, uint8_t *mem);
+static uint8_t *dosaveplayer2(FileWriter &fil, uint8_t *mem);
 static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr);
 static void postloadplayer(int32_t savegamep);
 
@@ -1629,7 +1627,7 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(buildvfs_FILE fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave)
+int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave)
 {
     savehead_t h;
 
@@ -1699,24 +1697,24 @@ int32_t sv_saveandmakesnapshot(buildvfs_FILE fil, char const *name, int8_t spot,
 
 
     // write header
-    buildvfs_fwrite(&h, sizeof(savehead_t), 1, fil);
+    fil.Write(&h, sizeof(savehead_t));
 
     // for savegames, the file offset after the screenshot goes here;
     // for demos, we keep it 0 to signify that we didn't save one
-    buildvfs_fwrite("\0\0\0\0", 4, 1, fil);
     if (spot >= 0 && tileData(TILE_SAVESHOT))
     {
-        int32_t ofs;
-
+        
+		int v = 64000;
+	    fil.Write(&v, 4);
         // write the screenshot compressed
-        buildvfs_fwrite(tileData(TILE_SAVESHOT), 320, 200, fil);
+        fil.Write(tileData(TILE_SAVESHOT), 320*200);
 
-        // write the current file offset right after the header
-        ofs = buildvfs_ftell(fil);
-        buildvfs_fseek_abs(fil, sizeof(savehead_t));
-        buildvfs_fwrite(&ofs, 4, 1, fil);
-        buildvfs_fseek_abs(fil, ofs);
     }
+	else
+	{
+		int v = 0;
+	    fil.Write(&v, 4);
+	}
 
 
     if (spot >= 0)
@@ -1829,7 +1827,7 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
     }
     if (i > 0)
     {
-        if (fil.Seek(i, FileReader::SeekSet) != i)
+        if (fil.Seek(i, FileReader::SeekCur) < 0)
         {
             OSD_Printf("sv_snapshot: failed skipping over the screenshot.\n");
             return 8;
@@ -1883,7 +1881,7 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
 }
 
 
-uint32_t sv_writediff(buildvfs_FILE fil)
+uint32_t sv_writediff(FileWriter *fil)
 {
     uint8_t *p = svsnapshot;
     uint8_t *d = svdiff;
@@ -1901,10 +1899,10 @@ uint32_t sv_writediff(buildvfs_FILE fil)
 
     uint32_t const diffsiz = d - svdiff;
 
-    buildvfs_fwrite("dIfF",4,1,fil);
-    buildvfs_fwrite(&diffsiz, sizeof(diffsiz), 1, fil);
+    fil->Write("dIfF",4);
+	fil->Write(&diffsiz, sizeof(diffsiz));
 
-	buildvfs_fwrite(svdiff, 1, diffsiz, fil);
+	fil->Write(svdiff,  diffsiz);
 
     return diffsiz;
 }
@@ -2168,19 +2166,19 @@ static void sv_restload()
 LUNATIC_CB const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
 #endif
 
-static uint8_t *dosaveplayer2(buildvfs_FILE fil, uint8_t *mem)
+static uint8_t *dosaveplayer2(FileWriter &fil, uint8_t *mem)
 {
 #ifdef DEBUGGINGAIDS
     uint8_t *tmem = mem;
     int32_t t=timerGetTicks();
 #endif
-    mem=writespecdata(svgm_udnetw, fil, mem);  // user settings, players & net
+    mem=writespecdata(svgm_udnetw, &fil, mem);  // user settings, players & net
     PRINTSIZE("ud");
-    mem=writespecdata(svgm_secwsp, fil, mem);  // sector, wall, sprite
+    mem=writespecdata(svgm_secwsp, &fil, mem);  // sector, wall, sprite
     PRINTSIZE("sws");
-    mem=writespecdata(svgm_script, fil, mem);  // script
+    mem=writespecdata(svgm_script, &fil, mem);  // script
     PRINTSIZE("script");
-    mem=writespecdata(svgm_anmisc, fil, mem);  // animates, quotes & misc.
+    mem=writespecdata(svgm_anmisc, &fil, mem);  // animates, quotes & misc.
     PRINTSIZE("animisc");
 
 #if !defined LUNATIC
@@ -2204,13 +2202,6 @@ static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr)
     PRINTSIZE("ud");
     if (readspecdata(svgm_secwsp, &fil, &mem)) return -4;
     PRINTSIZE("sws");
-#ifdef LUNATIC
-    {
-        int32_t ret = El_ReadSaveCode(fil);
-        if (ret < 0)
-            return ret;
-    }
-#endif
     if (readspecdata(svgm_script, &fil, &mem)) return -5;
     PRINTSIZE("script");
     if (readspecdata(svgm_anmisc, &fil, &mem)) return -6;

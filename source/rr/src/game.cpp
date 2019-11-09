@@ -361,8 +361,11 @@ void G_GameExit(const char *msg)
 
     if (ud.recstat == 1)
         G_CloseDemoWrite();
-    else if (ud.recstat == 2)
-        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+	else if (ud.recstat == 2)
+	{
+		delete g_demo_filePtr;
+		g_demo_filePtr = nullptr;
+	}
     // JBF: fixes crash on demo playback
     // PK: modified from original
 
@@ -391,9 +394,6 @@ void G_GameExit(const char *msg)
 			I_Error(msg);
 		}
 	}
-
-	Bfflush(NULL);
-
 	throw ExitEvent(0);
 }
 
@@ -1570,9 +1570,6 @@ void G_DumpDebugInfo(void)
             j = nextspritestat[j];
         }
     }
-//    fclose(fp);
-    saveboard("debug.map", &g_player[myconnectindex].ps->pos, fix16_to_int(g_player[myconnectindex].ps->q16ang),
-              g_player[myconnectindex].ps->cursectnum);
 }
 
 // if <set_movflag_uncond> is true, set the moveflag unconditionally,
@@ -7076,7 +7073,6 @@ void G_Shutdown(void)
     G_SetFog(0);
     engineUnInit();
     G_Cleanup();
-    Bfflush(NULL);
 }
 
 /*
@@ -7390,8 +7386,6 @@ static void G_Startup(void)
     G_LoadLookups();
 
     screenpeek = myconnectindex;
-
-    Bfflush(NULL);
 }
 
 static void P_SetupMiscInputSettings(void)

@@ -18,8 +18,6 @@
 #include "common.h"
 #include "../../glbackend/glbackend.h"
 
-#include "vfs.h"
-
 uint8_t *basepaltable[MAXBASEPALS] = { palette };
 uint8_t basepalreset=1;
 uint8_t curbasepal;

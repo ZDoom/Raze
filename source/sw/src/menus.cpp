@@ -4424,7 +4424,7 @@ SetupMenu(void)
 void MNU_DoMenu(CTLType type, PLAYERp pp)
 {
     SWBOOL resetitem;
-    UCHAR key;
+    unsigned char key;
     int zero = 0;
     static int handle2 = 0;
     static int limitmove=0;

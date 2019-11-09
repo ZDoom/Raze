@@ -23,8 +23,6 @@
 # include "hightile.h"
 #endif
 
-#include "vfs.h"
-
 enum scripttoken_t
 {
     T_INCLUDE = 0,

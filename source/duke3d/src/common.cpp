@@ -13,8 +13,6 @@
 #include "rts.h"
 #include "gamecontrol.h"
 
-#include "vfs.h"
-
 
 #include "common.h"
 #include "common_game.h"

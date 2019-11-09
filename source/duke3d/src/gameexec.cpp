@@ -38,8 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "base64.h"
 #include "version.h"
 
-#include "vfs.h"
-
 #include "debugbreak.h"
 
 BEGIN_DUKE_NS

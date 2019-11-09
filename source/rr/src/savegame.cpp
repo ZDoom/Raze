@@ -147,14 +147,37 @@ uint16_t g_nummenusaves;
 static menusave_t * g_internalsaves;
 static uint16_t g_numinternalsaves;
 
+static FileReader OpenSavegame(const char *fn)
+{
+	auto file = fopenFileReader(fn, 0);
+	if (!file.isOpen())
+		return file;
+
+	char buffer[13];
+	file.Read(buffer, 13);
+	if (memcmp(buffer, "DEMOLITION_RN", 13))
+		return FileReader();
+	
+	FileReader fr;
+	try
+	{
+		fr.OpenDecompressor(file, file.GetLength()-13, METHOD_DEFLATE|METHOD_TRANSFEROWNER, false, nullptr);
+	}
+	catch(std::runtime_error & err)
+	{
+		Printf("%s: %s\n", fn, err.what());
+	}
+	return fr;
+}
+
 static void ReadSaveGameHeaders_CACHE1D(TArray<FString>& saves)
 {
     savehead_t h;
 
-	for (auto& save : saves)
+	for (FString& save : saves)
 	{
 		char const* fn = save;
-		auto fil = fopenFileReader(fn, 0);
+		auto fil = OpenSavegame(fn);
         if (!fil.isOpen())
             continue;
 
@@ -186,7 +209,7 @@ static void ReadSaveGameHeaders_CACHE1D(TArray<FString>& saves)
 
 static void ReadSaveGameHeaders_Internal(void)
 {
-	FString pattern = M_GetSavegamesPath() + "*.esv";
+	FString pattern = M_GetSavegamesPath() + "*.bsv";
 	TArray<FString> saves;
 	D_AddWildFile(saves, pattern);
 
@@ -274,7 +297,7 @@ void ReadSaveGameHeaders(void)
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 {
-    auto fil = fopenFileReader(fn, 0);
+    auto fil = OpenSavegame(fn);
     if (!fil.isOpen())
         return -1;
 
@@ -316,7 +339,7 @@ static int different_user_map;
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(savebrief_t & sv)
 {
-    auto fil = fopenFileReader(sv.path, 0);
+    auto fil = OpenSavegame(sv.path);
 
     if (!fil.isOpen())
         return -1;
@@ -480,78 +503,70 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     Net_WaitForEverybody();
     ready2send = 0;
 
-    char temp[BMAX_PATH];
+	FString fn;
 
-    errno = 0;
-    FILE *fil;
+	errno = 0;
+	FileWriter *fil;
 
-    if (sv.isValid())
-    {
-        if (snprintf(temp, sizeof(temp), "%s%s", M_GetSavegamesPath().GetChars(), sv.path))
-        {
-            OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
-            goto saveproblem;
-        }
-        fil = fopen(temp, "wb");
-    }
-    else
-    {
-        static char const SaveName[] = "save0000.esv";
-        int const len = snprintf(temp, ARRAY_SIZE(temp), "%s%s", M_GetSavegamesPath().GetChars(), SaveName);
-        if (len >= ARRAY_SSIZE(temp)-1)
-        {
-            OSD_Printf("G_SavePlayer: could not form automatic save path\n");
-            goto saveproblem;
-        }
-        char * zeros = temp + (len-8);
-        fil = savecounter.opennextfile(temp, zeros);
-        savecounter.count++;
-        // don't copy the mod dir into sv.path
-        Bstrcpy(sv.path, temp + (len-(ARRAY_SIZE(SaveName)-1)));
-    }
+	if (sv.isValid())
+	{
+		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), sv.path);
+		fil = FileWriter::Open(fn);
+	}
+	else
+	{
+		static char const SaveName[] = "save0000.bsv";
+		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), SaveName);
 
-    if (!fil)
-    {
-        OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
-                   temp, strerror(errno));
-        goto saveproblem;
-    }
+		auto fnp = fn.LockBuffer();
+		char* zeros = fnp + (fn.Len() - 8);
+		fil = savecounter.opennextfile(fnp, zeros);
+		fn.UnlockBuffer();
+		savecounter.count++;
+		// don't copy the mod dir into sv.path
+		Bstrcpy(sv.path, fn + (fn.Len() - (ARRAY_SIZE(SaveName) - 1)));
+	}
 
-    // temporary hack
-    ud.user_map = G_HaveUserMap();
+	if (!fil)
+	{
+		OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
+			fn.GetChars(), strerror(errno));
+		ready2send = 1;
+		Net_WaitForEverybody();
 
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-        polymer_resetlights();
-#endif
+		G_RestoreTimers();
+		ototalclock = totalclock;
+		return -1;
+	}
+	else
+	{
+		fil->Write("DEMOLITION_RN", 13);
+		CompressedFileWriter fw(fil, true);
 
-    // SAVE!
-    sv_saveandmakesnapshot(fil, sv.name, 0, 0, 0, 0, isAutoSave);
+		// temporary hack
+		ud.user_map = G_HaveUserMap();
 
-    fclose(fil);
 
-    if (!g_netServer && ud.multimode < 2)
-    {
-            Bstrcpy(apStrings[QUOTE_RESERVED4], "Game Saved");
-        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-    }
+        // SAVE!
+        sv_saveandmakesnapshot(fw, sv.name, 0, 0, 0, 0, isAutoSave);
 
-    ready2send = 1;
-    Net_WaitForEverybody();
+		fw.Close();
 
-    G_RestoreTimers();
-    ototalclock = totalclock;
-
-    return 0;
-
-saveproblem:
-    ready2send = 1;
-    Net_WaitForEverybody();
-
-    G_RestoreTimers();
-    ototalclock = totalclock;
-
-    return -1;
+		if (!g_netServer && ud.multimode < 2)
+		{
+			OSD_Printf("Saved: %s\n", fn.GetChars());
+			Bstrcpy(apStrings[QUOTE_RESERVED4], "Game Saved");
+			P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+		}
+		
+		ready2send = 1;
+		Net_WaitForEverybody();
+		
+		G_RestoreTimers();
+		ototalclock = totalclock;
+		
+		return 0;
+	}
 }
 
 int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv)
@@ -637,7 +652,7 @@ static inline void ds_get(const dataspec_t *spec, void **ptr, int32_t *cnt)
 }
 
 // write state to file and/or to dump
-static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
+static uint8_t *writespecdata(const dataspec_t *spec, FileWriter *fil, uint8_t *dump)
 {
     for (; spec->flags != DS_END; spec++)
     {
@@ -652,7 +667,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
             continue;
         else if (spec->flags & DS_STRING)
         {
-            fwrite(spec->ptr, Bstrlen((const char *)spec->ptr), 1, fil);  // not null-terminated!
+            fil->Write(spec->ptr, Bstrlen((const char *)spec->ptr));  // not null-terminated!
             continue;
         }
 
@@ -672,7 +687,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 
         if (fil)
         {
-			fwrite(ptr, spec->size, cnt, fil);
+			fil->Write(ptr, spec->size * cnt);
         }
 
         if (dump && (spec->flags & (DS_NOCHK|DS_CMP)) == 0)
@@ -739,7 +754,7 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
         if (!ptr || !cnt)
             continue;
 
-        if (fil->isOpen())
+        if (fil != nullptr && fil->isOpen())
         {
             auto const mem  = (dump && (spec->flags & DS_NOCHK) == 0) ? dump : (uint8_t *)ptr;
             int const  siz  = cnt * spec->size;
@@ -1267,7 +1282,7 @@ static const dataspec_t svgm_anmisc[] =
     { DS_END, 0, 0, 0 }
 };
 
-static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem);
+static uint8_t *dosaveplayer2(FileWriter *fil, uint8_t *mem);
 static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr);
 static void postloadplayer(int32_t savegamep);
 
@@ -1299,7 +1314,7 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave)
+int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave)
 {
     savehead_t h;
 
@@ -1347,10 +1362,6 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
     {
         // savegame
         Bstrncpyz(h.savename, name, sizeof(h.savename));
-#ifdef __ANDROID__
-        Bstrncpyz(h.volname, g_volumeNames[ud.volume_number], sizeof(h.volname));
-        Bstrncpyz(h.skillname, g_skillNames[ud.player_skill], sizeof(h.skillname));
-#endif
     }
     else
     {
@@ -1367,40 +1378,37 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
 
 
     // write header
-    fwrite(&h, sizeof(savehead_t), 1, fil);
+    fil.Write(&h, sizeof(savehead_t));
 
     // for savegames, the file offset after the screenshot goes here;
     // for demos, we keep it 0 to signify that we didn't save one
-    fwrite("\0\0\0\0", 4, 1, fil);
     if (spot >= 0 && tileData(TILE_SAVESHOT))
     {
-        int32_t ofs;
-
+        
+		int v = 64000;
+	    fil.Write(&v, 4);
         // write the screenshot compressed
-        fwrite(tileData(TILE_SAVESHOT), 320, 200, fil);
+        fil.Write(tileData(TILE_SAVESHOT), 320*200);
 
-        // write the current file offset right after the header
-        ofs = ftell(fil);
-        fseek(fil, sizeof(savehead_t), SEEK_SET);
-        fwrite(&ofs, 4, 1, fil);
-        fseek(fil, ofs, SEEK_SET);
     }
+	else
+	{
+		int v = 0;
+	    fil.Write(&v, 4);
+	}
 
-#ifdef DEBUGGINGAIDS
-    OSD_Printf("sv_saveandmakesnapshot: snapshot size: %d bytes.\n", svsnapsiz);
-#endif
 
     if (spot >= 0)
     {
         // savegame
-        dosaveplayer2(fil, NULL);
+        dosaveplayer2(&fil, NULL);
     }
     else
     {
         // demo
         SV_AllocSnap(0);
 
-        uint8_t * const p = dosaveplayer2(fil, svsnapshot);
+        uint8_t * const p = dosaveplayer2(&fil, svsnapshot);
 
         if (p != svsnapshot+svsnapsiz)
         {
@@ -1441,7 +1449,7 @@ int32_t sv_loadheader(FileReader &fil, int32_t spot, savehead_t *h)
 #ifndef DEBUGGINGAIDS
         if (havedemo)
 #endif
-            OSD_Printf("Incompatible file version. Expected %d.%d.%d.%d.%0x, found %d.%d.%d.%d.%0x\n", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
+            OSD_Printf("Incompatible savegame. Expected version %d.%d.%d.%d.%0x, found %d.%d.%d.%d.%0x\n", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                        ud.userbytever, g_scriptcrc, h->majorver, h->minorver, h->bytever, h->userbytever, h->scriptcrc);
 
         if (h->majorver == SV_MAJOR_VER && h->minorver == SV_MINOR_VER)
@@ -1500,8 +1508,8 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
     }
     if (i > 0)
     {
-        if (fil.Seek(i, FileReader::SeekSet) != i)
-        {
+		if (fil.Seek(i, FileReader::SeekCur) < 0)
+		{
             OSD_Printf("sv_snapshot: failed skipping over the screenshot.\n");
             return 8;
         }
@@ -1554,7 +1562,7 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
 }
 
 
-uint32_t sv_writediff(FILE *fil)
+uint32_t sv_writediff(FileWriter *fil)
 {
     uint8_t *p = svsnapshot;
     uint8_t *d = svdiff;
@@ -1569,10 +1577,10 @@ uint32_t sv_writediff(FILE *fil)
     
     uint32_t const diffsiz = d - svdiff;
 
-    fwrite("dIfF",4,1,fil);
-    fwrite(&diffsiz, sizeof(diffsiz), 1, fil);
+    fil->Write("dIfF",4);
+	fil->Write(&diffsiz, sizeof(diffsiz));
 
-	fwrite(svdiff, 1, diffsiz, fil);
+	fil->Write(svdiff,  diffsiz);
 
     return diffsiz;
 }
@@ -1746,7 +1754,7 @@ static void sv_restload()
 # define PRINTSIZE(name) do { } while (0)
 #endif
 
-static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
+static uint8_t *dosaveplayer2(FileWriter *fil, uint8_t *mem)
 {
 #ifdef DEBUGGINGAIDS
     uint8_t *tmem = mem;

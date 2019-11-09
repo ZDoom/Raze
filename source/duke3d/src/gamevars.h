@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fix16.hpp"
 #include "gamedef.h"
 
-#include "vfs.h"
-
 BEGIN_DUKE_NS
 
 
@@ -159,7 +157,7 @@ void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
 void Gv_ResetVars(void);
 int Gv_ReadSave(FileReader &kFile);
-void Gv_WriteSave(buildvfs_FILE fil);
+void Gv_WriteSave(FileWriter &fil);
 void Gv_Clear(void);
 #else
 extern int32_t g_noResetVars;

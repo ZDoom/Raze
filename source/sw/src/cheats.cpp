@@ -250,8 +250,6 @@ void EveryCheatToggle(PLAYERp pp, char *cheat_string)
 
 void SaveCheat(PLAYERp pp, char *UNUSED(cheat_string))
 {
-    saveboard("swsave.map", (vec3_t *)pp,
-              pp->pang, pp->cursectnum);
 }
 
 void GeorgeFunc(PLAYERp pp, char *UNUSED(cheat_string))
@@ -426,7 +424,7 @@ void CheatInput(void)
             }
 
         // make sure string is lower cased
-        strlwr(CheatInputString);
+        Bstrlwr(CheatInputString);
 
         // check for at least one single match
         for (i = 0; i < SIZ(ci); i++)

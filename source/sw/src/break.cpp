@@ -597,7 +597,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
     // Check to see if it should break with current weapon type
     if (!CheckBreakToughness(break_info, type)) return FALSE;
 
-    if (hit_x != MAXLONG)
+    if (hit_x != INT32_MAX)
     {
         vec3_t hit_pos = { hit_x, hit_y, hit_z };
         // need correct location for spawning shrap
@@ -811,7 +811,7 @@ int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, sh
     updatesectorz(*x,*y,*z,sectnum);
     if (*sectnum < 0)
     {
-        *x = MAXLONG;  // don't spawn shrap, just change wall
+        *x = INT32_MAX;  // don't spawn shrap, just change wall
         return FALSE;
     }
 
@@ -830,7 +830,7 @@ SWBOOL HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short 
         return TRUE;
     }
 
-    //if (hit_x == MAXLONG)
+    //if (hit_x == INT32_MAX)
     {
         short sectnum;
         WallBreakPosition(wp - wall, &sectnum, &hit_x, &hit_y, &hit_z, &ang);

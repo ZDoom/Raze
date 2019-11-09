@@ -56,7 +56,10 @@ enum
 	METHOD_PPMD = 98,
 	METHOD_LZSS = 1337,	// not used in Zips - this is for Console Doom compression
 	METHOD_ZLIB = 1338,	// Zlib stream with header, used by compressed nodes.
+	METHOD_TRANSFEROWNER = 0x8000,
 };
+
+class FileReader;
 
 class FileReaderInterface
 {
@@ -69,22 +72,6 @@ public:
 	virtual char *Gets(char *strbuf, int len) = 0;
 	virtual const char *GetBuffer() const { return nullptr; }
 	long GetLength () const { return Length; }
-};
-
-class DecompressorBase : public FileReaderInterface
-{
-	std::function<void(const char*)> ErrorCallback = nullptr;
-public:
-	// These do not work but need to be defined to satisfy the FileReaderInterface.
-	// They will just error out when called.
-	long Tell() const override;
-	long Seek(long offset, int origin) override;
-	char *Gets(char *strbuf, int len) override;
-	void DecompressionError(const char* error, ...) const;
-	void SetErrorCallback(const std::function<void(const char*)>& cb)
-	{
-		ErrorCallback = cb;
-	}
 };
 
 class MemoryReader : public FileReaderInterface
@@ -301,6 +288,28 @@ public:
 	friend class FWadCollection;
 };
 
+class DecompressorBase : public FileReaderInterface
+{
+	std::function<void(const char*)> ErrorCallback = nullptr;
+public:
+	// These do not work but need to be defined to satisfy the FileReaderInterface.
+	// They will just error out when called.
+	long Tell() const override;
+	long Seek(long offset, int origin) override;
+	char* Gets(char* strbuf, int len) override;
+	void DecompressionError(const char* error, ...) const;
+	void SetErrorCallback(const std::function<void(const char*)>& cb)
+	{
+		ErrorCallback = cb;
+	}
+	void SetOwnsReader();
+
+protected:
+	FileReader* File = nullptr;
+	FileReader OwnedFile;
+};
+
+
 
 
 
@@ -316,7 +325,7 @@ public:
 	}
 	virtual ~FileWriter()
 	{
-		if (File != NULL) fclose(File);
+		Close();
 	}
 
 	static FileWriter *Open(const char *filename);
@@ -325,6 +334,11 @@ public:
 	virtual long Tell();
 	virtual long Seek(long offset, int mode);
 	size_t Printf(const char *fmt, ...) GCCPRINTF(2,3);
+	virtual void Close()
+	{
+		if (File != NULL) fclose(File);
+		File = nullptr;
+	}
 
 protected:
 
@@ -343,6 +357,26 @@ public:
 	BufferWriter() {}
 	virtual size_t Write(const void *buffer, size_t len) override;
 	TArray<unsigned char> *GetBuffer() { return &mBuffer; }
+	TArray<unsigned char>&& TakeBuffer() { return std::move(mBuffer); }
+};
+
+class CompressedFileWriter : public FileWriter
+{
+	FileWriter *target;
+	struct z_stream_s *zipstream;
+	uint8_t outbuf[1024];
+	size_t compressedSize;
+	bool ownsWriter;
+	
+	size_t WriteBlock(const void *buffer, size_t bytes);
+
+public:
+	CompressedFileWriter(FileWriter *wr, bool transfer = false);
+	CompressedFileWriter(FILE *wr);
+	~CompressedFileWriter() { Close(); }
+	virtual size_t Write(const void *buffer, size_t len) override;
+	virtual void Close() override;
+
 };
 
 #endif

@@ -33,7 +33,6 @@ typedef struct
 #pragma pack(pop)
 
 #ifndef ANIMVPX_STANDALONE
-#include "vfs.h"
 
 extern const char *animvpx_read_ivf_header_errmsg[7];
 int32_t animvpx_read_ivf_header(FileReader & inhandle, animvpx_ivf_header_t *hdr);

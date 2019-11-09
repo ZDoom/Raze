@@ -438,8 +438,7 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 
 #ifdef _MSC_VER
 # if defined _M_AMD64 || defined _M_ARM64 || defined _M_X64 || defined _WIN64
-// should be int64_t, if not for a suspected VS compiler bug
-typedef int32_t ssize_t;
+typedef int64_t ssize_t;
 # else
 typedef int32_t ssize_t;
 # endif
@@ -479,31 +478,7 @@ typedef FILE BFILE;
 #define Bcalloc calloc
 #define Brealloc realloc
 #define Bfree free
-#define Bopen open
-#define Bclose close
-#define Bwrite write
-#define Bread read
-#define Blseek lseek
-#define Bstat stat
-#define Bfstat fstat
-#define Bfileno fileno
-#define Bferror ferror
-#define Bfopen fopen
-#define Bfclose fclose
-#define Bfflush fflush
-#define Bfeof feof
-#define Bfgetc fgetc
-#define Brewind rewind
-#define Bfgets fgets
-#define Bfputc fputc
-#define Bfputs fputs
-#define Bfread fread
-#define Bfwrite fwrite
-#define Bfprintf fprintf
-#define Bfscanf fscanf
-#define Bfseek fseek
-#define Bftell ftell
-#define Bputs puts
+
 #define Bstrcpy strcpy
 #define Bstrncpy strncpy
 #define Bstrcmp strcmp

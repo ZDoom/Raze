@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define demo_h_
 
 #include "compat.h"
-#include "vfs.h"
 #include "cache1d.h"
 
 BEGIN_DUKE_NS
@@ -32,7 +31,7 @@ BEGIN_DUKE_NS
 #define DEMOFN_FMT "edemo%03d.edm"
 #define MAXDEMOS 1000
 
-extern buildvfs_FILE g_demo_filePtr;
+extern FileWriter * g_demo_filePtr;
 extern char g_firstDemoFile[BMAX_PATH];
 
 extern int32_t g_demo_cnt;

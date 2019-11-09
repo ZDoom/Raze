@@ -84,7 +84,6 @@ int32_t qdeletesprite(int16_t nSprite);
 int32_t qchangespritesect(int16_t nSprite, int16_t nSector);
 int32_t qchangespritestat(int16_t nSprite, int16_t nStatus);
 int32_t qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum);
-int32_t qsaveboard(const char* filename, const vec3_t* dapos, int16_t daang, int16_t dacursectnum);
 
 void HookReplaceFunctions(void)
 {
@@ -98,7 +97,6 @@ void HookReplaceFunctions(void)
     changespritestat_replace = qchangespritestat;
     loadvoxel_replace = qloadvoxel;
     loadboard_replace = qloadboard;
-    saveboard_replace = qsaveboard;
     playing_blood = true;
 }
 

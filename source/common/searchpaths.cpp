@@ -1123,12 +1123,11 @@ const char* G_ConFile(void)
 bool AddINIFile(const char* pzFile, bool bForce = false)
 {
 	char* pzFN;
-	struct Bstat st;
 	static INICHAIN* pINIIter = NULL;
 	if (!bForce)
 	{
 		if (findfrompath(pzFile, &pzFN)) return false; // failed to resolve the filename
-		if (Bstat(pzFN, &st))
+		if (!FileExists(pzFN))
 		{
 			Bfree(pzFN);
 			return false;

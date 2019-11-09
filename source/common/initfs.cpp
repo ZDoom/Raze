@@ -157,9 +157,9 @@ void D_AddWildFile (TArray<FString> &wadfiles, const char *value)
 	{
 		return;
 	}
-	const char *wadfile = BaseFileSearch (value, ".wad", false);
+	FString wadfile = BaseFileSearch (value, ".wad", false);
 
-	if (wadfile != NULL)
+	if (wadfile.Len() != 0)
 	{
 		D_AddFile (wadfiles, wadfile);
 	}

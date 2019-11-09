@@ -46,8 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_argv.h"
 #include "filesystem/filesystem.h"
 
-#include "vfs.h"
-
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
 //#define DEBUG_MIRRORS_ONLY
@@ -261,8 +259,11 @@ void G_GameExit(const char *msg)
 
     if (ud.recstat == 1)
         G_CloseDemoWrite();
-    else if (ud.recstat == 2)
-        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+	else if (ud.recstat == 2)
+	{
+		delete g_demo_filePtr;
+		g_demo_filePtr = nullptr;
+	}
     // JBF: fixes crash on demo playback
     // PK: modified from original
 
@@ -293,9 +294,6 @@ void G_GameExit(const char *msg)
 			I_Error("%s", msg);
         }
     }
-
-    Bfflush(NULL);
-
 	throw ExitEvent(0);
 }
 
@@ -1165,10 +1163,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
 void G_DumpDebugInfo(void)
 {
-#if !defined LUNATIC
     static char const s_WEAPON[] = "WEAPON";
     int32_t i,j,x;
-    //    buildvfs_FILE fp = buildvfs_fopen_write("condebug.log");
 
     VM_ScriptInfo(insptr, 64);
     buildprint("\nCurrent gamevar values:\n");
@@ -1232,17 +1228,12 @@ void G_DumpDebugInfo(void)
         }
     }
     Gv_DumpValues();
-//    buildvfs_fclose(fp);
-#endif
-    saveboard("debug.map", &g_player[myconnectindex].ps->pos, fix16_to_int(g_player[myconnectindex].ps->q16ang),
-              g_player[myconnectindex].ps->cursectnum);
 }
 
 // if <set_movflag_uncond> is true, set the moveflag unconditionally,
 // else only if it equals 0.
 static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncond)
 {
-#if !defined LUNATIC
     if (g_tile[tilenum].execPtr)
     {
         SH(i) = *(g_tile[tilenum].execPtr);
@@ -1254,26 +1245,6 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
 
         return 1;
     }
-#else
-    if (El_HaveActor(tilenum))
-    {
-        // ^^^ C-CON takes precedence for now.
-        const el_actor_t *a = &g_elActors[tilenum];
-        auto movflagsptr = &AC_MOVFLAGS(&sprite[i], &actor[i]);
-
-        SH(i) = a->strength;
-        AC_ACTION_ID(actor[i].t_data) = a->act.id;
-        AC_MOVE_ID(actor[i].t_data) = a->mov.id;
-        Bmemcpy(&actor[i].ac, &a->act.ac, sizeof(struct action));
-        Bmemcpy(&actor[i].mv, &a->mov.mv, sizeof(struct move));
-
-        if (set_movflag_uncond || *movflagsptr == 0)
-            *movflagsptr = a->movflags;
-
-        return 1;
-    }
-#endif
-
     return 0;
 }
 
@@ -5709,7 +5680,6 @@ void G_Shutdown(void)
     CONTROL_Shutdown();
     engineUnInit();
     G_Cleanup();
-    Bfflush(NULL);
 }
 
 /*
@@ -5992,8 +5962,6 @@ static void G_Startup(void)
     G_LoadLookups();
 
     screenpeek = myconnectindex;
-
-    Bfflush(NULL);
 }
 
 static void P_SetupMiscInputSettings(void)

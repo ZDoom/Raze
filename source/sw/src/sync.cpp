@@ -109,7 +109,7 @@ SOSync(void)
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        // if (sop->xmid == MAXLONG)
+        // if (sop->xmid == INT32_MAX)
         // continue;
 
         updatecrc(crc, (sop->xmid) & 255);

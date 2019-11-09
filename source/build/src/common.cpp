@@ -7,7 +7,6 @@
 
 #include "common.h"
 
-#include "vfs.h"
 #include "../../glbackend/glbackend.h"
 
 // def/clipmap handling
@@ -293,16 +292,15 @@ static char* KeyValues_FindKeyValue(char **vdfbuf, char * const vdfbufend, const
 
 void Paths_ParseSteamKeyValuesForPaths(const char *vdf, SteamPathParseFunc func)
 {
-    buildvfs_fd fd = buildvfs_open_read(vdf);
-    int32_t size = buildvfs_length(fd);
-    char *vdfbufstart, *vdfbuf, *vdfbufend;
+	FileReader fr = fopenFileReader(vdf, 0);
+    auto size = fr.GetLength();
+    char *vdfbuf, *vdfbufend;
 
-    if (size <= 0)
+    if (size == 0)
         return;
 
-    vdfbufstart = vdfbuf = (char*)Xmalloc(size);
-    size = (int32_t)buildvfs_read(fd, vdfbuf, size);
-    buildvfs_close(fd);
+	auto vdfbuffer = fr.ReadPadded(1);
+	vdfbuf = (char*)vdfbuffer.Data();
     vdfbufend = vdfbuf + size;
 
     if (KeyValues_FindParentKey(&vdfbuf, vdfbufend, "LibraryFolders"))
@@ -312,6 +310,4 @@ void Paths_ParseSteamKeyValuesForPaths(const char *vdf, SteamPathParseFunc func)
         while ((result = KeyValues_FindKeyValue(&vdfbuf, vdfbufend, NULL)) != NULL)
             func(result);
     }
-
-    Xfree(vdfbufstart);
 }

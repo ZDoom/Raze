@@ -17,8 +17,6 @@
 #include "bitmap.h"
 #include "../../glbackend/glbackend.h"
 
-#include "vfs.h"
-
 static int32_t curextra=MAXTILES;
 
 #define MIN_CACHETIME_PRINT 10

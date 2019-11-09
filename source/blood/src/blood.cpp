@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "compat.h"
 #include "renderlayer.h"
-#include "vfs.h"
 #include "fx_man.h"
 #include "common.h"
 #include "common_game.h"
