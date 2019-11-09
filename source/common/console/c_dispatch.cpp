@@ -1064,3 +1064,34 @@ CCMD (exit)
 {
 	throw ExitEvent(0);
 }
+
+extern FILE* Logfile;
+void execLogfile(const char* fn, bool append)
+{
+	if ((Logfile = fopen(fn, append ? "a" : "w")))
+	{
+		//const char* timestr = myasctime();
+		Printf("Log started\n");// , timestr);
+	}
+	else
+	{
+		Printf("Could not start log\n");
+	}
+}
+
+CCMD(logfile)
+{
+
+	if (Logfile)
+	{
+		//const char* timestr = myasctime();
+		Printf("Log stopped: %s\n");// , timestr);
+		fclose(Logfile);
+		Logfile = NULL;
+	}
+
+	if (argv.argc() >= 2)
+	{
+		execLogfile(argv[1], argv.argc() >= 3 ? !!argv[2] : false);
+	}
+}
