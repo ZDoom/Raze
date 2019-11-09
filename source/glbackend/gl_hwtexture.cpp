@@ -37,12 +37,20 @@
 #include "glad/glad.h"
 #include "glbackend.h"
 #include "bitmap.h"
+#include "c_dispatch.h"
+#include "printf.h"
 //#include "compat.h"
 
 // Workaround to avoid including the dirty 'compat.h' header. This will hopefully not be needed anymore once the texture format uses something better.
 # define B_LITTLE_ENDIAN 1
 # define B_BIG_ENDIAN    0
 
+uint64_t alltexturesize;
+
+CCMD(alltexturesize)
+{
+	Printf("All textures are %llu bytes\n", alltexturesize);
+}
 
 
 //===========================================================================
@@ -54,6 +62,7 @@
 unsigned int FHardwareTexture::CreateTexture(int w, int h, int type, bool mipmapped)
 {
 	static int gltypes[] = { GL_R8, GL_RGBA8, GL_RGB5_A1, GL_RGBA2 };
+	static uint8_t bytes[] = { 1, 4, 2, 1 };
 	glTexID = GLInterface.GetTextureID();
 	glActiveTexture(GL_TEXTURE15);
 	glBindTexture(GL_TEXTURE_2D, glTexID);
@@ -64,6 +73,18 @@ unsigned int FHardwareTexture::CreateTexture(int w, int h, int type, bool mipmap
 	if (type == Indexed) mipmapped = false;
 	mWidth = w;
 	mHeight = h;
+
+	allocated = w * h;
+	if (mipmapped)
+	{
+		
+		for (auto mip = allocated>>2; mip > 0; mip >>= 2)
+		{
+			allocated += mip;
+		}
+	}
+	allocated *= bytes[type];
+	alltexturesize += allocated;
 
 	glTexStorage2D(GL_TEXTURE_2D, mipmapped? bits : 1, gltypes[type], w, h);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -122,6 +143,7 @@ unsigned int FHardwareTexture::LoadTexturePart(const unsigned char* buffer, int 
 //===========================================================================
 FHardwareTexture::~FHardwareTexture() 
 { 
+	alltexturesize -= allocated;
 	if (glTexID != 0) glDeleteTextures(1, &glTexID);
 }
 

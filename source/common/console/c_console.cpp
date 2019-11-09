@@ -1060,6 +1060,10 @@ void C_Ticker()
 
 	lasttic = consoletic;
 	NotifyStrings.Tick();
+	if (GUICapture & 1)
+	{
+		D_ProcessEvents();
+	}
 }
 
 void FNotifyBuffer::Tick()

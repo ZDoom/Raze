@@ -22,6 +22,7 @@
 
 #include "c_bind.h"
 #include "d_event.h"
+#include "c_console.h"
 #include "d_gui.h"
 #include "inputstate.h"
 
@@ -146,9 +147,9 @@ void D_ProcessEvents (void)
 			continue;
 		if (ev->type == EV_DeviceChange)
 			(void)0;//UpdateJoystickMenu(I_UpdateDeviceList());
-#if 0
 		if (C_Responder (ev))
 			continue;				// console ate the event
+#if 0
 		if (M_Responder (ev))
 			continue;				// menu ate the event
 #endif

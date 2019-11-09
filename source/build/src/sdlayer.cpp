@@ -465,6 +465,7 @@ int main(int argc, char *argv[])
 #endif
 
 	if (initsystem()) Bexit(9);
+	SDL_StartTextInput();
 
 	r = GameMain();
 
@@ -1886,7 +1887,7 @@ int32_t handleevents_pollsdl(void)
             {
 				if (GUICapture & 1)
 				{
-					event_t event;
+					event_t event = {};
 					event.type = EV_GUI_Event;
 					event.subtype = ev.type == SDL_KEYDOWN ? EV_GUI_KeyDown : EV_GUI_KeyUp;
 					SDL_Keymod kmod = SDL_GetModState();

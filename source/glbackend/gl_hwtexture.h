@@ -26,6 +26,7 @@ private:
 	bool mipmapped = true;
 	int mWidth = 0, mHeight = 0;
 	int colorId = 0;
+	uint32_t allocated = 0;
 
 public:
 
