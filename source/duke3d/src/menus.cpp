@@ -7069,8 +7069,13 @@ void M_DisplayMenus(void)
 	if (GUICapture & 2)
 	{
 		ImGui_Begin_Frame();
-		bool b;
+		bool b = true;
 		ImGui::ShowDemoWindow(&b);
+		if (!b)
+		{
+			GUICapture &= ~2;
+			GUICapture |= 4;
+		}
 		return;
 	}
 

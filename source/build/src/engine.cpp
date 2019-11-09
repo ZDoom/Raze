@@ -10233,10 +10233,11 @@ void videoNextPage(void)
         videoEndDrawing();   //}}}
 
 		// Draw the ImGui menu on top of the game content, but below the console (if open.)
-		if (GUICapture & 2)
+		if (GUICapture & 6)
 		{
 			ImGui::Render();
 			GLInterface.DrawImGui(ImGui::GetDrawData());
+			GUICapture &= ~4;
 		}
 
 		// Draw the console plus debug output on top of everything else.

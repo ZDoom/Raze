@@ -40,6 +40,7 @@
 #include "textures.h"
 #include "palette.h"
 #include "imgui.h"
+#include "gamecontrol.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include "baselayer.h"
@@ -101,7 +102,11 @@ void GLInstance::Init(int ydim)
 	ImGui::StyleColorsDark();
 	ImGui_Init_Backend();
 	ImGui_ImplOpenGL3_Init();
-	if (!ttf.Size()) ttf = kloadfile("demolition/Roboto-Regular.ttf", 0);
+	if (!ttf.Size())
+	{
+		//ttf = kloadfile("demolition/Capsmall_clean.ttf", 0);
+		ttf = kloadfile("demolition/Roboto-Regular.ttf", 0);
+	}
 	if (ttf.Size()) io.Fonts->AddFontFromMemoryTTF(ttf.Data(), ttf.Size(), std::clamp(ydim / 40, 10, 30));
 }
 
