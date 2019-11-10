@@ -168,13 +168,6 @@ CUSTOM_CVARD(Int, snd_speech, 5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disabl
 	else if (self > 5) self = 5;
 }
 
-CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls music volume")
-{
-	if (self < 0) self = 0;
-	if (self > 255) self = 255;
-	Mus_SetVolume(self/255.f);
-}
-
 int MusicDevice = ASS_WinMM;
 CUSTOM_CVARD(Int, mus_device, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "selects music device")
 {
