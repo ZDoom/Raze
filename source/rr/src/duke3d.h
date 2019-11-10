@@ -156,6 +156,7 @@ struct GameInterface : ::GameInterface
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
 	bool mouseInactiveConditional(bool condition) override;
+	FString statFPS() override;
 };
 
 END_RR_NS

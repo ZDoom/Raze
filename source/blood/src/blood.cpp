@@ -1422,7 +1422,7 @@ RESTART:
                 if (bDraw)
                 {
                     viewDrawScreen();
-                    g_gameUpdateAndDrawTime = timerGetHiTicks() - gameUpdateStartTime;
+                    g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
                 }
             }
         }

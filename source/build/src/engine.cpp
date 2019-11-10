@@ -10230,6 +10230,8 @@ void videoNextPage(void)
         }
         videoEndDrawing();   //}}}
 
+		g_beforeSwapTime = timerGetHiTicks();
+
 		// Draw the ImGui menu on top of the game content, but below the console (if open.)
 		if (GUICapture & 6)
 		{

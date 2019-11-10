@@ -666,10 +666,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_RATE:
-					r_showfps = r_showfps+1;
-                    if (r_showfps > 3)
-                        r_showfps = 0;
-
+					r_showfps = clamp(*r_showfps+1, 0, 3);
                     end_cheat(pPlayer);
                     return;
 

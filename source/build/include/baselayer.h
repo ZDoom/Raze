@@ -13,6 +13,7 @@
 #include "c_cvars.h"
 #include "inputstate.h"
 #include "printf.h"
+#include "zstring.h"
 
 
 #ifdef DEBUGGINGAIDS
@@ -170,9 +171,12 @@ struct GameInterface
 	virtual void set_hud_layout(int size) = 0;
 	virtual void set_hud_scale(int size) = 0;
 	virtual bool mouseInactiveConditional(bool condition) { return condition; }
+	virtual FString statFPS() { return "FPS display not available"; }
 };
 
 extern GameInterface* gi;
+extern double g_beforeSwapTime;
+
 
 void ImGui_Begin_Frame();
 

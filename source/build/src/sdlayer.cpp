@@ -70,6 +70,7 @@ CVAR(Int, windowy, -1, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
 static SDL_version linked;
 #endif
 
+double g_beforeSwapTime;
 GameInterface* gi;
 FArgs* Args;
 
@@ -1536,16 +1537,7 @@ void videoShowFrame(int32_t w)
         }
 
         static uint32_t lastSwapTime = 0;
-#ifdef  TIMING
-		cycle_t clock;
-		clock.Reset();
-		clock.Clock();
-#endif
 		glFinish();
-#ifdef TIMING
-		clock.Unclock();
-		OSD_Printf("glfinish time: %2.3f\n", clock.TimeMS());
-#endif
         SDL_GL_SwapWindow(sdl_window);
 
         lastSwapTime = SDL_GetTicks();

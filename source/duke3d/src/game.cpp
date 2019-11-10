@@ -6432,6 +6432,8 @@ MAIN_LOOP_RESTART:
         bool gameUpdate = false;
         double gameUpdateStartTime = timerGetHiTicks();
 
+		auto beforeMoveClock = ototalclock;
+
         if (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU|MODE_DEMO)) == 0) && totalclock >= ototalclock+TICSPERFRAME)
         {
             do 
@@ -6509,7 +6511,7 @@ MAIN_LOOP_RESTART:
             videoNextPage();
 
             if (gameUpdate)
-                g_gameUpdateAndDrawTime = timerGetHiTicks()-gameUpdateStartTime;
+                g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
 
             frameJustDrawn = true;
         }

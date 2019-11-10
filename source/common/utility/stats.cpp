@@ -80,6 +80,15 @@ void FStat::ToggleStat (const char *name)
 		Printf ("Unknown stat: %s\n", name);
 }
 
+void FStat::EnableStat(const char* name, bool on)
+{
+	FStat* stat = FindStat(name);
+	if (stat)
+		stat->m_Active = on;
+	else
+		Printf("Unknown stat: %s\n", name);
+}
+
 void FStat::ToggleStat ()
 {
 	m_Active = !m_Active;

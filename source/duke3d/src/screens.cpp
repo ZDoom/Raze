@@ -680,9 +680,10 @@ static void G_PrintCoords(int32_t snum)
 
 #define FPS_COLOR(x) ((x) ? COLOR_RED : COLOR_WHITE)
 
-static void G_PrintFPS(void)
+FString GameInterface::statFPS(void)
 {
-    static int32_t frameCount;
+	FString output;
+	static int32_t frameCount;
     static double cumulativeFrameDelay;
     static double lastFrameTime;
     static float lastFPS, minFPS = std::numeric_limits<float>::max(), maxFPS;
@@ -696,66 +697,31 @@ static void G_PrintFPS(void)
     {
         int32_t x = (xdim <= 640);
 
-        if (r_showfps)
+        //if (r_showfps)
         {
-            int32_t chars = Bsprintf(tempbuf, "%.1f ms, %5.1f fps", frameDelay, lastFPS);
-
-            printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-            printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+1+FPS_YOFFSET,
-                FPS_COLOR(lastFPS < LOW_FPS), -1, tempbuf, x);
+			output.AppendFormat("%.1f ms, %5.1f fps\n", frameDelay, lastFPS);
 
             if (r_showfps > 1)
             {
-                chars = Bsprintf(tempbuf, "max: %5.1f fps", maxFPS);
-
-                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+10+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+10+FPS_YOFFSET,
-                    FPS_COLOR(maxFPS < LOW_FPS), -1, tempbuf, x);
-
-                chars = Bsprintf(tempbuf, "min: %5.1f fps", minFPS);
-
-                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+20+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+20+FPS_YOFFSET,
-                    FPS_COLOR(minFPS < LOW_FPS), -1, tempbuf, x);
+				output.AppendFormat("max: %5.1f fps\n", maxFPS);
+				output.AppendFormat("min: %5.1f fps\n", minFPS);
             }
             if (r_showfps > 2)
             {
                 if (g_gameUpdateTime > maxGameUpdate) maxGameUpdate = g_gameUpdateTime;
                 if (g_gameUpdateTime < minGameUpdate) minGameUpdate = g_gameUpdateTime;
 
-                chars = Bsprintf(tempbuf, "Game Update: %2.2f ms + draw: %2.2f ms", g_gameUpdateTime, g_gameUpdateAndDrawTime);
-
-                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+30+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+30+FPS_YOFFSET,
-                    FPS_COLOR(g_gameUpdateAndDrawTime >= SLOW_FRAME_TIME), -1, tempbuf, x);
-
-                chars = Bsprintf(tempbuf, "GU min/max/avg: %5.2f/%5.2f/%5.2f ms", minGameUpdate, maxGameUpdate, g_gameUpdateAvgTime);
-
-                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+40+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+40+FPS_YOFFSET,
-                    FPS_COLOR(maxGameUpdate >= SLOW_FRAME_TIME), -1, tempbuf, x);
-
-                chars = Bsprintf(tempbuf, "G_MoveActors(): %.3e ms", g_moveActorsTime);
-
-                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+50+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+50+FPS_YOFFSET,
-                    COLOR_WHITE, -1, tempbuf, x);
-
-                chars = Bsprintf(tempbuf, "G_MoveWorld(): %.3e ms", g_moveWorldTime);
-
-                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+60+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+60+FPS_YOFFSET,
-                    COLOR_WHITE, -1, tempbuf, x);
+				output.AppendFormat("Game Update: %2.2f ms + draw: %2.2f ms\n", g_gameUpdateTime, g_gameUpdateAndDrawTime - g_gameUpdateTime);
+				output.AppendFormat("GU min/max/avg: %5.2f/%5.2f/%5.2f ms\n", minGameUpdate, maxGameUpdate, g_gameUpdateAvgTime);
+				output.AppendFormat("G_MoveActors(): %.3f ms\n", g_moveActorsTime);
+				output.AppendFormat("G_MoveWorld(): %.3f ms\n", g_moveWorldTime);
             }
 
             // lag meter
             if (g_netClientPeer)
             {
-                chars = Bsprintf(tempbuf, "%d +- %d ms", (g_netClientPeer->lastRoundTripTime + g_netClientPeer->roundTripTime)/2,
+				output.AppendFormat("%d +- %d ms\n", (g_netClientPeer->lastRoundTripTime + g_netClientPeer->roundTripTime)/2,
                     (g_netClientPeer->lastRoundTripTimeVariance + g_netClientPeer->roundTripTimeVariance)/2);
-
-                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+30+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+30+1+FPS_YOFFSET, FPS_COLOR(g_netClientPeer->lastRoundTripTime > 200), -1, tempbuf, x);
             }
         }
 
@@ -786,6 +752,7 @@ static void G_PrintFPS(void)
         frameCount++;
     }
     lastFrameTime = frameTime;
+	return output;
 }
 
 #undef FPS_COLOR
@@ -1118,8 +1085,6 @@ void G_DisplayRest(int32_t smoothratio)
 #ifdef USE_OPENGL
     mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
 #endif
-
-    G_PrintFPS();
 
     // JBF 20040124: display level stats in screen corner
     if (ud.overhead_on != 2 && hud_stats && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)

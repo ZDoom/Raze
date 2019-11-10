@@ -7942,7 +7942,7 @@ MAIN_LOOP_RESTART:
 
             if (gameUpdate)
             {
-                g_gameUpdateAndDrawTime = timerGetHiTicks()-gameUpdateStartTime;
+                g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
             }
         }
 

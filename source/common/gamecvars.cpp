@@ -45,6 +45,7 @@
 #include "gamecontrol.h"
 #include "m_argv.h"
 #include "rts.h"
+#include "stats.h"
 
 /* Notes
  
@@ -337,9 +338,15 @@ CUSTOM_CVARD(Int, r_drawweapon, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disab
 	if (self < 0 || self > 2) self = 1;
 }
 
+ADD_STAT(fps)
+{
+	return gi->statFPS();
+}
+
 CUSTOM_CVARD(Int, r_showfps, 0, 0, "show the frame rate counter")
 {
 	if (self < 0 || self > 3) self = 1;
+	FStat::EnableStat("fps", self != 0);
 }
 
 CUSTOM_CVARD(Int, r_showfpsperiod, 0, 0, "time in seconds before averaging min and max stats for r_showfps 2+")
