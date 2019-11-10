@@ -34,6 +34,8 @@
 #ifndef __STATS_H__
 #define __STATS_H__
 
+#include "zstring.h"
+
 #if !defined _WIN32 && !defined __APPLE__
 
 #ifdef NO_CLOCK_GETTIME
@@ -205,5 +207,40 @@ private:
 	cycle_t & clock;
 };
 
+
+
+class FStat
+{
+public:
+	FStat (const char *name);
+	virtual ~FStat ();
+
+	virtual FString GetStats () = 0;
+
+	void ToggleStat ();
+	bool isActive() const
+	{
+		return m_Active;
+	}
+
+	static void PrintStat ();
+	static FStat *FindStat (const char *name);
+	static void ToggleStat (const char *name);
+	static void DumpRegisteredStats ();
+
+private:
+	FStat *m_Next;
+	const char *m_Name;
+	bool m_Active;
+
+	static FStat *FirstStat;
+};
+
+#define ADD_STAT(n) \
+	static class Stat_##n : public FStat { \
+		public: \
+			Stat_##n () : FStat (#n) {} \
+		FString GetStats (); } Istaticstat##n; \
+	FString Stat_##n::GetStats ()
 
 #endif //__STATS_H__

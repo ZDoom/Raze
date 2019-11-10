@@ -1,7 +1,8 @@
 #pragma once
 
 #include "drawparms.h"
-
+#include "c_cvars.h"
+// Undo Windows's forced #defines
 #ifdef DrawText
 #undef DrawText
 #endif
@@ -16,6 +17,7 @@ extern ScreenDummy* screen;
 
 int GetUIScale(int altval);
 int GetConScale(int altval);
+
 
 // [RH] Stretch values to make a 320x200 image best fit the screen
 // without using fractional steppings
@@ -45,3 +47,17 @@ void DrawTexture(F2DDrawer *drawer, FTexture* img, double x, double y, int tags_
 void DrawChar (F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, int character, int tag_first, ...);
 void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, const char *string, int tag_first, ...);
 void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, const char32_t *string, int tag_first, ...);
+
+EXTERN_CVAR(Int, con_scaletext)		// Scale notify text at high resolutions?
+EXTERN_CVAR(Int, con_scale)
+
+inline int active_con_scaletext(bool newconfont = false)
+{
+	return newconfont ? GetConScale(con_scaletext) : GetUIScale(con_scaletext);
+}
+
+inline int active_con_scale()
+{
+	return GetConScale(con_scale);
+}
+

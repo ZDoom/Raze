@@ -240,7 +240,6 @@ public:
 	void UnbindTexture(int texunit);
 	void UnbindAllTextures();
 	void EnableBlend(bool on);
-	void EnableAlphaTest(bool on);
 	void EnableDepthTest(bool on);
 	void EnableMultisampling(bool on);
 	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
@@ -281,7 +280,6 @@ public:
 	void ClearScreen(float r, float g, float b, bool depth);
 	void ClearDepth();
 	void SetViewport(int x, int y, int w, int h);
-	void SetAlphaThreshold(float al);
 	void SetWireframe(bool on);
 	void SetPolymostShader();
 	void SetSurfaceShader();
@@ -403,6 +401,17 @@ public:
 	{
 		return palmanager.FindPalette((uint8_t*)palette);
 	}
+
+	void EnableAlphaTest(bool on)
+	{
+		renderState.AlphaTest = on;
+	}
+
+	void SetAlphaThreshold(float al)
+	{
+		renderState.AlphaThreshold = al;
+	}
+
 	
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
 	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);

@@ -155,16 +155,6 @@ CVAR(Int, developer, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 EXTERN_CVAR(Int, uiscale);
 
 
-inline int active_con_scaletext(bool newconfont = false)
-{
-	return newconfont ? GetConScale(con_scaletext) : GetUIScale(con_scaletext);
-}
-
-inline int active_con_scale()
-{
-	return GetConScale(con_scale);
-}
-
 bool generic_ui = true;
 
 

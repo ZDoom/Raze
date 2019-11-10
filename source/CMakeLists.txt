@@ -811,6 +811,7 @@ set (PCH_SOURCES
 	common/utility/m_png.cpp
 	common/utility/memarena.cpp
 	common/utility/sc_man.cpp
+	common/utility/stats.cpp
 
 	common/filesystem/filesystem.cpp
 	common/filesystem/ancientzip.cpp

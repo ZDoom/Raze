@@ -281,7 +281,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	if (TextureType == TT_HICREPLACE)
 	{
 		al = ((unsigned)picnum < MAXTILES && alphahackarray[picnum] != 0) ? alphahackarray[picnum] * (1.f / 255.f) :
-			(tex->alphaThreshold >= 0.f ? tex->alphaThreshold : 0.f);
+			(tex->alphaThreshold >= 0 ? tex->alphaThreshold * (1.f / 255.f) : 0.f);
 	}
 	GLInterface.SetAlphaThreshold(al);
 	return true;
@@ -302,6 +302,7 @@ bool GLInstance::SetNamedTexture(FTexture* tex, int palette, int sampler)
 
 	renderState.Flags &= ~RF_UsePalette;
 	BindTexture(0, mtex, sampler);
+	GLInterface.SetAlphaThreshold(tex->isTranslucent()? 0.f : 0.5f);
 	return true;
 }
 

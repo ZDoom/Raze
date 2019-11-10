@@ -143,6 +143,7 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");
     Brightness.Init(hShader, "u_brightness");
 	FogColor.Init(hShader, "u_fogColor");
+	AlphaThreshold.Init(hShader, "u_alphaThreshold");
 
     RotMatrix.Init(hShader, "u_rotMatrix");
 	ModelMatrix.Init(hShader, "u_modelMatrix");

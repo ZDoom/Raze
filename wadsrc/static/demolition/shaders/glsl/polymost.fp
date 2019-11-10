@@ -33,6 +33,7 @@ uniform float u_numShades;
 uniform float u_shadeDiv;
 uniform float u_visFactor;
 uniform int u_flags;
+uniform float u_alphaThreshold;
 
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
@@ -198,9 +199,9 @@ void main()
 				color.rgb = mix(color.rgb, u_fogColor.rgb, shade);
 			}
 		}
+		if (color.a < u_alphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
 		if (fullbright == 0.0) color.rgb *= v_color.rgb;
 		color.a *= v_color.a;
-		color.rgb *= detailColor.rgb;
 	}
 	else
 	{

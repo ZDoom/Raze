@@ -43,6 +43,7 @@ public:
     FBufferedUniform1f NPOTEmulationFactor;
     FBufferedUniform1f NPOTEmulationXOffset;
     FBufferedUniform1f Brightness;
+	FBufferedUniform1f AlphaThreshold;
 	FBufferedUniformPalEntry FogColor;
 
 	FUniformMatrix4f   RotMatrix;

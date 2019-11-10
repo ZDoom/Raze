@@ -34,6 +34,9 @@ struct PolymostRenderState
     float NPOTEmulationFactor = 1.f;
     float NPOTEmulationXOffset;
     float Brightness = 1.f;
+	float AlphaThreshold = 0.5f;
+	bool AlphaTest = true;
+
 	PalEntry FogColor;
 
 	IVertexBuffer* VertexBuffer = nullptr;

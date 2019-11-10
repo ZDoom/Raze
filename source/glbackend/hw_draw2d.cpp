@@ -146,8 +146,6 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		SetColor(1, 1, 1);
 		//state.SetColor(1, 1, 1, 1, cmd.mDesaturate); 
 
-		SetAlphaThreshold(0.0f);
-
 		if (cmd.mTexture != nullptr)
 		{
 			auto tex = cmd.mTexture;

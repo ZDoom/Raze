@@ -315,12 +315,6 @@ void GLInstance::EnableBlend(bool on)
 	else glDisable (GL_BLEND);
 }
 
-void GLInstance::EnableAlphaTest(bool on)
-{
-	if (on) glEnable (GL_ALPHA_TEST);
-	else glDisable (GL_ALPHA_TEST);
-}
-
 void GLInstance::EnableDepthTest(bool on)
 {
 	if (on) glEnable (GL_DEPTH_TEST);
@@ -449,11 +443,6 @@ void GLInstance::ClearDepth()
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void GLInstance::SetAlphaThreshold(float al)
-{
-	glAlphaFunc(GL_GREATER, al);
-}
-
 void GLInstance::SetViewport(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
@@ -524,6 +513,7 @@ void PolymostRenderState::Apply(PolymostShader* shader)
 	shader->Flags.Set(Flags);
 	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
 	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
+	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->Brightness.Set(Brightness);
 	shader->FogColor.Set(FogColor);
 
