@@ -1454,11 +1454,12 @@ void SetGamma(CGameMenuItemSlider *pItem)
 
 void SetMusicVol(CGameMenuItemSlider *pItem)
 {
-    sndSetMusicVolume(pItem->nValue);
+	mus_volume = pItem->nValue;
 }
 
 void SetSoundVol(CGameMenuItemSlider *pItem)
 {
+	snd_fxvolume = pItem->nValue;
     sndSetFXVolume(pItem->nValue);
 }
 
@@ -1815,7 +1816,7 @@ void UpdateSoundVolume(CGameMenuItemSlider *pItem)
 
 void UpdateMusicVolume(CGameMenuItemSlider *pItem)
 {
-    sndSetMusicVolume(pItem->nValue);
+	mus_volume = pItem->nValue;
 }
 
 void UpdateSoundRate(CGameMenuItemZCycle *pItem)

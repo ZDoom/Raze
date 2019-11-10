@@ -6059,10 +6059,12 @@ badindex:
                     if (volumeNum == ud.music_episode && levelNum == ud.music_level)
                         dispatch();
 
+#if 0 // This looks not only a LITTLE broken. I think it's better to disable so that the position hackery can be taken out of the equation.
                     // This is the best ASS can do right now. Better implementation pending.
                     int32_t position = S_GetMusicPosition();
                     if (!G_StartTrackSlotWrap(volumeNum == -1 ? MAXVOLUMES : volumeNum, levelNum))
                         S_SetMusicPosition(position);
+#endif
                 }
                 dispatch();
 

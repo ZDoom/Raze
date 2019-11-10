@@ -24,6 +24,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/textures
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/fonts
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/2d
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/music
 	${CMAKE_CURRENT_SOURCE_DIR}/../platform
 )
 

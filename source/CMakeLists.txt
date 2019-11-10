@@ -442,9 +442,9 @@ endif()
 
 # Ugh... These precompiled dependencies need to go.
 if (WIN32)
-	include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
+	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
 else ()
-include_directories( "${ZLIB_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
+include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
 endif()
 
 
@@ -619,6 +619,7 @@ file( GLOB HEADER_FILES
 	common/utility/*.h
 	common/console/*.h
 	common/filesystem/*.h
+	common/music/*.h
 
 	build/src/*.h
 	thirdparty/include/*.h
@@ -838,6 +839,8 @@ set (PCH_SOURCES
 	common/textures/formats/stbtexture.cpp
 	common/textures/formats/arttexture.cpp
 	
+	common/music/music.cpp
+	
 )
 
 if( MSVC )
@@ -879,7 +882,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr sw )
+target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr sw zmusic )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -899,6 +902,7 @@ include_directories(
 	common/console
 	common/textures
 	common/filesystem
+	common/music
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -1006,6 +1010,7 @@ source_group("Code\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/
 source_group("Code\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/console/.+")
 source_group("Code\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Code\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
+source_group("Code\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/music/.+")
 source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
 source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
 source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")

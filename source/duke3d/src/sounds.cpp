@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h" // for win_gethwnd()
 #include "al_midi.h"
 #include "openaudio.h"
+#include "z_music.h"
 #include <atomic>
 
 BEGIN_DUKE_NS
@@ -150,25 +151,6 @@ void S_MusicShutdown(void)
         initprintf("S_MusicShutdown(): %s\n", MUSIC_ErrorString(status));
 }
 
-void S_PauseMusic(bool paused)
-{
-    if (MusicPaused == paused || (MusicIsWaveform && MusicVoice < 0))
-        return;
-
-    MusicPaused = paused;
-
-    if (MusicIsWaveform)
-    {
-        FX_PauseVoice(MusicVoice, paused);
-        return;
-    }
-
-    if (paused)
-        MUSIC_Pause();
-    else
-        MUSIC_Continue();
-}
-
 void S_PauseSounds(bool paused)
 {
     if (SoundPaused == paused)
@@ -222,6 +204,7 @@ void S_MenuSound(void)
         S_PlaySound(s);
 }
 
+#if 0
 static int S_PlayMusic(const char *fn)
 {
     if (!MusicEnabled())
@@ -303,6 +286,65 @@ static int S_PlayMusic(const char *fn)
     return 0;
 }
 
+void S_StopMusic(void)
+{
+	MusicPaused = 0;
+
+	if (MusicIsWaveform && MusicVoice >= 0)
+	{
+		FX_StopSound(MusicVoice);
+		MusicVoice = -1;
+		MusicIsWaveform = 0;
+	}
+
+	MUSIC_StopSong();
+
+	ALIGNED_FREE_AND_NULL(MusicPtr);
+	g_musicSize = 0;
+}
+
+void S_PauseMusic(bool paused)
+{
+	if (MusicPaused == paused || (MusicIsWaveform && MusicVoice < 0))
+		return;
+
+	MusicPaused = paused;
+
+	if (MusicIsWaveform)
+	{
+		FX_PauseVoice(MusicVoice, paused);
+		return;
+	}
+
+	if (paused)
+		MUSIC_Pause();
+	else
+		MUSIC_Continue();
+}
+
+#else
+static int S_PlayMusic(const char* fn, bool looping = true)
+{
+	if (!MusicEnabled())
+		return 0;
+
+	Mus_Play(fn, looping);
+
+}
+
+void S_StopMusic(void)
+{
+	Mus_Stop();
+}
+
+void S_PauseMusic(bool paused)
+{
+	Mus_SetPaused(paused);
+}
+
+
+#endif
+
 static void S_SetMusicIndex(unsigned int m)
 {
     g_musicIndex = m;
@@ -370,39 +412,6 @@ void S_PlaySpecialMusicOrNothing(unsigned int m)
 void S_ContinueLevelMusic(void)
 {
     VM_OnEvent(EVENT_CONTINUELEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
-}
-
-int32_t S_GetMusicPosition(void)
-{
-    int32_t position = 0;
-
-    if (MusicIsWaveform)
-        FX_GetPosition(MusicVoice, &position);
-
-    return position;
-}
-
-void S_SetMusicPosition(int32_t position)
-{
-    if (MusicIsWaveform)
-        FX_SetPosition(MusicVoice, position);
-}
-
-void S_StopMusic(void)
-{
-    MusicPaused = 0;
-
-    if (MusicIsWaveform && MusicVoice >= 0)
-    {
-        FX_StopSound(MusicVoice);
-        MusicVoice = -1;
-        MusicIsWaveform = 0;
-    }
-
-    MUSIC_StopSong();
-
-    ALIGNED_FREE_AND_NULL(MusicPtr);
-    g_musicSize = 0;
 }
 
 void S_Cleanup(void)

@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h"
 #include "al_midi.h"
 #include "openaudio.h"
+#include "z_music.h"
 
 BEGIN_BLD_NS
 
@@ -74,6 +75,7 @@ SAMPLE2D * FindChannel(void)
     return NULL;
 }
 
+#if 0
 DICTNODE *hSong;
 char *pSongPtr;
 int nSongSize;
@@ -208,20 +210,6 @@ void sndFadeSong(int nTime)
     MUSIC_StopSong();
 }
 
-void sndSetMusicVolume(int nVolume)
-{
-    mus_volume = nVolume;
-    if (bWaveMusic && nWaveMusicHandle >= 0)
-        FX_SetPan(nWaveMusicHandle, nVolume, nVolume, nVolume);
-    MUSIC_SetVolume(nVolume);
-}
-
-void sndSetFXVolume(int nVolume)
-{
-    snd_fxvolume = nVolume;
-    FX_SetVolume(nVolume);
-}
-
 void sndStopSong(void)
 {
     if (bWaveMusic && nWaveMusicHandle >= 0)
@@ -236,6 +224,39 @@ void sndStopSong(void)
     ALIGNED_FREE_AND_NULL(pSongPtr);
     nSongSize = 0;
 }
+#else
+int sndPlaySong(const char* songName, bool bLoop)
+{
+	if (!MusicEnabled())
+		return 0;
+
+	Mus_Play(songName, bLoop);
+	return 0;
+}
+
+bool sndIsSongPlaying(void)
+{
+	// Not used
+	return false;
+}
+
+void sndFadeSong(int nTime)
+{
+	// not implemented
+}
+
+void sndStopSong(void)
+{
+	Mus_Stop();
+}
+#endif
+
+void sndSetFXVolume(int nVolume)
+{
+	snd_fxvolume = nVolume;
+	FX_SetVolume(nVolume);
+}
+
 
 void SoundCallback(intptr_t val)
 {
@@ -433,6 +454,7 @@ void DeinitSoundDevice(void)
         ThrowError(FX_ErrorString(nStatus));
 }
 
+#if 0
 void InitMusicDevice(void)
 {
     int nStatus;
@@ -459,6 +481,7 @@ void DeinitMusicDevice(void)
     if (nStatus != 0)
         ThrowError(MUSIC_ErrorString(nStatus));
 }
+#endif
 
 bool sndActive = false;
 
@@ -469,18 +492,20 @@ void sndTerm(void)
     sndActive = false;
     sndStopSong();
     DeinitSoundDevice();
-    DeinitMusicDevice();
+    //DeinitMusicDevice();
 }
 extern char *pUserSoundRFF;
 void sndInit(void)
 {
     memset(Channel, 0, sizeof(Channel));
+#if 0
     pSongPtr = NULL;
     nSongSize = 0;
     bWaveMusic = false;
     nWaveMusicHandle = -1;
+#endif
     InitSoundDevice();
-    InitMusicDevice();
+    //InitMusicDevice();
     //atexit(sndTerm);
     sndActive = true;
 }

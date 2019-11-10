@@ -46,6 +46,7 @@
 #include "m_argv.h"
 #include "rts.h"
 #include "stats.h"
+#include "z_music.h"
 
 /* Notes
  
@@ -171,6 +172,7 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
 {
 	if (self < 0) self = 0;
 	if (self > 255) self = 255;
+	Mus_SetVolume(self/255.f);
 }
 
 int MusicDevice = ASS_WinMM;

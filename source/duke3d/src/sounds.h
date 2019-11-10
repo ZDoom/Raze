@@ -91,8 +91,6 @@ void S_StopAllSounds(void);
 void S_StopMusic(void);
 void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
-int32_t S_GetMusicPosition(void);
-void S_SetMusicPosition(int32_t position);
 
 static inline bool S_IsAmbientSFX(int spriteNum)
 {
