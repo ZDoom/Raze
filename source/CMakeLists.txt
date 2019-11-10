@@ -838,9 +838,14 @@ set (PCH_SOURCES
 	common/textures/formats/tgatexture.cpp
 	common/textures/formats/stbtexture.cpp
 	common/textures/formats/arttexture.cpp
-	
+
 	common/music/music.cpp
-	
+	common/music/i_music.cpp
+	common/music/i_soundfont.cpp
+	common/music/music_config.cpp
+	common/music/music_midi_base.cpp
+
+
 )
 
 if( MSVC )

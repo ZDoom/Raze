@@ -40,22 +40,20 @@
 #include <zlib.h>
 
 #include "m_argv.h"
-#include "w_wad.h"
+#include "filesystrem.h"
 #include "c_dispatch.h"
 #include "templates.h"
 #include "stats.h"
 #include "c_cvars.h"
 #include "c_console.h"
-#include "vm.h"
 #include "v_text.h"
-#include "i_sound.h"
 #include "i_soundfont.h"
 #include "s_music.h"
-#include "doomstat.h"
+#include "printf.h"
 #include "zmusic/zmusic.h"
 #include "streamsources/streamsource.h"
 #include "filereadermusicinterface.h"
-#include "../libraries/zmusic/midisources/midisource.h"
+#include "midisources/midisource.h"
 
 
 
@@ -119,11 +117,13 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
 	else
 	{
 		// Set general music volume.
-		ChangeMusicSetting(ZMusic::mus_volume, nullptr, self / 255.f);
+		ChangeMusicSetting(ZMusic::snd_musicvolume, nullptr, self / 255.f);
+		/* todo: Alter the active music stream's volume
 		if (GSnd != nullptr)
 		{
-			GSnd->SetMusicVolume(clamp<float>(self * relative_volume * snd_mastervolume, 0, 1));
+			GSnd->SetMusicVolume(clamp<float>(self * relative_volume, 0, 1));
 		}
+		 */
 		// For music not implemented through the digital sound system,
 		// let them know about the change.
 		if (mus_playing.handle != nullptr)

@@ -36,7 +36,6 @@
 #include <assert.h>
 #include "i_soundfont.h"
 #include "cmdlib.h"
-#include "i_system.h"
 #include "gameconfigfile.h"
 #include "filereadermusicinterface.h"
 #include "zmusic/zmusic.h"
