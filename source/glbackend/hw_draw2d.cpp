@@ -95,6 +95,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	EnableMultisampling(false);
 	EnableBlend(true);
 	EnableAlphaTest(true);
+	SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
 
 	auto &vertices = drawer->mVertices;
 	auto &indices = drawer->mIndices;
