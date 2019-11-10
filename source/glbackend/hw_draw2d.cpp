@@ -94,6 +94,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	EnableDepthTest(false);
 	EnableMultisampling(false);
 	EnableBlend(true);
+	EnableAlphaTest(true);
 
 	auto &vertices = drawer->mVertices;
 	auto &indices = drawer->mIndices;
@@ -193,4 +194,5 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	SetColor(1, 1, 1);
 	//drawer->mIsFirstPass = false;
 	twod.Clear();
+	EnableMultisampling(true);
 }

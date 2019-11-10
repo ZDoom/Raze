@@ -322,14 +322,14 @@ CUSTOM_CVARD(Float, in_mousesensitivity, DEFAULTMOUSESENSITIVITY, CVAR_ARCHIVE|C
 
 CUSTOM_CVARD(Int, in_mousescalex, 65536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {
-	if (self < -4) self = 4;
-	else if (self > 4) self = 4;
+	if (self < -4*65536) self = 4 * 65536;
+	else if (self > 4 * 65536) self = 4 * 65536;
 }
 
 CUSTOM_CVARD(Int, in_mousescaley, 65536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {
-	if (self < -4) self = 4;
-	else if (self > 4) self = 4;
+	if (self < -4 * 65536) self = 4 * 65536;
+	else if (self > 4 * 65536) self = 4 * 65536;
 }
 
 
