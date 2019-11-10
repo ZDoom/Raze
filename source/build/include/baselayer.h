@@ -143,7 +143,6 @@ void joyScanDevices(void);
 
 void mouseInit(void);
 void mouseUninit(void);
-int32_t mouseReadAbs(vec2_t *pResult, vec2_t const *pInput);
 void mouseGrabInput(bool grab);
 void mouseLockToWindow(char a);
 void mouseMoveToCenter(void);

@@ -309,10 +309,7 @@ CUSTOM_CVARD(Int, in_mousedeadzone, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "amount o
 	else if (self > 512) self = 512;
 }
 
-CUSTOM_CVARD(Bool, in_mousesmoothing, false, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "enable/disable mouse input smoothing")
-{
-	CONTROL_SmoothMouse = self;
-}
+CVARD(Bool, in_mousesmoothing, false, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "enable/disable mouse input smoothing")
 
 CUSTOM_CVARD(Float, in_mousesensitivity, DEFAULTMOUSESENSITIVITY, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {

@@ -958,7 +958,7 @@ void mouseGrabInput(bool grab)
     else
         g_mouseGrabbed = grab;
 
-    g_mousePos.x = g_mousePos.y = 0;
+	inputState.MouseSetPos(0, 0);
 }
 
 void mouseLockToWindow(char a)
@@ -971,15 +971,6 @@ void mouseLockToWindow(char a)
 
 	// Fixme
     SDL_ShowCursor(GUICapture ? SDL_ENABLE : SDL_DISABLE);
-}
-
-void mouseMoveToCenter(void)
-{
-    if (sdl_window)
-    {
-        g_mouseAbs = { xdim >> 1, ydim >> 1 };
-        SDL_WarpMouseInWindow(sdl_window, g_mouseAbs.x, g_mouseAbs.y);
-    }
 }
 
 //
@@ -1523,15 +1514,7 @@ void videoShowFrame(int32_t w)
 #ifdef USE_OPENGL
     if (!nogl)
     {
-        if (bpp > 8)
-        {
-            if (palfadedelta)
-                fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
-            if (playing_blood) 
-				fullscreen_tint_gl_blood();
-
-        }
-        else
+        if (bpp == 8)
         {
             glsurface_blitBuffer();
         }
@@ -1631,6 +1614,46 @@ int32_t handleevents_peekkeys(void)
     return SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, SDL_KEYDOWN, SDL_KEYDOWN);
 }
 
+static void PostMouseMove(int x, int y)
+{
+	static int lastx = 0, lasty = 0;
+	event_t ev = { 0,0,0,0,0,0,0 };
+
+	ev.x = x;
+	ev.y = y;
+	lastx = x;
+	lasty = y;
+	if (ev.x | ev.y)
+	{
+		ev.type = EV_Mouse;
+		D_PostEvent(&ev);
+	}
+}
+
+CVAR(Bool, m_noprescale, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+static void MouseRead()
+{
+	int x, y;
+
+#if 0
+	if (NativeMouse)
+	{
+		return;
+	}
+#endif
+
+	SDL_GetRelativeMouseState(&x, &y);
+	if (!m_noprescale)
+	{
+		x *= 3;
+		y *= 2;
+	}
+	if (x | y)
+	{
+		PostMouseMove(x, -y);
+	}
+}
 
 
 //
@@ -1643,20 +1666,25 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
     switch (ev->type)
     {
         case SDL_MOUSEMOTION:
-            g_mouseAbs.x = ev->motion.x;
-            g_mouseAbs.y = ev->motion.y;
-            // SDL <VER> doesn't handle relative mouse movement correctly yet as the cursor still clips to the
-            // screen edges
-            // so, we call SDL_WarpMouse() to center the cursor and ignore the resulting motion event that occurs
-            //  <VER> is 1.3 for PK, 1.2 for tueidj
-            if (appactive && g_mouseGrabbed)
-            {
-                {
-                    g_mousePos.x += ev->motion.xrel;
-                    g_mousePos.y += ev->motion.yrel;
-                }
-            }
+		{
+			// The menus need this, even in non GUI-capture mode
+			event_t event;
+			event.data1 = ev->motion.x;
+			event.data2 = ev->motion.y;
+
+			//screen->ScaleCoordsFromWindow(event.data1, event.data2);
+
+			event.type = EV_GUI_Event;
+			event.subtype = EV_GUI_MouseMove;
+
+			SDL_Keymod kmod = SDL_GetModState();
+			event.data3 = ((kmod & KMOD_SHIFT) ? GKM_SHIFT : 0) |
+				((kmod & KMOD_CTRL) ? GKM_CTRL : 0) |
+				((kmod & KMOD_ALT) ? GKM_ALT : 0);
+
+			D_PostEvent(&event);
             break;
+		}
 
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
@@ -2003,6 +2031,7 @@ int32_t handleevents_pollsdl(void)
                 break;
         }
     }
+	MouseRead();
 
     return rv;
 }

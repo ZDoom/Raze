@@ -23,8 +23,6 @@ enum
 
 extern bool CONTROL_BindsEnabled;
 
-extern vec2_t  g_mousePos;
-extern vec2_t  g_mouseAbs;
 extern bool    g_mouseGrabbed;
 extern bool    g_mouseEnabled;
 extern bool    g_mouseInsideWindow;
@@ -51,6 +49,18 @@ enum
     MOUSE_RELEASED,
 };
 
+struct ControlInfo
+{
+	int32_t     dx;
+	int32_t     dy;
+	int32_t     dz;
+	int32_t     dyaw;
+	int32_t     dpitch;
+	int32_t     droll;
+	int32_t     mousex;
+	int32_t     mousey;
+};
+
 
 class InputState
 {
@@ -72,6 +82,10 @@ class InputState
 	
 	int g_mouseBits;
 	uint8_t g_mouseClickState;
+
+	vec2_t  g_mousePos;
+	vec2_t  g_mouseAbs;
+
 public:
 
 	uint8_t GetKeyStatus(int key)
@@ -240,26 +254,7 @@ public:
 		g_mouseClickState = state == EV_KeyUp ? MOUSE_RELEASED : MOUSE_PRESSED;
 	}
 
-	void AddEvent(const event_t *ev)
-	{
-		// Set the old mouseBits. Yet another piece of cruft that needs to go away.
-		if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
-		{
-			switch (ev->data1)
-			{
-				case KEY_MOUSE1	: mouseSetBit(LEFT_MOUSE, ev->type == EV_KeyDown); handleevents_updatemousestate(ev->type); break;
-				case KEY_MOUSE2	: mouseSetBit(RIGHT_MOUSE, ev->type == EV_KeyDown); break;
-				case KEY_MOUSE3	: mouseSetBit(MIDDLE_MOUSE, ev->type == EV_KeyDown); break;
-				case KEY_MOUSE4	: mouseSetBit(THUMB_MOUSE, ev->type == EV_KeyDown); break;
-				case KEY_MWHEELUP: mouseSetBit(WHEELUP_MOUSE, ev->type == EV_KeyDown); break;
-				case KEY_MWHEELDOWN: mouseSetBit(WHEELDOWN_MOUSE, ev->type == EV_KeyDown); break;
-				case KEY_MOUSE5: mouseSetBit(THUMB2_MOUSE, ev->type == EV_KeyDown); break;
-				default: break;
-			}
-		}
-		keySetState(ev->data1, ev->type == EV_KeyDown);
-		if (ev->data2) keySetChar(ev->data2);
-	}
+	void AddEvent(const event_t* ev);
 
 	int32_t mouseReadButtons(void)
 	{
@@ -288,9 +283,25 @@ public:
 		return 0;
 	}
 
+	void MouseSetPos(int x, int y)
+	{
+		g_mousePos = { x, y };
+	}
+	void MouseAddToPos(int x, int y)
+	{
+		g_mousePos.x += x;
+		g_mousePos.y += y;
+	}
+	void MouseSetAbs(int x, int y)
+	{
+		g_mouseAbs = { x, y };
+	}
 	int32_t MouseGetButtons(void) { return mouseReadButtons(); }
 	inline void MouseClearButton(int32_t b) { g_mouseBits &= ~b; }
 	inline void MouseClearAllButtonss(void) { g_mouseBits = 0; }
+	int32_t mouseReadAbs(vec2_t* const pResult);
+	void GetMouseDelta(ControlInfo* info);
+
 };
 
 typedef enum

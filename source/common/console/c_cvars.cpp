@@ -134,13 +134,15 @@ FBaseCVar::~FBaseCVar ()
 			else
 				CVars = m_Next;
 		}
-		C_RemoveTabCommand(VarName);
+		if (var->Flags & CVAR_AUTO)
+			C_RemoveTabCommand(VarName);
 	}
 }
 
 const char *FBaseCVar::GetHumanString(int precision) const
 {
-	return GetGenericRep(CVAR_String).String;
+	assert(true);
+	return "";// GetGenericRep(CVAR_String).String;
 }
 
 void FBaseCVar::ForceSet (UCVarValue value, ECVarType type, bool nouserinfosend)

@@ -69,19 +69,6 @@ typedef enum
    analog_maxtype
    } analogcontrol;
 
-
-typedef struct
-   {
-   int32_t     dx;
-   int32_t     dy;
-   int32_t     dz;
-   int32_t     dyaw;
-   int32_t     dpitch;
-   int32_t     droll;
-   int32_t     mousex;
-   int32_t     mousey;
-   } ControlInfo;
-
 typedef enum
    {
    controltype_keyboard,
@@ -155,12 +142,7 @@ extern LastSeenInput CONTROL_LastSeenInput;
 // PROTOTYPES
 //
 //***************************************************************************
-
-//void CONTROL_MapKey( int32_t which, kb_scancode key1, kb_scancode key2 );
-void CONTROL_MapButton(int whichfunction, int whichbutton, int doubleclicked, controldevice device);
-int CONTROL_FlagActive( int which );
 void CONTROL_ClearAssignments( void );
-// void CONTROL_GetFunctionInput( void );
 void CONTROL_GetInput( ControlInfo *info );
 
 bool CONTROL_Startup(controltype which, int32_t ( *TimeFunction )( void ), int32_t ticspersecond);
@@ -178,16 +160,10 @@ int32_t CONTROL_GetGameControllerDigitalAxisNeg(int32_t axis);
 void CONTROL_ClearGameControllerDigitalAxisPos(int32_t axis);
 void CONTROL_ClearGameControllerDigitalAxisNeg(int32_t axis);
 
-//void CONTROL_PrintKeyMap(void);
-//void CONTROL_PrintControlFlag(int32_t which);
-//void CONTROL_PrintAxes( void );
-
 
 ////////// KEY/MOUSE BIND STUFF //////////
 
 
 ////////////////////
-
-extern bool CONTROL_SmoothMouse;
 
 #endif

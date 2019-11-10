@@ -31,6 +31,7 @@
 #include "c_cvars.h"
 #include "glbackend.h"
 #include "v_draw.h"
+#include "palette.h"
 
 //===========================================================================
 // 
@@ -196,4 +197,96 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	//drawer->mIsFirstPass = false;
 	twod.Clear();
 	EnableMultisampling(true);
+}
+
+
+void fullscreen_tint_gl(PalEntry pe)
+{
+	// Todo: reroute to the 2D drawer
+	auto oldproj = GLInterface.GetMatrix(Matrix_Projection);
+	auto oldmv = GLInterface.GetMatrix(Matrix_ModelView);
+	VSMatrix identity(0);
+	GLInterface.SetMatrix(Matrix_Projection, &identity);
+	GLInterface.SetMatrix(Matrix_ModelView, &identity);
+
+	GLInterface.EnableDepthTest(false);
+	GLInterface.EnableAlphaTest(false);
+
+	GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+	GLInterface.EnableBlend(true);
+	GLInterface.SetColorub (pe.r, pe.g, pe.b, pe.a);
+
+	GLInterface.UseColorOnly(true);
+
+	auto data = GLInterface.AllocVertices(3);
+	auto vt = data.second;
+	vt[0].Set(-2.5f, 1.f);
+	vt[1].Set(2.5f, 1.f);
+	vt[2].Set(.0f, -2.5f);
+	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
+	GLInterface.UseColorOnly(false);
+
+	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
+	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);
+}
+
+void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood_b)
+{
+	if (!(tint_blood_r | tint_blood_g | tint_blood_b))
+		return;
+	auto oldproj = GLInterface.GetMatrix(Matrix_Projection);
+	auto oldmv = GLInterface.GetMatrix(Matrix_ModelView);
+	VSMatrix identity(0);
+	GLInterface.SetMatrix(Matrix_Projection, &identity);
+	GLInterface.SetMatrix(Matrix_ModelView, &identity);
+
+
+	GLInterface.EnableDepthTest(false);
+	GLInterface.EnableAlphaTest(false);
+
+	GLInterface.SetBlendFunc(STYLEALPHA_One, STYLEALPHA_One);
+	GLInterface.EnableBlend(true);
+
+	GLInterface.UseColorOnly(true);
+	GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
+	auto data = GLInterface.AllocVertices(3);
+	auto vt = data.second;
+	vt[0].Set(-2.5f, 1.f);
+	vt[1].Set(2.5f, 1.f);
+	vt[2].Set(.0f, -2.5f);
+	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
+	GLInterface.SetBlendOp(STYLEOP_RevSub);
+	GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
+	data = GLInterface.AllocVertices(3);
+	vt = data.second;
+	vt[0].Set(-2.5f, 1.f);
+	vt[1].Set(2.5f, 1.f);
+	vt[2].Set(.0f, -2.5f);
+	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
+	GLInterface.SetBlendOp(STYLEOP_Add);
+	GLInterface.SetColorub(0, 0, 0, 0);
+	GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+	GLInterface.UseColorOnly(false);
+
+	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
+	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);
+
+}
+
+static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
+extern palette_t palfadergb;
+extern char palfadedelta ;
+
+void DrawFullscreenBlends()
+{
+	if (palfadedelta)	fullscreen_tint_gl(PalEntry(palfadedelta, palfadergb.r, palfadergb.g, palfadergb.b));
+	fullscreen_tint_gl_blood(tint_blood_r, tint_blood_g, tint_blood_b);
+}
+
+
+void videoTintBlood(int32_t r, int32_t g, int32_t b)
+{
+	tint_blood_r = r;
+	tint_blood_g = g;
+	tint_blood_b = b;
 }

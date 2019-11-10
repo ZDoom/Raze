@@ -674,11 +674,6 @@ void CONFIG_SetupJoystick(void)
 			JoystickAnalogueSaturate[i] = (int32_t)strtoull(val, nullptr, 0);
 	}
 
-	for (int i = 0; i < MAXJOYBUTTONSANDHATS; i++)
-	{
-		CONTROL_MapButton(JoystickFunctions[i][0], i, 0, controldevice_joystick);
-		CONTROL_MapButton(JoystickFunctions[i][1], i, 1, controldevice_joystick);
-	}
 	for (int i = 0; i < MAXJOYAXES; i++)
 	{
 		CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
@@ -699,7 +694,7 @@ void CONFIG_SetupJoystick(void)
 static void CONFIG_SetJoystickButtonFunction(int i, int j, int function)
 {
 	JoystickFunctions[i][j] = function;
-	CONTROL_MapButton(function, i, j, controldevice_joystick);
+	//CONTROL_MapButton(function, i, j, controldevice_joystick);
 }
 static void CONFIG_SetJoystickAnalogAxisScale(int i, int scale)
 {

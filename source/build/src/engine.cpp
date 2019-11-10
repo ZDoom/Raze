@@ -10196,18 +10196,12 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
         if (videoGetRenderMode() == REND_POLYMOST)
             PolymostProcessVoxels();
     }
-# ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-    {
-        if (!polymer_init())
-            rendmode = REND_POLYMOST;
-    }
-#endif
 #endif
     qsetmode = 200;
     return 0;
 }
 
+void DrawFullscreenBlends();
 
 //
 // nextpage
@@ -10241,6 +10235,7 @@ void videoNextPage(void)
 		}
 
 		// Draw the console plus debug output on top of everything else.
+		DrawFullscreenBlends();
 		FStat::PrintStat(); 
 		C_DrawConsole();
 		GLInterface.Draw2D(&twod);

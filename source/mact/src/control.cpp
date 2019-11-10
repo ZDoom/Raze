@@ -37,14 +37,6 @@ static controlaxistype    CONTROL_LastJoyAxes[MAXJOYAXES];
 static int32_t            CONTROL_JoyAxesScale[MAXJOYAXES];
 static int8_t             CONTROL_JoyAxesInvert[MAXJOYAXES];
 
-static controlbuttontype CONTROL_MouseButtonMapping[MAXMOUSEBUTTONS];
-
-static int32_t CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS];
-static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS];
-static int32_t CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS];
-static int32_t CONTROL_MouseButtonState[MAXMOUSEBUTTONS];
-static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS];
-
 static controlbuttontype CONTROL_JoyButtonMapping[MAXJOYBUTTONS];
 
 static int32_t CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
@@ -59,72 +51,14 @@ static uint8_t CONTROL_DoubleClickSpeed;
 
 int32_t CONTROL_ButtonFlags[NUMKEYS];
 bool CONTROL_BindsEnabled = 0;
-bool CONTROL_SmoothMouse  = 0;
 
 #define CONTROL_CheckRange(which) ((unsigned)which >= (unsigned)NUMKEYS)
-
-vec2_t  g_mousePos; // Written to directly by the message pump. 
-vec2_t  g_mouseAbs; // Used by the menus for some coodinate voodoo. Will be removed anyway so no need to refactor.
-
-static void CONTROL_GetMouseDelta(ControlInfo * info)
-{
-    vec2_t input;
-    if (!g_mouseEnabled || !g_mouseGrabbed || !appactive)
-    {
-		input = {0,0};
-        return;
-    }
-
-    input = g_mousePos;
-	g_mousePos = {};
-
-    vec2f_t finput = { float(input.x), float(input.y) };
-
-    if (CONTROL_SmoothMouse)
-    {
-        static vec2_t last;
-        finput = { float(input.x + last.x) * 0.5f, float(input.y + last.y) * 0.5f };
-        last = input;
-    }
-
-    info->mousex = mulscale16(Blrintf(finput.x * 4.f * in_mousesensitivity), in_mousescalex);
-    info->mousey = mulscale16(Blrintf(finput.y * 4.f * in_mousesensitivity), in_mousescaley);
-}
 
 static int32_t CONTROL_GetTime(void)
 {
     static int32_t t = 0;
     t += 5;
     return t;
-}
-
-void CONTROL_MapButton(int whichfunction, int whichbutton, int doubleclicked, controldevice device)
-{
-    controlbuttontype *set;
-
-    if (CONTROL_CheckRange(whichfunction)) whichfunction = BUTTONUNDEFINED;
-
-    switch (device)
-    {
-    case controldevice_joystick:
-        if ((unsigned)whichbutton >= (unsigned)MAXJOYBUTTONS)
-        {
-            //Error("CONTROL_MapButton: button %d out of valid range for %d joystick buttons.",
-            //		whichbutton, CONTROL_NumJoyButtons);
-            return;
-        }
-        set = CONTROL_JoyButtonMapping;
-        break;
-
-    default:
-        //Error("CONTROL_MapButton: invalid controller device type");
-        return;
-    }
-
-    if (doubleclicked)
-        set[whichbutton].doubleclicked = whichfunction;
-    else
-        set[whichbutton].singleclicked = whichfunction;
 }
 
 void CONTROL_MapAnalogAxis(int whichaxis, int whichanalog, controldevice device)
@@ -254,9 +188,7 @@ void CONTROL_ClearAssignments(void)
     memset(CONTROL_JoyAxesInvert,       0,               sizeof(CONTROL_JoyAxesInvert));
     memset(CONTROL_JoyAxesMap,          AXISUNDEFINED,   sizeof(CONTROL_JoyAxesMap));
     memset(CONTROL_JoyButtonMapping,    BUTTONUNDEFINED, sizeof(CONTROL_JoyButtonMapping));
-//    memset(CONTROL_KeyMapping,          KEYUNDEFINED,    sizeof(CONTROL_KeyMapping));
     memset(CONTROL_LastJoyAxes,         0,               sizeof(CONTROL_LastJoyAxes));
-    memset(CONTROL_MouseButtonMapping,  BUTTONUNDEFINED, sizeof(CONTROL_MouseButtonMapping));
 }
 
 static int DoGetDeviceButtons(
@@ -319,19 +251,6 @@ static int DoGetDeviceButtons(
 static void CONTROL_GetDeviceButtons(void)
 {
     int32_t const t = ExtGetTime();
-
-    if (CONTROL_MouseEnabled)
-    {
-        DoGetDeviceButtons(
-            inputState.MouseGetButtons(), t,
-            CONTROL_NumMouseButtons,
-            CONTROL_MouseButtonState,
-            CONTROL_MouseButtonClickedTime,
-            CONTROL_MouseButtonClickedState,
-            CONTROL_MouseButtonClicked,
-            CONTROL_MouseButtonClickedCount
-        );
-    }
 
     if (CONTROL_JoystickEnabled)
     {
@@ -450,7 +369,7 @@ static void CONTROL_PollDevices(ControlInfo *info)
     memset(info, 0, sizeof(ControlInfo));
 
     if (CONTROL_MouseEnabled)
-        CONTROL_GetMouseDelta(info);
+        inputState.GetMouseDelta(info);
 
     if (CONTROL_JoystickEnabled)
     {

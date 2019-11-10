@@ -114,8 +114,8 @@ bool CGameMenuMgr::Push(CGameMenu *pMenu, int nItem)
         m_mouselastactivity = -M_MOUSETIMEOUT;
         m_mousewake_watchpoint = 0;
         mouseLockToWindow(0);
-        mouseMoveToCenter();
-        mouseReadAbs(&m_prevmousepos, &g_mouseAbs);
+        //mouseMoveToCenter();
+        inputState.mouseReadAbs(&m_prevmousepos);
     }
     dassert(pMenu != NULL);
     if (nMenuPointer == 8)
@@ -187,7 +187,7 @@ void CGameMenuMgr::Draw(void)
         m_postPop = false;
     }
 
-    int32_t mousestatus = mouseReadAbs(&m_mousepos, &g_mouseAbs);
+    int32_t mousestatus = inputState.mouseReadAbs(&m_mousepos);
     if (mousestatus && inputState.mouseClickState() == MOUSE_PRESSED)
         m_mousedownpos = m_mousepos;
 

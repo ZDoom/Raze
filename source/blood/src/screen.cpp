@@ -131,6 +131,11 @@ glblend_t const bloodglblend =
 
 void scrLoadPalette(void)
 {
+#ifdef USE_OPENGL
+	for (auto& x : glblend)
+		x = bloodglblend;
+#endif
+
     initfastcolorlookup_scale(30, 59, 11);
     initfastcolorlookup_gridvectors();
     paletteloaded = 0;
@@ -154,11 +159,6 @@ void scrLoadPalette(void)
         ThrowError("TRANS.TLU not found");
     blendtable[0] = (char*)gSysRes.Lock(pTrans);
     paletteloaded |= PALETTE_TRANSLUC;
-
-#ifdef USE_OPENGL
-    for (auto & x : glblend)
-        x = bloodglblend;
-#endif
 
     initfastcolorlookup_palette(palette);
     palettePostLoadTables();

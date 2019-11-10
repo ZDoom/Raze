@@ -3138,8 +3138,6 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     }
     else if (entry == &ME_SOUND_DUKETALK)
         snd_speech = (snd_speech&~1) | newOption;
-    else if (entry == &ME_MOUSESETUP_SMOOTH)
-        CONTROL_SmoothMouse = in_mousesmoothing;
     else if (entry == &ME_JOYSTICK_ENABLE)
     {
         if (newOption)
@@ -4243,7 +4241,7 @@ void Menu_Open(uint8_t playerID)
 {
     g_player[playerID].ps->gm |= MODE_MENU;
 
-    mouseReadAbs(&m_prevmousepos, &g_mouseAbs);
+    inputState.mouseReadAbs(&m_prevmousepos);
     m_mouselastactivity = -M_MOUSETIMEOUT;
 
 #if !defined EDUKE32_TOUCH_DEVICES
@@ -6768,7 +6766,7 @@ void M_DisplayMenus(void)
     if (!Menu_IsTextInput(m_currentMenu) && inputState.GetKeyStatus(sc_Q))
         Menu_AnimateChange(MENU_QUIT, MA_Advance);
 
-    int32_t mousestatus = mouseReadAbs(&m_mousepos, &g_mouseAbs);
+    int32_t mousestatus = inputState.mouseReadAbs(&m_mousepos);
     if (mousestatus && inputState.mouseClickState() == MOUSE_PRESSED)
         m_mousedownpos = m_mousepos;
 

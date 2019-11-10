@@ -1891,7 +1891,6 @@ void UpdatePlayerName(CGameMenuItemZEdit *pItem, CGameMenuEvent *pEvent)
 
 void SetMouseFilterInput(CGameMenuItemZBool *pItem)
 {
-    CONTROL_SmoothMouse = pItem->at20;
     in_mousesmoothing = pItem->at20;
 }
 

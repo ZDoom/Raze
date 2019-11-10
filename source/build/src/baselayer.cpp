@@ -33,21 +33,6 @@ bool g_mouseGrabbed;
 bool g_mouseInsideWindow   = 1;
 bool g_mouseLockedToWindow = 1;
 
-int32_t mouseReadAbs(vec2_t * const pResult, vec2_t const * const pInput)
-{
-    if (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || GUICapture)
-        return 0;
-
-    int32_t const xwidth = max(scale(240<<16, xdim, ydim), 320<<16);
-
-    pResult->x = scale(pInput->x, xwidth, xres) - ((xwidth>>1) - (320<<15));
-    pResult->y = scale(pInput->y, 200<<16, yres);
-
-    pResult->y = divscale16(pResult->y - (200<<15), rotatesprite_yxaspect) + (200<<15) - rotatesprite_y_offset;
-
-    return 1;
-}
-
 controllerinput_t joystick;
 
 void joySetCallback(void (*callback)(int32_t, int32_t)) { joystick.pCallback = callback; }

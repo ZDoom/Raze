@@ -972,102 +972,14 @@ static SWBOOL MNU_MouseButtonPostProcess(MenuItem_p item)
 
 SWBOOL MNU_MouseButtonSetupCustom(UserCall call, MenuItem_p item)
 {
-#if 0
-    static int currentfunc = 0;
-
-    if (call == uc_touchup)
-        return TRUE;
-
-    if (cust_callback == NULL)
-    {
-        if (call != uc_setup)
-            return FALSE;
-        if (mouse_button_item->tics >= 6)
-        {
-            currentfunc = MouseButtonsClicked[mouse_button_item->tics % 6];
-        }
-        else
-        {
-            currentfunc = MouseButtons[mouse_button_item->tics % 6];
-        }
-        currentfunc++;
-
-        cust_callback = MNU_MouseButtonSetupCustom;
-        cust_callback_call = call;
-        cust_callback_item = item;
-    }
-
-    {
-        short w, h = 0;
-        const char *s = "Mouse Setup";
-
-        rotatesprite(10 << 16, (5-3) << 16, MZ, 0, 2427,
-                     m_defshade, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
-        MNU_MeasureStringLarge(s, &w, &h);
-        MNU_DrawStringLarge(TEXT_XCENTER(w), 5, s);
-    }
-
-    int selection = MNU_SelectButtonFunction(mouse_button_item->text, &currentfunc);
-    switch (selection)
-    {
-    case -1:    //cancel
-        cust_callback = NULL;
-        break;
-    case 1:     //acknowledge
-        currentfunc--;
-        if (mouse_button_item->tics >= 6)
-        {
-            MouseButtonsClicked[mouse_button_item->tics % 6] = currentfunc;
-            CONTROL_MapButton(currentfunc, mouse_button_item->tics % 6, 1, controldevice_mouse);
-        }
-        else
-        {
-            MouseButtons[mouse_button_item->tics % 6] = currentfunc;
-            CONTROL_MapButton(currentfunc, mouse_button_item->tics % 6, 0, controldevice_mouse);
-        }
-        MNU_SetMouseButtonFunctions(mouse_button_item);
-        cust_callback = NULL;
-        break;
-    default: break;
-    }
-#endif
+	// Mouse buttons are now handled as normal keybinds
     return TRUE;
 }
 
 static SWBOOL MNU_SetMouseButtonFunctions(MenuItem_p item)
 {
-#if 0
-    int button, clicked, function;
-    char *p;
-
-    clicked = item->tics >= 6;
-    button = item->tics % 6;
-    ASSERT(button >= 0 && button <= 5);
-
-    if (clicked)
-    {
-        function = MouseButtonsClicked[button];
-    }
-    else
-    {
-        function = MouseButtons[button];
-    }
-
-    if (function < 0)
-    {
-        strcpy(MouseButtonFunctions[item->tics], "  -");
-    }
-    else
-    {
-        strcpy(MouseButtonFunctions[item->tics], buttonMap.GetButtonName(function));
-        for (p = MouseButtonFunctions[item->tics]; *p; p++)
-        {
-            if (*p == '_')
-                *p = ' ';
-        }
-    }
-#endif
-    return TRUE;
+	// Mouse buttons are now handled as normal keybinds
+	return TRUE;
 }
 
 
@@ -1081,76 +993,13 @@ static SWBOOL MNU_MouseDigitalPostProcess(MenuItem_p item)
 
 static SWBOOL MNU_MouseDigitalSetupCustom(UserCall call, MenuItem_p item)
 {
-#if 0
-    static int currentfunc = 0;
-
-    if (call == uc_touchup)
-        return TRUE;
-
-    if (cust_callback == NULL)
-    {
-        if (call != uc_setup)
-            return FALSE;
-        currentfunc = MouseDigitalAxes[mouse_digital_item->tics/2][mouse_digital_item->tics%2];
-        currentfunc++;
-
-        cust_callback = MNU_MouseDigitalSetupCustom;
-        cust_callback_call = call;
-        cust_callback_item = item;
-    }
-
-    {
-        short w, h = 0;
-        const char *s = "Adv'd Mouse";
-
-        rotatesprite(10 << 16, (5-3) << 16, MZ, 0, 2427,
-                     m_defshade, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
-        MNU_MeasureStringLarge(s, &w, &h);
-        MNU_DrawStringLarge(TEXT_XCENTER(w), 5, s);
-    }
-
-    int selection = MNU_SelectButtonFunction(mouse_digital_item->text, &currentfunc);
-    switch (selection)
-    {
-    case -1:    //cancel
-        cust_callback = NULL;
-        break;
-    case 1:     //acknowledge
-        currentfunc--;
-        MouseDigitalAxes[mouse_digital_item->tics/2][mouse_digital_item->tics%2] = currentfunc;
-        CONTROL_MapDigitalAxis(mouse_digital_item->tics/2, currentfunc, mouse_digital_item->tics%2, controldevice_mouse);
-        MNU_SetAdvancedMouseFunctions(mouse_digital_item);
-        cust_callback = NULL;
-        break;
-    default: break;
-    }
-#endif
+	// obsolete
     return TRUE;
 }
 
 static SWBOOL MNU_SetAdvancedMouseFunctions(MenuItem_p item)
 {
-#if 0
-    int axis;
-    char *p;
-
-    axis = item->tics;
-    ASSERT(axis >= 0 && axis < 4);
-
-    if (MouseDigitalAxes[axis/2][axis%2] < 0)
-    {
-        strcpy(AdvancedMouseAxisFunctions[axis], "  -");
-    }
-    else
-    {
-        strcpy(AdvancedMouseAxisFunctions[axis], buttonMap.GetButtonName(MouseDigitalAxes[axis/2][axis%2]));
-        for (p = AdvancedMouseAxisFunctions[axis]; *p; p++)
-        {
-            if (*p == '_')
-                *p = ' ';
-        }
-    }
-#endif
+	// obsolete
     return TRUE;
 }
 
@@ -1275,66 +1124,7 @@ static SWBOOL MNU_JoystickButtonPostProcess(MenuItem_p item)
 
 static SWBOOL MNU_JoystickButtonSetupCustom(UserCall call, MenuItem *item)
 {
-#if 0
-    static int currentfunc = 0;
-
-    if (call == uc_touchup)
-        return TRUE;
-
-    if (cust_callback == NULL)
-    {
-        if (call != uc_setup)
-            return FALSE;
-
-        if (joystick_button_item->tics & 128)
-        {
-            currentfunc = JoystickButtonsClicked[joystick_button_item->tics & 127];
-        }
-        else
-        {
-            currentfunc = JoystickButtons[joystick_button_item->tics & 127];
-        }
-        currentfunc++;
-
-        cust_callback = MNU_JoystickButtonSetupCustom;
-        cust_callback_call = call;
-        cust_callback_item = item;
-    }
-
-    {
-        short w, h = 0;
-        const char *s = "Joystick Setup";
-
-        rotatesprite(10 << 16, (5-3) << 16, MZ, 0, 2427,
-                     m_defshade, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
-        MNU_MeasureStringLarge(s, &w, &h);
-        MNU_DrawStringLarge(TEXT_XCENTER(w), 5, s);
-    }
-
-    int selection = MNU_SelectButtonFunction(joystick_button_item->text, &currentfunc);
-    switch (selection)
-    {
-    case -1:    //cancel
-        cust_callback = NULL;
-        break;
-    case 1:     //acknowledge
-        currentfunc--;
-        if (joystick_button_item->tics & 128)
-        {
-            JoystickButtonsClicked[joystick_button_item->tics & 127] = currentfunc;
-            CONTROL_MapButton(currentfunc, joystick_button_item->tics & 127, 1, controldevice_joystick);
-        }
-        else
-        {
-            JoystickButtons[joystick_button_item->tics & 127] = currentfunc;
-            CONTROL_MapButton(currentfunc, joystick_button_item->tics & 127, 0, controldevice_joystick);
-        }
-        MNU_SetJoystickButtonFunctions(joystick_button_item);
-        cust_callback = NULL;
-        break;
-    default: break;
-    }
-#endif
+	// controller buttons are being handled as keybinds now
     return TRUE;
 }
 
@@ -1349,36 +1139,7 @@ static SWBOOL MNU_JoystickButtonNextPage(void)
 
 static SWBOOL MNU_SetJoystickButtonFunctions(MenuItem_p item)
 {
-#if 0
-    int button, clicked, function;
-    char *p;
-
-    clicked = (item->tics & 128) > 0;
-    button = item->tics & 127;
-    ASSERT(button >= 0 && button < MAXJOYBUTTONS);
-
-    if (clicked)
-    {
-        function = JoystickButtonsClicked[button];
-    }
-    else
-    {
-        function = JoystickButtons[button];
-    }
-    if (function < 0)
-    {
-        strcpy(JoystickButtonFunctions[button + clicked*MAXJOYBUTTONS], "  -");
-    }
-    else
-    {
-        strcpy(JoystickButtonFunctions[button + clicked*MAXJOYBUTTONS], buttonMap.GetButtonName(function));
-        for (p = JoystickButtonFunctions[button + clicked*MAXJOYBUTTONS]; *p; p++)
-        {
-            if (*p == '_')
-                *p = ' ';
-        }
-    }
-#endif
+	// controller buttons are being handled as keybinds now
     return TRUE;
 }
 

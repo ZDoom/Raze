@@ -173,29 +173,17 @@ void D_PostEvent (const event_t *ev)
 	{
 		return;
 	}
-	events[eventhead] = *ev;
-#if 0 // No idea if this can be made to work ever... For now, pass on the mouse movement event so that the input code can deal with them itself.
-	if (ev->type == EV_Mouse && menuactive == MENU_Off && ConsoleState != c_down && ConsoleState != c_falling && !primaryLevel->localEventManager->Responder(ev) && !paused)
+
+	if (ev->type == EV_Mouse && GUICapture == 0 && appactive && g_mouseGrabbed)
 	{
-		if (Button_Mlook.bDown || freelook)
-		{
-			int look = int(ev->y * m_pitch * mouse_sensitivity * 16.0);
-			if (invertmouse)
-				look = -look;
-			G_AddViewPitch (look, true);
-			events[eventhead].y = 0;
-		}
-		if (!Button_Strafe.bDown && !lookstrafe)
-		{
-			G_AddViewAngle (int(ev->x * m_yaw * mouse_sensitivity * 8.0), true);
-			events[eventhead].x = 0;
-		}
-		if ((events[eventhead].x | events[eventhead].y) == 0)
-		{
-			return;
-		}
+		inputState.MouseAddToPos(ev->x / 3, -ev->y / 2);
+		return;
 	}
-#endif
+	else if (ev->type == EV_GUI_Event && ev->subtype == EV_GUI_MouseMove && appactive && GUICapture == 0 && !g_mouseGrabbed)
+	{
+		inputState.MouseSetAbs(ev->data1, ev->data2);
+		return;
+	}
 
 	if ((GUICapture & 8) && ev->type == EV_KeyDown)
 	{
@@ -208,10 +196,10 @@ void D_PostEvent (const event_t *ev)
 	// This is probably the biggest roadblock with the input system as it undermines a proper event driven approach.
 	// Too much code depends on just checking this instead of waiting for events to happen.
 	// Here's also definitely not the best place to maintain the keyboard state but right now it's unavoidable to do this outside the event processing because so much code depends on it.
-	// Once all those busy waiting loops can poll the event queue for a proper skip event, this will mostly go away.
 	inputState.AddEvent(ev);
 	
-	// Also add it to the event queue - this is where everything should transition to eventually.
+	// Also add it to the event queue.
+	events[eventhead] = *ev;
 	eventhead = (eventhead+1)&(NUM_EVENTS-1);
 }
 

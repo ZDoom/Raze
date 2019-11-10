@@ -49,8 +49,6 @@ typedef struct {
 extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
 
 extern char palfadedelta;
-extern void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f);
-extern void fullscreen_tint_gl_blood(void);
 extern void videoFadeToBlack(int32_t moreopaquep);
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
 void paletteSetColorTable(int32_t id, uint8_t const *table, bool transient = false);
