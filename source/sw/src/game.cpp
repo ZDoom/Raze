@@ -664,7 +664,6 @@ TerminateGame(void)
     }
 
     engineUnInit();
-	G_SaveConfig();
 
     //Terminate3DSounds();                // Kill the sounds linked list
     UnInitSound();
@@ -770,7 +769,6 @@ void MultiSharewareCheck(void)
 #endif
         //uninitmultiplayers();
         //uninitkeys();
-		G_SaveConfig();
         engineUnInit();
         UnInitSound();
         timerUninit();

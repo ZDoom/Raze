@@ -170,6 +170,8 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	glUniform1i(SamplerLoc, 3);
     SamplerLoc = glGetUniformLocation(hShader, "s_glow");
 	glUniform1i(SamplerLoc, 4);
+	SamplerLoc = glGetUniformLocation(hShader, "s_brightmap");
+	glUniform1i(SamplerLoc, 5);
 
 	glUseProgram(0);
 	return true;

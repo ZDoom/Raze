@@ -100,6 +100,7 @@ FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, b
 	bool npoty = false;
 
 	auto palette = palid < 0? nullptr : palmanager.GetPaletteData(palid);
+	if (palette == nullptr) return nullptr;
 	auto texbuffer = tex->CreateTexBuffer(palette, CTF_ProcessData);
 	// Check if the texture is fully transparent. When creating a brightmap such textures can be discarded.
 	if (checkfulltransparency)
@@ -144,7 +145,7 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 	else
 		hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP, textype == TT_BRIGHTMAP);
 	
-	tex->SetHardwareTexture(palid, hwtex);
+	if (hwtex) tex->SetHardwareTexture(palid, hwtex);
 	return hwtex;
 }
 
@@ -177,7 +178,12 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	else
 	{
 		// Only look up the palette if we really want to use it (i.e. when creating a true color texture of an ART tile.)
-		if (TextureType == TT_TRUECOLOR) lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false);
+		if (TextureType == TT_TRUECOLOR)
+		{
+			/*lookuppal = palmanager.LookupPalette(usepalette, usepalswap, true);
+			if (lookuppal< 0)*/ lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false);
+		}
+
 	}
 
 	// Load the main texture
@@ -191,6 +197,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
 		}
 		else renderState.Flags &= ~RF_UsePalette;
+		UseBrightmaps(false);
 
 		BindTexture(0, mtex, sampler);
 		if (rep && (rep->scale.x != 1.0f || rep->scale.y != 1.0f || xpanning != 0 || ypanning != 0))
@@ -251,7 +258,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				BindTexture(4, htex, SamplerRepeat);
 			}
 		}
-		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT))
+		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap])
 		{
 			if (TextureType == TT_HICREPLACE)
 			{
@@ -259,8 +266,12 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				if (brep)
 				{
 					auto htex = LoadTexture(brep->faces[0], TT_HICREPLACE, 0);
-					// UseBrightmapping(true);
+					UseBrightmaps(true);
 					BindTexture(5, mtex, sampler);
+				}
+				else
+				{
+					tex->PicAnim.sf |= PICANM_NOFULLBRIGHT_BIT;
 				}
 			}
 			else if (TextureType == TT_TRUECOLOR)
@@ -269,8 +280,16 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				if (lookuppal >= 0)
 				{
 					auto htex = LoadTexture(tex, TT_BRIGHTMAP, lookuppal);
-					// UseBrightmapping(true);
-					BindTexture(5, mtex, sampler);
+					if (htex == nullptr)
+					{
+						// Flag the texture as not being brightmapped for the given palette
+						tex->NoBrightmapFlag.Set(usepalswap);
+					}
+					else
+					{
+						UseBrightmaps(true);
+						BindTexture(5, mtex, sampler);
+					}
 				}
 			}
 		}

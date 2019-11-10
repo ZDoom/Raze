@@ -258,6 +258,7 @@ int GameMain()
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
+	G_SaveConfig();
 #ifndef NETCODE_DISABLE
 	if (gHaveNetworking) enet_deinitialize();
 #endif

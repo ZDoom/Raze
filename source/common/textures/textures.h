@@ -259,6 +259,7 @@ public:
 	
 	int alphaThreshold = 128;
 	picanm_t PicAnim = {};
+	FixedBitArray<256> NoBrightmapFlag{ 0 };
 
 protected:
 	

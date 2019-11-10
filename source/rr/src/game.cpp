@@ -7066,7 +7066,6 @@ static void G_Cleanup(void)
 
 void G_Shutdown(void)
 {
-	G_SaveConfig();
 	S_SoundShutdown();
     S_MusicShutdown();
     CONTROL_Shutdown();

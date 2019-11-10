@@ -27,6 +27,7 @@ uniform sampler2D s_palette;
 
 uniform sampler2D s_detail;
 uniform sampler2D s_glow;
+uniform sampler2D s_brightmap;
 
 uniform float u_shade;
 uniform float u_numShades;
@@ -188,19 +189,29 @@ void main()
 	   		palettedColor.a = c_one-floor(color.r);
 	   		color = palettedColor;
 			color.rgb *= detailColor.rgb;	// with all this palettizing, this can only be applied afterward, even though it is wrong to do it this way.
+			if (fullbright == 0.0) color.rgb *= v_color.rgb; // Well, this is dead wrong but unavoidable. For colored fog it applies the light to the fog as well...
 		}
 		else
 		{
 			color.rgb *= detailColor.rgb;
-			if ((u_flags & RF_FogDisabled) == 0)
+			
+			vec3 lightcolor = v_color.rgb;
+			// The lighting model here does not really allow more than a simple on/off brightmap because anything more complex inteferes with the shade ramp... :(
+			if ((u_flags & RF_Brightmapping) != 0)
 			{
+				vec4 brightcolor = texture2D(s_brightmap, v_texCoord.xy);
+				color.rgb *= clamp(brightcolor.rgb + v_color.rgb, 0.0, 1.0);
+			}
+			else if ((u_flags & RF_FogDisabled) == 0)
+			{
+				color.rgb *= lightcolor;
 				shade = clamp(shade * u_shadeDiv, 0.0, 1.0);	// u_shadeDiv is really 1/shadeDiv.
 				// Apply the shade as a linear depth fade ramp.
 				color.rgb = mix(color.rgb, u_fogColor.rgb, shade);
 			}
 		}
 		if (color.a < u_alphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
-		if (fullbright == 0.0) color.rgb *= v_color.rgb;
+		
 		color.a *= v_color.a;
 	}
 	else

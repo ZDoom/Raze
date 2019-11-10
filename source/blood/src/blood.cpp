@@ -171,7 +171,6 @@ void ShutDown(void)
 {
     if (!in3dmode())
         return;
-	G_SaveConfig();
 	netDeinitialize();
     sndTerm();
     sfxTerm();

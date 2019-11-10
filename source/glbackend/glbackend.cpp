@@ -505,6 +505,8 @@ void GLInstance::DrawImGui(ImDrawData* data)
 
 void PolymostRenderState::Apply(PolymostShader* shader)
 {
+	// Disable brightmaps if non-black fog is used.
+	if (!(Flags & RF_FogDisabled) && !FogColor.isBlack()) Flags &= ~RF_Brightmapping;
 	shader->Flags.Set(Flags);
 	shader->Shade.Set(Shade);
 	shader->NumShades.Set(NumShades);

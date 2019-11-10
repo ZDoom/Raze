@@ -1464,6 +1464,12 @@ class FixedBitArray
 
 public:
 
+	FixedBitArray() = default;
+	FixedBitArray(bool set)
+	{
+		memset(bytes, set ? -1 : 0, sizeof(bytes));
+	}
+
 	bool operator[](size_t index) const
 	{
 		return !!(bytes[index >> 3] & (1 << (index & 7)));
