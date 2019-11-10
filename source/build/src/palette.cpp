@@ -698,6 +698,7 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
     palookupfog[palnum].r = r;
     palookupfog[palnum].g = g;
     palookupfog[palnum].b = b;
+	palookupfog[palnum].f = 1;
 #endif
 }
 

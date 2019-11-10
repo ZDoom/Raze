@@ -116,6 +116,7 @@ void scrLoadPLUs(void)
     palookupfog[1].r = 255;
     palookupfog[1].g = 255;
     palookupfog[1].b = 255;
+	palookupfog[1].f = 1;
 #endif
 }
 

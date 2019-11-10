@@ -17,6 +17,7 @@ class SurfaceShader;
 class FTexture;
 class GLInstance;
 class F2DDrawer;
+struct palette_t;
 
 struct PaletteData
 {
@@ -66,7 +67,7 @@ class PaletteManager
 
 	//OpenGLRenderer::GLDataBuffer* palswapBuffer = nullptr;
 
-	unsigned FindPalswap(const uint8_t* paldata);
+	unsigned FindPalswap(const uint8_t* paldata, palette_t& fadecolor);
 
 public:
 	PaletteManager(GLInstance *inst_) : inst(inst_)
@@ -75,7 +76,7 @@ public:
 	void DeleteAll();
 	void DeleteAllTextures();
 	void SetPalette(int index, const uint8_t *data);
-	void SetPalswapData(int index, const uint8_t* data, int numshades);
+	void SetPalswapData(int index, const uint8_t* data, int numshades, palette_t &fadecolor);
 
 	void BindPalette(int index);
 	void BindPalswap(int index);
@@ -177,6 +178,7 @@ enum ETexType
 };
 
 struct ImDrawData;
+struct palette_t;
 
 class GLInstance
 {
@@ -295,9 +297,9 @@ public:
 		palmanager.SetPalette(index, data);
 	}
 
-	void SetPalswapData(int index, const uint8_t* data, int numshades)
+	void SetPalswapData(int index, const uint8_t* data, int numshades, palette_t& fadecolor)
 	{
-		palmanager.SetPalswapData(index, data, numshades);
+		palmanager.SetPalswapData(index, data, numshades, fadecolor);
 	}
 
 	void SetPalswap(int index);

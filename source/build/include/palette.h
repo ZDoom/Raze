@@ -40,9 +40,10 @@ inline void SetPaletteIndexFullbright(int col)
 	PaletteIndexFullbrights[col >> 5] |= (1u << (col & 31));
 }
 
-typedef struct {
+struct palette_t 
+{
     uint8_t r, g, b, f;
-} palette_t;
+};
 typedef struct {
     uint8_t r, g, b;
 } rgb24_t;
