@@ -40,6 +40,7 @@
 #include "filereadermusicinterface.h"
 #include "zmusic/zmusic.h"
 #include "resourcefile.h"
+#include "../platform/win32/i_findfile.h"	// This is a temporary direct path. Needs to be fixed when stuff gets cleaned up.
 
 //==========================================================================
 //

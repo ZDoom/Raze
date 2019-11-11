@@ -329,7 +329,7 @@ static int S_PlayMusic(const char* fn, bool looping = true)
 		return 0;
 
 	Mus_Play(fn, looping);
-
+	return 1;
 }
 
 void S_StopMusic(void)

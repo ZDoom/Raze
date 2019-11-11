@@ -64,7 +64,7 @@ void S_SetStreamVolume(float);
 EXTERN_CVAR (Int, snd_samplerate)
 EXTERN_CVAR (Int, snd_mididevice)
 
-int		nomusic = 0;
+float relative_volume = 1.f, saved_relative_volume = 1.f;
 
 #ifdef _WIN32
 

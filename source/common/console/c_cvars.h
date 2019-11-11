@@ -174,6 +174,7 @@ protected:
 	FString SafeValue;
 	FString Description;
 	uint32_t Flags;
+	bool inCallback = false;
 
 private:
 	FBaseCVar (const FBaseCVar &var) = delete;
