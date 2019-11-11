@@ -204,8 +204,8 @@ void S_MenuSound(void)
         S_PlaySound(s);
 }
 
-#if 0
-static int S_PlayMusic(const char *fn)
+#if 0 // In case you desperately want the old system back... ;)
+static int S_PlayMusic(const char *, const char *fn, int loop)
 {
     if (!MusicEnabled())
         return 0;
@@ -323,13 +323,9 @@ void S_PauseMusic(bool paused)
 }
 
 #else
-static int S_PlayMusic(const char* fn, bool looping = true)
+static int S_PlayMusic(const char *mapname, const char* fn, bool looping = true)
 {
-	if (!MusicEnabled())
-		return 0;
-
-	Mus_Play(fn, looping);
-	return 1;
+	return Mus_Play(mapname, fn, looping);
 }
 
 void S_StopMusic(void)
@@ -362,15 +358,10 @@ bool S_TryPlayLevelMusic(unsigned int m)
     if (retval < 0)
         return false;
 
-    char const * musicfn = g_mapInfo[m].musicfn;
-
-    if (musicfn != NULL)
-    {
-        if (!S_PlayMusic(musicfn))
-        {
-            S_SetMusicIndex(m);
-            return false;
-        }
+	if (!S_PlayMusic(g_mapInfo[m].filename, g_mapInfo[m].musicfn))
+	{
+		S_SetMusicIndex(m);
+		return false;
     }
 
     return true;
@@ -390,7 +381,7 @@ int S_TryPlaySpecialMusic(unsigned int m)
     char const * musicfn = g_mapInfo[m].musicfn;
     if (musicfn != NULL)
     {
-        if (!S_PlayMusic(musicfn))
+        if (!S_PlayMusic(nullptr, musicfn))
         {
             S_SetMusicIndex(m);
             return 0;

@@ -44,7 +44,7 @@ struct SFX
 };
 
 int sndGetRate(int format);
-int sndPlaySong(const char *songName, bool bLoop);
+int sndPlaySong(const char *mapname, const char *songName, bool bLoop);
 bool sndIsSongPlaying(void);
 void sndFadeSong(int nTime);
 void sndSetMusicVolume(int nVolume);

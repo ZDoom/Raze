@@ -73,6 +73,7 @@ MusPlayingInfo mus_playing;
 MusicAliasMap MusicAliases;
 MidiDeviceMap MidiDevices;
 MusicVolumeMap MusicVolumes;
+MusicAliasMap LevelMusicAliases;
 bool MusicPaused;
 //==========================================================================
 //
@@ -553,9 +554,36 @@ CCMD (stopmus)
 	mus_playing.LastSong = "";	// forget the last played song so that it won't get restarted if some volume changes occur
 }
 
-void Mus_Play(const char *fn, bool loop)
+static FString lastMusicLevel, lastMusic;
+int Mus_Play(const char *mapname, const char *fn, bool loop)
 {
+	// Store the requested names for resuming.
+	lastMusicLevel = mapname;
+	lastMusic = fn;
+	
+	if (!MusicEnabled())
+	{
+		return 0;
+	}
+	// A restart was requested. Ignore the music name being passed and just try tp restart what got here last.
+	if (*mapname == '*')
+	{
+		mapname = lastMusicLevel.GetChars();
+		fn = lastMusic.GetChars();
+	}
+	// Allow per level music substitution.
+	// Unlike some other engines like ZDoom or even Blood which use definition files, the music names in Duke Nukem are being defined in a CON script, making direct replacement a lot harder.
+	// For most cases using $musicalias would be sufficient, but that method only works if a level actually has some music defined at all.
+	// This way it can be done with an add-on definition lump even in cases like Redneck Rampage where no music definitions exist or where music gets reused for multiple levels but replacement is wanted individually.
+	if (mapname && *mapname)
+	{
+		if (*mapname == '/') mapname++;
+		FName *check = LevelMusicAliases.CheckKey(FName(mapname, true));
+		if (check) fn = check->GetChars();
+	}
+
 	S_ChangeMusic(fn, 0, loop, true);
+	return mus_playing.handle != nullptr;
 }
 
 void Mus_Stop()

@@ -82,7 +82,7 @@ int nSongSize;
 bool bWaveMusic;
 int nWaveMusicHandle;
 
-int sndPlaySong(const char *songName, bool bLoop)
+int sndPlaySong(const char *, const char* songName, bool bLoop)
 {
     if (!MusicEnabled())
         return 0;
@@ -225,13 +225,9 @@ void sndStopSong(void)
     nSongSize = 0;
 }
 #else
-int sndPlaySong(const char* songName, bool bLoop)
+int sndPlaySong(const char *mapname, const char* songName, bool bLoop)
 {
-	if (!MusicEnabled())
-		return 0;
-
-	Mus_Play(songName, bLoop);
-	return 0;
+	return Mus_Play(mapname, songName, bLoop);
 }
 
 bool sndIsSongPlaying(void)

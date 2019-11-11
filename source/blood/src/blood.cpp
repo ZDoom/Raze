@@ -2099,11 +2099,16 @@ int sndTryPlaySpecialMusic(int nMusic)
 {
     int nEpisode = nMusic/kMaxLevels;
     int nLevel = nMusic%kMaxLevels;
-    if (!sndPlaySong(gEpisodeInfo[nEpisode].at28[nLevel].atd0, true))
+    if (sndPlaySong(gEpisodeInfo[nEpisode].at28[nLevel].at0, gEpisodeInfo[nEpisode].at28[nLevel].atd0, true))
     {
         strncpy(gGameOptions.zLevelSong, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
         return 0;
     }
+	else
+	{
+		// Unable to stat the music.
+		*gGameOptions.zLevelSong = 0;
+	}
     return 1;
 }
 

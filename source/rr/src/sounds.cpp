@@ -166,8 +166,8 @@ void S_MenuSound(void)
         S_PlaySound(s);
 }
 
-#if 0
-static int S_PlayMusic(const char *fn, int loop)
+#if 0 // In case you desperately want the old system back... ;)
+static int S_PlayMusic(const char *, const char *fn, int loop)
 {
     if (!MusicEnabled())
         return 0;
@@ -288,13 +288,9 @@ void S_PauseMusic(bool paused)
 
 
 #else
-static int S_PlayMusic(const char* fn, bool looping)
+static int S_PlayMusic(const char *mapname, const char* fn, bool looping = true)
 {
-	if (!MusicEnabled())
-		return 0;
-
-	Mus_Play(fn, looping);
-	return 1;
+	return Mus_Play(mapname, fn, looping);
 }
 
 void S_StopMusic(void)
@@ -320,17 +316,11 @@ static void S_SetMusicIndex(unsigned int m)
 
 bool S_TryPlayLevelMusic(unsigned int m)
 {
-    if (RR)
-        return 1;
-    char const * musicfn = g_mapInfo[m].musicfn;
-
-    if (musicfn != NULL)
-    {
-        if (!S_PlayMusic(musicfn, 1))
-        {
-            S_SetMusicIndex(m);
-            return false;
-        }
+	// For RR only explicitly invalidate the music name, but still allow the music code to run its own music substitution logic based on map names.
+	if (!S_PlayMusic(g_mapInfo[m].filename,RR? nullptr : g_mapInfo[m].musicfn))
+	{
+		S_SetMusicIndex(m);
+		return false;
     }
 
     return true;
@@ -352,7 +342,7 @@ int S_TryPlaySpecialMusic(unsigned int m)
     char const * musicfn = g_mapInfo[m].musicfn;
     if (musicfn != NULL)
     {
-        if (!S_PlayMusic(musicfn, 1))
+        if (!S_PlayMusic(nullptr, musicfn, 1))
         {
             S_SetMusicIndex(m);
             return 0;

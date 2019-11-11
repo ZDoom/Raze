@@ -1793,7 +1793,7 @@ void UpdateMusicToggle(CGameMenuItemZBool *pItem)
     else
     {
         if (gGameStarted || gDemo.at1)
-            sndPlaySong(gGameOptions.zLevelSong, true);
+            sndPlaySong("*", gGameOptions.zLevelSong, true);
     }
 }
 
@@ -1847,7 +1847,7 @@ void SetSound(CGameMenuItemChain *pItem)
     sfxInit();
 
     if (mus_enabled && (gGameStarted || gDemo.at1))
-        sndPlaySong(gGameOptions.zLevelSong, true);
+        sndPlaySong("*", gGameOptions.zLevelSong, true);
 }
 
 void PreDrawSound(CGameMenuItem *pItem)

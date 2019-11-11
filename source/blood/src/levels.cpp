@@ -403,9 +403,10 @@ bool levelTryPlayMusic(int nEpisode, int nLevel, bool bSetLevelSong)
         snprintf(buffer, BMAX_PATH, "blood%02i.ogg", gEpisodeInfo[nEpisode].at28[nLevel].ate0);
     else
         strncpy(buffer, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
-    bool bReturn = !!sndPlaySong(buffer, true);
-    if (!bReturn || bSetLevelSong)
+    bool bReturn = !!sndPlaySong(gEpisodeInfo[nEpisode].at28[nLevel].atd0, buffer, true);
+    if (bReturn || bSetLevelSong)
         strncpy(gGameOptions.zLevelSong, buffer, BMAX_PATH);
+	else *gGameOptions.zLevelSong = 0;
     return bReturn;
 }
 

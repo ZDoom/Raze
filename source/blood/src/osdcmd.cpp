@@ -368,7 +368,7 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
     sfxInit();
 
     if (MusicEnabled() && (gGameStarted || gDemo.at1))
-        sndPlaySong(gGameOptions.zLevelSong, true);
+        sndPlaySong(nullptr, "*", true);
 
     return OSDCMD_OK;
 }
