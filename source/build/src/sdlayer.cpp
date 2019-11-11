@@ -1162,7 +1162,6 @@ static void destroy_window_resources()
 #endif
 }
 
-extern int globalShadeDiv;
 void sdlayer_setvideomode_opengl(int y)
 {
     glsurface_destroy();
@@ -1171,8 +1170,6 @@ void sdlayer_setvideomode_opengl(int y)
 	GLInterface.Deinit();
 	GLInterface.Init(y);
 	GLInterface.InitGLState(4, glmultisample);
-	// I have no idea how to get this info from the lookup tables. Fortunately it is consistent per game.
-	GLInterface.SetShadeDiv(globalShadeDiv);
 
 	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
 

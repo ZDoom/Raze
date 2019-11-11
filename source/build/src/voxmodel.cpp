@@ -1128,6 +1128,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
         m->texid[globalpal] = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, globalpal);
 
 	GLInterface.BindTexture(0, m->texid[globalpal], -1);
+	GLInterface.UseBrightmaps(false);
+	GLInterface.UseGlowMapping(false);
+	GLInterface.UseDetailMapping(false);
 #endif
 
 	auto data = GLInterface.AllocVertices(m->qcnt * 4);

@@ -288,7 +288,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 					else
 					{
 						UseBrightmaps(true);
-						BindTexture(5, mtex, sampler);
+						BindTexture(5, htex, sampler);
 					}
 				}
 			}

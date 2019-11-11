@@ -196,13 +196,17 @@ void main()
 			color.rgb *= detailColor.rgb;
 			
 			vec3 lightcolor = v_color.rgb;
+			bool shadeIt = ((u_flags & RF_FogDisabled) == 0);
 			// The lighting model here does not really allow more than a simple on/off brightmap because anything more complex inteferes with the shade ramp... :(
 			if ((u_flags & RF_Brightmapping) != 0)
 			{
 				vec4 brightcolor = texture2D(s_brightmap, v_texCoord.xy);
-				color.rgb *= clamp(brightcolor.rgb + v_color.rgb, 0.0, 1.0);
+				if (grayscale(brightcolor) > 0.5)
+				{
+					shadeIt = false;
+				}
 			}
-			else if ((u_flags & RF_FogDisabled) == 0)
+			if (shadeIt)
 			{
 				color.rgb *= lightcolor;
 				shade = clamp(shade * u_shadeDiv, 0.0, 1.0);	// u_shadeDiv is really 1/shadeDiv.
