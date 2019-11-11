@@ -39,7 +39,7 @@ static bool FillStream(void* buff, int len)
  
 static playbackstatus MV_GetNextZMusicBlock(VoiceNode *voice)
 {
-	if (!FillStream(readbuffer, 32768))
+	if (!FillStream(readbuffer, 65536))
 		return NoMoreData;
 	
 	for (int i = 0; i <16384; i++)
@@ -48,7 +48,7 @@ static playbackstatus MV_GetNextZMusicBlock(VoiceNode *voice)
 	}
 
     voice->sound        = (const char*)buffer[whichbuffer];
-    voice->length       = 8192 << 16;
+    voice->length       = 16384 << 16;
     voice->position     = 0;
     voice->BlockLength  = 0;
 	whichbuffer ^= 1;
@@ -70,6 +70,8 @@ void S_CreateStream()
 		return;// MV_SetErrorCode(MV_NoVoices);
     }
 
+	auto si = ZMusic_GetStreamInfo(mus_playing.handle);
+
     voice->length      = 0;
     voice->sound       = 0;
 
@@ -85,8 +87,8 @@ void S_CreateStream()
     voice->callbackval = 0;
 
     voice->bits        = 16;
-    voice->channels    = 2;
-    voice->SamplingRate = MV_MixRate;
+    voice->channels    = si.mNumChannels;
+    voice->SamplingRate = si.mSampleRate;
 
     voice->Paused      = FALSE;
 
