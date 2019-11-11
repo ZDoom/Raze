@@ -170,16 +170,8 @@ static void MV_CleanupVoice(VoiceNode *voice)
 
     switch (voice->wavetype)
     {
-#ifdef HAVE_VORBIS
         case FMT_VORBIS: MV_ReleaseVorbisVoice(voice); break;
-#endif
-#ifdef HAVE_FLAC
-        case FMT_FLAC: MV_ReleaseFLACVoice(voice); break;
-#endif
-        case FMT_XA: MV_ReleaseXAVoice(voice); break;
-#ifdef HAVE_XMP
-        case FMT_XMP: MV_ReleaseXMPVoice(voice); break;
-#endif
+        case FMT_ZMUSIC: MV_ReleaseZMusicVoice(voice); break;
         default: break;
     }
 
@@ -566,62 +558,6 @@ int MV_PauseVoice(int handle, int pause)
         return MV_Error;
 
     voice->Paused = pause;
-    MV_EndService();
-
-    return MV_Ok;
-}
-
-int MV_GetPosition(int handle, int *position)
-{
-    VoiceNode *voice = MV_BeginService(handle);
-
-    if (voice == nullptr)
-        return MV_Error;
-
-    switch (voice->wavetype)
-    {
-#ifdef HAVE_VORBIS
-        case FMT_VORBIS: *position = MV_GetVorbisPosition(voice); break;
-#endif
-#ifdef HAVE_FLAC
-        case FMT_FLAC: *position = MV_GetFLACPosition(voice); break;
-#endif
-        case FMT_XA: *position = MV_GetXAPosition(voice);
-        default:
-            break;
-#ifdef HAVE_XMP
-        case FMT_XMP: *position = MV_GetXMPPosition(voice); break;
-#endif
-    }
-
-    MV_EndService();
-
-    return MV_Ok;
-}
-
-int MV_SetPosition(int handle, int position)
-{
-    VoiceNode *voice = MV_BeginService(handle);
-
-    if (voice == nullptr)
-        return MV_Error;
-
-    switch (voice->wavetype)
-    {
-#ifdef HAVE_VORBIS
-        case FMT_VORBIS: MV_SetVorbisPosition(voice, position); break;
-#endif
-#ifdef HAVE_FLAC
-        case FMT_FLAC: MV_SetFLACPosition(voice, position); break;
-#endif
-        case FMT_XA: MV_SetXAPosition(voice, position);
-        default:
-            break;
-#ifdef HAVE_XMP
-        case FMT_XMP: MV_SetXMPPosition(voice, position); break;
-#endif
-    }
-
     MV_EndService();
 
     return MV_Ok;

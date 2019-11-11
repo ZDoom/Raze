@@ -650,35 +650,6 @@ set( FASTMATH_SOURCES
 	libsmackerdec/src/LogError.cpp
 	libsmackerdec/src/SmackerDecoder.cpp
 
-	# This will go away once GZDoom's music backend has been plugged in.
-	libxmp-lite/src/common.c
-	libxmp-lite/src/control.c
-	libxmp-lite/src/dataio.c
-	libxmp-lite/src/effects.c
-	libxmp-lite/src/filter.c
-	libxmp-lite/src/format.c
-	libxmp-lite/src/hio.c
-	libxmp-lite/src/itsex.c
-	libxmp-lite/src/it_load.c
-	libxmp-lite/src/lfo.c
-	libxmp-lite/src/load.c
-	libxmp-lite/src/load_helpers.c
-	libxmp-lite/src/memio.c
-	libxmp-lite/src/mixer.c
-	libxmp-lite/src/mix_all.c
-	libxmp-lite/src/mod_load.c
-	libxmp-lite/src/mtm_load.c
-	libxmp-lite/src/period.c
-	libxmp-lite/src/player.c
-	libxmp-lite/src/read_event.c
-	libxmp-lite/src/s3m_load.c
-	libxmp-lite/src/sample.c
-	libxmp-lite/src/scan.c
-	libxmp-lite/src/smix.c
-	libxmp-lite/src/virtual.c
-	libxmp-lite/src/win32.c
-	libxmp-lite/src/xm_load.c
-
 	# The rest is only here because it is C, not C++
 	glad/src/glad.c
 	
@@ -694,7 +665,6 @@ set (PCH_SOURCES
 	audiolib/src/driver_nosound.cpp
 	audiolib/src/driver_sdl.cpp
 	audiolib/src/driver_winmm.cpp
-	audiolib/src/flac.cpp
 	audiolib/src/formats.cpp
 	audiolib/src/fx_man.cpp
 	audiolib/src/gmtimbre.cpp
@@ -706,8 +676,6 @@ set (PCH_SOURCES
 	audiolib/src/opl3.cpp
 	audiolib/src/pitch.cpp
 	audiolib/src/vorbis.cpp
-	audiolib/src/xa.cpp
-	audiolib/src/xmp.cpp
 
 	glbackend/gl_hwtexture.cpp
 	glbackend/gl_samplers.cpp
@@ -844,6 +812,7 @@ set (PCH_SOURCES
 	common/music/i_soundfont.cpp
 	common/music/music_config.cpp
 	common/music/music_midi_base.cpp
+	common/music/musicstream.cpp
 
 
 )

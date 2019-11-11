@@ -360,6 +360,19 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 			Files.Push(lastfn);
 		}
 	}
+	const char* key;
+	const char* value;
+	if (GameConfig->SetSection("global.Autoload"))
+	{
+		while (GameConfig->NextInSection(key, value))
+		{
+			if (stricmp(key, "Path") == 0)
+			{
+				FString nice = NicePath(value);
+				D_AddFile(Files, nice);
+			}
+		}
+	}
 
 	TArray<FString> todelete;
 	fileSystem.InitMultipleFiles(Files, todelete);

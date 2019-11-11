@@ -40,10 +40,11 @@ typedef enum : char
     FMT_RAW,
     FMT_VOC,
     FMT_WAV,
+	FMT_SNDFILE,
+	FMT_ZMUSIC,
+	// soon to be obsolete.
     FMT_VORBIS,
     FMT_FLAC,
-    FMT_XA,
-    FMT_XMP,
     FMT_MAX
 } wavefmt_t;
 
@@ -109,15 +110,10 @@ decltype(MV_PlayVOC3D) MV_PlayVorbis3D;
 decltype(MV_PlayVOC)   MV_PlayVorbis;
 decltype(MV_PlayVOC3D) MV_PlayFLAC3D;
 decltype(MV_PlayVOC)   MV_PlayFLAC;
-decltype(MV_PlayVOC3D) MV_PlayXA3D;
-decltype(MV_PlayVOC)   MV_PlayXA;
-decltype(MV_PlayVOC3D) MV_PlayXMP3D;
-decltype(MV_PlayVOC)   MV_PlayXMP;
 
 int MV_PlayRAW(char *ptr, uint32_t length, int rate, char *loopstart, char *loopend, int pitchoffset, int vol,
                int left, int right, int priority, float volume, intptr_t callbackval);
 
-int  MV_IdentifyXMP(char const *ptr, uint32_t length);
 int  MV_GetPosition(int handle, int *position);
 int  MV_SetPosition(int handle, int position);
 void MV_SetVolume(int volume);

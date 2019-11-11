@@ -75,23 +75,6 @@ MusicVolumeMap MusicVolumes;
 bool MusicPaused;
 
 
-void S_CreateStream()
-{
-}
-
-void S_PauseStream(bool pause)
-{
-}
-
-void S_StopStream()
-{
-	
-}
-
-void S_SetStreamVolume(float vol)
-{
-	
-}
 //==========================================================================
 //
 // starts playing this song

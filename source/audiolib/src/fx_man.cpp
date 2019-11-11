@@ -135,20 +135,12 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
         case 'R' + ('I' << 8) + ('F' << 16) + ('F' << 24):  // RIFF
             switch (B_LITTLE32(*(int const *)(ptr + 8)))
             {
-                case 'C' + ('D' << 8) + ('X' << 16) + ('A' << 24):  // CDXA
-                    fmt = FMT_XA;
-                    break;
                 case 'W' + ('A' << 8) + ('V' << 16) + ('E' << 24):  // WAVE
                     fmt = FMT_WAV;
                     break;
             }
             break;
-        case 'f' + ('L' << 8) + ('a' << 16) + ('C' << 24):  // fLaC
-            fmt = FMT_FLAC;
-            break;
         default:
-            if (MV_IdentifyXMP(ptr, length))
-                fmt = FMT_XMP;
             break;
     }
 
@@ -159,9 +151,9 @@ int FX_Play(char *ptr, uint32_t ptrlength, int loopstart, int loopend, int pitch
                           int vol, int left, int right, int priority, float volume, intptr_t callbackval)
 {
     static constexpr decltype(MV_PlayVOC) *func[] =
-    { nullptr, nullptr, MV_PlayVOC, MV_PlayWAV, MV_PlayVorbis, MV_PlayFLAC, MV_PlayXA, MV_PlayXMP };
+    { nullptr, nullptr, MV_PlayVOC, MV_PlayWAV, nullptr, nullptr, MV_PlayVorbis, nullptr, nullptr, nullptr };
 
-    EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
+    //EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
 
     wavefmt_t const fmt = FX_DetectFormat(ptr, ptrlength);
 
@@ -181,9 +173,9 @@ int FX_Play3D(char *ptr, uint32_t ptrlength, int loophow, int pitchoffset, int a
                       int priority, float volume, intptr_t callbackval)
 {
     static constexpr decltype(MV_PlayVOC3D) *func[] =
-    { nullptr, nullptr, MV_PlayVOC3D, MV_PlayWAV3D, MV_PlayVorbis3D, MV_PlayFLAC3D, MV_PlayXA3D, MV_PlayXMP3D };
+    { nullptr, nullptr, MV_PlayVOC3D, MV_PlayWAV3D, nullptr, nullptr, MV_PlayVorbis3D, nullptr, nullptr, nullptr };
 
-    EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
+    //EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
 
     wavefmt_t const fmt = FX_DetectFormat(ptr, ptrlength);
 

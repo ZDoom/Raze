@@ -32,6 +32,11 @@
 #include "tarray.h"
 #include "name.h"
 
+void S_CreateStream();
+void S_PauseStream(bool pause);
+void S_StopStream();
+void S_SetStreamVolume(float vol);
+
 
 //
 void S_InitMusic ();

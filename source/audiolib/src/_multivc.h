@@ -261,6 +261,7 @@ int  MV_GetXMPPosition(VoiceNode *voice);
 void MV_SetXMPPosition(VoiceNode *voice, int position);
 
 void MV_ReleaseVorbisVoice(VoiceNode *voice);
+void MV_ReleaseZMusicVoice(VoiceNode* voice);
 void MV_ReleaseFLACVoice(VoiceNode *voice);
 void MV_ReleaseXAVoice(VoiceNode *voice);
 void MV_ReleaseXMPVoice(VoiceNode *voice);

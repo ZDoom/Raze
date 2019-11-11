@@ -97,8 +97,6 @@ static FORCE_INLINE int FX_GetReverbDelay(void) { return MV_GetReverbDelay(); }
 static FORCE_INLINE void FX_SetReverbDelay(int delay) { MV_SetReverbDelay(delay); }
 static FORCE_INLINE int FX_VoiceAvailable(int priority) { return MV_VoiceAvailable(priority); }
 static FORCE_INLINE int FX_PauseVoice(int handle, int pause) { return FX_CheckMVErr(MV_PauseVoice(handle, pause)); }
-static FORCE_INLINE int FX_GetPosition(int handle, int *position) { return FX_CheckMVErr(MV_GetPosition(handle, position)); }
-static FORCE_INLINE int FX_SetPosition(int handle, int position) { return FX_CheckMVErr(MV_SetPosition(handle, position)); }
 static FORCE_INLINE int FX_EndLooping(int handle) { return FX_CheckMVErr(MV_EndLooping(handle)); }
 static FORCE_INLINE int FX_SetPan(int handle, int vol, int left, int right)
 {
