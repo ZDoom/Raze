@@ -380,7 +380,7 @@ void S_PlayLevelMusicOrNothing(unsigned int m)
 {
     if (S_TryPlayLevelMusic(m))
     {
-        S_StopMusic();
+        //S_StopMusic();
         S_SetMusicIndex(m);
     }
 }
@@ -404,7 +404,7 @@ void S_PlaySpecialMusicOrNothing(unsigned int m)
 {
     if (S_TryPlaySpecialMusic(m))
     {
-        S_StopMusic();
+        //S_StopMusic();
         S_SetMusicIndex(m);
     }
 }

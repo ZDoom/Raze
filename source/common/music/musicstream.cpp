@@ -48,7 +48,7 @@ static playbackstatus MV_GetNextZMusicBlock(VoiceNode *voice)
 	}
 
     voice->sound        = (const char*)buffer[whichbuffer];
-    voice->length       = 8192;
+    voice->length       = 8192 << 16;
     voice->position     = 0;
     voice->BlockLength  = 0;
 	whichbuffer ^= 1;

@@ -39,7 +39,6 @@ class FileReader;
 //
 //	MUSIC I/O
 //
-void I_InitMusic ();
 
 // Volume.
 void I_SetRelativeVolume(float);

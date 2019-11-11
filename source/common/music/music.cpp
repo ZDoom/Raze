@@ -208,6 +208,7 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		mus_playing.LastSong = "";
 		return true;
 	}
+	if (*musicname == '/') musicname++;
 
 	FString DEH_Music;
 

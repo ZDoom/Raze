@@ -51,6 +51,7 @@
 #include "i_soundfont.h"
 #include "s_music.h"
 #include "printf.h"
+#include "timer.h"
 #include "zmusic/zmusic.h"
 #include "streamsources/streamsource.h"
 #include "filereadermusicinterface.h"
@@ -255,6 +256,7 @@ void Mus_Init(void)
 
 	ZMusic_SetCallbacks(&callbacks);
 	SetupGenMidi();
+	timerSetCallback(S_UpdateMusic);
 }
 
 
