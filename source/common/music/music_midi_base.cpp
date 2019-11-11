@@ -33,7 +33,6 @@
 
 #define DEF_MIDIDEV -5
 
-EXTERN_CVAR(Int, snd_mididevice)
 static uint32_t	nummididevices;
 
 #define NUM_DEF_DEVICES 7
@@ -56,7 +55,10 @@ void I_InitMusicWin32 ()
 #include "v_text.h"
 #include "zmusic/zmusic.h"
 #include "s_music.h"
+#include "c_cvars.h"
+#include "printf.h"
 
+EXTERN_CVAR(Int, snd_mididevice)
 
 
 CUSTOM_CVAR (Int, snd_mididevice, DEF_MIDIDEV, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL)

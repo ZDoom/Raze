@@ -21,6 +21,7 @@
 #include "c_console.h"
 #include "c_dispatch.h"
 #include "i_specialpaths.h"
+#include "z_music.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -234,7 +235,7 @@ int GameMain()
 {
 	// Set up the console before anything else so that it can receive text.
 	C_InitConsole(1024, 768, true);
-	FStringf logpath("logfile %sdemolition.log", M_GetDocumentsPath());
+	FStringf logpath("logfile %sdemolition.log", M_GetDocumentsPath().GetChars());
 	C_DoCommand(logpath);
 
 #ifndef NETCODE_DISABLE
@@ -368,7 +369,6 @@ int CONFIG_Init()
 	currentGame.Truncate(currentGame.IndexOf("."));
 	CheckFrontend(g_gameType);
 
-	int index = 0;
 	InitFileSystem(usedgroups);
 
 	CONTROL_ClearAssignments();
@@ -388,6 +388,7 @@ int CONFIG_Init()
 	}
 	V_InitFonts();
 	buttonMap.SetGameAliases();
+	Mus_Init();
 
 
 

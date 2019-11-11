@@ -40,10 +40,11 @@
 #include <zlib.h>
 
 #include "m_argv.h"
-#include "filesystrem.h"
+#include "filesystem.h"
 #include "c_dispatch.h"
 #include "templates.h"
 #include "stats.h"
+#include "cmdlib.h"
 #include "c_cvars.h"
 #include "c_console.h"
 #include "v_text.h"
@@ -58,6 +59,7 @@
 
 
 void I_InitSoundFonts();
+void S_SetStreamVolume(float);
 
 EXTERN_CVAR (Int, snd_samplerate)
 EXTERN_CVAR (Int, snd_mididevice)
@@ -118,12 +120,8 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
 	{
 		// Set general music volume.
 		ChangeMusicSetting(ZMusic::snd_musicvolume, nullptr, self / 255.f);
-		/* todo: Alter the active music stream's volume
-		if (GSnd != nullptr)
-		{
-			GSnd->SetMusicVolume(clamp<float>(self * relative_volume, 0, 1));
-		}
-		 */
+		S_SetStreamVolume(clamp<float>(self * relative_volume, 0, 1));
+
 		// For music not implemented through the digital sound system,
 		// let them know about the change.
 		if (mus_playing.handle != nullptr)
@@ -216,13 +214,13 @@ static void SetupGenMidi()
 {
 	// The OPL renderer should not care about where this comes from.
 	// Note: No I_Error here - this needs to be consistent with the rest of the music code.
-	auto lump = fileSystem.FindFile("demolition/genmidi.txt");
+	auto lump = fileSystem.FindFile("demolition/genmidi.dat");
 	if (lump < 0)
 	{
 		Printf("No GENMIDI lump found. OPL playback not available.");
 		return;
 	}
-	auto data = Wads.OpenLumpReader(lump);
+	auto data = fileSystem.OpenFileReader(lump);
 
 	auto genmidi = data.Read();
 	if (genmidi.Size() < 8 + 175 * 36 || memcmp(genmidi.Data(), "#OPL_II#", 8)) return;
@@ -235,7 +233,7 @@ static void SetupGenMidi()
 //
 //==========================================================================
 
-void I_InitMusic (void)
+void Mus_Init(void)
 {
     I_InitSoundFonts();
 
@@ -333,7 +331,7 @@ static MIDISource *GetMIDISource(const char *fn)
 		return nullptr;
 	}
 
-	auto wlump = fileSystem.OpenFile(lump);
+	auto wlump = fileSystem.OpenFileReader(lump);
 
 	uint32_t id[32 / 4];
 

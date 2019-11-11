@@ -58,18 +58,40 @@
 #include "zstring.h"
 #include "name.h"
 #include "s_music.h"
+#include "i_music.h"
 #include "printf.h"
 #include "files.h"
 #include "filesystem.h"
 #include "cmdlib.h"
 #include "gamecvars.h"
+#include "c_dispatch.h"
+#include "gamecontrol.h"
 #include "filereadermusicinterface.h"
 
 MusPlayingInfo mus_playing;
 MusicAliasMap MusicAliases;
 MidiDeviceMap MidiDevices;
+MusicVolumeMap MusicVolumes;
+bool MusicPaused;
 
 
+void S_CreateStream()
+{
+}
+
+void S_PauseStream(bool pause)
+{
+}
+
+void S_StopStream()
+{
+	
+}
+
+void S_SetStreamVolume(float vol)
+{
+	
+}
 //==========================================================================
 //
 // starts playing this song
@@ -88,7 +110,7 @@ static void S_StartMusicPlaying(MusInfo* song, bool loop, float rel_vol, int sub
 	ZMusic_Start(song, subsong, loop);
 
 	// Notify the sound system of the changed relative volume
-	snd_musicvolume.Callback();
+	mus_volume.Callback();
 }
 
 
@@ -143,46 +165,10 @@ void S_UpdateMusic ()
 		// playlist when the current song finishes.
 		if (!ZMusic_IsPlaying(mus_playing.handle))
 		{
-			if (PlayList.GetNumSongs())
-			{
-				PlayList.Advance();
-				S_ActivatePlayList(false);
-			}
-			else
-			{
-				S_StopMusic(true);
-			}
+			S_StopMusic(true);
 		}
 	}
 }
-
-//==========================================================================
-//
-// S_Start
-//
-// Per level startup code. Kills playing sounds at start of level
-// and starts new music.
-//==========================================================================
-
-void S_StartMusic ()
-{
-	// stop the old music if it has been paused.
-	// This ensures that the new music is started from the beginning
-	// if it's the same as the last one and it has been paused.
-	if (MusicPaused) S_StopMusic(true);
-
-	// start new music for the level
-	MusicPaused = false;
-
-	// Don't start the music if loading a savegame, because the music is stored there.
-	// Don't start the music if revisiting a level in a hub for the same reason.
-	if (!primaryLevel->IsReentering())
-	{
-		primaryLevel->SetMusic();
-	}
-}
-
-
 
 //==========================================================================
 //
@@ -197,11 +183,11 @@ bool S_ChangeCDMusic (int track, unsigned int id, bool looping)
 
 	if (id != 0)
 	{
-		mysnprintf (temp, countof(temp), ",CD,%d,%x", track, id);
+		snprintf (temp, countof(temp), ",CD,%d,%x", track, id);
 	}
 	else
 	{
-		mysnprintf (temp, countof(temp), ",CD,%d", track);
+		snprintf (temp, countof(temp), ",CD,%d", track);
 	}
 	return S_ChangeMusic (temp, 0, looping);
 }
@@ -296,7 +282,6 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 	else
 	{
 		int lumpnum = -1;
-		int length = 0;
 		MusInfo* handle = nullptr;
 		MidiDeviceSetting* devp = MidiDevices.CheckKey(musicname);
 
@@ -311,8 +296,13 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		{
 			if ((lumpnum = fileSystem.FindFile(musicname)) == -1)
 			{
-				Printf("Music \"%s\" not found\n", musicname);
-				return false;
+				// Always look in the 'music' subfolder as well.
+				FStringf aliasMusicname("music/%s", musicname);
+				if ((lumpnum = fileSystem.FindFile(aliasMusicname)) == -1)
+				{
+					Printf("Music \"%s\" not found\n", musicname);
+					return false;
+				}
 			}
 			if (handle == nullptr)
 			{
@@ -373,7 +363,8 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 	{ // play it
 		try
 		{
-			S_StartMusicPlaying(mus_playing.handle, looping, S_GetMusicVolume(musicname), order);
+			auto vol = MusicVolumes.CheckKey(musicname);
+			S_StartMusicPlaying(mus_playing.handle, looping, vol? *vol : 1.f, order);
 			S_CreateStream();
 			mus_playing.baseorder = order;
 		}
@@ -456,7 +447,7 @@ void S_StopMusic (bool force)
 	try
 	{
 		// [RH] Don't stop if a playlist is active.
-		if ((force || PlayList.GetNumSongs() == 0) && !mus_playing.name.IsEmpty())
+		if (!mus_playing.name.IsEmpty())
 		{
 			if (mus_playing.handle != nullptr)
 			{
@@ -483,8 +474,6 @@ void S_StopMusic (bool force)
 	}
 }
 
-}
-
 //==========================================================================
 //
 // CCMD changemus
@@ -493,11 +482,10 @@ void S_StopMusic (bool force)
 
 CCMD (changemus)
 {
-	if (!nomusic)
+	if (MusicEnabled())
 	{
 		if (argv.argc() > 1)
 		{
-			PlayList.Clear();
 			S_ChangeMusic (argv[1], argv.argc() > 2 ? atoi (argv[2]) : 0);
 		}
 		else
@@ -527,19 +515,23 @@ CCMD (changemus)
 
 CCMD (stopmus)
 {
-	PlayList.Clear();
 	S_StopMusic (false);
 	mus_playing.LastSong = "";	// forget the last played song so that it won't get restarted if some volume changes occur
 }
 
+void Mus_Play(const char *fn, bool loop)
 {
+	S_ChangeMusic(fn, 0, loop, true);
 }
 
-void Mus_SetVolume(float vol)
+void Mus_Stop()
 {
+	S_StopMusic(true);
 }
 
 void Mus_SetPaused(bool on)
 {
+	if (on) S_PauseMusic();
+	else S_ResumeMusic();
 }
 

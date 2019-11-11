@@ -313,7 +313,7 @@ FLumpPatchSetReader::FLumpPatchSetReader(const char *filename)
 
 FileReader FLumpPatchSetReader::OpenMainConfigFile()
 {
-	return Wads.ReopenLumpReader(mLumpIndex);
+	return fileSystem.ReopenFileReader(mLumpIndex);
 }
 
 FileReader FLumpPatchSetReader::OpenFile(const char *name)
@@ -323,7 +323,7 @@ FileReader FLumpPatchSetReader::OpenFile(const char *name)
 	path = mBasePath + name;
 	auto index = fileSystem.FindFile(path);
 	if (index < 0) return FileReader();
-	return Wads.ReopenLumpReader(index);
+	return fileSystem.ReopenFileReader(index);
 }
 
 //==========================================================================

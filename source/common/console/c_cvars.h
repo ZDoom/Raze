@@ -64,6 +64,7 @@ enum
 	//CVAR_IGNORE			= 16384,// do not send cvar across the network/inaccesible from ACS (dummy mod cvar)
 	//CVAR_CHEAT			= 32768,// can be set only when sv_cheats is enabled
 	//CVAR_UNSAFECONTEXT	= 65536,// cvar value came from unsafe context
+    CVAR_VIRTUAL		= 0x20000,	//do not invoke the callback recursively so it can 
 	CVAR_FRONTEND_BLOOD = 0x10000000,		// To mark frontend specific CVARs, so that the other ones can disable them.
 	CVAR_FRONTEND_EDUKE = 0x20000000,
 	CVAR_FRONTEND_DUKELIKE = 0x30000000,
@@ -107,7 +108,15 @@ public:
 	FBaseCVar (const char *name, uint32_t flags, void (*callback)(FBaseCVar &), const char *descr);
 	virtual ~FBaseCVar ();
 
-	inline void Callback () { if (m_Callback) m_Callback (*this); }
+	inline void Callback () 
+	{ 
+		if (m_Callback && !inCallback)
+		{
+			inCallback = !!(Flags & CVAR_VIRTUAL);	// Virtual CVARs never invoke the callback recursively, giving it a chance to manipulate the value without side effects.
+			m_Callback(*this);
+			inCallback = false;
+		}
+	}
 
 	inline const char *GetName () const { return VarName.GetChars(); }
 	inline uint32_t GetFlags () const { return Flags; }

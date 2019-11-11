@@ -1,10 +1,12 @@
-#define WIN32_LEAN_AND_MEAN 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>	// Ugh... This needs to go away but since some of the headers pull it in the compilation is creepingly slow without this.
 
 #ifdef min
 #undef min
 #undef max
+#endif
 #endif
 
 #include <stddef.h>

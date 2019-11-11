@@ -30,6 +30,7 @@
 
 #include "zstring.h"
 #include "tarray.h"
+#include "name.h"
 
 
 //
@@ -71,9 +72,11 @@ struct MidiDeviceSetting
 
 typedef TMap<FName, FName> MusicAliasMap;
 typedef TMap<FName, MidiDeviceSetting> MidiDeviceMap;
+typedef TMap<FName, float> MusicVolumeMap;
 
 extern MusicAliasMap MusicAliases;
 extern MidiDeviceMap MidiDevices;
+extern MusicVolumeMap MusicVolumes;
 
 class MusInfo;
 struct MusPlayingInfo
