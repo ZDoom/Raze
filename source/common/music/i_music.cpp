@@ -62,6 +62,7 @@
 
 void I_InitSoundFonts();
 void S_SetStreamVolume(float);
+void S_ParseSndInfo();
 
 EXTERN_CVAR (Int, snd_samplerate)
 EXTERN_CVAR (Int, snd_mididevice)
@@ -241,6 +242,7 @@ void Mus_Init(void)
 {
 	I_InitSound();
     I_InitSoundFonts();
+	S_ParseSndInfo();
 
 	mus_volume.Callback ();
 

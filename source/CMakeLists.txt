@@ -812,7 +812,7 @@ set (PCH_SOURCES
 	common/music/i_soundfont.cpp
 	common/music/music_config.cpp
 	common/music/music_midi_base.cpp
-	common/music/musicstream.cpp
+	common/music/s_advsound.cpp
 	common/music/backend/oalsound.cpp
 	common/music/backend/i_sound.cpp
 
