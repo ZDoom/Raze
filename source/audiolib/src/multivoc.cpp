@@ -171,7 +171,7 @@ static void MV_CleanupVoice(VoiceNode *voice)
     switch (voice->wavetype)
     {
         case FMT_VORBIS: MV_ReleaseVorbisVoice(voice); break;
-        case FMT_ZMUSIC: MV_ReleaseZMusicVoice(voice); break;
+        //case FMT_ZMUSIC: MV_ReleaseZMusicVoice(voice); break;
         default: break;
     }
 

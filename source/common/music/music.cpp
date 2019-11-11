@@ -56,6 +56,7 @@
 #include "zmusic/zmusic.h"
 #include "z_music.h"
 #include "zstring.h"
+#include "backend/i_sound.h"
 #include "name.h"
 #include "s_music.h"
 #include "i_music.h"
@@ -73,6 +74,55 @@ MusicAliasMap MusicAliases;
 MidiDeviceMap MidiDevices;
 MusicVolumeMap MusicVolumes;
 bool MusicPaused;
+//==========================================================================
+//
+// 
+//
+// Create a sound system stream for the currently playing song 
+//==========================================================================
+
+static std::unique_ptr<SoundStream> musicStream;
+
+static bool FillStream(SoundStream* stream, void* buff, int len, void* userdata)
+{
+	bool written = ZMusic_FillStream(mus_playing.handle, buff, len);
+	
+	if (!written)
+	{
+		memset((char*)buff, 0, len);
+		return false;
+	}
+	return true;
+}
+
+
+void S_CreateStream()
+{
+	if (!mus_playing.handle) return;
+	auto fmt = ZMusic_GetStreamInfo(mus_playing.handle);
+	if (fmt.mBufferSize > 0)
+	{
+		int flags = fmt.mNumChannels < 0 ? 0 : SoundStream::Float;
+		if (abs(fmt.mNumChannels) < 2) flags |= SoundStream::Mono;
+
+		musicStream.reset(GSnd->CreateStream(FillStream, fmt.mBufferSize, flags, fmt.mSampleRate, nullptr));
+		if (musicStream) musicStream->Play(true, 1);
+	}
+}
+
+void S_PauseStream(bool paused)
+{
+	if (musicStream) musicStream->SetPaused(paused);
+}
+
+void S_StopStream()
+{
+	if (musicStream)
+	{
+		musicStream->Stop();
+		musicStream.reset();
+	}
+}
 
 
 //==========================================================================

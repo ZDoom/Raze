@@ -52,6 +52,7 @@
 #include "s_music.h"
 #include "printf.h"
 #include "timer.h"
+#include "backend/i_sound.h"
 #include "zmusic/zmusic.h"
 #include "streamsources/streamsource.h"
 #include "filereadermusicinterface.h"
@@ -121,8 +122,10 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
 	{
 		// Set general music volume.
 		ChangeMusicSetting(ZMusic::snd_musicvolume, nullptr, self / 255.f);
-		S_SetStreamVolume(clamp<float>(self * relative_volume, 0, 1));
-
+		if (GSnd != nullptr)
+		{
+			GSnd->SetMusicVolume(clamp<float>(self / 255.f * relative_volume/* * snd_mastervolume*/, 0, 1));
+		}
 		// For music not implemented through the digital sound system,
 		// let them know about the change.
 		if (mus_playing.handle != nullptr)
@@ -236,6 +239,7 @@ static void SetupGenMidi()
 
 void Mus_Init(void)
 {
+	I_InitSound();
     I_InitSoundFonts();
 
 	mus_volume.Callback ();
