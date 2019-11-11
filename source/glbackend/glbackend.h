@@ -320,11 +320,8 @@ public:
 	{
 		renderState.Shade = shade;
 		renderState.NumShades = numshades;
-	}
+		renderState.ShadeDiv = 1.f / (numshades-2);
 
-	void SetShadeDiv(int value)
-	{
-		renderState.ShadeDiv = 1.f / value;	// There's 3 values here: Blood uses 62 with numShades = 64, Ion Fury uses 30 with NumShades = 32, the other games use 26 with NumShades = 32.
 	}
 
 	void SetVisibility(float visibility, float fviewingrange)

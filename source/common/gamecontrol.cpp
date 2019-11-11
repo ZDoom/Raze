@@ -30,7 +30,6 @@ InputState inputState;
 void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
 void InitFileSystem(TArray<GrpEntry>&);
-int globalShadeDiv;
 bool gHaveNetworking;
 
 
@@ -206,27 +205,18 @@ void CheckFrontend(int flags)
 	if (flags & GAMEFLAG_BLOOD)
 	{
 		gi = Blood::CreateInterface();
-		globalShadeDiv = 62;
 	}
 	else if (flags & GAMEFLAG_RR)
 	{
 		gi = Redneck::CreateInterface();
-		globalShadeDiv = 30;
-	}
-	else if (flags & GAMEFLAG_FURY)
-	{
-		gi = Duke::CreateInterface();
-		globalShadeDiv = 26;	// This is different from all other games which need a value two less than the amount of shades.
 	}
 	else if (flags & GAMEFLAG_SW)
 	{
 		gi = ShadowWarrior::CreateInterface();
-		globalShadeDiv = 30;
 	}
 	else
 	{
 		gi = Duke::CreateInterface();
-		globalShadeDiv = 30;
 	}
 }
 
