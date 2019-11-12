@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "menus.h"
 #include "savegame.h"
+#include "statistics.h"
 BEGIN_DUKE_NS
 
 static uint8_t precachehightile[2][(MAXTILES+7)>>3];
@@ -1337,6 +1338,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     ud.secretlevel   = 0;
     ud.skill_voice   = -1;
     ud.volume_number = volumeNum;
+	STAT_StartNewGame(g_volumeNames[volumeNum], skillNum);
 
     g_lastAutoSaveArbitraryID = -1;
     g_lastautosave.reset();
@@ -1853,7 +1855,7 @@ int G_EnterLevel(int gameMode)
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
         }
-
+		STAT_NewLevel(boardfilename);
         G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename);
     }
@@ -1864,6 +1866,7 @@ int G_EnterLevel(int gameMode)
     }
     else
     {
+		STAT_NewLevel(m.filename);
         G_LoadMapHack(levelName, m.filename);
     }
 

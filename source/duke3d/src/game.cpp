@@ -44,7 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameconfigfile.h"
 #include "printf.h"
 #include "m_argv.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
+#include "statistics.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -6014,6 +6015,7 @@ static int G_EndOfLevel(void)
 {
     auto &p = *g_player[myconnectindex].ps;
 
+	STAT_Update(ud.eog);
     P_SetGamePalette(&p, BASEPAL, 0);
     P_UpdateScreenPal(&p);
 

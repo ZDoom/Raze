@@ -397,6 +397,7 @@ static void StoreLevelStats()
 
 void STAT_Update(bool endofgame)
 {
+	if (*StartEpisode == 0) return;
 	const char* fn = "?";
 	// record the current level's stats.
 	StoreLevelStats();
@@ -439,9 +440,16 @@ void STAT_Update(bool endofgame)
 			LevelStatEntry(es, lsection, infostring, LevelData[i].leveltime);
 		}
 		SaveStatistics(statfile, EpisodeStatistics);
+		LevelData.Clear();
+		*StartEpisode = *LevelName = 0;
 	}
 }
 
+void STAT_Cancel()
+{
+	LevelData.Clear();
+	*StartEpisode = *LevelName = 0;
+}
 
 //==========================================================================
 //

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "savegame.h"
 #include "cmdline.h"
+#include "statistics.h"
 
 BEGIN_RR_NS
 
@@ -1899,6 +1900,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     ud.player_skill = skillNum;
     ud.secretlevel = 0;
     ud.from_bonus = 0;
+	STAT_StartNewGame(g_volumeNames[volumeNum], skillNum);
 
     ud.last_level = -1;
     g_lastAutoSaveArbitraryID = -1;
@@ -2398,7 +2400,8 @@ int G_EnterLevel(int gameMode)
             return 1;
         }
 
-        G_LoadMapHack(levelName, boardfilename);
+		STAT_NewLevel(boardfilename);
+		G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename, m_level_number);
     }
     else if (engineLoadBoard(g_mapInfo[mii].filename, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
@@ -2408,7 +2411,8 @@ int G_EnterLevel(int gameMode)
     }
     else
     {
-        G_LoadMapHack(levelName, g_mapInfo[mii].filename);
+		STAT_NewLevel(g_mapInfo[mii].filename);
+		G_LoadMapHack(levelName, g_mapInfo[mii].filename);
     }
 
     if (RR && !RRRA && ud.volume_number == 1 && ud.level_number == 1)
