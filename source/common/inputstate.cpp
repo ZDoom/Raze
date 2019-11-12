@@ -60,7 +60,7 @@ void InputState::AddEvent(const event_t *ev)
 			case KEY_MOUSE5: mouseSetBit(THUMB2_MOUSE, ev->type == EV_KeyDown); break;
 			default: break;
 		}
+		keySetState(ev->data1, ev->type == EV_KeyDown);
+		if (ev->data2) keySetChar(ev->data2);
 	}
-	keySetState(ev->data1, ev->type == EV_KeyDown);
-	if (ev->data2) keySetChar(ev->data2);
 }
