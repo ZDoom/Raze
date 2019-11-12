@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameconfigfile.h"
 #include "printf.h"
 #include "m_argv.h"
-#include "filesystem.h"
+#include "filesystem/filesystem.h"
 #include "statistics.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to

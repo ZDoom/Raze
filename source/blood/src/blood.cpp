@@ -70,6 +70,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameconfigfile.h"
 #include "gamecontrol.h"
 #include "m_argv.h"
+#include "statistics.h"
 
 #ifdef _WIN32
 # include <shellapi.h>
@@ -480,6 +481,7 @@ int16_t startang, startsectnum;
 
 void StartLevel(GAMEOPTIONS *gameOptions)
 {
+	STAT_Update(0);
     EndLevel();
     gStartNewGame = 0;
     ready2send = 0;
@@ -545,6 +547,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         return;
     }
     char levelName[BMAX_PATH];
+	STAT_NewLevel(gameOptions->zLevelName);
     G_LoadMapHack(levelName, gameOptions->zLevelName);
     wsrand(gameOptions->uMapCRC);
     gKillMgr.Clear();
@@ -1469,8 +1472,11 @@ RESTART:
         //	gStartNewGame = 0;
         //	gQuitGame = 1;
         //}
-        if (gStartNewGame)
-            StartLevel(&gGameOptions);
+		if (gStartNewGame)
+		{
+			STAT_StartNewGame(gEpisodeInfo[gGameOptions.nEpisode].at0, gGameOptions.nDifficulty);
+			StartLevel(&gGameOptions);
+		}
     }
     ready2send = 0;
     if (gDemo.at0)

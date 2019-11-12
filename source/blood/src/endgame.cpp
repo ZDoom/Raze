@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "view.h"
 #include "messages.h"
+#include "statistics.h"
 
 BEGIN_BLD_NS
 
@@ -101,6 +102,7 @@ void CEndGameMgr::Setup(void)
     at1 = gInputMode;
     gInputMode = kInputEndGame;
     at0 = 1;
+	STAT_Update(true);
     EndLevel();
     sndStartSample(268, 128, -1, 1);
     inputState.keyFlushScans();

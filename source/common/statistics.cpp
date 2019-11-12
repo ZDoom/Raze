@@ -354,6 +354,7 @@ void STAT_StartNewGame(const char *episode, int skill)
 	strncpy(StartEpisode, episode, MAX_PATH);
 	StartSkill = skill;
 	LevelData.Clear();
+	*LevelName = 0;
 }
 
 void STAT_NewLevel(const char* mapname)
@@ -397,7 +398,7 @@ static void StoreLevelStats()
 
 void STAT_Update(bool endofgame)
 {
-	if (*StartEpisode == 0) return;
+	if (*StartEpisode == 0 || *LevelName == 0) return;
 	const char* fn = "?";
 	// record the current level's stats.
 	StoreLevelStats();
