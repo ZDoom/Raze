@@ -380,6 +380,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
         else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
         break;
     case kChannelSecretFound:
+		Printf(PRINT_NONOTIFY, "Secret trigger %d\n", nIndex * 65536 + nType);
         if (command >= kCmdNumberic) levelTriggerSecret(command - kCmdNumberic);
         else viewSetSystemMessage("Invalid Trigger-Secret command by xobject #%d (object type %d)", nIndex, nType);
         break;

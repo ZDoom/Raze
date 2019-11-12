@@ -4284,7 +4284,8 @@ void P_CheckSectors(int playerNum)
                 if (RR && !RRRA)
                     g_canSeePlayer = 0;
                 P_DoQuote(QUOTE_FOUND_SECRET, pPlayer);
-                pPlayer->secret_rooms++;
+				Printf(PRINT_NONOTIFY, "Secret in sector %d\n", pPlayer->cursectnum);
+				pPlayer->secret_rooms++;
                 return;
 
             case UINT16_MAX:
