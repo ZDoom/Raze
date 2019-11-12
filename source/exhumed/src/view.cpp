@@ -412,8 +412,11 @@ void DrawView(int smoothRatio)
         nSector = nPlayerViewSect[nLocalPlayer];
         nAngle = q16angle_interpolate16(PlayerList[nLocalPlayer].q16oangle, PlayerList[nLocalPlayer].q16angle, smoothRatio);
 
-        sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
-        sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
+        if (!bCamera)
+        {
+            sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
+            sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
+        }
     }
 
     nCameraa = nAngle;
