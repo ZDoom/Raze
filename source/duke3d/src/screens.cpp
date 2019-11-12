@@ -1180,6 +1180,15 @@ void G_DisplayRest(int32_t smoothratio)
     VM_OnEvent(EVENT_DISPLAYEND, g_player[screenpeek].ps->i, screenpeek);
 }
 
+GameStats GameInterface::getStats()
+{
+	GameStats stats;
+	DukePlayer_t* p = g_player[myconnectindex].ps;
+	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC };
+}
+
+
+
 void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e)
 {
     if (ud.screenfade == 0)

@@ -161,6 +161,13 @@ void wm_setapptitle(const char *name);
 
 #include "print.h"
 
+struct GameStats
+{
+	int kill, tkill;
+	int secret, tsecret;
+	int timesecnd;
+};
+
 struct GameInterface
 {
 	virtual ~GameInterface() {}
@@ -171,6 +178,7 @@ struct GameInterface
 	virtual void set_hud_scale(int size) = 0;
 	virtual bool mouseInactiveConditional(bool condition) { return condition; }
 	virtual FString statFPS() { return "FPS display not available"; }
+	virtual GameStats getStats() { return {}; }
 };
 
 extern GameInterface* gi;

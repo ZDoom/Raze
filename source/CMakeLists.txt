@@ -652,6 +652,7 @@ set( FASTMATH_SOURCES
 
 	# The rest is only here because it is C, not C++
 	glad/src/glad.c
+	common/utility/strnatcmp.c
 	
 	# Another bit of cruft just to make S(hit)DL happy...
 	sdlappicon.cpp
@@ -743,6 +744,7 @@ set (PCH_SOURCES
 	common/initfs.cpp
 	common/openaudio.cpp
 	common/optionmenu/optionmenu.cpp
+	common/statistics.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp
