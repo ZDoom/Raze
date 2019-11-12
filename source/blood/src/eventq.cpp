@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "pqueue.h"
 #include "triggers.h"
 #include "view.h"
+#include "secrets.h"
 
 BEGIN_BLD_NS
 
@@ -380,7 +381,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
         else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
         break;
     case kChannelSecretFound:
-		Printf(PRINT_NONOTIFY, "Secret trigger %d\n", nIndex * 65536 + nType);
+		SECRET_Trigger(nIndex + 65536 * nType);
         if (command >= kCmdNumberic) levelTriggerSecret(command - kCmdNumberic);
         else viewSetSystemMessage("Invalid Trigger-Secret command by xobject #%d (object type %d)", nIndex, nType);
         break;

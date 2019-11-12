@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "input.h"
+#include "secrets.h"
 
 BEGIN_RR_NS
 
@@ -4284,7 +4285,7 @@ void P_CheckSectors(int playerNum)
                 if (RR && !RRRA)
                     g_canSeePlayer = 0;
                 P_DoQuote(QUOTE_FOUND_SECRET, pPlayer);
-				Printf(PRINT_NONOTIFY, "Secret in sector %d\n", pPlayer->cursectnum);
+				SECRET_Trigger(pPlayer->cursectnum);
 				pPlayer->secret_rooms++;
                 return;
 
