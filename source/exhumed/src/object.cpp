@@ -2101,8 +2101,6 @@ FUNCOBJECT_GOTO:
                     runlist_SubRunRec(sprite[nSprite].owner);
                     runlist_SubRunRec(ObjectList[nObject].field_4);
 
-                    assert(nSprite != 59);
-
                     mydeletesprite(nSprite);
                     return;
                 }
