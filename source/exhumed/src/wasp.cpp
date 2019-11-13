@@ -66,10 +66,9 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     short nWasp = nWaspCount;
     nWaspCount++;
 
-    // TODO - CHECKME
-    uint8_t bSomeType = kTrue;
+    uint8_t bEggWasp = kFalse;
     if (nSprite == -2) {
-        bSomeType = kFalse;
+        bEggWasp = kTrue;
     }
 
     if (nSprite < 0)
@@ -92,7 +91,7 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
     sprite[nSprite].clipdist = 70;
 
-    if (bSomeType)
+    if (bEggWasp)
     {
         sprite[nSprite].yrepeat = 20;
         sprite[nSprite].xrepeat = 20;
@@ -123,7 +122,7 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     WaspList[nWasp].nHealth = 800;
     WaspList[nWasp].field_16 = 10;
 
-    if (bSomeType)
+    if (bEggWasp)
     {
         WaspList[nWasp].field_C = 60;
         WaspList[nWasp].field_16 = (WaspList[nWasp].field_16 - 1) >> 1;
