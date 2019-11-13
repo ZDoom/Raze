@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <time.h>
 
-static const char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen] =
+const char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen] =
 {
   "Move_Forward",
   "Move_Backward",
@@ -60,7 +60,7 @@ static const char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen] =
   "Show_Console",
 };
 
-static const char keydefaults[kMaxGameFunctions * 2][kMaxGameFuncLen] =
+const char keydefaults[kMaxGameFunctions * 2][kMaxGameFuncLen] =
 {
    "W", "Kpad8",
    "S", "Kpad2",
@@ -104,7 +104,7 @@ static const char keydefaults[kMaxGameFunctions * 2][kMaxGameFuncLen] =
    "`", "",
 };
 
-static const char oldkeydefaults[kMaxGameFunctions * 2][kMaxGameFuncLen] =
+const char oldkeydefaults[kMaxGameFunctions * 2][kMaxGameFuncLen] =
 {
    "Up", "Kpad8",
    "Down", "Kpad2",
