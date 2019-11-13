@@ -557,6 +557,7 @@ int CONFIG_ReadSetup()
     if (gSetup.bpp < 8) gSetup.bpp = 32;
 
     setupread = 1;
+    return 0;
 }
 
 // wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
