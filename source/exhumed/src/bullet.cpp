@@ -406,7 +406,7 @@ MOVEEND:
         if (hitsprite > -1)
         {
 HITSPRITE:
-            if (pSprite->pal == 5 && sprite[hitsprite].statnum != 100)
+            if (pSprite->pal == 5 && sprite[hitsprite].statnum == 100)
             {
                 short nPlayer = GetPlayerFromSprite(hitsprite);
                 if (!PlayerList[nPlayer].bIsMummified)
