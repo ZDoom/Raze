@@ -2101,6 +2101,14 @@ static void GameMove(void)
     moveframes--;
 }
 
+#if defined(_WIN32) && defined(DEBUGGINGAIDS)
+// See FILENAME_CASE_CHECK in cache1d.c
+static int32_t check_filename_casing(void)
+{
+    return 1;
+}
+#endif
+
 int32_t r_maxfps = 60;
 int32_t r_maxfpsoffset = 0;
 double g_frameDelay = 0.0;
