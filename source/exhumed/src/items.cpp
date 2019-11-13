@@ -444,6 +444,9 @@ void DoRegenerates()
                 BuildAnim(-1, 38, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, 64, 4);
                 D3PlayFX(StaticSound[kSoundTorchOn], i);
             }
+            else {
+                continue;
+            }
         }
         else
         {
