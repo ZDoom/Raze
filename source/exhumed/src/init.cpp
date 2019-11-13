@@ -32,7 +32,7 @@ enum
     kTagRamses = 61,
 };
 
-int ototalclock = 0;
+ClockTicks ototalclock = 0;
 
 int initx, inity, initz;
 short inita, initsect;
@@ -418,7 +418,7 @@ void ResetEngine()
     resettiming();
 
     totalclock  = 0;
-    ototalclock = (int)totalclock;
+    ototalclock = totalclock;
     localclock  = (int)totalclock;
 
     numframes = 0;

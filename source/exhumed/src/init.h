@@ -11,7 +11,7 @@ enum {
     kSectLava = 0x4000,
 };
 
-extern int ototalclock;
+extern ClockTicks ototalclock;
 
 extern int initx;
 extern int inity;

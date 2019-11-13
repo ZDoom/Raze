@@ -1210,11 +1210,11 @@ void bail2dos(const char *fmt, ...)
 
 void faketimerhandler()
 {
-    if (((int)totalclock < ototalclock + 1) || bInMove)
+    if ((totalclock < ototalclock + 1) || bInMove)
         return;
-    ototalclock++;
+    ototalclock = ototalclock + 1;
 
-    if (!(ototalclock&3) && moveframes < 4)
+    if (!((int)ototalclock&3) && moveframes < 4)
         moveframes++;
 
     PlayerInterruptKeys();
@@ -2946,6 +2946,7 @@ LOOP3:
                 CONTROL_ClearButton(gamefunc_Escape);
 // MENU2:
                 CONTROL_BindsEnabled = 0;
+                bInMove = kTrue;
                 nMenu = menu_Menu(1);
 
                 switch (nMenu)
@@ -2970,6 +2971,9 @@ LOOP3:
                         }
                         break;
                 }
+
+                totalclock = ototalclock = tclocks;
+                bInMove = kFalse;
                 CONTROL_BindsEnabled = 1;
                 RefreshStatus();
             }
