@@ -29,7 +29,7 @@ BEGIN_BLD_NS
 class LoadSave {
 public:
     static LoadSave head;
-    static FILE *hSFile;
+    static FileWriter *hSFile;
     static FileReader hLFile;
     LoadSave *prev;
     LoadSave *next;

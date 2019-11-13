@@ -46,6 +46,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "i_specialpaths.h"
 #include "view.h"
+#include "statistics.h"
+#include "secrets.h"
 
 BEGIN_BLD_NS
 
@@ -59,7 +61,7 @@ unsigned int dword_27AA40 = 0;
 void *dword_27AA44 = NULL;
 
 LoadSave LoadSave::head(123);
-FILE *LoadSave::hSFile = NULL;
+FileWriter *LoadSave::hSFile = NULL;
 FileReader LoadSave::hLFile;
 
 short word_27AA54 = 0;
@@ -95,7 +97,7 @@ void LoadSave::Write(void *pData, int nSize)
     dword_27AA38 += nSize;
     dword_27AA3C += nSize;
     dassert(hSFile != NULL);
-    if (fwrite(pData, 1, nSize, hSFile) != (size_t)nSize)
+    if (hSFile->Write(pData, nSize) != (size_t)nSize)
         ThrowError("File error #%d writing save file.", errno);
 }
 
@@ -124,6 +126,9 @@ void LoadSave::LoadGame(char *pzFile)
         rover->Load();
         rover = rover->next;
     }
+	if (!ReadStatistics(hLFile) || !SECRET_Load(hLFile))  // read the rest...
+		ThrowError("Error loading save file.");
+
 	hLFile.Close();
     if (!gGameStarted)
         scrLoadPLUs();
@@ -188,7 +193,7 @@ void LoadSave::LoadGame(char *pzFile)
 
 void LoadSave::SaveGame(char *pzFile)
 {
-    hSFile = fopen(pzFile, "wb");
+    hSFile = FileWriter::Open(pzFile);
     if (hSFile == NULL)
         ThrowError("File error #%d creating save file.", errno);
     dword_27AA38 = 0;
@@ -202,7 +207,9 @@ void LoadSave::SaveGame(char *pzFile)
         dword_27AA38 = 0;
         rover = rover->next;
     }
-    fclose(hSFile);
+	SaveStatistics(*hSFile);
+	SECRET_Save(*hSFile);
+	delete hSFile;
     hSFile = NULL;
 }
 

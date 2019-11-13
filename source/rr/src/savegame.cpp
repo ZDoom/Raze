@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "gamecontrol.h"
 #include "version.h"
+#include "statistics.h"
+#include "secrets.h"
 
 BEGIN_RR_NS
 
@@ -166,6 +168,7 @@ static FileReader OpenSavegame(const char *fn)
 	catch(std::runtime_error & err)
 	{
 		Printf("%s: %s\n", fn, err.what());
+		return FileReader();
 	}
 	return fr;
 }
@@ -408,14 +411,14 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     if (status == 2)
         G_NewGame_EnterLevel();
-    else if ((status = sv_loadsnapshot(fil, 0, &h)))  // read the rest...
-    {
+	else if ((status = sv_loadsnapshot(fil, 0, &h)) || !ReadStatistics(fil) || !SECRET_Load(fil))  // read the rest...
+	{
         // in theory, we could load into an initial dump first and trivially
         // recover if things go wrong...
         Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", sv.path, status);
         G_GameExit(tempbuf);
     }
-
+	
     sv_postudload();  // ud.m_XXX = ud.XXX
 
     return 0;
@@ -549,6 +552,8 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
         // SAVE!
         sv_saveandmakesnapshot(fw, sv.name, 0, 0, 0, 0, isAutoSave);
+		SaveStatistics(fw);
+		SECRET_Save(fw);
 
 		fw.Close();
 

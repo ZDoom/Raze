@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "gamecontrol.h"
 #include "version.h"
+#include "statistics.h"
+#include "secrets.h"
 
 BEGIN_DUKE_NS
 
@@ -663,7 +665,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     if (status == 2)
         G_NewGame_EnterLevel();
-    else if ((status = sv_loadsnapshot(fil, 0, &h)))  // read the rest...
+    else if ((status = sv_loadsnapshot(fil, 0, &h)) || !ReadStatistics(fil) || !SECRET_Load(fil))  // read the rest...
     {
         // in theory, we could load into an initial dump first and trivially
         // recover if things go wrong...
@@ -796,6 +798,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	else
 	{
 		fil->Write("DEMOLITION_ED", 13);
+
 		CompressedFileWriter fw(fil, true);
 
 		sv.isExt = 0;
@@ -809,6 +812,8 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
         // SAVE!
         sv_saveandmakesnapshot(fw, sv.name, 0, 0, 0, 0, isAutoSave);
+		SaveStatistics(fw);
+		SECRET_Save(fw);
 
 		fw.Close();
 
