@@ -64,3 +64,4 @@ project.xcworkspace/
 build-vs2019/
 /source/gitinfo.h
 /build2
+/build
