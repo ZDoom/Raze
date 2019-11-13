@@ -84,7 +84,7 @@ int BuildRoach(int eax, int nSprite, int x, int y, int z, short nSector, int ang
     sprite[nSprite].lotag = runlist_HeadRun() + 1;
     sprite[nSprite].extra = -1;
 
-//	GrabTimeSlot(3);
+    //	GrabTimeSlot(3);
 
     if (eax)
     {
@@ -101,7 +101,7 @@ int BuildRoach(int eax, int nSprite, int x, int y, int z, short nSector, int ang
     RoachList[RoachCount].nTarget = -1;
     RoachList[RoachCount].nHealth = 600;
 
-    sprite[nSprite].owner = (sprite[nSprite].lotag - 1, RoachCount | 0x1C0000);
+    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, RoachCount | 0x1C0000);
     RoachList[RoachCount].field_A = runlist_AddRunRec(NewRun, RoachCount | 0x1C0000);
 
     nCreaturesLeft++;
@@ -115,17 +115,14 @@ void GoRoach(short nSprite)
     sprite[nSprite].yvel = (Sin(sprite[nSprite].ang) >> 1) - (Sin(sprite[nSprite].ang) >> 3);
 }
 
-void FuncRoach(int a, int b, int nRun)
+void FuncRoach(int a, int nDamage, int nRun)
 {
     short nRoach = RunData[nRun].nVal;
     assert(nRoach >= 0 && nRoach < kMaxRoach);
 
-    int var_24 = 0;
-
+    bool bVar_24 = false;
     short nSprite = RoachList[nRoach].nSprite;
     short nType = RoachList[nRoach].nType;
-
-    int nDamage = b;
 
     int nMessage = a & 0x7F0000;
 
@@ -143,7 +140,7 @@ void FuncRoach(int a, int b, int nRun)
             return;
         }
 
-        case 0x0A0000: // fall through to next case
+        case 0xA0000: // fall through to next case
         {
             nDamage = runlist_CheckRadialDamage(nSprite);
         }
@@ -208,15 +205,14 @@ void FuncRoach(int a, int b, int nRun)
             Gravity(nSprite);
 
             int nSeq = SeqOffsets[kSeqRoach] + ActionSeq[RoachList[nRoach].nType].a;
-            int var_28 = nSeq;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(var_28, RoachList[nRoach].field_2);
-            seq_MoveSequence(nSprite, var_28, RoachList[nRoach].field_2);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RoachList[nRoach].field_2);
+            seq_MoveSequence(nSprite, nSeq, RoachList[nRoach].field_2);
 
             RoachList[nRoach].field_2++;
-            if (RoachList[nRoach].field_2 >= SeqSize[var_28])
+            if (RoachList[nRoach].field_2 >= SeqSize[nSeq])
             {
-                var_24 = 1;
+                bVar_24 = true;
                 RoachList[nRoach].field_2 = 0;
             }
 
@@ -244,7 +240,7 @@ void FuncRoach(int a, int b, int nRun)
                         }
                     }
 
-                    if ((nRoach & 0xF) == (totalmoves & 0xF) && nTarget < 0)
+                    if (((nRoach & 0xF) == (totalmoves & 0xF)) && nTarget < 0)
                     {
                         short nTarget = FindPlayer(nSprite, 50);
                         if (nTarget >= 0)
@@ -262,7 +258,7 @@ void FuncRoach(int a, int b, int nRun)
                 case 1:
                 {
                     // parltly the same as case 0...
-                    if ((nRoach & 0xF) == (totalmoves & 0xF) && nTarget < 0)
+                    if (((nRoach & 0xF) == (totalmoves & 0xF)) && nTarget < 0)
                     {
                         short nTarget = FindPlayer(nSprite, 100);
                         if (nTarget >= 0)
@@ -287,29 +283,35 @@ void FuncRoach(int a, int b, int nRun)
 
                     int nVal = MoveCreatureWithCaution(nSprite);
 
-                    if ((nVal & 0x0C000) == 49152)
+                    if ((nVal & 0xC000) == 49152)
                     {
                         if ((nVal & 0x3FFF) == nTarget)
                         {
                             // repeated below
                             RoachList[nRoach].field_E = RandomSize(2) + 1;
-                            RoachList[nRoach].nType = 3;
+                            RoachList[nRoach].nType   = 3;
 
-                            sprite[nSprite].xvel = sprite[nSprite].yvel = 0;
+                            sprite[nSprite].xvel = 0;
+                            sprite[nSprite].yvel = 0;
                             sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
 
                             RoachList[nRoach].field_2 = 0;
                         }
+                        else
+                        {
+                            sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
+                            GoRoach(nSprite);
+                        }
                     }
-                    else if ((nVal & 0x0C000) == 32768)
+                    else if ((nVal & 0xC000) == 32768)
                     {
                         sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
                         GoRoach(nSprite);
                     }
-                    //else if ((nVal & 0x0C000) < 32768)
+                    //else if ((nVal & 0xC000) < 32768)
                     else
                     {
-                        if (RoachList[nRoach].field_C)
+                        if (RoachList[nRoach].field_C != 0)
                         {
                             RoachList[nRoach].field_C--;
                         }
@@ -319,7 +321,8 @@ void FuncRoach(int a, int b, int nRun)
                             RoachList[nRoach].field_E = RandomSize(2) + 1;
                             RoachList[nRoach].nType = 3;
 
-                            sprite[nSprite].xvel = sprite[nSprite].yvel = 0;
+                            sprite[nSprite].xvel = 0;
+                            sprite[nSprite].yvel = 0;
                             sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
 
                             RoachList[nRoach].field_2 = 0;
@@ -332,16 +335,16 @@ void FuncRoach(int a, int b, int nRun)
                         RoachList[nRoach].field_2 = 0;
                         RoachList[nRoach].field_C = 100;
                         RoachList[nRoach].nTarget = -1;
-                        sprite[nSprite].yvel = 0;
                         sprite[nSprite].xvel = 0;
+                        sprite[nSprite].yvel = 0;   
                     }
 
                     return;
                 }
-                
+
                 case 3:
                 {
-                    if (var_24)
+                    if (bVar_24)
                     {
                         RoachList[nRoach].field_E--;
                         if (RoachList[nRoach].field_E <= 0)
@@ -365,7 +368,7 @@ void FuncRoach(int a, int b, int nRun)
 
                 case 4:
                 {
-                    if (var_24)
+                    if (bVar_24)
                     {
                         RoachList[nRoach].nType = 2;
                         RoachList[nRoach].field_2 = 0;
@@ -376,7 +379,7 @@ void FuncRoach(int a, int b, int nRun)
 
                 case 5:
                 {
-                    if (var_24)
+                    if (bVar_24)
                     {
                         sprite[nSprite].cstat = 0;
                         RoachList[nRoach].nType = 6;
