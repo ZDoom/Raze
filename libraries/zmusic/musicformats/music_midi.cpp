@@ -276,6 +276,7 @@ MIDIDevice *MIDIStreamer::CreateMIDIDevice(EMidiDevice devtype, int samplerate)
 				break;
 
 			default:
+				throw std::runtime_error("MIDI device type not compiled in");
 				break;
 			}
 		}
