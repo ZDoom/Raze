@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes);
-bool FileRead(FILE *, void *, unsigned int);
-bool FileWrite(FILE *, void *, unsigned int);
-bool FileLoad(const char *, void *, unsigned int);
-int FileLength(FILE *);
 unsigned int qrand(void);
 int wrand(void);
 void wsrand(int);

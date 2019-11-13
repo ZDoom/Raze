@@ -68,40 +68,6 @@ void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes)
     return *pRes;
 }
 
-bool FileRead(FILE *handle, void *buffer, unsigned int size)
-{
-    return fread(buffer, 1, size, handle) == size;
-}
-
-bool FileWrite(FILE *handle, void *buffer, unsigned int size)
-{
-    return fwrite(buffer, 1, size, handle) == size;
-}
-
-bool FileLoad(const char *name, void *buffer, unsigned int size)
-{
-    dassert(buffer != NULL);
-
-    FILE *handle = fopen(name, "rb");
-    if (!handle)
-        return false;
-
-    unsigned int nread = fread(buffer, 1, size, handle);
-    fclose(handle);
-    return nread == size;
-}
-
-int FileLength(FILE *handle)
-{
-    if (!handle)
-        return 0;
-    int nPos = ftell(handle);
-    fseek(handle, 0, SEEK_END);
-    int nLength = ftell(handle);
-    fseek(handle, nPos, SEEK_SET);
-    return nLength;
-}
-
 unsigned int randSeed = 1;
 
 unsigned int qrand(void)
