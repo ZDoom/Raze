@@ -2317,6 +2317,8 @@ do_default_b:
                                     nPlayerWeapons[nPlayer] |= var_18;
 
                                     AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                                    var_88 = StaticSound[kSound72];
                                 }
 
                                 if (var_40 == 2) {
@@ -2377,6 +2379,8 @@ do_default_b:
                                     nPlayerWeapons[nPlayer] |= var_18;
 
                                     AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                                    var_88 = StaticSound[kSound72];
                                 }
 
                                 if (var_40 == 2) {
@@ -2437,6 +2441,8 @@ do_default_b:
                                     nPlayerWeapons[nPlayer] |= var_18;
 
                                     AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                                    var_88 = StaticSound[kSound72];
                                 }
 
                                 if (var_40 == 2) {
@@ -2497,6 +2503,8 @@ do_default_b:
                                     nPlayerWeapons[nPlayer] |= var_18;
 
                                     AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                                    var_88 = StaticSound[kSound72];
                                 }
 
                                 if (var_40 == 2) {
@@ -2557,6 +2565,8 @@ do_default_b:
                                     nPlayerWeapons[nPlayer] |= var_18;
 
                                     AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                                    var_88 = StaticSound[kSound72];
                                 }
 
                                 if (var_40 == 2) {
@@ -2617,6 +2627,8 @@ do_default_b:
                                     nPlayerWeapons[nPlayer] |= var_18;
 
                                     AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                                    var_88 = StaticSound[kSound72];
                                 }
 
                                 if (var_40 == 2) {
