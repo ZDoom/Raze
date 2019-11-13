@@ -833,10 +833,9 @@ loc_flag:
 
 					short thetargetthin = sPlayerInput[nPlayer].nTarget;
 
-					assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
-
 					if (sPlayerInput[nPlayer].nTarget >= 0)
 					{
+                                                assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
 						var_50 = sPlayerInput[nPlayer].nTarget + 10000;
 					}
 

@@ -3424,7 +3424,7 @@ int Query(short nLines, short nKeys, ...)
     }
 
     for (i = 0; i < nKeys; i++) {
-        keys[i] = va_arg(args, char);
+        keys[i] = (char)va_arg(args, int);
     }
 
     va_end(args);

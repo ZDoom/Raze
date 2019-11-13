@@ -799,7 +799,7 @@ int BuildWallFace(short nChannel, short nWall, short nCount, ...)
         int i = WallFace[WallFaceCount].field_4;
         WallFace[WallFaceCount].field_4++;
 
-        WallFace[WallFaceCount].field_6[i] = va_arg(piclist, short);
+        WallFace[WallFaceCount].field_6[i] = (short)va_arg(piclist, int);
     }
     va_end(piclist);
 
