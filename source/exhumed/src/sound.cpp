@@ -821,7 +821,7 @@ void UpdateSounds()
 
 void UpdateCreepySounds()
 {
-    if (levelnum == 20)
+    if (levelnum == 20 || nFreeze)
         return;
     spritetype *pSprite = &sprite[PlayerList[nLocalPlayer].nSprite];
     nCreepyTimer--;
@@ -893,6 +893,12 @@ void PlaySound(int nSound)
     if (!dig)
         return;
 
+    if (nSound < 0 || nSound >= kMaxSounds || !SoundBuf[nSound])
+    {
+        initprintf("PlaySound: Invalid sound nSound == %i\n", nSound);
+        return;
+    }
+
     int bLoop = SoundBuf[nSound][26] == 6;
 
     if (handle >= 0)
@@ -916,6 +922,12 @@ void PlayLocalSound(short nSound, short nRate)
 {
     if (!dig)
         return;
+
+    if (nSound < 0 || nSound >= kMaxSounds || !SoundBuf[nSound])
+    {
+        initprintf("PlayLocalSound: Invalid sound nSound == %i, nRate == %i\n", nSound, nRate);
+        return;
+    }
 
     if (nLocalChan == nAmbientChannel)
         nAmbientChannel = -1;
@@ -973,6 +985,12 @@ short PlayFX2(unsigned short nSound, short nSprite)
 {
     if (!dig)
         return -1;
+
+    if (nSound < 0 || nSound >= kMaxSounds || !SoundBuf[nSound])
+    {
+        initprintf("PlayFX2: Invalid sound nSound == %i, nSprite == %i\n", nSound, nSprite);
+        return -1;
+    }
 
     nLocalSectFlags = SectFlag[nPlayerViewSect[nLocalPlayer]];
     short v1c;
