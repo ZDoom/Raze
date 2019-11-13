@@ -1095,7 +1095,7 @@ CONSTEXPR size_t logbasenegative(T n)
 static CONSTEXPR const char pow2char[8] = {1,2,4,8,16,32,64,128u};
 #else
 // Revert the above to a real bit shift through some C++ operator magic. That saves me from reverting all the code that uses this construct.
-struct 
+static struct 
 {
 	constexpr uint8_t operator[](int index) const { return 1 << index; };
 } pow2char;

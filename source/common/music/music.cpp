@@ -566,7 +566,7 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 		return 0;
 	}
 	// A restart was requested. Ignore the music name being passed and just try tp restart what got here last.
-	if (*mapname == '*')
+	if (mapname && *mapname == '*')
 	{
 		mapname = lastMusicLevel.GetChars();
 		fn = lastMusic.GetChars();
