@@ -1,9 +1,9 @@
 
 #include "save.h"
 #include <stdio.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <io.h>
+//#include <fcntl.h>
+//#include <sys/stat.h>
+//#include <io.h>
 #include "engine.h"
 
 int savegame(int nSlot)

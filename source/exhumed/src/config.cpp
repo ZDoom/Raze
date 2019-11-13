@@ -12,7 +12,7 @@
 #include "config.h"
 
 #include <string>
-#include <io.h>
+//#include <io.h>
 #include <stdio.h>
 #include <time.h>
 

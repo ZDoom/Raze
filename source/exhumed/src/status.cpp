@@ -699,8 +699,9 @@ void DrawStatus()
 
         if (bCoordinates)
         {
-            char *cFPS = itoa(lastfps, numberBuf, 10);
-            printext(xdim - 20, nViewTop, cFPS, kTile159, -1);
+            sprintf(numberBuf, "%i", lastfps);
+            // char *cFPS = itoa(lastfps, numberBuf, 10);
+            printext(xdim - 20, nViewTop, numberBuf, kTile159, -1);
         }
 
         // draw ammo count

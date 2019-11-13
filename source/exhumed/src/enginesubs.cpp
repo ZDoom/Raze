@@ -1,8 +1,8 @@
 
 #include "engine.h"
 
-#include <io.h>
-#include <fcntl.h>
+//#include <io.h>
+//#include <fcntl.h>
 #include <malloc.h>
 
 // static int globhiz, globloz, globhihit, globlohit;

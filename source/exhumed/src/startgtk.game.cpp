@@ -21,13 +21,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 
 #include "build.h"
-#include "cmdline.h"
 #include "common.h"
-#include "common_game.h"
 #include "compat.h"
+#include "keyboard.h"
+#include "control.h"
+#include "config.h"
 #include "exhumed.h"
 #include "dynamicgtk.h"
-#include "game.h"
 #include "grpscan.h"
 #include "gtkpixdata.h"
 

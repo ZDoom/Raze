@@ -3409,7 +3409,7 @@ int Query(short nLines, short nKeys, ...)
     {
         char *str = va_arg(args, char*);
         strcpy(strings[i], str);
-        strupr(strings[i]);
+        Bstrupr(strings[i]);
 
         int strWidth = MyGetStringWidth(strings[i]);
 

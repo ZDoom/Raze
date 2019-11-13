@@ -466,7 +466,7 @@ int LoadSound(const char *sound)
     int i;
     for (i = 0; i < nSoundCount; i++)
     {
-        if (!strnicmp(szSoundName[i], sound, kMaxSoundNameLen))
+        if (!Bstrncasecmp(szSoundName[i], sound, kMaxSoundNameLen))
             return i;
     }
 
