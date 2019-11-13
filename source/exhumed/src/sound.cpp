@@ -1045,7 +1045,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
             nVolume = 255;
     }
     else
-        nVolume = 255;
+        nVolume = gFXVolume;
 
     short vc = nSound & (~0x1ff);
     short v4 = nSound & 0x2000;
