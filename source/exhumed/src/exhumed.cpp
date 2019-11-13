@@ -1096,7 +1096,8 @@ short bMapMode = kFalse;
 short bNoCreatures = kFalse;
 
 short nTotalPlayers = 1;
-short socket = 0;
+// TODO: Rename this (or make it static) so it doesn't conflict with library function
+//short socket = 0;
 
 short nFirstPassword = 0;
 short nFirstPassInfo = 0;
@@ -2310,9 +2311,11 @@ int app_main(int argc, char const* const* argv)
                     case 'h':
                         SetHiRes();
                         break;
+#if 0
                     case 's':
                         socket = atoi(pChar + 1);
                         break;
+#endif
                     case 't':
                         nNetTime = atoi(pChar + 1);
                         if (nNetTime < 0) {
@@ -2479,6 +2482,7 @@ int app_main(int argc, char const* const* argv)
 
     // loc_116A5:
 
+#if 0
     if (nNetPlayerCount)
     {
         InitInput();
@@ -2509,6 +2513,7 @@ int app_main(int argc, char const* const* argv)
             WaitTicks(nWaitTicks);
         }
     }
+#endif
 
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
