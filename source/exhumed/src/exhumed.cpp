@@ -3447,13 +3447,18 @@ int Query(short nLines, short nKeys, ...)
     int x1 = (320 - nWidth) / 2;
     int x2 = x1 + nWidth;
 
-    if (bHiRes)
-    {
-        x1 *= 2;
-        y1 *= 2;
-        nHeight *= 2;
-        x2 *= 2;
-    }
+    // if (bHiRes)
+    // {
+    //     x1 *= 2;
+    //     y1 *= 2;
+    //     nHeight *= 2;
+    //     x2 *= 2;
+    // }
+
+    y1 = scale(y1, ydim, 200);
+    nHeight = scale(nHeight, ydim, 200);
+    x1 = scale(x1-160, ydim*4/3, 320)+xdim/2;
+    x2 = scale(x2-160, ydim*4/3, 320)+xdim/2;
 
     // draw background box that the text sits in
     for (i = 0; i < nHeight; i++) {
