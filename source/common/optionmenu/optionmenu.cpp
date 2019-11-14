@@ -45,6 +45,7 @@ bool ShowOptionMenu()
         ImGui::End();
         return false;
     }
+	FString emptiness = " ";
 
 	for (int i = 0; i < NUMGAMEFUNCTIONS; i++)
 	{
@@ -58,6 +59,9 @@ bool ShowOptionMenu()
 			al = buttonMap.GetButtonName(i);
 			auto binds = Bindings.GetKeysForCommand(cmd);
 			al = C_NameKeys(binds.Data(), binds.Size());
+			// This looks like an ImGui bug - it doesn't like two identically labelled buttons on the same page, it seems.
+			// Work around this by using strings with different numbers of spaces. Stupid but effective.
+			if (al.IsEmpty()) { al = emptiness; emptiness << " "; }
 			if (ImGui::Button(al, ImVec2(450 * scale, 0)))
 			{
 				activeCommand = cmd;
