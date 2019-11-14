@@ -1653,6 +1653,12 @@ LABEL_21:
 
                     SavePosition = menu_LoadGameMenu();
 
+                    if (SavePosition == -1) {
+                        menu_ResetZoom();
+                        menu_ResetKeyTimer();
+                        break;
+                    }
+
                     StopAllSounds();
 
                     StopAllSounds();
