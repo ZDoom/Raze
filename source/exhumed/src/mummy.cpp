@@ -383,9 +383,6 @@ void FuncMummy(int a, int nDamage, int nRun)
                         {
                             if (!RandomSize(3))
                             {
-                                short a = nBullet >> 16;
-                                short b = nBullet & 0xFFFF;
-
                                 // FIXME CHECKME - nBullet & 0xFFFF can be -1. Original code doesn't handle this??
 
                                 SetBulletEnemy(nBullet >> 16, nTarget); // isolate the bullet number (shift off the sprite index)

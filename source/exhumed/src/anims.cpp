@@ -37,11 +37,6 @@ void InitAnims()
 
 void DestroyAnim(int nAnim)
 {
-//	if (nAnim == 386) {
-    if (nAnim == 365) {
-        int gasd = 123;
-    }
-
     short nSprite = AnimList[nAnim].nSprite;
 
     if (nSprite >= 0)
@@ -58,25 +53,16 @@ void DestroyAnim(int nAnim)
 
 int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag)
 {
-    if (!nAnimsFree)
-        return -1;
-
-    if (nSector >= kMaxSectors) {
-        int asdffdg = 123;
-    }
+	if (!nAnimsFree) {
+		return -1;
+	}
 
     nAnimsFree--;
 
     short nAnim = AnimsFree[nAnimsFree];
 
-    //	if (nAnim == 386) {
-    if (nAnim == 365) {
-        int blag = 123;
-    }
-
     if (nSprite == -1) {
         nSprite = insertsprite(nSector, 500);
-//		assert(nSprite != -1);
     }
 
     sprite[nSprite].x = x;

@@ -986,10 +986,6 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
             }
         }
 
-        //int var_1C = nAngle & kAngleMask;
-        int var_38 = yvect << 14;
-        int var_58 = xvect << 14;
-
         for (i = headspritesect[nNextSector]; i != -1; i = nextspritesect[i])
         {
             if (sprite[i].statnum >= 99)
@@ -1033,9 +1029,6 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
 
         pBlockInfo->x += xvect;
         pBlockInfo->y += yvect;
-    }
-    else {
-        int gasd = 123;
     }
 
     // loc_163DD

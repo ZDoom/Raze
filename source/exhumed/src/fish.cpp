@@ -258,7 +258,6 @@ int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
 void IdleFish(short nFish, short edx)
 {
     short nSprite = FishList[nFish].nSprite;
-    short nAngle = sprite[nSprite].ang;
 
     sprite[nSprite].ang += ((256 - RandomSize(9)) + 1024) & kAngleMask;
 

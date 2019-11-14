@@ -2474,15 +2474,11 @@ void DoMovingSects()
 
             if (sMoveDir[i] > 0)
             {
-                int thepoint = nTrailPointNext[sMoveSect[i].nTrailPoint];
-                sMoveSect[i].nTrailPoint = nTrailPointNext[sMoveSect[i].nTrailPoint];
-                
+                sMoveSect[i].nTrailPoint = nTrailPointNext[sMoveSect[i].nTrailPoint];  
             }
             else
             {
-                int thepoint = nTrailPointPrev[sMoveSect[i].nTrailPoint];
                 sMoveSect[i].nTrailPoint = nTrailPointPrev[sMoveSect[i].nTrailPoint];
-                
             }
         }
 

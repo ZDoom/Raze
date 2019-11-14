@@ -57,6 +57,7 @@ int   SectBelow[kMaxSectors]     = { 0 };
 
 uint8_t bIsVersion6 = kTrue;
 
+#if 0
 // definitions for map version 6 structures
 #pragma pack(1)
 
@@ -107,7 +108,7 @@ struct Sprite_6
 static Sector_6 sector_6[1024];
 static Wall_6   wall_6[8192];
 static Sprite_6 sprite_6[4096];
-
+#endif
 
 
 uint8_t LoadLevel(int nMap)
@@ -637,10 +638,6 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
     int nLotag2 = lotag / 1000;
     if (nLotag2 == 0) {
         nLotag2 = 1;
-    }
-
-    if (lotag > 1000) {
-        int blahgh = 123;
     }
 
     // this value can change in the below code but we also need to retain the original hitag value

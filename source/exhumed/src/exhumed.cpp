@@ -2331,6 +2331,8 @@ int app_main(int argc, char const* const* argv)
                         if (pChar[1] == 'd' && pChar[2] == 'o' && pChar[3] == 'f' && pChar[4] == 'f') {
                             bNoCDCheck = kTrue;
                         }
+
+						break;
                     }
                     default:
                     {

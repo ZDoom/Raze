@@ -1979,7 +1979,6 @@ do_default_b:
 
                                 var_88 = 20;
                                 int edx = 40;
-                                // int ecx = 1;
 
                                 if (edx <= 0 || (!(var_30 & 2)))
                                 {
@@ -2053,7 +2052,6 @@ do_default_b:
                             case 7: // Blood Bowl
                             {
                                 int edx = 160;
-                                int ecx = 1;
 
                                 // Same code as case 6 now till break
                                 if (edx <= 0 || (!(var_30 & 2)))
@@ -3162,10 +3160,6 @@ do_default_b:
             }
             else // else, player's health is less than 0
             {
-                if (buttons) {
-                    int breakmehere = 1;
-                }
-
                 // loc_1C0E9
                 if (buttons & kButtonOpen)
                 {

@@ -173,7 +173,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
             short nFrame = SeqBase[nSeq] + AnubisList[nAnubis].nFrame;
             short nFlag = FrameFlag[nFrame];
 
-            int c;
+			int c = 0;
 
             if (nAction > 0 && nAction < 11) {
                 c = MoveCreatureWithCaution(nSprite);
