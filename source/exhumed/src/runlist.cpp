@@ -767,10 +767,19 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
         case 13: // Sector raise / lower
         case 37: // Sector raise / lower
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
-            assert(nextSector > -1);
+            /*
+                fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
+                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                is valid.
+            */
+            int zVal = 0;
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
+            if (nextSector >= 0) {
+                zVal = sector[nextSector].floorz;
+            }
+
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].floorz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev);
             return;
@@ -778,10 +787,19 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
 
         case 11: // Switch activated lift up
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
-            assert(nextSector > -1);
+            /* 
+                fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
+                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                is valid.
+            */
+            int zVal = 0;
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
+            if (nextSector >= 0) {
+                zVal = sector[nextSector].floorz;
+            }
+
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].floorz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev);
 
@@ -793,10 +811,19 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
 
         case 12: // Bobbing floor
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
-            assert(nextSector > -1);
+            /*
+                fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
+                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                is valid.
+            */
+            int zVal = 0;
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            if (nextSector >= 0) {
+                zVal = sector[nextSector].floorz;
+            }
+
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), var_18 * 100, var_18 * 100, 2, sector[nSector].floorz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev);
 
@@ -875,10 +902,19 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
 
         case 22: // Floor raise, Sychronize
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
-            assert(nextSector > -1);
+            /*
+                fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
+                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                is valid.
+            */
+            int zVal = 0;
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 32767, 200, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            if (nextSector >= 0) {
+                zVal = sector[nextSector].floorz;
+            }
+
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 32767, 200, 2, sector[nSector].floorz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev);
 
@@ -1093,10 +1129,19 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
 
         case 47: // Ceiling lower
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, 1);
-            assert(nextSector > -1);
+            /*
+                fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
+                when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
+                is valid.
+            */
+            int zVal = 0;
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, var_18 * 100, 2, sector[nSector].ceilingz, sector[nextSector].ceilingz);
+            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, 1);
+            if (nextSector >= 0) {
+                zVal = sector[nextSector].ceilingz;
+            }
+
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, var_18 * 100, 2, sector[nSector].ceilingz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev);
             return;
