@@ -307,7 +307,7 @@ int BuildSplash(int nSprite, int nSector)
 
     if (!bIsLava)
     {
-        D3PlayFX(StaticSound[nSound] | 10, AnimList[nAnim].nSprite);
+        D3PlayFX(StaticSound[nSound] | 0xa00, AnimList[nAnim].nSprite);
     }
 
     return AnimList[nAnim].nSprite;
