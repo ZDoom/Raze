@@ -1142,6 +1142,7 @@ short wConsoleNode; // TODO - move me into network file
 int mouseaiming, aimmode, mouseflip;
 int runkey_mode, auto_run;
 
+ClockTicks tclocks, tclocks2;
 
 void DebugOut(const char *fmt, ...)
 {
@@ -1504,18 +1505,19 @@ void CheckKeys()
         {
             if (bPause)
             {
+                ototalclock = totalclock = tclocks;
                 bPause = kFalse;
-                KB_KeyDown[sc_Pause] = 0;
             }
             else
             {
                 bPause = kTrue;
-                NoClip();
-                int nLen = MyGetStringWidth("PAUSED");
-                myprintext((320 - nLen) / 2, 100, "PAUSED", 0);
-                Clip();
-                videoNextPage();
+                // NoClip();
+                // int nLen = MyGetStringWidth("PAUSED");
+                // myprintext((320 - nLen) / 2, 100, "PAUSED", 0);
+                // Clip();
+                // videoNextPage();
             }
+            KB_KeyDown[sc_Pause] = 0;
         }
         return;
     }
@@ -1989,7 +1991,7 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
     // {
     //     return 65536;
     // }
-    if (bRecord || bPlayback || nFreeze != 0 || bCamera)
+    if (bRecord || bPlayback || nFreeze != 0 || bCamera || bPause)
         return 65536;
     int32_t rfreq = (refreshfreq != -1 ? refreshfreq : 60);
     uint64_t elapsedFrames = tabledivide64(((uint64_t) (totalclk - ototalclk).toScale16()) * rfreq, 65536*120);
@@ -1999,8 +2001,6 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
 #endif
     return clamp(tabledivide64(65536*elapsedFrames*30, rfreq), 0, 65536);
 }
-
-ClockTicks tclocks, tclocks2;
 
 static void GameDisplay(void)
 {
@@ -2037,6 +2037,12 @@ static void GameDisplay(void)
         // TODO: Map should not be drawn on top of status bar. Redraw status bar?
         DrawMap();
 #endif
+    }
+
+    if (bPause)
+    {
+        int nLen = MyGetStringWidth("PAUSED");
+        myprintext((320 - nLen) / 2, 100, "PAUSED", 0);
     }
 
     videoNextPage();
