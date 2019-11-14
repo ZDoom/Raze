@@ -638,7 +638,7 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
             }
 
             tsprite[nSprite].cstat = 0x22; // transluscence, floor sprite
-            tsprite[nSprite].z = nFloorZ + 1;
+            tsprite[nSprite].z = videoGetRenderMode() >= REND_POLYMOST ? nFloorZ : nFloorZ + 1;
             tsprite[nSprite].yrepeat = (uint8_t)edx;
             tsprite[nSprite].xrepeat = (uint8_t)edx;
             tsprite[nSprite].statnum = -3;
