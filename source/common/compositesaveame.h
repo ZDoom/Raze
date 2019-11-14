@@ -1,19 +1,39 @@
 #pragma once
 
+#include <assert.h>
 #include "files.h"
 #include "zstring.h"
 #include "tarray.h"
+#include "filesystem/resourcefile.h"
 
 class CompositeSavegameWriter
 {
+	FString filename;
 	TDeletingArray<BufferWriter*> subfiles;
 	TArray<FString> subfilenames;
 	TArray<bool> isCompressed;
-	
-	FCompressedBuffer CompressElement(BufferWriter *element, bool compress);
+
+	FCompressedBuffer CompressElement(BufferWriter* element, bool compress);
 public:
-	
-	FileWriter &NewEleemnt(const char *filename, bool compress = true);
-	bool WriteToFile(const char *filename);
+	void Clear()
+	{
+		subfiles.Reset();
+		subfilenames.Reset();
+		isCompressed.Reset();
+	}
+	void SetFileName(const char* fn)
+	{
+		filename = fn;
+	}
+	void SetFileName(const FString& fn)
+	{
+		filename = fn;
+	}
+	~CompositeSavegameWriter()
+	{
+		assert(subfiles.Size() == 0);	// must be written out.
+	}
+	FileWriter& NewElement(const char* filename, bool compress = true);
+	bool WriteToFile();
 };
 

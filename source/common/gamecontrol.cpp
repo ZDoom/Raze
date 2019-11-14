@@ -22,6 +22,7 @@
 #include "c_dispatch.h"
 #include "i_specialpaths.h"
 #include "z_music.h"
+#include "statistics.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -379,6 +380,7 @@ int CONFIG_Init()
 	V_InitFonts();
 	buttonMap.SetGameAliases();
 	Mus_Init();
+	InitStatistics();
 
 
 

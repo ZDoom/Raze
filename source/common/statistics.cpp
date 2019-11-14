@@ -45,6 +45,7 @@
 #include "c_cvars.h"
 #include "sc_man.h"
 #include "baselayer.h"
+#include "savegamehelp.h"
 
 CVAR(Int, savestatistics, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(String, statfile, "demolitionstat.txt", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -171,7 +172,7 @@ static void ParseStatistics(const char *fn, TArray<FStatistics> &statlist)
 //
 // ====================================================================
 
-void ReadStatistics()
+void InitStatistics()
 {
 	ParseStatistics(statfile, EpisodeStatistics);
 }
@@ -484,25 +485,27 @@ void ReadOneLevel(FileReader& fil, OneLevel& l)
 	l.Levelname.UnlockBuffer();
 }
 
-void SaveStatistics(FileWriter& fil)
+void SaveStatistics()
 {
-	fil.Write("STAT", 4);
-	fil.Write(LevelName, MAX_PATH);
-	fil.Write(&StartEpisode, MAX_PATH);
-	fil.Write(&StartSkill, 4);
+	auto fil = WriteSavegameChunk("statistics.dat");
+	fil->Write("STAT", 4);
+	fil->Write(LevelName, MAX_PATH);
+	fil->Write(&StartEpisode, MAX_PATH);
+	fil->Write(&StartSkill, 4);
 	int p = LevelData.Size();
-	fil.Write(&p, 4);
+	fil->Write(&p, 4);
 	for (auto& lev : LevelData)
 	{
-		SaveOneLevel(fil, lev);
+		SaveOneLevel(*fil, lev);
 	}
-	fil.Write("TATS", 4);
+	fil->Write("TATS", 4);
 }
 
-bool ReadStatistics(FileReader& fil)
+bool ReadStatistics()
 {
 	char id[4];
-
+	auto fil = ReadSavegameChunk("statistics.dat");
+	if (!fil.isOpen()) return false;
 	fil.Read(id, 4);
 	if (memcmp(id, "STAT", 4)) return false;
 	fil.Read(LevelName, MAX_PATH);

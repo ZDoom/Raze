@@ -34,15 +34,15 @@
 */
 
 #include <zlib.h>
-#include "compositesavegame.h"
+#include "compositesaveame.h"
 #include "file_zip.h"
-#include "resourcefiles.h"
+#include "resourcefile.h"
 
 
 bool WriteZip(const char *filename, TArray<FString> &filenames, TArray<FCompressedBuffer> &content);
 
 
-FileWriter &CompositeSavegameWriter::NewEleemnt(const char *filename, bool compress)
+FileWriter &CompositeSavegameWriter::NewElement(const char *filename, bool compress)
 {
 	subfilenames.Push(filename);
 	isCompressed.Push(compress);
@@ -100,14 +100,15 @@ FCompressedBuffer CompositeSavegameWriter::CompressElement(BufferWriter *bw, boo
 	}
 	
 error:
-	memcpy(compressbuf, buffer->Data(), buff.mSize + 1);
+	if (buff.mSize) memcpy(compressbuf, buffer->Data(), buff.mSize + 1);
+	buff.mBuffer = (char*)compressbuf;
 	buff.mCompressedSize = buff.mSize;
 	buff.mMethod = METHOD_STORED;
 	return buff;
 	
 }
 
-bool CompositeSavegameWriter::WriteToFile(const char *filename)
+bool CompositeSavegameWriter::WriteToFile()
 {
 	TArray<FCompressedBuffer> compressed(subfiles.Size(), 1);
 	for (unsigned i = 0; i < subfiles.Size(); i++)
@@ -118,14 +119,16 @@ bool CompositeSavegameWriter::WriteToFile(const char *filename)
 	if (WriteZip(filename, subfilenames, compressed))
 	{
 		// Check whether the file is ok by trying to open it.
-		FResourceFile *test = FResourceFile::OpenResourceFile(filename, true);
-		if (test != nullptr)
+		//FResourceFile *test = FResourceFile::OpenResourceFile(filename, true);
+		//if (test != nullptr)
 		{
-			delete test;
+			Clear();
+			//delete test;
 			return true;
 		}
 	}
 
+	Clear();
 	return false;
 }
 

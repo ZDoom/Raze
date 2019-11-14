@@ -746,6 +746,8 @@ set (PCH_SOURCES
 	common/optionmenu/optionmenu.cpp
 	common/statistics.cpp
 	common/secrets.cpp
+	common/compositesavegame.cpp
+	common/savegamehelp.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp

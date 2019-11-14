@@ -6,5 +6,6 @@ void STAT_NewLevel(const char* mapname);
 void STAT_Update(bool endofgame);
 void STAT_Cancel();
 
-void SaveStatistics(FileWriter& fil);
-bool ReadStatistics(FileReader& fil);
+void InitStatistics();
+void SaveStatistics();
+bool ReadStatistics();

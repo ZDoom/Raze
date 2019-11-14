@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "statistics.h"
 #include "secrets.h"
+#include "savegamehelp.h"
 
 BEGIN_BLD_NS
 
@@ -117,7 +118,8 @@ void LoadSave::LoadGame(char *pzFile)
         memset(sprite, 0, sizeof(spritetype)*kMaxSprites);
         automapping = 1;
     }
-    hLFile = fopenFileReader(pzFile, 0);
+	OpenSaveGameForRead(pzFile);
+    hLFile = ReadSavegameChunk("snapshot.bld");
     if (!hLFile.isOpen())
         ThrowError("Error loading save file.");
     LoadSave *rover = head.next;
@@ -126,10 +128,11 @@ void LoadSave::LoadGame(char *pzFile)
         rover->Load();
         rover = rover->next;
     }
-	if (!ReadStatistics(hLFile) || !SECRET_Load(hLFile))  // read the rest...
+	if (!ReadStatistics() || !SECRET_Load())  // read the rest...
 		ThrowError("Error loading save file.");
 
 	hLFile.Close();
+	FinishSavegameRead();
     if (!gGameStarted)
         scrLoadPLUs();
     InitSectorFX();
@@ -193,7 +196,8 @@ void LoadSave::LoadGame(char *pzFile)
 
 void LoadSave::SaveGame(char *pzFile)
 {
-    hSFile = FileWriter::Open(pzFile);
+	OpenSaveGameForWrite(pzFile);
+	hSFile = WriteSavegameChunk("snapshot.bld");
     if (hSFile == NULL)
         ThrowError("File error #%d creating save file.", errno);
     dword_27AA38 = 0;
@@ -207,9 +211,9 @@ void LoadSave::SaveGame(char *pzFile)
         dword_27AA38 = 0;
         rover = rover->next;
     }
-	SaveStatistics(*hSFile);
-	SECRET_Save(*hSFile);
-	delete hSFile;
+	SaveStatistics();
+	SECRET_Save();
+	FinishSavegameWrite();
     hSFile = NULL;
 }
 

@@ -32,9 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "version.h"
 #include "statistics.h"
 #include "secrets.h"
+#include "savegamehelp.h"
 
 BEGIN_DUKE_NS
-
 
 static OutputFileCounter savecounter;
 char previousboardfilename[BMAX_PATH];
@@ -152,27 +152,25 @@ uint16_t g_nummenusaves;
 static menusave_t * g_internalsaves;
 static uint16_t g_numinternalsaves;
 
-static FileReader OpenSavegame(const char *fn)
+static FileReader *OpenSavegame(const char *fn)
 {
-	auto file = fopenFileReader(fn, 0);
+	if (!OpenSaveGameForRead(fn))
+	{
+		return nullptr;
+	}
+	auto file = ReadSavegameChunk("DEMOLITION_ED");
 	if (!file.isOpen())
-		return file;
-
-	char buffer[13];
-	file.Read(buffer, 13);
-	if (memcmp(buffer, "DEMOLITION_ED", 13))
-		return FileReader();
-	
-	FileReader fr;
-	try
 	{
-		fr.OpenDecompressor(file, file.GetLength()-13, METHOD_DEFLATE, false, nullptr);
+		FinishSavegameRead();
+		return nullptr;
 	}
-	catch(std::runtime_error & err)
+	file = ReadSavegameChunk("snapshot.dat");
+	if (!file.isOpen())
 	{
-		Printf("%s: %s\n", fn, err.what());
+		FinishSavegameRead();
+		return nullptr;
 	}
-	return fr;
+	return new FileReader(std::move(file));
 }
 
 static void ReadSaveGameHeaders_CACHE1D(TArray<FString> &saves)
@@ -182,14 +180,15 @@ static void ReadSaveGameHeaders_CACHE1D(TArray<FString> &saves)
 	for (FString &save : saves)
     {
 		auto fil = OpenSavegame(save);
-        if (!fil.isOpen())
+        if (!fil)
             continue;
 
         menusave_t & msv = g_internalsaves[g_numinternalsaves];
 
         msv.brief.isExt = 0;
 
-        int32_t k = sv_loadheader(fil, 0, &h);
+        int32_t k = sv_loadheader(*fil, 0, &h);
+		delete fil;
         if (k)
         {
             if (k < 0)
@@ -198,8 +197,7 @@ static void ReadSaveGameHeaders_CACHE1D(TArray<FString> &saves)
             {
                 if (FURY)
                 {
-					FStringf extfn("%s.ext", save.GetChars());
-					auto extfil = fopenFileReader(extfn, 0);
+					auto extfil = ReadSavegameChunk("ext.json");
 					if (extfil.isOpen())
 					{
 						msv.brief.isExt = 1;
@@ -224,6 +222,7 @@ static void ReadSaveGameHeaders_CACHE1D(TArray<FString> &saves)
             msv.isUnreadable = 1;
 
     }
+	FinishSavegameRead();
 }
 
 static void ReadSaveGameHeaders_Internal(void)
@@ -315,22 +314,21 @@ void ReadSaveGameHeaders(void)
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 {
+	FileReader ssfil;
     auto fil = OpenSavegame(fn);
-    if (!fil.isOpen())
+    if (!fil)
         return -1;
 
-    int32_t i = sv_loadheader(fil, 0, saveh);
+    int32_t i = sv_loadheader(*fil, 0, saveh);
     if (i < 0)
         goto corrupt;
 
-    int32_t screenshotofs;
-    if (fil.Read(&screenshotofs, 4) != 4)
-        goto corrupt;
-
+	ssfil = ReadSavegameChunk("screenshot.dat");
+    
 	TileFiles.tileCreate(TILE_LOADSHOT, 200, 320);
-    if (screenshotofs)
+    if (ssfil.isOpen())
     {
-        if (fil.Read(tileData(TILE_LOADSHOT), 320 * 200) != 320 * 200)
+        if (ssfil.Read(tileData(TILE_LOADSHOT), 320 * 200) != 320 * 200)
         {
             OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
             goto corrupt;
@@ -340,11 +338,16 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
     {
         Bmemset(tileData(TILE_LOADSHOT), 0, 320*200);
     }
+	ssfil.Close();
     tileInvalidate(TILE_LOADSHOT, 0, 255);
 
-    return 0;
+	delete fil;
+	FinishSavegameRead();
+	return 0;
 
 corrupt:
+	delete fil;
+	FinishSavegameRead();
     return 1;
 }
 
@@ -365,11 +368,11 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         int skill = -1;
 
 		auto fil = OpenSavegame(sv.path);
+		if (!fil) return -1;
 
-        if (fil.isOpen())
         {
             savehead_t h;
-            int status = sv_loadheader(fil, 0, &h);
+            int status = sv_loadheader(*fil, 0, &h);
             if (status >= 0)
             {
                 volume = h.volnum;
@@ -378,18 +381,22 @@ int32_t G_LoadPlayer(savebrief_t & sv)
             }
         }
 
-		FStringf extfn("%s.ext", sv.path);
-        auto extfil = fopenFileReader(extfn, 0);
+        auto extfil = ReadSavegameChunk("ext.json");
         if (!extfil.isOpen())
         {
+			delete fil;
+			FinishSavegameRead();
             return -1;
         }
 
 		auto text = extfil.ReadPadded(1);
+		extfil.Close();
 
         if (text.Size() == 0)
         {
-            return -1;
+			delete fil;
+			FinishSavegameRead();
+			return -1;
         }
 
         sjson_context * ctx = sjson_create_context(0, 0, NULL);
@@ -405,7 +412,9 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         if (volume == -1 || level == -1 || skill == -1)
         {
             sjson_destroy_context(ctx);
-            return -1;
+			delete fil;
+			FinishSavegameRead();
+			return -1;
         }
 
         sjson_node * players = sjson_find_member(root, "players");
@@ -417,7 +426,9 @@ int32_t G_LoadPlayer(savebrief_t & sv)
             P_DoQuote(QUOTE_SAVE_BAD_PLAYERS, g_player[myconnectindex].ps);
 
             sjson_destroy_context(ctx);
-            return 1;
+			delete fil;
+			FinishSavegameRead();
+			return 1;
         }
 
 
@@ -588,18 +599,20 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
         VM_OnEvent(EVENT_LOADGAME, g_player[screenpeek].ps->i, screenpeek);
 
-        return 0;
+		delete fil;
+		FinishSavegameRead();
+		return 0;
     }
 
     auto fil = OpenSavegame(sv.path);
 
-    if (!fil.isOpen())
+    if (!fil)
         return -1;
 
     ready2send = 0;
 
     savehead_t h;
-    int status = sv_loadheader(fil, 0, &h);
+    int status = sv_loadheader(*fil, 0, &h);
 
     if (status < 0 || h.numplayers != ud.multimode)
     {
@@ -611,7 +624,9 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         ototalclock = totalclock;
         ready2send = 1;
 
-        return 1;
+		delete fil;
+		FinishSavegameRead();
+		return 1;
     }
 
     VM_OnEvent(EVENT_PRELOADGAME, g_player[screenpeek].ps->i, screenpeek);
@@ -665,7 +680,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     if (status == 2)
         G_NewGame_EnterLevel();
-    else if ((status = sv_loadsnapshot(fil, 0, &h)) || !ReadStatistics(fil) || !SECRET_Load(fil))  // read the rest...
+    else if ((status = sv_loadsnapshot(*fil, 0, &h)) || !ReadStatistics() || !SECRET_Load())  // read the rest...
     {
         // in theory, we could load into an initial dump first and trivially
         // recover if things go wrong...
@@ -676,7 +691,9 @@ int32_t G_LoadPlayer(savebrief_t & sv)
     sv_postudload();  // ud.m_XXX = ud.XXX
     VM_OnEvent(EVENT_LOADGAME, g_player[screenpeek].ps->i, screenpeek);
 
-    return 0;
+	delete fil;
+	FinishSavegameRead();
+	return 0;
 }
 
 ////////// TIMER SAVING/RESTORING //////////
@@ -717,8 +734,6 @@ void G_DeleteSave(savebrief_t const & sv)
         return;
     }
 
-    remove(temp);
-    Bstrcat(temp, ".ext");
     remove(temp);
 }
 
@@ -768,7 +783,8 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	if (sv.isValid())
 	{
 		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), sv.path);
-		fil = FileWriter::Open(fn);
+		OpenSaveGameForWrite(fn);
+		fil = WriteSavegameChunk("snapshot.dat");
 	}
 	else
 	{
@@ -778,6 +794,13 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 		auto fnp = fn.LockBuffer();
 		char* zeros = fnp + (fn.Len() - 8);
 		fil = savecounter.opennextfile(fnp, zeros);
+		if (fil)
+		{
+			delete fil;
+			remove(fnp);
+			OpenSaveGameForWrite(fnp);
+			fil = WriteSavegameChunk("snapshot.dat");
+		}
 		fn.UnlockBuffer();
 		savecounter.count++;
 		// don't copy the mod dir into sv.path
@@ -797,9 +820,8 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	}
 	else
 	{
-		fil->Write("DEMOLITION_ED", 13);
-
-		CompressedFileWriter fw(fil, true);
+		WriteSavegameChunk("DEMOLITION_ED");
+		auto& fw = *fil;
 
 		sv.isExt = 0;
 
@@ -812,10 +834,11 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
         // SAVE!
         sv_saveandmakesnapshot(fw, sv.name, 0, 0, 0, 0, isAutoSave);
-		SaveStatistics(fw);
-		SECRET_Save(fw);
+		SaveStatistics();
+		SECRET_Save();
 
 		fw.Close();
+		FinishSavegameWrite();
 
 		if (!g_netServer && ud.multimode < 2)
 		{
@@ -1686,7 +1709,9 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
     {
         // savegame
         Bstrncpyz(h.savename, name, sizeof(h.savename));
-    }
+		auto fw = WriteSavegameChunk("header.dat");
+		fw->Write(&h, sizeof(savehead_t));
+	}
     else
     {
         // demo
@@ -1698,28 +1723,18 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
         if (t>=0 && (st = localtime(&t)))
             Bsnprintf(h.savename, sizeof(h.savename), "Demo %04d%02d%02d %s",
                       st->tm_year+1900, st->tm_mon+1, st->tm_mday, GetGitDescription());
-    }
+		fil.Write(&h, sizeof(savehead_t));
+	}
 
 
     // write header
-    fil.Write(&h, sizeof(savehead_t));
 
-    // for savegames, the file offset after the screenshot goes here;
-    // for demos, we keep it 0 to signify that we didn't save one
     if (spot >= 0 && tileData(TILE_SAVESHOT))
     {
-        
-		int v = 64000;
-	    fil.Write(&v, 4);
-        // write the screenshot compressed
-        fil.Write(tileData(TILE_SAVESHOT), 320*200);
+		auto fw = WriteSavegameChunk("screenshot.dat");
+        fw->Write(tileData(TILE_SAVESHOT), 320*200);
 
     }
-	else
-	{
-		int v = 0;
-	    fil.Write(&v, 4);
-	}
 
 
     if (spot >= 0)
@@ -1745,11 +1760,18 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
 }
 
 // if file is not an EDuke32 savegame/demo, h->headerstr will be all zeros
-int32_t sv_loadheader(FileReader &fil, int32_t spot, savehead_t *h)
+int32_t sv_loadheader(FileReader &fill, int32_t spot, savehead_t *h)
 {
+	FileReader filc;
+	FileReader* filp = &fill;
     int32_t havedemo = (spot < 0);
+	if (!havedemo)
+	{
+		filc = ReadSavegameChunk("header.dat");
+		filp = &filc;
+	}
 
-    if (fil.Read(h, sizeof(savehead_t)) != sizeof(savehead_t))
+    if (filp->Read(h, sizeof(savehead_t)) != sizeof(savehead_t))
     {
         OSD_Printf("%s %d header corrupt.\n", havedemo ? "Demo":"Savegame", havedemo ? -spot : spot);
         Bmemset(h->headerstr, 0, sizeof(h->headerstr));
@@ -1824,20 +1846,6 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
 #ifdef DEBUGGINGAIDS
     OSD_Printf("sv_loadsnapshot: snapshot size: %d bytes.\n", h->snapsiz);
 #endif
-
-    if (fil.Read(&i, 4) != 4)
-    {
-        OSD_Printf("sv_snapshot: couldn't read 4 bytes after header.\n");
-        return 7;
-    }
-    if (i > 0)
-    {
-        if (fil.Seek(i, FileReader::SeekCur) < 0)
-        {
-            OSD_Printf("sv_snapshot: failed skipping over the screenshot.\n");
-            return 8;
-        }
-    }
 
     savegame_comprthres = h->comprthres;
 

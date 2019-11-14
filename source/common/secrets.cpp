@@ -6,6 +6,7 @@
 #include "c_cvars.h"
 #include "v_font.h"
 #include "v_draw.h"
+#include "savegamehelp.h"
 
 // Unlike in GZDoom we have to maintain this list here, because we got different game frontents that all store this info differently.
 // So the games will have to report the credited secrets so that this code can keep track of how to display them.
@@ -106,20 +107,23 @@ CCMD(secret)
 	}
 }
  
-void SECRET_Save(FileWriter &fil)
+void SECRET_Save()
 {
-	fil.Write("SECR", 4);
+	auto fil = WriteSavegameChunk("secrets.dat");
+	fil->Write("SECR", 4);
 	unsigned count = discovered_secrets.Size();
-	fil.Write(&count, 4);
-	fil.Write(discovered_secrets.Data(), 4 * count);
-	fil.Write("RCES", 4);
+	fil->Write(&count, 4);
+	fil->Write(discovered_secrets.Data(), 4 * count);
+	fil->Write("RCES", 4);
 	
 }
 
-bool SECRET_Load(FileReader &fil)
+bool SECRET_Load()
 {
 	char buf[4];
 	unsigned count;
+	auto fil = ReadSavegameChunk("secrets.dat");
+	if (!fil.isOpen()) return false;
 	fil.Read(buf, 4);
 	if (memcmp(buf, "SECR", 4)) return false;
 	fil.Read(&count, 4);
