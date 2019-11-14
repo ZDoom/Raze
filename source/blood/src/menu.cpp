@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screen.h"
 #include "sound.h"
 #include "view.h"
+#include "cmdlib.h"
 #include "i_specialpaths.h"
 
 EXTERN_CVAR(Bool, hud_powerupduration)
@@ -2120,7 +2121,7 @@ void LoadGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
     if (gGameOptions.nGameType > 0)
         return;
     snprintf(strLoadGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), nSlot);
-    if (!testkopen(strLoadGameName, 0))
+    if (!FileExists(strLoadGameName))
         return;
     viewLoadingScreen(2518, "Loading", "Loading Saved Game", strRestoreGameStrings[nSlot]);
     videoNextPage();
@@ -2135,7 +2136,7 @@ void QuickLoadGame(void)
     if (gGameOptions.nGameType > 0)
         return;
     snprintf(strLoadGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), gQuickLoadSlot);
-    if (!testkopen(strLoadGameName, 0))
+    if (!FileExists(strLoadGameName))
         return;
     viewLoadingScreen(2518, "Loading", "Loading Saved Game", strRestoreGameStrings[gQuickLoadSlot]);
     videoNextPage();

@@ -440,15 +440,19 @@ void MyLoadSave::Save(void)
 
 void LoadSavedInfo(void)
 {
-	FString path = M_GetSavegamesPath() + "%sgame*.sav";
+	FString path = M_GetSavegamesPath() + "game*.sav";
 	TArray<FString> saves;
 	D_AddWildFile(saves, path);
     int nCount = 0;
     for (auto & savename : saves)
     {
-        auto hFile = fopenFileReader(savename, 0);
-        if (!hFile.isOpen())
-            ThrowError("Error loading save file header.");
+		OpenSaveGameForRead(savename);
+		auto hFile = ReadSavegameChunk("snapshot.bld");
+		if (!hFile.isOpen())
+		{
+			FinishSavegameRead();
+			ThrowError("Error loading save file header.");
+		}
         int vc;
         short v4;
         vc = 0;
@@ -471,6 +475,7 @@ void LoadSavedInfo(void)
         strcpy(strRestoreGameStrings[gSaveGameOptions[nCount].nSaveGameSlot], gSaveGameOptions[nCount].szUserGameName);
 		nCount++;
     }
+	FinishSavegameRead();
 }
 
 void UpdateSavedInfo(int nSlot)
