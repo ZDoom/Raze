@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <stdint.h>
 
 struct PalEntry
@@ -32,6 +33,11 @@ struct PalEntry
 	int Luminance() const 
 	{
 		return (r * 77 + g * 143 + b * 37) >> 8;
+	}
+
+	int Amplitude() const
+	{
+		return std::max(r, std::max(g, b));
 	}
 
 	void Decolorize()	// this for 'nocoloredspritelighting' and not the same as desaturation. The normal formula results in a value that's too dark.

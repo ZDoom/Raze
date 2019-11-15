@@ -145,6 +145,25 @@ unsigned PaletteManager::FindPalswap(const uint8_t* paldata, palette_t &fadecolo
 	pd.lookup = paldata;
 	pd.crc32 = crc32;
 	pd.swaptexture = nullptr;
+	memset(pd.brightcolors, 0, 256);
+	pd.isbright = false;
+
+	for (int i = 0; i < 255; i++)
+	{
+		int firstmap = paldata[i];
+		int lastmap = paldata[i + 256 * (numshades - 2)];
+
+		PalEntry color1 = palettes[palettemap[0]].colors[firstmap];
+		PalEntry color2 = palettes[palettemap[0]].colors[lastmap];
+		int lum1 = color1.Amplitude();
+		int lum2 = color2.Amplitude();
+		if (lum1 > 40 && lum2 * 10 >= lum1 * 9)
+		{
+			pd.brightcolors[i] = 255;
+			pd.isbright = true;
+		}
+	}
+
 
 	if (fadecolor.f == 0)
 	{
@@ -288,13 +307,18 @@ int PaletteManager::LookupPalette(int palette, int palswap, bool brightmap)
 	}
 	else
 	{
+		if (!swapdata->isbright)
+		{
+			swappedpalmap.Insert(combined, -1);
+			return -1;
+		}
+
 		bool found = false;
 		memset(swappedpalette, 0, sizeof(swappedpalette));
 		for (int i = 0; i < 255; i++)
 		{
-			int swapi = swapdata->lookup[i];
-			auto swapc = paldata->colors[swapi];
-			if (swapc.a)
+			int swapi = swapdata->brightcolors[i];
+			if (swapi)
 			{
 				found = true;
 				swappedpalette[i] = 0xffffffff;

@@ -37,9 +37,11 @@ struct PalShade
 struct PalswapData
 {
 	int32_t crc32;
+	bool isbright;
 	const uint8_t *lookup;	// points to the original data. This is static so no need to copy
 	FHardwareTexture* swaptexture;
 	PalEntry fadeColor;
+	uint8_t brightcolors[255];
 };
 
 enum
@@ -198,6 +200,7 @@ class GLInstance
 	FTexture* currentTexture = nullptr;
 	int TextureType;
 	int MatrixChange = 0;
+	bool istrans = false;
 
 	IVertexBuffer* LastVertexBuffer = nullptr;
 	int LastVB_Offset[2] = {};

@@ -258,6 +258,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				BindTexture(4, htex, SamplerRepeat);
 			}
 		}
+#if 1
 		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap])
 		{
 			if (TextureType == TT_HICREPLACE)
@@ -293,6 +294,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				}
 			}
 		}
+#endif
 	}
 	else return false;
 

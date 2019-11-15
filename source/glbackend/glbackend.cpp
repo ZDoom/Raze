@@ -226,6 +226,7 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 
 	if (activeShader == polymostShader)
 	{
+		if (istrans) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
 		renderState.Apply(polymostShader);
 		if (renderState.VertexBuffer != LastVertexBuffer || LastVB_Offset[0] != renderState.VB_Offset[0] || LastVB_Offset[1] != renderState.VB_Offset[1])
 		{
@@ -400,6 +401,7 @@ void GLInstance::SetCull(int type, int winding)
 void GLInstance::SetColor(float r, float g, float b, float a)
 {
 	glVertexAttrib4f(2, r, g, b, a);
+	istrans = (a != 1);
 }
 
 void GLInstance::SetDepthFunc(int func)

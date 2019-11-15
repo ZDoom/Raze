@@ -546,14 +546,14 @@ bool ReadStatistics()
 	sjson_node* root = sjson_decode(ctx, (const char*)text.Data());
 
 	LevelName = sjson_get_string(root, "levelname", "");
-	StartEpisode = sjson_get_int(root, "episode", -1);
+	StartEpisode = sjson_get_string(root, "episode", "");
 	StartSkill = sjson_get_int(root, "skill", -1);
 	sjson_node* levels = sjson_find_member(root, "levels");
 
-	if (LevelName.Len() == 0 || StartEpisode == -1 || StartSkill == -1 || levels == nullptr)
+	if (LevelName.Len() == 0 || StartEpisode.Len() == 0 || StartSkill == -1 || levels == nullptr)
 	{
 		sjson_destroy_context(ctx);
-		return false;
+		return true;	// do not error out on this.
 	}
 
 	int numlevels = sjson_child_count(levels);

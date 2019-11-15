@@ -1,5 +1,6 @@
 // Windows layer-independent code
 
+#define NOMINMAX
 #include <Windows.h>
 #include "compat.h"
 #include "build.h"
