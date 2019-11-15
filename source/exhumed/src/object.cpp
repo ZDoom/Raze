@@ -2562,7 +2562,7 @@ void PostProcess()
             if (SectSpeed[i] && SectDepth[i] && !(SectFlag[i] & kSectLava))
             {
                 SectSoundSect[i] = i;
-                SectSound[i] = StaticSound[kSound62];
+                SectSound[i] = StaticSound[kSound43];
             }
             else
             {
@@ -2587,7 +2587,7 @@ void PostProcess()
                         {
                             var_20 = xVal + yVal;
                             SectSoundSect[i] = j;
-                            SectSound[i] = j;
+                            SectSound[i] = StaticSound[kSound43];
                         }
                     }
                 }
