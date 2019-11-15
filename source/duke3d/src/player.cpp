@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 #include "d_event.h"
 #include "i_specialpaths.h"
+#include "savegamehelp.h"
 
 BEGIN_DUKE_NS
 
@@ -5631,13 +5632,6 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
     if (!FURY)
         return 0;
 
-    char fn[BMAX_PATH];
-
-    if (snprintf(fn, sizeof(fn), "%s%s.ext", M_GetSavegamesPath().GetChars(), path))
-    {
-        return 1;
-    }
-
     sjson_context * ctx = sjson_create_context(0, 0, NULL);
     if (!ctx)
     {
@@ -5729,7 +5723,7 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
 
     char * encoded = sjson_stringify(ctx, root, "  ");
 
-	FileWriter *fil = FileWriter::Open(fn);
+	FileWriter* fil = WriteSavegameChunk("ext.json");
     if (!fil)
     {
         sjson_destroy_context(ctx);

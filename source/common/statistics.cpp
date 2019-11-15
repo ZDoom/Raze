@@ -46,6 +46,7 @@
 #include "sc_man.h"
 #include "baselayer.h"
 #include "savegamehelp.h"
+#include "sjson.h"
 
 CVAR(Int, savestatistics, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(String, statfile, "demolitionstat.txt", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -67,9 +68,9 @@ struct OneLevel
 
 // Current game's statistics
 static TArray<OneLevel> LevelData;
-static char StartEpisode[MAX_PATH];
+static FString StartEpisode;
 static int StartSkill;
-static char LevelName[MAX_PATH];
+static FString LevelName;
 
 // The statistics for one level
 struct FLevelStatistics
@@ -352,15 +353,15 @@ static void LevelStatEntry(FSessionStatistics *es, const char *level, const char
 
 void STAT_StartNewGame(const char *episode, int skill)
 {
-	strncpy(StartEpisode, episode, MAX_PATH);
+	StartEpisode = episode;
 	StartSkill = skill;
 	LevelData.Clear();
-	*LevelName = 0;
+	LevelName = "";
 }
 
 void STAT_NewLevel(const char* mapname)
 {
-	strncpy(LevelName, mapname, MAX_PATH);
+	LevelName = mapname;
 }
 
 //==========================================================================
@@ -443,14 +444,14 @@ void STAT_Update(bool endofgame)
 		}
 		SaveStatistics(statfile, EpisodeStatistics);
 		LevelData.Clear();
-		*StartEpisode = *LevelName = 0;
+		StartEpisode = LevelName = "";
 	}
 }
 
 void STAT_Cancel()
 {
 	LevelData.Clear();
-	*StartEpisode = *LevelName = 0;
+	StartEpisode = LevelName = "";
 }
 
 //==========================================================================
@@ -459,67 +460,109 @@ void STAT_Cancel()
 //
 //==========================================================================
 
-void SaveOneLevel(FileWriter& fil, OneLevel& l)
+void SaveOneLevel(sjson_context *ctx, sjson_node *lev, OneLevel& l)
 {
-	fil.Write(&l.totalkills, 4);
-	fil.Write(&l.killcount, 4);
-	fil.Write(&l.totalsecrets, 4);
-	fil.Write(&l.secretcount, 4);
-	fil.Write(&l.leveltime, 4);
-	uint8_t siz = l.Levelname.Len();
-	fil.Write(&siz, 1);
-	fil.Write(l.Levelname.GetChars(), siz);
+	sjson_put_int(ctx, lev, "totalkills", l.totalkills);
+	sjson_put_int(ctx, lev, "kills", l.killcount);
+	sjson_put_int(ctx, lev, "totalsecrets", l.totalsecrets);
+	sjson_put_int(ctx, lev, "secrets", l.secretcount);
+	sjson_put_int(ctx, lev, "leveltime", l.leveltime);
+	sjson_put_string(ctx, lev, "levelname", l.Levelname);
 }
 
-void ReadOneLevel(FileReader& fil, OneLevel& l)
+void ReadOneLevel(sjson_node *lev, OneLevel& l)
 {
-	fil.Read(&l.totalkills, 4);
-	fil.Read(&l.killcount, 4);
-	fil.Read(&l.totalsecrets, 4);
-	fil.Read(&l.secretcount, 4);
-	fil.Read(&l.leveltime, 4);
-	uint8_t siz;
-	fil.Read(&siz, 1);
-	auto p = l.Levelname.LockNewBuffer(siz);
-	fil.Read(p, siz);
-	l.Levelname.UnlockBuffer();
+
+	l.totalkills = sjson_get_int(lev, "totalkills", 0);
+	l.killcount = sjson_get_int(lev, "kills", 0);
+	l.totalsecrets = sjson_get_int(lev, "totalsecrets", 0);
+	l.secretcount = sjson_get_int(lev, "secrets", 0);
+	l.leveltime = sjson_get_int(lev, "leveltime", 0);
+	l.Levelname = sjson_get_string(lev, "levelname", "");
 }
 
 void SaveStatistics()
 {
-	auto fil = WriteSavegameChunk("statistics.dat");
-	fil->Write("STAT", 4);
-	fil->Write(LevelName, MAX_PATH);
-	fil->Write(&StartEpisode, MAX_PATH);
-	fil->Write(&StartSkill, 4);
-	int p = LevelData.Size();
-	fil->Write(&p, 4);
+	sjson_context* ctx = sjson_create_context(0, 0, NULL);
+	if (!ctx)
+	{
+		return;
+	}
+	sjson_node* root = sjson_mkobject(ctx);
+
+	sjson_put_string(ctx, root, "levelname", LevelName);
+	sjson_put_string(ctx, root, "episode", StartEpisode);
+	sjson_put_int(ctx, root, "skill", StartSkill);
+
+	sjson_node* levels = sjson_mkarray(ctx);
 	for (auto& lev : LevelData)
 	{
-		SaveOneLevel(*fil, lev);
+		sjson_node* levj = sjson_mkobject(ctx);
+		SaveOneLevel(ctx, levj, lev);
 	}
-	fil->Write("TATS", 4);
+	sjson_append_member(ctx, root, "levels", levels);
+
+	char errmsg[256];
+	if (!sjson_check(root, errmsg))
+	{
+		buildprint(errmsg, "\n");
+		sjson_destroy_context(ctx);
+		return;
+	}
+
+	char* encoded = sjson_stringify(ctx, root, "  ");
+
+	FileWriter* fil = WriteSavegameChunk("statistics.json");
+	if (!fil)
+	{
+		sjson_destroy_context(ctx);
+		return;
+	}
+
+	fil->Write(encoded, strlen(encoded));
+
+	sjson_free_string(ctx, encoded);
+	sjson_destroy_context(ctx);
+	return;
 }
 
 bool ReadStatistics()
 {
-	char id[4];
-	auto fil = ReadSavegameChunk("statistics.dat");
-	if (!fil.isOpen()) return false;
-	fil.Read(id, 4);
-	if (memcmp(id, "STAT", 4)) return false;
-	fil.Read(LevelName, MAX_PATH);
-	fil.Read(&StartEpisode, MAX_PATH);
-	fil.Read(&StartSkill, 4);
-	int p;
-	fil.Read(&p, 4);
-	LevelData.Resize(p);
+	auto fil = ReadSavegameChunk("statistics.json");
+	if (!fil.isOpen())
+	{
+		return false;
+	}
+
+	auto text = fil.ReadPadded(1);
+	fil.Close();
+
+	if (text.Size() == 0)
+	{
+		return false;
+	}
+
+	sjson_context* ctx = sjson_create_context(0, 0, NULL);
+	sjson_node* root = sjson_decode(ctx, (const char*)text.Data());
+
+	LevelName = sjson_get_string(root, "levelname", "");
+	StartEpisode = sjson_get_int(root, "episode", -1);
+	StartSkill = sjson_get_int(root, "skill", -1);
+	sjson_node* levels = sjson_find_member(root, "levels");
+
+	if (LevelName.Len() == 0 || StartEpisode == -1 || StartSkill == -1 || levels == nullptr)
+	{
+		sjson_destroy_context(ctx);
+		return false;
+	}
+
+	int numlevels = sjson_child_count(levels);
+	LevelData.Resize(numlevels);
 	for (auto& lev : LevelData)
 	{
-		ReadOneLevel(fil, lev);
+		ReadOneLevel(levels, lev);
 	}
-	fil.Read(id, 4);
-	if (memcmp(id, "TATS", 4)) return false;
+	sjson_destroy_context(ctx);
 	return true;
 }
 

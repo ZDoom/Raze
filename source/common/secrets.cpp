@@ -6,6 +6,7 @@
 #include "c_cvars.h"
 #include "v_font.h"
 #include "v_draw.h"
+#include "sjson.h"
 #include "savegamehelp.h"
 
 // Unlike in GZDoom we have to maintain this list here, because we got different game frontents that all store this info differently.
@@ -109,28 +110,51 @@ CCMD(secret)
  
 void SECRET_Save()
 {
-	auto fil = WriteSavegameChunk("secrets.dat");
-	fil->Write("SECR", 4);
-	unsigned count = discovered_secrets.Size();
-	fil->Write(&count, 4);
-	fil->Write(discovered_secrets.Data(), 4 * count);
-	fil->Write("RCES", 4);
-	
+	sjson_context* ctx = sjson_create_context(0, 0, NULL);
+	if (!ctx)
+	{
+		return;
+	}
+	sjson_node* root = sjson_mkobject(ctx);
+	sjson_put_ints(ctx, root, "secrets", discovered_secrets.Data(), discovered_secrets.Size());
+
+	char* encoded = sjson_stringify(ctx, root, "  ");
+
+	FileWriter* fil = WriteSavegameChunk("secrets.json");
+	if (!fil)
+	{
+		sjson_destroy_context(ctx);
+		return;
+	}
+
+	fil->Write(encoded, strlen(encoded));
+
+	sjson_free_string(ctx, encoded);
+	sjson_destroy_context(ctx);
 }
 
 bool SECRET_Load()
 {
-	char buf[4];
-	unsigned count;
-	auto fil = ReadSavegameChunk("secrets.dat");
-	if (!fil.isOpen()) return false;
-	fil.Read(buf, 4);
-	if (memcmp(buf, "SECR", 4)) return false;
-	fil.Read(&count, 4);
-	discovered_secrets.Resize(count);
-	fil.Read(discovered_secrets.Data(), count * 4);
-	fil.Read(buf, 4);
-	if (memcmp(buf, "RCES", 4)) return false;
+	auto fil = ReadSavegameChunk("statistics.json");
+	if (!fil.isOpen())
+	{
+		return false;
+	}
+
+	auto text = fil.ReadPadded(1);
+	fil.Close();
+
+	if (text.Size() == 0)
+	{
+		return false;
+	}
+
+	sjson_context* ctx = sjson_create_context(0, 0, NULL);
+	sjson_node* root = sjson_decode(ctx, (const char*)text.Data());
+	discovered_secrets.Resize(1000);	// Retarted interface alert
+	int realsize = sjson_get_ints(discovered_secrets.Data(), 1000, root, "secrets");
+	discovered_secrets.Resize(realsize);
+	sjson_destroy_context(ctx);
 	return true;
 }
 

@@ -228,7 +228,7 @@ double 		sjson_get_double(sjson_node* parent, const char* key, double default_va
 const char* sjson_get_string(sjson_node* parent, const char* key, const char* default_val);
 bool 		sjson_get_bool(sjson_node* parent, const char* key, bool default_val);
 bool		sjson_get_floats(float* out, int count, sjson_node* parent, const char* key);
-bool		sjson_get_ints(int* out, int count, sjson_node* parent, const char* key);
+int		sjson_get_ints(int* out, int count, sjson_node* parent, const char* key);
 bool        sjson_get_uints(uint32_t* out, int count, sjson_node* parent, const char* key);
 bool        sjson_get_int16s(int16_t* out, int count, sjson_node* parent, const char* key);
 bool        sjson_get_uint16s(uint16_t* out, int count, sjson_node* parent, const char* key);
@@ -1283,7 +1283,7 @@ bool sjson_get_floats(float* out, int count, sjson_node* parent, const char* key
     }
 }
 
-bool sjson_get_ints(int* out, int count, sjson_node* parent, const char* key)
+int sjson_get_ints(int* out, int count, sjson_node* parent, const char* key)
 {
     sjson_node* p = key ? sjson_find_member(parent, key) : parent;
     if (p) {
@@ -1293,9 +1293,9 @@ bool sjson_get_ints(int* out, int count, sjson_node* parent, const char* key)
             sjson_assert(elem->tag == SJSON_NUMBER);
             out[index++] = (int)elem->number_;
         }
-        return index == count;
+        return index;
     } else {
-        return false;
+        return 0;
     }
 }
 
