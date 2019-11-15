@@ -2002,6 +2002,60 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
     return clamp(tabledivide64(65536*elapsedFrames*30, rfreq), 0, 65536);
 }
 
+int r_showfps;
+
+#define COLOR_RED redcol
+#define COLOR_WHITE whitecol
+
+#define LOW_FPS ((videoGetRenderMode() == REND_CLASSIC) ? 35 : 50)
+#define SLOW_FRAME_TIME 20
+
+#if defined GEKKO
+# define FPS_YOFFSET 16
+#else
+# define FPS_YOFFSET 0
+#endif
+
+#define FPS_COLOR(x) ((x) ? COLOR_RED : COLOR_WHITE)
+
+static void G_PrintFPS(void)
+{
+    static char tempbuf[256];
+    static int32_t frameCount;
+    static double cumulativeFrameDelay;
+    static double lastFrameTime;
+    static float lastFPS, minFPS = std::numeric_limits<float>::max(), maxFPS;
+    static double minGameUpdate = std::numeric_limits<double>::max(), maxGameUpdate;
+
+    double frameTime = timerGetHiTicks();
+    double frameDelay = frameTime - lastFrameTime;
+    cumulativeFrameDelay += frameDelay;
+
+    if (frameDelay >= 0)
+    {
+        int32_t x = (xdim <= 640);
+
+        if (r_showfps)
+        {
+            int32_t chars = Bsprintf(tempbuf, "%.1f ms, %5.1f fps", frameDelay, lastFPS);
+
+            printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+2+FPS_YOFFSET, blackcol, -1, tempbuf, x);
+            printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+1+FPS_YOFFSET,
+                FPS_COLOR(lastFPS < LOW_FPS), -1, tempbuf, x);
+        }
+
+        if (cumulativeFrameDelay >= 1000.0)
+        {
+            lastFPS = 1000.f * frameCount / cumulativeFrameDelay;
+            // g_frameRate = Blrintf(lastFPS);
+            frameCount = 0;
+            cumulativeFrameDelay = 0.0;
+        }
+        frameCount++;
+    }
+    lastFrameTime = frameTime;
+}
+
 static void GameDisplay(void)
 {
     // End Section B
@@ -2044,6 +2098,8 @@ static void GameDisplay(void)
         int nLen = MyGetStringWidth("PAUSED");
         myprintext((320 - nLen) / 2, 100, "PAUSED", 0);
     }
+
+    G_PrintFPS();
 
     videoNextPage();
 }

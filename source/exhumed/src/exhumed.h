@@ -210,6 +210,7 @@ enum {
 };
 
 extern char g_modDir[BMAX_PATH];
+extern int r_showfps;
 
 extern struct grpfile_t const* g_selectedGrp;
 
