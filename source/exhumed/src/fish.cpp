@@ -259,7 +259,8 @@ void IdleFish(short nFish, short edx)
 {
     short nSprite = FishList[nFish].nSprite;
 
-    sprite[nSprite].ang += ((256 - RandomSize(9)) + 1024) & kAngleMask;
+    sprite[nSprite].ang += (256 - RandomSize(9)) + 1024;
+    sprite[nSprite].ang &= kAngleMask;
 
     sprite[nSprite].xvel = (sprite[nSprite].ang + 512) >> 8;
     sprite[nSprite].yvel = (sprite[nSprite].ang) >> 8;
@@ -309,6 +310,13 @@ void FuncFish(int a, int nDamage, int nRun)
             return;
         }
 
+        case 0x90000:
+        {
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqFish] + ActionSeq[nAction].a, FishList[nFish].field_2, ActionSeq[nAction].b);
+            tsprite[a & 0xFFFF].owner = -1;
+            return;
+        }
+
         case 0xA0000:
         {
             if (FishList[nFish].nHealth <= 0) {
@@ -320,10 +328,8 @@ void FuncFish(int a, int nDamage, int nRun)
                 if (!nDamage) {
                     return;
                 }
-                else
-                {
-                    FishList[nFish].field_C = 10;
-                }
+
+                FishList[nFish].field_C = 10;
             }
             // fall through
         }
@@ -372,13 +378,6 @@ void FuncFish(int a, int nDamage, int nRun)
                 FishList[nFish].field_C += 10;
             }
 
-            return;
-        }
-
-        case 0x90000:
-        {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqFish] + ActionSeq[nAction].a, FishList[nFish].field_2, ActionSeq[nAction].b);
-            tsprite[a & 0xFFFF].owner = -1;
             return;
         }
 
@@ -459,7 +458,7 @@ void FuncFish(int a, int nDamage, int nRun)
                         if (z <= nHeight)
                         {
                             sprite[nSprite].xvel = (Sin(sprite[nSprite].ang + 512) >> 5) - (Sin(sprite[nSprite].ang + 512) >> 7);
-                            sprite[nSprite].yvel = ((Sin(sprite[nSprite].ang) >> 5) >> 5) - ((Sin(sprite[nSprite].ang) >> 5) >> 7);
+                            sprite[nSprite].yvel = (Sin(sprite[nSprite].ang) >> 5) - (Sin(sprite[nSprite].ang) >> 7);
                         }
                         else
                         {
@@ -474,7 +473,7 @@ void FuncFish(int a, int nDamage, int nRun)
 
                 case 4:
                 {
-                    if (!FishList[nFish].field_2)
+                    if (FishList[nFish].field_2 == 0)
                     {
                         IdleFish(nFish, 0);
                     }
@@ -488,7 +487,7 @@ void FuncFish(int a, int nDamage, int nRun)
 
                 case 9:
                 {
-                    if (!FishList[nFish].field_2)
+                    if (FishList[nFish].field_2 == 0)
                     {
                         DestroyFish(nFish);
                     }
