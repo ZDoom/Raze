@@ -142,9 +142,9 @@ void FuncLion(int a, int nDamage, int nRun)
                 if (LionList[nLion].nHealth <= 0)
                 {
                     // R.I.P.
-                    sprite[nSprite].zvel = 0;
-                    sprite[nSprite].yvel = 0;
                     sprite[nSprite].xvel = 0;
+                    sprite[nSprite].yvel = 0;
+                    sprite[nSprite].zvel = 0;
                     LionList[nLion].nHealth = 0;
                     sprite[nSprite].cstat &= 0xFEFE;
 
@@ -168,7 +168,7 @@ void FuncLion(int a, int nDamage, int nRun)
                 }
                 else
                 {
-                    if (a >= 0)
+                    if ((a & 0xFFFF) >= 0)
                     {
                         short nTarget = a & 0xFFFF;
 
@@ -181,8 +181,8 @@ void FuncLion(int a, int nDamage, int nRun)
                             if (RandomSize(8) <= (LionList[nLion].nHealth >> 2))
                             {
                                 LionList[nLion].nAction = 4;
-                                sprite[nSprite].yvel = 0;
                                 sprite[nSprite].xvel = 0;
+                                sprite[nSprite].yvel = 0;
                             }
                             else if (RandomSize(1))
                             {
@@ -192,12 +192,17 @@ void FuncLion(int a, int nDamage, int nRun)
 
                                 sprite[nSprite].ang = (sprite[nSprite].ang - (RandomSize(1) << 8)) + (RandomSize(1) << 8);
                             }
+                            else
+                            {
+                                sprite[nSprite].xvel = 0;
+                                sprite[nSprite].yvel = 0;
+                                LionList[nLion].nAction = 8;
+                                sprite[nSprite].cstat &= 0xFEFE;
+                            }
 
                             LionList[nLion]._b = 0;
-                            return;
                         }
                     }
-                    return;
                 }
             }
             return;
@@ -314,7 +319,14 @@ void FuncLion(int a, int nDamage, int nRun)
                     {
                         if ((nVal & 0x3FFF) == nTarget)
                         {
-                            if (sprite[nSprite].cstat != 0x8000)
+                            if (sprite[nSprite].cstat & 0x8000)
+                            {
+                                LionList[nLion].nAction = 9;
+                                sprite[nSprite].cstat &= 0x7FFF;
+                                sprite[nSprite].xvel = 0;
+                                sprite[nSprite].yvel = 0;
+                            }
+                            else
                             {
                                 int nAng = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
 
@@ -322,13 +334,6 @@ void FuncLion(int a, int nDamage, int nRun)
                                 {
                                     LionList[nLion].nAction = 3;
                                 }
-                            }
-                            else
-                            {
-                                LionList[nLion].nAction = 9;
-                                sprite[nSprite].cstat &= 0x7FFF;
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
                             }
 
                             LionList[nLion]._b = 0;
@@ -481,6 +486,7 @@ void FuncLion(int a, int nDamage, int nRun)
                             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
                             sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> 1;
                             sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                            break;
                         }
                     }
                     
