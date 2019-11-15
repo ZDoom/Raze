@@ -1452,23 +1452,29 @@ void runlist_ProcessWallTag(int nWall, short lotag, short hitag)
     int var_38 = 0; // TODO - FIXME CHECKME. This doesn't seem to be initialised in the ASM?
     int var_2C; 
 
+    int ebp = 0; // TODO - FIXME CHECKME. This doesn't seem to be initialised in the ASM?
+    int var_30;
+
     int eax = lotag / 1000;
     if (!eax) {
         eax = 1;
     }
 
-    int edx = lotag % 1000;
-    int edi = edx;
+    int nEffectTag = lotag % 1000;
+ //   int edi = nEffectTag;
     eax <<= 2;
 
-    switch (edx)
+    switch (nEffectTag)
     {
+        default:
+            return;
+
         case 1:
         {
             int nWallFace = BuildWallFace(nChannel, nWall, 2, wall[nWall].picnum, wall[nWall].picnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace);
 
-            int nSwitch = BuildSwPressWall(nChannel, BuildLink(2, edi, 0), nWall);
+            int nSwitch = BuildSwPressWall(nChannel, BuildLink(2, nEffectTag, 0), nWall);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nSwitch);
             return;
@@ -1620,8 +1626,29 @@ void runlist_ProcessWallTag(int nWall, short lotag, short hitag)
             return;
         }
 
-        case 21:
+        case 20:
         {
+            short nStart = nWall;
+
+            while (1)
+            {
+                nWall = wall[nWall].point2;
+
+                if (nStart == nWall) {
+                    break;
+                }
+
+                var_30 = ebp;
+                ebp = nWall;
+            }
+
+            short nWall2 = wall[nStart].point2;
+            short nWall3 = wall[nWall2].point2;
+            short nWall4 = wall[nWall3].point2;
+
+            int nSlide = BuildSlide(nChannel, nStart, ebp, var_30, nWall2, nWall3, nWall4);
+
+            runlist_AddRunRec(sRunChannels[nChannel].a, nSlide);
             return;
         }
 
