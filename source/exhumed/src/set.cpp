@@ -468,7 +468,7 @@ void FuncSet(int a, int nDamage, int nRun)
                                 }
                             }
 
-                            sprite[nSprite].ang = (sprite[nSprite].ang + 512) & kAngleMask; // CHECKME loc_33A14
+                            sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
                             sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> 1;
                             sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
                             break;
