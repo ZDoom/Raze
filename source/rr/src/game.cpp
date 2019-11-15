@@ -1022,7 +1022,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
 			TileFiles.tileCreate(TILE_SAVESHOT, 200, 320);
 
-            if (videoGetRenderMode() == REND_CLASSIC)
+            //if (videoGetRenderMode() == REND_CLASSIC)
                 renderSetTarget(TILE_SAVESHOT, 200, 320);
         }
         else if (screenTilting)
@@ -1461,13 +1461,13 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             tileInvalidate(TILE_SAVESHOT, 0, 255);
 
-            if (videoGetRenderMode() == REND_CLASSIC)
+            //if (videoGetRenderMode() == REND_CLASSIC)
             {
                 renderRestoreTarget();
             }
 #ifdef USE_OPENGL
-            else
-                G_ReadGLFrame();
+            //else
+              //  G_ReadGLFrame();
 #endif
         }
         else if (screenTilting)
