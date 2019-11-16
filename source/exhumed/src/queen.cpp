@@ -12,6 +12,7 @@
 #include "anims.h"
 #include "player.h"
 #include "sound.h"
+#include "names.h"
 #include <assert.h>
 
 #define kMaxQueens	1
@@ -1161,10 +1162,6 @@ void FuncQueenHead(int a, int nDamage, int nRun)
 
 int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel)
 {
-    int xVal = x;
-    int yVal = y;
-    int zVal = z;
-
     QueenCount--;
 
     short nQueen = QueenCount;
@@ -1179,16 +1176,17 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
     else
     {
         changespritestat(nSprite, 121);
-        yVal = sprite[nSprite].y;
-        zVal = sector[sprite[nSprite].sectnum].floorz;
+        x = sprite[nSprite].x;
+        y = sprite[nSprite].y;
+        z = sector[sprite[nSprite].sectnum].floorz;
         nAngle = sprite[nSprite].ang;
     }
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 
-    sprite[nSprite].x = xVal;
-    sprite[nSprite].y = yVal;
-    sprite[nSprite].z = zVal;
+    sprite[nSprite].x = x;
+    sprite[nSprite].y = y;
+    sprite[nSprite].z = z;
     sprite[nSprite].cstat = 0x101;
     sprite[nSprite].pal = 0;
     sprite[nSprite].shade = -12;
@@ -1199,8 +1197,8 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
     sprite[nSprite].yoffset = 0;
     sprite[nSprite].picnum = 1;
     sprite[nSprite].ang = nAngle;
-    sprite[nSprite].yvel = 0;
     sprite[nSprite].xvel = 0;
+    sprite[nSprite].yvel = 0;
     sprite[nSprite].zvel = 0;
     sprite[nSprite].lotag = runlist_HeadRun() + 1;
     sprite[nSprite].extra = -1;
@@ -1305,18 +1303,16 @@ void FuncQueen(int a, int nDamage, int nRun)
 
                 QueenList[nQueen].field_A++;
 
-                short dx = QueenList[nQueen].field_A;
-
                 if (QueenList[nQueen].field_A == 1)
                 {
-                    QueenList[nQueen].nHealth = 20; //4000;
+                    QueenList[nQueen].nHealth = 4000;
                     QueenList[nQueen].nAction = 7;
 
                     BuildAnim(-1, 36, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - 7680, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 4);
                 }
                 else if (QueenList[nQueen].field_A == 2)
                 {
-                    QueenList[nQueen].nHealth = 20; // 4000;
+                    QueenList[nQueen].nHealth = 4000;
                     QueenList[nQueen].nAction = 7;
 
                     DestroyAllEggs();
@@ -1325,6 +1321,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                 {
                     QueenList[nQueen].nAction = 8;
                     QueenList[nQueen].nHealth = 0;
+                    QueenList[nQueen].field_C = 5;
 
                     nCreaturesLeft--;
                 }
@@ -1570,14 +1567,14 @@ void FuncQueen(int a, int nDamage, int nRun)
                             {
                                 short nChunkSprite = BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueen, 57, 0)) & 0xFFFF;
 
-                                sprite[nChunkSprite].picnum = i % 3 + 3117;
+                                sprite[nChunkSprite].picnum = kTile3117 + (i % 3);
                                 sprite[nChunkSprite].yrepeat = 100;
                                 sprite[nChunkSprite].xrepeat = 100;
                             }
 
                             short nChunkSprite = BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueen, 57, 0));
 
-                            sprite[nChunkSprite].picnum = 3126;
+                            sprite[nChunkSprite].picnum = kTile3126;
                             sprite[nChunkSprite].yrepeat = 100;
                             sprite[nChunkSprite].xrepeat = 100;
                             PlayFXAtXYZ(
