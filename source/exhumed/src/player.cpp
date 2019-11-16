@@ -2125,7 +2125,7 @@ do_default_b:
 
                             case 8: // Cobra Venom Bowl
                             {
-                                int edx = -120;
+                                int edx = -200;
 
                                 // Same code as case 6 and 7 from now till break
                                 if (edx <= 0 || (!(var_30 & 2)))
