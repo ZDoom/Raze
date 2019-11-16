@@ -304,19 +304,13 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 	*nSector = hitSect;
 
 	if (hitSprite > -1) {
-		hitSprite |= 0xC000;
+		return hitSprite | 0xC000;
 	}
-	else
-	{
-		if (hitWall > -1) {
-			hitSprite |= 0x8000;
-		}
-		else {
-			hitSprite = 0;
-		}
+	if (hitWall > -1) {
+        return hitWall | 0x8000;
 	}
 
-	return hitSprite;
+	return 0;
 }
 
 void CheckClip(short nPlayer)
