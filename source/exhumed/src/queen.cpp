@@ -904,12 +904,9 @@ __MOVEQS:
                     QueenHead.field_C--;
                     if (QueenHead.field_C <= 0)
                     {
-                        short ax = QueenHead.field_E;
-                    
                         QueenHead.field_C = 3;
-                        QueenHead.field_E--;
 
-                        if (ax == 0)
+                        if (QueenHead.field_E--)
                         {
                             if (QueenHead.field_E >= 15 || QueenHead.field_E < 10)
                             {
