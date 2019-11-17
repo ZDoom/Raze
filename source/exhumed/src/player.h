@@ -25,7 +25,7 @@ extern int nLocalPlayer;
 
 extern int lPlayerXVel;
 extern int lPlayerYVel;
-extern int nPlayerDAng;
+extern fix16_t nPlayerDAng;
 
 struct Player
 {

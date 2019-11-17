@@ -393,7 +393,7 @@ void seq_DrawPilotLightSeq(int xOffset, int yOffset)
             int x = ChunkXpos[nFrameBase] + (160 + xOffset);
             int y = ChunkYpos[nFrameBase] + (100 + yOffset);
 
-            rotatesprite(x << 16, y << 16, 0x10000, (-8 * nPlayerDAng) & kAngleMask, nTile, -127, 1, 2, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+            rotatesprite(x << 16, y << 16, 0x10000, (-2 * fix16_to_int(nPlayerDAng)) & kAngleMask, nTile, -127, 1, 2, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
             nFrameBase++;
         }
     }
