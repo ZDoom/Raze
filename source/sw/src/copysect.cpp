@@ -36,6 +36,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+extern int GlobSpeedSO;
+
 void CopySectorWalls(short dest_sectnum, short src_sectnum)
 {
     short dest_wall_num, src_wall_num, start_wall;
@@ -167,7 +169,6 @@ void CopySectorMatch(short match)
                         if (TEST(sector[dest_sp->sectnum].extra, SECTFX_SECTOR_OBJECT))
                         {
                             SECTOR_OBJECTp sop;
-                            extern int GlobSpeedSO;
 
                             // find and add sprite to SO
                             sop = DetectSectorObject(&sector[sprite[src_move].sectnum]);

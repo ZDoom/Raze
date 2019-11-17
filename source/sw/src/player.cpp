@@ -6368,8 +6368,8 @@ char *KilledPlayerMessage(PLAYERp pp, PLAYERp killer)
 {
 #define MAX_KILL_NOTES 16
     short rnd = STD_RANDOM_RANGE(MAX_KILL_NOTES);
-    char *p1 = pp->PlayerName;
-    char *p2 = killer->PlayerName;
+    const char *p1 = pp->PlayerName;
+    const char *p2 = killer->PlayerName;
 
     if (pp->HitBy == killer->PlayerSprite)
     {
@@ -7511,13 +7511,19 @@ DoPlayerRun(PLAYERp pp)
 }
 
 
-int
+void
 PlayerStateControl(int16_t SpriteNum)
 {
     USERp u;
 
+    if ((unsigned)SpriteNum >= MAXSPRITES)
+        return;
+
     // Convienience var
     u = User[SpriteNum];
+
+    if (u == NULL)
+        return;
 
     u->Tics += synctics;
 
@@ -7562,7 +7568,7 @@ PlayerStateControl(int16_t SpriteNum)
         if (u->State->Animator)
             (*u->State->Animator)(SpriteNum);
 
-    return 0;
+    return;
 }
 
 void
@@ -7599,8 +7605,14 @@ MoveSkipSavePos(void)
         {
             TRAVERSE_SPRITE_STAT(headspritestat[stat], i, nexti)
             {
+                if ((unsigned)i >= MAXSPRITES)
+                    continue;
+
                 sp = &sprite[i];
                 u = User[i];
+
+                if (sp == NULL || u == NULL)
+                    continue;
 
                 u->ox = sp->x;
                 u->oy = sp->y;
@@ -7618,9 +7630,13 @@ MoveSkipSavePos(void)
         {
             TRAVERSE_SPRITE_STAT(headspritestat[stat], i, nexti)
             {
+                if ((unsigned)i >= MAXSPRITES)
+                    continue;
                 sp = &sprite[i];
                 u = User[i];
 
+                if (sp == NULL || u == NULL)
+                    continue;
                 u->ox = sp->x;
                 u->oy = sp->y;
                 u->oz = sp->z;

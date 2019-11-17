@@ -24,6 +24,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+// Added improved crosshair accuracy
+// Added UsingMenus for fragbar
+//
 
 #include "build.h"
 
@@ -35,8 +38,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "common_game.h"
 #include "network.h"
 #include "text.h"
+#include "menus.h"
 
 BEGIN_SW_NS
+
+
 
 #define BAR_HEIGHT 48
 #define XDIM 320
@@ -418,8 +424,7 @@ void DrawPanelBorderSides(PLAYERp pp, short x, short y, short x2, short y2, shor
     }
 }
 
-static
-void BorderSetView(PLAYERp UNUSED(pp), int *Xdim, int *Ydim, int *ScreenSize)
+static void BorderSetView(PLAYERp, int *Xdim, int *Ydim, int *ScreenSize)
 {
     int x, x2, y, y2;
     BORDER_INFO *b;
@@ -565,7 +570,6 @@ void
 SetRedrawScreen(PLAYERp pp)
 {
     int i, j;
-    //int x, x2, y, y2;
     BORDER_INFO *b;
 
     if (pp != Player + myconnectindex)

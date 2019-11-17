@@ -78,8 +78,7 @@ extern ParentalStruct aVoxelArray[MAXTILES];
 /////////////////////////////////////////////////////
 //  SpawnWallSound
 /////////////////////////////////////////////////////
-void
-SpawnWallSound(short sndnum, short i)
+void SpawnWallSound(short sndnum, short i)
 {
     short SpriteNum;
     vec3_t mid;
@@ -315,8 +314,7 @@ JS_SpriteSetup(void)
 /////////////////////////////////////////////////////
 //  Initialize the mirrors
 /////////////////////////////////////////////////////
-void
-JS_InitMirrors(void)
+void JS_InitMirrors(void)
 {
     short startwall, endwall, dasector;
     int i, j, k, s, dax, day, daz, dax2, day2;
@@ -483,7 +481,6 @@ JS_InitMirrors(void)
 /////////////////////////////////////////////////////
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
-#if 1
 void drawroomstotile(int daposx, int daposy, int daposz,
                      short daang, int dahoriz, short dacursectnum, short tilenume)
 {
@@ -501,94 +498,6 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 
     tileInvalidate(tilenume, -1, -1);
 }
-#else
-void
-drawroomstotile(int daposx, int daposy, int daposz,
-                short daang, int dahoriz, short dacursectnum, short tilenume)
-{
-
-    int i, j, k, bakchainnumpages, bakvidoption;
-    intptr_t bakframeplace;
-    vec2_t bakwindowxy1, bakwindowxy2;
-    int xsiz, ysiz;
-    char *ptr1, *ptr2;
-
-    // DRAWROOMS TO TILE BACKUP&SET CODE
-    xsiz = tilesiz[tilenume].x;
-    ysiz = tilesiz[tilenume].y;
-    // bakchainnumpages = chainnumpages;
-    bakchainnumpages = numpages;
-    // chainnumpages = 0;
-    numpages = 0;
-    bakvidoption = vidoption;
-    vidoption = 1;
-    if (waloff[tilenume] == 0)
-        loadtile(tilenume);
-    bakframeplace = frameplace;
-    frameplace = waloff[tilenume];
-    bakwindowxy1 = windowxy1;
-    bakwindowxy2 = windowxy2;
-    setview(0, 0, xsiz - 1, ysiz - 1);
-    setvlinebpl(xsiz);
-    j = 0;
-    for (i = 0; i <= ysiz; i++)
-    {
-        ylookup[i] = j, j += xsiz;
-    }
-
-    // DRAWS TO TILE HERE
-    drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum + MAXSECTORS);
-    analyzesprites(daposx, daposy, daposz, FALSE);
-    renderDrawMasks();
-
-    setviewback();
-
-    // ROTATE TILE (supports square tiles only for rotation part)
-    if (xsiz == ysiz)
-    {
-        k = (xsiz << 1);
-        for (i = xsiz - 1; i >= 0; i--)
-        {
-            ptr1 = (char *)(waloff[tilenume] + i * (xsiz + 1));
-            ptr2 = ptr1;
-            if ((i & 1) != 0)
-            {
-                ptr1--;
-                ptr2 -= xsiz;
-                swapchar(ptr1, ptr2);
-            }
-            for (j = (i >> 1) - 1; j >= 0; j--)
-            {
-                ptr1 -= 2;
-                ptr2 -= k;
-                swapchar2(ptr1, ptr2, xsiz);
-                // swapchar(ptr1,ptr2);
-                // swapchar(ptr1+1,ptr2+xsiz);
-            }
-        }
-    }
-
-    // DRAWROOMS TO TILE RESTORE CODE
-    setview(bakwindowxy1.x, bakwindowxy1.y, bakwindowxy2.x, bakwindowxy2.y);
-    // chainnumpages = bakchainnumpages;
-    numpages = bakchainnumpages;
-    vidoption = bakvidoption;
-    frameplace = bakframeplace;
-    j = 0;
-    // if (chainnumpages >= 2)
-    if (numpages >= 2)
-    {
-        for (i = 0; i <= ysiz; i++)
-            ylookup[i] = j, j += (xdim >> 2);
-    }
-    else
-    {
-        for (i = 0; i <= ysiz; i++)
-            ylookup[i] = j, j += xdim;
-    }
-    setvlinebpl(ylookup[1]);
-}
-#endif
 
 void
 JS_ProcessEchoSpot()
@@ -648,7 +557,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
     char ch, *ptr, *ptr2, *ptr3, *ptr4;
     char tvisibility, palok;
 
-//    long tx, ty, tz, tpang;             // Interpolate so mirror doesn't
+//    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
     // drift!
     SWBOOL bIsWallMirror = FALSE;
 
@@ -1065,8 +974,7 @@ DoAutoSize(uspritetype * tspr)
 // Rotation angles for sprites
 short rotang = 0;
 
-void
-JAnalyzeSprites(uspritetype * tspr)
+void JAnalyzeSprites(uspritetype * tspr)
 {
     int i, currsprite;
 

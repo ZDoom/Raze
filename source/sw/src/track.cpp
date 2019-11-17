@@ -1936,8 +1936,7 @@ PlayerPart:
     }
 }
 
-void
-RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, SWBOOL dynamic)
+void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, SWBOOL dynamic)
 {
     short wallcount = 0, j, k, startwall, endwall, delta_ang_from_orig;
     SECTORp *sectp;

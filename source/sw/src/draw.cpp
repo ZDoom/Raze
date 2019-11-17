@@ -1602,7 +1602,7 @@ void ResChange(void)
     for (i = 0; i < numpages; i++)
     {
         clearview(0);
-        nextpage();
+        videoNextPage();
     }
 
     // needs to be called from drawscreen - crashes otherwise
@@ -1654,7 +1654,7 @@ void ResChange(void)
     for (i = 0; i < numpages; i++)
     {
         clearview(0);
-        nextpage();
+        videoNextPage();
     }
 
     SetupAspectRatio();
@@ -1806,63 +1806,6 @@ void DrawCrosshair(PLAYERp pp)
     if (dimensionmode == 6)
         return;
 
-//  wdx = 160;
-//  wdy = 100;
-#if 0
-    if (cl_autoaim)
-    {
-        int daz;
-        short hit_sprite, daang;
-        static int handle=-1;
-
-        daz = pp->posz + pp->bob_z;
-        daang = 32;
-        if ((hit_sprite = WeaponAutoAimHitscan(pp->SpriteP, &daz, &daang, FALSE)) != -1)
-        {
-            SPRITEp hp = &sprite[hit_sprite];
-            USERp hu = User[hit_sprite];
-            vec2_t const zero = { 0, 0 };
-
-            // Find the delta coordinates from player to monster that is targeted
-            vec2_t dxy = { hp->x - pp->posx, hp->y - pp->posy };
-            int dz = ((hp->z - (SPRITE_SIZE_Z(hit_sprite)/2)) - pp->posz) >> 4;
-
-            rotatepoint(zero, dxy, (-pp->pang)&2047, &dxy);
-
-            if (dxy.x == 0) return;
-
-            wdx = windowxy1.x + ((windowxy2.x-windowxy1.x)/2);
-            wdy = windowxy1.y + ((windowxy2.y-windowxy1.y)/2);
-
-            x = (dxy.y * wdx << 8) / dxy.x + (wdx << 8);
-            y = (dz * wdx << 8) / dxy.x + (wdy << 8);
-
-            y -= 100;
-            y += (pp->horiz*wdx)/160;
-
-            if (pp->CurWpn == pp->Wpn[WPN_RAIL])
-            {
-                if (!FX_SoundActive(handle))
-                    handle = PlaySound(DIGI_RAILLOCKED, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
-            }
-        }
-        else
-        {
-            // It didn't target anything.
-            if (pp->CurWpn == pp->Wpn[WPN_RAIL])
-            {
-                if (FX_SoundActive(handle))
-                    FX_StopSound(handle);
-            }
-            goto NORMALXHAIR;
-        }
-
-        rotatesprite(x << 8, y << 8, (1 << 16), 0,
-                     2326, 10, 0,
-                     ROTATE_SPRITE_VIEW_CLIP|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
-    }
-    else
-#endif
     {
 //NORMALXHAIR:
         rotatesprite(CrosshairX, CrosshairY, (1 << 16), 0,
@@ -2234,6 +2177,7 @@ short ScreenSavePic = FALSE;
 
 SWBOOL PicInView(short, SWBOOL);
 void DoPlayerDiveMeter(PLAYERp pp);
+void MoveScrollMode2D(PLAYERp pp);
 
 void
 drawscreen(PLAYERp pp)
@@ -2272,13 +2216,13 @@ drawscreen(PLAYERp pp)
     {
 #define TEN_PIC 5109
 
-        flushperms();
+        renderFlushPerms();
         // note - could put Order Info Pages at the top like this also
         rotatesprite(0,0,65536L,0,TEN_PIC,0,0,
                      (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK|ROTATE_SPRITE_IGNORE_START_MOST),
                      0, 0, xdim-1, ydim-1);
 
-        nextpage();
+        videoNextPage();
         return;
     }
 #endif
@@ -2471,7 +2415,6 @@ drawscreen(PLAYERp pp)
 
     if ((dimensionmode == 5 || dimensionmode == 6) && pp == Player+myconnectindex)
     {
-        void MoveScrollMode2D(PLAYERp pp);
         extern SWBOOL ScrollMode2D;
 
         if (ScrollMode2D)

@@ -110,8 +110,7 @@ extern STATE s_NotRestored[];
 
 OrgTileListP otlist[] = {&orgwalllist, &orgwalloverlist, &orgsectorceilinglist, &orgsectorfloorlist};
 
-int
-PanelSpriteToNdx(PLAYERp pp, PANEL_SPRITEp psprite)
+int PanelSpriteToNdx(PLAYERp pp, PANEL_SPRITEp psprite)
 {
     short ndx = 0;
     PANEL_SPRITEp psp=NULL, next=NULL;
@@ -132,8 +131,7 @@ PanelSpriteToNdx(PLAYERp pp, PANEL_SPRITEp psprite)
 }
 
 
-PANEL_SPRITEp
-PanelNdxToSprite(PLAYERp pp, int ndx)
+PANEL_SPRITEp PanelNdxToSprite(PLAYERp pp, int ndx)
 {
     short count = 0;
     PANEL_SPRITEp psp, next;
@@ -176,6 +174,7 @@ int SaveSymDataInfo(MFILE_WRITE fil, void *ptr)
 
     return 0;
 }
+
 static int SaveSymCodeInfo_raw(MFILE_WRITE fil, void *ptr)
 {
     savedcodesym sym;

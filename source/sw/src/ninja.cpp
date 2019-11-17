@@ -24,6 +24,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+// Added Ninja Sliced fix
+// Fixed Ninja sliced dead and rotation
+// Added s_NinjaDieSlicedHack[]
+// Fixed Saved Game
+// Added GrabThroat Hack
+//
 
 #include "build.h"
 
@@ -41,6 +47,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "actor.h"
 #include "ninja.h"
 #include "sprite.h"
+#include "swcvar.h"
 
 BEGIN_SW_NS
 
@@ -1501,7 +1508,23 @@ STATE s_NinjaDieSliced[] =
     {NINJA_SLICED + 8, NINJA_DIESLICED_RATE-5, NullNinja, &s_NinjaDieSliced[10]},
     {NINJA_SLICED + 9, SF_QUICK_CALL, QueueFloorBlood, &s_NinjaDieSliced[11]},
     {NINJA_SLICED + 9, NINJA_DIESLICED_RATE, DoActorDebris, &s_NinjaDieSliced[11]},
-};
+    };
+
+STATE s_NinjaDieSlicedHack[] =
+    {
+    {NINJA_SLICED_HACK + 0, NINJA_DIESLICED_RATE*6, NullNinja, &s_NinjaDieSlicedHack[1]},
+    {NINJA_SLICED_HACK + 1, NINJA_DIESLICED_RATE,   NullNinja, &s_NinjaDieSlicedHack[2]},
+    {NINJA_SLICED_HACK + 2, NINJA_DIESLICED_RATE,   NullNinja, &s_NinjaDieSlicedHack[3]},
+    {NINJA_SLICED_HACK + 3, NINJA_DIESLICED_RATE,   NullNinja, &s_NinjaDieSlicedHack[4]},
+    {NINJA_SLICED_HACK + 4, NINJA_DIESLICED_RATE-1, NullNinja, &s_NinjaDieSlicedHack[5]},
+    {NINJA_SLICED_HACK + 4, NINJA_DIESLICED_RATE-2, NullNinja, &s_NinjaDieSlicedHack[6]},
+    {NINJA_SLICED_HACK + 5, NINJA_DIESLICED_RATE-3, NullNinja, &s_NinjaDieSlicedHack[7]},
+    {NINJA_SLICED_HACK + 5, NINJA_DIESLICED_RATE-4, NullNinja, &s_NinjaDieSlicedHack[8]},
+    {NINJA_SLICED_HACK + 6, SF_QUICK_CALL        , DoNinjaSpecial, &s_NinjaDieSlicedHack[9]},
+    {NINJA_SLICED_HACK + 6, NINJA_DIESLICED_RATE-5, NullNinja, &s_NinjaDieSlicedHack[10]},
+    {NINJA_SLICED_HACK + 7, SF_QUICK_CALL         , QueueFloorBlood, &s_NinjaDieSlicedHack[11]},
+    {NINJA_SLICED_HACK + 7, NINJA_DIESLICED_RATE-6, DoActorDebris, &s_NinjaDieSlicedHack[11]},
+    };
 
 STATE s_NinjaDead[] =
 {
@@ -1557,6 +1580,11 @@ STATEp sg_NinjaDie[] =
 STATEp sg_NinjaDieSliced[] =
 {
     s_NinjaDieSliced
+};
+
+STATEp sg_NinjaDieSlicedHack[] =
+{
+    s_NinjaDieSlicedHack
 };
 
 STATEp sg_NinjaDead[] =
@@ -1997,7 +2025,10 @@ DoNinjaMove(short SpriteNum)
 
     if (TEST(u->Flags2, SPR2_DYING))
     {
-        NewStateGroup(SpriteNum, sg_NinjaGrabThroat);
+        if (sw_ninjahack)
+            NewStateGroup(SpriteNum, sg_NinjaHariKari);
+        else
+            NewStateGroup(SpriteNum, sg_NinjaGrabThroat);
         return 0;
     }
 
@@ -2095,7 +2126,10 @@ int DoNinjaPain(short SpriteNum)
 
     if (TEST(u->Flags2, SPR2_DYING))
     {
-        NewStateGroup(SpriteNum, sg_NinjaGrabThroat);
+        if (sw_ninjahack)
+            NewStateGroup(SpriteNum, sg_NinjaHariKari);
+        else
+            NewStateGroup(SpriteNum, sg_NinjaGrabThroat);
         return 0;
     }
 

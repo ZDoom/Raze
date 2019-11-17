@@ -38,6 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 #include "pal.h"
 #include "vis.h"
+#include "swcvar.h"
 
 #include "ai.h"
 #include "weapon.h"
@@ -5402,6 +5403,7 @@ ActorHealth(short SpriteNum, short amt)
             case NINJA_RUN_R0:
             {
                 extern STATEp sg_NinjaGrabThroat[];
+                extern STATEp sg_NinjaHariKari[];
 
                 if (TEST(u->Flags2, SPR2_DYING)) return TRUE;
                 if (TEST(u->Flags, SPR_FALLING | SPR_JUMPING | SPR_CLIMBING)) return TRUE;
@@ -5421,6 +5423,9 @@ ActorHealth(short SpriteNum, short amt)
                     InitBloodSpray(SpriteNum,FALSE,105);
                     sp->ang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y) + 1024);
                     RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
+                    if (sw_ninjahack)
+                        NewStateGroup(SpriteNum, sg_NinjaHariKari);
+                        else
                     NewStateGroup(SpriteNum, sg_NinjaGrabThroat);
                 }
                 break;
@@ -17893,7 +17898,7 @@ InitUzi(PLAYERp pp)
     static int uziclock=0;
     int clockdiff=0;
     SWBOOL FireSnd = FALSE;
-#define UZIFIRE_WAIT 20
+    #define UZIFIRE_WAIT 20
 
     void InitUziShell(PLAYERp);
 
@@ -20641,7 +20646,6 @@ SWBOOL TestDontStick(short SpriteNum, short hit_sect, short hit_wall, int hit_z)
     {
         ASSERT(SpriteNum>=0);
         hit_wall = NORM_WALL(u->ret);
-        hit_sect = sp->sectnum;
     }
 
     wp = &wall[hit_wall];

@@ -44,7 +44,7 @@ typedef struct
     PANEL_STATEp State;
     short DecPerSec;
     short MaxInv;
-    long  Scale;
+    int  Scale;
     short Flags;
 } INVENTORY_DATA, *INVENTORY_DATAp;
 

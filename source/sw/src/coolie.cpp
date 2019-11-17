@@ -343,6 +343,11 @@ STATEp sg_CoolieDead[] =
     s_CoolieDead
 };
 
+STATE s_CoolieDeadHead[] =
+    {
+    {COOLIE_DEAD_HEAD, COOLIE_DIE_RATE, DoActorDebris, &s_CoolieDeadHead[0]}
+    };
+
 /*
 typedef struct
 {
@@ -572,7 +577,11 @@ int SpawnCoolg(short SpriteNum)
     USERp u = User[SpriteNum];
 
     // Don't do a ghost every time
-    if (RANDOM_RANGE(1000) > 700) return 0;
+    if (RANDOM_RANGE(1000) > 700)
+    {
+        ChangeState(SpriteNum,&s_CoolieDeadHead[0]);
+        return(0);
+    }
 
     NewCoolg(SpriteNum);
 

@@ -444,15 +444,21 @@ static int CompareBreakInfo(void const * a, void const * b)
     return break_info1->picnum - break_info2->picnum;
 }
 
+int CompareSearchBreakInfo(short *picnum, BREAK_INFOp break_info)
+    {
+    // will return a number less than 0 if picnum < break_info->picnum
+    return(*picnum - break_info->picnum);
+    }
+
 BREAK_INFOp FindWallBreakInfo(short picnum)
-{
-    return (BREAK_INFOp)bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
-}
+    {
+    return(BREAK_INFOp)(bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
+    }
 
 BREAK_INFOp FindSpriteBreakInfo(short picnum)
-{
-    return (BREAK_INFOp)bsearch(&picnum, &SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
-}
+    {
+    return(BREAK_INFOp)(bsearch(&picnum, &SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
+    }
 
 //////////////////////////////////////////////
 // SETUP
@@ -661,7 +667,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
     return TRUE;
 }
 
-SWBOOL UserBreakWall(WALLp wp, short UNUSED(ang))
+SWBOOL UserBreakWall(WALLp wp, short)
 {
     short SpriteNum;
     SPRITEp sp;

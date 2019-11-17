@@ -180,8 +180,7 @@ void UpdateMiniBar(PLAYERp pp)
 }
 
 
-void
-PanelInvTestSuicide(PANEL_SPRITEp psp)
+void PanelInvTestSuicide(PANEL_SPRITEp psp)
 {
     if (TEST(psp->flags, PANF_SUICIDE))
     {
@@ -189,8 +188,7 @@ PanelInvTestSuicide(PANEL_SPRITEp psp)
     }
 }
 
-PANEL_SPRITEp
-SpawnInventoryIcon(PLAYERp pp, short InventoryNum)
+PANEL_SPRITEp SpawnInventoryIcon(PLAYERp pp, short InventoryNum)
 {
     PANEL_SPRITEp psp;
     short x,y;
@@ -221,8 +219,7 @@ SpawnInventoryIcon(PLAYERp pp, short InventoryNum)
     return psp;
 }
 
-void
-KillPanelInv(PLAYERp pp, short InventoryNum)
+void KillPanelInv(PLAYERp pp, short InventoryNum)
 {
     ASSERT(pp->InventorySprite[InventoryNum]);
     ASSERT(InventoryNum < MAX_INVENTORY);
@@ -232,15 +229,13 @@ KillPanelInv(PLAYERp pp, short InventoryNum)
     pp->InventorySprite[InventoryNum] = NULL;
 }
 
-void
-KillPlayerIcon(PLAYERp pp, PANEL_SPRITEp *pspp)
+void KillPlayerIcon(PLAYERp pp, PANEL_SPRITEp *pspp)
 {
     SET((*pspp)->flags, PANF_SUICIDE);
     (*pspp) = NULL;
 }
 
-void
-KillAllPanelInv(PLAYERp pp)
+void KillAllPanelInv(PLAYERp pp)
 {
     short i;
 
@@ -256,8 +251,7 @@ KillAllPanelInv(PLAYERp pp)
     }
 }
 
-PANEL_SPRITEp
-SpawnIcon(PLAYERp pp, PANEL_STATEp state)
+PANEL_SPRITEp SpawnIcon(PLAYERp pp, PANEL_STATEp state)
 {
     PANEL_SPRITEp psp;
     short i;
@@ -304,8 +298,7 @@ void AutoPickInventory(PLAYERp pp)
     }
 }
 
-void
-UseInventoryMedkit(PLAYERp pp)
+void UseInventoryMedkit(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     short diff;
@@ -353,8 +346,7 @@ UseInventoryMedkit(PLAYERp pp)
 // CHEMICAL WARFARE CANISTERS
 //
 //////////////////////////////////////////////////////////////////////
-void
-UseInventoryChemBomb(PLAYERp pp)
+void UseInventoryChemBomb(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     short diff;
@@ -379,8 +371,7 @@ UseInventoryChemBomb(PLAYERp pp)
 // FLASH BOMBS
 //
 //////////////////////////////////////////////////////////////////////
-void
-UseInventoryFlashBomb(PLAYERp pp)
+void UseInventoryFlashBomb(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     short diff;
@@ -405,8 +396,7 @@ UseInventoryFlashBomb(PLAYERp pp)
 // CALTROPS
 //
 //////////////////////////////////////////////////////////////////////
-void
-UseInventoryCaltrops(PLAYERp pp)
+void UseInventoryCaltrops(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     short diff;
@@ -432,8 +422,7 @@ UseInventoryCaltrops(PLAYERp pp)
 //
 //////////////////////////////////////////////////////////////////////
 
-void
-UseInventoryRepairKit(PLAYERp pp)
+void UseInventoryRepairKit(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
     short inv = INVENTORY_REPAIR_KIT;
@@ -462,8 +451,7 @@ UseInventoryRepairKit(PLAYERp pp)
 //
 //////////////////////////////////////////////////////////////////////
 
-void
-UseInventoryCloak(PLAYERp pp)
+void UseInventoryCloak(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
 
@@ -489,8 +477,7 @@ UseInventoryCloak(PLAYERp pp)
         PlayerSound(DIGI_IAMSHADOW,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
 }
 
-void
-StopInventoryCloak(PLAYERp pp, short InventoryNum)
+void StopInventoryCloak(PLAYERp pp, short InventoryNum)
 {
     SPRITEp sp = pp->SpriteP;
 
@@ -518,8 +505,7 @@ StopInventoryCloak(PLAYERp pp, short InventoryNum)
 //
 //////////////////////////////////////////////////////////////////////
 #if 0
-void
-UseInventoryEnvironSuit(PLAYERp pp)
+void UseInventoryEnvironSuit(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
     short inv = INVENTORY_ENVIRON_SUIT;
@@ -533,8 +519,7 @@ UseInventoryEnvironSuit(PLAYERp pp)
     }
 }
 
-void
-StopInventoryEnvironSuit(PLAYERp pp, short InventoryNum)
+void StopInventoryEnvironSuit(PLAYERp pp, short InventoryNum)
 {
     SPRITEp sp = pp->SpriteP;
     short inv = INVENTORY_ENVIRON_SUIT;
@@ -908,7 +893,7 @@ void InventoryBarUpdatePosition(PLAYERp pp)
     pp->InventorySelectionBox->x = x - 5;
     pp->InventorySelectionBox->y = y - 5;
 
-    for (id = InventoryData; id->Name; id++, inv++)
+    for (id = InventoryData; id->Name && inv < MAX_INVENTORY; id++, inv++)
     {
         x = InventoryBarXpos[gs.BorderNum] + (inv * INVENTORY_ICON_WIDTH);
         y = InventoryBarYpos[gs.BorderNum];
@@ -960,8 +945,7 @@ void (*InventoryDisplayString)(PLAYERp, short, short, short, const char *);
 #define INVENTORY_STATE_XOFF 19
 #define INVENTORY_STATE_YOFF 1
 
-void
-PlayerUpdateInventory(PLAYERp pp, short InventoryNum)
+void PlayerUpdateInventory(PLAYERp pp, short InventoryNum)
 {
     USERp u = User[pp->PlayerSprite];
     short w,h;
@@ -974,9 +958,13 @@ PlayerUpdateInventory(PLAYERp pp, short InventoryNum)
         PANEL_SPRITEp psp;
 
         // Go translucent if used
-        for (id = InventoryData; id->Name; id++, inv++)
+        for (id = InventoryData; id->Name && inv < MAX_INVENTORY; id++, inv++)
         {
             psp = pp->InventorySprite[inv];
+
+            if (!psp)
+                continue;
+
             if (!pp->InventoryAmount[inv])
             {
                 //SET(psp->flags, PANF_TRANSLUCENT);
@@ -1043,8 +1031,7 @@ PlayerUpdateInventory(PLAYERp pp, short InventoryNum)
     }
 }
 
-void
-PlayerUpdateInventoryPercent(PLAYERp pp)
+void PlayerUpdateInventoryPercent(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     short x,y;
@@ -1065,8 +1052,7 @@ PlayerUpdateInventoryPercent(PLAYERp pp)
     }
 }
 
-void
-PlayerUpdateInventoryPic(PLAYERp pp)
+void PlayerUpdateInventoryPic(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     PANEL_SPRITEp psp;
@@ -1084,8 +1070,7 @@ PlayerUpdateInventoryPic(PLAYERp pp)
     psp->scale = id->Scale;
 }
 
-void
-PlayerUpdateInventoryState(PLAYERp pp)
+void PlayerUpdateInventoryState(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     short x,y;

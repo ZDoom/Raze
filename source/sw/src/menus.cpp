@@ -1944,8 +1944,7 @@ static char lg_xlat_num[] = {0,1,2,3,4,5,6,7,8,9};
 #define FONT_LARGE_ALPHA 3706
 #define FONT_LARGE_DIGIT 3732
 
-void
-MNU_MeasureStringLarge(const char *string, short *w, short *h)
+void MNU_MeasureStringLarge(const char *string, short *w, short *h)
 {
     short ndx, width, height;
     char c;
@@ -1987,8 +1986,7 @@ MNU_MeasureStringLarge(const char *string, short *w, short *h)
 ////////////////////////////////////////////////
 // Draw a string using a graphic font
 ////////////////////////////////////////////////
-void
-MNU_DrawStringLarge(short x, short y, const char *string)
+void MNU_DrawStringLarge(short x, short y, const char *string)
 {
     int ndx, offset;
     char c;
@@ -2027,8 +2025,7 @@ MNU_DrawStringLarge(short x, short y, const char *string)
 ////////////////////////////////////////////////
 // Measure the pixel width of a graphic string
 ////////////////////////////////////////////////
-void
-MNU_MeasureString(const char *string, short *w, short *h)
+void MNU_MeasureString(const char *string, short *w, short *h)
 {
     short ndx, width, height;
     char c;
@@ -2068,8 +2065,7 @@ MNU_MeasureString(const char *string, short *w, short *h)
 //
 // MenuTextShade and MenuDrawFlags
 ////////////////////////////////////////////////
-void
-MNU_DrawString(short x, short y, const char *string, short shade, short pal)
+void MNU_DrawString(short x, short y, const char *string, short shade, short pal)
 {
     int ndx, offset;
     char c;
@@ -2131,8 +2127,7 @@ MNU_DrawString(short x, short y, char *string)
 ////////////////////////////////////////////////
 // Measure the pixel width of a small font string
 ////////////////////////////////////////////////
-void
-MNU_MeasureSmallString(const char *string, short *w, short *h)
+void MNU_MeasureSmallString(const char *string, short *w, short *h)
 {
     short ndx, width, height;
     char c;
@@ -2164,8 +2159,7 @@ MNU_MeasureSmallString(const char *string, short *w, short *h)
 ////////////////////////////////////////////////
 // Draw a string using a small graphic font
 ////////////////////////////////////////////////
-void
-MNU_DrawSmallString(short x, short y, const char *string, short shade, short pal)
+void MNU_DrawSmallString(short x, short y, const char *string, short shade, short pal)
 {
     int ndx;
     char c;
@@ -2199,8 +2193,7 @@ MNU_DrawSmallString(short x, short y, const char *string, short shade, short pal
 //  Get an input string from user using small font
 ////////////////////////////////////////////////
 
-signed char
-MNU_InputSmallString(char *name, short pix_width)
+signed char MNU_InputSmallString(char *name, short pix_width)
 {
     char ch;
     short w, h;
@@ -2274,8 +2267,7 @@ MNU_InputSmallString(char *name, short pix_width)
 ////////////////////////////////////////////////
 // Draw dialog text on screen
 ////////////////////////////////////////////////
-static SWBOOL
-MNU_Dialog(void)
+static SWBOOL MNU_Dialog(void)
 {
     short ndx, linecnt, w[MAXDIALOG], h, x, y;
 
@@ -2312,8 +2304,7 @@ MNU_Dialog(void)
 //  Get an input string from user
 ////////////////////////////////////////////////
 
-signed char
-MNU_InputString(char *name, short pix_width)
+signed char MNU_InputString(char *name, short pix_width)
 {
     char ch;
     short w, h;
@@ -2397,8 +2388,7 @@ void LoadSaveMsg(const char *msg)
 //  I'm figuring it need to do the following:
 //  . Load the game if there is one by calling: MNU_LoadGameCustom.
 ////////////////////////////////////////////////
-SWBOOL
-MNU_GetLoadCustom(void)
+SWBOOL MNU_GetLoadCustom(void)
 {
     short load_num;
 
@@ -2464,8 +2454,7 @@ MNU_GetLoadCustom(void)
 //  . Call MNU_GetInput to allow string input of description.
 //  . Save the game if there is one by calling: MNU_SaveGameCustom.
 ////////////////////////////////////////////////
-SWBOOL
-MNU_GetSaveCustom(void)
+SWBOOL MNU_GetSaveCustom(void)
 {
     short save_num;
     extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop;
@@ -2518,8 +2507,7 @@ MNU_GetSaveCustom(void)
 //  This function gets called each frame by DrawMenus
 ////////////////////////////////////////////////
 
-static SWBOOL
-MNU_DrawLoadSave(short game_num)
+static SWBOOL MNU_DrawLoadSave(short game_num)
 {
     // screen border
     rotatesprite(SS_XSTART << 16, SS_YSTART << 16, MZ, 0, pic_loadsavescreen,
@@ -2539,8 +2527,8 @@ MNU_DrawLoadSave(short game_num)
 static char SaveGameInfo1[80];
 static char SaveGameInfo2[80];
 
-SWBOOL
-MNU_LoadSaveMove(UserCall call, MenuItem_p item)
+
+SWBOOL MNU_LoadSaveMove(UserCall call, MenuItem_p item)
 {
     short i;
     short game_num;
@@ -2648,8 +2636,7 @@ MNU_LoadSaveMove(UserCall call, MenuItem_p item)
     return TRUE;
 }
 
-SWBOOL
-MNU_LoadSaveDraw(UserCall call, MenuItem_p item)
+SWBOOL MNU_LoadSaveDraw(UserCall call, MenuItem_p item)
 {
     short i;
     short game_num;
@@ -2715,8 +2702,7 @@ MNU_LoadSaveDraw(UserCall call, MenuItem_p item)
     return TRUE;
 }
 
-SWBOOL
-MNU_ShareWareCheck(MenuItem *item)
+SWBOOL MNU_ShareWareCheck(MenuItem *item)
 {
     if (SW_SHAREWARE)
     {
@@ -2726,8 +2712,7 @@ MNU_ShareWareCheck(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_CheckUserMap(MenuItem *item)
+SWBOOL MNU_CheckUserMap(MenuItem *item)
 {
     if (UserMapName[0] == '\0')
         RESET(item->flags, mf_disabled);
@@ -2736,8 +2721,7 @@ MNU_CheckUserMap(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_ShareWareMessage(MenuItem *item)
+SWBOOL MNU_ShareWareMessage(MenuItem *item)
 {
     const char *extra_text;
     short w,h;
@@ -2767,8 +2751,7 @@ MNU_ShareWareMessage(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_SaveGameCheck(MenuItem *item)
+SWBOOL MNU_SaveGameCheck(MenuItem *item)
 {
     extern SWBOOL InMenuLevel;
     extern SWBOOL DemoMode;
@@ -2799,8 +2782,7 @@ MNU_SaveGameCheck(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_TenCheck(MenuItem *item)
+SWBOOL MNU_TenCheck(MenuItem *item)
 {
     if (CommEnabled || numplayers > 1)
     {
@@ -2811,8 +2793,7 @@ MNU_TenCheck(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_LoadGameCheck(MenuItem *item)
+SWBOOL MNU_LoadGameCheck(MenuItem *item)
 {
 
     if (0)      // JBF: Until we fix the symbol table dilemma, loading is off limits
@@ -2830,8 +2811,7 @@ MNU_LoadGameCheck(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_StatCheck(MenuItem *item)
+SWBOOL MNU_StatCheck(MenuItem *item)
 {
     if (CommEnabled || numplayers > 1)
     {
@@ -2842,8 +2822,7 @@ MNU_StatCheck(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_HurtTeammateCheck(MenuItem *item)
+SWBOOL MNU_HurtTeammateCheck(MenuItem *item)
 {
     switch (gs.NetGameType+1)
     {
@@ -2864,8 +2843,7 @@ MNU_HurtTeammateCheck(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_TeamPlayCheck(MenuItem *item)
+SWBOOL MNU_TeamPlayCheck(MenuItem *item)
 {
     switch (gs.NetGameType+1)
     {
@@ -2881,8 +2859,7 @@ MNU_TeamPlayCheck(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_CoopPlayCheck(MenuItem *item)
+SWBOOL MNU_CoopPlayCheck(MenuItem *item)
 {
     switch (gs.NetGameType+1)
     {
@@ -2906,8 +2883,7 @@ MNU_TeamPlayChange(void)
     return TRUE;
 }
 
-SWBOOL
-MNU_MouseCheck(MenuItem *item)
+SWBOOL MNU_MouseCheck(MenuItem *item)
 {
     if (!CONTROL_MousePresent)
     {
@@ -2956,15 +2932,13 @@ MNU_MusicCheck(MenuItem *item)
     return TRUE;
 }
 
-SWBOOL
-MNU_FxCheck(MenuItem *item)
+SWBOOL MNU_FxCheck(MenuItem *item)
 {
 	RESET(item->flags, mf_disabled);
     return TRUE;
 }
 
-SWBOOL
-MNU_MusicFxCheck(MenuItem *item)
+SWBOOL MNU_MusicFxCheck(MenuItem *item)
 {
 	RESET(item->flags, mf_disabled);
     return TRUE;
@@ -2973,8 +2947,7 @@ MNU_MusicFxCheck(MenuItem *item)
 ////////////////////////////////////////////////
 // Do a toggle button
 ////////////////////////////////////////////////
-void
-MNU_DoButton(MenuItem_p item, SWBOOL draw)
+void MNU_DoButton(MenuItem_p item, SWBOOL draw)
 {
     int x, y;
     SWBOOL state;
@@ -3708,8 +3681,7 @@ MNU_SetupMenu(void)
 ////////////////////////////////////////////////
 // Draw an item
 ////////////////////////////////////////////////
-static void
-MNU_ClearFlags(MenuGroup *node)
+static void MNU_ClearFlags(MenuGroup * node)
 {
     MenuItem *i;
 
@@ -3727,8 +3699,7 @@ MNU_ClearFlags(MenuGroup *node)
 ////////////////////////////////////////////////
 // Pop a group off the menu stack
 ////////////////////////////////////////////////
-static void
-MNU_PopGroup(void)
+static void MNU_PopGroup(void)
 {
     if (!menuarrayptr)
         return;
@@ -3742,8 +3713,7 @@ MNU_PopGroup(void)
 ////////////////////////////////////////////////
 // Push a group on to the menu stack
 ////////////////////////////////////////////////
-static void
-MNU_PushGroup(MenuGroup *node)
+static void MNU_PushGroup(MenuGroup * node)
 {
     if (menuarrayptr == MaxLayers - 1)
         return;
@@ -3756,15 +3726,13 @@ MNU_PushGroup(MenuGroup *node)
 ////////////////////////////////////////////////
 // Setup a new menu subgroup
 ////////////////////////////////////////////////
-static void
-MNU_SetupGroup(void)
+static void MNU_SetupGroup(void)
 {
     MNU_SelectItem(currentmenu, currentmenu->cursor, FALSE);
     MNU_DrawMenu();
 }
 
-static void
-MNU_ItemPreProcess(MenuGroup *group)
+static VOID MNU_ItemPreProcess(MenuGroup * group)
 {
     MenuItem *item;
 
@@ -3780,8 +3748,7 @@ MNU_ItemPreProcess(MenuGroup *group)
     }
 }
 
-void
-MNU_ItemPostProcess(MenuGroup *group)
+void MNU_ItemPostProcess(MenuGroup *group)
 {
     MenuItem *item;
     int zero = 0;
@@ -3800,8 +3767,7 @@ MNU_ItemPostProcess(MenuGroup *group)
 ////////////////////////////////////////////////
 // Go to next menu subgroup
 ////////////////////////////////////////////////
-static void
-MNU_DownLevel(MenuGroup *group)
+static void MNU_DownLevel(MenuGroup * group)
 {
 
     if (!group)
@@ -3829,15 +3795,14 @@ MNU_DownLevel(MenuGroup *group)
 ////////////////////////////////////////////////
 // Go to previous menu subgroup
 ////////////////////////////////////////////////
-static void
-MNU_UpLevel(void)
+static void MNU_UpLevel(void)
 {
     int zero = 0;
     static int handle1=0;
     // if run out of menus then EXIT
     if (!menuarrayptr)
     {
-        if (!FX_SoundActive(handle1))
+        if(!FX_SoundActive(handle1))
             handle1 = PlaySound(DIGI_STARCLINK,&zero,&zero,&zero,v3df_dontpan);
         ExitMenus();
         return;
@@ -3854,8 +3819,8 @@ MNU_UpLevel(void)
 ////////////////////////////////////////////////
 // Do a menu item action
 ////////////////////////////////////////////////
-static void
-MNU_DoItem(void)
+
+static void MNU_DoItem(void)
 {
     MenuItem *item;
 
@@ -3896,8 +3861,7 @@ MNU_DoItem(void)
 ////////////////////////////////////////////////
 // Draw an item icon or cursor
 ////////////////////////////////////////////////
-static void
-MNU_DrawItemIcon(MenuItem *item)
+static void MNU_DrawItemIcon(MenuItem * item)
 {
     //void BorderRefreshClip(PLAYERp pp, short x, short y, short x2, short y2);
     int x = item->x, y = item->y;
@@ -3927,8 +3891,7 @@ MNU_DrawItemIcon(MenuItem *item)
 ////////////////////////////////////////////////
 // Draw an item
 ////////////////////////////////////////////////
-static void
-MNU_DrawItem(MenuItem *item)
+static void MNU_DrawItem(MenuItem * item)
 {
     char *ptr;
     short px, py;
@@ -3970,8 +3933,7 @@ MNU_DrawItem(MenuItem *item)
 ////////////////////////////////////////////////
 // Draw the menu contents
 ////////////////////////////////////////////////
-static void
-MNU_DrawMenuContents(void)
+static void MNU_DrawMenuContents(void)
 {
     MenuItem *item;
     short w,h;
@@ -4035,8 +3997,7 @@ MNU_DrawMenuContents(void)
 ////////////////////////////////////////////////
 // Draw the menu
 ////////////////////////////////////////////////
-void
-MNU_DrawMenu(void)
+void MNU_DrawMenu(void)
 {
     if (cust_callback != NULL)
     {
@@ -4053,8 +4014,7 @@ MNU_DrawMenu(void)
 ////////////////////////////////////////////////
 // Select a menu item
 ////////////////////////////////////////////////
-void
-MNU_SelectItem(MenuGroup *group, short index, SWBOOL draw)
+void MNU_SelectItem(MenuGroup * group, short index, SWBOOL draw)
 {
     MenuItem *item;
 
@@ -4068,6 +4028,7 @@ MNU_SelectItem(MenuGroup *group, short index, SWBOOL draw)
 
     group->cursor = index;
     item = &group->items[group->cursor];
+
     item->flags |= mf_selected;
     if (draw)
         MNU_DrawItem(item);
@@ -4076,8 +4037,7 @@ MNU_SelectItem(MenuGroup *group, short index, SWBOOL draw)
 ////////////////////////////////////////////////
 // Toggle a menu radio button on/off
 ////////////////////////////////////////////////
-static void
-MNU_PushItem(MenuItem *item, SWBOOL draw)
+static void MNU_PushItem(MenuItem * item, SWBOOL draw)
 {
     if (item->type != mt_button)
         return;
@@ -4085,14 +4045,13 @@ MNU_PushItem(MenuItem *item, SWBOOL draw)
     buttonsettings[item->button] ^= 1;
 
 //    if (draw)
-    MNU_DoButton(item, draw);
+        MNU_DoButton(item, draw);
 }
 
 ////////////////////////////////////////////////
 // Go to next item on menu
 ////////////////////////////////////////////////
-static void
-MNU_NextItem(void)
+static void MNU_NextItem(void)
 {
     MenuTag type;
     MenuFlags flag;
@@ -4115,8 +4074,7 @@ MNU_NextItem(void)
 ////////////////////////////////////////////////
 // Go to previous item on menu
 ////////////////////////////////////////////////
-static void
-MNU_PrevItem(void)
+static void MNU_PrevItem(void)
 {
     MenuTag type;
     MenuFlags flag;
@@ -4135,8 +4093,7 @@ MNU_PrevItem(void)
 ////////////////////////////////////////////////
 // Find hotkey press on current menu, if any.
 ////////////////////////////////////////////////
-static SWBOOL
-MNU_DoHotkey(void)
+static SWBOOL MNU_DoHotkey(void)
 {
     MenuItem_p item;
     short index;
@@ -4160,8 +4117,7 @@ MNU_DoHotkey(void)
 ////////////////////////////////////////////////
 // Setup Menus
 ////////////////////////////////////////////////
-void
-SetupMenu(void)
+void SetupMenu(void)
 {
     if (!UsingMenus && !ConPanel)       // Doing this check for multiplay
     // menus
@@ -4182,7 +4138,7 @@ SetupMenu(void)
 ////////////////////////////////////////////////
 #define MNU_SENSITIVITY 10              // The menu's mouse sensitivity, should be real low
 
-void MNU_DoMenu(CTLType type, PLAYERp pp)
+void MNU_DoMenu( CTLType type, PLAYERp pp )
 {
     SWBOOL resetitem;
     unsigned char key;
@@ -4280,8 +4236,7 @@ void MNU_DoMenu(CTLType type, PLAYERp pp)
 ////////////////////////////////////////////////
 //  Checks to see if we should be in menus
 ////////////////////////////////////////////////
-void
-MNU_CheckForMenus(void)
+void MNU_CheckForMenus(void)
 {
     extern SWBOOL GamePaused;
 
@@ -4305,8 +4260,7 @@ MNU_CheckForMenus(void)
     }
 }
 
-void
-MNU_CheckForMenusAnyKey(void)
+void MNU_CheckForMenusAnyKey(void)
 {
     if (UsingMenus)
     {
@@ -4386,8 +4340,7 @@ unsigned char palette_data[256][3];     // Global palette array
 // WaitForVsync
 // Waits for a vertical retrace to occur.  If one is in progress, it waits for the next one.
 /////////////////////////////////////////////////
-void
-WaitForVsync(void)
+void WaitForVsync(void)
 {
     while (inp(VGA_INPUT_STATUS_1) & VGA_VSYNC_MASK) ;
     // Retrace in progress, wait.
@@ -4396,8 +4349,7 @@ WaitForVsync(void)
     while (!inp(VGA_INPUT_STATUS_1) & VGA_VSYNC_MASK) ;
 }
 
-void
-Get_Palette(unsigned char *pal)
+void Get_Palette(unsigned char *pal)
 {
     int i;
 
@@ -4405,8 +4357,8 @@ Get_Palette(unsigned char *pal)
     for (i = 0; i < 768; i++)
         pal[i] = inp(PALETTE_DATA);
 }
-void
-Set_Palette(unsigned char *buff)
+
+void Set_Palette(unsigned char *buff)
 {
     int i;
 
@@ -4429,8 +4381,7 @@ Set_Palette(unsigned char *buff)
 // Heres some temp timer junk for this routine.  Replace it with game timer stuff later.
 //unsigned int *clock  = (unsigned int *)0x046C;
 
-void
-Fade_Timer(int clicks)
+void Fade_Timer(int clicks)
 {
 //        unsigned int now;
     int now;
@@ -4440,8 +4391,7 @@ Fade_Timer(int clicks)
     while (abs((int32_t) totalclock - now) < clicks) handleevents();
 }
 
-void
-FadeIn(unsigned char startcolor, unsigned int clicks)
+void FadeIn(unsigned char startcolor, unsigned int clicks)
 {
     int i, palreg, usereg, tmpreg1 = 0, tmpreg2 = 0;
     RGB_color color;
@@ -4498,8 +4448,7 @@ FadeIn(unsigned char startcolor, unsigned int clicks)
     }
 }
 
-void
-FadeOut(unsigned char targetcolor, unsigned int clicks)
+void FadeOut(unsigned char targetcolor, unsigned int clicks)
 {
     int i, palreg, usereg = 0, tmpreg1 = 0, tmpreg2 = 0;
     RGB_color color;
@@ -4601,8 +4550,7 @@ unsigned char ppalette[MAX_SW_PLAYERS_REG][768];
 // Set the amount of redness for damage
 // the player just took
 //////////////////////////////////////////
-void
-SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
+void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 {
     int palreg, usereg = 0, tmpreg1 = 0, tmpreg2 = 0;
     short fadedamage=0;
@@ -4721,8 +4669,7 @@ SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 // Do the screen reddness based on damage
 //////////////////////////////////////////
 #define MAXFADETICS     5
-void
-DoPaletteFlash(PLAYERp pp)
+void DoPaletteFlash(PLAYERp pp)
 {
     int i, palreg, tmpreg1 = 0, tmpreg2 = 0;
     unsigned char *pal_ptr = &ppalette[screenpeek][0];

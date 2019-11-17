@@ -777,7 +777,7 @@ KillSprite(int16_t SpriteNum)
         {
             TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
             {
-                if (User[i]->tgt_sp == sp)
+                if ((unsigned)i < MAXSPRITES && User[i] != NULL && User[i]->tgt_sp == sp)
                 {
                     DoActorPickClosePlayer(i);
                 }
@@ -957,6 +957,9 @@ SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int
     int16_t SpriteNum;
     USERp u;
 
+    if (sectnum < 0)
+        return -1;
+
     ASSERT(!Prediction);
 
     PRODUCTION_ASSERT(sectnum >= 0 && sectnum < MAXSECTORS);
@@ -1083,7 +1086,7 @@ ActorTestSpawn(SPRITEp sp)
             case ZILLA_RUN_R0: c = "zilla"; break;
             default: c = "?"; break;
             }
-            buildprintf("WARNING: skill-masked %s at %d,%d,%d not being killed because it "
+            initprintf("WARNING: skill-masked %s at %d,%d,%d not being killed because it "
                         "activates something\n", c, TrackerCast(sp->x), TrackerCast(sp->y), TrackerCast(sp->z));
             return TRUE;
         }
@@ -5953,11 +5956,8 @@ KeyMain:
             if (pp->WpnAmmo[WPN_STAR] >= DamageData[WPN_STAR].max_ammo)
                 break;
 
-#ifdef UK_VERSION
-            sprintf(ds,"Darts");
-#else
-            //sprintf(ds,"Shurikens");
-#endif
+            //if (useDarts) sprintf(ds,"Darts");
+            //else sprintf(ds,"Shurikens");
             PutStringInfo(Player+pnum, DamageData[WPN_STAR].weapon_name);
             PlayerUpdateAmmo(pp, WPN_STAR, DamageData[WPN_STAR].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -6937,6 +6937,8 @@ SpriteControl(void)
     {
         u = User[i];
 
+        if (u == 0)
+            continue;
         if (u->Tics)
         {
             if ((u->Tics -= synctics) <= 0)
@@ -6964,6 +6966,9 @@ SpriteControl(void)
         }
 
         if (!TEST(u->Flags, SPR_ACTIVE))
+            continue;
+
+        if (i == 69 && nexti == -1)
             continue;
 
         (*User[i]->ActorActionFunc)(i);

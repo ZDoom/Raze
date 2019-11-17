@@ -280,20 +280,21 @@ InitPalette(void)
     //
     // Dive palettes
     //
+#define FOG_AMT 60 // is 15 in SWP.
+#define LAVA_AMT 44 // is 11 in SWP.
 
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
     // palette for underwater
-    paletteMakeLookupTable(PALETTE_DIVE, tempbuf, 0, 0, 60, TRUE);
+    paletteMakeLookupTable(PALETTE_DIVE, tempbuf, 0, 0, FOG_AMT, TRUE);
 
-#define FOG_AMT 60
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
     paletteMakeLookupTable(PALETTE_FOG, tempbuf, FOG_AMT, FOG_AMT, FOG_AMT, TRUE);
 
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
-    paletteMakeLookupTable(PALETTE_DIVE_LAVA, tempbuf, 44, 0, 0, TRUE);
+    paletteMakeLookupTable(PALETTE_DIVE_LAVA, tempbuf, LAVA_AMT, 0, 0, TRUE);
 
     //
     // 1 Range changes
@@ -385,9 +386,9 @@ do
      4 bytes and RGB are backwards.Here are the function
   prototypes:
 
- VBE_setPalette(long palstart, long palnum, char *dapal);
+ VBE_setPalette(int palstart, int palnum, char *dapal);
 
-VBE_getPalette(long palstart, long palnum, char *dapal);
+VBE_getPalette(int palstart, int palnum, char *dapal);
 palstart is the offset of the first palette to set
  palnum is the number of the palette entries to set
  dapal is a pointer to the palette buffer.The palette

@@ -42,6 +42,6 @@ void DisplayPanelNumber(PLAYERp pp,short xs,short ys,int number);
 void PutStringInfo(PLAYERp pp, const char *string);
 void PutStringInfoLine(PLAYERp pp, const char *string);
 void PutStringInfoLine2(PLAYERp pp, const char *string);
-void pClearTextLine(PLAYERp pp,long y);
+void pClearTextLine(PLAYERp pp,int y);
 void pMenuClearTextLine(PLAYERp pp);
 END_SW_NS

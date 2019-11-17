@@ -147,6 +147,7 @@ CON_COMMAND pre_commands[] =
     {"help",        CON_GetHelp},
 //{"quit",        CON_Quit},
 #endif
+	{"swgod",        CheatInput},
     {"swchan",      CheatInput},
     {"swgimme",     CheatInput},
     {"swtrek##",    CheatInput},
@@ -157,6 +158,19 @@ CON_COMMAND pre_commands[] =
     {"swloc",       CheatInput},
     {"swmap",       CheatInput},
     {"swsave",      CheatInput},
+	{"swmedic",      CheatInput},
+	{"swkeys",       CheatInput},
+	{"swredcard",    CheatInput},
+	{"swbluecard",   CheatInput},
+	{"swgreencard",  CheatInput},
+	{"swyellowcard", CheatInput},
+	{"swgoldkey",    CheatInput},
+	{"swsilverkey",  CheatInput},
+	{"swbronzekey",  CheatInput},
+	{"swredkey",     CheatInput},
+	{"swgun#",       CheatInput},
+	{"swquit",       CheatInput},
+	{"swexit",       CheatInput},
     {"sound",       CON_SoundTest},
     {"winpachinko", CON_WinPachinko},
     {"config",      CON_LoadSetup},
@@ -212,7 +226,7 @@ uint8_t CON_CommandCmp(const char *str1, const char *str2, int len)
     return TRUE;
 }
 
-SWBOOL IsCommand(char *str)
+SWBOOL IsCommand(const char *str)
 {
     int i;
     char first[512];

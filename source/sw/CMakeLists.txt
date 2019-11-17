@@ -64,7 +64,6 @@ set( PCH_SOURCES
 	src/lava.cpp
 	src/light.cpp
 	src/mclip.cpp
-	src/mdastr.cpp
 	src/menus.cpp
 	src/miscactr.cpp
 	src/morph.cpp
@@ -102,6 +101,7 @@ set( PCH_SOURCES
 	src/weapon.cpp
 	src/zilla.cpp
 	src/zombie.cpp
+	src/swcvar.cpp
 )
 
 

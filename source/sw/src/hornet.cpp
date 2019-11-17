@@ -354,10 +354,10 @@ int DoHornetMatchPlayerZ(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     SPRITEp tsp = User[SpriteNum]->tgt_sp;
-    long zdiff,zdist;
-    long loz,hiz;
-
-    long bound;
+    int zdiff,zdist;
+    int loz,hiz;
+    
+    int bound;
 
     // actor does a sine wave about u->sz - this is the z mid point
 
@@ -408,11 +408,11 @@ int DoHornetMatchPlayerZ(short SpriteNum)
         u->sz = bound;
     }
 
-    u->sz = min(long(u->sz), long(loz - u->floor_dist));
-    u->sz = max(long(u->sz), long(hiz + u->ceiling_dist));
+    u->sz = min(u->sz, loz - u->floor_dist);    
+    u->sz = max(u->sz, hiz + u->ceiling_dist);    
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->z = u->sz + ((HORNET_BOB_AMT * (long)sintable[u->Counter]) >> 14);
+    sp->z = u->sz + ((HORNET_BOB_AMT * (int)sintable[u->Counter]) >> 14);
 
     bound = u->hiz + u->ceiling_dist + HORNET_BOB_AMT;
     if (sp->z < bound)
@@ -461,12 +461,12 @@ int DoHornetCircle(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     SPRITEp tsp = User[SpriteNum]->tgt_sp;
-    long nx,ny,bound;
+    int nx,ny,bound;
 
     sp->ang = NORM_ANGLE(sp->ang + u->Counter2);
 
-    nx = sp->xvel * (long) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (long) sintable[sp->ang] >> 14;
+    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
+    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
 
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
@@ -475,8 +475,8 @@ int DoHornetCircle(short SpriteNum)
         // try moving in the opposite direction
         u->Counter2 = -u->Counter2;
         sp->ang = NORM_ANGLE(sp->ang + 1024);
-        nx = sp->xvel * (long) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-        ny = sp->xvel * (long) sintable[sp->ang] >> 14;
+        nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
+        ny = sp->xvel * (int) sintable[sp->ang] >> 14;
 
         if (!move_actor(SpriteNum, nx, ny, 0L))
         {
@@ -514,7 +514,7 @@ DoHornetDeath(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    long nx, ny;
+    int nx, ny;
 
     if (TEST(u->Flags, SPR_FALLING))
     {
@@ -535,8 +535,8 @@ DoHornetDeath(short SpriteNum)
         DoActorSlide(SpriteNum);
 
     // slide while falling
-    nx = sp->xvel * (long) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (long) sintable[sp->ang] >> 14;
+    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
+    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
 
     u->ret = move_sprite(SpriteNum, nx, ny, 0L, u->ceiling_dist, u->floor_dist, 1, ACTORMOVETICS);
 
@@ -559,7 +559,7 @@ int DoCheckSwarm(short SpriteNum)
     short i,nexti;
     SPRITEp sp = &sprite[SpriteNum], tsp;
     USERp u = User[SpriteNum], tu;
-    long dist, pdist, a,b,c;
+    int dist, pdist, a,b,c;
     PLAYERp pp;
 
     if (!MoveSkip8) return 0;     // Don't over check

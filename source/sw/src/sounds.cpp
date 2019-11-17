@@ -583,8 +583,7 @@ StopSound(void)
 
 #define MAXLEVLDIST 19000   // The higher the number, the further away you can hear sound
 
-short
-SoundDist(int x, int y, int z, int basedist)
+short SoundDist(int x, int y, int z, int basedist)
 {
     double tx, ty, tz;
     double sqrdist,retval;
@@ -637,8 +636,7 @@ SoundDist(int x, int y, int z, int basedist)
 // Angle calcuations - may need to be checked to make sure they are right
 //
 
-short
-SoundAngle(int x, int y)
+short SoundAngle(int x, int y)
 {
     extern short screenpeek;
 
@@ -783,8 +781,7 @@ SWBOOL CacheSound(int num, int type)
 
 #define SOUND_UNIT  MAXLEVLDIST/255
 // NOTE: If v3df_follow == 1, x,y,z are considered literal coordinates
-int
-PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
+int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
 {
     VOC_INFOp vp;
     VOC3D_INFOp v3p;
@@ -1221,8 +1218,7 @@ void COVER_SetReverb(int amt)
 ===================
 */
 
-void
-MusicShutdown(void)
+void MusicShutdown(void)
 {
     StopSong();
 
@@ -1980,5 +1976,4 @@ PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags)
     PlaySound(u->Attrib->Sounds[attrib_ndx], &sp->x, &sp->y, &sp->z, flags);
 }
 
-// vim:ts=4:sw=4:expandtab:
 END_SW_NS

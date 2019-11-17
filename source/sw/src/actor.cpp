@@ -25,6 +25,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //-------------------------------------------------------------------------
 
 #include "ns.h"
+// Added Ninja Sliced fix
+// Fixed Ninja sliced dead and rotation
+// Added s_NinjaDieSlicedHack[]
+//
 
 #include "build.h"
 
@@ -36,6 +40,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "sprite.h"
 #include "actor.h"
+#include "swcvar.h"
 
 BEGIN_SW_NS
 
@@ -46,6 +51,7 @@ extern STATE s_DebrisRat[];
 extern STATE s_DebrisCrab[];
 extern STATE s_DebrisStarFish[];
 extern STATE s_NinjaDieSliced[];
+extern STATE s_NinjaDieSlicedHack[];
 
 extern STATEp sg_NinjaGrabThroat[];
 
@@ -141,11 +147,15 @@ DoActorDie(short SpriteNum, short weapon)
 
             if (User[weapon]->WeaponNum != WPN_FIST)
             {
-                //SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
+                if (sw_ninjahack)
+                    SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
                 InitPlasmaFountain(wp, sp);
                 InitPlasmaFountain(wp, sp);
                 PlaySound(DIGI_NINJAINHALF,&sp->x,&sp->y,&sp->z,v3df_none);
-                ChangeState(SpriteNum, &s_NinjaDieSliced[0]);
+                if (sw_ninjahack)
+                    ChangeState(SpriteNum, &s_NinjaDieSlicedHack[5]);
+                else
+                    ChangeState(SpriteNum, &s_NinjaDieSliced[0]);
             }
             else
             {
@@ -179,7 +189,8 @@ DoActorDie(short SpriteNum, short weapon)
 
         u->ActorActionFunc = NULL;
         //u->ActorActionFunc = NullAnimator;
-        sprite[SpriteNum].ang = sprite[weapon].ang;
+        if (!sw_ninjahack)
+            sprite[SpriteNum].ang = sprite[weapon].ang;
         break;
 
     case COOLG_RUN_R0:

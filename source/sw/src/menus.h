@@ -277,7 +277,7 @@ typedef struct MenuGroup
 
     short cursor;                       // This is the current menu item the
     // cursor is resting on.
-} MenuGroup, *MenuGroup_p;
+}  *MenuGroup_p;
 
 // Custom Routine Prototypes ////////////////////////////////////////////////////////////////////
 

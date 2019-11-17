@@ -102,7 +102,7 @@ BEGIN_SW_NS
 void pClearSpriteList(PLAYERp pp);
 signed char MNU_InputSmallString(char*, short);
 signed char MNU_InputString(char*, short);
-SWBOOL IsCommand(char* str);
+SWBOOL IsCommand(const char* str);
 SWBOOL MNU_StartNetGame(void);
 
 const char* AppProperName = "VoidSW";
@@ -245,7 +245,7 @@ extern int bufferjitter;
 
 SWBOOL CameraTestMode = FALSE;
 
-char ds[512];                           // debug string
+char ds[645];                           // debug string
 
 extern short NormalVisibility;
 
@@ -365,37 +365,6 @@ int krand1(void)
 }
 
 #endif
-
-/*
-void HeapCheck(char *file, int line)
-{
-    switch( _heapchk() )
-        {
-        case _HEAPOK:
-            //printf( "OK - heap is good\n" );
-            break;
-        case _HEAPEMPTY:
-            //printf( "OK - heap is empty\n" );
-            break;
-        case _HEAPBADBEGIN:
-            sprintf(ds, "ERROR - heap is damaged: %s, %d", file, line);
-            MONO_PRINT(ds);
-            DebugWriteString(ds);
-            setvmode(0x3);
-            printf( "%s\n", ds);
-            exit(0);
-            break;
-        case _HEAPBADNODE:
-            sprintf(ds, "ERROR - bad node in heap: %s, %d", file, line);
-            MONO_PRINT(ds);
-            DebugWriteString(ds);
-            setvmode(0x3);
-            printf( "%s\n", ds);
-            exit(0);
-            break;
-        }
-}
-    */
 
 #if DEBUG
 SWBOOL
@@ -645,8 +614,7 @@ setup2dscreen(void)
 
 
 
-void
-TerminateGame(void)
+void TerminateGame(void)
 {
     int i,j;
     int oldtotalclock;
@@ -675,8 +643,7 @@ TerminateGame(void)
 
 }
 
-void
-LoadLevel(const char *filename)
+void LoadLevel(const char *filename)
 {
     int pos;
 
@@ -840,8 +807,7 @@ static void SW_FatalEngineError(void)
     I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
 }
 
-void
-InitGame()
+void InitGame()
 {
     extern int MovesPerPacket;
     //void *ReserveMem=NULL;
@@ -935,7 +901,7 @@ InitGame()
     // LoadImages will now proceed to steal all the remaining heap space
     //_outtext("\n\n\n\n\n\n\n\n");
     //AnimateCacheCursor();
-    buildputs("Loading sound and graphics...\n");
+    initprintf("Loading sound and graphics...\n");
 	TileFiles.LoadArtSet("tiles%03d.art");
 
     // Now free it up for later use
@@ -1067,22 +1033,41 @@ LEVEL_INFO LevelInfo[MAX_LEVELS+2] =  // Shareware
     };
 #endif*/
 
-char EpisodeNames[2][MAX_EPISODE_NAME_LEN+2] =
+const char *ThemeSongs[6] =
 {
-    "^Enter the Wang",
-    "^Code of Honor"
+	"THEME.MID",
+	"ENDLEV3.VOC",
+	"SERPENT.MID",
+	"SUMO.MID",
+	"ZILLA.MID"
+	"ENDING.MID"
 };
-char EpisodeSubtitles[2][MAX_EPISODE_SUBTITLE_LEN+1] =
+
+int ThemeTrack[6] =
 {
-    "Four levels (Shareware Version)",
-    "Eighteen levels (Full Version Only)"
+	2,3,13,13,13,14
 };
+
+char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2] =
+{
+	"^Enter the Wang",
+	"^Code of Honor",
+	"^User Maps",
+};
+
+char EpisodeSubtitles[3][MAX_EPISODE_SUBTITLE_LEN+1] =
+{
+	"Four levels (Shareware Version)",
+	"Eighteen levels (Full Version Only)",
+	"Select a user map to play",
+};
+
 char SkillNames[4][MAX_SKILL_NAME_LEN+2] =
 {
-    "^Tiny grasshopper",
-    "^I Have No Fear",
-    "^Who Wants Wang",
-    "^No Pain, No Gain"
+	"^Tiny grasshopper",
+	"^I Have No Fear",
+	"^Who Wants Wang",
+	"^No Pain, No Gain"
 };
 
 void InitNewGame(void)
@@ -1502,8 +1487,7 @@ TerminateLevel(void)
 //HEAP_CHECK();
 }
 
-void
-NewLevel(void)
+void NewLevel(void)
 {
 
     DSPRINTF(ds,"NewLevel");
@@ -1590,8 +1574,8 @@ ResetKeys(void)
 	inputState.ClearAllKeyStatus();
 }
 
-SWBOOL
-KeyPressed(void)
+
+SWBOOL KeyPressed(void)
 {
     int i;
 
@@ -1604,8 +1588,7 @@ KeyPressed(void)
     return FALSE;
 }
 
-uint8_t*
-KeyPressedRange(uint8_t* kb, uint8_t* ke)
+uint8_t* KeyPressedRange(uint8_t* kb, uint8_t* ke)
 {
     uint8_t* k;
 
@@ -1618,8 +1601,7 @@ KeyPressedRange(uint8_t* kb, uint8_t* ke)
     return NULL;
 }
 
-void
-ResetKeyRange(uint8_t* kb, uint8_t* ke)
+void ResetKeyRange(uint8_t* kb, uint8_t* ke)
 {
     uint8_t* k;
 
@@ -1639,8 +1621,7 @@ void PlayTheme()
     MONO_PRINT(ds);
 }
 
-void
-LogoLevel(void)
+void LogoLevel(void)
 {
     char called;
     int fin;
@@ -1713,8 +1694,7 @@ LogoLevel(void)
 
 }
 
-void
-CreditsLevel(void)
+void CreditsLevel(void)
 {
     char called;
     int fin;
@@ -1804,8 +1784,7 @@ CreditsLevel(void)
 }
 
 
-void
-SybexScreen(void)
+void SybexScreen(void)
 {
     if (!SW_SHAREWARE) return;
 
@@ -1819,75 +1798,6 @@ SybexScreen(void)
     while (!KeyPressed() && !quitevent) handleevents();
 }
 
-// CTW REMOVED
-/*
-void
-TenScreen(void)
-    {
-    char called;
-    int fin;
-    char backup_pal[256*3];
-    char pal[PAL_SIZE];
-    char tempbuf[256];
-    char *palook_bak = palookup[0];
-    int i;
-    uint32_t bak;
-    int bakready2send;
-
-    if (CommEnabled)
-        return;
-
-    bak = totalclock;
-
-    flushperms();
-    clearview(0);
-    nextpage();
-
-    for (i = 0; i < 256; i++)
-        tempbuf[i] = i;
-    palookup[0] = tempbuf;
-
-    GetPaletteFromVESA(pal);
-    memcpy(backup_pal, pal, PAL_SIZE);
-
-    if ((fin = k open4load("ten.pal", 0)) != -1)
-        {
-        k read(fin, pal, PAL_SIZE);
-        k close(fin);
-        }
-
-    // palette to black
-    FadeOut(0, 0);
-    bakready2send = ready2send;
-    //totalclock = 0;
-    //ototalclock = 0;
-
-    flushperms();
-    // draw it
-    rotatesprite(0, 0, RS_SCALE, 0, TEN_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-    // bring to the front - still back palette
-    nextpage();
-    // set pal
-    SetPaletteToVESA(pal);
-    //FadeIn(0, 3);
-    ResetKeys();
-
-    while (!KeyPressed());
-
-    palookup[0] = palook_bak;
-
-    clearview(0);
-    nextpage();
-    SetPaletteToVESA(backup_pal);
-
-    // put up a blank screen while loading
-    clearview(0);
-    nextpage();
-
-    ready2send = bakready2send;
-    totalclock = bak;
-    }
-*/
 // CTW REMOVED END
 
 void
@@ -1983,16 +1893,14 @@ void DrawLoadLevelScreen(void)
 
 short PlayerQuitMenuLevel = -1;
 
-void
-IntroAnimLevel(void)
+void IntroAnimLevel(void)
 {
     DSPRINTF(ds,"IntroAnimLevel");
     MONO_PRINT(ds);
     playanm(0);
 }
 
-void
-MenuLevel(void)
+void MenuLevel(void)
 {
     char called;
     int fin;
@@ -2001,35 +1909,6 @@ MenuLevel(void)
     DSPRINTF(ds,"MenuLevel...");
     MONO_PRINT(ds);
 
-    if (AutoNet)
-    {
-        DrawMenuLevelScreen();
-
-        if (CommEnabled)
-        {
-            sprintf(ds,"Lo Wang is waiting for other players...");
-            MNU_MeasureString(ds, &w, &h);
-            MNU_DrawString(TEXT_TEST_COL(w), 170, ds, 1, 16);
-
-            sprintf(ds,"They are afraid!");
-            MNU_MeasureString(ds, &w, &h);
-            MNU_DrawString(TEXT_TEST_COL(w), 180, ds, 1, 16);
-        }
-
-        videoNextPage();
-
-        waitforeverybody();
-        FirstTimeIntoGame = TRUE;
-        MNU_StartNetGame();
-        FirstTimeIntoGame = FALSE;
-        waitforeverybody();
-        ExitLevel = FALSE;
-        FinishedLevel = FALSE;
-        BorderAdjust = TRUE;
-        UsingMenus = FALSE;
-        InMenuLevel = FALSE;
-        return;
-    }
 
     // do demos only if not playing multi play
     if (!CommEnabled && numplayers <= 1 && !FinishAnim && !NoDemoStartup)
@@ -2173,8 +2052,7 @@ MenuLevel(void)
     videoNextPage();
 }
 
-void
-SceneLevel(void)
+void SceneLevel(void)
 {
     SWBOOL dp_bak;
     SWBOOL dm_bak;
@@ -2204,8 +2082,7 @@ SceneLevel(void)
     DemoPlaying = dp_bak;
 }
 
-void
-LoadingLevelScreen(char *level_name)
+void LoadingLevelScreen(char *level_name)
 {
     short w,h;
     extern SWBOOL DemoMode;
@@ -2231,8 +2108,7 @@ LoadingLevelScreen(char *level_name)
     videoNextPage();
 }
 
-void
-gNextState(STATEp *State)
+void gNextState(STATEp *State)
 {
     // Transition to the next state
     *State = (*State)->NextState;
@@ -2245,8 +2121,7 @@ gNextState(STATEp *State)
 }
 
 // Generic state control
-void
-gStateControl(STATEp *State, int *tics)
+void gStateControl(STATEp *State, int *tics)
 {
     *tics += synctics;
 
@@ -2284,8 +2159,7 @@ int BonusGrabSound(short SpriteNum)
     return 0;
 }
 
-void
-BonusScreen(PLAYERp pp)
+void BonusScreen(PLAYERp pp)
 {
     int minutes,seconds,second_tics;
     extern SWBOOL FinishedLevel;
@@ -2563,8 +2437,7 @@ void EndGameSequence(void)
     }
 }
 
-void
-StatScreen(PLAYERp mpp)
+void StatScreen(PLAYERp mpp)
 {
     int minutes,seconds,second_tics;
     extern SWBOOL FinishedLevel;
@@ -2745,8 +2618,7 @@ StatScreen(PLAYERp mpp)
     Terminate3DSounds();
 }
 
-void
-GameIntro(void)
+void GameIntro(void)
 {
 
     DSPRINTF(ds,"GameIntro...");
@@ -2779,8 +2651,7 @@ GameIntro(void)
     MenuLevel();
 }
 
-void
-Control()
+void Control()
 {
 	InitGame();
 
@@ -2788,7 +2659,6 @@ Control()
     MNU_InitMenus();
     InGame = TRUE;
     GameIntro();
-    //NewGame = TRUE;
 
     while (!QuitFlag)
     {
@@ -2805,8 +2675,7 @@ Control()
 }
 
 
-void
-_Assert(const char *expr, const char *strFile, unsigned uLine)
+void _Assert(const char *expr, const char *strFile, unsigned uLine)
 {
     sprintf(ds, "Assertion failed: %s %s, line %u", expr, strFile, uLine);
     MONO_PRINT(ds);
@@ -2820,8 +2689,7 @@ _Assert(const char *expr, const char *strFile, unsigned uLine)
 }
 
 
-void
-_ErrMsg(const char *strFile, unsigned uLine, const char *format, ...)
+void _ErrMsg(const char *strFile, unsigned uLine, const char *format, ...)
 {
     va_list arglist;
 
@@ -2850,8 +2718,7 @@ _ErrMsg(const char *strFile, unsigned uLine, const char *format, ...)
     exit(0);
 }
 
-void
-dsprintf(char *str, char *format, ...)
+void dsprintf(char *str, const char *format, ...)
 {
     va_list arglist;
 
@@ -2860,8 +2727,7 @@ dsprintf(char *str, char *format, ...)
     va_end(arglist);
 }
 
-void
-dsprintf_null(char *str, const char *format, ...)
+void dsprintf_null(char *str, const char *format, ...)
 {
     va_list arglist;
 }
@@ -3033,8 +2899,7 @@ void InitRunLevel(void)
         StartAmbientSound();
 }
 
-void
-RunLevel(void)
+void RunLevel(void)
 {
     int i;
     InitRunLevel();
@@ -3087,7 +2952,7 @@ void DosScreen(void)
 void AlphaMessage(void)
 {
     Global_PLock = TRUE; // Set the hardwired parental lock mode!
-    buildputs(""
+    initprintf(""
               "                          SHADOW WARRIOR(tm) Version 1.2                      \n"
               "Copyright (c) 1997 3D Realms Entertainment\n"
               "\n\n"
@@ -3103,7 +2968,7 @@ void AlphaMessage(void)
 #if 0 //UK_VERSION
 void AlphaMessage(void)
 {
-    buildputs(""
+    initprintf(""
               "                    SHADOW WARRIOR(tm) Version 1.2 (UK Version)               \n"
               "Copyright (c) 1997 3D Realms Entertainment\n"
               "\n\n"
@@ -3118,15 +2983,15 @@ void AlphaMessage(void)
 #if 1 //!UK_VERSION && !PLOCK_VERSION
 void AlphaMessage(void)
 {
-    if (SW_SHAREWARE)
-    {
-        buildputs("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");
+	if (SW_SHAREWARE)
+	{
+	    initprintf("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");
+	}
+	else
+	{
+	    initprintf("SHADOW WARRIOR(tm) Version 1.2\n");
     }
-    else
-    {
-        buildputs("SHADOW WARRIOR(tm) Version 1.2\n");
-    }
-    buildputs("Copyright (c) 1997 3D Realms Entertainment\n\n\n");
+	initprintf("Copyright (c) 1997 3D Realms Entertainment\n\n");
 }
 #endif
 
@@ -3194,18 +3059,18 @@ CLI_ARG cli_arg[] =
 };
 
 #if 0
-Map->User Map Name
-Auto->Auto Start Game
-Rules->0=WangBang 1=WangBang(No Respawn) 2=CoOperative
-                                            Level->0 to 24 (?)
-                                            Enemy->0=None 1=Easy 2=Norm 3=Hard 4=Insane
-                                                                                  Markers->0=Off 1=On
-                                                                                                    Team->0=Off 1=On
-                                                                                                                   HurtTeam->0=Off 1=On
-                                                                                                                                      KillLimit->0=Infinite 1=10 2=20 3=30 4=40 5=50 6=60 7=70 8=80 9=90 10=100
-                                                                                                                                                                                                             TimeLimit->0=Infinite 1=3 2=5 3=10 4=20 5=30 6=45 7=60
-                                                                                                                                                                                                                                                                  Color->0=Brown 1=Purple 2=Red 3=Yellow 4=Olive 5=Green
-                                                                                                                                                                                                                                                                                                                    Nuke->0=Off 1=On
+Map       ->    User Map Name
+Auto      ->    Auto Start Game
+Rules     ->    0=WangBang 1=WangBang (No Respawn) 2=CoOperative
+Level     ->    0 to 24(?)
+Enemy     ->    0=None 1=Easy 2=Norm 3=Hard 4=Insane
+Markers   ->    0=Off 1=On
+Team      ->    0=Off 1=On
+HurtTeam  ->    0=Off 1=On
+KillLimit ->    0=Infinite 1=10 2=20 3=30 4=40 5=50 6=60 7=70 8=80 9=90 10=100
+TimeLimit ->    0=Infinite 1=3 2=5 3=10 4=20 5=30 6=45 7=60
+Color     ->    0=Brown 1=Purple 2=Red 3=Yellow 4=Olive 5=Green
+Nuke      ->    0=Off 1=On
 
                                                                                                                                                                                                                                                                                                                                    Example Command Line :
                                                                                                                                                                                                                                                                                                                                    sw -map testmap.map -autonet 0,0,1,1,1,0,3,2,1,1 -f4 -name 1234567890 -net 12345678
@@ -3239,49 +3104,6 @@ int DetectShareware(void)
 
 void CommandLineHelp(char const * const * argv)
 {
-    int i;
-#ifdef RENDERTYPEWIN
-    char *str;
-    int strl;
-
-    strl = 30 + 70;
-    for (i=0; i < (int)SIZ(cli_arg); i++)
-        if (cli_arg[i].arg_fmt && (!SW_SHAREWARE || (!cli_arg[i].notshareware && SW_SHAREWARE)))
-            strl += strlen(cli_arg[i].arg_fmt) + 1 + strlen(cli_arg[i].arg_descr) + 1;
-
-    str = (char *)malloc(strl);
-    if (str)
-    {
-        strcpy(str,"Usage: sw [options]\n");
-        strcat(str,"options:  ('/' may be used instead of '-', <> text is optional)\n\n");
-        for (i=0; i < (int)SIZ(cli_arg); i++)
-        {
-            if (cli_arg[i].arg_fmt && (!SW_SHAREWARE || (!cli_arg[i].notshareware && SW_SHAREWARE)))
-            {
-                strcat(str, cli_arg[i].arg_fmt);
-                strcat(str, "\t");
-                strcat(str, cli_arg[i].arg_descr);
-                strcat(str, "\n");
-            }
-        }
-        wm_msgbox("Shadow Warrior Help",str);
-        free(str);
-    }
-#else
-    if (SW_SHAREWARE)
-        printf("Usage: %s [options]\n", argv[0]);
-    else
-        printf("Usage: %s [options] [map]\n", argv[0]);
-    printf("options:  ('/' may be used instead of '-', <> text is optional)\n\n");
-
-    for (i = 0; i < (int)SIZ(cli_arg); i++)
-    {
-        if (cli_arg[i].arg_fmt && (!SW_SHAREWARE || (!cli_arg[i].notshareware && SW_SHAREWARE)))
-        {
-            printf(" %-20s   %-30s\n",cli_arg[i].arg_fmt, cli_arg[i].arg_descr);
-        }
-    }
-#endif
 }
 
 int32_t GameInterface::app_main()
@@ -3333,8 +3155,7 @@ int32_t GameInterface::app_main()
     return 0;
 }
 
-void
-ManualPlayerInsert(PLAYERp pp)
+void ManualPlayerInsert(PLAYERp pp)
 {
     PLAYERp npp = Player + numplayers;
     int i;
@@ -3365,8 +3186,7 @@ ManualPlayerInsert(PLAYERp pp)
 
 }
 
-void
-BotPlayerInsert(PLAYERp pp)
+void BotPlayerInsert(PLAYERp pp)
 {
     PLAYERp npp = Player + numplayers;
     int i;
@@ -3398,8 +3218,7 @@ BotPlayerInsert(PLAYERp pp)
 //    SetFragBar(pp);
 }
 
-void
-ManualPlayerDelete(PLAYERp cur_pp)
+void ManualPlayerDelete(PLAYERp cur_pp)
 {
     short i, nexti;
     USERp u;
@@ -3433,8 +3252,7 @@ ManualPlayerDelete(PLAYERp cur_pp)
 }
 
 #if DEBUG
-void
-SinglePlayInput(PLAYERp pp)
+void SinglePlayInput(PLAYERp pp)
 {
     int pnum = myconnectindex;
     uint8_t* kp;
@@ -3470,8 +3288,7 @@ SinglePlayInput(PLAYERp pp)
 
 }
 
-void
-DebugKeys(PLAYERp pp)
+void DebugKeys(PLAYERp pp)
 {
     short w, h;
 
@@ -3539,8 +3356,7 @@ DebugKeys(PLAYERp pp)
 
 #endif
 
-void
-ConKey(void)
+void ConKey(void)
 {
 #if DEBUG
     // Console Input Panel
@@ -3580,8 +3396,7 @@ ConKey(void)
 #endif
 }
 
-void
-FunctionKeys(PLAYERp pp)
+void FunctionKeys(PLAYERp pp)
 {
     extern SWBOOL GamePaused;
     extern short QuickLoadNum;
@@ -4116,8 +3931,7 @@ void GetHelpInput(PLAYERp pp)
 short MirrorDelay;
 int MouseYAxisMode = -1;
 
-void
-getinput(SW_PACKET *loc)
+void getinput(SW_PACKET *loc)
 {
     SWBOOL found = FALSE;
     int i;
@@ -4652,7 +4466,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
                     continue;
                 if (sector[i].floorshade != sector[wal->nextsector].floorshade)
                     continue;
-                col = 12;
+                col = 12;  // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
             }
 
             ox = wal->x - cposx;
@@ -4691,7 +4505,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 SHOWSPRITE:
                 spr = &sprite[j];
 
-                col = 56;
+                col = 56; // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
                 if ((spr->cstat & 1) > 0)
                     col = 248;
                 if (j == k)
@@ -4908,8 +4722,7 @@ SHOWSPRITE:
 
 
 #if RANDOM_DEBUG
-int
-RandomRange(int range, char *file, unsigned line)
+int RandomRange(int range, char *file, unsigned line)
 {
     uint32_t rand_num;
     uint32_t value;
@@ -4939,8 +4752,7 @@ RandomRange(int range, char *file, unsigned line)
     return value;
 }
 #else
-int
-RandomRange(int range)
+int RandomRange(int range)
 {
     uint32_t rand_num;
     uint32_t value;
@@ -4963,8 +4775,7 @@ RandomRange(int range)
 }
 #endif
 
-int
-StdRandomRange(int range)
+int StdRandomRange(int range)
 {
     uint32_t rand_num;
     uint32_t value;
@@ -5030,5 +4841,4 @@ bool GameInterface::mouseInactiveConditional(bool condition)
 }
 
 
-// vim:ts=4:sw=4:expandtab:
 END_SW_NS

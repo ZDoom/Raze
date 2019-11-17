@@ -276,7 +276,7 @@ void operatefta(void)
 int conbot, conbotgoal;
 char con_quote[MAXCONQUOTES][256];
 
-void addconquote(char *daquote)
+void addconquote(const char *daquote)
 {
     int i;
 

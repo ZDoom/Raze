@@ -140,14 +140,8 @@ void netsendpacket(int ind, uint8_t* buf, int len)
     {
         if ((unsigned)len > sizeof(packbuf))
         {
-            buildprintf("netsendpacket(): packet length > %d!\n",(int)sizeof(packbuf));
             len = sizeof(packbuf);
         }
-
-        buildprintf("netsendpacket() sends proxy to %d\nPlayerIndex=%d Contents:",connecthead,ind);
-        for (i=0; i<len; i++)
-            buildprintf(" %02x", buf[i]);
-        buildputs("\n");
 
         prx->PacketType = PACKET_TYPE_PROXY;
         prx->PlayerIndex = (uint8_t)ind;
@@ -160,10 +154,6 @@ void netsendpacket(int ind, uint8_t* buf, int len)
 
     //sendpacket(ind, buf, len);
 
-    buildprintf("netsendpacket() sends normal to %d\nContents:",ind);
-    for (i=0; i<len; i++)
-        buildprintf(" %02x", buf[i]);
-    buildputs("\n");
 }
 
 void netbroadcastpacket(uint8_t* buf, int len)
@@ -177,14 +167,9 @@ void netbroadcastpacket(uint8_t* buf, int len)
     {
         if ((unsigned)len > sizeof(packbuf))
         {
-            buildprintf("netbroadcastpacket(): packet length > %d!\n",(int)sizeof(packbuf));
             len = sizeof(packbuf);
         }
 
-        buildprintf("netbroadcastpacket() sends proxy to %d\nPlayerIndex=255 Contents:",connecthead);
-        for (i=0; i<len; i++)
-            buildprintf(" %02x", buf[i]);
-        buildputs("\n");
 
         prx->PacketType = PACKET_TYPE_PROXY;
         prx->PlayerIndex = (uint8_t)(-1);
@@ -218,20 +203,12 @@ int netgetpacket(int *ind, uint8_t* buf)
     {
         if (len > 0)
         {
-            buildprintf("netgetpacket() gets normal from %d\nContents:",*ind);
-            for (i=0; i<len; i++)
-                buildprintf(" %02x", buf[i]);
-            buildputs("\n");
         }
         return len;
     }
 
     prx = (PACKET_PROXYp)buf;
 
-    buildprintf("netgetpacket() got proxy from %d\nPlayerIndex=%d Contents:",*ind,prx->PlayerIndex);
-    for (i=0; i<len-(int)sizeof(PACKET_PROXY); i++)
-        buildprintf(" %02x", *(((char *)&prx[1])+i));
-    buildputs("\n");
 
     if (myconnectindex == connecthead)
     {
@@ -1606,7 +1583,6 @@ getpackets(void)
             break;
 
         case PACKET_TYPE_PROXY:
-            buildputs("getpackets(): nested proxy packets!?\n");
             break;
 
         default:

@@ -118,8 +118,7 @@ int ChangeWeapon(PLAYERp);
 
 ANIMATOR InitFire;
 
-int
-NullAnimator(short SpriteNum)
+int NullAnimator(short SpriteNum)
 {
     return 0;
 }
@@ -129,8 +128,7 @@ void pNullAnimator(PANEL_SPRITEp psp)
     return;
 }
 
-PANEL_SPRITEp
-pFindMatchingSprite(PLAYERp pp, int x, int y, short pri)
+PANEL_SPRITEp pFindMatchingSprite(PLAYERp pp, int x, int y, short pri)
 {
     PANEL_SPRITEp nsp;
     PANEL_SPRITEp psp=NULL, next;
@@ -150,8 +148,7 @@ pFindMatchingSprite(PLAYERp pp, int x, int y, short pri)
     return NULL;
 }
 
-PANEL_SPRITEp
-pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pri)
+PANEL_SPRITEp pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pri)
 {
     PANEL_SPRITEp nsp;
     PANEL_SPRITEp psp=NULL, next;
@@ -171,8 +168,7 @@ pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pri)
     return NULL;
 }
 
-SWBOOL
-pKillScreenSpiteIDs(PLAYERp pp, short id)
+SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id)
 {
     PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
@@ -194,8 +190,7 @@ pKillScreenSpiteIDs(PLAYERp pp, short id)
 
 // Used to sprites in the view at correct aspect ratio and x,y location.
 
-PANEL_SPRITEp
-pSpawnFullViewSprite(PLAYERp pp, short pic, short pri, int x, int y)
+PANEL_SPRITEp pSpawnFullViewSprite(PLAYERp pp, short pic, short pri, int x, int y)
 {
     PANEL_SPRITEp nsp;
 
@@ -219,8 +214,7 @@ pSpawnFullViewSprite(PLAYERp pp, short pic, short pri, int x, int y)
 // Used to display panel info at correct aspect ratio and x,y location on the
 // status panel.  Sprites will kill themselves after writing to all pages.
 
-PANEL_SPRITEp
-pSpawnFullScreenSprite(PLAYERp pp, short pic, short pri, int x, int y)
+PANEL_SPRITEp pSpawnFullScreenSprite(PLAYERp pp, short pic, short pri, int x, int y)
 {
     PANEL_SPRITEp nsp;
 
@@ -294,8 +288,7 @@ void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 }
 
 
-void
-PlayerUpdateHealth(PLAYERp pp, short value)
+void PlayerUpdateHealth(PLAYERp pp, short value)
 {
     USERp u = User[pp->PlayerSprite];
     short x,y;
@@ -421,8 +414,7 @@ PlayerUpdateHealth(PLAYERp pp, short value)
 }
 
 
-void
-PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
+void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 {
     USERp u = User[pp->PlayerSprite];
     short x,y;
@@ -488,8 +480,7 @@ PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
     DisplayPanelNumber(pp, x, y, pp->WpnAmmo[WeaponNum]);
 }
 
-void
-PlayerUpdateWeaponSummary(PLAYERp pp, short UpdateWeaponNum)
+void PlayerUpdateWeaponSummary(PLAYERp pp, short UpdateWeaponNum)
 {
     USERp u = User[pp->PlayerSprite];
     short x,y;
@@ -568,8 +559,7 @@ void PlayerUpdateWeaponSummaryAll(PLAYERp pp)
     }
 }
 
-void
-PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
+void PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
 {
     USERp u = User[pp->PlayerSprite];
 
@@ -586,8 +576,7 @@ PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
     PlayerUpdateWeaponSummaryAll(pp);
 }
 
-void
-PlayerUpdateKills(PLAYERp pp, short value)
+void PlayerUpdateKills(PLAYERp pp, short value)
 {
     USERp u = User[pp->PlayerSprite];
 
@@ -635,8 +624,7 @@ PlayerUpdateKills(PLAYERp pp, short value)
         DisplayFragNumbers(pp);
 }
 
-void
-PlayerUpdateArmor(PLAYERp pp, short value)
+void PlayerUpdateArmor(PLAYERp pp, short value)
 {
     USERp u = User[pp->PlayerSprite];
     short x,y;
@@ -671,8 +659,7 @@ PlayerUpdateArmor(PLAYERp pp, short value)
 }
 
 
-void
-PlayerUpdateKeys(PLAYERp pp)
+void PlayerUpdateKeys(PLAYERp pp)
 {
 #define PANEL_KEYS_BOX_X 276
 #define PANEL_KEYS_XOFF 0
@@ -754,8 +741,7 @@ PlayerUpdateKeys(PLAYERp pp)
     }
 }
 
-void
-PlayerUpdateTimeLimit(PLAYERp pp)
+void PlayerUpdateTimeLimit(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     short x,y;
@@ -781,13 +767,15 @@ PlayerUpdateTimeLimit(PLAYERp pp)
     DisplaySummaryString(pp, PANEL_KEYS_BOX_X+1, PANEL_BOX_Y+6, 0, 0, ds);
 }
 
-void
-PlayerUpdatePanelInfo(PLAYERp pp)
+void PlayerUpdatePanelInfo(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
     int i;
 
     if (Prediction)
+        return;
+
+    if (UsingMenus)
         return;
 
     PlayerUpdateHealth(pp, 0);
@@ -800,8 +788,7 @@ PlayerUpdatePanelInfo(PLAYERp pp)
     PlayerUpdateTimeLimit(pp);
 }
 
-int
-WeaponOperate(PLAYERp pp)
+int WeaponOperate(PLAYERp pp)
 {
     short weapon;
     int DoPlayerSpriteReset(short SpriteNum);
@@ -896,6 +883,7 @@ WeaponOperate(PLAYERp pp)
                     if (TEST(pp->Flags, PF_TWO_UZI))
                     {
                         pp->WpnUziType++;
+                        PlaySound(DIGI_UZI_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
                         if (pp->WpnUziType > 1)
                             pp->WpnUziType = 0;
                     }
@@ -908,6 +896,7 @@ WeaponOperate(PLAYERp pp)
                 if (u->WeaponNum == WPN_MICRO)
                 {
                     pp->WpnRocketType++;
+                    PlaySound(DIGI_ROCKET_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
                     if (pp->WpnRocketType > 2)
                         pp->WpnRocketType = 0;
                     if (pp->WpnRocketType == 2 && pp->WpnRocketNuke == 0)
@@ -1017,10 +1006,18 @@ WeaponOperate(PLAYERp pp)
 SWBOOL
 WeaponOK(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u;
     short min_ammo, WeaponNum, FindWeaponNum;
     static char wpn_order[] = {2,3,4,5,6,7,8,9,1,0};
     unsigned wpn_ndx=0;
+
+    if ((unsigned)pp->PlayerSprite >= MAXSPRITES)
+        return(FALSE);
+
+    u = User[pp->PlayerSprite];
+
+    if (u == NULL)
+        return(FALSE);
 
     // sword
     if (DamageData[u->WeaponNum].max_ammo == -1)
@@ -1262,8 +1259,7 @@ void SpecialUziRetractFunc(PANEL_SPRITEp psp)
     }
 }
 
-void
-RetractCurWpn(PLAYERp pp)
+void RetractCurWpn(PLAYERp pp)
 {
     // Retract old weapon
     if (pp->CurWpn)
@@ -6277,9 +6273,11 @@ pChopsWait(PANEL_SPRITEp psp)
     }
 }
 
-void
-ChopsSetRetract(PLAYERp pp)
-{
+void ChopsSetRetract(PLAYERp pp)
+ {
+    if (pp == NULL || pp->Chops == NULL)
+        return;
+
     pSetState(pp->Chops, pp->Chops->RetractState);
 }
 
@@ -7450,6 +7448,7 @@ pDisplaySprites(PLAYERp pp)
                 break;
 
             case STAR_REST:
+            case 2510:
                 if (!useDarts)
                     picnum = 2138;
                 else

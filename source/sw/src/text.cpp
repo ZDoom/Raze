@@ -61,8 +61,7 @@ const char *KeyDoorMessage[MAX_KEYS] =
     "You need a RED key for this door."
 };
 
-void
-DisplaySummaryString(PLAYERp pp, short xs, short ys, short color, short shade, const char *buffer)
+void DisplaySummaryString(PLAYERp pp, short xs, short ys, short color, short shade, const char *buffer)
 {
     short size,x;
     const char *ptr;
@@ -98,8 +97,7 @@ DisplaySummaryString(PLAYERp pp, short xs, short ys, short color, short shade, c
     }
 }
 
-PANEL_SPRITEp
-pClearTextLineID(PLAYERp pp, short id, long y, short pri)
+PANEL_SPRITEp pClearTextLineID(PLAYERp pp, short id, int y, short pri)
 {
     PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
@@ -122,8 +120,7 @@ pClearTextLineID(PLAYERp pp, short id, long y, short pri)
 }
 
 // only call this from menu code - it does a pKillSprite
-PANEL_SPRITEp
-pMenuClearTextLineID(PLAYERp pp, short id, long y, short pri)
+PANEL_SPRITEp pMenuClearTextLineID(PLAYERp pp, short id, int y, short pri)
 {
     PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
@@ -146,15 +143,13 @@ pMenuClearTextLineID(PLAYERp pp, short id, long y, short pri)
 }
 
 
-void
-pClearTextLine(PLAYERp pp, long y)
+void pClearTextLine(PLAYERp pp, int y)
 {
     SetRedrawScreen(pp);
     pClearTextLineID(pp, ID_TEXT, y, PRI_FRONT_MAX);
 }
 
-void
-StringTimer(PANEL_SPRITEp psp)
+void StringTimer(PANEL_SPRITEp psp)
 {
     if ((psp->kill_tics -= synctics) <= 0)
     {
@@ -165,8 +160,7 @@ StringTimer(PANEL_SPRITEp psp)
     }
 }
 
-void
-PutStringTimer(PLAYERp pp, short x, short y, const char *string, short seconds)
+void PutStringTimer(PLAYERp pp, short x, short y, const char *string, short seconds)
 {
     int ndx, offset;
     char c;
@@ -213,14 +207,12 @@ PutStringTimer(PLAYERp pp, short x, short y, const char *string, short seconds)
     }
 }
 
-void
-KillString(PLAYERp pp, short y)
+void KillString(PLAYERp pp, short y)
 {
     pClearTextLineID(pp, ID_TEXT, y, PRI_FRONT_MAX);
 }
 
-PANEL_SPRITEp
-pClearSpriteXY(PLAYERp pp, short x, short y)
+PANEL_SPRITEp pClearSpriteXY(PLAYERp pp, short x, short y)
 {
     PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
@@ -234,8 +226,7 @@ pClearSpriteXY(PLAYERp pp, short x, short y)
     return NULL;
 }
 
-PANEL_SPRITEp
-pClearSpriteID(PLAYERp pp, short id)
+PANEL_SPRITEp pClearSpriteID(PLAYERp pp, short id)
 {
     PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
@@ -250,8 +241,7 @@ pClearSpriteID(PLAYERp pp, short id)
 }
 
 
-void
-DisplayPanelNumber(PLAYERp pp, short xs, short ys, int number)
+void DisplayPanelNumber(PLAYERp pp, short xs, short ys, int number)
 {
     char buffer[32];
     char *ptr;
@@ -273,8 +263,7 @@ DisplayPanelNumber(PLAYERp pp, short xs, short ys, int number)
     }
 }
 
-void
-DisplayMiniBarNumber(PLAYERp pp, short xs, short ys, int number)
+void DisplayMiniBarNumber(PLAYERp pp, short xs, short ys, int number)
 {
     char buffer[32];
     char *ptr;
@@ -301,8 +290,7 @@ DisplayMiniBarNumber(PLAYERp pp, short xs, short ys, int number)
     }
 }
 
-void
-DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer)
+void DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer)
 {
     short size=4,x;
     const char *ptr;
@@ -321,14 +309,12 @@ DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const char *bu
 
         pic = FRAG_FIRST_TILE + (*ptr - FRAG_FIRST_ASCII);
 
-        rotatesprite((long)x << 16, (long)ys << 16, (1 << 16), 0,
-                     pic, 0, pal,
+        rotatesprite((int)x << 16, (int)ys << 16, (1 << 16), 0, pic, 0, pal,
                      ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
     }
 }
 
-void
-DisplaySmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer)
+void DisplaySmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer)
 {
     short size=4,x;
     const char *ptr;
@@ -352,8 +338,7 @@ DisplaySmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer)
     }
 }
 
-void
-DisplayFragString(PLAYERp pp, short xs, short ys, const char *buffer)
+void DisplayFragString(PLAYERp pp, short xs, short ys, const char *buffer)
 {
     short size=4,x;
     const char *ptr;
@@ -383,8 +368,7 @@ DisplayFragString(PLAYERp pp, short xs, short ys, const char *buffer)
     }
 }
 
-void
-DisplayFragNumbers(PLAYERp pp)
+void DisplayFragNumbers(PLAYERp pp)
 {
     char buffer[32];
     char *ptr;
@@ -423,8 +407,7 @@ DisplayFragNumbers(PLAYERp pp)
     DisplayFragString(pp, xs, ys, buffer);
 }
 
-void
-DisplayFragNames(PLAYERp pp)
+void DisplayFragNames(PLAYERp pp)
 {
     char *ptr;
     short x, xs, ys, size;
@@ -508,8 +491,7 @@ void PutStringInfoLine2(PLAYERp pp, const char *string)
     PutStringTimer(pp, x, y, string, GlobInfoStringTime);
 }
 
-void
-pMenuClearTextLine(PLAYERp pp)
+void pMenuClearTextLine(PLAYERp pp)
 {
     pMenuClearTextLineID(pp, ID_TEXT, TEXT_INFO_LINE(0), PRI_FRONT_MAX);
     pMenuClearTextLineID(pp, ID_TEXT, TEXT_INFO_LINE(1), PRI_FRONT_MAX);

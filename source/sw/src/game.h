@@ -383,7 +383,7 @@ extern char MessageOutputString[256];
 
 #define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); (n) = nextspritesect[o], (o) != -1; (o) = (n))
 #define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); (n) = nextspritestat[o], (o) != -1; (o) = (n))
-#define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1 && i != connectpoint2[i]; i = connectpoint2[i])
+#define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1; i = connectpoint2[i])
 
 
 #define NORM_ANGLE(ang) ((ang) & 2047)
@@ -853,7 +853,7 @@ int minitextshade(int x,int y,char *t,char s,char p,char sb);
 void operatefta(void);
 void adduserquote(const char *daquote);
 void operateconfta(void);
-void addconquote(char *daquote);
+void addconquote(const char *daquote);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -962,12 +962,14 @@ typedef struct
 } LEVEL_INFO, *LEVEL_INFOp, * *LEVEL_INFOpp;
 
 extern LEVEL_INFO LevelInfo[MAX_LEVELS_REG+2];
+extern int   ThemeTrack[6];                                          // w
+extern const char *ThemeSongs[6];                                          //
 
 #define MAX_EPISODE_NAME_LEN 24
-extern char EpisodeNames[2][MAX_EPISODE_NAME_LEN+2];    // +2 = leading '^' and trailing NULL
+extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];
 
 #define MAX_EPISODE_SUBTITLE_LEN 40
-extern char EpisodeSubtitles[2][MAX_EPISODE_SUBTITLE_LEN+1];
+extern char EpisodeSubtitles[3][MAX_EPISODE_SUBTITLE_LEN+1];
 
 #define MAX_SKILL_NAME_LEN 24
 extern char SkillNames[4][MAX_SKILL_NAME_LEN+2];
@@ -2326,7 +2328,7 @@ void LoadKVXFromScript(const char *filename); // scrip2.c
 void LoadPLockFromScript(const char *filename);   // scrip2.c
 void LoadCustomInfoFromScript(const char *filename);  // scrip2.c
 
-void EveryCheatToggle(PLAYERp pp,char *cheat_string);   // cheats.c
+void EveryCheatToggle(PLAYERp pp,const char *cheat_string);   // cheats.c
 
 int PlayerInitChemBomb(PLAYERp pp); // jweapon.c
 int PlayerInitFlashBomb(PLAYERp pp);    // jweapon.c

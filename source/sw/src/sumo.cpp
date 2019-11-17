@@ -884,7 +884,7 @@ BossHealthMeter(void)
                         serpwasseen = TRUE;
                         if (!SW_SHAREWARE && MusicEnabled())
                         {
-                            PlaySong(0, 13, TRUE, TRUE);
+                            PlaySong(0, ThemeTrack[2], TRUE, TRUE);
                         }
                     }
                     else if (i == 1 && !sumowasseen)
@@ -892,7 +892,7 @@ BossHealthMeter(void)
                         sumowasseen = TRUE;
                         if (!SW_SHAREWARE && MusicEnabled())
                         {
-                            PlaySong(0, 13, TRUE, TRUE);
+                            PlaySong(0, ThemeTrack[3], TRUE, TRUE);
                         }
                     }
                     else if (i == 2 && !zillawasseen)
@@ -900,7 +900,7 @@ BossHealthMeter(void)
                         zillawasseen = TRUE;
                         if (!SW_SHAREWARE && MusicEnabled())
                         {
-                            PlaySong(0, 13, TRUE, TRUE);
+                            PlaySong(0, ThemeTrack[4], TRUE, TRUE);
                         }
                     }
                 }
@@ -922,7 +922,7 @@ BossHealthMeter(void)
         // This is needed because of possible saved game situation
         if (!SW_SHAREWARE && !triedplay)
         {
-            PlaySong(0, 13, TRUE, FALSE);
+            PlaySong(0, ThemeTrack[i+2], TRUE, FALSE);
             triedplay = TRUE; // Only try once, then give up
         }
 
